@@ -588,7 +588,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false">
 // ── SCROLL REVEAL ──
 if('IntersectionObserver' in window){
   const style=document.createElement('style');
@@ -711,7 +711,7 @@ async function kiraSendMsg(text){
       })
     });
     const data=await res.json();
-    const reply=data.content?.[0]?.text||'すみません、少し問題が発生しました。contact@the-horizons-innovation.com までご連絡ください。';
+    const reply=data.content?.[0]?.text||'すみません、少し問題が発生しました。contact&#64;the-horizons-innovation.com までご連絡ください。';
     kiraHistory.push({role:'assistant',content:reply});
     kiraHideTyping();
     let html=formatKira(reply);
@@ -724,7 +724,7 @@ async function kiraSendMsg(text){
     kiraSetQR(['もっと詳しく教えて','今すぐ申し込みたい','他のサービスは？','メールで相談したい']);
   }catch(e){
     kiraHideTyping();
-    kiraAddMsg('ai','エラーが発生しました。contact@the-horizons-innovation.com までご連絡ください。');
+    kiraAddMsg('ai','エラーが発生しました。contact&#64;the-horizons-innovation.com までご連絡ください。');
   }
   document.getElementById('kira-send-btn').disabled=false;
 }
