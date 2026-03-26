@@ -422,7 +422,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
           <div class="sc-delivery"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>当日完了・報告書即日納品</div>
           <ul class="sc-list"><li>竣工検査への専門家立会い</li><li>施工不良・手抜きの現場確認</li><li>是正要求書の作成・提供</li><li>全国対応（交通費実費のみ）</li></ul>
         </div>
-        <a href="mailto:contact@the-horizons-innovation.com?subject=完成検査立会いサービスのご相談" class="sc-btn">CONSULT →</a>
+        <a href="/cdn-cgi/l/email-protection#31525e5f45505245714559541c595e43584b5e5f421c585f5f5e475045585e5f1f525e5c0e4244535b5452450cd49fbdd7b9a1d795add7ae8ad69abad58dabd2b0b5d2b384d2b28dd2b2a2d2b388d2b09fd2b0a5d6aa89d99ab6" class="sc-btn">CONSULT →</a>
       </div>
     </div>
   </div>
@@ -503,7 +503,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
     <div class="flow-grid">
       <div class="flow-line"></div>
       <div class="fi"><div class="fi-num"><span>01</span></div><h3>サービスを選ぶ</h3><p>3サービスから状況に合ったものを選び、ボタンからお支払いください。</p></div>
-      <div class="fi"><div class="fi-num"><span>02</span></div><h3>資料を送付</h3><p>見積書・書類をメールで送付。<br><a href="mailto:contact@the-horizons-innovation.com">contact@the-horizons-innovation.com</a></p></div>
+      <div class="fi"><div class="fi-num"><span>02</span></div><h3>資料を送付</h3><p>見積書・書類をメールで送付。<br><a href="/cdn-cgi/l/email-protection#ed8e8283998c8e99ad998588c085829f849782839ec0848383829b8c99848283c38e8280"><span class="__cf_email__" data-cfemail="ed8e8283998c8e99ad998588c085829f849782839ec0848383829b8c99848283c38e8280">[email&#160;protected]</span></a></p></div>
       <div class="fi"><div class="fi-num"><span>03</span></div><h3>レポート納品</h3><p>各サービスの納期内にPDFレポートをお届けします。</p></div>
     </div>
   </div>
@@ -532,7 +532,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
     <h2>損をする前に、<br>プロの目で確認する。</h2>
     <p>¥33,000〜の費用が、数十万〜数百万円の損失を防ぐことがあります。</p>
     <a href="#services" class="btn-primary" style="font-size:15px;padding:18px 52px">サービス一覧を見る</a>
-    <p class="cta-note">contact@the-horizons-innovation.com　／　全国対応</p>
+    <p class="cta-note"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f4979b9a80959780b4809c91d99c9b869d8e9b9a87d99d9a9a9b8295809d9b9ada979b99">[email&#160;protected]</a>　／　全国対応</p>
     <div class="cta-kira">
       <button class="cta-kira-btn" onclick="openKira()">
         <span style="width:6px;height:6px;background:var(--cyan);border-radius:50%;animation:blink 2s infinite"></span>
@@ -546,7 +546,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
 <footer>
   <div class="footer-inner">
     <div><div class="footer-logo">HORIZON <span>SHIELD</span></div><div class="footer-tagline">建設業界のセカンドオピニオン専門家</div></div>
-    <div class="footer-info">The HORIZONs株式会社<br>東京都港区南青山2-2-15 ウィン青山942<br>代表取締役　大賀 俊勝<br><a href="mailto:contact@the-horizons-innovation.com">contact@the-horizons-innovation.com</a></div>
+    <div class="footer-info">The HORIZONs株式会社<br>東京都港区南青山2-2-15 ウィン青山942<br>代表取締役　大賀 俊勝<br><a href="/cdn-cgi/l/email-protection#ff9c90918b9e9c8bbf8b979ad297908d968590918cd296919190899e8b969091d19c9092"><span class="__cf_email__" data-cfemail="e1828e8f95808295a1958984cc898e93889b8e8f92cc888f8f8e978095888e8fcf828e8c">[email&#160;protected]</span></a></div>
   </div>
   <div class="footer-copy"><span>© 2026 THE HORIZONs Inc. All Rights Reserved.</span><span>KIRA v1.0 // POWERED BY CLAUDE</span></div>
 </footer>
@@ -588,7 +588,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── SCROLL REVEAL ──
 if('IntersectionObserver' in window){
   const style=document.createElement('style');
@@ -700,7 +700,7 @@ async function kiraSendMsg(text){
   document.getElementById('kira-send-btn').disabled=true;
   kiraShowTyping();
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch('https://horizon-shield-kira.oga-surf-project.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -749,22 +749,4 @@ function demoSend(){
   input.value='';
   const msgs=document.getElementById('demo-msgs');
   const uDiv=document.createElement('div');
-  uDiv.className='demo-msg user';
-  uDiv.innerHTML=`<div class="demo-label">YOU</div><div class="demo-bubble">${val}</div>`;
-  msgs.appendChild(uDiv);
-  msgs.scrollTop=msgs.scrollHeight;
-  setTimeout(()=>{
-    let reply='ご質問ありがとうございます。詳しくはKIRAに直接お聞きください。';
-    for(const[key,ans] of Object.entries(DEMO_QA)){
-      if(val.includes(key)){reply=ans;break;}
-    }
-    const aDiv=document.createElement('div');
-    aDiv.className='demo-msg ai';
-    aDiv.innerHTML=`<div class="demo-label">KIRA</div><div class="demo-bubble">${reply}</div>`;
-    msgs.appendChild(aDiv);
-    msgs.scrollTop=msgs.scrollHeight;
-  },600);
-}
-</script>
-</body>
-</html>
+  uDiv.
