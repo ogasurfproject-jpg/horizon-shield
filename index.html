@@ -398,7 +398,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
           <div class="sc-delivery"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>2営業日以内納品</div>
           <ul class="sc-list"><li>相場より高い項目を金額で明示</li><li>交渉目標値の提示</li><li>業者への交渉文言サンプル付き</li><li>住宅・店舗・小規模工場・農業施設</li></ul>
         </div>
-        <a href="YOUR_STRIPE_LINK_55000" class="sc-btn">APPLY →</a>
+        <button class="sc-btn payjp-btn" onclick="openPayjp(55000,'SVC-01 工事費適正化アドバイザリー')">APPLY →</button>
       </div>
       <div class="sc">
         <div class="sc-tag">SVC-02</div>
@@ -410,7 +410,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
           <div class="sc-delivery"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>24時間以内納品</div>
           <ul class="sc-list"><li>追加費用の妥当性判定</li><li>拒否・交渉すべき項目の特定</li><li>施主が取るべき具体的行動を提示</li><li>最速24時間以内に返答</li></ul>
         </div>
-        <a href="YOUR_STRIPE_LINK_33000" class="sc-btn">APPLY →</a>
+        <button class="sc-btn payjp-btn" onclick="openPayjp(33000,'SVC-02 変更工事コンサルティング')">APPLY →</button>
       </div>
       <div class="sc">
         <div class="sc-tag">SVC-03</div>
@@ -422,7 +422,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
           <div class="sc-delivery"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>当日完了・報告書即日納品</div>
           <ul class="sc-list"><li>竣工検査への専門家立会い</li><li>施工不良・手抜きの現場確認</li><li>是正要求書の作成・提供</li><li>全国対応（交通費実費のみ）</li></ul>
         </div>
-        <a href="/cdn-cgi/l/email-protection#2f4c40415b4e4c5b6f5b474a0247405d465540415c0246414140594e5b464041014c4042105c5a4d454a4c5b12ca81a3c9a7bfc98bb3c9b094c884a4cb93b5ccaeabccad9accac93ccacbcccad96ccae81ccaebbc8b497c784a8" class="sc-btn">CONSULT →</a>
+        <button class="sc-btn payjp-btn" onclick="openPayjp(88000,'SVC-03 現場立会いサービス')">APPLY →</button>
       </div>
     </div>
   </div>
@@ -875,5 +875,129 @@ function demoSend(){
 }
 
 </script>
+<!-- PAY.JP -->
+<script src="https://js.pay.jp/v2/pay.js"></script>
+
+<!-- 決済モーダル -->
+<div id="payjp-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#0d1117;border:1px solid #1e3a5c;max-width:420px;width:90%;padding:36px 32px;position:relative;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)">
+    <button onclick="closePayjp()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:#666;font-size:20px;cursor:pointer">✕</button>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:#00d4ff;margin-bottom:6px">HORIZON SHIELD</div>
+    <div id="pj-title" style="font-size:15px;color:#fff;font-weight:700;margin-bottom:4px"></div>
+    <div id="pj-price" style="font-size:24px;color:#c8960a;font-weight:700;margin-bottom:24px"></div>
+
+    <div style="margin-bottom:14px">
+      <label style="font-size:11px;color:#888;letter-spacing:2px;display:block;margin-bottom:6px">お名前</label>
+      <input id="pj-name" type="text" placeholder="大賀 俊勝" style="width:100%;box-sizing:border-box;background:#0a0f1a;border:1px solid #1e3a5c;color:#fff;padding:10px 12px;font-size:13px;outline:none">
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:11px;color:#888;letter-spacing:2px;display:block;margin-bottom:6px">メールアドレス</label>
+      <input id="pj-email" type="email" placeholder="contact@example.com" style="width:100%;box-sizing:border-box;background:#0a0f1a;border:1px solid #1e3a5c;color:#fff;padding:10px 12px;font-size:13px;outline:none">
+    </div>
+    <div style="margin-bottom:22px">
+      <label style="font-size:11px;color:#888;letter-spacing:2px;display:block;margin-bottom:8px">クレジットカード情報</label>
+      <div id="payjp-card-element" style="background:#0a0f1a;border:1px solid #1e3a5c;padding:12px"></div>
+      <div id="pj-card-error" style="color:#ff6b6b;font-size:11px;margin-top:6px"></div>
+    </div>
+    <button id="pj-submit-btn" onclick="submitPayjp()" style="width:100%;background:#c8960a;color:#040A12;font-weight:700;font-size:14px;padding:14px;border:none;cursor:pointer;letter-spacing:.08em;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)">
+      今すぐ申し込む →
+    </button>
+    <div style="font-size:10px;color:#555;text-align:center;margin-top:12px">PAY.JP による安全な決済　／　SSL暗号化通信</div>
+  </div>
+</div>
+
+<script>
+// =============================================
+// PAY.JP 設定
+// 審査通過後: pk_test_... → pk_live_... に変更するだけ
+// =============================================
+const PAYJP_PUBLIC_KEY = 'pk_test_a5eef8550a109ce68ac78994';
+
+let payjp, cardElement, currentAmount, currentService;
+
+function initPayjp() {
+  if (payjp) return;
+  payjp = Payjp(PAYJP_PUBLIC_KEY);
+  const elements = payjp.elements();
+  cardElement = elements.create('card', {
+    style: {
+      base: {
+        color: '#ffffff',
+        fontSize: '14px',
+        '::placeholder': { color: '#555' }
+      }
+    }
+  });
+  cardElement.mount('#payjp-card-element');
+  cardElement.on('change', e => {
+    document.getElementById('pj-card-error').textContent = e.error ? e.error.message : '';
+  });
+}
+
+function openPayjp(amount, service) {
+  currentAmount = amount;
+  currentService = service;
+  document.getElementById('pj-title').textContent = service;
+  document.getElementById('pj-price').textContent = '¥' + amount.toLocaleString() + '（税込）';
+  const ov = document.getElementById('payjp-overlay');
+  ov.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  setTimeout(initPayjp, 50);
+}
+
+function closePayjp() {
+  document.getElementById('payjp-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+  document.getElementById('pj-card-error').textContent = '';
+}
+
+async function submitPayjp() {
+  const name  = document.getElementById('pj-name').value.trim();
+  const email = document.getElementById('pj-email').value.trim();
+  if (!name || !email) {
+    document.getElementById('pj-card-error').textContent = 'お名前とメールアドレスを入力してください';
+    return;
+  }
+  const btn = document.getElementById('pj-submit-btn');
+  btn.disabled = true;
+  btn.textContent = '処理中...';
+  try {
+    const {token, error} = await payjp.createToken(cardElement);
+    if (error) {
+      document.getElementById('pj-card-error').textContent = error.message;
+      btn.disabled = false;
+      btn.textContent = '今すぐ申し込む →';
+      return;
+    }
+    // トークンをサーバーに送信（Cloudflare Worker または自社API）
+    const res = await fetch('https://hs-monitor.oga-surf-project.workers.dev/charge', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        token: token.id,
+        amount: currentAmount,
+        service: currentService,
+        name, email
+      })
+    });
+    if (res.ok) {
+      closePayjp();
+      alert('お申し込みありがとうございます！\n確認メールをお送りします。\n\nサービス：' + currentService + '\n金額：¥' + currentAmount.toLocaleString());
+    } else {
+      document.getElementById('pj-card-error').textContent = '決済に失敗しました。カード情報をご確認ください。';
+      btn.disabled = false;
+      btn.textContent = '今すぐ申し込む →';
+    }
+  } catch(e) {
+    document.getElementById('pj-card-error').textContent = 'エラーが発生しました。再度お試しください。';
+    btn.disabled = false;
+    btn.textContent = '今すぐ申し込む →';
+  }
+}
+
+// ESCキーで閉じる
+document.addEventListener('keydown', e => { if(e.key==='Escape') closePayjp(); });
+</script>
+
 </body>
 </html>
