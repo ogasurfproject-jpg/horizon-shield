@@ -957,15 +957,17 @@ async function submitPayjp() {
   const btn = document.getElementById('pj-submit-btn');
   btn.disabled = true;
   btn.textContent = '処理中...';
+  document.getElementById('pj-card-error').textContent = '';
   try {
-    const {token, error} = await payjp.createToken(cardElement);
-    if (error) {
-      document.getElementById('pj-card-error').textContent = error.message;
+    const result = await payjp.createToken(cardElement);
+    console.log('PAY.JP result:', JSON.stringify(result));
+    if (result.error) {
+      document.getElementById('pj-card-error').textContent = 'カードエラー: ' + result.error.message + ' (code: ' + result.error.code + ')';
       btn.disabled = false;
       btn.textContent = '今すぐ申し込む →';
       return;
     }
-    // トークンをサーバーに送信（Cloudflare Worker または自社API）
+    const token = result.token || result;
     const res = await fetch('https://hs-payment.oga-surf-project.workers.dev/charge', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
@@ -980,12 +982,14 @@ async function submitPayjp() {
       closePayjp();
       alert('お申し込みありがとうございます！\n確認メールをお送りします。\n\nサービス：' + currentService + '\n金額：¥' + currentAmount.toLocaleString());
     } else {
-      document.getElementById('pj-card-error').textContent = '決済に失敗しました。カード情報をご確認ください。';
+      const errData = await res.json().catch(()=>({}));
+      document.getElementById('pj-card-error').textContent = '決済エラー: ' + (errData.error || res.status);
       btn.disabled = false;
       btn.textContent = '今すぐ申し込む →';
     }
   } catch(e) {
-    document.getElementById('pj-card-error').textContent = 'エラーが発生しました。再度お試しください。';
+    console.error('submitPayjp error:', e);
+    document.getElementById('pj-card-error').textContent = 'エラー詳細: ' + e.message;
     btn.disabled = false;
     btn.textContent = '今すぐ申し込む →';
   }
