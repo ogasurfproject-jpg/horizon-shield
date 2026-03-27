@@ -970,7 +970,7 @@ async function submitPayjp() {
       return;
     }
     // トークンをサーバーに送信（Cloudflare Worker または自社API）
-    const res = await fetch('https://hs-monitor.oga-surf-project.workers.dev/charge', {
+    const res = await fetch('https://hs-payment.oga-surf-project.workers.dev/charge', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
