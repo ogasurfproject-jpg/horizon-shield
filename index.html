@@ -876,7 +876,7 @@ function demoSend(){
 
 </script>
 <!-- PAY.JP -->
-<script src="https://js.pay.jp/"></script>
+<script src="https://js.pay.jp/v2/pay.js"></script>
 
 <!-- 決済モーダル -->
 <div id="payjp-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center">
@@ -895,18 +895,8 @@ function demoSend(){
       <input id="pj-email" type="email" placeholder="contact@example.com" style="width:100%;box-sizing:border-box;background:#0a0f1a;border:1px solid #1e3a5c;color:#fff;padding:10px 12px;font-size:13px;outline:none">
     </div>
     <div style="margin-bottom:22px">
-      <label style="font-size:11px;color:#888;letter-spacing:2px;display:block;margin-bottom:8px">カード番号</label>
-      <div id="payjp-card-number" style="background:#0a0f1a;border:1px solid #1e3a5c;padding:12px"></div>
-      <div style="display:flex;gap:12px;margin-top:10px">
-        <div style="flex:1">
-          <label style="font-size:11px;color:#888;letter-spacing:2px;display:block;margin-bottom:6px">有効期限</label>
-          <div id="payjp-card-expiry" style="background:#0a0f1a;border:1px solid #1e3a5c;padding:12px"></div>
-        </div>
-        <div style="flex:1">
-          <label style="font-size:11px;color:#888;letter-spacing:2px;display:block;margin-bottom:6px">CVC</label>
-          <div id="payjp-card-cvc" style="background:#0a0f1a;border:1px solid #1e3a5c;padding:12px"></div>
-        </div>
-      </div>
+      <label style="font-size:11px;color:#888;letter-spacing:2px;display:block;margin-bottom:8px">クレジットカード情報</label>
+      <div id="payjp-card-element" style="background:#0a0f1a;border:1px solid #1e3a5c;padding:12px"></div>
       <div id="pj-card-error" style="color:#ff6b6b;font-size:11px;margin-top:6px"></div>
     </div>
     <button id="pj-submit-btn" onclick="submitPayjp()" style="width:100%;background:#c8960a;color:#040A12;font-weight:700;font-size:14px;padding:14px;border:none;cursor:pointer;letter-spacing:.08em;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)">
@@ -929,20 +919,12 @@ function initPayjp() {
   if (payjp) return;
   payjp = Payjp(PAYJP_PUBLIC_KEY);
   const elements = payjp.elements();
-  cardElement = elements.create('cardNumber', {
+  cardElement = elements.create('card', {
     style: {
       base: { color: '#ffffff', fontSize: '14px', '::placeholder': { color: '#555' } }
     }
   });
-  const expiry = elements.create('cardExpiry', {
-    style: { base: { color: '#ffffff', fontSize: '14px', '::placeholder': { color: '#555' } } }
-  });
-  const cvc = elements.create('cardCvc', {
-    style: { base: { color: '#ffffff', fontSize: '14px', '::placeholder': { color: '#555' } } }
-  });
-  cardElement.mount('#payjp-card-number');
-  expiry.mount('#payjp-card-expiry');
-  cvc.mount('#payjp-card-cvc');
+  cardElement.mount('#payjp-card-element');
   cardElement.on('change', e => {
     document.getElementById('pj-card-error').textContent = e.error ? e.error.message : '';
   });
