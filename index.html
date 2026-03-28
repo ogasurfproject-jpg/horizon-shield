@@ -374,14 +374,262 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
       <div class="warn-card"><div class="warn-tag">DANGER ZONE</div><h3>外壁・屋根の塗り替え</h3><p>「外壁にひびが入っている」と指摘し、今すぐ工事が必要と煽る。実際には数年は問題ない状態でも高額契約を迫る。</p><div class="warn-badge">相場の3〜8倍が横行</div></div>
     </div>
     <div class="warn-cta">
-      <h3>契約前に<em>¥55,000</em>で見積書を送ってください。</h3>
-      <p>「この金額は適正か」——大工出身のCM専門家が2営業日以内に答えを出します。¥55,000が数十万〜数百万円の損失を防ぎます。</p>
-      <a href="#services" class="btn-primary">今すぐ確認する</a>
+      <h3>まず<em>無料</em>でAI診断してみてください。</h3>
+      <p>見積書をアップロードするだけ。30秒で「この見積書、約○○万円削減できる可能性があります」と即答します。<br>詳細な削減額・交渉文・業者対応策は、専門家レポート（¥55,000）でお伝えします。</p>
+      <a href="#diagnosis" class="btn-primary">無料AI診断を試す →</a>
     </div>
   </div>
 </section>
 
 <!-- SERVICES -->
+<!-- FREE AI DIAGNOSIS -->
+<section class="section reveal" id="diagnosis" style="background:linear-gradient(180deg,var(--bg) 0%,rgba(0,212,255,0.04) 100%);border-top:1px solid var(--border)">
+  <div class="container" style="max-width:780px">
+    <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">FREE AI DIAGNOSIS</div></div>
+    <h2 class="sec-title" style="margin-bottom:12px">見積書を<em>無料でAI診断</em><br>30秒で過剰請求がわかる</h2>
+    <p style="text-align:center;color:var(--gray);font-size:14px;margin-bottom:48px;line-height:1.8">見積書の写真を撮ってアップロードするだけ。<br>建設30年の専門知識を学習したAIが即座に分析します。</p>
+
+    <!-- 診断フォーム -->
+    <div id="diag-form" style="background:var(--bg2);border:1px solid var(--border);padding:40px 36px">
+
+      <!-- Step1: 情報入力 -->
+      <div id="diag-step1">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:20px">STEP 1 / 3 ── お名前・メールアドレス</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div>
+            <label style="font-size:11px;color:var(--gray);letter-spacing:2px;display:block;margin-bottom:6px">お名前 *</label>
+            <input id="diag-name" type="text" placeholder="例：山田 太郎" style="width:100%;box-sizing:border-box;background:#0a0f1a;border:1px solid var(--border);color:var(--white);padding:12px;font-size:14px;font-family:'Noto Sans JP',sans-serif;outline:none;transition:border .2s" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border)'">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--gray);letter-spacing:2px;display:block;margin-bottom:6px">メールアドレス *</label>
+            <input id="diag-email" type="email" placeholder="your@email.com" style="width:100%;box-sizing:border-box;background:#0a0f1a;border:1px solid var(--border);color:var(--white);padding:12px;font-size:14px;font-family:'Noto Sans JP',sans-serif;outline:none;transition:border .2s" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border)'">
+          </div>
+        </div>
+        <button onclick="diagNext1()" style="width:100%;background:var(--cyan);color:#040A12;font-weight:700;font-size:14px;padding:14px;border:none;cursor:pointer;letter-spacing:.08em;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);transition:opacity .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+          次へ → 見積書をアップロード
+        </button>
+      </div>
+
+      <!-- Step2: アップロード -->
+      <div id="diag-step2" style="display:none">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:20px">STEP 2 / 3 ── 見積書をアップロード</div>
+
+        <div id="diag-dropzone" onclick="document.getElementById('diag-file').click()" style="border:2px dashed var(--border);padding:48px 24px;text-align:center;cursor:pointer;transition:border .2s;margin-bottom:16px" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div style="font-size:40px;margin-bottom:12px">📄</div>
+          <div style="color:var(--white);font-size:15px;margin-bottom:8px">ここをタップして見積書を選択</div>
+          <div style="color:var(--gray);font-size:12px">JPG・PNG・PDF対応　（スマホで撮影した写真でOK）</div>
+          <input id="diag-file" type="file" accept="image/*,application/pdf" style="display:none" onchange="diagFileSelected(this)">
+        </div>
+
+        <div id="diag-preview" style="display:none;margin-bottom:16px;text-align:center">
+          <img id="diag-preview-img" style="max-width:100%;max-height:200px;border:1px solid var(--border)">
+          <div id="diag-file-name" style="color:var(--cyan);font-size:12px;margin-top:8px"></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <button onclick="diagBack1()" style="background:transparent;border:1px solid var(--border);color:var(--gray);font-size:13px;padding:12px;cursor:pointer">← 戻る</button>
+          <button id="diag-submit-btn" onclick="diagSubmit()" style="background:var(--gold);color:#040A12;font-weight:700;font-size:14px;padding:12px;border:none;cursor:pointer;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)" disabled>
+            AI診断を開始する →
+          </button>
+        </div>
+      </div>
+
+      <!-- Step3: 解析中 -->
+      <div id="diag-step3" style="display:none;text-align:center;padding:40px 0">
+        <div style="font-size:48px;margin-bottom:20px;animation:diagSpin 2s linear infinite">⚙️</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--cyan);margin-bottom:8px">AI ANALYZING...</div>
+        <div style="color:var(--gray);font-size:13px">建設30年の専門知識で見積書を解析中...</div>
+      </div>
+
+      <!-- Step4: 結果 -->
+      <div id="diag-step4" style="display:none">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--gold);margin-bottom:24px">STEP 3 / 3 ── AI診断結果</div>
+
+        <!-- 削減額メーター -->
+        <div style="background:rgba(200,150,10,0.08);border:1px solid rgba(200,150,10,0.4);padding:28px 24px;margin-bottom:24px;text-align:center">
+          <div style="font-size:12px;color:var(--gray);letter-spacing:2px;margin-bottom:8px">削減できる可能性がある金額</div>
+          <div style="font-size:48px;font-weight:900;color:var(--gold)" id="diag-saving-text">—</div>
+          <div style="font-size:13px;color:var(--gray);margin-top:4px" id="diag-rate-text"></div>
+        </div>
+
+        <!-- 高い項目 -->
+        <div style="margin-bottom:20px">
+          <div style="font-size:11px;color:var(--cyan);letter-spacing:2px;margin-bottom:10px">⚠ 過剰請求の可能性がある項目</div>
+          <div id="diag-items" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+        </div>
+
+        <!-- サマリー -->
+        <div style="background:var(--bg);border-left:3px solid var(--cyan);padding:14px 16px;margin-bottom:8px;font-size:13px;color:var(--lgray);line-height:1.8" id="diag-summary"></div>
+
+        <!-- TOshiメッセージ -->
+        <div style="background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.2);padding:14px 16px;margin-bottom:28px;font-size:13px;color:var(--white);line-height:1.8" id="diag-message">
+          <span style="color:var(--cyan);font-size:11px;display:block;margin-bottom:4px">大賀 俊勝 より</span>
+        </div>
+
+        <!-- CTAボタン -->
+        <div style="text-align:center">
+          <div style="background:rgba(200,150,10,0.08);border:1px solid rgba(200,150,10,0.3);padding:20px 24px;margin-bottom:20px">
+            <div style="font-size:12px;color:var(--gray);margin-bottom:8px">上記はAIによる簡易診断です</div>
+            <div style="font-size:15px;color:var(--white);line-height:1.8">正確な削減額・具体的な交渉文・<br>業者への対応策を知りたい方は<br><span style="color:var(--gold);font-weight:700">専門家による詳細レポート</span>をどうぞ</div>
+          </div>
+          <button onclick="openPayjp(55000,'SVC-01 工事費適正化アドバイザリー（AI診断後）')" style="width:100%;background:var(--gold);color:#040A12;font-weight:900;font-size:16px;padding:18px;border:none;cursor:pointer;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);letter-spacing:.05em;margin-bottom:12px">
+            詳細レポートを申し込む ¥55,000（税込）
+          </button>
+          <div style="font-size:11px;color:var(--gray)">2営業日以内納品　／　提供前キャンセルは全額返金</div>
+        </div>
+      </div>
+
+      <!-- エラー表示 -->
+      <div id="diag-error" style="display:none;color:#ff6b6b;font-size:13px;text-align:center;margin-top:12px"></div>
+    </div>
+
+    <!-- 安心ポイント -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px">
+      <div style="text-align:center;padding:16px;border:1px solid var(--border)">
+        <div style="font-size:24px;margin-bottom:6px">🔒</div>
+        <div style="font-size:11px;color:var(--gray);line-height:1.6">見積書は<br>診断後すぐ削除</div>
+      </div>
+      <div style="text-align:center;padding:16px;border:1px solid var(--border)">
+        <div style="font-size:24px;margin-bottom:6px">⚡</div>
+        <div style="font-size:11px;color:var(--gray);line-height:1.6">30秒で<br>即時診断</div>
+      </div>
+      <div style="text-align:center;padding:16px;border:1px solid var(--border)">
+        <div style="font-size:24px;margin-bottom:6px">💯</div>
+        <div style="font-size:11px;color:var(--gray);line-height:1.6">完全無料<br>申込不要</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+@keyframes diagSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+</style>
+
+<script>
+// ─── 診断フォーム ───────────────────────────────────────
+let diagFileData = null;
+let diagFileType = null;
+let diagName = '';
+let diagEmail = '';
+
+function diagNext1() {
+  diagName = document.getElementById('diag-name').value.trim();
+  diagEmail = document.getElementById('diag-email').value.trim();
+  if (!diagName || !diagEmail) {
+    showDiagError('お名前とメールアドレスを入力してください');
+    return;
+  }
+  if (!diagEmail.includes('@')) {
+    showDiagError('正しいメールアドレスを入力してください');
+    return;
+  }
+  hideDiagError();
+  document.getElementById('diag-step1').style.display = 'none';
+  document.getElementById('diag-step2').style.display = 'block';
+}
+
+function diagBack1() {
+  document.getElementById('diag-step2').style.display = 'none';
+  document.getElementById('diag-step1').style.display = 'block';
+}
+
+function diagFileSelected(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  diagFileType = file.type;
+  const preview = document.getElementById('diag-preview');
+  const previewImg = document.getElementById('diag-preview-img');
+  const fileName = document.getElementById('diag-file-name');
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const result = e.target.result;
+    const base64 = result.split(',')[1];
+    diagFileData = base64;
+
+    if (file.type.startsWith('image/')) {
+      previewImg.src = result;
+      previewImg.style.display = 'block';
+    } else {
+      previewImg.style.display = 'none';
+    }
+    fileName.textContent = `✓ ${file.name}`;
+    preview.style.display = 'block';
+    document.getElementById('diag-submit-btn').disabled = false;
+    document.getElementById('diag-submit-btn').style.opacity = '1';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function diagSubmit() {
+  if (!diagFileData) return;
+  hideDiagError();
+
+  document.getElementById('diag-step2').style.display = 'none';
+  document.getElementById('diag-step3').style.display = 'block';
+
+  try {
+    const res = await fetch('https://hs-diagnosis.oga-surf-project.workers.dev/diagnose', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        imageBase64: diagFileData,
+        mediaType: diagFileType,
+        name: diagName,
+        email: diagEmail
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || '診断に失敗しました');
+    }
+
+    showDiagResult(data.diagnosis);
+
+  } catch (err) {
+    document.getElementById('diag-step3').style.display = 'none';
+    document.getElementById('diag-step2').style.display = 'block';
+    showDiagError('診断中にエラーが発生しました。再度お試しください。');
+  }
+}
+
+function showDiagResult(d) {
+  document.getElementById('diag-step3').style.display = 'none';
+  document.getElementById('diag-step4').style.display = 'block';
+
+  document.getElementById('diag-saving-text').textContent =
+    `${d.savingMin}万円〜${d.savingMax}万円`;
+  document.getElementById('diag-rate-text').textContent =
+    `削減率：約${d.savingRate}%（業界平均）`;
+
+  const itemsEl = document.getElementById('diag-items');
+  itemsEl.innerHTML = '';
+  (d.highItems || []).forEach(item => {
+    const tag = document.createElement('span');
+    tag.style.cssText = 'background:rgba(255,48,64,0.12);border:1px solid rgba(255,48,64,0.4);color:#ff6b6b;font-size:12px;padding:4px 10px;';
+    tag.textContent = item;
+    itemsEl.appendChild(tag);
+  });
+
+  document.getElementById('diag-summary').textContent = d.summary || '';
+  const msgEl = document.getElementById('diag-message');
+  msgEl.innerHTML = `<span style="color:var(--cyan);font-size:11px;display:block;margin-bottom:4px">大賀 俊勝 より</span>${d.message || ''}`;
+}
+
+function showDiagError(msg) {
+  const el = document.getElementById('diag-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function hideDiagError() {
+  document.getElementById('diag-error').style.display = 'none';
+}
+</script>
+
 <section class="section reveal" id="services">
   <div class="container">
     <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">SERVICE CATALOG</div></div>
@@ -617,7 +865,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
       <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">個人情報の管理</p>
       <p>適切なセキュリティ対策を講じ、個人情報の漏洩・紛失・改ざんを防止します。</p>
       <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">お問い合わせ</p>
-      <p>contact@the-horizons-innovation.com<br>The HORIZONs株式会社　代表　大賀 俊勝</p>
+      <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0f6c60617b6e6c7b4f7b676a2267607d667560617c2266616160796e7b666061216c6062">[email&#160;protected]</a><br>The HORIZONs株式会社　代表　大賀 俊勝</p>
     </div>
   </div>
 </section>
@@ -637,7 +885,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
       <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">準拠法・管轄</p>
       <p>本規約は日本法に準拠し、東京地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
       <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">運営</p>
-      <p>The HORIZONs株式会社　contact@the-horizons-innovation.com</p>
+      <p>The HORIZONs株式会社　<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="92f1fdfce6f3f1e6d2e6faf7bffafde0fbe8fdfce1bffbfcfcfde4f3e6fbfdfcbcf1fdff">[email&#160;protected]</a></p>
     </div>
   </div>
 </section>
@@ -665,7 +913,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
         </tr>
         <tr style="border-bottom:1px solid var(--border)">
           <td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">メールアドレス</td>
-          <td style="padding:14px 0;color:var(--white)">contact@the-horizons-innovation.com</td>
+          <td style="padding:14px 0;color:var(--white)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f794989983969483b7839f92da9f98859e8d989984da9e9999988196839e9899d994989a">[email&#160;protected]</a></td>
         </tr>
         <tr style="border-bottom:1px solid var(--border)">
           <td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">サービス内容</td>
@@ -752,7 +1000,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
   </div>
 </div>
 
-<script data-cfasync="false">
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false">
 var openKira,closeKira,closeKiraOutside,kirasSend,demoSend;
 
 // ── SCROLL REVEAL ──
@@ -1043,21 +1291,4 @@ async function submitPayjp() {
       alert('お申し込みありがとうございます！\n確認メールをお送りします。\n\nサービス：' + currentService + '\n金額：¥' + currentAmount.toLocaleString());
     } else {
       const errData = await res.json().catch(()=>({}));
-      document.getElementById('pj-card-error').textContent = '決済エラー: ' + (errData.error || res.status);
-      btn.disabled = false;
-      btn.textContent = '今すぐ申し込む →';
-    }
-  } catch(e) {
-    console.error('submitPayjp error:', e);
-    document.getElementById('pj-card-error').textContent = 'エラー詳細: ' + e.message;
-    btn.disabled = false;
-    btn.textContent = '今すぐ申し込む →';
-  }
-}
-
-// ESCキーで閉じる
-document.addEventListener('keydown', e => { if(e.key==='Escape') closePayjp(); });
-</script>
-
-</body>
-</html>
+      document.getElementById('pj-card-error').t
