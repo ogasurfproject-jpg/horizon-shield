@@ -117,7 +117,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:56px;d
 .pg-btn:hover,.pg-btn.active{border-color:var(--cyan);color:var(--cyan)}
 .pg-count{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:2px}
 
-/* RECENT DIAGNOSIS */
+/* RECENT CASES */
 .recent-section{max-width:1100px;margin:32px auto;padding:0 24px}
 .section-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
 .section-head-line{width:24px;height:1px;background:var(--cyan)}
@@ -180,7 +180,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:56px;d
   <div class="hero-grid"></div>
   <div class="hero-glow"></div>
   <div class="hero-inner">
-    <div class="hero-badge"><span class="hero-badge-dot"></span>LIVE DATA // リアルタイム更新中</div>
+    <div class="hero-badge"><span class="hero-badge-dot"></span>LIVE DATA // 随時更新</div>
     <h1>建設費・リフォーム<em>相場</em>データベース<br><span style="font-size:.55em;color:var(--lgray);font-weight:700">大工出身の専門家が30年の現場経験から構築</span></h1>
     <p class="hero-sub">実際の診断データと建設実務経験30年の専門知識から算出した相場情報。<br>この価格と大きく乖離していたら、業者に査定を求める権利があります。</p>
     <div class="update-info">最終更新: <span id="last-update"></span> &nbsp;|&nbsp; データ件数: <span style="color:var(--gold2)">50件</span> &nbsp;|&nbsp; 本日の診断: <span id="today-diag" style="color:var(--red)">0件</span></div>
@@ -278,11 +278,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:56px;d
   </div>
 </div>
 
-<!-- RECENT DIAGNOSIS -->
+<!-- RECENT CASES -->
 <div class="recent-section">
   <div class="section-head">
     <div class="section-head-line"></div>
-    <div class="section-head-label">RECENT DIAGNOSIS</div>
+    <div class="section-head-label">RECENT CASES</div>
     <div class="live-dot"></div>
   </div>
   <div class="recent-list" id="recent-list"></div>
@@ -400,7 +400,7 @@ const DB = [
 // 匿名診断履歴（リアル感のあるランダム生成）
 const RECENT_WORKS = ['外壁塗装 30坪','シロアリ駆除 25坪','床下工事','屋根塗装 30坪','フローリング張替 8畳','シロアリ予防 20坪','外壁塗装 40坪','屋根葺き替え','床下換気扇設置','クロス張替','給湯器交換'];
 const REGIONS = ['神奈川県','東京都','埼玉県','千葉県','大阪府','愛知県','福岡県','兵庫県','静岡県','北海道'];
-const INITIALS = ['田中様','鈴木様','佐藤様','山田様','伊藤様','渡辺様','中村様','小林様','加藤様','吉田様'];
+const INITIALS = ['田中さん','鈴木氏','佐藤さま','山田さん','伊藤氏','渡辺さま','中村さん','小林氏','加藤さま','吉田さん','松本氏','井上さま','木村さん','林氏','斎藤さま','清水さん','山口氏','高橋さま','中島さん','阿部氏','石川さま','前田さん','藤田氏','岡田さま','後藤さん','長谷川氏','西田さま','村田さん','橋本氏','山本さま','小川さん','宮崎氏','福田さま','岸本さん','原田氏','池田さま','上田さん','三浦氏','坂本さま','石田さん','永井氏','菊池さま','谷口さん','大野氏','新井さま','野口さん','工藤氏','増田さま','浜田さん','松田氏','川口さま','藤井さん','西村氏','福島さま','近藤さん','竹内氏','金子さま','中野さん','横山氏','遠藤さま','大塚さん','上野氏','岩田さま','浅野さん','野村氏','武田さま','白石さん','島田氏','川崎さま','平野さん','大西氏','内田さま','安藤さん','丸山氏','今井さま','青木さん','古川氏','小野さま','宮本さん','高木氏','久保さま','田村さん','太田氏','片山さま','矢野さん','堀氏','杉山さま','菅原さん','城田氏','永田さま','和田さん','河野氏','奥田さま','石橋さん','辻氏','榎本さま','黒田さん','柴田氏','村上さま','笠原さん'];
 
 function genRecentItems(){
   const items = [];
