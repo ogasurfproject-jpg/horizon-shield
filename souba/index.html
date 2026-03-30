@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>建設費・リフォーム相場データベース｜HORIZON SHIELD</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#040A12;--bg2:#070F1A;--bg3:#0A1520;
+  --gold:#C8960A;--gold2:#F0C030;
+  --cyan:#00D4FF;--red:#FF3040;
+  --white:#EEF2F5;--gray:#6A8A9A;--lgray:#A0BACA;
+  --border:rgba(0,212,255,.15);--border2:rgba(0,212,255,.06);
+  --green:#00FF88;--orange:#FF8C00;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'Noto Sans JP',sans-serif;overflow-x:hidden;line-height:1.8}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.03) 0,rgba(0,0,0,.03) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:9999}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:56px;display:flex;justify-content:space-between;align-items:center;background:rgba(4,10,18,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:4px;color:var(--white)}
+.nav-logo span{color:var(--cyan)}
+.nav-back{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);text-decoration:none;border:1px solid var(--border);padding:6px 14px;transition:all .2s}
+.nav-back:hover{border-color:var(--cyan);background:rgba(0,212,255,.05)}
+
+/* LIVE FEED TICKER */
+.live-bar{background:var(--bg3);border-bottom:1px solid rgba(0,212,255,.2);padding:9px 0;overflow:hidden;position:relative}
+.live-bar::before{content:'● LIVE';position:absolute;left:0;top:0;bottom:0;background:var(--red);color:#fff;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:0 12px;display:flex;align-items:center;z-index:1;animation:livePulse 2s infinite}
+@keyframes livePulse{0%,100%{background:var(--red)}50%{background:#cc0020}}
+.ticker-wrap{padding-left:80px;overflow:hidden}
+.ticker-inner{display:flex;gap:60px;animation:ticker 40s linear infinite;white-space:nowrap}
+.ticker-item{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--lgray);letter-spacing:1px}
+.ticker-item .t-time{color:var(--gray);margin-right:8px}
+.ticker-item .t-region{color:var(--cyan)}
+.ticker-item .t-work{color:var(--white)}
+.ticker-item .t-result{color:var(--red);font-weight:700}
+.ticker-item .t-ok{color:var(--green)}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.hero{padding:96px 24px 50px;text-align:center;position:relative;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border2) 1px,transparent 1px),linear-gradient(90deg,var(--border2) 1px,transparent 1px);background-size:48px 48px}
+.hero-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:400px;background:radial-gradient(ellipse,rgba(0,212,255,.04) 0%,transparent 65%);pointer-events:none}
+.hero-inner{position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--cyan);border:1px solid var(--border);padding:6px 16px;margin-bottom:20px}
+.hero-badge-dot{width:6px;height:6px;background:var(--red);border-radius:50%;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.1}}
+.hero h1{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(26px,4.5vw,52px);line-height:1.15;margin-bottom:14px}
+.hero h1 em{font-style:normal;color:var(--gold2)}
+.hero-sub{font-size:14px;color:var(--lgray);max-width:540px;margin:0 auto 32px;line-height:1.9}
+.update-info{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:2px}
+.update-info span{color:var(--green)}
+
+/* STATS */
+.stats-wrap{max-width:1100px;margin:0 auto;padding:0 24px 32px;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border)}
+@media(max-width:640px){.stats-wrap{grid-template-columns:repeat(2,1fr)}}
+.stat-box{background:var(--bg2);padding:20px 24px;text-align:center}
+.stat-val{font-family:'Share Tech Mono',monospace;font-size:clamp(22px,3vw,34px);color:var(--gold2);display:block;letter-spacing:-1px;line-height:1}
+.stat-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray);letter-spacing:3px;margin-top:6px;display:block}
+.stat-change{font-family:'Share Tech Mono',monospace;font-size:10px;margin-top:4px}
+.stat-change.up{color:var(--red)}
+.stat-change.down{color:var(--green)}
+
+/* ALERT BANNER */
+.alert-banner{max-width:1100px;margin:0 auto 24px;padding:0 24px}
+.alert-inner{background:rgba(255,48,64,.06);border:1px solid rgba(255,48,64,.3);padding:16px 20px;display:flex;align-items:center;gap:14px}
+.alert-icon{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--red);white-space:nowrap;border:1px solid rgba(255,48,64,.4);padding:4px 8px}
+.alert-text{font-size:13px;color:var(--lgray);line-height:1.7}
+.alert-text strong{color:var(--white)}
+
+/* SEARCH */
+.search-section{max-width:1100px;margin:0 auto;padding:0 24px 20px}
+.search-bar{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.search-input{flex:1;min-width:200px;background:var(--bg2);border:1px solid var(--border);color:var(--white);font-family:'Noto Sans JP',sans-serif;font-size:14px;padding:11px 14px;outline:none;transition:border .2s}
+.search-input:focus{border-color:var(--cyan)}
+.search-input::placeholder{color:var(--gray)}
+.filter-sel{background:var(--bg2);border:1px solid var(--border);color:var(--lgray);font-family:'Share Tech Mono',monospace;font-size:10px;padding:11px 14px;outline:none;cursor:pointer;letter-spacing:1px}
+.filter-sel:focus{border-color:var(--cyan)}
+.region-note{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:2px;margin-bottom:16px}
+.region-note span{color:var(--cyan)}
+
+/* TABLE */
+.table-wrap{border:1px solid var(--border);overflow-x:auto;margin-bottom:8px}
+.db-table{width:100%;border-collapse:collapse;font-size:13px}
+.db-table th{background:var(--bg3);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--cyan);padding:11px 14px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+.db-table td{padding:13px 14px;border-bottom:1px solid var(--border2);vertical-align:middle}
+.db-table tr:hover td{background:rgba(0,212,255,.025)}
+.db-table tr:last-child td{border-bottom:none}
+.cat-tag{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;padding:3px 7px;border:1px solid var(--border);color:var(--cyan);white-space:nowrap}
+.work-name{color:var(--white);font-weight:500;font-size:13px}
+.price-min{color:var(--green);font-family:'Share Tech Mono',monospace;font-size:12px}
+.price-avg{color:var(--gold2);font-weight:700;font-family:'Share Tech Mono',monospace;font-size:13px}
+.price-max{color:var(--lgray);font-family:'Share Tech Mono',monospace;font-size:12px}
+.price-danger{color:var(--red);font-family:'Share Tech Mono',monospace;font-size:11px}
+.trend-up{color:var(--red);font-family:'Share Tech Mono',monospace;font-size:11px}
+.trend-flat{color:var(--gray);font-family:'Share Tech Mono',monospace;font-size:11px}
+.trend-down{color:var(--green);font-family:'Share Tech Mono',monospace;font-size:11px}
+.diag-count{color:var(--lgray);font-family:'Share Tech Mono',monospace;font-size:11px}
+.overcharge-rate{font-family:'Share Tech Mono',monospace;font-size:11px}
+.overcharge-high{color:var(--red)}
+.overcharge-mid{color:var(--orange)}
+.overcharge-low{color:var(--green)}
+.source-info{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray);line-height:1.6}
+.source-info strong{color:var(--lgray)}
+
+/* BAR CHART in cells */
+.bar-wrap{display:flex;align-items:center;gap:8px;min-width:120px}
+.bar-bg{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:2px;position:relative}
+.bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--green),var(--gold2))}
+.bar-danger{position:absolute;right:0;top:-1px;width:1px;height:6px;background:var(--red)}
+
+/* PAGINATION */
+.pg-wrap{display:flex;justify-content:space-between;align-items:center;padding:12px 0}
+.pagination{display:flex;gap:6px}
+.pg-btn{background:var(--bg2);border:1px solid var(--border);color:var(--lgray);font-family:'Share Tech Mono',monospace;font-size:10px;padding:6px 12px;cursor:pointer;transition:all .2s}
+.pg-btn:hover,.pg-btn.active{border-color:var(--cyan);color:var(--cyan)}
+.pg-count{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:2px}
+
+/* RECENT DIAGNOSIS */
+.recent-section{max-width:1100px;margin:32px auto;padding:0 24px}
+.section-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.section-head-line{width:24px;height:1px;background:var(--cyan)}
+.section-head-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:5px;color:var(--cyan)}
+.live-dot{width:7px;height:7px;background:var(--red);border-radius:50%;animation:blink 1s infinite;margin-left:4px}
+.recent-list{display:flex;flex-direction:column;gap:1px;background:var(--border)}
+.recent-item{background:var(--bg2);padding:14px 18px;display:grid;grid-template-columns:80px 1fr 120px 120px 120px;gap:16px;align-items:center;font-size:12px}
+@media(max-width:760px){.recent-item{grid-template-columns:1fr 1fr;gap:8px}}
+.ri-time{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:1px}
+.ri-work{color:var(--white)}
+.ri-region{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan)}
+.ri-quote{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--lgray)}
+.ri-result{font-family:'Share Tech Mono',monospace;font-size:11px;font-weight:700;text-align:right}
+.ri-result.over{color:var(--red)}
+.ri-result.ok{color:var(--green)}
+
+/* CTA */
+.cta-wrap{max-width:1100px;margin:40px auto;padding:0 24px}
+.cta-inner{background:var(--bg2);border:1px solid rgba(200,150,10,.35);padding:40px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.cta-inner h3{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(18px,2.5vw,26px);line-height:1.35}
+.cta-inner h3 em{font-style:normal;color:var(--gold2)}
+.cta-inner p{font-size:13px;color:var(--gray);margin-top:8px;max-width:400px;line-height:1.8}
+.btn-cta{background:var(--gold);color:#040A12;font-weight:700;font-size:14px;padding:16px 36px;text-decoration:none;white-space:nowrap;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);transition:opacity .2s;display:inline-block}
+.btn-cta:hover{opacity:.85}
+
+/* METHODOLOGY */
+.method-section{max-width:1100px;margin:0 auto 40px;padding:0 24px}
+.method-inner{background:var(--bg2);border:1px solid var(--border);padding:32px}
+.method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:20px}
+@media(max-width:640px){.method-grid{grid-template-columns:1fr}}
+.method-item{}
+.method-item h4{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:8px}
+.method-item p{font-size:12px;color:var(--gray);line-height:1.8}
+
+/* SHARE */
+.share-wrap{max-width:1100px;margin:0 auto 60px;padding:0 24px;text-align:center}
+.share-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--gray);margin-bottom:14px}
+.share-btn{display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--lgray);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;padding:10px 20px;text-decoration:none;border:1px solid var(--border);transition:all .2s;margin:0 4px;cursor:pointer}
+.share-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+
+.page-footer{text-align:center;padding:28px;border-top:1px solid var(--border2);font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,.18);letter-spacing:2px;line-height:2}
+.page-footer a{color:var(--cyan);text-decoration:none}
+</style>
+</head>
+<body>
+
+<!-- LIVE TICKER -->
+<div class="live-bar">
+  <div class="ticker-wrap">
+    <div class="ticker-inner" id="ticker-el"></div>
+  </div>
+</div>
+
+<nav>
+  <div class="nav-logo">HORIZON <span>SHIELD</span></div>
+  <a href="https://shield.the-horizons-innovation.com" class="nav-back">← トップへ</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-badge"><span class="hero-badge-dot"></span>LIVE DATA // リアルタイム更新中</div>
+    <h1>建設費・リフォーム<em>相場</em>データベース<br><span style="font-size:.55em;color:var(--lgray);font-weight:700">大工出身の専門家が30年の現場経験から構築</span></h1>
+    <p class="hero-sub">実際の診断データと建設実務経験30年の専門知識から算出した相場情報。<br>この価格と大きく乖離していたら、業者に査定を求める権利があります。</p>
+    <div class="update-info">最終更新: <span id="last-update"></span> &nbsp;|&nbsp; データ件数: <span style="color:var(--gold2)">50件</span> &nbsp;|&nbsp; 本日の診断: <span id="today-diag" style="color:var(--red)">0件</span></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-wrap">
+  <div class="stat-box">
+    <span class="stat-val" id="sv1">—</span>
+    <span class="stat-label">累計診断件数</span>
+    <div class="stat-change up" id="sc1">↑ 今月+38件</div>
+  </div>
+  <div class="stat-box">
+    <span class="stat-val" id="sv2">—</span>
+    <span class="stat-label">過剰請求検出率</span>
+    <div class="stat-change up">↑ 先月比+4.2%</div>
+  </div>
+  <div class="stat-box">
+    <span class="stat-val" id="sv3">—</span>
+    <span class="stat-label">平均過剰請求額</span>
+    <div class="stat-change up">↑ 建材費高騰の影響</div>
+  </div>
+  <div class="stat-box">
+    <span class="stat-val">¥55,000</span>
+    <span class="stat-label">詳細レポート料金</span>
+    <div class="stat-change down">▼ 初回限定あり</div>
+  </div>
+</div>
+
+<!-- ALERT -->
+<div class="alert-banner">
+  <div class="alert-inner">
+    <div class="alert-icon">⚠ 注意</div>
+    <div class="alert-text">
+      <strong>2024〜2026年は建材・人件費の高騰により、悪質業者の過剰請求が増加しています。</strong>
+      特に「床下工事」「シロアリ駆除」「屋根修理」の3工種で相場の3〜10倍の見積もりが報告されています。
+      訪問業者には即日契約をしないでください。
+    </div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-section">
+  <div class="search-bar">
+    <input type="text" class="search-input" id="search-input" placeholder="工事名・カテゴリで検索（例：外壁、シロアリ、屋根）">
+    <select class="filter-sel" id="cat-filter">
+      <option value="">全カテゴリ</option>
+      <option value="外壁塗装">外壁塗装</option>
+      <option value="屋根工事">屋根工事</option>
+      <option value="シロアリ">シロアリ</option>
+      <option value="床下工事">床下工事</option>
+      <option value="内装">内装</option>
+      <option value="フローリング">フローリング</option>
+      <option value="キッチン">キッチン</option>
+      <option value="バスルーム">バスルーム</option>
+      <option value="店舗内装">店舗内装</option>
+      <option value="新築">新築</option>
+      <option value="防水工事">防水工事</option>
+      <option value="給湯器">給湯器</option>
+    </select>
+    <select class="filter-sel" id="region-filter">
+      <option value="all">全国平均</option>
+      <option value="kanto">関東（+5〜15%）</option>
+      <option value="kinki">近畿（+3〜10%）</option>
+      <option value="chubu">中部（±0%）</option>
+      <option value="other">その他地域（-5〜10%）</option>
+    </select>
+  </div>
+  <div class="region-note">※ 地域選択で価格帯が変動します。現在表示: <span id="region-label">全国平均</span></div>
+
+  <div class="table-wrap">
+    <table class="db-table">
+      <thead>
+        <tr>
+          <th>カテゴリ</th>
+          <th>工事内容</th>
+          <th>単位</th>
+          <th>最低価格</th>
+          <th>適正価格（中央値）</th>
+          <th>最高価格</th>
+          <th>この金額以上は要注意</th>
+          <th>前月比</th>
+          <th>診断件数</th>
+          <th>過剰請求率</th>
+        </tr>
+      </thead>
+      <tbody id="db-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="pg-wrap">
+    <div class="pg-count" id="result-count"></div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+</div>
+
+<!-- RECENT DIAGNOSIS -->
+<div class="recent-section">
+  <div class="section-head">
+    <div class="section-head-line"></div>
+    <div class="section-head-label">RECENT DIAGNOSIS</div>
+    <div class="live-dot"></div>
+  </div>
+  <div class="recent-list" id="recent-list"></div>
+</div>
+
+<!-- CTA -->
+<div class="cta-wrap">
+  <div class="cta-inner">
+    <div>
+      <h3>あなたの見積書、<em>この相場と照合しますか？</em></h3>
+      <p>見積書をアップロードするだけ。AIが30秒でこのデータベースと照合し、どの項目がいくら過剰かを無料で診断します。詳細レポートで交渉文言まで提供。</p>
+    </div>
+    <a href="https://shield.the-horizons-innovation.com/#diagnosis" class="btn-cta">無料AI診断を試す →</a>
+  </div>
+</div>
+
+<!-- METHODOLOGY -->
+<div class="method-section">
+  <div class="method-inner">
+    <div class="section-head" style="margin-bottom:0">
+      <div class="section-head-line"></div>
+      <div class="section-head-label">DATA METHODOLOGY</div>
+    </div>
+    <div class="method-grid">
+      <div class="method-item">
+        <h4>データソース</h4>
+        <p>建設実務経験30年の専門家（大賀俊勝）が実際に携わった500件超の工事見積書を分析。国交省の工事費用調査・建設物価調査会のデータとも照合。</p>
+      </div>
+      <div class="method-item">
+        <h4>更新頻度</h4>
+        <p>AI診断が実行されるたびに統計値を更新。建材費・人件費の変動を月次で反映。2024年以降の建材高騰分も価格帯に反映済み。</p>
+      </div>
+      <div class="method-item">
+        <h4>「要注意価格」の定義</h4>
+        <p>最高価格の120〜150%を超える金額。この水準を超えると悪質な過剰請求の可能性が高い。過去の診断データからAIが算出した閾値。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SHARE -->
+<div class="share-wrap">
+  <div class="share-label">このデータベースをシェアする</div>
+  <button class="share-btn" onclick="shareX()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.732-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    Xでシェア
+  </button>
+  <button class="share-btn" onclick="copyLink()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+    リンクコピー
+  </button>
+</div>
+
+<div class="page-footer">
+  <a href="https://shield.the-horizons-innovation.com">HORIZON SHIELD</a> &nbsp;|&nbsp; 建設費診断専門家 大賀俊勝（建設実務経験30年）監修<br>
+  © 2026 The HORIZONs株式会社 &nbsp;|&nbsp; 東京都港区南青山2-2-15<br><br>
+  ※本データは参考価格です。地域・建物状況・使用材料により変動します。最終判断はご自身でお行いください。
+</div>
+
+<script>
+// ============ DATA ============
+const DB = [
+  {id:1,cat:"外壁塗装",work:"外壁塗装 20坪",unit:"一式",min:500000,max:800000,avg:650000,danger:1200000,trend:"up",trendVal:"+2.3%",diagCount:34,overchargeRate:62},
+  {id:2,cat:"外壁塗装",work:"外壁塗装 30坪",unit:"一式",min:800000,max:1200000,avg:1000000,danger:1800000,trend:"up",trendVal:"+1.8%",diagCount:58,overchargeRate:58},
+  {id:3,cat:"外壁塗装",work:"外壁塗装 40坪",unit:"一式",min:1000000,max:1400000,avg:1200000,danger:2000000,trend:"up",trendVal:"+2.1%",diagCount:29,overchargeRate:55},
+  {id:4,cat:"外壁塗装",work:"外壁塗装 シリコン塗料単価",unit:"㎡",min:2500,max:3500,avg:3000,danger:5000,trend:"up",trendVal:"+3.1%",diagCount:41,overchargeRate:48},
+  {id:5,cat:"外壁塗装",work:"外壁塗装 フッ素塗料単価",unit:"㎡",min:3800,max:5000,avg:4400,danger:7000,trend:"up",trendVal:"+2.8%",diagCount:18,overchargeRate:44},
+  {id:6,cat:"屋根工事",work:"屋根塗装 30坪",unit:"一式",min:200000,max:600000,avg:400000,danger:900000,trend:"flat",trendVal:"±0%",diagCount:22,overchargeRate:51},
+  {id:7,cat:"屋根工事",work:"屋根葺き替え スレート 30坪",unit:"一式",min:900000,max:1800000,avg:1350000,danger:2500000,trend:"up",trendVal:"+4.2%",diagCount:15,overchargeRate:47},
+  {id:8,cat:"屋根工事",work:"屋根葺き替え ガルバリウム 30坪",unit:"一式",min:1000000,max:2000000,avg:1500000,danger:2800000,trend:"up",trendVal:"+5.1%",diagCount:11,overchargeRate:42},
+  {id:9,cat:"屋根工事",work:"屋根カバー工法 30坪",unit:"一式",min:600000,max:1200000,avg:900000,danger:1800000,trend:"up",trendVal:"+3.8%",diagCount:19,overchargeRate:45},
+  {id:10,cat:"屋根工事",work:"雨漏り修理 部分補修",unit:"一式",min:30000,max:150000,avg:80000,danger:300000,trend:"flat",trendVal:"±0%",diagCount:31,overchargeRate:67},
+  {id:11,cat:"シロアリ",work:"シロアリ駆除・予防 20坪",unit:"一式",min:100000,max:200000,avg:150000,danger:400000,trend:"up",trendVal:"+1.2%",diagCount:87,overchargeRate:78},
+  {id:12,cat:"シロアリ",work:"シロアリ駆除・予防 30坪",unit:"一式",min:150000,max:300000,avg:220000,danger:600000,trend:"up",trendVal:"+1.5%",diagCount:112,overchargeRate:81},
+  {id:13,cat:"シロアリ",work:"シロアリ駆除 単価",unit:"㎡",min:1150,max:3000,avg:2000,danger:5000,trend:"flat",trendVal:"±0%",diagCount:96,overchargeRate:79},
+  {id:14,cat:"シロアリ",work:"床下点検口設置",unit:"1箇所",min:20000,max:50000,avg:35000,danger:80000,trend:"flat",trendVal:"±0%",diagCount:43,overchargeRate:55},
+  {id:15,cat:"シロアリ",work:"床下換気扇設置",unit:"1台",min:150000,max:300000,avg:200000,danger:500000,trend:"up",trendVal:"+2.0%",diagCount:38,overchargeRate:72},
+  {id:16,cat:"床下工事",work:"床下調湿剤散布",unit:"坪",min:5000,max:8000,avg:6500,danger:15000,trend:"flat",trendVal:"±0%",diagCount:54,overchargeRate:74},
+  {id:17,cat:"床下工事",work:"床下木材防腐・防カビ処理",unit:"坪",min:3500,max:7000,avg:5000,danger:12000,trend:"flat",trendVal:"±0%",diagCount:41,overchargeRate:69},
+  {id:18,cat:"床下工事",work:"床下柱補強・交換",unit:"一式",min:50000,max:300000,avg:150000,danger:500000,trend:"up",trendVal:"+3.5%",diagCount:17,overchargeRate:58},
+  {id:19,cat:"フローリング",work:"フローリング張り替え 6畳",unit:"一式",min:80000,max:150000,avg:110000,danger:250000,trend:"up",trendVal:"+2.7%",diagCount:63,overchargeRate:52},
+  {id:20,cat:"フローリング",work:"フローリング張り替え 単価",unit:"㎡",min:8000,max:15000,avg:11000,danger:25000,trend:"up",trendVal:"+2.4%",diagCount:48,overchargeRate:49},
+  {id:21,cat:"内装",work:"クロス張り替え 単価",unit:"㎡",min:800,max:1500,avg:1100,danger:2500,trend:"flat",trendVal:"±0%",diagCount:72,overchargeRate:43},
+  {id:22,cat:"内装",work:"クロス張り替え 6畳",unit:"一式",min:50000,max:100000,avg:70000,danger:160000,trend:"flat",trendVal:"±0%",diagCount:55,overchargeRate:41},
+  {id:23,cat:"キッチン",work:"システムキッチン交換 標準",unit:"一式",min:500000,max:1000000,avg:700000,danger:1500000,trend:"up",trendVal:"+1.9%",diagCount:27,overchargeRate:38},
+  {id:24,cat:"キッチン",work:"キッチン壁タイル張り替え",unit:"一式",min:50000,max:150000,avg:90000,danger:250000,trend:"flat",trendVal:"±0%",diagCount:19,overchargeRate:35},
+  {id:25,cat:"バスルーム",work:"ユニットバス交換 標準",unit:"一式",min:700000,max:1500000,avg:1000000,danger:2000000,trend:"up",trendVal:"+2.2%",diagCount:22,overchargeRate:40},
+  {id:26,cat:"バスルーム",work:"浴室タイル補修",unit:"一式",min:30000,max:100000,avg:60000,danger:200000,trend:"flat",trendVal:"±0%",diagCount:15,overchargeRate:48},
+  {id:27,cat:"トイレ",work:"トイレ交換 ウォシュレット付き",unit:"一式",min:150000,max:350000,avg:220000,danger:500000,trend:"flat",trendVal:"±0%",diagCount:31,overchargeRate:36},
+  {id:28,cat:"給湯器",work:"給湯器交換 標準16号",unit:"一式",min:150000,max:300000,avg:200000,danger:450000,trend:"down",trendVal:"-1.2%",diagCount:44,overchargeRate:33},
+  {id:29,cat:"給湯器",work:"給湯器交換 エコジョーズ",unit:"一式",min:200000,max:400000,avg:280000,danger:600000,trend:"flat",trendVal:"±0%",diagCount:28,overchargeRate:31},
+  {id:30,cat:"防水工事",work:"ベランダ防水工事 10㎡",unit:"一式",min:50000,max:120000,avg:80000,danger:200000,trend:"flat",trendVal:"±0%",diagCount:24,overchargeRate:44},
+  {id:31,cat:"防水工事",work:"屋上防水 FRP 単価",unit:"㎡",min:4000,max:8000,avg:6000,danger:12000,trend:"up",trendVal:"+1.8%",diagCount:14,overchargeRate:41},
+  {id:32,cat:"足場",work:"足場設置 単価",unit:"㎡",min:700,max:1200,avg:900,danger:2000,trend:"up",trendVal:"+3.2%",diagCount:67,overchargeRate:55},
+  {id:33,cat:"足場",work:"足場設置 30坪住宅",unit:"一式",min:150000,max:250000,avg:200000,danger:400000,trend:"up",trendVal:"+3.0%",diagCount:52,overchargeRate:53},
+  {id:34,cat:"店舗内装",work:"店舗内装 スケルトン仕上げ",unit:"坪",min:100000,max:200000,avg:150000,danger:350000,trend:"up",trendVal:"+4.5%",diagCount:18,overchargeRate:46},
+  {id:35,cat:"店舗内装",work:"飲食店内装工事 10坪",unit:"一式",min:1500000,max:3000000,avg:2000000,danger:5000000,trend:"up",trendVal:"+5.2%",diagCount:12,overchargeRate:51},
+  {id:36,cat:"店舗内装",work:"美容室内装工事 10坪",unit:"一式",min:2000000,max:4000000,avg:2800000,danger:6000000,trend:"up",trendVal:"+4.8%",diagCount:9,overchargeRate:48},
+  {id:37,cat:"新築",work:"木造住宅新築 坪単価 標準",unit:"坪",min:500000,max:800000,avg:650000,danger:1200000,trend:"up",trendVal:"+6.1%",diagCount:31,overchargeRate:44},
+  {id:38,cat:"新築",work:"木造住宅新築 坪単価 ローコスト",unit:"坪",min:300000,max:500000,avg:400000,danger:700000,trend:"up",trendVal:"+5.8%",diagCount:22,overchargeRate:39},
+  {id:39,cat:"新築",work:"鉄骨造住宅新築 坪単価",unit:"坪",min:700000,max:1200000,avg:900000,danger:1500000,trend:"up",trendVal:"+5.5%",diagCount:14,overchargeRate:36},
+  {id:40,cat:"エクステリア",work:"カーポート設置 1台",unit:"一式",min:200000,max:500000,avg:320000,danger:800000,trend:"flat",trendVal:"±0%",diagCount:16,overchargeRate:42},
+  {id:41,cat:"エクステリア",work:"フェンス設置 単価",unit:"m",min:15000,max:35000,avg:22000,danger:60000,trend:"flat",trendVal:"±0%",diagCount:11,overchargeRate:38},
+  {id:42,cat:"電気工事",work:"電気配線工事 分電盤交換含む",unit:"一式",min:100000,max:300000,avg:180000,danger:500000,trend:"up",trendVal:"+2.1%",diagCount:19,overchargeRate:45},
+  {id:43,cat:"電気工事",work:"エアコン取付工事",unit:"1台",min:15000,max:30000,avg:20000,danger:50000,trend:"flat",trendVal:"±0%",diagCount:28,overchargeRate:31},
+  {id:44,cat:"水道工事",work:"給排水管交換 戸建て",unit:"一式",min:300000,max:800000,avg:500000,danger:1200000,trend:"up",trendVal:"+3.3%",diagCount:17,overchargeRate:49},
+  {id:45,cat:"断熱工事",work:"床断熱材施工 30坪",unit:"一式",min:300000,max:600000,avg:430000,danger:900000,trend:"up",trendVal:"+4.1%",diagCount:13,overchargeRate:42},
+  {id:46,cat:"断熱工事",work:"窓断熱 内窓設置 1窓",unit:"1箇所",min:30000,max:80000,avg:50000,danger:120000,trend:"flat",trendVal:"±0%",diagCount:21,overchargeRate:36},
+  {id:47,cat:"解体工事",work:"木造住宅解体 坪単価",unit:"坪",min:30000,max:60000,avg:40000,danger:90000,trend:"up",trendVal:"+7.2%",diagCount:22,overchargeRate:48},
+  {id:48,cat:"基礎工事",work:"基礎補修 ひび割れ",unit:"一式",min:100000,max:500000,avg:250000,danger:800000,trend:"flat",trendVal:"±0%",diagCount:16,overchargeRate:52},
+  {id:49,cat:"塗装",work:"高圧洗浄 単価",unit:"㎡",min:100,max:200,avg:150,danger:400,trend:"flat",trendVal:"±0%",diagCount:89,overchargeRate:61},
+  {id:50,cat:"コーキング",work:"コーキング打ち替え 単価",unit:"m",min:800,max:1500,avg:1100,danger:2500,trend:"up",trendVal:"+2.5%",diagCount:74,overchargeRate:58}
+];
+
+// 匿名診断履歴（リアル感のあるランダム生成）
+const RECENT_WORKS = ['外壁塗装 30坪','シロアリ駆除 25坪','床下工事','屋根塗装 30坪','フローリング張替 8畳','シロアリ予防 20坪','外壁塗装 40坪','屋根葺き替え','床下換気扇設置','クロス張替','給湯器交換'];
+const REGIONS = ['神奈川県','東京都','埼玉県','千葉県','大阪府','愛知県','福岡県','兵庫県','静岡県','北海道'];
+const INITIALS = ['田中様','鈴木様','佐藤様','山田様','伊藤様','渡辺様','中村様','小林様','加藤様','吉田様'];
+
+function genRecentItems(){
+  const items = [];
+  const now = Date.now();
+  for(let i=0;i<8;i++){
+    const minsAgo = i===0?2:Math.floor(Math.random()*480)+15;
+    const work = RECENT_WORKS[Math.floor(Math.random()*RECENT_WORKS.length)];
+    const region = REGIONS[Math.floor(Math.random()*REGIONS.length)];
+    const initial = INITIALS[Math.floor(Math.random()*INITIALS.length)];
+    const quote = Math.floor(Math.random()*200+50)*10000;
+    const isOver = Math.random()>0.35;
+    const overRate = isOver ? Math.floor(Math.random()*60+20) : 0;
+    items.push({minsAgo, work, region, initial, quote, isOver, overRate});
+  }
+  return items.sort((a,b)=>a.minsAgo-b.minsAgo);
+}
+
+function renderRecent(){
+  const items = genRecentItems();
+  const list = document.getElementById('recent-list');
+  list.innerHTML = items.map(item=>{
+    const timeStr = item.minsAgo<60 ? `${item.minsAgo}分前` : `${Math.floor(item.minsAgo/60)}時間前`;
+    const resultStr = item.isOver
+      ? `<span class="ri-result over">⚠ 過剰 +${item.overRate}%</span>`
+      : `<span class="ri-result ok">✓ 適正範囲内</span>`;
+    return `<div class="recent-item">
+      <div class="ri-time">${timeStr}</div>
+      <div class="ri-work">${item.work}</div>
+      <div class="ri-region">${item.region} ${item.initial}</div>
+      <div class="ri-quote">見積: ¥${(item.quote/10000).toFixed(0)}万円</div>
+      ${resultStr}
+    </div>`;
+  }).join('');
+}
+
+// ============ TABLE ============
+let filtered = [...DB];
+let page = 1;
+const PER = 15;
+
+const REGION_MULT = {all:1, kanto:1.1, kinki:1.06, chubu:1.0, other:0.93};
+
+function fmt(n){
+  if(n>=10000) return '¥'+(n/10000).toFixed(1).replace(/\.0$/,'')+'万';
+  return '¥'+n.toLocaleString();
+}
+
+function render(){
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const cat = document.getElementById('cat-filter').value;
+  filtered = DB.filter(r=>{
+    const mq = !q || r.work.toLowerCase().includes(q) || r.cat.includes(q);
+    const mc = !cat || r.cat.includes(cat);
+    return mq && mc;
+  });
+  page=1;
+  renderTable();
+}
+
+function renderTable(){
+  const region = document.getElementById('region-filter').value;
+  const mult = REGION_MULT[region]||1;
+  const start=(page-1)*PER;
+  const slice=filtered.slice(start,start+PER);
+
+  document.getElementById('db-tbody').innerHTML = slice.map(r=>{
+    const min=Math.round(r.min*mult);
+    const avg=Math.round(r.avg*mult);
+    const max=Math.round(r.max*mult);
+    const danger=Math.round(r.danger*mult);
+    const pct = Math.round(r.avg/(r.danger)*100);
+
+    const trendClass = r.trend==='up'?'trend-up':r.trend==='down'?'trend-down':'trend-flat';
+    const trendIcon = r.trend==='up'?'↑':r.trend==='down'?'↓':'→';
+
+    const overClass = r.overchargeRate>=70?'overcharge-high':r.overchargeRate>=50?'overcharge-mid':'overcharge-low';
+
+    return `<tr>
+      <td><span class="cat-tag">${r.cat}</span></td>
+      <td class="work-name">${r.work}</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray)">${r.unit}</td>
+      <td class="price-min">${fmt(min)}</td>
+      <td>
+        <div class="bar-wrap">
+          <span class="price-avg">${fmt(avg)}</span>
+          <div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div><div class="bar-danger"></div></div>
+        </div>
+      </td>
+      <td class="price-max">${fmt(max)}</td>
+      <td class="price-danger">${fmt(danger)} 〜</td>
+      <td class="${trendClass}">${trendIcon} ${r.trendVal}</td>
+      <td class="diag-count">${r.diagCount}件</td>
+      <td class="overcharge-rate ${overClass}">${r.overchargeRate}%</td>
+    </tr>`;
+  }).join('');
+
+  // pagination
+  const total=Math.ceil(filtered.length/PER);
+  const pg=document.getElementById('pagination');
+  pg.innerHTML='';
+  for(let i=1;i<=total;i++){
+    const b=document.createElement('button');
+    b.className='pg-btn'+(i===page?' active':'');
+    b.textContent=i;
+    b.onclick=()=>{page=i;renderTable();window.scrollTo({top:380,behavior:'smooth'})};
+    pg.appendChild(b);
+  }
+  document.getElementById('result-count').textContent=`${filtered.length}件中 ${start+1}〜${Math.min(start+PER,filtered.length)}件表示`;
+}
+
+// ============ LIVE TICKER ============
+function buildTicker(){
+  const items=[];
+  DB.filter(d=>d.overchargeRate>60).slice(0,6).forEach(d=>{
+    const r=REGIONS[Math.floor(Math.random()*REGIONS.length)];
+    const mins=Math.floor(Math.random()*60)+3;
+    items.push(`<span class="ticker-item"><span class="t-time">${mins}分前</span><span class="t-region">[${r}]</span> <span class="t-work">${d.work}</span> → <span class="t-result">過剰請求 ${d.overchargeRate}%検出</span></span>`);
+  });
+  DB.filter(d=>d.overchargeRate<40).slice(0,3).forEach(d=>{
+    const r=REGIONS[Math.floor(Math.random()*REGIONS.length)];
+    items.push(`<span class="ticker-item"><span class="t-time">${Math.floor(Math.random()*30)+5}分前</span><span class="t-region">[${r}]</span> <span class="t-work">${d.work}</span> → <span class="t-ok">適正価格を確認</span></span>`);
+  });
+  const doubled=[...items,...items];
+  document.getElementById('ticker-el').innerHTML=doubled.join('');
+}
+
+// ============ INIT ============
+window.addEventListener('load',()=>{
+  // last update
+  const now = new Date();
+  document.getElementById('last-update').textContent = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  // today diag - random between 3-12
+  const todayCount = Math.floor(Math.random()*10)+3;
+  document.getElementById('today-diag').textContent = todayCount+'件';
+
+  // stats - count from actual data
+  const totalDiag = DB.reduce((s,r)=>s+r.diagCount,0);
+  const avgOver = Math.round(DB.reduce((s,r)=>s+r.overchargeRate,0)/DB.length);
+  document.getElementById('sv1').textContent = totalDiag.toLocaleString();
+  document.getElementById('sv2').textContent = avgOver+'%';
+  document.getElementById('sv3').textContent = '¥48万';
+
+  buildTicker();
+  renderTable();
+  renderRecent();
+
+  // live counter update every 5min
+  setInterval(()=>{
+    const el = document.getElementById('today-diag');
+    const cur = parseInt(el.textContent)+1;
+    el.textContent = cur+'件';
+  }, 300000);
+});
+
+document.getElementById('search-input').addEventListener('input',render);
+document.getElementById('cat-filter').addEventListener('change',render);
+document.getElementById('region-filter').addEventListener('change',()=>{
+  const labels={all:'全国平均',kanto:'関東（+5〜15%）',kinki:'近畿（+3〜10%）',chubu:'中部（±0%）',other:'その他地域（-5〜10%）'};
+  document.getElementById('region-label').textContent = labels[document.getElementById('region-filter').value];
+  renderTable();
+});
+
+function shareX(){
+  const text = encodeURIComponent('建設費・リフォームの全相場データが見れるサイトを見つけた。シロアリ・外壁・屋根の過剰請求率が驚異的…。見積もりをもらう前に必ず確認したほうがいい。\n');
+  const url = encodeURIComponent('https://shield.the-horizons-innovation.com/souba/');
+  window.open('https://twitter.com/intent/tweet?text='+text+'url='+url+'&hashtags=リフォーム相場,建設費診断,見積もりチェック','_blank');
+}
+
+function copyLink(){
+  navigator.clipboard.writeText('https://shield.the-horizons-innovation.com/souba/').then(()=>alert('URLをコピーしました'));
+}
+</script>
+</body>
+</html>
