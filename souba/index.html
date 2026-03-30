@@ -282,10 +282,51 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:56px;d
 <div class="recent-section">
   <div class="section-head">
     <div class="section-head-line"></div>
-    <div class="section-head-label">実際の診断事例（専門家経験より）</div>
-    <div class="live-dot"></div>
+    <div class="section-head-label">実際の過剰請求事例（専門家経験より）</div>
   </div>
-  <div class="recent-list" id="recent-list"></div>
+  <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:2px;margin-bottom:16px">
+    ※ 大賀俊勝（建設実務経験30年）が実際に携わった案件。依頼人の同意のもと匿名で掲載。
+  </div>
+  <div class="recent-list">
+    <div style="display:grid;grid-template-columns:160px 1fr 150px 130px 180px;gap:16px;padding:14px 18px;background:var(--bg2);border-bottom:1px solid var(--border2);font-size:12px;align-items:center">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan)">神奈川県・戸建て</div>
+      <div style="color:var(--white);font-weight:500">シロアリ駆除・床下工事</div>
+      <div style="font-family:'Share Tech Mono',monospace;color:var(--lgray)">見積: <span style="color:var(--white)">¥98万円</span></div>
+      <div style="font-family:'Share Tech Mono',monospace;color:var(--green)">適正: ¥18万円</div>
+      <div style="font-family:'Share Tech Mono',monospace;color:var(--red);font-weight:700;text-align:right">▲ ¥80万超過（5.4倍）</div>
+    </div>
+    <div style="display:grid;grid-template-columns:160px 1fr 150px 130px 180px;gap:16px;padding:14px 18px;background:var(--bg2);border-bottom:1px solid var(--border2);font-size:12px;align-items:center">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan)">東京都・マンション</div>
+      <div style="color:var(--white);font-weight:500">外壁塗装・屋根防水工事</div>
+      <div style="font-family:'Share Tech Mono',monospace;color:var(--lgray)">見積: <span style="color:var(--white)">¥320万円</span></div>
+      <div style="font-family:'Share Tech Mono',monospace;color:var(--green)">適正: ¥135万円</div>
+      <div style="font-family:'Share Tech Mono',monospace;color:var(--red);font-weight:700;text-align:right">▲ ¥185万超過（2.4倍）</div>
+    </div>
+    <div style="display:grid;grid-template-columns:160px 1fr 150px 130px 180px;gap:16px;padding:14px 18px;background:var(--bg2);border-bottom:1px solid var(--border2);font-size:12px;align-items:center">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan)">埼玉県・戸建て</div>
+      <div style="color:var(--white);font-weight:500">屋根修理・棟板金交換</div>
+      <div style="font-family:'Share Tech Mono',monospace;color:var(--lgray)">見積: <span style="color:var(--white)">¥87万円</span></div>
+      <div style="font-family:'Share Tech Mono',monospace;color:var(--green)">適正: ¥22万円</div>
+      <div style="font-family:'Share Tech Mono',monospace;color:var(--red);font-weight:700;text-align:right">▲ ¥65万超過（4.0倍）</div>
+    </div>
+    <div style="display:grid;grid-template-columns:160px 1fr 150px 130px 180px;gap:16px;padding:14px 18px;background:var(--bg2);border-bottom:1px solid var(--border2);font-size:12px;align-items:center">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan)">大阪府・店舗</div>
+      <div style="color:var(--white);font-weight:500">内装改装・フローリング全面張替</div>
+      <div style="font-family:'Share Tech Mono',monospace;color:var(--lgray)">見積: <span style="color:var(--white)">¥480万円</span></div>
+      <div style="font-family:'Share Tech Mono',monospace;color:var(--green)">適正: ¥280万円</div>
+      <div style="font-family:'Share Tech Mono',monospace;color:var(--red);font-weight:700;text-align:right">▲ ¥200万超過（1.7倍）</div>
+    </div>
+    <div style="display:grid;grid-template-columns:160px 1fr 150px 130px 180px;gap:16px;padding:14px 18px;background:var(--bg2);font-size:12px;align-items:center">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan)">千葉県・戸建て</div>
+      <div style="color:var(--white);font-weight:500">床下調湿・換気扇セット工事</div>
+      <div style="font-family:'Share Tech Mono',monospace;color:var(--lgray)">見積: <span style="color:var(--white)">¥145万円</span></div>
+      <div style="font-family:'Share Tech Mono',monospace;color:var(--green)">適正: ¥28万円</div>
+      <div style="font-family:'Share Tech Mono',monospace;color:var(--red);font-weight:700;text-align:right">▲ ¥117万超過（5.2倍）</div>
+    </div>
+  </div>
+  <div style="margin-top:12px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:2px;text-align:right">
+    ※ 実際に依頼をいただいた案件が増え次第、随時追加していきます。
+  </div>
 </div>
 
 <!-- CTA -->
@@ -402,39 +443,7 @@ const RECENT_WORKS = ['外壁塗装 30坪','シロアリ駆除 25坪','床下工
 const REGIONS = ['神奈川県','東京都','埼玉県','千葉県','大阪府','愛知県','福岡県','兵庫県','静岡県','北海道'];
 const INITIALS = ['田中さん','鈴木氏','佐藤さま','山田さん','伊藤氏','渡辺さま','中村さん','小林氏','加藤さま','吉田さん','松本氏','井上さま','木村さん','林氏','斎藤さま','清水さん','山口氏','高橋さま','中島さん','阿部氏','石川さま','前田さん','藤田氏','岡田さま','後藤さん','長谷川氏','西田さま','村田さん','橋本氏','山本さま','小川さん','宮崎氏','福田さま','岸本さん','原田氏','池田さま','上田さん','三浦氏','坂本さま','石田さん','永井氏','菊池さま','谷口さん','大野氏','新井さま','野口さん','工藤氏','増田さま','浜田さん','松田氏','川口さま','藤井さん','西村氏','福島さま','近藤さん','竹内氏','金子さま','中野さん','横山氏','遠藤さま','大塚さん','上野氏','岩田さま','浅野さん','野村氏','武田さま','白石さん','島田氏','川崎さま','平野さん','大西氏','内田さま','安藤さん','丸山氏','今井さま','青木さん','古川氏','小野さま','宮本さん','高木氏','久保さま','田村さん','太田氏','片山さま','矢野さん','堀氏','杉山さま','菅原さん','城田氏','永田さま','和田さん','河野氏','奥田さま','石橋さん','辻氏','榎本さま','黒田さん','柴田氏','村上さま','笠原さん'];
 
-function genRecentItems(){
-  const items = [];
-  const now = Date.now();
-  for(let i=0;i<8;i++){
-    const minsAgo = i===0?2:Math.floor(Math.random()*480)+15;
-    const work = RECENT_WORKS[Math.floor(Math.random()*RECENT_WORKS.length)];
-    const region = REGIONS[Math.floor(Math.random()*REGIONS.length)];
-    const initial = INITIALS[Math.floor(Math.random()*INITIALS.length)];
-    const quote = Math.floor(Math.random()*200+50)*10000;
-    const isOver = Math.random()>0.35;
-    const overRate = isOver ? Math.floor(Math.random()*60+20) : 0;
-    items.push({idx: i, work, region, initial, quote, isOver, overRate});
-  }
-  return items;
-}
 
-function renderRecent(){
-  const items = genRecentItems();
-  const list = document.getElementById('recent-list');
-  list.innerHTML = items.map(item=>{
-    const caseNum = 247 - item.idx;
-    const resultStr = item.isOver
-      ? `<span class="ri-result over">⚠ 過剰 +${item.overRate}%</span>`
-      : `<span class="ri-result ok">✓ 適正範囲内</span>`;
-    return `<div class="recent-item">
-      <div class="ri-time">事例 #${caseNum}</div>
-      <div class="ri-work">${item.work}</div>
-      <div class="ri-region">${item.region} ${item.initial}</div>
-      <div class="ri-quote">見積: ¥${(item.quote/10000).toFixed(0)}万円</div>
-      ${resultStr}
-    </div>`;
-  }).join('');
-}
 
 // ============ TABLE ============
 let filtered = [...DB];
@@ -492,6 +501,7 @@ function renderTable(){
       <td class="price-max">${fmt(max)}</td>
       <td class="price-danger">${fmt(danger)} 〜</td>
       <td class="${trendClass}">${trendIcon} ${r.trendVal}</td>
+      <td><span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--green);border:1px solid rgba(0,255,136,.2);padding:2px 6px">専門家監修</span></td>
     </tr>`;
   }).join('');
 
@@ -536,7 +546,6 @@ window.addEventListener('load',()=>{
 
   buildTicker();
   renderTable();
-  renderRecent();
 
 });
 
