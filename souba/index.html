@@ -180,34 +180,34 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:56px;d
   <div class="hero-grid"></div>
   <div class="hero-glow"></div>
   <div class="hero-inner">
-    <div class="hero-badge"><span class="hero-badge-dot"></span>LIVE DATA // 随時更新</div>
+    <div class="hero-badge">専門家監修 // 建設実務経験30年</div>
     <h1>建設費・リフォーム<em>相場</em>データベース<br><span style="font-size:.55em;color:var(--lgray);font-weight:700">大工出身の専門家が30年の現場経験から構築</span></h1>
     <p class="hero-sub">実際の診断データと建設実務経験30年の専門知識から算出した相場情報。<br>この価格と大きく乖離していたら、業者に査定を求める権利があります。</p>
-    <div class="update-info">最終更新: <span id="last-update"></span> &nbsp;|&nbsp; データ件数: <span style="color:var(--gold2)">50件</span> &nbsp;|&nbsp; 本日の診断: <span id="today-diag" style="color:var(--red)">0件</span></div>
+    <div class="update-info">最終更新: <span id="last-update"></span> &nbsp;|&nbsp; データ件数: <span style="color:var(--gold2)">50件</span></div>
   </div>
 </section>
 
 <!-- STATS -->
 <div class="stats-wrap">
   <div class="stat-box">
-    <span class="stat-val" id="sv1">—</span>
-    <span class="stat-label">累計診断件数</span>
-    <div class="stat-change up" id="sc1">↑ 今月+38件</div>
+    <span class="stat-val">30年</span>
+    <span class="stat-label">建設実務経験</span>
+    <div class="stat-change" style="color:var(--lgray)">大工・監督・CMR</div>
   </div>
   <div class="stat-box">
-    <span class="stat-val" id="sv2">—</span>
-    <span class="stat-label">過剰請求検出率</span>
-    <div class="stat-change up">↑ 先月比+4.2%</div>
+    <span class="stat-val">500件+</span>
+    <span class="stat-label">見積書査定経験</span>
+    <div class="stat-change" style="color:var(--lgray)">現場実績ベース</div>
   </div>
   <div class="stat-box">
-    <span class="stat-val" id="sv3">—</span>
-    <span class="stat-label">平均過剰請求額</span>
-    <div class="stat-change up">↑ 建材費高騰の影響</div>
+    <span class="stat-val">15〜20%</span>
+    <span class="stat-label">平均削減率</span>
+    <div class="stat-change" style="color:var(--lgray)">専門家経験値</div>
   </div>
   <div class="stat-box">
     <span class="stat-val">¥55,000</span>
     <span class="stat-label">詳細レポート料金</span>
-    <div class="stat-change down">▼ 初回限定あり</div>
+    <div class="stat-change" style="color:var(--lgray)">2営業日以内納品</div>
   </div>
 </div>
 
@@ -282,7 +282,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:56px;d
 <div class="recent-section">
   <div class="section-head">
     <div class="section-head-line"></div>
-    <div class="section-head-label">RECENT CASES</div>
+    <div class="section-head-label">実際の診断事例（専門家経験より）</div>
     <div class="live-dot"></div>
   </div>
   <div class="recent-list" id="recent-list"></div>
@@ -492,8 +492,6 @@ function renderTable(){
       <td class="price-max">${fmt(max)}</td>
       <td class="price-danger">${fmt(danger)} 〜</td>
       <td class="${trendClass}">${trendIcon} ${r.trendVal}</td>
-      <td class="diag-count">${r.diagCount}件</td>
-      <td class="overcharge-rate ${overClass}">${r.overchargeRate}%</td>
     </tr>`;
   }).join('');
 
@@ -532,27 +530,14 @@ window.addEventListener('load',()=>{
   const now = new Date();
   document.getElementById('last-update').textContent = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 
-  // today diag - random between 3-12
-  const todayCount = Math.floor(Math.random()*10)+3;
-  document.getElementById('today-diag').textContent = todayCount+'件';
 
   // stats - count from actual data
-  const totalDiag = DB.reduce((s,r)=>s+r.diagCount,0);
-  const avgOver = Math.round(DB.reduce((s,r)=>s+r.overchargeRate,0)/DB.length);
-  document.getElementById('sv1').textContent = totalDiag.toLocaleString();
-  document.getElementById('sv2').textContent = avgOver+'%';
-  document.getElementById('sv3').textContent = '¥48万';
+  // stats are static
 
   buildTicker();
   renderTable();
   renderRecent();
 
-  // live counter update every 5min
-  setInterval(()=>{
-    const el = document.getElementById('today-diag');
-    const cur = parseInt(el.textContent)+1;
-    el.textContent = cur+'件';
-  }, 300000);
 });
 
 document.getElementById('search-input').addEventListener('input',render);
