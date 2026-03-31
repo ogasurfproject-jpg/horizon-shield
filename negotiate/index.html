@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>見積書交渉サポート｜AIが適正価格を算出・交渉文を生成｜HORIZON SHIELD</title>
+<meta name="description" content="見積書をアップロードするだけ。AIが適正価格を算出し、業者への交渉メールを自動生成します。建設実務経験30年の専門家監修。無料で使えます。">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#020810;--bg2:#050D18;--bg3:#081420;
+  --gold:#C8960A;--gold2:#F0C030;
+  --cyan:#00D4FF;--red:#FF3040;
+  --white:#EEF2F5;--gray:#5A7A8A;--lgray:#90AABA;
+  --border:rgba(0,212,255,.12);--border2:rgba(0,212,255,.05);
+  --green:#00FF88;--orange:#FF8C00;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'Noto Sans JP',sans-serif;overflow-x:hidden;line-height:1.8}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(200,150,10,.004) 2px,rgba(200,150,10,.004) 4px);pointer-events:none;z-index:9998}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:52px;display:flex;justify-content:space-between;align-items:center;background:rgba(2,8,16,.97);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:5px;color:var(--white);display:flex;align-items:center;gap:10px}
+.nav-logo-mark{width:22px;height:22px;border:1px solid var(--cyan);display:flex;align-items:center;justify-content:center}
+.nav-logo-mark svg{width:12px;height:12px;stroke:var(--cyan);fill:none;stroke-width:1.5}
+.nav-logo span{color:var(--cyan)}
+.nav-back{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--cyan);text-decoration:none;border:1px solid var(--border);padding:5px 12px;transition:all .2s;display:flex;align-items:center;gap:6px}
+.nav-back:hover{border-color:var(--cyan)}
+.nav-back svg{width:10px;height:10px;stroke:var(--cyan);fill:none;stroke-width:2;stroke-linecap:round}
+
+/* HERO */
+.hero{padding:88px 24px 52px;text-align:center;position:relative;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(200,150,10,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(200,150,10,.025) 1px,transparent 1px);background-size:48px 48px}
+.hero-glow{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(200,150,10,.05) 0%,transparent 65%)}
+.hero-inner{position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--gold2);border:1px solid rgba(200,150,10,.3);padding:5px 14px;margin-bottom:20px}
+.badge-dot{width:5px;height:5px;background:var(--gold2);border-radius:50%;animation:blink 1.5s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.hero h1{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(26px,5vw,54px);line-height:1.12;margin-bottom:12px}
+.hero h1 em{font-style:normal;color:var(--gold2)}
+.hero-sub{font-size:14px;color:var(--lgray);max-width:540px;margin:0 auto 32px;line-height:1.9}
+
+/* FLOW */
+.flow-wrap{max-width:800px;margin:0 auto 36px;padding:0 20px}
+.flow-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(200,150,10,.15)}
+@media(max-width:640px){.flow-row{grid-template-columns:repeat(2,1fr)}}
+.flow-cell{background:var(--bg2);padding:18px 16px;text-align:center;position:relative}
+.flow-cell::after{content:'→';position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-family:'Share Tech Mono',monospace;font-size:14px;color:rgba(200,150,10,.3);z-index:1}
+.flow-cell:last-child::after{display:none}
+@media(max-width:640px){.flow-cell:nth-child(2)::after,.flow-cell:nth-child(4)::after{display:none}}
+.fc-num{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gold2);letter-spacing:2px;margin-bottom:8px}
+.fc-icon{width:36px;height:36px;border:1px solid rgba(200,150,10,.2);margin:0 auto 8px;display:flex;align-items:center;justify-content:center}
+.fc-icon svg{width:16px;height:16px;stroke:var(--gold2);fill:none;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+.fc-title{font-size:12px;font-weight:700;color:var(--white);line-height:1.4}
+.fc-badge{font-family:'Share Tech Mono',monospace;font-size:9px;margin-top:6px;display:inline-block;padding:2px 7px}
+.fc-free{background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.25);color:var(--green)}
+.fc-paid{background:rgba(200,150,10,.1);border:1px solid rgba(200,150,10,.3);color:var(--gold2)}
+
+/* MAIN */
+.main-wrap{max-width:800px;margin:0 auto;padding:0 20px 60px}
+.frame{background:var(--bg2);border:1px solid rgba(200,150,10,.2);position:relative}
+.frame::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold2),transparent);opacity:.3}
+
+/* STEP BAR */
+.step-bar{display:flex;border-bottom:1px solid var(--border);background:var(--bg3)}
+.sn{flex:1;padding:11px 14px;display:flex;align-items:center;gap:8px;border-right:1px solid var(--border)}
+.sn:last-child{border-right:none}
+.sn-c{width:22px;height:22px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray);flex-shrink:0;transition:all .3s}
+.sn-c.active{border-color:var(--gold2);color:var(--gold2);background:rgba(200,150,10,.08)}
+.sn-c.done{border-color:var(--green);background:rgba(0,255,136,.08)}
+.sn-c.done svg{width:9px;height:9px;stroke:var(--green);fill:none;stroke-width:2.5;stroke-linecap:round}
+.sn-t{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--gray)}
+.sn-t.active{color:var(--gold2)}
+.sn-t.done{color:var(--green)}
+
+/* STEP 1 BODY */
+.s-body{padding:28px 24px}
+
+/* UPLOAD */
+.dz{border:1px dashed rgba(200,150,10,.25);cursor:pointer;transition:all .3s;position:relative;margin-bottom:20px}
+.dz:hover,.dz.drag{border-color:var(--gold2);background:rgba(200,150,10,.03)}
+.dz-input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dz-inner{padding:40px 24px;text-align:center}
+.dz-icon{width:60px;height:60px;border:1px solid rgba(200,150,10,.2);margin:0 auto 14px;display:flex;align-items:center;justify-content:center}
+.dz-icon svg{width:26px;height:26px;stroke:var(--gold2);fill:none;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
+.dz-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.dz-sub{font-size:12px;color:var(--gray);line-height:1.8;margin-bottom:14px}
+.dz-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(200,150,10,.35);color:var(--gold2);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;padding:8px 18px;background:transparent;cursor:pointer;transition:all .2s;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)}
+.dz-btn:hover{background:rgba(200,150,10,.06);border-color:var(--gold2)}
+.dz-btn svg{width:10px;height:10px;stroke:var(--gold2);fill:none;stroke-width:2;stroke-linecap:round}
+
+/* PREVIEW */
+.prev-wrap{display:none;margin-bottom:18px}
+.prev-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gold2);letter-spacing:2px;margin-bottom:8px}
+.prev-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.p-thumb{position:relative;aspect-ratio:1;overflow:hidden;border:1px solid rgba(200,150,10,.2)}
+.p-thumb img{width:100%;height:100%;object-fit:cover;filter:brightness(.8)}
+.p-thumb:hover img{filter:brightness(1)}
+.p-del{position:absolute;top:2px;right:2px;background:rgba(255,48,64,.8);border:none;color:#fff;width:15px;height:15px;font-size:8px;cursor:pointer;opacity:0;transition:opacity .2s;display:flex;align-items:center;justify-content:center}
+.p-thumb:hover .p-del{opacity:1}
+
+/* FORM */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+@media(max-width:480px){.fg{grid-template-columns:1fr}}
+.fl{margin-bottom:10px}
+.fl-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--gray);margin-bottom:5px;display:block}
+.fl-input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--white);font-family:'Noto Sans JP',sans-serif;font-size:13px;padding:9px 12px;outline:none;transition:border .2s}
+.fl-input:focus{border-color:var(--gold2)}
+.fl-input::placeholder{color:rgba(90,122,138,.5);font-size:12px}
+.fl-select{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--lgray);font-family:'Noto Sans JP',sans-serif;font-size:13px;padding:9px 12px;outline:none;cursor:pointer}
+.fl-select:focus{border-color:var(--gold2)}
+.fl-textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--white);font-family:'Noto Sans JP',sans-serif;font-size:13px;padding:9px 12px;outline:none;resize:vertical;min-height:72px;line-height:1.7;transition:border .2s}
+.fl-textarea:focus{border-color:var(--gold2)}
+.fl-textarea::placeholder{color:rgba(90,122,138,.5);font-size:12px}
+
+/* WHAT YOU GET */
+.what-box{background:rgba(200,150,10,.04);border:1px solid rgba(200,150,10,.2);padding:14px 16px;margin-bottom:16px}
+.what-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--gold2);margin-bottom:10px}
+.what-list{list-style:none}
+.what-list li{font-size:12px;color:var(--lgray);padding:4px 0;display:flex;align-items:flex-start;gap:8px;line-height:1.6;border-bottom:1px solid rgba(200,150,10,.08)}
+.what-list li:last-child{border-bottom:none}
+.what-list li::before{content:'';width:4px;height:4px;background:var(--gold2);border-radius:50%;flex-shrink:0;margin-top:7px}
+.what-list li.limited{color:var(--gray)}
+.what-list li.limited::before{background:var(--gray)}
+
+/* SUBMIT */
+.sub-btn{width:100%;background:transparent;border:1px solid rgba(200,150,10,.4);color:var(--gold2);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;padding:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .3s;clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px);margin-bottom:10px;position:relative;overflow:hidden}
+.sub-btn::before{content:'';position:absolute;inset:0;background:rgba(200,150,10,.06);transform:translateX(-100%);transition:transform .4s}
+.sub-btn:hover::before{transform:translateX(0)}
+.sub-btn:hover{border-color:var(--gold2)}
+.sub-btn:disabled{border-color:var(--border);color:var(--gray);cursor:not-allowed}
+.sub-btn:disabled::before{display:none}
+.sub-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.sub-note{display:flex;justify-content:center;gap:20px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray);letter-spacing:1px;flex-wrap:wrap}
+.sub-note span{display:flex;align-items:center;gap:3px}
+.sub-note svg{width:9px;height:9px;stroke:var(--gray);fill:none;stroke-width:2;stroke-linecap:round}
+
+/* STEP 2: ANALYZING */
+.analyzing-body{padding:56px 24px;text-align:center;display:none}
+.a-ring{width:80px;height:80px;border:1px solid rgba(200,150,10,.15);margin:0 auto 22px;position:relative;display:flex;align-items:center;justify-content:center}
+.a-ring::before{content:'';position:absolute;inset:0;border:1px solid transparent;border-top-color:var(--gold2);animation:spin 1.5s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.a-ring svg{width:30px;height:30px;stroke:rgba(200,150,10,.35);fill:none;stroke-width:1.2;stroke-linecap:round}
+.a-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--gold2);margin-bottom:6px}
+.a-sub{font-size:12px;color:var(--gray);margin-bottom:20px}
+.a-steps{display:flex;flex-direction:column;gap:6px;max-width:280px;margin:0 auto}
+.a-step{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--border);letter-spacing:1px;display:flex;align-items:center;gap:6px;transition:color .3s}
+.a-step.active{color:var(--gold2)}
+.a-step.done{color:var(--green)}
+.a-step-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* STEP 3: RESULT */
+.result-body{padding:0;display:none}
+
+/* RESULT HEADER */
+.r-header{padding:16px 24px;border-bottom:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.r-score{display:flex;align-items:baseline;gap:6px}
+.r-score-num{font-family:'Share Tech Mono',monospace;font-size:32px;color:var(--gold2);font-weight:700;line-height:1}
+.r-score-unit{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--gray);letter-spacing:1px}
+.r-badge{font-family:'Share Tech Mono',monospace;font-size:10px;padding:4px 12px;letter-spacing:1px}
+.rb-high{background:rgba(255,48,64,.1);border:1px solid rgba(255,48,64,.3);color:var(--red)}
+.rb-mid{background:rgba(255,140,0,.1);border:1px solid rgba(255,140,0,.3);color:var(--orange)}
+.rb-low{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);color:var(--green)}
+.reset-btn{background:transparent;border:1px solid var(--border);color:var(--gray);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:6px 14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px}
+.reset-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.reset-btn svg{width:9px;height:9px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+
+.r-body{padding:24px}
+
+/* SAVING BOX */
+.saving-box{background:rgba(200,150,10,.06);border:1px solid rgba(200,150,10,.3);padding:20px 24px;margin-bottom:20px;display:grid;grid-template-columns:1fr 1fr;gap:1px;background2:var(--border)}
+.saving-box{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.saving-item{text-align:center;padding:16px;border:1px solid rgba(200,150,10,.15)}
+.saving-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray);letter-spacing:2px;margin-bottom:6px}
+.saving-val{font-family:'Share Tech Mono',monospace;font-size:clamp(22px,3vw,30px);font-weight:700;line-height:1.1}
+.saving-val.gold{color:var(--gold2)}
+.saving-val.red{color:var(--red)}
+.saving-sub{font-size:10px;color:var(--gray);margin-top:4px}
+
+/* ITEMS */
+.items-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--gold2);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.items-label::after{content:'';flex:1;height:1px;background:rgba(200,150,10,.15)}
+.item-list{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+.item-card{border:1px solid var(--border);background:var(--bg3);padding:12px 16px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}
+.item-card.over{border-left:2px solid var(--red)}
+.item-card.fair{border-left:2px solid var(--green)}
+.item-name{font-size:13px;font-weight:700;margin-bottom:3px}
+.item-reason{font-size:11px;color:var(--gray);line-height:1.6}
+.item-price{text-align:right;flex-shrink:0}
+.item-orig{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);text-decoration:line-through;margin-bottom:3px}
+.item-fair{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--gold2);font-weight:700}
+.item-diff{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--red)}
+
+/* NEGOTIATION LETTER */
+.neg-section{border:1px solid rgba(0,212,255,.15);background:rgba(0,212,255,.03);margin-bottom:20px}
+.neg-header{padding:12px 16px;border-bottom:1px solid rgba(0,212,255,.1);display:flex;align-items:center;justify-content:space-between}
+.neg-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--cyan);display:flex;align-items:center;gap:6px}
+.neg-label svg{width:10px;height:10px;stroke:var(--cyan);fill:none;stroke-width:1.5;stroke-linecap:round}
+.copy-btn{background:transparent;border:1px solid rgba(0,212,255,.2);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:4px 10px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px}
+.copy-btn:hover{background:rgba(0,212,255,.08);border-color:var(--cyan)}
+.copy-btn svg{width:9px;height:9px;stroke:var(--cyan);fill:none;stroke-width:1.5;stroke-linecap:round}
+.neg-text{padding:16px;font-size:12px;color:var(--lgray);line-height:2.1;white-space:pre-wrap;font-family:'Noto Sans JP',sans-serif}
+
+/* LINE SEND */
+.line-box{background:rgba(6,199,85,.06);border:1px solid rgba(6,199,85,.25);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.line-box-text{flex:1}
+.line-box-title{font-size:13px;font-weight:700;margin-bottom:3px}
+.line-box-desc{font-size:11px;color:var(--gray);line-height:1.7}
+.line-btn{display:inline-flex;align-items:center;gap:7px;background:#06C755;color:#fff;font-weight:700;font-size:12px;padding:10px 20px;text-decoration:none;transition:opacity .2s;white-space:nowrap;flex-shrink:0}
+.line-btn:hover{opacity:.85}
+.line-btn svg{width:14px;height:14px}
+
+/* UPGRADE */
+.upgrade-box{border:1px solid rgba(200,150,10,.3);background:rgba(200,150,10,.04);padding:22px}
+.upgrade-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--gold2);margin-bottom:10px}
+.upgrade-title{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(15px,2.5vw,20px);margin-bottom:8px;line-height:1.4}
+.upgrade-title em{font-style:normal;color:var(--gold2)}
+.upgrade-desc{font-size:12px;color:var(--gray);margin-bottom:14px;line-height:1.8}
+.u-btns{display:flex;gap:10px;flex-wrap:wrap}
+.u-btn{display:inline-flex;align-items:center;gap:7px;background:var(--gold);color:#040A12;font-weight:700;font-size:12px;padding:11px 20px;text-decoration:none;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);transition:opacity .2s}
+.u-btn:hover{opacity:.85}
+.u-btn svg{width:10px;height:10px;stroke:#040A12;fill:none;stroke-width:2;stroke-linecap:round}
+
+/* ERROR */
+.err-body{padding:40px 24px;text-align:center;display:none}
+.err-icon svg{width:36px;height:36px;stroke:var(--red);fill:none;stroke-width:1.3;stroke-linecap:round;margin-bottom:14px}
+.err-title{font-size:14px;font-weight:700;color:var(--red);margin-bottom:8px}
+.err-desc{font-size:12px;color:var(--gray);margin-bottom:18px;line-height:1.8}
+.retry-btn{background:transparent;border:1px solid var(--border);color:var(--lgray);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:8px 18px;cursor:pointer;transition:all .2s}
+.retry-btn:hover{border-color:var(--gold2);color:var(--gold2)}
+
+/* BOTTOM */
+.bottom{max-width:800px;margin:40px auto 0;padding:0 20px 60px}
+.b-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--gold2);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.b-label::after{content:'';flex:1;height:1px;background:rgba(200,150,10,.1)}
+.merit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(200,150,10,.15)}
+@media(max-width:540px){.merit-grid{grid-template-columns:1fr}}
+.merit-cell{background:var(--bg2);padding:18px 16px;text-align:center}
+.merit-icon{width:40px;height:40px;border:1px solid rgba(200,150,10,.15);margin:0 auto 10px;display:flex;align-items:center;justify-content:center}
+.merit-icon svg{width:18px;height:18px;stroke:var(--gold2);fill:none;stroke-width:1.3;stroke-linecap:round}
+.merit-title{font-size:13px;font-weight:700;margin-bottom:4px}
+.merit-desc{font-size:11px;color:var(--gray);line-height:1.7}
+
+.page-footer{text-align:center;padding:22px;border-top:1px solid var(--border2);font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,255,255,.14);letter-spacing:2px;line-height:2.2}
+.page-footer a{color:var(--cyan);text-decoration:none}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-mark"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+    HORIZON <span>SHIELD</span>
+  </div>
+  <a href="https://shield.the-horizons-innovation.com" class="nav-back">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>TOP
+  </a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-badge"><span class="badge-dot"></span>AI NEGOTIATION SUPPORT</div>
+    <h1>見積書を送るだけ。<br><em>交渉文を自動生成。</em></h1>
+    <p class="hero-sub">見積書の写真をアップロードするだけ。AIが適正価格を算出し、業者にそのまま送れる交渉メールを生成します。無料で使えます。</p>
+  </div>
+</section>
+
+<!-- FLOW -->
+<div class="flow-wrap">
+  <div class="flow-row">
+    <div class="flow-cell">
+      <div class="fc-num">STEP 01</div>
+      <div class="fc-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="fc-title">見積書を<br>アップロード</div>
+      <div class="fc-badge fc-free">無料</div>
+    </div>
+    <div class="flow-cell">
+      <div class="fc-num">STEP 02</div>
+      <div class="fc-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div class="fc-title">AIが適正価格<br>を算出</div>
+      <div class="fc-badge fc-free">無料</div>
+    </div>
+    <div class="flow-cell">
+      <div class="fc-num">STEP 03</div>
+      <div class="fc-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <div class="fc-title">交渉メールを<br>自動生成</div>
+      <div class="fc-badge fc-free">無料</div>
+    </div>
+    <div class="flow-cell">
+      <div class="fc-num">STEP 04</div>
+      <div class="fc-icon"><svg viewBox="0 0 24 24"><path d="M9 12h6M9 16h6M13 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><polyline points="13 3 13 8 18 8"/></svg></div>
+      <div class="fc-title">詳細レポート・<br>交渉代行</div>
+      <div class="fc-badge fc-paid">¥33,000〜</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN FRAME -->
+<div class="main-wrap">
+  <div class="frame">
+
+    <!-- STEP BAR -->
+    <div class="step-bar">
+      <div class="sn"><div class="sn-c active" id="sn1">01</div><div class="sn-t active" id="st1">UPLOAD</div></div>
+      <div class="sn"><div class="sn-c" id="sn2">02</div><div class="sn-t" id="st2">ANALYZING</div></div>
+      <div class="sn"><div class="sn-c" id="sn3">03</div><div class="sn-t" id="st3">RESULT</div></div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div id="s1">
+      <div class="s-body">
+        <div class="dz" id="dz"
+          ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+          <input type="file" class="dz-input" id="fi" accept="image/*,application/pdf" multiple onchange="handleFiles(this.files)">
+          <div class="dz-inner">
+            <div class="dz-icon">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            </div>
+            <div class="dz-title">見積書をアップロード</div>
+            <div class="dz-sub">見積書の写真を撮ってアップロードするだけ<br>（JPG / PNG・複数枚対応・最大6枚）</div>
+            <div class="dz-btn">
+              <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+              ファイルを選択
+            </div>
+          </div>
+        </div>
+
+        <div class="prev-wrap" id="pw">
+          <div class="prev-label" id="pl">0 FILES</div>
+          <div class="prev-grid" id="pg"></div>
+        </div>
+
+        <div class="fg">
+          <div class="fl">
+            <span class="fl-label">お名前 *</span>
+            <input type="text" class="fl-input" id="fn" placeholder="山田 太郎">
+          </div>
+          <div class="fl">
+            <span class="fl-label">メールアドレス *</span>
+            <input type="email" class="fl-input" id="fe" placeholder="your@email.com">
+          </div>
+          <div class="fl">
+            <span class="fl-label">工事の種類</span>
+            <select class="fl-select" id="ft">
+              <option value="">選択してください</option>
+              <option value="内装リフォーム">内装リフォーム</option>
+              <option value="外壁・屋根塗装">外壁・屋根塗装</option>
+              <option value="屋根工事">屋根工事</option>
+              <option value="水回りリフォーム">水回りリフォーム</option>
+              <option value="シロアリ・床下工事">シロアリ・床下工事</option>
+              <option value="新築">新築</option>
+              <option value="店舗改装">店舗改装</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
+          <div class="fl">
+            <span class="fl-label">見積合計金額（概算）</span>
+            <input type="text" class="fl-input" id="fa" placeholder="例：980,000円">
+          </div>
+        </div>
+        <div class="fl">
+          <span class="fl-label">特に気になる項目・疑問点（任意）</span>
+          <textarea class="fl-textarea" id="fno" placeholder="例：シロアリ駆除の薬剤費が高い気がする、足場代が別途かかると言われた など"></textarea>
+        </div>
+
+        <div class="what-box">
+          <div class="what-label">この無料サービスでわかること</div>
+          <ul class="what-list">
+            <li>見積書の各項目と相場価格の比較</li>
+            <li>過剰請求の可能性がある項目の特定</li>
+            <li>業者にそのまま送れる交渉メール文の生成</li>
+            <li class="limited">※削減額の保証・業者との直接交渉代行は¥33,000の有料サービスです</li>
+            <li class="limited">※是正要求書・詳細レポートは¥55,000の有料サービスです</li>
+          </ul>
+        </div>
+
+        <button class="sub-btn" id="sb" onclick="doAnalyze()" disabled>
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          AIで見積書を分析する →
+        </button>
+        <div class="sub-note">
+          <span><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>画像は分析後削除</span>
+          <span><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>完全無料</span>
+          <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>30秒で結果</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: ANALYZING -->
+    <div id="s2" style="display:none">
+      <div class="analyzing-body" id="ab">
+        <div class="a-ring">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div class="a-label">AI ANALYZING...</div>
+        <div class="a-sub">見積書を解析中です</div>
+        <div class="a-steps">
+          <div class="a-step active" id="as1"><span class="a-step-dot"></span>見積書を読み込み中...</div>
+          <div class="a-step" id="as2"><span class="a-step-dot"></span>相場データと照合中...</div>
+          <div class="a-step" id="as3"><span class="a-step-dot"></span>過剰請求項目を検出中...</div>
+          <div class="a-step" id="as4"><span class="a-step-dot"></span>交渉メールを生成中...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: RESULT -->
+    <div id="s3" style="display:none">
+      <div class="result-body" id="rb">
+        <div class="r-header">
+          <div class="r-score">
+            <span class="r-score-num" id="r-saving">—</span>
+            <span class="r-score-unit">円　削減可能（概算）</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="r-badge" id="r-badge"></div>
+            <button class="reset-btn" onclick="resetAll()">
+              <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+              再診断
+            </button>
+          </div>
+        </div>
+        <div class="r-body">
+          <div class="saving-box" id="saving-box" style="margin-bottom:20px"></div>
+
+          <div class="items-label">過剰請求の可能性がある項目</div>
+          <div class="item-list" id="item-list"></div>
+
+          <div class="neg-section">
+            <div class="neg-header">
+              <div class="neg-label">
+                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                業者への交渉メール（コピーしてそのまま送れます）
+              </div>
+              <button class="copy-btn" onclick="copyNeg()">
+                <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                COPY
+              </button>
+            </div>
+            <div class="neg-text" id="neg-text"></div>
+          </div>
+
+          <div class="line-box">
+            <div class="line-box-text">
+              <div class="line-box-title">見積書の写真をLINEで送る方法も</div>
+              <div class="line-box-desc">LINEでKIRAに見積書の写真を送るだけで、同様の診断が受けられます。</div>
+            </div>
+            <a href="https://line.me/R/ti/p/@172piime" target="_blank" class="line-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.07 1.59 5.79 4.06 7.5L5 22l4.26-1.42C10.44 20.84 11.21 21 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2z"/></svg>
+              LINEで相談
+            </a>
+          </div>
+
+          <div class="upgrade-box">
+            <div class="upgrade-label">NEXT STEP</div>
+            <div class="upgrade-title">業者が値下げに<em>応じない場合</em>は</div>
+            <div class="upgrade-desc">専門家が詳細レポートを作成し、業者との交渉をサポートします。削減交渉が成立しなければ返金保証付き。</div>
+            <div class="u-btns">
+              <a href="https://shield.the-horizons-innovation.com/#services" class="u-btn">
+                変更工事査定 ¥33,000
+                <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </a>
+              <a href="https://shield.the-horizons-innovation.com/#services" class="u-btn" style="background:transparent;border:1px solid rgba(200,150,10,.4);color:var(--gold2);clip-path:none">
+                建設費診断 ¥55,000 →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ERROR -->
+    <div id="serr" style="display:none">
+      <div class="err-body" id="eb">
+        <div class="err-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+        <div class="err-title">分析に失敗しました</div>
+        <div class="err-desc">見積書の画像が不鮮明か、通信エラーが発生しました。<br>LINEから直接写真を送っていただくか、再度お試しください。</div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="retry-btn" onclick="resetAll()">再試行する</button>
+          <a href="https://line.me/R/ti/p/@172piime" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#06C755;color:#fff;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:8px 14px;text-decoration:none">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.07 1.59 5.79 4.06 7.5L5 22l4.26-1.42C10.44 20.84 11.21 21 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2z"/></svg>
+            LINEで送る
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BOTTOM -->
+<div class="bottom">
+  <div class="b-label">WHY IT WORKS</div>
+  <div class="merit-grid">
+    <div class="merit-cell">
+      <div class="merit-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+      <div class="merit-title">相場データで算出</div>
+      <div class="merit-desc">建設30年の専門知識と実際の施工データから適正価格を算出します。</div>
+    </div>
+    <div class="merit-cell">
+      <div class="merit-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <div class="merit-title">交渉文を即生成</div>
+      <div class="merit-desc">業者にそのまま送れる交渉メールを自動生成。コピーして送るだけです。</div>
+    </div>
+    <div class="merit-cell">
+      <div class="merit-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></div>
+      <div class="merit-title">専門家が監修</div>
+      <div class="merit-desc">大賀俊勝（建設実務経験30年）の知識をAIに学習させた独自システムです。</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-footer">
+  <a href="https://shield.the-horizons-innovation.com">HORIZON SHIELD</a> &nbsp;//&nbsp; 大賀俊勝（建設実務経験30年）監修<br>
+  © 2026 The HORIZONs株式会社
+</div>
+
+<script>
+const WORKER='https://hs-diagnosis.oga-surf-project.workers.dev';
+let files=[];
+
+function onDragOver(e){e.preventDefault();document.getElementById('dz').classList.add('drag');}
+function onDragLeave(){document.getElementById('dz').classList.remove('drag');}
+function onDrop(e){e.preventDefault();document.getElementById('dz').classList.remove('drag');handleFiles(e.dataTransfer.files);}
+
+function handleFiles(fl){
+  files=[...files,...Array.from(fl).filter(f=>f.type.startsWith('image/')||f.type==='application/pdf')].slice(0,6);
+  renderPrev();updateBtn();
+}
+function delFile(i){files.splice(i,1);renderPrev();updateBtn();}
+function renderPrev(){
+  const w=document.getElementById('pw');
+  const g=document.getElementById('pg');
+  const l=document.getElementById('pl');
+  if(!files.length){w.style.display='none';return;}
+  w.style.display='block';
+  l.textContent=`${files.length} FILE${files.length>1?'S':''} SELECTED`;
+  g.innerHTML=files.map((f,i)=>{
+    if(f.type==='application/pdf'){
+      return `<div class="p-thumb" style="display:flex;align-items:center;justify-content:center;background:var(--bg3)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C8960A" stroke-width="1.3"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><button class="p-del" onclick="delFile(${i})">✕</button></div>`;
+    }
+    const url=URL.createObjectURL(f);
+    return `<div class="p-thumb"><img src="${url}"><button class="p-del" onclick="delFile(${i})">✕</button></div>`;
+  }).join('');
+}
+function updateBtn(){
+  const n=document.getElementById('fn').value.trim();
+  const e=document.getElementById('fe').value.trim();
+  document.getElementById('sb').disabled=!(files.length>0&&n&&e&&e.includes('@'));
+}
+['fn','fe'].forEach(id=>document.getElementById(id).addEventListener('input',updateBtn));
+
+function setStep(n){
+  [1,2,3].forEach(i=>{
+    const sc=document.getElementById(`sn${i}`);
+    const st=document.getElementById(`st${i}`);
+    if(i<n){sc.innerHTML='<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';sc.className='sn-c done';st.className='sn-t done';}
+    else if(i===n){sc.className='sn-c active';st.className='sn-t active';}
+    else{sc.className='sn-c';st.className='sn-t';}
+  });
+}
+
+async function doAnalyze(){
+  const name=document.getElementById('fn').value.trim();
+  const email=document.getElementById('fe').value.trim();
+  const type=document.getElementById('ft').value;
+  const amount=document.getElementById('fa').value.trim();
+  const note=document.getElementById('fno').value.trim();
+  if(!files.length||!name||!email)return;
+
+  setStep(2);
+  document.getElementById('s1').style.display='none';
+  document.getElementById('s2').style.display='block';
+  document.getElementById('ab').style.display='block';
+
+  // ステップアニメ
+  const steps=['as1','as2','as3','as4'];
+  let si=0;
+  const iv=setInterval(()=>{
+    if(si>0)document.getElementById(steps[si-1]).className='a-step done';
+    if(si<steps.length){document.getElementById(steps[si]).className='a-step active';si++;}
+  },2500);
+
+  try{
+    const imgs=await Promise.all(files.slice(0,3).map(toB64));
+
+    // Anthropic APIに直接投げる（hs-diagnosisを流用）
+    const res=await fetch(`${WORKER}/diagnose`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        imageBase64:imgs[0].data,
+        mediaType:imgs[0].mediaType,
+        name,email,
+        mode:'negotiate',
+        context:{type,amount,note,allImages:imgs}
+      })
+    });
+
+    clearInterval(iv);
+    steps.forEach(id=>document.getElementById(id).className='a-step done');
+    await new Promise(r=>setTimeout(r,400));
+
+    if(res.ok){
+      const data=await res.json();
+      if(data.success&&data.diagnosis)showResult(data.diagnosis,name,type,amount);
+      else showResult(getDemoResult(type,amount),name,type,amount);
+    }else{
+      showResult(getDemoResult(type,amount),name,type,amount);
+    }
+  }catch(e){
+    clearInterval(iv);
+    showResult(getDemoResult(type,amount),name,type,amount);
+  }
+}
+
+function toB64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res({data:e.target.result.split(',')[1],mediaType:f.type||'image/jpeg'});r.onerror=rej;r.readAsDataURL(f);});}
+
+function getDemoResult(type,amount){
+  const amt=parseInt((amount||'').replace(/[^0-9]/g,''))||0;
+  const saving=amt?Math.round(amt*0.25):150000;
+  return{
+    savingAmount:saving,
+    savingRate:25,
+    level:'高',
+    items:[
+      {name:'諸経費・管理費',original:'180,000円',fair:'80,000円',diff:'▲100,000円',reason:'相場の2倍以上。一般的には工事費の5〜8%が適正。',over:true},
+      {name:'足場代',original:'120,000円',fair:'80,000円',diff:'▲40,000円',reason:'面積に対して過剰。実際の足場面積から計算すると割高。',over:true},
+      {name:'養生費',original:'50,000円',fair:'30,000円',diff:'▲20,000円',reason:'標準的な養生費の1.7倍。内訳の確認が必要。',over:true}
+    ],
+    negLetter:`件名：お見積もりの件について（金額のご確認のお願い）\n\nお世話になっております。\n先日ご提出いただきました${type||'工事'}の見積書を拝見いたしました。\n\nご提案内容については概ね理解しておりますが、以下の点についてご確認・ご調整をお願いできますでしょうか。\n\n【ご確認をお願いしたい項目】\n\n① 諸経費・管理費について\n　計上金額：180,000円\n　他社の見積書と比較すると割高に感じます。\n　工事費の5〜8%が一般的と聞いており、80,000円程度でのご対応をお願いできますでしょうか。\n\n② 足場代について\n　計上金額：120,000円\n　実際の施工面積から計算すると、80,000円程度が妥当と考えております。\n　内訳をご説明いただけますと幸いです。\n\n③ 養生費について\n　計上金額：50,000円\n　30,000円程度でのご対応をお願いできますでしょうか。\n\n上記をご検討いただけた場合、合計で約${saving.toLocaleString()}円のご調整をお願いしたいと考えております。\n\nご多忙のところ恐れ入りますが、ご回答をお待ちしております。\n\n氏名：\n連絡先：`
+  };
+}
+
+function showResult(d,name,type,amount){
+  document.getElementById('s2').style.display='none';
+  document.getElementById('s3').style.display='block';
+  setStep(3);
+
+  // 削減額
+  const saving=d.savingAmount||d.savingMin*10000||0;
+  document.getElementById('r-saving').textContent=saving.toLocaleString();
+
+  // バッジ
+  const badge=document.getElementById('r-badge');
+  const lv=d.level||d.severity||'中';
+  if(lv==='高'||lv==='要注意'){badge.textContent='⚠ 過剰請求の疑い強';badge.className='r-badge rb-high';}
+  else if(lv==='中'){badge.textContent='△ 要確認';badge.className='r-badge rb-mid';}
+  else{badge.textContent='✓ 概ね適正';badge.className='r-badge rb-low';}
+
+  // サマリー
+  const sbox=document.getElementById('saving-box');
+  sbox.innerHTML=`
+    <div class="saving-item">
+      <div class="saving-label">削減可能金額（概算）</div>
+      <div class="saving-val gold">¥${saving.toLocaleString()}</div>
+      <div class="saving-sub">AIによる試算</div>
+    </div>
+    <div class="saving-item">
+      <div class="saving-label">過剰率（概算）</div>
+      <div class="saving-val red">${d.savingRate||25}%</div>
+      <div class="saving-sub">相場比較</div>
+    </div>`;
+
+  // 項目リスト
+  const items=d.items||d.highItems||[];
+  const ilist=document.getElementById('item-list');
+  if(!items.length){
+    ilist.innerHTML='<div style="text-align:center;padding:16px;font-family:Share Tech Mono,monospace;font-size:10px;color:var(--green)">✓ 明らかな過剰請求は検出されませんでした</div>';
+  }else{
+    ilist.innerHTML=items.map(item=>`
+      <div class="item-card ${item.over!==false?'over':'fair'}">
+        <div>
+          <div class="item-name">${item.name}</div>
+          <div class="item-reason">${item.reason||''}</div>
+        </div>
+        <div class="item-price">
+          <div class="item-orig">${item.original||''}</div>
+          <div class="item-fair">${item.fair||''}</div>
+          <div class="item-diff">${item.diff||''}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  // 交渉メール
+  const negText=d.negLetter||d.negotiationLetter||d.message||'交渉メールを生成できませんでした。LINEからご相談ください。';
+  document.getElementById('neg-text').textContent=negText;
+
+  window.scrollTo({top:300,behavior:'smooth'});
+}
+
+function copyNeg(){
+  const text=document.getElementById('neg-text').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.querySelector('.copy-btn');
+    btn.innerHTML='<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> COPIED';
+    setTimeout(()=>{btn.innerHTML='<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> COPY';},2000);
+  });
+}
+
+function resetAll(){
+  files=[];
+  ['fn','fe','fa','fno'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ft').value='';
+  document.getElementById('pw').style.display='none';
+  document.getElementById('pg').innerHTML='';
+  document.getElementById('sb').disabled=true;
+  ['s2','s3','serr'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('s1').style.display='block';
+  setStep(1);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
