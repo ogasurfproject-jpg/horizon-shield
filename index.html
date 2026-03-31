@@ -311,6 +311,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
     <a href="/check/" class="nav-tool-link red">業者チェック</a>
     <a href="/souba/" class="nav-tool-link cyan">相場DB</a>
     <a href="/inspect/" class="nav-tool-link green">施工検査</a>
+    <a href="/negotiate/" class="nav-tool-link" style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;border:1px solid rgba(200,150,10,.3);padding:6px 12px;text-decoration:none;color:var(--gold2);transition:all .2s" onmouseover="this.style.borderColor='var(--gold2)'" onmouseout="this.style.borderColor='rgba(200,150,10,.3)'">交渉サポート</a>
     <div class="nav-kira" onclick="openKira()">
       <span class="nav-kira-dot"></span>KIRA に相談
     </div>
@@ -671,24 +672,30 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
 <section class="reveal" style="padding:60px 24px;background:var(--bg3);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
   <div style="max-width:980px;margin:0 auto">
     <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:5px;color:var(--cyan);text-align:center;margin-bottom:28px">FREE TOOLS</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border)">
-      <a href="/check/" style="background:var(--bg2);padding:28px;text-decoration:none;display:block;transition:background .2s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='var(--bg2)'">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--red);margin-bottom:10px">FREE TOOL</div>
-        <div style="font-size:17px;font-weight:700;color:var(--white);margin-bottom:8px">悪徳業者チェッカー</div>
-        <div style="font-size:12px;color:var(--gray);line-height:1.8">業者名を入力するだけ。AIが10秒でリスク診断。契約前に必ず確認を。</div>
-        <div style="margin-top:14px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--red)">今すぐ調べる →</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border)">
+      <a href="/check/" style="background:var(--bg2);padding:22px 18px;text-decoration:none;display:block;transition:background .2s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='var(--bg2)'">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--red);margin-bottom:8px">FREE TOOL</div>
+        <div style="font-size:15px;font-weight:700;color:var(--white);margin-bottom:6px">悪徳業者<br>チェッカー</div>
+        <div style="font-size:11px;color:var(--gray);line-height:1.7;margin-bottom:10px">業者名を入力するだけ。AIが10秒でリスク診断。</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--red)">調べる →</div>
       </a>
-      <a href="/souba/" style="background:var(--bg2);padding:28px;text-decoration:none;display:block;transition:background .2s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='var(--bg2)'">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--cyan);margin-bottom:10px">FREE DATA</div>
-        <div style="font-size:17px;font-weight:700;color:var(--white);margin-bottom:8px">建設費相場データベース</div>
-        <div style="font-size:12px;color:var(--gray);line-height:1.8">50工種の適正価格を無料公開。見積書と比較してすぐわかる。</div>
-        <div style="margin-top:14px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--cyan)">相場を確認する →</div>
+      <a href="/souba/" style="background:var(--bg2);padding:22px 18px;text-decoration:none;display:block;transition:background .2s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='var(--bg2)'">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--cyan);margin-bottom:8px">FREE DATA</div>
+        <div style="font-size:15px;font-weight:700;color:var(--white);margin-bottom:6px">建設費<br>相場DB</div>
+        <div style="font-size:11px;color:var(--gray);line-height:1.7;margin-bottom:10px">50工種の適正価格を無料公開。</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan)">確認する →</div>
       </a>
-      <a href="/inspect/" style="background:var(--bg2);padding:28px;text-decoration:none;display:block;transition:background .2s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='var(--bg2)'">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:#00FF88;margin-bottom:10px">FREE CHECK</div>
-        <div style="font-size:17px;font-weight:700;color:var(--white);margin-bottom:8px">施工不良チェック</div>
-        <div style="font-size:12px;color:var(--gray);line-height:1.8">写真を送るだけ。気になる箇所の傾向をお伝えします。</div>
-        <div style="margin-top:14px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#00FF88">写真を送る →</div>
+      <a href="/inspect/" style="background:var(--bg2);padding:22px 18px;text-decoration:none;display:block;transition:background .2s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='var(--bg2)'">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:#00FF88;margin-bottom:8px">FREE CHECK</div>
+        <div style="font-size:15px;font-weight:700;color:var(--white);margin-bottom:6px">施工不良<br>チェック</div>
+        <div style="font-size:11px;color:var(--gray);line-height:1.7;margin-bottom:10px">写真を送るだけ。気になる箇所の傾向をお伝え。</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#00FF88">送る →</div>
+      </a>
+      <a href="/negotiate/" style="background:var(--bg2);padding:22px 18px;text-decoration:none;display:block;transition:background .2s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='var(--bg2)'">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--gold2);margin-bottom:8px">FREE AI</div>
+        <div style="font-size:15px;font-weight:700;color:var(--white);margin-bottom:6px">見積書<br>交渉サポート</div>
+        <div style="font-size:11px;color:var(--gray);line-height:1.7;margin-bottom:10px">見積書を送るだけ。交渉メールを自動生成。</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold2)">試す →</div>
       </a>
     </div>
   </div>
