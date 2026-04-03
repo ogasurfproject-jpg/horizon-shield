@@ -7,529 +7,131 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
 :root {
-  --black: #0a0a0a;
-  --white: #f5f5f0;
-  --gold: #c9a84c;
-  --gold-light: #e8c96a;
-  --red: #c0392b;
-  --gray: #1a1a1a;
-  --gray-mid: #2a2a2a;
-  --gray-light: #444;
-  --text-muted: #888;
+  --black: #0a0a0a;--white: #f5f5f0;--gold: #c9a84c;--gold-light: #e8c96a;
+  --red: #c0392b;--gray: #1a1a1a;--gray-mid: #2a2a2a;--text-muted: #888;
 }
-
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  background: var(--black);
-  color: var(--white);
-  font-family: 'Noto Sans JP', sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* ヘッダー */
-.header {
-  padding: 20px 24px;
-  border-bottom: 1px solid #222;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  letter-spacing: 3px;
-  color: var(--gold);
-}
+body { background: var(--black); color: var(--white); font-family: 'Noto Sans JP', sans-serif; min-height: 100vh; overflow-x: hidden; }
+.header { padding: 20px 24px; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 12px; }
+.logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; color: var(--gold); }
 .logo span { color: var(--white); }
-
-/* ヒーロー */
-.hero {
-  padding: 48px 24px 32px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-.hero::before {
-  content: '';
-  position: absolute;
-  top: -100px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.badge {
-  display: inline-block;
-  background: var(--red);
-  color: white;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  padding: 4px 12px;
-  border-radius: 2px;
-  margin-bottom: 20px;
-}
-
-.hero h1 {
-  font-size: clamp(28px, 8vw, 52px);
-  font-weight: 900;
-  line-height: 1.2;
-  margin-bottom: 16px;
-}
+.hero { padding: 48px 24px 32px; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%); pointer-events: none; }
+.badge { display: inline-block; background: var(--red); color: white; font-size: 11px; font-weight: 700; letter-spacing: 2px; padding: 4px 12px; border-radius: 2px; margin-bottom: 20px; }
+.hero h1 { font-size: clamp(28px, 8vw, 52px); font-weight: 900; line-height: 1.2; margin-bottom: 16px; }
 .hero h1 .accent { color: var(--gold); }
-
-.hero p {
-  color: #aaa;
-  font-size: 15px;
-  line-height: 1.8;
-  max-width: 420px;
-  margin: 0 auto 32px;
-}
-
-/* 統計バー */
-.stats {
-  display: flex;
-  justify-content: center;
-  gap: 32px;
-  padding: 24px;
-  background: var(--gray);
-  border-top: 1px solid #222;
-  border-bottom: 1px solid #222;
-  flex-wrap: wrap;
-}
+.hero p { color: #aaa; font-size: 15px; line-height: 1.8; max-width: 420px; margin: 0 auto 32px; }
+.stats { display: flex; justify-content: center; gap: 32px; padding: 24px; background: var(--gray); border-top: 1px solid #222; border-bottom: 1px solid #222; flex-wrap: wrap; }
 .stat-item { text-align: center; }
-.stat-num {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 32px;
-  color: var(--gold);
-  letter-spacing: 2px;
-  display: block;
-}
-.stat-label {
-  font-size: 11px;
-  color: var(--text-muted);
-  letter-spacing: 1px;
-}
-
-/* フォームエリア */
-.form-container {
-  max-width: 560px;
-  margin: 0 auto;
-  padding: 40px 24px;
-}
-
-.form-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.form-title::before {
-  content: '';
-  display: block;
-  width: 4px;
-  height: 20px;
-  background: var(--gold);
-  border-radius: 2px;
-}
-
-.form-subtitle {
-  color: var(--text-muted);
-  font-size: 13px;
-  margin-bottom: 32px;
-  padding-left: 12px;
-}
-
-/* ステップ表示 */
-.steps {
-  display: flex;
-  gap: 0;
-  margin-bottom: 36px;
-}
-.step {
-  flex: 1;
-  text-align: center;
-  position: relative;
-}
-.step::after {
-  content: '';
-  position: absolute;
-  top: 16px;
-  left: 50%;
-  width: 100%;
-  height: 1px;
-  background: #333;
-}
+.stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--gold); letter-spacing: 2px; display: block; }
+.stat-label { font-size: 11px; color: var(--text-muted); letter-spacing: 1px; }
+.form-container { max-width: 560px; margin: 0 auto; padding: 40px 24px; animation: fadeInUp 0.5s ease; }
+.form-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.form-title::before { content: ''; display: block; width: 4px; height: 20px; background: var(--gold); border-radius: 2px; }
+.form-subtitle { color: var(--text-muted); font-size: 13px; margin-bottom: 32px; padding-left: 12px; }
+.steps { display: flex; gap: 0; margin-bottom: 36px; }
+.step { flex: 1; text-align: center; position: relative; }
+.step::after { content: ''; position: absolute; top: 16px; left: 50%; width: 100%; height: 1px; background: #333; }
 .step:last-child::after { display: none; }
-.step-num {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--gray-mid);
-  border: 1px solid #333;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
-  margin: 0 auto 6px;
-  position: relative;
-  z-index: 1;
-  color: var(--text-muted);
-}
-.step.active .step-num {
-  background: var(--gold);
-  color: var(--black);
-  border-color: var(--gold);
-}
-.step-label {
-  font-size: 10px;
-  color: var(--text-muted);
-}
+.step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--gray-mid); border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; margin: 0 auto 6px; position: relative; z-index: 1; color: var(--text-muted); }
+.step.active .step-num { background: var(--gold); color: var(--black); border-color: var(--gold); }
+.step-label { font-size: 10px; color: var(--text-muted); }
 .step.active .step-label { color: var(--gold); }
-
-/* フォーム */
 .form-group { margin-bottom: 20px; }
-
-label {
-  display: block;
-  font-size: 13px;
-  font-weight: 500;
-  color: #ccc;
-  margin-bottom: 8px;
-  letter-spacing: 0.5px;
+label { display: block; font-size: 13px; font-weight: 500; color: #ccc; margin-bottom: 8px; letter-spacing: 0.5px; }
+label .required { color: var(--red); margin-left: 4px; font-size: 11px; }
+input[type="text"], input[type="number"], input[type="tel"], select, textarea {
+  width: 100%; background: var(--gray); border: 1px solid #333; border-radius: 4px;
+  padding: 14px 16px; color: var(--white); font-size: 15px; font-family: 'Noto Sans JP', sans-serif;
+  outline: none; transition: border-color 0.2s; appearance: none;
 }
-label .required {
-  color: var(--red);
-  margin-left: 4px;
-  font-size: 11px;
-}
-
-input[type="text"],
-input[type="number"],
-input[type="tel"],
-select,
-textarea {
-  width: 100%;
-  background: var(--gray);
-  border: 1px solid #333;
-  border-radius: 4px;
-  padding: 14px 16px;
-  color: var(--white);
-  font-size: 15px;
-  font-family: 'Noto Sans JP', sans-serif;
-  outline: none;
-  transition: border-color 0.2s;
-  appearance: none;
-}
-
-input:focus, select:focus, textarea:focus {
-  border-color: var(--gold);
-}
-
-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 16px center;
-  padding-right: 40px;
-}
-
+input:focus, select:focus, textarea:focus { border-color: var(--gold); }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; }
 textarea { height: 100px; resize: none; }
-
-/* 金額入力 */
-.amount-input-wrap {
-  position: relative;
-}
-.amount-input-wrap input {
-  padding-right: 40px;
-}
-.amount-unit {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  font-size: 13px;
-}
-
-/* ファイルアップロード */
-.file-upload {
-  border: 2px dashed #333;
-  border-radius: 4px;
-  padding: 28px 16px;
-  text-align: center;
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-  position: relative;
-}
-.file-upload:hover {
-  border-color: var(--gold);
-  background: rgba(201,168,76,0.03);
-}
-.file-upload input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-  width: 100%;
-  height: 100%;
-}
+.amount-input-wrap { position: relative; }
+.amount-input-wrap input { padding-right: 40px; }
+.amount-unit { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px; }
+.file-upload { border: 2px dashed #333; border-radius: 4px; padding: 28px 16px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; position: relative; }
+.file-upload:hover { border-color: var(--gold); background: rgba(201,168,76,0.03); }
+.file-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 .file-upload-icon { font-size: 28px; margin-bottom: 8px; }
-.file-upload-text {
-  font-size: 13px;
-  color: var(--text-muted);
-}
+.file-upload-text { font-size: 13px; color: var(--text-muted); }
 .file-upload-text strong { color: var(--gold); }
-.file-preview {
-  display: none;
-  margin-top: 12px;
-  font-size: 12px;
-  color: var(--gold);
-}
-
-/* 送信ボタン */
-.submit-btn {
-  width: 100%;
-  background: var(--gold);
-  color: var(--black);
-  border: none;
-  border-radius: 4px;
-  padding: 18px;
-  font-size: 16px;
-  font-weight: 900;
-  font-family: 'Noto Sans JP', sans-serif;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
-  margin-top: 8px;
-  position: relative;
-  overflow: hidden;
-}
+.file-preview { display: none; margin-top: 12px; font-size: 12px; color: var(--gold); }
+.submit-btn { width: 100%; background: var(--gold); color: var(--black); border: none; border-radius: 4px; padding: 18px; font-size: 16px; font-weight: 900; font-family: 'Noto Sans JP', sans-serif; letter-spacing: 1px; cursor: pointer; transition: background 0.2s, transform 0.1s; margin-top: 8px; position: relative; overflow: hidden; }
 .submit-btn:hover { background: var(--gold-light); }
 .submit-btn:active { transform: scale(0.99); }
-.submit-btn::after {
-  content: '→';
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 18px;
-}
-
-.submit-note {
-  text-align: center;
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 12px;
-}
-
-/* 完了画面 */
-.result-screen {
-  display: none;
-  text-align: center;
-  padding: 40px 24px;
-  max-width: 480px;
-  margin: 0 auto;
-}
-.result-icon {
-  font-size: 64px;
-  margin-bottom: 24px;
-  animation: pop 0.5s ease;
-}
-@keyframes pop {
-  0% { transform: scale(0); }
-  70% { transform: scale(1.2); }
-  100% { transform: scale(1); }
-}
-.result-title {
-  font-size: 24px;
-  font-weight: 900;
-  margin-bottom: 12px;
-}
+.submit-btn:disabled { background: #555; cursor: not-allowed; }
+.submit-btn::after { content: '→'; position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 18px; }
+.submit-note { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 12px; }
+.warning-banner { background: rgba(192,57,43,0.15); border: 1px solid rgba(192,57,43,0.4); border-radius: 4px; padding: 12px 16px; font-size: 12px; color: #e88; margin-bottom: 24px; display: flex; gap: 8px; align-items: flex-start; }
+.sending-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 999; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+.sending-overlay.active { display: flex; }
+.sending-spinner { font-size: 48px; animation: spin 1.5s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.sending-text { font-size: 14px; color: var(--gold); letter-spacing: 2px; }
+.result-screen { display: none; text-align: center; padding: 40px 24px; max-width: 480px; margin: 0 auto; animation: fadeInUp 0.5s ease; }
+.result-icon { font-size: 64px; margin-bottom: 24px; animation: pop 0.5s ease; }
+@keyframes pop { 0% { transform: scale(0); } 70% { transform: scale(1.2); } 100% { transform: scale(1); } }
+.result-title { font-size: 24px; font-weight: 900; margin-bottom: 12px; }
 .result-title .accent { color: var(--gold); }
-.result-subtitle {
-  color: #aaa;
-  font-size: 14px;
-  line-height: 1.8;
-  margin-bottom: 32px;
-}
-
-.line-cta {
-  background: #06C755;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 18px 32px;
-  font-size: 16px;
-  font-weight: 700;
-  font-family: 'Noto Sans JP', sans-serif;
-  cursor: pointer;
-  width: 100%;
-  max-width: 360px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin: 0 auto 16px;
-  transition: opacity 0.2s;
-}
+.result-subtitle { color: #aaa; font-size: 14px; line-height: 1.8; margin-bottom: 32px; }
+.line-cta { background: #06C755; color: white; border: none; border-radius: 4px; padding: 18px 32px; font-size: 16px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; width: 100%; max-width: 360px; display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0 auto 24px; transition: opacity 0.2s; text-decoration: none; }
 .line-cta:hover { opacity: 0.9; }
-.line-icon {
-  width: 24px;
-  height: 24px;
-  background: white;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 900;
-  color: #06C755;
-  font-size: 12px;
-}
-
-.line-qr-area {
-  background: var(--gray);
-  border: 1px solid #333;
-  border-radius: 8px;
-  padding: 24px;
-  max-width: 360px;
-  margin: 0 auto;
-}
-.line-qr-title {
-  font-size: 13px;
-  color: #aaa;
-  margin-bottom: 16px;
-}
-.line-qr-placeholder {
-  width: 160px;
-  height: 160px;
-  background: white;
-  border-radius: 4px;
-  margin: 0 auto 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  color: #333;
-  font-weight: 700;
-}
-.line-id {
-  font-size: 16px;
-  font-weight: 700;
-  color: #06C755;
-  letter-spacing: 1px;
-}
-
-/* 警告バナー */
-.warning-banner {
-  background: rgba(192,57,43,0.15);
-  border: 1px solid rgba(192,57,43,0.4);
-  border-radius: 4px;
-  padding: 12px 16px;
-  font-size: 12px;
-  color: #e88;
-  margin-bottom: 24px;
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-}
-
-/* フッター */
-footer {
-  padding: 32px 24px;
-  border-top: 1px solid #222;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1.8;
-}
-
-/* アニメーション */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.form-container { animation: fadeInUp 0.5s ease; }
+.line-icon { width: 24px; height: 24px; background: white; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #06C755; font-size: 12px; }
+.line-qr-area { background: var(--gray); border: 1px solid #333; border-radius: 8px; padding: 24px; max-width: 360px; margin: 0 auto; }
+.line-qr-title { font-size: 13px; color: #aaa; margin-bottom: 16px; }
+.line-qr-img { width: 180px; height: 180px; margin: 0 auto 12px; display: block; border-radius: 8px; background: white; padding: 8px; }
+.line-id { font-size: 16px; font-weight: 700; color: #06C755; letter-spacing: 1px; }
+footer { padding: 32px 24px; border-top: 1px solid #222; text-align: center; color: var(--text-muted); font-size: 12px; line-height: 1.8; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
 
-<!-- ヘッダー -->
+<div class="sending-overlay" id="sendingOverlay">
+  <div class="sending-spinner">⚙️</div>
+  <div class="sending-text">送信中...</div>
+</div>
+
 <div class="header">
-  <div class="logo">HORIZON <span>SHIELD</span></div>
+  <a href="/" style="text-decoration:none"><div class="logo">HORIZON <span>SHIELD</span></div></a>
   <div style="font-size:11px;color:#666;letter-spacing:1px;">建設費診断</div>
 </div>
 
-<!-- ヒーロー -->
 <div class="hero">
   <div class="badge">完全無料 · 60秒で完了</div>
   <h1>あなたの見積書<br><span class="accent">適正ですか？</span></h1>
   <p>工事種別・金額・地域を入力するだけで、建設業界30年のプロが見積書の妥当性を診断します。</p>
 </div>
 
-<!-- 統計 -->
 <div class="stats">
-  <div class="stat-item">
-    <span class="stat-num">78%</span>
-    <span class="stat-label">が相場より高い</span>
-  </div>
-  <div class="stat-item">
-    <span class="stat-num">30年</span>
-    <span class="stat-label">の現場経験</span>
-  </div>
-  <div class="stat-item">
-    <span class="stat-num">24H</span>
-    <span class="stat-label">以内に結果通知</span>
-  </div>
+  <div class="stat-item"><span class="stat-num">78%</span><span class="stat-label">が相場より高い</span></div>
+  <div class="stat-item"><span class="stat-num">30年</span><span class="stat-label">の現場経験</span></div>
+  <div class="stat-item"><span class="stat-num">24H</span><span class="stat-label">以内に結果通知</span></div>
 </div>
 
-<!-- フォーム -->
 <div class="form-container" id="formArea">
-
   <div class="form-title">無料診断フォーム</div>
   <div class="form-subtitle">入力後、LINE公式アカウントで結果をお届けします</div>
 
-  <!-- ステップ -->
   <div class="steps">
-    <div class="step active">
-      <div class="step-num">1</div>
-      <div class="step-label">情報入力</div>
-    </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-label">LINE登録</div>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-label">診断結果</div>
-    </div>
+    <div class="step active"><div class="step-num">1</div><div class="step-label">情報入力</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-label">LINE登録</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-label">診断結果</div></div>
   </div>
 
-  <div class="warning-banner">
-    ⚠️ 現在、建材高騰を口実にした便乗値上げが急増しています。今すぐ確認することをお勧めします。
-  </div>
+  <div class="warning-banner">⚠️ 現在、建材高騰を口実にした便乗値上げが急増しています。今すぐ確認することをお勧めします。</div>
 
   <form id="diagnosisForm">
-
     <div class="form-group">
       <label>工事の種類<span class="required">必須</span></label>
       <select name="kouji_type" required>
         <option value="" disabled selected>選択してください</option>
-        <option>外壁塗装</option>
-        <option>屋根修理・葺き替え</option>
-        <option>水回り（キッチン・浴室・トイレ）</option>
-        <option>内装リフォーム全般</option>
-        <option>店舗内装・新設</option>
-        <option>増築・改築</option>
-        <option>シロアリ・害虫駆除</option>
-        <option>その他</option>
+        <option>外壁塗装</option><option>屋根修理・葺き替え</option>
+        <option>水回り（キッチン・浴室・トイレ）</option><option>内装リフォーム全般</option>
+        <option>店舗内装・新設</option><option>増築・改築</option>
+        <option>シロアリ・害虫駆除</option><option>床下工事</option><option>その他</option>
       </select>
     </div>
 
@@ -537,30 +139,26 @@ footer {
       <label>お住まいの都道府県<span class="required">必須</span></label>
       <select name="prefecture" required>
         <option value="" disabled selected>選択してください</option>
-        <option>北海道</option><option>青森県</option><option>岩手県</option>
-        <option>宮城県</option><option>秋田県</option><option>山形県</option>
-        <option>福島県</option><option>茨城県</option><option>栃木県</option>
-        <option>群馬県</option><option>埼玉県</option><option>千葉県</option>
-        <option>東京都</option><option>神奈川県</option><option>新潟県</option>
-        <option>富山県</option><option>石川県</option><option>福井県</option>
-        <option>山梨県</option><option>長野県</option><option>岐阜県</option>
-        <option>静岡県</option><option>愛知県</option><option>三重県</option>
-        <option>滋賀県</option><option>京都府</option><option>大阪府</option>
-        <option>兵庫県</option><option>奈良県</option><option>和歌山県</option>
-        <option>鳥取県</option><option>島根県</option><option>岡山県</option>
-        <option>広島県</option><option>山口県</option><option>徳島県</option>
-        <option>香川県</option><option>愛媛県</option><option>高知県</option>
-        <option>福岡県</option><option>佐賀県</option><option>長崎県</option>
-        <option>熊本県</option><option>大分県</option><option>宮崎県</option>
-        <option>鹿児島県</option><option>沖縄県</option>
+        <option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option>
+        <option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option>
+        <option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option>
+        <option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option>
+        <option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option>
+        <option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option>
+        <option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option>
+        <option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option>
+        <option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option>
+        <option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option>
+        <option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option>
+        <option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option>
       </select>
     </div>
 
     <div class="form-group">
       <label>見積もり金額<span class="required">必須</span></label>
       <div class="amount-input-wrap">
-        <input type="number" name="amount" placeholder="例：1500000" required min="0">
-        <span class="amount-unit">円</span>
+        <input type="number" name="amount" id="amountInput" placeholder="例：1500000" required min="0">
+        <span class="amount-unit" id="amountUnit">円</span>
       </div>
     </div>
 
@@ -571,13 +169,10 @@ footer {
 
     <div class="form-group">
       <label>見積書の写真（任意・あれば精度が上がります）</label>
-      <div class="file-upload" id="fileUpload">
+      <div class="file-upload">
         <input type="file" name="estimate_photo" accept="image/*,.pdf" id="fileInput">
         <div class="file-upload-icon">📄</div>
-        <div class="file-upload-text">
-          <strong>タップして写真を選択</strong><br>
-          JPG・PNG・PDF対応
-        </div>
+        <div class="file-upload-text"><strong>タップして写真を選択</strong><br>JPG・PNG・PDF対応</div>
         <div class="file-preview" id="filePreview"></div>
       </div>
     </div>
@@ -587,15 +182,12 @@ footer {
       <input type="tel" name="phone" placeholder="090-0000-0000">
     </div>
 
-    <button type="submit" class="submit-btn">
-      無料で診断してもらう
-    </button>
+    <button type="submit" class="submit-btn" id="submitBtn">無料で診断してもらう</button>
     <p class="submit-note">📱 診断結果はLINEでお届けします（登録無料）</p>
-
   </form>
 </div>
 
-<!-- 完了画面（送信後に表示） -->
+<!-- 完了画面 -->
 <div class="result-screen" id="resultScreen">
   <div class="result-icon">✅</div>
   <div class="result-title">送信完了！<br><span class="accent">あと1ステップ</span></div>
@@ -606,37 +198,37 @@ footer {
     <strong style="color:var(--gold)">24時間以内に診断結果をお送りします。</strong>
   </div>
 
-  <a href="https://line.me/R/ti/p/@172piime" target="_blank">
-    <button class="line-cta">
-      <div class="line-icon">L</div>
-      LINEで友だち追加する
-    </button>
+  <a href="https://line.me/R/ti/p/@172piime" target="_blank" class="line-cta">
+    <div class="line-icon">L</div>LINEで友だち追加する
   </a>
 
   <div class="line-qr-area">
     <div class="line-qr-title">QRコードでも追加できます</div>
-    <div class="line-qr-placeholder">
-      QRコード<br>@172piime
-    </div>
+    <img
+      src="https://qr-official.line.me/sid/M/172piime.png"
+      alt="LINE QR @172piime"
+      class="line-qr-img"
+    >
     <div class="line-id">@172piime</div>
   </div>
 
   <div style="margin-top:24px;font-size:12px;color:#666;line-height:1.8;">
-    友だち追加後、KIRAが自動で<br>
-    詳しいヒアリングをさせていただきます。
+    友だち追加後、KIRAが自動でヒアリングを開始します。
+  </div>
+
+  <div style="margin-top:24px;padding:16px;background:var(--gray);border-radius:4px;font-size:13px;color:#aaa;line-height:1.8;">
+    📧 メール相談：<a href="mailto:contact@the-horizons-innovation.com" style="color:var(--gold);">contact@the-horizons-innovation.com</a>
   </div>
 </div>
 
 <footer>
   <div style="font-family:'Bebas Neue',sans-serif;letter-spacing:3px;color:var(--gold);margin-bottom:8px;">HORIZON SHIELD</div>
-  The HORIZONs株式会社<br>
-  東京都港区南青山2-2-15 ウィン青山942<br>
+  The HORIZONs株式会社　東京都港区南青山2-2-15<br>
   contact@the-horizons-innovation.com<br><br>
-  <a href="https://shield.the-horizons-innovation.com" style="color:#666;">トップページに戻る</a>
+  <a href="/" style="color:#666;">トップページに戻る</a>
 </footer>
 
 <script>
-// ファイルアップロードプレビュー
 document.getElementById('fileInput').addEventListener('change', function(e) {
   const file = e.target.files[0];
   if (file) {
@@ -646,48 +238,49 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
   }
 });
 
-// フォーム送信
-document.getElementById('diagnosisForm').addEventListener('submit', function(e) {
+document.getElementById('amountInput').addEventListener('input', function() {
+  if (this.value > 0) {
+    const formatted = parseInt(this.value).toLocaleString('ja-JP');
+    document.getElementById('amountUnit').textContent = '円（約' + formatted + '円）';
+  }
+});
+
+document.getElementById('diagnosisForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
-  const btn = this.querySelector('.submit-btn');
-  btn.textContent = '送信中...';
+  const btn = document.getElementById('submitBtn');
   btn.disabled = true;
+  document.getElementById('sendingOverlay').classList.add('active');
 
-  // フォームデータ取得
+  const formData = new FormData(this);
   const data = {
-    kouji_type: this.querySelector('[name="kouji_type"]').value,
-    prefecture: this.querySelector('[name="prefecture"]').value,
-    amount: this.querySelector('[name="amount"]').value,
-    content: this.querySelector('[name="content"]').value,
-    phone: this.querySelector('[name="phone"]').value,
-    timestamp: new Date().toLocaleString('ja-JP')
+    kouji_type: formData.get('kouji_type'),
+    prefecture: formData.get('prefecture'),
+    amount: formData.get('amount'),
+    content: formData.get('content') || '',
+    phone: formData.get('phone') || '',
+    timestamp: new Date().toLocaleString('ja-JP'),
+    source: 'shindan_form'
   };
 
-  // hs-kira-lineへ通知（Webhook経由）
-  // 実際の運用ではここでAPIを呼ぶ
-  // fetch('https://hs-kira-line.oga-surf-project.workers.dev/diagnosis', {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify(data)
-  // });
+  // hs-kira-lineの/diagnosisエンドポイントへ送信（TOshiへLINE通知）
+  try {
+    await fetch('https://hs-kira-line.oga-surf-project.workers.dev/diagnosis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  } catch(err) {
+    console.log('通知エラー（フォームは完了）:', err);
+  }
 
-  // 1秒後に完了画面を表示
   setTimeout(() => {
+    document.getElementById('sendingOverlay').classList.remove('active');
     document.getElementById('formArea').style.display = 'none';
     document.getElementById('resultScreen').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, 1000);
-});
-
-// 金額のカンマ表示
-document.querySelector('[name="amount"]').addEventListener('input', function() {
-  if (this.value > 0) {
-    const formatted = parseInt(this.value).toLocaleString('ja-JP');
-    this.nextElementSibling.textContent = '円（約' + formatted + '円）';
-  }
+  }, 1500);
 });
 </script>
-
 </body>
 </html>
