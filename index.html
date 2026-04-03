@@ -64,6 +64,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:60px;d
 .hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeUp .8s .4s ease both}
 .btn-primary{background:var(--gold);color:#040A12;font-weight:700;font-size:14px;padding:16px 40px;letter-spacing:.08em;text-decoration:none;transition:all .25s;display:inline-block;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(200,150,10,.35)}
+.btn-primary.red{background:var(--red);color:#fff}
+.btn-primary.red:hover{box-shadow:0 0 30px rgba(255,48,64,.45)}
 .btn-ghost{border:1px solid var(--border);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:11px;padding:16px 28px;letter-spacing:4px;text-decoration:none;transition:all .2s;display:inline-block;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
 .btn-ghost:hover{background:rgba(0,212,255,.06);border-color:var(--cyan)}
 .hero-note{margin-top:18px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:3px;animation:fadeUp .8s .5s ease both}
@@ -340,11 +342,14 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
       <div class="metric-sep"></div>
       <div class="metric"><span class="metric-val">全国</span><span class="metric-label">対応エリア</span></div>
     </div>
+
+    <!-- ★ ここが変更点：0円診断ボタンを追加 -->
     <div class="hero-cta">
-      <a href="#services" class="btn-primary">3つのサービスを見る</a>
-      <a href="#flow" class="btn-ghost">申し込みの流れ</a>
+      <a href="/shindan.html" class="btn-primary red">まず無料で診断する →</a>
+      <a href="#services" class="btn-ghost">3つのサービスを見る</a>
     </div>
-    <p class="hero-note">スポット依頼OK　／　業種不問　／　最短24時間納品</p>
+    <p class="hero-note">完全無料・60秒・LINE登録不要　／　スポット依頼OK　／　最短24時間納品</p>
+
     <div class="kira-card" onclick="openKira()">
       <div class="kira-avatar">K</div>
       <div class="kira-info">
@@ -386,7 +391,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
     <div class="warn-cta">
       <h3>心当たりがあるなら、<em>今すぐ</em>確認してください。</h3>
       <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:20px">
-        <a href="#diagnosis" class="btn-primary">無料AI診断を試す →</a>
+        <a href="/shindan.html" class="btn-primary red">無料で見積書を診断する →</a>
         <a href="/check/" style="display:inline-block;border:1px solid rgba(255,48,64,.5);color:var(--red);font-family:'Share Tech Mono',monospace;font-size:12px;padding:16px 28px;text-decoration:none;letter-spacing:3px;transition:all .2s;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)" onmouseover="this.style.background='rgba(255,48,64,.08)'" onmouseout="this.style.background='transparent'">業者を調べる →</a>
       </div>
     </div>
@@ -635,7 +640,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
     <div class="rule"></div>
     <div class="flow-grid">
       <div class="flow-line"></div>
-      <div class="fi"><div class="fi-num"><span>01</span></div><h3>サービスを選ぶ</h3><p>3サービスから状況に合ったものを選び、ボタンからお支払いください。</p></div>
+      <div class="fi"><div class="fi-num"><span>01</span></div><h3>無料診断を試す</h3><p>まず<a href="/shindan.html">0円簡易診断</a>で見積書の妥当性を確認。気になる場合はそのまま有料サービスへ。</p></div>
       <div class="fi"><div class="fi-num"><span>02</span></div><h3>資料を送付</h3><p>見積書・書類をメールで送付。<br><a href="mailto:contact@the-horizons-innovation.com">contact@the-horizons-innovation.com</a></p></div>
       <div class="fi"><div class="fi-num"><span>03</span></div><h3>レポート納品</h3><p>各サービスの納期内にPDFレポートをお届けします。</p></div>
     </div>
@@ -707,7 +712,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
   <div class="container">
     <h2>損をする前に、<br>プロの目で確認する。</h2>
     <p>¥33,000〜の費用が、数十万〜数百万円の損失を防ぐことがあります。</p>
-    <a href="#services" class="btn-primary" style="font-size:15px;padding:18px 52px">サービス一覧を見る</a>
+    <a href="/shindan.html" class="btn-primary red" style="font-size:15px;padding:18px 52px;display:inline-block;text-decoration:none">まず無料で診断する →</a>
     <p class="cta-note">contact@the-horizons-innovation.com　／　全国対応</p>
     <div class="cta-kira">
       <button class="cta-kira-btn" onclick="openKira()">
