@@ -70,13 +70,14 @@ async function apiLogin() {
   });
   if (!res.ok) throw new Error(`ログイン失敗 [${res.status}]`);
   const data = await res.json();
-  const rawCookies = res.headers.getSetCookie
-    ? res.headers.getSetCookie()
-    : (res.headers.get('set-cookie') || '').split(/,(?=\s*\w+=)/);
   const token = data.data?.token || data.token || '';
-  console.log('APIログイン成功 token:', token.slice(0, 20) + '...');
-  console.log('Cookie数:', rawCookies.length);
-  return { rawCookies, token };
+  // set-cookieヘッダを全パターンで取得
+  const allSetCookie = res.headers.get('set-cookie') || '';
+  const rawCookies = res.headers.getSetCookie ? res.headers.getSetCookie() : [allSetCookie];
+  console.log('APIログイン成功');
+  console.log('set-cookie raw:', allSetCookie.slice(0, 200));
+  console.log('getSetCookie count:', rawCookies.length);
+  return { rawCookies, allSetCookie, token };
 }
 
 async function generateArticle(theme) {
@@ -146,28 +147,39 @@ async function postToNote(theme, articleText, session) {
   const page = await browser.newPage();
 
   try {
-    // Cookieを両ドメインにセット
-    const cookiePairs = session.rawCookies.map(c => {
-      const [nameVal] = c.split(';');
-      const eqIdx = nameVal.indexOf('=');
-      return { name: nameVal.slice(0, eqIdx).trim(), value: nameVal.slice(eqIdx + 1).trim() };
-    }).filter(c => c.name && c.value);
+    // ブラウザでnoteにログイン
+    console.log('noteにログイン中...');
+    await page.goto('https://note.com/login', { waitUntil: 'networkidle2', timeout: 30000 });
+    await new Promise(r => setTimeout(r, 2000));
 
-    // note.comとeditor.note.com両方にセット
-    for (const domain of ['note.com', 'editor.note.com']) {
-      for (const c of cookiePairs) {
-        await page.setCookie({ name: c.name, value: c.value, domain, path: '/' });
+    // 全inputを確認して入力
+    const inputCount = await page.evaluate(() => document.querySelectorAll('input').length);
+    console.log('input数:', inputCount);
+
+    // JavaScriptで直接値をセット
+    await page.evaluate((email, password) => {
+      const inputs = document.querySelectorAll('input');
+      if (inputs[0]) {
+        inputs[0].value = email;
+        inputs[0].dispatchEvent(new Event('input', { bubbles: true }));
+        inputs[0].dispatchEvent(new Event('change', { bubbles: true }));
       }
-    }
-    console.log('Cookie設定完了 pairs:', cookiePairs.length);
+      if (inputs[1]) {
+        inputs[1].value = password;
+        inputs[1].dispatchEvent(new Event('input', { bubbles: true }));
+        inputs[1].dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }, NOTE_EMAIL, NOTE_PASSWORD);
 
-    // エディタを直接開く
-    console.log('エディタを開いています...');
+    await new Promise(r => setTimeout(r, 500));
+    await page.click('button[type="submit"]');
+    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 });
+    console.log('ログイン完了 URL:', page.url());
+
+    // エディタへ移動
     await page.goto('https://editor.note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
     await new Promise(r => setTimeout(r, 3000));
-
-    const url = page.url();
-    console.log('現在URL:', url);
+    console.log('エディタURL:', page.url());
 
     // タイトル入力 - contenteditableの最初の要素
     await page.waitForSelector('[contenteditable="true"]', { timeout: 15000 });
