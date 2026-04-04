@@ -1,6 +1,5 @@
 /**
  * HORIZON SHIELD note自動投稿 v4
- * APIログイン → Cookie注入 → note.comから投稿 → editor操作
  */
 
 const puppeteerExtra = require('puppeteer-extra');
@@ -109,7 +108,6 @@ async function postToNote(theme, articleText, sessionCookies) {
     const [postBtn] = await page.$x('//a[contains(text(),"投稿") or contains(@href,"/notes/new")]');
     if (postBtn) {
       await postBtn.click();
-      console.log('投稿ボタンクリック');
     } else {
       await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2', timeout: 20000 });
     }
@@ -120,16 +118,30 @@ async function postToNote(theme, articleText, sessionCookies) {
     console.log('contenteditable数:', editableCount);
     if (editableCount === 0) throw new Error('エディタが開けていない: ' + page.url());
 
-    // タイトル入力：最初のcontenteditable（タイトル欄）
-    const editables = await page.$$('[contenteditable]');
-    await editables[0].click();
-    await new Promise(r => setTimeout(r, 300));
-    await page.keyboard.type(theme.title, { delay: 20 });
-    console.log('タイトル入力完了');
+    // タイトル欄を探す（placeholder属性で識別）
+    const titleEl = await page.$('[placeholder="タイトル"], [data-placeholder="タイトル"]');
+    if (titleEl) {
+      await titleEl.click();
+      await page.keyboard.type(theme.title, { delay: 20 });
+      console.log('タイトル入力完了（placeholder）');
+    } else {
+      // フォールバック：ページ内のテキスト「タイトル」を持つ要素をクリック
+      await page.evaluate((title) => {
+        const all = document.querySelectorAll('[contenteditable]');
+        if (all[0]) {
+          all[0].focus();
+          document.execCommand('insertText', false, title);
+        }
+      }, theme.title);
+      console.log('タイトル入力完了（execCommand）');
+    }
+    await new Promise(r => setTimeout(r, 500));
 
-    // Enterで本文欄へ移動
-    await page.keyboard.press('Enter');
-    await new Promise(r => setTimeout(r, 1000));
+    // 本文欄：最後のcontenteditable
+    const editables = await page.$$('[contenteditable]');
+    const bodyEl = editables[editables.length - 1];
+    await bodyEl.click();
+    await new Promise(r => setTimeout(r, 500));
 
     // 本文入力
     const paragraphs = articleText.split('\n\n').filter(p => p.trim());
@@ -143,32 +155,33 @@ async function postToNote(theme, articleText, sessionCookies) {
     console.log('本文入力完了');
     await new Promise(r => setTimeout(r, 3000));
 
-    // 公開設定ボタン（note公式ヘルプより：右上の「公開設定」ボタン）
-    const [pubBtn] = await page.$x('//button[contains(text(),"公開設定") or contains(text(),"公開に進む") or contains(text(),"公開")]');
+    // 「公開に進む」ボタン（実際のUIより確認）
+    const [pubBtn] = await page.$x('//button[contains(text(),"公開に進む")]');
     if (pubBtn) {
       await pubBtn.click();
-      console.log('公開設定ボタンクリック');
+      console.log('公開に進むクリック');
     } else {
-      console.log('公開設定ボタンが見つからなかった');
+      const [pubBtn2] = await page.$x('//button[contains(text(),"公開設定") or contains(text(),"公開")]');
+      if (pubBtn2) {
+        await pubBtn2.click();
+        console.log('公開ボタンクリック');
+      }
     }
     await new Promise(r => setTimeout(r, 3000));
 
-    // 投稿するボタン
-    const [finalBtn] = await page.$x('//button[contains(text(),"投稿する") or contains(text(),"投稿")]');
+    // 「投稿する」ボタン
+    const [finalBtn] = await page.$x('//button[contains(text(),"投稿する")]');
     if (finalBtn) {
       await finalBtn.click();
-      console.log('投稿するボタンクリック');
-    } else {
-      console.log('投稿するボタンが見つからなかった');
+      console.log('投稿するクリック');
     }
     await new Promise(r => setTimeout(r, 5000));
 
     const finalUrl = page.url();
     console.log('投稿完了 URL:', finalUrl);
 
-    const noteKey = finalUrl.match(/\/n\/([a-z0-9]+)/)?.[1];
-    const noteUrl = noteKey ? `https://note.com/horizon_shield/n/${noteKey}` : 'https://note.com/horizon_shield';
-    return noteUrl;
+    const noteKey = finalUrl.match(/\/n\/([a-z0-9]+)/)?.[1] || finalUrl.match(/\/notes\/([a-z0-9]+)/)?.[1];
+    return noteKey ? `https://note.com/horizon_shield/n/${noteKey}` : 'https://note.com/horizon_shield';
 
   } finally {
     await browser.close();
