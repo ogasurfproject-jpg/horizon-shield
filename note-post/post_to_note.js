@@ -73,8 +73,8 @@ async function generateArticle(theme) {
 ・業者批判でなく「情報格差の解消」という立場
 ・1000〜1200文字
 ・段落は空行で区切る
-・アスタリスク（*）、ハッシュ（#）、バッククォート等のマークダウン記号は絶対に使わない
-・見出しは「■」などの記号で表現する
+・アスタリスク（*）、ハッシュ（#）、バッククォート、アンダースコア等のマークダウン記号は絶対に使わない
+・見出しを使う場合は「■」記号のみ使用可
 ・末尾に必ずこの文を入れる：
 「見積書の適正価格が気になる方は、HORIZON SHIELDの無料AI診断をお試しください。建設30年の専門知識を学習したAIが、あなたの見積書を即座に分析します。
 https://shield.the-horizons-innovation.com」
@@ -138,27 +138,20 @@ async function postToNote(theme, articleText, sessionCookies) {
     console.log('contenteditable数:', editableCount);
     if (editableCount === 0) throw new Error('エディタが開けていない: ' + page.url());
 
-    // タイトル入力：placeholder="記事タイトル" または "タイトル" を探す
-    const titleEl = await page.$('[placeholder="記事タイトル"], [placeholder="タイトル"], [data-placeholder="タイトル"]');
-    if (titleEl) {
-      await titleEl.click();
-      await page.keyboard.type(theme.title, { delay: 20 });
-      console.log('タイトル入力完了（placeholder）');
-    } else {
-      // タイトル欄はeditable[0]、Tabで本文へ
-      const editables = await page.$$('[contenteditable]');
-      await editables[0].click();
-      await page.keyboard.type(theme.title, { delay: 20 });
-      console.log('タイトル入力完了（contenteditable[0]）');
-    }
+    // タイトルと本文の入力戦略：
+    // noteエディタはcontenteditable=1の場合、タイトル欄は別要素
+    // contenteditable[0]をクリック→タイトル入力→Enter→本文入力（クリックしない）
+    const editables = await page.$$('[contenteditable]');
+    await editables[0].click();
     await new Promise(r => setTimeout(r, 500));
+    await page.keyboard.type(theme.title, { delay: 20 });
+    console.log('タイトル入力完了');
 
-    // 本文欄：最後のcontenteditable
-    const editables2 = await page.$$('[contenteditable]');
-    await editables2[editables2.length - 1].click();
-    await new Promise(r => setTimeout(r, 500));
+    // Enterで本文エリアへ移動（クリックせずにそのまま入力）
+    await page.keyboard.press('Enter');
+    await new Promise(r => setTimeout(r, 1000));
 
-    // 本文入力
+    // 本文入力（クリックなし、Enterで移動した位置からそのまま）
     const paragraphs = articleText.split('\n\n').filter(p => p.trim());
     for (let i = 0; i < paragraphs.length; i++) {
       await page.keyboard.type(paragraphs[i].trim(), { delay: 0 });
@@ -170,7 +163,7 @@ async function postToNote(theme, articleText, sessionCookies) {
     console.log('本文入力完了');
     await new Promise(r => setTimeout(r, 3000));
 
-    // 「公開に進む」ボタン（実際のUIより確認済み）
+    // 「公開に進む」ボタン（実際のUIで確認済み）
     const [pubBtn] = await page.$x('//button[contains(text(),"公開に進む")]');
     if (pubBtn) {
       await pubBtn.click();
