@@ -59,6 +59,16 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// テキストをTiptap JSONオブジェクトに変換（文字列化しない）
+function textToTiptapJson(text) {
+  const paragraphs = text.split('\n\n').map(p => p.trim()).filter(Boolean);
+  const content = paragraphs.map(p => ({
+    type: 'paragraph',
+    content: [{ type: 'text', text: p.replace(/\n/g, ' ') }],
+  }));
+  return { type: 'doc', content };
+}
+
 // ========================================
 // noteにログインしてセッショントークンを取得
 // ========================================
@@ -96,7 +106,7 @@ async function getNoteSession() {
 }
 
 // ========================================
-// Claude APIで記事生成
+// Claude APIで記事生成（プレーンテキストで受け取る）
 // ========================================
 async function generateArticle(theme) {
   console.log(`記事生成中: ${theme.title}`);
@@ -126,6 +136,7 @@ async function generateArticle(theme) {
 ・具体的な数字・事例を入れる
 ・業者批判でなく「情報格差の解消」という立場
 ・1000〜1200文字
+・段落は空行で区切る
 ・末尾に必ずこの文を入れる：
 「見積書の適正価格が気になる方は、HORIZON SHIELDの無料AI診断をお試しください。建設30年の専門知識を学習したAIが、あなたの見積書を即座に分析します。
 https://shield.the-horizons-innovation.com」
@@ -138,24 +149,17 @@ https://shield.the-horizons-innovation.com」
   if (!res.ok) throw new Error(`Claude API失敗 [${res.status}]`);
   const data = await res.json();
   const text = data.content?.[0]?.text || '';
-  const bodyHtml = text.split('\n\n')
-    .map(p => p.trim()).filter(Boolean)
-    .map(p => {
-      const uid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-        const r = Math.random() * 16 | 0;
-        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-      });
-      const id = uid();
-      return `<p name="${id}" id="${id}">${p.replace(/\n/g, '<br>')}</p>`;
-    }).join('') + '<p><br></p>';
-  return bodyHtml;
+  console.log('記事生成完了 文字数:', text.length);
+  return text;
 }
 
 // ========================================
-// noteに記事を投稿（1ステップで公開）
+// noteに記事を投稿
 // ========================================
-async function postToNote(session, title, body) {
-  console.log('note投稿中（公開ステータスで直接作成）...');
+async function postToNote(session, title, text) {
+  console.log('note投稿中...');
+
+  const body = textToTiptapJson(text);
 
   const res = await fetch('https://note.com/api/v1/text_notes', {
     method: 'POST',
@@ -185,8 +189,6 @@ async function postToNote(session, title, body) {
   const noteKey = data.data?.key || data.key;
   console.log('投稿完了 key:', noteKey);
 
-  // noteの反映に数秒かかるため待機
-  console.log('反映待機中（5秒）...');
   await sleep(5000);
 
   const noteUrl = `https://note.com/horizon_shield/n/${noteKey}`;
@@ -227,10 +229,8 @@ async function main() {
     console.log('今日のテーマ:', theme.title);
 
     const session = await getNoteSession();
-    const body    = await generateArticle(theme);
-    console.log('記事生成完了 文字数:', body.length);
-
-    const noteUrl = await postToNote(session, theme.title, body);
+    const text    = await generateArticle(theme);
+    const noteUrl = await postToNote(session, theme.title, text);
 
     await sendLine(
       `✅ note自動投稿完了！\n` +
