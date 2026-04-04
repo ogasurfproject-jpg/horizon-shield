@@ -172,7 +172,16 @@ async function postToNote(theme, articleText, session) {
     }, NOTE_EMAIL, NOTE_PASSWORD);
 
     await new Promise(r => setTimeout(r, 500));
-    await page.click('button[type="submit"]');
+    // ボタンを探して押す
+    await page.evaluate(() => {
+      const btns = document.querySelectorAll('button');
+      for (const btn of btns) {
+        if (btn.textContent.includes('ログイン') || btn.type === 'submit') {
+          btn.click();
+          break;
+        }
+      }
+    });
     await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 });
     console.log('ログイン完了 URL:', page.url());
 
