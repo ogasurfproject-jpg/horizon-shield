@@ -170,6 +170,7 @@ async function postToNote(session, title, text) {
       'X-Requested-With': 'XMLHttpRequest',
     },
     body: JSON.stringify({
+      name: title,
       body: body,
       status: 'public',
       hashtag_list: ['リフォーム', '建設費診断', 'HORIZONSHIELD', '見積書', '施主'],
