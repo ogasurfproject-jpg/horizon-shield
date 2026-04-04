@@ -1,6 +1,6 @@
 /**
  * HORIZON SHIELD note自動投稿 v3
- * APIログイン → Cookieをブラウザにセット → puppeteerで本文入力
+ * APIログイン → Cookie注入 → puppeteerでエディタ操作
  */
 
 const puppeteer = require('puppeteer-core');
@@ -12,108 +12,53 @@ const LINE_TOKEN    = process.env.LINE_CHANNEL_TOKEN;
 const LINE_USER_ID  = process.env.LINE_USER_ID;
 
 const THEMES = [
-  {
-    title: 'リフォーム業者が絶対に教えない「見積書の5つの罠」',
-    keywords: ['一式見積もり', '諸経費', '図面なし', '数量不明', '口頭約束'],
-    angle: '施主が知らない業者の常套手段を暴露する内容',
-  },
-  {
-    title: '「追加工事が必要です」と言われたら疑え。建設30年のプロが語る真実',
-    keywords: ['追加工事', '契約外', '口頭指示', '変更工事査定', '証拠'],
-    angle: '追加請求の正当性を見極める方法',
-  },
-  {
-    title: '外壁塗装300万円は高いのか？適正価格の見分け方を徹底解説',
-    keywords: ['外壁塗装', '足場代', '塗料原価', '坪単価', '相見積もり'],
-    angle: '具体的な数字で適正価格を解説する内容',
-  },
-  {
-    title: '工務店選びで失敗しない7つのチェックポイント',
-    keywords: ['建設業許可', '施工実績', '保証内容', '契約書', '口コミ'],
-    angle: '施主が業者を選ぶ際の具体的な判断基準',
-  },
-  {
-    title: '引き渡し前に必ず確認すべき施工不良チェックリスト20項目',
-    keywords: ['施工不良', '完成検査', 'クロス', '床鳴り', '防水'],
-    angle: '素人でもできる施工不良の見つけ方',
-  },
-  {
-    title: '店舗開業の内装工事、適正価格はいくら？坪単価の相場を業種別に解説',
-    keywords: ['坪単価', '飲食店', 'サロン', 'クリニック', '内装工事'],
-    angle: '業種別の適正な内装工事費用の目安',
-  },
-  {
-    title: '見積書を「高い」と感じたら最初にやるべきこと3つ',
-    keywords: ['見積書確認', '内訳', '単価', '数量', '専門家相談'],
-    angle: '見積書に違和感を感じた時の具体的な行動手順',
-  },
+  { title: 'リフォーム業者が絶対に教えない「見積書の5つの罠」', keywords: ['一式見積もり', '諸経費', '図面なし', '数量不明', '口頭約束'], angle: '施主が知らない業者の常套手段を暴露する内容' },
+  { title: '「追加工事が必要です」と言われたら疑え。建設30年のプロが語る真実', keywords: ['追加工事', '契約外', '口頭指示', '変更工事査定', '証拠'], angle: '追加請求の正当性を見極める方法' },
+  { title: '外壁塗装300万円は高いのか？適正価格の見分け方を徹底解説', keywords: ['外壁塗装', '足場代', '塗料原価', '坪単価', '相見積もり'], angle: '具体的な数字で適正価格を解説する内容' },
+  { title: '工務店選びで失敗しない7つのチェックポイント', keywords: ['建設業許可', '施工実績', '保証内容', '契約書', '口コミ'], angle: '施主が業者を選ぶ際の具体的な判断基準' },
+  { title: '引き渡し前に必ず確認すべき施工不良チェックリスト20項目', keywords: ['施工不良', '完成検査', 'クロス', '床鳴り', '防水'], angle: '素人でもできる施工不良の見つけ方' },
+  { title: '店舗開業の内装工事、適正価格はいくら？坪単価の相場を業種別に解説', keywords: ['坪単価', '飲食店', 'サロン', 'クリニック', '内装工事'], angle: '業種別の適正な内装工事費用の目安' },
+  { title: '見積書を「高い」と感じたら最初にやるべきこと3つ', keywords: ['見積書確認', '内訳', '単価', '数量', '専門家相談'], angle: '見積書に違和感を感じた時の具体的な行動手順' },
 ];
 
 function getTodayTheme() {
-  const dayOfYear = Math.floor(
-    (new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000
-  );
-  return THEMES[dayOfYear % THEMES.length];
+  const d = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  return THEMES[d % THEMES.length];
 }
 
 async function apiLogin() {
-  console.log('APIログイン中...');
   const res = await fetch('https://note.com/api/v1/sessions/sign_in', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'User-Agent': 'Mozilla/5.0',
-      'Referer': 'https://note.com/login',
-      'Origin': 'https://note.com',
-    },
+    headers: { 'Content-Type': 'application/json', 'Origin': 'https://note.com', 'Referer': 'https://note.com/login' },
     body: JSON.stringify({ login: NOTE_EMAIL, password: NOTE_PASSWORD }),
   });
   if (!res.ok) throw new Error(`ログイン失敗 [${res.status}]`);
-  const data = await res.json();
-  const token = data.data?.token || data.token || '';
-  // set-cookieヘッダを全パターンで取得
-  const allSetCookie = res.headers.get('set-cookie') || '';
-  const rawCookies = res.headers.getSetCookie ? res.headers.getSetCookie() : [allSetCookie];
-  console.log('APIログイン成功');
-  console.log('set-cookie raw:', allSetCookie.slice(0, 200));
-  console.log('getSetCookie count:', rawCookies.length);
-  return { rawCookies, allSetCookie, token };
+  const cookieHeader = res.headers.get('set-cookie') || '';
+  const eqIdx = cookieHeader.indexOf('=');
+  const scIdx = cookieHeader.indexOf(';');
+  const name = cookieHeader.slice(0, eqIdx).trim();
+  const value = cookieHeader.slice(eqIdx + 1, scIdx > 0 ? scIdx : undefined).trim();
+  console.log('APIログイン成功 cookie name:', name, 'value長さ:', value.length);
+  return { name, value };
 }
 
 async function generateArticle(theme) {
-  console.log(`記事生成中: ${theme.title}`);
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_KEY,
-      'anthropic-version': '2023-06-01',
-    },
+    headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01' },
     body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1500,
-      messages: [{
-        role: 'user',
-        content: `あなたは建設歴30年のプロ「大賀俊勝」として、施主側に立ったnote記事を書いてください。
+      model: 'claude-haiku-4-5-20251001', max_tokens: 1500,
+      messages: [{ role: 'user', content: `あなたは建設歴30年のプロ「大賀俊勝」として、施主側に立ったnote記事を書いてください。
 
 【記事タイトル】${theme.title}
 【含めるキーワード】${theme.keywords.join('、')}
 【方向性】${theme.angle}
 
 【ルール】
-・一人称は「私」
-・建設30年のプロとしての権威を自然に出す
-・施主への共感から始める
-・具体的な数字・事例を入れる
-・業者批判でなく「情報格差の解消」という立場
-・1000〜1200文字
-・段落は空行で区切る
-・末尾に必ずこの文を入れる：
-「見積書の適正価格が気になる方は、HORIZON SHIELDの無料AI診断をお試しください。建設30年の専門知識を学習したAIが、あなたの見積書を即座に分析します。
-https://shield.the-horizons-innovation.com」
+・一人称は「私」・建設30年のプロとしての権威を自然に出す・施主への共感から始める・具体的な数字・事例を入れる・業者批判でなく「情報格差の解消」という立場・1000〜1200文字・段落は空行で区切る
+・末尾に必ずこの文を入れる：「見積書の適正価格が気になる方は、HORIZON SHIELDの無料AI診断をお試しください。建設30年の専門知識を学習したAIが、あなたの見積書を即座に分析します。\nhttps://shield.the-horizons-innovation.com」
 
-本文のみ出力（タイトル不要）。`,
-      }],
+本文のみ出力（タイトル不要）。` }],
     }),
   });
   if (!res.ok) throw new Error(`Claude API失敗 [${res.status}]`);
@@ -126,18 +71,12 @@ https://shield.the-horizons-innovation.com」
 async function sendLine(message) {
   await fetch('https://api.line.me/v2/bot/message/push', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${LINE_TOKEN}`,
-    },
-    body: JSON.stringify({
-      to: LINE_USER_ID,
-      messages: [{ type: 'text', text: message.slice(0, 5000) }],
-    }),
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${LINE_TOKEN}` },
+    body: JSON.stringify({ to: LINE_USER_ID, messages: [{ type: 'text', text: message.slice(0, 5000) }] }),
   });
 }
 
-async function postToNote(theme, articleText, session) {
+async function postToNote(theme, articleText, cookie) {
   console.log('ブラウザ起動中...');
   const browser = await puppeteer.launch({
     executablePath: '/usr/bin/google-chrome-stable',
@@ -147,65 +86,40 @@ async function postToNote(theme, articleText, session) {
   const page = await browser.newPage();
 
   try {
-    // ブラウザでnoteにログイン
-    console.log('noteにログイン中...');
-    await page.goto('https://note.com/login', { waitUntil: 'networkidle2', timeout: 30000 });
-    await new Promise(r => setTimeout(r, 2000));
-
-    // 全inputを確認して入力
-    const inputCount = await page.evaluate(() => document.querySelectorAll('input').length);
-    console.log('input数:', inputCount);
-
-    // ReactフォームへはnativeInputValueSetterで入力する
-    await page.evaluate((email, password) => {
-      const inputs = document.querySelectorAll('input');
-      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-      if (inputs[0]) {
-        nativeInputValueSetter.call(inputs[0], email);
-        inputs[0].dispatchEvent(new Event('input', { bubbles: true }));
-      }
-      if (inputs[1]) {
-        nativeInputValueSetter.call(inputs[1], password);
-        inputs[1].dispatchEvent(new Event('input', { bubbles: true }));
-      }
-    }, NOTE_EMAIL, NOTE_PASSWORD);
-
-    await new Promise(r => setTimeout(r, 500));
-    // ボタンを探して押す
-    await page.evaluate(() => {
-      const btns = document.querySelectorAll('button');
-      for (const btn of btns) {
-        if (btn.textContent.includes('ログイン') || btn.type === 'submit') {
-          btn.click();
-          break;
-        }
-      }
-    });
-    await new Promise(r => setTimeout(r, 5000));
-    console.log('ログイン後URL:', page.url());
-    console.log('ログイン完了 URL:', page.url());
+    // まずnote.comに移動してCookieをセット（SameSite対策）
+    await page.goto('https://note.com', { waitUntil: 'domcontentloaded', timeout: 15000 });
+    await page.setCookie({ name: cookie.name, value: cookie.value, domain: '.note.com', path: '/', secure: true, httpOnly: true });
+    console.log('Cookie設定完了');
 
     // エディタへ移動
     await page.goto('https://editor.note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
-    await new Promise(r => setTimeout(r, 3000));
-    console.log('エディタURL:', page.url());
+    await new Promise(r => setTimeout(r, 5000));
+    const url = page.url();
+    console.log('エディタURL:', url);
 
-    // タイトル入力 - contenteditableの最初の要素
-    await page.waitForSelector('[contenteditable="true"]', { timeout: 15000 });
-    const editables = await page.$$('[contenteditable="true"]');
-    if (editables.length === 0) throw new Error('エディタ要素が見つからない');
+    // contenteditable要素の数を確認
+    const editableCount = await page.evaluate(() => document.querySelectorAll('[contenteditable]').length);
+    console.log('contenteditable数:', editableCount);
+
+    if (editableCount === 0) {
+      // ページのタイトルを確認
+      const title = await page.title();
+      console.log('ページタイトル:', title);
+      throw new Error('エディタが開けていない: ' + url);
+    }
+
+    // タイトル入力（最初のcontenteditable）
+    const editables = await page.$$('[contenteditable]');
     await editables[0].click();
-    await page.keyboard.type(theme.title);
+    await page.keyboard.type(theme.title, { delay: 20 });
     console.log('タイトル入力完了');
 
-    // 本文入力 - 2番目のcontenteditable
-    const bodyEl = editables.length > 1 ? editables[1] : editables[0];
-    await bodyEl.click();
+    // 本文入力（次のcontenteditable or Tab移動）
+    await page.keyboard.press('Tab');
     await new Promise(r => setTimeout(r, 500));
-
     const paragraphs = articleText.split('\n\n').filter(p => p.trim());
     for (let i = 0; i < paragraphs.length; i++) {
-      await page.keyboard.type(paragraphs[i].trim());
+      await page.keyboard.type(paragraphs[i].trim(), { delay: 0 });
       if (i < paragraphs.length - 1) {
         await page.keyboard.press('Enter');
         await page.keyboard.press('Enter');
@@ -214,16 +128,23 @@ async function postToNote(theme, articleText, session) {
     console.log('本文入力完了');
     await new Promise(r => setTimeout(r, 3000));
 
-    // 公開
-    await page.click('button:has-text("公開に進む"), button:has-text("公開")');
+    // 公開ボタン
+    await page.evaluate(() => {
+      const btns = [...document.querySelectorAll('button')];
+      const pub = btns.find(b => b.textContent.includes('公開'));
+      if (pub) pub.click();
+    });
     await new Promise(r => setTimeout(r, 2000));
-    await page.click('button:has-text("投稿する")');
+    await page.evaluate(() => {
+      const btns = [...document.querySelectorAll('button')];
+      const post = btns.find(b => b.textContent.includes('投稿'));
+      if (post) post.click();
+    });
     await new Promise(r => setTimeout(r, 3000));
 
     const finalUrl = page.url();
     console.log('投稿完了 URL:', finalUrl);
     return finalUrl.includes('note.com') ? finalUrl : `https://note.com/horizon_shield`;
-
   } finally {
     await browser.close();
   }
@@ -236,14 +157,12 @@ async function main() {
     for (const key of required) {
       if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`);
     }
-    const theme   = getTodayTheme();
+    const theme  = getTodayTheme();
     console.log('今日のテーマ:', theme.title);
-    const session = await apiLogin();
-    const text    = await generateArticle(theme);
-    const noteUrl = await postToNote(theme, text, session);
-    await sendLine(
-      `✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${noteUrl}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`
-    );
+    const cookie = await apiLogin();
+    const text   = await generateArticle(theme);
+    const url    = await postToNote(theme, text, cookie);
+    await sendLine(`✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${url}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`);
     console.log('=== 完了 ===');
   } catch (e) {
     console.error('エラー:', e.message);
