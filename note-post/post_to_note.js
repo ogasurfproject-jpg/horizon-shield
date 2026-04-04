@@ -1,6 +1,6 @@
 /**
- * HORIZON SHIELD note自動投稿 v3
- * puppeteer-extra + stealth（Grok推奨セレクタ適用済み）
+ * HORIZON SHIELD note自動投稿 v4
+ * puppeteer-extra + stealth + form.submit()でReact SPA対策
  */
 
 const puppeteerExtra = require('puppeteer-extra');
@@ -58,7 +58,7 @@ async function postToNote(theme, articleText) {
   const browser = await puppeteerExtra.launch({
     executablePath: '/usr/bin/google-chrome-stable',
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-blink-features=AutomationControlled', '--disable-features=site-per-process'],
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-blink-features=AutomationControlled', '--disable-features=site-per-process', '--window-size=1920,1080'],
   });
   const page = await browser.newPage();
   await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36');
@@ -66,16 +66,26 @@ async function postToNote(theme, articleText) {
   try {
     await page.goto('https://note.com/login', { waitUntil: 'networkidle2', timeout: 30000 });
 
-    await page.waitForSelector('input[autocomplete="username"]', { timeout: 15000 });
-    await page.type('input[autocomplete="username"]', NOTE_EMAIL, { delay: 60 });
+    await page.waitForSelector('input[autocomplete="username"]', { timeout: 20000 });
+    await page.type('input[autocomplete="username"]', NOTE_EMAIL, { delay: 80 });
     console.log('メール入力完了');
 
-    await page.waitForSelector('input[autocomplete="current-password"]', { timeout: 15000 });
-    await page.type('input[autocomplete="current-password"]', NOTE_PASSWORD, { delay: 60 });
+    await page.waitForSelector('input[autocomplete="current-password"]', { timeout: 20000 });
+    await page.type('input[autocomplete="current-password"]', NOTE_PASSWORD, { delay: 80 });
     console.log('パスワード入力完了');
 
-    await page.keyboard.press('Enter');
-    await new Promise(r => setTimeout(r, 8000));
+    // React SPA対策：form.submit()でネイティブ送信
+    console.log('フォームをネイティブ送信します...');
+    await page.evaluate(() => {
+      const form = document.querySelector('form');
+      if (form) form.submit();
+      else {
+        const button = document.querySelector('button[type="submit"]');
+        if (button) button.click();
+      }
+    });
+
+    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 25000 });
     console.log('ログイン後URL:', page.url());
     if (page.url().includes('/login')) throw new Error('ログイン失敗');
 
@@ -117,7 +127,7 @@ async function postToNote(theme, articleText) {
 }
 
 async function main() {
-  console.log('=== HORIZON SHIELD note自動投稿 v3 開始 ===');
+  console.log('=== HORIZON SHIELD note自動投稿 v4 開始 ===');
   try {
     const required = ['NOTE_EMAIL', 'NOTE_PASSWORD', 'ANTHROPIC_API_KEY', 'LINE_CHANNEL_TOKEN', 'LINE_USER_ID'];
     for (const key of required) { if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`); }
