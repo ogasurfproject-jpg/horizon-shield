@@ -13,10 +13,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: 依存インストール
-        run: cd note-post && npm install
-      - name: Chrome依存関係
-        run: sudo apt-get update && sudo apt-get install -y libnss3 libatk-bridge2.0-0 libdrm2 libxkbcommon0 libgtk-3-0 libgbm1 libasound2
       - name: note投稿実行
         env:
           NOTE_EMAIL: ${{ secrets.NOTE_EMAIL }}
@@ -24,4 +20,4 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
-        run: cd note-post && node post_to_note.js
+        run: node note-post/post_to_note.js
