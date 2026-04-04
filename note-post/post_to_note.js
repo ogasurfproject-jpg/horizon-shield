@@ -57,11 +57,14 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function textToHtml(text) {
-  return text.split('\n\n')
-    .map(p => p.trim()).filter(Boolean)
-    .map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`)
-    .join('');
+// Tiptap JSONを文字列化して渡す（noteが期待する形式）
+function textToBody(text) {
+  const paragraphs = text.split('\n\n').map(p => p.trim()).filter(Boolean);
+  const content = paragraphs.map(p => ({
+    type: 'paragraph',
+    content: [{ type: 'text', text: p.replace(/\n/g, ' ') }],
+  }));
+  return JSON.stringify({ type: 'doc', content });
 }
 
 async function getNoteSession() {
@@ -83,10 +86,7 @@ async function getNoteSession() {
   const data = await res.json();
   const cookies = res.headers.get('set-cookie') || '';
   console.log('noteログイン成功');
-  return {
-    token: data.data?.token || data.token || '',
-    cookies,
-  };
+  return { token: data.data?.token || data.token || '', cookies };
 }
 
 async function generateArticle(theme) {
@@ -134,7 +134,7 @@ https://shield.the-horizons-innovation.com」
 
 async function postToNote(session, title, text) {
   console.log('note投稿中...');
-  const body = textToHtml(text);
+  const body = textToBody(text);
   console.log('body先頭100文字:', body.slice(0, 100));
 
   const res = await fetch('https://note.com/api/v1/text_notes', {
