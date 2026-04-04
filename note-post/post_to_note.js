@@ -1,6 +1,6 @@
 /**
  * HORIZON SHIELD note自動投稿 v4
- * APIログイン → Cookie注入 → note.comトップから「投稿」クリック → editor開く
+ * APIログイン → Cookie注入 → note.comから投稿ボタン → editor操作
  */
 
 const puppeteerExtra = require('puppeteer-extra');
@@ -90,7 +90,7 @@ async function postToNote(theme, articleText, sessionCookies) {
   await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36');
 
   try {
-    // Step1: note.comを開いてCookieをセット
+    // Cookie注入
     await page.goto('https://note.com', { waitUntil: 'domcontentloaded', timeout: 15000 });
     for (const cookieStr of sessionCookies) {
       const parts = cookieStr.split(';').map(p => p.trim());
@@ -101,20 +101,17 @@ async function postToNote(theme, articleText, sessionCookies) {
     }
     console.log('Cookie注入完了');
 
-    // Step2: note.comをリロードしてログイン状態を確認
     await page.reload({ waitUntil: 'networkidle2', timeout: 20000 });
     await new Promise(r => setTimeout(r, 2000));
     console.log('リロード後URL:', page.url());
 
-    // Step3: 「投稿」ボタンをクリック（自然な遷移）
+    // 投稿ボタンクリック
     const [postBtn] = await page.$x('//a[contains(text(),"投稿") or contains(@href,"/notes/new")]');
     if (postBtn) {
       await postBtn.click();
       console.log('投稿ボタンクリック');
     } else {
-      // 直接URLへ遷移（フォールバック）
       await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2', timeout: 20000 });
-      console.log('直接/notes/newへ遷移');
     }
     await new Promise(r => setTimeout(r, 5000));
     console.log('遷移後URL:', page.url());
@@ -129,28 +126,46 @@ async function postToNote(theme, articleText, sessionCookies) {
     await page.keyboard.type(theme.title, { delay: 20 });
     console.log('タイトル入力完了');
 
+    // Enterで本文エリアへ移動
+    await page.keyboard.press('Enter');
+    await new Promise(r => setTimeout(r, 1000));
+
     // 本文入力
-    if (editables.length > 1) { await editables[1].click(); } else { await page.keyboard.press('Tab'); }
-    await new Promise(r => setTimeout(r, 500));
     const paragraphs = articleText.split('\n\n').filter(p => p.trim());
     for (let i = 0; i < paragraphs.length; i++) {
       await page.keyboard.type(paragraphs[i].trim(), { delay: 0 });
-      if (i < paragraphs.length - 1) { await page.keyboard.press('Enter'); await page.keyboard.press('Enter'); }
+      if (i < paragraphs.length - 1) {
+        await page.keyboard.press('Enter');
+        await page.keyboard.press('Enter');
+      }
     }
     console.log('本文入力完了');
     await new Promise(r => setTimeout(r, 3000));
 
-    // 公開
-    const [pubBtn] = await page.$x('//button[contains(text(),"公開")]');
-    if (pubBtn) await pubBtn.click();
+    // 公開に進む
+    const [pubBtn] = await page.$x('//button[contains(text(),"公開に進む") or contains(text(),"公開")]');
+    if (pubBtn) {
+      await pubBtn.click();
+      console.log('公開ボタンクリック');
+    }
     await new Promise(r => setTimeout(r, 2000));
-    const [finalBtn] = await page.$x('//button[contains(text(),"投稿")]');
-    if (finalBtn) await finalBtn.click();
-    await new Promise(r => setTimeout(r, 3000));
+
+    // 投稿する
+    const [finalBtn] = await page.$x('//button[contains(text(),"投稿する") or contains(text(),"投稿")]');
+    if (finalBtn) {
+      await finalBtn.click();
+      console.log('投稿ボタンクリック');
+    }
+    await new Promise(r => setTimeout(r, 5000));
 
     const finalUrl = page.url();
     console.log('投稿完了 URL:', finalUrl);
-    return finalUrl.includes('note.com') ? finalUrl : 'https://note.com/horizon_shield';
+
+    // noteのURLに変換
+    const noteKey = finalUrl.match(/notes\/([a-z0-9]+)/)?.[1];
+    const noteUrl = noteKey ? `https://note.com/horizon_shield/n/${noteKey}` : 'https://note.com/horizon_shield';
+    return noteUrl;
+
   } finally {
     await browser.close();
   }
