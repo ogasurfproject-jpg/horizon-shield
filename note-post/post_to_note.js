@@ -1,4 +1,8 @@
-// note-post/post_to_note.js 完成体
+/**
+ * HORIZON SHIELD note自動投稿 v4
+ * APIログイン → Cookie注入 → note.comトップから「投稿」クリック → editor開く
+ */
+
 const puppeteerExtra = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const https = require('https');
@@ -25,41 +29,22 @@ function getTodayTheme() {
   return THEMES[d % THEMES.length];
 }
 
-// Node.jsのhttpsモジュールでCookieを全取得
-function apiLoginWithAllCookies() {
+function apiLogin() {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({ login: NOTE_EMAIL, password: NOTE_PASSWORD });
     const req = https.request({
-      hostname: 'note.com',
-      path: '/api/v1/sessions/sign_in',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(body),
-        'Origin': 'https://note.com',
-        'Referer': 'https://note.com/login',
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36',
-      },
+      hostname: 'note.com', path: '/api/v1/sessions/sign_in', method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body), 'Origin': 'https://note.com', 'Referer': 'https://note.com/login' },
     }, (res) => {
       let data = '';
-      res.on('data', chunk => data += chunk);
+      res.on('data', c => data += c);
       res.on('end', () => {
-        // rawHeadersから全set-cookieを取得
-        const rawHeaders = res.rawHeaders;
         const cookies = [];
-        for (let i = 0; i < rawHeaders.length; i += 2) {
-          if (rawHeaders[i].toLowerCase() === 'set-cookie') {
-            cookies.push(rawHeaders[i + 1]);
-          }
+        for (let i = 0; i < res.rawHeaders.length; i += 2) {
+          if (res.rawHeaders[i].toLowerCase() === 'set-cookie') cookies.push(res.rawHeaders[i+1]);
         }
-        console.log('取得Cookie数:', cookies.length);
-        cookies.forEach((c, i) => console.log(`Cookie[${i}]:`, c.split(';')[0]));
-        try {
-          const json = JSON.parse(data);
-          resolve({ cookies, data: json });
-        } catch(e) {
-          reject(new Error('レスポンスパース失敗: ' + data.slice(0, 100)));
-        }
+        console.log('APIログイン Cookie数:', cookies.length);
+        resolve({ cookies, json: JSON.parse(data) });
       });
     });
     req.on('error', reject);
@@ -105,48 +90,48 @@ async function postToNote(theme, articleText, sessionCookies) {
   await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36');
 
   try {
-    // note.comを開いてCookieを全て注入
+    // Step1: note.comを開いてCookieをセット
     await page.goto('https://note.com', { waitUntil: 'domcontentloaded', timeout: 15000 });
-
     for (const cookieStr of sessionCookies) {
       const parts = cookieStr.split(';').map(p => p.trim());
-      const [nameVal, ...attrs] = parts;
-      const eqIdx = nameVal.indexOf('=');
-      const name  = nameVal.slice(0, eqIdx).trim();
-      const value = nameVal.slice(eqIdx + 1).trim();
-      let domain = '.note.com', path = '/', secure = false, httpOnly = false;
-      for (const attr of attrs) {
-        const al = attr.toLowerCase();
-        if (al.startsWith('domain=')) domain = attr.split('=')[1].trim();
-        if (al.startsWith('path='))   path = attr.split('=')[1].trim();
-        if (al === 'secure') secure = true;
-        if (al === 'httponly') httpOnly = true;
-      }
-      if (!domain.startsWith('.')) domain = '.' + domain;
-      await page.setCookie({ name, value, domain, path, secure, httpOnly });
+      const eqIdx = parts[0].indexOf('=');
+      const name  = parts[0].slice(0, eqIdx).trim();
+      const value = parts[0].slice(eqIdx + 1).trim();
+      await page.setCookie({ name, value, domain: '.note.com', path: '/' });
     }
-    console.log('全Cookie注入完了');
+    console.log('Cookie注入完了');
 
-    // エディタへ直接移動
-    await page.goto('https://editor.note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
+    // Step2: note.comをリロードしてログイン状態を確認
+    await page.reload({ waitUntil: 'networkidle2', timeout: 20000 });
+    await new Promise(r => setTimeout(r, 2000));
+    console.log('リロード後URL:', page.url());
+
+    // Step3: 「投稿」ボタンをクリック（自然な遷移）
+    const [postBtn] = await page.$x('//a[contains(text(),"投稿") or contains(@href,"/notes/new")]');
+    if (postBtn) {
+      await postBtn.click();
+      console.log('投稿ボタンクリック');
+    } else {
+      // 直接URLへ遷移（フォールバック）
+      await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2', timeout: 20000 });
+      console.log('直接/notes/newへ遷移');
+    }
     await new Promise(r => setTimeout(r, 5000));
-    console.log('エディタURL:', page.url());
+    console.log('遷移後URL:', page.url());
 
     const editableCount = await page.evaluate(() => document.querySelectorAll('[contenteditable]').length);
     console.log('contenteditable数:', editableCount);
-    if (editableCount === 0) {
-      const title = await page.title();
-      throw new Error(`エディタ未ログイン(${title}): ` + page.url());
-    }
+    if (editableCount === 0) throw new Error('エディタが開けていない: ' + page.url());
 
+    // タイトル入力
     const editables = await page.$$('[contenteditable]');
     await editables[0].click();
     await page.keyboard.type(theme.title, { delay: 20 });
     console.log('タイトル入力完了');
 
+    // 本文入力
     if (editables.length > 1) { await editables[1].click(); } else { await page.keyboard.press('Tab'); }
     await new Promise(r => setTimeout(r, 500));
-
     const paragraphs = articleText.split('\n\n').filter(p => p.trim());
     for (let i = 0; i < paragraphs.length; i++) {
       await page.keyboard.type(paragraphs[i].trim(), { delay: 0 });
@@ -155,11 +140,12 @@ async function postToNote(theme, articleText, sessionCookies) {
     console.log('本文入力完了');
     await new Promise(r => setTimeout(r, 3000));
 
+    // 公開
     const [pubBtn] = await page.$x('//button[contains(text(),"公開")]');
     if (pubBtn) await pubBtn.click();
     await new Promise(r => setTimeout(r, 2000));
-    const [postBtn] = await page.$x('//button[contains(text(),"投稿")]');
-    if (postBtn) await postBtn.click();
+    const [finalBtn] = await page.$x('//button[contains(text(),"投稿")]');
+    if (finalBtn) await finalBtn.click();
     await new Promise(r => setTimeout(r, 3000));
 
     const finalUrl = page.url();
@@ -177,11 +163,7 @@ async function main() {
     for (const key of required) { if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`); }
     const theme = getTodayTheme();
     console.log('今日のテーマ:', theme.title);
-
-    // Node.js httpsモジュールでCookieを全取得
-    const { cookies } = await apiLoginWithAllCookies();
-    if (cookies.length === 0) throw new Error('Cookieが取得できなかった');
-
+    const { cookies } = await apiLogin();
     const text = await generateArticle(theme);
     const url  = await postToNote(theme, text, cookies);
     await sendLine(`✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${url}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`);
