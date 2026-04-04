@@ -146,10 +146,20 @@ async function postToNote(theme, articleText, session) {
   const page = await browser.newPage();
 
   try {
-    // Cookieを文字列に変換してヘッダにセット
-    const cookieStr = session.rawCookies.map(c => c.split(';')[0].trim()).join('; ');
-    console.log('Cookie文字列:', cookieStr.slice(0, 100));
-    await page.setExtraHTTPHeaders({ 'Cookie': cookieStr });
+    // Cookieを両ドメインにセット
+    const cookiePairs = session.rawCookies.map(c => {
+      const [nameVal] = c.split(';');
+      const eqIdx = nameVal.indexOf('=');
+      return { name: nameVal.slice(0, eqIdx).trim(), value: nameVal.slice(eqIdx + 1).trim() };
+    }).filter(c => c.name && c.value);
+
+    // note.comとeditor.note.com両方にセット
+    for (const domain of ['note.com', 'editor.note.com']) {
+      for (const c of cookiePairs) {
+        await page.setCookie({ name: c.name, value: c.value, domain, path: '/' });
+      }
+    }
+    console.log('Cookie設定完了 pairs:', cookiePairs.length);
 
     // エディタを直接開く
     console.log('エディタを開いています...');
