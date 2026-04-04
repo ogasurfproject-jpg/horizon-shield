@@ -148,7 +148,7 @@ https://shield.the-horizons-innovation.com」
 }
 
 // ========================================
-// noteに記事を投稿（下書き作成 → PATCH公開）
+// noteに記事を投稿（下書き作成 → 公開）
 // ========================================
 async function postToNote(session, title, body) {
   console.log('note下書き作成中...');
@@ -179,17 +179,26 @@ async function postToNote(session, title, body) {
   }
 
   const draft = await draftRes.json();
-  const noteKey = draft.data?.key || draft.key;
-  console.log('下書き作成完了:', noteKey);
+  // デバッグ: レスポンス全体を出力
+  console.log('draft.data keys:', JSON.stringify(Object.keys(draft.data || draft)));
+  console.log('draft.data.id:', draft.data?.id);
+  console.log('draft.data.key:', draft.data?.key);
 
-  // ステップ2: PATCHでstatus='public'に更新して公開
-  console.log('note公開中（PATCH）...');
-  const publishRes = await fetch(`https://note.com/api/v1/text_notes/${noteKey}`, {
-    method: 'PATCH',
+  const noteKey = draft.data?.key || draft.key;
+  const noteId  = draft.data?.id  || draft.id;
+  console.log('使用するkey:', noteKey, '/ id:', noteId);
+
+  // ステップ2: PUT で status='public' に更新
+  console.log('note公開中（PUT）...');
+  const publishRes = await fetch(`https://note.com/api/v1/text_notes/${noteId}`, {
+    method: 'PUT',
     headers: { ...commonHeaders, 'Referer': `https://note.com/notes/${noteKey}/edit` },
     body: JSON.stringify({
+      name: title,
+      body: body,
       status: 'public',
       published_at: new Date().toISOString(),
+      hashtag_list: ['リフォーム', '建設費診断', 'HORIZONSHIELD', '見積書', '施主'],
     }),
   });
 
