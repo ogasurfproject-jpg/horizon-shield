@@ -1,11 +1,11 @@
 /**
  * HORIZON SHIELD note自動投稿 v3
- * puppeteer-extra + stealth でbot検知回避
+ * puppeteer-extra + stealth（Grok推奨セレクタ適用済み）
  */
 
-const puppeteer = require('puppeteer-extra');
+const puppeteerExtra = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-puppeteer.use(StealthPlugin());
+puppeteerExtra.use(StealthPlugin());
 
 const NOTE_EMAIL    = process.env.NOTE_EMAIL;
 const NOTE_PASSWORD = process.env.NOTE_PASSWORD;
@@ -29,30 +29,13 @@ function getTodayTheme() {
 }
 
 async function generateArticle(theme) {
+  console.log('記事生成中:', theme.title);
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01' },
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001', max_tokens: 1500,
-      messages: [{ role: 'user', content: `あなたは建設歴30年のプロ「大賀俊勝」として、施主側に立ったnote記事を書いてください。
-
-【記事タイトル】${theme.title}
-【含めるキーワード】${theme.keywords.join('、')}
-【方向性】${theme.angle}
-
-【ルール】
-・一人称は「私」
-・建設30年のプロとしての権威を自然に出す
-・施主への共感から始める
-・具体的な数字・事例を入れる
-・業者批判でなく「情報格差の解消」という立場
-・1000〜1200文字
-・段落は空行で区切る
-・末尾に必ずこの文を入れる：
-「見積書の適正価格が気になる方は、HORIZON SHIELDの無料AI診断をお試しください。建設30年の専門知識を学習したAIが、あなたの見積書を即座に分析します。
-https://shield.the-horizons-innovation.com」
-
-本文のみ出力（タイトル不要）。` }],
+      messages: [{ role: 'user', content: `あなたは建設歴30年のプロ「大賀俊勝」として、施主側に立ったnote記事を書いてください。\n\n【記事タイトル】${theme.title}\n【含めるキーワード】${theme.keywords.join('、')}\n【方向性】${theme.angle}\n\n【ルール】\n・一人称は「私」\n・建設30年のプロとしての権威を自然に出す\n・施主への共感から始める\n・具体的な数字・事例を入れる\n・業者批判でなく「情報格差の解消」という立場\n・1000〜1200文字\n・段落は空行で区切る\n・末尾に必ずこの文を入れる：\n「見積書の適正価格が気になる方は、HORIZON SHIELDの無料AI診断をお試しください。建設30年の専門知識を学習したAIが、あなたの見積書を即座に分析します。\nhttps://shield.the-horizons-innovation.com」\n\n本文のみ出力（タイトル不要）。` }],
     }),
   });
   if (!res.ok) throw new Error(`Claude API失敗 [${res.status}]`);
@@ -71,53 +54,31 @@ async function sendLine(message) {
 }
 
 async function postToNote(theme, articleText) {
-  console.log('ブラウザ起動中（stealth mode）...');
-  const browser = await puppeteer.launch({
+  console.log('ブラウザ起動中...');
+  const browser = await puppeteerExtra.launch({
     executablePath: '/usr/bin/google-chrome-stable',
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-blink-features=AutomationControlled',
-    ],
     headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-blink-features=AutomationControlled', '--disable-features=site-per-process'],
   });
   const page = await browser.newPage();
-  await page.setViewport({ width: 1280, height: 800 });
-  await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+  await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36');
 
   try {
-    // ログイン
-    console.log('noteログインページを開いています...');
     await page.goto('https://note.com/login', { waitUntil: 'networkidle2', timeout: 30000 });
-    await new Promise(r => setTimeout(r, 3000));
-    console.log('ログインページURL:', page.url());
 
-    const inputCount = await page.evaluate(() => document.querySelectorAll('input').length);
-    console.log('input数:', inputCount);
-
-    // メール入力（noteのinput nameは'login'）
-    await page.waitForSelector('input[name="login"]', { timeout: 10000 });
-    await page.click('input[name="login"]');
-    await page.type('input[name="login"]', NOTE_EMAIL, { delay: 50 });
+    await page.waitForSelector('input[autocomplete="username"]', { timeout: 15000 });
+    await page.type('input[autocomplete="username"]', NOTE_EMAIL, { delay: 60 });
     console.log('メール入力完了');
 
-    // パスワード入力
-    await page.click('input[name="password"]');
-    await page.type('input[name="password"]', NOTE_PASSWORD, { delay: 50 });
+    await page.waitForSelector('input[autocomplete="current-password"]', { timeout: 15000 });
+    await page.type('input[autocomplete="current-password"]', NOTE_PASSWORD, { delay: 60 });
     console.log('パスワード入力完了');
 
-    // ログインボタンクリック
-    await page.click('.logining_msg, button[type="submit"], button');
-    await new Promise(r => setTimeout(r, 5000));
+    await page.keyboard.press('Enter');
+    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 20000 });
     console.log('ログイン後URL:', page.url());
+    if (page.url().includes('/login')) throw new Error('ログイン失敗');
 
-    if (page.url().includes('/login')) {
-      throw new Error('ログイン失敗: ' + page.url());
-    }
-
-    // エディタを開く
-    console.log('エディタを開いています...');
     await page.goto('https://editor.note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
     await new Promise(r => setTimeout(r, 5000));
     console.log('エディタURL:', page.url());
@@ -126,49 +87,30 @@ async function postToNote(theme, articleText) {
     console.log('contenteditable数:', editableCount);
     if (editableCount === 0) throw new Error('エディタが開けていない');
 
-    // タイトル入力
     const editables = await page.$$('[contenteditable]');
     await editables[0].click();
     await page.keyboard.type(theme.title, { delay: 20 });
     console.log('タイトル入力完了');
 
-    // 本文入力
-    if (editables.length > 1) {
-      await editables[1].click();
-    } else {
-      await page.keyboard.press('Tab');
-    }
+    if (editables.length > 1) { await editables[1].click(); } else { await page.keyboard.press('Tab'); }
     await new Promise(r => setTimeout(r, 500));
 
     const paragraphs = articleText.split('\n\n').filter(p => p.trim());
     for (let i = 0; i < paragraphs.length; i++) {
       await page.keyboard.type(paragraphs[i].trim(), { delay: 0 });
-      if (i < paragraphs.length - 1) {
-        await page.keyboard.press('Enter');
-        await page.keyboard.press('Enter');
-      }
+      if (i < paragraphs.length - 1) { await page.keyboard.press('Enter'); await page.keyboard.press('Enter'); }
     }
     console.log('本文入力完了');
     await new Promise(r => setTimeout(r, 3000));
 
-    // 公開
-    await page.evaluate(() => {
-      const btns = [...document.querySelectorAll('button')];
-      const pub = btns.find(b => b.textContent.includes('公開'));
-      if (pub) pub.click();
-    });
+    await page.evaluate(() => { const b = [...document.querySelectorAll('button')].find(b => b.textContent.includes('公開')); if (b) b.click(); });
     await new Promise(r => setTimeout(r, 2000));
-    await page.evaluate(() => {
-      const btns = [...document.querySelectorAll('button')];
-      const post = btns.find(b => b.textContent.includes('投稿'));
-      if (post) post.click();
-    });
+    await page.evaluate(() => { const b = [...document.querySelectorAll('button')].find(b => b.textContent.includes('投稿')); if (b) b.click(); });
     await new Promise(r => setTimeout(r, 3000));
 
     const finalUrl = page.url();
     console.log('投稿完了 URL:', finalUrl);
-    return finalUrl.includes('note.com') ? finalUrl : `https://note.com/horizon_shield`;
-
+    return finalUrl.includes('note.com') ? finalUrl : 'https://note.com/horizon_shield';
   } finally {
     await browser.close();
   }
@@ -178,13 +120,11 @@ async function main() {
   console.log('=== HORIZON SHIELD note自動投稿 v3 開始 ===');
   try {
     const required = ['NOTE_EMAIL', 'NOTE_PASSWORD', 'ANTHROPIC_API_KEY', 'LINE_CHANNEL_TOKEN', 'LINE_USER_ID'];
-    for (const key of required) {
-      if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`);
-    }
+    for (const key of required) { if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`); }
     const theme = getTodayTheme();
     console.log('今日のテーマ:', theme.title);
-    const text  = await generateArticle(theme);
-    const url   = await postToNote(theme, text);
+    const text = await generateArticle(theme);
+    const url  = await postToNote(theme, text);
     await sendLine(`✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${url}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`);
     console.log('=== 完了 ===');
   } catch (e) {
