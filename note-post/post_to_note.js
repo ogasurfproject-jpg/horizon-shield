@@ -1,9 +1,9 @@
 /**
  * HORIZON SHIELD note自動投稿 v3
- * Playwright使用（ブラウザ操作で確実に本文を投稿）
+ * puppeteer-core + システムChrome使用
  */
 
-const { chromium } = require('playwright-core');
+const puppeteer = require('puppeteer-core');
 
 const NOTE_EMAIL    = process.env.NOTE_EMAIL;
 const NOTE_PASSWORD = process.env.NOTE_PASSWORD;
@@ -113,39 +113,43 @@ async function sendLine(message) {
   });
 }
 
-async function postToNoteWithBrowser(theme, articleText) {
+async function postToNote(theme, articleText) {
   console.log('ブラウザ起動中...');
-  const browser = await chromium.launch({ executablePath: '/usr/bin/google-chrome-stable', args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+  const browser = await puppeteer.launch({
+    executablePath: '/usr/bin/google-chrome-stable',
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    headless: true,
+  });
   const page = await browser.newPage();
 
   try {
     // ログイン
     console.log('noteログイン中...');
-    await page.goto('https://note.com/login', { waitUntil: 'networkidle' });
-    await page.fill('input[name="email"]', NOTE_EMAIL);
-    await page.fill('input[name="password"]', NOTE_PASSWORD);
+    await page.goto('https://note.com/login', { waitUntil: 'networkidle2', timeout: 30000 });
+    await page.type('input[name="email"]', NOTE_EMAIL);
+    await page.type('input[name="password"]', NOTE_PASSWORD);
     await page.click('button[type="submit"]');
-    await page.waitForNavigation({ waitUntil: 'networkidle' });
+    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 });
     console.log('ログイン完了');
 
     // 新規記事作成
     console.log('エディタを開いています...');
-    await page.goto('https://editor.note.com/notes/new', { waitUntil: 'networkidle' });
-    await page.waitForTimeout(2000);
+    await page.goto('https://editor.note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
+    await new Promise(r => setTimeout(r, 3000));
 
     // タイトル入力
     await page.click('[data-placeholder="タイトル"]');
-    await page.fill('[data-placeholder="タイトル"]', theme.title);
+    await page.keyboard.type(theme.title);
     console.log('タイトル入力完了');
 
     // 本文エリアをクリック
     await page.click('.ProseMirror');
-    await page.waitForTimeout(500);
+    await new Promise(r => setTimeout(r, 500));
 
-    // 本文を段落ごとに入力
+    // 本文入力
     const paragraphs = articleText.split('\n\n').filter(p => p.trim());
     for (let i = 0; i < paragraphs.length; i++) {
-      await page.keyboard.type(paragraphs[i].trim(), { delay: 0 });
+      await page.keyboard.type(paragraphs[i].trim());
       if (i < paragraphs.length - 1) {
         await page.keyboard.press('Enter');
         await page.keyboard.press('Enter');
@@ -153,24 +157,17 @@ async function postToNoteWithBrowser(theme, articleText) {
     }
     console.log('本文入力完了');
 
-    // 自動保存待ち
-    await page.waitForTimeout(3000);
+    await new Promise(r => setTimeout(r, 3000));
 
-    // 公開ボタンをクリック
+    // 公開ボタン
     await page.click('button:has-text("公開に進む")');
-    await page.waitForTimeout(2000);
-
-    // 公開設定画面で投稿ボタンをクリック
+    await new Promise(r => setTimeout(r, 2000));
     await page.click('button:has-text("投稿する")');
-    await page.waitForTimeout(3000);
+    await new Promise(r => setTimeout(r, 3000));
 
-    // URLを取得
     const url = page.url();
     console.log('投稿完了 URL:', url);
-
-    // note.comのURLに変換
-    const noteUrl = url.includes('note.com') ? url : `https://note.com/horizon_shield`;
-    return noteUrl;
+    return url.includes('note.com') ? url : `https://note.com/horizon_shield`;
 
   } finally {
     await browser.close();
@@ -184,13 +181,10 @@ async function main() {
     for (const key of required) {
       if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`);
     }
-
     const theme = getTodayTheme();
     console.log('今日のテーマ:', theme.title);
-
     const text    = await generateArticle(theme);
-    const noteUrl = await postToNoteWithBrowser(theme, text);
-
+    const noteUrl = await postToNote(theme, text);
     await sendLine(
       `✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${noteUrl}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`
     );
