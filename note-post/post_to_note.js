@@ -55,6 +55,10 @@ function getTodayTheme() {
   return THEMES[dayOfYear % THEMES.length];
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // ========================================
 // noteにログインしてセッショントークンを取得
 // ========================================
@@ -148,51 +152,21 @@ https://shield.the-horizons-innovation.com」
 }
 
 // ========================================
-// noteに記事を投稿（下書き作成 → 公開）
+// noteに記事を投稿（1ステップで公開）
 // ========================================
 async function postToNote(session, title, body) {
-  console.log('note下書き作成中...');
+  console.log('note投稿中（公開ステータスで直接作成）...');
 
-  const commonHeaders = {
-    'Content-Type': 'application/json',
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-    'Origin': 'https://note.com',
-    'Cookie': session.cookies,
-    'X-Note-Token': session.token,
-  };
-
-  // ステップ1: 下書き作成
-  const draftRes = await fetch('https://note.com/api/v1/text_notes', {
+  const res = await fetch('https://note.com/api/v1/text_notes', {
     method: 'POST',
-    headers: { ...commonHeaders, 'Referer': 'https://note.com/notes/new' },
-    body: JSON.stringify({
-      name: title,
-      body: body,
-      status: 'draft',
-      hashtag_list: ['リフォーム', '建設費診断', 'HORIZONSHIELD', '見積書', '施主'],
-    }),
-  });
-
-  if (!draftRes.ok) {
-    const err = await draftRes.text();
-    throw new Error(`下書き作成失敗 [${draftRes.status}]: ${err.slice(0, 200)}`);
-  }
-
-  const draft = await draftRes.json();
-  // デバッグ: レスポンス全体を出力
-  console.log('draft.data keys:', JSON.stringify(Object.keys(draft.data || draft)));
-  console.log('draft.data.id:', draft.data?.id);
-  console.log('draft.data.key:', draft.data?.key);
-
-  const noteKey = draft.data?.key || draft.key;
-  const noteId  = draft.data?.id  || draft.id;
-  console.log('使用するkey:', noteKey, '/ id:', noteId);
-
-  // ステップ2: PUT で status='public' に更新
-  console.log('note公開中（PUT）...');
-  const publishRes = await fetch(`https://note.com/api/v1/text_notes/${noteId}`, {
-    method: 'PUT',
-    headers: { ...commonHeaders, 'Referer': `https://note.com/notes/${noteKey}/edit` },
+    headers: {
+      'Content-Type': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+      'Referer': 'https://note.com/notes/new',
+      'Origin': 'https://note.com',
+      'Cookie': session.cookies,
+      'X-Note-Token': session.token,
+    },
     body: JSON.stringify({
       name: title,
       body: body,
@@ -202,13 +176,21 @@ async function postToNote(session, title, body) {
     }),
   });
 
-  if (!publishRes.ok) {
-    const err = await publishRes.text();
-    throw new Error(`公開失敗 [${publishRes.status}]: ${err.slice(0, 200)}`);
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`投稿失敗 [${res.status}]: ${err.slice(0, 200)}`);
   }
 
+  const data = await res.json();
+  const noteKey = data.data?.key || data.key;
+  console.log('投稿完了 key:', noteKey);
+
+  // noteの反映に数秒かかるため待機
+  console.log('反映待機中（5秒）...');
+  await sleep(5000);
+
   const noteUrl = `https://note.com/horizon_shield/n/${noteKey}`;
-  console.log('公開完了:', noteUrl);
+  console.log('URL:', noteUrl);
   return noteUrl;
 }
 
