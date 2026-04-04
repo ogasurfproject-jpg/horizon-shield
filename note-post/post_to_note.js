@@ -57,8 +57,7 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Tiptap JSONを文字列化して渡す（noteが期待する形式）
-function textToBody(text) {
+function textToTiptapJson(text) {
   const paragraphs = text.split('\n\n').map(p => p.trim()).filter(Boolean);
   const content = paragraphs.map(p => ({
     type: 'paragraph',
@@ -133,40 +132,59 @@ https://shield.the-horizons-innovation.com」
 }
 
 async function postToNote(session, title, text) {
-  console.log('note投稿中...');
-  const body = textToBody(text);
-  console.log('body先頭100文字:', body.slice(0, 100));
-
-  const res = await fetch('https://note.com/api/v1/text_notes', {
+  // ステップ1: 下書き作成（bodyなし）
+  console.log('note下書き作成中...');
+  const createRes = await fetch('https://note.com/api/v1/text_notes', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-      'Referer': 'https://note.com/notes/new',
+      'Referer': 'https://note.com/',
       'Origin': 'https://note.com',
       'Cookie': session.cookies,
       'X-Note-Token': session.token,
     },
+    body: JSON.stringify({ name: title, status: 'draft' }),
+  });
+  if (!createRes.ok) {
+    const err = await createRes.text();
+    throw new Error(`下書き作成失敗 [${createRes.status}]: ${err.slice(0, 200)}`);
+  }
+  const created = await createRes.json();
+  const noteId  = created.data?.id  || created.id;
+  const noteKey = created.data?.key || created.key;
+  console.log('下書き作成完了 id:', noteId, 'key:', noteKey);
+
+  // ステップ2: editor.note.comのOriginでbody+公開
+  console.log('本文保存＆公開中...');
+  const body = textToTiptapJson(text);
+  const patchRes = await fetch(`https://note.com/api/v1/text_notes/${noteId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+      'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
+      'Origin': 'https://editor.note.com',
+      'Cookie': session.cookies,
+      'X-Note-Token': session.token,
+      'X-Requested-With': 'XMLHttpRequest',
+    },
     body: JSON.stringify({
-      name: title,
       body: body,
       status: 'public',
       hashtag_list: ['リフォーム', '建設費診断', 'HORIZONSHIELD', '見積書', '施主'],
     }),
   });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`投稿失敗 [${res.status}]: ${err.slice(0, 200)}`);
+  if (!patchRes.ok) {
+    const err = await patchRes.text();
+    throw new Error(`本文保存失敗 [${patchRes.status}]: ${err.slice(0, 300)}`);
   }
 
-  const data = await res.json();
-  const noteKey = data.data?.key || data.key;
-  console.log('投稿完了 key:', noteKey);
-  console.log('レスポンスbody先頭:', JSON.stringify(data.data?.body || '').slice(0, 100));
+  const patched = await patchRes.json();
+  console.log('本文保存完了 body先頭:', JSON.stringify(patched.data?.body || '').slice(0, 100));
 
-  await sleep(5000);
-
+  await sleep(3000);
   const noteUrl = `https://note.com/horizon_shield/n/${noteKey}`;
   console.log('URL:', noteUrl);
   return noteUrl;
@@ -193,23 +211,14 @@ async function main() {
     for (const key of required) {
       if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`);
     }
-
     const theme   = getTodayTheme();
     console.log('今日のテーマ:', theme.title);
-
     const session = await getNoteSession();
     const text    = await generateArticle(theme);
     const noteUrl = await postToNote(session, theme.title, text);
-
     await sendLine(
-      `✅ note自動投稿完了！\n` +
-      `━━━━━━━━━━\n` +
-      `📝 ${theme.title}\n\n` +
-      `🔗 ${noteUrl}\n\n` +
-      `📣 Xでシェアしてください！\n` +
-      `━━━━━━━━━━`
+      `✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${noteUrl}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`
     );
-
     console.log('=== 完了 ===');
   } catch (e) {
     console.error('エラー:', e.message);
