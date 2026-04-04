@@ -170,6 +170,7 @@ async function postToNote(session, title, text) {
   const body = textToBody(text);
   const bodyLength = text.replace(/\s/g, '').length;
 
+  console.log('使用Cookie:', session.cookies.slice(0, 200));
   const saveRes = await fetch(`https://note.com/api/v1/draft_save?id=${noteId}&is_temp_saved=true`, {
     method: 'POST',
     headers: {
