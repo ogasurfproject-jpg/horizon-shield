@@ -156,43 +156,20 @@ async function postToNote(session, title, body) {
     body: JSON.stringify({
       name: title,
       body: body,
-      status: 'draft',
+      status: 'public',
       hashtag_list: ['リフォーム', '建設費診断', 'HORIZONSHIELD', '見積書', '施主'],
     }),
   });
 
   if (!draftRes.ok) {
     const err = await draftRes.text();
-    throw new Error(`下書き作成失敗 [${draftRes.status}]: ${err.slice(0, 200)}`);
+    throw new Error(`投稿失敗 [${draftRes.status}]: ${err.slice(0, 200)}`);
   }
 
   const draft = await draftRes.json();
   const noteKey = draft.data?.key || draft.key;
-  console.log('下書き作成完了 key:', noteKey);
-
-  // 公開
-  console.log('note公開中...');
-  const publishRes = await fetch(`https://note.com/api/v1/text_notes/${noteKey}/publish`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-      'Referer': `https://note.com/notes/${noteKey}/edit`,
-      'Origin': 'https://note.com',
-      'Cookie': session.cookies,
-      'X-Note-Token': session.token,
-    },
-    body: JSON.stringify({ status: 'published' }),
-  });
-
-  if (!publishRes.ok) {
-    const err = await publishRes.text();
-    throw new Error(`公開失敗 [${publishRes.status}]: ${err.slice(0, 200)}`);
-  }
-
-  const published = await publishRes.json();
   const noteUrl = `https://note.com/horizon_shield/n/${noteKey}`;
-  console.log('公開完了:', noteUrl);
+  console.log('投稿完了:', noteUrl);
   return noteUrl;
 }
 
