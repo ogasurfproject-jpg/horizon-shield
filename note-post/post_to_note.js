@@ -161,9 +161,12 @@ async function postToNote(session, title, text) {
     throw new Error(`下書き作成失敗 [${createRes.status}]: ${err.slice(0, 200)}`);
   }
   const created = await createRes.json();
+  console.log('created.data:', JSON.stringify(created.data || created).slice(0, 300));
   const noteId  = created.data?.id  || created.id;
   const noteKey = created.data?.key || created.key;
   console.log('下書き作成完了 id:', noteId, 'key:', noteKey);
+
+  await new Promise(r => setTimeout(r, 3000)); // 有効化待ち
 
   // ステップ2: draft_saveで本文を保存
   console.log('本文保存中（draft_save）...');
