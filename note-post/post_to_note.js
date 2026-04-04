@@ -157,6 +157,7 @@ async function postToNote(session, title, body) {
       name: title,
       body: body,
       status: 'public',
+      published_at: new Date().toISOString(),
       hashtag_list: ['リフォーム', '建設費診断', 'HORIZONSHIELD', '見積書', '施主'],
     }),
   });
