@@ -142,9 +142,11 @@ https://shield.the-horizons-innovation.com」
 }
 
 async function postToNote(session, title, text) {
-  // ステップ1: 下書き作成してIDを取得
-  console.log('note下書き作成中...');
-  const createRes = await fetch('https://note.com/api/v1/text_notes', {
+  console.log('note投稿中...');
+  const body = textToBody(text);
+
+  // 1ステップでpublic投稿
+  const res = await fetch('https://note.com/api/v1/text_notes', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -154,76 +156,37 @@ async function postToNote(session, title, text) {
       'Cookie': session.cookies,
       'X-Note-Token': session.token,
     },
-    body: JSON.stringify({ name: title, status: 'draft' }),
-  });
-  if (!createRes.ok) {
-    const err = await createRes.text();
-    throw new Error(`下書き作成失敗 [${createRes.status}]: ${err.slice(0, 200)}`);
-  }
-  const created = await createRes.json();
-  console.log('created.data:', JSON.stringify(created.data || created).slice(0, 300));
-  const noteId  = created.data?.id  || created.id;
-  const noteKey = created.data?.key || created.key;
-  console.log('下書き作成完了 id:', noteId, 'key:', noteKey);
-
-  await new Promise(r => setTimeout(r, 3000)); // 有効化待ち
-
-  // ステップ2: draft_saveで本文を保存
-  console.log('本文保存中（draft_save）...');
-  const body = textToBody(text);
-  const bodyLength = text.replace(/\s/g, '').length;
-
-  console.log('使用Cookie:', session.cookies.slice(0, 200));
-  const saveRes = await fetch(`https://note.com/api/v1/draft_save?id=${noteId}&is_temp_saved=true`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-      'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
-      'Origin': 'https://editor.note.com',
-      'Cookie': session.cookies,
-      'X-Note-Token': session.token,
-      'X-Requested-With': 'XMLHttpRequest',
-    },
     body: JSON.stringify({
-      body: body,
-      body_length: bodyLength,
       name: title,
-      index: false,
-      is_lead_form: false,
-    }),
-  });
-  if (!saveRes.ok) {
-    const err = await saveRes.text();
-    throw new Error(`本文保存失敗 [${saveRes.status}]: ${err.slice(0, 200)}`);
-  }
-  console.log('本文保存完了');
-
-  // ステップ3: 公開
-  console.log('公開中...');
-  const publishRes = await fetch('https://note.com/api/v1/text_notes', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-      'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
-      'Origin': 'https://note.com',
-      'Cookie': session.cookies,
-      'X-Note-Token': session.token,
-    },
-    body: JSON.stringify({
-      id: noteId,
+      body: body,
       status: 'public',
       hashtag_list: ['リフォーム', '建設費診断', 'HORIZONSHIELD', '見積書', '施主'],
     }),
   });
-  if (!publishRes.ok) {
-    const err = await publishRes.text();
-    throw new Error(`公開失敗 [${publishRes.status}]: ${err.slice(0, 200)}`);
-  }
-  console.log('公開完了');
 
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`投稿失敗 [${res.status}]: ${err.slice(0, 200)}`);
+  }
+
+  const data = await res.json();
+  const noteKey = data.data?.key || data.key;
+  const noteId  = data.data?.id  || data.id;
+  console.log('投稿完了 key:', noteKey, 'id:', noteId);
+
+  // GETでbodyが保存されているか確認
   await sleep(3000);
+  const getRes = await fetch(`https://note.com/api/v1/text_notes/${noteKey}`, {
+    headers: {
+      'Cookie': session.cookies,
+      'X-Note-Token': session.token,
+    },
+  });
+  if (getRes.ok) {
+    const getData = await getRes.json();
+    console.log('GET body先頭:', (getData.data?.body || '').slice(0, 150));
+  }
+
   const noteUrl = `https://note.com/horizon_shield/n/${noteKey}`;
   console.log('URL:', noteUrl);
   return noteUrl;
