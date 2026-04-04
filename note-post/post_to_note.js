@@ -1,6 +1,5 @@
 /**
  * HORIZON SHIELD note自動投稿 v2
- * puppeteer廃止 → note内部APIを直接使用
  */
 
 const NOTE_EMAIL    = process.env.NOTE_EMAIL;
@@ -58,13 +57,11 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function textToTiptapJson(text) {
-  const paragraphs = text.split('\n\n').map(p => p.trim()).filter(Boolean);
-  const content = paragraphs.map(p => ({
-    type: 'paragraph',
-    content: [{ type: 'text', text: p.replace(/\n/g, ' ') }],
-  }));
-  return { type: 'doc', content };
+function textToHtml(text) {
+  return text.split('\n\n')
+    .map(p => p.trim()).filter(Boolean)
+    .map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`)
+    .join('');
 }
 
 async function getNoteSession() {
@@ -137,7 +134,8 @@ https://shield.the-horizons-innovation.com」
 
 async function postToNote(session, title, text) {
   console.log('note投稿中...');
-  const body = textToTiptapJson(text);
+  const body = textToHtml(text);
+  console.log('body先頭100文字:', body.slice(0, 100));
 
   const res = await fetch('https://note.com/api/v1/text_notes', {
     method: 'POST',
@@ -165,6 +163,7 @@ async function postToNote(session, title, text) {
   const data = await res.json();
   const noteKey = data.data?.key || data.key;
   console.log('投稿完了 key:', noteKey);
+  console.log('レスポンスbody先頭:', JSON.stringify(data.data?.body || '').slice(0, 100));
 
   await sleep(5000);
 
