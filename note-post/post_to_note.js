@@ -120,15 +120,26 @@ async function postToNote(theme, articleText, sessionCookies) {
     console.log('contenteditable数:', editableCount);
     if (editableCount === 0) throw new Error('エディタが開けていない: ' + page.url());
 
-    // タイトル入力
-    const editables = await page.$$('[contenteditable]');
-    await editables[0].click();
-    await page.keyboard.type(theme.title, { delay: 20 });
-    console.log('タイトル入力完了');
+    // タイトル入力（input要素を探す）
+    const titleInput = await page.$('input[placeholder*="タイトル"], input[data-placeholder*="タイトル"]');
+    if (titleInput) {
+      await titleInput.click();
+      await page.keyboard.type(theme.title, { delay: 20 });
+      console.log('タイトル入力完了（input）');
+    } else {
+      // inputがなければcontenteditable[0]に入力後Enterで本文へ
+      const editables = await page.$$('[contenteditable]');
+      await editables[0].click();
+      await page.keyboard.type(theme.title, { delay: 20 });
+      await page.keyboard.press('Enter');
+      console.log('タイトル入力完了（contenteditable）');
+    }
+    await new Promise(r => setTimeout(r, 500));
 
-    // Enterで本文エリアへ移動
-    await page.keyboard.press('Enter');
-    await new Promise(r => setTimeout(r, 1000));
+    // 本文エリアをクリック
+    const editables = await page.$$('[contenteditable]');
+    await editables[editables.length - 1].click();
+    await new Promise(r => setTimeout(r, 500));
 
     // 本文入力
     const paragraphs = articleText.split('\n\n').filter(p => p.trim());
@@ -161,7 +172,6 @@ async function postToNote(theme, articleText, sessionCookies) {
     const finalUrl = page.url();
     console.log('投稿完了 URL:', finalUrl);
 
-    // noteのURLに変換
     const noteKey = finalUrl.match(/notes\/([a-z0-9]+)/)?.[1];
     const noteUrl = noteKey ? `https://note.com/horizon_shield/n/${noteKey}` : 'https://note.com/horizon_shield';
     return noteUrl;
