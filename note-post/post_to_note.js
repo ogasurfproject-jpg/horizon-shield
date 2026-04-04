@@ -1,6 +1,9 @@
 /**
- * HORIZON SHIELD note自動投稿 v2
+ * HORIZON SHIELD note自動投稿 v3
+ * Playwright使用（ブラウザ操作で確実に本文を投稿）
  */
+
+const { chromium } = require('playwright');
 
 const NOTE_EMAIL    = process.env.NOTE_EMAIL;
 const NOTE_PASSWORD = process.env.NOTE_PASSWORD;
@@ -53,51 +56,6 @@ function getTodayTheme() {
   return THEMES[dayOfYear % THEMES.length];
 }
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function uuid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-    const r = Math.random() * 16 | 0;
-    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-  });
-}
-
-function textToBody(text) {
-  return text.split('\n\n')
-    .map(p => p.trim()).filter(Boolean)
-    .map(p => {
-      const id = uuid();
-      return `<p name="${id}" id="${id}">${p.replace(/\n/g, '<br>')}</p>`;
-    }).join('');
-}
-
-async function getNoteSession() {
-  console.log('noteログイン中...');
-  const res = await fetch('https://note.com/api/v1/sessions/sign_in', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-      'Referer': 'https://note.com/login',
-      'Origin': 'https://note.com',
-    },
-    body: JSON.stringify({ login: NOTE_EMAIL, password: NOTE_PASSWORD }),
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`noteログイン失敗 [${res.status}]: ${err.slice(0, 200)}`);
-  }
-  const data = await res.json();
-  const rawCookies = res.headers.getSetCookie
-    ? res.headers.getSetCookie()
-    : (res.headers.get('set-cookie') || '').split(/,(?=\s*\w+=)/);
-  const cookies = rawCookies.map(c => c.split(';')[0].trim()).join('; ');
-  console.log('noteログイン成功');
-  return { token: data.data?.token || data.token || '', cookies };
-}
-
 async function generateArticle(theme) {
   console.log(`記事生成中: ${theme.title}`);
   const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -141,57 +99,6 @@ https://shield.the-horizons-innovation.com」
   return text;
 }
 
-async function postToNote(session, title, text) {
-  console.log('note投稿中...');
-  const body = textToBody(text);
-
-  // 1ステップでpublic投稿
-  const res = await fetch('https://note.com/api/v1/text_notes', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-      'Referer': 'https://note.com/notes/new',
-      'Origin': 'https://note.com',
-      'Cookie': session.cookies,
-      'X-Note-Token': session.token,
-    },
-    body: JSON.stringify({
-      name: title,
-      body: body,
-      status: 'public',
-      hashtag_list: ['リフォーム', '建設費診断', 'HORIZONSHIELD', '見積書', '施主'],
-    }),
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`投稿失敗 [${res.status}]: ${err.slice(0, 200)}`);
-  }
-
-  const data = await res.json();
-  const noteKey = data.data?.key || data.key;
-  const noteId  = data.data?.id  || data.id;
-  console.log('投稿完了 key:', noteKey, 'id:', noteId);
-
-  // GETでbodyが保存されているか確認
-  await sleep(3000);
-  const getRes = await fetch(`https://note.com/api/v1/text_notes/${noteKey}`, {
-    headers: {
-      'Cookie': session.cookies,
-      'X-Note-Token': session.token,
-    },
-  });
-  if (getRes.ok) {
-    const getData = await getRes.json();
-    console.log('GET body先頭:', (getData.data?.body || '').slice(0, 150));
-  }
-
-  const noteUrl = `https://note.com/horizon_shield/n/${noteKey}`;
-  console.log('URL:', noteUrl);
-  return noteUrl;
-}
-
 async function sendLine(message) {
   await fetch('https://api.line.me/v2/bot/message/push', {
     method: 'POST',
@@ -206,18 +113,84 @@ async function sendLine(message) {
   });
 }
 
+async function postToNoteWithBrowser(theme, articleText) {
+  console.log('ブラウザ起動中...');
+  const browser = await chromium.launch({ args: ['--no-sandbox'] });
+  const page = await browser.newPage();
+
+  try {
+    // ログイン
+    console.log('noteログイン中...');
+    await page.goto('https://note.com/login', { waitUntil: 'networkidle' });
+    await page.fill('input[name="email"]', NOTE_EMAIL);
+    await page.fill('input[name="password"]', NOTE_PASSWORD);
+    await page.click('button[type="submit"]');
+    await page.waitForNavigation({ waitUntil: 'networkidle' });
+    console.log('ログイン完了');
+
+    // 新規記事作成
+    console.log('エディタを開いています...');
+    await page.goto('https://editor.note.com/notes/new', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(2000);
+
+    // タイトル入力
+    await page.click('[data-placeholder="タイトル"]');
+    await page.fill('[data-placeholder="タイトル"]', theme.title);
+    console.log('タイトル入力完了');
+
+    // 本文エリアをクリック
+    await page.click('.ProseMirror');
+    await page.waitForTimeout(500);
+
+    // 本文を段落ごとに入力
+    const paragraphs = articleText.split('\n\n').filter(p => p.trim());
+    for (let i = 0; i < paragraphs.length; i++) {
+      await page.keyboard.type(paragraphs[i].trim(), { delay: 0 });
+      if (i < paragraphs.length - 1) {
+        await page.keyboard.press('Enter');
+        await page.keyboard.press('Enter');
+      }
+    }
+    console.log('本文入力完了');
+
+    // 自動保存待ち
+    await page.waitForTimeout(3000);
+
+    // 公開ボタンをクリック
+    await page.click('button:has-text("公開に進む")');
+    await page.waitForTimeout(2000);
+
+    // 公開設定画面で投稿ボタンをクリック
+    await page.click('button:has-text("投稿する")');
+    await page.waitForTimeout(3000);
+
+    // URLを取得
+    const url = page.url();
+    console.log('投稿完了 URL:', url);
+
+    // note.comのURLに変換
+    const noteUrl = url.includes('note.com') ? url : `https://note.com/horizon_shield`;
+    return noteUrl;
+
+  } finally {
+    await browser.close();
+  }
+}
+
 async function main() {
-  console.log('=== HORIZON SHIELD note自動投稿 v2 開始 ===');
+  console.log('=== HORIZON SHIELD note自動投稿 v3 開始 ===');
   try {
     const required = ['NOTE_EMAIL', 'NOTE_PASSWORD', 'ANTHROPIC_API_KEY', 'LINE_CHANNEL_TOKEN', 'LINE_USER_ID'];
     for (const key of required) {
       if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`);
     }
-    const theme   = getTodayTheme();
+
+    const theme = getTodayTheme();
     console.log('今日のテーマ:', theme.title);
-    const session = await getNoteSession();
+
     const text    = await generateArticle(theme);
-    const noteUrl = await postToNote(session, theme.title, text);
+    const noteUrl = await postToNoteWithBrowser(theme, text);
+
     await sendLine(
       `✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${noteUrl}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`
     );
