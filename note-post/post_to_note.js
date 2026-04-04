@@ -146,38 +146,16 @@ async function postToNote(theme, articleText, session) {
   const page = await browser.newPage();
 
   try {
-    // APIログインで取得したCookieをブラウザにセット
-    await page.goto('https://note.com', { waitUntil: 'domcontentloaded', timeout: 15000 });
-    for (const cookieStr of session.rawCookies) {
-      const parts = cookieStr.split(';');
-      const [name, value] = parts[0].trim().split('=');
-      let domain = '.note.com';
-      let path = '/';
-      for (const part of parts.slice(1)) {
-        const p = part.trim();
-        if (p.toLowerCase().startsWith('domain=')) domain = p.split('=')[1];
-        if (p.toLowerCase().startsWith('path=')) path = p.split('=')[1];
-      }
-      if (name && value !== undefined) {
-        await page.setCookie({ name: name.trim(), value: value.trim(), domain, path });
-      }
-    }
-    // editor.note.com用にもCookieをセット
-    for (const cookieStr of session.rawCookies) {
-      const [nameVal] = cookieStr.split(';');
-      const [name, value] = nameVal.trim().split('=');
-      if (name && value !== undefined) {
-        await page.setCookie({ name: name.trim(), value: value.trim(), domain: '.note.com', path: '/' });
-      }
-    }
-    console.log('Cookie設定完了 数:', session.rawCookies.length);
+    // Cookieを文字列に変換してヘッダにセット
+    const cookieStr = session.rawCookies.map(c => c.split(';')[0].trim()).join('; ');
+    console.log('Cookie文字列:', cookieStr.slice(0, 100));
+    await page.setExtraHTTPHeaders({ 'Cookie': cookieStr });
 
-    // エディタを開く
+    // エディタを直接開く
     console.log('エディタを開いています...');
     await page.goto('https://editor.note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
     await new Promise(r => setTimeout(r, 3000));
 
-    // ログイン確認
     const url = page.url();
     console.log('現在URL:', url);
 
