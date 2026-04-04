@@ -1,7 +1,6 @@
 /**
  * HORIZON SHIELD note自動投稿 v2
  * puppeteer廃止 → note内部APIを直接使用
- * 依存パッケージ：node-fetch のみ（Node18以上は不要）
  */
 
 const NOTE_EMAIL    = process.env.NOTE_EMAIL;
@@ -59,7 +58,6 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// テキストをTiptap JSONオブジェクトに変換（文字列化しない）
 function textToTiptapJson(text) {
   const paragraphs = text.split('\n\n').map(p => p.trim()).filter(Boolean);
   const content = paragraphs.map(p => ({
@@ -69,12 +67,8 @@ function textToTiptapJson(text) {
   return { type: 'doc', content };
 }
 
-// ========================================
-// noteにログインしてセッショントークンを取得
-// ========================================
 async function getNoteSession() {
   console.log('noteログイン中...');
-
   const res = await fetch('https://note.com/api/v1/sessions/sign_in', {
     method: 'POST',
     headers: {
@@ -83,34 +77,23 @@ async function getNoteSession() {
       'Referer': 'https://note.com/login',
       'Origin': 'https://note.com',
     },
-    body: JSON.stringify({
-      login: NOTE_EMAIL,
-      password: NOTE_PASSWORD,
-    }),
+    body: JSON.stringify({ login: NOTE_EMAIL, password: NOTE_PASSWORD }),
   });
-
   if (!res.ok) {
     const err = await res.text();
     throw new Error(`noteログイン失敗 [${res.status}]: ${err.slice(0, 200)}`);
   }
-
   const data = await res.json();
   const cookies = res.headers.get('set-cookie') || '';
-
   console.log('noteログイン成功');
   return {
     token: data.data?.token || data.token || '',
     cookies,
-    userId: data.data?.id || data.id || '',
   };
 }
 
-// ========================================
-// Claude APIで記事生成（プレーンテキストで受け取る）
-// ========================================
 async function generateArticle(theme) {
   console.log(`記事生成中: ${theme.title}`);
-
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -145,7 +128,6 @@ https://shield.the-horizons-innovation.com」
       }],
     }),
   });
-
   if (!res.ok) throw new Error(`Claude API失敗 [${res.status}]`);
   const data = await res.json();
   const text = data.content?.[0]?.text || '';
@@ -153,14 +135,9 @@ https://shield.the-horizons-innovation.com」
   return text;
 }
 
-// ========================================
-// noteに記事を投稿
-// ========================================
 async function postToNote(session, title, text) {
   console.log('note投稿中...');
-
   const body = textToTiptapJson(text);
-  console.log('body先頭:', JSON.stringify(body).slice(0, 300));
 
   const res = await fetch('https://note.com/api/v1/text_notes', {
     method: 'POST',
@@ -176,7 +153,6 @@ async function postToNote(session, title, text) {
       name: title,
       body: body,
       status: 'public',
-      published_at: new Date().toISOString(),
       hashtag_list: ['リフォーム', '建設費診断', 'HORIZONSHIELD', '見積書', '施主'],
     }),
   });
@@ -197,9 +173,6 @@ async function postToNote(session, title, text) {
   return noteUrl;
 }
 
-// ========================================
-// LINE通知
-// ========================================
 async function sendLine(message) {
   await fetch('https://api.line.me/v2/bot/message/push', {
     method: 'POST',
@@ -214,12 +187,8 @@ async function sendLine(message) {
   });
 }
 
-// ========================================
-// メイン
-// ========================================
 async function main() {
   console.log('=== HORIZON SHIELD note自動投稿 v2 開始 ===');
-
   try {
     const required = ['NOTE_EMAIL', 'NOTE_PASSWORD', 'ANTHROPIC_API_KEY', 'LINE_CHANNEL_TOKEN', 'LINE_USER_ID'];
     for (const key of required) {
@@ -243,7 +212,6 @@ async function main() {
     );
 
     console.log('=== 完了 ===');
-
   } catch (e) {
     console.error('エラー:', e.message);
     await sendLine(`❌ note自動投稿エラー\n${e.message}`).catch(() => {});
