@@ -1,317 +1,37 @@
-/**
- * HORIZON SHIELD note自動投稿スクリプト
- * Claude APIで記事生成 → Puppeteerでnoteに投稿 → LINEに完了通知
- */
+name: note自動投稿
 
-const puppeteer = require('puppeteer');
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
-const NOTE_EMAIL    = process.env.NOTE_EMAIL;
-const NOTE_PASSWORD = process.env.NOTE_PASSWORD;
-const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
-const LINE_TOKEN    = process.env.LINE_CHANNEL_TOKEN;
-const LINE_USER_ID  = process.env.LINE_USER_ID;
+jobs:
+  post-to-note:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-// ========================================
-// 記事テーマリスト（ローテーション）
-// ========================================
-const THEMES = [
-  {
-    title: 'リフォーム業者が絶対に教えない「見積書の5つの罠」',
-    keywords: ['一式見積もり', '諸経費', '図面なし', '数量不明', '口頭約束'],
-    angle: '施主が知らない業者の常套手段を暴露する内容',
-  },
-  {
-    title: '「追加工事が必要です」と言われたら疑え。建設30年のプロが語る真実',
-    keywords: ['追加工事', '契約外', '口頭指示', '変更工事査定', '証拠'],
-    angle: '追加請求の正当性を見極める方法',
-  },
-  {
-    title: '外壁塗装300万円は高いのか？適正価格の見分け方を徹底解説',
-    keywords: ['外壁塗装', '足場代', '塗料原価', '坪単価', '相見積もり'],
-    angle: '具体的な数字で適正価格を解説する内容',
-  },
-  {
-    title: '工務店選びで失敗しない7つのチェックポイント',
-    keywords: ['建設業許可', '施工実績', '保証内容', '契約書', '口コミ'],
-    angle: '施主が業者を選ぶ際の具体的な判断基準',
-  },
-  {
-    title: '引き渡し前に必ず確認すべき施工不良チェックリスト20項目',
-    keywords: ['施工不良', '完成検査', 'クロス', '床鳴り', '防水'],
-    angle: '素人でもできる施工不良の見つけ方',
-  },
-  {
-    title: '店舗開業の内装工事、適正価格はいくら？坪単価の相場を業種別に解説',
-    keywords: ['坪単価', '飲食店', 'サロン', 'クリニック', '内装工事'],
-    angle: '業種別の適正な内装工事費用の目安',
-  },
-  {
-    title: '見積書を「高い」と感じたら最初にやるべきこと3つ',
-    keywords: ['見積書確認', '内訳', '単価', '数量', '専門家相談'],
-    angle: '見積書に違和感を感じた時の具体的な行動手順',
-  },
-];
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-// ========================================
-// 今日のテーマを決定（日付ベースのローテーション）
-// ========================================
-function getTodayTheme() {
-  const dayOfYear = Math.floor(
-    (new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24)
-  );
-  return THEMES[dayOfYear % THEMES.length];
-}
+      - name: 依存インストール
+        run: |
+          cd note-post
+          npm install
 
-// ========================================
-// Claude APIで記事生成
-// ========================================
-async function generateArticle(theme) {
-  console.log(`記事生成中: ${theme.title}`);
+      - name: Chrome依存関係
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libnss3 libatk-bridge2.0-0 libdrm2 libxkbcommon0 libgtk-3-0 libgbm1 libasound2
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_KEY,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-opus-4-5',
-      max_tokens: 2000,
-      messages: [{
-        role: 'user',
-        content: `あなたは建設歴30年のプロ「大賀俊勝」として、施主側に立ったnote記事を書いてください。
-
-【記事タイトル】
-${theme.title}
-
-【含めるキーワード】
-${theme.keywords.join('、')}
-
-【記事の方向性】
-${theme.angle}
-
-【文体・スタイル】
-- 一人称は「私」
-- 「建設30年のプロ」という権威を自然に出す
-- 施主への共感から始める
-- 具体的な数字・事例を入れる
-- 業者批判ではなく「情報格差の解消」という立場
-- 末尾にHORIZON SHIELDのサービス案内を自然に入れる
-- 全体で1000〜1500文字
-
-【末尾に必ず入れる文章】
-「見積書の適正価格が気になる方は、HORIZON SHIELDの無料AI診断をお試しください。建設30年の専門知識を学習したAIが、あなたの見積書を即座に分析します。
-https://shield.the-horizons-innovation.com」
-
-本文のみ出力してください（タイトル不要）。`,
-      }],
-    }),
-  });
-
-  const data = await response.json();
-  if (!data.content?.[0]?.text) throw new Error('Claude APIエラー: ' + JSON.stringify(data));
-  return data.content[0].text;
-}
-
-// ========================================
-// noteにログインして投稿
-// ========================================
-async function postToNote(title, body) {
-  console.log('Puppeteer起動中...');
-
-  const browser = await puppeteer.launch({
-    headless: 'new',
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu',
-    ],
-  });
-
-  const page = await browser.newPage();
-  await page.setViewport({ width: 1280, height: 800 });
-  await page.setUserAgent(
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-  );
-
-  try {
-    // ログイン
-    console.log('noteにログイン中...');
-    await page.goto('https://note.com/login', { waitUntil: 'networkidle2' });
-    await page.waitForTimeout(2000);
-
-    // メールアドレス入力
-    await page.waitForSelector('input[name="email"]', { timeout: 10000 });
-    await page.type('input[name="email"]', NOTE_EMAIL, { delay: 50 });
-    await page.waitForTimeout(500);
-
-    // パスワード入力
-    await page.waitForSelector('input[name="password"]', { timeout: 10000 });
-    await page.type('input[name="password"]', NOTE_PASSWORD, { delay: 50 });
-    await page.waitForTimeout(500);
-
-    // ログインボタンクリック
-    await page.click('button[type="submit"]');
-    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 15000 });
-    console.log('ログイン完了');
-
-    await page.waitForTimeout(2000);
-
-    // 新規記事作成ページへ
-    console.log('記事作成ページへ移動...');
-    await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2' });
-    await page.waitForTimeout(3000);
-
-    // タイトル入力
-    console.log('タイトル入力中...');
-    const titleSelector = 'textarea[placeholder="記事タイトル"], input[placeholder="記事タイトル"], .title-input, [data-placeholder="記事タイトル"]';
-    await page.waitForSelector(titleSelector, { timeout: 15000 });
-    await page.click(titleSelector);
-    await page.type(titleSelector, title, { delay: 30 });
-    await page.waitForTimeout(1000);
-
-    // 本文入力（Tabキーで本文エリアへ移動）
-    console.log('本文入力中...');
-    await page.keyboard.press('Tab');
-    await page.waitForTimeout(500);
-
-    // 本文を段落ごとに入力
-    const paragraphs = body.split('\n\n');
-    for (const para of paragraphs) {
-      if (para.trim()) {
-        await page.keyboard.type(para.trim(), { delay: 10 });
-        await page.keyboard.press('Enter');
-        await page.keyboard.press('Enter');
-        await page.waitForTimeout(200);
-      }
-    }
-
-    console.log('本文入力完了');
-    await page.waitForTimeout(2000);
-
-    // 公開ボタンをクリック
-    console.log('公開ボタンを探しています...');
-    const publishBtnSelector = 'button[data-type="publish"], button.o-notePublishButton, button:has-text("公開に進む")';
-
-    // 複数のセレクタを試す
-    let published = false;
-    const selectors = [
-      'button[data-type="publish"]',
-      '.o-notePublishButton',
-      'button.publish',
-    ];
-
-    for (const sel of selectors) {
-      try {
-        await page.waitForSelector(sel, { timeout: 3000 });
-        await page.click(sel);
-        published = true;
-        break;
-      } catch {
-        continue;
-      }
-    }
-
-    if (!published) {
-      // テキストで探す
-      const buttons = await page.$$('button');
-      for (const btn of buttons) {
-        const text = await btn.evaluate(el => el.textContent);
-        if (text.includes('公開に進む') || text.includes('投稿する')) {
-          await btn.click();
-          published = true;
-          break;
-        }
-      }
-    }
-
-    await page.waitForTimeout(3000);
-
-    // 「投稿する」ボタン（確認ダイアログ）
-    const confirmButtons = await page.$$('button');
-    for (const btn of confirmButtons) {
-      const text = await btn.evaluate(el => el.textContent);
-      if (text.includes('投稿する') || text.includes('公開する')) {
-        await btn.click();
-        break;
-      }
-    }
-
-    await page.waitForTimeout(3000);
-    const finalUrl = page.url();
-    console.log('投稿完了 URL:', finalUrl);
-
-    await browser.close();
-    return finalUrl;
-
-  } catch (e) {
-    await browser.close();
-    throw e;
-  }
-}
-
-// ========================================
-// LINE通知
-// ========================================
-async function sendLine(message) {
-  const res = await fetch('https://api.line.me/v2/bot/message/push', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${LINE_TOKEN}`,
-    },
-    body: JSON.stringify({
-      to: LINE_USER_ID,
-      messages: [{ type: 'text', text: message.slice(0, 5000) }],
-    }),
-  });
-  return res.ok;
-}
-
-// ========================================
-// メイン処理
-// ========================================
-async function main() {
-  console.log('=== HORIZON SHIELD note自動投稿 開始 ===');
-
-  try {
-    // 環境変数チェック
-    const required = ['NOTE_EMAIL', 'NOTE_PASSWORD', 'ANTHROPIC_API_KEY', 'LINE_CHANNEL_TOKEN', 'LINE_USER_ID'];
-    for (const key of required) {
-      if (!process.env[key]) throw new Error(`環境変数 ${key} が未設定`);
-    }
-
-    // 今日のテーマ取得
-    const theme = getTodayTheme();
-    console.log('今日のテーマ:', theme.title);
-
-    // 記事生成
-    const body = await generateArticle(theme);
-    console.log('記事生成完了 文字数:', body.length);
-
-    // note投稿
-    const noteUrl = await postToNote(theme.title, body);
-
-    // LINE通知
-    const msg =
-      `✅ note自動投稿完了！\n` +
-      `━━━━━━━━━━\n` +
-      `📝 ${theme.title}\n\n` +
-      `🔗 ${noteUrl || 'https://note.com/horizon_shield'}\n\n` +
-      `📣 Xでシェアしてください！\n` +
-      `━━━━━━━━━━`;
-
-    await sendLine(msg);
-    console.log('LINE通知完了');
-    console.log('=== 完了 ===');
-
-  } catch (e) {
-    console.error('エラー:', e.message);
-    await sendLine(`❌ note自動投稿でエラー発生\n${e.message}`);
-    process.exit(1);
-  }
-}
-
-main();
+      - name: note投稿実行
+        env:
+          NOTE_EMAIL: ${{ secrets.NOTE_EMAIL }}
+          NOTE_PASSWORD: ${{ secrets.NOTE_PASSWORD }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+        run: |
+          cd note-post
+          node post_to_note.js
