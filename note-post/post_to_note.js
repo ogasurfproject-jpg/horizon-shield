@@ -1,6 +1,5 @@
 /**
  * HORIZON SHIELD note自動投稿 v4
- * puppeteer-extra + stealth + form.submit()でReact SPA対策
  */
 
 const puppeteerExtra = require('puppeteer-extra');
@@ -58,37 +57,42 @@ async function postToNote(theme, articleText) {
   const browser = await puppeteerExtra.launch({
     executablePath: '/usr/bin/google-chrome-stable',
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-blink-features=AutomationControlled', '--disable-features=site-per-process', '--window-size=1920,1080'],
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-blink-features=AutomationControlled', '--window-size=1920,1080'],
   });
   const page = await browser.newPage();
   await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36');
 
   try {
     await page.goto('https://note.com/login', { waitUntil: 'networkidle2', timeout: 30000 });
+    await new Promise(r => setTimeout(r, 2000));
 
-    await page.waitForSelector('input[autocomplete="username"]', { timeout: 20000 });
-    await page.type('input[autocomplete="username"]', NOTE_EMAIL, { delay: 80 });
-    console.log('メール入力完了');
+    // nativeInputValueSetterでReact stateを強制更新
+    await page.evaluate((email, password) => {
+      const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+      const emailEl = document.querySelector('input[autocomplete="username"]');
+      const passEl  = document.querySelector('input[autocomplete="current-password"]');
+      if (emailEl) { setter.call(emailEl, email); emailEl.dispatchEvent(new Event('input', { bubbles: true })); }
+      if (passEl)  { setter.call(passEl, password);  passEl.dispatchEvent(new Event('input', { bubbles: true })); }
+    }, NOTE_EMAIL, NOTE_PASSWORD);
+    console.log('React state更新完了');
+    await new Promise(r => setTimeout(r, 500));
 
-    await page.waitForSelector('input[autocomplete="current-password"]', { timeout: 20000 });
-    await page.type('input[autocomplete="current-password"]', NOTE_PASSWORD, { delay: 80 });
-    console.log('パスワード入力完了');
-
-    // React SPA対策：form.submit()でネイティブ送信
-    console.log('フォームをネイティブ送信します...');
+    // ログインボタンをテキストで探してクリック
     await page.evaluate(() => {
-      const form = document.querySelector('form');
-      if (form) form.submit();
+      const btns = [...document.querySelectorAll('button')];
+      const loginBtn = btns.find(b => b.textContent.trim().includes('ログイン'));
+      if (loginBtn) loginBtn.click();
       else {
-        const button = document.querySelector('button[type="submit"]');
-        if (button) button.click();
+        const sub = document.querySelector('button[type="submit"]');
+        if (sub) sub.click();
       }
     });
-
-    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 25000 });
+    console.log('ログインボタンクリック完了');
+    await new Promise(r => setTimeout(r, 8000));
     console.log('ログイン後URL:', page.url());
     if (page.url().includes('/login')) throw new Error('ログイン失敗');
 
+    // エディタを開く
     await page.goto('https://editor.note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
     await new Promise(r => setTimeout(r, 5000));
     console.log('エディタURL:', page.url());
