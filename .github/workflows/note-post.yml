@@ -11,10 +11,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Playwrightインストール
+      - name: Google Chromeインストール
         run: |
-          npm install playwright
-          npx playwright install chromium --with-deps
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+      - name: Playwrightインストール
+        run: npm install playwright-core
       - name: note投稿実行
         env:
           NOTE_EMAIL: ${{ secrets.NOTE_EMAIL }}
