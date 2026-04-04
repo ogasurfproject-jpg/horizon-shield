@@ -155,7 +155,7 @@ async function postToNote(session, title, body) {
     },
     body: JSON.stringify({
       name: title,
-      body: body,
+      body: body.split('\n\n').map(p => p.trim()).filter(Boolean).join('\n\n'),
       status: 'public',
       hashtag_list: ['リフォーム', '建設費診断', 'HORIZONSHIELD', '見積書', '施主'],
     }),
