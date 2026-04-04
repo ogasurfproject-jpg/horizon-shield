@@ -75,7 +75,7 @@ async function postToNote(theme, articleText) {
     console.log('パスワード入力完了');
 
     await page.keyboard.press('Enter');
-    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 20000 });
+    await new Promise(r => setTimeout(r, 8000));
     console.log('ログイン後URL:', page.url());
     if (page.url().includes('/login')) throw new Error('ログイン失敗');
 
