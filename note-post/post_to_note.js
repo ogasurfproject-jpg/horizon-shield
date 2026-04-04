@@ -159,7 +159,7 @@ async function postToNote(session, title, text) {
   console.log('本文保存＆公開中...');
   const body = textToTiptapJson(text);
   const patchRes = await fetch(`https://note.com/api/v1/text_notes/${noteId}`, {
-    method: 'PATCH',
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
