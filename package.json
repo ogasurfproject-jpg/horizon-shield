@@ -1,0 +1,12 @@
+{
+  "name": "horizon-shield-note-post",
+  "version": "1.0.0",
+  "description": "HORIZON SHIELD note自動投稿システム",
+  "main": "post_to_note.js",
+  "scripts": {
+    "post": "node post_to_note.js"
+  },
+  "dependencies": {
+    "puppeteer": "^21.0.0"
+  }
+}
