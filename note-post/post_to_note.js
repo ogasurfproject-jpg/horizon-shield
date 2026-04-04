@@ -133,7 +133,18 @@ https://shield.the-horizons-innovation.com」
 
   if (!res.ok) throw new Error(`Claude API失敗 [${res.status}]`);
   const data = await res.json();
-  return data.content?.[0]?.text || '';
+  const text = data.content?.[0]?.text || '';
+  const bodyHtml = text.split('\n\n')
+    .map(p => p.trim()).filter(Boolean)
+    .map(p => {
+      const uid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+      });
+      const id = uid();
+      return `<p name="${id}" id="${id}">${p.replace(/\n/g, '<br>')}</p>`;
+    }).join('') + '<p><br></p>';
+  return bodyHtml;
 }
 
 // ========================================
