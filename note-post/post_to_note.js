@@ -126,8 +126,11 @@ async function postToNote(theme, articleText) {
     // ログイン
     console.log('noteログイン中...');
     await page.goto('https://note.com/login', { waitUntil: 'networkidle2', timeout: 30000 });
-    await page.type('input[name="email"]', NOTE_EMAIL);
-    await page.type('input[name="password"]', NOTE_PASSWORD);
+    await new Promise(r => setTimeout(r, 2000));
+    // メールアドレス入力
+    await page.waitForSelector('input[type="email"]', { timeout: 10000 });
+    await page.type('input[type="email"]', NOTE_EMAIL);
+    await page.type('input[type="password"]', NOTE_PASSWORD);
     await page.click('button[type="submit"]');
     await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 });
     console.log('ログイン完了');
