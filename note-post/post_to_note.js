@@ -1,9 +1,11 @@
 /**
  * HORIZON SHIELD note自動投稿 v3
- * APIログイン → Cookie注入 → puppeteerでエディタ操作
+ * puppeteer-extra + stealth でbot検知回避
  */
 
-const puppeteer = require('puppeteer-core');
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
 
 const NOTE_EMAIL    = process.env.NOTE_EMAIL;
 const NOTE_PASSWORD = process.env.NOTE_PASSWORD;
@@ -26,22 +28,6 @@ function getTodayTheme() {
   return THEMES[d % THEMES.length];
 }
 
-async function apiLogin() {
-  const res = await fetch('https://note.com/api/v1/sessions/sign_in', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Origin': 'https://note.com', 'Referer': 'https://note.com/login' },
-    body: JSON.stringify({ login: NOTE_EMAIL, password: NOTE_PASSWORD }),
-  });
-  if (!res.ok) throw new Error(`ログイン失敗 [${res.status}]`);
-  const cookieHeader = res.headers.get('set-cookie') || '';
-  const eqIdx = cookieHeader.indexOf('=');
-  const scIdx = cookieHeader.indexOf(';');
-  const name = cookieHeader.slice(0, eqIdx).trim();
-  const value = cookieHeader.slice(eqIdx + 1, scIdx > 0 ? scIdx : undefined).trim();
-  console.log('APIログイン成功 cookie name:', name, 'value長さ:', value.length);
-  return { name, value };
-}
-
 async function generateArticle(theme) {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -55,8 +41,16 @@ async function generateArticle(theme) {
 【方向性】${theme.angle}
 
 【ルール】
-・一人称は「私」・建設30年のプロとしての権威を自然に出す・施主への共感から始める・具体的な数字・事例を入れる・業者批判でなく「情報格差の解消」という立場・1000〜1200文字・段落は空行で区切る
-・末尾に必ずこの文を入れる：「見積書の適正価格が気になる方は、HORIZON SHIELDの無料AI診断をお試しください。建設30年の専門知識を学習したAIが、あなたの見積書を即座に分析します。\nhttps://shield.the-horizons-innovation.com」
+・一人称は「私」
+・建設30年のプロとしての権威を自然に出す
+・施主への共感から始める
+・具体的な数字・事例を入れる
+・業者批判でなく「情報格差の解消」という立場
+・1000〜1200文字
+・段落は空行で区切る
+・末尾に必ずこの文を入れる：
+「見積書の適正価格が気になる方は、HORIZON SHIELDの無料AI診断をお試しください。建設30年の専門知識を学習したAIが、あなたの見積書を即座に分析します。
+https://shield.the-horizons-innovation.com」
 
 本文のみ出力（タイトル不要）。` }],
     }),
@@ -76,47 +70,79 @@ async function sendLine(message) {
   });
 }
 
-async function postToNote(theme, articleText, cookie) {
-  console.log('ブラウザ起動中...');
+async function postToNote(theme, articleText) {
+  console.log('ブラウザ起動中（stealth mode）...');
   const browser = await puppeteer.launch({
     executablePath: '/usr/bin/google-chrome-stable',
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-blink-features=AutomationControlled',
+    ],
     headless: true,
   });
   const page = await browser.newPage();
+  await page.setViewport({ width: 1280, height: 800 });
+  await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
 
   try {
-    // まずnote.comに移動してCookieをセット（SameSite対策）
-    await page.goto('https://note.com', { waitUntil: 'domcontentloaded', timeout: 15000 });
-    await page.setCookie({ name: cookie.name, value: cookie.value, domain: '.note.com', path: '/', secure: true, httpOnly: true });
-    console.log('Cookie設定完了');
+    // ログイン
+    console.log('noteログインページを開いています...');
+    await page.goto('https://note.com/login', { waitUntil: 'networkidle2', timeout: 30000 });
+    await new Promise(r => setTimeout(r, 3000));
+    console.log('ログインページURL:', page.url());
 
-    // エディタへ移動
-    await page.goto('https://editor.note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
+    const inputCount = await page.evaluate(() => document.querySelectorAll('input').length);
+    console.log('input数:', inputCount);
+
+    // メール入力
+    const emailInput = await page.$('input[type="email"], input[name="email"], input[autocomplete="email"], input:first-of-type');
+    if (!emailInput) throw new Error('メール入力欄が見つからない');
+    await emailInput.click({ clickCount: 3 });
+    await emailInput.type(NOTE_EMAIL, { delay: 50 });
+    console.log('メール入力完了');
+
+    // パスワード入力
+    const passInput = await page.$('input[type="password"]');
+    if (!passInput) throw new Error('パスワード入力欄が見つからない');
+    await passInput.click();
+    await passInput.type(NOTE_PASSWORD, { delay: 50 });
+    console.log('パスワード入力完了');
+
+    // Enterキーでログイン
+    await passInput.press('Enter');
     await new Promise(r => setTimeout(r, 5000));
-    const url = page.url();
-    console.log('エディタURL:', url);
+    console.log('ログイン後URL:', page.url());
 
-    // contenteditable要素の数を確認
-    const editableCount = await page.evaluate(() => document.querySelectorAll('[contenteditable]').length);
-    console.log('contenteditable数:', editableCount);
-
-    if (editableCount === 0) {
-      // ページのタイトルを確認
-      const title = await page.title();
-      console.log('ページタイトル:', title);
-      throw new Error('エディタが開けていない: ' + url);
+    if (page.url().includes('/login')) {
+      throw new Error('ログイン失敗: ' + page.url());
     }
 
-    // タイトル入力（最初のcontenteditable）
+    // エディタを開く
+    console.log('エディタを開いています...');
+    await page.goto('https://editor.note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
+    await new Promise(r => setTimeout(r, 5000));
+    console.log('エディタURL:', page.url());
+
+    const editableCount = await page.evaluate(() => document.querySelectorAll('[contenteditable]').length);
+    console.log('contenteditable数:', editableCount);
+    if (editableCount === 0) throw new Error('エディタが開けていない');
+
+    // タイトル入力
     const editables = await page.$$('[contenteditable]');
     await editables[0].click();
     await page.keyboard.type(theme.title, { delay: 20 });
     console.log('タイトル入力完了');
 
-    // 本文入力（次のcontenteditable or Tab移動）
-    await page.keyboard.press('Tab');
+    // 本文入力
+    if (editables.length > 1) {
+      await editables[1].click();
+    } else {
+      await page.keyboard.press('Tab');
+    }
     await new Promise(r => setTimeout(r, 500));
+
     const paragraphs = articleText.split('\n\n').filter(p => p.trim());
     for (let i = 0; i < paragraphs.length; i++) {
       await page.keyboard.type(paragraphs[i].trim(), { delay: 0 });
@@ -128,7 +154,7 @@ async function postToNote(theme, articleText, cookie) {
     console.log('本文入力完了');
     await new Promise(r => setTimeout(r, 3000));
 
-    // 公開ボタン
+    // 公開
     await page.evaluate(() => {
       const btns = [...document.querySelectorAll('button')];
       const pub = btns.find(b => b.textContent.includes('公開'));
@@ -145,6 +171,7 @@ async function postToNote(theme, articleText, cookie) {
     const finalUrl = page.url();
     console.log('投稿完了 URL:', finalUrl);
     return finalUrl.includes('note.com') ? finalUrl : `https://note.com/horizon_shield`;
+
   } finally {
     await browser.close();
   }
@@ -157,11 +184,10 @@ async function main() {
     for (const key of required) {
       if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`);
     }
-    const theme  = getTodayTheme();
+    const theme = getTodayTheme();
     console.log('今日のテーマ:', theme.title);
-    const cookie = await apiLogin();
-    const text   = await generateArticle(theme);
-    const url    = await postToNote(theme, text, cookie);
+    const text  = await generateArticle(theme);
+    const url   = await postToNote(theme, text);
     await sendLine(`✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${url}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`);
     console.log('=== 完了 ===');
   } catch (e) {
