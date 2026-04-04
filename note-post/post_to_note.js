@@ -149,18 +149,28 @@ async function postToNote(theme, articleText, session) {
     // APIログインで取得したCookieをブラウザにセット
     await page.goto('https://note.com', { waitUntil: 'domcontentloaded', timeout: 15000 });
     for (const cookieStr of session.rawCookies) {
-      const [nameVal, ...parts] = cookieStr.split(';');
-      const [name, value] = nameVal.trim().split('=');
-      if (name && value) {
-        await page.setCookie({
-          name: name.trim(),
-          value: value.trim(),
-          domain: '.note.com',
-          path: '/',
-        });
+      const parts = cookieStr.split(';');
+      const [name, value] = parts[0].trim().split('=');
+      let domain = '.note.com';
+      let path = '/';
+      for (const part of parts.slice(1)) {
+        const p = part.trim();
+        if (p.toLowerCase().startsWith('domain=')) domain = p.split('=')[1];
+        if (p.toLowerCase().startsWith('path=')) path = p.split('=')[1];
+      }
+      if (name && value !== undefined) {
+        await page.setCookie({ name: name.trim(), value: value.trim(), domain, path });
       }
     }
-    console.log('Cookie設定完了');
+    // editor.note.com用にもCookieをセット
+    for (const cookieStr of session.rawCookies) {
+      const [nameVal] = cookieStr.split(';');
+      const [name, value] = nameVal.trim().split('=');
+      if (name && value !== undefined) {
+        await page.setCookie({ name: name.trim(), value: value.trim(), domain: '.note.com', path: '/' });
+      }
+    }
+    console.log('Cookie設定完了 数:', session.rawCookies.length);
 
     // エディタを開く
     console.log('エディタを開いています...');
@@ -171,17 +181,17 @@ async function postToNote(theme, articleText, session) {
     const url = page.url();
     console.log('現在URL:', url);
 
-    // タイトル入力
-    const titleSel = '[data-placeholder="タイトル"], [placeholder="タイトル"], .title-input, h1[contenteditable]';
-    await page.waitForSelector(titleSel, { timeout: 10000 });
-    await page.click(titleSel);
+    // タイトル入力 - contenteditableの最初の要素
+    await page.waitForSelector('[contenteditable="true"]', { timeout: 15000 });
+    const editables = await page.$$('[contenteditable="true"]');
+    if (editables.length === 0) throw new Error('エディタ要素が見つからない');
+    await editables[0].click();
     await page.keyboard.type(theme.title);
     console.log('タイトル入力完了');
 
-    // 本文入力
-    const bodySel = '.ProseMirror, [contenteditable="true"]:not([data-placeholder="タイトル"])';
-    await page.waitForSelector(bodySel, { timeout: 10000 });
-    await page.click(bodySel);
+    // 本文入力 - 2番目のcontenteditable
+    const bodyEl = editables.length > 1 ? editables[1] : editables[0];
+    await bodyEl.click();
     await new Promise(r => setTimeout(r, 500));
 
     const paragraphs = articleText.split('\n\n').filter(p => p.trim());
