@@ -160,6 +160,7 @@ async function postToNote(session, title, text) {
   console.log('note投稿中...');
 
   const body = textToTiptapJson(text);
+  console.log('body先頭:', JSON.stringify(body).slice(0, 300));
 
   const res = await fetch('https://note.com/api/v1/text_notes', {
     method: 'POST',
