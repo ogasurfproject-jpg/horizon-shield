@@ -3,7 +3,7 @@
  * Playwright使用（ブラウザ操作で確実に本文を投稿）
  */
 
-const { chromium } = require('playwright');
+const { chromium } = require('playwright-core');
 
 const NOTE_EMAIL    = process.env.NOTE_EMAIL;
 const NOTE_PASSWORD = process.env.NOTE_PASSWORD;
@@ -115,7 +115,7 @@ async function sendLine(message) {
 
 async function postToNoteWithBrowser(theme, articleText) {
   console.log('ブラウザ起動中...');
-  const browser = await chromium.launch({ args: ['--no-sandbox'] });
+  const browser = await chromium.launch({ executablePath: '/usr/bin/google-chrome-stable', args: ['--no-sandbox', '--disable-setuid-sandbox'] });
   const page = await browser.newPage();
 
   try {
