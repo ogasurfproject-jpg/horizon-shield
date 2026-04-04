@@ -148,22 +148,23 @@ https://shield.the-horizons-innovation.com」
 }
 
 // ========================================
-// noteに記事を投稿（下書き作成 → 公開）
+// noteに記事を投稿（下書き作成 → PATCH公開）
 // ========================================
 async function postToNote(session, title, body) {
   console.log('note下書き作成中...');
 
+  const commonHeaders = {
+    'Content-Type': 'application/json',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+    'Origin': 'https://note.com',
+    'Cookie': session.cookies,
+    'X-Note-Token': session.token,
+  };
+
   // ステップ1: 下書き作成
   const draftRes = await fetch('https://note.com/api/v1/text_notes', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-      'Referer': 'https://note.com/notes/new',
-      'Origin': 'https://note.com',
-      'Cookie': session.cookies,
-      'X-Note-Token': session.token,
-    },
+    headers: { ...commonHeaders, 'Referer': 'https://note.com/notes/new' },
     body: JSON.stringify({
       name: title,
       body: body,
@@ -181,19 +182,13 @@ async function postToNote(session, title, body) {
   const noteKey = draft.data?.key || draft.key;
   console.log('下書き作成完了:', noteKey);
 
-  // ステップ2: 公開
-  console.log('note公開中...');
-  const publishRes = await fetch(`https://note.com/api/v1/text_notes/${noteKey}/publish`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-      'Referer': `https://note.com/notes/${noteKey}/edit`,
-      'Origin': 'https://note.com',
-      'Cookie': session.cookies,
-      'X-Note-Token': session.token,
-    },
+  // ステップ2: PATCHでstatus='public'に更新して公開
+  console.log('note公開中（PATCH）...');
+  const publishRes = await fetch(`https://note.com/api/v1/text_notes/${noteKey}`, {
+    method: 'PATCH',
+    headers: { ...commonHeaders, 'Referer': `https://note.com/notes/${noteKey}/edit` },
     body: JSON.stringify({
+      status: 'public',
       published_at: new Date().toISOString(),
     }),
   });
