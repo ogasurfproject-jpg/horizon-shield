@@ -182,7 +182,8 @@ async function postToNote(theme, articleText, session) {
         }
       }
     });
-    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 });
+    await new Promise(r => setTimeout(r, 5000));
+    console.log('ログイン後URL:', page.url());
     console.log('ログイン完了 URL:', page.url());
 
     // エディタへ移動
