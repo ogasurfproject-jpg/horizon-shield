@@ -170,7 +170,7 @@ async function postToNote(session, title, text) {
   const body = textToBody(text);
   const bodyLength = text.replace(/\s/g, '').length;
 
-  const saveRes = await fetch(`https://editor.note.com/api/v1/draft_save?id=${noteId}&is_temp_saved=true`, {
+  const saveRes = await fetch(`https://note.com/api/v1/draft_save?id=${noteId}&is_temp_saved=true`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
