@@ -180,6 +180,7 @@ async function postToNote(session, title, text) {
       'Origin': 'https://editor.note.com',
       'Cookie': session.cookies,
       'X-Note-Token': session.token,
+      'X-Requested-With': 'XMLHttpRequest',
     },
     body: JSON.stringify({
       body: body,
