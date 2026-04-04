@@ -156,18 +156,17 @@ async function postToNote(theme, articleText, session) {
     const inputCount = await page.evaluate(() => document.querySelectorAll('input').length);
     console.log('input数:', inputCount);
 
-    // JavaScriptで直接値をセット
+    // ReactフォームへはnativeInputValueSetterで入力する
     await page.evaluate((email, password) => {
       const inputs = document.querySelectorAll('input');
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
       if (inputs[0]) {
-        inputs[0].value = email;
+        nativeInputValueSetter.call(inputs[0], email);
         inputs[0].dispatchEvent(new Event('input', { bubbles: true }));
-        inputs[0].dispatchEvent(new Event('change', { bubbles: true }));
       }
       if (inputs[1]) {
-        inputs[1].value = password;
+        nativeInputValueSetter.call(inputs[1], password);
         inputs[1].dispatchEvent(new Event('input', { bubbles: true }));
-        inputs[1].dispatchEvent(new Event('change', { bubbles: true }));
       }
     }, NOTE_EMAIL, NOTE_PASSWORD);
 
