@@ -96,22 +96,19 @@ async function postToNote(theme, articleText) {
     const inputCount = await page.evaluate(() => document.querySelectorAll('input').length);
     console.log('input数:', inputCount);
 
-    // メール入力
-    const emailInput = await page.$('input[type="email"], input[name="email"], input[autocomplete="email"], input:first-of-type');
-    if (!emailInput) throw new Error('メール入力欄が見つからない');
-    await emailInput.click({ clickCount: 3 });
-    await emailInput.type(NOTE_EMAIL, { delay: 50 });
+    // メール入力（noteのinput nameは'login'）
+    await page.waitForSelector('input[name="login"]', { timeout: 10000 });
+    await page.click('input[name="login"]');
+    await page.type('input[name="login"]', NOTE_EMAIL, { delay: 50 });
     console.log('メール入力完了');
 
     // パスワード入力
-    const passInput = await page.$('input[type="password"]');
-    if (!passInput) throw new Error('パスワード入力欄が見つからない');
-    await passInput.click();
-    await passInput.type(NOTE_PASSWORD, { delay: 50 });
+    await page.click('input[name="password"]');
+    await page.type('input[name="password"]', NOTE_PASSWORD, { delay: 50 });
     console.log('パスワード入力完了');
 
-    // Enterキーでログイン
-    await passInput.press('Enter');
+    // ログインボタンクリック
+    await page.click('.logining_msg, button[type="submit"], button');
     await new Promise(r => setTimeout(r, 5000));
     console.log('ログイン後URL:', page.url());
 
