@@ -57,13 +57,20 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function uuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
 function textToBody(text) {
-  const paragraphs = text.split('\n\n').map(p => p.trim()).filter(Boolean);
-  const content = paragraphs.map(p => ({
-    type: 'paragraph',
-    content: [{ type: 'text', text: p.replace(/\n/g, ' ') }],
-  }));
-  return JSON.stringify({ type: 'doc', content });
+  return text.split('\n\n')
+    .map(p => p.trim()).filter(Boolean)
+    .map(p => {
+      const id = uuid();
+      return `<p style="text-align: start" name="${id}" id="${id}">${p.replace(/\n/g, '<br>')}</p>`;
+    }).join('');
 }
 
 async function getNoteSession() {
@@ -83,7 +90,9 @@ async function getNoteSession() {
     throw new Error(`noteログイン失敗 [${res.status}]: ${err.slice(0, 200)}`);
   }
   const data = await res.json();
-  const rawCookies = res.headers.getSetCookie ? res.headers.getSetCookie() : (res.headers.get('set-cookie') || '').split(/,(?=[ ^])/);
+  const rawCookies = res.headers.getSetCookie
+    ? res.headers.getSetCookie()
+    : (res.headers.get('set-cookie') || '').split(/,(?=\s*\w+=)/);
   const cookies = rawCookies.map(c => c.split(';')[0].trim()).join('; ');
   console.log('noteログイン成功');
   return { token: data.data?.token || data.token || '', cookies };
@@ -135,6 +144,7 @@ https://shield.the-horizons-innovation.com」
 async function postToNote(session, title, text) {
   console.log('note投稿中...');
   const body = textToBody(text);
+  console.log('body先頭:', body.slice(0, 120));
 
   const res = await fetch('https://note.com/api/v1/text_notes', {
     method: 'POST',
@@ -162,6 +172,7 @@ async function postToNote(session, title, text) {
   const data = await res.json();
   const noteKey = data.data?.key || data.key;
   console.log('投稿完了 key:', noteKey);
+  console.log('レスポンスbody先頭:', (data.data?.body || '').slice(0, 100));
 
   await sleep(5000);
 
