@@ -59,7 +59,27 @@ async function generateArticle(theme) {
     headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01' },
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001', max_tokens: 1500,
-      messages: [{ role: 'user', content: `あなたは建設歴30年のプロ「大賀俊勝」として、施主側に立ったnote記事を書いてください。\n\n【記事タイトル】${theme.title}\n【含めるキーワード】${theme.keywords.join('、')}\n【方向性】${theme.angle}\n\n【ルール】\n・一人称は「私」\n・建設30年のプロとしての権威を自然に出す\n・施主への共感から始める\n・具体的な数字・事例を入れる\n・業者批判でなく「情報格差の解消」という立場\n・1000〜1200文字\n・段落は空行で区切る\n・末尾に必ずこの文を入れる：\n「見積書の適正価格が気になる方は、HORIZON SHIELDの無料AI診断をお試しください。建設30年の専門知識を学習したAIが、あなたの見積書を即座に分析します。\nhttps://shield.the-horizons-innovation.com」\n\n本文のみ出力（タイトル不要）。` }],
+      messages: [{ role: 'user', content: `あなたは建設歴30年のプロ「大賀俊勝」として、施主側に立ったnote記事を書いてください。
+
+【記事タイトル】${theme.title}
+【含めるキーワード】${theme.keywords.join('、')}
+【方向性】${theme.angle}
+
+【ルール】
+・一人称は「私」
+・建設30年のプロとしての権威を自然に出す
+・施主への共感から始める
+・具体的な数字・事例を入れる
+・業者批判でなく「情報格差の解消」という立場
+・1000〜1200文字
+・段落は空行で区切る
+・アスタリスク（*）、ハッシュ（#）、バッククォート等のマークダウン記号は絶対に使わない
+・見出しは「■」などの記号で表現する
+・末尾に必ずこの文を入れる：
+「見積書の適正価格が気になる方は、HORIZON SHIELDの無料AI診断をお試しください。建設30年の専門知識を学習したAIが、あなたの見積書を即座に分析します。
+https://shield.the-horizons-innovation.com」
+
+本文のみ出力（タイトル不要）。` }],
     }),
   });
   if (!res.ok) throw new Error(`Claude API失敗 [${res.status}]`);
@@ -118,29 +138,24 @@ async function postToNote(theme, articleText, sessionCookies) {
     console.log('contenteditable数:', editableCount);
     if (editableCount === 0) throw new Error('エディタが開けていない: ' + page.url());
 
-    // タイトル欄を探す（placeholder属性で識別）
-    const titleEl = await page.$('[placeholder="タイトル"], [data-placeholder="タイトル"]');
+    // タイトル入力：placeholder="記事タイトル" または "タイトル" を探す
+    const titleEl = await page.$('[placeholder="記事タイトル"], [placeholder="タイトル"], [data-placeholder="タイトル"]');
     if (titleEl) {
       await titleEl.click();
       await page.keyboard.type(theme.title, { delay: 20 });
       console.log('タイトル入力完了（placeholder）');
     } else {
-      // フォールバック：ページ内のテキスト「タイトル」を持つ要素をクリック
-      await page.evaluate((title) => {
-        const all = document.querySelectorAll('[contenteditable]');
-        if (all[0]) {
-          all[0].focus();
-          document.execCommand('insertText', false, title);
-        }
-      }, theme.title);
-      console.log('タイトル入力完了（execCommand）');
+      // タイトル欄はeditable[0]、Tabで本文へ
+      const editables = await page.$$('[contenteditable]');
+      await editables[0].click();
+      await page.keyboard.type(theme.title, { delay: 20 });
+      console.log('タイトル入力完了（contenteditable[0]）');
     }
     await new Promise(r => setTimeout(r, 500));
 
     // 本文欄：最後のcontenteditable
-    const editables = await page.$$('[contenteditable]');
-    const bodyEl = editables[editables.length - 1];
-    await bodyEl.click();
+    const editables2 = await page.$$('[contenteditable]');
+    await editables2[editables2.length - 1].click();
     await new Promise(r => setTimeout(r, 500));
 
     // 本文入力
@@ -155,25 +170,23 @@ async function postToNote(theme, articleText, sessionCookies) {
     console.log('本文入力完了');
     await new Promise(r => setTimeout(r, 3000));
 
-    // 「公開に進む」ボタン（実際のUIより確認）
+    // 「公開に進む」ボタン（実際のUIより確認済み）
     const [pubBtn] = await page.$x('//button[contains(text(),"公開に進む")]');
     if (pubBtn) {
       await pubBtn.click();
       console.log('公開に進むクリック');
-    } else {
-      const [pubBtn2] = await page.$x('//button[contains(text(),"公開設定") or contains(text(),"公開")]');
-      if (pubBtn2) {
-        await pubBtn2.click();
-        console.log('公開ボタンクリック');
-      }
-    }
-    await new Promise(r => setTimeout(r, 3000));
+      await new Promise(r => setTimeout(r, 3000));
 
-    // 「投稿する」ボタン
-    const [finalBtn] = await page.$x('//button[contains(text(),"投稿する")]');
-    if (finalBtn) {
-      await finalBtn.click();
-      console.log('投稿するクリック');
+      // 「投稿する」ボタン
+      const [finalBtn] = await page.$x('//button[contains(text(),"投稿する")]');
+      if (finalBtn) {
+        await finalBtn.click();
+        console.log('投稿するクリック');
+      } else {
+        console.log('投稿するボタンが見つからない');
+      }
+    } else {
+      console.log('公開に進むボタンが見つからない');
     }
     await new Promise(r => setTimeout(r, 5000));
 
