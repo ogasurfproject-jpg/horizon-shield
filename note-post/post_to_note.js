@@ -73,8 +73,8 @@ async function generateArticle(theme) {
 ・業者批判でなく「情報格差の解消」という立場
 ・1000〜1200文字
 ・段落は空行で区切る
-・アスタリスク（*）、ハッシュ（#）、バッククォート等のマークダウン記号は絶対に使わない
-・見出しは「■」記号のみ使用可
+・記号「*」「**」「#」「##」「_」「\`」は絶対に使わない。これは最重要ルールです。
+・番号付きリストは「1.」「2.」の形式で書く
 ・末尾に必ずこの文を入れる：
 「見積書の適正価格が気になる方は、HORIZON SHIELDの無料AI診断をお試しください。建設30年の専門知識を学習したAIが、あなたの見積書を即座に分析します。
 https://shield.the-horizons-innovation.com」
@@ -84,7 +84,9 @@ https://shield.the-horizons-innovation.com」
   });
   if (!res.ok) throw new Error(`Claude API失敗 [${res.status}]`);
   const data = await res.json();
-  const text = data.content?.[0]?.text || '';
+  let text = data.content?.[0]?.text || '';
+  // アスタリスクを強制除去
+  text = text.replace(/\*\*/g, '').replace(/\*/g, '').replace(/^#{1,6}\s/gm, '').replace(/_/g, '');
   console.log('記事生成完了 文字数:', text.length);
   return text;
 }
@@ -95,6 +97,18 @@ async function sendLine(message) {
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${LINE_TOKEN}` },
     body: JSON.stringify({ to: LINE_USER_ID, messages: [{ type: 'text', text: message.slice(0, 5000) }] }),
   });
+}
+
+async function clickButtonByText(page, text) {
+  const buttons = await page.$$('button');
+  for (const btn of buttons) {
+    const btnText = await btn.evaluate(el => el.textContent);
+    if (btnText.includes(text)) {
+      await btn.click();
+      return true;
+    }
+  }
+  return false;
 }
 
 async function postToNote(theme, articleText, sessionCookies) {
@@ -138,9 +152,24 @@ async function postToNote(theme, articleText, sessionCookies) {
     console.log('contenteditable数:', editableCount);
     if (editableCount === 0) throw new Error('エディタが開けていない: ' + page.url());
 
-    // 本文入力
+    // タイトル入力：placeholder="記事タイトル"の要素を探す
+    const titleEl = await page.$('[placeholder="記事タイトル"]');
+    if (titleEl) {
+      await titleEl.click();
+      await page.keyboard.type(theme.title, { delay: 20 });
+      console.log('タイトル入力完了（placeholder=記事タイトル）');
+    } else {
+      // フォールバック：全contenteditable一覧を確認
+      const allEditables = await page.evaluate(() =>
+        [...document.querySelectorAll('[contenteditable]')].map((el, i) => `[${i}] placeholder="${el.getAttribute('placeholder') || ''}" data-placeholder="${el.getAttribute('data-placeholder') || ''}"`)
+      );
+      console.log('contenteditable一覧:', JSON.stringify(allEditables));
+    }
+    await new Promise(r => setTimeout(r, 500));
+
+    // 本文入力：最後のcontenteditable
     const editables = await page.$$('[contenteditable]');
-    await editables[0].click();
+    await editables[editables.length - 1].click();
     await new Promise(r => setTimeout(r, 500));
 
     const paragraphs = articleText.split('\n\n').filter(p => p.trim());
@@ -154,22 +183,14 @@ async function postToNote(theme, articleText, sessionCookies) {
     console.log('本文入力完了');
     await new Promise(r => setTimeout(r, 3000));
 
-    // 公開に進む（textContent.includesで確実にクリック）
-    await page.evaluate(() => {
-      const btns = [...document.querySelectorAll('button')];
-      const pub = btns.find(b => b.textContent.includes('公開に進む'));
-      if (pub) pub.click();
-    });
-    console.log('公開に進むクリック');
+    // 「公開に進む」trusted click
+    const pub = await clickButtonByText(page, '公開に進む');
+    console.log('公開に進む:', pub ? 'クリック成功' : '見つからない');
     await new Promise(r => setTimeout(r, 3000));
 
-    // 投稿する
-    await page.evaluate(() => {
-      const btns = [...document.querySelectorAll('button')];
-      const post = btns.find(b => b.textContent.includes('投稿する'));
-      if (post) post.click();
-    });
-    console.log('投稿するクリック');
+    // 「投稿する」trusted click
+    const post = await clickButtonByText(page, '投稿する');
+    console.log('投稿する:', post ? 'クリック成功' : '見つからない');
     await new Promise(r => setTimeout(r, 5000));
 
     const finalUrl = page.url();
