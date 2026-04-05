@@ -73,8 +73,8 @@ async function generateArticle(theme) {
 ・業者批判でなく「情報格差の解消」という立場
 ・1000〜1200文字
 ・段落は空行で区切る
-・アスタリスク（*）、ハッシュ（#）、バッククォート、アンダースコア等のマークダウン記号は絶対に使わない
-・見出しを使う場合は「■」記号のみ使用可
+・アスタリスク（*）、ハッシュ（#）、バッククォート等のマークダウン記号は絶対に使わない
+・見出しは「■」記号のみ使用可
 ・末尾に必ずこの文を入れる：
 「見積書の適正価格が気になる方は、HORIZON SHIELDの無料AI診断をお試しください。建設30年の専門知識を学習したAIが、あなたの見積書を即座に分析します。
 https://shield.the-horizons-innovation.com」
@@ -138,20 +138,11 @@ async function postToNote(theme, articleText, sessionCookies) {
     console.log('contenteditable数:', editableCount);
     if (editableCount === 0) throw new Error('エディタが開けていない: ' + page.url());
 
-    // タイトルと本文の入力戦略：
-    // noteエディタはcontenteditable=1の場合、タイトル欄は別要素
-    // contenteditable[0]をクリック→タイトル入力→Enter→本文入力（クリックしない）
+    // 本文入力（本文が入っていた版と同じ：contenteditable[0]クリック→本文入力）
     const editables = await page.$$('[contenteditable]');
     await editables[0].click();
     await new Promise(r => setTimeout(r, 500));
-    await page.keyboard.type(theme.title, { delay: 20 });
-    console.log('タイトル入力完了');
 
-    // Enterで本文エリアへ移動（クリックせずにそのまま入力）
-    await page.keyboard.press('Enter');
-    await new Promise(r => setTimeout(r, 1000));
-
-    // 本文入力（クリックなし、Enterで移動した位置からそのまま）
     const paragraphs = articleText.split('\n\n').filter(p => p.trim());
     for (let i = 0; i < paragraphs.length; i++) {
       await page.keyboard.type(paragraphs[i].trim(), { delay: 0 });
@@ -163,23 +154,27 @@ async function postToNote(theme, articleText, sessionCookies) {
     console.log('本文入力完了');
     await new Promise(r => setTimeout(r, 3000));
 
-    // 「公開に進む」ボタン（実際のUIで確認済み）
+    // 公開に進む（右上ボタン、実際のUIで確認済み）
+    await page.mouse.click(960, 300);
+    await new Promise(r => setTimeout(r, 500));
+
+    const buttons = await page.evaluate(() =>
+      [...document.querySelectorAll('button')].map(b => b.textContent.trim())
+    );
+    console.log('ボタン一覧:', JSON.stringify(buttons));
+
     const [pubBtn] = await page.$x('//button[contains(text(),"公開に進む")]');
     if (pubBtn) {
       await pubBtn.click();
       console.log('公開に進むクリック');
       await new Promise(r => setTimeout(r, 3000));
-
-      // 「投稿する」ボタン
       const [finalBtn] = await page.$x('//button[contains(text(),"投稿する")]');
       if (finalBtn) {
         await finalBtn.click();
         console.log('投稿するクリック');
-      } else {
-        console.log('投稿するボタンが見つからない');
       }
     } else {
-      console.log('公開に進むボタンが見つからない');
+      console.log('公開に進むボタンなし。ボタン一覧確認要');
     }
     await new Promise(r => setTimeout(r, 5000));
 
