@@ -138,7 +138,7 @@ async function postToNote(theme, articleText, sessionCookies) {
     console.log('contenteditable数:', editableCount);
     if (editableCount === 0) throw new Error('エディタが開けていない: ' + page.url());
 
-    // 本文入力（本文が入っていた版と同じ：contenteditable[0]クリック→本文入力）
+    // 本文入力
     const editables = await page.$$('[contenteditable]');
     await editables[0].click();
     await new Promise(r => setTimeout(r, 500));
@@ -154,28 +154,22 @@ async function postToNote(theme, articleText, sessionCookies) {
     console.log('本文入力完了');
     await new Promise(r => setTimeout(r, 3000));
 
-    // 公開に進む（右上ボタン、実際のUIで確認済み）
-    await page.mouse.click(960, 300);
-    await new Promise(r => setTimeout(r, 500));
+    // 公開に進む（textContent.includesで確実にクリック）
+    await page.evaluate(() => {
+      const btns = [...document.querySelectorAll('button')];
+      const pub = btns.find(b => b.textContent.includes('公開に進む'));
+      if (pub) pub.click();
+    });
+    console.log('公開に進むクリック');
+    await new Promise(r => setTimeout(r, 3000));
 
-    const buttons = await page.evaluate(() =>
-      [...document.querySelectorAll('button')].map(b => b.textContent.trim())
-    );
-    console.log('ボタン一覧:', JSON.stringify(buttons));
-
-    const [pubBtn] = await page.$x('//button[contains(text(),"公開に進む")]');
-    if (pubBtn) {
-      await pubBtn.click();
-      console.log('公開に進むクリック');
-      await new Promise(r => setTimeout(r, 3000));
-      const [finalBtn] = await page.$x('//button[contains(text(),"投稿する")]');
-      if (finalBtn) {
-        await finalBtn.click();
-        console.log('投稿するクリック');
-      }
-    } else {
-      console.log('公開に進むボタンなし。ボタン一覧確認要');
-    }
+    // 投稿する
+    await page.evaluate(() => {
+      const btns = [...document.querySelectorAll('button')];
+      const post = btns.find(b => b.textContent.includes('投稿する'));
+      if (post) post.click();
+    });
+    console.log('投稿するクリック');
     await new Promise(r => setTimeout(r, 5000));
 
     const finalUrl = page.url();
