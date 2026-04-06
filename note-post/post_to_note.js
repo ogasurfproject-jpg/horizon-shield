@@ -1,6 +1,6 @@
 /**
- * HORIZON SHIELD note自動投稿 v4
- * 見出し画像 + ハッシュタグ + 自動投稿
+ * HORIZON SHIELD note自動投稿 v5
+ * 見出し画像 + ハッシュタグ + 自動投稿 + LINEブロードキャスト
  */
 
 const puppeteerExtra = require('puppeteer-extra');
@@ -136,6 +136,20 @@ async function sendLine(message) {
   });
 }
 
+async function broadcastToFollowers(theme, noteUrl) {
+  const text = `【今日の建設情報】\n\n${theme.title}\n\n業者に負けない知識を、毎日お届けします。\n\n▼ 続きを読む\n${noteUrl}\n\n━━━━━━━━━━\n見積書が気になる方は無料AI診断へ👇\nhttps://shield.the-horizons-innovation.com`;
+  try {
+    const res = await fetch('https://api.line.me/v2/bot/message/broadcast', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${LINE_TOKEN}` },
+      body: JSON.stringify({ messages: [{ type: 'text', text }] }),
+    });
+    console.log('ブロードキャスト:', res.ok ? '成功' : `失敗 [${res.status}]`);
+  } catch (e) {
+    console.log('ブロードキャスト失敗:', e.message);
+  }
+}
+
 async function clickButtonByText(page, text) {
   const buttons = await page.$$('button');
   for (const btn of buttons) {
@@ -266,7 +280,7 @@ async function postToNote(theme, articleText, sessionCookies, imagePath) {
 }
 
 async function main() {
-  console.log('=== HORIZON SHIELD note自動投稿 v4 開始 ===');
+  console.log('=== HORIZON SHIELD note自動投稿 v5 開始 ===');
   try {
     const required = ['NOTE_EMAIL', 'NOTE_PASSWORD', 'ANTHROPIC_API_KEY', 'LINE_CHANNEL_TOKEN', 'LINE_USER_ID'];
     for (const key of required) { if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`); }
@@ -276,6 +290,7 @@ async function main() {
     const [text, imagePath] = await Promise.all([generateArticle(theme), fetchImage(theme.imageQuery)]);
     const url = await postToNote(theme, text, cookies, imagePath);
     await sendLine(`✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${url}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`);
+    await broadcastToFollowers(theme, url);
     console.log('=== 完了 ===');
   } catch (e) {
     console.error('エラー:', e.message);
