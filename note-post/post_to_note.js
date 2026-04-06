@@ -72,12 +72,14 @@ function downloadImage(url, dest) {
 
 async function fetchImage(query) {
   const imgPath = '/tmp/note_image.jpg';
-  const url = `https://source.unsplash.com/1200x630/?${encodeURIComponent(query)}`;
+  // picsum.photos - 確実に動く無料画像サービス（1200x630固定）
+  const seed = Buffer.from(query).reduce((a, b) => a + b, 0) % 1000;
+  const url = `https://picsum.photos/seed/${seed}/1200/630`;
   try {
     await downloadImage(url, imgPath);
     const stat = fs.statSync(imgPath);
     console.log('画像ダウンロード完了 サイズ:', stat.size, 'bytes');
-    if (stat.size < 1000) throw new Error('画像が小さすぎる');
+    if (stat.size < 10000) throw new Error('画像が小さすぎる: ' + stat.size);
     return imgPath;
   } catch (e) {
     console.log('画像ダウンロード失敗:', e.message);
