@@ -114,8 +114,8 @@ async function generateArticle(theme) {
 「見積書の適正価格が気になる方は、HORIZON SHIELDの無料AI診断をお試しください。建設30年の専門知識を学習したAIが、あなたの見積書を即座に分析します。
 https://shield.the-horizons-innovation.com
 
-また、施主側に立った建設情報を毎日LINEでお届けしています。業者に負けない知識を身につけたい方は、ぜひ公式LINEにご登録ください。
-https://line.me/R/ti/p/@462lurtl」
+また、建設費・リフォームで損をしないための情報を毎日発信しているコミュニティがあります。参加無料です。業者に負けない知識を身につけたい方は、ぜひご参加ください。
+https://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ」
 
 本文のみ出力（タイトル不要）。` }],
     }),
@@ -129,7 +129,7 @@ https://line.me/R/ti/p/@462lurtl」
 }
 
 async function broadcastToFollowers(theme, noteUrl) {
-  const text = `【今日の建設情報】\n\n${theme.title}\n\n業者に負けない知識を、毎日お届けします。\n\n▼ 続きを読む\n${noteUrl}\n\n━━━━━━━━━━\n見積書が気になる方は無料AI診断へ👇\nhttps://shield.the-horizons-innovation.com`;
+  const text = `【今日の建設情報】\n\n${theme.title}\n\n▼ 続きを読む\n${noteUrl}\n\n━━━━━━━━━━\n📣 無料コミュニティ参加受付中！\n建設費・リフォームで損をしない知識を毎日共有しています。\nhttps://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ\n\n見積書の無料AI診断👇\nhttps://shield.the-horizons-innovation.com`;
   try {
     const res = await fetch('https://api.line.me/v2/bot/message/broadcast', {
       method: 'POST',
