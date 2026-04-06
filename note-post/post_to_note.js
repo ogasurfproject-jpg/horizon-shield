@@ -112,7 +112,10 @@ async function generateArticle(theme) {
 ・番号付きリストは「1.」「2.」の形式で書く
 ・末尾に必ずこの文を入れる：
 「見積書の適正価格が気になる方は、HORIZON SHIELDの無料AI診断をお試しください。建設30年の専門知識を学習したAIが、あなたの見積書を即座に分析します。
-https://shield.the-horizons-innovation.com」
+https://shield.the-horizons-innovation.com
+
+また、施主側に立った建設情報を毎日LINEでお届けしています。業者に負けない知識を身につけたい方は、ぜひ公式LINEにご登録ください。
+https://line.me/R/ti/p/@462lurtl」
 
 本文のみ出力（タイトル不要）。` }],
     }),
