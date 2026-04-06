@@ -181,32 +181,22 @@ async function postToNote(theme, articleText, sessionCookies, imagePath) {
     // 見出し画像アップロード
     if (imagePath && fs.existsSync(imagePath)) {
       try {
-        // file inputを全て探して試みる
-        const allFileInputs = await page.$$('input[type="file"]');
-        console.log('file input数:', allFileInputs.length);
+        // 「設定する」ボタンをクリックしてfile inputを出現させる
+        const setBtn = await clickButtonByText(page, '設定する');
+        if (setBtn) {
+          console.log('設定するボタンクリック');
+          await new Promise(r => setTimeout(r, 2000));
+        }
 
-        if (allFileInputs.length > 0) {
-          await allFileInputs[0].uploadFile(imagePath);
+        // file inputを待って取得
+        await page.waitForSelector('input[type="file"]', { timeout: 5000 });
+        const fileInput = await page.$('input[type="file"]');
+        if (fileInput) {
+          await fileInput.uploadFile(imagePath);
           await new Promise(r => setTimeout(r, 4000));
-          console.log('見出し画像アップロード完了（直接）');
+          console.log('見出し画像アップロード完了');
         } else {
-          // 画像アップロードボタンをクリックしてfile inputを出現させる
-          await page.evaluate(() => {
-            // 「設定する」ボタンや画像アイコンを探す
-            const btns = [...document.querySelectorAll('button, label')];
-            const imgBtn = btns.find(b => b.textContent.includes('設定する') || b.textContent.includes('画像') || b.getAttribute('aria-label')?.includes('画像'));
-            if (imgBtn) imgBtn.click();
-          });
-          await new Promise(r => setTimeout(r, 1000));
-
-          const fileInput = await page.$('input[type="file"]');
-          if (fileInput) {
-            await fileInput.uploadFile(imagePath);
-            await new Promise(r => setTimeout(r, 4000));
-            console.log('見出し画像アップロード完了（ボタン経由）');
-          } else {
-            console.log('file inputが見つからない、画像スキップ');
-          }
+          console.log('file inputが見つからない、スキップ');
         }
       } catch (e) {
         console.log('画像アップロードスキップ:', e.message);
