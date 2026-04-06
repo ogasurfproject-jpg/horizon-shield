@@ -1,10 +1,14 @@
 /**
  * HORIZON SHIELD note自動投稿 v4
+ * ハッシュタグ + 見出し画像 自動設定
  */
 
 const puppeteerExtra = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const https = require('https');
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
 puppeteerExtra.use(StealthPlugin());
 
 const NOTE_EMAIL    = process.env.NOTE_EMAIL;
@@ -14,13 +18,55 @@ const LINE_TOKEN    = process.env.LINE_CHANNEL_TOKEN;
 const LINE_USER_ID  = process.env.LINE_USER_ID;
 
 const THEMES = [
-  { title: 'リフォーム業者が絶対に教えない「見積書の5つの罠」', keywords: ['一式見積もり', '諸経費', '図面なし', '数量不明', '口頭約束'], angle: '施主が知らない業者の常套手段を暴露する内容' },
-  { title: '「追加工事が必要です」と言われたら疑え。建設30年のプロが語る真実', keywords: ['追加工事', '契約外', '口頭指示', '変更工事査定', '証拠'], angle: '追加請求の正当性を見極める方法' },
-  { title: '外壁塗装300万円は高いのか？適正価格の見分け方を徹底解説', keywords: ['外壁塗装', '足場代', '塗料原価', '坪単価', '相見積もり'], angle: '具体的な数字で適正価格を解説する内容' },
-  { title: '工務店選びで失敗しない7つのチェックポイント', keywords: ['建設業許可', '施工実績', '保証内容', '契約書', '口コミ'], angle: '施主が業者を選ぶ際の具体的な判断基準' },
-  { title: '引き渡し前に必ず確認すべき施工不良チェックリスト20項目', keywords: ['施工不良', '完成検査', 'クロス', '床鳴り', '防水'], angle: '素人でもできる施工不良の見つけ方' },
-  { title: '店舗開業の内装工事、適正価格はいくら？坪単価の相場を業種別に解説', keywords: ['坪単価', '飲食店', 'サロン', 'クリニック', '内装工事'], angle: '業種別の適正な内装工事費用の目安' },
-  { title: '見積書を「高い」と感じたら最初にやるべきこと3つ', keywords: ['見積書確認', '内訳', '単価', '数量', '専門家相談'], angle: '見積書に違和感を感じた時の具体的な行動手順' },
+  {
+    title: 'リフォーム業者が絶対に教えない「見積書の5つの罠」',
+    keywords: ['一式見積もり', '諸経費', '図面なし', '数量不明', '口頭約束'],
+    angle: '施主が知らない業者の常套手段を暴露する内容',
+    hashtags: ['リフォーム', '見積書', '建設', '施主', 'HORIZONSHIELD'],
+    imageQuery: 'construction blueprint estimate',
+  },
+  {
+    title: '「追加工事が必要です」と言われたら疑え。建設30年のプロが語る真実',
+    keywords: ['追加工事', '契約外', '口頭指示', '変更工事査定', '証拠'],
+    angle: '追加請求の正当性を見極める方法',
+    hashtags: ['追加工事', '建設トラブル', '施工', '見積もり', 'HORIZONSHIELD'],
+    imageQuery: 'construction worker building site',
+  },
+  {
+    title: '外壁塗装300万円は高いのか？適正価格の見分け方を徹底解説',
+    keywords: ['外壁塗装', '足場代', '塗料原価', '坪単価', '相見積もり'],
+    angle: '具体的な数字で適正価格を解説する内容',
+    hashtags: ['外壁塗装', 'リフォーム', '塗装工事', '相見積もり', 'HORIZONSHIELD'],
+    imageQuery: 'house exterior painting renovation',
+  },
+  {
+    title: '工務店選びで失敗しない7つのチェックポイント',
+    keywords: ['建設業許可', '施工実績', '保証内容', '契約書', '口コミ'],
+    angle: '施主が業者を選ぶ際の具体的な判断基準',
+    hashtags: ['工務店', '建設業者', 'リフォーム', '業者選び', 'HORIZONSHIELD'],
+    imageQuery: 'architect meeting client consultation',
+  },
+  {
+    title: '引き渡し前に必ず確認すべき施工不良チェックリスト20項目',
+    keywords: ['施工不良', '完成検査', 'クロス', '床鳴り', '防水'],
+    angle: '素人でもできる施工不良の見つけ方',
+    hashtags: ['施工不良', '建設検査', '新築', 'リフォーム', 'HORIZONSHIELD'],
+    imageQuery: 'house inspection checklist quality',
+  },
+  {
+    title: '店舗開業の内装工事、適正価格はいくら？坪単価の相場を業種別に解説',
+    keywords: ['坪単価', '飲食店', 'サロン', 'クリニック', '内装工事'],
+    angle: '業種別の適正な内装工事費用の目安',
+    hashtags: ['店舗内装', '内装工事', '開業', '坪単価', 'HORIZONSHIELD'],
+    imageQuery: 'interior design shop restaurant renovation',
+  },
+  {
+    title: '見積書を「高い」と感じたら最初にやるべきこと3つ',
+    keywords: ['見積書確認', '内訳', '単価', '数量', '専門家相談'],
+    angle: '見積書に違和感を感じた時の具体的な行動手順',
+    hashtags: ['見積書', 'リフォーム', '建設費用', '施主', 'HORIZONSHIELD'],
+    imageQuery: 'document review contract business',
+  },
 ];
 
 function getTodayTheme() {
@@ -42,7 +88,6 @@ function apiLogin() {
         for (let i = 0; i < res.rawHeaders.length; i += 2) {
           if (res.rawHeaders[i].toLowerCase() === 'set-cookie') cookies.push(res.rawHeaders[i+1]);
         }
-        console.log('APIログイン Cookie数:', cookies.length);
         resolve({ cookies, json: JSON.parse(data) });
       });
     });
@@ -50,6 +95,40 @@ function apiLogin() {
     req.write(body);
     req.end();
   });
+}
+
+// Unsplashから画像をダウンロード
+function downloadImage(url, dest) {
+  return new Promise((resolve, reject) => {
+    const proto = url.startsWith('https') ? https : http;
+    const file = fs.createWriteStream(dest);
+    proto.get(url, (res) => {
+      if (res.statusCode === 301 || res.statusCode === 302) {
+        file.close();
+        downloadImage(res.headers.location, dest).then(resolve).catch(reject);
+        return;
+      }
+      res.pipe(file);
+      file.on('finish', () => { file.close(); resolve(dest); });
+    }).on('error', (err) => {
+      fs.unlink(dest, () => {});
+      reject(err);
+    });
+  });
+}
+
+async function fetchImage(query) {
+  const imgPath = '/tmp/note_image.jpg';
+  // Unsplash Source API（無料・APIキー不要）
+  const url = `https://source.unsplash.com/1200x630/?${encodeURIComponent(query)}`;
+  try {
+    await downloadImage(url, imgPath);
+    console.log('画像ダウンロード完了:', imgPath);
+    return imgPath;
+  } catch (e) {
+    console.log('画像ダウンロード失敗:', e.message);
+    return null;
+  }
 }
 
 async function generateArticle(theme) {
@@ -73,7 +152,7 @@ async function generateArticle(theme) {
 ・業者批判でなく「情報格差の解消」という立場
 ・1000〜1200文字
 ・段落は空行で区切る
-・記号「*」「**」「#」「##」「_」「\`」は絶対に使わない。これは最重要ルールです。
+・記号「*」「**」「#」「##」「_」は絶対に使わない。これは最重要ルールです。
 ・番号付きリストは「1.」「2.」の形式で書く
 ・末尾に必ずこの文を入れる：
 「見積書の適正価格が気になる方は、HORIZON SHIELDの無料AI診断をお試しください。建設30年の専門知識を学習したAIが、あなたの見積書を即座に分析します。
@@ -85,8 +164,7 @@ https://shield.the-horizons-innovation.com」
   if (!res.ok) throw new Error(`Claude API失敗 [${res.status}]`);
   const data = await res.json();
   let text = data.content?.[0]?.text || '';
-  // アスタリスクを強制除去
-  text = text.replace(/\*\*/g, '').replace(/\*/g, '').replace(/^#{1,6}\s/gm, '').replace(/_/g, '');
+  text = text.replace(/\*\*/g, '').replace(/\*/g, '').replace(/^#{1,6}\s/gm, '').replace(/_([^_]+)_/g, '$1');
   console.log('記事生成完了 文字数:', text.length);
   return text;
 }
@@ -111,7 +189,7 @@ async function clickButtonByText(page, text) {
   return false;
 }
 
-async function postToNote(theme, articleText, sessionCookies) {
+async function postToNote(theme, articleText, sessionCookies, imagePath) {
   console.log('ブラウザ起動中...');
   const browser = await puppeteerExtra.launch({
     executablePath: '/usr/bin/google-chrome-stable',
@@ -132,11 +210,9 @@ async function postToNote(theme, articleText, sessionCookies) {
       const value = parts[0].slice(eqIdx + 1).trim();
       await page.setCookie({ name, value, domain: '.note.com', path: '/' });
     }
-    console.log('Cookie注入完了');
-
     await page.reload({ waitUntil: 'networkidle2', timeout: 20000 });
     await new Promise(r => setTimeout(r, 2000));
-    console.log('リロード後URL:', page.url());
+    console.log('ログイン状態:', page.url());
 
     // 投稿ボタンクリック
     const [postBtn] = await page.$x('//a[contains(text(),"投稿") or contains(@href,"/notes/new")]');
@@ -146,28 +222,49 @@ async function postToNote(theme, articleText, sessionCookies) {
       await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2', timeout: 20000 });
     }
     await new Promise(r => setTimeout(r, 5000));
-    console.log('遷移後URL:', page.url());
+    console.log('エディタURL:', page.url());
 
     const editableCount = await page.evaluate(() => document.querySelectorAll('[contenteditable]').length);
     console.log('contenteditable数:', editableCount);
     if (editableCount === 0) throw new Error('エディタが開けていない: ' + page.url());
 
-    // タイトル入力：placeholder="記事タイトル"の要素を探す
+    // 見出し画像をアップロード
+    if (imagePath && fs.existsSync(imagePath)) {
+      try {
+        const imgInput = await page.$('input[type="file"]');
+        if (imgInput) {
+          await imgInput.uploadFile(imagePath);
+          await new Promise(r => setTimeout(r, 3000));
+          console.log('見出し画像アップロード完了');
+        } else {
+          // 画像アイコンをクリックしてfile inputを表示
+          const [imgBtn] = await page.$x('//*[contains(@class,"image") or contains(@aria-label,"画像")]');
+          if (imgBtn) {
+            await imgBtn.click();
+            await new Promise(r => setTimeout(r, 1000));
+            const imgInput2 = await page.$('input[type="file"]');
+            if (imgInput2) {
+              await imgInput2.uploadFile(imagePath);
+              await new Promise(r => setTimeout(r, 3000));
+              console.log('見出し画像アップロード完了（2nd）');
+            }
+          }
+        }
+      } catch (e) {
+        console.log('画像アップロードスキップ:', e.message);
+      }
+    }
+
+    // タイトル入力
     const titleEl = await page.$('[placeholder="記事タイトル"]');
     if (titleEl) {
       await titleEl.click();
       await page.keyboard.type(theme.title, { delay: 20 });
-      console.log('タイトル入力完了（placeholder=記事タイトル）');
-    } else {
-      // フォールバック：全contenteditable一覧を確認
-      const allEditables = await page.evaluate(() =>
-        [...document.querySelectorAll('[contenteditable]')].map((el, i) => `[${i}] placeholder="${el.getAttribute('placeholder') || ''}" data-placeholder="${el.getAttribute('data-placeholder') || ''}"`)
-      );
-      console.log('contenteditable一覧:', JSON.stringify(allEditables));
+      console.log('タイトル入力完了');
     }
     await new Promise(r => setTimeout(r, 500));
 
-    // 本文入力：最後のcontenteditable
+    // 本文入力
     const editables = await page.$$('[contenteditable]');
     await editables[editables.length - 1].click();
     await new Promise(r => setTimeout(r, 500));
@@ -183,24 +280,41 @@ async function postToNote(theme, articleText, sessionCookies) {
     console.log('本文入力完了');
     await new Promise(r => setTimeout(r, 3000));
 
-    // 「公開に進む」trusted click
+    // 公開に進む
     const pub = await clickButtonByText(page, '公開に進む');
-    console.log('公開に進む:', pub ? 'クリック成功' : '見つからない');
+    console.log('公開に進む:', pub ? '成功' : '失敗');
     await new Promise(r => setTimeout(r, 3000));
 
-    // 「投稿する」trusted click
+    // ハッシュタグ入力
+    try {
+      const hashtagInput = await page.$('input[placeholder*="ハッシュタグ"], input[placeholder*="タグ"]');
+      if (hashtagInput) {
+        for (const tag of theme.hashtags) {
+          await hashtagInput.click();
+          await page.keyboard.type(tag, { delay: 20 });
+          await page.keyboard.press('Enter');
+          await new Promise(r => setTimeout(r, 300));
+        }
+        console.log('ハッシュタグ入力完了:', theme.hashtags.join(', '));
+      }
+    } catch (e) {
+      console.log('ハッシュタグスキップ:', e.message);
+    }
+    await new Promise(r => setTimeout(r, 1000));
+
+    // 投稿する
     const post = await clickButtonByText(page, '投稿する');
-    console.log('投稿する:', post ? 'クリック成功' : '見つからない');
+    console.log('投稿する:', post ? '成功' : '失敗');
     await new Promise(r => setTimeout(r, 5000));
 
     const finalUrl = page.url();
     console.log('投稿完了 URL:', finalUrl);
-
     const noteKey = finalUrl.match(/\/n\/([a-z0-9]+)/)?.[1] || finalUrl.match(/\/notes\/([a-z0-9]+)/)?.[1];
     return noteKey ? `https://note.com/horizon_shield/n/${noteKey}` : 'https://note.com/horizon_shield';
 
   } finally {
     await browser.close();
+    if (imagePath && fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
   }
 }
 
@@ -212,8 +326,11 @@ async function main() {
     const theme = getTodayTheme();
     console.log('今日のテーマ:', theme.title);
     const { cookies } = await apiLogin();
-    const text = await generateArticle(theme);
-    const url  = await postToNote(theme, text, cookies);
+    const [text, imagePath] = await Promise.all([
+      generateArticle(theme),
+      fetchImage(theme.imageQuery),
+    ]);
+    const url = await postToNote(theme, text, cookies, imagePath);
     await sendLine(`✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${url}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`);
     console.log('=== 完了 ===');
   } catch (e) {
