@@ -196,16 +196,14 @@ async function postToNote(theme, articleText, sessionCookies, imagePath) {
     // 見出し画像アップロード
     if (imagePath && fs.existsSync(imagePath)) {
       try {
-        // 「設定する」ボタンをクリックしてfile inputを出現させる
-        const setBtn = await clickButtonByText(page, '設定する');
-        if (setBtn) {
-          console.log('設定するボタンクリック');
+        // まず直接file inputを探す（DOMに隠れて存在する場合）
+        let fileInput = await page.$('input[type="file"]');
+        if (!fileInput) {
+          // なければ「設定する」ボタンをクリックして出現を待つ
+          await clickButtonByText(page, '設定する');
           await new Promise(r => setTimeout(r, 2000));
+          fileInput = await page.$('input[type="file"]');
         }
-
-        // file inputを待って取得
-        await page.waitForSelector('input[type="file"]', { timeout: 5000 });
-        const fileInput = await page.$('input[type="file"]');
         if (fileInput) {
           await fileInput.uploadFile(imagePath);
           await new Promise(r => setTimeout(r, 4000));
