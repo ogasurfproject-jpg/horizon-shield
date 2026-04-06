@@ -18,8 +18,6 @@
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--white);font-family:'Noto Sans JP',sans-serif;overflow-x:hidden;line-height:1.8}
 body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.025) 0px,rgba(0,0,0,.025) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:9998}
-
-/* NAV */
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:60px;display:flex;justify-content:space-between;align-items:center;background:rgba(4,10,18,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
 .nav-logo{display:flex;align-items:center;gap:10px}
 .nav-logo-mark{width:28px;height:28px;border:1px solid var(--cyan);display:flex;align-items:center;justify-content:center}
@@ -41,8 +39,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:60px;d
 .nav-cta{background:var(--gold);color:#040A12;font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 20px;text-decoration:none;letter-spacing:3px;transition:opacity .2s;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
 .nav-cta:hover{opacity:.8}
 @media(max-width:768px){.nav-tool-link{display:none}}
-
-/* HERO */
 .hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:100px 24px;overflow:hidden}
 .hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border2) 1px,transparent 1px),linear-gradient(90deg,var(--border2) 1px,transparent 1px);background-size:48px 48px}
 .hero-glow{position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(0,212,255,.05) 0%,transparent 65%);pointer-events:none}
@@ -78,8 +74,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:60px;d
 .kira-desc{font-size:11px;color:var(--gray);letter-spacing:1px}
 .kira-online{display:flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);margin-top:4px;letter-spacing:2px}
 .kira-online::before{content:'';width:5px;height:5px;background:var(--cyan);border-radius:50%;animation:blink 2s infinite}
-
-/* SECTION */
 .section{padding:100px 24px;position:relative;z-index:1}
 .container{max-width:980px;margin:0 auto}
 .container-sm{max-width:720px;margin:0 auto}
@@ -91,8 +85,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:60px;d
 .rule{width:40px;height:1px;background:var(--cyan);margin:20px 0 48px;position:relative}
 .rule::after{content:'';position:absolute;left:0;top:-1px;width:6px;height:3px;background:var(--cyan)}
 .bg2{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-
-/* PAIN */
 .pain-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border:1px solid var(--border)}
 @media(max-width:640px){.pain-grid{grid-template-columns:1fr}}
 .pain-card{background:var(--bg2);padding:36px 30px;transition:background .2s;position:relative;overflow:hidden}
@@ -104,8 +96,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:60px;d
 .pain-icon svg{width:18px;height:18px;stroke:var(--cyan);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .pain-card h3{font-size:16px;font-weight:700;margin-bottom:8px}
 .pain-card p{font-size:13px;color:var(--gray);line-height:1.85}
-
-/* WARNING */
 .warn-section{padding:100px 24px;position:relative;z-index:1;background:var(--bg2);border-top:1px solid rgba(255,48,64,.15);border-bottom:1px solid rgba(255,48,64,.15)}
 .warn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,48,64,.15);border:1px solid rgba(255,48,64,.2);margin-top:48px}
 @media(max-width:720px){.warn-grid{grid-template-columns:1fr}}
@@ -121,8 +111,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:60px;d
 .warn-cta h3{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(20px,3vw,28px);margin-bottom:12px}
 .warn-cta h3 em{font-style:normal;color:var(--gold2)}
 .warn-cta p{font-size:14px;color:var(--lgray);margin-bottom:28px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.9}
-
-/* SERVICES */
 .svc3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:52px}
 @media(max-width:780px){.svc3{grid-template-columns:1fr}}
 .sc{background:var(--bg2);padding:40px 30px;display:flex;flex-direction:column;position:relative;overflow:hidden;transition:background .2s}
@@ -145,8 +133,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:60px;d
 .sc-list li::before{content:'›';color:var(--cyan);flex-shrink:0}
 .sc-btn{display:block;text-align:center;border:1px solid var(--border);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:11px;padding:11px;text-decoration:none;transition:all .2s;letter-spacing:3px;margin-top:auto;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)}
 .sc-btn:hover{background:rgba(0,212,255,.06);border-color:var(--cyan)}
-
-/* KIRA SECTION */
 .kira-section{padding:100px 24px;position:relative;z-index:1}
 .kira-layout{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
 @media(max-width:760px){.kira-layout{grid-template-columns:1fr;gap:40px}}
@@ -180,8 +166,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:60px;d
 .kira-chat-send{width:36px;height:36px;background:var(--gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .2s;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)}
 .kira-chat-send:hover{opacity:.8}
 .kira-chat-send svg{width:14px;height:14px;stroke:#040A12;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-
-/* CRED */
 .cred-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:48px}
 @media(max-width:720px){.cred-grid{grid-template-columns:1fr}}
 .cred-card{background:var(--bg2);padding:32px 26px;transition:background .2s}
@@ -189,16 +173,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:60px;d
 .cred-num{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--cyan);margin-bottom:14px;opacity:.7}
 .cred-card h3{font-size:16px;font-weight:700;margin-bottom:8px}
 .cred-card p{font-size:12px;color:var(--gray);line-height:1.85}
-
-/* QUOTE */
 .quote-wrap{padding:80px 24px;text-align:center;position:relative;z-index:1;overflow:hidden;background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .quote-deco{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Share Tech Mono',monospace;font-size:clamp(120px,18vw,220px);color:rgba(0,212,255,.03);line-height:1;pointer-events:none}
 .q-line{width:40px;height:1px;background:var(--cyan);margin:0 auto 24px}
 blockquote{font-family:'Zen Kaku Gothic New',sans-serif;font-size:clamp(17px,2.4vw,26px);font-weight:700;line-height:1.75;max-width:740px;margin:0 auto;position:relative;z-index:1}
 blockquote em{font-style:normal;color:var(--gold2)}
 .q-by{margin-top:24px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:3px;line-height:2.2}
-
-/* FLOW */
 .flow-grid{display:grid;grid-template-columns:repeat(3,1fr);margin-top:48px;position:relative}
 .flow-line{position:absolute;top:28px;left:calc(100%/6 + 16px);right:calc(100%/6 + 16px);height:1px;background:linear-gradient(90deg,var(--cyan),rgba(0,212,255,.3),var(--cyan));opacity:.3}
 @media(max-width:680px){.flow-grid{grid-template-columns:1fr;gap:28px}.flow-line{display:none}}
@@ -208,8 +188,6 @@ blockquote em{font-style:normal;color:var(--gold2)}
 .fi h3{font-size:15px;font-weight:700;margin-bottom:8px}
 .fi p{font-size:12px;color:var(--gray);line-height:1.85}
 .fi a{color:var(--cyan);font-size:11px;text-decoration:none}
-
-/* FAQ */
 .faq-list{margin-top:40px}
 .faq-item{border-bottom:1px solid var(--border)}
 .faq-head{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 0;cursor:pointer;user-select:none}
@@ -219,8 +197,6 @@ blockquote em{font-style:normal;color:var(--gold2)}
 .faq-item.open .faq-tog svg{transform:rotate(45deg)}
 .faq-body{font-size:13px;color:var(--gray);line-height:1.9;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s}
 .faq-item.open .faq-body{max-height:200px;padding-bottom:18px}
-
-/* CTA */
 .cta-section{padding:100px 24px;text-align:center;position:relative;overflow:hidden;background:var(--bg2);border-top:1px solid var(--border)}
 .cta-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(200,150,10,.06) 0%,transparent 70%);pointer-events:none}
 .cta-section h2{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(26px,4vw,50px);line-height:1.2;margin-bottom:16px;position:relative;z-index:1}
@@ -229,8 +205,6 @@ blockquote em{font-style:normal;color:var(--gold2)}
 .cta-kira{margin-top:32px;position:relative;z-index:1}
 .cta-kira-btn{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--border);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:11px;padding:12px 24px;letter-spacing:3px;text-decoration:none;transition:all .2s;cursor:pointer;background:transparent}
 .cta-kira-btn:hover{border-color:var(--cyan);background:rgba(0,212,255,.05)}
-
-/* FOOTER */
 footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-index:1}
 .footer-inner{max-width:980px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;gap:32px;flex-wrap:wrap}
 .footer-logo{font-family:'Share Tech Mono',monospace;font-size:15px;letter-spacing:5px;color:var(--white);margin-bottom:10px}
@@ -239,8 +213,6 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
 .footer-info{font-size:12px;color:var(--gray);line-height:2.2;text-align:right}
 .footer-info a{color:var(--cyan);text-decoration:none}
 .footer-copy{max-width:980px;margin:28px auto 0;padding-top:20px;border-top:1px solid var(--border2);display:flex;justify-content:space-between;align-items:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,.18);letter-spacing:2px;flex-wrap:wrap;gap:8px}
-
-/* KIRA CHAT MODAL */
 .kira-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:flex-end;justify-content:flex-end;padding:80px 24px 24px;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(4px)}
 .kira-modal-overlay.open{opacity:1;pointer-events:all}
 .kira-modal{width:380px;height:560px;background:var(--bg2);border:1px solid var(--cyan);display:flex;flex-direction:column;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);transform:translateY(20px);transition:transform .3s}
@@ -285,16 +257,12 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
 .kira-typing span:nth-child(2){animation-delay:.15s}
 .kira-typing span:nth-child(3){animation-delay:.3s}
 @keyframes typing{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
-
-/* KIRA FAB */
 .kira-fab{position:fixed;bottom:28px;right:28px;z-index:9997;display:flex;align-items:center;gap:10px;cursor:pointer;animation:fadeUp .5s 1s ease both}
 .kira-fab-btn{width:56px;height:56px;background:var(--gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(200,150,10,.3);transition:all .2s;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
 .kira-fab-btn:hover{transform:translateY(-3px);box-shadow:0 0 40px rgba(200,150,10,.5)}
 .kira-fab-btn svg{width:22px;height:22px;stroke:#040A12;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .kira-fab-label{background:var(--bg2);border:1px solid var(--border);padding:6px 12px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--white);letter-spacing:2px;white-space:nowrap;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
 .kira-fab-dot{position:absolute;top:-3px;right:-3px;width:12px;height:12px;background:var(--cyan);border-radius:50%;animation:blink 2s infinite;border:2px solid var(--bg)}
-
-/* ANIMATE */
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes diagSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .reveal{transition:opacity .7s ease,transform .7s ease}
@@ -303,7 +271,6 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
 </head>
 <body>
 
-<!-- NAV -->
 <nav id="nav">
   <div class="nav-logo">
     <div class="nav-logo-mark"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
@@ -321,7 +288,6 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
   </div>
 </nav>
 
-<!-- HERO -->
 <section class="hero">
   <div class="hero-grid"></div>
   <div class="hero-glow"></div>
@@ -330,7 +296,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
   <div class="hero-inner">
     <div class="hero-eyebrow">
       <div class="ey-line"></div>
-      <div class="ey-text">建設費診断サービス　by　The HORIZONs株式会社</div>
+      <div class="ey-text">建設費診断サービス　by　The HORIZ音s株式会社</div>
       <div class="ey-line"></div>
     </div>
     <h1>その見積書、<br><em>本当に適正ですか？</em></h1>
@@ -342,14 +308,11 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
       <div class="metric-sep"></div>
       <div class="metric"><span class="metric-val">全国</span><span class="metric-label">対応エリア</span></div>
     </div>
-
-    <!-- ★ ここが変更点：0円診断ボタンを追加 -->
     <div class="hero-cta">
       <a href="/shindan.html" class="btn-primary red">まず無料で診断する →</a>
       <a href="#services" class="btn-ghost">3つのサービスを見る</a>
     </div>
     <p class="hero-note">完全無料・60秒・LINE登録不要　／　スポット依頼OK　／　最短24時間納品</p>
-
     <div class="kira-card" onclick="openKira()">
       <div class="kira-avatar">K</div>
       <div class="kira-info">
@@ -361,7 +324,6 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
   </div>
 </section>
 
-<!-- PAIN -->
 <section class="section reveal">
   <div class="container">
     <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">PROBLEM ANALYSIS</div></div>
@@ -371,22 +333,21 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
       <div class="pain-card"><div class="pain-num">P-01</div><div class="pain-icon"><svg viewBox="0 0 24 24"><path d="M9 12h6M9 16h6M13 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><polyline points="13 3 13 8 18 8"/></svg></div><h3>見積書が届いたが判断できない</h3><p>高いのか安いのか、専門知識がないと全くわからない。比較する手段もない。</p></div>
       <div class="pain-card"><div class="pain-num">P-02</div><div class="pain-icon"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div><h3>「追加工事が必要」と言われた</h3><p>工事中に業者から追加費用を求められても、正当な要求かどうか判断できない。</p></div>
       <div class="pain-card"><div class="pain-num">P-03</div><div class="pain-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><h3>竣工・引き渡し時の検査が不安</h3><p>引き渡し前に手抜きや施工不良がないか、専門家に立ち会ってほしい。</p></div>
-      <div class="pain-card"><div class="pain-num">P-04</div><div class="pain-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg></div><h3>ゼネコンの言い値で通っている</h3><p>業者側の言葉を信じるしかなく、相場より高い金額を払い続けている。</p></div>
+      <div class="pain-card"><div class="pain-num">P-04</div><div class="pain-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg></div><h3>業者の言い値で通っている</h3><p>業者側の言葉を信じるしかなく、相場が分からないまま工事を進めてしまっている。</p></div>
     </div>
   </div>
 </section>
 
-<!-- WARNING -->
 <section class="warn-section reveal">
   <div class="container">
-    <div class="sec-eyebrow"><div class="sec-line" style="background:var(--red)"></div><div class="sec-label" style="color:var(--red)">THREAT WARNING</div></div>
-    <h2 class="sec-title">こんな<em style="color:var(--red)">訪問業者</em>に<br>心当たりはありませんか？</h2>
+    <div class="sec-eyebrow"><div class="sec-line" style="background:var(--red)"></div><div class="sec-label" style="color:var(--red)">CAUTION</div></div>
+    <h2 class="sec-title">こんな<em style="color:var(--red)">訪問工事業者</em>に<br>心当たりはありませんか？</h2>
     <div class="rule" style="background:var(--red)"></div>
-    <p style="font-size:15px;color:var(--lgray);max-width:600px;line-height:2">突然の訪問販売で高額工事を契約させられる——特定の業種で横行する悪質な手口。相場の<strong style="color:var(--red)">3〜10倍</strong>の金額で請求されるケースが後を絶ちません。</p>
+    <p style="font-size:15px;color:var(--lgray);max-width:600px;line-height:2">突然の訪問販売で、相場より大幅に高額な工事を契約してしまうケースが一部の業者で報告されています。適正価格を知らないまま契約することが、トラブルの主な原因です。</p>
     <div class="warn-grid">
-      <div class="warn-card"><div class="warn-tag">DANGER ZONE</div><h3>床下・シロアリ駆除</h3><p>「床下が腐っています」「シロアリが大量発生」と煽り、緊急性を装って高額契約を迫る。実際には問題がないケースも多数。</p><div class="warn-badge">相場の3〜5倍が横行</div></div>
-      <div class="warn-card"><div class="warn-tag">DANGER ZONE</div><h3>屋根の修理・点検</h3><p>「近くで工事していたら屋根の瓦がズレているのが見えた」と訪問。自分で瓦をずらして証拠写真を撮るケースも報告されている。</p><div class="warn-badge">相場の5〜10倍が横行</div></div>
-      <div class="warn-card"><div class="warn-tag">DANGER ZONE</div><h3>外壁・屋根の塗り替え</h3><p>「外壁にひびが入っている」と指摘し、今すぐ工事が必要と煽る。実際には数年は問題ない状態でも高額契約を迫る。</p><div class="warn-badge">相場の3〜8倍が横行</div></div>
+      <div class="warn-card"><div class="warn-tag">要注意</div><h3>床下・シロアリ駆除</h3><p>「床下が腐っています」「シロアリが発生している」と緊急性を強調し、適正価格を大幅に超える金額での契約を求めるケースが報告されています。</p><div class="warn-badge">適正価格の事前確認が重要</div></div>
+      <div class="warn-card"><div class="warn-tag">要注意</div><h3>屋根の修理・点検</h3><p>「近くで工事をしていたら屋根が気になった」と訪問し、実際には問題のない箇所を指摘して工事契約を勧めるケースが報告されています。</p><div class="warn-badge">複数業者への見積もり比較を推奨</div></div>
+      <div class="warn-card"><div class="warn-tag">要注意</div><h3>外壁・屋根の塗り替え</h3><p>「外壁にひびが入っている」と指摘し、数年は問題ない状態でも緊急性を強調して工事契約を勧めるケースが報告されています。</p><div class="warn-badge">相場の事前確認を推奨</div></div>
     </div>
     <div class="warn-cta">
       <h3>心当たりがあるなら、<em>今すぐ</em>確認してください。</h3>
@@ -398,7 +359,6 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
   </div>
 </section>
 
-<!-- FREE AI DIAGNOSIS -->
 <section class="section reveal" id="diagnosis" style="background:linear-gradient(180deg,var(--bg) 0%,rgba(0,212,255,0.04) 100%);border-top:1px solid var(--border)">
   <div class="container" style="max-width:780px">
     <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">FREE AI DIAGNOSIS</div></div>
@@ -449,7 +409,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
           <div style="font-size:13px;color:var(--gray);margin-top:4px" id="diag-rate-text"></div>
         </div>
         <div style="margin-bottom:20px">
-          <div style="font-size:11px;color:var(--cyan);letter-spacing:2px;margin-bottom:10px">⚠ 過剰請求の可能性がある項目</div>
+          <div style="font-size:11px;color:var(--cyan);letter-spacing:2px;margin-bottom:10px">⚠ 確認が必要な可能性がある項目</div>
           <div id="diag-items" style="display:flex;flex-wrap:wrap;gap:8px"></div>
         </div>
         <div style="background:var(--bg);border-left:3px solid var(--cyan);padding:14px 16px;margin-bottom:8px;font-size:13px;color:var(--lgray);line-height:1.8" id="diag-summary"></div>
@@ -461,8 +421,8 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
             <div style="font-size:12px;color:var(--gray);margin-bottom:8px">上記はAIによる簡易診断です</div>
             <div style="font-size:15px;color:var(--white);line-height:1.8">正確な削減額・具体的な交渉文・<br>業者への対応策を知りたい方は<br><span style="color:var(--gold);font-weight:700">専門家による詳細レポート</span>をどうぞ</div>
           </div>
-          <button onclick="openPayjp(55000,'SVC-01 工事費適正化アドバイザリー（AI診断後）')" style="width:100%;background:var(--gold);color:#040A12;font-weight:900;font-size:16px;padding:18px;border:none;cursor:pointer;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);letter-spacing:.05em;margin-bottom:12px">詳細レポートを申し込む ¥55,000（税込）</button>
-          <div style="font-size:11px;color:var(--gray)">2営業日以内納品　／　提供前キャンセルは全額返金</div>
+          <button onclick="openPayjp(55000,'SVC-01 建設費適正化診断レポート（AI診断後）')" style="width:100%;background:var(--gold);color:#040A12;font-weight:900;font-size:16px;padding:18px;border:none;cursor:pointer;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);letter-spacing:.05em;margin-bottom:12px">詳細レポートを申し込む ¥55,000（税込）</button>
+          <div style="font-size:11px;color:var(--gray)">2営業日以内にPDF納品　／　レポート送信前キャンセルは全額返金</div>
         </div>
       </div>
       <div id="diag-error" style="display:none;color:#ff6b6b;font-size:13px;text-align:center;margin-top:12px"></div>
@@ -470,7 +430,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px">
       <div style="text-align:center;padding:16px;border:1px solid var(--border)"><div style="margin-bottom:6px;display:flex;justify-content:center"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="16,2 28,8 28,18 16,30 4,18 4,8" fill="none" stroke="#00f5ff" stroke-width="1.2"/><polygon points="16,7 23,11 23,18 16,25 9,18 9,11" fill="none" stroke="#00f5ff" stroke-width="0.8" opacity="0.5"/><line x1="16" y1="2" x2="16" y2="7" stroke="#00f5ff" stroke-width="0.8"/><line x1="28" y1="8" x2="23" y2="11" stroke="#00f5ff" stroke-width="0.8"/><line x1="28" y1="18" x2="23" y2="18" stroke="#00f5ff" stroke-width="0.8"/><line x1="4" y1="8" x2="9" y2="11" stroke="#00f5ff" stroke-width="0.8"/><line x1="4" y1="18" x2="9" y2="18" stroke="#00f5ff" stroke-width="0.8"/><circle cx="16" cy="16" r="3" fill="#00f5ff" opacity="0.9"/><circle cx="16" cy="16" r="5" fill="none" stroke="#00f5ff" stroke-width="0.6" opacity="0.4"/></svg></div><div style="font-size:11px;color:var(--gray);line-height:1.6">見積書は<br>診断後すぐ削除</div></div>
       <div style="text-align:center;padding:16px;border:1px solid var(--border)"><div style="margin-bottom:6px;display:flex;justify-content:center"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="16,1 19,13 31,13 21,20 25,31 16,24 7,31 11,20 1,13 13,13" fill="none" stroke="#00f5ff" stroke-width="1.2"/><polygon points="16,7 18,14 25,14 19,18 21,25 16,21 11,25 13,18 7,14 14,14" fill="#00f5ff" opacity="0.15"/><circle cx="16" cy="16" r="2" fill="#00f5ff"/></svg></div><div style="font-size:11px;color:var(--gray);line-height:1.6">30秒で<br>即時診断</div></div>
-      <div style="text-align:center;padding:16px;border:1px solid var(--border)"><div style="margin-bottom:6px;display:flex;justify-content:center"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="13" stroke="#00f5ff" stroke-width="1.2"/><circle cx="16" cy="16" r="9" stroke="#00f5ff" stroke-width="0.6" opacity="0.4"/><polyline points="9,16 14,21 23,11" stroke="#00f5ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="16" x2="1" y2="16" stroke="#00f5ff" stroke-width="1" opacity="0.6"/><line x1="31" y1="16" x2="29" y2="16" stroke="#00f5ff" stroke-width="1" opacity="0.6"/><line x1="16" y1="3" x2="16" y2="1" stroke="#00f5ff" stroke-width="1" opacity="0.6"/><line x1="16" y1="31" x2="16" y2="29" stroke="#00f5ff" stroke-width="1" opacity="0.6"/></svg></div><div style="font-size:11px;color:var(--gray);line-height:1.6">完全無料<br>申込不要</div></div>
+      <div style="text-align:center;padding:16px;border:1px solid var(--border)"><div style="margin-bottom:6px;display:flex;justify-content:center"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="13" stroke="#00f5ff" stroke-width="1.2"/><circle cx="16" cy="16" r="9" stroke="#00f5ff" stroke-width="0.6" opacity="0.4"/><polyline points="9,16 14,21 23,11" stroke="#00f5ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div style="font-size:11px;color:var(--gray);line-height:1.6">完全無料<br>申込不要</div></div>
     </div>
     <div style="margin-top:32px;text-align:center;padding:28px;background:rgba(0,195,0,0.06);border:1px solid rgba(0,195,0,0.25)">
       <div style="font-size:13px;color:var(--gray);margin-bottom:16px">スマホから直接相談したい方はLINEへ</div>
@@ -483,7 +443,6 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
   </div>
 </section>
 
-<!-- SERVICES -->
 <section class="section reveal" id="services">
   <div class="container">
     <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">SERVICE CATALOG</div></div>
@@ -492,45 +451,44 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
     <div class="svc3">
       <div class="sc featured">
         <div class="sc-tag">SVC-01</div>
-        <h3>建設費診断<br>（見積書査定）</h3>
-        <p class="sc-desc">業者から届いた見積書をメール送信するだけ。どの項目が相場より高いか、いくらまで下がるべきかを具体的な数字と交渉文言でお返しします。</p>
+        <h3>建設費診断<br>（見積書査定レポート）</h3>
+        <p class="sc-desc">見積書をメール送信するだけ。相場より高い項目・適正価格・交渉目標値・交渉文言サンプルを<strong>PDFレポート</strong>でお届けします。</p>
         <div class="sc-price-wrap">
           <div class="sc-price">¥55,000</div>
           <div class="sc-price-note">税込　／　工事費500万円以下が対象</div>
-          <div class="sc-delivery"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>2営業日以内納品</div>
+          <div class="sc-delivery"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>2営業日以内PDF納品</div>
           <ul class="sc-list"><li>相場より高い項目を金額で明示</li><li>交渉目標値の提示</li><li>業者への交渉文言サンプル付き</li><li>住宅・店舗・小規模工場・農業施設</li></ul>
         </div>
-        <button class="sc-btn" onclick="openPayjp(55000,'SVC-01 工事費適正化アドバイザリー')">APPLY →</button>
+        <button class="sc-btn" onclick="openPayjp(55000,'SVC-01 建設費適正化診断レポート')">APPLY →</button>
       </div>
       <div class="sc">
         <div class="sc-tag">SVC-02</div>
-        <h3>変更工事査定<br>（追加費用の妥当性確認）</h3>
-        <p class="sc-desc">工事中に業者から「追加工事が必要です」と言われた内容を査定します。正当な費用か過剰請求かを判定し、対応策をお伝えします。</p>
+        <h3>変更工事査定<br>（追加費用確認レポート）</h3>
+        <p class="sc-desc">追加費用請求の妥当性を分析します。正当な費用か否かの判定と、施主が取るべき対応策を<strong>PDFレポート</strong>にまとめてお届けします。</p>
         <div class="sc-price-wrap">
           <div class="sc-price">¥33,000</div>
           <div class="sc-price-note">税込　／　追加費用50万円以下が対象</div>
-          <div class="sc-delivery"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>24時間以内納品</div>
-          <ul class="sc-list"><li>追加費用の妥当性判定</li><li>拒否・交渉すべき項目の特定</li><li>施主が取るべき具体的行動を提示</li><li>最速24時間以内に返答</li></ul>
+          <div class="sc-delivery"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>24時間以内PDF納品</div>
+          <ul class="sc-list"><li>追加費用の妥当性判定</li><li>拒否・交渉すべき項目の特定</li><li>施主が取るべき具体的行動を提示</li><li>最速24時間以内にPDF納品</li></ul>
         </div>
-        <button class="sc-btn" onclick="openPayjp(33000,'SVC-02 変更工事コンサルティング')">APPLY →</button>
+        <button class="sc-btn" onclick="openPayjp(33000,'SVC-02 変更工事費用確認レポート')">APPLY →</button>
       </div>
       <div class="sc">
         <div class="sc-tag">SVC-03</div>
-        <h3>完成検査<br>立会いサービス</h3>
+        <h3>完成検査<br>立会い・報告書作成</h3>
         <p class="sc-desc">竣工・引き渡し時の現場に専門家が立ち会います。施工不良・手抜き・図面との相違を現場でチェックし、是正要求書をその場で作成します。</p>
         <div class="sc-price-wrap">
           <div class="sc-price">¥88,000</div>
           <div class="sc-price-note">税込＋交通費実費　／　住宅・小規模店舗</div>
-          <div class="sc-delivery"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>当日完了・報告書即日納品</div>
-          <ul class="sc-list"><li>竣工検査への専門家立会い</li><li>施工不良・手抜きの現場確認</li><li>是正要求書の作成・提供</li><li>全国対応（交通費実費のみ）</li></ul>
+          <div class="sc-delivery"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>当日完了・報告書即日PDF納品</div>
+          <ul class="sc-list"><li>竣工検査への専門家立会い</li><li>施工不良・手抜きの現場確認</li><li>是正要求書の作成・PDF提供</li><li>全国対応（交通費実費のみ）</li></ul>
         </div>
-        <button class="sc-btn" onclick="openPayjp(88000,'SVC-03 現場立会いサービス')">APPLY →</button>
+        <button class="sc-btn" onclick="openPayjp(88000,'SVC-03 完成検査立会い・報告書作成サービス')">APPLY →</button>
       </div>
     </div>
   </div>
 </section>
 
-<!-- KIRA SECTION -->
 <section class="kira-section bg2 reveal">
   <div class="container">
     <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">AI STAFF</div></div>
@@ -542,10 +500,10 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
           <div class="kira-big-avatar">K</div>
           <div class="kira-profile-name">KIRA</div>
           <div class="kira-profile-title">AI SALES SPECIALIST // HORIZON SHIELD</div>
-          <p class="kira-profile-desc">HORIZON SHIELDの専属AI営業スペシャリスト。建設費診断・悪徳業者対策・見積書の疑問に24時間365日対応します。</p>
+          <p class="kira-profile-desc">HORIZON SHIELDの専属AI営業スペシャリスト。建設費診断・見積書の疑問・追加工事への対応に24時間365日対応します。</p>
           <ul class="kira-specs">
             <li>建設費・見積書の適正価格を即判断</li>
-            <li>悪徳業者の手口と対策を詳しく説明</li>
+            <li>訪問工事業者の手口と対策を詳しく説明</li>
             <li>最適なサービスをご案内・申し込みへ誘導</li>
             <li>24時間365日 / 応答速度3秒以内</li>
           </ul>
@@ -560,7 +518,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
           </div>
         </div>
         <div class="kira-chat-messages" id="demo-msgs">
-          <div class="demo-msg ai"><div class="demo-label">KIRA</div><div class="demo-bubble">こんにちは。HORIZON SHIELDのKIRAです。<br>見積書の疑問・悪徳業者への対策・サービスのご案内まで、何でもお聞きします。</div></div>
+          <div class="demo-msg ai"><div class="demo-label">KIRA</div><div class="demo-bubble">こんにちは。HORIZON SHIELDのKIRAです。<br>見積書の疑問・訪問工事業者への対策・サービスのご案内まで、何でもお聞きします。</div></div>
         </div>
         <div class="kira-chat-input">
           <input type="text" class="kira-chat-input-field" id="demo-input" placeholder="質問を入力してください..." onkeydown="if(event.key==='Enter')demoSend()">
@@ -574,29 +532,26 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
   </div>
 </section>
 
-<!-- CRED -->
 <section class="section reveal">
   <div class="container">
     <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">CREDENTIALS</div></div>
     <h2 class="sec-title">なぜ私たちが<em>査定できるのか</em></h2>
     <div class="rule"></div>
     <div class="cred-grid">
-      <div class="cred-card reveal d1"><div class="cred-num">EXP-01</div><h3>大工出身の現場感覚</h3><p>実際に手を動かしてきた経験から、見積書に隠れたマージンや不当な項目を即座に見抜きます。</p></div>
+      <div class="cred-card reveal d1"><div class="cred-num">EXP-01</div><h3>大工出身の現場感覚</h3><p>実際に手を動かしてきた経験から、見積書に含まれる各費目の実態を熟知しています。</p></div>
       <div class="cred-card reveal d2"><div class="cred-num">EXP-02</div><h3>AI × データ分析</h3><p>最新のAI技術と建設コストデータを組み合わせ、感覚ではなく数字で適正価格を算出します。</p></div>
       <div class="cred-card reveal d3"><div class="cred-num">EXP-03</div><h3>CM専門家の中立性</h3><p>発注者側の代理人として完全中立の立場で査定。業者との利益相反が一切ありません。</p></div>
     </div>
   </div>
 </section>
 
-<!-- QUOTE -->
 <div class="quote-wrap reveal">
   <div class="quote-deco">"</div>
   <div class="q-line"></div>
-  <blockquote>ゼネコンの見積書には、純工事費の<em>15〜20%</em>がマージンとして上乗せされています。<br>それがどこに隠れているか、私たちは全て把握しています。</blockquote>
-  <div class="q-by">大賀 俊勝　／　The HORIZONs株式会社　代表取締役<br>大工　／　CMR　／　AIエンジニア</div>
+  <blockquote>工事費の見積書には、発注者側が知るべき情報が含まれています。<br>その<em>情報格差をなくす</em>ことが、私たちのミッションです。</blockquote>
+  <div class="q-by">大賀 俊勝　／　The HORIZ音s株式会社　代表取締役<br>大工　／　CMR　／　AIエンジニア</div>
 </div>
 
-<!-- FOUNDER PROFILE -->
 <section class="section reveal" id="founder" style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
   <div class="container" style="max-width:860px">
     <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">FOUNDER</div></div>
@@ -612,14 +567,14 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
             <span style="color:var(--cyan)">──</span> 建設実務経験 30年<br>
             <span style="color:var(--cyan)">──</span> 大工・現場監督・CMR<br>
             <span style="color:var(--cyan)">──</span> AIエンジニア<br>
-            <span style="color:var(--cyan)">──</span> The HORIZONs㈱ 代表<br>
+            <span style="color:var(--cyan)">──</span> The HORIZ音s㈱ 代表<br>
             <span style="color:var(--cyan)">──</span> 神奈川県平塚市拠点
           </div>
         </div>
       </div>
       <div>
         <p style="font-size:15px;line-height:2;color:var(--lgray);margin-bottom:24px">私は30年間、建設の現場にいました。大工として、監督として、そしてコンサルタントとして。</p>
-        <p style="font-size:15px;line-height:2;color:var(--lgray);margin-bottom:24px">その間に何百枚もの見積書を見てきました。そのほとんどに、<span style="color:var(--white);font-weight:700">施主が知るべき「水増し」が含まれていた</span>。</p>
+        <p style="font-size:15px;line-height:2;color:var(--lgray);margin-bottom:24px">その間に何百枚もの見積書を見てきました。そのほとんどに、<span style="color:var(--white);font-weight:700">施主が知るべき情報が含まれていた</span>。</p>
         <p style="font-size:15px;line-height:2;color:var(--lgray);margin-bottom:24px">業者は悪人ではありません。ただ、<span style="color:var(--white);font-weight:700">情報の非対称性</span>がある。知っている側と知らない側では、交渉の結果が全く違う。</p>
         <p style="font-size:15px;line-height:2;color:var(--lgray);margin-bottom:32px">このサービスは、その情報格差をなくすために作りました。あなたが<span style="color:var(--cyan);font-weight:700">適正な価格で工事を完成させる</span>ための、専門家のセカンドオピニオンです。</p>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
@@ -632,7 +587,6 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
   </div>
 </section>
 
-<!-- FLOW -->
 <section class="section reveal" id="flow">
   <div class="container">
     <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">PROCESS</div></div>
@@ -641,13 +595,12 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
     <div class="flow-grid">
       <div class="flow-line"></div>
       <div class="fi"><div class="fi-num"><span>01</span></div><h3>無料診断を試す</h3><p>まず<a href="/shindan.html">0円簡易診断</a>で見積書の妥当性を確認。気になる場合はそのまま有料サービスへ。</p></div>
-      <div class="fi"><div class="fi-num"><span>02</span></div><h3>資料を送付</h3><p>見積書・書類をメールで送付。<br><a href="/cdn-cgi/l/email-protection#c9aaa6a7bda8aabd89bda1ace4a1a6bba0b3a6a7bae4a0a7a7a6bfa8bda0a6a7e7aaa6a4"><span class="__cf_email__" data-cfemail="85e6eaebf1e4e6f1c5f1ede0a8edeaf7ecffeaebf6a8ecebebeaf3e4f1eceaebabe6eae8">[email&#160;protected]</span></a></p></div>
-      <div class="fi"><div class="fi-num"><span>03</span></div><h3>レポート納品</h3><p>各サービスの納期内にPDFレポートをお届けします。</p></div>
+      <div class="fi"><div class="fi-num"><span>02</span></div><h3>資料を送付</h3><p>見積書・書類をメールで送付。<br><a href="/cdn-cgi/l/email-protection#6b0804051f0a081f2b1f030e46030419021104051846020505041d0a1f02040545080406"><span class="__cf_email__" data-cfemail="74171b1a0015170034001c11591c1b061d0e1b1a07591d1a1a1b0215001d1b1a5a171b19">[email&#160;protected]</span></a></p></div>
+      <div class="fi"><div class="fi-num"><span>03</span></div><h3>PDFレポート納品</h3><p>各サービスの納期内にPDFレポートをご指定のメールアドレスへお届けします。</p></div>
     </div>
   </div>
 </section>
 
-<!-- FAQ -->
 <section class="section bg2 reveal">
   <div class="container-sm">
     <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">FAQ</div></div>
@@ -663,24 +616,22 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
   </div>
 </section>
 
-<!-- BLOG -->
 <section class="section reveal" style="background:var(--bg2);border-top:1px solid var(--border)">
   <div class="container" style="max-width:780px;text-align:center">
     <div class="sec-eyebrow" style="justify-content:center"><div class="sec-line"></div><div class="sec-label">KNOWLEDGE BASE</div><div class="sec-line"></div></div>
     <h2 class="sec-title">建設費・リフォームの<em>専門知識</em>を<br>無料で公開中</h2>
-    <p style="color:var(--lgray);font-size:15px;margin:16px auto 36px;max-width:500px;line-height:1.9">悪徳業者の手口・見積書の読み方・適正価格の基準など、<br>建設30年の専門家が毎日更新しています。</p>
+    <p style="color:var(--lgray);font-size:15px;margin:16px auto 36px;max-width:500px;line-height:1.9">見積書の読み方・適正価格の基準など、<br>建設30年の専門家が毎日更新しています。</p>
     <a href="/blog/" class="btn-primary" style="font-size:15px;padding:16px 48px">ブログを読む →</a>
   </div>
 </section>
 
-<!-- TOOLS NAV -->
 <section class="reveal" style="padding:60px 24px;background:var(--bg3);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
   <div style="max-width:980px;margin:0 auto">
     <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:5px;color:var(--cyan);text-align:center;margin-bottom:28px">FREE TOOLS</div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border)">
       <a href="/check/" style="background:var(--bg2);padding:22px 18px;text-decoration:none;display:block;transition:background .2s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='var(--bg2)'">
         <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--red);margin-bottom:8px">FREE TOOL</div>
-        <div style="font-size:15px;font-weight:700;color:var(--white);margin-bottom:6px">悪徳業者<br>チェッカー</div>
+        <div style="font-size:15px;font-weight:700;color:var(--white);margin-bottom:6px">業者<br>チェッカー</div>
         <div style="font-size:11px;color:var(--gray);line-height:1.7;margin-bottom:10px">業者名を入力するだけ。AIが10秒でリスク診断。</div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--red)">調べる →</div>
       </a>
@@ -706,14 +657,13 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
   </div>
 </section>
 
-<!-- CTA -->
 <section class="cta-section reveal">
   <div class="cta-glow"></div>
   <div class="container">
     <h2>損をする前に、<br>プロの目で確認する。</h2>
     <p>¥33,000〜の費用が、数十万〜数百万円の損失を防ぐことがあります。</p>
     <a href="/shindan.html" class="btn-primary red" style="font-size:15px;padding:18px 52px;display:inline-block;text-decoration:none">まず無料で診断する →</a>
-    <p class="cta-note"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b4d7dbdac0d5d7c0f4c0dcd199dcdbc6ddcedbdac799dddadadbc2d5c0dddbda9ad7dbd9">[email&#160;protected]</a>　／　全国対応</p>
+    <p class="cta-note"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="04676b6a7065677044706c61296c6b766d7e6b6a77296d6a6a6b7265706d6b6a2a676b69">[email&#160;protected]</a>　／　全国対応</p>
     <div class="cta-kira">
       <button class="cta-kira-btn" onclick="openKira()">
         <span style="width:6px;height:6px;background:var(--cyan);border-radius:50%;animation:blink 2s infinite"></span>
@@ -723,22 +673,21 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
   </div>
 </section>
 
-<!-- PRIVACY / TOS / TOKUSHO -->
 <section id="privacy" style="padding:64px 24px;border-top:1px solid var(--border);position:relative;z-index:1;background:rgba(0,0,0,0.3)">
   <div style="max-width:860px;margin:0 auto">
     <h2 style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--cyan);margin-bottom:32px">プライバシーポリシー</h2>
     <div style="font-size:13px;line-height:2.2;color:rgba(255,255,255,0.75)">
-      <p>The HORIZONs株式会社（以下「当社」）は、お客様の個人情報を以下の方針に従い適切に取り扱います。</p>
+      <p>The HORIZ音s株式会社（以下「当社」）は、お客様の個人情報を以下の方針に従い適切に取り扱います。</p>
       <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">取得する情報</p>
-      <p>氏名、メールアドレス、電話番号、工事に関する相談内容</p>
+      <p>氏名、メールアドレス、工事に関する相談内容</p>
       <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">利用目的</p>
-      <p>・サービスの提供およびレポート・報告書の納品<br>・お問い合わせへの対応<br>・サービス改善のための分析</p>
+      <p>・PDFレポートの作成および納品<br>・お問い合わせへの対応<br>・サービス改善のための分析</p>
       <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">第三者提供</p>
       <p>法令に基づく場合を除き、お客様の同意なく第三者に提供しません。</p>
       <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">個人情報の管理</p>
       <p>適切なセキュリティ対策を講じ、個人情報の漏洩・紛失・改ざんを防止します。</p>
       <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">お問い合わせ</p>
-      <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2e4d41405a4f4d5a6e5a464b0346415c475441405d0347404041584f5a474140004d4143">[email&#160;protected]</a><br>The HORIZONs株式会社　代表　大賀 俊勝</p>
+      <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="61020e0f15000215211509044c090e13081b0e0f124c080f0f0e170015080e0f4f020e0c">[email&#160;protected]</a><br>The HORIZ音s株式会社　代表取締役　大賀 俊勝<br>〒254-0018 神奈川県平塚市東真土1-1-47 GH湘南2</p>
     </div>
   </div>
 </section>
@@ -748,13 +697,15 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
     <h2 style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--cyan);margin-bottom:32px">利用規約</h2>
     <div style="font-size:13px;line-height:2.2;color:rgba(255,255,255,0.75)">
       <p style="color:var(--cyan);font-size:12px;letter-spacing:2px">サービスの内容</p>
-      <p>本サービスは建設・リフォーム工事費に関するコンサルティングサービスです。工事の請負・仲介は行いません。</p>
+      <p>本サービスは建設・リフォーム工事費に関するPDFレポートの作成・納品サービスです。工事の請負・仲介は行いません。</p>
+      <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">成果物</p>
+      <p>本サービスの成果物は、ご指定のメールアドレスへ送信するPDF形式のレポートです。レポート送信をもってサービス提供完了とします。</p>
       <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">免責事項</p>
       <p>当社のレポートはあくまで専門家の意見であり、最終的な判断はお客様自身が行うものとします。</p>
       <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">キャンセル・返金</p>
-      <p>サービス提供前のキャンセルは全額返金します。返金はご連絡いただいた日から7営業日以内に処理いたします。</p>
+      <p>PDFレポート送信前のキャンセルは全額返金します。返金はご連絡いただいた日から7営業日以内に処理いたします。レポート送信完了後のキャンセルはお受けできません。</p>
       <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">準拠法・管轄</p>
-      <p>本規約は日本法に準拠し、東京地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
+      <p>本規約は日本法に準拠し、横浜地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
     </div>
   </div>
 </section>
@@ -764,13 +715,17 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
     <h2 style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--cyan);margin-bottom:32px">特定商取引法に基づく表記</h2>
     <table style="width:100%;border-collapse:collapse;font-size:13px;line-height:2">
       <tbody>
-        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);width:200px;vertical-align:top">販売事業者名</td><td style="padding:14px 0;color:var(--white)">The HORIZONs株式会社</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);width:200px;vertical-align:top">販売事業者名</td><td style="padding:14px 0;color:var(--white)">The HORIZ音s株式会社</td></tr>
         <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">運営事業責任者</td><td style="padding:14px 0;color:var(--white)">大賀 俊勝</td></tr>
-        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">所在地</td><td style="padding:14px 0;color:var(--white)">東京都港区南青山2-2-15 ウィン青山942</td></tr>
-        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">メールアドレス</td><td style="padding:14px 0;color:var(--white)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3f5c50514b5e5c4b7f4b575a1257504d564550514c1256515150495e4b565051115c5052">[email&#160;protected]</a></td></tr>
-        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">販売価格</td><td style="padding:14px 0;color:var(--white)">工事費適正化アドバイザリー：¥55,000（税込）<br>変更工事コンサルティング：¥33,000（税込）<br>現場立会いサービス：¥88,000（税込）＋交通費実費</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">所在地</td><td style="padding:14px 0;color:var(--white)">〒254-0018 神奈川県平塚市東真土1-1-47 GH湘南2（圏央Branch・建設部）</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">電話番号</td><td style="padding:14px 0;color:var(--white)">お問い合わせはメールまたはLINEにて承ります。電話番号は請求があり次第、遅滞なく開示いたします。</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">メールアドレス</td><td style="padding:14px 0;color:var(--white)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="beddd1d0cadfddcafecad6db93d6d1ccd7c4d1d0cd93d7d0d0d1c8dfcad7d1d090ddd1d3">[email&#160;protected]</a></td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">役務の内容</td><td style="padding:14px 0;color:var(--white)">建設・リフォーム工事費用の適正性を分析したPDFレポートの作成および電子メールによる納品</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">納品方法</td><td style="padding:14px 0;color:var(--white)">PDFファイルをご指定のメールアドレスへ送信</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">役務の提供時期</td><td style="padding:14px 0;color:var(--white)">入金確認後：建設費診断レポートは2営業日以内・変更工事査定レポートは24時間以内・完成検査立会いは日程調整の上実施</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">販売価格</td><td style="padding:14px 0;color:var(--white)">建設費適正化診断レポート：¥55,000（税込）<br>変更工事費用確認レポート：¥33,000（税込）<br>完成検査立会い・報告書作成：¥88,000（税込）＋交通費実費</td></tr>
         <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">お支払い方法</td><td style="padding:14px 0;color:var(--white)">銀行振込（静岡銀行 平塚支店 普通預金 0479810 ザホライズンズカブシキガイシャ）<br><span style="font-size:12px;color:var(--gray)">※ クレジットカード決済は準備中です</span></td></tr>
-        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">返品・キャンセル</td><td style="padding:14px 0;color:var(--white)">サービス提供前のキャンセルは全額返金。提供完了後はお受けできません。</td></tr>
+        <tr><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">キャンセル・返金</td><td style="padding:14px 0;color:var(--white)">PDFレポート送信前のキャンセルは全額返金（7営業日以内に振込）。レポート送信完了後のキャンセルはお受けできません。</td></tr>
       </tbody>
     </table>
   </div>
@@ -779,12 +734,11 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
 <footer>
   <div class="footer-inner">
     <div><div class="footer-logo">HORIZON <span>SHIELD</span></div><div class="footer-tagline">建設業界のセカンドオピニオン専門家</div></div>
-    <div class="footer-info">The HORIZONs株式会社<br>東京都港区南青山2-2-15 ウィン青山942<br>代表取締役　大賀 俊勝<br><a href="/cdn-cgi/l/email-protection#bbd8d4d5cfdad8cffbcfd3de96d3d4c9d2c1d4d5c896d2d5d5d4cddacfd2d4d595d8d4d6"><span class="__cf_email__" data-cfemail="bcdfd3d2c8dddfc8fcc8d4d991d4d3ced5c6d3d2cf91d5d2d2d3caddc8d5d3d292dfd3d1">[email&#160;protected]</span></a></div>
+    <div class="footer-info">The HORIZ音s株式会社<br>〒254-0018 神奈川県平塚市東真土1-1-47 GH湘南2<br>代表取締役　大賀 俊勝<br><a href="/cdn-cgi/l/email-protection#c4a7abaab0a5a7b084b0aca1e9acabb6adbeabaab7e9adaaaaabb2a5b0adabaaeaa7aba9"><span class="__cf_email__" data-cfemail="c7a4a8a9b3a6a4b387b3afa2eaafa8b5aebda8a9b4eaaea9a9a8b1a6b3aea8a9e9a4a8aa">[email&#160;protected]</span></a></div>
   </div>
-  <div class="footer-copy"><span>© 2026 THE HORIZONs Inc. All Rights Reserved.</span><span>KIRA v1.0 // POWERED BY CLAUDE</span></div>
+  <div class="footer-copy"><span>© 2026 THE HORIZ音s Inc. All Rights Reserved.</span><span>KIRA v1.0 // POWERED BY CLAUDE</span></div>
 </footer>
 
-<!-- KIRA FAB -->
 <div class="kira-fab" onclick="openKira()">
   <div class="kira-fab-label">KIRAに相談</div>
   <div style="position:relative">
@@ -793,7 +747,6 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
   </div>
 </div>
 
-<!-- KIRA MODAL -->
 <div class="kira-modal-overlay" id="kira-overlay" onclick="closeKiraOutside(event)">
   <div class="kira-modal" id="kira-modal">
     <div class="kira-modal-header">
@@ -905,18 +858,17 @@ function closeKiraOutside(e){if(e.target===document.getElementById('kira-overlay
 var KIRA_SYSTEM=`あなたはHORIZON SHIELDの専属AI営業スペシャリスト「KIRA（きら）」です。
 【絶対ルール】必ず返答。3〜5行以内。毎回URLを入れる。
 【サービス】
-・建設費診断 ¥55,000（見積書査定・2営業日）
-・変更工事査定 ¥33,000（追加費用確認・24時間）
-・完成検査立会い ¥88,000+交通費
+・建設費診断レポート ¥55,000（見積書査定・2営業日PDF納品）
+・変更工事費用確認レポート ¥33,000（追加費用確認・24時間PDF納品）
+・完成検査立会い・報告書 ¥88,000+交通費
 https://shield.the-horizons-innovation.com
-床下・シロアリ→相場の3〜5倍が横行
-屋根・外壁→相場の5〜10倍も
-見積もり高い→直感は正しい、写真を送って30秒で診断`;
+訪問工事業者による高額請求トラブルが報告されています。
+見積もりが適正かどうか、写真を送って30秒で診断`;
 
 var kiraHistory=[];
 function kiraInit(){
   kiraAddMsg('ai','こんにちは。HORIZON SHIELDのKIRAです。<br><strong style="color:var(--gold2)">大工出身のCM専門家</strong>が、発注者の側に立って見積書を査定します。<br>何でもお聞きください。',true);
-  kiraSetQR(['見積書が高い気がする','シロアリ業者に来られた','追加工事費が妥当か確認したい','サービスと料金を教えて']);
+  kiraSetQR(['見積書が高い気がする','訪問業者が来た','追加工事費が妥当か確認したい','サービスと料金を教えて']);
 }
 function kiraAddMsg(role,html,isHtml=false){
   var msgs=document.getElementById('kira-msgs');
@@ -971,7 +923,7 @@ async function kiraSendMsg(text){
 function kirasSend(){var val=document.getElementById('kira-input').value.trim();if(val)kiraSendMsg(val);}
 
 // ── DEMO CHAT ──
-var DEMO_QA={'シロアリ':'シロアリ駆除の訪問業者は、相場の<strong style="color:var(--gold2)">3〜5倍</strong>の金額で請求するケースが横行しています。\n契約前に見積書を送ってください。<strong style="color:var(--cyan)">¥55,000</strong>で適正価格かどうか即判定します。','見積書':'見積書をメールで送るだけで、<strong style="color:var(--gold2)">2営業日以内</strong>に「高い項目・交渉目標値・交渉文言」の3点セットをお返しします。<br>料金は<strong style="color:var(--cyan)">¥55,000</strong>（工事費500万以下）です。','料金':'3つのサービスがあります：<br>① 建設費診断 <strong style="color:var(--cyan)">¥55,000</strong>（見積書査定・2営業日）<br>② 変更工事査定 <strong style="color:var(--cyan)">¥33,000</strong>（追加費用確認・24時間）<br>③ 完成検査立会い <strong style="color:var(--cyan)">¥88,000</strong>+交通費','追加工事':'工事中に「追加工事が必要」と言われた場合は、<strong style="color:var(--gold2)">変更工事査定</strong>（¥33,000）をご利用ください。<br>24時間以内に妥当性を判定して対応策をお伝えします。'};
+var DEMO_QA={'訪問業者':'訪問工事業者による高額請求のトラブルが報告されています。\n契約前に見積書を送ってください。<strong style="color:var(--gold2)">2営業日以内</strong>に適正価格かどうか判定します。\n料金は<strong style="color:var(--cyan)">¥55,000</strong>です。','見積書':'見積書をメールで送るだけで、<strong style="color:var(--gold2)">2営業日以内</strong>に「高い項目・交渉目標値・交渉文言」の3点セットをPDFでお返しします。<br>料金は<strong style="color:var(--cyan)">¥55,000</strong>（工事費500万以下）です。','料金':'3つのサービスがあります：<br>① 建設費診断レポート <strong style="color:var(--cyan)">¥55,000</strong>（見積書査定・2営業日PDF納品）<br>② 変更工事費用確認レポート <strong style="color:var(--cyan)">¥33,000</strong>（追加費用確認・24時間PDF納品）<br>③ 完成検査立会い・報告書 <strong style="color:var(--cyan)">¥88,000</strong>+交通費','追加工事':'工事中に「追加工事が必要」と言われた場合は、<strong style="color:var(--gold2)">変更工事費用確認レポート</strong>（¥33,000）をご利用ください。<br>24時間以内に妥当性を判定して対応策をPDFでお伝えします。'};
 function demoSend(){
   var input=document.getElementById('demo-input');var val=input.value.trim();if(!val)return;input.value='';
   var msgs=document.getElementById('demo-msgs');
@@ -985,7 +937,6 @@ function demoSend(){
   },600);
 }
 </script>
-
 
 <!-- 銀行振込モーダル -->
 <div id="bank-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;padding:20px">
@@ -1005,28 +956,6 @@ function demoSend(){
       </table>
     </div>
     <div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.3);padding:14px;margin-bottom:20px;font-size:12px;color:#aaa;line-height:1.9">
-      振込確認後、2営業日以内にご連絡いたします。<br>
+      振込確認後、PDFレポートを納期内にお届けします。<br>
       見積書は下記メールへお送りください。<br>
-      <a href="mailto:contact@the-horizons-innovation.com" style="color:var(--cyan)">contact@the-horizons-innovation.com</a>
-    </div>
-    <button onclick="closePayjp()" style="width:100%;background:var(--gold);color:#040A12;font-weight:700;font-size:14px;padding:14px;border:none;cursor:pointer;letter-spacing:.08em;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)">確認しました ✓</button>
-    <div style="font-size:11px;color:#555;text-align:center;margin-top:12px">振込完了後にサービスを開始いたします</div>
-  </div>
-</div>
-
-<script>
-let currentAmount,currentService;
-function openPayjp(amount,service){
-  currentAmount=amount;currentService=service;
-  document.getElementById('pj-title').textContent=service;
-  document.getElementById('pj-price').textContent='¥'+amount.toLocaleString()+'（税込）';
-  document.getElementById('bank-overlay').style.display='flex';
-  document.body.style.overflow='hidden';
-}
-function closePayjp(){
-  document.getElementById('bank-overlay').style.display='none';
-  document.body.style.overflow='';
-}
-</script>
-</body>
-</html>
+      <a href="/cdn-cgi/l/email-protection#c8aba7a6bca9abbc88bca0ade5a0a7baa1b2a7a6bbe5a1a6a6a7bea9bca1a7a6e6aba7a5" style="color:var(--cyan)"><span class="__cf_email__" data-cfemail="2e4d41405a4f4d5a6e5a464b0346415c475441405d0347404041584f5a474140004d4143">[email&#160;protected
