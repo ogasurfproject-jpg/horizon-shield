@@ -1,6 +1,6 @@
 /**
- * HORIZON SHIELD note自動投稿 v5
- * 見出し画像 + ハッシュタグ + 自動投稿 + LINEブロードキャスト
+ * HORIZON SHIELD note自動投稿 v4
+ * 見出し画像 + ハッシュタグ + 自動投稿
  */
 
 const puppeteerExtra = require('puppeteer-extra');
@@ -128,14 +128,6 @@ https://line.me/R/ti/p/@462lurtl」
   return text;
 }
 
-async function sendLine(message) {
-  await fetch('https://api.line.me/v2/bot/message/push', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${LINE_TOKEN}` },
-    body: JSON.stringify({ to: LINE_USER_ID, messages: [{ type: 'text', text: message.slice(0, 5000) }] }),
-  });
-}
-
 async function broadcastToFollowers(theme, noteUrl) {
   const text = `【今日の建設情報】\n\n${theme.title}\n\n業者に負けない知識を、毎日お届けします。\n\n▼ 続きを読む\n${noteUrl}\n\n━━━━━━━━━━\n見積書が気になる方は無料AI診断へ👇\nhttps://shield.the-horizons-innovation.com`;
   try {
@@ -148,6 +140,14 @@ async function broadcastToFollowers(theme, noteUrl) {
   } catch (e) {
     console.log('ブロードキャスト失敗:', e.message);
   }
+}
+
+async function sendLine(message) {
+  await fetch('https://api.line.me/v2/bot/message/push', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${LINE_TOKEN}` },
+    body: JSON.stringify({ to: LINE_USER_ID, messages: [{ type: 'text', text: message.slice(0, 5000) }] }),
+  });
 }
 
 async function clickButtonByText(page, text) {
@@ -184,10 +184,8 @@ async function postToNote(theme, articleText, sessionCookies, imagePath) {
     await new Promise(r => setTimeout(r, 2000));
     console.log('ログイン状態:', page.url());
 
-    // 投稿ボタンクリック
-    const [postBtn] = await page.$x('//a[contains(text(),"投稿") or contains(@href,"/notes/new")]');
-    if (postBtn) { await postBtn.click(); }
-    else { await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2', timeout: 20000 }); }
+    // エディタへ直接遷移
+    await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
     await new Promise(r => setTimeout(r, 5000));
     console.log('エディタURL:', page.url());
 
@@ -280,7 +278,7 @@ async function postToNote(theme, articleText, sessionCookies, imagePath) {
 }
 
 async function main() {
-  console.log('=== HORIZON SHIELD note自動投稿 v5 開始 ===');
+  console.log('=== HORIZON SHIELD note自動投稿 v4 開始 ===');
   try {
     const required = ['NOTE_EMAIL', 'NOTE_PASSWORD', 'ANTHROPIC_API_KEY', 'LINE_CHANNEL_TOKEN', 'LINE_USER_ID'];
     for (const key of required) { if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`); }
