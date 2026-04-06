@@ -288,6 +288,7 @@ async function main() {
     await sendLine(`✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${url}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`);
     await broadcastToFollowers(theme, url);
     console.log('=== 完了 ===');
+    process.exit(0);
   } catch (e) {
     console.error('エラー:', e.message);
     await sendLine(`❌ note自動投稿エラー\n${e.message}`).catch(() => {});
