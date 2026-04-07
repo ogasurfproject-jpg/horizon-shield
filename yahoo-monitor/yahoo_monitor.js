@@ -99,47 +99,55 @@ async function scrapeYahooRealtime(browser, keyword) {
     await page.setViewport({ width: 390, height: 844 });
 
     const url = `https://search.yahoo.co.jp/realtime?p=${encodeURIComponent(keyword)}`;
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+    // JavaScriptが検索結果を描画するまで待つ
+    await new Promise(r => setTimeout(r, 5000));
+
+    // デバッグ用：ページのHTML構造を確認
+    const bodyHTML = await page.evaluate(() => document.body.innerHTML.slice(0, 2000));
+    console.log(`"${keyword}" HTML snippet: ${bodyHTML.slice(0, 500)}`);
 
     // 投稿テキストを取得
     const posts = await page.evaluate(() => {
       const items = [];
-      // Yahoo!リアルタイムの投稿セレクター
+
+      // Yahoo!リアルタイム検索の投稿セレクター（2025年版）
       const selectors = [
-        '[data-testid="tweet"]',
-        '.Tweet_body',
-        '.rt-content',
+        // 新しいYahoo!リアルタイムのセレクター
+        '[class*="Tweet"]',
+        '[class*="tweet"]',
+        '[class*="Post"]',
+        '[class*="post"]',
+        '[class*="Contents__item"]',
+        '[class*="SearchResult"]',
+        '[class*="TimelineItem"]',
+        '[class*="Card"]',
+        // フォールバック
+        'li[class]',
         'article',
-        '.SearchTimelineUnit',
       ];
 
       for (const selector of selectors) {
         const elements = document.querySelectorAll(selector);
-        if (elements.length > 0) {
+        if (elements.length >= 3) {
           elements.forEach(el => {
-            const text = el.innerText || el.textContent || '';
-            const link = el.querySelector('a')?.href || '';
-            if (text.length > 10) {
-              items.push({ text: text.slice(0, 200), link });
+            const text = (el.innerText || el.textContent || '').trim();
+            const linkEl = el.querySelector('a');
+            const link = linkEl?.href || '';
+            if (text.length > 15 && text.length < 400 &&
+                !text.includes('急上昇') && !text.includes('トレンド')) {
+              items.push({ text: text.slice(0, 200), link, selector });
             }
           });
-          break;
+          if (items.length >= 3) break;
         }
-      }
-
-      // フォールバック：ページ内のすべてのテキストブロック
-      if (items.length === 0) {
-        const allText = document.querySelectorAll('p, span, div');
-        allText.forEach(el => {
-          const text = el.innerText || '';
-          if (text.length > 20 && text.length < 300) {
-            items.push({ text, link: '' });
-          }
-        });
       }
 
       return items.slice(0, 10);
     });
+
+    console.log(`"${keyword}" → ${posts.length}件取得 (selector: ${posts[0]?.selector || 'none'})`);
 
     console.log(`"${keyword}" → ${posts.length}件取得`);
     results.push(...posts.map(p => ({ ...p, keyword })));
