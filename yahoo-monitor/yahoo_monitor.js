@@ -112,35 +112,26 @@ async function scrapeYahooRealtime(browser, keyword) {
     const posts = await page.evaluate(() => {
       const items = [];
 
-      // Yahoo!リアルタイム検索の投稿セレクター（2025年版）
+      // Yahoo!リアルタイム検索の投稿セレクター（DOM解析済み）
       const selectors = [
-        // 新しいYahoo!リアルタイムのセレクター
-        '[class*="Tweet"]',
-        '[class*="tweet"]',
-        '[class*="Post"]',
-        '[class*="post"]',
-        '[class*="Contents__item"]',
-        '[class*="SearchResult"]',
-        '[class*="TimelineItem"]',
-        '[class*="Card"]',
-        // フォールバック
-        'li[class]',
-        'article',
+        '[class*="Tweet_bodyWrap"]',
+        '[class*="Tweet_bodyContainer"]',
+        '[class*="Tweet_TweetContainer"]',
+        '[class*="Tweet_body"]',
       ];
 
       for (const selector of selectors) {
         const elements = document.querySelectorAll(selector);
-        if (elements.length >= 3) {
+        if (elements.length >= 1) {
           elements.forEach(el => {
             const text = (el.innerText || el.textContent || '').trim();
-            const linkEl = el.querySelector('a');
+            const linkEl = el.closest('[class*="Tweet_TweetContainer"]')?.querySelector('a[href*="twitter.com"], a[href*="x.com"]');
             const link = linkEl?.href || '';
-            if (text.length > 15 && text.length < 400 &&
-                !text.includes('急上昇') && !text.includes('トレンド')) {
-              items.push({ text: text.slice(0, 200), link, selector });
+            if (text.length > 15 && text.length < 500) {
+              items.push({ text: text.slice(0, 300), link, selector });
             }
           });
-          if (items.length >= 3) break;
+          if (items.length >= 1) break;
         }
       }
 
