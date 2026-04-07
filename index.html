@@ -423,6 +423,24 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
           </div>
           <button onclick="openPayjp(55000,'SVC-01 建設費適正化診断レポート（AI診断後）')" style="width:100%;background:var(--gold);color:#040A12;font-weight:900;font-size:16px;padding:18px;border:none;cursor:pointer;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);letter-spacing:.05em;margin-bottom:12px">詳細レポートを申し込む ¥55,000（税込）</button>
           <div style="font-size:11px;color:var(--gray)">2営業日以内にPDF納品　／　レポート送信前キャンセルは全額返金</div>
+
+          <!-- シェアボタン -->
+          <div style="margin-top:28px;padding-top:24px;border-top:1px solid var(--border)">
+            <div style="font-size:12px;color:var(--gray);text-align:center;margin-bottom:14px;letter-spacing:2px;font-family:'Share Tech Mono',monospace">── 診断結果を友人にシェアする ──</div>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+              <button onclick="shareToX()" style="display:flex;align-items:center;gap:8px;background:#000;color:#fff;border:1px solid #333;font-size:13px;font-weight:700;padding:12px 20px;cursor:pointer;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);transition:opacity .2s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                Xでシェア
+              </button>
+              <button onclick="shareToLine()" style="display:flex;align-items:center;gap:8px;background:#06C755;color:#fff;border:none;font-size:13px;font-weight:700;padding:12px 20px;cursor:pointer;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);transition:opacity .2s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.07 1.59 5.79 4.06 7.5L5 22l4.26-1.42C10.44 20.84 11.21 21 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2z"/></svg>
+                LINEでシェア
+              </button>
+              <button onclick="shareToOC()" style="display:flex;align-items:center;gap:8px;background:transparent;color:var(--cyan);border:1px solid var(--cyan);font-size:13px;font-weight:700;padding:12px 20px;cursor:pointer;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);transition:all .2s" onmouseover="this.style.background='rgba(0,212,255,.08)'" onmouseout="this.style.background='transparent'">
+                📣 無料コミュニティに参加
+              </button>
+            </div>
+          </div>
         </div>
       </div>
       <div id="diag-error" style="display:none;color:#ff6b6b;font-size:13px;text-align:center;margin-top:12px"></div>
@@ -773,7 +791,23 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// ── 診断フォーム ──
+// ── シェア関数 ──
+function shareToX(){
+  const saving = document.getElementById('diag-saving-text').textContent;
+  const text = encodeURIComponent(`見積書を無料AI診断したら${saving}削減できる可能性があると判定されました。建設30年のプロが運営するHORIZON SHIELDで確認→`);
+  const url = encodeURIComponent('https://shield.the-horizons-innovation.com/#diagnosis');
+  window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+}
+function shareToLine(){
+  const saving = document.getElementById('diag-saving-text').textContent;
+  const text = encodeURIComponent(`見積書を無料AI診断したら${saving}削減できる可能性があります！無料で試せます→ https://shield.the-horizons-innovation.com/#diagnosis`);
+  window.open(`https://line.me/R/msg/text/?${text}`, '_blank');
+}
+function shareToOC(){
+  window.open('https://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ', '_blank');
+}
+
+
 let diagFileData=null,diagFileType=null,diagName='',diagEmail='';
 function diagNext1(){
   diagName=document.getElementById('diag-name').value.trim();
