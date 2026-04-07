@@ -1,0 +1,33 @@
+name: Yahoo!リアルタイム監視
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # 30分ごと
+  workflow_dispatch:         # 手動実行も可能
+
+jobs:
+  yahoo-monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Chromiumインストール
+        run: sudo apt-get install -y chromium-browser
+
+      - name: パッケージインストール
+        run: npm install puppeteer-core
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 1
+
+      - name: Yahoo!リアルタイム監視実行
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+        run: node yahoo-monitor/yahoo_monitor.js
