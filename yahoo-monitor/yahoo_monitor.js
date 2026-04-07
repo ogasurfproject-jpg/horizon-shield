@@ -101,12 +101,17 @@ async function scrapeYahooRealtime(browser, keyword) {
     const url = `https://search.yahoo.co.jp/realtime?p=${encodeURIComponent(keyword)}`;
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
-    // JavaScriptが検索結果を描画するまで待つ
-    await new Promise(r => setTimeout(r, 5000));
-
-    // デバッグ用：ページのHTML構造を確認
-    const bodyHTML = await page.evaluate(() => document.body.innerHTML.slice(0, 2000));
-    console.log(`"${keyword}" HTML snippet: ${bodyHTML.slice(0, 500)}`);
+    // Yahoo!リアルタイムのJSレンダリング完了を待つ
+    try {
+      await page.waitForFunction(
+        () => document.querySelector('[class*="Tweet_bodyWrap"]') !== null,
+        { timeout: 15000 }
+      );
+      console.log(`"${keyword}" Tweet要素を検出`);
+    } catch (e) {
+      console.log(`"${keyword}" Tweet要素タイムアウト - 10秒待機`);
+      await new Promise(r => setTimeout(r, 10000));
+    }
 
     // 投稿テキストを取得
     const posts = await page.evaluate(() => {
