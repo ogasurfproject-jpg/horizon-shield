@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>建設費相場DB｜HORIZON SHIELD</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#040A12;color:#EEF2F5;font-family:'游ゴシック','Yu Gothic',sans-serif;min-height:100vh;line-height:1.8}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:60px;display:flex;justify-content:space-between;align-items:center;background:rgba(4,10,18,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,212,255,.15)}
+.nl{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nm{font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:4px;color:#EEF2F5}.nm span{color:#00D4FF}
+.nb{background:#C8960A;color:#040A12;font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 20px;text-decoration:none;letter-spacing:3px;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
+main{padding:100px 24px 80px;max-width:980px;margin:0 auto}
+.eyebrow{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:5px;color:#00D4FF;margin-bottom:12px}
+h1{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(28px,4vw,52px);line-height:1.2;margin-bottom:16px}
+h1 em{font-style:normal;color:#F0C030}
+.sub{font-size:15px;color:#A0BACA;line-height:2;margin-bottom:48px}
+.search-wrap{display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap}
+input[type=text]{flex:1;min-width:200px;background:#070F1A;border:1px solid rgba(0,212,255,.2);color:#EEF2F5;padding:12px 16px;font-size:14px;outline:none;transition:border .2s}
+input[type=text]:focus{border-color:#00D4FF}
+select{background:#070F1A;border:1px solid rgba(0,212,255,.2);color:#EEF2F5;padding:12px 16px;font-size:14px;outline:none;cursor:pointer}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:#00D4FF;border-bottom:1px solid rgba(0,212,255,.2);padding:12px 16px;text-align:left;background:#070F1A}
+td{padding:14px 16px;border-bottom:1px solid rgba(0,212,255,.06);color:#A0BACA;vertical-align:top}
+tr:hover td{background:rgba(0,212,255,.03)}
+.td-name{color:#EEF2F5;font-weight:500}
+.td-price{font-family:'Share Tech Mono',monospace;color:#F0C030}
+.td-risk{font-family:'Share Tech Mono',monospace;font-size:11px}
+.risk-h{color:#FF3040}.risk-m{color:#F0C030}.risk-l{color:#00FF88}
+.tag{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;border:1px solid;padding:2px 8px}
+.note-box{margin-top:40px;font-size:12px;color:#6A8A9A;line-height:2;border-top:1px solid rgba(0,212,255,.08);padding-top:20px}
+.cta-bar{background:#070F1A;border:1px solid rgba(200,150,10,.25);padding:28px 32px;text-align:center;margin-top:40px}
+.cta-bar p{font-size:14px;color:#A0BACA;margin-bottom:16px}
+.cta-btn{display:inline-block;background:#C8960A;color:#040A12;font-weight:900;font-size:14px;padding:14px 40px;text-decoration:none;letter-spacing:.05em;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nl"><div class="nm">HORIZON <span>SHIELD</span></div></a>
+  <a href="/#diagnosis" class="nb">無料診断</a>
+</nav>
+<main>
+  <div class="eyebrow">FREE DATA // PRICE DATABASE</div>
+  <h1>建設費<em>相場DB</em></h1>
+  <p class="sub">大工歴30年のプロが監修。主要工事の適正価格レンジを公開します。見積書に記載された金額と比較してください。</p>
+  <div class="search-wrap">
+    <input type="text" id="search" placeholder="工事名で検索..." oninput="filterTable()">
+    <select onchange="filterTable()" id="cat">
+      <option value="">全カテゴリ</option>
+      <option value="床下">床下</option>
+      <option value="屋根">屋根</option>
+      <option value="外壁">外壁</option>
+      <option value="内装">内装</option>
+      <option value="水回り">水回り</option>
+      <option value="基礎">基礎</option>
+    </select>
+  </div>
+  <div class="table-wrap">
+    <table id="souba-table">
+      <thead><tr><th>工事名</th><th>カテゴリ</th><th>適正価格レンジ</th><th>過剰請求リスク</th><th>備考</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="cta-bar">
+    <p>見積書の金額が上記レンジを大幅に超えている場合、専門家による査定をお勧めします</p>
+    <a href="/#diagnosis" class="cta-btn">見積書を無料AI診断する →</a>
+  </div>
+  <div class="note-box">
+    ※ 価格は2026年時点の関東圏標準を基準としています。地域・仕様・建物規模により異なります。<br>
+    ※ 本データは参考情報です。実際の査定は<a href="/#services" style="color:#00D4FF">有料診断サービス</a>をご利用ください。
+  </div>
+</main>
+<script>
+var data=[
+  {name:'床下換気扇設置',cat:'床下',min:15,max:45,unit:'万円',risk:'高',note:'1台あたり3〜8万が目安。台数の水増しに注意'},
+  {name:'床下防腐・防蟻処理',cat:'床下',min:15,max:40,unit:'万円',risk:'高',note:'施工面積で計算。50万超は要注意'},
+  {name:'床下調湿材施工',cat:'床下',min:10,max:30,unit:'万円',risk:'高',note:'炭・シリカゲル等。過剰な量を請求されるケースあり'},
+  {name:'床下断熱材工事',cat:'床下',min:20,max:60,unit:'万円',risk:'中',note:'材料グレードによる差が大きい'},
+  {name:'屋根葺き替え（コロニアル）',cat:'屋根',min:80,max:180,unit:'万円',risk:'高',note:'30坪の場合。飛び込み業者は2〜3倍を請求するケースあり'},
+  {name:'屋根塗装',cat:'屋根',min:30,max:80,unit:'万円',risk:'高',note:'30坪の場合。足場代別途。100万超は要確認'},
+  {name:'棟板金交換',cat:'屋根',min:8,max:25,unit:'万円',risk:'高',note:'「台風で浮いた」と言われたら要注意'},
+  {name:'雨どい交換',cat:'屋根',min:15,max:40,unit:'万円',risk:'中',note:'全周交換の場合。部分交換は5〜10万'},
+  {name:'外壁塗装（窯業系サイディング）',cat:'外壁',min:80,max:200,unit:'万円',risk:'高',note:'30坪の場合。足場代込み。300万超は過剰'},
+  {name:'外壁張り替え',cat:'外壁',min:150,max:400,unit:'万円',risk:'中',note:'30坪の場合。素材で大きく変動'},
+  {name:'コーキング打ち替え',cat:'外壁',min:15,max:40,unit:'万円',risk:'中',note:'全周交換。「今すぐ必要」は要注意'},
+  {name:'フローリング張り替え（6畳）',cat:'内装',min:8,max:25,unit:'万円',risk:'低',note:'材料グレードで変動。無垢材は高め'},
+  {name:'クロス張り替え（6畳）',cat:'内装',min:3,max:8,unit:'万円',risk:'低',note:'㎡1,000〜2,500円が目安'},
+  {name:'和室→洋室リフォーム（6畳）',cat:'内装',min:30,max:80,unit:'万円',risk:'低',note:'範囲により変動'},
+  {name:'ユニットバス交換',cat:'水回り',min:80,max:150,unit:'万円',risk:'中',note:'1616サイズの場合。工事費込み'},
+  {name:'キッチン交換（システムキッチン）',cat:'水回り',min:100,max:250,unit:'万円',risk:'中',note:'グレードで大きく変動'},
+  {name:'洗面台交換',cat:'水回り',min:15,max:40,unit:'万円',risk:'低',note:'工事費込み'},
+  {name:'トイレ交換（ウォシュレット）',cat:'水回り',min:15,max:35,unit:'万円',risk:'低',note:'工事費込み'},
+  {name:'給水管更新',cat:'水回り',min:30,max:100,unit:'万円',risk:'中',note:'範囲・材料で変動'},
+  {name:'基礎補強・ひび割れ補修',cat:'基礎',min:20,max:80,unit:'万円',risk:'高',note:'「今すぐ必要」の緊急煽りに注意'},
+  {name:'耐震補強工事',cat:'基礎',min:100,max:300,unit:'万円',risk:'中',note:'補助金活用可能なケースあり'},
+];
+
+function renderTable(rows){
+  var tb=document.getElementById('tbody');tb.innerHTML='';
+  rows.forEach(function(d){
+    var rcls=d.risk==='高'?'risk-h':d.risk==='中'?'risk-m':'risk-l';
+    tb.innerHTML+='<tr><td class="td-name">'+d.name+'</td><td><span class="tag" style="color:#00D4FF;border-color:rgba(0,212,255,.3)">'+d.cat+'</span></td><td class="td-price">'+d.min+'〜'+d.max+d.unit+'</td><td class="td-risk '+rcls+'">リスク'+d.risk+'</td><td style="font-size:12px;color:#6A8A9A">'+d.note+'</td></tr>';
+  });
+}
+function filterTable(){
+  var q=document.getElementById('search').value.toLowerCase();
+  var cat=document.getElementById('cat').value;
+  renderTable(data.filter(function(d){return(d.name.includes(q)||d.note.toLowerCase().includes(q))&&(!cat||d.cat===cat);}));
+}
+renderTable(data);
+</script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>施工不良チェック｜HORIZON SHIELD</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#040A12;color:#EEF2F5;font-family:'游ゴシック','Yu Gothic',sans-serif;min-height:100vh;line-height:1.8}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:60px;display:flex;justify-content:space-between;align-items:center;background:rgba(4,10,18,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,212,255,.15)}
+.nl{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nm{font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:4px;color:#EEF2F5}.nm span{color:#00D4FF}
+.nb{background:#C8960A;color:#040A12;font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 20px;text-decoration:none;letter-spacing:3px;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
+main{padding:100px 24px 80px;max-width:780px;margin:0 auto}
+.eyebrow{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:5px;color:#00FF88;margin-bottom:12px}
+h1{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(28px,4vw,52px);line-height:1.2;margin-bottom:16px}
+h1 em{font-style:normal;color:#F0C030}
+.sub{font-size:15px;color:#A0BACA;line-height:2;margin-bottom:48px}
+.card{background:#070F1A;border:1px solid rgba(0,212,255,.15);padding:36px 32px;margin-bottom:20px}
+label{font-size:11px;color:#6A8A9A;letter-spacing:2px;display:block;margin-bottom:8px;font-family:'Share Tech Mono',monospace}
+select,textarea{width:100%;background:#040A12;border:1px solid rgba(0,212,255,.2);color:#EEF2F5;padding:12px 16px;font-size:14px;font-family:'游ゴシック','Yu Gothic',sans-serif;outline:none;transition:border .2s;margin-bottom:16px}
+select:focus,textarea:focus{border-color:#00D4FF}
+textarea{resize:vertical;min-height:100px}
+.upload-zone{border:2px dashed rgba(0,212,255,.2);padding:40px 24px;text-align:center;cursor:pointer;transition:border .2s;margin-bottom:16px}
+.upload-zone:hover{border-color:rgba(0,212,255,.5)}
+.upload-zone p{color:#6A8A9A;font-size:14px}
+.upload-zone p span{color:#00D4FF}
+.preview-wrap{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.preview-img{width:100px;height:100px;object-fit:cover;border:1px solid rgba(0,212,255,.2)}
+.btn{background:linear-gradient(135deg,#00FF88,#008844);color:#040A12;font-weight:900;font-size:14px;padding:15px 40px;border:none;cursor:pointer;letter-spacing:.06em;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);width:100%;font-family:'Zen Kaku Gothic New',sans-serif;transition:opacity .2s}
+.btn:hover{opacity:.85}
+#result{display:none;margin-top:24px;border:1px solid rgba(0,212,255,.2);padding:28px;background:rgba(0,212,255,.03)}
+.item-card{background:#040A12;border:1px solid rgba(0,212,255,.1);padding:16px 20px;margin-bottom:12px}
+.item-level{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;margin-bottom:6px}
+.item-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.item-desc{font-size:13px;color:#A0BACA;line-height:1.8}
+.cta-box{margin-top:20px;background:rgba(200,150,10,.06);border:1px solid rgba(200,150,10,.25);padding:24px;text-align:center}
+.cta-box p{font-size:13px;color:#A0BACA;margin-bottom:12px}
+.cta-btn{display:inline-block;background:#C8960A;color:#040A12;font-weight:900;font-size:13px;padding:12px 32px;text-decoration:none;letter-spacing:.05em;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
+.note-box{margin-top:32px;font-size:12px;color:#6A8A9A;line-height:2;border-top:1px solid rgba(0,212,255,.08);padding-top:20px}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nl"><div class="nm">HORIZON <span>SHIELD</span></div></a>
+  <a href="/#diagnosis" class="nb">無料診断</a>
+</nav>
+<main>
+  <div class="eyebrow">FREE CHECK // CONSTRUCTION DEFECT</div>
+  <h1>施工不良<em>チェック</em></h1>
+  <p class="sub">工事箇所の写真と状況を送ってください。AIが施工不良のリスクを判定し、確認すべきポイントをお伝えします。</p>
+  <div class="card">
+    <label>工事の種類</label>
+    <select id="koji-type">
+      <option value="">選択してください</option>
+      <option value="屋根工事">屋根工事</option>
+      <option value="外壁工事">外壁工事</option>
+      <option value="床下工事">床下工事</option>
+      <option value="内装工事">内装工事</option>
+      <option value="水回り工事">水回り工事</option>
+      <option value="基礎工事">基礎工事</option>
+      <option value="その他">その他</option>
+    </select>
+    <label>気になる箇所・状況を説明してください</label>
+    <textarea id="situation" placeholder="例：外壁塗装後にひびが入っている。工事から3ヶ月しか経っていないのに劣化が気になる。"></textarea>
+    <label>写真をアップロード（任意・複数可）</label>
+    <div class="upload-zone" onclick="document.getElementById('photo-input').click()">
+      <p><span>📷 ここをタップして写真を選択</span></p>
+      <p>JPG・PNG・HEIC対応</p>
+      <input id="photo-input" type="file" accept="image/*" multiple style="display:none" onchange="previewPhotos(this)">
+    </div>
+    <div class="preview-wrap" id="preview-wrap"></div>
+    <button class="btn" onclick="checkInspect()">AIで施工不良を診断する →</button>
+  </div>
+  <div id="result"></div>
+  <div class="note-box">
+    ※ 本ツールはAIによる一般的なリスクパターンの分析です。現地確認が必要な場合は専門家への依頼をお勧めします。<br>
+    ※ 現場立会い検査は<a href="/#services" style="color:#00D4FF">完成検査立会いサービス（¥88,000）</a>をご利用ください。
+  </div>
+</main>
+<script>
+var photoData=[];
+function previewPhotos(input){
+  var wrap=document.getElementById('preview-wrap');wrap.innerHTML='';photoData=[];
+  Array.from(input.files).slice(0,4).forEach(function(file){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      photoData.push(e.target.result.split(',')[1]);
+      var img=document.createElement('img');img.src=e.target.result;img.className='preview-img';wrap.appendChild(img);
+    };reader.readAsDataURL(file);
+  });
+}
+async function checkInspect(){
+  var koji=document.getElementById('koji-type').value;
+  var sit=document.getElementById('situation').value.trim();
+  if(!koji||!sit){alert('工事種類と状況説明を入力してください');return;}
+  var btn=document.querySelector('.btn');btn.textContent='分析中...';btn.disabled=true;
+  document.getElementById('result').style.display='none';
+  var messages=[{role:'user',content:[{type:'text',text:'工事種類：「'+koji+'」\n状況：「'+sit+'」\n\n施工不良のリスクを分析してJSON形式で返してください。フィールド：summary(全体評価の文字列)、items(配列：{level:"要確認"/"注意"/"問題なし", title:文字列, desc:文字列}、最大4個)、action(文字列：推奨アクション)。JSONのみ返答。'}].concat(photoData.slice(0,2).map(function(d){return{type:'image',source:{type:'base64',media_type:'image/jpeg',data:d}};}))}];
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:800,system:'あなたは建設施工管理の専門家です。施工不良の可能性を分析します。必ずJSONのみで返答してください。',messages:messages})
+    });
+    var data=await res.json();
+    var text=data.content[0].text.replace(/```json|```/g,'').trim();
+    var d=JSON.parse(text);
+    var lcol={'要確認':'#FF3040','注意':'#F0C030','問題なし':'#00FF88'};
+    var html='<div style="font-size:15px;color:#EEF2F5;margin-bottom:20px;line-height:1.9;border-left:3px solid #00FF88;padding-left:16px">'+d.summary+'</div>';
+    (d.items||[]).forEach(function(item){
+      var c=lcol[item.level]||'#00D4FF';
+      html+='<div class="item-card"><div class="item-level" style="color:'+c+'">'+item.level+'</div><div class="item-title">'+item.title+'</div><div class="item-desc">'+item.desc+'</div></div>';
+    });
+    html+='<div style="margin-top:16px;font-size:14px;color:#F0C030;font-weight:700">推奨アクション：</div><div style="font-size:14px;color:#EEF2F5;margin-top:8px;line-height:1.9">'+d.action+'</div>';
+    html+='<div class="cta-box"><p>より詳しい現地確認・是正要求書の作成はお任せください</p><a href="/#services" class="cta-btn">完成検査立会いを依頼する →</a></div>';
+    var result=document.getElementById('result');result.innerHTML=html;result.style.display='block';
+  }catch(e){
+    var result=document.getElementById('result');
+    result.innerHTML='<p style="color:#ff6b6b;font-size:14px">分析中にエラーが発生しました。時間をおいて再度お試しください。</p>';
+    result.style.display='block';
+  }
+  btn.textContent='AIで施工不良を診断する →';btn.disabled=false;
+}
+</script>
+</body>
+</html>

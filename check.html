@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>業者チェッカー｜HORIZON SHIELD</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#040A12;color:#EEF2F5;font-family:'游ゴシック','Yu Gothic',sans-serif;min-height:100vh;line-height:1.8}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:60px;display:flex;justify-content:space-between;align-items:center;background:rgba(4,10,18,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,212,255,.15)}
+.nl{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nm{font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:4px;color:#EEF2F5}.nm span{color:#00D4FF}
+.nb{background:#C8960A;color:#040A12;font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 20px;text-decoration:none;letter-spacing:3px;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
+main{padding:100px 24px 80px;max-width:780px;margin:0 auto}
+.eyebrow{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:5px;color:#00D4FF;margin-bottom:12px}
+h1{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(28px,4vw,52px);line-height:1.2;margin-bottom:16px}
+h1 em{font-style:normal;color:#F0C030}
+.sub{font-size:15px;color:#A0BACA;line-height:2;margin-bottom:48px;max-width:560px}
+.card{background:#070F1A;border:1px solid rgba(0,212,255,.15);padding:36px 32px;margin-bottom:20px}
+label{font-size:11px;color:#6A8A9A;letter-spacing:2px;display:block;margin-bottom:8px;font-family:'Share Tech Mono',monospace}
+input[type=text]{width:100%;background:#040A12;border:1px solid rgba(0,212,255,.2);color:#EEF2F5;padding:14px 16px;font-size:15px;font-family:'游ゴシック','Yu Gothic',sans-serif;outline:none;transition:border .2s;margin-bottom:16px}
+input[type=text]:focus{border-color:#00D4FF}
+.btn{background:linear-gradient(135deg,#00D4FF,#0088AA);color:#040A12;font-weight:900;font-size:14px;padding:15px 40px;border:none;cursor:pointer;letter-spacing:.06em;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);width:100%;font-family:'Zen Kaku Gothic New',sans-serif;transition:opacity .2s}
+.btn:hover{opacity:.85}
+#result{display:none;margin-top:24px;border:1px solid rgba(0,212,255,.2);padding:28px;background:rgba(0,212,255,.03)}
+.risk-hi{border-color:rgba(255,48,64,.4);background:rgba(255,48,64,.04)}
+.risk-mid{border-color:rgba(240,192,48,.3);background:rgba(240,192,48,.03)}
+.risk-lo{border-color:rgba(0,255,136,.25);background:rgba(0,255,136,.03)}
+.risk-tag{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;margin-bottom:12px}
+.risk-score{font-family:'Share Tech Mono',monospace;font-size:60px;line-height:1;font-weight:700;margin-bottom:8px}
+.risk-label{font-size:18px;font-weight:700;margin-bottom:16px}
+.risk-items{list-style:none}
+.risk-items li{font-size:13px;color:#A0BACA;padding:8px 0;border-bottom:1px solid rgba(0,212,255,.06);display:flex;gap:10px}
+.risk-items li::before{color:#00D4FF;flex-shrink:0}
+.cta-box{margin-top:20px;background:rgba(200,150,10,.06);border:1px solid rgba(200,150,10,.25);padding:20px 24px;text-align:center}
+.cta-box p{font-size:13px;color:#A0BACA;margin-bottom:12px}
+.cta-btn{display:inline-block;background:#C8960A;color:#040A12;font-weight:900;font-size:13px;padding:12px 32px;text-decoration:none;letter-spacing:.05em;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
+.note-box{margin-top:32px;font-size:12px;color:#6A8A9A;line-height:2;border-top:1px solid rgba(0,212,255,.08);padding-top:20px}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nl"><div class="nm">HORIZON <span>SHIELD</span></div></a>
+  <a href="/#diagnosis" class="nb">無料診断</a>
+</nav>
+<main>
+  <div class="eyebrow">FREE TOOL // GYOSHA CHECK</div>
+  <h1>業者<em>チェッカー</em></h1>
+  <p class="sub">業者名・会社名を入力してください。訪問工事業者のリスクパターンをAIが分析し、注意すべきポイントをお伝えします。</p>
+  <div class="card">
+    <label>業者名・会社名を入力</label>
+    <input type="text" id="gyosha-name" placeholder="例：○○リフォーム、△△工業" maxlength="50">
+    <label>どのような工事を提案されましたか？</label>
+    <input type="text" id="koji-type" placeholder="例：床下換気扇、屋根修理、外壁塗装">
+    <button class="btn" onclick="checkGyosha()">AIでリスク診断する →</button>
+  </div>
+  <div id="result"></div>
+  <div class="note-box">
+    ※ 本ツールはAIによる一般的なリスクパターンの分析です。特定の業者の評価・断定をするものではありません。最終的な判断はご自身でお願いします。<br>
+    ※ 具体的な見積書の査定は<a href="/#diagnosis" style="color:#00D4FF">有料診断サービス（¥55,000〜）</a>をご利用ください。
+  </div>
+</main>
+<script>
+async function checkGyosha(){
+  var name=document.getElementById('gyosha-name').value.trim();
+  var koji=document.getElementById('koji-type').value.trim();
+  if(!name){alert('業者名を入力してください');return;}
+  var btn=document.querySelector('.btn');btn.textContent='分析中...';btn.disabled=true;
+  var result=document.getElementById('result');result.style.display='none';
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',max_tokens:800,
+        system:'あなたは建設費診断の専門家アシスタントです。訪問工事業者のリスク分析を行います。必ずJSON形式のみで返答してください。フィールド：score(0-100の数値)、level("高"/"中"/"低")、points(注意点の配列、最大5個)、advice(文字列、2文で助言)。JSONのみ、前後の説明は不要。',
+        messages:[{role:'user',content:'業者名：「'+name+'」、提案工事：「'+(koji||'不明')+'」。この業者へのリスクスコアと注意点を分析してください。スコアは訪問販売業者の一般的なリスクパターンに基づき、業者名の特徴（大手チェーン風、地域密着風、抽象的な名前等）と工事種別（床下・屋根・外壁は特に要注意）を考慮してください。'}]
+      })
+    });
+    var data=await res.json();
+    var text=data.content[0].text.replace(/```json|```/g,'').trim();
+    var d=JSON.parse(text);
+    var cls=d.score>=70?'risk-hi':d.score>=40?'risk-mid':'risk-lo';
+    var col=d.score>=70?'#FF3040':d.score>=40?'#F0C030':'#00FF88';
+    var tag=d.score>=70?'⚠ 要注意':d.score>=40?'△ 注意':'✓ 比較的安全';
+    result.className='';result.classList.add(cls);
+    result.innerHTML='<div class="risk-tag" style="color:'+col+'">RISK ANALYSIS // '+tag+'</div><div class="risk-score" style="color:'+col+'">'+d.score+'</div><div class="risk-label" style="color:'+col+'">リスクスコア / リスク'+d.level+'</div><ul class="risk-items">'+
+    (d.points||[]).map(function(p){return'<li><span style="color:'+col+'">›</span>'+p+'</li>';}).join('')+
+    '</ul><div style="margin-top:16px;font-size:14px;color:#EEF2F5;line-height:1.9;border-top:1px solid rgba(0,212,255,.1);padding-top:16px">'+d.advice+'</div>'+
+    '<div class="cta-box"><p>具体的な見積書の査定はプロにお任せください</p><a href="/#diagnosis" class="cta-btn">見積書を無料AI診断する →</a></div>';
+    result.style.display='block';
+  }catch(e){
+    result.className='';
+    result.innerHTML='<p style="color:#ff6b6b;font-size:14px">分析中にエラーが発生しました。時間をおいて再度お試しください。</p>';
+    result.style.display='block';
+  }
+  btn.textContent='AIでリスク診断する →';btn.disabled=false;
+}
+document.getElementById('gyosha-name').addEventListener('keydown',function(e){if(e.key==='Enter')checkGyosha();});
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>見積書交渉サポート｜HORIZON SHIELD</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#040A12;color:#EEF2F5;font-family:'游ゴシック','Yu Gothic',sans-serif;min-height:100vh;line-height:1.8}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:60px;display:flex;justify-content:space-between;align-items:center;background:rgba(4,10,18,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,212,255,.15)}
+.nl{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nm{font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:4px;color:#EEF2F5}.nm span{color:#00D4FF}
+.nb{background:#C8960A;color:#040A12;font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 20px;text-decoration:none;letter-spacing:3px;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
+main{padding:100px 24px 80px;max-width:780px;margin:0 auto}
+.eyebrow{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:5px;color:#F0C030;margin-bottom:12px}
+h1{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(28px,4vw,52px);line-height:1.2;margin-bottom:16px}
+h1 em{font-style:normal;color:#F0C030}
+.sub{font-size:15px;color:#A0BACA;line-height:2;margin-bottom:48px}
+.card{background:#070F1A;border:1px solid rgba(0,212,255,.15);padding:36px 32px;margin-bottom:20px}
+label{font-size:11px;color:#6A8A9A;letter-spacing:2px;display:block;margin-bottom:8px;font-family:'Share Tech Mono',monospace}
+input[type=text],input[type=number],select,textarea{width:100%;background:#040A12;border:1px solid rgba(0,212,255,.2);color:#EEF2F5;padding:12px 16px;font-size:14px;font-family:'游ゴシック','Yu Gothic',sans-serif;outline:none;transition:border .2s;margin-bottom:16px}
+input:focus,select:focus,textarea:focus{border-color:#00D4FF}
+textarea{resize:vertical;min-height:90px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:540px){.row2{grid-template-columns:1fr}}
+.btn{background:linear-gradient(135deg,#F0C030,#A07010);color:#040A12;font-weight:900;font-size:14px;padding:15px 40px;border:none;cursor:pointer;letter-spacing:.06em;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);width:100%;font-family:'Zen Kaku Gothic New',sans-serif;transition:opacity .2s}
+.btn:hover{opacity:.85}
+#result{display:none;margin-top:24px}
+.mail-box{background:#070F1A;border:1px solid rgba(240,192,48,.25);padding:28px 32px;margin-bottom:16px}
+.mail-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:#F0C030;margin-bottom:12px}
+.mail-body{font-size:14px;color:#EEF2F5;line-height:2;white-space:pre-wrap;word-break:break-all}
+.copy-btn{background:transparent;border:1px solid rgba(240,192,48,.4);color:#F0C030;font-family:'Share Tech Mono',monospace;font-size:10px;padding:8px 20px;cursor:pointer;letter-spacing:2px;transition:all .2s;margin-top:16px}
+.copy-btn:hover{background:rgba(240,192,48,.08)}
+.cta-box{background:rgba(200,150,10,.06);border:1px solid rgba(200,150,10,.25);padding:24px;text-align:center;margin-top:16px}
+.cta-btn{display:inline-block;background:#C8960A;color:#040A12;font-weight:900;font-size:13px;padding:12px 32px;text-decoration:none;letter-spacing:.05em;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
+.note-box{margin-top:32px;font-size:12px;color:#6A8A9A;line-height:2;border-top:1px solid rgba(0,212,255,.08);padding-top:20px}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nl"><div class="nm">HORIZON <span>SHIELD</span></div></a>
+  <a href="/#diagnosis" class="nb">無料診断</a>
+</nav>
+<main>
+  <div class="eyebrow">FREE AI // NEGOTIATION SUPPORT</div>
+  <h1>見積書<em>交渉サポート</em></h1>
+  <p class="sub">見積書の情報を入力するだけ。業者への交渉メールをAIが自動生成します。コピーしてそのままお使いいただけます。</p>
+  <div class="card">
+    <div class="row2">
+      <div>
+        <label>工事の種類</label>
+        <select id="koji">
+          <option value="">選択してください</option>
+          <option value="リフォーム工事">リフォーム工事</option>
+          <option value="屋根修理">屋根修理</option>
+          <option value="外壁塗装">外壁塗装</option>
+          <option value="床下工事">床下工事</option>
+          <option value="水回りリフォーム">水回りリフォーム</option>
+          <option value="新築工事">新築工事</option>
+          <option value="その他工事">その他工事</option>
+        </select>
+      </div>
+      <div>
+        <label>見積金額（万円）</label>
+        <input type="number" id="amount" placeholder="例：180">
+      </div>
+    </div>
+    <label>特に気になる項目（自由記述）</label>
+    <textarea id="concern" placeholder="例：床下換気扇が20台で180万円と記載されている。相場より高い気がする。"></textarea>
+    <label>交渉のスタンス</label>
+    <select id="stance">
+      <option value="丁寧に値引き交渉">丁寧に値引き交渉</option>
+      <option value="明確に根拠を求める">明確に根拠を求める</option>
+      <option value="複数の業者に見積もりを取ることを伝える">他社見積もりを取ることを伝える</option>
+      <option value="断る方向で返答">断る方向で丁重に断る</option>
+    </select>
+    <button class="btn" onclick="generateMail()">交渉メールを生成する →</button>
+  </div>
+  <div id="result"></div>
+  <div class="note-box">
+    ※ 生成されたメールはAIによる文例です。状況に合わせて適宜修正してご使用ください。<br>
+    ※ より根拠のある交渉のために、<a href="/#diagnosis" style="color:#00D4FF">専門家による査定レポート（¥55,000〜）</a>の取得をお勧めします。
+  </div>
+</main>
+<script>
+async function generateMail(){
+  var koji=document.getElementById('koji').value;
+  var amount=document.getElementById('amount').value;
+  var concern=document.getElementById('concern').value.trim();
+  var stance=document.getElementById('stance').value;
+  if(!koji||!concern){alert('工事種類と気になる項目を入力してください');return;}
+  var btn=document.querySelector('.btn');btn.textContent='生成中...';btn.disabled=true;
+  document.getElementById('result').style.display='none';
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',max_tokens:1000,
+        system:'あなたは建設費交渉の専門家です。施主の立場で業者への交渉メールを生成します。必ずJSONのみで返答してください。フィールド：subject(件名)、body(本文、改行を\\nで表現)。敬語で丁寧に、しかし明確に要点を伝えるメールを作成してください。',
+        messages:[{role:'user',content:'工事種類：'+koji+'、見積金額：'+(amount?amount+'万円':'不明')+'、気になる点：'+concern+'、交渉スタンス：'+stance+'\n上記の内容で業者への交渉メールをJSON形式で生成してください。'}]
+      })
+    });
+    var data=await res.json();
+    var text=data.content[0].text.replace(/```json|```/g,'').trim();
+    var d=JSON.parse(text);
+    var result=document.getElementById('result');
+    result.innerHTML='<div class="mail-box"><div class="mail-label">件名</div><div class="mail-body">'+d.subject+'</div></div>'+
+    '<div class="mail-box"><div class="mail-label">本文</div><div class="mail-body" id="mail-body">'+d.body.replace(/\\n/g,'\n')+'</div><button class="copy-btn" onclick="copyMail()">本文をコピーする</button></div>'+
+    '<div class="cta-box"><p style="font-size:13px;color:#A0BACA;margin-bottom:12px">より根拠のある交渉のために専門家査定レポートをご活用ください</p><a href="/#diagnosis" class="cta-btn">見積書を無料AI診断する →</a></div>';
+    result.style.display='block';
+  }catch(e){
+    var result=document.getElementById('result');
+    result.innerHTML='<p style="color:#ff6b6b;font-size:14px">生成中にエラーが発生しました。時間をおいて再度お試しください。</p>';
+    result.style.display='block';
+  }
+  btn.textContent='交渉メールを生成する →';btn.disabled=false;
+}
+function copyMail(){
+  var text=document.getElementById('mail-body').textContent;
+  navigator.clipboard.writeText(text).then(function(){alert('コピーしました');});
+}
+</script>
+</body>
+</html>
