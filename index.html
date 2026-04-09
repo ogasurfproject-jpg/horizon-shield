@@ -909,6 +909,14 @@ function demoSend(){var input=document.getElementById('demo-input');var val=inpu
 </script>
 
 <!-- ═══ WORMHOLE JS ═══ -->
+<script>
+// グローバル：ボタンから呼べるようにIIFEの外に定義
+function whToggleSound(){
+  var btn=document.getElementById('wh-sound-btn');
+  // whActxなどはIIFE内の変数なので、windowに公開されたAPIを使う
+  if(typeof _whToggle==='function')_whToggle();
+}
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
@@ -924,23 +932,6 @@ function whInitAudio(){if(whAudioStarted)return;whAudioStarted=true;whActx=new(w
 function whPhTone(n){if(!whActx||!whSoundOn)return;var sets=[[55,110,165,220],[220,277,330,440],[174,220,261,348],[528,660,792,1056]];sets[Math.min(n,3)].forEach(function(f,i){var o=whActx.createOscillator(),g=whActx.createGain();o.connect(g);g.connect(whMaster);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,whActx.currentTime);g.gain.linearRampToValueAtTime(.04-i*.008,whActx.currentTime+.06);g.gain.exponentialRampToValueAtTime(.001,whActx.currentTime+2+i*.3);o.start();o.stop(whActx.currentTime+2.5+i*.3);});}
 function whClickTone(){if(!whActx||!whSoundOn)return;[440,660].forEach(function(f,i){var o=whActx.createOscillator(),g=whActx.createGain();o.connect(g);g.connect(whMaster);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,whActx.currentTime+i*.04);g.gain.linearRampToValueAtTime(.035,whActx.currentTime+i*.04+.03);g.gain.exponentialRampToValueAtTime(.001,whActx.currentTime+i*.04+.4);o.start(whActx.currentTime+i*.04);o.stop(whActx.currentTime+i*.04+.5);});}
 function whFlash(color){var el=document.getElementById('wh-flash');el.style.background=color;el.style.transition='none';el.style.opacity='.2';setTimeout(function(){el.style.transition='opacity 400ms ease';el.style.opacity='0';},50);}
-
-// モバイル音声トグル
-function whToggleSound(){
-  var btn=document.getElementById('wh-sound-btn');
-  if(!whAudioStarted){
-    whInitAudio();
-    if(btn){btn.textContent='🔊 音ON';btn.classList.add('active');}
-  } else if(whSoundOn){
-    whSoundOn=false;
-    if(whMaster)whMaster.gain.linearRampToValueAtTime(0,whActx.currentTime+.5);
-    if(btn){btn.textContent='🔇 音をONにする';btn.classList.remove('active');}
-  } else {
-    whSoundOn=true;
-    if(whMaster)whMaster.gain.linearRampToValueAtTime(1,whActx.currentTime+.5);
-    if(btn){btn.textContent='🔊 音ON';btn.classList.add('active');}
-  }
-}
 
 var whCanvas=document.getElementById('wh-canvas');
 var whScene=new THREE.Scene();
@@ -1055,6 +1046,22 @@ window.addEventListener('orientationchange',function(){
     whRen.setSize(vw,vh);
   },300);
 });
+  // グローバルに公開
+  window._whToggle=function(){
+    var btn=document.getElementById('wh-sound-btn');
+    if(!whAudioStarted){
+      whInitAudio();
+      if(btn){btn.textContent='🔊 音ON';btn.classList.add('active');}
+    } else if(whSoundOn){
+      whSoundOn=false;
+      if(whMaster)whMaster.gain.linearRampToValueAtTime(0,whActx.currentTime+.5);
+      if(btn){btn.textContent='🔇 音をONにする';btn.classList.remove('active');}
+    } else {
+      whSoundOn=true;
+      if(whMaster)whMaster.gain.linearRampToValueAtTime(1,whActx.currentTime+.5);
+      if(btn){btn.textContent='🔊 音ON';btn.classList.add('active');}
+    }
+  };
 })();
 </script>
 </body>
