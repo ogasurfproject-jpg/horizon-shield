@@ -255,7 +255,7 @@ window.hkSend=async function(){
   loading=true;document.getElementById('hk-snd').disabled=true;
   addTyp();
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,system:SYS,messages:msgs})});
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':'sk-ant-api03-HttUPbkAwOzLnFazHL0E1allwGux8Q0SqjrsF4GC721P9NZ4UHaR1Ki0mlUfnF4Uo6MUFa2DISTz43RAIWpVb3Q-2Gs2JQAA','anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,system:SYS,messages:msgs})});
     const d=await res.json();rmTyp();
     const rep=d.content?.[0]?.text||'エラーが発生しました。';
     hist.push({role:'user',content:uTxt});hist.push({role:'assistant',content:rep});
