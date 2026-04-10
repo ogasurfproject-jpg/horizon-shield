@@ -372,7 +372,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
     <a href="/souba/" class="nav-tool-link cyan">相場DB</a>
     <a href="/inspect/" class="nav-tool-link green">施工検査</a>
     <a href="/check/" class="nav-tool-link" style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;border:1px solid rgba(200,150,10,.3);padding:6px 12px;text-decoration:none;color:var(--gold2);transition:all .2s" onmouseover="this.style.borderColor='var(--gold2)'" onmouseout="this.style.borderColor='rgba(200,150,10,.3)'">交渉サポート</a>
-    <div class="nav-kira" onclick="openKira()"><span class="nav-kira-dot"></span>KIRA に相談</div>
+    <div class="nav-kira" onclick="hsKiraToggle()"><span class="nav-kira-dot"></span>KIRA に相談</div>
     <a href="#services" class="nav-cta">SERVICES</a>
   </div>
 </nav>
@@ -623,7 +623,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
         <div class="kira-chat-input"><input type="text" class="kira-chat-input-field" id="demo-input" placeholder="質問を入力してください..." onkeydown="if(event.key==='Enter')demoSend()"><button class="kira-chat-send" onclick="demoSend()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>
       </div>
     </div>
-    <div style="text-align:center;margin-top:36px"><button class="btn-primary" onclick="openKira()" style="border:none;cursor:pointer;font-family:'Noto Sans JP',sans-serif">KIRAに今すぐ相談する</button></div>
+    <div style="text-align:center;margin-top:36px"><button class="btn-primary" onclick="hsKiraToggle()" style="border:none;cursor:pointer;font-family:'Noto Sans JP',sans-serif">KIRAに今すぐ相談する</button></div>
   </div>
 </section>
 
@@ -961,7 +961,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
     <p>¥33,000〜の費用が、数十万〜数百万円の損失を防ぐことがあります。</p>
     <a href="#diagnosis" class="btn-primary red" style="font-size:15px;padding:18px 52px;display:inline-block;text-decoration:none">60秒・無料で見積書を診断する →</a>
     <p class="cta-note">contact@the-horizons-innovation.com　／　全国対応</p>
-    <div class="cta-kira"><button class="cta-kira-btn" onclick="openKira()"><span style="width:6px;height:6px;background:var(--cyan);border-radius:50%;animation:blink 2s infinite"></span>まずKIRAに無料相談する</button></div>
+    <div class="cta-kira"><button class="cta-kira-btn" onclick="hsKiraToggle()"><span style="width:6px;height:6px;background:var(--cyan);border-radius:50%;animation:blink 2s infinite"></span>まずKIRAに無料相談する</button></div>
   </div>
 </section>
 
@@ -1023,7 +1023,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
 </footer>
 
 <!-- KIRA FAB -->
-<div class="kira-fab" onclick="openKira()">
+<div class="kira-fab" onclick="hsKiraToggle()">
   <div class="kira-fab-label">KIRAに相談</div>
   <div style="position:relative">
     <button class="kira-fab-btn"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button>
@@ -1036,7 +1036,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
   <div class="kira-modal" id="kira-modal">
     <div class="kira-modal-header">
       <div class="kira-modal-left"><div class="kira-mini-av">K</div><div><div class="kira-modal-name">KIRA</div><div class="kira-modal-status">24時間対応中</div></div></div>
-      <button class="kira-close" onclick="closeKira()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button class="kira-close" onclick="hsKiraClose()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="kira-msgs" id="kira-msgs"></div>
     <div class="kira-qr" id="kira-qr"></div>
