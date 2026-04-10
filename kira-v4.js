@@ -294,3 +294,4 @@ function toggle(){opened?close_():open_();}
 setTimeout(()=>{if(!opened){const n=document.getElementById('hs-k-notif');n.style.display='flex';}},20000);
 
 })();
+window.hsKiraToggle=function(){document.getElementById('hs-k-btn').click();};
