@@ -1271,213 +1271,477 @@ window.addEventListener('orientationchange',function(){
   };
 })();
 </script>
-  <!-- ═══════════════════════════════════════════ -->
-<!-- KIRA v4 フローティングボタン               -->
-<!-- </body>の直前に貼れ                        -->
-<!-- ═══════════════════════════════════════════ -->
+<!-- ============================================
+  KIRA v4 完全体 インライン埋め込み版
+  使い方：
+  1. index.htmlの中にある既存のkira関連コードを全部削除
+  2. </body>の直前にこのコード全体を貼る
+  ============================================ -->
 
 <style>
-#kira-float-btn {
+/* ── フローティングボタン ── */
+#hs-kira-btn {
   position: fixed;
   bottom: 28px;
   right: 28px;
-  z-index: 9999;
+  z-index: 99999;
   display: flex;
   align-items: center;
   gap: 10px;
   background: #E8392A;
   color: #fff;
   border: none;
-  padding: 0 20px 0 6px;
+  padding: 0 20px 0 8px;
   height: 56px;
   border-radius: 28px;
   cursor: pointer;
-  box-shadow: 0 0 0 0 rgba(232,57,42,.6);
-  animation: kira-pulse 2s infinite;
   font-family: 'Noto Sans JP', sans-serif;
   font-size: 14px;
   font-weight: 700;
   letter-spacing: .04em;
-  transition: transform .2s, box-shadow .2s;
+  animation: hs-kpulse 2s infinite;
+  transition: transform .2s;
 }
-#kira-float-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 32px rgba(232,57,42,.5);
-}
-@keyframes kira-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(232,57,42,.6); }
-  70%  { box-shadow: 0 0 0 14px rgba(232,57,42,0); }
+#hs-kira-btn:hover { transform: scale(1.06); }
+@keyframes hs-kpulse {
+  0%   { box-shadow: 0 0 0 0 rgba(232,57,42,.7); }
+  70%  { box-shadow: 0 0 0 16px rgba(232,57,42,0); }
   100% { box-shadow: 0 0 0 0 rgba(232,57,42,0); }
 }
-.kira-brain-icon {
-  width: 44px;
-  height: 44px;
-  flex-shrink: 0;
+#hs-kira-notif {
+  position: absolute;
+  top: -5px; right: -5px;
+  width: 20px; height: 20px;
+  background: #F5C518;
+  border-radius: 50%;
+  font-size: 11px;
+  color: #000;
+  font-weight: 900;
+  display: none;
+  align-items: center;
+  justify-content: center;
 }
-#kira-modal {
+
+/* ── オーバーレイ ── */
+#hs-kira-overlay {
   display: none;
   position: fixed;
-  bottom: 96px;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  z-index: 99998;
+  backdrop-filter: blur(4px);
+}
+#hs-kira-overlay.open { display: block; }
+
+/* ── モーダル ── */
+#hs-kira-modal {
+  display: none;
+  position: fixed;
+  bottom: 92px;
   right: 28px;
   width: 380px;
   height: 620px;
-  z-index: 9998;
+  z-index: 99999;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 24px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(232,57,42,.3);
-  animation: kira-slide-up .3s cubic-bezier(.16,1,.3,1);
-}
-@keyframes kira-slide-up {
-  from { opacity:0; transform: translateY(20px) scale(.96); }
-  to   { opacity:1; transform: translateY(0) scale(1); }
-}
-#kira-modal iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-#kira-close {
-  position: fixed;
-  bottom: 706px;
-  right: 28px;
-  z-index: 9999;
-  width: 32px;
-  height: 32px;
-  background: #161616;
-  border: 1px solid #333;
-  border-radius: 50%;
-  color: #888;
-  font-size: 16px;
-  cursor: pointer;
+  box-shadow: 0 24px 80px rgba(0,0,0,.7);
+  animation: hs-kslide .35s cubic-bezier(.16,1,.3,1);
+  background: #080808;
   display: none;
-  align-items: center;
-  justify-content: center;
-  transition: all .2s;
+  flex-direction: column;
 }
-#kira-close:hover { background: #E8392A; color: #fff; border-color: #E8392A; }
-#kira-badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 18px;
-  height: 18px;
-  background: #F5C518;
-  border-radius: 50%;
-  font-size: 10px;
-  color: #000;
-  font-weight: 900;
+#hs-kira-modal.open {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Share Tech Mono', monospace;
 }
-@media (max-width: 480px) {
-  #kira-modal {
-    width: calc(100vw - 16px);
-    height: 70vh;
-    right: 8px;
-    bottom: 88px;
-  }
-  #kira-close { right: 8px; bottom: calc(70vh + 98px); }
+@keyframes hs-kslide {
+  from { opacity:0; transform:translateY(24px) scale(.94); }
+  to   { opacity:1; transform:translateY(0) scale(1); }
 }
+@media(max-width:480px){
+  #hs-kira-modal { width:calc(100vw - 16px); height:75vh; right:8px; bottom:80px; }
+}
+
+/* ── KIRA内部スタイル ── */
+#hs-kira-modal * { box-sizing: border-box; }
+.hk-header {
+  padding: 12px 16px 8px;
+  border-bottom: 1px solid #1e1e1e;
+  background: #080808;
+  flex-shrink: 0;
+}
+.hk-header-top { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+.hk-badge {
+  width:38px; height:38px; border-radius:50%;
+  background:#E8392A; color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:17px; font-weight:900; flex-shrink:0;
+  box-shadow:0 0 16px rgba(232,57,42,.5);
+  animation:hs-kpulse 2s infinite;
+}
+.hk-name { font-size:15px; font-weight:700; color:#f0f0f0; }
+.hk-name span { color:#E8392A; }
+.hk-sub { font-size:10px; color:#555; font-family:monospace; }
+.hk-status { display:flex; align-items:center; gap:5px; font-size:10px; color:#555; font-family:monospace; }
+.hk-dot { width:5px; height:5px; border-radius:50%; background:#1DB954; animation:hk-blink 1.5s infinite; }
+@keyframes hk-blink{0%,100%{opacity:1}50%{opacity:.2}}
+.hk-close {
+  margin-left:auto; background:transparent; border:none;
+  color:#555; font-size:18px; cursor:pointer; padding:0 4px;
+}
+.hk-close:hover { color:#E8392A; }
+
+.hk-messages {
+  flex:1; overflow-y:auto; padding:14px;
+  display:flex; flex-direction:column; gap:10px;
+  scroll-behavior:smooth;
+}
+.hk-messages::-webkit-scrollbar { width:2px; }
+.hk-messages::-webkit-scrollbar-thumb { background:#222; }
+
+.hk-msg { display:flex; gap:8px; animation:hk-up .3s ease; }
+@keyframes hk-up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.hk-msg.user { flex-direction:row-reverse; }
+.hk-av {
+  width:28px; height:28px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700;
+}
+.hk-msg.kira .hk-av { background:#E8392A; color:#fff; }
+.hk-msg.user .hk-av { background:#161616; color:#555; border:1px solid #2a2a2a; }
+.hk-bubble {
+  max-width:85%; padding:9px 13px;
+  font-size:13px; line-height:1.8; border-radius:2px;
+  font-family:'Noto Sans JP', sans-serif;
+}
+.hk-msg.kira .hk-bubble {
+  background:#111; border:1px solid #1e1e1e; border-left:2px solid #E8392A;
+  color:#e0e0e0;
+}
+.hk-msg.user .hk-bubble {
+  background:#180808; border:1px solid #2a1010; border-right:2px solid #E8392A;
+  color:#e0e0e0; text-align:right;
+}
+.hk-bubble b { color:#F5C518; }
+.hk-bubble .hk-r { color:#E8392A; font-weight:700; }
+.hk-bubble .hk-g { color:#1DB954; }
+.hk-bubble a { color:#5DADE2; text-decoration:none; }
+
+.hk-cta {
+  margin-top:8px; border:1px solid #E8392A;
+  background:#120000; padding:12px;
+}
+.hk-cta-head { font-size:10px; color:#E8392A; font-family:monospace; margin-bottom:4px; }
+.hk-cta-price { font-size:20px; font-weight:900; color:#F5C518; margin-bottom:4px; }
+.hk-cta-body { font-size:11px; color:#666; margin-bottom:8px; line-height:1.5; }
+.hk-cta-main {
+  display:block; background:#E8392A; color:#fff;
+  text-align:center; padding:9px; font-weight:700;
+  font-size:13px; text-decoration:none;
+}
+.hk-cta-line {
+  display:block; background:#06C755; color:#fff;
+  text-align:center; padding:7px; font-weight:700;
+  font-size:12px; text-decoration:none; margin-top:4px;
+}
+
+.hk-typing {
+  display:flex; align-items:center; gap:3px;
+  padding:10px 13px; background:#111;
+  border:1px solid #1e1e1e; border-left:2px solid #E8392A;
+}
+.hk-typing span {
+  width:5px; height:5px; background:#E8392A; border-radius:50%;
+  animation:hk-bounce .8s infinite;
+}
+.hk-typing span:nth-child(2){animation-delay:.15s}
+.hk-typing span:nth-child(3){animation-delay:.3s}
+@keyframes hk-bounce{0%,80%,100%{transform:scale(.5);opacity:.3}40%{transform:scale(1);opacity:1}}
+
+.hk-qr { display:flex; flex-wrap:wrap; gap:5px; padding:3px 14px 6px; }
+.hk-qr-btn {
+  background:transparent; border:1px solid #2a2a2a; color:#555;
+  padding:5px 10px; font-size:11px; cursor:pointer;
+  font-family:'Noto Sans JP',sans-serif; transition:all .2s; border-radius:2px;
+}
+.hk-qr-btn:hover { border-color:#E8392A; color:#f0f0f0; background:#180808; }
+
+.hk-file-area { padding:4px 14px; display:flex; align-items:center; gap:6px; }
+.hk-file-label {
+  cursor:pointer; display:flex; align-items:center; gap:4px;
+  font-size:11px; color:#444; border:1px dashed #2a2a2a;
+  padding:5px 10px; transition:all .2s; font-family:'Noto Sans JP',sans-serif;
+}
+.hk-file-label:hover { border-color:#E8392A; color:#f0f0f0; }
+.hk-file-label input { display:none; }
+.hk-file-prev { font-size:10px; color:#F5C518; font-family:monospace; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.hk-file-clr { background:transparent; border:none; color:#444; cursor:pointer; font-size:13px; }
+
+.hk-input-area {
+  padding:8px 14px 10px; border-top:1px solid #1e1e1e;
+  background:#080808; flex-shrink:0;
+}
+.hk-input-wrap { display:flex; gap:6px; align-items:flex-end; }
+.hk-textarea {
+  flex:1; background:#111; border:1px solid #2a2a2a; color:#e0e0e0;
+  padding:8px 12px; font-size:13px; font-family:'Noto Sans JP',sans-serif;
+  resize:none; border-radius:2px; max-height:80px; outline:none;
+  transition:border-color .2s; line-height:1.5;
+}
+.hk-textarea:focus { border-color:#E8392A; }
+.hk-textarea::placeholder { color:#333; }
+.hk-send {
+  width:38px; height:38px; background:#E8392A; border:none;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; border-radius:2px; transition:background .2s;
+}
+.hk-send:hover { background:#ff4433; }
+.hk-send svg { fill:#fff; width:16px; height:16px; }
+.hk-send:disabled { background:#2a2a2a; cursor:not-allowed; }
+.hk-foot { text-align:center; font-size:9px; color:#222; padding:3px 0 0; font-family:monospace; }
 </style>
 
 <!-- フローティングボタン -->
-<button id="kira-float-btn" onclick="toggleKira()" aria-label="無料AI見積書診断">
-  <svg class="kira-brain-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- 2030年型ニューラルブレインアイコン -->
-    <circle cx="22" cy="22" r="21" fill="#0a0a0a" stroke="#E8392A" stroke-width="1"/>
-    <!-- 外周リング -->
-    <circle cx="22" cy="22" r="17" fill="none" stroke="#E8392A" stroke-width=".5" stroke-dasharray="3 2" opacity=".4"/>
-    <!-- ニューラルノード -->
-    <circle cx="22" cy="10" r="2.5" fill="#E8392A"/>
-    <circle cx="32" cy="16" r="2"   fill="#F5C518"/>
-    <circle cx="34" cy="27" r="2"   fill="#E8392A"/>
-    <circle cx="27" cy="35" r="2"   fill="#F5C518"/>
-    <circle cx="17" cy="35" r="2"   fill="#E8392A"/>
-    <circle cx="10" cy="27" r="2"   fill="#F5C518"/>
-    <circle cx="12" cy="16" r="2"   fill="#E8392A"/>
-    <circle cx="22" cy="22" r="3.5" fill="#fff"/>
-    <!-- ニューラルライン -->
-    <line x1="22" y1="12.5" x2="22" y2="18.5"  stroke="#E8392A" stroke-width=".8" opacity=".7"/>
-    <line x1="30.3" y1="17.5" x2="25" y2="20.5" stroke="#F5C518" stroke-width=".8" opacity=".7"/>
-    <line x1="32.3" y1="25.5" x2="25.5" y2="22.5" stroke="#E8392A" stroke-width=".8" opacity=".7"/>
-    <line x1="26" y1="33.2" x2="23.5" y2="25.5" stroke="#F5C518" stroke-width=".8" opacity=".7"/>
-    <line x1="18" y1="33.2" x2="20.5" y2="25.5" stroke="#E8392A" stroke-width=".8" opacity=".7"/>
-    <line x1="11.7" y1="25.5" x2="18.5" y2="22.5" stroke="#F5C518" stroke-width=".8" opacity=".7"/>
-    <line x1="13.7" y1="17.5" x2="19" y2="20.5"  stroke="#E8392A" stroke-width=".8" opacity=".7"/>
-    <!-- スキャンライン（動く） -->
-    <line id="kira-scan" x1="5" y1="22" x2="39" y2="22" stroke="#E8392A" stroke-width=".5" opacity=".3">
-      <animate attributeName="y1" values="8;36;8" dur="2s" repeatCount="indefinite"/>
-      <animate attributeName="y2" values="8;36;8" dur="2s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values=".5;.1;.5" dur="2s" repeatCount="indefinite"/>
+<button id="hs-kira-btn" onclick="hsKiraToggle()">
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+    <circle cx="20" cy="20" r="19" fill="#0a0a0a" stroke="#E8392A" stroke-width="1"/>
+    <circle cx="20" cy="20" r="15" fill="none" stroke="#E8392A" stroke-width=".4" stroke-dasharray="2.5 2" opacity=".4"/>
+    <circle cx="20" cy="9"  r="2.2" fill="#E8392A"/>
+    <circle cx="29" cy="14" r="1.8" fill="#F5C518"/>
+    <circle cx="31" cy="24" r="1.8" fill="#E8392A"/>
+    <circle cx="25" cy="32" r="1.8" fill="#F5C518"/>
+    <circle cx="15" cy="32" r="1.8" fill="#E8392A"/>
+    <circle cx="9"  cy="24" r="1.8" fill="#F5C518"/>
+    <circle cx="11" cy="14" r="1.8" fill="#E8392A"/>
+    <circle cx="20" cy="20" r="3"   fill="#fff"/>
+    <line x1="20" y1="11" x2="20" y2="17" stroke="#E8392A" stroke-width=".7" opacity=".8"/>
+    <line x1="27.5" y1="15.5" x2="23" y2="18.5" stroke="#F5C518" stroke-width=".7" opacity=".8"/>
+    <line x1="29.5" y1="23" x2="23" y2="21" stroke="#E8392A" stroke-width=".7" opacity=".8"/>
+    <line x1="24" y1="30.5" x2="21.5" y2="23" stroke="#F5C518" stroke-width=".7" opacity=".8"/>
+    <line x1="16" y1="30.5" x2="18.5" y2="23" stroke="#E8392A" stroke-width=".7" opacity=".8"/>
+    <line x1="10.5" y1="23" x2="17" y2="21" stroke="#F5C518" stroke-width=".7" opacity=".8"/>
+    <line x1="12.5" y1="15.5" x2="17" y2="18.5" stroke="#E8392A" stroke-width=".7" opacity=".8"/>
+    <line x1="5" y1="20" x2="35" y2="20" stroke="#E8392A" stroke-width=".4" opacity=".3">
+      <animate attributeName="y1" values="6;34;6" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="y2" values="6;34;6" dur="2s" repeatCount="indefinite"/>
     </line>
   </svg>
   無料AI診断
-  <span id="kira-badge" style="display:none">!</span>
+  <span id="hs-kira-notif">1</span>
 </button>
 
-<!-- 閉じるボタン -->
-<button id="kira-close" onclick="closeKira()">✕</button>
-
-<!-- KIRAモーダル -->
-<div id="kira-modal">
-  <iframe id="kira-iframe" src="" title="KIRA AI診断"></iframe>
+<!-- モーダル -->
+<div id="hs-kira-modal">
+  <div class="hk-header">
+    <div class="hk-header-top">
+      <div class="hk-badge">K</div>
+      <div>
+        <div class="hk-name"><span>KIRA</span> v4.0｜HORIZON SHIELD</div>
+        <div class="hk-sub">Supabase記憶 ／ 見積書読取 ／ 地域補正</div>
+      </div>
+      <button class="hk-close" onclick="hsKiraClose()">✕</button>
+    </div>
+    <div class="hk-status"><span class="hk-dot"></span><span id="hk-db-st">接続中…</span></div>
+  </div>
+  <div class="hk-messages" id="hk-msgs"></div>
+  <div class="hk-qr" id="hk-qr"></div>
+  <div class="hk-file-area">
+    <label class="hk-file-label">
+      <input type="file" id="hk-file" accept="image/*" onchange="hkHandleFile(this)">
+      📎 見積書を添付
+    </label>
+    <span class="hk-file-prev" id="hk-fprev"></span>
+    <button class="hk-file-clr" id="hk-fclr" onclick="hkClearFile()" style="display:none">✕</button>
+  </div>
+  <div class="hk-input-area">
+    <div class="hk-input-wrap">
+      <textarea class="hk-textarea" id="hk-input" placeholder="地域・金額・不安なことを話してください…" rows="1"
+        onkeydown="hkKey(event)" oninput="hkResize(this)"></textarea>
+      <button class="hk-send" id="hk-send" onclick="hkSend()">
+        <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+      </button>
+    </div>
+    <div class="hk-foot">HORIZON SHIELD ／ 大賀俊勝（建設歴30年）監修 ／ 業者から一円ももらっていない</div>
+  </div>
 </div>
 
 <script>
 (function(){
-  let open = false;
-  let loaded = false;
+const SB_URL='https://fbmtcuudvhqkhsnsmwcj.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZibXRjdXVkdmhxa2hzbnNtd2NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MjExMzAsImV4cCI6MjA5MTM5NzEzMH0.nsJ1KbN6uXz_LdNsHDZ5esxr_cidPKXjp_kQL1LypCQ';
+const LINE_PROXY='https://hs-kira-line.oga-surf-project.workers.dev/notify';
+const SYS=`あなたはKIRA v4.0（Horizon AI Negotiation Agent）です。HORIZON SHIELDの建設費診断AIです。
 
-  window.toggleKira = function(){
-    open ? closeKira() : openKira();
-  };
+【最重要戦略：煙に巻く診断】
+見積書を分析した場合：
+①内部では全項目を完璧に分析する（全てわかっていても絶対に全部見せない）
+②表に出すのは「1項目のみ」または「全体削減可能額の概算（幅で表現）」のみ
+③例：「この見積書、全体で約XX〜XX万円削減できる可能性があります。1点だけお伝えすると〇〇が気になります」
+④「詳細な全項目診断は¥55,000の正式診断で」と必ず誘導
+⑤「全部教えてほしい」と言われても「正確な数字と交渉文は専門家診断でしかお出しできません」と断る
 
-  window.openKira = function(){
-    const modal = document.getElementById('kira-modal');
-    const closeBtn = document.getElementById('kira-close');
-    const iframe = document.getElementById('kira-iframe');
-    const badge = document.getElementById('kira-badge');
+【地域別価格補正】
+東京都心：基準×1.3 東京その他・横浜・川崎：基準×1.15
+神奈川・埼玉・千葉：基準×1.1 大阪・京都・神戸：基準×1.08
+名古屋：基準×1.02 福岡・広島・仙台・札幌：基準×0.95
+地方・農村部：基準×0.82 沖縄：基準×1.05 北海道：基準×1.1
 
-    if(!loaded){
-      // kira_v4.htmlのパスを環境に合わせて変更
-      iframe.src = '/kira_v4.html';
-      loaded = true;
+【適正価格DB（30坪・東京標準）】
+外壁塗装全体：170〜220万 屋根塗装：65〜100万
+足場仮設：22〜28万（45万超は過剰）
+高圧洗浄：2〜5万（12万超は過剰）
+シーリング：6〜10万（18万超は過剰）
+床下換気扇10台：15〜22万（50万超は詐欺まがい）
+タックダイン15坪：12〜18万（50万超は詐欺まがい）
+「一式」表記：施主が確認できないよう隠す業界の隠語
+
+【スタイル】一文が短い。余韻を残す。「その感覚、正しいです」を使う。
+削減額は「約XX〜XX万円」の幅で。200文字以内。最後は必ずCTAへ。`;
+
+let hist=[],loading=false,file=null,b64=null,ftype=null;
+let sid=localStorage.getItem('hs_kira_sid');
+if(!sid){sid='ks_'+Date.now()+'_'+Math.random().toString(36).substr(2,8);localStorage.setItem('hs_kira_sid',sid);}
+let sdata={region:'',amount:''};
+let modalOpen=false;
+
+// ── Supabase ──
+async function sbFetch(path,opts={}){
+  return fetch(SB_URL+path,{...opts,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json',...(opts.headers||{})}});
+}
+async function checkDB(){
+  try{
+    const r=await sbFetch('/rest/v1/kira_sessions?select=id&limit=1');
+    document.getElementById('hk-db-st').textContent=r.ok?'ONLINE ／ DB接続済み':'DB接続エラー';
+  }catch(e){document.getElementById('hk-db-st').textContent='ONLINE ／ 無料診断受付中';}
+}
+async function saveMsg(role,content){
+  try{await sbFetch('/rest/v1/kira_messages',{method:'POST',body:JSON.stringify({session_id:sid,role,content})});}catch(e){}
+}
+async function saveProspect(summary){
+  try{await sbFetch('/rest/v1/kira_prospects',{method:'POST',body:JSON.stringify({session_id:sid,region:sdata.region,amount_range:sdata.amount,concern_summary:summary})});}catch(e){}
+}
+async function loadHist(){
+  try{
+    const r=await sbFetch('/rest/v1/kira_messages?session_id=eq.'+sid+'&order=created_at.asc&limit=16&select=role,content');
+    const d=await r.json();
+    if(Array.isArray(d)&&d.length){hist=d.map(m=>({role:m.role,content:m.content}));return d.length;}
+  }catch(e){}
+  return 0;
+}
+
+// ── LINE ──
+async function notifyLINE(info){
+  try{await fetch(LINE_PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'🔴【KIRA見込み客】\n'+new Date().toLocaleString('ja-JP')+'\n\n'+info+'\n\nSID:'+sid})});}catch(e){}
+}
+
+// ── UI ──
+function addMsg(role,html,isHTML){
+  const c=document.getElementById('hk-msgs');
+  const d=document.createElement('div');d.className='hk-msg '+role;
+  const av=document.createElement('div');av.className='hk-av';av.textContent=role==='kira'?'K':'施';
+  const b=document.createElement('div');b.className='hk-bubble';
+  if(isHTML)b.innerHTML=html;else b.textContent=html;
+  d.appendChild(av);d.appendChild(b);c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+function addTyping(){
+  const c=document.getElementById('hk-msgs');
+  const d=document.createElement('div');d.className='hk-msg kira';d.id='hk-typing';
+  d.innerHTML='<div class="hk-av">K</div><div class="hk-typing"><span></span><span></span><span></span></div>';
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+function rmTyping(){const t=document.getElementById('hk-typing');if(t)t.remove();}
+function setQR(btns){
+  const q=document.getElementById('hk-qr');q.innerHTML='';
+  btns.forEach(t=>{const b=document.createElement('button');b.className='hk-qr-btn';b.textContent=t;b.onclick=()=>{document.getElementById('hk-input').value=t;hkSend();};q.appendChild(b);});
+}
+function fmt(t){
+  t=t.replace(/約[\d〜~\-\s,万円]+万円/g,'<b>$&</b>');
+  t=t.replace(/¥[\d,]+/g,'<b>$&</b>');
+  t=t.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank">$1</a>');
+  t=t.replace(/\n/g,'<br>');
+  return t;
+}
+function buildCTA(){
+  return '<div class="hk-cta"><div class="hk-cta-head">▶ 正式診断 ／ HORIZON SHIELD</div><div class="hk-cta-price">¥55,000</div><div class="hk-cta-body">全項目の過剰請求額・適正価格・交渉文を完全レポートで。30年の経験が根拠。</div><a class="hk-cta-main" href="https://shield.the-horizons-innovation.com" target="_blank">今すぐ正式診断を申し込む →</a><a class="hk-cta-line" href="https://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ" target="_blank">📲 まず無料でLINE相談する</a></div>';
+}
+
+// ── FILE ──
+window.hkHandleFile=function(inp){
+  const f=inp.files[0];if(!f)return;
+  document.getElementById('hk-fprev').textContent=f.name;
+  document.getElementById('hk-fclr').style.display='block';
+  const r=new FileReader();r.onload=e=>{b64=e.target.result.split(',')[1];ftype=f.type;file=f.name;};r.readAsDataURL(f);
+};
+window.hkClearFile=function(){
+  file=null;b64=null;ftype=null;
+  document.getElementById('hk-file').value='';
+  document.getElementById('hk-fprev').textContent='';
+  document.getElementById('hk-fclr').style.display='none';
+};
+function hkResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,80)+'px';}
+function hkKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();hkSend();}}
+
+// ── SEND ──
+async function hkSend(){
+  const inp=document.getElementById('hk-input');
+  const txt=inp.value.trim();
+  if((!txt&&!file)||loading)return;
+  const uTxt=file?'【見積書添付：'+file+'】\n'+(txt||'この見積書を診断してください'):txt;
+  const rm=txt.match(/東京|大阪|名古屋|横浜|神奈川|埼玉|千葉|福岡|札幌|京都|神戸|沖縄|北海道/);
+  if(rm)sdata.region=rm[0];
+  if(txt.match(/万|円/))sdata.amount=txt.substr(0,50);
+  addMsg('user',fmt(txt||'📎'+file),true);
+  await saveMsg('user',uTxt);
+  inp.value='';inp.style.height='auto';
+  document.getElementById('hk-qr').innerHTML='';
+  const uc=[]; if(b64&&ftype.startsWith('image/'))uc.push({type:'image',source:{type:'base64',media_type:ftype,data:b64}});
+  uc.push({type:'text',text:uTxt});
+  const msgs=[...hist.slice(-12),{role:'user',content:uc}];
+  hkClearFile();
+  loading=true;document.getElementById('hk-send').disabled=true;
+  addTyping();
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,system:SYS,messages:msgs})});
+    const d=await res.json();rmTyping();
+    const rep=d.content?.[0]?.text||'エラーが発生しました。';
+    hist.push({role:'user',content:uTxt});hist.push({role:'assistant',content:rep});
+    await saveMsg('assistant',rep);
+    const hasDiag=rep.includes('万円')||rep.includes('削減')||rep.includes('過剰')||rep.includes('適正');
+    let html=fmt(rep);
+    if(hasDiag){
+      html+=buildCTA();
+      await saveProspect(uTxt.substr(0,100));
+      await notifyLINE('地域：'+sdata.region+'\n金額：'+sdata.amount+'\n内容：'+uTxt.substr(0,100));
     }
+    addMsg('kira',html,true);
+    setQR(hasDiag?['正式診断を申し込みたい','他の箇所も確認したい','LINEで相談する']:['見積書を添付します','金額を教えます','地域を教えます','他にも不安があります']);
+  }catch(e){rmTyping();addMsg('kira','通信エラーが発生しました。再度お試しください。');}
+  loading=false;document.getElementById('hk-send').disabled=false;
+  document.getElementById('hk-input').focus();
+}
 
-    modal.style.display = 'block';
-    closeBtn.style.display = 'flex';
-    badge.style.display = 'none';
-    open = true;
+// ── TOGGLE ──
+window.hsKiraToggle=function(){modalOpen?hsKiraClose():hsKiraOpen();};
+window.hsKiraOpen=async function(){
+  document.getElementById('hs-kira-modal').classList.add('open');
+  document.getElementById('hs-kira-notif').style.display='none';
+  modalOpen=true;
+  if(hist.length===0){
+    await checkDB();
+    const cnt=await loadHist();
+    const g=cnt>0?'前回の続きですね。\n\n'+cnt+'件の記憶があります。\n見積書を送るか、続きを話してください。':'KIRA v4.0です。\n\n見積書の画像を送れば、即座に診断します。\n地域と工事の種類も教えてください。\n\nあなたの感覚は、正しいかもしれない。';
+    setTimeout(()=>{addMsg('kira',fmt(g),true);setQR(['見積書が高い気がする','「一式」表記が気になる','追加工事を断れなかった','タックダインを勧められた','床下工事が高すぎる']);},200);
+  }
+};
+window.hsKiraClose=function(){
+  document.getElementById('hs-kira-modal').classList.remove('open');
+  modalOpen=false;
+};
 
-    // 30秒後にバッジを表示（未読促進）
-    setTimeout(()=>{
-      if(!open){
-        badge.style.display = 'flex';
-        badge.textContent = '!';
-      }
-    }, 30000);
-  };
-
-  window.closeKira = function(){
-    document.getElementById('kira-modal').style.display = 'none';
-    document.getElementById('kira-close').style.display = 'none';
-    open = false;
-  };
-
-  // 15秒後に自動でバッジを表示（初回訪問者への促し）
-  setTimeout(()=>{
-    if(!open){
-      const badge = document.getElementById('kira-badge');
-      badge.style.display = 'flex';
-      badge.textContent = '1';
-      // ボタンを少し揺らす
-      const btn = document.getElementById('kira-float-btn');
-      btn.style.animation = 'kira-pulse .4s ease 3';
-    }
-  }, 15000);
+// 20秒後にバッジ
+setTimeout(()=>{
+  if(!modalOpen){const n=document.getElementById('hs-kira-notif');n.style.display='flex';}
+},20000);
 })();
 </script>
-<!-- ═══════════════════════════════════════════ --></body>
+<!-- ============================================ --></body>
 </html>
