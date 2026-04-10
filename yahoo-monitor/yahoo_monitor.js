@@ -168,7 +168,7 @@ async function main() {
   try {
     executablePath = execSync('which chromium-browser || which chromium || which google-chrome').toString().trim();
   } catch {
-    executablePath = '/usr/bin/chromium-browser';
+    executablePath = '/Users/oogatoshikatsu/.cache/puppeteer/chrome/mac_arm-121.0.6167.85/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing';
   }
 
   const browser = await puppeteer.launch({
