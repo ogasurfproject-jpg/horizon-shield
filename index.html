@@ -1069,51 +1069,7 @@ footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-
   </div>
 </div>
 
-<script data-cfasync="false">
-// ── シェア ──
-function shareToX(){var s=document.getElementById('diag-saving-text').textContent;window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent('見積書を無料AI診断したら'+s+'削減できる可能性があると判定されました。HORIZON SHIELDで確認→')+'&url='+encodeURIComponent('https://shield.the-horizons-innovation.com/#diagnosis'),'_blank');}
-function shareToLine(){var s=document.getElementById('diag-saving-text').textContent;window.open('https://line.me/R/msg/text/?'+encodeURIComponent('見積書を無料AI診断したら'+s+'削減できる可能性があります！無料で試せます→ https://shield.the-horizons-innovation.com/#diagnosis'),'_blank');}
-function shareToOC(){window.open('https://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ','_blank');}
 
-// ── 診断フォーム ──
-var diagFileData=null,diagFileType=null,diagName='',diagEmail='';
-function diagNext1(){diagName=document.getElementById('diag-name').value.trim();diagEmail=document.getElementById('diag-email').value.trim();if(!diagName||!diagEmail){showDiagError('お名前とメールアドレスを入力してください');return;}if(!diagEmail.includes('@')){showDiagError('正しいメールアドレスを入力してください');return;}hideDiagError();document.getElementById('diag-step1').style.display='none';document.getElementById('diag-step2').style.display='block';}
-function diagBack1(){document.getElementById('diag-step2').style.display='none';document.getElementById('diag-step1').style.display='block';}
-function diagFileSelected(input){var file=input.files[0];if(!file)return;diagFileType=file.type;var reader=new FileReader();reader.onload=function(e){var result=e.target.result;diagFileData=result.split(',')[1];if(file.type.startsWith('image/')){document.getElementById('diag-preview-img').src=result;document.getElementById('diag-preview-img').style.display='block';}else{document.getElementById('diag-preview-img').style.display='none';}document.getElementById('diag-file-name').textContent='✓ '+file.name;document.getElementById('diag-preview').style.display='block';document.getElementById('diag-submit-btn').disabled=false;};reader.readAsDataURL(file);}
-async function diagSubmit(){if(!diagFileData)return;hideDiagError();document.getElementById('diag-step2').style.display='none';document.getElementById('diag-step3').style.display='block';try{var res=await fetch('https://hs-diagnosis.oga-surf-project.workers.dev/diagnose',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageBase64:diagFileData,mediaType:diagFileType,name:diagName,email:diagEmail})});var data=await res.json();if(!res.ok||!data.success)throw new Error(data.error||'診断に失敗しました');showDiagResult(data.diagnosis);}catch(err){document.getElementById('diag-step3').style.display='none';document.getElementById('diag-step2').style.display='block';showDiagError('診断中にエラーが発生しました。再度お試しください。');}}
-function showDiagResult(d){document.getElementById('diag-step3').style.display='none';document.getElementById('diag-step4').style.display='block';document.getElementById('diag-saving-text').textContent=d.savingMin+'万円〜'+d.savingMax+'万円';document.getElementById('diag-rate-text').textContent='削減率：約'+d.savingRate+'%（業界平均）';var itemsEl=document.getElementById('diag-items');itemsEl.innerHTML='';(d.highItems||[]).forEach(function(item){var tag=document.createElement('span');tag.style.cssText='background:rgba(255,48,64,0.12);border:1px solid rgba(255,48,64,0.4);color:#ff6b6b;font-size:12px;padding:4px 10px;';tag.textContent=item;itemsEl.appendChild(tag);});document.getElementById('diag-summary').textContent=d.summary||'';document.getElementById('diag-message').innerHTML='<span style="color:var(--cyan);font-size:11px;display:block;margin-bottom:4px">大賀 俊勝 より</span>'+(d.message||'');}
-function showDiagError(msg){var el=document.getElementById('diag-error');el.textContent=msg;el.style.display='block';}
-function hideDiagError(){document.getElementById('diag-error').style.display='none';}
-
-// ── Scroll Reveal ──
-if('IntersectionObserver' in window){var style=document.createElement('style');style.textContent='.reveal{opacity:0;transform:translateY(24px)}.reveal.visible{opacity:1;transform:translateY(0)}';document.head.appendChild(style);var obs=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('visible')});},{threshold:.05});document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el);});}
-
-// ── FAQ ──
-document.querySelectorAll('.faq-item').forEach(function(item){item.querySelector('.faq-head').addEventListener('click',function(){var o=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(function(i){i.classList.remove('open');});if(!o)item.classList.add('open');});});
-
-// ── 銀行振込モーダル ──
-function openPayjp(price,title){document.getElementById('bank-overlay').style.display='flex';document.getElementById('pj-title').textContent=title;document.getElementById('pj-price').textContent='¥'+price.toLocaleString()+'（税込）';}
-function closePayjp(){document.getElementById('bank-overlay').style.display='none';}
-
-// ── KIRA ──
-function openKira(){document.getElementById('kira-overlay').classList.add('open');if(!kiraHistory.length)kiraInit();setTimeout(function(){document.getElementById('kira-input').focus();},300);}
-function closeKira(){document.getElementById('kira-overlay').classList.remove('open');}
-function closeKiraOutside(e){if(e.target===document.getElementById('kira-overlay'))closeKira();}
-var KIRA_SYSTEM='あなたはHORIZON SHIELDの専属AI営業スペシャリスト「KIRA（きら）」です。\n【絶対ルール】必ず返答。3〜5行以内。毎回URLを入れる。\n【サービス】\n・建設費診断レポート ¥55,000（見積書査定・2営業日PDF納品）\n・変更工事費用確認レポート ¥33,000（追加費用確認・24時間PDF納品）\n・完成検査立会い・報告書 ¥88,000+交通費\nhttps://shield.the-horizons-innovation.com\n訪問工事業者による高額請求トラブルが報告されています。\n見積もりが適正かどうか、写真を送って30秒で診断';
-var kiraHistory=[];
-function kiraInit(){kiraAddMsg('ai','こんにちは。HORIZON SHIELDのKIRAです。<br><strong style="color:var(--gold2)">大工出身のCM専門家</strong>が、発注者の側に立って見積書を査定します。<br>何でもお聞きください。',true);kiraSetQR(['見積書が高い気がする','訪問業者が来た','追加工事費が妥当か確認したい','サービスと料金を教えて']);}
-function kiraAddMsg(role,html,isHtml){var msgs=document.getElementById('kira-msgs');var div=document.createElement('div');div.className='k-msg '+role;var bubble=document.createElement('div');bubble.className='k-bubble';if(isHtml)bubble.innerHTML=html;else bubble.textContent=html;div.appendChild(bubble);msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;}
-function kiraShowTyping(){var msgs=document.getElementById('kira-msgs');var div=document.createElement('div');div.id='kira-typing';div.className='k-msg ai';div.innerHTML='<div class="k-bubble"><div class="kira-typing"><span></span><span></span><span></span></div></div>';msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;}
-function kiraHideTyping(){var el=document.getElementById('kira-typing');if(el)el.remove();}
-function kiraSetQR(items){var area=document.getElementById('kira-qr');area.innerHTML='';items.forEach(function(text){var btn=document.createElement('button');btn.className='kira-qr-btn';btn.textContent=text;btn.onclick=function(){kiraSendMsg(text);};area.appendChild(btn);});}
-function formatKira(text){return text.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--gold2)">$1</strong>').replace(/¥[\d,]+/g,function(m){return'<span style="color:var(--cyan)">'+m+'</span>';}).replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" class="k-cta-btn">今すぐ申し込む →</a>').replace(/\n/g,'<br>');}
-async function kiraSendMsg(text){if(!text.trim())return;document.getElementById('kira-input').value='';document.getElementById('kira-input').style.height='auto';document.getElementById('kira-qr').innerHTML='';kiraAddMsg('user',text);kiraHistory.push({role:'user',content:text});document.getElementById('kira-send-btn').disabled=true;kiraShowTyping();try{var res=await fetch('https://horizon-shield-kira.oga-surf-project.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1000,system:KIRA_SYSTEM,messages:kiraHistory})});var data=await res.json();var reply=data.content&&data.content[0]&&data.content[0].text||'すみません、少し問題が発生しました。contact@the-horizons-innovation.com までご連絡ください。';kiraHistory.push({role:'assistant',content:reply});kiraHideTyping();kiraAddMsg('ai',formatKira(reply),true);kiraSetQR(['もっと詳しく教えて','今すぐ申し込みたい','他のサービスは？','メールで相談したい']);}catch(e){kiraHideTyping();kiraAddMsg('ai','エラーが発生しました。contact@the-horizons-innovation.com までご連絡ください。');}document.getElementById('kira-send-btn').disabled=false;}
-function kirasSend(){var val=document.getElementById('kira-input').value.trim();if(val)kiraSendMsg(val);}
-
-// ── デモチャット ──
-var DEMO_QA={'訪問業者':'訪問工事業者による高額請求のトラブルが報告されています。\n契約前に見積書を送ってください。<strong style="color:var(--gold2)">2営業日以内</strong>に適正価格かどうか判定します。\n料金は<strong style="color:var(--cyan)">¥55,000</strong>です。','見積書':'見積書をメールで送るだけで、<strong style="color:var(--gold2)">2営業日以内</strong>に「高い項目・交渉目標値・交渉文言」の3点セットをPDFでお返しします。<br>料金は<strong style="color:var(--cyan)">¥55,000</strong>（工事費500万以下）です。','料金':'3つのサービスがあります：<br>① 建設費診断レポート <strong style="color:var(--cyan)">¥55,000</strong>（2営業日PDF納品）<br>② 変更工事費用確認 <strong style="color:var(--cyan)">¥33,000</strong>（24時間PDF納品）<br>③ 完成検査立会い <strong style="color:var(--cyan)">¥88,000</strong>+交通費','追加工事':'工事中に「追加工事が必要」と言われた場合は、<strong style="color:var(--gold2)">変更工事費用確認レポート</strong>（¥33,000）をご利用ください。<br>24時間以内に妥当性を判定してPDFでお伝えします。'};
-function demoSend(){var input=document.getElementById('demo-input');var val=input.value.trim();if(!val)return;input.value='';var msgs=document.getElementById('demo-msgs');var uDiv=document.createElement('div');uDiv.className='demo-msg user';uDiv.innerHTML='<div class="demo-label">YOU</div><div class="demo-bubble">'+val+'</div>';msgs.appendChild(uDiv);msgs.scrollTop=msgs.scrollHeight;setTimeout(function(){var reply='ご質問ありがとうございます。詳しくはKIRAに直接お聞きください。';for(var key in DEMO_QA){if(val.includes(key)){reply=DEMO_QA[key];break;}}var aDiv=document.createElement('div');aDiv.className='demo-msg ai';aDiv.innerHTML='<div class="demo-label">KIRA</div><div class="demo-bubble">'+reply+'</div>';msgs.appendChild(aDiv);msgs.scrollTop=msgs.scrollHeight;},600);}
-</script>
 
 <!-- ═══ WORMHOLE JS ═══ -->
 <script>
