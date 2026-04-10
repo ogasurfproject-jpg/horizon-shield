@@ -1271,5 +1271,213 @@ window.addEventListener('orientationchange',function(){
   };
 })();
 </script>
-</body>
+  <!-- ═══════════════════════════════════════════ -->
+<!-- KIRA v4 フローティングボタン               -->
+<!-- </body>の直前に貼れ                        -->
+<!-- ═══════════════════════════════════════════ -->
+
+<style>
+#kira-float-btn {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #E8392A;
+  color: #fff;
+  border: none;
+  padding: 0 20px 0 6px;
+  height: 56px;
+  border-radius: 28px;
+  cursor: pointer;
+  box-shadow: 0 0 0 0 rgba(232,57,42,.6);
+  animation: kira-pulse 2s infinite;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  transition: transform .2s, box-shadow .2s;
+}
+#kira-float-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 32px rgba(232,57,42,.5);
+}
+@keyframes kira-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(232,57,42,.6); }
+  70%  { box-shadow: 0 0 0 14px rgba(232,57,42,0); }
+  100% { box-shadow: 0 0 0 0 rgba(232,57,42,0); }
+}
+.kira-brain-icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+#kira-modal {
+  display: none;
+  position: fixed;
+  bottom: 96px;
+  right: 28px;
+  width: 380px;
+  height: 620px;
+  z-index: 9998;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(232,57,42,.3);
+  animation: kira-slide-up .3s cubic-bezier(.16,1,.3,1);
+}
+@keyframes kira-slide-up {
+  from { opacity:0; transform: translateY(20px) scale(.96); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+#kira-modal iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+#kira-close {
+  position: fixed;
+  bottom: 706px;
+  right: 28px;
+  z-index: 9999;
+  width: 32px;
+  height: 32px;
+  background: #161616;
+  border: 1px solid #333;
+  border-radius: 50%;
+  color: #888;
+  font-size: 16px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s;
+}
+#kira-close:hover { background: #E8392A; color: #fff; border-color: #E8392A; }
+#kira-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  background: #F5C518;
+  border-radius: 50%;
+  font-size: 10px;
+  color: #000;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Share Tech Mono', monospace;
+}
+@media (max-width: 480px) {
+  #kira-modal {
+    width: calc(100vw - 16px);
+    height: 70vh;
+    right: 8px;
+    bottom: 88px;
+  }
+  #kira-close { right: 8px; bottom: calc(70vh + 98px); }
+}
+</style>
+
+<!-- フローティングボタン -->
+<button id="kira-float-btn" onclick="toggleKira()" aria-label="無料AI見積書診断">
+  <svg class="kira-brain-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- 2030年型ニューラルブレインアイコン -->
+    <circle cx="22" cy="22" r="21" fill="#0a0a0a" stroke="#E8392A" stroke-width="1"/>
+    <!-- 外周リング -->
+    <circle cx="22" cy="22" r="17" fill="none" stroke="#E8392A" stroke-width=".5" stroke-dasharray="3 2" opacity=".4"/>
+    <!-- ニューラルノード -->
+    <circle cx="22" cy="10" r="2.5" fill="#E8392A"/>
+    <circle cx="32" cy="16" r="2"   fill="#F5C518"/>
+    <circle cx="34" cy="27" r="2"   fill="#E8392A"/>
+    <circle cx="27" cy="35" r="2"   fill="#F5C518"/>
+    <circle cx="17" cy="35" r="2"   fill="#E8392A"/>
+    <circle cx="10" cy="27" r="2"   fill="#F5C518"/>
+    <circle cx="12" cy="16" r="2"   fill="#E8392A"/>
+    <circle cx="22" cy="22" r="3.5" fill="#fff"/>
+    <!-- ニューラルライン -->
+    <line x1="22" y1="12.5" x2="22" y2="18.5"  stroke="#E8392A" stroke-width=".8" opacity=".7"/>
+    <line x1="30.3" y1="17.5" x2="25" y2="20.5" stroke="#F5C518" stroke-width=".8" opacity=".7"/>
+    <line x1="32.3" y1="25.5" x2="25.5" y2="22.5" stroke="#E8392A" stroke-width=".8" opacity=".7"/>
+    <line x1="26" y1="33.2" x2="23.5" y2="25.5" stroke="#F5C518" stroke-width=".8" opacity=".7"/>
+    <line x1="18" y1="33.2" x2="20.5" y2="25.5" stroke="#E8392A" stroke-width=".8" opacity=".7"/>
+    <line x1="11.7" y1="25.5" x2="18.5" y2="22.5" stroke="#F5C518" stroke-width=".8" opacity=".7"/>
+    <line x1="13.7" y1="17.5" x2="19" y2="20.5"  stroke="#E8392A" stroke-width=".8" opacity=".7"/>
+    <!-- スキャンライン（動く） -->
+    <line id="kira-scan" x1="5" y1="22" x2="39" y2="22" stroke="#E8392A" stroke-width=".5" opacity=".3">
+      <animate attributeName="y1" values="8;36;8" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="y2" values="8;36;8" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values=".5;.1;.5" dur="2s" repeatCount="indefinite"/>
+    </line>
+  </svg>
+  無料AI診断
+  <span id="kira-badge" style="display:none">!</span>
+</button>
+
+<!-- 閉じるボタン -->
+<button id="kira-close" onclick="closeKira()">✕</button>
+
+<!-- KIRAモーダル -->
+<div id="kira-modal">
+  <iframe id="kira-iframe" src="" title="KIRA AI診断"></iframe>
+</div>
+
+<script>
+(function(){
+  let open = false;
+  let loaded = false;
+
+  window.toggleKira = function(){
+    open ? closeKira() : openKira();
+  };
+
+  window.openKira = function(){
+    const modal = document.getElementById('kira-modal');
+    const closeBtn = document.getElementById('kira-close');
+    const iframe = document.getElementById('kira-iframe');
+    const badge = document.getElementById('kira-badge');
+
+    if(!loaded){
+      // kira_v4.htmlのパスを環境に合わせて変更
+      iframe.src = '/kira_v4.html';
+      loaded = true;
+    }
+
+    modal.style.display = 'block';
+    closeBtn.style.display = 'flex';
+    badge.style.display = 'none';
+    open = true;
+
+    // 30秒後にバッジを表示（未読促進）
+    setTimeout(()=>{
+      if(!open){
+        badge.style.display = 'flex';
+        badge.textContent = '!';
+      }
+    }, 30000);
+  };
+
+  window.closeKira = function(){
+    document.getElementById('kira-modal').style.display = 'none';
+    document.getElementById('kira-close').style.display = 'none';
+    open = false;
+  };
+
+  // 15秒後に自動でバッジを表示（初回訪問者への促し）
+  setTimeout(()=>{
+    if(!open){
+      const badge = document.getElementById('kira-badge');
+      badge.style.display = 'flex';
+      badge.textContent = '1';
+      // ボタンを少し揺らす
+      const btn = document.getElementById('kira-float-btn');
+      btn.style.animation = 'kira-pulse .4s ease 3';
+    }
+  }, 15000);
+})();
+</script>
+<!-- ═══════════════════════════════════════════ --></body>
 </html>
