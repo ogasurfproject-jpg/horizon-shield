@@ -1231,22 +1231,7 @@ window.addEventListener('orientationchange',function(){
 </script>
 
 <script>
-function hsKiraOpen(){
-  var o=document.getElementById('kira-overlay');
-  o.classList.add('open');
-  var m=document.getElementById('kira-msgs');
-  if(m&&m.children.length===0){
-    var saved=localStorage.getItem('kira_mem');
-    if(saved){try{kiraMsgs=JSON.parse(saved);}catch(e){kiraMsgs=[];}}
-    var greeting=kiraMsgs.length>0
-      ?'お帰りなさい。前回の続きからどうぞ。\n'+kiraMsgs.length+'件の会話を記憶しています。'
-      :'こんにちは。HORIZON SHIELDのKIRAです。\n見積書の疑問・訪問工事業者への対策・サービス案内まで何でもお聞きします。';
-    var a=document.createElement('div');
-    a.className='k-msg ai';
-    a.innerHTML='<div class="k-bubble">'+greeting.replace(/\n/g,'<br>')+'</div>';
-    m.appendChild(a);
-  }
-}
+function hsKiraOpen(){var o=document.getElementById('kira-overlay');o.classList.add('open');var m=document.getElementById('kira-msgs');if(m&&m.children.length===0){var a=document.createElement('div');a.className='k-msg ai';a.innerHTML='<div class="k-bubble">こんにちは。HORIZON SHIELDのKIRAです。<br>見積書の疑問・訪問工事業者への対策・サービス案内まで何でもお聞きします。</div>';m.appendChild(a);}}
 function hsKiraClose(){document.getElementById('kira-overlay').classList.remove('open');}
 function hsKiraToggle(){var o=document.getElementById('kira-overlay');if(o.classList.contains('open')){hsKiraClose();}else{hsKiraOpen();}}
 function closeKiraOutside(e){if(e.target===document.getElementById('kira-overlay'))hsKiraClose();}
