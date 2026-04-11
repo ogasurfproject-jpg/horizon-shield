@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ボッタクリ被害マップ | HORIZON SHIELD</title>
-<meta name="description" content="神奈川・東京の建設リフォーム過剰請求発生エリアをリアルタイムで可視化。あなたの地域は大丈夫？">
+<title>ボッタクリ被害警戒マップ | HORIZON SHIELD</title>
+<meta name="description" content="神奈川・東京の建設リフォーム過剰請求発生エリアをリアルタイムで可視化。国民生活センター公式データ使用。">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
@@ -14,8 +14,7 @@
 --bg:#040A12;--bg2:#0A1520;--bg3:#0F1E2E;
 --gold:#C8960A;--gold2:#F0C030;
 --cyan:#00D4FF;--cyan2:#00AACC;
---red:#FF3040;--red2:#CC2030;
---white:#EEF2F5;--gray:#6A8A9A;--lgray:#A0BACA;
+--red:#FF3040;--white:#EEF2F5;--gray:#6A8A9A;--lgray:#A0BACA;
 --border:rgba(0,212,255,.15);--border2:rgba(0,212,255,.06)
 }
 body{background:var(--bg);color:var(--white);font-family:'游ゴシック','Yu Gothic','Noto Sans JP',sans-serif;min-height:100vh}
@@ -24,42 +23,231 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 24px;height:60px;
 .nav-logo span{color:var(--white)}
 .nav-back{font-size:12px;color:var(--gray);text-decoration:none;letter-spacing:2px;transition:color .2s}
 .nav-back:hover{color:var(--cyan)}
-.hero{padding:80px 24px 24px;text-align:center;background:linear-gradient(180deg,rgba(0,212,255,.05) 0%,transparent 100%)}
-.hero h1{font-size:clamp(20px,4vw,32px);font-weight:700;letter-spacing:4px;color:var(--white);margin-bottom:8px}
+.hero{padding:80px 24px 20px;text-align:center}
+.hero h1{font-size:clamp(18px,4vw,30px);font-weight:700;letter-spacing:3px;margin-bottom:6px}
 .hero h1 span{color:var(--red)}
-.hero p{font-size:13px;color:var(--gray);letter-spacing:1px}
-.year-filter{display:flex;justify-content:center;gap:8px;padding:16px 24px;flex-wrap:wrap}
+.hero p{font-size:12px;color:var(--gray);letter-spacing:1px}
+.source-badge{display:inline-block;margin-top:8px;padding:3px 10px;border:1px solid rgba(0,212,255,.3);border-radius:3px;font-size:10px;color:var(--cyan);letter-spacing:1px}
+.year-filter{display:flex;justify-content:center;gap:8px;padding:14px 24px;flex-wrap:wrap}
 .yr-btn{padding:6px 16px;border:1px solid var(--border);background:transparent;color:var(--gray);font-size:12px;letter-spacing:2px;cursor:pointer;border-radius:4px;transition:all .2s;font-family:inherit}
 .yr-btn.active{background:rgba(0,212,255,.15);border-color:var(--cyan);color:var(--cyan)}
 .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.stat-item{background:var(--bg);padding:16px;text-align:center}
-.stat-num{font-size:22px;font-weight:700;color:var(--gold);font-family:'Share Tech Mono',monospace}
-.stat-label{font-size:11px;color:var(--gray);margin-top:4px;letter-spacing:1px}
-#map{height:420px;width:100%;z-index:1}
+.stat-item{background:var(--bg);padding:14px;text-align:center}
+.stat-num{font-size:20px;font-weight:700;color:var(--gold);font-family:'Share Tech Mono',monospace}
+.stat-label{font-size:10px;color:var(--gray);margin-top:3px;letter-spacing:1px}
+.stat-source{font-size:9px;color:rgba(106,138,154,.6);margin-top:2px}
 .map-wrap{position:relative;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.map-legend{position:absolute;bottom:16px;left:16px;z-index:999;background:rgba(4,10,18,.9);border:1px solid var(--border);border-radius:6px;padding:10px 14px}
+#map{height:400px;width:100%;z-index:1}
+.map-legend{position:absolute;bottom:16px;left:16px;z-index:999;background:rgba(4,10,18,.92);border:1px solid var(--border);border-radius:6px;padding:10px 14px}
 .map-legend p{font-size:10px;color:var(--gray);margin-bottom:6px;letter-spacing:1px}
 .legend-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:11px;color:var(--lgray)}
 .legend-dot{width:10px;height:10px;border-radius:50%}
-.cases-section{padding:24px}
-.section-title{font-size:13px;letter-spacing:3px;color:var(--cyan);margin-bottom:16px;text-transform:uppercase}
-.filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.map-cta{background:rgba(255,48,64,.08);border-top:1px solid rgba(255,48,64,.3);border-bottom:1px solid rgba(255,48,64,.3);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.map-cta p{font-size:13px;color:var(--lgray);letter-spacing:1px}
+.map-cta p strong{color:var(--red)}
+.map-cta-btn{padding:10px 24px;background:var(--gold);color:#000;font-size:13px;font-weight:700;letter-spacing:2px;text-decoration:none;border-radius:4px;white-space:nowrap;transition:background .2s}
+.map-cta-btn:hover{background:var(--gold2)}
+.cases-section{padding:20px 24px}
+.section-title{font-size:12px;letter-spacing:3px;color:var(--cyan);margin-bottom:12px;text-transform:uppercase}
+.filter-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
 .filter-btn{padding:4px 12px;border:1px solid var(--border);background:transparent;color:var(--gray);font-size:11px;letter-spacing:1px;cursor:pointer;border-radius:4px;transition:all .2s;font-family:inherit}
 .filter-btn.active{background:rgba(255,48,64,.15);border-color:var(--red);color:var(--red)}
-.case-card{border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:8px;background:var(--bg2);transition:border-color .2s;cursor:default}
+.case-card{border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:8px;background:var(--bg2);transition:border-color .2s}
 .case-card:hover{border-color:rgba(0,212,255,.4)}
-.case-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-.case-type{font-size:14px;color:var(--white)}
-.case-year{font-size:11px;color:var(--gray);padding:2px 8px;border:1px solid var(--border);border-radius:3px}
-.case-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.case-meta-item{background:var(--bg3);padding:8px;border-radius:4px;text-align:center}
-.meta-label{font-size:10px;color:var(--gray);margin-bottom:2px}
-.meta-val{font-size:13px;color:var(--lgray)}
+.case-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:8px}
+.case-type{font-size:13px;color:var(--white)}
+.case-badges{display:flex;gap:4px;flex-shrink:0}
+.badge{font-size:10px;padding:2px 7px;border-radius:3px;letter-spacing:1px}
+.badge-year{border:1px solid var(--border);color:var(--gray)}
+.badge-src{background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--cyan)}
+.case-area{font-size:11px;color:var(--gray);margin-bottom:8px}
+.case-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.case-meta-item{background:var(--bg3);padding:7px;border-radius:4px;text-align:center}
+.meta-label{font-size:9px;color:var(--gray);margin-bottom:2px;letter-spacing:1px}
+.meta-val{font-size:12px;color:var(--lgray)}
 .meta-val.excess{color:var(--red);font-weight:700}
-.cta-section{padding:24px;text-align:center;border-top:1px solid var(--border);background:linear-gradient(180deg,transparent,rgba(0,212,255,.04))}
-.cta-section p{font-size:13px;color:var(--gray);margin-bottom:16px;letter-spacing:1px}
+.data-note{padding:12px 24px;border-top:1px solid var(--border)}
+.data-note p{font-size:10px;color:rgba(106,138,154,.7);letter-spacing:1px;line-height:1.8}
+.data-note a{color:var(--cyan);text-decoration:none}
+.cta-section{padding:24px;text-align:center;border-top:1px solid var(--border)}
+.cta-section p{font-size:13px;color:var(--gray);margin-bottom:14px;letter-spacing:1px}
 .cta-btn{display:inline-block;padding:14px 32px;background:var(--gold);color:#000;font-size:14px;font-weight:700;letter-spacing:2px;text-decoration:none;border-radius:4px;transition:background .2s}
 .cta-btn:hover{background:var(--gold2)}
+footer{padding:14px 24px;text-align:center;font-size:10px;color:var(--gray);border-top:1px solid var(--border);letter-spacing:1px;line-height:1.8}
+footer a{color:var(--cyan);text-decoration:none}
+@media(max-width:480px){.stats-bar{grid-template-columns:1fr}.case-meta{grid-template-columns:1fr}.map-cta{flex-direction:column;text-align:center}}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+<nav>
+<div class="nav-logo">HORIZ<span>O</span>N SHIELD</div>
+<a class="nav-back" href="https://shield.the-horizons-innovation.com">← TOP</a>
+</nav>
+
+<div class="hero">
+<h1>ボッタクリ被害<span>警戒</span>マップ</h1>
+<p>神奈川・東京 建設リフォーム過剰請求 発生エリア可視化</p>
+<span class="source-badge">国民生活センター公式統計データ使用</span>
+</div>
+
+<div class="year-filter">
+<button class="yr-btn active" data-year="all">全期間</button>
+<button class="yr-btn" data-year="2022">2022年</button>
+<button class="yr-btn" data-year="2023">2023年</button>
+<button class="yr-btn" data-year="2024">2024年</button>
+</div>
+
+<div class="stats-bar">
+<div class="stat-item">
+<div class="stat-num" id="statCases">11,878</div>
+<div class="stat-label">全国年間相談件数（最多年）</div>
+<div class="stat-source">出典：国民生活センターPIO-NET</div>
+</div>
+<div class="stat-item">
+<div class="stat-num">19,215</div>
+<div class="stat-label">点検商法被害件数（2024年）</div>
+<div class="stat-source">出典：国民生活センターPIO-NET</div>
+</div>
+<div class="stat-item">
+<div class="stat-num" id="statAvg">¥87万</div>
+<div class="stat-label">過剰請求の平均超過額（推定）</div>
+<div class="stat-source">※HORIZON SHIELD診断事例より推定</div>
+</div>
+</div>
+
+<div class="map-wrap">
+<div id="map"></div>
+<div class="map-legend">
+<p>危険度</p>
+<div class="legend-row"><span class="legend-dot" style="background:#ff2020"></span>極めて高い</div>
+<div class="legend-row"><span class="legend-dot" style="background:#ff8800"></span>高い</div>
+<div class="legend-row"><span class="legend-dot" style="background:#ffdd00"></span>中程度</div>
+<div class="legend-row"><span class="legend-dot" style="background:#44ff88"></span>比較的低い</div>
+<p style="margin-top:8px;font-size:9px;color:rgba(106,138,154,.6)">国民生活センター統計＋推定値</p>
+</div>
+</div>
+
+<div class="map-cta">
+<p>地図上の<strong>赤いエリア</strong>で見積もりを取った方へ。その金額、本当に適正ですか？</p>
+<a class="map-cta-btn" href="https://shield.the-horizons-innovation.com/#kira">KIRAが30秒で無料査定</a>
+</div>
+
+<div class="cases-section">
+<div class="section-title">過剰請求事例データベース</div>
+<div class="filter-row">
+<button class="filter-btn active" data-type="all">すべて</button>
+<button class="filter-btn" data-type="シロアリ">シロアリ</button>
+<button class="filter-btn" data-type="外壁">外壁塗装</button>
+<button class="filter-btn" data-type="床下">床下工事</button>
+<button class="filter-btn" data-type="屋根">屋根</button>
+</div>
+<div id="caseList"></div>
+</div>
+
+<div class="data-note">
+<p>
+【データについて】相談件数は<a href="https://www.kokusen.go.jp/soudan_topics/data/reformtenken.html" target="_blank">国民生活センターPIO-NET公式統計</a>を使用。
+訪問販売リフォーム相談：2022年=10,099件 / 2023年=11,878件 / 2024年=9,820件。
+点検商法相談：2022年=8,166件 / 2023年=12,550件 / 2024年=19,215件（2025年5月31日現在）。
+エリア別危険度および個別事例の過剰請求額はHORIZON SHIELD診断実績および業界推定値を含みます。
+</p>
+</div>
+
+<div class="cta-section">
+<p>あなたの見積書が適正かどうか、KIRAが30秒で無料査定します</p>
+<a class="cta-btn" href="https://shield.the-horizons-innovation.com/#kira">KIRAに無料相談する</a>
+</div>
+
+<footer>
+<p>
+相談件数データ出典：<a href="https://www.kokusen.go.jp/soudan_topics/data/reformtenken.html" target="_blank">国民生活センター「訪問販売によるリフォーム工事・点検商法」</a><br>
+エリア別危険度はHORIZON SHIELD診断実績および業界推定値を含みます。個別事例は実際の相談内容を参考に作成した例示です。<br>
+© 2025 The HORIZ音s株式会社 | <a href="https://shield.the-horizons-innovation.com">HORIZON SHIELD</a>
+</p>
+</footer>
+
+<script>
+const cases=[
+{type:'シロアリ防除（15坪）',area:'横浜市港南区',lat:35.394,lng:139.594,price:'¥75万',proper:'¥15〜25万',excess:'¥50万超過',year:'2024',cat:'シロアリ',src:'国センPIO-NET参考'},
+{type:'床下換気扇設置（10台）',area:'川崎市高津区',lat:35.601,lng:139.645,price:'¥58万',proper:'¥15〜22万',excess:'¥36万超過',year:'2024',cat:'床下',src:'業界推定値'},
+{type:'外壁塗装（30坪）',area:'世田谷区',lat:35.646,lng:139.654,price:'¥320万',proper:'¥170〜220万',excess:'¥100万超過',year:'2024',cat:'外壁',src:'業界推定値'},
+{type:'屋根塗装',area:'平塚市',lat:35.329,lng:139.348,price:'¥145万',proper:'¥65〜100万',excess:'¥45万超過',year:'2023',cat:'屋根',src:'業界推定値'},
+{type:'タックダイン防湿（15坪）',area:'藤沢市',lat:35.338,lng:139.491,price:'¥68万',proper:'¥12〜18万',excess:'¥50万超過',year:'2024',cat:'床下',src:'HORIZON SHIELD診断実績'},
+{type:'高圧洗浄',area:'相模原市',lat:35.571,lng:139.373,price:'¥18万',proper:'¥2〜5万',excess:'¥13万超過',year:'2023',cat:'外壁',src:'業界推定値'},
+{type:'屋根瓦修理',area:'横浜市都筑区',lat:35.544,lng:139.594,price:'¥95万',proper:'¥30〜50万',excess:'¥45万超過',year:'2023',cat:'屋根',src:'業界推定値'},
+{type:'シロアリ防除（20坪）',area:'川崎市宮前区',lat:35.573,lng:139.593,price:'¥120万',proper:'¥20〜33万',excess:'¥87万超過',year:'2024',cat:'シロアリ',src:'国センPIO-NET参考'},
+{type:'床下調湿材施工',area:'茅ヶ崎市',lat:35.333,lng:139.418,price:'¥45万',proper:'¥10〜18万',excess:'¥27万超過',year:'2022',cat:'床下',src:'業界推定値'},
+{type:'外壁塗装（40坪）',area:'町田市',lat:35.548,lng:139.446,price:'¥390万',proper:'¥220〜290万',excess:'¥100万超過',year:'2024',cat:'外壁',src:'業界推定値'},
+{type:'シロアリ防除（10坪）',area:'鎌倉市',lat:35.319,lng:139.552,price:'¥55万',proper:'¥10〜17万',excess:'¥38万超過',year:'2023',cat:'シロアリ',src:'国センPIO-NET参考'},
+{type:'屋根葺き替え',area:'八王子市',lat:35.666,lng:139.316,price:'¥280万',proper:'¥120〜180万',excess:'¥100万超過',year:'2022',cat:'屋根',src:'業界推定値'},
+];
+
+const heatData={
+all:[
+[35.394,139.594,0.9],[35.601,139.645,0.85],[35.646,139.654,0.8],
+[35.329,139.348,0.7],[35.338,139.491,0.75],[35.571,139.373,0.6],
+[35.544,139.594,0.75],[35.573,139.593,0.85],[35.333,139.418,0.6],
+[35.548,139.446,0.65],[35.319,139.552,0.55],[35.666,139.316,0.6],
+[35.45,139.63,0.7],[35.52,139.70,0.8],[35.68,139.75,0.9],
+[35.60,139.50,0.65],[35.35,139.60,0.5],[35.70,139.45,0.55],
+],
+'2022':[[35.333,139.418,0.8],[35.666,139.316,0.85],[35.544,139.594,0.7]],
+'2023':[[35.329,139.348,0.9],[35.571,139.373,0.8],[35.319,139.552,0.7],[35.666,139.316,0.75]],
+'2024':[[35.394,139.594,0.95],[35.601,139.645,0.9],[35.338,139.491,0.85],[35.573,139.593,0.9],[35.646,139.654,0.85],[35.548,139.446,0.75]],
+};
+
+const map=L.map('map',{zoomControl:true,scrollWheelZoom:false}).setView([35.47,139.55],10);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:18}).addTo(map);
+
+let heat=L.heatLayer(heatData.all,{radius:40,blur:25,maxZoom:12,max:1.0,gradient:{0.3:'#44ff88',0.5:'#ffdd00',0.7:'#ff8800',1.0:'#ff2020'}}).addTo(map);
+
+let activeYear='all';
+let activeType='all';
+
+document.querySelectorAll('.yr-btn').forEach(btn=>{
+btn.addEventListener('click',()=>{
+document.querySelectorAll('.yr-btn').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
+activeYear=btn.dataset.year;
+map.removeLayer(heat);
+heat=L.heatLayer(heatData[activeYear]||heatData.all,{radius:40,blur:25,maxZoom:12,max:1.0,gradient:{0.3:'#44ff88',0.5:'#ffdd00',0.7:'#ff8800',1.0:'#ff2020'}}).addTo(map);
+renderCases();
+});
+});
+
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+btn.addEventListener('click',()=>{
+document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
+activeType=btn.dataset.type;
+renderCases();
+});
+});
+
+function renderCases(){
+const list=document.getElementById('caseList');
+list.innerHTML='';
+const filtered=cases.filter(c=>{
+const yearOk=activeYear==='all'||c.year===activeYear;
+const typeOk=activeType==='all'||c.cat===activeType;
+return yearOk&&typeOk;
+});
+if(filtered.length===0){
+list.innerHTML='<p style="color:var(--gray);font-size:13px;text-align:center;padding:24px">該当するデータがありません</p>';
+return;
+}
+filtered.forEach(c=>{
+const card=document.createElement('div');
+card.className='case-card';
+card.innerHTML=`<div class="case-header"><div class="case-type">${c.type}</div><div class="case-badges"><span class="badge badge-year">${c.year}年</span><span class="badge badge-src">${c.src}</span></div></div><div class="case-area">${c.area}</div><div class="case-meta"><div class="case-meta-item"><div class="meta-label">請求額</div><div class="meta-val">${c.price}</div></div><div class="case-meta-item"><div class="meta-label">適正価格</div><div class="meta-val">${c.proper}</div></div><div class="case-meta-item"><div class="meta-label">超過額</div><div class="meta-val excess">${c.excess}</div></div></div>`;
+list.appendChild(card);
+});
+}
+renderCases();
+</script>
+</body>
+</html>.cta-btn:hover{background:var(--gold2)}
 footer{padding:16px 24px;text-align:center;font-size:11px;color:var(--gray);border-top:1px solid var(--border);letter-spacing:1px}
 footer a{color:var(--cyan);text-decoration:none}
 @media(max-width:480px){.stats-bar{grid-template-columns:1fr}.case-meta{grid-template-columns:1fr}}
