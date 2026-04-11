@@ -1,0 +1,20 @@
+name: KIRA LINE Broadcast
+
+on:
+  schedule:
+    - cron: '0 23 * * *'  # JST 08:00 (UTC 23:00前日)
+  workflow_dispatch:
+
+jobs:
+  broadcast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: KIRA LINE配信
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+        run: node line-broadcast/broadcast.js
