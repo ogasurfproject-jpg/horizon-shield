@@ -148,7 +148,8 @@ async function postToNote(theme, articleText, imagePath) {
     console.log('ログインページURL:', page.url());
 
     await page.waitForSelector('input', { timeout: 10000 });
-const inputs = await page.$$('input');
+const inputs = await page.$$('input:not([type="hidden"])');
+console.log('入力フィールド数:', inputs.length);
 if (inputs.length >= 1) await inputs[0].type(NOTE_EMAIL, { delay: 50 });
 if (inputs.length >= 2) await inputs[1].type(NOTE_PASSWORD, { delay: 50 });
     await new Promise(r => setTimeout(r, 500));
