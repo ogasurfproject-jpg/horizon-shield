@@ -1236,7 +1236,7 @@ function hsKiraClose(){document.getElementById('kira-overlay').classList.remove(
 function hsKiraToggle(){var o=document.getElementById('kira-overlay');if(o.classList.contains('open')){hsKiraClose();}else{hsKiraOpen();}}
 function closeKiraOutside(e){if(e.target===document.getElementById('kira-overlay'))hsKiraClose();}
 var kiraMsgs=[],kiraLoading=false,kiraAttached=null;
-var KIRA_SYSTEM=`あなたはKIRA（Horizon AI Negotiation Agent）です。HORIZON SHIELDの建設費診断AI。大工歴30年の大賀俊勝監修。
+var KIRA_SYSTEM=`あなたはKIRA。絶対ルール：ユーザーから見積書の画像が送られてきていない場合は「見積書の画像をクリップアイコンから添付してください。画像なしでの診断はできません。」とだけ返す。それ以外は何も言わない。画像が添付されている場合のみ以下の診断を行う。
 
 【最重要戦略：煙に巻く診断】
 見積書を分析した場合：
