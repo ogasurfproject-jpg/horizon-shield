@@ -26,6 +26,31 @@ function getTodayTheme() {
   return THEMES[d % THEMES.length];
 }
 
+function apiLogin() {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({ login: NOTE_EMAIL, password: NOTE_PASSWORD });
+    const req = https.request({
+      hostname: 'note.com', path: '/api/v1/sessions/sign_in', method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body), 'Origin': 'https://note.com', 'Referer': 'https://note.com/login' },
+    }, (res) => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => {
+        const cookies = [];
+        for (let i = 0; i < res.rawHeaders.length; i += 2) {
+          if (res.rawHeaders[i].toLowerCase() === 'set-cookie') cookies.push(res.rawHeaders[i+1]);
+        }
+        console.log('APIログインステータス:', res.statusCode);
+        console.log('取得クッキー数:', cookies.length);
+        resolve({ cookies, json: JSON.parse(data) });
+      });
+    });
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
+}
+
 function downloadImage(url, dest) {
   return new Promise((resolve, reject) => {
     const proto = url.startsWith('https') ? https : http;
@@ -130,49 +155,7 @@ async function clickButtonByText(page, text) {
   return false;
 }
 
-async function noteLogin(page) {
-  await page.goto('https://note.com/login', { waitUntil: 'networkidle2', timeout: 30000 });
-  await new Promise(r => setTimeout(r, 3000));
-  console.log('ログインページURL:', page.url());
-
-  // Reactフォームに対応したinput値セット
-  await page.evaluate((email, pass) => {
-    const inputs = Array.from(document.querySelectorAll('input')).filter(i => i.type !== 'hidden');
-    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-    if (inputs[0]) {
-      setter.call(inputs[0], email);
-      inputs[0].dispatchEvent(new Event('input', { bubbles: true }));
-      inputs[0].dispatchEvent(new Event('change', { bubbles: true }));
-    }
-    if (inputs[1]) {
-      setter.call(inputs[1], pass);
-      inputs[1].dispatchEvent(new Event('input', { bubbles: true }));
-      inputs[1].dispatchEvent(new Event('change', { bubbles: true }));
-    }
-  }, NOTE_EMAIL, NOTE_PASSWORD);
-
-  await new Promise(r => setTimeout(r, 1500));
-
-  // ElementHandle.click()で信頼されたイベントとしてクリック
-  const submitBtn = await page.$('button[type="submit"]');
-  if (submitBtn) {
-    await Promise.all([
-      page.waitForNavigation({ timeout: 20000 }).catch(() => {}),
-      submitBtn.click()
-    ]);
-  } else {
-    await Promise.all([
-      page.waitForNavigation({ timeout: 20000 }).catch(() => {}),
-      page.keyboard.press('Enter')
-    ]);
-  }
-
-  await new Promise(r => setTimeout(r, 3000));
-  console.log('ログイン後URL:', page.url());
-  if (page.url().includes('login')) throw new Error('ログイン失敗: ' + page.url());
-}
-
-async function postToNote(theme, articleText, imagePath) {
+async function postToNote(theme, articleText, sessionCookies, imagePath) {
   console.log('ブラウザ起動中...');
   const browser = await puppeteerExtra.launch({
     executablePath: '/usr/bin/google-chrome-stable',
@@ -184,8 +167,53 @@ async function postToNote(theme, articleText, imagePath) {
   await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36');
 
   try {
-    await noteLogin(page);
+    // クッキー注入
+    await page.goto('https://note.com', { waitUntil: 'domcontentloaded', timeout: 15000 });
+    for (const cookieStr of sessionCookies) {
+      const parts = cookieStr.split(';').map(p => p.trim());
+      const eqIdx = parts[0].indexOf('=');
+      const name  = parts[0].slice(0, eqIdx).trim();
+      const value = parts[0].slice(eqIdx + 1).trim();
+      await page.setCookie({ name, value, domain: '.note.com', path: '/' });
+    }
+    await page.reload({ waitUntil: 'networkidle2', timeout: 20000 });
+    await new Promise(r => setTimeout(r, 2000));
+    console.log('クッキー注入後URL:', page.url());
 
+    // クッキーが効かない場合はPuppeteerで直接ログイン
+    if (page.url().includes('login') || page.url().includes('signin')) {
+      console.log('クッキー無効→直接ログイン');
+      await page.goto('https://note.com/login', { waitUntil: 'networkidle2', timeout: 20000 });
+      await new Promise(r => setTimeout(r, 2000));
+      const inputs = await page.$$('input:not([type="hidden"])');
+      console.log('入力フィールド数:', inputs.length);
+      if (inputs.length >= 1) {
+        await inputs[0].click({ clickCount: 3 });
+        await inputs[0].type(NOTE_EMAIL, { delay: 80 });
+      }
+      if (inputs.length >= 2) {
+        await inputs[1].click({ clickCount: 3 });
+        await inputs[1].type(NOTE_PASSWORD, { delay: 80 });
+      }
+      await new Promise(r => setTimeout(r, 1000));
+      const submitBtn = await page.$('button[type="submit"]');
+      if (submitBtn) {
+        await Promise.all([
+          page.waitForNavigation({ timeout: 20000 }).catch(() => {}),
+          submitBtn.click()
+        ]);
+      } else {
+        await Promise.all([
+          page.waitForNavigation({ timeout: 20000 }).catch(() => {}),
+          page.keyboard.press('Enter')
+        ]);
+      }
+      await new Promise(r => setTimeout(r, 3000));
+      console.log('直接ログイン後URL:', page.url());
+      if (page.url().includes('login')) throw new Error('ログイン失敗');
+    }
+
+    // エディタへ遷移
     await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
     await new Promise(r => setTimeout(r, 5000));
     console.log('エディタURL:', page.url());
@@ -276,8 +304,9 @@ async function main() {
     for (const key of required) { if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`); }
     const theme = getTodayTheme();
     console.log('今日のテーマ:', theme.title);
+    const { cookies } = await apiLogin();
     const [text, imagePath] = await Promise.all([generateArticle(theme), fetchImage(theme.imageQuery)]);
-    const url = await postToNote(theme, text, imagePath);
+    const url = await postToNote(theme, text, cookies, imagePath);
     await sendLine(`✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${url}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`);
     await broadcastToFollowers(theme, url);
     console.log('=== 完了 ===');
