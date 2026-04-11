@@ -153,24 +153,23 @@ async function noteLogin(page) {
 
   await new Promise(r => setTimeout(r, 1500));
 
-  // submitボタンをクリック
-  const submitted = await page.evaluate(() => {
-    const btn = document.querySelector('button[type="submit"]');
-    if (btn) { btn.click(); return true; }
-    const btns = Array.from(document.querySelectorAll('button'));
-    const loginBtn = btns.find(b => b.textContent.includes('ログイン') || b.textContent.includes('login'));
-    if (loginBtn) { loginBtn.click(); return true; }
-    return false;
-  });
-  console.log('ログインボタンクリック:', submitted);
+  // ElementHandle.click()で信頼されたイベントとしてクリック
+  const submitBtn = await page.$('button[type="submit"]');
+  if (submitBtn) {
+    await Promise.all([
+      page.waitForNavigation({ timeout: 20000 }).catch(() => {}),
+      submitBtn.click()
+    ]);
+  } else {
+    await Promise.all([
+      page.waitForNavigation({ timeout: 20000 }).catch(() => {}),
+      page.keyboard.press('Enter')
+    ]);
+  }
 
-  await page.waitForNavigation({ timeout: 20000 }).catch(() => {});
   await new Promise(r => setTimeout(r, 3000));
   console.log('ログイン後URL:', page.url());
-
-  if (page.url().includes('login')) {
-    throw new Error('ログイン失敗: ' + page.url());
-  }
+  if (page.url().includes('login')) throw new Error('ログイン失敗: ' + page.url());
 }
 
 async function postToNote(theme, articleText, imagePath) {
@@ -187,7 +186,6 @@ async function postToNote(theme, articleText, imagePath) {
   try {
     await noteLogin(page);
 
-    // エディタへ遷移
     await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
     await new Promise(r => setTimeout(r, 5000));
     console.log('エディタURL:', page.url());
@@ -196,7 +194,6 @@ async function postToNote(theme, articleText, imagePath) {
     console.log('contenteditable数:', editableCount);
     if (editableCount === 0) throw new Error('エディタが開けていない: ' + page.url());
 
-    // 見出し画像アップロード
     if (imagePath && fs.existsSync(imagePath)) {
       try {
         let fileInput = await page.$('input[type="file"]');
@@ -215,7 +212,6 @@ async function postToNote(theme, articleText, imagePath) {
       }
     }
 
-    // タイトル入力
     const titleEl = await page.$('[placeholder="記事タイトル"]');
     if (titleEl) {
       await titleEl.click();
@@ -224,7 +220,6 @@ async function postToNote(theme, articleText, imagePath) {
     }
     await new Promise(r => setTimeout(r, 500));
 
-    // 本文入力
     const editables = await page.$$('[contenteditable]');
     await editables[editables.length - 1].click();
     await new Promise(r => setTimeout(r, 500));
@@ -239,12 +234,10 @@ async function postToNote(theme, articleText, imagePath) {
     console.log('本文入力完了');
     await new Promise(r => setTimeout(r, 3000));
 
-    // 公開に進む
     const pub = await clickButtonByText(page, '公開に進む');
     console.log('公開に進む:', pub ? '成功' : '失敗');
     await new Promise(r => setTimeout(r, 3000));
 
-    // ハッシュタグ入力
     try {
       const hashtagInput = await page.$('input[placeholder*="ハッシュタグ"], input[placeholder*="タグ"]');
       if (hashtagInput) {
@@ -261,7 +254,6 @@ async function postToNote(theme, articleText, imagePath) {
     }
     await new Promise(r => setTimeout(r, 1000));
 
-    // 投稿する
     const post = await clickButtonByText(page, '投稿する');
     console.log('投稿する:', post ? '成功' : '失敗');
     await new Promise(r => setTimeout(r, 5000));
