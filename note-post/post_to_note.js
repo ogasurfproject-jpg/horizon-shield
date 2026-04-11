@@ -26,29 +26,6 @@ function getTodayTheme() {
   return THEMES[d % THEMES.length];
 }
 
-function apiLogin() {
-  return new Promise((resolve, reject) => {
-    const body = JSON.stringify({ login: NOTE_EMAIL, password: NOTE_PASSWORD });
-    const req = https.request({
-      hostname: 'note.com', path: '/api/v1/sessions/sign_in', method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body), 'Origin': 'https://note.com', 'Referer': 'https://note.com/login' },
-    }, (res) => {
-      let data = '';
-      res.on('data', c => data += c);
-      res.on('end', () => {
-        const cookies = [];
-        for (let i = 0; i < res.rawHeaders.length; i += 2) {
-          if (res.rawHeaders[i].toLowerCase() === 'set-cookie') cookies.push(res.rawHeaders[i+1]);
-        }
-        resolve({ cookies, json: JSON.parse(data) });
-      });
-    });
-    req.on('error', reject);
-    req.write(body);
-    req.end();
-  });
-}
-
 function downloadImage(url, dest) {
   return new Promise((resolve, reject) => {
     const proto = url.startsWith('https') ? https : http;
@@ -153,7 +130,7 @@ async function clickButtonByText(page, text) {
   return false;
 }
 
-async function postToNote(theme, articleText, sessionCookies, imagePath) {
+async function postToNote(theme, articleText, imagePath) {
   console.log('ブラウザ起動中...');
   const browser = await puppeteerExtra.launch({
     executablePath: '/usr/bin/google-chrome-stable',
@@ -165,42 +142,20 @@ async function postToNote(theme, articleText, sessionCookies, imagePath) {
   await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36');
 
   try {
-    // Cookie注入
-    await page.goto('https://note.com', { waitUntil: 'domcontentloaded', timeout: 15000 });
-    for (const cookieStr of sessionCookies) {
-      const parts = cookieStr.split(';').map(p => p.trim());
-      const eqIdx = parts[0].indexOf('=');
-      const name  = parts[0].slice(0, eqIdx).trim();
-      const value = parts[0].slice(eqIdx + 1).trim();
-      await page.setCookie({ name, value, domain: '.note.com', path: '/' });
-    }
-    await page.reload({ waitUntil: 'networkidle2', timeout: 20000 });
+    // Puppeteerで直接ログイン
+    await page.goto('https://note.com/login', { waitUntil: 'networkidle2', timeout: 20000 });
     await new Promise(r => setTimeout(r, 2000));
-    console.log('ログイン状態:', page.url());
+    console.log('ログインページURL:', page.url());
 
-    // クッキーが無効だった場合はPuppeteerで直接ログイン
-    if (page.url().includes('login') || page.url().includes('signin')) {
-      console.log('クッキー無効、直接ログイン試行');
-      await page.goto('https://note.com/login', { waitUntil: 'networkidle2', timeout: 20000 });
-      await new Promise(r => setTimeout(r, 2000));
-      const emailInput = await page.$('input[type="email"], input[name="email"], input[placeholder*="メール"]');
-      if (emailInput) {
-        await emailInput.click();
-        await page.keyboard.type(NOTE_EMAIL, { delay: 50 });
-      }
-      const passInput = await page.$('input[type="password"], input[name="password"]');
-      if (passInput) {
-        await passInput.click();
-        await page.keyboard.type(NOTE_PASSWORD, { delay: 50 });
-      }
-      await new Promise(r => setTimeout(r, 500));
-      await Promise.all([
-        page.waitForNavigation({ timeout: 20000 }).catch(() => {}),
-        page.keyboard.press('Enter')
-      ]);
-      await new Promise(r => setTimeout(r, 3000));
-      console.log('直接ログイン後URL:', page.url());
-    }
+    await page.type('input[name="login"]', NOTE_EMAIL, { delay: 50 });
+    await page.type('input[name="password"]', NOTE_PASSWORD, { delay: 50 });
+    await new Promise(r => setTimeout(r, 500));
+    await Promise.all([
+      page.waitForNavigation({ timeout: 20000 }).catch(() => {}),
+      page.keyboard.press('Enter')
+    ]);
+    await new Promise(r => setTimeout(r, 3000));
+    console.log('ログイン後URL:', page.url());
 
     // エディタへ直接遷移
     await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
@@ -298,9 +253,8 @@ async function main() {
     for (const key of required) { if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`); }
     const theme = getTodayTheme();
     console.log('今日のテーマ:', theme.title);
-    const { cookies } = await apiLogin();
     const [text, imagePath] = await Promise.all([generateArticle(theme), fetchImage(theme.imageQuery)]);
-    const url = await postToNote(theme, text, cookies, imagePath);
+    const url = await postToNote(theme, text, imagePath);
     await sendLine(`✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${url}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`);
     await broadcastToFollowers(theme, url);
     console.log('=== 完了 ===');
