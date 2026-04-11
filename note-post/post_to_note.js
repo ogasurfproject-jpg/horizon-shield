@@ -130,6 +130,49 @@ async function clickButtonByText(page, text) {
   return false;
 }
 
+async function noteLogin(page) {
+  await page.goto('https://note.com/login', { waitUntil: 'networkidle2', timeout: 30000 });
+  await new Promise(r => setTimeout(r, 3000));
+  console.log('ログインページURL:', page.url());
+
+  // Reactフォームに対応したinput値セット
+  await page.evaluate((email, pass) => {
+    const inputs = Array.from(document.querySelectorAll('input')).filter(i => i.type !== 'hidden');
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+    if (inputs[0]) {
+      setter.call(inputs[0], email);
+      inputs[0].dispatchEvent(new Event('input', { bubbles: true }));
+      inputs[0].dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    if (inputs[1]) {
+      setter.call(inputs[1], pass);
+      inputs[1].dispatchEvent(new Event('input', { bubbles: true }));
+      inputs[1].dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }, NOTE_EMAIL, NOTE_PASSWORD);
+
+  await new Promise(r => setTimeout(r, 1500));
+
+  // submitボタンをクリック
+  const submitted = await page.evaluate(() => {
+    const btn = document.querySelector('button[type="submit"]');
+    if (btn) { btn.click(); return true; }
+    const btns = Array.from(document.querySelectorAll('button'));
+    const loginBtn = btns.find(b => b.textContent.includes('ログイン') || b.textContent.includes('login'));
+    if (loginBtn) { loginBtn.click(); return true; }
+    return false;
+  });
+  console.log('ログインボタンクリック:', submitted);
+
+  await page.waitForNavigation({ timeout: 20000 }).catch(() => {});
+  await new Promise(r => setTimeout(r, 3000));
+  console.log('ログイン後URL:', page.url());
+
+  if (page.url().includes('login')) {
+    throw new Error('ログイン失敗: ' + page.url());
+  }
+}
+
 async function postToNote(theme, articleText, imagePath) {
   console.log('ブラウザ起動中...');
   const browser = await puppeteerExtra.launch({
@@ -142,25 +185,9 @@ async function postToNote(theme, articleText, imagePath) {
   await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36');
 
   try {
-    // Puppeteerで直接ログイン
-    await page.goto('https://note.com/login', { waitUntil: 'networkidle2', timeout: 20000 });
-    await new Promise(r => setTimeout(r, 2000));
-    console.log('ログインページURL:', page.url());
+    await noteLogin(page);
 
-    await page.waitForSelector('input', { timeout: 10000 });
-const inputs = await page.$$('input:not([type="hidden"])');
-console.log('入力フィールド数:', inputs.length);
-if (inputs.length >= 1) await inputs[0].type(NOTE_EMAIL, { delay: 50 });
-if (inputs.length >= 2) await inputs[1].type(NOTE_PASSWORD, { delay: 50 });
-    await new Promise(r => setTimeout(r, 500));
-    await Promise.all([
-      page.waitForNavigation({ timeout: 20000 }).catch(() => {}),
-      page.click('button[type="submit"]').catch(() => page.keyboard.press('Enter'))
-    ]);
-    await new Promise(r => setTimeout(r, 3000));
-    console.log('ログイン後URL:', page.url());
-
-    // エディタへ直接遷移
+    // エディタへ遷移
     await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
     await new Promise(r => setTimeout(r, 5000));
     console.log('エディタURL:', page.url());
@@ -182,8 +209,6 @@ if (inputs.length >= 2) await inputs[1].type(NOTE_PASSWORD, { delay: 50 });
           await fileInput.uploadFile(imagePath);
           await new Promise(r => setTimeout(r, 4000));
           console.log('見出し画像アップロード完了');
-        } else {
-          console.log('file inputが見つからない、スキップ');
         }
       } catch (e) {
         console.log('画像アップロードスキップ:', e.message);
@@ -206,7 +231,10 @@ if (inputs.length >= 2) await inputs[1].type(NOTE_PASSWORD, { delay: 50 });
     const paragraphs = articleText.split('\n\n').filter(p => p.trim());
     for (let i = 0; i < paragraphs.length; i++) {
       await page.keyboard.type(paragraphs[i].trim(), { delay: 0 });
-      if (i < paragraphs.length - 1) { await page.keyboard.press('Enter'); await page.keyboard.press('Enter'); }
+      if (i < paragraphs.length - 1) {
+        await page.keyboard.press('Enter');
+        await page.keyboard.press('Enter');
+      }
     }
     console.log('本文入力完了');
     await new Promise(r => setTimeout(r, 3000));
