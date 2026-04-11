@@ -1231,8 +1231,7 @@ window.addEventListener('orientationchange',function(){
 </script>
 
 <script>
-function hsKiraOpen(){var o=document.getElementById('kira-overlay');o.classList.add('open');var m=document.getElementById('kira-msgs');if(m&&m.children.length===0){kiraLoadMemory().then(function(){var a=document.createElement('div');a.className='k-msg ai';var greeting=kiraMsgs.length>0?'お帰りなさい。前回の続きからどうぞ。':'こんにちは。HORIZON SHIELDのKIRAです。\n見積書を添付するか、ご質問をどうぞ。';a.innerHTML='<div class="k-bubble">'+greeting.replace(/\n/g,'<br>')+'</div>';m.appendChild(a);});}}
-function hsKiraClose(){document.getElementById('kira-overlay').classList.remove('open');}
+function hsKiraOpen(){var o=document.getElementById('kira-overlay');o.classList.add('open');var m=document.getElementById('kira-msgs');if(m&&m.children.length===0){var saved=localStorage.getItem('kira_mem');if(saved)try{kiraMsgs=JSON.parse(saved);}catch(e){}var a=document.createElement('div');a.className='k-msg ai';a.innerHTML='<div class="k-bubble">こんにちは。HORIZON SHIELDのKIRAです。<br>見積書を添付するか、ご質問をどうぞ。</div>';m.appendChild(a);}}function hsKiraClose(){document.getElementById('kira-overlay').classList.remove('open');}
 function hsKiraToggle(){var o=document.getElementById('kira-overlay');if(o.classList.contains('open')){hsKiraClose();}else{hsKiraOpen();}}
 function closeKiraOutside(e){if(e.target===document.getElementById('kira-overlay'))hsKiraClose();}
 
@@ -1240,9 +1239,7 @@ var SUPABASE_URL='https://fbmtcuudvhqkhsnsmwcj.supabase.co';
 var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZibXRjdXVkdmhxa2hzbnNtd2NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MjExMzAsImV4cCI6MjA5MTM5NzEzMH0.nsJ1KbN6uXz_LdNsHDZ5esxr_cidPKXjp_kQL1LypCQ';
 var kiraSessionId=localStorage.getItem('kira_sid')||(function(){var id='ks_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);localStorage.setItem('kira_sid',id);return id;})();
 
-async function kiraLoadMemory(){try{var r=await fetch(SUPABASE_URL+'/rest/v1/kira_messages?session_id=eq.'+kiraSessionId+'&order=created_at.asc&limit=20',{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}});var d=await r.json();if(Array.isArray(d)&&d.length>0){kiraMsgs=d.map(function(m){return{role:m.role,content:m.content};});}}catch(e){var saved=localStorage.getItem('kira_mem');if(saved)try{kiraMsgs=JSON.parse(saved);}catch(e2){}}}
-async function kiraLoadMemory(){try{var controller=new AbortController();var timeout=setTimeout(function(){controller.abort();},3000);var r=await fetch(SUPABASE_URL+'/rest/v1/kira_messages?session_id=eq.'+kiraSessionId+'&order=created_at.asc&limit=20',{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},signal:controller.signal});clearTimeout(timeout);var d=await r.json();if(Array.isArray(d)&&d.length>0){kiraMsgs=d.map(function(m){return{role:m.role,content:m.content};});}}catch(e){var saved=localStorage.getItem('kira_mem');if(saved)try{kiraMsgs=JSON.parse(saved);}catch(e2){}}}
-async function kiraSaveMemory(role,content){try{await fetch(SUPABASE_URL+'/rest/v1/kira_messages',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'},body:JSON.stringify({session_id:kiraSessionId,role:role,content:typeof content==='string'?content:'[画像添付]'})});}catch(e){localStorage.setItem('kira_mem',JSON.stringify(kiraMsgs.slice(-20)));}}
+
 
 var kiraMsgs=[],kiraLoading=false,kiraAttached=null;
 var KIRA_SYSTEM=`あなたはKIRA（Horizon AI Negotiation Agent）です。HORIZON SHIELDの建設費診断AI。大工歴30年の大賀俊勝監修。
