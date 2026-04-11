@@ -155,7 +155,7 @@ if (inputs.length >= 2) await inputs[1].type(NOTE_PASSWORD, { delay: 50 });
     await new Promise(r => setTimeout(r, 500));
     await Promise.all([
       page.waitForNavigation({ timeout: 20000 }).catch(() => {}),
-      page.keyboard.press('Enter')
+      page.click('button[type="submit"]').catch(() => page.keyboard.press('Enter'))
     ]);
     await new Promise(r => setTimeout(r, 3000));
     console.log('ログイン後URL:', page.url());
