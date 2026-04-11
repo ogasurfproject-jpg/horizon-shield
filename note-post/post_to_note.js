@@ -147,7 +147,7 @@ async function postToNote(theme, articleText, imagePath) {
     await new Promise(r => setTimeout(r, 2000));
     console.log('ログインページURL:', page.url());
 
-    await page.type('input[name="login"]', NOTE_EMAIL, { delay: 50 });
+    await page.type('input[type="email"]', NOTE_EMAIL, { delay: 50 });
     await page.type('input[name="password"]', NOTE_PASSWORD, { delay: 50 });
     await new Promise(r => setTimeout(r, 500));
     await Promise.all([
