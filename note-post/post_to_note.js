@@ -1,8 +1,3 @@
-/**
- * HORIZON SHIELD note自動投稿 v4
- * 見出し画像 + ハッシュタグ + 自動投稿
- */
-
 const puppeteerExtra = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const https = require('https');
@@ -72,7 +67,6 @@ function downloadImage(url, dest) {
 
 async function fetchImage(query) {
   const imgPath = '/tmp/note_image.jpg';
-  // picsum.photos - 確実に動く無料画像サービス（1200x630固定）
   const seed = Buffer.from(query).reduce((a, b) => a + b, 0) % 1000;
   const url = `https://picsum.photos/seed/${seed}/1200/630`;
   try {
@@ -184,6 +178,30 @@ async function postToNote(theme, articleText, sessionCookies, imagePath) {
     await new Promise(r => setTimeout(r, 2000));
     console.log('ログイン状態:', page.url());
 
+    // クッキーが無効だった場合はPuppeteerで直接ログイン
+    if (page.url().includes('login') || page.url().includes('signin')) {
+      console.log('クッキー無効、直接ログイン試行');
+      await page.goto('https://note.com/login', { waitUntil: 'networkidle2', timeout: 20000 });
+      await new Promise(r => setTimeout(r, 2000));
+      const emailInput = await page.$('input[type="email"], input[name="email"], input[placeholder*="メール"]');
+      if (emailInput) {
+        await emailInput.click();
+        await page.keyboard.type(NOTE_EMAIL, { delay: 50 });
+      }
+      const passInput = await page.$('input[type="password"], input[name="password"]');
+      if (passInput) {
+        await passInput.click();
+        await page.keyboard.type(NOTE_PASSWORD, { delay: 50 });
+      }
+      await new Promise(r => setTimeout(r, 500));
+      await Promise.all([
+        page.waitForNavigation({ timeout: 20000 }).catch(() => {}),
+        page.keyboard.press('Enter')
+      ]);
+      await new Promise(r => setTimeout(r, 3000));
+      console.log('直接ログイン後URL:', page.url());
+    }
+
     // エディタへ直接遷移
     await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
     await new Promise(r => setTimeout(r, 5000));
@@ -196,10 +214,8 @@ async function postToNote(theme, articleText, sessionCookies, imagePath) {
     // 見出し画像アップロード
     if (imagePath && fs.existsSync(imagePath)) {
       try {
-        // まず直接file inputを探す（DOMに隠れて存在する場合）
         let fileInput = await page.$('input[type="file"]');
         if (!fileInput) {
-          // なければ「設定する」ボタンをクリックして出現を待つ
           await clickButtonByText(page, '設定する');
           await new Promise(r => setTimeout(r, 2000));
           fileInput = await page.$('input[type="file"]');
