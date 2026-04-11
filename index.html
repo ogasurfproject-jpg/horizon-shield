@@ -1231,60 +1231,77 @@ window.addEventListener('orientationchange',function(){
 </script>
 
 <script>
-function hsKiraOpen(){var o=document.getElementById('kira-overlay');o.classList.add('open');var m=document.getElementById('kira-msgs');if(m&&m.children.length===0){var saved=localStorage.getItem('kira_mem');if(saved)try{kiraMsgs=JSON.parse(saved);}catch(e){}var a=document.createElement('div');a.className='k-msg ai';a.innerHTML='<div class="k-bubble">こんにちは。HORIZON SHIELDのKIRAです。<br>見積書を添付するか、ご質問をどうぞ。</div>';m.appendChild(a);}}
+function hsKiraOpen(){var o=document.getElementById('kira-overlay');o.classList.add('open');var m=document.getElementById('kira-msgs');if(m&&m.children.length===0){var a=document.createElement('div');a.className='k-msg ai';a.innerHTML='<div class="k-bubble">こんにちは。HORIZON SHIELDのKIRAです。<br>見積書の疑問・訪問工事業者への対策・サービス案内まで何でもお聞きします。</div>';m.appendChild(a);}}
 function hsKiraClose(){document.getElementById('kira-overlay').classList.remove('open');}
 function hsKiraToggle(){var o=document.getElementById('kira-overlay');if(o.classList.contains('open')){hsKiraClose();}else{hsKiraOpen();}}
 function closeKiraOutside(e){if(e.target===document.getElementById('kira-overlay'))hsKiraClose();}
 var kiraMsgs=[],kiraLoading=false,kiraAttached=null;
 var KIRA_SYSTEM=`あなたはKIRA（Horizon AI Negotiation Agent）です。HORIZON SHIELDの建設費診断AI。大工歴30年の大賀俊勝監修。
-
-【絶対ルール】
-・見積書画像が添付されていない場合は診断結果・削減額・具体的項目への言及は一切禁止
-・テキストのみの場合は「見積書の画像を添付いただけますか？クリップアイコンから送れます」と返す
-・画像が添付された場合のみ診断を行う
+【絶対ルール】見積書の画像が添付されていない限り、診断結果・削減額・項目への言及は一切禁止。テキストのみの相談には「見積書の画像を添付いただくと、より詳しくご案内できます」と返すこと。
 
 【最重要戦略：煙に巻く診断】
-①全項目を内部で完璧に分析する（絶対に全部見せない）
-②表に出すのは「1項目のみ」または「全体削減可能額の概算」のみ
-③「詳細は¥55,000の正式診断で」と必ず誘導
+見積書を分析した場合：
+①全項目を内部で完璧に分析する（全てわかっていても絶対に全部見せない）
+②表に出すのは「1項目のみ」または「全体削減可能額の概算（幅で表現）」のみ
+③例：「この見積書、全体で約XX〜XX万円削減できる可能性があります。1点だけお伝えすると〇〇が気になります」
+④「詳細な全項目診断は¥55,000の正式診断で」と必ず誘導
+⑤「全部教えてほしい」と言われても「正確な数字と交渉文は専門家診断でしかお出しできません」と断る
 
 【地域別価格補正係数】
-東京都心：×1.30／東京その他・横浜・川崎：×1.15
-神奈川・埼玉・千葉：×1.10／大阪・京都・神戸：×1.08
-名古屋・愛知：×1.02／福岡・広島・仙台・札幌：×0.95
-地方都市：×0.88／農村：×0.82／沖縄：×1.05／北海道：×1.10
+東京都心（千代田・中央・港・渋谷・新宿）：×1.30
+東京その他・横浜市・川崎市：×1.15
+神奈川（横浜川崎以外）・埼玉・千葉・茨城・群馬・栃木：×1.10
+大阪市内・京都市内・神戸市内：×1.08
+名古屋・愛知：×1.02
+福岡市・広島市・仙台市・札幌市：×0.95
+地方都市（人口10万以下）：×0.88
+農村・山間部：×0.82
+沖縄：×1.05
+北海道（札幌除く）：×1.10
 
 【適正価格DB（30坪・東京標準）】
-外壁塗装：170〜220万／屋根塗装：65〜100万／足場：22〜28万※45万超は過剰
-高圧洗浄：2〜5万※12万超は過剰／シーリング：6〜10万※18万超は過剰
-床下換気扇10台：15〜22万※50万超は詐欺まがい
-シロアリ防除：15〜25万※80万超は詐欺まがい
-タックダイン15坪：12〜18万※50万超は詐欺まがい
-フローリング：35〜60万／クロス全室：30〜55万
-キッチン：80〜200万／バス：70〜180万／トイレ：20〜50万
+■外装
+外壁塗装全体（30坪）：170〜220万
+屋根塗装（30坪）：65〜100万
+足場仮設（30坪）：22〜28万 ※45万超は過剰
+高圧洗浄：2〜5万 ※12万超は過剰
+シーリング打替え：6〜10万 ※18万超は過剰
+外壁張替え（窯業系・30坪）：200〜320万
+■床下・シロアリ
+床下換気扇10台：15〜22万 ※50万超は詐欺まがい
+シロアリ防除（30坪）：15〜25万 ※80万超は詐欺まがい
+床下調湿材（30坪）：10〜18万
+タックダイン・防腐防蟻（15坪）：12〜18万 ※50万超は詐欺まがい
+■内装
+フローリング張替え（LDK20畳）：35〜60万
+クロス張替え（全室）：30〜55万
+キッチンリフォーム：80〜200万
+バスルームリフォーム：70〜180万
+トイレリフォーム：20〜50万
+■設備
+エアコン（機器＋工事）：15〜35万
+給湯器交換：15〜30万
+IHクッキングヒーター：15〜25万
+■「一式」表記は要注意：施主が確認できないよう隠す業界の隠語
+
+【悪質手口パターン】
+タックダイン詐欺・床下換気扇詐欺・一式水増し・緊急工事詐欺・訪問販売・相見積もり工作
 
 【回答スタイル】
-・一文が短く余韻を残す／「その感覚、正しいです」を有効活用
-・削減額は「約XX〜XX万円」の幅で／200文字以内
-・最後は必ず https://shield.the-horizons-innovation.com へ誘導`;
-
-function kiraAttachFile(inp){var f=inp.files[0];if(!f)return;var lbl=document.querySelector('label[for="kira-file-input"]');var reader=new FileReader();reader.onload=function(e){kiraAttached={data:e.target.result.split(',')[1],type:f.type,name:f.name,isPdf:f.type==='application/pdf'};lbl.style.borderColor='var(--gold2)';lbl.title=f.name+'を添付済み';var msgs=document.getElementById('kira-msgs');var n=document.createElement('div');n.className='k-msg user';n.innerHTML='<div class="k-bubble" style="font-size:11px;color:var(--gold2)">📎 '+f.name+'を添付しました</div>';msgs.appendChild(n);msgs.scrollTop=msgs.scrollHeight;};reader.readAsDataURL(f);}
-
-function kirasSend(){var inp=document.getElementById('kira-input');var txt=inp.value.trim();if((!txt&&!kiraAttached)||kiraLoading)return;inp.value='';inp.style.height='auto';var msgs=document.getElementById('kira-msgs');if(txt){var u=document.createElement('div');u.className='k-msg user';u.innerHTML='<div class="k-bubble">'+txt+'</div>';msgs.appendChild(u);msgs.scrollTop=msgs.scrollHeight;}
-var userContent=[];
-if(kiraAttached){if(kiraAttached.isPdf){userContent.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:kiraAttached.data}});}else{userContent.push({type:'image',source:{type:'base64',media_type:kiraAttached.type,data:kiraAttached.data}});}userContent.push({type:'text',text:(txt||'この見積書を診断してください')});kiraAttached=null;document.getElementById('kira-file-input').value='';var lbl=document.querySelector('label[for="kira-file-input"]');if(lbl){lbl.style.borderColor='var(--border)';lbl.title='見積書を添付';}}else{userContent=txt;}
-kiraMsgs.push({role:'user',content:userContent});
-localStorage.setItem('kira_mem',JSON.stringify(kiraMsgs.slice(-20)));
-var typ=document.createElement('div');typ.className='k-msg ai';typ.id='kira-t';typ.innerHTML='<div class="k-bubble"><span class="kira-typing"><span></span><span></span><span></span></span></div>';msgs.appendChild(typ);msgs.scrollTop=msgs.scrollHeight;kiraLoading=true;document.getElementById('kira-send-btn').disabled=true;
-fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'🔔 KIRAに相談！\n「'+(txt||'見積書添付')+'」\nhttps://shield.the-horizons-innovation.com'})}).catch(function(){});
-fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/anthropic',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-3-5-sonnet-20241022',max_tokens:600,system:KIRA_SYSTEM,messages:kiraMsgs.slice(-10)})}).then(function(r){return r.json();}).then(function(d){var t=document.getElementById('kira-t');if(t)t.remove();var rep=d.content&&d.content[0]?d.content[0].text:'エラーが発生しました。';kiraMsgs.push({role:'assistant',content:rep});localStorage.setItem('kira_mem',JSON.stringify(kiraMsgs.slice(-20)));var a=document.createElement('div');a.className='k-msg ai';a.innerHTML='<div class="k-bubble">'+rep.replace(/\n/g,'<br>')+'</div>';msgs.appendChild(a);msgs.scrollTop=msgs.scrollHeight;var qr=document.getElementById('kira-qr');qr.innerHTML='';['詳しく診断してほしい','¥55,000の診断を申し込む','LINEで相談したい','他の箇所も確認したい'].forEach(function(t){var b=document.createElement('button');b.className='kira-qr-btn';b.textContent=t;b.onclick=function(){document.getElementById('kira-input').value=t;kirasSend();};qr.appendChild(b);});kiraLoading=false;document.getElementById('kira-send-btn').disabled=false;}).catch(function(){var t=document.getElementById('kira-t');if(t)t.remove();kiraLoading=false;document.getElementById('kira-send-btn').disabled=false;});}
-
+・一文が短く、余韻を残す
+・「その感覚、正しいです」を有効活用
+・削減額は「約XX〜XX万円」の幅で（正確な数字は有料のみ）
+・200文字以内
+・最後は必ず https://shield.the-horizons-innovation.com へ誘導
+・プレーンテキスト（HTMLタグ不使用）`;
+function kiraAttachFile(inp){var f=inp.files[0];if(!f)return;var lbl=document.querySelector('label[for="kira-file-input"]');var reader=new FileReader();reader.onload=function(e){kiraAttached={data:e.target.result.split(',')[1],type:f.type,name:f.name};lbl.style.borderColor='var(--gold2)';lbl.title=f.name+'を添付済み';var msgs=document.getElementById('kira-msgs');var n=document.createElement('div');n.className='k-msg user';n.innerHTML='<div class="k-bubble" style="font-size:11px;color:var(--gold2)">📎 '+f.name+'を添付しました</div>';msgs.appendChild(n);msgs.scrollTop=msgs.scrollHeight;};reader.readAsDataURL(f);}
+function kirasSend(){var inp=document.getElementById('kira-input');var txt=inp.value.trim();if((!txt&&!kiraAttached)||kiraLoading)return;inp.value='';inp.style.height='auto';var msgs=document.getElementById('kira-msgs');if(txt){var u=document.createElement('div');u.className='k-msg user';u.innerHTML='<div class="k-bubble">'+txt+'</div>';msgs.appendChild(u);msgs.scrollTop=msgs.scrollHeight;}var userContent=[];if(kiraAttached){userContent.push({type:'image',source:{type:'base64',media_type:kiraAttached.type,data:kiraAttached.data}});userContent.push({type:'text',text:(txt||'この見積書を診断してください')});kiraAttached=null;document.getElementById('kira-file-input').value='';var lbl=document.querySelector('label[for="kira-file-input"]');if(lbl){lbl.style.borderColor='var(--border)';lbl.title='見積書を添付';}}else{userContent=txt;}kiraMsgs.push({role:'user',content:userContent});var typ=document.createElement('div');typ.className='k-msg ai';typ.id='kira-t';typ.innerHTML='<div class="k-bubble"><span class="kira-typing"><span></span><span></span><span></span></span></div>';msgs.appendChild(typ);msgs.scrollTop=msgs.scrollHeight;kiraLoading=true;document.getElementById('kira-send-btn').disabled=true;fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'🔔 KIRAに相談が来ました！\n「'+(txt||'見積書画像')+'」\n→今すぐフォローを！\nhttps://shield.the-horizons-innovation.com'})}).catch(function(){});fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/anthropic',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-3-5-sonnet-20241022',max_tokens:600,system:KIRA_SYSTEM,messages:kiraMsgs.slice(-10)})}).then(function(r){return r.json();}).then(function(d){var t=document.getElementById('kira-t');if(t)t.remove();var rep=d.content&&d.content[0]?d.content[0].text:'エラーが発生しました。';kiraMsgs.push({role:'assistant',content:rep});var a=document.createElement('div');a.className='k-msg ai';a.innerHTML='<div class="k-bubble">'+rep.replace(/\n/g,'<br>')+'</div>';msgs.appendChild(a);msgs.scrollTop=msgs.scrollHeight;var qr=document.getElementById('kira-qr');qr.innerHTML='';['詳しく診断してほしい','¥55,000の診断を申し込む','LINEで相談したい','他の箇所も確認したい'].forEach(function(t){var b=document.createElement('button');b.className='kira-qr-btn';b.textContent=t;b.onclick=function(){document.getElementById('kira-input').value=t;kirasSend();};qr.appendChild(b);});kiraLoading=false;document.getElementById('kira-send-btn').disabled=false;}).catch(function(){var t=document.getElementById('kira-t');if(t)t.remove();kiraLoading=false;document.getElementById('kira-send-btn').disabled=false;});}
 var demoHist=[];
-function demoSend(){var inp=document.getElementById('demo-input');var txt=inp.value.trim();if(!txt)return;inp.value='';var msgs=document.getElementById('demo-msgs');var u=document.createElement('div');u.className='demo-msg user';u.innerHTML='<div class="demo-label">あなた</div><div class="demo-bubble">'+txt+'</div>';msgs.appendChild(u);msgs.scrollTop=msgs.scrollHeight;demoHist.push({role:'user',content:txt});var typ=document.createElement('div');typ.className='demo-msg ai';typ.id='demo-t';typ.innerHTML='<div class="demo-label">KIRA</div><div class="demo-bubble"><span class="kira-typing"><span></span><span></span><span></span></span></div>';msgs.appendChild(typ);msgs.scrollTop=msgs.scrollHeight;fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/anthropic',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-3-haiku-20240307',max_tokens:400,system:'建設費診断AIのKIRAです。200文字以内で回答。',messages:demoHist.slice(-6)})}).then(function(r){return r.json();}).then(function(d){var t=document.getElementById('demo-t');if(t)t.remove();var rep=d.content&&d.content[0]?d.content[0].text:'エラー';demoHist.push({role:'assistant',content:rep});var a=document.createElement('div');a.className='demo-msg ai';a.innerHTML='<div class="demo-label">KIRA</div><div class="demo-bubble">'+rep.replace(/\n/g,'<br>')+'</div>';msgs.appendChild(a);msgs.scrollTop=msgs.scrollHeight;}).catch(function(){var t=document.getElementById('demo-t');if(t)t.remove();});}
+function demoSend(){var inp=document.getElementById('demo-input');var txt=inp.value.trim();if(!txt)return;inp.value='';var msgs=document.getElementById('demo-msgs');var u=document.createElement('div');u.className='demo-msg user';u.innerHTML='<div class="demo-label">あなた</div><div class="demo-bubble">'+txt+'</div>';msgs.appendChild(u);msgs.scrollTop=msgs.scrollHeight;demoHist.push({role:'user',content:txt});var typ=document.createElement('div');typ.className='demo-msg ai';typ.id='demo-t';typ.innerHTML='<div class="demo-label">KIRA</div><div class="demo-bubble"><span class="kira-typing"><span></span><span></span><span></span></span></div>';msgs.appendChild(typ);msgs.scrollTop=msgs.scrollHeight;fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/anthropic',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-3-5-sonnet-20241022',max_tokens:400,system:'建設費診断AIのKIRAです。200文字以内で回答。',messages:demoHist.slice(-6)})}).then(function(r){return r.json();}).then(function(d){var t=document.getElementById('demo-t');if(t)t.remove();var rep=d.content&&d.content[0]?d.content[0].text:'エラー';demoHist.push({role:'assistant',content:rep});var a=document.createElement('div');a.className='demo-msg ai';a.innerHTML='<div class="demo-label">KIRA</div><div class="demo-bubble">'+rep.replace(/\n/g,'<br>')+'</div>';msgs.appendChild(a);msgs.scrollTop=msgs.scrollHeight;}).catch(function(){var t=document.getElementById('demo-t');if(t)t.remove();});}
 function diagNext1(){var n=document.getElementById('diag-name').value.trim();var e=document.getElementById('diag-email').value.trim();if(!n||!e){alert('お名前とメールアドレスを入力してください');return;}document.getElementById('diag-step1').style.display='none';document.getElementById('diag-step2').style.display='block';}
 function diagBack1(){document.getElementById('diag-step2').style.display='none';document.getElementById('diag-step1').style.display='block';}
 function diagFileSelected(inp){var f=inp.files[0];if(!f)return;document.getElementById('diag-submit-btn').disabled=false;document.getElementById('diag-file-name').textContent=f.name;if(f.type.startsWith('image/')){var r=new FileReader();r.onload=function(e){document.getElementById('diag-preview-img').src=e.target.result;document.getElementById('diag-preview').style.display='block';};r.readAsDataURL(f);}}
-function diagSubmit(){var name=document.getElementById('diag-name').value.trim();var file=document.getElementById('diag-file').files[0];if(!file)return;document.getElementById('diag-step2').style.display='none';document.getElementById('diag-step3').style.display='block';var reader=new FileReader();reader.onload=function(e){var b64=e.target.result.split(',')[1];var isPdf=file.type==='application/pdf';var fileContent=isPdf?{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}}:{type:'image',source:{type:'base64',media_type:file.type,data:b64}};fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/anthropic',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-3-5-sonnet-20241022',max_tokens:800,system:'見積書診断。削減概算と1問題点のみ。JSON: {"saving":"約XX〜XX万円","rate":"XX%前後","items":["項目1"],"summary":"一言","message":"施主へのメッセージ"}',messages:[{role:'user',content:[fileContent,{type:'text',text:'この見積書を診断してください。施主名:'+name}]}]})}).then(function(r){return r.json();}).then(function(d){var txt=d.content&&d.content[0]?d.content[0].text:'{}';try{var obj=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('diag-step3').style.display='none';document.getElementById('diag-step4').style.display='block';document.getElementById('diag-saving-text').textContent=obj.saving||'診断完了';document.getElementById('diag-rate-text').textContent=obj.rate||'';var ic=document.getElementById('diag-items');ic.innerHTML='';(obj.items||[]).forEach(function(it){var s=document.createElement('span');s.textContent=it;s.style.cssText='background:rgba(255,48,64,.1);border:1px solid rgba(255,48,64,.3);padding:4px 10px;font-size:11px;color:var(--red);margin:2px;display:inline-block';ic.appendChild(s);});document.getElementById('diag-summary').textContent=obj.summary||'';document.getElementById('diag-message').innerHTML='<span style="color:var(--cyan);font-size:11px;display:block;margin-bottom:4px">大賀 俊勝 より</span>'+(obj.message||'');}catch(ex){document.getElementById('diag-step3').style.display='none';document.getElementById('diag-error').style.display='block';document.getElementById('diag-error').textContent='診断中にエラーが発生しました。';}}).catch(function(){document.getElementById('diag-step3').style.display='none';document.getElementById('diag-error').style.display='block';document.getElementById('diag-error').textContent='通信エラーが発生しました。';});};reader.readAsDataURL(file);}
+function diagSubmit(){var name=document.getElementById('diag-name').value.trim();var file=document.getElementById('diag-file').files[0];if(!file)return;document.getElementById('diag-step2').style.display='none';document.getElementById('diag-step3').style.display='block';var reader=new FileReader();reader.onload=function(e){var b64=e.target.result.split(',')[1];fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/anthropic',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-3-5-sonnet-20241022',max_tokens:800,system:'見積書診断。削減概算と1問題点のみ。JSON: {"saving":"約XX〜XX万円","rate":"XX%前後","items":["項目1"],"summary":"一言","message":"施主へのメッセージ"}',messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type,data:b64}},{type:'text',text:'この見積書を診断してください。施主名:'+name}]}]})}).then(function(r){return r.json();}).then(function(d){var txt=d.content&&d.content[0]?d.content[0].text:'{}';try{var obj=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('diag-step3').style.display='none';document.getElementById('diag-step4').style.display='block';document.getElementById('diag-saving-text').textContent=obj.saving||'診断完了';document.getElementById('diag-rate-text').textContent=obj.rate||'';var ic=document.getElementById('diag-items');ic.innerHTML='';(obj.items||[]).forEach(function(it){var s=document.createElement('span');s.textContent=it;s.style.cssText='background:rgba(255,48,64,.1);border:1px solid rgba(255,48,64,.3);padding:4px 10px;font-size:11px;color:var(--red);margin:2px;display:inline-block';ic.appendChild(s);});document.getElementById('diag-summary').textContent=obj.summary||'';document.getElementById('diag-message').innerHTML='<span style="color:var(--cyan);font-size:11px;display:block;margin-bottom:4px">大賀 俊勝 より</span>'+(obj.message||'');}catch(ex){document.getElementById('diag-step3').style.display='none';document.getElementById('diag-error').style.display='block';document.getElementById('diag-error').textContent='診断中にエラーが発生しました。';}}).catch(function(){document.getElementById('diag-step3').style.display='none';document.getElementById('diag-error').style.display='block';document.getElementById('diag-error').textContent='通信エラーが発生しました。';});};reader.readAsDataURL(file);}
 function shareToX(){window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent('見積書のAI診断をしたら削減できる可能性が判明！\nhttps://shield.the-horizons-innovation.com\n#見積書診断 #リフォーム'),'_blank');}
 function shareToLine(){window.open('https://line.me/R/share?text='+encodeURIComponent('見積書AI診断 https://shield.the-horizons-innovation.com'),'_blank');}
 function shareToOC(){window.open('https://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ','_blank');}
@@ -1294,7 +1311,6 @@ document.querySelectorAll('.faq-head').forEach(function(h){h.addEventListener('c
 var revEls=document.querySelectorAll('.reveal');
 var revObs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}});},{threshold:.1});
 revEls.forEach(function(el){el.style.opacity='0';el.style.transform='translateY(24px)';revObs.observe(el);});
-
 </script>
 </body>
 </html>
