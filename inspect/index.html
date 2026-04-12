@@ -408,7 +408,7 @@ async function doSubmit(){
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 300,
-        messages: [{role: 'user', content: prompt}]
+        messages: [{role: 'user', content: imgs.map(function(img){ return img.isPdf ? {type:'document',source:{type:'base64',media_type:'application/pdf',data:img.data}} : {type:'image',source:{type:'base64',media_type:img.mediaType,data:img.data}}; }).concat([{type:'text',text:prompt}])}]
       })
     });
     var data = await res.json();
@@ -458,7 +458,7 @@ async function doSubmit(){
 function toB64(f){
   return new Promise(function(res, rej){
     var r = new FileReader();
-    r.onload = function(e){ res({data: e.target.result.split(',')[1], mediaType: f.type || 'image/jpeg', name: f.name}); };
+    r.onload = function(e){ res({data: e.target.result.split(',')[1], mediaType: f.type || 'image/jpeg', name: f.name, isPdf: f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')}); };
     r.onerror = rej;
     r.readAsDataURL(f);
   });
