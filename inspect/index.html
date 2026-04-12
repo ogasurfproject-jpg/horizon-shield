@@ -420,14 +420,33 @@ async function doSubmit(){
 
   // 3. 自動メール（KIRAの診断結果をユーザーに送信）
   try {
+    await fetch(KIRA + '/send-email', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        to: email,
+        subject: 'KIRAからの診断結果 | HORIZON SHIELD',
+        body: '<div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#020810;color:#EEF2F5;padding:32px">'
+          + '<h2 style="color:#00D4FF;font-size:18px;margin-bottom:16px">KIRAの診断結果</h2>'
+          + '<p style="font-size:15px;line-height:1.9;margin-bottom:12px">' + kiраText.replace(/\n/g,'<br>') + '</p>'
+          + (kiraAmount ? '<div style="background:#0A1520;border:1px solid rgba(255,48,64,.3);padding:14px 18px;margin-bottom:20px;font-size:14px;color:#A0BACA">' + kiraAmount.replace(/\n/g,'<br>') + '</div>' : '')
+          + '<hr style="border:none;border-top:1px solid rgba(255,255,255,.1);margin:24px 0">'
+          + '<p style="font-size:12px;color:#6A8A9A;line-height:1.8">詳細診断・是正要求書の作成は <a href="https://shield.the-horizons-innovation.com" style="color:#00D4FF">HORIZON SHIELD</a> へ。<br>大賀 俊勝 / The HORIZ音s株式会社</p>'
+          + '</div>'
+      })
+    });
+  } catch(e) { console.log('send-email failed', e); }
+
+  // LINE通知（管理者向け）
+  try {
     await fetch(KIRA + '/notify', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        message: '【自動返信内容】\n宛先：' + email + '\n\nKIRAの診断：' + kiраText + '\n' + kiraAmount
+        message: '【施工チェック完了】\n名前：' + name + '\nメール：' + email + '\n\nKIRA診断：' + kiраText + '\n' + kiraAmount
       })
     });
-  } catch(e) { console.log('auto-notify failed', e); }
+  } catch(e) { console.log('notify failed', e); }
 
   clearInterval(iv);
   fill.style.width = '100%';
