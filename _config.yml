@@ -1,4 +1,2 @@
 include:
   - .well-known
-exclude:
-  - map.html
