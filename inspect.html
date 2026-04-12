@@ -391,7 +391,11 @@ async function doSubmit(){
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        message: '【施工チェック依頼】\n名前：' + name + '\nメール：' + email + '\n種類：' + (type || '未選択') + '\n備考：' + (note || 'なし') + '\nファイル数：' + files.length + '件\n\n⚠️ 要確認'
+        message: '【施工チェック依頼】\n名前：' + name + '\nメール：' + email + '\n種類：' + (type || '未選択') + '\n備考：' + (note || 'なし') + '\nファイル数：' + files.length + '件\n\n⚠️ 要確認',
+        name: name,
+        email: email,
+        type: type || '',
+        result: ''
       })
     });
   } catch(e) { console.log('LINE notify failed', e); }
@@ -439,6 +443,7 @@ async function doSubmit(){
 
   // LINE通知（管理者向け）
   try {
+    
     await fetch(KIRA + '/notify', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
