@@ -448,7 +448,11 @@ async function doSubmit(){
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        message: '【施工チェック完了】\n名前：' + name + '\nメール：' + email + '\n\nKIRA診断：' + kiраText + '\n' + kiraAmount
+        message: '【施工チェック完了】\n名前：' + name + '\nメール：' + email + '\n\nKIRA診断：' + kiраText + '\n' + kiraAmount,
+        name: name,
+        email: email,
+        type: type || '',
+        result: kipaText + '\n' + kiraAmount
       })
     });
   } catch(e) { console.log('notify failed', e); }
