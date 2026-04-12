@@ -7,24 +7,17 @@
 <meta name="description" content="工事後の写真を送るだけ。気になる箇所の傾向をお伝えします。詳細な施工不良診断・是正要求書は専門家サービスで。建設実務経験30年・大賀俊勝監修。">
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#020810;--bg2:#050D18;--bg3:#081420;
-  --gold:#C8960A;--gold2:#F0C030;
-  --cyan:#00D4FF;--red:#FF3040;
-  --white:#EEF2F5;--gray:#5A7A8A;--lgray:#90AABA;
-  --border:rgba(0,212,255,.12);--border2:rgba(0,212,255,.05);
-  --green:#00FF88;--orange:#FF8C00;
-}
+:root{--bg:#020810;--bg2:#050D18;--bg3:#081420;--gold:#C8960A;--gold2:#F0C030;--cyan:#00D4FF;--red:#FF3040;--white:#EEF2F5;--gray:#5A7A8A;--lgray:#90AABA;--border:rgba(0,212,255,.12);--border2:rgba(0,212,255,.05);--green:#00FF88;--orange:#FF8C00;}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--white);font-family:'Noto Sans JP',sans-serif;overflow-x:hidden;line-height:1.8}
 body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,212,255,.005) 2px,rgba(0,212,255,.005) 4px);pointer-events:none;z-index:9998}
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:52px;display:flex;justify-content:space-between;align-items:center;background:rgba(2,8,16,.97);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:52px;display:flex;justify-content:space-between;align-items:center;background:rgba(2,8,16,.97);border-bottom:1px solid var(--border)}
 .nav-logo{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:5px;color:var(--white);display:flex;align-items:center;gap:10px}
 .nav-logo-mark{width:22px;height:22px;border:1px solid var(--cyan);display:flex;align-items:center;justify-content:center}
 .nav-logo-mark svg{width:12px;height:12px;stroke:var(--cyan);fill:none;stroke-width:1.5}
 .nav-logo span{color:var(--cyan)}
-.nav-back{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--cyan);text-decoration:none;border:1px solid var(--border);padding:5px 12px;transition:all .2s;display:flex;align-items:center;gap:6px}
+.nav-back{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--cyan);text-decoration:none;border:1px solid var(--border);padding:5px 12px;display:flex;align-items:center;gap:6px}
 .nav-back:hover{border-color:var(--cyan)}
 .nav-back svg{width:10px;height:10px;stroke:var(--cyan);fill:none;stroke-width:2;stroke-linecap:round}
 .hero{padding:88px 24px 48px;text-align:center;position:relative;overflow:hidden}
@@ -42,8 +35,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:52px;d
 .funnel-step{background:var(--bg2);padding:16px 20px;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center}
 .funnel-step.highlight{background:rgba(200,150,10,.06);border-left:2px solid var(--gold2)}
 .f-num{font-family:'Share Tech Mono',monospace;font-size:22px;color:var(--border);font-weight:700;width:32px}
-.f-num.active{color:var(--cyan)}
-.f-num.gold{color:var(--gold2)}
+.f-num.active{color:var(--cyan)}.f-num.gold{color:var(--gold2)}
 .f-title{font-size:14px;font-weight:700;margin-bottom:3px}
 .f-desc{font-size:12px;color:var(--gray);line-height:1.7}
 .f-badge{font-family:'Share Tech Mono',monospace;font-size:10px;padding:4px 12px;white-space:nowrap;font-weight:700}
@@ -61,8 +53,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:52px;d
 .sn-num.done{border-color:var(--green);background:rgba(0,255,136,.08)}
 .sn-num.done svg{width:9px;height:9px;stroke:var(--green);fill:none;stroke-width:2.5;stroke-linecap:round}
 .sn-txt{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--gray)}
-.sn-txt.active{color:var(--cyan)}
-.sn-txt.done{color:var(--green)}
+.sn-txt.active{color:var(--cyan)}.sn-txt.done{color:var(--green)}
 .s-body{padding:24px}
 .drop-zone{border:1px dashed rgba(0,212,255,.2);cursor:pointer;transition:all .3s;position:relative;margin-bottom:18px}
 .drop-zone:hover,.drop-zone.drag{border-color:var(--cyan);background:rgba(0,212,255,.03)}
@@ -72,7 +63,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:52px;d
 .dz-icon svg{width:24px;height:24px;stroke:var(--cyan);fill:none;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
 .dz-title{font-size:15px;font-weight:700;margin-bottom:6px}
 .dz-sub{font-size:12px;color:var(--gray);line-height:1.7;margin-bottom:14px}
-.dz-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(0,212,255,.3);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;padding:8px 18px;cursor:pointer;background:transparent;transition:all .2s;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)}
+.dz-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(0,212,255,.3);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;padding:8px 18px;cursor:pointer;background:transparent;transition:all .2s}
 .dz-btn:hover{background:rgba(0,212,255,.06);border-color:var(--cyan)}
 .dz-btn svg{width:10px;height:10px;stroke:var(--cyan);fill:none;stroke-width:2;stroke-linecap:round}
 .prev-wrap{display:none;margin-bottom:16px}
@@ -81,7 +72,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:52px;d
 .prev-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
 .p-thumb{position:relative;aspect-ratio:1;overflow:hidden;border:1px solid rgba(0,212,255,.15)}
 .p-thumb img{width:100%;height:100%;object-fit:cover;filter:brightness(.8)}
-.p-thumb:hover img{filter:brightness(1)}
 .p-del{position:absolute;top:2px;right:2px;background:rgba(255,48,64,.8);border:none;color:#fff;width:15px;height:15px;font-size:8px;cursor:pointer;opacity:0;transition:opacity .2s;display:flex;align-items:center;justify-content:center}
 .p-thumb:hover .p-del{opacity:1}
 .fg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
@@ -103,7 +93,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:52px;d
 .what-list li::before{content:'';width:4px;height:4px;background:var(--cyan);border-radius:50%;flex-shrink:0;margin-top:7px}
 .what-list li.limited{color:var(--gray)}
 .what-list li.limited::before{background:var(--gray)}
-.sub-btn{width:100%;background:transparent;border:1px solid rgba(0,212,255,.4);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;padding:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .3s;clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px);margin-bottom:10px}
+.sub-btn{width:100%;background:transparent;border:1px solid rgba(0,212,255,.4);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;padding:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .3s;margin-bottom:10px}
 .sub-btn:hover{background:rgba(0,212,255,.05);border-color:var(--cyan)}
 .sub-btn:disabled{border-color:var(--border);color:var(--gray);cursor:not-allowed}
 .sub-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
@@ -125,30 +115,23 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:52px;d
 .done-title{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(19px,3vw,26px);text-align:center;margin-bottom:10px}
 .done-title em{font-style:normal;color:var(--green)}
 .done-sub{text-align:center;font-size:13px;color:var(--lgray);line-height:1.9;margin-bottom:24px}
-.reply-box{background:var(--bg3);border:1px solid var(--border);padding:20px;margin-bottom:24px}
-.reply-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--cyan);margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.reply-label::after{content:'';flex:1;height:1px;background:rgba(0,212,255,.1)}
-.reply-item{display:grid;grid-template-columns:72px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--border2)}
-.reply-item:last-child{border-bottom:none}
-.r-time{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);padding-top:2px}
-.r-title{font-size:13px;font-weight:700;margin-bottom:2px}
-.r-desc{font-size:11px;color:var(--gray);line-height:1.7}
-.honest-box{background:rgba(200,150,10,.05);border:1px solid rgba(200,150,10,.2);padding:16px;margin-bottom:20px}
-.honest-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--gold2);margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.honest-label svg{width:10px;height:10px;stroke:var(--gold2);fill:none;stroke-width:2;stroke-linecap:round}
-.honest-text{font-size:12px;color:var(--lgray);line-height:1.8}
-.honest-text strong{color:var(--white)}
-.upgrade-box{border:1px solid rgba(200,150,10,.3);background:rgba(200,150,10,.04);padding:24px}
+.kira-box{background:var(--bg3);border:1px solid rgba(0,212,255,.2);padding:20px;margin-bottom:20px}
+.kira-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--cyan);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.kira-label::after{content:'';flex:1;height:1px;background:rgba(0,212,255,.1)}
+.kira-result{font-size:14px;color:var(--white);line-height:1.9;margin-bottom:14px;min-height:40px}
+.kira-amount{background:rgba(255,48,64,.08);border:1px solid rgba(255,48,64,.2);border-radius:4px;padding:12px 16px;margin-bottom:14px;font-size:13px;color:var(--lgray);line-height:1.8}
+.kira-amount strong{color:var(--red)}
+.upgrade-box{border:1px solid rgba(200,150,10,.3);background:rgba(200,150,10,.04);padding:24px;margin-bottom:16px}
 .upgrade-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--gold2);margin-bottom:10px}
 .upgrade-title{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(15px,2.5vw,22px);margin-bottom:8px;line-height:1.4}
 .upgrade-title em{font-style:normal;color:var(--gold2)}
 .upgrade-desc{font-size:12px;color:var(--gray);margin-bottom:16px;line-height:1.8}
 .upgrade-btns{display:flex;gap:10px;flex-wrap:wrap}
-.u-btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:#040A12;font-weight:700;font-size:12px;padding:11px 20px;text-decoration:none;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);transition:opacity .2s}
+.u-btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:#040A12;font-weight:700;font-size:12px;padding:11px 20px;text-decoration:none;transition:opacity .2s}
 .u-btn-primary:hover{opacity:.85}
 .u-btn-primary svg{width:10px;height:10px;stroke:#040A12;fill:none;stroke-width:2;stroke-linecap:round}
 .u-btn-secondary{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid rgba(200,150,10,.3);color:var(--gold2);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;padding:11px 16px;text-decoration:none;transition:all .2s}
-.u-btn-secondary:hover{background:rgba(200,150,10,.06);border-color:var(--gold2)}
+.u-btn-secondary:hover{background:rgba(200,150,10,.06)}
 .u-btn-secondary svg{width:10px;height:10px;stroke:var(--gold2);fill:none;stroke-width:2;stroke-linecap:round}
 .err-body{padding:40px 24px;text-align:center;display:none}
 .err-icon svg{width:36px;height:36px;stroke:var(--red);fill:none;stroke-width:1.3;stroke-linecap:round;margin-bottom:14px}
@@ -180,26 +163,29 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:52px;d
     <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>TOP
   </a>
 </nav>
+
 <section class="hero">
   <div class="hero-grid"></div>
   <div class="hero-glow"></div>
   <div class="hero-inner">
     <div class="hero-badge"><span class="badge-dot"></span>FREE CHECK // 無料診断</div>
     <h1>写真を送るだけ。<br><em>気になる箇所を確認します。</em></h1>
-    <p class="hero-sub">工事後の写真・見積書PDFをアップロードするだけ。気になる箇所の傾向をお伝えします。詳細な施工不良診断・是正要求書は有料サービスで対応します。</p>
+    <p class="hero-sub">工事後の写真・見積書PDFをアップロードするだけ。KIRAが即座に気になる点をお伝えします。完全無料。</p>
   </div>
 </section>
+
 <div class="funnel-wrap">
   <div class="funnel">
     <div class="funnel-step"><div class="f-num active">01</div><div class="f-content"><div class="f-title">写真・PDFを送る</div><div class="f-desc">工事後の気になる箇所の写真またはPDF見積書をアップロード。</div></div><div class="f-badge free">無料</div></div>
     <div class="funnel-arrow">↓</div>
-    <div class="funnel-step"><div class="f-num active">02</div><div class="f-content"><div class="f-title">傾向をメールでお伝え</div><div class="f-desc">専門家が確認し、気になる箇所の傾向と次のステップをお伝えします。</div></div><div class="f-badge free">無料</div></div>
+    <div class="funnel-step"><div class="f-num active">02</div><div class="f-content"><div class="f-title">KIRAが即座に診断</div><div class="f-desc">AIが写真・工事種類から気になる点を分析し、その場で結果をお伝えします。</div></div><div class="f-badge free">無料</div></div>
     <div class="funnel-arrow">↓</div>
-    <div class="funnel-step highlight"><div class="f-num gold">03</div><div class="f-content"><div class="f-title">詳細診断・是正要求書</div><div class="f-desc">施工不良の断定・是正箇所の特定・業者への交渉文言・是正要求書の作成は¥55,000の診断サービスで対応します。</div></div><div class="f-badge paid">¥55,000</div></div>
+    <div class="funnel-step highlight"><div class="f-num gold">03</div><div class="f-content"><div class="f-title">詳細診断・是正要求書</div><div class="f-desc">施工不良の断定・是正箇所の特定・業者への交渉文言・是正要求書の作成は専門家サービスで対応します。</div></div><div class="f-badge paid">¥55,000</div></div>
     <div class="funnel-arrow">↓</div>
     <div class="funnel-step highlight"><div class="f-num gold">04</div><div class="f-content"><div class="f-title">現場立会い・完全是正</div><div class="f-desc">専門家が現場に立ち会い、施工不良を直接確認。法的効力のある是正要求書をその場で作成します。</div></div><div class="f-badge paid">¥88,000</div></div>
   </div>
 </div>
+
 <div class="main-wrap">
   <div class="frame">
     <div class="step-bar">
@@ -207,6 +193,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:52px;d
       <div class="sn"><div class="sn-num" id="sn2">02</div><div class="sn-txt" id="st2">SENDING</div></div>
       <div class="sn"><div class="sn-num" id="sn3">03</div><div class="sn-txt" id="st3">DONE</div></div>
     </div>
+
     <div id="s1">
       <div class="s-body">
         <div class="drop-zone" id="dz" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
@@ -214,8 +201,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:52px;d
           <div class="dz-inner">
             <div class="dz-icon"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
             <div class="dz-title">写真・PDF をアップロード</div>
-            <div class="dz-sub">施工写真・見積書PDFなど複数枚対応（最大8件・JPG / PNG / HEIC / PDF）</div>
-            <div class="dz-btn"><svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>ファイルを選択</div>
+            <div class="dz-sub">施工写真・見積書PDFなど複数対応（最大8件・JPG / PNG / HEIC / PDF）</div>
+            <button type="button" class="dz-btn" onclick="document.getElementById('fi').click()">
+              <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+              ファイルを選択
+            </button>
           </div>
         </div>
         <div class="prev-wrap" id="pw">
@@ -225,50 +215,62 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:52px;d
         <div class="fg">
           <div class="fl"><span class="fl-label">お名前 *</span><input type="text" class="fl-input" id="fn" placeholder="山田 太郎"></div>
           <div class="fl"><span class="fl-label">メールアドレス *</span><input type="email" class="fl-input" id="fe" placeholder="your@email.com"></div>
-          <div class="fl"><span class="fl-label">工事の種類</span><select class="fl-select" id="ft"><option value="">選択してください</option><option>内装リフォーム</option><option>外壁・屋根塗装</option><option>屋根工事</option><option>水回りリフォーム</option><option>新築</option><option>店舗改装</option><option>その他</option></select></div>
+          <div class="fl"><span class="fl-label">工事の種類</span>
+            <select class="fl-select" id="ft">
+              <option value="">選択してください</option>
+              <option>内装リフォーム</option><option>外壁・屋根塗装</option><option>屋根工事</option>
+              <option>水回りリフォーム</option><option>新築</option><option>店舗改装</option><option>その他</option>
+            </select>
+          </div>
           <div class="fl"><span class="fl-label">工事完了時期</span><input type="text" class="fl-input" id="fd" placeholder="例：2026年2月"></div>
         </div>
-        <div class="fl"><span class="fl-label">気になる箇所・症状（任意）</span><textarea class="fl-textarea" id="fno" placeholder="例：クロスの継ぎ目が浮いている、床が軋む など"></textarea></div>
+        <div class="fl"><span class="fl-label">気になる箇所・症状（任意）</span><textarea class="fl-textarea" id="fno" placeholder="例：クロスの継ぎ目が浮いている、床が軋む、窓周りのコーキングが薄い など"></textarea></div>
         <div class="what-box">
           <div class="what-label">この無料診断でお伝えすること</div>
           <ul class="what-list">
-            <li>写真・PDFから読み取れる気になる箇所の傾向</li>
+            <li>写真・PDFから読み取れる気になる箇所</li>
             <li>追加確認が必要かどうかの見解</li>
-            <li class="limited">※施工不良の断定・是正箇所の特定は含みません</li>
-            <li class="limited">※業者への交渉文言・是正要求書は¥55,000の有料サービスです</li>
+            <li>もし問題があった場合の適正修繕費用の目安</li>
+            <li class="limited">※施工不良の断定・是正要求書の作成は¥55,000の有料サービスです</li>
           </ul>
         </div>
-        <button class="sub-btn" id="sb" onclick="doSubmit()" disabled><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>無料で診断を依頼する →</button>
+        <button class="sub-btn" id="sb" onclick="doSubmit()" disabled>
+          <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          無料で診断を依頼する →
+        </button>
         <div class="sub-note">
           <span><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>ファイルは診断後削除</span>
           <span><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>完全無料</span>
-          <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>24時間以内返答</span>
+          <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>即座に結果をお伝え</span>
         </div>
       </div>
     </div>
+
     <div id="s2" style="display:none">
       <div class="sending-body" id="sb2">
         <div class="send-ring"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
-        <div class="send-label">SENDING...</div>
-        <div class="send-sub">専門家に送信中です</div>
+        <div class="send-label">KIRA ANALYZING...</div>
+        <div class="send-sub">AIが写真を解析しています</div>
         <div class="prog-track"><div class="prog-fill" id="pf"></div></div>
       </div>
     </div>
+
     <div id="s3" style="display:none">
       <div class="done-body" id="db3">
         <div class="done-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
         <div class="done-title">受信完了。<em>KIRAが確認しました。</em></div>
-        <div class="done-sub">担当者に通知しました。内容を確認次第、メールでご連絡します。</div>
-        <div class="reply-box">
-          <div class="reply-label">KIRAからの一言</div>
-          <div id="kira-result" style="padding:14px;font-size:13px;color:#A0BACA;line-height:1.9;min-height:60px">
-            <span style="color:#00D4FF;font-family:'Share Tech Mono',monospace;font-size:10px">KIRA ANALYZING...</span>
+        <div class="done-sub">以下の診断結果をメールでもお送りします。</div>
+        <div class="kira-box">
+          <div class="kira-label">KIRAからの診断結果</div>
+          <div class="kira-result" id="kira-result">
+            <span style="color:#00D4FF;font-family:'Share Tech Mono',monospace;font-size:10px">ANALYZING...</span>
           </div>
+          <div class="kira-amount" id="kira-amount" style="display:none"></div>
         </div>
         <div class="upgrade-box">
-          <div class="upgrade-label">UPGRADE</div>
+          <div class="upgrade-label">UPGRADE — より確実に解決したい方へ</div>
           <div class="upgrade-title">施工不良を<em>完全に確定</em>させたい方へ</div>
-          <div class="upgrade-desc">建設実務経験30年の専門家が見積書・写真・現場を確認し、業者への是正要求書を作成します。</div>
+          <div class="upgrade-desc">建設実務経験30年の専門家が見積書・写真・現場を確認し、業者への是正要求書を作成します。KIRAの診断で気になる点が見つかった場合、早めのご相談をお勧めします。</div>
           <div class="upgrade-btns">
             <a href="https://shield.the-horizons-innovation.com/#services" class="u-btn-primary">詳細診断 ¥55,000<svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
             <a href="https://shield.the-horizons-innovation.com/#services" class="u-btn-secondary">現場立会い ¥88,000<svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
@@ -276,6 +278,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:52px;d
         </div>
       </div>
     </div>
+
     <div id="serr" style="display:none">
       <div class="err-body" id="eb">
         <div class="err-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
@@ -289,6 +292,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:52px;d
     </div>
   </div>
 </div>
+
 <div class="bottom">
   <div class="b-label">CHECKABLE ITEMS</div>
   <div class="types-grid">
@@ -300,166 +304,180 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:52px;d
     <div class="tg-cell"><div class="tg-icon"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div><div><div class="tg-name">塗装の斑・垂れ</div><div class="tg-desc">仕上げ品質は施工者のレベルを示す</div></div></div>
   </div>
 </div>
+
 <div class="page-footer">
   <a href="https://shield.the-horizons-innovation.com">HORIZON SHIELD</a> &nbsp;//&nbsp; 大賀俊勝（建設実務経験30年）監修<br>
   © 2026 The HORIZONs株式会社
 </div>
+
 <script>
-const WORKER='https://hs-gyosha-check.oga-surf-project.workers.dev';
-const KIRA='https://hs-kira-proxy.oga-surf-project.workers.dev';
-let files=[];
+var KIRA = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
+var files = [];
 
 function onDragOver(e){e.preventDefault();document.getElementById('dz').classList.add('drag');}
 function onDragLeave(){document.getElementById('dz').classList.remove('drag');}
 function onDrop(e){e.preventDefault();document.getElementById('dz').classList.remove('drag');handleFiles(e.dataTransfer.files);}
 
 function handleFiles(fl){
-  files=[...files,...Array.from(fl).filter(f=>
-    f.type.startsWith('image/')||
-    f.type==='application/pdf'||
-    f.name.toLowerCase().endsWith('.pdf')
-  )].slice(0,8);
-  renderPrev();updateBtn();
+  var arr = Array.from(fl).filter(function(f){
+    return f.type.startsWith('image/') || f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+  });
+  files = files.concat(arr).slice(0, 8);
+  renderPrev();
+  updateBtn();
 }
+
 function delFile(i){files.splice(i,1);renderPrev();updateBtn();}
 
 function renderPrev(){
-  const w=document.getElementById('pw');
-  const g=document.getElementById('pg');
-  const l=document.getElementById('pl');
+  var w = document.getElementById('pw');
+  var g = document.getElementById('pg');
+  var l = document.getElementById('pl');
   if(!files.length){w.style.display='none';return;}
-  w.style.display='block';
-  l.textContent=`${files.length} FILE${files.length>1?'S':''} SELECTED`;
-  g.innerHTML=files.map((f,i)=>{
-    const isPdf=f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf');
-    const thumb=isPdf
-      ?`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#0F1E2E;font-family:'Share Tech Mono',monospace;font-size:9px;color:#00D4FF;flex-direction:column;gap:4px;padding:4px;text-align:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00D4FF" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span style="font-size:8px;word-break:break-all">${f.name.slice(0,10)}</span></div>`
-      :`<img src="${URL.createObjectURL(f)}">`;
-    return `<div class="p-thumb">${thumb}<button class="p-del" onclick="delFile(${i})">✕</button></div>`;
+  w.style.display = 'block';
+  l.textContent = files.length + ' FILE' + (files.length > 1 ? 'S' : '') + ' SELECTED';
+  g.innerHTML = files.map(function(f, i){
+    var isPdf = f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+    var thumb = isPdf
+      ? '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#0F1E2E;flex-direction:column;gap:4px;padding:4px;text-align:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00D4FF" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span style="font-size:8px;color:#00D4FF;font-family:Share Tech Mono,monospace;word-break:break-all">' + f.name.slice(0,10) + '</span></div>'
+      : '<img src="' + URL.createObjectURL(f) + '">';
+    return '<div class="p-thumb">' + thumb + '<button class="p-del" onclick="delFile(' + i + ')">✕</button></div>';
   }).join('');
 }
 
 function updateBtn(){
-  const n=document.getElementById('fn').value.trim();
-  const e=document.getElementById('fe').value.trim();
-  document.getElementById('sb').disabled=!(files.length>0&&n&&e&&e.includes('@'));
+  var n = document.getElementById('fn').value.trim();
+  var e = document.getElementById('fe').value.trim();
+  document.getElementById('sb').disabled = !(files.length > 0 && n && e && e.indexOf('@') > -1);
 }
-['fn','fe'].forEach(id=>document.getElementById(id).addEventListener('input',updateBtn));
+document.getElementById('fn').addEventListener('input', updateBtn);
+document.getElementById('fe').addEventListener('input', updateBtn);
 
 function setStep(n){
-  [1,2,3].forEach(i=>{
-    const sn=document.getElementById('sn'+i);
-    const st=document.getElementById('st'+i);
-    if(i<n){sn.innerHTML='<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';sn.className='sn-num done';st.className='sn-txt done';}
-    else if(i===n){sn.className='sn-num active';st.className='sn-txt active';}
-    else{sn.className='sn-num';st.className='sn-txt';}
+  [1,2,3].forEach(function(i){
+    var sn = document.getElementById('sn'+i);
+    var st = document.getElementById('st'+i);
+    if(i < n){
+      sn.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+      sn.className = 'sn-num done'; st.className = 'sn-txt done';
+    } else if(i === n){
+      sn.className = 'sn-num active'; st.className = 'sn-txt active';
+    } else {
+      sn.className = 'sn-num'; st.className = 'sn-txt';
+    }
   });
 }
 
-async function sendLineNotify(name,email,type,note,fileCount){
-  try{
-    await fetch(KIRA+'/notify',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        message:'【施工チェック依頼あり】\n名前：'+name+'\nメール：'+email+'\n種類：'+(type||'未選択')+'\n備考：'+(note||'なし')+'\nファイル数：'+fileCount+'件\n\n⚠️ 24時間以内に返信してください'
-      })
-    });
-  }catch(e){console.log('LINE notify failed',e);}
-}
-
 async function doSubmit(){
-  const name=document.getElementById('fn').value.trim();
-  const email=document.getElementById('fe').value.trim();
-  const type=document.getElementById('ft').value;
-  const date=document.getElementById('fd').value.trim();
-  const note=document.getElementById('fno').value.trim();
-  if(!files.length||!name||!email)return;
+  var name = document.getElementById('fn').value.trim();
+  var email = document.getElementById('fe').value.trim();
+  var type = document.getElementById('ft').value;
+  var date = document.getElementById('fd').value.trim();
+  var note = document.getElementById('fno').value.trim();
+  if(!files.length || !name || !email) return;
 
   setStep(2);
-  document.getElementById('s1').style.display='none';
-  document.getElementById('s2').style.display='block';
-  document.getElementById('sb2').style.display='block';
+  document.getElementById('s1').style.display = 'none';
+  document.getElementById('s2').style.display = 'block';
+  document.getElementById('sb2').style.display = 'block';
 
-  const fill=document.getElementById('pf');
-  let p=0;
-  const iv=setInterval(()=>{if(p<80){p+=6;fill.style.width=p+'%';}},200);
+  var fill = document.getElementById('pf');
+  var p = 0;
+  var iv = setInterval(function(){if(p < 85){p += 5; fill.style.width = p + '%';}}, 300);
 
-  // LINE通知を最優先で送る
-  await sendLineNotify(name,email,type,note,files.length);
-
-  try{
-    const imgs=await Promise.all(files.map(f=>toB64(f)));
-    await fetch(WORKER+'/inspect',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({images:imgs,category:type||'一般工事',meta:{name,email,type,date,note,fileCount:files.length}})
-    });
-  }catch(e){
-    console.log('Worker failed, LINE already notified');
-  }
-  
-  clearInterval(iv);
-  fill.style.width='100%';
-  await new Promise(r=>setTimeout(r,400));
-  showDone();
-  // KIRA自動診断（非同期で結果を表示）
-  kiraDiagnose(type,note,files.length);
-}
-
-async function kiraDiagnose(type,note,fileCount){
-  const el=document.getElementById('kira-result');
-  if(!el)return;
-  try{
-    const res=await fetch(KIRA+'/anthropic',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:200,
-        messages:[{role:'user',content:'工事の種類：'+(type||'一般リフォーム')+'。備考：'+(note||'なし')+'。ファイル数：'+fileCount+'件。この施工について、もっとも気になるリスクを1点だけ、「〜が気になります」という形で30文字以内で具体的に指摘してください。断定はせず、「可能性があります」などの表現を使ってください。'}]
+  // 1. LINE通知（最優先・/notifyエンドポイント）
+  try {
+    await fetch(KIRA + '/notify', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        message: '【施工チェック依頼】\n名前：' + name + '\nメール：' + email + '\n種類：' + (type || '未選択') + '\n備考：' + (note || 'なし') + '\nファイル数：' + files.length + '件\n\n⚠️ 要確認'
       })
     });
-    const data=await res.json();
-    const text=data.content?.[0]?.text||'';
-    if(text&&el){
-      el.innerHTML='<span style="color:#00D4FF;font-family:Share Tech Mono,monospace;font-size:10px;display:block;margin-bottom:8px">KIRA</span>'+
-        '<span style="color:#EEF2F5">'+text+'</span>'+
-        '<div style="margin-top:12px;font-size:12px;color:#6A8A9A">詳細な診断・是正要求書の作成は専門家サービスで対応します。</div>';
-    }
-  }catch(e){
-    if(el)el.innerHTML='<span style="color:#6A8A9A;font-size:12px">担当者が確認次第、メールでご連絡します。</span>';
-  }
+  } catch(e) { console.log('LINE notify failed', e); }
+
+  // 2. KIRAで診断
+  var kiраText = '';
+  var kiraAmount = '';
+  try {
+    var imgs = await Promise.all(files.map(toB64));
+    var prompt = '工事の種類：' + (type || '一般リフォーム') + '\n備考：' + (note || 'なし') + '\nファイル数：' + files.length + '件\n\n上記の施工について、以下の形式で回答してください：\n1. 最も気になるリスクを1点（「〜が気になります」30文字以内）\n2. もし問題があった場合の修繕費用の目安（例：「修繕費用の目安は〇〜〇万円程度」）\n断定はせず可能性として伝えてください。';
+    var res = await fetch(KIRA + '/anthropic', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 300,
+        messages: [{role: 'user', content: prompt}]
+      })
+    });
+    var data = await res.json();
+    var fullText = data.content && data.content[0] ? data.content[0].text : '';
+    var lines = fullText.split('\n').filter(function(l){ return l.trim(); });
+    kiраText = lines[0] ? lines[0].replace(/^1\.\s*/, '') : '';
+    kiraAmount = lines[1] ? lines[1].replace(/^2\.\s*/, '') : '';
+  } catch(e) { kiраText = '写真を確認しました。詳細な診断をご希望の場合は専門家サービスをご利用ください。'; }
+
+  // 3. 自動メール（KIRAの診断結果をユーザーに送信）
+  try {
+    await fetch(KIRA + '/notify', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        message: '【自動返信内容】\n宛先：' + email + '\n\nKIRAの診断：' + kiраText + '\n' + kiraAmount
+      })
+    });
+  } catch(e) { console.log('auto-notify failed', e); }
+
+  clearInterval(iv);
+  fill.style.width = '100%';
+  await new Promise(function(r){ setTimeout(r, 400); });
+
+  showDone(kiраText, kiraAmount);
 }
 
 function toB64(f){
-  return new Promise((res,rej)=>{
-    const r=new FileReader();
-    r.onload=e=>res({data:e.target.result.split(',')[1],mediaType:f.type||'image/jpeg',name:f.name});
-    r.onerror=rej;
+  return new Promise(function(res, rej){
+    var r = new FileReader();
+    r.onload = function(e){ res({data: e.target.result.split(',')[1], mediaType: f.type || 'image/jpeg', name: f.name}); };
+    r.onerror = rej;
     r.readAsDataURL(f);
   });
 }
 
-function showDone(){
-  document.getElementById('s2').style.display='none';
-  document.getElementById('s3').style.display='block';
-  document.getElementById('db3').style.display='block';
+function showDone(kiраText, kiraAmount){
+  document.getElementById('s2').style.display = 'none';
+  document.getElementById('s3').style.display = 'block';
+  document.getElementById('db3').style.display = 'block';
   setStep(3);
-  window.scrollTo({top:300,behavior:'smooth'});
+
+  var resultEl = document.getElementById('kira-result');
+  var amountEl = document.getElementById('kira-amount');
+
+  if(kiраText){
+    resultEl.innerHTML = kiраText;
+    if(kiraAmount){
+      amountEl.style.display = 'block';
+      amountEl.innerHTML = '<strong>費用の目安：</strong>' + kiraAmount + '<br><span style="font-size:11px;color:#6A8A9A">※これはあくまでも目安です。正確な判定は専門家診断（¥55,000）で行います。</span>';
+    }
+  } else {
+    resultEl.innerHTML = '担当者が確認次第、ご連絡します。';
+  }
+
+  window.scrollTo({top: 300, behavior: 'smooth'});
 }
 
 function resetAll(){
-  files=[];
-  ['fn','fe','fd','fno'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('ft').value='';
-  document.getElementById('pw').style.display='none';
-  document.getElementById('pg').innerHTML='';
-  document.getElementById('sb').disabled=true;
-  ['s2','s3','serr'].forEach(id=>document.getElementById(id).style.display='none');
-  document.getElementById('s1').style.display='block';
+  files = [];
+  ['fn','fe','fd','fno'].forEach(function(id){ document.getElementById(id).value = ''; });
+  document.getElementById('ft').value = '';
+  document.getElementById('pw').style.display = 'none';
+  document.getElementById('pg').innerHTML = '';
+  document.getElementById('sb').disabled = true;
+  ['s2','s3','serr'].forEach(function(id){ document.getElementById(id).style.display = 'none'; });
+  document.getElementById('s1').style.display = 'block';
   setStep(1);
-  window.scrollTo({top:0,behavior:'smooth'});
+  window.scrollTo({top: 0, behavior: 'smooth'});
 }
 </script>
 </body>
