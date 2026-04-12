@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>管理画面｜HORIZON SHIELD</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#040A12;color:#EEF2F5;font-family:'游ゴシック','Yu Gothic',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:60px;display:flex;justify-content:space-between;align-items:center;background:rgba(4,10,18,.97);border-bottom:1px solid rgba(0,212,255,.15)}
+.nm{font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:4px;color:#EEF2F5}.nm span{color:#FF3040}
+main{padding:80px 24px 60px;max-width:900px;margin:0 auto}
+#login-screen{max-width:400px;margin:80px auto 0;background:#070F1A;border:1px solid rgba(0,212,255,.15);padding:40px}
+.login-title{font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:4px;color:#00D4FF;margin-bottom:24px}
+input[type=password]{width:100%;background:#040A12;border:1px solid rgba(0,212,255,.2);color:#EEF2F5;padding:12px 16px;font-size:14px;outline:none;margin-bottom:16px;font-family:monospace}
+input[type=password]:focus{border-color:#00D4FF}
+.login-btn{width:100%;background:linear-gradient(135deg,#00D4FF,#0088AA);color:#040A12;font-weight:900;font-size:14px;padding:13px;border:none;cursor:pointer;font-family:'Zen Kaku Gothic New',sans-serif;letter-spacing:.05em}
+.err{color:#FF3040;font-size:12px;margin-top:8px;font-family:'Share Tech Mono',monospace}
+#admin-screen{display:none}
+.header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.page-title{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:24px}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.stat-box{background:#070F1A;border:1px solid rgba(0,212,255,.15);padding:20px;text-align:center}
+.stat-num{font-family:'Share Tech Mono',monospace;font-size:28px;color:#00D4FF;margin-bottom:4px}
+.stat-label{font-size:11px;color:#6A8A9A;letter-spacing:2px;font-family:'Share Tech Mono',monospace}
+.refresh-btn{background:transparent;border:1px solid rgba(0,212,255,.3);color:#00D4FF;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;padding:8px 18px;cursor:pointer}
+.refresh-btn:hover{background:rgba(0,212,255,.08)}
+.logout-btn{background:transparent;border:1px solid rgba(255,48,64,.3);color:#FF3040;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;padding:8px 18px;cursor:pointer}
+table{width:100%;border-collapse:collapse;background:#070F1A;border:1px solid rgba(0,212,255,.1)}
+thead{background:#040A12}
+th{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:#6A8A9A;padding:12px 16px;text-align:left;border-bottom:1px solid rgba(0,212,255,.1)}
+td{padding:14px 16px;font-size:13px;border-bottom:1px solid rgba(0,212,255,.05);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(0,212,255,.03)}
+.badge{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:3px 10px;border-radius:2px}
+.badge-type{background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:#00D4FF}
+.result-text{font-size:12px;color:#A0BACA;line-height:1.7;max-width:320px}
+.date-text{font-family:'Share Tech Mono',monospace;font-size:11px;color:#6A8A9A}
+.email-link{color:#00D4FF;text-decoration:none;font-size:13px}
+.email-link:hover{text-decoration:underline}
+.empty{text-align:center;padding:48px;color:#6A8A9A;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:2px}
+.loading{text-align:center;padding:48px;color:#00D4FF;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px}
+@media(max-width:600px){
+  .stats-row{grid-template-columns:1fr}
+  table{font-size:12px}
+  td{padding:10px 12px}
+  th{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nm">HORIZON <span>SHIELD</span> — ADMIN</div>
+</nav>
+
+<main>
+  <div id="login-screen">
+    <div class="login-title">ADMIN LOGIN</div>
+    <input type="password" id="pw" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter')login()">
+    <button class="login-btn" onclick="login()">ログイン →</button>
+    <div class="err" id="login-err"></div>
+  </div>
+
+  <div id="admin-screen">
+    <div class="header-row">
+      <div class="page-title">診断依頼 管理画面</div>
+      <div style="display:flex;gap:10px">
+        <button class="refresh-btn" onclick="loadData()">🔄 更新</button>
+        <button class="logout-btn" onclick="logout()">ログアウト</button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-num" id="stat-total">—</div>
+        <div class="stat-label">総依頼数</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="stat-today">—</div>
+        <div class="stat-label">今日の依頼</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="stat-types">—</div>
+        <div class="stat-label">工事種類数</div>
+      </div>
+    </div>
+
+    <div id="table-wrap">
+      <div class="loading">LOADING...</div>
+    </div>
+  </div>
+</main>
+
+<script>
+var KIRA = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
+var PASS = 'Hhzs9k821127@';
+
+function login() {
+  var pw = document.getElementById('pw').value;
+  if (pw === PASS) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-screen').style.display = 'block';
+    loadData();
+  } else {
+    document.getElementById('login-err').textContent = 'パスワードが違います';
+    document.getElementById('pw').value = '';
+  }
+}
+
+function logout() {
+  document.getElementById('admin-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'block';
+  document.getElementById('pw').value = '';
+}
+
+async function loadData() {
+  document.getElementById('table-wrap').innerHTML = '<div class="loading">LOADING...</div>';
+  try {
+    var res = await fetch(KIRA + '/inquiries');
+    var items = await res.json();
+
+    // 統計
+    document.getElementById('stat-total').textContent = items.length;
+    var today = new Date().toISOString().slice(0, 10);
+    var todayCount = items.filter(function(i) { return i.date && i.date.slice(0, 10) === today; }).length;
+    document.getElementById('stat-today').textContent = todayCount;
+    var types = new Set(items.map(function(i) { return i.type; }).filter(Boolean));
+    document.getElementById('stat-types').textContent = types.size;
+
+    if (!items.length) {
+      document.getElementById('table-wrap').innerHTML = '<div class="empty">NO DATA YET</div>';
+      return;
+    }
+
+    // 新しい順に並べる
+    items.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+
+    var html = '<table><thead><tr>'
+      + '<th>日時</th>'
+      + '<th>お名前</th>'
+      + '<th>メール</th>'
+      + '<th>工事種類</th>'
+      + '<th>診断結果</th>'
+      + '</tr></thead><tbody>';
+
+    items.forEach(function(item) {
+      var date = item.date ? new Date(item.date).toLocaleString('ja-JP', {
+        month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+      }) : '—';
+      var result = item.result || '—';
+      if (result.length > 100) result = result.slice(0, 100) + '...';
+
+      html += '<tr>'
+        + '<td><div class="date-text">' + date + '</div></td>'
+        + '<td>' + (item.name || '—') + '</td>'
+        + '<td><a href="mailto:' + (item.email || '') + '" class="email-link">' + (item.email || '—') + '</a></td>'
+        + '<td>' + (item.type ? '<span class="badge badge-type">' + item.type + '</span>' : '—') + '</td>'
+        + '<td><div class="result-text">' + result + '</div></td>'
+        + '</tr>';
+    });
+
+    html += '</tbody></table>';
+    document.getElementById('table-wrap').innerHTML = html;
+
+  } catch(e) {
+    document.getElementById('table-wrap').innerHTML = '<div class="empty">データ取得エラー。Workerを確認してください。</div>';
+  }
+}
+
+// Enterキーでログイン
+document.getElementById('pw').focus();
+</script>
+</body>
+</html>
