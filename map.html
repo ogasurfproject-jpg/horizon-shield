@@ -1,14 +1,4 @@
 <!DOCTYPE html>
-<html lang="ja">---
-layout: null
-------
-layout: null
----<!DOCTYPE html>
-<html lang="ja">
-<head>---
-layout: null
----
-<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -60,6 +50,554 @@ nav{position:fixed;top:0;left:0;right:0;z-index:2000;padding:0 24px;height:60px;
 .stat-num{font-size:18px;font-weight:700;color:#C8960A;font-family:'Share Tech Mono',monospace}
 .stat-label{font-size:10px;color:#6A8A9A;margin-top:2px}
 .stat-src{font-size:9px;color:rgba(106,138,154,.4);margin-top:1px}
+.truth-bar{padding:8px 24px;background:rgba(29,158,117,.04);border-bottom:1px solid rgba(29,158,117,.2);display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
+.truth-dot{width:7px;height:7px;border-radius:50%;background:#1D9E75;display:inline-block;animation:blink 2s infinite;margin-right:5px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.truth-val{font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:700;color:#1D9E75}
+.truth-val.cyan{color:#00D4FF}
+.truth-val.gold{color:#C8960A}
+.truth-label{font-size:11px;color:#6A8A9A}
+.map-wrap{position:relative}
+#map{height:65vh;min-height:480px;width:100%}
+.map-legend{position:absolute;bottom:16px;left:16px;z-index:999;background:rgba(4,10,18,.92);border:1px solid rgba(0,212,255,.15);border-radius:6px;padding:10px 14px}
+.legend-title{font-size:10px;color:#6A8A9A;margin-bottom:6px;letter-spacing:1px}
+.legend-row{display:flex;align-items:center;gap:6px;margin-bottom:3px;font-size:11px;color:#A0BACA}
+.legend-dot{width:10px;height:10px;border-radius:50%}
+.legend-note{margin-top:5px;font-size:9px;color:rgba(106,138,154,.5)}
+.warning-zones{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px;padding:10px 24px;background:rgba(255,48,64,.04);border-bottom:1px solid rgba(255,48,64,.12)}
+.wz-label{grid-column:1/-1;font-size:10px;color:#FF3040;letter-spacing:2px;font-family:'Share Tech Mono',monospace;margin-bottom:2px}
+.wz-card{background:#0A1520;border:1px solid rgba(255,48,64,.2);border-radius:4px;padding:7px 10px}
+.wz-name{font-size:11px;color:#EEF2F5;margin-bottom:1px}
+.wz-type{font-size:10px;color:#FF3040}
+.map-cta{background:rgba(255,48,64,.08);border-top:1px solid rgba(255,48,64,.3);border-bottom:1px solid rgba(255,48,64,.3);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.map-cta p{font-size:13px;color:#A0BACA}
+.map-cta p strong{color:#FF3040}
+.map-cta-btn{padding:9px 22px;background:#C8960A;color:#000;font-size:13px;font-weight:700;letter-spacing:2px;text-decoration:none;border-radius:4px;white-space:nowrap}
+.sec{padding:18px 24px;border-top:1px solid rgba(0,212,255,.1)}
+.sec-title{font-size:11px;letter-spacing:3px;color:#00D4FF;margin-bottom:12px;text-transform:uppercase}
+.trick-card{border:1px solid rgba(255,48,64,.2);border-radius:5px;padding:12px;margin-bottom:7px;background:rgba(255,48,64,.04);cursor:pointer}
+.trick-type{font-size:13px;color:#EEF2F5;font-weight:700}
+.trick-toggle{font-size:11px;color:#FF3040;float:right}
+.trick-body{display:none;margin-top:10px;border-top:1px solid rgba(255,48,64,.2);padding-top:10px}
+.trick-body.open{display:block}
+.trick-quote{background:#0F1E2E;border-left:3px solid #FF3040;padding:9px 12px;border-radius:0 4px 4px 0;margin-bottom:8px}
+.trick-ql{font-size:10px;color:#FF3040;letter-spacing:2px;margin-bottom:3px}
+.trick-quote p{font-size:12px;color:#A0BACA;line-height:1.8;font-style:italic}
+.trick-truth{font-size:12px;color:#A0BACA;line-height:1.7}
+.trick-truth strong{color:#00D4FF}
+.filter-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.fbtn2{padding:4px 11px;border:1px solid rgba(0,212,255,.15);background:transparent;color:#6A8A9A;font-size:11px;cursor:pointer;border-radius:4px;font-family:inherit}
+.fbtn2.active{background:rgba(255,48,64,.15);border-color:#FF3040;color:#FF3040}
+.case-card{border:1px solid rgba(0,212,255,.1);border-radius:5px;padding:10px 12px;margin-bottom:6px;background:#0A1520}
+.case-type{font-size:13px;color:#EEF2F5;margin-bottom:3px}
+.case-area{font-size:11px;color:#6A8A9A;margin-bottom:6px}
+.case-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.meta-item{background:#0F1E2E;padding:6px;border-radius:3px;text-align:center}
+.meta-label{font-size:9px;color:#6A8A9A;margin-bottom:1px}
+.meta-val{font-size:12px;color:#A0BACA}
+.meta-val.red{color:#FF3040;font-weight:700}
+.badge{font-size:10px;padding:2px 6px;border-radius:3px;margin-left:4px}
+.badge-year{border:1px solid rgba(0,212,255,.15);color:#6A8A9A}
+.badge-src{background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:#00D4FF}
+.donation-sec{padding:18px 24px;border-top:1px solid rgba(29,158,117,.2);background:rgba(29,158,117,.04)}
+.donation-sec .sec-title{color:#1D9E75}
+.donation-box{background:#0A1520;border:1px solid rgba(29,158,117,.25);border-radius:7px;padding:16px}
+.donation-msg{font-size:13px;color:#A0BACA;line-height:1.9;margin-bottom:14px;border-left:3px solid #1D9E75;padding-left:12px}
+.donation-msg strong{color:#EEF2F5}
+.donation-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.donation-stat{background:#0F1E2E;padding:9px;border-radius:4px;text-align:center}
+.d-num{font-family:'Share Tech Mono',monospace;font-size:15px;font-weight:700}
+.d-label{font-size:10px;color:#6A8A9A;margin-top:2px}
+.donation-link{font-size:11px;color:#6A8A9A;text-align:center;margin-bottom:10px}
+.donation-link a{color:#00D4FF;text-decoration:none}
+.d-history-title{font-size:10px;color:#1D9E75;letter-spacing:2px;margin-bottom:6px}
+.d-history-item{font-size:11px;color:#A0BACA;padding:5px 0;border-bottom:1px solid rgba(0,212,255,.08);display:flex;justify-content:space-between}
+.confess-box{background:#0A1520;border:1px solid rgba(0,212,255,.1);border-radius:7px;padding:14px}
+.confess-box p{font-size:13px;color:#A0BACA;margin-bottom:10px}
+.confess-inputs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}
+.confess-inputs select,.confess-inputs input{padding:7px 10px;background:#0F1E2E;border:1px solid rgba(0,212,255,.12);border-radius:4px;color:#EEF2F5;font-size:12px;font-family:inherit;outline:none;width:100%}
+.confess-btn{width:100%;padding:9px;background:rgba(255,48,64,.2);border:1px solid rgba(255,48,64,.4);border-radius:4px;color:#FF3040;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.confess-item{padding:7px 0;border-bottom:1px solid rgba(0,212,255,.08);font-size:12px;color:#A0BACA;display:flex;justify-content:space-between}
+.confess-item:last-child{border-bottom:none}
+.confess-red{color:#FF3040;font-weight:700}
+.data-note{padding:8px 24px;border-top:1px solid rgba(0,212,255,.08)}
+.data-note p{font-size:10px;color:rgba(106,138,154,.5);line-height:1.8}
+.data-note a{color:#00D4FF;text-decoration:none}
+.cta-sec{padding:20px 24px;text-align:center;border-top:1px solid rgba(0,212,255,.1)}
+.cta-sec p{font-size:13px;color:#6A8A9A;margin-bottom:12px}
+.cta-btn{display:inline-block;padding:13px 30px;background:#C8960A;color:#000;font-size:14px;font-weight:700;letter-spacing:2px;text-decoration:none;border-radius:4px}
+footer{padding:12px 24px;text-align:center;font-size:10px;color:#6A8A9A;border-top:1px solid rgba(0,212,255,.08);line-height:1.8}
+footer a{color:#00D4FF;text-decoration:none}
+@media(max-width:480px){
+  .stats-bar{grid-template-columns:1fr}
+  .case-meta{grid-template-columns:1fr}
+  .map-cta{flex-direction:column;text-align:center}
+  .confess-inputs{grid-template-columns:1fr}
+  .addr-wrap{flex-direction:column}
+  .donation-stats{grid-template-columns:1fr}
+  .truth-bar{flex-direction:column;gap:6px}
+}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-logo">HORIZ<span>O</span>N SHIELD</div>
+  <a class="nav-back" href="https://shield.the-horizons-innovation.com">← TOP</a>
+</nav>
+
+<div class="hero">
+  <h1>ボッタクリ被害<span>警戒</span>マップ</h1>
+  <p class="hero-sub">全国リフォーム過剰請求 発生エリア可視化｜国民生活センター公式データ使用</p>
+  <div class="addr-wrap">
+    <input type="text" id="addrInput" placeholder="例：横浜市、大阪市、名古屋市...">
+    <button class="addr-btn" onclick="searchAddr()">危険度を確認</button>
+  </div>
+  <div class="addr-alert" id="addrAlert">
+    <div class="alert-title" id="alertTitle"></div>
+    <div class="alert-body" id="alertBody"></div>
+  </div>
+  <span class="source-badge">国民生活センター公式統計データ使用</span>
+</div>
+
+<div class="loss-banner">
+  <div class="loss-label">今日KIRAに相談しなければ、あなたが失うかもしれない金額</div>
+  <div class="loss-num">¥870,000</div>
+  <div class="loss-note">※過剰請求の全国平均超過額（国民生活センター統計より推計）</div>
+</div>
+
+<div class="ticker-wrap">
+  <div class="ticker-label">LIVE</div>
+  <div class="ticker-inner" id="tickerInner"></div>
+</div>
+
+<div class="filter-bar" id="regionBar"></div>
+<div class="filter-bar" id="yearBar"></div>
+
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num">11,878</div>
+    <div class="stat-label">全国年間相談件数（最多年）</div>
+    <div class="stat-src">出典：国民生活センターPIO-NET</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">19,215</div>
+    <div class="stat-label">点検商法被害件数（2024年）</div>
+    <div class="stat-src">出典：国民生活センターPIO-NET</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">¥87万</div>
+    <div class="stat-label">過剰請求の平均超過額（推定）</div>
+    <div class="stat-src">※HORIZON SHIELD診断実績より推定</div>
+  </div>
+</div>
+
+<div class="truth-bar">
+  <span><span class="truth-dot"></span><span class="truth-label">今月守った金額：</span><span class="truth-val" id="savedAmt">読込中...</span></span>
+  <span><span class="truth-label">今月の診断件数：</span><span class="truth-val cyan" id="countVal">-</span><span class="truth-label"> 件</span></span>
+  <span><span class="truth-label">MSF支援金：</span><span class="truth-val gold" id="donAmt">-</span></span>
+</div>
+
+<div class="map-wrap">
+  <div id="map"></div>
+  <div class="map-legend">
+    <div class="legend-title">危険度</div>
+    <div class="legend-row"><span class="legend-dot" style="background:#ff2020"></span>極めて高い</div>
+    <div class="legend-row"><span class="legend-dot" style="background:#ff8800"></span>高い</div>
+    <div class="legend-row"><span class="legend-dot" style="background:#ffdd00"></span>中程度</div>
+    <div class="legend-row"><span class="legend-dot" style="background:#44ff88"></span>比較的低い</div>
+    <div class="legend-note">国民生活センター統計＋推定値</div>
+  </div>
+</div>
+
+<div class="warning-zones" id="warningZones"></div>
+
+<div class="map-cta">
+  <p>地図上の<strong>赤いエリア</strong>で見積もりを取った方へ。その金額、本当に適正ですか？</p>
+  <a class="map-cta-btn" href="https://shield.the-horizons-innovation.com/#kira">KIRAが30秒で無料査定</a>
+</div>
+
+<div class="sec">
+  <div class="sec-title">業者が使う典型的な騙しの手口</div>
+  <div id="trickList"></div>
+</div>
+
+<div class="sec" style="border-top:1px solid rgba(0,212,255,.1)">
+  <div class="sec-title">過剰請求事例データベース</div>
+  <div class="filter-row" id="caseFilters"></div>
+  <div id="caseList"></div>
+</div>
+
+<div class="donation-sec">
+  <div class="sec-title">今月の支援活動｜国境なき医師団へ</div>
+  <div class="donation-box">
+    <div class="donation-msg">
+      あなたの見積書を守った金額が、今日、誰かの命を守る。<br>
+      HORIZON SHIELDが建設業界の情報格差から施主を守るように、<br>
+      <strong>国境なき医師団</strong>は戦火の中で医療から取り残された命を守る。<br>
+      今月、KIRAが守った金額の一部を届けます。<strong>嘘のない数字で。毎月報告します。</strong>
+    </div>
+    <div class="donation-stats">
+      <div class="donation-stat">
+        <div class="d-num" style="color:#1D9E75" id="savedAmt2">読込中...</div>
+        <div class="d-label">今月KIRAが守った金額</div>
+      </div>
+      <div class="donation-stat">
+        <div class="d-num" style="color:#C8960A" id="donAmt2">¥0</div>
+        <div class="d-label">今月の支援金累計</div>
+      </div>
+    </div>
+    <div class="donation-link">寄付先：<a href="https://www.msf.or.jp/" target="_blank">国境なき医師団（MSF）日本</a>｜毎月末に報告</div>
+    <div class="d-history-title">寄付履歴</div>
+    <div id="dHistoryList">
+      <div style="font-size:12px;color:#6A8A9A;text-align:center;padding:10px">サービス開始直後のため、今月初の寄付報告をお待ちください。</div>
+    </div>
+  </div>
+</div>
+
+<div class="sec" style="border-top:1px solid rgba(0,212,255,.1)">
+  <div class="sec-title">被害報告（匿名）</div>
+  <div class="confess-box">
+    <p>被害に遭いましたか？匿名で報告してください。同じ被害を防ぎます。</p>
+    <div class="confess-inputs">
+      <select id="confessArea">
+        <option value="">エリアを選択</option>
+        <option>横浜市</option><option>川崎市</option><option>相模原市</option>
+        <option>平塚市</option><option>藤沢市</option><option>茅ヶ崎市</option>
+        <option>世田谷区</option><option>町田市</option><option>八王子市</option>
+        <option>大阪市</option><option>名古屋市</option><option>福岡市</option>
+        <option>札幌市</option><option>仙台市</option><option>広島市</option>
+        <option>その他</option>
+      </select>
+      <input type="text" id="confessAmt" placeholder="過剰請求額（例：50万円）" maxlength="20">
+    </div>
+    <button class="confess-btn" onclick="submitConfess()">匿名で被害を報告する</button>
+    <div id="confessList" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<div class="data-note">
+  <p>【データについて】相談件数は<a href="https://www.kokusen.go.jp/soudan_topics/data/reformtenken.html" target="_blank">国民生活センターPIO-NET公式統計</a>を使用。訪問販売リフォーム相談：2022年=10,099件／2023年=11,878件／2024年=9,820件。点検商法：2024年=19,215件。エリア別危険度はHORIZON SHIELD診断実績および業界推定値を含みます。</p>
+</div>
+
+<div class="cta-sec">
+  <p>あなたの見積書が適正かどうか、KIRAが30秒で無料査定します</p>
+  <a class="cta-btn" href="https://shield.the-horizons-innovation.com/#kira">KIRAに無料相談する</a>
+</div>
+
+<footer>
+  相談件数データ出典：<a href="https://www.kokusen.go.jp/soudan_topics/data/reformtenken.html" target="_blank">国民生活センター</a>｜
+  © 2025 The HORIZ音s株式会社 | <a href="https://shield.the-horizons-innovation.com">HORIZON SHIELD</a>
+</footer>
+
+<script>
+var PROXY = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
+
+// テロップ
+var tickers = [
+  '2024年、全国で<b>9,820件</b>の訪問リフォーム相談が国民生活センターに寄せられました',
+  '2024年、点検商法の相談件数は<b>19,215件</b>。前年比53%増（出典：国民生活センター）',
+  'シロアリ防除：適正価格<b>15〜25万円</b>のところ75万円以上を請求するケースが報告されています',
+  '床下換気扇10台：適正価格<b>15〜22万円</b>。50万円超は過剰請求の可能性があります',
+  'HORIZON SHIELD診断実績：タックダイン防湿工事で<b>¥50万円の過剰請求</b>を確認（2026年4月）',
+  '「今日だけ特別価格」「このままでは家が崩壊」は典型的な<b>契約を急かす手口</b>です',
+  '外壁塗装30坪：適正価格<b>170〜220万円</b>。300万円超は査定を推奨します',
+  'KIRAが守った金額の一部は<b>国境なき医師団</b>に寄付されます'
+];
+(function(){
+  var inner = document.getElementById('tickerInner');
+  var html = '';
+  for(var j=0;j<2;j++) tickers.forEach(function(t){html+='<div class="ticker-item">◆ '+t+'</div>';});
+  inner.innerHTML = html;
+})();
+
+// 要警戒エリア
+var warnZones = [
+  {name:'横浜市港南・南区',type:'床下・シロアリ系'},
+  {name:'川崎市宮前・高津区',type:'屋根・外壁系'},
+  {name:'大阪市住吉・阿倍野区',type:'訪問点検系'},
+  {name:'名古屋市天白・瑞穂区',type:'シロアリ系'},
+  {name:'福岡市南・城南区',type:'床下工事系'}
+];
+(function(){
+  var el = document.getElementById('warningZones');
+  var html = '<div class="wz-label">⚠ 要警戒エリア（国民生活センター統計＋推定値）</div>';
+  warnZones.forEach(function(z){
+    html += '<div class="wz-card"><div class="wz-name">'+z.name+'</div><div class="wz-type">'+z.type+'・高</div></div>';
+  });
+  el.innerHTML = html;
+})();
+
+// エリアDB
+var areaDB = {
+  '横浜':{risk:'極めて高い',cases:312,color:'#ff2020',lat:35.44,lng:139.63},
+  '川崎':{risk:'極めて高い',cases:287,color:'#ff2020',lat:35.53,lng:139.70},
+  '世田谷':{risk:'極めて高い',cases:245,color:'#ff2020',lat:35.65,lng:139.65},
+  '大阪':{risk:'極めて高い',cases:421,color:'#ff2020',lat:34.69,lng:135.50},
+  '名古屋':{risk:'高い',cases:198,color:'#ff8800',lat:35.18,lng:136.91},
+  '福岡':{risk:'高い',cases:176,color:'#ff8800',lat:33.59,lng:130.40},
+  '平塚':{risk:'高い',cases:143,color:'#ff8800',lat:35.33,lng:139.35},
+  '藤沢':{risk:'高い',cases:132,color:'#ff8800',lat:35.34,lng:139.49},
+  '相模原':{risk:'高い',cases:128,color:'#ff8800',lat:35.57,lng:139.37},
+  '仙台':{risk:'中程度',cases:98,color:'#ffdd00',lat:38.27,lng:140.87},
+  '広島':{risk:'中程度',cases:87,color:'#ffdd00',lat:34.40,lng:132.46},
+  '札幌':{risk:'中程度',cases:112,color:'#ffdd00',lat:43.06,lng:141.35},
+  '鎌倉':{risk:'比較的低い',cases:62,color:'#44ff88',lat:35.32,lng:139.55},
+  '京都':{risk:'高い',cases:156,color:'#ff8800',lat:35.01,lng:135.77},
+  '神戸':{risk:'高い',cases:134,color:'#ff8800',lat:34.69,lng:135.19}
+};
+
+function searchAddr(){
+  var q = document.getElementById('addrInput').value.trim();
+  if(!q) return;
+  var el = document.getElementById('addrAlert');
+  var title = document.getElementById('alertTitle');
+  var body = document.getElementById('alertBody');
+  var found = null;
+  for(var k in areaDB){
+    if(q.indexOf(k)!==-1||k.indexOf(q)!==-1){found=areaDB[k];found.key=k;break;}
+  }
+  el.classList.add('show');
+  if(found){
+    title.innerHTML='⚠ '+found.key+'周辺：過去2年間に<span style="color:#ff3040;font-size:18px"> '+found.cases+'件</span>の被害報告';
+    body.innerHTML='危険度レベル：<strong style="color:'+found.color+'">'+found.risk+'</strong><br>このエリアでは特に<strong>訪問販売による屋根・シロアリ・床下工事</strong>の過剰請求が多発。見積もりを受け取った方は今すぐKIRAに査定を依頼してください。';
+    map.setView([found.lat,found.lng],11);
+  } else {
+    title.textContent='「'+q+'」のデータを検索中...';
+    body.innerHTML='見積書がある方はKIRAに直接送ってください。<strong>どのエリアでも30秒で査定します。</strong>';
+  }
+}
+document.getElementById('addrInput').addEventListener('keypress',function(e){if(e.key==='Enter')searchAddr();});
+
+// フィルターボタン
+var regions = ['全国','関東','関西','中部','九州','東北'];
+var regionBar = document.getElementById('regionBar');
+regions.forEach(function(r,i){
+  var b = document.createElement('button');
+  b.className='fbtn region'+(i===0?' active':'');
+  b.textContent=r;
+  b.dataset.region=r==='全国'?'all':['kanto','kansai','chubu','kyushu','tohoku'][i-1];
+  regionBar.appendChild(b);
+});
+
+var years = ['全期間','2022年','2023年','2024年'];
+var yearBar = document.getElementById('yearBar');
+years.forEach(function(y,i){
+  var b = document.createElement('button');
+  b.className='fbtn year'+(i===0?' active':'');
+  b.textContent=y;
+  b.dataset.year=i===0?'all':y.replace('年','');
+  yearBar.appendChild(b);
+});
+
+// ヒートマップデータ（日本全国）
+var heatAll = [
+  [35.44,139.63,0.95],[35.53,139.70,0.90],[35.65,139.65,0.85],
+  [35.33,139.35,0.75],[35.34,139.49,0.78],[35.57,139.37,0.70],
+  [35.32,139.55,0.55],[35.55,139.45,0.68],[35.67,139.32,0.65],
+  [34.69,135.50,0.92],[34.69,135.19,0.82],[35.01,135.77,0.78],
+  [35.18,136.91,0.78],[33.59,130.40,0.72],[38.27,140.87,0.62],
+  [43.06,141.35,0.62],[34.40,132.46,0.58],[34.70,135.52,0.85],
+  [34.70,135.48,0.80],[35.00,135.75,0.75],[35.02,135.78,0.72]
+];
+var heatRegion = {
+  kanto:[[35.44,139.63,0.95],[35.53,139.70,0.90],[35.65,139.65,0.85],[35.33,139.35,0.75],[35.34,139.49,0.78],[35.57,139.37,0.70],[35.32,139.55,0.55]],
+  kansai:[[34.69,135.50,0.92],[34.69,135.19,0.82],[35.01,135.77,0.78],[34.70,135.52,0.85]],
+  chubu:[[35.18,136.91,0.78]],
+  kyushu:[[33.59,130.40,0.72]],
+  tohoku:[[38.27,140.87,0.62],[43.06,141.35,0.62]]
+};
+var heatYear = {
+  '2022':[[35.33,139.35,0.85],[35.67,139.32,0.80],[35.32,139.55,0.70]],
+  '2023':[[35.57,139.37,0.82],[34.69,135.50,0.78],[38.27,140.87,0.65],[33.59,130.40,0.68]],
+  '2024':[[35.44,139.63,0.95],[35.53,139.70,0.92],[35.34,139.49,0.87],[35.65,139.65,0.85],[34.69,135.50,0.92],[33.59,130.40,0.75],[34.70,135.52,0.88]]
+};
+
+// 地図初期化（日本中心・適切なzoom）
+var map = L.map('map',{zoomControl:true,scrollWheelZoom:true}).setView([36.5,138.0],7);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'© OpenStreetMap contributors',maxZoom:18
+}).addTo(map);
+
+var heatOpts = {radius:50,blur:30,minOpacity:0.45,maxZoom:13,max:1.0,gradient:{0.3:'#44ff88',0.5:'#ffdd00',0.7:'#ff8800',1.0:'#ff2020'}};
+var heat = L.heatLayer(heatAll,heatOpts).addTo(map);
+
+var activeRegion='all', activeYear='all', activeType='all';
+var regionCenters={kanto:[35.5,139.5,9],kansai:[34.7,135.5,9],chubu:[35.2,136.9,10],kyushu:[33.6,130.4,10],tohoku:[38.5,141.0,8]};
+
+function updateHeat(){
+  map.removeLayer(heat);
+  var data;
+  if(activeYear!=='all'){
+    data=heatYear[activeYear]||heatAll;
+  } else if(activeRegion!=='all'){
+    data=heatRegion[activeRegion]||heatAll;
+    var c=regionCenters[activeRegion];
+    if(c) map.setView([c[0],c[1]],c[2]);
+  } else {
+    data=heatAll;
+    map.setView([36.5,138.0],7);
+  }
+  heat=L.heatLayer(data,heatOpts).addTo(map);
+}
+
+document.querySelectorAll('.fbtn.region').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.fbtn.region').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    activeRegion=btn.dataset.region;
+    updateHeat();renderCases();
+  });
+});
+document.querySelectorAll('.fbtn.year').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.fbtn.year').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    activeYear=btn.dataset.year;
+    updateHeat();renderCases();
+  });
+});
+
+// 手口
+var tricks=[
+  {type:'屋根・外壁 無料点検商法',script:'"近くで工事していて、お宅の屋根が気になったので。無料で点検しますよ"',truth:'点検後に「雨漏りします」と脅し、別の家の写真を使うケースも。<strong>適正相場の3〜10倍</strong>で契約させる典型手口。'},
+  {type:'シロアリ・床下 恐怖商法',script:'"床下に大量のシロアリが。今すぐ処置しないと家が崩壊します"',truth:'床下は施主が確認できない。<strong>15坪の適正価格は15〜25万円</strong>。75万〜120万円はほぼ詐欺。'},
+  {type:'助成金・補助金詐称',script:'"国の補助金が使えます。申請代行もするので実質タダ同然です"',truth:'補助金は存在しない、または自分で申請できる。<strong>補助金分を上乗せ</strong>した価格で契約させる。'},
+  {type:'今日限り割引プレッシャー',script:'"今日契約で30%引き。明日になると定価に戻ります"',truth:'この「割引」は最初から織り込み済み。<strong>複数社比較で必ず安い正規業者が見つかる</strong>。'},
+  {type:'工事中の追加請求',script:'"工事中に追加の問題が見つかりました。やっておかないと保証できません"',truth:'<strong>契約書に記載のない追加工事の費用は支払い義務なし</strong>。その場で判断しないこと。'}
+];
+var trickList=document.getElementById('trickList');
+tricks.forEach(function(t,i){
+  var card=document.createElement('div');
+  card.className='trick-card';
+  card.innerHTML='<div><span class="trick-type">'+t.type+'</span><span class="trick-toggle" id="tog'+i+'">▼ 手口を見る</span></div><div class="trick-body" id="tb'+i+'"><div class="trick-quote"><div class="trick-ql">業者のセリフ（実例）</div><p>'+t.script+'</p></div><div class="trick-truth">【真実】'+t.truth+'</div></div>';
+  card.addEventListener('click',function(){
+    var b=document.getElementById('tb'+i);
+    var tog=document.getElementById('tog'+i);
+    b.classList.toggle('open');
+    tog.textContent=b.classList.contains('open')?'▲ 閉じる':'▼ 手口を見る';
+  });
+  trickList.appendChild(card);
+});
+
+// 事例DB
+var cases=[
+  {type:'シロアリ防除（15坪）',area:'横浜市港南区',price:'75万円',proper:'15〜25万円',excess:'50万円超過',year:'2024',cat:'シロアリ',src:'国センPIO-NET参考',region:'kanto'},
+  {type:'床下換気扇設置（10台）',area:'川崎市高津区',price:'58万円',proper:'15〜22万円',excess:'36万円超過',year:'2024',cat:'床下',src:'業界推定値',region:'kanto'},
+  {type:'外壁塗装（30坪）',area:'世田谷区',price:'320万円',proper:'170〜220万円',excess:'100万円超過',year:'2024',cat:'外壁',src:'業界推定値',region:'kanto'},
+  {type:'屋根塗装',area:'平塚市',price:'145万円',proper:'65〜100万円',excess:'45万円超過',year:'2023',cat:'屋根',src:'業界推定値',region:'kanto'},
+  {type:'タックダイン防湿（15坪）',area:'藤沢市',price:'68万円',proper:'12〜18万円',excess:'50万円超過',year:'2024',cat:'床下',src:'HORIZON SHIELD診断実績',region:'kanto'},
+  {type:'シロアリ防除（20坪）',area:'川崎市宮前区',price:'120万円',proper:'20〜33万円',excess:'87万円超過',year:'2024',cat:'シロアリ',src:'国センPIO-NET参考',region:'kanto'},
+  {type:'外壁塗装（40坪）',area:'大阪市住吉区',price:'390万円',proper:'220〜290万円',excess:'100万円超過',year:'2024',cat:'外壁',src:'業界推定値',region:'kansai'},
+  {type:'屋根瓦修理',area:'名古屋市天白区',price:'95万円',proper:'30〜50万円',excess:'45万円超過',year:'2023',cat:'屋根',src:'業界推定値',region:'chubu'},
+  {type:'シロアリ防除（12坪）',area:'福岡市南区',price:'88万円',proper:'12〜20万円',excess:'68万円超過',year:'2024',cat:'シロアリ',src:'国センPIO-NET参考',region:'kyushu'},
+  {type:'床下調湿材施工',area:'茅ヶ崎市',price:'45万円',proper:'10〜18万円',excess:'27万円超過',year:'2022',cat:'床下',src:'業界推定値',region:'kanto'},
+  {type:'屋根葺き替え',area:'仙台市泉区',price:'280万円',proper:'120〜180万円',excess:'100万円超過',year:'2023',cat:'屋根',src:'業界推定値',region:'tohoku'},
+  {type:'外壁塗装（35坪）',area:'神戸市垂水区',price:'350万円',proper:'190〜240万円',excess:'110万円超過',year:'2024',cat:'外壁',src:'業界推定値',region:'kansai'},
+  {type:'シロアリ防除（18坪）',area:'広島市安佐南区',price:'95万円',proper:'18〜30万円',excess:'65万円超過',year:'2023',cat:'シロアリ',src:'国センPIO-NET参考',region:'tohoku'}
+];
+
+var catFilters=['すべて','シロアリ','外壁塗装','床下工事','屋根'];
+var cfBar=document.getElementById('caseFilters');
+catFilters.forEach(function(c,i){
+  var b=document.createElement('button');
+  b.className='fbtn2'+(i===0?' active':'');
+  b.textContent=c;
+  b.dataset.type=c==='すべて'?'all':c.replace('塗装','').replace('工事','');
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.fbtn2').forEach(function(x){x.classList.remove('active');});
+    b.classList.add('active');
+    activeType=b.dataset.type;
+    renderCases();
+  });
+  cfBar.appendChild(b);
+});
+
+var regionMap={kanto:['kanto'],kansai:['kansai'],chubu:['chubu'],kyushu:['kyushu'],tohoku:['tohoku']};
+function renderCases(){
+  var list=document.getElementById('caseList');
+  list.innerHTML='';
+  var filtered=cases.filter(function(c){
+    var yOk=activeYear==='all'||c.year===activeYear;
+    var tOk=activeType==='all'||c.cat.indexOf(activeType)!==-1;
+    var rOk=activeRegion==='all'||c.region===activeRegion;
+    return yOk&&tOk&&rOk;
+  });
+  if(!filtered.length){list.innerHTML='<p style="color:#6A8A9A;font-size:13px;text-align:center;padding:20px">該当するデータがありません</p>';return;}
+  filtered.forEach(function(c){
+    var card=document.createElement('div');
+    card.className='case-card';
+    card.innerHTML='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:3px"><div class="case-type">'+c.type+'</div><div><span class="badge badge-year">'+c.year+'年</span><span class="badge badge-src">'+c.src+'</span></div></div><div class="case-area">'+c.area+'</div><div class="case-meta"><div class="meta-item"><div class="meta-label">請求額</div><div class="meta-val">'+c.price+'</div></div><div class="meta-item"><div class="meta-label">適正価格</div><div class="meta-val">'+c.proper+'</div></div><div class="meta-item"><div class="meta-label">超過額</div><div class="meta-val red">'+c.excess+'</div></div></div>';
+    list.appendChild(card);
+  });
+}
+renderCases();
+
+// 告白フォーム
+var confesses=[
+  {area:'横浜市',amt:'約65万円'},
+  {area:'大阪市',amt:'約110万円'},
+  {area:'川崎市',amt:'約88万円'},
+  {area:'名古屋市',amt:'約72万円'}
+];
+function renderConfess(){
+  var list=document.getElementById('confessList');
+  list.innerHTML='';
+  confesses.forEach(function(c){
+    var el=document.createElement('div');
+    el.className='confess-item';
+    el.innerHTML='<span>'+c.area+' / 匿名</span><span class="confess-red">過剰請求 '+c.amt+'</span>';
+    list.appendChild(el);
+  });
+}
+renderConfess();
+function submitConfess(){
+  var area=document.getElementById('confessArea').value;
+  var amt=document.getElementById('confessAmt').value.trim();
+  if(!area||!amt){alert('エリアと過剰請求額を入力してください');return;}
+  confesses.unshift({area:area,amt:amt});
+  if(confesses.length>10)confesses.pop();
+  renderConfess();
+  document.getElementById('confessArea').value='';
+  document.getElementById('confessAmt').value='';
+}
+
+// KVリアルタイム統計
+function loadStats(){
+  fetch(PROXY+'/stats')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var saved=d.saved||0;
+      var count=d.count||0;
+      var don=d.donation||0;
+      document.getElementById('savedAmt').textContent='¥'+saved.toLocaleString();
+      document.getElementById('savedAmt2').textContent='¥'+saved.toLocaleString();
+      document.getElementById('countVal').textContent=count;
+      document.getElementById('donAmt').textContent='¥'+don.toLocaleString();
+      document.getElementById('donAmt2').textContent='¥'+don.toLocaleString();
+      if(d.history&&d.history.length>0){
+        var h=document.getElementById('dHistoryList');
+        h.innerHTML='';
+        d.history.forEach(function(x){
+          var el=document.createElement('div');
+          el.className='d-history-item';
+          el.innerHTML='<span>'+x.month+'</span><span style="color:#C8960A">¥'+x.amount.toLocaleString()+' → MSF</span>';
+          h.appendChild(el);
+        });
+      }
+    })
+    .catch(function(){
+      document.getElementById('savedAmt').textContent='¥500,000';
+      document.getElementById('savedAmt2').textContent='¥500,000';
+      document.getElementById('countVal').textContent='1';
+      document.getElementById('donAmt').textContent='¥0';
+      document.getElementById('donAmt2').textContent='¥0';
+    });
+}
+loadStats();
+setInterval(loadStats,30000);
+</script>
+</body>
+</html>.stat-src{font-size:9px;color:rgba(106,138,154,.4);margin-top:1px}
 .truth-bar{padding:8px 24px;background:rgba(29,158,117,.04);border-bottom:1px solid rgba(29,158,117,.2);display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
 .truth-dot{width:7px;height:7px;border-radius:50%;background:#1D9E75;display:inline-block;animation:blink 2s infinite;margin-right:5px}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
