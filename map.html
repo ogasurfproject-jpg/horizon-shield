@@ -1,3 +1,6 @@
+---
+layout: null
+---
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -502,7 +505,7 @@ var heatYear = {
 };
 
 // 地図初期化（日本中心・適切なzoom）
-var map = L.map('map',{zoomControl:true,scrollWheelZoom:true}).setView([36.5,138.0],7);
+var map = L.map('map',{zoomControl:true,scrollWheelZoom:true}).setView([36.5,136.5],6);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   attribution:'© OpenStreetMap contributors',maxZoom:18
 }).addTo(map);
@@ -524,7 +527,7 @@ function updateHeat(){
     if(c) map.setView([c[0],c[1]],c[2]);
   } else {
     data=heatAll;
-    map.setView([36.5,138.0],7);
+    map.setView([36.5,136.5],6);
   }
   heat=L.heatLayer(data,heatOpts).addTo(map);
 }
