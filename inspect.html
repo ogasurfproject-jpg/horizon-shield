@@ -19,17 +19,21 @@ h1 em{font-style:normal;color:#F0C030}
 .sub{font-size:15px;color:#A0BACA;line-height:2;margin-bottom:48px}
 .card{background:#070F1A;border:1px solid rgba(0,212,255,.15);padding:36px 32px;margin-bottom:20px}
 label{font-size:11px;color:#6A8A9A;letter-spacing:2px;display:block;margin-bottom:8px;font-family:'Share Tech Mono',monospace}
-select,textarea{width:100%;background:#040A12;border:1px solid rgba(0,212,255,.2);color:#EEF2F5;padding:12px 16px;font-size:14px;font-family:'游ゴシック','Yu Gothic',sans-serif;outline:none;transition:border .2s;margin-bottom:16px}
-select:focus,textarea:focus{border-color:#00D4FF}
+input[type=text],input[type=email],select,textarea{width:100%;background:#040A12;border:1px solid rgba(0,212,255,.2);color:#EEF2F5;padding:12px 16px;font-size:14px;font-family:'游ゴシック','Yu Gothic',sans-serif;outline:none;transition:border .2s;margin-bottom:16px}
+input[type=text]:focus,input[type=email]:focus,select:focus,textarea:focus{border-color:#00D4FF}
 textarea{resize:vertical;min-height:100px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:480px){.fg{grid-template-columns:1fr}}
 .upload-zone{border:2px dashed rgba(0,212,255,.2);padding:40px 24px;text-align:center;cursor:pointer;transition:border .2s;margin-bottom:16px}
 .upload-zone:hover{border-color:rgba(0,212,255,.5)}
 .upload-zone p{color:#6A8A9A;font-size:14px}
 .upload-zone p span{color:#00D4FF}
 .preview-wrap{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px}
 .preview-img{width:100px;height:100px;object-fit:cover;border:1px solid rgba(0,212,255,.2)}
+.pdf-thumb{width:100px;height:100px;border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;background:#0A1520;font-size:10px;color:#00D4FF;font-family:'Share Tech Mono',monospace;text-align:center;padding:4px;word-break:break-all}
 .btn{background:linear-gradient(135deg,#00FF88,#008844);color:#040A12;font-weight:900;font-size:14px;padding:15px 40px;border:none;cursor:pointer;letter-spacing:.06em;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);width:100%;font-family:'Zen Kaku Gothic New',sans-serif;transition:opacity .2s}
 .btn:hover{opacity:.85}
+.btn:disabled{opacity:.5;cursor:not-allowed}
 #result{display:none;margin-top:24px;border:1px solid rgba(0,212,255,.2);padding:28px;background:rgba(0,212,255,.03)}
 .item-card{background:#040A12;border:1px solid rgba(0,212,255,.1);padding:16px 20px;margin-bottom:12px}
 .item-level{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;margin-bottom:6px}
@@ -51,6 +55,16 @@ textarea{resize:vertical;min-height:100px}
   <h1>施工不良<em>チェック</em></h1>
   <p class="sub">工事箇所の写真と状況を送ってください。AIが施工不良のリスクを判定し、確認すべきポイントをお伝えします。</p>
   <div class="card">
+    <div class="fg">
+      <div>
+        <label>お名前 *</label>
+        <input type="text" id="name" placeholder="山田 太郎">
+      </div>
+      <div>
+        <label>メールアドレス *</label>
+        <input type="email" id="email" placeholder="your@email.com">
+      </div>
+    </div>
     <label>工事の種類</label>
     <select id="koji-type">
       <option value="">選択してください</option>
@@ -64,14 +78,14 @@ textarea{resize:vertical;min-height:100px}
     </select>
     <label>気になる箇所・状況を説明してください</label>
     <textarea id="situation" placeholder="例：外壁塗装後にひびが入っている。工事から3ヶ月しか経っていないのに劣化が気になる。"></textarea>
-    <label>写真をアップロード（任意・複数可）</label>
+    <label>写真・PDFをアップロード（任意・複数可）</label>
     <div class="upload-zone" onclick="document.getElementById('photo-input').click()">
-      <p><span>📷 ここをタップして写真を選択</span></p>
-      <p>JPG・PNG・HEIC対応</p>
-      <input id="photo-input" type="file" accept="image/*" multiple style="display:none" onchange="previewPhotos(this)">
+      <p><span>📷 ここをタップしてファイルを選択</span></p>
+      <p>JPG・PNG・HEIC・PDF対応</p>
+      <input id="photo-input" type="file" accept="image/*,.pdf,application/pdf" multiple style="display:none" onchange="previewFiles(this)">
     </div>
     <div class="preview-wrap" id="preview-wrap"></div>
-    <button class="btn" onclick="checkInspect()">AIで施工不良を診断する →</button>
+    <button class="btn" id="submit-btn" onclick="checkInspect()">AIで施工不良を診断する →</button>
   </div>
   <div id="result"></div>
   <div class="note-box">
@@ -80,47 +94,166 @@ textarea{resize:vertical;min-height:100px}
   </div>
 </main>
 <script>
-var photoData=[];
-function previewPhotos(input){
-  var wrap=document.getElementById('preview-wrap');wrap.innerHTML='';photoData=[];
-  Array.from(input.files).slice(0,4).forEach(function(file){
-    var reader=new FileReader();
-    reader.onload=function(e){
-      photoData.push(e.target.result.split(',')[1]);
-      var img=document.createElement('img');img.src=e.target.result;img.className='preview-img';wrap.appendChild(img);
-    };reader.readAsDataURL(file);
+var KIRA = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
+var fileData = [];
+
+function previewFiles(input) {
+  var wrap = document.getElementById('preview-wrap');
+  wrap.innerHTML = '';
+  fileData = [];
+  Array.from(input.files).slice(0, 8).forEach(function(file) {
+    var isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var b64 = e.target.result.split(',')[1];
+      fileData.push({
+        data: b64,
+        mediaType: file.type || 'image/jpeg',
+        isPdf: isPdf,
+        name: file.name
+      });
+      if (isPdf) {
+        var div = document.createElement('div');
+        div.className = 'pdf-thumb';
+        div.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00D4FF" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' + file.name.slice(0, 12);
+        wrap.appendChild(div);
+      } else {
+        var img = document.createElement('img');
+        img.src = e.target.result;
+        img.className = 'preview-img';
+        wrap.appendChild(img);
+      }
+    };
+    reader.readAsDataURL(file);
   });
 }
-async function checkInspect(){
-  var koji=document.getElementById('koji-type').value;
-  var sit=document.getElementById('situation').value.trim();
-  if(!koji||!sit){alert('工事種類と状況説明を入力してください');return;}
-  var btn=document.querySelector('.btn');btn.textContent='分析中...';btn.disabled=true;
-  document.getElementById('result').style.display='none';
-  var messages=[{role:'user',content:[{type:'text',text:'工事種類：「'+koji+'」\n状況：「'+sit+'」\n\n施工不良のリスクを分析してJSON形式で返してください。フィールド：summary(全体評価の文字列)、items(配列：{level:"要確認"/"注意"/"問題なし", title:文字列, desc:文字列}、最大4個)、action(文字列：推奨アクション)。JSONのみ返答。'}].concat(photoData.slice(0,2).map(function(d){return{type:'image',source:{type:'base64',media_type:'image/jpeg',data:d}};}))}];
-  try{
-    var res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:800,system:'あなたは建設施工管理の専門家です。施工不良の可能性を分析します。必ずJSONのみで返答してください。',messages:messages})
+
+async function checkInspect() {
+  var name = document.getElementById('name').value.trim();
+  var email = document.getElementById('email').value.trim();
+  var koji = document.getElementById('koji-type').value;
+  var sit = document.getElementById('situation').value.trim();
+
+  if (!name || !email) { alert('お名前とメールアドレスを入力してください'); return; }
+  if (!koji && !sit && !fileData.length) { alert('工事種類・状況・写真のいずれかを入力してください'); return; }
+
+  var btn = document.getElementById('submit-btn');
+  btn.textContent = '分析中...';
+  btn.disabled = true;
+  document.getElementById('result').style.display = 'none';
+
+  // 1. LINE通知（依頼受付）
+  try {
+    await fetch(KIRA + '/notify', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        message: '【施工チェック依頼】\n名前：' + name + '\nメール：' + email + '\n種類：' + (koji || '未選択') + '\n状況：' + (sit || 'なし') + '\nファイル数：' + fileData.length + '件\n\n⚠️ 要確認',
+        name: name,
+        email: email,
+        type: koji || '',
+        result: ''
+      })
     });
-    var data=await res.json();
-    var text=data.content[0].text.replace(/```json|```/g,'').trim();
-    var d=JSON.parse(text);
-    var lcol={'要確認':'#FF3040','注意':'#F0C030','問題なし':'#00FF88'};
-    var html='<div style="font-size:15px;color:#EEF2F5;margin-bottom:20px;line-height:1.9;border-left:3px solid #00FF88;padding-left:16px">'+d.summary+'</div>';
-    (d.items||[]).forEach(function(item){
-      var c=lcol[item.level]||'#00D4FF';
-      html+='<div class="item-card"><div class="item-level" style="color:'+c+'">'+item.level+'</div><div class="item-title">'+item.title+'</div><div class="item-desc">'+item.desc+'</div></div>';
+  } catch(e) {}
+
+  // 2. KIRA診断
+  var resultText = '';
+  var resultJson = null;
+  try {
+    var content = fileData.map(function(f) {
+      return f.isPdf
+        ? {type: 'document', source: {type: 'base64', media_type: 'application/pdf', data: f.data}}
+        : {type: 'image', source: {type: 'base64', media_type: f.mediaType || 'image/jpeg', data: f.data}};
     });
-    html+='<div style="margin-top:16px;font-size:14px;color:#F0C030;font-weight:700">推奨アクション：</div><div style="font-size:14px;color:#EEF2F5;margin-top:8px;line-height:1.9">'+d.action+'</div>';
-    html+='<div class="cta-box"><p>より詳しい現地確認・是正要求書の作成はお任せください</p><a href="/#services" class="cta-btn">完成検査立会いを依頼する →</a></div>';
-    var result=document.getElementById('result');result.innerHTML=html;result.style.display='block';
-  }catch(e){
-    var result=document.getElementById('result');
-    result.innerHTML='<p style="color:#ff6b6b;font-size:14px">分析中にエラーが発生しました。時間をおいて再度お試しください。</p>';
-    result.style.display='block';
+    content.push({type: 'text', text: '工事種類：「' + (koji || '不明') + '」\n状況：「' + (sit || 'なし') + '」\n\n施工不良のリスクを分析してJSON形式で返してください。フィールド：summary(全体評価の文字列)、items(配列：{level:"要確認"/"注意"/"問題なし", title:文字列, desc:文字列}、最大4個)、action(文字列：推奨アクション)。JSONのみ返答。'});
+
+    var res = await fetch(KIRA + '/anthropic', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 800,
+        system: 'あなたは建設施工管理の専門家です。施工不良の可能性を分析します。必ずJSONのみで返答してください。',
+        messages: [{role: 'user', content: content}]
+      })
+    });
+    var data = await res.json();
+    var text = data.content[0].text.replace(/```json|```/g, '').trim();
+    resultJson = JSON.parse(text);
+    resultText = resultJson.summary + '\n' + resultJson.action;
+  } catch(e) {
+    resultText = '分析中にエラーが発生しました。';
   }
-  btn.textContent='AIで施工不良を診断する →';btn.disabled=false;
+
+  // 3. メール送信
+  if (resultJson) {
+    try {
+      var lcol = {'要確認': '#FF3040', '注意': '#F0C030', '問題なし': '#00FF88'};
+      var emailBody = '<div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#040A12;color:#EEF2F5;padding:32px">'
+        + '<h2 style="color:#00D4FF;font-size:18px;margin-bottom:16px">KIRAの診断結果</h2>'
+        + '<p style="font-size:15px;line-height:1.9;margin-bottom:16px;border-left:3px solid #00FF88;padding-left:12px">' + resultJson.summary + '</p>';
+      (resultJson.items || []).forEach(function(item) {
+        var c = lcol[item.level] || '#00D4FF';
+        emailBody += '<div style="background:#070F1A;border:1px solid rgba(0,212,255,.1);padding:14px 18px;margin-bottom:10px">'
+          + '<div style="font-size:10px;color:' + c + ';letter-spacing:3px;margin-bottom:4px">' + item.level + '</div>'
+          + '<div style="font-size:14px;font-weight:700;margin-bottom:6px">' + item.title + '</div>'
+          + '<div style="font-size:13px;color:#A0BACA">' + item.desc + '</div></div>';
+      });
+      emailBody += '<div style="margin-top:16px;font-size:14px;color:#F0C030;font-weight:700">推奨アクション：</div>'
+        + '<div style="font-size:14px;margin-top:8px;line-height:1.9">' + resultJson.action + '</div>'
+        + '<hr style="border:none;border-top:1px solid rgba(255,255,255,.1);margin:24px 0">'
+        + '<p style="font-size:12px;color:#6A8A9A">詳細診断は <a href="https://shield.the-horizons-innovation.com" style="color:#00D4FF">HORIZON SHIELD</a> へ。<br>大賀 俊勝 / The HORIZ音s株式会社</p></div>';
+
+      await fetch(KIRA + '/send-email', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          to: email,
+          subject: 'KIRAからの診断結果 | HORIZON SHIELD',
+          body: emailBody
+        })
+      });
+    } catch(e) {}
+  }
+
+  // 4. LINE通知（完了・KV保存）
+  try {
+    await fetch(KIRA + '/notify', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        message: '【施工チェック完了】\n名前：' + name + '\nメール：' + email + '\n種類：' + (koji || '未選択') + '\n\nKIRA診断：' + resultText,
+        name: name,
+        email: email,
+        type: koji || '',
+        result: resultText
+      })
+    });
+  } catch(e) {}
+
+  // 結果表示
+  if (resultJson) {
+    var lcol = {'要確認': '#FF3040', '注意': '#F0C030', '問題なし': '#00FF88'};
+    var html = '<div style="font-size:15px;color:#EEF2F5;margin-bottom:20px;line-height:1.9;border-left:3px solid #00FF88;padding-left:16px">' + resultJson.summary + '</div>';
+    (resultJson.items || []).forEach(function(item) {
+      var c = lcol[item.level] || '#00D4FF';
+      html += '<div class="item-card"><div class="item-level" style="color:' + c + '">' + item.level + '</div><div class="item-title">' + item.title + '</div><div class="item-desc">' + item.desc + '</div></div>';
+    });
+    html += '<div style="margin-top:16px;font-size:14px;color:#F0C030;font-weight:700">推奨アクション：</div><div style="font-size:14px;color:#EEF2F5;margin-top:8px;line-height:1.9">' + resultJson.action + '</div>';
+    html += '<div style="margin-top:12px;font-size:13px;color:#6A8A9A">診断結果を ' + email + ' にメールでお送りしました。</div>';
+    html += '<div class="cta-box"><p>より詳しい現地確認・是正要求書の作成はお任せください</p><a href="/#services" class="cta-btn">完成検査立会いを依頼する →</a></div>';
+    var result = document.getElementById('result');
+    result.innerHTML = html;
+    result.style.display = 'block';
+  } else {
+    var result = document.getElementById('result');
+    result.innerHTML = '<p style="color:#ff6b6b;font-size:14px">分析中にエラーが発生しました。時間をおいて再度お試しください。</p>';
+    result.style.display = 'block';
+  }
+
+  btn.textContent = 'AIで施工不良を診断する →';
+  btn.disabled = false;
 }
 </script>
 </body>
