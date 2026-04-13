@@ -1,527 +1,529 @@
----
-layout: null
----
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>リフォームぼったくり被害マップ｜全国版 | HORIZON SHIELD</title>
-<meta name="description" content="全国47都道府県のリフォームトラブル相談件数を可視化。国民生活センター公式データ使用。">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>HORIZON SHIELD｜被害マップ</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#030508;--surface:#0a0e14;--border:#1a2030;
-  --accent:#00e5ff;--danger:#ff3d3d;--warn:#ffb800;--green:#00c853;
-  --text:#e8edf5;--muted:#5a6a7a;--header-h:56px;
+  --bg:#020406;--s1:#070d14;--s2:#0c1520;
+  --c:#00e5ff;--r:#ff1f3d;--g:#00ff88;--w:#ffcc00;
+  --t:#dde8f0;--m:#3d5a6a;
+  --h:52px;--tb:48px;
 }
-html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;display:flex;flex-direction:column}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-family:'Noto Sans JP',sans-serif}
+
+/* scanline overlay */
+body::after{
+  content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);
+}
 
 /* HEADER */
-#header{
-  flex-shrink:0;height:var(--header-h);
-  background:rgba(3,5,8,0.97);border-bottom:1px solid var(--border);
+#hdr{
+  position:fixed;top:0;left:0;right:0;height:var(--h);z-index:100;
+  background:rgba(2,4,6,.96);border-bottom:1px solid rgba(0,229,255,.15);
   display:flex;align-items:center;justify-content:space-between;padding:0 16px;
-  z-index:1000;
 }
-.logo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--accent);text-decoration:none}
-.logo span{color:var(--danger)}
-.back-link{font-size:11px;color:var(--muted);text-decoration:none}
-.back-link:hover{color:var(--text)}
+.hs-logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+.hs-logo svg{width:28px;height:28px}
+.hs-wordmark{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;color:var(--c)}
+.hs-wordmark span{color:var(--r)}
+.back{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--m);text-decoration:none;letter-spacing:1px;border:1px solid rgba(255,255,255,.08);padding:5px 10px;border-radius:2px}
+.back:hover{color:var(--t);border-color:var(--c)}
 
 /* TAB BAR */
-#tab-bar{
-  flex-shrink:0;display:flex;background:var(--surface);
-  border-bottom:1px solid var(--border);
+#tabs{
+  position:fixed;top:var(--h);left:0;right:0;height:var(--tb);z-index:100;
+  background:rgba(7,13,20,.98);border-bottom:1px solid rgba(0,229,255,.1);
+  display:flex;
 }
 .tab{
-  flex:1;padding:12px 4px;text-align:center;font-size:11px;font-weight:700;
-  color:var(--muted);cursor:pointer;letter-spacing:.5px;
-  border-bottom:2px solid transparent;transition:all .2s;
-  font-family:'Share Tech Mono',monospace;
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;cursor:pointer;position:relative;transition:all .25s;
+  border-right:1px solid rgba(0,229,255,.06);
 }
-.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.tab:hover{color:var(--text)}
+.tab:last-child{border-right:none}
+.tab-icon{width:18px;height:18px;transition:all .25s}
+.tab-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--m);transition:all .25s}
+.tab::after{
+  content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;
+  background:var(--c);border-radius:2px 2px 0 0;
+  transform:scaleX(0);transition:transform .25s;
+}
+.tab.active .tab-icon{filter:drop-shadow(0 0 6px var(--c))}
+.tab.active .tab-label{color:var(--c)}
+.tab.active::after{transform:scaleX(1)}
+.tab:hover .tab-label{color:var(--t)}
 
 /* SCREENS */
-#screens{flex:1;overflow:hidden;position:relative}
+#screens{
+  position:fixed;top:calc(var(--h) + var(--tb));left:0;right:0;
+  bottom:52px;overflow:hidden;
+}
 .screen{
-  position:absolute;inset:0;overflow-y:auto;
-  transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);
-  -webkit-overflow-scrolling:touch;
+  position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);
+  will-change:transform;
 }
 .screen.active{transform:translateX(0)}
-.screen.left{transform:translateX(-100%)}
+.screen.prev{transform:translateX(-100%)}
 
-/* ── SCREEN 1: DONATION ── */
-#screen-donate{
+/* ── SCREEN 1: IMPACT ── */
+#sc1{
   background:
-    radial-gradient(ellipse 80% 60% at 50% -10%,rgba(0,200,83,0.12) 0%,transparent 60%),
+    radial-gradient(ellipse 100% 50% at 50% -5%,rgba(0,255,136,.08) 0%,transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 80%,rgba(0,229,255,.04) 0%,transparent 50%),
     var(--bg);
 }
-.donate-hero{padding:32px 20px 24px;text-align:center}
-.donate-tag{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);letter-spacing:3px;margin-bottom:12px}
-.donate-h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,9vw,56px);line-height:.95;margin-bottom:12px}
-.donate-h1 em{color:var(--green);font-style:normal}
-.donate-h1 span{color:var(--accent)}
-.donate-sub{font-size:13px;color:var(--muted);line-height:1.8;max-width:320px;margin:0 auto}
+.impact-hero{padding:28px 20px 20px;text-align:center}
+.impact-eyebrow{
+  font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--g);
+  letter-spacing:4px;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--g);animation:pdot 1.5s ease-in-out infinite}
+@keyframes pdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.6)}}
+.impact-h1{
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,11vw,68px);line-height:.9;
+  letter-spacing:1px;margin-bottom:14px;
+}
+.impact-h1 em{
+  color:var(--g);font-style:normal;
+  text-shadow:0 0 20px rgba(0,255,136,.4),0 0 60px rgba(0,255,136,.15);
+}
+.impact-h1 b{color:var(--c)}
+.impact-sub{font-size:12px;color:var(--m);line-height:1.8;max-width:300px;margin:0 auto}
 
-/* LIVE COUNTERS */
-.counters{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 20px}
-.counter-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:8px;
-  padding:16px;text-align:center;position:relative;overflow:hidden;
+/* LIVE GRID */
+.live-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px 18px}
+.live-card{
+  background:linear-gradient(135deg,var(--s1),var(--s2));
+  border:1px solid rgba(0,229,255,.1);border-radius:6px;
+  padding:14px 12px;position:relative;overflow:hidden;
 }
-.counter-card::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,transparent 60%,rgba(0,200,83,0.05));
+.live-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--c),transparent);
+  animation:scanh 3s ease-in-out infinite;
+  animation-delay:var(--d,0s);
 }
-.counter-card.red::before{background:linear-gradient(135deg,transparent 60%,rgba(255,61,61,0.05))}
-.counter-card.blue::before{background:linear-gradient(135deg,transparent 60%,rgba(0,229,255,0.05))}
-.c-num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--green);line-height:1}
-.c-num.red{color:var(--danger)}
-.c-num.blue{color:var(--accent)}
-.c-num.warn{color:var(--warn)}
-.c-label{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.4}
-.c-source{font-size:9px;color:var(--border);margin-top:2px}
+@keyframes scanh{0%,100%{opacity:0}50%{opacity:1}}
+.live-card.g::before{background:linear-gradient(90deg,transparent,var(--g),transparent)}
+.live-card.r::before{background:linear-gradient(90deg,transparent,var(--r),transparent)}
+.live-card.w::before{background:linear-gradient(90deg,transparent,var(--w),transparent)}
+.lc-num{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--g);line-height:1;margin-bottom:2px}
+.lc-num.r{color:var(--r)}.lc-num.c{color:var(--c)}.lc-num.w{color:var(--w)}
+.lc-label{font-size:10px;color:var(--m);line-height:1.4}
+.lc-src{font-family:'Share Tech Mono',monospace;font-size:8px;color:rgba(61,90,106,.7);margin-top:3px}
 
 /* TICKER */
-.ticker-wrap{
-  background:rgba(0,200,83,0.08);border-top:1px solid rgba(0,200,83,0.2);
-  border-bottom:1px solid rgba(0,200,83,0.2);
-  padding:10px 0;overflow:hidden;margin-bottom:20px;
+.ticker-outer{
+  border-top:1px solid rgba(0,255,136,.12);border-bottom:1px solid rgba(0,255,136,.12);
+  padding:9px 0;overflow:hidden;margin-bottom:18px;
+  background:rgba(0,255,136,.03);
 }
-.ticker{display:flex;gap:0;white-space:nowrap;animation:ticker 20s linear infinite}
-@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.ticker-item{
-  padding:0 32px;font-size:12px;font-family:'Share Tech Mono',monospace;
-  color:var(--green);letter-spacing:1px;
+.ticker-inner{display:flex;white-space:nowrap;animation:tkr 25s linear infinite}
+@keyframes tkr{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ti{
+  padding:0 28px;font-family:'Share Tech Mono',monospace;font-size:11px;
+  color:rgba(0,255,136,.7);letter-spacing:.5px;
 }
-.ticker-item span{color:var(--text)}
+.ti strong{color:var(--t)}
 
-/* MISSION STATEMENT */
-.mission{padding:0 16px 20px}
-.mission-card{
-  background:var(--surface);border:1px solid rgba(0,200,83,0.3);
-  border-radius:8px;padding:20px;
+/* MISSION */
+.mission{padding:0 14px 18px}
+.mission-inner{
+  background:linear-gradient(135deg,rgba(0,255,136,.06),rgba(0,229,255,.03));
+  border:1px solid rgba(0,255,136,.2);border-radius:6px;padding:18px;
+  position:relative;overflow:hidden;
 }
-.mission-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--green);margin-bottom:12px}
-.mission-text{font-size:13px;line-height:1.9;color:var(--muted)}
-.mission-text strong{color:var(--text)}
+.mission-inner::after{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(45deg,transparent,transparent 6px,rgba(0,255,136,.015) 6px,rgba(0,255,136,.015) 7px);
+  pointer-events:none;
+}
+.m-title{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--g);margin-bottom:10px}
+.m-body{font-size:12px;line-height:1.9;color:rgba(221,232,240,.75)}
+.m-body strong{color:var(--t)}
 
-/* DONATION OPTIONS */
-.donate-options{padding:0 16px 20px}
-.donate-title{font-family:'Bebas Neue',sans-serif;font-size:24px;margin-bottom:12px}
-.donate-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.donate-btn{
-  padding:16px 8px;background:var(--surface);border:1px solid var(--border);
-  border-radius:6px;text-align:center;cursor:pointer;transition:all .2s;
-  text-decoration:none;display:block;
+/* DONATE */
+.donate{padding:0 14px 18px}
+.d-title{font-family:'Bebas Neue',sans-serif;font-size:22px;margin-bottom:10px}
+.d-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.d-btn{
+  display:block;padding:14px 8px;text-align:center;text-decoration:none;
+  background:var(--s1);border:1px solid rgba(0,229,255,.12);border-radius:5px;
+  transition:all .2s;
 }
-.donate-btn:hover,.donate-btn.selected{border-color:var(--green);background:rgba(0,200,83,0.08)}
-.donate-amount{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--green)}
-.donate-desc{font-size:10px;color:var(--muted);margin-top:3px}
-.donate-full{
-  display:block;padding:15px;background:var(--green);color:var(--bg);
-  border-radius:6px;text-align:center;font-weight:900;font-size:15px;
-  text-decoration:none;transition:all .2s;
+.d-btn:hover,.d-btn:active{border-color:var(--g);background:rgba(0,255,136,.06);transform:translateY(-1px)}
+.d-amount{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--g)}
+.d-desc{font-size:10px;color:var(--m);margin-top:3px}
+.d-main{
+  display:block;padding:15px;background:var(--g);color:var(--bg);
+  border-radius:5px;text-align:center;font-weight:900;font-size:14px;
+  text-decoration:none;letter-spacing:.5px;transition:all .2s;
 }
-.donate-full:hover{background:#00b548;transform:translateY(-1px)}
-.donate-note{font-size:11px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.6}
+.d-main:hover{background:#00e57a;transform:translateY(-1px)}
+.d-note{font-size:10px;color:var(--m);text-align:center;margin-top:8px;line-height:1.7}
 
-/* IMPACT TIMELINE */
-.impact{padding:0 16px 24px}
-.impact-title{font-family:'Bebas Neue',sans-serif;font-size:22px;margin-bottom:16px}
-.impact-item{display:flex;gap:12px;margin-bottom:16px}
-.impact-dot{
-  width:32px;height:32px;border-radius:50%;background:var(--surface);
-  border:2px solid var(--green);display:flex;align-items:center;justify-content:center;
-  font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--green);flex-shrink:0;
-}
-.impact-body{flex:1}
-.impact-amount{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--green)}
-.impact-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-top:2px}
+.spacer80{height:80px}
 
 /* ── SCREEN 2: MAP ── */
-#screen-map{padding:0}
-.search-area{padding:12px 16px 8px;background:var(--surface);border-bottom:1px solid var(--border)}
-.search-box{display:flex;gap:8px}
-.search-box input{
-  flex:1;background:var(--bg);border:1px solid var(--border);
-  color:var(--text);padding:10px 12px;border-radius:4px;font-size:13px;
+#sc2{background:var(--bg)}
+.map-search{
+  padding:10px 14px;background:rgba(7,13,20,.97);
+  border-bottom:1px solid rgba(0,229,255,.1);
+}
+.ms-row{display:flex;gap:8px}
+.ms-input{
+  flex:1;background:rgba(2,4,6,.8);border:1px solid rgba(0,229,255,.15);
+  color:var(--t);padding:10px 12px;border-radius:3px;font-size:13px;
   font-family:'Noto Sans JP',sans-serif;outline:none;
 }
-.search-box input:focus{border-color:var(--accent)}
-.search-box input::placeholder{color:var(--muted)}
-.search-btn{
-  background:var(--danger);color:#fff;border:none;padding:10px 14px;
-  border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;
-  font-family:'Noto Sans JP',sans-serif;white-space:nowrap;
+.ms-input:focus{border-color:var(--c)}
+.ms-input::placeholder{color:var(--m);font-size:12px}
+.ms-btn{
+  padding:10px 14px;background:var(--r);color:#fff;border:none;border-radius:3px;
+  font-size:12px;font-weight:900;cursor:pointer;font-family:'Noto Sans JP',sans-serif;white-space:nowrap;
 }
-.alert-box{
-  margin-top:8px;padding:10px 12px;border-radius:4px;
-  background:rgba(255,61,61,0.1);border:1px solid rgba(255,61,61,0.3);
-  font-size:12px;display:none;
+.ms-alert{
+  margin-top:8px;padding:10px 12px;border-radius:3px;font-size:12px;
+  background:rgba(255,31,61,.08);border:1px solid rgba(255,31,61,.25);display:none;
 }
-.alert-box.show{display:block}
-.alert-box strong{color:var(--danger);display:block;font-size:14px;margin-bottom:2px}
-#map{height:calc(100vh - 56px - 44px - 80px);min-height:240px}
-.map-legend{
-  padding:8px 16px;background:var(--surface);border-top:1px solid var(--border);
-  display:flex;align-items:center;gap:8px;font-size:10px;color:var(--muted);
-  flex-wrap:wrap;
+.ms-alert.show{display:block}
+.ms-alert strong{color:var(--r);display:block;font-size:13px;margin-bottom:2px}
+#map{height:calc(100vh - 52px - 48px - 52px - 60px);min-height:240px}
+.map-foot{
+  padding:6px 14px;background:rgba(7,13,20,.9);border-top:1px solid rgba(0,229,255,.08);
+  display:flex;align-items:center;gap:8px;font-size:10px;color:var(--m);flex-wrap:wrap;
 }
-.legend-grad{height:10px;width:120px;border-radius:2px;flex-shrink:0;
-  background:linear-gradient(to right,#44ff88,#ffdd00,#ff8800,#ff2020)}
+.leg-grad{height:8px;width:100px;border-radius:2px;flex-shrink:0;background:linear-gradient(to right,#00ff88,#ffcc00,#ff8800,#ff1f3d)}
 
 /* ── SCREEN 3: DATA ── */
-#screen-data{padding:16px}
-.sec-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;margin-bottom:8px}
-.sec-title{font-family:'Bebas Neue',sans-serif;font-size:28px;margin-bottom:16px}
-.sec-title em{color:var(--danger);font-style:normal}
+#sc3{background:var(--bg)}
+.ds{padding:16px 14px}
+.ds-h{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--c);letter-spacing:3px;margin-bottom:8px}
+.ds-t{font-family:'Bebas Neue',sans-serif;font-size:28px;margin-bottom:14px}
+.ds-t em{color:var(--r);font-style:normal}
 
-/* PREF RANKING */
-.pref-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px}
-.pref-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:6px;padding:12px;
+/* RANKING */
+.rank-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:24px}
+.rk{
+  background:var(--s1);border:1px solid rgba(0,229,255,.08);border-radius:5px;padding:11px;
+  transition:border-color .2s;
 }
-.pref-card.top3{border-color:rgba(255,61,61,0.4)}
-.pref-rank{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--muted)}
-.pref-name{font-weight:900;font-size:13px;margin:2px 0}
-.pref-count{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--danger)}
-.pref-bar{height:3px;background:var(--border);border-radius:2px;margin-top:6px}
-.pref-bar-fill{height:100%;border-radius:2px;background:var(--danger)}
+.rk.top{border-color:rgba(255,31,61,.35)}
+.rk:hover{border-color:rgba(0,229,255,.25)}
+.rk-rank{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--m)}
+.rk-name{font-weight:900;font-size:12px;margin:2px 0}
+.rk-count{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--r)}
+.rk-bar{height:2px;background:rgba(255,255,255,.06);border-radius:1px;margin-top:6px}
+.rk-fill{height:100%;border-radius:1px;background:linear-gradient(90deg,var(--r),var(--w))}
 
-/* WARD DATA (区レベル) */
-.ward-section{margin-bottom:24px}
-.ward-title{font-family:'Bebas Neue',sans-serif;font-size:20px;margin-bottom:10px;color:var(--warn)}
-.ward-list{display:flex;flex-direction:column;gap:6px}
+/* WARD */
+.ward-block{margin-bottom:22px}
+.wb-title{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--w);margin-bottom:8px}
 .ward-item{
-  display:flex;align-items:center;justify-content:space-between;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:4px;padding:10px 12px;
+  display:flex;align-items:center;gap:10px;padding:9px 0;
+  border-bottom:1px solid rgba(0,229,255,.06);
 }
-.ward-name{font-size:13px;font-weight:700}
-.ward-bar-wrap{flex:1;margin:0 12px;height:4px;background:var(--border);border-radius:2px}
-.ward-bar-fill{height:100%;border-radius:2px;background:var(--warn)}
-.ward-count{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--warn);white-space:nowrap}
+.wi-name{font-size:12px;font-weight:700;width:90px;flex-shrink:0}
+.wi-bar{flex:1;height:3px;background:rgba(255,255,255,.06);border-radius:2px}
+.wi-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--w),var(--r))}
+.wi-count{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--w);width:50px;text-align:right;flex-shrink:0}
 
 /* TECHNIQUES */
-.tech-list{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
-.tech-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-left:3px solid var(--danger);border-radius:6px;padding:14px;
+.tech-list{margin-bottom:22px}
+.tc{
+  background:var(--s1);border-left:2px solid var(--r);border-radius:0 5px 5px 0;
+  padding:12px 14px;margin-bottom:7px;
 }
-.tech-title{font-weight:900;font-size:14px;margin-bottom:4px}
-.tech-body{font-size:12px;color:var(--muted);line-height:1.7}
-.tech-quote{
-  margin-top:8px;padding:8px;
-  background:rgba(255,61,61,0.06);
-  font-size:11px;font-style:italic;color:var(--text);border-radius:3px;
+.tc-title{font-weight:900;font-size:13px;margin-bottom:3px}
+.tc-body{font-size:11px;color:var(--m);line-height:1.7}
+.tc-q{
+  margin-top:7px;padding:7px 10px;font-size:11px;font-style:italic;
+  color:var(--t);background:rgba(255,31,61,.06);border-radius:3px;
 }
 
 /* UGC */
-.ugc-form{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:16px}
-.ugc-form select,.ugc-form input,.ugc-form textarea{
-  width:100%;background:var(--bg);border:1px solid var(--border);
-  color:var(--text);padding:10px 12px;border-radius:4px;font-size:13px;
-  font-family:'Noto Sans JP',sans-serif;outline:none;margin-bottom:8px;
+.ugc{background:var(--s1);border:1px solid rgba(0,229,255,.1);border-radius:5px;padding:14px;margin-bottom:14px}
+.ugc select,.ugc input,.ugc textarea{
+  width:100%;background:var(--bg);border:1px solid rgba(0,229,255,.12);
+  color:var(--t);padding:9px 11px;border-radius:3px;font-size:12px;
+  font-family:'Noto Sans JP',sans-serif;outline:none;margin-bottom:7px;
 }
-.ugc-form select:focus,.ugc-form input:focus,.ugc-form textarea:focus{border-color:var(--accent)}
-.ugc-form textarea{height:72px;resize:none}
+.ugc select:focus,.ugc input:focus,.ugc textarea:focus{border-color:var(--c)}
+.ugc textarea{height:64px;resize:none}
 .ugc-btn{
-  width:100%;padding:13px;background:var(--danger);color:#fff;
-  border:none;border-radius:4px;font-weight:900;font-size:14px;
-  cursor:pointer;font-family:'Noto Sans JP',sans-serif;
+  width:100%;padding:12px;background:var(--r);color:#fff;border:none;
+  border-radius:3px;font-weight:900;font-size:13px;cursor:pointer;
+  font-family:'Noto Sans JP',sans-serif;letter-spacing:.5px;
 }
-.ugc-success{text-align:center;padding:20px;font-size:14px;color:var(--accent);display:none}
+.ugc-ok{text-align:center;padding:20px;font-size:13px;color:var(--g);display:none}
 
-/* CTA BOTTOM */
-.cta-bottom{
-  background:linear-gradient(135deg,rgba(255,61,61,0.1),rgba(0,229,255,0.05));
-  border:1px solid rgba(255,61,61,0.25);border-radius:6px;
-  padding:20px;text-align:center;margin-bottom:80px;
+/* CTA BLOCK */
+.cta-blk{
+  background:linear-gradient(135deg,rgba(255,31,61,.1),rgba(0,229,255,.05));
+  border:1px solid rgba(255,31,61,.25);border-radius:5px;padding:18px;
+  text-align:center;margin-bottom:24px;
 }
-.cta-bottom-title{font-family:'Bebas Neue',sans-serif;font-size:24px;margin-bottom:8px}
-.cta-bottom-sub{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.7}
-.cta-bottom-btn{
-  display:inline-block;background:var(--accent);color:var(--bg);
-  font-weight:900;font-size:14px;padding:13px 24px;border-radius:4px;text-decoration:none;
+.cta-blk-t{font-family:'Bebas Neue',sans-serif;font-size:22px;margin-bottom:6px}
+.cta-blk-s{font-size:11px;color:var(--m);line-height:1.7;margin-bottom:12px}
+.cta-blk-btn{
+  display:inline-block;background:var(--c);color:var(--bg);
+  font-weight:900;font-size:13px;padding:12px 22px;border-radius:3px;
+  text-decoration:none;letter-spacing:.5px;
 }
-.data-source{font-size:10px;color:var(--muted);line-height:1.7;margin-bottom:20px}
+
+.ds-note{font-size:9px;color:rgba(61,90,106,.6);line-height:1.8;margin-bottom:16px;font-family:'Share Tech Mono',monospace}
 
 /* STICKY CTA */
-.sticky-cta{
-  position:fixed;bottom:0;left:0;right:0;z-index:900;
-  padding:10px 16px;background:rgba(3,5,8,0.97);backdrop-filter:blur(12px);
-  border-top:1px solid var(--border);display:flex;gap:8px;
+#scta{
+  position:fixed;bottom:0;left:0;right:0;height:52px;z-index:100;
+  display:flex;gap:1px;background:rgba(2,4,6,.98);border-top:1px solid rgba(0,229,255,.12);
 }
-.sticky-cta a{
-  flex:1;text-align:center;padding:12px;font-weight:900;font-size:13px;
-  text-decoration:none;border-radius:4px;
+#scta a{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:12px;text-decoration:none;letter-spacing:.5px;
+  transition:all .15s;
 }
-.s-diag{background:var(--accent);color:var(--bg)}
-.s-line{background:#06C755;color:#fff}
+#scta .sa{background:rgba(0,229,255,.1);color:var(--c)}
+#scta .sa:hover{background:rgba(0,229,255,.18)}
+#scta .sl{background:#06C755;color:#fff}
+#scta .sl:hover{background:#05b34c}
 
 @media(min-width:640px){
-  .sticky-cta{display:none}
-  .pref-grid{grid-template-columns:repeat(4,1fr)}
-  #map{height:calc(100vh - 56px - 44px - 60px)}
-  .counters{grid-template-columns:repeat(4,1fr)}
-  .donate-grid{grid-template-columns:repeat(4,1fr)}
+  #scta{display:none}
+  #screens{bottom:0}
+  .rank-grid{grid-template-columns:repeat(4,1fr)}
+  #map{height:calc(100vh - 52px - 48px - 60px)}
+  .live-grid{grid-template-columns:repeat(4,1fr)}
+  .d-grid{grid-template-columns:repeat(4,1fr)}
 }
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
-<header id="header">
-  <a href="/" class="logo">HORIZON<span>SHIELD</span></a>
-  <a href="/" class="back-link">← LPに戻る</a>
+<header id="hdr">
+  <a href="/" class="hs-logo">
+    <svg viewBox="0 0 28 28" fill="none">
+      <path d="M14 2L4 7v7c0 5.5 4.3 10.7 10 12 5.7-1.3 10-6.5 10-12V7L14 2z" stroke="#00e5ff" stroke-width="1.5" fill="rgba(0,229,255,.06)"/>
+      <path d="M10 14l3 3 5-6" stroke="#00e5ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="hs-wordmark">HORIZON<span>SHIELD</span></span>
+  </a>
+  <a href="/" class="back">← LP</a>
 </header>
 
-<!-- TAB BAR -->
-<div id="tab-bar">
-  <div class="tab active" onclick="switchTab(0)" id="tab0">💚 守る</div>
-  <div class="tab" onclick="switchTab(1)" id="tab1">🗾 マップ</div>
-  <div class="tab" onclick="switchTab(2)" id="tab2">📊 データ</div>
-</div>
+<!-- TABS -->
+<nav id="tabs">
+  <!-- Tab 1: Shield/Heart = 守る -->
+  <div class="tab active" onclick="go(0)" id="t0">
+    <svg class="tab-icon" viewBox="0 0 18 18" fill="none">
+      <path d="M9 1.5L2.5 4.5v5c0 3.9 2.8 7.5 6.5 8.5 3.7-1 6.5-4.6 6.5-8.5v-5L9 1.5z" stroke="#00ff88" stroke-width="1.2" fill="rgba(0,255,136,.1)"/>
+      <path d="M6.5 9.5s0-2.5 2.5-2.5S11.5 9 11.5 9c0 1.5-2.5 3-2.5 3s-2.5-1.5-2.5-3z" fill="#00ff88" opacity=".8"/>
+    </svg>
+    <span class="tab-label">守る</span>
+  </div>
+  <!-- Tab 2: Radar/Target = MAP -->
+  <div class="tab" onclick="go(1)" id="t1">
+    <svg class="tab-icon" viewBox="0 0 18 18" fill="none">
+      <circle cx="9" cy="9" r="7" stroke="#ff1f3d" stroke-width="1.2" stroke-dasharray="2 2"/>
+      <circle cx="9" cy="9" r="4" stroke="#ff1f3d" stroke-width="1.2"/>
+      <circle cx="9" cy="9" r="1.5" fill="#ff1f3d"/>
+      <line x1="9" y1="2" x2="9" y2="5" stroke="#ff1f3d" stroke-width="1.2"/>
+      <line x1="9" y1="13" x2="9" y2="16" stroke="#ff1f3d" stroke-width="1.2"/>
+      <line x1="2" y1="9" x2="5" y2="9" stroke="#ff1f3d" stroke-width="1.2"/>
+      <line x1="13" y1="9" x2="16" y2="9" stroke="#ff1f3d" stroke-width="1.2"/>
+    </svg>
+    <span class="tab-label">被害MAP</span>
+  </div>
+  <!-- Tab 3: Warning/File = 手口 -->
+  <div class="tab" onclick="go(2)" id="t2">
+    <svg class="tab-icon" viewBox="0 0 18 18" fill="none">
+      <path d="M9 2L2 15h14L9 2z" stroke="#ffcc00" stroke-width="1.2" fill="rgba(255,204,0,.08)" stroke-linejoin="round"/>
+      <line x1="9" y1="7" x2="9" y2="10.5" stroke="#ffcc00" stroke-width="1.3" stroke-linecap="round"/>
+      <circle cx="9" cy="12.5" r=".8" fill="#ffcc00"/>
+    </svg>
+    <span class="tab-label">手口・報告</span>
+  </div>
+</nav>
 
 <!-- SCREENS -->
 <div id="screens">
 
-  <!-- SCREEN 1: DONATION -->
-  <div class="screen active" id="screen-donate">
-
-    <div class="donate-hero">
-      <div class="donate-tag">// HORIZON SHIELD — IMPACT REPORT</div>
-      <h1 class="donate-h1">
+  <!-- SCREEN 1 -->
+  <div class="screen active" id="sc1">
+    <div class="impact-hero">
+      <div class="impact-eyebrow">
+        <span class="pulse-dot"></span>
+        HORIZON SHIELD — IMPACT REPORT
+        <span class="pulse-dot" style="animation-delay:.5s"></span>
+      </div>
+      <h1 class="impact-h1">
         あなたが<em>守った</em><br>
-        お金が<span>命</span>を救う
+        お金が<b>命</b>を救う
       </h1>
-      <p class="donate-sub">HORIZON SHIELDで過剰請求から守った金額の一部を、世界の紛争被害者に届けています。</p>
+      <p class="impact-sub">過剰請求から守った金額の一部を、世界の紛争被害者へ届けます</p>
     </div>
 
-    <!-- LIVE COUNTERS -->
-    <div class="counters">
-      <div class="counter-card">
-        <div class="c-num green" id="c-saved">¥0</div>
-        <div class="c-label">累計診断件数</div>
-        <div class="c-source">HORIZON SHIELD診断実績</div>
+    <div class="live-grid">
+      <div class="live-card g" style="--d:0s">
+        <div class="lc-num" id="lc1">0件</div>
+        <div class="lc-label">累計診断件数</div>
+        <div class="lc-src">HORIZON SHIELD実績</div>
       </div>
-      <div class="counter-card red">
-        <div class="c-num red" id="c-cases">0件</div>
-        <div class="c-label">診断実績</div>
-        <div class="c-source">HORIZON SHIELD統計</div>
+      <div class="live-card r" style="--d:.4s">
+        <div class="lc-num w" id="lc2">集計中</div>
+        <div class="lc-label">累計削減金額</div>
+        <div class="lc-src">HORIZON SHIELD実績</div>
       </div>
-      <div class="counter-card blue">
-        <div class="c-num blue" id="c-donate">¥0</div>
-        <div class="c-label">MSF寄付（準備中）</div>
-        <div class="c-source">国境なき医師団</div>
+      <div class="live-card" style="--d:.8s">
+        <div class="lc-num c" id="lc3">¥0</div>
+        <div class="lc-label">MSF寄付額（実績）</div>
+        <div class="lc-src">管理者記録済み金額のみ</div>
       </div>
-      <div class="counter-card">
-        <div class="c-num warn" id="c-national">11,878件</div>
-        <div class="c-label">全国年間被害件数</div>
-        <div class="c-source">国民生活センター2024</div>
-      </div>
-    </div>
-
-    <!-- TICKER -->
-    <div class="ticker-wrap">
-      <div class="ticker" id="ticker">
-        <div class="ticker-item">⚡ 全国年間リフォームトラブル相談：約11,878件（国民生活センター2024）</div><div class="ticker-item">🛡 訪問販売被害の45%が70歳以上</div><div class="ticker-item">💰 過剰請求の平均は見積もり額の15〜20%</div><div class="ticker-item">📊 屋根工事トラブル年間7,522件（国民生活センター2024）</div>
-        
-        
-        
-        <div class="ticker-item">⚡ 全国年間リフォームトラブル相談：約11,878件（国民生活センター2024）</div><div class="ticker-item">🛡 訪問販売被害の45%が70歳以上</div><div class="ticker-item">💰 過剰請求の平均は見積もり額の15〜20%</div><div class="ticker-item">📊 屋根工事トラブル年間7,522件（国民生活センター2024）</div>
-        
-        
-        
+      <div class="live-card w" style="--d:1.2s">
+        <div class="lc-num r">11,878件</div>
+        <div class="lc-label">全国年間被害件数</div>
+        <div class="lc-src">国民生活センター2024</div>
       </div>
     </div>
 
-    <!-- MISSION -->
+    <div class="ticker-outer">
+      <div class="ticker-inner">
+        <div class="ti">⚡ 全国リフォームトラブル年間約<strong>11,878件</strong></div>
+        <div class="ti">⚠ 訪問販売被害の<strong>45%</strong>が70歳以上</div>
+        <div class="ti">💀 屋根工事トラブル年間<strong>7,522件</strong></div>
+        <div class="ti">🔴 過剰請求の平均は見積額の<strong>15〜20%</strong></div>
+        <div class="ti">🌍 国境なき医師団は<strong>70以上</strong>の国で活動</div>
+        <div class="ti">⚡ 全国リフォームトラブル年間約<strong>11,878件</strong></div>
+        <div class="ti">⚠ 訪問販売被害の<strong>45%</strong>が70歳以上</div>
+        <div class="ti">💀 屋根工事トラブル年間<strong>7,522件</strong></div>
+        <div class="ti">🔴 過剰請求の平均は見積額の<strong>15〜20%</strong></div>
+        <div class="ti">🌍 国境なき医師団は<strong>70以上</strong>の国で活動</div>
+      </div>
+    </div>
+
     <div class="mission">
-      <div class="mission-card">
-        <div class="mission-title">なぜ寄付するのか</div>
-        <div class="mission-text">
+      <div class="mission-inner">
+        <div class="m-title">なぜ寄付するのか</div>
+        <div class="m-body">
           <strong>建設業界の情報格差</strong>と<strong>世界の命の格差</strong>は、根っこが同じだと思っています。<br><br>
           知らないから損をする。知らないから死ぬ。<br><br>
-          HORIZON SHIELDで守った過剰請求額の一部を、世界で最も支援を必要としている人々に届けます。あなたが見積書を診断するたびに、誰かの命が守られます。
+          HORIZON SHIELDで守った過剰請求額の一部を、世界で最も支援を必要としている人々に届けます。
         </div>
       </div>
     </div>
 
-    <!-- DONATION OPTIONS -->
-    <div class="donate-options">
-      <div class="donate-title">寄付に参加する</div>
-      <div class="donate-grid">
-        <a href="https://www.msf.or.jp/donate/" target="_blank" class="donate-btn">
-          <div class="donate-amount">¥1,000</div>
-          <div class="donate-desc">医療物資1日分</div>
+    <div class="donate">
+      <div class="d-title">寄付に参加する</div>
+      <div class="d-grid">
+        <a href="https://www.msf.or.jp/donate/" target="_blank" class="d-btn">
+          <div class="d-amount">¥1,000</div><div class="d-desc">医療物資1日分</div>
         </a>
-        <a href="https://www.msf.or.jp/donate/" target="_blank" class="donate-btn">
-          <div class="donate-amount">¥3,000</div>
-          <div class="donate-desc">緊急手術1回分</div>
+        <a href="https://www.msf.or.jp/donate/" target="_blank" class="d-btn">
+          <div class="d-amount">¥3,000</div><div class="d-desc">緊急手術1回</div>
         </a>
-        <a href="https://www.msf.or.jp/donate/" target="_blank" class="donate-btn">
-          <div class="donate-amount">¥5,000</div>
-          <div class="donate-desc">医師1日分の活動</div>
+        <a href="https://www.msf.or.jp/donate/" target="_blank" class="d-btn">
+          <div class="d-amount">¥5,000</div><div class="d-desc">医師1日分</div>
         </a>
-        <a href="https://www.msf.or.jp/donate/" target="_blank" class="donate-btn">
-          <div class="donate-amount">月次</div>
-          <div class="donate-desc">継続サポーター</div>
+        <a href="https://www.msf.or.jp/donate/" target="_blank" class="d-btn">
+          <div class="d-amount">月次</div><div class="d-desc">継続サポーター</div>
         </a>
       </div>
-      <a href="https://www.msf.or.jp/donate/" target="_blank" class="donate-full">
-        国境なき医師団（MSF）に寄付する →
-      </a>
-      <p class="donate-note">※寄付はMSF Japanの公式サイトで受け付けています<br>HORIZON SHIELDは仲介手数料を一切受け取りません</p>
+      <a href="https://www.msf.or.jp/donate/" target="_blank" class="d-main">国境なき医師団（MSF）に寄付する →</a>
+      <p class="d-note">※寄付はMSF Japan公式サイトで受付。HORIZON SHIELDは手数料ゼロ。</p>
     </div>
-
-    <!-- IMPACT -->
-    <div class="impact">
-      <div class="impact-title">¥1の寄付でできること</div>
-      <div class="impact-item">
-        <div class="impact-dot">01</div>
-        <div class="impact-body">
-          <div class="impact-amount">¥1,000</div>
-          <div class="impact-desc">紛争地での緊急医療キット1個分。外傷処置から感染症治療まで対応。</div>
-        </div>
-      </div>
-      <div class="impact-item">
-        <div class="impact-dot">02</div>
-        <div class="impact-body">
-          <div class="impact-amount">¥3,000</div>
-          <div class="impact-desc">難民キャンプでの清潔な飲料水供給1週間分。</div>
-        </div>
-      </div>
-      <div class="impact-item">
-        <div class="impact-dot">03</div>
-        <div class="impact-body">
-          <div class="impact-amount">¥10,000</div>
-          <div class="impact-desc">栄養失調の子ども1人を回復させる治療食セット1ヶ月分。</div>
-        </div>
-      </div>
-    </div>
-
-    <div style="height:80px"></div>
+    <div class="spacer80"></div>
   </div>
 
   <!-- SCREEN 2: MAP -->
-  <div class="screen" id="screen-map">
-    <div class="search-area">
-      <div class="search-box">
-        <input type="text" id="addr-input" placeholder="都道府県・市区町村を入力（例：横浜市）">
-        <button class="search-btn" onclick="searchArea()">調べる</button>
+  <div class="screen" id="sc2">
+    <div class="map-search">
+      <div class="ms-row">
+        <input class="ms-input" type="text" id="addr-input" placeholder="都道府県・市区町村（例：横浜市）">
+        <button class="ms-btn" onclick="searchArea()">調べる</button>
       </div>
-      <div class="alert-box" id="alert-box">
-        <strong id="alert-count"></strong>
-        <span id="alert-detail"></span>
+      <div class="ms-alert" id="ms-alert">
+        <strong id="ms-count"></strong>
+        <span id="ms-detail"></span>
       </div>
     </div>
     <div id="map"></div>
-    <div class="map-legend">
-      <div class="legend-grad"></div>
-      <span>相談件数：低→高</span>
-      <span style="font-size:9px;color:var(--border)">出典：住宅リフォーム紛争処理支援センター統計年報2024・国民生活センター</span>
+    <div class="map-foot">
+      <div class="leg-grad"></div>
+      <span>件数：低→高</span>
+      <span style="font-size:9px;color:rgba(61,90,106,.5)">出典：住宅リフォーム紛争処理支援センター統計年報2024・国民生活センター</span>
     </div>
   </div>
 
   <!-- SCREEN 3: DATA -->
-  <div class="screen" id="screen-data">
+  <div class="screen" id="sc3">
+    <div class="ds">
+      <div class="ds-h">// 都道府県別</div>
+      <div class="ds-t">被害<em>ランキング</em></div>
+      <div class="rank-grid" id="rank-grid"></div>
 
-    <div class="sec-label">// 都道府県別ランキング</div>
-    <div class="sec-title">被害<em>ランキング</em></div>
-    <div class="pref-grid" id="pref-grid"></div>
+      <div class="ds-h">// 東京23区</div>
+      <div class="ds-t" style="font-size:20px;margin-bottom:10px">区レベル<em>データ</em></div>
+      <div class="ward-block" id="w-tokyo"></div>
 
-    <!-- 区レベルデータ -->
-    <div class="ward-section">
-      <div class="sec-label">// 主要都市・区レベル</div>
-      <div class="ward-title">東京23区</div>
-      <div class="ward-list" id="ward-tokyo"></div>
-    </div>
-    <div class="ward-section">
-      <div class="ward-title">横浜市</div>
-      <div class="ward-list" id="ward-yokohama"></div>
-    </div>
-    <div class="ward-section">
-      <div class="ward-title">大阪市</div>
-      <div class="ward-list" id="ward-osaka"></div>
-    </div>
+      <div class="ds-h">// 横浜市</div>
+      <div class="ward-block" id="w-yoko"></div>
 
-    <!-- TECHNIQUES -->
-    <div class="sec-label">// 業者の手口</div>
-    <div class="sec-title">7つの<em>手口</em></div>
-    <div class="tech-list">
-      <div class="tech-card"><div class="tech-title">01 緊急性の演出</div><div class="tech-body">「今すぐ工事しないと大変」と脅して即決させる。</div><div class="tech-quote">「屋根が崩れる前に今日契約してください」</div></div>
-      <div class="tech-card"><div class="tech-title">02 写真・映像トリック</div><div class="tech-body">別現場の写真を「あなたの家の状態」として見せる。</div><div class="tech-quote">「見てください、ここがこんなに腐ってます」</div></div>
-      <div class="tech-card"><div class="tech-title">03 次々販売</div><div class="tech-body">1つ終わると「ここも悪い」と次を提案。合計数百万円に。</div><div class="tech-quote">「床下を直したら次は壁も確認しましょう」</div></div>
-      <div class="tech-card"><div class="tech-title">04 相見積もり妨害</div><div class="tech-body">「今日だけの特別価格」で他社比較をさせない。</div><div class="tech-quote">「この金額は今日限りのサービスです」</div></div>
-      <div class="tech-card"><div class="tech-title">05 追加工事の後出し</div><div class="tech-body">工事開始後に「やってみたら悪かった」と追加請求。</div><div class="tech-quote">「開けてみたら予想以上でした」</div></div>
-      <div class="tech-card"><div class="tech-title">06 書類の偽装</div><div class="tech-body">材料費・工賃を細かく分割して相場比較を困難にする。</div><div class="tech-quote">「こちらが詳細な内訳です」（読めない細字）</div></div>
-      <div class="tech-card"><div class="tech-title">07 高齢者ターゲット</div><div class="tech-body">訪問販売被害の45%が70歳以上。家族が知らないうちに契約させる。</div><div class="tech-quote">「お子さんに相談しなくても大丈夫ですよ」</div></div>
-    </div>
+      <div class="ds-h">// 大阪市</div>
+      <div class="ward-block" id="w-osaka"></div>
 
-    <!-- UGC -->
-    <div class="sec-label">// 被害報告</div>
-    <div class="sec-title">匿名で<em>報告</em>する</div>
-    <div class="ugc-form" id="ugc-form">
-      <select id="ugc-pref"><option value="">都道府県</option><option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option><option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option></select>
-      <select id="ugc-type"><option value="">工事種類</option><option>床下・シロアリ駆除</option><option>屋根修理・塗装</option><option>外壁塗装</option><option>内装リフォーム</option><option>水回りリフォーム</option><option>その他</option></select>
-      <input type="text" id="ugc-amount" placeholder="請求された金額（例：150万円）">
-      <textarea id="ugc-detail" placeholder="状況を簡単に（匿名・任意）"></textarea>
-      <button class="ugc-btn" onclick="submitUGC()">地図に報告する（匿名）</button>
-    </div>
-    <div class="ugc-success" id="ugc-success">✅ 報告を受け付けました。ありがとうございます。</div>
+      <div class="ds-h">// 業者の手口</div>
+      <div class="ds-t">7つの<em>手口</em></div>
+      <div class="tech-list">
+        <div class="tc"><div class="tc-title">01 緊急性の演出</div><div class="tc-body">「今すぐ工事しないと大変」と脅して即決させる。</div><div class="tc-q">「屋根が崩れる前に今日契約してください」</div></div>
+        <div class="tc"><div class="tc-title">02 写真・映像トリック</div><div class="tc-body">別現場の写真を「あなたの家の状態」として見せる。</div><div class="tc-q">「見てください、ここがこんなに腐ってます」</div></div>
+        <div class="tc"><div class="tc-title">03 次々販売</div><div class="tc-body">1つ終わると「ここも悪い」と次を提案。合計数百万円に。</div><div class="tc-q">「床下を直したら次は壁も確認しましょう」</div></div>
+        <div class="tc"><div class="tc-title">04 相見積もり妨害</div><div class="tc-body">「今日だけの特別価格」で他社比較をさせない。</div><div class="tc-q">「この金額は今日限りのサービスです」</div></div>
+        <div class="tc"><div class="tc-title">05 追加工事の後出し</div><div class="tc-body">工事開始後に「やってみたら悪かった」と追加請求。</div><div class="tc-q">「開けてみたら予想以上でした」</div></div>
+        <div class="tc"><div class="tc-title">06 書類の偽装</div><div class="tc-body">費目を細かく分割して相場比較を困難にする。</div><div class="tc-q">「こちらが詳細な内訳です」（読めない細字）</div></div>
+        <div class="tc"><div class="tc-title">07 高齢者ターゲット</div><div class="tc-body">訪問販売被害の45%が70歳以上。家族が知らないうちに契約。</div><div class="tc-q">「お子さんに相談しなくても大丈夫ですよ」</div></div>
+      </div>
 
-    <div class="cta-bottom">
-      <div class="cta-bottom-title">見積書、今すぐ無料診断</div>
-      <p class="cta-bottom-sub">建設30年のプロが2営業日以内に過剰請求を特定</p>
-      <a href="/inspect/" class="cta-bottom-btn">▶ 60秒・無料AI診断</a>
-    </div>
+      <div class="ds-h">// 被害報告</div>
+      <div class="ds-t" style="font-size:20px;margin-bottom:10px">匿名で<em>報告</em></div>
+      <div class="ugc" id="ugc-form">
+        <select id="u-pref"><option value="">都道府県</option><option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option><option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option></select>
+        <select id="u-type"><option value="">工事種類</option><option>床下・シロアリ駆除</option><option>屋根修理・塗装</option><option>外壁塗装</option><option>内装リフォーム</option><option>水回りリフォーム</option><option>その他</option></select>
+        <input type="text" id="u-amount" placeholder="請求された金額（例：150万円）">
+        <textarea id="u-detail" placeholder="状況を簡単に（匿名・任意）"></textarea>
+        <button class="ugc-btn" onclick="submitUGC()">地図に報告する（匿名）</button>
+      </div>
+      <div class="ugc-ok" id="ugc-ok">✅ 報告を受け付けました。ありがとうございます。</div>
 
-    <div class="data-source">■ データ出典：公益財団法人 住宅リフォーム・紛争処理支援センター「住宅相談統計年報2024」／国民生活センター「PIO-NET統計2024」<br>※ヒートマップ強度は都道府県別相談件数を人口・住宅ストック数で補正した推計値です。</div>
+      <div class="cta-blk">
+        <div class="cta-blk-t">見積書、今すぐ無料診断</div>
+        <p class="cta-blk-s">建設30年のプロが2営業日以内に過剰請求を特定</p>
+        <a href="/inspect/" class="cta-blk-btn">▶ 60秒・無料AI診断</a>
+      </div>
+
+      <div class="ds-note">■ データ出典：公益財団法人 住宅リフォーム・紛争処理支援センター「住宅相談統計年報2024」／国民生活センター「PIO-NET統計2024」<br>※ヒートマップ強度は都道府県別相談件数を人口・住宅ストック数で補正した推計値です。</div>
+    </div>
   </div>
-
-</div><!-- /screens -->
+</div>
 
 <!-- STICKY CTA -->
-<div class="sticky-cta" style="padding-bottom:max(10px,env(safe-area-inset-bottom))">
-  <a href="/inspect/" class="s-diag">▶ 無料AI診断</a>
-  <a href="https://line.me/R/ti/p/@172piime" class="s-line">LINE相談</a>
+<div id="scta">
+  <a href="/inspect/" class="sa">▶ 無料AI診断</a>
+  <a href="https://line.me/R/ti/p/@172piime" class="sl">LINE相談</a>
 </div>
 
 <script>
-// ── TAB SWITCHING ──
-let currentTab = 0;
-let mapInitialized = false;
-
-function switchTab(idx) {
-  const screens = ['screen-donate','screen-map','screen-data'];
-  const tabs = ['tab0','tab1','tab2'];
-  screens.forEach((id, i) => {
-    const el = document.getElementById(id);
-    el.classList.remove('active','left');
-    if (i < idx) el.classList.add('left');
-    else if (i === idx) el.classList.add('active');
-  });
-  tabs.forEach((id, i) => {
-    document.getElementById(id).classList.toggle('active', i === idx);
-  });
-  currentTab = idx;
-  if (idx === 1 && !mapInitialized) { initMap(); mapInitialized = true; }
-  if (idx === 2) { renderPrefGrid(); renderWards(); }
-}
-
-// ── DATA ──
-const PREFECTURES = [
+const W='https://hs-kira-proxy.oga-surf-project.workers.dev';
+const PREFS=[
   ['東京都',35.689,139.692,2890,1],['神奈川県',35.448,139.642,1820,2],
   ['大阪府',34.686,135.520,1640,3],['千葉県',35.605,140.123,1240,4],
   ['埼玉県',35.857,139.649,1180,5],['愛知県',35.180,136.907,1090,6],
@@ -547,134 +549,110 @@ const PREFECTURES = [
   ['島根県',35.472,133.051,120,45],['鳥取県',35.504,134.235,115,46],
   ['高知県',33.560,133.531,110,47],
 ];
-
-// 区レベルデータ（住宅ストック比・人口比推計）
-const WARDS = {
-  tokyo: [
-    ['世田谷区',198],['練馬区',172],['足立区',165],['江戸川区',158],
-    ['大田区',145],['葛飾区',132],['板橋区',128],['江東区',115],
-    ['杉並区',108],['北区',98],
-  ],
-  yokohama: [
-    ['港南区',142],['泉区',138],['緑区',125],['戸塚区',118],
-    ['旭区',112],['瀬谷区',98],['都筑区',92],['青葉区',88],
-  ],
-  osaka: [
-    ['住吉区',135],['平野区',128],['東住吉区',118],['生野区',108],
-    ['西淀川区',95],['鶴見区',88],['此花区',82],['都島区',76],
-  ],
+const WARDS={
+  tokyo:[['世田谷区',198],['練馬区',172],['足立区',165],['江戸川区',158],['大田区',145],['葛飾区',132],['板橋区',128],['江東区',115]],
+  yoko:[['港南区',142],['泉区',138],['緑区',125],['戸塚区',118],['旭区',112],['瀬谷区',98],['都筑区',92],['青葉区',88]],
+  osaka:[['住吉区',135],['平野区',128],['東住吉区',118],['生野区',108],['西淀川区',95],['鶴見区',88]],
 };
+
+// ── TAB ──
+let cur=0, mapOk=false, dataOk=false;
+function go(i){
+  ['sc1','sc2','sc3'].forEach((id,j)=>{
+    const el=document.getElementById(id);
+    el.classList.remove('active','prev');
+    if(j<i)el.classList.add('prev');
+    else if(j===i)el.classList.add('active');
+  });
+  ['t0','t1','t2'].forEach((id,j)=>document.getElementById(id).classList.toggle('active',j===i));
+  cur=i;
+  if(i===1&&!mapOk){initMap();mapOk=true;}
+  if(i===2&&!dataOk){renderAll();dataOk=true;}
+}
 
 // ── MAP ──
 let map;
-function initMap() {
-  map = L.map('map', {zoomControl:true, scrollWheelZoom:false}).setView([37.0,137.0],5);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution:'© OpenStreetMap © CARTO', maxZoom:18
-  }).addTo(map);
-  const maxC = PREFECTURES[0][3];
-  const heatData = PREFECTURES.map(p => [p[1],p[2],p[3]/maxC]);
-  L.heatLayer(heatData, {radius:50,blur:30,maxZoom:10,max:1.0,
-    gradient:{0.2:'#44ff88',0.45:'#ffdd00',0.7:'#ff8800',1.0:'#ff2020'}
-  }).addTo(map);
-  PREFECTURES.slice(0,10).forEach(p => {
-    L.circleMarker([p[1],p[2]],{radius:5,color:'#ff3d3d',fillColor:'#ff3d3d',fillOpacity:.8,weight:1})
-    .addTo(map)
-    .bindPopup(`<b style="color:#ff3d3d">${p[0]}</b><br>年間約${p[3].toLocaleString()}件<br><small>第${p[4]}位</small>`);
+function initMap(){
+  map=L.map('map',{zoomControl:true,scrollWheelZoom:false}).setView([37.0,137.0],5);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:18}).addTo(map);
+  const mx=PREFS[0][3];
+  L.heatLayer(PREFS.map(p=>[p[1],p[2],p[3]/mx]),{radius:50,blur:30,maxZoom:10,max:1.0,gradient:{0.2:'#00ff88',0.45:'#ffcc00',0.7:'#ff8800',1.0:'#ff1f3d'}}).addTo(map);
+  PREFS.slice(0,10).forEach(p=>{
+    L.circleMarker([p[1],p[2]],{radius:5,color:'#ff1f3d',fillColor:'#ff1f3d',fillOpacity:.9,weight:1}).addTo(map)
+    .bindPopup(`<b style="color:#ff1f3d">${p[0]}</b><br>年間約${p[3].toLocaleString()}件<br><small>第${p[4]}位</small>`);
   });
 }
-
-function searchArea() {
-  const val = document.getElementById('addr-input').value.trim();
-  if (!val) return;
-  const m = PREFECTURES.find(p => p[0].includes(val) || val.includes(p[0].replace(/[都府県]/,'')));
-  const box = document.getElementById('alert-box');
-  if (m) {
-    if (map) map.setView([m[1],m[2]],8);
-    document.getElementById('alert-count').textContent = `⚠ ${m[0]}の年間トラブル相談：約${m[3].toLocaleString()}件`;
-    document.getElementById('alert-detail').textContent = `全国第${m[4]}位。見積書を受け取ったら必ず確認してください。`;
-  } else {
-    document.getElementById('alert-count').textContent = '⚠ 都道府県名で検索してください';
-    document.getElementById('alert-detail').textContent = '例：神奈川県、大阪府、東京都';
+function searchArea(){
+  const v=document.getElementById('addr-input').value.trim();
+  if(!v)return;
+  const m=PREFS.find(p=>p[0].includes(v)||v.includes(p[0].replace(/[都府県]/,'')));
+  const box=document.getElementById('ms-alert');
+  if(m){
+    if(map)map.setView([m[1],m[2]],8);
+    document.getElementById('ms-count').textContent=`⚠ ${m[0]}の年間トラブル相談：約${m[3].toLocaleString()}件`;
+    document.getElementById('ms-detail').textContent=`全国第${m[4]}位。見積書を受け取ったら必ず診断してください。`;
+  }else{
+    document.getElementById('ms-count').textContent='都道府県名で検索してください';
+    document.getElementById('ms-detail').textContent='例：神奈川県、大阪府、東京都';
   }
   box.classList.add('show');
 }
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('addr-input')?.addEventListener('keypress', e => { if(e.key==='Enter') searchArea(); });
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('addr-input')?.addEventListener('keypress',e=>{if(e.key==='Enter')searchArea();});
 });
 
-// ── PREF GRID ──
-function renderPrefGrid() {
-  const g = document.getElementById('pref-grid');
-  if (g.children.length) return;
-  const max = PREFECTURES[0][3];
-  PREFECTURES.slice(0,12).forEach((p,i) => {
-    const pct = Math.round(p[3]/max*100);
-    const d = document.createElement('div');
-    d.className = 'pref-card' + (i<3?' top3':'');
-    d.innerHTML = `<div class="pref-rank">#${p[4]}</div><div class="pref-name">${p[0]}</div><div class="pref-count">約${p[3].toLocaleString()}件/年</div><div class="pref-bar"><div class="pref-bar-fill" style="width:${pct}%"></div></div>`;
-    g.appendChild(d);
-  });
+// ── DATA RENDER ──
+function renderAll(){
+  const g=document.getElementById('rank-grid');
+  if(!g.children.length){
+    const mx=PREFS[0][3];
+    PREFS.slice(0,12).forEach((p,i)=>{
+      const d=document.createElement('div');
+      d.className='rk'+(i<3?' top':'');
+      d.innerHTML=`<div class="rk-rank">#${p[4]}</div><div class="rk-name">${p[0]}</div><div class="rk-count">約${p[3].toLocaleString()}件/年</div><div class="rk-bar"><div class="rk-fill" style="width:${Math.round(p[3]/mx*100)}%"></div></div>`;
+      g.appendChild(d);
+    });
+  }
+  renderWard(WARDS.tokyo,'w-tokyo');
+  renderWard(WARDS.yoko,'w-yoko');
+  renderWard(WARDS.osaka,'w-osaka');
 }
-
-// ── WARDS ──
-function renderWardList(data, containerId) {
-  const c = document.getElementById(containerId);
-  if (c.children.length) return;
-  const max = data[0][1];
-  data.forEach(w => {
-    const pct = Math.round(w[1]/max*100);
-    const d = document.createElement('div');
-    d.className = 'ward-item';
-    d.innerHTML = `<div class="ward-name">${w[0]}</div><div class="ward-bar-wrap"><div class="ward-bar-fill" style="width:${pct}%"></div></div><div class="ward-count">約${w[1]}件</div>`;
+function renderWard(data,id){
+  const c=document.getElementById(id);
+  if(c.children.length)return;
+  const mx=data[0][1];
+  data.forEach(w=>{
+    const d=document.createElement('div');
+    d.className='ward-item';
+    d.innerHTML=`<div class="wi-name">${w[0]}</div><div class="wi-bar"><div class="wi-fill" style="width:${Math.round(w[1]/mx*100)}%"></div></div><div class="wi-count">約${w[1]}件</div>`;
     c.appendChild(d);
   });
 }
-function renderWards() {
-  renderWardList(WARDS.tokyo, 'ward-tokyo');
-  renderWardList(WARDS.yokohama, 'ward-yokohama');
-  renderWardList(WARDS.osaka, 'ward-osaka');
-}
 
-// ── COUNTERS ──
-function animCount(el, target, prefix, suffix, duration) {
-  let start = 0;
-  const step = target / (duration/16);
-  const t = setInterval(() => {
-    start = Math.min(start+step, target);
-    el.textContent = prefix + Math.round(start).toLocaleString() + suffix;
-    if (start >= target) clearInterval(t);
-  }, 16);
-}
-window.addEventListener('load', async () => {
-  try {
-    const res = await fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/public-stats');
-    const data = await res.json();
-    const saved = data.total_saved || 0;
-    const cases = data.diagnosis_count || 0;
-    const donated = data.donation_total || 0;
-    document.getElementById('c-saved').textContent = saved > 0 ? '¥' + saved.toLocaleString() : '集計中';
-    document.getElementById('c-cases').textContent = cases + '件';
-    document.getElementById('c-donate').textContent = donated > 0 ? '¥' + donated.toLocaleString() : '¥0';
-  } catch(e) {
-    document.getElementById('c-saved').textContent = '集計中';
-    document.getElementById('c-cases').textContent = '0件';
-    document.getElementById('c-donate').textContent = '¥0';
+// ── LIVE STATS ──
+window.addEventListener('load',async()=>{
+  try{
+    const res=await fetch(W+'/public-stats');
+    const d=await res.json();
+    document.getElementById('lc1').textContent=(d.diagnosis_count||0)+'件';
+    document.getElementById('lc2').textContent=d.total_saved>0?'¥'+d.total_saved.toLocaleString():'集計中';
+    document.getElementById('lc3').textContent=d.donation_total>0?'¥'+d.donation_total.toLocaleString():'¥0';
+  }catch(e){
+    document.getElementById('lc1').textContent='0件';
+    document.getElementById('lc2').textContent='集計中';
+    document.getElementById('lc3').textContent='¥0';
   }
 });
 
 // ── UGC ──
-function submitUGC() {
-  const pref = document.getElementById('ugc-pref').value;
-  const type = document.getElementById('ugc-type').value;
-  const amount = document.getElementById('ugc-amount').value;
-  if (!pref || !type) { alert('都道府県と工事種類を選択してください'); return; }
-  fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/notify', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({message:`【被害報告】${pref}/${type}/${amount}`})
-  }).catch(()=>{});
+async function submitUGC(){
+  const pref=document.getElementById('u-pref').value;
+  const type=document.getElementById('u-type').value;
+  const amount=document.getElementById('u-amount').value;
+  if(!pref||!type){alert('都道府県と工事種類を選択してください');return;}
+  try{await fetch(W+'/notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:`【被害報告】${pref}/${type}/${amount}`})});}catch(e){}
   document.getElementById('ugc-form').style.display='none';
-  document.getElementById('ugc-success').style.display='block';
+  document.getElementById('ugc-ok').style.display='block';
 }
 </script>
 </body>
