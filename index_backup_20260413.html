@@ -1,1 +1,1315 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HORIZON SHIELD｜建設費診断・査定・現場立会いサービス</title>
+<meta name="description" content="大工歴30年のプロが見積書を2営業日で査定。過剰請求を見抜き、交渉文言付きPDFレポートをお届けします。¥55,000から。全国対応。">
+<meta property="og:title" content="HORIZON SHIELD｜建設費診断サービス">
+<meta property="og:description" content="その見積書、本当に適正ですか？大工出身のCM専門家が、施主の側に立って査定します。">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com">
+<meta name="twitter:card" content="summary_large_image">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#040A12;--bg2:#070F1A;--bg3:#0A1520;
+  --gold:#C8960A;--gold2:#F0C030;
+  --cyan:#00D4FF;--cyan2:#00AACC;
+  --red:#FF3040;
+  --white:#EEF2F5;--gray:#6A8A9A;--lgray:#A0BACA;
+  --border:rgba(0,212,255,.15);--border2:rgba(0,212,255,.06);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'游ゴシック','Yu Gothic','Noto Sans JP',sans-serif;line-height:1.8}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.025) 0px,rgba(0,0,0,.025) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:9998}
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 24px;height:60px;display:flex;justify-content:space-between;align-items:center;background:rgba(4,10,18,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo-mark{width:28px;height:28px;border:1px solid var(--cyan);display:flex;align-items:center;justify-content:center}
+.nav-logo-mark svg{width:14px;height:14px;stroke:var(--cyan);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.nav-logo-text{font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:4px;color:var(--white)}
+.nav-logo-text span{color:var(--cyan)}
+.nav-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nav-tool-link{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;border:1px solid var(--border);padding:6px 12px;text-decoration:none;transition:all .2s}
+.nav-tool-link.red{color:var(--red);border-color:rgba(255,48,64,.3)}
+.nav-tool-link.red:hover{border-color:var(--red);background:rgba(255,48,64,.05)}
+.nav-tool-link.cyan{color:var(--cyan);border-color:var(--border)}
+.nav-tool-link.cyan:hover{border-color:var(--cyan);background:rgba(0,212,255,.05)}
+.nav-tool-link.green{color:#00FF88;border-color:rgba(0,255,136,.25)}
+.nav-tool-link.green:hover{border-color:#00FF88;background:rgba(0,255,136,.05)}
+.nav-kira{display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:2px;cursor:pointer;padding:6px 14px;border:1px solid var(--border);transition:all .2s}
+.nav-kira:hover{border-color:var(--cyan);background:rgba(0,212,255,.05)}
+.nav-kira-dot{width:6px;height:6px;background:var(--cyan);border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.nav-cta{background:var(--gold);color:#040A12;font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 20px;text-decoration:none;letter-spacing:3px;transition:opacity .2s;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
+.nav-cta:hover{opacity:.8}
+@media(max-width:768px){.nav-tool-link{display:none}}
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:100px 24px;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border2) 1px,transparent 1px),linear-gradient(90deg,var(--border2) 1px,transparent 1px);background-size:48px 48px}
+.hero-glow{position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(0,212,255,.05) 0%,transparent 65%);pointer-events:none}
+.hero-glow2{position:absolute;top:65%;left:35%;width:400px;height:300px;background:radial-gradient(ellipse,rgba(200,150,10,.04) 0%,transparent 65%);pointer-events:none}
+.hero-scan{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);animation:scan 5s linear infinite;opacity:.3}
+@keyframes scan{0%{top:0;opacity:.3}100%{top:100%;opacity:0}}
+.hero-inner{position:relative;z-index:1;max-width:900px}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:12px;margin-bottom:28px;animation:fadeUp .8s ease both}
+.ey-line{width:28px;height:1px;background:var(--cyan)}
+.ey-text{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:5px;color:var(--cyan)}
+.hero h1{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(36px,6vw,76px);line-height:1.1;letter-spacing:-.03em;animation:fadeUp .8s .1s ease both}
+.hero h1 em{font-style:normal;color:var(--gold2)}
+.hero-sub{font-size:clamp(14px,1.8vw,17px);color:var(--lgray);margin-top:24px;max-width:560px;margin-left:auto;margin-right:auto;line-height:2;animation:fadeUp .8s .2s ease both}
+.hero-metrics{display:flex;justify-content:center;gap:48px;margin:40px 0;animation:fadeUp .8s .3s ease both;flex-wrap:wrap}
+.metric{text-align:center}
+.metric-val{font-family:'Share Tech Mono',monospace;font-size:clamp(26px,4vw,40px);color:var(--gold2);display:block;letter-spacing:-1px}
+.metric-label{font-size:11px;color:var(--gray);letter-spacing:3px;margin-top:4px;font-family:'Share Tech Mono',monospace}
+.metric-sep{width:1px;background:var(--border);margin:8px 0}
+.hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeUp .8s .4s ease both}
+.btn-primary{background:var(--gold);color:#040A12;font-weight:700;font-size:14px;padding:16px 40px;letter-spacing:.08em;text-decoration:none;transition:all .25s;display:inline-block;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(200,150,10,.35)}
+.btn-primary.red{background:var(--red);color:#fff}
+.btn-primary.red:hover{box-shadow:0 0 30px rgba(255,48,64,.45)}
+.btn-ghost{border:1px solid var(--border);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:11px;padding:16px 28px;letter-spacing:4px;text-decoration:none;transition:all .2s;display:inline-block;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.btn-ghost:hover{background:rgba(0,212,255,.06);border-color:var(--cyan)}
+.hero-note{margin-top:18px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:3px;animation:fadeUp .8s .5s ease both}
+.kira-card{margin-top:48px;display:inline-flex;align-items:center;gap:16px;background:var(--bg2);border:1px solid var(--border);padding:16px 24px;cursor:pointer;transition:all .2s;animation:fadeUp .8s .6s ease both;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.kira-card:hover{border-color:var(--cyan);background:var(--bg3)}
+.kira-avatar{width:44px;height:44px;border:1px solid var(--cyan);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:14px;font-weight:700;color:var(--cyan);background:rgba(0,212,255,.05);position:relative}
+.kira-avatar::after{content:'';position:absolute;inset:-3px;border:1px solid rgba(0,212,255,.2)}
+.kira-info{text-align:left}
+.kira-name{font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:3px;color:var(--white);margin-bottom:3px}
+.kira-desc{font-size:11px;color:var(--gray);letter-spacing:1px}
+.kira-online{display:flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);margin-top:4px;letter-spacing:2px}
+.kira-online::before{content:'';width:5px;height:5px;background:var(--cyan);border-radius:50%;animation:blink 2s infinite}
+/* ═══ WORMHOLE ═══ */
+#wh-section{position:relative;height:550vh}
+@media(max-width:768px){#wh-section{height:400vh;height:400dvh}}
+#wh-sticky{position:sticky;top:0;height:100svh;overflow:clip;width:100%;max-width:100%}
+#wh-canvas{position:absolute;top:0;left:0;width:100% !important;height:100% !important;z-index:0;touch-action:pan-y}
+#wh-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+#wh-overlay{position:absolute;inset:0;z-index:10;pointer-events:none}
+#wh-flash{position:absolute;inset:0;pointer-events:none;z-index:15;opacity:0}
+.wh-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px 40px;overflow:hidden;opacity:0;transform:scale(1.05) translateY(20px);transition:opacity .8s cubic-bezier(.2,0,.2,1),transform .8s cubic-bezier(.2,0,.2,1);pointer-events:none}
+.wh-ph.wh-on{opacity:1;transform:scale(1) translateY(0);pointer-events:all}
+.wh-tag{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:6px;color:#00C8F0;margin-bottom:16px;opacity:.6}
+.wh-h{font-family:'Zen Kaku Gothic New',sans-serif;font-size:clamp(40px,7vw,96px);font-weight:900;text-align:center;line-height:1.1;color:#fff;letter-spacing:-.02em}
+.wh-h em{font-style:normal;color:#F0C030;text-shadow:0 0 40px rgba(240,192,48,.5)}
+.wh-sub{font-size:clamp(15px,2vw,20px);color:rgba(255,255,255,.45);text-align:center;margin-top:18px}
+.wh-loss{margin-top:24px;border-left:3px solid #E02030;padding:14px 24px;background:rgba(224,32,48,.05)}
+.wh-ll{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:#E02030;margin-bottom:6px;opacity:.8}
+.wh-ln{font-family:'Share Tech Mono',monospace;font-size:clamp(32px,6vw,60px);color:#E02030;line-height:1;text-shadow:0 0 40px rgba(224,32,48,.4)}
+.wh-ls{font-size:12px;color:rgba(255,255,255,.35);margin-top:4px}
+.wh-f1tag{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:6px;color:#E02030;margin-bottom:16px;animation:whBlink 1.5s infinite}
+@keyframes whBlink{0%,100%{opacity:.5}50%{opacity:1}}
+.wh-f1n{font-family:'Share Tech Mono',monospace;font-size:clamp(80px,16vw,200px);color:#E02030;line-height:1;letter-spacing:-4px;text-shadow:0 0 80px rgba(224,32,48,.5)}
+.wh-f1u{font-size:clamp(22px,4vw,44px);color:rgba(255,255,255,.4);margin-left:8px;vertical-align:middle}
+.wh-f1d{font-size:clamp(15px,2vw,20px);color:rgba(255,255,255,.55);text-align:center;margin-top:20px;line-height:2;max-width:520px}
+.wh-f1d strong{color:#fff;font-weight:700}
+.wh-f2h{font-family:'Zen Kaku Gothic New',sans-serif;font-size:clamp(24px,4vw,52px);font-weight:900;text-align:center;line-height:1.35;color:#fff}
+.wh-f2h em{font-style:normal;color:#F0C030}
+.wh-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px;max-width:580px;width:100%}@media(max-width:480px){.wh-grid{grid-template-columns:1fr 1fr;gap:8px}}
+.wh-cd{border:1px solid rgba(0,200,240,.15);padding:22px 18px;cursor:pointer;transition:all .25s;pointer-events:all;text-align:left;background:rgba(0,5,15,.8);color:rgba(255,255,255,.5);font-size:14px;line-height:1.8;font-family:'游ゴシック','Yu Gothic',sans-serif;backdrop-filter:blur(10px)}
+.wh-cd:hover{border-color:rgba(0,200,240,.7);background:rgba(0,200,240,.07);color:#fff;transform:translateY(-2px)}
+.wh-ic{display:block;margin-bottom:11px}
+.wh-ic path,.wh-ic rect,.wh-ic line,.wh-ic circle,.wh-ic polyline{stroke:#00C8F0;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.wh-hint{font-size:10px;color:#00C8F0;margin-top:8px;display:block;letter-spacing:1px;font-family:'Share Tech Mono',monospace;opacity:.8}
+.wh-ans{margin-top:20px;max-width:500px;text-align:center;font-size:15px;color:rgba(255,255,255,.75);line-height:2.2;opacity:0;transition:opacity .6s;border:1px solid rgba(0,200,240,.18);padding:20px 24px;background:rgba(0,200,240,.04)}
+.wh-ans.wh-show{opacity:1}
+.wh-abtn{display:inline-block;margin-top:12px;background:#F0C030;color:#030912;font-weight:900;font-size:13px;padding:12px 32px;text-decoration:none;letter-spacing:.04em;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
+.wh-f3tag{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:6px;color:#C8960A;margin-bottom:18px;opacity:.7}
+.wh-q{font-family:'Zen Kaku Gothic New',sans-serif;font-size:clamp(18px,2.8vw,38px);font-weight:900;text-align:center;line-height:1.7;max-width:700px;color:#fff;min-height:180px}
+.wh-cur{display:inline-block;width:3px;height:1em;background:#00C8F0;vertical-align:middle;animation:whCur .8s ease infinite;margin-left:2px}
+@keyframes whCur{0%,100%{opacity:1}50%{opacity:0}}
+.wh-by{margin-top:18px;font-size:10px;color:rgba(255,255,255,.22);font-family:'Share Tech Mono',monospace;letter-spacing:2px;opacity:0;transition:opacity 1s}
+.wh-by.wh-show{opacity:1}
+.wh-stats{display:flex;gap:28px;margin-top:24px;justify-content:center;flex-wrap:wrap}
+.wh-sn{font-family:'Share Tech Mono',monospace;font-size:clamp(28px,5vw,58px);color:#F0C030;display:block;letter-spacing:-2px;text-shadow:0 0 40px rgba(240,192,48,.35)}
+.wh-sl{font-size:10px;color:rgba(255,255,255,.22);margin-top:4px;letter-spacing:3px;font-family:'Share Tech Mono',monospace}
+.wh-f4tag{font-family:'Share Tech Mono',monospace;font-size:9px;color:#00C8F0;letter-spacing:6px;margin-bottom:14px;opacity:.5}
+.wh-f4h{font-family:'Zen Kaku Gothic New',sans-serif;font-size:clamp(30px,5vw,72px);font-weight:900;text-align:center;line-height:1.2;color:#fff}
+.wh-f4h em{font-style:normal;color:#F0C030;text-shadow:0 0 60px rgba(240,192,48,.5)}
+.wh-f4s{font-size:clamp(13px,1.8vw,17px);color:rgba(255,255,255,.5);text-align:center;line-height:2.2;margin-top:14px;max-width:480px}
+.wh-pr{display:flex;gap:12px;margin-top:20px;justify-content:center;flex-wrap:wrap}
+.wh-pc{border:1px solid rgba(0,200,240,.18);padding:16px 20px;text-align:center;background:rgba(0,5,15,.9);min-width:140px;backdrop-filter:blur(8px)}
+.wh-pt{font-family:'Share Tech Mono',monospace;font-size:9px;color:#00C8F0;letter-spacing:4px;margin-bottom:5px;opacity:.7}
+.wh-pn{font-family:'Share Tech Mono',monospace;font-size:clamp(18px,3vw,28px);color:#fff;display:block;letter-spacing:-1px}
+.wh-ps{font-size:10px;color:rgba(255,255,255,.22);margin-top:3px}
+.wh-cta{margin-top:22px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.wh-wrap{position:relative;display:inline-block}
+.wh-btn{background:linear-gradient(135deg,#F0C030,#A07010);color:#030912;font-weight:900;font-size:15px;padding:18px 56px;text-decoration:none;letter-spacing:.07em;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);transition:all .3s;pointer-events:all;display:inline-block;font-family:'Zen Kaku Gothic New',sans-serif;position:relative;overflow:hidden}
+.wh-btn::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);animation:whShine 2.2s ease infinite}
+@keyframes whShine{0%{left:-100%}60%,100%{left:140%}}
+.wh-btn:hover{transform:translateY(-4px);box-shadow:0 0 60px rgba(240,192,48,.5)}
+.wh-pr1{position:absolute;inset:-10px;border:2px solid rgba(240,192,48,.5);clip-path:polygon(16px 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%,0 16px);animation:whPr 1.8s ease infinite}
+.wh-pr2{position:absolute;inset:-20px;border:1px solid rgba(240,192,48,.22);clip-path:polygon(22px 0,100% 0,100% calc(100% - 22px),calc(100% - 22px) 100%,0 100%,0 22px);animation:whPr 1.8s ease infinite .6s}
+@keyframes whPr{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:1;transform:scale(1.02)}}
+.wh-note{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,255,255,.2);letter-spacing:2px}
+.wh-trust{display:flex;gap:22px;margin-top:10px;flex-wrap:wrap;justify-content:center}
+.wh-tr{font-size:11px;color:rgba(255,255,255,.22);display:flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace}
+.wh-tr::before{content:'✓';color:#00C8F0;opacity:.7}
+.wh-shint{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:6px;color:#00C8F0;animation:whBreath 2.5s ease infinite;pointer-events:none;z-index:20;transition:opacity .5s}
+@keyframes whBreath{0%,100%{opacity:.15}60%{opacity:.8}}
+@media(max-width:480px){
+  .wh-h{font-size:clamp(30px,8vw,52px)}
+  .wh-f1n{font-size:clamp(60px,20vw,140px)}
+  .wh-f4h{font-size:clamp(26px,7vw,48px)}
+  .wh-f2h{font-size:clamp(20px,5.5vw,36px)}
+  .wh-btn{font-size:14px;padding:16px 36px}
+  .wh-pr{gap:8px}
+  .wh-pc{min-width:100px;padding:12px 14px}
+  .wh-stats{gap:20px}
+  .wh-sn{font-size:clamp(22px,7vw,44px)}
+  .wh-cd{padding:14px 12px;font-size:13px}
+}
 
+#wh-sound-btn{display:none;position:absolute;bottom:80px;right:20px;z-index:25;background:rgba(0,200,240,.15);border:1px solid rgba(0,200,240,.4);color:#00C8F0;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:8px 14px;cursor:pointer;transition:all .3s}
+#wh-sound-btn.active{background:rgba(0,200,240,.25);border-color:#00C8F0}
+@media(max-width:768px){#wh-sound-btn{display:block}}
+
+/* ═══ 既存スタイル続き ═══ */
+.section{padding:100px 24px;position:relative;z-index:1}
+.container{max-width:980px;margin:0 auto}
+.container-sm{max-width:720px;margin:0 auto}
+.sec-eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.sec-line{width:24px;height:1px;background:var(--cyan)}
+.sec-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:5px;color:var(--cyan)}
+.sec-title{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(26px,3.8vw,44px);line-height:1.22;letter-spacing:-.02em}
+.sec-title em{font-style:normal;color:var(--gold2)}
+.rule{width:40px;height:1px;background:var(--cyan);margin:20px 0 48px;position:relative}
+.rule::after{content:'';position:absolute;left:0;top:-1px;width:6px;height:3px;background:var(--cyan)}
+.bg2{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.pain-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border:1px solid var(--border)}
+@media(max-width:640px){.pain-grid{grid-template-columns:1fr}}
+.pain-card{background:var(--bg2);padding:36px 30px;transition:background .2s;position:relative;overflow:hidden}
+.pain-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:0;transition:opacity .3s}
+.pain-card:hover{background:var(--bg3)}
+.pain-card:hover::before{opacity:1}
+.pain-num{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:3px;margin-bottom:14px;opacity:.6}
+.pain-icon{width:42px;height:42px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.pain-icon svg{width:18px;height:18px;stroke:var(--cyan);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.pain-card h3{font-size:16px;font-weight:700;margin-bottom:8px}
+.pain-card p{font-size:13px;color:var(--gray);line-height:1.85}
+.warn-section{padding:100px 24px;position:relative;z-index:1;background:var(--bg2);border-top:1px solid rgba(255,48,64,.15);border-bottom:1px solid rgba(255,48,64,.15)}
+.warn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,48,64,.15);border:1px solid rgba(255,48,64,.2);margin-top:48px}
+@media(max-width:720px){.warn-grid{grid-template-columns:1fr}}
+.warn-card{background:rgba(6,2,4,.95);padding:34px 28px;position:relative;overflow:hidden;transition:background .2s}
+.warn-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent);opacity:.5}
+.warn-card:hover{background:rgba(12,3,6,.98)}
+.warn-tag{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--red);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.warn-tag::before{content:'!';width:14px;height:14px;border:1px solid var(--red);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.warn-card h3{font-size:16px;font-weight:700;margin-bottom:8px}
+.warn-card p{font-size:12px;color:var(--gray);line-height:1.85;margin-bottom:14px}
+.warn-badge{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--red);border:1px solid rgba(255,48,64,.3);padding:3px 10px;display:inline-block}
+.warn-cta{margin-top:48px;background:rgba(255,48,64,.04);border:1px solid rgba(255,48,64,.2);padding:44px;text-align:center}
+.warn-cta h3{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(20px,3vw,28px);margin-bottom:12px}
+.warn-cta h3 em{font-style:normal;color:var(--gold2)}
+.warn-cta p{font-size:14px;color:var(--lgray);margin-bottom:28px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.9}
+.svc3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:52px}
+@media(max-width:780px){.svc3{grid-template-columns:1fr}}
+.sc{background:var(--bg2);padding:40px 30px;display:flex;flex-direction:column;position:relative;overflow:hidden;transition:background .2s}
+.sc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:0;transition:opacity .3s}
+.sc:hover{background:var(--bg3)}
+.sc:hover::after{opacity:1}
+.sc.featured{background:var(--bg3)}
+.sc.featured::before{content:'MOST USED';position:absolute;top:0;right:0;background:var(--gold);color:#040A12;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;padding:4px 12px;font-weight:700}
+.sc-tag{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--cyan);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.sc-tag::before{content:'';width:4px;height:4px;background:var(--cyan);border-radius:50%}
+.sc h3{font-size:18px;font-weight:700;line-height:1.35;margin-bottom:10px}
+.sc-desc{font-size:13px;color:var(--gray);line-height:1.85;margin-bottom:24px;flex:1}
+.sc-price-wrap{border-top:1px solid var(--border);padding-top:20px}
+.sc-price{font-family:'Share Tech Mono',monospace;font-size:clamp(30px,4vw,46px);color:var(--gold2);letter-spacing:-.03em;line-height:1}
+.sc-price-note{font-size:11px;color:var(--gray);margin-top:5px}
+.sc-delivery{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);padding:4px 12px;margin-top:12px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:2px}
+.sc-delivery svg{width:10px;height:10px;stroke:var(--cyan);fill:none;stroke-width:2;stroke-linecap:round}
+.sc-list{list-style:none;margin:16px 0 20px}
+.sc-list li{font-size:12px;color:var(--lgray);padding:6px 0;border-bottom:1px solid var(--border2);display:flex;gap:8px}
+.sc-list li::before{content:'›';color:var(--cyan);flex-shrink:0}
+.sc-btn{display:block;text-align:center;border:1px solid var(--border);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:11px;padding:11px;text-decoration:none;transition:all .2s;letter-spacing:3px;margin-top:auto;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)}
+.sc-btn:hover{background:rgba(0,212,255,.06);border-color:var(--cyan)}
+.kira-section{padding:100px 24px;position:relative;z-index:1}
+.kira-layout{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
+@media(max-width:760px){.kira-layout{grid-template-columns:1fr;gap:40px}}
+.kira-profile{background:var(--bg2);border:1px solid var(--border);padding:40px 32px;position:relative}
+.kira-profile::before{content:'AI STAFF';position:absolute;top:-1px;left:32px;background:var(--cyan);color:#040A12;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;padding:3px 12px;font-weight:700}
+.kira-big-avatar{width:80px;height:80px;border:2px solid var(--cyan);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:24px;font-weight:700;color:var(--cyan);background:rgba(0,212,255,.05);margin-bottom:20px;position:relative}
+.kira-big-avatar::after{content:'';position:absolute;inset:-5px;border:1px solid rgba(0,212,255,.2)}
+.kira-profile-name{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:28px;letter-spacing:4px;margin-bottom:6px}
+.kira-profile-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:3px;margin-bottom:16px}
+.kira-profile-desc{font-size:13px;color:var(--lgray);line-height:1.9;margin-bottom:20px}
+.kira-specs{list-style:none}
+.kira-specs li{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--gray);padding:8px 0;border-bottom:1px solid var(--border2);display:flex;gap:12px;letter-spacing:1px}
+.kira-specs li::before{content:'//';color:var(--cyan);opacity:.5}
+.kira-chat-demo{background:var(--bg2);border:1px solid var(--border);display:flex;flex-direction:column;height:480px}
+.kira-chat-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--bg3)}
+.kira-chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.kira-chat-messages::-webkit-scrollbar{width:3px}
+.kira-chat-messages::-webkit-scrollbar-thumb{background:var(--border)}
+.demo-msg{max-width:85%}
+.demo-msg.ai{align-self:flex-start}
+.demo-msg.user{align-self:flex-end}
+.demo-bubble{padding:10px 14px;font-size:13px;line-height:1.7}
+.demo-msg.ai .demo-bubble{background:var(--bg3);border:1px solid var(--border);border-left:2px solid var(--cyan)}
+.demo-msg.user .demo-bubble{background:rgba(200,150,10,.08);border:1px solid rgba(200,150,10,.2);border-right:2px solid var(--gold)}
+.demo-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;margin-bottom:4px}
+.demo-msg.ai .demo-label{color:var(--cyan)}
+.demo-msg.user .demo-label{color:var(--gold);text-align:right}
+.kira-chat-input{padding:12px;border-top:1px solid var(--border);display:flex;gap:8px}
+.kira-chat-input-field{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--white);font-size:13px;padding:8px 12px;outline:none;font-family:'Noto Sans JP',sans-serif}
+.kira-chat-input-field:focus{border-color:var(--cyan)}
+.kira-chat-send{width:36px;height:36px;background:var(--gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .2s;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)}
+.kira-chat-send:hover{opacity:.8}
+.kira-chat-send svg{width:14px;height:14px;stroke:#040A12;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cred-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:48px}
+@media(max-width:720px){.cred-grid{grid-template-columns:1fr}}
+.cred-card{background:var(--bg2);padding:32px 26px;transition:background .2s}
+.cred-card:hover{background:var(--bg3)}
+.cred-num{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--cyan);margin-bottom:14px;opacity:.7}
+.cred-card h3{font-size:16px;font-weight:700;margin-bottom:8px}
+.cred-card p{font-size:12px;color:var(--gray);line-height:1.85}
+.quote-wrap{padding:80px 24px;text-align:center;position:relative;z-index:1;overflow:hidden;background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.quote-deco{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Share Tech Mono',monospace;font-size:clamp(120px,18vw,220px);color:rgba(0,212,255,.03);line-height:1;pointer-events:none}
+.q-line{width:40px;height:1px;background:var(--cyan);margin:0 auto 24px}
+blockquote{font-family:'Zen Kaku Gothic New',sans-serif;font-size:clamp(17px,2.4vw,26px);font-weight:700;line-height:1.75;max-width:740px;margin:0 auto;position:relative;z-index:1}
+blockquote em{font-style:normal;color:var(--gold2)}
+.q-by{margin-top:24px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:3px;line-height:2.2}
+.flow-grid{display:grid;grid-template-columns:repeat(3,1fr);margin-top:48px;position:relative}
+.flow-line{position:absolute;top:28px;left:calc(100%/6 + 16px);right:calc(100%/6 + 16px);height:1px;background:linear-gradient(90deg,var(--cyan),rgba(0,212,255,.3),var(--cyan));opacity:.3}
+@media(max-width:680px){.flow-grid{grid-template-columns:1fr;gap:28px}.flow-line{display:none}}
+.fi{text-align:center;padding:0 20px}
+.fi-num{width:56px;height:56px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;background:var(--bg2);position:relative;z-index:1;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)}
+.fi-num span{font-family:'Share Tech Mono',monospace;font-size:16px;font-weight:700;color:var(--cyan)}
+.fi h3{font-size:15px;font-weight:700;margin-bottom:8px}
+.fi p{font-size:12px;color:var(--gray);line-height:1.85}
+.fi a{color:var(--cyan);font-size:11px;text-decoration:none}
+.faq-list{margin-top:40px}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-head{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 0;cursor:pointer;user-select:none}
+.faq-head strong{font-size:14px;font-weight:500;flex:1;line-height:1.6}
+.faq-tog{width:24px;height:24px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.faq-tog svg{width:10px;height:10px;stroke:var(--cyan);fill:none;stroke-width:2;stroke-linecap:round;transition:transform .3s}
+.faq-item.open .faq-tog svg{transform:rotate(45deg)}
+.faq-body{font-size:13px;color:var(--gray);line-height:1.9;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s}
+.faq-item.open .faq-body{max-height:200px;padding-bottom:18px}
+.cta-section{padding:100px 24px;text-align:center;position:relative;overflow:hidden;background:var(--bg2);border-top:1px solid var(--border)}
+.cta-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(200,150,10,.06) 0%,transparent 70%);pointer-events:none}
+.cta-section h2{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(26px,4vw,50px);line-height:1.2;margin-bottom:16px;position:relative;z-index:1}
+.cta-section p{font-size:15px;color:var(--lgray);margin-bottom:44px;max-width:460px;margin-left:auto;margin-right:auto;line-height:1.9;position:relative;z-index:1}
+.cta-note{margin-top:14px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--gray);letter-spacing:2px;position:relative;z-index:1}
+.cta-kira{margin-top:32px;position:relative;z-index:1}
+.cta-kira-btn{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--border);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:11px;padding:12px 24px;letter-spacing:3px;text-decoration:none;transition:all .2s;cursor:pointer;background:transparent}
+.cta-kira-btn:hover{border-color:var(--cyan);background:rgba(0,212,255,.05)}
+footer{padding:48px 24px;border-top:1px solid var(--border);position:relative;z-index:1}
+.footer-inner{max-width:980px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;gap:32px;flex-wrap:wrap}
+.footer-logo{font-family:'Share Tech Mono',monospace;font-size:15px;letter-spacing:5px;color:var(--white);margin-bottom:10px}
+.footer-logo span{color:var(--cyan)}
+.footer-tagline{font-size:11px;color:var(--gray);letter-spacing:2px;font-family:'Share Tech Mono',monospace}
+.footer-info{font-size:12px;color:var(--gray);line-height:2.2;text-align:right}
+.footer-info a{color:var(--cyan);text-decoration:none}
+.footer-copy{max-width:980px;margin:28px auto 0;padding-top:20px;border-top:1px solid var(--border2);display:flex;justify-content:space-between;align-items:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,.18);letter-spacing:2px;flex-wrap:wrap;gap:8px}
+.kira-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:flex-end;justify-content:flex-end;padding:80px 24px 24px;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(4px)}
+.kira-modal-overlay.open{opacity:1;pointer-events:all}
+.kira-modal{width:380px;height:560px;background:var(--bg2);border:1px solid var(--cyan);display:flex;flex-direction:column;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);transform:translateY(20px);transition:transform .3s}
+.kira-modal-overlay.open .kira-modal{transform:translateY(0)}
+@media(max-width:480px){.kira-modal{width:calc(100vw - 48px);height:480px}}
+.kira-modal-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg3);flex-shrink:0}
+.kira-modal-left{display:flex;align-items:center;gap:10px}
+.kira-mini-av{width:32px;height:32px;border:1px solid var(--cyan);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--cyan);background:rgba(0,212,255,.05)}
+.kira-modal-name{font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:2px;color:var(--white)}
+.kira-modal-status{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--cyan);letter-spacing:2px;display:flex;align-items:center;gap:4px}
+.kira-modal-status::before{content:'';width:5px;height:5px;background:var(--cyan);border-radius:50%;animation:blink 2s infinite}
+.kira-close{width:28px;height:28px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;transition:border-color .2s}
+.kira-close:hover{border-color:var(--cyan)}
+.kira-close svg{width:12px;height:12px;stroke:var(--gray);fill:none;stroke-width:2;stroke-linecap:round}
+.kira-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.kira-msgs::-webkit-scrollbar{width:3px}
+.kira-msgs::-webkit-scrollbar-thumb{background:var(--border)}
+.k-msg{max-width:88%;animation:msgIn .3s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.k-msg.ai{align-self:flex-start}
+.k-msg.user{align-self:flex-end}
+.k-bubble{padding:10px 13px;font-size:13px;line-height:1.7}
+.k-msg.ai .k-bubble{background:var(--bg3);border:1px solid var(--border);border-left:2px solid var(--cyan)}
+.k-msg.user .k-bubble{background:rgba(200,150,10,.08);border:1px solid rgba(200,150,10,.2);border-right:2px solid var(--gold)}
+.k-bubble a{color:var(--cyan);text-decoration:none;border-bottom:1px solid rgba(0,212,255,.3)}
+.k-bubble strong{color:var(--gold2);font-weight:500}
+.k-cta-btn{display:inline-block;background:var(--gold);color:#040A12;font-weight:700;font-size:12px;padding:8px 16px;text-decoration:none;margin-top:8px;letter-spacing:.05em;transition:opacity .2s;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)}
+.k-cta-btn:hover{opacity:.85}
+.kira-qr{padding:8px 14px;display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid var(--border);flex-shrink:0;background:var(--bg3)}
+.kira-qr-btn{background:transparent;border:1px solid var(--border);color:var(--lgray);font-size:11px;padding:5px 10px;cursor:pointer;transition:all .2s;font-family:'Noto Sans JP',sans-serif;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)}
+.kira-qr-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.kira-input-area{padding:10px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+.kira-textarea{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--white);font-family:'Noto Sans JP',sans-serif;font-size:13px;padding:8px 12px;resize:none;outline:none;min-height:38px;max-height:90px;line-height:1.5;transition:border-color .2s}
+.kira-textarea:focus{border-color:var(--cyan)}
+.kira-textarea::placeholder{color:var(--gray);font-size:12px}
+.kira-send{width:38px;height:38px;background:var(--gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .2s;flex-shrink:0;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)}
+.kira-send:hover{opacity:.8}
+.kira-send:disabled{background:var(--gray);cursor:not-allowed}
+.kira-send svg{width:14px;height:14px;stroke:#040A12;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.kira-typing{display:flex;align-items:center;gap:4px;padding:8px 12px}
+.kira-typing span{width:5px;height:5px;background:var(--cyan);border-radius:50%;animation:typing .8s infinite}
+.kira-typing span:nth-child(2){animation-delay:.15s}
+.kira-typing span:nth-child(3){animation-delay:.3s}
+@keyframes typing{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
+.kira-fab{position:fixed;bottom:28px;right:28px;z-index:9997;display:flex;align-items:center;gap:10px;cursor:pointer;animation:fadeUp .5s 1s ease both}
+.kira-fab-btn{width:56px;height:56px;background:var(--gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(200,150,10,.3);transition:all .2s;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.kira-fab-btn:hover{transform:translateY(-3px);box-shadow:0 0 40px rgba(200,150,10,.5)}
+.kira-fab-btn svg{width:22px;height:22px;stroke:#040A12;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.kira-fab-label{background:var(--bg2);border:1px solid var(--border);padding:6px 12px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--white);letter-spacing:2px;white-space:nowrap;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
+.kira-fab-dot{position:absolute;top:-3px;right:-3px;width:12px;height:12px;background:var(--cyan);border-radius:50%;animation:blink 2s infinite;border:2px solid var(--bg)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes diagSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.reveal{transition:opacity .7s ease,transform .7s ease}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="nav-logo">
+    <div class="nav-logo-mark"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+    <div class="nav-logo-text">HORIZON <span>SHIELD</span></div>
+  </div>
+  <div class="nav-right">
+    <a href="/check/" class="nav-tool-link red">業者チェック</a>
+    <a href="/souba/" class="nav-tool-link cyan">相場DB</a>
+    <a href="/inspect/" class="nav-tool-link green">施工検査</a><a href="/map" class="nav-tool-link red">被害マップ</a>
+    <a href="/check/" class="nav-tool-link" style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;border:1px solid rgba(200,150,10,.3);padding:6px 12px;text-decoration:none;color:var(--gold2);transition:all .2s" onmouseover="this.style.borderColor='var(--gold2)'" onmouseout="this.style.borderColor='rgba(200,150,10,.3)'">交渉サポート</a>
+    <div class="nav-kira" onclick="hsKiraToggle()"><span class="nav-kira-dot"></span>KIRA に相談</div>
+    <a href="#services" class="nav-cta">SERVICES</a>
+  </div>
+</nav>
+
+<!-- ═══ 4次元ワームホールゾーン ═══ -->
+<div id="wh-section">
+  <div id="wh-sticky">
+    <canvas id="wh-canvas"></canvas>
+    <div id="wh-flash"></div>
+    <div id="wh-overlay">
+
+      <div class="wh-ph wh-on" id="wh-ph0">
+        <div class="wh-tag">HORIZON SHIELD // 建設費診断サービス</div>
+        <div class="wh-h">その見積書、<br><em>本当に適正ですか？</em></div>
+        <div class="wh-sub">業者は知っている。あなたが知らないことを。</div>
+        <div class="wh-loss">
+          <div class="wh-ll">AVERAGE OVERCHARGE</div>
+          <div class="wh-ln">¥<span id="wh-hloss">0</span>万円</div>
+          <div class="wh-ls">これが平均的な過剰請求額。今この瞬間も誰かが支払っています。</div>
+        </div>
+        <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <a href="/check/" style="background:linear-gradient(135deg,#FF3040,#C02030);color:#fff;font-weight:900;font-size:14px;padding:16px 36px;text-decoration:none;letter-spacing:.05em;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);pointer-events:all">60秒・無料で診断する →</a>
+          <a href="#services" style="border:1px solid rgba(0,200,240,.4);color:#00C8F0;font-family:'Share Tech Mono',monospace;font-size:11px;padding:16px 24px;letter-spacing:4px;text-decoration:none;pointer-events:all">サービスを見る</a>
+        </div>
+      </div>
+
+      <div class="wh-ph" id="wh-ph1">
+        <div class="wh-f1tag">⚠ OVERCHARGE DETECTED</div>
+        <div><span class="wh-f1n" id="wh-f1n">0</span><span class="wh-f1u">万円</span></div>
+        <div class="wh-f1d">これが<strong>平均的な過剰請求額</strong>です。<br>知らなかっただけで、あなたも対象かもしれない。</div>
+      </div>
+
+      <div class="wh-ph" id="wh-ph2">
+        <div class="wh-f2h">あなたは今、<br><em>どの立場ですか？</em></div>
+        <div class="wh-grid">
+          <button class="wh-cd" onclick="whPick(this,'a')">
+            <svg class="wh-ic" width="26" height="26" viewBox="0 0 26 26"><rect x="4" y="2" width="18" height="22" rx="1"/><line x1="8" y1="8" x2="18" y2="8"/><line x1="8" y1="12" x2="18" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg>
+            見積書が届いたが<br>高いのかわからない
+            <span class="wh-hint">→ 2営業日以内に判定</span>
+          </button>
+          <button class="wh-cd" onclick="whPick(this,'b')">
+            <svg class="wh-ic" width="26" height="26" viewBox="0 0 26 26"><path d="M13 3L24 22H2L13 3Z"/><line x1="13" y1="11" x2="13" y2="16"/><circle cx="13" cy="19.5" r=".8" fill="#00C8F0" stroke="none"/></svg>
+            工事中に追加費用を<br>突然請求された
+            <span class="wh-hint">→ 24時間以内に判定</span>
+          </button>
+          <button class="wh-cd" onclick="whPick(this,'c')">
+            <svg class="wh-ic" width="26" height="26" viewBox="0 0 26 26"><circle cx="13" cy="13" r="10"/><path d="M8.5 16.5c1-2 2.5-3 4.5-3s3.5 1 4.5 3"/><circle cx="9.5" cy="11" r="1.1" fill="#00C8F0" stroke="none"/><circle cx="16.5" cy="11" r="1.1" fill="#00C8F0" stroke="none"/></svg>
+            工事後に請求を見て<br>後悔している
+            <span class="wh-hint">→ 交渉材料をお届け</span>
+          </button>
+          <button class="wh-cd" onclick="whPick(this,'d')">
+            <svg class="wh-ic" width="26" height="26" viewBox="0 0 26 26"><polyline points="2,13 13,3 24,13"/><polyline points="5,10.5 5,23 21,23 21,10.5"/><rect x="10" y="15" width="6" height="8"/></svg>
+            これからリフォーム<br>業者が信用できない
+            <span class="wh-hint">→ 損をしない準備を</span>
+          </button>
+        </div>
+        <div class="wh-ans" id="wh-ans"><span id="wh-atxt"></span><br><a href="/souba/" class="wh-abtn">今すぐ無料診断を試す →</a></div>
+      </div>
+
+      <div class="wh-ph" id="wh-ph3">
+        <div class="wh-f3tag">FIELD REPORT // 30 YEARS</div>
+        <div class="wh-q" id="wh-q"><span class="wh-cur"></span></div>
+        <div class="wh-by" id="wh-by">大賀 俊勝 — 建設実務30年 / 大工 · 現場監督 · CMR</div>
+        <div class="wh-stats">
+          <div><span class="wh-sn" id="wh-s1">0</span><span class="wh-sl">平均削減率</span></div>
+          <div><span class="wh-sn" id="wh-s2">0</span><span class="wh-sl">査定件数</span></div>
+          <div><span class="wh-sn" id="wh-s3">0</span><span class="wh-sl">建設実務経験</span></div>
+        </div>
+      </div>
+
+      <div class="wh-ph" id="wh-ph4">
+        <div class="wh-f4tag">// YOUR DECISION MOMENT</div>
+        <div class="wh-f4h">損をするのは<br><em>今日で最後にする。</em></div>
+        <div class="wh-f4s">見積書を送るだけ。2営業日以内にプロが真実をお届けします。</div>
+        <div class="wh-pr">
+          <div class="wh-pc"><div class="wh-pt">建設費診断</div><span class="wh-pn">¥55,000</span><div class="wh-ps">2営業日以内PDF</div></div>
+          <div class="wh-pc"><div class="wh-pt">変更工事確認</div><span class="wh-pn">¥33,000</span><div class="wh-ps">24時間以内PDF</div></div>
+          <div class="wh-pc"><div class="wh-pt">完成検査立会い</div><span class="wh-pn">¥88,000</span><div class="wh-ps">当日報告書</div></div>
+        </div>
+        <div class="wh-cta">
+          <div class="wh-wrap">
+            <div class="wh-pr2"></div><div class="wh-pr1"></div>
+            <a href="/inspect/" class="wh-btn">無料AI診断を今すぐ試す →</a>
+          </div>
+          <span class="wh-note">完全無料 · 60秒 · LINE登録不要 · スポット依頼OK</span>
+          <div class="wh-trust">
+            <span class="wh-tr">見積書は診断後すぐ削除</span>
+            <span class="wh-tr">全国対応</span>
+            <span class="wh-tr">キャンセル全額返金</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="wh-shint" id="wh-shint">↓ SCROLL ↓</div>
+    <button id="wh-sound-btn" onclick="whToggleSound()">🔇 音をONにする</button>
+  </div>
+</div>
+<!-- ═══ ワームホールここまで ═══ -->
+
+<section class="section reveal">
+  <div class="container">
+    <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">PROBLEM ANALYSIS</div></div>
+    <h2 class="sec-title">こんな<em>不安</em>を<br>抱えていませんか？</h2>
+    <div class="rule"></div>
+    <div class="pain-grid">
+      <div class="pain-card"><div class="pain-num">P-01</div><div class="pain-icon"><svg viewBox="0 0 24 24"><path d="M9 12h6M9 16h6M13 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><polyline points="13 3 13 8 18 8"/></svg></div><h3>見積書が届いたが判断できない</h3><p>高いのか安いのか、専門知識がないと全くわからない。比較する手段もない。</p></div>
+      <div class="pain-card"><div class="pain-num">P-02</div><div class="pain-icon"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div><h3>「追加工事が必要」と言われた</h3><p>工事中に業者から追加費用を求められても、正当な要求かどうか判断できない。</p></div>
+      <div class="pain-card"><div class="pain-num">P-03</div><div class="pain-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><h3>竣工・引き渡し時の検査が不安</h3><p>引き渡し前に手抜きや施工不良がないか、専門家に立ち会ってほしい。</p></div>
+      <div class="pain-card"><div class="pain-num">P-04</div><div class="pain-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg></div><h3>業者の言い値で通っている</h3><p>業者側の言葉を信じるしかなく、相場が分からないまま工事を進めてしまっている。</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="warn-section reveal">
+  <div class="container">
+    <div class="sec-eyebrow"><div class="sec-line" style="background:var(--red)"></div><div class="sec-label" style="color:var(--red)">CAUTION</div></div>
+    <h2 class="sec-title">こんな<em style="color:var(--red)">訪問工事業者</em>に<br>心当たりはありませんか？</h2>
+    <div class="rule" style="background:var(--red)"></div>
+    <p style="font-size:15px;color:var(--lgray);max-width:600px;line-height:2">突然の訪問販売で、相場より大幅に高額な工事を契約してしまうケースが一部の業者で報告されています。適正価格を知らないまま契約することが、トラブルの主な原因です。</p>
+    <div class="warn-grid">
+      <div class="warn-card"><div class="warn-tag">要注意</div><h3>床下・シロアリ駆除</h3><p>「床下が腐っています」「シロアリが発生している」と緊急性を強調し、適正価格を大幅に超える金額での契約を求めるケースが報告されています。</p><div class="warn-badge">適正価格の事前確認が重要</div></div>
+      <div class="warn-card"><div class="warn-tag">要注意</div><h3>屋根の修理・点検</h3><p>「近くで工事をしていたら屋根が気になった」と訪問し、実際には問題のない箇所を指摘して工事契約を勧めるケースが報告されています。</p><div class="warn-badge">複数業者への見積もり比較を推奨</div></div>
+      <div class="warn-card"><div class="warn-tag">要注意</div><h3>外壁・屋根の塗り替え</h3><p>「外壁にひびが入っている」と指摘し、数年は問題ない状態でも緊急性を強調して工事契約を勧めるケースが報告されています。</p><div class="warn-badge">相場の事前確認を推奨</div></div>
+    </div>
+    <div class="warn-cta">
+      <h3>心当たりがあるなら、<em>今すぐ</em>確認してください。</h3>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:20px">
+        <a href="/negotiate/" class="btn-primary red">無料で見積書を診断する →</a>
+        <a href="#diagnosis" style="display:inline-block;border:1px solid rgba(255,48,64,.5);color:var(--red);font-family:'Share Tech Mono',monospace;font-size:12px;padding:16px 28px;text-decoration:none;letter-spacing:3px;transition:all .2s;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)" onmouseover="this.style.background='rgba(255,48,64,.08)'" onmouseout="this.style.background='transparent'">業者を調べる →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal" id="diagnosis" style="background:linear-gradient(180deg,var(--bg) 0%,rgba(0,212,255,0.04) 100%);border-top:1px solid var(--border)">
+  <div class="container" style="max-width:780px">
+    <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">FREE AI DIAGNOSIS</div></div>
+    <h2 class="sec-title" style="margin-bottom:12px">見積書を<em>無料でAI診断</em><br>30秒で過剰請求がわかる</h2>
+    <p style="text-align:center;color:var(--gray);font-size:14px;margin-bottom:48px;line-height:1.8">見積書の写真を撮ってアップロードするだけ。<br>建設30年の専門知識を学習したAIが即座に分析します。</p>
+    <div id="diag-form" style="background:var(--bg2);border:1px solid var(--border);padding:40px 36px">
+      <div id="diag-step1">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:20px">STEP 1 / 3 ── お名前・メールアドレス</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div><label style="font-size:11px;color:var(--gray);letter-spacing:2px;display:block;margin-bottom:6px">お名前 *</label><input id="diag-name" type="text" placeholder="例：山田 太郎" style="width:100%;box-sizing:border-box;background:#0a0f1a;border:1px solid var(--border);color:var(--white);padding:12px;font-size:14px;font-family:'Noto Sans JP',sans-serif;outline:none;transition:border .2s" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border)'"></div>
+          <div><label style="font-size:11px;color:var(--gray);letter-spacing:2px;display:block;margin-bottom:6px">メールアドレス *</label><input id="diag-email" type="email" placeholder="your@email.com" style="width:100%;box-sizing:border-box;background:#0a0f1a;border:1px solid var(--border);color:var(--white);padding:12px;font-size:14px;font-family:'Noto Sans JP',sans-serif;outline:none;transition:border .2s" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border)'"></div>
+        </div>
+        <button onclick="diagNext1()" style="width:100%;background:var(--cyan);color:#040A12;font-weight:700;font-size:14px;padding:14px;border:none;cursor:pointer;letter-spacing:.08em;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)">次へ → 見積書をアップロード</button>
+      </div>
+      <div id="diag-step2" style="display:none">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:20px">STEP 2 / 3 ── 見積書をアップロード</div>
+        <div id="diag-dropzone" onclick="document.getElementById('diag-file').click()" style="border:2px dashed var(--border);padding:48px 24px;text-align:center;cursor:pointer;transition:border .2s;margin-bottom:16px" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div style="font-size:40px;margin-bottom:12px">📄</div>
+          <div style="color:var(--white);font-size:15px;margin-bottom:8px">ここをタップして見積書を選択</div>
+          <div style="color:var(--gray);font-size:12px">JPG・PNG・PDF対応（スマホで撮影した写真でOK）</div>
+          <input id="diag-file" type="file" accept="image/*,application/pdf" style="display:none" onchange="diagFileSelected(this)">
+        </div>
+        <div id="diag-preview" style="display:none;margin-bottom:16px;text-align:center">
+          <img id="diag-preview-img" style="max-width:100%;max-height:200px;border:1px solid var(--border)">
+          <div id="diag-file-name" style="color:var(--cyan);font-size:12px;margin-top:8px"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <button onclick="diagBack1()" style="background:transparent;border:1px solid var(--border);color:var(--gray);font-size:13px;padding:12px;cursor:pointer">← 戻る</button>
+          <button id="diag-submit-btn" onclick="diagSubmit()" style="background:var(--gold);color:#040A12;font-weight:700;font-size:14px;padding:12px;border:none;cursor:pointer;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)" disabled>AI診断を開始する →</button>
+        </div>
+      </div>
+      <div id="diag-step3" style="display:none;text-align:center;padding:40px 0">
+        <div style="font-size:48px;margin-bottom:20px;animation:diagSpin 2s linear infinite">⚙️</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--cyan);margin-bottom:8px">AI ANALYZING...</div>
+        <div style="color:var(--gray);font-size:13px">建設30年の専門知識で見積書を解析中...</div>
+      </div>
+      <div id="diag-step4" style="display:none">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--gold);margin-bottom:24px">STEP 3 / 3 ── AI診断結果</div>
+        <div style="background:rgba(200,150,10,0.08);border:1px solid rgba(200,150,10,0.4);padding:28px 24px;margin-bottom:24px;text-align:center">
+          <div style="font-size:12px;color:var(--gray);letter-spacing:2px;margin-bottom:8px">削減できる可能性がある金額</div>
+          <div style="font-size:48px;font-weight:900;color:var(--gold)" id="diag-saving-text">—</div>
+          <div style="font-size:13px;color:var(--gray);margin-top:4px" id="diag-rate-text"></div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:11px;color:var(--cyan);letter-spacing:2px;margin-bottom:10px">⚠ 確認が必要な可能性がある項目</div>
+          <div id="diag-items" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+        </div>
+        <div style="background:var(--bg);border-left:3px solid var(--cyan);padding:14px 16px;margin-bottom:8px;font-size:13px;color:var(--lgray);line-height:1.8" id="diag-summary"></div>
+        <div style="background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.2);padding:14px 16px;margin-bottom:28px;font-size:13px;color:var(--white);line-height:1.8" id="diag-message"><span style="color:var(--cyan);font-size:11px;display:block;margin-bottom:4px">大賀 俊勝 より</span></div>
+        <div style="text-align:center">
+          <div style="background:rgba(200,150,10,0.08);border:1px solid rgba(200,150,10,0.3);padding:20px 24px;margin-bottom:20px">
+            <div style="font-size:12px;color:var(--gray);margin-bottom:8px">上記はAIによる簡易診断です</div>
+            <div style="font-size:15px;color:var(--white);line-height:1.8">正確な削減額・具体的な交渉文・<br>業者への対応策を知りたい方は<br><span style="color:var(--gold);font-weight:700">専門家による詳細レポート</span>をどうぞ</div>
+          </div>
+          <button onclick="openPayjp(55000,'SVC-01 建設費適正化診断レポート（AI診断後）')" style="width:100%;background:var(--gold);color:#040A12;font-weight:900;font-size:16px;padding:18px;border:none;cursor:pointer;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);letter-spacing:.05em;margin-bottom:12px">詳細レポートを申し込む ¥55,000（税込）</button>
+          <div style="font-size:11px;color:var(--gray)">2営業日以内にPDF納品　／　レポート送信前キャンセルは全額返金</div>
+          <div style="margin-top:28px;padding-top:24px;border-top:1px solid var(--border)">
+            <div style="font-size:12px;color:var(--gray);text-align:center;margin-bottom:14px;letter-spacing:2px;font-family:'Share Tech Mono',monospace">── 診断結果を友人にシェアする ──</div>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+              <button onclick="shareToX()" style="display:flex;align-items:center;gap:8px;background:#000;color:#fff;border:1px solid #333;font-size:13px;font-weight:700;padding:12px 20px;cursor:pointer;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Xでシェア</button>
+              <button onclick="shareToLine()" style="display:flex;align-items:center;gap:8px;background:#06C755;color:#fff;border:none;font-size:13px;font-weight:700;padding:12px 20px;cursor:pointer;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.07 1.59 5.79 4.06 7.5L5 22l4.26-1.42C10.44 20.84 11.21 21 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2z"/></svg>LINEでシェア</button>
+              <button onclick="shareToOC()" style="display:flex;align-items:center;gap:8px;background:transparent;color:var(--cyan);border:1px solid var(--cyan);font-size:13px;font-weight:700;padding:12px 20px;cursor:pointer;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)">📣 無料コミュニティに参加</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="diag-error" style="display:none;color:#ff6b6b;font-size:13px;text-align:center;margin-top:12px"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px">
+      <div style="text-align:center;padding:16px;border:1px solid var(--border)"><div style="margin-bottom:6px;display:flex;justify-content:center"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><polygon points="16,2 28,8 28,18 16,30 4,18 4,8" fill="none" stroke="#00f5ff" stroke-width="1.2"/><circle cx="16" cy="16" r="3" fill="#00f5ff" opacity="0.9"/></svg></div><div style="font-size:11px;color:var(--gray);line-height:1.6">見積書は<br>診断後すぐ削除</div></div>
+      <div style="text-align:center;padding:16px;border:1px solid var(--border)"><div style="margin-bottom:6px;display:flex;justify-content:center"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><polygon points="16,1 19,13 31,13 21,20 25,31 16,24 7,31 11,20 1,13 13,13" fill="none" stroke="#00f5ff" stroke-width="1.2"/><circle cx="16" cy="16" r="2" fill="#00f5ff"/></svg></div><div style="font-size:11px;color:var(--gray);line-height:1.6">30秒で<br>即時診断</div></div>
+      <div style="text-align:center;padding:16px;border:1px solid var(--border)"><div style="margin-bottom:6px;display:flex;justify-content:center"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="13" stroke="#00f5ff" stroke-width="1.2"/><polyline points="9,16 14,21 23,11" stroke="#00f5ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div style="font-size:11px;color:var(--gray);line-height:1.6">完全無料<br>申込不要</div></div>
+    </div>
+    <div style="margin-top:32px;text-align:center;padding:28px;background:rgba(0,195,0,0.06);border:1px solid rgba(0,195,0,0.25)">
+      <div style="font-size:13px;color:var(--gray);margin-bottom:16px">スマホから直接相談したい方はLINEへ</div>
+      <a href="https://line.me/R/ti/p/@172piime" target="_blank" style="display:inline-flex;align-items:center;gap:12px;background:#06C755;color:#fff;font-weight:700;font-size:15px;padding:14px 36px;text-decoration:none;letter-spacing:.05em;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)"><svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.07 1.59 5.79 4.06 7.5L5 22l4.26-1.42C10.44 20.84 11.21 21 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2z"/></svg>LINEで無料相談する</a>
+      <div style="margin-top:12px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:2px">見積書の写真を送るだけ・KIRAが即座に対応</div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal" id="services">
+  <div class="container">
+    <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">SERVICE CATALOG</div></div>
+    <h2 class="sec-title">工事の<em>全フェーズ</em>をカバーする<br>3つのスポットサービス</h2>
+    <div class="rule"></div>
+    <div class="svc3">
+      <div class="sc featured"><div class="sc-tag">SVC-01</div><h3>建設費診断<br>（見積書査定レポート）</h3><p class="sc-desc">見積書をメール送信するだけ。相場より高い項目・適正価格・交渉目標値・交渉文言サンプルを<strong>PDFレポート</strong>でお届けします。</p><div class="sc-price-wrap"><div class="sc-price">¥55,000</div><div class="sc-price-note">税込　／　工事費500万円以下が対象</div><div class="sc-delivery"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>2営業日以内PDF納品</div><ul class="sc-list"><li>相場より高い項目を金額で明示</li><li>交渉目標値の提示</li><li>業者への交渉文言サンプル付き</li><li>住宅・店舗・小規模工場・農業施設</li></ul></div><button class="sc-btn" onclick="openPayjp(55000,'SVC-01 建設費適正化診断レポート')">APPLY →</button></div>
+      <div class="sc"><div class="sc-tag">SVC-02</div><h3>変更工事査定<br>（追加費用確認レポート）</h3><p class="sc-desc">追加費用請求の妥当性を分析します。正当な費用か否かの判定と、施主が取るべき対応策を<strong>PDFレポート</strong>にまとめてお届けします。</p><div class="sc-price-wrap"><div class="sc-price">¥33,000</div><div class="sc-price-note">税込　／　追加費用50万円以下が対象</div><div class="sc-delivery"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>24時間以内PDF納品</div><ul class="sc-list"><li>追加費用の妥当性判定</li><li>拒否・交渉すべき項目の特定</li><li>施主が取るべき具体的行動を提示</li><li>最速24時間以内にPDF納品</li></ul></div><button class="sc-btn" onclick="openPayjp(33000,'SVC-02 変更工事費用確認レポート')">APPLY →</button></div>
+      <div class="sc"><div class="sc-tag">SVC-03</div><h3>完成検査<br>立会い・報告書作成</h3><p class="sc-desc">竣工・引き渡し時の現場に専門家が立ち会います。施工不良・手抜き・図面との相違を現場でチェックし、是正要求書をその場で作成します。</p><div class="sc-price-wrap"><div class="sc-price">¥88,000</div><div class="sc-price-note">税込＋交通費実費　／　住宅・小規模店舗</div><div class="sc-delivery"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>当日完了・報告書即日PDF納品</div><ul class="sc-list"><li>竣工検査への専門家立会い</li><li>施工不良・手抜きの現場確認</li><li>是正要求書の作成・PDF提供</li><li>全国対応（交通費実費のみ）</li></ul></div><button class="sc-btn" onclick="openPayjp(88000,'SVC-03 完成検査立会い・報告書作成サービス')">APPLY →</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="kira-section bg2 reveal">
+  <div class="container">
+    <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">AI STAFF</div></div>
+    <h2 class="sec-title"><em>KIRA</em>が24時間<br>あなたの相談に答えます</h2>
+    <div class="rule"></div>
+    <div class="kira-layout">
+      <div>
+        <div class="kira-profile">
+          <div class="kira-big-avatar">K</div>
+          <div class="kira-profile-name">KIRA</div>
+          <div class="kira-profile-title">AI SALES SPECIALIST // HORIZON SHIELD</div>
+          <p class="kira-profile-desc">HORIZON SHIELDの専属AI営業スペシャリスト。建設費診断・見積書の疑問・追加工事への対応に24時間365日対応します。</p>
+          <ul class="kira-specs"><li>建設費・見積書の適正価格を即判断</li><li>訪問工事業者の手口と対策を詳しく説明</li><li>最適なサービスをご案内・申し込みへ誘導</li><li>24時間365日 / 応答速度3秒以内</li></ul>
+        </div>
+      </div>
+      <div class="kira-chat-demo">
+        <div class="kira-chat-header"><div class="kira-mini-av">K</div><div><div style="font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:2px">KIRA</div><div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--cyan);letter-spacing:2px;display:flex;align-items:center;gap:4px"><span style="width:5px;height:5px;background:var(--cyan);border-radius:50%;animation:blink 2s infinite;display:inline-block"></span>稼働中</div></div></div>
+        <div class="kira-chat-messages" id="demo-msgs"><div class="demo-msg ai"><div class="demo-label">KIRA</div><div class="demo-bubble">こんにちは。HORIZON SHIELDのKIRAです。<br>見積書の疑問・訪問工事業者への対策・サービスのご案内まで、何でもお聞きします。</div></div></div>
+        <div class="kira-chat-input"><input type="text" class="kira-chat-input-field" id="demo-input" placeholder="質問を入力してください..." onkeydown="if(event.key==='Enter')demoSend()"><button class="kira-chat-send" onclick="demoSend()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:36px"><button class="btn-primary" onclick="hsKiraToggle()" style="border:none;cursor:pointer;font-family:'Noto Sans JP',sans-serif">KIRAに今すぐ相談する</button></div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="container">
+    <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">CREDENTIALS</div></div>
+    <h2 class="sec-title">なぜ私たちが<em>査定できるのか</em></h2>
+    <div class="rule"></div>
+    <div class="cred-grid">
+      <div class="cred-card reveal d1"><div class="cred-num">EXP-01</div><h3>大工出身の現場感覚</h3><p>実際に手を動かしてきた経験から、見積書に含まれる各費目の実態を熟知しています。</p></div>
+      <div class="cred-card reveal d2"><div class="cred-num">EXP-02</div><h3>AI × データ分析</h3><p>最新のAI技術と建設コストデータを組み合わせ、感覚ではなく数字で適正価格を算出します。</p></div>
+      <div class="cred-card reveal d3"><div class="cred-num">EXP-03</div><h3>CM専門家の中立性</h3><p>発注者側の代理人として完全中立の立場で査定。業者との利益相反が一切ありません。</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="reveal" id="media" style="padding:72px 24px;background:linear-gradient(180deg,var(--bg) 0%,rgba(0,212,255,0.03) 100%);border-top:1px solid var(--border);border-bottom:1px solid var(--border);position:relative;overflow:hidden">
+  <div style="max-width:980px;margin:0 auto;text-align:center;position:relative;z-index:1">
+    <div class="sec-eyebrow" style="justify-content:center"><div class="sec-line"></div><div class="sec-label">MEDIA COVERAGE</div><div class="sec-line"></div></div>
+    <h2 class="sec-title" style="margin-bottom:12px">メディアが<em>注目</em>しています</h2>
+    <p style="font-size:14px;color:var(--gray);margin-bottom:48px;line-height:1.9">サービス開始直後から、<strong style="color:var(--gold2)">10媒体</strong>に取り上げられています。</p>
+    <!-- ロゴ帯：全10媒体 -->
+    <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);padding:22px 28px;margin-bottom:44px;text-align:center">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:5px;color:var(--gray);margin-bottom:18px">FEATURED IN</div>
+      <div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:20px 28px">
+        <span style="font-size:15px;font-weight:900;color:rgba(255,255,255,.92);font-family:serif">日本経済新聞</span>
+        <span style="width:1px;height:16px;background:var(--border);display:inline-block"></span>
+        <span style="font-size:15px;font-weight:900;color:rgba(255,255,255,.92);font-family:serif">毎日新聞</span>
+
+        <span style="width:1px;height:16px;background:var(--border);display:inline-block"></span>
+        <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,.78)">時事通信</span>
+        <span style="width:1px;height:16px;background:var(--border);display:inline-block"></span>
+        <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,.75)">Infoseek</span>
+        <span style="width:1px;height:16px;background:var(--border);display:inline-block"></span>
+        <img src="https://nicovideo.cdn.nimg.jp/web/img/common/niconico_logo.png" alt="ニコニコニュース" style="height:18px;width:auto;opacity:.8;vertical-align:middle" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"><span style="display:none;font-size:12px;font-weight:700;color:rgba(255,255,255,.7)">ニコニコニュース</span>
+        <span style="width:1px;height:16px;background:var(--border);display:inline-block"></span>
+        <img src="voix_biz_logo.jpg" alt="VOIX biz" style="height:17px;width:auto;background:white;padding:2px 5px;border-radius:2px;opacity:.88;vertical-align:middle">
+        <span style="width:1px;height:16px;background:var(--border);display:inline-block"></span>
+        <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.65)">東京Days</span>
+        <span style="width:1px;height:16px;background:var(--border);display:inline-block"></span>
+        <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.65)">神奈川Days</span>
+        <span style="width:1px;height:16px;background:var(--border);display:inline-block"></span>
+        <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.65)">湘南人</span>
+        <span style="width:1px;height:16px;background:var(--border);display:inline-block"></span>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:11px;font-weight:700;color:rgba(255,255,255,.7)">PR <span style="color:var(--gold2)">TIMES</span></span>
+      </div>
+    </div>
+
+    <!-- 主要4媒体 記事カード -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:24px">
+
+      <!-- 日経 -->
+      <a href="https://www.nikkei.com/compass/content/PRTKDB000000001_000181278/article" target="_blank" rel="noopener" style="display:flex;flex-direction:column;justify-content:space-between;background:var(--bg2);border:1px solid rgba(255,48,64,.3);padding:22px 24px;text-decoration:none;transition:transform .25s;position:relative;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#FF3040,transparent)"></div>
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <span style="font-size:14px;font-weight:900;color:var(--white);font-family:serif">日本経済新聞</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:7px;color:#FF3040;border:1px solid rgba(255,48,64,.4);padding:2px 7px">全国掲載</span>
+          </div>
+          <p style="font-size:12px;font-weight:700;color:var(--white);line-height:1.65;margin-bottom:6px">建設歴30年のプロが施主を守る AI建設費診断サービス「HORIZON SHIELD」提供開始</p>
+          <p style="font-size:11px;color:var(--gray);line-height:1.7">日本最大の経済紙。サービス開始翌日に掲載。</p>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:14px;padding-top:10px;border-top:1px solid var(--border)">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray)">2026.04.08</span>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#FF3040">記事を読む →</span>
+        </div>
+      </a>
+
+      <!-- 毎日 -->
+      <a href="https://mainichi.jp/articles/20260408/pr2/00m/020/006000c" target="_blank" rel="noopener" style="display:flex;flex-direction:column;justify-content:space-between;background:var(--bg2);border:1px solid rgba(255,48,64,.3);padding:22px 24px;text-decoration:none;transition:transform .25s;position:relative;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#FF3040,transparent)"></div>
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <span style="font-size:14px;font-weight:900;color:var(--white);font-family:serif">毎日新聞</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:7px;color:#FF3040;border:1px solid rgba(255,48,64,.4);padding:2px 7px">全国掲載</span>
+          </div>
+          <p style="font-size:12px;font-weight:700;color:var(--white);line-height:1.65;margin-bottom:6px">建設歴30年のプロが施主を守る AI建設費診断サービス「HORIZON SHIELD」提供開始</p>
+          <p style="font-size:11px;color:var(--gray);line-height:1.7">全国紙・毎日新聞。即日掲載。</p>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:14px;padding-top:10px;border-top:1px solid var(--border)">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray)">2026.04.08</span>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#FF3040">記事を読む →</span>
+        </div>
+      </a>
+
+      <!-- VOIX -->
+      <a href="https://voix.jp/biz/news/166760/" target="_blank" rel="noopener" style="display:flex;flex-direction:column;justify-content:space-between;background:var(--bg2);border:1px solid rgba(200,150,10,.25);padding:22px 24px;text-decoration:none;transition:transform .25s;position:relative;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold2),transparent)"></div>
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <img src="voix_biz_logo.jpg" alt="VOIX biz" style="height:18px;width:auto;background:white;padding:2px 6px;border-radius:2px">
+            <span style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--gold2);border:1px solid rgba(200,150,10,.3);padding:2px 7px">注目掲載</span>
+          </div>
+          <p style="font-size:12px;font-weight:700;color:var(--white);line-height:1.65;margin-bottom:6px">HORIZON SHIELDで施主を守る！AIによる建設費診断サービスの提供開始</p>
+          <p style="font-size:11px;color:var(--gray);line-height:1.7">注目リリースとして即日掲載。独自タイトルで紹介。</p>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:14px;padding-top:10px;border-top:1px solid var(--border)">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray)">2026.04.07</span>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gold2)">記事を読む →</span>
+        </div>
+      </a>
+
+      <!-- Infoseek -->
+      <a href="https://news.infoseek.co.jp/article/prtimes_000000001_000181278/" target="_blank" rel="noopener" style="display:flex;flex-direction:column;justify-content:space-between;background:var(--bg2);border:1px solid var(--border);padding:22px 24px;text-decoration:none;transition:transform .25s;position:relative;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),transparent)"></div>
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <span style="font-size:14px;font-weight:700;color:var(--white)">Infoseek</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--cyan);border:1px solid rgba(0,212,255,.3);padding:2px 7px">掲載</span>
+          </div>
+          <p style="font-size:12px;font-weight:700;color:var(--white);line-height:1.65;margin-bottom:6px">建設歴30年のプロが施主を守る AI建設費診断サービス「HORIZON SHIELD」提供開始</p>
+          <p style="font-size:11px;color:var(--gray);line-height:1.7">楽天グループ運営の大手ニュースポータル。</p>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:14px;padding-top:10px;border-top:1px solid var(--border)">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray)">2026.04.08</span>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--cyan)">記事を読む →</span>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- その他掲載媒体 小さくリスト -->
+    <div style="border:1px solid var(--border);padding:16px 24px;margin-bottom:28px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--gray);margin-right:4px">その他</span>
+      <a href="https://www.jiji.com/sp/article?k=000000001.000181278&g=prt" target="_blank" rel="noopener" style="font-size:11px;color:var(--lgray);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.1)" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--lgray)'">時事通信</a>
+      <a href="https://news.nicovideo.jp/watch/nw19136327" target="_blank" rel="noopener" style="font-size:11px;color:var(--lgray);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.1)" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--lgray)'">ニコニコニュース</a>
+      <a href="https://tokyo.publishing.3rd-in.co.jp/article/7077bb2e-326d-11f1-80af-9ca3ba0a67df" target="_blank" rel="noopener" style="font-size:11px;color:var(--lgray);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.1)" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--lgray)'">東京Days</a>
+      <a href="https://kanagawa.publishing.3rd-in.co.jp/article/ecbb6682-326c-11f1-85e4-9ca3ba0a67df" target="_blank" rel="noopener" style="font-size:11px;color:var(--lgray);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.1)" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--lgray)'">神奈川Days</a>
+      <a href="https://shonanjin.com/news/hiratsuka-horizons-ai-construction-diagnosis/" target="_blank" rel="noopener" style="font-size:11px;color:var(--lgray);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.1)" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--lgray)'">湘南人</a>
+      <a href="https://prtimes.jp/main/html/rd/p/000000001.000181278.html" target="_blank" rel="noopener" style="font-size:11px;color:var(--lgray);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.1)" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--lgray)'">PR TIMES</a>
+    </div>
+
+    <!-- 取材依頼 -->
+    <div style="text-align:center;padding:18px;border:1px solid var(--border);background:rgba(0,212,255,.02)">
+      <p style="font-size:11px;color:var(--gray);margin-bottom:6px">取材・掲載のご依頼</p>
+      <a href="mailto:contact@the-horizons-innovation.com" style="color:var(--cyan);text-decoration:none;font-size:13px">contact@the-horizons-innovation.com</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- VISION SECTION：世界を変える仕組み -->
+<!-- ============================================================ -->
+<section style="padding:100px 0;background:linear-gradient(180deg,var(--bg) 0%,rgba(0,10,20,1) 50%,var(--bg) 100%)">
+  <div class="container" style="max-width:900px;margin:0 auto;padding:0 24px">
+
+    <!-- セクションヘッダ -->
+    <div class="sec-head" style="margin-bottom:64px">
+      <div class="sec-label">THE VISION</div>
+      <div class="sec-line"></div>
+    </div>
+    <h2 class="sec-title" style="margin-bottom:16px">建設業界の<em>負の連鎖</em>を、断ち切る。</h2>
+    <p style="font-size:15px;color:var(--gray);line-height:2;margin-bottom:72px;max-width:680px;margin-left:auto;margin-right:auto;text-align:center">
+      今の仕組みは、施主も業者も不幸にしている。<br>
+      HORIZON SHIELDが目指す世界を説明します。
+    </p>
+
+    <!-- ホテル例え：ビジュアル -->
+    <div style="background:rgba(0,212,255,.03);border:1px solid rgba(0,212,255,.12);padding:40px 36px;margin-bottom:56px;position:relative;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),transparent)"></div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--cyan);margin-bottom:20px">THE HOTEL ANALOGY</div>
+      <h3 style="font-size:22px;font-weight:700;color:var(--white);margin-bottom:12px;line-height:1.5">ホテルには「星」がある。<br>なぜ建設業界にはないのか。</h3>
+      <p style="font-size:14px;color:var(--gray);line-height:2;margin-bottom:32px">
+        ホテルは1つ星から5つ星まで明確なランクがある。<br>
+        あなたは予算と目的に合わせてホテルを選ぶ。<br>
+        ホテル側は自分の星の中で、全力で競争する。<br>
+        <strong style="color:var(--white)">これは、施主にとっても業者にとっても、公平な仕組みだ。</strong>
+      </p>
+      <!-- 松竹梅グリッド -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+        <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);padding:20px 16px;text-align:center">
+          <div style="font-size:24px;margin-bottom:8px">⭐</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--gray);margin-bottom:10px">STANDARD</div>
+          <div style="font-size:13px;color:var(--white);font-weight:700;margin-bottom:6px">梅プラン</div>
+          <div style="font-size:11px;color:var(--gray);line-height:1.8">安価な材料で<br>コスト最優先</div>
+          <div style="margin-top:12px;font-size:12px;color:rgba(0,212,255,.7);font-family:'Share Tech Mono',monospace">適正価格: 50万円</div>
+        </div>
+        <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);padding:20px 16px;text-align:center;position:relative">
+          <div style="position:absolute;top:-1px;left:0;right:0;height:2px;background:var(--cyan)"></div>
+          <div style="font-size:24px;margin-bottom:8px">⭐⭐⭐</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:10px">STANDARD+</div>
+          <div style="font-size:13px;color:var(--white);font-weight:700;margin-bottom:6px">竹プラン</div>
+          <div style="font-size:11px;color:var(--gray);line-height:1.8">品質と価格の<br>バランス重視</div>
+          <div style="margin-top:12px;font-size:12px;color:var(--cyan);font-family:'Share Tech Mono',monospace">適正価格: 75万円</div>
+        </div>
+        <div style="background:rgba(200,150,10,.05);border:1px solid rgba(200,150,10,.2);padding:20px 16px;text-align:center">
+          <div style="font-size:24px;margin-bottom:8px">⭐⭐⭐⭐⭐</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--gold2);margin-bottom:10px">PREMIUM</div>
+          <div style="font-size:13px;color:var(--white);font-weight:700;margin-bottom:6px">松プラン</div>
+          <div style="font-size:11px;color:var(--gray);line-height:1.8">最高品質・最高の<br>職人に依頼したい</div>
+          <div style="margin-top:12px;font-size:12px;color:var(--gold2);font-family:'Share Tech Mono',monospace">適正価格: 100万円</div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--gray);text-align:center;margin-top:20px;line-height:1.8">
+        同じ場所の工事でも、グレードによって適正価格は異なる。<br>
+        <strong style="color:var(--white)">あなたが予算と目的を決め、業者に逆オファーをかける。</strong>
+      </p>
+    </div>
+
+    <!-- 負の連鎖 vs 理想の流れ -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:56px">
+
+      <!-- 現在：負の連鎖 -->
+      <div style="background:rgba(255,48,64,.04);border:1px solid rgba(255,48,64,.2);padding:28px 24px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:4px;color:rgba(255,48,64,.7);margin-bottom:16px">❌ NOW — 負の連鎖</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:12px;color:rgba(255,255,255,.65);line-height:1.7;padding:10px 12px;background:rgba(255,48,64,.05);border-left:2px solid rgba(255,48,64,.3)">施主が相見積サイトに登録<br><span style="color:rgba(255,48,64,.6);font-size:11px">→ 大量の営業電話・訪問が始まる</span></div>
+          <div style="font-size:12px;color:rgba(255,255,255,.65);line-height:1.7;padding:10px 12px;background:rgba(255,48,64,.05);border-left:2px solid rgba(255,48,64,.3)">複数業者が現地調査・見積作成<br><span style="color:rgba(255,48,64,.6);font-size:11px">→ 人件費・交通費・時間が発生</span></div>
+          <div style="font-size:12px;color:rgba(255,255,255,.65);line-height:1.7;padding:10px 12px;background:rgba(255,48,64,.05);border-left:2px solid rgba(255,48,64,.3)">競合に負けた業者のコストは？<br><span style="color:rgba(255,48,64,.6);font-size:11px">→ 次の案件の見積に上乗せ</span></div>
+          <div style="font-size:12px;color:rgba(255,255,255,.65);line-height:1.7;padding:10px 12px;background:rgba(255,48,64,.05);border-left:2px solid rgba(255,48,64,.3)">結果、見積書は高くなる一方<br><span style="color:rgba(255,48,64,.6);font-size:11px">→ 施主は全く関係ないコストを払う</span></div>
+        </div>
+        <div style="margin-top:16px;font-size:11px;color:rgba(255,48,64,.8);font-weight:700;text-align:center">施主も業者も、誰も得をしない。</div>
+      </div>
+
+      <!-- 理想：HORIZON SHIELDの世界 -->
+      <div style="background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.2);padding:28px 24px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:4px;color:var(--cyan);margin-bottom:16px">✅ FUTURE — 理想の流れ</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:12px;color:rgba(255,255,255,.8);line-height:1.7;padding:10px 12px;background:rgba(0,212,255,.05);border-left:2px solid rgba(0,212,255,.4)">施主がグレードと予算を決める<br><span style="color:var(--cyan);font-size:11px">→ 適正価格がわかった状態でスタート</span></div>
+          <div style="font-size:12px;color:rgba(255,255,255,.8);line-height:1.7;padding:10px 12px;background:rgba(0,212,255,.05);border-left:2px solid rgba(0,212,255,.4)">業者に「逆オファー」を投げる<br><span style="color:var(--cyan);font-size:11px">→ 「50万円でやってください」</span></div>
+          <div style="font-size:12px;color:rgba(255,255,255,.8);line-height:1.7;padding:10px 12px;background:rgba(0,212,255,.05);border-left:2px solid rgba(0,212,255,.4)">ランク内の業者が競争して受注<br><span style="color:var(--cyan);font-size:11px">→ 無駄な営業コストが消える</span></div>
+          <div style="font-size:12px;color:rgba(255,255,255,.8);line-height:1.7;padding:10px 12px;background:rgba(0,212,255,.05);border-left:2px solid rgba(0,212,255,.4)">工事→HORIZON SHIELDで検査→引渡し<br><span style="color:var(--cyan);font-size:11px">→ 品質まで担保される</span></div>
+        </div>
+        <div style="margin-top:16px;font-size:11px;color:var(--cyan);font-weight:700;text-align:center">施主も業者も、正当に評価される。</div>
+      </div>
+    </div>
+
+    <!-- 近日リリース予告 -->
+    <div style="background:rgba(200,150,10,.04);border:1px solid rgba(200,150,10,.2);padding:28px 32px;text-align:center;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)">
+      <div style="position:relative">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:5px;color:var(--gold2);margin-bottom:14px">COMING SOON</div>
+        <h3 style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:10px">業者の「信用」を可視化する仕組みを開発中。</h3>
+        <p style="font-size:13px;color:var(--gray);line-height:2;max-width:580px;margin:0 auto">
+          レビューだけでは判断できない業者の技術力・誠実さを<br>
+          明確なスコアで示す新機能を近日リリース予定。<br>
+          <strong style="color:rgba(200,150,10,.9)">建設業界に「ホテルの星」を作る、その第一歩です。</strong>
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="quote-wrap reveal">
+  <div class="quote-deco">"</div>
+  <div class="q-line"></div>
+  <blockquote>工事費の見積書には、発注者側が知るべき情報が含まれています。<br>その<em>情報格差をなくす</em>ことが、私たちのミッションです。</blockquote>
+  <div class="q-by">大賀 俊勝　／　The HORIZ音s株式会社　代表取締役<br>大工　／　CMR　／　AIエンジニア</div>
+</div>
+
+<section class="section reveal" id="founder" style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="container" style="max-width:860px">
+    <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">FOUNDER</div></div>
+    <h2 class="sec-title" style="margin-bottom:48px">なぜ私がこのサービスを<br><em>作らなければならなかったか</em></h2>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:48px;align-items:start">
+      <div style="background:var(--bg);border:1px solid var(--border);padding:32px 24px;text-align:center">
+        <div style="width:120px;height:120px;margin:0 auto 16px;position:relative">
+  <img src="founder.jpg" alt="大賀 俊勝" style="width:120px;height:120px;object-fit:cover;object-position:center top;border:2px solid var(--cyan);clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)">
+  <div style="position:absolute;inset:-4px;border:1px solid rgba(0,212,255,.25);clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);pointer-events:none"></div>
+</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--cyan);margin-bottom:8px">REPRESENTATIVE</div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:4px">大賀 俊勝</div>
+        <div style="font-size:11px;color:var(--gray);margin-bottom:20px">Toshikatsu Oga</div>
+        <div style="border-top:1px solid var(--border);padding-top:16px;text-align:left"><div style="font-size:11px;color:var(--gray);line-height:2.2"><span style="color:var(--cyan)">──</span> 建設実務経験 30年<br><span style="color:var(--cyan)">──</span> 大工・現場監督・CMR<br><span style="color:var(--cyan)">──</span> AIエンジニア<br><span style="color:var(--cyan)">──</span> The HORIZ音s㈱ 代表<br><span style="color:var(--cyan)">──</span> 神奈川県平塚市拠点</div></div>
+      </div>
+      <div>
+        <p style="font-size:15px;line-height:2;color:var(--lgray);margin-bottom:24px">私は30年間、建設の現場にいました。大工として、監督として、そしてコンサルタントとして。</p>
+        <p style="font-size:15px;line-height:2;color:var(--lgray);margin-bottom:24px">その間に何百枚もの見積書を見てきました。そのほとんどに、<span style="color:var(--white);font-weight:700">施主が知るべき情報が含まれていた</span>。</p>
+        <p style="font-size:15px;line-height:2;color:var(--lgray);margin-bottom:24px">業者は悪人ではありません。ただ、<span style="color:var(--white);font-weight:700">情報の非対称性</span>がある。知っている側と知らない側では、交渉の結果が全く違う。</p>
+        <p style="font-size:15px;line-height:2;color:var(--lgray);margin-bottom:32px">このサービスは、その情報格差をなくすために作りました。あなたが<span style="color:var(--cyan);font-weight:700">適正な価格で工事を完成させる</span>ための、専門家のセカンドオピニオンです。</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+          <div style="border:1px solid var(--border);padding:16px;text-align:center"><div style="font-size:24px;font-weight:700;color:var(--gold)">30<span style="font-size:13px">年</span></div><div style="font-size:10px;color:var(--gray);letter-spacing:1px;margin-top:4px">建設実務経験</div></div>
+          <div style="border:1px solid var(--border);padding:16px;text-align:center"><div style="font-size:24px;font-weight:700;color:var(--gold)">500<span style="font-size:13px">件+</span></div><div style="font-size:10px;color:var(--gray);letter-spacing:1px;margin-top:4px">見積書査定経験</div></div>
+          <div style="border:1px solid var(--border);padding:16px;text-align:center"><div style="font-size:24px;font-weight:700;color:var(--gold)">15<span style="font-size:13px">〜20%</span></div><div style="font-size:10px;color:var(--gray);letter-spacing:1px;margin-top:4px">平均削減率</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal" id="flow">
+  <div class="container">
+    <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">PROCESS</div></div>
+    <h2 class="sec-title">申し込みの<em>流れ</em></h2>
+    <div class="rule"></div>
+    <div class="flow-grid">
+      <div class="flow-line"></div>
+      <div class="fi"><div class="fi-num"><span>01</span></div><h3>無料診断を試す</h3><p>まず<a href="#diagnosis">0円簡易診断</a>で見積書の妥当性を確認。気になる場合はそのまま有料サービスへ。</p></div>
+      <div class="fi"><div class="fi-num"><span>02</span></div><h3>資料を送付</h3><p>見積書・書類をメールで送付。<br><a href="mailto:contact@the-horizons-innovation.com">contact@the-horizons-innovation.com</a></p></div>
+      <div class="fi"><div class="fi-num"><span>03</span></div><h3>PDFレポート納品</h3><p>各サービスの納期内にPDFレポートをご指定のメールアドレスへお届けします。</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section bg2 reveal">
+  <div class="container-sm">
+    <div class="sec-eyebrow"><div class="sec-line"></div><div class="sec-label">FAQ</div></div>
+    <h2 class="sec-title">よくある<em>ご質問</em></h2>
+    <div class="rule"></div>
+    <div class="faq-list">
+      <div class="faq-item"><div class="faq-head"><strong>対象となる工事の規模は？</strong><div class="faq-tog"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div><div class="faq-body">工事費500万円以下の住宅リノベーション・店舗改装・小規模工事が主な対象です。500万円超の案件は個別にご相談ください。</div></div>
+      <div class="faq-item"><div class="faq-head"><strong>3つのサービスを同時に依頼できますか？</strong><div class="faq-tog"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div><div class="faq-body">もちろんです。見積書査定→変更工事査定→竣工立会いと、工事の全フェーズを通じてご利用いただけます。</div></div>
+      <div class="faq-item"><div class="faq-head"><strong>見積書を送ると情報が漏れませんか？</strong><div class="faq-tog"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div><div class="faq-body">お送りいただいた情報は査定目的のみに使用し、第三者への提供は一切行いません。ご要望があればNDAの締結も対応します。</div></div>
+      <div class="faq-item"><div class="faq-head"><strong>査定の結果、適正価格だった場合は？</strong><div class="faq-tog"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div><div class="faq-body">「適正です」という結果もレポートに明記します。安心して工事を進めるための確認としてもご利用ください。</div></div>
+      <div class="faq-item"><div class="faq-head"><strong>法人でも依頼できますか？</strong><div class="faq-tog"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div><div class="faq-body">もちろんです。工場・倉庫・店舗・農業施設など法人案件も多数対応しています。請求書払いのご相談もお気軽にどうぞ。</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal" style="background:var(--bg2);border-top:1px solid var(--border)">
+  <div class="container" style="max-width:780px;text-align:center">
+    <div class="sec-eyebrow" style="justify-content:center"><div class="sec-line"></div><div class="sec-label">KNOWLEDGE BASE</div><div class="sec-line"></div></div>
+    <h2 class="sec-title">建設費・リフォームの<em>専門知識</em>を<br>無料で公開中</h2>
+    <p style="color:var(--lgray);font-size:15px;margin:16px auto 36px;max-width:500px;line-height:1.9">見積書の読み方・適正価格の基準など、建設30年の専門家が毎日更新しています。</p>
+    <a href="/blog/" class="btn-primary" style="font-size:15px;padding:16px 48px">ブログを読む →</a>
+  </div>
+</section>
+
+<section class="reveal" style="padding:60px 24px;background:var(--bg3);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div style="max-width:980px;margin:0 auto">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:5px;color:var(--cyan);text-align:center;margin-bottom:28px">FREE TOOLS</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border)">
+      <a href="#diagnosis" style="background:var(--bg2);padding:22px 18px;text-decoration:none;display:block;transition:background .2s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='var(--bg2)'"><div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--red);margin-bottom:8px">FREE TOOL</div><div style="font-size:15px;font-weight:700;color:var(--white);margin-bottom:6px">業者<br>チェッカー</div><div style="font-size:11px;color:var(--gray);line-height:1.7;margin-bottom:10px">業者名を入力するだけ。AIが10秒でリスク診断。</div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--red)">調べる →</div></a>
+      <a href="#diagnosis" style="background:var(--bg2);padding:22px 18px;text-decoration:none;display:block;transition:background .2s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='var(--bg2)'"><div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--cyan);margin-bottom:8px">FREE DATA</div><div style="font-size:15px;font-weight:700;color:var(--white);margin-bottom:6px">建設費<br>相場DB</div><div style="font-size:11px;color:var(--gray);line-height:1.7;margin-bottom:10px">50工種の適正価格を無料公開。</div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan)">確認する →</div></a>
+      <a href="#diagnosis" style="background:var(--bg2);padding:22px 18px;text-decoration:none;display:block;transition:background .2s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='var(--bg2)'"><div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:#00FF88;margin-bottom:8px">FREE CHECK</div><div style="font-size:15px;font-weight:700;color:var(--white);margin-bottom:6px">施工不良<br>チェック</div><div style="font-size:11px;color:var(--gray);line-height:1.7;margin-bottom:10px">写真を送るだけ。気になる箇所の傾向をお伝え。</div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#00FF88">送る →</div></a>
+      <a href="#diagnosis" style="background:var(--bg2);padding:22px 18px;text-decoration:none;display:block;transition:background .2s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='var(--bg2)'"><div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--gold2);margin-bottom:8px">FREE AI</div><div style="font-size:15px;font-weight:700;color:var(--white);margin-bottom:6px">見積書<br>交渉サポート</div><div style="font-size:11px;color:var(--gray);line-height:1.7;margin-bottom:10px">見積書を送るだけ。交渉メールを自動生成。</div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold2)">試す →</div></a>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section reveal">
+  <div class="cta-glow"></div>
+  <div class="container">
+    <h2>損をする前に、<br>プロの目で確認する。</h2>
+    <p>¥33,000〜の費用が、数十万〜数百万円の損失を防ぐことがあります。</p>
+    <a href="#diagnosis" class="btn-primary red" style="font-size:15px;padding:18px 52px;display:inline-block;text-decoration:none">60秒・無料で見積書を診断する →</a>
+    <p class="cta-note">contact@the-horizons-innovation.com　／　全国対応</p>
+    <div class="cta-kira"><button class="cta-kira-btn" onclick="hsKiraToggle()"><span style="width:6px;height:6px;background:var(--cyan);border-radius:50%;animation:blink 2s infinite"></span>まずKIRAに無料相談する</button></div>
+  </div>
+</section>
+
+<section id="privacy" style="padding:64px 24px;border-top:1px solid var(--border);position:relative;z-index:1;background:rgba(0,0,0,0.3)">
+  <div style="max-width:860px;margin:0 auto">
+    <h2 style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--cyan);margin-bottom:32px">プライバシーポリシー</h2>
+    <div style="font-size:13px;line-height:2.2;color:rgba(255,255,255,0.75)">
+      <p>The HORIZ音s株式会社（以下「当社」）は、お客様の個人情報を以下の方針に従い適切に取り扱います。</p>
+      <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">取得する情報</p><p>氏名、メールアドレス、工事に関する相談内容</p>
+      <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">利用目的</p><p>・PDFレポートの作成および納品<br>・お問い合わせへの対応<br>・サービス改善のための分析</p>
+      <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">第三者提供</p><p>法令に基づく場合を除き、お客様の同意なく第三者に提供しません。</p>
+      <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">お問い合わせ</p><p>contact@the-horizons-innovation.com<br>The HORIZ音s株式会社　代表取締役　大賀 俊勝<br>〒254-0018 神奈川県平塚市東真土1-1-47 GH湘南2</p>
+    </div>
+  </div>
+</section>
+
+<section id="tos" style="padding:64px 24px;border-top:1px solid var(--border);position:relative;z-index:1;background:rgba(0,0,0,0.2)">
+  <div style="max-width:860px;margin:0 auto">
+    <h2 style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--cyan);margin-bottom:32px">利用規約</h2>
+    <div style="font-size:13px;line-height:2.2;color:rgba(255,255,255,0.75)">
+      <p style="color:var(--cyan);font-size:12px;letter-spacing:2px">サービスの内容</p><p>本サービスは建設・リフォーム工事費に関するPDFレポートの作成・納品サービスです。工事の請負・仲介は行いません。</p>
+      <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">免責事項</p><p>当社のレポートはあくまで専門家の意見であり、最終的な判断はお客様自身が行うものとします。</p>
+      <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">キャンセル・返金</p><p>PDFレポート送信前のキャンセルは全額返金します。レポート送信完了後のキャンセルはお受けできません。</p>
+      <p style="margin-top:20px;color:var(--cyan);font-size:12px;letter-spacing:2px">準拠法・管轄</p><p>本規約は日本法に準拠し、横浜地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
+    </div>
+  </div>
+</section>
+
+<section id="tokusho" style="padding:64px 24px;border-top:1px solid var(--border);position:relative;z-index:1;background:rgba(0,0,0,0.3)">
+  <div style="max-width:860px;margin:0 auto">
+    <h2 style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--cyan);margin-bottom:32px">特定商取引法に基づく表記</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;line-height:2">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);width:200px;vertical-align:top">販売事業者名</td><td style="padding:14px 0;color:var(--white)">The HORIZ音s株式会社</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">運営事業責任者</td><td style="padding:14px 0;color:var(--white)">大賀 俊勝</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">所在地</td><td style="padding:14px 0;color:var(--white)">〒254-0018 神奈川県平塚市東真土1-1-47 GH湘南2（圏央Branch・建設部）</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">メールアドレス</td><td style="padding:14px 0;color:var(--white)">contact@the-horizons-innovation.com</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">役務の内容</td><td style="padding:14px 0;color:var(--white)">建設・リフォーム工事費用の適正性を分析したPDFレポートの作成および電子メールによる納品</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">販売価格</td><td style="padding:14px 0;color:var(--white)">建設費適正化診断レポート：¥55,000（税込）<br>変更工事費用確認レポート：¥33,000（税込）<br>完成検査立会い・報告書作成：¥88,000（税込）＋交通費実費</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">お支払い方法</td><td style="padding:14px 0;color:var(--white)">銀行振込（静岡銀行 平塚支店 普通預金 0479810 ザホライズンズカブシキガイシャ）</td></tr>
+        <tr><td style="padding:14px 16px 14px 0;color:var(--gray);vertical-align:top">キャンセル・返金</td><td style="padding:14px 0;color:var(--white)">PDFレポート送信前のキャンセルは全額返金（7営業日以内に振込）。レポート送信完了後のキャンセルはお受けできません。</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div><div class="footer-logo">HORIZON <span>SHIELD</span></div><div class="footer-tagline">建設業界のセカンドオピニオン専門家</div></div>
+    <div class="footer-info">The HORIZ音s株式会社<br>〒254-0018 神奈川県平塚市東真土1-1-47 GH湘南2<br>代表取締役　大賀 俊勝<br><a href="mailto:contact@the-horizons-innovation.com">contact@the-horizons-innovation.com</a></div>
+  </div>
+  <div style="max-width:980px;margin:0 auto 20px;display:flex;gap:16px;flex-wrap:wrap">
+  <a href="https://twitter.com/sumainomamori" target="_blank" style="display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:2px;text-decoration:none;border:1px solid var(--border);padding:6px 14px;transition:all .2s" onmouseover="this.style.borderColor='var(--cyan)';this.style.color='var(--white)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--gray)'"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>@sumainomamori</a>
+  <a href="https://www.facebook.com/HorizonShieldJP" target="_blank" style="display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:2px;text-decoration:none;border:1px solid var(--border);padding:6px 14px;transition:all .2s" onmouseover="this.style.borderColor='var(--cyan)';this.style.color='var(--white)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--gray)'"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>Facebook</a>
+  <a href="https://line.me/R/ti/p/@172piime" target="_blank" style="display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:2px;text-decoration:none;border:1px solid var(--border);padding:6px 14px;transition:all .2s" onmouseover="this.style.borderColor='var(--cyan)';this.style.color='var(--white)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--gray)'"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.07 1.59 5.79 4.06 7.5L5 22l4.26-1.42C10.44 20.84 11.21 21 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2z"/></svg>LINE</a>
+  <a href="https://note.com/horizon_shield" target="_blank" style="display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:2px;text-decoration:none;border:1px solid var(--border);padding:6px 14px;transition:all .2s" onmouseover="this.style.borderColor='var(--cyan)';this.style.color='var(--white)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--gray)'">note</a>
+</div>
+<div class="footer-copy"><span>© 2026 THE HORIZ音s Inc. All Rights Reserved.</span><span>KIRA AI // HORIZON SHIELD</span></div>
+</footer>
+
+<!-- KIRA FAB -->
+<div class="kira-fab" onclick="hsKiraToggle()">
+  <div class="kira-fab-label">KIRAに相談</div>
+  <div style="position:relative">
+    <button class="kira-fab-btn"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button>
+    <span class="kira-fab-dot"></span>
+  </div>
+</div>
+
+<!-- KIRA モーダル -->
+<div class="kira-modal-overlay" id="kira-overlay" onclick="closeKiraOutside(event)">
+  <div class="kira-modal" id="kira-modal">
+    <div class="kira-modal-header">
+      <div class="kira-modal-left"><div class="kira-mini-av">K</div><div><div class="kira-modal-name">KIRA</div><div class="kira-modal-status">24時間対応中</div></div></div>
+      <button class="kira-close" onclick="hsKiraClose()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="kira-msgs" id="kira-msgs"></div>
+    <div class="kira-qr" id="kira-qr"></div>
+    <div class="kira-input-area">
+      <label for="kira-file-input" style="width:34px;height:38px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);cursor:pointer;flex-shrink:0;transition:border-color .2s" title="見積書を添付" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)'"><svg width="16" height="16" viewBox="0 0 24 24" stroke="var(--cyan)" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></label>
+<input type="file" id="kira-file-input" accept="image/*,application/pdf" style="display:none" onchange="kiraAttachFile(this)">
+      <textarea class="kira-textarea" id="kira-input" placeholder="質問・相談を入力..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();kirasSend()}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,90)+'px'"></textarea>
+      <button class="kira-send" id="kira-send-btn" onclick="kirasSend()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<!-- 銀行振込モーダル -->
+<div id="bank-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#0d1117;border:1px solid var(--border);max-width:440px;width:100%;padding:36px 32px;position:relative;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)">
+    <button onclick="closePayjp()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:#666;font-size:20px;cursor:pointer">✕</button>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:6px">HORIZON SHIELD</div>
+    <div id="pj-title" style="font-size:15px;color:#fff;font-weight:700;margin-bottom:4px"></div>
+    <div id="pj-price" style="font-size:28px;color:var(--gold2);font-weight:700;margin-bottom:24px"></div>
+    <div style="background:rgba(0,212,255,0.05);border:1px solid var(--border);padding:20px;margin-bottom:20px">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:14px">振込先口座</div>
+      <table style="width:100%;font-size:13px;border-collapse:collapse">
+        <tr style="border-bottom:1px solid #1a2a3a"><td style="padding:8px 0;color:#888;width:90px">銀行名</td><td style="padding:8px 0;color:#fff;font-weight:700">静岡銀行</td></tr>
+        <tr style="border-bottom:1px solid #1a2a3a"><td style="padding:8px 0;color:#888">支店名</td><td style="padding:8px 0;color:#fff;font-weight:700">平塚支店</td></tr>
+        <tr style="border-bottom:1px solid #1a2a3a"><td style="padding:8px 0;color:#888">口座種別</td><td style="padding:8px 0;color:#fff;font-weight:700">普通預金</td></tr>
+        <tr style="border-bottom:1px solid #1a2a3a"><td style="padding:8px 0;color:#888">口座番号</td><td style="padding:8px 0;color:var(--gold2);font-weight:700;font-size:18px;letter-spacing:2px">0479810</td></tr>
+        <tr><td style="padding:8px 0;color:#888">口座名義</td><td style="padding:8px 0;color:#fff;font-weight:700">ザホライズンズカブシキガイシャ</td></tr>
+      </table>
+    </div>
+    <div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.3);padding:14px;margin-bottom:20px;font-size:12px;color:#aaa;line-height:1.9">振込確認後、PDFレポートを納期内にお届けします。<br>見積書は <a href="mailto:contact@the-horizons-innovation.com" style="color:var(--cyan)">contact@the-horizons-innovation.com</a> へお送りください。</div>
+    <button onclick="closePayjp()" style="width:100%;background:var(--gold);color:#040A12;font-weight:900;font-size:15px;padding:16px;border:none;cursor:pointer;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);letter-spacing:.05em">振込先を確認しました</button>
+  </div>
+</div>
+
+
+
+<!-- ═══ WORMHOLE JS ═══ -->
+<script>
+// グローバル：ボタンから呼べるようにIIFEの外に定義
+function whToggleSound(){
+  var btn=document.getElementById('wh-sound-btn');
+  // whActxなどはIIFE内の変数なので、windowに公開されたAPIを使う
+  if(typeof _whToggle==='function')_whToggle();
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+// モバイル判定
+var isMobile=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+// canvas サイズを正確に設定
+function getVW(){return Math.min(window.innerWidth,document.documentElement.clientWidth);}
+function getVH(){return window.innerHeight;}
+
+var whActx=null,whMaster=null,whDrones=[],whSoundOn=false,whAudioStarted=false;
+function whInitAudio(){if(whAudioStarted)return;whAudioStarted=true;whActx=new(window.AudioContext||window.webkitAudioContext)();whMaster=whActx.createGain();whMaster.gain.value=0;whMaster.connect(whActx.destination);[40,80,120,160].forEach(function(f,i){var o=whActx.createOscillator(),g=whActx.createGain();o.connect(g);g.connect(whMaster);o.type='sine';o.frequency.value=f;g.gain.value=i===0?.06:i===1?.04:.02;o.start();whDrones.push({o:o,g:g});});whSoundOn=true;whMaster.gain.linearRampToValueAtTime(1,whActx.currentTime+2);}
+function whPhTone(n){if(!whActx||!whSoundOn)return;var sets=[[55,110,165,220],[220,277,330,440],[174,220,261,348],[528,660,792,1056]];sets[Math.min(n,3)].forEach(function(f,i){var o=whActx.createOscillator(),g=whActx.createGain();o.connect(g);g.connect(whMaster);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,whActx.currentTime);g.gain.linearRampToValueAtTime(.04-i*.008,whActx.currentTime+.06);g.gain.exponentialRampToValueAtTime(.001,whActx.currentTime+2+i*.3);o.start();o.stop(whActx.currentTime+2.5+i*.3);});}
+function whClickTone(){if(!whActx||!whSoundOn)return;[440,660].forEach(function(f,i){var o=whActx.createOscillator(),g=whActx.createGain();o.connect(g);g.connect(whMaster);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,whActx.currentTime+i*.04);g.gain.linearRampToValueAtTime(.035,whActx.currentTime+i*.04+.03);g.gain.exponentialRampToValueAtTime(.001,whActx.currentTime+i*.04+.4);o.start(whActx.currentTime+i*.04);o.stop(whActx.currentTime+i*.04+.5);});}
+function whFlash(color){var el=document.getElementById('wh-flash');el.style.background=color;el.style.transition='none';el.style.opacity='.2';setTimeout(function(){el.style.transition='opacity 400ms ease';el.style.opacity='0';},50);}
+
+var whCanvas=document.getElementById('wh-canvas');
+var whScene=new THREE.Scene();
+var whCam=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,3000);
+var whRen=new THREE.WebGLRenderer({canvas:whCanvas,antialias:true,alpha:false});
+var _vw=getVW(),_vh=getVH();
+whRen.setSize(_vw,_vh);whRen.setPixelRatio(Math.min(devicePixelRatio,isMobile?1.5:2));
+whCam.position.z=800;
+var isMob=isMobile;
+
+// 光の筋
+var SK=isMob?600:1500;
+var sGeo=new THREE.BufferGeometry();
+var sPos=new Float32Array(SK*6),sCol=new Float32Array(SK*6),sVel=new Float32Array(SK);
+for(var i=0;i<SK;i++){var a=Math.random()*Math.PI*2,r=Math.random()*115,x=Math.cos(a)*r,y=Math.sin(a)*r,z=(Math.random()-.5)*1600,len=15+Math.random()*60;sPos[i*6]=x;sPos[i*6+1]=y;sPos[i*6+2]=z;sPos[i*6+3]=x;sPos[i*6+4]=y;sPos[i*6+5]=z+len;sVel[i]=4+Math.random()*14;var c=Math.random()>.3;if(c){sCol[i*6]=0;sCol[i*6+1]=.8;sCol[i*6+2]=1;sCol[i*6+3]=0;sCol[i*6+4]=.2;sCol[i*6+5]=.4;}else{sCol[i*6]=1;sCol[i*6+1]=.7;sCol[i*6+2]=0;sCol[i*6+3]=.4;sCol[i*6+4]=.25;sCol[i*6+5]=0;}}
+sGeo.setAttribute('position',new THREE.BufferAttribute(sPos,3));sGeo.setAttribute('color',new THREE.BufferAttribute(sCol,3));
+var sMat=new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:.65});
+var whStreaks=new THREE.LineSegments(sGeo,sMat);whScene.add(whStreaks);
+
+// パーティクル
+var N=isMob?1500:4000;
+var pGeo=new THREE.BufferGeometry();
+var pPos=new Float32Array(N*3),pCol=new Float32Array(N*3),pVel=new Float32Array(N);
+for(var i=0;i<N;i++){var ring=Math.random()>.35,a2=Math.random()*Math.PI*2,r2=ring?(90+Math.random()*50):Math.random()*85;pPos[i*3]=Math.cos(a2)*r2;pPos[i*3+1]=Math.sin(a2)*r2;pPos[i*3+2]=(Math.random()-.5)*1600;pVel[i]=2+Math.random()*8;var c2=Math.random()>.3;if(c2){pCol[i*3]=0;pCol[i*3+1]=.5+Math.random()*.5;pCol[i*3+2]=1;}else{pCol[i*3]=1;pCol[i*3+1]=.6+Math.random()*.3;pCol[i*3+2]=0;}}
+pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));pGeo.setAttribute('color',new THREE.BufferAttribute(pCol,3));
+var pMat=new THREE.PointsMaterial({size:1.4,vertexColors:true,transparent:true,opacity:.4,sizeAttenuation:true});
+var whPts=new THREE.Points(pGeo,pMat);whScene.add(whPts);
+
+// リング
+var whRings=[];
+for(var i=0;i<20;i++){var rg=new THREE.TorusGeometry(115+i*4,.5,6,80),rm=new THREE.MeshBasicMaterial({color:i%3===0?0xC8960A:0x00AACC,transparent:true,opacity:.04+i*.003}),rmesh=new THREE.Mesh(rg,rm);rmesh.position.z=-800+i*80;whScene.add(rmesh);whRings.push({mesh:rmesh,i:i});}
+
+var cg=new THREE.SphereGeometry(10,16,16),cm2=new THREE.MeshBasicMaterial({color:0x00EEFF,transparent:true,opacity:.9}),whCore=new THREE.Mesh(cg,cm2);whCore.position.z=-600;whScene.add(whCore);
+
+// テッセラクト
+var wv4=[];for(var i=0;i<16;i++)wv4.push([(i&1)?1:-1,(i&2)?1:-1,(i&4)?1:-1,(i&8)?1:-1]);
+var weg=[];for(var i=0;i<16;i++)for(var j=i+1;j<16;j++){var d=i^j;if(d&&(d&(d-1))===0)weg.push([i,j]);}
+function whProj4(v,wa,xa){var x=v[0],y=v[1],z=v[2],w=v[3],nx=x*Math.cos(xa)-w*Math.sin(xa),nw=x*Math.sin(xa)+w*Math.cos(xa);x=nx;w=nw;var ny=y*Math.cos(wa)-w*Math.sin(wa),nw2=y*Math.sin(wa)+w*Math.cos(wa);y=ny;w=nw2;var s=2.8/(2.8-w*.3);return new THREE.Vector3(x*s*32,y*s*32,z*s*32);}
+var whTE=[];weg.forEach(function(e,i){var tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.BufferAttribute(new Float32Array(6),3));var isG=i%5===0||i%7===0,tm=new THREE.LineBasicMaterial({color:isG?0xF0C030:0x00CCEE,transparent:true,opacity:isG?.45:.28}),tl=new THREE.Line(tg,tm);tl.position.z=-180;whScene.add(tl);whTE.push({l:tl,g:tg,e:e,isG:isG});});
+var whTV=[];for(var i=0;i<16;i++){var tvm=new THREE.MeshBasicMaterial({color:i%3===0?0xF0C030:0x00CCEE,transparent:true,opacity:.75}),tvs=new THREE.Mesh(new THREE.SphereGeometry(2.2,6,6),tvm);tvs.position.z=-180;whScene.add(tvs);whTV.push(tvs);}
+
+// スクロール制御
+var whSp=0,whCp=0;
+var whSection=document.getElementById('wh-section');
+var whPhs=[document.getElementById('wh-ph0'),document.getElementById('wh-ph1'),document.getElementById('wh-ph2'),document.getElementById('wh-ph3'),document.getElementById('wh-ph4')];
+var whDone=new Array(5).fill(false);
+
+function whCu(el,t,sfx,dur){var s=Date.now();(function tick(){var p=Math.min((Date.now()-s)/dur,1),e=1-Math.pow(1-p,4);el.textContent=Math.floor(e*t)+sfx;if(p<1)requestAnimationFrame(tick);})();}
+
+var whTestimony='「床下に潜ったとき、息が止まった。\n基礎に人が通れるほどの穴が、\nいくつも開けられていた。\n家を守るはずの基礎が、壊されていた。」';
+var whTypeTimer=null;
+function whStartType(){if(whDone[3])return;whDone[3]=true;var el=document.getElementById('wh-q');el.innerHTML='<span class="wh-cur"></span>';var idx=0;whTypeTimer=setInterval(function(){if(idx<whTestimony.length){var ch=whTestimony[idx],cur=el.querySelector('.wh-cur');if(ch==='\n'){cur.before(document.createElement('br'));}else{var sp=document.createElement('span');sp.textContent=ch;if(ch==='壊'||ch==='穴')sp.style.color='#E02030';cur.before(sp);}idx++;}else{clearInterval(whTypeTimer);document.getElementById('wh-by').classList.add('wh-show');whCu(document.getElementById('wh-s1'),18,'%',1400);whCu(document.getElementById('wh-s2'),500,'件+',1800);whCu(document.getElementById('wh-s3'),30,'年',1200);}},40);}
+
+// スティッキー高さを動的設定（iOS対応）
+function whSetHeight(){
+  var h=window.innerHeight;
+  document.getElementById('wh-sticky').style.height=h+'px';
+}
+whSetHeight();
+window.addEventListener('resize',whSetHeight);
+window.addEventListener('orientationchange',function(){setTimeout(whSetHeight,300);});
+
+var whScrollStarted=false;
+function whOnScroll(){
+  if(!whScrollStarted){whScrollStarted=true;if(!isMobile)whInitAudio();}
+  // iOSのアドレスバー問題を回避：getBoundingClientRectで正確に計算
+  var rect=whSection.getBoundingClientRect();
+  var sectionH=whSection.offsetHeight;
+  var viewH=window.innerHeight;
+  var sH=Math.max(1, sectionH - viewH);
+  var scrolled=Math.max(0, window.scrollY - whSection.offsetTop);
+  whSp=Math.min(1, scrolled/sH);var shint=document.getElementById('wh-shint');if(shint)shint.style.opacity=whSp>.04?'0':'1';var np=0;if(whSp>.82)np=4;else if(whSp>.60)np=3;else if(whSp>.36)np=2;else if(whSp>.15)np=1;if(np!==whCp){whPhs[whCp].classList.remove('wh-on');whPhs[np].classList.add('wh-on');whCp=np;whPhTone(np);var fc=['rgba(0,200,240,1)','rgba(224,32,48,1)','rgba(0,200,240,1)','rgba(200,150,10,1)','rgba(240,192,48,1)'];whFlash(fc[np]||fc[0]);if(np===1&&!whDone[1]){whDone[1]=true;whCu(document.getElementById('wh-f1n'),130,'',1800);}if(np===3&&!whDone[2]){whDone[2]=true;whStartType();}}}
+window.addEventListener('scroll',whOnScroll,{passive:true});
+whOnScroll();
+
+// ヒーローカウンター
+(function(){var el=document.getElementById('wh-hloss');if(!el)return;var s=Date.now();(function t(){var p=Math.min((Date.now()-s)/2000,1),e=1-Math.pow(1-p,4);el.textContent=Math.floor(e*130);if(p<1)requestAnimationFrame(t);})();})();
+
+// 選択肢
+var whRs={a:'その感覚は正しいかもしれません。見積書をお送りいただければ、2営業日以内に「高い項目・適正価格・交渉文言」をPDFでお届けします。¥55,000税込。',b:'今すぐ確認が必要です。追加費用の妥当性を24時間以内に判定。¥33,000税込。',c:'まだ諦めないでください。交渉材料になる専門家レポートを作成します。まずご相談ください。',d:'正しい判断です。工事前に相場を知ることが最大の防御。無料AI診断から始めてください。'};
+function whPick(btn,t){whClickTone();whFlash('rgba(0,200,240,1)');document.getElementById('wh-atxt').textContent=whRs[t];document.getElementById('wh-ans').classList.add('wh-show');document.querySelectorAll('.wh-cd').forEach(function(b){b.style.opacity='.3';});btn.style.opacity='1';btn.style.borderColor='rgba(0,200,240,.8)';btn.style.background='rgba(0,200,240,.07)';}
+
+var whMT={x:0,y:0},whMC={x:0,y:0};
+document.addEventListener('mousemove',function(e){whMT.x=(e.clientX/innerWidth-.5)*.5;whMT.y=-(e.clientY/innerHeight-.5)*.5;});
+
+var whTime=0;
+function whLoop(){requestAnimationFrame(whLoop);whTime+=.007;whMC.x+=(whMT.x-whMC.x)*.04;whMC.y+=(whMT.y-whMC.y)*.04;
+whCam.position.z=800-whSp*1500;whCam.position.x=whMC.x*90*(1-whSp*.5);whCam.position.y=whMC.y*90*(1-whSp*.5);whCam.rotation.z=whTime*.012;
+var camZ=whCam.position.z,sm=1+whSp*6,spArr=sGeo.attributes.position.array;
+for(var i=0;i<SK;i++){var v=sVel[i]*sm;spArr[i*6+2]+=v;spArr[i*6+5]+=v;if(spArr[i*6+2]>camZ+300){spArr[i*6+2]=camZ-1600;spArr[i*6+5]=spArr[i*6+2]+(15+Math.random()*60*(1+whSp*2));}}
+sGeo.attributes.position.needsUpdate=true;whStreaks.rotation.z=whTime*.07+whSp*Math.PI*.6;sMat.opacity=.5+whSp*.35;
+var pArr=pGeo.attributes.position.array;for(var i=0;i<N;i++){pArr[i*3+2]+=pVel[i]*sm;if(pArr[i*3+2]>camZ+200)pArr[i*3+2]=camZ-1600;}
+pGeo.attributes.position.needsUpdate=true;whPts.rotation.z=whTime*.05+whSp*Math.PI*.4;pMat.opacity=.25+whSp*.22;pMat.size=1.4+whSp*1.5;
+whRings.forEach(function(r){r.mesh.rotation.z=whTime*(.04+r.i*.007)*(r.i%2?1:-1);r.mesh.material.opacity=.03+whSp*.07;});
+var pulse=1+Math.sin(whTime*1.8)*.4;whCore.scale.setScalar(pulse*(1+whSp*3.5));cm2.opacity=.6+whSp*.35;
+var wa=whTime*(.28+whSp*.35),xa=whTime*(.2+whSp*.25),wv3=wv4.map(function(v){return whProj4(v,wa,xa);});
+whTE.forEach(function(t){var p=t.g.attributes.position.array;p[0]=wv3[t.e[0]].x;p[1]=wv3[t.e[0]].y;p[2]=wv3[t.e[0]].z;p[3]=wv3[t.e[1]].x;p[4]=wv3[t.e[1]].y;p[5]=wv3[t.e[1]].z;t.g.attributes.position.needsUpdate=true;t.l.material.opacity=(t.isG?.38:.22)*(1-whSp*.5);});
+whTV.forEach(function(s,i){s.position.x=wv3[i].x;s.position.y=wv3[i].y;s.position.z=wv3[i].z-180;s.material.opacity=(.6+Math.sin(whTime*2+i)*.2)*(1-whSp*.5);});
+if(whActx&&whSoundOn){whDrones.forEach(function(d,i){d.o.frequency.value=(40+i*40)*(1+whSp*.4)+Math.sin(whTime*.3)*5;});}
+whRen.render(whScene,whCam);}
+whLoop();
+window.addEventListener('resize',function(){
+  var vw=getVW(),vh=getVH();
+  whCam.aspect=vw/vh;whCam.updateProjectionMatrix();
+  whRen.setSize(vw,vh);
+});
+// orientationchange対応
+window.addEventListener('orientationchange',function(){
+  setTimeout(function(){
+    var vw=getVW(),vh=getVH();
+    whCam.aspect=vw/vh;whCam.updateProjectionMatrix();
+    whRen.setSize(vw,vh);
+  },300);
+});
+  // グローバルに公開
+  window._whToggle=function(){
+    var btn=document.getElementById('wh-sound-btn');
+    if(!whAudioStarted){
+      whInitAudio();
+      if(btn){btn.textContent='🔊 音ON';btn.classList.add('active');}
+    } else if(whSoundOn){
+      whSoundOn=false;
+      if(whMaster)whMaster.gain.linearRampToValueAtTime(0,whActx.currentTime+.5);
+      if(btn){btn.textContent='🔇 音をONにする';btn.classList.remove('active');}
+    } else {
+      whSoundOn=true;
+      if(whMaster)whMaster.gain.linearRampToValueAtTime(1,whActx.currentTime+.5);
+      if(btn){btn.textContent='🔊 音ON';btn.classList.add('active');}
+    }
+  };
+})();
+</script>
+
+<script>
+function hsKiraOpen(){var o=document.getElementById('kira-overlay');o.classList.add('open');var m=document.getElementById('kira-msgs');if(m&&m.children.length===0){var a=document.createElement('div');a.className='k-msg ai';a.innerHTML='<div class="k-bubble">こんにちは。HORIZON SHIELDのKIRAです。<br>見積書の疑問・訪問工事業者への対策・サービス案内まで何でもお聞きします。</div>';m.appendChild(a);}}
+function hsKiraClose(){document.getElementById('kira-overlay').classList.remove('open');}
+function hsKiraToggle(){var o=document.getElementById('kira-overlay');if(o.classList.contains('open')){hsKiraClose();}else{hsKiraOpen();}}
+function closeKiraOutside(e){if(e.target===document.getElementById('kira-overlay'))hsKiraClose();}
+var kiraMsgs=[],kiraLoading=false,kiraAttached=null;
+var KIRA_SYSTEM=`あなたはKIRA（Horizon AI Negotiation Agent）です。HORIZON SHIELDの専属AI営業スタッフ。大工歴30年の大賀俊勝監修。  【あなたの役割】 施主の不安や悩みを親身に聞き、信頼を得て、最終的にHORIZON SHIELDのサービス（¥55,000の建設費診断）へ自然に誘導する。  【接客の流れ】 ①まず相手の悩みに共感する「その感覚、正しいかもしれません」 ②専門家としての一言で権威を示す ③見積書があれば「クリップアイコンから送ってください」と促す ④見積書がなくても相談に乗り、不安を解消しながら診断へ誘導 ⑤最後は必ずサービスURLへ誘導：https://shield.the-horizons-innovation.com  【絶対に守るルール】 ・見積書画像があれば診断結果の概算を1項目だけ伝える（全部は言わない） ・詳細は「¥55,000の正式診断で」と誘導 ・200文字以内で返答 ・プレーンテキストのみ（HTMLタグ不使用） ・施主の味方として、業者批判ではなく「情報格差の解消」という立場  【適正価格DB（30坪・東京標準）】 外壁塗装：170〜220万／屋根塗装：65〜100万／足場：22〜28万※45万超は過剰 高圧洗浄：2〜5万※12万超は過剰／シーリング：6〜10万※18万超は過剰 床下換気扇10台：15〜22万※50万超は詐欺まがい シロアリ防除：15〜25万※80万超は詐欺まがい タックダイン15坪：12〜18万※50万超は詐欺まがい フローリング：35〜60万／クロス全室：30〜55万 キッチン：80〜200万／バス：70〜180万／トイレ：20〜50万  【地域別補正】 東京都心×1.30／横浜川崎×1.15／神奈川埼玉千葉×1.10／大阪京都神戸×1.08／名古屋×1.02／福岡広島仙台札幌×0.95／地方×0.88／農村×0.82あなたはKIRA。絶対ルール：ユーザーから見積書の画像が送られてきていない場合は「見積書の画像をクリップアイコンから添付してください。画像なしでの診断はできません。」とだけ返す。それ以外は何も言わない。画像が添付されている場合のみ以下の診断を行う。
+
+【最重要戦略：煙に巻く診断】
+見積書を分析した場合：
+①全項目を内部で完璧に分析する（全てわかっていても絶対に全部見せない）
+②表に出すのは「1項目のみ」または「全体削減可能額の概算（幅で表現）」のみ
+③例：「この見積書、全体で約XX〜XX万円削減できる可能性があります。1点だけお伝えすると〇〇が気になります」
+④「詳細な全項目診断は¥55,000の正式診断で」と必ず誘導
+⑤「全部教えてほしい」と言われても「正確な数字と交渉文は専門家診断でしかお出しできません」と断る
+
+【地域別価格補正係数】
+東京都心（千代田・中央・港・渋谷・新宿）：×1.30
+東京その他・横浜市・川崎市：×1.15
+神奈川（横浜川崎以外）・埼玉・千葉・茨城・群馬・栃木：×1.10
+大阪市内・京都市内・神戸市内：×1.08
+名古屋・愛知：×1.02
+福岡市・広島市・仙台市・札幌市：×0.95
+地方都市（人口10万以下）：×0.88
+農村・山間部：×0.82
+沖縄：×1.05
+北海道（札幌除く）：×1.10
+
+【適正価格DB（30坪・東京標準）】
+■外装
+外壁塗装全体（30坪）：170〜220万
+屋根塗装（30坪）：65〜100万
+足場仮設（30坪）：22〜28万 ※45万超は過剰
+高圧洗浄：2〜5万 ※12万超は過剰
+シーリング打替え：6〜10万 ※18万超は過剰
+外壁張替え（窯業系・30坪）：200〜320万
+■床下・シロアリ
+床下換気扇10台：15〜22万 ※50万超は詐欺まがい
+シロアリ防除（30坪）：15〜25万 ※80万超は詐欺まがい
+床下調湿材（30坪）：10〜18万
+タックダイン・防腐防蟻（15坪）：12〜18万 ※50万超は詐欺まがい
+■内装
+フローリング張替え（LDK20畳）：35〜60万
+クロス張替え（全室）：30〜55万
+キッチンリフォーム：80〜200万
+バスルームリフォーム：70〜180万
+トイレリフォーム：20〜50万
+■設備
+エアコン（機器＋工事）：15〜35万
+給湯器交換：15〜30万
+IHクッキングヒーター：15〜25万
+■「一式」表記は要注意：施主が確認できないよう隠す業界の隠語
+
+【悪質手口パターン】
+タックダイン詐欺・床下換気扇詐欺・一式水増し・緊急工事詐欺・訪問販売・相見積もり工作
+
+【回答スタイル】
+・一文が短く、余韻を残す
+・「その感覚、正しいです」を有効活用
+・削減額は「約XX〜XX万円」の幅で（正確な数字は有料のみ）
+・200文字以内
+・最後は必ず https://shield.the-horizons-innovation.com へ誘導
+・プレーンテキスト（HTMLタグ不使用）`;
+function kiraAttachFile(inp){var f=inp.files[0];if(!f)return;var lbl=document.querySelector('label[for="kira-file-input"]');var reader=new FileReader();reader.onload=function(e){kiraAttached={data:e.target.result.split(',')[1],type:f.type,name:f.name};lbl.style.borderColor='var(--gold2)';lbl.title=f.name+'を添付済み';var msgs=document.getElementById('kira-msgs');var n=document.createElement('div');n.className='k-msg user';n.innerHTML='<div class="k-bubble" style="font-size:11px;color:var(--gold2)">📎 '+f.name+'を添付しました</div>';msgs.appendChild(n);msgs.scrollTop=msgs.scrollHeight;};reader.readAsDataURL(f);}
+function kirasSend(){var inp=document.getElementById('kira-input');var txt=inp.value.trim();if((!txt&&!kiraAttached)||kiraLoading)return;inp.value='';inp.style.height='auto';var msgs=document.getElementById('kira-msgs');if(txt){var u=document.createElement('div');u.className='k-msg user';u.innerHTML='<div class="k-bubble">'+txt+'</div>';msgs.appendChild(u);msgs.scrollTop=msgs.scrollHeight;}var userContent=[];if(kiraAttached){userContent.push({type:'image',source:{type:'base64',media_type:kiraAttached.type,data:kiraAttached.data}});userContent.push({type:'text',text:(txt||'この見積書を診断してください')});kiraAttached=null;document.getElementById('kira-file-input').value='';var lbl=document.querySelector('label[for="kira-file-input"]');if(lbl){lbl.style.borderColor='var(--border)';lbl.title='見積書を添付';}}else{userContent=[{type:'text',text:txt}];}kiraMsgs.push({role:'user',content:userContent});var typ=document.createElement('div');typ.className='k-msg ai';typ.id='kira-t';typ.innerHTML='<div class="k-bubble"><span class="kira-typing"><span></span><span></span><span></span></span></div>';msgs.appendChild(typ);msgs.scrollTop=msgs.scrollHeight;kiraLoading=true;document.getElementById('kira-send-btn').disabled=true;fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'🔔 KIRAに相談が来ました！\n「'+(txt||'見積書画像')+'」\n→今すぐフォローを！\nhttps://shield.the-horizons-innovation.com'})}).catch(function(){});fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/anthropic',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-3-haiku-20240307',max_tokens:600,system:KIRA_SYSTEM,messages:kiraMsgs.slice(-10)})}).then(function(r){return r.json();}).then(function(d){var t=document.getElementById('kira-t');if(t)t.remove();var rep=d.content&&d.content[0]?d.content[0].text:'エラーが発生しました。';kiraMsgs.push({role:'assistant',content:rep});var a=document.createElement('div');a.className='k-msg ai';a.innerHTML='<div class="k-bubble">'+rep.replace(/\n/g,'<br>')+'</div>';msgs.appendChild(a);msgs.scrollTop=msgs.scrollHeight;var qr=document.getElementById('kira-qr');qr.innerHTML='';['詳しく診断してほしい','¥55,000の診断を申し込む','LINEで相談したい','他の箇所も確認したい'].forEach(function(t){var b=document.createElement('button');b.className='kira-qr-btn';b.textContent=t;b.onclick=function(){document.getElementById('kira-input').value=t;kirasSend();};qr.appendChild(b);});kiraLoading=false;document.getElementById('kira-send-btn').disabled=false;}).catch(function(){var t=document.getElementById('kira-t');if(t)t.remove();kiraLoading=false;document.getElementById('kira-send-btn').disabled=false;});}
+var demoHist=[];
+function demoSend(){var inp=document.getElementById('demo-input');var txt=inp.value.trim();if(!txt)return;inp.value='';var msgs=document.getElementById('demo-msgs');var u=document.createElement('div');u.className='demo-msg user';u.innerHTML='<div class="demo-label">あなた</div><div class="demo-bubble">'+txt+'</div>';msgs.appendChild(u);msgs.scrollTop=msgs.scrollHeight;demoHist.push({role:'user',content:txt});var typ=document.createElement('div');typ.className='demo-msg ai';typ.id='demo-t';typ.innerHTML='<div class="demo-label">KIRA</div><div class="demo-bubble"><span class="kira-typing"><span></span><span></span><span></span></span></div>';msgs.appendChild(typ);msgs.scrollTop=msgs.scrollHeight;fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/anthropic',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-3-haiku-20240307',max_tokens:400,system:'建設費診断AIのKIRAです。200文字以内で回答。',messages:demoHist.slice(-6)})}).then(function(r){return r.json();}).then(function(d){var t=document.getElementById('demo-t');if(t)t.remove();var rep=d.content&&d.content[0]?d.content[0].text:'エラー';demoHist.push({role:'assistant',content:rep});var a=document.createElement('div');a.className='demo-msg ai';a.innerHTML='<div class="demo-label">KIRA</div><div class="demo-bubble">'+rep.replace(/\n/g,'<br>')+'</div>';msgs.appendChild(a);msgs.scrollTop=msgs.scrollHeight;}).catch(function(){var t=document.getElementById('demo-t');if(t)t.remove();});}
+function diagNext1(){var n=document.getElementById('diag-name').value.trim();var e=document.getElementById('diag-email').value.trim();if(!n||!e){alert('お名前とメールアドレスを入力してください');return;}document.getElementById('diag-step1').style.display='none';document.getElementById('diag-step2').style.display='block';}
+function diagBack1(){document.getElementById('diag-step2').style.display='none';document.getElementById('diag-step1').style.display='block';}
+function diagFileSelected(inp){var f=inp.files[0];if(!f)return;document.getElementById('diag-submit-btn').disabled=false;document.getElementById('diag-file-name').textContent=f.name;if(f.type.startsWith('image/')){var r=new FileReader();r.onload=function(e){document.getElementById('diag-preview-img').src=e.target.result;document.getElementById('diag-preview').style.display='block';};r.readAsDataURL(f);}}
+function diagSubmit(){var name=document.getElementById('diag-name').value.trim();var file=document.getElementById('diag-file').files[0];if(!file)return;document.getElementById('diag-step2').style.display='none';document.getElementById('diag-step3').style.display='block';var reader=new FileReader();reader.onload=function(e){var b64=e.target.result.split(',')[1];fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/anthropic',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-3-haiku-20240307',max_tokens:800,system:'見積書診断。削減概算と1問題点のみ。JSON: {"saving":"約XX〜XX万円","rate":"XX%前後","items":["項目1"],"summary":"一言","message":"施主へのメッセージ"}',messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type,data:b64}},{type:'text',text:'この見積書を診断してください。施主名:'+name}]}]})}).then(function(r){return r.json();}).then(function(d){var txt=d.content&&d.content[0]?d.content[0].text:'{}';try{var obj=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('diag-step3').style.display='none';document.getElementById('diag-step4').style.display='block';document.getElementById('diag-saving-text').textContent=obj.saving||'診断完了';document.getElementById('diag-rate-text').textContent=obj.rate||'';var ic=document.getElementById('diag-items');ic.innerHTML='';(obj.items||[]).forEach(function(it){var s=document.createElement('span');s.textContent=it;s.style.cssText='background:rgba(255,48,64,.1);border:1px solid rgba(255,48,64,.3);padding:4px 10px;font-size:11px;color:var(--red);margin:2px;display:inline-block';ic.appendChild(s);});document.getElementById('diag-summary').textContent=obj.summary||'';document.getElementById('diag-message').innerHTML='<span style="color:var(--cyan);font-size:11px;display:block;margin-bottom:4px">大賀 俊勝 より</span>'+(obj.message||'');}catch(ex){document.getElementById('diag-step3').style.display='none';document.getElementById('diag-error').style.display='block';document.getElementById('diag-error').textContent='診断中にエラーが発生しました。';}}).catch(function(){document.getElementById('diag-step3').style.display='none';document.getElementById('diag-error').style.display='block';document.getElementById('diag-error').textContent='通信エラーが発生しました。';});};reader.readAsDataURL(file);}
+function shareToX(){window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent('見積書のAI診断をしたら削減できる可能性が判明！\nhttps://shield.the-horizons-innovation.com\n#見積書診断 #リフォーム'),'_blank');}
+function shareToLine(){window.open('https://line.me/R/share?text='+encodeURIComponent('見積書AI診断 https://shield.the-horizons-innovation.com'),'_blank');}
+function shareToOC(){window.open('https://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ','_blank');}
+function openPayjp(amt,title){document.getElementById('pj-title').textContent=title;document.getElementById('pj-price').textContent='¥'+amt.toLocaleString()+'（税込）';document.getElementById('bank-overlay').style.display='flex';}
+function closePayjp(){document.getElementById('bank-overlay').style.display='none';}
+document.querySelectorAll('.faq-head').forEach(function(h){h.addEventListener('click',function(){this.parentElement.classList.toggle('open');});});
+var revEls=document.querySelectorAll('.reveal');
+var revObs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}});},{threshold:.1});
+revEls.forEach(function(el){el.style.opacity='0';el.style.transform='translateY(24px)';revObs.observe(el);});
+</script>
+</body>
+</html>
