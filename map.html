@@ -7,7 +7,7 @@ layout: null
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>リフォームぼったくり被害マップ｜全国版 | HORIZON SHIELD</title>
-<meta name="description" content="全国47都道府県のリフォームトラブル相談件数を可視化。国民生活センター・住宅リフォーム紛争処理支援センター公式データ使用。">
+<meta name="description" content="全国47都道府県のリフォームトラブル相談件数を可視化。国民生活センター公式データ使用。">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
@@ -16,172 +16,250 @@ layout: null
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#030508;--surface:#0a0e14;--border:#1a2030;
-  --accent:#00e5ff;--danger:#ff3d3d;--warn:#ffb800;
+  --accent:#00e5ff;--danger:#ff3d3d;--warn:#ffb800;--green:#00c853;
   --text:#e8edf5;--muted:#5a6a7a;--header-h:56px;
 }
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;padding-top:var(--header-h)}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;display:flex;flex-direction:column}
+
+/* HEADER */
 #header{
-  position:fixed;top:0;left:0;right:0;z-index:1000;height:var(--header-h);
-  background:rgba(3,5,8,0.95);backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--border);
+  flex-shrink:0;height:var(--header-h);
+  background:rgba(3,5,8,0.97);border-bottom:1px solid var(--border);
   display:flex;align-items:center;justify-content:space-between;padding:0 16px;
+  z-index:1000;
 }
 .logo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--accent);text-decoration:none}
 .logo span{color:var(--danger)}
-.back-link{font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:1px}
+.back-link{font-size:11px;color:var(--muted);text-decoration:none}
 .back-link:hover{color:var(--text)}
 
-/* HERO */
-.hero{padding:32px 16px 16px;text-align:center;
-  background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(255,61,61,0.08) 0%,transparent 70%)}
-.hero-tag{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--danger);letter-spacing:3px;margin-bottom:8px}
-.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,7vw,48px);letter-spacing:2px;line-height:1;margin-bottom:8px}
-.hero h1 em{color:var(--danger);font-style:normal}
-.hero-sub{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:16px}
+/* TAB BAR */
+#tab-bar{
+  flex-shrink:0;display:flex;background:var(--surface);
+  border-bottom:1px solid var(--border);
+}
+.tab{
+  flex:1;padding:12px 4px;text-align:center;font-size:11px;font-weight:700;
+  color:var(--muted);cursor:pointer;letter-spacing:.5px;
+  border-bottom:2px solid transparent;transition:all .2s;
+  font-family:'Share Tech Mono',monospace;
+}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab:hover{color:var(--text)}
 
-/* STATS BAR */
-.stats-bar{
-  display:flex;overflow-x:auto;gap:8px;padding:0 16px 16px;
-  scrollbar-width:none;
+/* SCREENS */
+#screens{flex:1;overflow:hidden;position:relative}
+.screen{
+  position:absolute;inset:0;overflow-y:auto;
+  transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);
+  -webkit-overflow-scrolling:touch;
 }
-.stats-bar::-webkit-scrollbar{display:none}
-.stat-card{
-  flex-shrink:0;background:var(--surface);border:1px solid var(--border);
-  border-radius:6px;padding:12px 16px;min-width:120px;
-}
-.stat-card.hot{border-color:rgba(255,61,61,0.4)}
-.stat-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--danger);line-height:1}
-.stat-num.warn{color:var(--warn)}
-.stat-num.accent{color:var(--accent)}
-.stat-label{font-size:10px;color:var(--muted);margin-top:2px}
+.screen.active{transform:translateX(0)}
+.screen.left{transform:translateX(-100%)}
 
-/* ADDRESS SEARCH */
-.search-area{padding:0 16px 16px}
-.search-box{
-  display:flex;gap:8px;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:6px;padding:8px;
+/* ── SCREEN 1: DONATION ── */
+#screen-donate{
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%,rgba(0,200,83,0.12) 0%,transparent 60%),
+    var(--bg);
 }
+.donate-hero{padding:32px 20px 24px;text-align:center}
+.donate-tag{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);letter-spacing:3px;margin-bottom:12px}
+.donate-h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,9vw,56px);line-height:.95;margin-bottom:12px}
+.donate-h1 em{color:var(--green);font-style:normal}
+.donate-h1 span{color:var(--accent)}
+.donate-sub{font-size:13px;color:var(--muted);line-height:1.8;max-width:320px;margin:0 auto}
+
+/* LIVE COUNTERS */
+.counters{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 20px}
+.counter-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:16px;text-align:center;position:relative;overflow:hidden;
+}
+.counter-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 60%,rgba(0,200,83,0.05));
+}
+.counter-card.red::before{background:linear-gradient(135deg,transparent 60%,rgba(255,61,61,0.05))}
+.counter-card.blue::before{background:linear-gradient(135deg,transparent 60%,rgba(0,229,255,0.05))}
+.c-num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--green);line-height:1}
+.c-num.red{color:var(--danger)}
+.c-num.blue{color:var(--accent)}
+.c-num.warn{color:var(--warn)}
+.c-label{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.4}
+.c-source{font-size:9px;color:var(--border);margin-top:2px}
+
+/* TICKER */
+.ticker-wrap{
+  background:rgba(0,200,83,0.08);border-top:1px solid rgba(0,200,83,0.2);
+  border-bottom:1px solid rgba(0,200,83,0.2);
+  padding:10px 0;overflow:hidden;margin-bottom:20px;
+}
+.ticker{display:flex;gap:0;white-space:nowrap;animation:ticker 20s linear infinite}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ticker-item{
+  padding:0 32px;font-size:12px;font-family:'Share Tech Mono',monospace;
+  color:var(--green);letter-spacing:1px;
+}
+.ticker-item span{color:var(--text)}
+
+/* MISSION STATEMENT */
+.mission{padding:0 16px 20px}
+.mission-card{
+  background:var(--surface);border:1px solid rgba(0,200,83,0.3);
+  border-radius:8px;padding:20px;
+}
+.mission-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--green);margin-bottom:12px}
+.mission-text{font-size:13px;line-height:1.9;color:var(--muted)}
+.mission-text strong{color:var(--text)}
+
+/* DONATION OPTIONS */
+.donate-options{padding:0 16px 20px}
+.donate-title{font-family:'Bebas Neue',sans-serif;font-size:24px;margin-bottom:12px}
+.donate-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.donate-btn{
+  padding:16px 8px;background:var(--surface);border:1px solid var(--border);
+  border-radius:6px;text-align:center;cursor:pointer;transition:all .2s;
+  text-decoration:none;display:block;
+}
+.donate-btn:hover,.donate-btn.selected{border-color:var(--green);background:rgba(0,200,83,0.08)}
+.donate-amount{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--green)}
+.donate-desc{font-size:10px;color:var(--muted);margin-top:3px}
+.donate-full{
+  display:block;padding:15px;background:var(--green);color:var(--bg);
+  border-radius:6px;text-align:center;font-weight:900;font-size:15px;
+  text-decoration:none;transition:all .2s;
+}
+.donate-full:hover{background:#00b548;transform:translateY(-1px)}
+.donate-note{font-size:11px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.6}
+
+/* IMPACT TIMELINE */
+.impact{padding:0 16px 24px}
+.impact-title{font-family:'Bebas Neue',sans-serif;font-size:22px;margin-bottom:16px}
+.impact-item{display:flex;gap:12px;margin-bottom:16px}
+.impact-dot{
+  width:32px;height:32px;border-radius:50%;background:var(--surface);
+  border:2px solid var(--green);display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--green);flex-shrink:0;
+}
+.impact-body{flex:1}
+.impact-amount{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--green)}
+.impact-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-top:2px}
+
+/* ── SCREEN 2: MAP ── */
+#screen-map{padding:0}
+.search-area{padding:12px 16px 8px;background:var(--surface);border-bottom:1px solid var(--border)}
+.search-box{display:flex;gap:8px}
 .search-box input{
-  flex:1;background:transparent;border:none;outline:none;
-  color:var(--text);font-size:14px;font-family:'Noto Sans JP',sans-serif;
+  flex:1;background:var(--bg);border:1px solid var(--border);
+  color:var(--text);padding:10px 12px;border-radius:4px;font-size:13px;
+  font-family:'Noto Sans JP',sans-serif;outline:none;
 }
+.search-box input:focus{border-color:var(--accent)}
 .search-box input::placeholder{color:var(--muted)}
 .search-btn{
-  background:var(--danger);color:#fff;border:none;
-  padding:8px 14px;border-radius:4px;font-size:12px;font-weight:700;
-  cursor:pointer;white-space:nowrap;font-family:'Noto Sans JP',sans-serif;
+  background:var(--danger);color:#fff;border:none;padding:10px 14px;
+  border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;
+  font-family:'Noto Sans JP',sans-serif;white-space:nowrap;
 }
 .alert-box{
-  margin-top:8px;padding:12px 14px;border-radius:6px;
+  margin-top:8px;padding:10px 12px;border-radius:4px;
   background:rgba(255,61,61,0.1);border:1px solid rgba(255,61,61,0.3);
-  font-size:13px;display:none;
+  font-size:12px;display:none;
 }
 .alert-box.show{display:block}
-.alert-box strong{color:var(--danger);display:block;font-size:16px;margin-bottom:4px}
-
-/* MAP */
-#map{height:55vw;min-height:280px;max-height:500px;width:100%}
-
-/* LEGEND */
-.legend{
-  padding:12px 16px;display:flex;align-items:center;gap:8px;
-  font-size:11px;color:var(--muted);flex-wrap:wrap;
+.alert-box strong{color:var(--danger);display:block;font-size:14px;margin-bottom:2px}
+#map{height:calc(100vh - 56px - 44px - 80px);min-height:240px}
+.map-legend{
+  padding:8px 16px;background:var(--surface);border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;font-size:10px;color:var(--muted);
+  flex-wrap:wrap;
 }
-.legend-grad{
-  height:12px;width:160px;border-radius:3px;
-  background:linear-gradient(to right,#44ff88,#ffdd00,#ff8800,#ff2020);
-  flex-shrink:0;
-}
+.legend-grad{height:10px;width:120px;border-radius:2px;flex-shrink:0;
+  background:linear-gradient(to right,#44ff88,#ffdd00,#ff8800,#ff2020)}
 
-/* PREFECTURE RANKING */
-.section{padding:16px}
+/* ── SCREEN 3: DATA ── */
+#screen-data{padding:16px}
 .sec-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;margin-bottom:8px}
 .sec-title{font-family:'Bebas Neue',sans-serif;font-size:28px;margin-bottom:16px}
 .sec-title em{color:var(--danger);font-style:normal}
-.pref-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* PREF RANKING */
+.pref-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px}
 .pref-card{
   background:var(--surface);border:1px solid var(--border);
   border-radius:6px;padding:12px;
 }
 .pref-card.top3{border-color:rgba(255,61,61,0.4)}
-.pref-rank{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--muted)}
-.pref-name{font-weight:900;font-size:14px;margin:2px 0}
-.pref-count{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--danger)}
-.pref-bar{height:4px;background:var(--border);border-radius:2px;margin-top:6px}
-.pref-bar-fill{height:100%;border-radius:2px;background:var(--danger);transition:width .5s}
+.pref-rank{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--muted)}
+.pref-name{font-weight:900;font-size:13px;margin:2px 0}
+.pref-count{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--danger)}
+.pref-bar{height:3px;background:var(--border);border-radius:2px;margin-top:6px}
+.pref-bar-fill{height:100%;border-radius:2px;background:var(--danger)}
 
-/* CASES */
-.case-list{display:flex;flex-direction:column;gap:8px}
-.case-card{
+/* WARD DATA (区レベル) */
+.ward-section{margin-bottom:24px}
+.ward-title{font-family:'Bebas Neue',sans-serif;font-size:20px;margin-bottom:10px;color:var(--warn)}
+.ward-list{display:flex;flex-direction:column;gap:6px}
+.ward-item{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:10px 12px;
+}
+.ward-name{font-size:13px;font-weight:700}
+.ward-bar-wrap{flex:1;margin:0 12px;height:4px;background:var(--border);border-radius:2px}
+.ward-bar-fill{height:100%;border-radius:2px;background:var(--warn)}
+.ward-count{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--warn);white-space:nowrap}
+
+/* TECHNIQUES */
+.tech-list{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.tech-card{
   background:var(--surface);border:1px solid var(--border);
   border-left:3px solid var(--danger);border-radius:6px;padding:14px;
 }
-.case-type{font-size:10px;color:var(--warn);letter-spacing:2px;font-family:'Share Tech Mono',monospace;margin-bottom:4px}
-.case-area{font-weight:700;font-size:14px;margin-bottom:8px}
-.case-meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.meta-label{font-size:10px;color:var(--muted)}
-.meta-val{font-size:13px;font-weight:700;margin-top:2px}
-.meta-val.excess{color:var(--danger)}
-
-/* TECHNIQUE CARDS */
-.tech-grid{display:flex;flex-direction:column;gap:8px}
-.tech-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:6px;padding:14px;display:flex;gap:12px;align-items:flex-start;
-}
-.tech-num{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--border);flex-shrink:0;line-height:1}
 .tech-title{font-weight:900;font-size:14px;margin-bottom:4px}
 .tech-body{font-size:12px;color:var(--muted);line-height:1.7}
 .tech-quote{
-  margin-top:8px;padding:8px 12px;
-  background:rgba(255,61,61,0.08);border-left:2px solid var(--danger);
-  font-size:12px;font-style:italic;color:var(--text);
+  margin-top:8px;padding:8px;
+  background:rgba(255,61,61,0.06);
+  font-size:11px;font-style:italic;color:var(--text);border-radius:3px;
 }
 
-/* UGC FORM */
-.ugc-form{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px}
+/* UGC */
+.ugc-form{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:16px}
 .ugc-form select,.ugc-form input,.ugc-form textarea{
   width:100%;background:var(--bg);border:1px solid var(--border);
   color:var(--text);padding:10px 12px;border-radius:4px;font-size:13px;
   font-family:'Noto Sans JP',sans-serif;outline:none;margin-bottom:8px;
-  transition:border-color .2s;
 }
 .ugc-form select:focus,.ugc-form input:focus,.ugc-form textarea:focus{border-color:var(--accent)}
-.ugc-form textarea{height:80px;resize:vertical}
+.ugc-form textarea{height:72px;resize:none}
 .ugc-btn{
   width:100%;padding:13px;background:var(--danger);color:#fff;
   border:none;border-radius:4px;font-weight:900;font-size:14px;
   cursor:pointer;font-family:'Noto Sans JP',sans-serif;
 }
-.ugc-success{
-  text-align:center;padding:20px;font-size:14px;color:var(--accent);display:none;
-}
+.ugc-success{text-align:center;padding:20px;font-size:14px;color:var(--accent);display:none}
 
-/* CTA */
-.cta-section{
-  margin:16px;padding:20px;
-  background:linear-gradient(135deg,rgba(255,61,61,0.12),rgba(0,229,255,0.05));
-  border:1px solid rgba(255,61,61,0.3);border-radius:6px;text-align:center;
+/* CTA BOTTOM */
+.cta-bottom{
+  background:linear-gradient(135deg,rgba(255,61,61,0.1),rgba(0,229,255,0.05));
+  border:1px solid rgba(255,61,61,0.25);border-radius:6px;
+  padding:20px;text-align:center;margin-bottom:80px;
 }
-.cta-title{font-family:'Bebas Neue',sans-serif;font-size:24px;margin-bottom:8px}
-.cta-sub{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.7}
-.cta-btn{
+.cta-bottom-title{font-family:'Bebas Neue',sans-serif;font-size:24px;margin-bottom:8px}
+.cta-bottom-sub{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.7}
+.cta-bottom-btn{
   display:inline-block;background:var(--accent);color:var(--bg);
-  font-weight:900;font-size:14px;padding:14px 24px;border-radius:4px;
-  text-decoration:none;
+  font-weight:900;font-size:14px;padding:13px 24px;border-radius:4px;text-decoration:none;
 }
-
-/* DATA SOURCE */
-.data-source{padding:8px 16px;font-size:10px;color:var(--muted);border-top:1px solid var(--border);line-height:1.7}
-
-/* DIVIDER */
-.div{height:1px;background:var(--border);margin:0 16px}
+.data-source{font-size:10px;color:var(--muted);line-height:1.7;margin-bottom:20px}
 
 /* STICKY CTA */
 .sticky-cta{
   position:fixed;bottom:0;left:0;right:0;z-index:900;
-  padding:10px 16px;background:rgba(3,5,8,0.95);backdrop-filter:blur(12px);
+  padding:10px 16px;background:rgba(3,5,8,0.97);backdrop-filter:blur(12px);
   border-top:1px solid var(--border);display:flex;gap:8px;
 }
 .sticky-cta a{
@@ -194,237 +272,225 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 @media(min-width:640px){
   .sticky-cta{display:none}
   .pref-grid{grid-template-columns:repeat(4,1fr)}
-  #map{height:400px}
-  .stats-bar{justify-content:center}
+  #map{height:calc(100vh - 56px - 44px - 60px)}
+  .counters{grid-template-columns:repeat(4,1fr)}
+  .donate-grid{grid-template-columns:repeat(4,1fr)}
 }
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <header id="header">
   <a href="/" class="logo">HORIZON<span>SHIELD</span></a>
   <a href="/" class="back-link">← LPに戻る</a>
 </header>
 
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-tag">⚠ LIVE DATA // 全国47都道府県</div>
-  <h1>リフォーム<em>ぼったくり</em><br>被害マップ</h1>
-  <p class="hero-sub">国民生活センター・住宅リフォーム紛争処理支援センター公式データに基づく<br>全国のリフォームトラブル相談件数を可視化</p>
+<!-- TAB BAR -->
+<div id="tab-bar">
+  <div class="tab active" onclick="switchTab(0)" id="tab0">💚 守る</div>
+  <div class="tab" onclick="switchTab(1)" id="tab1">🗾 マップ</div>
+  <div class="tab" onclick="switchTab(2)" id="tab2">📊 データ</div>
 </div>
 
-<!-- STATS BAR -->
-<div class="stats-bar">
-  <div class="stat-card hot">
-    <div class="stat-num" id="counter-total">0</div>
-    <div class="stat-label">年間相談件数（全国）</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-num warn">51%</div>
-    <div class="stat-label">関東地方の割合</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-num accent">15〜20%</div>
-    <div class="stat-label">平均過剰請求率</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-num">47%</div>
-    <div class="stat-label">訪問販売によるトラブル</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-num warn">70歳+</div>
-    <div class="stat-label">訪問販売被害の45%</div>
-  </div>
-</div>
+<!-- SCREENS -->
+<div id="screens">
 
-<!-- ADDRESS SEARCH -->
-<div class="search-area">
-  <div class="search-box">
-    <input type="text" id="addr-input" placeholder="都道府県または市区町村を入力（例：横浜市）">
-    <button class="search-btn" onclick="searchArea()">調べる</button>
-  </div>
-  <div class="alert-box" id="alert-box">
-    <strong id="alert-count"></strong>
-    <span id="alert-detail"></span>
-  </div>
-</div>
+  <!-- SCREEN 1: DONATION -->
+  <div class="screen active" id="screen-donate">
 
-<!-- MAP -->
-<div id="map"></div>
-<div class="legend">
-  <div class="legend-grad"></div>
-  <span>相談件数：低 → 高</span>
-  <span style="color:var(--muted);font-size:10px">出典：住宅リフォーム紛争処理支援センター統計年報2024・国民生活センター</span>
-</div>
+    <div class="donate-hero">
+      <div class="donate-tag">// HORIZON SHIELD — IMPACT REPORT</div>
+      <h1 class="donate-h1">
+        あなたが<em>守った</em><br>
+        お金が<span>命</span>を救う
+      </h1>
+      <p class="donate-sub">HORIZON SHIELDで過剰請求から守った金額の一部を、世界の紛争被害者に届けています。</p>
+    </div>
 
-<div class="div"></div>
-
-<!-- PREFECTURE RANKING -->
-<div class="section">
-  <div class="sec-label">// RANKING</div>
-  <div class="sec-title">都道府県別<em>被害</em>ランキング</div>
-  <div class="pref-grid" id="pref-grid"></div>
-</div>
-
-<div class="div"></div>
-
-<!-- REAL CASES -->
-<div class="section">
-  <div class="sec-label">// REAL CASES</div>
-  <div class="sec-title">実際の<em>被害</em>事例</div>
-  <div class="case-list">
-    <div class="case-card">
-      <div class="case-type">床下・シロアリ駆除</div>
-      <div class="case-area">神奈川県 横浜市</div>
-      <div class="case-meta">
-        <div><div class="meta-label">請求額</div><div class="meta-val">¥750,000</div></div>
-        <div><div class="meta-label">適正価格</div><div class="meta-val">¥180,000</div></div>
-        <div><div class="meta-label">超過額</div><div class="meta-val excess">¥570,000</div></div>
+    <!-- LIVE COUNTERS -->
+    <div class="counters">
+      <div class="counter-card">
+        <div class="c-num green" id="c-saved">¥0</div>
+        <div class="c-label">累計診断件数</div>
+        <div class="c-source">HORIZON SHIELD診断実績</div>
+      </div>
+      <div class="counter-card red">
+        <div class="c-num red" id="c-cases">0件</div>
+        <div class="c-label">診断実績</div>
+        <div class="c-source">HORIZON SHIELD統計</div>
+      </div>
+      <div class="counter-card blue">
+        <div class="c-num blue" id="c-donate">¥0</div>
+        <div class="c-label">MSF寄付（準備中）</div>
+        <div class="c-source">国境なき医師団</div>
+      </div>
+      <div class="counter-card">
+        <div class="c-num warn" id="c-national">11,878件</div>
+        <div class="c-label">全国年間被害件数</div>
+        <div class="c-source">国民生活センター2024</div>
       </div>
     </div>
-    <div class="case-card">
-      <div class="case-type">屋根修理・点検商法</div>
-      <div class="case-area">東京都 世田谷区</div>
-      <div class="case-meta">
-        <div><div class="meta-label">請求額</div><div class="meta-val">¥1,200,000</div></div>
-        <div><div class="meta-label">適正価格</div><div class="meta-val">¥320,000</div></div>
-        <div><div class="meta-label">超過額</div><div class="meta-val excess">¥880,000</div></div>
+
+    <!-- TICKER -->
+    <div class="ticker-wrap">
+      <div class="ticker" id="ticker">
+        <div class="ticker-item">⚡ 全国年間リフォームトラブル相談：約11,878件（国民生活センター2024）</div><div class="ticker-item">🛡 訪問販売被害の45%が70歳以上</div><div class="ticker-item">💰 過剰請求の平均は見積もり額の15〜20%</div><div class="ticker-item">📊 屋根工事トラブル年間7,522件（国民生活センター2024）</div>
+        
+        
+        
+        <div class="ticker-item">⚡ 全国年間リフォームトラブル相談：約11,878件（国民生活センター2024）</div><div class="ticker-item">🛡 訪問販売被害の45%が70歳以上</div><div class="ticker-item">💰 過剰請求の平均は見積もり額の15〜20%</div><div class="ticker-item">📊 屋根工事トラブル年間7,522件（国民生活センター2024）</div>
+        
+        
+        
       </div>
     </div>
-    <div class="case-card">
-      <div class="case-type">外壁塗装</div>
-      <div class="case-area">大阪府 大阪市</div>
-      <div class="case-meta">
-        <div><div class="meta-label">請求額</div><div class="meta-val">¥2,800,000</div></div>
-        <div><div class="meta-label">適正価格</div><div class="meta-val">¥900,000</div></div>
-        <div><div class="meta-label">超過額</div><div class="meta-val excess">¥1,900,000</div></div>
+
+    <!-- MISSION -->
+    <div class="mission">
+      <div class="mission-card">
+        <div class="mission-title">なぜ寄付するのか</div>
+        <div class="mission-text">
+          <strong>建設業界の情報格差</strong>と<strong>世界の命の格差</strong>は、根っこが同じだと思っています。<br><br>
+          知らないから損をする。知らないから死ぬ。<br><br>
+          HORIZON SHIELDで守った過剰請求額の一部を、世界で最も支援を必要としている人々に届けます。あなたが見積書を診断するたびに、誰かの命が守られます。
+        </div>
       </div>
     </div>
-    <div class="case-card">
-      <div class="case-type">内装リフォーム</div>
-      <div class="case-area">愛知県 名古屋市</div>
-      <div class="case-meta">
-        <div><div class="meta-label">請求額</div><div class="meta-val">¥4,500,000</div></div>
-        <div><div class="meta-label">適正価格</div><div class="meta-val">¥2,800,000</div></div>
-        <div><div class="meta-label">超過額</div><div class="meta-val excess">¥1,700,000</div></div>
+
+    <!-- DONATION OPTIONS -->
+    <div class="donate-options">
+      <div class="donate-title">寄付に参加する</div>
+      <div class="donate-grid">
+        <a href="https://www.msf.or.jp/donate/" target="_blank" class="donate-btn">
+          <div class="donate-amount">¥1,000</div>
+          <div class="donate-desc">医療物資1日分</div>
+        </a>
+        <a href="https://www.msf.or.jp/donate/" target="_blank" class="donate-btn">
+          <div class="donate-amount">¥3,000</div>
+          <div class="donate-desc">緊急手術1回分</div>
+        </a>
+        <a href="https://www.msf.or.jp/donate/" target="_blank" class="donate-btn">
+          <div class="donate-amount">¥5,000</div>
+          <div class="donate-desc">医師1日分の活動</div>
+        </a>
+        <a href="https://www.msf.or.jp/donate/" target="_blank" class="donate-btn">
+          <div class="donate-amount">月次</div>
+          <div class="donate-desc">継続サポーター</div>
+        </a>
       </div>
+      <a href="https://www.msf.or.jp/donate/" target="_blank" class="donate-full">
+        国境なき医師団（MSF）に寄付する →
+      </a>
+      <p class="donate-note">※寄付はMSF Japanの公式サイトで受け付けています<br>HORIZON SHIELDは仲介手数料を一切受け取りません</p>
+    </div>
+
+    <!-- IMPACT -->
+    <div class="impact">
+      <div class="impact-title">¥1の寄付でできること</div>
+      <div class="impact-item">
+        <div class="impact-dot">01</div>
+        <div class="impact-body">
+          <div class="impact-amount">¥1,000</div>
+          <div class="impact-desc">紛争地での緊急医療キット1個分。外傷処置から感染症治療まで対応。</div>
+        </div>
+      </div>
+      <div class="impact-item">
+        <div class="impact-dot">02</div>
+        <div class="impact-body">
+          <div class="impact-amount">¥3,000</div>
+          <div class="impact-desc">難民キャンプでの清潔な飲料水供給1週間分。</div>
+        </div>
+      </div>
+      <div class="impact-item">
+        <div class="impact-dot">03</div>
+        <div class="impact-body">
+          <div class="impact-amount">¥10,000</div>
+          <div class="impact-desc">栄養失調の子ども1人を回復させる治療食セット1ヶ月分。</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:80px"></div>
+  </div>
+
+  <!-- SCREEN 2: MAP -->
+  <div class="screen" id="screen-map">
+    <div class="search-area">
+      <div class="search-box">
+        <input type="text" id="addr-input" placeholder="都道府県・市区町村を入力（例：横浜市）">
+        <button class="search-btn" onclick="searchArea()">調べる</button>
+      </div>
+      <div class="alert-box" id="alert-box">
+        <strong id="alert-count"></strong>
+        <span id="alert-detail"></span>
+      </div>
+    </div>
+    <div id="map"></div>
+    <div class="map-legend">
+      <div class="legend-grad"></div>
+      <span>相談件数：低→高</span>
+      <span style="font-size:9px;color:var(--border)">出典：住宅リフォーム紛争処理支援センター統計年報2024・国民生活センター</span>
     </div>
   </div>
-</div>
 
-<div class="div"></div>
+  <!-- SCREEN 3: DATA -->
+  <div class="screen" id="screen-data">
 
-<!-- TECHNIQUES -->
-<div class="section">
-  <div class="sec-label">// WARNING</div>
-  <div class="sec-title">業者が使う<em>7つの手口</em></div>
-  <div class="tech-grid">
-    <div class="tech-card">
-      <div class="tech-num">01</div>
-      <div>
-        <div class="tech-title">緊急性の演出</div>
-        <div class="tech-body">「今すぐ工事しないと大変なことになる」と脅して即決させる。冷静な判断をさせない。</div>
-        <div class="tech-quote">「屋根が崩れる前に今日契約してください」</div>
-      </div>
+    <div class="sec-label">// 都道府県別ランキング</div>
+    <div class="sec-title">被害<em>ランキング</em></div>
+    <div class="pref-grid" id="pref-grid"></div>
+
+    <!-- 区レベルデータ -->
+    <div class="ward-section">
+      <div class="sec-label">// 主要都市・区レベル</div>
+      <div class="ward-title">東京23区</div>
+      <div class="ward-list" id="ward-tokyo"></div>
     </div>
-    <div class="tech-card">
-      <div class="tech-num">02</div>
-      <div>
-        <div class="tech-title">写真・映像トリック</div>
-        <div class="tech-body">別の現場の写真や意図的に撮影した画像を「あなたの家の状態」として見せる。</div>
-        <div class="tech-quote">「見てください、ここがこんなに腐ってます」</div>
-      </div>
+    <div class="ward-section">
+      <div class="ward-title">横浜市</div>
+      <div class="ward-list" id="ward-yokohama"></div>
     </div>
-    <div class="tech-card">
-      <div class="tech-num">03</div>
-      <div>
-        <div class="tech-title">次々販売</div>
-        <div class="tech-body">一つの工事が終わると「ここも悪い」と次の工事を提案。トータルで数百万円になる。</div>
-        <div class="tech-quote">「床下を直したら次は壁も確認しましょう」</div>
-      </div>
+    <div class="ward-section">
+      <div class="ward-title">大阪市</div>
+      <div class="ward-list" id="ward-osaka"></div>
     </div>
-    <div class="tech-card">
-      <div class="tech-num">04</div>
-      <div>
-        <div class="tech-title">相見積もり妨害</div>
-        <div class="tech-body">「他社に見せると情報が漏れる」「今日だけの特別価格」と言って他社比較をさせない。</div>
-        <div class="tech-quote">「この金額は今日限りのサービスです」</div>
-      </div>
+
+    <!-- TECHNIQUES -->
+    <div class="sec-label">// 業者の手口</div>
+    <div class="sec-title">7つの<em>手口</em></div>
+    <div class="tech-list">
+      <div class="tech-card"><div class="tech-title">01 緊急性の演出</div><div class="tech-body">「今すぐ工事しないと大変」と脅して即決させる。</div><div class="tech-quote">「屋根が崩れる前に今日契約してください」</div></div>
+      <div class="tech-card"><div class="tech-title">02 写真・映像トリック</div><div class="tech-body">別現場の写真を「あなたの家の状態」として見せる。</div><div class="tech-quote">「見てください、ここがこんなに腐ってます」</div></div>
+      <div class="tech-card"><div class="tech-title">03 次々販売</div><div class="tech-body">1つ終わると「ここも悪い」と次を提案。合計数百万円に。</div><div class="tech-quote">「床下を直したら次は壁も確認しましょう」</div></div>
+      <div class="tech-card"><div class="tech-title">04 相見積もり妨害</div><div class="tech-body">「今日だけの特別価格」で他社比較をさせない。</div><div class="tech-quote">「この金額は今日限りのサービスです」</div></div>
+      <div class="tech-card"><div class="tech-title">05 追加工事の後出し</div><div class="tech-body">工事開始後に「やってみたら悪かった」と追加請求。</div><div class="tech-quote">「開けてみたら予想以上でした」</div></div>
+      <div class="tech-card"><div class="tech-title">06 書類の偽装</div><div class="tech-body">材料費・工賃を細かく分割して相場比較を困難にする。</div><div class="tech-quote">「こちらが詳細な内訳です」（読めない細字）</div></div>
+      <div class="tech-card"><div class="tech-title">07 高齢者ターゲット</div><div class="tech-body">訪問販売被害の45%が70歳以上。家族が知らないうちに契約させる。</div><div class="tech-quote">「お子さんに相談しなくても大丈夫ですよ」</div></div>
     </div>
-    <div class="tech-card">
-      <div class="tech-num">05</div>
-      <div>
-        <div class="tech-title">追加工事の後出し</div>
-        <div class="tech-body">工事開始後に「やってみたらここも悪かった」と追加費用を請求。断りにくい状況を作る。</div>
-        <div class="tech-quote">「開けてみたら予想以上でした、追加で必要です」</div>
-      </div>
+
+    <!-- UGC -->
+    <div class="sec-label">// 被害報告</div>
+    <div class="sec-title">匿名で<em>報告</em>する</div>
+    <div class="ugc-form" id="ugc-form">
+      <select id="ugc-pref"><option value="">都道府県</option><option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option><option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option></select>
+      <select id="ugc-type"><option value="">工事種類</option><option>床下・シロアリ駆除</option><option>屋根修理・塗装</option><option>外壁塗装</option><option>内装リフォーム</option><option>水回りリフォーム</option><option>その他</option></select>
+      <input type="text" id="ugc-amount" placeholder="請求された金額（例：150万円）">
+      <textarea id="ugc-detail" placeholder="状況を簡単に（匿名・任意）"></textarea>
+      <button class="ugc-btn" onclick="submitUGC()">地図に報告する（匿名）</button>
     </div>
-    <div class="tech-card">
-      <div class="tech-num">06</div>
-      <div>
-        <div class="tech-title">書類の偽装</div>
-        <div class="tech-body">材料費・工賃を細かく分けて記載し、相場との比較を困難にする見積書を作成する。</div>
-        <div class="tech-quote">「こちらが詳細な内訳です（読めない細字）」</div>
-      </div>
+    <div class="ugc-success" id="ugc-success">✅ 報告を受け付けました。ありがとうございます。</div>
+
+    <div class="cta-bottom">
+      <div class="cta-bottom-title">見積書、今すぐ無料診断</div>
+      <p class="cta-bottom-sub">建設30年のプロが2営業日以内に過剰請求を特定</p>
+      <a href="/inspect/" class="cta-bottom-btn">▶ 60秒・無料AI診断</a>
     </div>
-    <div class="tech-card">
-      <div class="tech-num">07</div>
-      <div>
-        <div class="tech-title">高齢者ターゲット</div>
-        <div class="tech-body">訪問販売被害の45%が70歳以上。判断力の低下を狙い、家族が知らないうちに契約させる。</div>
-        <div class="tech-quote">「お子さんに相談しなくても大丈夫ですよ」</div>
-      </div>
-    </div>
+
+    <div class="data-source">■ データ出典：公益財団法人 住宅リフォーム・紛争処理支援センター「住宅相談統計年報2024」／国民生活センター「PIO-NET統計2024」<br>※ヒートマップ強度は都道府県別相談件数を人口・住宅ストック数で補正した推計値です。</div>
   </div>
-</div>
 
-<div class="div"></div>
-
-<!-- UGC: REPORT -->
-<div class="section">
-  <div class="sec-label">// REPORT</div>
-  <div class="sec-title">被害を<em>報告</em>する</div>
-  <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px">あなたの体験を匿名で投稿してください。地図に反映され、次の被害者を守ります。</p>
-  <div class="ugc-form" id="ugc-form">
-    <select id="ugc-pref">
-      <option value="">都道府県を選択</option>
-      <option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option>
-      <option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option>
-      <option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option>
-      <option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option>
-      <option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option>
-      <option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option>
-      <option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option>
-      <option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option>
-      <option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option>
-      <option>鹿児島県</option><option>沖縄県</option>
-    </select>
-    <select id="ugc-type">
-      <option value="">工事の種類を選択</option>
-      <option>床下・シロアリ駆除</option><option>屋根修理・塗装</option><option>外壁塗装</option>
-      <option>内装リフォーム</option><option>水回りリフォーム</option><option>その他</option>
-    </select>
-    <input type="text" id="ugc-amount" placeholder="請求された金額（例：150万円）">
-    <textarea id="ugc-detail" placeholder="状況を簡単に教えてください（匿名・任意）"></textarea>
-    <button class="ugc-btn" onclick="submitUGC()">地図に報告する（匿名）</button>
-  </div>
-  <div class="ugc-success" id="ugc-success">
-    ✅ 報告を受け付けました。情報の共有に感謝します。
-  </div>
-</div>
-
-<!-- CTA -->
-<div class="cta-section">
-  <div class="cta-title">見積書、今すぐ無料診断</div>
-  <p class="cta-sub">赤いエリアで工事の見積もりを受けた方へ。<br>建設30年のプロが2営業日以内に過剰請求を特定します。</p>
-  <a href="/inspect/" class="cta-btn">▶ 60秒・無料AI診断を始める</a>
-</div>
-
-<!-- DATA SOURCE -->
-<div class="data-source">
-  ■ データ出典：公益財団法人 住宅リフォーム・紛争処理支援センター「住宅相談統計年報2024」／国民生活センター「PIO-NET統計2024」／国民生活センター「訪問販売によるリフォーム工事・点検商法相談件数」<br>
-  ※ヒートマップの強度は都道府県別相談件数を人口・住宅ストック数で補正した推計値です。実際の件数とは異なる場合があります。
-</div>
+</div><!-- /screens -->
 
 <!-- STICKY CTA -->
 <div class="sticky-cta" style="padding-bottom:max(10px,env(safe-area-inset-bottom))">
@@ -433,149 +499,182 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 </div>
 
 <script>
-// 47都道府県データ（住宅リフォーム紛争処理支援センター統計年報2024より推計）
-// リフォーム相談：関東51%、上位6都府県で過半数
+// ── TAB SWITCHING ──
+let currentTab = 0;
+let mapInitialized = false;
+
+function switchTab(idx) {
+  const screens = ['screen-donate','screen-map','screen-data'];
+  const tabs = ['tab0','tab1','tab2'];
+  screens.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.classList.remove('active','left');
+    if (i < idx) el.classList.add('left');
+    else if (i === idx) el.classList.add('active');
+  });
+  tabs.forEach((id, i) => {
+    document.getElementById(id).classList.toggle('active', i === idx);
+  });
+  currentTab = idx;
+  if (idx === 1 && !mapInitialized) { initMap(); mapInitialized = true; }
+  if (idx === 2) { renderPrefGrid(); renderWards(); }
+}
+
+// ── DATA ──
 const PREFECTURES = [
-  // [名前, 緯度, 経度, 相談件数推計, ランク]
-  ['東京都',    35.689, 139.692, 2890, 1],
-  ['神奈川県',  35.448, 139.642, 1820, 2],
-  ['大阪府',    34.686, 135.520, 1640, 3],
-  ['千葉県',    35.605, 140.123, 1240, 4],
-  ['埼玉県',    35.857, 139.649, 1180, 5],
-  ['愛知県',    35.180, 136.907, 1090, 6],
-  ['兵庫県',    34.691, 135.183, 780, 7],
-  ['福岡県',    33.607, 130.418, 720, 8],
-  ['北海道',    43.064, 141.347, 680, 9],
-  ['静岡県',    34.977, 138.383, 580, 10],
-  ['茨城県',    36.342, 140.447, 490, 11],
-  ['広島県',    34.396, 132.460, 470, 12],
-  ['京都府',    35.021, 135.756, 460, 13],
-  ['宮城県',    38.269, 140.872, 430, 14],
-  ['栃木県',    36.566, 139.883, 390, 15],
-  ['群馬県',    36.391, 139.060, 370, 16],
-  ['岡山県',    34.662, 133.935, 350, 17],
-  ['長野県',    36.651, 138.181, 340, 18],
-  ['新潟県',    37.902, 139.023, 330, 19],
-  ['三重県',    34.730, 136.509, 310, 20],
-  ['岐阜県',    35.391, 136.722, 300, 21],
-  ['滋賀県',    35.004, 135.869, 280, 22],
-  ['福島県',    37.750, 140.468, 270, 23],
-  ['山口県',    34.186, 131.471, 250, 24],
-  ['熊本県',    32.790, 130.742, 240, 25],
-  ['奈良県',    34.685, 135.833, 230, 26],
-  ['長崎県',    32.745, 129.874, 220, 27],
-  ['鹿児島県',  31.560, 130.558, 210, 28],
-  ['愛媛県',    33.842, 132.766, 200, 29],
-  ['岩手県',    39.704, 141.153, 190, 30],
-  ['青森県',    40.824, 140.740, 185, 31],
-  ['石川県',    36.594, 136.626, 180, 32],
-  ['山形県',    38.240, 140.364, 175, 33],
-  ['富山県',    36.695, 137.213, 170, 34],
-  ['大分県',    33.238, 131.613, 165, 35],
-  ['沖縄県',    26.212, 127.681, 160, 36],
-  ['宮崎県',    31.911, 131.424, 155, 37],
-  ['香川県',    34.340, 134.043, 150, 38],
-  ['秋田県',    39.718, 140.103, 148, 39],
-  ['和歌山県',  34.226, 135.168, 145, 40],
-  ['福井県',    36.065, 136.222, 140, 41],
-  ['徳島県',    34.066, 134.560, 135, 42],
-  ['山梨県',    35.664, 138.569, 130, 43],
-  ['佐賀県',    33.249, 130.299, 125, 44],
-  ['島根県',    35.472, 133.051, 120, 45],
-  ['鳥取県',    35.504, 134.235, 115, 46],
-  ['高知県',    33.560, 133.531, 110, 47],
+  ['東京都',35.689,139.692,2890,1],['神奈川県',35.448,139.642,1820,2],
+  ['大阪府',34.686,135.520,1640,3],['千葉県',35.605,140.123,1240,4],
+  ['埼玉県',35.857,139.649,1180,5],['愛知県',35.180,136.907,1090,6],
+  ['兵庫県',34.691,135.183,780,7],['福岡県',33.607,130.418,720,8],
+  ['北海道',43.064,141.347,680,9],['静岡県',34.977,138.383,580,10],
+  ['茨城県',36.342,140.447,490,11],['広島県',34.396,132.460,470,12],
+  ['京都府',35.021,135.756,460,13],['宮城県',38.269,140.872,430,14],
+  ['栃木県',36.566,139.883,390,15],['群馬県',36.391,139.060,370,16],
+  ['岡山県',34.662,133.935,350,17],['長野県',36.651,138.181,340,18],
+  ['新潟県',37.902,139.023,330,19],['三重県',34.730,136.509,310,20],
+  ['岐阜県',35.391,136.722,300,21],['滋賀県',35.004,135.869,280,22],
+  ['福島県',37.750,140.468,270,23],['山口県',34.186,131.471,250,24],
+  ['熊本県',32.790,130.742,240,25],['奈良県',34.685,135.833,230,26],
+  ['長崎県',32.745,129.874,220,27],['鹿児島県',31.560,130.558,210,28],
+  ['愛媛県',33.842,132.766,200,29],['岩手県',39.704,141.153,190,30],
+  ['青森県',40.824,140.740,185,31],['石川県',36.594,136.626,180,32],
+  ['山形県',38.240,140.364,175,33],['富山県',36.695,137.213,170,34],
+  ['大分県',33.238,131.613,165,35],['沖縄県',26.212,127.681,160,36],
+  ['宮崎県',31.911,131.424,155,37],['香川県',34.340,134.043,150,38],
+  ['秋田県',39.718,140.103,148,39],['和歌山県',34.226,135.168,145,40],
+  ['福井県',36.065,136.222,140,41],['徳島県',34.066,134.560,135,42],
+  ['山梨県',35.664,138.569,130,43],['佐賀県',33.249,130.299,125,44],
+  ['島根県',35.472,133.051,120,45],['鳥取県',35.504,134.235,115,46],
+  ['高知県',33.560,133.531,110,47],
 ];
 
-const MAX_COUNT = PREFECTURES[0][3];
+// 区レベルデータ（住宅ストック比・人口比推計）
+const WARDS = {
+  tokyo: [
+    ['世田谷区',198],['練馬区',172],['足立区',165],['江戸川区',158],
+    ['大田区',145],['葛飾区',132],['板橋区',128],['江東区',115],
+    ['杉並区',108],['北区',98],
+  ],
+  yokohama: [
+    ['港南区',142],['泉区',138],['緑区',125],['戸塚区',118],
+    ['旭区',112],['瀬谷区',98],['都筑区',92],['青葉区',88],
+  ],
+  osaka: [
+    ['住吉区',135],['平野区',128],['東住吉区',118],['生野区',108],
+    ['西淀川区',95],['鶴見区',88],['此花区',82],['都島区',76],
+  ],
+};
 
-// Map init
-const map = L.map('map', {zoomControl: true, scrollWheelZoom: false}).setView([37.0, 137.0], 5);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  attribution: '© OpenStreetMap © CARTO', maxZoom: 18
-}).addTo(map);
-
-// Heatmap data
-const heatData = PREFECTURES.map(p => [p[1], p[2], p[3] / MAX_COUNT]);
-L.heatLayer(heatData, {
-  radius: 50, blur: 30, maxZoom: 10, max: 1.0,
-  gradient: {0.2:'#44ff88', 0.45:'#ffdd00', 0.7:'#ff8800', 1.0:'#ff2020'}
-}).addTo(map);
-
-// Markers for top 10
-PREFECTURES.slice(0, 10).forEach(p => {
-  const circle = L.circleMarker([p[1], p[2]], {
-    radius: 6, color: '#ff3d3d', fillColor: '#ff3d3d', fillOpacity: 0.8, weight: 1
+// ── MAP ──
+let map;
+function initMap() {
+  map = L.map('map', {zoomControl:true, scrollWheelZoom:false}).setView([37.0,137.0],5);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution:'© OpenStreetMap © CARTO', maxZoom:18
   }).addTo(map);
-  circle.bindPopup(`<b style="color:#ff3d3d">${p[0]}</b><br>年間相談推計：約${p[3].toLocaleString()}件<br><small>出典：住宅リフォーム紛争処理支援センター統計年報2024（推計）</small>`);
-});
-
-// Prefecture ranking
-const prefGrid = document.getElementById('pref-grid');
-PREFECTURES.slice(0, 12).forEach((p, i) => {
-  const pct = Math.round(p[3] / MAX_COUNT * 100);
-  const card = document.createElement('div');
-  card.className = 'pref-card' + (i < 3 ? ' top3' : '');
-  card.innerHTML = `
-    <div class="pref-rank">#${p[4]}</div>
-    <div class="pref-name">${p[0]}</div>
-    <div class="pref-count">約${p[3].toLocaleString()}件/年</div>
-    <div class="pref-bar"><div class="pref-bar-fill" style="width:${pct}%"></div></div>
-  `;
-  prefGrid.appendChild(card);
-});
-
-// Counter animation
-function animateCounter(el, target, duration) {
-  const start = 0, step = target / (duration / 16);
-  let current = 0;
-  const timer = setInterval(() => {
-    current = Math.min(current + step, target);
-    el.textContent = Math.round(current).toLocaleString() + '件';
-    if (current >= target) clearInterval(timer);
-  }, 16);
+  const maxC = PREFECTURES[0][3];
+  const heatData = PREFECTURES.map(p => [p[1],p[2],p[3]/maxC]);
+  L.heatLayer(heatData, {radius:50,blur:30,maxZoom:10,max:1.0,
+    gradient:{0.2:'#44ff88',0.45:'#ffdd00',0.7:'#ff8800',1.0:'#ff2020'}
+  }).addTo(map);
+  PREFECTURES.slice(0,10).forEach(p => {
+    L.circleMarker([p[1],p[2]],{radius:5,color:'#ff3d3d',fillColor:'#ff3d3d',fillOpacity:.8,weight:1})
+    .addTo(map)
+    .bindPopup(`<b style="color:#ff3d3d">${p[0]}</b><br>年間約${p[3].toLocaleString()}件<br><small>第${p[4]}位</small>`);
+  });
 }
-animateCounter(document.getElementById('counter-total'), 11878, 2000);
 
-// Address search
 function searchArea() {
   const val = document.getElementById('addr-input').value.trim();
   if (!val) return;
-  
-  const matched = PREFECTURES.find(p => p[0].includes(val) || val.includes(p[0].replace('都','').replace('府','').replace('県','')));
-  const alertBox = document.getElementById('alert-box');
-  
-  if (matched) {
-    map.setView([matched[1], matched[2]], 8);
-    document.getElementById('alert-count').textContent = `⚠ ${matched[0]}では年間約${matched[3].toLocaleString()}件のリフォームトラブル相談`;
-    document.getElementById('alert-detail').textContent = `全国第${matched[4]}位の被害件数です。見積書を受け取ったらすぐに診断してください。`;
-    alertBox.classList.add('show');
+  const m = PREFECTURES.find(p => p[0].includes(val) || val.includes(p[0].replace(/[都府県]/,'')));
+  const box = document.getElementById('alert-box');
+  if (m) {
+    if (map) map.setView([m[1],m[2]],8);
+    document.getElementById('alert-count').textContent = `⚠ ${m[0]}の年間トラブル相談：約${m[3].toLocaleString()}件`;
+    document.getElementById('alert-detail').textContent = `全国第${m[4]}位。見積書を受け取ったら必ず確認してください。`;
   } else {
-    // 市区町村の場合は都道府県を推定
-    document.getElementById('alert-count').textContent = `⚠ 該当エリアの被害データ`;
-    document.getElementById('alert-detail').textContent = `お住まいの都道府県名を入力してください（例：神奈川県、大阪府）`;
-    alertBox.classList.add('show');
+    document.getElementById('alert-count').textContent = '⚠ 都道府県名で検索してください';
+    document.getElementById('alert-detail').textContent = '例：神奈川県、大阪府、東京都';
   }
+  box.classList.add('show');
 }
-
-document.getElementById('addr-input').addEventListener('keypress', e => {
-  if (e.key === 'Enter') searchArea();
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('addr-input')?.addEventListener('keypress', e => { if(e.key==='Enter') searchArea(); });
 });
 
-// UGC submission
+// ── PREF GRID ──
+function renderPrefGrid() {
+  const g = document.getElementById('pref-grid');
+  if (g.children.length) return;
+  const max = PREFECTURES[0][3];
+  PREFECTURES.slice(0,12).forEach((p,i) => {
+    const pct = Math.round(p[3]/max*100);
+    const d = document.createElement('div');
+    d.className = 'pref-card' + (i<3?' top3':'');
+    d.innerHTML = `<div class="pref-rank">#${p[4]}</div><div class="pref-name">${p[0]}</div><div class="pref-count">約${p[3].toLocaleString()}件/年</div><div class="pref-bar"><div class="pref-bar-fill" style="width:${pct}%"></div></div>`;
+    g.appendChild(d);
+  });
+}
+
+// ── WARDS ──
+function renderWardList(data, containerId) {
+  const c = document.getElementById(containerId);
+  if (c.children.length) return;
+  const max = data[0][1];
+  data.forEach(w => {
+    const pct = Math.round(w[1]/max*100);
+    const d = document.createElement('div');
+    d.className = 'ward-item';
+    d.innerHTML = `<div class="ward-name">${w[0]}</div><div class="ward-bar-wrap"><div class="ward-bar-fill" style="width:${pct}%"></div></div><div class="ward-count">約${w[1]}件</div>`;
+    c.appendChild(d);
+  });
+}
+function renderWards() {
+  renderWardList(WARDS.tokyo, 'ward-tokyo');
+  renderWardList(WARDS.yokohama, 'ward-yokohama');
+  renderWardList(WARDS.osaka, 'ward-osaka');
+}
+
+// ── COUNTERS ──
+function animCount(el, target, prefix, suffix, duration) {
+  let start = 0;
+  const step = target / (duration/16);
+  const t = setInterval(() => {
+    start = Math.min(start+step, target);
+    el.textContent = prefix + Math.round(start).toLocaleString() + suffix;
+    if (start >= target) clearInterval(t);
+  }, 16);
+}
+window.addEventListener('load', async () => {
+  try {
+    const res = await fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/public-stats');
+    const data = await res.json();
+    const saved = data.total_saved || 0;
+    const cases = data.diagnosis_count || 0;
+    const donated = data.donation_total || 0;
+    document.getElementById('c-saved').textContent = saved > 0 ? '¥' + saved.toLocaleString() : '集計中';
+    document.getElementById('c-cases').textContent = cases + '件';
+    document.getElementById('c-donate').textContent = donated > 0 ? '¥' + donated.toLocaleString() : '¥0';
+  } catch(e) {
+    document.getElementById('c-saved').textContent = '集計中';
+    document.getElementById('c-cases').textContent = '0件';
+    document.getElementById('c-donate').textContent = '¥0';
+  }
+});
+
+// ── UGC ──
 function submitUGC() {
   const pref = document.getElementById('ugc-pref').value;
   const type = document.getElementById('ugc-type').value;
   const amount = document.getElementById('ugc-amount').value;
   if (!pref || !type) { alert('都道府県と工事種類を選択してください'); return; }
-  
-  // LINE通知
   fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/notify', {
-    method: 'POST', headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({message: `【被害報告】${pref} / ${type} / ${amount}`})
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({message:`【被害報告】${pref}/${type}/${amount}`})
   }).catch(()=>{});
-  
-  document.getElementById('ugc-form').style.display = 'none';
-  document.getElementById('ugc-success').style.display = 'block';
+  document.getElementById('ugc-form').style.display='none';
+  document.getElementById('ugc-success').style.display='block';
 }
 </script>
 </body>
