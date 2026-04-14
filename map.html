@@ -573,10 +573,10 @@ function go(i){
 // ── MAP ──
 let map;
 function initMap(){
-  map=L.map('map',{zoomControl:true,scrollWheelZoom:false}).setView([37.0,137.0],5);
+  map=L.map('map',{zoomControl:true,scrollWheelZoom:false}).setView([36.5,136.0],5);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:18}).addTo(map);
   const mx=PREFS[0][3];
-  L.heatLayer(PREFS.map(p=>[p[1],p[2],p[3]/mx]),{radius:50,blur:30,maxZoom:10,max:1.0,gradient:{0.2:'#00ff88',0.45:'#ffcc00',0.7:'#ff8800',1.0:'#ff1f3d'}}).addTo(map);
+  L.heatLayer(PREFS.map(p=>[p[1],p[2], 0.3 + 0.7*(p[3]/mx)]),{radius:55,blur:35,maxZoom:10,max:1.0,minOpacity:0.5,gradient:{0.3:'#00ff88',0.55:'#ffcc00',0.75:'#ff8800',1.0:'#ff1f3d'}}).addTo(map);
   PREFS.slice(0,10).forEach(p=>{
     L.circleMarker([p[1],p[2]],{radius:5,color:'#ff1f3d',fillColor:'#ff1f3d',fillOpacity:.9,weight:1}).addTo(map)
     .bindPopup(`<b style="color:#ff1f3d">${p[0]}</b><br>年間約${p[3].toLocaleString()}件<br><small>第${p[4]}位</small>`);
