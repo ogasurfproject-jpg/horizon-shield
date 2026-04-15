@@ -162,15 +162,16 @@ async function postNote(theme, bodyText, cookieStr) {
   } catch(e) { throw new Error('下書き作成失敗: ' + createRes.body.slice(0, 200)); }
   if (!noteId) throw new Error('記事IDが取得できなかった');
 
-  // Step2: draft_saveで本文保存
-  const saveBody = JSON.stringify({ body: noteBody, body_length: bodyLength, name: theme.title, index: false, is_lead_form: false });
+  // Step2: 本文保存 + 公開（index:true, is_temp_saved:false で一発公開）
+  const saveBody = JSON.stringify({ body: noteBody, body_length: bodyLength, name: theme.title, index: true, is_lead_form: false });
   const saveRes = await httpsRequest({
     hostname: 'note.com',
-    path: `/api/v1/text_notes/draft_save?id=${noteId}&is_temp_saved=true`,
+    path: `/api/v1/text_notes/draft_save?id=${noteId}&is_temp_saved=false`,
     method: 'POST',
     headers: makeHeaders(saveBody, `https://editor.note.com/notes/${noteKey}/edit`),
   }, saveBody);
   console.log('draft_saveステータス:', saveRes.status);
+  console.log('draft_saveレスポンス:', saveRes.body.slice(0, 200));
 
   // セッション更新
   if (saveRes.cookies.length > 0) {
@@ -185,40 +186,6 @@ async function postNote(theme, bodyText, cookieStr) {
     headers: makeHeaders(tagBody, `https://editor.note.com/notes/${noteKey}/edit`),
   }, tagBody);
   console.log('ハッシュタグ設定完了');
-
-  // Step4: draft確定（is_temp_saved=false）
-  const finalBody = JSON.stringify({ body: noteBody, body_length: bodyLength, name: theme.title, index: false, is_lead_form: false });
-  const finalRes = await httpsRequest({
-    hostname: 'note.com',
-    path: `/api/v1/text_notes/draft_save?id=${noteId}&is_temp_saved=false`,
-    method: 'POST',
-    headers: makeHeaders(finalBody, `https://editor.note.com/notes/${noteKey}/edit`),
-  }, finalBody);
-  console.log('draft確定ステータス:', finalRes.status);
-
-  // セッション更新
-  if (finalRes.cookies.length > 0) {
-    const newCookie = finalRes.cookies.map(c => c.split(';')[0]).join('; ');
-    if (newCookie) cookieStr = newCookie;
-  }
-
-  // Step5: 公開（PUT - 本文・ハッシュタグ含むフル送信）
-  const pubBody = JSON.stringify({
-    name: theme.title,
-    body: noteBody,
-    body_length: bodyLength,
-    index: true,
-    is_lead_form: false,
-    hashtag_list: theme.hashtags,
-  });
-  const pubRes = await httpsRequest({
-    hostname: 'note.com',
-    path: `/api/v1/text_notes/${noteId}`,
-    method: 'PUT',
-    headers: makeHeaders(pubBody, `https://editor.note.com/notes/${noteKey}/edit`),
-  }, pubBody);
-  console.log('公開ステータス:', pubRes.status);
-  console.log('公開レスポンス:', pubRes.body.slice(0, 300));
 
   return `https://note.com/horizon_shield/n/${noteKey}`;
 }
