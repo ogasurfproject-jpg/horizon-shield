@@ -191,11 +191,11 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
   }, tagBody);
   console.log('ハッシュタグステータス:', tagRes.status);
 
-  // Step4: 公開 - POST /api/v1/text_notes/{noteId}/publish
+  // Step4: 公開 - POST /api/v1/text_notes/{noteKey}/publish
   const publishBody = JSON.stringify({ index: true });
   const publishRes = await httpsRequest({
     hostname: 'note.com',
-    path: `/api/v1/text_notes/${noteId}/publish`,
+    path: `/api/v1/text_notes/${noteKey}/publish`,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
