@@ -85,21 +85,31 @@ async function postToNote(theme, articleText) {
   try {
     // ログイン
     await page.goto('https://note.com/login', { waitUntil: 'networkidle2', timeout: 30000 });
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise(r => setTimeout(r, 3000));
     console.log('ログインページ:', page.url());
 
+    // メール入力
     await page.waitForSelector('input', { timeout: 10000 });
     const inputs = await page.$$('input:not([type="hidden"])');
     console.log('入力フィールド数:', inputs.length);
-    if (inputs.length >= 1) await inputs[0].type(process.env.NOTE_EMAIL, { delay: 50 });
-    if (inputs.length >= 2) await inputs[1].type(process.env.NOTE_PASSWORD, { delay: 50 });
+    if (inputs.length >= 1) {
+      await inputs[0].click({ clickCount: 3 });
+      await inputs[0].type(process.env.NOTE_EMAIL, { delay: 50 });
+    }
+    if (inputs.length >= 2) {
+      await inputs[1].click({ clickCount: 3 });
+      await inputs[1].type(process.env.NOTE_PASSWORD, { delay: 50 });
+    }
     await new Promise(r => setTimeout(r, 500));
+
+    // submitボタンクリック
     await Promise.all([
       page.waitForNavigation({ timeout: 20000 }).catch(() => {}),
-      page.keyboard.press('Enter'),
+      page.click('button[type="submit"]').catch(() => page.keyboard.press('Enter')),
     ]);
-    await new Promise(r => setTimeout(r, 3000));
+    await new Promise(r => setTimeout(r, 5000));
     console.log('ログイン後URL:', page.url());
+    if (page.url().includes('/login')) throw new Error('ログイン失敗: URLが変わらない');
 
     // エディタへ
     await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
