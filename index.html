@@ -161,6 +161,69 @@ section{padding:56px 20px}
 }
 .svc-time{font-size:11px;color:var(--muted);margin-top:2px}
 
+/* ── PayPay ボタン ── */
+.paypay-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:10px;
+  background:#e60012;color:#fff;
+  border:none;border-radius:6px;
+  padding:9px 16px;font-size:12px;font-weight:700;
+  cursor:pointer;transition:all .2s;
+  font-family:'Noto Sans JP',sans-serif;
+}
+.paypay-btn:hover{background:#c5000f;transform:translateY(-1px)}
+.paypay-btn .pp-logo{font-size:14px}
+
+/* ── PayPay モーダル ── */
+#paypay-modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.75);z-index:9999;
+  align-items:center;justify-content:center;padding:20px;
+}
+#paypay-modal.open{display:flex}
+.pp-modal-inner{
+  background:#111827;border:1px solid #2a3a4a;
+  border-radius:16px;padding:28px 24px;
+  max-width:400px;width:100%;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+}
+.pp-modal-logo{
+  font-size:1.4rem;font-weight:900;
+  color:#e60012;letter-spacing:1px;margin-bottom:4px;
+}
+.pp-modal-service{font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px}
+.pp-modal-price{
+  font-family:'Space Mono',monospace;font-size:1.4rem;
+  color:#00e5ff;margin-bottom:16px;
+}
+.pp-modal-note{font-size:.8rem;color:#5a6a7a;margin-bottom:20px;line-height:1.6}
+.pp-modal-input{
+  width:100%;background:#0a0e14;border:1px solid #1a2030;
+  color:#e8edf5;padding:11px 14px;border-radius:8px;
+  font-size:.9rem;margin-bottom:10px;font-family:'Noto Sans JP',sans-serif;
+  outline:none;transition:border-color .2s;
+}
+.pp-modal-input:focus{border-color:#00e5ff}
+.pp-go-btn{
+  width:100%;background:#e60012;color:#fff;
+  border:none;border-radius:10px;padding:15px;
+  font-size:1rem;font-weight:900;cursor:pointer;
+  margin-bottom:10px;transition:all .2s;
+  font-family:'Noto Sans JP',sans-serif;
+}
+.pp-go-btn:hover{background:#c5000f}
+.pp-go-btn:disabled{background:#444;cursor:not-allowed}
+.pp-cancel-btn{
+  width:100%;background:#1a2030;color:#5a6a7a;
+  border:none;border-radius:8px;padding:11px;
+  cursor:pointer;font-size:.9rem;
+  font-family:'Noto Sans JP',sans-serif;
+}
+.pp-cancel-btn:hover{color:#e8edf5}
+.pp-msg{font-size:.8rem;margin-top:10px;display:none}
+.pp-msg.loading{color:#5a6a7a;display:block}
+.pp-msg.error{color:#ff3d3d;display:block}
+
 /* ── DIAGNOSIS FORM ── */
 #diagnosis-section{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .diag-steps{display:flex;gap:8px;margin-bottom:24px}
@@ -312,6 +375,19 @@ footer{
 .tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
 .tag{padding:4px 10px;border:1px solid var(--border);border-radius:20px;font-size:11px;color:var(--muted)}
 
+/* PayPay アクセプタンスマーク */
+.payment-marks{
+  display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;
+}
+.pp-mark{
+  background:#e60012;color:#fff;font-weight:900;
+  font-size:11px;padding:4px 10px;border-radius:4px;letter-spacing:.5px;
+}
+.bank-mark{
+  background:var(--border);color:var(--muted);
+  font-size:11px;padding:4px 10px;border-radius:4px;
+}
+
 @media(min-width:640px){
   #hero{padding:64px 40px 56px}
   section{padding:72px 40px}
@@ -370,33 +446,61 @@ footer{
   <div class="sec-label">// SERVICES</div>
   <div class="sec-title">3つの<em>スポット</em>診断</div>
   <div class="service-grid">
-    <a href="/inspect/" class="svc">
+
+    <!-- 01 建設費診断 -->
+    <div class="svc">
       <div class="svc-num">01</div>
       <div class="svc-body">
         <div class="svc-name">建設費診断</div>
         <div class="svc-desc">見積書をメールで送るだけ。過剰請求箇所・適正価格・交渉文をPDFで返送。</div>
         <div class="svc-price">¥55,000</div>
         <div class="svc-time">2営業日以内 PDF納品</div>
+        <button class="paypay-btn" onclick="openPayPay('kidan','建設費診断','55,000')">
+          <span class="pp-logo">🔴</span>PayPayで申し込む
+        </button>
+        <div class="payment-marks">
+          <span class="pp-mark">PayPay</span>
+          <span class="bank-mark">銀行振込</span>
+        </div>
       </div>
-    </a>
-    <a href="/inspect/" class="svc">
+    </div>
+
+    <!-- 02 変更工事査定 -->
+    <div class="svc">
       <div class="svc-num">02</div>
       <div class="svc-body">
         <div class="svc-name">変更工事査定</div>
         <div class="svc-desc">工事中の追加請求が正当かを24時間以内に判定。拒否すべき項目を特定。</div>
         <div class="svc-price">¥33,000</div>
         <div class="svc-time">24時間以内 PDF納品</div>
+        <button class="paypay-btn" onclick="openPayPay('henkou','変更工事査定','33,000')">
+          <span class="pp-logo">🔴</span>PayPayで申し込む
+        </button>
+        <div class="payment-marks">
+          <span class="pp-mark">PayPay</span>
+          <span class="bank-mark">銀行振込</span>
+        </div>
       </div>
-    </a>
-    <a href="/inspect/" class="svc">
+    </div>
+
+    <!-- 03 完成検査立会い -->
+    <div class="svc">
       <div class="svc-num">03</div>
       <div class="svc-body">
         <div class="svc-name">完成検査立会い</div>
         <div class="svc-desc">引き渡し前に専門家が現場立会い。施工不良・手抜きをその場でチェック。</div>
         <div class="svc-price">¥88,000</div>
         <div class="svc-time">当日完了・全国対応</div>
+        <button class="paypay-btn" onclick="openPayPay('kansei','完成検査立会い','88,000')">
+          <span class="pp-logo">🔴</span>PayPayで申し込む
+        </button>
+        <div class="payment-marks">
+          <span class="pp-mark">PayPay</span>
+          <span class="bank-mark">銀行振込</span>
+        </div>
       </div>
-    </a>
+    </div>
+
   </div>
   <div class="tag-row">
     <span class="tag">見積書は診断後すぐ削除</span>
@@ -414,14 +518,12 @@ footer{
   <div class="sec-title">無料<em>AI診断</em></div>
   <p style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.7">見積書の写真を撮って送るだけ。建設30年の知識を学習したAIが即座に分析します。</p>
 
-  <!-- STEPS -->
   <div class="diag-steps" id="steps">
     <div class="step active" id="step1"><span class="step-num">01</span>情報入力</div>
     <div class="step" id="step2"><span class="step-num">02</span>ファイル</div>
     <div class="step" id="step3"><span class="step-num">03</span>診断結果</div>
   </div>
 
-  <!-- STEP 1 -->
   <div id="form-step1">
     <div class="input-group">
       <label>お名前</label>
@@ -434,7 +536,6 @@ footer{
     <button class="btn btn-primary" onclick="goStep2()">次へ → 見積書をアップロード</button>
   </div>
 
-  <!-- STEP 2 -->
   <div id="form-step2" style="display:none">
     <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
       <div class="upload-icon">📄</div>
@@ -449,7 +550,6 @@ footer{
     <button class="btn btn-secondary" onclick="goStep1()">← 戻る</button>
   </div>
 
-  <!-- LOADING -->
   <div id="form-loading" style="display:none">
     <div class="loading-box">
       <div class="spinner"></div>
@@ -457,7 +557,6 @@ footer{
     </div>
   </div>
 
-  <!-- RESULT -->
   <div id="form-result" style="display:none">
     <div class="result-box show">
       <div class="result-amount" id="result-amount">—</div>
@@ -468,7 +567,11 @@ footer{
       <strong style="display:block;margin-bottom:8px">大賀 俊勝 より</strong>
       上記はAIによる簡易診断です。正確な削減額・具体的な交渉文・業者への対応策は専門家レポートにてお届けします。
     </div>
-    <a href="/inspect/" class="btn btn-primary" style="display:block;text-align:center;text-decoration:none;margin-top:16px;padding:15px">詳細レポートを申し込む ¥55,000（税込）</a>
+    <!-- 申し込みボタン群 -->
+    <a href="/inspect/" class="btn btn-primary" style="display:block;text-align:center;text-decoration:none;margin-top:16px;padding:15px">詳細レポートを申し込む ¥55,000（銀行振込）</a>
+    <button class="paypay-btn" style="width:100%;justify-content:center;font-size:14px;padding:14px;margin-top:8px" onclick="openPayPay('kidan','建設費診断','55,000')">
+      <span class="pp-logo">🔴</span>PayPayで申し込む（¥55,000）
+    </button>
     <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px">2営業日以内PDF納品 / 送信前キャンセルは全額返金</p>
   </div>
 </section>
@@ -568,6 +671,12 @@ footer{
   </div>
   <p>The HORIZ音s株式会社 〒254-0018 神奈川県平塚市東真土1-1-47 GH湘南2<br>
   代表取締役 大賀俊勝 / contact@the-horizons-innovation.com</p>
+  <!-- PayPayアクセプタンスマーク（規約上必須） -->
+  <div style="margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <span style="font-size:10px;color:var(--muted)">決済方法：</span>
+    <span style="background:#e60012;color:#fff;font-size:10px;font-weight:900;padding:3px 8px;border-radius:3px">PayPay</span>
+    <span style="background:var(--border);color:var(--muted);font-size:10px;padding:3px 8px;border-radius:3px">銀行振込</span>
+  </div>
   <p style="margin-top:12px">© 2026 THE HORIZ音s Inc. All Rights Reserved.</p>
 </footer>
 
@@ -577,8 +686,80 @@ footer{
   <a href="https://line.me/R/ti/p/@172piime" class="sticky-line">LINE相談</a>
 </div>
 
+<!-- PayPay モーダル -->
+<div id="paypay-modal">
+  <div class="pp-modal-inner">
+    <div class="pp-modal-logo">🔴 PayPay</div>
+    <div class="pp-modal-service" id="pp-service-name">建設費診断</div>
+    <div class="pp-modal-price" id="pp-service-price">¥55,000</div>
+    <p class="pp-modal-note">お名前・メールアドレスを入力後、<br>PayPay決済画面へ進みます。</p>
+    <input class="pp-modal-input" type="text" id="pp-name" placeholder="お名前（任意）">
+    <input class="pp-modal-input" type="email" id="pp-email" placeholder="メールアドレス（任意）">
+    <button class="pp-go-btn" id="pp-go-btn" onclick="submitPayPay()">PayPayで支払う →</button>
+    <button class="pp-cancel-btn" onclick="closePayPay()">キャンセル</button>
+    <p class="pp-msg" id="pp-msg"></p>
+  </div>
+</div>
+
 <script>
-// Step navigation
+// ── PayPay ──
+const WORKER = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
+let ppServiceId = null;
+
+function openPayPay(serviceId, serviceName, price) {
+  ppServiceId = serviceId;
+  document.getElementById('pp-service-name').textContent = serviceName;
+  document.getElementById('pp-service-price').textContent = '¥' + price;
+  document.getElementById('pp-name').value = document.getElementById('user-name')?.value || '';
+  document.getElementById('pp-email').value = document.getElementById('user-email')?.value || '';
+  document.getElementById('pp-msg').className = 'pp-msg';
+  document.getElementById('pp-msg').textContent = '';
+  document.getElementById('pp-go-btn').disabled = false;
+  document.getElementById('pp-go-btn').textContent = 'PayPayで支払う →';
+  document.getElementById('paypay-modal').classList.add('open');
+}
+
+function closePayPay() {
+  document.getElementById('paypay-modal').classList.remove('open');
+}
+
+document.getElementById('paypay-modal').addEventListener('click', function(e) {
+  if (e.target === this) closePayPay();
+});
+
+async function submitPayPay() {
+  const btn = document.getElementById('pp-go-btn');
+  const msg = document.getElementById('pp-msg');
+  btn.disabled = true;
+  btn.textContent = '準備中...';
+  msg.className = 'pp-msg loading';
+  msg.textContent = '⏳ 決済画面を準備中...';
+
+  try {
+    const res = await fetch(WORKER + '/paypay-checkout', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        serviceId: ppServiceId,
+        customerName: document.getElementById('pp-name').value,
+        customerEmail: document.getElementById('pp-email').value,
+      })
+    });
+    const data = await res.json();
+    if (data.ok && data.url) {
+      window.location.href = data.url;
+    } else {
+      throw new Error(data.error || 'エラー');
+    }
+  } catch(e) {
+    msg.className = 'pp-msg error';
+    msg.textContent = 'エラーが発生しました。銀行振込をご利用ください。';
+    btn.disabled = false;
+    btn.textContent = 'PayPayで支払う →';
+  }
+}
+
+// ── Step navigation ──
 function goStep2(){
   const name=document.getElementById('user-name').value.trim();
   const email=document.getElementById('user-email').value.trim();
@@ -603,7 +784,6 @@ function handleFile(input){
   }
 }
 
-// Upload drag
 const ua=document.getElementById('upload-area');
 ua.addEventListener('dragover',e=>{e.preventDefault();ua.classList.add('drag')});
 ua.addEventListener('dragleave',()=>ua.classList.remove('drag'));
@@ -613,21 +793,16 @@ ua.addEventListener('drop',e=>{
   if(f){document.getElementById('file-input').files=e.dataTransfer.files;handleFile({files:[f]})}
 });
 
-// Run diagnosis
 async function runDiagnosis(){
   const fileInput=document.getElementById('file-input');
   const name=document.getElementById('user-name').value.trim();
   const email=document.getElementById('user-email').value.trim();
-  
   document.getElementById('form-step2').style.display='none';
   document.getElementById('form-loading').style.display='block';
   document.getElementById('step2').classList.remove('active');document.getElementById('step2').classList.add('done');
   document.getElementById('step3').classList.add('active');
-
   try{
-    let content='見積書の内容を診断してください。';
     const messages=[{role:'user',content:[]}];
-    
     if(fileInput.files[0]){
       const file=fileInput.files[0];
       const b64=await toBase64(file);
@@ -638,10 +813,9 @@ async function runDiagnosis(){
         messages[0].content.push({type:'image',source:{type:'base64',media_type:mt,data:b64}});
       }
     }
-    messages[0].content.push({type:'text',text:`見積書を確認して、以下の形式でJSON のみ返してください（他のテキスト不要）:
+    messages[0].content.push({type:'text',text:`見積書を確認して、以下の形式でJSONのみ返してください（他テキスト不要）:
 {"amount":"削減可能金額（例：約15〜25万円）","items":["過剰請求の可能性がある項目1","項目2","項目3"],"comment":"専門家からの一言コメント（2〜3文）","risk":"high/medium/low"}`});
-
-   const res=await fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/anthropic',{
+    const res=await fetch(WORKER+'/anthropic',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -655,8 +829,7 @@ async function runDiagnosis(){
     const text=data.content?.find(c=>c.type==='text')?.text||'{}';
     const clean=text.replace(/```json|```/g,'').trim();
     let result;
-    try{result=JSON.parse(clean)}catch{result={amount:'分析完了',items:['詳細は有料レポートにてご確認ください'],comment:'AIによる簡易診断が完了しました。正確な診断には専門家レポートをご利用ください。',risk:'medium'}}
-    
+    try{result=JSON.parse(clean)}catch{result={amount:'分析完了',items:['詳細は有料レポートにてご確認ください'],comment:'AIによる簡易診断が完了しました。',risk:'medium'}}
     document.getElementById('form-loading').style.display='none';
     document.getElementById('form-result').style.display='block';
     document.getElementById('result-amount').textContent=result.amount||'—';
@@ -665,15 +838,12 @@ async function runDiagnosis(){
     document.getElementById('result-text').innerHTML=
       (result.items?.map(i=>'<div style="padding:6px 0;border-bottom:1px solid var(--border)">⚠ '+i+'</div>').join('')||'')+
       '<p style="margin-top:12px;color:var(--muted)">'+result.comment+'</p>';
-
-    // notify
-    try{await fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'【無料診断】'+name+'('+email+') リスク:'+result.risk,name:name,email:email,result:JSON.stringify(result.items||[]),risk:result.risk})})}catch(e){}
-    
+    try{await fetch(WORKER+'/notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'【無料診断】'+name+'('+email+') リスク:'+result.risk,name,email,result:JSON.stringify(result.items||[]),risk:result.risk})})}catch(e){}
   }catch(e){
     document.getElementById('form-loading').style.display='none';
     document.getElementById('form-result').style.display='block';
     document.getElementById('result-amount').textContent='診断完了';
-    document.getElementById('result-text').textContent='診断が完了しました。詳細は有料レポートにてご確認ください。';
+    document.getElementById('result-text').textContent='詳細は有料レポートにてご確認ください。';
   }
 }
 
@@ -686,21 +856,15 @@ function toBase64(file){
   });
 }
 
-// FAQ
-function toggleFaq(el){
-  const item=el.parentElement;
-  item.classList.toggle('open');
-}
+function toggleFaq(el){el.parentElement.classList.toggle('open')}
 
-// Active nav on scroll
 const sections=['hero','services','diagnosis-section','kira-section'];
 window.addEventListener('scroll',()=>{
   const y=window.scrollY+80;
   sections.forEach(id=>{
-    const el=document.getElementById(id);
-    if(!el)return;
+    const el=document.getElementById(id);if(!el)return;
     const top=el.offsetTop,bot=top+el.offsetHeight;
-    const link=document.querySelector(`nav a[href="#${id}"]`);
+    const link=document.querySelector('nav a[href="#'+id+'"]');
     if(link){link.classList.toggle('active',y>=top&&y<bot)}
   });
 });
