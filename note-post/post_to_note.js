@@ -186,14 +186,8 @@ async function postNote(theme, bodyText, cookieStr) {
   }, tagBody);
   console.log('ハッシュタグ設定完了');
 
-  // Step4: 公開（PUT /api/v1/text_notes/{noteId}）
-  const pubBody = JSON.stringify({
-    name: theme.title,
-    body: noteBody,
-    body_length: bodyLength,
-    index: true,
-    is_lead_form: false,
-  });
+  // Step4: 公開（PUT /api/v1/text_notes/{noteId} - 公開フラグのみ）
+  const pubBody = JSON.stringify({ name: theme.title, index: true });
   const pubRes = await httpsRequest({
     hostname: 'note.com',
     path: `/api/v1/text_notes/${noteId}`,
