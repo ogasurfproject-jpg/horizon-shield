@@ -146,18 +146,19 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
   }
   if (!noteId) throw new Error('記事IDが取得できなかった');
 
-  // Step2: draft_saveで本文保存（Originはeditor.note.com）
+  // Step2: PATCHで本文を更新
   const draftBody = JSON.stringify({
     body: noteBody,
     body_length: bodyLength,
     name: theme.title,
     index: false,
     is_lead_form: false,
+    status: 'draft',
   });
   const draftRes = await httpsRequest({
     hostname: 'note.com',
-    path: `/api/v1/draft_save?id=${noteId}&is_temp_saved=true`,
-    method: 'POST',
+    path: `/api/v1/text_notes/${noteId}`,
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
       'Content-Length': Buffer.byteLength(draftBody),
@@ -168,10 +169,8 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
       'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
     },
   }, draftBody);
-  console.log('draft_saveステータス:', draftRes.status);
-  if (!draftRes.status.toString().startsWith('2')) {
-    console.log('draft_saveエラー:', draftRes.body.slice(0, 200));
-  }
+  console.log('本文更新ステータス:', draftRes.status);
+  console.log('本文更新レスポンス:', draftRes.body.slice(0, 300));
 
   // Step3: 公開（ハッシュタグ込み）
   const publishBody = JSON.stringify({
