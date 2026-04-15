@@ -61,7 +61,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 <div id="login">
   <div class="login-box">
     <div class="login-title">// HORIZON SHIELD ADMIN</div>
-    <input type="password" id="pw" placeholder="パスワード" onkeypress="if(e.key==='Enter')doLogin()">
+    <input type="password" id="pw" placeholder="パスワード" onkeypress="if(event.key==='Enter')doLogin()">
     <button class="login-btn" onclick="doLogin()">ログイン</button>
   </div>
 </div>
