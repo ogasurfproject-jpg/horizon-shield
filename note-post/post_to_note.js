@@ -102,10 +102,17 @@ async function postToNote(theme, articleText) {
     }
     await new Promise(r => setTimeout(r, 500));
 
-    // submitボタンクリック
+    // submitボタンクリック → form直接submit
     await Promise.all([
       page.waitForNavigation({ timeout: 20000 }).catch(() => {}),
-      page.click('button[type="submit"]').catch(() => page.keyboard.press('Enter')),
+      page.evaluate(() => {
+        const form = document.querySelector('form');
+        if (form) form.submit();
+        else {
+          const btn = document.querySelector('button[type="submit"], button');
+          if (btn) btn.click();
+        }
+      }),
     ]);
     await new Promise(r => setTimeout(r, 5000));
     console.log('ログイン後URL:', page.url());
