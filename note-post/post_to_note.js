@@ -96,89 +96,91 @@ function textToNoteBody(text) {
     }).join('');
 }
 
-// note記事を投稿（正しいAPI: /api/v1/text_notes）
-async function postNote(theme, bodyText, cookieStr, csrfToken) {
+// note記事を投稿
+async function postNote(theme, bodyText, cookieStr, noteToken) {
   const noteBody = textToNoteBody(bodyText);
+  const bodyLength = bodyText.replace(/\s/g, '').length;
 
-  const commonHeaders = (bodyStr) => ({
-    'Content-Type': 'application/json',
-    'Content-Length': Buffer.byteLength(bodyStr),
-    'Cookie': cookieStr,
-    'X-Note-Csrf-Token': csrfToken,
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
-    'Origin': 'https://note.com',
-    'Referer': 'https://note.com/notes/new',
-    'Accept': 'application/json',
-  });
-
-  // Step1: 下書き作成（タイトルのみ）
-  const createBody = JSON.stringify({ name: theme.title });
+  // Step1: 下書き作成
+  const createBody = JSON.stringify({ name: theme.title, status: 'draft' });
   const createRes = await httpsRequest({
     hostname: 'note.com',
     path: '/api/v1/text_notes',
     method: 'POST',
-    headers: commonHeaders(createBody),
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(createBody),
+      'Cookie': cookieStr,
+      'X-Note-Token': noteToken,
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+      'Origin': 'https://note.com',
+      'Referer': 'https://note.com/notes/new',
+    },
   }, createBody);
 
-  console.log('記事作成ステータス:', createRes.status);
-
-  let noteId = '';
+  console.log('下書き作成ステータス:', createRes.status);
+  let noteId = '', noteKey = '';
   try {
     const json = JSON.parse(createRes.body);
-    noteId = String(json.data?.id || json.id || '');
-    console.log('記事ID:', noteId);
+    noteId  = String(json.data?.id  || json.id  || '');
+    noteKey = String(json.data?.key || json.key || noteId);
+    console.log('下書き作成完了 id:', noteId, 'key:', noteKey);
   } catch(e) {
-    throw new Error(`記事作成失敗: ${createRes.body.slice(0, 300)}`);
+    throw new Error(`下書き作成失敗: ${createRes.body.slice(0, 300)}`);
   }
   if (!noteId) throw new Error('記事IDが取得できなかった');
 
-  // Step2: 本文をdraft_saveで保存
+  // Step2: draft_saveで本文保存（Originはeditor.note.com）
   const draftBody = JSON.stringify({
     body: noteBody,
-    body_length: bodyText.length,
+    body_length: bodyLength,
     name: theme.title,
     index: false,
     is_lead_form: false,
   });
   const draftRes = await httpsRequest({
     hostname: 'note.com',
-    path: `/api/v1/text_notes/${noteId}/draft_save?id=${noteId}&is_temp_saved=true`,
-    method: 'PATCH',
-    headers: commonHeaders(draftBody),
+    path: `/api/v1/draft_save?id=${noteId}&is_temp_saved=false`,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(draftBody),
+      'Cookie': cookieStr,
+      'X-Note-Token': noteToken,
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+      'Origin': 'https://editor.note.com',
+      'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
+    },
   }, draftBody);
   console.log('draft_saveステータス:', draftRes.status);
-
-  // Step3: ハッシュタグ設定
-  try {
-    const tagBody = JSON.stringify({ hashtag_list: theme.hashtags });
-    await httpsRequest({
-      hostname: 'note.com',
-      path: `/api/v1/text_notes/${noteId}/hashtags`,
-      method: 'PUT',
-      headers: commonHeaders(tagBody),
-    }, tagBody);
-    console.log('ハッシュタグ設定完了');
-  } catch(e) {
-    console.log('ハッシュタグスキップ:', e.message);
+  if (!draftRes.status.toString().startsWith('2')) {
+    console.log('draft_saveエラー:', draftRes.body.slice(0, 200));
   }
 
-  // Step4: 公開
-  const publishBody = JSON.stringify({ index: true });
+  // Step3: 公開（ハッシュタグ込み）
+  const publishBody = JSON.stringify({
+    id: Number(noteId),
+    status: 'public',
+    hashtag_list: theme.hashtags,
+  });
   const publishRes = await httpsRequest({
     hostname: 'note.com',
-    path: `/api/v1/text_notes/${noteId}/publish`,
-    method: 'PUT',
-    headers: commonHeaders(publishBody),
+    path: '/api/v1/text_notes',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(publishBody),
+      'Cookie': cookieStr,
+      'X-Note-Token': noteToken,
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+      'Origin': 'https://note.com',
+      'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
+    },
   }, publishBody);
   console.log('公開ステータス:', publishRes.status);
 
-  let slug = '';
-  try {
-    const json = JSON.parse(publishRes.body);
-    slug = json.data?.key || json.data?.slug || noteId;
-  } catch(e) {}
-
-  return `https://note.com/horizon_shield/n/${slug || noteId}`;
+  await new Promise(r => setTimeout(r, 3000));
+  return `https://note.com/horizon_shield/n/${noteKey}`;
 }
 
 // Claude API で記事生成
@@ -269,13 +271,13 @@ async function main() {
     if (!cookieStr && !token) throw new Error('ログイン情報が取得できなかった');
 
     // CSRFトークン取得
-    const csrfToken = await getCsrfToken(cookieStr);
+    const noteToken = await getCsrfToken(cookieStr);
 
     // 記事生成
     const articleText = await generateArticle(theme);
 
     // 投稿
-    const noteUrl = await postNote(theme, articleText, cookieStr, csrfToken);
+    const noteUrl = await postNote(theme, articleText, cookieStr, noteToken);
     console.log('投稿URL:', noteUrl);
 
     await sendLine(`✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${noteUrl}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`);
