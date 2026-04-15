@@ -113,7 +113,7 @@ async function postNote(theme, bodyText, cookieStrParam, noteToken) {
   const bodyLength = bodyText.replace(/\s/g, '').length;
 
   // Step1: 下書き作成
-  const createBody = JSON.stringify({ name: theme.title, body: noteBody, body_length: bodyLength, status: 'draft' });
+  const createBody = JSON.stringify({ name: theme.title, status: 'public' });
   const createRes = await httpsRequest({
     hostname: 'note.com',
     path: '/api/v1/text_notes',
@@ -189,46 +189,7 @@ async function postNote(theme, bodyText, cookieStrParam, noteToken) {
     if (newSession) { cookieStr = newSession; console.log('draft後セッション更新'); }
   }
 
-  // Step3: ハッシュタグ設定
-  const tagBody = JSON.stringify({ hashtag_list: theme.hashtags });
-  const tagRes = await httpsRequest({
-    hostname: 'note.com',
-    path: `/api/v1/text_notes/${noteId}/hashtags`,
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(tagBody),
-      'Cookie': cookieStr,
-      'X-Requested-With': 'XMLHttpRequest',
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-      'Origin': 'https://editor.note.com',
-      'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
-    },
-  }, tagBody);
-  console.log('ハッシュタグステータス:', tagRes.status);
-
-  // Step4: 公開（noteIdで試す）
-  const publishBody = JSON.stringify({
-    status: 'public',
-    published_at: new Date().toISOString(),
-  });
-  const publishRes = await httpsRequest({
-    hostname: 'note.com',
-    path: `/api/v1/text_notes/${noteId}/publish`,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(publishBody),
-      'Cookie': cookieStr,
-      'X-Requested-With': 'XMLHttpRequest',
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-      'Origin': 'https://editor.note.com',
-      'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
-    },
-  }, publishBody);
-  console.log('公開ステータス:', publishRes.status);
-  console.log('公開レスポンス:', publishRes.body.slice(0, 300));
-
+  // ハッシュタグはdraft_save後に設定不要（public作成時に含める）
   await new Promise(r => setTimeout(r, 3000));
   return `https://note.com/horizon_shield/n/${noteKey}`;
 }
