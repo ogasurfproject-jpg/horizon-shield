@@ -186,31 +186,15 @@ async function postNote(theme, bodyText, cookieStr) {
   }, tagBody);
   console.log('ハッシュタグ設定完了');
 
-  // Step4: 現在のnoteデータをGETして構造を取得
-  const getRes = await httpsRequest({
-    hostname: 'note.com',
-    path: `/api/v1/text_notes/${noteId}`,
-    method: 'GET',
-    headers: {
-      'Cookie': cookieStr,
-      'X-Requested-With': 'XMLHttpRequest',
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-      'Accept': 'application/json',
-      'Origin': 'https://editor.note.com',
-      'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
-    },
-  }, null);
-  console.log('GETステータス:', getRes.status);
-
-  let noteData = {};
-  try {
-    const getJson = JSON.parse(getRes.body);
-    noteData = getJson.data || getJson;
-  } catch(e) { console.log('GET解析失敗:', e.message); }
-
-  // Step5: 取得したデータにindex:trueを付けてPUT公開
-  const pubData = Object.assign({}, noteData, { index: true });
-  const pubBody = JSON.stringify(pubData);
+  // Step4: 公開（PUT - draft:falseで公開）
+  const pubBody = JSON.stringify({
+    name: theme.title,
+    body: noteBody,
+    body_length: bodyLength,
+    draft: false,
+    is_lead_form: false,
+    hashtag_list: theme.hashtags,
+  });
   const pubRes = await httpsRequest({
     hostname: 'note.com',
     path: `/api/v1/text_notes/${noteId}`,
