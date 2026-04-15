@@ -122,9 +122,11 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
       'Content-Length': Buffer.byteLength(createBody),
       'Cookie': cookieStr,
       'X-Requested-With': 'XMLHttpRequest',
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-      'Origin': 'https://note.com',
-      'Referer': 'https://note.com/notes/new',
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
+      'Origin': 'https://editor.note.com',
+      'Referer': 'https://editor.note.com/',
+      'sec-fetch-site': 'same-site',
+      'sec-fetch-mode': 'cors',
     },
   }, createBody);
 
