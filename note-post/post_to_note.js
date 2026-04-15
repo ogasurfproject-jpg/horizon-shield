@@ -83,36 +83,17 @@ async function postToNote(theme, articleText) {
   await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36');
 
   try {
-    // ログイン
-    await page.goto('https://note.com/login', { waitUntil: 'networkidle2', timeout: 30000 });
-    await new Promise(r => setTimeout(r, 3000));
-    console.log('ログインページ:', page.url());
-
-    // メール入力
-    // メール・パスワード入力（id確定）
-    await page.waitForSelector('input#email', { timeout: 10000 });
-    await page.click('input#email');
-    await page.type('input#email', process.env.NOTE_EMAIL, { delay: 50 });
-    await page.click('input#password');
-    await page.type('input#password', process.env.NOTE_PASSWORD, { delay: 50 });
-    console.log('メール・パスワード入力完了');
-    await new Promise(r => setTimeout(r, 500));
-
-    // マウス座標でログインボタンをクリック
-    const loginBtnHandle = await page.evaluateHandle(() => {
-      const buttons = Array.from(document.querySelectorAll('button'));
-      return buttons.find(b => b.textContent.trim().includes('ログイン'));
+    // ログインせずセッションクッキーで直接認証
+    await page.goto('https://note.com', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.setCookie({
+      name: '_note_session_v5',
+      value: process.env.NOTE_SESSION,
+      domain: 'note.com',
+      path: '/',
+      httpOnly: true,
+      secure: true,
     });
-    const box = await loginBtnHandle.boundingBox();
-    if (!box) throw new Error('ログインボタンの座標が取得できない');
-    console.log('ログインボタン座標:', box.x, box.y);
-    await Promise.all([
-      page.waitForNavigation({ timeout: 20000 }).catch(() => {}),
-      page.mouse.click(box.x + box.width / 2, box.y + box.height / 2),
-    ]);
-    await new Promise(r => setTimeout(r, 5000));
-    console.log('ログイン後URL:', page.url());
-    if (page.url().includes('/login')) throw new Error('ログイン失敗: URLが変わらない');
+    console.log('セッションクッキーセット完了');
 
     // エディタへ
     await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
