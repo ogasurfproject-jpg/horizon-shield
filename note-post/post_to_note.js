@@ -247,6 +247,19 @@ https://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ」
   return text;
 }
 
+// ntfy通知（LINE代替）
+async function sendNtfy(message) {
+  try {
+    await fetch('https://ntfy.sh/horizon-shield-toshi-0222', {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      body: message,
+    });
+  } catch(e) {
+    console.log('ntfy失敗:', e.message);
+  }
+}
+
 // LINE通知
 async function sendLine(message) {
   await fetch('https://api.line.me/v2/bot/message/push', {
@@ -296,6 +309,7 @@ async function main() {
     const noteUrl = await postNote(theme, articleText, cookieStr, noteToken);
     console.log('投稿URL:', noteUrl);
 
+    await sendNtfy(`✅ note投稿完了: ${theme.title}`);
     await sendLine(`✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${noteUrl}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`);
     await broadcastToFollowers(theme, noteUrl);
     console.log('=== 完了 ===');
