@@ -98,16 +98,12 @@ async function postToNote(theme, articleText) {
     console.log('メール・パスワード入力完了');
     await new Promise(r => setTimeout(r, 500));
 
-    // ログインボタンをReactイベントで確実にクリック
+    // XPathでログインボタンを確実にクリック
+    const [loginBtn] = await page.$x('//button[contains(text(), "ログイン")]');
+    if (!loginBtn) throw new Error('ログインボタンが見つからない');
     await Promise.all([
       page.waitForNavigation({ timeout: 20000 }).catch(() => {}),
-      page.evaluate(() => {
-        const buttons = Array.from(document.querySelectorAll('button'));
-        const loginBtn = buttons.find(b => b.textContent.trim() === 'ログイン');
-        if (loginBtn) {
-          loginBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-        }
-      }),
+      loginBtn.click(),
     ]);
     await new Promise(r => setTimeout(r, 5000));
     console.log('ログイン後URL:', page.url());
