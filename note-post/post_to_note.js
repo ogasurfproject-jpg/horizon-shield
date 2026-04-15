@@ -101,7 +101,7 @@ async function getNoteOtp(noteKey, cookieStr) {
   try {
     // エディタページからnote_otpトークンを取得
     const res = await httpsRequest({
-      hostname: 'note.com',
+      hostname: 'editor.note.com',
       path: `/notes/${noteKey}/edit`,
       method: 'GET',
       headers: {
@@ -186,26 +186,31 @@ async function postNote(theme, bodyText, cookieStr) {
   }, tagBody);
   console.log('ハッシュタグ設定完了');
 
-  // Step4: 公開（draft_saveのis_temp_saved=falseで公開確定）
-  const pubSaveBody = JSON.stringify({
-    body: noteBody,
-    body_length: bodyLength,
-    name: theme.title,
-    index: true,
-    is_lead_form: false,
-    publish_at: new Date().toISOString(),
-  });
-  const pubSaveRes = await httpsRequest({
-    hostname: 'note.com',
-    path: `/api/v1/text_notes/draft_save?id=${noteId}&is_temp_saved=false`,
-    method: 'POST',
-    headers: makeHeaders(pubSaveBody, `https://editor.note.com/notes/${noteKey}/edit`),
-  }, pubSaveBody);
-  console.log('公開draft_saveステータス:', pubSaveRes.status);
-  console.log('公開draft_saveレスポンス:', pubSaveRes.body.slice(0, 300));
+  // Step4: note_otp取得 → 公開
+  const noteOtp = await getNoteOtp(noteKey, cookieStr);
+  const pubBody = JSON.stringify({ published_at: new Date().toISOString() });
+  const pubHeaders = {
+    ...makeHeaders(pubBody, `https://editor.note.com/notes/${noteKey}/edit`),
+    'Origin': 'https://note.com',
+  };
+  if (noteOtp) {
+    pubHeaders['X-Note-Token'] = noteOtp;
+    console.log('X-Note-Token付与済み');
+  } else {
+    console.log('⚠️ X-Note-Tokenなしで公開試行');
+  }
 
-  if (pubSaveRes.status !== 200 && pubSaveRes.status !== 201) {
-    throw new Error(`公開失敗 [${pubSaveRes.status}]: ${pubSaveRes.body.slice(0, 200)}`);
+  const pubRes = await httpsRequest({
+    hostname: 'note.com',
+    path: `/api/v1/text_notes/${noteKey}/publish`,
+    method: 'POST',
+    headers: pubHeaders,
+  }, pubBody);
+  console.log('公開ステータス:', pubRes.status);
+  console.log('公開レスポンス:', pubRes.body.slice(0, 300));
+
+  if (pubRes.status !== 200 && pubRes.status !== 201) {
+    throw new Error(`公開失敗 [${pubRes.status}]: ${pubRes.body.slice(0, 200)}`);
   }
 
   return `https://note.com/horizon_shield/n/${noteKey}`;
