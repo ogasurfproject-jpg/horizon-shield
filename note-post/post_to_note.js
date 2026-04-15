@@ -112,7 +112,7 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
   const bodyLength = bodyText.replace(/\s/g, '').length;
 
   // Step1: 下書き作成
-  const createBody = JSON.stringify({ name: theme.title, status: 'draft' });
+  const createBody = JSON.stringify({ name: theme.title, body: noteBody, body_length: bodyLength, status: 'draft' });
   const createRes = await httpsRequest({
     hostname: 'note.com',
     path: '/api/v1/text_notes',
@@ -146,19 +146,18 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
   }
   if (!noteId) throw new Error('記事IDが取得できなかった');
 
-  // Step2: PATCHで本文を更新
+  // Step2: 正しいパスでdraft_save
   const draftBody = JSON.stringify({
     body: noteBody,
     body_length: bodyLength,
     name: theme.title,
     index: false,
     is_lead_form: false,
-    status: 'draft',
   });
   const draftRes = await httpsRequest({
     hostname: 'note.com',
-    path: `/api/v1/text_notes/${noteId}`,
-    method: 'PATCH',
+    path: `/api/v1/text_notes/draft_save?id=${noteId}&is_temp_saved=true`,
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Content-Length': Buffer.byteLength(draftBody),
@@ -166,11 +165,13 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
       'X-Requested-With': 'XMLHttpRequest',
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
       'Origin': 'https://editor.note.com',
-      'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
+      'Referer': 'https://editor.note.com/',
     },
   }, draftBody);
-  console.log('本文更新ステータス:', draftRes.status);
-  console.log('本文更新レスポンス:', draftRes.body.slice(0, 300));
+  console.log('draft_saveステータス:', draftRes.status);
+  if (!draftRes.status.toString().startsWith('2')) {
+    console.log('draft_saveエラー:', draftRes.body.slice(0, 200));
+  }
 
   // Step3: 公開（ハッシュタグ込み）
   const publishBody = JSON.stringify({
