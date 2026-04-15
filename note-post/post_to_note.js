@@ -1,5 +1,6 @@
 /**
- * HORIZON SHIELD note自動投稿 v8
+ * HORIZON SHIELD note自動投稿 v9
+ * Fix: publishにX-Note-Token(note_otp)を付与
  */
 
 const https = require('https');
@@ -96,6 +97,40 @@ async function generateArticle(theme) {
   return text;
 }
 
+async function getNoteOtp(noteKey, cookieStr) {
+  try {
+    // エディタページからnote_otpトークンを取得
+    const res = await httpsRequest({
+      hostname: 'note.com',
+      path: `/notes/${noteKey}/edit`,
+      method: 'GET',
+      headers: {
+        'Cookie': cookieStr,
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      },
+    }, null);
+
+    // パターン1: JSON埋め込み "note_otp":"xxxxx"
+    const m1 = res.body.match(/"note_otp"\s*:\s*"([^"]+)"/);
+    if (m1) { console.log('note_otp取得(JSON):', m1[1].slice(0, 8) + '...'); return m1[1]; }
+
+    // パターン2: metaタグ <meta name="note_otp" content="xxxxx">
+    const m2 = res.body.match(/<meta[^>]+name=["']note_otp["'][^>]+content=["']([^"']+)["']/i);
+    if (m2) { console.log('note_otp取得(meta):', m2[1].slice(0, 8) + '...'); return m2[1]; }
+
+    // パターン3: note-token
+    const m3 = res.body.match(/"note[-_]token"\s*:\s*"([^"]+)"/);
+    if (m3) { console.log('note_otp取得(note-token):', m3[1].slice(0, 8) + '...'); return m3[1]; }
+
+    console.log('⚠️ note_otp未取得 - tokenなしで試行');
+    return null;
+  } catch(e) {
+    console.log('note_otp取得失敗:', e.message);
+    return null;
+  }
+}
+
 async function postNote(theme, bodyText, cookieStr) {
   const noteBody = textToNoteBody(bodyText);
   const bodyLength = bodyText.replace(/\s/g, '').length;
@@ -151,19 +186,27 @@ async function postNote(theme, bodyText, cookieStr) {
   }, tagBody);
   console.log('ハッシュタグ設定完了');
 
-  // Step4: 公開（noteKeyを使用）
-  const pubBody = JSON.stringify({ published_at: new Date().toISOString() });
+  // Step4: note_otp取得 → 公開
+  const noteOtp = await getNoteOtp(noteKey, cookieStr);
+  const pubBody = JSON.stringify({ published_at: new Date().toISOString(), scope: 'everyone' });
+  const pubHeaders = {
+    ...makeHeaders(pubBody, `https://note.com/notes/${noteKey}/edit`),
+    'Origin': 'https://note.com',
+  };
+  if (noteOtp) pubHeaders['X-Note-Token'] = noteOtp;
+
   const pubRes = await httpsRequest({
     hostname: 'note.com',
     path: `/api/v1/text_notes/${noteKey}/publish`,
     method: 'POST',
-    headers: {
-      ...makeHeaders(pubBody, `https://note.com/notes/${noteKey}/edit`),
-      'Origin': 'https://note.com',
-    },
+    headers: pubHeaders,
   }, pubBody);
   console.log('公開ステータス:', pubRes.status);
-  console.log('公開レスポンス:', pubRes.body.slice(0, 200));
+  console.log('公開レスポンス:', pubRes.body.slice(0, 300));
+
+  if (pubRes.status !== 200 && pubRes.status !== 201) {
+    throw new Error(`公開失敗 [${pubRes.status}]: ${pubRes.body.slice(0, 200)}`);
+  }
 
   return `https://note.com/horizon_shield/n/${noteKey}`;
 }
