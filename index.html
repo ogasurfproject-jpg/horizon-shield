@@ -163,16 +163,13 @@ section{padding:56px 20px}
 
 /* ── PayPay ボタン ── */
 .paypay-btn{
-  display:inline-flex;align-items:center;gap:6px;
+  display:inline-block;
   margin-top:10px;
-  background:#e60012;color:#fff;
-  border:none;border-radius:6px;
-  padding:9px 16px;font-size:12px;font-weight:700;
-  cursor:pointer;transition:all .2s;
-  font-family:'Noto Sans JP',sans-serif;
+  background:none;border:none;padding:0;
+  cursor:pointer;transition:opacity .2s;
 }
-.paypay-btn:hover{background:#c5000f;transform:translateY(-1px)}
-.paypay-btn .pp-logo{font-size:14px}
+.paypay-btn:hover{opacity:.82;transform:translateY(-1px)}
+.paypay-btn img{height:40px;display:block;}
 
 /* ── PayPay モーダル ── */
 #paypay-modal{
@@ -456,7 +453,7 @@ footer{
         <div class="svc-price">¥55,000</div>
         <div class="svc-time">2営業日以内 PDF納品</div>
         <button class="paypay-btn" onclick="openPayPay('kidan','建設費診断','55,000')">
-          <span class="pp-logo">🔴</span>PayPayで申し込む
+          <img src="/pay_C_2x.png" alt="PayPayで支払う">
         </button>
         <div class="payment-marks">
           <span class="pp-mark">PayPay</span>
@@ -474,7 +471,7 @@ footer{
         <div class="svc-price">¥33,000</div>
         <div class="svc-time">24時間以内 PDF納品</div>
         <button class="paypay-btn" onclick="openPayPay('henkou','変更工事査定','33,000')">
-          <span class="pp-logo">🔴</span>PayPayで申し込む
+          <img src="/pay_C_2x.png" alt="PayPayで支払う">
         </button>
         <div class="payment-marks">
           <span class="pp-mark">PayPay</span>
@@ -492,7 +489,7 @@ footer{
         <div class="svc-price">¥88,000</div>
         <div class="svc-time">当日完了・全国対応</div>
         <button class="paypay-btn" onclick="openPayPay('kansei','完成検査立会い','88,000')">
-          <span class="pp-logo">🔴</span>PayPayで申し込む
+          <img src="/pay_C_2x.png" alt="PayPayで支払う">
         </button>
         <div class="payment-marks">
           <span class="pp-mark">PayPay</span>
@@ -569,8 +566,8 @@ footer{
     </div>
     <!-- 申し込みボタン群 -->
     <a href="/inspect/" class="btn btn-primary" style="display:block;text-align:center;text-decoration:none;margin-top:16px;padding:15px">詳細レポートを申し込む ¥55,000（銀行振込）</a>
-    <button class="paypay-btn" style="width:100%;justify-content:center;font-size:14px;padding:14px;margin-top:8px" onclick="openPayPay('kidan','建設費診断','55,000')">
-      <span class="pp-logo">🔴</span>PayPayで申し込む（¥55,000）
+    <button class="paypay-btn" style="margin-top:8px;width:100%;text-align:center;" onclick="openPayPay('kidan','建設費診断','55,000')">
+      <img src="/pay_C_2x.png" alt="PayPayで支払う" style="height:44px;margin:0 auto;">
     </button>
     <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px">2営業日以内PDF納品 / 送信前キャンセルは全額返金</p>
   </div>
@@ -674,7 +671,7 @@ footer{
   <!-- PayPayアクセプタンスマーク（規約上必須） -->
   <div style="margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
     <span style="font-size:10px;color:var(--muted)">決済方法：</span>
-    <span style="background:#e60012;color:#fff;font-size:10px;font-weight:900;padding:3px 8px;border-radius:3px">PayPay</span>
+    <img src="/pay_A_2x.png" alt="PayPay" style="height:22px;vertical-align:middle;">
     <span style="background:var(--border);color:var(--muted);font-size:10px;padding:3px 8px;border-radius:3px">銀行振込</span>
   </div>
   <p style="margin-top:12px">© 2026 THE HORIZ音s Inc. All Rights Reserved.</p>
@@ -689,7 +686,7 @@ footer{
 <!-- PayPay モーダル -->
 <div id="paypay-modal">
   <div class="pp-modal-inner">
-    <div class="pp-modal-logo">🔴 PayPay</div>
+    <img src="/pay_C_2x.png" alt="PayPay" style="height:40px;margin:0 auto 12px;">
     <div class="pp-modal-service" id="pp-service-name">建設費診断</div>
     <div class="pp-modal-price" id="pp-service-price">¥55,000</div>
     <p class="pp-modal-note">お名前・メールアドレスを入力後、<br>PayPay決済画面へ進みます。</p>
