@@ -191,8 +191,8 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
   }, tagBody);
   console.log('ハッシュタグステータス:', tagRes.status);
 
-  // Step4: 公開 - POST /api/v1/text_notes/{noteKey}/publish
-  const publishBody = JSON.stringify({ index: true });
+  // Step4: 公開
+  const publishBody = JSON.stringify({ published_at: new Date().toISOString() });
   const publishRes = await httpsRequest({
     hostname: 'note.com',
     path: `/api/v1/text_notes/${noteKey}/publish`,
@@ -203,8 +203,8 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
       'Cookie': cookieStr,
       'X-Requested-With': 'XMLHttpRequest',
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-      'Origin': 'https://editor.note.com',
-      'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
+      'Origin': 'https://note.com',
+      'Referer': `https://note.com/notes/${noteKey}/edit`,
     },
   }, publishBody);
   console.log('公開ステータス:', publishRes.status);
