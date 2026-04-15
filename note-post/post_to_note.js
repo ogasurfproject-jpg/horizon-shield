@@ -52,7 +52,7 @@ function httpsRequest(options, body = null) {
 async function noteLogin() {
   const session = process.env.NOTE_SESSION;
   if (!session) throw new Error('NOTE_SESSION が設定されていません');
-  const cookieStr = session; // 全Cookie文字列をそのまま使用
+  const cookieStr = `_note_session_v5=${session}`; // セッションIDのみ
   console.log('セッションCookie使用（環境変数から取得）');
   return { cookieStr, token: '' };
 }
@@ -121,7 +121,7 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
       'Content-Type': 'application/json',
       'Content-Length': Buffer.byteLength(createBody),
       'Cookie': cookieStr,
-      'X-Note-Token': noteToken,
+      'X-Requested-With': 'XMLHttpRequest',
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
       'Origin': 'https://note.com',
       'Referer': 'https://note.com/notes/new',
@@ -156,7 +156,7 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
       'Content-Type': 'application/json',
       'Content-Length': Buffer.byteLength(draftBody),
       'Cookie': cookieStr,
-      'X-Note-Token': noteToken,
+      'X-Requested-With': 'XMLHttpRequest',
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
       'Origin': 'https://editor.note.com',
       'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
@@ -181,7 +181,7 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
       'Content-Type': 'application/json',
       'Content-Length': Buffer.byteLength(publishBody),
       'Cookie': cookieStr,
-      'X-Note-Token': noteToken,
+      'X-Requested-With': 'XMLHttpRequest',
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
       'Origin': 'https://note.com',
       'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
