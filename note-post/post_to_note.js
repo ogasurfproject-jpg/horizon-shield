@@ -1,46 +1,35 @@
 /**
  * HORIZON SHIELD note自動投稿 v8
- * 純粋API方式（Puppeteer不使用）
  */
 
 const https = require('https');
 
-const NOTE_EMAIL    = process.env.NOTE_EMAIL;
-const NOTE_PASSWORD = process.env.NOTE_PASSWORD;
-const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
-const LINE_TOKEN    = process.env.LINE_CHANNEL_TOKEN;
-const LINE_USER_ID  = process.env.LINE_USER_ID;
-
 const THEMES = [
-  { title: 'リフォーム業者が絶対に教えない「見積書の5つの罠」', keywords: ['一式見積もり', '諸経費', '図面なし', '数量不明', '口頭約束'], angle: '施主が知らない業者の常套手段を暴露する内容', hashtags: ['リフォーム', '見積書', '建設', '施主', 'HORIZONSHIELD'] },
-  { title: '「追加工事が必要です」と言われたら疑え。建設30年のプロが語る真実', keywords: ['追加工事', '契約外', '口頭指示', '変更工事査定', '証拠'], angle: '追加請求の正当性を見極める方法', hashtags: ['追加工事', '建設トラブル', '施工', '見積もり', 'HORIZONSHIELD'] },
-  { title: '外壁塗装300万円は高いのか？適正価格の見分け方を徹底解説', keywords: ['外壁塗装', '足場代', '塗料原価', '坪単価', '相見積もり'], angle: '具体的な数字で適正価格を解説する内容', hashtags: ['外壁塗装', 'リフォーム', '塗装工事', '相見積もり', 'HORIZONSHIELD'] },
-  { title: '工務店選びで失敗しない7つのチェックポイント', keywords: ['建設業許可', '施工実績', '保証内容', '契約書', '口コミ'], angle: '施主が業者を選ぶ際の具体的な判断基準', hashtags: ['工務店', '建設業者', 'リフォーム', '業者選び', 'HORIZONSHIELD'] },
-  { title: '引き渡し前に必ず確認すべき施工不良チェックリスト20項目', keywords: ['施工不良', '完成検査', 'クロス', '床鳴り', '防水'], angle: '素人でもできる施工不良の見つけ方', hashtags: ['施工不良', '建設検査', '新築', 'リフォーム', 'HORIZONSHIELD'] },
-  { title: '店舗開業の内装工事、適正価格はいくら？坪単価の相場を業種別に解説', keywords: ['坪単価', '飲食店', 'サロン', 'クリニック', '内装工事'], angle: '業種別の適正な内装工事費用の目安', hashtags: ['店舗内装', '内装工事', '開業', '坪単価', 'HORIZONSHIELD'] },
-  { title: '見積書を「高い」と感じたら最初にやるべきこと3つ', keywords: ['見積書確認', '内訳', '単価', '数量', '専門家相談'], angle: '見積書に違和感を感じた時の具体的な行動手順', hashtags: ['見積書', 'リフォーム', '建設費用', '施主', 'HORIZONSHIELD'] },
+  { title: 'リフォーム業者が絶対に教えない「見積書の5つの罠」', keywords: ['一式見積もり','諸経費','図面なし','数量不明','口頭約束'], angle: '施主が知らない業者の常套手段を暴露する内容', hashtags: ['リフォーム','見積書','建設費','施主','HORIZONSHIELD'] },
+  { title: '「追加工事が必要です」と言われたら疑え。建設30年のプロが語る真実', keywords: ['追加工事','契約外','口頭指示','変更工事査定','証拠'], angle: '追加請求の正当性を見極める方法', hashtags: ['追加工事','リフォーム','建設','施主','HORIZONSHIELD'] },
+  { title: '外壁塗装300万円は高いのか？適正価格の見分け方を徹底解説', keywords: ['外壁塗装','足場代','塗料原価','坪単価','相見積もり'], angle: '具体的な数字で適正価格を解説する内容', hashtags: ['外壁塗装','リフォーム','適正価格','施主','HORIZONSHIELD'] },
+  { title: '工務店選びで失敗しない7つのチェックポイント', keywords: ['建設業許可','施工実績','保証内容','契約書','口コミ'], angle: '施主が業者を選ぶ際の具体的な判断基準', hashtags: ['工務店','リフォーム','建設','施主','HORIZONSHIELD'] },
+  { title: '引き渡し前に必ず確認すべき施工不良チェックリスト20項目', keywords: ['施工不良','完成検査','クロス','床鳴り','防水'], angle: '素人でもできる施工不良の見つけ方', hashtags: ['施工不良','完成検査','リフォーム','施主','HORIZONSHIELD'] },
+  { title: '店舗開業の内装工事、適正価格はいくら？坪単価の相場を業種別に解説', keywords: ['坪単価','飲食店','サロン','クリニック','内装工事'], angle: '業種別の適正な内装工事費用の目安', hashtags: ['内装工事','店舗','坪単価','リフォーム','HORIZONSHIELD'] },
+  { title: '見積書を「高い」と感じたら最初にやるべきこと3つ', keywords: ['見積書確認','内訳','単価','数量','専門家相談'], angle: '見積書に違和感を感じた時の具体的な行動手順', hashtags: ['見積書','リフォーム','建設費','施主','HORIZONSHIELD'] },
 ];
 
 function getTodayTheme() {
-  const d = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-  return THEMES[d % THEMES.length];
+  const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  return THEMES[dayOfYear % THEMES.length];
 }
 
-// HTTPSリクエストをPromise化
-function httpsRequest(options, body = null) {
+function httpsRequest(options, body) {
   return new Promise((resolve, reject) => {
     const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', c => data += c);
-      res.on('end', () => {
-        const cookies = [];
-        for (let i = 0; i < res.rawHeaders.length; i += 2) {
-          if (res.rawHeaders[i].toLowerCase() === 'set-cookie') {
-            cookies.push(res.rawHeaders[i + 1]);
-          }
-        }
-        resolve({ status: res.statusCode, body: data, cookies, headers: res.headers });
-      });
+      const chunks = [];
+      res.on('data', c => chunks.push(c));
+      res.on('end', () => resolve({
+        status: res.statusCode,
+        headers: res.headers,
+        cookies: res.headers['set-cookie'] || [],
+        body: Buffer.concat(chunks).toString(),
+      }));
     });
     req.on('error', reject);
     if (body) req.write(body);
@@ -48,151 +37,20 @@ function httpsRequest(options, body = null) {
   });
 }
 
-// セッションCookieを環境変数から直接取得
-async function noteLogin() {
-  const session = process.env.NOTE_SESSION;
-  if (!session) throw new Error('NOTE_SESSION が設定されていません');
-  const cookieStr = `_note_session_v5=${session}`; // セッションIDのみ
-  console.log('セッションCookie使用（環境変数から取得）');
-  return { cookieStr, token: '' };
+function uuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
 }
 
-// Note-Tokenを取得（/api/v1/meのレスポンスヘッダから）
-async function getCsrfToken(cookieStr) {
-  // まず/api/v2/noteから試す
-  for (const path of ['/api/v1/me', '/api/v2/me', '/api/v1/token']) {
-    const res = await httpsRequest({
-      hostname: 'note.com',
-      path,
-      method: 'GET',
-      headers: {
-        'Cookie': cookieStr,
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-        'Accept': 'application/json',
-        'Referer': 'https://note.com/',
-      },
-    });
-    console.log(`${path} ステータス:`, res.status, 'body先頭:', res.body.slice(0, 150));
-    try {
-      const json = JSON.parse(res.body);
-      const token = json.data?.user_notestock_token
-        || json.data?.token
-        || json.token
-        || json.data?.note_token
-        || '';
-      if (token) {
-        console.log('Noteトークン取得成功:', path);
-        return token;
-      }
-    } catch(e) {}
-  }
-  console.log('Noteトークン取得失敗 → 空文字で続行');
-  return '';
-}
-
-// 記事本文をnote形式のHTMLに変換
 function textToNoteBody(text) {
-  function uuid() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-      const r = Math.random() * 16 | 0;
-      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-    });
-  }
-  return text.split('\n\n')
-    .map(p => p.trim()).filter(Boolean)
-    .map(p => {
-      const id = uuid();
-      return `<p name="${id}" id="${id}">${p.replace(/\n/g, '<br>')}</p>`;
-    }).join('');
+  return text.split('\n\n').map(p => p.trim()).filter(Boolean).map(p => {
+    const id = uuid();
+    return `<p name="${id}" id="${id}">${p.replace(/\n/g, '<br>')}</p>`;
+  }).join('');
 }
 
-// note記事を投稿（1ステップ方式）
-async function postNote(theme, bodyText, cookieStrParam, noteToken) {
-  let cookieStr = cookieStrParam;
-  const noteBody = textToNoteBody(bodyText);
-  const bodyLength = bodyText.replace(/\s/g, '').length;
-
-  const commonHeaders = (bodyStr) => ({
-    'Content-Type': 'application/json',
-    'Content-Length': Buffer.byteLength(bodyStr),
-    'Cookie': cookieStr,
-    'X-Requested-With': 'XMLHttpRequest',
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-    'Origin': 'https://editor.note.com',
-    'Referer': 'https://editor.note.com/',
-  });
-
-  // Step1: draft作成
-  const draftBody = JSON.stringify({ name: theme.title });
-  const draftRes = await httpsRequest({
-    hostname: 'note.com',
-    path: '/api/v1/text_notes',
-    method: 'POST',
-    headers: commonHeaders(draftBody),
-  }, draftBody);
-  console.log('下書き作成ステータス:', draftRes.status);
-
-  let noteId = '', noteKey = '';
-  try {
-    const json = JSON.parse(draftRes.body);
-    noteId = String(json.data?.id || '');
-    noteKey = String(json.data?.key || '');
-    console.log('下書き作成完了 id:', noteId, 'key:', noteKey);
-  } catch(e) {
-    throw new Error('下書き作成失敗: ' + draftRes.body.slice(0, 200));
-  }
-  if (!noteId) throw new Error('記事IDが取得できなかった');
-
-  // Step2: draft_saveで本文保存
-  const saveBody = JSON.stringify({
-    body: noteBody,
-    body_length: bodyLength,
-    name: theme.title,
-    index: false,
-    is_lead_form: false,
-  });
-  const saveRes = await httpsRequest({
-    hostname: 'note.com',
-    path: `/api/v1/text_notes/draft_save?id=${noteId}&is_temp_saved=true`,
-    method: 'POST',
-    headers: commonHeaders(saveBody),
-  }, saveBody);
-  console.log('draft_saveステータス:', saveRes.status);
-  // セッション更新
-  if (saveRes.cookies && saveRes.cookies.length > 0) {
-    const newCookie = saveRes.cookies.map(c => c.split(';')[0]).filter(c => c.includes('_note_session')).join('; ');
-    if (newCookie) { cookieStr = newCookie; console.log('セッション更新済み'); }
-  }
-
-  // Step3: ハッシュタグ + 公開を同時に（PATCH）
-  const patchBody = JSON.stringify({
-    hashtag_list: theme.hashtags,
-    status: 'public',
-    published_at: new Date().toISOString(),
-  });
-  const patchRes = await httpsRequest({
-    hostname: 'note.com',
-    path: `/api/v1/text_notes/${noteId}`,
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(patchBody),
-      'Cookie': cookieStr,
-      'X-Requested-With': 'XMLHttpRequest',
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-      'Origin': 'https://editor.note.com',
-      'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
-    },
-  }, patchBody);
-  console.log('PATCH公開ステータス:', patchRes.status);
-  console.log('PATCHレスポンス:', patchRes.body.slice(0, 300));
-
-  await new Promise(r => setTimeout(r, 2000));
-  return `https://note.com/horizon_shield/n/${noteKey}`;
-}
-
-
-// Claude APIで記事生成（リトライあり）
 async function generateArticle(theme) {
   const prompt = `あなたはHORIZON SHIELDのAIライターです。建設費診断の専門家として、施主目線で以下のテーマについて記事を書いてください。
 
@@ -232,50 +90,112 @@ async function generateArticle(theme) {
     break;
   }
   const data = await response.json();
-  if (data.error) throw new Error(`Claude API失敗 [${response.status}]: ${data.error.message}`);
-  const text = (data.content?.[0]?.text || '').replace(/^\#{1,6}\s/gm, '').replace(/\*{1,2}/g, '').replace(/
-{3,}/g, '
-
-');
+  if (data.error) throw new Error(`Claude API失敗: ${data.error.message}`);
+  const text = (data.content?.[0]?.text || '').replace(/\n{3,}/g, '\n\n');
   console.log('記事生成完了 文字数:', text.length);
   return text;
 }
 
-// ntfy通知（LINE代替）
+async function postNote(theme, bodyText, cookieStr) {
+  const noteBody = textToNoteBody(bodyText);
+  const bodyLength = bodyText.replace(/\s/g, '').length;
+
+  const makeHeaders = (bodyStr, referer) => ({
+    'Content-Type': 'application/json',
+    'Content-Length': Buffer.byteLength(bodyStr),
+    'Cookie': cookieStr,
+    'X-Requested-With': 'XMLHttpRequest',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+    'Origin': 'https://editor.note.com',
+    'Referer': referer || 'https://editor.note.com/',
+  });
+
+  // Step1: 下書き作成
+  const createBody = JSON.stringify({ name: theme.title });
+  const createRes = await httpsRequest({
+    hostname: 'note.com', path: '/api/v1/text_notes', method: 'POST',
+    headers: makeHeaders(createBody),
+  }, createBody);
+  console.log('下書き作成ステータス:', createRes.status);
+
+  let noteId = '', noteKey = '';
+  try {
+    const json = JSON.parse(createRes.body);
+    noteId = String(json.data?.id || '');
+    noteKey = String(json.data?.key || '');
+    console.log('下書き作成完了 id:', noteId, 'key:', noteKey);
+  } catch(e) { throw new Error('下書き作成失敗: ' + createRes.body.slice(0, 200)); }
+  if (!noteId) throw new Error('記事IDが取得できなかった');
+
+  // Step2: draft_saveで本文保存
+  const saveBody = JSON.stringify({ body: noteBody, body_length: bodyLength, name: theme.title, index: false, is_lead_form: false });
+  const saveRes = await httpsRequest({
+    hostname: 'note.com',
+    path: `/api/v1/text_notes/draft_save?id=${noteId}&is_temp_saved=true`,
+    method: 'POST',
+    headers: makeHeaders(saveBody, `https://editor.note.com/notes/${noteKey}/edit`),
+  }, saveBody);
+  console.log('draft_saveステータス:', saveRes.status);
+
+  // セッション更新
+  if (saveRes.cookies.length > 0) {
+    const newCookie = saveRes.cookies.map(c => c.split(';')[0]).join('; ');
+    if (newCookie) cookieStr = newCookie;
+  }
+
+  // Step3: ハッシュタグ設定
+  const tagBody = JSON.stringify({ hashtag_list: theme.hashtags });
+  await httpsRequest({
+    hostname: 'note.com', path: `/api/v1/text_notes/${noteId}/hashtags`, method: 'PUT',
+    headers: makeHeaders(tagBody, `https://editor.note.com/notes/${noteKey}/edit`),
+  }, tagBody);
+  console.log('ハッシュタグ設定完了');
+
+  // Step4: 公開（noteKeyを使用）
+  const pubBody = JSON.stringify({ published_at: new Date().toISOString() });
+  const pubRes = await httpsRequest({
+    hostname: 'note.com',
+    path: `/api/v1/text_notes/${noteKey}/publish`,
+    method: 'POST',
+    headers: {
+      ...makeHeaders(pubBody, `https://note.com/notes/${noteKey}/edit`),
+      'Origin': 'https://note.com',
+    },
+  }, pubBody);
+  console.log('公開ステータス:', pubRes.status);
+  console.log('公開レスポンス:', pubRes.body.slice(0, 200));
+
+  return `https://note.com/horizon_shield/n/${noteKey}`;
+}
+
 async function sendNtfy(message) {
   try {
     await fetch('https://ntfy.sh/horizon-shield-toshi-0222', {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-      body: message,
+      method: 'POST', headers: { 'Content-Type': 'text/plain; charset=utf-8' }, body: message,
     });
-  } catch(e) {
-    console.log('ntfy失敗:', e.message);
-  }
+  } catch(e) { console.log('ntfy失敗:', e.message); }
 }
 
-// LINE通知
 async function sendLine(message) {
-  await fetch('https://api.line.me/v2/bot/message/push', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${LINE_TOKEN}` },
-    body: JSON.stringify({ to: LINE_USER_ID, messages: [{ type: 'text', text: message.slice(0, 5000) }] }),
-  });
+  try {
+    await fetch('https://api.line.me/v2/bot/message/push', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.LINE_CHANNEL_TOKEN}` },
+      body: JSON.stringify({ to: process.env.LINE_USER_ID, messages: [{ type: 'text', text: message.slice(0, 5000) }] }),
+    });
+  } catch(e) { console.log('LINE失敗:', e.message); }
 }
 
-// LINEブロードキャスト
 async function broadcastToFollowers(theme, noteUrl) {
-  const text = `【今日の建設情報】\n\n${theme.title}\n\n▼ 続きを読む\n${noteUrl}\n\n━━━━━━━━━━\n📣 無料コミュニティ参加受付中！\nhttps://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ\n\n見積書の無料AI診断👇\nhttps://shield.the-horizons-innovation.com`;
+  const text = `【今日の建設情報】\n\n${theme.title}\n\n続きを読む\n${noteUrl}\n\n━━━━━━━━━━\nコミュニティ参加受付中！\nhttps://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ\n\n建積書の無料AI診断\nhttps://shield.the-horizons-innovation.com`;
   try {
     const res = await fetch('https://api.line.me/v2/bot/message/broadcast', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${LINE_TOKEN}` },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.LINE_CHANNEL_TOKEN}` },
       body: JSON.stringify({ messages: [{ type: 'text', text }] }),
     });
     console.log('ブロードキャスト:', res.ok ? '成功' : `失敗 [${res.status}]`);
-  } catch(e) {
-    console.log('ブロードキャスト失敗:', e.message);
-  }
+  } catch(e) { console.log('ブロードキャスト失敗:', e.message); }
 }
 
 async function main() {
@@ -286,21 +206,12 @@ async function main() {
       if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`);
     }
 
+    const cookieStr = `_note_session_v5=${process.env.NOTE_SESSION}`;
     const theme = getTodayTheme();
     console.log('今日のテーマ:', theme.title);
 
-    // ログイン
-    const { cookieStr, token } = await noteLogin();
-    if (!cookieStr && !token) throw new Error('ログイン情報が取得できなかった');
-
-    // CSRFトークン取得
-    const noteToken = await getCsrfToken(cookieStr);
-
-    // 記事生成
     const articleText = await generateArticle(theme);
-
-    // 投稿
-    const noteUrl = await postNote(theme, articleText, cookieStr, noteToken);
+    const noteUrl = await postNote(theme, articleText, cookieStr);
     console.log('投稿URL:', noteUrl);
 
     await sendNtfy(`✅ note投稿完了: ${theme.title}`);
@@ -308,7 +219,7 @@ async function main() {
     await broadcastToFollowers(theme, noteUrl);
     console.log('=== 完了 ===');
     process.exit(0);
-  } catch(e) {
+  } catch (e) {
     console.error('エラー:', e.message);
     await sendLine(`❌ note自動投稿エラー\n${e.message}`).catch(() => {});
     process.exit(1);
