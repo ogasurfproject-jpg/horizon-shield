@@ -192,6 +192,55 @@ async function postNote(theme, bodyText, cookieStrParam, noteToken) {
 }
 
 
+// Claude APIで記事生成（リトライあり）
+async function generateArticle(theme) {
+  const prompt = `あなたはHORIZON SHIELDのAIライターです。建設費診断の専門家として、施主目線で以下のテーマについて記事を書いてください。
+
+テーマ：${theme.title}
+キーワード：${theme.keywords.join('、')}
+切り口：${theme.angle}
+
+条件：
+- 1200〜1500文字
+- 実際の建設現場での経験を交えた具体的な内容
+- 施主が今すぐ使える実践的なアドバイス
+- 段落ごとに改行して読みやすく
+- 最後にHORIZON SHIELDへの誘導文を1文
+
+本文のみ出力してください。タイトルは不要です。`;
+
+  let response;
+  for (let i = 0; i < 5; i++) {
+    response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 2000,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+    if (response.status === 529 || response.status === 503) {
+      console.log(`Claude API ${response.status} リトライ ${i+1}/5...`);
+      await new Promise(r => setTimeout(r, 10000 * (i + 1)));
+      continue;
+    }
+    break;
+  }
+  const data = await response.json();
+  if (data.error) throw new Error(`Claude API失敗 [${response.status}]: ${data.error.message}`);
+  const text = (data.content?.[0]?.text || '').replace(/^\#{1,6}\s/gm, '').replace(/\*{1,2}/g, '').replace(/
+{3,}/g, '
+
+');
+  console.log('記事生成完了 文字数:', text.length);
+  return text;
+}
+
 // ntfy通知（LINE代替）
 async function sendNtfy(message) {
   try {
