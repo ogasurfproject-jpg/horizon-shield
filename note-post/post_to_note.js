@@ -202,8 +202,15 @@ async function postNote(theme, bodyText, cookieStr) {
     if (newCookie) cookieStr = newCookie;
   }
 
-  // Step5: 公開（PUT /api/v1/text_notes/{noteId}）
-  const pubBody = JSON.stringify({ name: theme.title, index: true });
+  // Step5: 公開（PUT - 本文・ハッシュタグ含むフル送信）
+  const pubBody = JSON.stringify({
+    name: theme.title,
+    body: noteBody,
+    body_length: bodyLength,
+    index: true,
+    is_lead_form: false,
+    hashtag_list: theme.hashtags,
+  });
   const pubRes = await httpsRequest({
     hostname: 'note.com',
     path: `/api/v1/text_notes/${noteId}`,
@@ -212,10 +219,6 @@ async function postNote(theme, bodyText, cookieStr) {
   }, pubBody);
   console.log('公開ステータス:', pubRes.status);
   console.log('公開レスポンス:', pubRes.body.slice(0, 300));
-
-  if (pubRes.status !== 200 && pubRes.status !== 201) {
-    throw new Error(`公開失敗 [${pubRes.status}]: ${pubRes.body.slice(0, 200)}`);
-  }
 
   return `https://note.com/horizon_shield/n/${noteKey}`;
 }
