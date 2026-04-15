@@ -83,22 +83,25 @@ async function postToNote(theme, articleText) {
   await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36');
 
   try {
-    // ログインせずセッションクッキーで直接認証
+    // note.comに移動してからクッキーをセット
     await page.goto('https://note.com', { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await page.setCookie({
-      name: '_note_session_v5',
-      value: process.env.NOTE_SESSION,
-      domain: 'note.com',
-      path: '/',
-      httpOnly: true,
-      secure: true,
-    });
-    console.log('セッションクッキーセット完了');
+
+    // NOTE_SESSIONはフルCookie文字列: "name1=val1; name2=val2; ..."
+    const cookieStr = process.env.NOTE_SESSION;
+    const cookies = cookieStr.split(';').map(c => c.trim()).filter(Boolean).map(c => {
+      const eqIdx = c.indexOf('=');
+      return { name: c.slice(0, eqIdx).trim(), value: c.slice(eqIdx + 1).trim() };
+    }).filter(c => !c.name.startsWith('_ga') && !c.name.startsWith('_gi')); // GA系除外
+    for (const c of cookies) {
+      await page.setCookie({ name: c.name, value: c.value, domain: 'note.com', path: '/', httpOnly: true, secure: true });
+    }
+    console.log('クッキーセット完了:', cookies.map(c => c.name).join(', '));
 
     // エディタへ
     await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
     await new Promise(r => setTimeout(r, 5000));
     console.log('エディタURL:', page.url());
+    if (page.url().includes('/login')) throw new Error('クッキー認証失敗: ログインページにリダイレクト');
 
     const editableCount = await page.evaluate(() => document.querySelectorAll('[contenteditable]').length);
     console.log('contenteditable数:', editableCount);
