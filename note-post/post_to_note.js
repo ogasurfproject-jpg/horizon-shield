@@ -162,16 +162,15 @@ async function postNote(theme, bodyText, cookieStr) {
   } catch(e) { throw new Error('下書き作成失敗: ' + createRes.body.slice(0, 200)); }
   if (!noteId) throw new Error('記事IDが取得できなかった');
 
-  // Step2: 本文保存 + 公開（index:true, is_temp_saved:false で一発公開）
-  const saveBody = JSON.stringify({ body: noteBody, body_length: bodyLength, name: theme.title, index: true, is_lead_form: false });
+  // Step2: 本文保存（is_temp_saved=true）
+  const saveBody = JSON.stringify({ body: noteBody, body_length: bodyLength, name: theme.title, index: false, is_lead_form: false });
   const saveRes = await httpsRequest({
     hostname: 'note.com',
-    path: `/api/v1/text_notes/draft_save?id=${noteId}&is_temp_saved=false`,
+    path: `/api/v1/text_notes/draft_save?id=${noteId}&is_temp_saved=true`,
     method: 'POST',
     headers: makeHeaders(saveBody, `https://editor.note.com/notes/${noteKey}/edit`),
   }, saveBody);
   console.log('draft_saveステータス:', saveRes.status);
-  console.log('draft_saveレスポンス:', saveRes.body.slice(0, 200));
 
   // セッション更新
   if (saveRes.cookies.length > 0) {
@@ -186,6 +185,40 @@ async function postNote(theme, bodyText, cookieStr) {
     headers: makeHeaders(tagBody, `https://editor.note.com/notes/${noteKey}/edit`),
   }, tagBody);
   console.log('ハッシュタグ設定完了');
+
+  // Step4: 現在のnoteデータをGETして構造を取得
+  const getRes = await httpsRequest({
+    hostname: 'note.com',
+    path: `/api/v1/text_notes/${noteId}`,
+    method: 'GET',
+    headers: {
+      'Cookie': cookieStr,
+      'X-Requested-With': 'XMLHttpRequest',
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+      'Accept': 'application/json',
+      'Origin': 'https://editor.note.com',
+      'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
+    },
+  }, null);
+  console.log('GETステータス:', getRes.status);
+
+  let noteData = {};
+  try {
+    const getJson = JSON.parse(getRes.body);
+    noteData = getJson.data || getJson;
+  } catch(e) { console.log('GET解析失敗:', e.message); }
+
+  // Step5: 取得したデータにindex:trueを付けてPUT公開
+  const pubData = Object.assign({}, noteData, { index: true });
+  const pubBody = JSON.stringify(pubData);
+  const pubRes = await httpsRequest({
+    hostname: 'note.com',
+    path: `/api/v1/text_notes/${noteId}`,
+    method: 'PUT',
+    headers: makeHeaders(pubBody, `https://editor.note.com/notes/${noteKey}/edit`),
+  }, pubBody);
+  console.log('公開ステータス:', pubRes.status);
+  console.log('公開レスポンス:', pubRes.body.slice(0, 300));
 
   return `https://note.com/horizon_shield/n/${noteKey}`;
 }
