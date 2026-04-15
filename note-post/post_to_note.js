@@ -106,141 +106,91 @@ function textToNoteBody(text) {
     }).join('');
 }
 
-// note記事を投稿
+// note記事を投稿（1ステップ方式）
 async function postNote(theme, bodyText, cookieStrParam, noteToken) {
   let cookieStr = cookieStrParam;
   const noteBody = textToNoteBody(bodyText);
   const bodyLength = bodyText.replace(/\s/g, '').length;
 
-  // Step1: 下書き作成
-  const createBody = JSON.stringify({ name: theme.title, status: 'public' });
-  const createRes = await httpsRequest({
+  const commonHeaders = (bodyStr) => ({
+    'Content-Type': 'application/json',
+    'Content-Length': Buffer.byteLength(bodyStr),
+    'Cookie': cookieStr,
+    'X-Requested-With': 'XMLHttpRequest',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+    'Origin': 'https://editor.note.com',
+    'Referer': 'https://editor.note.com/',
+  });
+
+  // Step1: draft作成
+  const draftBody = JSON.stringify({ name: theme.title });
+  const draftRes = await httpsRequest({
     hostname: 'note.com',
     path: '/api/v1/text_notes',
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(createBody),
-      'Cookie': cookieStr,
-      'X-Requested-With': 'XMLHttpRequest',
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
-      'Origin': 'https://editor.note.com',
-      'Referer': 'https://editor.note.com/',
-      'sec-fetch-site': 'same-site',
-      'sec-fetch-mode': 'cors',
-    },
-  }, createBody);
+    headers: commonHeaders(draftBody),
+  }, draftBody);
+  console.log('下書き作成ステータス:', draftRes.status);
 
-  console.log('下書き作成ステータス:', createRes.status);
-  console.log('下書き作成レスポンス:', createRes.body.slice(0, 500));
-  // Set-CookieでセッションCookieを更新
-  if (createRes.setCookie && createRes.setCookie.length > 0) {
-    const newSession = createRes.setCookie
-      .map(c => c.split(';')[0])
-      .join('; ');
-    if (newSession) {
-      cookieStr = newSession;
-      console.log('セッションCookie更新');
-    }
-  }
   let noteId = '', noteKey = '';
   try {
-    const json = JSON.parse(createRes.body);
-    // レスポンス構造をそのままログ出力
-    console.log('レスポンスキー:', Object.keys(json).join(','));
-    if (json.data) console.log('data keys:', Object.keys(json.data).join(','));
-    noteId  = String(json.data?.id  || json.id  || '');
-    noteKey = String(json.data?.key || json.key || noteId);
+    const json = JSON.parse(draftRes.body);
+    noteId = String(json.data?.id || '');
+    noteKey = String(json.data?.key || '');
     console.log('下書き作成完了 id:', noteId, 'key:', noteKey);
   } catch(e) {
-    throw new Error(`下書き作成失敗: ${createRes.body.slice(0, 300)}`);
+    throw new Error('下書き作成失敗: ' + draftRes.body.slice(0, 200));
   }
   if (!noteId) throw new Error('記事IDが取得できなかった');
 
-  // Step2: 正しいパスでdraft_save
-  const draftBody = JSON.stringify({
+  // Step2: draft_saveで本文保存
+  const saveBody = JSON.stringify({
     body: noteBody,
     body_length: bodyLength,
     name: theme.title,
     index: false,
     is_lead_form: false,
   });
-  const draftRes = await httpsRequest({
+  const saveRes = await httpsRequest({
     hostname: 'note.com',
     path: `/api/v1/text_notes/draft_save?id=${noteId}&is_temp_saved=true`,
     method: 'POST',
+    headers: commonHeaders(saveBody),
+  }, saveBody);
+  console.log('draft_saveステータス:', saveRes.status);
+  // セッション更新
+  if (saveRes.cookies && saveRes.cookies.length > 0) {
+    const newCookie = saveRes.cookies.map(c => c.split(';')[0]).filter(c => c.includes('_note_session')).join('; ');
+    if (newCookie) { cookieStr = newCookie; console.log('セッション更新済み'); }
+  }
+
+  // Step3: ハッシュタグ + 公開を同時に（PATCH）
+  const patchBody = JSON.stringify({
+    hashtag_list: theme.hashtags,
+    status: 'public',
+    published_at: new Date().toISOString(),
+  });
+  const patchRes = await httpsRequest({
+    hostname: 'note.com',
+    path: `/api/v1/text_notes/${noteId}`,
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(draftBody),
+      'Content-Length': Buffer.byteLength(patchBody),
       'Cookie': cookieStr,
       'X-Requested-With': 'XMLHttpRequest',
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
       'Origin': 'https://editor.note.com',
-      'Referer': 'https://editor.note.com/',
+      'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
     },
-  }, draftBody);
-  console.log('draft_saveステータス:', draftRes.status);
-  if (!draftRes.status.toString().startsWith('2')) {
-    console.log('draft_saveエラー:', draftRes.body.slice(0, 200));
-  }
-  // セッションCookie更新
-  if (draftRes.setCookie && draftRes.setCookie.length > 0) {
-    const newSession = draftRes.setCookie.map(c => c.split(';')[0]).join('; ');
-    if (newSession) { cookieStr = newSession; console.log('draft後セッション更新'); }
-  }
+  }, patchBody);
+  console.log('PATCH公開ステータス:', patchRes.status);
+  console.log('PATCHレスポンス:', patchRes.body.slice(0, 300));
 
-  // ハッシュタグはdraft_save後に設定不要（public作成時に含める）
-  await new Promise(r => setTimeout(r, 3000));
+  await new Promise(r => setTimeout(r, 2000));
   return `https://note.com/horizon_shield/n/${noteKey}`;
 }
 
-// Claude API で記事生成
-async function generateArticle(theme) {
-  console.log('記事生成中:', theme.title);
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_KEY,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1500,
-      messages: [{
-        role: 'user',
-        content: `あなたは建設歴30年のプロ「大賀俊勝」として、施主側に立ったnote記事を書いてください。
-
-【記事タイトル】${theme.title}
-【含めるキーワード】${theme.keywords.join('、')}
-【方向性】${theme.angle}
-
-【ルール】
-・一人称は「私」
-・建設30年のプロとしての権威を自然に出す
-・施主への共感から始める
-・具体的な数字・事例を入れる
-・1000〜1200文字
-・段落は空行で区切る
-・記号「*」「**」「#」「_」は使わない
-・末尾に必ずこの文を入れる：
-「見積書の適正価格が気になる方は、HORIZON SHIELDの無料AI診断をお試しください。建設30年の専門知識を学習したAIが、あなたの見積書を即座に分析します。
-https://shield.the-horizons-innovation.com
-
-また、建設費・リフォームで損をしないための情報を毎日発信しているコミュニティがあります。参加無料です。
-https://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ」
-
-本文のみ出力（タイトル不要）。`,
-      }],
-    }),
-  });
-  if (!res.ok) throw new Error(`Claude API失敗 [${res.status}]`);
-  const data = await res.json();
-  let text = data.content?.[0]?.text || '';
-  text = text.replace(/\*\*/g, '').replace(/\*/g, '').replace(/^#{1,6}\s/gm, '');
-  console.log('記事生成完了 文字数:', text.length);
-  return text;
-}
 
 // ntfy通知（LINE代替）
 async function sendNtfy(message) {
