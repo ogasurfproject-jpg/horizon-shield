@@ -40,12 +40,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 .btn-blue{background:var(--accent);color:var(--bg)}
 .btn-red{background:var(--danger);color:#fff}
 .inquiries-section{margin-bottom:24px}
-.inquiry-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:8px}
+.inquiry-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:12px}
 .inquiry-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-.inquiry-name{font-weight:700;font-size:14px}
-.inquiry-date{font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace}
-.inquiry-email{font-size:12px;color:var(--accent);margin-bottom:4px}
-.inquiry-result{font-size:12px;color:var(--muted);line-height:1.6}
+.inquiry-name{font-weight:700;font-size:15px}
+.inquiry-date{font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;margin-top:2px}
+.inquiry-email{font-size:13px;color:var(--accent);margin-bottom:8px}
+.inquiry-risk{font-size:13px;font-weight:700;margin-bottom:8px}
+.inquiry-result{font-size:12px;color:var(--muted);line-height:1.8}
+.inquiry-result-item{padding:4px 0;border-bottom:1px solid var(--border)}
 .delete-btn{font-size:11px;color:var(--danger);background:none;border:1px solid rgba(255,61,61,0.3);padding:4px 8px;border-radius:3px;cursor:pointer;flex-shrink:0;margin-left:8px}
 .clear-btn{width:100%;padding:12px;background:rgba(255,61,61,0.1);border:1px solid rgba(255,61,61,0.3);color:var(--danger);border-radius:4px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-top:8px}
 .empty{text-align:center;padding:32px;color:var(--muted);font-size:13px}
@@ -165,20 +167,50 @@ async function loadStats() {
 
 function renderInquiries(items) {
   const list = document.getElementById('inquiry-list');
-  if (!items.length) { list.innerHTML = '<div class="empty">問い合わせはまだありません</div>'; return; }
-  list.innerHTML = items.reverse().map(item => `
-    <div class="inquiry-card" id="card-${item.key?.replace(':','-')}">
+  if (!items.length) {
+    list.innerHTML = '<div class="empty">問い合わせはまだありません</div>';
+    return;
+  }
+  const riskLabel = {
+    'high': '🔴 高（過剰請求の可能性大）',
+    'medium': '🟡 中（要確認）',
+    'low': '🟢 低（概ね適正）'
+  };
+  const riskColor = {
+    'high': 'var(--danger)',
+    'medium': 'var(--warn)',
+    'low': 'var(--green)'
+  };
+  list.innerHTML = items.slice().reverse().map(item => {
+    let resultHtml = '';
+    try {
+      const arr = JSON.parse(item.result || '[]');
+      if (arr.length) {
+        resultHtml = arr.map(r => `<div class="inquiry-result-item">⚠ ${r}</div>`).join('');
+      } else {
+        resultHtml = '<div style="color:var(--muted);font-size:12px">診断結果なし</div>';
+      }
+    } catch(e) {
+      resultHtml = `<div style="font-size:12px;color:var(--muted)">${item.result || '—'}</div>`;
+    }
+    const risk = item.risk || '';
+    const color = riskColor[risk] || 'var(--muted)';
+    const label = riskLabel[risk] || '不明';
+    const date = item.created ? new Date(item.created).toLocaleString('ja-JP') : '—';
+    return `
+    <div class="inquiry-card" id="card-${(item.key||'').replace(':','-')}">
       <div class="inquiry-header">
         <div>
           <div class="inquiry-name">${item.name || '—'}</div>
-          <div class="inquiry-date">${item.created ? new Date(item.created).toLocaleString('ja-JP') : '—'}</div>
+          <div class="inquiry-date">${date}</div>
         </div>
         <button class="delete-btn" onclick="deleteInquiry('${item.key}')">削除</button>
       </div>
       <div class="inquiry-email">${item.email || '—'}</div>
-      <div class="inquiry-result">${(item.result || item.type || '').substring(0,200)}</div>
-    </div>
-  `).join('');
+      <div class="inquiry-risk" style="color:${color}">${label}</div>
+      <div class="inquiry-result">${resultHtml}</div>
+    </div>`;
+  }).join('');
 }
 
 async function recordDiagnosis() {
@@ -191,7 +223,7 @@ async function recordDiagnosis() {
     });
     const data = await res.json();
     msg.className = 'msg ok'; msg.style.display = 'block';
-    msg.textContent = `✅ 記録完了 累計${data.data.count}件 / ¥${data.data.total_saved.toLocaleString()}`;
+    msg.textContent = '✅ 記録完了 累計' + data.data.count + '件 / ¥' + data.data.total_saved.toLocaleString();
     document.getElementById('r-saved').value = '';
     loadStats();
   } catch(e) {
@@ -203,7 +235,7 @@ async function recordDiagnosis() {
 async function recordDonation() {
   const amount = parseInt(document.getElementById('r-donate').value) || 0;
   if (!amount || amount <= 0) { alert('金額を入力してください'); return; }
-  if (!confirm(`¥${amount.toLocaleString()}をMSFに寄付済みとして記録しますか？`)) return;
+  if (!confirm('¥' + amount.toLocaleString() + 'をMSFに寄付済みとして記録しますか？')) return;
   const msg = document.getElementById('donate-msg');
   try {
     const res = await fetch(WORKER + '/record-donation', {
@@ -212,7 +244,7 @@ async function recordDonation() {
     });
     const data = await res.json();
     msg.className = 'msg ok'; msg.style.display = 'block';
-    msg.textContent = `✅ 寄付記録完了 累計¥${data.data.total.toLocaleString()}`;
+    msg.textContent = '✅ 寄付記録完了 累計¥' + data.data.total.toLocaleString();
     document.getElementById('r-donate').value = '';
     loadStats();
   } catch(e) {
