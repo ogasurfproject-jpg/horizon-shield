@@ -48,48 +48,13 @@ function httpsRequest(options, body = null) {
   });
 }
 
-// noteログイン → セッションCookie取得
+// セッションCookieを環境変数から直接取得
 async function noteLogin() {
-  const body = JSON.stringify({ login: NOTE_EMAIL, password: NOTE_PASSWORD });
-  const res = await httpsRequest({
-    hostname: 'note.com',
-    path: '/api/v1/sessions/sign_in',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(body),
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
-      'Origin': 'https://note.com',
-      'Referer': 'https://note.com/login',
-      'Accept': 'application/json',
-    },
-  }, body);
-
-  console.log('ログインステータス:', res.status);
-  console.log('取得Cookie数:', res.cookies.length);
-  console.log('レスポンスボディ:', res.body.slice(0, 500));
-  console.log('全ヘッダー:', JSON.stringify(res.headers).slice(0, 500));
-
-  if (res.status !== 200 && res.status !== 201) {
-    throw new Error(`ログイン失敗 [${res.status}]: ${res.body.slice(0, 200)}`);
-  }
-
-  // Cookie文字列を組み立て（name=value形式のみ）
-  const cookieStr = res.cookies
-    .map(c => c.split(';')[0].trim())
-    .join('; ');
-
-  console.log('Cookie文字列長:', cookieStr.length);
-
-  // レスポンスからtokenも取得
-  let token = '';
-  try {
-    const json = JSON.parse(res.body);
-    token = json.data?.token || json.token || '';
-    console.log('APIトークン取得:', token ? 'あり' : 'なし');
-  } catch(e) {}
-
-  return { cookieStr, token };
+  const session = process.env.NOTE_SESSION;
+  if (!session) throw new Error('NOTE_SESSION が設定されていません');
+  const cookieStr = `_note_session_v5=${session}`;
+  console.log('セッションCookie使用（環境変数から取得）');
+  return { cookieStr, token: '' };
 }
 
 // CSRFトークン取得
@@ -290,7 +255,7 @@ async function broadcastToFollowers(theme, noteUrl) {
 async function main() {
   console.log('=== HORIZON SHIELD note自動投稿 v8 開始 ===');
   try {
-    const required = ['NOTE_EMAIL', 'NOTE_PASSWORD', 'ANTHROPIC_API_KEY', 'LINE_CHANNEL_TOKEN', 'LINE_USER_ID'];
+    const required = ['NOTE_SESSION', 'ANTHROPIC_API_KEY', 'LINE_CHANNEL_TOKEN', 'LINE_USER_ID'];
     for (const key of required) {
       if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`);
     }
