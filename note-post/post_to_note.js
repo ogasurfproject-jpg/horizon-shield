@@ -129,9 +129,13 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
   }, createBody);
 
   console.log('下書き作成ステータス:', createRes.status);
+  console.log('下書き作成レスポンス:', createRes.body.slice(0, 500));
   let noteId = '', noteKey = '';
   try {
     const json = JSON.parse(createRes.body);
+    // レスポンス構造をそのままログ出力
+    console.log('レスポンスキー:', Object.keys(json).join(','));
+    if (json.data) console.log('data keys:', Object.keys(json.data).join(','));
     noteId  = String(json.data?.id  || json.id  || '');
     noteKey = String(json.data?.key || json.key || noteId);
     console.log('下書き作成完了 id:', noteId, 'key:', noteKey);
