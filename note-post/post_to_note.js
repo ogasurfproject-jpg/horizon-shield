@@ -173,15 +173,34 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
     console.log('draft_saveエラー:', draftRes.body.slice(0, 200));
   }
 
-  // Step3: 公開（ハッシュタグ込み）PUT で既存記事を更新
+  // Step3: ハッシュタグ設定
+  const tagBody = JSON.stringify({ hashtag_list: theme.hashtags });
+  await httpsRequest({
+    hostname: 'note.com',
+    path: `/api/v1/text_notes/${noteId}/hashtags`,
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(tagBody),
+      'Cookie': cookieStr,
+      'X-Requested-With': 'XMLHttpRequest',
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+      'Origin': 'https://editor.note.com',
+      'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
+    },
+  }, tagBody);
+  console.log('ハッシュタグ設定完了');
+
+  // Step4: 公開
   const publishBody = JSON.stringify({
+    id: Number(noteId),
     status: 'public',
     hashtag_list: theme.hashtags,
   });
   const publishRes = await httpsRequest({
     hostname: 'note.com',
-    path: `/api/v1/text_notes/${noteId}`,
-    method: 'PUT',
+    path: '/api/v1/text_notes',
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Content-Length': Buffer.byteLength(publishBody),
@@ -193,7 +212,7 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
     },
   }, publishBody);
   console.log('公開ステータス:', publishRes.status);
-  console.log('公開レスポンス:', publishRes.body.slice(0, 200));
+  console.log('公開レスポンス:', publishRes.body.slice(0, 300));
 
   await new Promise(r => setTimeout(r, 3000));
   return `https://note.com/horizon_shield/n/${noteKey}`;
