@@ -67,6 +67,8 @@ async function noteLogin() {
 
   console.log('ログインステータス:', res.status);
   console.log('取得Cookie数:', res.cookies.length);
+  console.log('レスポンスボディ:', res.body.slice(0, 500));
+  console.log('全ヘッダー:', JSON.stringify(res.headers).slice(0, 500));
 
   if (res.status !== 200 && res.status !== 201) {
     throw new Error(`ログイン失敗 [${res.status}]: ${res.body.slice(0, 200)}`);
