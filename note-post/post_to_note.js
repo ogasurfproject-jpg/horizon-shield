@@ -109,7 +109,7 @@ async function postNote(theme, bodyText, cookieStr, csrfToken) {
 
   const createRes = await httpsRequest({
     hostname: 'note.com',
-    path: '/api/v2/notes',
+    path: '/api/v3/notes',
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -140,7 +140,7 @@ async function postNote(theme, bodyText, cookieStr, csrfToken) {
   const tagBody = JSON.stringify({ hashtag_list: theme.hashtags });
   await httpsRequest({
     hostname: 'note.com',
-    path: `/api/v2/notes/${noteId}/hashtags`,
+    path: `/api/v3/notes/${noteId}/hashtags`,
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -157,7 +157,7 @@ async function postNote(theme, bodyText, cookieStr, csrfToken) {
   const publishBody = JSON.stringify({ status: 'published' });
   const publishRes = await httpsRequest({
     hostname: 'note.com',
-    path: `/api/v2/notes/${noteId}/publish`,
+    path: `/api/v3/notes/${noteId}/publish`,
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
