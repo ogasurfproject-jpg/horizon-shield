@@ -57,27 +57,37 @@ async function noteLogin() {
   return { cookieStr, token: '' };
 }
 
-// CSRFトークン取得
+// Note-Tokenを取得（/api/v1/meのレスポンスヘッダから）
 async function getCsrfToken(cookieStr) {
-  const res = await httpsRequest({
-    hostname: 'note.com',
-    path: '/api/v1/token',
-    method: 'GET',
-    headers: {
-      'Cookie': cookieStr,
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
-      'Accept': 'application/json',
-    },
-  });
-  try {
-    const json = JSON.parse(res.body);
-    const csrf = json.data?.token || json.token || '';
-    console.log('CSRFトークン:', csrf ? '取得成功' : '取得失敗');
-    return csrf;
-  } catch(e) {
-    console.log('CSRFトークン取得エラー:', e.message);
-    return '';
+  // まず/api/v2/noteから試す
+  for (const path of ['/api/v1/me', '/api/v2/me', '/api/v1/token']) {
+    const res = await httpsRequest({
+      hostname: 'note.com',
+      path,
+      method: 'GET',
+      headers: {
+        'Cookie': cookieStr,
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+        'Accept': 'application/json',
+        'Referer': 'https://note.com/',
+      },
+    });
+    console.log(`${path} ステータス:`, res.status, 'body先頭:', res.body.slice(0, 150));
+    try {
+      const json = JSON.parse(res.body);
+      const token = json.data?.user_notestock_token
+        || json.data?.token
+        || json.token
+        || json.data?.note_token
+        || '';
+      if (token) {
+        console.log('Noteトークン取得成功:', path);
+        return token;
+      }
+    } catch(e) {}
   }
+  console.log('Noteトークン取得失敗 → 空文字で続行');
+  return '';
 }
 
 // 記事本文をnote形式のHTMLに変換
