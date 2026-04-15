@@ -186,26 +186,26 @@ async function postNote(theme, bodyText, cookieStr) {
   }, tagBody);
   console.log('ハッシュタグ設定完了');
 
-  // Step4: note_otp取得 → 公開（IDは数値のnoteIdを使用）
-  const noteOtp = await getNoteOtp(noteKey, cookieStr);
-  const pubBody = JSON.stringify({ published_at: new Date().toISOString(), scope: 'everyone' });
-  const pubHeaders = {
-    ...makeHeaders(pubBody, `https://note.com/notes/${noteKey}/edit`),
-    'Origin': 'https://note.com',
-  };
-  if (noteOtp) pubHeaders['X-Note-Token'] = noteOtp;
-
-  const pubRes = await httpsRequest({
+  // Step4: 公開（draft_saveのis_temp_saved=falseで公開確定）
+  const pubSaveBody = JSON.stringify({
+    body: noteBody,
+    body_length: bodyLength,
+    name: theme.title,
+    index: true,
+    is_lead_form: false,
+    publish_at: new Date().toISOString(),
+  });
+  const pubSaveRes = await httpsRequest({
     hostname: 'note.com',
-    path: `/api/v1/text_notes/${noteId}/publish`,
+    path: `/api/v1/text_notes/draft_save?id=${noteId}&is_temp_saved=false`,
     method: 'POST',
-    headers: pubHeaders,
-  }, pubBody);
-  console.log('公開ステータス:', pubRes.status);
-  console.log('公開レスポンス:', pubRes.body.slice(0, 300));
+    headers: makeHeaders(pubSaveBody, `https://editor.note.com/notes/${noteKey}/edit`),
+  }, pubSaveBody);
+  console.log('公開draft_saveステータス:', pubSaveRes.status);
+  console.log('公開draft_saveレスポンス:', pubSaveRes.body.slice(0, 300));
 
-  if (pubRes.status !== 200 && pubRes.status !== 201) {
-    throw new Error(`公開失敗 [${pubRes.status}]: ${pubRes.body.slice(0, 200)}`);
+  if (pubSaveRes.status !== 200 && pubSaveRes.status !== 201) {
+    throw new Error(`公開失敗 [${pubSaveRes.status}]: ${pubSaveRes.body.slice(0, 200)}`);
   }
 
   return `https://note.com/horizon_shield/n/${noteKey}`;
