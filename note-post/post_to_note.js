@@ -89,35 +89,19 @@ async function postToNote(theme, articleText) {
     console.log('ログインページ:', page.url());
 
     // メール入力
-    await page.waitForSelector('input', { timeout: 10000 });
-
-    // デバッグ：inputとbuttonの構造を出力
-    const formInfo = await page.evaluate(() => {
-      const inputs = Array.from(document.querySelectorAll('input')).map(i => `type=${i.type} name=${i.name} id=${i.id} placeholder=${i.placeholder}`);
-      const buttons = Array.from(document.querySelectorAll('button')).map(b => `type=${b.type} text=${b.textContent.trim().slice(0,30)}`);
-      const forms = Array.from(document.querySelectorAll('form')).map(f => `action=${f.action} method=${f.method}`);
-      return { inputs, buttons, forms };
-    });
-    console.log('inputs:', JSON.stringify(formInfo.inputs));
-    console.log('buttons:', JSON.stringify(formInfo.buttons));
-    console.log('forms:', JSON.stringify(formInfo.forms));
-
-    const inputs = await page.$$('input:not([type="hidden"])');
-    console.log('入力フィールド数:', inputs.length);
-    if (inputs.length >= 1) {
-      await inputs[0].click({ clickCount: 3 });
-      await inputs[0].type(process.env.NOTE_EMAIL, { delay: 50 });
-    }
-    if (inputs.length >= 2) {
-      await inputs[1].click({ clickCount: 3 });
-      await inputs[1].type(process.env.NOTE_PASSWORD, { delay: 50 });
-    }
+    // メール・パスワード入力（id確定）
+    await page.waitForSelector('input#email', { timeout: 10000 });
+    await page.click('input#email');
+    await page.type('input#email', process.env.NOTE_EMAIL, { delay: 50 });
+    await page.click('input#password');
+    await page.type('input#password', process.env.NOTE_PASSWORD, { delay: 50 });
+    console.log('メール・パスワード入力完了');
     await new Promise(r => setTimeout(r, 500));
 
-    // パスワード欄にフォーカスしてEnter送信
+    // ログインボタンクリック（type=button text=ログイン）
     await Promise.all([
       page.waitForNavigation({ timeout: 20000 }).catch(() => {}),
-      inputs[inputs.length - 1].press('Enter'),
+      clickButtonByText(page, 'ログイン'),
     ]);
     await new Promise(r => setTimeout(r, 5000));
     console.log('ログイン後URL:', page.url());
