@@ -186,7 +186,7 @@ async function postNote(theme, bodyText, cookieStr) {
   }, tagBody);
   console.log('ハッシュタグ設定完了');
 
-  // Step4: note_otp取得 → 公開
+  // Step4: note_otp取得 → 公開（IDは数値のnoteIdを使用）
   const noteOtp = await getNoteOtp(noteKey, cookieStr);
   const pubBody = JSON.stringify({ published_at: new Date().toISOString(), scope: 'everyone' });
   const pubHeaders = {
@@ -197,7 +197,7 @@ async function postNote(theme, bodyText, cookieStr) {
 
   const pubRes = await httpsRequest({
     hostname: 'note.com',
-    path: `/api/v1/text_notes/${noteKey}/publish`,
+    path: `/api/v1/text_notes/${noteId}/publish`,
     method: 'POST',
     headers: pubHeaders,
   }, pubBody);
