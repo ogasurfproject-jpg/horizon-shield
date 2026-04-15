@@ -261,7 +261,7 @@ async function main() {
       if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`);
     }
 
-    const cookieStr = `_note_session_v5=${process.env.NOTE_SESSION}`;
+    const cookieStr = process.env.NOTE_SESSION; // フルCookie文字列をそのまま使用
     const theme = getTodayTheme();
     console.log('今日のテーマ:', theme.title);
 
