@@ -156,7 +156,7 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
   });
   const draftRes = await httpsRequest({
     hostname: 'note.com',
-    path: `/api/v1/text_notes/${noteId}/draft_save?id=${noteId}&is_temp_saved=false`,
+    path: `/api/v1/draft_save?id=${noteId}&is_temp_saved=true`,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
