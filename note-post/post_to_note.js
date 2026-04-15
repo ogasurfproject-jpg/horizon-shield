@@ -96,31 +96,28 @@ function textToNoteBody(text) {
     }).join('');
 }
 
-// note記事を投稿
+// note記事を投稿（正しいAPI: /api/v1/text_notes）
 async function postNote(theme, bodyText, cookieStr, csrfToken) {
   const noteBody = textToNoteBody(bodyText);
 
-  // まず下書きとして記事を作成
-  const createBody = JSON.stringify({
-    title: theme.title,
-    body: noteBody,
-    status: 'draft',
+  const commonHeaders = (bodyStr) => ({
+    'Content-Type': 'application/json',
+    'Content-Length': Buffer.byteLength(bodyStr),
+    'Cookie': cookieStr,
+    'X-Note-Csrf-Token': csrfToken,
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
+    'Origin': 'https://note.com',
+    'Referer': 'https://note.com/notes/new',
+    'Accept': 'application/json',
   });
 
+  // Step1: 下書き作成（タイトルのみ）
+  const createBody = JSON.stringify({ name: theme.title });
   const createRes = await httpsRequest({
     hostname: 'note.com',
-    path: '/api/v3/notes',
+    path: '/api/v1/text_notes',
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(createBody),
-      'Cookie': cookieStr,
-      'X-Note-Csrf-Token': csrfToken,
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
-      'Origin': 'https://note.com',
-      'Referer': 'https://note.com/notes/new',
-      'Accept': 'application/json',
-    },
+    headers: commonHeaders(createBody),
   }, createBody);
 
   console.log('記事作成ステータス:', createRes.status);
@@ -128,47 +125,51 @@ async function postNote(theme, bodyText, cookieStr, csrfToken) {
   let noteId = '';
   try {
     const json = JSON.parse(createRes.body);
-    noteId = json.data?.id || json.id || '';
+    noteId = String(json.data?.id || json.id || '');
     console.log('記事ID:', noteId);
   } catch(e) {
     throw new Error(`記事作成失敗: ${createRes.body.slice(0, 300)}`);
   }
-
   if (!noteId) throw new Error('記事IDが取得できなかった');
 
-  // ハッシュタグを設定
-  const tagBody = JSON.stringify({ hashtag_list: theme.hashtags });
-  await httpsRequest({
+  // Step2: 本文をdraft_saveで保存
+  const draftBody = JSON.stringify({
+    body: noteBody,
+    body_length: bodyText.length,
+    name: theme.title,
+    index: false,
+    is_lead_form: false,
+  });
+  const draftRes = await httpsRequest({
     hostname: 'note.com',
-    path: `/api/v3/notes/${noteId}/hashtags`,
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(tagBody),
-      'Cookie': cookieStr,
-      'X-Note-Csrf-Token': csrfToken,
-      'User-Agent': 'Mozilla/5.0',
-      'Accept': 'application/json',
-    },
-  }, tagBody);
-  console.log('ハッシュタグ設定完了');
+    path: `/api/v1/text_notes/${noteId}/draft_save?id=${noteId}&is_temp_saved=true`,
+    method: 'PATCH',
+    headers: commonHeaders(draftBody),
+  }, draftBody);
+  console.log('draft_saveステータス:', draftRes.status);
 
-  // 公開
-  const publishBody = JSON.stringify({ status: 'published' });
+  // Step3: ハッシュタグ設定
+  try {
+    const tagBody = JSON.stringify({ hashtag_list: theme.hashtags });
+    await httpsRequest({
+      hostname: 'note.com',
+      path: `/api/v1/text_notes/${noteId}/hashtags`,
+      method: 'PUT',
+      headers: commonHeaders(tagBody),
+    }, tagBody);
+    console.log('ハッシュタグ設定完了');
+  } catch(e) {
+    console.log('ハッシュタグスキップ:', e.message);
+  }
+
+  // Step4: 公開
+  const publishBody = JSON.stringify({ index: true });
   const publishRes = await httpsRequest({
     hostname: 'note.com',
-    path: `/api/v3/notes/${noteId}/publish`,
+    path: `/api/v1/text_notes/${noteId}/publish`,
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(publishBody),
-      'Cookie': cookieStr,
-      'X-Note-Csrf-Token': csrfToken,
-      'User-Agent': 'Mozilla/5.0',
-      'Accept': 'application/json',
-    },
+    headers: commonHeaders(publishBody),
   }, publishBody);
-
   console.log('公開ステータス:', publishRes.status);
 
   let slug = '';
