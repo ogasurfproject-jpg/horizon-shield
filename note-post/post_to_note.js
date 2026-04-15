@@ -186,21 +186,19 @@ async function postNote(theme, bodyText, cookieStr) {
   }, tagBody);
   console.log('ハッシュタグ設定完了');
 
-  // Step4: 公開（v3 API、draft=falseでPUT）
-  const pubBody = JSON.stringify({ draft: false });
+  // Step4: 公開（PUT /api/v1/text_notes/{noteId}）
+  const pubBody = JSON.stringify({
+    name: theme.title,
+    body: noteBody,
+    body_length: bodyLength,
+    index: true,
+    is_lead_form: false,
+  });
   const pubRes = await httpsRequest({
     hostname: 'note.com',
-    path: `/api/v3/notes/${noteKey}?draft=false&draft_reedit=false`,
+    path: `/api/v1/text_notes/${noteId}`,
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(pubBody),
-      'Cookie': cookieStr,
-      'X-Requested-With': 'XMLHttpRequest',
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3.1 Safari/605.1.15',
-      'Origin': 'https://editor.note.com',
-      'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
-    },
+    headers: makeHeaders(pubBody, `https://editor.note.com/notes/${noteKey}/edit`),
   }, pubBody);
   console.log('公開ステータス:', pubRes.status);
   console.log('公開レスポンス:', pubRes.body.slice(0, 300));
