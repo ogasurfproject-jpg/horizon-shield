@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja">　
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -641,7 +641,7 @@ async function runDiagnosis(){
     messages[0].content.push({type:'text',text:`見積書を確認して、以下の形式でJSON のみ返してください（他のテキスト不要）:
 {"amount":"削減可能金額（例：約15〜25万円）","items":["過剰請求の可能性がある項目1","項目2","項目3"],"comment":"専門家からの一言コメント（2〜3文）","risk":"high/medium/low"}`});
 
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+   const res=await fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/anthropic',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
