@@ -667,7 +667,7 @@ async function runDiagnosis(){
       '<p style="margin-top:12px;color:var(--muted)">'+result.comment+'</p>';
 
     // notify
-    try{await fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'【無料診断】'+name+'('+email+') リスク:'+result.risk})})}catch(e){}
+    try{await fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'【無料診断】'+name+'('+email+') リスク:'+result.risk,name:name,email:email,result:JSON.stringify(result.items||[]),risk:result.risk})})}catch(e){}
     
   }catch(e){
     document.getElementById('form-loading').style.display='none';
