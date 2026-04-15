@@ -107,7 +107,8 @@ function textToNoteBody(text) {
 }
 
 // note記事を投稿
-async function postNote(theme, bodyText, cookieStr, noteToken) {
+async function postNote(theme, bodyText, cookieStrParam, noteToken) {
+  let cookieStr = cookieStrParam;
   const noteBody = textToNoteBody(bodyText);
   const bodyLength = bodyText.replace(/\s/g, '').length;
 
@@ -132,6 +133,16 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
 
   console.log('下書き作成ステータス:', createRes.status);
   console.log('下書き作成レスポンス:', createRes.body.slice(0, 500));
+  // Set-CookieでセッションCookieを更新
+  if (createRes.setCookie && createRes.setCookie.length > 0) {
+    const newSession = createRes.setCookie
+      .map(c => c.split(';')[0])
+      .join('; ');
+    if (newSession) {
+      cookieStr = newSession;
+      console.log('セッションCookie更新');
+    }
+  }
   let noteId = '', noteKey = '';
   try {
     const json = JSON.parse(createRes.body);
@@ -171,6 +182,11 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
   console.log('draft_saveステータス:', draftRes.status);
   if (!draftRes.status.toString().startsWith('2')) {
     console.log('draft_saveエラー:', draftRes.body.slice(0, 200));
+  }
+  // セッションCookie更新
+  if (draftRes.setCookie && draftRes.setCookie.length > 0) {
+    const newSession = draftRes.setCookie.map(c => c.split(';')[0]).join('; ');
+    if (newSession) { cookieStr = newSession; console.log('draft後セッション更新'); }
   }
 
   // Step3: ハッシュタグ設定
