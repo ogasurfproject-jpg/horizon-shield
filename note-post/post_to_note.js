@@ -90,6 +90,18 @@ async function postToNote(theme, articleText) {
 
     // メール入力
     await page.waitForSelector('input', { timeout: 10000 });
+
+    // デバッグ：inputとbuttonの構造を出力
+    const formInfo = await page.evaluate(() => {
+      const inputs = Array.from(document.querySelectorAll('input')).map(i => `type=${i.type} name=${i.name} id=${i.id} placeholder=${i.placeholder}`);
+      const buttons = Array.from(document.querySelectorAll('button')).map(b => `type=${b.type} text=${b.textContent.trim().slice(0,30)}`);
+      const forms = Array.from(document.querySelectorAll('form')).map(f => `action=${f.action} method=${f.method}`);
+      return { inputs, buttons, forms };
+    });
+    console.log('inputs:', JSON.stringify(formInfo.inputs));
+    console.log('buttons:', JSON.stringify(formInfo.buttons));
+    console.log('forms:', JSON.stringify(formInfo.forms));
+
     const inputs = await page.$$('input:not([type="hidden"])');
     console.log('入力フィールド数:', inputs.length);
     if (inputs.length >= 1) {
