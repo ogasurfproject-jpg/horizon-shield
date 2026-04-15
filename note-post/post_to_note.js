@@ -175,7 +175,7 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
 
   // Step3: ハッシュタグ設定
   const tagBody = JSON.stringify({ hashtag_list: theme.hashtags });
-  await httpsRequest({
+  const tagRes = await httpsRequest({
     hostname: 'note.com',
     path: `/api/v1/text_notes/${noteId}/hashtags`,
     method: 'PUT',
@@ -189,17 +189,13 @@ async function postNote(theme, bodyText, cookieStr, noteToken) {
       'Referer': `https://editor.note.com/notes/${noteKey}/edit`,
     },
   }, tagBody);
-  console.log('ハッシュタグ設定完了');
+  console.log('ハッシュタグステータス:', tagRes.status);
 
-  // Step4: 公開
-  const publishBody = JSON.stringify({
-    id: Number(noteId),
-    status: 'public',
-    hashtag_list: theme.hashtags,
-  });
+  // Step4: 公開 - POST /api/v1/text_notes/{noteId}/publish
+  const publishBody = JSON.stringify({ index: true });
   const publishRes = await httpsRequest({
     hostname: 'note.com',
-    path: '/api/v1/text_notes',
+    path: `/api/v1/text_notes/${noteId}/publish`,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
