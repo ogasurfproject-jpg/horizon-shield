@@ -52,7 +52,7 @@ function httpsRequest(options, body = null) {
 async function noteLogin() {
   const session = process.env.NOTE_SESSION;
   if (!session) throw new Error('NOTE_SESSION が設定されていません');
-  const cookieStr = `_note_session_v5=${session}`;
+  const cookieStr = session; // 全Cookie文字列をそのまま使用
   console.log('セッションCookie使用（環境変数から取得）');
   return { cookieStr, token: '' };
 }
