@@ -1,0 +1,17 @@
+{
+  "name": "HORIZON SHIELD 管理",
+  "short_name": "HS管理",
+  "description": "HORIZON SHIELD 管理ダッシュボード",
+  "start_url": "/admin-app/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://shield.the-horizons-innovation.com/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}
