@@ -1167,13 +1167,7 @@ function closeTermsModal() {
 function proceedAfterAgree() {
   if (!document.getElementById('terms-agree-check').checked) return;
   closeTermsModal();
-  if (termsModalTarget === 'diagnosis') {
-    window.location.href = '/inspect/';
-  } else if (termsModalTarget === 'change') {
-    window.location.href = '/inspect/?type=change';
-  } else if (termsModalTarget === 'inspection') {
-    window.location.href = '/inspect/?type=inspection';
-  }
+  window.location.href = '/bank-transfer.html?type=' + termsModalTarget;
 }
 
 // チェックボックスの状態でボタンを切り替え
