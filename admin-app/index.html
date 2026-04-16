@@ -17,6 +17,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',sa
 .header-left .title{font-size:18px;font-weight:600;letter-spacing:-0.3px}
 .header-left .sub{font-size:12px;color:var(--sub);margin-top:2px}
 .badge{background:var(--red);color:#fff;font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px;min-width:24px;text-align:center}
+.install-bar{display:none;background:var(--blue);padding:12px 16px;cursor:pointer;text-align:center;font-size:14px;font-weight:600;color:#fff}
 .nav{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-bottom:1px solid var(--border)}
 .nav-item{padding:10px 4px 8px;text-align:center;cursor:pointer;font-size:11px;color:var(--sub);border-bottom:2px solid transparent;transition:all .15s}
 .nav-item.active{color:var(--text);border-bottom-color:var(--blue);font-weight:500}
@@ -61,6 +62,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',sa
   </div>
   <div id="badge-wrap"></div>
 </div>
+<div class="install-bar" id="install-bar" onclick="installApp()">📲 アプリとしてインストール</div>
 <nav class="nav">
   <div class="nav-item active" onclick="go('inquiries',this)"><div class="nav-icon">📋</div>問い合わせ</div>
   <div class="nav-item" onclick="go('dashboard',this)"><div class="nav-icon">📊</div>状況</div>
@@ -71,6 +73,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',sa
 <script>
 const WORKER = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
 let state = { tab: 'inquiries', inquiries: [], prospects: [], loaded: false };
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-bar').style.display = 'block';
+});
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-bar').style.display = 'none';
+  deferredPrompt = null;
+});
+
+async function installApp() {
+  if (!deferredPrompt) {
+    alert('インストール準備中です。ページをリロードしてから再度お試しください。');
+    return;
+  }
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('install-bar').style.display = 'none';
+}
+
 function go(tab, el) {
   state.tab = tab;
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -111,7 +137,7 @@ function renderProspects() {
     }).join('');
 }
 function renderSettings() {
-  return `<div class="card" style="padding:16px;margin-bottom:12px"><div style="font-weight:500;margin-bottom:12px">接続テスト</div><div style="font-size:13px;color:var(--sub);margin-bottom:12px">Worker: ${WORKER}</div><button class="btn-primary" onclick="testConn()">接続テスト</button><div id="test-result"></div></div><div class="card" style="padding:16px;margin-bottom:12px"><div style="font-weight:500;margin-bottom:14px">Androidでアプリとして使う</div><div class="step"><div class="step-num">1</div><div class="step-text">ChromeでこのURLを開く<br><code style="font-size:11px;color:var(--blue)">shield.the-horizons-innovation.com/admin-app/</code></div></div><div class="step"><div class="step-num">2</div><div class="step-text">右上の「⋮（3点メニュー）」をタップ</div></div><div class="step"><div class="step-num">3</div><div class="step-text">「アプリをインストール」または「ホーム画面に追加」をタップ</div></div><div class="step"><div class="step-num">4</div><div class="step-text">名前を「HS管理」にして「追加」を押す</div></div></div>`;
+  return `<div class="card" style="padding:16px;margin-bottom:12px"><div style="font-weight:500;margin-bottom:12px">接続テスト</div><div style="font-size:13px;color:var(--sub);margin-bottom:12px;word-break:break-all">Worker: ${WORKER}</div><button class="btn-primary" onclick="testConn()">接続テスト</button><div id="test-result"></div></div><div class="card" style="padding:16px;margin-bottom:12px"><div style="font-weight:500;margin-bottom:14px">Androidでアプリとして使う</div><div class="step"><div class="step-num">1</div><div class="step-text">画面上部の青いバーが表示されたらタップ</div></div><div class="step"><div class="step-num">2</div><div class="step-text">または⋮メニュー →「アプリをインストール」</div></div><div class="step"><div class="step-num">3</div><div class="step-text">ホーム画面にアイコンが追加されます</div></div></div>`;
 }
 async function fetchInquiries() {
   document.getElementById('main').innerHTML = '<div class="loading">読み込み中...</div>';
@@ -160,6 +186,7 @@ async function testConn() {
   r.innerHTML = `<div class="err-box">全エンドポイントが404です。<br>Worker v6をデプロイしてください。</div>`;
 }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/admin-app/sw.js');
 }
