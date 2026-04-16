@@ -402,7 +402,7 @@ async function doSubmit(){
   try {
     var imgs = await Promise.all(files.map(toB64));
     var prompt = '工事の種類：' + (type || '一般リフォーム') + '\n備考：' + (note || 'なし') + '\nファイル数：' + files.length + '件\n\n上記の施工について、以下の形式で回答してください：\n1. 最も気になるリスクを1点（「〜が気になります」30文字以内）\n2. もし問題があった場合の修繕費用の目安（例：「修繕費用の目安は〇〜〇万円程度」）\n断定はせず可能性として伝えてください。';
-    var res = await fetch(KIRA + '/anthropic', {
+    var res = await fetch(KIRA + '/kira', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
