@@ -869,5 +869,103 @@ window.addEventListener('scroll',()=>{
   });
 });
 </script>
+<style>
+#kira-popup{position:fixed;bottom:24px;right:24px;z-index:9999;opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;pointer-events:none;max-width:320px;width:calc(100% - 48px)}
+#kira-popup.visible{opacity:1;transform:translateY(0);pointer-events:all}
+#kira-popup.hidden{opacity:0;transform:translateY(20px);pointer-events:none}
+.kira-bubble{background:linear-gradient(135deg,#050d1a 0%,#0a1628 60%,#071420 100%);border:1px solid rgba(0,255,180,.18);border-radius:20px;padding:20px;position:relative;overflow:hidden;box-shadow:0 0 40px rgba(0,200,140,.08),0 8px 32px rgba(0,0,0,.6)}
+.kira-mito{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:.4}
+.kira-close{position:absolute;top:12px;right:14px;color:rgba(0,255,180,.4);font-size:18px;cursor:pointer;line-height:1;background:none;border:none;padding:0}
+.kira-close:hover{color:rgba(0,255,180,.9)}
+.kira-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;position:relative;z-index:2}
+.kira-avatar-wrap{position:relative;width:48px;height:48px;flex-shrink:0}
+.kira-avatar-ring{position:absolute;inset:-4px;border-radius:50%;border:1.5px solid rgba(0,255,180,.3);animation:kira-ring 3s ease-in-out infinite}
+.kira-avatar-ring2{position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(0,255,180,.12);animation:kira-ring 3s ease-in-out infinite .8s}
+@keyframes kira-ring{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(1.08);opacity:.9}}
+.kira-avatar{width:48px;height:48px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#00ffb4,#00a876 40%,#005a45 80%,#001a12);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:#001a12;position:relative;z-index:1}
+.kira-pulse{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,rgba(0,255,180,.2),transparent 70%);animation:kira-pulse 2.4s ease-in-out infinite}
+@keyframes kira-pulse{0%,100%{transform:scale(.9);opacity:.3}50%{transform:scale(1.15);opacity:.8}}
+.kira-name{font-size:15px;font-weight:700;color:#00ffb4;letter-spacing:.5px}
+.kira-status{font-size:11px;color:rgba(0,255,180,.5);margin-top:2px;display:flex;align-items:center;gap:5px}
+.kira-dot{width:6px;height:6px;border-radius:50%;background:#00ffb4;animation:kira-blink 1.8s ease-in-out infinite}
+@keyframes kira-blink{0%,100%{opacity:1}50%{opacity:.2}}
+.kira-msg{font-size:13px;color:rgba(220,240,235,.85);line-height:1.7;position:relative;z-index:2;margin-bottom:16px}
+.kira-msg em{color:#00ffb4;font-style:normal;font-weight:600}
+.kira-actions{display:flex;flex-direction:column;gap:8px;position:relative;z-index:2}
+.kira-btn-main{display:block;padding:11px 16px;background:linear-gradient(90deg,#00c98a,#00ffb4);color:#001a12;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none;text-align:center;transition:transform .15s,box-shadow .15s}
+.kira-btn-main:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,255,180,.35)}
+.kira-btn-sub{display:block;padding:9px 16px;background:rgba(0,255,180,.06);border:1px solid rgba(0,255,180,.2);color:rgba(0,255,180,.8);border-radius:12px;font-size:12px;text-decoration:none;text-align:center;transition:background .15s}
+.kira-btn-sub:hover{background:rgba(0,255,180,.12)}
+.kira-year{position:absolute;bottom:10px;right:14px;font-size:9px;color:rgba(0,255,180,.2);letter-spacing:2px;font-family:monospace;z-index:2}
+</style>
+
+<div id="kira-popup">
+  <div class="kira-bubble">
+    <!-- ミトコンドリア クリステ SVG -->
+    <svg class="kira-mito" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="mg1" cx="30%" cy="40%"><stop offset="0%" stop-color="#00ffb4" stop-opacity=".15"/><stop offset="100%" stop-color="#00ffb4" stop-opacity="0"/></radialGradient>
+        <radialGradient id="mg2" cx="80%" cy="70%"><stop offset="0%" stop-color="#00c8ff" stop-opacity=".1"/><stop offset="100%" stop-color="#00c8ff" stop-opacity="0"/></radialGradient>
+      </defs>
+      <ellipse cx="80" cy="80" rx="70" ry="45" fill="none" stroke="rgba(0,255,180,.12)" stroke-width="1"/>
+      <ellipse cx="240" cy="80" rx="60" ry="40" fill="none" stroke="rgba(0,200,255,.1)" stroke-width="1"/>
+      <!-- クリステ（内膜の折り畳み） -->
+      <path d="M30,65 Q55,50 55,80 Q55,110 30,95" fill="none" stroke="rgba(0,255,180,.2)" stroke-width="1"/>
+      <path d="M50,60 Q75,45 75,80 Q75,115 50,100" fill="none" stroke="rgba(0,255,180,.15)" stroke-width="1"/>
+      <path d="M70,62 Q95,47 95,80 Q95,113 70,98" fill="none" stroke="rgba(0,255,180,.12)" stroke-width="1"/>
+      <path d="M200,68 Q225,53 225,80 Q225,107 200,92" fill="none" stroke="rgba(0,200,255,.18)" stroke-width="1"/>
+      <path d="M220,65 Q245,50 245,80 Q245,110 220,95" fill="none" stroke="rgba(0,200,255,.12)" stroke-width="1"/>
+      <circle cx="80" cy="80" r="3" fill="rgba(0,255,180,.25)"><animate attributeName="r" values="2;4;2" dur="3s" repeatCount="indefinite"/></circle>
+      <circle cx="240" cy="80" r="2.5" fill="rgba(0,200,255,.2)"><animate attributeName="r" values="2;3.5;2" dur="3.8s" repeatCount="indefinite"/></circle>
+      <circle cx="160" cy="40" r="1.5" fill="rgba(0,255,180,.3)"><animate attributeName="opacity" values="0.3;0.9;0.3" dur="2.5s" repeatCount="indefinite"/></circle>
+      <circle cx="160" cy="120" r="1.5" fill="rgba(0,200,255,.3)"><animate attributeName="opacity" values="0.9;0.3;0.9" dur="2.5s" repeatCount="indefinite"/></circle>
+      <line x1="90" y1="80" x2="200" y2="80" stroke="rgba(0,255,180,.06)" stroke-width="1" stroke-dasharray="4,6"/>
+      <circle fill="rgba(0,255,180,.12)" cx="160" cy="80" r="8"><animate attributeName="r" values="6;10;6" dur="4s" repeatCount="indefinite"/></circle>
+      <ellipse fill="none" stroke="rgba(0,255,180,.08)" stroke-width="1" cx="160" cy="80" rx="50" ry="30"><animate attributeName="rx" values="48;54;48" dur="4s" repeatCount="indefinite"/></ellipse>
+      <circle cx="160" cy="80" r="3" fill="rgba(0,255,180,.4)"/>
+      <ellipse cx="160" cy="80" rx="140" ry="65" fill="url(#mg1)" opacity=".6"/>
+      <ellipse cx="240" cy="90" rx="60" ry="40" fill="url(#mg2)" opacity=".5"/>
+    </svg>
+
+    <button class="kira-close" onclick="document.getElementById('kira-popup').classList.replace('visible','hidden')">×</button>
+
+    <div class="kira-head">
+      <div class="kira-avatar-wrap">
+        <div class="kira-avatar-ring"></div>
+        <div class="kira-avatar-ring2"></div>
+        <div class="kira-avatar">K<div class="kira-pulse"></div></div>
+      </div>
+      <div>
+        <div class="kira-name">KIRA</div>
+        <div class="kira-status"><span class="kira-dot"></span>AI診断 · 即時応答</div>
+      </div>
+    </div>
+
+    <div class="kira-msg">
+      その見積書、<em>15〜20%</em> の過剰請求が<br>
+      隠れているかもしれません。<br>
+      60秒の無料診断で、今すぐ確認できます。
+    </div>
+
+    <div class="kira-actions">
+      <a href="#diagnosis-section" class="kira-btn-main" onclick="document.getElementById('kira-popup').classList.replace('visible','hidden')">▶ 無料AI診断を始める</a>
+      <a href="https://line.me/R/ti/p/@172piime" class="kira-btn-sub" target="_blank">LINEで直接相談する →</a>
+    </div>
+
+    <div class="kira-year">HORIZON SHIELD 2028</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var shown = sessionStorage.getItem('kira_popup_shown');
+  if(!shown){
+    setTimeout(function(){
+      var el = document.getElementById('kira-popup');
+      if(el){ el.classList.add('visible'); sessionStorage.setItem('kira_popup_shown','1'); }
+    }, 10000);
+  }
+})();
+</script>  
 </body>
 </html>
