@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="/admin-app/manifest.json">
 <meta name="theme-color" content="#0f172a">
 <title>HS管理</title>
 <style>
@@ -153,7 +155,7 @@ function renderInquiries() {
 function renderProspects() {
   if (state.prospects.length === 0) return `
 <button class="btn-primary" onclick="fetchProspects()">🎯 見込み客を読み込む</button>
-<div class="info-box">hs-monitorが検出した問い合わせ見込み客のスコア一覧です。</div>`;
+<div class="info-box">hs-monitorが検出した見込み客のスコア一覧です。</div>`;
   return `<button class="btn-sec" onclick="fetchProspects()">再読み込み</button>` +
     state.prospects.map(p => {
       const sc = p.score || 0;
@@ -181,7 +183,7 @@ function renderSettings() {
   <div style="font-weight:500;margin-bottom:14px">Androidでアプリとして使う</div>
   <div class="step"><div class="step-num">1</div><div class="step-text">ChromeでこのページのURLを開く<br><code style="font-size:11px;color:var(--blue)">shield.the-horizons-innovation.com/admin-app/</code></div></div>
   <div class="step"><div class="step-num">2</div><div class="step-text">右上の「⋮（3点メニュー）」をタップ</div></div>
-  <div class="step"><div class="step-num">3</div><div class="step-text">「ホーム画面に追加」をタップ</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text">「アプリをインストール」または「ホーム画面に追加」をタップ</div></div>
   <div class="step"><div class="step-num">4</div><div class="step-text">名前を「HS管理」にして「追加」を押す</div></div>
   <div class="step"><div class="step-num">5</div><div class="step-text">ホーム画面のアイコンからアプリとして起動できます</div></div>
 </div>`;
@@ -200,7 +202,7 @@ async function fetchInquiries() {
     document.getElementById('conn-status').textContent = '接続中 ✓';
     render();
   } catch (e) {
-    document.getElementById('main').innerHTML = `<div class="err-box">読み込み失敗: ${esc(e.message)}<br><small>Workerが v6 にアップデートされているか確認してください</small></div><button class="btn-primary" onclick="fetchInquiries()">再試行</button>`;
+    document.getElementById('main').innerHTML = `<div class="err-box">読み込み失敗: ${esc(e.message)}<br><small>Worker v6がデプロイされているか確認してください</small></div><button class="btn-primary" onclick="fetchInquiries()">再試行</button>`;
   }
 }
 
@@ -242,7 +244,7 @@ async function testConn() {
       }
     } catch (e) { }
   }
-  r.innerHTML = `<div class="err-box">全エンドポイントが404です。<br>WorkerをV6にアップデートしてください。</div>`;
+  r.innerHTML = `<div class="err-box">全エンドポイントが404です。<br>Worker v6をデプロイしてください。</div>`;
 }
 
 function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
