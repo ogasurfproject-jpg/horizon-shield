@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>建設費チェッカー | HORIZON SHIELD</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans JP',sans-serif;background:transparent;color:#1a1a2e;overflow-x:hidden}
+
+.widget{
+  max-width:480px;margin:0 auto;
+  background:linear-gradient(135deg,#fafafa 0%,#f0f0f5 100%);
+  border:1px solid #e0e0e8;border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 4px 24px rgba(0,0,0,.06);
+}
+
+/* Header */
+.w-header{
+  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);
+  padding:20px 24px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.w-header::after{
+  content:'';position:absolute;top:-50%;right:-30%;
+  width:200px;height:200px;
+  background:radial-gradient(circle,rgba(212,175,55,.15) 0%,transparent 70%);
+  border-radius:50%;
+}
+.w-logo{font-size:11px;letter-spacing:4px;color:#d4af37;font-weight:700;margin-bottom:4px}
+.w-title{font-size:18px;font-weight:900;color:#fff;line-height:1.4}
+.w-sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:6px}
+
+/* Form */
+.w-body{padding:20px 24px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:700;color:#555;margin-bottom:6px;letter-spacing:.5px}
+.field select,.field input{
+  width:100%;padding:12px 14px;font-size:15px;
+  border:1px solid #d0d0d8;border-radius:10px;
+  background:#fff;color:#1a1a2e;
+  font-family:'Noto Sans JP',sans-serif;
+  transition:border-color .2s,box-shadow .2s;
+  -webkit-appearance:none;appearance:none;
+}
+.field select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+  padding-right:36px;
+}
+.field select:focus,.field input:focus{
+  outline:none;border-color:#d4af37;
+  box-shadow:0 0 0 3px rgba(212,175,55,.12);
+}
+.field input::placeholder{color:#bbb}
+.unit{font-size:11px;color:#999;margin-top:4px}
+
+.btn-check{
+  width:100%;padding:14px;font-size:16px;font-weight:900;
+  background:linear-gradient(135deg,#d4af37 0%,#c5a028 100%);
+  color:#1a1a2e;border:none;border-radius:12px;
+  cursor:pointer;letter-spacing:1px;
+  transition:transform .15s,box-shadow .15s;
+  font-family:'Noto Sans JP',sans-serif;
+}
+.btn-check:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(212,175,55,.3)}
+.btn-check:active{transform:translateY(0)}
+.btn-check:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* Loading */
+.loading{display:none;text-align:center;padding:32px 24px}
+.loading.active{display:block}
+.spinner{
+  width:36px;height:36px;margin:0 auto 16px;
+  border:3px solid #e0e0e8;border-top-color:#d4af37;
+  border-radius:50%;animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:13px;color:#888}
+
+/* Result */
+.result{display:none;padding:24px}
+.result.active{display:block}
+.result-badge{
+  display:inline-block;padding:6px 16px;border-radius:20px;
+  font-size:13px;font-weight:700;margin-bottom:16px;
+}
+.result-badge.ok{background:#e8f5e9;color:#2e7d32}
+.result-badge.warn{background:#fff3e0;color:#e65100}
+.result-badge.danger{background:#ffebee;color:#c62828}
+.result-badge.cheap{background:#e3f2fd;color:#1565c0}
+
+.result-title{font-size:20px;font-weight:900;margin-bottom:12px;line-height:1.4}
+.result-detail{font-size:14px;line-height:1.8;color:#444;margin-bottom:20px}
+
+.result-cta{
+  display:block;text-align:center;
+  padding:14px;border-radius:12px;
+  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);
+  color:#d4af37;text-decoration:none;
+  font-size:14px;font-weight:700;letter-spacing:.5px;
+  transition:opacity .2s;
+}
+.result-cta:hover{opacity:.9}
+.result-cta span{display:block;font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;font-weight:400}
+
+.result-retry{
+  display:block;text-align:center;margin-top:12px;
+  font-size:12px;color:#999;cursor:pointer;
+  border:none;background:none;font-family:'Noto Sans JP',sans-serif;
+  text-decoration:underline;
+}
+
+.powered{
+  text-align:center;padding:12px;
+  font-size:10px;color:#bbb;letter-spacing:.5px;
+  border-top:1px solid #e8e8f0;
+}
+.powered a{color:#999;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="widget">
+  <!-- Header -->
+  <div class="w-header">
+    <div class="w-logo">HORIZON SHIELD</div>
+    <div class="w-title">🛡 見積もり無料チェッカー</div>
+    <div class="w-sub">建設30年のプロAIが相場と比較</div>
+  </div>
+
+  <!-- Form -->
+  <div class="w-body" id="formArea">
+    <div class="field">
+      <label>工事の種類</label>
+      <select id="koujiType">
+        <option value="">選択してください</option>
+        <optgroup label="住宅リフォーム">
+          <option value="kitchen">キッチンリフォーム</option>
+          <option value="bath">浴室リフォーム</option>
+          <option value="toilet">トイレリフォーム</option>
+          <option value="gaiheki">外壁塗装</option>
+          <option value="yane">屋根工事</option>
+          <option value="floor">フローリング張替え</option>
+          <option value="cloth">クロス（壁紙）張替え</option>
+          <option value="mansion_renov">マンション全面リノベ</option>
+          <option value="kodate_renov">戸建て全面リノベ</option>
+        </optgroup>
+        <optgroup label="店舗内装">
+          <option value="izakaya">居酒屋・バー</option>
+          <option value="cafe">カフェ・レストラン</option>
+          <option value="salon">美容室・サロン</option>
+          <option value="clinic">クリニック・医療</option>
+          <option value="shop">物販・アパレル</option>
+        </optgroup>
+        <optgroup label="新築">
+          <option value="wood">木造住宅（在来工法）</option>
+          <option value="steel">鉄骨造住宅</option>
+          <option value="rc">RC造住宅</option>
+        </optgroup>
+        <option value="other">その他</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>施工面積</label>
+      <input type="number" id="area" placeholder="例：70" min="1">
+      <div class="unit">㎡（平米）で入力 ※わからなければ空欄でOK</div>
+    </div>
+
+    <div class="field">
+      <label>見積金額（税込）</label>
+      <input type="number" id="amount" placeholder="例：2000000" min="1">
+      <div class="unit">円（半角数字）</div>
+    </div>
+
+    <button class="btn-check" id="btnCheck" onclick="doCheck()">
+      🔍 無料で診断する
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loadingArea">
+    <div class="spinner"></div>
+    <div class="loading-text">建設30年のプロAIが<br>相場データベースと照合中...</div>
+  </div>
+
+  <!-- Result -->
+  <div class="result" id="resultArea">
+    <div id="resultBadge" class="result-badge"></div>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-detail" id="resultDetail"></div>
+
+    <a class="result-cta" href="https://line.me/R/ti/p/@172piime" target="_blank" rel="noopener">
+      🛡 プロに詳しく診断してもらう（無料相談）
+      <span>LINEで見積書の写真を送るだけ・24時間対応</span>
+    </a>
+
+    <a class="result-cta" href="https://shield.the-horizons-innovation.com" target="_blank" rel="noopener" style="margin-top:8px;background:linear-gradient(135deg,#d4af37,#c5a028);color:#1a1a2e">
+      🔍 有料の詳細診断はこちら（¥55,000）
+      <span style="color:rgba(0,0,0,.4)">交渉用レポート付き・2営業日以内</span>
+    </a>
+
+    <button class="result-retry" onclick="retry()">もう一度診断する</button>
+  </div>
+
+  <div class="powered">Powered by <a href="https://shield.the-horizons-innovation.com" target="_blank">HORIZON SHIELD</a></div>
+</div>
+
+<script>
+// 相場データベース（㎡単価 or 総額範囲）
+const SOUBA = {
+  kitchen:        { label:'キッチンリフォーム', min:800000, max:1500000, unit:'total', note:'I型標準グレードの場合' },
+  bath:           { label:'浴室リフォーム', min:600000, max:1200000, unit:'total', note:'1216サイズ標準の場合' },
+  toilet:         { label:'トイレリフォーム', min:100000, max:500000, unit:'total', note:'便器交換＋内装の場合' },
+  gaiheki:        { label:'外壁塗装', min:2500, max:3500, unit:'sqm', note:'シリコン塗料・足場込み㎡単価' },
+  yane:           { label:'屋根工事', min:2000, max:3500, unit:'sqm', note:'スレート屋根塗装の場合' },
+  floor:          { label:'フローリング張替え', min:6000, max:10000, unit:'sqm', note:'合板フローリング直貼り' },
+  cloth:          { label:'クロス張替え', min:800, max:1200, unit:'sqm', note:'量産クロスの場合' },
+  mansion_renov:  { label:'マンション全面リノベ', min:80000, max:170000, unit:'sqm', note:'70㎡標準の場合' },
+  kodate_renov:   { label:'戸建て全面リノベ', min:80000, max:200000, unit:'sqm', note:'100㎡標準の場合' },
+  izakaya:        { label:'居酒屋・バー', min:150000, max:350000, unit:'sqm', note:'スケルトンからの場合' },
+  cafe:           { label:'カフェ・レストラン', min:200000, max:450000, unit:'sqm', note:'スケルトンからの場合' },
+  salon:          { label:'美容室・サロン', min:150000, max:350000, unit:'sqm', note:'シャンプー台含む' },
+  clinic:         { label:'クリニック・医療', min:250000, max:450000, unit:'sqm', note:'一般内科の場合' },
+  shop:           { label:'物販・アパレル', min:100000, max:250000, unit:'sqm', note:'標準内装の場合' },
+  wood:           { label:'木造住宅', min:181500, max:247500, unit:'sqm', note:'坪55〜75万円換算' },
+  steel:          { label:'鉄骨造住宅', min:214500, max:297000, unit:'sqm', note:'坪65〜90万円換算' },
+  rc:             { label:'RC造住宅', min:297000, max:429000, unit:'sqm', note:'坪90〜130万円換算' },
+};
+
+function doCheck() {
+  const type = document.getElementById('koujiType').value;
+  const area = parseFloat(document.getElementById('area').value);
+  const amount = parseFloat(document.getElementById('amount').value);
+
+  if (!type) { alert('工事の種類を選択してください'); return; }
+  if (!amount || amount <= 0) { alert('見積金額を入力してください'); return; }
+
+  const data = SOUBA[type];
+
+  // 「その他」の場合は直接LINE誘導
+  if (!data) {
+    document.getElementById('formArea').style.display = 'none';
+    showResult('other', '個別診断が必要です',
+      'この工事種別は相場データベースに登録されていないため、AIによる自動判定ができません。LINEでKIRAに直接相談してください。見積書の写真を送るだけで無料診断できます。');
+    return;
+  }
+
+  document.getElementById('formArea').style.display = 'none';
+  document.getElementById('loadingArea').classList.add('active');
+
+  // 判定ロジック
+  setTimeout(() => {
+    let souba_min, souba_max, sqmPrice;
+
+    if (data.unit === 'total') {
+      souba_min = data.min;
+      souba_max = data.max;
+      sqmPrice = null;
+    } else {
+      if (!area || area <= 0) {
+        // 面積なしの場合はLINE誘導
+        document.getElementById('loadingArea').classList.remove('active');
+        showResult('warn', '面積が必要です',
+          `${data.label}の診断には施工面積（㎡）が必要です。面積がわからない場合は、LINEで見積書の写真を送ってください。プロが直接確認します。`);
+        return;
+      }
+      souba_min = data.min * area;
+      souba_max = data.max * area;
+      sqmPrice = Math.round(amount / area);
+    }
+
+    const midpoint = (souba_min + souba_max) / 2;
+    const ratio = amount / midpoint;
+
+    let status, title, detail;
+
+    if (ratio <= 0.85) {
+      status = 'cheap';
+      title = '💡 相場より安い';
+      detail = `${data.label}の相場は${fmt(souba_min)}〜${fmt(souba_max)}円です。お見積もりの${fmt(amount)}円は相場を下回っています。${data.note}。\n\n⚠️ 安すぎる場合は手抜き工事・材料のグレードダウンのリスクがあります。契約前に使用材料と工程表の確認を強くおすすめします。`;
+    } else if (ratio <= 1.15) {
+      status = 'ok';
+      title = '✅ 適正価格の範囲';
+      detail = `${data.label}の相場は${fmt(souba_min)}〜${fmt(souba_max)}円です。お見積もりの${fmt(amount)}円は適正範囲内です。${data.note}。\n\n念のため、見積書の内訳に「一式」が多くないか、諸経費が15%を超えていないか確認しましょう。`;
+    } else if (ratio <= 1.30) {
+      status = 'warn';
+      title = '⚠️ やや高い（交渉の余地あり）';
+      detail = `${data.label}の相場は${fmt(souba_min)}〜${fmt(souba_max)}円です。お見積もりの${fmt(amount)}円は相場より${Math.round((ratio - 1) * 100)}%高めです。${data.note}。\n\n交渉ポイント：相見積もりを取る、「一式」の内訳を開示させる、不要なオプションを外す。`;
+    } else {
+      status = 'danger';
+      title = '🔴 過剰請求の疑い';
+      detail = `${data.label}の相場は${fmt(souba_min)}〜${fmt(souba_max)}円です。お見積もりの${fmt(amount)}円は相場の${Math.round(ratio * 100)}%で、大幅に超過しています。${data.note}。\n\n即決しないでください。必ず相見積もりを取り、プロの第三者に見積書を確認してもらうことを強くおすすめします。`;
+    }
+
+    if (sqmPrice) {
+      detail += `\n\n📊 ㎡単価：${fmt(sqmPrice)}円/㎡（相場：${fmt(data.min)}〜${fmt(data.max)}円/㎡）`;
+    }
+
+    document.getElementById('loadingArea').classList.remove('active');
+    showResult(status, title, detail);
+  }, 1800);
+}
+
+function showResult(status, title, detail) {
+  const badge = document.getElementById('resultBadge');
+  const cls = status === 'ok' ? 'ok' : status === 'cheap' ? 'cheap' : status === 'danger' ? 'danger' : 'warn';
+  badge.className = 'result-badge ' + cls;
+  badge.textContent = status === 'ok' ? '適正' : status === 'cheap' ? '安値注意' : status === 'danger' ? '要注意' : '確認推奨';
+
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultDetail').innerHTML = detail.replace(/\n/g, '<br>');
+  document.getElementById('resultArea').classList.add('active');
+}
+
+function retry() {
+  document.getElementById('resultArea').classList.remove('active');
+  document.getElementById('formArea').style.display = 'block';
+  document.getElementById('koujiType').value = '';
+  document.getElementById('area').value = '';
+  document.getElementById('amount').value = '';
+}
+
+function fmt(n) {
+  return n.toLocaleString('ja-JP');
+}
+</script>
+
+</body>
+</html>
