@@ -1,0 +1,440 @@
+{
+  "_meta": {
+    "version": "2.0-phase1",
+    "updated": "2026-04-19",
+    "category_id": "entrance_door_reform",
+    "category_name_jp": "玄関ドア交換",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐⭐ 2026年補助金対象（先進的窓リノベ2026で最大¥163,000）・家の顔・断熱リフォームの核",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 2026年実勢データ (LIXIL リシェント3 全シリーズ・YKK AP ドアリモD50/D30・三協アルミ ノバリス、街の玄関ドアやさん、玄関ドアマイスター、コウケンネット、ゼロハーモニー、eco-mado、価格.com、先進的窓リノベ2026事業公式)",
+    "scope": "戸建住宅玄関ドア交換（カバー工法・はつり工法・ドアのみ交換）、スマートキー電子錠、採光・採風ドア"
+  },
+
+  "horizon_shield_standard": {
+    "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール（玄関ドア版）",
+    "formula": "本体仕入れ値 × 1.2 + 職人人工 × 日当 + 付帯工事実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.20,
+      "general_overhead_pct_ideal": 15,
+      "general_overhead_pct_acceptable_max": 20,
+      "tax_pct": 10,
+      "trade_price_ratio_from_list": 0.45,
+      "note": "玄関ドアは定価50-55%OFFが業者仕入れ標準。LIXIL・YKK AP両方で確定"
+    },
+    "philosophy": "玄関ドアは家の顔であり断熱性能の要。2026年補助金最大¥163,000を取り逃さず、悪徳訪問販売（『ドアが傾いてます』脅迫型）から施主を守る"
+  },
+
+  "work_types": {
+    "cover_method": {
+      "name": "カバー工法（最多選択・推奨）",
+      "description": "既存枠の内側に新しい枠を被せて新ドア設置",
+      "work_duration_days": 1,
+      "price_range_jpy": { "min": 300000, "max": 600000 },
+      "advantage": ["1日で完了", "壁壊さず", "粉塵・騒音少ない", "費用控えめ"],
+      "disadvantage": ["間口がやや狭くなる（3-5cm）", "既存枠腐食時は不可"],
+      "subsidy_max_per_door_2026": 163000
+    },
+    "hatsuri_method": {
+      "name": "はつり工法（枠ごと交換）",
+      "description": "既存枠を撤去し、壁を壊して新規ドア設置",
+      "work_duration_days": { "min": 3, "max": 7 },
+      "price_range_jpy": { "min": 800000, "max": 1500000 },
+      "advantage": ["間口変更可能", "枠腐食対応", "完璧な断熱"],
+      "disadvantage": ["高コスト", "工期長", "内外装補修必要"],
+      "subsidy_max_per_door_2026": 163000,
+      "note": "耐震性に影響がない範囲で間口拡張可能"
+    },
+    "door_only": {
+      "name": "ドアのみ交換（限定条件）",
+      "description": "既存枠活用・ドア本体のみ交換",
+      "work_duration_days": 0.5,
+      "price_range_jpy": { "min": 150000, "max": 300000 },
+      "advantage": ["最安", "最短工期"],
+      "disadvantage": ["既存枠と新ドアの相性問題", "断熱性能限定", "補助金対象外の場合多い"],
+      "condition": "既存枠が健全・ヒンジ位置合致・メーカー互換性あり"
+    }
+  },
+
+  "senshinteki_mado_2026_door_subsidy": {
+    "program_name": "先進的窓リノベ2026事業（環境省）- 玄関ドア区分",
+    "eligible_work_types": ["カバー工法", "はつり工法（外窓交換扱い）"],
+    "not_eligible": ["ドアのみ交換（多くの場合）", "Aグレード以下"],
+    "subsidy_per_door_2026": {
+      "SS_plus": {
+        "extra_large_parent_child": 163000,
+        "large_single_with_sides": 131000,
+        "medium_single": 110000,
+        "small": 89000
+      },
+      "S_plus": {
+        "extra_large_parent_child": 122000,
+        "large_single_with_sides": 99000,
+        "medium_single": 89000,
+        "small": 66000
+      },
+      "S": {
+        "extra_large_parent_child": 110000,
+        "large_single_with_sides": 89000,
+        "medium_single": 75000,
+        "small": 58000
+      }
+    },
+    "eligible_products_2026": {
+      "LIXIL": ["リシェント3 高断熱仕様 K1（SS対応）", "リシェント3 断熱仕様 K2（S対応）"],
+      "YKK_AP": ["ドアリモD50 SSグレード", "ドアリモD30 D2（Sグレード）"],
+      "Sankyo_Aluminum": ["ノバリス 高断熱仕様"]
+    },
+    "required_conditions": [
+      "住宅省エネ2026支援事業者登録業者からの施工",
+      "対象製品の型番指定",
+      "2025年11月28日以降着工"
+    ]
+  },
+
+  "manufacturers": {
+    "LIXIL": {
+      "series": "リシェント3",
+      "market_share_rank": 1,
+      "feature": "シェアNo.1・カラー/デザイン最多・スマートキー対応",
+      "grades": {
+        "K1_high_insulation": {
+          "name": "高断熱仕様 K1",
+          "subsidy_grade": "SS (SS++)",
+          "price_list_jpy": { "min": 580000, "max": 720000 },
+          "price_trade_jpy": { "min": 250000, "max": 310000 },
+          "examples": ["M82型", "17H型", "34H型", "43N型", "M17型"]
+        },
+        "K2_insulation": {
+          "name": "断熱仕様 K2",
+          "subsidy_grade": "S",
+          "price_list_jpy": { "min": 480000, "max": 580000 },
+          "price_trade_jpy": { "min": 210000, "max": 260000 },
+          "examples": ["M83型（採風）", "G82型", "G14型"]
+        },
+        "K4_insulation": {
+          "name": "断熱仕様 K4",
+          "subsidy_grade": "補助金対象外（A廃止）",
+          "price_list_jpy": { "min": 400000, "max": 480000 },
+          "price_trade_jpy": { "min": 170000, "max": 210000 },
+          "note": "2026年は補助金対象外"
+        },
+        "alumi_SG": {
+          "name": "アルミ仕様 SG",
+          "subsidy_grade": "対象外",
+          "price_list_jpy": { "min": 320000, "max": 400000 },
+          "price_trade_jpy": { "min": 140000, "max": 180000 },
+          "note": "最安だが寒冷地不向き"
+        }
+      },
+      "unique_features": ["FamiLock（スマートキー）", "ノータッチキー", "採光・採風設計", "1日工事カバー工法"]
+    },
+    "YKK_AP": {
+      "series": "ドアリモ",
+      "market_share_rank": 2,
+      "feature": "D50でSSグレード業界初・アルミ樹脂複合ドア枠",
+      "grades": {
+        "D50_super_insulation": {
+          "name": "D50 高断熱ドア（2024年8月発売）",
+          "subsidy_grade": "SS（業界初）",
+          "price_list_jpy": { "min": 600000, "max": 750000 },
+          "price_trade_jpy": { "min": 270000, "max": 330000 },
+          "note": "ドア厚70mm・業界トップの断熱性能",
+          "subsidy_parent_child": 163000
+        },
+        "D30_D2_insulation": {
+          "name": "D30 断熱ドア D2",
+          "subsidy_grade": "S（SSかAの中間）",
+          "price_list_jpy": { "min": 450000, "max": 550000 },
+          "price_trade_jpy": { "min": 200000, "max": 250000 },
+          "examples": ["C08K（採風通風）"]
+        },
+        "D30_D4_insulation": {
+          "name": "D30 断熱ドア D4",
+          "subsidy_grade": "補助金対象外",
+          "price_list_jpy": { "min": 380000, "max": 460000 },
+          "price_trade_jpy": { "min": 170000, "max": 210000 }
+        }
+      },
+      "unique_features": ["業界初アルミ樹脂複合ドア枠", "スマートコントロールキー", "採風機能"]
+    },
+    "Sankyo_Aluminum": {
+      "series": "ノバリス",
+      "feature": "電子錠eエントリー・断熱仕様"
+    }
+  },
+
+  "work_items_cover_method_jpy": {
+    "existing_door_removal": { "min": 15000, "max": 30000, "note": "既存ドア本体・金具の撤去" },
+    "cover_installation": { "min": 80000, "max": 120000, "note": "カバー工法枠取付・新ドア設置" },
+    "frame_adjustment_waterproofing": { "min": 15000, "max": 30000, "note": "枠調整・水切り・シーリング" },
+    "finishing_caulking": { "min": 10000, "max": 20000, "note": "仕上げ・コーキング" },
+    "waste_disposal": { "min": 8000, "max": 15000 },
+    "transport_protection": { "min": 15000, "max": 30000 }
+  },
+
+  "work_items_hatsuri_method_jpy": {
+    "existing_door_frame_removal": { "min": 50000, "max": 100000, "note": "既存枠・壁解体" },
+    "wall_demolition_around": { "min": 50000, "max": 100000 },
+    "opening_reframe": { "min": 50000, "max": 100000, "note": "柱・間柱補修" },
+    "new_frame_installation": { "min": 80000, "max": 150000 },
+    "new_door_installation": { "min": 50000, "max": 100000 },
+    "exterior_recovery": { "min": 80000, "max": 200000, "note": "外壁サイディング復旧" },
+    "interior_recovery": { "min": 40000, "max": 80000, "note": "内装・壁紙復旧" },
+    "waterproofing_sealing": { "min": 15000, "max": 30000 },
+    "waste_disposal": { "min": 20000, "max": 40000 },
+    "scaffold_if_needed": { "min": 80000, "max": 150000 }
+  },
+
+  "labor": {
+    "door_craftsman_day_rate_kanto": { "min": 25000, "max": 35000, "avg": 30000, "note": "玄関ドア専門業者" },
+    "carpenter_day_rate_kanto": { "min": 28000, "max": 35000, "avg": 31500, "note": "はつり工法時の大工工事" },
+    "electrician_day_rate_kanto": { "min": 25000, "max": 32000, "avg": 28000, "note": "スマートキー電源配線" },
+    "standard_manhours": {
+      "cover_method": "専門職人2名 × 1日",
+      "hatsuri_method": "専門職人2名 × 3-5日 + 大工 × 2日 + 外壁復旧1日",
+      "door_only": "専門職人1名 × 半日"
+    }
+  },
+
+  "optional_features_jpy": {
+    "smart_key_famiLock": { "price_list": 60000, "price_trade": 30000, "note": "LIXIL FamiLock" },
+    "smart_key_ykk": { "price_list": 55000, "price_trade": 28000, "note": "YKK スマートコントロールキー" },
+    "electric_lock": { "price_list": 80000, "price_trade": 40000, "note": "電子錠eエントリー等" },
+    "breeze_intake_design": { "price_list": 30000, "price_trade": 15000, "note": "採光・採風ドア追加費" },
+    "tempered_glass": { "price_list": 20000, "price_trade": 10000, "note": "防犯強化ガラス" },
+    "handle_upgrade": { "price_list": 15000, "price_trade": 8000, "note": "ハンドル高級仕様" }
+  },
+
+  "plans": {
+    "cover_alumi_basic": {
+      "name": "カバー工法・アルミ仕様（最安・非断熱）",
+      "scope": "LIXIL リシェント3 アルミSG 片開き",
+      "estimated_total_jpy": { "min": 250000, "max": 350000 },
+      "hs_rule_estimate_jpy": 330000,
+      "subsidy": 0,
+      "note": "補助金対象外。賃貸・寒冷地以外向け"
+    },
+    "cover_K4_insulation": {
+      "name": "カバー工法・断熱仕様K4（補助金対象外）",
+      "scope": "LIXIL リシェント3 K4 親子ドア",
+      "estimated_total_jpy": { "min": 350000, "max": 480000 },
+      "hs_rule_estimate_jpy": 450000,
+      "subsidy": 0,
+      "note": "2026年は補助金対象外（A廃止）。K2以上推奨"
+    },
+    "cover_K2_insulation_S_grade": {
+      "name": "カバー工法・断熱仕様K2（S補助金対応）",
+      "scope": "LIXIL リシェント3 K2 親子ドア",
+      "estimated_total_jpy": { "min": 400000, "max": 550000 },
+      "hs_rule_estimate_jpy": 500000,
+      "subsidy_S_grade": 110000,
+      "after_subsidy_jpy": 390000
+    },
+    "cover_K1_super_insulation_SS": {
+      "name": "カバー工法・高断熱K1（SS補助金最大）・HS推奨",
+      "scope": "LIXIL リシェント3 高断熱仕様K1 親子ドア",
+      "estimated_total_jpy": { "min": 500000, "max": 700000 },
+      "hs_rule_estimate_jpy": 644000,
+      "subsidy_SS_grade": 163000,
+      "after_subsidy_jpy": 481000,
+      "breakdown_sample": {
+        "body_hs_rule": 324000,
+        "existing_removal": 20000,
+        "cover_installation": 100000,
+        "frame_adjustment": 20000,
+        "finishing": 15000,
+        "waste_disposal": 10000,
+        "transport_protection": 20000,
+        "subtotal": 509000,
+        "overhead_15pct": 76350,
+        "tax_10pct": 58535,
+        "total": 643885
+      }
+    },
+    "cover_YKK_D50_SS": {
+      "name": "カバー工法・YKK ドアリモD50（SS・業界最新）",
+      "scope": "YKK ドアリモD50 親子ドア 高断熱",
+      "estimated_total_jpy": { "min": 550000, "max": 750000 },
+      "hs_rule_estimate_jpy": 680000,
+      "subsidy_SS_grade": 163000,
+      "after_subsidy_jpy": 517000,
+      "note": "業界初のSS対応D50・ドア厚70mmの最高断熱"
+    },
+    "cover_with_smartkey": {
+      "name": "カバー工法・高断熱K1+スマートキー",
+      "scope": "リシェント3 K1 + FamiLock",
+      "estimated_total_jpy": { "min": 580000, "max": 780000 },
+      "hs_rule_estimate_jpy": 720000,
+      "subsidy_SS_grade": 163000,
+      "after_subsidy_jpy": 557000
+    },
+    "hatsuri_full_renewal": {
+      "name": "はつり工法・完全新規（間口変更あり）",
+      "scope": "壁壊して枠ごと新規、間口拡張、内外装復旧",
+      "estimated_total_jpy": { "min": 900000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 1200000,
+      "subsidy_SS_grade": 163000,
+      "after_subsidy_jpy": 1037000,
+      "work_days": 5,
+      "note": "枠腐食時・間口拡張必要時のみ推奨"
+    },
+    "door_only_exchange": {
+      "name": "ドアのみ交換（限定条件）",
+      "scope": "既存枠活用・新ドア本体のみ",
+      "estimated_total_jpy": { "min": 150000, "max": 280000 },
+      "hs_rule_estimate_jpy": 250000,
+      "subsidy": 0,
+      "note": "補助金対象外の場合多い。既存枠健全時のみ可"
+    }
+  },
+
+  "red_flags": [
+    {
+      "code": "NO_SUBSIDY_INFO",
+      "pattern": "先進的窓リノベ2026事業（玄関ドア区分）の説明なし",
+      "severity": "🔴 CRITICAL",
+      "reason": "最大¥163,000の補助金を知らない/申請しない業者は失格"
+    },
+    {
+      "code": "NOT_REGISTERED_VENDOR",
+      "pattern": "住宅省エネ2026支援事業者 未登録",
+      "severity": "🔴 CRITICAL",
+      "reason": "登録業者でないと補助金申請不可。公式サイトで登録番号検索確認必須"
+    },
+    {
+      "code": "DOOR_TRADE_PRICE_CLOSE_LIST",
+      "pattern": "ドア本体が定価に近い価格で計上",
+      "severity": "🔴 CRITICAL",
+      "reason": "LIXIL・YKK AP両方で業者仕入れは定価50-55%OFFが標準"
+    },
+    {
+      "code": "COVER_METHOD_OVER_800K",
+      "pattern": "カバー工法1枚で¥800,000超（スマートキーなし）",
+      "severity": "🔴 CRITICAL",
+      "reason": "HS基準 高断熱K1親子¥644k。¥800k超は過剰請求確定"
+    },
+    {
+      "code": "HATSURI_OVER_2M",
+      "pattern": "はつり工法で¥2,000,000超",
+      "severity": "🚨 HIGH",
+      "reason": "HS基準¥1,200k。¥2M超は1.5倍以上"
+    },
+    {
+      "code": "K4_FORCED_SUBSIDY_LOSS",
+      "pattern": "K4（補助金対象外）を『標準グレード』と称して提案",
+      "severity": "🚨 HIGH",
+      "reason": "K4は2026年補助金対象外。K2/K1が補助金視野では正解"
+    },
+    {
+      "code": "NO_MODEL_GRADE",
+      "pattern": "メーカー・型番・グレード（K1/K2/D2等）不明",
+      "severity": "🔴 CRITICAL",
+      "reason": "同じリシェント3でもK1とK4で¥20万以上違う。補助金額も違う"
+    },
+    {
+      "code": "DOOR_TO_DOOR_FRAUD",
+      "pattern": "訪問販売で「ドアが傾いてます」「防犯リスク」即決迫り",
+      "severity": "🔴 CRITICAL",
+      "reason": "玄関ドア詐欺の典型。優良業者はアポなし訪問営業しない"
+    },
+    {
+      "code": "FAKE_TODAY_DISCOUNT",
+      "pattern": "「今日だけ半額」「特別価格」即決迫り",
+      "severity": "🚨 HIGH",
+      "reason": "架空キャンペーンで相場の1.5-2倍を『半額』として売る典型"
+    },
+    {
+      "code": "ISSHIKI_LUMP_SUM",
+      "pattern": "工事費・材料費が「一式」計上",
+      "severity": "🚨 HIGH",
+      "reason": "玄関ドア工事は項目明細化可能。『一式』は過剰の温床"
+    },
+    {
+      "code": "NO_WARRANTY",
+      "pattern": "商品・施工保証の説明なし",
+      "severity": "⚠️ MEDIUM",
+      "reason": "メーカー保証2年、雨水浸入10年、施工保証5年が業界標準"
+    },
+    {
+      "code": "FORCED_OPTIONS",
+      "pattern": "スマートキー・採風・電子錠を『セット必須』として抱き合わせ",
+      "severity": "⚠️ MEDIUM",
+      "reason": "オプションは任意選択。+¥3-8万の追加請求ポイント"
+    }
+  ],
+
+  "door_selection_guide": {
+    "description": "施主の状況別・最適ドア提案",
+    "scenarios": [
+      {
+        "case": "最安・短工期・予算重視",
+        "recommendation": "リシェント3 K4 親子ドア カバー工法",
+        "expected_cost": 450000,
+        "subsidy": 0,
+        "effective_cost": 450000,
+        "note": "補助金対象外だが総額最安"
+      },
+      {
+        "case": "補助金最大活用・コスパ最強（HS推奨）",
+        "recommendation": "リシェント3 高断熱K1 または YKK D50 親子ドア カバー工法",
+        "expected_cost": 650000,
+        "subsidy_ss": 163000,
+        "effective_cost": 487000,
+        "note": "断熱性能最高 + 補助金最大 = 実質お得"
+      },
+      {
+        "case": "断熱性能最高ランク・最新技術",
+        "recommendation": "YKK ドアリモD50（業界初SS・ドア厚70mm）",
+        "expected_cost": 680000,
+        "subsidy_ss": 163000,
+        "effective_cost": 517000
+      },
+      {
+        "case": "スマートホーム化・利便性重視",
+        "recommendation": "リシェント3 K1 + FamiLock（ノータッチキー）",
+        "expected_cost": 720000,
+        "subsidy_ss": 163000,
+        "effective_cost": 557000
+      },
+      {
+        "case": "既存ドアの傾き・枠腐食あり",
+        "recommendation": "はつり工法・間口拡張可能",
+        "expected_cost": 1200000,
+        "subsidy_ss": 163000,
+        "effective_cost": 1037000,
+        "note": "既存枠不健全時のみ。カバー工法不可の場合に限る"
+      },
+      {
+        "case": "バリアフリー・車椅子対応",
+        "recommendation": "はつり工法で間口拡張 + 引き戸タイプ",
+        "note": "介護保険20万円補助対象の可能性あり"
+      }
+    ]
+  },
+
+  "negotiation_tips": [
+    "住宅省エネ2026支援事業者登録番号を確認（未登録なら即別業者へ）",
+    "メーカー・シリーズ・型番・グレード（K1/K2/D2等）の明記要求",
+    "K4/D4グレード提案は補助金対象外のため再検討指示",
+    "カバー工法が基本。はつり工法は枠腐食・間口変更時のみ",
+    "ドア本体が定価の何%掛けか確認（業者仕入れは定価50-55%OFF）",
+    "補助金申請代行費の有無確認（相場¥10,000-20,000）",
+    "スマートキー・採風・電子錠はオプション扱い、強要されない",
+    "工事項目6項目（撤去・取付・調整・仕上げ・処分・搬入）の単価明細化",
+    "カバー工法で間口が何cm狭くなるか事前確認",
+    "既存ドアの状態写真を業者に撮影してもらい、カバー工法可否判断",
+    "相見積もりは最低3社（地場工務店・ドア専門店・大手系）",
+    "窓リフォーム（内窓・カバー工法）と同時施工で諸経費削減",
+    "メーカー保証2年・雨水保証10年・施工保証5年の全確認"
+  ],
+
+  "trade_knowledge": {
+    "summary": "玄関ドア交換は2026年補助金重要領域。カバー工法が最多選択（80%）、はつり工法は枠腐食時のみ。LIXIL リシェント3・YKK AP ドアリモD50の2強寡占。業者仕入れは定価50-55%OFFが確定標準。補助金は高断熱K1（SS）で最大¥163,000/枚",
+    "subsidy_2026_door_changes": "2026年は玄関ドアも『先進的窓リノベ2026事業』で補助金対象。LIXIL K4/YKK D4のAグレードは対象外、K2/D2のSグレード以上が必要。YKK D50（2024年8月発売）がSS対応で業界初・最大補助額",
+    "cover_vs_hatsuri": "カバー工法が圧倒的推奨：(1)1日工事 (2)壁壊さない (3)費用半額以下 (4)補助金同額取得可能 (5)粉塵少ない。はつり工法は『間口拡張必須』『既存枠腐食』の2条件のみ",
+    "discount_rate_reality": "訪問販売業者の『定価から50%OFF』宣伝は、元定価自体が業者仕入れ値の約2倍。業者仕入れ＋1.2倍で提示する健全業者が本当の適正価格",
+    "smart_key_decision": "FamiLock・電子錠は便利だが+¥5-8万。毎日鍵を握らない頻度なら有益、年配者で電池交換忘れリスクあるなら通常鍵も検討",
+    "scam_pattern_2026": "訪問販売詐欺『ドア傾いてます』『防犯リスク』脅迫は2024-2026年増加中。国民生活センター警告対象",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 環境省先進的窓リノベ2026事業公式 + LIXIL/YKK AP公式データ + 玄関ドア業界内部情報"
+  }
+}
