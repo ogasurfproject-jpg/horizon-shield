@@ -1,0 +1,173 @@
+{
+  "_meta": {
+    "version": "2.0-phase1",
+    "updated": "2026-04-18",
+    "category_id": "cloth_replacement",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 2026年実勢データ (サンゲツSP/FINE、ホームプロ、リノコ、BXゆとりフォーム、ウチコミ!、全建設総連東京都連、Yahoo知恵袋プロ回答、壁紙屋本舗、大家さんの内装屋)",
+    "scope": "クロス張替え（量産・1000番台・部分張替え）"
+  },
+
+  "horizon_shield_standard": {
+    "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール",
+    "formula": "材料仕入れ値 × ロス率1.15 × 1.2 + 職人人工 × 日当 + 付帯工事実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.20,
+      "loss_rate_plain": 1.10,
+      "loss_rate_pattern": 1.20,
+      "loss_rate_default": 1.15,
+      "general_overhead_pct_ideal": 15,
+      "general_overhead_pct_acceptable_max": 20,
+      "b_grade_labor_multiplier": 1.25,
+      "tax_pct": 10
+    },
+    "philosophy": "材料は実費＋最小限、職人の腕で価値を出す健全市場の実現"
+  },
+
+  "materials": {
+    "budget_ryosan": {
+      "example_product": "サンゲツ SP / リリカラ LB BASE / 東リ VS / トキワ TS（量産・500番台）",
+      "price_list_per_sqm": 1000,
+      "price_list_per_m": 900,
+      "price_net_per_sqm_avg": 350,
+      "price_trade_per_m": 140,
+      "price_trade_per_sqm_estimate": 156,
+      "markup_from_list_pct": 35,
+      "note": "業界内部情報（ウチコミ!）: 量産クロス業者仕入れ値は¥140/m程度。ネット実勢の職人直営価格は¥300-400/㎡（材料のみ）。"
+    },
+    "standard_1000": {
+      "example_product": "サンゲツ FINE / リリカラ XR / リリカラ LW / サンゲツ Reserve（1000番台）",
+      "price_list_per_sqm": 1500,
+      "price_list_per_m": 1350,
+      "price_net_per_sqm_avg": 800,
+      "price_trade_per_sqm_estimate": 420,
+      "markup_from_list_pct": 28,
+      "note": "サンゲツ Reserveは工務店仕入れ価格 ¥420/㎡が相場（ユーザー証言）。ネット販売は¥700-1,000/㎡。"
+    },
+    "premium_functional": {
+      "example_product": "機能性クロス（防汚・消臭・耐傷・珪藻土系・織物調）",
+      "price_list_per_sqm": 2500,
+      "price_net_per_sqm_avg": 1500,
+      "markup_from_list_pct": 45,
+      "note": "高機能品・意匠性重視。定価4,000円/㎡超もあり。"
+    },
+    "b_grade_warning": "B級グレードはエッジ不良・柄不均一で施工工数1.25倍。見た目の安さで選ぶと総額では不利。"
+  },
+
+  "labor": {
+    "cloth_craftsman_day_rate_kanto": {
+      "min": 20000,
+      "max": 28000,
+      "avg": 25000,
+      "veteran_hitori_oyakata": 28000,
+      "note": "クロス職人は大工より若干安い。全建設総連東京都連2023調査で一人親方¥22,000前後、ベテラン¥22,000-¥28,000。"
+    },
+    "standard_sqm_per_day": {
+      "ryosan_plain": 50,
+      "ryosan_standard": 40,
+      "pattern_1000": 35,
+      "note": "量産・無地は1人工40-50㎡、1000番台・柄合わせは30-40㎡"
+    },
+    "b_grade_multiplier": 1.25
+  },
+
+  "area_calculation": {
+    "sqm_per_jo_standard_wall_and_ceiling": 6.67,
+    "6jo_standard_surface_area": 40,
+    "6jo_range": "35-45㎡（物入れ・窓・ドアの有無による）",
+    "loss_addition_pct": "10-20%",
+    "wall_only_estimate": "床面積×2.5倍（壁面のみ・6畳で約24㎡）",
+    "wall_and_ceiling_estimate": "床面積×4倍（壁+天井・6畳で約40㎡）"
+  },
+
+  "additional_costs_per_sqm": {
+    "existing_cloth_removal": {
+      "min": 100,
+      "max": 200,
+      "avg": 150,
+      "note": "既存クロス剥がし。ホームプロ基準¥150/㎡が標準。"
+    },
+    "subfloor_prep_light": {
+      "min": 100,
+      "max": 150,
+      "avg": 125,
+      "note": "軽度下地処理（部分パテ・既存キレイ剥がし後）。TOshi肌感では¥200は高い、¥100-150が適正。"
+    },
+    "subfloor_prep_medium": {
+      "min": 200,
+      "max": 300,
+      "note": "中度：砂壁・大幅段差・全面パテ処理"
+    },
+    "subfloor_prep_heavy": {
+      "min": 400,
+      "max": 800,
+      "note": "重度：石膏ボード張替え必要"
+    }
+  },
+
+  "additional_costs_6jo_baseline": {
+    "disposal": { "min": 5000, "max": 10000 },
+    "protection_material": { "min": 2000, "max": 5000 },
+    "furniture_move_light": { "min": 5000, "max": 15000 },
+    "glue_and_supplies": { "min": 2000, "max": 4000 }
+  },
+
+  "plans_6jo_example": {
+    "ume_minimum": {
+      "name": "最安プラン",
+      "description": "量産クロス・既存キレイ剥がし・下地処理なし・家具移動なし",
+      "estimated_total_jpy": { "min": 45000, "max": 65000 }
+    },
+    "take_standard": {
+      "name": "標準プラン（推奨）",
+      "description": "量産クロス・軽度下地処理・家具移動含む",
+      "estimated_total_jpy": { "min": 65000, "max": 90000 },
+      "breakdown_sample": {
+        "material_hs_rule": 8611,
+        "labor_1day": 25000,
+        "removal": 6000,
+        "subfloor_light": 5000,
+        "disposal": 7000,
+        "protection": 3000,
+        "subtotal": 54611,
+        "overhead_15pct": 8192,
+        "tax_10pct": 6280,
+        "total": 69083
+      }
+    },
+    "matsu_premium": {
+      "name": "推奨プラン（ハイグレード）",
+      "description": "1000番台・部分アクセントクロス・中度下地処理",
+      "estimated_total_jpy": { "min": 90000, "max": 130000 }
+    }
+  },
+
+  "red_flags": [
+    "6畳で総額¥150,000超は過剰請求の疑い",
+    "量産クロス材工㎡単価¥1,500超は要警戒",
+    "1000番台材工㎡単価¥2,500超は過剰",
+    "下地処理一式¥30,000超（6畳）は明細要求",
+    "既存剥がし一式¥20,000超（6畳）は要警戒",
+    "メートル単価表記で安く見せかけて他項目で膨張させる業者に注意",
+    "養生費・家具移動費が高額（¥30,000超）は過剰請求パターン"
+  ],
+
+  "negotiation_tips": [
+    "単位（m単価 or ㎡単価）を業者に確認する。m単価÷0.9で㎡換算できる",
+    "材料仕入れ値の証明を求める（量産¥140/m・¥156/㎡が業者仕入れの業界標準）",
+    "ロス率は量産1.1倍、柄物1.2倍が適正。1.3倍超は取りすぎ",
+    "下地処理は『一式』を拒否し、㎡単価×面積で明細化を要求",
+    "既存剥がしは¥150/㎡が標準。¥300超は要交渉",
+    "養生費・家具移動費が別計上か確認。標準は諸経費含む相場",
+    "ハウスメーカー経由は25%程度の中間マージンが乗る。地域工務店・職人直営で30%安くなる可能性"
+  ],
+
+  "trade_knowledge": {
+    "summary": "量産クロスの業者仕入れ値は¥140/m（≒¥156/㎡）。施主への材工請求は量産¥1,000-1,200/㎡、1000番台¥1,500-1,800/㎡が下請けクロス屋から工務店への相場。工務店はそこに管理費・諸経費を乗せて施主請求¥2,000/㎡前後。",
+    "cost_structure_explanation": "メーカー定価→業者卸(定価の15-20%)→ネット職人直営(材工¥1,000前後/㎡)→工務店→大手HM(マージン25%上乗せ)の多層構造。HSは仕入れ値×1.2を基準に健全ラインを提示。",
+    "unit_trick_warning": "業者はメートル単価で見せて安く見せかけ、実際は㎡単価換算で割高になることがある。1m単価÷0.9で㎡換算して比較必須。",
+    "loss_rate_reality": "業界標準ロス率は1.1〜1.2倍。無地系は1.1倍、柄合わせ必要品は1.2〜1.3倍。",
+    "net_vs_trade_clarification": "『ネット価格』には2種類ある：(1)材料のみのネット販売（業者仕入れに近い）、(2)職人直営の材工ネット販売（¥928/m=材工込み）。TOshiが『ネットに準ずる』と言ったのは(2)の職人直営価格のこと。",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + ウチコミ!業界内部情報 + 全建設総連賃金調査"
+  }
+}
