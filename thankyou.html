@@ -30,7 +30,8 @@ body{
   color:#d4af37;font-size:11px;font-weight:900;letter-spacing:2px;
   border-radius:12px;margin-bottom:10px;
 }
-.icon{font-size:56px;margin-bottom:8px;line-height:1}
+.icon{margin-bottom:12px;line-height:1;display:flex;justify-content:center}
+.icon svg{width:64px;height:64px;filter:drop-shadow(0 4px 10px rgba(15,23,41,.28))}
 .header h1{font-size:22px;font-weight:900;line-height:1.4;margin-bottom:4px}
 .header p{font-size:12px;opacity:.75}
 
@@ -115,7 +116,14 @@ body{
 <div class="card">
   <div class="header">
     <div class="header-badge">ORDER CONFIRMED</div>
-    <div class="icon" id="headerIcon">🎉</div>
+    <div class="icon" id="headerIcon">
+      <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="HORIZON SHIELD">
+        <path d="M24 3 L42 9 V22 C42 33 34 42 24 45 C14 42 6 33 6 22 V9 Z"
+              fill="#0f1729" stroke="rgba(255,236,176,0.45)" stroke-width="1.5"/>
+        <path d="M16 24.5 L21.5 30 L33 18.5"
+              stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
     <h1 id="headerTitle">ご注文ありがとうございました</h1>
     <p id="headerSub">PDFは2営業日以内にお届けします</p>
   </div>
@@ -197,9 +205,8 @@ const orderId = params.get('order') || params.get('order_id') || params.get('mer
 // 注文番号表示
 document.getElementById('orderIdText').textContent = orderId || '発行中...';
 
-// 銀行振込モードの場合：UI切り替え
+// 銀行振込モードの場合：UI切り替え（アイコンは統一で盾のまま）
 if (mode === 'bank_transfer') {
-  document.getElementById('headerIcon').textContent = '🏦';
   document.getElementById('headerTitle').textContent = '銀行振込でのお支払い';
   document.getElementById('headerSub').textContent = 'お振込先をご確認ください';
   document.getElementById('bankInfo').classList.add('active');
