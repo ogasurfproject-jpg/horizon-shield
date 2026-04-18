@@ -37,6 +37,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:transparent;color:#1a1a2e;
 .w-body{padding:20px 24px}
 .field{margin-bottom:16px}
 .field label{display:block;font-size:12px;font-weight:700;color:#555;margin-bottom:6px;letter-spacing:.5px}
+.field label .required{color:#c62828;margin-left:4px}
 .field select,.field input{
   width:100%;padding:12px 14px;font-size:15px;
   border:1px solid #d0d0d8;border-radius:10px;
@@ -95,6 +96,47 @@ body{font-family:'Noto Sans JP',sans-serif;background:transparent;color:#1a1a2e;
 .result-title{font-size:20px;font-weight:900;margin-bottom:12px;line-height:1.4}
 .result-detail{font-size:14px;line-height:1.8;color:#444;margin-bottom:20px}
 
+/* ===== ¥5,500 逆見積書PDF メガCTA（warn/danger時のみ表示）===== */
+.cta-gyaku{
+  display:none;position:relative;
+  padding:20px 20px 18px;border-radius:14px;margin-bottom:12px;
+  background:linear-gradient(135deg,#fff5d6 0%,#ffeba8 50%,#f5c242 100%);
+  border:2px solid #d4af37;
+  box-shadow:0 6px 20px rgba(212,175,55,.35),0 0 0 4px rgba(212,175,55,.08);
+  cursor:pointer;text-align:left;
+  font-family:'Noto Sans JP',sans-serif;
+  width:100%;
+  transition:transform .15s,box-shadow .2s;
+}
+.cta-gyaku.active{display:block}
+.cta-gyaku:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(212,175,55,.45)}
+.cta-gyaku:active{transform:translateY(0)}
+.cta-gyaku-badge{
+  display:inline-block;padding:3px 10px;
+  background:#c62828;color:#fff;
+  font-size:10px;font-weight:900;letter-spacing:1px;
+  border-radius:12px;margin-bottom:8px;
+}
+.cta-gyaku-title{
+  font-size:17px;font-weight:900;color:#1a1a2e;line-height:1.4;
+  margin-bottom:6px;
+}
+.cta-gyaku-sub{
+  font-size:12px;color:#5c4a18;line-height:1.6;margin-bottom:10px;
+}
+.cta-gyaku-price{
+  display:flex;align-items:baseline;justify-content:space-between;
+  padding-top:10px;border-top:1px dashed rgba(92,74,24,.3);
+}
+.cta-gyaku-yen{font-size:26px;font-weight:900;color:#1a1a2e}
+.cta-gyaku-yen small{font-size:12px;font-weight:700;color:#5c4a18;margin-left:4px}
+.cta-gyaku-arrow{
+  font-size:13px;font-weight:900;color:#1a1a2e;
+  background:#1a1a2e;color:#d4af37;
+  padding:8px 14px;border-radius:8px;letter-spacing:.5px;
+}
+
+/* Secondary CTAs */
 .result-cta{
   display:block;text-align:center;
   padding:14px;border-radius:12px;
@@ -105,6 +147,10 @@ body{font-family:'Noto Sans JP',sans-serif;background:transparent;color:#1a1a2e;
 }
 .result-cta:hover{opacity:.9}
 .result-cta span{display:block;font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;font-weight:400}
+.result-cta.gold{background:linear-gradient(135deg,#d4af37,#c5a028);color:#1a1a2e}
+.result-cta.gold span{color:rgba(0,0,0,.4)}
+.result-cta.small{padding:11px;font-size:12px}
+.result-cta.small span{font-size:10px;margin-top:2px}
 
 .result-retry{
   display:block;text-align:center;margin-top:12px;
@@ -119,6 +165,83 @@ body{font-family:'Noto Sans JP',sans-serif;background:transparent;color:#1a1a2e;
   border-top:1px solid #e8e8f0;
 }
 .powered a{color:#999;text-decoration:none}
+
+/* ===== 購入モーダル ===== */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(20,20,35,.75);backdrop-filter:blur(4px);
+  z-index:9999;align-items:center;justify-content:center;
+  padding:16px;
+}
+.modal-overlay.active{display:flex}
+.modal{
+  background:#fff;max-width:440px;width:100%;
+  border-radius:18px;overflow:hidden;
+  max-height:95vh;overflow-y:auto;
+  animation:modalIn .25s ease-out;
+}
+@keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-header{
+  background:linear-gradient(135deg,#d4af37 0%,#c5a028 100%);
+  color:#1a1a2e;padding:22px 24px;position:relative;
+}
+.modal-close{
+  position:absolute;top:12px;right:12px;
+  width:32px;height:32px;border:none;border-radius:50%;
+  background:rgba(26,26,46,.15);color:#1a1a2e;
+  font-size:20px;cursor:pointer;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-close:hover{background:rgba(26,26,46,.25)}
+.modal-header-badge{
+  display:inline-block;font-size:10px;font-weight:900;
+  background:#1a1a2e;color:#d4af37;padding:3px 10px;border-radius:12px;
+  letter-spacing:1px;margin-bottom:8px;
+}
+.modal-header h3{font-size:18px;font-weight:900;line-height:1.4;margin-bottom:4px}
+.modal-header p{font-size:12px;opacity:.75;line-height:1.5}
+.modal-body{padding:22px 24px 24px}
+
+.order-summary{
+  background:#f9f9f9;border-radius:10px;padding:14px 16px;margin-bottom:20px;
+  font-size:13px;line-height:1.8;
+}
+.order-summary-row{display:flex;justify-content:space-between;color:#555}
+.order-summary-row strong{color:#1a1a2e;font-weight:700}
+.order-summary hr{border:none;border-top:1px dashed #ddd;margin:6px 0}
+.order-summary-price{color:#c5a028;font-size:16px;font-weight:900}
+
+.btn-submit{
+  width:100%;padding:15px;font-size:15px;font-weight:900;
+  background:linear-gradient(135deg,#d4af37 0%,#c5a028 100%);
+  color:#1a1a2e;border:none;border-radius:12px;
+  cursor:pointer;letter-spacing:.5px;margin-top:12px;
+  font-family:'Noto Sans JP',sans-serif;
+  transition:transform .15s,box-shadow .15s;
+}
+.btn-submit:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(212,175,55,.4)}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+.modal-notice{
+  font-size:11px;color:#888;line-height:1.7;margin-top:14px;
+  padding:10px 12px;background:#fffbe6;border-radius:8px;
+  border-left:3px solid #d4af37;
+}
+
+.modal-fallback-link{
+  display:block;text-align:center;
+  margin-top:14px;padding:10px;
+  font-size:12px;color:#06c755;text-decoration:none;
+  border:1px solid #06c755;border-radius:8px;
+}
+.modal-fallback-link:hover{background:#f0fdf4}
+
+.modal-error{
+  display:none;padding:12px 14px;margin-bottom:14px;
+  background:#ffebee;border:1px solid #ffcdd2;border-radius:8px;
+  font-size:12px;color:#c62828;line-height:1.6;
+}
+.modal-error.active{display:block}
 </style>
 </head>
 <body>
@@ -193,14 +316,27 @@ body{font-family:'Noto Sans JP',sans-serif;background:transparent;color:#1a1a2e;
     <div class="result-title" id="resultTitle"></div>
     <div class="result-detail" id="resultDetail"></div>
 
+    <!-- 【新規】¥5,500 逆見積書PDF メガCTA（warn/danger時のみ表示） -->
+    <button type="button" class="cta-gyaku" id="ctaGyaku" onclick="openPurchaseModal()">
+      <span class="cta-gyaku-badge">交渉で取り返せ</span>
+      <div class="cta-gyaku-title">🎯 この見積書で交渉する（逆見積書PDF）</div>
+      <div class="cta-gyaku-sub">建設30年のプロ監修・4ページ構成の交渉資料<br>相場比較グラフ・交渉フレーズ5個・出典データ付き</div>
+      <div class="cta-gyaku-price">
+        <div class="cta-gyaku-yen">¥5,500<small>(税込)</small></div>
+        <div class="cta-gyaku-arrow">購入する ▶</div>
+      </div>
+    </button>
+
+    <!-- 既存CTA：LINE無料相談 -->
     <a class="result-cta" href="https://line.me/R/ti/p/@172piime" target="_blank" rel="noopener">
       🛡 プロに詳しく診断してもらう（無料相談）
       <span>LINEで見積書の写真を送るだけ・24時間対応</span>
     </a>
 
-    <a class="result-cta" href="https://shield.the-horizons-innovation.com" target="_blank" rel="noopener" style="margin-top:8px;background:linear-gradient(135deg,#d4af37,#c5a028);color:#1a1a2e">
+    <!-- 既存CTA：¥55,000 詳細診断 -->
+    <a class="result-cta gold small" id="ctaFullDiagnosis" href="https://shield.the-horizons-innovation.com" target="_blank" rel="noopener" style="margin-top:8px">
       🔍 有料の詳細診断はこちら（¥55,000）
-      <span style="color:rgba(0,0,0,.4)">交渉用レポート付き・2営業日以内</span>
+      <span>交渉用レポート付き・2営業日以内</span>
     </a>
 
     <button class="result-retry" onclick="retry()">もう一度診断する</button>
@@ -209,7 +345,57 @@ body{font-family:'Noto Sans JP',sans-serif;background:transparent;color:#1a1a2e;
   <div class="powered">Powered by <a href="https://shield.the-horizons-innovation.com" target="_blank">HORIZON SHIELD</a></div>
 </div>
 
+<!-- ============ 購入モーダル ============ -->
+<div class="modal-overlay" id="purchaseModal" onclick="onOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <button class="modal-close" onclick="closePurchaseModal()" aria-label="閉じる">×</button>
+      <div class="modal-header-badge">¥5,500 (税込)</div>
+      <h3>交渉用・逆見積書PDF</h3>
+      <p>建設30年のプロ監修・4ページ構成の交渉資料</p>
+    </div>
+    <div class="modal-body">
+      <!-- エラー表示 -->
+      <div class="modal-error" id="modalError"></div>
+
+      <!-- 注文内容サマリー（自動生成） -->
+      <div class="order-summary" id="orderSummary"></div>
+
+      <div class="field">
+        <label>お名前 <span class="required">*</span></label>
+        <input type="text" id="customerName" placeholder="例：山田 太郎">
+      </div>
+      <div class="field">
+        <label>メールアドレス</label>
+        <input type="email" id="customerEmail" placeholder="例：taro@example.com">
+        <div class="unit">任意・PDFをメールでもお送りします</div>
+      </div>
+
+      <button type="button" class="btn-submit" id="btnSubmitPurchase" onclick="submitPurchase()">
+        購入手続きへ進む（LINE認証・PayPay決済）
+      </button>
+
+      <div class="modal-notice">
+        ※ 次の画面でLINE友達追加→PayPayで¥5,500決済→2営業日以内にPDF納品<br>
+        ※ 納品前のキャンセルは全額返金いたします<br>
+        ※ 運営：The HORIZ音s株式会社（建設実務経験30年・監修）
+      </div>
+
+      <a class="modal-fallback-link" href="https://line.me/R/ti/p/@172piime" target="_blank" rel="noopener">
+        💬 決済ではなくLINEで直接相談する
+      </a>
+    </div>
+  </div>
+</div>
+
 <script>
+// ============================================================
+// 定数
+// ============================================================
+
+const CHECKOUT_START_URL = 'https://hs-kira-proxy.oga-surf-project.workers.dev/checkout/gyaku-mitsumori/start';
+const LINE_FRIEND_URL = 'https://line.me/R/ti/p/@172piime';
+
 // 相場データベース（㎡単価 or 総額範囲）
 const SOUBA = {
   kitchen:        { label:'キッチンリフォーム', min:800000, max:1500000, unit:'total', note:'I型標準グレードの場合' },
@@ -231,6 +417,13 @@ const SOUBA = {
   rc:             { label:'RC造住宅', min:297000, max:429000, unit:'sqm', note:'坪90〜130万円換算' },
 };
 
+// 直近の診断結果をここに保持（購入モーダルで使う）
+let currentDiagnosis = null;
+
+// ============================================================
+// 診断ロジック
+// ============================================================
+
 function doCheck() {
   const type = document.getElementById('koujiType').value;
   const area = parseFloat(document.getElementById('area').value);
@@ -245,14 +438,14 @@ function doCheck() {
   if (!data) {
     document.getElementById('formArea').style.display = 'none';
     showResult('other', '個別診断が必要です',
-      'この工事種別は相場データベースに登録されていないため、AIによる自動判定ができません。LINEでKIRAに直接相談してください。見積書の写真を送るだけで無料診断できます。');
+      'この工事種別は相場データベースに登録されていないため、AIによる自動判定ができません。LINEでKIRAに直接相談してください。見積書の写真を送るだけで無料診断できます。',
+      null);
     return;
   }
 
   document.getElementById('formArea').style.display = 'none';
   document.getElementById('loadingArea').classList.add('active');
 
-  // 判定ロジック
   setTimeout(() => {
     let souba_min, souba_max, sqmPrice;
 
@@ -262,10 +455,10 @@ function doCheck() {
       sqmPrice = null;
     } else {
       if (!area || area <= 0) {
-        // 面積なしの場合はLINE誘導
         document.getElementById('loadingArea').classList.remove('active');
         showResult('warn', '面積が必要です',
-          `${data.label}の診断には施工面積（㎡）が必要です。面積がわからない場合は、LINEで見積書の写真を送ってください。プロが直接確認します。`);
+          `${data.label}の診断には施工面積（㎡）が必要です。面積がわからない場合は、LINEで見積書の写真を送ってください。プロが直接確認します。`,
+          null);
         return;
       }
       souba_min = data.min * area;
@@ -300,12 +493,27 @@ function doCheck() {
       detail += `\n\n📊 ㎡単価：${fmt(sqmPrice)}円/㎡（相場：${fmt(data.min)}〜${fmt(data.max)}円/㎡）`;
     }
 
+    // 診断データを保持（購入モーダルで使う）
+    const diagnosis = {
+      koji_type_key: type,
+      koji_label: data.label,
+      teiji_kingaku: amount,
+      menseki: area || 0,
+      souba_min: Math.round(souba_min),
+      souba_max: Math.round(souba_max),
+      status: status,
+      status_label: ({cheap:'相場より安い',ok:'適正価格',warn:'やや高い',danger:'過剰請求の疑い'})[status],
+      ratio_pct: Math.round(ratio * 100),
+      sqmPrice: sqmPrice,
+      note: data.note,
+    };
+
     document.getElementById('loadingArea').classList.remove('active');
-    showResult(status, title, detail);
+    showResult(status, title, detail, diagnosis);
   }, 1800);
 }
 
-function showResult(status, title, detail) {
+function showResult(status, title, detail, diagnosis) {
   const badge = document.getElementById('resultBadge');
   const cls = status === 'ok' ? 'ok' : status === 'cheap' ? 'cheap' : status === 'danger' ? 'danger' : 'warn';
   badge.className = 'result-badge ' + cls;
@@ -314,6 +522,23 @@ function showResult(status, title, detail) {
   document.getElementById('resultTitle').textContent = title;
   document.getElementById('resultDetail').innerHTML = detail.replace(/\n/g, '<br>');
   document.getElementById('resultArea').classList.add('active');
+
+  // ¥5,500 逆見積書CTA の表示制御（warn/danger 時のみ、かつ diagnosis があるとき）
+  const ctaGyaku = document.getElementById('ctaGyaku');
+  const ctaFull = document.getElementById('ctaFullDiagnosis');
+  if (diagnosis && (status === 'warn' || status === 'danger')) {
+    ctaGyaku.classList.add('active');
+    currentDiagnosis = diagnosis;
+    // warn/danger 時は ¥55,000 CTA を小さく・黒背景に
+    ctaFull.classList.remove('gold');
+    ctaFull.classList.add('small');
+  } else {
+    ctaGyaku.classList.remove('active');
+    currentDiagnosis = null;
+    // ok/cheap 時は ¥55,000 CTA を金色に戻す
+    ctaFull.classList.add('gold');
+    ctaFull.classList.remove('small');
+  }
 }
 
 function retry() {
@@ -322,10 +547,202 @@ function retry() {
   document.getElementById('koujiType').value = '';
   document.getElementById('area').value = '';
   document.getElementById('amount').value = '';
+  document.getElementById('ctaGyaku').classList.remove('active');
+  currentDiagnosis = null;
 }
 
 function fmt(n) {
   return n.toLocaleString('ja-JP');
+}
+
+// ============================================================
+// 購入モーダル
+// ============================================================
+
+function openPurchaseModal() {
+  if (!currentDiagnosis) {
+    alert('診断結果が読み込まれていません。もう一度診断してください。');
+    return;
+  }
+
+  // 注文サマリー生成
+  const d = currentDiagnosis;
+  const summary = `
+    <div class="order-summary-row"><span>工事内容</span><strong>${escapeHtml(d.koji_label)}</strong></div>
+    <div class="order-summary-row"><span>業者提示額</span><strong>¥${fmt(d.teiji_kingaku)}</strong></div>
+    <div class="order-summary-row"><span>診断結果</span><strong>${escapeHtml(d.status_label)}</strong></div>
+    <hr>
+    <div class="order-summary-row"><span><strong>商品</strong></span><strong>交渉用・逆見積書PDF</strong></div>
+    <div class="order-summary-row"><span><strong>お支払い金額</strong></span><span class="order-summary-price">¥5,500（税込）</span></div>
+  `;
+  document.getElementById('orderSummary').innerHTML = summary;
+
+  // エラー表示リセット
+  const errBox = document.getElementById('modalError');
+  errBox.classList.remove('active');
+  errBox.innerHTML = '';
+
+  // モーダル表示
+  document.getElementById('purchaseModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePurchaseModal() {
+  document.getElementById('purchaseModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function onOverlayClick(event) {
+  if (event.target.id === 'purchaseModal') {
+    closePurchaseModal();
+  }
+}
+
+// ============================================================
+// 購入処理（POST → LINE Login → PayPay）
+// ============================================================
+
+async function submitPurchase() {
+  if (!currentDiagnosis) {
+    showModalError('診断データが失われました。モーダルを閉じてもう一度診断してください。');
+    return;
+  }
+
+  const name = document.getElementById('customerName').value.trim();
+  const email = document.getElementById('customerEmail').value.trim();
+
+  if (!name) {
+    showModalError('お名前を入力してください。');
+    return;
+  }
+
+  // email は任意
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showModalError('メールアドレスの形式が正しくありません（例：taro@example.com）');
+    return;
+  }
+
+  const btn = document.getElementById('btnSubmitPurchase');
+  btn.disabled = true;
+  btn.textContent = '接続中...';
+
+  const d = currentDiagnosis;
+  const payload = {
+    koji_type: d.koji_label,  // 日本語ラベル（"外壁塗装" 等）を送信
+    menseki: d.menseki || 0,
+    teiji_kingaku: d.teiji_kingaku,
+    customer_name: name,
+    email: email || null,
+    // 参考メタ情報（サーバー側で無視されても問題ない）
+    meta: {
+      koji_type_key: d.koji_type_key,
+      souba_min: d.souba_min,
+      souba_max: d.souba_max,
+      status: d.status,
+      ratio_pct: d.ratio_pct,
+    }
+  };
+
+  try {
+    const res = await fetch(CHECKOUT_START_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Server error: ${res.status}`);
+    }
+
+    const data = await res.json();
+
+    // 正常系：LINE Login URL にリダイレクト
+    if (data.line_login_url) {
+      // 少しUX的に「遷移します」を表示してから飛ばす
+      btn.textContent = '✅ 接続成功。LINE認証画面へ...';
+      setTimeout(() => {
+        window.location.href = data.line_login_url;
+      }, 600);
+      return;
+    }
+
+    // line_login_url が無いレスポンスは想定外 → フォールバック
+    throw new Error('Checkout response missing line_login_url');
+
+  } catch (err) {
+    console.error('Checkout error:', err);
+    // LINE フォールバック
+    fallbackToLine(d, name, email);
+  }
+}
+
+function showModalError(msg) {
+  const errBox = document.getElementById('modalError');
+  errBox.innerHTML = msg;
+  errBox.classList.add('active');
+  const btn = document.getElementById('btnSubmitPurchase');
+  btn.disabled = false;
+  btn.textContent = '購入手続きへ進む（LINE認証・PayPay決済）';
+}
+
+// ============================================================
+// LINE フォールバック（決済サーバーNG時の最終手段）
+// ============================================================
+
+function fallbackToLine(d, name, email) {
+  const orderMsg = `【逆見積書PDF注文】
+お名前: ${name}${email ? '\nメール: ' + email : ''}
+工事: ${d.koji_label}
+業者提示額: ¥${fmt(d.teiji_kingaku)}
+診断: ${d.status_label}（相場の${d.ratio_pct}%）
+
+¥5,500でPDFを注文します。
+銀行振込の口座情報をお教えください。`;
+
+  // クリップボードにコピー
+  let copiedOK = false;
+  try {
+    navigator.clipboard.writeText(orderMsg).then(() => {
+      copiedOK = true;
+    });
+  } catch (e) {
+    // Safari等で clipboard 使えない場合はスキップ
+  }
+
+  // モーダル内にフォールバック案内を表示
+  const errBox = document.getElementById('modalError');
+  errBox.innerHTML = `
+    <strong>🛠 決済サーバー接続エラー</strong><br>
+    しばらく経ってからもう一度お試しください。<br>
+    <strong>お急ぎの場合はLINEで直接ご注文いただけます：</strong><br><br>
+    <a href="${LINE_FRIEND_URL}" target="_blank" rel="noopener"
+       style="display:inline-block;padding:10px 18px;background:#06c755;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:6px;">
+       💬 LINEで注文する（@172piime）
+    </a>
+    <br><br>
+    <small>LINEが開いたら、下記の注文文面を貼り付けて送信してください（自動でクリップボードにコピー済み）：</small>
+    <textarea readonly onclick="this.select()"
+              style="width:100%;margin-top:8px;padding:8px;font-size:11px;border:1px solid #ffcdd2;border-radius:6px;min-height:140px;font-family:inherit;background:#fff;">${escapeHtml(orderMsg)}</textarea>
+  `;
+  errBox.classList.add('active');
+
+  const btn = document.getElementById('btnSubmitPurchase');
+  btn.disabled = false;
+  btn.textContent = '購入手続きへ進む（LINE認証・PayPay決済）';
+}
+
+// ============================================================
+// ユーティリティ
+// ============================================================
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 </script>
 
