@@ -1,0 +1,308 @@
+{
+  "_meta": {
+    "version": "2.0-phase1",
+    "updated": "2026-04-19",
+    "category_id": "toilet_reform",
+    "category_name_jp": "トイレリフォーム",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐ 住設エンジン・シンプルだが和式→洋式案件で中規模化",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 2026年実勢データ (TOTO ピュアレスト/ネオレスト・LIXIL アメージュ/プレアス/サティス・Panasonic アラウーノ、住設ドットコム、東京ガス リフォーム、リショップナビ、リフォームガイド、くらしのマーケット、リフォームタイムズ/SUUMO、山根木材)",
+    "scope": "既存洋式→新しい洋式便器交換、和式→洋式リフォーム、タンクレス化、内装フル改装"
+  },
+
+  "horizon_shield_standard": {
+    "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール（トイレリフォーム版）",
+    "formula": "本体仕入れ値 × 1.2 + 職人人工 × 日当 + 付帯工事実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.20,
+      "general_overhead_pct_ideal": 15,
+      "general_overhead_pct_acceptable_max": 20,
+      "tax_pct": 10,
+      "trade_price_ratio_from_list": 0.50,
+      "note": "トイレ本体は住設全般で定価の45-55%が業者仕入れ値。ネット販売も同程度の45-55%OFF。"
+    }
+  },
+
+  "toilet_bodies": {
+    "budget_tank_plain": {
+      "name": "組合せ便器（タンク式・普通便座）",
+      "example_product": "TOTO ピュアレストQR + 普通便座",
+      "price_list_jpy": 61875,
+      "price_net_with_work_jpy": 85800,
+      "price_trade_estimate_jpy": 35000,
+      "markup_from_list_pct_trade": 57,
+      "markup_from_list_pct_net": 32,
+      "note": "普及型・賃貸原状回復・コスト重視。ネットが実勢で定価の60-70% OFF相当"
+    },
+    "standard_tank_shower": {
+      "name": "組合せ便器（タンク式・シャワー便座付）",
+      "example_product": "TOTO ピュアレストQR + アプリコットF3",
+      "price_list_jpy": 180000,
+      "price_net_with_work_jpy": 207000,
+      "price_trade_estimate_jpy": 99000,
+      "markup_from_list_pct_trade": 55,
+      "note": "最多選択肢。最新ウォシュレット機能でコスパ良"
+    },
+    "integrated_type": {
+      "name": "一体型便器（タンク一体型）",
+      "example_product": "LIXIL プレアスLS",
+      "price_list_jpy": 156145,
+      "price_net_with_work_jpy": 197945,
+      "price_trade_estimate_jpy": 80000,
+      "markup_from_list_pct_trade": 51,
+      "note": "タンクレス風デザイン・掃除しやすい。人気上昇中"
+    },
+    "tankless_standard": {
+      "name": "タンクレストイレ（標準）",
+      "example_product": "Panasonic アラウーノS160 / LIXIL サティスS",
+      "price_list_jpy": 300000,
+      "price_net_with_work_jpy": 250000,
+      "price_trade_estimate_jpy": 150000,
+      "markup_from_list_pct_trade": 50,
+      "note": "省スペース・節水・高級感"
+    },
+    "tankless_premium": {
+      "name": "タンクレス最上位",
+      "example_product": "TOTO ネオレストRS/AS",
+      "price_list_jpy": 475000,
+      "price_net_with_work_jpy": 400000,
+      "price_trade_estimate_jpy": 240000,
+      "markup_from_list_pct_trade": 51,
+      "note": "最上位グレード。除菌水・瞬間暖房など最新機能"
+    }
+  },
+
+  "labor": {
+    "setsubi_day_rate_kanto": {
+      "min": 22000,
+      "max": 28000,
+      "avg": 25000,
+      "note": "設備屋（配管工）の日当。建設職種ランキング3-4位で大工よりやや高め"
+    },
+    "carpenter_day_rate_kanto": {
+      "min": 28000,
+      "max": 35000,
+      "avg": 31500,
+      "note": "床下地・段差解消の大工工事用"
+    },
+    "electrician_day_rate_kanto": {
+      "min": 25000,
+      "max": 32000,
+      "avg": 28000,
+      "note": "コンセント増設・電気工事士資格必須"
+    },
+    "cloth_craftsman_day_rate_kanto": {
+      "min": 20000,
+      "max": 28000,
+      "avg": 25000
+    }
+  },
+
+  "standard_work_items": {
+    "toilet_replacement_only": {
+      "description": "既存洋式→新洋式の本体交換のみ",
+      "labor": "設備屋 0.5-1人工",
+      "work_cost": { "min": 10000, "max": 30000 }
+    },
+    "floor_cushion_flooring_replace": {
+      "description": "床クッションフロア張替え（1.5㎡）",
+      "cost": { "min": 15000, "max": 30000 }
+    },
+    "wall_cloth_replace": {
+      "description": "クロス張替え（壁+天井 約10㎡）",
+      "cost": { "min": 20000, "max": 50000 }
+    },
+    "pipe_connection_material": {
+      "description": "配管接続材料",
+      "cost": { "min": 3000, "max": 8000 }
+    },
+    "disposal": {
+      "description": "旧便器廃材処分",
+      "cost": { "min": 3000, "max": 8000 }
+    }
+  },
+
+  "washiki_to_yoshiki_modules": {
+    "description": "和式→洋式リフォームの特有工事モジュール",
+    "items": {
+      "washiki_demolition": {
+        "description": "既存和式便器・タイル撤去",
+        "cost": { "min": 30000, "max": 60000 }
+      },
+      "level_adjustment_carpentry": {
+        "description": "段差解消の大工工事（床組み直し）",
+        "labor": "大工 1人工",
+        "work_cost": { "min": 30000, "max": 50000 }
+      },
+      "floor_framing_materials": {
+        "description": "床下地材料（根太・合板・断熱材）",
+        "cost": { "min": 10000, "max": 20000 }
+      },
+      "pipe_relocation": {
+        "description": "給排水管の移設・配管工事",
+        "labor": "設備屋 1-2人工",
+        "work_cost": { "min": 30000, "max": 80000 }
+      },
+      "pipe_material": {
+        "description": "配管材料（給水/排水管）",
+        "cost": { "min": 5000, "max": 15000 }
+      },
+      "electric_outlet_new": {
+        "description": "コンセント新設（電気工事士資格必須）",
+        "labor": "電気工事士 0.5-1人工",
+        "work_cost": { "min": 15000, "max": 30000 }
+      },
+      "waste_disposal_washiki": {
+        "description": "和式解体廃材処分（量大）",
+        "cost": { "min": 8000, "max": 15000 }
+      }
+    }
+  },
+
+  "plans": {
+    "simple_replacement_tank": {
+      "name": "シンプルプラン：タンク式本体のみ交換",
+      "scope": "既存洋式→新タンク式便器（シャワー便座付）",
+      "estimated_total_jpy": { "min": 100000, "max": 180000 },
+      "hs_rule_estimate_jpy": 165000
+    },
+    "full_renovation_tank": {
+      "name": "スタンダードプラン：タンク式＋床・クロス改装",
+      "scope": "TOTO ピュアレストQR+シャワー便座、床CF・クロス全面張替え",
+      "estimated_total_jpy": { "min": 200000, "max": 350000 },
+      "hs_rule_estimate_jpy": 265000,
+      "breakdown_sample": {
+        "body_hs_rule": 118800,
+        "setsubi_labor": 25000,
+        "carpenter_labor": 15750,
+        "cloth_labor": 12500,
+        "cf_flooring": 7500,
+        "cloth_material_work": 20000,
+        "disposal": 5000,
+        "pipe_material": 5000,
+        "subtotal": 209550,
+        "overhead_15pct": 31432,
+        "tax_10pct": 24098,
+        "total": 265080
+      }
+    },
+    "tankless_renovation": {
+      "name": "プレミアムプラン：タンクレス+フル改装",
+      "scope": "Panasonic アラウーノ/TOTO ネオレスト標準、床・クロス・手洗い器",
+      "estimated_total_jpy": { "min": 350000, "max": 600000 },
+      "hs_rule_estimate_jpy": 450000
+    },
+    "washiki_to_yoshiki_basic": {
+      "name": "和式→洋式：基本改装",
+      "scope": "タンク式シャワー便座+段差解消+床・クロス張替え",
+      "estimated_total_jpy": { "min": 400000, "max": 600000 },
+      "hs_rule_estimate_jpy": 480000
+    },
+    "washiki_to_yoshiki_full": {
+      "name": "和式→洋式：フル改装（推奨）",
+      "scope": "タンク式シャワー便座+段差解消+配管移設+電気+内装全交換",
+      "estimated_total_jpy": { "min": 500000, "max": 800000 },
+      "hs_rule_estimate_jpy": 590000,
+      "breakdown_sample": {
+        "body_hs_rule": 118800,
+        "washiki_demolition": 40000,
+        "level_adjustment_carpentry": 40000,
+        "floor_framing_materials": 15000,
+        "pipe_relocation": 50000,
+        "pipe_material": 10000,
+        "electric_outlet_new": 20000,
+        "cf_flooring": 25000,
+        "cloth_material_work": 30000,
+        "setsubi_labor": 50000,
+        "carpenter_labor": 31500,
+        "electrician_labor": 15000,
+        "cloth_labor": 12500,
+        "disposal": 10000,
+        "subtotal": 467800,
+        "overhead_15pct": 70170,
+        "tax_10pct": 53797,
+        "total": 591767
+      }
+    },
+    "barrier_free_full": {
+      "name": "バリアフリー：手すり・入口拡張込み",
+      "scope": "和式→洋式+入口拡張+手すり+車椅子対応床",
+      "estimated_total_jpy": { "min": 700000, "max": 1200000 },
+      "hs_rule_estimate_jpy": 900000,
+      "note": "介護保険・自治体バリアフリー補助金対象になる場合多数。要確認"
+    }
+  },
+
+  "red_flags": [
+    {
+      "code": "BODY_OVERPRICED_LIST",
+      "pattern": "便器本体が定価のまま or 定価の20%OFF未満で計上",
+      "severity": "🔴 CRITICAL",
+      "reason": "住設の業者仕入れは定価の45-55%OFF。定価提示は明確な過剰請求"
+    },
+    {
+      "code": "TANKLESS_800K_OVER",
+      "pattern": "タンクレス+床クロス改装で¥800,000超",
+      "severity": "🚨 HIGH",
+      "reason": "HS基準で¥450k。¥800k超は1.7倍以上で過剰"
+    },
+    {
+      "code": "WASHIKI_1200K_OVER",
+      "pattern": "和式→洋式フルで¥1,200,000超（バリアフリー除く）",
+      "severity": "🚨 HIGH",
+      "reason": "HS基準で¥590k。¥1,200k超は2倍以上で完全なぼったくり"
+    },
+    {
+      "code": "PIPE_LUMP_SUM",
+      "pattern": "配管工事が「一式」計上（移設の有無・距離不明）",
+      "severity": "⚠️ MEDIUM",
+      "reason": "既存配管が使える場合と新設が必要な場合で金額が大幅に変わる。明細要求すべし"
+    },
+    {
+      "code": "UNCLEAR_MODEL_NUMBER",
+      "pattern": "便器の型番・メーカー・グレードが見積書に明記されていない",
+      "severity": "🔴 CRITICAL",
+      "reason": "TOTO/LIXIL/Panasonic の型番・グレードで価格が大幅に変わる。不明記は詐欺の温床"
+    },
+    {
+      "code": "FORCED_TANKLESS",
+      "pattern": "タンク式で十分な状況なのにタンクレスを強く推奨",
+      "severity": "⚠️ MEDIUM",
+      "reason": "タンクレスは停電時に使えず、水圧要件あり。古い住宅では不適合の場合あり"
+    },
+    {
+      "code": "MISSING_ELECTRIC_WORK",
+      "pattern": "シャワー便座追加なのにコンセント工事が記載なし",
+      "severity": "⚠️ MEDIUM",
+      "reason": "後から「追加工事」で請求される手口。最初から見積もりに含めるべし"
+    },
+    {
+      "code": "ELECTRICIAN_NO_LICENSE",
+      "pattern": "電気工事を無資格の配管工が兼務",
+      "severity": "🔴 CRITICAL",
+      "reason": "電気工事士法違反。漏電・火災リスク。第2種電気工事士の有資格者以外施工できない"
+    }
+  ],
+
+  "negotiation_tips": [
+    "便器の型番・メーカー・グレードの明記を要求（ネット実勢価格と比較できる）",
+    "定価の何%掛けで見積もられているか聞く（業界の業者仕入れは定価45-55% OFF）",
+    "ネット販売（住設ドットコム・東京ガス等）の工事費込み価格と比較する",
+    "配管工事が本当に必要か現地確認（既存配管活用で数万円節約可能）",
+    "コンセント新設は電気工事士資格者の施工証明を要求",
+    "床・クロス同時張替えは足場代・養生費削減でお得（別々にするな）",
+    "和式→洋式は『みらいエコ住宅2026事業』など補助金対象になる可能性あり、業者に確認",
+    "バリアフリー工事は介護保険20万円上限で1割負担の補助あり",
+    "撤去処分費が¥20,000超は明細要求（特に和式の場合）",
+    "見積書に『一式』が多用されている業者は要警戒"
+  ],
+
+  "trade_knowledge": {
+    "summary": "トイレ本体は住設の掛け率スタンダード（業者仕入れ値は定価の45-55%）。工事費は本体交換のみなら¥10-30k、内装込みなら¥50-100k、和式→洋式フルなら¥200-400k。和式→洋式案件は築古住宅でまだ一定需要あり、40-80万クラスのリフォームになる。",
+    "body_price_structure": "定価→ネット販売（定価45-55%OFF）→業者仕入れ値（定価45-55%OFF、ネットとほぼ同等）→施主請求（定価20-30%OFF）の階層。業者マージンは定価の20-35%。HS基準では仕入れ×1.2で「ほぼネット価格並み」になる。",
+    "washiki_special_note": "和式→洋式は20-30年前の住宅で大量に発生する案件。段差解消+配管+電気+内装の複合工事のため、金額が大きくなりやすく、ぼったくり業者が『一式』で膨らませる典型ターゲット。",
+    "electric_work_license": "電気工事（コンセント新設）は第二種電気工事士資格必須。配管工が無資格で施工する業者は法令違反。消防・保険の観点でも危険。",
+    "barrier_free_subsidy": "和式→洋式+バリアフリー化は介護保険20万円上限・市区町村の住宅改修補助・みらいエコ住宅事業など複数の補助金対象。知らずに自己負担100%払う施主が多い。",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 住設業界内部情報 + 大手メーカー公式データ"
+  }
+}
