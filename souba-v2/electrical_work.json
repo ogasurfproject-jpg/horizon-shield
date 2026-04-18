@@ -1,0 +1,411 @@
+{
+  "_meta": {
+    "version": "2.0-phase1",
+    "updated": "2026-04-19",
+    "category_id": "electrical_work",
+    "category_name_jp": "電気工事（配線・コンセント・分電盤・照明）",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐⭐ リフォーム全般で必須の付随工事・EV時代で需要急増",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 2026年実勢データ (パナソニック分電盤・東芝分電盤・東京電力契約、SUUMOリフォーム、リフォトル、大福電業、電気工事110番、横浜電気工事レスキュー、電気工事レスキューセンター、源電工、リフォマ、CARSMORA、EV DAYS)",
+    "scope": "コンセント増設/移設/屋外化・専用回路新設・スイッチ交換/増設・100V→200V変更・分電盤交換/容量アップ・照明器具取付/新設・LED化・EV充電用コンセント・アンペア変更・配線引き直し・スマートホーム化・オール電化対応"
+  },
+
+  "horizon_shield_standard": {
+    "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール（電気工事版）",
+    "formula": "材料仕入れ値 × 1.2 + 電気工事士人工 × 日当 + 付帯工事実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.20,
+      "general_overhead_pct_ideal": 15,
+      "tax_pct": 10,
+      "trade_price_ratio_from_list": 0.50
+    },
+    "philosophy": "電気工事は資格必須（第二種電気工事士）。無資格者施工は火災・感電リスク。HSは資格者施工を前提に、工事項目の明細化で不当請求を排除"
+  },
+
+  "license_requirements": {
+    "description": "電気工事の法定資格（違反は違法）",
+    "licenses": {
+      "denki_koji_si_2": {
+        "name": "第二種電気工事士",
+        "scope": "一般住宅・小規模店舗の電気工事（600V以下）",
+        "required_for": ["コンセント増設", "配線工事", "分電盤交換", "200V工事", "EV充電設備"]
+      },
+      "denki_koji_si_1": {
+        "name": "第一種電気工事士",
+        "scope": "最大電力500kW未満の工場・ビル",
+        "required_for": ["大規模商業施設", "高圧受電設備"]
+      },
+      "nintei_denki_koji_jūsha": {
+        "name": "認定電気工事従事者",
+        "scope": "低圧部分のみ（第一種補助）"
+      }
+    },
+    "illegal_work_risk": "無資格工事は電気工事士法違反・3万円以下の罰金。火災時の保険未適用・施主責任リスク"
+  },
+
+  "japan_power_systems": {
+    "description": "日本の住宅電源供給方式",
+    "single_phase_2wire": {
+      "name": "単相2線式（単2）",
+      "description": "電柱から2本線引き込み・100Vのみ使用可",
+      "characteristics": "古い住宅（築40年以上）に多い",
+      "issue": "200V家電（IH・エコキュート・EV充電・一部エアコン）使えない",
+      "upgrade_required": "単3化工事必要（電線3本化）"
+    },
+    "single_phase_3wire": {
+      "name": "単相3線式（単3）",
+      "description": "電柱から3本線引き込み・100V/200V両用",
+      "characteristics": "現在の主流（築30年以内のほぼ全て）",
+      "advantages": ["200V家電使用可", "分電盤アップグレード容易"]
+    }
+  },
+
+  "ampere_contracts": {
+    "description": "契約アンペア数（東京電力基準）",
+    "contracts": {
+      "30A": { "use_case": "単身・2人世帯・古い住宅", "monthly_basic_fee_jpy": 935 },
+      "40A": { "use_case": "3-4人家族・一般住宅", "monthly_basic_fee_jpy": 1247 },
+      "50A": { "use_case": "4-5人家族・エアコン複数", "monthly_basic_fee_jpy": 1559 },
+      "60A": { "use_case": "オール電化・大家族", "monthly_basic_fee_jpy": 1871 },
+      "over_60A": { "use_case": "オール電化+EV+太陽光", "note": "kVA契約に移行" }
+    },
+    "ampere_change_work": {
+      "meter_only_free": "電力会社側（メーター交換のみ）は基本無料",
+      "breaker_upgrade_cost_jpy": { "min": 10000, "max": 50000, "note": "アンペアブレーカー交換" },
+      "full_distribution_board_upgrade_jpy": { "min": 100000, "max": 300000, "note": "60A超・分電盤丸ごと交換時" }
+    }
+  },
+
+  "work_items_complete": {
+    "description": "電気工事の全項目単価",
+
+    "outlet_konsento": {
+      "existing_outlet_plate_upgrade": {
+        "name": "既存コンセント差し込み口増設（2口→4口）",
+        "price_jpy": { "min": 3000, "max": 8000 },
+        "scope": "プレート・コンセントボックス交換のみ",
+        "work_time": "30分"
+      },
+      "branch_from_existing": {
+        "name": "既存コンセントから分岐増設",
+        "price_jpy": { "min": 5000, "max": 15000 },
+        "note": "最も安価・1500W以下に限定"
+      },
+      "new_wiring_from_distribution_board": {
+        "name": "分電盤から新規配線",
+        "price_jpy": { "min": 15000, "max": 50000 },
+        "note": "壁内配線・距離次第"
+      },
+      "exposed_wiring": {
+        "name": "露出配線（モール隠し）",
+        "price_jpy": { "min": 8000, "max": 20000 },
+        "note": "壁解体なしで最安"
+      },
+      "outdoor_outlet": {
+        "name": "屋外コンセント増設",
+        "price_jpy": { "min": 15000, "max": 70000 },
+        "scope": "防水コンセント+貫通+外壁コーキング",
+        "use_case": "EV充電・電動工具・防犯カメラ・高圧洗浄機"
+      },
+      "outlet_relocation": {
+        "name": "コンセント移設",
+        "price_jpy": { "min": 8000, "max": 25000 },
+        "note": "既存を別位置に移動"
+      }
+    },
+
+    "switch_work": {
+      "switch_replacement_standard": {
+        "name": "スイッチ交換（同等品）",
+        "price_jpy": { "min": 3000, "max": 8000 }
+      },
+      "switch_with_timer": {
+        "name": "タイマー付きスイッチ",
+        "price_jpy": { "min": 8000, "max": 15000 }
+      },
+      "dimmer_switch": {
+        "name": "調光スイッチ",
+        "price_jpy": { "min": 8000, "max": 20000 }
+      },
+      "sensor_switch": {
+        "name": "人感センサースイッチ",
+        "price_jpy": { "min": 10000, "max": 25000 }
+      },
+      "smart_switch_wifi": {
+        "name": "スマートスイッチ（Wi-Fi連携）",
+        "price_jpy": { "min": 15000, "max": 40000 }
+      },
+      "switch_relocation": {
+        "name": "スイッチ移設",
+        "price_jpy": { "min": 8000, "max": 25000 }
+      }
+    },
+
+    "voltage_200v_conversion": {
+      "100v_to_200v_single3_existing": {
+        "name": "100V→200V変更（既存単3分電盤）",
+        "price_jpy": { "min": 10000, "max": 30000 },
+        "scope": "分電盤内の配線変更のみ",
+        "work_time": "1-2時間"
+      },
+      "200v_dedicated_circuit_new": {
+        "name": "200V専用回路新設",
+        "price_jpy": { "min": 30000, "max": 80000 },
+        "scope": "ブレーカー追加+専用配線+200Vコンセント",
+        "use_case": "IH・エアコン・エコキュート"
+      },
+      "upgrade_single2_to_single3": {
+        "name": "単相2線式→単相3線式変更",
+        "price_jpy": { "min": 100000, "max": 300000 },
+        "scope": "電柱からの引き込み線3本化+分電盤交換",
+        "note": "電力会社連絡必要・古い住宅のみ"
+      }
+    },
+
+    "distribution_board_buntenban": {
+      "breaker_only_replace": {
+        "name": "ブレーカー単体交換",
+        "price_jpy": { "min": 8000, "max": 20000 }
+      },
+      "leak_breaker_add": {
+        "name": "漏電ブレーカー追加",
+        "price_jpy": { "min": 15000, "max": 30000 }
+      },
+      "distribution_board_replace_small": {
+        "name": "分電盤交換（小型・6-12回路）",
+        "price_jpy": { "min": 50000, "max": 100000 },
+        "recommended_makers": ["パナソニック コスモパネル", "日東工業 ホーム分電盤"]
+      },
+      "distribution_board_replace_large": {
+        "name": "分電盤交換（大型・12-24回路）",
+        "price_jpy": { "min": 100000, "max": 200000 },
+        "use_case": "オール電化・EV充電対応"
+      },
+      "solar_dedicated_panel": {
+        "name": "太陽光発電連系用分電盤",
+        "price_jpy": { "min": 50000, "max": 150000 },
+        "note": "太陽光パワコンと接続"
+      }
+    },
+
+    "lighting_work": {
+      "existing_socket_replace": {
+        "name": "既存ソケット（引掛シーリング）の照明器具取付",
+        "price_jpy": { "min": 2000, "max": 8000 },
+        "note": "引掛シーリング式なら資格不要・DIY可"
+      },
+      "direct_wired_lighting": {
+        "name": "直結式照明の取付（電気工事士必須）",
+        "price_jpy": { "min": 5000, "max": 15000 }
+      },
+      "new_wiring_for_lighting": {
+        "name": "照明の新規設置（配線含む）",
+        "price_jpy": { "min": 15000, "max": 40000 }
+      },
+      "chandelier_install": {
+        "name": "シャンデリア取付",
+        "price_jpy": { "min": 15000, "max": 40000 },
+        "note": "重量対応補強必要"
+      },
+      "downlight_new_install": {
+        "name": "ダウンライト新設",
+        "price_per_unit_jpy": { "min": 8000, "max": 15000 },
+        "note": "天井開口・配線込み"
+      },
+      "indirect_lighting_zosaku": {
+        "name": "間接照明（折り上げ天井等）",
+        "price_per_meter_jpy": { "min": 5000, "max": 15000 },
+        "note": "LEDテープライト・電源・配線"
+      }
+    },
+
+    "led_conversion": {
+      "ceiling_light_led_replace": {
+        "name": "シーリングライトLED交換",
+        "price_per_room_jpy": { "min": 8000, "max": 25000, "note": "本体込み" }
+      },
+      "whole_house_led_conversion": {
+        "name": "全室LED化（標準住宅6部屋）",
+        "price_jpy": { "min": 100000, "max": 300000 },
+        "benefit_electric_save_yearly": { "min": 20000, "max": 50000 }
+      }
+    },
+
+    "ev_charging": {
+      "name": "EV充電用200Vコンセント",
+      "types": {
+        "simple_outlet": {
+          "name": "普通充電コンセント（EV用200V 15A）",
+          "price_jpy": { "min": 30000, "max": 80000 },
+          "note": "パナソニック WK4322 等・軒下壁設置"
+        },
+        "pole_standing": {
+          "name": "スタンド型EV充電",
+          "price_jpy": { "min": 80000, "max": 150000 }
+        },
+        "long_distance_surcharge": {
+          "name": "分電盤から15m超の追加工事",
+          "price_jpy": { "min": 20000, "max": 50000 }
+        }
+      },
+      "subsidies": {
+        "program": "CEV補助金（次世代自動車振興センター）",
+        "max_amount_jpy": 75000
+      }
+    },
+
+    "full_rewiring": {
+      "partial_rewiring_room": {
+        "name": "1部屋の配線引き直し",
+        "price_jpy": { "min": 80000, "max": 200000 }
+      },
+      "full_house_rewiring": {
+        "name": "家全体の配線引き直し（30坪）",
+        "price_jpy": { "min": 500000, "max": 1500000 },
+        "note": "築40年以上・安全性のため全面更新推奨",
+        "work_days": "5-10日"
+      }
+    },
+
+    "smart_home": {
+      "name": "スマートホーム化",
+      "types": {
+        "hems_install": {
+          "name": "HEMS（ホームエネルギー管理システム）",
+          "price_jpy": { "min": 150000, "max": 400000 },
+          "note": "太陽光・電力使用量可視化"
+        },
+        "smart_lock_door": {
+          "name": "スマートロック（玄関ドア）",
+          "price_jpy": { "min": 30000, "max": 80000 }
+        },
+        "intercom_wifi": {
+          "name": "Wi-Fi対応インターホン",
+          "price_jpy": { "min": 30000, "max": 80000 }
+        },
+        "security_camera_system": {
+          "name": "防犯カメラシステム（4台）",
+          "price_jpy": { "min": 150000, "max": 400000 }
+        }
+      }
+    }
+  },
+
+  "full_reform_electrical_packages": {
+    "description": "フルリフォーム時の電気工事パッケージ",
+    "30tsubo_standard": {
+      "name": "戸建30坪フルリフォーム電気工事",
+      "price_jpy": { "min": 500000, "max": 800000 },
+      "scope": ["全室コンセント増設", "分電盤交換", "LED化", "配線部分更新", "アース工事"]
+    },
+    "30tsubo_all_electric": {
+      "name": "30坪オール電化フル対応",
+      "price_jpy": { "min": 800000, "max": 1500000 },
+      "scope": ["分電盤大型化", "200V配線複数", "IH専用回路", "エコキュート200V", "太陽光対応"]
+    },
+    "mansion_80sqm": {
+      "name": "マンション80㎡リフォーム電気工事",
+      "price_jpy": { "min": 300000, "max": 600000 }
+    }
+  },
+
+  "labor": {
+    "electrician_day_rate_kanto": { "min": 25000, "max": 35000, "avg": 30000 },
+    "electrician_senior_day_rate_kanto": { "min": 35000, "max": 45000, "avg": 40000, "note": "第一種電気工事士・10年以上" },
+    "standard_manhours": {
+      "outlet_new_wiring": "1-2時間/箇所",
+      "distribution_board_exchange": "半日",
+      "led_whole_house": "1日",
+      "full_rewiring_30tsubo": "5-10日",
+      "ev_charging_install": "半日-1日"
+    }
+  },
+
+  "plans": {
+    "konsento_simple": { "name": "コンセント増設（既存分岐）", "price_jpy": { "min": 5000, "max": 15000 }, "hs_rule_jpy": 12000 },
+    "konsento_new_wiring": { "name": "コンセント新規配線", "price_jpy": { "min": 15000, "max": 50000 }, "hs_rule_jpy": 40000 },
+    "outdoor_konsento": { "name": "屋外コンセント増設", "price_jpy": { "min": 15000, "max": 70000 }, "hs_rule_jpy": 55000 },
+    "200v_conversion_existing": { "name": "100V→200V変更（既存単3）", "price_jpy": { "min": 10000, "max": 30000 }, "hs_rule_jpy": 25000 },
+    "200v_dedicated_circuit": { "name": "200V専用回路新設", "price_jpy": { "min": 30000, "max": 80000 }, "hs_rule_jpy": 65000 },
+    "distribution_board_upgrade": { "name": "分電盤交換（大型）", "price_jpy": { "min": 100000, "max": 200000 }, "hs_rule_jpy": 180000 },
+    "led_whole_house_6rooms": { "name": "全室LED化6部屋", "price_jpy": { "min": 100000, "max": 300000 }, "hs_rule_jpy": 240000 },
+    "ev_charging_simple": { "name": "EV充電用コンセント", "price_jpy": { "min": 30000, "max": 80000 }, "hs_rule_jpy": 70000, "after_subsidy_jpy": -5000 },
+    "ev_charging_long_distance": { "name": "EV充電（15m超）", "price_jpy": { "min": 50000, "max": 150000 }, "hs_rule_jpy": 130000 },
+    "single2_to_single3": { "name": "単2→単3変更", "price_jpy": { "min": 100000, "max": 300000 }, "hs_rule_jpy": 260000 },
+    "ampere_30_to_60": { "name": "30A→60Aアップ", "price_jpy": { "min": 100000, "max": 300000 }, "hs_rule_jpy": 250000 },
+    "full_rewiring_30tsubo": { "name": "配線引き直し30坪", "price_jpy": { "min": 500000, "max": 1500000 }, "hs_rule_jpy": 1200000 },
+    "full_reform_electric_package": { "name": "フルリフォーム電気工事パック30坪", "price_jpy": { "min": 500000, "max": 800000 }, "hs_rule_jpy": 750000 },
+    "all_electric_package": { "name": "オール電化対応パック", "price_jpy": { "min": 800000, "max": 1500000 }, "hs_rule_jpy": 1350000 },
+    "smart_home_basic": { "name": "スマートホーム基本（HEMS+カメラ+鍵）", "price_jpy": { "min": 300000, "max": 700000 }, "hs_rule_jpy": 620000 }
+  },
+
+  "red_flags": [
+    { "code": "NO_LICENSE", "pattern": "第二種電気工事士資格なしで工事実施", "severity": "🔴 CRITICAL", "reason": "電気工事士法違反・3万円以下罰金・火災時保険不適用" },
+    { "code": "NO_RESIDUAL_CURRENT_BREAKER", "pattern": "漏電ブレーカー不設置", "severity": "🔴 CRITICAL", "reason": "漏電・感電死亡事故リスク" },
+    { "code": "UNCLEAR_WORK_SCOPE", "pattern": "工事範囲・回路数・配線長さ不明", "severity": "🔴 CRITICAL", "reason": "配線距離で費用2-3倍差" },
+    { "code": "KONSENTO_SIMPLE_OVER_30K", "pattern": "単純コンセント増設で¥30,000超", "severity": "🚨 HIGH", "reason": "HS基準¥12k。¥30k超は過剰" },
+    { "code": "DISTRIBUTION_BOARD_OVER_300K", "pattern": "一般分電盤交換で¥300,000超", "severity": "🚨 HIGH", "reason": "HS基準¥180k" },
+    { "code": "NO_INSPECTION_CERTIFICATE", "pattern": "工事完了検査・試運転記録なし", "severity": "🚨 HIGH", "reason": "電気工事は完了時の絶縁抵抗試験必須" },
+    { "code": "COPPER_WIRE_GRADE_LOW", "pattern": "使用配線のVVFケーブル・CV等グレード不明", "severity": "⚠️ MEDIUM", "reason": "容量不足で発熱・火災リスク" },
+    { "code": "ISSHIKI_LUMP_SUM", "pattern": "一式計上で項目別単価不明", "severity": "🚨 HIGH", "reason": "電気工事は箇所ごと単価明記が標準" },
+    { "code": "FORCED_FULL_REWIRING", "pattern": "部分工事で済む案件に全配線引き直し強要", "severity": "⚠️ MEDIUM", "reason": "+¥50-100万の過剰提案" },
+    { "code": "EV_WITHOUT_AMPERE_CHECK", "pattern": "EV充電工事でアンペア契約確認なし", "severity": "🚨 HIGH", "reason": "契約30Aのまま200V充電追加でブレーカー頻落" }
+  ],
+
+  "vendor_selection_guide": {
+    "good_signs": [
+      "第二種電気工事士資格者証の提示",
+      "電気工事業者登録証（都道府県知事登録）",
+      "工事項目別の明細見積もり",
+      "工事完了時の絶縁抵抗試験実施",
+      "10年保証付き"
+    ],
+    "bad_signs": [
+      "資格証提示拒否",
+      "見積もり一式計上",
+      "訪問販売で即決迫り",
+      "完了検査なし",
+      "極端に安い価格"
+    ]
+  },
+
+  "customer_scenario_guide": [
+    { "case": "エアコン新設でコンセントがない", "recommendation": "コンセント新規配線（200V or 100V）", "cost": 40000 },
+    { "case": "キッチンで調理家電同時使用でブレーカー落ちる", "recommendation": "専用回路増設", "cost": 45000 },
+    { "case": "EV購入したので充電設備", "recommendation": "EV充電用200Vコンセント+アンペアチェック", "cost": 80000 },
+    { "case": "オール電化したい（IH・エコキュート）", "recommendation": "分電盤交換+200V複数回路", "cost": 300000 },
+    { "case": "築40年で電気設備が心配", "recommendation": "配線引き直し+分電盤交換", "cost": 1300000 },
+    { "case": "単相2線式で200V家電使いたい", "recommendation": "単2→単3変更+分電盤交換", "cost": 260000 },
+    { "case": "リモコンで家電操作したい", "recommendation": "スマートスイッチ+Wi-Fi対応", "cost": 150000 },
+    { "case": "電気代下げたい", "recommendation": "全室LED化", "cost": 240000, "savings_yearly": 35000 },
+    { "case": "太陽光設置予定", "recommendation": "太陽光連系用分電盤+配線", "cost": 100000 },
+    { "case": "屋外で電動工具使う・BBQ", "recommendation": "屋外コンセント増設", "cost": 55000 }
+  ],
+
+  "negotiation_tips": [
+    "第二種電気工事士資格証の提示を必ず要求",
+    "電気工事業者登録番号（都道府県知事登録）の確認",
+    "工事項目ごとの単価明細要求（一式拒否）",
+    "使用配線のグレード（VVF 1.6mm/2.0mm・CV 2.0mm等）明記要求",
+    "完了時の絶縁抵抗試験記録を書面で提出要求",
+    "漏電ブレーカーの設置・動作確認",
+    "現状のアンペア契約と分電盤容量を事前確認",
+    "EV充電設備は補助金（CEV最大¥75,000）活用",
+    "LED化は電気代削減効果（年¥20-50k）で回収計算",
+    "オール電化は太陽光とセットでコスパ最強",
+    "訪問販売業者は要警戒・地元電気屋に相見積もり",
+    "相見積もり3社以上",
+    "10年保証の有無確認"
+  ],
+
+  "trade_knowledge": {
+    "summary": "電気工事はリフォーム全般で付随する必須工事。コンセント増設¥0.5-7万、分電盤交換¥5-20万、LED化（全室）¥10-30万、EV充電¥3-15万、配線引き直し（30坪）¥50-150万。資格は第二種電気工事士必須。2026年はEV充電・オール電化・スマートホーム化で需要増加",
+    "license_reality": "無資格工事は違法・罰金3万円・火災時の損害保険不適用。優良業者は資格証を現場に携帯",
+    "single2_to_single3_caution": "単相2線式の古い住宅は200V家電使えない。IH・エコキュート・EV充電導入前に必ず変更工事",
+    "ev_2026_boom": "2026年はEV普及加速・充電設備需要急増。CEV補助金最大¥75,000で実質¥2,000程度で設置可能",
+    "led_investment_return": "LED化は初期投資¥10-30万だが、年間¥2-5万の電気代削減で5-7年で回収。全室同時施工が最コスパ",
+    "smart_home_trend": "スマートホーム化（HEMS・スマートロック・Wi-Fi家電）は住宅高付加価値化でリセールバリューにも寄与",
+    "ampere_up_timing": "EV充電・IH・エコキュート同時導入時は60A契約推奨。50A→60Aで基本料金+¥312/月",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 第二種電気工事士知識 + パナソニック分電盤データ + EV業界2026年データ + 東京電力契約"
+  }
+}
