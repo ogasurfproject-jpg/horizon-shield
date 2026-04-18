@@ -1,0 +1,334 @@
+{
+  "_meta": {
+    "version": "2.0-phase1",
+    "updated": "2026-04-19",
+    "category_id": "kitchen_reform",
+    "category_name_jp": "キッチンリフォーム",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐⭐ 住設リフォーム最大エンジン（金額規模も最大級）",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 2026年実勢データ (LIXIL リシェル/シエラS、TOTO ザ・クラッソ/ミッテ、Panasonic Lクラス/Vスタイル、クリナップ セントロ/ステディア/ラクエラ、タカラスタンダード グランディア/オフェリア、トクラス ベリー、リショップナビ、SUUMO、価格.com、リフォーム費用の手引き、オネストライン、szk-biso)",
+    "scope": "システムキッチン交換（I型/L型/ペニンシュラ/アイランド、壁付け/対面式、同位置/レイアウト変更）"
+  },
+
+  "horizon_shield_standard": {
+    "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール（キッチン版）",
+    "formula": "本体仕入れ値 × 1.2 + 職人人工 × 日当 + 付帯工事実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.20,
+      "general_overhead_pct_ideal": 15,
+      "general_overhead_pct_acceptable_max": 20,
+      "tax_pct": 10,
+      "trade_price_ratio_from_list": 0.50
+    },
+    "philosophy": "キッチンは住設の最大エンジン。ハイグレード誘導・オプション必須化・レイアウト変更強要が悪徳業者の典型手口。HS は施主に本当に必要な選択を示す。"
+  },
+
+  "manufacturers": {
+    "LIXIL": {
+      "grades": {
+        "high": { "series": "リシェル", "target": "料理好き・こだわり派" },
+        "mid": { "series": "シエラS / ノクト", "target": "一般家庭標準（最多選択）" }
+      },
+      "market_share_rank": 1,
+      "showroom_count_nationwide": "最多"
+    },
+    "TOTO": {
+      "grades": {
+        "high": { "series": "ザ・クラッソ", "target": "衛生陶器技術・ホテルライク" },
+        "mid": { "series": "ミッテ", "target": "使いやすさ・機能性重視" }
+      },
+      "unique_features": ["水ほうき水栓", "すべり台シンク", "きれい除菌水"]
+    },
+    "Panasonic": {
+      "grades": {
+        "high": { "series": "Lクラス", "target": "家電連携・スマートキッチン" },
+        "mid": { "series": "Vスタイル", "target": "コスト重視・家電融合" }
+      },
+      "unique_features": ["トリプルワイドIH", "ラクッキングリル", "ホームネットワーク連携"]
+    },
+    "Cleanup": {
+      "grades": {
+        "high": { "series": "セントロ", "target": "ステンレス最高級・セラミック天板" },
+        "mid": { "series": "ステディア / ラクエラ", "target": "ステンレス強み・人気" }
+      },
+      "unique_features": ["ステンレスエコキャビネット", "洗エールレンジフード"]
+    },
+    "Takara_Standard": {
+      "grades": {
+        "high": { "series": "グランディア", "target": "高品位ホーロー" },
+        "mid": { "series": "オフェリア / トレーシア", "target": "ホーロー標準" }
+      },
+      "unique_features": ["高品位ホーロー", "マグネット収納", "磁石でカスタマイズ"]
+    },
+    "Toclas": {
+      "grades": {
+        "high": { "series": "ベリー", "target": "人造大理石強み" },
+        "mid": { "series": "コラージア", "target": "コスト重視" }
+      },
+      "unique_features": ["人造大理石シンク", "独自の水栓技術"]
+    }
+  },
+
+  "kitchen_bodies_by_grade": {
+    "standard": {
+      "name": "スタンダード（エントリー）",
+      "description": "必要最低限の機能。賃貸物件・最小予算向け",
+      "price_list_jpy": { "min": 500000, "max": 800000 },
+      "price_net_jpy": { "min": 250000, "max": 400000 },
+      "price_trade_estimate_jpy": { "min": 250000, "max": 400000 },
+      "examples": ["LIXIL シエラS 最安構成", "クリナップ ラクエラ", "TOTO ミッテ 最安"]
+    },
+    "middle": {
+      "name": "ミドル（一般家庭標準・最多選択）",
+      "description": "機能・デザイン・価格のバランス。HSの推奨グレード",
+      "price_list_jpy": { "min": 800000, "max": 1500000 },
+      "price_net_jpy": { "min": 400000, "max": 750000 },
+      "price_trade_estimate_jpy": { "min": 400000, "max": 750000 },
+      "examples": ["LIXIL シエラS 標準", "TOTO ミッテ", "Panasonic Vスタイル", "クリナップ ステディア", "タカラ オフェリア"]
+    },
+    "high_grade": {
+      "name": "ハイグレード（こだわり派）",
+      "description": "最上位機能・高級素材。料理好き・長期使用向け",
+      "price_list_jpy": { "min": 1500000, "max": 3000000 },
+      "price_net_jpy": { "min": 750000, "max": 1500000 },
+      "price_trade_estimate_jpy": { "min": 750000, "max": 1500000 },
+      "examples": ["LIXIL リシェル", "TOTO ザ・クラッソ", "Panasonic Lクラス", "クリナップ セントロ", "タカラ グランディア"]
+    }
+  },
+
+  "kitchen_shapes": {
+    "I_type": {
+      "name": "I型（壁付け一直線）",
+      "description": "最多形状・省スペース・最安",
+      "standard_size_mm": [2100, 2550, 2700, 3000],
+      "base_price_from": { "min": 500000, "max": 800000 }
+    },
+    "L_type": {
+      "name": "L型（コーナー利用）",
+      "description": "作業動線良好・中規模キッチン向け",
+      "standard_size_mm": "主+副 2400x1650 等",
+      "base_price_from": { "min": 550000, "max": 900000 }
+    },
+    "peninsula": {
+      "name": "ペニンシュラ（対面半島型）",
+      "description": "片側壁付き・対面式の代表。リビング連携",
+      "base_price_from": { "min": 600000, "max": 1000000 }
+    },
+    "island": {
+      "name": "アイランド（独立島型）",
+      "description": "四方開放・最高級・要広いスペース",
+      "base_price_from": { "min": 1500000, "max": 2500000 },
+      "note": "本体＋工事で¥200-400万クラス"
+    }
+  },
+
+  "standard_work_items_jpy": {
+    "demolition_existing_kitchen": { "cost": 70000, "note": "既存キッチン撤去・既存壁面解体" },
+    "body_installation": { "cost": 90000, "note": "新キッチン本体の組立・取付" },
+    "water_supply_drain_connection": { "min": 30000, "max": 60000, "note": "給水・給湯・排水の接続" },
+    "gas_connection": { "min": 10000, "max": 20000, "note": "ガス管接続（ガスコンロ使用時）" },
+    "electric_work": { "min": 20000, "max": 50000, "note": "専用コンセント・換気扇配線" },
+    "kitchen_panel_material_work": { "min": 37000, "max": 50000, "note": "キッチンパネル材料＋施工" },
+    "range_hood_duct": { "min": 20000, "max": 50000, "note": "レンジフード取付・ダクト工事" },
+    "hand_lighting": { "min": 5000, "max": 15000, "note": "手元灯設置" },
+    "disposal": { "min": 15000, "max": 25000, "note": "既存配管・廃材処分" },
+    "protection_transport": { "min": 20000, "max": 50000, "note": "養生・搬入搬出費" },
+    "body_delivery": { "cost": 10000 },
+    "pipe_material": { "min": 5000, "max": 15000 }
+  },
+
+  "layout_change_additional_costs_jpy": {
+    "description": "壁付けI型→対面式ペニンシュラへのレイアウト変更時の追加費用",
+    "water_pipe_extension": { "min": 40000, "max": 80000 },
+    "gas_pipe_extension": { "min": 15000, "max": 30000 },
+    "duct_route_change": { "min": 20000, "max": 50000 },
+    "floor_base_repair": { "min": 20000, "max": 50000 },
+    "interior_full_replacement": { "min": 100000, "max": 200000, "note": "床・壁全面張替え" },
+    "carpenter_additional_work": { "min": 50000, "max": 150000, "note": "造作壁・腰壁新設等" }
+  },
+
+  "labor": {
+    "setsubi_day_rate_kanto": { "min": 22000, "max": 28000, "avg": 25000 },
+    "carpenter_day_rate_kanto": { "min": 28000, "max": 35000, "avg": 31500 },
+    "electrician_day_rate_kanto": { "min": 25000, "max": 32000, "avg": 28000 },
+    "gas_worker_day_rate_kanto": { "min": 25000, "max": 30000, "avg": 27500, "note": "ガス主任技術者資格者" },
+    "cloth_craftsman_day_rate_kanto": { "min": 20000, "max": 28000, "avg": 25000 },
+    "standard_manhours_same_position_i_type": {
+      "setsubi": 2,
+      "electric": 0.5,
+      "gas": 0.5,
+      "carpenter": 0.5,
+      "total_days": 2
+    },
+    "standard_manhours_layout_change": {
+      "setsubi": 3,
+      "electric": 1,
+      "gas": 1,
+      "carpenter": 2,
+      "cloth": 1,
+      "total_days": "4-5日"
+    }
+  },
+
+  "plans": {
+    "standard_i_type_same_position": {
+      "name": "スタンダードI型・同位置交換",
+      "scope": "シエラS 最安構成 2550mm、本体のみ交換",
+      "estimated_total_jpy": { "min": 500000, "max": 800000 },
+      "hs_rule_estimate_jpy": 700000,
+      "work_days": 2
+    },
+    "middle_i_type_same_position": {
+      "name": "ミドルI型・同位置交換（HS推奨）",
+      "scope": "LIXIL シエラS標準 / TOTO ミッテ / Panasonic Vスタイル、2550mm",
+      "estimated_total_jpy": { "min": 800000, "max": 1300000 },
+      "hs_rule_estimate_jpy": 1296000,
+      "work_days": 2,
+      "breakdown_sample": {
+        "body_hs_rule": 600000,
+        "demolition": 70000,
+        "installation": 90000,
+        "water_drain_connection": 40000,
+        "gas_connection": 15000,
+        "electric_work": 30000,
+        "kitchen_panel": 50000,
+        "range_hood_duct": 25000,
+        "pipe_material": 10000,
+        "protection_transport": 30000,
+        "setsubi_labor": 50000,
+        "electrician_labor": 15000,
+        "subtotal": 1025000,
+        "overhead_15pct": 153750,
+        "tax_10pct": 117875,
+        "total": 1296625
+      }
+    },
+    "middle_L_type_same_position": {
+      "name": "ミドルL型・同位置交換",
+      "scope": "L型ミドルグレード、コーナー活用、2400x1650",
+      "estimated_total_jpy": { "min": 900000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 1400000,
+      "work_days": 3
+    },
+    "peninsula_layout_change": {
+      "name": "ペニンシュラ化（壁付け→対面式）",
+      "scope": "ミドルグレード＋配管移設＋床全面張替え",
+      "estimated_total_jpy": { "min": 1300000, "max": 2000000 },
+      "hs_rule_estimate_jpy": 1800000,
+      "work_days": 5
+    },
+    "high_grade_island": {
+      "name": "ハイグレード・アイランド",
+      "scope": "リシェル/ザ・クラッソ/セントロ最上位、アイランド型",
+      "estimated_total_jpy": { "min": 2000000, "max": 4000000 },
+      "hs_rule_estimate_jpy": 3000000,
+      "work_days": 7
+    },
+    "full_renovation_relocation": {
+      "name": "フル改装：位置大幅変更",
+      "scope": "部屋全体レイアウト変更、配管全移設、内装全交換",
+      "estimated_total_jpy": { "min": 1800000, "max": 3000000 },
+      "hs_rule_estimate_jpy": 2500000,
+      "work_days": 10
+    }
+  },
+
+  "red_flags": [
+    {
+      "code": "BODY_PRICE_LIST_CLOSE",
+      "pattern": "キッチン本体が定価のまま or 定価の20%OFF未満で計上",
+      "severity": "🔴 CRITICAL",
+      "reason": "住設業界標準で業者仕入れは定価の50-60%OFF。定価提示は明確な過剰請求"
+    },
+    {
+      "code": "HIGH_GRADE_FORCED",
+      "pattern": "一般家庭なのにハイグレード（リシェル・セントロ・Lクラス）を強く推奨",
+      "severity": "🚨 HIGH",
+      "reason": "ミドルグレードで十分な機能を持つ家庭に、+¥70-150万の過剰提案。業者のマージン率UP目的"
+    },
+    {
+      "code": "FORCED_LAYOUT_CHANGE",
+      "pattern": "同位置交換で済む案件に壁付け→対面式レイアウト変更を強く推奨",
+      "severity": "🚨 HIGH",
+      "reason": "+¥50-100万の過剰工事。配管移設・内装全交換で業者マージン膨張"
+    },
+    {
+      "code": "OPTION_MANDATORY",
+      "pattern": "食洗機・浄水器・IHを『セット必須』として抱き合わせ",
+      "severity": "⚠️ MEDIUM",
+      "reason": "実際は任意。不要なら省ける。食洗機だけで+¥15-30万"
+    },
+    {
+      "code": "I_TYPE_OVER_1500K",
+      "pattern": "ミドルI型 同位置交換で¥1,500,000超",
+      "severity": "🚨 HIGH",
+      "reason": "HS基準 ¥1,296k。¥1,500k超は過剰"
+    },
+    {
+      "code": "I_TYPE_OVER_2000K",
+      "pattern": "ミドルI型 同位置交換で¥2,000,000超",
+      "severity": "🔴 CRITICAL",
+      "reason": "相場の1.5倍以上。完全なぼったくり確定"
+    },
+    {
+      "code": "PENINSULA_OVER_2500K",
+      "pattern": "ミドルペニンシュラ化で¥2,500,000超",
+      "severity": "🚨 HIGH",
+      "reason": "HS基準 ¥1,800k。過剰"
+    },
+    {
+      "code": "UNCLEAR_MODEL_GRADE",
+      "pattern": "キッチンメーカー・シリーズ名・型番・グレード不明",
+      "severity": "🔴 CRITICAL",
+      "reason": "住設で型番不明は詐欺の温床。LIXIL シエラS か リシェル かで¥100万以上変わる"
+    },
+    {
+      "code": "PIPE_LUMP_SUM",
+      "pattern": "給排水・ガス・ダクト工事が「一式」計上",
+      "severity": "⚠️ MEDIUM",
+      "reason": "各工事の単価・距離不明で金額水増しの温床。明細要求すべし"
+    },
+    {
+      "code": "INTERIOR_COMBO_FORCED",
+      "pattern": "同位置交換なのに床・壁・天井の全面張替えを抱き合わせ",
+      "severity": "⚠️ MEDIUM",
+      "reason": "同位置なら床の一部補修のみで十分。全面張替えは+¥20-40万の追加請求"
+    },
+    {
+      "code": "GAS_WORKER_NO_LICENSE",
+      "pattern": "ガス接続工事を無資格者が担当",
+      "severity": "🔴 CRITICAL",
+      "reason": "ガス主任技術者資格必須。違法業者はガス漏れ・爆発リスク"
+    },
+    {
+      "code": "ELECTRICIAN_NO_LICENSE",
+      "pattern": "電気工事を無資格者が兼務",
+      "severity": "🔴 CRITICAL",
+      "reason": "第二種電気工事士資格必須。無資格は漏電・火災リスク"
+    }
+  ],
+
+  "negotiation_tips": [
+    "メーカー・シリーズ名・型番・グレードの全明記を要求",
+    "ネット販売（住設ドットコム・キッチン市場）の工事込み価格と比較",
+    "本体価格が定価の何%掛けか確認（業者仕入れは50-60%OFFが業界標準）",
+    "現状の使い方とヒアリングを丁寧に行う業者が本物、即座にハイグレード勧める業者は要警戒",
+    "ミドルグレードで十分な家庭にハイグレード勧める業者は別業者に切替",
+    "同位置交換なら対面式にする必要はないと判断",
+    "食洗機・浄水器・IHは個別に本当に必要か判断",
+    "給排水・ガス・電気工事はそれぞれ単価×距離を明細化要求",
+    "レイアウト変更の追加費用は項目別に明細化",
+    "ガス工事はガス主任技術者、電気工事は第二種電気工事士の有資格者証明要求",
+    "相見積もりは最低3社、できれば5社（ハウスメーカー経由・地場工務店・キッチン専門店）",
+    "ショールーム見学は必須。Web画像と実物の印象は大きく違う",
+    "撤去処分費が¥30,000超は明細要求（既存キッチンの解体内容確認）"
+  ],
+
+  "trade_knowledge": {
+    "summary": "キッチンは住設業界の最大エンジン。本体価格は定価の50-60%OFFが業者仕入れ値、ネット販売も同程度。施主請求で定価20-30%OFFが業界標準、マージン率20-30%。本体¥50-150万＋工事¥25-40万で一般的なミドルI型が¥75-200万。ペニンシュラ化で¥130-200万、アイランドで¥200-400万。",
+    "grade_selection_logic": "ミドルグレード（シエラS・ミッテ・Vスタイル等）が一般家庭で90%の満足度を提供。ハイグレード（リシェル・セントロ・Lクラス）は料理が趣味レベルの家庭・来客多い家庭向け。業者のハイグレード強要には『なぜ必要か具体的機能で説明して』と聞く",
+    "layout_change_trap": "壁付け→対面式は『憧れ』で選ぶと高額になる。子供が小さい家庭・対面で会話したい家庭には価値あるが、単身・夫婦のみなら壁付けで十分。業者は『今の主流はこちら』と誘導するが、生活スタイルで判断すべし",
+    "manufacturer_selection": "機能重視ならTOTO、ステンレス重視ならクリナップ、ホーロー重視ならタカラスタンダード、家電連携ならPanasonic、総合力ならLIXIL、人造大理石ならトクラス。ショールームで実物を触って判断すべし",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 住設業界内部情報 + 6大メーカー公式データ"
+  }
+}
