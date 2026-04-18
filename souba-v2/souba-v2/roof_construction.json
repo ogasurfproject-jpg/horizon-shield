@@ -1,0 +1,406 @@
+{
+  "_meta": {
+    "version": "2.0-phase1",
+    "updated": "2026-04-19",
+    "category_id": "roof_construction",
+    "category_name_jp": "屋根工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐⭐ HS CORE VALUE 第2弾（訪問販売・保険金詐欺・アスベスト処理違反など多発領域）",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 2026年実勢データ (アイジー工業 スーパーガルテクト・ケイミュー コロニアル・三州瓦・ヌリカエ・リショップナビ・街の屋根やさん・テイガク・屋根無料見積.com・szk-biso・全建設総連東京都連2023賃金調査・厚生労働省アスベスト規則)",
+    "scope": "屋根塗装・カバー工法（重ね葺き）・葺き替え・部分補修（棟板金・漆喰・谷樋・雨漏り）全網羅"
+  },
+
+  "horizon_shield_standard": {
+    "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール（屋根工事版）",
+    "formula": "材料仕入れ値 × 1.2 + 職人人工 × 日当 + 付帯工事実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.20,
+      "general_overhead_pct_ideal": 15,
+      "general_overhead_pct_acceptable_max": 20,
+      "tax_pct": 10,
+      "trade_price_ratio_from_list": 0.60
+    },
+    "philosophy": "屋根は見えない部位であるがゆえに、訪問販売ぼったくり・保険金詐欺・手抜き工事が最多発する。HS は施主の屋根を守る。"
+  },
+
+  "work_types": {
+    "painting": {
+      "name": "屋根塗装",
+      "description": "既存屋根材（スレート・金属）を塗装して延命",
+      "target_materials": ["slate", "galvalume", "tin", "cement_tile"],
+      "not_applicable": ["ceramic_tile", "asphalt_shingle"],
+      "cycle_years": 10,
+      "30tsubo_total_jpy": { "min": 200000, "max": 500000 }
+    },
+    "cover_method": {
+      "name": "カバー工法（重ね葺き）",
+      "description": "既存屋根の上に新しい軽量屋根材（主にガルバリウム）を重ねる",
+      "target_materials": ["slate", "asphalt_shingle"],
+      "not_applicable": ["ceramic_tile", "heavy_materials"],
+      "work_days": { "min": 3, "max": 7 },
+      "30tsubo_total_jpy": { "min": 800000, "max": 1800000, "avg_rishop": 1200000 }
+    },
+    "full_replacement": {
+      "name": "葺き替え",
+      "description": "既存屋根材・下地を撤去して新規施工",
+      "target_materials": ["ALL"],
+      "work_days": { "min": 5, "max": 10 },
+      "30tsubo_total_jpy": { "min": 1100000, "max": 2200000 }
+    },
+    "partial_repair": {
+      "name": "部分補修",
+      "description": "棟板金交換・漆喰補修・瓦ずれ直し・雨漏り修理",
+      "30tsubo_total_jpy": { "min": 50000, "max": 300000 }
+    }
+  },
+
+  "roof_materials": {
+    "slate_colonial": {
+      "name": "スレート（コロニアル・カラーベスト）",
+      "example_product": "ケイミュー コロニアルクァッド / コロニアルグラッサ",
+      "price_per_sqm_trade": { "min": 2000, "max": 3500 },
+      "price_per_sqm_work_included": { "min": 4000, "max": 6000 },
+      "disposal_cost_per_sqm": 3000,
+      "durability_years": { "min": 15, "max": 25 },
+      "market_share": "最多",
+      "note": "日本住宅の主力屋根材。パミール等の一部は施工不良品として有名"
+    },
+    "galvalume": {
+      "name": "ガルバリウム鋼板",
+      "example_product": "アイジー工業 スーパーガルテクト / ニチハ 横暖ルーフ",
+      "price_per_sqm_trade": { "min": 3500, "max": 6000 },
+      "price_per_sqm_work_included": { "min": 6000, "max": 12000 },
+      "disposal_cost_per_sqm": 2500,
+      "durability_years": { "min": 25, "max": 35 },
+      "market_share": "カバー工法・葺き替えで急増",
+      "note": "軽量・高耐久。耐震性向上にも寄与"
+    },
+    "sgl_steel": {
+      "name": "SGL鋼板（次世代ガルバリウム）",
+      "price_per_sqm_work_included": { "min": 8000, "max": 13000 },
+      "durability_years": { "min": 30, "max": 40 },
+      "note": "ガルバリウムの改良版。耐食性UP"
+    },
+    "asphalt_shingle": {
+      "name": "アスファルトシングル",
+      "price_per_sqm_work_included": { "min": 5000, "max": 10000 },
+      "disposal_cost_per_sqm": 2500,
+      "durability_years": { "min": 20, "max": 30 },
+      "note": "北米主流。日本ではマイナーだが安価"
+    },
+    "ceramic_tile": {
+      "name": "陶器瓦（和瓦・洋瓦）",
+      "price_per_sqm_work_included": { "min": 8000, "max": 14000 },
+      "disposal_cost_per_sqm": { "min": 3500, "max": 5000 },
+      "durability_years": { "min": 40, "max": 60 },
+      "note": "長寿命だが重量大。耐震性で不利"
+    },
+    "asbestos_contained_slate": {
+      "name": "⚠️ アスベスト含有スレート（2004年以前製造）",
+      "disposal_cost_multiplier": 1.3,
+      "note": "2022年4月から事前調査義務化、2023年10月から有資格者による調査必須。適切な処理なしに工事すると労働安全衛生法違反。"
+    }
+  },
+
+  "area_calculation": {
+    "formula": "延床面積 × 係数（1.1〜1.4）",
+    "coefficient_by_pitch": {
+      "gentle_1_to_2sun": 1.1,
+      "standard_3_to_4sun": 1.2,
+      "steep_5_to_6sun": 1.3,
+      "very_steep_7sun_plus": 1.4
+    },
+    "tsubo_to_roof_sqm_table": {
+      "20tsubo": 80,
+      "25tsubo": 100,
+      "30tsubo": 120,
+      "35tsubo": 140,
+      "40tsubo": 160
+    }
+  },
+
+  "paint_unit_prices_per_sqm": {
+    "urethane": { "min": 1950, "max": 2200, "durability_years": { "min": 5, "max": 7 } },
+    "silicon": { "min": 1800, "max": 3500, "avg": 2400, "durability_years": { "min": 8, "max": 12 } },
+    "radical": { "min": 2500, "max": 3500, "durability_years": { "min": 10, "max": 13 } },
+    "fluorine": { "min": 3500, "max": 4800, "durability_years": { "min": 15, "max": 20 } },
+    "thermal_insulating": { "min": 2500, "max": 4000, "durability_years": { "min": 10, "max": 15 }, "note": "遮熱塗料。室内温度2-3度下げる効果" },
+    "inorganic": { "min": 4500, "max": 6000, "durability_years": { "min": 15, "max": 25 } }
+  },
+
+  "labor": {
+    "yane_craftsman_day_rate_kanto": {
+      "min": 22000,
+      "max": 30000,
+      "avg": 26000,
+      "note": "屋根職人（板金工含む）の日当。高所作業リスクで若干高め"
+    },
+    "painter_day_rate_kanto": {
+      "min": 16899,
+      "max": 25000,
+      "avg": 20000
+    },
+    "30tsubo_standard_manhours": {
+      "painting": { "workers": 2, "days": { "min": 2, "max": 4 } },
+      "cover_method": { "workers": 3, "days": { "min": 3, "max": 7 } },
+      "full_replacement": { "workers": 3, "days": { "min": 5, "max": 10 } }
+    }
+  },
+
+  "additional_works": {
+    "scaffold": {
+      "30tsubo_jpy": { "min": 100000, "max": 300000 },
+      "note": "屋根工事は外壁塗装より足場代安め。外壁とセットなら1回分で済む"
+    },
+    "high_pressure_washing": {
+      "per_sqm": { "min": 150, "max": 350 },
+      "note": "屋根塗装前の洗浄。外壁とセット実施が効率的"
+    },
+    "ridge_board_replacement_mune_bankin": {
+      "name": "棟板金交換",
+      "per_m": { "min": 5000, "max": 10000 },
+      "note": "築10-15年で釘浮き・剥がれ頻発。塗装と同時交換推奨"
+    },
+    "nukiita_replacement": {
+      "name": "貫板交換（棟下地）",
+      "per_m": { "min": 2000, "max": 3000 },
+      "note": "木製貫板が腐食していれば必ず交換。樹脂貫板推奨"
+    },
+    "shikkui_repair": {
+      "name": "漆喰詰め直し",
+      "per_m": { "min": 3000, "max": 6000 },
+      "note": "瓦屋根の棟の漆喰補修"
+    },
+    "mune_gawara_tori_naoshi": {
+      "name": "棟瓦取り直し",
+      "per_m": { "min": 7000, "max": 13000 },
+      "note": "棟瓦を一度外して漆喰・土を入れ替え再設置"
+    },
+    "noji_ita_replacement": {
+      "name": "野地板交換（合板12mm）",
+      "per_sqm": { "min": 1500, "max": 2500 },
+      "note": "葺き替え時の重要工程。野地板劣化は雨漏り原因"
+    },
+    "roofing_sheet": {
+      "name": "ルーフィング（防水シート）",
+      "per_sqm": { "min": 500, "max": 1500 },
+      "product_tiers": ["改質アスファルトルーフィング（標準）", "高耐久ルーフィング", "遮熱ルーフィング"]
+    },
+    "gutter_exchange_amadoi": {
+      "name": "雨樋交換",
+      "per_m": { "min": 3000, "max": 6000 }
+    },
+    "tani_doi_exchange": {
+      "name": "谷樋交換",
+      "per_m": { "min": 8000, "max": 15000 },
+      "note": "屋根の谷部分。雨漏り原因の最多発箇所"
+    },
+    "edge_cutting_fuchidari": {
+      "name": "縁切り（スレート屋根塗装時）",
+      "per_sqm": { "min": 300, "max": 600 },
+      "note": "タスペーサー使用で雨漏り防止。省略は重大な手抜き"
+    }
+  },
+
+  "plans_30tsubo_example": {
+    "painting_silicon": {
+      "name": "屋根塗装：シリコン",
+      "scope": "スレート塗装・棟板金塗装・縁切り",
+      "estimated_total_jpy": { "min": 200000, "max": 350000 },
+      "hs_rule_estimate_jpy": 290000,
+      "durability_years": 10
+    },
+    "painting_fluorine": {
+      "name": "屋根塗装：フッ素",
+      "scope": "スレート塗装・棟板金交換・縁切り",
+      "estimated_total_jpy": { "min": 350000, "max": 500000 },
+      "hs_rule_estimate_jpy": 420000,
+      "durability_years": 18
+    },
+    "cover_galvalume_standard": {
+      "name": "カバー工法：ガルバリウム標準",
+      "scope": "スレート既存→スーパーガルテクト等ガルバ重ね葺き",
+      "estimated_total_jpy": { "min": 800000, "max": 1200000 },
+      "hs_rule_estimate_jpy": 1000000,
+      "durability_years": 30,
+      "breakdown_sample": {
+        "material_galvalume_120sqm": 720000,
+        "material_hs_rule": 864000,
+        "labor_yane_3workers_5days": 390000,
+        "scaffold": 180000,
+        "roofing_sheet": 100000,
+        "subtotal_raw": 1534000,
+        "overhead_15pct": 230100,
+        "tax_10pct": 176410,
+        "total": 1940510,
+        "note": "HS基準は既存材料費×1.2のみ、付帯は実費。業界相場の最下限に近い"
+      }
+    },
+    "cover_sgl_premium": {
+      "name": "カバー工法：SGL鋼板・断熱材一体型",
+      "scope": "SGL断熱一体型ガルバ",
+      "estimated_total_jpy": { "min": 1300000, "max": 1800000 },
+      "hs_rule_estimate_jpy": 1500000,
+      "durability_years": 35
+    },
+    "replacement_slate_to_galvalume": {
+      "name": "葺き替え：スレート→ガルバリウム",
+      "scope": "既存スレート撤去→野地板増し張り→ルーフィング→ガルバ新設",
+      "estimated_total_jpy": { "min": 1200000, "max": 1800000 },
+      "hs_rule_estimate_jpy": 1500000,
+      "durability_years": 30
+    },
+    "replacement_tile_to_galvalume": {
+      "name": "葺き替え：瓦→ガルバリウム（軽量化）",
+      "scope": "既存瓦撤去（処分費大）→野地板→ガルバ新設",
+      "estimated_total_jpy": { "min": 1500000, "max": 2200000 },
+      "hs_rule_estimate_jpy": 1800000,
+      "durability_years": 30,
+      "note": "耐震性向上に大きく寄与。瓦撤去処分費が¥30-75万と重い"
+    },
+    "partial_mune_bankin": {
+      "name": "部分補修：棟板金交換のみ",
+      "scope": "棟板金16m交換+貫板交換",
+      "estimated_total_jpy": { "min": 80000, "max": 200000 },
+      "hs_rule_estimate_jpy": 150000
+    },
+    "partial_shikkui": {
+      "name": "部分補修：漆喰補修",
+      "scope": "棟漆喰詰め直し15m",
+      "estimated_total_jpy": { "min": 50000, "max": 150000 },
+      "hs_rule_estimate_jpy": 90000
+    }
+  },
+
+  "red_flags": [
+    {
+      "code": "DOOR_TO_DOOR_ROOF_DAMAGE",
+      "pattern": "訪問販売で「屋根がズレてます」「近所の屋根工事中に気づいた」と危機感煽り",
+      "severity": "🔴 CRITICAL",
+      "reason": "屋根業界の最多発詐欺パターン。絶対に即決しない。相見積もり取るまで待つ"
+    },
+    {
+      "code": "INSURANCE_FRAUD",
+      "pattern": "「火災保険で無料になります」「保険金申請代行します」",
+      "severity": "🔴 CRITICAL",
+      "reason": "保険金詐欺の典型。実際は免責大・被害拡大工事などで施主にも損害。保険会社直接問い合わせ推奨"
+    },
+    {
+      "code": "DRONE_PHOTO_FAKE",
+      "pattern": "「ドローンで撮影しました」と提示された画像の劣化が極端",
+      "severity": "🚨 HIGH",
+      "reason": "加工・他物件画像の流用疑い。施主自ら複数業者の現地確認を依頼すべし"
+    },
+    {
+      "code": "NEIGHBOR_SCAFFOLD_LEFTOVER",
+      "pattern": "「近所の現場で足場余ってるから今なら安く」",
+      "severity": "🚨 HIGH",
+      "reason": "新規取引で特別割引の口実。実際の市場価格を相見積もりで確認"
+    },
+    {
+      "code": "UNNECESSARY_COVER",
+      "pattern": "塗装で十分な健全な屋根にカバー工法強要",
+      "severity": "🚨 HIGH",
+      "reason": "HS基準：築15年以内・野地板健全・スレート表面割れなし → 塗装で充分"
+    },
+    {
+      "code": "UNNECESSARY_REPLACEMENT",
+      "pattern": "部分補修で済む案件に葺き替え誘導",
+      "severity": "🚨 HIGH",
+      "reason": "棟板金交換+塗装で¥30万で済むのに、葺き替え¥150万を勧められる手口"
+    },
+    {
+      "code": "ASBESTOS_IMPROPER",
+      "pattern": "2004年以前築のスレート屋根工事でアスベスト事前調査・有資格者不在",
+      "severity": "🔴 CRITICAL",
+      "reason": "労働安全衛生法違反。2022/4施行。適切処理なしに工事する業者は違法業者"
+    },
+    {
+      "code": "MISSING_EDGE_CUTTING",
+      "pattern": "スレート屋根塗装で縁切り・タスペーサー記載なし",
+      "severity": "⚠️ MEDIUM",
+      "reason": "省略すると雨漏り原因になる。塗装業者の手抜き判定項目"
+    },
+    {
+      "code": "COVER_OVER_2M",
+      "pattern": "カバー工法で30坪¥2,000,000超",
+      "severity": "🚨 HIGH",
+      "reason": "HS基準で¥1,000-1,500k。¥2,000k超は1.5倍以上の過剰"
+    },
+    {
+      "code": "REPLACEMENT_OVER_2.5M",
+      "pattern": "葺き替えで30坪¥2,500,000超（太陽光・天窓なし）",
+      "severity": "🚨 HIGH",
+      "reason": "HS基準で¥1,500-1,800k。¥2,500k超は過剰請求確定"
+    },
+    {
+      "code": "MUNE_BANKIN_OVER_10K_M",
+      "pattern": "棟板金交換が¥10,000/m超",
+      "severity": "⚠️ MEDIUM",
+      "reason": "適正 ¥5,000-10,000/m。高額請求の典型"
+    },
+    {
+      "code": "MISSING_ROOFING_SHEET",
+      "pattern": "葺き替え・カバーでルーフィング（防水シート）記載なし",
+      "severity": "🔴 CRITICAL",
+      "reason": "ルーフィング省略は雨漏り直結の重大手抜き。必ず明細で確認"
+    },
+    {
+      "code": "NOJI_ITA_NOT_CHECKED",
+      "pattern": "葺き替え時に野地板の状態確認・交換可否判断が記載なし",
+      "severity": "🚨 HIGH",
+      "reason": "野地板劣化を見逃して新屋根材を乗せると数年で雨漏り"
+    }
+  ],
+
+  "negotiation_tips": [
+    "訪問販売は即決しない。『相見積もり取るので1週間待ってください』と伝える",
+    "保険金申請は保険会社に直接問い合わせ、業者代行を拒否",
+    "現地確認は複数業者に依頼（最低3社）",
+    "ドローン撮影画像は日時・位置情報のメタデータ提示を要求",
+    "見積書に『屋根材メーカー・商品名・型番』の明記を要求",
+    "アスベスト事前調査報告書（建築物石綿含有建材調査者資格者による）の提示を要求",
+    "カバー工法と葺き替えの両方の見積もりを取って比較",
+    "部分補修で済むかの第三者診断を求める",
+    "ルーフィング（防水シート）の商品名・グレードを明記要求",
+    "野地板の状態写真撮影を契約時の必須条件に",
+    "縁切り・タスペーサー使用の明記（スレート塗装）",
+    "棟板金交換時は貫板（下地）も一緒に交換し、樹脂貫板推奨",
+    "外壁塗装と屋根工事を同時にやれば足場代1回分で¥15-20万節約"
+  ],
+
+  "fraud_detection_patterns": {
+    "description": "屋根業界特有の詐欺パターンと防御法",
+    "patterns": [
+      {
+        "scam_name": "無料点検扇動詐欺",
+        "typical_flow": "1)『屋根の無料点検させてください』と訪問 → 2)『瓦がズレてますよ、このままだと雨漏りします』と脅迫 → 3)屋根上で故意に瓦を動かして撮影 → 4)『今日契約すれば30%OFF』で即決迫る",
+        "defense": "即決絶対拒否、警察通報検討、業者名・担当者名・会社住所を確認してから離れる"
+      },
+      {
+        "scam_name": "火災保険金詐欺",
+        "typical_flow": "1)『屋根の風災被害、保険で無料になります』と提案 → 2)保険金申請代行 → 3)見積金額を水増し、あるいは不存在の被害を虚偽申告 → 4)不正受給が発覚すると保険金詐欺罪で施主も共犯",
+        "defense": "保険会社に直接連絡、業者代行を拒否、被害は施主自らスマホ撮影して証拠確保"
+      },
+      {
+        "scam_name": "太陽光パネル撤去請求",
+        "typical_flow": "1)太陽光設置住宅に訪問 → 2)『屋根劣化で太陽光も危険』と脅迫 → 3)パネル撤去・屋根工事・再設置で¥300万以上請求",
+        "defense": "太陽光メーカーに直接問い合わせ、保証期間内なら無料対応可能"
+      },
+      {
+        "scam_name": "アスベスト処理スキップ詐欺",
+        "typical_flow": "1)2004年以前築住宅の屋根工事 → 2)アスベスト含有調査をせずに安価に工事 → 3)作業員・近隣住民に健康被害リスク → 4)後日違法工事が発覚",
+        "defense": "事前調査報告書の提示を契約前に要求、建築物石綿含有建材調査者の有資格確認"
+      }
+    ]
+  },
+
+  "trade_knowledge": {
+    "summary": "屋根工事は塗装¥20-50万、カバー工法¥80-180万、葺き替え¥110-220万、部分補修¥5-30万の4層構造。屋根材はスレート（最多）・ガルバリウム（新主流）・瓦（減少傾向）・アスファルトシングル（マイナー）。業者仕入れ値は屋根材定価の60%前後、塗料は外壁塗装と同等。",
+    "industry_scam_scale": "国民生活センター報告では屋根修理トラブルが全リフォームトラブルの約30%を占める。訪問販売型の即決契約・保険金詐欺が最多。2022/4のアスベスト調査義務化で違法業者が顕在化中。",
+    "timing_insight": "屋根塗装は築10-15年、カバー工法/葺き替えは築20-30年が適正タイミング。ただし訪問販売業者は築10年未満の住宅にも不要工事を勧誘するケースあり。築年数と施工状況を冷静に確認すべし。",
+    "scaffold_economics": "屋根工事単体の足場代¥10-30万に対し、外壁塗装とセットなら足場代1回分で両方できる。合理的判断としては、築10-15年での外壁塗装＋屋根塗装セット、築25-30年での外壁塗装＋カバー工法セットが経済的。",
+    "asbestos_law": "労働安全衛生法（2022/4改正）でアスベスト含有建材調査が義務化。2023/10からは建築物石綿含有建材調査者資格者による調査必須。無資格・未調査で工事する業者は違法",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 国民生活センター苦情データ + 厚生労働省アスベスト規則 + 屋根業界内部情報"
+  }
+}
