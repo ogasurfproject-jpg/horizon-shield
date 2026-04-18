@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>HORIZON SHIELD — お支払いありがとうございました</title>
+  <style>
+    :root {
+      --bg:        #0a0e27;
+      --card-bg:   linear-gradient(180deg, #131840 0%, #0a0e27 100%);
+      --accent:    #4a7dfc;
+      --success:   #22c55e;
+      --fg:        #ffffff;
+      --fg-muted:  rgba(255,255,255,0.65);
+      --border:    rgba(255,255,255,0.1);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .card {
+      width: 100%;
+      max-width: 480px;
+      padding: 48px 36px;
+      text-align: center;
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .brand {
+      font-size: 14px;
+      letter-spacing: 2px;
+      color: var(--fg-muted);
+      margin-bottom: 28px;
+    }
+    .check {
+      width: 68px;
+      height: 68px;
+      margin: 0 auto 24px;
+      border-radius: 50%;
+      background: rgba(34,197,94,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--success);
+      animation: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes pop {
+      0%   { transform: scale(0); }
+      100% { transform: scale(1); }
+    }
+    .check svg {
+      width: 36px;
+      height: 36px;
+      stroke: var(--success);
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 12px;
+    }
+    .lead {
+      font-size: 14px;
+      color: var(--fg-muted);
+      line-height: 1.7;
+      margin: 0 0 28px;
+    }
+    .steps {
+      text-align: left;
+      background: rgba(0,0,0,0.25);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin: 0 0 24px;
+    }
+    .steps-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      margin: 0 0 10px;
+      letter-spacing: 0.5px;
+    }
+    .steps ol {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 13px;
+      color: var(--fg-muted);
+      line-height: 1.9;
+    }
+    .steps li::marker {
+      color: var(--accent);
+    }
+    .btn {
+      display: inline-block;
+      padding: 14px 28px;
+      background: #06c755;  /* LINE緑 */
+      color: #fff;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .note {
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--fg-muted);
+      line-height: 1.7;
+    }
+    .order-id {
+      font-family: SF Mono, Menlo, monospace;
+      font-size: 11px;
+      color: var(--fg-muted);
+      margin-top: 16px;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 6px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">HORIZON SHIELD</div>
+
+    <div class="check">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="4 12 10 18 20 6"/>
+      </svg>
+    </div>
+
+    <h1>お支払いありがとうございました</h1>
+    <p class="lead">
+      交渉用・逆見積書PDFをまもなく<br>
+      LINEでお届けいたします
+    </p>
+
+    <div class="steps">
+      <div class="steps-title">この後の流れ</div>
+      <ol>
+        <li>KIRA（LINE公式）からPDF URLが届きます（通常1〜3分以内）</li>
+        <li>PDFを開いて内容をご確認ください</li>
+        <li>業者さんとの交渉にそのままご活用ください</li>
+      </ol>
+    </div>
+
+    <a href="https://line.me/R/ti/p/@172piime" class="btn">KIRAのLINEを開く</a>
+
+    <p class="note">
+      5分経ってもLINEが届かない場合は、お手数ですが<br>
+      KIRA LINEから「届かない」とメッセージを送ってください。
+    </p>
+
+    <div class="order-id" id="order-id" style="display:none"></div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const id     = params.get("id");
+    if (id) {
+      const el = document.getElementById("order-id");
+      el.style.display = "block";
+      el.textContent = "注文ID: " + id;
+    }
+  </script>
+</body>
+</html>
