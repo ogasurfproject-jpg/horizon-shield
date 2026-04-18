@@ -1,177 +1,214 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="robots" content="noindex,nofollow">
-  <title>HORIZON SHIELD — お支払いありがとうございました</title>
-  <style>
-    :root {
-      --bg:        #0a0e27;
-      --card-bg:   linear-gradient(180deg, #131840 0%, #0a0e27 100%);
-      --accent:    #4a7dfc;
-      --success:   #22c55e;
-      --fg:        #ffffff;
-      --fg-muted:  rgba(255,255,255,0.65);
-      --border:    rgba(255,255,255,0.1);
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-      background: var(--bg);
-      color: var(--fg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-    .card {
-      width: 100%;
-      max-width: 480px;
-      padding: 48px 36px;
-      text-align: center;
-      background: var(--card-bg);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    }
-    .brand {
-      font-size: 14px;
-      letter-spacing: 2px;
-      color: var(--fg-muted);
-      margin-bottom: 28px;
-    }
-    .check {
-      width: 68px;
-      height: 68px;
-      margin: 0 auto 24px;
-      border-radius: 50%;
-      background: rgba(34,197,94,0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid var(--success);
-      animation: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    @keyframes pop {
-      0%   { transform: scale(0); }
-      100% { transform: scale(1); }
-    }
-    .check svg {
-      width: 36px;
-      height: 36px;
-      stroke: var(--success);
-    }
-    h1 {
-      font-size: 20px;
-      font-weight: 600;
-      margin: 0 0 12px;
-    }
-    .lead {
-      font-size: 14px;
-      color: var(--fg-muted);
-      line-height: 1.7;
-      margin: 0 0 28px;
-    }
-    .steps {
-      text-align: left;
-      background: rgba(0,0,0,0.25);
-      border-radius: 10px;
-      padding: 18px 20px;
-      margin: 0 0 24px;
-    }
-    .steps-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--accent);
-      margin: 0 0 10px;
-      letter-spacing: 0.5px;
-    }
-    .steps ol {
-      margin: 0;
-      padding-left: 18px;
-      font-size: 13px;
-      color: var(--fg-muted);
-      line-height: 1.9;
-    }
-    .steps li::marker {
-      color: var(--accent);
-    }
-    .btn {
-      display: inline-block;
-      padding: 14px 28px;
-      background: #06c755;  /* LINE緑 */
-      color: #fff;
-      text-decoration: none;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      transition: opacity 0.2s;
-    }
-    .btn:hover { opacity: 0.85; }
-    .note {
-      margin-top: 24px;
-      font-size: 12px;
-      color: var(--fg-muted);
-      line-height: 1.7;
-    }
-    .order-id {
-      font-family: SF Mono, Menlo, monospace;
-      font-size: 11px;
-      color: var(--fg-muted);
-      margin-top: 16px;
-      padding: 8px 12px;
-      background: rgba(0,0,0,0.3);
-      border-radius: 6px;
-      word-break: break-all;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ご注文ありがとうございました | HORIZON SHIELD</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Noto Sans JP',sans-serif;
+  background:linear-gradient(135deg,#0f1729 0%,#111c38 100%);
+  color:#fff;min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px 16px;
+}
+.card{
+  max-width:520px;width:100%;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(212,175,55,.28);
+  border-radius:22px;overflow:hidden;
+  backdrop-filter:blur(8px);
+}
+.header{
+  background:linear-gradient(135deg,#d4af37 0%,#c5a028 100%);
+  color:#0f1729;padding:30px 24px;text-align:center;
+}
+.header-badge{
+  display:inline-block;padding:4px 14px;background:#0f1729;
+  color:#d4af37;font-size:11px;font-weight:900;letter-spacing:2px;
+  border-radius:12px;margin-bottom:10px;
+}
+.icon{font-size:56px;margin-bottom:8px;line-height:1}
+.header h1{font-size:22px;font-weight:900;line-height:1.4;margin-bottom:4px}
+.header p{font-size:12px;opacity:.75}
+
+.body{padding:28px 26px}
+
+.message{
+  background:rgba(212,175,55,.08);
+  border-left:3px solid #d4af37;
+  padding:16px 18px;border-radius:0 8px 8px 0;
+  margin-bottom:24px;
+  font-size:13px;line-height:1.8;color:rgba(255,255,255,.85);
+}
+.message strong{color:#d4af37}
+
+.steps{margin-bottom:24px}
+.step{
+  display:flex;gap:14px;padding:14px 0;
+  border-bottom:1px dashed rgba(255,255,255,.1);
+}
+.step:last-child{border-bottom:none}
+.step-num{
+  flex-shrink:0;width:30px;height:30px;
+  background:#d4af37;color:#0f1729;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:14px;
+}
+.step-body{flex:1;font-size:13px;line-height:1.7}
+.step-title{font-weight:700;margin-bottom:2px;color:#fff}
+.step-text{color:rgba(255,255,255,.65);font-size:12px}
+
+.bank-info{
+  display:none;
+  background:#fffbe6;color:#1a1a2e;
+  padding:18px 20px;border-radius:12px;
+  margin-bottom:20px;font-size:13px;line-height:1.8;
+}
+.bank-info.active{display:block}
+.bank-info h3{font-size:14px;margin-bottom:10px;color:#c5a028}
+.bank-row{display:flex;justify-content:space-between;padding:4px 0}
+.bank-row strong{font-weight:700}
+.bank-amount{font-size:18px;font-weight:900;color:#c62828;margin-top:6px}
+.bank-note{
+  font-size:11px;color:#666;margin-top:10px;padding-top:10px;
+  border-top:1px dashed #ddd;line-height:1.6;
+}
+
+.order-id{
+  text-align:center;padding:12px;
+  background:rgba(255,255,255,.04);border-radius:10px;
+  margin-bottom:20px;
+  font-family:'Menlo','Monaco',monospace;font-size:12px;
+  color:rgba(255,255,255,.5);
+}
+.order-id strong{color:#d4af37;font-weight:700}
+
+.btn-line{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:14px;background:#06c755;color:#fff;
+  text-decoration:none;border-radius:12px;
+  font-weight:700;font-size:15px;
+  margin-bottom:10px;
+}
+.btn-line:hover{opacity:.9}
+
+.btn-home{
+  display:block;text-align:center;padding:12px;
+  background:transparent;color:rgba(255,255,255,.5);
+  text-decoration:none;border-radius:10px;font-size:12px;
+  border:1px solid rgba(255,255,255,.15);
+}
+
+.footer-note{
+  padding:16px 20px;
+  text-align:center;font-size:11px;color:rgba(255,255,255,.4);
+  border-top:1px solid rgba(255,255,255,.08);line-height:1.7;
+}
+.footer-note a{color:#d4af37;text-decoration:none}
+</style>
 </head>
 <body>
-  <div class="card">
-    <div class="brand">HORIZON SHIELD</div>
 
-    <div class="check">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="4 12 10 18 20 6"/>
-      </svg>
-    </div>
-
-    <h1>お支払いありがとうございました</h1>
-    <p class="lead">
-      交渉用・逆見積書PDFをまもなく<br>
-      LINEでお届けいたします
-    </p>
-
-    <div class="steps">
-      <div class="steps-title">この後の流れ</div>
-      <ol>
-        <li>KIRA（LINE公式）からPDF URLが届きます（通常1〜3分以内）</li>
-        <li>PDFを開いて内容をご確認ください</li>
-        <li>業者さんとの交渉にそのままご活用ください</li>
-      </ol>
-    </div>
-
-    <a href="https://line.me/R/ti/p/@172piime" class="btn">KIRAのLINEを開く</a>
-
-    <p class="note">
-      5分経ってもLINEが届かない場合は、お手数ですが<br>
-      KIRA LINEから「届かない」とメッセージを送ってください。
-    </p>
-
-    <div class="order-id" id="order-id" style="display:none"></div>
+<div class="card">
+  <div class="header">
+    <div class="header-badge">ORDER CONFIRMED</div>
+    <div class="icon" id="headerIcon">🎉</div>
+    <h1 id="headerTitle">ご注文ありがとうございました</h1>
+    <p id="headerSub">PDFは2営業日以内にお届けします</p>
   </div>
 
-  <script>
-    const params = new URLSearchParams(location.search);
-    const id     = params.get("id");
-    if (id) {
-      const el = document.getElementById("order-id");
-      el.style.display = "block";
-      el.textContent = "注文ID: " + id;
-    }
-  </script>
+  <div class="body">
+    <!-- 注文番号 -->
+    <div class="order-id" id="orderIdBox">
+      注文番号: <strong id="orderIdText">確認中...</strong>
+    </div>
+
+    <!-- 銀行振込情報（モード=bank_transferの時のみ表示） -->
+    <div class="bank-info" id="bankInfo">
+      <h3>💳 お振込先のご案内</h3>
+      <div class="bank-row"><span>銀行名</span><strong>静岡銀行</strong></div>
+      <div class="bank-row"><span>支店名</span><strong>平塚支店</strong></div>
+      <div class="bank-row"><span>口座種別</span><strong>普通</strong></div>
+      <div class="bank-row"><span>口座番号</span><strong>0479810</strong></div>
+      <div class="bank-row"><span>口座名義</span><strong>ザ ホライズンズ（カ</strong></div>
+      <div class="bank-amount">お振込金額：¥5,500（税込）</div>
+      <div class="bank-note">
+        ※ 振込名義にお名前を記載してください<br>
+        ※ 入金確認後、2営業日以内にPDFをお届けします<br>
+        ※ 振込手数料はお客様負担でお願いいたします
+      </div>
+    </div>
+
+    <!-- メッセージ -->
+    <div class="message" id="mainMessage">
+      <strong>ご注文が完了しました。</strong><br>
+      建設30年のプロが監修した<strong>交渉用・逆見積書PDF</strong>を、ご指定のメールアドレスおよびLINEにお届けします。
+    </div>
+
+    <!-- 流れ -->
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">PDF作成・納品</div>
+          <div class="step-text">2営業日以内にメール・LINEで納品</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">業者と価格交渉</div>
+          <div class="step-text">PDFの交渉フレーズで相場との差額を指摘</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">追加サポート</div>
+          <div class="step-text">わからない点は LINE@172piime で無料サポート</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LINE友達追加（必須）-->
+    <a class="btn-line" href="https://line.me/R/ti/p/@172piime" target="_blank" rel="noopener">
+      💬 LINE友達追加（@172piime）
+    </a>
+    <a class="btn-home" href="https://shield.the-horizons-innovation.com">
+      ← HORIZON SHIELD トップへ
+    </a>
+  </div>
+
+  <div class="footer-note">
+    HORIZON SHIELD / The HORIZ音s株式会社<br>
+    <a href="https://shield.the-horizons-innovation.com">shield.the-horizons-innovation.com</a>
+  </div>
+</div>
+
+<script>
+// URL パラメータ解析
+const params = new URLSearchParams(window.location.search);
+const mode = params.get('mode');  // 'bank_transfer' なら銀行振込モード
+const orderId = params.get('order') || params.get('order_id') || params.get('merchantPaymentId') || '';
+
+// 注文番号表示
+document.getElementById('orderIdText').textContent = orderId || '発行中...';
+
+// 銀行振込モードの場合：UI切り替え
+if (mode === 'bank_transfer') {
+  document.getElementById('headerIcon').textContent = '🏦';
+  document.getElementById('headerTitle').textContent = '銀行振込でのお支払い';
+  document.getElementById('headerSub').textContent = 'お振込先をご確認ください';
+  document.getElementById('bankInfo').classList.add('active');
+  document.getElementById('mainMessage').innerHTML = `
+    <strong>ご注文を承りました。</strong><br>
+    下記の口座へ <strong>¥5,500</strong> をお振込みください。入金確認後、2営業日以内にPDFをお届けします。
+  `;
+}
+</script>
+
 </body>
 </html>
