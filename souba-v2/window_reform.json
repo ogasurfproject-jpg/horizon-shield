@@ -1,0 +1,479 @@
+{
+  "_meta": {
+    "version": "2.0-phase1",
+    "updated": "2026-04-19",
+    "category_id": "window_reform",
+    "category_name_jp": "窓リフォーム",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐⭐ 2026年最注目補助金事業（最大100万円/戸）・断熱リフォームの核",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 2026年実勢データ (LIXIL インプラス/リプラス・YKK AP プラマードU/マドリモ・三協アルミ プラメイクEⅡ/ノバリス・AGC まどまど・大信工業 プラスト・WoodOne MOKUサッシ、住宅省エネ2026キャンペーン公式、先進的窓リノベ2026事業、増改築.com、窓屋窓助、インプラスト、激安内窓クラブ、断熱リフォームの匠)",
+    "scope": "内窓設置（二重窓）・外窓交換（カバー工法/はつり工法）・ガラス交換・玄関ドア断熱化"
+  },
+
+  "horizon_shield_standard": {
+    "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール（窓リフォーム版）",
+    "formula": "本体仕入れ値 × 1.2 + 職人人工 × 日当 + 付帯工事実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.20,
+      "general_overhead_pct_ideal": 15,
+      "general_overhead_pct_acceptable_max": 20,
+      "tax_pct": 10,
+      "trade_price_ratio_from_list": 0.50,
+      "note": "窓商品は定価50%OFFが業者仕入れ標準。LIXIL・YKK AP両方で確定"
+    },
+    "philosophy": "窓リフォームは断熱・省エネ・快適性の中核。2026年最大¥100万円/戸の補助金を活用すれば、施主の実質負担を大幅軽減できる。業者に『補助金知らない』『申請しない』と言われたら即別業者へ"
+  },
+
+  "work_types": {
+    "inner_window": {
+      "name": "内窓設置（二重窓）",
+      "description": "既存窓の室内側にもう1つ窓を追加",
+      "work_duration_per_window": "30分〜1時間",
+      "price_per_window_jpy": { "min": 60000, "max": 250000 },
+      "insulation_effect": "⭐⭐⭐⭐",
+      "advantage": ["最安・最速", "工事簡単", "賃貸でも可（穴あけ不要工法）", "防音効果大"],
+      "disadvantage": ["開閉の手間増加", "部屋が約7cm狭くなる", "掃除箇所増加"],
+      "subsidy_max_per_window_2026": 140000
+    },
+    "cover_method": {
+      "name": "外窓交換（カバー工法）",
+      "description": "既存枠の内側に新しい窓枠を被せて交換",
+      "work_duration_per_window": "半日〜1日",
+      "price_per_window_jpy": { "min": 150000, "max": 400000 },
+      "insulation_effect": "⭐⭐⭐⭐⭐",
+      "advantage": ["外壁触らず工期短い", "既存枠活用", "断熱性大幅UP"],
+      "disadvantage": ["開口面積がやや小さくなる", "既存枠の腐食時は不可"],
+      "subsidy_max_per_window_2026": 239000
+    },
+    "glass_only": {
+      "name": "ガラス交換（サッシ残し）",
+      "description": "サッシそのまま、ガラスだけ真空・複層ガラスに交換",
+      "work_duration_per_window": "半日",
+      "price_per_window_jpy": { "min": 50000, "max": 150000 },
+      "insulation_effect": "⭐⭐⭐",
+      "advantage": ["最安", "景観変わらない", "工事最短"],
+      "disadvantage": ["サッシから熱逃げ残る", "防音効果限定"],
+      "subsidy_max_per_window_2026": 35000
+    },
+    "hatsuri_method": {
+      "name": "はつり工法（枠ごと交換）",
+      "description": "既存枠を撤去し、壁を壊して新しい窓を設置",
+      "work_duration_per_window": { "min": 2, "max": 3, "unit": "日" },
+      "price_per_window_jpy": { "min": 250000, "max": 500000 },
+      "insulation_effect": "⭐⭐⭐⭐⭐",
+      "advantage": ["開口面積減らない", "枠の腐食問題解決", "完璧な断熱"],
+      "disadvantage": ["高コスト", "外壁復旧必要", "足場必要な場合あり"],
+      "subsidy_max_per_window_2026": 239000
+    }
+  },
+
+  "senshinteki_mado_2026_subsidy": {
+    "program_name": "先進的窓リノベ2026事業（環境省）",
+    "max_per_household_jpy": 1000000,
+    "min_per_household_jpy": 50000,
+    "application_period": "2025年11月28日以降に着手した工事〜2026年12月31日",
+    "grades_2026": {
+      "SS_plus": { "name": "S++", "description": "最高性能・アルゴンガス入り", "status": "2026年新設" },
+      "S_plus": { "name": "S+", "description": "高性能" },
+      "S": { "name": "S", "description": "標準高性能・LOW-E複層ガラス・アルゴンガス入り", "status": "2026年最低ライン" },
+      "A_abolished_2026": { "name": "A（2026年廃止）", "description": "LOW-E複層ガラス、2025年対象だったが廃止" }
+    },
+    "inner_window_subsidy_per_window": {
+      "extra_large": { "SS_plus": 140000, "S_plus": 100000, "S": 70000 },
+      "large": { "SS_plus": 94000, "S_plus": 66000, "S": 46000 },
+      "medium": { "SS_plus": 76000, "S_plus": 53000, "S": 37000 },
+      "small": { "SS_plus": 54000, "S_plus": 38000, "S": 26000 }
+    },
+    "cover_method_subsidy_per_window": {
+      "extra_large": { "SS_plus": 239000, "S_plus": 171000, "S": 125000 },
+      "large": { "SS_plus": 183000, "S_plus": 131000, "S": 95000 }
+    },
+    "glass_change_subsidy_per_window": {
+      "standard": { "SS_plus": 35000, "S_plus": 23000, "S": 16000 }
+    },
+    "size_definitions": {
+      "extra_large": "2.8㎡以上",
+      "large": "1.6〜2.8㎡",
+      "medium": "0.8〜1.6㎡",
+      "small": "0.2〜0.8㎡"
+    },
+    "required_conditions": [
+      "住宅省エネ2026支援事業者（登録事業者）からの施工",
+      "S/S+/S++グレード製品のみ対象（A廃止）",
+      "補助金申請は業者が代行（施主自身の申請は不可）"
+    ],
+    "stackable_with": ["みらいエコ住宅2026事業（国交省）", "給湯省エネ2026事業（経産省）", "自治体独自補助金"]
+  },
+
+  "manufacturers": {
+    "LIXIL": {
+      "inner_window": {
+        "series": "インプラス",
+        "feature": "国内シェアNo.1・豊富なガラス選択肢（断熱・防音・和紙調）",
+        "standard_price_list_jpy": {
+          "hakidashi_1700x2000": 618000,
+          "koshi_1700x1200": 321000
+        },
+        "trade_price_ratio": 0.50
+      },
+      "cover_method": {
+        "series": "リプラス",
+        "feature": "戸建用・マンション用展開"
+      }
+    },
+    "YKK_AP": {
+      "inner_window": {
+        "series": "プラマードU",
+        "feature": "格子デザイン豊富・和室対応",
+        "standard_price_list_jpy": {
+          "hakidashi_1700x2000_washitsu": 324800,
+          "koshi_1700x1200_washitsu": 162200
+        },
+        "trade_price_ratio": 0.50
+      },
+      "cover_method": {
+        "series": "マドリモ 断熱窓",
+        "feature": "戸建用・マンション用・半日工事"
+      }
+    },
+    "Sankyo_Aluminum": {
+      "inner_window": { "series": "プラメイクEⅡ", "feature": "後付樹脂内窓" },
+      "cover_method": { "series": "ノバリス サッシ", "feature": "三協アルミの主力" }
+    },
+    "AGC_Asahi_Glass": {
+      "inner_window": { "series": "まどまど", "feature": "真空ガラス特化" },
+      "glass_only": { "series": "真空ガラス スペーシア", "feature": "ガラス交換最高性能" }
+    },
+    "Daishin_Kogyo": {
+      "inner_window": { "series": "プラスト", "feature": "高気密・防音最強・30年以上実績" }
+    },
+    "Nihon_Itagarasu": {
+      "glass_only": { "series": "真空ガラス スペーシア", "feature": "省エネ最高性能ガラス" }
+    },
+    "WoodOne": {
+      "inner_window": { "series": "MOKUサッシ", "feature": "木製サッシの高級内窓" }
+    }
+  },
+
+  "inner_window_prices": {
+    "description": "内窓（LIXIL インプラス基準・Sグレード補助金対応）",
+    "standard_sizes": {
+      "size_S_200x80": {
+        "area_sqm": 0.16,
+        "category": "small",
+        "price_list_jpy": 105000,
+        "price_trade_jpy": 52500
+      },
+      "size_M_100x120": {
+        "area_sqm": 1.2,
+        "category": "medium",
+        "price_list_jpy": 230000,
+        "price_trade_jpy": 115000
+      },
+      "size_L_170x120_koshi": {
+        "area_sqm": 2.04,
+        "category": "large",
+        "price_list_jpy": 321000,
+        "price_trade_jpy": 160500,
+        "typical_usage": "腰窓（リビング・寝室）"
+      },
+      "size_XL_170x200_hakidashi": {
+        "area_sqm": 3.4,
+        "category": "extra_large",
+        "price_list_jpy": 618000,
+        "price_trade_jpy": 309000,
+        "typical_usage": "掃き出し窓（リビング・和室）"
+      }
+    }
+  },
+
+  "installation_works_jpy": {
+    "inner_window": {
+      "basic_installation_1st": 10000,
+      "basic_installation_2nd_onwards": 5000,
+      "fukashi_waku": { "min": 15000, "max": 30000, "note": "既存枠奥行不足時（6.7cm未満）" },
+      "shoji_removal_uminuki": 2000,
+      "rental_non_drill_method_koshi": 28600,
+      "rental_non_drill_method_hakidashi": 33400,
+      "miscellaneous": 10000
+    },
+    "cover_method": {
+      "basic_installation_koshi": { "min": 90000, "max": 100000 },
+      "basic_installation_hakidashi": { "min": 120000, "max": 130000 },
+      "existing_window_removal": { "min": 15000, "max": 30000 },
+      "scaffold_if_needed_2nd_floor": { "min": 80000, "max": 150000 },
+      "protection": { "min": 10000, "max": 20000 }
+    },
+    "glass_only": {
+      "basic_installation": { "min": 15000, "max": 30000 },
+      "existing_glass_removal": { "min": 5000, "max": 10000 }
+    },
+    "hatsuri_method": {
+      "wall_demolition": { "min": 50000, "max": 100000 },
+      "frame_installation": { "min": 50000, "max": 100000 },
+      "exterior_recovery": { "min": 80000, "max": 200000 },
+      "interior_recovery": { "min": 40000, "max": 80000 },
+      "scaffold": { "min": 80000, "max": 150000 }
+    }
+  },
+
+  "labor": {
+    "window_craftsman_day_rate_kanto": { "min": 25000, "max": 35000, "avg": 30000, "note": "サッシ工事専門" },
+    "carpenter_day_rate_kanto": { "min": 28000, "max": 35000, "avg": 31500, "note": "はつり工法時の大工" },
+    "standard_manhours": {
+      "inner_window_single": "30分-1時間",
+      "inner_window_whole_house": "1日",
+      "cover_method_single": "半日-1日",
+      "hatsuri_single": "2-3日"
+    }
+  },
+
+  "plans": {
+    "inner_window_single_koshi": {
+      "name": "内窓1箇所・腰窓（Sグレード）",
+      "scope": "LIXIL インプラス 170x120 Low-E複層ガラス",
+      "estimated_total_jpy": { "min": 180000, "max": 280000 },
+      "hs_rule_estimate_jpy": 240000,
+      "subsidy_S_grade": 46000,
+      "after_subsidy_jpy": 194000
+    },
+    "inner_window_single_hakidashi": {
+      "name": "内窓1箇所・掃き出し窓（Sグレード）",
+      "scope": "LIXIL インプラス 170x200 Low-E複層ガラス",
+      "estimated_total_jpy": { "min": 320000, "max": 500000 },
+      "hs_rule_estimate_jpy": 496000,
+      "subsidy_S_grade": 70000,
+      "after_subsidy_jpy": 426000,
+      "breakdown_sample": {
+        "body_hs_rule": 371000,
+        "installation_1st": 10000,
+        "miscellaneous": 10000,
+        "subtotal": 391000,
+        "overhead_15pct": 58650,
+        "tax_10pct": 44965,
+        "total": 494615
+      }
+    },
+    "inner_window_whole_house_6": {
+      "name": "内窓・家全体6箇所（HS推奨）",
+      "scope": "掃き出し3・腰窓3、Sグレード",
+      "estimated_total_jpy": { "min": 900000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 1462000,
+      "subsidy_S_grade": 348000,
+      "after_subsidy_jpy": 1114000,
+      "work_days": 1,
+      "note": "家全体一括が最も補助金効率良い"
+    },
+    "cover_method_single_koshi": {
+      "name": "カバー工法1箇所・腰窓",
+      "scope": "YKK AP マドリモ 断熱窓 170x120",
+      "estimated_total_jpy": { "min": 200000, "max": 300000 },
+      "hs_rule_estimate_jpy": 270000,
+      "subsidy_S_grade": 95000,
+      "after_subsidy_jpy": 175000
+    },
+    "cover_method_single_hakidashi": {
+      "name": "カバー工法1箇所・掃き出し窓",
+      "scope": "YKK AP マドリモ 断熱窓 170x200",
+      "estimated_total_jpy": { "min": 280000, "max": 400000 },
+      "hs_rule_estimate_jpy": 360000,
+      "subsidy_S_grade": 125000,
+      "after_subsidy_jpy": 235000
+    },
+    "cover_method_whole_house_6": {
+      "name": "カバー工法・家全体6箇所",
+      "scope": "掃き出し3・腰窓3、Sグレード",
+      "estimated_total_jpy": { "min": 1500000, "max": 2200000 },
+      "hs_rule_estimate_jpy": 1890000,
+      "subsidy_S_grade": 660000,
+      "after_subsidy_jpy": 1230000,
+      "work_days": 2,
+      "note": "補助金効率最強。家全体一括推奨"
+    },
+    "glass_only_all_windows": {
+      "name": "全窓ガラス交換（真空ガラス）",
+      "scope": "AGC 真空ガラス スペーシア",
+      "estimated_total_jpy": { "min": 600000, "max": 1200000 },
+      "hs_rule_estimate_jpy": 960000,
+      "subsidy_S_grade_10windows": 160000,
+      "after_subsidy_jpy": 800000,
+      "note": "サッシそのままで見た目変えず"
+    },
+    "hatsuri_whole_renewal": {
+      "name": "はつり工法・全窓完全交換",
+      "scope": "壁壊して枠ごと新規、外壁復旧込み、6箇所",
+      "estimated_total_jpy": { "min": 2500000, "max": 4000000 },
+      "hs_rule_estimate_jpy": 3500000,
+      "subsidy_S_grade": 660000,
+      "after_subsidy_jpy": 2840000,
+      "work_days": 15,
+      "note": "大規模・建替え未満の断熱フル改修"
+    }
+  },
+
+  "red_flags": [
+    {
+      "code": "NO_SUBSIDY_INFO",
+      "pattern": "先進的窓リノベ2026事業の説明なし",
+      "severity": "🔴 CRITICAL",
+      "reason": "2026年最大¥100万円/戸の補助金を知らない/申請しない業者は失格"
+    },
+    {
+      "code": "NOT_REGISTERED_VENDOR",
+      "pattern": "住宅省エネ2026支援事業者に登録していない",
+      "severity": "🔴 CRITICAL",
+      "reason": "登録業者でないと補助金申請できない。登録番号を必ず確認"
+    },
+    {
+      "code": "NON_COMPLIANT_GRADE",
+      "pattern": "2026年廃止のAグレード（普通Low-E複層ガラス）を提案",
+      "severity": "🚨 HIGH",
+      "reason": "Aグレードは2026年補助金対象外。S以上でないと補助金取れない"
+    },
+    {
+      "code": "NO_MANUFACTURER_MODEL",
+      "pattern": "メーカー・型番・ガラスグレード不明",
+      "severity": "🔴 CRITICAL",
+      "reason": "LIXIL インプラスか YKK AP プラマードUかで価格・性能違う。不明は詐欺温床"
+    },
+    {
+      "code": "INNER_WINDOW_OVER_600K",
+      "pattern": "内窓1箇所で¥600,000超",
+      "severity": "🔴 CRITICAL",
+      "reason": "HS基準 掃き出し¥496k。¥600k超は明らかに過剰"
+    },
+    {
+      "code": "COVER_METHOD_OVER_500K",
+      "pattern": "カバー工法1箇所で¥500,000超",
+      "severity": "🚨 HIGH",
+      "reason": "HS基準 掃き出し¥360k。¥500k超は過剰"
+    },
+    {
+      "code": "ISSHIKI_LUMP_SUM",
+      "pattern": "工事費・材料費が「一式」計上",
+      "severity": "🚨 HIGH",
+      "reason": "窓リフォームは窓ごと・工事費ごと明細化が可能。『一式』は過剰請求の温床"
+    },
+    {
+      "code": "SUBSIDY_FEE_OVER",
+      "pattern": "補助金申請代行費を¥30,000超請求",
+      "severity": "⚠️ MEDIUM",
+      "reason": "申請代行は¥10,000-20,000が相場。高額請求は過剰"
+    },
+    {
+      "code": "FORCED_HATSURI",
+      "pattern": "カバー工法で十分な案件にはつり工法強要",
+      "severity": "🚨 HIGH",
+      "reason": "枠腐食がないならカバー工法で十分。+¥10-30万の過剰提案"
+    },
+    {
+      "code": "DOOR_TO_DOOR_SCAM",
+      "pattern": "訪問販売で「補助金期限迫ってます」即決迫り",
+      "severity": "🚨 HIGH",
+      "reason": "補助金は予算消化次第だが、焦らす業者は詐欺の可能性。相見積もり必須"
+    },
+    {
+      "code": "FAKE_SUBSIDY_CLAIM",
+      "pattern": "「補助金で無料になります」と言う",
+      "severity": "🔴 CRITICAL",
+      "reason": "補助金は工事費の一部。100%還元する事業はない。虚偽宣伝は明確な詐欺"
+    },
+    {
+      "code": "SIZE_DOWNGRADE_HIDDEN",
+      "pattern": "カバー工法で開口面積減少の説明なし",
+      "severity": "⚠️ MEDIUM",
+      "reason": "カバー工法はガラス面積が5-10cm小さくなる。事前告知が業者の誠意"
+    }
+  ],
+
+  "manufacturer_selection_guide": {
+    "cost_focus": {
+      "recommendation": "LIXIL インプラス or YKK AP プラマードU",
+      "reason": "量産効果で価格競争力あり、シェアトップ2"
+    },
+    "airtightness_soundproof": {
+      "recommendation": "大信工業 内窓プラスト",
+      "reason": "30年以上の実績、他社を凌ぐ気密性能"
+    },
+    "washitsu_japanese": {
+      "recommendation": "YKK AP プラマードU 和室用",
+      "reason": "格子デザイン豊富・障子風"
+    },
+    "luxury_wooden": {
+      "recommendation": "WoodOne MOKUサッシ",
+      "reason": "木製の高級感"
+    },
+    "glass_change_only": {
+      "recommendation": "AGC 真空ガラス スペーシア or 日本板硝子 真空ガラス",
+      "reason": "サッシそのままで最高性能"
+    }
+  },
+
+  "negotiation_tips": [
+    "住宅省エネ2026支援事業者の登録番号を必ず確認（公式サイトで検索可能）",
+    "補助金申請代行費の有無・金額を確認（相場¥10,000-20,000）",
+    "メーカー・型番・ガラスグレード（S/S+/S++）を全明記要求",
+    "2026年廃止のAグレードではなくSグレード以上を指定",
+    "家全体一括工事で補助金効率最大化（1箇所¥10万 vs 6箇所¥54万）",
+    "内窓とカバー工法の両方の見積もり比較（¥20-30万差・補助金も違う）",
+    "カバー工法で足場が必要か事前確認（2階以上で必須の場合¥10万以上UP）",
+    "既存窓枠の状態確認（腐食時はカバー工法不可→はつり必要）",
+    "ふかし枠が必要か事前確認（奥行不足時+¥1.5-3万/窓）",
+    "相見積もりは最低3社。LIXIL系・YKK系・独立系を混ぜる",
+    "補助金交付時期を確認（工事後数ヶ月の振込、業者立替が普通）",
+    "『補助金で無料』は虚偽。必ず自己負担あり",
+    "東京都/神奈川県など自治体独自補助金との併用可能性確認"
+  ],
+
+  "customer_scenario_guide": {
+    "description": "施主の状況別・最適プラン提案",
+    "scenarios": [
+      {
+        "case": "冬寒くて結露がひどい・予算最小",
+        "recommendation": "内窓1-2箇所（寝室・リビング）Sグレード",
+        "expected_cost": 300000,
+        "subsidy": 116000,
+        "effective_cost": 184000
+      },
+      {
+        "case": "家全体の断熱性能を上げたい・予算中",
+        "recommendation": "内窓6箇所Sグレード",
+        "expected_cost": 1462000,
+        "subsidy": 348000,
+        "effective_cost": 1114000
+      },
+      {
+        "case": "築20年以上・窓枠腐食気味・見た目も変えたい",
+        "recommendation": "カバー工法6箇所Sグレード",
+        "expected_cost": 1890000,
+        "subsidy": 660000,
+        "effective_cost": 1230000
+      },
+      {
+        "case": "防音重視・道路沿い住宅",
+        "recommendation": "内窓プラスト or AGC まどまど 防音ガラス",
+        "note": "プラストは気密性が段違い・防音効果最大"
+      },
+      {
+        "case": "マンション・サッシ交換禁止",
+        "recommendation": "内窓のみ（共用部分に触らない）",
+        "note": "管理組合に事前確認必須"
+      },
+      {
+        "case": "和室の雰囲気を壊したくない",
+        "recommendation": "YKK AP プラマードU 和室用（障子風）",
+        "note": "格子デザインで和風維持"
+      }
+    ]
+  },
+
+  "trade_knowledge": {
+    "summary": "窓リフォームは2026年最注目補助金領域。先進的窓リノベ2026事業で最大¥1,000,000/戸の補助金。工事種類は内窓設置（最安・最速）・カバー工法（断熱性UP・工期短）・ガラス交換（最安見た目変えず）・はつり工法（完璧だが高コスト）の4種。業者仕入れは窓商品定価の50%OFFが業界標準",
+    "subsidy_2026_changes": "2026年の重要変更: (1)最大補助金¥100万円（2025年¥200万円から減額）(2)内窓Aグレード廃止→Sグレード以上のみ対象 (3)S++グレード新設で最高補助額UP。高性能ガラス・アルゴンガス入りが必須に",
+    "registered_vendor_importance": "補助金活用には『住宅省エネ2026支援事業者』登録業者からの施工必須。施主自身では申請不可。登録業者か否かで¥50万以上の差が出るため、業者選定の最重要ポイント",
+    "grade_selection_logic": "Sグレードが2026年最低ライン。S+/S++は高額だが補助金も多い。コスパ最強は『S グレード + アルゴンガス入り』の組み合わせ。差額10-20%で断熱効果1.5倍・補助金も1.5倍",
+    "work_type_selection": "内窓: コスト重視・賃貸・簡易施工。カバー工法: 戸建・見た目刷新。ガラス交換: 景観維持・超安価。はつり: 枠腐食時のみ。多くの施主は内窓 or カバー工法でOK",
+    "scam_concerns_2026": "補助金申請詐欺が急増。『補助金で無料』『今すぐ契約しないと期限切れ』『登録事業者です』と虚偽を言う訪問販売が多発。公式サイトで登録業者検索確認が鉄則",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 環境省先進的窓リノベ2026事業公式 + 住宅省エネ2026キャンペーン公式 + 主要メーカー6社公式データ"
+  }
+}
