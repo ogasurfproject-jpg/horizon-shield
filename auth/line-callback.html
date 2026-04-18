@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>HORIZON SHIELD — 決済ページへ移動中</title>
+  <style>
+    :root {
+      --bg:        #0a0e27;
+      --card-bg:   linear-gradient(180deg, #131840 0%, #0a0e27 100%);
+      --accent:    #4a7dfc;
+      --fg:        #ffffff;
+      --fg-muted:  rgba(255,255,255,0.65);
+      --border:    rgba(255,255,255,0.1);
+      --danger:    #ff7a7a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .card {
+      width: 100%;
+      max-width: 420px;
+      padding: 48px 32px;
+      text-align: center;
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .brand {
+      font-size: 14px;
+      letter-spacing: 2px;
+      color: var(--fg-muted);
+      margin-bottom: 32px;
+    }
+    .spinner {
+      width: 44px;
+      height: 44px;
+      margin: 0 auto 24px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 12px;
+    }
+    .sub {
+      font-size: 13px;
+      color: var(--fg-muted);
+      line-height: 1.7;
+      margin: 0;
+    }
+    .error .title { color: var(--danger); }
+    .error-code {
+      display: block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 6px;
+      font-family: SF Mono, Menlo, monospace;
+      font-size: 11px;
+      color: var(--fg-muted);
+      word-break: break-all;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 12px 24px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="brand">HORIZON SHIELD</div>
+
+    <div id="state-loading">
+      <div class="spinner"></div>
+      <div class="title">決済ページへ移動しています</div>
+      <p class="sub">
+        LINEログインを確認しました。<br>
+        PayPayのお支払い画面へまもなく移動します…
+      </p>
+    </div>
+
+    <div id="state-error" style="display:none" class="error">
+      <div class="title">処理中にエラーが発生しました</div>
+      <p class="sub" id="err-msg">&nbsp;</p>
+      <code class="error-code" id="err-detail" style="display:none"></code>
+      <a href="https://shield.the-horizons-innovation.com/widget.html" class="btn">最初からやり直す</a>
+    </div>
+  </div>
+
+  <script>
+    const PROXY_URL = "https://hs-kira-proxy.oga-surf-project.workers.dev";
+
+    function showError(msg, detail) {
+      document.getElementById("state-loading").style.display = "none";
+      const err = document.getElementById("state-error");
+      err.style.display = "block";
+      document.getElementById("err-msg").textContent = msg;
+      if (detail) {
+        const d = document.getElementById("err-detail");
+        d.style.display = "block";
+        d.textContent = typeof detail === "string" ? detail : JSON.stringify(detail);
+      }
+    }
+
+    async function main() {
+      const params = new URLSearchParams(location.search);
+      const code   = params.get("code");
+      const state  = params.get("state");
+      const err    = params.get("error");
+      const errDesc= params.get("error_description");
+
+      if (err) {
+        showError("LINEログインがキャンセルされました", errDesc || err);
+        return;
+      }
+      if (!code || !state) {
+        showError("認証情報が不足しています", "code or state missing");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${PROXY_URL}/checkout/complete`, {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify({ code, state }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.paypay_url) {
+          showError(data.error || "決済URL発行に失敗しました", data.detail);
+          return;
+        }
+        // PayPay決済ページへリダイレクト
+        location.replace(data.paypay_url);
+      } catch (e) {
+        showError("ネットワークエラーが発生しました", e.message);
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>
