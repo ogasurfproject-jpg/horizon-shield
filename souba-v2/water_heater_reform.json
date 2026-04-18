@@ -1,0 +1,530 @@
+{
+  "_meta": {
+    "version": "2.0-phase1",
+    "updated": "2026-04-19",
+    "category_id": "water_heater_reform",
+    "category_name_jp": "給湯器リフォーム",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐⭐ 住設最後のピース・国民生活センター警戒トップ3領域（訪問販売詐欺最多発）",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 2026年実勢データ (三菱 SRT-Sシリーズ/ダイキン EQシリーズ/パナソニック HE-Sシリーズ/コロナ CHP-AZ/日立 BHP-F・ノーリツ GT-C/リンナイ RUF-Eエコジョーズ、急湯デポ、エコでんち、交換できるくん、ミズテック、価格.com、住の森、国民生活センター2024年2月発表『給湯器の点検にご注意ください』、給湯省エネ2026事業)",
+    "scope": "エコキュート・エコジョーズ・従来型ガス給湯器・ハイブリッド給湯器の交換・新設"
+  },
+
+  "horizon_shield_standard": {
+    "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール（給湯器版）",
+    "formula": "本体仕入れ値 × 1.2 + 職人人工 × 日当 + 工事費実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.20,
+      "general_overhead_pct_ideal": 15,
+      "general_overhead_pct_acceptable_max": 20,
+      "tax_pct": 10,
+      "trade_price_ratio_from_list_ecocute": 0.40,
+      "trade_price_ratio_from_list_gas": 0.30,
+      "note": "エコキュートは定価60%OFF、ガス給湯器は定価70%OFFが業者仕入れ標準。給湯器は住設で最も掛け率が深い"
+    },
+    "philosophy": "給湯器は訪問販売ぼったくり業界No.1。国民生活センター報告で相談件数が前年比3倍・被害者70%が70歳以上の高齢者。HS は緊急時こそ冷静な判断を施主に届ける。"
+  },
+
+  "heater_types": {
+    "conventional_gas": {
+      "name": "従来型ガス給湯器",
+      "heat_source": "ガス",
+      "initial_cost_jpy": { "min": 100000, "max": 180000 },
+      "running_cost": "中",
+      "durability_years": { "min": 10, "max": 15 },
+      "note": "シンプルだが熱効率は80%程度"
+    },
+    "eco_jozu": {
+      "name": "エコジョーズ（高効率ガス給湯器）",
+      "heat_source": "ガス",
+      "initial_cost_jpy": { "min": 130000, "max": 200000 },
+      "running_cost": "安（従来型比20%減）",
+      "durability_years": { "min": 10, "max": 15 },
+      "efficiency_pct": 95,
+      "note": "従来型との差額は3-5年で回収可能"
+    },
+    "ecocute": {
+      "name": "エコキュート（電気温水器・ヒートポンプ式）",
+      "heat_source": "電気+空気熱",
+      "initial_cost_jpy": { "min": 330000, "max": 550000 },
+      "running_cost": "最安",
+      "durability_years": { "min": 10, "max": 15 },
+      "note": "初期費用大きいが電気代最安・補助金最大¥100k"
+    },
+    "hybrid": {
+      "name": "ハイブリッド給湯器（エコジョーズ+エコキュート）",
+      "heat_source": "ガス+電気",
+      "initial_cost_jpy": { "min": 500000, "max": 800000 },
+      "running_cost": "安",
+      "durability_years": { "min": 15, "max": 20 },
+      "note": "最高級。補助金最大¥130k"
+    }
+  },
+
+  "gas_heater_sizing": {
+    "description": "号数 = 1分間に何リットルのお湯を供給できるか",
+    "rule": "号数 × 1℃/25℃上昇 = 毎分の供給量",
+    "sizing": {
+      "16": { "target": "単身", "household": "1-2人", "note": "マンション主流" },
+      "20": { "target": "2-3人家族", "household": "2-3人" },
+      "24": { "target": "4人以上家族", "household": "4人以上・戸建主流", "note": "同時使用可能" }
+    }
+  },
+
+  "ecocute_sizing": {
+    "description": "エコキュート貯湯タンク容量の選び方",
+    "sizing": {
+      "180L": { "target": "単身", "household": "1人", "note": "省スペース" },
+      "300L": { "target": "2人家族", "household": "2人" },
+      "370L": { "target": "3-5人家族", "household": "3-5人", "note": "最多選択" },
+      "460L": { "target": "4-7人家族", "household": "4-7人", "note": "戸建上位標準" },
+      "550L": { "target": "多人数", "household": "7人以上", "note": "大容量" }
+    },
+    "type": {
+      "full_auto": { "name": "フルオート", "features": "自動お湯はり・追い焚き・たし湯", "price_level": "高" },
+      "auto": { "name": "オート", "features": "自動お湯はり・追い焚き（たし湯なし）", "price_level": "中" },
+      "giving_only": { "name": "給湯専用", "features": "蛇口からお湯が出るのみ", "price_level": "安" }
+    }
+  },
+
+  "manufacturers": {
+    "gas": {
+      "Noritz": {
+        "series_eco_jozu": "GT-Cシリーズ",
+        "target": "国内シェア上位・豊富なラインナップ",
+        "standard_model": "GT-C2472AW"
+      },
+      "Rinnai": {
+        "series_eco_jozu": "RUF-Eシリーズ",
+        "target": "高機能・マイクロバブル対応",
+        "standard_model": "RUF-E240EAW"
+      },
+      "Paloma": {
+        "target": "バランス型・価格競争力"
+      },
+      "Purpose": {
+        "target": "独自技術・一部モデル"
+      }
+    },
+    "ecocute": {
+      "Mitsubishi": {
+        "standard_series": "SRT-Sシリーズ",
+        "unique_features": ["キラリユキープPLUS", "バブルおそうじ", "サーモジャケット"],
+        "standard_model_460L": "SRT-S467U"
+      },
+      "Daikin": {
+        "standard_series": "EQシリーズ",
+        "unique_features": ["パワフル高圧給湯", "2箇所同時快適", "高圧力ポンプ"],
+        "standard_model_370L": "EQA37ZFTV"
+      },
+      "Panasonic": {
+        "standard_series": "HE-Sシリーズ",
+        "unique_features": ["ぬくもりチャージ", "AIエコナビ", "スマホアプリ連携"],
+        "standard_model_460L": "HE-S46LQS"
+      },
+      "Corona": {
+        "standard_series": "CHP-AZシリーズ",
+        "unique_features": ["ES制御", "独自省エネ"],
+        "standard_model_370L": "CHP-37AZ1"
+      },
+      "Hitachi": {
+        "standard_series": "BHP-Fシリーズ",
+        "unique_features": ["ナイアガラ出湯", "水道直圧式"],
+        "standard_model_460L": "BHP-F46WU"
+      }
+    }
+  },
+
+  "ecocute_bodies_by_grade": {
+    "entry_370L": {
+      "name": "エントリー 370L",
+      "description": "機能最小・価格重視",
+      "price_list_jpy": { "min": 600000, "max": 800000 },
+      "price_trade_estimate_jpy": { "min": 240000, "max": 320000 },
+      "markup_from_list_pct_trade": 40,
+      "examples": ["コロナ CHP-37AZ1 ハイグレード", "日立 BHP-F37WU"]
+    },
+    "standard_460L": {
+      "name": "標準 460L（戸建最多選択）",
+      "description": "フルオート・補助金対象",
+      "price_list_jpy": { "min": 800000, "max": 1100000 },
+      "price_trade_estimate_jpy": { "min": 320000, "max": 440000 },
+      "markup_from_list_pct_trade": 40,
+      "examples": ["三菱 SRT-S467U", "ダイキン EQ46ZFV", "パナソニック HE-S46LQS"]
+    },
+    "high_grade_460L": {
+      "name": "ハイグレード 460L",
+      "description": "フルオート最上位・スマホ連携・高圧水圧",
+      "price_list_jpy": { "min": 1100000, "max": 1400000 },
+      "price_trade_estimate_jpy": { "min": 440000, "max": 560000 },
+      "examples": ["三菱 SRT-S467UA", "ダイキン EQ46ZFTV（X）", "パナソニック HE-S46LQS高圧"]
+    }
+  },
+
+  "gas_heater_bodies_by_spec": {
+    "conventional_24_fullauto": {
+      "name": "従来型 24号 フルオート（壁掛け）",
+      "price_list_jpy": { "min": 200000, "max": 260000 },
+      "price_net_with_work_jpy": { "min": 110000, "max": 140000 },
+      "price_trade_estimate_jpy": { "min": 60000, "max": 80000 },
+      "examples": ["ノーリツ GT-2472AW", "リンナイ RUF-A2405AW"]
+    },
+    "eco_jozu_24_fullauto": {
+      "name": "エコジョーズ 24号 フルオート（壁掛け）",
+      "price_list_jpy": { "min": 280000, "max": 350000 },
+      "price_net_with_work_jpy": { "min": 150000, "max": 200000 },
+      "price_trade_estimate_jpy": { "min": 90000, "max": 120000 },
+      "examples": ["ノーリツ GT-C2472AW BL", "リンナイ RUF-E2405AW"]
+    },
+    "eco_jozu_20_simpleauto": {
+      "name": "エコジョーズ 20号 シンプルオート",
+      "price_list_jpy": { "min": 220000, "max": 280000 },
+      "price_net_with_work_jpy": { "min": 120000, "max": 160000 },
+      "price_trade_estimate_jpy": { "min": 70000, "max": 95000 }
+    }
+  },
+
+  "installation_works_jpy": {
+    "ecocute": {
+      "existing_removal": { "min": 15000, "max": 30000, "note": "既存エコキュート/電気温水器の撤去・処分" },
+      "existing_removal_electric_water_heater": { "min": 20000, "max": 40000, "note": "電気温水器撤去（大型・重い）" },
+      "foundation_concrete": { "min": 30000, "max": 50000, "note": "基礎コンクリート工事（新設時）" },
+      "body_installation": { "min": 40000, "max": 60000, "note": "本体据付・設置" },
+      "water_pipe_work": { "min": 30000, "max": 50000, "note": "給水・給湯配管工事" },
+      "electric_200v": { "min": 30000, "max": 60000, "note": "200V専用回路工事（必須）" },
+      "remote_controller": { "min": 5000, "max": 10000, "note": "リモコン設置" },
+      "test_run": { "min": 5000, "max": 10000, "note": "試運転・動作確認" },
+      "power_company_application": { "min": 5000, "max": 15000, "note": "電力会社申請・時間帯割引変更" }
+    },
+    "gas_heater": {
+      "existing_removal": { "min": 10000, "max": 20000 },
+      "body_installation": { "min": 20000, "max": 30000 },
+      "water_pipe_connection": { "min": 15000, "max": 25000 },
+      "gas_pipe_connection": { "min": 10000, "max": 20000, "note": "ガス主任技術者資格必須" },
+      "electric_wiring": { "min": 5000, "max": 10000, "note": "電源配線" },
+      "ventilation_check": { "min": 5000, "max": 10000, "note": "排気確認（屋内型）" },
+      "remote_controller": { "min": 5000, "max": 10000 },
+      "test_run": { "min": 5000, "max": 10000 }
+    }
+  },
+
+  "labor": {
+    "setsubi_day_rate_kanto": { "min": 22000, "max": 28000, "avg": 25000 },
+    "electrician_day_rate_kanto": { "min": 25000, "max": 32000, "avg": 28000 },
+    "gas_worker_day_rate_kanto": { "min": 25000, "max": 30000, "avg": 27500 },
+    "standard_manhours": {
+      "gas_heater_exchange": {
+        "setsubi": 0.5,
+        "gas": 0.5,
+        "total_hours": "2-4時間"
+      },
+      "ecocute_exchange": {
+        "setsubi": 1.5,
+        "electrician": 1,
+        "total_days": "0.5-1日"
+      },
+      "ecocute_new_installation": {
+        "setsubi": 2,
+        "electrician": 1,
+        "foundation_work": "半日",
+        "total_days": "1-2日"
+      }
+    }
+  },
+
+  "subsidy_2026": {
+    "program_name": "給湯省エネ2026事業（経済産業省）",
+    "deadline": "2026年12月31日まで（予算消化次第終了）",
+    "amounts": {
+      "ecocute_basic": { "min": 60000, "max": 100000, "note": "省エネ基準で変動" },
+      "hybrid_basic": { "min": 80000, "max": 130000 },
+      "enefarm_basic": { "min": 180000, "max": 200000 },
+      "removal_electric_water_heater_add": 20000,
+      "removal_cold_storage_heater_add": 40000,
+      "max_total_per_unit": 240000
+    },
+    "required_conditions": [
+      "給湯省エネ2026事業者として登録された業者からの購入・施工",
+      "省エネ基準クリアの対象機種",
+      "2026年度補助金予算残額内"
+    ],
+    "stackable_subsidies": [
+      "子育てグリーン住宅支援事業",
+      "みらいエコ住宅2026事業",
+      "自治体独自補助金"
+    ]
+  },
+
+  "plans": {
+    "gas_heater_conventional_exchange": {
+      "name": "従来型ガス給湯器 24号 交換（最シンプル）",
+      "scope": "ノーリツ GT-2472AW、既存ガス給湯器撤去→新設",
+      "estimated_total_jpy": { "min": 120000, "max": 200000 },
+      "hs_rule_estimate_jpy": 180000,
+      "work_days": 0.5
+    },
+    "gas_heater_eco_jozu_exchange": {
+      "name": "エコジョーズ 24号 交換（推奨）",
+      "scope": "ノーリツ GT-C2472AW BL、省エネ20%UP",
+      "estimated_total_jpy": { "min": 150000, "max": 280000 },
+      "hs_rule_estimate_jpy": 250000,
+      "work_days": 0.5,
+      "breakdown_sample": {
+        "body_hs_rule": 126000,
+        "existing_removal": 15000,
+        "installation": 25000,
+        "water_pipe": 20000,
+        "gas_pipe": 15000,
+        "electric_wiring": 8000,
+        "remote_controller": 8000,
+        "test_run": 8000,
+        "setsubi_labor": 12500,
+        "gas_labor": 13750,
+        "subtotal": 251250,
+        "note": "HS基準算出"
+      }
+    },
+    "ecocute_370L_standard_exchange": {
+      "name": "エコキュート 370L 標準交換（HS推奨）",
+      "scope": "三菱 SRT-S377U or ダイキン EQ37ZFTV、既存エコキュート撤去→新設",
+      "estimated_total_jpy": { "min": 400000, "max": 600000 },
+      "hs_rule_estimate_jpy": 850000,
+      "work_days": 1,
+      "subsidy_max": 100000,
+      "after_subsidy_jpy": 750000,
+      "note": "相場が安すぎる業者は要警戒。適正価格は¥70-100万"
+    },
+    "ecocute_460L_standard_exchange": {
+      "name": "エコキュート 460L 標準交換（戸建推奨）",
+      "scope": "三菱 SRT-S467U、フルオート標準",
+      "estimated_total_jpy": { "min": 450000, "max": 700000 },
+      "hs_rule_estimate_jpy": 1014000,
+      "subsidy_max": 100000,
+      "after_subsidy_jpy": 914000,
+      "work_days": 1,
+      "breakdown_sample": {
+        "body_hs_rule": 528000,
+        "existing_removal": 25000,
+        "foundation_repair": 30000,
+        "body_installation": 50000,
+        "water_pipe": 40000,
+        "electric_200v": 45000,
+        "test_run": 8000,
+        "power_application": 10000,
+        "setsubi_labor": 37500,
+        "electrician_labor": 28000,
+        "subtotal": 801500,
+        "overhead_15pct": 120225,
+        "tax_10pct": 92173,
+        "total": 1013898
+      }
+    },
+    "ecocute_460L_highgrade": {
+      "name": "エコキュート 460L ハイグレード",
+      "scope": "三菱 SRT-S467UA or ダイキン EQ46ZFTV（X）最上位",
+      "estimated_total_jpy": { "min": 600000, "max": 900000 },
+      "hs_rule_estimate_jpy": 1250000,
+      "subsidy_max": 100000,
+      "after_subsidy_jpy": 1150000
+    },
+    "ecocute_new_installation_from_gas": {
+      "name": "ガス給湯器→エコキュート新設（大型工事）",
+      "scope": "既存ガス給湯器撤去＋エコキュート新設＋基礎工事＋200V工事",
+      "estimated_total_jpy": { "min": 550000, "max": 850000 },
+      "hs_rule_estimate_jpy": 1200000,
+      "subsidy_max": 100000,
+      "after_subsidy_jpy": 1100000,
+      "work_days": 2
+    },
+    "hybrid_heater": {
+      "name": "ハイブリッド給湯器",
+      "scope": "ノーリツ ハイブリッドGTH or リンナイ RUFH-E",
+      "estimated_total_jpy": { "min": 500000, "max": 800000 },
+      "hs_rule_estimate_jpy": 1000000,
+      "subsidy_max": 130000,
+      "after_subsidy_jpy": 870000
+    }
+  },
+
+  "red_flags": [
+    {
+      "code": "DOOR_TO_DOOR_EMERGENCY",
+      "pattern": "訪問販売で「給湯器が故障してます」「火災の危険」と即座交換迫る",
+      "severity": "🔴 CRITICAL",
+      "reason": "国民生活センター2024年警告。契約者の70%以上が70歳以上の高齢者、相談件数前年比3倍。絶対に即決しない",
+      "defense": "その場で契約拒否、家族に相談、メーカーサポートに直接確認"
+    },
+    {
+      "code": "IDENTITY_FRAUD",
+      "pattern": "「自治体から委託」「契約中のガス会社から依頼」「メーカー代理店」身分詐称",
+      "severity": "🔴 CRITICAL",
+      "reason": "優良業者はこのような形で突然訪問しない。メーカー・ガス会社に電話で直接確認"
+    },
+    {
+      "code": "PRICE_1_5M_OVER_ECOCUTE",
+      "pattern": "エコキュート460L標準で¥1,500,000超の見積",
+      "severity": "🔴 CRITICAL",
+      "reason": "HS基準¥1,014k（補助金前）。¥1,500k超は相場の1.5倍以上で完全ボッタクリ"
+    },
+    {
+      "code": "PRICE_500K_OVER_GAS",
+      "pattern": "エコジョーズ24号交換で¥500,000超",
+      "severity": "🔴 CRITICAL",
+      "reason": "HS基準¥250k。¥500k超は2倍以上"
+    },
+    {
+      "code": "NO_MODEL_NUMBER",
+      "pattern": "メーカー・型番・容量・グレード不明の見積書",
+      "severity": "🔴 CRITICAL",
+      "reason": "エコキュートは同容量でもエントリーとハイグレードで¥40-60万違う。型番不明は詐欺の温床"
+    },
+    {
+      "code": "ISSHIKI_LUMP_SUM",
+      "pattern": "工事費・材料費が「一式」計上",
+      "severity": "🚨 HIGH",
+      "reason": "給湯器交換は工程10項目近くある。明細化拒否業者は高確率で過剰請求"
+    },
+    {
+      "code": "DISCOUNT_TODAY_ONLY",
+      "pattern": "「今日だけ30%OFF」「この価格は今だけ」即決迫り",
+      "severity": "🚨 HIGH",
+      "reason": "架空キャンペーン。正規価格が既に不当に高い典型手口"
+    },
+    {
+      "code": "FORCED_INSTANT_CONTRACT",
+      "pattern": "じっくり考える時間を与えず契約を急かす",
+      "severity": "🚨 HIGH",
+      "reason": "家族相談・相見積もりを妨害する業者は要警戒"
+    },
+    {
+      "code": "FAKE_MANUFACTURER_BRAND",
+      "pattern": "聞いたことのないメーカー or OEMブランド品を定価で販売",
+      "severity": "🚨 HIGH",
+      "reason": "三菱・ダイキン・パナソニック・コロナ・日立以外は慎重確認"
+    },
+    {
+      "code": "NO_SUBSIDY_INFO",
+      "pattern": "給湯省エネ2026事業の補助金説明なし",
+      "severity": "⚠️ MEDIUM",
+      "reason": "適正業者は登録事業者として補助金申請代行するのが標準"
+    },
+    {
+      "code": "NO_WARRANTY",
+      "pattern": "本体・工事の10年保証がない",
+      "severity": "⚠️ MEDIUM",
+      "reason": "メーカー5年保証＋施工業者5年保証で実質10年保証が業界標準"
+    },
+    {
+      "code": "GAS_NO_LICENSE",
+      "pattern": "ガス給湯器の接続工事を無資格者が担当",
+      "severity": "🔴 CRITICAL",
+      "reason": "ガス消費機器設置工事監督者資格必須。違法業者はガス漏れ・爆発リスク"
+    },
+    {
+      "code": "ELECTRIC_NO_LICENSE",
+      "pattern": "エコキュート200V工事を無資格者が兼務",
+      "severity": "🔴 CRITICAL",
+      "reason": "第二種電気工事士資格必須"
+    },
+    {
+      "code": "DELIBERATE_DAMAGE",
+      "pattern": "点検中に機器が故障する・わざと壊したと疑われる挙動",
+      "severity": "🔴 CRITICAL",
+      "reason": "悪徳業者は故意に部品を外す・破損させて契約を迫る。警察通報事案"
+    }
+  ],
+
+  "fraud_patterns": {
+    "description": "給湯器業界の典型的詐欺パターンと防御法",
+    "patterns": [
+      {
+        "scam_name": "無料点検偽装詐欺",
+        "typical_flow": "1)『給湯器の無料点検させてください』突然訪問 → 2)点検中にわざと機器を触り『ここが故障の兆候』指摘 → 3)『このままだと火災・ガス漏れで命の危険』恐怖煽り → 4)『今日契約すれば30%割引』即決迫り → 5)定価の1.5-2倍で契約",
+        "defense": [
+          "アポなし訪問の点検を絶対に許可しない",
+          "メーカーサポートに直接電話で機器状態確認（ノーリツ:0120-911-026、三菱: 0120-139-365）",
+          "契約書に署名する前にクーリングオフ8日間の説明確認",
+          "家族相談なく即決しない"
+        ]
+      },
+      {
+        "scam_name": "身分詐称詐欺",
+        "typical_flow": "1)『自治体から委託を受けた者です』or『お宅が契約中のガス会社からの連絡です』と身分詐称 → 2)信頼を得て点検・交換誘導 → 3)高額契約",
+        "defense": [
+          "自治体・ガス会社・メーカーに直接電話で確認（委託の事実を確認）",
+          "身分証明書・会社名刺・業者登録番号の提示要求",
+          "怪しければ警察通報"
+        ]
+      },
+      {
+        "scam_name": "故意故障詐欺",
+        "typical_flow": "1)無料点検で機器に細工（部品を外す・配線を緩める） → 2)『やはり故障してました』確定 → 3)急いで交換契約",
+        "defense": [
+          "点検中の機器から目を離さない",
+          "点検後、別業者に再点検依頼",
+          "故意の損壊が判明したら警察通報（器物損壊・詐欺罪）"
+        ]
+      },
+      {
+        "scam_name": "クーリングオフ妨害詐欺",
+        "typical_flow": "1)契約後すぐに工事着工 → 2)『もう撤去済みで戻せません』 → 3)クーリングオフ8日以内の解約を妨害",
+        "defense": [
+          "契約書にクーリングオフ明記確認",
+          "工事着工前に家族相談・相見積もり",
+          "工事着工されてもクーリングオフ8日以内なら原状回復義務は業者（消費者契約法）"
+        ]
+      }
+    ]
+  },
+
+  "negotiation_tips": [
+    "メーカー名・シリーズ・型番・容量（L）を明記要求（三菱 SRT-S467U 460L 等）",
+    "定価の何%掛けか確認（エコキュート60%OFF、ガス給湯器70%OFFが業者仕入れ標準）",
+    "給湯省エネ2026事業者登録番号の確認（登録事業者でないと補助金使えない）",
+    "補助金申請代行の有無・費用を確認（有料業者あり）",
+    "工事項目10項目以上の単価明細化要求、『一式』拒否",
+    "ガス工事はガス消費機器設置工事監督者、電気工事は第二種電気工事士の資格者証明要求",
+    "本体メーカー保証＋施工業者保証の両方で10年保証が標準",
+    "相見積もりは最低3社（地場設備屋・ネット専門店・家電量販店）",
+    "訪問販売の即決契約は絶対拒否、クーリングオフ8日間を活用",
+    "緊急時（お湯が出ない）でも、まずメーカーサポートに電話して状態確認",
+    "既存機の設置年月日・型番を事前に調べて業者の診断を検証",
+    "電気温水器→エコキュート交換は撤去加算+¥20,000、蓄熱暖房機撤去で+¥40,000",
+    "ハイブリッド給湯器・エネファームは補助金大きいが初期費用も大。長期居住前提で判断"
+  ],
+
+  "emergency_when_to_replace": {
+    "description": "給湯器の交換タイミング判断（悪徳業者の『今すぐ交換』に騙されないため）",
+    "normal_replacement_signs": [
+      "使用年数10年以上（耐用年数到達）",
+      "お湯が温まらない・温度が安定しない",
+      "異音（ゴー・キンキン音）",
+      "本体から水漏れ",
+      "エラーコード頻発",
+      "追い焚き機能が動かない"
+    ],
+    "not_urgent_signs": [
+      "外装の錆（機能に影響なし）",
+      "リモコン画面の液晶劣化（交換可能）",
+      "わずかな音の変化"
+    ],
+    "emergency_contact": {
+      "Noritz": "0120-911-026",
+      "Rinnai": "0120-054-321",
+      "Mitsubishi_ecocute": "0120-139-365",
+      "Daikin": "0120-881-081",
+      "Panasonic": "0120-878-554",
+      "Corona": "0120-919-302"
+    }
+  },
+
+  "trade_knowledge": {
+    "summary": "給湯器は住設で最も訪問販売詐欺が多発する領域。国民生活センター2024年発表で相談件数前年比3倍、被害者70%以上が70歳以上の高齢者。業者仕入れはエコキュート定価60%OFF、ガス給湯器定価70%OFFが標準。給湯省エネ2026事業で最大¥240,000の補助金（機種＋撤去加算）",
+    "industry_discount_reality": "訪問販売業者が『30%OFF』『50%OFF』と謳うのは、元価格自体が不当に高額なため、割引後も相場の1.5倍以上。正規業者は定価提示せず、最初から工事込み実売価格で提示する",
+    "subsidy_eligibility": "給湯省エネ2026事業は事業者登録業者からの購入のみ対象。悪徳業者は『補助金を申請してあげる』と言いながら登録事業者ではないケースあり。事業者登録番号は経済産業省公式サイトで検索可能",
+    "ecocute_vs_gas_decision": "月間ガス代¥8,000超なら、エコキュートの初期費用差をランニングコスト差で5-8年で回収可能。太陽光発電と組み合わせるとさらに有利。ただし設置スペース（1.5m x 1m）と200V電源工事費が必要",
+    "emergency_response_rule": "お湯が出ない緊急時でも、メーカーサポートに電話→簡易故障診断が基本手順。訪問販売業者の即日交換は相場の1.5-2倍で契約されやすい。最低でも家族相談1晩、複数業者相見積もり3社が鉄則",
+    "senior_protection": "高齢者家庭は特に注意。クーリングオフ8日間・消費者センター（188）・警察通報を家族が周知。契約書の控え・業者名刺・録音記録を必ず保管",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 国民生活センター 2024年2月発表資料 + ノーリツ公式警告 + 給湯省エネ2026事業公式 + 5大メーカー公式データ"
+  }
+}
