@@ -1,0 +1,385 @@
+{
+  "_meta": {
+    "version": "2.0-phase1",
+    "updated": "2026-04-19",
+    "category_id": "waterproofing_work",
+    "category_name_jp": "防水工事（ベランダ・バルコニー・屋上・陸屋根・雨漏り対応）",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐⭐ 築10-15年で必須・雨漏り予防・建物寿命の要",
+    "knowledge_source": "TOshi 30年の建設・現場監督・CMR実務経験 + 2026年実勢データ (田島ルーフィング、日新工業、関防協、日本防水協会、明和リニューアル、屋根屋さん、SUUMOリフォーム、塗装源、塗り替えやさん、防水工事見積もり.com、くらしのマーケット、リメイクホーム、街の外壁塗装やさん東東京店)",
+    "scope": "戸建ベランダ/バルコニー・陸屋根・マンション屋上・ルーフバルコニー・開放廊下・庇・外階段・パラペット・笠木・ドレン周り・立ち上がり。全工法（FRP・ウレタン・シート・アスファルト）網羅",
+    "references": "roof_construction.json（勾配屋根）, gaiheki_tosou.json（外壁）と連動"
+  },
+
+  "horizon_shield_standard": {
+    "formula": "材料仕入れ値 × 1.2 + 職人人工 × 日当 + 下地補修 + (原価 × 一般管理費率 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.20,
+      "general_overhead_pct_ideal": 15,
+      "tax_pct": 10
+    },
+    "philosophy": "防水は見えない所の工事。劣化したら雨漏りで建物全体の寿命を縮める。HSは工法選択根拠・下地状態・立ち上がり処理の明細化で手抜き排除"
+  },
+
+  "license_qualifications": {
+    "bousui_shikou_gijutsusha": { "name": "防水施工技能士（1級・2級）", "scope": "国家資格・施工管理" },
+    "tatekou_koji_shikokanrishi": { "name": "1級・2級建築施工管理技士", "scope": "防水工事含む建築全般" },
+    "kensetsu_gyou_kyoka_bousui": { "name": "建設業許可（防水工事業）", "required_for": "500万円超の工事" }
+  },
+
+  "waterproofing_structure": {
+    "description": "防水層の基本構造（3層）",
+    "layers": {
+      "top_coat": { "name": "トップコート", "purpose": "紫外線・雨から防水層を守る仕上げ層", "thickness_mm": "0.1-0.3" },
+      "bousui_layer": { "name": "防水層", "purpose": "雨水を遮断する主機能層", "thickness_mm": "1-5" },
+      "shitaji": { "name": "下地", "purpose": "防水層を支える構造部分", "materials": ["構造用合板", "モルタル", "コンクリート"] }
+    }
+  },
+
+  "methods_complete": {
+    "description": "防水工法 完全カタログ",
+
+    "frp_bousui": {
+      "name": "FRP防水（繊維強化プラスチック）",
+      "material": "FRPシート + ポリエステル樹脂",
+      "price_per_sqm_jpy": { "min": 9750, "max": 13650 },
+      "durability_years": { "min": 10, "max": 13 },
+      "work_duration_days": { "min": 1, "max": 2 },
+      "advantages": ["防水性◎", "耐久性◎", "耐候性◎", "衝撃性◎", "軽量", "工期短"],
+      "disadvantages": ["費用高め", "紫外線に弱い（塗膜ひび割れ）", "木造の動きに弱い（ひび割れ）"],
+      "best_for": ["戸建ベランダ（10㎡以下）", "屋上駐車場", "バルコニー"],
+      "construction_process": [
+        "1. 下地研磨・清掃",
+        "2. プライマー塗布",
+        "3. FRPシート貼り（1層目）",
+        "4. ポリエステル樹脂含浸",
+        "5. FRPシート貼り（2層目）",
+        "6. ポリエステル樹脂含浸",
+        "7. 中間チェック",
+        "8. トップコート"
+      ]
+    },
+
+    "urethane_bousui_mitsuchaku": {
+      "name": "ウレタン防水（密着工法）",
+      "material": "ウレタン樹脂（2液性）",
+      "price_per_sqm_jpy": { "min": 4500, "max": 7500 },
+      "durability_years": { "min": 10, "max": 13 },
+      "work_duration_days": { "min": 2, "max": 3 },
+      "advantages": ["複雑形状対応", "コスパ良好", "継ぎ目なし"],
+      "disadvantages": ["下地湿気で膨れリスク", "施工品質に差"],
+      "best_for": ["戸建バルコニー", "庇", "複雑形状箇所"],
+      "construction_process": [
+        "1. 下地補修・清掃",
+        "2. プライマー",
+        "3. メッシュシート貼付（補強）",
+        "4. ウレタン塗布1層目",
+        "5. ウレタン塗布2層目",
+        "6. トップコート"
+      ]
+    },
+
+    "urethane_bousui_tsuuki_kansho": {
+      "name": "ウレタン防水（通気緩衝工法）",
+      "description": "通気シートで下地湿気を逃がす改良工法",
+      "price_per_sqm_jpy": { "min": 6500, "max": 9500 },
+      "durability_years": { "min": 12, "max": 15 },
+      "advantages": ["下地湿気OK", "膨れ防止", "改修工事で多用"],
+      "best_for": ["既存防水の改修", "湿気の多い屋上", "陸屋根"],
+      "components": ["通気シート", "脱気筒", "プライマー", "ウレタン", "トップコート"]
+    },
+
+    "enbi_sheet_mitsuchaku": {
+      "name": "塩ビシート防水（密着工法）",
+      "material": "塩化ビニル樹脂シート",
+      "price_per_sqm_jpy": { "min": 8400, "max": 11760 },
+      "durability_years": { "min": 12, "max": 15 },
+      "work_duration_days": { "min": 2, "max": 3 },
+      "advantages": ["高耐久", "トップコート不要タイプあり", "耐候性◎"],
+      "disadvantages": ["凹凸箇所不可", "シート端部の処理が要", "紫外線で硬化"],
+      "best_for": ["平坦な屋上", "ルーフバルコニー", "陸屋根"]
+    },
+
+    "enbi_sheet_kikai_kotei": {
+      "name": "塩ビシート防水（機械固定工法）",
+      "description": "ディスク板でシートを機械固定・通気層確保",
+      "price_per_sqm_jpy": { "min": 5500, "max": 7500 },
+      "durability_years": { "min": 15, "max": 20 },
+      "advantages": ["湿潤下地OK", "下地補修最小限", "膨れ防止"],
+      "best_for": ["マンション屋上改修", "湿気ある既存防水の上", "大面積"]
+    },
+
+    "gomu_sheet_bousui": {
+      "name": "ゴムシート防水",
+      "material": "加硫ゴムシート（EPDM等）",
+      "price_per_sqm_jpy": { "min": 4500, "max": 9000 },
+      "durability_years": { "min": 10, "max": 15 },
+      "advantages": ["安価", "施工容易"],
+      "disadvantages": ["摩耗に弱い", "紫外線劣化"],
+      "best_for": ["マンション屋上（人が歩かない）", "押えコンクリート下"],
+      "not_for": "ベランダ等の歩行箇所"
+    },
+
+    "asphalt_bousui_jyouon": {
+      "name": "アスファルト防水（常温粘着工法）",
+      "material": "改質アスファルトルーフィングシート",
+      "price_per_sqm_jpy": { "min": 5500, "max": 8000 },
+      "durability_years": { "min": 20, "max": 25 },
+      "advantages": ["超高耐久", "臭気なし", "施工安全"],
+      "best_for": ["大型建築物", "マンション屋上", "公共施設"]
+    },
+
+    "asphalt_bousui_torch": {
+      "name": "アスファルト防水（トーチ工法）",
+      "material": "改質アスファルトシート（バーナー溶融）",
+      "price_per_sqm_jpy": { "min": 6000, "max": 9000 },
+      "durability_years": { "min": 20, "max": 25 },
+      "advantages": ["高耐久", "密着性◎", "信頼性◎"],
+      "disadvantages": ["バーナー使用・火災注意"],
+      "best_for": ["マンション・ビル屋上"]
+    },
+
+    "asphalt_bousui_netsu": {
+      "name": "アスファルト防水（熱工法）",
+      "description": "溶融釜で220℃のアスファルトを流し込み",
+      "price_per_sqm_jpy": { "min": 5500, "max": 8500 },
+      "durability_years": { "min": 20, "max": 30 },
+      "advantages": ["最高耐久", "防水層最厚"],
+      "disadvantages": ["臭気強", "施工危険", "住宅密集地不可"],
+      "best_for": ["大規模建築物", "工場"],
+      "status": "近代化で減少傾向"
+    },
+
+    "top_coat_only": {
+      "name": "トップコートのみ塗り替え",
+      "price_per_sqm_jpy": { "min": 2000, "max": 4000 },
+      "durability_years": 5,
+      "purpose": "防水層保護・メンテナンス",
+      "frequency": "5年に1回推奨",
+      "note": "防水層が生きている場合のみ有効"
+    }
+  },
+
+  "peripheral_works": {
+    "description": "防水付帯工事（忘れると雨漏りの原因）",
+    "tachiagari": {
+      "name": "立ち上がり部防水",
+      "description": "床から壁に立ち上がる部分の防水処理",
+      "price_per_meter_jpy": { "min": 2500, "max": 5000 },
+      "critical_note": "防水層の端部・雨水浸入リスク最高・最重要箇所"
+    },
+    "drain_repair": {
+      "name": "排水ドレン改修",
+      "price_per_unit_jpy": { "min": 15000, "max": 40000 },
+      "improved_drain": { "name": "改良ドレン（後付けドレン）", "price_jpy": { "min": 25000, "max": 60000 } },
+      "critical_note": "水が集中する箇所・既存防水層撤去+新規ドレン設置"
+    },
+    "kasagi": {
+      "name": "笠木（パラペット上部）",
+      "types": {
+        "aluminum_cap": { "name": "アルミ笠木", "price_per_meter_jpy": { "min": 5000, "max": 10000 } },
+        "mortar_finishing": { "name": "モルタル塗り笠木", "price_per_meter_jpy": { "min": 3000, "max": 7000 } },
+        "sheet_wrap": { "name": "防水シート巻込み", "price_per_meter_jpy": { "min": 4000, "max": 8000 } }
+      }
+    },
+    "parapet_waterproof": {
+      "name": "パラペット（屋上立ち上がり壁）防水",
+      "price_per_meter_jpy": { "min": 3500, "max": 7000 }
+    },
+    "shitaji_hoshū": {
+      "name": "下地補修",
+      "crack_filling_per_meter": { "min": 500, "max": 2000 },
+      "local_mortar_repair_per_sqm": { "min": 3000, "max": 8000 },
+      "slope_correction_per_sqm": { "min": 5000, "max": 15000, "note": "床勾配修正（水たまり対策）" }
+    },
+    "accessories": {
+      "tsugime_masker": { "name": "目地・継目処理", "price_per_meter_jpy": { "min": 800, "max": 2000 } },
+      "sealing_repair": { "name": "シーリング打ち替え", "price_per_meter_jpy": { "min": 800, "max": 1500 } }
+    }
+  },
+
+  "rain_leak_repair": {
+    "description": "雨漏り修理",
+    "investigation": {
+      "visual_inspection_free": { "name": "目視調査", "price_jpy": { "min": 0, "max": 15000 } },
+      "infrared_thermograph": { "name": "サーモグラフィ調査", "price_jpy": { "min": 30000, "max": 80000 } },
+      "water_injection_test": { "name": "散水試験", "price_jpy": { "min": 40000, "max": 100000 } },
+      "color_water_test": { "name": "色水試験（特殊染色剤）", "price_jpy": { "min": 50000, "max": 150000 } }
+    },
+    "repair_scenarios": {
+      "local_crack_seal": {
+        "name": "ひび割れ局所補修",
+        "price_jpy": { "min": 30000, "max": 80000 }
+      },
+      "drain_around_redo": {
+        "name": "ドレン周辺のみ改修",
+        "price_jpy": { "min": 80000, "max": 200000 }
+      },
+      "partial_waterproof_redo": {
+        "name": "部分的防水改修",
+        "price_jpy": { "min": 150000, "max": 400000 }
+      },
+      "full_waterproof_redo_small": {
+        "name": "全面防水改修（ベランダ10㎡）",
+        "price_jpy": { "min": 100000, "max": 200000 }
+      },
+      "interior_damage_repair": {
+        "name": "室内被害復旧（クロス・天井）",
+        "price_jpy": { "min": 50000, "max": 200000 }
+      }
+    }
+  },
+
+  "substrate_types_and_bousui_selection": {
+    "description": "下地種類別・推奨防水工法",
+    "wood_substrate": {
+      "description": "木造下地（戸建ベランダ最多）",
+      "recommended": ["FRP防水（最推奨）", "ウレタン防水"],
+      "not_recommended": ["アスファルト防水（重量で下地負担）"]
+    },
+    "concrete_substrate": {
+      "description": "コンクリート下地（マンション屋上）",
+      "recommended": ["アスファルト防水", "塩ビシート機械固定", "ウレタン通気緩衝"],
+      "note": "下地湿気対応重要"
+    },
+    "mortar_substrate": {
+      "description": "モルタル下地",
+      "recommended": ["ウレタン防水", "塩ビシート"],
+      "caution": "クラック多い場合は通気緩衝工法必須"
+    },
+    "existing_waterproof_over": {
+      "description": "既存防水の上（被せ工法）",
+      "recommended": ["ウレタン（密着）", "塩ビシート機械固定"],
+      "advantage": "撤去費削減・工期短縮"
+    }
+  },
+
+  "scaffolding_access": {
+    "description": "足場・アクセス",
+    "when_needed": [
+      "2階以上のベランダで外周作業",
+      "屋上改修で資材搬入",
+      "笠木交換",
+      "立上り高さ300mm超の処理"
+    ],
+    "scaffold_price_per_sqm": { "min": 800, "max": 1500 },
+    "rope_access_alternative": {
+      "name": "ロープアクセス（無足場工法）",
+      "advantage": "足場費削減",
+      "limitation": "大面積・大規模には不向き"
+    }
+  },
+
+  "labor": {
+    "bousui_craftsman_day_rate_kanto": { "min": 25000, "max": 35000, "avg": 30000 },
+    "senior_bousui_craftsman_day_rate": { "min": 35000, "max": 45000, "avg": 40000, "note": "防水施工技能士1級保持者" },
+    "standard_manhours": {
+      "veranda_10sqm_frp": "1.5-2人工",
+      "veranda_15sqm_urethane": "2-3人工",
+      "roof_30sqm_sheet": "3-5人工",
+      "mansion_roof_100sqm": "10-15人工"
+    }
+  },
+
+  "plans": {
+    "veranda_frp_10sqm": { "name": "ベランダFRP防水10㎡（戸建）", "price_jpy": { "min": 100000, "max": 140000 }, "hs_rule_jpy": 130000 },
+    "balcony_urethane_15sqm": { "name": "バルコニーウレタン防水15㎡", "price_jpy": { "min": 100000, "max": 180000 }, "hs_rule_jpy": 160000 },
+    "balcony_urethane_tsuki_kansho_15sqm": { "name": "バルコニー通気緩衝ウレタン15㎡", "price_jpy": { "min": 150000, "max": 230000 }, "hs_rule_jpy": 200000 },
+    "roof_sheet_30sqm_house": { "name": "戸建陸屋根塩ビシート30㎡", "price_jpy": { "min": 300000, "max": 500000 }, "hs_rule_jpy": 450000 },
+    "roof_urethane_30sqm_house": { "name": "戸建陸屋根ウレタン30㎡", "price_jpy": { "min": 200000, "max": 350000 }, "hs_rule_jpy": 320000 },
+    "mansion_roof_sheet_100sqm": { "name": "マンション屋上塩ビシート100㎡", "price_jpy": { "min": 800000, "max": 1500000 }, "hs_rule_jpy": 1200000 },
+    "mansion_roof_urethane_100sqm": { "name": "マンション屋上ウレタン通気緩衝100㎡", "price_jpy": { "min": 900000, "max": 1400000 }, "hs_rule_jpy": 1250000 },
+    "mansion_roof_asphalt_100sqm": { "name": "マンション屋上アスファルト100㎡", "price_jpy": { "min": 700000, "max": 1200000 }, "hs_rule_jpy": 1100000 },
+    "top_coat_only_10sqm": { "name": "トップコート塗替10㎡（メンテ）", "price_jpy": { "min": 30000, "max": 60000 }, "hs_rule_jpy": 50000 },
+    "top_coat_only_30sqm": { "name": "トップコート塗替30㎡", "price_jpy": { "min": 80000, "max": 150000 }, "hs_rule_jpy": 130000 },
+    "rain_leak_investigation_thermograph": { "name": "雨漏り調査（サーモ）", "price_jpy": { "min": 30000, "max": 80000 }, "hs_rule_jpy": 65000 },
+    "rain_leak_investigation_water_test": { "name": "雨漏り調査（散水試験）", "price_jpy": { "min": 40000, "max": 100000 }, "hs_rule_jpy": 85000 },
+    "rain_leak_local_repair": { "name": "雨漏り局所補修", "price_jpy": { "min": 30000, "max": 80000 }, "hs_rule_jpy": 70000 },
+    "drain_replacement": { "name": "排水ドレン改修1箇所", "price_jpy": { "min": 25000, "max": 60000 }, "hs_rule_jpy": 50000 },
+    "kasagi_aluminum": { "name": "アルミ笠木交換（10m）", "price_jpy": { "min": 50000, "max": 100000 }, "hs_rule_jpy": 90000 },
+    "slope_correction_10sqm": { "name": "床勾配修正10㎡", "price_jpy": { "min": 50000, "max": 150000 }, "hs_rule_jpy": 130000 }
+  },
+
+  "red_flags": [
+    { "code": "NO_METHOD_SPECIFIED", "pattern": "防水工法（FRP/ウレタン/シート/アスファルト）明記なし", "severity": "🔴 CRITICAL", "reason": "工法で単価2倍差・耐用年数差" },
+    { "code": "UNCLEAR_LAYERS", "pattern": "防水層の層数・厚み不明", "severity": "🚨 HIGH", "reason": "規定厚未満で耐久年数短縮" },
+    { "code": "NO_SHITAJI_INSPECTION", "pattern": "下地点検・補修なしで上塗り提案", "severity": "🔴 CRITICAL", "reason": "下地ひび割れ・湿気を放置で再漏水確実" },
+    { "code": "NO_TACHIAGARI_TREATMENT", "pattern": "立ち上がり部の処理記載なし", "severity": "🔴 CRITICAL", "reason": "雨水浸入リスク最高の箇所" },
+    { "code": "NO_DRAIN_CHECK", "pattern": "ドレン周り確認・改修記載なし", "severity": "🚨 HIGH", "reason": "水集中箇所・詰まり劣化多発" },
+    { "code": "VERANDA_10SQM_OVER_250K", "pattern": "ベランダFRP10㎡で¥250,000超", "severity": "🚨 HIGH", "reason": "HS基準¥130k。¥250k超は過剰" },
+    { "code": "ROOF_30SQM_OVER_700K", "pattern": "戸建陸屋根30㎡で¥700,000超", "severity": "🚨 HIGH", "reason": "HS基準¥450k" },
+    { "code": "FORCED_FULL_REDO_WHEN_TOP_OK", "pattern": "トップコート塗替で済む案件に全面防水強要", "severity": "🚨 HIGH", "reason": "+¥10-50万の過剰提案" },
+    { "code": "ISSHIKI_LUMP_SUM", "pattern": "防水工事一式計上", "severity": "🚨 HIGH" },
+    { "code": "NO_KOUHOU_HOSHOU", "pattern": "施工保証書なし（5-10年）", "severity": "🚨 HIGH", "reason": "優良業者は5-10年保証標準" },
+    { "code": "WRONG_METHOD_FOR_SUBSTRATE", "pattern": "下地種類に適さない工法提案（木造にアスファルト等）", "severity": "🔴 CRITICAL" },
+    { "code": "EMERGENCY_SAMEDAY_OVERCHARGE", "pattern": "緊急雨漏り対応で即日10倍請求", "severity": "🔴 CRITICAL", "reason": "雨漏り詐欺の典型手口" },
+    { "code": "NO_SLOPE_CHECK", "pattern": "水たまりある床で勾配修正提案なし", "severity": "⚠️ MEDIUM", "reason": "水たまり放置で防水層劣化加速" },
+    { "code": "THIN_URETHANE_LAYER", "pattern": "ウレタン1層塗りで済ませる", "severity": "🔴 CRITICAL", "reason": "規定は2層以上・1層は手抜き" }
+  ],
+
+  "vendor_selection_guide": {
+    "good_signs": [
+      "防水施工技能士1級または2級の資格者証提示",
+      "工法選択の根拠説明（下地種類・既存防水状態）",
+      "下地点検写真の提示",
+      "層数・厚み・使用材料メーカー明記",
+      "立ち上がり・ドレン・笠木の処理記載",
+      "施工保証5-10年",
+      "メンテナンス計画提示"
+    ],
+    "bad_signs": [
+      "工法・単価不明",
+      "一式計上",
+      "即日工事強要",
+      "保証なし",
+      "資格証提示拒否",
+      "緊急雨漏り10倍請求"
+    ]
+  },
+
+  "customer_scenario_guide": [
+    { "case": "築10年・戸建ベランダのトップコートひび割れ", "recommendation": "トップコート塗替え（メンテ）", "cost": 50000 },
+    { "case": "築13年・FRPひび割れ顕著", "recommendation": "ベランダFRP全面改修", "cost": 130000 },
+    { "case": "築15年・バルコニー下地湿気あり", "recommendation": "通気緩衝ウレタン", "cost": 200000 },
+    { "case": "築20年・マンション屋上初改修", "recommendation": "塩ビシート機械固定100㎡", "cost": 1200000 },
+    { "case": "築25年マンション屋上2回目改修", "recommendation": "ウレタン通気緩衝被せ工法", "cost": 1250000 },
+    { "case": "雨漏り発生・原因不明", "recommendation": "サーモ調査+局所補修", "cost": 135000 },
+    { "case": "ドレン周りから雨漏り", "recommendation": "ドレン改修+周辺防水", "cost": 200000 },
+    { "case": "床に水たまり・防水劣化", "recommendation": "勾配修正+全面防水改修", "cost": 280000 },
+    { "case": "笠木サビ・雨染み", "recommendation": "アルミ笠木交換+立ち上がり", "cost": 120000 },
+    { "case": "屋上緑化計画中", "recommendation": "アスファルト防水（最高耐久）", "cost_range": { "min": 800000, "max": 1500000 }, "note": "荷重考慮必須" },
+    { "case": "戸建陸屋根の防水改修", "recommendation": "ウレタン通気緩衝（木下地対応）", "cost": 350000 },
+    { "case": "外階段・開放廊下の防水", "recommendation": "塩ビシート or ウレタン", "cost_range": { "min": 100000, "max": 500000 } }
+  ],
+
+  "negotiation_tips": [
+    "防水施工技能士資格者証の提示要求",
+    "工法選択根拠を書面で説明要求（下地種類・既存状態考慮）",
+    "防水層の層数・厚み・使用材料メーカー明記要求",
+    "立ち上がり・ドレン・笠木処理を項目別に",
+    "下地点検写真の提示要求",
+    "施工保証5-10年付きを選定",
+    "相見積もり3社以上",
+    "緊急雨漏り対応でも正規料金の2倍以内が妥当",
+    "トップコート劣化のみならメンテで対応可能（業者の防水全面提案に注意）",
+    "木造下地にはアスファルト防水NG（重量問題）",
+    "下地湿気多い場合は通気緩衝工法指定",
+    "マンション屋上は管理組合承認必須",
+    "足場が必要かロープアクセス可能か確認",
+    "メンテナンス計画（5年毎トップコート）を工事時に提示要求",
+    "施工後の水張り試験または散水試験で漏水確認要求"
+  ],
+
+  "trade_knowledge": {
+    "summary": "防水工事は築10-15年で必須。主要工法はFRP（戸建ベランダ）・ウレタン（複雑形状）・塩ビシート（平面大面積）・アスファルト（大型建築）。戸建ベランダ10㎡¥10-14万・バルコニー15㎡¥10-18万・戸建陸屋根30㎡¥20-50万・マンション屋上100㎡¥80-150万・トップコート塗替¥3-6万/10㎡",
+    "method_selection_reality": "FRP=戸建ベランダの最定番。ウレタン=複雑形状・コスパ。シート=平坦大面積。アスファルト=マンション・ビルの最高耐久。下地種類と既存防水状態で選定",
+    "tachiagari_critical": "立ち上がり部は防水の命。雨水が最も浸入しやすく、施工品質で寿命が決まる。最低300mm以上の高さ必須・端部処理の確実性が要",
+    "drain_importance": "ドレン（排水口）周りは雨水集中で劣化最速。防水改修時は必ずドレン状態確認・必要なら改良ドレン後付け。ドレン詰まりで水溜まり→防水層膨潤劣化",
+    "leak_scam_warning": "雨漏り緊急対応で即日10倍請求は典型詐欺。冷静に3社相見積もり。本物の緊急対応は応急処置だけ無料or安価で、本工事は後日見積もり",
+    "top_coat_scam_warning": "トップコート塗替えで済む案件に『全面防水改修が必要』と過剰提案する業者多数。防水層が生きているかの判定を複数業者に",
+    "substrate_matching": "下地種類で工法限定。木造にアスファルト防水=重量過多。コンクリートにFRP=下地追従性不足。業者の工法選択根拠を確認",
+    "warranty_standard_2026": "2026年業界標準は施工保証5-10年。メーカー材料保証と施工保証を両方確認",
+    "mansion_caution": "マンション屋上工事は管理組合承認必須。共用部のため区分所有者単独で発注不可",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 防水施工技能士資格知識 + 田島ルーフィング/日新工業/タキロン/クボタ公式データ + 日本防水協会"
+  }
+}
