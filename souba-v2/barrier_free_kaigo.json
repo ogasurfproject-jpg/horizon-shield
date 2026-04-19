@@ -1,0 +1,571 @@
+{
+  "_meta": {
+    "version": "1.0-phase1",
+    "updated": "2026-04-19",
+    "category_id": "barrier_free_kaigo",
+    "category_name_jp": "バリアフリー・介護保険対応リフォーム",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐⭐ 高齢化社会最重要カテゴリ・介護保険住宅改修20万円補助の核心",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 2026年実勢データ (厚生労働省 介護保険住宅改修制度公式・新潟市/北九州市公式・ハートページナビ・MY介護の広場・リぺマガ/リペルン・転倒予防ナビ・家仲間コム・くらしのマーケット・ゼヒトモ)",
+    "scope": "介護保険住宅改修6大工事（手すり/段差解消/床材変更/引き戸化/洋式便器化/付帯工事）・自治体補助金・福祉用具購入・ホームエレベーター・スロープ・車椅子対応"
+  },
+
+  "horizon_shield_standard": {
+    "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール（バリアフリー版）",
+    "formula": "部材仕入れ値 × 1.2 + 職人人工 × 日当 + 付帯工事実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.20,
+      "general_overhead_pct_ideal": 15,
+      "general_overhead_pct_acceptable_max": 20,
+      "tax_pct": 10
+    },
+    "philosophy": "バリアフリーは家族の安全と要介護者の尊厳を守る。介護保険住宅改修20万円の上限を最大限活用し、自己負担を最小化する業者が優良業者。補助金申請代行しない業者は即別業者へ"
+  },
+
+  "kaigo_hoken_jutaku_kaisyu": {
+    "description": "介護保険住宅改修制度（厚生労働省）- バリアフリー改修の核心",
+    "overview": {
+      "max_support_amount_jpy": 200000,
+      "support_rate_options": ["9割給付（1割負担）", "8割給付（2割負担）", "7割給付（3割負担）"],
+      "self_pay_minimum_jpy": 20000,
+      "self_pay_maximum_jpy": 60000,
+      "lifetime_limit": "1人1回・生涯20万円（例外条件あり）"
+    },
+    "eligibility": [
+      "要支援1・2 または 要介護1〜5の認定を受けた人",
+      "被保険者証記載の住所の住宅であること",
+      "特定施設（有料老人ホーム等）入居者は原則対象外"
+    ],
+    "reset_conditions": [
+      "要介護度が3段階以上上がった場合（例：要介護1→要介護4）",
+      "転居した場合",
+      "→ 再度20万円の枠が復活"
+    ],
+    "application_flow": [
+      "1) 担当ケアマネージャーに相談",
+      "2) 理由書を作成（ケアマネ・福祉住環境コーディネーター等）",
+      "3) 事前申請書類を市区町村に提出（着工前必須）",
+      "4) 承認後、工事着工",
+      "5) 工事完了後、領収書・完了届を提出",
+      "6) 支給決定後、自己負担分のみ後日支払い（償還払い）または 自己負担分のみ事前支払い（受領委任払い）"
+    ],
+    "payment_types": {
+      "shokan_barai": "償還払い：施主が全額立替後、後日7-9割戻ってくる",
+      "juryou_inin_barai": "受領委任払い：施主は自己負担1-3割のみ支払い、業者が残額を自治体から直接受領"
+    },
+    "critical_rule": "工事着工前の事前申請必須。事後申請は給付対象外"
+  },
+
+  "six_target_works": {
+    "description": "介護保険住宅改修の6大対象工事",
+    "work_1_handrail": {
+      "name": "① 手すりの取付",
+      "description": "廊下・階段・トイレ・浴室・玄関等への手すり設置",
+      "ideal_locations": ["階段（連続手すり）", "廊下", "トイレ", "浴室内・入口", "玄関（上がり框・アプローチ）", "脱衣所"],
+      "materials_list_jpy": {
+        "wood_standard": { "name": "木製（標準）", "price_per_meter": { "min": 2000, "max": 5000 } },
+        "resin_wet_area": { "name": "樹脂製（水回り）", "price_per_meter": { "min": 3000, "max": 7000 } },
+        "stainless_outdoor": { "name": "ステンレス製（屋外）", "price_per_meter": { "min": 5000, "max": 12000 } },
+        "aluminum_outdoor": { "name": "アルミ製（屋外）", "price_per_meter": { "min": 4000, "max": 10000 } }
+      },
+      "shapes": {
+        "i_shape": "I字型（縦・横 単独）",
+        "l_shape": "L字型（縦横複合）",
+        "p_shape": "P字型（U字/凹型 連続）",
+        "movable_flip_up": "可動式/跳ね上げ式（トイレ・車椅子対応）"
+      },
+      "pricing_by_location": {
+        "toilet": { "min": 25000, "max": 50000, "hs_rule": 40000 },
+        "bath_inside": { "min": 15000, "max": 40000, "hs_rule": 35000 },
+        "bath_entrance": { "min": 30000, "max": 60000, "hs_rule": 50000 },
+        "corridor_per_1m": { "min": 10000, "max": 30000, "hs_rule": 25000 },
+        "stairs_continuous_per_m": { "min": 30000, "max": 80000, "hs_rule": 70000 },
+        "genkan_kamachi_indoor": { "min": 10000, "max": 40000, "hs_rule": 30000 },
+        "genkan_approach_outdoor": { "min": 50000, "max": 140000, "hs_rule": 120000 }
+      }
+    },
+    "work_2_step_elimination": {
+      "name": "② 段差の解消",
+      "description": "敷居・上がり框・浴室等の段差を無くす工事",
+      "types": {
+        "shikii_small_step": {
+          "name": "敷居段差解消（2-5cm）",
+          "price_jpy": { "min": 20000, "max": 60000 }
+        },
+        "genkan_kamachi": {
+          "name": "玄関上がり框段差解消",
+          "price_jpy": { "min": 50000, "max": 150000 }
+        },
+        "bath_floor_raise": {
+          "name": "浴室かさ上げ・床段差解消",
+          "price_jpy": { "min": 50000, "max": 150000 }
+        },
+        "slope_indoor": {
+          "name": "屋内スロープ設置",
+          "price_jpy": { "min": 50000, "max": 200000 }
+        },
+        "slope_outdoor_wheelchair": {
+          "name": "屋外スロープ（車椅子対応）",
+          "price_jpy": { "min": 150000, "max": 500000 }
+        },
+        "home_elevator": {
+          "name": "ホームエレベーター設置",
+          "price_jpy": { "min": 2500000, "max": 4000000 },
+          "note": "介護保険対象外・別途自治体補助金あり"
+        }
+      }
+    },
+    "work_3_floor_material_change": {
+      "name": "③ 滑りの防止・移動の円滑化のための床材変更",
+      "description": "畳→フローリング・浴室床を滑りにくい材質に変更",
+      "types": {
+        "washitsu_to_flooring_6jo": {
+          "name": "畳→フローリング（6畳）",
+          "price_jpy": { "min": 100000, "max": 250000 },
+          "note": "車椅子使用・日常移動を楽に"
+        },
+        "bath_floor_non_slip": {
+          "name": "浴室床 滑り止め材に変更",
+          "price_jpy": { "min": 50000, "max": 150000 }
+        },
+        "stairs_non_slip_sheet": {
+          "name": "階段滑り止めシート",
+          "price_jpy": { "min": 10000, "max": 30000 }
+        },
+        "hallway_vinyl_flooring": {
+          "name": "廊下 ビニール床材（クッションフロア）",
+          "price_per_sqm_jpy": { "min": 4000, "max": 8000 }
+        }
+      }
+    },
+    "work_4_door_replacement": {
+      "name": "④ 引き戸等への扉の取替",
+      "description": "開き戸→引き戸・アコーディオンカーテン等",
+      "purpose": ["車椅子対応", "開閉スペース削減", "介助者の動線確保"],
+      "types": {
+        "swing_to_sliding_door": {
+          "name": "開き戸→引き戸変更",
+          "price_jpy": { "min": 200000, "max": 400000 },
+          "note": "壁改修含む大工工事・介護保険の6大対象"
+        },
+        "folding_door_replacement": {
+          "name": "折れ戸への変更",
+          "price_jpy": { "min": 80000, "max": 180000 }
+        },
+        "accordion_curtain": {
+          "name": "アコーディオンカーテン",
+          "price_jpy": { "min": 30000, "max": 80000 }
+        },
+        "door_handle_lever_change": {
+          "name": "ドアノブ→レバーハンドル変更",
+          "price_per_unit_jpy": { "min": 5000, "max": 15000 }
+        }
+      }
+    },
+    "work_5_toilet_westernization": {
+      "name": "⑤ 和式便器から洋式便器への取替",
+      "description": "和式便器を洋式便器に変更（高齢者の身体負担軽減）",
+      "types": {
+        "washiki_to_yoshiki_basic": {
+          "name": "和式→洋式便器 基本",
+          "price_jpy": { "min": 150000, "max": 300000 },
+          "scope": "便器撤去・洋式便器設置・床解体・給排水・電気コンセント",
+          "breakdown": {
+            "washiki_removal": 20000,
+            "floor_demolition_patch": 30000,
+            "yoshiki_toilet_install": 80000,
+            "water_supply_work": 15000,
+            "drain_work": 20000,
+            "electric_outlet": 10000,
+            "carpenter_1day": 31500
+          }
+        },
+        "washiki_kumitori_to_yoshiki_flush": {
+          "name": "和式汲取→洋式水洗 変更",
+          "price_jpy": { "min": 400000, "max": 800000 },
+          "note": "水洗化工事部分は介護保険対象外（別途自治体補助金可能性）"
+        },
+        "direction_change": {
+          "name": "便器の向き変更",
+          "price_jpy": { "min": 50000, "max": 150000 }
+        },
+        "bathroom_seat_heater_addition": {
+          "name": "暖房便座・洗浄機能追加",
+          "price_jpy": { "min": 30000, "max": 80000 },
+          "note": "既存洋式便器への追加は介護保険対象外"
+        }
+      }
+    },
+    "work_6_incidental_works": {
+      "name": "⑥ 上記5つに付帯して必要な工事",
+      "description": "手すり取付のための壁補強、便器交換のための給排水工事など",
+      "examples": {
+        "wall_reinforcement_for_handrail": {
+          "name": "手すり取付用 壁補強（下地板）",
+          "price_jpy": { "min": 10000, "max": 30000 }
+        },
+        "water_pipe_for_toilet": {
+          "name": "洋式便器用 給排水工事",
+          "price_jpy": { "min": 20000, "max": 50000 }
+        },
+        "floor_reinforcement_for_wheelchair": {
+          "name": "車椅子用 床補強",
+          "price_jpy": { "min": 30000, "max": 80000 }
+        },
+        "door_frame_adjust": {
+          "name": "扉枠幅拡張（車椅子通行）",
+          "price_jpy": { "min": 50000, "max": 150000 }
+        }
+      }
+    }
+  },
+
+  "tesuri_detailed_matrix": {
+    "description": "手すり設置 詳細マトリクス（場所×形状×素材）",
+    "standard_plans": {
+      "genkan_indoor": {
+        "name": "玄関屋内（上がり框）",
+        "shape_i_or_l": "I字 または L字",
+        "price_jpy": { "min": 10000, "max": 40000 },
+        "insurance_after_1wari": { "min": 1000, "max": 4000 }
+      },
+      "genkan_outdoor_approach": {
+        "name": "玄関屋外（アプローチ・ポーチ）",
+        "material": "ステンレスまたはアルミ",
+        "price_jpy": { "min": 50000, "max": 140000 },
+        "insurance_after_1wari": { "min": 5000, "max": 14000 },
+        "features": ["基礎工事含む", "天候耐性"]
+      },
+      "corridor_1_5m": {
+        "name": "廊下（1.5m）",
+        "price_jpy": { "min": 15000, "max": 45000 },
+        "insurance_after_1wari": { "min": 1500, "max": 4500 }
+      },
+      "stairs_continuous": {
+        "name": "階段 連続手すり（片側・5段以上）",
+        "price_jpy": { "min": 30000, "max": 80000 },
+        "insurance_after_1wari": { "min": 3000, "max": 8000 }
+      },
+      "stairs_both_sides": {
+        "name": "階段 両側手すり",
+        "price_jpy": { "min": 60000, "max": 150000 },
+        "insurance_after_1wari": { "min": 6000, "max": 15000 }
+      },
+      "toilet_i_shape": {
+        "name": "トイレ I字手すり",
+        "price_jpy": { "min": 15000, "max": 30000 },
+        "insurance_after_1wari": { "min": 1500, "max": 3000 }
+      },
+      "toilet_l_shape": {
+        "name": "トイレ L字手すり",
+        "price_jpy": { "min": 25000, "max": 50000 },
+        "insurance_after_1wari": { "min": 2500, "max": 5000 }
+      },
+      "toilet_flip_up": {
+        "name": "トイレ 可動式・跳ね上げ式",
+        "price_jpy": { "min": 50000, "max": 120000 },
+        "insurance_after_1wari": { "min": 5000, "max": 12000 },
+        "features": ["介助者動線確保", "車椅子対応"]
+      },
+      "bath_inside": {
+        "name": "浴室内 手すり（樹脂製）",
+        "price_jpy": { "min": 15000, "max": 40000 },
+        "insurance_after_1wari": { "min": 1500, "max": 4000 }
+      },
+      "bath_entrance": {
+        "name": "浴室入口 手すり",
+        "price_jpy": { "min": 30000, "max": 60000 },
+        "insurance_after_1wari": { "min": 3000, "max": 6000 }
+      }
+    }
+  },
+
+  "bath_barrier_free_comprehensive": {
+    "description": "浴室バリアフリー化（単独カテゴリ）",
+    "reference": "bathroom_reform.json と連動・高齢者浴室事故防止",
+    "plans": {
+      "bath_grab_bars_package": {
+        "name": "浴室手すり一括（入口+浴室内+浴槽）",
+        "price_jpy": { "min": 50000, "max": 120000 }
+      },
+      "bath_non_slip_floor": {
+        "name": "浴室床 滑り止め変更",
+        "price_jpy": { "min": 50000, "max": 150000 }
+      },
+      "bath_step_elimination": {
+        "name": "浴室段差解消（かさ上げ）",
+        "price_jpy": { "min": 50000, "max": 150000 }
+      },
+      "bath_tub_change_low_entry": {
+        "name": "浴槽 またぎ低下交換",
+        "price_jpy": { "min": 200000, "max": 500000 },
+        "note": "高齢者の浴槽またぎ事故防止"
+      },
+      "bath_full_barrier_free_ub": {
+        "name": "浴室 完全バリアフリー UB",
+        "price_jpy": { "min": 1200000, "max": 2500000 },
+        "features": ["段差なし", "手すり標準装備", "滑り止め床", "浴槽また低い"]
+      }
+    }
+  },
+
+  "local_government_subsidies": {
+    "description": "自治体独自補助金（介護保険とは別枠）",
+    "examples": [
+      {
+        "city": "東京都（東京都民）",
+        "program": "高齢者住宅改修支援事業",
+        "amount_jpy": { "min": 100000, "max": 1000000 },
+        "note": "区市町村により異なる"
+      },
+      {
+        "city": "横浜市",
+        "program": "高齢者住環境整備事業",
+        "amount_jpy": 200000,
+        "note": "介護保険20万円と併用可"
+      },
+      {
+        "city": "大阪市",
+        "program": "高齢者住宅改修費助成",
+        "amount_jpy": 300000
+      },
+      {
+        "city": "その他市区町村",
+        "note": "各自治体HPで『高齢者 住宅改修 補助金』検索推奨"
+      }
+    ],
+    "stackable_programs": [
+      "介護保険住宅改修 20万円",
+      "自治体独自補助金 10-100万円",
+      "バリアフリー改修減税（所得税控除）",
+      "リフォーム瑕疵保険",
+      "長期優良住宅化リフォーム推進事業"
+    ]
+  },
+
+  "fukushi_yougu_buy_rental": {
+    "description": "福祉用具購入・レンタル（介護保険別枠）",
+    "purchase_annual_limit_jpy": 100000,
+    "purchase_items": [
+      "腰掛便座（ポータブルトイレ）",
+      "入浴補助用具（バスボード・シャワーチェア）",
+      "簡易浴槽",
+      "移動用リフトのつり具",
+      "自動排泄処理装置"
+    ],
+    "rental_items": [
+      "車椅子",
+      "特殊寝台（介護ベッド）",
+      "床ずれ防止用具",
+      "手すり（設置型）",
+      "スロープ（設置型）",
+      "歩行器・歩行補助杖"
+    ]
+  },
+
+  "plans_comprehensive": {
+    "handrail_package_minimum": {
+      "name": "手すり一括（玄関+階段+トイレ+浴室）",
+      "scope": "最低限の転倒予防",
+      "price_jpy": { "min": 100000, "max": 200000 },
+      "hs_rule_jpy": 180000,
+      "insurance_1wari_after": 18000,
+      "note": "介護保険20万円枠内で完結可能"
+    },
+    "step_elimination_package": {
+      "name": "段差解消一括（玄関+敷居+浴室）",
+      "price_jpy": { "min": 200000, "max": 500000 },
+      "hs_rule_jpy": 400000,
+      "insurance_1wari_after_max20": "超過分は全額自己負担"
+    },
+    "wheelchair_ready_home": {
+      "name": "車椅子対応化（引き戸+スロープ+床変更）",
+      "price_jpy": { "min": 500000, "max": 1500000 },
+      "hs_rule_jpy": 1200000,
+      "note": "介護保険20万円+自治体補助金活用"
+    },
+    "toilet_barrier_free_package": {
+      "name": "トイレ バリアフリーパッケージ",
+      "scope": "和→洋便器+L字手すり+ドア幅拡張+床材",
+      "price_jpy": { "min": 400000, "max": 700000 },
+      "hs_rule_jpy": 580000,
+      "insurance_coverage": "20万円フル活用可能"
+    },
+    "bath_barrier_free_full": {
+      "name": "浴室バリアフリー完全化",
+      "scope": "UB交換+手すり+段差解消+滑り止め",
+      "price_jpy": { "min": 1200000, "max": 2500000 },
+      "hs_rule_jpy": 2000000,
+      "insurance_coverage": "介護保険20万円+一部浴室UBは対象外"
+    },
+    "dementia_safe_home": {
+      "name": "認知症対応 安全化",
+      "scope": "扉ロック+ガス遮断+徘徊防止センサー",
+      "price_jpy": { "min": 300000, "max": 800000 }
+    },
+    "whole_house_barrier_free": {
+      "name": "家全体バリアフリー改修",
+      "scope": "全6大工事完全実施",
+      "price_jpy": { "min": 1500000, "max": 4000000 },
+      "hs_rule_jpy": 3200000,
+      "subsidies_max": 600000
+    }
+  },
+
+  "red_flags": [
+    {
+      "code": "NO_CARE_MANAGER_CONSULT",
+      "pattern": "ケアマネージャーに相談せず工事提案",
+      "severity": "🔴 CRITICAL",
+      "reason": "介護保険適用には理由書が必須。ケアマネ経由で適切な工事判断"
+    },
+    {
+      "code": "NO_APPLICATION_FIRST",
+      "pattern": "事前申請せず着工提案",
+      "severity": "🔴 CRITICAL",
+      "reason": "事後申請は給付対象外。20万円の権利喪失"
+    },
+    {
+      "code": "NOT_REGISTERED_VENDOR",
+      "pattern": "介護保険住宅改修登録業者でない",
+      "severity": "🔴 CRITICAL",
+      "reason": "受領委任払い不可・自治体承認必須"
+    },
+    {
+      "code": "OVER_20MAN_NO_DISCLOSURE",
+      "pattern": "20万円超過分の説明なし",
+      "severity": "🚨 HIGH",
+      "reason": "超過分は全額自己負担。工事計画時に要明確化"
+    },
+    {
+      "code": "HANDRAIL_OVER_100K_TOILET",
+      "pattern": "トイレ手すり1本で¥100,000超",
+      "severity": "🚨 HIGH",
+      "reason": "HS基準 L字¥25-50k。¥100k超は過剰"
+    },
+    {
+      "code": "NO_REASON_LETTER",
+      "pattern": "住宅改修理由書作成しない",
+      "severity": "🔴 CRITICAL",
+      "reason": "ケアマネ・福祉住環境コーディネーター2級以上の理由書必須"
+    },
+    {
+      "code": "FORCED_UPGRADE",
+      "pattern": "必要最小限を超える高額プラン強要",
+      "severity": "🚨 HIGH",
+      "reason": "介護保険は『必要最小限』の工事のみ対象。過剰は給付拒否リスク"
+    },
+    {
+      "code": "WASHIKI_KUMITORI_FULL_COVER_FAKE",
+      "pattern": "和式汲取→洋式水洗の水洗化部分も介護保険適用と虚偽説明",
+      "severity": "🔴 CRITICAL",
+      "reason": "水洗化部分は介護保険対象外。別途自治体補助金対応"
+    },
+    {
+      "code": "TOILET_WASHLET_ONLY_FAKE",
+      "pattern": "既存洋式便器のウォシュレット追加を介護保険対象と虚偽説明",
+      "severity": "🚨 HIGH",
+      "reason": "暖房便座・洗浄機能追加は介護保険対象外"
+    },
+    {
+      "code": "DOOR_KNOB_LEVER_LUXURY",
+      "pattern": "シンプルなレバーハンドル化に¥50,000超請求",
+      "severity": "⚠️ MEDIUM",
+      "reason": "相場¥5-15k/個。¥50k超は過剰"
+    }
+  ],
+
+  "customer_scenario_guide": [
+    {
+      "case": "要支援1の母親・転倒予防",
+      "recommendation": "階段+廊下+トイレ手すり一括",
+      "total_cost": 180000,
+      "insurance_1wari": 18000,
+      "note": "介護保険20万円枠内で完結"
+    },
+    {
+      "case": "要介護2の父親・歩行困難",
+      "recommendation": "手すり+段差解消+滑り止め床",
+      "total_cost": 400000,
+      "insurance_after": 220000,
+      "note": "20万円使い切り"
+    },
+    {
+      "case": "要介護4・車椅子生活",
+      "recommendation": "引き戸化+スロープ+床変更+扉幅拡張",
+      "total_cost": 1200000,
+      "insurance_kaigo": 200000,
+      "local_subsidy": 200000,
+      "remaining_self_pay": 800000,
+      "note": "自治体補助金併用推奨"
+    },
+    {
+      "case": "トイレ和式→洋式（水洗住宅）",
+      "recommendation": "便器変更+L字手すり+床滑り止め",
+      "total_cost": 400000,
+      "insurance_after": 220000
+    },
+    {
+      "case": "トイレ汲取→水洗",
+      "recommendation": "水洗化工事+洋式便器（介護保険対象外部分あり）",
+      "total_cost": 600000,
+      "insurance_kaigo": 100000,
+      "local_subsidy_septic": 200000,
+      "note": "下水工事の補助金を別途確認"
+    },
+    {
+      "case": "浴室高齢者事故予防",
+      "recommendation": "浴室手すり+滑り止め床+段差解消",
+      "total_cost": 250000,
+      "insurance_after": 50000
+    },
+    {
+      "case": "認知症家族の安全対策",
+      "recommendation": "扉ロック+ガス遮断+センサー",
+      "total_cost": 500000,
+      "note": "介護保険対象外・自治体補助金検討"
+    },
+    {
+      "case": "家全体バリアフリー化（予算大）",
+      "recommendation": "全6大工事完全実施",
+      "total_cost": 3200000,
+      "insurance_kaigo": 200000,
+      "local_subsidy_max": 600000,
+      "tax_deduction": 150000,
+      "remaining_self_pay": 2250000
+    }
+  ],
+
+  "negotiation_tips": [
+    "ケアマネージャーに必ず事前相談（介護保険申請の起点）",
+    "介護保険住宅改修登録業者か確認（自治体HP or 業者HP）",
+    "工事着工前の事前申請を必須化（事後は給付対象外）",
+    "受領委任払い対応業者を選択（自己負担分のみの支払いで済む）",
+    "20万円枠の配分を計画的に（複数工事で分割利用可能）",
+    "20万円超過分の明細を事前確認",
+    "必要最小限の工事提案を要求（過剰は給付拒否リスク）",
+    "福祉住環境コーディネーター2級以上の資格者在籍業者を優先",
+    "自治体独自補助金の併用可否を必ず確認",
+    "和式汲取→洋式水洗の水洗化部分は介護保険対象外と理解",
+    "既存洋式便器への暖房便座・ウォシュレット追加は介護保険対象外",
+    "賃貸住宅の場合は大家承諾書を事前取得",
+    "理由書作成費は業者により無料 or ¥3-5千",
+    "完了後の領収書・完了届の提出サポートを確認",
+    "手すり位置は福祉専門家の助言必須（身長・利き手考慮）",
+    "要介護度が上がった時のリセット条件を施主に周知",
+    "バリアフリー改修所得税控除・固定資産税減税も併用可"
+  ],
+
+  "trade_knowledge": {
+    "summary": "介護保険住宅改修20万円は、要支援・要介護認定者の生涯1回支給。給付率7-9割で実質自己負担¥2-6万円。対象6大工事は『手すり・段差解消・床材変更・引き戸化・洋式便器化・付帯工事』。自治体独自補助金（10-100万円）と併用可能で、最大補助総額は¥120-150万円に達する",
+    "kaigo_hoken_reality": "介護保険住宅改修は全国一律20万円。2025年度の利用件数は約50万件、年間給付総額は約700億円。高齢化進行で年々増加中。優良業者は介護保険申請代行を無料 or 低額で実施",
+    "care_manager_importance": "介護保険住宅改修の起点はケアマネージャー。理由書（ケアマネ or 福祉住環境コーディネーター作成）が給付の鍵。業者選定もケアマネの推薦が安心",
+    "juryou_inin_vs_shokan": "受領委任払いが断然有利。自己負担分（1-3割）のみの支払いで済む。償還払いは20万円全額立替が必要で、後日差額戻り。高齢者家庭は受領委任払い推奨",
+    "reset_opportunity": "要介護度3段階UP or 転居で20万円枠リセット。長期間で複数段階の改修を計画的に実施可能",
+    "hidden_opportunities": "介護保険以外の補助金・税制優遇が意外に活用されない。(1)自治体独自補助金¥10-100万 (2)バリアフリー改修所得税控除最大¥15万 (3)固定資産税減税1/3減額 (4)リフォーム瑕疵保険",
+    "work_target_priority": "優先順位: (1)階段・廊下手すり (2)トイレ洋式化+手すり (3)浴室手すり・滑り止め (4)玄関段差解消 (5)引き戸化 の順で転倒事故率低減効果大",
+    "door_widening_often_missed": "扉幅拡張（車椅子通行）は介護保険対象。既存78cm幅→80cm以上に拡張で車椅子スムーズ通行可能",
+    "wheelchair_corner_design": "車椅子の方向転換には最小140cm x 140cmのスペース必要。廊下・玄関・トイレ入口の設計で要考慮",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 厚生労働省 介護保険制度公式 + 主要自治体補助金制度 + 福祉住環境コーディネーター知識 + 介護現場の実務情報"
+  }
+}
