@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "version": "3.0-phase1-complete-substructure",
+    "version": "4.0-phase1.5-toshi-philosophy",
     "updated": "2026-04-19",
     "category_id": "zosaku_tategu_master",
     "category_name_jp": "造作工事＋建具工事＋下地/躯体（大工工事の真の完全教科書 v3）",
@@ -8,47 +8,77 @@
     "importance": "⭐⭐⭐⭐⭐ 大工工事の真骨頂・下地から仕上げまで全網羅の完全教科書",
     "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 2026年実勢データ + 下地・躯体・白蟻補修データ (大建工業 ハピア・LIXIL ラシッサD・YKK AP ファミット・Panasonic ベリティス・WoodOne ピノアース、ナサホーム、リショップナビ、ハピすむ、リフォーム成功学、家仲間コム、アストロホーム、日本住宅保全工事事業協同組合、あい営繕、ノークホームズ、ALT、イエコマ、グランディル、カシピカ、悠ホーム、むらたかず公式ブログ、天山工務店、住まいるパートナー)",
     "scope_v3": "【v1/v2既存】壁新設/撤去/打抜き・押入れ/WIC/SIC改装・造作棚11種・建具5社×3タイプ・和建具・腰壁・小上がり和室・天井造作・化粧梁・ニッチ・ロフト・室内窓・掘りごたつ・階段造作・吹抜け・エコカラット・建具金物 ＋ 【v3新規追加】天井下地組（野縁・野縁受け・吊り木）・和室天井全種（竿縁/目透かし/格天井/船底/網代）・床下地（根太/大引/床束/束石）・壁下地（胴縁/間柱/構造用合板）・構造材（柱/梁/土台）補修・白蟻被害3段階補修・断熱材全箇所・屋根下地（野地板/垂木）・外壁下地（胴縁/防水シート）",
-    "v2_to_v3_changes": "TOshi 30年大工知識の指摘により、表面仕上げに偏っていた情報を『下地・躯体・構造』まで完全拡張。白蟻被害補修も追加。大工仕事の真の教科書として完成"
+    "v2_to_v3_changes": "TOshi 30年大工知識の指摘により、表面仕上げに偏っていた情報を『下地・躯体・構造』まで完全拡張。白蟻被害補修も追加。大工仕事の真の教科書として完成",
+    "v3_to_v4_changes": "TOshi哲学反映: (1)全26プランを業者規模別レンジ化 (2)business_size_based_pricing新設 (3)cost_breakdown_toshi_rule_大工工事 新設 (4)白蟻3段階プランをtermite_work.json v1.3と完全連動 (5)HS philosophy刷新 (6)Red Flag業者規模観点で見直し",
+    "horizons_philosophy": "HSは業者を敵視しない。大工工事は職人の技能差が最大の価値。業者規模・職人熟練度・下地処理の丁寧さに応じた『妥当な利益率』が存在する。HSの役割は『規模と品質のマッチング』を施主に透明化すること。白蟻3段階補修はtermite_work.jsonと連動し、駆除→構造補修の一気通貫HSプロトコルを提供"
   },
-
   "horizon_shield_standard": {
     "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール（造作・建具版）",
     "formula": "材料仕入れ値 × 1.2 + 職人人工 × 日当 + 付帯工事実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
     "parameters": {
-      "material_markup_from_trade_price": 1.20,
+      "material_markup_from_trade_price": 1.2,
       "general_overhead_pct_ideal": 15,
       "general_overhead_pct_acceptable_max": 20,
       "tax_pct": 10
     },
-    "philosophy": "造作と建具は大工工事の真骨頂。表面の仕上げより下地・躯体の品質が家の寿命を決める。HSは下地から仕上げまで全工程を明細化し、見えない部分の手抜きを完全排除"
+    "philosophy": "造作と建具は大工工事の真骨頂。表面の仕上げより下地・躯体の品質が家の寿命を決める。HSは下地から仕上げまで全工程を明細化し、見えない部分の手抜きを完全排除",
+    "HS_pricing_philosophy": {
+      "原則": "HS基準価格 = 原価 + 業者規模別の妥当な利益率レンジ",
+      "公式": "適正価格 = 材料仕入れ値 × 1.2 + 人工数 × 日当 + 副資材実費 + 機材・交通費 + (原価 × 業者規模別利益率) + 消費税 10%",
+      "業者規模別_妥当な利益率_大工工事": {
+        "個人事業_大工_職人": "粗利率 25-35%（原価×1.25-1.35）",
+        "中小工務店_地域密着": "粗利率 25-35%（原価×1.25-1.35）",
+        "人気工務店_性能向上リノベ専門": "粗利率 30-40%（原価×1.30-1.40）",
+        "大手リフォーム_ハウスメーカー": "粗利率 35-45%（原価×1.35-1.45）"
+      },
+      "規模別利益率_根拠": "国土交通省建設関連業経営分析、一般財団法人建設業情報管理センター",
+      "大工工事の特殊性": "職人の技能差が価格に反映されやすい。ベテラン大工と新人では同じ工事でも仕上がり品質が大きく異なる"
+    }
   },
-
   "v3_tenjou_shitaji_organize": {
     "description": "【v3新規】天井下地組（野縁・野縁受け・吊り木）",
     "components": {
       "noButi": {
         "name": "野縁（のぶち）",
         "description": "天井板を直接支える部材（30×40mm程度の材木）",
-        "material_per_sqm_jpy": { "min": 1500, "max": 2500 },
-        "labor_per_sqm_jpy": { "min": 1500, "max": 2500 },
-        "total_per_sqm_jpy": { "min": 3000, "max": 5000 },
+        "material_per_sqm_jpy": {
+          "min": 1500,
+          "max": 2500
+        },
+        "labor_per_sqm_jpy": {
+          "min": 1500,
+          "max": 2500
+        },
+        "total_per_sqm_jpy": {
+          "min": 3000,
+          "max": 5000
+        },
         "spacing_mm": "303 or 455（尺・半間ピッチ）"
       },
       "noButi_uke": {
         "name": "野縁受け（のぶちうけ）",
         "description": "野縁を支える上部材（野縁と直交方向）",
-        "total_per_sqm_jpy": { "min": 2000, "max": 3500 },
+        "total_per_sqm_jpy": {
+          "min": 2000,
+          "max": 3500
+        },
         "spacing_mm": "900-1200"
       },
       "tsuriki": {
         "name": "吊り木（つりき）",
         "description": "野縁受けを梁や桁から吊り下げる部材",
-        "total_per_sqm_jpy": { "min": 2000, "max": 4000 }
+        "total_per_sqm_jpy": {
+          "min": 2000,
+          "max": 4000
+        }
       }
     },
     "full_ceiling_reframe_6jo_jpy": {
       "scope": "野縁・野縁受け・吊り木の完全組み直し（6畳）",
-      "total_jpy": { "min": 50000, "max": 100000 },
+      "total_jpy": {
+        "min": 50000,
+        "max": 100000
+      },
       "hs_rule_jpy": 90000,
       "note": "天井板の張替えに付随して必要になる下地作業"
     },
@@ -60,15 +90,20 @@
       "照明・ダクト配置変更"
     ]
   },
-
   "v3_washitsu_tenjou_yarikae": {
     "description": "【v3新規】和室天井のやりかえ（下地組から全種類）",
     "ceiling_types": {
       "saoButi_tenjou": {
         "name": "竿縁天井（さおぶちてんじょう）",
         "description": "和室の四隅に回り縁を設置、細長い竿縁で天井板を支える伝統天井",
-        "price_6jo_gouhan_jpy": { "min": 100000, "max": 170000 },
-        "price_6jo_muku_jpy": { "min": 150000, "max": 250000 },
+        "price_6jo_gouhan_jpy": {
+          "min": 100000,
+          "max": 170000
+        },
+        "price_6jo_muku_jpy": {
+          "min": 150000,
+          "max": 250000
+        },
         "work_days": "1日",
         "breakdown_muku_sample": {
           "demolition_old_boards": 15000,
@@ -85,14 +120,26 @@
       "metsukashi_tenjou": {
         "name": "目透かし天井（めつかしてんじょう）",
         "description": "天井板を6-9mm隙間を空けて張る・打ち上げ天井・底目張り",
-        "price_6jo_gouhan_jpy": { "min": 100000, "max": 170000 },
-        "price_6jo_muku_jpy": { "min": 150000, "max": 250000 },
-        "advantage": ["隙間で板の厚み差目立たない", "すっきりした見た目"]
+        "price_6jo_gouhan_jpy": {
+          "min": 100000,
+          "max": 170000
+        },
+        "price_6jo_muku_jpy": {
+          "min": 150000,
+          "max": 250000
+        },
+        "advantage": [
+          "隙間で板の厚み差目立たない",
+          "すっきりした見た目"
+        ]
       },
       "gou_tenjou_coffered": {
         "name": "格天井（ごうてんじょう）",
         "description": "格子組に枠をはめ込んだ格式高い天井・寺社・書院で使用",
-        "price_6jo_jpy": { "min": 150000, "max": 300000 },
+        "price_6jo_jpy": {
+          "min": 150000,
+          "max": 300000
+        },
         "variants": [
           "折上格天井（中央凹み）",
           "小組格天井（格子内さらに格子）"
@@ -101,18 +148,30 @@
       "funasoko_tenjou": {
         "name": "船底天井（ふなそこてんじょう）",
         "description": "中央が高く両側に傾斜・茶室で多用",
-        "price_6jo_jpy": { "min": 200000, "max": 400000 }
+        "price_6jo_jpy": {
+          "min": 200000,
+          "max": 400000
+        }
       },
       "ajiro_tenjou": {
         "name": "網代天井（あじろてんじょう）",
         "description": "桐・杉・竹の薄板を互い違いに編んだ天井",
-        "price_6jo_jpy": { "min": 200000, "max": 500000 },
-        "features": ["ナチュラルモダン", "編み方でデザイン表現"]
+        "price_6jo_jpy": {
+          "min": 200000,
+          "max": 500000
+        },
+        "features": [
+          "ナチュラルモダン",
+          "編み方でデザイン表現"
+        ]
       },
       "full_reframe_from_scratch": {
         "name": "下地組から完全やりかえ（6畳）",
         "scope": "既存解体+野縁組直し+断熱材+天井板",
-        "price_6jo_jpy": { "min": 200000, "max": 350000 },
+        "price_6jo_jpy": {
+          "min": 200000,
+          "max": 350000
+        },
         "hs_rule_jpy": 320000,
         "work_days": "3-5日",
         "breakdown": {
@@ -128,72 +187,121 @@
       },
       "convert_to_cloth": {
         "name": "板天井→クロス張り変更",
-        "price_6jo_jpy": { "min": 50000, "max": 100000 },
-        "advantage": ["メンテ費安い", "洋風化", "次回張替え容易"],
+        "price_6jo_jpy": {
+          "min": 50000,
+          "max": 100000
+        },
+        "advantage": [
+          "メンテ費安い",
+          "洋風化",
+          "次回張替え容易"
+        ],
         "note": "和室らしさ減少"
       }
     }
   },
-
   "v3_yuka_shitaji_structure": {
     "description": "【v3新規】床下地（根太・大引・床束・束石）完全網羅",
     "components": {
       "neda": {
         "name": "根太（ねだ）",
         "description": "フローリングや床板を直接支える材・45×45mm or 45×60mm",
-        "material_per_sqm_jpy": { "min": 1500, "max": 2500 },
-        "labor_per_sqm_jpy": { "min": 1500, "max": 2500 },
-        "total_per_sqm_jpy": { "min": 3000, "max": 5000 },
+        "material_per_sqm_jpy": {
+          "min": 1500,
+          "max": 2500
+        },
+        "labor_per_sqm_jpy": {
+          "min": 1500,
+          "max": 2500
+        },
+        "total_per_sqm_jpy": {
+          "min": 3000,
+          "max": 5000
+        },
         "spacing_mm": "303（尺ピッチ）"
       },
       "ohBiki": {
         "name": "大引き（おおびき）",
         "description": "根太を支える太い材・90×90mm",
-        "per_beam_jpy": { "min": 5000, "max": 8000 },
+        "per_beam_jpy": {
+          "min": 5000,
+          "max": 8000
+        },
         "spacing_mm": "900（半間ピッチ）"
       },
       "yuka_zuka": {
         "name": "床束（ゆかづか）",
         "description": "大引きを基礎（束石）に立てる短柱",
-        "per_unit_jpy": { "min": 8000, "max": 12000 },
-        "modern_types": ["木製束", "金属束（ネダノン）", "樹脂束"]
+        "per_unit_jpy": {
+          "min": 8000,
+          "max": 12000
+        },
+        "modern_types": [
+          "木製束",
+          "金属束（ネダノン）",
+          "樹脂束"
+        ]
       },
       "zuka_ishi": {
         "name": "束石（つかいし）",
         "description": "床束を受ける基礎石・コンクリート製",
-        "per_unit_repair_jpy": { "min": 3000, "max": 5000 },
-        "per_unit_replace_jpy": { "min": 8000, "max": 12000 }
+        "per_unit_repair_jpy": {
+          "min": 3000,
+          "max": 5000
+        },
+        "per_unit_replace_jpy": {
+          "min": 8000,
+          "max": 12000
+        }
       },
       "gouhan_shitaji": {
         "name": "下地合板（フローリング下地）",
         "description": "根太の上に張る12mm or 15mm構造用合板",
-        "total_per_sqm_jpy": { "min": 3500, "max": 5500 }
+        "total_per_sqm_jpy": {
+          "min": 3500,
+          "max": 5500
+        }
       }
     },
     "common_repairs": {
       "neda_partial_replace": {
         "name": "根太 部分入れ直し",
         "scope": "局所的な腐食・ヘタリ改修",
-        "price_jpy": { "min": 50000, "max": 150000 }
+        "price_jpy": {
+          "min": 50000,
+          "max": 150000
+        }
       },
       "neda_full_reframe_6jo": {
         "name": "根太 全面入れ直し（6畳）",
         "scope": "既存撤去+新規根太組立て",
-        "price_jpy": { "min": 100000, "max": 200000 },
+        "price_jpy": {
+          "min": 100000,
+          "max": 200000
+        },
         "hs_rule_jpy": 180000
       },
       "ohBiki_replace_per_beam": {
         "name": "大引き交換（1本）",
-        "price_jpy": { "min": 15000, "max": 30000 }
+        "price_jpy": {
+          "min": 15000,
+          "max": 30000
+        }
       },
       "yuka_zuka_replace": {
         "name": "床束交換（1箇所）",
-        "price_jpy": { "min": 10000, "max": 15000 }
+        "price_jpy": {
+          "min": 10000,
+          "max": 15000
+        }
       },
       "full_floor_frame_6jo": {
         "name": "床組み全面やり替え（6畳）",
         "scope": "根太+大引+床束+下地合板すべて新規",
-        "price_jpy": { "min": 300000, "max": 600000 },
+        "price_jpy": {
+          "min": 300000,
+          "max": 600000
+        },
         "hs_rule_jpy": 550000,
         "work_days": "3-5日",
         "breakdown": {
@@ -209,109 +317,196 @@
       "shitaji_only_no_flooring": {
         "name": "床下地のみ補修（フローリング除く）",
         "scope": "床板撤去→下地修理→床板戻し",
-        "price_6jo_jpy": { "min": 100000, "max": 300000 },
+        "price_6jo_jpy": {
+          "min": 100000,
+          "max": 300000
+        },
         "note": "ふかふか・沈み・きしみの改修"
       }
     }
   },
-
   "v3_kabe_shitaji_structure": {
     "description": "【v3新規】壁下地（胴縁・間柱・構造用合板）完全網羅",
     "components": {
       "douButi": {
         "name": "胴縁（どうぶち）",
         "description": "サイディング・壁材を張るための下地材",
-        "material_per_sqm_jpy": { "min": 1000, "max": 1500 },
-        "labor_per_sqm_jpy": { "min": 1000, "max": 2000 },
-        "total_per_sqm_jpy": { "min": 2000, "max": 4000 },
-        "types": ["横胴縁", "縦胴縁", "通気胴縁（外壁通気工法）"]
+        "material_per_sqm_jpy": {
+          "min": 1000,
+          "max": 1500
+        },
+        "labor_per_sqm_jpy": {
+          "min": 1000,
+          "max": 2000
+        },
+        "total_per_sqm_jpy": {
+          "min": 2000,
+          "max": 4000
+        },
+        "types": [
+          "横胴縁",
+          "縦胴縁",
+          "通気胴縁（外壁通気工法）"
+        ]
       },
       "maBashira": {
         "name": "間柱（まばしら）",
         "description": "柱と柱の間に立てる補助柱・30×105mm",
-        "per_unit_jpy": { "min": 5000, "max": 10000 },
+        "per_unit_jpy": {
+          "min": 5000,
+          "max": 10000
+        },
         "spacing_mm": "455（尺半間ピッチ）"
       },
       "structural_plywood": {
         "name": "構造用合板",
         "description": "耐震性向上・壁面剛性確保・9mm or 12mm",
-        "total_per_sqm_jpy": { "min": 4000, "max": 6500 },
-        "advantage": ["耐震性UP", "気密性UP", "下地強化"]
+        "total_per_sqm_jpy": {
+          "min": 4000,
+          "max": 6500
+        },
+        "advantage": [
+          "耐震性UP",
+          "気密性UP",
+          "下地強化"
+        ]
       },
       "stud_lgs": {
         "name": "軽量鉄骨スタッド（LGS）",
         "description": "鉄骨ベースの壁下地（非耐力壁用）",
-        "total_per_sqm_jpy": { "min": 3000, "max": 5000 }
+        "total_per_sqm_jpy": {
+          "min": 3000,
+          "max": 5000
+        }
       }
     },
     "common_repairs": {
       "douButi_for_siding": {
         "name": "外壁サイディング下地胴縁（30坪）",
         "scope": "サイディング張替え時の下地組",
-        "price_jpy": { "min": 200000, "max": 400000 }
+        "price_jpy": {
+          "min": 200000,
+          "max": 400000
+        }
       },
       "inner_wall_shitaji_6sqm": {
         "name": "内壁下地組（6㎡）",
         "scope": "間仕切り壁新設時の下地",
-        "price_jpy": { "min": 30000, "max": 60000 }
+        "price_jpy": {
+          "min": 30000,
+          "max": 60000
+        }
       },
       "structural_plywood_earthquake": {
         "name": "構造用合板 耐震補強（壁面）",
         "scope": "既存壁解体→構造用合板→石膏ボード",
-        "price_per_wall_jpy": { "min": 50000, "max": 120000 },
+        "price_per_wall_jpy": {
+          "min": 50000,
+          "max": 120000
+        },
         "note": "耐震リフォーム補助金対象の場合あり"
       }
     }
   },
-
   "v3_kouzou_zai_complete": {
     "description": "【v3新規】構造材（柱・梁・土台）補修・交換",
     "components": {
       "hashira_pillar": {
         "name": "柱（はしら）",
-        "sizes_mm": ["105×105（3.5寸角）", "120×120（4寸角）"],
-        "repair_minor_jpy": { "min": 30000, "max": 100000, "note": "部分補修・添え木" },
-        "replace_partial_jpy": { "min": 100000, "max": 300000, "note": "部分交換" },
-        "replace_full_jpy": { "min": 200000, "max": 500000, "note": "柱全交換・ジャッキアップ必要" },
+        "sizes_mm": [
+          "105×105（3.5寸角）",
+          "120×120（4寸角）"
+        ],
+        "repair_minor_jpy": {
+          "min": 30000,
+          "max": 100000,
+          "note": "部分補修・添え木"
+        },
+        "replace_partial_jpy": {
+          "min": 100000,
+          "max": 300000,
+          "note": "部分交換"
+        },
+        "replace_full_jpy": {
+          "min": 200000,
+          "max": 500000,
+          "note": "柱全交換・ジャッキアップ必要"
+        },
         "toshi_note": "通し柱交換は建物全体への影響大。在来軸組工法では専門技能必須"
       },
       "dodai_sill": {
         "name": "土台（どだい）",
         "description": "建物最下部の水平材・基礎の上・柱を支える",
-        "sizes_mm": ["105×105", "120×120"],
+        "sizes_mm": [
+          "105×105",
+          "120×120"
+        ],
         "material_ideal": "ヒバ・ヒノキ（防虫性）",
-        "replace_per_1ken_1_8m_jpy": { "min": 200000, "max": 500000 },
-        "full_dodai_around_house_jpy": { "min": 1500000, "max": 4000000, "note": "家全周・白蟻被害時" },
+        "replace_per_1ken_1_8m_jpy": {
+          "min": 200000,
+          "max": 500000
+        },
+        "full_dodai_around_house_jpy": {
+          "min": 1500000,
+          "max": 4000000,
+          "note": "家全周・白蟻被害時"
+        },
         "critical_note": "土台交換はジャッキアップ必要・住みながら施工困難"
       },
       "hari_beam": {
         "name": "梁（はり）",
         "description": "柱と柱の上部を水平に繋ぐ構造材",
-        "sizes_mm": ["120×180", "120×240", "150×300 等"],
-        "soebari_reinforcement_jpy": { "min": 150000, "max": 400000, "note": "添え梁で補強" },
-        "replace_jpy": { "min": 300000, "max": 800000, "note": "梁交換・大掛かり" }
+        "sizes_mm": [
+          "120×180",
+          "120×240",
+          "150×300 等"
+        ],
+        "soebari_reinforcement_jpy": {
+          "min": 150000,
+          "max": 400000,
+          "note": "添え梁で補強"
+        },
+        "replace_jpy": {
+          "min": 300000,
+          "max": 800000,
+          "note": "梁交換・大掛かり"
+        }
       }
     },
     "jack_up_work": {
       "name": "ジャッキアップ（家上げ）",
       "description": "土台・基礎補修時に家屋を一時的に持ち上げる作業",
-      "price_jpy": { "min": 300000, "max": 1000000 },
+      "price_jpy": {
+        "min": 300000,
+        "max": 1000000
+      },
       "note": "家全周・部分どちらも対応可能"
     }
   },
-
   "v3_shiroari_higai_repair": {
     "description": "【v3新規】白蟻（シロアリ）被害補修 - 年間被害額3,800億円",
     "types": {
-      "yamato_shiroari": { "name": "ヤマト白蟻", "note": "日本在来・最多" },
-      "iejiro_shiroari": { "name": "イエシロアリ", "note": "九州・沖縄・南方系" },
-      "amerika_kan_shiroari": { "name": "アメリカカンザイ白蟻", "note": "輸入材由来・要注意" }
+      "yamato_shiroari": {
+        "name": "ヤマト白蟻",
+        "note": "日本在来・最多"
+      },
+      "iejiro_shiroari": {
+        "name": "イエシロアリ",
+        "note": "九州・沖縄・南方系"
+      },
+      "amerika_kan_shiroari": {
+        "name": "アメリカカンザイ白蟻",
+        "note": "輸入材由来・要注意"
+      }
     },
     "damage_levels": {
       "level_1_mild": {
         "name": "軽度被害",
         "scope": "床下の一部・根太・床束に限定",
-        "total_repair_jpy": { "min": 100000, "max": 300000 },
+        "total_repair_jpy": {
+          "min": 100000,
+          "max": 300000
+        },
         "breakdown": {
           "drug_injection_1_part": 20000,
           "neda_partial_reinforce": 100000,
@@ -323,7 +518,10 @@
       "level_2_moderate": {
         "name": "中度被害",
         "scope": "根太・大引・床束・床板まで拡大",
-        "total_repair_jpy": { "min": 300000, "max": 1000000 },
+        "total_repair_jpy": {
+          "min": 300000,
+          "max": 1000000
+        },
         "breakdown": {
           "extermination_full": 200000,
           "neda_replace": 150000,
@@ -335,7 +533,10 @@
       "level_3_severe": {
         "name": "重度被害",
         "scope": "土台・柱・基礎まで被害拡大",
-        "total_repair_jpy": { "min": 1000000, "max": 3000000 },
+        "total_repair_jpy": {
+          "min": 1000000,
+          "max": 3000000
+        },
         "breakdown": {
           "extermination_total": 300000,
           "jackup_work": 500000,
@@ -349,328 +550,1688 @@
       }
     },
     "extermination_prevention": {
-      "barrier_method_per_sqm": { "min": 2000, "max": 2500 },
-      "baiting_method": { "min": 150000, "max": 400000, "note": "毒餌・5年保証付" },
-      "prevention_full_house": { "min_per_tsubo": 6000, "max_per_tsubo": 8000 },
+      "barrier_method_per_sqm": {
+        "min": 2000,
+        "max": 2500
+      },
+      "baiting_method": {
+        "min": 150000,
+        "max": 400000,
+        "note": "毒餌・5年保証付"
+      },
+      "prevention_full_house": {
+        "min_per_tsubo": 6000,
+        "max_per_tsubo": 8000
+      },
       "warranty_standard": "5年保証（業者により異なる）"
     }
   },
-
   "v3_dannetsuzai_full": {
     "description": "【v3新規】断熱材 全箇所入れ替え",
     "materials": {
       "glass_wool": {
         "name": "グラスウール",
-        "per_sqm_jpy": { "min": 1500, "max": 3000 },
-        "features": ["最安", "不燃", "湿気に弱い"]
+        "per_sqm_jpy": {
+          "min": 1500,
+          "max": 3000
+        },
+        "features": [
+          "最安",
+          "不燃",
+          "湿気に弱い"
+        ]
       },
       "rock_wool": {
         "name": "ロックウール",
-        "per_sqm_jpy": { "min": 2000, "max": 3500 }
+        "per_sqm_jpy": {
+          "min": 2000,
+          "max": 3500
+        }
       },
       "polystyrene_foam": {
         "name": "発泡ポリスチレン（スタイロフォーム等）",
-        "per_sqm_jpy": { "min": 2500, "max": 5000 }
+        "per_sqm_jpy": {
+          "min": 2500,
+          "max": 5000
+        }
       },
       "urethane_foam_spray": {
         "name": "吹付ウレタンフォーム",
-        "per_sqm_jpy": { "min": 5000, "max": 10000 },
-        "features": ["気密性最高", "施工性良い"]
+        "per_sqm_jpy": {
+          "min": 5000,
+          "max": 10000
+        },
+        "features": [
+          "気密性最高",
+          "施工性良い"
+        ]
       },
       "cellulose_fiber": {
         "name": "セルロースファイバー",
-        "per_sqm_jpy": { "min": 4000, "max": 8000 },
-        "features": ["自然素材", "調湿性"]
+        "per_sqm_jpy": {
+          "min": 4000,
+          "max": 8000
+        },
+        "features": [
+          "自然素材",
+          "調湿性"
+        ]
       }
     },
     "locations": {
       "wall_internal": {
         "name": "壁内断熱入れ替え",
-        "per_sqm_jpy": { "min": 2000, "max": 4500 },
+        "per_sqm_jpy": {
+          "min": 2000,
+          "max": 4500
+        },
         "note": "壁解体→断熱→壁復旧"
       },
       "floor_under": {
         "name": "床下断熱",
-        "per_sqm_jpy": { "min": 3000, "max": 6000 },
+        "per_sqm_jpy": {
+          "min": 3000,
+          "max": 6000
+        },
         "work_method": "床下から施工 or 床板剥がして施工"
       },
       "ceiling_attic": {
         "name": "天井裏断熱",
-        "per_sqm_jpy": { "min": 2500, "max": 5000 },
+        "per_sqm_jpy": {
+          "min": 2500,
+          "max": 5000
+        },
         "note": "天井裏侵入可能なら施工安価"
       },
       "roof_under": {
         "name": "屋根直下断熱",
-        "per_sqm_jpy": { "min": 4000, "max": 8000 },
+        "per_sqm_jpy": {
+          "min": 4000,
+          "max": 8000
+        },
         "note": "勾配天井・小屋裏活用時"
       }
     },
     "full_house_plans": {
       "floor_full_30tsubo": {
         "name": "床下断熱 全面（30坪）",
-        "price_jpy": { "min": 300000, "max": 600000 }
+        "price_jpy": {
+          "min": 300000,
+          "max": 600000
+        }
       },
       "wall_full_30tsubo": {
         "name": "壁内断熱 全面（30坪・一般）",
-        "price_jpy": { "min": 800000, "max": 2000000 },
+        "price_jpy": {
+          "min": 800000,
+          "max": 2000000
+        },
         "note": "壁解体が必要なため高額"
       },
       "ceiling_full_30tsubo": {
         "name": "天井裏断熱 全面（30坪）",
-        "price_jpy": { "min": 200000, "max": 500000 }
+        "price_jpy": {
+          "min": 200000,
+          "max": 500000
+        }
       }
     },
     "subsidies": {
       "name": "省エネ住宅補助金対象",
-      "programs": ["みらいエコ住宅2026事業", "先進的窓リノベと併用可"],
+      "programs": [
+        "みらいエコ住宅2026事業",
+        "先進的窓リノベと併用可"
+      ],
       "max_amount_jpy": 600000
     }
   },
-
   "v3_yane_shitaji": {
     "description": "【v3新規】屋根下地（野地板・垂木）",
     "components": {
       "noji_ita": {
         "name": "野地板（のじいた）",
         "description": "屋根材の下地合板・12-15mm",
-        "per_sqm_jpy": { "min": 2500, "max": 5000 }
+        "per_sqm_jpy": {
+          "min": 2500,
+          "max": 5000
+        }
       },
       "taruki": {
         "name": "垂木（たるき）",
         "description": "屋根勾配に沿った材・45×75mm等",
-        "per_beam_jpy": { "min": 2500, "max": 5000 }
+        "per_beam_jpy": {
+          "min": 2500,
+          "max": 5000
+        }
       },
       "roofing_waterproof": {
         "name": "ルーフィング（防水シート）",
-        "per_sqm_jpy": { "min": 800, "max": 1500 },
-        "types": ["アスファルトルーフィング", "改質ゴムアスファルト（高耐久）"]
+        "per_sqm_jpy": {
+          "min": 800,
+          "max": 1500
+        },
+        "types": [
+          "アスファルトルーフィング",
+          "改質ゴムアスファルト（高耐久）"
+        ]
       }
     },
     "plans": {
       "noji_full_30sqm": {
         "name": "野地板 全面張替え（屋根30㎡）",
-        "price_jpy": { "min": 80000, "max": 150000 },
+        "price_jpy": {
+          "min": 80000,
+          "max": 150000
+        },
         "note": "屋根葺替え時に同時施工が効率的"
       },
       "taruki_partial_repair": {
         "name": "垂木 部分補修",
-        "price_jpy": { "min": 30000, "max": 80000 }
+        "price_jpy": {
+          "min": 30000,
+          "max": 80000
+        }
       }
     },
     "reference": "roof_construction.json と連動・屋根葺替え時の隠れ工事"
   },
-
   "v3_gaiheki_shitaji": {
     "description": "【v3新規】外壁下地（胴縁・防水シート）",
     "components": {
       "douButi_gaiheki": {
         "name": "外壁胴縁（サイディング下地）",
-        "per_sqm_jpy": { "min": 2000, "max": 3500 },
-        "types": ["通気胴縁（推奨・外壁通気工法）", "一般胴縁"]
+        "per_sqm_jpy": {
+          "min": 2000,
+          "max": 3500
+        },
+        "types": [
+          "通気胴縁（推奨・外壁通気工法）",
+          "一般胴縁"
+        ]
       },
       "tousitsu_boussui": {
         "name": "透湿防水シート",
-        "per_sqm_jpy": { "min": 500, "max": 1200 },
-        "features": ["湿気は通す", "水は通さない", "外壁内部結露防止"]
+        "per_sqm_jpy": {
+          "min": 500,
+          "max": 1200
+        },
+        "features": [
+          "湿気は通す",
+          "水は通さない",
+          "外壁内部結露防止"
+        ]
       }
     },
     "plans": {
       "siding_shitaji_full_30tsubo": {
         "name": "外壁下地 全面（30坪）",
-        "price_jpy": { "min": 200000, "max": 400000 }
+        "price_jpy": {
+          "min": 200000,
+          "max": 400000
+        }
       }
     },
     "reference": "gaiheki_tosou.json と連動・サイディング張替え時の必須工程"
   },
-
   "zosaku_wall_operations": {
     "new_partition_wall": {
-      "typical_cost_6sqm_wall_jpy": { "min": 80000, "max": 200000 },
+      "typical_cost_6sqm_wall_jpy": {
+        "min": 80000,
+        "max": 200000
+      },
       "hs_rule_6sqm_wall_jpy": 220000
     },
-    "wall_removal": { "price_per_6sqm_wall_jpy": { "min": 50000, "max": 120000 } },
-    "load_bearing_wall_retrofit": { "price_jpy": { "min": 300000, "max": 800000 } },
-    "wall_opening_punchthrough": { "price_jpy": { "min": 80000, "max": 250000 } }
+    "wall_removal": {
+      "price_per_6sqm_wall_jpy": {
+        "min": 50000,
+        "max": 120000
+      }
+    },
+    "load_bearing_wall_retrofit": {
+      "price_jpy": {
+        "min": 300000,
+        "max": 800000
+      }
+    },
+    "wall_opening_punchthrough": {
+      "price_jpy": {
+        "min": 80000,
+        "max": 250000
+      }
+    }
   },
-
   "v2_koshikabe_wainscoting": {
     "description": "腰壁・羽目板",
     "materials_summary": "クロス¥1.5-3k/㎡ 〜 天然木¥8-18k/㎡ 〜 WoodOne ¥15-25k/㎡"
   },
-
   "v2_koagari_washitsu": {
     "description": "小上がり和室",
     "plans_summary": "3畳¥20-40万 〜 6畳+掘りごたつ¥70-120万"
   },
-
   "v2_tenjou_zosaku": {
     "description": "天井造作（折り上げ/下がり/勾配/板張り/吹抜け）",
     "summary": "折上¥1-3万/㎡・下がり¥1.2-3.2万/㎡・勾配¥1.5-3.5万/㎡・吹抜け新設¥50-150万"
   },
-
   "v2_keshou_hari_exposed_beam": {
     "description": "化粧梁・見せ梁",
-    "price_per_beam_jpy": { "min": 30000, "max": 300000 }
+    "price_per_beam_jpy": {
+      "min": 30000,
+      "max": 300000
+    }
   },
-
   "v2_niche_decorative_shelf": {
     "description": "ニッチ（壁面埋込み棚）",
-    "price_jpy": { "min": 30000, "max": 180000 }
+    "price_jpy": {
+      "min": 30000,
+      "max": 180000
+    }
   },
-
   "v2_loft_construction": {
     "description": "造作ロフト",
-    "legal_requirements": ["天井高1.4m以下", "下階の面積1/2以下"],
-    "price_6jo_jpy": { "min": 550000, "max": 900000 }
+    "legal_requirements": [
+      "天井高1.4m以下",
+      "下階の面積1/2以下"
+    ],
+    "price_6jo_jpy": {
+      "min": 550000,
+      "max": 900000
+    }
   },
-
   "v2_shitsunai_mado": {
     "description": "室内窓（FIX/ケースメント/和風/アイアン）",
-    "price_jpy": { "min": 40000, "max": 250000 }
+    "price_jpy": {
+      "min": 40000,
+      "max": 250000
+    }
   },
-
-  "v2_horigotatsu": { "description": "掘りごたつ", "price_jpy": { "min": 150000, "max": 800000 } },
-
+  "v2_horigotatsu": {
+    "description": "掘りごたつ",
+    "price_jpy": {
+      "min": 150000,
+      "max": 800000
+    }
+  },
   "v2_kaidan_zosaku": {
     "description": "階段造作・リフォーム",
     "summary": "滑り止め¥1万・手すり¥3-8万・カバー工法¥15-30万・勾配変更¥100-250万・全交換¥50-150万"
   },
-
-  "v2_floor_level_adjustment": { "description": "床段差解消・スキップフロア", "price_jpy": { "min": 20000, "max": 1500000 } },
-
+  "v2_floor_level_adjustment": {
+    "description": "床段差解消・スキップフロア",
+    "price_jpy": {
+      "min": 20000,
+      "max": 1500000
+    }
+  },
   "v2_accent_wall": {
     "description": "アクセント壁・エコカラット",
-    "per_sqm_jpy": { "min": 8000, "max": 40000 }
+    "per_sqm_jpy": {
+      "min": 8000,
+      "max": 40000
+    }
   },
-
   "oshiire_closet_renovation": {
-    "oshiire_to_closet_hanken_jpy": { "min": 80000, "max": 180000 },
-    "wic_3jo_jpy": { "min": 300000, "max": 500000, "hs_rule": 550000 },
-    "wic_4jo_jpy": { "min": 450000, "max": 700000 },
-    "shoes_cloak_jpy": { "min": 200000, "max": 500000 }
+    "oshiire_to_closet_hanken_jpy": {
+      "min": 80000,
+      "max": 180000
+    },
+    "wic_3jo_jpy": {
+      "min": 300000,
+      "max": 500000,
+      "hs_rule": 550000
+    },
+    "wic_4jo_jpy": {
+      "min": 450000,
+      "max": 700000
+    },
+    "shoes_cloak_jpy": {
+      "min": 200000,
+      "max": 500000
+    }
   },
-
   "zosaku_shelf_counter": {
-    "wall_shelf_simple_jpy": { "min": 15000, "max": 50000 },
-    "multi_tier_shelf_jpy": { "min": 50000, "max": 200000 },
-    "full_wall_storage_jpy": { "min": 200000, "max": 500000 },
-    "kitchen_counter_jpy": { "min": 80000, "max": 250000 },
-    "study_counter_jpy": { "min": 50000, "max": 150000 },
-    "pantry_shelves_jpy": { "min": 80000, "max": 200000 },
-    "tv_board_custom_jpy": { "min": 100000, "max": 300000 },
-    "shoes_shelf_genkan_jpy": { "min": 100000, "max": 300000 },
-    "bookshelf_full_wall_jpy": { "min": 150000, "max": 400000 }
+    "wall_shelf_simple_jpy": {
+      "min": 15000,
+      "max": 50000
+    },
+    "multi_tier_shelf_jpy": {
+      "min": 50000,
+      "max": 200000
+    },
+    "full_wall_storage_jpy": {
+      "min": 200000,
+      "max": 500000
+    },
+    "kitchen_counter_jpy": {
+      "min": 80000,
+      "max": 250000
+    },
+    "study_counter_jpy": {
+      "min": 50000,
+      "max": 150000
+    },
+    "pantry_shelves_jpy": {
+      "min": 80000,
+      "max": 200000
+    },
+    "tv_board_custom_jpy": {
+      "min": 100000,
+      "max": 300000
+    },
+    "shoes_shelf_genkan_jpy": {
+      "min": 100000,
+      "max": 300000
+    },
+    "bookshelf_full_wall_jpy": {
+      "min": 150000,
+      "max": 400000
+    }
   },
-
   "tategu_interior_doors": {
-    "hiraki_with_work_jpy": { "min": 90000, "max": 130000 },
-    "hikido_with_work_jpy": { "min": 90000, "max": 140000 },
-    "oreto_with_work_jpy": { "min": 70000, "max": 120000 },
-    "with_frame_jpy": { "min": 130000, "max": 250000 },
-    "face_only_jpy": { "min": 15000, "max": 40000 },
-    "hiraki_to_hikido_jpy": { "min": 200000, "max": 400000 }
+    "hiraki_with_work_jpy": {
+      "min": 90000,
+      "max": 130000
+    },
+    "hikido_with_work_jpy": {
+      "min": 90000,
+      "max": 140000
+    },
+    "oreto_with_work_jpy": {
+      "min": 70000,
+      "max": 120000
+    },
+    "with_frame_jpy": {
+      "min": 130000,
+      "max": 250000
+    },
+    "face_only_jpy": {
+      "min": 15000,
+      "max": 40000
+    },
+    "hiraki_to_hikido_jpy": {
+      "min": 200000,
+      "max": 400000
+    }
   },
-
   "v2_tategu_kanamono_hardware": {
-    "hinges_jpy": { "standard": "500-2000", "soft_close": "2000-5000", "heavy_duty": "3000-8000" },
-    "rails_per_meter_jpy": { "v_rail": "1500-3000", "upper_hanging": "4000-10000" },
-    "knobs_handles_jpy": { "standard": "2000-8000", "designer": "8000-30000", "smart_lock": "30000-80000" },
-    "door_closer_jpy": { "standard": "8000-25000", "adjustment": "5000-15000" }
+    "hinges_jpy": {
+      "standard": "500-2000",
+      "soft_close": "2000-5000",
+      "heavy_duty": "3000-8000"
+    },
+    "rails_per_meter_jpy": {
+      "v_rail": "1500-3000",
+      "upper_hanging": "4000-10000"
+    },
+    "knobs_handles_jpy": {
+      "standard": "2000-8000",
+      "designer": "8000-30000",
+      "smart_lock": "30000-80000"
+    },
+    "door_closer_jpy": {
+      "standard": "8000-25000",
+      "adjustment": "5000-15000"
+    }
   },
-
   "v2_ranma_tenbukuro_jibukuro": {
-    "ranma_jpy": { "min": 50000, "max": 300000 },
-    "tenbukuro_jpy": { "min": 30000, "max": 80000 },
-    "jibukuro_jpy": { "min": 40000, "max": 100000 },
-    "tokonoma_jpy": { "min": 150000, "max": 500000 }
+    "ranma_jpy": {
+      "min": 50000,
+      "max": 300000
+    },
+    "tenbukuro_jpy": {
+      "min": 30000,
+      "max": 80000
+    },
+    "jibukuro_jpy": {
+      "min": 40000,
+      "max": 100000
+    },
+    "tokonoma_jpy": {
+      "min": 150000,
+      "max": 500000
+    }
   },
-
   "tategu_manufacturers": {
-    "DAIKEN": { "series": ["ハピア", "ハピアプレミア"], "feature": "シェアNo.1" },
-    "LIXIL": { "series": ["ラシッサD", "ヴィンティア"] },
-    "YKK_AP": { "series": ["ファミット", "ラフォレスタ"] },
-    "Panasonic": { "series": ["ベリティス"] },
-    "WoodOne": { "series": ["ピノアース", "無垢建具"] }
+    "DAIKEN": {
+      "series": [
+        "ハピア",
+        "ハピアプレミア"
+      ],
+      "feature": "シェアNo.1"
+    },
+    "LIXIL": {
+      "series": [
+        "ラシッサD",
+        "ヴィンティア"
+      ]
+    },
+    "YKK_AP": {
+      "series": [
+        "ファミット",
+        "ラフォレスタ"
+      ]
+    },
+    "Panasonic": {
+      "series": [
+        "ベリティス"
+      ]
+    },
+    "WoodOne": {
+      "series": [
+        "ピノアース",
+        "無垢建具"
+      ]
+    }
   },
-
   "japanese_tategu": {
-    "fusuma_per_sheet_jpy": { "simple": "1500-3500", "middle": "3500-8000", "high": "8000-15000", "new_standard": "10000-25000" },
-    "shoji_per_sheet_jpy": { "normal": "2500-4500", "reinforced": "4500-7000", "super": "6000-9000", "new": "15000-45000" },
-    "amido_per_sheet_jpy": { "clean_net": "2000-3500", "magic_net": "3000-5000", "stainless": "5000-8000" }
+    "fusuma_per_sheet_jpy": {
+      "simple": "1500-3500",
+      "middle": "3500-8000",
+      "high": "8000-15000",
+      "new_standard": "10000-25000"
+    },
+    "shoji_per_sheet_jpy": {
+      "normal": "2500-4500",
+      "reinforced": "4500-7000",
+      "super": "6000-9000",
+      "new": "15000-45000"
+    },
+    "amido_per_sheet_jpy": {
+      "clean_net": "2000-3500",
+      "magic_net": "3000-5000",
+      "stainless": "5000-8000"
+    }
   },
-
   "labor_detailed": {
-    "carpenter_day_rate_kanto": { "min": 28000, "max": 35000, "avg": 31500 },
-    "cloth_craftsman_day_rate_kanto": { "min": 20000, "max": 28000, "avg": 25000 },
-    "electrician_day_rate_kanto": { "min": 25000, "max": 32000, "avg": 28000 },
-    "fusuma_craftsman_day_rate_kanto": { "min": 18000, "max": 28000, "avg": 23000 },
-    "kagu_shokunin_day_rate_kanto": { "min": 30000, "max": 40000, "avg": 35000 },
-    "shiroari_specialist_day_rate_kanto": { "min": 30000, "max": 45000, "avg": 35000 }
+    "carpenter_day_rate_kanto": {
+      "min": 28000,
+      "max": 35000,
+      "avg": 31500
+    },
+    "cloth_craftsman_day_rate_kanto": {
+      "min": 20000,
+      "max": 28000,
+      "avg": 25000
+    },
+    "electrician_day_rate_kanto": {
+      "min": 25000,
+      "max": 32000,
+      "avg": 28000
+    },
+    "fusuma_craftsman_day_rate_kanto": {
+      "min": 18000,
+      "max": 28000,
+      "avg": 23000
+    },
+    "kagu_shokunin_day_rate_kanto": {
+      "min": 30000,
+      "max": 40000,
+      "avg": 35000
+    },
+    "shiroari_specialist_day_rate_kanto": {
+      "min": 30000,
+      "max": 45000,
+      "avg": 35000
+    }
   },
-
   "plans_complete": {
-    "v3_tenjou_shitaji_6jo": { "name": "【v3】天井下地組 6畳", "price_jpy": { "min": 50000, "max": 100000 }, "hs_rule": 90000 },
-    "v3_saobuti_tenjou_muku_6jo": { "name": "【v3】竿縁天井 無垢 6畳", "price_jpy": { "min": 150000, "max": 250000 }, "hs_rule": 220000 },
-    "v3_tenjou_full_reframe_6jo": { "name": "【v3】和室天井 下地から全面やりかえ6畳", "price_jpy": { "min": 200000, "max": 350000 }, "hs_rule": 320000 },
-    "v3_neda_full_6jo": { "name": "【v3】根太 全面入れ直し 6畳", "price_jpy": { "min": 100000, "max": 200000 }, "hs_rule": 180000 },
-    "v3_floor_frame_full_6jo": { "name": "【v3】床組み全面やり替え 6畳", "price_jpy": { "min": 300000, "max": 600000 }, "hs_rule": 550000 },
-    "v3_shiroari_mild": { "name": "【v3】白蟻被害 軽度補修", "price_jpy": { "min": 100000, "max": 300000 } },
-    "v3_shiroari_moderate": { "name": "【v3】白蟻被害 中度補修", "price_jpy": { "min": 300000, "max": 1000000 } },
-    "v3_shiroari_severe": { "name": "【v3】白蟻被害 重度補修（土台交換含む）", "price_jpy": { "min": 1000000, "max": 3000000 } },
-    "v3_dodai_partial_1ken": { "name": "【v3】土台 部分交換（1間）", "price_jpy": { "min": 200000, "max": 500000 } },
-    "v3_dodai_full_around_house": { "name": "【v3】土台 全周交換", "price_jpy": { "min": 1500000, "max": 4000000 } },
-    "v3_hashira_replace": { "name": "【v3】柱 全交換（1本・ジャッキアップ込）", "price_jpy": { "min": 200000, "max": 500000 } },
-    "v3_hari_soe": { "name": "【v3】梁 添え梁補強", "price_jpy": { "min": 150000, "max": 400000 } },
-    "v3_wall_internal_insulation_full_30tsubo": { "name": "【v3】壁内断熱 全面入れ替え（30坪）", "price_jpy": { "min": 800000, "max": 2000000 } },
-    "v3_floor_insulation_30tsubo": { "name": "【v3】床下断熱 全面（30坪）", "price_jpy": { "min": 300000, "max": 600000 } },
-    "v3_ceiling_insulation_30tsubo": { "name": "【v3】天井裏断熱 全面（30坪）", "price_jpy": { "min": 200000, "max": 500000 } },
-    "v3_douButi_inner_wall_6sqm": { "name": "【v3】内壁下地胴縁（6㎡）", "price_jpy": { "min": 30000, "max": 60000 } },
-    "v3_structural_plywood_earthquake": { "name": "【v3】構造用合板 耐震補強（1面）", "price_jpy": { "min": 50000, "max": 120000 } },
-    "v3_noji_ita_full_30sqm": { "name": "【v3】屋根野地板 全面張替え（30㎡）", "price_jpy": { "min": 80000, "max": 150000 } },
-    "v3_gaiheki_shitaji_30tsubo": { "name": "【v3】外壁下地 全面（30坪）", "price_jpy": { "min": 200000, "max": 400000 } },
-    "partition_wall_6sqm": { "name": "間仕切り壁新設6㎡", "price_jpy": { "min": 80000, "max": 200000 } },
-    "wic_3jo": { "name": "WIC新設3畳", "price_jpy": { "min": 300000, "max": 500000 }, "hs_rule": 550000 },
-    "interior_door_hiraki": { "name": "室内ドア開き戸1枚", "price_jpy": { "min": 90000, "max": 130000 } },
-    "fusuma_6sheets": { "name": "襖張替え6枚", "price_jpy": { "min": 21000, "max": 48000 } },
-    "v2_koagari_4_5jo": { "name": "小上がり和室4.5畳", "price_jpy": { "min": 400000, "max": 700000 } },
-    "v2_loft_6jo": { "name": "ロフト6畳+固定階段", "price_jpy": { "min": 700000, "max": 900000 } },
-    "v2_fukinuke": { "name": "吹抜け新設2階床撤去", "price_jpy": { "min": 500000, "max": 1500000 } }
+    "v3_tenjou_shitaji_6jo": {
+      "name": "【v3】天井下地組 6畳",
+      "price_jpy": {
+        "min": 50000,
+        "max": 100000
+      },
+      "hs_rule": 90000,
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 47500,
+          "max": 98000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 50000,
+          "max": 103000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 52500,
+          "max": 110000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 56000,
+          "max": 118000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 76124,
+        "区分3_中央値": 80625,
+        "区分4_中央値": 86250,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v3_saobuti_tenjou_muku_6jo": {
+      "name": "【v3】竿縁天井 無垢 6畳",
+      "price_jpy": {
+        "min": 150000,
+        "max": 250000
+      },
+      "hs_rule": 220000,
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 142500,
+          "max": 245000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 150000,
+          "max": 257500,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 157500,
+          "max": 275000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 168000,
+          "max": 295000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 202999,
+        "区分3_中央値": 215000,
+        "区分4_中央値": 229999,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v3_tenjou_full_reframe_6jo": {
+      "name": "【v3】和室天井 下地から全面やりかえ6畳",
+      "price_jpy": {
+        "min": 200000,
+        "max": 350000
+      },
+      "hs_rule": 320000,
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 190000,
+          "max": 343000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 200000,
+          "max": 360500,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 210000,
+          "max": 385000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 224000,
+          "max": 413000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 279125,
+        "区分3_中央値": 295625,
+        "区分4_中央値": 316250,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v3_neda_full_6jo": {
+      "name": "【v3】根太 全面入れ直し 6畳",
+      "price_jpy": {
+        "min": 100000,
+        "max": 200000
+      },
+      "hs_rule": 180000,
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 95000,
+          "max": 196000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 100000,
+          "max": 206000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 105000,
+          "max": 220000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 112000,
+          "max": 236000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 152249,
+        "区分3_中央値": 161250,
+        "区分4_中央値": 172500,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v3_floor_frame_full_6jo": {
+      "name": "【v3】床組み全面やり替え 6畳",
+      "price_jpy": {
+        "min": 300000,
+        "max": 600000
+      },
+      "hs_rule": 550000,
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 285000,
+          "max": 588000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 300000,
+          "max": 618000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 315000,
+          "max": 660000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 336000,
+          "max": 708000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 456749,
+        "区分3_中央値": 483750,
+        "区分4_中央値": 517499,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v3_shiroari_mild": {
+      "name": "【v3】白蟻被害 軽度補修",
+      "price_jpy": {
+        "min": 100000,
+        "max": 300000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 95000,
+          "max": 294000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 100000,
+          "max": 309000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 105000,
+          "max": 330000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 112000,
+          "max": 354000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 202999,
+        "区分3_中央値": 215000,
+        "区分4_中央値": 229999,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり",
+      "termite_work_connection": {
+        "連動ファイル": "termite_work.json v1.3",
+        "対応プラン": "TRM-DMG-01 被害補修_軽度_駆除後の補修",
+        "連動内容": "termite_work で駆除実施後、zosaku で軽度被害部補修。駆除¥10-26万+補修¥15-33万の一気通貫施工推奨",
+        "HS統合プロトコル": "駆除業者と大工業者が同じ or 連携業者を推奨（責任範囲明確化）"
+      }
+    },
+    "v3_shiroari_moderate": {
+      "name": "【v3】白蟻被害 中度補修",
+      "price_jpy": {
+        "min": 300000,
+        "max": 1000000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 285000,
+          "max": 980000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 300000,
+          "max": 1030000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 315000,
+          "max": 1100000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 336000,
+          "max": 1180000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 659749,
+        "区分3_中央値": 698750,
+        "区分4_中央値": 747500,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり",
+      "termite_work_connection": {
+        "連動ファイル": "termite_work.json v1.3",
+        "対応プラン": "TRM-DMG-02 被害補修_中度_土台一部交換",
+        "連動内容": "中度被害は駆除+構造補修の複雑工事。termite区分2-3業者+zosaku区分2-3業者の連携推奨",
+        "HS統合プロトコル": "駆除完了→建築士による被害診断→構造補修計画→大工施工の4段階"
+      }
+    },
+    "v3_shiroari_severe": {
+      "name": "【v3】白蟻被害 重度補修（土台交換含む）",
+      "price_jpy": {
+        "min": 1000000,
+        "max": 3000000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 950000,
+          "max": 2940000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 1000000,
+          "max": 3090000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 1050000,
+          "max": 3300000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 1120000,
+          "max": 3540000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 2029999,
+        "区分3_中央値": 2150000,
+        "区分4_中央値": 2300000,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり",
+      "termite_work_connection": {
+        "連動ファイル": "termite_work.json v1.3",
+        "対応プラン": "TRM-DMG-03 被害補修_重度_ジャッキアップ+土台総交換",
+        "連動内容": "重度被害は区分3人気工務店（性能向上リノベ専門）の総合力が必須。駆除+ジャッキアップ+土台総交換+耐震補強の連動工事",
+        "HS統合プロトコル": [
+          "1. termite業者で駆除",
+          "2. 建築士の構造計算・耐震診断",
+          "3. 区分3人気工務店でジャッキアップ+土台総交換",
+          "4. 耐震等級3への補強同時施工推奨",
+          "5. 断熱改修も同時がコスパ最良（insulation_work.json連動）"
+        ]
+      }
+    },
+    "v3_dodai_partial_1ken": {
+      "name": "【v3】土台 部分交換（1間）",
+      "price_jpy": {
+        "min": 200000,
+        "max": 500000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 190000,
+          "max": 490000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 200000,
+          "max": 515000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 210000,
+          "max": 550000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 224000,
+          "max": 590000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 355249,
+        "区分3_中央値": 376250,
+        "区分4_中央値": 402499,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v3_dodai_full_around_house": {
+      "name": "【v3】土台 全周交換",
+      "price_jpy": {
+        "min": 1500000,
+        "max": 4000000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 1425000,
+          "max": 3920000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 1500000,
+          "max": 4120000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 1575000,
+          "max": 4400000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 1680000,
+          "max": 4720000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 2791249,
+        "区分3_中央値": 2956250,
+        "区分4_中央値": 3162499,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v3_hashira_replace": {
+      "name": "【v3】柱 全交換（1本・ジャッキアップ込）",
+      "price_jpy": {
+        "min": 200000,
+        "max": 500000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 190000,
+          "max": 490000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 200000,
+          "max": 515000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 210000,
+          "max": 550000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 224000,
+          "max": 590000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 355249,
+        "区分3_中央値": 376250,
+        "区分4_中央値": 402499,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v3_hari_soe": {
+      "name": "【v3】梁 添え梁補強",
+      "price_jpy": {
+        "min": 150000,
+        "max": 400000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 142500,
+          "max": 392000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 150000,
+          "max": 412000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 157500,
+          "max": 440000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 168000,
+          "max": 472000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 279125,
+        "区分3_中央値": 295625,
+        "区分4_中央値": 316250,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v3_wall_internal_insulation_full_30tsubo": {
+      "name": "【v3】壁内断熱 全面入れ替え（30坪）",
+      "price_jpy": {
+        "min": 800000,
+        "max": 2000000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 760000,
+          "max": 1960000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 800000,
+          "max": 2060000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 840000,
+          "max": 2200000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 896000,
+          "max": 2360000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 1420999,
+        "区分3_中央値": 1505000,
+        "区分4_中央値": 1609999,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v3_floor_insulation_30tsubo": {
+      "name": "【v3】床下断熱 全面（30坪）",
+      "price_jpy": {
+        "min": 300000,
+        "max": 600000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 285000,
+          "max": 588000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 300000,
+          "max": 618000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 315000,
+          "max": 660000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 336000,
+          "max": 708000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 456749,
+        "区分3_中央値": 483750,
+        "区分4_中央値": 517499,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v3_ceiling_insulation_30tsubo": {
+      "name": "【v3】天井裏断熱 全面（30坪）",
+      "price_jpy": {
+        "min": 200000,
+        "max": 500000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 190000,
+          "max": 490000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 200000,
+          "max": 515000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 210000,
+          "max": 550000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 224000,
+          "max": 590000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 355249,
+        "区分3_中央値": 376250,
+        "区分4_中央値": 402499,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v3_douButi_inner_wall_6sqm": {
+      "name": "【v3】内壁下地胴縁（6㎡）",
+      "price_jpy": {
+        "min": 30000,
+        "max": 60000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 28500,
+          "max": 58800,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 30000,
+          "max": 61800,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 31500,
+          "max": 66000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 33600,
+          "max": 70800,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 45674,
+        "区分3_中央値": 48375,
+        "区分4_中央値": 51749,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v3_structural_plywood_earthquake": {
+      "name": "【v3】構造用合板 耐震補強（1面）",
+      "price_jpy": {
+        "min": 50000,
+        "max": 120000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 47500,
+          "max": 117600,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 50000,
+          "max": 123600,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 52500,
+          "max": 132000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 56000,
+          "max": 141600,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 86274,
+        "区分3_中央値": 91375,
+        "区分4_中央値": 97749,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v3_noji_ita_full_30sqm": {
+      "name": "【v3】屋根野地板 全面張替え（30㎡）",
+      "price_jpy": {
+        "min": 80000,
+        "max": 150000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 76000,
+          "max": 147000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 80000,
+          "max": 154500,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 84000,
+          "max": 165000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 89600,
+          "max": 177000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 116724,
+        "区分3_中央値": 123625,
+        "区分4_中央値": 132250,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v3_gaiheki_shitaji_30tsubo": {
+      "name": "【v3】外壁下地 全面（30坪）",
+      "price_jpy": {
+        "min": 200000,
+        "max": 400000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 190000,
+          "max": 392000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 200000,
+          "max": 412000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 210000,
+          "max": 440000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 224000,
+          "max": 472000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 304499,
+        "区分3_中央値": 322500,
+        "区分4_中央値": 345000,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "partition_wall_6sqm": {
+      "name": "間仕切り壁新設6㎡",
+      "price_jpy": {
+        "min": 80000,
+        "max": 200000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 76000,
+          "max": 196000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 80000,
+          "max": 206000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 84000,
+          "max": 220000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 89600,
+          "max": 236000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 142100,
+        "区分3_中央値": 150500,
+        "区分4_中央値": 161000,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "wic_3jo": {
+      "name": "WIC新設3畳",
+      "price_jpy": {
+        "min": 300000,
+        "max": 500000
+      },
+      "hs_rule": 550000,
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 285000,
+          "max": 490000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 300000,
+          "max": 515000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 315000,
+          "max": 550000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 336000,
+          "max": 590000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 405999,
+        "区分3_中央値": 430000,
+        "区分4_中央値": 459999,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "interior_door_hiraki": {
+      "name": "室内ドア開き戸1枚",
+      "price_jpy": {
+        "min": 90000,
+        "max": 130000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 85500,
+          "max": 127400,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 90000,
+          "max": 133900,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 94500,
+          "max": 143000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 100800,
+          "max": 153400,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 111649,
+        "区分3_中央値": 118250,
+        "区分4_中央値": 126499,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "fusuma_6sheets": {
+      "name": "襖張替え6枚",
+      "price_jpy": {
+        "min": 21000,
+        "max": 48000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 19950,
+          "max": 47040,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 21000,
+          "max": 49440,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 22050,
+          "max": 52800,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 23520,
+          "max": 56640,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 35017,
+        "区分3_中央値": 37087,
+        "区分4_中央値": 39675,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v2_koagari_4_5jo": {
+      "name": "小上がり和室4.5畳",
+      "price_jpy": {
+        "min": 400000,
+        "max": 700000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 380000,
+          "max": 686000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 400000,
+          "max": 721000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 420000,
+          "max": 770000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 448000,
+          "max": 826000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 558250,
+        "区分3_中央値": 591250,
+        "区分4_中央値": 632500,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v2_loft_6jo": {
+      "name": "ロフト6畳+固定階段",
+      "price_jpy": {
+        "min": 700000,
+        "max": 900000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 665000,
+          "max": 882000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 700000,
+          "max": 927000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 735000,
+          "max": 990000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 784000,
+          "max": 1062000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 811999,
+        "区分3_中央値": 860000,
+        "区分4_中央値": 919999,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    },
+    "v2_fukinuke": {
+      "name": "吹抜け新設2階床撤去",
+      "price_jpy": {
+        "min": 500000,
+        "max": 1500000
+      },
+      "price_by_business_size_jpy": {
+        "区分1_個人大工": {
+          "min": 475000,
+          "max": 1470000,
+          "note": "職人技次第で価格下振れ可能"
+        },
+        "区分2_中小工務店": {
+          "min": 500000,
+          "max": 1545000,
+          "note": "HS第一推奨レンジ"
+        },
+        "区分3_人気工務店": {
+          "min": 525000,
+          "max": 1650000,
+          "note": "性能向上リノベ・構造計算込み"
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 560000,
+          "max": 1770000,
+          "note": "独自仕様・全国保証込み"
+        }
+      },
+      "HS_base_price_jpy": {
+        "区分2_中央値": 1014999,
+        "区分3_中央値": 1075000,
+        "区分4_中央値": 1150000,
+        "備考": "TOshi Rule原価ベース + 業者規模別妥当利益率"
+      },
+      "_価格適用時期": "2026年4月時点・イラン情勢副資材+5-10%補正反映済",
+      "_HS基準philosophy": "業者規模別の妥当な利益率を反映。大工工事は職人技能差が大きいため同規模でも価格幅あり"
+    }
   },
-
   "red_flags": [
-    { "code": "LOAD_BEARING_WALL_IGNORED", "pattern": "耐力壁確認せず撤去提案", "severity": "🔴 CRITICAL" },
-    { "code": "UNCLEAR_MATERIAL_SPEC", "pattern": "材料・型番不明", "severity": "🔴 CRITICAL" },
-    { "code": "PARTITION_WALL_OVER_400K", "pattern": "6㎡間仕切り¥400k超", "severity": "🚨 HIGH" },
-    { "code": "WIC_3JO_OVER_800K", "pattern": "WIC3畳¥800k超", "severity": "🚨 HIGH" },
-    { "code": "INTERIOR_DOOR_OVER_200K", "pattern": "室内ドア1枚¥200k超", "severity": "🚨 HIGH" },
-    { "code": "ISSHIKI_LUMP_SUM", "pattern": "造作一式計上", "severity": "🚨 HIGH" },
-    { "code": "ELECTRIC_NO_LICENSE", "pattern": "無資格電気工事", "severity": "🔴 CRITICAL" },
-    { "code": "FUSUMA_GRADE_FAKE", "pattern": "普通紙を高級紙偽装", "severity": "🚨 HIGH" },
-    { "code": "V2_FUKINUKE_NO_STRUCT", "pattern": "吹抜け構造計算なし", "severity": "🔴 CRITICAL" },
-    { "code": "V2_LOFT_HEIGHT_ILLEGAL", "pattern": "ロフト天井高1.4m超違法", "severity": "🔴 CRITICAL" },
-    { "code": "V3_SHITAJI_NO_INSPECTION", "pattern": "【v3】天井/床張替え時に下地点検しない業者", "severity": "🔴 CRITICAL", "reason": "下地腐食を見逃したまま仕上げ施工で、すぐに再工事が必要になる" },
-    { "code": "V3_SHIROARI_NO_CHECK", "pattern": "【v3】築20年以上で白蟻点検せず大工工事開始", "severity": "🔴 CRITICAL", "reason": "白蟻被害ありで柱・土台腐食中の可能性。事前調査必須" },
-    { "code": "V3_SAOBUTI_DIRECTION_WRONG", "pattern": "【v3】竿縁天井で床差し（タブー方向）施工", "severity": "🚨 HIGH", "reason": "古来の建築タブー・若い大工で知識なく施工するケースあり" },
-    { "code": "V3_DODAI_NO_JACKUP", "pattern": "【v3】土台交換でジャッキアップなし提案", "severity": "🔴 CRITICAL", "reason": "物理的に不可能・違法施工" },
-    { "code": "V3_NEDA_REPLACE_NO_SHIRODAI_CHECK", "pattern": "【v3】根太交換で白蟻被害原因調査なし", "severity": "🚨 HIGH", "reason": "根本原因除去せず表面補修で再発確実" },
-    { "code": "V3_INSULATION_NO_HIMITSU", "pattern": "【v3】断熱材入れ替えで気密処理なし", "severity": "🚨 HIGH", "reason": "気密なき断熱は効果半減・結露発生源" },
-    { "code": "V3_STRUCTURAL_NO_ARCH", "pattern": "【v3】土台・柱・梁工事で建築士関与なし", "severity": "🔴 CRITICAL", "reason": "構造材は建築士設計・監理必須" }
+    {
+      "code": "LOAD_BEARING_WALL_IGNORED",
+      "pattern": "耐力壁確認せず撤去提案",
+      "severity": "🔴 CRITICAL"
+    },
+    {
+      "code": "UNCLEAR_MATERIAL_SPEC",
+      "pattern": "材料・型番不明",
+      "severity": "🔴 CRITICAL"
+    },
+    {
+      "code": "PARTITION_WALL_OVER_400K",
+      "pattern": "6㎡間仕切り¥400k超",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "WIC_3JO_OVER_800K",
+      "pattern": "WIC3畳¥800k超",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "INTERIOR_DOOR_OVER_200K",
+      "pattern": "室内ドア1枚¥200k超",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "ISSHIKI_LUMP_SUM",
+      "pattern": "造作一式計上",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "ELECTRIC_NO_LICENSE",
+      "pattern": "無資格電気工事",
+      "severity": "🔴 CRITICAL"
+    },
+    {
+      "code": "FUSUMA_GRADE_FAKE",
+      "pattern": "普通紙を高級紙偽装",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "V2_FUKINUKE_NO_STRUCT",
+      "pattern": "吹抜け構造計算なし",
+      "severity": "🔴 CRITICAL"
+    },
+    {
+      "code": "V2_LOFT_HEIGHT_ILLEGAL",
+      "pattern": "ロフト天井高1.4m超違法",
+      "severity": "🔴 CRITICAL"
+    },
+    {
+      "code": "V3_SHITAJI_NO_INSPECTION",
+      "pattern": "【v3】天井/床張替え時に下地点検しない業者",
+      "severity": "🔴 CRITICAL",
+      "reason": "下地腐食を見逃したまま仕上げ施工で、すぐに再工事が必要になる"
+    },
+    {
+      "code": "V3_SHIROARI_NO_CHECK",
+      "pattern": "【v3】築20年以上で白蟻点検せず大工工事開始",
+      "severity": "🔴 CRITICAL",
+      "reason": "白蟻被害ありで柱・土台腐食中の可能性。事前調査必須"
+    },
+    {
+      "code": "V3_SAOBUTI_DIRECTION_WRONG",
+      "pattern": "【v3】竿縁天井で床差し（タブー方向）施工",
+      "severity": "🚨 HIGH",
+      "reason": "古来の建築タブー・若い大工で知識なく施工するケースあり"
+    },
+    {
+      "code": "V3_DODAI_NO_JACKUP",
+      "pattern": "【v3】土台交換でジャッキアップなし提案",
+      "severity": "🔴 CRITICAL",
+      "reason": "物理的に不可能・違法施工"
+    },
+    {
+      "code": "V3_NEDA_REPLACE_NO_SHIRODAI_CHECK",
+      "pattern": "【v3】根太交換で白蟻被害原因調査なし",
+      "severity": "🚨 HIGH",
+      "reason": "根本原因除去せず表面補修で再発確実"
+    },
+    {
+      "code": "V3_INSULATION_NO_HIMITSU",
+      "pattern": "【v3】断熱材入れ替えで気密処理なし",
+      "severity": "🚨 HIGH",
+      "reason": "気密なき断熱は効果半減・結露発生源"
+    },
+    {
+      "code": "V3_STRUCTURAL_NO_ARCH",
+      "pattern": "【v3】土台・柱・梁工事で建築士関与なし",
+      "severity": "🔴 CRITICAL",
+      "reason": "構造材は建築士設計・監理必須"
+    }
   ],
-
   "customer_scenario_guide": [
-    { "case": "和室天井のシミ・垂れ", "recommendation": "【v3】天井下地組から全面やりかえ6畳", "cost": 320000 },
-    { "case": "床がきしむ・沈む", "recommendation": "【v3】根太全面入れ直し6畳", "cost": 180000 },
-    { "case": "床ふかふか・白蟻の疑い", "recommendation": "【v3】白蟻調査+中度補修", "cost": 700000 },
-    { "case": "築30年以上で安心リフォームしたい", "recommendation": "【v3】土台・柱点検+白蟻予防+下地補修", "cost_range": { "min": 500000, "max": 2000000 } },
-    { "case": "寒い家・夏暑い", "recommendation": "【v3】床下・壁内・天井裏 断熱材全面入れ替え", "cost_range": { "min": 1300000, "max": 3100000 }, "note": "省エネ補助金最大60万円" },
-    { "case": "2部屋→1部屋拡張", "recommendation": "壁撤去+床クロス全面", "cost": 350000 },
-    { "case": "WIC欲しい", "recommendation": "WIC新設3畳", "cost": 550000 },
-    { "case": "LDKおしゃれ", "recommendation": "折り上げ+化粧梁+ニッチ+エコカラット", "cost_range": { "min": 800000, "max": 1500000 } },
-    { "case": "小上がり畳スペース", "recommendation": "小上がり和室4.5畳", "cost": 650000 },
-    { "case": "屋根裏活用", "recommendation": "ロフト6畳+固定階段", "cost": 850000 },
-    { "case": "車椅子対応", "recommendation": "引き戸化+段差解消", "cost_range": { "min": 700000, "max": 1500000 }, "note": "介護保険20万円対象" }
+    {
+      "case": "和室天井のシミ・垂れ",
+      "recommendation": "【v3】天井下地組から全面やりかえ6畳",
+      "cost": 320000
+    },
+    {
+      "case": "床がきしむ・沈む",
+      "recommendation": "【v3】根太全面入れ直し6畳",
+      "cost": 180000
+    },
+    {
+      "case": "床ふかふか・白蟻の疑い",
+      "recommendation": "【v3】白蟻調査+中度補修",
+      "cost": 700000
+    },
+    {
+      "case": "築30年以上で安心リフォームしたい",
+      "recommendation": "【v3】土台・柱点検+白蟻予防+下地補修",
+      "cost_range": {
+        "min": 500000,
+        "max": 2000000
+      }
+    },
+    {
+      "case": "寒い家・夏暑い",
+      "recommendation": "【v3】床下・壁内・天井裏 断熱材全面入れ替え",
+      "cost_range": {
+        "min": 1300000,
+        "max": 3100000
+      },
+      "note": "省エネ補助金最大60万円"
+    },
+    {
+      "case": "2部屋→1部屋拡張",
+      "recommendation": "壁撤去+床クロス全面",
+      "cost": 350000
+    },
+    {
+      "case": "WIC欲しい",
+      "recommendation": "WIC新設3畳",
+      "cost": 550000
+    },
+    {
+      "case": "LDKおしゃれ",
+      "recommendation": "折り上げ+化粧梁+ニッチ+エコカラット",
+      "cost_range": {
+        "min": 800000,
+        "max": 1500000
+      }
+    },
+    {
+      "case": "小上がり畳スペース",
+      "recommendation": "小上がり和室4.5畳",
+      "cost": 650000
+    },
+    {
+      "case": "屋根裏活用",
+      "recommendation": "ロフト6畳+固定階段",
+      "cost": 850000
+    },
+    {
+      "case": "車椅子対応",
+      "recommendation": "引き戸化+段差解消",
+      "cost_range": {
+        "min": 700000,
+        "max": 1500000
+      },
+      "note": "介護保険20万円対象"
+    }
   ],
-
   "negotiation_tips": [
     "造作は材料・大工人工・付帯の3項目明細要求",
     "耐力壁撤去は構造計算書提示要求",
@@ -692,7 +2253,6 @@
     "現地採寸なしは絶対NG",
     "工事後仕上げチェック（隙間・建付け）"
   ],
-
   "trade_knowledge": {
     "summary_v3": "造作・建具・下地・躯体の真の大工教科書。【仕上げ】間仕切り¥8-20万・WIC¥30-70万・建具¥9-25万/枚。【v2造作】腰壁¥3-18k/㎡・小上がり¥20-120万・天井造作¥1-3.5万/㎡・化粧梁¥5-30万/本・ロフト¥55-90万・吹抜け¥50-150万。【v3下地/躯体】天井下地組¥5-10万/6畳・和室天井やりかえ¥15-35万/6畳・根太¥3-5k/㎡・床組全面¥30-60万/6畳・土台交換¥20-400万・柱交換¥20-50万/本。【白蟻被害】軽度¥10-30万・中度¥30-100万・重度¥100-300万。【断熱】床下30坪¥30-60万・壁内30坪¥80-200万",
     "hidden_work_reality": "TOshi指摘：リフォームで最も隠れやすいのが下地・躯体工事。表面仕上げだけ見積もりに記載し、実際の施工中に『下地が傷んでました』と追加請求する業者が多い。優良業者は事前に下地点検し、必要な下地工事を見積もりに含める",
@@ -703,6 +2263,146 @@
     "carpenter_skill_truth": "造作・下地の品質は大工の腕次第。建築大工技能士1級所持者が最上位。日当¥35k超は熟練、¥28-32kが一般、¥25k以下は若手",
     "danenetsu_subsidy_2026": "断熱リフォームは『みらいエコ住宅2026事業』で最大¥60万円補助金。壁・床・天井すべて対象。先進的窓リノベと併用可能",
     "v3_scope_completion": "v3で大工仕事の真の教科書として完成。和室天井の下地組・根太の入れ直し・白蟻被害の段階別補修・構造材（柱/梁/土台）・外壁/屋根下地まで完全網羅。TOshi 30年経験の実務知識を反映",
-    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 建築大工技能士知識 + 白蟻業界データ + 日本住宅保全工事事業協同組合 + 主要メーカー公式データ + 2026年構造補強トレンド"
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 建築大工技能士知識 + 白蟻業界データ + 日本住宅保全工事事業協同組合 + 主要メーカー公式データ + 2026年構造補強トレンド",
+    "v4_toshi_philosophy_additions": {
+      "業者規模別利益率の実態": [
+        "大工工事は材料費25-35%+人工費50-65%の構造。人工費の大きさで業者規模別の利益率差が生まれる",
+        "区分1個人大工は経費少なく粗利25-35%でも手取り多い。区分4大手は広告費・本社経費で粗利35-45%必要",
+        "区分3人気工務店（増改築.com等）は粗利30-40%。『性能向上リノベ専門』という価値が正当な対価",
+        "『大工の腕が良い』=『棟梁級』=『日当¥30-40K』。一般大工（¥22-28K）との差が5割増。この差は仕上がり品質に直結"
+      ],
+      "白蟻被害補修の業界実態": [
+        "軽度被害の補修は個人大工でも可能。ただし駆除は termite_work.json の協会加盟業者が必須",
+        "中度被害は駆除+補修の連携が必須。termite業者と大工業者が連携できないと工期遅延",
+        "重度被害のジャッキアップ工事は特殊技能。増改築.com等の区分3専門店でなければ対応不可なケース多発",
+        "白蟻被害3段階はtermite_work.json v1.3と完全連動。HSは駆除→診断→補修→補強の4段階プロトコルを推奨"
+      ]
+    }
+  },
+  "business_size_based_pricing": {
+    "_意図": "TOshi 30年大工経験：大工工事は職人の技能が価格に直結。業者規模と職人熟練度の両面で判断",
+    "4区分別_妥当な利益率レンジ_大工工事_2026年4月": {
+      "区分1_個人大工_棟梁": {
+        "代表": "地域のベテラン大工・個人棟梁",
+        "粗利率": "25-35%",
+        "メリット": "職人技最高・価格最安・棟梁の判断で柔軟対応",
+        "デメリット": "大規模工事対応困難・廃業リスク・保証書なし",
+        "施工品質": "★★★★★（熟練棟梁の場合）/ ★★☆☆☆（新人）",
+        "HS推奨度": "★★★★☆（下地・造作の職人技重視時）",
+        "適用シーン": "和室天井・造作家具・掘りごたつ等の職人技依存工事"
+      },
+      "区分2_中小工務店_地域密着": {
+        "代表": "地域の5-30名規模の工務店",
+        "粗利率": "25-35%",
+        "メリット": "価格と品質のバランス・複数職人連携・アフター対応",
+        "デメリット": "全国対応不可・性能計算精度バラつき",
+        "施工品質": "中〜高（1級建築施工管理技士在籍）",
+        "HS推奨度": "★★★★★（大工工事の第一推奨）",
+        "適用シーン": "下地補修・白蟻被害補修・構造材交換・間仕切り壁"
+      },
+      "区分3_人気工務店_性能向上リノベ専門": {
+        "代表": "ハイウィル（増改築.com）、性能向上リノベ専門店",
+        "粗利率": "30-40%",
+        "メリット": "構造計算+耐震+断熱の総合対応・ジャッキアップ対応",
+        "デメリット": "予約待ち数ヶ月・値引き交渉不可",
+        "施工品質": "★★★★★（500棟以上実績の技術集団）",
+        "HS推奨度": "★★★★★（重度白蟻被害・性能向上リノベ時の最適解）",
+        "適用シーン": "スケルトンリフォーム・基礎補強連動・土台交換+断熱+耐震"
+      },
+      "区分4_大手リフォーム_ハウスメーカー": {
+        "代表": "LIXILリフォーム、積水ハウスリフォーム、住友林業ホームテック",
+        "粗利率": "35-45%",
+        "メリット": "全国対応・保証強力・独自仕様・設計力",
+        "デメリット": "価格最高・独自仕様縛り・職人は下請け",
+        "施工品質": "標準化（職人品質は下請けに依存）",
+        "HS推奨度": "★★★☆☆（新築時のメーカー継続）",
+        "適用シーン": "メーカー建売住宅の大規模リフォーム"
+      }
+    },
+    "白蟻被害補修での推奨_termite連動": {
+      "軽度_TRM-DMG-01連動": "区分1個人大工 or 区分2中小工務店で十分対応可",
+      "中度_TRM-DMG-02連動": "区分2中小工務店 or 区分3人気工務店推奨",
+      "重度_TRM-DMG-03連動": "区分3人気工務店一択（ジャッキアップ+土台総交換+構造補強の総合力必要）"
+    }
+  },
+  "cost_breakdown_toshi_rule": {
+    "_意図": "大工工事は材料費より人工費が支配的。原価の60-70%が人工費",
+    "大工工事の原価構成": {
+      "材料費": "総原価の25-35%（木材・金物・下地材・仕上材）",
+      "人工費": "総原価の50-65%（大工・左官・電気・配管職人）",
+      "副資材": "総原価の5-10%",
+      "機材・交通": "総原価の5-10%"
+    },
+    "日当_関東_2026年4月": {
+      "大工_棟梁級_30年経験": "¥30,000-40,000/日",
+      "大工_10年以上": "¥25,000-32,000/日",
+      "大工_5年以上": "¥22,000-28,000/日",
+      "大工_見習い": "¥18,000-22,000/日",
+      "左官": "¥23,000-30,000/日",
+      "電気工": "¥25,000-32,000/日",
+      "配管工": "¥25,000-32,000/日",
+      "解体工": "¥20,000-26,000/日"
+    },
+    "代表工事_原価例_TRM_DMG連動": {
+      "白蟻軽度補修_v3_shiroari_mild": {
+        "材料費_木材等": "¥30,000-80,000",
+        "大工人工_3-5人工": "¥75,000-160,000",
+        "副資材・機材": "¥10,000-25,000",
+        "原価合計": "¥115,000-¥265,000",
+        "業者規模別HS価格_税込": {
+          "区分1-2": "¥145-330K 中央値¥210K",
+          "区分3": "¥155-355K 中央値¥225K",
+          "区分4": "¥170-385K 中央値¥245K"
+        },
+        "termite_TRM-DMG-01との整合": "termite v1.3 TRM-DMG-01: 個人¥10-26万/中小¥12-28万。zosaku側は補修工事のみ+駆除別途"
+      },
+      "白蟻中度補修_v3_shiroari_moderate": {
+        "材料費_土台_柱等": "¥150,000-400,000",
+        "大工人工_10-20人工": "¥250,000-640,000",
+        "副資材・機材": "¥50,000-100,000",
+        "原価合計": "¥450,000-¥1,140,000",
+        "業者規模別HS価格_税込": {
+          "区分1-2": "¥565K-1,430K 中央値¥997K",
+          "区分3": "¥605K-1,540K 中央値¥1,072K",
+          "区分4": "¥650K-1,670K 中央値¥1,160K"
+        },
+        "termite_TRM-DMG-02との整合": "termite v1.3 TRM-DMG-02: 個人¥30-90万/中小¥33-95万。zosaku側は補修+構造補強"
+      },
+      "白蟻重度補修_v3_shiroari_severe_ジャッキアップ込": {
+        "材料費_土台総交換等": "¥400,000-1,200,000",
+        "大工人工_30-60人工_基礎工_解体工含": "¥750,000-2,200,000",
+        "副資材・機材・ジャッキアップ": "¥150,000-400,000",
+        "原価合計": "¥1,300,000-¥3,800,000",
+        "業者規模別HS価格_税込": {
+          "区分1-2": "対応不可(区分3推奨)",
+          "区分3": "¥1,750K-5,130K 中央値¥3,440K",
+          "区分4": "¥1,900K-5,580K 中央値¥3,740K"
+        },
+        "termite_TRM-DMG-03との整合": "termite v1.3 TRM-DMG-03: 区分3人気¥120-320万/区分4大手¥140-360万。zosaku側は駆除+補修+ジャッキアップ+耐震補強の総合"
+      }
+    }
+  },
+  "connected_files": {
+    "強連動_最重要": {
+      "termite_work.json_v1.3": {
+        "連動理由": "白蟻被害3段階補修が zosaku v3_shiroari_mild/moderate/severe と直接対応",
+        "HS統合プロトコル": "駆除(termite)→診断→補修(zosaku)→補強の4段階"
+      },
+      "insulation_work.json_v1.2": {
+        "連動理由": "断熱改修は下地・構造材と同時施工がコスパ最良",
+        "HS統合プロトコル": "スケルトン化時に『駆除→構造補修→断熱→気密→仕上げ』の一気通貫推奨"
+      }
+    },
+    "中連動": {
+      "bathroom_reform.json": "浴室解体時の土台腐食・白蟻被害発見が多い",
+      "roof_construction.json": "屋根葺き替え時の野地板・垂木の補修",
+      "gaiheki_tosou.json": "外壁張替え時の胴縁・透湿防水シートの補修",
+      "water_pipe_work.json": "配管更新時の床下アクセス・根太補修",
+      "electrical_work.json": "配線更新時の壁内アクセス・下地補修"
+    },
+    "弱連動": {
+      "rain_leak_repair.json": "雨漏り→下地腐食→白蟻繁殖の連鎖対策",
+      "waterproofing_work.json": "床下防湿・基礎周りの防水対策"
+    }
   }
 }
