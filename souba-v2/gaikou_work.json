@@ -1,0 +1,558 @@
+{
+  "_meta": {
+    "version": "2.0-phase1",
+    "updated": "2026-04-19",
+    "category_id": "gaikou_work",
+    "category_name_jp": "外構工事（駐車場・門・塀・フェンス・ウッドデッキ・排水）",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐⭐ 戸建で必須・大型金額（¥50-500万）・ブロック塀倒壊リスク対応",
+    "knowledge_source": "TOshi 30年の建設・現場監督・CMR実務経験 + 2026年実勢データ (ガーデンプラス、ガーデンラボ、ガーテリア、ファミテイ、家づくりクラベル、リフォームガイド、ハピすむ、アートウッド、ZOUS、庭ファン、リーベ、エクスショップ、大阪市都市整備局、練馬区建築課、フジテックスエネルギー、スッキリ解体、LIXIL、YKK AP、四国化成、タカショー、三協アルミ、リクシルエクステリア)",
+    "scope": "駐車場舗装（コンクリ/アスファルト/砂利/インターロッキング）・カーポート/ガレージ・門柱/門扉/ポスト・フェンス/目隠し・ブロック塀新設/解体/擁壁・ウッドデッキ（人工木/天然木/ハード）・タイルデッキ・テラス/サンルーム・人工芝/天然芝/植栽・雨水排水/U字溝/桝・宅配ボックス/照明/防犯カメラ/物置"
+  },
+
+  "horizon_shield_standard": {
+    "formula": "材料仕入れ値 × 1.2 + 職人人工 × 日当 + 残土処分実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.20,
+      "general_overhead_pct_ideal": 15,
+      "tax_pct": 10,
+      "trade_price_ratio_from_list": 0.55
+    },
+    "philosophy": "外構は大型金額で工事範囲が曖昧になりやすい。HSは項目別・面積別・材料等級別に明細化。ブロック塀は倒壊リスクで命に関わる最重要箇所",
+    "budget_vs_building_myth": "『家の1割が外構予算』は目安程度。実際は土地形状・高低差・生活動線で大きく変動。ミニマム¥50万〜高級¥500万+"
+  },
+
+  "license_qualifications": {
+    "kensetsu_gyou_kyoka_doboku": { "name": "建設業許可（土木工事業）", "required_for": "500万円超の外構工事" },
+    "kensetsu_gyou_kyoka_exterior": { "name": "建設業許可（とび・土工・コンクリート工事業）", "scope": "ブロック塀・擁壁・土間コンクリ" },
+    "kensetsu_gyou_kyoka_denki": { "name": "建設業許可（電気工事業）", "scope": "外部照明・防犯カメラ" },
+    "zouen_kouji_gijutsusha": { "name": "造園施工管理技士（1級・2級）", "scope": "植栽・庭園工事" },
+    "block_kensaijutsusha": { "name": "ブロック建築技能士", "scope": "ブロック塀施工" }
+  },
+
+  "parking_lot_work": {
+    "description": "駐車場工事の完全カタログ",
+    "surface_paving": {
+      "doma_concrete": {
+        "name": "土間コンクリート舗装（最人気）",
+        "price_per_sqm_jpy": { "min": 12000, "max": 18000 },
+        "durability_years": { "min": 30, "max": 50 },
+        "features": ["車出入れしやすい", "泥汚れつかない", "メンテ楽"],
+        "typical_1car_15sqm_jpy": { "min": 180000, "max": 270000, "hs_rule": 240000 },
+        "typical_2car_30sqm_jpy": { "min": 360000, "max": 540000, "hs_rule": 450000 },
+        "construction_layers": ["砕石10cm", "ワイヤーメッシュ", "コンクリート10cm", "刷毛引き仕上げ"]
+      },
+      "asphalt": {
+        "name": "アスファルト舗装",
+        "price_per_sqm_jpy": { "min": 5000, "max": 8000 },
+        "durability_years": { "min": 15, "max": 20 },
+        "features": ["コンクリより安い", "補修容易", "夏は熱吸収高"]
+      },
+      "gravel_sari": {
+        "name": "砂利敷き",
+        "price_per_sqm_jpy": { "min": 3000, "max": 5000 },
+        "features": ["最安", "防犯効果（音）", "定期補充必要"]
+      },
+      "interlocking": {
+        "name": "インターロッキングブロック",
+        "price_per_sqm_jpy": { "min": 10000, "max": 15000 },
+        "features": ["デザイン性◎", "透水性あり", "高価"]
+      },
+      "concrete_with_pebble": {
+        "name": "洗い出しコンクリート（化粧）",
+        "price_per_sqm_jpy": { "min": 15000, "max": 25000 },
+        "features": ["高級感", "滑り止め効果"]
+      },
+      "tile_stone": {
+        "name": "タイル・石張り",
+        "price_per_sqm_jpy": { "min": 15000, "max": 30000 }
+      }
+    },
+    "auxiliary_works": {
+      "curb_cut_irekomi": { "name": "境界ブロック開口（車乗り入れ）", "price_jpy": { "min": 30000, "max": 80000 } },
+      "expansion_joint": { "name": "伸縮目地", "price_per_meter_jpy": { "min": 1000, "max": 2500 } },
+      "line_marking": { "name": "白線ライン引き", "price_per_space_jpy": { "min": 5000, "max": 15000 } },
+      "car_stopper": { "name": "車止めブロック", "price_per_unit_jpy": { "min": 5000, "max": 15000 } },
+      "load_adjustment": { "name": "整地・レベル調整", "price_per_sqm_jpy": { "min": 1500, "max": 3500 } }
+    }
+  },
+
+  "carport_garage": {
+    "description": "カーポート・ガレージ",
+    "carport_1car_standard": {
+      "name": "カーポート1台用（標準）",
+      "price_jpy": { "min": 200000, "max": 600000 },
+      "hs_rule_jpy": 450000,
+      "main_makers": ["LIXIL（ネスカ・アーキフラン）", "YKK AP（レイナポート）", "三協アルミ（マイリッシュ）", "四国化成（マイポートV）"]
+    },
+    "carport_2car": {
+      "name": "カーポート2台用",
+      "price_jpy": { "min": 400000, "max": 1000000 },
+      "hs_rule_jpy": 750000
+    },
+    "carport_heavy_snow": {
+      "name": "耐雪カーポート（折半屋根）",
+      "price_jpy": { "min": 800000, "max": 1500000 },
+      "note": "積雪地域・耐雪100cm対応"
+    },
+    "carport_gable_roof": {
+      "name": "切妻屋根カーポート（住宅風）",
+      "price_jpy": { "min": 400000, "max": 900000 }
+    },
+    "cycle_port": {
+      "name": "サイクルポート（自転車用）",
+      "price_jpy": { "min": 100000, "max": 300000 }
+    },
+    "garage_shutter": {
+      "name": "ガレージ（シャッター付）",
+      "price_jpy": { "min": 1000000, "max": 4000000 },
+      "types": {
+        "folding_panel_garage": { "name": "折板ガレージ", "price_jpy": { "min": 1000000, "max": 2000000 } },
+        "frame_with_shutter": { "name": "フレームガレージ+電動シャッター", "price_jpy": { "min": 1500000, "max": 3000000 } },
+        "custom_rc": { "name": "RC造ガレージ（造作）", "price_jpy": { "min": 2500000, "max": 4000000 } }
+      }
+    }
+  },
+
+  "gate_mon_fence": {
+    "description": "門・門扉・フェンス",
+    "monchuu_functional": {
+      "name": "機能門柱（表札・ポスト・インターホン一体型）",
+      "price_jpy": { "min": 100000, "max": 400000 },
+      "hs_rule_jpy": 280000,
+      "main_makers": ["LIXIL ウィルモダン", "YKK AP ルシアスポスト", "三協アルミ", "四国化成"],
+      "features": ["配線工事込み", "取付シンプル", "メンテ楽"]
+    },
+    "monchuu_zosaku_tile": {
+      "name": "造作門柱（タイル・石張り）",
+      "price_jpy": { "min": 300000, "max": 1500000 },
+      "note": "機能門柱の2-5倍・オーダーメイド"
+    },
+    "mon_tobira_gate": {
+      "name": "門扉（アルミ）",
+      "price_jpy": { "min": 50000, "max": 300000 },
+      "types": ["片開き", "両開き", "スライドゲート"]
+    },
+    "mon_zenKai_set": {
+      "name": "門塀+門扉+ポスト一体工事",
+      "price_jpy": { "min": 100000, "max": 800000 },
+      "hs_rule_jpy": 500000
+    },
+    "aluminum_fence_road": {
+      "name": "アルミフェンス（道路側・シンプル）",
+      "price_per_meter_jpy": { "min": 15000, "max": 30000 },
+      "height_mm": [800, 1000, 1200],
+      "features": ["コスパ良", "メンテナンスフリー"]
+    },
+    "mekakushi_fence": {
+      "name": "目隠しフェンス（プライバシー）",
+      "price_per_meter_jpy": { "min": 20000, "max": 40000 },
+      "types": ["縦格子", "横ルーバー", "樹脂製木目調"]
+    },
+    "wood_fence_natural": {
+      "name": "天然木フェンス",
+      "price_per_meter_jpy": { "min": 20000, "max": 50000 },
+      "note": "3-5年毎の塗装メンテ必須"
+    },
+    "net_fence": {
+      "name": "メッシュフェンス（境界用）",
+      "price_per_meter_jpy": { "min": 8000, "max": 15000 }
+    }
+  },
+
+  "block_wall_bei": {
+    "description": "⚠️ ブロック塀関連（倒壊リスク最重要）",
+    "danger_2018_osaka_earthquake": {
+      "name": "2018年大阪北部地震ブロック塀倒壊事故",
+      "victim": "大阪府高槻市の小学4年生女児死亡",
+      "cause": "建築基準法違反のブロック塀倒壊",
+      "impact": "全国自治体が補助金制度創設",
+      "legal_requirements": {
+        "max_height_m": 2.2,
+        "recommended_height_m": 1.2,
+        "thickness_cm_min": 10,
+        "thickness_cm_recommended": 12,
+        "hikae_wall_required_over_m": 1.2,
+        "rebar_required": true
+      }
+    },
+    "block_wall_construction": {
+      "description": "ブロック塀の新設",
+      "standard_block_per_meter_jpy": { "min": 10000, "max": 18000 },
+      "design_block_per_meter_jpy": { "min": 15000, "max": 25000 },
+      "with_foundation_per_meter_jpy": { "min": 15000, "max": 30000, "note": "基礎工事含む" }
+    },
+    "block_wall_demolition": {
+      "description": "ブロック塀 解体撤去",
+      "machine_demolition_per_sqm_jpy": { "min": 2000, "max": 4500, "note": "重機解体・スピード" },
+      "manual_demolition_per_sqm_jpy": { "min": 4000, "max": 8000, "note": "手作業・狭小地" },
+      "typical_10m_removal_jpy": { "min": 40000, "max": 150000 },
+      "waste_disposal_per_sqm_jpy": { "min": 1500, "max": 3000 }
+    },
+    "subsidies_danger_block": {
+      "name": "危険ブロック塀撤去補助金（全国自治体）",
+      "origin": "2018年大阪北部地震以降、多くの自治体が創設",
+      "target_conditions": [
+        "道路に面する",
+        "道路面から高さ1.2m超",
+        "道路境界からの水平距離より塀が高い",
+        "事前調査で危険判定"
+      ],
+      "subsidy_amount_jpy": { "min": 10000, "max": 300000, "typical": 124000 },
+      "example_osaka_city": "最大¥124,000（1,000円未満切り捨て）",
+      "replacement_with_light_fence": {
+        "name": "軽量フェンスへの付替補助金",
+        "amount_jpy": { "min": 50000, "max": 200000 }
+      },
+      "important_note": "工事契約前に申請必須・契約後は補助対象外",
+      "verification": "各自治体の建築指導課に事前相談"
+    },
+    "retaining_wall_youheki": {
+      "name": "擁壁工事",
+      "description": "高低差のある敷地の土留め",
+      "price_per_sqm_jpy": { "min": 30000, "max": 80000 },
+      "types": {
+        "rc_retaining_wall": { "name": "RC擁壁", "durability_years": 50 },
+        "l_gata_retaining": { "name": "L型擁壁（プレキャスト）", "price_per_meter_jpy": { "min": 40000, "max": 70000 } },
+        "stone_masonry": { "name": "石積み", "price_per_sqm_jpy": { "min": 50000, "max": 150000 } }
+      },
+      "note": "高さ2m超は構造計算書・確認申請必須"
+    }
+  },
+
+  "wood_deck_terrace": {
+    "description": "ウッドデッキ・タイルデッキ・テラス",
+    "wood_deck": {
+      "artificial_wood_jinkou": {
+        "name": "人工木ウッドデッキ（樹脂木）",
+        "price_per_sqm_jpy": { "min": 30000, "max": 75000 },
+        "main_products": ["LIXIL 樹ら楽ステージ", "YKK AP リウッドデッキ", "三協アルミ", "タカショー エバーエコウッド"],
+        "durability_years": { "min": 20, "max": 30 },
+        "features": ["メンテフリー", "腐食・シロアリなし", "色褪せ少"],
+        "typical_10sqm_jpy": { "min": 300000, "max": 750000, "hs_rule": 600000 }
+      },
+      "softwood_natural": {
+        "name": "ソフトウッドデッキ（杉・SPF等）",
+        "price_per_sqm_jpy": { "min": 20000, "max": 45000 },
+        "durability_years": { "min": 5, "max": 10 },
+        "maintenance": "年1回塗装必要",
+        "features": ["最安", "ランニング費高", "定期メンテ必須"]
+      },
+      "hardwood_natural": {
+        "name": "ハードウッドデッキ（ウリン・イペ・セランガンバツ）",
+        "price_per_sqm_jpy": { "min": 40000, "max": 80000 },
+        "durability_years": { "min": 20, "max": 30 },
+        "features": ["高級感", "高耐久", "加工困難"]
+      },
+      "shitaji_requirement": {
+        "name": "下地工事（必須）",
+        "sai_seki_layer_cm": 10,
+        "concrete_thickness_cm": { "walking_only": 8, "recommended": 10 },
+        "price_per_sqm_jpy": { "min": 8000, "max": 15000 }
+      }
+    },
+    "tile_deck": {
+      "name": "タイルデッキ",
+      "price_per_sqm_jpy": { "min": 25000, "max": 50000 },
+      "features": ["メンテフリー", "高級感", "夏暑い"]
+    },
+    "terrace_roof": {
+      "name": "テラス屋根（独立型）",
+      "price_jpy": { "min": 150000, "max": 500000 },
+      "types": ["ポリカ屋根", "折半屋根"]
+    },
+    "sunroom_garden_room": {
+      "name": "サンルーム・ガーデンルーム",
+      "price_jpy": { "min": 500000, "max": 2000000 },
+      "types": ["LIXIL ジーマ", "LIXIL サニージュ", "YKK AP ソラリア", "三協アルミ ハピーナ"],
+      "installation_note": "建築基準法上『建築物』扱い・固定資産税増加"
+    },
+    "awning": {
+      "name": "オーニング（伸縮型日除け）",
+      "price_jpy": { "min": 150000, "max": 400000 }
+    },
+    "pergola": {
+      "name": "パーゴラ（格子屋根）",
+      "price_jpy": { "min": 200000, "max": 600000 }
+    }
+  },
+
+  "garden_landscape": {
+    "description": "庭・植栽・芝生",
+    "artificial_grass": {
+      "name": "人工芝（下地含む）",
+      "price_per_sqm_jpy": { "min": 5000, "max": 10000 },
+      "durability_years": { "min": 7, "max": 10 },
+      "features": ["メンテ楽", "雑草対策"]
+    },
+    "natural_grass": {
+      "name": "天然芝（高麗芝・姫高麗）",
+      "price_per_sqm_jpy": { "min": 2000, "max": 4000 },
+      "maintenance_cost_annual_jpy": { "min": 20000, "max": 50000 },
+      "features": ["涼しい", "水やり・芝刈り必須"]
+    },
+    "bousou_sheet_with_gravel": {
+      "name": "防草シート+砂利敷き（雑草対策）",
+      "price_per_sqm_jpy": { "min": 3500, "max": 7000 },
+      "durability_years": { "min": 10, "max": 15 }
+    },
+    "doma_concrete_for_weed": {
+      "name": "土間コンクリート（雑草対策）",
+      "price_per_sqm_jpy": { "min": 10000, "max": 15000 }
+    },
+    "planting_shokusai": {
+      "name": "植栽（樹木）",
+      "small_tree_per_unit_jpy": { "min": 5000, "max": 15000, "note": "高さ1-2m" },
+      "medium_tree_per_unit_jpy": { "min": 15000, "max": 40000, "note": "高さ2-3m" },
+      "large_tree_per_unit_jpy": { "min": 40000, "max": 150000, "note": "高さ3m超・シンボルツリー" }
+    },
+    "garden_lighting": {
+      "name": "ガーデンライト",
+      "price_per_unit_jpy": { "min": 15000, "max": 50000 },
+      "types": ["スパイク式", "壁付", "ポール"]
+    }
+  },
+
+  "drainage_rain_water": {
+    "description": "雨水排水・側溝（地味だが重要）",
+    "u_shaped_gutter": {
+      "name": "U字溝（コンクリート製）",
+      "price_per_meter_jpy": { "min": 5000, "max": 12000 },
+      "types": ["U字溝200mm", "U字溝300mm（蓋付）"]
+    },
+    "ame_mizu_masu": {
+      "name": "雨水桝 設置",
+      "price_per_unit_jpy": { "min": 20000, "max": 50000 }
+    },
+    "shintou_masu": {
+      "name": "浸透桝（雨水浸透式）",
+      "price_per_unit_jpy": { "min": 30000, "max": 60000 },
+      "note": "自治体により雨水浸透施設設置義務あり"
+    },
+    "sokkou_kaishu": {
+      "name": "側溝改修",
+      "price_per_meter_jpy": { "min": 8000, "max": 15000 }
+    },
+    "takuchi_uchi_ame_mizu": {
+      "name": "宅地内雨水排水設備（一式）",
+      "price_jpy": { "min": 150000, "max": 500000 },
+      "scope": "雨樋接続〜U字溝〜桝〜公共接続"
+    },
+    "grating_cover": {
+      "name": "グレーチング（溝蓋）",
+      "price_per_meter_jpy": { "min": 8000, "max": 20000 }
+    }
+  },
+
+  "extra_features": {
+    "description": "その他付帯設備",
+    "delivery_box": {
+      "name": "宅配ボックス",
+      "small_stand_jpy": { "min": 30000, "max": 80000 },
+      "large_built_in_jpy": { "min": 100000, "max": 200000 },
+      "makers": ["Panasonic コンボ", "LIXIL スマート宅配ポスト"]
+    },
+    "outdoor_lighting": {
+      "name": "外部照明（玄関・門・アプローチ）",
+      "per_spot_jpy": { "min": 15000, "max": 50000 },
+      "features": ["人感センサー", "タイマー", "ソーラー"]
+    },
+    "security_camera": {
+      "name": "防犯カメラ",
+      "per_unit_installed_jpy": { "min": 30000, "max": 100000 },
+      "system_4units_jpy": { "min": 150000, "max": 400000 }
+    },
+    "outdoor_water_faucet": {
+      "name": "立水栓（屋外水栓）",
+      "simple_jpy": { "min": 15000, "max": 30000 },
+      "designer_jpy": { "min": 30000, "max": 80000 }
+    },
+    "storage_shed": {
+      "name": "物置（イナバ・ヨド・タクボ）",
+      "small_jpy": { "min": 100000, "max": 200000, "note": "1坪程度" },
+      "medium_jpy": { "min": 200000, "max": 350000, "note": "2坪" },
+      "large_jpy": { "min": 300000, "max": 600000, "note": "3坪以上" }
+    },
+    "bicycle_parking": {
+      "name": "自転車置場（サイクルポート）",
+      "price_jpy": { "min": 100000, "max": 300000 }
+    },
+    "gas_meter_cover": {
+      "name": "ガスメーターカバー",
+      "price_jpy": { "min": 15000, "max": 40000 }
+    }
+  },
+
+  "demolition_existing": {
+    "description": "既存外構の解体・撤去",
+    "block_wall": { "per_sqm_jpy": { "min": 2000, "max": 4500 } },
+    "concrete_floor": { "per_sqm_jpy": { "min": 2500, "max": 5000 } },
+    "asphalt_pavement": { "per_sqm_jpy": { "min": 1500, "max": 3500 } },
+    "wood_deck_existing": { "per_sqm_jpy": { "min": 3000, "max": 7000 } },
+    "tree_removal": {
+      "small_tree_jpy": { "min": 10000, "max": 30000 },
+      "large_tree_jpy": { "min": 30000, "max": 150000, "note": "伐採+伐根" }
+    },
+    "carport_removal": { "price_jpy": { "min": 30000, "max": 100000 } },
+    "fence_removal_per_meter": { "min": 2000, "max": 5000 },
+    "soil_disposal_per_ton_jpy": { "min": 5000, "max": 12000 }
+  },
+
+  "labor": {
+    "gaikou_koji_day_rate_kanto": { "min": 22000, "max": 30000, "avg": 26000 },
+    "tokou_sadaikurafuman_day_rate": { "min": 25000, "max": 35000, "avg": 30000, "note": "土工・タイル職人" },
+    "zouen_shokunin_day_rate": { "min": 22000, "max": 30000, "avg": 26000, "note": "造園職人" },
+    "block_kensaijutsusha_day_rate": { "min": 25000, "max": 35000, "avg": 30000, "note": "ブロック職人" }
+  },
+
+  "plans_complete": {
+    "parking_concrete_1car": { "name": "駐車場コンクリ1台15㎡", "price_jpy": { "min": 180000, "max": 270000 }, "hs_rule_jpy": 240000 },
+    "parking_concrete_2car": { "name": "駐車場コンクリ2台30㎡", "price_jpy": { "min": 360000, "max": 540000 }, "hs_rule_jpy": 450000 },
+    "parking_gravel_20sqm": { "name": "駐車場砂利20㎡", "price_jpy": { "min": 60000, "max": 100000 }, "hs_rule_jpy": 90000 },
+    "carport_1car": { "name": "カーポート1台", "price_jpy": { "min": 200000, "max": 600000 }, "hs_rule_jpy": 450000 },
+    "carport_2car": { "name": "カーポート2台", "price_jpy": { "min": 400000, "max": 1000000 }, "hs_rule_jpy": 750000 },
+    "carport_heavy_snow": { "name": "耐雪カーポート", "price_jpy": { "min": 800000, "max": 1500000 }, "hs_rule_jpy": 1250000 },
+    "garage_shutter_standard": { "name": "ガレージ（シャッター付）", "price_jpy": { "min": 1500000, "max": 3000000 }, "hs_rule_jpy": 2400000 },
+    "functional_gate_monchu": { "name": "機能門柱", "price_jpy": { "min": 100000, "max": 400000 }, "hs_rule_jpy": 280000 },
+    "mon_zenKai_set": { "name": "門塀+門扉+ポスト一式", "price_jpy": { "min": 100000, "max": 800000 }, "hs_rule_jpy": 500000 },
+    "aluminum_fence_20m": { "name": "アルミフェンス20m", "price_jpy": { "min": 300000, "max": 600000 }, "hs_rule_jpy": 500000 },
+    "mekakushi_fence_15m": { "name": "目隠しフェンス15m", "price_jpy": { "min": 300000, "max": 600000 }, "hs_rule_jpy": 520000 },
+    "block_wall_new_20m": { "name": "ブロック塀新設20m", "price_jpy": { "min": 200000, "max": 500000 }, "hs_rule_jpy": 420000 },
+    "block_wall_demolition_20sqm": { "name": "⚠️ブロック塀解体20㎡（補助金対象）", "price_jpy": { "min": 40000, "max": 90000 }, "hs_rule_jpy": 80000, "subsidy_jpy": { "min": 10000, "max": 124000 } },
+    "block_wall_replace_light_fence": { "name": "⚠️ブロック塀→軽量フェンス付替（補助金対象）", "price_jpy": { "min": 150000, "max": 400000 }, "hs_rule_jpy": 340000 },
+    "retaining_wall_10sqm": { "name": "擁壁工事10㎡", "price_jpy": { "min": 300000, "max": 800000 }, "hs_rule_jpy": 700000 },
+    "wood_deck_jinkou_10sqm": { "name": "人工木デッキ10㎡", "price_jpy": { "min": 300000, "max": 750000 }, "hs_rule_jpy": 600000 },
+    "wood_deck_hardwood_10sqm": { "name": "ハードウッドデッキ10㎡", "price_jpy": { "min": 400000, "max": 800000 }, "hs_rule_jpy": 700000 },
+    "tile_deck_10sqm": { "name": "タイルデッキ10㎡", "price_jpy": { "min": 250000, "max": 500000 }, "hs_rule_jpy": 450000 },
+    "sunroom_medium": { "name": "サンルーム中型", "price_jpy": { "min": 500000, "max": 2000000 }, "hs_rule_jpy": 1400000 },
+    "terrace_roof": { "name": "テラス屋根", "price_jpy": { "min": 150000, "max": 500000 }, "hs_rule_jpy": 420000 },
+    "artificial_grass_20sqm": { "name": "人工芝20㎡", "price_jpy": { "min": 100000, "max": 200000 }, "hs_rule_jpy": 170000 },
+    "bousou_sari_20sqm": { "name": "防草シート+砂利20㎡", "price_jpy": { "min": 70000, "max": 140000 }, "hs_rule_jpy": 120000 },
+    "u_gutter_10m": { "name": "U字溝10m", "price_jpy": { "min": 50000, "max": 120000 }, "hs_rule_jpy": 100000 },
+    "ame_mizu_masu": { "name": "雨水桝1個", "price_jpy": { "min": 20000, "max": 50000 }, "hs_rule_jpy": 45000 },
+    "takuchi_ame_mizu_complete": { "name": "宅地内雨水排水一式", "price_jpy": { "min": 150000, "max": 500000 }, "hs_rule_jpy": 430000 },
+    "delivery_box_built_in": { "name": "宅配ボックス大型", "price_jpy": { "min": 100000, "max": 200000 }, "hs_rule_jpy": 180000 },
+    "outdoor_light_3spots": { "name": "外部照明3箇所", "price_jpy": { "min": 45000, "max": 150000 }, "hs_rule_jpy": 130000 },
+    "security_camera_4units": { "name": "防犯カメラ4台システム", "price_jpy": { "min": 150000, "max": 400000 }, "hs_rule_jpy": 350000 },
+    "storage_shed_medium": { "name": "物置2坪（イナバ・ヨド）", "price_jpy": { "min": 200000, "max": 350000 }, "hs_rule_jpy": 320000 },
+    "tree_removal_large": { "name": "大木伐採+伐根", "price_jpy": { "min": 30000, "max": 150000 }, "hs_rule_jpy": 130000 }
+  },
+
+  "integrated_gaikou_packages": {
+    "budget_60man_minimum": {
+      "name": "最小限（予算¥60万）",
+      "scope": "駐車場コンクリ+機能門柱のみ",
+      "price_jpy": 600000
+    },
+    "budget_100man_standard": {
+      "name": "標準（予算¥100万）",
+      "scope": "駐車場+門柱+簡易フェンス",
+      "price_jpy": 1000000
+    },
+    "budget_200man_comfortable": {
+      "name": "快適（予算¥200万）",
+      "scope": "駐車場+カーポート+門柱+目隠しフェンス+ウッドデッキ",
+      "price_jpy": 2000000
+    },
+    "budget_300man_satisfied": {
+      "name": "満足（予算¥300万）",
+      "scope": "上記+造作門柱+サンルーム+植栽+照明",
+      "price_jpy": 3000000
+    },
+    "budget_500man_premium": {
+      "name": "プレミアム（予算¥500万+）",
+      "scope": "全面外構+ガレージ+庭園デザイン+高級素材",
+      "price_jpy": 5000000
+    }
+  },
+
+  "red_flags": [
+    { "code": "BLOCK_WALL_HEIGHT_OVER_2_2M", "pattern": "ブロック塀 高さ2.2m超の新設", "severity": "🔴 CRITICAL", "reason": "建築基準法違反・倒壊リスク・違反建築" },
+    { "code": "BLOCK_WALL_NO_REBAR", "pattern": "ブロック塀で鉄筋配筋なし", "severity": "🔴 CRITICAL", "reason": "建築基準法違反・2018年大阪北部地震で死亡事故" },
+    { "code": "BLOCK_WALL_NO_HIKAE_OVER_1_2M", "pattern": "1.2m超のブロック塀で控え壁なし", "severity": "🔴 CRITICAL" },
+    { "code": "DEMOLITION_CONTRACT_BEFORE_SUBSIDY", "pattern": "補助金申請前に工事契約", "severity": "🚨 HIGH", "reason": "補助金対象外となる・事前申請必須" },
+    { "code": "NO_DORO_HOSOU_MEISHO", "pattern": "駐車場舗装の仕様（砕石厚・コンクリ厚）明記なし", "severity": "🚨 HIGH", "reason": "8cm vs 10cmで耐久年数差" },
+    { "code": "CONCRETE_THIN_UNDER_8CM", "pattern": "駐車場コンクリで厚さ8cm未満", "severity": "🚨 HIGH", "reason": "車重で割れる・ヒビ入り" },
+    { "code": "WIRE_MESH_OMITTED", "pattern": "駐車場コンクリでワイヤーメッシュ省略", "severity": "🚨 HIGH", "reason": "ひび割れ防止の必須部材" },
+    { "code": "ISSHIKI_LUMP_SUM", "pattern": "外構一式計上", "severity": "🚨 HIGH" },
+    { "code": "WOOD_DECK_NO_SHITAJI", "pattern": "ウッドデッキで下地砕石・コンクリ省略", "severity": "🚨 HIGH", "reason": "沈下・傾き発生" },
+    { "code": "SUNROOM_NO_KAKUNIN", "pattern": "サンルームで建築確認申請なし", "severity": "🔴 CRITICAL", "reason": "違法建築・固定資産税問題" },
+    { "code": "RETAINING_WALL_OVER_2M_NO_CALC", "pattern": "高さ2m超擁壁で構造計算なし", "severity": "🔴 CRITICAL", "reason": "建築基準法違反・崩壊リスク" },
+    { "code": "DRAIN_IGNORED", "pattern": "雨水排水計画なし", "severity": "🚨 HIGH", "reason": "敷地冠水・隣家への流出トラブル" },
+    { "code": "FORCED_HIGH_GRADE", "pattern": "機能門柱で済む案件に造作門柱（¥100万超）強要", "severity": "⚠️ MEDIUM" },
+    { "code": "TREE_REMOVAL_NO_LICENSE", "pattern": "大木伐採で造園施工管理技士不在", "severity": "⚠️ MEDIUM" }
+  ],
+
+  "vendor_selection_guide": {
+    "good_signs": [
+      "建設業許可（土木・とび土工）保持",
+      "造園施工管理技士資格（植栽時）",
+      "ブロック塀の建築基準法遵守説明（高さ・厚さ・鉄筋・控え壁）",
+      "補助金制度の事前案内（ブロック塀撤去）",
+      "駐車場コンクリート仕様明記（砕石10cm+コンクリ10cm+ワイヤーメッシュ）",
+      "雨水排水計画の提示",
+      "工程表・施工図面の作成",
+      "5-10年保証",
+      "CADによる完成イメージ図"
+    ],
+    "bad_signs": [
+      "許可証提示拒否",
+      "ブロック塀の建築基準法説明なし",
+      "『補助金対象外』と説明",
+      "仕様詳細不明",
+      "一式計上",
+      "即日契約迫り",
+      "雨水排水考慮なし"
+    ]
+  },
+
+  "customer_scenario_guide": [
+    { "case": "新築戸建・外構未着手", "recommendation": "外構一括（駐車場+門+フェンス+植栽）", "cost_range": { "min": 1500000, "max": 3000000 } },
+    { "case": "駐車場1台分コンクリ化", "recommendation": "土間コンクリ舗装15㎡", "cost": 240000 },
+    { "case": "車を雨から守りたい", "recommendation": "カーポート1台", "cost": 450000 },
+    { "case": "積雪地域のカーポート", "recommendation": "耐雪カーポート折半屋根", "cost": 1250000 },
+    { "case": "趣味車のガレージ欲しい", "recommendation": "シャッター付ガレージ", "cost": 2400000 },
+    { "case": "⚠️ 築40年・古いブロック塀倒壊心配", "recommendation": "ブロック塀解体+軽量フェンス付替（補助金活用）", "cost": 340000, "subsidy_jpy": 124000, "net_cost": 216000 },
+    { "case": "道路側プライバシー確保", "recommendation": "目隠しフェンス15m", "cost": 520000 },
+    { "case": "機能門柱で統一感", "recommendation": "機能門柱+インターホン+宅配ボックス", "cost": 360000 },
+    { "case": "リビングからウッドデッキ", "recommendation": "人工木デッキ10㎡+テラス屋根", "cost": 1020000 },
+    { "case": "洗濯干しにサンルーム", "recommendation": "LIXIL サニージュ", "cost": 1400000 },
+    { "case": "雑草対策したい", "recommendation": "防草シート+砂利敷き20㎡", "cost": 120000 },
+    { "case": "敷地内水たまり・排水問題", "recommendation": "宅地内雨水排水一式", "cost": 430000 },
+    { "case": "物置欲しい（2坪程度）", "recommendation": "イナバ物置 2坪", "cost": 320000 },
+    { "case": "庭の大木伐採したい", "recommendation": "大木伐採+伐根", "cost": 130000 },
+    { "case": "高低差のある敷地", "recommendation": "擁壁工事10㎡", "cost": 700000 },
+    { "case": "玄関周り明るくしたい", "recommendation": "外部照明3箇所（人感センサー）", "cost": 130000 },
+    { "case": "防犯対策強化", "recommendation": "防犯カメラ4台システム", "cost": 350000 }
+  ],
+
+  "negotiation_tips": [
+    "建設業許可番号（土木工事業・とび土工）の確認",
+    "ブロック塀は建築基準法遵守確認（高さ2.2m以下・厚さ12cm以上・鉄筋配筋・控え壁）",
+    "⚠️ ブロック塀撤去は自治体補助金を必ず事前申請（契約前）",
+    "駐車場コンクリ仕様明記要求（砕石10cm+コンクリ10cm+ワイヤーメッシュ）",
+    "雨水排水計画を見積もりに含める",
+    "ウッドデッキは下地（砕石+コンクリ）を必ず確認",
+    "サンルームは建築確認申請を業者が代行するか確認",
+    "2m超擁壁は構造計算書・確認申請必須",
+    "相見積もり3社以上（地元業者・大手エクステリア・DIY店）",
+    "CAD完成イメージ図の提示要求",
+    "工期・施工順序の明確化（外構は最後の工事）",
+    "5-10年保証の有無確認",
+    "メーカー製品は定価55%OFF前後が業者仕入れ",
+    "造作門柱は機能門柱の2-5倍。コスパ比較検討",
+    "植栽は造園業者の方が専門性高い"
+  ],
+
+  "trade_knowledge": {
+    "summary": "外構工事は戸建リフォームで大型金額（¥50-500万）。駐車場コンクリ¥1.2-1.8万/㎡・カーポート1台¥20-60万・2台¥40-100万・機能門柱¥10-40万・フェンス¥1.5-4万/m・ブロック塀新設¥1-2.5万/m・解体¥2-4.5k/㎡・ウッドデッキ人工木¥3-7.5万/㎡・サンルーム¥50-200万・擁壁¥3-8万/㎡",
+    "block_wall_tragedy": "2018年大阪北部地震で小4女児がブロック塀下敷きで死亡。全国自治体が危険ブロック塀撤去補助金創設。建築基準法は高さ2.2m以下・厚さ12cm推奨・1.2m超で控え壁必須・鉄筋配筋必須",
+    "subsidy_opportunity": "ブロック塀解体補助金は自治体により¥1-30万（大阪市¥124k）。軽量フェンス付替にも補助。必ず工事契約前に自治体建築指導課に相談",
+    "parking_concrete_core": "駐車場コンクリート施工の核は『砕石10cm + ワイヤーメッシュ + コンクリ10cm』。手抜きでワイヤーメッシュ省略や厚さ8cm未満は車重でひび割れ",
+    "wood_deck_material": "人工木（樹脂木）が2026年主流。メンテフリー20-30年耐久。天然木ソフトは5-10年で塗装必須。ハードウッドは高級だが20-30年持つ",
+    "sunroom_legal_caution": "サンルームは『建築物』扱いで建築確認申請必要・固定資産税増加。業者が申請代行してくれるか確認",
+    "drainage_importance": "外構で見落とされやすいが超重要。雨水排水計画なしで敷地冠水・隣家流出トラブル多発。雨水桝+U字溝+公共排水接続が標準",
+    "budget_distribution_2026": "2026年外構は費用上昇傾向。予算配分の鉄則：駐車場30%・門廻り20%・フェンス20%・庭/デッキ20%・付帯10%",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 国土交通省建築基準法 + LIXIL/YKK AP/三協アルミ/四国化成/タカショー公式データ + 各自治体補助金制度"
+  }
+}
