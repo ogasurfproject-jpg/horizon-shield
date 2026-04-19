@@ -9,12 +9,11 @@
     "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 2026年実勢データ (熊本産畳表・DAIKEN 健やか・セキスイ美草・カインズ/コーナン等ホームセンター畳、三角畳店、伊藤畳商店、とりまつ畳、関西畳、ゆたか畳、タタミライフ、ハウスマイル徳島店、ゼヒトモ)",
     "scope": "畳の裏返し・表替え・新調、い草/和紙/樹脂畳表、稲わら/建材床/スタイロ畳、琉球畳・縁なし畳、地域別サイズ（京間・中京間・江戸間・団地間）"
   },
-
   "horizon_shield_standard": {
     "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール（畳版）",
     "formula": "畳表・畳床仕入れ値 × 1.2 + 職人人工 × 日当 + 運搬・廃材処分実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
     "parameters": {
-      "material_markup_from_trade_price": 1.20,
+      "material_markup_from_trade_price": 1.2,
       "general_overhead_pct_ideal": 15,
       "general_overhead_pct_acceptable_max": 20,
       "tax_pct": 10,
@@ -23,15 +22,24 @@
     },
     "philosophy": "畳は日本文化の核。訪問販売の産地偽装詐欺（中国産を熊本産と偽る）、グレード詐欺（普及品を最高級と偽る）が多発。HSは産地・グレード・畳表等級の明細化で施主を守る"
   },
-
   "work_types": {
     "uragaeshi": {
       "name": "裏返し（うらがえし）",
       "description": "既存の畳表を剥がし、裏返してそのまま再使用",
       "timing": "畳使用3-5年目",
-      "price_per_mat_jpy": { "min": 3000, "max": 9000 },
-      "advantage": ["最安", "工期半日", "畳を処分しない"],
-      "disadvantage": ["1回のみ可能（表替え済みの畳には不可）", "裏面の状態次第で見た目差"],
+      "price_per_mat_jpy": {
+        "min": 3000,
+        "max": 9000
+      },
+      "advantage": [
+        "最安",
+        "工期半日",
+        "畳を処分しない"
+      ],
+      "disadvantage": [
+        "1回のみ可能（表替え済みの畳には不可）",
+        "裏面の状態次第で見た目差"
+      ],
       "work_duration": "1畳あたり1-2時間",
       "note": "既存畳表の状態が良好な場合のみ施工可能。カビ・シミ・虫食いあると不可"
     },
@@ -39,9 +47,18 @@
       "name": "表替え（おもてがえ）",
       "description": "畳表と畳縁を新品に交換。畳床は再使用",
       "timing": "畳使用5-7年目",
-      "price_per_mat_jpy": { "min": 5000, "max": 22000 },
-      "advantage": ["畳床を再利用してコスト削減", "畳全体が新品同様の見た目", "廃材処分費抑制"],
-      "disadvantage": ["畳床の耐用年数は延びない"],
+      "price_per_mat_jpy": {
+        "min": 5000,
+        "max": 22000
+      },
+      "advantage": [
+        "畳床を再利用してコスト削減",
+        "畳全体が新品同様の見た目",
+        "廃材処分費抑制"
+      ],
+      "disadvantage": [
+        "畳床の耐用年数は延びない"
+      ],
       "work_duration": "1日で6畳可能",
       "note": "最多選択される工事。畳床が10年以内の状態なら最経済的"
     },
@@ -49,215 +66,426 @@
       "name": "新調（しんちょう）",
       "description": "畳床・畳表・畳縁すべて新品に交換",
       "timing": "畳使用10-15年目",
-      "price_per_mat_jpy": { "min": 9000, "max": 30000 },
-      "advantage": ["全新品で耐用年数最大化", "踏み心地刷新", "現代的な畳床（スタイロ等）選択可"],
-      "disadvantage": ["最高額", "畳廃材処分必要"],
+      "price_per_mat_jpy": {
+        "min": 9000,
+        "max": 30000
+      },
+      "advantage": [
+        "全新品で耐用年数最大化",
+        "踏み心地刷新",
+        "現代的な畳床（スタイロ等）選択可"
+      ],
+      "disadvantage": [
+        "最高額",
+        "畳廃材処分必要"
+      ],
       "work_duration": "採寸1日+製作3-5日+敷設1日",
       "note": "築20年以上の家・畳床のヘタリ顕著時に必須"
     }
   },
-
   "tatami_omote_grades": {
     "description": "畳表（ござ）のグレード（最重要・詐欺多発領域）",
     "grades": {
       "china_entry": {
         "name": "中国産い草・普及品",
-        "price_per_mat_omotegae_jpy": { "min": 5000, "max": 8000 },
-        "price_per_mat_shinchou_jpy": { "min": 9000, "max": 13000 },
-        "durability_years": { "min": 3, "max": 5 },
+        "price_per_mat_omotegae_jpy": {
+          "min": 5000,
+          "max": 8000
+        },
+        "price_per_mat_shinchou_jpy": {
+          "min": 9000,
+          "max": 13000
+        },
+        "durability_years": {
+          "min": 3,
+          "max": 5
+        },
         "target": "賃貸物件・最小予算",
-        "features": ["最安", "い草品質低", "色褪せ早い"],
+        "features": [
+          "最安",
+          "い草品質低",
+          "色褪せ早い"
+        ],
         "identification": "細く短いい草・茎の太さ不揃い・緑色が薄い"
       },
       "china_mid": {
         "name": "中国産い草・中級品",
-        "price_per_mat_omotegae_jpy": { "min": 7000, "max": 10000 },
-        "durability_years": { "min": 4, "max": 6 }
+        "price_per_mat_omotegae_jpy": {
+          "min": 7000,
+          "max": 10000
+        },
+        "durability_years": {
+          "min": 4,
+          "max": 6
+        }
       },
       "china_high": {
         "name": "中国産い草・上級品",
-        "price_per_mat_omotegae_jpy": { "min": 9000, "max": 12000 },
-        "durability_years": { "min": 5, "max": 7 },
+        "price_per_mat_omotegae_jpy": {
+          "min": 9000,
+          "max": 12000
+        },
+        "durability_years": {
+          "min": 5,
+          "max": 7
+        },
         "note": "国産中級品と価格が重なる領域・注意"
       },
       "japan_mid": {
         "name": "国産い草（熊本以外）・中級品",
-        "price_per_mat_omotegae_jpy": { "min": 8000, "max": 12000 },
-        "price_per_mat_shinchou_jpy": { "min": 12000, "max": 18000 },
-        "durability_years": { "min": 5, "max": 7 },
+        "price_per_mat_omotegae_jpy": {
+          "min": 8000,
+          "max": 12000
+        },
+        "price_per_mat_shinchou_jpy": {
+          "min": 12000,
+          "max": 18000
+        },
+        "durability_years": {
+          "min": 5,
+          "max": 7
+        },
         "target": "一般住宅標準"
       },
       "kumamoto_high": {
         "name": "熊本産い草・上級品（ブランド）",
-        "price_per_mat_omotegae_jpy": { "min": 12000, "max": 15000 },
-        "price_per_mat_shinchou_jpy": { "min": 15000, "max": 22000 },
-        "durability_years": { "min": 7, "max": 10 },
+        "price_per_mat_omotegae_jpy": {
+          "min": 12000,
+          "max": 15000
+        },
+        "price_per_mat_shinchou_jpy": {
+          "min": 15000,
+          "max": 22000
+        },
+        "durability_years": {
+          "min": 7,
+          "max": 10
+        },
         "target": "客間・大切にしたい和室",
-        "features": ["い草太く長い", "深緑色", "香り豊か", "弾力性◎"],
+        "features": [
+          "い草太く長い",
+          "深緑色",
+          "香り豊か",
+          "弾力性◎"
+        ],
         "certification": "熊本県い業生産販売振興協会の認証マーク確認"
       },
       "kumamoto_premium": {
         "name": "熊本産・最高級品（備後表等）",
-        "price_per_mat_omotegae_jpy": { "min": 15000, "max": 22000 },
-        "price_per_mat_shinchou_jpy": { "min": 22000, "max": 35000 },
-        "durability_years": { "min": 10, "max": 15 },
+        "price_per_mat_omotegae_jpy": {
+          "min": 15000,
+          "max": 22000
+        },
+        "price_per_mat_shinchou_jpy": {
+          "min": 22000,
+          "max": 35000
+        },
+        "durability_years": {
+          "min": 10,
+          "max": 15
+        },
         "target": "茶室・書院・最高級和室",
-        "features": ["一番草使用", "麻綿W織り", "最高耐久性"]
+        "features": [
+          "一番草使用",
+          "麻綿W織り",
+          "最高耐久性"
+        ]
       },
       "washi_tatami": {
         "name": "和紙畳表（DAIKEN 健やか・セキスイ美草）",
-        "price_per_mat_omotegae_jpy": { "min": 15000, "max": 22000 },
-        "price_per_mat_shinchou_jpy": { "min": 20000, "max": 30000 },
-        "durability_years": { "min": 15, "max": 20 },
+        "price_per_mat_omotegae_jpy": {
+          "min": 15000,
+          "max": 22000
+        },
+        "price_per_mat_shinchou_jpy": {
+          "min": 20000,
+          "max": 30000
+        },
+        "durability_years": {
+          "min": 15,
+          "max": 20
+        },
         "target": "メンテナンス減らしたい家庭・ペット家庭",
-        "features": ["色褪せしない", "水に強い", "ダニ・カビ発生しにくい", "カラーバリエーション豊富"],
+        "features": [
+          "色褪せしない",
+          "水に強い",
+          "ダニ・カビ発生しにくい",
+          "カラーバリエーション豊富"
+        ],
         "unique": "い草より耐久性3倍・価格は1.5倍"
       },
       "resin_tatami": {
         "name": "樹脂畳表（ポリプロピレン）",
-        "price_per_mat_omotegae_jpy": { "min": 13000, "max": 18000 },
-        "price_per_mat_shinchou_jpy": { "min": 18000, "max": 25000 },
-        "durability_years": { "min": 15, "max": 20 },
+        "price_per_mat_omotegae_jpy": {
+          "min": 13000,
+          "max": 18000
+        },
+        "price_per_mat_shinchou_jpy": {
+          "min": 18000,
+          "max": 25000
+        },
+        "durability_years": {
+          "min": 15,
+          "max": 20
+        },
         "target": "ペット・子供いる家庭",
-        "features": ["最高耐水性", "掃除簡単", "い草の香りなし", "質感はプラ寄り"]
+        "features": [
+          "最高耐水性",
+          "掃除簡単",
+          "い草の香りなし",
+          "質感はプラ寄り"
+        ]
       }
     }
   },
-
   "tatami_doko_types": {
     "description": "畳床の種類（畳の芯材）",
     "types": {
       "inawara_doko": {
         "name": "稲わら床（伝統畳床）",
         "description": "稲わら40-45cmを圧縮した伝統的な畳床",
-        "weight_per_mat_kg": { "min": 25, "max": 30 },
-        "price_per_mat_jpy": { "min": 8000, "max": 15000 },
-        "durability_years": { "min": 20, "max": 30 },
-        "features": ["調湿性最高", "断熱性◎", "弾力性◎", "重量最大", "虫・カビ注意"],
+        "weight_per_mat_kg": {
+          "min": 25,
+          "max": 30
+        },
+        "price_per_mat_jpy": {
+          "min": 8000,
+          "max": 15000
+        },
+        "durability_years": {
+          "min": 20,
+          "max": 30
+        },
+        "features": [
+          "調湿性最高",
+          "断熱性◎",
+          "弾力性◎",
+          "重量最大",
+          "虫・カビ注意"
+        ],
         "availability": "生産減少中・貴重"
       },
       "kenzai_doko_1": {
         "name": "建材床 Ⅰ型（稲わら+インシュレーションボード）",
         "description": "稲わらとインシュレーションボードのハイブリッド",
-        "weight_per_mat_kg": { "min": 20, "max": 25 },
-        "price_per_mat_jpy": { "min": 5000, "max": 10000 },
-        "durability_years": { "min": 15, "max": 20 },
-        "features": ["わら床より軽量", "調湿性やや低下", "コスパ良好"]
+        "weight_per_mat_kg": {
+          "min": 20,
+          "max": 25
+        },
+        "price_per_mat_jpy": {
+          "min": 5000,
+          "max": 10000
+        },
+        "durability_years": {
+          "min": 15,
+          "max": 20
+        },
+        "features": [
+          "わら床より軽量",
+          "調湿性やや低下",
+          "コスパ良好"
+        ]
       },
       "kenzai_doko_2": {
         "name": "建材床 Ⅱ型（木質繊維ボード主体）",
         "description": "インシュレーションボード主体・稲わら補助",
-        "weight_per_mat_kg": { "min": 15, "max": 20 },
-        "price_per_mat_jpy": { "min": 4000, "max": 8000 },
-        "durability_years": { "min": 10, "max": 15 }
+        "weight_per_mat_kg": {
+          "min": 15,
+          "max": 20
+        },
+        "price_per_mat_jpy": {
+          "min": 4000,
+          "max": 8000
+        },
+        "durability_years": {
+          "min": 10,
+          "max": 15
+        }
       },
       "styrofoam_doko": {
         "name": "スタイロ畳（ポリスチレンフォーム芯）",
         "description": "発泡スチロール系断熱材を芯材とした現代畳床",
-        "weight_per_mat_kg": { "min": 8, "max": 12 },
-        "price_per_mat_jpy": { "min": 3000, "max": 7000 },
-        "durability_years": { "min": 10, "max": 15 },
-        "features": ["超軽量", "防虫・防ダニ", "保温性◎", "踏み心地硬い", "調湿性低"],
+        "weight_per_mat_kg": {
+          "min": 8,
+          "max": 12
+        },
+        "price_per_mat_jpy": {
+          "min": 3000,
+          "max": 7000
+        },
+        "durability_years": {
+          "min": 10,
+          "max": 15
+        },
+        "features": [
+          "超軽量",
+          "防虫・防ダニ",
+          "保温性◎",
+          "踏み心地硬い",
+          "調湿性低"
+        ],
         "target": "マンション・高齢者家庭・掃除しやすさ重視"
       },
       "sandwich_doko": {
         "name": "サンドイッチ床",
         "description": "稲わら+ボード+稲わらの3層構造",
-        "weight_per_mat_kg": { "min": 18, "max": 23 },
-        "price_per_mat_jpy": { "min": 6000, "max": 12000 },
-        "features": ["バランス型", "弾力性・耐久性両立"]
+        "weight_per_mat_kg": {
+          "min": 18,
+          "max": 23
+        },
+        "price_per_mat_jpy": {
+          "min": 6000,
+          "max": 12000
+        },
+        "features": [
+          "バランス型",
+          "弾力性・耐久性両立"
+        ]
       }
     }
   },
-
   "tatami_sizes_by_region": {
     "description": "地域別の畳サイズ（同じ6畳でも面積が20%異なる）",
     "sizes": {
       "kyouma_honma": {
         "name": "京間（本間・関西間）",
-        "dimensions_mm": { "length": 1910, "width": 955, "thickness_standard": 55 },
+        "dimensions_mm": {
+          "length": 1910,
+          "width": 955,
+          "thickness_standard": 55
+        },
         "area_sqm_per_mat": 1.824,
         "region": "関西・中国・四国・九州",
         "note": "最大サイズ・桃山時代から継続する茶室・書院建築の標準",
-        "price_premium_multiplier": 1.20
+        "price_premium_multiplier": 1.2
       },
       "chukyouma": {
         "name": "中京間（三六間）",
-        "dimensions_mm": { "length": 1820, "width": 910, "thickness_standard": 55 },
+        "dimensions_mm": {
+          "length": 1820,
+          "width": 910,
+          "thickness_standard": 55
+        },
         "area_sqm_per_mat": 1.656,
         "region": "愛知・岐阜・福島・山形・岩手（東北・東海）",
         "note": "京間と江戸間の中間"
       },
       "edoma_gohachima": {
         "name": "江戸間（五八間・関東間）",
-        "dimensions_mm": { "length": 1760, "width": 880, "thickness_standard": 55 },
+        "dimensions_mm": {
+          "length": 1760,
+          "width": 880,
+          "thickness_standard": 55
+        },
         "area_sqm_per_mat": 1.548,
         "region": "関東・東北・北陸（全国主流）",
         "note": "現代住宅の主流サイズ"
       },
       "danchima_goroma": {
         "name": "団地間（五六間・公団サイズ）",
-        "dimensions_mm": { "length": 1700, "width": 850, "thickness_standard": 55 },
+        "dimensions_mm": {
+          "length": 1700,
+          "width": 850,
+          "thickness_standard": 55
+        },
         "area_sqm_per_mat": 1.445,
         "region": "団地・マンション・アパート",
         "note": "最小サイズ・同じ6畳でも京間より20%狭い",
-        "price_discount_multiplier": 0.90
+        "price_discount_multiplier": 0.9
       },
       "roku_ichi_ma": {
         "name": "六一間（山陰間・安芸間・広島間）",
-        "dimensions_mm": { "length": 1850, "width": 920, "thickness_standard": 55 },
+        "dimensions_mm": {
+          "length": 1850,
+          "width": 920,
+          "thickness_standard": 55
+        },
         "region": "山陰地方・広島・安芸"
       },
       "ryukyu_tatami": {
         "name": "琉球畳（半帖畳）",
-        "dimensions_mm": { "length": 910, "width": 910, "thickness_standard": 55 },
+        "dimensions_mm": {
+          "length": 910,
+          "width": 910,
+          "thickness_standard": 55
+        },
         "area_sqm_per_mat": 0.828,
         "region": "全国（和モダン）",
-        "features": ["半畳正方形", "縁なし", "七島イ（本物）or 和紙（現代主流）"],
-        "price_premium_multiplier": 1.30,
+        "features": [
+          "半畳正方形",
+          "縁なし",
+          "七島イ（本物）or 和紙（現代主流）"
+        ],
+        "price_premium_multiplier": 1.3,
         "note": "本物の琉球畳（七島イ）は高価・希少"
       }
     }
   },
-
   "tatami_beri_types": {
     "description": "畳縁（たたみべり）の種類",
     "types": {
       "muji_standard": {
         "name": "無地縁（標準）",
-        "price_per_meter_jpy": { "min": 100, "max": 300 },
-        "colors": ["黒", "茶", "緑", "紺"],
+        "price_per_meter_jpy": {
+          "min": 100,
+          "max": 300
+        },
+        "colors": [
+          "黒",
+          "茶",
+          "緑",
+          "紺"
+        ],
         "note": "最も一般的"
       },
       "gara_pattern": {
         "name": "柄縁（模様入り）",
-        "price_per_meter_jpy": { "min": 300, "max": 800 },
+        "price_per_meter_jpy": {
+          "min": 300,
+          "max": 800
+        },
         "note": "高級品向け・現代はデザイン豊富"
       },
       "asa_highend": {
         "name": "麻縁・最高級",
-        "price_per_meter_jpy": { "min": 800, "max": 2000 },
+        "price_per_meter_jpy": {
+          "min": 800,
+          "max": 2000
+        },
         "note": "茶室・最高級畳用"
       },
       "heri_nashi": {
         "name": "縁なし畳（ヘリなし）",
-        "additional_cost_per_mat_jpy": { "min": 1500, "max": 3000 },
-        "features": ["和モダン空間向け", "琉球畳と相性良", "洋間に馴染む"],
+        "additional_cost_per_mat_jpy": {
+          "min": 1500,
+          "max": 3000
+        },
+        "features": [
+          "和モダン空間向け",
+          "琉球畳と相性良",
+          "洋間に馴染む"
+        ],
         "note": "通常より+15-20%費用。半畳サイズが多い"
       }
     }
   },
-
   "labor_cost_details": {
     "description": "畳職人の作業内容と工賃",
-    "tatami_craftsman_day_rate_kanto": { "min": 20000, "max": 30000, "avg": 25000 },
+    "tatami_craftsman_day_rate_kanto": {
+      "min": 20000,
+      "max": 30000,
+      "avg": 25000
+    },
     "work_time_per_mat": {
       "uragaeshi": "1-2時間/畳",
       "omotegae": "2-3時間/畳",
       "shinchou": "半日/畳（採寸・製作・敷設含む）"
     },
     "transport_cost_jpy": {
-      "local_delivery": { "min": 2000, "max": 5000 },
+      "local_delivery": {
+        "min": 2000,
+        "max": 5000
+      },
       "long_distance_per_km": 100
     },
     "waste_disposal_per_old_mat_jpy": {
@@ -265,16 +493,22 @@
       "max": 3000,
       "note": "新調時のみ発生"
     },
-    "furniture_moving_per_heavy_item_jpy": { "min": 3000, "max": 5000, "note": "重量家具の移動代" },
+    "furniture_moving_per_heavy_item_jpy": {
+      "min": 3000,
+      "max": 5000,
+      "note": "重量家具の移動代"
+    },
     "elevator_surcharge_3f_plus_jpy": 550,
     "weekend_holiday_surcharge_pct": 10
   },
-
   "plans": {
     "uragaeshi_6mats_edoma": {
       "name": "裏返し 6畳（江戸間・標準）",
       "scope": "既存い草を裏返し、畳縁交換",
-      "estimated_total_jpy": { "min": 18000, "max": 54000 },
+      "estimated_total_jpy": {
+        "min": 18000,
+        "max": 54000
+      },
       "hs_rule_estimate_jpy": 40000,
       "work_days": 0.5,
       "note": "最安・短工期・1回のみ可能"
@@ -282,7 +516,10 @@
     "omotegae_6mats_china_entry": {
       "name": "表替え 6畳・中国産普及品",
       "scope": "中国産い草、畳縁交換",
-      "estimated_total_jpy": { "min": 30000, "max": 48000 },
+      "estimated_total_jpy": {
+        "min": 30000,
+        "max": 48000
+      },
       "hs_rule_estimate_jpy": 45000,
       "work_days": 1,
       "note": "賃貸物件・最小予算向け"
@@ -290,7 +527,10 @@
     "omotegae_6mats_japan_mid": {
       "name": "表替え 6畳・国産中級品（HS推奨）",
       "scope": "国産い草中級品",
-      "estimated_total_jpy": { "min": 48000, "max": 72000 },
+      "estimated_total_jpy": {
+        "min": 48000,
+        "max": 72000
+      },
       "hs_rule_estimate_jpy": 65000,
       "work_days": 1,
       "breakdown_sample": {
@@ -307,14 +547,20 @@
     "omotegae_6mats_kumamoto_high": {
       "name": "表替え 6畳・熊本産ブランド畳表",
       "scope": "熊本産ブランドい草・認証付き",
-      "estimated_total_jpy": { "min": 72000, "max": 90000 },
+      "estimated_total_jpy": {
+        "min": 72000,
+        "max": 90000
+      },
       "hs_rule_estimate_jpy": 85000,
       "work_days": 1
     },
     "omotegae_6mats_washi": {
       "name": "表替え 6畳・和紙畳表（DAIKEN健やか）",
       "scope": "和紙畳表・15-20年耐久",
-      "estimated_total_jpy": { "min": 90000, "max": 132000 },
+      "estimated_total_jpy": {
+        "min": 90000,
+        "max": 132000
+      },
       "hs_rule_estimate_jpy": 115000,
       "work_days": 1,
       "note": "長期コスパ最強・ペット家庭推奨"
@@ -322,21 +568,30 @@
     "shinchou_6mats_japan_mid": {
       "name": "新調 6畳・国産中級品",
       "scope": "畳床・畳表・畳縁すべて新品",
-      "estimated_total_jpy": { "min": 72000, "max": 108000 },
+      "estimated_total_jpy": {
+        "min": 72000,
+        "max": 108000
+      },
       "hs_rule_estimate_jpy": 95000,
       "work_days": 3
     },
     "shinchou_6mats_kumamoto_high": {
       "name": "新調 6畳・熊本産ブランド",
       "scope": "熊本産上級＋建材床",
-      "estimated_total_jpy": { "min": 90000, "max": 132000 },
+      "estimated_total_jpy": {
+        "min": 90000,
+        "max": 132000
+      },
       "hs_rule_estimate_jpy": 120000,
       "work_days": 3
     },
     "shinchou_6mats_kumamoto_premium": {
       "name": "新調 6畳・熊本産最高級（備後表）",
       "scope": "最高級畳表＋稲わら床",
-      "estimated_total_jpy": { "min": 132000, "max": 210000 },
+      "estimated_total_jpy": {
+        "min": 132000,
+        "max": 210000
+      },
       "hs_rule_estimate_jpy": 175000,
       "work_days": 5,
       "note": "茶室・書院クラス"
@@ -344,7 +599,10 @@
     "ryukyu_6hanjou_washi": {
       "name": "琉球畳 6畳分（半畳12枚・和紙）",
       "scope": "和紙製琉球畳・縁なし・半畳正方形",
-      "estimated_total_jpy": { "min": 90000, "max": 150000 },
+      "estimated_total_jpy": {
+        "min": 90000,
+        "max": 150000
+      },
       "hs_rule_estimate_jpy": 130000,
       "work_days": 2,
       "note": "和モダン空間・人気急増"
@@ -352,13 +610,15 @@
     "ryukyu_6hanjou_shichitou": {
       "name": "琉球畳 6畳分・本物七島イ草",
       "scope": "本物琉球畳・七島イ使用",
-      "estimated_total_jpy": { "min": 200000, "max": 360000 },
+      "estimated_total_jpy": {
+        "min": 200000,
+        "max": 360000
+      },
       "hs_rule_estimate_jpy": 280000,
       "work_days": 4,
       "note": "希少・本格和室・茶室向け"
     }
   },
-
   "red_flags": [
     {
       "code": "PRODUCT_ORIGIN_FRAUD",
@@ -434,7 +694,6 @@
       "reason": "相場は1個¥3-5k。¥10k超は過剰請求"
     }
   ],
-
   "merchant_selection_guide": {
     "description": "畳業者の選び方ガイド",
     "good_merchant_signs": [
@@ -458,7 +717,6 @@
       "極端に安い価格"
     ]
   },
-
   "customer_scenario_guide": {
     "description": "施主の状況別・最適プラン提案",
     "scenarios": [
@@ -492,7 +750,10 @@
       {
         "case": "ペット・子供いる家庭",
         "recommendation": "樹脂畳 or 和紙畳",
-        "expected_cost_6mats": { "min": 105000, "max": 140000 },
+        "expected_cost_6mats": {
+          "min": 105000,
+          "max": 140000
+        },
         "note": "水拭き可・カビ・ダニ発生少"
       },
       {
@@ -505,10 +766,34 @@
         "case": "客間・茶室・最高級",
         "recommendation": "熊本産最高級（備後表）+ 稲わら床",
         "expected_cost_6mats": 175000
+      },
+      {
+        "case": "ダニ・カビが気になる",
+        "recommendation": "和紙畳・樹脂畳（6畳）",
+        "cost_range": {
+          "min": 80000,
+          "max": 200000
+        }
+      },
+      {
+        "case": "琉球畳でモダンに",
+        "recommendation": "縁なし琉球畳（6畳）",
+        "cost_range": {
+          "min": 100000,
+          "max": 250000
+        }
+      },
+      {
+        "case": "和室を洋室に変更",
+        "recommendation": "畳→フローリング（6畳）",
+        "cost_range": {
+          "min": 200000,
+          "max": 350000
+        },
+        "note": "floor_replacement参照"
       }
     ]
   },
-
   "negotiation_tips": [
     "畳表の産地・グレード明記要求（熊本産なら認証書提示）",
     "畳表のサンプル実物確認（中国産と熊本産は一目瞭然）",
@@ -524,7 +809,6 @@
     "琉球畳は通常畳より+20-30%費用（半畳サイズ多いため）",
     "梅雨時期・夏は避ける（い草が湿気吸って加工しにくい）"
   ],
-
   "trade_knowledge": {
     "summary": "畳替えは裏返し（¥3-9k/畳）・表替え（¥5-22k/畳）・新調（¥9-30k/畳）の3工事。畳表は中国産（¥5-8k）/国産（¥8-15k）/熊本産高級（¥12-22k）/和紙樹脂（¥13-22k）で価格4倍の差。畳床は稲わら・建材床・スタイロ畳の3主流。サイズは京間・中京間・江戸間・団地間で面積20%差",
     "origin_fraud_reality": "畳業界最多の詐欺は『中国産を熊本産と偽る産地詐称』。中国産（¥5-8k）を熊本産（¥12-15k）と偽って2倍以上の請求。訪問販売業者は特に要警戒。熊本県い業生産販売振興協会の認証マーク確認が必須",

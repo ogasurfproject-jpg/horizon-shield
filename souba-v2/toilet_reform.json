@@ -9,20 +9,18 @@
     "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 2026年実勢データ (TOTO ピュアレスト/ネオレスト・LIXIL アメージュ/プレアス/サティス・Panasonic アラウーノ、住設ドットコム、東京ガス リフォーム、リショップナビ、リフォームガイド、くらしのマーケット、リフォームタイムズ/SUUMO、山根木材)",
     "scope": "既存洋式→新しい洋式便器交換、和式→洋式リフォーム、タンクレス化、内装フル改装"
   },
-
   "horizon_shield_standard": {
     "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール（トイレリフォーム版）",
     "formula": "本体仕入れ値 × 1.2 + 職人人工 × 日当 + 付帯工事実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
     "parameters": {
-      "material_markup_from_trade_price": 1.20,
+      "material_markup_from_trade_price": 1.2,
       "general_overhead_pct_ideal": 15,
       "general_overhead_pct_acceptable_max": 20,
       "tax_pct": 10,
-      "trade_price_ratio_from_list": 0.50,
+      "trade_price_ratio_from_list": 0.5,
       "note": "トイレ本体は住設全般で定価の45-55%が業者仕入れ値。ネット販売も同程度の45-55%OFF。"
     }
   },
-
   "toilet_bodies": {
     "budget_tank_plain": {
       "name": "組合せ便器（タンク式・普通便座）",
@@ -71,7 +69,6 @@
       "note": "最上位グレード。除菌水・瞬間暖房など最新機能"
     }
   },
-
   "labor": {
     "setsubi_day_rate_kanto": {
       "min": 22000,
@@ -97,79 +94,118 @@
       "avg": 25000
     }
   },
-
   "standard_work_items": {
     "toilet_replacement_only": {
       "description": "既存洋式→新洋式の本体交換のみ",
       "labor": "設備屋 0.5-1人工",
-      "work_cost": { "min": 10000, "max": 30000 }
+      "work_cost": {
+        "min": 10000,
+        "max": 30000
+      }
     },
     "floor_cushion_flooring_replace": {
       "description": "床クッションフロア張替え（1.5㎡）",
-      "cost": { "min": 15000, "max": 30000 }
+      "cost": {
+        "min": 15000,
+        "max": 30000
+      }
     },
     "wall_cloth_replace": {
       "description": "クロス張替え（壁+天井 約10㎡）",
-      "cost": { "min": 20000, "max": 50000 }
+      "cost": {
+        "min": 20000,
+        "max": 50000
+      }
     },
     "pipe_connection_material": {
       "description": "配管接続材料",
-      "cost": { "min": 3000, "max": 8000 }
+      "cost": {
+        "min": 3000,
+        "max": 8000
+      }
     },
     "disposal": {
       "description": "旧便器廃材処分",
-      "cost": { "min": 3000, "max": 8000 }
+      "cost": {
+        "min": 3000,
+        "max": 8000
+      }
     }
   },
-
   "washiki_to_yoshiki_modules": {
     "description": "和式→洋式リフォームの特有工事モジュール",
     "items": {
       "washiki_demolition": {
         "description": "既存和式便器・タイル撤去",
-        "cost": { "min": 30000, "max": 60000 }
+        "cost": {
+          "min": 30000,
+          "max": 60000
+        }
       },
       "level_adjustment_carpentry": {
         "description": "段差解消の大工工事（床組み直し）",
         "labor": "大工 1人工",
-        "work_cost": { "min": 30000, "max": 50000 }
+        "work_cost": {
+          "min": 30000,
+          "max": 50000
+        }
       },
       "floor_framing_materials": {
         "description": "床下地材料（根太・合板・断熱材）",
-        "cost": { "min": 10000, "max": 20000 }
+        "cost": {
+          "min": 10000,
+          "max": 20000
+        }
       },
       "pipe_relocation": {
         "description": "給排水管の移設・配管工事",
         "labor": "設備屋 1-2人工",
-        "work_cost": { "min": 30000, "max": 80000 }
+        "work_cost": {
+          "min": 30000,
+          "max": 80000
+        }
       },
       "pipe_material": {
         "description": "配管材料（給水/排水管）",
-        "cost": { "min": 5000, "max": 15000 }
+        "cost": {
+          "min": 5000,
+          "max": 15000
+        }
       },
       "electric_outlet_new": {
         "description": "コンセント新設（電気工事士資格必須）",
         "labor": "電気工事士 0.5-1人工",
-        "work_cost": { "min": 15000, "max": 30000 }
+        "work_cost": {
+          "min": 15000,
+          "max": 30000
+        }
       },
       "waste_disposal_washiki": {
         "description": "和式解体廃材処分（量大）",
-        "cost": { "min": 8000, "max": 15000 }
+        "cost": {
+          "min": 8000,
+          "max": 15000
+        }
       }
     }
   },
-
   "plans": {
     "simple_replacement_tank": {
       "name": "シンプルプラン：タンク式本体のみ交換",
       "scope": "既存洋式→新タンク式便器（シャワー便座付）",
-      "estimated_total_jpy": { "min": 100000, "max": 180000 },
+      "estimated_total_jpy": {
+        "min": 100000,
+        "max": 180000
+      },
       "hs_rule_estimate_jpy": 165000
     },
     "full_renovation_tank": {
       "name": "スタンダードプラン：タンク式＋床・クロス改装",
       "scope": "TOTO ピュアレストQR+シャワー便座、床CF・クロス全面張替え",
-      "estimated_total_jpy": { "min": 200000, "max": 350000 },
+      "estimated_total_jpy": {
+        "min": 200000,
+        "max": 350000
+      },
       "hs_rule_estimate_jpy": 265000,
       "breakdown_sample": {
         "body_hs_rule": 118800,
@@ -189,19 +225,28 @@
     "tankless_renovation": {
       "name": "プレミアムプラン：タンクレス+フル改装",
       "scope": "Panasonic アラウーノ/TOTO ネオレスト標準、床・クロス・手洗い器",
-      "estimated_total_jpy": { "min": 350000, "max": 600000 },
+      "estimated_total_jpy": {
+        "min": 350000,
+        "max": 600000
+      },
       "hs_rule_estimate_jpy": 450000
     },
     "washiki_to_yoshiki_basic": {
       "name": "和式→洋式：基本改装",
       "scope": "タンク式シャワー便座+段差解消+床・クロス張替え",
-      "estimated_total_jpy": { "min": 400000, "max": 600000 },
+      "estimated_total_jpy": {
+        "min": 400000,
+        "max": 600000
+      },
       "hs_rule_estimate_jpy": 480000
     },
     "washiki_to_yoshiki_full": {
       "name": "和式→洋式：フル改装（推奨）",
       "scope": "タンク式シャワー便座+段差解消+配管移設+電気+内装全交換",
-      "estimated_total_jpy": { "min": 500000, "max": 800000 },
+      "estimated_total_jpy": {
+        "min": 500000,
+        "max": 800000
+      },
       "hs_rule_estimate_jpy": 590000,
       "breakdown_sample": {
         "body_hs_rule": 118800,
@@ -227,12 +272,14 @@
     "barrier_free_full": {
       "name": "バリアフリー：手すり・入口拡張込み",
       "scope": "和式→洋式+入口拡張+手すり+車椅子対応床",
-      "estimated_total_jpy": { "min": 700000, "max": 1200000 },
+      "estimated_total_jpy": {
+        "min": 700000,
+        "max": 1200000
+      },
       "hs_rule_estimate_jpy": 900000,
       "note": "介護保険・自治体バリアフリー補助金対象になる場合多数。要確認"
     }
   },
-
   "red_flags": [
     {
       "code": "BODY_OVERPRICED_LIST",
@@ -281,9 +328,32 @@
       "pattern": "電気工事を無資格の配管工が兼務",
       "severity": "🔴 CRITICAL",
       "reason": "電気工事士法違反。漏電・火災リスク。第2種電気工事士の有資格者以外施工できない"
+    },
+    {
+      "code": "TANKLESS_NO_WATER_PRESSURE_CHECK",
+      "pattern": "タンクレス提案で水圧確認なし",
+      "severity": "🚨 HIGH",
+      "reason": "2階・マンション上層で流れない"
+    },
+    {
+      "code": "WASHLET_NO_OUTLET",
+      "pattern": "ウォシュレット提案でコンセント工事なし",
+      "severity": "⚠️ MEDIUM",
+      "reason": "electrical_work必要"
+    },
+    {
+      "code": "WASHOKU_TO_WASHIKI_NO_SHITAJI",
+      "pattern": "和式→洋式で床下点検なし",
+      "severity": "🔴 CRITICAL",
+      "reason": "床下腐食・白蟻の場合あり"
+    },
+    {
+      "code": "TOILET_TANK_OVER_500K",
+      "pattern": "タンク式便器交換で¥500k超",
+      "severity": "🚨 HIGH",
+      "reason": "HS基準¥250-400k"
     }
   ],
-
   "negotiation_tips": [
     "便器の型番・メーカー・グレードの明記を要求（ネット実勢価格と比較できる）",
     "定価の何%掛けで見積もられているか聞く（業界の業者仕入れは定価45-55% OFF）",
@@ -296,7 +366,6 @@
     "撤去処分費が¥20,000超は明細要求（特に和式の場合）",
     "見積書に『一式』が多用されている業者は要警戒"
   ],
-
   "trade_knowledge": {
     "summary": "トイレ本体は住設の掛け率スタンダード（業者仕入れ値は定価の45-55%）。工事費は本体交換のみなら¥10-30k、内装込みなら¥50-100k、和式→洋式フルなら¥200-400k。和式→洋式案件は築古住宅でまだ一定需要あり、40-80万クラスのリフォームになる。",
     "body_price_structure": "定価→ネット販売（定価45-55%OFF）→業者仕入れ値（定価45-55%OFF、ネットとほぼ同等）→施主請求（定価20-30%OFF）の階層。業者マージンは定価の20-35%。HS基準では仕入れ×1.2で「ほぼネット価格並み」になる。",
@@ -304,5 +373,57 @@
     "electric_work_license": "電気工事（コンセント新設）は第二種電気工事士資格必須。配管工が無資格で施工する業者は法令違反。消防・保険の観点でも危険。",
     "barrier_free_subsidy": "和式→洋式+バリアフリー化は介護保険20万円上限・市区町村の住宅改修補助・みらいエコ住宅事業など複数の補助金対象。知らずに自己負担100%払う施主が多い。",
     "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 住設業界内部情報 + 大手メーカー公式データ"
-  }
+  },
+  "customer_scenario_guide": [
+    {
+      "case": "温水洗浄便座付けたい",
+      "recommendation": "シンプルプラン本体のみ",
+      "cost_range": {
+        "min": 80000,
+        "max": 200000
+      }
+    },
+    {
+      "case": "床・壁も汚れが目立つ",
+      "recommendation": "スタンダードプラン床壁込み",
+      "cost_range": {
+        "min": 200000,
+        "max": 400000
+      }
+    },
+    {
+      "case": "タンクレスでおしゃれに",
+      "recommendation": "プレミアムプラン",
+      "cost_range": {
+        "min": 400000,
+        "max": 700000
+      }
+    },
+    {
+      "case": "築古で和式を洋式に",
+      "recommendation": "和式→洋式フル改装",
+      "cost_range": {
+        "min": 400000,
+        "max": 800000
+      },
+      "note": "介護保険対象"
+    },
+    {
+      "case": "手すりで立ち座り補助",
+      "recommendation": "トイレ改装+手すり",
+      "cost_range": {
+        "min": 250000,
+        "max": 500000
+      },
+      "note": "介護保険20万円対象"
+    },
+    {
+      "case": "節水で光熱費削減",
+      "recommendation": "タンクレス+節水便器",
+      "cost_range": {
+        "min": 350000,
+        "max": 600000
+      }
+    }
+  ]
 }

@@ -9,182 +9,364 @@
     "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 2026年実勢データ (TOTO サザナ/シンラ・LIXIL アライズ/リデア/スパージュ・クリナップ アクリアバス/ユアシス・タカラ プレデンシア/レラージュ・Panasonic オフローラ/Lクラス、リショップナビ、SUUMO、リフォーム費用の手引き、鈴与ホームパル、ホーム・デポ、リフォスム、経済調査会 積算資料ポケット版リフォーム編2026)",
     "scope": "ユニットバス交換（UB→UB）、在来工法→ユニットバス変更（大工・窓・外壁工事含む）、築古住宅の特殊対応"
   },
-
   "horizon_shield_standard": {
     "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール（浴室版）",
     "formula": "本体仕入れ値 × 1.2 + 職人人工 × 日当 + 付帯工事実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
     "parameters": {
-      "material_markup_from_trade_price": 1.20,
+      "material_markup_from_trade_price": 1.2,
       "general_overhead_pct_ideal": 15,
       "general_overhead_pct_acceptable_max": 20,
       "tax_pct": 10,
-      "trade_price_ratio_from_list": 0.40,
+      "trade_price_ratio_from_list": 0.4,
       "note": "浴室は定価60%OFFが業者仕入れ標準（TOTO・LIXIL両確定）。キッチン50%OFFよりさらに深い割引率"
     },
     "philosophy": "浴室は住設最大の複雑度を持つ。在来→UB交換では大工・サッシ・外壁・土台補修が絡み、業者が『一式』で隠しがちな項目が最多。HS は全工程を明細化して施主を守る。"
   },
-
   "bathroom_size_naming": {
     "description": "浴室サイズ表記の読み方（1616など4桁数字の意味）",
     "rule": "4桁数字 = 短辺mm×長辺mm の頭2桁",
     "common_sizes": {
-      "1216": { "dims_mm": "1200x1600", "tsubo": 0.75, "usage": "マンション・狭小住宅" },
-      "1616": { "dims_mm": "1600x1600", "tsubo": 1.0, "usage": "戸建最多標準" },
-      "1618": { "dims_mm": "1600x1800", "tsubo": 1.25, "usage": "広めの戸建" },
-      "1620": { "dims_mm": "1600x2000", "tsubo": 1.25, "usage": "ゆったり" },
-      "1717": { "dims_mm": "1700x1700", "tsubo": 1.25, "usage": "戸建上位" },
-      "1818": { "dims_mm": "1800x1800", "tsubo": 1.5, "usage": "高級戸建" }
+      "1216": {
+        "dims_mm": "1200x1600",
+        "tsubo": 0.75,
+        "usage": "マンション・狭小住宅"
+      },
+      "1616": {
+        "dims_mm": "1600x1600",
+        "tsubo": 1.0,
+        "usage": "戸建最多標準"
+      },
+      "1618": {
+        "dims_mm": "1600x1800",
+        "tsubo": 1.25,
+        "usage": "広めの戸建"
+      },
+      "1620": {
+        "dims_mm": "1600x2000",
+        "tsubo": 1.25,
+        "usage": "ゆったり"
+      },
+      "1717": {
+        "dims_mm": "1700x1700",
+        "tsubo": 1.25,
+        "usage": "戸建上位"
+      },
+      "1818": {
+        "dims_mm": "1800x1800",
+        "tsubo": 1.5,
+        "usage": "高級戸建"
+      }
     }
   },
-
   "manufacturers": {
     "LIXIL": {
       "grades": {
-        "premium": { "series": "スパージュ", "target": "ホテルライク・最上位" },
-        "high": { "series": "リデア", "target": "断熱・快適性重視" },
-        "standard": { "series": "アライズ", "target": "戸建最多選択（ミドル）" },
-        "entry": { "series": "リノビオV", "target": "マンション用" }
+        "premium": {
+          "series": "スパージュ",
+          "target": "ホテルライク・最上位"
+        },
+        "high": {
+          "series": "リデア",
+          "target": "断熱・快適性重視"
+        },
+        "standard": {
+          "series": "アライズ",
+          "target": "戸建最多選択（ミドル）"
+        },
+        "entry": {
+          "series": "リノビオV",
+          "target": "マンション用"
+        }
       },
-      "unique_features": ["サーモバスS", "キレイ床", "キレイサーモフロア"]
+      "unique_features": [
+        "サーモバスS",
+        "キレイ床",
+        "キレイサーモフロア"
+      ]
     },
     "TOTO": {
       "grades": {
-        "premium": { "series": "シンラ", "target": "最上位・楽湯コンフォートウエーブ" },
-        "high": { "series": "サザナ Pタイプ", "target": "上位グレード" },
-        "standard": { "series": "サザナ Nタイプ", "target": "戸建最多選択・ほっカラリ床" }
+        "premium": {
+          "series": "シンラ",
+          "target": "最上位・楽湯コンフォートウエーブ"
+        },
+        "high": {
+          "series": "サザナ Pタイプ",
+          "target": "上位グレード"
+        },
+        "standard": {
+          "series": "サザナ Nタイプ",
+          "target": "戸建最多選択・ほっカラリ床"
+        }
       },
-      "unique_features": ["ほっカラリ床", "魔法びん浴槽", "お掃除ラクラク排水口"]
+      "unique_features": [
+        "ほっカラリ床",
+        "魔法びん浴槽",
+        "お掃除ラクラク排水口"
+      ]
     },
     "Cleanup": {
       "grades": {
-        "high": { "series": "アクリアバス", "target": "ステンレス強み・最上位" },
-        "standard": { "series": "ユアシス", "target": "ミドル" }
+        "high": {
+          "series": "アクリアバス",
+          "target": "ステンレス強み・最上位"
+        },
+        "standard": {
+          "series": "ユアシス",
+          "target": "ミドル"
+        }
       },
-      "unique_features": ["まるごと保温", "高断熱浴槽", "ステンレス鋼板"]
+      "unique_features": [
+        "まるごと保温",
+        "高断熱浴槽",
+        "ステンレス鋼板"
+      ]
     },
     "Takara_Standard": {
       "grades": {
-        "premium": { "series": "プレデンシア", "target": "鋳物ホーロー最上位" },
-        "high": { "series": "レラージュ", "target": "ホーロー上位" },
-        "standard": { "series": "ミーナ", "target": "ミドル・ホーロー" }
+        "premium": {
+          "series": "プレデンシア",
+          "target": "鋳物ホーロー最上位"
+        },
+        "high": {
+          "series": "レラージュ",
+          "target": "ホーロー上位"
+        },
+        "standard": {
+          "series": "ミーナ",
+          "target": "ミドル・ホーロー"
+        }
       },
-      "unique_features": ["鋳物ホーロー浴槽", "高品位ホーロー壁", "磁石でカスタマイズ"]
+      "unique_features": [
+        "鋳物ホーロー浴槽",
+        "高品位ホーロー壁",
+        "磁石でカスタマイズ"
+      ]
     },
     "Panasonic": {
       "grades": {
-        "premium": { "series": "Lクラス", "target": "最上位" },
-        "high": { "series": "オフローラ", "target": "ミドル" },
-        "standard": { "series": "FZ", "target": "エントリー・マンション用" }
+        "premium": {
+          "series": "Lクラス",
+          "target": "最上位"
+        },
+        "high": {
+          "series": "オフローラ",
+          "target": "ミドル"
+        },
+        "standard": {
+          "series": "FZ",
+          "target": "エントリー・マンション用"
+        }
       },
-      "unique_features": ["酸素美泡湯", "スゴピカ素材", "キレイアクアシャワー"]
+      "unique_features": [
+        "酸素美泡湯",
+        "スゴピカ素材",
+        "キレイアクアシャワー"
+      ]
     }
   },
-
   "bathroom_bodies_by_grade": {
     "entry": {
       "name": "エントリー（最安グレード）",
       "description": "シンプル機能・マンション向け多い",
-      "price_list_jpy": { "min": 450000, "max": 700000 },
-      "price_trade_estimate_jpy": { "min": 180000, "max": 280000 },
-      "examples": ["LIXIL リノビオV", "Panasonic FZ 最安"]
+      "price_list_jpy": {
+        "min": 450000,
+        "max": 700000
+      },
+      "price_trade_estimate_jpy": {
+        "min": 180000,
+        "max": 280000
+      },
+      "examples": [
+        "LIXIL リノビオV",
+        "Panasonic FZ 最安"
+      ]
     },
     "standard": {
       "name": "標準（戸建最多選択・HS推奨）",
       "description": "機能・断熱・デザインバランス良",
-      "price_list_jpy": { "min": 882000, "max": 1200000 },
-      "price_trade_estimate_jpy": { "min": 352000, "max": 480000 },
-      "examples": ["LIXIL アライズ", "TOTO サザナ Nタイプ", "タカラ ミーナ", "Panasonic オフローラ"],
+      "price_list_jpy": {
+        "min": 882000,
+        "max": 1200000
+      },
+      "price_trade_estimate_jpy": {
+        "min": 352000,
+        "max": 480000
+      },
+      "examples": [
+        "LIXIL アライズ",
+        "TOTO サザナ Nタイプ",
+        "タカラ ミーナ",
+        "Panasonic オフローラ"
+      ],
       "note": "戸建標準。TOTO サザナN: 1616で定価¥882,000/坪から"
     },
     "high": {
       "name": "上位（快適性・断熱重視）",
       "description": "最新機能・高断熱浴槽",
-      "price_list_jpy": { "min": 1200000, "max": 1800000 },
-      "price_trade_estimate_jpy": { "min": 480000, "max": 720000 },
-      "examples": ["LIXIL リデア", "TOTO サザナ Pタイプ", "クリナップ アクリアバス", "タカラ レラージュ"]
+      "price_list_jpy": {
+        "min": 1200000,
+        "max": 1800000
+      },
+      "price_trade_estimate_jpy": {
+        "min": 480000,
+        "max": 720000
+      },
+      "examples": [
+        "LIXIL リデア",
+        "TOTO サザナ Pタイプ",
+        "クリナップ アクリアバス",
+        "タカラ レラージュ"
+      ]
     },
     "premium": {
       "name": "最上位（ホテルライク・こだわり派）",
       "description": "最高級素材・最新機能全搭載",
-      "price_list_jpy": { "min": 1800000, "max": 3500000 },
-      "price_trade_estimate_jpy": { "min": 720000, "max": 1400000 },
-      "examples": ["LIXIL スパージュ", "TOTO シンラ", "タカラ プレデンシア", "Panasonic Lクラス"]
+      "price_list_jpy": {
+        "min": 1800000,
+        "max": 3500000
+      },
+      "price_trade_estimate_jpy": {
+        "min": 720000,
+        "max": 1400000
+      },
+      "examples": [
+        "LIXIL スパージュ",
+        "TOTO シンラ",
+        "タカラ プレデンシア",
+        "Panasonic Lクラス"
+      ]
     }
   },
-
   "existing_type_impact": {
     "description": "既存浴室のタイプにより工事規模が大きく変わる",
     "types": {
       "ub_to_ub": {
         "name": "ユニットバス→ユニットバス",
-        "demolition_cost": { "min": 50000, "max": 100000 },
+        "demolition_cost": {
+          "min": 50000,
+          "max": 100000
+        },
         "additional_works": "最少（UB撤去→新UB設置のみ）",
-        "typical_work_days": { "min": 2, "max": 3 },
+        "typical_work_days": {
+          "min": 2,
+          "max": 3
+        },
         "note": "最もシンプル。既存配管・電気そのまま使えるケース多い"
       },
       "zairai_to_ub": {
         "name": "在来工法（タイル風呂）→ユニットバス",
-        "demolition_cost": { "min": 250000, "max": 400000 },
+        "demolition_cost": {
+          "min": 250000,
+          "max": 400000
+        },
         "additional_works": "土間打ち・大工工事・廃材大量処分・内装補修（洗面所側）",
-        "typical_work_days": { "min": 5, "max": 7 },
+        "typical_work_days": {
+          "min": 5,
+          "max": 7
+        },
         "note": "HS注目領域。業者が工程を『一式』で隠す最多パターン"
       },
       "old_cast_iron_to_ub": {
         "name": "古い鋳物ホーロー→ユニットバス",
-        "demolition_cost": { "min": 150000, "max": 250000 },
+        "demolition_cost": {
+          "min": 150000,
+          "max": 250000
+        },
         "additional_works": "鋳物浴槽撤去（重量物）・廃材処分",
-        "typical_work_days": { "min": 4, "max": 5 }
+        "typical_work_days": {
+          "min": 4,
+          "max": 5
+        }
       }
     }
   },
-
   "demolition_works_jpy": {
-    "ub_removal_simple": { "cost": 50000, "note": "既存UB撤去・分解・搬出" },
-    "tile_wall_floor_demolition": { "min": 100000, "max": 200000, "note": "在来タイル壁・床の斫り解体" },
-    "mortar_base_removal": { "min": 30000, "max": 80000, "note": "既存モルタル下地の撤去" },
-    "waste_disposal_ub": { "min": 15000, "max": 30000, "note": "UB廃材処分" },
-    "waste_disposal_zairai": { "min": 30000, "max": 60000, "note": "在来解体廃材処分（量大）" },
-    "waste_disposal_cast_iron": { "min": 25000, "max": 50000, "note": "鋳物浴槽廃材処分" }
+    "ub_removal_simple": {
+      "cost": 50000,
+      "note": "既存UB撤去・分解・搬出"
+    },
+    "tile_wall_floor_demolition": {
+      "min": 100000,
+      "max": 200000,
+      "note": "在来タイル壁・床の斫り解体"
+    },
+    "mortar_base_removal": {
+      "min": 30000,
+      "max": 80000,
+      "note": "既存モルタル下地の撤去"
+    },
+    "waste_disposal_ub": {
+      "min": 15000,
+      "max": 30000,
+      "note": "UB廃材処分"
+    },
+    "waste_disposal_zairai": {
+      "min": 30000,
+      "max": 60000,
+      "note": "在来解体廃材処分（量大）"
+    },
+    "waste_disposal_cast_iron": {
+      "min": 25000,
+      "max": 50000,
+      "note": "鋳物浴槽廃材処分"
+    }
   },
-
   "carpenter_works_jpy": {
     "description": "大工工事（在来→UB変更時に特に重要）",
     "items": {
       "concrete_domauchi": {
         "name": "土間コンクリート打ち",
-        "cost": { "min": 80000, "max": 150000 },
+        "cost": {
+          "min": 80000,
+          "max": 150000
+        },
         "note": "UB設置のため床面を平滑化する必須工程"
       },
       "dodai_reinforcement": {
         "name": "土台補強・交換（腐食発見時）",
-        "cost": { "min": 50000, "max": 200000 },
+        "cost": {
+          "min": 50000,
+          "max": 200000
+        },
         "frequency": "築20年以上で発生率50%以上",
         "note": "在来浴室は水漏れで土台腐食しがち。解体後に発覚"
       },
       "termite_damage_repair": {
         "name": "シロアリ被害部位の補修",
-        "cost": { "min": 200000, "max": 500000 },
+        "cost": {
+          "min": 200000,
+          "max": 500000
+        },
         "frequency": "築20年以上で発生率30%",
         "note": "浴室周辺は湿気でシロアリ被害多発"
       },
       "framing_base_work": {
         "name": "大工工事（下地・壁造作）",
-        "cost": { "min": 80000, "max": 150000 },
+        "cost": {
+          "min": 80000,
+          "max": 150000
+        },
         "note": "UBと他室との取り合い造作。サイズ変更時は特に重要"
       },
       "senmenjo_repair": {
         "name": "洗面所側内装補修",
-        "cost": { "min": 40000, "max": 80000 },
+        "cost": {
+          "min": 40000,
+          "max": 80000
+        },
         "note": "解体時の間仕切り壁復旧・クロス張替え"
       },
       "insulation_add": {
         "name": "断熱材追加（築30年以上）",
-        "cost": { "min": 50000, "max": 100000 },
+        "cost": {
+          "min": 50000,
+          "max": 100000
+        },
         "note": "築古住宅で浴室周り断熱材なしのケース多い"
       }
     }
   },
-
   "window_works_jpy": {
     "description": "浴室窓リフォームの4パターン",
     "patterns": {
@@ -195,82 +377,183 @@
       },
       "cover_method": {
         "name": "カバー工法（既存枠内に新窓）",
-        "cost": { "min": 100000, "max": 300000 },
+        "cost": {
+          "min": 100000,
+          "max": 300000
+        },
         "work_days": 0.5,
         "scope": "外壁触らず・室内側のみ",
-        "products": ["YKK AP マドリモ", "LIXIL リプラス", "三協アルミ ノバリス"],
+        "products": [
+          "YKK AP マドリモ",
+          "LIXIL リプラス",
+          "三協アルミ ノバリス"
+        ],
         "note": "開口面積はやや小さくなる。最推奨"
       },
       "hatsuri_method_same_size": {
         "name": "はつり工法（同サイズで交換）",
-        "cost": { "min": 250000, "max": 500000 },
-        "work_days": { "min": 2, "max": 3 },
+        "cost": {
+          "min": 250000,
+          "max": 500000
+        },
+        "work_days": {
+          "min": 2,
+          "max": 3
+        },
         "scope": "外壁一部解体・下地補修・外壁復旧",
         "note": "断熱性UP・防水性確実だが高額"
       },
       "size_change_or_new": {
         "name": "サイズ変更・新設・窓削除",
-        "cost": { "min": 300000, "max": 800000 },
-        "work_days": { "min": 3, "max": 5 },
+        "cost": {
+          "min": 300000,
+          "max": 800000
+        },
+        "work_days": {
+          "min": 3,
+          "max": 5
+        },
         "scope": "外壁大規模解体・柱間柱移動・足場必要",
         "note": "最高コスト。外壁塗装・サイディング張替えも同時推奨"
       }
     }
   },
-
   "exterior_works_jpy": {
     "description": "外壁工事（窓サイズ変更時に発生）",
     "items": {
       "wall_demolition_around_window": {
         "name": "外壁解体（窓周り）",
-        "cost": { "min": 50000, "max": 100000 }
+        "cost": {
+          "min": 50000,
+          "max": 100000
+        }
       },
       "opening_reframe": {
         "name": "開口部加工（柱・間柱移動）",
-        "cost": { "min": 50000, "max": 150000 }
+        "cost": {
+          "min": 50000,
+          "max": 150000
+        }
       },
       "base_repair": {
         "name": "下地補修",
-        "cost": { "min": 30000, "max": 80000 }
+        "cost": {
+          "min": 30000,
+          "max": 80000
+        }
       },
       "siding_partial_replacement": {
         "name": "サイディング張替え（部分）",
-        "cost": { "min": 100000, "max": 200000 }
+        "cost": {
+          "min": 100000,
+          "max": 200000
+        }
       },
       "scaffold": {
         "name": "足場（部分）",
-        "cost": { "min": 80000, "max": 150000 }
+        "cost": {
+          "min": 80000,
+          "max": 150000
+        }
       },
       "exterior_paint_patch": {
         "name": "外壁塗装（継ぎ目対応）",
-        "cost": { "min": 50000, "max": 150000 }
+        "cost": {
+          "min": 50000,
+          "max": 150000
+        }
       }
     }
   },
-
   "plumbing_electric_works_jpy": {
-    "water_supply_drain": { "min": 40000, "max": 80000, "note": "給水・給湯配管接続" },
-    "drain_pipe": { "min": 30000, "max": 60000, "note": "排水管接続" },
-    "gas_pipe_for_oidaki": { "min": 20000, "max": 50000, "note": "ガス配管（追焚・給湯）" },
-    "electric_work": { "min": 25000, "max": 50000, "note": "照明・コンセント・換気扇配線" },
-    "ventilation_fan": { "min": 30000, "max": 80000, "note": "換気扇・24時間換気" },
-    "dressing_heater_optional": { "min": 100000, "max": 200000, "note": "浴室暖房乾燥機（後付けオプション）" }
+    "water_supply_drain": {
+      "min": 40000,
+      "max": 80000,
+      "note": "給水・給湯配管接続"
+    },
+    "drain_pipe": {
+      "min": 30000,
+      "max": 60000,
+      "note": "排水管接続"
+    },
+    "gas_pipe_for_oidaki": {
+      "min": 20000,
+      "max": 50000,
+      "note": "ガス配管（追焚・給湯）"
+    },
+    "electric_work": {
+      "min": 25000,
+      "max": 50000,
+      "note": "照明・コンセント・換気扇配線"
+    },
+    "ventilation_fan": {
+      "min": 30000,
+      "max": 80000,
+      "note": "換気扇・24時間換気"
+    },
+    "dressing_heater_optional": {
+      "min": 100000,
+      "max": 200000,
+      "note": "浴室暖房乾燥機（後付けオプション）"
+    }
   },
-
   "ub_installation_jpy": {
-    "ub_assembly": { "min": 80000, "max": 120000, "note": "ユニットバス組立設置工事（メーカー指定業者または専門業者）" },
-    "delivery": { "min": 10000, "max": 20000, "note": "UB搬入・配送" },
-    "protection": { "min": 20000, "max": 50000, "note": "養生・搬入搬出" }
+    "ub_assembly": {
+      "min": 80000,
+      "max": 120000,
+      "note": "ユニットバス組立設置工事（メーカー指定業者または専門業者）"
+    },
+    "delivery": {
+      "min": 10000,
+      "max": 20000,
+      "note": "UB搬入・配送"
+    },
+    "protection": {
+      "min": 20000,
+      "max": 50000,
+      "note": "養生・搬入搬出"
+    }
   },
-
   "labor": {
-    "setsubi_day_rate_kanto": { "min": 22000, "max": 28000, "avg": 25000 },
-    "carpenter_day_rate_kanto": { "min": 28000, "max": 35000, "avg": 31500, "note": "在来→UB変更で重要" },
-    "electrician_day_rate_kanto": { "min": 25000, "max": 32000, "avg": 28000 },
-    "gas_worker_day_rate_kanto": { "min": 25000, "max": 30000, "avg": 27500, "note": "ガス主任技術者資格必須" },
-    "sash_craftsman_day_rate": { "min": 25000, "max": 35000, "avg": 30000, "note": "サッシ工事専門" },
-    "ub_installer_day_rate": { "min": 30000, "max": 40000, "avg": 35000, "note": "UB組立専門職人（メーカー指定業者）" },
-    "demolition_worker_day_rate": { "min": 18000, "max": 25000, "avg": 22000 },
+    "setsubi_day_rate_kanto": {
+      "min": 22000,
+      "max": 28000,
+      "avg": 25000
+    },
+    "carpenter_day_rate_kanto": {
+      "min": 28000,
+      "max": 35000,
+      "avg": 31500,
+      "note": "在来→UB変更で重要"
+    },
+    "electrician_day_rate_kanto": {
+      "min": 25000,
+      "max": 32000,
+      "avg": 28000
+    },
+    "gas_worker_day_rate_kanto": {
+      "min": 25000,
+      "max": 30000,
+      "avg": 27500,
+      "note": "ガス主任技術者資格必須"
+    },
+    "sash_craftsman_day_rate": {
+      "min": 25000,
+      "max": 35000,
+      "avg": 30000,
+      "note": "サッシ工事専門"
+    },
+    "ub_installer_day_rate": {
+      "min": 30000,
+      "max": 40000,
+      "avg": 35000,
+      "note": "UB組立専門職人（メーカー指定業者）"
+    },
+    "demolition_worker_day_rate": {
+      "min": 18000,
+      "max": 25000,
+      "avg": 22000
+    },
     "standard_manhours": {
       "ub_to_ub": {
         "demolition": 1,
@@ -301,26 +584,34 @@
       }
     }
   },
-
   "plans": {
     "ub_to_ub_standard": {
       "name": "UB→UB・標準グレード交換（最シンプル）",
       "scope": "LIXIL アライズ 1616、既存UB撤去→新設、窓そのまま",
-      "estimated_total_jpy": { "min": 800000, "max": 1200000 },
+      "estimated_total_jpy": {
+        "min": 800000,
+        "max": 1200000
+      },
       "hs_rule_estimate_jpy": 1100000,
       "work_days": 3
     },
     "ub_to_ub_premium": {
       "name": "UB→UB・上位グレード交換",
       "scope": "TOTO サザナP or シンラ 1616、既存UB撤去→新設",
-      "estimated_total_jpy": { "min": 1300000, "max": 2000000 },
+      "estimated_total_jpy": {
+        "min": 1300000,
+        "max": 2000000
+      },
       "hs_rule_estimate_jpy": 1800000,
       "work_days": 4
     },
     "zairai_to_ub_basic": {
       "name": "在来→UB・標準（窓はカバー工法）・HS推奨パターン",
       "scope": "アライズ/サザナN 1616、在来解体、土間打ち、窓カバー工法",
-      "estimated_total_jpy": { "min": 1200000, "max": 1700000 },
+      "estimated_total_jpy": {
+        "min": 1200000,
+        "max": 1700000
+      },
       "hs_rule_estimate_jpy": 1944000,
       "work_days": 6,
       "breakdown_sample": {
@@ -351,14 +642,20 @@
     "zairai_to_ub_full_window_change": {
       "name": "在来→UB・窓サイズ変更＋外壁工事",
       "scope": "アライズ 1616＋窓縮小＋外壁サイディング一部張替え",
-      "estimated_total_jpy": { "min": 1700000, "max": 2500000 },
+      "estimated_total_jpy": {
+        "min": 1700000,
+        "max": 2500000
+      },
       "hs_rule_estimate_jpy": 2300000,
       "work_days": 8
     },
     "zairai_to_ub_with_rot_repair": {
       "name": "在来→UB・土台腐食/シロアリ対応込み（築古）",
       "scope": "標準UB＋土台交換＋シロアリ駆除",
-      "estimated_total_jpy": { "min": 1800000, "max": 2800000 },
+      "estimated_total_jpy": {
+        "min": 1800000,
+        "max": 2800000
+      },
       "hs_rule_estimate_jpy": 2500000,
       "work_days": 9,
       "note": "築20年以上の在来浴室で多発するパターン"
@@ -366,12 +663,14 @@
     "premium_spa_like": {
       "name": "最上位・ホテルライク",
       "scope": "スパージュ/シンラ 1620、フル装備、在来→UB",
-      "estimated_total_jpy": { "min": 2800000, "max": 4500000 },
+      "estimated_total_jpy": {
+        "min": 2800000,
+        "max": 4500000
+      },
       "hs_rule_estimate_jpy": 3800000,
       "work_days": 10
     }
   },
-
   "red_flags": [
     {
       "code": "BODY_LIST_PRICE_CLOSE",
@@ -458,33 +757,43 @@
       "reason": "浴室周辺は湿気でシロアリ発生率高。調査報告書の要求"
     }
   ],
-
   "critical_additional_checks": {
     "description": "浴室リフォーム特有・解体後の追加リスク項目（HS独自重要チェック）",
     "items": [
       {
         "risk": "土台・柱の腐食",
-        "typical_extra_cost": { "min": 100000, "max": 300000 },
+        "typical_extra_cost": {
+          "min": 100000,
+          "max": 300000
+        },
         "prevention": "見積もり時点で『土台状態次第で追加費用が発生するか』明示、上限金額合意"
       },
       {
         "risk": "シロアリ被害",
-        "typical_extra_cost": { "min": 200000, "max": 500000 },
+        "typical_extra_cost": {
+          "min": 200000,
+          "max": 500000
+        },
         "prevention": "解体前に専門業者のシロアリ点検、駆除予算の事前合意"
       },
       {
         "risk": "配管の経年劣化",
-        "typical_extra_cost": { "min": 50000, "max": 150000 },
+        "typical_extra_cost": {
+          "min": 50000,
+          "max": 150000
+        },
         "prevention": "築25年以上なら配管全交換を事前合意"
       },
       {
         "risk": "断熱材なし（築30年以上）",
-        "typical_extra_cost": { "min": 50000, "max": 100000 },
+        "typical_extra_cost": {
+          "min": 50000,
+          "max": 100000
+        },
         "prevention": "断熱工事を事前に含める契約"
       }
     ]
   },
-
   "negotiation_tips": [
     "UBメーカー・シリーズ・サイズ・型番の全明記を要求（TOTO サザナN 1616 等）",
     "本体は定価の何%OFFか確認（業者仕入れは定価60%OFFが業界標準）",
@@ -501,7 +810,6 @@
     "相見積もりは最低3社。UB専門店・地場工務店・ハウスメーカー経由を混ぜる",
     "ショールーム見学は必須。サザナとアライズで床・浴槽の肌触りが違う"
   ],
-
   "trade_knowledge": {
     "summary": "浴室リフォームは住設最大複雑度。UB本体は定価60%OFFが業者仕入れ値（キッチン50%OFFより深い）。工事規模は既存タイプで劇的に変わる：UB→UBで¥80-200万、在来→UBで¥120-300万、窓変更込みで¥170-280万、最上位フルで¥280-450万。在来→UB変更は大工・サッシ・外壁工事まで絡む複合工事のため、業者が『一式』で隠す最多パターン",
     "zairai_ub_complexity": "在来工法→UBは浴室リフォームの最難関。解体後に土台腐食（築20年以上で発生率50%）・シロアリ（30%）・配管劣化・断熱材なしなどが発覚することが多く、追加工事が¥20-50万発生しがち。事前に上限金額を合意しないと、施主が『もう始まってるから』と断れない状況で追加請求される",
@@ -510,5 +818,75 @@
     "subsidy_info": "浴室リフォームは補助金対象が豊富：(1)長期優良住宅化リフォーム推進事業（国交省）、(2)介護保険バリアフリー20万円、(3)省エネリフォーム（断熱浴槽・節水水栓対象）、(4)各自治体独自補助金。併用可能なケース多い",
     "ub_installer_note": "UB組立は専門職人（メーカー指定業者）が行う。大工や設備屋が無理やり組み立てるとメーカー保証対象外になる。組立業者の指定を確認すべし",
     "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 5大メーカー公式データ + 住設業界内部情報 + 築古住宅リノベーション実務"
-  }
+  },
+  "customer_scenario_guide": [
+    {
+      "case": "築20年UBの交換",
+      "recommendation": "UB→UB標準グレード交換",
+      "cost_range": {
+        "min": 800000,
+        "max": 1200000
+      }
+    },
+    {
+      "case": "在来浴室を現代的UB化",
+      "recommendation": "在来→UB・標準プラン",
+      "cost_range": {
+        "min": 1200000,
+        "max": 1800000
+      }
+    },
+    {
+      "case": "築古で土台腐食の可能性",
+      "recommendation": "在来→UB・土台補修込み",
+      "cost_range": {
+        "min": 1500000,
+        "max": 2500000
+      },
+      "note": "zosaku_tategu_master.json参照"
+    },
+    {
+      "case": "浴室暖房・乾燥機付け",
+      "recommendation": "UB+浴室換気乾燥機",
+      "cost_range": {
+        "min": 1000000,
+        "max": 1500000
+      },
+      "note": "介護保険対象の場合あり"
+    },
+    {
+      "case": "浴槽またぎ高いので低く",
+      "recommendation": "UB交換+バリアフリー対応",
+      "cost_range": {
+        "min": 900000,
+        "max": 1400000
+      },
+      "note": "介護保険20万円対象"
+    },
+    {
+      "case": "給湯器寿命とセット",
+      "recommendation": "UB+エコキュート同時交換",
+      "cost_range": {
+        "min": 1500000,
+        "max": 2500000
+      }
+    },
+    {
+      "case": "追い焚き機能追加",
+      "recommendation": "UB交換+追い焚き配管",
+      "cost_range": {
+        "min": 1200000,
+        "max": 1800000
+      },
+      "note": "water_pipe_work.json参照"
+    },
+    {
+      "case": "タイル浴室のひび割れ・水漏れ",
+      "recommendation": "在来→UB化（土台調査必須）",
+      "cost_range": {
+        "min": 1200000,
+        "max": 2500000
+      }
+    }
+  ]
 }

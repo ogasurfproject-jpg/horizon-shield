@@ -8,9 +8,17 @@
     "importance": "⭐⭐⭐⭐⭐ HS基幹教科書・全リフォームカテゴリの解体部分が参照する土台",
     "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 2026年実勢データ (国交省 建設リサイクル法・環境省 廃棄物処理法・大阪府建設廃棄物等受入価格令和7年度・東京都都市整備局 解体工事業者登録・解体無料見積ガイド・スッキリ解体・ホームズ・SUUMO・クラッソーネ・解体エージェント・GATE/光洲産業/信太商店/新関西テクニカ/環境サービス等 全国産廃業者料金表、優真解体、ミライ計画、株式会社リプロ)",
     "scope": "戸建て丸ごと解体・マンション内装解体・部分解体・産廃処分・アスベスト処理・付帯工事・法定要件・地域差",
-    "referenced_by": ["roof_construction.json", "bathroom_reform.json", "kitchen_reform.json", "toilet_reform.json", "cloth_replacement.json", "floor_replacement.json", "entrance_door_reform.json", "gaiheki_tosou.json"]
+    "referenced_by": [
+      "roof_construction.json",
+      "bathroom_reform.json",
+      "kitchen_reform.json",
+      "toilet_reform.json",
+      "cloth_replacement.json",
+      "floor_replacement.json",
+      "entrance_door_reform.json",
+      "gaiheki_tosou.json"
+    ]
   },
-
   "horizon_shield_standard": {
     "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール（解体工事版）",
     "formula": "本体解体費 + 産廃処分費実費 + 付帯工事実費 + 人件費 + (原価 × 一般管理費率 15%) + 消費税 10%",
@@ -23,7 +31,6 @@
     },
     "philosophy": "解体工事は不法投棄・アスベスト違反・一式計上ぼったくりの多発領域。HSはマニフェスト管理・法定要件・地域別単価・全工程単価を施主に開示し、業者の不透明性を完全排除する"
   },
-
   "law_requirements": {
     "description": "解体工事の法定要件（施主保護の最重要知識）",
     "construction_recycling_law": {
@@ -73,50 +80,108 @@
       ]
     }
   },
-
   "cost_structure": {
     "description": "解体工事費用の構造（総額内訳の割合）",
     "breakdown": {
-      "main_demolition": { "pct": "30-40%", "description": "本体解体費（人件費＋重機）" },
-      "waste_disposal": { "pct": "40-50%", "description": "産業廃棄物処分費（最大項目）" },
-      "additional_works": { "pct": "10-15%", "description": "付帯工事（外構・樹木・残置物）" },
-      "ground_leveling": { "pct": "5-10%", "description": "整地" },
-      "misc_expenses": { "pct": "5-10%", "description": "諸経費（養生・届出・交通整理員）" }
+      "main_demolition": {
+        "pct": "30-40%",
+        "description": "本体解体費（人件費＋重機）"
+      },
+      "waste_disposal": {
+        "pct": "40-50%",
+        "description": "産業廃棄物処分費（最大項目）"
+      },
+      "additional_works": {
+        "pct": "10-15%",
+        "description": "付帯工事（外構・樹木・残置物）"
+      },
+      "ground_leveling": {
+        "pct": "5-10%",
+        "description": "整地"
+      },
+      "misc_expenses": {
+        "pct": "5-10%",
+        "description": "諸経費（養生・届出・交通整理員）"
+      }
     }
   },
-
   "price_by_structure": {
     "description": "構造別・坪単価（2026年関東圏標準）",
     "wooden": {
       "name": "木造",
-      "unit_price_per_tsubo_jpy": { "min": 32000, "max": 50000, "avg": 40000 },
-      "features": ["柔軟性あり硬度低い", "最安", "一般住宅で最多", "重機による効率解体可能"]
+      "unit_price_per_tsubo_jpy": {
+        "min": 32000,
+        "max": 50000,
+        "avg": 40000
+      },
+      "features": [
+        "柔軟性あり硬度低い",
+        "最安",
+        "一般住宅で最多",
+        "重機による効率解体可能"
+      ]
     },
     "light_steel": {
       "name": "軽量鉄骨造",
-      "unit_price_per_tsubo_jpy": { "min": 35000, "max": 55000, "avg": 45000 },
-      "features": ["ハウスメーカー系住宅に多い", "木造より+10%", "鉄骨分別必要"]
+      "unit_price_per_tsubo_jpy": {
+        "min": 35000,
+        "max": 55000,
+        "avg": 45000
+      },
+      "features": [
+        "ハウスメーカー系住宅に多い",
+        "木造より+10%",
+        "鉄骨分別必要"
+      ]
     },
     "heavy_steel": {
       "name": "重量鉄骨造",
-      "unit_price_per_tsubo_jpy": { "min": 38000, "max": 70000, "avg": 54000 },
-      "features": ["デザイナーズ住宅・ビル系", "分別工程増大", "専用重機必要"]
+      "unit_price_per_tsubo_jpy": {
+        "min": 38000,
+        "max": 70000,
+        "avg": 54000
+      },
+      "features": [
+        "デザイナーズ住宅・ビル系",
+        "分別工程増大",
+        "専用重機必要"
+      ]
     },
     "rc_concrete": {
       "name": "RC造（鉄筋コンクリート造）",
-      "unit_price_per_tsubo_jpy": { "min": 40000, "max": 80000, "avg": 60000 },
-      "features": ["最強構造・最高単価", "コンクリート・鉄筋分別複雑", "粉塵・騒音対策大", "杭抜き工事別途"]
+      "unit_price_per_tsubo_jpy": {
+        "min": 40000,
+        "max": 80000,
+        "avg": 60000
+      },
+      "features": [
+        "最強構造・最高単価",
+        "コンクリート・鉄筋分別複雑",
+        "粉塵・騒音対策大",
+        "杭抜き工事別途"
+      ]
     },
     "src_steel_reinforced_concrete": {
       "name": "SRC造（鉄骨鉄筋コンクリート造）",
-      "unit_price_per_tsubo_jpy": { "min": 50000, "max": 90000, "avg": 70000 },
-      "features": ["高層ビル系", "最難関", "大型重機・足場必須"]
+      "unit_price_per_tsubo_jpy": {
+        "min": 50000,
+        "max": 90000,
+        "avg": 70000
+      },
+      "features": [
+        "高層ビル系",
+        "最難関",
+        "大型重機・足場必須"
+      ]
     }
   },
-
   "price_by_size_wooden_30tsubo_example": {
     "description": "木造30坪の総額計算例（標準ケース）",
-    "main_demolition_cost": { "unit_price": 40000, "tsubo": 30, "subtotal": 1200000 },
+    "main_demolition_cost": {
+      "unit_price": 40000,
+      "tsubo": 30,
+      "subtotal": 1200000
+    },
     "waste_disposal_cost_estimate": 800000,
     "additional_works_estimate": 300000,
     "ground_leveling": 100000,
@@ -126,240 +191,382 @@
     "total_with_tax": 2915000,
     "note": "付帯工事・アスベストなし前提。条件次第で100-200万円変動"
   },
-
   "waste_disposal_unit_prices": {
     "description": "産業廃棄物処分費 単価（2026年全国標準）",
     "waste_types": {
       "mixed_waste": {
         "name": "混合廃棄物（分別困難）",
-        "unit_price_jpy_per_m3": { "min": 19000, "max": 25000 },
+        "unit_price_jpy_per_m3": {
+          "min": 19000,
+          "max": 25000
+        },
         "note": "最も高額。分別不十分な業者が多用。施主は分別明細要求すべし"
       },
       "wood_waste": {
         "name": "木くず（柱・梁・建具）",
-        "unit_price_jpy_per_m3": { "min": 5000, "max": 8000 },
+        "unit_price_jpy_per_m3": {
+          "min": 5000,
+          "max": 8000
+        },
         "note": "再資源化（チップ化）で安価"
       },
       "gypsum_board": {
         "name": "石膏ボード",
-        "unit_price_jpy_per_m3": { "min": 8000, "max": 12000 },
+        "unit_price_jpy_per_m3": {
+          "min": 8000,
+          "max": 12000
+        },
         "note": "硫化水素発生リスクで慎重扱い"
       },
       "concrete_non_reinforced": {
         "name": "コンクリートガラ（無筋）",
-        "unit_price_jpy_per_m3": { "min": 4000, "max": 7000 },
+        "unit_price_jpy_per_m3": {
+          "min": 4000,
+          "max": 7000
+        },
         "note": "再資源化（砕石・路盤材）可能"
       },
       "concrete_reinforced": {
         "name": "コンクリートガラ（有筋）",
-        "unit_price_jpy_per_m3": { "min": 7000, "max": 12000 },
+        "unit_price_jpy_per_m3": {
+          "min": 7000,
+          "max": 12000
+        },
         "note": "鉄筋分離工程必要"
       },
       "asphalt": {
         "name": "アスファルトガラ",
-        "unit_price_jpy_per_m3": { "min": 5000, "max": 8000 }
+        "unit_price_jpy_per_m3": {
+          "min": 5000,
+          "max": 8000
+        }
       },
       "metal_scrap": {
         "name": "金属くず（鉄・アルミ）",
-        "unit_price_jpy_per_m3": { "min": -5000, "max": 3000 },
+        "unit_price_jpy_per_m3": {
+          "min": -5000,
+          "max": 3000
+        },
         "note": "市場価格次第で業者買取可能（マイナス=業者が買い取る）"
       },
       "tile_brick": {
         "name": "瓦・タイル・レンガ",
-        "unit_price_jpy_per_m3": { "min": 15000, "max": 22000 }
+        "unit_price_jpy_per_m3": {
+          "min": 15000,
+          "max": 22000
+        }
       },
       "insulation": {
         "name": "断熱材（グラスウール・ロックウール）",
-        "unit_price_jpy_per_m3": { "min": 15000, "max": 20000 }
+        "unit_price_jpy_per_m3": {
+          "min": 15000,
+          "max": 20000
+        }
       },
       "plastic_waste": {
         "name": "廃プラスチック（塩ビ管・サイディング）",
-        "unit_price_jpy_per_m3": { "min": 15000, "max": 25000 }
+        "unit_price_jpy_per_m3": {
+          "min": 15000,
+          "max": 25000
+        }
       }
     }
   },
-
   "asbestos_processing": {
     "description": "アスベスト除去工事費用と工程",
     "levels": {
       "level_3": {
         "name": "レベル3（発じん性低）",
-        "materials": ["スレート瓦", "窯業系サイディング", "Pタイル", "ビニル床タイル", "石綿セメント成形板"],
-        "unit_price_per_sqm_jpy": { "min": 20000, "max": 30000 },
+        "materials": [
+          "スレート瓦",
+          "窯業系サイディング",
+          "Pタイル",
+          "ビニル床タイル",
+          "石綿セメント成形板"
+        ],
+        "unit_price_per_sqm_jpy": {
+          "min": 20000,
+          "max": 30000
+        },
         "safety_measures": "湿潤化・呼吸用保護具・作業着",
         "frequency": "木造戸建で最多（築30年以上の約70%）"
       },
       "level_2": {
         "name": "レベル2（発じん性中）",
-        "materials": ["煙突断熱材", "保温材"],
-        "unit_price_per_sqm_jpy": { "min": 30000, "max": 50000 },
+        "materials": [
+          "煙突断熱材",
+          "保温材"
+        ],
+        "unit_price_per_sqm_jpy": {
+          "min": 30000,
+          "max": 50000
+        },
         "safety_measures": "隔離養生・除じん装置・呼吸用保護具",
         "frequency": "主に配管周り・煙突"
       },
       "level_1": {
         "name": "レベル1（発じん性高）",
-        "materials": ["吹付けアスベスト", "石綿含有吹付けロックウール"],
-        "unit_price_per_sqm_jpy": { "min": 50000, "max": 85000 },
+        "materials": [
+          "吹付けアスベスト",
+          "石綿含有吹付けロックウール"
+        ],
+        "unit_price_per_sqm_jpy": {
+          "min": 50000,
+          "max": 85000
+        },
         "safety_measures": "隔離・負圧集じん機・全面マスク・専用作業服",
         "frequency": "大型ビルの天井・梁（戸建ではまれ）"
       }
     },
     "pre_investigation_cost": {
-      "visual_check_minimum": { "min": 30000, "max": 50000, "note": "目視・設計図確認のみ" },
-      "sample_analysis": { "per_sample": 30000, "sample_count_typical": 3, "total_typical": 90000, "note": "6箇月以内の検体分析" }
+      "visual_check_minimum": {
+        "min": 30000,
+        "max": 50000,
+        "note": "目視・設計図確認のみ"
+      },
+      "sample_analysis": {
+        "per_sample": 30000,
+        "sample_count_typical": 3,
+        "total_typical": 90000,
+        "note": "6箇月以内の検体分析"
+      }
     },
     "notification_to_government": "都道府県・労働基準監督署への届出（発注者が業者経由で報告）"
   },
-
   "additional_works_unit_prices": {
     "description": "付帯工事単価（戸建解体時の典型）",
     "outdoor_structures": {
       "block_wall": {
         "name": "ブロック塀撤去",
-        "unit_price_jpy": { "per_sqm_min": 3000, "per_sqm_max": 7000 }
+        "unit_price_jpy": {
+          "per_sqm_min": 3000,
+          "per_sqm_max": 7000
+        }
       },
       "concrete_wall": {
         "name": "コンクリート塀撤去",
-        "unit_price_jpy": { "per_sqm_min": 5000, "per_sqm_max": 12000 }
+        "unit_price_jpy": {
+          "per_sqm_min": 5000,
+          "per_sqm_max": 12000
+        }
       },
       "foundation_concrete": {
         "name": "コンクリート基礎撤去",
-        "unit_price_jpy": { "per_sqm_min": 5000, "per_sqm_max": 10000 }
+        "unit_price_jpy": {
+          "per_sqm_min": 5000,
+          "per_sqm_max": 10000
+        }
       },
       "carport": {
         "name": "カーポート本体撤去",
-        "unit_price_jpy": { "fixed_min": 30000, "fixed_max": 80000 }
+        "unit_price_jpy": {
+          "fixed_min": 30000,
+          "fixed_max": 80000
+        }
       },
       "carport_foundation": {
         "name": "カーポート基礎撤去",
-        "unit_price_jpy": { "fixed_min": 30000, "fixed_max": 50000 },
+        "unit_price_jpy": {
+          "fixed_min": 30000,
+          "fixed_max": 50000
+        },
         "note": "基礎まで含めて完全撤去の場合"
       },
       "storage_small": {
         "name": "物置（小型・簡易）撤去",
-        "unit_price_jpy": { "fixed_min": 10000, "fixed_max": 30000 }
+        "unit_price_jpy": {
+          "fixed_min": 10000,
+          "fixed_max": 30000
+        }
       },
       "storage_large": {
         "name": "物置（大型・鉄骨）撤去",
-        "unit_price_jpy": { "fixed_min": 50000, "fixed_max": 100000 }
+        "unit_price_jpy": {
+          "fixed_min": 50000,
+          "fixed_max": 100000
+        }
       },
       "garage_steel": {
         "name": "鉄骨ガレージ撤去",
-        "unit_price_jpy": { "fixed_min": 100000, "fixed_max": 300000 }
+        "unit_price_jpy": {
+          "fixed_min": 100000,
+          "fixed_max": 300000
+        }
       }
     },
     "trees_vegetation": {
       "tree_small": {
         "name": "樹木伐採（直径30cm以下）",
-        "unit_price_jpy": { "per_tree_min": 5000, "per_tree_max": 15000 }
+        "unit_price_jpy": {
+          "per_tree_min": 5000,
+          "per_tree_max": 15000
+        }
       },
       "tree_medium": {
         "name": "樹木伐採（直径30-50cm）",
-        "unit_price_jpy": { "per_tree_min": 15000, "per_tree_max": 30000 }
+        "unit_price_jpy": {
+          "per_tree_min": 15000,
+          "per_tree_max": 30000
+        }
       },
       "tree_large": {
         "name": "樹木伐採（直径50cm以上）",
-        "unit_price_jpy": { "per_tree_min": 30000, "per_tree_max": 80000 }
+        "unit_price_jpy": {
+          "per_tree_min": 30000,
+          "per_tree_max": 80000
+        }
       },
       "root_stump_removal": {
         "name": "根株撤去（松等の大木）",
-        "unit_price_jpy": { "per_stump_min": 30000, "per_stump_max": 100000 },
+        "unit_price_jpy": {
+          "per_stump_min": 30000,
+          "per_stump_max": 100000
+        },
         "note": "重機で掘り起こし・大型になると機材追加"
       },
       "garden_stones": {
         "name": "庭石撤去",
-        "unit_price_jpy": { "per_stone_min": 5000, "per_stone_max": 30000 }
+        "unit_price_jpy": {
+          "per_stone_min": 5000,
+          "per_stone_max": 30000
+        }
       },
       "flower_bed": {
         "name": "花壇・石垣撤去",
-        "unit_price_jpy": { "per_sqm_min": 20000, "per_sqm_max": 30000 }
+        "unit_price_jpy": {
+          "per_sqm_min": 20000,
+          "per_sqm_max": 30000
+        }
       }
     },
     "underground_structures": {
       "septic_tank": {
         "name": "浄化槽撤去・廃止",
-        "unit_price_jpy": { "min": 50000, "max": 150000 },
+        "unit_price_jpy": {
+          "min": 50000,
+          "max": 150000
+        },
         "note": "水抜き・洗浄・穴埋めまでセット"
       },
       "well_backfill": {
         "name": "井戸埋戻し",
-        "unit_price_jpy": { "min": 30000, "max": 80000 },
+        "unit_price_jpy": {
+          "min": 30000,
+          "max": 80000
+        },
         "note": "神事が必要な地域は別途費用"
       },
       "foundation_pile": {
         "name": "基礎杭抜き",
-        "unit_price_jpy": { "per_pile_min": 50000, "per_pile_max": 150000 },
+        "unit_price_jpy": {
+          "per_pile_min": 50000,
+          "per_pile_max": 150000
+        },
         "note": "RC造・軟弱地盤で設置されている場合のみ"
       },
       "underground_oil_tank": {
         "name": "地下オイルタンク撤去",
-        "unit_price_jpy": { "min": 80000, "max": 200000 },
+        "unit_price_jpy": {
+          "min": 80000,
+          "max": 200000
+        },
         "note": "古い暖房設備・土壌汚染検査含む場合あり"
       }
     },
     "residual_items": {
       "disposal_per_item": {
         "name": "残置物処分（家電・家具）",
-        "unit_price_jpy_per_item": { "min": 5000, "max": 15000 }
+        "unit_price_jpy_per_item": {
+          "min": 5000,
+          "max": 15000
+        }
       },
       "mixed_residual_per_m3": {
         "name": "残置物（まとめて）",
-        "unit_price_jpy_per_m3": { "min": 15000, "max": 30000 }
+        "unit_price_jpy_per_m3": {
+          "min": 15000,
+          "max": 30000
+        }
       },
       "tatami_per_mat": {
         "name": "畳撤去処分",
-        "unit_price_jpy_per_mat": { "min": 2000, "max": 4000 }
+        "unit_price_jpy_per_mat": {
+          "min": 2000,
+          "max": 4000
+        }
       }
     }
   },
-
   "ground_leveling_and_finishing": {
     "description": "整地・仕上げ工事",
     "basic_leveling": {
       "name": "基本整地（重機で平らに）",
-      "unit_price_jpy": { "per_sqm_min": 500, "per_sqm_max": 1500, "avg": 1000 },
+      "unit_price_jpy": {
+        "per_sqm_min": 500,
+        "per_sqm_max": 1500,
+        "avg": 1000
+      },
       "note": "更地化基本工程"
     },
     "deep_leveling": {
       "name": "砂利敷き・客土搬入",
-      "unit_price_jpy": { "per_sqm_min": 1500, "per_sqm_max": 3000 }
+      "unit_price_jpy": {
+        "per_sqm_min": 1500,
+        "per_sqm_max": 3000
+      }
     },
     "soil_improvement": {
       "name": "地中埋設物撤去（地盤改良含む）",
-      "unit_price_jpy": { "fixed_min": 100000, "fixed_max": 500000 },
+      "unit_price_jpy": {
+        "fixed_min": 100000,
+        "fixed_max": 500000
+      },
       "note": "解体後に地中からゴミ・コンクリートガラ発見時"
     }
   },
-
   "scaffold_protection_misc": {
     "description": "諸経費（養生・足場・届出等）",
     "scaffold": {
       "name": "足場設置",
-      "unit_price_jpy_per_sqm": { "min": 700, "max": 1200 },
+      "unit_price_jpy_per_sqm": {
+        "min": 700,
+        "max": 1200
+      },
       "note": "2階建以上で必須。30坪で¥150-250k"
     },
     "protection_sheet": {
       "name": "養生シート（粉塵・騒音対策）",
-      "unit_price_jpy": { "fixed_min": 30000, "fixed_max": 80000 },
+      "unit_price_jpy": {
+        "fixed_min": 30000,
+        "fixed_max": 80000
+      },
       "note": "足場と一体で計上されることが多い"
     },
     "traffic_guard": {
       "name": "ガードマン（交通整理員）",
-      "unit_price_jpy_per_day": { "min": 15000, "max": 25000 },
+      "unit_price_jpy_per_day": {
+        "min": 15000,
+        "max": 25000
+      },
       "note": "狭小地・交通量多い立地で必要"
     },
     "permit_fee": {
       "name": "道路使用許可申請",
-      "unit_price_jpy": { "fixed": 5000, "max": 15000 },
+      "unit_price_jpy": {
+        "fixed": 5000,
+        "max": 15000
+      },
       "note": "重機搬入・資材搬出で道路占用する場合"
     },
     "construction_recycling_law_notification": {
       "name": "建設リサイクル法届出（業者代理）",
-      "unit_price_jpy": { "fixed": 10000, "max": 30000 },
+      "unit_price_jpy": {
+        "fixed": 10000,
+        "max": 30000
+      },
       "note": "80㎡以上で必須"
     }
   },
-
   "regional_price_variation": {
     "description": "地域別・解体単価の変動幅",
     "factors": [
@@ -370,24 +577,50 @@
       "交通量（ガードマン必要性）"
     ],
     "regional_multiplier": {
-      "tokyo_metropolitan": { "multiplier": 1.20, "note": "東京23区・周辺都市部" },
-      "kanto_suburb": { "multiplier": 1.10, "note": "神奈川・埼玉・千葉郊外" },
-      "kansai_urban": { "multiplier": 1.05, "note": "大阪市・京都市・神戸市" },
-      "regional_city": { "multiplier": 1.00, "note": "地方都市標準" },
-      "rural_remote": { "multiplier": 0.90, "note": "地方過疎地（人件費安い）" },
-      "narrow_access_premium": { "multiplier_add": 0.15, "note": "旗竿地・狭小路地・重機搬入不可時" },
-      "multi_story_urban": { "multiplier_add": 0.10, "note": "都心住宅密集地" }
+      "tokyo_metropolitan": {
+        "multiplier": 1.2,
+        "note": "東京23区・周辺都市部"
+      },
+      "kanto_suburb": {
+        "multiplier": 1.1,
+        "note": "神奈川・埼玉・千葉郊外"
+      },
+      "kansai_urban": {
+        "multiplier": 1.05,
+        "note": "大阪市・京都市・神戸市"
+      },
+      "regional_city": {
+        "multiplier": 1.0,
+        "note": "地方都市標準"
+      },
+      "rural_remote": {
+        "multiplier": 0.9,
+        "note": "地方過疎地（人件費安い）"
+      },
+      "narrow_access_premium": {
+        "multiplier_add": 0.15,
+        "note": "旗竿地・狭小路地・重機搬入不可時"
+      },
+      "multi_story_urban": {
+        "multiplier_add": 0.1,
+        "note": "都心住宅密集地"
+      }
     }
   },
-
   "condo_partial_demolition": {
     "description": "マンション内装解体・店舗スケルトン解体",
     "types": {
       "full_skeleton": {
         "name": "スケルトン解体（原状回復）",
         "description": "マンション・店舗の内装全撤去、躯体のみ残し",
-        "unit_price_per_sqm_jpy": { "min": 8000, "max": 20000 },
-        "typical_100sqm": { "min": 800000, "max": 2000000 }
+        "unit_price_per_sqm_jpy": {
+          "min": 8000,
+          "max": 20000
+        },
+        "typical_100sqm": {
+          "min": 800000,
+          "max": 2000000
+        }
       },
       "partial_interior": {
         "name": "部分的内装解体",
@@ -407,26 +640,63 @@
       "騒音作業は平日日中のみ"
     ]
   },
-
   "hs_reference_partial_demolition": {
     "description": "他カテゴリからの参照用・部分解体単価",
-    "kitchen_removal": { "source_jpy": 70000, "reference_category": "kitchen_reform" },
-    "bathroom_ub_removal": { "source_jpy_min": 50000, "source_jpy_max": 100000, "reference_category": "bathroom_reform" },
-    "bathroom_tile_zairai_removal": { "source_jpy_min": 250000, "source_jpy_max": 400000, "reference_category": "bathroom_reform" },
-    "toilet_yoshiki_removal": { "source_jpy_min": 5000, "source_jpy_max": 10000, "reference_category": "toilet_reform" },
-    "toilet_washiki_removal": { "source_jpy_min": 30000, "source_jpy_max": 60000, "reference_category": "toilet_reform" },
-    "roof_slate_removal_per_sqm": { "source_jpy": 3000, "reference_category": "roof_construction" },
-    "roof_tile_removal_per_sqm": { "source_jpy_min": 3500, "source_jpy_max": 5000, "reference_category": "roof_construction" },
-    "floor_existing_removal_per_sqm": { "source_jpy": 150, "reference_category": "floor_replacement" },
-    "cloth_existing_removal_per_sqm": { "source_jpy": 150, "reference_category": "cloth_replacement" },
-    "entrance_door_removal": { "source_jpy_min": 15000, "source_jpy_max": 30000, "reference_category": "entrance_door_reform" }
+    "kitchen_removal": {
+      "source_jpy": 70000,
+      "reference_category": "kitchen_reform"
+    },
+    "bathroom_ub_removal": {
+      "source_jpy_min": 50000,
+      "source_jpy_max": 100000,
+      "reference_category": "bathroom_reform"
+    },
+    "bathroom_tile_zairai_removal": {
+      "source_jpy_min": 250000,
+      "source_jpy_max": 400000,
+      "reference_category": "bathroom_reform"
+    },
+    "toilet_yoshiki_removal": {
+      "source_jpy_min": 5000,
+      "source_jpy_max": 10000,
+      "reference_category": "toilet_reform"
+    },
+    "toilet_washiki_removal": {
+      "source_jpy_min": 30000,
+      "source_jpy_max": 60000,
+      "reference_category": "toilet_reform"
+    },
+    "roof_slate_removal_per_sqm": {
+      "source_jpy": 3000,
+      "reference_category": "roof_construction"
+    },
+    "roof_tile_removal_per_sqm": {
+      "source_jpy_min": 3500,
+      "source_jpy_max": 5000,
+      "reference_category": "roof_construction"
+    },
+    "floor_existing_removal_per_sqm": {
+      "source_jpy": 150,
+      "reference_category": "floor_replacement"
+    },
+    "cloth_existing_removal_per_sqm": {
+      "source_jpy": 150,
+      "reference_category": "cloth_replacement"
+    },
+    "entrance_door_removal": {
+      "source_jpy_min": 15000,
+      "source_jpy_max": 30000,
+      "reference_category": "entrance_door_reform"
+    }
   },
-
   "complete_plans": {
     "wooden_30tsubo_standard": {
       "name": "木造30坪 戸建て丸ごと解体（標準ケース）",
       "scope": "2階建・付帯工事少・アスベストなし・関東標準",
-      "estimated_total_jpy": { "min": 1200000, "max": 1800000 },
+      "estimated_total_jpy": {
+        "min": 1200000,
+        "max": 1800000
+      },
       "hs_rule_estimate_jpy": 2915000,
       "breakdown_sample": {
         "main_demolition_30tsubo_40k": 1200000,
@@ -443,7 +713,10 @@
     "wooden_30tsubo_with_asbestos_level3": {
       "name": "木造30坪+アスベストレベル3",
       "scope": "基本解体+屋根スレートアスベスト除去",
-      "estimated_total_jpy": { "min": 1500000, "max": 2500000 },
+      "estimated_total_jpy": {
+        "min": 1500000,
+        "max": 2500000
+      },
       "hs_rule_estimate_jpy": 3400000,
       "asbestos_added_cost": 500000,
       "note": "築30年以上の住宅で70%の確率で該当"
@@ -451,30 +724,41 @@
     "heavy_steel_40tsubo": {
       "name": "重量鉄骨40坪 解体",
       "scope": "3階建・鉄骨分別・大型重機必要",
-      "estimated_total_jpy": { "min": 2800000, "max": 4500000 },
+      "estimated_total_jpy": {
+        "min": 2800000,
+        "max": 4500000
+      },
       "hs_rule_estimate_jpy": 3800000
     },
     "rc_50tsubo_with_pile": {
       "name": "RC造50坪+基礎杭抜き",
       "scope": "RC造3階建・杭10本抜き・整地含む",
-      "estimated_total_jpy": { "min": 4500000, "max": 7500000 },
+      "estimated_total_jpy": {
+        "min": 4500000,
+        "max": 7500000
+      },
       "hs_rule_estimate_jpy": 6500000
     },
     "condo_100sqm_skeleton": {
       "name": "マンション100㎡スケルトン解体",
       "scope": "内装全撤去・搬出養生・管理組合対応",
-      "estimated_total_jpy": { "min": 1200000, "max": 2200000 },
+      "estimated_total_jpy": {
+        "min": 1200000,
+        "max": 2200000
+      },
       "hs_rule_estimate_jpy": 1800000
     },
     "partial_wooden_old_tokyo_narrow": {
       "name": "東京23区狭小地・木造25坪（プレミアム）",
       "scope": "重機搬入困難・手壊し増加・狭小地対応",
-      "estimated_total_jpy": { "min": 2000000, "max": 3500000 },
+      "estimated_total_jpy": {
+        "min": 2000000,
+        "max": 3500000
+      },
       "hs_rule_estimate_jpy": 2850000,
       "note": "狭小地係数×1.15 + 都市部×1.20で計算"
     }
   },
-
   "red_flags": [
     {
       "code": "TOO_CHEAP_QUOTE",
@@ -555,7 +839,6 @@
       "reason": "記録残さない業者。トラブル時の証拠不足"
     }
   ],
-
   "vendor_verification_checklist": {
     "description": "解体業者の信頼性確認チェックリスト（必須項目）",
     "must_check": [
@@ -589,7 +872,6 @@
       }
     ]
   },
-
   "negotiation_tips": [
     "最低3社、できれば5社の相見積もりを取る",
     "一番安い業者より、2番目〜3番目の業者を選ぶ（最安は不法投棄リスク）",
@@ -607,37 +889,47 @@
     "工事後の整地仕上げレベル（更地レベル/砂利敷き等）を事前指定",
     "補助金確認：自治体によっては老朽危険家屋解体補助金あり（¥30-100万）"
   ],
-
   "subsidies_demolition_2026": {
     "description": "解体工事関連の補助金制度（2026年）",
     "programs": [
       {
         "name": "老朽危険家屋解体補助金（自治体）",
-        "amount_range_jpy": { "min": 300000, "max": 1000000 },
+        "amount_range_jpy": {
+          "min": 300000,
+          "max": 1000000
+        },
         "eligibility": "築40年以上の危険家屋・特定空家",
         "note": "各市区町村により条件・金額が大きく異なる。要役所確認"
       },
       {
         "name": "空き家解体補助金",
-        "amount_range_jpy": { "min": 200000, "max": 500000 },
+        "amount_range_jpy": {
+          "min": 200000,
+          "max": 500000
+        },
         "eligibility": "登記上の空き家（1年以上居住なし）"
       },
       {
         "name": "建替え促進補助金",
-        "amount_range_jpy": { "min": 500000, "max": 1500000 },
+        "amount_range_jpy": {
+          "min": 500000,
+          "max": 1500000
+        },
         "eligibility": "密集市街地の建替え・防災目的",
         "note": "東京都・大阪市等の都市部中心"
       },
       {
         "name": "アスベスト除去補助金",
-        "amount_range_jpy": { "min": 100000, "max": 1200000 },
+        "amount_range_jpy": {
+          "min": 100000,
+          "max": 1200000
+        },
         "eligibility": "アスベスト含有建材の除去費用",
         "note": "労働安全衛生法の指定作業主任者による除去が条件"
       }
     ],
     "application_timing": "工事契約前に申請することが多い。事後申請不可の自治体あり"
   },
-
   "trade_knowledge": {
     "summary": "解体工事は『本体解体30-40% + 産廃処分費40-50% + 付帯工事10-15% + 整地5-10% + 諸経費5-10%』の構造。木造30坪で¥120-180万、RC造50坪で¥300-400万が業界相場。HS基準はこれより20-50%高く出る傾向があるが、これは業者が産廃処分費を省略・一式計上・不法投棄等で安く見せているため",
     "illegal_dumping_reality": "不法投棄の70%は建設業由来。施主も撤去責任（排出事業者責任の連帯）問われるため、マニフェストE票管理と業者選定が最重要。極端に安い業者=不法投棄確定級と考えるべし",
@@ -647,5 +939,72 @@
     "vendor_selection_rule": "解体業界には悪徳業者が多い。(1)許可登録確認 (2)マニフェスト提供約束 (3)相見積もり3社以上 (4)最安より2-3番手を選ぶ (5)実績現場見学 — この5点で90%のトラブル回避可能",
     "subsidy_utilization": "自治体補助金は意外に活用されない。老朽家屋・空き家・建替え・アスベストで最大¥150万円取れる可能性あり。工事契約前に役所確認必須（事後申請不可が多い）",
     "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 国交省建設リサイクル法 + 環境省廃棄物処理法 + 全国解体業者料金データ + 産廃処分場公開単価 + 解体業界内部情報"
-  }
+  },
+  "customer_scenario_guide": [
+    {
+      "case": "実家売却前の解体",
+      "recommendation": "木造30坪戸建て標準ケース",
+      "cost_range": {
+        "min": 1200000,
+        "max": 1800000
+      }
+    },
+    {
+      "case": "築40年以上アスベスト疑い",
+      "recommendation": "木造30坪+アスベスト除去",
+      "cost_range": {
+        "min": 1800000,
+        "max": 3500000
+      }
+    },
+    {
+      "case": "リフォーム前の部分解体",
+      "recommendation": "マンション100㎡スケルトン",
+      "cost_range": {
+        "min": 800000,
+        "max": 1500000
+      }
+    },
+    {
+      "case": "鉄骨造工場解体",
+      "recommendation": "重量鉄骨40坪",
+      "cost_range": {
+        "min": 2800000,
+        "max": 4500000
+      }
+    },
+    {
+      "case": "RC造+杭抜き必要",
+      "recommendation": "RC造50坪+基礎杭",
+      "cost_range": {
+        "min": 5000000,
+        "max": 10000000
+      }
+    },
+    {
+      "case": "空き家放置の解体",
+      "recommendation": "自治体補助金+標準解体",
+      "cost_range": {
+        "min": 1200000,
+        "max": 2000000
+      },
+      "subsidy_max_jpy": 500000
+    },
+    {
+      "case": "内装のみ解体",
+      "recommendation": "マンションスケルトン解体",
+      "cost_range": {
+        "min": 600000,
+        "max": 1200000
+      }
+    },
+    {
+      "case": "残置物多い家の解体",
+      "recommendation": "解体+残置物処分",
+      "cost_range": {
+        "min": 1500000,
+        "max": 2500000
+      }
+    }
+  ]
 }

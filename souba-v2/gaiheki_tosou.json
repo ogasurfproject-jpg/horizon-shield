@@ -9,12 +9,11 @@
     "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 2026年実勢データ (日本ペイント・関西ペイント・エスケー化研・ニッペ パーフェクトトップSi、モノタロウ、ヌリカエ、リショップナビ、外壁塗装ジャーナル、グローベルス、街の外壁塗装やさん、全建設総連東京都連2023賃金調査)",
     "scope": "戸建住宅外壁塗装（2階建・総二階・30坪標準ベース）。屋根塗装・ベランダ防水等は別カテゴリ参照"
   },
-
   "horizon_shield_standard": {
     "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール（外壁塗装版）",
     "formula": "材料仕入れ値 × 1.2 + 職人人工 × 日当 + 付帯工事実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
     "parameters": {
-      "material_markup_from_trade_price": 1.20,
+      "material_markup_from_trade_price": 1.2,
       "general_overhead_pct_ideal": 15,
       "general_overhead_pct_acceptable_max": 20,
       "tax_pct": 10,
@@ -23,25 +22,43 @@
     },
     "philosophy": "材料は実費＋最小限、職人の腕と工務店の信頼で価値を出す健全市場の実現。訪問販売型ぼったくり業者から施主を守る。"
   },
-
   "paint_materials": {
     "acrylic": {
       "example_product": "ニッペ 水性シリコン外かべ用 等",
-      "market_unit_price_per_sqm_full": { "min": 1000, "max": 1500 },
-      "durability_years": { "min": 3, "max": 5 },
+      "market_unit_price_per_sqm_full": {
+        "min": 1000,
+        "max": 1500
+      },
+      "durability_years": {
+        "min": 3,
+        "max": 5
+      },
       "status": "時代遅れ・現代ではほぼ使われない",
       "note": "選択肢として残るが、安物買いの銭失い"
     },
     "urethane": {
-      "market_unit_price_per_sqm_full": { "min": 1800, "max": 2200 },
-      "durability_years": { "min": 5, "max": 7 },
+      "market_unit_price_per_sqm_full": {
+        "min": 1800,
+        "max": 2200
+      },
+      "durability_years": {
+        "min": 5,
+        "max": 7
+      },
       "status": "廃れ気味",
       "note": "シリコンとの価格差が小さく、耐用年数で劣るため選ばれにくい"
     },
     "silicon": {
       "example_product": "ニッペ パーフェクトトップSi（ラジカルシリコン） / エスケー化研 プレミアムシリコン / 関西ペイント アレスダイナミックTOP",
-      "market_unit_price_per_sqm_full": { "min": 2300, "max": 3500, "avg": 2900 },
-      "durability_years": { "min": 8, "max": 12 },
+      "market_unit_price_per_sqm_full": {
+        "min": 2300,
+        "max": 3500,
+        "avg": 2900
+      },
+      "durability_years": {
+        "min": 8,
+        "max": 12
+      },
       "status": "業界標準・最多使用",
       "material_per_can": {
         "product": "ニッペ パーフェクトトップSi 15kg",
@@ -50,37 +67,73 @@
         "price_trade_estimate_jpy": 13500,
         "markup_net_from_list_pct": 91,
         "markup_trade_from_list_pct": 65,
-        "coverage_sqm_2coat": { "min": 60, "max": 80 },
-        "usage_kg_per_sqm_per_coat": { "min": 0.11, "max": 0.17 }
+        "coverage_sqm_2coat": {
+          "min": 60,
+          "max": 80
+        },
+        "usage_kg_per_sqm_per_coat": {
+          "min": 0.11,
+          "max": 0.17
+        }
       },
       "material_cost_per_sqm": {
-        "net_ryuyoku_2coat": { "min": 250, "max": 320 },
-        "trade_2coat": { "min": 175, "max": 245 }
+        "net_ryuyoku_2coat": {
+          "min": 250,
+          "max": 320
+        },
+        "trade_2coat": {
+          "min": 175,
+          "max": 245
+        }
       }
     },
     "radical": {
-      "market_unit_price_per_sqm_full": { "min": 2500, "max": 3500, "avg": 3000 },
-      "durability_years": { "min": 10, "max": 13 },
+      "market_unit_price_per_sqm_full": {
+        "min": 2500,
+        "max": 3500,
+        "avg": 3000
+      },
+      "durability_years": {
+        "min": 10,
+        "max": 13
+      },
       "status": "新標準・シリコン改良型",
       "note": "ラジカル制御技術で耐候性UP。パーフェクトトップSiはシリコン・ラジカルの両方に分類される"
     },
     "fluorine": {
-      "market_unit_price_per_sqm_full": { "min": 3500, "max": 4500, "avg": 4000 },
-      "durability_years": { "min": 15, "max": 20 },
+      "market_unit_price_per_sqm_full": {
+        "min": 3500,
+        "max": 4500,
+        "avg": 4000
+      },
+      "durability_years": {
+        "min": 15,
+        "max": 20
+      },
       "status": "高耐久",
       "note": "長期視点ではコスパ良、ただし10年以上住む前提"
     },
     "inorganic": {
-      "market_unit_price_per_sqm_full": { "min": 4500, "max": 6000, "avg": 5000 },
-      "durability_years": { "min": 15, "max": 25 },
+      "market_unit_price_per_sqm_full": {
+        "min": 4500,
+        "max": 6000,
+        "avg": 5000
+      },
+      "durability_years": {
+        "min": 15,
+        "max": 25
+      },
       "status": "最上位グレード",
       "note": "最高級だが施工難易度高く、腕の良い職人限定"
     }
   },
-
   "area_calculation_30tsubo_standard": {
     "delivery_sqm_tsubo_coefficient": 3.3,
-    "wall_area_coefficient": { "min": 1.1, "max": 1.4, "default": 1.2 },
+    "wall_area_coefficient": {
+      "min": 1.1,
+      "max": 1.4,
+      "default": 1.2
+    },
     "tsubo_to_wall_sqm_table": {
       "20tsubo": 80,
       "25tsubo": 100,
@@ -90,9 +143,11 @@
       "45tsubo": 180,
       "50tsubo": 200
     },
-    "scaffold_area_standard_30tsubo_sqm": { "min": 180, "max": 220 }
+    "scaffold_area_standard_30tsubo_sqm": {
+      "min": 180,
+      "max": 220
+    }
   },
-
   "labor": {
     "painter_day_rate_kanto": {
       "min": 16899,
@@ -101,79 +156,133 @@
       "source": "全建設総連東京都連2023・親方プラス職種別ランキング"
     },
     "standard_manhours_30tsubo_silicon": {
-      "painting": { "workers": 2, "days": 3, "total_manhours": 6 },
-      "coking": { "workers": 1, "days": 2, "total_manhours": 2 },
+      "painting": {
+        "workers": 2,
+        "days": 3,
+        "total_manhours": 6
+      },
+      "coking": {
+        "workers": 1,
+        "days": 2,
+        "total_manhours": 2
+      },
       "total_manhours": 8
     },
     "note": "塗装職人は大工より若干安く、クロス職人と同等。熟練者は¥25,000超"
   },
-
   "additional_works_per_unit": {
     "scaffold": {
       "unit": "sqm",
-      "price_per_sqm": { "min": 700, "max": 1200, "avg": 950 },
-      "includes": ["くさび足場組立", "解体", "飛散防止ネット", "運搬"],
+      "price_per_sqm": {
+        "min": 700,
+        "max": 1200,
+        "avg": 950
+      },
+      "includes": [
+        "くさび足場組立",
+        "解体",
+        "飛散防止ネット",
+        "運搬"
+      ],
       "note": "30坪標準 ¥150,000〜¥200,000"
     },
     "high_pressure_washing": {
       "unit": "sqm",
-      "price_per_sqm": { "min": 150, "max": 350, "avg": 250 },
+      "price_per_sqm": {
+        "min": 150,
+        "max": 350,
+        "avg": 250
+      },
       "note": "30坪標準（外壁+屋根）¥40,000〜¥100,000"
     },
     "coking_uchikae": {
       "unit": "m",
-      "price_per_m": { "min": 700, "max": 900, "avg": 800 },
+      "price_per_m": {
+        "min": 700,
+        "max": 900,
+        "avg": 800
+      },
       "material_type": "変性シリコン系",
-      "standard_200m_total": { "min": 140000, "max": 180000 },
+      "standard_200m_total": {
+        "min": 140000,
+        "max": 180000
+      },
       "note": "打ち替え（古いコーキング撤去→新しく充填）。耐久性が大幅に向上"
     },
     "coking_mashiuchi": {
       "unit": "m",
-      "price_per_m": { "min": 400, "max": 600, "avg": 500 },
+      "price_per_m": {
+        "min": 400,
+        "max": 600,
+        "avg": 500
+      },
       "note": "増し打ち（既存の上に重ねる）。打ち替えより安いが耐久性劣る。HS基準では打ち替え推奨"
     },
     "soffit_painting_nokiten": {
       "unit": "sqm",
-      "price_per_sqm": { "min": 800, "max": 1200 },
+      "price_per_sqm": {
+        "min": 800,
+        "max": 1200
+      },
       "note": "軒天塗装"
     },
     "fascia_painting_hafu": {
       "unit": "m",
-      "price_per_m": { "min": 1500, "max": 2500 },
+      "price_per_m": {
+        "min": 1500,
+        "max": 2500
+      },
       "note": "破風板・鼻隠し"
     },
     "gutter_painting_amadoi": {
       "unit": "m",
-      "price_per_m": { "min": 700, "max": 1200 },
+      "price_per_m": {
+        "min": 700,
+        "max": 1200
+      },
       "note": "雨樋"
     },
     "shutter_box_painting": {
       "unit": "set",
-      "price_per_set": { "min": 3000, "max": 5000 }
+      "price_per_set": {
+        "min": 3000,
+        "max": 5000
+      }
     },
     "rain_door_painting_amado": {
       "unit": "sheet",
-      "price_per_sheet": { "min": 3000, "max": 5000 }
+      "price_per_sheet": {
+        "min": 3000,
+        "max": 5000
+      }
     },
     "protection_masking": {
       "unit": "total",
-      "standard_30tsubo": { "min": 15000, "max": 30000 }
+      "standard_30tsubo": {
+        "min": 15000,
+        "max": 30000
+      }
     }
   },
-
   "plans_30tsubo_example": {
     "ume_budget": {
       "name": "最安プラン",
       "paint_type": "ウレタン or シリコン下限",
       "description": "シリコン標準・コーキング増し打ち・付帯部最小",
-      "estimated_total_jpy": { "min": 550000, "max": 750000 },
+      "estimated_total_jpy": {
+        "min": 550000,
+        "max": 750000
+      },
       "durability_years": 7
     },
     "take_standard": {
       "name": "標準プラン（推奨）",
       "paint_type": "シリコン or ラジカル",
       "description": "ラジカルシリコン・コーキング打ち替え・付帯部フル",
-      "estimated_total_jpy": { "min": 750000, "max": 950000 },
+      "estimated_total_jpy": {
+        "min": 750000,
+        "max": 950000
+      },
       "durability_years": 12,
       "breakdown_sample_hs_rule": {
         "material_hs_rule": 39600,
@@ -194,11 +303,13 @@
       "name": "推奨プラン（フッ素・無機）",
       "paint_type": "フッ素 or 無機",
       "description": "フッ素・無機塗料・コーキング打ち替え・付帯部フル・下地補修あり",
-      "estimated_total_jpy": { "min": 1050000, "max": 1350000 },
+      "estimated_total_jpy": {
+        "min": 1050000,
+        "max": 1350000
+      },
       "durability_years": 18
     }
   },
-
   "red_flags": [
     {
       "code": "DOOR_TO_DOOR_DISCOUNT",
@@ -273,7 +384,6 @@
       "reason": "HS基準でシリコン¥828k。¥1,200k超は相場の1.4倍以上で過剰請求確定"
     }
   ],
-
   "detection_3coat_skipping": {
     "description": "3回塗り省略（中塗り飛ばし）の検出法。HS独自の重要検証",
     "methods": [
@@ -314,7 +424,6 @@
     ],
     "knowledge_source": "TOshi 30年の現場経験 + 建設業界内部告発情報"
   },
-
   "negotiation_tips": [
     "塗料メーカーと品番の明示を要求する（ニッペ/関西ペイント/エスケー化研の正規品か確認）",
     "材料仕入れ値の証明を求める（モノタロウ価格を根拠に）",
@@ -327,12 +436,70 @@
     "塗料メーカー保証書・施工保証書の発行を契約時に確認",
     "30坪シリコンで¥1,200,000超は明確な過剰請求。相見積もりで¥800k前後の業者を探せ"
   ],
-
   "trade_knowledge": {
     "summary": "塗料は住設と異なり定価の60-70%が業者仕入れ値。ネット販売は定価の91%（ほぼ定価）で材料仕入れ先としては不利。業者は代理店経由で直接仕入れる方が安い。一方、施主への請求単価は業界標準で材料原価の10-15倍になる構造（原価¥250/㎡の塗料が㎡¥2,500-3,500で売られる）。この乖離の大部分が人工・足場・付帯工事で、その中で不当に膨らませる業者が多い。",
     "industry_scam_structure": "訪問販売業者の典型手口：(1)無料点検で危機感煽り、(2)本来不要な屋根塗装もセット提案、(3)定価ベースで¥200万見積もり、(4)『今なら30%OFF』で¥140万に値引いた風を装う、(5)実際の適正は¥80万前後。結果、定価ベースで+75%過剰請求。",
     "painter_dayrate_context": "塗装工は全建設職種でやや低日当（ランキング7位/¥16,899平均）。原因は参入障壁の低さ。熟練者は¥25,000超。腕の見極めは：足場上の動きの機敏さ、塗り重ね時間の管理、養生の精度、施工写真の自主提出。",
     "three_coat_reality": "『3回塗り』は建築業界の業界標準だが、実際に3回塗る業者は約70%という業界内部データ。残り30%は中塗り省略や薄塗りで手抜き。HSが最も力を入れる検出領域。",
     "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 建設業界内部情報 + 塗料メーカー公式データ"
-  }
+  },
+  "customer_scenario_guide": [
+    {
+      "case": "築15年 初回塗装",
+      "recommendation": "シリコン塗装標準",
+      "cost_range": {
+        "min": 600000,
+        "max": 1000000
+      }
+    },
+    {
+      "case": "築20年超 長持ちさせたい",
+      "recommendation": "フッ素塗装（耐久15-20年）",
+      "cost_range": {
+        "min": 900000,
+        "max": 1400000
+      }
+    },
+    {
+      "case": "最高級グレード",
+      "recommendation": "無機塗装（耐久20-25年）",
+      "cost_range": {
+        "min": 1200000,
+        "max": 1800000
+      }
+    },
+    {
+      "case": "ひび割れ・シーリング劣化",
+      "recommendation": "下地補修+シーリング全打替+塗装",
+      "cost_range": {
+        "min": 800000,
+        "max": 1400000
+      }
+    },
+    {
+      "case": "雨漏り予備軍",
+      "recommendation": "原因調査+シーリング+塗装",
+      "cost_range": {
+        "min": 900000,
+        "max": 1500000
+      },
+      "note": "rain_leak_repair.json参照"
+    },
+    {
+      "case": "サイディング劣化激しい",
+      "recommendation": "外壁カバー工法（重ね張り）",
+      "cost_range": {
+        "min": 1500000,
+        "max": 2500000
+      }
+    },
+    {
+      "case": "モルタル壁のクラック多数",
+      "recommendation": "弾性シリコン（クラック追従）",
+      "cost_range": {
+        "min": 800000,
+        "max": 1200000
+      }
+    }
+  ]
 }
