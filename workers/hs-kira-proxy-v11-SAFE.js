@@ -23,7 +23,7 @@
  * 追加のバインディング不要（既存のKIRA_STATS, ORDERSをそのまま使う）
  * 追加のシークレット不要（既存のANTHROPIC_API_KEYをそのまま使う）
  */
-
+let PRICE_COEFF = 1.0; // ★戦時価格係数（hs-price-syncから取得）
 const KIRA_SYSTEM_PROMPT = `あなたはKIRA（建設費診断AI）です。The HORIZ音s株式会社が提供する建設費診断サービス「HORIZON SHIELD」のAIアシスタントです。
 
 【KIRAの人格】
@@ -717,7 +717,7 @@ function buildTradePlan(gradeData, installTotal, planType, maker, gradeName, pri
   const installAvg = installTotal ? avgRange(installTotal) : 0;
   const subtotal = unitPrice + installAvg;
   const mul = (PLAN_PROFIT_MULTIPLIER[planType].multiplier_min + PLAN_PROFIT_MULTIPLIER[planType].multiplier_max) / 2;
-  const total_man_en = Math.round(subtotal * mul * priceCoeff);
+  const total_man_en = Math.round(subtotal * mul * PRICE_COEFF);
   return { maker, series: gradeData.series, grade: gradeName, total: total_man_en * 10000, total_man_en, message: `${maker} ${gradeData.series}（${gradeName}）` };
 }
 
@@ -799,6 +799,10 @@ async function handleReverseEstimate(request, env, origin) {
 
 export default {
   async fetch(request, env) {
+    try {
+      const _cr = await fetch('https://hs-price-sync.oga-surf-project.workers.dev/current-coefficient');
+      if (_cr.ok) { const _cd = await _cr.json(); PRICE_COEFF = _cd.coefficient || 1.0; }
+    } catch(e) { PRICE_COEFF = 1.0; }
     const url = new URL(request.url);
     const path = url.pathname;
     const origin = request.headers.get('Origin') || '';
