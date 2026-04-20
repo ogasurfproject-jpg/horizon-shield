@@ -507,6 +507,7 @@ footer{
     <a href="/map">📍マップ</a>
     <a href="#kira-section">相談</a>
     <a href="#services">料金</a>
+    <a href="/blog/">ブログ</a>
     <a href="#diagnosis-section" class="cta-nav">無料診断</a>
   </nav>
   <button id="hamburger" onclick="toggleMenu()" aria-label="メニュー">
@@ -586,7 +587,7 @@ footer{
       <div class="svc-num" style="color:#F0C030">00</div>
       <div class="svc-body">
         <div class="svc-name" style="color:#F0C030">逆見積もり診断</div>
-        <div class="svc-desc">見積もりを取る<strong>前</strong>にKIRAが適正予算を算出。松・竹・梅の3プランで業者交渉を武装化。</div>
+        <div class="svc-desc">見積もりを取る<strong>前</strong>にKIRAが適正予算を<strong style="color:#F0C030">概算算出（無料）</strong>。さらに<strong style="color:#F0C030">中小工務店の正確な金額</strong>を¥5,500で公開。業者交渉の武器に。</div>
         <div class="svc-price" style="color:#F0C030">¥5,500</div>
         <div class="svc-time">即時AI算出 / 交渉用PDF納品</div>
         <a href="/hs-reverse-estimate/" style="display:block;text-align:center;padding:14px;background:#F0C030;color:#000;text-decoration:none;border-radius:8px;font-weight:900;font-size:14px;letter-spacing:2px;margin-top:12px">▸ 無料で3プラン算出する</a>
@@ -793,7 +794,48 @@ footer{
 </section>
 
 <div class="divider"></div>
-
+<!-- 無料コンテンツ（ブログ/マップ/業者チェック）セクション -->
+<section id="free-content" style="padding:60px 20px;background:linear-gradient(180deg,transparent,rgba(0,212,255,.03))">
+  <div class="sec-label">// FREE CONTENT</div>
+  <div class="sec-title"><em>無料</em>で使える全コンテンツ</div>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:32px;max-width:680px">診断サービスを申し込まなくても、施主の武装化に役立つ無料コンテンツを公開中。毎日更新。</p>
+  
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:1000px">
+    
+    <!-- ブログ -->
+    <a href="/blog/" style="display:block;padding:24px;background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.15);border-radius:8px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(0,212,255,.08)';this.style.borderColor='rgba(0,212,255,.4)'" onmouseout="this.style.background='rgba(0,212,255,.04)';this.style.borderColor='rgba(0,212,255,.15)'">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;margin-bottom:8px">📝 DAILY BLOG</div>
+      <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">建設費診断ブログ</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">建設業界のプロが<strong style="color:var(--text)">毎日更新</strong>。業者の手口・相場・補助金情報を施主目線で解説。</div>
+      <div style="font-size:11px;color:var(--accent);margin-top:12px">記事を読む →</div>
+    </a>
+    
+    <!-- マップ -->
+    <a href="/map" style="display:block;padding:24px;background:rgba(255,48,64,.04);border:1px solid rgba(255,48,64,.15);border-radius:8px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(255,48,64,.08)';this.style.borderColor='rgba(255,48,64,.4)'" onmouseout="this.style.background='rgba(255,48,64,.04)';this.style.borderColor='rgba(255,48,64,.15)'">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--danger);letter-spacing:3px;margin-bottom:8px">📍 WARNING MAP</div>
+      <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">ボッタクリ被害マップ</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">全国の悪質業者の活動エリアを可視化。自分の地域の<strong style="color:var(--text)">警戒レベル</strong>を確認。</div>
+      <div style="font-size:11px;color:var(--danger);margin-top:12px">マップを見る →</div>
+    </a>
+    
+    <!-- 業者チェック -->
+    <a href="/check/" style="display:block;padding:24px;background:rgba(240,192,48,.04);border:1px solid rgba(240,192,48,.15);border-radius:8px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(240,192,48,.08)';this.style.borderColor='rgba(240,192,48,.4)'" onmouseout="this.style.background='rgba(240,192,48,.04)';this.style.borderColor='rgba(240,192,48,.15)'">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#F0C030;letter-spacing:3px;margin-bottom:8px">🔍 GYOSHA CHECK</div>
+      <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">業者チェッカー</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">気になる業者の<strong style="color:var(--text)">建設業許可・評判・通報履歴</strong>を一括検索。契約前に必ずチェック。</div>
+      <div style="font-size:11px;color:#F0C030;margin-top:12px">業者を調べる →</div>
+    </a>
+    
+    <!-- 相場DB -->
+    <a href="/souba.html" style="display:block;padding:24px;background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.15);border-radius:8px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(0,255,136,.08)';this.style.borderColor='rgba(0,255,136,.4)'" onmouseout="this.style.background='rgba(0,255,136,.04)';this.style.borderColor='rgba(0,255,136,.15)'">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#00FF88;letter-spacing:3px;margin-bottom:8px">📊 PRICE DB</div>
+      <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">相場データベース</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">工事別の<strong style="color:var(--text)">適正価格レンジ</strong>を49カテゴリで公開。国交省公式データベース。</div>
+      <div style="font-size:11px;color:#00FF88;margin-top:12px">DBを見る →</div>
+    </a>
+    
+  </div>
+</section>
 <!-- FAQ -->
 <section id="faq">
   <div class="sec-label">// FAQ</div>
