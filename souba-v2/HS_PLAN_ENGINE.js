@@ -38,7 +38,7 @@ const KOJI_TYPE_MAP = {
   "tatami":         { db: "tatami_reform",        grade_map: { matsu: "新調_kokusan", take: "omote_gae_hyojun", ume: "ura_gaeshi" } },
 
   // 給湯・電気・水道
-  "water_heater":   { db: "water_heater_reform",  grade_map: { matsu: "hybrid_heater", take: "ecocute_460L_standard_exchange", ume: "gas_heater_eco_jozu_exchange" } },
+  "water_heater":   { db: "water_heater_reform",  trade_key: "water_heater",  grade_map: { matsu: "hybrid_heater", take: "ecocute_460L_standard_exchange", ume: "gas_heater_eco_jozu_exchange" } },
   "electrical":     { db: "electrical_work",      grade_map: null },
   "water_pipe":     { db: "water_pipe_work",      grade_map: null },
   "aircon":         { db: "aircon_work",          grade_map: { matsu: "two_unit_200v", take: "one_unit_with_outlet", ume: "one_unit_standard" } },
@@ -51,8 +51,8 @@ const KOJI_TYPE_MAP = {
   "taishin":        { db: "taishin_hokyou",       grade_map: { matsu: "full_taishin_package", take: "kabe_hokyou_10kabe_full", ume: "kabe_hokyou_3kabe" } },
 
   // 窓・ドア
-  "window":         { db: "window_reform",        grade_map: { matsu: "inner_window_whole_house_6_S_grade", take: "inner_window_whole_house_6", ume: "glass_only_all_windows" } },
-  "entrance_door":  { db: "entrance_door_reform", grade_map: null },
+  "window":         { db: "window_reform",        trade_key: "window",        grade_map: { matsu: "inner_window_whole_house_6_S_grade", take: "inner_window_whole_house_6", ume: "glass_only_all_windows" } },
+  "entrance_door":  { db: "entrance_door_reform", trade_key: "entrance_door", grade_map: null },
 
   // その他
   "waterproof":     { db: "waterproofing_work",   grade_map: null },
@@ -123,7 +123,12 @@ function computeItemPlan(item, soubaDB, tradeDB) {
 
   // 住設系はtrade_prices参照
   if (mapping.trade_key && tradeDB[mapping.trade_key]) {
-    return computeFromTradeDB(item, mapping, tradeDB[mapping.trade_key]);
+    const tradeResult = computeFromTradeDB(item, mapping, tradeDB[mapping.trade_key]);
+    // フォールバックシグナルが立っていれば soubaDB 経由
+    if (tradeResult._needs_souba_db) {
+      return computeFromSoubaDB(item, mapping, soubaDB);
+    }
+    return tradeResult;
   }
 
   // その他はsoubaDB（各カテゴリplans）参照
@@ -175,14 +180,16 @@ function computeFromTradeDB(item, mapping, tradeCategoryData) {
     return result;
   }
 
+  // window / entrance_door / water_heater は構造が違う → soubaDBにフォールバック
+  if (koji_type === "window" || koji_type === "entrance_door" || koji_type === "water_heater") {
+    // trade_key はあるが、soubaDB が使えるならそちらを優先（すでにv3.0で業者規模別価格あり）
+    return { _needs_souba_db: true, koji_type };
+  }
+
   // 住設系（キッチン/バス/トイレ/洗面）
   const makers = tradeCategoryData.manufacturers;
   const installCost = tradeCategoryData.installation_cost_jpy;
   const installTotal = installCost?.total_typical_万円;
-
-  // 松: 最上位グレード（代表メーカー=TOTOまたはLIXIL）
-  // 竹: 中位グレード
-  // 梅: 下位グレード（タカラで代替含む）
 
   const defaultMaker = koji_type === "kitchen" ? "LIXIL" : "TOTO";
   const budgetMaker = koji_type === "bathroom" ? "タカラスタンダード" : defaultMaker;
