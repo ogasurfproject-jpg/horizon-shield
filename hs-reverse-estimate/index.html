@@ -115,6 +115,67 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
 .legal-ribbon b{color:var(--lgray)}
 .err{background:rgba(255,48,64,.1);border:1px solid var(--red);padding:12px 14px;margin-top:12px;font-size:12px;color:var(--red);display:none}
 .err.show{display:block}
+/* ===== ハイブリッド・ペイウォール（2026/4 オプションC） ===== */
+.plan-price.masked{
+  color:transparent;
+  text-shadow:0 0 18px rgba(240,192,48,.9);
+  user-select:none;
+  position:relative;
+  filter:blur(8px);
+}
+.plan-card.take .plan-price.masked{
+  text-shadow:0 0 22px rgba(240,192,48,1);
+  filter:blur(10px);
+}
+.plan-price-range{
+  font-family:'Share Tech Mono',monospace;
+  font-size:15px;
+  font-weight:700;
+  color:var(--white);
+  text-align:center;
+  margin-bottom:2px;
+  letter-spacing:0.5px;
+}
+.plan-price-sub.approx{
+  color:var(--gray);
+  font-size:10px;
+  font-style:italic;
+}
+.plan-lock-hint{
+  display:none;
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  background:rgba(240,192,48,.95);
+  color:var(--bg);
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  padding:6px 12px;
+  border-radius:3px;
+  white-space:nowrap;
+  letter-spacing:1px;
+  font-weight:900;
+  z-index:2;
+  pointer-events:none;
+}
+.plan-card.take .plan-lock-hint{display:block;top:52%}
+.plan-card.take{cursor:pointer;transition:transform .2s}
+.plan-card.take:hover{transform:translateY(-2px)}
+.plan-price-wrap{position:relative}
+.plan-unlock-cta{
+  background:linear-gradient(135deg,rgba(240,192,48,.2),rgba(200,150,10,.1));
+  border:1px dashed rgba(240,192,48,.5);
+  padding:10px;
+  text-align:center;
+  font-size:11px;
+  color:var(--gold2);
+  letter-spacing:1px;
+  margin:10px 0;
+  cursor:pointer;
+  font-family:'Share Tech Mono',monospace;
+}
+.plan-unlock-cta:hover{background:rgba(240,192,48,.15);border-style:solid}
+.plan-card:not(.take) .plan-unlock-cta{display:none}  
 </style>
 </head>
 <body>
@@ -191,27 +252,30 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
           <div class="plan-badge">MATSU / 松</div>
           <div class="plan-name">理想プラン</div>
           <div class="plan-target">大手リフォーム会社<br>最上級グレード</div>
-          <div class="plan-price" id="price-matsu">¥0</div>
-          <div class="plan-price-sub" id="price-matsu-man">0万円</div>
+          <div class="plan-price-range" id="range-matsu">¥—</div>
+          <div class="plan-price-sub approx" id="price-matsu-man">概算レンジ</div>
           <ul class="plan-items" id="items-matsu"></ul>
         </div>
         <div class="plan-card take">
           <div class="plan-badge">★ TAKE / 竹 ★</div>
           <div class="plan-name"><span class="em">推奨</span>プラン</div>
           <div class="plan-target">地域の中小工務店<br>★HSが最もおすすめ★</div>
-          <div class="plan-price" id="price-take">¥0</div>
-          <div class="plan-price-sub" id="price-take-man">0万円</div>
+          <div class="plan-price-wrap">
+            <div class="plan-price masked" id="price-take">¥0,000,000</div>
+            <div class="plan-lock-hint">🔒 ¥5,500で解錠</div>
+          </div>
+          <div class="plan-price-sub" id="price-take-man">正確な金額を見る</div>
+          <div class="plan-unlock-cta" onclick="purchasePDF()">▸ ¥5,500でアンロック</div>
           <ul class="plan-items" id="items-take"></ul>
         </div>
         <div class="plan-card">
           <div class="plan-badge">UME / 梅</div>
           <div class="plan-name">最安プラン</div>
           <div class="plan-target">個人事業+ネット調達<br>予算重視</div>
-          <div class="plan-price" id="price-ume">¥0</div>
-          <div class="plan-price-sub" id="price-ume-man">0万円</div>
+          <div class="plan-price-range" id="range-ume">¥—</div>
+          <div class="plan-price-sub approx" id="price-ume-man">概算レンジ</div>
           <ul class="plan-items" id="items-ume"></ul>
         </div>
-      </div>
     </div>
     <div id="alerts-wrap" class="alerts" style="display:none">
       <div class="ei-title">▸ 2026年4月 市場警告</div>
@@ -381,12 +445,42 @@ function renderResults(data) {
 
 function renderPlan(key, plan) {
   if (!plan) return;
-  document.getElementById('price-' + key).textContent = '¥' + (plan.total || 0).toLocaleString();
-  document.getElementById('price-' + key + '-man').textContent = (plan.total_man_en || 0) + '万円';
+  const total = plan.total || 0;
+  const totalMan = plan.total_man_en || 0;
+  
+  if (key === 'take') {
+    // 竹：ブラー表示（購入後にクリア表示される）
+    document.getElementById('price-take').textContent = '¥' + total.toLocaleString();
+    if (window._purchased) {
+      document.getElementById('price-take').classList.remove('masked');
+      document.getElementById('price-take-man').textContent = totalMan + '万円';
+      const cta = document.querySelector('.plan-unlock-cta');
+      if (cta) cta.style.display = 'none';
+      const hint = document.querySelector('.plan-lock-hint');
+      if (hint) hint.style.display = 'none';
+    } else {
+      document.getElementById('price-take').classList.add('masked');
+    }
+  } else {
+    // 松・梅：±20%の概算レンジ表示
+    const lower = Math.round(total * 0.8 / 100000) * 100000;
+    const upper = Math.round(total * 1.2 / 100000) * 100000;
+    const lowerMan = Math.round(totalMan * 0.8);
+    const upperMan = Math.round(totalMan * 1.2);
+    const rangeEl = document.getElementById('range-' + key);
+    if (rangeEl) rangeEl.textContent = '¥' + lower.toLocaleString() + ' 〜 ¥' + upper.toLocaleString();
+    const manEl = document.getElementById('price-' + key + '-man');
+    if (manEl) manEl.textContent = '約 ' + lowerMan + '〜' + upperMan + '万円';
+  }
+  
+  // 明細（全プラン共通、竹だけ金額ブラー）
   const itemsEl = document.getElementById('items-' + key);
   if (plan.items && plan.items.length) {
     itemsEl.innerHTML = plan.items.map(function(it) {
       const label = (it.message || it.name || it.koji_type || '').substring(0, 22);
+      if (key === 'take' && !window._purchased) {
+        return '<li><span>' + escapeHtml(label) + '</span><span style="filter:blur(5px)">███万</span></li>';
+      }
       const price = it.total_man_en ? (it.total_man_en + '万') : '';
       return '<li><span>' + escapeHtml(label) + '</span><span>' + price + '</span></li>';
     }).join('');
