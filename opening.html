@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HORIZON SHIELD</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--red:#e63946;--gold:#c9a84c;--white:#f0ece4;--dim:#555;--bg:#060606}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Noto Serif JP',serif}
+#splash{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;background:var(--bg);transition:opacity 1s ease,visibility 1s ease}
+#splash.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.line-top{position:absolute;top:0;left:0;right:0;height:3px;background:var(--red);transform:scaleX(0);transform-origin:left;animation:lineExpand 0.8s ease forwards 0.1s}
+@keyframes lineExpand{to{transform:scaleX(1)}}
+.progress-bar{position:absolute;bottom:0;left:0;height:2px;background:var(--red);width:0%;opacity:0.5}
+#skip-btn{position:absolute;top:20px;right:24px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#333;letter-spacing:0.2em;background:none;border:1px solid #222;padding:6px 14px;cursor:pointer;z-index:10}
+.frame{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;opacity:0;pointer-events:none;transition:opacity 0.6s ease}
+.frame.active{opacity:1;pointer-events:auto}
+.f1-eyebrow{font-family:'Share Tech Mono',monospace;font-size:clamp(10px,2vw,12px);color:var(--red);letter-spacing:0.4em;margin-bottom:28px;opacity:0;animation:fadeUp 0.5s ease forwards 0.2s}
+.f1-scene{font-size:clamp(18px,4.5vw,40px);font-weight:700;color:var(--white);text-align:center;line-height:1.8;opacity:0;animation:fadeUp 0.7s ease forwards 0.5s}
+.f1-scene .number{color:var(--red);font-size:clamp(44px,10vw,96px);font-weight:900;display:block;line-height:1.0;margin:8px 0}
+.f1-scene .suffix{font-size:clamp(13px,2.5vw,16px);color:var(--dim);display:block;margin-top:12px;font-weight:400}
+.f2-q{font-size:clamp(20px,5vw,46px);font-weight:900;color:var(--white);text-align:center;line-height:1.7;opacity:0;animation:fadeUp 0.7s ease forwards 0.2s}
+.f2-q span{color:var(--red)}
+.f2-answer{margin-top:32px;font-size:clamp(13px,3vw,18px);color:var(--dim);text-align:center;line-height:1.9;opacity:0;animation:fadeUp 0.6s ease forwards 0.9s}
+.f2-answer strong{color:var(--white);font-weight:700}
+.f3-new-badge{display:inline-flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:clamp(10px,2vw,12px);color:var(--gold);letter-spacing:0.3em;border:1px solid var(--gold);padding:6px 16px;margin-bottom:28px;opacity:0;animation:fadeIn 0.5s ease forwards 0.1s}
+.f3-new-badge::before{content:'';width:6px;height:6px;background:var(--gold);border-radius:50%;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)}}
+.f3-headline{font-size:clamp(24px,6vw,54px);font-weight:900;color:var(--white);text-align:center;line-height:1.4;opacity:0;animation:fadeUp 0.7s ease forwards 0.4s}
+.f3-headline .accent{color:var(--red)}
+.f3-headline .small{display:block;font-size:clamp(14px,3vw,20px);color:var(--dim);font-weight:400;margin-top:12px;letter-spacing:0.05em}
+.f3-stats{margin-top:40px;display:flex;align-items:center;gap:0;opacity:0;animation:fadeUp 0.6s ease forwards 1.0s}
+.f3-stat{text-align:center;padding:0 clamp(20px,5vw,52px)}
+.stat-num{font-family:'Share Tech Mono',monospace;font-size:clamp(28px,6.5vw,56px);color:var(--white);font-weight:400;letter-spacing:-0.02em;line-height:1}
+.stat-num sup{font-size:clamp(10px,2vw,13px);color:var(--dim);letter-spacing:0.2em;margin-left:3px;vertical-align:super}
+.stat-label{font-family:'Share Tech Mono',monospace;font-size:clamp(9px,1.8vw,11px);color:var(--dim);letter-spacing:0.2em;margin-top:10px}
+.f3-divider{width:1px;height:44px;background:#1e1e1e;flex-shrink:0}
+.f4-logo-wrap{text-align:center;opacity:0;animation:scaleIn 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards 0.1s}
+.f4-japan-first{font-family:'Share Tech Mono',monospace;font-size:clamp(10px,2vw,12px);color:var(--gold);letter-spacing:0.4em;margin-bottom:14px}
+.f4-logo{font-size:clamp(32px,7vw,66px);font-weight:900;color:var(--white);letter-spacing:0.04em;line-height:1}
+.f4-logo span{color:var(--red)}
+.f4-service-name{margin-top:10px;font-size:clamp(12px,2.5vw,15px);color:var(--dim);letter-spacing:0.12em}
+.f4-cta-wrap{margin-top:36px;display:flex;flex-direction:column;align-items:center;gap:14px;opacity:0;animation:fadeUp 0.7s ease forwards 0.8s}
+.btn-main{display:inline-block;padding:17px 52px;background:var(--red);color:#fff;font-family:'Noto Serif JP',serif;font-size:clamp(14px,3vw,17px);font-weight:700;letter-spacing:0.1em;border:none;cursor:pointer;text-decoration:none;box-shadow:0 4px 24px rgba(230,57,70,0.45);transition:transform 0.2s,box-shadow 0.2s;position:relative;overflow:hidden}
+.btn-main::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);transform:translateX(-100%);animation:shimmer 2.5s infinite 1.5s}
+@keyframes shimmer{to{transform:translateX(100%)}}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(230,57,70,0.55)}
+.btn-sub{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:0.2em;background:none;border:none;cursor:pointer;text-decoration:underline;padding:4px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+@media(max-width:480px){.f3-stats{flex-direction:column;gap:20px}.f3-divider{width:40px;height:1px}.btn-main{padding:15px 36px}}
+</style>
+</head>
+<body>
+<div id="splash">
+  <div class="line-top"></div>
+  <button id="skip-btn" onclick="goLP()">SKIP ▶</button>
+  <div class="progress-bar" id="progress"></div>
+
+  <div class="frame" id="f1">
+    <div class="f1-eyebrow">REAL FACT</div>
+    <div class="f1-scene">
+      リフォームで損した人の平均額
+      <span class="number">93万円</span>
+      <span class="suffix">気づかないまま、業者に渡っていた。</span>
+    </div>
+  </div>
+
+  <div class="frame" id="f2">
+    <div class="f2-q">
+      なぜ業者は<br>「今すぐ決めてください」<br><span>と言うのか。</span>
+    </div>
+    <div class="f2-answer">
+      答えは一つ。<br>
+      <strong>施主が適正価格を知る前に、<br>契約させるためだ。</strong>
+    </div>
+  </div>
+
+  <div class="frame" id="f3">
+    <div class="f3-new-badge">NEW — 2026年4月 日本初登場</div>
+    <div class="f3-headline">
+      業者が来る<span class="accent">前</span>に、<br>
+      AIが適正価格を出す。
+      <span class="small">逆見積もり診断 ／ 概算無料</span>
+    </div>
+    <div class="f3-stats">
+      <div class="f3-stat">
+        <div class="stat-num">0.3<sup>sec</sup></div>
+        <div class="stat-label">INSTANT</div>
+      </div>
+      <div class="f3-divider"></div>
+      <div class="f3-stat">
+        <div class="stat-num">3<sup>plans</sup></div>
+        <div class="stat-label">COMPARE</div>
+      </div>
+      <div class="f3-divider"></div>
+      <div class="f3-stat">
+        <div class="stat-num">¥<sup>0</sup></div>
+        <div class="stat-label">FREE</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame" id="f4">
+    <div class="f4-logo-wrap">
+      <div class="f4-japan-first">JAPAN FIRST — 日本初</div>
+      <div class="f4-logo">HORIZON<span>SHIELD</span></div>
+      <div class="f4-service-name">AI建設費診断 ／ 逆見積もり診断</div>
+    </div>
+    <div class="f4-cta-wrap">
+      <a href="#" class="btn-main" onclick="goLP()">▸ 今すぐ無料で適正価格を調べる</a>
+      <button class="btn-sub" onclick="goLP()">サービス詳細を見る</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// 8秒後に自動でLPへ遷移
+const DURATION=2800,frames=['f1','f2','f3','f4'];
+let current=0,timer=null;
+
+function goLP(){
+  clearTimeout(timer);
+  document.getElementById('splash').classList.add('hidden');
+  setTimeout(()=>{ window.location.href='/'; },800);
+}
+
+function showFrame(i){
+  frames.forEach((id,j)=>document.getElementById(id).classList.toggle('active',i===j));
+  const bar=document.getElementById('progress');
+  bar.style.transition='none';bar.style.width=(i/frames.length*100)+'%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    bar.style.transition=`width ${DURATION}ms linear`;
+    bar.style.width=((i+1)/frames.length*100)+'%';
+  }));
+}
+
+function next(){
+  if(current<frames.length-1){
+    current++;showFrame(current);
+    if(current<frames.length-1)timer=setTimeout(next,DURATION);
+    else timer=setTimeout(goLP,DURATION); // 最後のフレーム後に自動遷移
+  }
+}
+
+showFrame(0);
+timer=setTimeout(next,DURATION);
+</script>
+</body>
+</html>
