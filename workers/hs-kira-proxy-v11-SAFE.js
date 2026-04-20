@@ -709,7 +709,7 @@ function computeFromTradeDB(item, mapping, tradeCategoryData) {
   return result;
 }
 
-function buildTradePlan(gradeData, installTotal, planType, maker, gradeName) {
+function buildTradePlan(gradeData, installTotal, planType, maker, gradeName, priceCoeff = 1.0) {
   if (!gradeData) return null;
   const priceRange = gradeData.売れ筋価格帯_万円 || gradeData.売れ筋施工費込み_万円 || gradeData.定価帯_1616_万円 || gradeData.定価帯_w750_万円 || gradeData.定価帯_万円;
   if (!priceRange) return null;
@@ -717,7 +717,7 @@ function buildTradePlan(gradeData, installTotal, planType, maker, gradeName) {
   const installAvg = installTotal ? avgRange(installTotal) : 0;
   const subtotal = unitPrice + installAvg;
   const mul = (PLAN_PROFIT_MULTIPLIER[planType].multiplier_min + PLAN_PROFIT_MULTIPLIER[planType].multiplier_max) / 2;
-  const total_man_en = Math.round(subtotal * mul);
+  const total_man_en = Math.round(subtotal * mul * priceCoeff);
   return { maker, series: gradeData.series, grade: gradeName, total: total_man_en * 10000, total_man_en, message: `${maker} ${gradeData.series}（${gradeName}）` };
 }
 
