@@ -464,14 +464,18 @@ footer{
 <!-- HEADER -->
 <header id="header">
   <a href="/" class="logo">HORIZON<span>SHIELD</span></a>
-  <nav>
+  <nav id="nav-main">
     <a href="#diagnosis-section" class="active">診断</a>
     <a href="/map">📍マップ</a>
     <a href="#kira-section">相談</a>
     <a href="#services">料金</a>
     <a href="#diagnosis-section" class="cta-nav">無料診断</a>
   </nav>
+  <button id="hamburger" onclick="toggleMenu()" aria-label="メニュー">
+    <span></span><span></span><span></span>
+  </button>
 </header>
+<div id="mobile-menu-overlay" onclick="toggleMenu()"></div>
 
 <!-- MAP BANNER（最上部） -->
 <!-- MAP BANNER（最上部）-->
