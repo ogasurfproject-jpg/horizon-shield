@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>逆見積もり診断 v4 | HORIZON SHIELD</title>
-<meta name="description" content="AI現場監督KIRAが段階的にヒアリングし、精度の高い3プランを提示します。">
+<title>逆見積もり診断 v3 | HORIZON SHIELD</title>
+<meta name="description" content="まだ見積もりを取っていない方へ。やりたい工事を書くだけでAI版凄腕CMRが3プラン（松竹梅）を即算出。業者交渉の武器になる参考見積書PDFを¥5,500でご提供。">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
 
@@ -14,174 +14,238 @@
   --cyan:#00D4FF; --red:#FF3040;
   --white:#EEF2F5; --gray:#5A7A8A; --lgray:#90AABA;
   --green:#00FF88; --orange:#FF8C00;
-  --border:rgba(0,212,255,.12);
+  --border:rgba(0,212,255,.12); --border2:rgba(0,212,255,.05);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--white);line-height:1.7}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--white);line-height:1.7;-webkit-font-smoothing:antialiased}
 a{color:var(--cyan);text-decoration:none}
 
+/* nav */
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;display:flex;justify-content:space-between;align-items:center;background:rgba(2,8,16,.97);border-bottom:1px solid var(--border)}
-.nav-logo{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px}
+.nav-logo{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--white);display:flex;align-items:center;gap:10px}
 .nav-logo span{color:var(--cyan)}
 .nav-back{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--cyan);border:1px solid var(--border);padding:5px 12px}
+.nav-back:hover{border-color:var(--cyan)}
 
-.hero{padding:80px 20px 32px;text-align:center}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--cyan);border:1px solid var(--border);padding:5px 14px;margin-bottom:16px}
+/* hero */
+.hero{padding:84px 20px 32px;text-align:center;position:relative}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.02) 1px,transparent 1px);background-size:48px 48px;pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--cyan);border:1px solid var(--border);padding:5px 14px;margin-bottom:20px}
 .badge-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:blink 1.5s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-.hero h1{font-family:'Zen Kaku Gothic New';font-weight:900;font-size:clamp(22px,5vw,36px);line-height:1.25;margin-bottom:10px}
+.hero h1{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(24px,5vw,42px);line-height:1.2;margin-bottom:12px}
 .hero h1 em{font-style:normal;color:var(--gold2)}
-.hero-sub{font-size:12px;color:var(--lgray);max-width:560px;margin:0 auto 8px;line-height:1.8}
+.hero-sub{font-size:13px;color:var(--lgray);max-width:520px;margin:0 auto 20px;line-height:1.9}
 
+/* main */
 .main{max-width:780px;margin:0 auto;padding:0 20px 60px}
-.frame{background:var(--bg2);border:1px solid var(--border);margin-bottom:20px}
+.frame{background:var(--bg2);border:1px solid var(--border);margin-bottom:20px;position:relative}
+.frame::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:.3}
 
-/* Chat-style hearing UI */
-.chat{padding:16px;min-height:200px}
-.bubble{padding:14px 16px;margin-bottom:14px;max-width:92%;position:relative;font-size:13.5px;line-height:1.9}
-.bubble.kira{background:rgba(0,212,255,.05);border-left:2px solid var(--cyan);color:var(--white)}
-.bubble.kira::before{content:'KIRA';position:absolute;top:-8px;left:10px;background:var(--bg2);padding:0 8px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--cyan);letter-spacing:2px}
-.bubble.user{background:rgba(240,192,48,.04);border-right:2px solid var(--gold2);color:var(--white);margin-left:auto;text-align:right}
-.bubble.user::before{content:'あなた';position:absolute;top:-8px;right:10px;background:var(--bg2);padding:0 8px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gold2);letter-spacing:2px}
+/* mode selector */
+.mode-select{padding:20px}
+.mode-title{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:14px}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.mode-grid{grid-template-columns:1fr}}
+.mode-btn{background:var(--bg3);border:1px solid var(--border);padding:22px 18px;cursor:pointer;text-align:left;color:var(--white);font-family:inherit;transition:all .2s}
+.mode-btn:hover{border-color:var(--cyan);background:rgba(0,212,255,.04)}
+.mode-btn.active{border-color:var(--gold2);background:rgba(240,192,48,.06)}
+.mode-num{font-family:'Share Tech Mono',monospace;font-size:22px;color:var(--cyan);margin-bottom:8px}
+.mode-btn.active .mode-num{color:var(--gold2)}
+.mode-name{font-size:15px;font-weight:700;margin-bottom:5px}
+.mode-desc{font-size:11px;color:var(--gray);line-height:1.7}
+.mode-badge{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:9px;background:rgba(0,255,136,.15);color:var(--green);padding:2px 8px;margin-top:8px;letter-spacing:1px}
 
-/* Clarifying questions */
-.question-block{background:rgba(0,212,255,.04);border:1px solid var(--border);padding:14px;margin-bottom:12px}
-.q-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--cyan);letter-spacing:2px;margin-bottom:6px}
-.q-text{font-size:13px;color:var(--white);margin-bottom:8px;font-weight:700}
-.q-why{font-size:11px;color:var(--gray);margin-bottom:10px;line-height:1.8;border-left:2px solid var(--gray);padding-left:8px}
-.q-options{display:grid;gap:6px}
-.q-option{background:var(--bg3);border:1px solid var(--border);padding:10px 12px;cursor:pointer;font-family:inherit;text-align:left;color:var(--white);font-size:12px;transition:all .15s}
-.q-option:hover,.q-option.selected{border-color:var(--gold2);background:rgba(240,192,48,.06);color:var(--gold2)}
-.q-custom{margin-top:6px;width:100%;background:var(--bg);border:1px solid var(--border);color:var(--white);font-family:inherit;font-size:12px;padding:8px 10px;outline:none}
-.q-custom:focus{border-color:var(--cyan)}
+/* mode content */
+.mode-content{display:none;padding:22px;border-top:1px solid var(--border)}
+.mode-content.active{display:block}
+.hint-box{background:rgba(0,212,255,.04);border-left:2px solid var(--cyan);padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--lgray);line-height:1.8}
+.hint-box b{color:var(--cyan)}
 
-/* Initial textarea */
-.nl-wrap{padding:18px}
-.nl-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:10px}
-.nl-hint{background:rgba(255,140,0,.06);border-left:2px solid var(--orange);padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--lgray);line-height:1.8}
-.nl-hint b{color:var(--orange)}
-.nl-hint ul{margin:6px 0 0 18px;padding:0}
-.nl-hint li{padding:2px 0}
-.nl-textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--white);font-family:inherit;font-size:14px;padding:14px;outline:none;resize:vertical;min-height:100px;line-height:1.8}
+/* input: natural language */
+.nl-textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--white);font-family:inherit;font-size:14px;padding:14px;outline:none;resize:vertical;min-height:120px;line-height:1.8}
 .nl-textarea:focus{border-color:var(--cyan)}
 .nl-textarea::placeholder{color:rgba(90,122,138,.55);font-size:13px}
-
 .example-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.chip{font-size:11px;background:var(--bg3);border:1px solid var(--border);color:var(--lgray);padding:6px 10px;cursor:pointer;font-family:inherit}
+.chip{font-size:11px;background:var(--bg3);border:1px solid var(--border);color:var(--lgray);padding:6px 10px;cursor:pointer;font-family:inherit;transition:all .15s}
 .chip:hover{border-color:var(--cyan);color:var(--cyan)}
 
-.submit-btn{width:100%;background:transparent;border:1px solid rgba(240,192,48,.4);color:var(--gold2);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;padding:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px}
+/* submit */
+.submit-btn{width:100%;background:transparent;border:1px solid rgba(240,192,48,.4);color:var(--gold2);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;padding:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .25s;margin-top:16px}
 .submit-btn:hover{background:rgba(240,192,48,.08);border-color:var(--gold2)}
 .submit-btn:disabled{opacity:.4;cursor:not-allowed}
-.spin{width:12px;height:12px;border:1.5px solid var(--gold2);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;display:none}
-@keyframes spin{to{transform:rotate(360deg)}}
+.submit-btn .spin{width:13px;height:13px;border:1.5px solid var(--gold2);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;display:none}
 .submit-btn.loading .spin{display:inline-block}
-.submit-btn.loading .label{display:none}
+.submit-btn.loading .submit-label{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-.err{background:rgba(255,48,64,.08);border:1px solid var(--red);padding:12px;margin-top:10px;font-size:12px;color:var(--red);display:none;line-height:1.7}
-.err.show{display:block}
-
-/* Results */
+/* results */
 #results{display:none}
-.extracted-items{padding:16px 18px;border-bottom:1px solid var(--border)}
-.ei-title{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--cyan);letter-spacing:3px;margin-bottom:8px}
-.ei-item{font-size:12.5px;color:var(--lgray);padding:5px 0;border-bottom:1px solid rgba(0,212,255,.04);line-height:1.7}
-.ei-item:last-child{border-bottom:none}
-.ei-tag{display:inline-block;background:var(--bg3);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:10px;padding:1px 6px;margin-right:6px}
+.extracted-items{padding:18px 20px;border-bottom:1px solid var(--border)}
+.ei-title{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--cyan);letter-spacing:3px;margin-bottom:10px}
+.ei-list{font-size:13px;color:var(--lgray);line-height:1.9}
+.ei-list .item{padding:4px 0;border-bottom:1px solid var(--border2)}
+.ei-list .item:last-child{border-bottom:none}
+.ei-list .tag{display:inline-block;background:var(--bg3);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:10px;padding:1px 6px;margin-right:6px}
 
-.plans-wrap{padding:18px}
-.plans-title{font-family:'Zen Kaku Gothic New';font-weight:900;font-size:16px;text-align:center;margin-bottom:4px}
-.plans-sub{font-size:10px;color:var(--gray);text-align:center;margin-bottom:16px;letter-spacing:1px}
-.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-@media(max-width:640px){.plans-grid{grid-template-columns:1fr;gap:12px}}
-.plan-card{background:var(--bg3);border:1px solid var(--border);padding:16px 12px;position:relative;display:flex;flex-direction:column}
+/* 3plans grid */
+.plans-wrap{padding:20px}
+.plans-title{font-family:'Zen Kaku Gothic New';font-weight:900;font-size:18px;margin-bottom:6px;text-align:center}
+.plans-sub{font-size:11px;color:var(--gray);text-align:center;margin-bottom:20px;letter-spacing:1px}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:640px){.plans-grid{grid-template-columns:1fr;gap:14px}}
+.plan-card{background:var(--bg3);border:1px solid var(--border);padding:18px 14px;position:relative;display:flex;flex-direction:column}
 .plan-card.take{border-color:var(--gold2);background:rgba(240,192,48,.04)}
-.plan-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--bg);border:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:2px 10px;color:var(--gray)}
+.plan-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--bg);border:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:3px 10px;color:var(--gray)}
 .plan-card.take .plan-badge{background:var(--gold2);color:var(--bg);border-color:var(--gold2);font-weight:700}
-.plan-name{font-size:13px;font-weight:700;margin:6px 0 3px;text-align:center}
+.plan-name{font-size:13px;font-weight:700;margin:6px 0 4px;text-align:center}
 .plan-name .em{color:var(--gold2)}
-.plan-target{font-size:9.5px;color:var(--gray);text-align:center;margin-bottom:10px;line-height:1.6}
-.plan-price{font-family:'Share Tech Mono',monospace;font-size:20px;font-weight:700;color:var(--white);text-align:center;margin-bottom:2px}
+.plan-target{font-size:10px;color:var(--gray);text-align:center;margin-bottom:12px;line-height:1.6}
+.plan-price{font-family:'Share Tech Mono',monospace;font-size:22px;font-weight:700;color:var(--white);text-align:center;margin-bottom:4px}
 .plan-card.take .plan-price{color:var(--gold2)}
-.plan-price-sub{font-size:10px;color:var(--gray);text-align:center;margin-bottom:10px}
-.plan-items{list-style:none;font-size:10.5px;color:var(--lgray);line-height:1.6;margin-top:auto;padding-top:8px;border-top:1px solid var(--border)}
-.plan-items li{padding:2px 0;display:flex;justify-content:space-between;gap:6px}
-.plan-items li span:last-child{color:var(--white);font-family:'Share Tech Mono',monospace;font-size:9.5px}
+.plan-price-sub{font-size:10px;color:var(--gray);text-align:center;margin-bottom:14px}
+.plan-items{list-style:none;font-size:11px;color:var(--lgray);line-height:1.6;margin-top:auto;padding-top:10px;border-top:1px solid var(--border)}
+.plan-items li{padding:3px 0;display:flex;justify-content:space-between;gap:6px}
+.plan-items li span:last-child{color:var(--white);font-family:'Share Tech Mono',monospace;font-size:10px}
+.plan-pros,.plan-cons{margin-top:10px;font-size:10px;line-height:1.7}
+.plan-pros{color:var(--green)}
+.plan-cons{color:var(--orange)}
 
-.alerts{padding:14px 18px;border-top:1px solid var(--border)}
-.alert{background:rgba(255,48,64,.05);border-left:2px solid var(--red);padding:10px 12px;margin-bottom:6px;font-size:11px;line-height:1.7}
+/* market alerts */
+.alerts{padding:16px 20px;border-top:1px solid var(--border)}
+.alert{background:rgba(255,48,64,.05);border-left:2px solid var(--red);padding:10px 12px;margin-bottom:8px;font-size:11px;line-height:1.7}
 .alert.high{border-color:var(--orange);background:rgba(255,140,0,.05)}
 .alert-title{font-weight:700;color:var(--red);font-size:12px;margin-bottom:3px}
 .alert.high .alert-title{color:var(--orange)}
 
-.disclaimer{padding:12px 18px;border-top:1px solid var(--border);font-size:10px;color:var(--gray);line-height:1.8}
+/* disclaimer */
+.disclaimer{padding:14px 20px;border-top:1px solid var(--border);font-size:10px;color:var(--gray);line-height:1.8;letter-spacing:.5px}
 
-.cta{background:linear-gradient(135deg,rgba(200,150,10,.08) 0%,rgba(240,192,48,.04) 100%);border:1px solid var(--gold);padding:22px 20px;text-align:center}
+/* CTA (PDF purchase) */
+.cta{background:linear-gradient(135deg,rgba(200,150,10,.08) 0%,rgba(240,192,48,.04) 100%);border:1px solid var(--gold);padding:24px 22px;text-align:center}
 .cta-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--gold2);margin-bottom:10px}
-.cta-title{font-size:16px;font-weight:900;margin-bottom:6px}
-.cta-desc{font-size:12px;color:var(--lgray);margin-bottom:14px;line-height:1.9}
-.cta-price{font-family:'Share Tech Mono',monospace;font-size:28px;color:var(--gold2);margin-bottom:2px}
-.cta-price-sub{font-size:10px;color:var(--gray);margin-bottom:16px;letter-spacing:1px}
-.cta-btn{display:inline-block;background:var(--gold);color:var(--bg);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;padding:12px 28px;border:none;cursor:pointer;font-weight:700}
-.cta-btn:hover{background:var(--gold2)}
+.cta-title{font-size:17px;font-weight:900;margin-bottom:8px}
+.cta-desc{font-size:12px;color:var(--lgray);margin-bottom:16px;line-height:1.9}
+.cta-price{font-family:'Share Tech Mono',monospace;font-size:32px;color:var(--gold2);margin-bottom:4px}
+.cta-price-sub{font-size:10px;color:var(--gray);margin-bottom:18px;letter-spacing:1px}
+.cta-btn{display:inline-block;background:var(--gold);color:var(--bg);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px;padding:14px 32px;border:none;cursor:pointer;font-weight:700;transition:all .25s}
+.cta-btn:hover{background:var(--gold2);transform:translateY(-1px)}
 
-.legal{background:var(--bg3);padding:12px 18px;font-size:10px;color:var(--gray);line-height:1.8;border-top:1px solid var(--border)}
-.legal b{color:var(--lgray)}
+/* legal ribbon */
+.legal-ribbon{background:var(--bg3);padding:12px 20px;font-size:10px;color:var(--gray);line-height:1.8;border-top:1px solid var(--border)}
+.legal-ribbon b{color:var(--lgray)}
+
+/* error */
+.err{background:rgba(255,48,64,.1);border:1px solid var(--red);padding:12px 14px;margin-top:12px;font-size:12px;color:var(--red);display:none}
+.err.show{display:block}
+
+/* v4 hearing dialog styles */
+.bubble{max-width:88%;padding:12px 16px;font-size:13px;line-height:1.8;border-radius:4px}
+.bubble.kira{align-self:flex-start;background:var(--bg3);border:1px solid var(--border);color:var(--white)}
+.bubble.kira::before{content:'KIRA ●';display:block;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--cyan);letter-spacing:2px;margin-bottom:6px}
+.bubble.user{align-self:flex-end;background:rgba(240,192,48,.08);border:1px solid rgba(240,192,48,.3);color:var(--gold2)}
+.bubble.user::before{content:'YOU ▸';display:block;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:2px;margin-bottom:6px}
+.bubble pre{white-space:pre-wrap;word-wrap:break-word;font-family:inherit;margin:0}
+.q-block{background:var(--bg3);border:1px solid var(--border);padding:16px;margin-bottom:14px}
+.q-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:2px;margin-bottom:8px}
+.q-text{font-size:13px;font-weight:500;margin-bottom:12px;line-height:1.7;color:var(--white)}
+.q-options{display:flex;flex-wrap:wrap;gap:6px}
+.q-opt{background:var(--bg);border:1px solid var(--border);color:var(--lgray);padding:8px 14px;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s}
+.q-opt:hover{border-color:var(--cyan);color:var(--cyan)}
+.q-opt.selected{background:rgba(0,212,255,.12);border-color:var(--cyan);color:var(--cyan)}
+.q-custom{margin-top:8px;width:100%;background:var(--bg);border:1px solid var(--border);color:var(--white);font-family:inherit;font-size:12px;padding:10px 12px;outline:none}
+.q-custom:focus{border-color:var(--cyan)}
 </style>
 </head>
 <body>
 
 <nav>
-  <div class="nav-logo">HORIZ<span>音</span>S <span>/ SHIELD v4</span></div>
+  <div class="nav-logo">HORIZ<span>音</span>S <span>/ SHIELD v3</span></div>
   <a href="https://shield.the-horizons-innovation.com" class="nav-back">← TOP</a>
 </nav>
 
 <section class="hero">
-  <div class="hero-badge"><div class="badge-dot"></div><span>AI CMR / HEARING MODE</span></div>
-  <h1>AI現場監督 <em>KIRA</em> が<br>丁寧にヒアリング</h1>
-  <p class="hero-sub">曖昧な入力では正確な見積もりは出ません。<br>KIRAが建設業30年のプロとして必要な情報を段階的にお聞きし、精度の高い3プランをご提示します。</p>
+  <div class="hero-grid"></div>
+  <div class="hero-badge">
+    <div class="badge-dot"></div>
+    <span>REVERSE ESTIMATE / AI版 凄腕CMR</span>
+  </div>
+  <h1>やりたい工事を書くだけ。<br><em>3プラン</em>で予算がわかる</h1>
+  <p class="hero-sub">
+    「6畳の和室をフローリング、キッチンも手頃なもの」<br>
+    こう書くだけでAIが工事項目を解析、<strong>松竹梅3プラン</strong>を即提示。<br>
+    業者見積もりを取る前に適正価格を知ることで、<strong>過剰請求を防げます</strong>。
+  </p>
 </section>
 
 <main class="main">
 
-  <!-- Chat-style hearing area -->
-  <div class="frame" id="chatFrame">
-    <div class="chat" id="chat">
-      <!-- Initial KIRA message -->
-      <div class="bubble kira">
-        リフォームをお考えとのこと、お手伝いします。<br>
-        まず、<b style="color:#F0C030">やりたい工事の全体像</b>をお聞かせください。<br>
-        <br>
-        <small style="color:#5A7A8A">ポイント: 面積・グレード・レイアウト変更の有無を含めていただくと、正確な3プランがご提示できます。</small>
+  <!-- Mode Selector -->
+  <div class="frame">
+    <div class="mode-select">
+      <div class="mode-title">STEP 1 / 状況を選択</div>
+      <div class="mode-grid">
+        <button class="mode-btn" data-mode="estimate" onclick="selectMode('estimate')">
+          <div class="mode-num">01</div>
+          <div class="mode-name">業者から見積もりをもらった</div>
+          <div class="mode-desc">既存の見積書を診断。過剰項目・相場乖離を検出します。</div>
+          <div class="mode-badge">金額入力モード</div>
+        </button>
+        <button class="mode-btn active" data-mode="reverse" onclick="selectMode('reverse')">
+          <div class="mode-num">02</div>
+          <div class="mode-name">まだ見積もりを取っていない</div>
+          <div class="mode-desc">やりたい工事を自然文で書くだけ。予算レンジを先に把握できます。</div>
+          <div class="mode-badge">★自然言語モード</div>
+        </button>
       </div>
     </div>
 
-    <!-- Input area (always visible) -->
-    <div class="nl-wrap" id="inputArea">
-      <div class="nl-label">▸ ご入力ください</div>
+    <!-- Mode 1: Estimate (既存widget.htmlへ誘導) -->
+    <div class="mode-content" id="mode-estimate">
+      <div class="hint-box">
+        <b>見積もりをお持ちの方は</b>、従来の金額入力型diagnosticページをご利用ください。
+      </div>
+      <a href="/widget.html" class="submit-btn" style="text-decoration:none;display:flex;text-align:center;justify-content:center">
+        <span class="submit-label">金額入力モードへ移動 →</span>
+      </a>
+    </div>
 
-      <div class="nl-hint" id="hintBox">
-        <b>精度を上げるコツ</b>
-        <ul>
-          <li>面積・畳数（例: 6畳、12畳LDK）</li>
-          <li>グレード希望（こだわり／標準／手頃）</li>
-          <li>レイアウト変更の有無（壁撤去、キッチン位置変更等）</li>
-          <li>予算感（だいたいで構いません）</li>
-        </ul>
+    <!-- Mode 2: Reverse (ヒアリング対話式) -->
+    <div class="mode-content active" id="mode-reverse">
+
+      <!-- Initial Intro -->
+      <div id="intro-section">
+        <div class="hint-box" style="background:rgba(0,212,255,.04);border-left:2px solid var(--cyan);padding:14px 16px;margin-bottom:18px;font-size:12px;color:var(--lgray);line-height:1.9">
+          <b style="color:var(--cyan)">KIRAが現場監督としてヒアリングします。</b><br>
+          まず、<b>やりたい工事の概要</b>をお書きください。面積・現状レイアウト・希望レイアウト・予算感など、わかる範囲で構いません。<br>
+          <span style="display:block;margin-top:6px;font-size:10px;color:var(--gray)">情報が足りない場合、KIRAが追加の質問をいたします。</span>
+        </div>
+
+        <textarea id="nl-input" class="nl-textarea" placeholder="例：&#10;・築20年戸建て、LDK15畳。I型キッチン(W2550mm)をアイランドに変更&#10;・6畳和室もフローリング化&#10;・予算800-1200万円"></textarea>
+
+        <div class="example-chips">
+          <button class="chip" onclick="fillExample(1)">▸ 例1: キッチン+床</button>
+          <button class="chip" onclick="fillExample(2)">▸ 例2: 水回り一式</button>
+          <button class="chip" onclick="fillExample(3)">▸ 例3: 断熱改修</button>
+        </div>
+
+        <button class="submit-btn" id="submit-initial" onclick="startHearing()">
+          <span class="submit-label">▸ ヒアリング開始</span>
+          <span class="spin"></span>
+        </button>
       </div>
 
-      <textarea id="nlInput" class="nl-textarea" placeholder="例：&#10;・築25年の戸建て、LDKが16畳&#10;・現状I型キッチン（2550mm）→ アイランドに変更希望&#10;・床は無垢材がいいが予算次第&#10;・ついでにお風呂（在来浴室1坪）もUBに"></textarea>
+      <!-- Hearing Chat Section -->
+      <div id="hearing-section" style="display:none">
+        <div id="chat-log" style="display:flex;flex-direction:column;gap:14px;margin-bottom:18px"></div>
 
-      <div class="example-chips">
-        <button class="chip" onclick="fillExample(1)">▸ 例1: 水回りリフォーム</button>
-        <button class="chip" onclick="fillExample(2)">▸ 例2: 断熱・省エネ改修</button>
-        <button class="chip" onclick="fillExample(3)">▸ 例3: LDK大規模改修</button>
+        <div id="questions-area"></div>
+
+        <button class="submit-btn" id="submit-answers" onclick="submitHearingAnswers()" style="display:none">
+          <span class="submit-label">▸ 回答を送信して次へ</span>
+          <span class="spin"></span>
+        </button>
       </div>
-
-      <button class="submit-btn" id="submitBtn" onclick="submitMessage()">
-        <span class="label">▸ KIRAに相談する</span>
-        <span class="spin"></span>
-      </button>
 
       <div id="err" class="err"></div>
     </div>
@@ -189,67 +253,69 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
 
   <!-- Results -->
   <div id="results" class="frame">
+
     <div class="extracted-items">
-      <div class="ei-title">▸ 確定した工事項目</div>
-      <div id="eiList"></div>
+      <div class="ei-title">▸ 解析された工事項目</div>
+      <div id="ei-list" class="ei-list"></div>
     </div>
 
     <div class="plans-wrap">
       <div class="plans-title">3プラン並列提示</div>
-      <div class="plans-sub">HS基準: 業者規模別の妥当利益率レンジ</div>
+      <div class="plans-sub">HS基準: 業者規模別の妥当利益率レンジで算出</div>
 
       <div class="plans-grid">
-        <div class="plan-card" id="cardMatsu">
-          <div class="plan-badge">松</div>
+        <div class="plan-card" id="card-matsu">
+          <div class="plan-badge">MATSU / 松</div>
           <div class="plan-name">理想プラン</div>
-          <div class="plan-target">大手リフォーム<br>ブランド・最上級</div>
-          <div class="plan-price" id="priceMatsu">¥0</div>
-          <div class="plan-price-sub" id="priceMatsuMan">0万円</div>
-          <ul class="plan-items" id="itemsMatsu"></ul>
+          <div class="plan-target">大手リフォーム会社<br>ブランド安心・最上級グレード</div>
+          <div class="plan-price" id="price-matsu">¥0</div>
+          <div class="plan-price-sub" id="price-matsu-man">0万円</div>
+          <ul class="plan-items" id="items-matsu"></ul>
         </div>
 
-        <div class="plan-card take">
-          <div class="plan-badge">★ 竹 ★</div>
+        <div class="plan-card take" id="card-take">
+          <div class="plan-badge">★ TAKE / 竹 ★</div>
           <div class="plan-name"><span class="em">推奨</span>プラン</div>
-          <div class="plan-target">中小工務店<br>★HS推奨★</div>
-          <div class="plan-price" id="priceTake">¥0</div>
-          <div class="plan-price-sub" id="priceTakeMan">0万円</div>
-          <ul class="plan-items" id="itemsTake"></ul>
+          <div class="plan-target">地域の中小工務店<br>★HSが最もおすすめ★</div>
+          <div class="plan-price" id="price-take">¥0</div>
+          <div class="plan-price-sub" id="price-take-man">0万円</div>
+          <ul class="plan-items" id="items-take"></ul>
         </div>
 
-        <div class="plan-card" id="cardUme">
-          <div class="plan-badge">梅</div>
+        <div class="plan-card" id="card-ume">
+          <div class="plan-badge">UME / 梅</div>
           <div class="plan-name">最安プラン</div>
-          <div class="plan-target">個人+ネット調達<br>予算重視</div>
-          <div class="plan-price" id="priceUme">¥0</div>
-          <div class="plan-price-sub" id="priceUmeMan">0万円</div>
-          <ul class="plan-items" id="itemsUme"></ul>
+          <div class="plan-target">個人事業＋ネット調達活用<br>必要最小限・予算重視</div>
+          <div class="plan-price" id="price-ume">¥0</div>
+          <div class="plan-price-sub" id="price-ume-man">0万円</div>
+          <ul class="plan-items" id="items-ume"></ul>
         </div>
       </div>
     </div>
 
-    <div id="alertsWrap" class="alerts" style="display:none">
+    <div id="alerts-wrap" class="alerts" style="display:none">
       <div class="ei-title">▸ 2026年4月 市場警告</div>
-      <div id="alertsList"></div>
+      <div id="alerts-list"></div>
     </div>
 
     <div class="disclaimer" id="disclaimer"></div>
 
+    <!-- CTA: PDF purchase -->
     <div class="cta">
       <div class="cta-label">BUSINESS NEGOTIATION TOOL</div>
       <div class="cta-title">詳細な参考見積書PDFで<br>業者交渉を優位に</div>
       <div class="cta-desc">
-        全工事項目の内訳・Red Flag・補助金情報を1枚のPDFに。<br>
+        全工事項目の内訳・Red Flag警告・補助金情報を1枚のPDFに。<br>
         業者との交渉時にそのまま提示できる公式フォーマット。
       </div>
       <div class="cta-price">¥5,500</div>
-      <div class="cta-price-sub">税込 / 即時PDF納品</div>
-      <button class="cta-btn" onclick="generatePDF()">▸ PDF購入に進む</button>
+      <div class="cta-price-sub">税込 / 即時PDF納品 / PayPay・銀行振込対応</div>
+      <button class="cta-btn" onclick="purchasePDF()">▸ PDF購入に進む</button>
     </div>
 
-    <div class="legal">
+    <div class="legal-ribbon">
       <b>【建設業法に基づく表示】</b><br>
-      本サービスは<b>参考価格提示</b>であり、建設業法上の正式見積もりではありません。HORIZON SHIELDは施工を行いません。
+      本サービスは相場に基づく<b>参考価格提示</b>であり、建設業法上の正式見積もりではありません。HORIZON SHIELDは施工は行いません。施工業者との契約は別途行ってください。本PDFは業者との交渉材料としてご活用ください。
     </div>
   </div>
 
@@ -257,36 +323,38 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
 
 <script>
 const KIRA_PROXY = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
-let sessionId = null;
-let previousAnswers = {};
-let accumulatedItems = [];
+
+let currentMode = 'reverse';
 let lastResult = null;
 
 const EXAMPLES = {
-  1: "築20年マンション、お風呂（1616ユニットバス）を交換したい。標準グレードで。\nトイレも一緒にタンクレスへ。\n洗面所は750mm幅で予算抑えめ。",
-  2: "築25年戸建て、冬が寒い。\n全窓（掃き出し3箇所・腰窓5箇所）を内窓で二重窓化。\nエコキュート460L（パナソニック）に交換。\n天井断熱も追加したい。",
-  3: "16畳LDK。現状I型キッチン（2550mm幅）→ L型またはアイランドに変更希望。\n床は無垢材（30㎡）、クロスも全面張替。\n予算は500-800万円。"
+  1: "お風呂が古くなってきたので交換したい。標準グレードで。\nキッチンも10年以上使っているので、手頃なものに交換希望。\nトイレはタンクレスに憧れるけど予算次第。",
+  2: "築25年の戸建て。冬が寒いので断熱をしっかりやりたい。\n窓を全部二重窓にして、外壁塗装も一緒に。\n予算はこだわり派で。",
+  3: "2LDK全体の内装リフォーム。\n6畳和室2部屋をフローリングに、クロスも全部張替え。\nキッチンは標準で、お風呂はタカラスタンダードがいい。"
 };
 
-function fillExample(n) {
-  document.getElementById('nlInput').value = EXAMPLES[n];
+function selectMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  document.querySelectorAll('.mode-content').forEach(c => c.classList.toggle('active', c.id === 'mode-' + mode));
+  document.getElementById('results').style.display = 'none';
 }
 
-async function submitMessage() {
-  const text = document.getElementById('nlInput').value.trim();
-  const btn = document.getElementById('submitBtn');
+function fillExample(n) {
+  document.getElementById('nl-input').value = EXAMPLES[n];
+}
+
+async function submitNL() {
+  const text = document.getElementById('nl-input').value.trim();
+  const btn = document.getElementById('submit-nl');
   const err = document.getElementById('err');
   err.classList.remove('show');
 
   if (text.length < 10) {
-    err.textContent = 'もう少し詳しくお書きください（10文字以上）';
+    err.textContent = 'もう少し具体的にお書きください（10文字以上）';
     err.classList.add('show');
     return;
   }
-
-  // ユーザー発言を吹き出しに追加
-  addBubble('user', text);
-  document.getElementById('nlInput').value = '';
 
   btn.classList.add('loading');
   btn.disabled = true;
@@ -297,29 +365,21 @@ async function submitMessage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         natural_language_input: text,
-        session_id: sessionId,
-        previous_answers: previousAnswers,
         user_context: {}
       })
     });
 
     if (!res.ok) {
       const ed = await res.json().catch(() => ({}));
-      throw new Error(ed.error || ed.message || 'API error: ' + res.status);
+      throw new Error(ed.error || 'API error: ' + res.status);
     }
 
     const data = await res.json();
-    sessionId = data.session_id || sessionId;
+    lastResult = data;
+    renderResults(data);
 
-    if (data.status === 'need_hearing') {
-      // ヒアリング継続
-      renderHearingResponse(data);
-    } else if (data.status === 'ready') {
-      // 3プラン算出完了
-      renderFinalResult(data);
-    }
   } catch (e) {
-    err.textContent = 'エラー: ' + e.message + '\n\nLINEで直接ご相談いただけます:\nhttps://line.me/R/ti/p/@172piime';
+    err.textContent = 'エラー: ' + e.message + '\nLINEで直接相談できます: https://line.me/R/ti/p/@172piime';
     err.classList.add('show');
   } finally {
     btn.classList.remove('loading');
@@ -327,203 +387,117 @@ async function submitMessage() {
   }
 }
 
-function addBubble(who, text) {
-  const chat = document.getElementById('chat');
-  const b = document.createElement('div');
-  b.className = 'bubble ' + who;
-  b.innerHTML = text.replace(/\n/g, '<br>');
-  chat.appendChild(b);
-  setTimeout(() => b.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
-}
-
-function renderHearingResponse(data) {
-  // KIRAの返答
-  const sum = data.understood_summary || '';
-  const intro = `<b>現時点の理解:</b><br>${sum}<br><br>正確な3プランをご提示するため、<b style="color:#F0C030">いくつか確認させてください</b>。`;
-  addBubble('kira', intro);
-
-  // 質問ブロックを吹き出し内に展開
-  if (data.clarifying_questions && data.clarifying_questions.length) {
-    const chat = document.getElementById('chat');
-    data.clarifying_questions.forEach((q, idx) => {
-      const qb = document.createElement('div');
-      qb.className = 'question-block';
-      qb.innerHTML = `
-        <div class="q-label">▸ 質問 ${idx + 1}</div>
-        <div class="q-text">${q.question}</div>
-        ${q.why_needed ? `<div class="q-why">${q.why_needed}</div>` : ''}
-        <div class="q-options" data-field="${q.field}">
-          ${(q.options || []).map((opt, i) => `
-            <button class="q-option" data-field="${q.field}" data-value="${opt.replace(/"/g, '&quot;')}"
-                    onclick="selectOption(this)">${opt}</button>
-          `).join('')}
-          <input class="q-custom" placeholder="その他（自由記述）" data-field="${q.field}"
-                 onkeydown="if(event.key==='Enter'){event.preventDefault();submitCustom(this)}">
-        </div>
-      `;
-      chat.appendChild(qb);
-    });
-
-    // 続行ボタン
-    const continueBtn = document.createElement('button');
-    continueBtn.className = 'submit-btn';
-    continueBtn.innerHTML = '<span class="label">▸ 回答を送信する</span><span class="spin"></span>';
-    continueBtn.id = 'continueBtn';
-    continueBtn.onclick = () => submitHearingAnswers(data.clarifying_questions);
-    chat.appendChild(continueBtn);
-
-    // 入力エリアを隠す（質問モード中）
-    document.getElementById('inputArea').style.display = 'none';
-  }
-
-  // accumulate items
-  if (data.current_items) accumulatedItems = data.current_items;
-}
-
-function selectOption(btn) {
-  const field = btn.dataset.field;
-  const value = btn.dataset.value;
-  // 同じ field の他のボタンを解除
-  document.querySelectorAll(`[data-field="${field}"].q-option`).forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  previousAnswers[field] = value;
-}
-
-function submitCustom(input) {
-  const field = input.dataset.field;
-  const value = input.value.trim();
-  if (!value) return;
-  document.querySelectorAll(`[data-field="${field}"].q-option`).forEach(b => b.classList.remove('selected'));
-  previousAnswers[field] = value;
-}
-
-function submitHearingAnswers(questions) {
-  // 回答を集める
-  const missingFields = [];
-  questions.forEach(q => {
-    if (!previousAnswers[q.field]) {
-      // カスタム入力に値があるか確認
-      const customInput = document.querySelector(`input.q-custom[data-field="${q.field}"]`);
-      if (customInput && customInput.value.trim()) {
-        previousAnswers[q.field] = customInput.value.trim();
-      } else {
-        missingFields.push(q.field);
-      }
-    }
-  });
-
-  if (missingFields.length > 0) {
-    alert('全ての質問にお答えください（' + missingFields.length + '問残っています）');
-    return;
-  }
-
-  // 回答を KIRA に送信
-  const answersText = Object.entries(previousAnswers)
-    .map(([f, v]) => `【${f}】 ${v}`)
-    .join('\n');
-
-  addBubble('user', '回答:<br>' + answersText.replace(/\n/g, '<br>'));
-
-  // 続行ボタン削除
-  document.getElementById('continueBtn')?.remove();
-  document.querySelectorAll('.question-block').forEach(el => el.remove());
-
-  // 入力エリアを再表示
-  document.getElementById('inputArea').style.display = 'block';
-
-  // 元の入力を再送信（previousAnswersが付いて送られる）
-  const originalText = '上記の回答を踏まえて算出してください';
-  document.getElementById('nlInput').value = originalText;
-  submitMessage();
-}
-
-function renderFinalResult(data) {
-  addBubble('kira', `<b style="color:#00FF88">✓ 情報が揃いました。3プランをご提示します。</b><br>${data.understood_summary || ''}`);
+function renderResults(data) {
+  const results = document.getElementById('results');
+  results.style.display = 'block';
 
   // extracted items
-  const eiList = document.getElementById('eiList');
-  eiList.innerHTML = data.extracted_items.map(it => `
-    <div class="ei-item">
-      <span class="ei-tag">${it.koji_type}</span>
-      ${it.raw_text || ''} ${it.area ? `(${it.area}㎡)` : ''}
-      ${it.layout_change ? `<br><small style="color:#FF8C00">⚠️ ${it.layout_change}（追加費用発生）</small>` : ''}
-    </div>
-  `).join('');
+  const eiList = document.getElementById('ei-list');
+  eiList.innerHTML = data.extracted_items.map(it =>
+    `<div class="item"><span class="tag">${it.koji_type}</span>${it.raw_text || ''} ${it.area ? ` (${it.area}㎡)` : ''}</div>`
+  ).join('');
 
   // plans
-  renderPlan('Matsu', data.plans.matsu);
-  renderPlan('Take',  data.plans.take);
-  renderPlan('Ume',   data.plans.ume);
+  renderPlan('matsu', data.plans.matsu);
+  renderPlan('take',  data.plans.take);
+  renderPlan('ume',   data.plans.ume);
 
   // alerts
-  const alertsWrap = document.getElementById('alertsWrap');
+  const alertsWrap = document.getElementById('alerts-wrap');
+  const alertsList = document.getElementById('alerts-list');
   if (data.market_alerts && data.market_alerts.length) {
     alertsWrap.style.display = 'block';
-    document.getElementById('alertsList').innerHTML = data.market_alerts.map(a => `
-      <div class="alert ${a.severity}">
-        <div class="alert-title">${a.title}</div>${a.message}
-      </div>
-    `).join('');
+    alertsList.innerHTML = data.market_alerts.map(a =>
+      `<div class="alert ${a.severity}"><div class="alert-title">${a.title}</div>${a.message}</div>`
+    ).join('');
+  } else {
+    alertsWrap.style.display = 'none';
   }
 
+  // disclaimer
   document.getElementById('disclaimer').textContent = data.disclaimer || '';
-  document.getElementById('results').style.display = 'block';
 
-  lastResult = data;
-
-  setTimeout(() => document.getElementById('results').scrollIntoView({ behavior: 'smooth' }), 100);
+  // scroll to results
+  setTimeout(() => results.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
 }
 
 function renderPlan(key, plan) {
-  document.getElementById('price' + key).textContent = '¥' + (plan.total || 0).toLocaleString();
-  document.getElementById('price' + key + 'Man').textContent = (plan.total_man_en || 0) + '万円';
-  const items = (plan.items || []).map(it => {
-    const label = (it.message || it.name || it.koji_type || '').substring(0, 30);
-    const price = it.total_man_en ? (it.total_man_en + '万') : '';
-    return `<li><span>${label}</span><span>${price}</span></li>`;
-  }).join('');
-  document.getElementById('items' + key).innerHTML = items || '<li><span>—</span></li>';
+  document.getElementById('price-' + key).textContent = '¥' + (plan.total || 0).toLocaleString();
+  document.getElementById('price-' + key + '-man').textContent = (plan.total_man_en || 0) + '万円';
+
+  const itemsEl = document.getElementById('items-' + key);
+  if (plan.items && plan.items.length) {
+    itemsEl.innerHTML = plan.items.map(it => {
+      const label = it.message || it.name || it.koji_type;
+      const price = it.total_man_en ? (it.total_man_en + '万') : '';
+      return `<li><span>${label}</span><span>${price}</span></li>`;
+    }).join('');
+  } else {
+    itemsEl.innerHTML = '<li><span>—</span></li>';
+  }
+}
+
+function purchasePDF() {
+  if (!lastResult) return;
+
+  // 本番: hs-pdf-gen v12 を直接呼ぶ (決済前の試作モード)
+  // 本番稼働時は PAY.JP → webhook → PDF生成 のフローに変更
+  generatePDF();
 }
 
 async function generatePDF() {
-  if (!lastResult) return;
-
   const btn = event?.target;
   if (btn) { btn.disabled = true; btn.textContent = '▸ PDF生成中...'; }
 
   try {
-    const orderId = 'HS' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const orderId = 'HS' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+
+    const payload = {
+      order_id: orderId,
+      user: { name: '', email: '' },
+      extracted_items: lastResult.extracted_items,
+      plans: lastResult.plans,
+      market_alerts: lastResult.market_alerts || [],
+      red_flags_by_category: lastResult.red_flags_by_category || {},
+      subsidies_available: lastResult.subsidies_available || []
+    };
+
     const res = await fetch('https://hs-pdf-gen.oga-surf-project.workers.dev/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        order_id: orderId,
-        user: { name: '', email: '' },
-        extracted_items: lastResult.extracted_items,
-        plans: lastResult.plans,
-        market_alerts: lastResult.market_alerts || [],
-      })
+      body: JSON.stringify(payload)
     });
 
-    if (!res.ok) throw new Error('PDF gen error: ' + res.status);
+    if (!res.ok) {
+      throw new Error('PDF generation failed: ' + res.status);
+    }
+
     const data = await res.json();
 
     if (data.pdf_url) {
       window.open(data.pdf_url, '_blank');
     } else if (data.pdf_base64) {
-      const bytes = Uint8Array.from(atob(data.pdf_base64), c => c.charCodeAt(0));
+      // base64 → blob → download
+      const binaryStr = atob(data.pdf_base64);
+      const bytes = new Uint8Array(binaryStr.length);
+      for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
       const blob = new Blob([bytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `HS_SankoMitsumorisho_${orderId}.pdf`;
+      a.href = url;
+      a.download = 'HS_SankoMitsumorisho_' + orderId + '.pdf';
       a.click();
+      URL.revokeObjectURL(url);
     }
   } catch (e) {
-    alert('PDF生成エラー: ' + e.message + '\n\nLINEで相談: https://line.me/R/ti/p/@172piime');
+    alert('PDF生成エラー: ' + e.message + '\n\nLINEで直接ご相談いただけます:\nhttps://line.me/R/ti/p/@172piime');
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = '▸ PDF購入に進む'; }
   }
 }
+
+// 初期表示
+selectMode('reverse');
 </script>
 </body>
 </html>
