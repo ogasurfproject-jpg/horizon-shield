@@ -452,6 +452,44 @@ footer{
   .sticky-cta{display:none}
   nav a{font-size:12px;padding:7px 14px}
 }
+/* === ハンバーガーメニュー（TOshi指摘対応 2026/4） === */
+#hamburger{display:none;background:none;border:none;cursor:pointer;padding:8px;z-index:1001;margin-left:8px}
+#hamburger span{display:block;width:22px;height:2px;background:var(--accent);margin:4px 0;transition:all .3s;border-radius:1px}
+#hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+#hamburger.open span:nth-child(2){opacity:0}
+#hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+#mobile-menu-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:998;backdrop-filter:blur(4px)}
+#mobile-menu-overlay.show{display:block}
+
+@media(max-width:640px){
+  /* ヘッダーを3列レイアウトに: ロゴ / 無料診断CTA / ハンバーガー */
+  #header{padding:0 12px!important}
+  .logo{font-size:16px!important;letter-spacing:1.5px!important}
+  #hamburger{display:block}
+  
+  /* ナビをスライドメニュー化 */
+  nav#nav-main{
+    position:fixed;top:var(--header-h);right:-100%;
+    width:80%;max-width:280px;height:calc(100vh - var(--header-h));
+    background:rgba(3,5,8,0.98);backdrop-filter:blur(16px);
+    flex-direction:column;padding:24px 20px;gap:12px;
+    display:flex!important;
+    transition:right .3s ease;z-index:999;
+    border-left:1px solid rgba(0,229,255,.15);
+    box-shadow:-8px 0 40px rgba(0,0,0,.4);
+  }
+  nav#nav-main.open{right:0}
+  nav#nav-main a{
+    font-size:15px!important;padding:14px 16px!important;
+    width:100%;display:block;border-radius:6px;
+    border:1px solid rgba(0,229,255,.08);
+    letter-spacing:2px;
+  }
+  nav#nav-main a.cta-nav{
+    background:var(--accent);color:var(--bg);
+    text-align:center;margin-top:8px;font-weight:900;
+  }
+}  
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"シロアリ駆除15坪の適正価格はいくらですか？","acceptedAnswer":{"@type":"Answer","text":"15坪の床下シロアリ駆除の適正価格は8.5〜11万円です。35万円以上の請求はぼったくりの可能性が極めて高いです。HORIZON SHIELDの無料AI診断で即座に判定できます。"}},{"@type":"Question","name":"リフォーム見積書が適正価格か調べる方法は？","acceptedAnswer":{"@type":"Answer","text":"HORIZON SHIELDの無料AI診断に見積書の写真を送るだけで、建設30年のプロが過剰請求かどうかを即座に判定します。60秒・完全無料・登録不要です。"}},{"@type":"Question","name":"訪問販売のリフォーム業者に即日契約を迫られたらどうすればいいですか？","acceptedAnswer":{"@type":"Answer","text":"その場で絶対に契約しないでください。8日間のクーリングオフが適用されます。まず見積書を持ち帰りHORIZON SHIELDの無料診断で確認してください。"}},{"@type":"Question","name":"屋根修理で100万円以上請求された場合は適正ですか？","acceptedAnswer":{"@type":"Answer","text":"30坪の屋根塗装の適正価格は55〜80万円（足場込み）です。100万円超の請求はぼったくりの可能性が高いです。"}},{"@type":"Question","name":"建設費診断サービスHORIZON SHIELDとは？","acceptedAnswer":{"@type":"Answer","text":"建設歴30年のプロが施主側に立つ建設費診断サービスです。見積書査定・追加工事確認・完成検査立会いを行います。無料AI診断は60秒で完了します。"}}]}
@@ -1248,6 +1286,23 @@ document.getElementById('terms-agree-check').addEventListener('change', function
 // モーダル外クリックで閉じる
 document.getElementById('terms-modal').addEventListener('click', function(e) {
   if (e.target === this) closeTermsModal();
+});
+</script>
+
+<script>
+function toggleMenu(){
+  const nav = document.getElementById('nav-main');
+  const btn = document.getElementById('hamburger');
+  const overlay = document.getElementById('mobile-menu-overlay');
+  nav.classList.toggle('open');
+  btn.classList.toggle('open');
+  overlay.classList.toggle('show');
+  document.body.style.overflow = nav.classList.contains('open') ? 'hidden' : '';
+}
+document.querySelectorAll('#nav-main a').forEach(a=>{
+  a.addEventListener('click',()=>{
+    if(window.innerWidth <= 640) toggleMenu();
+  });
 });
 </script>  
 </body>
