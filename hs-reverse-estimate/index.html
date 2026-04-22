@@ -516,7 +516,6 @@ async function purchasePDF() {
     alert('PDF生成エラー: ' + e.message + '\n\nLINE相談:\nhttps://line.me/R/ti/p/@172piime');
   } finally { if (btn) { btn.disabled = false; btn.textContent = '▸ PDF購入に進む'; } }
 }
-}
 
 function escapeHtml(s) {
   if (s === null || s === undefined) return '';
