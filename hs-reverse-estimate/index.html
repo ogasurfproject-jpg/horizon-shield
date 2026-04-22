@@ -489,33 +489,27 @@ function renderPlan(key, plan) {
 
 async function purchasePDF() {
   if (!lastResult) return;
-  const btn = event && event.target;
-  if (btn) { btn.disabled = true; btn.textContent = '▸ PDF生成中...'; }
   try {
-    const orderId = 'HS' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-    const res = await fetch('https://hs-pdf-gen.oga-surf-project.workers.dev/generate', {
+    const res = await fetch(KIRA_PROXY + '/checkout/gyaku-mitsumori/start', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        order_id: orderId, user: { name: '', email: '' },
-        extracted_items: lastResult.extracted_items, plans: lastResult.plans,
-        market_alerts: lastResult.market_alerts || [], red_flags_by_category: {}, subsidies_available: []
+        koji_type: (lastResult.extracted_items && lastResult.extracted_items[0]) ? lastResult.extracted_items[0].koji_type : 'reform',
+        menseki: (lastResult.extracted_items && lastResult.extracted_items[0]) ? (lastResult.extracted_items[0].area || 20) : 20,
+        teiji_kingaku: (lastResult.plans && lastResult.plans.take) ? lastResult.plans.take.total : 1000000,
+        grade: 'standard',
+        email: ''
       })
     });
-    if (!res.ok) throw new Error('PDF生成失敗');
     const data = await res.json();
-    if (data.pdf_url) window.open(data.pdf_url, '_blank');
-    else if (data.pdf_base64) {
-      const bin = atob(data.pdf_base64);
-      const bytes = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      const blob = new Blob([bytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = 'HS_SankoMitsumorisho_' + orderId + '.pdf'; a.click();
-      URL.revokeObjectURL(url);
+    if (data.line_login_url) {
+      sessionStorage.setItem('hs_last_result', JSON.stringify(lastResult));
+      window.location.href = data.line_login_url;
+    } else {
+      throw new Error(data.error || '決済開始エラー');
     }
   } catch (e) {
-    alert('PDF生成エラー: ' + e.message + '\n\nLINE相談:\nhttps://line.me/R/ti/p/@172piime');
-  } finally { if (btn) { btn.disabled = false; btn.textContent = '▸ PDF購入に進む'; } }
+    alert('エラー: ' + e.message + '\n\nLINE相談:\nhttps://line.me/R/ti/p/@172piime');
+  }
 }
 
 function escapeHtml(s) {
