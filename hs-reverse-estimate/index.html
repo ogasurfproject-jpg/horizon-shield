@@ -115,67 +115,18 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
 .legal-ribbon b{color:var(--lgray)}
 .err{background:rgba(255,48,64,.1);border:1px solid var(--red);padding:12px 14px;margin-top:12px;font-size:12px;color:var(--red);display:none}
 .err.show{display:block}
-/* ===== ハイブリッド・ペイウォール（2026/4 オプションC） ===== */
-.plan-price.masked{
-  color:transparent;
-  text-shadow:0 0 18px rgba(240,192,48,.9);
-  user-select:none;
-  position:relative;
-  filter:blur(8px);
-}
-.plan-card.take .plan-price.masked{
-  text-shadow:0 0 22px rgba(240,192,48,1);
-  filter:blur(10px);
-}
-.plan-price-range{
-  font-family:'Share Tech Mono',monospace;
-  font-size:15px;
-  font-weight:700;
-  color:var(--white);
-  text-align:center;
-  margin-bottom:2px;
-  letter-spacing:0.5px;
-}
-.plan-price-sub.approx{
-  color:var(--gray);
-  font-size:10px;
-  font-style:italic;
-}
-.plan-lock-hint{
-  display:none;
-  position:absolute;
-  top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  background:rgba(240,192,48,.95);
-  color:var(--bg);
-  font-family:'Share Tech Mono',monospace;
-  font-size:10px;
-  padding:6px 12px;
-  border-radius:3px;
-  white-space:nowrap;
-  letter-spacing:1px;
-  font-weight:900;
-  z-index:2;
-  pointer-events:none;
-}
+.plan-price.masked{color:transparent;text-shadow:0 0 18px rgba(240,192,48,.9);user-select:none;position:relative;filter:blur(8px)}
+.plan-card.take .plan-price.masked{text-shadow:0 0 22px rgba(240,192,48,1);filter:blur(10px)}
+.plan-price-range{font-family:'Share Tech Mono',monospace;font-size:15px;font-weight:700;color:var(--white);text-align:center;margin-bottom:2px;letter-spacing:0.5px}
+.plan-price-sub.approx{color:var(--gray);font-size:10px;font-style:italic}
+.plan-lock-hint{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(240,192,48,.95);color:var(--bg);font-family:'Share Tech Mono',monospace;font-size:10px;padding:6px 12px;border-radius:3px;white-space:nowrap;letter-spacing:1px;font-weight:900;z-index:2;pointer-events:none}
 .plan-card.take .plan-lock-hint{display:block;top:52%}
 .plan-card.take{cursor:pointer;transition:transform .2s}
 .plan-card.take:hover{transform:translateY(-2px)}
 .plan-price-wrap{position:relative}
-.plan-unlock-cta{
-  background:linear-gradient(135deg,rgba(240,192,48,.2),rgba(200,150,10,.1));
-  border:1px dashed rgba(240,192,48,.5);
-  padding:10px;
-  text-align:center;
-  font-size:11px;
-  color:var(--gold2);
-  letter-spacing:1px;
-  margin:10px 0;
-  cursor:pointer;
-  font-family:'Share Tech Mono',monospace;
-}
+.plan-unlock-cta{background:linear-gradient(135deg,rgba(240,192,48,.2),rgba(200,150,10,.1));border:1px dashed rgba(240,192,48,.5);padding:10px;text-align:center;font-size:11px;color:var(--gold2);letter-spacing:1px;margin:10px 0;cursor:pointer;font-family:'Share Tech Mono',monospace}
 .plan-unlock-cta:hover{background:rgba(240,192,48,.15);border-style:solid}
-.plan-card:not(.take) .plan-unlock-cta{display:none}  
+.plan-card:not(.take) .plan-unlock-cta{display:none}
 </style>
 </head>
 <body>
@@ -276,6 +227,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
           <div class="plan-price-sub approx" id="price-ume-man">概算レンジ</div>
           <ul class="plan-items" id="items-ume"></ul>
         </div>
+      </div>
     </div>
     <div id="alerts-wrap" class="alerts" style="display:none">
       <div class="ei-title">▸ 2026年4月 市場警告</div>
@@ -288,25 +240,26 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
       <div class="cta-desc">全工事項目の内訳・Red Flag・補助金情報を1枚に。<br>業者との交渉時にそのまま提示できる公式フォーマット。</div>
       <div class="cta-price">¥5,500</div>
       <div class="cta-price-sub">税込 / 即時PDF納品 / PayPay・銀行振込対応</div>
-      <button class="cta-btn" onclick="purchasePDF()">▸ ▸ PDF購入に進む</button>
-　　   <button class="cta-btn" onclick="purchaseBankTransfer()" style="background:transparent;border:1px solid var(--gold);color:var(--gold2);margin-top:10px;">▸ 銀行振込で購入する</button>
+      <button class="cta-btn" onclick="purchasePDF()">▸ PDF購入に進む</button>
+      <button class="cta-btn" onclick="purchaseBankTransfer()" style="background:transparent;border:1px solid var(--gold);color:var(--gold2);margin-top:10px;">▸ 銀行振込で購入する</button>
     </div>
     <div class="legal-ribbon"><b>【建設業法に基づく表示】</b><br>本サービスは相場に基づく<b>参考価格提示</b>であり、建設業法上の正式見積もりではありません。HORIZON SHIELDは施工を行いません。施工業者との契約は別途行ってください。</div>
   </div>
 </main>
 <script>
-  
 const KIRA_PROXY = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
 let currentMode = 'reverse';
 let originalInput = '';
 let hearingAnswersHistory = {};
 let currentQuestions = [];
 let lastResult = null;
+
 function purchaseBankTransfer() {
   if (!lastResult) return;
   sessionStorage.setItem('hs_last_result', JSON.stringify(lastResult));
   window.location.href = 'https://shield.the-horizons-innovation.com/bank-transfer.html?type=gyaku-mitsumori';
 }
+
 const EXAMPLES = {
   1: "築15年マンション。\n6畳和室2部屋をフローリングに張り替えたい。\nキッチンもI型2550mmを手頃なものに交換。\n予算は全部で300万以内。",
   2: "お風呂が10年経って古くなってきた。TOTOサザナの標準グレード希望。\nキッチンもI型2550mmをI型2700mmに交換、食洗機欲しい。\nトイレはタンクレス希望。\n予算は全部で800万以内。",
@@ -453,9 +406,7 @@ function renderPlan(key, plan) {
   if (!plan) return;
   const total = plan.total || 0;
   const totalMan = plan.total_man_en || 0;
-  
   if (key === 'take') {
-    // 竹：ブラー表示（購入後にクリア表示される）
     document.getElementById('price-take').textContent = '¥' + total.toLocaleString();
     if (window._purchased) {
       document.getElementById('price-take').classList.remove('masked');
@@ -468,7 +419,6 @@ function renderPlan(key, plan) {
       document.getElementById('price-take').classList.add('masked');
     }
   } else {
-    // 松・梅：±20%の概算レンジ表示
     const lower = Math.round(total * 0.8 / 100000) * 100000;
     const upper = Math.round(total * 1.2 / 100000) * 100000;
     const lowerMan = Math.round(totalMan * 0.8);
@@ -478,8 +428,6 @@ function renderPlan(key, plan) {
     const manEl = document.getElementById('price-' + key + '-man');
     if (manEl) manEl.textContent = '約 ' + lowerMan + '〜' + upperMan + '万円';
   }
-  
-  // 明細（全プラン共通、竹だけ金額ブラー）
   const itemsEl = document.getElementById('items-' + key);
   if (plan.items && plan.items.length) {
     itemsEl.innerHTML = plan.items.map(function(it) {
