@@ -495,7 +495,10 @@ function renderPlan(key, plan) {
 
 async function purchasePDF() {
   if (!lastResult) return;
+  const btn = event && event.target;
+  if (btn) { btn.disabled = true; btn.textContent = '▸ 決済画面を準備中...'; }
   try {
+    const orderId = 'HS' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
     const res = await fetch(KIRA_PROXY + '/checkout/gyaku-mitsumori/start', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -507,7 +510,10 @@ async function purchasePDF() {
       })
     });
     const data = await res.json();
-    if (data.line_login_url) {
+    if (data.paypay_url) {
+      sessionStorage.setItem('hs_last_result', JSON.stringify(lastResult));
+      window.location.href = data.paypay_url;
+    } else if (data.line_login_url) {
       sessionStorage.setItem('hs_last_result', JSON.stringify(lastResult));
       window.location.href = data.line_login_url;
     } else {
@@ -515,6 +521,8 @@ async function purchasePDF() {
     }
   } catch (e) {
     alert('エラー: ' + e.message + '\n\nLINE相談:\nhttps://line.me/R/ti/p/@172piime');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '▸ PayPayで購入する'; }
   }
 }
 
