@@ -450,8 +450,9 @@ async function purchasePDF() {
     const res = await fetch('https://hs-pdf-gen.oga-surf-project.workers.dev/generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        order_id: orderId, user: { name: '', email: '' },
+        orderId: orderId, user: { name: '', email: '' },
         extracted_items: lastResult.extracted_items, plans: lastResult.plans,
+        teiji_kingaku: lastResult.plans?.take?.total || 0,
         market_alerts: lastResult.market_alerts || [], red_flags_by_category: {}, subsidies_available: []
       })
     });
