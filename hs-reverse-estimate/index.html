@@ -419,8 +419,8 @@ function renderPlan(key, plan) {
       document.getElementById('price-take').classList.add('masked');
     }
   } else {
-    const lower = Math.round(total * 0.8 / 100000) * 100000;
-    const upper = Math.round(total * 1.2 / 100000) * 100000;
+    const lower = Math.round(total * 0.8 / 10000) * 10000;
+    const upper = Math.round(total * 1.2 / 10000) * 10000;
     const lowerMan = Math.round(totalMan * 0.8);
     const upperMan = Math.round(totalMan * 1.2);
     const rangeEl = document.getElementById('range-' + key);
