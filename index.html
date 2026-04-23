@@ -919,6 +919,7 @@ footer{
     <span style="font-size:10px;color:var(--muted)">決済方法：</span>
     <img src="/paypay-light.png" alt="PayPay" style="height:22px;vertical-align:middle;">
     <span style="background:var(--border);color:var(--muted);font-size:10px;padding:3px 8px;border-radius:3px">銀行振込</span>
+    <span style="background:#003087;color:#fff;font-size:10px;padding:3px 8px;border-radius:3px;font-weight:700">PayPal</span>
   </div>
   <p style="margin-top:12px">© 2026 THE HORIZ音s Inc. All Rights Reserved.</p>
 </footer>
@@ -979,13 +980,13 @@ async function submitPayPay() {
   msg.textContent = '⏳ 決済画面を準備中...';
 
   try {
-    const res = await fetch(WORKER + '/paypay-checkout', {
+    const res = await fetch(WORKER + '/paypay/quick-checkout', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         serviceId: ppServiceId,
-        customerName: document.getElementById('pp-name').value,
-        customerEmail: document.getElementById('pp-email').value,
+        customer_name: document.getElementById('pp-name').value,
+        email: document.getElementById('pp-email').value,
       })
     });
     const data = await res.json();
