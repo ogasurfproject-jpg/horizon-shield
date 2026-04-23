@@ -128,8 +128,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
 .plan-unlock-cta:hover{background:rgba(240,192,48,.15);border-style:solid}
 .plan-card:not(.take) .plan-unlock-cta{display:none}
 </style>
-<script src="https://www.paypal.com/sdk/js?client-id=AVePXfDeP_YDUgmcFEJNjFHuYkbXZ-VQcLEecJs5Li2la9qDbtZJamy-iXzTxWlPdUODt6KNV3nqUKHP&currency=JPY&locale=ja_JP"></script> </head>
-</head> <body>
+<script src="https://www.paypal.com/sdk/js?client-id=AVePXfDeP_YDUgmcFEJNjFHuYkbXZ-VQcLEecJs5Li2la9qDbtZJamy-iXzTxWlPdUODt6KNV3nqUKHP&currency=JPY&locale=ja_JP"></script>
+</head>
+<body>
 <nav>
   <div class="nav-logo">HORIZ<span>音</span>S <span>/ SHIELD v4</span></div>
   <a href="https://shield.the-horizons-innovation.com" class="nav-back">← TOP</a>
@@ -239,7 +240,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
       <div class="cta-title">詳細な参考見積書PDFで<br>業者交渉を優位に</div>
       <div class="cta-desc">全工事項目の内訳・Red Flag・補助金情報を1枚に。<br>業者との交渉時にそのまま提示できる公式フォーマット。</div>
       <div class="cta-price">¥5,500</div>
-      <div class="cta-price-sub">税込 / 即時PDF納品 / PayPay・銀行振込対応</div>
+      <div class="cta-price-sub">税込 / 即時PDF納品 / PayPay・PayPal対応</div>
       <button class="cta-btn" onclick="openPaymentModal()">▸ PayPay / PayPal で購入</button>
       <button class="cta-btn" onclick="purchaseBankTransfer()" style="background:transparent;border:1px solid var(--gold);color:var(--gold2);margin-top:10px;">▸ 銀行振込で購入する</button>
     </div>
@@ -247,7 +248,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
   </div>
 </main>
 <script>
-const KIRA_PROXY = 'https://hs-kira-proxy.oga-surf-project.workers.dev'; const PDF_GEN   = 'https://hs-pdf-gen.oga-surf-project.workers.dev';
+const KIRA_PROXY = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
+const PDF_GEN    = 'https://hs-pdf-gen.oga-surf-project.workers.dev';
 let currentMode = 'reverse';
 let originalInput = '';
 let hearingAnswersHistory = {};
@@ -441,37 +443,195 @@ function renderPlan(key, plan) {
   } else { itemsEl.innerHTML = '<li><span>—</span></li>'; }
 }
 
-async function purchasePDF() { openPaymentModal(); } async function openPaymentModal() {
-  if (!lastResult) return;
-  const btn = event && event.target;
-  if (btn) { btn.disabled = true; btn.textContent = '▸ PDF生成中...'; }
-  try {
-    const orderId = 'HS' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-    const res = await fetch('https://hs-pdf-gen.oga-surf-project.workers.dev/generate', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        orderId: orderId, user: { name: '', email: '' },
-        extracted_items: lastResult.extracted_items, plans: lastResult.plans,
-        teiji_kingaku: lastResult.plans?.take?.total || 0,
-        market_alerts: lastResult.market_alerts || [], red_flags_by_category: {}, subsidies_available: []
-      })
-    });
-    if (!res.ok) throw new Error('PDF生成失敗');
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'HS_SankoMitsumorisho_' + orderId + '.pdf'; a.click();
-    URL.revokeObjectURL(url);
-  } catch (e) {
-    alert('PDF生成エラー: ' + e.message + '\n\nLINE相談:\nhttps://line.me/R/ti/p/@172piime');
-  } finally { if (btn) { btn.disabled = false; btn.textContent = '▸ PDF購入に進む'; } }
+// ── 支払いモーダル ──
+function openPaymentModal() {
+  if (!lastResult) { alert('先にヒアリングを完了してください'); return; }
+  document.getElementById('payment-modal').style.display = 'flex';
+  if (window.paypal && !window._paypalRendered) {
+    window._paypalRendered = true;
+    initPayPal();
+  }
 }
 
-// ── 支払いモーダル ── function closePaymentModal() {   document.getElementById('payment-modal').style.display = 'none'; } async function startPayPay() {   const btn = document.getElementById('paypay-modal-btn');   btn.disabled = true; btn.textContent = '準備中...';   document.getElementById('payment-msg').textContent = '⏳ PayPay決済画面を準備中...';   try {     const res = await fetch(KIRA_PROXY + '/paypay/quick-checkout', {       method: 'POST', headers: { 'Content-Type': 'application/json' },       body: JSON.stringify({ koji_type: lastResult?.extracted_items?.[0]?.koji_type || 'floor' })     });     const data = await res.json();     if (!data.ok || !data.paypay_url) throw new Error(data.error || 'PayPay失敗');     const merchantId = data.merchant_payment_id;     sessionStorage.setItem('hs_paypay_id', merchantId);     sessionStorage.setItem('hs_last_result', JSON.stringify(lastResult));     window.open(data.paypay_url, '_blank');     document.getElementById('payment-msg').textContent = '';     document.getElementById('paypay-poll-area').style.display = 'block';     startPayPayPolling(merchantId);   } catch(e) {     document.getElementById('payment-msg').textContent = '❌ ' + e.message;     btn.disabled = false; btn.textContent = 'PayPayで支払う';   } } let pollTimer = null; function startPayPayPolling(merchantId) {   let count = 0;   const statusEl = document.getElementById('poll-status');   statusEl.textContent = '⏳ PayPay支払いを確認中...';   pollTimer = setInterval(async () => {     count++;     if (count > 60) { clearInterval(pollTimer); statusEl.textContent = '⚠ タイムアウト。完了後に「確認する」を押してください'; return; }     try {       const res = await fetch(KIRA_PROXY + '/checkout/paypay-status', {         method: 'POST', headers: { 'Content-Type': 'application/json' },         body: JSON.stringify({ merchant_payment_id: merchantId })       });       const data = await res.json();       if (data.paid && data.download_token) {         clearInterval(pollTimer);         statusEl.textContent = '✅ 決済完了！PDFを生成中...';         closePaymentModal();         await downloadPDFWithToken(data.download_token);       }     } catch(e) {}   }, 3000); } async function checkPayPayManual() {   const merchantId = sessionStorage.getItem('hs_paypay_id');   if (!merchantId) { alert('PayPay決済情報が見つかりません'); return; }   const statusEl = document.getElementById('poll-status');   statusEl.textContent = '⏳ 確認中...';   try {     const res = await fetch(KIRA_PROXY + '/checkout/paypay-status', {       method: 'POST', headers: { 'Content-Type': 'application/json' },       body: JSON.stringify({ merchant_payment_id: merchantId })     });     const data = await res.json();     if (data.paid && data.download_token) {       clearInterval(pollTimer);       statusEl.textContent = '✅ 確認完了！PDFを生成中...';       closePaymentModal();       await downloadPDFWithToken(data.download_token);     } else {       statusEl.textContent = '未完了: ' + (data.status || '支払い待ち');     }   } catch(e) { statusEl.textContent = '❌ ' + e.message; } } function initPayPal() {   if (!window.paypal) return;   paypal.Buttons({     createOrder: async () => {       const res = await fetch(KIRA_PROXY + '/checkout/paypal/create-order', {         method: 'POST', headers: { 'Content-Type': 'application/json' },         body: JSON.stringify({ koji_type: lastResult?.extracted_items?.[0]?.koji_type || 'floor' })       });       const data = await res.json();       if (!data.paypal_order_id) throw new Error('PayPal注文作成失敗');       return data.paypal_order_id;     },     onApprove: async (ppData) => {       document.getElementById('payment-msg').textContent = '⏳ 決済処理中...';       const res = await fetch(KIRA_PROXY + '/checkout/paypal/capture', {         method: 'POST', headers: { 'Content-Type': 'application/json' },         body: JSON.stringify({ paypal_order_id: ppData.orderID })       });       const data = await res.json();       if (data.ok && data.download_token) {         closePaymentModal();         await downloadPDFWithToken(data.download_token);       } else {         document.getElementById('payment-msg').textContent = '❌ ' + (data.error || '決済確認失敗');       }     },     onError: (err) => { document.getElementById('payment-msg').textContent = '❌ PayPalエラー'; },     style: { color: 'gold', shape: 'rect', label: 'pay', height: 44 }   }).render('#paypal-btn-container'); } async function downloadPDFWithToken(token) {   try {     const orderId = 'HS' + Date.now().toString(36);     const res = await fetch(PDF_GEN + '/generate', {       method: 'POST', headers: { 'Content-Type': 'application/json' },       body: JSON.stringify({         download_token: token, orderId: orderId,         extracted_items: lastResult.extracted_items, plans: lastResult.plans,         teiji_kingaku: lastResult.plans?.take?.total || 0,         market_alerts: lastResult.market_alerts || [],         red_flags_by_category: {}, subsidies_available: []       })     });     if (!res.ok) { const err = await res.json().catch(()=>({})); throw new Error(err.error || 'PDF生成失敗'); }     const blob = await res.blob();     const url = URL.createObjectURL(blob);     const a = document.createElement('a');     a.href = url; a.download = 'HS_' + orderId + '.pdf'; a.click();     URL.revokeObjectURL(url);     window._purchased = true;     document.getElementById('price-take').classList.remove('masked');     const hint = document.querySelector('.plan-lock-hint');     if (hint) hint.style.display = 'none';     const unlockCta = document.querySelector('.plan-unlock-cta');     if (unlockCta) unlockCta.style.display = 'none';     alert('✅ PDFをダウンロードしました！業者との交渉にご活用ください。');   } catch(e) {     alert('PDF生成エラー: ' + e.message + '
+function closePaymentModal() {
+  document.getElementById('payment-modal').style.display = 'none';
+}
 
-LINE: https://line.me/R/ti/p/@172piime');   } } document.addEventListener('DOMContentLoaded', () => {   const modal = document.createElement('div');   modal.id = 'payment-modal';   modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:20px';   modal.innerHTML = `<div style="background:#081420;border:1px solid rgba(240,192,48,.3);border-radius:12px;padding:28px 24px;max-width:400px;width:100%;text-align:center;position:relative"><button onclick="closePaymentModal()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#5A7A8A;font-size:20px;cursor:pointer">×</button><div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:#C8960A;margin-bottom:8px">PDF UNLOCK</div><div style="font-size:18px;font-weight:900;margin-bottom:4px">詳細参考見積書PDF</div><div style="font-family:'Share Tech Mono',monospace;font-size:28px;color:#F0C030;margin-bottom:4px">¥5,500</div><div style="font-size:11px;color:#5A7A8A;margin-bottom:20px">税込 / 即時納品 / 一回限り</div><button id="paypay-modal-btn" onclick="startPayPay()" style="width:100%;background:#e60012;color:#fff;border:none;border-radius:8px;padding:14px;font-size:15px;font-weight:900;cursor:pointer;margin-bottom:12px">PayPayで支払う ¥5,500</button><div id="paypal-btn-container" style="margin-bottom:12px"></div><div id="paypay-poll-area" style="display:none;background:rgba(0,0,0,.3);border-radius:6px;padding:12px;margin-bottom:12px"><div id="poll-status" style="font-size:12px;color:#90AABA;margin-bottom:8px"></div><button onclick="checkPayPayManual()" style="font-size:11px;background:transparent;border:1px solid rgba(0,212,255,.3);color:#00D4FF;padding:6px 14px;border-radius:4px;cursor:pointer">支払い完了→確認する</button></div><div id="payment-msg" style="font-size:12px;color:#90AABA;margin-top:8px"></div></div>`;   document.body.appendChild(modal);   modal.addEventListener('click', e => { if (e.target === modal) closePaymentModal(); });   if (window.paypal) initPayPal(); }); function escapeHtml(s) {
+// ── PayPayフロー ──
+async function startPayPay() {
+  const btn = document.getElementById('paypay-modal-btn');
+  btn.disabled = true; btn.textContent = '準備中...';
+  document.getElementById('payment-msg').textContent = '⏳ PayPay決済画面を準備中...';
+  try {
+    const res = await fetch(KIRA_PROXY + '/paypay/quick-checkout', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ koji_type: lastResult && lastResult.extracted_items && lastResult.extracted_items[0] ? lastResult.extracted_items[0].koji_type : 'floor' })
+    });
+    const data = await res.json();
+    if (!data.ok || !data.paypay_url) throw new Error(data.error || 'PayPay失敗');
+    const merchantId = data.merchant_payment_id;
+    sessionStorage.setItem('hs_paypay_id', merchantId);
+    sessionStorage.setItem('hs_last_result', JSON.stringify(lastResult));
+    window.open(data.paypay_url, '_blank');
+    document.getElementById('payment-msg').textContent = '';
+    document.getElementById('paypay-poll-area').style.display = 'block';
+    startPayPayPolling(merchantId);
+  } catch(e) {
+    document.getElementById('payment-msg').textContent = '❌ ' + e.message;
+    btn.disabled = false; btn.textContent = 'PayPayで支払う';
+  }
+}
+
+var pollTimer = null;
+function startPayPayPolling(merchantId) {
+  var count = 0;
+  var statusEl = document.getElementById('poll-status');
+  statusEl.textContent = '⏳ PayPay支払いを確認中...';
+  pollTimer = setInterval(async function() {
+    count++;
+    if (count > 60) { clearInterval(pollTimer); statusEl.textContent = '⚠ タイムアウト。完了後に「確認する」を押してください'; return; }
+    try {
+      var res = await fetch(KIRA_PROXY + '/checkout/paypay-status', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ merchant_payment_id: merchantId })
+      });
+      var data = await res.json();
+      if (data.paid && data.download_token) {
+        clearInterval(pollTimer);
+        statusEl.textContent = '✅ 決済完了！PDFを生成中...';
+        closePaymentModal();
+        await downloadPDFWithToken(data.download_token);
+      }
+    } catch(e) {}
+  }, 3000);
+}
+
+async function checkPayPayManual() {
+  var merchantId = sessionStorage.getItem('hs_paypay_id');
+  if (!merchantId) { alert('PayPay決済情報が見つかりません'); return; }
+  var statusEl = document.getElementById('poll-status');
+  statusEl.textContent = '⏳ 確認中...';
+  try {
+    var res = await fetch(KIRA_PROXY + '/checkout/paypay-status', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ merchant_payment_id: merchantId })
+    });
+    var data = await res.json();
+    if (data.paid && data.download_token) {
+      clearInterval(pollTimer);
+      statusEl.textContent = '✅ 確認完了！PDFを生成中...';
+      closePaymentModal();
+      await downloadPDFWithToken(data.download_token);
+    } else {
+      statusEl.textContent = '未完了: ' + (data.status || '支払い待ち');
+    }
+  } catch(e) { statusEl.textContent = '❌ ' + e.message; }
+}
+
+// ── PayPalフロー ──
+function initPayPal() {
+  if (!window.paypal) return;
+  paypal.Buttons({
+    createOrder: async function() {
+      var res = await fetch(KIRA_PROXY + '/checkout/paypal/create-order', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ koji_type: lastResult && lastResult.extracted_items && lastResult.extracted_items[0] ? lastResult.extracted_items[0].koji_type : 'floor' })
+      });
+      var data = await res.json();
+      if (!data.paypal_order_id) throw new Error('PayPal注文作成失敗');
+      return data.paypal_order_id;
+    },
+    onApprove: async function(ppData) {
+      document.getElementById('payment-msg').textContent = '⏳ 決済処理中...';
+      var res = await fetch(KIRA_PROXY + '/checkout/paypal/capture', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paypal_order_id: ppData.orderID })
+      });
+      var data = await res.json();
+      if (data.ok && data.download_token) {
+        closePaymentModal();
+        await downloadPDFWithToken(data.download_token);
+      } else {
+        document.getElementById('payment-msg').textContent = '❌ ' + (data.error || '決済確認失敗');
+      }
+    },
+    onError: function(err) {
+      document.getElementById('payment-msg').textContent = '❌ PayPalエラーが発生しました';
+    },
+    style: { color: 'gold', shape: 'rect', label: 'pay', height: 44 }
+  }).render('#paypal-btn-container');
+}
+
+// ── tokenでPDF取得 ──
+async function downloadPDFWithToken(token) {
+  try {
+    var orderId = 'HS' + Date.now().toString(36);
+    var res = await fetch(PDF_GEN + '/generate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        download_token: token,
+        orderId: orderId,
+        extracted_items: lastResult.extracted_items,
+        plans: lastResult.plans,
+        teiji_kingaku: lastResult.plans && lastResult.plans.take ? lastResult.plans.take.total : 0,
+        market_alerts: lastResult.market_alerts || [],
+        red_flags_by_category: {}, subsidies_available: []
+      })
+    });
+    if (!res.ok) {
+      var err = await res.json().catch(function(){ return {}; });
+      throw new Error(err.error || 'PDF生成失敗');
+    }
+    var blob = await res.blob();
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'HS_' + orderId + '.pdf'; a.click();
+    URL.revokeObjectURL(url);
+    window._purchased = true;
+    document.getElementById('price-take').classList.remove('masked');
+    var hint = document.querySelector('.plan-lock-hint');
+    if (hint) hint.style.display = 'none';
+    var unlockCta = document.querySelector('.plan-unlock-cta');
+    if (unlockCta) unlockCta.style.display = 'none';
+    if (lastResult && lastResult.plans && lastResult.plans.take) {
+      document.getElementById('price-take-man').textContent = (lastResult.plans.take.total_man_en || 0) + '万円';
+    }
+    alert('✅ PDFをダウンロードしました！業者との交渉にご活用ください。');
+  } catch(e) {
+    alert('PDF生成エラー: ' + e.message + '\n\nLINE: https://line.me/R/ti/p/@172piime');
+  }
+}
+
+// ── 旧関数（互換性維持） ──
+async function purchasePDF() { openPaymentModal(); }
+
+function escapeHtml(s) {
   if (s === null || s === undefined) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 }
+
+// ── 支払いモーダルDOM生成 ──
+document.addEventListener('DOMContentLoaded', function() {
+  var modal = document.createElement('div');
+  modal.id = 'payment-modal';
+  modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML = '<div style="background:#081420;border:1px solid rgba(240,192,48,.3);border-radius:12px;padding:28px 24px;max-width:400px;width:100%;text-align:center;position:relative">'
+    + '<button onclick="closePaymentModal()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#5A7A8A;font-size:20px;cursor:pointer">×</button>'
+    + '<div style="font-family:\'Share Tech Mono\',monospace;font-size:10px;letter-spacing:3px;color:#C8960A;margin-bottom:8px">PDF UNLOCK</div>'
+    + '<div style="font-size:18px;font-weight:900;margin-bottom:4px">詳細参考見積書PDF</div>'
+    + '<div style="font-family:\'Share Tech Mono\',monospace;font-size:28px;color:#F0C030;margin-bottom:4px">¥5,500</div>'
+    + '<div style="font-size:11px;color:#5A7A8A;margin-bottom:20px">税込 / 即時納品 / 一回限り</div>'
+    + '<button id="paypay-modal-btn" onclick="startPayPay()" style="width:100%;background:#e60012;color:#fff;border:none;border-radius:8px;padding:14px;font-size:15px;font-weight:900;cursor:pointer;margin-bottom:12px">PayPayで支払う ¥5,500</button>'
+    + '<div id="paypal-btn-container" style="margin-bottom:12px"></div>'
+    + '<div id="paypay-poll-area" style="display:none;background:rgba(0,0,0,.3);border-radius:6px;padding:12px;margin-bottom:12px">'
+    + '<div id="poll-status" style="font-size:12px;color:#90AABA;margin-bottom:8px"></div>'
+    + '<button onclick="checkPayPayManual()" style="font-size:11px;background:transparent;border:1px solid rgba(0,212,255,.3);color:#00D4FF;padding:6px 14px;border-radius:4px;cursor:pointer">支払い完了→確認する</button>'
+    + '</div>'
+    + '<div id="payment-msg" style="font-size:12px;color:#90AABA;margin-top:8px"></div>'
+    + '</div>';
+  document.body.appendChild(modal);
+  modal.addEventListener('click', function(e) { if (e.target === modal) closePaymentModal(); });
+});
 
 selectMode('reverse');
 </script>
