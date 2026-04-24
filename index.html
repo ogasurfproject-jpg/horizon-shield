@@ -9,7 +9,7 @@
   "description": "見積書を送るだけ。建設30年のプロが2営業日以内に過剰請求を暴く。",
   "url": "https://shield.the-horizons-innovation.com",
   "telephone": "0463-74-5917",
-  "priceRange": "¥33,000〜¥88,000",
+  "priceRange": "¥5,500〜¥88,000",
   "areaServed": "JP",
   "founder": {
     "@type": "Person",
@@ -46,6 +46,8 @@
   --warn: #ffb800;
   --text: #e8edf5;
   --muted: #5a6a7a;
+  --paypal: #003087;
+  --paypal-light: #0070ba;
   --header-h: 56px;
 }
 
@@ -190,65 +192,33 @@ section{padding:56px 20px}
 }
 .svc-time{font-size:11px;color:var(--muted);margin-top:2px}
 
-/* ── PayPay ボタン ── */
-.paypay-btn{
-  display:inline-block;
+/* ── PayPal ボタン ── */
+.paypal-btn{
+  display:block;
   margin-top:10px;
-  background:none;border:none;padding:0;
-  cursor:pointer;transition:opacity .2s;
-}
-.paypay-btn:hover{opacity:.82;transform:translateY(-1px)}
-.paypay-btn img{height:40px;display:block;}
-
-/* ── PayPay モーダル ── */
-#paypay-modal{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,.75);z-index:9999;
-  align-items:center;justify-content:center;padding:20px;
-}
-#paypay-modal.open{display:flex}
-.pp-modal-inner{
-  background:#111827;border:1px solid #2a3a4a;
-  border-radius:16px;padding:28px 24px;
-  max-width:400px;width:100%;text-align:center;
-  box-shadow:0 20px 60px rgba(0,0,0,.6);
-}
-.pp-modal-logo{
-  font-size:1.4rem;font-weight:900;
-  color:#e60012;letter-spacing:1px;margin-bottom:4px;
-}
-.pp-modal-service{font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px}
-.pp-modal-price{
-  font-family:'Space Mono',monospace;font-size:1.4rem;
-  color:#00e5ff;margin-bottom:16px;
-}
-.pp-modal-note{font-size:.8rem;color:#5a6a7a;margin-bottom:20px;line-height:1.6}
-.pp-modal-input{
-  width:100%;background:#0a0e14;border:1px solid #1a2030;
-  color:#e8edf5;padding:11px 14px;border-radius:8px;
-  font-size:.9rem;margin-bottom:10px;font-family:'Noto Sans JP',sans-serif;
-  outline:none;transition:border-color .2s;
-}
-.pp-modal-input:focus{border-color:#00e5ff}
-.pp-go-btn{
-  width:100%;background:#e60012;color:#fff;
-  border:none;border-radius:10px;padding:15px;
-  font-size:1rem;font-weight:900;cursor:pointer;
-  margin-bottom:10px;transition:all .2s;
+  padding:14px 16px;
+  background:linear-gradient(135deg,var(--paypal),var(--paypal-light));
+  color:#fff;
+  text-decoration:none;
+  text-align:center;
+  border-radius:8px;
+  font-weight:900;
+  font-size:14px;
+  letter-spacing:1px;
+  transition:all .2s;
+  border:none;
+  cursor:pointer;
   font-family:'Noto Sans JP',sans-serif;
+  width:100%;
 }
-.pp-go-btn:hover{background:#c5000f}
-.pp-go-btn:disabled{background:#444;cursor:not-allowed}
-.pp-cancel-btn{
-  width:100%;background:#1a2030;color:#5a6a7a;
-  border:none;border-radius:8px;padding:11px;
-  cursor:pointer;font-size:.9rem;
-  font-family:'Noto Sans JP',sans-serif;
+.paypal-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 20px rgba(0,112,186,.4);
 }
-.pp-cancel-btn:hover{color:#e8edf5}
-.pp-msg{font-size:.8rem;margin-top:10px;display:none}
-.pp-msg.loading{color:#5a6a7a;display:block}
-.pp-msg.error{color:#ff3d3d;display:block}
+.paypal-btn-small{
+  font-size:13px;
+  padding:12px 14px;
+}
 
 /* ── DIAGNOSIS FORM ── */
 #diagnosis-section{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
@@ -401,18 +371,27 @@ footer{
 .tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
 .tag{padding:4px 10px;border:1px solid var(--border);border-radius:20px;font-size:11px;color:var(--muted)}
 
-/* PayPay アクセプタンスマーク */
+/* 決済マーク */
 .payment-marks{
   display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;
 }
-.pp-mark{
-  background:#e60012;color:#fff;font-weight:900;
+.paypal-mark{
+  background:var(--paypal);color:#fff;font-weight:900;
   font-size:11px;padding:4px 10px;border-radius:4px;letter-spacing:.5px;
 }
 .bank-mark{
   background:var(--border);color:var(--muted);
   font-size:11px;padding:4px 10px;border-radius:4px;
 }
+.bank-btn{
+  width:100%;padding:12px;margin-top:8px;
+  background:transparent;border:1px solid #ffffff;border-radius:8px;
+  color:#ffffff;font-size:13px;font-weight:700;cursor:pointer;
+  letter-spacing:1px;transition:all .2s;
+  font-family:'Noto Sans JP',sans-serif;
+}
+.bank-btn:hover{background:rgba(255,255,255,.08)}
+
 /* === スマホ対応（TOshi 指摘対応 2026/4） === */
 @media(max-width:640px){
   body{overflow-x:hidden}
@@ -430,7 +409,7 @@ footer{
   table{font-size:11px}
   td,th{padding:6px 4px!important;word-break:break-all}
   .faq-q,.faq-a{font-size:13px;padding:12px!important}
-  .pp-modal,.terms-modal{width:calc(100% - 24px)!important;padding:20px 16px!important}
+  .terms-modal{width:calc(100% - 24px)!important;padding:20px 16px!important}
   img{max-width:100%;height:auto}
   iframe{max-width:100%}
   .container,main,section>div{max-width:100%!important;padding-left:16px;padding-right:16px;box-sizing:border-box}
@@ -442,9 +421,9 @@ footer{
   h1,.hero h1{font-size:24px!important}
   .svc-price{font-size:20px!important}
   .cta-line a{font-size:12px}
-　 }
+}
   
-  @media(min-width:640px){
+@media(min-width:640px){
   #hero{padding:64px 40px 56px}
   section{padding:72px 40px}
   .service-grid{display:grid;grid-template-columns:repeat(3,1fr)}
@@ -452,7 +431,8 @@ footer{
   .sticky-cta{display:none}
   nav a{font-size:12px;padding:7px 14px}
 }
-/* === ハンバーガーメニュー（TOshi指摘対応 2026/4） === */
+
+/* === ハンバーガーメニュー === */
 #hamburger{display:none;background:none;border:none;cursor:pointer;padding:8px;z-index:1001;margin-left:8px}
 #hamburger span{display:block;width:22px;height:2px;background:var(--accent);margin:4px 0;transition:all .3s;border-radius:1px}
 #hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
@@ -462,12 +442,10 @@ footer{
 #mobile-menu-overlay.show{display:block}
 
 @media(max-width:640px){
-  /* ヘッダーを3列レイアウトに: ロゴ / 無料診断CTA / ハンバーガー */
   #header{padding:0 12px!important}
   .logo{font-size:16px!important;letter-spacing:1.5px!important}
   #hamburger{display:block}
   
-  /* ナビをスライドメニュー化 */
   nav#nav-main{
     position:fixed;top:var(--header-h);right:-100%;
     width:80%;max-width:280px;height:calc(100vh - var(--header-h));
@@ -495,7 +473,7 @@ footer{
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"シロアリ駆除15坪の適正価格はいくらですか？","acceptedAnswer":{"@type":"Answer","text":"15坪の床下シロアリ駆除の適正価格は8.5〜11万円です。35万円以上の請求はぼったくりの可能性が極めて高いです。HORIZON SHIELDの無料AI診断で即座に判定できます。"}},{"@type":"Question","name":"リフォーム見積書が適正価格か調べる方法は？","acceptedAnswer":{"@type":"Answer","text":"HORIZON SHIELDの無料AI診断に見積書の写真を送るだけで、建設30年のプロが過剰請求かどうかを即座に判定します。60秒・完全無料・登録不要です。"}},{"@type":"Question","name":"訪問販売のリフォーム業者に即日契約を迫られたらどうすればいいですか？","acceptedAnswer":{"@type":"Answer","text":"その場で絶対に契約しないでください。8日間のクーリングオフが適用されます。まず見積書を持ち帰りHORIZON SHIELDの無料診断で確認してください。"}},{"@type":"Question","name":"屋根修理で100万円以上請求された場合は適正ですか？","acceptedAnswer":{"@type":"Answer","text":"30坪の屋根塗装の適正価格は55〜80万円（足場込み）です。100万円超の請求はぼったくりの可能性が高いです。"}},{"@type":"Question","name":"建設費診断サービスHORIZON SHIELDとは？","acceptedAnswer":{"@type":"Answer","text":"建設歴30年のプロが施主側に立つ建設費診断サービスです。見積書査定・追加工事確認・完成検査立会いを行います。無料AI診断は60秒で完了します。"}}]}
 </script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"ProfessionalService","name":"HORIZON SHIELD","description":"建設歴30年のプロが施主側に立つ建設費診断サービス。リフォーム見積書の過剰請求を無料AIで即座に判定。","url":"https://shield.the-horizons-innovation.com","telephone":"080-5920-8099","address":{"@type":"PostalAddress","addressLocality":"平塚市","addressRegion":"神奈川県","addressCountry":"JP"},"founder":{"@type":"Person","name":"大賀俊勝","jobTitle":"代表取締役","description":"建設歴30年。大工・現場監督・CMRを経て施主側に立つ建設コンサルタント。"},"hasOfferCatalog":{"@type":"OfferCatalog","name":"建設費診断サービス","itemListElement":[{"@type":"Offer","name":"建設費診断","price":"55000","priceCurrency":"JPY"},{"@type":"Offer","name":"変更工事査定","price":"33000","priceCurrency":"JPY"},{"@type":"Offer","name":"完成検査立会い","price":"88000","priceCurrency":"JPY"}]}}
+{"@context":"https://schema.org","@type":"ProfessionalService","name":"HORIZON SHIELD","description":"建設歴30年のプロが施主側に立つ建設費診断サービス。リフォーム見積書の過剰請求を無料AIで即座に判定。","url":"https://shield.the-horizons-innovation.com","telephone":"080-5920-8099","address":{"@type":"PostalAddress","addressLocality":"平塚市","addressRegion":"神奈川県","addressCountry":"JP"},"founder":{"@type":"Person","name":"大賀俊勝","jobTitle":"代表取締役","description":"建設歴30年。大工・現場監督・CMRを経て施主側に立つ建設コンサルタント。"},"hasOfferCatalog":{"@type":"OfferCatalog","name":"建設費診断サービス","itemListElement":[{"@type":"Offer","name":"逆見積もり診断PDF","price":"5500","priceCurrency":"JPY"},{"@type":"Offer","name":"建設費診断","price":"55000","priceCurrency":"JPY"},{"@type":"Offer","name":"変更工事査定","price":"33000","priceCurrency":"JPY"},{"@type":"Offer","name":"完成検査立会い","price":"88000","priceCurrency":"JPY"}]}}
 </script></head>
 <body>
 <script>if(!sessionStorage.getItem('hs_seen')){sessionStorage.setItem('hs_seen','1');location.href='/opening.html';}</script>
@@ -516,10 +494,8 @@ footer{
 </header>
 <div id="mobile-menu-overlay" onclick="toggleMenu()"></div>
 
-<!-- MAP BANNER（最上部） -->
-<!-- MAP BANNER（最上部）-->
+<!-- MAP BANNER -->
 <a href="/map" id="map-banner" style="display:block;position:relative;overflow:hidden;background:linear-gradient(135deg,#020d0a 0%,#041a12 50%,#020d0a 100%);border-bottom:1px solid rgba(0,255,180,.15);text-decoration:none;padding:14px 20px">
-  <!-- ミトコンドリア SVG背景 -->
   <svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:.35" viewBox="0 0 1200 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
     <ellipse cx="80" cy="28" rx="55" ry="18" fill="none" stroke="rgba(0,255,180,.3)" stroke-width="1"/>
     <path d="M40,18 Q62,10 62,28 Q62,46 40,38" fill="none" stroke="rgba(0,255,180,.25)" stroke-width="1"/>
@@ -581,7 +557,7 @@ footer{
   <div class="sec-label">// SERVICES</div>
   <div class="sec-title">4つの<em>スポット</em>診断</div>
   <div class="service-grid">
-  <!-- 00 逆見積もり診断（NEW・最優先カード） -->
+    <!-- 00 逆見積もり診断（NEW） -->
     <div class="svc" style="border:2px solid #F0C030;background:linear-gradient(135deg,rgba(240,192,48,.08),rgba(200,150,10,.03));position:relative">
       <div style="position:absolute;top:-12px;left:20px;background:#F0C030;color:#000;padding:3px 12px;font-size:10px;font-weight:900;letter-spacing:2px;border-radius:2px">★ NEW 2026/4</div>
       <div class="svc-num" style="color:#F0C030">00</div>
@@ -591,12 +567,16 @@ footer{
         <div class="svc-price" style="color:#F0C030">¥5,500</div>
         <div class="svc-time">即時AI算出 / 交渉用PDF納品</div>
         <a href="/hs-reverse-estimate/" style="display:block;text-align:center;padding:14px;background:#F0C030;color:#000;text-decoration:none;border-radius:8px;font-weight:900;font-size:14px;letter-spacing:2px;margin-top:12px">▸ 概算を無料で見る（竹は¥5,500）</a>
+        <a href="https://www.paypal.com/ncp/payment/H747QJMWFM4BS" target="_blank" rel="noopener" class="paypal-btn paypal-btn-small" style="margin-top:8px">
+          💳 PayPal / カード / Apple Payで ¥5,500 購入
+        </a>
         <div class="payment-marks">
-          <span class="pp-mark" style="background:#F0C030;color:#000">PayPay</span>
-          <span style="display:inline-block;margin-left:6px;padding:4px 10px;background:#003087;color:#fff;font-size:11px;border-radius:4px;font-weight:700">PayPal</span><span style="display:inline-block;margin-left:6px;padding:4px 10px;background:transparent;border:1px solid #F0C030;color:#F0C030;font-size:11px;border-radius:4px">銀行振込</span>
+          <span class="paypal-mark">PayPal対応</span>
+          <span style="display:inline-block;margin-left:6px;padding:4px 10px;background:transparent;border:1px solid #F0C030;color:#F0C030;font-size:11px;border-radius:4px">銀行振込</span>
         </div>
       </div>
     </div>
+
     <!-- 01 建設費診断 -->
     <div class="svc">
       <div class="svc-num">01</div>
@@ -605,12 +585,12 @@ footer{
         <div class="svc-desc">見積書をメールで送るだけ。過剰請求箇所・適正価格・交渉文をPDFで返送。</div>
         <div class="svc-price">¥55,000</div>
         <div class="svc-time">2営業日以内 PDF納品</div>
-        <button class="paypay-btn" onclick="openTermsModal('diagnosis')">
-          <img src="/paypay-dark.png" alt="PayPayで支払う">
-        </button>
+        <a href="https://www.paypal.com/ncp/payment/9V2ZUX9JZAU68" target="_blank" rel="noopener" class="paypal-btn">
+          💳 PayPal / カード / Apple Payで支払う →
+        </a>
         <div class="payment-marks">
-          <span class="pp-mark">PayPay</span>
-          <button class="bank-mark" onclick="openTermsModal('diagnosis')" style="width:100%;padding:12px;margin-top:8px;background:transparent;border:1px solid #ffffff;border-radius:8px;color:#ffffff;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;">銀行振込で申し込む</button>
+          <span class="paypal-mark">PayPal対応</span>
+          <button class="bank-btn" onclick="openTermsModal('diagnosis')">銀行振込で申し込む</button>
         </div>
       </div>
     </div>
@@ -623,12 +603,12 @@ footer{
         <div class="svc-desc">工事中の追加請求が正当かを24時間以内に判定。拒否すべき項目を特定。</div>
         <div class="svc-price">¥33,000</div>
         <div class="svc-time">24時間以内 PDF納品</div>
-        <button class="paypay-btn" onclick="openTermsModal('change')">
-          <img src="/paypay-dark.png" alt="PayPayで支払う">
-        </button>
+        <a href="https://www.paypal.com/ncp/payment/LXM4H73CFJH98" target="_blank" rel="noopener" class="paypal-btn">
+          💳 PayPal / カード / Apple Payで支払う →
+        </a>
         <div class="payment-marks">
-          <span class="pp-mark">PayPay</span>
-          <button class="bank-mark" onclick="openTermsModal('diagnosis')" style="width:100%;padding:12px;margin-top:8px;background:transparent;border:1px solid #ffffff;border-radius:8px;color:#ffffff;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;">銀行振込で申し込む</button>
+          <span class="paypal-mark">PayPal対応</span>
+          <button class="bank-btn" onclick="openTermsModal('change')">銀行振込で申し込む</button>
         </div>
       </div>
     </div>
@@ -641,16 +621,15 @@ footer{
         <div class="svc-desc">引き渡し前に専門家が現場立会い。施工不良・手抜きをその場でチェック。</div>
         <div class="svc-price">¥88,000</div>
         <div class="svc-time">当日完了・全国対応</div>
-        <button class="paypay-btn" onclick="openTermsModal('inspection')">
-          <img src="/paypay-dark.png" alt="PayPayで支払う">
-        </button>
+        <a href="https://www.paypal.com/ncp/payment/7C7WF642ZJJUC" target="_blank" rel="noopener" class="paypal-btn">
+          💳 PayPal / カード / Apple Payで支払う →
+        </a>
         <div class="payment-marks">
-          <span class="pp-mark">PayPay</span>
-          <button class="bank-mark" onclick="openTermsModal('diagnosis')" style="width:100%;padding:12px;margin-top:8px;background:transparent;border:1px solid #ffffff;border-radius:8px;color:#ffffff;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;">銀行振込で申し込む</button>
+          <span class="paypal-mark">PayPal対応</span>
+          <button class="bank-btn" onclick="openTermsModal('inspection')">銀行振込で申し込む</button>
         </div>
       </div>
     </div>
-
   </div>
   <div class="tag-row">
     <span class="tag">見積書は診断後すぐ削除</span>
@@ -718,10 +697,10 @@ footer{
       上記はAIによる簡易診断です。正確な削減額・具体的な交渉文・業者への対応策は専門家レポートにてお届けします。
     </div>
     <!-- 申し込みボタン群 -->
-    <a href="/inspect/" class="btn btn-primary" style="display:block;text-align:center;text-decoration:none;margin-top:16px;padding:15px">詳細レポートを申し込む ¥55,000（銀行振込）</a>
-    <button class="paypay-btn" style="margin-top:8px;width:100%;text-align:center;" onclick="openPayPay('kidan','建設費診断','55,000')">
-      <img src="/paypay-dark.png" alt="PayPayで支払う" style="height:44px;margin:0 auto;">
-    </button>
+    <a href="https://www.paypal.com/ncp/payment/9V2ZUX9JZAU68" target="_blank" rel="noopener" class="paypal-btn" style="margin-top:16px">
+      💳 PayPal / カード / Apple Payで申し込む ¥55,000
+    </a>
+    <a href="/inspect/" class="btn btn-secondary" style="display:block;text-align:center;text-decoration:none;margin-top:8px;padding:15px">銀行振込で申し込む ¥55,000</a>
     <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px">2営業日以内PDF納品 / 送信前キャンセルは全額返金</p>
   </div>
 </section>
@@ -748,12 +727,10 @@ footer{
 <div class="divider"></div>
 
 <!-- MEDIA -->
-<!-- MEDIA -->
 <section id="media">
   <div class="sec-label">// PRESS RELEASE</div>
   <div class="sec-title">プレスリリース<em>配信実績</em></div>
 
-  <!-- ヒーロー数字 -->
   <div style="margin-bottom:24px;padding:20px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
     <div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--accent);line-height:1">7,000<span style="font-size:24px">媒体超</span></div>
@@ -765,7 +742,6 @@ footer{
     </div>
   </div>
 
-  <!-- 主要プラットフォーム（リンク付き） -->
   <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px">主要掲載プラットフォーム（プレスリリース）</div>
   <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
     <a href="https://www.asahi.com/and/pressrelease/16482464" target="_blank" rel="noopener"
@@ -791,7 +767,6 @@ footer{
     </a>
   </div>
 
-  <!-- その他媒体 -->
   <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px">その他配信媒体</div>
   <div class="media-grid">
     <span class="media-tag">日本経済新聞</span>
@@ -835,15 +810,13 @@ footer{
 </section>
 
 <div class="divider"></div>
-<!-- 無料コンテンツ（ブログ/マップ/業者チェック）セクション -->
+<!-- 無料コンテンツ -->
 <section id="free-content" style="padding:60px 20px;background:linear-gradient(180deg,transparent,rgba(0,212,255,.03))">
   <div class="sec-label">// FREE CONTENT</div>
   <div class="sec-title"><em>無料</em>で使える全コンテンツ</div>
   <p style="color:var(--muted);font-size:13px;margin-bottom:32px;max-width:680px">診断サービスを申し込まなくても、施主の武装化に役立つ無料コンテンツを公開中。毎日更新。</p>
   
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:1000px">
-    
-    <!-- ブログ -->
     <a href="/blog/" style="display:block;padding:24px;background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.15);border-radius:8px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(0,212,255,.08)';this.style.borderColor='rgba(0,212,255,.4)'" onmouseout="this.style.background='rgba(0,212,255,.04)';this.style.borderColor='rgba(0,212,255,.15)'">
       <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;margin-bottom:8px">📝 DAILY BLOG</div>
       <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">建設費診断ブログ</div>
@@ -851,7 +824,6 @@ footer{
       <div style="font-size:11px;color:var(--accent);margin-top:12px">記事を読む →</div>
     </a>
     
-    <!-- マップ -->
     <a href="/map" style="display:block;padding:24px;background:rgba(255,48,64,.04);border:1px solid rgba(255,48,64,.15);border-radius:8px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(255,48,64,.08)';this.style.borderColor='rgba(255,48,64,.4)'" onmouseout="this.style.background='rgba(255,48,64,.04)';this.style.borderColor='rgba(255,48,64,.15)'">
       <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--danger);letter-spacing:3px;margin-bottom:8px">📍 WARNING MAP</div>
       <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">ボッタクリ被害マップ</div>
@@ -859,7 +831,6 @@ footer{
       <div style="font-size:11px;color:var(--danger);margin-top:12px">マップを見る →</div>
     </a>
     
-    <!-- 業者チェック -->
     <a href="/check/" style="display:block;padding:24px;background:rgba(240,192,48,.04);border:1px solid rgba(240,192,48,.15);border-radius:8px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(240,192,48,.08)';this.style.borderColor='rgba(240,192,48,.4)'" onmouseout="this.style.background='rgba(240,192,48,.04)';this.style.borderColor='rgba(240,192,48,.15)'">
       <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#F0C030;letter-spacing:3px;margin-bottom:8px">🔍 GYOSHA CHECK</div>
       <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">業者チェッカー</div>
@@ -867,16 +838,15 @@ footer{
       <div style="font-size:11px;color:#F0C030;margin-top:12px">業者を調べる →</div>
     </a>
     
-    <!-- 相場DB -->
     <a href="/souba.html" style="display:block;padding:24px;background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.15);border-radius:8px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(0,255,136,.08)';this.style.borderColor='rgba(0,255,136,.4)'" onmouseout="this.style.background='rgba(0,255,136,.04)';this.style.borderColor='rgba(0,255,136,.15)'">
       <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#00FF88;letter-spacing:3px;margin-bottom:8px">📊 PRICE DB</div>
       <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">相場データベース</div>
       <div style="font-size:12px;color:var(--muted);line-height:1.7">工事別の<strong style="color:var(--text)">適正価格レンジ</strong>を49カテゴリで公開。国交省公式データベース。</div>
       <div style="font-size:11px;color:#00FF88;margin-top:12px">DBを見る →</div>
     </a>
-    
   </div>
 </section>
+
 <!-- FAQ -->
 <section id="faq">
   <div class="sec-label">// FAQ</div>
@@ -897,9 +867,11 @@ footer{
     <div class="faq-q" onclick="toggleFaq(this)">キャンセルはできますか？</div>
     <div class="faq-a">PDFレポート送信前のキャンセルは全額返金します。レポート送信後のキャンセルはお受けできません。</div>
   </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">どんな決済方法が使えますか？</div>
+    <div class="faq-a">PayPal（クレジットカード・Apple Pay対応）および銀行振込がご利用いただけます。PayPalはアカウント登録不要でクレジットカード決済が可能です。</div>
+  </div>
 </section>
-
-
 
 <!-- FOOTER -->
 <footer>
@@ -914,12 +886,12 @@ footer{
   </div>
   <p>The HORIZ音s株式会社 〒254-0018 神奈川県平塚市東真土1-1-47 GH湘南2<br>
   代表取締役 大賀俊勝 / contact@the-horizons-innovation.com</p>
-  <!-- PayPayアクセプタンスマーク（規約上必須） -->
+  <!-- 決済方法 -->
   <div style="margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
     <span style="font-size:10px;color:var(--muted)">決済方法：</span>
-    <img src="/paypay-light.png" alt="PayPay" style="height:22px;vertical-align:middle;">
+    <span style="background:var(--paypal);color:#fff;font-size:10px;padding:3px 8px;border-radius:3px;font-weight:700">PayPal</span>
     <span style="background:var(--border);color:var(--muted);font-size:10px;padding:3px 8px;border-radius:3px">銀行振込</span>
-    <span style="background:#003087;color:#fff;font-size:10px;padding:3px 8px;border-radius:3px;font-weight:700">PayPal</span>
+    <span style="font-size:10px;color:var(--muted)">（PayPalでクレジットカード・Apple Pay対応）</span>
   </div>
   <p style="margin-top:12px">© 2026 THE HORIZ音s Inc. All Rights Reserved.</p>
 </footer>
@@ -930,79 +902,7 @@ footer{
   <a href="https://line.me/R/ti/p/@172piime" class="sticky-line">LINE相談</a>
 </div>
 
-<!-- PayPay モーダル -->
-<div id="paypay-modal">
-  <div class="pp-modal-inner">
-    <img src="/paypay-dark.png" alt="PayPay" style="height:40px;margin:0 auto 12px;">
-    <div class="pp-modal-service" id="pp-service-name">建設費診断</div>
-    <div class="pp-modal-price" id="pp-service-price">¥55,000</div>
-    <p class="pp-modal-note">お名前・メールアドレスを入力後、<br>PayPay決済画面へ進みます。</p>
-    <input class="pp-modal-input" type="text" id="pp-name" placeholder="お名前（任意）">
-    <input class="pp-modal-input" type="email" id="pp-email" placeholder="メールアドレス（任意）">
-    <button class="pp-go-btn" id="pp-go-btn" onclick="submitPayPay()">PayPayで支払う →</button>
-    <button class="pp-cancel-btn" onclick="closePayPay()">キャンセル</button>
-    <p class="pp-msg" id="pp-msg"></p>
-  </div>
-</div>
-
 <script>
-// ── PayPay ──
-const WORKER = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
-let ppServiceId = null;
-
-function openPayPay(serviceId, serviceName, price) {
-  ppServiceId = serviceId;
-  document.getElementById('pp-service-name').textContent = serviceName;
-  document.getElementById('pp-service-price').textContent = '¥' + price;
-  document.getElementById('pp-name').value = document.getElementById('user-name')?.value || '';
-  document.getElementById('pp-email').value = document.getElementById('user-email')?.value || '';
-  document.getElementById('pp-msg').className = 'pp-msg';
-  document.getElementById('pp-msg').textContent = '';
-  document.getElementById('pp-go-btn').disabled = false;
-  document.getElementById('pp-go-btn').textContent = 'PayPayで支払う →';
-  document.getElementById('paypay-modal').classList.add('open');
-}
-
-function closePayPay() {
-  document.getElementById('paypay-modal').classList.remove('open');
-}
-
-document.getElementById('paypay-modal').addEventListener('click', function(e) {
-  if (e.target === this) closePayPay();
-});
-
-async function submitPayPay() {
-  const btn = document.getElementById('pp-go-btn');
-  const msg = document.getElementById('pp-msg');
-  btn.disabled = true;
-  btn.textContent = '準備中...';
-  msg.className = 'pp-msg loading';
-  msg.textContent = '⏳ 決済画面を準備中...';
-
-  try {
-    const res = await fetch(WORKER + '/paypay/quick-checkout', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        serviceId: ppServiceId,
-        customer_name: document.getElementById('pp-name').value,
-        email: document.getElementById('pp-email').value,
-      })
-    });
-    const data = await res.json();
-    if (data.ok && data.url) {
-      window.location.href = data.url;
-    } else {
-      throw new Error(data.error || 'エラー');
-    }
-  } catch(e) {
-    msg.className = 'pp-msg error';
-    msg.textContent = 'エラーが発生しました。銀行振込をご利用ください。';
-    btn.disabled = false;
-    btn.textContent = 'PayPayで支払う →';
-  }
-}
-
 // ── Step navigation ──
 function goStep2(){
   const name=document.getElementById('user-name').value.trim();
@@ -1036,6 +936,8 @@ ua.addEventListener('drop',e=>{
   const f=e.dataTransfer.files[0];
   if(f){document.getElementById('file-input').files=e.dataTransfer.files;handleFile({files:[f]})}
 });
+
+const WORKER = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
 
 async function runDiagnosis(){
   const fileInput=document.getElementById('file-input');
@@ -1145,7 +1047,6 @@ window.addEventListener('scroll',()=>{
 
 <div id="kira-popup">
   <div class="kira-bubble">
-    <!-- ミトコンドリア クリステ SVG -->
     <svg class="kira-mito" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <radialGradient id="mg1" cx="30%" cy="40%"><stop offset="0%" stop-color="#00ffb4" stop-opacity=".15"/><stop offset="100%" stop-color="#00ffb4" stop-opacity="0"/></radialGradient>
@@ -1153,7 +1054,6 @@ window.addEventListener('scroll',()=>{
       </defs>
       <ellipse cx="80" cy="80" rx="70" ry="45" fill="none" stroke="rgba(0,255,180,.12)" stroke-width="1"/>
       <ellipse cx="240" cy="80" rx="60" ry="40" fill="none" stroke="rgba(0,200,255,.1)" stroke-width="1"/>
-      <!-- クリステ（内膜の折り畳み） -->
       <path d="M30,65 Q55,50 55,80 Q55,110 30,95" fill="none" stroke="rgba(0,255,180,.2)" stroke-width="1"/>
       <path d="M50,60 Q75,45 75,80 Q75,115 50,100" fill="none" stroke="rgba(0,255,180,.15)" stroke-width="1"/>
       <path d="M70,62 Q95,47 95,80 Q95,113 70,98" fill="none" stroke="rgba(0,255,180,.12)" stroke-width="1"/>
@@ -1211,19 +1111,16 @@ window.addEventListener('scroll',()=>{
   }
 })();
 </script> 
-<!-- 特定商取引法モーダル - LPの</body>直前に追加 -->
 
-<!-- モーダルオーバーレイ -->
+<!-- 特定商取引法モーダル -->
 <div id="terms-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;overflow-y:auto;">
   <div style="max-width:600px;margin:40px auto;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:32px;color:#e0e0e0;font-family:sans-serif;">
     
-    <!-- ヘッダー -->
     <div style="border-bottom:1px solid #222;padding-bottom:16px;margin-bottom:24px;">
       <h2 style="color:#00ff88;font-size:18px;margin:0 0 4px;">利用規約・特定商取引法に基づく表記</h2>
       <p style="color:#666;font-size:12px;margin:0;">お申し込みの前に必ずお読みください</p>
     </div>
 
-    <!-- 特定商取引法表記 -->
     <h3 style="color:#fff;font-size:14px;margin:0 0 12px;">■ 特定商取引法に基づく表記</h3>
     <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px;">
       <tr style="border-bottom:1px solid #1a1a1a;">
@@ -1261,7 +1158,7 @@ window.addEventListener('scroll',()=>{
       </tr>
       <tr style="border-bottom:1px solid #1a1a1a;">
         <td style="padding:10px 8px;color:#888;vertical-align:top;">支払方法</td>
-        <td style="padding:10px 8px;color:#e0e0e0;">PayPay・PayPal・銀行振込</td>
+        <td style="padding:10px 8px;color:#e0e0e0;">PayPal（クレジットカード・Apple Pay対応）・銀行振込</td>
       </tr>
       <tr style="border-bottom:1px solid #1a1a1a;">
         <td style="padding:10px 8px;color:#888;vertical-align:top;">支払時期</td>
@@ -1289,7 +1186,6 @@ window.addEventListener('scroll',()=>{
       </tr>
     </table>
 
-    <!-- 利用規約 -->
     <h3 style="color:#fff;font-size:14px;margin:0 0 12px;">■ 利用規約</h3>
     <div style="background:#111;border-radius:8px;padding:16px;font-size:12px;color:#aaa;line-height:1.8;margin-bottom:24px;max-height:200px;overflow-y:auto;">
       <p style="margin:0 0 8px;"><strong style="color:#ccc;">第1条（サービスの内容）</strong><br>
@@ -1302,7 +1198,6 @@ window.addEventListener('scroll',()=>{
       本規約は日本法に準拠し、東京地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
     </div>
 
-    <!-- 同意チェックボックス -->
     <div style="background:#111;border:1px solid #333;border-radius:8px;padding:16px;margin-bottom:20px;">
       <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;">
         <input type="checkbox" id="terms-agree-check" style="width:18px;height:18px;margin-top:2px;cursor:pointer;accent-color:#00ff88;">
@@ -1312,7 +1207,6 @@ window.addEventListener('scroll',()=>{
       </label>
     </div>
 
-    <!-- ボタン -->
     <div style="display:flex;gap:12px;">
       <button onclick="closeTermsModal()" style="flex:1;padding:14px;background:transparent;border:1px solid #333;border-radius:8px;color:#888;font-size:14px;cursor:pointer;">
         キャンセル
@@ -1326,7 +1220,6 @@ window.addEventListener('scroll',()=>{
 </div>
 
 <script>
-// モーダル制御
 let termsModalTarget = '';
 
 function openTermsModal(target) {
@@ -1351,7 +1244,6 @@ function proceedAfterAgree() {
   window.location.href = '/bank-transfer.html?type=' + termsModalTarget;
 }
 
-// チェックボックスの状態でボタンを切り替え
 document.getElementById('terms-agree-check').addEventListener('change', function() {
   const btn = document.getElementById('terms-agree-btn');
   if (this.checked) {
@@ -1367,7 +1259,6 @@ document.getElementById('terms-agree-check').addEventListener('change', function
   }
 });
 
-// モーダル外クリックで閉じる
 document.getElementById('terms-modal').addEventListener('click', function(e) {
   if (e.target === this) closeTermsModal();
 });
