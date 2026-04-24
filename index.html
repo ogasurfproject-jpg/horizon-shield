@@ -11,25 +11,11 @@
   "telephone": "0463-74-5917",
   "priceRange": "¥5,500〜¥88,000",
   "areaServed": "JP",
-  "founder": {
-    "@type": "Person",
-    "name": "大賀俊勝",
-    "jobTitle": "代表取締役 / 建設費診断士"
-  },
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "東真土1-1-47 GH湘南2",
-    "addressLocality": "平塚市",
-    "addressRegion": "神奈川県",
-    "postalCode": "254-0018",
-    "addressCountry": "JP"
-  },
-  "sameAs": [
-    "https://x.com/THEHORIZONS_inc",
-    "https://note.com/ogasurfproject"
-  ]
+  "founder": {"@type": "Person","name": "大賀俊勝","jobTitle": "代表取締役 / 建設費診断士"},
+  "address": {"@type": "PostalAddress","streetAddress": "東真土1-1-47 GH湘南2","addressLocality": "平塚市","addressRegion": "神奈川県","postalCode": "254-0018","addressCountry": "JP"},
+  "sameAs": ["https://x.com/THEHORIZONS_inc","https://note.com/ogasurfproject"]
 }
-</script>  
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HORIZON SHIELD｜建設費診断サービス</title>
@@ -38,253 +24,84 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #faf9f5;
-  --surface: #ffffff;
-  --border: #dddad0;
-  --accent: #0f1e4a;
-  --danger: #8b1a1a;
-  --warn: #c8a832;
-  --text: #1a1a2a;
-  --muted: #888880;
-  --paypal: #003087;
-  --paypal-light: #0070ba;
-  --header-h: 56px;
+  --bg: #faf9f5;--surface: #ffffff;--border: #dddad0;--accent: #0f1e4a;
+  --danger: #8b1a1a;--warn: #c8a832;--text: #1a1a2a;--muted: #888880;
+  --paypal: #003087;--paypal-light: #0070ba;--header-h: 56px;
 }
-
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;overflow-x:hidden;padding-top:var(--header-h)}
-
-#header{
-  position:fixed;top:0;left:0;right:0;z-index:1000;
-  height:var(--header-h);
-  background:rgba(250,249,245,0.96);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid #c8c5bb;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 16px;
-}
+#header{position:fixed;top:0;left:0;right:0;z-index:1000;height:var(--header-h);background:rgba(250,249,245,0.96);backdrop-filter:blur(12px);border-bottom:1px solid #c8c5bb;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
 .logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#0f1e4a;text-decoration:none}
 .logo span{color:#c8a832}
 nav{display:flex;gap:4px}
-nav a{
-  font-size:11px;font-weight:700;letter-spacing:1px;
-  color:var(--muted);text-decoration:none;
-  padding:6px 10px;border-radius:4px;
-  transition:all .2s;white-space:nowrap;
-}
+nav a{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:4px;transition:all .2s;white-space:nowrap}
 nav a:hover,nav a.active{color:var(--accent);background:rgba(15,30,74,0.06)}
 nav a.cta-nav{color:#faf9f5;background:#0f1e4a;border-radius:4px}
 nav a.cta-nav:hover{background:#162a6a}
-
-#hero{
-  min-height:92vh;display:flex;flex-direction:column;justify-content:center;
-  padding:48px 20px 40px;
-  position:relative;overflow:hidden;
-}
-.hero-bg{
-  position:absolute;inset:0;z-index:0;
-  background:
-    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(15,30,74,0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 60% at 10% 80%, rgba(200,168,50,0.04) 0%, transparent 60%);
-}
-.hero-label{
-  font-family:'Space Mono',monospace;font-size:10px;
-  color:var(--warn);letter-spacing:3px;
-  margin-bottom:16px;opacity:.8;
-}
-h1{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:clamp(52px,14vw,88px);
-  line-height:.95;letter-spacing:2px;
-  margin-bottom:16px;position:relative;z-index:1;
-}
+#hero{min-height:92vh;display:flex;flex-direction:column;justify-content:center;padding:48px 20px 40px;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 60% 40% at 80% 20%,rgba(15,30,74,0.04) 0%,transparent 60%),radial-gradient(ellipse 40% 60% at 10% 80%,rgba(200,168,50,0.04) 0%,transparent 60%)}
+.hero-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--warn);letter-spacing:3px;margin-bottom:16px;opacity:.8}
+h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,14vw,88px);line-height:.95;letter-spacing:2px;margin-bottom:16px;position:relative;z-index:1}
 h1 em{color:var(--accent);font-style:normal}
 h1 .danger{color:#c8a832}
-.hero-sub{
-  font-size:14px;color:var(--muted);line-height:1.7;
-  max-width:360px;margin-bottom:32px;position:relative;z-index:1;
-}
+.hero-sub{font-size:14px;color:var(--muted);line-height:1.7;max-width:360px;margin-bottom:32px;position:relative;z-index:1}
 .hero-sub strong{color:var(--text)}
-.cta-primary{
-  display:inline-flex;align-items:center;gap:8px;
-  background:#0f1e4a;color:#faf9f5;
-  font-weight:900;font-size:15px;letter-spacing:.5px;
-  padding:16px 28px;border-radius:4px;text-decoration:none;
-  position:relative;z-index:1;
-  transition:all .2s;border:none;cursor:pointer;
-}
+.cta-primary{display:inline-flex;align-items:center;gap:8px;background:#0f1e4a;color:#faf9f5;font-weight:900;font-size:15px;letter-spacing:.5px;padding:16px 28px;border-radius:4px;text-decoration:none;position:relative;z-index:1;transition:all .2s;border:none;cursor:pointer}
 .cta-primary:hover{background:#162a6a;transform:translateY(-1px)}
-.cta-secondary{
-  display:inline-flex;align-items:center;gap:8px;
-  color:var(--muted);font-size:13px;text-decoration:none;
-  margin-top:12px;
-  transition:color .2s;
-}
+.cta-secondary{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;text-decoration:none;margin-top:12px;transition:color .2s}
 .cta-secondary:hover{color:var(--text)}
-.hero-stat{
-  position:relative;z-index:1;
-  margin-top:40px;
-  padding:16px;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-left:3px solid var(--warn);
-  border-radius:4px;
-  max-width:340px;
-}
+.hero-stat{position:relative;z-index:1;margin-top:40px;padding:16px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:4px;max-width:340px}
 .hero-stat .num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--warn)}
 .hero-stat .label{font-size:11px;color:var(--muted);margin-top:2px}
-
-#map-banner{
-  margin:0 16px;
-  background:linear-gradient(135deg, rgba(200,168,50,0.08), rgba(15,30,74,0.05));
-  border:1px solid rgba(200,168,50,0.3);
-  border-radius:6px;
-  padding:16px 20px;
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  text-decoration:none;
-  transition:all .2s;
-}
-#map-banner:hover{border-color:var(--warn);background:linear-gradient(135deg,rgba(200,168,50,0.14),rgba(15,30,74,0.08))}
-.map-text .tag{font-size:10px;color:var(--warn);letter-spacing:2px;font-family:'Space Mono',monospace}
-.map-text .title{font-size:16px;font-weight:900;margin-top:4px}
-.map-text .sub{font-size:12px;color:var(--muted);margin-top:2px}
-.map-arrow{font-size:24px;color:var(--warn);flex-shrink:0}
-
+#map-banner{margin:0 16px;background:linear-gradient(135deg,rgba(200,168,50,0.08),rgba(15,30,74,0.05));border:1px solid rgba(200,168,50,0.3);border-radius:6px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-decoration:none;transition:all .2s}
+#map-banner:hover{border-color:var(--warn)}
 section{padding:56px 20px}
-.sec-label{
-  font-family:'Space Mono',monospace;font-size:10px;
-  color:var(--accent);letter-spacing:3px;margin-bottom:12px;
-}
-.sec-title{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:clamp(32px,8vw,48px);
-  line-height:1;margin-bottom:24px;
-}
+.sec-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;margin-bottom:12px}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,8vw,48px);line-height:1;margin-bottom:24px}
 .sec-title em{color:var(--warn);font-style:normal}
-
 .service-grid{display:flex;flex-direction:column;gap:12px}
-.svc{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:6px;
-  padding:20px;
-  display:flex;gap:16px;align-items:flex-start;
-  text-decoration:none;color:inherit;
-  transition:all .2s;
-}
+.svc{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px;display:flex;gap:16px;align-items:flex-start;text-decoration:none;color:inherit;transition:all .2s}
 .svc:hover{border-color:var(--accent);background:#f5f4ef}
-.svc-num{
-  font-family:'Bebas Neue',sans-serif;font-size:32px;
-  color:var(--border);flex-shrink:0;line-height:1;
-}
-.svc-body{}
+.svc-num{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--border);flex-shrink:0;line-height:1}
 .svc-name{font-weight:900;font-size:15px;margin-bottom:4px}
 .svc-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:8px}
-.svc-price{
-  font-family:'Space Mono',monospace;font-size:13px;
-  color:var(--accent);
-}
+.svc-price{font-family:'Space Mono',monospace;font-size:13px;color:var(--accent)}
 .svc-time{font-size:11px;color:var(--muted);margin-top:2px}
-
-.paypal-btn{
-  display:block;
-  margin-top:10px;
-  padding:14px 16px;
-  background:linear-gradient(135deg,var(--paypal),var(--paypal-light));
-  color:#fff;
-  text-decoration:none;
-  text-align:center;
-  border-radius:8px;
-  font-weight:900;
-  font-size:14px;
-  letter-spacing:1px;
-  transition:all .2s;
-  border:none;
-  cursor:pointer;
-  font-family:'Noto Sans JP',sans-serif;
-  width:100%;
-}
-.paypal-btn:hover{
-  transform:translateY(-1px);
-  box-shadow:0 4px 20px rgba(0,112,186,.4);
-}
-.paypal-btn-small{
-  font-size:13px;
-  padding:12px 14px;
-}
-
+.paypal-btn{display:block;margin-top:10px;padding:14px 16px;background:linear-gradient(135deg,var(--paypal),var(--paypal-light));color:#fff;text-decoration:none;text-align:center;border-radius:8px;font-weight:900;font-size:14px;letter-spacing:1px;transition:all .2s;border:none;cursor:pointer;font-family:'Noto Sans JP',sans-serif;width:100%}
+.paypal-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,112,186,.4)}
+.paypal-btn-small{font-size:13px;padding:12px 14px}
 #diagnosis-section{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .diag-steps{display:flex;gap:8px;margin-bottom:24px}
-.step{
-  flex:1;padding:10px 8px;text-align:center;
-  background:var(--bg);border:1px solid var(--border);border-radius:4px;
-  font-size:11px;color:var(--muted);
-  transition:all .3s;
-}
+.step{flex:1;padding:10px 8px;text-align:center;background:var(--bg);border:1px solid var(--border);border-radius:4px;font-size:11px;color:var(--muted);transition:all .3s}
 .step.active{border-color:var(--accent);color:var(--accent)}
 .step.done{border-color:var(--muted);color:var(--muted)}
 .step-num{display:block;font-family:'Bebas Neue',sans-serif;font-size:22px;margin-bottom:2px}
 .input-group{margin-bottom:16px}
 .input-group label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px;letter-spacing:1px}
-.input-group input{
-  width:100%;background:var(--bg);border:1px solid var(--border);
-  color:var(--text);padding:12px 14px;border-radius:4px;font-size:14px;
-  font-family:'Noto Sans JP',sans-serif;
-  transition:border-color .2s;outline:none;
-}
+.input-group input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:4px;font-size:14px;font-family:'Noto Sans JP',sans-serif;transition:border-color .2s;outline:none}
 .input-group input:focus{border-color:var(--accent)}
-.upload-area{
-  border:2px dashed var(--border);border-radius:6px;
-  padding:32px 20px;text-align:center;cursor:pointer;
-  transition:all .2s;background:var(--bg);
-}
+.upload-area{border:2px dashed var(--border);border-radius:6px;padding:32px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg)}
 .upload-area:hover,.upload-area.drag{border-color:var(--accent);background:rgba(15,30,74,0.03)}
 .upload-icon{font-size:32px;margin-bottom:8px}
 .upload-text{font-size:13px;color:var(--muted)}
 .upload-text strong{color:var(--text);display:block;margin-bottom:4px}
 #file-input{display:none}
-.btn{
-  width:100%;padding:15px;border:none;border-radius:4px;
-  font-weight:900;font-size:15px;cursor:pointer;
-  transition:all .2s;font-family:'Noto Sans JP',sans-serif;
-}
+.btn{width:100%;padding:15px;border:none;border-radius:4px;font-weight:900;font-size:15px;cursor:pointer;transition:all .2s;font-family:'Noto Sans JP',sans-serif}
 .btn-primary{background:#0f1e4a;color:#faf9f5}
 .btn-primary:hover{background:#162a6a}
 .btn-secondary{background:var(--border);color:var(--text);margin-top:8px}
-.result-box{
-  background:var(--bg);border:1px solid var(--border);
-  border-radius:6px;padding:20px;margin-top:16px;
-  display:none;
-}
+.result-box{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:20px;margin-top:16px;display:none}
 .result-box.show{display:block}
-.result-amount{
-  font-family:'Bebas Neue',sans-serif;font-size:48px;
-  color:var(--danger);line-height:1;
-}
+.result-amount{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--danger);line-height:1}
 .result-label{font-size:12px;color:var(--muted);margin-top:4px;margin-bottom:16px}
 .result-text{font-size:13px;line-height:1.8;border-top:1px solid var(--border);padding-top:16px}
 .loading-box{text-align:center;padding:32px 20px}
-.spinner{
-  width:32px;height:32px;border:2px solid var(--border);
-  border-top-color:var(--accent);border-radius:50%;
-  animation:spin 1s linear infinite;margin:0 auto 16px;
-}
+.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px}
 @keyframes spin{to{transform:rotate(360deg)}}
-
 .media-grid{display:flex;flex-wrap:wrap;gap:8px}
-.media-tag{
-  padding:6px 12px;background:var(--surface);
-  border:1px solid var(--border);border-radius:3px;
-  font-size:11px;color:var(--muted);
-  font-family:'Space Mono',monospace;
-}
-
-.founder-card{
-  display:flex;gap:16px;align-items:flex-start;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:6px;padding:20px;
-}
+.media-tag{padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:3px;font-size:11px;color:var(--muted);font-family:'Space Mono',monospace}
+.founder-card{display:flex;gap:16px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px}
 .founder-img{width:64px;height:64px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid var(--accent)}
 .founder-name{font-weight:900;font-size:16px}
 .founder-title{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.6}
@@ -292,129 +109,58 @@ section{padding:56px 20px}
 .stat{text-align:center}
 .stat-num{font-family:'Bebas Neue',sans-serif;font-size:24px;color:#c8a832}
 .stat-label{font-size:10px;color:var(--muted)}
-
 #kira-section{background:var(--surface);border-top:1px solid var(--border)}
-.kira-header{
-  display:flex;align-items:center;gap:12px;margin-bottom:20px;
-}
-.kira-avatar{
-  width:48px;height:48px;background:var(--accent);border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Bebas Neue',sans-serif;font-size:22px;color:#faf9f5;flex-shrink:0;
-}
+.kira-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.kira-avatar{width:48px;height:48px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;color:#faf9f5;flex-shrink:0}
 .kira-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
 .dot{width:6px;height:6px;background:#2e7d32;border-radius:50%;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.chat-box{
-  background:var(--bg);border:1px solid var(--border);
-  border-radius:6px;padding:16px;margin-bottom:16px;
-  font-size:13px;line-height:1.8;
-}
-.cta-line{
-  display:flex;gap:8px;
-}
-.cta-line a{
-  flex:1;text-align:center;padding:12px;
-  border-radius:4px;font-weight:700;font-size:13px;text-decoration:none;
-  transition:all .2s;
-}
+.chat-box{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:16px;font-size:13px;line-height:1.8}
+.cta-line{display:flex;gap:8px}
+.cta-line a{flex:1;text-align:center;padding:12px;border-radius:4px;font-weight:700;font-size:13px;text-decoration:none;transition:all .2s}
 .cta-line .line-btn{background:#06C755;color:#fff}
 .cta-line .chat-btn{background:var(--border);color:var(--text)}
-
 .faq-item{border-bottom:1px solid var(--border);padding:16px 0}
 .faq-q{font-weight:700;font-size:14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
 .faq-q::after{content:'+';font-size:20px;color:var(--muted);transition:.2s}
 .faq-item.open .faq-q::after{transform:rotate(45deg)}
 .faq-a{font-size:13px;color:var(--muted);line-height:1.7;margin-top:12px;display:none}
 .faq-item.open .faq-a{display:block}
-
-footer{
-  background:var(--surface);border-top:1px solid var(--border);
-  padding:32px 20px;font-size:11px;color:var(--muted);
-}
+footer{background:var(--surface);border-top:1px solid var(--border);padding:32px 20px;font-size:11px;color:var(--muted)}
 .footer-logo{font-family:'Bebas Neue',sans-serif;font-size:24px;color:#0f1e4a;margin-bottom:8px}
 .footer-links{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
 .footer-links a{color:var(--muted);text-decoration:none;font-size:11px}
 .footer-links a:hover{color:var(--text)}
-
-.sticky-cta{
-  position:fixed;bottom:0;left:0;right:0;z-index:900;
-  padding:12px 16px;
-  background:rgba(250,249,245,0.97);
-  backdrop-filter:blur(12px);
-  border-top:1px solid var(--border);
-  display:flex;gap:8px;
-}
-.sticky-cta a{
-  flex:1;text-align:center;padding:13px;
-  font-weight:900;font-size:13px;text-decoration:none;
-  border-radius:4px;transition:all .2s;
-}
+.sticky-cta{position:fixed;bottom:0;left:0;right:0;z-index:900;padding:12px 16px;background:rgba(250,249,245,0.97);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;gap:8px}
+.sticky-cta a{flex:1;text-align:center;padding:13px;font-weight:900;font-size:13px;text-decoration:none;border-radius:4px;transition:all .2s}
 .sticky-diag{background:#0f1e4a;color:#faf9f5}
 .sticky-line{background:#06C755;color:#fff}
-
 .divider{height:1px;background:var(--border);margin:0 20px}
 .tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
 .tag{padding:4px 10px;border:1px solid var(--border);border-radius:20px;font-size:11px;color:var(--muted)}
-
-.payment-marks{
-  display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;
-}
-.paypal-mark{
-  background:var(--paypal);color:#fff;font-weight:900;
-  font-size:11px;padding:4px 10px;border-radius:4px;letter-spacing:.5px;
-}
-.bank-mark{
-  background:var(--border);color:var(--muted);
-  font-size:11px;padding:4px 10px;border-radius:4px;
-}
-.bank-btn{
-  width:100%;padding:12px;margin-top:8px;
-  background:transparent;border:1px solid var(--accent);border-radius:8px;
-  color:var(--accent);font-size:13px;font-weight:700;cursor:pointer;
-  letter-spacing:1px;transition:all .2s;
-  font-family:'Noto Sans JP',sans-serif;
-}
+.payment-marks{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.paypal-mark{background:var(--paypal);color:#fff;font-weight:900;font-size:11px;padding:4px 10px;border-radius:4px;letter-spacing:.5px}
+.bank-mark{background:var(--border);color:var(--muted);font-size:11px;padding:4px 10px;border-radius:4px}
+.bank-btn{width:100%;padding:12px;margin-top:8px;background:transparent;border:1px solid var(--accent);border-radius:8px;color:var(--accent);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:all .2s;font-family:'Noto Sans JP',sans-serif}
 .bank-btn:hover{background:rgba(15,30,74,.06)}
-
-@media(max-width:640px){
-  body{overflow-x:hidden}
-  .hero-label,.sec-label{font-size:10px;letter-spacing:2px}
-  h1,.hero h1{font-size:28px!important;line-height:1.3}
-  .hero{padding:60px 16px 30px!important}
-  .svc{padding:20px 16px!important;margin-bottom:16px}
-  .svc-name{font-size:18px!important}
-  .svc-price{font-size:24px!important}
-  .service-grid{grid-template-columns:1fr!important;gap:16px!important;padding:0 16px}
-  .cta-line{flex-direction:column;gap:10px;padding:0 16px}
-  .cta-line a{width:100%;text-align:center;font-size:13px;padding:12px!important}
-  .chat-btn,.line-btn{display:block;width:100%;box-sizing:border-box}
-  section{padding:30px 0!important}
-  table{font-size:11px}
-  td,th{padding:6px 4px!important;word-break:break-all}
-  .faq-q,.faq-a{font-size:13px;padding:12px!important}
-  .terms-modal{width:calc(100% - 24px)!important;padding:20px 16px!important}
-  img{max-width:100%;height:auto}
-  iframe{max-width:100%}
-  .container,main,section>div{max-width:100%!important;padding-left:16px;padding-right:16px;box-sizing:border-box}
-  pre,code{white-space:pre-wrap;word-break:break-word;max-width:100%}
-}
-
-@media(max-width:380px){
-  h1,.hero h1{font-size:24px!important}
-  .svc-price{font-size:20px!important}
-  .cta-line a{font-size:12px}
-}
-  
-@media(min-width:640px){
-  #hero{padding:64px 40px 56px}
-  section{padding:72px 40px}
-  .service-grid{display:grid;grid-template-columns:repeat(3,1fr)}
-  .svc{flex-direction:column}
-  .sticky-cta{display:none}
-  nav a{font-size:12px;padding:7px 14px}
-}
-
+/* ── 新決済ブロック ── */
+.pay-main-btn{display:flex;align-items:center;gap:10px;width:100%;padding:14px 16px;background:linear-gradient(135deg,#003087 0%,#0070ba 100%);border:none;border-radius:8px 8px 0 0;cursor:pointer;color:#fff;font-family:'Noto Sans JP',sans-serif;transition:all .2s;text-align:left;margin-top:12px}
+.pay-main-btn:hover{background:linear-gradient(135deg,#002060,#005a96);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,80,180,.3)}
+.pay-main-btn:active{transform:translateY(0)}
+.pay-pp-icon{background:white;border-radius:4px;padding:3px 6px;display:flex;align-items:center;flex-shrink:0}
+.pay-main-label{flex:1;font-size:13px;font-weight:700;letter-spacing:.3px}
+.pay-main-price{font-size:13px;font-weight:900;white-space:nowrap;background:rgba(255,255,255,.18);padding:4px 10px;border-radius:20px}
+.pay-brand-bar{display:flex;align-items:center;gap:5px;padding:7px 12px;background:#f6f5f2;border:1px solid #e4e2d8;border-top:none;border-radius:0 0 8px 8px;margin-bottom:8px;flex-wrap:wrap}
+.pay-brand-chip{display:inline-flex;align-items:center;justify-content:center;height:22px;padding:0 7px;border-radius:3px;background:white;border:1px solid #dddad0;font-size:9px;font-weight:900;letter-spacing:.5px;font-family:Arial,sans-serif;gap:3px}
+.pay-chip-visa{color:#1a1f71;font-style:italic;font-size:11px;padding:0 9px}
+.pay-chip-mc{padding:2px 5px}
+.pay-chip-amex{color:#007bc1}
+.pay-chip-apple{color:#1a1a2a;font-size:10px;letter-spacing:0}
+.pay-chip-bank{color:#8b6914;font-size:9px;cursor:pointer;background:#fffbf0;border-color:#d4af37;font-family:'Noto Sans JP',sans-serif}
+.pay-chip-bank:hover{background:#fff3d0}
+@media(max-width:640px){body{overflow-x:hidden}.hero-label,.sec-label{font-size:10px;letter-spacing:2px}h1,.hero h1{font-size:28px!important;line-height:1.3}.hero{padding:60px 16px 30px!important}.svc{padding:20px 16px!important;margin-bottom:16px}.svc-name{font-size:18px!important}.svc-price{font-size:24px!important}.service-grid{grid-template-columns:1fr!important;gap:16px!important;padding:0 16px}.cta-line{flex-direction:column;gap:10px;padding:0 16px}.cta-line a{width:100%;text-align:center;font-size:13px;padding:12px!important}.chat-btn,.line-btn{display:block;width:100%;box-sizing:border-box}section{padding:30px 0!important}table{font-size:11px}td,th{padding:6px 4px!important;word-break:break-all}.faq-q,.faq-a{font-size:13px;padding:12px!important}.terms-modal{width:calc(100% - 24px)!important;padding:20px 16px!important}img{max-width:100%;height:auto}iframe{max-width:100%}.container,main,section>div{max-width:100%!important;padding-left:16px;padding-right:16px;box-sizing:border-box}pre,code{white-space:pre-wrap;word-break:break-word;max-width:100%}}
+@media(max-width:380px){h1,.hero h1{font-size:24px!important}.svc-price{font-size:20px!important}.cta-line a{font-size:12px}}
+@media(min-width:640px){#hero{padding:64px 40px 56px}section{padding:72px 40px}.service-grid{display:grid;grid-template-columns:repeat(3,1fr)}.svc{flex-direction:column}.sticky-cta{display:none}nav a{font-size:12px;padding:7px 14px}}
 #hamburger{display:none;background:none;border:none;cursor:pointer;padding:8px;z-index:1001;margin-left:8px}
 #hamburger span{display:block;width:22px;height:2px;background:var(--accent);margin:4px 0;transition:all .3s;border-radius:1px}
 #hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
@@ -422,41 +168,15 @@ footer{
 #hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
 #mobile-menu-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.3);z-index:998;backdrop-filter:blur(4px)}
 #mobile-menu-overlay.show{display:block}
-
-@media(max-width:640px){
-  #header{padding:0 12px!important}
-  .logo{font-size:16px!important;letter-spacing:1.5px!important}
-  #hamburger{display:block}
-  
-  nav#nav-main{
-    position:fixed;top:var(--header-h);right:-100%;
-    width:80%;max-width:280px;height:calc(100vh - var(--header-h));
-    background:rgba(250,249,245,0.98);backdrop-filter:blur(16px);
-    flex-direction:column;padding:24px 20px;gap:12px;
-    display:flex!important;
-    transition:right .3s ease;z-index:999;
-    border-left:1px solid rgba(15,30,74,.15);
-    box-shadow:-8px 0 40px rgba(0,0,0,.15);
-  }
-  nav#nav-main.open{right:0}
-  nav#nav-main a{
-    font-size:15px!important;padding:14px 16px!important;
-    width:100%;display:block;border-radius:6px;
-    border:1px solid rgba(15,30,74,.08);
-    letter-spacing:2px;
-  }
-  nav#nav-main a.cta-nav{
-    background:#0f1e4a;color:#faf9f5;
-    text-align:center;margin-top:8px;font-weight:900;
-  }
-}  
+@media(max-width:640px){#header{padding:0 12px!important}.logo{font-size:16px!important;letter-spacing:1.5px!important}#hamburger{display:block}nav#nav-main{position:fixed;top:var(--header-h);right:-100%;width:80%;max-width:280px;height:calc(100vh - var(--header-h));background:rgba(250,249,245,0.98);backdrop-filter:blur(16px);flex-direction:column;padding:24px 20px;gap:12px;display:flex!important;transition:right .3s ease;z-index:999;border-left:1px solid rgba(15,30,74,.15);box-shadow:-8px 0 40px rgba(0,0,0,.15)}nav#nav-main.open{right:0}nav#nav-main a{font-size:15px!important;padding:14px 16px!important;width:100%;display:block;border-radius:6px;border:1px solid rgba(15,30,74,.08);letter-spacing:2px}nav#nav-main a.cta-nav{background:#0f1e4a;color:#faf9f5;text-align:center;margin-top:8px;font-weight:900}}
 </style>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"シロアリ駆除15坪の適正価格はいくらですか？","acceptedAnswer":{"@type":"Answer","text":"15坪の床下シロアリ駆除の適正価格は8.5〜11万円です。35万円以上の請求はぼったくりの可能性が極めて高いです。HORIZON SHIELDの無料AI診断で即座に判定できます。"}},{"@type":"Question","name":"リフォーム見積書が適正価格か調べる方法は？","acceptedAnswer":{"@type":"Answer","text":"HORIZON SHIELDの無料AI診断に見積書の写真を送るだけで、建設30年のプロが過剰請求かどうかを即座に判定します。60秒・完全無料・登録不要です。"}},{"@type":"Question","name":"訪問販売のリフォーム業者に即日契約を迫られたらどうすればいいですか？","acceptedAnswer":{"@type":"Answer","text":"その場で絶対に契約しないでください。8日間のクーリングオフが適用されます。まず見積書を持ち帰りHORIZON SHIELDの無料診断で確認してください。"}},{"@type":"Question","name":"屋根修理で100万円以上請求された場合は適正ですか？","acceptedAnswer":{"@type":"Answer","text":"30坪の屋根塗装の適正価格は55〜80万円（足場込み）です。100万円超の請求はぼったくりの可能性が高いです。"}},{"@type":"Question","name":"建設費診断サービスHORIZON SHIELDとは？","acceptedAnswer":{"@type":"Answer","text":"建設歴30年のプロが施主側に立つ建設費診断サービスです。見積書査定・追加工事確認・完成検査立会いを行います。無料AI診断は60秒で完了します。"}}]}
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"シロアリ駆除15坪の適正価格はいくらですか？","acceptedAnswer":{"@type":"Answer","text":"15坪の床下シロアリ駆除の適正価格は8.5〜11万円です。35万円以上の請求はぼったくりの可能性が極めて高いです。"}},{"@type":"Question","name":"リフォーム見積書が適正価格か調べる方法は？","acceptedAnswer":{"@type":"Answer","text":"HORIZON SHIELDの無料AI診断に見積書の写真を送るだけで、建設30年のプロが過剰請求かどうかを即座に判定します。"}}]}
 </script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"ProfessionalService","name":"HORIZON SHIELD","description":"建設歴30年のプロが施主側に立つ建設費診断サービス。リフォーム見積書の過剰請求を無料AIで即座に判定。","url":"https://shield.the-horizons-innovation.com","telephone":"080-5920-8099","address":{"@type":"PostalAddress","addressLocality":"平塚市","addressRegion":"神奈川県","addressCountry":"JP"},"founder":{"@type":"Person","name":"大賀俊勝","jobTitle":"代表取締役","description":"建設歴30年。大工・現場監督・CMRを経て施主側に立つ建設コンサルタント。"},"hasOfferCatalog":{"@type":"OfferCatalog","name":"建設費診断サービス","itemListElement":[{"@type":"Offer","name":"逆見積もり診断PDF","price":"5500","priceCurrency":"JPY"},{"@type":"Offer","name":"建設費診断","price":"55000","priceCurrency":"JPY"},{"@type":"Offer","name":"変更工事査定","price":"33000","priceCurrency":"JPY"},{"@type":"Offer","name":"完成検査立会い","price":"88000","priceCurrency":"JPY"}]}}
-</script></head>
+{"@context":"https://schema.org","@type":"ProfessionalService","name":"HORIZON SHIELD","url":"https://shield.the-horizons-innovation.com","telephone":"080-5920-8099","founder":{"@type":"Person","name":"大賀俊勝","jobTitle":"代表取締役"},"hasOfferCatalog":{"@type":"OfferCatalog","name":"建設費診断サービス","itemListElement":[{"@type":"Offer","name":"逆見積もり診断PDF","price":"5500","priceCurrency":"JPY"},{"@type":"Offer","name":"建設費診断","price":"55000","priceCurrency":"JPY"},{"@type":"Offer","name":"変更工事査定","price":"33000","priceCurrency":"JPY"},{"@type":"Offer","name":"完成検査立会い","price":"88000","priceCurrency":"JPY"}]}}
+</script>
+</head>
 <body>
 <script>if(!sessionStorage.getItem('hs_seen')){sessionStorage.setItem('hs_seen','1');location.href='/opening.html';}</script>
 <header id="header">
@@ -488,28 +208,22 @@ footer{
         <div style="font-size:11px;color:#888880;margin-top:1px">全国のトラブル事例をリアルタイム表示 · AIが地域別に分析中</div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:6px;color:#0f1e4a;font-size:13px;font-weight:600;background:rgba(15,30,74,.08);border:1px solid rgba(15,30,74,.2);border-radius:20px;padding:6px 14px;flex-shrink:0">
-      確認する <span style="font-size:16px">→</span>
-    </div>
+    <div style="display:flex;align-items:center;gap:6px;color:#0f1e4a;font-size:13px;font-weight:600;background:rgba(15,30,74,.08);border:1px solid rgba(15,30,74,.2);border-radius:20px;padding:6px 14px;flex-shrink:0">確認する <span style="font-size:16px">→</span></div>
   </div>
 </a>
 
 <section id="hero">
   <div class="hero-bg">
   <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <pattern id="dot2028" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-        <circle cx="20" cy="20" r="1.2" fill="rgba(15,30,74,0.07)"/>
-      </pattern>
-    </defs>
+    <defs><pattern id="dot2028" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1.2" fill="rgba(15,30,74,0.07)"/></pattern></defs>
     <rect width="100%" height="100%" fill="url(#dot2028)"/>
     <line x1="500" y1="600" x2="800" y2="340" stroke="rgba(200,168,50,0.06)" stroke-width="1"/>
     <line x1="560" y1="600" x2="800" y2="420" stroke="rgba(200,168,50,0.04)" stroke-width="1"/>
     <g opacity="0.12">
-      <circle cx="780" cy="580" r="60"  fill="none" stroke="rgba(15,30,74,0.3)"   stroke-width="0.8" stroke-dasharray="3 8"/>
-      <circle cx="780" cy="580" r="100" fill="none" stroke="rgba(15,30,74,0.2)"   stroke-width="0.8" stroke-dasharray="3 12"/>
+      <circle cx="780" cy="580" r="60" fill="none" stroke="rgba(15,30,74,0.3)" stroke-width="0.8" stroke-dasharray="3 8"/>
+      <circle cx="780" cy="580" r="100" fill="none" stroke="rgba(15,30,74,0.2)" stroke-width="0.8" stroke-dasharray="3 12"/>
       <circle cx="780" cy="580" r="150" fill="none" stroke="rgba(200,168,50,0.25)" stroke-width="0.8" stroke-dasharray="3 16"/>
-      <circle cx="780" cy="580" r="210" fill="none" stroke="rgba(15,30,74,0.15)"  stroke-width="0.8" stroke-dasharray="3 20"/>
+      <circle cx="780" cy="580" r="210" fill="none" stroke="rgba(15,30,74,0.15)" stroke-width="0.8" stroke-dasharray="3 20"/>
     </g>
   </svg>
 </div>
@@ -518,10 +232,7 @@ footer{
   <p class="hero-sub">業者は知っている。あなたが知らないことを。<br><strong>建設30年のプロが2営業日以内に真実を届ける。</strong></p>
   <a href="#diagnosis-section" class="cta-primary">▶ 60秒・無料で診断する</a>
   <a href="#services" class="cta-secondary">サービスと料金を見る →</a>
-  <div class="hero-stat">
-    <div class="num">15〜20%</div>
-    <div class="label">平均的な過剰請求率 — あなたの見積書は安全ですか？</div>
-  </div>
+  <div class="hero-stat"><div class="num">15〜20%</div><div class="label">平均的な過剰請求率 — あなたの見積書は安全ですか？</div></div>
 </section>
 
 <section id="services">
@@ -537,12 +248,17 @@ footer{
         <div class="svc-price" style="color:#c8a832">¥5,500</div>
         <div class="svc-time">即時AI算出 / 交渉用PDF納品</div>
         <a href="/hs-reverse-estimate/" style="display:block;text-align:center;padding:14px;background:#c8a832;color:#fff;text-decoration:none;border-radius:8px;font-weight:900;font-size:14px;letter-spacing:2px;margin-top:12px">▸ 概算を無料で見る（竹は¥5,500）</a>
-        <button onclick="openTermsModal('reverse', 'https://www.paypal.com/ncp/payment/H747QJMWFM4BS')" class="paypal-btn paypal-btn-small" style="margin-top:8px">
-          💳 PayPal / カード / Apple Payで ¥5,500 購入
+        <button onclick="openTermsModal('reverse', 'https://www.paypal.com/ncp/payment/H747QJMWFM4BS')" class="pay-main-btn">
+          <span class="pay-pp-icon"><svg width="44" height="16" viewBox="0 0 44 16" xmlns="http://www.w3.org/2000/svg"><text x="0" y="13" font-size="13" font-weight="900" font-family="Arial,sans-serif" fill="#003087">Pay</text><text x="23" y="13" font-size="13" font-weight="900" font-family="Arial,sans-serif" fill="#0070ba">Pal</text></svg></span>
+          <span class="pay-main-label">PayPalで今すぐ支払う</span>
+          <span class="pay-main-price">¥5,500 →</span>
         </button>
-        <div class="payment-marks">
-          <span class="paypal-mark">PayPal対応</span>
-          <span style="display:inline-block;margin-left:6px;padding:4px 10px;background:transparent;border:1px solid #c8a832;color:#c8a832;font-size:11px;border-radius:4px">銀行振込</span>
+        <div class="pay-brand-bar">
+          <span class="pay-brand-chip pay-chip-visa">VISA</span>
+          <span class="pay-brand-chip pay-chip-mc"><svg width="34" height="22" viewBox="0 0 34 22" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="11" r="10" fill="#EB001B"/><circle cx="22" cy="11" r="10" fill="#F79E1B" opacity="0.85"/><path d="M17 2.6a10 10 0 0 1 0 16.8A10 10 0 0 1 17 2.6z" fill="#FF5F00"/></svg></span>
+          <span class="pay-brand-chip pay-chip-amex">AMEX</span>
+          <span class="pay-brand-chip pay-chip-apple"><svg width="10" height="12" viewBox="0 0 12 14" xmlns="http://www.w3.org/2000/svg" fill="#1a1a2a"><path d="M10.2 7.2c0-1.9 1.6-2.8 1.7-2.8-1.1-1.4-2.7-1.6-3.3-1.6-1.3-.1-2.6.8-3.2.8-.7 0-1.8-.7-2.9-.7C1.3 2.9 0 4.3 0 7c0 1.7.7 3.5 1.5 4.6.8 1.1 1.6 1.7 2.6 1.7 1 0 1.4-.6 2.7-.6 1.3 0 1.6.6 2.7.6 1 0 1.8-.9 2.6-1.9.4-.6.8-1.4 1-2.2-1.3-.5-2.9-1.8-2.9-4zM8 1.6C8.6.8 9-.2 8.8-1.1 7.9-1 6.8-.4 6.2.5 5.5 1.3 5 2.3 5.2 3.2c1 .1 2-.6 2.8-1.6z"/></svg>Pay</span>
+          <button class="pay-brand-chip pay-chip-bank" onclick="openTermsModal('reverse')" style="border:none">🏦 銀行振込</button>
         </div>
       </div>
     </div>
@@ -554,12 +270,17 @@ footer{
         <div class="svc-desc">見積書をメールで送るだけ。過剰請求箇所・適正価格・交渉文をPDFで返送。</div>
         <div class="svc-price">¥55,000</div>
         <div class="svc-time">2営業日以内 PDF納品</div>
-        <button onclick="openTermsModal('diagnosis', 'https://www.paypal.com/ncp/payment/9V2ZUX9JZAU68')" class="paypal-btn">
-          💳 PayPal / カード / Apple Payで支払う →
+        <button onclick="openTermsModal('diagnosis', 'https://www.paypal.com/ncp/payment/9V2ZUX9JZAU68')" class="pay-main-btn">
+          <span class="pay-pp-icon"><svg width="44" height="16" viewBox="0 0 44 16" xmlns="http://www.w3.org/2000/svg"><text x="0" y="13" font-size="13" font-weight="900" font-family="Arial,sans-serif" fill="#003087">Pay</text><text x="23" y="13" font-size="13" font-weight="900" font-family="Arial,sans-serif" fill="#0070ba">Pal</text></svg></span>
+          <span class="pay-main-label">PayPalで今すぐ支払う</span>
+          <span class="pay-main-price">¥55,000 →</span>
         </button>
-        <div class="payment-marks">
-          <span class="paypal-mark">PayPal対応</span>
-          <button class="bank-btn" onclick="openTermsModal('diagnosis')">銀行振込で申し込む</button>
+        <div class="pay-brand-bar">
+          <span class="pay-brand-chip pay-chip-visa">VISA</span>
+          <span class="pay-brand-chip pay-chip-mc"><svg width="34" height="22" viewBox="0 0 34 22" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="11" r="10" fill="#EB001B"/><circle cx="22" cy="11" r="10" fill="#F79E1B" opacity="0.85"/><path d="M17 2.6a10 10 0 0 1 0 16.8A10 10 0 0 1 17 2.6z" fill="#FF5F00"/></svg></span>
+          <span class="pay-brand-chip pay-chip-amex">AMEX</span>
+          <span class="pay-brand-chip pay-chip-apple"><svg width="10" height="12" viewBox="0 0 12 14" xmlns="http://www.w3.org/2000/svg" fill="#1a1a2a"><path d="M10.2 7.2c0-1.9 1.6-2.8 1.7-2.8-1.1-1.4-2.7-1.6-3.3-1.6-1.3-.1-2.6.8-3.2.8-.7 0-1.8-.7-2.9-.7C1.3 2.9 0 4.3 0 7c0 1.7.7 3.5 1.5 4.6.8 1.1 1.6 1.7 2.6 1.7 1 0 1.4-.6 2.7-.6 1.3 0 1.6.6 2.7.6 1 0 1.8-.9 2.6-1.9.4-.6.8-1.4 1-2.2-1.3-.5-2.9-1.8-2.9-4zM8 1.6C8.6.8 9-.2 8.8-1.1 7.9-1 6.8-.4 6.2.5 5.5 1.3 5 2.3 5.2 3.2c1 .1 2-.6 2.8-1.6z"/></svg>Pay</span>
+          <button class="pay-brand-chip pay-chip-bank" onclick="openTermsModal('diagnosis')" style="border:none">🏦 銀行振込</button>
         </div>
       </div>
     </div>
@@ -571,12 +292,17 @@ footer{
         <div class="svc-desc">工事中の追加請求が正当かを24時間以内に判定。拒否すべき項目を特定。</div>
         <div class="svc-price">¥33,000</div>
         <div class="svc-time">24時間以内 PDF納品</div>
-        <button onclick="openTermsModal('change', 'https://www.paypal.com/ncp/payment/LXM4H73CFJH98')" class="paypal-btn">
-          💳 PayPal / カード / Apple Payで支払う →
+        <button onclick="openTermsModal('change', 'https://www.paypal.com/ncp/payment/LXM4H73CFJH98')" class="pay-main-btn">
+          <span class="pay-pp-icon"><svg width="44" height="16" viewBox="0 0 44 16" xmlns="http://www.w3.org/2000/svg"><text x="0" y="13" font-size="13" font-weight="900" font-family="Arial,sans-serif" fill="#003087">Pay</text><text x="23" y="13" font-size="13" font-weight="900" font-family="Arial,sans-serif" fill="#0070ba">Pal</text></svg></span>
+          <span class="pay-main-label">PayPalで今すぐ支払う</span>
+          <span class="pay-main-price">¥33,000 →</span>
         </button>
-        <div class="payment-marks">
-          <span class="paypal-mark">PayPal対応</span>
-          <button class="bank-btn" onclick="openTermsModal('change')">銀行振込で申し込む</button>
+        <div class="pay-brand-bar">
+          <span class="pay-brand-chip pay-chip-visa">VISA</span>
+          <span class="pay-brand-chip pay-chip-mc"><svg width="34" height="22" viewBox="0 0 34 22" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="11" r="10" fill="#EB001B"/><circle cx="22" cy="11" r="10" fill="#F79E1B" opacity="0.85"/><path d="M17 2.6a10 10 0 0 1 0 16.8A10 10 0 0 1 17 2.6z" fill="#FF5F00"/></svg></span>
+          <span class="pay-brand-chip pay-chip-amex">AMEX</span>
+          <span class="pay-brand-chip pay-chip-apple"><svg width="10" height="12" viewBox="0 0 12 14" xmlns="http://www.w3.org/2000/svg" fill="#1a1a2a"><path d="M10.2 7.2c0-1.9 1.6-2.8 1.7-2.8-1.1-1.4-2.7-1.6-3.3-1.6-1.3-.1-2.6.8-3.2.8-.7 0-1.8-.7-2.9-.7C1.3 2.9 0 4.3 0 7c0 1.7.7 3.5 1.5 4.6.8 1.1 1.6 1.7 2.6 1.7 1 0 1.4-.6 2.7-.6 1.3 0 1.6.6 2.7.6 1 0 1.8-.9 2.6-1.9.4-.6.8-1.4 1-2.2-1.3-.5-2.9-1.8-2.9-4zM8 1.6C8.6.8 9-.2 8.8-1.1 7.9-1 6.8-.4 6.2.5 5.5 1.3 5 2.3 5.2 3.2c1 .1 2-.6 2.8-1.6z"/></svg>Pay</span>
+          <button class="pay-brand-chip pay-chip-bank" onclick="openTermsModal('change')" style="border:none">🏦 銀行振込</button>
         </div>
       </div>
     </div>
@@ -588,12 +314,17 @@ footer{
         <div class="svc-desc">引き渡し前に専門家が現場立会い。施工不良・手抜きをその場でチェック。</div>
         <div class="svc-price">¥88,000</div>
         <div class="svc-time">当日完了・全国対応</div>
-        <button onclick="openTermsModal('inspection', 'https://www.paypal.com/ncp/payment/7C7WF642ZJJUC')" class="paypal-btn">
-          💳 PayPal / カード / Apple Payで支払う →
+        <button onclick="openTermsModal('inspection', 'https://www.paypal.com/ncp/payment/7C7WF642ZJJUC')" class="pay-main-btn">
+          <span class="pay-pp-icon"><svg width="44" height="16" viewBox="0 0 44 16" xmlns="http://www.w3.org/2000/svg"><text x="0" y="13" font-size="13" font-weight="900" font-family="Arial,sans-serif" fill="#003087">Pay</text><text x="23" y="13" font-size="13" font-weight="900" font-family="Arial,sans-serif" fill="#0070ba">Pal</text></svg></span>
+          <span class="pay-main-label">PayPalで今すぐ支払う</span>
+          <span class="pay-main-price">¥88,000 →</span>
         </button>
-        <div class="payment-marks">
-          <span class="paypal-mark">PayPal対応</span>
-          <button class="bank-btn" onclick="openTermsModal('inspection')">銀行振込で申し込む</button>
+        <div class="pay-brand-bar">
+          <span class="pay-brand-chip pay-chip-visa">VISA</span>
+          <span class="pay-brand-chip pay-chip-mc"><svg width="34" height="22" viewBox="0 0 34 22" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="11" r="10" fill="#EB001B"/><circle cx="22" cy="11" r="10" fill="#F79E1B" opacity="0.85"/><path d="M17 2.6a10 10 0 0 1 0 16.8A10 10 0 0 1 17 2.6z" fill="#FF5F00"/></svg></span>
+          <span class="pay-brand-chip pay-chip-amex">AMEX</span>
+          <span class="pay-brand-chip pay-chip-apple"><svg width="10" height="12" viewBox="0 0 12 14" xmlns="http://www.w3.org/2000/svg" fill="#1a1a2a"><path d="M10.2 7.2c0-1.9 1.6-2.8 1.7-2.8-1.1-1.4-2.7-1.6-3.3-1.6-1.3-.1-2.6.8-3.2.8-.7 0-1.8-.7-2.9-.7C1.3 2.9 0 4.3 0 7c0 1.7.7 3.5 1.5 4.6.8 1.1 1.6 1.7 2.6 1.7 1 0 1.4-.6 2.7-.6 1.3 0 1.6.6 2.7.6 1 0 1.8-.9 2.6-1.9.4-.6.8-1.4 1-2.2-1.3-.5-2.9-1.8-2.9-4zM8 1.6C8.6.8 9-.2 8.8-1.1 7.9-1 6.8-.4 6.2.5 5.5 1.3 5 2.3 5.2 3.2c1 .1 2-.6 2.8-1.6z"/></svg>Pay</span>
+          <button class="pay-brand-chip pay-chip-bank" onclick="openTermsModal('inspection')" style="border:none">🏦 銀行振込</button>
         </div>
       </div>
     </div>
@@ -612,46 +343,27 @@ footer{
   <div class="sec-label">// FREE AI DIAGNOSIS</div>
   <div class="sec-title">無料<em>AI診断</em></div>
   <p style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.7">見積書の写真を撮って送るだけ。建設30年の知識を学習したAIが即座に分析します。</p>
-
   <div class="diag-steps" id="steps">
     <div class="step active" id="step1"><span class="step-num">01</span>情報入力</div>
     <div class="step" id="step2"><span class="step-num">02</span>ファイル</div>
     <div class="step" id="step3"><span class="step-num">03</span>診断結果</div>
   </div>
-
   <div id="form-step1">
-    <div class="input-group">
-      <label>お名前</label>
-      <input type="text" id="user-name" placeholder="山田 太郎">
-    </div>
-    <div class="input-group">
-      <label>メールアドレス</label>
-      <input type="email" id="user-email" placeholder="contact@example.com">
-    </div>
+    <div class="input-group"><label>お名前</label><input type="text" id="user-name" placeholder="山田 太郎"></div>
+    <div class="input-group"><label>メールアドレス</label><input type="email" id="user-email" placeholder="contact@example.com"></div>
     <button class="btn btn-primary" onclick="goStep2()">次へ → 見積書をアップロード</button>
   </div>
-
   <div id="form-step2" style="display:none">
     <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
       <div class="upload-icon">📄</div>
-      <div class="upload-text">
-        <strong>ここをタップして見積書を選択</strong>
-        JPG・PNG・PDF対応（スマホ撮影OK）
-      </div>
+      <div class="upload-text"><strong>ここをタップして見積書を選択</strong>JPG・PNG・PDF対応（スマホ撮影OK）</div>
     </div>
     <input type="file" id="file-input" accept="image/*,.pdf" onchange="handleFile(this)">
     <div id="file-preview" style="margin-top:12px;font-size:13px;color:var(--accent);display:none"></div>
     <button class="btn btn-primary" style="margin-top:16px" onclick="runDiagnosis()">AI診断を開始する →</button>
     <button class="btn btn-secondary" onclick="goStep1()">← 戻る</button>
   </div>
-
-  <div id="form-loading" style="display:none">
-    <div class="loading-box">
-      <div class="spinner"></div>
-      <p style="font-size:13px;color:var(--muted)">建設30年の専門知識で解析中...</p>
-    </div>
-  </div>
-
+  <div id="form-loading" style="display:none"><div class="loading-box"><div class="spinner"></div><p style="font-size:13px;color:var(--muted)">建設30年の専門知識で解析中...</p></div></div>
   <div id="form-result" style="display:none">
     <div class="result-box show">
       <div class="result-amount" id="result-amount">—</div>
@@ -662,10 +374,18 @@ footer{
       <strong style="display:block;margin-bottom:8px">大賀 俊勝 より</strong>
       上記はAIによる簡易診断です。正確な削減額・具体的な交渉文・業者への対応策は専門家レポートにてお届けします。
     </div>
-    <button onclick="openTermsModal('diagnosis', 'https://www.paypal.com/ncp/payment/9V2ZUX9JZAU68')" class="paypal-btn" style="margin-top:16px">
-      💳 PayPal / カード / Apple Payで申し込む ¥55,000
+    <button onclick="openTermsModal('diagnosis', 'https://www.paypal.com/ncp/payment/9V2ZUX9JZAU68')" class="pay-main-btn">
+      <span class="pay-pp-icon"><svg width="44" height="16" viewBox="0 0 44 16" xmlns="http://www.w3.org/2000/svg"><text x="0" y="13" font-size="13" font-weight="900" font-family="Arial,sans-serif" fill="#003087">Pay</text><text x="23" y="13" font-size="13" font-weight="900" font-family="Arial,sans-serif" fill="#0070ba">Pal</text></svg></span>
+      <span class="pay-main-label">PayPalで今すぐ支払う</span>
+      <span class="pay-main-price">¥55,000 →</span>
     </button>
-    <button onclick="openTermsModal('diagnosis')" class="btn btn-secondary" style="display:block;text-align:center;margin-top:8px;padding:15px;width:100%">銀行振込で申し込む ¥55,000</button>
+    <div class="pay-brand-bar">
+      <span class="pay-brand-chip pay-chip-visa">VISA</span>
+      <span class="pay-brand-chip pay-chip-mc"><svg width="34" height="22" viewBox="0 0 34 22" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="11" r="10" fill="#EB001B"/><circle cx="22" cy="11" r="10" fill="#F79E1B" opacity="0.85"/><path d="M17 2.6a10 10 0 0 1 0 16.8A10 10 0 0 1 17 2.6z" fill="#FF5F00"/></svg></span>
+      <span class="pay-brand-chip pay-chip-amex">AMEX</span>
+      <span class="pay-brand-chip pay-chip-apple"><svg width="10" height="12" viewBox="0 0 12 14" xmlns="http://www.w3.org/2000/svg" fill="#1a1a2a"><path d="M10.2 7.2c0-1.9 1.6-2.8 1.7-2.8-1.1-1.4-2.7-1.6-3.3-1.6-1.3-.1-2.6.8-3.2.8-.7 0-1.8-.7-2.9-.7C1.3 2.9 0 4.3 0 7c0 1.7.7 3.5 1.5 4.6.8 1.1 1.6 1.7 2.6 1.7 1 0 1.4-.6 2.7-.6 1.3 0 1.6.6 2.7.6 1 0 1.8-.9 2.6-1.9.4-.6.8-1.4 1-2.2-1.3-.5-2.9-1.8-2.9-4zM8 1.6C8.6.8 9-.2 8.8-1.1 7.9-1 6.8-.4 6.2.5 5.5 1.3 5 2.3 5.2 3.2c1 .1 2-.6 2.8-1.6z"/></svg>Pay</span>
+      <button class="pay-brand-chip pay-chip-bank" onclick="openTermsModal('diagnosis')" style="border:none">🏦 銀行振込</button>
+    </div>
     <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px">2営業日以内PDF納品 / 送信前キャンセルは全額返金</p>
   </div>
 </section>
@@ -693,49 +413,19 @@ footer{
 <section id="media">
   <div class="sec-label">// PRESS RELEASE</div>
   <div class="sec-title">プレスリリース<em>配信実績</em></div>
-
   <div style="margin-bottom:24px;padding:20px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-    <div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--accent);line-height:1">7,000<span style="font-size:24px">媒体超</span></div>
-      <div style="font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:1px">dreamnews経由配信実績 · 2026年4月</div>
-    </div>
-    <div style="border-left:1px solid var(--border);padding-left:20px">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--text);line-height:1">286</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:1px">PR TIMES経由配信数</div>
-    </div>
+    <div><div style="font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--accent);line-height:1">7,000<span style="font-size:24px">媒体超</span></div><div style="font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:1px">dreamnews経由配信実績 · 2026年4月</div></div>
+    <div style="border-left:1px solid var(--border);padding-left:20px"><div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--text);line-height:1">286</div><div style="font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:1px">PR TIMES経由配信数</div></div>
   </div>
-
   <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px">主要掲載プラットフォーム（プレスリリース）</div>
   <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
-    <a href="https://www.asahi.com/and/pressrelease/16482464" target="_blank" rel="noopener"
-      style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);border:1px solid rgba(15,30,74,0.2);border-radius:4px;text-decoration:none;transition:all .2s">
-      <span style="font-size:12px;color:var(--text);font-weight:700">朝日新聞デジタル</span>
-      <span style="font-size:10px;color:var(--accent)">↗</span>
-    </a>
-    <a href="https://prtimes.jp/main/html/searchrlp/company_id/181278" target="_blank" rel="noopener"
-      style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);border:1px solid rgba(15,30,74,0.2);border-radius:4px;text-decoration:none;transition:all .2s">
-      <span style="font-size:12px;color:var(--text);font-weight:700">PR TIMES</span>
-      <span style="font-size:10px;color:var(--accent)">↗</span>
-    </a>
-    <a href="https://www.dreamnews.jp" target="_blank" rel="noopener"
-      style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);border:1px solid rgba(15,30,74,0.2);border-radius:4px;text-decoration:none;transition:all .2s">
-      <span style="font-size:12px;color:var(--text);font-weight:700">dreamnews</span>
-      <span style="font-size:10px;color:var(--accent)">↗</span>
-    </a>
+    <a href="https://www.asahi.com/and/pressrelease/16482464" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);border:1px solid rgba(15,30,74,0.2);border-radius:4px;text-decoration:none;transition:all .2s"><span style="font-size:12px;color:var(--text);font-weight:700">朝日新聞デジタル</span><span style="font-size:10px;color:var(--accent)">↗</span></a>
+    <a href="https://prtimes.jp/main/html/searchrlp/company_id/181278" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);border:1px solid rgba(15,30,74,0.2);border-radius:4px;text-decoration:none;transition:all .2s"><span style="font-size:12px;color:var(--text);font-weight:700">PR TIMES</span><span style="font-size:10px;color:var(--accent)">↗</span></a>
+    <a href="https://www.dreamnews.jp" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);border:1px solid rgba(15,30,74,0.2);border-radius:4px;text-decoration:none;transition:all .2s"><span style="font-size:12px;color:var(--text);font-weight:700">dreamnews</span><span style="font-size:10px;color:var(--accent)">↗</span></a>
   </div>
-
   <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px">その他配信媒体</div>
   <div class="media-grid">
-    <span class="media-tag">日本経済新聞</span>
-    <span class="media-tag">毎日新聞</span>
-    <span class="media-tag">時事通信</span>
-    <span class="media-tag">VOIX biz</span>
-    <span class="media-tag">Infoseek</span>
-    <span class="media-tag">ニコニコニュース</span>
-    <span class="media-tag">ライブドアニュース</span>
-    <span class="media-tag">東京Days</span>
-    <span class="media-tag">神奈川Days</span>
-    <span class="media-tag">湘南人</span>
+    <span class="media-tag">日本経済新聞</span><span class="media-tag">毎日新聞</span><span class="media-tag">時事通信</span><span class="media-tag">VOIX biz</span><span class="media-tag">Infoseek</span><span class="media-tag">ニコニコニュース</span><span class="media-tag">ライブドアニュース</span><span class="media-tag">東京Days</span><span class="media-tag">神奈川Days</span><span class="media-tag">湘南人</span>
   </div>
 </section>
 
@@ -745,10 +435,7 @@ footer{
   <div class="sec-label">// AI CONSULTANT</div>
   <div class="kira-header">
     <div class="kira-avatar">K</div>
-    <div>
-      <div style="font-weight:900;font-size:16px">KIRA</div>
-      <div class="kira-status"><span class="dot"></span>24時間対応中 · 応答3秒以内</div>
-    </div>
+    <div><div style="font-weight:900;font-size:16px">KIRA</div><div class="kira-status"><span class="dot"></span>24時間対応中 · 応答3秒以内</div></div>
   </div>
   <div class="chat-box">建設のプロAI「KIRA」に無料で相談できます。見積書の写真を送るだけで、ぼったくりや過剰請求をその場で診断。まずKIRAに話しかけてみてください。</div>
   <div class="cta-line">
@@ -766,79 +453,37 @@ footer{
 </section>
 
 <div class="divider"></div>
-<section id="free-content" style="padding:60px 20px;">
+
+<section id="free-content" style="padding:60px 20px">
   <div class="sec-label">// FREE CONTENT</div>
   <div class="sec-title"><em>無料</em>で使える全コンテンツ</div>
   <p style="color:var(--muted);font-size:13px;margin-bottom:32px;max-width:680px">診断サービスを申し込まなくても、施主の武装化に役立つ無料コンテンツを公開中。毎日更新。</p>
-  
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:1000px">
-    <a href="/blog/" style="display:block;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-decoration:none;transition:all .2s">
-      <div style="font-size:10px;color:var(--accent);letter-spacing:3px;margin-bottom:8px">📝 DAILY BLOG</div>
-      <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">建設費診断ブログ</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7">建設業界のプロが<strong style="color:var(--text)">毎日更新</strong>。業者の手口・相場・補助金情報を施主目線で解説。</div>
-      <div style="font-size:11px;color:var(--accent);margin-top:12px">記事を読む →</div>
-    </a>
-    
-    <a href="/map" style="display:block;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-decoration:none;transition:all .2s">
-      <div style="font-size:10px;color:var(--danger);letter-spacing:3px;margin-bottom:8px">📍 WARNING MAP</div>
-      <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">ボッタクリ被害マップ</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7">全国の悪質業者の活動エリアを可視化。自分の地域の<strong style="color:var(--text)">警戒レベル</strong>を確認。</div>
-      <div style="font-size:11px;color:var(--danger);margin-top:12px">マップを見る →</div>
-    </a>
-    
-    <a href="/check/" style="display:block;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-decoration:none;transition:all .2s">
-      <div style="font-size:10px;color:var(--warn);letter-spacing:3px;margin-bottom:8px">🔍 GYOSHA CHECK</div>
-      <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">業者チェッカー</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7">気になる業者の<strong style="color:var(--text)">建設業許可・評判・通報履歴</strong>を一括検索。</div>
-      <div style="font-size:11px;color:var(--warn);margin-top:12px">業者を調べる →</div>
-    </a>
-    
-    <a href="/souba.html" style="display:block;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-decoration:none;transition:all .2s">
-      <div style="font-size:10px;color:#2e7d32;letter-spacing:3px;margin-bottom:8px">📊 PRICE DB</div>
-      <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">相場データベース</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7">工事別の<strong style="color:var(--text)">適正価格レンジ</strong>を49カテゴリで公開。</div>
-      <div style="font-size:11px;color:#2e7d32;margin-top:12px">DBを見る →</div>
-    </a>
+    <a href="/blog/" style="display:block;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-decoration:none;transition:all .2s"><div style="font-size:10px;color:var(--accent);letter-spacing:3px;margin-bottom:8px">📝 DAILY BLOG</div><div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">建設費診断ブログ</div><div style="font-size:12px;color:var(--muted);line-height:1.7">建設業界のプロが<strong style="color:var(--text)">毎日更新</strong>。</div><div style="font-size:11px;color:var(--accent);margin-top:12px">記事を読む →</div></a>
+    <a href="/map" style="display:block;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-decoration:none;transition:all .2s"><div style="font-size:10px;color:var(--danger);letter-spacing:3px;margin-bottom:8px">📍 WARNING MAP</div><div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">ボッタクリ被害マップ</div><div style="font-size:12px;color:var(--muted);line-height:1.7">全国の悪質業者の活動エリアを可視化。</div><div style="font-size:11px;color:var(--danger);margin-top:12px">マップを見る →</div></a>
+    <a href="/check/" style="display:block;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-decoration:none;transition:all .2s"><div style="font-size:10px;color:var(--warn);letter-spacing:3px;margin-bottom:8px">🔍 GYOSHA CHECK</div><div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">業者チェッカー</div><div style="font-size:12px;color:var(--muted);line-height:1.7">気になる業者の建設業許可・評判を検索。</div><div style="font-size:11px;color:var(--warn);margin-top:12px">業者を調べる →</div></a>
+    <a href="/souba.html" style="display:block;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-decoration:none;transition:all .2s"><div style="font-size:10px;color:#2e7d32;letter-spacing:3px;margin-bottom:8px">📊 PRICE DB</div><div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">相場データベース</div><div style="font-size:12px;color:var(--muted);line-height:1.7">工事別の適正価格レンジを49カテゴリで公開。</div><div style="font-size:11px;color:#2e7d32;margin-top:12px">DBを見る →</div></a>
   </div>
 </section>
 
 <section id="faq">
   <div class="sec-label">// FAQ</div>
   <div class="sec-title"><em>よくある</em>質問</div>
-  <div class="faq-item">
-    <div class="faq-q" onclick="toggleFaq(this)">対象となる工事の規模は？</div>
-    <div class="faq-a">工事費500万円以下の住宅リノベーション・店舗改装・小規模工事が主な対象です。500万円超は個別相談ください。</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q" onclick="toggleFaq(this)">見積書を送ると情報が漏れませんか？</div>
-    <div class="faq-a">査定目的のみに使用し、第三者への提供は一切しません。診断後すぐに削除します。NDAの締結も対応します。</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q" onclick="toggleFaq(this)">査定の結果、適正価格だった場合は？</div>
-    <div class="faq-a">「適正です」という結果もレポートに明記します。安心して工事を進めるための確認としてもご利用いただけます。</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q" onclick="toggleFaq(this)">キャンセルはできますか？</div>
-    <div class="faq-a">PDFレポート送信前のキャンセルは全額返金します。レポート送信後のキャンセルはお受けできません。</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q" onclick="toggleFaq(this)">どんな決済方法が使えますか？</div>
-    <div class="faq-a">PayPal（クレジットカード・Apple Pay対応）および銀行振込がご利用いただけます。PayPalはアカウント登録不要でクレジットカード決済が可能です。</div>
-  </div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">対象となる工事の規模は？</div><div class="faq-a">工事費500万円以下の住宅リノベーション・店舗改装・小規模工事が主な対象です。500万円超は個別相談ください。</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">見積書を送ると情報が漏れませんか？</div><div class="faq-a">査定目的のみに使用し、第三者への提供は一切しません。診断後すぐに削除します。NDAの締結も対応します。</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">査定の結果、適正価格だった場合は？</div><div class="faq-a">「適正です」という結果もレポートに明記します。安心して工事を進めるための確認としてもご利用いただけます。</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">キャンセルはできますか？</div><div class="faq-a">PDFレポート送信前のキャンセルは全額返金します。レポート送信後のキャンセルはお受けできません。</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">どんな決済方法が使えますか？</div><div class="faq-a">PayPal（クレジットカード・Apple Pay対応）および銀行振込がご利用いただけます。PayPalはアカウント登録不要でクレジットカード決済が可能です。</div></div>
 </section>
 
 <footer>
   <div class="footer-logo">HORIZON<span style="color:#c8a832">SHIELD</span></div>
   <p>建設業界のセカンドオピニオン専門家</p>
   <div class="footer-links">
-    <a href="/map">被害マップ</a>
-    <a href="/check/">業者チェック</a>
-    <a href="/blog/">ブログ</a>
-    <a href="/tokusho">特定商取引法</a>
-    <a href="mailto:contact@the-horizons-innovation.com">お問い合わせ</a>
+    <a href="/map">被害マップ</a><a href="/check/">業者チェック</a><a href="/blog/">ブログ</a>
+    <a href="/tokusho">特定商取引法</a><a href="mailto:contact@the-horizons-innovation.com">お問い合わせ</a>
   </div>
-  <p>The HORIZ音s株式会社 〒254-0018 神奈川県平塚市東真土1-1-47 GH湘南2<br>
-  代表取締役 大賀俊勝 / contact@the-horizons-innovation.com</p>
+  <p>The HORIZ音s株式会社 〒254-0018 神奈川県平塚市東真土1-1-47 GH湘南2<br>代表取締役 大賀俊勝 / contact@the-horizons-innovation.com</p>
   <div style="margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
     <span style="font-size:10px;color:var(--muted)">決済方法：</span>
     <span style="background:var(--paypal);color:#fff;font-size:10px;padding:3px 8px;border-radius:3px;font-weight:700">PayPal</span>
@@ -854,127 +499,45 @@ footer{
 </div>
 
 <script>
-function goStep2(){
-  const name=document.getElementById('user-name').value.trim();
-  const email=document.getElementById('user-email').value.trim();
-  if(!name||!email){alert('お名前とメールアドレスを入力してください');return}
-  document.getElementById('form-step1').style.display='none';
-  document.getElementById('form-step2').style.display='block';
-  document.getElementById('step1').classList.remove('active');document.getElementById('step1').classList.add('done');
-  document.getElementById('step2').classList.add('active');
-}
-function goStep1(){
-  document.getElementById('form-step2').style.display='none';
-  document.getElementById('form-step1').style.display='block';
-  document.getElementById('step2').classList.remove('active');
-  document.getElementById('step1').classList.remove('done');document.getElementById('step1').classList.add('active');
-}
-function handleFile(input){
-  const file=input.files[0];
-  if(file){
-    const p=document.getElementById('file-preview');
-    p.style.display='block';
-    p.textContent='✓ '+file.name+' ('+Math.round(file.size/1024)+'KB)';
-  }
-}
-
+function goStep2(){const name=document.getElementById('user-name').value.trim();const email=document.getElementById('user-email').value.trim();if(!name||!email){alert('お名前とメールアドレスを入力してください');return}document.getElementById('form-step1').style.display='none';document.getElementById('form-step2').style.display='block';document.getElementById('step1').classList.remove('active');document.getElementById('step1').classList.add('done');document.getElementById('step2').classList.add('active')}
+function goStep1(){document.getElementById('form-step2').style.display='none';document.getElementById('form-step1').style.display='block';document.getElementById('step2').classList.remove('active');document.getElementById('step1').classList.remove('done');document.getElementById('step1').classList.add('active')}
+function handleFile(input){const file=input.files[0];if(file){const p=document.getElementById('file-preview');p.style.display='block';p.textContent='✓ '+file.name+' ('+Math.round(file.size/1024)+'KB)'}}
 const ua=document.getElementById('upload-area');
 ua.addEventListener('dragover',e=>{e.preventDefault();ua.classList.add('drag')});
 ua.addEventListener('dragleave',()=>ua.classList.remove('drag'));
-ua.addEventListener('drop',e=>{
-  e.preventDefault();ua.classList.remove('drag');
-  const f=e.dataTransfer.files[0];
-  if(f){document.getElementById('file-input').files=e.dataTransfer.files;handleFile({files:[f]})}
-});
-
-const WORKER = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
-
+ua.addEventListener('drop',e=>{e.preventDefault();ua.classList.remove('drag');const f=e.dataTransfer.files[0];if(f){document.getElementById('file-input').files=e.dataTransfer.files;handleFile({files:[f]})}});
+const WORKER='https://hs-kira-proxy.oga-surf-project.workers.dev';
 async function runDiagnosis(){
-  const fileInput=document.getElementById('file-input');
-  const name=document.getElementById('user-name').value.trim();
-  const email=document.getElementById('user-email').value.trim();
-  document.getElementById('form-step2').style.display='none';
-  document.getElementById('form-loading').style.display='block';
-  document.getElementById('step2').classList.remove('active');document.getElementById('step2').classList.add('done');
-  document.getElementById('step3').classList.add('active');
+  const fileInput=document.getElementById('file-input');const name=document.getElementById('user-name').value.trim();const email=document.getElementById('user-email').value.trim();
+  document.getElementById('form-step2').style.display='none';document.getElementById('form-loading').style.display='block';
+  document.getElementById('step2').classList.remove('active');document.getElementById('step2').classList.add('done');document.getElementById('step3').classList.add('active');
   try{
     const messages=[{role:'user',content:[]}];
-    if(fileInput.files[0]){
-      const file=fileInput.files[0];
-      const b64=await toBase64(file);
-      const mt=file.type||'image/jpeg';
-      if(mt==='application/pdf'){
-        messages[0].content.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}});
-      }else{
-        messages[0].content.push({type:'image',source:{type:'base64',media_type:mt,data:b64}});
-      }
-    }
-    messages[0].content.push({type:'text',text:`見積書を確認して、以下の形式でJSONのみ返してください（他テキスト不要）:
-{"amount":"削減可能金額（例：約15〜25万円）","items":["過剰請求の可能性がある項目1","項目2","項目3"],"comment":"専門家からの一言コメント（2〜3文）","risk":"high/medium/low"}`});
-    const res=await fetch(WORKER+'/anthropic',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system:'あなたはHORIZON SHIELDの建設費診断AIです。建設30年の経験を持つ大賀俊勝の知識を持ち、見積書を分析して過剰請求の可能性を指摘します。必ずJSONのみで返答してください。',
-        messages
-      })
-    });
-    const data=await res.json();
-    const text=data.content?.find(c=>c.type==='text')?.text||'{}';
-    const clean=text.replace(/```json|```/g,'').trim();
-    let result;
-    try{result=JSON.parse(clean)}catch{result={amount:'分析完了',items:['詳細は有料レポートにてご確認ください'],comment:'AIによる簡易診断が完了しました。',risk:'medium'}}
-    document.getElementById('form-loading').style.display='none';
-    document.getElementById('form-result').style.display='block';
+    if(fileInput.files[0]){const file=fileInput.files[0];const b64=await toBase64(file);const mt=file.type||'image/jpeg';if(mt==='application/pdf'){messages[0].content.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}})}else{messages[0].content.push({type:'image',source:{type:'base64',media_type:mt,data:b64}})}}
+    messages[0].content.push({type:'text',text:'見積書を確認して、以下の形式でJSONのみ返してください（他テキスト不要）:\n{"amount":"削減可能金額（例：約15〜25万円）","items":["過剰請求の可能性がある項目1","項目2","項目3"],"comment":"専門家からの一言コメント（2〜3文）","risk":"high/medium/low"}'});
+    const res=await fetch(WORKER+'/anthropic',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'あなたはHORIZON SHIELDの建設費診断AIです。建設30年の経験を持つ大賀俊勝の知識を持ち、見積書を分析して過剰請求の可能性を指摘します。必ずJSONのみで返答してください。',messages})});
+    const data=await res.json();const text=data.content?.find(c=>c.type==='text')?.text||'{}';const clean=text.replace(/```json|```/g,'').trim();
+    let result;try{result=JSON.parse(clean)}catch{result={amount:'分析完了',items:['詳細は有料レポートにてご確認ください'],comment:'AIによる簡易診断が完了しました。',risk:'medium'}}
+    document.getElementById('form-loading').style.display='none';document.getElementById('form-result').style.display='block';
     document.getElementById('result-amount').textContent=result.amount||'—';
     const riskColor={'high':'#8b1a1a','medium':'#c8a832','low':'#2e7d32'}[result.risk]||'#0f1e4a';
     document.getElementById('result-amount').style.color=riskColor;
-    document.getElementById('result-text').innerHTML=
-      (result.items?.map(i=>'<div style="padding:6px 0;border-bottom:1px solid var(--border)">⚠ '+i+'</div>').join('')||'')+
-      '<p style="margin-top:12px;color:var(--muted)">'+result.comment+'</p>';
+    document.getElementById('result-text').innerHTML=(result.items?.map(i=>'<div style="padding:6px 0;border-bottom:1px solid var(--border)">⚠ '+i+'</div>').join('')||'')+'<p style="margin-top:12px;color:var(--muted)">'+result.comment+'</p>';
     try{await fetch(WORKER+'/notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'【無料診断】'+name+'('+email+') リスク:'+result.risk,name,email,result:JSON.stringify(result.items||[]),risk:result.risk})})}catch(e){}
-  }catch(e){
-    document.getElementById('form-loading').style.display='none';
-    document.getElementById('form-result').style.display='block';
-    document.getElementById('result-amount').textContent='診断完了';
-    document.getElementById('result-text').textContent='詳細は有料レポートにてご確認ください。';
-  }
+  }catch(e){document.getElementById('form-loading').style.display='none';document.getElementById('form-result').style.display='block';document.getElementById('result-amount').textContent='診断完了';document.getElementById('result-text').textContent='詳細は有料レポートにてご確認ください。'}
 }
-
-function toBase64(file){
-  return new Promise((res,rej)=>{
-    const r=new FileReader();
-    r.onload=()=>res(r.result.split(',')[1]);
-    r.onerror=rej;
-    r.readAsDataURL(file);
-  });
-}
-
+function toBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file)})}
 function toggleFaq(el){el.parentElement.classList.toggle('open')}
-
 const sections=['hero','services','diagnosis-section','kira-section'];
-window.addEventListener('scroll',()=>{
-  const y=window.scrollY+80;
-  sections.forEach(id=>{
-    const el=document.getElementById(id);if(!el)return;
-    const top=el.offsetTop,bot=top+el.offsetHeight;
-    const link=document.querySelector('nav a[href="#'+id+'"]');
-    if(link){link.classList.toggle('active',y>=top&&y<bot)}
-  });
-});
+window.addEventListener('scroll',()=>{const y=window.scrollY+80;sections.forEach(id=>{const el=document.getElementById(id);if(!el)return;const top=el.offsetTop,bot=top+el.offsetHeight;const link=document.querySelector('nav a[href="#'+id+'"]');if(link){link.classList.toggle('active',y>=top&&y<bot)}})});
 </script>
 
-<!-- 特定商取引法モーダル -->
 <div id="terms-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;overflow-y:auto;">
   <div style="max-width:600px;margin:40px auto;background:#fff;border:1px solid #dddad0;border-radius:12px;padding:32px;color:#1a1a2a;font-family:sans-serif;">
-    
     <div style="border-bottom:1px solid #dddad0;padding-bottom:16px;margin-bottom:24px;">
       <h2 style="color:#0f1e4a;font-size:18px;margin:0 0 4px;">利用規約・特定商取引法に基づく表記</h2>
       <p style="color:#888880;font-size:12px;margin:0;">お申し込みの前に必ずお読みください</p>
     </div>
-
     <h3 style="color:#1a1a2a;font-size:14px;margin:0 0 12px;">■ 特定商取引法に基づく表記</h3>
     <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px;">
       <tr style="border-bottom:1px solid #dddad0;"><td style="padding:10px 8px;color:#888880;width:40%;vertical-align:top;">販売業者</td><td style="padding:10px 8px;color:#1a1a2a;">The HORIZ音s株式会社</td></tr>
@@ -988,14 +551,12 @@ window.addEventListener('scroll',()=>{
       <tr style="border-bottom:1px solid #dddad0;"><td style="padding:10px 8px;color:#888880;vertical-align:top;">キャンセルポリシー</td><td style="padding:10px 8px;color:#1a1a2a;">見積書送付前：全額返金 / 診断開始後：返金不可</td></tr>
       <tr><td style="padding:10px 8px;color:#888880;vertical-align:top;">個人情報</td><td style="padding:10px 8px;color:#1a1a2a;">サービス提供目的のみ使用。第三者提供なし。診断後速やかに削除。</td></tr>
     </table>
-
     <div style="background:#faf9f5;border:1px solid #dddad0;border-radius:8px;padding:16px;margin-bottom:20px;">
       <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;">
         <input type="checkbox" id="terms-agree-check" style="width:18px;height:18px;margin-top:2px;cursor:pointer;accent-color:#0f1e4a;">
         <span style="font-size:13px;color:#1a1a2a;line-height:1.6;">上記の特定商取引法に基づく表記および利用規約を読み、内容に同意します。</span>
       </label>
     </div>
-
     <div style="display:flex;gap:12px;">
       <button onclick="closeTermsModal()" style="flex:1;padding:14px;background:transparent;border:1px solid #dddad0;border-radius:8px;color:#888880;font-size:14px;cursor:pointer;">キャンセル</button>
       <button id="terms-agree-btn" onclick="proceedAfterAgree()" disabled style="flex:2;padding:14px;background:#dddad0;border:none;border-radius:8px;color:#888880;font-size:14px;font-weight:700;cursor:not-allowed;transition:all 0.3s;">同意して申し込む →</button>
@@ -1004,76 +565,14 @@ window.addEventListener('scroll',()=>{
 </div>
 
 <script>
-let termsModalTarget = '';
-let termsModalPaypalURL = null;
-
-function openTermsModal(target, paypalURL) {
-  termsModalTarget = target;
-  termsModalPaypalURL = paypalURL || null;
-  document.getElementById('terms-modal').style.display = 'block';
-  document.body.style.overflow = 'hidden';
-  document.getElementById('terms-agree-check').checked = false;
-  const btn = document.getElementById('terms-agree-btn');
-  btn.disabled = true;
-  btn.style.background = '#dddad0';
-  btn.style.color = '#888880';
-  btn.style.cursor = 'not-allowed';
-  btn.textContent = termsModalPaypalURL ? '同意して PayPal で支払う →' : '同意して銀行振込で申し込む →';
-}
-
-function closeTermsModal() {
-  document.getElementById('terms-modal').style.display = 'none';
-  document.body.style.overflow = '';
-  termsModalPaypalURL = null;
-}
-
-function proceedAfterAgree() {
-  if (!document.getElementById('terms-agree-check').checked) return;
-  if (termsModalPaypalURL) {
-    window.open(termsModalPaypalURL, '_blank', 'noopener');
-    closeTermsModal();
-  } else {
-    const target = termsModalTarget;
-    closeTermsModal();
-    window.location.href = '/bank-transfer.html?type=' + target;
-  }
-}
-
-document.getElementById('terms-agree-check').addEventListener('change', function() {
-  const btn = document.getElementById('terms-agree-btn');
-  if (this.checked) {
-    btn.disabled = false;
-    btn.style.background = termsModalPaypalURL ? '#0070ba' : '#0f1e4a';
-    btn.style.color = '#fff';
-    btn.style.cursor = 'pointer';
-  } else {
-    btn.disabled = true;
-    btn.style.background = '#dddad0';
-    btn.style.color = '#888880';
-    btn.style.cursor = 'not-allowed';
-  }
-});
-
-document.getElementById('terms-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeTermsModal();
-});
+let termsModalTarget='';let termsModalPaypalURL=null;
+function openTermsModal(target,paypalURL){termsModalTarget=target;termsModalPaypalURL=paypalURL||null;document.getElementById('terms-modal').style.display='block';document.body.style.overflow='hidden';document.getElementById('terms-agree-check').checked=false;const btn=document.getElementById('terms-agree-btn');btn.disabled=true;btn.style.background='#dddad0';btn.style.color='#888880';btn.style.cursor='not-allowed';btn.textContent=termsModalPaypalURL?'同意して PayPal で支払う →':'同意して銀行振込で申し込む →'}
+function closeTermsModal(){document.getElementById('terms-modal').style.display='none';document.body.style.overflow='';termsModalPaypalURL=null}
+function proceedAfterAgree(){if(!document.getElementById('terms-agree-check').checked)return;if(termsModalPaypalURL){window.open(termsModalPaypalURL,'_blank','noopener');closeTermsModal()}else{const target=termsModalTarget;closeTermsModal();window.location.href='/bank-transfer.html?type='+target}}
+document.getElementById('terms-agree-check').addEventListener('change',function(){const btn=document.getElementById('terms-agree-btn');if(this.checked){btn.disabled=false;btn.style.background=termsModalPaypalURL?'#0070ba':'#0f1e4a';btn.style.color='#fff';btn.style.cursor='pointer'}else{btn.disabled=true;btn.style.background='#dddad0';btn.style.color='#888880';btn.style.cursor='not-allowed'}});
+document.getElementById('terms-modal').addEventListener('click',function(e){if(e.target===this)closeTermsModal()});
+function toggleMenu(){const nav=document.getElementById('nav-main');const btn=document.getElementById('hamburger');const overlay=document.getElementById('mobile-menu-overlay');nav.classList.toggle('open');btn.classList.toggle('open');overlay.classList.toggle('show');document.body.style.overflow=nav.classList.contains('open')?'hidden':''}
+document.querySelectorAll('#nav-main a').forEach(a=>{a.addEventListener('click',()=>{if(window.innerWidth<=640)toggleMenu()})});
 </script>
-
-<script>
-function toggleMenu(){
-  const nav = document.getElementById('nav-main');
-  const btn = document.getElementById('hamburger');
-  const overlay = document.getElementById('mobile-menu-overlay');
-  nav.classList.toggle('open');
-  btn.classList.toggle('open');
-  overlay.classList.toggle('show');
-  document.body.style.overflow = nav.classList.contains('open') ? 'hidden' : '';
-}
-document.querySelectorAll('#nav-main a').forEach(a=>{
-  a.addEventListener('click',()=>{
-    if(window.innerWidth <= 640) toggleMenu();
-  });
-});
-</script>  
 </body>
 </html>
