@@ -265,7 +265,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
     <div class="plan-lock-hint">🔒 ¥5,500で解錠</div>
   </div>
   <div class="plan-price-sub" id="price-take-man">正確な金額を見る</div>
-  <div class="plan-unlock-cta" onclick="purchasePDF()">▸ ¥5,500でアンロック</div>
+  <div class="plan-unlock-cta" onclick="openTermsModal('reverse', 'https://www.paypal.com/ncp/payment/H747QJMWFM4BS')">▸ ¥5,500でアンロック</div>
   <ul class="plan-items" id="items-take"></ul>
 </div>
 <div class="plan-card">
@@ -289,12 +289,54 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
       <div class="cta-title">詳細な参考見積書PDFで<br>業者交渉を優位に</div>
       <div class="cta-desc">全工事項目の内訳・Red Flag・補助金情報を1枚に。<br>業者との交渉時にそのまま提示できる公式フォーマット。</div>
       <div class="cta-price">¥5,500</div>
-      <div class="cta-price-sub">税込 / 即時PDF納品 / PayPay・銀行振込対応</div>
-      <button class="cta-btn" onclick="purchasePDF()">▸ PDF購入に進む</button>
+      <div class="cta-price-sub">税込 / 即時PDF納品 / PayPal・銀行振込対応</div>
+      <button class="cta-btn" onclick="openTermsModal('reverse', 'https://www.paypal.com/ncp/payment/H747QJMWFM4BS')">💳 PayPalで支払う（¥5,500）</button>
+<button class="cta-btn" onclick="openTermsModal('reverse')" style="background:transparent;border:1px solid var(--gold);color:var(--gold2);margin-top:10px;display:block;width:100%;padding:12px 28px">▸ 銀行振込で申し込む</button>
     </div>
     <div class="legal-ribbon"><b>【建設業法に基づく表示】</b><br>本サービスは相場に基づく<b>参考価格提示</b>であり、建設業法上の正式見積もりではありません。HORIZON SHIELDは施工を行いません。施工業者との契約は別途行ってください。</div>
   </div>
 </main>
+  <!-- 特定商取引法モーダル（PayPal・銀行振込 統合版） -->
+<div id="terms-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9999;overflow-y:auto;">
+  <div style="max-width:600px;margin:40px auto;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:32px;color:#e0e0e0;font-family:'Noto Sans JP',sans-serif;">
+    <div style="border-bottom:1px solid #222;padding-bottom:16px;margin-bottom:24px;">
+      <h2 style="color:#00ff88;font-size:18px;margin:0 0 4px;">利用規約・特定商取引法に基づく表記</h2>
+      <p style="color:#666;font-size:12px;margin:0;">お申し込みの前に必ずお読みください</p>
+    </div>
+    <h3 style="color:#fff;font-size:14px;margin:0 0 12px;">■ 特定商取引法に基づく表記</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px;">
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;width:40%;vertical-align:top;">販売業者</td><td style="padding:10px 8px;color:#e0e0e0;">The HORIZ音s株式会社</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">代表者</td><td style="padding:10px 8px;color:#e0e0e0;">大賀 俊勝</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">所在地</td><td style="padding:10px 8px;color:#e0e0e0;">〒107-0062 東京都港区南青山2-2-15 ウィン青山942（登記上住所）</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">電話番号</td><td style="padding:10px 8px;color:#e0e0e0;">0463-74-5917</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">メールアドレス</td><td style="padding:10px 8px;color:#e0e0e0;">contact@the-horizons-innovation.com</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">サービス内容</td><td style="padding:10px 8px;color:#e0e0e0;">逆見積もり診断PDF（交渉用参考見積書）</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">販売価格</td><td style="padding:10px 8px;color:#e0e0e0;">¥5,500（税込）</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">支払方法</td><td style="padding:10px 8px;color:#e0e0e0;">PayPal（クレジットカード・Apple Pay対応）・銀行振込</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">支払時期</td><td style="padding:10px 8px;color:#e0e0e0;">お申し込みと同時にお支払いいただきます</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">サービス提供時期</td><td style="padding:10px 8px;color:#e0e0e0;">お支払い確認後2営業日以内にPDFをメールにてお送りします</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">キャンセルポリシー</td><td style="padding:10px 8px;color:#e0e0e0;">PDF送付前のキャンセル：全額返金<br>PDF送付後のキャンセル：返金不可</td></tr>
+      <tr><td style="padding:10px 8px;color:#888;vertical-align:top;">個人情報の取扱い</td><td style="padding:10px 8px;color:#e0e0e0;">ご提供いただいた情報はサービス提供目的のみに使用し、第三者への提供は行いません。</td></tr>
+    </table>
+    <h3 style="color:#fff;font-size:14px;margin:0 0 12px;">■ 利用規約</h3>
+    <div style="background:#111;border-radius:8px;padding:16px;font-size:12px;color:#aaa;line-height:1.8;margin-bottom:24px;max-height:200px;overflow-y:auto;">
+      <p style="margin:0 0 8px;"><strong style="color:#ccc;">第1条（サービスの内容）</strong><br>本サービスは工事要望をもとに適正価格の参考見積書をPDF形式で提供するものです。建設業法上の正式見積もりではありません。</p>
+      <p style="margin:0 0 8px;"><strong style="color:#ccc;">第2条（免責事項）</strong><br>算出価格はAIによる参考値であり、実際の工事費用と異なる場合があります。</p>
+      <p style="margin:0 0 8px;"><strong style="color:#ccc;">第3条（禁止事項）</strong><br>PDFの無断転載・商業利用・第三者への譲渡を禁止します。</p>
+      <p style="margin:0;"><strong style="color:#ccc;">第4条（準拠法）</strong><br>本規約は日本法に準拠し、東京地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
+    </div>
+    <div style="background:#111;border:1px solid #333;border-radius:8px;padding:16px;margin-bottom:20px;">
+      <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;">
+        <input type="checkbox" id="terms-agree-check" style="width:18px;height:18px;margin-top:2px;cursor:pointer;accent-color:#00ff88;">
+        <span style="font-size:13px;color:#e0e0e0;line-height:1.6;">上記の特定商取引法に基づく表記および利用規約を読み、内容に同意します。</span>
+      </label>
+    </div>
+    <div style="display:flex;gap:12px;">
+      <button onclick="closeTermsModal()" style="flex:1;padding:14px;background:transparent;border:1px solid #333;border-radius:8px;color:#888;font-size:14px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">キャンセル</button>
+      <button id="terms-agree-btn" onclick="proceedAfterAgree()" disabled style="flex:2;padding:14px;background:#333;border:none;border-radius:8px;color:#666;font-size:14px;font-weight:700;cursor:not-allowed;transition:all 0.3s;font-family:'Noto Sans JP',sans-serif;">同意して申し込む →</button>
+    </div>
+  </div>
+</div>
 <script>
 const KIRA_PROXY = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
 let currentMode = 'reverse';
@@ -489,29 +531,8 @@ function renderPlan(key, plan) {
   } else { itemsEl.innerHTML = '<li><span>—</span></li>'; }
 }
 
-async function purchasePDF() {
-  if (!lastResult) return;
-  const btn = event && event.target;
-  if (btn) { btn.disabled = true; btn.textContent = '▸ PDF生成中...'; }
-  try {
-    const orderId = 'HS' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-    const res = await fetch('https://hs-pdf-gen.oga-surf-project.workers.dev/generate', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        order_id: orderId, user: { name: '', email: '' },
-        extracted_items: lastResult.extracted_items, plans: lastResult.plans,
-        market_alerts: lastResult.market_alerts || [], red_flags_by_category: {}, subsidies_available: []
-      })
-    });
-    if (!res.ok) throw new Error('PDF生成失敗');
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'HS_SankoMitsumorisho_' + orderId + '.pdf'; a.click();
-    URL.revokeObjectURL(url);
-  } catch (e) {
-    alert('PDF生成エラー: ' + e.message + '\n\nLINE相談:\nhttps://line.me/R/ti/p/@172piime');
-  } finally { if (btn) { btn.disabled = false; btn.textContent = '▸ PDF購入に進む'; } }
-}
+function purchasePDF() {
+  openTermsModal('reverse', 'https://www.paypal.com/ncp/payment/H747QJMWFM4BS');
 }
 
 function escapeHtml(s) {
@@ -519,7 +540,56 @@ function escapeHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 }
 
-selectMode('reverse');
+  // 特商法モーダル制御
+let termsModalTarget = '';
+let termsModalPaypalURL = null;
+
+function openTermsModal(target, paypalURL) {
+  termsModalTarget = target;
+  termsModalPaypalURL = paypalURL || null;
+  document.getElementById('terms-modal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  document.getElementById('terms-agree-check').checked = false;
+  const btn = document.getElementById('terms-agree-btn');
+  btn.disabled = true;
+  btn.style.background = '#333';
+  btn.style.color = '#666';
+  btn.style.cursor = 'not-allowed';
+  btn.textContent = termsModalPaypalURL ? '同意して PayPal で支払う →' : '同意して銀行振込で申し込む →';
+}
+function closeTermsModal() {
+  document.getElementById('terms-modal').style.display = 'none';
+  document.body.style.overflow = '';
+  termsModalPaypalURL = null;
+}
+function proceedAfterAgree() {
+  if (!document.getElementById('terms-agree-check').checked) return;
+  if (termsModalPaypalURL) {
+    window.open(termsModalPaypalURL, '_blank', 'noopener');
+    closeTermsModal();
+  } else {
+    closeTermsModal();
+    window.location.href = '/bank-transfer.html?type=reverse';
+  }
+}
+document.getElementById('terms-agree-check').addEventListener('change', function() {
+  const btn = document.getElementById('terms-agree-btn');
+  if (this.checked) {
+    btn.disabled = false;
+    btn.style.background = termsModalPaypalURL ? '#0070ba' : '#00ff88';
+    btn.style.color = termsModalPaypalURL ? '#fff' : '#000';
+    btn.style.cursor = 'pointer';
+  } else {
+    btn.disabled = true;
+    btn.style.background = '#333';
+    btn.style.color = '#666';
+    btn.style.cursor = 'not-allowed';
+  }
+});
+document.getElementById('terms-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeTermsModal();
+});
+  selectMode('reverse');
 </script>
 </body>
 </html>
