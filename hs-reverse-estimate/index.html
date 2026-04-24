@@ -3,143 +3,198 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>逆見積もり診断 v4 | HORIZON SHIELD</title>
-<meta name="description" content="やりたい工事を書くだけ。AI版凄腕CMRがヒアリングで詳細を引き出し、松竹梅3プランを算出。">
+<title>逆見積もり診断 | HORIZON SHIELD — KIRAが3プラン算出</title>
+<meta name="description" content="やりたい工事を書くだけ。AI建設費診断KIRAがヒアリングで詳細を引き出し、松竹梅3プランを算出。">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
-:root{--bg:#020810;--bg2:#050D18;--bg3:#081420;--gold:#C8960A;--gold2:#F0C030;--cyan:#00D4FF;--red:#FF3040;--white:#EEF2F5;--gray:#5A7A8A;--lgray:#90AABA;--green:#00FF88;--orange:#FF8C00;--border:rgba(0,212,255,.12)}
+:root{
+  --bg:#faf9f5;--bg2:#f2f0e8;--bg3:#e8e5da;
+  --navy:#0f1e4a;--gold:#c8a832;--gold2:#d4af37;
+  --crimson:#8b1a1a;--text:#1a1a2a;--muted:#888880;
+  --border:rgba(15,30,74,.12);--border2:rgba(15,30,74,.22);
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--white);line-height:1.7}
-a{color:var(--cyan);text-decoration:none}
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;display:flex;justify-content:space-between;align-items:center;background:rgba(2,8,16,.97);border-bottom:1px solid var(--border)}
-.nav-logo{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--white)}
-.nav-logo span{color:var(--cyan)}
-.nav-back{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--cyan);border:1px solid var(--border);padding:5px 12px}
-.hero{padding:84px 20px 28px;text-align:center;position:relative}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--gold2);border:1px solid rgba(240,192,48,.3);padding:5px 14px;margin-bottom:20px;background:rgba(240,192,48,.04)}
-.badge-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:blink 1.5s infinite}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+a{color:var(--navy);text-decoration:none}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;display:flex;justify-content:space-between;align-items:center;background:rgba(250,249,245,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(8px)}
+.nav-logo{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--navy)}
+.nav-logo span{color:var(--gold)}
+.nav-back{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--navy);border:1px solid var(--border2);padding:5px 12px}
+
+.hero{padding:84px 20px 28px;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--gold);border:1px solid rgba(200,168,50,.35);padding:5px 14px;margin-bottom:20px;background:rgba(200,168,50,.05)}
+.badge-dot{width:5px;height:5px;background:#2a7a3a;border-radius:50%;animation:blink 1.5s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-.hero h1{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(22px,4.5vw,38px);line-height:1.3;margin-bottom:12px}
-.hero h1 em{font-style:normal;color:var(--gold2)}
-.hero-sub{font-size:12px;color:var(--lgray);max-width:560px;margin:0 auto;line-height:1.9}
+.hero h1{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(22px,4.5vw,36px);line-height:1.3;margin-bottom:12px;color:var(--navy)}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero-sub{font-size:12px;color:var(--muted);max-width:560px;margin:0 auto;line-height:1.9}
+
 .main{max-width:780px;margin:0 auto;padding:0 20px 60px}
 .frame{background:var(--bg2);border:1px solid var(--border);margin-bottom:20px}
+
 .mode-select{padding:18px}
-.mode-title{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:12px}
+.mode-title{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--navy);margin-bottom:12px}
 .mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:520px){.mode-grid{grid-template-columns:1fr}}
-.mode-btn{background:var(--bg3);border:1px solid var(--border);padding:18px 14px;cursor:pointer;text-align:left;color:var(--white);font-family:inherit;transition:all .2s}
-.mode-btn:hover{border-color:var(--cyan)}
-.mode-btn.active{border-color:var(--gold2);background:rgba(240,192,48,.06)}
-.mode-num{font-family:'Share Tech Mono',monospace;font-size:20px;color:var(--cyan);margin-bottom:6px}
-.mode-btn.active .mode-num{color:var(--gold2)}
+.mode-btn{background:var(--bg);border:1px solid var(--border);padding:18px 14px;cursor:pointer;text-align:left;color:var(--text);font-family:inherit;transition:all .2s}
+.mode-btn:hover{border-color:var(--gold)}
+.mode-btn.active{border-color:var(--gold);background:rgba(200,168,50,.06)}
+.mode-num{font-family:'Share Tech Mono',monospace;font-size:20px;color:var(--muted);margin-bottom:6px}
+.mode-btn.active .mode-num{color:var(--gold)}
 .mode-name{font-size:14px;font-weight:700;margin-bottom:4px}
-.mode-desc{font-size:11px;color:var(--gray);line-height:1.7}
-.mode-badge{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:9px;background:rgba(0,255,136,.15);color:var(--green);padding:2px 8px;margin-top:6px;letter-spacing:1px}
-.mode-content{display:none;padding:20px;border-top:1px solid var(--border)}
+.mode-desc{font-size:11px;color:var(--muted);line-height:1.7}
+.mode-badge{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:9px;background:rgba(15,30,74,.08);color:var(--navy);padding:2px 8px;margin-top:6px;letter-spacing:1px}
+.mode-btn.active .mode-badge{background:rgba(200,168,50,.15);color:var(--gold)}
+
+.mode-content{display:none;border-top:1px solid var(--border)}
 .mode-content.active{display:block}
-.hint-box{background:rgba(0,212,255,.04);border-left:2px solid var(--cyan);padding:11px 14px;margin-bottom:14px;font-size:12px;color:var(--lgray);line-height:1.8}
-.hint-box b{color:var(--cyan)}
-.nl-textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--white);font-family:inherit;font-size:14px;padding:14px;outline:none;resize:vertical;min-height:110px;line-height:1.8}
-.nl-textarea:focus{border-color:var(--cyan)}
-.nl-textarea::placeholder{color:rgba(90,122,138,.55);font-size:13px}
-.example-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.chip{font-size:11px;background:var(--bg3);border:1px solid var(--border);color:var(--lgray);padding:6px 10px;cursor:pointer;font-family:inherit}
-.chip:hover{border-color:var(--cyan);color:var(--cyan)}
-.submit-btn{width:100%;background:transparent;border:1px solid rgba(240,192,48,.4);color:var(--gold2);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;padding:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .25s;margin-top:14px}
-.submit-btn:hover:not(:disabled){background:rgba(240,192,48,.08);border-color:var(--gold2)}
-.submit-btn:disabled{opacity:.4;cursor:not-allowed}
-.submit-btn .spin{width:13px;height:13px;border:1.5px solid var(--gold2);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;display:none}
-.submit-btn.loading .spin{display:inline-block}
-.submit-btn.loading .submit-label{display:none}
-@keyframes spin{to{transform:rotate(360deg)}}
-#hearing-wrap{display:none}
-.hearing-header{padding:18px 20px;background:linear-gradient(135deg,rgba(240,192,48,.08),rgba(200,150,10,.04));border-bottom:1px solid rgba(240,192,48,.2)}
-.hearing-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold2);letter-spacing:3px;margin-bottom:6px}
-.hearing-reason{font-size:13px;color:var(--white);line-height:1.8}
-.chat-area{padding:16px 20px;max-height:600px;overflow-y:auto}
-.bubble{margin-bottom:12px;padding:12px 14px;font-size:13px;line-height:1.7}
-.bubble.kira{background:var(--bg3);border-left:2px solid var(--cyan);color:var(--white)}
-.bubble.kira .kira-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--cyan);letter-spacing:2px;margin-bottom:4px}
-.bubble.user{background:rgba(240,192,48,.08);border-left:2px solid var(--gold2);margin-left:auto;max-width:88%}
-.bubble.user .user-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gold2);letter-spacing:2px;margin-bottom:4px}
-.qa-block{background:var(--bg3);border:1px solid var(--border);padding:14px;margin-bottom:12px}
-.qa-question{font-size:13px;font-weight:700;margin-bottom:4px;color:var(--white)}
-.qa-why{font-size:11px;color:var(--gray);margin-bottom:10px;line-height:1.6}
-.qa-options{display:flex;flex-direction:column;gap:6px}
-.qa-option{background:var(--bg);border:1px solid var(--border);color:var(--lgray);font-family:inherit;font-size:12px;padding:10px 12px;text-align:left;cursor:pointer;transition:all .15s}
-.qa-option:hover{border-color:var(--cyan);color:var(--cyan)}
-.qa-option.selected{background:rgba(0,212,255,.08);border-color:var(--cyan);color:var(--white)}
-.qa-option.custom{font-style:italic}
-.qa-custom-input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--white);font-family:inherit;font-size:12px;padding:10px 12px;margin-top:6px;display:none}
-.qa-custom-input.show{display:block}
+
+.mode-content-inner{padding:20px}
+.hint-box{background:rgba(15,30,74,.04);border-left:2px solid var(--navy);padding:11px 14px;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:1.8}
+.hint-box b{color:var(--navy)}
+.submit-btn{width:100%;background:transparent;border:1px solid var(--border2);color:var(--navy);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;padding:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .25s;text-decoration:none}
+.submit-btn:hover{background:rgba(15,30,74,.06);border-color:var(--navy)}
+
+/* ── KIRA CHAT UI ── */
+.kc-wrap{display:flex;flex-direction:column}
+.kc-header{background:var(--navy);padding:18px 20px 14px;display:flex;align-items:center;gap:14px}
+.kc-name{font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:3px;color:#faf9f5}
+.kc-sub{font-size:10px;color:rgba(200,168,50,.8);letter-spacing:1px;margin-top:2px}
+.kc-messages{
+  background:var(--bg);
+  background-image:linear-gradient(rgba(15,30,74,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(15,30,74,.04) 1px,transparent 1px);
+  background-size:28px 28px;
+  padding:18px 16px;min-height:200px;max-height:480px;overflow-y:auto;
+  display:flex;flex-direction:column;gap:12px;
+}
+.kc-bubble{max-width:88%;font-size:13px;line-height:1.75}
+.kc-bubble.kira{align-self:flex-start}
+.kc-bubble.user{align-self:flex-end}
+.kc-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;margin-bottom:4px}
+.kc-bubble.kira .kc-label{color:var(--navy)}
+.kc-bubble.user .kc-label{color:var(--gold);text-align:right}
+.kc-text{padding:12px 14px}
+.kc-bubble.kira .kc-text{background:white;border:0.5px solid var(--border2);color:var(--text);border-radius:0 10px 10px 10px}
+.kc-bubble.user .kc-text{background:var(--navy);color:#faf9f5;border-radius:10px 10px 0 10px}
+
+/* thinking bubble */
+.kc-thinking{align-self:flex-start}
+.kc-thinking .kc-label{color:var(--navy);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;margin-bottom:4px}
+.kc-thinking-inner{background:white;border:0.5px solid var(--border2);padding:10px 14px;border-radius:0 10px 10px 10px;display:flex;align-items:center;gap:12px}
+.kc-thinking-txt{font-size:12px;color:var(--muted);letter-spacing:.03em}
+.kd{display:inline-block;border-radius:50%;background:var(--gold);animation:dotBlink 1.4s ease-in-out infinite}
+@keyframes dotBlink{0%,60%,100%{opacity:.22}30%{opacity:.85}}
+
+/* hint pills */
+.kc-hints{padding:10px 16px;display:flex;flex-wrap:wrap;gap:6px;background:var(--bg2);border-top:1px solid var(--border)}
+.kc-hint-pill{font-size:11px;background:var(--bg);border:0.5px solid var(--border2);color:var(--navy);padding:6px 12px;cursor:pointer;font-family:inherit;border-radius:14px;transition:all .15s}
+.kc-hint-pill:hover{border-color:var(--gold);color:var(--gold)}
+
+/* input area */
+.kc-input-area{display:flex;align-items:flex-end;gap:8px;padding:12px 16px;border-top:1px solid var(--border);background:var(--bg2)}
+.kc-input{flex:1;background:transparent;border:none;border-bottom:1.5px solid var(--border2);color:var(--text);font-family:inherit;font-size:13px;padding:8px 4px;outline:none;resize:none;line-height:1.6;min-height:38px;max-height:100px}
+.kc-input:focus{border-bottom-color:var(--navy)}
+.kc-input::placeholder{color:var(--muted);font-size:12px}
+.kc-send{width:36px;height:36px;border-radius:50%;background:var(--navy);border:none;color:#faf9f5;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.kc-send:hover{background:var(--gold)}
+.kc-send:disabled{background:var(--muted);cursor:not-allowed}
+.kc-warn{background:rgba(139,26,26,.05);border-left:2px solid var(--crimson);padding:10px 16px;font-size:11px;color:var(--crimson);line-height:1.7}
+.kc-err{background:rgba(139,26,26,.06);border:1px solid rgba(139,26,26,.2);padding:12px 16px;font-size:12px;color:var(--crimson);display:none}
+.kc-err.show{display:block}
+
+/* ── RESULTS ── */
 #results{display:none}
 .extracted-items{padding:16px 20px;border-bottom:1px solid var(--border)}
-.ei-title{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--cyan);letter-spacing:3px;margin-bottom:10px}
-.ei-list{font-size:13px;color:var(--lgray);line-height:1.9}
-.ei-list .item{padding:4px 0;border-bottom:1px solid rgba(0,212,255,.05)}
-.ei-list .tag{display:inline-block;background:var(--bg3);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:10px;padding:1px 6px;margin-right:6px}
+.ei-title{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--navy);letter-spacing:3px;margin-bottom:10px}
+.ei-list{font-size:13px;color:var(--muted);line-height:1.9}
+.ei-list .item{padding:4px 0;border-bottom:1px solid var(--border)}
+.ei-list .tag{display:inline-block;background:rgba(15,30,74,.08);color:var(--navy);font-family:'Share Tech Mono',monospace;font-size:10px;padding:1px 6px;margin-right:6px}
 .plans-wrap{padding:20px}
-.plans-title{font-family:'Zen Kaku Gothic New';font-weight:900;font-size:17px;margin-bottom:6px;text-align:center}
-.plans-sub{font-size:11px;color:var(--gray);text-align:center;margin-bottom:18px;letter-spacing:1px}
+.plans-title{font-family:'Zen Kaku Gothic New';font-weight:900;font-size:17px;margin-bottom:6px;text-align:center;color:var(--navy)}
+.plans-sub{font-size:11px;color:var(--muted);text-align:center;margin-bottom:18px;letter-spacing:1px}
 .plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 @media(max-width:640px){.plans-grid{grid-template-columns:1fr;gap:14px}}
-.plan-card{background:var(--bg3);border:1px solid var(--border);padding:16px 12px;position:relative;display:flex;flex-direction:column}
-.plan-card.take{border-color:var(--gold2);background:rgba(240,192,48,.04)}
-.plan-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--bg);border:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:3px 10px;color:var(--gray)}
-.plan-card.take .plan-badge{background:var(--gold2);color:var(--bg);border-color:var(--gold2);font-weight:700}
-.plan-name{font-size:13px;font-weight:700;margin:6px 0 4px;text-align:center}
-.plan-name .em{color:var(--gold2)}
-.plan-target{font-size:10px;color:var(--gray);text-align:center;margin-bottom:10px;line-height:1.5}
-.plan-price{font-family:'Share Tech Mono',monospace;font-size:20px;font-weight:700;color:var(--white);text-align:center;margin-bottom:2px}
-.plan-card.take .plan-price{color:var(--gold2)}
-.plan-price-sub{font-size:10px;color:var(--gray);text-align:center;margin-bottom:12px}
-.plan-items{list-style:none;font-size:11px;color:var(--lgray);line-height:1.5;margin-top:auto;padding-top:8px;border-top:1px solid var(--border)}
+.plan-card{background:var(--bg);border:0.5px solid var(--border2);padding:16px 12px;position:relative;display:flex;flex-direction:column}
+.plan-card.take{border-color:var(--gold);border-width:1px;background:rgba(200,168,50,.04)}
+.plan-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--bg);border:0.5px solid var(--border2);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:3px 10px;color:var(--muted);white-space:nowrap}
+.plan-card.take .plan-badge{background:var(--gold);color:#fff;border-color:var(--gold);font-weight:700}
+.plan-name{font-size:13px;font-weight:700;margin:6px 0 4px;text-align:center;color:var(--navy)}
+.plan-name .em{color:var(--gold)}
+.plan-target{font-size:10px;color:var(--muted);text-align:center;margin-bottom:10px;line-height:1.5}
+.plan-price{font-family:'Share Tech Mono',monospace;font-size:20px;font-weight:700;color:var(--navy);text-align:center;margin-bottom:2px}
+.plan-card.take .plan-price{color:var(--gold)}
+.plan-price-sub{font-size:10px;color:var(--muted);text-align:center;margin-bottom:12px}
+.plan-items{list-style:none;font-size:11px;color:var(--muted);line-height:1.5;margin-top:auto;padding-top:8px;border-top:0.5px solid var(--border)}
 .plan-items li{padding:3px 0;display:flex;justify-content:space-between;gap:4px}
-.plan-items li span:last-child{color:var(--white);font-family:'Share Tech Mono',monospace;font-size:10px;white-space:nowrap}
-.alerts{padding:14px 20px;border-top:1px solid var(--border)}
-.alert{background:rgba(255,48,64,.05);border-left:2px solid var(--red);padding:10px 12px;margin-bottom:8px;font-size:11px;line-height:1.7}
-.alert.high{border-color:var(--orange);background:rgba(255,140,0,.05)}
-.alert-title{font-weight:700;color:var(--red);font-size:12px;margin-bottom:3px}
-.alert.high .alert-title{color:var(--orange)}
-.disclaimer{padding:12px 20px;border-top:1px solid var(--border);font-size:10px;color:var(--gray);line-height:1.8}
-.cta{background:linear-gradient(135deg,rgba(200,150,10,.08),rgba(240,192,48,.04));border:1px solid var(--gold);padding:22px 20px;text-align:center}
-.cta-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--gold2);margin-bottom:8px}
-.cta-title{font-size:16px;font-weight:900;margin-bottom:8px}
-.cta-desc{font-size:12px;color:var(--lgray);margin-bottom:14px;line-height:1.8}
-.cta-price{font-family:'Share Tech Mono',monospace;font-size:28px;color:var(--gold2);margin-bottom:4px}
-.cta-price-sub{font-size:10px;color:var(--gray);margin-bottom:16px;letter-spacing:1px}
-.cta-btn{display:inline-block;background:var(--gold);color:var(--bg);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px;padding:14px 32px;border:none;cursor:pointer;font-weight:700}
-.cta-btn:hover{background:var(--gold2)}
-.legal-ribbon{background:var(--bg3);padding:12px 20px;font-size:10px;color:var(--gray);line-height:1.8;border-top:1px solid var(--border)}
-.legal-ribbon b{color:var(--lgray)}
-.err{background:rgba(255,48,64,.1);border:1px solid var(--red);padding:12px 14px;margin-top:12px;font-size:12px;color:var(--red);display:none}
-.err.show{display:block}
-.plan-price.masked{color:transparent;text-shadow:0 0 18px rgba(240,192,48,.9);user-select:none;position:relative;filter:blur(8px)}
-.plan-card.take .plan-price.masked{text-shadow:0 0 22px rgba(240,192,48,1);filter:blur(10px)}
-.plan-price-range{font-family:'Share Tech Mono',monospace;font-size:15px;font-weight:700;color:var(--white);text-align:center;margin-bottom:2px;letter-spacing:0.5px}
-.plan-price-sub.approx{color:var(--gray);font-size:10px;font-style:italic}
-.plan-lock-hint{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(240,192,48,.95);color:var(--bg);font-family:'Share Tech Mono',monospace;font-size:10px;padding:6px 12px;border-radius:3px;white-space:nowrap;letter-spacing:1px;font-weight:900;z-index:2;pointer-events:none}
-.plan-card.take .plan-lock-hint{display:block;top:52%}
+.plan-items li span:last-child{color:var(--navy);font-family:'Share Tech Mono',monospace;font-size:10px;white-space:nowrap}
+.plan-price-range{font-family:'Share Tech Mono',monospace;font-size:15px;font-weight:700;color:var(--navy);text-align:center;margin-bottom:2px;letter-spacing:.5px}
+.plan-price-sub.approx{font-style:italic}
+.plan-price.masked{filter:blur(8px);user-select:none}
+.plan-lock-hint{display:none;position:absolute;top:52%;left:50%;transform:translate(-50%,-50%);background:var(--gold);color:var(--bg);font-family:'Share Tech Mono',monospace;font-size:10px;padding:6px 12px;border-radius:3px;white-space:nowrap;letter-spacing:1px;font-weight:900;z-index:2;pointer-events:none}
+.plan-card.take .plan-lock-hint{display:block}
 .plan-card.take{cursor:pointer;transition:transform .2s}
 .plan-card.take:hover{transform:translateY(-2px)}
 .plan-price-wrap{position:relative}
-.plan-unlock-cta{background:linear-gradient(135deg,rgba(240,192,48,.2),rgba(200,150,10,.1));border:1px dashed rgba(240,192,48,.5);padding:10px;text-align:center;font-size:11px;color:var(--gold2);letter-spacing:1px;margin:10px 0;cursor:pointer;font-family:'Share Tech Mono',monospace}
-.plan-unlock-cta:hover{background:rgba(240,192,48,.15);border-style:solid}
+.plan-unlock-cta{background:rgba(200,168,50,.12);border:1px dashed rgba(200,168,50,.5);padding:10px;text-align:center;font-size:11px;color:var(--gold);letter-spacing:1px;margin:10px 0;cursor:pointer;font-family:'Share Tech Mono',monospace}
+.plan-unlock-cta:hover{background:rgba(200,168,50,.22);border-style:solid}
 .plan-card:not(.take) .plan-unlock-cta{display:none}
+
+.advice-box{background:rgba(15,30,74,.04);border-left:2px solid var(--navy);padding:14px 18px;margin:0 20px 14px;font-size:13px;color:var(--text);line-height:1.8}
+.advice-box .adv-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--navy);margin-bottom:6px}
+
+.alerts{padding:14px 20px;border-top:0.5px solid var(--border)}
+.alert{background:rgba(139,26,26,.04);border-left:2px solid var(--crimson);padding:10px 12px;margin-bottom:8px;font-size:11px;line-height:1.7}
+.alert.high{border-color:var(--gold);background:rgba(200,168,50,.05)}
+.alert-title{font-weight:700;color:var(--crimson);font-size:12px;margin-bottom:3px}
+.alert.high .alert-title{color:var(--gold)}
+.disclaimer{padding:12px 20px;border-top:0.5px solid var(--border);font-size:10px;color:var(--muted);line-height:1.8}
+
+.cta{background:var(--navy);padding:28px 20px;text-align:center}
+.cta-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--gold);margin-bottom:8px}
+.cta-title{font-size:16px;font-weight:900;margin-bottom:8px;color:#faf9f5}
+.cta-desc{font-size:12px;color:rgba(250,249,245,.65);margin-bottom:14px;line-height:1.8}
+.cta-price{font-family:'Share Tech Mono',monospace;font-size:28px;color:var(--gold);margin-bottom:4px}
+.cta-price-sub{font-size:10px;color:rgba(250,249,245,.45);margin-bottom:16px;letter-spacing:1px}
+.cta-btn{display:inline-block;background:var(--gold);color:var(--navy);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px;padding:14px 32px;border:none;cursor:pointer;font-weight:700;margin:4px}
+.cta-btn:hover{background:var(--gold2)}
+.cta-btn.outline{background:transparent;border:1px solid var(--gold);color:var(--gold)}
+.cta-btn.outline:hover{background:rgba(200,168,50,.15)}
+.legal-ribbon{background:var(--bg2);padding:12px 20px;font-size:10px;color:var(--muted);line-height:1.8;border-top:0.5px solid var(--border)}
+.legal-ribbon b{color:var(--text)}
+
+/* アニメーション */
+@keyframes sunPulse{0%,100%{transform:scale(1);opacity:.78}50%{transform:scale(1.35);opacity:1}}
+@keyframes glwA{0%,100%{opacity:.06}50%{opacity:.18}}
+@keyframes glwB{0%,100%{opacity:.12}50%{opacity:.26}}
+@keyframes ripOt{0%{transform:scale(1);opacity:.48}100%{transform:scale(4.5);opacity:0}}
+@keyframes rayWv{0%,100%{opacity:var(--rmin,.04)}50%{opacity:var(--rmax,.22)}}
+.hz-core{transform-box:fill-box;transform-origin:center;animation:sunPulse 3.2s ease-in-out infinite}
+.hz-ga{transform-box:fill-box;transform-origin:center;animation:glwA 3.2s ease-in-out infinite .35s}
+.hz-gb{transform-box:fill-box;transform-origin:center;animation:glwB 3.2s ease-in-out infinite .7s}
+.hz-rp{transform-box:fill-box;transform-origin:center}
+.hz-rp1{animation:ripOt 3.2s ease-out infinite 0s}
+.hz-rp2{animation:ripOt 3.2s ease-out infinite .8s}
+.hz-rp3{animation:ripOt 3.2s ease-out infinite 1.6s}
+.hz-rp4{animation:ripOt 3.2s ease-out infinite 2.4s}
+
+/* used banner */
+.used-banner{background:var(--bg2);border:1px solid var(--border2);padding:32px;text-align:center;margin-bottom:20px}
 </style>
 <script src="https://www.paypal.com/sdk/js?client-id=AVePXfDeP_YDUgmcFEJNjFHuYkbXZ-VQcLEecJs5Li2la9qDbtZJamy-iXzTxWlPdUODt6KNV3nqUKHP&currency=JPY&locale=ja_JP"></script>
 </head>
 <body>
 <nav>
-  <div class="nav-logo">HORIZ<span>音</span>S <span>/ SHIELD v4</span></div>
+  <div class="nav-logo">HORIZ<span>音</span>S <span>/ SHIELD</span></div>
   <a href="https://shield.the-horizons-innovation.com" class="nav-back">← TOP</a>
 </nav>
+
 <section class="hero">
-  <div class="hero-badge"><div class="badge-dot"></div><span>AI版 凄腕CMR / HEARING ENABLED v4</span></div>
-  <h1>やりたい工事を書くだけ。<br>KIRAが<em>ヒアリング</em>して<em>3プラン</em>算出</h1>
-  <p class="hero-sub">施主の曖昧な要望から、AI現場監督KIRAが必要な詳細を対話で引き出し、<br><strong>松・竹★・梅の3プラン</strong>で予算感を即提示します。</p>
+  <div class="hero-badge"><div class="badge-dot"></div><span>AI建設費診断 KIRA / CONVERSATION v5</span></div>
+  <h1>やりたい工事を書くだけ。<br>KIRAが<em>対話で</em><em>3プラン</em>算出</h1>
+  <p class="hero-sub">施主の曖昧な要望から、AI現場監督KIRAが必要な詳細を会話で引き出し、<br>松・竹★・梅の3プランで適正予算を即提示します。</p>
 </section>
+
 <main class="main">
   <div class="frame">
     <div class="mode-select">
@@ -154,61 +209,96 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
         <button class="mode-btn active" data-mode="reverse" onclick="selectMode('reverse')">
           <div class="mode-num">02</div>
           <div class="mode-name">まだ見積もりを取っていない</div>
-          <div class="mode-desc">KIRAがヒアリングで詳細を引き出します。</div>
-          <div class="mode-badge">★AIヒアリング型</div>
+          <div class="mode-desc">KIRAが会話で詳細を引き出します。</div>
+          <div class="mode-badge">★ AI会話型 v5</div>
         </button>
       </div>
     </div>
+
+    <!-- 01: estimate mode -->
     <div class="mode-content" id="mode-estimate">
-      <div class="hint-box"><b>見積もりをお持ちの方は</b>、金額入力型ページをご利用ください。</div>
-      <a href="/widget.html" class="submit-btn" style="text-decoration:none;display:flex;text-align:center;justify-content:center"><span class="submit-label">金額入力モードへ →</span></a>
-    </div>
-    <div class="mode-content active" id="mode-reverse">
-      <div class="hint-box"><b>やりたい工事を自然な日本語で</b>お書きください。<br>情報が足りない場合、KIRAが<b>追加質問</b>します。具体的なほど精度UP。</div>
-      <textarea id="nl-input" class="nl-textarea" placeholder="例：&#10;・築20年戸建て、LDK15畳。I型キッチン(W2550mm)をアイランドに変更&#10;・6畳和室もフローリング化&#10;・予算800-1200万円"></textarea>
-      <div class="example-chips">
-        <button class="chip" onclick="fillExample(1)">▸ 例1: キッチン+床</button>
-        <button class="chip" onclick="fillExample(2)">▸ 例2: 水回り一式</button>
-        <button class="chip" onclick="fillExample(3)">▸ 例3: 断熱改修</button>
+      <div class="mode-content-inner">
+        <div class="hint-box"><b>見積もりをお持ちの方は</b>、金額入力型ページをご利用ください。</div>
+        <a href="/widget.html" class="submit-btn">金額入力モードへ →</a>
       </div>
-      <div style="background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.3);border-radius:6px;padding:10px 14px;margin-top:12px;font-size:12px;color:#ffb800;line-height:1.7"> ⚠ <strong>無料ヒアリングは1回限りです。</strong><br>具体的な情報を入力するほど精度が上がります。慎重にお答えください。 </div> <button class="submit-btn" id="submit-nl" onclick="startHearing()">
-        <span class="submit-label">▸ ヒアリング開始</span>
-        <span class="spin"></span>
-      </button>
-      <div id="err" class="err"></div>
+    </div>
+
+    <!-- 02: KIRA conversation mode -->
+    <div class="mode-content active" id="mode-reverse">
+      <div class="kc-warn">⚠ <strong>無料診断は1回限りです。</strong>具体的な情報を伝えるほど精度が上がります。</div>
+      <div class="kc-wrap">
+
+        <!-- ヘッダー：地平線SVGアート -->
+        <div class="kc-header">
+          <svg viewBox="0 0 120 50" width="120" height="50" style="overflow:visible;flex-shrink:0">
+            <defs>
+              <radialGradient id="hglow" cx="50%" cy="100%" r="75%">
+                <stop offset="0%" stop-color="#c8a832" stop-opacity=".42"/>
+                <stop offset="100%" stop-color="#c8a832" stop-opacity="0"/>
+              </radialGradient>
+              <clipPath id="hclip"><rect x="0" y="0" width="120" height="34"/></clipPath>
+            </defs>
+            <ellipse cx="60" cy="34" rx="58" ry="30" fill="url(#hglow)"/>
+            <g id="hzRays" clip-path="url(#hclip)"></g>
+            <circle cx="60" cy="34" r="13" fill="#c8a832" opacity=".08" class="hz-ga"/>
+            <circle cx="60" cy="34" r="8"  fill="#c8a832" opacity=".15" class="hz-gb"/>
+            <circle cx="60" cy="34" r="4.5" fill="#d4af37" class="hz-core"/>
+            <line x1="4" y1="34" x2="116" y2="34" stroke="#c8a832" stroke-width=".7" opacity=".4"/>
+            <ellipse cx="60" cy="34" rx="10" ry="3.5" fill="none" stroke="#c8a832" stroke-width=".7" class="hz-rp hz-rp1"/>
+            <ellipse cx="60" cy="34" rx="10" ry="3.5" fill="none" stroke="#c8a832" stroke-width=".6" class="hz-rp hz-rp2"/>
+            <ellipse cx="60" cy="34" rx="10" ry="3.5" fill="none" stroke="#c8a832" stroke-width=".5" class="hz-rp hz-rp3"/>
+            <ellipse cx="60" cy="34" rx="10" ry="3.5" fill="none" stroke="#c8a832" stroke-width=".4" class="hz-rp hz-rp4"/>
+          </svg>
+          <div>
+            <div class="kc-name">KIRA</div>
+            <div class="kc-sub">建設費診断AI — HORIZON SHIELD</div>
+          </div>
+        </div>
+
+        <!-- チャットエリア（和紙グリッド） -->
+        <div class="kc-messages" id="kc-messages"></div>
+
+        <!-- ヒントピル -->
+        <div class="kc-hints" id="kc-hints">
+          <button class="kc-hint-pill" onclick="fillHint(1)">▸ 例: キッチン+床張替</button>
+          <button class="kc-hint-pill" onclick="fillHint(2)">▸ 例: 水回り一式</button>
+          <button class="kc-hint-pill" onclick="fillHint(3)">▸ 例: 断熱改修</button>
+        </div>
+
+        <!-- テキスト入力（書道スタイル） -->
+        <div class="kc-input-area">
+          <textarea id="kc-input" class="kc-input" placeholder="やりたい工事を書いてください…" rows="2"></textarea>
+          <button class="kc-send" id="kc-send" onclick="sendToKira()">
+            <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="10" x2="16" y2="10"/>
+              <polyline points="11,5 16,10 11,15"/>
+            </svg>
+          </button>
+        </div>
+        <div id="kc-err" class="kc-err"></div>
+      </div>
     </div>
   </div>
-  <div id="hearing-wrap" class="frame">
-    <div class="hearing-header">
-      <div class="hearing-title">▸ KIRA からのヒアリング</div>
-      <div class="hearing-reason" id="hearing-reason"></div>
-    </div>
-    <div class="chat-area" id="chat-area"></div>
-    <div style="padding:14px 20px;border-top:1px solid var(--border)">
-      <button class="submit-btn" id="submit-hearing" onclick="submitHearingAnswers()">
-        <span class="submit-label">▸ 回答を送信して3プラン算出</span>
-        <span class="spin"></span>
-      </button>
-    </div>
-  </div>
+
+  <!-- 3プラン表示 -->
   <div id="results" class="frame">
     <div class="extracted-items">
-      <div class="ei-title">▸ 確定した工事項目</div>
+      <div class="ei-title">▸ 確定した工事内容</div>
       <div id="ei-list" class="ei-list"></div>
     </div>
     <div class="plans-wrap">
       <div class="plans-title">3プラン並列提示</div>
-      <div class="plans-sub">HS基準: 業者規模別の妥当利益率レンジで算出</div>
+      <div class="plans-sub">HS基準 — 業者規模別の妥当利益率レンジで算出</div>
       <div class="plans-grid">
         <div class="plan-card">
           <div class="plan-badge">MATSU / 松</div>
           <div class="plan-name">理想プラン</div>
           <div class="plan-target">大手リフォーム会社<br>最上級グレード</div>
           <div class="plan-price-range" id="range-matsu">¥—</div>
-          <div class="plan-price-sub approx" id="price-matsu-man">概算レンジ</div>
+          <div class="plan-price-sub approx" id="sub-matsu">概算レンジ</div>
           <ul class="plan-items" id="items-matsu"></ul>
         </div>
-        <div class="plan-card take">
+        <div class="plan-card take" onclick="openTermsFirst()">
           <div class="plan-badge">★ TAKE / 竹 ★</div>
           <div class="plan-name"><span class="em">推奨</span>プラン</div>
           <div class="plan-target">地域の中小工務店<br>★HSが最もおすすめ★</div>
@@ -216,8 +306,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
             <div class="plan-price masked" id="price-take">¥0,000,000</div>
             <div class="plan-lock-hint">🔒 ¥5,500で解錠</div>
           </div>
-          <div class="plan-price-sub" id="price-take-man">正確な金額を見る</div>
-          <div class="plan-unlock-cta" onclick="openTermsFirst()">▸ ¥5,500でアンロック</div>
+          <div class="plan-price-sub" id="sub-take">正確な金額を見る</div>
+          <div class="plan-unlock-cta">▸ ¥5,500でアンロック</div>
           <ul class="plan-items" id="items-take"></ul>
         </div>
         <div class="plan-card">
@@ -225,40 +315,47 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
           <div class="plan-name">最安プラン</div>
           <div class="plan-target">個人事業+ネット調達<br>予算重視</div>
           <div class="plan-price-range" id="range-ume">¥—</div>
-          <div class="plan-price-sub approx" id="price-ume-man">概算レンジ</div>
+          <div class="plan-price-sub approx" id="sub-ume">概算レンジ</div>
           <ul class="plan-items" id="items-ume"></ul>
         </div>
       </div>
     </div>
+    <div id="advice-wrap" style="display:none">
+      <div class="advice-box">
+        <div class="adv-label">▸ KIRA からの交渉アドバイス</div>
+        <div id="advice-text"></div>
+      </div>
+    </div>
     <div id="alerts-wrap" class="alerts" style="display:none">
-      <div class="ei-title">▸ 2026年4月 市場警告</div>
+      <div class="ei-title">▸ 市場警告</div>
       <div id="alerts-list"></div>
     </div>
-    <div class="disclaimer" id="disclaimer"></div>
+    <div class="disclaimer">本サービスはAIによる参考価格提示であり、建設業法上の正式見積もりではありません。HORIZON SHIELDは施工を行いません。施工業者との契約は別途行ってください。</div>
     <div class="cta">
-      <div class="cta-label">BUSINESS NEGOTIATION TOOL</div>
+      <div class="cta-label">NEGOTIATION TOOL</div>
       <div class="cta-title">詳細な参考見積書PDFで<br>業者交渉を優位に</div>
       <div class="cta-desc">全工事項目の内訳・Red Flag・補助金情報を1枚に。<br>業者との交渉時にそのまま提示できる公式フォーマット。</div>
       <div class="cta-price">¥5,500</div>
-      <div class="cta-price-sub">税込 / 即時PDF納品 / PayPay・PayPal対応</div>
-      <button class="cta-btn" onclick="openTermsFirst()">▸ PayPal / 銀行振込で購入</button>
-      <button class="cta-btn" onclick="openTermsFirst('bank')" style="background:transparent;border:1px solid var(--gold);color:var(--gold2);margin-top:10px;">▸ 銀行振込で購入する</button>
+      <div class="cta-price-sub">税込 / 即時PDF納品 / PayPal対応</div>
+      <button class="cta-btn" onclick="openTermsFirst()">▸ PayPalで購入</button>
+      <button class="cta-btn outline" onclick="openTermsFirst('bank')">▸ 銀行振込で購入</button>
     </div>
-    <div class="legal-ribbon"><b>【建設業法に基づく表示】</b><br>本サービスは相場に基づく<b>参考価格提示</b>であり、建設業法上の正式見積もりではありません。HORIZON SHIELDは施工を行いません。施工業者との契約は別途行ってください。</div>
+    <div class="legal-ribbon"><b>【建設業法に基づく表示】</b> 本サービスは相場に基づく参考価格提示であり、建設業法上の正式見積もりではありません。施工業者との契約は別途行ってください。</div>
   </div>
 </main>
+
 <!-- 特定商取引法モーダル -->
-<div id="terms-modal-hs" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:10000;overflow-y:auto;">
+<div id="terms-modal-hs" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.88);z-index:10000;overflow-y:auto;">
   <div style="max-width:600px;margin:40px auto;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:32px;color:#e0e0e0;font-family:'Noto Sans JP',sans-serif;">
     <div style="border-bottom:1px solid #222;padding-bottom:16px;margin-bottom:24px;">
-      <h2 style="color:#00ff88;font-size:18px;margin:0 0 4px;">利用規約・特定商取引法に基づく表記</h2>
+      <h2 style="color:#c8a832;font-size:18px;margin:0 0 4px;">利用規約・特定商取引法に基づく表記</h2>
       <p style="color:#666;font-size:12px;margin:0;">お申し込みの前に必ずお読みください</p>
     </div>
     <h3 style="color:#fff;font-size:14px;margin:0 0 12px;">■ 特定商取引法に基づく表記</h3>
     <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px;">
       <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;width:40%;vertical-align:top;">販売業者</td><td style="padding:10px 8px;color:#e0e0e0;">The HORIZ音s株式会社</td></tr>
       <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">代表者</td><td style="padding:10px 8px;color:#e0e0e0;">大賀 俊勝</td></tr>
-      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">所在地</td><td style="padding:10px 8px;color:#e0e0e0;">〒107-0062 東京都港区南青山2-2-15 ウィン青山942（登記上住所）</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">所在地</td><td style="padding:10px 8px;color:#e0e0e0;">〒107-0062 東京都港区南青山2-2-15 ウィン青山942</td></tr>
       <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">電話番号</td><td style="padding:10px 8px;color:#e0e0e0;">0463-74-5917</td></tr>
       <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">メールアドレス</td><td style="padding:10px 8px;color:#e0e0e0;">contact@the-horizons-innovation.com</td></tr>
       <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">サービス内容</td><td style="padding:10px 8px;color:#e0e0e0;">逆見積もり診断PDF（交渉用参考見積書）</td></tr>
@@ -266,7 +363,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
       <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">支払方法</td><td style="padding:10px 8px;color:#e0e0e0;">PayPal（クレジットカード・Apple Pay対応）・銀行振込</td></tr>
       <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">支払時期</td><td style="padding:10px 8px;color:#e0e0e0;">お申し込みと同時にお支払いいただきます</td></tr>
       <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">サービス提供時期</td><td style="padding:10px 8px;color:#e0e0e0;">お支払い確認後2営業日以内にPDFをメールにてお送りします</td></tr>
-      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">キャンセルポリシー</td><td style="padding:10px 8px;color:#e0e0e0;">PDF送付前のキャンセル：全額返金<br>PDF送付後のキャンセル：返金不可</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">キャンセルポリシー</td><td style="padding:10px 8px;color:#e0e0e0;">PDF送付前：全額返金 / PDF送付後：返金不可</td></tr>
       <tr><td style="padding:10px 8px;color:#888;vertical-align:top;">個人情報の取扱い</td><td style="padding:10px 8px;color:#e0e0e0;">ご提供いただいた情報はサービス提供目的のみに使用し、第三者への提供は行いません。</td></tr>
     </table>
     <h3 style="color:#fff;font-size:14px;margin:0 0 12px;">■ 利用規約</h3>
@@ -278,7 +375,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
     </div>
     <div style="background:#111;border:1px solid #333;border-radius:8px;padding:16px;margin-bottom:20px;">
       <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;">
-        <input type="checkbox" id="terms-agree-check-hs" style="width:18px;height:18px;margin-top:2px;cursor:pointer;accent-color:#00ff88;">
+        <input type="checkbox" id="terms-agree-check-hs" style="width:18px;height:18px;margin-top:2px;cursor:pointer;accent-color:#c8a832;">
         <span style="font-size:13px;color:#e0e0e0;line-height:1.6;">上記の特定商取引法に基づく表記および利用規約を読み、内容に同意します。</span>
       </label>
     </div>
@@ -288,341 +385,343 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
     </div>
   </div>
 </div>
+
 <script>
 const KIRA_PROXY = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
 const PDF_GEN    = 'https://hs-pdf-gen.oga-surf-project.workers.dev';
-let currentMode = 'reverse';
-let originalInput = '';
-let hearingAnswersHistory = {};
-let currentQuestions = [];
-let lastResult = null;
 
-function purchaseBankTransfer() {
-  if (!lastResult) return;
-  sessionStorage.setItem('hs_last_result', JSON.stringify(lastResult));
-  window.location.href = 'https://shield.the-horizons-innovation.com/bank-transfer.html?type=gyaku-mitsumori';
-}
+let conversationHistory = [];
+let turnCount = 0;
+const MAX_TURNS = 10;
+let lastParsedResult = null;
+let currentMode = 'reverse';
+let _paypalRendered = false;
+
+const KIRA_SYSTEM = `あなたはHORIZON SHIELDの建設費診断AI「KIRA」です。建設実務30年のプロの知識を持ち、施主の味方として工事費の適正診断・逆見積もり算出を行います。
+
+【会話スタイル】
+- 親しみやすく、でも専門家として頼れる口調（丁寧語）
+- 一度に1〜2個だけ質問する
+- 施主の回答に共感・反応してから次の質問へ
+- 絵文字は使わない
+
+【ヒアリング項目】
+1. 工事の種類・内容
+2. 規模（面積・数量など）
+3. 建物の状況（築年数・構造など）
+4. 地域（都道府県）
+5. 希望時期・予算感
+
+【情報が揃ったら以下の形式で出力】
+===PLAN===
+工事内容：〇〇
+松：〇〇万円〜〇〇万円（大手リフォーム会社）
+竹：〇〇万円〜〇〇万円（中小工務店・推奨）
+梅：〇〇万円〜〇〇万円（個人事業者）
+アドバイス：〇〇（2〜3文の交渉アドバイス）
+===END===`;
 
 const EXAMPLES = {
-  1: "築15年マンション。\n6畳和室2部屋をフローリングに張り替えたい。\nキッチンもI型2550mmを手頃なものに交換。\n予算は全部で300万以内。",
-  2: "お風呂が10年経って古くなってきた。TOTOサザナの標準グレード希望。\nキッチンもI型2550mmをI型2700mmに交換、食洗機欲しい。\nトイレはタンクレス希望。\n予算は全部で800万以内。",
-  3: "築25年の戸建て。冬が寒いので断熱したい。\n窓は全部（掃き出し3、腰窓6）を内窓化、こだわり派でP(SS)グレード。\n給湯器もエコキュートB要件に交換。\n予算400万前後。"
+  1:"築15年マンション。\n6畳和室2部屋をフローリングに張り替えたい。\nキッチンもI型2550mmを手頃なものに交換。\n予算は全部で300万以内。",
+  2:"お風呂が10年経って古くなってきた。TOTOサザナの標準グレード希望。\nキッチンもI型2550mmを交換、食洗機欲しい。\nトイレはタンクレス希望。予算800万以内。",
+  3:"築25年の戸建て。冬が寒いので断熱したい。\n窓を全部内窓化（P(SS)グレード）。\n給湯器もエコキュートに交換。予算400万前後。"
 };
 
+/* ── ray injection ── */
+function injectRays(gId, cx, cy, len, total) {
+  const g = document.getElementById(gId);
+  if (!g) return;
+  const sa = -175, ea = -5, range = ea - sa;
+  for (let i = 0; i < total; i++) {
+    const rad = (sa + (range / (total - 1)) * i) * Math.PI / 180;
+    const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    ln.setAttribute('x1', cx); ln.setAttribute('y1', cy);
+    ln.setAttribute('x2', (cx + Math.cos(rad) * len).toFixed(1));
+    ln.setAttribute('y2', (cy + Math.sin(rad) * len).toFixed(1));
+    ln.setAttribute('stroke', '#c8a832');
+    ln.setAttribute('stroke-width', '0.5');
+    const delay = ((i / total) * 2.8).toFixed(2);
+    ln.style.cssText = '--rmin:0.04;--rmax:0.2;animation:rayWv 2.8s ease-in-out infinite ' + delay + 's';
+    g.appendChild(ln);
+  }
+}
+
+/* ── chat helpers ── */
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+function addBubble(role, text) {
+  const chat = document.getElementById('kc-messages');
+  const d = document.createElement('div');
+  d.className = 'kc-bubble ' + role;
+  d.innerHTML = '<div class="kc-label">' + (role === 'kira' ? 'KIRA' : 'あなた') + '</div>'
+    + '<div class="kc-text">' + escHtml(text).replace(/\n/g,'<br>') + '</div>';
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function showThinking() {
+  const chat = document.getElementById('kc-messages');
+  const d = document.createElement('div');
+  d.className = 'kc-bubble kira kc-thinking';
+  d.id = 'kc-thinking-bubble';
+  d.innerHTML = '<div class="kc-label">KIRA</div>'
+    + '<div class="kc-thinking-inner">'
+    + '<svg viewBox="0 0 60 30" width="60" height="30" style="overflow:visible;flex-shrink:0">'
+    + '<defs>'
+    + '<radialGradient id="thglow" cx="50%" cy="100%" r="80%"><stop offset="0%" stop-color="#c8a832" stop-opacity=".32"/><stop offset="100%" stop-color="#c8a832" stop-opacity="0"/></radialGradient>'
+    + '<clipPath id="thclip"><rect x="0" y="0" width="60" height="22"/></clipPath>'
+    + '</defs>'
+    + '<ellipse cx="30" cy="22" rx="28" ry="14" fill="url(#thglow)"/>'
+    + '<g id="thRays" clip-path="url(#thclip)"></g>'
+    + '<circle cx="30" cy="22" r="5" fill="#c8a832" opacity=".1" class="hz-ga"/>'
+    + '<circle cx="30" cy="22" r="3.5" fill="#d4af37" class="hz-core"/>'
+    + '<line x1="2" y1="22" x2="58" y2="22" stroke="#c8a832" stroke-width=".6" opacity=".35"/>'
+    + '<ellipse cx="30" cy="22" rx="6" ry="2.2" fill="none" stroke="#c8a832" stroke-width=".6" class="hz-rp hz-rp1"/>'
+    + '<ellipse cx="30" cy="22" rx="6" ry="2.2" fill="none" stroke="#c8a832" stroke-width=".5" class="hz-rp hz-rp2"/>'
+    + '<ellipse cx="30" cy="22" rx="6" ry="2.2" fill="none" stroke="#c8a832" stroke-width=".4" class="hz-rp hz-rp3"/>'
+    + '<ellipse cx="30" cy="22" rx="6" ry="2.2" fill="none" stroke="#c8a832" stroke-width=".3" class="hz-rp hz-rp4"/>'
+    + '</svg>'
+    + '<div>'
+    + '<div class="kc-thinking-txt">KIRAが考えています</div>'
+    + '<div style="display:flex;gap:3px;margin-top:4px">'
+    + '<span class="kd" style="width:4px;height:4px;animation-delay:0s"></span>'
+    + '<span class="kd" style="width:4px;height:4px;animation-delay:.32s"></span>'
+    + '<span class="kd" style="width:4px;height:4px;animation-delay:.64s"></span>'
+    + '</div></div></div>';
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+  setTimeout(function() { injectRays('thRays', 30, 22, 18, 10); }, 50);
+}
+
+function hideThinking() {
+  const t = document.getElementById('kc-thinking-bubble');
+  if (t) t.remove();
+}
+
+/* ── mode select ── */
 function selectMode(mode) {
   currentMode = mode;
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-  document.querySelectorAll('.mode-content').forEach(c => c.classList.toggle('active', c.id === 'mode-' + mode));
-  document.getElementById('hearing-wrap').style.display = 'none';
+  document.querySelectorAll('.mode-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.mode === mode); });
+  document.querySelectorAll('.mode-content').forEach(function(c) { c.classList.toggle('active', c.id === 'mode-' + mode); });
   document.getElementById('results').style.display = 'none';
 }
 
-function fillExample(n) { document.getElementById('nl-input').value = EXAMPLES[n]; }
-
-async function startHearing() {
-  const text = document.getElementById('nl-input').value.trim();
-  const btn = document.getElementById('submit-nl');
-  const err = document.getElementById('err');
-  err.classList.remove('show');
-  if (text.length < 10) { err.textContent = 'もう少し具体的に（10文字以上）'; err.classList.add('show'); return; }
-  originalInput = text;localStorage.setItem('hs_reverse_used', '1');
-  hearingAnswersHistory = {};
-  btn.classList.add('loading'); btn.disabled = true;
-  try {
-    const res = await fetch(KIRA_PROXY + '/reverse-estimate', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ natural_language_input: text })
-    });
-    if (!res.ok) { const ed = await res.json().catch(() => ({})); throw new Error(ed.error || 'API error: ' + res.status); }
-    const data = await res.json();
-    if (data.status === 'need_hearing') renderHearing(data);
-    else if (data.status === 'ready') renderResults(data);
-    else throw new Error('Unknown status: ' + data.status);
-  } catch (e) {
-    err.textContent = 'エラー: ' + e.message + '\nLINEで相談: https://line.me/R/ti/p/@172piime';
-    err.classList.add('show');
-  } finally { btn.classList.remove('loading'); btn.disabled = false; }
+function fillHint(n) {
+  document.getElementById('kc-input').value = EXAMPLES[n];
+  document.getElementById('kc-hints').style.display = 'none';
+  document.getElementById('kc-input').focus();
 }
 
-function renderHearing(data) {
-  document.getElementById('hearing-wrap').style.display = 'block';
-  document.getElementById('hearing-reason').textContent = data.reason || '計算精度のため、追加情報をお伺いします';
-  currentQuestions = data.clarifying_questions || [];
-  const chat = document.getElementById('chat-area');
-  chat.innerHTML = '';
-  const userBubble = document.createElement('div');
-  userBubble.className = 'bubble user';
-  userBubble.innerHTML = '<div class="user-label">YOU</div>' + escapeHtml(originalInput).replace(/\n/g, '<br>');
-  chat.appendChild(userBubble);
-  const kiraBubble = document.createElement('div');
-  kiraBubble.className = 'bubble kira';
-  kiraBubble.innerHTML = '<div class="kira-label">KIRA</div>ありがとうございます。精度の高い3プラン算出のため、詳細をお伺いします。<br><br><b>▼ ' + escapeHtml(data.reason || '追加情報が必要です') + '</b>';
-  chat.appendChild(kiraBubble);
-  currentQuestions.forEach(q => {
-    const qb = document.createElement('div');
-    qb.className = 'qa-block'; qb.dataset.qid = q.id;
-    qb.innerHTML = '<div class="qa-question">' + escapeHtml(q.question) + '</div>' +
-      (q.why ? '<div class="qa-why">💡 ' + escapeHtml(q.why) + '</div>' : '') +
-      '<div class="qa-options">' +
-      (q.options || []).map(opt =>
-        '<button class="qa-option" data-value="' + escapeHtml(opt.value) + '" onclick="selectOption(this)">' + escapeHtml(opt.label) + '</button>'
-      ).join('') +
-      '<button class="qa-option custom" onclick="showCustom(this)">▸ その他（自由入力）</button>' +
-      '<input type="text" class="qa-custom-input" placeholder="自由にご入力ください"></div>';
-    chat.appendChild(qb);
-  });
-  document.getElementById('hearing-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+/* ── main send ── */
+async function sendToKira() {
+  const input = document.getElementById('kc-input');
+  const text = input.value.trim();
+  const sendBtn = document.getElementById('kc-send');
+  const errEl = document.getElementById('kc-err');
+  errEl.classList.remove('show');
+  if (text.length < 5) return;
 
-function selectOption(btn) {
-  const block = btn.closest('.qa-block');
-  block.querySelectorAll('.qa-option').forEach(o => o.classList.remove('selected'));
-  btn.classList.add('selected');
-  const input = block.querySelector('.qa-custom-input');
-  if (input) input.classList.remove('show');
-}
-
-function showCustom(btn) {
-  const block = btn.closest('.qa-block');
-  block.querySelectorAll('.qa-option').forEach(o => o.classList.remove('selected'));
-  btn.classList.add('selected');
-  const input = block.querySelector('.qa-custom-input');
-  input.classList.add('show'); input.focus();
-}
-
-async function submitHearingAnswers() {
-  const btn = document.getElementById('submit-hearing');
-  btn.classList.add('loading'); btn.disabled = true;
-  const answers = {};
-  const blocks = document.querySelectorAll('.qa-block');
-  let missing = 0;
-  blocks.forEach(block => {
-    const qid = block.dataset.qid;
-    const selected = block.querySelector('.qa-option.selected');
-    if (!selected) { missing++; block.style.borderColor = '#FF3040'; return; }
-    if (selected.classList.contains('custom')) {
-      const input = block.querySelector('.qa-custom-input');
-      answers[qid] = { value: 'custom', custom_text: input.value.trim() };
-    } else {
-      answers[qid] = { value: selected.dataset.value, label: selected.textContent.trim() };
-    }
-  });
-  if (missing > 0) { alert('未回答が' + missing + '件あります'); btn.classList.remove('loading'); btn.disabled = false; return; }
-  Object.assign(hearingAnswersHistory, answers);
-  try {
-    const res = await fetch(KIRA_PROXY + '/reverse-estimate', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ natural_language_input: originalInput, previous_answers: hearingAnswersHistory })
-    });
-    if (!res.ok) { const ed = await res.json().catch(() => ({})); throw new Error(ed.error || 'API error'); }
-    const data = await res.json();
-    if (data.status === 'need_hearing') renderHearing(data);
-    else if (data.status === 'ready') { document.getElementById('hearing-wrap').style.display = 'none'; renderResults(data); }
-  } catch (e) { alert('エラー: ' + e.message); }
-  finally { btn.classList.remove('loading'); btn.disabled = false; }
-}
-
-function renderResults(data) {
-  lastResult = data;
-  const results = document.getElementById('results');
-  results.style.display = 'block';
-  const eiList = document.getElementById('ei-list');
-  eiList.innerHTML = (data.extracted_items || []).map(it =>
-    '<div class="item"><span class="tag">' + escapeHtml(it.koji_type) + '</span>' + escapeHtml(it.raw_text || '') + (it.area ? ' (' + it.area + '㎡)' : '') + (it.layout_change ? ' / ' + escapeHtml(it.layout_change) : '') + (it.wall_removal ? ' / 壁:' + escapeHtml(String(it.wall_removal)) : '') + '</div>'
-  ).join('');
-  renderPlan('matsu', data.plans && data.plans.matsu);
-  renderPlan('take',  data.plans && data.plans.take);
-  renderPlan('ume',   data.plans && data.plans.ume);
-  const alertsWrap = document.getElementById('alerts-wrap');
-  const alertsList = document.getElementById('alerts-list');
-  if (data.market_alerts && data.market_alerts.length) {
-    alertsWrap.style.display = 'block';
-    alertsList.innerHTML = data.market_alerts.map(a =>
-      '<div class="alert ' + a.severity + '"><div class="alert-title">' + escapeHtml(a.title) + '</div>' + escapeHtml(a.message) + '</div>'
-    ).join('');
-  } else { alertsWrap.style.display = 'none'; }
-  document.getElementById('disclaimer').textContent = data.disclaimer || '';
-  setTimeout(function(){ results.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
-}
-
-function renderPlan(key, plan) {
-  if (!plan) return;
-  const total = plan.total || 0;
-  const totalMan = plan.total_man_en || 0;
-  if (key === 'take') {
-    document.getElementById('price-take').textContent = '¥' + total.toLocaleString();
-    if (window._purchased) {
-      document.getElementById('price-take').classList.remove('masked');
-      document.getElementById('price-take-man').textContent = totalMan + '万円';
-      const cta = document.querySelector('.plan-unlock-cta');
-      if (cta) cta.style.display = 'none';
-      const hint = document.querySelector('.plan-lock-hint');
-      if (hint) hint.style.display = 'none';
-    } else {
-      document.getElementById('price-take').classList.add('masked');
-    }
-  } else {
-    const lower = Math.round(total * 0.8 / 10000) * 10000;
-    const upper = Math.round(total * 1.2 / 10000) * 10000;
-    const lowerMan = Math.round(totalMan * 0.8);
-    const upperMan = Math.round(totalMan * 1.2);
-    const rangeEl = document.getElementById('range-' + key);
-    if (rangeEl) rangeEl.textContent = '¥' + lower.toLocaleString() + ' 〜 ¥' + upper.toLocaleString();
-    const manEl = document.getElementById('price-' + key + '-man');
-    if (manEl) manEl.textContent = '約 ' + lowerMan + '〜' + upperMan + '万円';
+  if (conversationHistory.length === 0) {
+    localStorage.setItem('hs_reverse_used', '1');
   }
-  const itemsEl = document.getElementById('items-' + key);
-  if (plan.items && plan.items.length) {
-    itemsEl.innerHTML = plan.items.map(function(it) {
-      const label = (it.message || it.name || it.koji_type || '').substring(0, 22);
-      if (key === 'take' && !window._purchased) {
-        return '<li><span>' + escapeHtml(label) + '</span><span style="filter:blur(5px)">███万</span></li>';
+
+  document.getElementById('kc-hints').style.display = 'none';
+  addBubble('user', text);
+  conversationHistory.push({ role: 'user', content: text });
+  input.value = '';
+  sendBtn.disabled = true;
+  turnCount++;
+  showThinking();
+
+  try {
+    const res = await fetch(KIRA_PROXY + '/anthropic', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: KIRA_SYSTEM,
+        messages: conversationHistory,
+        max_tokens: 1000
+      })
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(function() { return {}; });
+      throw new Error(e.error || 'APIエラー ' + res.status);
+    }
+    const data = await res.json();
+    const reply = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : '';
+    if (!reply) throw new Error('KIRAから応答がありませんでした');
+    conversationHistory.push({ role: 'assistant', content: reply });
+    hideThinking();
+
+    if (reply.includes('===PLAN===')) {
+      parsePlan(reply);
+    } else {
+      addBubble('kira', reply);
+      if (turnCount >= MAX_TURNS) {
+        requestFinalPlan();
       }
-      const price = it.total_man_en ? (it.total_man_en + '万') : '';
-      return '<li><span>' + escapeHtml(label) + '</span><span>' + price + '</span></li>';
-    }).join('');
-  } else { itemsEl.innerHTML = '<li><span>—</span></li>'; }
+    }
+  } catch (e) {
+    hideThinking();
+    errEl.textContent = 'エラー: ' + e.message + '　LINE相談: https://line.me/R/ti/p/@172piime';
+    errEl.classList.add('show');
+  } finally {
+    sendBtn.disabled = false;
+    input.focus();
+  }
 }
 
-// ── 支払いモーダル ──
+async function requestFinalPlan() {
+  conversationHistory.push({ role: 'user', content: 'これまでの情報をもとに、今すぐ3プランを算出してください。' });
+  showThinking();
+  try {
+    const res = await fetch(KIRA_PROXY + '/anthropic', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ system: KIRA_SYSTEM, messages: conversationHistory, max_tokens: 1000 })
+    });
+    const data = await res.json();
+    const reply = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : '';
+    conversationHistory.push({ role: 'assistant', content: reply });
+    hideThinking();
+    if (reply.includes('===PLAN===')) parsePlan(reply);
+    else addBubble('kira', reply);
+  } catch(e) {
+    hideThinking();
+  }
+}
+
+/* ── plan parser ── */
+function parsePlan(text) {
+  const planMatch = text.match(/===PLAN===([\s\S]*?)===END===/);
+  if (!planMatch) { addBubble('kira', text); return; }
+
+  const before = text.split('===PLAN===')[0].trim();
+  if (before) addBubble('kira', before);
+
+  const content = planMatch[1];
+  const koji  = (content.match(/工事内容[：:]\s*(.+)/) || [])[1] || '工事内容';
+  const matsu = (content.match(/松[：:]\s*(.+)/)       || [])[1] || '';
+  const take  = (content.match(/竹[：:]\s*(.+)/)       || [])[1] || '';
+  const ume   = (content.match(/梅[：:]\s*(.+)/)       || [])[1] || '';
+  const adv   = (content.match(/アドバイス[：:]\s*([\s\S]+?)$/) || [])[1] || '';
+
+  function parseRange(s) {
+    var nums = [];
+    var m;
+    var re = /(\d[\d,]*\.?\d*)/g;
+    while ((m = re.exec(s)) !== null) nums.push(parseFloat(m[1].replace(/,/g,'')));
+    if (nums.length >= 2) return [nums[0], nums[1]];
+    if (nums.length === 1) return [nums[0], nums[0]];
+    return [0, 0];
+  }
+
+  var mR = parseRange(matsu), tR = parseRange(take), uR = parseRange(ume);
+
+  document.getElementById('ei-list').innerHTML = '<div class="item"><span class="tag">工事</span>' + escHtml(koji.trim()) + '</div>';
+
+  document.getElementById('range-matsu').textContent = '約 ' + mR[0] + '万〜' + mR[1] + '万円';
+  document.getElementById('sub-matsu').textContent   = '大手リフォーム会社・上位グレード';
+  document.getElementById('items-matsu').innerHTML   = '<li><span>大手リフォーム会社</span></li>';
+
+  var takeMid = Math.round((tR[0] + tR[1]) / 2);
+  document.getElementById('price-take').textContent  = takeMid + '万円';
+  document.getElementById('sub-take').textContent    = '約 ' + tR[0] + '万〜' + tR[1] + '万円';
+  if (window._purchased) {
+    document.getElementById('price-take').classList.remove('masked');
+    var lh = document.querySelector('.plan-lock-hint');
+    var uc = document.querySelector('.plan-unlock-cta');
+    if (lh) lh.style.display = 'none';
+    if (uc) uc.style.display = 'none';
+  } else {
+    document.getElementById('price-take').classList.add('masked');
+  }
+  document.getElementById('items-take').innerHTML = '<li><span>地域の中小工務店</span><span>★推奨</span></li>';
+
+  document.getElementById('range-ume').textContent = '約 ' + uR[0] + '万〜' + uR[1] + '万円';
+  document.getElementById('sub-ume').textContent   = '個人事業者・ネット調達';
+  document.getElementById('items-ume').innerHTML   = '<li><span>個人事業者</span></li>';
+
+  if (adv.trim()) {
+    document.getElementById('advice-text').textContent = adv.trim();
+    document.getElementById('advice-wrap').style.display = 'block';
+  }
+
+  lastParsedResult = { koji: koji.trim(), plans: { matsu: mR, take: tR, ume: uR }, advice: adv.trim() };
+
+  document.getElementById('results').style.display = 'block';
+  setTimeout(function() { document.getElementById('results').scrollIntoView({ behavior:'smooth', block:'start' }); }, 80);
+}
+
+/* ── payment ── */
 function openPaymentModal() {
-  if (!lastResult) { alert('先にヒアリングを完了してください'); return; }
+  if (!lastParsedResult) { alert('先にヒアリングを完了してください'); return; }
   document.getElementById('payment-modal').style.display = 'flex';
-  if (window.paypal && !window._paypalRendered) {
-    window._paypalRendered = true;
+  if (window.paypal && !_paypalRendered) {
+    _paypalRendered = true;
     initPayPal();
   }
 }
-
 function closePaymentModal() {
   document.getElementById('payment-modal').style.display = 'none';
 }
 
-// ── PayPayフロー ──
-async function startPayPay() {
-  const btn = document.getElementById('paypay-modal-btn');
-  btn.disabled = true; btn.textContent = '準備中...';
-  document.getElementById('payment-msg').textContent = '⏳ PayPay決済画面を準備中...';
-  try {
-    const res = await fetch(KIRA_PROXY + '/paypay/quick-checkout', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ koji_type: lastResult && lastResult.extracted_items && lastResult.extracted_items[0] ? lastResult.extracted_items[0].koji_type : 'floor' })
-    });
-    const data = await res.json();
-    if (!data.ok || !data.paypay_url) throw new Error(data.error || 'PayPay失敗');
-    const merchantId = data.merchant_payment_id;
-    sessionStorage.setItem('hs_paypay_id', merchantId);
-    sessionStorage.setItem('hs_last_result', JSON.stringify(lastResult));
-    window.open(data.paypay_url, '_blank');
-    document.getElementById('payment-msg').textContent = '';
-    document.getElementById('paypay-poll-area').style.display = 'block';
-    startPayPayPolling(merchantId);
-  } catch(e) {
-    document.getElementById('payment-msg').textContent = '❌ ' + e.message;
-    btn.disabled = false; btn.textContent = 'PayPayで支払う';
-  }
-}
-
-var pollTimer = null;
-function startPayPayPolling(merchantId) {
-  var count = 0;
-  var statusEl = document.getElementById('poll-status');
-  statusEl.textContent = '⏳ PayPay支払いを確認中...';
-  pollTimer = setInterval(async function() {
-    count++;
-    if (count > 60) { clearInterval(pollTimer); statusEl.textContent = '⚠ タイムアウト。完了後に「確認する」を押してください'; return; }
-    try {
-      var res = await fetch(KIRA_PROXY + '/checkout/paypay-status', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ merchant_payment_id: merchantId })
-      });
-      var data = await res.json();
-      if (data.paid && data.download_token) {
-        clearInterval(pollTimer);
-        statusEl.textContent = '✅ 決済完了！PDFを生成中...';
-        closePaymentModal();
-        await downloadPDFWithToken(data.download_token);
-      }
-    } catch(e) {}
-  }, 3000);
-}
-
-async function checkPayPayManual() {
-  var merchantId = sessionStorage.getItem('hs_paypay_id');
-  if (!merchantId) { alert('PayPay決済情報が見つかりません'); return; }
-  var statusEl = document.getElementById('poll-status');
-  statusEl.textContent = '⏳ 確認中...';
-  try {
-    var res = await fetch(KIRA_PROXY + '/checkout/paypay-status', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ merchant_payment_id: merchantId })
-    });
-    var data = await res.json();
-    if (data.paid && data.download_token) {
-      clearInterval(pollTimer);
-      statusEl.textContent = '✅ 確認完了！PDFを生成中...';
-      closePaymentModal();
-      await downloadPDFWithToken(data.download_token);
-    } else {
-      statusEl.textContent = '未完了: ' + (data.status || '支払い待ち');
-    }
-  } catch(e) { statusEl.textContent = '❌ ' + e.message; }
-}
-
-// ── PayPalフロー ──
 function initPayPal() {
   if (!window.paypal) return;
   paypal.Buttons({
     createOrder: async function() {
       var res = await fetch(KIRA_PROXY + '/checkout/paypal/create-order', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ koji_type: lastResult && lastResult.extracted_items && lastResult.extracted_items[0] ? lastResult.extracted_items[0].koji_type : 'floor' })
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ koji_type: 'gyaku-mitsumori' })
       });
-      var data = await res.json();
-      if (!data.paypal_order_id) throw new Error('PayPal注文作成失敗');
-      return data.paypal_order_id;
+      var d = await res.json();
+      if (!d.paypal_order_id) throw new Error('PayPal注文作成失敗');
+      return d.paypal_order_id;
     },
     onApprove: async function(ppData) {
       document.getElementById('payment-msg').textContent = '⏳ 決済処理中...';
       var res = await fetch(KIRA_PROXY + '/checkout/paypal/capture', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ paypal_order_id: ppData.orderID })
       });
-      var data = await res.json();
-      if (data.ok && data.download_token) {
+      var d = await res.json();
+      if (d.ok && d.download_token) {
         closePaymentModal();
-        await downloadPDFWithToken(data.download_token);
+        await downloadPDFWithToken(d.download_token);
       } else {
-        document.getElementById('payment-msg').textContent = '❌ ' + (data.error || '決済確認失敗');
+        document.getElementById('payment-msg').textContent = '❌ ' + (d.error || '決済確認失敗');
       }
     },
-    onError: function(err) {
-      document.getElementById('payment-msg').textContent = '❌ PayPalエラーが発生しました';
-    },
-    style: { color: 'gold', shape: 'rect', label: 'pay', height: 44 }
+    onError: function() { document.getElementById('payment-msg').textContent = '❌ PayPalエラーが発生しました'; },
+    style: { color:'gold', shape:'rect', label:'pay', height:44 }
   }).render('#paypal-btn-container');
 }
 
-// ── tokenでPDF取得 ──
 async function downloadPDFWithToken(token) {
   try {
     var orderId = 'HS' + Date.now().toString(36);
+    var tR = (lastParsedResult && lastParsedResult.plans && lastParsedResult.plans.take) ? lastParsedResult.plans.take : [0,0];
+    var mR = (lastParsedResult && lastParsedResult.plans && lastParsedResult.plans.matsu) ? lastParsedResult.plans.matsu : [0,0];
+    var uR = (lastParsedResult && lastParsedResult.plans && lastParsedResult.plans.ume) ? lastParsedResult.plans.ume : [0,0];
+    var takeMid = Math.round((tR[0] + tR[1]) / 2);
     var res = await fetch(PDF_GEN + '/generate', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        download_token: token,
-        orderId: orderId,
-        extracted_items: lastResult.extracted_items,
-        plans: lastResult.plans,
-        teiji_kingaku: lastResult.plans && lastResult.plans.take ? lastResult.plans.take.total : 0,
-        market_alerts: lastResult.market_alerts || [],
-        red_flags_by_category: {}, subsidies_available: []
+        download_token: token, orderId: orderId,
+        extracted_items: [{ koji_type: lastParsedResult ? lastParsedResult.koji : 'リフォーム', raw_text: lastParsedResult ? lastParsedResult.koji : '' }],
+        plans: {
+          matsu: { total: mR[1]*10000, total_man_en: mR[1] },
+          take:  { total: takeMid*10000, total_man_en: takeMid },
+          ume:   { total: uR[0]*10000, total_man_en: uR[0] }
+        },
+        teiji_kingaku: takeMid*10000,
+        market_alerts: [], red_flags_by_category: {}, subsidies_available: []
       })
     });
-    if (!res.ok) {
-      var err = await res.json().catch(function(){ return {}; });
-      throw new Error(err.error || 'PDF生成失敗');
-    }
+    if (!res.ok) throw new Error('PDF生成失敗');
     var blob = await res.blob();
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
@@ -630,62 +729,32 @@ async function downloadPDFWithToken(token) {
     URL.revokeObjectURL(url);
     window._purchased = true;
     document.getElementById('price-take').classList.remove('masked');
-    var hint = document.querySelector('.plan-lock-hint');
-    if (hint) hint.style.display = 'none';
-    var unlockCta = document.querySelector('.plan-unlock-cta');
-    if (unlockCta) unlockCta.style.display = 'none';
-    if (lastResult && lastResult.plans && lastResult.plans.take) {
-      document.getElementById('price-take-man').textContent = (lastResult.plans.take.total_man_en || 0) + '万円';
-    }
+    var lh = document.querySelector('.plan-lock-hint');
+    var uc = document.querySelector('.plan-unlock-cta');
+    if (lh) lh.style.display = 'none';
+    if (uc) uc.style.display = 'none';
+    document.getElementById('price-take').textContent = takeMid + '万円';
     alert('✅ PDFをダウンロードしました！業者との交渉にご活用ください。');
   } catch(e) {
-    alert('PDF生成エラー: ' + e.message + '\n\nLINE: https://line.me/R/ti/p/@172piime');
+    alert('PDF生成エラー: ' + e.message + '\nLINE: https://line.me/R/ti/p/@172piime');
   }
 }
 
-// ── 旧関数（互換性維持） ──
-async function purchasePDF() { openPaymentModal(); }
-
-function escapeHtml(s) {
-  if (s === null || s === undefined) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+function purchaseBankTransfer() {
+  sessionStorage.setItem('hs_last_result', JSON.stringify(lastParsedResult));
+  window.location.href = 'https://shield.the-horizons-innovation.com/bank-transfer.html?type=gyaku-mitsumori';
 }
 
-// ── 支払いモーダルDOM生成 ──
-document.addEventListener('DOMContentLoaded', function() {
-  var modal = document.createElement('div');
-  modal.id = 'payment-modal';
-  modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;';
-  modal.innerHTML = '<div style="background:#081420;border:1px solid rgba(240,192,48,.3);border-radius:12px;padding:28px 24px;max-width:400px;width:100%;text-align:center;position:relative">'
-    + '<button onclick="closePaymentModal()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#5A7A8A;font-size:20px;cursor:pointer">×</button>'
-    + '<div style="font-family:\'Share Tech Mono\',monospace;font-size:10px;letter-spacing:3px;color:#C8960A;margin-bottom:8px">PDF UNLOCK</div>'
-    + '<div style="font-size:18px;font-weight:900;margin-bottom:4px">詳細参考見積書PDF</div>'
-    + '<div style="font-family:\'Share Tech Mono\',monospace;font-size:28px;color:#F0C030;margin-bottom:4px">¥5,500</div>'
-    + '<div style="font-size:11px;color:#5A7A8A;margin-bottom:20px">税込 / 即時納品 / 一回限り</div>'
-    + '<div id="paypal-btn-container" style="margin-bottom:12px"></div>'
-    + '<div id="paypay-poll-area" style="display:none;background:rgba(0,0,0,.3);border-radius:6px;padding:12px;margin-bottom:12px">'
-    + '<div id="poll-status" style="font-size:12px;color:#90AABA;margin-bottom:8px"></div>'
-    + '<button onclick="checkPayPayManual()" style="font-size:11px;background:transparent;border:1px solid rgba(0,212,255,.3);color:#00D4FF;padding:6px 14px;border-radius:4px;cursor:pointer">支払い完了→確認する</button>'
-    + '</div>'
-    + '<div id="payment-msg" style="font-size:12px;color:#90AABA;margin-top:8px"></div>'
-    + '</div>';
-  document.body.appendChild(modal);
-  modal.addEventListener('click', function(e) { if (e.target === modal) closePaymentModal(); });
-});
-
-// 特商法モーダル → 支払いモーダルの橋渡し
+/* ── terms modal ── */
 function openTermsFirst(mode) {
-  if (!lastResult) { alert('先にヒアリングを完了してください'); return; }
+  if (!lastParsedResult) { alert('先にヒアリングを完了してください'); return; }
   window._termsMode = mode || 'paypal';
   document.getElementById('terms-modal-hs').style.display = 'block';
   document.body.style.overflow = 'hidden';
-  document.getElementById('terms-agree-check-hs').checked = false;
-  const btn = document.getElementById('terms-agree-btn-hs');
-  btn.disabled = true;
-  btn.style.background = '#333';
-  btn.style.color = '#666';
-  btn.style.cursor = 'not-allowed';
-  btn.textContent = '同意して支払いへ進む →';
+  var cb = document.getElementById('terms-agree-check-hs');
+  var btn = document.getElementById('terms-agree-btn-hs');
+  cb.checked = false;
+  btn.disabled = true; btn.style.background='#333'; btn.style.color='#666'; btn.style.cursor='not-allowed';
 }
 function closeTermsModalHs() {
   document.getElementById('terms-modal-hs').style.display = 'none';
@@ -694,58 +763,76 @@ function closeTermsModalHs() {
 function proceedToPayment() {
   if (!document.getElementById('terms-agree-check-hs').checked) return;
   closeTermsModalHs();
-  if (window._termsMode === 'bank') {
-    purchaseBankTransfer();
-  } else {
-    openPaymentModal();
-  }
-}
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('terms-agree-check-hs').addEventListener('change', function() {
-    const btn = document.getElementById('terms-agree-btn-hs');
-    if (this.checked) {
-      btn.disabled = false;
-      btn.style.background = '#00ff88';
-      btn.style.color = '#000';
-      btn.style.cursor = 'pointer';
-    } else {
-      btn.disabled = true;
-      btn.style.background = '#333';
-      btn.style.color = '#666';
-      btn.style.cursor = 'not-allowed';
-    }
-  });
-  document.getElementById('terms-modal-hs').addEventListener('click', function(e) {
-    if (e.target === this) closeTermsModalHs();
-  });
-});
-// 管理者リセット
-if (new URLSearchParams(location.search).get('admin') === 'reset') {
-  localStorage.removeItem('hs_reverse_used');
-  history.replaceState({}, '', '/hs-reverse-estimate/');
+  if (window._termsMode === 'bank') purchaseBankTransfer();
+  else openPaymentModal();
 }
 
-// 使用済みチェック
-(function() {
+/* ── init ── */
+document.addEventListener('DOMContentLoaded', function() {
+  // ヘッダーray注入（28本）
+  injectRays('hzRays', 60, 34, 26, 28);
+
+  // KIRA初期メッセージ
+  addBubble('kira', 'はじめまして。HORIZON SHIELDの建設費診断AIです。\nやりたい工事の内容を教えてください。\n曖昧な情報でも大丈夫です。詳細は私が順番に確認します。');
+
+  // Enter送信（Shift+Enterは改行）
+  document.getElementById('kc-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendToKira(); }
+  });
+
+  // 支払いモーダル動的生成
+  var modal = document.createElement('div');
+  modal.id = 'payment-modal';
+  modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;';
+  modal.innerHTML = '<div style="background:#081420;border:1px solid rgba(200,168,50,.3);border-radius:12px;padding:28px 24px;max-width:400px;width:100%;text-align:center;position:relative;margin-top:60px">'
+    + '<button onclick="closePaymentModal()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#888;font-size:20px;cursor:pointer">×</button>'
+    + '<div style="font-family:\'Share Tech Mono\',monospace;font-size:10px;letter-spacing:3px;color:#c8a832;margin-bottom:8px">PDF UNLOCK</div>'
+    + '<div style="font-size:18px;font-weight:900;margin-bottom:4px;color:#faf9f5">詳細参考見積書PDF</div>'
+    + '<div style="font-family:\'Share Tech Mono\',monospace;font-size:28px;color:#d4af37;margin-bottom:4px">¥5,500</div>'
+    + '<div style="font-size:11px;color:#666;margin-bottom:20px">税込 / 即時納品 / 一回限り</div>'
+    + '<div id="paypal-btn-container" style="margin-bottom:12px"></div>'
+    + '<div id="payment-msg" style="font-size:12px;color:#90AABA;margin-top:8px"></div>'
+    + '</div>';
+  document.body.appendChild(modal);
+  modal.addEventListener('click', function(e) { if (e.target === modal) closePaymentModal(); });
+
+  // Terms checkbox
+  document.getElementById('terms-agree-check-hs').addEventListener('change', function() {
+    var btn = document.getElementById('terms-agree-btn-hs');
+    if (this.checked) { btn.disabled=false; btn.style.background='#c8a832'; btn.style.color='#000'; btn.style.cursor='pointer'; }
+    else { btn.disabled=true; btn.style.background='#333'; btn.style.color='#666'; btn.style.cursor='not-allowed'; }
+  });
+  document.getElementById('terms-modal-hs').addEventListener('click', function(e) {
+    if (e.target === document.getElementById('terms-modal-hs')) closeTermsModalHs();
+  });
+
+  // admin reset
+  if (new URLSearchParams(location.search).get('admin') === 'reset') {
+    localStorage.removeItem('hs_reverse_used');
+    history.replaceState({}, '', '/hs-reverse-estimate/');
+  }
+
+  // 使用済みチェック
   if (localStorage.getItem('hs_reverse_used')) {
     document.querySelector('.hero').insertAdjacentHTML('afterend',
       '<div style="max-width:780px;margin:20px auto;padding:0 20px">'
-      + '<div style="background:#081420;border:1px solid rgba(240,192,48,.3);border-radius:12px;padding:32px;text-align:center">'
-      + '<div style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:#C8960A;letter-spacing:3px;margin-bottom:12px">FREE LIMIT REACHED</div>'
-      + '<div style="font-size:20px;font-weight:900;margin-bottom:12px">無料ヒアリングは1回限りです</div>'
-      + '<div style="font-size:13px;color:#90AABA;line-height:1.8;margin-bottom:24px">結果はお手元に残りましたか？<br>交渉用PDFを手に入れて業者と戦ってください。</div>'
-      + '<a href="https://www.paypal.com/ncp/payment/H747QJMWFM4BS" target="_blank" rel="noopener" '
-      + 'style="display:block;padding:16px;background:linear-gradient(135deg,#003087,#0070ba);color:#fff;text-decoration:none;border-radius:8px;font-size:15px;font-weight:900;margin-bottom:10px">'
+      + '<div class="used-banner">'
+      + '<div style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:var(--gold);letter-spacing:3px;margin-bottom:12px">FREE LIMIT REACHED</div>'
+      + '<div style="font-size:20px;font-weight:900;margin-bottom:12px;color:var(--navy)">無料ヒアリングは1回限りです</div>'
+      + '<div style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:24px">結果はお手元に残りましたか？<br>交渉用PDFを手に入れて業者と戦ってください。</div>'
+      + '<a href="https://www.paypal.com/ncp/payment/H747QJMWFM4BS" target="_blank" rel="noopener"'
+      + ' style="display:block;padding:16px;background:var(--navy);color:#faf9f5;text-decoration:none;font-size:15px;font-weight:900;margin-bottom:10px;text-align:center">'
       + '¥5,500で交渉PDFを手に入れる →</a>'
-      + '<a href="https://line.me/R/ti/p/@172piime" target="_blank" rel="noopener" '
-      + 'style="display:block;padding:12px;background:transparent;border:1px solid rgba(0,212,255,.3);color:#00D4FF;text-decoration:none;border-radius:8px;font-size:13px">'
+      + '<a href="https://line.me/R/ti/p/@172piime" target="_blank" rel="noopener"'
+      + ' style="display:block;padding:12px;background:transparent;border:1px solid var(--border2);color:var(--navy);text-decoration:none;font-size:13px;text-align:center">'
       + 'LINEで直接相談する（無料）</a>'
       + '</div></div>'
     );
     document.querySelector('main.main').style.display = 'none';
   }
-})();
+
   selectMode('reverse');
+});
 </script>
 </body>
 </html>
