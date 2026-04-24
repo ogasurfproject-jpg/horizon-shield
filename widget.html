@@ -317,13 +317,13 @@ body{font-family:'Noto Sans JP',sans-serif;background:transparent;color:#1a1a2e;
     <div class="result-detail" id="resultDetail"></div>
 
     <!-- 【新規】¥5,500 逆見積書PDF メガCTA（warn/danger時のみ表示） -->
-    <button type="button" class="cta-gyaku" id="ctaGyaku" onclick="openTermsWidget()">
+    <button type="button" class="cta-gyaku" id="ctaGyaku" onclick="goToReverseEstimate()">
       <span class="cta-gyaku-badge">交渉で取り返せ</span>
       <div class="cta-gyaku-title">🎯 この見積書で交渉する（逆見積書PDF）</div>
       <div class="cta-gyaku-sub">建設30年のプロ監修・4ページ構成の交渉資料<br>相場比較グラフ・交渉フレーズ5個・出典データ付き</div>
       <div class="cta-gyaku-price">
         <div class="cta-gyaku-yen">¥5,500<small>(税込)</small></div>
-        <div class="cta-gyaku-arrow">購入する ▶</div>
+        <div class="cta-gyaku-arrow">KIRAに無料ヒアリングを受けて交渉PDFを手に入れる →</div>
       </div>
     </button>
 
@@ -559,7 +559,10 @@ function fmt(n) {
 // 購入モーダル
 // ============================================================
 
-function openPurchaseModal() {
+function goToReverseEstimate() {
+  window.location.href = '/hs-reverse-estimate/';
+}
+  function openPurchaseModal() {
   if (!currentDiagnosis) {
     alert('診断結果が読み込まれていません。もう一度診断してください。');
     return;
