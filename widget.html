@@ -372,11 +372,11 @@ body{font-family:'Noto Sans JP',sans-serif;background:transparent;color:#1a1a2e;
       </div>
 
       <button type="button" class="btn-submit" id="btnSubmitPurchase" onclick="submitPurchase()">
-        購入手続きへ進む（LINE認証・PayPay決済）
+        💳 PayPalで支払う（¥5,500）
       </button>
 
       <div class="modal-notice">
-        ※ 次の画面でLINE友達追加→PayPayで¥5,500決済→2営業日以内にPDF納品<br>
+        ※ PayPalでのお支払い後、2営業日以内にPDFをメールでお送りします<br>
         ※ 納品前のキャンセルは全額返金いたします<br>
         ※ 運営：The HORIZ音s株式会社（建設実務経験30年・監修）
       </div>
@@ -602,87 +602,26 @@ function onOverlayClick(event) {
 // 購入処理（POST → LINE Login → PayPay）
 // ============================================================
 
-async function submitPurchase() {
+function submitPurchase() {
   if (!currentDiagnosis) {
-    showModalError('診断データが失われました。モーダルを閉じてもう一度診断してください。');
+    showModalError('診断データが失われました。もう一度診断してください。');
     return;
   }
-
   const name = document.getElementById('customerName').value.trim();
-  const email = document.getElementById('customerEmail').value.trim();
-
   if (!name) {
     showModalError('お名前を入力してください。');
     return;
   }
-
-  // email は任意
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    showModalError('メールアドレスの形式が正しくありません（例：taro@example.com）');
-    return;
-  }
-
-  const btn = document.getElementById('btnSubmitPurchase');
-  btn.disabled = true;
-  btn.textContent = '接続中...';
-
-  const d = currentDiagnosis;
-  const payload = {
-    koji_type: d.koji_label,  // 日本語ラベル（"外壁塗装" 等）を送信
-    menseki: d.menseki || 0,
-    teiji_kingaku: d.teiji_kingaku,
-    customer_name: name,
-    email: email || null,
-    // 参考メタ情報（サーバー側で無視されても問題ない）
-    meta: {
-      koji_type_key: d.koji_type_key,
-      souba_min: d.souba_min,
-      souba_max: d.souba_max,
-      status: d.status,
-      ratio_pct: d.ratio_pct,
-    }
-  };
-
-  try {
-    const res = await fetch(CHECKOUT_START_URL, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      throw new Error(`Server error: ${res.status}`);
-    }
-
-    const data = await res.json();
-
-    // 正常系：LINE Login URL にリダイレクト
-    if (data.line_login_url) {
-      // 少しUX的に「遷移します」を表示してから飛ばす
-      btn.textContent = '✅ 接続成功。LINE認証画面へ...';
-      setTimeout(() => {
-        window.location.href = data.line_login_url;
-      }, 600);
-      return;
-    }
-
-    // line_login_url が無いレスポンスは想定外 → フォールバック
-    throw new Error('Checkout response missing line_login_url');
-
-  } catch (err) {
-    console.error('Checkout error:', err);
-    // LINE フォールバック
-    fallbackToLine(d, name, email);
-  }
+  closePurchaseModal();
+  window.open('https://www.paypal.com/ncp/payment/H747QJMWFM4BS', '_blank', 'noopener');
 }
-
 function showModalError(msg) {
   const errBox = document.getElementById('modalError');
   errBox.innerHTML = msg;
   errBox.classList.add('active');
   const btn = document.getElementById('btnSubmitPurchase');
   btn.disabled = false;
-  btn.textContent = '購入手続きへ進む（LINE認証・PayPay決済）';
+  btn.textContent = '💳 PayPalで支払う（¥5,500）';
 }
 
 // ============================================================
@@ -728,7 +667,7 @@ function fallbackToLine(d, name, email) {
 
   const btn = document.getElementById('btnSubmitPurchase');
   btn.disabled = false;
-  btn.textContent = '購入手続きへ進む（LINE認証・PayPay決済）';
+  btn.textContent = '💳 PayPalで支払う（¥5,500）';
 }
 
 // ============================================================
