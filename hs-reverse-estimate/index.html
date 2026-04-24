@@ -325,7 +325,7 @@ async function startHearing() {
   const err = document.getElementById('err');
   err.classList.remove('show');
   if (text.length < 10) { err.textContent = 'もう少し具体的に（10文字以上）'; err.classList.add('show'); return; }
-  originalInput = text;
+  originalInput = text;localStorage.setItem('hs_reverse_used', '1');
   hearingAnswersHistory = {};
   btn.classList.add('loading'); btn.disabled = true;
   try {
@@ -719,7 +719,33 @@ document.addEventListener('DOMContentLoaded', function() {
     if (e.target === this) closeTermsModalHs();
   });
 });
-selectMode('reverse');
+// 管理者リセット
+if (new URLSearchParams(location.search).get('admin') === 'reset') {
+  localStorage.removeItem('hs_reverse_used');
+  history.replaceState({}, '', '/hs-reverse-estimate/');
+}
+
+// 使用済みチェック
+(function() {
+  if (localStorage.getItem('hs_reverse_used')) {
+    document.querySelector('.hero').insertAdjacentHTML('afterend',
+      '<div style="max-width:780px;margin:20px auto;padding:0 20px">'
+      + '<div style="background:#081420;border:1px solid rgba(240,192,48,.3);border-radius:12px;padding:32px;text-align:center">'
+      + '<div style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:#C8960A;letter-spacing:3px;margin-bottom:12px">FREE LIMIT REACHED</div>'
+      + '<div style="font-size:20px;font-weight:900;margin-bottom:12px">無料ヒアリングは1回限りです</div>'
+      + '<div style="font-size:13px;color:#90AABA;line-height:1.8;margin-bottom:24px">結果はお手元に残りましたか？<br>交渉用PDFを手に入れて業者と戦ってください。</div>'
+      + '<a href="https://www.paypal.com/ncp/payment/H747QJMWFM4BS" target="_blank" rel="noopener" '
+      + 'style="display:block;padding:16px;background:linear-gradient(135deg,#003087,#0070ba);color:#fff;text-decoration:none;border-radius:8px;font-size:15px;font-weight:900;margin-bottom:10px">'
+      + '💳 ¥5,500で交渉PDFを手に入れる →</a>'
+      + '<a href="https://line.me/R/ti/p/@172piime" target="_blank" rel="noopener" '
+      + 'style="display:block;padding:12px;background:transparent;border:1px solid rgba(0,212,255,.3);color:#00D4FF;text-decoration:none;border-radius:8px;font-size:13px">'
+      + '💬 LINEで直接相談する（無料）</a>'
+      + '</div></div>'
+    );
+    document.querySelector('main.main').style.display = 'none';
+  }
+})();
+  selectMode('reverse');
 </script>
 </body>
 </html>
