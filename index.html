@@ -55,7 +55,6 @@
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;overflow-x:hidden;padding-top:var(--header-h)}
 
-/* ── HEADER ── */
 #header{
   position:fixed;top:0;left:0;right:0;z-index:1000;
   height:var(--header-h);
@@ -78,7 +77,6 @@ nav a:hover,nav a.active{color:var(--accent);background:rgba(0,229,255,0.08)}
 nav a.cta-nav{color:var(--bg);background:var(--accent);border-radius:4px}
 nav a.cta-nav:hover{background:#00c4db}
 
-/* ── HERO ── */
 #hero{
   min-height:92vh;display:flex;flex-direction:column;justify-content:center;
   padding:48px 20px 40px;
@@ -137,7 +135,6 @@ h1 .danger{color:var(--danger)}
 .hero-stat .num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--danger)}
 .hero-stat .label{font-size:11px;color:var(--muted);margin-top:2px}
 
-/* ── MAP BANNER ── */
 #map-banner{
   margin:0 16px;
   background:linear-gradient(135deg, rgba(255,184,0,0.12), rgba(255,61,61,0.08));
@@ -154,7 +151,6 @@ h1 .danger{color:var(--danger)}
 .map-text .sub{font-size:12px;color:var(--muted);margin-top:2px}
 .map-arrow{font-size:24px;color:var(--warn);flex-shrink:0}
 
-/* ── SECTION ── */
 section{padding:56px 20px}
 .sec-label{
   font-family:'Space Mono',monospace;font-size:10px;
@@ -167,7 +163,6 @@ section{padding:56px 20px}
 }
 .sec-title em{color:var(--accent);font-style:normal}
 
-/* ── SERVICES ── */
 .service-grid{display:flex;flex-direction:column;gap:12px}
 .svc{
   background:var(--surface);
@@ -192,7 +187,6 @@ section{padding:56px 20px}
 }
 .svc-time{font-size:11px;color:var(--muted);margin-top:2px}
 
-/* ── PayPal ボタン ── */
 .paypal-btn{
   display:block;
   margin-top:10px;
@@ -220,7 +214,6 @@ section{padding:56px 20px}
   padding:12px 14px;
 }
 
-/* ── DIAGNOSIS FORM ── */
 #diagnosis-section{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .diag-steps{display:flex;gap:8px;margin-bottom:24px}
 .step{
@@ -279,7 +272,6 @@ section{padding:56px 20px}
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── MEDIA ── */
 .media-grid{display:flex;flex-wrap:wrap;gap:8px}
 .media-tag{
   padding:6px 12px;background:var(--surface);
@@ -288,7 +280,6 @@ section{padding:56px 20px}
   font-family:'Space Mono',monospace;
 }
 
-/* ── FOUNDER ── */
 .founder-card{
   display:flex;gap:16px;align-items:flex-start;
   background:var(--surface);border:1px solid var(--border);
@@ -302,7 +293,6 @@ section{padding:56px 20px}
 .stat-num{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent)}
 .stat-label{font-size:10px;color:var(--muted)}
 
-/* ── KIRA ── */
 #kira-section{background:var(--surface);border-top:1px solid var(--border)}
 .kira-header{
   display:flex;align-items:center;gap:12px;margin-bottom:20px;
@@ -331,7 +321,6 @@ section{padding:56px 20px}
 .cta-line .line-btn{background:#06C755;color:#fff}
 .cta-line .chat-btn{background:var(--border);color:var(--text)}
 
-/* ── FAQ ── */
 .faq-item{border-bottom:1px solid var(--border);padding:16px 0}
 .faq-q{font-weight:700;font-size:14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
 .faq-q::after{content:'+';font-size:20px;color:var(--muted);transition:.2s}
@@ -339,7 +328,6 @@ section{padding:56px 20px}
 .faq-a{font-size:13px;color:var(--muted);line-height:1.7;margin-top:12px;display:none}
 .faq-item.open .faq-a{display:block}
 
-/* ── FOOTER ── */
 footer{
   background:var(--surface);border-top:1px solid var(--border);
   padding:32px 20px;font-size:11px;color:var(--muted);
@@ -349,7 +337,6 @@ footer{
 .footer-links a{color:var(--muted);text-decoration:none;font-size:11px}
 .footer-links a:hover{color:var(--text)}
 
-/* ── STICKY CTA ── */
 .sticky-cta{
   position:fixed;bottom:0;left:0;right:0;z-index:900;
   padding:12px 16px;
@@ -366,12 +353,10 @@ footer{
 .sticky-diag{background:var(--accent);color:var(--bg)}
 .sticky-line{background:#06C755;color:#fff}
 
-/* ── UTILS ── */
 .divider{height:1px;background:var(--border);margin:0 20px}
 .tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
 .tag{padding:4px 10px;border:1px solid var(--border);border-radius:20px;font-size:11px;color:var(--muted)}
 
-/* 決済マーク */
 .payment-marks{
   display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;
 }
@@ -392,7 +377,6 @@ footer{
 }
 .bank-btn:hover{background:rgba(255,255,255,.08)}
 
-/* === スマホ対応（TOshi 指摘対応 2026/4） === */
 @media(max-width:640px){
   body{overflow-x:hidden}
   .hero-label,.sec-label{font-size:10px;letter-spacing:2px}
@@ -416,7 +400,6 @@ footer{
   pre,code{white-space:pre-wrap;word-break:break-word;max-width:100%}
 }
 
-/* 超狭小画面（iPhone SE等）対応 */
 @media(max-width:380px){
   h1,.hero h1{font-size:24px!important}
   .svc-price{font-size:20px!important}
@@ -432,7 +415,6 @@ footer{
   nav a{font-size:12px;padding:7px 14px}
 }
 
-/* === ハンバーガーメニュー === */
 #hamburger{display:none;background:none;border:none;cursor:pointer;padding:8px;z-index:1001;margin-left:8px}
 #hamburger span{display:block;width:22px;height:2px;background:var(--accent);margin:4px 0;transition:all .3s;border-radius:1px}
 #hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
@@ -477,7 +459,6 @@ footer{
 </script></head>
 <body>
 <script>if(!sessionStorage.getItem('hs_seen')){sessionStorage.setItem('hs_seen','1');location.href='/opening.html';}</script>
-<!-- HEADER -->
 <header id="header">
   <a href="/" class="logo">HORIZON<span>SHIELD</span></a>
   <nav id="nav-main">
@@ -494,7 +475,6 @@ footer{
 </header>
 <div id="mobile-menu-overlay" onclick="toggleMenu()"></div>
 
-<!-- MAP BANNER -->
 <a href="/map" id="map-banner" style="display:block;position:relative;overflow:hidden;background:linear-gradient(135deg,#020d0a 0%,#041a12 50%,#020d0a 100%);border-bottom:1px solid rgba(0,255,180,.15);text-decoration:none;padding:14px 20px">
   <svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:.35" viewBox="0 0 1200 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
     <ellipse cx="80" cy="28" rx="55" ry="18" fill="none" stroke="rgba(0,255,180,.3)" stroke-width="1"/>
@@ -538,7 +518,6 @@ footer{
   </div>
 </a>
 
-<!-- HERO -->
 <section id="hero">
   <div class="hero-bg"></div>
   <div class="hero-label">// HORIZON SHIELD — 建設費診断 2026</div>
@@ -552,12 +531,10 @@ footer{
   </div>
 </section>
 
-<!-- SERVICES -->
 <section id="services">
   <div class="sec-label">// SERVICES</div>
   <div class="sec-title">4つの<em>スポット</em>診断</div>
   <div class="service-grid">
-    <!-- 00 逆見積もり診断（NEW） -->
     <div class="svc" style="border:2px solid #F0C030;background:linear-gradient(135deg,rgba(240,192,48,.08),rgba(200,150,10,.03));position:relative">
       <div style="position:absolute;top:-12px;left:20px;background:#F0C030;color:#000;padding:3px 12px;font-size:10px;font-weight:900;letter-spacing:2px;border-radius:2px">★ NEW 2026/4</div>
       <div class="svc-num" style="color:#F0C030">00</div>
@@ -567,9 +544,9 @@ footer{
         <div class="svc-price" style="color:#F0C030">¥5,500</div>
         <div class="svc-time">即時AI算出 / 交渉用PDF納品</div>
         <a href="/hs-reverse-estimate/" style="display:block;text-align:center;padding:14px;background:#F0C030;color:#000;text-decoration:none;border-radius:8px;font-weight:900;font-size:14px;letter-spacing:2px;margin-top:12px">▸ 概算を無料で見る（竹は¥5,500）</a>
-        <a href="https://www.paypal.com/ncp/payment/H747QJMWFM4BS" target="_blank" rel="noopener" class="paypal-btn paypal-btn-small" style="margin-top:8px">
+        <button onclick="openTermsModal('reverse', 'https://www.paypal.com/ncp/payment/H747QJMWFM4BS')" class="paypal-btn paypal-btn-small" style="margin-top:8px">
           💳 PayPal / カード / Apple Payで ¥5,500 購入
-        </a>
+        </button>
         <div class="payment-marks">
           <span class="paypal-mark">PayPal対応</span>
           <span style="display:inline-block;margin-left:6px;padding:4px 10px;background:transparent;border:1px solid #F0C030;color:#F0C030;font-size:11px;border-radius:4px">銀行振込</span>
@@ -577,7 +554,6 @@ footer{
       </div>
     </div>
 
-    <!-- 01 建設費診断 -->
     <div class="svc">
       <div class="svc-num">01</div>
       <div class="svc-body">
@@ -585,9 +561,9 @@ footer{
         <div class="svc-desc">見積書をメールで送るだけ。過剰請求箇所・適正価格・交渉文をPDFで返送。</div>
         <div class="svc-price">¥55,000</div>
         <div class="svc-time">2営業日以内 PDF納品</div>
-        <a href="https://www.paypal.com/ncp/payment/9V2ZUX9JZAU68" target="_blank" rel="noopener" class="paypal-btn">
+        <button onclick="openTermsModal('diagnosis', 'https://www.paypal.com/ncp/payment/9V2ZUX9JZAU68')" class="paypal-btn">
           💳 PayPal / カード / Apple Payで支払う →
-        </a>
+        </button>
         <div class="payment-marks">
           <span class="paypal-mark">PayPal対応</span>
           <button class="bank-btn" onclick="openTermsModal('diagnosis')">銀行振込で申し込む</button>
@@ -595,7 +571,6 @@ footer{
       </div>
     </div>
 
-    <!-- 02 変更工事査定 -->
     <div class="svc">
       <div class="svc-num">02</div>
       <div class="svc-body">
@@ -603,9 +578,9 @@ footer{
         <div class="svc-desc">工事中の追加請求が正当かを24時間以内に判定。拒否すべき項目を特定。</div>
         <div class="svc-price">¥33,000</div>
         <div class="svc-time">24時間以内 PDF納品</div>
-        <a href="https://www.paypal.com/ncp/payment/LXM4H73CFJH98" target="_blank" rel="noopener" class="paypal-btn">
+        <button onclick="openTermsModal('change', 'https://www.paypal.com/ncp/payment/LXM4H73CFJH98')" class="paypal-btn">
           💳 PayPal / カード / Apple Payで支払う →
-        </a>
+        </button>
         <div class="payment-marks">
           <span class="paypal-mark">PayPal対応</span>
           <button class="bank-btn" onclick="openTermsModal('change')">銀行振込で申し込む</button>
@@ -613,7 +588,6 @@ footer{
       </div>
     </div>
 
-    <!-- 03 完成検査立会い -->
     <div class="svc">
       <div class="svc-num">03</div>
       <div class="svc-body">
@@ -621,9 +595,9 @@ footer{
         <div class="svc-desc">引き渡し前に専門家が現場立会い。施工不良・手抜きをその場でチェック。</div>
         <div class="svc-price">¥88,000</div>
         <div class="svc-time">当日完了・全国対応</div>
-        <a href="https://www.paypal.com/ncp/payment/7C7WF642ZJJUC" target="_blank" rel="noopener" class="paypal-btn">
+        <button onclick="openTermsModal('inspection', 'https://www.paypal.com/ncp/payment/7C7WF642ZJJUC')" class="paypal-btn">
           💳 PayPal / カード / Apple Payで支払う →
-        </a>
+        </button>
         <div class="payment-marks">
           <span class="paypal-mark">PayPal対応</span>
           <button class="bank-btn" onclick="openTermsModal('inspection')">銀行振込で申し込む</button>
@@ -641,7 +615,6 @@ footer{
 
 <div class="divider"></div>
 
-<!-- FREE DIAGNOSIS -->
 <section id="diagnosis-section">
   <div class="sec-label">// FREE AI DIAGNOSIS</div>
   <div class="sec-title">無料<em>AI診断</em></div>
@@ -696,18 +669,16 @@ footer{
       <strong style="display:block;margin-bottom:8px">大賀 俊勝 より</strong>
       上記はAIによる簡易診断です。正確な削減額・具体的な交渉文・業者への対応策は専門家レポートにてお届けします。
     </div>
-    <!-- 申し込みボタン群 -->
-    <a href="https://www.paypal.com/ncp/payment/9V2ZUX9JZAU68" target="_blank" rel="noopener" class="paypal-btn" style="margin-top:16px">
+    <button onclick="openTermsModal('diagnosis', 'https://www.paypal.com/ncp/payment/9V2ZUX9JZAU68')" class="paypal-btn" style="margin-top:16px">
       💳 PayPal / カード / Apple Payで申し込む ¥55,000
-    </a>
-    <a href="/inspect/" class="btn btn-secondary" style="display:block;text-align:center;text-decoration:none;margin-top:8px;padding:15px">銀行振込で申し込む ¥55,000</a>
+    </button>
+    <button onclick="openTermsModal('diagnosis')" class="btn btn-secondary" style="display:block;text-align:center;margin-top:8px;padding:15px;width:100%">銀行振込で申し込む ¥55,000</button>
     <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px">2営業日以内PDF納品 / 送信前キャンセルは全額返金</p>
   </div>
 </section>
 
 <div class="divider"></div>
 
-<!-- FOUNDER -->
 <section id="founder">
   <div class="sec-label">// CREDENTIALS</div>
   <div class="founder-card">
@@ -726,7 +697,6 @@ footer{
 
 <div class="divider"></div>
 
-<!-- MEDIA -->
 <section id="media">
   <div class="sec-label">// PRESS RELEASE</div>
   <div class="sec-title">プレスリリース<em>配信実績</em></div>
@@ -784,7 +754,6 @@ footer{
 
 <div class="divider"></div>
 
-<!-- KIRA -->
 <section id="kira-section">
   <div class="sec-label">// AI CONSULTANT</div>
   <div class="kira-header">
@@ -810,7 +779,6 @@ footer{
 </section>
 
 <div class="divider"></div>
-<!-- 無料コンテンツ -->
 <section id="free-content" style="padding:60px 20px;background:linear-gradient(180deg,transparent,rgba(0,212,255,.03))">
   <div class="sec-label">// FREE CONTENT</div>
   <div class="sec-title"><em>無料</em>で使える全コンテンツ</div>
@@ -847,7 +815,6 @@ footer{
   </div>
 </section>
 
-<!-- FAQ -->
 <section id="faq">
   <div class="sec-label">// FAQ</div>
   <div class="sec-title"><em>よくある</em>質問</div>
@@ -873,7 +840,6 @@ footer{
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer>
   <div class="footer-logo">HORIZON<span style="color:var(--danger)">SHIELD</span></div>
   <p>建設業界のセカンドオピニオン専門家</p>
@@ -886,7 +852,6 @@ footer{
   </div>
   <p>The HORIZ音s株式会社 〒254-0018 神奈川県平塚市東真土1-1-47 GH湘南2<br>
   代表取締役 大賀俊勝 / contact@the-horizons-innovation.com</p>
-  <!-- 決済方法 -->
   <div style="margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
     <span style="font-size:10px;color:var(--muted)">決済方法：</span>
     <span style="background:var(--paypal);color:#fff;font-size:10px;padding:3px 8px;border-radius:3px;font-weight:700">PayPal</span>
@@ -896,14 +861,12 @@ footer{
   <p style="margin-top:12px">© 2026 THE HORIZ音s Inc. All Rights Reserved.</p>
 </footer>
 
-<!-- STICKY CTA (mobile) -->
 <div class="sticky-cta">
   <a href="#diagnosis-section" class="sticky-diag">▶ 無料AI診断</a>
   <a href="https://line.me/R/ti/p/@172piime" class="sticky-line">LINE相談</a>
 </div>
 
 <script>
-// ── Step navigation ──
 function goStep2(){
   const name=document.getElementById('user-name').value.trim();
   const email=document.getElementById('user-email').value.trim();
@@ -1112,7 +1075,7 @@ window.addEventListener('scroll',()=>{
 })();
 </script> 
 
-<!-- 特定商取引法モーダル -->
+<!-- 特定商取引法モーダル（PayPal・銀行振込 統合版） -->
 <div id="terms-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;overflow-y:auto;">
   <div style="max-width:600px;margin:40px auto;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:32px;color:#e0e0e0;font-family:sans-serif;">
     
@@ -1220,36 +1183,58 @@ window.addEventListener('scroll',()=>{
 </div>
 
 <script>
+// 特商法モーダル制御（PayPal・銀行振込 統合版）
 let termsModalTarget = '';
+let termsModalPaypalURL = null;
 
-function openTermsModal(target) {
+function openTermsModal(target, paypalURL) {
   termsModalTarget = target;
+  termsModalPaypalURL = paypalURL || null;
   document.getElementById('terms-modal').style.display = 'block';
   document.body.style.overflow = 'hidden';
+  
+  // チェックボックスとボタンをリセット
   document.getElementById('terms-agree-check').checked = false;
-  document.getElementById('terms-agree-btn').disabled = true;
-  document.getElementById('terms-agree-btn').style.background = '#333';
-  document.getElementById('terms-agree-btn').style.color = '#666';
-  document.getElementById('terms-agree-btn').style.cursor = 'not-allowed';
+  const btn = document.getElementById('terms-agree-btn');
+  btn.disabled = true;
+  btn.style.background = '#333';
+  btn.style.color = '#666';
+  btn.style.cursor = 'not-allowed';
+  
+  // 決済方法に応じてボタンテキストを変更
+  btn.textContent = termsModalPaypalURL 
+    ? '同意して PayPal で支払う →' 
+    : '同意して銀行振込で申し込む →';
 }
 
 function closeTermsModal() {
   document.getElementById('terms-modal').style.display = 'none';
   document.body.style.overflow = '';
+  termsModalPaypalURL = null;
 }
 
 function proceedAfterAgree() {
   if (!document.getElementById('terms-agree-check').checked) return;
-  closeTermsModal();
-  window.location.href = '/bank-transfer.html?type=' + termsModalTarget;
+  
+  if (termsModalPaypalURL) {
+    // PayPal 決済: 新規タブで開いてモーダル閉じる
+    window.open(termsModalPaypalURL, '_blank', 'noopener');
+    closeTermsModal();
+  } else {
+    // 銀行振込: 同一タブで遷移
+    const target = termsModalTarget;
+    closeTermsModal();
+    window.location.href = '/bank-transfer.html?type=' + target;
+  }
 }
 
+// チェックボックスの状態でボタンを切り替え
 document.getElementById('terms-agree-check').addEventListener('change', function() {
   const btn = document.getElementById('terms-agree-btn');
   if (this.checked) {
     btn.disabled = false;
-    btn.style.background = '#00ff88';
-    btn.style.color = '#000';
+    btn.style.background = termsModalPaypalURL ? '#0070ba' : '#00ff88';
+    btn.style.color = termsModalPaypalURL ? '#fff' : '#000';
     btn.style.cursor = 'pointer';
   } else {
     btn.disabled = true;
@@ -1259,6 +1244,7 @@ document.getElementById('terms-agree-check').addEventListener('change', function
   }
 });
 
+// モーダル外クリックで閉じる
 document.getElementById('terms-modal').addEventListener('click', function(e) {
   if (e.target === this) closeTermsModal();
 });
