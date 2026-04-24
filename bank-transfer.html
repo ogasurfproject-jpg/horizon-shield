@@ -148,7 +148,9 @@ const orderNum = 'HS-' + Date.now().toString(36).toUpperCase();
 const serviceMap = {
   diagnosis: { name: '建設費診断', amount: '¥55,000', num: 55000 },
   change: { name: '変更工事査定', amount: '¥33,000', num: 33000 },
-  inspection: { name: '完成検査立会い', amount: '¥88,000', num: 88000 }
+  inspection: { name: '完成検査立会い', amount: '¥88,000', num: 88000 },
+  'gyaku-mitsumori': { name: '逆見積もり診断PDF', amount: '¥5,500', num: 5500 },
+  reverse: { name: '逆見積もり診断PDF', amount: '¥5,500', num: 5500 }
 };
 
 const service = serviceMap[type] || serviceMap.diagnosis;
