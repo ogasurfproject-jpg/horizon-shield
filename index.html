@@ -38,14 +38,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #030508;
-  --surface: #0a0e14;
-  --border: #1a2030;
-  --accent: #00e5ff;
-  --danger: #ff3d3d;
-  --warn: #ffb800;
-  --text: #e8edf5;
-  --muted: #5a6a7a;
+  --bg: #faf9f5;
+  --surface: #ffffff;
+  --border: #dddad0;
+  --accent: #0f1e4a;
+  --danger: #8b1a1a;
+  --warn: #c8a832;
+  --text: #1a1a2a;
+  --muted: #888880;
   --paypal: #003087;
   --paypal-light: #0070ba;
   --header-h: 56px;
@@ -58,14 +58,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 #header{
   position:fixed;top:0;left:0;right:0;z-index:1000;
   height:var(--header-h);
-  background:rgba(3,5,8,0.92);
+  background:rgba(250,249,245,0.96);
   backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--border);
+  border-bottom:1px solid #c8c5bb;
   display:flex;align-items:center;justify-content:space-between;
   padding:0 16px;
 }
-.logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--accent);text-decoration:none}
-.logo span{color:var(--danger)}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#0f1e4a;text-decoration:none}
+.logo span{color:#c8a832}
 nav{display:flex;gap:4px}
 nav a{
   font-size:11px;font-weight:700;letter-spacing:1px;
@@ -73,9 +73,9 @@ nav a{
   padding:6px 10px;border-radius:4px;
   transition:all .2s;white-space:nowrap;
 }
-nav a:hover,nav a.active{color:var(--accent);background:rgba(0,229,255,0.08)}
-nav a.cta-nav{color:var(--bg);background:var(--accent);border-radius:4px}
-nav a.cta-nav:hover{background:#00c4db}
+nav a:hover,nav a.active{color:var(--accent);background:rgba(15,30,74,0.06)}
+nav a.cta-nav{color:#faf9f5;background:#0f1e4a;border-radius:4px}
+nav a.cta-nav:hover{background:#162a6a}
 
 #hero{
   min-height:92vh;display:flex;flex-direction:column;justify-content:center;
@@ -85,12 +85,12 @@ nav a.cta-nav:hover{background:#00c4db}
 .hero-bg{
   position:absolute;inset:0;z-index:0;
   background:
-    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(0,229,255,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 60% at 10% 80%, rgba(255,61,61,0.05) 0%, transparent 60%);
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(15,30,74,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 10% 80%, rgba(200,168,50,0.04) 0%, transparent 60%);
 }
 .hero-label{
   font-family:'Space Mono',monospace;font-size:10px;
-  color:var(--danger);letter-spacing:3px;
+  color:var(--warn);letter-spacing:3px;
   margin-bottom:16px;opacity:.8;
 }
 h1{
@@ -100,7 +100,7 @@ h1{
   margin-bottom:16px;position:relative;z-index:1;
 }
 h1 em{color:var(--accent);font-style:normal}
-h1 .danger{color:var(--danger)}
+h1 .danger{color:#c8a832}
 .hero-sub{
   font-size:14px;color:var(--muted);line-height:1.7;
   max-width:360px;margin-bottom:32px;position:relative;z-index:1;
@@ -108,13 +108,13 @@ h1 .danger{color:var(--danger)}
 .hero-sub strong{color:var(--text)}
 .cta-primary{
   display:inline-flex;align-items:center;gap:8px;
-  background:var(--accent);color:var(--bg);
+  background:#0f1e4a;color:#faf9f5;
   font-weight:900;font-size:15px;letter-spacing:.5px;
   padding:16px 28px;border-radius:4px;text-decoration:none;
   position:relative;z-index:1;
   transition:all .2s;border:none;cursor:pointer;
 }
-.cta-primary:hover{background:#00c4db;transform:translateY(-1px)}
+.cta-primary:hover{background:#162a6a;transform:translateY(-1px)}
 .cta-secondary{
   display:inline-flex;align-items:center;gap:8px;
   color:var(--muted);font-size:13px;text-decoration:none;
@@ -128,24 +128,24 @@ h1 .danger{color:var(--danger)}
   padding:16px;
   background:var(--surface);
   border:1px solid var(--border);
-  border-left:3px solid var(--danger);
+  border-left:3px solid var(--warn);
   border-radius:4px;
   max-width:340px;
 }
-.hero-stat .num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--danger)}
+.hero-stat .num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--warn)}
 .hero-stat .label{font-size:11px;color:var(--muted);margin-top:2px}
 
 #map-banner{
   margin:0 16px;
-  background:linear-gradient(135deg, rgba(255,184,0,0.12), rgba(255,61,61,0.08));
-  border:1px solid rgba(255,184,0,0.3);
+  background:linear-gradient(135deg, rgba(200,168,50,0.08), rgba(15,30,74,0.05));
+  border:1px solid rgba(200,168,50,0.3);
   border-radius:6px;
   padding:16px 20px;
   display:flex;align-items:center;justify-content:space-between;gap:12px;
   text-decoration:none;
   transition:all .2s;
 }
-#map-banner:hover{border-color:var(--warn);background:linear-gradient(135deg,rgba(255,184,0,0.18),rgba(255,61,61,0.12))}
+#map-banner:hover{border-color:var(--warn);background:linear-gradient(135deg,rgba(200,168,50,0.14),rgba(15,30,74,0.08))}
 .map-text .tag{font-size:10px;color:var(--warn);letter-spacing:2px;font-family:'Space Mono',monospace}
 .map-text .title{font-size:16px;font-weight:900;margin-top:4px}
 .map-text .sub{font-size:12px;color:var(--muted);margin-top:2px}
@@ -161,7 +161,7 @@ section{padding:56px 20px}
   font-size:clamp(32px,8vw,48px);
   line-height:1;margin-bottom:24px;
 }
-.sec-title em{color:var(--accent);font-style:normal}
+.sec-title em{color:var(--warn);font-style:normal}
 
 .service-grid{display:flex;flex-direction:column;gap:12px}
 .svc{
@@ -173,7 +173,7 @@ section{padding:56px 20px}
   text-decoration:none;color:inherit;
   transition:all .2s;
 }
-.svc:hover{border-color:var(--accent);background:#0d1520}
+.svc:hover{border-color:var(--accent);background:#f5f4ef}
 .svc-num{
   font-family:'Bebas Neue',sans-serif;font-size:32px;
   color:var(--border);flex-shrink:0;line-height:1;
@@ -239,7 +239,7 @@ section{padding:56px 20px}
   padding:32px 20px;text-align:center;cursor:pointer;
   transition:all .2s;background:var(--bg);
 }
-.upload-area:hover,.upload-area.drag{border-color:var(--accent);background:rgba(0,229,255,0.04)}
+.upload-area:hover,.upload-area.drag{border-color:var(--accent);background:rgba(15,30,74,0.03)}
 .upload-icon{font-size:32px;margin-bottom:8px}
 .upload-text{font-size:13px;color:var(--muted)}
 .upload-text strong{color:var(--text);display:block;margin-bottom:4px}
@@ -249,8 +249,8 @@ section{padding:56px 20px}
   font-weight:900;font-size:15px;cursor:pointer;
   transition:all .2s;font-family:'Noto Sans JP',sans-serif;
 }
-.btn-primary{background:var(--accent);color:var(--bg)}
-.btn-primary:hover{background:#00c4db}
+.btn-primary{background:#0f1e4a;color:#faf9f5}
+.btn-primary:hover{background:#162a6a}
 .btn-secondary{background:var(--border);color:var(--text);margin-top:8px}
 .result-box{
   background:var(--bg);border:1px solid var(--border);
@@ -290,7 +290,7 @@ section{padding:56px 20px}
 .founder-title{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.6}
 .founder-stats{display:flex;gap:16px;margin-top:12px}
 .stat{text-align:center}
-.stat-num{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent)}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:24px;color:#c8a832}
 .stat-label{font-size:10px;color:var(--muted)}
 
 #kira-section{background:var(--surface);border-top:1px solid var(--border)}
@@ -300,10 +300,10 @@ section{padding:56px 20px}
 .kira-avatar{
   width:48px;height:48px;background:var(--accent);border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--bg);flex-shrink:0;
+  font-family:'Bebas Neue',sans-serif;font-size:22px;color:#faf9f5;flex-shrink:0;
 }
 .kira-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
-.dot{width:6px;height:6px;background:#00ff88;border-radius:50%;animation:pulse 2s infinite}
+.dot{width:6px;height:6px;background:#2e7d32;border-radius:50%;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .chat-box{
   background:var(--bg);border:1px solid var(--border);
@@ -332,7 +332,7 @@ footer{
   background:var(--surface);border-top:1px solid var(--border);
   padding:32px 20px;font-size:11px;color:var(--muted);
 }
-.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent);margin-bottom:8px}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:24px;color:#0f1e4a;margin-bottom:8px}
 .footer-links{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
 .footer-links a{color:var(--muted);text-decoration:none;font-size:11px}
 .footer-links a:hover{color:var(--text)}
@@ -340,7 +340,7 @@ footer{
 .sticky-cta{
   position:fixed;bottom:0;left:0;right:0;z-index:900;
   padding:12px 16px;
-  background:rgba(3,5,8,0.95);
+  background:rgba(250,249,245,0.97);
   backdrop-filter:blur(12px);
   border-top:1px solid var(--border);
   display:flex;gap:8px;
@@ -350,7 +350,7 @@ footer{
   font-weight:900;font-size:13px;text-decoration:none;
   border-radius:4px;transition:all .2s;
 }
-.sticky-diag{background:var(--accent);color:var(--bg)}
+.sticky-diag{background:#0f1e4a;color:#faf9f5}
 .sticky-line{background:#06C755;color:#fff}
 
 .divider{height:1px;background:var(--border);margin:0 20px}
@@ -370,12 +370,12 @@ footer{
 }
 .bank-btn{
   width:100%;padding:12px;margin-top:8px;
-  background:transparent;border:1px solid #ffffff;border-radius:8px;
-  color:#ffffff;font-size:13px;font-weight:700;cursor:pointer;
+  background:transparent;border:1px solid var(--accent);border-radius:8px;
+  color:var(--accent);font-size:13px;font-weight:700;cursor:pointer;
   letter-spacing:1px;transition:all .2s;
   font-family:'Noto Sans JP',sans-serif;
 }
-.bank-btn:hover{background:rgba(255,255,255,.08)}
+.bank-btn:hover{background:rgba(15,30,74,.06)}
 
 @media(max-width:640px){
   body{overflow-x:hidden}
@@ -420,7 +420,7 @@ footer{
 #hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
 #hamburger.open span:nth-child(2){opacity:0}
 #hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
-#mobile-menu-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:998;backdrop-filter:blur(4px)}
+#mobile-menu-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.3);z-index:998;backdrop-filter:blur(4px)}
 #mobile-menu-overlay.show{display:block}
 
 @media(max-width:640px){
@@ -431,22 +431,22 @@ footer{
   nav#nav-main{
     position:fixed;top:var(--header-h);right:-100%;
     width:80%;max-width:280px;height:calc(100vh - var(--header-h));
-    background:rgba(3,5,8,0.98);backdrop-filter:blur(16px);
+    background:rgba(250,249,245,0.98);backdrop-filter:blur(16px);
     flex-direction:column;padding:24px 20px;gap:12px;
     display:flex!important;
     transition:right .3s ease;z-index:999;
-    border-left:1px solid rgba(0,229,255,.15);
-    box-shadow:-8px 0 40px rgba(0,0,0,.4);
+    border-left:1px solid rgba(15,30,74,.15);
+    box-shadow:-8px 0 40px rgba(0,0,0,.15);
   }
   nav#nav-main.open{right:0}
   nav#nav-main a{
     font-size:15px!important;padding:14px 16px!important;
     width:100%;display:block;border-radius:6px;
-    border:1px solid rgba(0,229,255,.08);
+    border:1px solid rgba(15,30,74,.08);
     letter-spacing:2px;
   }
   nav#nav-main a.cta-nav{
-    background:var(--accent);color:var(--bg);
+    background:#0f1e4a;color:#faf9f5;
     text-align:center;margin-top:8px;font-weight:900;
   }
 }  
@@ -475,51 +475,44 @@ footer{
 </header>
 <div id="mobile-menu-overlay" onclick="toggleMenu()"></div>
 
-<a href="/map" id="map-banner" style="display:block;position:relative;overflow:hidden;background:linear-gradient(135deg,#020d0a 0%,#041a12 50%,#020d0a 100%);border-bottom:1px solid rgba(0,255,180,.15);text-decoration:none;padding:14px 20px">
-  <svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:.35" viewBox="0 0 1200 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="80" cy="28" rx="55" ry="18" fill="none" stroke="rgba(0,255,180,.3)" stroke-width="1"/>
-    <path d="M40,18 Q62,10 62,28 Q62,46 40,38" fill="none" stroke="rgba(0,255,180,.25)" stroke-width="1"/>
-    <path d="M55,16 Q77,8 77,28 Q77,48 55,40" fill="none" stroke="rgba(0,255,180,.18)" stroke-width="1"/>
-    <circle cx="80" cy="28" r="3" fill="rgba(0,255,180,.3)"><animate attributeName="r" values="2;4;2" dur="3s" repeatCount="indefinite"/></circle>
-    <ellipse cx="300" cy="28" rx="45" ry="15" fill="none" stroke="rgba(0,200,255,.2)" stroke-width="1"/>
-    <path d="M268,20 Q285,12 285,28 Q285,44 268,36" fill="none" stroke="rgba(0,200,255,.2)" stroke-width="1"/>
-    <circle cx="300" cy="28" r="2.5" fill="rgba(0,200,255,.25)"><animate attributeName="r" values="2;3.5;2" dur="3.8s" repeatCount="indefinite"/></circle>
-    <ellipse cx="600" cy="28" rx="60" ry="20" fill="none" stroke="rgba(0,255,180,.12)" stroke-width="1"/>
-    <circle cx="600" cy="28" r="4" fill="rgba(0,255,180,.15)"><animate attributeName="r" values="3;6;3" dur="4s" repeatCount="indefinite"/></circle>
-    <line x1="135" y1="28" x2="255" y2="28" stroke="rgba(0,255,180,.08)" stroke-width="1" stroke-dasharray="3,5"/>
-    <line x1="345" y1="28" x2="540" y2="28" stroke="rgba(0,200,255,.06)" stroke-width="1" stroke-dasharray="3,5"/>
-    <ellipse cx="950" cy="28" rx="50" ry="17" fill="none" stroke="rgba(0,255,180,.18)" stroke-width="1"/>
-    <path d="M913,19 Q933,11 933,28 Q933,45 913,37" fill="none" stroke="rgba(0,255,180,.2)" stroke-width="1"/>
-    <circle cx="950" cy="28" r="2.5" fill="rgba(0,255,180,.2)"><animate attributeName="opacity" values="0.2;0.7;0.2" dur="2.5s" repeatCount="indefinite"/></circle>
-    <line x1="660" y1="28" x2="900" y2="28" stroke="rgba(0,255,180,.06)" stroke-width="1" stroke-dasharray="3,5"/>
-    <radialGradient id="bg1" cx="20%" cy="50%"><stop offset="0%" stop-color="#00ffb4" stop-opacity=".08"/><stop offset="100%" stop-color="#00ffb4" stop-opacity="0"/></radialGradient>
-    <radialGradient id="bg2" cx="80%" cy="50%"><stop offset="0%" stop-color="#00c8ff" stop-opacity=".06"/><stop offset="100%" stop-color="#00c8ff" stop-opacity="0"/></radialGradient>
-    <rect width="100%" height="100%" fill="url(#bg1)"/>
-    <rect width="100%" height="100%" fill="url(#bg2)"/>
-  </svg>
+<a href="/map" id="map-banner" style="display:block;position:relative;overflow:hidden;background:linear-gradient(135deg,#f5f3ec 0%,#ede9db 50%,#f5f3ec 100%);border-bottom:1px solid rgba(200,168,50,.2);text-decoration:none;padding:14px 20px">
   <div style="position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto">
     <div style="display:flex;align-items:center;gap:12px">
-      <div style="position:relative;width:32px;height:32px;flex-shrink:0">
-        <div style="position:absolute;inset:-3px;border-radius:50%;border:1px solid rgba(0,255,180,.4);animation:kira-ring 3s ease-in-out infinite"></div>
-        <div style="width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#00ffb4,#00a876 40%,#003d2e);display:flex;align-items:center;justify-content:center;font-size:14px">⚠</div>
-      </div>
+      <div style="width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#c8a832,#8b6914);display:flex;align-items:center;justify-content:center;font-size:14px">⚠</div>
       <div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
-          <span style="font-size:9px;font-family:monospace;letter-spacing:2px;color:rgba(0,255,180,.6);font-weight:600">LIVE DATA · 2026</span>
-          <span style="width:5px;height:5px;border-radius:50%;background:#00ffb4;display:inline-block;animation:kira-blink 1.8s ease-in-out infinite"></span>
+          <span style="font-size:9px;font-family:monospace;letter-spacing:2px;color:rgba(139,105,20,.7);font-weight:600">LIVE DATA · 2026</span>
+          <span style="width:5px;height:5px;border-radius:50%;background:#c8a832;display:inline-block"></span>
         </div>
-        <div style="font-size:15px;font-weight:700;color:#00ffb4;letter-spacing:-0.3px">ぼったくり被害マップ</div>
-        <div style="font-size:11px;color:rgba(0,255,180,.5);margin-top:1px">全国のトラブル事例をリアルタイム表示 · AIが地域別に分析中</div>
+        <div style="font-size:15px;font-weight:700;color:#0f1e4a;letter-spacing:-0.3px">ぼったくり被害マップ</div>
+        <div style="font-size:11px;color:#888880;margin-top:1px">全国のトラブル事例をリアルタイム表示 · AIが地域別に分析中</div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:6px;color:#00ffb4;font-size:13px;font-weight:600;background:rgba(0,255,180,.08);border:1px solid rgba(0,255,180,.2);border-radius:20px;padding:6px 14px;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:6px;color:#0f1e4a;font-size:13px;font-weight:600;background:rgba(15,30,74,.08);border:1px solid rgba(15,30,74,.2);border-radius:20px;padding:6px 14px;flex-shrink:0">
       確認する <span style="font-size:16px">→</span>
     </div>
   </div>
 </a>
 
 <section id="hero">
-  <div class="hero-bg"></div>
+  <div class="hero-bg">
+  <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="dot2028" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+        <circle cx="20" cy="20" r="1.2" fill="rgba(15,30,74,0.07)"/>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#dot2028)"/>
+    <line x1="500" y1="600" x2="800" y2="340" stroke="rgba(200,168,50,0.06)" stroke-width="1"/>
+    <line x1="560" y1="600" x2="800" y2="420" stroke="rgba(200,168,50,0.04)" stroke-width="1"/>
+    <g opacity="0.12">
+      <circle cx="780" cy="580" r="60"  fill="none" stroke="rgba(15,30,74,0.3)"   stroke-width="0.8" stroke-dasharray="3 8"/>
+      <circle cx="780" cy="580" r="100" fill="none" stroke="rgba(15,30,74,0.2)"   stroke-width="0.8" stroke-dasharray="3 12"/>
+      <circle cx="780" cy="580" r="150" fill="none" stroke="rgba(200,168,50,0.25)" stroke-width="0.8" stroke-dasharray="3 16"/>
+      <circle cx="780" cy="580" r="210" fill="none" stroke="rgba(15,30,74,0.15)"  stroke-width="0.8" stroke-dasharray="3 20"/>
+    </g>
+  </svg>
+</div>
   <div class="hero-label">// HORIZON SHIELD — 建設費診断 2026</div>
   <h1>その<em>見積書</em><br>本当に<br><span class="danger">適正か？</span></h1>
   <p class="hero-sub">業者は知っている。あなたが知らないことを。<br><strong>建設30年のプロが2営業日以内に真実を届ける。</strong></p>
@@ -535,21 +528,21 @@ footer{
   <div class="sec-label">// SERVICES</div>
   <div class="sec-title">4つの<em>スポット</em>診断</div>
   <div class="service-grid">
-    <div class="svc" style="border:2px solid #F0C030;background:linear-gradient(135deg,rgba(240,192,48,.08),rgba(200,150,10,.03));position:relative">
-      <div style="position:absolute;top:-12px;left:20px;background:#F0C030;color:#000;padding:3px 12px;font-size:10px;font-weight:900;letter-spacing:2px;border-radius:2px">★ NEW 2026/4</div>
-      <div class="svc-num" style="color:#F0C030">00</div>
+    <div class="svc" style="border:2px solid #c8a832;background:linear-gradient(135deg,rgba(200,168,50,.06),rgba(200,168,50,.02));position:relative">
+      <div style="position:absolute;top:-12px;left:20px;background:#c8a832;color:#fff;padding:3px 12px;font-size:10px;font-weight:900;letter-spacing:2px;border-radius:2px">★ NEW 2026/4</div>
+      <div class="svc-num" style="color:#c8a832">00</div>
       <div class="svc-body">
-        <div class="svc-name" style="color:#F0C030">逆見積もり診断</div>
-        <div class="svc-desc">見積もりを取る<strong>前</strong>にKIRAが適正予算を<strong style="color:#F0C030">概算算出（無料）</strong>。さらに<strong style="color:#F0C030">中小工務店の正確な金額</strong>を¥5,500で公開。業者交渉の武器に。</div>
-        <div class="svc-price" style="color:#F0C030">¥5,500</div>
+        <div class="svc-name" style="color:#c8a832">逆見積もり診断</div>
+        <div class="svc-desc">見積もりを取る<strong>前</strong>にKIRAが適正予算を<strong style="color:#c8a832">概算算出（無料）</strong>。さらに<strong style="color:#c8a832">中小工務店の正確な金額</strong>を¥5,500で公開。業者交渉の武器に。</div>
+        <div class="svc-price" style="color:#c8a832">¥5,500</div>
         <div class="svc-time">即時AI算出 / 交渉用PDF納品</div>
-        <a href="/hs-reverse-estimate/" style="display:block;text-align:center;padding:14px;background:#F0C030;color:#000;text-decoration:none;border-radius:8px;font-weight:900;font-size:14px;letter-spacing:2px;margin-top:12px">▸ 概算を無料で見る（竹は¥5,500）</a>
+        <a href="/hs-reverse-estimate/" style="display:block;text-align:center;padding:14px;background:#c8a832;color:#fff;text-decoration:none;border-radius:8px;font-weight:900;font-size:14px;letter-spacing:2px;margin-top:12px">▸ 概算を無料で見る（竹は¥5,500）</a>
         <button onclick="openTermsModal('reverse', 'https://www.paypal.com/ncp/payment/H747QJMWFM4BS')" class="paypal-btn paypal-btn-small" style="margin-top:8px">
           💳 PayPal / カード / Apple Payで ¥5,500 購入
         </button>
         <div class="payment-marks">
           <span class="paypal-mark">PayPal対応</span>
-          <span style="display:inline-block;margin-left:6px;padding:4px 10px;background:transparent;border:1px solid #F0C030;color:#F0C030;font-size:11px;border-radius:4px">銀行振込</span>
+          <span style="display:inline-block;margin-left:6px;padding:4px 10px;background:transparent;border:1px solid #c8a832;color:#c8a832;font-size:11px;border-radius:4px">銀行振込</span>
         </div>
       </div>
     </div>
@@ -682,7 +675,7 @@ footer{
 <section id="founder">
   <div class="sec-label">// CREDENTIALS</div>
   <div class="founder-card">
-    <img src="/founder.jpg" alt="大賀俊勝" class="founder-img" onerror="this.style.background='#1a2030';this.removeAttribute('src')">
+    <img src="/founder.jpg" alt="大賀俊勝" class="founder-img" onerror="this.style.background='#dddad0';this.removeAttribute('src')">
     <div>
       <div class="founder-name">大賀 俊勝</div>
       <div class="founder-title">大工 / 現場監督 / CMR / AIエンジニア<br>The HORIZ音s株式会社 代表取締役</div>
@@ -715,23 +708,17 @@ footer{
   <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px">主要掲載プラットフォーム（プレスリリース）</div>
   <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
     <a href="https://www.asahi.com/and/pressrelease/16482464" target="_blank" rel="noopener"
-      style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);border:1px solid rgba(0,229,255,0.3);border-radius:4px;text-decoration:none;transition:all .2s"
-      onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(0,229,255,0.06)'"
-      onmouseout="this.style.borderColor='rgba(0,229,255,0.3)';this.style.background='var(--surface)'">
+      style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);border:1px solid rgba(15,30,74,0.2);border-radius:4px;text-decoration:none;transition:all .2s">
       <span style="font-size:12px;color:var(--text);font-weight:700">朝日新聞デジタル</span>
       <span style="font-size:10px;color:var(--accent)">↗</span>
     </a>
     <a href="https://prtimes.jp/main/html/searchrlp/company_id/181278" target="_blank" rel="noopener"
-      style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);border:1px solid rgba(0,229,255,0.3);border-radius:4px;text-decoration:none;transition:all .2s"
-      onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(0,229,255,0.06)'"
-      onmouseout="this.style.borderColor='rgba(0,229,255,0.3)';this.style.background='var(--surface)'">
+      style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);border:1px solid rgba(15,30,74,0.2);border-radius:4px;text-decoration:none;transition:all .2s">
       <span style="font-size:12px;color:var(--text);font-weight:700">PR TIMES</span>
       <span style="font-size:10px;color:var(--accent)">↗</span>
     </a>
     <a href="https://www.dreamnews.jp" target="_blank" rel="noopener"
-      style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);border:1px solid rgba(0,229,255,0.3);border-radius:4px;text-decoration:none;transition:all .2s"
-      onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(0,229,255,0.06)'"
-      onmouseout="this.style.borderColor='rgba(0,229,255,0.3)';this.style.background='var(--surface)'">
+      style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);border:1px solid rgba(15,30,74,0.2);border-radius:4px;text-decoration:none;transition:all .2s">
       <span style="font-size:12px;color:var(--text);font-weight:700">dreamnews</span>
       <span style="font-size:10px;color:var(--accent)">↗</span>
     </a>
@@ -764,53 +751,53 @@ footer{
     </div>
   </div>
   <div class="chat-box">建設のプロAI「KIRA」に無料で相談できます。見積書の写真を送るだけで、ぼったくりや過剰請求をその場で診断。まずKIRAに話しかけてみてください。</div>
-<div class="cta-line">
-  <a href="https://line.me/R/ti/p/@172piime" class="line-btn">🛡 KIRAに相談する（無料）</a>
-  <a href="https://chatgpt.com/g/g-69e180f9a5048191886069dd58b22572-jian-she-fei-tietuka-by-horizon-shield" class="chat-btn" target="_blank">ChatGPTで無料診断 →</a>
-  <a href="/widget.html" class="chat-btn" target="_blank">見積もり無料チェッカー →</a>
-  <a href="/hs-reverse-estimate/" class="chat-btn" target="_blank" style="background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(240,192,48,.08));border-color:#F0C030;color:#F0C030">★ 逆見積もり診断 v3 NEW →</a>
-  <a href="#diagnosis-section" class="chat-btn">AI診断を試す</a>
-  <div style="margin-top:12px;font-size:11px;color:#6A8A9A;text-align:center;letter-spacing:1px">
-  <a href="https://gemini.google.com/gem/1_AqLRwNSP1tZWZNWzyNIrsOrBLI1fAjo" style="color:#00D4FF;text-decoration:none" target="_blank">Gemini で診断</a>
-  <span style="margin:0 8px;opacity:.3">|</span>
-  <a href="https://shield.the-horizons-innovation.com/souba.html" style="color:#00D4FF;text-decoration:none">相場データベース</a>
-</div>
-</div>
+  <div class="cta-line">
+    <a href="https://line.me/R/ti/p/@172piime" class="line-btn">🛡 KIRAに相談する（無料）</a>
+    <a href="https://chatgpt.com/g/g-69e180f9a5048191886069dd58b22572-jian-she-fei-tietuka-by-horizon-shield" class="chat-btn" target="_blank">ChatGPTで無料診断 →</a>
+    <a href="/widget.html" class="chat-btn" target="_blank">見積もり無料チェッカー →</a>
+    <a href="/hs-reverse-estimate/" class="chat-btn" target="_blank" style="background:linear-gradient(135deg,rgba(200,168,50,.12),rgba(200,168,50,.06));border-color:#c8a832;color:#c8a832">★ 逆見積もり診断 v3 NEW →</a>
+    <a href="#diagnosis-section" class="chat-btn">AI診断を試す</a>
+    <div style="margin-top:12px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:1px">
+      <a href="https://gemini.google.com/gem/1_AqLRwNSP1tZWZNWzyNIrsOrBLI1fAjo" style="color:var(--accent);text-decoration:none" target="_blank">Gemini で診断</a>
+      <span style="margin:0 8px;opacity:.3">|</span>
+      <a href="https://shield.the-horizons-innovation.com/souba.html" style="color:var(--accent);text-decoration:none">相場データベース</a>
+    </div>
+  </div>
 </section>
 
 <div class="divider"></div>
-<section id="free-content" style="padding:60px 20px;background:linear-gradient(180deg,transparent,rgba(0,212,255,.03))">
+<section id="free-content" style="padding:60px 20px;">
   <div class="sec-label">// FREE CONTENT</div>
   <div class="sec-title"><em>無料</em>で使える全コンテンツ</div>
   <p style="color:var(--muted);font-size:13px;margin-bottom:32px;max-width:680px">診断サービスを申し込まなくても、施主の武装化に役立つ無料コンテンツを公開中。毎日更新。</p>
   
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:1000px">
-    <a href="/blog/" style="display:block;padding:24px;background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.15);border-radius:8px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(0,212,255,.08)';this.style.borderColor='rgba(0,212,255,.4)'" onmouseout="this.style.background='rgba(0,212,255,.04)';this.style.borderColor='rgba(0,212,255,.15)'">
-      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;margin-bottom:8px">📝 DAILY BLOG</div>
+    <a href="/blog/" style="display:block;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-decoration:none;transition:all .2s">
+      <div style="font-size:10px;color:var(--accent);letter-spacing:3px;margin-bottom:8px">📝 DAILY BLOG</div>
       <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">建設費診断ブログ</div>
       <div style="font-size:12px;color:var(--muted);line-height:1.7">建設業界のプロが<strong style="color:var(--text)">毎日更新</strong>。業者の手口・相場・補助金情報を施主目線で解説。</div>
       <div style="font-size:11px;color:var(--accent);margin-top:12px">記事を読む →</div>
     </a>
     
-    <a href="/map" style="display:block;padding:24px;background:rgba(255,48,64,.04);border:1px solid rgba(255,48,64,.15);border-radius:8px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(255,48,64,.08)';this.style.borderColor='rgba(255,48,64,.4)'" onmouseout="this.style.background='rgba(255,48,64,.04)';this.style.borderColor='rgba(255,48,64,.15)'">
-      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--danger);letter-spacing:3px;margin-bottom:8px">📍 WARNING MAP</div>
+    <a href="/map" style="display:block;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-decoration:none;transition:all .2s">
+      <div style="font-size:10px;color:var(--danger);letter-spacing:3px;margin-bottom:8px">📍 WARNING MAP</div>
       <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">ボッタクリ被害マップ</div>
       <div style="font-size:12px;color:var(--muted);line-height:1.7">全国の悪質業者の活動エリアを可視化。自分の地域の<strong style="color:var(--text)">警戒レベル</strong>を確認。</div>
       <div style="font-size:11px;color:var(--danger);margin-top:12px">マップを見る →</div>
     </a>
     
-    <a href="/check/" style="display:block;padding:24px;background:rgba(240,192,48,.04);border:1px solid rgba(240,192,48,.15);border-radius:8px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(240,192,48,.08)';this.style.borderColor='rgba(240,192,48,.4)'" onmouseout="this.style.background='rgba(240,192,48,.04)';this.style.borderColor='rgba(240,192,48,.15)'">
-      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#F0C030;letter-spacing:3px;margin-bottom:8px">🔍 GYOSHA CHECK</div>
+    <a href="/check/" style="display:block;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-decoration:none;transition:all .2s">
+      <div style="font-size:10px;color:var(--warn);letter-spacing:3px;margin-bottom:8px">🔍 GYOSHA CHECK</div>
       <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">業者チェッカー</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7">気になる業者の<strong style="color:var(--text)">建設業許可・評判・通報履歴</strong>を一括検索。契約前に必ずチェック。</div>
-      <div style="font-size:11px;color:#F0C030;margin-top:12px">業者を調べる →</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">気になる業者の<strong style="color:var(--text)">建設業許可・評判・通報履歴</strong>を一括検索。</div>
+      <div style="font-size:11px;color:var(--warn);margin-top:12px">業者を調べる →</div>
     </a>
     
-    <a href="/souba.html" style="display:block;padding:24px;background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.15);border-radius:8px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(0,255,136,.08)';this.style.borderColor='rgba(0,255,136,.4)'" onmouseout="this.style.background='rgba(0,255,136,.04)';this.style.borderColor='rgba(0,255,136,.15)'">
-      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#00FF88;letter-spacing:3px;margin-bottom:8px">📊 PRICE DB</div>
+    <a href="/souba.html" style="display:block;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-decoration:none;transition:all .2s">
+      <div style="font-size:10px;color:#2e7d32;letter-spacing:3px;margin-bottom:8px">📊 PRICE DB</div>
       <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">相場データベース</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7">工事別の<strong style="color:var(--text)">適正価格レンジ</strong>を49カテゴリで公開。国交省公式データベース。</div>
-      <div style="font-size:11px;color:#00FF88;margin-top:12px">DBを見る →</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">工事別の<strong style="color:var(--text)">適正価格レンジ</strong>を49カテゴリで公開。</div>
+      <div style="font-size:11px;color:#2e7d32;margin-top:12px">DBを見る →</div>
     </a>
   </div>
 </section>
@@ -841,7 +828,7 @@ footer{
 </section>
 
 <footer>
-  <div class="footer-logo">HORIZON<span style="color:var(--danger)">SHIELD</span></div>
+  <div class="footer-logo">HORIZON<span style="color:#c8a832">SHIELD</span></div>
   <p>建設業界のセカンドオピニオン専門家</p>
   <div class="footer-links">
     <a href="/map">被害マップ</a>
@@ -942,7 +929,7 @@ async function runDiagnosis(){
     document.getElementById('form-loading').style.display='none';
     document.getElementById('form-result').style.display='block';
     document.getElementById('result-amount').textContent=result.amount||'—';
-    const riskColor={'high':'var(--danger)','medium':'var(--warn)','low':'#00ff88'}[result.risk]||'var(--accent)';
+    const riskColor={'high':'#8b1a1a','medium':'#c8a832','low':'#2e7d32'}[result.risk]||'#0f1e4a';
     document.getElementById('result-amount').style.color=riskColor;
     document.getElementById('result-text').innerHTML=
       (result.items?.map(i=>'<div style="padding:6px 0;border-bottom:1px solid var(--border)">⚠ '+i+'</div>').join('')||'')+
@@ -978,212 +965,45 @@ window.addEventListener('scroll',()=>{
   });
 });
 </script>
-<style>
-#kira-popup{position:fixed;bottom:24px;right:24px;z-index:9999;opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;pointer-events:none;max-width:320px;width:calc(100% - 48px)}
-#kira-popup.visible{opacity:1;transform:translateY(0);pointer-events:all}
-#kira-popup.hidden{opacity:0;transform:translateY(20px);pointer-events:none}
-.kira-bubble{background:linear-gradient(135deg,#050d1a 0%,#0a1628 60%,#071420 100%);border:1px solid rgba(0,255,180,.18);border-radius:20px;padding:20px;position:relative;overflow:hidden;box-shadow:0 0 40px rgba(0,200,140,.08),0 8px 32px rgba(0,0,0,.6)}
-.kira-mito{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:.4}
-.kira-close{position:absolute;top:12px;right:14px;color:rgba(0,255,180,.4);font-size:18px;cursor:pointer;line-height:1;background:none;border:none;padding:0}
-.kira-close:hover{color:rgba(0,255,180,.9)}
-.kira-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;position:relative;z-index:2}
-.kira-avatar-wrap{position:relative;width:48px;height:48px;flex-shrink:0}
-.kira-avatar-ring{position:absolute;inset:-4px;border-radius:50%;border:1.5px solid rgba(0,255,180,.3);animation:kira-ring 3s ease-in-out infinite}
-.kira-avatar-ring2{position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(0,255,180,.12);animation:kira-ring 3s ease-in-out infinite .8s}
-@keyframes kira-ring{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(1.08);opacity:.9}}
-.kira-avatar{width:48px;height:48px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#00ffb4,#00a876 40%,#005a45 80%,#001a12);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:#001a12;position:relative;z-index:1}
-.kira-pulse{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,rgba(0,255,180,.2),transparent 70%);animation:kira-pulse 2.4s ease-in-out infinite}
-@keyframes kira-pulse{0%,100%{transform:scale(.9);opacity:.3}50%{transform:scale(1.15);opacity:.8}}
-.kira-name{font-size:15px;font-weight:700;color:#00ffb4;letter-spacing:.5px}
-.kira-status{font-size:11px;color:rgba(0,255,180,.5);margin-top:2px;display:flex;align-items:center;gap:5px}
-.kira-dot{width:6px;height:6px;border-radius:50%;background:#00ffb4;animation:kira-blink 1.8s ease-in-out infinite}
-@keyframes kira-blink{0%,100%{opacity:1}50%{opacity:.2}}
-.kira-msg{font-size:13px;color:rgba(220,240,235,.85);line-height:1.7;position:relative;z-index:2;margin-bottom:16px}
-.kira-msg em{color:#00ffb4;font-style:normal;font-weight:600}
-.kira-actions{display:flex;flex-direction:column;gap:8px;position:relative;z-index:2}
-.kira-btn-main{display:block;padding:11px 16px;background:linear-gradient(90deg,#00c98a,#00ffb4);color:#001a12;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none;text-align:center;transition:transform .15s,box-shadow .15s}
-.kira-btn-main:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,255,180,.35)}
-.kira-btn-sub{display:block;padding:9px 16px;background:rgba(0,255,180,.06);border:1px solid rgba(0,255,180,.2);color:rgba(0,255,180,.8);border-radius:12px;font-size:12px;text-decoration:none;text-align:center;transition:background .15s}
-.kira-btn-sub:hover{background:rgba(0,255,180,.12)}
-.kira-year{position:absolute;bottom:10px;right:14px;font-size:9px;color:rgba(0,255,180,.2);letter-spacing:2px;font-family:monospace;z-index:2}
-</style>
 
-<div id="kira-popup">
-  <div class="kira-bubble">
-    <svg class="kira-mito" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="mg1" cx="30%" cy="40%"><stop offset="0%" stop-color="#00ffb4" stop-opacity=".15"/><stop offset="100%" stop-color="#00ffb4" stop-opacity="0"/></radialGradient>
-        <radialGradient id="mg2" cx="80%" cy="70%"><stop offset="0%" stop-color="#00c8ff" stop-opacity=".1"/><stop offset="100%" stop-color="#00c8ff" stop-opacity="0"/></radialGradient>
-      </defs>
-      <ellipse cx="80" cy="80" rx="70" ry="45" fill="none" stroke="rgba(0,255,180,.12)" stroke-width="1"/>
-      <ellipse cx="240" cy="80" rx="60" ry="40" fill="none" stroke="rgba(0,200,255,.1)" stroke-width="1"/>
-      <path d="M30,65 Q55,50 55,80 Q55,110 30,95" fill="none" stroke="rgba(0,255,180,.2)" stroke-width="1"/>
-      <path d="M50,60 Q75,45 75,80 Q75,115 50,100" fill="none" stroke="rgba(0,255,180,.15)" stroke-width="1"/>
-      <path d="M70,62 Q95,47 95,80 Q95,113 70,98" fill="none" stroke="rgba(0,255,180,.12)" stroke-width="1"/>
-      <path d="M200,68 Q225,53 225,80 Q225,107 200,92" fill="none" stroke="rgba(0,200,255,.18)" stroke-width="1"/>
-      <path d="M220,65 Q245,50 245,80 Q245,110 220,95" fill="none" stroke="rgba(0,200,255,.12)" stroke-width="1"/>
-      <circle cx="80" cy="80" r="3" fill="rgba(0,255,180,.25)"><animate attributeName="r" values="2;4;2" dur="3s" repeatCount="indefinite"/></circle>
-      <circle cx="240" cy="80" r="2.5" fill="rgba(0,200,255,.2)"><animate attributeName="r" values="2;3.5;2" dur="3.8s" repeatCount="indefinite"/></circle>
-      <circle cx="160" cy="40" r="1.5" fill="rgba(0,255,180,.3)"><animate attributeName="opacity" values="0.3;0.9;0.3" dur="2.5s" repeatCount="indefinite"/></circle>
-      <circle cx="160" cy="120" r="1.5" fill="rgba(0,200,255,.3)"><animate attributeName="opacity" values="0.9;0.3;0.9" dur="2.5s" repeatCount="indefinite"/></circle>
-      <line x1="90" y1="80" x2="200" y2="80" stroke="rgba(0,255,180,.06)" stroke-width="1" stroke-dasharray="4,6"/>
-      <circle fill="rgba(0,255,180,.12)" cx="160" cy="80" r="8"><animate attributeName="r" values="6;10;6" dur="4s" repeatCount="indefinite"/></circle>
-      <ellipse fill="none" stroke="rgba(0,255,180,.08)" stroke-width="1" cx="160" cy="80" rx="50" ry="30"><animate attributeName="rx" values="48;54;48" dur="4s" repeatCount="indefinite"/></ellipse>
-      <circle cx="160" cy="80" r="3" fill="rgba(0,255,180,.4)"/>
-      <ellipse cx="160" cy="80" rx="140" ry="65" fill="url(#mg1)" opacity=".6"/>
-      <ellipse cx="240" cy="90" rx="60" ry="40" fill="url(#mg2)" opacity=".5"/>
-    </svg>
-
-    <button class="kira-close" onclick="document.getElementById('kira-popup').classList.replace('visible','hidden')">×</button>
-
-    <div class="kira-head">
-      <div class="kira-avatar-wrap">
-        <div class="kira-avatar-ring"></div>
-        <div class="kira-avatar-ring2"></div>
-        <div class="kira-avatar">K<div class="kira-pulse"></div></div>
-      </div>
-      <div>
-        <div class="kira-name">KIRA</div>
-        <div class="kira-status"><span class="kira-dot"></span>AI診断 · 即時応答</div>
-      </div>
-    </div>
-
-    <div class="kira-msg">
-      その見積書、<em>15〜20%</em> の過剰請求が<br>
-      隠れているかもしれません。<br>
-      60秒の無料診断で、今すぐ確認できます。
-    </div>
-
-    <div class="kira-actions">
-      <a href="#diagnosis-section" class="kira-btn-main" onclick="document.getElementById('kira-popup').classList.replace('visible','hidden')">▶ 無料AI診断を始める</a>
-      <a href="https://line.me/R/ti/p/@172piime" class="kira-btn-sub" target="_blank">LINEで直接相談する →</a>
-    </div>
-
-    <div class="kira-year">HORIZON SHIELD 2026</div>
-  </div>
-</div>
-
-<script>
-(function(){
-  var shown = sessionStorage.getItem('kira_popup_shown');
-  if(!shown){
-    setTimeout(function(){
-      var el = document.getElementById('kira-popup');
-      if(el){ el.classList.add('visible'); sessionStorage.setItem('kira_popup_shown','1'); }
-    }, 10000);
-  }
-})();
-</script> 
-
-<!-- 特定商取引法モーダル（PayPal・銀行振込 統合版） -->
-<div id="terms-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;overflow-y:auto;">
-  <div style="max-width:600px;margin:40px auto;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:32px;color:#e0e0e0;font-family:sans-serif;">
+<!-- 特定商取引法モーダル -->
+<div id="terms-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;overflow-y:auto;">
+  <div style="max-width:600px;margin:40px auto;background:#fff;border:1px solid #dddad0;border-radius:12px;padding:32px;color:#1a1a2a;font-family:sans-serif;">
     
-    <div style="border-bottom:1px solid #222;padding-bottom:16px;margin-bottom:24px;">
-      <h2 style="color:#00ff88;font-size:18px;margin:0 0 4px;">利用規約・特定商取引法に基づく表記</h2>
-      <p style="color:#666;font-size:12px;margin:0;">お申し込みの前に必ずお読みください</p>
+    <div style="border-bottom:1px solid #dddad0;padding-bottom:16px;margin-bottom:24px;">
+      <h2 style="color:#0f1e4a;font-size:18px;margin:0 0 4px;">利用規約・特定商取引法に基づく表記</h2>
+      <p style="color:#888880;font-size:12px;margin:0;">お申し込みの前に必ずお読みください</p>
     </div>
 
-    <h3 style="color:#fff;font-size:14px;margin:0 0 12px;">■ 特定商取引法に基づく表記</h3>
+    <h3 style="color:#1a1a2a;font-size:14px;margin:0 0 12px;">■ 特定商取引法に基づく表記</h3>
     <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px;">
-      <tr style="border-bottom:1px solid #1a1a1a;">
-        <td style="padding:10px 8px;color:#888;width:40%;vertical-align:top;">販売業者</td>
-        <td style="padding:10px 8px;color:#e0e0e0;">The HORIZ音s株式会社</td>
-      </tr>
-      <tr style="border-bottom:1px solid #1a1a1a;">
-        <td style="padding:10px 8px;color:#888;vertical-align:top;">代表者</td>
-        <td style="padding:10px 8px;color:#e0e0e0;">大賀 俊勝</td>
-      </tr>
-      <tr style="border-bottom:1px solid #1a1a1a;">
-        <td style="padding:10px 8px;color:#888;vertical-align:top;">所在地</td>
-        <td style="padding:10px 8px;color:#e0e0e0;">〒107-0062 東京都港区南青山2-2-15 ウィン青山942（登記上住所）</td>
-      </tr>
-      <tr style="border-bottom:1px solid #1a1a1a;">
-        <td style="padding:10px 8px;color:#888;vertical-align:top;">電話番号</td>
-        <td style="padding:10px 8px;color:#e0e0e0;">0463-74-5917</td>
-      </tr>
-      <tr style="border-bottom:1px solid #1a1a1a;">
-        <td style="padding:10px 8px;color:#888;vertical-align:top;">メールアドレス</td>
-        <td style="padding:10px 8px;color:#e0e0e0;">contact@the-horizons-innovation.com</td>
-      </tr>
-      <tr style="border-bottom:1px solid #1a1a1a;">
-        <td style="padding:10px 8px;color:#888;vertical-align:top;">サービス内容</td>
-        <td style="padding:10px 8px;color:#e0e0e0;">交渉用・逆見積書PDF・建設費診断・変更工事査定・完成検査立会い</td>
-      </tr>
-      <tr style="border-bottom:1px solid #1a1a1a;">
-        <td style="padding:10px 8px;color:#888;vertical-align:top;">販売価格</td>
-        <td style="padding:10px 8px;color:#e0e0e0;">
-          交渉用・逆見積書PDF：¥5,500（税込）<br>
-          建設費診断：¥55,000（税込）<br>
-          変更工事査定：¥33,000（税込）<br>
-          完成検査立会い：¥88,000（税込）
-        </td>
-      </tr>
-      <tr style="border-bottom:1px solid #1a1a1a;">
-        <td style="padding:10px 8px;color:#888;vertical-align:top;">支払方法</td>
-        <td style="padding:10px 8px;color:#e0e0e0;">PayPal（クレジットカード・Apple Pay対応）・銀行振込</td>
-      </tr>
-      <tr style="border-bottom:1px solid #1a1a1a;">
-        <td style="padding:10px 8px;color:#888;vertical-align:top;">支払時期</td>
-        <td style="padding:10px 8px;color:#e0e0e0;">お申し込みと同時にお支払いいただきます</td>
-      </tr>
-      <tr style="border-bottom:1px solid #1a1a1a;">
-        <td style="padding:10px 8px;color:#888;vertical-align:top;">サービス提供時期</td>
-        <td style="padding:10px 8px;color:#e0e0e0;">
-          交渉用・逆見積書PDF：お支払い確認後2営業日以内<br>
-          建設費診断：お支払い確認後2営業日以内<br>
-          変更工事査定：お支払い確認後24時間以内<br>
-          完成検査立会い：お支払い確認後、日程調整の上実施
-        </td>
-      </tr>
-      <tr style="border-bottom:1px solid #1a1a1a;">
-        <td style="padding:10px 8px;color:#888;vertical-align:top;">キャンセルポリシー</td>
-        <td style="padding:10px 8px;color:#e0e0e0;">
-          見積書ファイルご送付前のキャンセル：全額返金<br>
-          見積書ファイルご送付後（診断開始後）：返金不可
-        </td>
-      </tr>
-      <tr>
-        <td style="padding:10px 8px;color:#888;vertical-align:top;">個人情報の取扱い</td>
-        <td style="padding:10px 8px;color:#e0e0e0;">ご提供いただいた個人情報はサービス提供目的のみに使用し、第三者への提供は行いません。見積書ファイルは診断後速やかに削除いたします。</td>
-      </tr>
+      <tr style="border-bottom:1px solid #dddad0;"><td style="padding:10px 8px;color:#888880;width:40%;vertical-align:top;">販売業者</td><td style="padding:10px 8px;color:#1a1a2a;">The HORIZ音s株式会社</td></tr>
+      <tr style="border-bottom:1px solid #dddad0;"><td style="padding:10px 8px;color:#888880;vertical-align:top;">代表者</td><td style="padding:10px 8px;color:#1a1a2a;">大賀 俊勝</td></tr>
+      <tr style="border-bottom:1px solid #dddad0;"><td style="padding:10px 8px;color:#888880;vertical-align:top;">所在地</td><td style="padding:10px 8px;color:#1a1a2a;">〒107-0062 東京都港区南青山2-2-15 ウィン青山942（登記上住所）</td></tr>
+      <tr style="border-bottom:1px solid #dddad0;"><td style="padding:10px 8px;color:#888880;vertical-align:top;">電話番号</td><td style="padding:10px 8px;color:#1a1a2a;">0463-74-5917</td></tr>
+      <tr style="border-bottom:1px solid #dddad0;"><td style="padding:10px 8px;color:#888880;vertical-align:top;">メールアドレス</td><td style="padding:10px 8px;color:#1a1a2a;">contact@the-horizons-innovation.com</td></tr>
+      <tr style="border-bottom:1px solid #dddad0;"><td style="padding:10px 8px;color:#888880;vertical-align:top;">販売価格</td><td style="padding:10px 8px;color:#1a1a2a;">逆見積書PDF：¥5,500 / 建設費診断：¥55,000 / 変更工事査定：¥33,000 / 完成検査立会い：¥88,000（全て税込）</td></tr>
+      <tr style="border-bottom:1px solid #dddad0;"><td style="padding:10px 8px;color:#888880;vertical-align:top;">支払方法</td><td style="padding:10px 8px;color:#1a1a2a;">PayPal（クレジットカード・Apple Pay対応）・銀行振込</td></tr>
+      <tr style="border-bottom:1px solid #dddad0;"><td style="padding:10px 8px;color:#888880;vertical-align:top;">サービス提供時期</td><td style="padding:10px 8px;color:#1a1a2a;">お支払い確認後2営業日以内（変更工事査定は24時間以内）</td></tr>
+      <tr style="border-bottom:1px solid #dddad0;"><td style="padding:10px 8px;color:#888880;vertical-align:top;">キャンセルポリシー</td><td style="padding:10px 8px;color:#1a1a2a;">見積書送付前：全額返金 / 診断開始後：返金不可</td></tr>
+      <tr><td style="padding:10px 8px;color:#888880;vertical-align:top;">個人情報</td><td style="padding:10px 8px;color:#1a1a2a;">サービス提供目的のみ使用。第三者提供なし。診断後速やかに削除。</td></tr>
     </table>
 
-    <h3 style="color:#fff;font-size:14px;margin:0 0 12px;">■ 利用規約</h3>
-    <div style="background:#111;border-radius:8px;padding:16px;font-size:12px;color:#aaa;line-height:1.8;margin-bottom:24px;max-height:200px;overflow-y:auto;">
-      <p style="margin:0 0 8px;"><strong style="color:#ccc;">第1条（サービスの内容）</strong><br>
-      本サービスは、お客様からご提供いただいた建設工事の見積書等をもとに、適正価格の診断・助言を行うものです。本サービスはあくまで参考情報の提供であり、法的効力を持つ鑑定・保証ではありません。</p>
-      <p style="margin:0 0 8px;"><strong style="color:#ccc;">第2条（免責事項）</strong><br>
-      診断結果はご提供いただいた情報に基づくものであり、実際の工事結果・業者との交渉結果について当社は責任を負いません。</p>
-      <p style="margin:0 0 8px;"><strong style="color:#ccc;">第3条（禁止事項）</strong><br>
-      診断結果の無断転載・商業利用・第三者への譲渡を禁止します。</p>
-      <p style="margin:0;"><strong style="color:#ccc;">第4条（準拠法）</strong><br>
-      本規約は日本法に準拠し、東京地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
-    </div>
-
-    <div style="background:#111;border:1px solid #333;border-radius:8px;padding:16px;margin-bottom:20px;">
+    <div style="background:#faf9f5;border:1px solid #dddad0;border-radius:8px;padding:16px;margin-bottom:20px;">
       <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;">
-        <input type="checkbox" id="terms-agree-check" style="width:18px;height:18px;margin-top:2px;cursor:pointer;accent-color:#00ff88;">
-        <span style="font-size:13px;color:#e0e0e0;line-height:1.6;">
-          上記の特定商取引法に基づく表記および利用規約を読み、内容に同意します。
-        </span>
+        <input type="checkbox" id="terms-agree-check" style="width:18px;height:18px;margin-top:2px;cursor:pointer;accent-color:#0f1e4a;">
+        <span style="font-size:13px;color:#1a1a2a;line-height:1.6;">上記の特定商取引法に基づく表記および利用規約を読み、内容に同意します。</span>
       </label>
     </div>
 
     <div style="display:flex;gap:12px;">
-      <button onclick="closeTermsModal()" style="flex:1;padding:14px;background:transparent;border:1px solid #333;border-radius:8px;color:#888;font-size:14px;cursor:pointer;">
-        キャンセル
-      </button>
-      <button id="terms-agree-btn" onclick="proceedAfterAgree()" disabled style="flex:2;padding:14px;background:#333;border:none;border-radius:8px;color:#666;font-size:14px;font-weight:700;cursor:not-allowed;transition:all 0.3s;">
-        同意して申し込む →
-      </button>
+      <button onclick="closeTermsModal()" style="flex:1;padding:14px;background:transparent;border:1px solid #dddad0;border-radius:8px;color:#888880;font-size:14px;cursor:pointer;">キャンセル</button>
+      <button id="terms-agree-btn" onclick="proceedAfterAgree()" disabled style="flex:2;padding:14px;background:#dddad0;border:none;border-radius:8px;color:#888880;font-size:14px;font-weight:700;cursor:not-allowed;transition:all 0.3s;">同意して申し込む →</button>
     </div>
-
   </div>
 </div>
 
 <script>
-// 特商法モーダル制御（PayPal・銀行振込 統合版）
 let termsModalTarget = '';
 let termsModalPaypalURL = null;
 
@@ -1192,19 +1012,13 @@ function openTermsModal(target, paypalURL) {
   termsModalPaypalURL = paypalURL || null;
   document.getElementById('terms-modal').style.display = 'block';
   document.body.style.overflow = 'hidden';
-  
-  // チェックボックスとボタンをリセット
   document.getElementById('terms-agree-check').checked = false;
   const btn = document.getElementById('terms-agree-btn');
   btn.disabled = true;
-  btn.style.background = '#333';
-  btn.style.color = '#666';
+  btn.style.background = '#dddad0';
+  btn.style.color = '#888880';
   btn.style.cursor = 'not-allowed';
-  
-  // 決済方法に応じてボタンテキストを変更
-  btn.textContent = termsModalPaypalURL 
-    ? '同意して PayPal で支払う →' 
-    : '同意して銀行振込で申し込む →';
+  btn.textContent = termsModalPaypalURL ? '同意して PayPal で支払う →' : '同意して銀行振込で申し込む →';
 }
 
 function closeTermsModal() {
@@ -1215,36 +1029,31 @@ function closeTermsModal() {
 
 function proceedAfterAgree() {
   if (!document.getElementById('terms-agree-check').checked) return;
-  
   if (termsModalPaypalURL) {
-    // PayPal 決済: 新規タブで開いてモーダル閉じる
     window.open(termsModalPaypalURL, '_blank', 'noopener');
     closeTermsModal();
   } else {
-    // 銀行振込: 同一タブで遷移
     const target = termsModalTarget;
     closeTermsModal();
     window.location.href = '/bank-transfer.html?type=' + target;
   }
 }
 
-// チェックボックスの状態でボタンを切り替え
 document.getElementById('terms-agree-check').addEventListener('change', function() {
   const btn = document.getElementById('terms-agree-btn');
   if (this.checked) {
     btn.disabled = false;
-    btn.style.background = termsModalPaypalURL ? '#0070ba' : '#00ff88';
-    btn.style.color = termsModalPaypalURL ? '#fff' : '#000';
+    btn.style.background = termsModalPaypalURL ? '#0070ba' : '#0f1e4a';
+    btn.style.color = '#fff';
     btn.style.cursor = 'pointer';
   } else {
     btn.disabled = true;
-    btn.style.background = '#333';
-    btn.style.color = '#666';
+    btn.style.background = '#dddad0';
+    btn.style.color = '#888880';
     btn.style.cursor = 'not-allowed';
   }
 });
 
-// モーダル外クリックで閉じる
 document.getElementById('terms-modal').addEventListener('click', function(e) {
   if (e.target === this) closeTermsModal();
 });
