@@ -850,11 +850,42 @@ document.addEventListener('DOMContentLoaded', function() {
     if (e.target === document.getElementById('terms-modal-hs')) closeTermsModalHs();
   });
 
-  // admin reset
+  // admin reset（URLパラメータ）
   if (new URLSearchParams(location.search).get('admin') === 'reset') {
     localStorage.removeItem('hs_reverse_used');
     history.replaceState({}, '', '/hs-reverse-estimate/');
   }
+
+  // KIRAヘッダー5回連続タップでリセットパネル表示
+  var adminTapCount = 0, adminTapTimer = null;
+  var kcHeader = document.querySelector('.kc-header');
+  if (kcHeader) {
+    kcHeader.addEventListener('click', function() {
+      adminTapCount++;
+      clearTimeout(adminTapTimer);
+      if (adminTapCount >= 5) {
+        adminTapCount = 0;
+        var p = document.getElementById('admin-reset-panel');
+        if (p) p.style.display = p.style.display === 'none' ? 'block' : 'none';
+      }
+      adminTapTimer = setTimeout(function() { adminTapCount = 0; }, 2000);
+    });
+  }
+
+  // リセットパネル生成
+  var rp = document.createElement('div');
+  rp.id = 'admin-reset-panel';
+  rp.style.cssText = 'display:none;position:fixed;bottom:80px;right:20px;z-index:9000;background:#0f1e4a;border:1px solid #c8a832;border-radius:10px;padding:16px 20px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+  rp.innerHTML = '<div style="font-size:11px;color:#c8a832;letter-spacing:2px;margin-bottom:10px">ADMIN</div>'
+    + '<button onclick="adminReset()" style="background:#c8a832;border:none;color:#0f1e4a;font-weight:900;font-size:13px;padding:10px 20px;border-radius:6px;cursor:pointer;width:100%">ヒアリングをリセット</button>'
+    + '<button onclick="document.getElementById(\'admin-reset-panel\').style.display=\'none\'" style="background:transparent;border:none;color:#888;font-size:11px;margin-top:8px;cursor:pointer;width:100%">閉じる</button>';
+  document.body.appendChild(rp);
+
+  window.adminReset = function() {
+    localStorage.removeItem('hs_reverse_used');
+    document.getElementById('admin-reset-panel').style.display = 'none';
+    location.reload();
+  };
 
   // 使用済みチェック
   if (localStorage.getItem('hs_reverse_used')) {
