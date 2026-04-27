@@ -536,16 +536,56 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:32px
   </div>
 </section>
 
-<section id="faq">
-  <div class="sec-label">// FAQ</div>
-  <div class="sec-title"><em>よくある</em>質問</div>
-  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">対象となる工事の規模は？</div><div class="faq-a">工事費500万円以下の住宅リノベーション・店舗改装・小規模工事が主な対象です。500万円超は個別相談ください。</div></div>
-  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">見積書を送ると情報が漏れませんか？</div><div class="faq-a">査定目的のみに使用し、第三者への提供は一切しません。診断後すぐに削除します。NDAの締結も対応します。</div></div>
-  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">査定の結果、適正価格だった場合は？</div><div class="faq-a">「適正です」という結果もレポートに明記します。安心して工事を進めるための確認としてもご利用いただけます。</div></div>
-  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">キャンセルはできますか？</div><div class="faq-a">PDFレポート送信前のキャンセルは全額返金します。レポート送信後のキャンセルはお受けできません。</div></div>
-  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">どんな決済方法が使えますか？</div><div class="faq-a">PayPal（クレジットカード・Apple Pay対応）および銀行振込がご利用いただけます。PayPalはアカウント登録不要でクレジットカード決済が可能です。</div></div>
-</section>
+<section id="faq" style="padding:72px 20px;background:var(--bg);">
+  <div style="max-width:800px;margin:0 auto;">
+    <div class="sec-label">// FAQ</div>
+    <div class="sec-title"><em>よくある</em>質問</div>
 
+    <div style="margin-top:32px;display:flex;flex-direction:column;gap:12px;">
+
+      <details style="background:var(--surface);border:1px solid var(--border);padding:20px 24px;cursor:pointer;">
+        <summary style="font-weight:700;font-size:14px;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;">業者に診断したことがバレませんか？<span style="font-size:20px;font-weight:300;">+</span></summary>
+        <p style="margin-top:14px;font-size:14px;line-height:1.8;color:var(--text);">バレません。見積書はメールで当社に送っていただくだけで、業者には一切通知されません。報告書はあなたの手元だけに届きます。「専門家に確認した」と伝えるだけで交渉力は大幅に上がります。</p>
+      </details>
+
+      <details style="background:var(--surface);border:1px solid var(--border);padding:20px 24px;cursor:pointer;">
+        <summary style="font-weight:700;font-size:14px;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;">報告書を見せたら業者に逆切れされませんか？<span style="font-size:20px;font-weight:300;">+</span></summary>
+        <p style="margin-top:14px;font-size:14px;line-height:1.8;color:var(--text);">される業者は最初から避けるべき業者です。適正価格を提示して怒る業者は、過剰請求に後ろめたさがある証拠。報告書には「業者への提示文テンプレート」が付属しており、角が立たない伝え方ができます。</p>
+      </details>
+
+      <details style="background:var(--surface);border:1px solid var(--border);padding:20px 24px;cursor:pointer;">
+        <summary style="font-weight:700;font-size:14px;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;">地元の知り合いの業者ですが大丈夫ですか？<span style="font-size:20px;font-weight:300;">+</span></summary>
+        <p style="margin-top:14px;font-size:14px;line-height:1.8;color:var(--text);">むしろ知り合いだからこそ必要です。知り合いという関係性を利用した割高請求は業界の常識です。「専門家に確認した適正価格はこの範囲でした」と伝えることで、相手の顔を立てながら値引きを引き出せます。</p>
+      </details>
+
+      <details style="background:var(--surface);border:1px solid var(--border);padding:20px 24px;cursor:pointer;">
+        <summary style="font-weight:700;font-size:14px;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;">診断結果が適正価格だった場合、¥5,500は損では？<span style="font-size:20px;font-weight:300;">+</span></summary>
+        <p style="margin-top:14px;font-size:14px;line-height:1.8;color:var(--text);">損ではありません。「適正でした」という結果は、安心して工事を進められる根拠になります。また報告書には過剰請求されやすい項目チェックリストと交渉文テンプレートが付いており、今後のリフォームでも使い続けられます。</p>
+      </details>
+
+      <details style="background:var(--surface);border:1px solid var(--border);padding:20px 24px;cursor:pointer;">
+        <summary style="font-weight:700;font-size:14px;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;">素人なので業者と交渉する自信がありません。<span style="font-size:20px;font-weight:300;">+</span></summary>
+        <p style="margin-top:14px;font-size:14px;line-height:1.8;color:var(--text);">交渉する必要はありません。報告書に書かれた文章をそのままメールで送るだけでOKです。「専門家に確認したところ適正価格は○○万円でした」の一文だけで、業者側の行動は変わります。</p>
+      </details>
+
+      <details style="background:var(--surface);border:1px solid var(--border);padding:20px 24px;cursor:pointer;">
+        <summary style="font-weight:700;font-size:14px;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;">対象となる工事の規模は？<span style="font-size:20px;font-weight:300;">+</span></summary>
+        <p style="margin-top:14px;font-size:14px;line-height:1.8;color:var(--text);">工事費の上限は特に設けていません。大型案件ほど過剰請求の絶対額が大きくなるため、診断の費用対効果が高くなります。住宅リノベーション・店舗改装・小規模工事すべて対応しています。</p>
+      </details>
+
+      <details style="background:var(--surface);border:1px solid var(--border);padding:20px 24px;cursor:pointer;">
+        <summary style="font-weight:700;font-size:14px;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;">見積書を送ると情報が漏れませんか？<span style="font-size:20px;font-weight:300;">+</span></summary>
+        <p style="margin-top:14px;font-size:14px;line-height:1.8;color:var(--text);">診断目的のみに使用し、第三者への提供は一切しません。診断後すぐに削除します。NDAの締結も対応します。</p>
+      </details>
+
+      <details style="background:var(--surface);border:1px solid var(--border);padding:20px 24px;cursor:pointer;">
+        <summary style="font-weight:700;font-size:14px;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;">キャンセルはできますか？<span style="font-size:20px;font-weight:300;">+</span></summary>
+        <p style="margin-top:14px;font-size:14px;line-height:1.8;color:var(--text);">PDFレポート送信前のキャンセルは全額返金します。レポート送信後のキャンセルはお受けできません。</p>
+      </details>
+
+    </div>
+  </div>
+</section>
 <footer>
   <div class="footer-logo">HORIZON<span style="color:#c8a832">SHIELD</span></div>
   <p>建設業界のセカンドオピニオン専門家</p>
