@@ -57,9 +57,12 @@ async function generateArticle(theme) {
   }
   const data = await response.json();
   if (data.error) throw new Error(`Claude API失敗: ${data.error.message}`);
+  // 変更後
   const text = (data.content?.[0]?.text || '').replace(/\n{3,}/g, '\n\n').replace(/\*\*/g, '').replace(/\*/g, '');
-  console.log('記事生成完了 文字数:', text.length);
-  return text;
+  const footer = `\n\n━━━━━━━━━━━━━━━━\n\n🛡 HORIZON SHIELD — 無料で使える3つの窓口\n\n📍 LPで診断する\nhttps://shield.the-horizons-innovation.com\n\n🤖 ChatGPTで無料診断（建設費カテゴリ1位）\nhttps://chatgpt.com/g/g-69e180f9a5048191886069dd58b22572-jian-she-fei-tietuka-by-horizon-shield\n\n♊ Geminiで無料診断\nhttps://gemini.google.com/gem/1_AqLRwNSP1tZWZNWzyNIrsOrBLI1fAjo\n\n💬 LINEで今すぐ相談（KIRA）\nhttps://line.me/R/ti/p/@172piime`;
+  const fullText = text + footer;
+  console.log('記事生成完了 文字数:', fullText.length);
+  return fullText;
 }
 
 async function clickButtonByText(page, text) {
