@@ -626,10 +626,12 @@ async function runDiagnosis(){
   const fileInput=document.getElementById('file-input');const name=document.getElementById('user-name').value.trim();const email=document.getElementById('user-email').value.trim();
   document.getElementById('form-step2').style.display='none';document.getElementById('form-loading').style.display='block';
   document.getElementById('step2').classList.remove('active');document.getElementById('step2').classList.add('done');document.getElementById('step3').classList.add('active');
+  let mcpData='';try{const mr=await fetch('https://hs-mcp.oga-surf-project.workers.dev/api/search?q='+encodeURIComponent('外壁 屋根 シロアリ 給湯器'));const mj=await mr.json();if(mj.results&&mj.results.length>0){mcpData=mj.results.slice(0,8).map(r=>r.name+':'+r.min+'〜'+r.max+r.unit).join('/')}}catch(e){}
   try{
     const messages=[{role:'user',content:[]}];
     if(fileInput.files[0]){const file=fileInput.files[0];const b64=await toBase64(file);const mt=file.type||'image/jpeg';if(mt==='application/pdf'){messages[0].content.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}})}else{messages[0].content.push({type:'image',source:{type:'base64',media_type:mt,data:b64}})}}
     messages[0].content.push({type:'text',text:'見積書を確認して、以下の形式でJSONのみ返してください（他テキスト不要）:\n{"amount":"削減可能金額（例：約15〜25万円）","items":["過剰請求の可能性がある項目1","項目2","項目3"],"comment":"専門家からの一言コメント（2〜3文）","risk":"high/medium/low"}'});
+    if(mcpData)messages[0].content.push({type:'text',text:'【2026年4月最新相場DB】'+mcpData});
     const res=await fetch(WORKER+'/anthropic',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'あなたはHORIZON SHIELDの建設費診断AI。建設30年の大賀俊勝が監修した相場データに基づき判定する。【相場知識】外壁塗装30坪：シリコン80-120万・フッ素110-150万、足場15-25万、200万超は過剰／屋根：塗装30-80万・葺替80-150万、棟板金交換5-15万（20万超は過剰）／キッチン：標準80-150万、本体は定価40-60%引きが標準／浴室：標準60-120万、解体30万超は要確認／シロアリ駆除30坪：15-30万（50万超は過剰の疑い大）／太陽光1kW：25-35万（40万超は過剰）／蓄電池1kWh：13-22万／エアコン標準工事：1.5-2.5万、追加10万超は過剰／解体木造30坪：90-150万、道幅2m未満は1.5-3倍／雨漏り部分修理：5-30万、訪問販売100万超は過剰／【法令】2022年4月以降アスベスト調査義務化(無調査は罰金30万)／訪問販売8日以内クーリングオフ可／火災保険申請代行30%手数料は詐欺の疑い／【補助金】介護保険住宅改修最大20万・先進的窓リノベ最大200万・耐震補助30-100万。見積書を分析し過剰請求の具体的金額・項目を指摘。必ずJSONのみで返答。',messages})});
     const data=await res.json();const text=data.content?.find(c=>c.type==='text')?.text||'{}';const clean=text.replace(/```json|```/g,'').trim();
     let result;try{result=JSON.parse(clean)}catch{result={amount:'分析完了',items:['詳細は有料レポートにてご確認ください'],comment:'AIによる簡易診断が完了しました。',risk:'medium'}}
