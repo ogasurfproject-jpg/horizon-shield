@@ -175,7 +175,57 @@ async function sendNtfy(message) {
     });
   } catch(e) { console.log('ntfy失敗:', e.message); }
 }
+// ========================================
+// はてなブログ投稿
+// ========================================
+async function postToHatena(theme, articleText, noteUrl) {
+  try {
+    const hatenaId = 'horizonshield';
+    const apiKey = process.env.HATENA_API_KEY;
+    const endpoint = 'https://blog.hatena.ne.jp/horizonshield/horizonshield.hatenablog.com/atom/entry';
+    const credentials = Buffer.from(`${hatenaId}:${apiKey}`).toString('base64');
 
+    const content = `${articleText}
+
+---
+
+<div style="padding:20px;background:#f5f3ec;border-left:4px solid #c8a832;margin-top:32px;">
+<p style="font-weight:700;margin-bottom:8px;">🛡 HORIZON SHIELD — 建設費診断サービス</p>
+<p>📍 <a href="https://shield.the-horizons-innovation.com">無料AI診断はこちら</a></p>
+<p>🤖 <a href="https://chatgpt.com/g/g-69e180f9a5048191886069dd58b22572-jian-she-fei-tietuka-by-horizon-shield">ChatGPTで無料診断</a></p>
+<p>♊ <a href="https://gemini.google.com/gem/1_AqLRwNSP1tZWZNWzyNIrsOrBLI1fAjo">Geminiで無料診断</a></p>
+<p>💬 <a href="https://line.me/R/ti/p/@172piime">LINEで今すぐ相談（KIRA）</a></p>
+<p>📝 <a href="${noteUrl}">note記事はこちら</a></p>
+</div>`;
+
+    const xml = `<?xml version="1.0" encoding="utf-8"?>
+<entry xmlns="http://www.w3.org/2005/Atom"
+       xmlns:app="http://www.w3.org/2007/app">
+  <title>${theme.title}</title>
+  <author><name>horizonshield</name></author>
+  <content type="text/html"><![CDATA[${content}]]></content>
+  <app:control><app:draft>no</app:draft></app:control>
+</entry>`;
+
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/xml',
+        'Authorization': `Basic ${credentials}`,
+      },
+      body: xml,
+    });
+
+    if (res.ok) {
+      console.log('はてなブログ投稿完了');
+    } else {
+      const err = await res.text();
+      console.error('はてなブログ投稿失敗:', res.status, err.slice(0, 200));
+    }
+  } catch (e) {
+    console.error('はてなブログ投稿エラー:', e.message);
+  }
+}
 async function sendLine(message) {
   try {
     await fetch('https://api.line.me/v2/bot/message/push', {
@@ -201,7 +251,7 @@ async function broadcastToFollowers(theme, noteUrl) {
 async function main() {
   console.log('=== HORIZON SHIELD note自動投稿 v10 開始 ===');
   try {
-    const required = ['NOTE_EMAIL', 'NOTE_PASSWORD', 'ANTHROPIC_API_KEY', 'LINE_CHANNEL_TOKEN', 'LINE_USER_ID'];
+    const required = ['NOTE_EMAIL', 'NOTE_PASSWORD', 'ANTHROPIC_API_KEY', 'LINE_CHANNEL_TOKEN', 'LINE_USER_ID', 'HATENA_API_KEY'];
     for (const key of required) {
       if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`);
     }
@@ -213,6 +263,7 @@ async function main() {
     await sendNtfy(`✅ note投稿完了: ${theme.title}`);
     await sendLine(`✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${noteUrl}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`);
     await broadcastToFollowers(theme, noteUrl);
+    await postToHatena(theme, articleText, noteUrl);
     console.log('=== 完了 ===');
     process.exit(0);
   } catch (e) {
