@@ -1,0 +1,1160 @@
+{
+  "version": "2026.04_part2",
+  "categories": {
+    "防水工事材": [
+      {
+        "name": "ウレタン防水材（1液 18kg）",
+        "unit": "缶",
+        "unit_price": 28000,
+        "memo": "バルコニー・陸屋根"
+      },
+      {
+        "name": "ウレタン防水材（2液主剤 16kg）",
+        "unit": "セット",
+        "unit_price": 38000,
+        "memo": ""
+      },
+      {
+        "name": "防水用プライマー（16kg）",
+        "unit": "缶",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "バックアップ材（丸型 10mm 50m）",
+        "unit": "巻",
+        "unit_price": 2800,
+        "memo": "目地充填"
+      },
+      {
+        "name": "防水テープ（75mm 20m）",
+        "unit": "巻",
+        "unit_price": 3800,
+        "memo": "サッシ周り防水"
+      },
+      {
+        "name": "防水テープ（150mm 20m）",
+        "unit": "巻",
+        "unit_price": 6800,
+        "memo": ""
+      },
+      {
+        "name": "ブチルテープ（50mm 20m）",
+        "unit": "巻",
+        "unit_price": 4200,
+        "memo": ""
+      },
+      {
+        "name": "改質アスファルトシート（3mm）",
+        "unit": "m2",
+        "unit_price": 3200,
+        "memo": ""
+      },
+      {
+        "name": "FRP防水（ガラスマット 1m2）",
+        "unit": "m2",
+        "unit_price": 2800,
+        "memo": "バルコニー標準"
+      },
+      {
+        "name": "FRP防水樹脂（20kg）",
+        "unit": "缶",
+        "unit_price": 22000,
+        "memo": ""
+      },
+      {
+        "name": "FRP防水トップコート（16kg）",
+        "unit": "缶",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "水切りシート（250mm 10m）",
+        "unit": "巻",
+        "unit_price": 2200,
+        "memo": ""
+      },
+      {
+        "name": "笠木防水テープ（60mm 20m）",
+        "unit": "巻",
+        "unit_price": 3600,
+        "memo": ""
+      }
+    ],
+    "左官・モルタル工事材": [
+      {
+        "name": "モルタル（25kg）",
+        "unit": "袋",
+        "unit_price": 880,
+        "memo": ""
+      },
+      {
+        "name": "インスタントセメント（25kg）",
+        "unit": "袋",
+        "unit_price": 980,
+        "memo": ""
+      },
+      {
+        "name": "砂（川砂 1m3）",
+        "unit": "m3",
+        "unit_price": 4800,
+        "memo": ""
+      },
+      {
+        "name": "砂（山砂 1m3）",
+        "unit": "m3",
+        "unit_price": 3800,
+        "memo": "埋戻し用"
+      },
+      {
+        "name": "珪藻土（20kg）",
+        "unit": "袋",
+        "unit_price": 8500,
+        "memo": "内壁仕上げ"
+      },
+      {
+        "name": "漆喰（20kg）",
+        "unit": "袋",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "外壁用モルタル（25kg）",
+        "unit": "袋",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "タイル（外壁 300角）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "タイル（内壁 150角 浴室）",
+        "unit": "m2",
+        "unit_price": 6800,
+        "memo": ""
+      },
+      {
+        "name": "タイル（床 300角）",
+        "unit": "m2",
+        "unit_price": 7200,
+        "memo": ""
+      },
+      {
+        "name": "タイル目地材（2kg）",
+        "unit": "袋",
+        "unit_price": 680,
+        "memo": ""
+      },
+      {
+        "name": "タイル接着剤（20kg）",
+        "unit": "袋",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "ラス網（1m×30m）",
+        "unit": "巻",
+        "unit_price": 8500,
+        "memo": "モルタル外壁下地"
+      },
+      {
+        "name": "ラス下地板（12mm）",
+        "unit": "m2",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "ドライウォール（ボードアンカー）",
+        "unit": "個",
+        "unit_price": 85,
+        "memo": "石膏ボードへのビス補強"
+      }
+    ],
+    "空調・換気工事材": [
+      {
+        "name": "エアコン（6畳用 2.2kW）",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": "工事費別。2026年4月"
+      },
+      {
+        "name": "エアコン（10畳用 2.8kW）",
+        "unit": "台",
+        "unit_price": 110000,
+        "memo": ""
+      },
+      {
+        "name": "エアコン（14畳用 4.0kW）",
+        "unit": "台",
+        "unit_price": 145000,
+        "memo": ""
+      },
+      {
+        "name": "エアコン（20畳用 6.3kW）",
+        "unit": "台",
+        "unit_price": 195000,
+        "memo": ""
+      },
+      {
+        "name": "エアコン用配管セット（3m）",
+        "unit": "式",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "エアコン用配管セット（5m）",
+        "unit": "式",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "ダクト（Φ100 3m）",
+        "unit": "本",
+        "unit_price": 1800,
+        "memo": "換気用"
+      },
+      {
+        "name": "ダクト（Φ150 3m）",
+        "unit": "本",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "換気扇（パイプ用 Φ100）",
+        "unit": "台",
+        "unit_price": 8500,
+        "memo": "トイレ・洗面"
+      },
+      {
+        "name": "換気扇（システム 24時間換気）",
+        "unit": "台",
+        "unit_price": 28000,
+        "memo": "法定必須"
+      },
+      {
+        "name": "レンジフード（60cm 標準）",
+        "unit": "台",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "レンジフード（75cm 標準）",
+        "unit": "台",
+        "unit_price": 55000,
+        "memo": ""
+      },
+      {
+        "name": "外気フード（Φ100）",
+        "unit": "個",
+        "unit_price": 2200,
+        "memo": ""
+      },
+      {
+        "name": "外気フード（Φ150）",
+        "unit": "個",
+        "unit_price": 3200,
+        "memo": ""
+      },
+      {
+        "name": "断熱ダクト（Φ100 1m）",
+        "unit": "m",
+        "unit_price": 980,
+        "memo": ""
+      },
+      {
+        "name": "フレキダクト（Φ100 2m）",
+        "unit": "本",
+        "unit_price": 1200,
+        "memo": ""
+      }
+    ],
+    "接着剤・シーラー・下地処理材": [
+      {
+        "name": "床用接着剤（フロアメント 16kg）",
+        "unit": "缶",
+        "unit_price": 8500,
+        "memo": "フローリング施工用"
+      },
+      {
+        "name": "床用接着剤（ウレタン系 3kg）",
+        "unit": "缶",
+        "unit_price": 4800,
+        "memo": "無垢材用"
+      },
+      {
+        "name": "壁用接着剤（ボンドE350 1kg）",
+        "unit": "缶",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "シーラー（カチオン系 18L）",
+        "unit": "缶",
+        "unit_price": 8500,
+        "memo": "コンクリート面下地処理"
+      },
+      {
+        "name": "シーラー（合成樹脂エマルション 18L）",
+        "unit": "缶",
+        "unit_price": 6500,
+        "memo": "石膏ボード下地"
+      },
+      {
+        "name": "パテ（上パテ 20kg）",
+        "unit": "袋",
+        "unit_price": 2800,
+        "memo": "クロス下地処理"
+      },
+      {
+        "name": "パテ（下パテ 20kg）",
+        "unit": "袋",
+        "unit_price": 2200,
+        "memo": ""
+      },
+      {
+        "name": "フィラー（外壁用 16kg）",
+        "unit": "缶",
+        "unit_price": 6800,
+        "memo": ""
+      },
+      {
+        "name": "プライマー（RC用 4L）",
+        "unit": "缶",
+        "unit_price": 4200,
+        "memo": ""
+      },
+      {
+        "name": "エポキシ系接着剤（500g）",
+        "unit": "セット",
+        "unit_price": 3800,
+        "memo": "金物・アンカー固定"
+      },
+      {
+        "name": "発泡ウレタン（1液 750ml）",
+        "unit": "本",
+        "unit_price": 1200,
+        "memo": "隙間充填。断熱補助"
+      },
+      {
+        "name": "発泡ウレタン（2液 10kg セット）",
+        "unit": "セット",
+        "unit_price": 18000,
+        "memo": "大容量"
+      },
+      {
+        "name": "気密テープ（75mm 20m）",
+        "unit": "巻",
+        "unit_price": 3800,
+        "memo": "気密工事必須"
+      },
+      {
+        "name": "気密テープ（100mm 20m）",
+        "unit": "巻",
+        "unit_price": 4800,
+        "memo": ""
+      },
+      {
+        "name": "両面テープ（50mm 20m）",
+        "unit": "巻",
+        "unit_price": 680,
+        "memo": ""
+      }
+    ],
+    "廃材処分・仮設機材": [
+      {
+        "name": "産廃処分費（混合廃棄物 1m3）",
+        "unit": "m3",
+        "unit_price": 22000,
+        "memo": "2026年4月。処分費上昇中"
+      },
+      {
+        "name": "産廃処分費（木材 1m3）",
+        "unit": "m3",
+        "unit_price": 16000,
+        "memo": ""
+      },
+      {
+        "name": "産廃処分費（コンクリート 1m3）",
+        "unit": "m3",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "産廃処分費（金属 1m3）",
+        "unit": "m3",
+        "unit_price": 6500,
+        "memo": ""
+      },
+      {
+        "name": "土砂処分費（建設発生土 1m3）",
+        "unit": "m3",
+        "unit_price": 4800,
+        "memo": ""
+      },
+      {
+        "name": "フレコンバッグ（1t用）",
+        "unit": "枚",
+        "unit_price": 580,
+        "memo": "廃材回収用"
+      },
+      {
+        "name": "ガラ袋（土嚢袋）",
+        "unit": "枚",
+        "unit_price": 45,
+        "memo": ""
+      },
+      {
+        "name": "コンプレッサー（釘打ち機用）",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": "購入単価（リース可）"
+      },
+      {
+        "name": "釘打ち機（CN65）",
+        "unit": "台",
+        "unit_price": 48000,
+        "memo": ""
+      },
+      {
+        "name": "釘打ち機（CN90）",
+        "unit": "台",
+        "unit_price": 52000,
+        "memo": ""
+      },
+      {
+        "name": "電動丸鋸（165mm）",
+        "unit": "台",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "インパクトドライバー",
+        "unit": "台",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "発電機（2kVA）",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": ""
+      }
+    ],
+    "鉄骨造資材": [
+      {
+        "name": "H形鋼（100×100×6m）",
+        "unit": "本",
+        "unit_price": 28000,
+        "memo": "2026年4月。鉄鋼高騰"
+      },
+      {
+        "name": "H形鋼（150×150×6m）",
+        "unit": "本",
+        "unit_price": 48000,
+        "memo": ""
+      },
+      {
+        "name": "H形鋼（200×200×6m）",
+        "unit": "本",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "角形鋼管（100×100×4.5mm 6m）",
+        "unit": "本",
+        "unit_price": 32000,
+        "memo": "柱用"
+      },
+      {
+        "name": "角形鋼管（150×150×6mm 6m）",
+        "unit": "本",
+        "unit_price": 58000,
+        "memo": ""
+      },
+      {
+        "name": "リップ溝形鋼（C-100 6m）",
+        "unit": "本",
+        "unit_price": 4800,
+        "memo": "軽量鉄骨造"
+      },
+      {
+        "name": "リップ溝形鋼（C-150 6m）",
+        "unit": "本",
+        "unit_price": 6800,
+        "memo": ""
+      },
+      {
+        "name": "鋼板（3.2mm 1220×2440）",
+        "unit": "枚",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "鋼板（6mm 1220×2440）",
+        "unit": "枚",
+        "unit_price": 32000,
+        "memo": ""
+      },
+      {
+        "name": "溶接棒（4kg）",
+        "unit": "箱",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "ボルト（M16×60）",
+        "unit": "個",
+        "unit_price": 280,
+        "memo": "鉄骨接合用"
+      },
+      {
+        "name": "ボルト（M20×70）",
+        "unit": "個",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "高力ボルト（M20 F10T）",
+        "unit": "セット",
+        "unit_price": 580,
+        "memo": ""
+      },
+      {
+        "name": "デッキプレート（1.0mm 1m2）",
+        "unit": "m2",
+        "unit_price": 3800,
+        "memo": "床型枠"
+      },
+      {
+        "name": "スタッドボルト（Φ16×125）",
+        "unit": "本",
+        "unit_price": 480,
+        "memo": "合成床用"
+      },
+      {
+        "name": "錆止め塗料（16kg）",
+        "unit": "缶",
+        "unit_price": 12000,
+        "memo": ""
+      }
+    ],
+    "RC造資材": [
+      {
+        "name": "型枠合板（12mm 3×6）",
+        "unit": "枚",
+        "unit_price": 2200,
+        "memo": "コンクリート型枠"
+      },
+      {
+        "name": "型枠パネル（サポート付き）",
+        "unit": "m2",
+        "unit_price": 1800,
+        "memo": "レンタル単価/月"
+      },
+      {
+        "name": "鉄筋（D10 1t）",
+        "unit": "ton",
+        "unit_price": 118000,
+        "memo": "2026年4月高騰中"
+      },
+      {
+        "name": "鉄筋（D13 1t）",
+        "unit": "ton",
+        "unit_price": 120000,
+        "memo": ""
+      },
+      {
+        "name": "鉄筋（D16 1t）",
+        "unit": "ton",
+        "unit_price": 122000,
+        "memo": ""
+      },
+      {
+        "name": "鉄筋（D19 1t）",
+        "unit": "ton",
+        "unit_price": 125000,
+        "memo": ""
+      },
+      {
+        "name": "鉄筋（D22 1t）",
+        "unit": "ton",
+        "unit_price": 128000,
+        "memo": ""
+      },
+      {
+        "name": "鉄筋（D25 1t）",
+        "unit": "ton",
+        "unit_price": 132000,
+        "memo": ""
+      },
+      {
+        "name": "生コン（24-18-20）",
+        "unit": "m3",
+        "unit_price": 24000,
+        "memo": "標準強度"
+      },
+      {
+        "name": "生コン（30-18-20）",
+        "unit": "m3",
+        "unit_price": 26000,
+        "memo": "高強度"
+      },
+      {
+        "name": "生コン（36-18-20）",
+        "unit": "m3",
+        "unit_price": 29000,
+        "memo": "超高強度"
+      },
+      {
+        "name": "ALC板（100mm）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": "軽量コンクリートパネル"
+      },
+      {
+        "name": "PCa（プレキャスト）床版",
+        "unit": "m2",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "コンクリート釘（Φ4×65）",
+        "unit": "箱",
+        "unit_price": 880,
+        "memo": "100本入り"
+      }
+    ],
+    "リフォーム特有資材": [
+      {
+        "name": "既存床撤去・処分（1m2）",
+        "unit": "m2",
+        "unit_price": 3500,
+        "memo": "フローリング・畳等"
+      },
+      {
+        "name": "既存壁撤去・処分（1m2）",
+        "unit": "m2",
+        "unit_price": 4200,
+        "memo": ""
+      },
+      {
+        "name": "既存屋根撤去・処分（1m2）",
+        "unit": "m2",
+        "unit_price": 5500,
+        "memo": ""
+      },
+      {
+        "name": "既存サッシ撤去・処分（1箇所）",
+        "unit": "箇所",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "石膏ボード張替（1m2）",
+        "unit": "m2",
+        "unit_price": 3800,
+        "memo": "材工込み"
+      },
+      {
+        "name": "クロス張替（1m2）",
+        "unit": "m2",
+        "unit_price": 1500,
+        "memo": "材工込み。量産品"
+      },
+      {
+        "name": "フローリング上張り（1m2）",
+        "unit": "m2",
+        "unit_price": 5500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "断熱材追加（床下 1m2）",
+        "unit": "m2",
+        "unit_price": 4800,
+        "memo": "材工込み"
+      },
+      {
+        "name": "断熱材追加（天井 1m2）",
+        "unit": "m2",
+        "unit_price": 3800,
+        "memo": "材工込み"
+      },
+      {
+        "name": "サッシ内窓（インプラス 1枚）",
+        "unit": "枚",
+        "unit_price": 55000,
+        "memo": "材工込み。断熱改修"
+      },
+      {
+        "name": "防音材（遮音シート 1m2）",
+        "unit": "m2",
+        "unit_price": 2200,
+        "memo": ""
+      },
+      {
+        "name": "防音材（制振マット 1m2）",
+        "unit": "m2",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "既存配管解体費（1m）",
+        "unit": "m",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "アスベスト除去費（1m2）",
+        "unit": "m2",
+        "unit_price": 25000,
+        "memo": "飛散性。要届出"
+      },
+      {
+        "name": "アスベスト非飛散除去（1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": ""
+      }
+    ],
+    "外構専用資材": [
+      {
+        "name": "化粧砂利（5〜20mm 20kg）",
+        "unit": "袋",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "砂利（RC40 1m3）",
+        "unit": "m3",
+        "unit_price": 4200,
+        "memo": ""
+      },
+      {
+        "name": "コンクリートブロック（150mm）",
+        "unit": "個",
+        "unit_price": 280,
+        "memo": "塀用"
+      },
+      {
+        "name": "レンガ（標準 230×114×65）",
+        "unit": "個",
+        "unit_price": 180,
+        "memo": ""
+      },
+      {
+        "name": "平板（300×300×60mm）",
+        "unit": "枚",
+        "unit_price": 480,
+        "memo": ""
+      },
+      {
+        "name": "縁石（180×450×120mm）",
+        "unit": "本",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "植栽（低木 H800程度）",
+        "unit": "本",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "植栽（中木 H1500程度）",
+        "unit": "本",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "腐葉土（40L）",
+        "unit": "袋",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "人工芝（2m幅 1m）",
+        "unit": "m",
+        "unit_price": 4800,
+        "memo": ""
+      },
+      {
+        "name": "防草シート（1m×50m）",
+        "unit": "巻",
+        "unit_price": 5800,
+        "memo": ""
+      },
+      {
+        "name": "排水桝（200角）",
+        "unit": "個",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "排水管（VU100 4m）",
+        "unit": "本",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "水栓柱",
+        "unit": "個",
+        "unit_price": 12000,
+        "memo": "散水用"
+      },
+      {
+        "name": "屋外コンセント",
+        "unit": "個",
+        "unit_price": 8500,
+        "memo": "防水型"
+      },
+      {
+        "name": "駐車場土間コン（t=150mm 材工）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": ""
+      }
+    ],
+    "屋根工事詳細資材": [
+      {
+        "name": "瓦（和瓦 F型 1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": "約53枚/m2"
+      },
+      {
+        "name": "瓦（洋瓦 S型 1m2）",
+        "unit": "m2",
+        "unit_price": 7500,
+        "memo": ""
+      },
+      {
+        "name": "平板瓦（1m2）",
+        "unit": "m2",
+        "unit_price": 6800,
+        "memo": ""
+      },
+      {
+        "name": "ガルバリウム鋼板（縦葺き 1m2）",
+        "unit": "m2",
+        "unit_price": 5500,
+        "memo": "2026年4月高騰"
+      },
+      {
+        "name": "アスファルトシングル（1m2）",
+        "unit": "m2",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "屋根用防水テープ（100mm 10m）",
+        "unit": "巻",
+        "unit_price": 4200,
+        "memo": ""
+      },
+      {
+        "name": "棟包み（カラー鋼板 1m）",
+        "unit": "m",
+        "unit_price": 2200,
+        "memo": ""
+      },
+      {
+        "name": "軒樋（半丸105 1m）",
+        "unit": "m",
+        "unit_price": 880,
+        "memo": ""
+      },
+      {
+        "name": "縦樋（丸型60 1m）",
+        "unit": "m",
+        "unit_price": 680,
+        "memo": ""
+      },
+      {
+        "name": "軒樋受け金物",
+        "unit": "個",
+        "unit_price": 280,
+        "memo": ""
+      },
+      {
+        "name": "縦樋取付金物",
+        "unit": "個",
+        "unit_price": 180,
+        "memo": ""
+      },
+      {
+        "name": "集水器",
+        "unit": "個",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "エルボ（縦樋用）",
+        "unit": "個",
+        "unit_price": 480,
+        "memo": ""
+      },
+      {
+        "name": "谷板（ガルバ 展開300mm 1m）",
+        "unit": "m",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "唐草（軒先水切り 1m）",
+        "unit": "m",
+        "unit_price": 680,
+        "memo": ""
+      },
+      {
+        "name": "ケラバ水切り（1m）",
+        "unit": "m",
+        "unit_price": 880,
+        "memo": ""
+      },
+      {
+        "name": "瓦桟木（15×45×4m）",
+        "unit": "本",
+        "unit_price": 480,
+        "memo": ""
+      }
+    ],
+    "設備機器詳細": [
+      {
+        "name": "ガスコンロ（3口 標準）",
+        "unit": "台",
+        "unit_price": 55000,
+        "memo": ""
+      },
+      {
+        "name": "IHクッキングヒーター（3口）",
+        "unit": "台",
+        "unit_price": 95000,
+        "memo": ""
+      },
+      {
+        "name": "食洗機（ビルトイン 標準）",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "浴室換気乾燥機",
+        "unit": "台",
+        "unit_price": 68000,
+        "memo": ""
+      },
+      {
+        "name": "床暖房（ガス 1m2）",
+        "unit": "m2",
+        "unit_price": 28000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "床暖房（電気 1m2）",
+        "unit": "m2",
+        "unit_price": 18000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "小型電気温水器（30L）",
+        "unit": "台",
+        "unit_price": 35000,
+        "memo": "洗面・手洗い用"
+      },
+      {
+        "name": "洗浄便座（単体）",
+        "unit": "個",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "タオル掛け（ステン）",
+        "unit": "個",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "トイレットペーパーホルダー",
+        "unit": "個",
+        "unit_price": 3200,
+        "memo": ""
+      },
+      {
+        "name": "水栓金具（混合栓 洗面用）",
+        "unit": "個",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "水栓金具（混合栓 キッチン用）",
+        "unit": "個",
+        "unit_price": 32000,
+        "memo": ""
+      },
+      {
+        "name": "シャワーヘッド",
+        "unit": "個",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "排水トラップ（Pトラップ 50mm）",
+        "unit": "個",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "排水トラップ（Sトラップ 50mm）",
+        "unit": "個",
+        "unit_price": 3200,
+        "memo": ""
+      },
+      {
+        "name": "掃除口（100mm）",
+        "unit": "個",
+        "unit_price": 1800,
+        "memo": ""
+      }
+    ],
+    "工種別労務単価_2026年4月": [
+      {
+        "name": "大工（普通）",
+        "unit": "日",
+        "unit_price": 32000,
+        "memo": "公共工事設計労務単価2026年"
+      },
+      {
+        "name": "大工（熟練）",
+        "unit": "日",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "鉄筋工",
+        "unit": "日",
+        "unit_price": 38000,
+        "memo": ""
+      },
+      {
+        "name": "とび工",
+        "unit": "日",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "型枠大工",
+        "unit": "日",
+        "unit_price": 36000,
+        "memo": ""
+      },
+      {
+        "name": "左官工",
+        "unit": "日",
+        "unit_price": 34000,
+        "memo": ""
+      },
+      {
+        "name": "タイル工",
+        "unit": "日",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "板金工",
+        "unit": "日",
+        "unit_price": 33000,
+        "memo": ""
+      },
+      {
+        "name": "塗装工",
+        "unit": "日",
+        "unit_price": 31000,
+        "memo": ""
+      },
+      {
+        "name": "内装工",
+        "unit": "日",
+        "unit_price": 30000,
+        "memo": ""
+      },
+      {
+        "name": "配管工",
+        "unit": "日",
+        "unit_price": 38000,
+        "memo": ""
+      },
+      {
+        "name": "電工",
+        "unit": "日",
+        "unit_price": 36000,
+        "memo": ""
+      },
+      {
+        "name": "空調工",
+        "unit": "日",
+        "unit_price": 37000,
+        "memo": ""
+      },
+      {
+        "name": "溶接工",
+        "unit": "日",
+        "unit_price": 42000,
+        "memo": ""
+      },
+      {
+        "name": "ガラス工",
+        "unit": "日",
+        "unit_price": 30000,
+        "memo": ""
+      },
+      {
+        "name": "防水工",
+        "unit": "日",
+        "unit_price": 32000,
+        "memo": ""
+      },
+      {
+        "name": "サッシ工",
+        "unit": "日",
+        "unit_price": 32000,
+        "memo": ""
+      },
+      {
+        "name": "解体工",
+        "unit": "日",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "普通作業員",
+        "unit": "日",
+        "unit_price": 24000,
+        "memo": ""
+      },
+      {
+        "name": "特殊作業員",
+        "unit": "日",
+        "unit_price": 30000,
+        "memo": ""
+      }
+    ],
+    "諸経費率_標準値": {
+      "現場管理費率": "直接工事費の15〜20%",
+      "一般管理費率": "工事原価の10〜15%",
+      "設計費率": "工事費の3〜8%（小規模ほど高い）",
+      "確認申請費": "30〜100万円（規模・地域による）",
+      "地盤調査費": "15〜25万円",
+      "地鎮祭費": "5〜10万円",
+      "上棟式費": "5〜15万円",
+      "仮設トイレリース（月）": "15000〜25000円",
+      "仮設電気（月）": "8000〜15000円",
+      "仮設水道（月）": "5000〜10000円",
+      "足場リース（1m2月）": "800〜1200円",
+      "クレーンリース（8t 1日）": "85000〜120000円",
+      "コンクリートポンプ車（1日）": "120000〜180000円"
+    }
+  }
+}
