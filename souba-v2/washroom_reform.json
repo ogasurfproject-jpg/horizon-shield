@@ -1,0 +1,1076 @@
+{
+  "_meta": {
+    "version": "3.0-phase1.5-toshi-philosophy",
+    "updated": "2026-04-19",
+    "category_id": "washroom_reform",
+    "category_name_jp": "洗面所リフォーム",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐ 水回り・2026/4 LIXIL供給調整影響・小規模可能",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 2026年実勢データ (LIXIL オフト/ピアラ/エスタ/クレヴィ・TOTO Vシリーズ/Fシリーズ/サクア・Panasonic エムライン/シーライン/ウツクシーズ・クリナップ ラクトワ/S/ファンシオ・タカラ オンディーヌ・ジャニス 500シリーズ/リフレスタンド、住設ドットコム、生活堂、リフォームネクスト、リショップナビ、タカラスタンダード、コーナン) / LIXIL/TOTO/パナソニック/タカラスタンダード公式 / 2026年4月 LIXIL供給調整情報 / 国民生活センター 洗面台トラブル事例",
+    "scope": "洗面化粧台交換（500/600/750/900/1200/1500mm）、洗面所床CF張替え、クロス張替え、給排水接続、電気工事、洗濯機パン脱着",
+    "references": "demolition_master.json（撤去単価）、cloth_replacement.json（クロス張替え）、floor_replacement.json（床張替え）",
+    "v2_to_v3_changes": "TOshi哲学反映: (1)全8プラン業者規模4区分別レンジ化 (2)business_size_based_pricing新設 (3)Red Flag 8項目追加（業者規模観点6 + 洗面固有2: 幅上げ・床壁強要） (4)2026/4 LIXIL供給調整情報追加",
+    "horizons_philosophy": "HSは業者を敵視しない。業者規模別の妥当な利益率レンジを透明化。洗面所は小規模リフォーム可能領域（洗面台交換のみ半日工事）。不要な床・壁工事の抱き合わせに要注意"
+  },
+  "horizon_shield_standard": {
+    "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール（洗面所版）",
+    "formula": "洗面台仕入れ値 × 1.2 + 職人人工 × 日当 + 付帯工事実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.2,
+      "general_overhead_pct_ideal": 15,
+      "general_overhead_pct_acceptable_max": 20,
+      "tax_pct": 10,
+      "trade_price_ratio_from_list": 0.5,
+      "note": "洗面化粧台は定価50-60%OFFが業者仕入れ標準。住設全般と同等掛け率"
+    },
+    "philosophy": "洗面所は『水廻り3点セット（浴室・トイレ・洗面所）』の一角。単独リフォームより3点セットの方がコスパ良。HSは洗面台・床・クロス・配管・電気の全項目を明細化",
+    "HS_pricing_philosophy": {
+      "原則": "HS基準価格 = 原価 + 業者規模別の妥当な利益率レンジ",
+      "公式": "適正価格 = 材料仕入れ値 × 1.2 + 人工数 × 日当 + 副資材実費 + 機材・交通費 + (原価 × 業者規模別利益率) + 消費税 10%",
+      "業者規模別_妥当な利益率_洗面所リフォーム": {
+        "個人事業_専門職人": "粗利率 25-35%（原価×1.25-1.35）",
+        "中小工務店_地域密着": "粗利率 25-35%（原価×1.25-1.35）",
+        "人気工務店_高品質": "粗利率 30-40%（原価×1.30-1.40）",
+        "大手リフォーム_ハウスメーカー": "粗利率 35-45%（原価×1.35-1.45）"
+      },
+      "規模別利益率_根拠": "国土交通省建設関連業経営分析、一般財団法人建設業情報管理センター",
+      "TOshi哲学": "HSは業者を敵視しない。業者規模別の妥当な利益率レンジを施主に透明化し、『規模と価格のマッチング』を判断できるよう武装化する"
+    }
+  },
+  "manufacturers": {
+    "LIXIL": {
+      "series": {
+        "offt": {
+          "name": "オフト",
+          "grade": "entry",
+          "target": "エコハンドル・カラー豊富",
+          "sizes_mm": [
+            500,
+            600,
+            750
+          ]
+        },
+        "pv": {
+          "name": "PV",
+          "grade": "entry",
+          "target": "シンプル・低価格",
+          "sizes_mm": [
+            500,
+            600,
+            750
+          ]
+        },
+        "piara": {
+          "name": "ピアラ",
+          "grade": "mid",
+          "target": "広い大型ボウル・排水口清潔",
+          "sizes_mm": [
+            600,
+            750,
+            900,
+            1200
+          ]
+        },
+        "esta": {
+          "name": "エスタ",
+          "grade": "mid",
+          "target": "収納充実",
+          "sizes_mm": [
+            600,
+            750,
+            900,
+            1200,
+            1350,
+            1500
+          ]
+        },
+        "crevi": {
+          "name": "クレヴィ",
+          "grade": "high",
+          "target": "最上位・デザイン性",
+          "sizes_mm": [
+            750,
+            900,
+            1200
+          ]
+        }
+      },
+      "unique_features": [
+        "くるくる水栓",
+        "エコハンドル",
+        "ひろびろボウル"
+      ]
+    },
+    "TOTO": {
+      "series": {
+        "v_series": {
+          "name": "Vシリーズ",
+          "grade": "entry",
+          "target": "基本機能充実",
+          "sizes_mm": [
+            600,
+            750
+          ]
+        },
+        "f_series": {
+          "name": "Fシリーズ",
+          "grade": "mid",
+          "target": "使いやすさ重視",
+          "sizes_mm": [
+            600,
+            750,
+            900
+          ]
+        },
+        "sakua": {
+          "name": "サクア",
+          "grade": "mid",
+          "target": "綺麗続く・きれい除菌水対応",
+          "sizes_mm": [
+            750,
+            900,
+            1200
+          ]
+        },
+        "escua": {
+          "name": "エスクア",
+          "grade": "high",
+          "target": "最上位・水ほうき水栓",
+          "sizes_mm": [
+            750,
+            900,
+            1200
+          ]
+        }
+      },
+      "unique_features": [
+        "きれい除菌水",
+        "水ほうき水栓",
+        "お掃除ラクラク排水口"
+      ]
+    },
+    "Panasonic": {
+      "series": {
+        "m_line": {
+          "name": "エムライン（Mライン）",
+          "grade": "entry",
+          "target": "コンパクト奥行420mm",
+          "sizes_mm": [
+            600,
+            750
+          ]
+        },
+        "c_line_slim_d450": {
+          "name": "シーライン スリムD450",
+          "grade": "mid",
+          "target": "奥行450mm",
+          "sizes_mm": [
+            600,
+            750,
+            900
+          ]
+        },
+        "c_line_standard_d530": {
+          "name": "シーライン スタンダードD530",
+          "grade": "mid",
+          "target": "標準奥行530mm",
+          "sizes_mm": [
+            600,
+            750,
+            900,
+            1200
+          ]
+        },
+        "utsukushizu": {
+          "name": "ウツクシーズ",
+          "grade": "high",
+          "target": "最上位・ツインラインLED",
+          "sizes_mm": [
+            750,
+            900,
+            1200,
+            1500
+          ]
+        }
+      },
+      "unique_features": [
+        "スゴピカ水栓",
+        "ツインラインLED照明",
+        "ウエットパレット"
+      ]
+    },
+    "Cleanup": {
+      "series": {
+        "rakutowa": {
+          "name": "S（エス）ラクトワ",
+          "grade": "entry-mid",
+          "target": "ステンレス強み",
+          "sizes_mm": [
+            600,
+            750,
+            900
+          ]
+        },
+        "funcio": {
+          "name": "ファンシオ",
+          "grade": "mid-high",
+          "target": "ステンレスキャビネット・上位",
+          "sizes_mm": [
+            750,
+            900,
+            1200
+          ]
+        }
+      },
+      "unique_features": [
+        "ステンレスエコキャビネット",
+        "汚れ落ちやすい形状"
+      ]
+    },
+    "Takara_Standard": {
+      "series": {
+        "takara_mid": {
+          "name": "オンディーヌ/ウィリーナ系",
+          "grade": "mid",
+          "target": "ホーロー素材・マグネット収納",
+          "sizes_mm": [
+            600,
+            750,
+            900
+          ]
+        }
+      },
+      "unique_features": [
+        "高品位ホーロー",
+        "マグネット収納"
+      ]
+    },
+    "Janis": {
+      "series": {
+        "500_series": {
+          "name": "500シリーズ",
+          "grade": "entry",
+          "sizes_mm": [
+            500,
+            600
+          ]
+        },
+        "refre_stand": {
+          "name": "リフレスタンド",
+          "grade": "mid",
+          "target": "コンパクト・大容量収納",
+          "sizes_mm": [
+            600,
+            750,
+            900,
+            1500,
+            1650
+          ]
+        }
+      }
+    }
+  },
+  "bodies_by_size_and_grade": {
+    "description": "サイズ×グレードの価格マトリクス（定価→業者仕入れ値）",
+    "size_500mm": {
+      "category": "compact",
+      "price_list_jpy": {
+        "min": 90000,
+        "max": 130000
+      },
+      "price_trade_estimate_jpy": {
+        "min": 40000,
+        "max": 60000
+      },
+      "markup_from_list_pct_trade": 55,
+      "typical_usage": "狭い洗面所・マンション",
+      "examples": [
+        "LIXIL リフラ 500",
+        "ジャニス 500シリーズ"
+      ]
+    },
+    "size_600mm": {
+      "category": "standard_entry",
+      "price_list_jpy": {
+        "min": 100000,
+        "max": 180000
+      },
+      "price_trade_estimate_jpy": {
+        "min": 45000,
+        "max": 80000
+      },
+      "typical_usage": "戸建・マンション標準",
+      "examples": [
+        "LIXIL オフト 600",
+        "TOTO Vシリーズ 600",
+        "Panasonic エムライン 600"
+      ]
+    },
+    "size_750mm": {
+      "category": "standard_most_popular",
+      "price_list_jpy": {
+        "min": 130000,
+        "max": 230000
+      },
+      "price_trade_estimate_jpy": {
+        "min": 55000,
+        "max": 100000
+      },
+      "typical_usage": "戸建最多選択",
+      "examples": [
+        "LIXIL ピアラ 750",
+        "TOTO Fシリーズ 750",
+        "Panasonic シーライン 750"
+      ]
+    },
+    "size_900mm": {
+      "category": "large_standard",
+      "price_list_jpy": {
+        "min": 170000,
+        "max": 290000
+      },
+      "price_trade_estimate_jpy": {
+        "min": 75000,
+        "max": 125000
+      },
+      "typical_usage": "広い洗面所・2人並びで使用可"
+    },
+    "size_1000_1200mm": {
+      "category": "wide",
+      "price_list_jpy": {
+        "min": 250000,
+        "max": 400000
+      },
+      "price_trade_estimate_jpy": {
+        "min": 110000,
+        "max": 175000
+      },
+      "typical_usage": "ゆったり・デュアルボウル可"
+    },
+    "size_1500mm_plus": {
+      "category": "extra_wide_luxury",
+      "price_list_jpy": {
+        "min": 400000,
+        "max": 700000
+      },
+      "price_trade_estimate_jpy": {
+        "min": 180000,
+        "max": 300000
+      },
+      "typical_usage": "高級住宅・ホテルライク"
+    }
+  },
+  "grade_tiers": {
+    "entry": {
+      "name": "エントリー（スタンダード）",
+      "description": "基本機能・賃貸・マンション向け多い",
+      "price_list_750mm_jpy": {
+        "min": 130000,
+        "max": 160000
+      },
+      "price_trade_750mm_jpy": {
+        "min": 55000,
+        "max": 70000
+      },
+      "examples": [
+        "LIXIL オフト",
+        "TOTO Vシリーズ",
+        "Panasonic エムライン"
+      ]
+    },
+    "mid": {
+      "name": "ミドル（戸建最多選択・HS推奨）",
+      "description": "機能・デザインバランス良",
+      "price_list_750mm_jpy": {
+        "min": 160000,
+        "max": 230000
+      },
+      "price_trade_750mm_jpy": {
+        "min": 70000,
+        "max": 100000
+      },
+      "examples": [
+        "LIXIL ピアラ",
+        "TOTO Fシリーズ・サクア",
+        "Panasonic シーライン",
+        "クリナップ S"
+      ]
+    },
+    "high": {
+      "name": "ハイグレード",
+      "description": "最上位機能・意匠性",
+      "price_list_750mm_jpy": {
+        "min": 230000,
+        "max": 350000
+      },
+      "price_trade_750mm_jpy": {
+        "min": 100000,
+        "max": 155000
+      },
+      "examples": [
+        "LIXIL クレヴィ",
+        "TOTO エスクア",
+        "Panasonic ウツクシーズ",
+        "クリナップ ファンシオ"
+      ]
+    }
+  },
+  "work_items": {
+    "demolition_removal_jpy": {
+      "existing_cabinet_removal": {
+        "min": 10000,
+        "max": 20000
+      },
+      "existing_faucet_removal": {
+        "min": 3000,
+        "max": 8000
+      },
+      "waste_disposal": {
+        "min": 5000,
+        "max": 10000
+      }
+    },
+    "installation_plumbing_jpy": {
+      "body_installation": {
+        "min": 20000,
+        "max": 40000
+      },
+      "water_pipe_connection": {
+        "min": 8000,
+        "max": 15000
+      },
+      "drain_pipe_connection": {
+        "min": 7000,
+        "max": 15000
+      },
+      "pipe_relocation_if_needed": {
+        "min": 15000,
+        "max": 50000,
+        "note": "位置変更時"
+      },
+      "stop_valve": {
+        "min": 3000,
+        "max": 6000
+      }
+    },
+    "electric_work_jpy": {
+      "mirror_light_wiring": {
+        "min": 5000,
+        "max": 10000
+      },
+      "new_outlet_installation": {
+        "min": 8000,
+        "max": 20000,
+        "note": "コンセント新設"
+      },
+      "hair_dryer_outlet_dedicated": {
+        "min": 10000,
+        "max": 25000,
+        "note": "専用回路・電気工事士資格必須"
+      }
+    },
+    "interior_renovation_jpy": {
+      "laundry_pan_removal_reinstall": {
+        "min": 5000,
+        "max": 15000,
+        "note": "洗濯機パン脱着"
+      },
+      "laundry_pan_replacement": {
+        "min": 10000,
+        "max": 20000,
+        "note": "洗濯機パン新品交換"
+      },
+      "floor_cf_replacement_per_sqm": {
+        "min": 4000,
+        "max": 8000
+      },
+      "floor_cf_washroom_standard_5sqm": {
+        "min": 20000,
+        "max": 40000
+      },
+      "cloth_wall_ceiling_washroom_18sqm": {
+        "min": 25000,
+        "max": 55000
+      },
+      "vanity_door_soft_close_upgrade": {
+        "min": 5000,
+        "max": 10000
+      }
+    },
+    "optional_features_jpy": {
+      "mirror_upgrade_three_face": {
+        "min": 15000,
+        "max": 35000,
+        "note": "三面鏡アップグレード"
+      },
+      "counter_top_artificial_marble": {
+        "min": 20000,
+        "max": 50000,
+        "note": "人工大理石天板"
+      },
+      "side_cabinet_addition": {
+        "min": 30000,
+        "max": 100000,
+        "note": "サイドキャビネット追加"
+      },
+      "towel_warmer": {
+        "min": 30000,
+        "max": 80000,
+        "note": "タオルウォーマー"
+      }
+    }
+  },
+  "labor": {
+    "setsubi_day_rate_kanto": {
+      "min": 22000,
+      "max": 28000,
+      "avg": 25000
+    },
+    "electrician_day_rate_kanto": {
+      "min": 25000,
+      "max": 32000,
+      "avg": 28000
+    },
+    "carpenter_day_rate_kanto": {
+      "min": 28000,
+      "max": 35000,
+      "avg": 31500
+    },
+    "cloth_craftsman_day_rate_kanto": {
+      "min": 20000,
+      "max": 28000,
+      "avg": 25000
+    },
+    "standard_manhours": {
+      "body_only_exchange": "0.5-1日 (設備屋1人工)",
+      "body_plus_floor_cloth": "1-2日 (設備屋1 + クロス0.5 + 床職人0.3)",
+      "full_renovation": "2-3日 (複数職種)"
+    }
+  },
+  "plans": {
+    "body_only_600_entry": {
+      "name": "本体のみ交換・600mm エントリー",
+      "scope": "LIXIL オフト 600 等・既存床クロス活かす",
+      "estimated_total_jpy": {
+        "min": 70000,
+        "max": 130000
+      },
+      "hs_rule_estimate_jpy": 120000,
+      "work_days": 0.5,
+      "note": "最安・短工期。賃貸退去時の原状回復等",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 114000,
+          "max": 118000
+        },
+        "区分2_中小工務店": {
+          "min": 120000,
+          "max": 124000
+        },
+        "区分3_人気工務店": {
+          "min": 126000,
+          "max": 132000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 134000,
+          "max": 142000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "body_only_750_mid": {
+      "name": "本体のみ交換・750mm ミドル",
+      "scope": "LIXIL ピアラ 750 or TOTO サクア 750",
+      "estimated_total_jpy": {
+        "min": 120000,
+        "max": 220000
+      },
+      "hs_rule_estimate_jpy": 200000,
+      "work_days": 1,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 190000,
+          "max": 196000
+        },
+        "区分2_中小工務店": {
+          "min": 200000,
+          "max": 206000
+        },
+        "区分3_人気工務店": {
+          "min": 210000,
+          "max": 220000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 224000,
+          "max": 236000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "body_floor_cloth_600": {
+      "name": "本体600mm + 床 + クロス",
+      "scope": "エントリー洗面台 + 床CF + クロス全張替え",
+      "estimated_total_jpy": {
+        "min": 150000,
+        "max": 280000
+      },
+      "hs_rule_estimate_jpy": 320000,
+      "work_days": 1.5,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 304000,
+          "max": 314000
+        },
+        "区分2_中小工務店": {
+          "min": 320000,
+          "max": 330000
+        },
+        "区分3_人気工務店": {
+          "min": 336000,
+          "max": 352000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 358000,
+          "max": 378000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "body_floor_cloth_750_mid_hs_recommend": {
+      "name": "本体750mm + 床 + クロス（HS推奨）",
+      "scope": "ミドル洗面台 + 床CF + クロス全張替え",
+      "estimated_total_jpy": {
+        "min": 180000,
+        "max": 350000
+      },
+      "hs_rule_estimate_jpy": 448000,
+      "work_days": 2,
+      "breakdown_sample": {
+        "body_hs_rule": 144000,
+        "existing_cabinet_removal": 15000,
+        "body_installation": 30000,
+        "water_pipe_connection": 12000,
+        "drain_pipe_connection": 10000,
+        "electric_wiring": 10000,
+        "floor_cf_5sqm": 30000,
+        "cloth_18sqm": 45000,
+        "waste_disposal": 8000,
+        "laundry_pan_remove_reinstall": 10000,
+        "setsubi_labor": 25000,
+        "electrician_labor": 14000,
+        "carpenter_labor_0_3": 9500,
+        "cloth_labor_0_5": 12500,
+        "subtotal": 374000,
+        "overhead_15pct": 56100,
+        "tax_10pct": 43010,
+        "total": 473110
+      },
+      "note": "業界相場より HS基準が高い理由: 業界は洗濯機パン脱着や電気工事を別途請求するケースが多く、見積当初金額を低く見せる",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 426000,
+          "max": 439000
+        },
+        "区分2_中小工務店": {
+          "min": 448000,
+          "max": 461000
+        },
+        "区分3_人気工務店": {
+          "min": 470000,
+          "max": 493000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 502000,
+          "max": 529000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "body_floor_cloth_750_high": {
+      "name": "本体750mm ハイグレード + フル改装",
+      "scope": "LIXIL クレヴィ or TOTO エスクア",
+      "estimated_total_jpy": {
+        "min": 300000,
+        "max": 500000
+      },
+      "hs_rule_estimate_jpy": 580000,
+      "work_days": 2,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 551000,
+          "max": 568000
+        },
+        "区分2_中小工務店": {
+          "min": 580000,
+          "max": 597000
+        },
+        "区分3_人気工務店": {
+          "min": 609000,
+          "max": 638000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 650000,
+          "max": 684000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "full_renovation_with_pipe_relocation": {
+      "name": "全面改装（配管移設・電気増設）",
+      "scope": "位置変更・洗濯機パン交換・タオルウォーマー・三面鏡",
+      "estimated_total_jpy": {
+        "min": 400000,
+        "max": 800000
+      },
+      "hs_rule_estimate_jpy": 700000,
+      "work_days": 4,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 665000,
+          "max": 686000
+        },
+        "区分2_中小工務店": {
+          "min": 700000,
+          "max": 721000
+        },
+        "区分3_人気工務店": {
+          "min": 735000,
+          "max": 770000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 784000,
+          "max": 826000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "wide_1200_luxury": {
+      "name": "1200mm ワイド・高級プラン",
+      "scope": "1200mm ハイグレード本体 + 全面改装",
+      "estimated_total_jpy": {
+        "min": 500000,
+        "max": 900000
+      },
+      "hs_rule_estimate_jpy": 850000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 808000,
+          "max": 833000
+        },
+        "区分2_中小工務店": {
+          "min": 850000,
+          "max": 876000
+        },
+        "区分3_人気工務店": {
+          "min": 892000,
+          "max": 935000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 952000,
+          "max": 1003000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "combo_water_3point_bath_toilet_washroom": {
+      "name": "水廻り3点セット（浴室+トイレ+洗面所）",
+      "scope": "浴室UB + トイレ + 洗面所すべて同時",
+      "estimated_total_jpy": {
+        "min": 1500000,
+        "max": 2800000
+      },
+      "hs_rule_estimate_jpy": 2400000,
+      "discount_vs_individual": "諸経費削減で個別発注より10-15%安",
+      "note": "水廻り3点同時発注が最コスパ",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 2280000,
+          "max": 2352000
+        },
+        "区分2_中小工務店": {
+          "min": 2400000,
+          "max": 2472000
+        },
+        "区分3_人気工務店": {
+          "min": 2520000,
+          "max": 2640000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 2688000,
+          "max": 2832000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    }
+  },
+  "red_flags": [
+    {
+      "code": "BODY_LIST_PRICE_CLOSE",
+      "pattern": "洗面化粧台が定価 or 定価20%OFF未満で計上",
+      "severity": "🔴 CRITICAL",
+      "reason": "住設業界で業者仕入れは定価50-60%OFFが標準"
+    },
+    {
+      "code": "UNCLEAR_MODEL_GRADE",
+      "pattern": "メーカー・シリーズ・型番・間口サイズ不明",
+      "severity": "🔴 CRITICAL",
+      "reason": "同じ『洗面台』でもエントリー（¥10万）とハイグレード（¥35万）で3倍以上違う"
+    },
+    {
+      "code": "BODY_ONLY_OVER_250K",
+      "pattern": "本体のみ交換で¥250,000超（ミドル以下の場合）",
+      "severity": "🚨 HIGH",
+      "reason": "HS基準 750mmミドル¥200k。¥250k超は過剰"
+    },
+    {
+      "code": "FULL_RENOVATION_OVER_800K",
+      "pattern": "本体750mm+床クロスで¥800,000超",
+      "severity": "🔴 CRITICAL",
+      "reason": "HS基準¥448k。¥800k超は1.8倍以上の過剰請求"
+    },
+    {
+      "code": "ISSHIKI_LUMP_SUM",
+      "pattern": "工事費が「一式」計上",
+      "severity": "🚨 HIGH",
+      "reason": "撤去・据付・配管・電気・床・クロスの各項目明細化要求"
+    },
+    {
+      "code": "ELECTRICIAN_NO_LICENSE",
+      "pattern": "コンセント新設を無資格者が担当",
+      "severity": "🔴 CRITICAL",
+      "reason": "第二種電気工事士資格必須。違法業者は漏電・火災リスク"
+    },
+    {
+      "code": "LAUNDRY_PAN_HIDDEN_CHARGE",
+      "pattern": "洗濯機パン脱着費用が見積書に含まれず、後日追加請求",
+      "severity": "⚠️ MEDIUM",
+      "reason": "床クロス張替え時は洗濯機パン脱着が必須。事前に見積もり含めるべし"
+    },
+    {
+      "code": "FORCED_UPGRADE",
+      "pattern": "エントリーで十分な家庭にハイグレード強要",
+      "severity": "⚠️ MEDIUM",
+      "reason": "+¥15-25万の過剰提案。業者のマージン率UP目的"
+    },
+    {
+      "code": "NO_SIZE_MEASUREMENT",
+      "pattern": "現地採寸なしで見積もり",
+      "severity": "🚨 HIGH",
+      "reason": "500mm/600mm/750mmで¥3-5万価格差。現地確認必須"
+    },
+    {
+      "code": "NO_WASTE_DISPOSAL_ITEM",
+      "pattern": "廃材処分費が明記されていない",
+      "severity": "⚠️ MEDIUM",
+      "reason": "解体後の追加請求の温床。事前に¥5-10k計上すべし"
+    },
+    {
+      "code": "SCALE_MISMATCH_HIGH",
+      "pattern": "業者規模に対して明らかに過剰な利益率（粗利50%超）",
+      "severity": "🚨 HIGH",
+      "reason": "業者規模別妥当利益率（個人・中小25-35%、人気30-40%、大手35-45%）を大幅に超える見積もりは内容確認要",
+      "対処": "見積もり内訳の明細化要求、他社相見積もりで比較"
+    },
+    {
+      "code": "SCALE_MISMATCH_LOW",
+      "pattern": "大手名乗る業者が極端な安値（粗利20%未満）提示",
+      "severity": "⚠️ MEDIUM",
+      "reason": "大手名義の下請け丸投げか、実は個人業者が大手風装っている可能性",
+      "対処": "元請・下請け構成の確認、施工業者の実態確認"
+    },
+    {
+      "code": "ISSHIKI_LUMP_SUM",
+      "pattern": "工事費・材料費が「一式」計上",
+      "severity": "🚨 HIGH",
+      "reason": "明細化可能な工事を『一式』は過剰請求の温床",
+      "対処": "材料・人工・副資材ごとの明細化を要求"
+    },
+    {
+      "code": "NO_MANUFACTURER_MODEL",
+      "pattern": "メーカー・型番・仕様グレード不明",
+      "severity": "🔴 CRITICAL",
+      "reason": "同じカテゴリでも型番で価格・性能大きく違う。不明は詐欺温床",
+      "対処": "メーカー名・型番・仕様書の提示を要求"
+    },
+    {
+      "code": "DOOR_TO_DOOR_SCAM",
+      "pattern": "訪問販売で即決迫り・「今すぐ」系",
+      "severity": "🚨 HIGH",
+      "reason": "優良業者はアポなし訪問営業しない。即決迫りは詐欺の典型",
+      "対処": "必ず相見積もり（3社以上）・クーリングオフ権確認"
+    },
+    {
+      "code": "FAKE_TODAY_DISCOUNT",
+      "pattern": "「今日だけ」「特別価格」「モニター価格」",
+      "severity": "🚨 HIGH",
+      "reason": "架空キャンペーンで相場の1.5-2倍を『半額』として売る典型",
+      "対処": "相場確認・他社見積もり"
+    },
+    {
+      "code": "VANITY_WIDTH_UPSELL",
+      "pattern": "750mm標準で十分な案件に900mm/1200mm強要",
+      "severity": "⚠️ MEDIUM",
+      "reason": "幅600→750→900→1200で段階的に+¥3-10万。設置スペース確認必要",
+      "対処": "設置スペース実測・必要幅を検討"
+    },
+    {
+      "code": "FLOOR_WALL_FORCED",
+      "pattern": "洗面台交換のみで十分な案件に床/壁も強要",
+      "severity": "⚠️ MEDIUM",
+      "reason": "床・壁は洗面台交換と独立に判断可能。+¥5-15万の追加請求",
+      "対処": "床・壁の状態を自分で確認、業者に理由説明させる"
+    }
+  ],
+  "customer_scenario_guide": {
+    "description": "施主の状況別・最適プラン提案",
+    "scenarios": [
+      {
+        "case": "賃貸退去・最小予算",
+        "recommendation": "本体のみ600mmエントリー",
+        "expected_cost": 120000
+      },
+      {
+        "case": "戸建・築15-20年・標準的な家庭（HS推奨）",
+        "recommendation": "本体750mmミドル + 床クロス張替え",
+        "expected_cost": 448000,
+        "note": "最コスパ。10年は使える"
+      },
+      {
+        "case": "ペット・子供いる家庭",
+        "recommendation": "人工大理石天板 + 床CF耐水性強化",
+        "additional_cost": 30000
+      },
+      {
+        "case": "こだわり派・デザイン重視",
+        "recommendation": "LIXIL クレヴィ or TOTO エスクア（ハイグレード）",
+        "expected_cost": 580000
+      },
+      {
+        "case": "狭いマンション",
+        "recommendation": "500mm or 600mm コンパクト",
+        "expected_cost": {
+          "min": 70000,
+          "max": 150000
+        }
+      },
+      {
+        "case": "2人並んで使いたい・広い家",
+        "recommendation": "900mm or 1200mm",
+        "expected_cost": {
+          "min": 250000,
+          "max": 500000
+        }
+      },
+      {
+        "case": "浴室・トイレも同時にやる予定",
+        "recommendation": "水廻り3点セット（浴室UB+トイレ+洗面所）",
+        "expected_cost": 2400000,
+        "note": "個別より10-15%安・諸経費削減"
+      },
+      {
+        "case": "家事楽ランドリースペース化",
+        "recommendation": "洗面所拡張+造作",
+        "cost_range": {
+          "min": 500000,
+          "max": 1500000
+        }
+      },
+      {
+        "case": "車椅子対応",
+        "recommendation": "バリアフリー洗面台",
+        "cost_range": {
+          "min": 300000,
+          "max": 600000
+        },
+        "note": "介護保険対象"
+      },
+      {
+        "case": "収納力最大化",
+        "recommendation": "ハイグレード+三面鏡+サイド収納",
+        "cost_range": {
+          "min": 400000,
+          "max": 700000
+        }
+      }
+    ]
+  },
+  "negotiation_tips": [
+    "メーカー・シリーズ・型番・間口サイズの明記要求",
+    "定価の何%掛けか確認（業者仕入れは定価50-60%OFF）",
+    "ネット販売（住設ドットコム・生活堂）の工事込み価格と比較",
+    "洗濯機パン脱着費用を必ず見積もりに含める",
+    "電気工事（コンセント・照明）は第二種電気工事士資格者施工",
+    "床CF張替え・クロス張替えの単価明細要求（㎡単価）",
+    "現地採寸必須。採寸なしの見積もりは信頼度低",
+    "廃材処分費の明記要求",
+    "水廻り3点（浴室・トイレ・洗面所）同時発注で10-15%安",
+    "ショールーム見学推奨（実物の使用感確認）",
+    "相見積もり3社以上（地場業者・ネット専門店・ハウスメーカー系）",
+    "保証内容確認（本体メーカー保証2年＋施工業者保証5年が標準）"
+  ],
+  "trade_knowledge": {
+    "summary": "洗面化粧台は住設の定番商品。本体仕入れは定価50-60%OFF。サイズは500/600/750/900/1200mmの5段階、各グレードでエントリー（¥10-18万）/ミドル（¥15-28万）/ハイ（¥23-40万）の価格帯。工事費は本体のみ¥3-5万、床クロス込み¥15-25万、全面改装¥30-50万が標準",
+    "combo_water_3point_insight": "水廻り3点セット（浴室・トイレ・洗面所）同時発注が最コスパ。職人・養生・廃材処分・諸経費を共有化で個別発注より10-15%安。築20年超で浴室・トイレ劣化なら3点セット検討",
+    "size_selection_logic": "750mmが戸建最多選択（約60%）。マンションは600mm多い。2人同時使用なら900mm以上。間口広げるとコスト急上昇（1200mm超は¥5-9万プレミアム）",
+    "grade_selection_logic": "ミドルグレードで一般家庭90%の満足度。ハイグレードはデザイン重視・来客多い家庭向け。エントリーは賃貸・最小予算・5-7年で次回交換前提",
+    "hidden_work_costs": "見積もりに含まれがちな追加項目: (1)洗濯機パン脱着¥5-15k (2)電気工事¥8-20k (3)配管移設¥15-50k (4)洗面台と床の段差調整¥3-8k。事前確認必須",
+    "warranty_standards": "本体メーカー保証2年＋施工業者保証5年が業界標準。保証期間中の不具合（水漏れ・扉調整等）は無料対応",
+    "knowledge_source": "TOshi 30年の大工・現場監督・CMR実務経験 + 6大メーカー公式データ + 住設業界内部情報"
+  },
+  "business_size_based_pricing": {
+    "_description": "業者規模4区分別 妥当な利益率レンジと価格係数（2026年4月時点・洗面所リフォーム）",
+    "4区分別_妥当な利益率レンジ_2026年4月": {
+      "区分1_個人事業": {
+        "代表例": "水回り個人事業",
+        "粗利率レンジ": "25-35%",
+        "HS基準からの係数": "0.95-0.98",
+        "HS推奨度": "★★★★☆",
+        "特徴": "洗面台単体交換に強い・半日工事"
+      },
+      "区分2_中小工務店": {
+        "代表例": "地域のリフォーム会社",
+        "粗利率レンジ": "25-35%",
+        "HS基準からの係数": "1.00-1.03",
+        "HS推奨度": "★★★★★ **第一推奨**",
+        "特徴": "床・壁含む全面改修に対応・適正価格"
+      },
+      "区分3_人気工務店": {
+        "代表例": "水回り専門店・ショールーム持ち",
+        "粗利率レンジ": "30-40%",
+        "HS基準からの係数": "1.05-1.10",
+        "HS推奨度": "★★★★☆",
+        "特徴": "造作洗面・タイル/大理石天板等のオーダーに強い"
+      },
+      "区分4_大手リフォーム": {
+        "代表例": "LIXILリフォーム・パナソニックリフォーム",
+        "粗利率レンジ": "35-45%",
+        "HS基準からの係数": "1.12-1.18",
+        "HS推奨度": "★★★☆☆",
+        "特徴": "ブランドショールーム活用・価格高"
+      }
+    },
+    "適正価格判断原則": "『どの区分を選ぶかは施主の自由』。安さ優先なら区分1-2、保証重視なら区分3-4。重要なのは『その業者の価格が規模に対して妥当か』"
+  },
+  "iran_situation_2026_04_impact": {
+    "_description": "2026年4月イラン情勢による洗面所リフォーム関連資材への影響",
+    "副資材_+5_10pct": [
+      "ビニール・養生材・テープ類",
+      "コーキング材・シーリング材",
+      "ビス・金物類"
+    ],
+    "建材全般_+10_20pct": [
+      "鋼材（配管・補強金物）",
+      "アルミ形材",
+      "金物類"
+    ],
+    "カテゴリ固有の影響": [
+      "🚨 LIXIL洗面台の一部シリーズ 納期未定（浴室と同製造系列）",
+      "洗面ボウル（陶器）現時点影響小",
+      "人造大理石天板+5-10%",
+      "床材（CF/フロアタイル）+5-10%",
+      "壁材（サイディング・クロス下地）+5-10%",
+      "給排水配管+5-10%"
+    ],
+    "_impact_summary": "2026年4月現在、洗面所リフォーム関連の直接的な値上げは限定的。Q3（7-9月）以降の本格的な値上げリスクあり。施主は早期契約で2026年3月以前の仕入れ値確保が得策"
+  }
+}

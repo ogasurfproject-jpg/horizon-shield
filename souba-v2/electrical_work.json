@@ -1,0 +1,2472 @@
+{
+  "_meta": {
+    "version": "3.0-phase1.5-toshi-philosophy",
+    "updated": "2026-04-19",
+    "category_id": "electrical_work",
+    "category_name_jp": "電気工事（配線・動力・ダクト・間接照明・通信・太陽光 完全版）",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐⭐ プロ領域・有資格者必須（第二種/第一種電気工事士）・法令違反リスク多数",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 2026年実勢データ (パナソニック分電盤・東芝分電盤・三菱電機換気扇・Panasonic照明・オーデリック・DAIKO・ODELIC、東京電力契約、SUUMOリフォーム、リフォトル、大福電業、電気工事110番、横浜電気工事レスキュー、電気工事レスキューセンター、源電工、リフォマ、CARSMORA、EV DAYS、さつき電気商会、エーステクニカル、セーフリー、ナイソツクリテ、モノタロウ、岩元空調、kuken-diffuser、ダクト職人、&ART、旅と家、クジラ株式会社、東急リバブル、電気設備の知識と技術) / 国交省 建設関連業経営分析・建設業情報管理センター / 経済産業省 電気工事士試験 / 電気用品安全法（PSE） / 全日本電気工事業工業組合連合会 / 国民生活センター 電気工事トラブル事例",
+    "scope_v2": "【v1】コンセント/スイッチ/分電盤/照明/LED化/EV充電/配線引直し + 【v2追加】動力三相200V引込・東電需給申請・スマートメーター・エアコン専用200V引込・24時間換気/換気扇/ダクト（スパイラル/フレキ/角）・間接照明（コーブ/コーニス/LEDテープ/電源装置/調光）・LAN/CAT6/アンテナ/インターホン・接地工事（A/B/C/D種）・火災警報器・太陽光/蓄電池/V2H・床暖房電気工事",
+    "v1_to_v2_changes": "TOshi指摘により、住宅一般工事中心だったv1を動力・ダクト・間接照明・通信・再エネまで完全拡張",
+    "v2_to_v3_changes": "TOshi哲学反映: (1)全39プラン業者規模4区分別レンジ化 (2)business_size_based_pricing新設（電気工事士資格に関する業者区分特徴追加） (3)Red Flag 9項目追加（業者規模観点6 + 電気工事固有3: 無資格施工・PSE違反・アンペアアップセル） (4)2026年4月イラン情勢・銅価格高騰・電線+10-15%値上げ反映",
+    "horizons_philosophy": "HSは業者を敵視しない。業者規模別の妥当な利益率（区分1-4で25-45%）レンジを透明化。電気工事は**第二種電気工事士資格必須**の法定業務。無資格施工は違法かつ火災リスク大。業者選定時は必ず電気工事士免状の提示を求めること。2026年4月は銅価格高騰で電線・ケーブル+10-15%の値上げ影響あり"
+  },
+  "horizon_shield_standard": {
+    "formula": "材料仕入れ値 × 1.2 + 電気工事士人工 × 日当 + 付帯工事実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.2,
+      "general_overhead_pct_ideal": 15,
+      "tax_pct": 10,
+      "trade_price_ratio_from_list": 0.5
+    },
+    "philosophy": "電気工事は資格必須・見えない配管部分多い。動力・ダクト・間接照明は特に施工技術の差が出る領域。HSは全項目明細化で適正評価",
+    "HS_pricing_philosophy": {
+      "原則": "HS基準価格 = 原価 + 業者規模別の妥当な利益率レンジ",
+      "公式": "適正価格 = 材料仕入れ値 × 1.2 + 人工数 × 日当 + 副資材実費 + 機材・交通費 + (原価 × 業者規模別利益率) + 消費税 10%",
+      "業者規模別_妥当な利益率_電気工事": {
+        "個人事業_専門職人": "粗利率 25-35%（原価×1.25-1.35）",
+        "中小工務店_地域密着": "粗利率 25-35%（原価×1.25-1.35）",
+        "人気工務店_高品質": "粗利率 30-40%（原価×1.30-1.40）",
+        "大手リフォーム_ハウスメーカー": "粗利率 35-45%（原価×1.35-1.45）"
+      },
+      "規模別利益率_根拠": "国土交通省建設関連業経営分析、一般財団法人建設業情報管理センター",
+      "TOshi哲学": "HSは業者を敵視しない。業者規模別の妥当な利益率レンジを施主に透明化し、『規模と価格のマッチング』を判断できるよう武装化する"
+    }
+  },
+  "license_requirements": {
+    "denki_koji_si_2": {
+      "name": "第二種電気工事士",
+      "scope": "一般住宅600V以下"
+    },
+    "denki_koji_si_1": {
+      "name": "第一種電気工事士",
+      "scope": "500kW未満工場・ビル"
+    },
+    "nintei_denki_koji_jūsha": {
+      "name": "認定電気工事従事者"
+    },
+    "v2_denki_kouji_gyousha_toroku": {
+      "name": "電気工事業者登録（都道府県知事登録）",
+      "required_for": "事業として電気工事を行う業者全て"
+    },
+    "v2_1st_kyu_denkou_senmonin": {
+      "name": "1級電気工事施工管理技士",
+      "scope": "大型工事の施工管理"
+    },
+    "v2_ductman_license": {
+      "name": "ダクト板金技能士",
+      "scope": "ダクト施工"
+    }
+  },
+  "v2_power_grid_connection": {
+    "description": "【v2新規】電力引込み・東電申請関連工事",
+    "hikikomi_sen": {
+      "name": "引込線工事（電柱→建物）",
+      "description": "電力会社の電柱から建物メーターまでの配線",
+      "price_jpy": {
+        "min": 30000,
+        "max": 100000
+      },
+      "note": "電力会社負担部分と施主負担部分あり"
+    },
+    "tanso_2_to_3_upgrade": {
+      "name": "単相2線式→単相3線式変更",
+      "price_jpy": {
+        "min": 100000,
+        "max": 300000
+      },
+      "scope": [
+        "電柱からの引込み線3本化",
+        "分電盤交換",
+        "メーター交換"
+      ],
+      "process_days": "1-3日"
+    },
+    "sanso_dougyoku_residential": {
+      "name": "三相200V動力 住宅引込み",
+      "price_jpy": {
+        "min": 100000,
+        "max": 250000
+      },
+      "use_case": [
+        "別棟ガレージ",
+        "大型冷凍庫",
+        "業務用エアコン（馬力大）",
+        "溶接機",
+        "個人事業主作業場"
+      ]
+    },
+    "sanso_dougyoku_business": {
+      "name": "三相200V動力 事業所引込み",
+      "price_jpy": {
+        "min": 300000,
+        "max": 1500000
+      },
+      "use_case": [
+        "工場",
+        "倉庫",
+        "商業施設",
+        "飲食店"
+      ],
+      "additional_factors": [
+        "契約容量",
+        "距離",
+        "引込柱新設有無"
+      ]
+    },
+    "dougyoku_branch_from_existing": {
+      "name": "動力分岐工事（既設から）",
+      "price_jpy": {
+        "min": 50000,
+        "max": 150000
+      }
+    },
+    "aircon_200v_dedicated": {
+      "name": "エアコン用200V専用コンセント引込み",
+      "price_jpy": {
+        "min": 15000,
+        "max": 50000
+      },
+      "scope": [
+        "専用ブレーカー追加",
+        "専用配線",
+        "200Vコンセント"
+      ],
+      "use_case": "業務用・10畳以上用エアコン・大型冷蔵庫"
+    },
+    "tohden_application": {
+      "name": "東京電力（電力会社）申請手続き",
+      "fee_jpy": {
+        "min": 0,
+        "max": 30000,
+        "note": "代行費用"
+      },
+      "required_for": [
+        "需給契約変更",
+        "アンペア変更",
+        "動力新設",
+        "メーター交換"
+      ],
+      "process": [
+        "1. 電気工事店が工事計画書提出",
+        "2. 電力会社による需給承諾",
+        "3. 工事実施",
+        "4. 完成検査・メーター取付",
+        "5. 需給開始"
+      ],
+      "process_days": "申請から工事完了まで2-4週間"
+    },
+    "smart_meter_exchange": {
+      "name": "スマートメーター交換",
+      "cost_to_owner": "無料（電力会社負担）",
+      "note": "2024年以降全戸交換済み・契約変更時に実施"
+    },
+    "hikikomi_bashira_private_pole": {
+      "name": "引込柱（私設ポール）設置",
+      "price_jpy": {
+        "min": 100000,
+        "max": 300000
+      },
+      "use_case": "離れ・ガレージ・電柱から遠い敷地"
+    },
+    "contract_ampere_change_work": {
+      "name": "契約アンペア変更工事",
+      "breaker_only_jpy": {
+        "min": 10000,
+        "max": 50000
+      },
+      "full_distribution_board_jpy": {
+        "min": 100000,
+        "max": 300000,
+        "note": "60A超・分電盤交換込み"
+      }
+    },
+    "generator_backup_install": {
+      "name": "非常用発電機設置（家庭用）",
+      "price_jpy": {
+        "min": 300000,
+        "max": 1500000
+      }
+    }
+  },
+  "v2_kanki_duct": {
+    "description": "【v2新規】換気扇・ダクト工事（プロ領域）",
+    "duct_materials": {
+      "spiral_duct": {
+        "name": "スパイラルダクト（丸型・工場生産）",
+        "price_per_meter_jpy": {
+          "min": 5000,
+          "max": 10000
+        },
+        "features": [
+          "軽量",
+          "加工容易",
+          "コスパ良",
+          "大量生産品"
+        ],
+        "diameters_mm": [
+          100,
+          150,
+          200,
+          250,
+          300
+        ]
+      },
+      "flex_duct": {
+        "name": "フレキシブルダクト",
+        "price_per_meter_jpy": {
+          "min": 2000,
+          "max": 5000
+        },
+        "features": [
+          "柔軟性◎",
+          "狭小部対応",
+          "寿命短め"
+        ],
+        "note": "住宅用換気で多用"
+      },
+      "kakudo_duct": {
+        "name": "角ダクト（板金加工）",
+        "price_per_meter_jpy": {
+          "min": 8000,
+          "max": 15000
+        },
+        "features": [
+          "天井裏に設置",
+          "大風量対応",
+          "特注可"
+        ]
+      },
+      "duct_insulation": {
+        "name": "ダクト保温材",
+        "price_per_meter_jpy": {
+          "min": 1500,
+          "max": 3000
+        }
+      }
+    },
+    "home_ventilation": {
+      "24hour_ventilation_system": {
+        "name": "24時間換気システム（建築基準法義務）",
+        "price_30tsubo_jpy": {
+          "min": 150000,
+          "max": 500000
+        },
+        "types": {
+          "first_method": {
+            "name": "第1種換気（給排気機械）",
+            "recommended": true,
+            "price_jpy": {
+              "min": 300000,
+              "max": 500000
+            }
+          },
+          "second_method": {
+            "name": "第2種換気（給気機械）",
+            "price_jpy": {
+              "min": 150000,
+              "max": 300000
+            }
+          },
+          "third_method": {
+            "name": "第3種換気（排気機械）",
+            "price_jpy": {
+              "min": 100000,
+              "max": 250000
+            }
+          }
+        }
+      },
+      "kanki_sen_with_duct": {
+        "name": "住宅用換気扇+ダクト（1箇所）",
+        "price_jpy": {
+          "min": 30000,
+          "max": 80000
+        }
+      },
+      "range_hood_replace": {
+        "name": "レンジフード交換（ダクト含む）",
+        "price_jpy": {
+          "min": 100000,
+          "max": 250000
+        }
+      },
+      "bath_kanki_kanso": {
+        "name": "浴室換気乾燥機設置",
+        "price_jpy": {
+          "min": 80000,
+          "max": 180000
+        },
+        "scope": [
+          "本体",
+          "天井開口",
+          "ダクト接続",
+          "200V電源",
+          "コントローラー"
+        ]
+      },
+      "toilet_kanki_sen": {
+        "name": "トイレ換気扇（ダクト式）",
+        "price_jpy": {
+          "min": 15000,
+          "max": 40000
+        }
+      },
+      "under_floor_kanki": {
+        "name": "床下換気扇",
+        "price_jpy": {
+          "min": 80000,
+          "max": 200000
+        }
+      }
+    },
+    "business_commercial_duct": {
+      "restaurant_food_duct_small": {
+        "name": "飲食店フードダクト（小規模10-20坪・壁排気）",
+        "price_jpy": {
+          "min": 400000,
+          "max": 700000
+        },
+        "scope": [
+          "SUSフード",
+          "グリスフィルター",
+          "スパイラルダクト",
+          "有圧換気扇",
+          "ウェザーカバー"
+        ]
+      },
+      "restaurant_food_duct_roof": {
+        "name": "飲食店フードダクト（ビル屋上排気・3F以上）",
+        "price_jpy": {
+          "min": 1000000,
+          "max": 2500000
+        },
+        "scope": [
+          "SUSフード",
+          "3相200Vベルトファン",
+          "スパイラルダクト",
+          "足場工事¥200k+"
+        ]
+      },
+      "shop_kanki_sen_yuuatsu": {
+        "name": "店舗用有圧換気扇（動力ファン）",
+        "price_jpy": {
+          "min": 50000,
+          "max": 200000
+        }
+      },
+      "duct_fan_inline": {
+        "name": "ダクトファン（インライン）",
+        "price_jpy": {
+          "min": 30000,
+          "max": 120000
+        }
+      }
+    },
+    "ventilation_cautions": [
+      "排気とバランスの取れた給気経路確保必須",
+      "ダンパー（安全装置）削減は法律違反・火災リスク",
+      "飲食店は給気量=排気量の7割程度必須",
+      "ダクト保温は結露防止に必須（冷房時）"
+    ]
+  },
+  "v2_kansetsu_shoumei_core": {
+    "description": "【v2新規】間接照明（コアな施工）",
+    "types": {
+      "cove_shoumei": {
+        "name": "コーブ照明（天井折上げ型）",
+        "description": "折り上げ天井の中に光源を設置→天井に反射→柔らかい光",
+        "price_jpy": {
+          "min": 100000,
+          "max": 250000
+        },
+        "scope": [
+          "折上げ天井造作（大工工事と連動）",
+          "LEDライン照明器具",
+          "電源装置",
+          "調光器連動"
+        ],
+        "use_case": [
+          "リビング",
+          "寝室",
+          "書斎",
+          "ホテルライク演出"
+        ],
+        "minimum_tenjou_futokoro_mm": 200
+      },
+      "cornice_shoumei": {
+        "name": "コーニス照明（壁カーテン型）",
+        "description": "壁に光を下向き照射→壁面グラデーション",
+        "price_jpy": {
+          "min": 80000,
+          "max": 200000
+        },
+        "use_case": [
+          "エントランス",
+          "廊下",
+          "カーテン演出",
+          "ホテルライク"
+        ],
+        "cautions": [
+          "壁平滑化必須（塗装下地処理）",
+          "ブラケット・コンセントとの位置調整",
+          "光源の射光角設計"
+        ]
+      },
+      "kanbertsu_kakushi_shoumei": {
+        "name": "建築化（隠し）照明",
+        "description": "天井・壁に組み込み光源隠蔽",
+        "price_jpy": {
+          "min": 150000,
+          "max": 400000
+        }
+      },
+      "wall_washer": {
+        "name": "ウォールウォッシャー",
+        "description": "壁の下まで均一照射するライン照明",
+        "price_per_meter_jpy": {
+          "min": 15000,
+          "max": 30000
+        }
+      },
+      "kantan_kansetsu_retrofit": {
+        "name": "かんたん間接（オーデリック後付けタイプ）",
+        "description": "造作不要で壁・天井に直接取付",
+        "price_jpy": {
+          "min": 30000,
+          "max": 80000
+        }
+      },
+      "foot_light": {
+        "name": "フットライト（廊下・階段）",
+        "price_per_spot_jpy": {
+          "min": 15000,
+          "max": 30000
+        },
+        "features": [
+          "人感センサー対応",
+          "夜間安全対策"
+        ]
+      },
+      "under_shelf_light": {
+        "name": "棚下照明",
+        "price_jpy": {
+          "min": 20000,
+          "max": 60000
+        },
+        "use_case": [
+          "キッチンカウンター下",
+          "造作カウンター",
+          "書斎デスク"
+        ]
+      }
+    },
+    "led_strip_components": {
+      "led_tape_light_material": {
+        "name": "LEDテープライト（材料）",
+        "price_per_meter_jpy": {
+          "min": 3000,
+          "max": 8000
+        },
+        "types": [
+          "白色",
+          "電球色",
+          "RGB",
+          "RGBW（調色可）"
+        ]
+      },
+      "led_power_supply_transformer": {
+        "name": "電源装置（LEDトランス・ドライバー）",
+        "price_jpy": {
+          "min": 15000,
+          "max": 40000
+        },
+        "note": "W数計算が施工の要・不足するとチラつき・故障"
+      },
+      "dimmer_controller": {
+        "name": "調光器・調色コントローラー",
+        "price_jpy": {
+          "min": 10000,
+          "max": 30000
+        }
+      },
+      "smart_control_wifi": {
+        "name": "Wi-Fi調光連動",
+        "price_jpy": {
+          "min": 20000,
+          "max": 50000
+        }
+      }
+    },
+    "manufacturers": [
+      "Panasonic",
+      "オーデリック（ODELIC）",
+      "DAIKO（大光電機）",
+      "遠藤照明",
+      "コイズミ照明"
+    ],
+    "core_skill_points": [
+      "電源装置の容量計算（テープ1mあたり9.6W〜14.4W目安）",
+      "配線の電圧降下考慮（ロング施工時）",
+      "調光器との連動互換性確認",
+      "LEDの色温度・演色性（Ra）選定",
+      "射光角と照射対象の距離設計",
+      "放熱対策（密閉空間では寿命低下）"
+    ]
+  },
+  "v2_communication_antenna": {
+    "description": "【v2新規】通信・アンテナ工事",
+    "lan_cabling": {
+      "cat5e_per_room": {
+        "name": "LAN配線CAT5e（1室）",
+        "price_jpy": {
+          "min": 10000,
+          "max": 25000
+        }
+      },
+      "cat6_per_room": {
+        "name": "LAN配線CAT6（1室）",
+        "price_jpy": {
+          "min": 15000,
+          "max": 40000
+        }
+      },
+      "cat6a_per_room": {
+        "name": "LAN配線CAT6A（1室・10Gbps対応）",
+        "price_jpy": {
+          "min": 25000,
+          "max": 60000
+        }
+      },
+      "whole_house_30tsubo": {
+        "name": "戸建全室LAN配線",
+        "price_jpy": {
+          "min": 100000,
+          "max": 250000
+        }
+      }
+    },
+    "optical_internet": {
+      "hikari_bikimomi_new": {
+        "name": "光回線引込み新規",
+        "price_jpy": {
+          "min": 15000,
+          "max": 30000
+        }
+      },
+      "onu_setsuchi": {
+        "name": "ONU・ルーター設置",
+        "price_jpy": {
+          "min": 5000,
+          "max": 15000
+        }
+      }
+    },
+    "antenna": {
+      "chideji_uhf": {
+        "name": "地デジUHFアンテナ",
+        "price_jpy": {
+          "min": 20000,
+          "max": 40000
+        }
+      },
+      "bs_cs_antenna": {
+        "name": "BS/CSアンテナ（4K8K対応）",
+        "price_jpy": {
+          "min": 15000,
+          "max": 35000
+        }
+      },
+      "antenna_booster": {
+        "name": "アンテナブースター",
+        "price_jpy": {
+          "min": 30000,
+          "max": 70000
+        }
+      },
+      "antenna_distributor": {
+        "name": "分配器・分岐器",
+        "price_jpy": {
+          "min": 10000,
+          "max": 25000
+        }
+      },
+      "wall_mounted_antenna": {
+        "name": "壁面デザインアンテナ（目立たない）",
+        "price_jpy": {
+          "min": 30000,
+          "max": 60000
+        }
+      }
+    },
+    "interphone_intercom": {
+      "wired_doorphone_basic": {
+        "name": "有線インターホン（標準）",
+        "price_jpy": {
+          "min": 30000,
+          "max": 60000
+        }
+      },
+      "wifi_smart_intercom": {
+        "name": "Wi-Fi対応スマートインターホン",
+        "price_jpy": {
+          "min": 50000,
+          "max": 120000
+        }
+      },
+      "mansion_pbx_integrated": {
+        "name": "マンション集合型（外部接続）",
+        "price_jpy": {
+          "min": 50000,
+          "max": 150000
+        }
+      }
+    },
+    "fire_alarm": {
+      "single_alarm_unit": {
+        "name": "住宅用火災警報器（1台）",
+        "price_jpy": {
+          "min": 8000,
+          "max": 15000
+        }
+      },
+      "wireless_linked_alarms": {
+        "name": "無線連動型火災警報器（1台）",
+        "price_jpy": {
+          "min": 15000,
+          "max": 30000
+        }
+      },
+      "whole_house_set_5rooms": {
+        "name": "戸建5部屋セット",
+        "price_jpy": {
+          "min": 60000,
+          "max": 120000
+        }
+      }
+    }
+  },
+  "v2_grounding_earth": {
+    "description": "【v2新規】接地工事（アース）",
+    "types": {
+      "a_type_grounding": {
+        "name": "A種接地",
+        "resistance_ohm": 10,
+        "use_case": "高圧機器",
+        "price_jpy": {
+          "min": 50000,
+          "max": 150000
+        }
+      },
+      "b_type_grounding": {
+        "name": "B種接地",
+        "use_case": "変圧器中性点",
+        "note": "電力会社側で実施"
+      },
+      "c_type_grounding": {
+        "name": "C種接地",
+        "resistance_ohm": 10,
+        "use_case": "300V超機器",
+        "price_jpy": {
+          "min": 30000,
+          "max": 80000
+        }
+      },
+      "d_type_grounding": {
+        "name": "D種接地",
+        "resistance_ohm": 100,
+        "use_case": "100V/200V一般機器",
+        "price_jpy": {
+          "min": 10000,
+          "max": 30000
+        }
+      }
+    },
+    "typical_work": {
+      "single_outlet_grounding": {
+        "name": "洗濯機・冷蔵庫用アース",
+        "price_jpy": {
+          "min": 5000,
+          "max": 15000
+        }
+      },
+      "ecocute_grounding": {
+        "name": "エコキュート接地",
+        "price_jpy": {
+          "min": 10000,
+          "max": 25000
+        }
+      },
+      "solar_grounding": {
+        "name": "太陽光連系接地",
+        "price_jpy": {
+          "min": 20000,
+          "max": 50000
+        }
+      }
+    }
+  },
+  "v2_solar_battery_v2h": {
+    "description": "【v2新規】太陽光・蓄電池・V2H",
+    "solar_panel_pv": {
+      "5kw_package_standard": {
+        "name": "太陽光パネル 5kW標準（戸建）",
+        "price_jpy": {
+          "min": 1000000,
+          "max": 1500000
+        },
+        "scope": [
+          "パネル",
+          "パワコン",
+          "架台",
+          "配線",
+          "系統連系",
+          "モニター"
+        ],
+        "subsidy": "自治体・国の補助金随時（2026年確認必要）",
+        "payback_years": {
+          "min": 10,
+          "max": 15
+        }
+      },
+      "larger_10kw": {
+        "name": "太陽光10kW（大容量）",
+        "price_jpy": {
+          "min": 2000000,
+          "max": 3000000
+        }
+      },
+      "power_conditioner_replace": {
+        "name": "パワーコンディショナー交換（10-15年目）",
+        "price_jpy": {
+          "min": 200000,
+          "max": 400000
+        }
+      }
+    },
+    "battery_storage": {
+      "5kwh_battery": {
+        "name": "蓄電池 5kWh",
+        "price_jpy": {
+          "min": 1000000,
+          "max": 1500000
+        }
+      },
+      "10kwh_battery": {
+        "name": "蓄電池 10kWh",
+        "price_jpy": {
+          "min": 1500000,
+          "max": 2500000
+        }
+      },
+      "hybrid_inverter": {
+        "name": "ハイブリッドパワコン（太陽光+蓄電池）",
+        "price_jpy": {
+          "min": 300000,
+          "max": 500000
+        }
+      }
+    },
+    "v2h_system": {
+      "v2h_basic": {
+        "name": "V2H（Vehicle to Home）基本",
+        "price_jpy": {
+          "min": 500000,
+          "max": 1000000
+        },
+        "description": "EV車載バッテリーから家庭へ給電",
+        "subsidy_cev": {
+          "max_jpy": 750000
+        }
+      },
+      "v2h_solar_combo": {
+        "name": "V2H+太陽光+蓄電池 統合",
+        "price_jpy": {
+          "min": 3000000,
+          "max": 5000000
+        }
+      }
+    }
+  },
+  "v2_yuka_danbou_electric": {
+    "description": "【v2新規】電気式床暖房",
+    "types": {
+      "electric_sheet_direct": {
+        "name": "電気式床暖房（面状発熱体）",
+        "price_per_sqm_jpy": {
+          "min": 15000,
+          "max": 35000
+        },
+        "features": [
+          "初期費用安",
+          "ランニング費やや高"
+        ]
+      },
+      "pthc_ptc_heater": {
+        "name": "PTC式床暖房（自己制御型）",
+        "price_per_sqm_jpy": {
+          "min": 20000,
+          "max": 45000
+        }
+      },
+      "living_10jo_package": {
+        "name": "リビング10畳パッケージ",
+        "price_jpy": {
+          "min": 300000,
+          "max": 700000
+        }
+      }
+    }
+  },
+  "work_items_complete": {
+    "outlet_konsento": {
+      "existing_plate_upgrade": {
+        "price_jpy": {
+          "min": 3000,
+          "max": 8000
+        }
+      },
+      "branch_from_existing": {
+        "price_jpy": {
+          "min": 5000,
+          "max": 15000
+        }
+      },
+      "new_wiring_from_buntenban": {
+        "price_jpy": {
+          "min": 15000,
+          "max": 50000
+        }
+      },
+      "exposed_wiring": {
+        "price_jpy": {
+          "min": 8000,
+          "max": 20000
+        }
+      },
+      "outdoor_outlet": {
+        "price_jpy": {
+          "min": 15000,
+          "max": 70000
+        }
+      },
+      "outlet_relocation": {
+        "price_jpy": {
+          "min": 8000,
+          "max": 25000
+        }
+      }
+    },
+    "switch_work": {
+      "standard": {
+        "price_jpy": {
+          "min": 3000,
+          "max": 8000
+        }
+      },
+      "timer": {
+        "price_jpy": {
+          "min": 8000,
+          "max": 15000
+        }
+      },
+      "dimmer": {
+        "price_jpy": {
+          "min": 8000,
+          "max": 20000
+        }
+      },
+      "sensor": {
+        "price_jpy": {
+          "min": 10000,
+          "max": 25000
+        }
+      },
+      "smart_wifi": {
+        "price_jpy": {
+          "min": 15000,
+          "max": 40000
+        }
+      }
+    },
+    "voltage_conversion": {
+      "100v_to_200v_single3": {
+        "price_jpy": {
+          "min": 10000,
+          "max": 30000
+        }
+      },
+      "200v_dedicated_circuit": {
+        "price_jpy": {
+          "min": 30000,
+          "max": 80000
+        }
+      }
+    },
+    "distribution_board": {
+      "breaker_only": {
+        "price_jpy": {
+          "min": 8000,
+          "max": 20000
+        }
+      },
+      "leak_breaker_add": {
+        "price_jpy": {
+          "min": 15000,
+          "max": 30000
+        }
+      },
+      "replace_small": {
+        "price_jpy": {
+          "min": 50000,
+          "max": 100000
+        }
+      },
+      "replace_large": {
+        "price_jpy": {
+          "min": 100000,
+          "max": 200000
+        }
+      },
+      "solar_dedicated": {
+        "price_jpy": {
+          "min": 50000,
+          "max": 150000
+        }
+      }
+    },
+    "lighting_work": {
+      "existing_socket_replace": {
+        "price_jpy": {
+          "min": 2000,
+          "max": 8000
+        }
+      },
+      "direct_wired": {
+        "price_jpy": {
+          "min": 5000,
+          "max": 15000
+        }
+      },
+      "new_wiring_lighting": {
+        "price_jpy": {
+          "min": 15000,
+          "max": 40000
+        }
+      },
+      "chandelier": {
+        "price_jpy": {
+          "min": 15000,
+          "max": 40000
+        }
+      },
+      "downlight_new": {
+        "price_per_unit_jpy": {
+          "min": 8000,
+          "max": 15000
+        }
+      }
+    },
+    "led_conversion": {
+      "per_room": {
+        "price_jpy": {
+          "min": 8000,
+          "max": 25000
+        }
+      },
+      "whole_house_6rooms": {
+        "price_jpy": {
+          "min": 100000,
+          "max": 300000
+        }
+      }
+    },
+    "ev_charging": {
+      "simple_outlet": {
+        "price_jpy": {
+          "min": 30000,
+          "max": 80000
+        }
+      },
+      "pole_standing": {
+        "price_jpy": {
+          "min": 80000,
+          "max": 150000
+        }
+      },
+      "long_distance_surcharge": {
+        "price_jpy": {
+          "min": 20000,
+          "max": 50000
+        }
+      }
+    },
+    "full_rewiring": {
+      "partial_room": {
+        "price_jpy": {
+          "min": 80000,
+          "max": 200000
+        }
+      },
+      "full_house_30tsubo": {
+        "price_jpy": {
+          "min": 500000,
+          "max": 1500000
+        }
+      }
+    },
+    "smart_home": {
+      "hems": {
+        "price_jpy": {
+          "min": 150000,
+          "max": 400000
+        }
+      },
+      "smart_lock": {
+        "price_jpy": {
+          "min": 30000,
+          "max": 80000
+        }
+      },
+      "security_camera_4units": {
+        "price_jpy": {
+          "min": 150000,
+          "max": 400000
+        }
+      }
+    }
+  },
+  "full_reform_packages": {
+    "30tsubo_standard": {
+      "price_jpy": {
+        "min": 500000,
+        "max": 800000
+      }
+    },
+    "30tsubo_all_electric": {
+      "price_jpy": {
+        "min": 800000,
+        "max": 1500000
+      }
+    },
+    "mansion_80sqm": {
+      "price_jpy": {
+        "min": 300000,
+        "max": 600000
+      }
+    }
+  },
+  "labor": {
+    "electrician_day_rate_kanto": {
+      "min": 25000,
+      "max": 35000,
+      "avg": 30000
+    },
+    "electrician_senior_day_rate_kanto": {
+      "min": 35000,
+      "max": 45000,
+      "avg": 40000
+    },
+    "ductman_day_rate_kanto": {
+      "min": 28000,
+      "max": 38000,
+      "avg": 33000
+    }
+  },
+  "plans_complete": {
+    "konsento_simple": {
+      "name": "コンセント増設（既存分岐）",
+      "price_jpy": {
+        "min": 5000,
+        "max": 15000
+      },
+      "hs_rule_jpy": 12000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 10000,
+          "max": 10000
+        },
+        "区分2_中小工務店": {
+          "min": 10000,
+          "max": 10000
+        },
+        "区分3_人気工務店": {
+          "min": 10000,
+          "max": 11000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 11000,
+          "max": 12000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "konsento_new_wiring": {
+      "name": "コンセント新規配線",
+      "price_jpy": {
+        "min": 15000,
+        "max": 50000
+      },
+      "hs_rule_jpy": 40000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 31000,
+          "max": 32000
+        },
+        "区分2_中小工務店": {
+          "min": 32000,
+          "max": 33000
+        },
+        "区分3_人気工務店": {
+          "min": 34000,
+          "max": 36000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 36000,
+          "max": 38000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "outdoor_konsento": {
+      "name": "屋外コンセント増設",
+      "price_jpy": {
+        "min": 15000,
+        "max": 70000
+      },
+      "hs_rule_jpy": 55000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 40000,
+          "max": 42000
+        },
+        "区分2_中小工務店": {
+          "min": 42000,
+          "max": 44000
+        },
+        "区分3_人気工務店": {
+          "min": 45000,
+          "max": 47000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 48000,
+          "max": 50000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "200v_conversion_existing": {
+      "name": "100V→200V変更",
+      "price_jpy": {
+        "min": 10000,
+        "max": 30000
+      },
+      "hs_rule_jpy": 25000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 19000,
+          "max": 20000
+        },
+        "区分2_中小工務店": {
+          "min": 20000,
+          "max": 21000
+        },
+        "区分3_人気工務店": {
+          "min": 21000,
+          "max": 22000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 22000,
+          "max": 24000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "200v_dedicated_circuit": {
+      "name": "200V専用回路新設",
+      "price_jpy": {
+        "min": 30000,
+        "max": 80000
+      },
+      "hs_rule_jpy": 65000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 52000,
+          "max": 54000
+        },
+        "区分2_中小工務店": {
+          "min": 55000,
+          "max": 57000
+        },
+        "区分3_人気工務店": {
+          "min": 58000,
+          "max": 61000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 62000,
+          "max": 65000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "distribution_board_upgrade": {
+      "name": "分電盤交換大型",
+      "price_jpy": {
+        "min": 100000,
+        "max": 200000
+      },
+      "hs_rule_jpy": 180000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 142000,
+          "max": 147000
+        },
+        "区分2_中小工務店": {
+          "min": 150000,
+          "max": 154000
+        },
+        "区分3_人気工務店": {
+          "min": 158000,
+          "max": 165000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 168000,
+          "max": 177000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "led_whole_house": {
+      "name": "全室LED化6部屋",
+      "price_jpy": {
+        "min": 100000,
+        "max": 300000
+      },
+      "hs_rule_jpy": 240000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 190000,
+          "max": 196000
+        },
+        "区分2_中小工務店": {
+          "min": 200000,
+          "max": 206000
+        },
+        "区分3_人気工務店": {
+          "min": 210000,
+          "max": 220000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 224000,
+          "max": 236000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "ev_charging": {
+      "name": "EV充電用コンセント",
+      "price_jpy": {
+        "min": 30000,
+        "max": 80000
+      },
+      "hs_rule_jpy": 70000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 52000,
+          "max": 54000
+        },
+        "区分2_中小工務店": {
+          "min": 55000,
+          "max": 57000
+        },
+        "区分3_人気工務店": {
+          "min": 58000,
+          "max": 61000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 62000,
+          "max": 65000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "single2_to_single3": {
+      "name": "単2→単3変更",
+      "price_jpy": {
+        "min": 100000,
+        "max": 300000
+      },
+      "hs_rule_jpy": 260000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 190000,
+          "max": 196000
+        },
+        "区分2_中小工務店": {
+          "min": 200000,
+          "max": 206000
+        },
+        "区分3_人気工務店": {
+          "min": 210000,
+          "max": 220000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 224000,
+          "max": 236000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "full_rewiring_30tsubo": {
+      "name": "配線引き直し30坪",
+      "price_jpy": {
+        "min": 500000,
+        "max": 1500000
+      },
+      "hs_rule_jpy": 1200000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 950000,
+          "max": 980000
+        },
+        "区分2_中小工務店": {
+          "min": 1000000,
+          "max": 1030000
+        },
+        "区分3_人気工務店": {
+          "min": 1050000,
+          "max": 1100000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 1120000,
+          "max": 1180000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_hikikomi_sen_new": {
+      "name": "【v2】引込線新設",
+      "price_jpy": {
+        "min": 30000,
+        "max": 100000
+      },
+      "hs_rule_jpy": 80000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 62000,
+          "max": 64000
+        },
+        "区分2_中小工務店": {
+          "min": 65000,
+          "max": 67000
+        },
+        "区分3_人気工務店": {
+          "min": 68000,
+          "max": 72000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 73000,
+          "max": 77000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_sanso_dougyoku_residential": {
+      "name": "【v2】三相動力住宅引込み",
+      "price_jpy": {
+        "min": 100000,
+        "max": 250000
+      },
+      "hs_rule_jpy": 220000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 166000,
+          "max": 172000
+        },
+        "区分2_中小工務店": {
+          "min": 175000,
+          "max": 180000
+        },
+        "区分3_人気工務店": {
+          "min": 184000,
+          "max": 193000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 196000,
+          "max": 206000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_sanso_dougyoku_business": {
+      "name": "【v2】三相動力事業所引込み",
+      "price_jpy": {
+        "min": 300000,
+        "max": 1500000
+      },
+      "hs_rule_jpy": 850000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 855000,
+          "max": 882000
+        },
+        "区分2_中小工務店": {
+          "min": 900000,
+          "max": 927000
+        },
+        "区分3_人気工務店": {
+          "min": 945000,
+          "max": 990000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 1008000,
+          "max": 1062000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_aircon_200v_dedicated": {
+      "name": "【v2】エアコン用200V専用引込み",
+      "price_jpy": {
+        "min": 15000,
+        "max": 50000
+      },
+      "hs_rule_jpy": 40000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 31000,
+          "max": 32000
+        },
+        "区分2_中小工務店": {
+          "min": 32000,
+          "max": 33000
+        },
+        "区分3_人気工務店": {
+          "min": 34000,
+          "max": 36000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 36000,
+          "max": 38000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_tohden_application": {
+      "name": "【v2】東電申請代行",
+      "price_jpy": {
+        "min": 10000,
+        "max": 30000
+      },
+      "hs_rule_jpy": 25000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 19000,
+          "max": 20000
+        },
+        "区分2_中小工務店": {
+          "min": 20000,
+          "max": 21000
+        },
+        "区分3_人気工務店": {
+          "min": 21000,
+          "max": 22000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 22000,
+          "max": 24000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_private_pole": {
+      "name": "【v2】引込柱（私設ポール）",
+      "price_jpy": {
+        "min": 100000,
+        "max": 300000
+      },
+      "hs_rule_jpy": 260000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 190000,
+          "max": 196000
+        },
+        "区分2_中小工務店": {
+          "min": 200000,
+          "max": 206000
+        },
+        "区分3_人気工務店": {
+          "min": 210000,
+          "max": 220000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 224000,
+          "max": 236000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_24hour_ventilation": {
+      "name": "【v2】24時間換気システム30坪",
+      "price_jpy": {
+        "min": 150000,
+        "max": 500000
+      },
+      "hs_rule_jpy": 420000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 309000,
+          "max": 318000
+        },
+        "区分2_中小工務店": {
+          "min": 325000,
+          "max": 335000
+        },
+        "区分3_人気工務店": {
+          "min": 341000,
+          "max": 358000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 364000,
+          "max": 384000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_range_hood_replace": {
+      "name": "【v2】レンジフード交換",
+      "price_jpy": {
+        "min": 100000,
+        "max": 250000
+      },
+      "hs_rule_jpy": 220000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 166000,
+          "max": 172000
+        },
+        "区分2_中小工務店": {
+          "min": 175000,
+          "max": 180000
+        },
+        "区分3_人気工務店": {
+          "min": 184000,
+          "max": 193000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 196000,
+          "max": 206000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_bath_kanso": {
+      "name": "【v2】浴室換気乾燥機",
+      "price_jpy": {
+        "min": 80000,
+        "max": 180000
+      },
+      "hs_rule_jpy": 160000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 124000,
+          "max": 127000
+        },
+        "区分2_中小工務店": {
+          "min": 130000,
+          "max": 134000
+        },
+        "区分3_人気工務店": {
+          "min": 136000,
+          "max": 143000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 146000,
+          "max": 153000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_restaurant_food_duct_small": {
+      "name": "【v2】飲食店フードダクト小規模",
+      "price_jpy": {
+        "min": 400000,
+        "max": 700000
+      },
+      "hs_rule_jpy": 620000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 522000,
+          "max": 539000
+        },
+        "区分2_中小工務店": {
+          "min": 550000,
+          "max": 566000
+        },
+        "区分3_人気工務店": {
+          "min": 578000,
+          "max": 605000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 616000,
+          "max": 649000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_restaurant_food_duct_roof": {
+      "name": "【v2】飲食店フードダクト屋上排気",
+      "price_jpy": {
+        "min": 1000000,
+        "max": 2500000
+      },
+      "hs_rule_jpy": 2100000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 1662000,
+          "max": 1715000
+        },
+        "区分2_中小工務店": {
+          "min": 1750000,
+          "max": 1802000
+        },
+        "区分3_人気工務店": {
+          "min": 1838000,
+          "max": 1925000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 1960000,
+          "max": 2065000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_cove_shoumei": {
+      "name": "【v2】コーブ照明（天井折上げ）",
+      "price_jpy": {
+        "min": 100000,
+        "max": 250000
+      },
+      "hs_rule_jpy": 220000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 166000,
+          "max": 172000
+        },
+        "区分2_中小工務店": {
+          "min": 175000,
+          "max": 180000
+        },
+        "区分3_人気工務店": {
+          "min": 184000,
+          "max": 193000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 196000,
+          "max": 206000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_cornice_shoumei": {
+      "name": "【v2】コーニス照明（壁カーテン）",
+      "price_jpy": {
+        "min": 80000,
+        "max": 200000
+      },
+      "hs_rule_jpy": 180000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 133000,
+          "max": 137000
+        },
+        "区分2_中小工務店": {
+          "min": 140000,
+          "max": 144000
+        },
+        "区分3_人気工務店": {
+          "min": 147000,
+          "max": 154000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 157000,
+          "max": 165000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_kantan_kansetsu_retrofit": {
+      "name": "【v2】かんたん間接（後付け）",
+      "price_jpy": {
+        "min": 30000,
+        "max": 80000
+      },
+      "hs_rule_jpy": 70000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 52000,
+          "max": 54000
+        },
+        "区分2_中小工務店": {
+          "min": 55000,
+          "max": 57000
+        },
+        "区分3_人気工務店": {
+          "min": 58000,
+          "max": 61000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 62000,
+          "max": 65000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_foot_light": {
+      "name": "【v2】フットライト1箇所",
+      "price_jpy": {
+        "min": 15000,
+        "max": 30000
+      },
+      "hs_rule_jpy": 25000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 21000,
+          "max": 22000
+        },
+        "区分2_中小工務店": {
+          "min": 22000,
+          "max": 23000
+        },
+        "区分3_人気工務店": {
+          "min": 24000,
+          "max": 25000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 25000,
+          "max": 27000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_under_shelf_light": {
+      "name": "【v2】棚下照明",
+      "price_jpy": {
+        "min": 20000,
+        "max": 60000
+      },
+      "hs_rule_jpy": 55000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 38000,
+          "max": 39000
+        },
+        "区分2_中小工務店": {
+          "min": 40000,
+          "max": 41000
+        },
+        "区分3_人気工務店": {
+          "min": 42000,
+          "max": 44000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 45000,
+          "max": 47000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_cat6_room": {
+      "name": "【v2】LAN CAT6 1室",
+      "price_jpy": {
+        "min": 15000,
+        "max": 40000
+      },
+      "hs_rule_jpy": 35000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 26000,
+          "max": 27000
+        },
+        "区分2_中小工務店": {
+          "min": 28000,
+          "max": 28000
+        },
+        "区分3_人気工務店": {
+          "min": 29000,
+          "max": 30000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 31000,
+          "max": 32000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_cat6a_room": {
+      "name": "【v2】LAN CAT6A 1室",
+      "price_jpy": {
+        "min": 25000,
+        "max": 60000
+      },
+      "hs_rule_jpy": 55000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 40000,
+          "max": 42000
+        },
+        "区分2_中小工務店": {
+          "min": 42000,
+          "max": 44000
+        },
+        "区分3_人気工務店": {
+          "min": 45000,
+          "max": 47000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 48000,
+          "max": 50000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_whole_house_lan": {
+      "name": "【v2】戸建全室LAN",
+      "price_jpy": {
+        "min": 100000,
+        "max": 250000
+      },
+      "hs_rule_jpy": 220000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 166000,
+          "max": 172000
+        },
+        "区分2_中小工務店": {
+          "min": 175000,
+          "max": 180000
+        },
+        "区分3_人気工務店": {
+          "min": 184000,
+          "max": 193000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 196000,
+          "max": 206000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_chideji_antenna": {
+      "name": "【v2】地デジアンテナ",
+      "price_jpy": {
+        "min": 20000,
+        "max": 40000
+      },
+      "hs_rule_jpy": 35000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 28000,
+          "max": 29000
+        },
+        "区分2_中小工務店": {
+          "min": 30000,
+          "max": 31000
+        },
+        "区分3_人気工務店": {
+          "min": 32000,
+          "max": 33000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 34000,
+          "max": 35000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_bs_cs_antenna": {
+      "name": "【v2】BS/CS 4K8Kアンテナ",
+      "price_jpy": {
+        "min": 15000,
+        "max": 35000
+      },
+      "hs_rule_jpy": 30000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 24000,
+          "max": 24000
+        },
+        "区分2_中小工務店": {
+          "min": 25000,
+          "max": 26000
+        },
+        "区分3_人気工務店": {
+          "min": 26000,
+          "max": 28000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 28000,
+          "max": 30000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_wifi_intercom": {
+      "name": "【v2】Wi-Fiスマートインターホン",
+      "price_jpy": {
+        "min": 50000,
+        "max": 120000
+      },
+      "hs_rule_jpy": 100000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 81000,
+          "max": 83000
+        },
+        "区分2_中小工務店": {
+          "min": 85000,
+          "max": 88000
+        },
+        "区分3_人気工務店": {
+          "min": 89000,
+          "max": 94000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 95000,
+          "max": 100000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_fire_alarm_5rooms": {
+      "name": "【v2】火災警報器5部屋",
+      "price_jpy": {
+        "min": 60000,
+        "max": 120000
+      },
+      "hs_rule_jpy": 100000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 86000,
+          "max": 88000
+        },
+        "区分2_中小工務店": {
+          "min": 90000,
+          "max": 93000
+        },
+        "区分3_人気工務店": {
+          "min": 94000,
+          "max": 99000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 101000,
+          "max": 106000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_grounding_d_type": {
+      "name": "【v2】D種接地",
+      "price_jpy": {
+        "min": 10000,
+        "max": 30000
+      },
+      "hs_rule_jpy": 25000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 19000,
+          "max": 20000
+        },
+        "区分2_中小工務店": {
+          "min": 20000,
+          "max": 21000
+        },
+        "区分3_人気工務店": {
+          "min": 21000,
+          "max": 22000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 22000,
+          "max": 24000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_solar_5kw": {
+      "name": "【v2】太陽光5kW",
+      "price_jpy": {
+        "min": 1000000,
+        "max": 1500000
+      },
+      "hs_rule_jpy": 1350000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 1188000,
+          "max": 1225000
+        },
+        "区分2_中小工務店": {
+          "min": 1250000,
+          "max": 1288000
+        },
+        "区分3_人気工務店": {
+          "min": 1312000,
+          "max": 1375000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 1400000,
+          "max": 1475000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_battery_10kwh": {
+      "name": "【v2】蓄電池10kWh",
+      "price_jpy": {
+        "min": 1500000,
+        "max": 2500000
+      },
+      "hs_rule_jpy": 2200000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 1900000,
+          "max": 1960000
+        },
+        "区分2_中小工務店": {
+          "min": 2000000,
+          "max": 2060000
+        },
+        "区分3_人気工務店": {
+          "min": 2100000,
+          "max": 2200000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 2240000,
+          "max": 2360000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_v2h": {
+      "name": "【v2】V2H基本",
+      "price_jpy": {
+        "min": 500000,
+        "max": 1000000
+      },
+      "hs_rule_jpy": 850000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 712000,
+          "max": 735000
+        },
+        "区分2_中小工務店": {
+          "min": 750000,
+          "max": 772000
+        },
+        "区分3_人気工務店": {
+          "min": 788000,
+          "max": 825000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 840000,
+          "max": 885000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_electric_floor_10jo": {
+      "name": "【v2】電気床暖房10畳",
+      "price_jpy": {
+        "min": 300000,
+        "max": 700000
+      },
+      "hs_rule_jpy": 620000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 475000,
+          "max": 490000
+        },
+        "区分2_中小工務店": {
+          "min": 500000,
+          "max": 515000
+        },
+        "区分3_人気工務店": {
+          "min": 525000,
+          "max": 550000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 560000,
+          "max": 590000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_power_conditioner_replace": {
+      "name": "【v2】パワコン交換",
+      "price_jpy": {
+        "min": 200000,
+        "max": 400000
+      },
+      "hs_rule_jpy": 350000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 285000,
+          "max": 294000
+        },
+        "区分2_中小工務店": {
+          "min": 300000,
+          "max": 309000
+        },
+        "区分3_人気工務店": {
+          "min": 315000,
+          "max": 330000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 336000,
+          "max": 354000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    }
+  },
+  "red_flags": [
+    {
+      "code": "NO_LICENSE",
+      "pattern": "第二種電気工事士資格なしで工事",
+      "severity": "🔴 CRITICAL"
+    },
+    {
+      "code": "NO_RESIDUAL_CURRENT_BREAKER",
+      "pattern": "漏電ブレーカー不設置",
+      "severity": "🔴 CRITICAL"
+    },
+    {
+      "code": "UNCLEAR_WORK_SCOPE",
+      "pattern": "工事範囲・回路数・配線長さ不明",
+      "severity": "🔴 CRITICAL"
+    },
+    {
+      "code": "KONSENTO_SIMPLE_OVER_30K",
+      "pattern": "単純コンセント増設¥30k超",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "DISTRIBUTION_BOARD_OVER_300K",
+      "pattern": "一般分電盤交換¥300k超",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "NO_INSPECTION_CERTIFICATE",
+      "pattern": "完了検査・絶縁抵抗試験なし",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "COPPER_WIRE_GRADE_LOW",
+      "pattern": "VVF等ケーブルグレード不明",
+      "severity": "⚠️ MEDIUM"
+    },
+    {
+      "code": "ISSHIKI_LUMP_SUM",
+      "pattern": "一式計上",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "FORCED_FULL_REWIRING",
+      "pattern": "部分工事案件に全配線引直し強要",
+      "severity": "⚠️ MEDIUM"
+    },
+    {
+      "code": "EV_WITHOUT_AMPERE_CHECK",
+      "pattern": "EV工事でアンペア契約確認なし",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "V2_DOUGYOKU_NO_TOHDEN_APPLICATION",
+      "pattern": "【v2】動力工事で東電需給申請せず工事",
+      "severity": "🔴 CRITICAL",
+      "reason": "無断使用は盗電扱い・違法"
+    },
+    {
+      "code": "V2_DUCT_NO_DAMPER",
+      "pattern": "【v2】ダクト工事で防火ダンパー削減",
+      "severity": "🔴 CRITICAL",
+      "reason": "建築基準法違反・火災延焼リスク"
+    },
+    {
+      "code": "V2_FOOD_DUCT_GIVEN_AIR_IGNORED",
+      "pattern": "【v2】飲食店ダクト工事で給気計算なし",
+      "severity": "🚨 HIGH",
+      "reason": "排気=給気のバランスなしで換気不良・酸欠リスク"
+    },
+    {
+      "code": "V2_KANSETSU_TRANS_UNDERCAPACITY",
+      "pattern": "【v2】間接照明で電源装置W数不足",
+      "severity": "🚨 HIGH",
+      "reason": "チラつき・寿命低下・発熱リスク"
+    },
+    {
+      "code": "V2_LED_DIMMER_INCOMPATIBLE",
+      "pattern": "【v2】調光器とLED非互換未確認",
+      "severity": "⚠️ MEDIUM",
+      "reason": "チラつき・調光不能トラブル"
+    },
+    {
+      "code": "V2_NO_GROUNDING_200V",
+      "pattern": "【v2】200V機器でアース工事なし",
+      "severity": "🔴 CRITICAL",
+      "reason": "感電・漏電死亡事故リスク"
+    },
+    {
+      "code": "V2_SOLAR_NO_RENKEI_APPLICATION",
+      "pattern": "【v2】太陽光で系統連系申請せず設置",
+      "severity": "🔴 CRITICAL",
+      "reason": "売電不可・法令違反"
+    },
+    {
+      "code": "V2_COVE_NO_TENJOU_FUTOKORO",
+      "pattern": "【v2】コーブ照明で天井懐200mm未満",
+      "severity": "⚠️ MEDIUM",
+      "reason": "光ムラ・設計欠陥"
+    },
+    {
+      "code": "SCALE_MISMATCH_HIGH",
+      "pattern": "業者規模に対して明らかに過剰な利益率（粗利50%超）",
+      "severity": "🚨 HIGH",
+      "reason": "業者規模別妥当利益率（個人・中小25-35%、人気30-40%、大手35-45%）を大幅に超える見積もりは内容確認要",
+      "対処": "見積もり内訳の明細化要求、他社相見積もりで比較"
+    },
+    {
+      "code": "SCALE_MISMATCH_LOW",
+      "pattern": "大手名乗る業者が極端な安値（粗利20%未満）提示",
+      "severity": "⚠️ MEDIUM",
+      "reason": "大手名義の下請け丸投げか、実は個人業者が大手風装っている可能性",
+      "対処": "元請・下請け構成の確認、施工業者の実態確認"
+    },
+    {
+      "code": "ISSHIKI_LUMP_SUM",
+      "pattern": "工事費・材料費が「一式」計上",
+      "severity": "🚨 HIGH",
+      "reason": "明細化可能な工事を『一式』は過剰請求の温床",
+      "対処": "材料・人工・副資材ごとの明細化を要求"
+    },
+    {
+      "code": "NO_MANUFACTURER_MODEL",
+      "pattern": "メーカー・型番・仕様グレード不明",
+      "severity": "🔴 CRITICAL",
+      "reason": "同じカテゴリでも型番で価格・性能大きく違う。不明は詐欺温床",
+      "対処": "メーカー名・型番・仕様書の提示を要求"
+    },
+    {
+      "code": "DOOR_TO_DOOR_SCAM",
+      "pattern": "訪問販売で即決迫り・「今すぐ」系",
+      "severity": "🚨 HIGH",
+      "reason": "優良業者はアポなし訪問営業しない。即決迫りは詐欺の典型",
+      "対処": "必ず相見積もり（3社以上）・クーリングオフ権確認"
+    },
+    {
+      "code": "FAKE_TODAY_DISCOUNT",
+      "pattern": "「今日だけ」「特別価格」「モニター価格」",
+      "severity": "🚨 HIGH",
+      "reason": "架空キャンペーンで相場の1.5-2倍を『半額』として売る典型",
+      "対処": "相場確認・他社見積もり"
+    },
+    {
+      "code": "UNLICENSED_ELECTRICIAN",
+      "pattern": "電気工事士免状の提示を拒む・名義貸し疑い",
+      "severity": "🔴 CRITICAL",
+      "reason": "第二種電気工事士（100V/200V）、第一種（高圧）は法定必須資格。無資格施工は違法",
+      "対処": "免状コピー提示要求・経済産業省資格確認"
+    },
+    {
+      "code": "NO_PSE_MARK",
+      "pattern": "電気用品安全法（PSEマーク）非対応製品を提案",
+      "severity": "🚨 HIGH",
+      "reason": "PSEマークない製品は電気用品安全法違反。火災リスク大",
+      "対処": "製品写真でPSEマーク確認"
+    },
+    {
+      "code": "AMPERE_UPSELL",
+      "pattern": "必要以上のアンペア契約変更を勧める（40A→60A→200V等）",
+      "severity": "⚠️ MEDIUM",
+      "reason": "実使用量に合わないアンペア契約変更は月額基本料金UP。実需要確認要",
+      "対処": "直近1年の電気使用量明細で判断"
+    }
+  ],
+  "customer_scenario_guide": [
+    {
+      "case": "エアコン新設でコンセントない",
+      "recommendation": "コンセント新規配線",
+      "cost": 40000
+    },
+    {
+      "case": "EV購入で充電設備",
+      "recommendation": "EV充電200Vコンセント+アンペアチェック",
+      "cost": 80000
+    },
+    {
+      "case": "オール電化",
+      "recommendation": "分電盤交換+200V複数回路",
+      "cost": 300000
+    },
+    {
+      "case": "築40年電気設備心配",
+      "recommendation": "配線引き直し+分電盤",
+      "cost": 1300000
+    },
+    {
+      "case": "全室LED化したい",
+      "recommendation": "6部屋LED",
+      "cost": 240000
+    },
+    {
+      "case": "【v2】業務用エアコン（5馬力）設置",
+      "recommendation": "三相200V動力引込み+東電申請",
+      "cost": 350000
+    },
+    {
+      "case": "【v2】離れ・ガレージに電気欲しい",
+      "recommendation": "引込柱+配線",
+      "cost": 460000
+    },
+    {
+      "case": "【v2】新築で24時間換気必須",
+      "recommendation": "第1種換気システム",
+      "cost": 420000
+    },
+    {
+      "case": "【v2】LDKおしゃれ演出",
+      "recommendation": "コーブ照明+折り上げ天井造作",
+      "cost_with_zosaku": 600000
+    },
+    {
+      "case": "【v2】壁を演出したい",
+      "recommendation": "コーニス照明+調光器",
+      "cost": 180000
+    },
+    {
+      "case": "【v2】飲食店開業（10-20坪）",
+      "recommendation": "フードダクト+給排気",
+      "cost": 620000
+    },
+    {
+      "case": "【v2】テレワーク用ネットワーク",
+      "recommendation": "CAT6A全室配線",
+      "cost": 220000
+    },
+    {
+      "case": "【v2】4K/8K地デジBS対応",
+      "recommendation": "地デジ+BS/CS 4K8Kアンテナ",
+      "cost": 65000
+    },
+    {
+      "case": "【v2】火災警報器未設置（消防法違反）",
+      "recommendation": "無線連動型5部屋",
+      "cost": 100000
+    },
+    {
+      "case": "【v2】太陽光で電気代ゼロ",
+      "recommendation": "太陽光5kW+蓄電池10kWh",
+      "cost": 3550000
+    },
+    {
+      "case": "【v2】EV+V2Hで停電対策",
+      "recommendation": "V2H+太陽光連携",
+      "cost_basic_v2h": 850000
+    },
+    {
+      "case": "【v2】寒いリビング暖房改善",
+      "recommendation": "電気床暖房10畳",
+      "cost": 620000
+    }
+  ],
+  "negotiation_tips": [
+    "第二種電気工事士資格証提示必須",
+    "電気工事業者登録番号確認",
+    "工事項目ごとの単価明細要求",
+    "使用配線グレード（VVF 1.6/2.0・CV 2.0）明記",
+    "完了時の絶縁抵抗試験記録書面提出",
+    "漏電ブレーカーの設置・動作確認",
+    "現状アンペア契約と分電盤容量を事前確認",
+    "EV充電はCEV補助金最大¥75,000活用",
+    "LED化は年間電気代削減効果で回収計算",
+    "オール電化は太陽光セットがコスパ最強",
+    "訪問販売業者は警戒・地元電気屋に相見積もり",
+    "10年保証の有無確認",
+    "【v2】動力工事は東電需給申請の代行確認",
+    "【v2】ダクト工事は防火ダンパーの仕様書確認",
+    "【v2】飲食店ダクトは給気バランス計算要求",
+    "【v2】間接照明は電源装置W数計算書要求",
+    "【v2】LED調光器との互換性を機種名で確認",
+    "【v2】200V機器は必ずD種接地をセット",
+    "【v2】太陽光は系統連系申請と売電契約を確認",
+    "【v2】蓄電池は容量kWh vs 価格で比較（¥15-25万/kWh目安）"
+  ],
+  "trade_knowledge": {
+    "summary_v2": "電気工事はリフォーム全般の付随。【住宅一般】コンセント¥0.5-7万・分電盤¥5-20万・LED¥10-30万・EV充電¥3-15万・配線引き直し¥50-150万。【v2追加プロ領域】動力三相200V住宅¥10-25万/事業所¥30-150万・エアコン専用200V¥1.5-5万・東電申請代行¥1-3万・24時間換気¥15-50万・飲食店フードダクト¥40-250万・コーブ照明¥10-25万・コーニス¥8-20万・LAN CAT6A¥2.5-6万/室・アンテナ¥1.5-7万・火災警報器¥6-12万/5室・太陽光5kW¥100-150万・蓄電池10kWh¥150-250万・V2H¥50-100万・電気床暖房¥30-70万",
+    "license_critical": "無資格工事は違法・罰金3万円・火災保険不適用。動力工事は特に東電申請が必須",
+    "dougyoku_scene_usage": "三相200V動力が必要な場面：業務用エアコン（5馬力以上）、溶接機、コンプレッサー、プレハブ冷蔵庫、業務用オーブン、フォークリフト充電。家庭用では別棟ガレージで個人事業主の作業場向け",
+    "v2_duct_critical": "ダクト工事は防火ダンパー削減が違法。排気＝給気バランス必須（飲食店は給気=排気の70%以上）。スパイラルダクトは丸型で工場生産品が安価、角ダクトは特注で高額",
+    "v2_kansetsu_core_skill": "間接照明の施工は『電源装置W数計算』『調光器互換性』『天井懐寸法（コーブは200mm以上）』『放熱対策』の4点が核心。Panasonic・オーデリック・DAIKOが3大メーカー",
+    "v2_led_dimmer_reality": "LED調光はLED照明側と調光器の互換性が問題。メーカー指定の組合せでないとチラつき発生。必ず機種名で確認",
+    "v2_solar_2026": "2026年太陽光は5kW¥100-150万・蓄電池10kWh¥150-250万。系統連系申請と売電契約必須。補助金は自治体次第",
+    "v2_v2h_opportunity": "EV＋V2Hで停電時も家1週間分の電力。CEV補助金最大¥75万。太陽光連携で自給率最大化",
+    "v2_24hour_ventilation_law": "2003年建築基準法改正でシックハウス対策として24時間換気義務化。第1種（熱交換）が最推奨",
+    "emergency_electrical_scam": "電気トラブル緊急対応で10倍請求は業界典型詐欺。日中の地元電気屋に連絡が安全",
+    "v2_scope_completion": "v2で電気工事の真の完全教科書として完成。住宅一般だけでなく動力・ダクト・間接照明・通信・再エネ・床暖房まで網羅。TOshi 30年知識を反映",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 第二種電気工事士知識 + Panasonic/オーデリック/DAIKO照明データ + 東京電力契約 + 再エネ業界2026年データ + ダクト工事業界"
+  },
+  "business_size_based_pricing": {
+    "_description": "業者規模4区分別 妥当な利益率レンジと価格係数（2026年4月時点・電気工事）",
+    "4区分別_妥当な利益率レンジ_2026年4月": {
+      "区分1_個人事業": {
+        "代表例": "第二種電気工事士 個人事業（10年以上経験）",
+        "粗利率レンジ": "25-35%",
+        "HS基準からの係数": "0.95-0.98",
+        "HS推奨度": "★★★★☆",
+        "特徴": "第二種電気工事士資格必須・個人差大・単発案件強い"
+      },
+      "区分2_中小工務店": {
+        "代表例": "地域の電気工事店（5-30名規模）",
+        "粗利率レンジ": "25-35%",
+        "HS基準からの係数": "1.00-1.03",
+        "HS推奨度": "★★★★★ **第一推奨**",
+        "特徴": "複数職人で工期短・適正価格・地域密着"
+      },
+      "区分3_人気工務店": {
+        "代表例": "総合設備会社・断熱リフォーム連携会社",
+        "粗利率レンジ": "30-40%",
+        "HS基準からの係数": "1.05-1.10",
+        "HS推奨度": "★★★★☆",
+        "特徴": "アンペア増設・太陽光連携等の総合提案に強い"
+      },
+      "区分4_大手リフォーム": {
+        "代表例": "TEPCOグループ・関電工・パナソニックエコシステムズ",
+        "粗利率レンジ": "35-45%",
+        "HS基準からの係数": "1.12-1.18",
+        "HS推奨度": "★★★☆☆",
+        "特徴": "大規模工事・オール電化・V2H等に強い・価格高"
+      }
+    },
+    "適正価格判断原則": "『どの区分を選ぶかは施主の自由』。安さ優先なら区分1-2、保証重視なら区分3-4。重要なのは『その業者の価格が規模に対して妥当か』"
+  },
+  "iran_situation_2026_04_impact": {
+    "_description": "2026年4月イラン情勢による電気工事関連資材への影響",
+    "副資材_+5_10pct": [
+      "ビニール・養生材・テープ類",
+      "コーキング材・シーリング材",
+      "ビス・金物類"
+    ],
+    "建材全般_+10_20pct": [
+      "鋼材（配管・補強金物）",
+      "アルミ形材",
+      "金物類"
+    ],
+    "カテゴリ固有の影響": [
+      "銅価格高騰で電線・ケーブル+10-15%（VVF1.6/2.0等）",
+      "配電盤・分電盤の金属ケース+5-10%",
+      "電気工事用鋼材（金属管・PF管）+10-20%",
+      "LED照明器具の基板（半導体）も影響あり+5-10%"
+    ],
+    "_impact_summary": "2026年4月現在、電気工事関連の直接的な値上げは限定的。Q3（7-9月）以降の本格的な値上げリスクあり。施主は早期契約で2026年3月以前の仕入れ値確保が得策"
+  }
+}

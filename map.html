@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>HORIZON SHIELD｜被害マップ</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#020406;--s1:#070d14;--s2:#0c1520;
+  --c:#00e5ff;--r:#ff1f3d;--g:#00ff88;--w:#ffcc00;
+  --t:#dde8f0;--m:#3d5a6a;
+  --h:52px;--tb:48px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-family:'Noto Sans JP',sans-serif}
+
+/* scanline overlay */
+body::after{
+  content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);
+}
+
+/* HEADER */
+#hdr{
+  position:fixed;top:0;left:0;right:0;height:var(--h);z-index:100;
+  background:rgba(2,4,6,.96);border-bottom:1px solid rgba(0,229,255,.15);
+  display:flex;align-items:center;justify-content:space-between;padding:0 16px;
+}
+.hs-logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+.hs-logo svg{width:28px;height:28px}
+.hs-wordmark{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;color:var(--c)}
+.hs-wordmark span{color:var(--r)}
+.back{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--m);text-decoration:none;letter-spacing:1px;border:1px solid rgba(255,255,255,.08);padding:5px 10px;border-radius:2px}
+.back:hover{color:var(--t);border-color:var(--c)}
+
+/* TAB BAR */
+#tabs{
+  position:fixed;top:var(--h);left:0;right:0;height:var(--tb);z-index:100;
+  background:rgba(7,13,20,.98);border-bottom:1px solid rgba(0,229,255,.1);
+  display:flex;
+}
+.tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;cursor:pointer;position:relative;transition:all .25s;
+  border-right:1px solid rgba(0,229,255,.06);
+}
+.tab:last-child{border-right:none}
+.tab-icon{width:18px;height:18px;transition:all .25s}
+.tab-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--m);transition:all .25s}
+.tab::after{
+  content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;
+  background:var(--c);border-radius:2px 2px 0 0;
+  transform:scaleX(0);transition:transform .25s;
+}
+.tab.active .tab-icon{filter:drop-shadow(0 0 6px var(--c))}
+.tab.active .tab-label{color:var(--c)}
+.tab.active::after{transform:scaleX(1)}
+.tab:hover .tab-label{color:var(--t)}
+
+/* SCREENS */
+#screens{
+  position:fixed;top:calc(var(--h) + var(--tb));left:0;right:0;
+  bottom:52px;overflow:hidden;
+}
+.screen{
+  position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);
+  will-change:transform;
+}
+.screen.active{transform:translateX(0)}
+.screen.prev{transform:translateX(-100%)}
+
+/* ── SCREEN 1: IMPACT ── */
+#sc1{
+  background:
+    radial-gradient(ellipse 100% 50% at 50% -5%,rgba(0,255,136,.08) 0%,transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 80%,rgba(0,229,255,.04) 0%,transparent 50%),
+    var(--bg);
+}
+.impact-hero{padding:28px 20px 20px;text-align:center}
+.impact-eyebrow{
+  font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--g);
+  letter-spacing:4px;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--g);animation:pdot 1.5s ease-in-out infinite}
+@keyframes pdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.6)}}
+.impact-h1{
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,11vw,68px);line-height:.9;
+  letter-spacing:1px;margin-bottom:14px;
+}
+.impact-h1 em{
+  color:var(--g);font-style:normal;
+  text-shadow:0 0 20px rgba(0,255,136,.4),0 0 60px rgba(0,255,136,.15);
+}
+.impact-h1 b{color:var(--c)}
+.impact-sub{font-size:12px;color:var(--m);line-height:1.8;max-width:300px;margin:0 auto}
+
+/* LIVE GRID */
+.live-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px 18px}
+.live-card{
+  background:linear-gradient(135deg,var(--s1),var(--s2));
+  border:1px solid rgba(0,229,255,.1);border-radius:6px;
+  padding:14px 12px;position:relative;overflow:hidden;
+}
+.live-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--c),transparent);
+  animation:scanh 3s ease-in-out infinite;
+  animation-delay:var(--d,0s);
+}
+@keyframes scanh{0%,100%{opacity:0}50%{opacity:1}}
+.live-card.g::before{background:linear-gradient(90deg,transparent,var(--g),transparent)}
+.live-card.r::before{background:linear-gradient(90deg,transparent,var(--r),transparent)}
+.live-card.w::before{background:linear-gradient(90deg,transparent,var(--w),transparent)}
+.lc-num{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--g);line-height:1;margin-bottom:2px}
+.lc-num.r{color:var(--r)}.lc-num.c{color:var(--c)}.lc-num.w{color:var(--w)}
+.lc-label{font-size:10px;color:var(--m);line-height:1.4}
+.lc-src{font-family:'Share Tech Mono',monospace;font-size:8px;color:rgba(61,90,106,.7);margin-top:3px}
+
+/* TICKER */
+.ticker-outer{
+  border-top:1px solid rgba(0,255,136,.12);border-bottom:1px solid rgba(0,255,136,.12);
+  padding:9px 0;overflow:hidden;margin-bottom:18px;
+  background:rgba(0,255,136,.03);
+}
+.ticker-inner{display:flex;white-space:nowrap;animation:tkr 25s linear infinite}
+@keyframes tkr{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ti{
+  padding:0 28px;font-family:'Share Tech Mono',monospace;font-size:11px;
+  color:rgba(0,255,136,.7);letter-spacing:.5px;
+}
+.ti strong{color:var(--t)}
+
+/* MISSION */
+.mission{padding:0 14px 18px}
+.mission-inner{
+  background:linear-gradient(135deg,rgba(0,255,136,.06),rgba(0,229,255,.03));
+  border:1px solid rgba(0,255,136,.2);border-radius:6px;padding:18px;
+  position:relative;overflow:hidden;
+}
+.mission-inner::after{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(45deg,transparent,transparent 6px,rgba(0,255,136,.015) 6px,rgba(0,255,136,.015) 7px);
+  pointer-events:none;
+}
+.m-title{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--g);margin-bottom:10px}
+.m-body{font-size:12px;line-height:1.9;color:rgba(221,232,240,.75)}
+.m-body strong{color:var(--t)}
+
+/* DONATE */
+.donate{padding:0 14px 18px}
+.d-title{font-family:'Bebas Neue',sans-serif;font-size:22px;margin-bottom:10px}
+.d-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.d-btn{
+  display:block;padding:14px 8px;text-align:center;text-decoration:none;
+  background:var(--s1);border:1px solid rgba(0,229,255,.12);border-radius:5px;
+  transition:all .2s;
+}
+.d-btn:hover,.d-btn:active{border-color:var(--g);background:rgba(0,255,136,.06);transform:translateY(-1px)}
+.d-amount{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--g)}
+.d-desc{font-size:10px;color:var(--m);margin-top:3px}
+.d-main{
+  display:block;padding:15px;background:var(--g);color:var(--bg);
+  border-radius:5px;text-align:center;font-weight:900;font-size:14px;
+  text-decoration:none;letter-spacing:.5px;transition:all .2s;
+}
+.d-main:hover{background:#00e57a;transform:translateY(-1px)}
+.d-note{font-size:10px;color:var(--m);text-align:center;margin-top:8px;line-height:1.7}
+
+.spacer80{height:80px}
+
+/* ── SCREEN 2: MAP ── */
+#sc2{background:var(--bg)}
+.map-search{
+  padding:10px 14px;background:rgba(7,13,20,.97);
+  border-bottom:1px solid rgba(0,229,255,.1);
+}
+.ms-row{display:flex;gap:8px}
+.ms-input{
+  flex:1;background:rgba(2,4,6,.8);border:1px solid rgba(0,229,255,.15);
+  color:var(--t);padding:10px 12px;border-radius:3px;font-size:13px;
+  font-family:'Noto Sans JP',sans-serif;outline:none;
+}
+.ms-input:focus{border-color:var(--c)}
+.ms-input::placeholder{color:var(--m);font-size:12px}
+.ms-btn{
+  padding:10px 14px;background:var(--r);color:#fff;border:none;border-radius:3px;
+  font-size:12px;font-weight:900;cursor:pointer;font-family:'Noto Sans JP',sans-serif;white-space:nowrap;
+}
+.ms-alert{
+  margin-top:8px;padding:10px 12px;border-radius:3px;font-size:12px;
+  background:rgba(255,31,61,.08);border:1px solid rgba(255,31,61,.25);display:none;
+}
+.ms-alert.show{display:block}
+.ms-alert strong{color:var(--r);display:block;font-size:13px;margin-bottom:2px}
+#map{height:calc(100vh - 52px - 48px - 52px - 60px);min-height:240px}
+.map-foot{
+  padding:6px 14px;background:rgba(7,13,20,.9);border-top:1px solid rgba(0,229,255,.08);
+  display:flex;align-items:center;gap:8px;font-size:10px;color:var(--m);flex-wrap:wrap;
+}
+.leg-grad{height:8px;width:100px;border-radius:2px;flex-shrink:0;background:linear-gradient(to right,#00ff88,#ffcc00,#ff8800,#ff1f3d)}
+
+/* ── SCREEN 3: DATA ── */
+#sc3{background:var(--bg)}
+.ds{padding:16px 14px}
+.ds-h{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--c);letter-spacing:3px;margin-bottom:8px}
+.ds-t{font-family:'Bebas Neue',sans-serif;font-size:28px;margin-bottom:14px}
+.ds-t em{color:var(--r);font-style:normal}
+
+/* RANKING */
+.rank-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:24px}
+.rk{
+  background:var(--s1);border:1px solid rgba(0,229,255,.08);border-radius:5px;padding:11px;
+  transition:border-color .2s;
+}
+.rk.top{border-color:rgba(255,31,61,.35)}
+.rk:hover{border-color:rgba(0,229,255,.25)}
+.rk-rank{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--m)}
+.rk-name{font-weight:900;font-size:12px;margin:2px 0}
+.rk-count{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--r)}
+.rk-bar{height:2px;background:rgba(255,255,255,.06);border-radius:1px;margin-top:6px}
+.rk-fill{height:100%;border-radius:1px;background:linear-gradient(90deg,var(--r),var(--w))}
+
+/* WARD */
+.ward-block{margin-bottom:22px}
+.wb-title{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--w);margin-bottom:8px}
+.ward-item{
+  display:flex;align-items:center;gap:10px;padding:9px 0;
+  border-bottom:1px solid rgba(0,229,255,.06);
+}
+.wi-name{font-size:12px;font-weight:700;width:90px;flex-shrink:0}
+.wi-bar{flex:1;height:3px;background:rgba(255,255,255,.06);border-radius:2px}
+.wi-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--w),var(--r))}
+.wi-count{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--w);width:50px;text-align:right;flex-shrink:0}
+
+/* TECHNIQUES */
+.tech-list{margin-bottom:22px}
+.tc{
+  background:var(--s1);border-left:2px solid var(--r);border-radius:0 5px 5px 0;
+  padding:12px 14px;margin-bottom:7px;
+}
+.tc-title{font-weight:900;font-size:13px;margin-bottom:3px}
+.tc-body{font-size:11px;color:var(--m);line-height:1.7}
+.tc-q{
+  margin-top:7px;padding:7px 10px;font-size:11px;font-style:italic;
+  color:var(--t);background:rgba(255,31,61,.06);border-radius:3px;
+}
+
+/* UGC */
+.ugc{background:var(--s1);border:1px solid rgba(0,229,255,.1);border-radius:5px;padding:14px;margin-bottom:14px}
+.ugc select,.ugc input,.ugc textarea{
+  width:100%;background:var(--bg);border:1px solid rgba(0,229,255,.12);
+  color:var(--t);padding:9px 11px;border-radius:3px;font-size:12px;
+  font-family:'Noto Sans JP',sans-serif;outline:none;margin-bottom:7px;
+}
+.ugc select:focus,.ugc input:focus,.ugc textarea:focus{border-color:var(--c)}
+.ugc textarea{height:64px;resize:none}
+.ugc-btn{
+  width:100%;padding:12px;background:var(--r);color:#fff;border:none;
+  border-radius:3px;font-weight:900;font-size:13px;cursor:pointer;
+  font-family:'Noto Sans JP',sans-serif;letter-spacing:.5px;
+}
+.ugc-ok{text-align:center;padding:20px;font-size:13px;color:var(--g);display:none}
+
+/* CTA BLOCK */
+.cta-blk{
+  background:linear-gradient(135deg,rgba(255,31,61,.1),rgba(0,229,255,.05));
+  border:1px solid rgba(255,31,61,.25);border-radius:5px;padding:18px;
+  text-align:center;margin-bottom:24px;
+}
+.cta-blk-t{font-family:'Bebas Neue',sans-serif;font-size:22px;margin-bottom:6px}
+.cta-blk-s{font-size:11px;color:var(--m);line-height:1.7;margin-bottom:12px}
+.cta-blk-btn{
+  display:inline-block;background:var(--c);color:var(--bg);
+  font-weight:900;font-size:13px;padding:12px 22px;border-radius:3px;
+  text-decoration:none;letter-spacing:.5px;
+}
+
+.ds-note{font-size:9px;color:rgba(61,90,106,.6);line-height:1.8;margin-bottom:16px;font-family:'Share Tech Mono',monospace}
+
+/* STICKY CTA */
+#scta{
+  position:fixed;bottom:0;left:0;right:0;height:52px;z-index:100;
+  display:flex;gap:1px;background:rgba(2,4,6,.98);border-top:1px solid rgba(0,229,255,.12);
+}
+#scta a{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:12px;text-decoration:none;letter-spacing:.5px;
+  transition:all .15s;
+}
+#scta .sa{background:rgba(0,229,255,.1);color:var(--c)}
+#scta .sa:hover{background:rgba(0,229,255,.18)}
+#scta .sl{background:#06C755;color:#fff}
+#scta .sl:hover{background:#05b34c}
+
+@media(min-width:640px){
+  #scta{display:none}
+  #screens{bottom:0}
+  .rank-grid{grid-template-columns:repeat(4,1fr)}
+  #map{height:calc(100vh - 52px - 48px - 60px)}
+  .live-grid{grid-template-columns:repeat(4,1fr)}
+  .d-grid{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Dataset","name":"全国リフォームぼったくり被害マップ","description":"国民生活センター公式統計データをもとに、全国47都道府県・387地点のリフォームトラブル相談件数を可視化したマップ。訪問販売・シロアリ駆除・屋根修理などの過剰請求被害を地域別に表示。","url":"https://shield.the-horizons-innovation.com/map","creator":{"@type":"Organization","name":"HORIZON SHIELD","url":"https://shield.the-horizons-innovation.com"},"spatialCoverage":{"@type":"Place","name":"日本全国","address":{"@type":"PostalAddress","addressCountry":"JP"}},"temporalCoverage":"2024/2026","keywords":["リフォーム被害","ぼったくり","訪問販売","シロアリ駆除","屋根修理","過剰請求","建設費診断"]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"神奈川県のリフォームトラブル件数は？","acceptedAnswer":{"@type":"Answer","text":"神奈川県のリフォームトラブル相談件数は年間1,820件です。HORIZON SHIELDのぼったくり被害マップで地域別の詳細データを確認できます。"}},{"@type":"Question","name":"リフォーム訪問販売の被害が多い地域はどこですか？","acceptedAnswer":{"@type":"Answer","text":"東京都（年間2,890件）、神奈川県（1,820件）、大阪府（1,640件）が特に多いです。全国47都道府県のデータをHORIZON SHIELDの無料マップで確認できます。"}},{"@type":"Question","name":"訪問販売のリフォーム被害を防ぐ方法は？","acceptedAnswer":{"@type":"Answer","text":"突然の訪問業者には即日契約しないことが最重要です。見積書を持ち帰りHORIZON SHIELDの無料AI診断で適正価格を確認してから判断してください。"}}]}
+</script></head>
+<body>
+
+<!-- HEADER -->
+<header id="hdr">
+  <a href="/" class="hs-logo">
+    <svg viewBox="0 0 28 28" fill="none">
+      <path d="M14 2L4 7v7c0 5.5 4.3 10.7 10 12 5.7-1.3 10-6.5 10-12V7L14 2z" stroke="#00e5ff" stroke-width="1.5" fill="rgba(0,229,255,.06)"/>
+      <path d="M10 14l3 3 5-6" stroke="#00e5ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="hs-wordmark">HORIZON<span>SHIELD</span></span>
+  </a>
+  <a href="/" class="back">← LP</a>
+</header>
+
+<!-- TABS -->
+<nav id="tabs">
+  <!-- Tab 1: Shield/Heart = 守る -->
+  <div class="tab active" onclick="go(0)" id="t0">
+    <svg class="tab-icon" viewBox="0 0 18 18" fill="none">
+      <path d="M9 1.5L2.5 4.5v5c0 3.9 2.8 7.5 6.5 8.5 3.7-1 6.5-4.6 6.5-8.5v-5L9 1.5z" stroke="#00ff88" stroke-width="1.2" fill="rgba(0,255,136,.1)"/>
+      <path d="M6.5 9.5s0-2.5 2.5-2.5S11.5 9 11.5 9c0 1.5-2.5 3-2.5 3s-2.5-1.5-2.5-3z" fill="#00ff88" opacity=".8"/>
+    </svg>
+    <span class="tab-label">守る</span>
+  </div>
+  <!-- Tab 2: Radar/Target = MAP -->
+  <div class="tab" onclick="go(1)" id="t1">
+    <svg class="tab-icon" viewBox="0 0 18 18" fill="none">
+      <circle cx="9" cy="9" r="7" stroke="#ff1f3d" stroke-width="1.2" stroke-dasharray="2 2"/>
+      <circle cx="9" cy="9" r="4" stroke="#ff1f3d" stroke-width="1.2"/>
+      <circle cx="9" cy="9" r="1.5" fill="#ff1f3d"/>
+      <line x1="9" y1="2" x2="9" y2="5" stroke="#ff1f3d" stroke-width="1.2"/>
+      <line x1="9" y1="13" x2="9" y2="16" stroke="#ff1f3d" stroke-width="1.2"/>
+      <line x1="2" y1="9" x2="5" y2="9" stroke="#ff1f3d" stroke-width="1.2"/>
+      <line x1="13" y1="9" x2="16" y2="9" stroke="#ff1f3d" stroke-width="1.2"/>
+    </svg>
+    <span class="tab-label">被害MAP</span>
+  </div>
+  <!-- Tab 3: Warning/File = 手口 -->
+  <div class="tab" onclick="go(2)" id="t2">
+    <svg class="tab-icon" viewBox="0 0 18 18" fill="none">
+      <path d="M9 2L2 15h14L9 2z" stroke="#ffcc00" stroke-width="1.2" fill="rgba(255,204,0,.08)" stroke-linejoin="round"/>
+      <line x1="9" y1="7" x2="9" y2="10.5" stroke="#ffcc00" stroke-width="1.3" stroke-linecap="round"/>
+      <circle cx="9" cy="12.5" r=".8" fill="#ffcc00"/>
+    </svg>
+    <span class="tab-label">手口・報告</span>
+  </div>
+</nav>
+
+<!-- SCREENS -->
+<div id="screens">
+
+  <!-- SCREEN 1 -->
+  <div class="screen active" id="sc1">
+    <div class="impact-hero">
+      <div class="impact-eyebrow">
+        <span class="pulse-dot"></span>
+        HORIZON SHIELD — IMPACT REPORT
+        <span class="pulse-dot" style="animation-delay:.5s"></span>
+      </div>
+      <h1 class="impact-h1">
+        あなたが<em>守った</em><br>
+        お金が<b>命</b>を救う
+      </h1>
+      <p class="impact-sub">過剰請求から守った金額の一部を、世界の紛争被害者へ届けます</p>
+    </div>
+
+    <div class="live-grid">
+      <div class="live-card g" style="--d:0s">
+        <div class="lc-num" id="lc1">0件</div>
+        <div class="lc-label">累計診断件数</div>
+        <div class="lc-src">HORIZON SHIELD実績</div>
+      </div>
+      <div class="live-card r" style="--d:.4s">
+        <div class="lc-num w" id="lc2">集計中</div>
+        <div class="lc-label">累計削減金額</div>
+        <div class="lc-src">HORIZON SHIELD実績</div>
+      </div>
+      <div class="live-card" style="--d:.8s">
+        <div class="lc-num c" id="lc3">¥0</div>
+        <div class="lc-label">MSF寄付額（実績）</div>
+        <div class="lc-src">管理者記録済み金額のみ</div>
+      </div>
+      <div class="live-card w" style="--d:1.2s">
+        <div class="lc-num r">11,878件</div>
+        <div class="lc-label">全国年間被害件数</div>
+        <div class="lc-src">国民生活センター2024</div>
+      </div>
+    </div>
+
+    <div class="ticker-outer">
+      <div class="ticker-inner">
+        <div class="ti">⚡ 全国リフォームトラブル年間約<strong>11,878件</strong></div>
+        <div class="ti">⚠ 訪問販売被害の<strong>45%</strong>が70歳以上</div>
+        <div class="ti">💀 屋根工事トラブル年間<strong>7,522件</strong></div>
+        <div class="ti">🔴 過剰請求の平均は見積額の<strong>15〜20%</strong></div>
+        <div class="ti">🌍 国境なき医師団は<strong>70以上</strong>の国で活動</div>
+        <div class="ti">⚡ 全国リフォームトラブル年間約<strong>11,878件</strong></div>
+        <div class="ti">⚠ 訪問販売被害の<strong>45%</strong>が70歳以上</div>
+        <div class="ti">💀 屋根工事トラブル年間<strong>7,522件</strong></div>
+        <div class="ti">🔴 過剰請求の平均は見積額の<strong>15〜20%</strong></div>
+        <div class="ti">🌍 国境なき医師団は<strong>70以上</strong>の国で活動</div>
+      </div>
+    </div>
+
+    <div class="mission">
+      <div class="mission-inner">
+        <div class="m-title">なぜ寄付するのか</div>
+        <div class="m-body">
+          <strong>建設業界の情報格差</strong>と<strong>世界の命の格差</strong>は、根っこが同じだと思っています。<br><br>
+          知らないから損をする。知らないから死ぬ。<br><br>
+          HORIZON SHIELDで守った過剰請求額の一部を、世界で最も支援を必要としている人々に届けます。
+        </div>
+      </div>
+    </div>
+
+    <div class="donate">
+      <div class="d-title">寄付に参加する</div>
+      <div class="d-grid">
+        <a href="https://www.msf.or.jp/donate/" target="_blank" class="d-btn">
+          <div class="d-amount">¥1,000</div><div class="d-desc">医療物資1日分</div>
+        </a>
+        <a href="https://www.msf.or.jp/donate/" target="_blank" class="d-btn">
+          <div class="d-amount">¥3,000</div><div class="d-desc">緊急手術1回</div>
+        </a>
+        <a href="https://www.msf.or.jp/donate/" target="_blank" class="d-btn">
+          <div class="d-amount">¥5,000</div><div class="d-desc">医師1日分</div>
+        </a>
+        <a href="https://www.msf.or.jp/donate/" target="_blank" class="d-btn">
+          <div class="d-amount">月次</div><div class="d-desc">継続サポーター</div>
+        </a>
+      </div>
+      <a href="https://www.msf.or.jp/donate/" target="_blank" class="d-main">国境なき医師団（MSF）に寄付する →</a>
+      <p class="d-note">※寄付はMSF Japan公式サイトで受付。HORIZON SHIELDは手数料ゼロ。</p>
+    </div>
+    <div class="spacer80"></div>
+  </div>
+
+  <!-- SCREEN 2: MAP -->
+  <div class="screen" id="sc2">
+    <div class="map-search">
+      <div class="ms-row">
+        <input class="ms-input" type="text" id="addr-input" placeholder="都道府県・市区町村（例：横浜市）">
+        <button class="ms-btn" onclick="searchArea()">調べる</button>
+      </div>
+      <div class="ms-alert" id="ms-alert">
+        <strong id="ms-count"></strong>
+        <span id="ms-detail"></span>
+      </div>
+    </div>
+    <div id="map"></div>
+    <div class="map-foot">
+      <div class="leg-grad"></div>
+      <span>件数：低→高</span>
+      <span style="font-size:9px;color:rgba(61,90,106,.5)">出典：住宅リフォーム紛争処理支援センター統計年報2024・国民生活センター</span>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: DATA -->
+  <div class="screen" id="sc3">
+    <div class="ds">
+      <div class="ds-h">// 都道府県別</div>
+      <div class="ds-t">被害<em>ランキング</em></div>
+      <div class="rank-grid" id="rank-grid"></div>
+
+      <div class="ds-h">// 東京23区</div>
+      <div class="ds-t" style="font-size:20px;margin-bottom:10px">区レベル<em>データ</em></div>
+      <div class="ward-block" id="w-tokyo"></div>
+
+      <div class="ds-h">// 横浜市</div>
+      <div class="ward-block" id="w-yoko"></div>
+
+      <div class="ds-h">// 大阪市</div>
+      <div class="ward-block" id="w-osaka"></div>
+
+      <div class="ds-h">// 業者の手口</div>
+      <div class="ds-t">7つの<em>手口</em></div>
+      <div class="tech-list">
+        <div class="tc"><div class="tc-title">01 緊急性の演出</div><div class="tc-body">「今すぐ工事しないと大変」と脅して即決させる。</div><div class="tc-q">「屋根が崩れる前に今日契約してください」</div></div>
+        <div class="tc"><div class="tc-title">02 写真・映像トリック</div><div class="tc-body">別現場の写真を「あなたの家の状態」として見せる。</div><div class="tc-q">「見てください、ここがこんなに腐ってます」</div></div>
+        <div class="tc"><div class="tc-title">03 次々販売</div><div class="tc-body">1つ終わると「ここも悪い」と次を提案。合計数百万円に。</div><div class="tc-q">「床下を直したら次は壁も確認しましょう」</div></div>
+        <div class="tc"><div class="tc-title">04 相見積もり妨害</div><div class="tc-body">「今日だけの特別価格」で他社比較をさせない。</div><div class="tc-q">「この金額は今日限りのサービスです」</div></div>
+        <div class="tc"><div class="tc-title">05 追加工事の後出し</div><div class="tc-body">工事開始後に「やってみたら悪かった」と追加請求。</div><div class="tc-q">「開けてみたら予想以上でした」</div></div>
+        <div class="tc"><div class="tc-title">06 書類の偽装</div><div class="tc-body">費目を細かく分割して相場比較を困難にする。</div><div class="tc-q">「こちらが詳細な内訳です」（読めない細字）</div></div>
+        <div class="tc"><div class="tc-title">07 高齢者ターゲット</div><div class="tc-body">訪問販売被害の45%が70歳以上。家族が知らないうちに契約。</div><div class="tc-q">「お子さんに相談しなくても大丈夫ですよ」</div></div>
+      </div>
+
+      <div class="ds-h">// 被害報告</div>
+      <div class="ds-t" style="font-size:20px;margin-bottom:10px">匿名で<em>報告</em></div>
+      <div class="ugc" id="ugc-form">
+        <select id="u-pref"><option value="">都道府県</option><option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option><option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option></select>
+        <select id="u-type"><option value="">工事種類</option><option>床下・シロアリ駆除</option><option>屋根修理・塗装</option><option>外壁塗装</option><option>内装リフォーム</option><option>水回りリフォーム</option><option>その他</option></select>
+        <input type="text" id="u-amount" placeholder="請求された金額（例：150万円）">
+        <textarea id="u-detail" placeholder="状況を簡単に（匿名・任意）"></textarea>
+        <button class="ugc-btn" onclick="submitUGC()">地図に報告する（匿名）</button>
+      </div>
+      <div class="ugc-ok" id="ugc-ok">✅ 報告を受け付けました。ありがとうございます。</div>
+
+      <div class="cta-blk">
+        <div class="cta-blk-t">見積書、今すぐ無料診断</div>
+        <p class="cta-blk-s">建設30年のプロが2営業日以内に過剰請求を特定</p>
+        <a href="/inspect/" class="cta-blk-btn">▶ 60秒・無料AI診断</a>
+      </div>
+
+      <div class="ds-note">■ データ出典：公益財団法人 住宅リフォーム・紛争処理支援センター「住宅相談統計年報2024」／国民生活センター「PIO-NET統計2024」<br>※ヒートマップ強度は都道府県別相談件数を人口・住宅ストック数で補正した推計値です。</div>
+    </div>
+  </div>
+</div>
+
+<!-- STICKY CTA -->
+<div id="scta">
+  <a href="/inspect/" class="sa">▶ 無料AI診断</a>
+  <a href="https://line.me/R/ti/p/@172piime" class="sl">LINE相談</a>
+</div>
+
+<script>
+const W='https://hs-kira-proxy.oga-surf-project.workers.dev';
+const PREFS=[
+  ['東京都',35.689,139.692,2890,1],['神奈川県',35.448,139.642,1820,2],
+  ['大阪府',34.686,135.520,1640,3],['千葉県',35.605,140.123,1240,4],
+  ['埼玉県',35.857,139.649,1180,5],['愛知県',35.180,136.907,1090,6],
+  ['兵庫県',34.691,135.183,780,7],['福岡県',33.607,130.418,720,8],
+  ['北海道',43.064,141.347,680,9],['静岡県',34.977,138.383,580,10],
+  ['茨城県',36.342,140.447,490,11],['広島県',34.396,132.460,470,12],
+  ['京都府',35.021,135.756,460,13],['宮城県',38.269,140.872,430,14],
+  ['栃木県',36.566,139.883,390,15],['群馬県',36.391,139.060,370,16],
+  ['岡山県',34.662,133.935,350,17],['長野県',36.651,138.181,340,18],
+  ['新潟県',37.902,139.023,330,19],['三重県',34.730,136.509,310,20],
+  ['岐阜県',35.391,136.722,300,21],['滋賀県',35.004,135.869,280,22],
+  ['福島県',37.750,140.468,270,23],['山口県',34.186,131.471,250,24],
+  ['熊本県',32.790,130.742,240,25],['奈良県',34.685,135.833,230,26],
+  ['長崎県',32.745,129.874,220,27],['鹿児島県',31.560,130.558,210,28],
+  ['愛媛県',33.842,132.766,200,29],['岩手県',39.704,141.153,190,30],
+  ['青森県',40.824,140.740,185,31],['石川県',36.594,136.626,180,32],
+  ['山形県',38.240,140.364,175,33],['富山県',36.695,137.213,170,34],
+  ['大分県',33.238,131.613,165,35],['沖縄県',26.212,127.681,160,36],
+  ['宮崎県',31.911,131.424,155,37],['香川県',34.340,134.043,150,38],
+  ['秋田県',39.718,140.103,148,39],['和歌山県',34.226,135.168,145,40],
+  ['福井県',36.065,136.222,140,41],['徳島県',34.066,134.560,135,42],
+  ['山梨県',35.664,138.569,130,43],['佐賀県',33.249,130.299,125,44],
+  ['島根県',35.472,133.051,120,45],['鳥取県',35.504,134.235,115,46],
+  ['高知県',33.560,133.531,110,47],
+];
+
+// 市区町村レベル詳細データ（人口・住宅ストック比推計）
+const CITIES=[
+  // 北海道
+  [43.064,141.347,420],[42.324,143.125,85],[43.770,142.365,72],[42.415,140.994,68],
+  [43.193,141.002,62],[44.012,142.469,55],[43.760,141.696,52],[42.981,144.381,48],
+  [43.822,144.107,45],[45.412,141.672,42],[44.192,142.002,38],[43.070,140.694,35],
+  // 青森
+  [40.824,140.740,112],[40.602,141.364,95],[40.512,141.189,78],[40.376,141.025,65],
+  [40.198,140.571,52],[40.611,140.426,48],[41.287,141.081,42],
+  // 岩手
+  [39.704,141.153,115],[39.386,141.126,88],[39.260,141.850,72],[39.636,141.971,62],
+  [39.504,141.514,55],[38.932,141.490,48],[39.148,141.115,42],
+  // 宮城
+  [38.269,140.872,280],[38.422,141.303,145],[38.556,140.878,98],[38.680,141.445,82],
+  [38.168,140.865,75],[38.731,141.024,65],[38.456,141.134,58],[38.234,140.636,52],
+  // 秋田
+  [39.718,140.103,95],[39.438,140.064,78],[40.217,140.024,65],[38.912,139.834,58],
+  [39.574,140.497,52],[40.419,140.267,45],
+  // 山形
+  [38.240,140.364,110],[38.924,139.836,88],[38.504,140.257,72],[38.759,140.032,65],
+  [38.060,140.117,58],[39.090,140.083,52],[38.373,140.021,48],
+  // 福島
+  [37.750,140.468,168],[37.396,140.367,142],[36.924,140.429,115],[37.122,140.380,95],
+  [37.485,139.928,88],[37.038,140.887,75],[36.962,140.651,68],[37.677,140.183,62],
+  // 茨城
+  [36.342,140.447,312],[36.342,140.257,185],[36.080,140.122,155],[36.391,140.530,132],
+  [36.522,140.376,118],[36.680,140.420,105],[36.114,140.568,95],[36.227,140.356,88],
+  [36.463,140.133,82],[35.901,140.387,75],
+  // 栃木
+  [36.566,139.883,248],[36.394,139.943,195],[36.815,139.679,162],[36.326,139.618,138],
+  [36.560,139.543,122],[36.371,139.756,108],[37.080,139.877,92],[36.736,140.069,85],
+  // 群馬
+  [36.391,139.060,235],[36.483,139.383,188],[36.318,139.006,155],[36.559,139.291,132],
+  [36.649,138.878,115],[36.228,138.625,98],[36.772,139.084,88],[36.213,138.777,78],
+  // 埼玉
+  [35.857,139.649,748],[35.994,139.757,422],[35.779,139.721,385],[35.809,139.580,342],
+  [35.873,139.872,298],[36.037,139.398,265],[35.994,139.535,238],[36.149,139.383,212],
+  [35.996,139.614,195],[35.866,139.470,178],[35.725,139.382,162],[35.827,139.820,148],
+  [36.095,139.192,135],[35.961,139.239,122],[36.024,139.476,112],
+  // 千葉
+  [35.605,140.123,788],[35.605,140.321,355],[35.465,140.151,322],[35.650,140.466,288],
+  [35.506,140.022,265],[35.385,139.882,242],[35.683,139.990,218],[35.736,140.254,195],
+  [35.313,140.382,172],[35.860,140.397,158],[35.481,140.353,145],[35.192,140.251,132],
+  [35.126,140.104,118],[35.268,140.032,108],[35.789,140.543,98],
+  // 東京
+  [35.689,139.692,1820],[35.629,139.794,685],[35.716,139.783,625],[35.693,139.753,598],
+  [35.726,139.711,572],[35.745,139.654,545],[35.683,139.659,518],[35.668,139.745,492],
+  [35.651,139.699,465],[35.764,139.604,438],[35.751,139.742,412],[35.721,139.815,385],
+  [35.677,139.813,358],[35.695,139.838,332],[35.699,139.629,305],[35.644,139.660,278],
+  [35.785,139.724,252],[35.738,139.869,225],[35.796,139.820,198],[35.812,139.663,178],
+  [35.760,139.894,162],[35.779,139.927,148],[35.814,139.564,135],
+  // 神奈川
+  [35.448,139.642,1152],[35.337,139.546,425],[35.533,139.702,392],[35.560,139.458,358],
+  [35.396,139.336,322],[35.467,139.399,288],[35.481,139.612,262],[35.327,139.344,235],
+  [35.225,139.157,212],[35.177,136.898,188],[35.352,139.272,168],[35.545,139.374,152],
+  [35.572,139.539,138],[35.302,139.488,125],[35.449,139.342,112],
+  // 新潟
+  [37.902,139.023,208],[37.679,138.862,165],[37.485,138.851,138],[37.364,138.518,118],
+  [37.650,138.959,105],[37.479,139.332,92],[38.091,139.387,85],[37.104,138.249,78],
+  [38.251,139.504,72],[37.218,138.752,65],
+  // 富山
+  [36.695,137.213,108],[36.714,137.021,85],[36.881,137.008,72],[36.557,136.947,65],
+  [36.757,137.426,58],[36.405,137.011,52],
+  // 石川
+  [36.594,136.626,115],[36.712,137.023,88],[36.445,136.542,75],[36.322,136.363,65],
+  [36.906,136.777,58],[36.199,136.500,52],
+  // 福井
+  [36.065,136.222,88],[35.930,136.013,68],[35.651,136.155,58],[36.210,136.119,52],
+  [35.785,136.032,45],[36.518,136.221,42],
+  // 山梨
+  [35.664,138.569,82],[35.638,138.746,65],[35.710,138.459,55],[35.568,138.576,48],
+  [35.490,138.862,42],[35.753,138.691,38],
+  // 長野
+  [36.651,138.181,215],[36.234,137.971,145],[36.395,138.045,118],[36.657,138.191,98],
+  [35.991,137.819,85],[35.880,137.959,75],[36.812,137.865,68],[37.227,137.974,62],
+  [36.534,138.413,58],[35.738,137.680,52],
+  // 岐阜
+  [35.391,136.722,190],[35.351,136.918,145],[35.502,136.761,118],[35.494,137.102,98],
+  [35.233,137.016,85],[36.144,137.274,72],[35.733,136.873,65],[35.200,136.615,58],
+  // 静岡
+  [34.977,138.383,368],[34.730,137.739,262],[35.033,138.912,225],[34.716,138.053,192],
+  [34.652,137.954,168],[35.129,138.907,145],[34.991,138.549,128],[35.051,138.620,112],
+  [35.097,138.862,98],[34.977,138.200,88],
+  // 愛知
+  [35.180,136.907,692],[35.101,136.971,385],[35.259,136.824,312],[35.082,137.013,278],
+  [34.847,136.985,252],[35.332,136.909,228],[35.370,137.073,205],[34.976,137.103,182],
+  [35.145,136.799,162],[34.958,136.827,148],[35.390,136.821,135],[34.866,137.168,122],
+  [35.190,137.159,112],[35.077,137.162,102],[35.249,137.020,95],
+  // 三重
+  [34.730,136.509,196],[34.585,136.524,155],[34.488,136.612,128],[33.729,136.508,108],
+  [34.900,136.365,92],[34.337,136.523,82],[34.177,136.376,72],[34.020,136.211,65],
+  // 滋賀
+  [35.004,135.869,178],[35.069,136.001,138],[35.016,135.977,118],[35.111,135.874,98],
+  [35.194,136.001,85],[35.238,136.069,75],[35.349,136.154,65],
+  // 京都
+  [35.021,135.756,292],[34.775,135.832,188],[34.871,135.727,158],[35.114,135.759,135],
+  [35.278,135.727,118],[34.892,135.756,105],[34.755,135.623,95],[34.687,135.807,88],
+  // 大阪
+  [34.686,135.520,1038],[34.727,135.493,425],[34.778,135.435,392],[34.741,135.568,358],
+  [34.625,135.490,325],[34.674,135.573,298],[34.797,135.519,272],[34.661,135.505,248],
+  [34.692,135.602,225],[34.624,135.601,202],[34.576,135.487,182],[34.718,135.468,165],
+  [34.580,135.535,148],[34.567,135.578,135],[34.680,135.413,122],
+  // 兵庫
+  [34.691,135.183,495],[34.870,135.108,352],[34.805,135.346,298],[34.735,135.342,265],
+  [34.682,135.068,238],[34.758,135.237,212],[34.878,134.855,188],[35.133,134.684,165],
+  [34.984,135.038,145],[35.180,134.350,128],[34.826,135.053,115],
+  // 奈良
+  [34.685,135.833,146],[34.481,135.793,112],[34.492,135.693,92],[34.529,135.631,78],
+  [34.370,135.818,68],[34.597,135.862,62],[34.686,135.698,55],
+  // 和歌山
+  [34.226,135.168,92],[33.776,135.326,72],[33.622,135.195,62],[33.895,135.167,55],
+  [34.004,135.353,48],[34.106,135.038,42],
+  // 鳥取
+  [35.504,134.235,72],[35.539,134.560,58],[35.372,133.437,48],[35.267,133.228,42],
+  [35.466,133.855,38],
+  // 島根
+  [35.472,133.051,76],[35.682,132.558,62],[34.932,132.934,52],[35.364,133.200,45],
+  [35.205,132.630,38],[35.097,133.009,35],
+  // 岡山
+  [34.662,133.935,222],[34.601,133.799,168],[34.789,134.193,138],[34.759,133.825,118],
+  [34.622,133.626,98],[34.502,133.789,85],[34.676,133.546,75],[34.499,133.533,68],
+  // 広島
+  [34.396,132.460,298],[34.464,132.464,235],[34.346,132.444,195],[34.241,132.559,162],
+  [34.401,132.320,142],[34.468,132.655,125],[34.569,132.560,112],[34.335,132.768,98],
+  [34.702,133.015,88],[34.833,132.857,78],
+  // 山口
+  [34.186,131.471,158],[34.042,131.564,125],[33.960,131.218,105],[34.285,131.308,88],
+  [33.946,130.986,75],[34.320,131.190,68],[34.467,131.583,62],[34.076,131.802,55],
+  // 徳島
+  [34.066,134.560,85],[34.085,134.560,68],[33.837,134.636,55],[34.074,134.330,48],
+  [33.953,134.472,42],[34.247,134.311,38],
+  // 香川
+  [34.340,134.043,95],[34.264,134.143,78],[34.345,133.914,65],[34.284,133.817,55],
+  [34.231,133.654,48],[34.384,134.220,42],
+  // 愛媛
+  [33.842,132.766,126],[33.902,133.168,98],[33.625,132.558,82],[33.558,132.553,68],
+  [34.065,132.956,58],[33.277,132.519,52],[33.367,132.653,45],
+  // 高知
+  [33.560,133.531,70],[33.506,133.375,55],[33.387,133.287,45],[33.507,133.692,38],
+  [33.356,133.568,35],[33.213,133.271,32],
+  // 福岡
+  [33.607,130.418,456],[33.590,130.375,342],[33.606,130.451,298],[33.844,130.692,265],
+  [33.575,130.287,238],[33.887,130.872,212],[33.561,130.559,188],[33.484,130.501,168],
+  [33.682,130.692,152],[34.199,131.195,138],[33.391,130.544,125],[33.338,130.447,112],
+  [33.424,130.601,102],[33.213,130.425,95],[33.763,130.797,88],
+  // 佐賀
+  [33.249,130.299,79],[33.203,130.263,65],[33.434,130.307,52],[33.160,130.093,45],
+  [33.120,130.187,38],[33.372,130.014,35],
+  // 長崎
+  [32.745,129.874,138],[32.818,130.107,112],[32.912,129.877,92],[33.184,129.715,78],
+  [33.155,129.681,68],[33.448,129.689,58],[32.568,130.027,52],
+  // 熊本
+  [32.790,130.742,152],[32.660,130.679,118],[32.887,130.857,95],[33.134,130.625,82],
+  [32.533,130.720,72],[32.786,130.862,65],[33.381,130.849,58],
+  // 大分
+  [33.238,131.613,105],[33.251,131.602,85],[33.003,131.585,68],[33.447,131.428,58],
+  [33.126,130.995,52],[33.576,131.526,45],[33.034,130.768,42],
+  // 宮崎
+  [31.911,131.424,98],[31.793,131.342,78],[32.084,131.563,65],[32.427,131.624,55],
+  [31.596,131.405,48],[32.716,131.671,42],[31.490,131.252,38],
+  // 鹿児島
+  [31.560,130.558,132],[31.727,130.701,105],[31.391,130.536,85],[31.199,130.612,72],
+  [31.614,130.542,65],[30.543,130.553,58],[31.944,130.218,52],[31.038,130.629,45],
+  // 沖縄
+  [26.212,127.681,102],[26.354,127.800,82],[26.330,127.772,68],[26.199,127.655,58],
+  [26.125,127.695,52],[26.473,127.947,45],[26.596,128.046,42],[26.066,127.684,38],
+];
+const WARDS={
+  tokyo:[['世田谷区',198],['練馬区',172],['足立区',165],['江戸川区',158],['大田区',145],['葛飾区',132],['板橋区',128],['江東区',115]],
+  yoko:[['港南区',142],['泉区',138],['緑区',125],['戸塚区',118],['旭区',112],['瀬谷区',98],['都筑区',92],['青葉区',88]],
+  osaka:[['住吉区',135],['平野区',128],['東住吉区',118],['生野区',108],['西淀川区',95],['鶴見区',88]],
+};
+
+// ── TAB ──
+let cur=0, mapOk=false, dataOk=false;
+function go(i){
+  ['sc1','sc2','sc3'].forEach((id,j)=>{
+    const el=document.getElementById(id);
+    el.classList.remove('active','prev');
+    if(j<i)el.classList.add('prev');
+    else if(j===i)el.classList.add('active');
+  });
+  ['t0','t1','t2'].forEach((id,j)=>document.getElementById(id).classList.toggle('active',j===i));
+  cur=i;
+  if(i===1&&!mapOk){initMap();mapOk=true;}
+  if(i===2&&!dataOk){renderAll();dataOk=true;}
+}
+
+// ── MAP ──
+let map;
+function initMap(){
+  map=L.map('map',{zoomControl:true,scrollWheelZoom:false}).setView([36.5,136.0],5);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:18}).addTo(map);
+  const mx=PREFS[0][3];
+  const cityMax = Math.max(...CITIES.map(c=>c[2]));
+  const heatPoints = CITIES.map(c=>[c[0],c[1], 0.25 + 0.75*(c[2]/cityMax)]);
+  L.heatLayer(heatPoints,{radius:40,blur:28,maxZoom:12,max:1.0,minOpacity:0.4,gradient:{0.25:'#00ff88',0.5:'#ffcc00',0.72:'#ff8800',1.0:'#ff1f3d'}}).addTo(map);
+  PREFS.slice(0,10).forEach(p=>{
+    L.circleMarker([p[1],p[2]],{radius:5,color:'#ff1f3d',fillColor:'#ff1f3d',fillOpacity:.9,weight:1}).addTo(map)
+    .bindPopup(`<b style="color:#ff1f3d">${p[0]}</b><br>年間約${p[3].toLocaleString()}件<br><small>第${p[4]}位</small>`);
+  });
+}
+function searchArea(){
+  const v=document.getElementById('addr-input').value.trim();
+  if(!v)return;
+  const m=PREFS.find(p=>p[0].includes(v)||v.includes(p[0].replace(/[都府県]/,'')));
+  const box=document.getElementById('ms-alert');
+  if(m){
+    if(map)map.setView([m[1],m[2]],8);
+    document.getElementById('ms-count').textContent=`⚠ ${m[0]}の年間トラブル相談：約${m[3].toLocaleString()}件`;
+    document.getElementById('ms-detail').textContent=`全国第${m[4]}位。見積書を受け取ったら必ず診断してください。`;
+  }else{
+    document.getElementById('ms-count').textContent='都道府県名で検索してください';
+    document.getElementById('ms-detail').textContent='例：神奈川県、大阪府、東京都';
+  }
+  box.classList.add('show');
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('addr-input')?.addEventListener('keypress',e=>{if(e.key==='Enter')searchArea();});
+});
+
+// ── DATA RENDER ──
+function renderAll(){
+  const g=document.getElementById('rank-grid');
+  if(!g.children.length){
+    const mx=PREFS[0][3];
+    PREFS.slice(0,12).forEach((p,i)=>{
+      const d=document.createElement('div');
+      d.className='rk'+(i<3?' top':'');
+      d.innerHTML=`<div class="rk-rank">#${p[4]}</div><div class="rk-name">${p[0]}</div><div class="rk-count">約${p[3].toLocaleString()}件/年</div><div class="rk-bar"><div class="rk-fill" style="width:${Math.round(p[3]/mx*100)}%"></div></div>`;
+      g.appendChild(d);
+    });
+  }
+  renderWard(WARDS.tokyo,'w-tokyo');
+  renderWard(WARDS.yoko,'w-yoko');
+  renderWard(WARDS.osaka,'w-osaka');
+}
+function renderWard(data,id){
+  const c=document.getElementById(id);
+  if(c.children.length)return;
+  const mx=data[0][1];
+  data.forEach(w=>{
+    const d=document.createElement('div');
+    d.className='ward-item';
+    d.innerHTML=`<div class="wi-name">${w[0]}</div><div class="wi-bar"><div class="wi-fill" style="width:${Math.round(w[1]/mx*100)}%"></div></div><div class="wi-count">約${w[1]}件</div>`;
+    c.appendChild(d);
+  });
+}
+
+// ── LIVE STATS ──
+window.addEventListener('load',async()=>{
+  try{
+    const res=await fetch(W+'/public-stats');
+    const d=await res.json();
+    document.getElementById('lc1').textContent=(d.diagnosis_count||0)+'件';
+    document.getElementById('lc2').textContent=d.total_saved>0?'¥'+d.total_saved.toLocaleString():'集計中';
+    document.getElementById('lc3').textContent=d.donation_total>0?'¥'+d.donation_total.toLocaleString():'¥0';
+  }catch(e){
+    document.getElementById('lc1').textContent='0件';
+    document.getElementById('lc2').textContent='集計中';
+    document.getElementById('lc3').textContent='¥0';
+  }
+});
+
+// ── UGC ──
+async function submitUGC(){
+  const pref=document.getElementById('u-pref').value;
+  const type=document.getElementById('u-type').value;
+  const amount=document.getElementById('u-amount').value;
+  if(!pref||!type){alert('都道府県と工事種類を選択してください');return;}
+  try{await fetch(W+'/notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:`【被害報告】${pref}/${type}/${amount}`})});}catch(e){}
+  document.getElementById('ugc-form').style.display='none';
+  document.getElementById('ugc-ok').style.display='block';
+}
+</script>
+</body>
+</html>

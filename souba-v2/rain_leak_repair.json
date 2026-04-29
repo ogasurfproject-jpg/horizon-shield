@@ -1,0 +1,1680 @@
+{
+  "_meta": {
+    "version": "3.0-phase1.5-toshi-philosophy",
+    "updated": "2026-04-19",
+    "category_id": "rain_leak_repair",
+    "category_name_jp": "雨漏り修理（原因特定・部位別修理・火災保険活用）",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "🔴🔴🔴 CRITICAL最優先・訪販詐欺最多領域・火災保険詐欺含む・v1.0→v3.0一気にUP",
+    "knowledge_source": "TOshi 30年の建設・現場監督・CMR実務経験 + 2026年実勢データ (テイガク屋根修理、雨漏り修理のアメピタ、みんなの雨漏り修理屋さん、雨漏り修理のプロ80人、街の屋根やさん、街の外壁塗装やさん、リスペック、ホームプロ、リショップナビ、外壁塗装の窓口、リフォームマーケット、トベシンホーム、田島ルーフィング、日本雨漏り診断士協会) / 一般社団法人 雨漏り診断士協会 / 国民生活センター PIO-NET 雨漏り・屋根修理トラブル事例（2025年相談件数1年で2倍増）/ 日本損害保険協会 火災保険詐欺警告 / 消費者ホットライン188 / 田島ルーフィング・三井化学産資公式データ",
+    "scope": "原因特定（12部位）・調査4方法・部位別修理工事・応急処置・火災保険申請・二次被害対応・再発防止メンテナンス",
+    "related_categories": "roof_construction.json・gaiheki_tosou.json・waterproofing_work.json と連動",
+    "v2_to_v3_changes": "v1.0 → v3.0 大幅UP（TOshi哲学反映）: (1)全26プラン業者規模4区分別レンジ化 (2)business_size_based_pricing新設（雨漏り診断士有資格者区分重視） (3)Red Flag 11項目追加（業者規模観点6 + 雨漏り固有5: 原因未調査・葺き替え強要・保険詐欺・即決詐欺・保証不明） (4)2026年4月イラン情勢・ルーフィング+40-50%値上げ（2026/5/1〜）反映",
+    "horizons_philosophy": "HSは業者を敵視しない。業者規模別の妥当な利益率レンジを透明化。**雨漏り修理は訪販詐欺最多領域**。火災保険詐欺・葺き替え強要・即決迫りに要警戒。原因調査（散水試験・赤外線）なしに修理提案は論外。台風後の訪販は消費者ホットライン188に即通報"
+  },
+  "horizon_shield_standard": {
+    "formula": "材料仕入れ値 × 1.2 + 職人人工 × 日当 + 調査費 + 足場費 + (原価 × 一般管理費率 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.2,
+      "general_overhead_pct_ideal": 15,
+      "tax_pct": 10
+    },
+    "philosophy": "雨漏り修理は『原因特定が8割』。原因不明のまま表面だけ塞ぐ業者が多い。HSは原因特定プロセスの明細化と、火災保険活用で施主負担を最小化",
+    "scam_industry_warning": "雨漏り修理は詐欺業界の筆頭。『緊急』『今すぐ』『即日10倍請求』『不要な全面葺き替え強要』が横行。国民生活センター苦情多数",
+    "HS_pricing_philosophy": {
+      "原則": "HS基準価格 = 原価 + 業者規模別の妥当な利益率レンジ",
+      "公式": "適正価格 = 材料仕入れ値 × 1.2 + 人工数 × 日当 + 副資材実費 + 機材・交通費 + (原価 × 業者規模別利益率) + 消費税 10%",
+      "業者規模別_妥当な利益率_雨漏り修理": {
+        "個人事業_専門職人": "粗利率 25-35%（原価×1.25-1.35）",
+        "中小工務店_地域密着": "粗利率 25-35%（原価×1.25-1.35）",
+        "人気工務店_高品質": "粗利率 30-40%（原価×1.30-1.40）",
+        "大手リフォーム_ハウスメーカー": "粗利率 35-45%（原価×1.35-1.45）"
+      },
+      "規模別利益率_根拠": "国土交通省建設関連業経営分析、一般財団法人建設業情報管理センター",
+      "TOshi哲学": "HSは業者を敵視しない。業者規模別の妥当な利益率レンジを施主に透明化し、『規模と価格のマッチング』を判断できるよう武装化する"
+    }
+  },
+  "license_qualifications": {
+    "amamori_shindan_shi": {
+      "name": "雨漏り診断士（日本雨漏り診断士協会認定）",
+      "importance": "★★★★★ 優良業者の指標"
+    },
+    "kensetsu_skai_2": {
+      "name": "2級建築施工管理技士"
+    },
+    "jutaku_kashi_hoken": {
+      "name": "住宅瑕疵保険業者登録",
+      "advantage": "施工後10年保証付"
+    },
+    "kensetsu_gyou_kyoka_yane": {
+      "name": "建設業許可（屋根工事業）"
+    },
+    "kensetsu_gyou_kyoka_bousui": {
+      "name": "建設業許可（防水工事業）"
+    }
+  },
+  "amamori_generation_parts_ranking": {
+    "description": "雨漏り発生部位ランキング（現場実績データ）",
+    "ranking": {
+      "1st_tanidoi": {
+        "name": "谷樋・谷板金（たにどい・たにばんきん）",
+        "description": "屋根と屋根の谷間の板金",
+        "why_leak": "雨水が集中する・詰まり・板金劣化・シーリング劣化",
+        "frequency": "★★★★★（最頻発）"
+      },
+      "2nd_geyaneKabeuketori": {
+        "name": "下屋根と外壁の取合い（雨押え板金）",
+        "description": "1階屋根と2階壁の境界",
+        "why_leak": "板金立ち上がり不足・シーリング劣化"
+      },
+      "3rd_keraba_nokisaki": {
+        "name": "ケラバ・軒先板金との取合い",
+        "description": "屋根端部の板金",
+        "why_leak": "強風で雨水吹き上げ・板金浮き"
+      },
+      "4th_munebankin": {
+        "name": "棟板金（むねばんきん）",
+        "description": "屋根の頂点",
+        "why_leak": "台風で飛散・貫板腐食・釘浮き",
+        "disaster_coverage": "🔴 火災保険対象多数"
+      },
+      "5th_tenmado_toplight": {
+        "name": "天窓（トップライト）",
+        "description": "屋根に設置された窓",
+        "why_leak": "水切り劣化・防水シート劣化・シーリング劣化・結露誤認"
+      },
+      "6th_sassh_mado": {
+        "name": "サッシ・窓廻り",
+        "description": "窓枠と外壁の取合い",
+        "why_leak": "シーリング劣化・外壁ひび割れ・水切り不良"
+      },
+      "7th_veranda_bousui": {
+        "name": "ベランダ防水層",
+        "description": "床面・立上り・ドレン",
+        "why_leak": "防水層劣化・ドレン詰まり・手すり根元"
+      },
+      "8th_gaiheki_crack": {
+        "name": "外壁ひび割れ・シーリング劣化",
+        "description": "サイディング目地・モルタル壁",
+        "why_leak": "経年劣化・地震クラック"
+      },
+      "9th_haikan_kanutsu": {
+        "name": "配管貫通部",
+        "description": "エアコン配管・換気扇ダクト・給排水管",
+        "why_leak": "シーリング劣化・穴の防水処理不良"
+      },
+      "10th_yane_hontai": {
+        "name": "屋根本体の劣化",
+        "description": "瓦割れ・スレート割れ・ルーフィング劣化",
+        "why_leak": "経年劣化・飛来物衝突",
+        "note": "業者が過剰強調しがち・実際は低順位"
+      },
+      "11th_kansakuchaku_boku": {
+        "name": "換気口・換気扇フード",
+        "description": "屋根・壁の換気口",
+        "why_leak": "フード劣化・シーリング切れ・水切り不良"
+      },
+      "12th_parapet_kasagi": {
+        "name": "パラペット・笠木",
+        "description": "陸屋根・バルコニー立上り",
+        "why_leak": "笠木継ぎ目・シーリング劣化"
+      }
+    }
+  },
+  "investigation_methods": {
+    "description": "雨漏り調査 4方法",
+    "visual_moshu": {
+      "name": "目視調査",
+      "price_jpy": {
+        "min": 0,
+        "max": 15000
+      },
+      "duration": "30分-2時間",
+      "accuracy": "★★★☆☆",
+      "free_possible": "多くの業者で無料対応",
+      "limitation": "外観のみ・内部浸水経路不明"
+    },
+    "sansui_chousa": {
+      "name": "散水調査",
+      "price_jpy": {
+        "min": 50000,
+        "max": 300000
+      },
+      "duration": "半日-1日",
+      "accuracy": "★★★★☆",
+      "method": "疑わしい箇所に水をかけ室内での漏水再現",
+      "advantage": "晴天時でも可能・最も実用的",
+      "note": "屋根の場合は足場必要（別途¥10-30万）"
+    },
+    "saamo_guraphy": {
+      "name": "赤外線サーモグラフィ調査",
+      "price_jpy": {
+        "min": 100000,
+        "max": 400000
+      },
+      "duration": "半日",
+      "accuracy": "★★★★☆",
+      "method": "赤外線カメラで温度差を撮影・水含む箇所は低温",
+      "advantage": "非破壊・広範囲・視覚的証拠",
+      "skill_dependent": "解析技術で精度に差"
+    },
+    "hakkoueki_chousa": {
+      "name": "発光液調査（紫外線投射発光）",
+      "price_jpy": {
+        "min": 50000,
+        "max": 200000
+      },
+      "duration": "半日-1日",
+      "accuracy": "★★★★★",
+      "method": "紫外線発光液を注入し、UV照射で漏水経路を追跡",
+      "advantage": "経路を100%特定可能",
+      "limitation": "侵入口が特定されている場合に有効"
+    }
+  },
+  "repair_by_part": {
+    "description": "部位別 修理工事",
+    "tanidoi_tanibankin": {
+      "name": "谷樋・谷板金修理",
+      "scenarios": {
+        "cleaning_and_caulking": {
+          "name": "清掃+シーリング",
+          "price_jpy": {
+            "min": 20000,
+            "max": 60000
+          }
+        },
+        "partial_replace": {
+          "name": "谷板金 部分交換",
+          "price_jpy": {
+            "min": 80000,
+            "max": 200000
+          }
+        },
+        "full_replace_stainless": {
+          "name": "谷板金 全交換（ステンレス推奨）",
+          "price_jpy": {
+            "min": 200000,
+            "max": 500000
+          },
+          "note": "屋根2面分の屋根材剥がし必要"
+        }
+      }
+    },
+    "munebankin_repair": {
+      "name": "棟板金修理",
+      "scenarios": {
+        "nail_rebuild": {
+          "name": "釘打ち直し・増し締め",
+          "price_jpy": {
+            "min": 20000,
+            "max": 60000
+          }
+        },
+        "caulking_repair": {
+          "name": "シーリング補修",
+          "price_jpy": {
+            "min": 30000,
+            "max": 80000
+          }
+        },
+        "full_replace_gl": {
+          "name": "棟板金交換（ガルバリウム・樹脂貫板）",
+          "price_jpy": {
+            "min": 100000,
+            "max": 300000
+          }
+        }
+      },
+      "disaster_insurance": "🔴 台風・強風被害は火災保険対象"
+    },
+    "tenmado_repair": {
+      "name": "天窓修理",
+      "scenarios": {
+        "caulking_only": {
+          "name": "シーリング打ち替えのみ",
+          "price_jpy": {
+            "min": 30000,
+            "max": 80000
+          }
+        },
+        "water_guide_replace": {
+          "name": "水切り板金交換",
+          "price_jpy": {
+            "min": 80000,
+            "max": 200000
+          }
+        },
+        "glass_sash_replace": {
+          "name": "天窓本体交換（サッシ+ガラス）",
+          "price_jpy": {
+            "min": 250000,
+            "max": 600000
+          }
+        },
+        "full_removal_and_roof": {
+          "name": "天窓撤去+屋根葺替え",
+          "price_jpy": {
+            "min": 300000,
+            "max": 800000
+          },
+          "note": "再発防止の最終手段"
+        }
+      }
+    },
+    "sassh_mawari": {
+      "name": "サッシ廻り修理",
+      "scenarios": {
+        "sealing_uchikaE": {
+          "name": "シーリング打ち替え",
+          "price_per_meter_jpy": {
+            "min": 800,
+            "max": 1500
+          }
+        },
+        "typical_window_all_around": {
+          "name": "1窓 全周シーリング打替",
+          "price_jpy": {
+            "min": 15000,
+            "max": 40000
+          }
+        },
+        "water_guide_hosu": {
+          "name": "水切り板金補修",
+          "price_jpy": {
+            "min": 30000,
+            "max": 80000
+          }
+        },
+        "sassh_full_replace": {
+          "name": "サッシ本体交換",
+          "price_jpy": {
+            "min": 150000,
+            "max": 500000
+          }
+        }
+      }
+    },
+    "veranda_repair": {
+      "name": "ベランダ雨漏り修理",
+      "scenarios": {
+        "local_crack_caulking": {
+          "name": "局所ひび割れ補修",
+          "price_jpy": {
+            "min": 30000,
+            "max": 80000
+          }
+        },
+        "drain_repair": {
+          "name": "ドレン周辺改修",
+          "price_jpy": {
+            "min": 50000,
+            "max": 150000
+          }
+        },
+        "partial_waterproof_redo": {
+          "name": "部分防水改修",
+          "price_jpy": {
+            "min": 100000,
+            "max": 250000
+          }
+        },
+        "full_waterproof_redo_10sqm": {
+          "name": "全面防水改修（10㎡）",
+          "price_jpy": {
+            "min": 100000,
+            "max": 200000
+          }
+        },
+        "railing_base_repair": {
+          "name": "手すり根元防水",
+          "price_jpy": {
+            "min": 30000,
+            "max": 100000
+          }
+        }
+      }
+    },
+    "gaiheki_crack_repair": {
+      "name": "外壁ひび割れ修理",
+      "scenarios": {
+        "headgate_caulking": {
+          "name": "ヘアクラックシーリング",
+          "price_per_meter_jpy": {
+            "min": 500,
+            "max": 1500
+          }
+        },
+        "structural_crack_repair": {
+          "name": "構造クラック補修",
+          "price_per_meter_jpy": {
+            "min": 2000,
+            "max": 5000
+          }
+        },
+        "sealing_full_house": {
+          "name": "外壁シーリング全打替",
+          "price_jpy": {
+            "min": 200000,
+            "max": 500000
+          }
+        },
+        "partial_paint_repair": {
+          "name": "部分塗装補修",
+          "price_jpy": {
+            "min": 50000,
+            "max": 150000
+          }
+        }
+      }
+    },
+    "keraba_nokisaki": {
+      "name": "ケラバ・軒先板金修理",
+      "scenarios": {
+        "caulking_repair": {
+          "name": "シーリング補修",
+          "price_jpy": {
+            "min": 30000,
+            "max": 80000
+          }
+        },
+        "partial_replace": {
+          "name": "板金部分交換",
+          "price_jpy": {
+            "min": 80000,
+            "max": 250000
+          }
+        }
+      }
+    },
+    "amaoshie_kabetoriai": {
+      "name": "雨押え板金（下屋根×外壁取合い）",
+      "scenarios": {
+        "caulking_repair": {
+          "name": "シーリング補修",
+          "price_jpy": {
+            "min": 30000,
+            "max": 80000
+          }
+        },
+        "full_replace": {
+          "name": "雨押え板金交換",
+          "price_jpy": {
+            "min": 150000,
+            "max": 400000
+          }
+        }
+      }
+    },
+    "haikan_kanutsu": {
+      "name": "配管貫通部修理",
+      "scenarios": {
+        "caulking_redo": {
+          "name": "シーリング打ち替え",
+          "price_jpy": {
+            "min": 15000,
+            "max": 50000
+          }
+        },
+        "flange_replace": {
+          "name": "防水フランジ交換",
+          "price_jpy": {
+            "min": 30000,
+            "max": 100000
+          }
+        }
+      }
+    },
+    "parapet_kasagi": {
+      "name": "パラペット・笠木修理",
+      "scenarios": {
+        "caulking_repair": {
+          "name": "継ぎ目シーリング",
+          "price_per_meter_jpy": {
+            "min": 1000,
+            "max": 2500
+          }
+        },
+        "kasagi_replace_10m": {
+          "name": "アルミ笠木交換10m",
+          "price_jpy": {
+            "min": 80000,
+            "max": 200000
+          }
+        }
+      }
+    }
+  },
+  "emergency_response": {
+    "description": "応急処置（プロ到着前・自分でできる対策）",
+    "interior_measures": {
+      "bucket_catch": {
+        "name": "バケツで受ける",
+        "note": "タオル敷いて音対策"
+      },
+      "vinyl_sheet": {
+        "name": "ビニールシート+ガムテープで壁・天井保護"
+      },
+      "move_furniture": {
+        "name": "家具移動・電気製品避難"
+      },
+      "breaker_off": {
+        "name": "漏電ブレーカーOFF（電気配線近くの雨漏り時）"
+      }
+    },
+    "exterior_measures": {
+      "temporary_blue_sheet": {
+        "name": "ブルーシート仮養生（屋根）",
+        "price_jpy": {
+          "min": 30000,
+          "max": 100000
+        },
+        "warning": "高所作業は業者依頼推奨（転落死亡事故多発）"
+      },
+      "emergency_caulking": {
+        "name": "応急シーリング",
+        "price_jpy": {
+          "min": 15000,
+          "max": 50000
+        }
+      }
+    },
+    "warnings": [
+      "自分で屋根に上るな・転落事故多発",
+      "雨の日の応急処置は特に危険",
+      "業者の『今すぐ工事』即決に注意"
+    ]
+  },
+  "fire_insurance_application": {
+    "description": "火災保険の雨漏り適用",
+    "applicable_causes": {
+      "typhoon_damage": {
+        "name": "台風による被害",
+        "covered": true
+      },
+      "strong_wind": {
+        "name": "強風被害",
+        "covered": true,
+        "note": "風速20m/s以上の目安"
+      },
+      "hail_damage": {
+        "name": "雹（ひょう）被害",
+        "covered": true
+      },
+      "snow_weight": {
+        "name": "雪害（積雪）",
+        "covered": true
+      },
+      "falling_objects": {
+        "name": "飛来物衝突",
+        "covered": true
+      }
+    },
+    "not_covered": {
+      "aging_deterioration": {
+        "name": "経年劣化",
+        "covered": false,
+        "note": "保険対象外"
+      },
+      "maintenance_neglect": {
+        "name": "メンテナンス不足",
+        "covered": false
+      }
+    },
+    "application_process": [
+      "1. 被害発生日時・原因を記録（写真・動画）",
+      "2. 保険会社に連絡（被害から3年以内）",
+      "3. 業者による被害状況調査・見積書作成",
+      "4. 保険会社へ申請書類提出",
+      "5. 鑑定人現地調査",
+      "6. 保険金支払い決定",
+      "7. 工事実施"
+    ],
+    "typical_coverage_jpy": {
+      "min": 100000,
+      "max": 3000000
+    },
+    "scam_warnings": [
+      "『保険で全額無料』は詐欺文句・必ず自己負担あり",
+      "保険申請代行業者は手数料30-50%要求の悪質業者多い",
+      "申請書類は施主が直接保険会社に提出が原則",
+      "被害と関係ない工事を『ついでに保険で』は保険金詐欺",
+      "保険未加入でも『保険適用』と偽って契約させる業者あり"
+    ]
+  },
+  "secondary_damage": {
+    "description": "雨漏り放置の二次被害",
+    "wood_rot": {
+      "name": "木材腐食（構造材）",
+      "impact": "柱・梁の強度低下・耐震性劣化",
+      "repair_cost_jpy": {
+        "min": 300000,
+        "max": 3000000
+      }
+    },
+    "mold_carbi": {
+      "name": "カビ発生",
+      "impact": "健康被害（アレルギー・喘息）",
+      "removal_cost_jpy": {
+        "min": 50000,
+        "max": 200000
+      }
+    },
+    "shiroari_infestation": {
+      "name": "シロアリ被害（湿気で誘引）",
+      "impact": "土台・柱の空洞化",
+      "repair_cost_jpy": {
+        "min": 200000,
+        "max": 1500000,
+        "note": "zosaku_tategu_master.json参照"
+      }
+    },
+    "rouden_electrical": {
+      "name": "漏電・電気火災",
+      "impact": "感電事故・火災",
+      "repair_cost_jpy": {
+        "min": 50000,
+        "max": 500000
+      }
+    },
+    "interior_damage": {
+      "name": "内装被害（クロス・天井・床）",
+      "repair_cost_jpy": {
+        "min": 50000,
+        "max": 300000
+      }
+    },
+    "insulation_damage": {
+      "name": "断熱材の機能喪失",
+      "impact": "断熱性能低下・結露悪化",
+      "repair_cost_jpy": {
+        "min": 100000,
+        "max": 500000
+      }
+    }
+  },
+  "scaffolding_cost": {
+    "description": "足場費用（屋根作業の多くで必要）",
+    "house_30tsubo_jpy": {
+      "min": 150000,
+      "max": 300000
+    },
+    "house_40tsubo_jpy": {
+      "min": 200000,
+      "max": 400000
+    },
+    "partial_scaffolding_jpy": {
+      "min": 50000,
+      "max": 150000
+    },
+    "rope_access_alternative": {
+      "name": "ロープアクセス（足場不要）",
+      "advantage": "20-40万円削減可能"
+    }
+  },
+  "labor": {
+    "amamori_shindan_day_rate": {
+      "min": 25000,
+      "max": 40000,
+      "avg": 32000
+    },
+    "yane_shokunin_day_rate": {
+      "min": 25000,
+      "max": 35000,
+      "avg": 30000
+    },
+    "bousui_shokunin_day_rate": {
+      "min": 25000,
+      "max": 35000,
+      "avg": 30000
+    },
+    "sanso_shokunin_day_rate": {
+      "min": 22000,
+      "max": 30000,
+      "avg": 26000
+    }
+  },
+  "plans_complete": {
+    "visual_investigation": {
+      "name": "目視調査",
+      "price_jpy": {
+        "min": 0,
+        "max": 15000
+      },
+      "hs_rule_jpy": 10000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 7000,
+          "max": 7000
+        },
+        "区分2_中小工務店": {
+          "min": 8000,
+          "max": 8000
+        },
+        "区分3_人気工務店": {
+          "min": 8000,
+          "max": 8000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 8000,
+          "max": 9000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "sansui_investigation": {
+      "name": "散水調査",
+      "price_jpy": {
+        "min": 50000,
+        "max": 300000
+      },
+      "hs_rule_jpy": 120000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 166000,
+          "max": 172000
+        },
+        "区分2_中小工務店": {
+          "min": 175000,
+          "max": 180000
+        },
+        "区分3_人気工務店": {
+          "min": 184000,
+          "max": 193000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 196000,
+          "max": 206000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "thermograph_investigation": {
+      "name": "サーモグラフィ調査",
+      "price_jpy": {
+        "min": 100000,
+        "max": 400000
+      },
+      "hs_rule_jpy": 220000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 238000,
+          "max": 245000
+        },
+        "区分2_中小工務店": {
+          "min": 250000,
+          "max": 258000
+        },
+        "区分3_人気工務店": {
+          "min": 262000,
+          "max": 275000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 280000,
+          "max": 295000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "hakkoueki_investigation": {
+      "name": "発光液調査",
+      "price_jpy": {
+        "min": 50000,
+        "max": 200000
+      },
+      "hs_rule_jpy": 150000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 119000,
+          "max": 122000
+        },
+        "区分2_中小工務店": {
+          "min": 125000,
+          "max": 129000
+        },
+        "区分3_人気工務店": {
+          "min": 131000,
+          "max": 138000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 140000,
+          "max": 148000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "emergency_blue_sheet": {
+      "name": "応急ブルーシート養生",
+      "price_jpy": {
+        "min": 30000,
+        "max": 100000
+      },
+      "hs_rule_jpy": 80000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 62000,
+          "max": 64000
+        },
+        "区分2_中小工務店": {
+          "min": 65000,
+          "max": 67000
+        },
+        "区分3_人気工務店": {
+          "min": 68000,
+          "max": 72000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 73000,
+          "max": 77000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "tanidoi_partial_replace": {
+      "name": "谷板金部分交換",
+      "price_jpy": {
+        "min": 80000,
+        "max": 200000
+      },
+      "hs_rule_jpy": 170000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 133000,
+          "max": 137000
+        },
+        "区分2_中小工務店": {
+          "min": 140000,
+          "max": 144000
+        },
+        "区分3_人気工務店": {
+          "min": 147000,
+          "max": 154000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 157000,
+          "max": 165000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "tanidoi_full_stainless": {
+      "name": "谷板金全交換SUS",
+      "price_jpy": {
+        "min": 200000,
+        "max": 500000
+      },
+      "hs_rule_jpy": 420000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 332000,
+          "max": 343000
+        },
+        "区分2_中小工務店": {
+          "min": 350000,
+          "max": 360000
+        },
+        "区分3_人気工務店": {
+          "min": 368000,
+          "max": 385000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 392000,
+          "max": 413000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "munebankin_nail_rebuild": {
+      "name": "棟板金釘打ち直し",
+      "price_jpy": {
+        "min": 20000,
+        "max": 60000
+      },
+      "hs_rule_jpy": 50000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 38000,
+          "max": 39000
+        },
+        "区分2_中小工務店": {
+          "min": 40000,
+          "max": 41000
+        },
+        "区分3_人気工務店": {
+          "min": 42000,
+          "max": 44000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 45000,
+          "max": 47000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "munebankin_full_replace": {
+      "name": "棟板金全交換",
+      "price_jpy": {
+        "min": 100000,
+        "max": 300000
+      },
+      "hs_rule_jpy": 260000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 190000,
+          "max": 196000
+        },
+        "区分2_中小工務店": {
+          "min": 200000,
+          "max": 206000
+        },
+        "区分3_人気工務店": {
+          "min": 210000,
+          "max": 220000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 224000,
+          "max": 236000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "tenmado_sealing": {
+      "name": "天窓シーリング打替",
+      "price_jpy": {
+        "min": 30000,
+        "max": 80000
+      },
+      "hs_rule_jpy": 70000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 52000,
+          "max": 54000
+        },
+        "区分2_中小工務店": {
+          "min": 55000,
+          "max": 57000
+        },
+        "区分3_人気工務店": {
+          "min": 58000,
+          "max": 61000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 62000,
+          "max": 65000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "tenmado_water_guide": {
+      "name": "天窓水切り板金交換",
+      "price_jpy": {
+        "min": 80000,
+        "max": 200000
+      },
+      "hs_rule_jpy": 180000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 133000,
+          "max": 137000
+        },
+        "区分2_中小工務店": {
+          "min": 140000,
+          "max": 144000
+        },
+        "区分3_人気工務店": {
+          "min": 147000,
+          "max": 154000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 157000,
+          "max": 165000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "tenmado_full_replace": {
+      "name": "天窓本体交換",
+      "price_jpy": {
+        "min": 250000,
+        "max": 600000
+      },
+      "hs_rule_jpy": 520000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 404000,
+          "max": 416000
+        },
+        "区分2_中小工務店": {
+          "min": 425000,
+          "max": 438000
+        },
+        "区分3_人気工務店": {
+          "min": 446000,
+          "max": 468000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 476000,
+          "max": 502000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "tenmado_removal": {
+      "name": "天窓撤去+屋根葺替",
+      "price_jpy": {
+        "min": 300000,
+        "max": 800000
+      },
+      "hs_rule_jpy": 700000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 522000,
+          "max": 539000
+        },
+        "区分2_中小工務店": {
+          "min": 550000,
+          "max": 566000
+        },
+        "区分3_人気工務店": {
+          "min": 578000,
+          "max": 605000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 616000,
+          "max": 649000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "sassh_full_seal": {
+      "name": "1窓全周シーリング打替",
+      "price_jpy": {
+        "min": 15000,
+        "max": 40000
+      },
+      "hs_rule_jpy": 35000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 26000,
+          "max": 27000
+        },
+        "区分2_中小工務店": {
+          "min": 28000,
+          "max": 28000
+        },
+        "区分3_人気工務店": {
+          "min": 29000,
+          "max": 30000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 31000,
+          "max": 32000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "sassh_full_replace": {
+      "name": "サッシ本体交換",
+      "price_jpy": {
+        "min": 150000,
+        "max": 500000
+      },
+      "hs_rule_jpy": 420000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 309000,
+          "max": 318000
+        },
+        "区分2_中小工務店": {
+          "min": 325000,
+          "max": 335000
+        },
+        "区分3_人気工務店": {
+          "min": 341000,
+          "max": 358000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 364000,
+          "max": 384000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "veranda_local_repair": {
+      "name": "ベランダ局所補修",
+      "price_jpy": {
+        "min": 30000,
+        "max": 80000
+      },
+      "hs_rule_jpy": 70000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 52000,
+          "max": 54000
+        },
+        "区分2_中小工務店": {
+          "min": 55000,
+          "max": 57000
+        },
+        "区分3_人気工務店": {
+          "min": 58000,
+          "max": 61000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 62000,
+          "max": 65000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "veranda_drain_repair": {
+      "name": "ベランダドレン改修",
+      "price_jpy": {
+        "min": 50000,
+        "max": 150000
+      },
+      "hs_rule_jpy": 130000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 95000,
+          "max": 98000
+        },
+        "区分2_中小工務店": {
+          "min": 100000,
+          "max": 103000
+        },
+        "区分3_人気工務店": {
+          "min": 105000,
+          "max": 110000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 112000,
+          "max": 118000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "veranda_full_waterproof": {
+      "name": "ベランダ全面防水10㎡",
+      "price_jpy": {
+        "min": 100000,
+        "max": 200000
+      },
+      "hs_rule_jpy": 170000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 142000,
+          "max": 147000
+        },
+        "区分2_中小工務店": {
+          "min": 150000,
+          "max": 154000
+        },
+        "区分3_人気工務店": {
+          "min": 158000,
+          "max": 165000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 168000,
+          "max": 177000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "gaiheki_sealing_full": {
+      "name": "外壁シーリング全打替",
+      "price_jpy": {
+        "min": 200000,
+        "max": 500000
+      },
+      "hs_rule_jpy": 420000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 332000,
+          "max": 343000
+        },
+        "区分2_中小工務店": {
+          "min": 350000,
+          "max": 360000
+        },
+        "区分3_人気工務店": {
+          "min": 368000,
+          "max": 385000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 392000,
+          "max": 413000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "gaiheki_crack_repair": {
+      "name": "外壁クラック補修",
+      "price_jpy": {
+        "min": 50000,
+        "max": 150000
+      },
+      "hs_rule_jpy": 130000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 95000,
+          "max": 98000
+        },
+        "区分2_中小工務店": {
+          "min": 100000,
+          "max": 103000
+        },
+        "区分3_人気工務店": {
+          "min": 105000,
+          "max": 110000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 112000,
+          "max": 118000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "amaoshie_full_replace": {
+      "name": "雨押え板金交換",
+      "price_jpy": {
+        "min": 150000,
+        "max": 400000
+      },
+      "hs_rule_jpy": 340000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 261000,
+          "max": 270000
+        },
+        "区分2_中小工務店": {
+          "min": 275000,
+          "max": 283000
+        },
+        "区分3_人気工務店": {
+          "min": 289000,
+          "max": 302000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 308000,
+          "max": 324000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "keraba_partial": {
+      "name": "ケラバ板金部分交換",
+      "price_jpy": {
+        "min": 80000,
+        "max": 250000
+      },
+      "hs_rule_jpy": 200000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 157000,
+          "max": 162000
+        },
+        "区分2_中小工務店": {
+          "min": 165000,
+          "max": 170000
+        },
+        "区分3_人気工務店": {
+          "min": 173000,
+          "max": 182000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 185000,
+          "max": 195000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "haikan_kanutsu": {
+      "name": "配管貫通部シーリング",
+      "price_jpy": {
+        "min": 15000,
+        "max": 50000
+      },
+      "hs_rule_jpy": 40000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 31000,
+          "max": 32000
+        },
+        "区分2_中小工務店": {
+          "min": 32000,
+          "max": 33000
+        },
+        "区分3_人気工務店": {
+          "min": 34000,
+          "max": 36000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 36000,
+          "max": 38000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "kasagi_replace_10m": {
+      "name": "アルミ笠木交換10m",
+      "price_jpy": {
+        "min": 80000,
+        "max": 200000
+      },
+      "hs_rule_jpy": 180000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 133000,
+          "max": 137000
+        },
+        "区分2_中小工務店": {
+          "min": 140000,
+          "max": 144000
+        },
+        "区分3_人気工務店": {
+          "min": 147000,
+          "max": 154000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 157000,
+          "max": 165000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "scaffolding_30tsubo": {
+      "name": "足場30坪",
+      "price_jpy": {
+        "min": 150000,
+        "max": 300000
+      },
+      "hs_rule_jpy": 250000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 214000,
+          "max": 220000
+        },
+        "区分2_中小工務店": {
+          "min": 225000,
+          "max": 232000
+        },
+        "区分3_人気工務店": {
+          "min": 236000,
+          "max": 248000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 252000,
+          "max": 266000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "interior_repair_ceiling_cloth": {
+      "name": "内装被害復旧（天井+クロス）",
+      "price_jpy": {
+        "min": 50000,
+        "max": 200000
+      },
+      "hs_rule_jpy": 150000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 119000,
+          "max": 122000
+        },
+        "区分2_中小工務店": {
+          "min": 125000,
+          "max": 129000
+        },
+        "区分3_人気工務店": {
+          "min": 131000,
+          "max": 138000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 140000,
+          "max": 148000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    }
+  },
+  "red_flags": [
+    {
+      "code": "EMERGENCY_SAMEDAY_OVERCHARGE",
+      "pattern": "『今すぐ』『即日』で10倍請求",
+      "severity": "🔴 CRITICAL",
+      "reason": "雨漏り詐欺業界の典型手口・国民生活センター苦情最多"
+    },
+    {
+      "code": "NO_CAUSE_IDENTIFICATION",
+      "pattern": "原因特定プロセスなし・表面だけ塞ぐ提案",
+      "severity": "🔴 CRITICAL",
+      "reason": "原因不明のまま修理で再発確実"
+    },
+    {
+      "code": "FORCED_FULL_ROOF_REPLACE",
+      "pattern": "部分修理で済む案件に全面葺替強要",
+      "severity": "🚨 HIGH",
+      "reason": "+¥100-300万の過剰提案・業者経済活動優先"
+    },
+    {
+      "code": "NO_LICENSE_DIAGNOSTICIAN",
+      "pattern": "雨漏り診断士資格者不在",
+      "severity": "🚨 HIGH",
+      "reason": "診断精度に差"
+    },
+    {
+      "code": "INSURANCE_FULL_FREE_FRAUD",
+      "pattern": "『保険で全額無料』と勧誘",
+      "severity": "🔴 CRITICAL",
+      "reason": "保険金詐欺の可能性・自己負担必ずあり"
+    },
+    {
+      "code": "INSURANCE_AGENCY_OVER_30_PCT",
+      "pattern": "保険申請代行手数料30%超",
+      "severity": "🚨 HIGH",
+      "reason": "相場10-15%・ぼったくり業者"
+    },
+    {
+      "code": "ISSHIKI_LUMP_SUM",
+      "pattern": "雨漏り修理一式計上",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "NO_SAISUI_EVIDENCE",
+      "pattern": "散水調査やサーモ調査の実施記録・写真なし",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "TANIDOI_SEALING_ONLY",
+      "pattern": "谷板金の隙間をシーリングで完全封止",
+      "severity": "🚨 HIGH",
+      "reason": "毛細管現象で逆効果・逆に雨漏り悪化"
+    },
+    {
+      "code": "SCAFFOLDING_NOT_ERECTED",
+      "pattern": "屋根作業で足場なし（2階以上）",
+      "severity": "🔴 CRITICAL",
+      "reason": "労働安全衛生法違反・作業員転落リスク"
+    },
+    {
+      "code": "NO_SECONDARY_DAMAGE_CHECK",
+      "pattern": "二次被害（木材腐食・カビ・シロアリ）の調査なし",
+      "severity": "🚨 HIGH",
+      "reason": "表面修理だけで根本解決にならない"
+    },
+    {
+      "code": "AGING_CLAIMED_AS_DISASTER",
+      "pattern": "経年劣化を『台風被害』と偽って保険申請",
+      "severity": "🔴 CRITICAL",
+      "reason": "保険金詐欺・施主も共犯リスク"
+    },
+    {
+      "code": "SCALE_MISMATCH_HIGH",
+      "pattern": "業者規模に対して明らかに過剰な利益率（粗利50%超）",
+      "severity": "🚨 HIGH",
+      "reason": "業者規模別妥当利益率（個人・中小25-35%、人気30-40%、大手35-45%）を大幅に超える見積もりは内容確認要",
+      "対処": "見積もり内訳の明細化要求、他社相見積もりで比較"
+    },
+    {
+      "code": "SCALE_MISMATCH_LOW",
+      "pattern": "大手名乗る業者が極端な安値（粗利20%未満）提示",
+      "severity": "⚠️ MEDIUM",
+      "reason": "大手名義の下請け丸投げか、実は個人業者が大手風装っている可能性",
+      "対処": "元請・下請け構成の確認、施工業者の実態確認"
+    },
+    {
+      "code": "ISSHIKI_LUMP_SUM",
+      "pattern": "工事費・材料費が「一式」計上",
+      "severity": "🚨 HIGH",
+      "reason": "明細化可能な工事を『一式』は過剰請求の温床",
+      "対処": "材料・人工・副資材ごとの明細化を要求"
+    },
+    {
+      "code": "NO_MANUFACTURER_MODEL",
+      "pattern": "メーカー・型番・仕様グレード不明",
+      "severity": "🔴 CRITICAL",
+      "reason": "同じカテゴリでも型番で価格・性能大きく違う。不明は詐欺温床",
+      "対処": "メーカー名・型番・仕様書の提示を要求"
+    },
+    {
+      "code": "DOOR_TO_DOOR_SCAM",
+      "pattern": "訪問販売で即決迫り・「今すぐ」系",
+      "severity": "🚨 HIGH",
+      "reason": "優良業者はアポなし訪問営業しない。即決迫りは詐欺の典型",
+      "対処": "必ず相見積もり（3社以上）・クーリングオフ権確認"
+    },
+    {
+      "code": "FAKE_TODAY_DISCOUNT",
+      "pattern": "「今日だけ」「特別価格」「モニター価格」",
+      "severity": "🚨 HIGH",
+      "reason": "架空キャンペーンで相場の1.5-2倍を『半額』として売る典型",
+      "対処": "相場確認・他社見積もり"
+    },
+    {
+      "code": "CAUSE_DIAGNOSIS_NONE",
+      "pattern": "原因調査（散水試験・赤外線等）なしでいきなり修理提案",
+      "severity": "🔴 CRITICAL",
+      "reason": "雨漏りは原因特定が最重要。原因誤認で修理しても再発し無駄になる",
+      "対処": "散水試験/赤外線カメラでの調査結果報告を要求"
+    },
+    {
+      "code": "ROOF_FULL_REPLACEMENT_LIE",
+      "pattern": "部分修理で済むのに屋根葺き替え強要",
+      "severity": "🔴 CRITICAL",
+      "reason": "雨漏り詐欺の典型。局所修理¥5-20万で済むのに¥100-300万の葺き替え強要",
+      "対処": "複数社で原因・修理方法比較（必ず3社以上）"
+    },
+    {
+      "code": "INSURANCE_FRAUD",
+      "pattern": "『火災保険で無料になります』訪販",
+      "severity": "🔴 CRITICAL",
+      "reason": "火災保険詐欺の典型。保険会社への虚偽申告は詐欺罪。国民生活センター相談1年で2倍増",
+      "対処": "自分で保険会社に直接連絡・申請は施主本人"
+    },
+    {
+      "code": "URGENCY_SCAM_AFTER_STORM",
+      "pattern": "台風・豪雨後の訪問販売で『今すぐ修理必要』即決",
+      "severity": "🔴 CRITICAL",
+      "reason": "『このままでは倒壊』『自己負担ゼロ』系の即決迫り。相場3-5倍の過剰請求典型",
+      "対処": "即決せず必ず3社相見積もり・消費者ホットライン188"
+    },
+    {
+      "code": "WARRANTY_UNCLEAR",
+      "pattern": "雨漏り修理保証の期間・範囲が曖昧",
+      "severity": "🚨 HIGH",
+      "reason": "優良業者は5-10年保証付き。短期/曖昧保証は手抜きリスク",
+      "対処": "保証書を書面で事前確認"
+    }
+  ],
+  "vendor_selection_guide": {
+    "good_signs": [
+      "雨漏り診断士資格者在籍",
+      "原因特定プロセスを書面で説明",
+      "調査写真・動画の提示",
+      "複数の修理選択肢を提示（部分vs全面）",
+      "火災保険申請の正直なサポート（強要しない）",
+      "二次被害の可能性説明",
+      "5-10年保証",
+      "自社施工（下請け丸投げでない）"
+    ],
+    "bad_signs": [
+      "『今すぐ』『即日』強要",
+      "『保険で全額無料』勧誘",
+      "原因調査せず工事提案",
+      "一式計上",
+      "部分修理無視で全面葺替推し",
+      "資格証提示拒否",
+      "書面契約拒否",
+      "写真・動画の被害記録なし"
+    ]
+  },
+  "customer_scenario_guide": [
+    {
+      "case": "台風後に天井シミ発見",
+      "recommendation": "散水調査+原因特定→火災保険申請",
+      "cost_investigation": 120000,
+      "cost_insurance_apply": "自己負担軽減"
+    },
+    {
+      "case": "天窓から雨漏り",
+      "recommendation": "天窓シーリング打替（初期）→本体交換（深刻）",
+      "cost_range": {
+        "min": 70000,
+        "max": 520000
+      }
+    },
+    {
+      "case": "谷樋から雨漏り（1位原因）",
+      "recommendation": "谷板金全交換（SUS推奨）",
+      "cost": 420000
+    },
+    {
+      "case": "棟板金飛散（台風被害）",
+      "recommendation": "棟板金全交換+火災保険申請",
+      "cost": 260000,
+      "insurance_covered": true
+    },
+    {
+      "case": "サッシ廻りから浸水",
+      "recommendation": "1窓全周シーリング打替",
+      "cost": 35000
+    },
+    {
+      "case": "ベランダから下階へ漏水",
+      "recommendation": "ベランダ全面防水改修10㎡",
+      "cost": 170000
+    },
+    {
+      "case": "外壁ひび割れからの浸水",
+      "recommendation": "外壁シーリング全打替",
+      "cost": 420000
+    },
+    {
+      "case": "エアコン配管周りから雨漏り",
+      "recommendation": "貫通部シーリング打替",
+      "cost": 40000
+    },
+    {
+      "case": "原因不明の雨漏り",
+      "recommendation": "サーモ調査+散水調査",
+      "cost": 340000
+    },
+    {
+      "case": "築30年 雨漏り多発",
+      "recommendation": "屋根葺替+外壁塗装セット",
+      "cost_range": {
+        "min": 1500000,
+        "max": 3000000
+      },
+      "note": "roof_construction.json・gaiheki_tosou.json参照"
+    },
+    {
+      "case": "雨漏り放置で天井カビ・変色",
+      "recommendation": "原因修理+内装復旧",
+      "cost_range": {
+        "min": 200000,
+        "max": 500000
+      }
+    },
+    {
+      "case": "家族に喘息・アレルギー発症",
+      "recommendation": "緊急原因特定+カビ除去+内装復旧",
+      "cost_range": {
+        "min": 300000,
+        "max": 800000
+      }
+    },
+    {
+      "case": "下屋根と2階壁の境界から漏水",
+      "recommendation": "雨押え板金交換（2位原因）",
+      "cost": 340000
+    },
+    {
+      "case": "ブルーシートで応急しかけたい",
+      "recommendation": "プロに仮養生依頼（自分で上るな）",
+      "cost": 80000
+    }
+  ],
+  "negotiation_tips": [
+    "雨漏り診断士資格者の在籍確認",
+    "原因特定プロセスを書面で要求",
+    "調査写真・動画を必ず受領",
+    "複数修理案（部分 vs 全面）の提示を要求",
+    "⚠️ 『今すぐ』『即日10倍請求』は詐欺・警察通報レベル",
+    "⚠️ 『保険で全額無料』は嘘・自己負担必ずあり",
+    "火災保険申請は施主が直接保険会社に連絡（代行業者手数料30%超は避ける）",
+    "経年劣化は火災保険対象外・虚偽申請は犯罪",
+    "足場は2階以上で必須（労働安全衛生法）",
+    "二次被害（木材腐食・カビ・シロアリ・漏電）の調査要求",
+    "5-10年保証付き業者を選定",
+    "相見積もり3社以上（緊急でも冷静に）",
+    "散水調査は無料 or 有料でも¥5-10万が相場",
+    "サーモ調査は証拠写真（温度分布）を書面で受領",
+    "谷板金にシーリング完全封止は逆効果・専門知識確認"
+  ],
+  "trade_knowledge": {
+    "summary": "雨漏り修理は原因特定が8割。発生部位ランキング1位=谷樋・2位=雨押え板金・3位=ケラバ/軒先板金。調査は目視(無料-1.5万)・散水(5-30万)・サーモ(10-40万)・発光液(5-20万)。部位別修理費は¥1.5万(配管貫通部シール)〜¥80万(天窓撤去+葺替)",
+    "scam_industry_warning": "雨漏り修理は国民生活センター苦情最多業界。『今すぐ』『即日10倍請求』『保険で無料』『全面葺替強要』が典型手口。緊急でも冷静に3社相見積もり",
+    "cause_identification_priority": "屋根本体の劣化は実は低順位。板金部（谷・棟・ケラバ・雨押え）の劣化が雨漏り原因の上位を占める。業者が屋根全面リフォームを強調するのは経済活動優先（修理費が高額化）",
+    "insurance_reality": "火災保険は台風・強風・雹・雪害など自然災害起因のみ適用。経年劣化は対象外。申請代行手数料の相場は10-15%・30%超はぼったくり。虚偽申請は保険金詐欺で犯罪",
+    "secondary_damage_priority": "雨漏りは放置で木材腐食→シロアリ誘引→耐震性低下の連鎖。漏電で電気火災リスク。カビで健康被害。表面だけ塞いで終わらない工事が必須",
+    "taniDoi_sealing_misconception": "『隙間が雨漏り原因だから塞ぐ』は素人発想。板金周辺の水蒸気排出に隙間が必要。シーリング完全封止は毛細管現象で逆効果",
+    "emergency_true_protocol": "本物の緊急対応はブルーシート仮養生¥3-10万で止めて、本工事は後日見積もり。即日10倍請求は詐欺確定",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 雨漏り診断士協会データ + テイガク屋根修理（施工実績20,000棟）+ 国民生活センター苦情データ + 火災保険業界実態"
+  },
+  "business_size_based_pricing": {
+    "_description": "業者規模4区分別 妥当な利益率レンジと価格係数（2026年4月時点・雨漏り修理）",
+    "4区分別_妥当な利益率レンジ_2026年4月": {
+      "区分1_個人事業": {
+        "代表例": "雨漏り診断士・屋根修理専門個人",
+        "粗利率レンジ": "25-35%",
+        "HS基準からの係数": "0.95-0.98",
+        "HS推奨度": "★★★★☆",
+        "特徴": "少額修理（コーキング・板金補修）に強い"
+      },
+      "区分2_中小工務店": {
+        "代表例": "地域の雨漏り専門会社・屋根工事会社",
+        "粗利率レンジ": "25-35%",
+        "HS基準からの係数": "1.00-1.03",
+        "HS推奨度": "★★★★★ **第一推奨**",
+        "特徴": "診断→修理→保証の一貫対応・地域密着"
+      },
+      "区分3_人気工務店": {
+        "代表例": "雨漏り調査士有資格者・赤外線サーモグラフィー調査対応",
+        "粗利率レンジ": "30-40%",
+        "HS基準からの係数": "1.05-1.10",
+        "HS推奨度": "★★★★☆",
+        "特徴": "雨漏り調査士・散水調査・赤外線カメラ活用で原因特定率高"
+      },
+      "区分4_大手リフォーム": {
+        "代表例": "大手ゼネコン系・大規模建築対応",
+        "粗利率レンジ": "35-45%",
+        "HS基準からの係数": "1.12-1.18",
+        "HS推奨度": "★★★☆☆",
+        "特徴": "大規模建築専門・戸建ては過剰対応"
+      }
+    },
+    "適正価格判断原則": "『どの区分を選ぶかは施主の自由』。安さ優先なら区分1-2、保証重視なら区分3-4。重要なのは『その業者の価格が規模に対して妥当か』"
+  },
+  "iran_situation_2026_04_impact": {
+    "_description": "2026年4月イラン情勢による雨漏り修理関連資材への影響",
+    "副資材_+5_10pct": [
+      "ビニール・養生材・テープ類",
+      "コーキング材・シーリング材",
+      "ビス・金物類"
+    ],
+    "建材全般_+10_20pct": [
+      "鋼材（配管・補強金物）",
+      "アルミ形材",
+      "金物類"
+    ],
+    "カテゴリ固有の影響": [
+      "シーリング材（ウレタン系）+10-15%",
+      "板金材料（ガルバリウム鋼板）+10%",
+      "ルーフィング材（アスファルト）+40-50%（2026/5/1〜値上げ）",
+      "防水テープ・プライマー+5-10%",
+      "調査機材（赤外線カメラ等）は値上げなし"
+    ],
+    "_impact_summary": "2026年4月現在、雨漏り修理関連の直接的な値上げは限定的。Q3（7-9月）以降の本格的な値上げリスクあり。施主は早期契約で2026年3月以前の仕入れ値確保が得策"
+  }
+}

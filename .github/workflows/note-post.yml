@@ -11,15 +11,23 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: パッケージインストール
-        env:
-          PUPPETEER_SKIP_DOWNLOAD: 1
-        run: npm install puppeteer-core puppeteer-extra puppeteer-extra-plugin-stealth
+      - name: Install Chrome
+        run: |
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+      - name: Install dependencies
+        run: |
+          cd note-post
+          npm install puppeteer-extra puppeteer-extra-plugin-stealth puppeteer
       - name: note投稿実行
         env:
           NOTE_EMAIL: ${{ secrets.NOTE_EMAIL }}
           NOTE_PASSWORD: ${{ secrets.NOTE_PASSWORD }}
+          NOTE_SESSION: ${{ secrets.NOTE_SESSION }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+          HATENA_API_KEY: ${{ secrets.HATENA_API_KEY }}
         run: node note-post/post_to_note.js

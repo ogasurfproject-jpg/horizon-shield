@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>逆見積もり診断 v4 | HORIZON SHIELD</title>
+<meta name="description" content="やりたい工事を書くだけ。AI版凄腕CMRがヒアリングで詳細を引き出し、松竹梅3プランを算出。">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+:root{--bg:#020810;--bg2:#050D18;--bg3:#081420;--gold:#C8960A;--gold2:#F0C030;--cyan:#00D4FF;--red:#FF3040;--white:#EEF2F5;--gray:#5A7A8A;--lgray:#90AABA;--green:#00FF88;--orange:#FF8C00;--border:rgba(0,212,255,.12)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--white);line-height:1.7}
+a{color:var(--cyan);text-decoration:none}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;display:flex;justify-content:space-between;align-items:center;background:rgba(2,8,16,.97);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--white)}
+.nav-logo span{color:var(--cyan)}
+.nav-back{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--cyan);border:1px solid var(--border);padding:5px 12px}
+.hero{padding:84px 20px 28px;text-align:center;position:relative}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--gold2);border:1px solid rgba(240,192,48,.3);padding:5px 14px;margin-bottom:20px;background:rgba(240,192,48,.04)}
+.badge-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.hero h1{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(22px,4.5vw,38px);line-height:1.3;margin-bottom:12px}
+.hero h1 em{font-style:normal;color:var(--gold2)}
+.hero-sub{font-size:12px;color:var(--lgray);max-width:560px;margin:0 auto;line-height:1.9}
+.main{max-width:780px;margin:0 auto;padding:0 20px 60px}
+.frame{background:var(--bg2);border:1px solid var(--border);margin-bottom:20px}
+.mode-select{padding:18px}
+.mode-title{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:12px}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.mode-grid{grid-template-columns:1fr}}
+.mode-btn{background:var(--bg3);border:1px solid var(--border);padding:18px 14px;cursor:pointer;text-align:left;color:var(--white);font-family:inherit;transition:all .2s}
+.mode-btn:hover{border-color:var(--cyan)}
+.mode-btn.active{border-color:var(--gold2);background:rgba(240,192,48,.06)}
+.mode-num{font-family:'Share Tech Mono',monospace;font-size:20px;color:var(--cyan);margin-bottom:6px}
+.mode-btn.active .mode-num{color:var(--gold2)}
+.mode-name{font-size:14px;font-weight:700;margin-bottom:4px}
+.mode-desc{font-size:11px;color:var(--gray);line-height:1.7}
+.mode-badge{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:9px;background:rgba(0,255,136,.15);color:var(--green);padding:2px 8px;margin-top:6px;letter-spacing:1px}
+.mode-content{display:none;padding:20px;border-top:1px solid var(--border)}
+.mode-content.active{display:block}
+.hint-box{background:rgba(0,212,255,.04);border-left:2px solid var(--cyan);padding:11px 14px;margin-bottom:14px;font-size:12px;color:var(--lgray);line-height:1.8}
+.hint-box b{color:var(--cyan)}
+.nl-textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--white);font-family:inherit;font-size:14px;padding:14px;outline:none;resize:vertical;min-height:110px;line-height:1.8}
+.nl-textarea:focus{border-color:var(--cyan)}
+.nl-textarea::placeholder{color:rgba(90,122,138,.55);font-size:13px}
+.example-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font-size:11px;background:var(--bg3);border:1px solid var(--border);color:var(--lgray);padding:6px 10px;cursor:pointer;font-family:inherit}
+.chip:hover{border-color:var(--cyan);color:var(--cyan)}
+.submit-btn{width:100%;background:transparent;border:1px solid rgba(240,192,48,.4);color:var(--gold2);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;padding:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .25s;margin-top:14px}
+.submit-btn:hover:not(:disabled){background:rgba(240,192,48,.08);border-color:var(--gold2)}
+.submit-btn:disabled{opacity:.4;cursor:not-allowed}
+.submit-btn .spin{width:13px;height:13px;border:1.5px solid var(--gold2);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;display:none}
+.submit-btn.loading .spin{display:inline-block}
+.submit-btn.loading .submit-label{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+#hearing-wrap{display:none}
+.hearing-header{padding:18px 20px;background:linear-gradient(135deg,rgba(240,192,48,.08),rgba(200,150,10,.04));border-bottom:1px solid rgba(240,192,48,.2)}
+.hearing-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold2);letter-spacing:3px;margin-bottom:6px}
+.hearing-reason{font-size:13px;color:var(--white);line-height:1.8}
+.chat-area{padding:16px 20px;max-height:600px;overflow-y:auto}
+.bubble{margin-bottom:12px;padding:12px 14px;font-size:13px;line-height:1.7}
+.bubble.kira{background:var(--bg3);border-left:2px solid var(--cyan);color:var(--white)}
+.bubble.kira .kira-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--cyan);letter-spacing:2px;margin-bottom:4px}
+.bubble.user{background:rgba(240,192,48,.08);border-left:2px solid var(--gold2);margin-left:auto;max-width:88%}
+.bubble.user .user-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gold2);letter-spacing:2px;margin-bottom:4px}
+.qa-block{background:var(--bg3);border:1px solid var(--border);padding:14px;margin-bottom:12px}
+.qa-question{font-size:13px;font-weight:700;margin-bottom:4px;color:var(--white)}
+.qa-why{font-size:11px;color:var(--gray);margin-bottom:10px;line-height:1.6}
+.qa-options{display:flex;flex-direction:column;gap:6px}
+.qa-option{background:var(--bg);border:1px solid var(--border);color:var(--lgray);font-family:inherit;font-size:12px;padding:10px 12px;text-align:left;cursor:pointer;transition:all .15s}
+.qa-option:hover{border-color:var(--cyan);color:var(--cyan)}
+.qa-option.selected{background:rgba(0,212,255,.08);border-color:var(--cyan);color:var(--white)}
+.qa-option.custom{font-style:italic}
+.qa-custom-input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--white);font-family:inherit;font-size:12px;padding:10px 12px;margin-top:6px;display:none}
+.qa-custom-input.show{display:block}
+#results{display:none}
+.extracted-items{padding:16px 20px;border-bottom:1px solid var(--border)}
+.ei-title{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--cyan);letter-spacing:3px;margin-bottom:10px}
+.ei-list{font-size:13px;color:var(--lgray);line-height:1.9}
+.ei-list .item{padding:4px 0;border-bottom:1px solid rgba(0,212,255,.05)}
+.ei-list .tag{display:inline-block;background:var(--bg3);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:10px;padding:1px 6px;margin-right:6px}
+.plans-wrap{padding:20px}
+.plans-title{font-family:'Zen Kaku Gothic New';font-weight:900;font-size:17px;margin-bottom:6px;text-align:center}
+.plans-sub{font-size:11px;color:var(--gray);text-align:center;margin-bottom:18px;letter-spacing:1px}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:640px){.plans-grid{grid-template-columns:1fr;gap:14px}}
+.plan-card{background:var(--bg3);border:1px solid var(--border);padding:16px 12px;position:relative;display:flex;flex-direction:column}
+.plan-card.take{border-color:var(--gold2);background:rgba(240,192,48,.04)}
+.plan-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--bg);border:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:3px 10px;color:var(--gray)}
+.plan-card.take .plan-badge{background:var(--gold2);color:var(--bg);border-color:var(--gold2);font-weight:700}
+.plan-name{font-size:13px;font-weight:700;margin:6px 0 4px;text-align:center}
+.plan-name .em{color:var(--gold2)}
+.plan-target{font-size:10px;color:var(--gray);text-align:center;margin-bottom:10px;line-height:1.5}
+.plan-price{font-family:'Share Tech Mono',monospace;font-size:20px;font-weight:700;color:var(--white);text-align:center;margin-bottom:2px}
+.plan-card.take .plan-price{color:var(--gold2)}
+.plan-price-sub{font-size:10px;color:var(--gray);text-align:center;margin-bottom:12px}
+.plan-items{list-style:none;font-size:11px;color:var(--lgray);line-height:1.5;margin-top:auto;padding-top:8px;border-top:1px solid var(--border)}
+.plan-items li{padding:3px 0;display:flex;justify-content:space-between;gap:4px}
+.plan-items li span:last-child{color:var(--white);font-family:'Share Tech Mono',monospace;font-size:10px;white-space:nowrap}
+.alerts{padding:14px 20px;border-top:1px solid var(--border)}
+.alert{background:rgba(255,48,64,.05);border-left:2px solid var(--red);padding:10px 12px;margin-bottom:8px;font-size:11px;line-height:1.7}
+.alert.high{border-color:var(--orange);background:rgba(255,140,0,.05)}
+.alert-title{font-weight:700;color:var(--red);font-size:12px;margin-bottom:3px}
+.alert.high .alert-title{color:var(--orange)}
+.disclaimer{padding:12px 20px;border-top:1px solid var(--border);font-size:10px;color:var(--gray);line-height:1.8}
+.cta{background:linear-gradient(135deg,rgba(200,150,10,.08),rgba(240,192,48,.04));border:1px solid var(--gold);padding:22px 20px;text-align:center}
+.cta-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--gold2);margin-bottom:8px}
+.cta-title{font-size:16px;font-weight:900;margin-bottom:8px}
+.cta-desc{font-size:12px;color:var(--lgray);margin-bottom:14px;line-height:1.8}
+.cta-price{font-family:'Share Tech Mono',monospace;font-size:28px;color:var(--gold2);margin-bottom:4px}
+.cta-price-sub{font-size:10px;color:var(--gray);margin-bottom:16px;letter-spacing:1px}
+.cta-btn{display:inline-block;background:var(--gold);color:var(--bg);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px;padding:14px 32px;border:none;cursor:pointer;font-weight:700}
+.cta-btn:hover{background:var(--gold2)}
+.legal-ribbon{background:var(--bg3);padding:12px 20px;font-size:10px;color:var(--gray);line-height:1.8;border-top:1px solid var(--border)}
+.legal-ribbon b{color:var(--lgray)}
+.err{background:rgba(255,48,64,.1);border:1px solid var(--red);padding:12px 14px;margin-top:12px;font-size:12px;color:var(--red);display:none}
+.err.show{display:block}
+/* ===== ハイブリッド・ペイウォール（2026/4 オプションC） ===== */
+.plan-price.masked{
+  color:transparent;
+  text-shadow:0 0 18px rgba(240,192,48,.9);
+  user-select:none;
+  position:relative;
+  filter:blur(8px);
+}
+.plan-card.take .plan-price.masked{
+  text-shadow:0 0 22px rgba(240,192,48,1);
+  filter:blur(10px);
+}
+.plan-price-range{
+  font-family:'Share Tech Mono',monospace;
+  font-size:15px;
+  font-weight:700;
+  color:var(--white);
+  text-align:center;
+  margin-bottom:2px;
+  letter-spacing:0.5px;
+}
+.plan-price-sub.approx{
+  color:var(--gray);
+  font-size:10px;
+  font-style:italic;
+}
+.plan-lock-hint{
+  display:none;
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  background:rgba(240,192,48,.95);
+  color:var(--bg);
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  padding:6px 12px;
+  border-radius:3px;
+  white-space:nowrap;
+  letter-spacing:1px;
+  font-weight:900;
+  z-index:2;
+  pointer-events:none;
+}
+.plan-card.take .plan-lock-hint{display:block;top:52%}
+.plan-card.take{cursor:pointer;transition:transform .2s}
+.plan-card.take:hover{transform:translateY(-2px)}
+.plan-price-wrap{position:relative}
+.plan-unlock-cta{
+  background:linear-gradient(135deg,rgba(240,192,48,.2),rgba(200,150,10,.1));
+  border:1px dashed rgba(240,192,48,.5);
+  padding:10px;
+  text-align:center;
+  font-size:11px;
+  color:var(--gold2);
+  letter-spacing:1px;
+  margin:10px 0;
+  cursor:pointer;
+  font-family:'Share Tech Mono',monospace;
+}
+.plan-unlock-cta:hover{background:rgba(240,192,48,.15);border-style:solid}
+.plan-card:not(.take) .plan-unlock-cta{display:none}  
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-logo">HORIZ<span>音</span>S <span>/ SHIELD v4</span></div>
+  <a href="https://shield.the-horizons-innovation.com" class="nav-back">← TOP</a>
+</nav>
+<section class="hero">
+  <div class="hero-badge"><div class="badge-dot"></div><span>AI版 凄腕CMR / HEARING ENABLED v4</span></div>
+  <h1>やりたい工事を書くだけ。<br>KIRAが<em>ヒアリング</em>して<em>3プラン</em>算出</h1>
+  <p class="hero-sub">施主の曖昧な要望から、AI現場監督KIRAが必要な詳細を対話で引き出し、<br><strong>松・竹★・梅の3プラン</strong>で予算感を即提示します。</p>
+</section>
+<main class="main">
+  <div class="frame">
+    <div class="mode-select">
+      <div class="mode-title">STEP 1 / 状況を選択</div>
+      <div class="mode-grid">
+        <button class="mode-btn" data-mode="estimate" onclick="selectMode('estimate')">
+          <div class="mode-num">01</div>
+          <div class="mode-name">業者から見積もりをもらった</div>
+          <div class="mode-desc">既存の見積書を診断。過剰項目を検出します。</div>
+          <div class="mode-badge">金額入力モード</div>
+        </button>
+        <button class="mode-btn active" data-mode="reverse" onclick="selectMode('reverse')">
+          <div class="mode-num">02</div>
+          <div class="mode-name">まだ見積もりを取っていない</div>
+          <div class="mode-desc">KIRAがヒアリングで詳細を引き出します。</div>
+          <div class="mode-badge">★AIヒアリング型</div>
+        </button>
+      </div>
+    </div>
+    <div class="mode-content" id="mode-estimate">
+      <div class="hint-box"><b>見積もりをお持ちの方は</b>、金額入力型ページをご利用ください。</div>
+      <a href="/widget.html" class="submit-btn" style="text-decoration:none;display:flex;text-align:center;justify-content:center"><span class="submit-label">金額入力モードへ →</span></a>
+    </div>
+    <div class="mode-content active" id="mode-reverse">
+      <div class="hint-box"><b>やりたい工事を自然な日本語で</b>お書きください。<br>情報が足りない場合、KIRAが<b>追加質問</b>します。具体的なほど精度UP。</div>
+      <textarea id="nl-input" class="nl-textarea" placeholder="例：&#10;・築20年戸建て、LDK15畳。I型キッチン(W2550mm)をアイランドに変更&#10;・6畳和室もフローリング化&#10;・予算800-1200万円"></textarea>
+      <div class="example-chips">
+        <button class="chip" onclick="fillExample(1)">▸ 例1: キッチン+床</button>
+        <button class="chip" onclick="fillExample(2)">▸ 例2: 水回り一式</button>
+        <button class="chip" onclick="fillExample(3)">▸ 例3: 断熱改修</button>
+      </div>
+      <button class="submit-btn" id="submit-nl" onclick="startHearing()">
+        <span class="submit-label">▸ ヒアリング開始</span>
+        <span class="spin"></span>
+      </button>
+      <div id="err" class="err"></div>
+    </div>
+  </div>
+  <div id="hearing-wrap" class="frame">
+    <div class="hearing-header">
+      <div class="hearing-title">▸ KIRA からのヒアリング</div>
+      <div class="hearing-reason" id="hearing-reason"></div>
+    </div>
+    <div class="chat-area" id="chat-area"></div>
+    <div style="padding:14px 20px;border-top:1px solid var(--border)">
+      <button class="submit-btn" id="submit-hearing" onclick="submitHearingAnswers()">
+        <span class="submit-label">▸ 回答を送信して3プラン算出</span>
+        <span class="spin"></span>
+      </button>
+    </div>
+  </div>
+  <div id="results" class="frame">
+    <div class="extracted-items">
+      <div class="ei-title">▸ 確定した工事項目</div>
+      <div id="ei-list" class="ei-list"></div>
+    </div>
+    <div class="plans-wrap">
+      <div class="plans-title">3プラン並列提示</div>
+      <div class="plans-sub">HS基準: 業者規模別の妥当利益率レンジで算出</div>
+      <div class="plans-grid">
+        <div class="plan-card">
+  <div class="plan-badge">MATSU / 松</div>
+  <div class="plan-name">理想プラン</div>
+  <div class="plan-target">大手リフォーム会社<br>最上級グレード</div>
+  <div class="plan-price-range" id="range-matsu">¥—</div>
+  <div class="plan-price-sub approx" id="price-matsu-man">概算レンジ</div>
+  <ul class="plan-items" id="items-matsu"></ul>
+</div>
+<div class="plan-card take">
+  <div class="plan-badge">★ TAKE / 竹 ★</div>
+  <div class="plan-name"><span class="em">推奨</span>プラン</div>
+  <div class="plan-target">地域の中小工務店<br>★HSが最もおすすめ★</div>
+  <div class="plan-price-wrap">
+    <div class="plan-price masked" id="price-take">¥0,000,000</div>
+    <div class="plan-lock-hint">🔒 ¥5,500で解錠</div>
+  </div>
+  <div class="plan-price-sub" id="price-take-man">正確な金額を見る</div>
+  <div class="plan-unlock-cta" onclick="openTermsModal('reverse', 'https://www.paypal.com/ncp/payment/H747QJMWFM4BS')">▸ ¥5,500でアンロック</div>
+  <ul class="plan-items" id="items-take"></ul>
+</div>
+<div class="plan-card">
+  <div class="plan-badge">UME / 梅</div>
+  <div class="plan-name">最安プラン</div>
+  <div class="plan-target">個人事業+ネット調達<br>予算重視</div>
+  <div class="plan-price-range" id="range-ume">¥—</div>
+  <div class="plan-price-sub approx" id="price-ume-man">概算レンジ</div>
+  <ul class="plan-items" id="items-ume"></ul>
+</div>
+         
+      </div>
+    </div>
+    <div id="alerts-wrap" class="alerts" style="display:none">
+      <div class="ei-title">▸ 2026年4月 市場警告</div>
+      <div id="alerts-list"></div>
+    </div>
+    <div class="disclaimer" id="disclaimer"></div>
+    <div class="cta">
+      <div class="cta-label">BUSINESS NEGOTIATION TOOL</div>
+      <div class="cta-title">詳細な参考見積書PDFで<br>業者交渉を優位に</div>
+      <div class="cta-desc">全工事項目の内訳・Red Flag・補助金情報を1枚に。<br>業者との交渉時にそのまま提示できる公式フォーマット。</div>
+      <div class="cta-price">¥5,500</div>
+      <div class="cta-price-sub">税込 / 即時PDF納品 / PayPal・銀行振込対応</div>
+      <button class="cta-btn" onclick="openTermsModal('reverse', 'https://www.paypal.com/ncp/payment/H747QJMWFM4BS')">💳 PayPalで支払う（¥5,500）</button>
+<button class="cta-btn" onclick="openTermsModal('reverse')" style="background:transparent;border:1px solid var(--gold);color:var(--gold2);margin-top:10px;display:block;width:100%;padding:12px 28px">▸ 銀行振込で申し込む</button>
+    </div>
+    <div class="legal-ribbon"><b>【建設業法に基づく表示】</b><br>本サービスは相場に基づく<b>参考価格提示</b>であり、建設業法上の正式見積もりではありません。HORIZON SHIELDは施工を行いません。施工業者との契約は別途行ってください。</div>
+  </div>
+</main>
+  <!-- 特定商取引法モーダル（PayPal・銀行振込 統合版） -->
+<div id="terms-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9999;overflow-y:auto;">
+  <div style="max-width:600px;margin:40px auto;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:32px;color:#e0e0e0;font-family:'Noto Sans JP',sans-serif;">
+    <div style="border-bottom:1px solid #222;padding-bottom:16px;margin-bottom:24px;">
+      <h2 style="color:#00ff88;font-size:18px;margin:0 0 4px;">利用規約・特定商取引法に基づく表記</h2>
+      <p style="color:#666;font-size:12px;margin:0;">お申し込みの前に必ずお読みください</p>
+    </div>
+    <h3 style="color:#fff;font-size:14px;margin:0 0 12px;">■ 特定商取引法に基づく表記</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px;">
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;width:40%;vertical-align:top;">販売業者</td><td style="padding:10px 8px;color:#e0e0e0;">The HORIZ音s株式会社</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">代表者</td><td style="padding:10px 8px;color:#e0e0e0;">大賀 俊勝</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">所在地</td><td style="padding:10px 8px;color:#e0e0e0;">〒107-0062 東京都港区南青山2-2-15 ウィン青山942（登記上住所）</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">電話番号</td><td style="padding:10px 8px;color:#e0e0e0;">0463-74-5917</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">メールアドレス</td><td style="padding:10px 8px;color:#e0e0e0;">contact@the-horizons-innovation.com</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">サービス内容</td><td style="padding:10px 8px;color:#e0e0e0;">逆見積もり診断PDF（交渉用参考見積書）</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">販売価格</td><td style="padding:10px 8px;color:#e0e0e0;">¥5,500（税込）</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">支払方法</td><td style="padding:10px 8px;color:#e0e0e0;">PayPal（クレジットカード・Apple Pay対応）・銀行振込</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">支払時期</td><td style="padding:10px 8px;color:#e0e0e0;">お申し込みと同時にお支払いいただきます</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">サービス提供時期</td><td style="padding:10px 8px;color:#e0e0e0;">お支払い確認後2営業日以内にPDFをメールにてお送りします</td></tr>
+      <tr style="border-bottom:1px solid #1a1a1a;"><td style="padding:10px 8px;color:#888;vertical-align:top;">キャンセルポリシー</td><td style="padding:10px 8px;color:#e0e0e0;">PDF送付前のキャンセル：全額返金<br>PDF送付後のキャンセル：返金不可</td></tr>
+      <tr><td style="padding:10px 8px;color:#888;vertical-align:top;">個人情報の取扱い</td><td style="padding:10px 8px;color:#e0e0e0;">ご提供いただいた情報はサービス提供目的のみに使用し、第三者への提供は行いません。</td></tr>
+    </table>
+    <h3 style="color:#fff;font-size:14px;margin:0 0 12px;">■ 利用規約</h3>
+    <div style="background:#111;border-radius:8px;padding:16px;font-size:12px;color:#aaa;line-height:1.8;margin-bottom:24px;max-height:200px;overflow-y:auto;">
+      <p style="margin:0 0 8px;"><strong style="color:#ccc;">第1条（サービスの内容）</strong><br>本サービスは工事要望をもとに適正価格の参考見積書をPDF形式で提供するものです。建設業法上の正式見積もりではありません。</p>
+      <p style="margin:0 0 8px;"><strong style="color:#ccc;">第2条（免責事項）</strong><br>算出価格はAIによる参考値であり、実際の工事費用と異なる場合があります。</p>
+      <p style="margin:0 0 8px;"><strong style="color:#ccc;">第3条（禁止事項）</strong><br>PDFの無断転載・商業利用・第三者への譲渡を禁止します。</p>
+      <p style="margin:0;"><strong style="color:#ccc;">第4条（準拠法）</strong><br>本規約は日本法に準拠し、東京地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
+    </div>
+    <div style="background:#111;border:1px solid #333;border-radius:8px;padding:16px;margin-bottom:20px;">
+      <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;">
+        <input type="checkbox" id="terms-agree-check" style="width:18px;height:18px;margin-top:2px;cursor:pointer;accent-color:#00ff88;">
+        <span style="font-size:13px;color:#e0e0e0;line-height:1.6;">上記の特定商取引法に基づく表記および利用規約を読み、内容に同意します。</span>
+      </label>
+    </div>
+    <div style="display:flex;gap:12px;">
+      <button onclick="closeTermsModal()" style="flex:1;padding:14px;background:transparent;border:1px solid #333;border-radius:8px;color:#888;font-size:14px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">キャンセル</button>
+      <button id="terms-agree-btn" onclick="proceedAfterAgree()" disabled style="flex:2;padding:14px;background:#333;border:none;border-radius:8px;color:#666;font-size:14px;font-weight:700;cursor:not-allowed;transition:all 0.3s;font-family:'Noto Sans JP',sans-serif;">同意して申し込む →</button>
+    </div>
+  </div>
+</div>
+<script>
+const KIRA_PROXY = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
+let currentMode = 'reverse';
+let originalInput = '';
+let hearingAnswersHistory = {};
+let currentQuestions = [];
+let lastResult = null;
+
+const EXAMPLES = {
+  1: "築15年マンション。\n6畳和室2部屋をフローリングに張り替えたい。\nキッチンもI型2550mmを手頃なものに交換。\n予算は全部で300万以内。",
+  2: "お風呂が10年経って古くなってきた。TOTOサザナの標準グレード希望。\nキッチンもI型2550mmをI型2700mmに交換、食洗機欲しい。\nトイレはタンクレス希望。\n予算は全部で800万以内。",
+  3: "築25年の戸建て。冬が寒いので断熱したい。\n窓は全部（掃き出し3、腰窓6）を内窓化、こだわり派でP(SS)グレード。\n給湯器もエコキュートB要件に交換。\n予算400万前後。"
+};
+
+function selectMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  document.querySelectorAll('.mode-content').forEach(c => c.classList.toggle('active', c.id === 'mode-' + mode));
+  document.getElementById('hearing-wrap').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+}
+
+function fillExample(n) { document.getElementById('nl-input').value = EXAMPLES[n]; }
+
+async function startHearing() {
+  const text = document.getElementById('nl-input').value.trim();
+  const btn = document.getElementById('submit-nl');
+  const err = document.getElementById('err');
+  err.classList.remove('show');
+  if (text.length < 10) { err.textContent = 'もう少し具体的に（10文字以上）'; err.classList.add('show'); return; }
+  originalInput = text;
+  hearingAnswersHistory = {};
+  btn.classList.add('loading'); btn.disabled = true;
+  try {
+    const res = await fetch(KIRA_PROXY + '/reverse-estimate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ natural_language_input: text })
+    });
+    if (!res.ok) { const ed = await res.json().catch(() => ({})); throw new Error(ed.error || 'API error: ' + res.status); }
+    const data = await res.json();
+    if (data.status === 'need_hearing') renderHearing(data);
+    else if (data.status === 'ready') renderResults(data);
+    else throw new Error('Unknown status: ' + data.status);
+  } catch (e) {
+    err.textContent = 'エラー: ' + e.message + '\nLINEで相談: https://line.me/R/ti/p/@172piime';
+    err.classList.add('show');
+  } finally { btn.classList.remove('loading'); btn.disabled = false; }
+}
+
+function renderHearing(data) {
+  document.getElementById('hearing-wrap').style.display = 'block';
+  document.getElementById('hearing-reason').textContent = data.reason || '計算精度のため、追加情報をお伺いします';
+  currentQuestions = data.clarifying_questions || [];
+  const chat = document.getElementById('chat-area');
+  chat.innerHTML = '';
+  const userBubble = document.createElement('div');
+  userBubble.className = 'bubble user';
+  userBubble.innerHTML = '<div class="user-label">YOU</div>' + escapeHtml(originalInput).replace(/\n/g, '<br>');
+  chat.appendChild(userBubble);
+  const kiraBubble = document.createElement('div');
+  kiraBubble.className = 'bubble kira';
+  kiraBubble.innerHTML = '<div class="kira-label">KIRA</div>ありがとうございます。精度の高い3プラン算出のため、詳細をお伺いします。<br><br><b>▼ ' + escapeHtml(data.reason || '追加情報が必要です') + '</b>';
+  chat.appendChild(kiraBubble);
+  currentQuestions.forEach(q => {
+    const qb = document.createElement('div');
+    qb.className = 'qa-block'; qb.dataset.qid = q.id;
+    qb.innerHTML = '<div class="qa-question">' + escapeHtml(q.question) + '</div>' +
+      (q.why ? '<div class="qa-why">💡 ' + escapeHtml(q.why) + '</div>' : '') +
+      '<div class="qa-options">' +
+      (q.options || []).map(opt =>
+        '<button class="qa-option" data-value="' + escapeHtml(opt.value) + '" onclick="selectOption(this)">' + escapeHtml(opt.label) + '</button>'
+      ).join('') +
+      '<button class="qa-option custom" onclick="showCustom(this)">▸ その他（自由入力）</button>' +
+      '<input type="text" class="qa-custom-input" placeholder="自由にご入力ください"></div>';
+    chat.appendChild(qb);
+  });
+  document.getElementById('hearing-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function selectOption(btn) {
+  const block = btn.closest('.qa-block');
+  block.querySelectorAll('.qa-option').forEach(o => o.classList.remove('selected'));
+  btn.classList.add('selected');
+  const input = block.querySelector('.qa-custom-input');
+  if (input) input.classList.remove('show');
+}
+
+function showCustom(btn) {
+  const block = btn.closest('.qa-block');
+  block.querySelectorAll('.qa-option').forEach(o => o.classList.remove('selected'));
+  btn.classList.add('selected');
+  const input = block.querySelector('.qa-custom-input');
+  input.classList.add('show'); input.focus();
+}
+
+async function submitHearingAnswers() {
+  const btn = document.getElementById('submit-hearing');
+  btn.classList.add('loading'); btn.disabled = true;
+  const answers = {};
+  const blocks = document.querySelectorAll('.qa-block');
+  let missing = 0;
+  blocks.forEach(block => {
+    const qid = block.dataset.qid;
+    const selected = block.querySelector('.qa-option.selected');
+    if (!selected) { missing++; block.style.borderColor = '#FF3040'; return; }
+    if (selected.classList.contains('custom')) {
+      const input = block.querySelector('.qa-custom-input');
+      answers[qid] = { value: 'custom', custom_text: input.value.trim() };
+    } else {
+      answers[qid] = { value: selected.dataset.value, label: selected.textContent.trim() };
+    }
+  });
+  if (missing > 0) { alert('未回答が' + missing + '件あります'); btn.classList.remove('loading'); btn.disabled = false; return; }
+  Object.assign(hearingAnswersHistory, answers);
+  try {
+    const res = await fetch(KIRA_PROXY + '/reverse-estimate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ natural_language_input: originalInput, previous_answers: hearingAnswersHistory })
+    });
+    if (!res.ok) { const ed = await res.json().catch(() => ({})); throw new Error(ed.error || 'API error'); }
+    const data = await res.json();
+    if (data.status === 'need_hearing') renderHearing(data);
+    else if (data.status === 'ready') { document.getElementById('hearing-wrap').style.display = 'none'; renderResults(data); }
+  } catch (e) { alert('エラー: ' + e.message); }
+  finally { btn.classList.remove('loading'); btn.disabled = false; }
+}
+
+function renderResults(data) {
+  lastResult = data;
+  const results = document.getElementById('results');
+  results.style.display = 'block';
+  const eiList = document.getElementById('ei-list');
+  eiList.innerHTML = (data.extracted_items || []).map(it =>
+    '<div class="item"><span class="tag">' + escapeHtml(it.koji_type) + '</span>' + escapeHtml(it.raw_text || '') + (it.area ? ' (' + it.area + '㎡)' : '') + (it.layout_change ? ' / ' + escapeHtml(it.layout_change) : '') + (it.wall_removal ? ' / 壁:' + escapeHtml(String(it.wall_removal)) : '') + '</div>'
+  ).join('');
+  renderPlan('matsu', data.plans && data.plans.matsu);
+  renderPlan('take',  data.plans && data.plans.take);
+  renderPlan('ume',   data.plans && data.plans.ume);
+  const alertsWrap = document.getElementById('alerts-wrap');
+  const alertsList = document.getElementById('alerts-list');
+  if (data.market_alerts && data.market_alerts.length) {
+    alertsWrap.style.display = 'block';
+    alertsList.innerHTML = data.market_alerts.map(a =>
+      '<div class="alert ' + a.severity + '"><div class="alert-title">' + escapeHtml(a.title) + '</div>' + escapeHtml(a.message) + '</div>'
+    ).join('');
+  } else { alertsWrap.style.display = 'none'; }
+  document.getElementById('disclaimer').textContent = data.disclaimer || '';
+  setTimeout(function(){ results.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
+}
+
+function renderPlan(key, plan) {
+  if (!plan) return;
+  const total = plan.total || 0;
+  const totalMan = plan.total_man_en || 0;
+  
+  if (key === 'take') {
+    // 竹：ブラー表示（購入後にクリア表示される）
+    document.getElementById('price-take').textContent = '¥' + total.toLocaleString();
+    if (window._purchased) {
+      document.getElementById('price-take').classList.remove('masked');
+      document.getElementById('price-take-man').textContent = totalMan + '万円';
+      const cta = document.querySelector('.plan-unlock-cta');
+      if (cta) cta.style.display = 'none';
+      const hint = document.querySelector('.plan-lock-hint');
+      if (hint) hint.style.display = 'none';
+    } else {
+      document.getElementById('price-take').classList.add('masked');
+    }
+  } else {
+    // 松・梅：±20%の概算レンジ表示
+    const lower = Math.round(total * 0.8 / 100000) * 100000;
+    const upper = Math.round(total * 1.2 / 100000) * 100000;
+    const lowerMan = Math.round(totalMan * 0.8);
+    const upperMan = Math.round(totalMan * 1.2);
+    const rangeEl = document.getElementById('range-' + key);
+    if (rangeEl) rangeEl.textContent = '¥' + lower.toLocaleString() + ' 〜 ¥' + upper.toLocaleString();
+    const manEl = document.getElementById('price-' + key + '-man');
+    if (manEl) manEl.textContent = '約 ' + lowerMan + '〜' + upperMan + '万円';
+  }
+  
+  // 明細（全プラン共通、竹だけ金額ブラー）
+  const itemsEl = document.getElementById('items-' + key);
+  if (plan.items && plan.items.length) {
+    itemsEl.innerHTML = plan.items.map(function(it) {
+      const label = (it.message || it.name || it.koji_type || '').substring(0, 22);
+      if (key === 'take' && !window._purchased) {
+        return '<li><span>' + escapeHtml(label) + '</span><span style="filter:blur(5px)">███万</span></li>';
+      }
+      const price = it.total_man_en ? (it.total_man_en + '万') : '';
+      return '<li><span>' + escapeHtml(label) + '</span><span>' + price + '</span></li>';
+    }).join('');
+  } else { itemsEl.innerHTML = '<li><span>—</span></li>'; }
+}
+
+function purchasePDF() {
+  openTermsModal('reverse', 'https://www.paypal.com/ncp/payment/H747QJMWFM4BS');
+}
+
+function escapeHtml(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+  // 特商法モーダル制御
+let termsModalTarget = '';
+let termsModalPaypalURL = null;
+
+function openTermsModal(target, paypalURL) {
+  termsModalTarget = target;
+  termsModalPaypalURL = paypalURL || null;
+  document.getElementById('terms-modal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  document.getElementById('terms-agree-check').checked = false;
+  const btn = document.getElementById('terms-agree-btn');
+  btn.disabled = true;
+  btn.style.background = '#333';
+  btn.style.color = '#666';
+  btn.style.cursor = 'not-allowed';
+  btn.textContent = termsModalPaypalURL ? '同意して PayPal で支払う →' : '同意して銀行振込で申し込む →';
+}
+function closeTermsModal() {
+  document.getElementById('terms-modal').style.display = 'none';
+  document.body.style.overflow = '';
+  termsModalPaypalURL = null;
+}
+function proceedAfterAgree() {
+  if (!document.getElementById('terms-agree-check').checked) return;
+  if (termsModalPaypalURL) {
+    window.open(termsModalPaypalURL, '_blank', 'noopener');
+    closeTermsModal();
+  } else {
+    closeTermsModal();
+    window.location.href = '/bank-transfer.html?type=reverse';
+  }
+}
+document.getElementById('terms-agree-check').addEventListener('change', function() {
+  const btn = document.getElementById('terms-agree-btn');
+  if (this.checked) {
+    btn.disabled = false;
+    btn.style.background = termsModalPaypalURL ? '#0070ba' : '#00ff88';
+    btn.style.color = termsModalPaypalURL ? '#fff' : '#000';
+    btn.style.cursor = 'pointer';
+  } else {
+    btn.disabled = true;
+    btn.style.background = '#333';
+    btn.style.color = '#666';
+    btn.style.cursor = 'not-allowed';
+  }
+});
+document.getElementById('terms-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeTermsModal();
+});
+  selectMode('reverse');
+</script>
+</body>
+</html>

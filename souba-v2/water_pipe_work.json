@@ -1,0 +1,2047 @@
+{
+  "_meta": {
+    "version": "3.0-phase1.5-toshi-philosophy",
+    "updated": "2026-04-19",
+    "category_id": "water_pipe_work",
+    "category_name_jp": "給排水管工事（更新・更生・配管・水栓・追い焚き・機器接続）",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐⭐ プロ領域・真の教科書・有資格者必須・水道法遵守",
+    "knowledge_source": "TOshi 30年の建設・現場監督・CMR実務経験 + 2026年実勢データ (SUUMOリフォーム、スマート修繕、クラシアン、ハートホーム、新東亜工業、東京ガスリノベーション、扇屋工事、いずみテクノス、タイコー、竹山美装、水道修理クリーンライフ、生活水道センター、野田管工事、イーライフ水道サービス、積水化学工業、交換できるくん、リフォスム、ホームプロ、リフォームガイド、湯ドクター、エコ突撃隊、給湯器ドットコム、工事屋さん、くらしのマーケット、東京ガス、ハウスラボホーム、ポチスマ) / 水道法・下水道法 / 給水装置工事主任技術者 / 排水設備工事責任技術者 / 日本水道協会 / 全国建物サイホン排水協会 / LIXIL/TOTO/ノーリツ公式データ",
+    "scope_v2": "【v1】配管更新/更生/さや管ヘッダー + 排水桝 + 下水道 + 高圧洗浄 + マンション共用/専有 + 【v2追加】給湯配管 + 追い焚き配管（後付け含む）+ 水栓全種 + 食洗機/洗濯機接続 + 浄水器 + 浄化槽 + 受水槽 + 井戸ポンプ + 凍結防止 + 止水栓/逆止弁 + 配管保温材",
+    "v1_to_v2_changes": "TOshi指摘により、配管系だけでなく給湯・追い焚き・水栓・機器接続・浄化槽・ポンプ類まで完全拡張",
+    "v2_to_v3_changes": "TOshi哲学反映: (1)全29プラン業者規模4区分別レンジ化 (2)business_size_based_pricing新設（有資格者必須の業者区分特徴） (3)Red Flag 9項目追加（業者規模観点6 + 水道固有3: 無資格工事・床下点検詐欺・配管材質不明） (4)2026年4月イラン情勢・銅管/樹脂管値上げ反映",
+    "horizons_philosophy": "HSは業者を敵視しない。業者規模別の妥当な利益率レンジを透明化。給排水工事は**給水装置工事主任技術者・排水設備工事責任技術者資格必須**・自治体指定工事店登録必須。無資格業者による水道本管接続は水道法違反。『床下で水漏れしてます』訪販詐欺に要警戒"
+  },
+  "horizon_shield_standard": {
+    "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール（給排水管版）",
+    "formula": "材料仕入れ値 × 1.2 + 職人人工 × 日当 + 解体復旧費 + (原価 × 一般管理費率 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.2,
+      "general_overhead_pct_ideal": 15,
+      "tax_pct": 10
+    },
+    "philosophy": "給排水は見えない部分の工事。施主は確認困難で詐欺の温床。HSは配管・水栓・機器接続・保温材まで全項目を明細化",
+    "HS_pricing_philosophy": {
+      "原則": "HS基準価格 = 原価 + 業者規模別の妥当な利益率レンジ",
+      "公式": "適正価格 = 材料仕入れ値 × 1.2 + 人工数 × 日当 + 副資材実費 + 機材・交通費 + (原価 × 業者規模別利益率) + 消費税 10%",
+      "業者規模別_妥当な利益率_給排水管工事": {
+        "個人事業_専門職人": "粗利率 25-35%（原価×1.25-1.35）",
+        "中小工務店_地域密着": "粗利率 25-35%（原価×1.25-1.35）",
+        "人気工務店_高品質": "粗利率 30-40%（原価×1.30-1.40）",
+        "大手リフォーム_ハウスメーカー": "粗利率 35-45%（原価×1.35-1.45）"
+      },
+      "規模別利益率_根拠": "国土交通省建設関連業経営分析、一般財団法人建設業情報管理センター",
+      "TOshi哲学": "HSは業者を敵視しない。業者規模別の妥当な利益率レンジを施主に透明化し、『規模と価格のマッチング』を判断できるよう武装化する"
+    }
+  },
+  "license_requirements": {
+    "licenses": {
+      "suidou_shitei_koujiten": {
+        "name": "水道局指定工事店（各自治体）",
+        "required_for": [
+          "給水管工事全般",
+          "水栓交換（給湯管含む場合）",
+          "下水道接続"
+        ]
+      },
+      "kyuhaisui_setsubi_shunin_gijutsusha": {
+        "name": "給水装置工事主任技術者（国家資格）"
+      },
+      "haisui_setsubi_sekou_kanrisha": {
+        "name": "排水設備工事責任技術者"
+      },
+      "gas_kiki_setchi_kouji_kantokusha": {
+        "name": "ガス機器設置スペシャリスト・液化石油ガス設備士"
+      },
+      "johkasou_kanrishi": {
+        "name": "浄化槽管理士",
+        "scope": "浄化槽の維持管理"
+      }
+    }
+  },
+  "pipe_materials_complete": {
+    "metal_pipes": {
+      "zinc_plated_steel": {
+        "name": "水道用亜鉛メッキ鋼管",
+        "durability_years": {
+          "min": 10,
+          "max": 15
+        },
+        "status": "🚨 築40年以上で使用・要交換"
+      },
+      "vinyl_lined_steel": {
+        "name": "硬質塩化ビニルライニング鋼管",
+        "durability_years": {
+          "min": 30,
+          "max": 40
+        }
+      },
+      "copper_pipe": {
+        "name": "銅管",
+        "durability_years": {
+          "min": 20,
+          "max": 30
+        },
+        "usage": "給湯管"
+      },
+      "cast_iron_pipe": {
+        "name": "鋳鉄管",
+        "durability_years": {
+          "min": 30,
+          "max": 40
+        },
+        "usage": "排水管"
+      },
+      "stainless_pipe": {
+        "name": "ステンレス鋼管",
+        "durability_years": {
+          "min": 40,
+          "max": 60
+        }
+      }
+    },
+    "resin_pipes": {
+      "vp_pvc": {
+        "name": "VP塩ビ管",
+        "durability_years": {
+          "min": 20,
+          "max": 25
+        }
+      },
+      "polyethylene_pipe": {
+        "name": "ポリエチレン管",
+        "durability_years": {
+          "min": 30,
+          "max": 40
+        }
+      },
+      "crosslinked_polyethylene": {
+        "name": "架橋ポリエチレン管（HDPE）",
+        "durability_years": {
+          "min": 50,
+          "max": 60
+        },
+        "status": "⭐ 2026年推奨"
+      },
+      "polybutene_pipe": {
+        "name": "ポリブデン管",
+        "durability_years": {
+          "min": 30,
+          "max": 40
+        },
+        "usage": "給湯管（80℃対応）"
+      },
+      "impact_resistant_vp": {
+        "name": "耐衝撃性塩ビ管（HIVP）",
+        "durability_years": {
+          "min": 25,
+          "max": 30
+        }
+      },
+      "fire_resistant_double_layer": {
+        "name": "耐火二層管",
+        "durability_years": {
+          "min": 40,
+          "max": 50
+        },
+        "usage": "マンション排水"
+      }
+    }
+  },
+  "work_methods": {
+    "shinsetsu_koushin": {
+      "name": "更新工事（全交換）",
+      "cost_level": "高",
+      "duration_days": "3-30日",
+      "recommended_for": "築30-40年以上"
+    },
+    "koushu_lining": {
+      "name": "更生工事（ライニング）",
+      "types": {
+        "coating_only": {
+          "name": "塗布ライニング",
+          "durability_years": 10
+        },
+        "frp_lining": {
+          "name": "FRPライニング",
+          "durability_years": 40
+        },
+        "renova_liner": {
+          "name": "リノベライナー工法",
+          "durability_years": 40
+        },
+        "csc_kou_hou": {
+          "name": "CSC工法（抗菌）",
+          "durability_years": 40
+        }
+      },
+      "cost_vs_shinsetsu": "更新工事の50-70%"
+    },
+    "saya_kan_header": {
+      "name": "さや管ヘッダー工法",
+      "subsidy_target": "長期優良住宅化リフォーム最大¥200万",
+      "recommended_for": "新築同様フルリフォーム"
+    }
+  },
+  "v2_kyutou_haikan": {
+    "description": "【v2新規】給湯配管（給湯器〜各水栓）",
+    "scope": "給湯器から浴室・キッチン・洗面への給湯管全般",
+    "materials_priority": [
+      "架橋ポリエチレン管",
+      "ポリブデン管",
+      "銅管",
+      "旧型＝塩ビ管（給湯不可）"
+    ],
+    "insulation_material": {
+      "name": "保温材（パイプカバー）",
+      "types": [
+        "ポリエチレンフォーム",
+        "グラスウール",
+        "発泡ゴム"
+      ],
+      "purpose": [
+        "保温・熱ロス軽減",
+        "結露防止",
+        "凍結防止"
+      ],
+      "price_per_meter_jpy": {
+        "min": 500,
+        "max": 2000
+      }
+    },
+    "works": {
+      "kyutou_haikan_local_repair": {
+        "name": "給湯配管 局所修理",
+        "price_jpy": {
+          "min": 15000,
+          "max": 40000
+        }
+      },
+      "kyutou_haikan_section_replace": {
+        "name": "給湯配管 区間交換（1箇所）",
+        "price_jpy": {
+          "min": 20000,
+          "max": 50000
+        }
+      },
+      "kyutou_haikan_hotong_rewrap": {
+        "name": "給湯配管 保温材巻き直し",
+        "price_jpy": {
+          "min": 10000,
+          "max": 30000
+        }
+      },
+      "kyutou_haikan_full_house": {
+        "name": "給湯配管 全更新（戸建30坪）",
+        "price_jpy": {
+          "min": 200000,
+          "max": 500000
+        }
+      },
+      "freeze_prevention_heater": {
+        "name": "凍結防止ヒーター取付",
+        "price_per_spot_jpy": {
+          "min": 5000,
+          "max": 15000
+        }
+      }
+    }
+  },
+  "v2_oidaki_haikan": {
+    "description": "【v2新規】追い焚き配管（循環配管）",
+    "system_explanation": "浴槽と給湯器の間で湯を循環させる配管システム",
+    "pipe_configuration": {
+      "forced_circulation_1pipe": {
+        "name": "強制循環1管式（現代主流）",
+        "features": "1つの循環アダプターで完結"
+      },
+      "natural_circulation_2pipe": {
+        "name": "自然循環2管式（旧型）",
+        "features": "浴槽に2つの穴・掃除手間増"
+      }
+    },
+    "works": {
+      "circulation_adapter_replace": {
+        "name": "循環アダプター交換",
+        "price_jpy": {
+          "min": 8000,
+          "max": 15000
+        },
+        "description": "浴槽内の金具交換（目詰まり対応）"
+      },
+      "oidaki_haikan_cleaning": {
+        "name": "追い焚き配管洗浄（プロ）",
+        "price_jpy": {
+          "min": 15000,
+          "max": 30000
+        },
+        "frequency": "1-2年に1回推奨"
+      },
+      "oidaki_haikan_replace_only": {
+        "name": "追い焚き配管 交換（既存給湯器対応）",
+        "price_jpy": {
+          "min": 50000,
+          "max": 150000
+        }
+      },
+      "oidaki_function_retrofit_with_boiler": {
+        "name": "追い焚き機能 後付け（給湯器交換+配管新設）",
+        "price_jpy": {
+          "min": 300000,
+          "max": 600000
+        },
+        "work_duration_days": {
+          "min": 2,
+          "max": 4
+        },
+        "scope": [
+          "追い焚き対応給湯器に交換",
+          "浴槽への穴あけ（コア抜き工事）",
+          "給湯器〜浴槽の往き管・戻り管設置",
+          "循環アダプター設置",
+          "外壁貫通部コーキング"
+        ],
+        "note_mansion": "マンションは共用部配管制限で不可の場合多い"
+      },
+      "oidaki_retrofit_full_bath_exchange": {
+        "name": "追い焚き後付け + 浴槽交換（ユニットバス化）",
+        "price_jpy": {
+          "min": 600000,
+          "max": 1300000
+        },
+        "note": "既存浴槽が追い焚き不可の場合"
+      },
+      "drain_water_switching_unit": {
+        "name": "ドレン排水切替ユニット設置",
+        "price_jpy": {
+          "min": 15000,
+          "max": 30000
+        },
+        "purpose": "エコジョーズ等のドレン排水を追い焚き配管経由で処理"
+      }
+    }
+  },
+  "v2_suisen_kokansen_complete": {
+    "description": "【v2新規】水栓・蛇口の完全交換カタログ",
+    "kitchen_water": {
+      "one_hole_basic": {
+        "name": "キッチン ワンホール シングル混合栓（基本）",
+        "body_jpy": {
+          "min": 15000,
+          "max": 40000
+        },
+        "work_jpy": {
+          "min": 10000,
+          "max": 20000
+        },
+        "total_jpy": {
+          "min": 25000,
+          "max": 60000
+        }
+      },
+      "one_hole_shower": {
+        "name": "ワンホール シャワー付",
+        "body_jpy": {
+          "min": 20000,
+          "max": 50000
+        },
+        "total_jpy": {
+          "min": 30000,
+          "max": 70000
+        }
+      },
+      "one_hole_touchless": {
+        "name": "タッチレス水栓（センサー式）",
+        "body_jpy": {
+          "min": 50000,
+          "max": 120000
+        },
+        "total_jpy": {
+          "min": 70000,
+          "max": 150000
+        }
+      },
+      "one_hole_water_purifier": {
+        "name": "浄水器一体型",
+        "body_jpy": {
+          "min": 40000,
+          "max": 100000
+        },
+        "total_jpy": {
+          "min": 60000,
+          "max": 130000
+        }
+      },
+      "with_dishwasher_branch": {
+        "name": "食洗機用分岐付き",
+        "body_jpy": {
+          "min": 30000,
+          "max": 80000
+        },
+        "total_jpy": {
+          "min": 45000,
+          "max": 110000
+        }
+      },
+      "two_hole": {
+        "name": "ツーホールタイプ",
+        "total_jpy": {
+          "min": 25000,
+          "max": 55000
+        }
+      },
+      "wall_mounted": {
+        "name": "壁付き水栓（古いタイプ）",
+        "total_jpy": {
+          "min": 20000,
+          "max": 45000
+        }
+      }
+    },
+    "bathroom_water": {
+      "thermostat_mixing": {
+        "name": "サーモスタット混合栓",
+        "body_jpy": {
+          "min": 15000,
+          "max": 50000
+        },
+        "total_jpy": {
+          "min": 25000,
+          "max": 70000
+        }
+      },
+      "two_handle_mixing": {
+        "name": "2ハンドル混合栓（旧型）",
+        "body_jpy": {
+          "min": 8000,
+          "max": 25000
+        },
+        "total_jpy": {
+          "min": 18000,
+          "max": 40000
+        }
+      },
+      "wall_mounted_bathroom": {
+        "name": "壁付き浴室水栓",
+        "total_jpy": {
+          "min": 20000,
+          "max": 50000
+        }
+      },
+      "deck_type_bathtub": {
+        "name": "デッキ型浴槽水栓",
+        "total_jpy": {
+          "min": 30000,
+          "max": 80000
+        }
+      },
+      "shower_head_simple": {
+        "name": "シャワーヘッド単体交換",
+        "price_jpy": {
+          "min": 3000,
+          "max": 30000
+        }
+      }
+    },
+    "washroom_water": {
+      "one_hole_simple": {
+        "name": "洗面 ワンホール シングル混合栓",
+        "total_jpy": {
+          "min": 20000,
+          "max": 50000
+        }
+      },
+      "one_hole_with_shower": {
+        "name": "洗面 ワンホール シャワー付（引き出し式）",
+        "total_jpy": {
+          "min": 30000,
+          "max": 70000
+        }
+      },
+      "two_hole_washroom": {
+        "name": "洗面 ツーホール",
+        "total_jpy": {
+          "min": 20000,
+          "max": 50000
+        }
+      },
+      "combination_separate_shower": {
+        "name": "コンビネーション（シャワー独立）",
+        "total_jpy": {
+          "min": 40000,
+          "max": 100000
+        }
+      }
+    },
+    "washing_machine_tap": {
+      "simple_single": {
+        "name": "洗濯機用単水栓",
+        "total_jpy": {
+          "min": 8000,
+          "max": 15000
+        }
+      },
+      "anti_flood_type": {
+        "name": "洗濯機用（緊急止水付）",
+        "total_jpy": {
+          "min": 12000,
+          "max": 25000
+        }
+      },
+      "mixing_type": {
+        "name": "洗濯機用混合栓（給湯可）",
+        "total_jpy": {
+          "min": 20000,
+          "max": 40000
+        }
+      }
+    },
+    "outdoor_tap": {
+      "simple_garden": {
+        "name": "庭・屋外 単水栓",
+        "total_jpy": {
+          "min": 15000,
+          "max": 30000
+        }
+      },
+      "with_stand": {
+        "name": "立水栓（スタンド型）",
+        "total_jpy": {
+          "min": 30000,
+          "max": 80000
+        }
+      }
+    }
+  },
+  "v2_equipment_connections": {
+    "description": "【v2新規】機器の給排水接続工事",
+    "dishwasher": {
+      "branch_faucet_for_portable": {
+        "name": "卓上食洗機用 分岐水栓設置",
+        "price_jpy": {
+          "min": 10000,
+          "max": 30000
+        }
+      },
+      "builtin_install_new": {
+        "name": "ビルトイン食洗機 新規設置（配管含む）",
+        "price_jpy": {
+          "min": 50000,
+          "max": 150000
+        }
+      },
+      "builtin_replace": {
+        "name": "ビルトイン食洗機 交換",
+        "price_jpy": {
+          "min": 30000,
+          "max": 80000
+        }
+      }
+    },
+    "washing_machine": {
+      "standard_connection": {
+        "name": "洗濯機給排水接続（通常）",
+        "price_jpy": {
+          "min": 5000,
+          "max": 15000
+        }
+      },
+      "with_pan_install": {
+        "name": "洗濯機パン新規設置",
+        "price_jpy": {
+          "min": 15000,
+          "max": 40000
+        }
+      },
+      "drain_pipe_relocation": {
+        "name": "洗濯機排水管移設",
+        "price_jpy": {
+          "min": 30000,
+          "max": 80000
+        }
+      }
+    },
+    "water_purifier": {
+      "faucet_attached": {
+        "name": "蛇口直結型",
+        "price_jpy": {
+          "min": 5000,
+          "max": 20000
+        }
+      },
+      "under_sink_type": {
+        "name": "シンク下ビルトイン型",
+        "price_jpy": {
+          "min": 30000,
+          "max": 80000
+        }
+      },
+      "cartridge_replace": {
+        "name": "カートリッジ交換",
+        "price_jpy": {
+          "min": 3000,
+          "max": 8000
+        }
+      },
+      "alkaline_ionizer": {
+        "name": "アルカリイオン整水器（ビルトイン）",
+        "price_jpy": {
+          "min": 80000,
+          "max": 200000
+        }
+      }
+    },
+    "toilet_washlet": {
+      "washlet_install": {
+        "name": "ウォシュレット取付",
+        "price_jpy": {
+          "min": 5000,
+          "max": 15000
+        }
+      },
+      "dedicated_outlet_add": {
+        "name": "ウォシュレット用コンセント新設",
+        "price_jpy": {
+          "min": 10000,
+          "max": 25000
+        }
+      }
+    }
+  },
+  "v2_pumps_tanks": {
+    "description": "【v2新規】ポンプ・タンク類設備",
+    "jusuisou_receiving_tank": {
+      "name": "受水槽（マンション・ビル）",
+      "replace_jpy": {
+        "min": 500000,
+        "max": 2000000
+      },
+      "cleaning_annual_jpy": {
+        "min": 30000,
+        "max": 80000
+      },
+      "durability_years": {
+        "min": 20,
+        "max": 30
+      }
+    },
+    "kouchi_suisou_elevated_tank": {
+      "name": "高置水槽",
+      "replace_jpy": {
+        "min": 300000,
+        "max": 800000
+      }
+    },
+    "kyusui_pump": {
+      "name": "給水ポンプ",
+      "replace_jpy": {
+        "min": 100000,
+        "max": 400000
+      },
+      "durability_years": {
+        "min": 10,
+        "max": 15
+      }
+    },
+    "haisui_pump": {
+      "name": "排水ポンプ（地下排水用）",
+      "replace_jpy": {
+        "min": 80000,
+        "max": 300000
+      }
+    },
+    "idozui_pump_shallow": {
+      "name": "井戸水ポンプ（浅井戸・8m以浅）",
+      "replace_jpy": {
+        "min": 50000,
+        "max": 150000
+      },
+      "durability_years": {
+        "min": 10,
+        "max": 15
+      }
+    },
+    "idozui_pump_deep": {
+      "name": "井戸水ポンプ（深井戸・8m超）",
+      "replace_jpy": {
+        "min": 150000,
+        "max": 500000
+      }
+    }
+  },
+  "v2_johkasou_septic_tank": {
+    "description": "【v2新規】浄化槽（下水道未整備地域）",
+    "types": {
+      "gappei_5nin": {
+        "name": "合併浄化槽 5人槽（家族用）",
+        "new_install_jpy": {
+          "min": 500000,
+          "max": 900000
+        }
+      },
+      "gappei_7nin": {
+        "name": "合併浄化槽 7人槽",
+        "new_install_jpy": {
+          "min": 700000,
+          "max": 1200000
+        }
+      },
+      "single_septic_deprecated": {
+        "name": "単独浄化槽（設置禁止）",
+        "status": "新規設置不可・合併への切替対象"
+      }
+    },
+    "maintenance": {
+      "annual_inspection_jpy": {
+        "min": 15000,
+        "max": 30000
+      },
+      "annual_cleaning_jpy": {
+        "min": 20000,
+        "max": 50000
+      }
+    },
+    "subsidy_gappei_conversion": {
+      "name": "単独→合併切替補助金",
+      "amount_jpy": {
+        "min": 300000,
+        "max": 900000
+      },
+      "note": "自治体により金額差大"
+    }
+  },
+  "v2_valves_accessories": {
+    "description": "【v2新規】バルブ・付属品",
+    "shutoff_valve": {
+      "name": "止水栓交換",
+      "price_jpy": {
+        "min": 8000,
+        "max": 25000
+      }
+    },
+    "pressure_reducing_valve": {
+      "name": "減圧弁交換",
+      "price_jpy": {
+        "min": 15000,
+        "max": 40000
+      }
+    },
+    "check_valve": {
+      "name": "逆止弁取付",
+      "price_jpy": {
+        "min": 10000,
+        "max": 30000
+      }
+    },
+    "water_meter_area_repair": {
+      "name": "水道メーター周り配管補修",
+      "price_jpy": {
+        "min": 20000,
+        "max": 50000
+      }
+    },
+    "drain_trap_replace": {
+      "name": "排水トラップ交換",
+      "price_jpy": {
+        "min": 8000,
+        "max": 25000
+      }
+    },
+    "flex_pipe_replace": {
+      "name": "フレキ管交換",
+      "price_per_spot_jpy": {
+        "min": 5000,
+        "max": 15000
+      }
+    },
+    "packing_replacement": {
+      "name": "パッキン交換（水漏れ修理）",
+      "price_jpy": {
+        "min": 3000,
+        "max": 10000
+      }
+    },
+    "inspection_hole_install": {
+      "name": "配管点検口新設",
+      "price_jpy": {
+        "min": 30000,
+        "max": 80000
+      }
+    }
+  },
+  "cost_complete": {
+    "repair_local": {
+      "name": "局所水漏れ修理",
+      "jpy": {
+        "min": 10000,
+        "max": 15000
+      }
+    },
+    "leak_investigation": {
+      "name": "漏水調査",
+      "jpy": {
+        "min": 15000,
+        "max": 50000
+      }
+    },
+    "high_pressure_washing": {
+      "house_jpy": {
+        "min": 20000,
+        "max": 30000
+      },
+      "mansion_per_unit_jpy": {
+        "min": 4000,
+        "max": 5000
+      }
+    },
+    "osui_masu_replace": {
+      "name": "汚水桝交換1個",
+      "jpy": {
+        "min": 40000,
+        "max": 50000
+      }
+    },
+    "koukyoumasu_setchi": {
+      "name": "公共桝切替",
+      "jpy": {
+        "min": 150000,
+        "max": 250000
+      }
+    },
+    "gesuidou_setchi_new": {
+      "name": "下水道新規接続",
+      "jpy": {
+        "min": 300000,
+        "max": 500000
+      }
+    },
+    "kobetsu_haisui_house": {
+      "name": "戸建敷地内総取替",
+      "jpy": {
+        "min": 350000,
+        "max": 500000
+      }
+    },
+    "mansion_shared_per_unit_kyusui": {
+      "jpy": {
+        "min": 200000,
+        "max": 500000
+      }
+    },
+    "mansion_private_full": {
+      "jpy": {
+        "min": 600000,
+        "max": 3000000
+      }
+    },
+    "saya_kan_header_full": {
+      "jpy": {
+        "min": 500000,
+        "max": 1500000
+      }
+    }
+  },
+  "mansion_responsibility_division": {
+    "shared_portion": {
+      "scope": [
+        "縦管",
+        "外壁内配管"
+      ],
+      "cost_source": "修繕積立金"
+    },
+    "private_portion": {
+      "scope": [
+        "住戸内枝管",
+        "水栓",
+        "給湯器内部"
+      ],
+      "cost_source": "所有者自己負担"
+    }
+  },
+  "subsidies": {
+    "choki_yuryo_jutaku_reform": {
+      "target_work": [
+        "さや管ヘッダー工法"
+      ],
+      "max_amount_jpy": {
+        "basic": 1000000,
+        "with_sustainability": 2000000
+      }
+    },
+    "gappei_johkasou_subsidy": {
+      "amount_jpy": {
+        "min": 300000,
+        "max": 900000
+      },
+      "note": "自治体制度"
+    },
+    "municipal_water_pipe_subsidy": {
+      "amount_jpy": {
+        "min": 50000,
+        "max": 200000
+      }
+    }
+  },
+  "labor": {
+    "plumber_day_rate_kanto": {
+      "min": 25000,
+      "max": 35000,
+      "avg": 30000
+    },
+    "senior_plumber_day_rate_kanto": {
+      "min": 35000,
+      "max": 45000,
+      "avg": 40000
+    }
+  },
+  "plans_complete": {
+    "repair_local": {
+      "name": "局所水漏れ修理",
+      "price_jpy": {
+        "min": 10000,
+        "max": 15000
+      },
+      "hs_rule_jpy": 13000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 12000,
+          "max": 12000
+        },
+        "区分2_中小工務店": {
+          "min": 12000,
+          "max": 13000
+        },
+        "区分3_人気工務店": {
+          "min": 13000,
+          "max": 14000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 14000,
+          "max": 15000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "leak_investigation": {
+      "name": "漏水調査",
+      "price_jpy": {
+        "min": 15000,
+        "max": 50000
+      },
+      "hs_rule_jpy": 35000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 31000,
+          "max": 32000
+        },
+        "区分2_中小工務店": {
+          "min": 32000,
+          "max": 33000
+        },
+        "区分3_人気工務店": {
+          "min": 34000,
+          "max": 36000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 36000,
+          "max": 38000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "house_high_pressure_wash": {
+      "name": "戸建高圧洗浄",
+      "price_jpy": {
+        "min": 20000,
+        "max": 30000
+      },
+      "hs_rule_jpy": 25000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 24000,
+          "max": 24000
+        },
+        "区分2_中小工務店": {
+          "min": 25000,
+          "max": 26000
+        },
+        "区分3_人気工務店": {
+          "min": 26000,
+          "max": 28000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 28000,
+          "max": 30000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "osui_masu_exchange": {
+      "name": "汚水桝交換1個",
+      "price_jpy": {
+        "min": 40000,
+        "max": 50000
+      },
+      "hs_rule_jpy": 45000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 43000,
+          "max": 44000
+        },
+        "区分2_中小工務店": {
+          "min": 45000,
+          "max": 46000
+        },
+        "区分3_人気工務店": {
+          "min": 47000,
+          "max": 50000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 50000,
+          "max": 53000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "gesuidou_new_connect": {
+      "name": "下水道新規接続",
+      "price_jpy": {
+        "min": 300000,
+        "max": 500000
+      },
+      "hs_rule_jpy": 450000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 380000,
+          "max": 392000
+        },
+        "区分2_中小工務店": {
+          "min": 400000,
+          "max": 412000
+        },
+        "区分3_人気工務店": {
+          "min": 420000,
+          "max": 440000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 448000,
+          "max": 472000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "house_full_pipe_renewal": {
+      "name": "戸建敷地内総取替",
+      "price_jpy": {
+        "min": 350000,
+        "max": 500000
+      },
+      "hs_rule_jpy": 470000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 404000,
+          "max": 416000
+        },
+        "区分2_中小工務店": {
+          "min": 425000,
+          "max": 438000
+        },
+        "区分3_人気工務店": {
+          "min": 446000,
+          "max": 468000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 476000,
+          "max": 502000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "mansion_lining_per_unit": {
+      "name": "マンション更生工事1戸",
+      "price_jpy": {
+        "min": 100000,
+        "max": 300000
+      },
+      "hs_rule_jpy": 220000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 190000,
+          "max": 196000
+        },
+        "区分2_中小工務店": {
+          "min": 200000,
+          "max": 206000
+        },
+        "区分3_人気工務店": {
+          "min": 210000,
+          "max": 220000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 224000,
+          "max": 236000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "mansion_private_full": {
+      "name": "マンション専有部全更新",
+      "price_jpy": {
+        "min": 600000,
+        "max": 3000000
+      },
+      "hs_rule_jpy": 1500000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 1710000,
+          "max": 1764000
+        },
+        "区分2_中小工務店": {
+          "min": 1800000,
+          "max": 1854000
+        },
+        "区分3_人気工務店": {
+          "min": 1890000,
+          "max": 1980000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 2016000,
+          "max": 2124000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "saya_kan_header_full": {
+      "name": "さや管ヘッダー全面",
+      "price_jpy": {
+        "min": 500000,
+        "max": 1500000
+      },
+      "hs_rule_jpy": 1350000,
+      "subsidy_target": true,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 950000,
+          "max": 980000
+        },
+        "区分2_中小工務店": {
+          "min": 1000000,
+          "max": 1030000
+        },
+        "区分3_人気工務店": {
+          "min": 1050000,
+          "max": 1100000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 1120000,
+          "max": 1180000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_kyutou_haikan_full_house": {
+      "name": "【v2】給湯配管全更新30坪",
+      "price_jpy": {
+        "min": 200000,
+        "max": 500000
+      },
+      "hs_rule_jpy": 420000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 332000,
+          "max": 343000
+        },
+        "区分2_中小工務店": {
+          "min": 350000,
+          "max": 360000
+        },
+        "区分3_人気工務店": {
+          "min": 368000,
+          "max": 385000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 392000,
+          "max": 413000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_oidaki_retrofit_full": {
+      "name": "【v2】追い焚き後付け工事",
+      "price_jpy": {
+        "min": 300000,
+        "max": 600000
+      },
+      "hs_rule_jpy": 480000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 428000,
+          "max": 441000
+        },
+        "区分2_中小工務店": {
+          "min": 450000,
+          "max": 464000
+        },
+        "区分3_人気工務店": {
+          "min": 472000,
+          "max": 495000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 504000,
+          "max": 531000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_oidaki_bath_exchange": {
+      "name": "【v2】追い焚き後付け+浴槽交換",
+      "price_jpy": {
+        "min": 600000,
+        "max": 1300000
+      },
+      "hs_rule_jpy": 1150000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 902000,
+          "max": 931000
+        },
+        "区分2_中小工務店": {
+          "min": 950000,
+          "max": 978000
+        },
+        "区分3_人気工務店": {
+          "min": 998000,
+          "max": 1045000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 1064000,
+          "max": 1121000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_oidaki_haikan_cleaning": {
+      "name": "【v2】追い焚き配管洗浄",
+      "price_jpy": {
+        "min": 15000,
+        "max": 30000
+      },
+      "hs_rule_jpy": 25000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 21000,
+          "max": 22000
+        },
+        "区分2_中小工務店": {
+          "min": 22000,
+          "max": 23000
+        },
+        "区分3_人気工務店": {
+          "min": 24000,
+          "max": 25000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 25000,
+          "max": 27000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_circulation_adapter": {
+      "name": "【v2】循環アダプター交換",
+      "price_jpy": {
+        "min": 8000,
+        "max": 15000
+      },
+      "hs_rule_jpy": 13000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 11000,
+          "max": 11000
+        },
+        "区分2_中小工務店": {
+          "min": 12000,
+          "max": 12000
+        },
+        "区分3_人気工務店": {
+          "min": 12000,
+          "max": 13000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 13000,
+          "max": 14000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_kitchen_water_standard": {
+      "name": "【v2】キッチン水栓交換（標準）",
+      "price_jpy": {
+        "min": 25000,
+        "max": 60000
+      },
+      "hs_rule_jpy": 50000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 40000,
+          "max": 42000
+        },
+        "区分2_中小工務店": {
+          "min": 42000,
+          "max": 44000
+        },
+        "区分3_人気工務店": {
+          "min": 45000,
+          "max": 47000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 48000,
+          "max": 50000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_kitchen_water_touchless": {
+      "name": "【v2】キッチン タッチレス水栓",
+      "price_jpy": {
+        "min": 70000,
+        "max": 150000
+      },
+      "hs_rule_jpy": 130000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 104000,
+          "max": 108000
+        },
+        "区分2_中小工務店": {
+          "min": 110000,
+          "max": 113000
+        },
+        "区分3_人気工務店": {
+          "min": 116000,
+          "max": 121000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 123000,
+          "max": 130000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_bathroom_water_thermostat": {
+      "name": "【v2】浴室サーモスタット混合栓",
+      "price_jpy": {
+        "min": 25000,
+        "max": 70000
+      },
+      "hs_rule_jpy": 60000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 45000,
+          "max": 47000
+        },
+        "区分2_中小工務店": {
+          "min": 48000,
+          "max": 49000
+        },
+        "区分3_人気工務店": {
+          "min": 50000,
+          "max": 52000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 53000,
+          "max": 56000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_washroom_water_standard": {
+      "name": "【v2】洗面水栓（シャワー付）",
+      "price_jpy": {
+        "min": 30000,
+        "max": 70000
+      },
+      "hs_rule_jpy": 60000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 48000,
+          "max": 49000
+        },
+        "区分2_中小工務店": {
+          "min": 50000,
+          "max": 52000
+        },
+        "区分3_人気工務店": {
+          "min": 52000,
+          "max": 55000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 56000,
+          "max": 59000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_dishwasher_builtin_new": {
+      "name": "【v2】ビルトイン食洗機新規設置",
+      "price_jpy": {
+        "min": 50000,
+        "max": 150000
+      },
+      "hs_rule_jpy": 130000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 95000,
+          "max": 98000
+        },
+        "区分2_中小工務店": {
+          "min": 100000,
+          "max": 103000
+        },
+        "区分3_人気工務店": {
+          "min": 105000,
+          "max": 110000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 112000,
+          "max": 118000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_water_purifier_builtin": {
+      "name": "【v2】浄水器ビルトイン",
+      "price_jpy": {
+        "min": 30000,
+        "max": 80000
+      },
+      "hs_rule_jpy": 70000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 52000,
+          "max": 54000
+        },
+        "区分2_中小工務店": {
+          "min": 55000,
+          "max": 57000
+        },
+        "区分3_人気工務店": {
+          "min": 58000,
+          "max": 61000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 62000,
+          "max": 65000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_gappei_johkasou_5nin": {
+      "name": "【v2】合併浄化槽5人槽新設",
+      "price_jpy": {
+        "min": 500000,
+        "max": 900000
+      },
+      "hs_rule_jpy": 780000,
+      "subsidy_target": true,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 665000,
+          "max": 686000
+        },
+        "区分2_中小工務店": {
+          "min": 700000,
+          "max": 721000
+        },
+        "区分3_人気工務店": {
+          "min": 735000,
+          "max": 770000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 784000,
+          "max": 826000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_jusuisou_replace": {
+      "name": "【v2】受水槽交換",
+      "price_jpy": {
+        "min": 500000,
+        "max": 2000000
+      },
+      "hs_rule_jpy": 1400000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 1188000,
+          "max": 1225000
+        },
+        "区分2_中小工務店": {
+          "min": 1250000,
+          "max": 1288000
+        },
+        "区分3_人気工務店": {
+          "min": 1312000,
+          "max": 1375000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 1400000,
+          "max": 1475000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_kyusui_pump_replace": {
+      "name": "【v2】給水ポンプ交換",
+      "price_jpy": {
+        "min": 100000,
+        "max": 400000
+      },
+      "hs_rule_jpy": 280000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 238000,
+          "max": 245000
+        },
+        "区分2_中小工務店": {
+          "min": 250000,
+          "max": 258000
+        },
+        "区分3_人気工務店": {
+          "min": 262000,
+          "max": 275000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 280000,
+          "max": 295000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_idozui_pump_shallow": {
+      "name": "【v2】井戸水ポンプ（浅井戸）",
+      "price_jpy": {
+        "min": 50000,
+        "max": 150000
+      },
+      "hs_rule_jpy": 130000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 95000,
+          "max": 98000
+        },
+        "区分2_中小工務店": {
+          "min": 100000,
+          "max": 103000
+        },
+        "区分3_人気工務店": {
+          "min": 105000,
+          "max": 110000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 112000,
+          "max": 118000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_freeze_prevention_heater": {
+      "name": "【v2】凍結防止ヒーター取付",
+      "price_jpy": {
+        "min": 5000,
+        "max": 15000
+      },
+      "hs_rule_jpy": 12000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 10000,
+          "max": 10000
+        },
+        "区分2_中小工務店": {
+          "min": 10000,
+          "max": 10000
+        },
+        "区分3_人気工務店": {
+          "min": 10000,
+          "max": 11000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 11000,
+          "max": 12000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_washing_machine_pan_new": {
+      "name": "【v2】洗濯機パン新規設置",
+      "price_jpy": {
+        "min": 15000,
+        "max": 40000
+      },
+      "hs_rule_jpy": 35000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 26000,
+          "max": 27000
+        },
+        "区分2_中小工務店": {
+          "min": 28000,
+          "max": 28000
+        },
+        "区分3_人気工務店": {
+          "min": 29000,
+          "max": 30000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 31000,
+          "max": 32000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_drain_trap_replace": {
+      "name": "【v2】排水トラップ交換",
+      "price_jpy": {
+        "min": 8000,
+        "max": 25000
+      },
+      "hs_rule_jpy": 22000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 16000,
+          "max": 16000
+        },
+        "区分2_中小工務店": {
+          "min": 16000,
+          "max": 17000
+        },
+        "区分3_人気工務店": {
+          "min": 17000,
+          "max": 18000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 18000,
+          "max": 19000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_shutoff_valve_replace": {
+      "name": "【v2】止水栓交換",
+      "price_jpy": {
+        "min": 8000,
+        "max": 25000
+      },
+      "hs_rule_jpy": 20000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 16000,
+          "max": 16000
+        },
+        "区分2_中小工務店": {
+          "min": 16000,
+          "max": 17000
+        },
+        "区分3_人気工務店": {
+          "min": 17000,
+          "max": 18000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 18000,
+          "max": 19000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    },
+    "v2_pressure_valve": {
+      "name": "【v2】減圧弁交換",
+      "price_jpy": {
+        "min": 15000,
+        "max": 40000
+      },
+      "hs_rule_jpy": 35000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": {
+          "min": 26000,
+          "max": 27000
+        },
+        "区分2_中小工務店": {
+          "min": 28000,
+          "max": 28000
+        },
+        "区分3_人気工務店": {
+          "min": 29000,
+          "max": 30000
+        },
+        "区分4_大手_ハウスメーカー": {
+          "min": 31000,
+          "max": 32000
+        }
+      },
+      "_価格基準": "TOshi Rule原価ベース + 業者規模別妥当利益率レンジ"
+    }
+  },
+  "red_flags": [
+    {
+      "code": "NO_WATER_BUREAU_LICENSE",
+      "pattern": "水道局指定工事店でない業者の給水工事",
+      "severity": "🔴 CRITICAL"
+    },
+    {
+      "code": "UNCLEAR_PIPE_MATERIAL",
+      "pattern": "使用配管素材・メーカー不明",
+      "severity": "🔴 CRITICAL"
+    },
+    {
+      "code": "NO_DURATION_SPEC",
+      "pattern": "更生工事で耐用年数明示なし",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "MANSION_WORK_NO_APPROVAL",
+      "pattern": "マンション共用部工事で管理組合承認確認なし",
+      "severity": "🔴 CRITICAL"
+    },
+    {
+      "code": "HOUSE_FULL_RENEWAL_OVER_800K",
+      "pattern": "戸建総取替¥800k超（標準仕様）",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "FORCED_SHINSETSU_WHEN_LINING_OK",
+      "pattern": "更生工事可能な案件に更新強要",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "ISSHIKI_LUMP_SUM",
+      "pattern": "給排水工事一式計上",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "NO_PRESSURE_TEST",
+      "pattern": "完了時の水圧試験記録なし",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "LOCAL_REPAIR_OVER_50K",
+      "pattern": "局所水漏れ修理¥50k超",
+      "severity": "⚠️ MEDIUM"
+    },
+    {
+      "code": "EMERGENCY_OVERCHARGE",
+      "pattern": "夜間・緊急で10倍請求",
+      "severity": "🔴 CRITICAL"
+    },
+    {
+      "code": "NO_MATERIAL_WARRANTY",
+      "pattern": "配管材料メーカー保証書なし",
+      "severity": "⚠️ MEDIUM"
+    },
+    {
+      "code": "V2_OIDAKI_NO_MANSION_CHECK",
+      "pattern": "【v2】マンション追い焚き後付けで規約確認なし",
+      "severity": "🔴 CRITICAL",
+      "reason": "共用部配管に穴開ける可能性・規約違反リスク"
+    },
+    {
+      "code": "V2_SUISEN_TRADE_PRICE_IGNORED",
+      "pattern": "【v2】水栓定価20%OFF未満で計上",
+      "severity": "🚨 HIGH",
+      "reason": "業者仕入れは定価55%OFF標準"
+    },
+    {
+      "code": "V2_OIDAKI_RETROFIT_OVER_800K",
+      "pattern": "【v2】追い焚き後付けで¥800k超（浴槽交換なし）",
+      "severity": "🚨 HIGH",
+      "reason": "HS基準¥480k"
+    },
+    {
+      "code": "V2_DISHWASHER_INSTALL_OVER_200K",
+      "pattern": "【v2】ビルトイン食洗機設置¥200k超（本体除く）",
+      "severity": "🚨 HIGH"
+    },
+    {
+      "code": "V2_BUILTIN_WATER_PURIFIER_OVER_150K",
+      "pattern": "【v2】ビルトイン浄水器¥150k超",
+      "severity": "⚠️ MEDIUM"
+    },
+    {
+      "code": "V2_JOHKASOU_NO_PERMIT",
+      "pattern": "【v2】浄化槽設置で市町村届出なし",
+      "severity": "🔴 CRITICAL",
+      "reason": "浄化槽法違反・罰金対象"
+    },
+    {
+      "code": "V2_NO_HEATING_INSULATION",
+      "pattern": "【v2】給湯配管交換で保温材巻き忘れ",
+      "severity": "🚨 HIGH",
+      "reason": "熱ロス・結露・凍結リスク"
+    },
+    {
+      "code": "SCALE_MISMATCH_HIGH",
+      "pattern": "業者規模に対して明らかに過剰な利益率（粗利50%超）",
+      "severity": "🚨 HIGH",
+      "reason": "業者規模別妥当利益率（個人・中小25-35%、人気30-40%、大手35-45%）を大幅に超える見積もりは内容確認要",
+      "対処": "見積もり内訳の明細化要求、他社相見積もりで比較"
+    },
+    {
+      "code": "SCALE_MISMATCH_LOW",
+      "pattern": "大手名乗る業者が極端な安値（粗利20%未満）提示",
+      "severity": "⚠️ MEDIUM",
+      "reason": "大手名義の下請け丸投げか、実は個人業者が大手風装っている可能性",
+      "対処": "元請・下請け構成の確認、施工業者の実態確認"
+    },
+    {
+      "code": "ISSHIKI_LUMP_SUM",
+      "pattern": "工事費・材料費が「一式」計上",
+      "severity": "🚨 HIGH",
+      "reason": "明細化可能な工事を『一式』は過剰請求の温床",
+      "対処": "材料・人工・副資材ごとの明細化を要求"
+    },
+    {
+      "code": "NO_MANUFACTURER_MODEL",
+      "pattern": "メーカー・型番・仕様グレード不明",
+      "severity": "🔴 CRITICAL",
+      "reason": "同じカテゴリでも型番で価格・性能大きく違う。不明は詐欺温床",
+      "対処": "メーカー名・型番・仕様書の提示を要求"
+    },
+    {
+      "code": "DOOR_TO_DOOR_SCAM",
+      "pattern": "訪問販売で即決迫り・「今すぐ」系",
+      "severity": "🚨 HIGH",
+      "reason": "優良業者はアポなし訪問営業しない。即決迫りは詐欺の典型",
+      "対処": "必ず相見積もり（3社以上）・クーリングオフ権確認"
+    },
+    {
+      "code": "FAKE_TODAY_DISCOUNT",
+      "pattern": "「今日だけ」「特別価格」「モニター価格」",
+      "severity": "🚨 HIGH",
+      "reason": "架空キャンペーンで相場の1.5-2倍を『半額』として売る典型",
+      "対処": "相場確認・他社見積もり"
+    },
+    {
+      "code": "UNLICENSED_KYUSUI",
+      "pattern": "給水装置工事主任技術者の選任なし・指定工事店未登録",
+      "severity": "🔴 CRITICAL",
+      "reason": "給水装置工事主任技術者は水道法により必須。指定給水装置工事事業者でないと水道本管接続不可",
+      "対処": "自治体の指定給水装置工事事業者一覧で確認"
+    },
+    {
+      "code": "HIDDEN_LEAK_SCAM",
+      "pattern": "『水漏れしています』と床下潜って急かす訪販",
+      "severity": "🔴 CRITICAL",
+      "reason": "床下点検装い過剰請求の典型。自分で確認せず契約は絶対NG",
+      "対処": "第三者立会・写真記録必須、複数社見積"
+    },
+    {
+      "code": "PIPE_MATERIAL_UNCLEAR",
+      "pattern": "配管材質（銅・ステンレス・架橋ポリエチレン等）の明記なし",
+      "severity": "🚨 HIGH",
+      "reason": "材質で価格・耐久性大違い。銅管30年/樹脂管50年/ステンレス60年等",
+      "対処": "材質・口径・メーカー明記要求"
+    }
+  ],
+  "vendor_selection_guide": {
+    "good_signs": [
+      "水道局指定工事店登録番号の明示",
+      "資格者証提示（給水装置工事主任技術者等）",
+      "配管素材・メーカー・耐用年数明記",
+      "完了時の水圧試験記録提出",
+      "10年以上の施工保証",
+      "管理組合承認取得（マンション）"
+    ],
+    "bad_signs": [
+      "水道局指定なし",
+      "緊急・今すぐ即決迫り",
+      "10倍請求の脅迫",
+      "配管素材不明",
+      "見積もり一式",
+      "書面契約拒否"
+    ]
+  },
+  "customer_scenario_guide": [
+    {
+      "case": "築40年戸建・水圧低下・赤水",
+      "recommendation": "敷地内給排水管総取替",
+      "cost": 470000
+    },
+    {
+      "case": "水漏れ緊急（戸建）",
+      "recommendation": "局所修理+原因調査",
+      "cost_range": {
+        "min": 25000,
+        "max": 65000
+      }
+    },
+    {
+      "case": "マンション築25年管理組合主導",
+      "recommendation": "共用部ライニング更生工事",
+      "cost_per_unit": 220000
+    },
+    {
+      "case": "マンション専有部フル改装",
+      "recommendation": "水廻り同時配管全更新",
+      "cost_range": {
+        "min": 600000,
+        "max": 1500000
+      }
+    },
+    {
+      "case": "補助金活用フルリフォーム",
+      "recommendation": "さや管ヘッダー+長期優良住宅化補助金",
+      "cost": 1350000
+    },
+    {
+      "case": "下水道新規接続",
+      "recommendation": "下水道+汚水桝",
+      "cost": 450000
+    },
+    {
+      "case": "庭の排水桝古い・臭い",
+      "recommendation": "汚水桝交換+周辺清掃",
+      "cost_range": {
+        "min": 70000,
+        "max": 150000
+      }
+    },
+    {
+      "case": "プロパン→都市ガス切替",
+      "recommendation": "都市ガス引込み+配管",
+      "cost": 260000
+    },
+    {
+      "case": "【v2】築25年 追い焚き機能が欲しい",
+      "recommendation": "追い焚き後付け（給湯器+配管）",
+      "cost": 480000
+    },
+    {
+      "case": "【v2】キッチン水栓古い・使いにくい",
+      "recommendation": "タッチレス水栓に交換",
+      "cost": 130000
+    },
+    {
+      "case": "【v2】浴室水栓が水漏れ",
+      "recommendation": "サーモスタット混合栓交換",
+      "cost": 60000
+    },
+    {
+      "case": "【v2】食洗機導入したい",
+      "recommendation": "ビルトイン食洗機新規設置",
+      "cost": 130000
+    },
+    {
+      "case": "【v2】美味しい水が欲しい",
+      "recommendation": "ビルトイン浄水器",
+      "cost": 70000
+    },
+    {
+      "case": "【v2】下水道未整備地域・新築",
+      "recommendation": "合併浄化槽5人槽+補助金",
+      "cost": 780000,
+      "subsidy": 600000
+    },
+    {
+      "case": "【v2】井戸水活用したい",
+      "recommendation": "井戸水ポンプ（浅井戸）",
+      "cost": 130000
+    },
+    {
+      "case": "【v2】寒冷地・冬の凍結対策",
+      "recommendation": "凍結防止ヒーター各箇所",
+      "cost_per_spot": 12000
+    },
+    {
+      "case": "【v2】マンション築20年受水槽劣化",
+      "recommendation": "受水槽交換（管理組合主導）",
+      "cost": 1400000
+    }
+  ],
+  "negotiation_tips": [
+    "水道局指定工事店番号の確認",
+    "給水装置工事主任技術者資格者証提示要求",
+    "配管素材・メーカー・耐用年数明記要求",
+    "配管内視鏡調査の実施要求（無料が標準）",
+    "更新or更生の工法選択根拠明示要求",
+    "完了時の水圧試験記録書面提出要求",
+    "10年以上の施工保証付き業者選定",
+    "マンション管理組合承認を事前確認",
+    "緊急・夜間工事でも正規料金2倍以内が標準",
+    "相見積もり3社以上",
+    "さや管ヘッダーは長期優良住宅化補助金で実質半額",
+    "自治体水道管引込み補助金を事前確認",
+    "水廻り4点同時施工で諸経費30%削減",
+    "訪問販売業者は要警戒・緊急偽装詐欺多発",
+    "【v2】追い焚き後付けはマンション規約を事前確認",
+    "【v2】水栓交換は型番・メーカーを指定（LIXIL・TOTO・KVK・SANEI・グローエ等）",
+    "【v2】給湯配管交換時は必ず保温材巻き直しをセット要求",
+    "【v2】食洗機・浄水器は本体と工事費を分離見積もり",
+    "【v2】浄化槽新設は市町村届出・補助金を必ず確認"
+  ],
+  "trade_knowledge": {
+    "summary_v2": "給排水管工事は築20-40年リフォーム必須。【基本】戸建総取替¥35-50万・マンション共用部1戸¥20-50万・専有部¥20-100万・さや管ヘッダー¥50-150万。局所修理¥1-1.5万。【v2追加】給湯配管全更新¥20-50万・追い焚き後付け¥30-60万（浴槽交換含¥60-130万）・キッチン水栓¥2.5-15万・浴室サーモ¥2.5-7万・洗面水栓¥2-7万・ビルトイン食洗機新規¥5-15万・浄水器ビルトイン¥3-8万・合併浄化槽5人¥50-90万・受水槽¥50-200万",
+    "pipe_material_reality": "2026年推奨：給水給湯は架橋ポリエチレン管（耐用50-60年）、排水は耐火二層管（マンション）・VP塩ビ（戸建）",
+    "oidaki_critical_mansion": "マンション追い焚き後付けは規約確認必須。共用部配管に穴開ける場合は不可の場合多い",
+    "suisen_brand_insight": "水栓はLIXIL・TOTO・KVK・SANEI（三栄水栓）が4大メーカー。グローエ（ドイツ）は輸入高級。タッチレスは国内メーカーが強い",
+    "johkasou_regulation": "単独浄化槽は新規設置禁止（浄化槽法）。合併浄化槽への切替には自治体補助金¥30-90万",
+    "water_4points_synergy": "キッチン・浴室・洗面・トイレのリフォーム時に配管＋水栓＋機器を同時施工が最コスパ。解体復旧費の共有化で個別より30%安",
+    "emergency_scam_warning": "水漏れ緊急で夜間対応→10倍請求は業界典型詐欺。国民生活センター警告対象",
+    "subsidy_opportunity_2026": "2026年は(1)長期優良住宅化リフォーム（さや管ヘッダー対象¥100-200万）(2)合併浄化槽切替補助金(3)自治体水道管引込み補助金の3大制度",
+    "v2_scope_completion": "v2で給排水の真の完全教科書として完成。配管系だけでなく給湯・追い焚き・水栓・機器接続・浄化槽・ポンプ類まで全網羅。TOshi 30年経験知識を反映",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 水道局指定工事店知識 + 積水化学/クボタ/LIXIL/TOTO/KVK/SANEI公式データ + 浄化槽業界 + マンション管理組合実務 + 給湯器メーカー連動"
+  },
+  "business_size_based_pricing": {
+    "_description": "業者規模4区分別 妥当な利益率レンジと価格係数（2026年4月時点・給排水管工事）",
+    "4区分別_妥当な利益率レンジ_2026年4月": {
+      "区分1_個人事業": {
+        "代表例": "給水装置工事主任技術者 個人（10年以上経験）",
+        "粗利率レンジ": "25-35%",
+        "HS基準からの係数": "0.95-0.98",
+        "HS推奨度": "★★★★☆",
+        "特徴": "給水装置工事主任技術者・排水設備工事責任技術者必須・小規模に強い"
+      },
+      "区分2_中小工務店": {
+        "代表例": "地域の設備工事店（5-30名規模）",
+        "粗利率レンジ": "25-35%",
+        "HS基準からの係数": "1.00-1.03",
+        "HS推奨度": "★★★★★ **第一推奨**",
+        "特徴": "配管診断力・マンション工事実績豊富・適正価格"
+      },
+      "区分3_人気工務店": {
+        "代表例": "総合設備会社・水まわり専門リフォーム会社",
+        "粗利率レンジ": "30-40%",
+        "HS基準からの係数": "1.05-1.10",
+        "HS推奨度": "★★★★☆",
+        "特徴": "全館給湯更新・大規模改修の経験豊富"
+      },
+      "区分4_大手リフォーム": {
+        "代表例": "LIXILリフォームショップ・TOTOリモデルクラブ",
+        "粗利率レンジ": "35-45%",
+        "HS基準からの係数": "1.12-1.18",
+        "HS推奨度": "★★★☆☆",
+        "特徴": "オール電化・大規模リノベに強い・価格高"
+      }
+    },
+    "適正価格判断原則": "『どの区分を選ぶかは施主の自由』。安さ優先なら区分1-2、保証重視なら区分3-4。重要なのは『その業者の価格が規模に対して妥当か』"
+  },
+  "iran_situation_2026_04_impact": {
+    "_description": "2026年4月イラン情勢による給排水管工事関連資材への影響",
+    "副資材_+5_10pct": [
+      "ビニール・養生材・テープ類",
+      "コーキング材・シーリング材",
+      "ビス・金物類"
+    ],
+    "建材全般_+10_20pct": [
+      "鋼材（配管・補強金物）",
+      "アルミ形材",
+      "金物類"
+    ],
+    "カテゴリ固有の影響": [
+      "銅管+10-15%（給湯管・ヘッダー配管）",
+      "ステンレス管+5-10%（衛生配管）",
+      "架橋ポリエチレン管・ポリブテン管は樹脂原料で+5-10%",
+      "塩ビ管（VP/HIVP）も原油関連で+5-10%",
+      "ガス管（白ガス管・PLP管）+10-15%"
+    ],
+    "_impact_summary": "2026年4月現在、給排水管工事関連の直接的な値上げは限定的。Q3（7-9月）以降の本格的な値上げリスクあり。施主は早期契約で2026年3月以前の仕入れ値確保が得策"
+  }
+}
