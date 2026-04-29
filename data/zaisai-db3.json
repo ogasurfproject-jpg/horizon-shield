@@ -1,0 +1,1093 @@
+{
+  "version": "2026.04_part3",
+  "categories": {
+    "ガラス工事": [
+      {
+        "name": "透明ガラス（3mm 910×1820）",
+        "unit": "枚",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "透明ガラス（5mm 910×1820）",
+        "unit": "枚",
+        "unit_price": 5800,
+        "memo": ""
+      },
+      {
+        "name": "型板ガラス（4mm）",
+        "unit": "m2",
+        "unit_price": 4200,
+        "memo": "浴室・トイレ"
+      },
+      {
+        "name": "複層ガラス（6+A+6mm）",
+        "unit": "m2",
+        "unit_price": 12000,
+        "memo": "断熱サッシ標準"
+      },
+      {
+        "name": "Low-Eガラス（6+A+6mm）",
+        "unit": "m2",
+        "unit_price": 18000,
+        "memo": "高断熱"
+      },
+      {
+        "name": "防犯合わせガラス（6.8mm）",
+        "unit": "m2",
+        "unit_price": 22000,
+        "memo": ""
+      },
+      {
+        "name": "強化ガラス（8mm）",
+        "unit": "m2",
+        "unit_price": 16000,
+        "memo": ""
+      },
+      {
+        "name": "合わせガラス（6.8mm）",
+        "unit": "m2",
+        "unit_price": 14000,
+        "memo": ""
+      },
+      {
+        "name": "ミラー（5mm 910×1820）",
+        "unit": "枚",
+        "unit_price": 8500,
+        "memo": "洗面・ダンススタジオ"
+      },
+      {
+        "name": "ミラー（5mm 加工費込み 1m2）",
+        "unit": "m2",
+        "unit_price": 18000,
+        "memo": "壁面全面張り"
+      },
+      {
+        "name": "ガラスシール（3mm 1m）",
+        "unit": "m",
+        "unit_price": 280,
+        "memo": ""
+      }
+    ],
+    "塗装工事詳細": [
+      {
+        "name": "外壁塗装（シリコン 材工 1m2）",
+        "unit": "m2",
+        "unit_price": 2800,
+        "memo": "適正単価。3回塗り"
+      },
+      {
+        "name": "外壁塗装（フッ素 材工 1m2）",
+        "unit": "m2",
+        "unit_price": 4200,
+        "memo": ""
+      },
+      {
+        "name": "外壁塗装（ラジカル制御 材工 1m2）",
+        "unit": "m2",
+        "unit_price": 3200,
+        "memo": ""
+      },
+      {
+        "name": "屋根塗装（シリコン 材工 1m2）",
+        "unit": "m2",
+        "unit_price": 3200,
+        "memo": ""
+      },
+      {
+        "name": "屋根塗装（フッ素 材工 1m2）",
+        "unit": "m2",
+        "unit_price": 4800,
+        "memo": ""
+      },
+      {
+        "name": "木部塗装（キシラデコール 材工 1m2）",
+        "unit": "m2",
+        "unit_price": 2200,
+        "memo": ""
+      },
+      {
+        "name": "鉄部塗装（錆止め＋仕上げ 材工 1m2）",
+        "unit": "m2",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "内部塗装（AEP 材工 1m2）",
+        "unit": "m2",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "コンクリート床塗装（エポキシ 材工 1m2）",
+        "unit": "m2",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "防水塗装（ウレタン 材工 1m2）",
+        "unit": "m2",
+        "unit_price": 6500,
+        "memo": "バルコニー"
+      },
+      {
+        "name": "高圧洗浄（外壁 1m2）",
+        "unit": "m2",
+        "unit_price": 280,
+        "memo": "塗装前下地処理"
+      },
+      {
+        "name": "足場（1m2月）",
+        "unit": "m2",
+        "unit_price": 1000,
+        "memo": "外壁塗装時必須"
+      },
+      {
+        "name": "シーリング打替え（1m）",
+        "unit": "m",
+        "unit_price": 1200,
+        "memo": "外壁目地"
+      }
+    ],
+    "電気工事詳細": [
+      {
+        "name": "幹線工事（CV22sq 1m）",
+        "unit": "m",
+        "unit_price": 2800,
+        "memo": "引込線"
+      },
+      {
+        "name": "幹線工事（CV38sq 1m）",
+        "unit": "m",
+        "unit_price": 4200,
+        "memo": ""
+      },
+      {
+        "name": "接地工事（D種）",
+        "unit": "式",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "接地工事（C種）",
+        "unit": "式",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "避雷針工事",
+        "unit": "式",
+        "unit_price": 180000,
+        "memo": ""
+      },
+      {
+        "name": "自動火災報知設備",
+        "unit": "式",
+        "unit_price": 280000,
+        "memo": "店舗・共同住宅"
+      },
+      {
+        "name": "非常照明（1箇所）",
+        "unit": "箇所",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "誘導灯（中型）",
+        "unit": "台",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "電力量計（スマートメーター）",
+        "unit": "台",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "太陽光パネル（1kW）",
+        "unit": "kW",
+        "unit_price": 180000,
+        "memo": "2026年4月。設置工事込み"
+      },
+      {
+        "name": "蓄電池（5kWh）",
+        "unit": "台",
+        "unit_price": 850000,
+        "memo": ""
+      },
+      {
+        "name": "EV充電器（普通充電 3kW）",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": "設置工事込み"
+      },
+      {
+        "name": "スイッチ（3路）",
+        "unit": "個",
+        "unit_price": 480,
+        "memo": ""
+      },
+      {
+        "name": "スイッチ（4路）",
+        "unit": "個",
+        "unit_price": 680,
+        "memo": ""
+      },
+      {
+        "name": "電気錠（電子キー）",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "TV端子",
+        "unit": "個",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "LANコンセント（CAT6）",
+        "unit": "個",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "OAタップ（6口）",
+        "unit": "個",
+        "unit_price": 1800,
+        "memo": ""
+      }
+    ],
+    "給排水衛生工事詳細": [
+      {
+        "name": "ガス管（白ガス管 25A 1m）",
+        "unit": "m",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "ガス管（白ガス管 20A 1m）",
+        "unit": "m",
+        "unit_price": 2200,
+        "memo": ""
+      },
+      {
+        "name": "フレキ管（ガス用 1m）",
+        "unit": "m",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "ガスメーター（マイコン）",
+        "unit": "台",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "給水管（塩ビ HI VP20 1m）",
+        "unit": "m",
+        "unit_price": 680,
+        "memo": ""
+      },
+      {
+        "name": "給水管（塩ビ HI VP25 1m）",
+        "unit": "m",
+        "unit_price": 980,
+        "memo": ""
+      },
+      {
+        "name": "給湯管（銅管 20A 1m）",
+        "unit": "m",
+        "unit_price": 2800,
+        "memo": "2026年4月。銅高騰"
+      },
+      {
+        "name": "給湯管（銅管 25A 1m）",
+        "unit": "m",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "排水管（VP50 1m）",
+        "unit": "m",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "排水管（VP75 1m）",
+        "unit": "m",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "排水管（VP100 1m）",
+        "unit": "m",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "排水桝（コンクリート 300角）",
+        "unit": "個",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "排水桝（塩ビ 200角）",
+        "unit": "個",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "グリストラップ（1槽式 50L）",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": "飲食店必須"
+      },
+      {
+        "name": "グリストラップ（2槽式 100L）",
+        "unit": "台",
+        "unit_price": 150000,
+        "memo": ""
+      },
+      {
+        "name": "グリストラップ（3槽式 200L）",
+        "unit": "台",
+        "unit_price": 280000,
+        "memo": ""
+      },
+      {
+        "name": "グリストラップ清掃（年1回）",
+        "unit": "回",
+        "unit_price": 35000,
+        "memo": "適正価格"
+      },
+      {
+        "name": "逆止弁（20A）",
+        "unit": "個",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "減圧弁",
+        "unit": "個",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "膨張タンク（18L）",
+        "unit": "個",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "自動水栓（感知式）",
+        "unit": "個",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "小便器",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "掃除流し（壁掛け）",
+        "unit": "台",
+        "unit_price": 28000,
+        "memo": ""
+      }
+    ],
+    "建具金物詳細": [
+      {
+        "name": "ドアクローザー（標準）",
+        "unit": "個",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "ドアクローザー（ストップ付き）",
+        "unit": "個",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "フロアヒンジ（中型）",
+        "unit": "個",
+        "unit_price": 28000,
+        "memo": "重量ドア用"
+      },
+      {
+        "name": "ピボットヒンジ（上下）",
+        "unit": "セット",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "蝶番（ステン 102mm）",
+        "unit": "個",
+        "unit_price": 880,
+        "memo": ""
+      },
+      {
+        "name": "蝶番（ステン 76mm）",
+        "unit": "個",
+        "unit_price": 680,
+        "memo": ""
+      },
+      {
+        "name": "スライドレール（フルスライド 450mm）",
+        "unit": "本",
+        "unit_price": 3800,
+        "memo": "引出し用"
+      },
+      {
+        "name": "スライドレール（フルスライド 500mm）",
+        "unit": "本",
+        "unit_price": 4200,
+        "memo": ""
+      },
+      {
+        "name": "ソフトクローズ蝶番",
+        "unit": "個",
+        "unit_price": 1200,
+        "memo": "キャビネット扉"
+      },
+      {
+        "name": "ドアノブ（レバーハンドル 標準）",
+        "unit": "個",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "ドアノブ（プライバシー錠付き）",
+        "unit": "個",
+        "unit_price": 12000,
+        "memo": "トイレ・寝室"
+      },
+      {
+        "name": "引戸レール（上吊り 2m）",
+        "unit": "m",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "引戸レール（床レール 2m）",
+        "unit": "m",
+        "unit_price": 2200,
+        "memo": ""
+      },
+      {
+        "name": "引戸戸車",
+        "unit": "個",
+        "unit_price": 880,
+        "memo": ""
+      },
+      {
+        "name": "錠前（玄関 ディンプルキー）",
+        "unit": "個",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "錠前（補助錠）",
+        "unit": "個",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "ドアチェーン",
+        "unit": "個",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "ドアスコープ",
+        "unit": "個",
+        "unit_price": 3200,
+        "memo": ""
+      },
+      {
+        "name": "郵便受け（埋込み）",
+        "unit": "個",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "宅配ボックス（標準）",
+        "unit": "個",
+        "unit_price": 85000,
+        "memo": ""
+      }
+    ],
+    "造作工事材": [
+      {
+        "name": "集成材カウンター（40mm 600mm幅 1m）",
+        "unit": "m",
+        "unit_price": 8500,
+        "memo": "キッチン・洗面台"
+      },
+      {
+        "name": "集成材棚板（30mm 300mm幅 1m）",
+        "unit": "m",
+        "unit_price": 4800,
+        "memo": ""
+      },
+      {
+        "name": "MDF（18mm 3×6）",
+        "unit": "枚",
+        "unit_price": 3800,
+        "memo": "家具・建具材料"
+      },
+      {
+        "name": "MDF（9mm 3×6）",
+        "unit": "枚",
+        "unit_price": 2200,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板（4mm 3×6）",
+        "unit": "枚",
+        "unit_price": 3200,
+        "memo": "内装仕上げ材"
+      },
+      {
+        "name": "シナ合板（9mm 3×6）",
+        "unit": "枚",
+        "unit_price": 5500,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板（15mm 3×6）",
+        "unit": "枚",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板（12mm 3×6）",
+        "unit": "枚",
+        "unit_price": 2200,
+        "memo": ""
+      },
+      {
+        "name": "パイン集成材（18mm 600mm幅 1m）",
+        "unit": "m",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "チーク材（30mm 900mm幅 1m）",
+        "unit": "m",
+        "unit_price": 45000,
+        "memo": "高級造作"
+      },
+      {
+        "name": "ルーバー（木製 1800mm）",
+        "unit": "本",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "腰板（松 1800mm）",
+        "unit": "枚",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "幅木（MDF 60mm 2400mm）",
+        "unit": "本",
+        "unit_price": 480,
+        "memo": ""
+      },
+      {
+        "name": "廻縁（MDF 30mm 2400mm）",
+        "unit": "本",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "見切り材（アルミ 2400mm）",
+        "unit": "本",
+        "unit_price": 880,
+        "memo": ""
+      },
+      {
+        "name": "笠木（アルミ 100mm 1m）",
+        "unit": "m",
+        "unit_price": 3800,
+        "memo": ""
+      }
+    ],
+    "断熱・気密工事詳細": [
+      {
+        "name": "セルロースファイバー（1m3）",
+        "unit": "m3",
+        "unit_price": 45000,
+        "memo": "吹込み断熱。高性能"
+      },
+      {
+        "name": "吹付けウレタン（50mm 1m2）",
+        "unit": "m2",
+        "unit_price": 3800,
+        "memo": "材工込み"
+      },
+      {
+        "name": "吹付けウレタン（100mm 1m2）",
+        "unit": "m2",
+        "unit_price": 6500,
+        "memo": ""
+      },
+      {
+        "name": "気密コンセントボックス",
+        "unit": "個",
+        "unit_price": 680,
+        "memo": "気密工事用"
+      },
+      {
+        "name": "気密スリーブ（Φ28）",
+        "unit": "個",
+        "unit_price": 380,
+        "memo": "配管貫通部"
+      },
+      {
+        "name": "気密スリーブ（Φ43）",
+        "unit": "個",
+        "unit_price": 480,
+        "memo": ""
+      },
+      {
+        "name": "防湿フィルム（0.2mm 2m×50m）",
+        "unit": "巻",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "気密テープ（フクビ エアテックス 75mm）",
+        "unit": "巻",
+        "unit_price": 4200,
+        "memo": ""
+      },
+      {
+        "name": "断熱パネル（SHS 100mm）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": "高性能外断熱"
+      },
+      {
+        "name": "熱交換換気システム（1台）",
+        "unit": "台",
+        "unit_price": 280000,
+        "memo": "高気密住宅用"
+      },
+      {
+        "name": "第1種換気（ダクト式）",
+        "unit": "式",
+        "unit_price": 450000,
+        "memo": "材工込み30坪"
+      },
+      {
+        "name": "第3種換気（標準）",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": "材工込み30坪"
+      }
+    ],
+    "消防設備": [
+      {
+        "name": "住宅用火災警報器（煙式）",
+        "unit": "個",
+        "unit_price": 3500,
+        "memo": "法定必須"
+      },
+      {
+        "name": "住宅用火災警報器（熱式）",
+        "unit": "個",
+        "unit_price": 3800,
+        "memo": "キッチン用"
+      },
+      {
+        "name": "消火器（ABC 3kg）",
+        "unit": "本",
+        "unit_price": 5500,
+        "memo": ""
+      },
+      {
+        "name": "消火器（ABC 6kg）",
+        "unit": "本",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "消火器収納箱",
+        "unit": "個",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "スプリンクラー（1ヘッド）",
+        "unit": "個",
+        "unit_price": 28000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "連結送水管",
+        "unit": "式",
+        "unit_price": 280000,
+        "memo": ""
+      },
+      {
+        "name": "誘導灯（小型）",
+        "unit": "台",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "非常放送設備",
+        "unit": "式",
+        "unit_price": 450000,
+        "memo": ""
+      }
+    ],
+    "測量・地盤調査": [
+      {
+        "name": "スウェーデン式サウンディング（1棟）",
+        "unit": "式",
+        "unit_price": 55000,
+        "memo": "木造住宅標準地盤調査"
+      },
+      {
+        "name": "ボーリング調査（1本 10m）",
+        "unit": "本",
+        "unit_price": 180000,
+        "memo": ""
+      },
+      {
+        "name": "地盤改良（表層改良 1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "地盤改良（柱状改良 1本）",
+        "unit": "本",
+        "unit_price": 28000,
+        "memo": "φ600×6m標準"
+      },
+      {
+        "name": "地盤改良（鋼管杭 1本）",
+        "unit": "本",
+        "unit_price": 45000,
+        "memo": "φ114×6m標準"
+      },
+      {
+        "name": "地盤改良（小口径杭 1本）",
+        "unit": "本",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "確認申請（木造2階 30坪）",
+        "unit": "式",
+        "unit_price": 150000,
+        "memo": "申請費+設計費込み概算"
+      },
+      {
+        "name": "長期優良住宅申請",
+        "unit": "式",
+        "unit_price": 80000,
+        "memo": "追加費用"
+      },
+      {
+        "name": "測量（現況測量 30坪）",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "建物滅失登記",
+        "unit": "式",
+        "unit_price": 45000,
+        "memo": "解体後"
+      },
+      {
+        "name": "表題登記",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": "新築後"
+      },
+      {
+        "name": "保存登記",
+        "unit": "式",
+        "unit_price": 28000,
+        "memo": ""
+      }
+    ],
+    "店舗工事特有資材": [
+      {
+        "name": "厨房ステンレス天板（t1.5 1m2）",
+        "unit": "m2",
+        "unit_price": 28000,
+        "memo": "材工込み。飲食店厨房"
+      },
+      {
+        "name": "厨房ステンレス架台（W900×D600×H800）",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "業務用冷蔵庫（縦型 400L）",
+        "unit": "台",
+        "unit_price": 280000,
+        "memo": "ホシザキ・フクシマ標準"
+      },
+      {
+        "name": "業務用冷凍庫（縦型 400L）",
+        "unit": "台",
+        "unit_price": 320000,
+        "memo": ""
+      },
+      {
+        "name": "コールドテーブル（W1200）",
+        "unit": "台",
+        "unit_price": 180000,
+        "memo": ""
+      },
+      {
+        "name": "製氷機（35kg/日）",
+        "unit": "台",
+        "unit_price": 280000,
+        "memo": ""
+      },
+      {
+        "name": "食器洗浄機（アンダーカウンター）",
+        "unit": "台",
+        "unit_price": 450000,
+        "memo": ""
+      },
+      {
+        "name": "食器棚（業務用 W900）",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "ガスレンジ（2口 業務用）",
+        "unit": "台",
+        "unit_price": 180000,
+        "memo": ""
+      },
+      {
+        "name": "フライヤー（業務用）",
+        "unit": "台",
+        "unit_price": 150000,
+        "memo": ""
+      },
+      {
+        "name": "サインポール（1基）",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "電飾看板（W900×H600）",
+        "unit": "台",
+        "unit_price": 120000,
+        "memo": ""
+      },
+      {
+        "name": "テント看板（1m2）",
+        "unit": "m2",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "カウンター（コの字 L型 1m）",
+        "unit": "m",
+        "unit_price": 45000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "パーテーション（天井まで H2400 1m）",
+        "unit": "m",
+        "unit_price": 85000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "防火シャッター（W3000×H3000）",
+        "unit": "台",
+        "unit_price": 450000,
+        "memo": ""
+      }
+    ],
+    "スプリング床・ダンス床専用": [
+      {
+        "name": "スプリング床下地（1m2）",
+        "unit": "m2",
+        "unit_price": 28000,
+        "memo": "材工込み。ダンス専用"
+      },
+      {
+        "name": "ダンス用フローリング（15mm 1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "ゴム床（10mm 1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": "ジム・武道場"
+      },
+      {
+        "name": "ゴム床（20mm 1m2）",
+        "unit": "m2",
+        "unit_price": 14000,
+        "memo": "重量トレーニング"
+      },
+      {
+        "name": "ウレタン床（15mm 1m2）",
+        "unit": "m2",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "畳（柔道場用 1m2）",
+        "unit": "m2",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "鏡（5mm 全面張り 材工 1m2）",
+        "unit": "m2",
+        "unit_price": 22000,
+        "memo": "ダンス・バレエ"
+      },
+      {
+        "name": "バレエバー（壁付け 1m）",
+        "unit": "m",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "防音床（フローティング 1m2）",
+        "unit": "m2",
+        "unit_price": 45000,
+        "memo": "材工込み"
+      }
+    ],
+    "解体工事": [
+      {
+        "name": "木造解体（1m2）",
+        "unit": "m2",
+        "unit_price": 25000,
+        "memo": "30坪木造解体の目安"
+      },
+      {
+        "name": "鉄骨造解体（1m2）",
+        "unit": "m2",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "RC造解体（1m2）",
+        "unit": "m2",
+        "unit_price": 50000,
+        "memo": ""
+      },
+      {
+        "name": "基礎解体（1m2）",
+        "unit": "m2",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "内装解体（1m2）",
+        "unit": "m2",
+        "unit_price": 5500,
+        "memo": ""
+      },
+      {
+        "name": "外構解体（コンクリート 1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "浄化槽撤去（1基）",
+        "unit": "基",
+        "unit_price": 150000,
+        "memo": ""
+      },
+      {
+        "name": "樹木伐採（H5m以下 1本）",
+        "unit": "本",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "廃棄物収集運搬（1t）",
+        "unit": "t",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "廃棄物処分（混廃 1t）",
+        "unit": "t",
+        "unit_price": 80000,
+        "memo": "2026年4月処分費高騰"
+      }
+    ],
+    "シロアリ・防蟻工事": [
+      {
+        "name": "シロアリ予防処理（1m2）",
+        "unit": "m2",
+        "unit_price": 2000,
+        "memo": "適正価格。床下面積"
+      },
+      {
+        "name": "シロアリ駆除処理（1m2）",
+        "unit": "m2",
+        "unit_price": 3500,
+        "memo": "被害あり"
+      },
+      {
+        "name": "防腐防蟻処理（土台 1m）",
+        "unit": "m",
+        "unit_price": 1200,
+        "memo": "新築時"
+      },
+      {
+        "name": "床下調湿剤（1m2）",
+        "unit": "m2",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "床下換気扇（1台）",
+        "unit": "台",
+        "unit_price": 35000,
+        "memo": "材工込み適正価格"
+      },
+      {
+        "name": "床下点検口（450角）",
+        "unit": "個",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "防湿コンクリート打設（1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "被害材交換（土台 1m）",
+        "unit": "m",
+        "unit_price": 45000,
+        "memo": "材工込み"
+      }
+    ]
+  }
+}
