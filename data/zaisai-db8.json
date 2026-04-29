@@ -1,0 +1,953 @@
+{
+  "version": "2026.04_part8",
+  "categories": {
+    "塗料全メーカー主要品番": [
+      {
+        "name": "エスケー化研 水性セラミシリコン（15kg）",
+        "unit": "缶",
+        "unit_price": 28000,
+        "memo": "外壁シリコン。5月出荷分10〜30%値上げ"
+      },
+      {
+        "name": "エスケー化研 クリーンマイルドシリコン（15kg）",
+        "unit": "缶",
+        "unit_price": 32000,
+        "memo": ""
+      },
+      {
+        "name": "エスケー化研 プレミアムシリコン（15kg）",
+        "unit": "缶",
+        "unit_price": 42000,
+        "memo": "フッ素グレード"
+      },
+      {
+        "name": "エスケー化研 ヤネフレッシュSi（15kg）",
+        "unit": "缶",
+        "unit_price": 25000,
+        "memo": "屋根用シリコン"
+      },
+      {
+        "name": "エスケー化研 SKレタンホワイト（16kg）",
+        "unit": "缶",
+        "unit_price": 18000,
+        "memo": "鉄部用ウレタン"
+      },
+      {
+        "name": "日本ペイント パーフェクトトップ（15kg）",
+        "unit": "缶",
+        "unit_price": 30000,
+        "memo": "ラジカル制御外壁"
+      },
+      {
+        "name": "日本ペイント パーフェクトサーフ（15kg）",
+        "unit": "缶",
+        "unit_price": 18000,
+        "memo": "下塗り"
+      },
+      {
+        "name": "日本ペイント ファインシリコンベスト（16kg）",
+        "unit": "缶",
+        "unit_price": 35000,
+        "memo": "屋根用"
+      },
+      {
+        "name": "日本ペイント ファインパーフェクトベスト（15.6kg）",
+        "unit": "缶",
+        "unit_price": 42000,
+        "memo": "屋根フッ素"
+      },
+      {
+        "name": "関西ペイント アレスダイナミックTOP（15kg）",
+        "unit": "缶",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "関西ペイント アレスダイナミックフィラー（20kg）",
+        "unit": "缶",
+        "unit_price": 18000,
+        "memo": "弾性下塗り"
+      },
+      {
+        "name": "関西ペイント アレスクールSi（15kg）",
+        "unit": "缶",
+        "unit_price": 38000,
+        "memo": "遮熱シリコン"
+      },
+      {
+        "name": "ガイナ（GAINA 16kg）",
+        "unit": "缶",
+        "unit_price": 55000,
+        "memo": "断熱・遮熱塗料。高価格帯"
+      },
+      {
+        "name": "アステックペイント リファイン1000MF-IR（15kg）",
+        "unit": "缶",
+        "unit_price": 45000,
+        "memo": "フッ素遮熱"
+      },
+      {
+        "name": "水性カチオンシーラー（16kg）",
+        "unit": "缶",
+        "unit_price": 8500,
+        "memo": "下塗り共通"
+      },
+      {
+        "name": "油性カチオンシーラー（16kg）",
+        "unit": "缶",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "弾性フィラー（20kg）",
+        "unit": "缶",
+        "unit_price": 8500,
+        "memo": "クラック補修下塗り"
+      },
+      {
+        "name": "AEPペイント 白（15kg）",
+        "unit": "缶",
+        "unit_price": 6500,
+        "memo": "内壁用"
+      },
+      {
+        "name": "AEPペイント 白（4L）",
+        "unit": "缶",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "錆止め塗料 赤錆（16kg）",
+        "unit": "缶",
+        "unit_price": 8500,
+        "memo": "鉄部下塗り"
+      },
+      {
+        "name": "錆止め塗料 グレー（16kg）",
+        "unit": "缶",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "コンクリート用浸透シーラー（18L）",
+        "unit": "缶",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "キシラデコール（4L）",
+        "unit": "缶",
+        "unit_price": 8500,
+        "memo": "木部保護"
+      },
+      {
+        "name": "キシラデコール（16L）",
+        "unit": "缶",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "オスモカラー（2.5L）",
+        "unit": "缶",
+        "unit_price": 8500,
+        "memo": "自然系木部塗料"
+      }
+    ],
+    "給湯器メーカー号数別": [
+      {
+        "name": "ノーリツ GT-C2462SAWX 24号",
+        "unit": "台",
+        "unit_price": 195000,
+        "memo": "エコジョーズ標準"
+      },
+      {
+        "name": "ノーリツ GT-C2052SAWX 20号",
+        "unit": "台",
+        "unit_price": 175000,
+        "memo": ""
+      },
+      {
+        "name": "ノーリツ GT-C1662SAWX 16号",
+        "unit": "台",
+        "unit_price": 155000,
+        "memo": ""
+      },
+      {
+        "name": "ノーリツ GT-C6052SAWX 60号",
+        "unit": "台",
+        "unit_price": 320000,
+        "memo": "業務用大型"
+      },
+      {
+        "name": "リンナイ RUF-A2405SAW 24号",
+        "unit": "台",
+        "unit_price": 198000,
+        "memo": ""
+      },
+      {
+        "name": "リンナイ RUF-A2005SAW 20号",
+        "unit": "台",
+        "unit_price": 178000,
+        "memo": ""
+      },
+      {
+        "name": "リンナイ RUF-A1615SAW 16号",
+        "unit": "台",
+        "unit_price": 158000,
+        "memo": ""
+      },
+      {
+        "name": "リンナイ RUF-SE2406SAW 24号（音声ナビ）",
+        "unit": "台",
+        "unit_price": 225000,
+        "memo": ""
+      },
+      {
+        "name": "パロマ PH-2415AW 24号",
+        "unit": "台",
+        "unit_price": 188000,
+        "memo": ""
+      },
+      {
+        "name": "パロマ PH-2015AW 20号",
+        "unit": "台",
+        "unit_price": 168000,
+        "memo": ""
+      },
+      {
+        "name": "ノーリツ エコキュート HBC-V370ATV 370L",
+        "unit": "台",
+        "unit_price": 480000,
+        "memo": ""
+      },
+      {
+        "name": "ダイキン エコキュート EQ37VFV 370L",
+        "unit": "台",
+        "unit_price": 520000,
+        "memo": ""
+      },
+      {
+        "name": "コロナ エコキュート CHP-37AY4 370L",
+        "unit": "台",
+        "unit_price": 450000,
+        "memo": ""
+      },
+      {
+        "name": "三菱 エコキュート SRT-S375UZ 370L",
+        "unit": "台",
+        "unit_price": 510000,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック エコキュート HE-J37LQS 370L",
+        "unit": "台",
+        "unit_price": 495000,
+        "memo": ""
+      },
+      {
+        "name": "ノーリツ 石油給湯器 OTQ-C4706AY 46号",
+        "unit": "台",
+        "unit_price": 285000,
+        "memo": "灯油"
+      },
+      {
+        "name": "コロナ 石油給湯器 UIB-NX46RY 46号",
+        "unit": "台",
+        "unit_price": 275000,
+        "memo": ""
+      }
+    ],
+    "エアコンメーカー機種別": [
+      {
+        "name": "ダイキン S22YTES 6畳 2.2kW",
+        "unit": "台",
+        "unit_price": 88000,
+        "memo": "標準モデル"
+      },
+      {
+        "name": "ダイキン S28YTES 10畳 2.8kW",
+        "unit": "台",
+        "unit_price": 110000,
+        "memo": ""
+      },
+      {
+        "name": "ダイキン S40YTES 14畳 4.0kW",
+        "unit": "台",
+        "unit_price": 145000,
+        "memo": ""
+      },
+      {
+        "name": "ダイキン S63YTES 20畳 6.3kW",
+        "unit": "台",
+        "unit_price": 195000,
+        "memo": ""
+      },
+      {
+        "name": "ダイキン S80YTES 26畳 8.0kW",
+        "unit": "台",
+        "unit_price": 245000,
+        "memo": ""
+      },
+      {
+        "name": "三菱電機 MSZ-GE2224 6畳 2.2kW",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "三菱電機 MSZ-GE2824 10畳 2.8kW",
+        "unit": "台",
+        "unit_price": 108000,
+        "memo": ""
+      },
+      {
+        "name": "三菱電機 MSZ-GE4024 14畳 4.0kW",
+        "unit": "台",
+        "unit_price": 142000,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック CS-222DFE 6畳 2.2kW",
+        "unit": "台",
+        "unit_price": 82000,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック CS-282DFE 10畳 2.8kW",
+        "unit": "台",
+        "unit_price": 105000,
+        "memo": ""
+      },
+      {
+        "name": "富士通 AS-M222N 6畳 2.2kW",
+        "unit": "台",
+        "unit_price": 80000,
+        "memo": ""
+      },
+      {
+        "name": "日立 RAS-D22L 6畳 2.2kW",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "シャープ AY-N22H 6畳 2.2kW",
+        "unit": "台",
+        "unit_price": 78000,
+        "memo": ""
+      },
+      {
+        "name": "東芝 RAS-2224DT 6畳 2.2kW",
+        "unit": "台",
+        "unit_price": 80000,
+        "memo": ""
+      },
+      {
+        "name": "ダイキン 業務用天吊（4方向 8馬力）",
+        "unit": "台",
+        "unit_price": 980000,
+        "memo": "店舗・事務所"
+      },
+      {
+        "name": "ダイキン 業務用天吊（4方向 6馬力）",
+        "unit": "台",
+        "unit_price": 780000,
+        "memo": ""
+      },
+      {
+        "name": "ダイキン 業務用天吊（4方向 4馬力）",
+        "unit": "台",
+        "unit_price": 580000,
+        "memo": ""
+      },
+      {
+        "name": "ダイキン 業務用天吊（4方向 2.5馬力）",
+        "unit": "台",
+        "unit_price": 380000,
+        "memo": ""
+      },
+      {
+        "name": "ダイキン 業務用壁掛け（3馬力）",
+        "unit": "台",
+        "unit_price": 280000,
+        "memo": ""
+      }
+    ],
+    "住設TOTO品番別": [
+      {
+        "name": "TOTO システムバス サザナ Tタイプ 1616",
+        "unit": "式",
+        "unit_price": 580000,
+        "memo": "工事費別"
+      },
+      {
+        "name": "TOTO システムバス サザナ Sタイプ 1616",
+        "unit": "式",
+        "unit_price": 480000,
+        "memo": ""
+      },
+      {
+        "name": "TOTO システムバス シンラ 1616",
+        "unit": "式",
+        "unit_price": 980000,
+        "memo": "ハイグレード"
+      },
+      {
+        "name": "TOTO ウォシュレット一体型 ZJ2 TCF9775",
+        "unit": "台",
+        "unit_price": 185000,
+        "memo": ""
+      },
+      {
+        "name": "TOTO ウォシュレット一体型 GG3 CES9335",
+        "unit": "台",
+        "unit_price": 145000,
+        "memo": ""
+      },
+      {
+        "name": "TOTO ネオレスト AH1 CES9788",
+        "unit": "台",
+        "unit_price": 480000,
+        "memo": "最高位機種"
+      },
+      {
+        "name": "TOTO 洗面台 オクターブ750 LDPB075B",
+        "unit": "式",
+        "unit_price": 125000,
+        "memo": ""
+      },
+      {
+        "name": "TOTO 洗面台 サクア750",
+        "unit": "式",
+        "unit_price": 155000,
+        "memo": ""
+      },
+      {
+        "name": "TOTO キッチン ザ・クラッソ 2400 I型",
+        "unit": "式",
+        "unit_price": 620000,
+        "memo": ""
+      },
+      {
+        "name": "TOTO キッチン ミッテ 2400 I型",
+        "unit": "式",
+        "unit_price": 480000,
+        "memo": ""
+      }
+    ],
+    "住設LIXIL品番別": [
+      {
+        "name": "LIXIL システムバス アライズ Zタイプ 1616",
+        "unit": "式",
+        "unit_price": 550000,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL システムバス スパージュ 1616",
+        "unit": "式",
+        "unit_price": 850000,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL シャワートイレ KAシリーズ CW-KA21QC",
+        "unit": "台",
+        "unit_price": 138000,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL シャワートイレ RSシリーズ CW-RS2AQC",
+        "unit": "台",
+        "unit_price": 88000,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL 洗面台 ピアラ AL750",
+        "unit": "式",
+        "unit_price": 118000,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL 洗面台 オフト750",
+        "unit": "式",
+        "unit_price": 88000,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL キッチン シエラS 2400",
+        "unit": "式",
+        "unit_price": 480000,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL キッチン アレスタ 2400",
+        "unit": "式",
+        "unit_price": 580000,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL アルミサッシ シンフォニーM 引違い 1690×970",
+        "unit": "枚",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL 樹脂サッシ エルスターX 引違い 1690×970",
+        "unit": "枚",
+        "unit_price": 85000,
+        "memo": "高断熱"
+      },
+      {
+        "name": "LIXIL 玄関ドア ジエスタ2 P14型",
+        "unit": "式",
+        "unit_price": 280000,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL 玄関ドア ジエスタ2 P82型",
+        "unit": "式",
+        "unit_price": 380000,
+        "memo": ""
+      }
+    ],
+    "住設パナソニック品番別": [
+      {
+        "name": "パナソニック システムバス オフローラ 1616",
+        "unit": "式",
+        "unit_price": 520000,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック ビューティ・トワレ DL-WH40",
+        "unit": "台",
+        "unit_price": 68000,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック アラウーノS160 XCH1601WS",
+        "unit": "台",
+        "unit_price": 168000,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 洗面台 Lクラス750",
+        "unit": "式",
+        "unit_price": 135000,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック キッチン ラクシーナ 2400",
+        "unit": "式",
+        "unit_price": 580000,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック キッチン Lクラス 2400",
+        "unit": "式",
+        "unit_price": 980000,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 食洗機 NP-TZ300",
+        "unit": "台",
+        "unit_price": 95000,
+        "memo": "ビルトイン"
+      },
+      {
+        "name": "パナソニック 食洗機 NP-45RS9S",
+        "unit": "台",
+        "unit_price": 125000,
+        "memo": ""
+      }
+    ],
+    "地域別労務単価（主要都市 2026年）": [
+      {
+        "name": "大工（東京）",
+        "unit": "日",
+        "unit_price": 45000,
+        "memo": "公共工事設計労務単価2026年"
+      },
+      {
+        "name": "大工（大阪）",
+        "unit": "日",
+        "unit_price": 40000,
+        "memo": ""
+      },
+      {
+        "name": "大工（名古屋）",
+        "unit": "日",
+        "unit_price": 38000,
+        "memo": ""
+      },
+      {
+        "name": "大工（札幌）",
+        "unit": "日",
+        "unit_price": 32000,
+        "memo": ""
+      },
+      {
+        "name": "大工（仙台）",
+        "unit": "日",
+        "unit_price": 33000,
+        "memo": ""
+      },
+      {
+        "name": "大工（福岡）",
+        "unit": "日",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "大工（広島）",
+        "unit": "日",
+        "unit_price": 33000,
+        "memo": ""
+      },
+      {
+        "name": "大工（地方平均）",
+        "unit": "日",
+        "unit_price": 30000,
+        "memo": ""
+      },
+      {
+        "name": "配管工（東京）",
+        "unit": "日",
+        "unit_price": 48000,
+        "memo": ""
+      },
+      {
+        "name": "配管工（大阪）",
+        "unit": "日",
+        "unit_price": 43000,
+        "memo": ""
+      },
+      {
+        "name": "配管工（地方平均）",
+        "unit": "日",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "電工（東京）",
+        "unit": "日",
+        "unit_price": 46000,
+        "memo": ""
+      },
+      {
+        "name": "電工（大阪）",
+        "unit": "日",
+        "unit_price": 41000,
+        "memo": ""
+      },
+      {
+        "name": "電工（地方平均）",
+        "unit": "日",
+        "unit_price": 33000,
+        "memo": ""
+      },
+      {
+        "name": "左官工（東京）",
+        "unit": "日",
+        "unit_price": 42000,
+        "memo": ""
+      },
+      {
+        "name": "左官工（大阪）",
+        "unit": "日",
+        "unit_price": 38000,
+        "memo": ""
+      },
+      {
+        "name": "左官工（地方平均）",
+        "unit": "日",
+        "unit_price": 30000,
+        "memo": ""
+      },
+      {
+        "name": "塗装工（東京）",
+        "unit": "日",
+        "unit_price": 40000,
+        "memo": ""
+      },
+      {
+        "name": "塗装工（大阪）",
+        "unit": "日",
+        "unit_price": 36000,
+        "memo": ""
+      },
+      {
+        "name": "塗装工（地方平均）",
+        "unit": "日",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "鉄筋工（東京）",
+        "unit": "日",
+        "unit_price": 48000,
+        "memo": ""
+      },
+      {
+        "name": "鉄筋工（大阪）",
+        "unit": "日",
+        "unit_price": 43000,
+        "memo": ""
+      },
+      {
+        "name": "鉄筋工（地方平均）",
+        "unit": "日",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "解体工（東京）",
+        "unit": "日",
+        "unit_price": 36000,
+        "memo": ""
+      },
+      {
+        "name": "解体工（大阪）",
+        "unit": "日",
+        "unit_price": 32000,
+        "memo": ""
+      },
+      {
+        "name": "解体工（地方平均）",
+        "unit": "日",
+        "unit_price": 26000,
+        "memo": ""
+      }
+    ],
+    "資材単価季節変動係数": [
+      {
+        "name": "生コン（夏期 6〜9月 割増）",
+        "unit": "率",
+        "unit_price": 1.05,
+        "memo": "暑中・夏期コンクリート割増"
+      },
+      {
+        "name": "生コン（冬期 12〜2月 割増）",
+        "unit": "率",
+        "unit_price": 1.08,
+        "memo": "寒中コンクリート割増"
+      },
+      {
+        "name": "木材（年末・3月末 需要期 割増）",
+        "unit": "率",
+        "unit_price": 1.1,
+        "memo": "繁忙期相場上昇"
+      },
+      {
+        "name": "足場（3〜5月 繁忙期 割増）",
+        "unit": "率",
+        "unit_price": 1.15,
+        "memo": "春の工事繁忙期"
+      },
+      {
+        "name": "人件費（年末年始・GW 割増）",
+        "unit": "率",
+        "unit_price": 1.25,
+        "memo": "休日割増"
+      },
+      {
+        "name": "人件費（夜間作業 割増）",
+        "unit": "率",
+        "unit_price": 1.35,
+        "memo": ""
+      },
+      {
+        "name": "人件費（土日 割増）",
+        "unit": "率",
+        "unit_price": 1.2,
+        "memo": ""
+      },
+      {
+        "name": "緊急工事割増（通常比）",
+        "unit": "率",
+        "unit_price": 1.5,
+        "memo": "当日・翌日対応"
+      },
+      {
+        "name": "離島・山間地割増",
+        "unit": "率",
+        "unit_price": 1.3,
+        "memo": "交通費別途"
+      },
+      {
+        "name": "超高層（20F以上）割増",
+        "unit": "率",
+        "unit_price": 1.2,
+        "memo": ""
+      },
+      {
+        "name": "狭小地・搬入困難 割増",
+        "unit": "率",
+        "unit_price": 1.15,
+        "memo": ""
+      },
+      {
+        "name": "既存建物内工事割増",
+        "unit": "率",
+        "unit_price": 1.1,
+        "memo": "養生・騒音対策"
+      }
+    ],
+    "VVFケーブル全サイズ": [
+      {
+        "name": "VVF 1.6mm 2C（100m）",
+        "unit": "巻",
+        "unit_price": 18000,
+        "memo": "2026年4月。銅高騰で上昇中"
+      },
+      {
+        "name": "VVF 1.6mm 3C（100m）",
+        "unit": "巻",
+        "unit_price": 26000,
+        "memo": ""
+      },
+      {
+        "name": "VVF 2.0mm 2C（100m）",
+        "unit": "巻",
+        "unit_price": 28000,
+        "memo": "エアコン・IH回路"
+      },
+      {
+        "name": "VVF 2.0mm 3C（100m）",
+        "unit": "巻",
+        "unit_price": 38000,
+        "memo": ""
+      },
+      {
+        "name": "VVF 2.6mm 2C（100m）",
+        "unit": "巻",
+        "unit_price": 45000,
+        "memo": "大電流回路"
+      },
+      {
+        "name": "VVR 1.6mm 2C（100m）",
+        "unit": "巻",
+        "unit_price": 22000,
+        "memo": "丸型VVF"
+      },
+      {
+        "name": "VVR 2.0mm 2C（100m）",
+        "unit": "巻",
+        "unit_price": 32000,
+        "memo": ""
+      },
+      {
+        "name": "CV 8sq 1C（100m）",
+        "unit": "巻",
+        "unit_price": 28000,
+        "memo": "幹線ケーブル"
+      },
+      {
+        "name": "CV 14sq 1C（100m）",
+        "unit": "巻",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "CV 22sq 1C（100m）",
+        "unit": "巻",
+        "unit_price": 68000,
+        "memo": ""
+      },
+      {
+        "name": "CV 38sq 1C（100m）",
+        "unit": "巻",
+        "unit_price": 110000,
+        "memo": ""
+      },
+      {
+        "name": "CV 60sq 1C（100m）",
+        "unit": "巻",
+        "unit_price": 165000,
+        "memo": ""
+      },
+      {
+        "name": "CVT 14sq（100m）",
+        "unit": "巻",
+        "unit_price": 140000,
+        "memo": "3心まとめ"
+      },
+      {
+        "name": "CVT 22sq（100m）",
+        "unit": "巻",
+        "unit_price": 210000,
+        "memo": ""
+      },
+      {
+        "name": "CVT 38sq（100m）",
+        "unit": "巻",
+        "unit_price": 340000,
+        "memo": ""
+      },
+      {
+        "name": "EM-EEF 1.6mm 2C（100m）",
+        "unit": "巻",
+        "unit_price": 20000,
+        "memo": "エコ電線"
+      },
+      {
+        "name": "EM-EEF 2.0mm 2C（100m）",
+        "unit": "巻",
+        "unit_price": 30000,
+        "memo": ""
+      },
+      {
+        "name": "IV 2.0mm（100m）",
+        "unit": "巻",
+        "unit_price": 8500,
+        "memo": "絶縁電線"
+      },
+      {
+        "name": "IV 5.5mm（100m）",
+        "unit": "巻",
+        "unit_price": 25000,
+        "memo": ""
+      },
+      {
+        "name": "IV 8mm（100m）",
+        "unit": "巻",
+        "unit_price": 38000,
+        "memo": ""
+      },
+      {
+        "name": "HIV 2.0mm（100m）",
+        "unit": "巻",
+        "unit_price": 9500,
+        "memo": "耐熱絶縁電線"
+      },
+      {
+        "name": "AE線（0.9mm 200m）",
+        "unit": "巻",
+        "unit_price": 8500,
+        "memo": "弱電・通信"
+      },
+      {
+        "name": "弱電線 2P（100m）",
+        "unit": "巻",
+        "unit_price": 6500,
+        "memo": "電話・インターホン"
+      },
+      {
+        "name": "LAN CAT5e（300m）",
+        "unit": "巻",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "LAN CAT6（300m）",
+        "unit": "巻",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "LAN CAT6A（300m）",
+        "unit": "巻",
+        "unit_price": 45000,
+        "memo": ""
+      }
+    ]
+  }
+}
