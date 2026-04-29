@@ -1,0 +1,871 @@
+{
+  "version": "2026.04_part6",
+  "categories": {
+    "農業施設・倉庫専用": [
+      {
+        "name": "農業用ビニールハウス（1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": "パイプ・被覆材込み"
+      },
+      {
+        "name": "鉄骨倉庫（1m2 標準）",
+        "unit": "m2",
+        "unit_price": 85000,
+        "memo": "材工込み概算"
+      },
+      {
+        "name": "木造倉庫（1m2）",
+        "unit": "m2",
+        "unit_price": 65000,
+        "memo": ""
+      },
+      {
+        "name": "プレハブ倉庫（1m2）",
+        "unit": "m2",
+        "unit_price": 55000,
+        "memo": ""
+      },
+      {
+        "name": "農業用水タンク（2000L）",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "農業用水タンク（5000L）",
+        "unit": "台",
+        "unit_price": 180000,
+        "memo": ""
+      },
+      {
+        "name": "農業用ポンプ（1台）",
+        "unit": "台",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "農業用電動シャッター（W3600）",
+        "unit": "台",
+        "unit_price": 280000,
+        "memo": ""
+      },
+      {
+        "name": "牛舎・豚舎床（コンクリート 1m2）",
+        "unit": "m2",
+        "unit_price": 12000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "農道舗装（アスファルト 1m2）",
+        "unit": "m2",
+        "unit_price": 5500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "用水路（コンクリートU字溝 1m）",
+        "unit": "m",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "防鳥ネット（1m2）",
+        "unit": "m2",
+        "unit_price": 880,
+        "memo": ""
+      },
+      {
+        "name": "防獣フェンス（1m）",
+        "unit": "m",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "冷蔵・冷凍倉庫（1m2）",
+        "unit": "m2",
+        "unit_price": 280000,
+        "memo": "断熱・冷凍機込み"
+      }
+    ],
+    "ホテル・旅館専用": [
+      {
+        "name": "客室ユニット（ビジネス 1室）",
+        "unit": "室",
+        "unit_price": 3500000,
+        "memo": "内装・設備込み概算"
+      },
+      {
+        "name": "客室ユニット（旅館和室 1室）",
+        "unit": "室",
+        "unit_price": 5500000,
+        "memo": ""
+      },
+      {
+        "name": "フロントカウンター（1m）",
+        "unit": "m",
+        "unit_price": 280000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "ロビー家具（セット）",
+        "unit": "式",
+        "unit_price": 850000,
+        "memo": ""
+      },
+      {
+        "name": "大浴場（1m2）",
+        "unit": "m2",
+        "unit_price": 350000,
+        "memo": "タイル・設備込み"
+      },
+      {
+        "name": "露天風呂（1m2）",
+        "unit": "m2",
+        "unit_price": 450000,
+        "memo": ""
+      },
+      {
+        "name": "温泉配管（1m）",
+        "unit": "m",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "客室テレビ（32inch）",
+        "unit": "台",
+        "unit_price": 55000,
+        "memo": ""
+      },
+      {
+        "name": "客室ミニバー",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "ホテル用カーペット（1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "防炎カーテン（1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "業務用洗濯機（22kg）",
+        "unit": "台",
+        "unit_price": 850000,
+        "memo": ""
+      },
+      {
+        "name": "業務用乾燥機（22kg）",
+        "unit": "台",
+        "unit_price": 650000,
+        "memo": ""
+      },
+      {
+        "name": "食器類一式（50客分）",
+        "unit": "式",
+        "unit_price": 350000,
+        "memo": ""
+      }
+    ],
+    "工場・製造施設専用": [
+      {
+        "name": "工場床（エポキシ塗床 1m2）",
+        "unit": "m2",
+        "unit_price": 5500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "工場床（樹脂系 高耐久 1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "工場床（コンクリート硬化剤 1m2）",
+        "unit": "m2",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "天窓（1m2）",
+        "unit": "m2",
+        "unit_price": 45000,
+        "memo": "採光・換気"
+      },
+      {
+        "name": "換気扇（産業用 大型）",
+        "unit": "台",
+        "unit_price": 280000,
+        "memo": ""
+      },
+      {
+        "name": "集塵機（1台）",
+        "unit": "台",
+        "unit_price": 450000,
+        "memo": ""
+      },
+      {
+        "name": "コンプレッサー（スクリュー 11kW）",
+        "unit": "台",
+        "unit_price": 2500000,
+        "memo": ""
+      },
+      {
+        "name": "エアライン配管（1m）",
+        "unit": "m",
+        "unit_price": 2800,
+        "memo": "圧縮空気配管"
+      },
+      {
+        "name": "オイルセパレーター",
+        "unit": "台",
+        "unit_price": 350000,
+        "memo": ""
+      },
+      {
+        "name": "工場用シャッター（重量 1m2）",
+        "unit": "m2",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "フォークリフト通路舗装（1m2）",
+        "unit": "m2",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "危険物保管庫（1m2）",
+        "unit": "m2",
+        "unit_price": 280000,
+        "memo": ""
+      },
+      {
+        "name": "防爆設備（1m2）",
+        "unit": "m2",
+        "unit_price": 350000,
+        "memo": ""
+      }
+    ],
+    "学校・教育施設専用": [
+      {
+        "name": "黒板（W3600）",
+        "unit": "枚",
+        "unit_price": 180000,
+        "memo": ""
+      },
+      {
+        "name": "ホワイトボード（W3600）",
+        "unit": "枚",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "電子黒板（65inch）",
+        "unit": "台",
+        "unit_price": 450000,
+        "memo": ""
+      },
+      {
+        "name": "生徒用机・椅子（1セット）",
+        "unit": "セット",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "教室用ロッカー（1台）",
+        "unit": "台",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "体育館床（スプリング 1m2）",
+        "unit": "m2",
+        "unit_price": 35000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "体育館照明（LED 1灯）",
+        "unit": "灯",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "プール（25m×10m 1式）",
+        "unit": "式",
+        "unit_price": 85000000,
+        "memo": ""
+      },
+      {
+        "name": "プールろ過装置",
+        "unit": "式",
+        "unit_price": 8500000,
+        "memo": ""
+      },
+      {
+        "name": "給食調理室設備",
+        "unit": "式",
+        "unit_price": 15000000,
+        "memo": ""
+      },
+      {
+        "name": "図書棚（W900 1台）",
+        "unit": "台",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "音楽室防音（1m2）",
+        "unit": "m2",
+        "unit_price": 85000,
+        "memo": "材工込み"
+      }
+    ],
+    "オフィスビル・商業施設専用": [
+      {
+        "name": "エスカレーター（1台）",
+        "unit": "台",
+        "unit_price": 25000000,
+        "memo": ""
+      },
+      {
+        "name": "エレベーター（乗用 13人 6停止）",
+        "unit": "台",
+        "unit_price": 12000000,
+        "memo": ""
+      },
+      {
+        "name": "自動ドア（電動引戸 W1500）",
+        "unit": "台",
+        "unit_price": 550000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "回転ドア（1台）",
+        "unit": "台",
+        "unit_price": 15000000,
+        "memo": ""
+      },
+      {
+        "name": "カーテンウォール（1m2）",
+        "unit": "m2",
+        "unit_price": 85000,
+        "memo": "ガラス外壁"
+      },
+      {
+        "name": "OAフロア（H100mm 1m2）",
+        "unit": "m2",
+        "unit_price": 15000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "天井システム（1m2）",
+        "unit": "m2",
+        "unit_price": 12000,
+        "memo": "グリッド天井"
+      },
+      {
+        "name": "間仕切り（ガラス 1m2）",
+        "unit": "m2",
+        "unit_price": 85000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "ブラインド（1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "自動販売機スペース設備",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": "電源・排水込み"
+      },
+      {
+        "name": "喫煙室（1m2）",
+        "unit": "m2",
+        "unit_price": 350000,
+        "memo": "空調・換気込み"
+      },
+      {
+        "name": "サーバー室空調（1台）",
+        "unit": "台",
+        "unit_price": 1500000,
+        "memo": "精密空調"
+      },
+      {
+        "name": "無停電電源装置（10kVA）",
+        "unit": "台",
+        "unit_price": 850000,
+        "memo": ""
+      },
+      {
+        "name": "入退室管理システム（1扉）",
+        "unit": "扉",
+        "unit_price": 280000,
+        "memo": ""
+      },
+      {
+        "name": "館内放送設備",
+        "unit": "式",
+        "unit_price": 850000,
+        "memo": ""
+      }
+    ],
+    "住宅設備追加品目": [
+      {
+        "name": "食器棚（カップボード W2400）",
+        "unit": "台",
+        "unit_price": 350000,
+        "memo": ""
+      },
+      {
+        "name": "洗面収納（三面鏡 W900）",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "玄関収納（シューズクローク W1800）",
+        "unit": "台",
+        "unit_price": 180000,
+        "memo": ""
+      },
+      {
+        "name": "パントリー（可動棚 1m2）",
+        "unit": "m2",
+        "unit_price": 28000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "ウォークインクローゼット（1m2）",
+        "unit": "m2",
+        "unit_price": 45000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "床下収納庫（1ユニット）",
+        "unit": "個",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "屋根裏収納（1m2）",
+        "unit": "m2",
+        "unit_price": 55000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "テレビボード（W2400）",
+        "unit": "台",
+        "unit_price": 280000,
+        "memo": "造作"
+      },
+      {
+        "name": "スタディコーナー（W1800）",
+        "unit": "台",
+        "unit_price": 180000,
+        "memo": "造作"
+      },
+      {
+        "name": "ロフト（1m2）",
+        "unit": "m2",
+        "unit_price": 85000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "吹抜け手すり（ガラス 1m）",
+        "unit": "m",
+        "unit_price": 85000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "スケルトン階段（1段）",
+        "unit": "段",
+        "unit_price": 85000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "室内物干し（天井取付）",
+        "unit": "式",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "浴室乾燥機",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "床暖房（ガス温水 6畳）",
+        "unit": "式",
+        "unit_price": 450000,
+        "memo": "材工込み"
+      }
+    ],
+    "外構追加品目": [
+      {
+        "name": "ウッドデッキ（天然木 1m2）",
+        "unit": "m2",
+        "unit_price": 55000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "ウッドデッキ（人工木 1m2）",
+        "unit": "m2",
+        "unit_price": 45000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "テラス屋根（1m2）",
+        "unit": "m2",
+        "unit_price": 28000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "サンルーム（1m2）",
+        "unit": "m2",
+        "unit_price": 85000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "アプローチ（天然石 1m2）",
+        "unit": "m2",
+        "unit_price": 28000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "植栽（高木 H3m以上）",
+        "unit": "本",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "生垣（1m）",
+        "unit": "m",
+        "unit_price": 8500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "芝生（天然芝 1m2）",
+        "unit": "m2",
+        "unit_price": 3500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "池（小型 1m2）",
+        "unit": "m2",
+        "unit_price": 85000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "物置（小型 1m2）",
+        "unit": "m2",
+        "unit_price": 55000,
+        "memo": "設置込み"
+      },
+      {
+        "name": "自転車置き場（1台分）",
+        "unit": "台",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "宅配ボックス（集合 4口）",
+        "unit": "台",
+        "unit_price": 350000,
+        "memo": ""
+      },
+      {
+        "name": "門柱（1基）",
+        "unit": "基",
+        "unit_price": 85000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "表札",
+        "unit": "個",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "ポスト（埋込み）",
+        "unit": "個",
+        "unit_price": 28000,
+        "memo": ""
+      }
+    ],
+    "省エネ・ZEH関連": [
+      {
+        "name": "ZEH申請費",
+        "unit": "式",
+        "unit_price": 150000,
+        "memo": "補助金申請含む"
+      },
+      {
+        "name": "LCCM申請費",
+        "unit": "式",
+        "unit_price": 200000,
+        "memo": ""
+      },
+      {
+        "name": "気密測定（C値）",
+        "unit": "回",
+        "unit_price": 55000,
+        "memo": ""
+      },
+      {
+        "name": "気密測定（追加）",
+        "unit": "回",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "熱画像診断",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": "断熱欠陥検出"
+      },
+      {
+        "name": "エネルギーモニター",
+        "unit": "台",
+        "unit_price": 55000,
+        "memo": ""
+      },
+      {
+        "name": "全熱交換換気（1台）",
+        "unit": "台",
+        "unit_price": 350000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "ダクトレス換気（1台）",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "窓断熱フィルム（1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": "貼付タイプ"
+      },
+      {
+        "name": "外付けブラインド（1m2）",
+        "unit": "m2",
+        "unit_price": 28000,
+        "memo": "日射遮蔽"
+      },
+      {
+        "name": "軒（出寸法600mm 1m）",
+        "unit": "m",
+        "unit_price": 28000,
+        "memo": "日射制御"
+      }
+    ],
+    "地域別坪単価（2026年4月）": [
+      {
+        "name": "木造住宅（東京都区部）",
+        "unit": "坪",
+        "unit_price": 850000,
+        "memo": "工事費のみ。設計・諸経費別"
+      },
+      {
+        "name": "木造住宅（関東郊外）",
+        "unit": "坪",
+        "unit_price": 680000,
+        "memo": ""
+      },
+      {
+        "name": "木造住宅（大阪・名古屋）",
+        "unit": "坪",
+        "unit_price": 720000,
+        "memo": ""
+      },
+      {
+        "name": "木造住宅（地方都市）",
+        "unit": "坪",
+        "unit_price": 580000,
+        "memo": ""
+      },
+      {
+        "name": "鉄骨造（東京）",
+        "unit": "坪",
+        "unit_price": 1200000,
+        "memo": ""
+      },
+      {
+        "name": "RC造（東京）",
+        "unit": "坪",
+        "unit_price": 1500000,
+        "memo": ""
+      },
+      {
+        "name": "店舗内装（飲食 東京）",
+        "unit": "坪",
+        "unit_price": 450000,
+        "memo": "標準仕様"
+      },
+      {
+        "name": "店舗内装（美容室 東京）",
+        "unit": "坪",
+        "unit_price": 380000,
+        "memo": ""
+      },
+      {
+        "name": "店舗内装（オフィス 東京）",
+        "unit": "坪",
+        "unit_price": 250000,
+        "memo": ""
+      },
+      {
+        "name": "マンション内装リフォーム（東京）",
+        "unit": "坪",
+        "unit_price": 150000,
+        "memo": "スケルトンから"
+      }
+    ],
+    "副資材・消耗品": [
+      {
+        "name": "電気ドリルビット（1本）",
+        "unit": "本",
+        "unit_price": 880,
+        "memo": ""
+      },
+      {
+        "name": "コンクリートドリルビット（Φ10）",
+        "unit": "本",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "グラインダー砥石（1枚）",
+        "unit": "枚",
+        "unit_price": 480,
+        "memo": ""
+      },
+      {
+        "name": "チップソー（165mm）",
+        "unit": "枚",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "カッターナイフ替刃（10枚）",
+        "unit": "枚",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "水平器（1m）",
+        "unit": "本",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "墨壺",
+        "unit": "個",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "スケール（5.5m）",
+        "unit": "個",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "ハンマー（450g）",
+        "unit": "本",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "バール（600mm）",
+        "unit": "本",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "のこぎり（手引き）",
+        "unit": "本",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "大工用かなづち（375g）",
+        "unit": "本",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "ラチェットレンチ（セット）",
+        "unit": "式",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "コーキングガン",
+        "unit": "個",
+        "unit_price": 880,
+        "memo": ""
+      },
+      {
+        "name": "ローラー（塗装用 7inch）",
+        "unit": "個",
+        "unit_price": 880,
+        "memo": ""
+      },
+      {
+        "name": "ハケ（3inch）",
+        "unit": "本",
+        "unit_price": 680,
+        "memo": ""
+      },
+      {
+        "name": "マスカー（550mm×25m）",
+        "unit": "本",
+        "unit_price": 380,
+        "memo": "塗装養生"
+      },
+      {
+        "name": "安全帯（フルハーネス）",
+        "unit": "式",
+        "unit_price": 28000,
+        "memo": "高所作業必須"
+      },
+      {
+        "name": "安全靴",
+        "unit": "足",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "ヘルメット",
+        "unit": "個",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "防塵マスク（N95 1箱）",
+        "unit": "箱",
+        "unit_price": 2800,
+        "memo": "20枚入り"
+      },
+      {
+        "name": "作業用手袋（1双）",
+        "unit": "双",
+        "unit_price": 480,
+        "memo": ""
+      }
+    ]
+  }
+}
