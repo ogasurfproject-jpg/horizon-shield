@@ -1,0 +1,1097 @@
+{
+  "version": "2026.04_part7",
+  "categories": {
+    "木材樹種別全サイズ": [
+      {
+        "name": "杉（KD 105×105×3000）",
+        "unit": "本",
+        "unit_price": 2800,
+        "memo": "乾燥材。土台・柱"
+      },
+      {
+        "name": "杉（KD 105×105×4000）",
+        "unit": "本",
+        "unit_price": 3200,
+        "memo": ""
+      },
+      {
+        "name": "杉（KD 120×120×3000）",
+        "unit": "本",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "杉（KD 120×120×4000）",
+        "unit": "本",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "杉（KD 105×180×4000）",
+        "unit": "本",
+        "unit_price": 5500,
+        "memo": "梁材"
+      },
+      {
+        "name": "杉（KD 105×210×4000）",
+        "unit": "本",
+        "unit_price": 6500,
+        "memo": ""
+      },
+      {
+        "name": "杉（KD 105×240×4000）",
+        "unit": "本",
+        "unit_price": 7800,
+        "memo": ""
+      },
+      {
+        "name": "杉（KD 105×270×4000）",
+        "unit": "本",
+        "unit_price": 9500,
+        "memo": ""
+      },
+      {
+        "name": "杉（KD 105×300×4000）",
+        "unit": "本",
+        "unit_price": 11000,
+        "memo": ""
+      },
+      {
+        "name": "杉（KD 30×105×4000）",
+        "unit": "本",
+        "unit_price": 580,
+        "memo": "間柱・胴縁"
+      },
+      {
+        "name": "杉（KD 45×105×4000）",
+        "unit": "本",
+        "unit_price": 780,
+        "memo": ""
+      },
+      {
+        "name": "杉（KD 45×90×4000）",
+        "unit": "本",
+        "unit_price": 680,
+        "memo": "筋交い"
+      },
+      {
+        "name": "杉（KD 45×60×4000）",
+        "unit": "本",
+        "unit_price": 480,
+        "memo": "根太・垂木"
+      },
+      {
+        "name": "杉（KD 45×45×4000）",
+        "unit": "本",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "杉（KD 30×40×4000）",
+        "unit": "本",
+        "unit_price": 280,
+        "memo": "胴縁"
+      },
+      {
+        "name": "桧（KD 105×105×3000）",
+        "unit": "本",
+        "unit_price": 4500,
+        "memo": "高級土台・柱"
+      },
+      {
+        "name": "桧（KD 105×105×4000）",
+        "unit": "本",
+        "unit_price": 5200,
+        "memo": ""
+      },
+      {
+        "name": "桧（KD 120×120×3000）",
+        "unit": "本",
+        "unit_price": 6500,
+        "memo": ""
+      },
+      {
+        "name": "桧（KD 120×120×4000）",
+        "unit": "本",
+        "unit_price": 7500,
+        "memo": ""
+      },
+      {
+        "name": "桧（KD 105×180×4000）",
+        "unit": "本",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "桧（KD 105×210×4000）",
+        "unit": "本",
+        "unit_price": 10000,
+        "memo": ""
+      },
+      {
+        "name": "桧（KD 105×240×4000）",
+        "unit": "本",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "桧（KD 45×105×4000）",
+        "unit": "本",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "米松（KD 105×105×4000）",
+        "unit": "本",
+        "unit_price": 3500,
+        "memo": "土台・柱 標準品"
+      },
+      {
+        "name": "米松（KD 105×180×4000）",
+        "unit": "本",
+        "unit_price": 5200,
+        "memo": ""
+      },
+      {
+        "name": "米松（KD 105×210×4000）",
+        "unit": "本",
+        "unit_price": 6200,
+        "memo": ""
+      },
+      {
+        "name": "米松（KD 105×240×4000）",
+        "unit": "本",
+        "unit_price": 7500,
+        "memo": ""
+      },
+      {
+        "name": "米松（KD 105×270×4000）",
+        "unit": "本",
+        "unit_price": 9000,
+        "memo": ""
+      },
+      {
+        "name": "米松（KD 105×300×4000）",
+        "unit": "本",
+        "unit_price": 10500,
+        "memo": ""
+      },
+      {
+        "name": "米松（KD 120×240×4000）",
+        "unit": "本",
+        "unit_price": 9200,
+        "memo": ""
+      },
+      {
+        "name": "米松（KD 120×300×4000）",
+        "unit": "本",
+        "unit_price": 13000,
+        "memo": ""
+      },
+      {
+        "name": "米松（KD 150×300×4000）",
+        "unit": "本",
+        "unit_price": 18000,
+        "memo": "大断面"
+      },
+      {
+        "name": "ホワイトウッド（105×105×4000）",
+        "unit": "本",
+        "unit_price": 2200,
+        "memo": "集成柱。低コスト"
+      },
+      {
+        "name": "ホワイトウッド（105×105×3000）",
+        "unit": "本",
+        "unit_price": 1900,
+        "memo": ""
+      },
+      {
+        "name": "ホワイトウッド（45×105×4000）",
+        "unit": "本",
+        "unit_price": 550,
+        "memo": ""
+      },
+      {
+        "name": "ホワイトウッド（45×90×4000）",
+        "unit": "本",
+        "unit_price": 480,
+        "memo": ""
+      },
+      {
+        "name": "ホワイトウッド（45×60×4000）",
+        "unit": "本",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "ホワイトウッド（30×105×4000）",
+        "unit": "本",
+        "unit_price": 420,
+        "memo": ""
+      },
+      {
+        "name": "集成材柱（スギ 105×105×3000）",
+        "unit": "本",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "集成材柱（スギ 105×105×4000）",
+        "unit": "本",
+        "unit_price": 4200,
+        "memo": ""
+      },
+      {
+        "name": "集成梁（米松 105×180×4000）",
+        "unit": "本",
+        "unit_price": 6800,
+        "memo": ""
+      },
+      {
+        "name": "集成梁（米松 105×210×4000）",
+        "unit": "本",
+        "unit_price": 7800,
+        "memo": ""
+      },
+      {
+        "name": "集成梁（米松 105×240×4000）",
+        "unit": "本",
+        "unit_price": 9200,
+        "memo": ""
+      },
+      {
+        "name": "集成梁（米松 105×300×4000）",
+        "unit": "本",
+        "unit_price": 13000,
+        "memo": ""
+      },
+      {
+        "name": "集成梁（米松 120×240×4000）",
+        "unit": "本",
+        "unit_price": 10500,
+        "memo": ""
+      },
+      {
+        "name": "集成梁（米松 120×300×4000）",
+        "unit": "本",
+        "unit_price": 15000,
+        "memo": ""
+      },
+      {
+        "name": "集成梁（米松 150×300×4000）",
+        "unit": "本",
+        "unit_price": 20000,
+        "memo": ""
+      },
+      {
+        "name": "LVL（105×300×4000）",
+        "unit": "本",
+        "unit_price": 14000,
+        "memo": "高強度積層材"
+      },
+      {
+        "name": "LVL（105×360×4000）",
+        "unit": "本",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "LVL（120×300×4000）",
+        "unit": "本",
+        "unit_price": 16000,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板（針葉樹 12mm 3×6）",
+        "unit": "枚",
+        "unit_price": 2200,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "構造用合板（針葉樹 12mm 3×9）",
+        "unit": "枚",
+        "unit_price": 3200,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板（針葉樹 24mm 3×6）",
+        "unit": "枚",
+        "unit_price": 4200,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板（針葉樹 28mm 3×6）",
+        "unit": "枚",
+        "unit_price": 5500,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板（針葉樹 9mm 3×6）",
+        "unit": "枚",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "パーティクルボード（15mm 3×6）",
+        "unit": "枚",
+        "unit_price": 2800,
+        "memo": "床下地"
+      },
+      {
+        "name": "パーティクルボード（20mm 3×6）",
+        "unit": "枚",
+        "unit_price": 3500,
+        "memo": ""
+      }
+    ],
+    "配管継手全サイズ全種類": [
+      {
+        "name": "塩ビエルボ（VP13 90度）",
+        "unit": "個",
+        "unit_price": 45,
+        "memo": "給水"
+      },
+      {
+        "name": "塩ビエルボ（VP20 90度）",
+        "unit": "個",
+        "unit_price": 65,
+        "memo": ""
+      },
+      {
+        "name": "塩ビエルボ（VP25 90度）",
+        "unit": "個",
+        "unit_price": 95,
+        "memo": ""
+      },
+      {
+        "name": "塩ビエルボ（VP30 90度）",
+        "unit": "個",
+        "unit_price": 130,
+        "memo": ""
+      },
+      {
+        "name": "塩ビエルボ（VP40 90度）",
+        "unit": "個",
+        "unit_price": 180,
+        "memo": ""
+      },
+      {
+        "name": "塩ビエルボ（VP50 90度）",
+        "unit": "個",
+        "unit_price": 280,
+        "memo": ""
+      },
+      {
+        "name": "塩ビエルボ（VP75 90度）",
+        "unit": "個",
+        "unit_price": 650,
+        "memo": ""
+      },
+      {
+        "name": "塩ビエルボ（VP100 90度）",
+        "unit": "個",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "塩ビチーズ（VP13）",
+        "unit": "個",
+        "unit_price": 55,
+        "memo": ""
+      },
+      {
+        "name": "塩ビチーズ（VP20）",
+        "unit": "個",
+        "unit_price": 85,
+        "memo": ""
+      },
+      {
+        "name": "塩ビチーズ（VP25）",
+        "unit": "個",
+        "unit_price": 120,
+        "memo": ""
+      },
+      {
+        "name": "塩ビチーズ（VP40）",
+        "unit": "個",
+        "unit_price": 220,
+        "memo": ""
+      },
+      {
+        "name": "塩ビチーズ（VP50）",
+        "unit": "個",
+        "unit_price": 350,
+        "memo": ""
+      },
+      {
+        "name": "塩ビチーズ（VP75）",
+        "unit": "個",
+        "unit_price": 780,
+        "memo": ""
+      },
+      {
+        "name": "塩ビチーズ（VP100）",
+        "unit": "個",
+        "unit_price": 1500,
+        "memo": ""
+      },
+      {
+        "name": "塩ビソケット（VP13）",
+        "unit": "個",
+        "unit_price": 35,
+        "memo": ""
+      },
+      {
+        "name": "塩ビソケット（VP20）",
+        "unit": "個",
+        "unit_price": 55,
+        "memo": ""
+      },
+      {
+        "name": "塩ビソケット（VP25）",
+        "unit": "個",
+        "unit_price": 75,
+        "memo": ""
+      },
+      {
+        "name": "塩ビソケット（VP50）",
+        "unit": "個",
+        "unit_price": 220,
+        "memo": ""
+      },
+      {
+        "name": "塩ビソケット（VP100）",
+        "unit": "個",
+        "unit_price": 850,
+        "memo": ""
+      },
+      {
+        "name": "排水エルボ（VU50 90度）",
+        "unit": "個",
+        "unit_price": 280,
+        "memo": "排水"
+      },
+      {
+        "name": "排水エルボ（VU75 90度）",
+        "unit": "個",
+        "unit_price": 450,
+        "memo": ""
+      },
+      {
+        "name": "排水エルボ（VU100 90度）",
+        "unit": "個",
+        "unit_price": 780,
+        "memo": ""
+      },
+      {
+        "name": "排水エルボ（VU125 90度）",
+        "unit": "個",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "排水エルボ（VU150 90度）",
+        "unit": "個",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "排水チーズ（VU50）",
+        "unit": "個",
+        "unit_price": 350,
+        "memo": ""
+      },
+      {
+        "name": "排水チーズ（VU75）",
+        "unit": "個",
+        "unit_price": 580,
+        "memo": ""
+      },
+      {
+        "name": "排水チーズ（VU100）",
+        "unit": "個",
+        "unit_price": 980,
+        "memo": ""
+      },
+      {
+        "name": "排水チーズ（VU125）",
+        "unit": "個",
+        "unit_price": 1500,
+        "memo": ""
+      },
+      {
+        "name": "排水インクリーザー（VU75×50）",
+        "unit": "個",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "排水インクリーザー（VU100×75）",
+        "unit": "個",
+        "unit_price": 680,
+        "memo": ""
+      },
+      {
+        "name": "排水掃除口（VU100）",
+        "unit": "個",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "排水掃除口（VU150）",
+        "unit": "個",
+        "unit_price": 2200,
+        "memo": ""
+      },
+      {
+        "name": "ポリ管継手（PB13 エルボ）",
+        "unit": "個",
+        "unit_price": 280,
+        "memo": "架橋ポリ給水"
+      },
+      {
+        "name": "ポリ管継手（PB20 エルボ）",
+        "unit": "個",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "ポリ管継手（PB13 チーズ）",
+        "unit": "個",
+        "unit_price": 350,
+        "memo": ""
+      },
+      {
+        "name": "ポリ管継手（PB20 チーズ）",
+        "unit": "個",
+        "unit_price": 480,
+        "memo": ""
+      },
+      {
+        "name": "ポリ管継手（PB13 ソケット）",
+        "unit": "個",
+        "unit_price": 220,
+        "memo": ""
+      },
+      {
+        "name": "銅管継手（15A エルボ）",
+        "unit": "個",
+        "unit_price": 580,
+        "memo": "給湯"
+      },
+      {
+        "name": "銅管継手（20A エルボ）",
+        "unit": "個",
+        "unit_price": 880,
+        "memo": ""
+      },
+      {
+        "name": "銅管継手（25A エルボ）",
+        "unit": "個",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "銅管継手（15A チーズ）",
+        "unit": "個",
+        "unit_price": 750,
+        "memo": ""
+      },
+      {
+        "name": "銅管継手（20A チーズ）",
+        "unit": "個",
+        "unit_price": 1100,
+        "memo": ""
+      },
+      {
+        "name": "フレキ管（13A 300mm）",
+        "unit": "本",
+        "unit_price": 850,
+        "memo": "器具接続"
+      },
+      {
+        "name": "フレキ管（20A 300mm）",
+        "unit": "本",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "フレキ管（13A 500mm）",
+        "unit": "本",
+        "unit_price": 1100,
+        "memo": ""
+      },
+      {
+        "name": "フレキ管（20A 500mm）",
+        "unit": "本",
+        "unit_price": 1600,
+        "memo": ""
+      },
+      {
+        "name": "ガス用フレキ（Φ15.88 1m）",
+        "unit": "本",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "ガス用フレキ（Φ19.05 1m）",
+        "unit": "本",
+        "unit_price": 4800,
+        "memo": ""
+      },
+      {
+        "name": "ボールバルブ（13A）",
+        "unit": "個",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "ボールバルブ（20A）",
+        "unit": "個",
+        "unit_price": 2500,
+        "memo": ""
+      },
+      {
+        "name": "ボールバルブ（25A）",
+        "unit": "個",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "ボールバルブ（50A）",
+        "unit": "個",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "ゲートバルブ（20A）",
+        "unit": "個",
+        "unit_price": 3200,
+        "memo": ""
+      },
+      {
+        "name": "ゲートバルブ（25A）",
+        "unit": "個",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "逆止弁（13A スイングタイプ）",
+        "unit": "個",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "逆止弁（20A）",
+        "unit": "個",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "ストレーナー（20A Y型）",
+        "unit": "個",
+        "unit_price": 3200,
+        "memo": ""
+      },
+      {
+        "name": "ストレーナー（25A Y型）",
+        "unit": "個",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "ユニオン（13A）",
+        "unit": "個",
+        "unit_price": 880,
+        "memo": ""
+      },
+      {
+        "name": "ユニオン（20A）",
+        "unit": "個",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "ユニオン（25A）",
+        "unit": "個",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "ニップル（13A×100mm）",
+        "unit": "個",
+        "unit_price": 280,
+        "memo": ""
+      },
+      {
+        "name": "ニップル（20A×100mm）",
+        "unit": "個",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "異径ソケット（20×13）",
+        "unit": "個",
+        "unit_price": 180,
+        "memo": ""
+      },
+      {
+        "name": "異径ソケット（25×20）",
+        "unit": "個",
+        "unit_price": 220,
+        "memo": ""
+      }
+    ],
+    "電線管・ケーブルラック全サイズ": [
+      {
+        "name": "PF管（16mm 30m巻）",
+        "unit": "巻",
+        "unit_price": 2200,
+        "memo": "可とう電線管"
+      },
+      {
+        "name": "PF管（22mm 30m巻）",
+        "unit": "巻",
+        "unit_price": 3200,
+        "memo": ""
+      },
+      {
+        "name": "PF管（28mm 30m巻）",
+        "unit": "巻",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "PF管（36mm 20m巻）",
+        "unit": "巻",
+        "unit_price": 5500,
+        "memo": ""
+      },
+      {
+        "name": "CD管（16mm 30m巻）",
+        "unit": "巻",
+        "unit_price": 1800,
+        "memo": "コンクリート埋設用"
+      },
+      {
+        "name": "CD管（22mm 30m巻）",
+        "unit": "巻",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "CD管（28mm 30m巻）",
+        "unit": "巻",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "CD管（36mm 20m巻）",
+        "unit": "巻",
+        "unit_price": 4800,
+        "memo": ""
+      },
+      {
+        "name": "硬質塩ビ管（VE16 4m）",
+        "unit": "本",
+        "unit_price": 380,
+        "memo": "露出配管"
+      },
+      {
+        "name": "硬質塩ビ管（VE22 4m）",
+        "unit": "本",
+        "unit_price": 550,
+        "memo": ""
+      },
+      {
+        "name": "硬質塩ビ管（VE28 4m）",
+        "unit": "本",
+        "unit_price": 780,
+        "memo": ""
+      },
+      {
+        "name": "硬質塩ビ管（VE36 4m）",
+        "unit": "本",
+        "unit_price": 1100,
+        "memo": ""
+      },
+      {
+        "name": "硬質塩ビ管（VE42 4m）",
+        "unit": "本",
+        "unit_price": 1500,
+        "memo": ""
+      },
+      {
+        "name": "硬質塩ビ管（VE54 4m）",
+        "unit": "本",
+        "unit_price": 2200,
+        "memo": ""
+      },
+      {
+        "name": "鋼製電線管（C19 3.66m）",
+        "unit": "本",
+        "unit_price": 880,
+        "memo": "薄鋼電線管"
+      },
+      {
+        "name": "鋼製電線管（C25 3.66m）",
+        "unit": "本",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "鋼製電線管（C31 3.66m）",
+        "unit": "本",
+        "unit_price": 1600,
+        "memo": ""
+      },
+      {
+        "name": "鋼製電線管（C39 3.66m）",
+        "unit": "本",
+        "unit_price": 2200,
+        "memo": ""
+      },
+      {
+        "name": "鋼製電線管（C51 3.66m）",
+        "unit": "本",
+        "unit_price": 3200,
+        "memo": ""
+      },
+      {
+        "name": "厚鋼電線管（G16 3.66m）",
+        "unit": "本",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "厚鋼電線管（G22 3.66m）",
+        "unit": "本",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "厚鋼電線管（G28 3.66m）",
+        "unit": "本",
+        "unit_price": 2500,
+        "memo": ""
+      },
+      {
+        "name": "厚鋼電線管（G36 3.66m）",
+        "unit": "本",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "厚鋼電線管（G42 3.66m）",
+        "unit": "本",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "厚鋼電線管（G54 3.66m）",
+        "unit": "本",
+        "unit_price": 6500,
+        "memo": ""
+      },
+      {
+        "name": "ケーブルラック（W100 3m）",
+        "unit": "本",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "ケーブルラック（W150 3m）",
+        "unit": "本",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "ケーブルラック（W200 3m）",
+        "unit": "本",
+        "unit_price": 4200,
+        "memo": ""
+      },
+      {
+        "name": "ケーブルラック（W300 3m）",
+        "unit": "本",
+        "unit_price": 5500,
+        "memo": ""
+      },
+      {
+        "name": "ケーブルラック（W400 3m）",
+        "unit": "本",
+        "unit_price": 6800,
+        "memo": ""
+      },
+      {
+        "name": "ケーブルラック（W600 3m）",
+        "unit": "本",
+        "unit_price": 9500,
+        "memo": ""
+      },
+      {
+        "name": "ケーブルラック蓋（W100 3m）",
+        "unit": "本",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "ケーブルラック蓋（W200 3m）",
+        "unit": "本",
+        "unit_price": 3200,
+        "memo": ""
+      },
+      {
+        "name": "ケーブルラック蓋（W300 3m）",
+        "unit": "本",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "ケーブルラック水平エルボ（W100）",
+        "unit": "個",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "ケーブルラック水平エルボ（W200）",
+        "unit": "個",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "ケーブルラック水平エルボ（W300）",
+        "unit": "個",
+        "unit_price": 6500,
+        "memo": ""
+      },
+      {
+        "name": "メタルモール（A型 2m）",
+        "unit": "本",
+        "unit_price": 880,
+        "memo": ""
+      },
+      {
+        "name": "メタルモール（B型 2m）",
+        "unit": "本",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "メタルモール（C型 2m）",
+        "unit": "本",
+        "unit_price": 1500,
+        "memo": ""
+      },
+      {
+        "name": "プラスチックモール（18×16 2m）",
+        "unit": "本",
+        "unit_price": 280,
+        "memo": ""
+      },
+      {
+        "name": "プラスチックモール（30×16 2m）",
+        "unit": "本",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "プラスチックモール（40×16 2m）",
+        "unit": "本",
+        "unit_price": 480,
+        "memo": ""
+      },
+      {
+        "name": "アウトレットボックス（中型）",
+        "unit": "個",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "アウトレットボックス（大型）",
+        "unit": "個",
+        "unit_price": 550,
+        "memo": ""
+      },
+      {
+        "name": "スイッチボックス（1個用）",
+        "unit": "個",
+        "unit_price": 180,
+        "memo": ""
+      },
+      {
+        "name": "スイッチボックス（2個用）",
+        "unit": "個",
+        "unit_price": 220,
+        "memo": ""
+      },
+      {
+        "name": "スイッチボックス（3個用）",
+        "unit": "個",
+        "unit_price": 280,
+        "memo": ""
+      },
+      {
+        "name": "スイッチボックス（4個用）",
+        "unit": "個",
+        "unit_price": 350,
+        "memo": ""
+      },
+      {
+        "name": "電線管コネクタ（16mm PF用）",
+        "unit": "個",
+        "unit_price": 85,
+        "memo": ""
+      },
+      {
+        "name": "電線管コネクタ（22mm PF用）",
+        "unit": "個",
+        "unit_price": 120,
+        "memo": ""
+      },
+      {
+        "name": "電線管コネクタ（28mm PF用）",
+        "unit": "個",
+        "unit_price": 180,
+        "memo": ""
+      },
+      {
+        "name": "ノーマルベンド（VE16）",
+        "unit": "個",
+        "unit_price": 120,
+        "memo": ""
+      },
+      {
+        "name": "ノーマルベンド（VE22）",
+        "unit": "個",
+        "unit_price": 180,
+        "memo": ""
+      },
+      {
+        "name": "ノーマルベンド（VE28）",
+        "unit": "個",
+        "unit_price": 250,
+        "memo": ""
+      },
+      {
+        "name": "カップリング（VE16）",
+        "unit": "個",
+        "unit_price": 85,
+        "memo": ""
+      },
+      {
+        "name": "カップリング（VE22）",
+        "unit": "個",
+        "unit_price": 120,
+        "memo": ""
+      },
+      {
+        "name": "カップリング（VE28）",
+        "unit": "個",
+        "unit_price": 180,
+        "memo": ""
+      }
+    ]
+  }
+}
