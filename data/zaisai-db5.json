@@ -1,0 +1,821 @@
+{
+  "version": "2026.04_part5",
+  "categories": {
+    "通信・弱電設備": [
+      {
+        "name": "光回線引込工事",
+        "unit": "式",
+        "unit_price": 35000,
+        "memo": "NTT・フレッツ工事費"
+      },
+      {
+        "name": "LAN配線（CAT6 1m）",
+        "unit": "m",
+        "unit_price": 580,
+        "memo": "材工込み"
+      },
+      {
+        "name": "LAN配線（CAT6A 1m）",
+        "unit": "m",
+        "unit_price": 880,
+        "memo": ""
+      },
+      {
+        "name": "Wi-Fiルーター（業務用）",
+        "unit": "台",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "Wi-Fi中継器",
+        "unit": "台",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "テレビアンテナ（BS/CS対応）",
+        "unit": "式",
+        "unit_price": 55000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "テレビ分配器（4分配）",
+        "unit": "個",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "電話配線（1m）",
+        "unit": "m",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "防犯カメラ（IP 屋外）",
+        "unit": "台",
+        "unit_price": 45000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "防犯カメラ（IP 屋内）",
+        "unit": "台",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "録画装置（NVR 8ch）",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "モニター付きインターホン",
+        "unit": "式",
+        "unit_price": 45000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "集合住宅インターホン（1戸）",
+        "unit": "戸",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "火災受信機（P型1級）",
+        "unit": "台",
+        "unit_price": 280000,
+        "memo": ""
+      },
+      {
+        "name": "感知器（煙式 1個）",
+        "unit": "個",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "感知器（熱式 1個）",
+        "unit": "個",
+        "unit_price": 6500,
+        "memo": ""
+      },
+      {
+        "name": "発信機（1個）",
+        "unit": "個",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "音響警報装置",
+        "unit": "個",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "非常電源（蓄電池 1台）",
+        "unit": "台",
+        "unit_price": 180000,
+        "memo": ""
+      }
+    ],
+    "給排水追加品目": [
+      {
+        "name": "水道メーター（20mm）",
+        "unit": "個",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "水道メーター（25mm）",
+        "unit": "個",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "加圧ポンプ（小型 1台）",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": "水圧不足対策"
+      },
+      {
+        "name": "受水槽（1m3）",
+        "unit": "台",
+        "unit_price": 350000,
+        "memo": ""
+      },
+      {
+        "name": "受水槽（3m3）",
+        "unit": "台",
+        "unit_price": 650000,
+        "memo": ""
+      },
+      {
+        "name": "高架水槽（1m3）",
+        "unit": "台",
+        "unit_price": 280000,
+        "memo": ""
+      },
+      {
+        "name": "給水ポンプ（加圧給水）",
+        "unit": "台",
+        "unit_price": 450000,
+        "memo": ""
+      },
+      {
+        "name": "浄水器（ビルトイン）",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "軟水器",
+        "unit": "台",
+        "unit_price": 180000,
+        "memo": ""
+      },
+      {
+        "name": "油水分離槽",
+        "unit": "台",
+        "unit_price": 280000,
+        "memo": "工場・整備工場"
+      },
+      {
+        "name": "浄化槽（5人槽）",
+        "unit": "基",
+        "unit_price": 550000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "浄化槽（7人槽）",
+        "unit": "基",
+        "unit_price": 750000,
+        "memo": ""
+      },
+      {
+        "name": "浄化槽（10人槽）",
+        "unit": "基",
+        "unit_price": 1200000,
+        "memo": ""
+      },
+      {
+        "name": "浄化槽ブロア（1台）",
+        "unit": "台",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "散水栓（埋込み）",
+        "unit": "個",
+        "unit_price": 12000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "散水ホース（20m）",
+        "unit": "本",
+        "unit_price": 3800,
+        "memo": ""
+      }
+    ],
+    "電気設備追加品目": [
+      {
+        "name": "キュービクル（100kVA）",
+        "unit": "台",
+        "unit_price": 3500000,
+        "memo": "高圧受電設備"
+      },
+      {
+        "name": "変圧器（50kVA）",
+        "unit": "台",
+        "unit_price": 850000,
+        "memo": ""
+      },
+      {
+        "name": "低圧幹線（CV38sq 1m）",
+        "unit": "m",
+        "unit_price": 4800,
+        "memo": ""
+      },
+      {
+        "name": "動力分電盤（3P30A 8回路）",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "動力コンセント（3P30A）",
+        "unit": "個",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "非常用発電機（10kVA）",
+        "unit": "台",
+        "unit_price": 2500000,
+        "memo": ""
+      },
+      {
+        "name": "UPS（無停電電源 1kVA）",
+        "unit": "台",
+        "unit_price": 180000,
+        "memo": ""
+      },
+      {
+        "name": "電気温水器（200L 三相）",
+        "unit": "台",
+        "unit_price": 280000,
+        "memo": ""
+      },
+      {
+        "name": "蓄電システム（10kWh）",
+        "unit": "台",
+        "unit_price": 1500000,
+        "memo": ""
+      },
+      {
+        "name": "太陽光パネル（4kW システム）",
+        "unit": "式",
+        "unit_price": 1200000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "パワーコンディショナー",
+        "unit": "台",
+        "unit_price": 280000,
+        "memo": ""
+      },
+      {
+        "name": "スマートメーター対応分電盤",
+        "unit": "台",
+        "unit_price": 55000,
+        "memo": ""
+      },
+      {
+        "name": "HEMS（ホームエネルギー管理）",
+        "unit": "式",
+        "unit_price": 180000,
+        "memo": ""
+      },
+      {
+        "name": "EV充電器（急速 50kW）",
+        "unit": "台",
+        "unit_price": 3500000,
+        "memo": "商業施設"
+      }
+    ],
+    "内装仕上げ追加品目": [
+      {
+        "name": "珪藻土塗り壁（材工 1m2）",
+        "unit": "m2",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "漆喰塗り壁（材工 1m2）",
+        "unit": "m2",
+        "unit_price": 6500,
+        "memo": ""
+      },
+      {
+        "name": "ジュラク壁（材工 1m2）",
+        "unit": "m2",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "エコカラット（1m2）",
+        "unit": "m2",
+        "unit_price": 15000,
+        "memo": "材工込み。LIXIL"
+      },
+      {
+        "name": "天然石タイル（1m2）",
+        "unit": "m2",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "大理石（1m2）",
+        "unit": "m2",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "テラコッタタイル（1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "木目調シート（1m2）",
+        "unit": "m2",
+        "unit_price": 3800,
+        "memo": "リフォーム向け"
+      },
+      {
+        "name": "ウォールパネル（アクセント壁 1m2）",
+        "unit": "m2",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "鏡面パネル（1m2）",
+        "unit": "m2",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "グラスウールボード（50mm 1m2）",
+        "unit": "m2",
+        "unit_price": 3200,
+        "memo": "吸音仕上げ"
+      },
+      {
+        "name": "ファブリックパネル（600×900）",
+        "unit": "枚",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "コルクタイル（1m2）",
+        "unit": "m2",
+        "unit_price": 5500,
+        "memo": ""
+      },
+      {
+        "name": "バンブーフローリング（1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "へリンボーンフローリング（1m2）",
+        "unit": "m2",
+        "unit_price": 12000,
+        "memo": ""
+      }
+    ],
+    "外壁仕上げ追加品目": [
+      {
+        "name": "ALCパネル（75mm 1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "ALCパネル（100mm 1m2）",
+        "unit": "m2",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "押出成形セメント板（60mm 1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "タイル（外壁 二丁掛 1m2）",
+        "unit": "m2",
+        "unit_price": 18000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "タイル（外壁 モザイク 1m2）",
+        "unit": "m2",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "石貼り（御影石 1m2）",
+        "unit": "m2",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "木目調外壁材（1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "コンクリート打放し仕上げ（1m2）",
+        "unit": "m2",
+        "unit_price": 3500,
+        "memo": "型枠コスト別"
+      },
+      {
+        "name": "リシン吹付（1m2）",
+        "unit": "m2",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "スタッコ仕上げ（1m2）",
+        "unit": "m2",
+        "unit_price": 2500,
+        "memo": ""
+      },
+      {
+        "name": "ジョリパット（1m2）",
+        "unit": "m2",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "光触媒塗装（1m2）",
+        "unit": "m2",
+        "unit_price": 4500,
+        "memo": "セルフクリーニング"
+      },
+      {
+        "name": "断熱塗料（ガイナ 1m2）",
+        "unit": "m2",
+        "unit_price": 5500,
+        "memo": ""
+      }
+    ],
+    "構造計算・設計関連費用": [
+      {
+        "name": "構造計算（木造 2階建て）",
+        "unit": "式",
+        "unit_price": 150000,
+        "memo": ""
+      },
+      {
+        "name": "構造計算（鉄骨造 3階）",
+        "unit": "式",
+        "unit_price": 350000,
+        "memo": ""
+      },
+      {
+        "name": "構造計算（RC造）",
+        "unit": "式",
+        "unit_price": 500000,
+        "memo": ""
+      },
+      {
+        "name": "省エネ計算（HEAT20）",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "長期優良住宅設計（追加）",
+        "unit": "式",
+        "unit_price": 120000,
+        "memo": ""
+      },
+      {
+        "name": "BELS評価（建物省エネ）",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "住宅性能評価（設計）",
+        "unit": "式",
+        "unit_price": 120000,
+        "memo": ""
+      },
+      {
+        "name": "住宅性能評価（建設）",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "フラット35適合証明",
+        "unit": "式",
+        "unit_price": 55000,
+        "memo": ""
+      },
+      {
+        "name": "中間検査（民間検査機関）",
+        "unit": "回",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "完了検査（民間検査機関）",
+        "unit": "回",
+        "unit_price": 55000,
+        "memo": ""
+      },
+      {
+        "name": "瑕疵保険（住宅 10年）",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": ""
+      }
+    ],
+    "特殊工事": [
+      {
+        "name": "クリーンルーム（Class10000 1m2）",
+        "unit": "m2",
+        "unit_price": 350000,
+        "memo": ""
+      },
+      {
+        "name": "無響室（1m2）",
+        "unit": "m2",
+        "unit_price": 500000,
+        "memo": ""
+      },
+      {
+        "name": "電磁波シールド室（1m2）",
+        "unit": "m2",
+        "unit_price": 280000,
+        "memo": ""
+      },
+      {
+        "name": "恒温恒湿室（1m2）",
+        "unit": "m2",
+        "unit_price": 450000,
+        "memo": ""
+      },
+      {
+        "name": "防弾ガラス（1m2）",
+        "unit": "m2",
+        "unit_price": 280000,
+        "memo": "金融機関"
+      },
+      {
+        "name": "金庫室扉",
+        "unit": "枚",
+        "unit_price": 1500000,
+        "memo": ""
+      },
+      {
+        "name": "重量シャッター（電動 1m2）",
+        "unit": "m2",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "工場クレーン（天井走行 5t）",
+        "unit": "台",
+        "unit_price": 5500000,
+        "memo": ""
+      },
+      {
+        "name": "床荷重強化（1m2）",
+        "unit": "m2",
+        "unit_price": 28000,
+        "memo": "重量機械設置"
+      }
+    ],
+    "リフォーム工事単価（材工込み）": [
+      {
+        "name": "キッチン交換（標準 材工）",
+        "unit": "式",
+        "unit_price": 850000,
+        "memo": "システムキッチン2400込み"
+      },
+      {
+        "name": "浴室交換（ユニットバス 材工）",
+        "unit": "式",
+        "unit_price": 750000,
+        "memo": "在来→UB変更込み"
+      },
+      {
+        "name": "洗面台交換（標準 材工）",
+        "unit": "式",
+        "unit_price": 250000,
+        "memo": ""
+      },
+      {
+        "name": "トイレ交換（ウォシュレット 材工）",
+        "unit": "式",
+        "unit_price": 280000,
+        "memo": ""
+      },
+      {
+        "name": "給湯器交換（エコジョーズ 材工）",
+        "unit": "式",
+        "unit_price": 280000,
+        "memo": ""
+      },
+      {
+        "name": "外壁塗装（30坪 材工）",
+        "unit": "式",
+        "unit_price": 900000,
+        "memo": "足場込み。シリコン3回塗り"
+      },
+      {
+        "name": "屋根塗装（30坪 材工）",
+        "unit": "式",
+        "unit_price": 450000,
+        "memo": "足場込み"
+      },
+      {
+        "name": "屋根カバー工法（30坪 材工）",
+        "unit": "式",
+        "unit_price": 1200000,
+        "memo": ""
+      },
+      {
+        "name": "屋根葺替（30坪 材工）",
+        "unit": "式",
+        "unit_price": 1800000,
+        "memo": ""
+      },
+      {
+        "name": "外壁張替（30坪 材工）",
+        "unit": "式",
+        "unit_price": 2200000,
+        "memo": "足場込み"
+      },
+      {
+        "name": "窓交換（カバー工法 1枚 材工）",
+        "unit": "枚",
+        "unit_price": 150000,
+        "memo": ""
+      },
+      {
+        "name": "内窓追加（1枚 材工）",
+        "unit": "枚",
+        "unit_price": 65000,
+        "memo": "インプラス等"
+      },
+      {
+        "name": "床張替（フローリング 1m2 材工）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "クロス張替（1m2 材工）",
+        "unit": "m2",
+        "unit_price": 1500,
+        "memo": ""
+      },
+      {
+        "name": "和室→洋室（1室 材工）",
+        "unit": "式",
+        "unit_price": 450000,
+        "memo": ""
+      },
+      {
+        "name": "間取り変更（壁撤去・新設 1m 材工）",
+        "unit": "m",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "耐震補強（1棟 材工）",
+        "unit": "式",
+        "unit_price": 1500000,
+        "memo": "精密診断別途"
+      },
+      {
+        "name": "断熱リフォーム（30坪 材工）",
+        "unit": "式",
+        "unit_price": 2500000,
+        "memo": "全体断熱改修"
+      },
+      {
+        "name": "バリアフリー化（1箇所 材工）",
+        "unit": "箇所",
+        "unit_price": 250000,
+        "memo": ""
+      },
+      {
+        "name": "太陽光発電（4kW 材工）",
+        "unit": "式",
+        "unit_price": 1400000,
+        "memo": ""
+      }
+    ],
+    "過剰請求頻出工事_適正価格一覧": [
+      {
+        "name": "シロアリ駆除（30坪床下）",
+        "unit": "式",
+        "unit_price": 450000,
+        "memo": "適正上限。75万超は要確認"
+      },
+      {
+        "name": "床下換気扇（1台 材工）",
+        "unit": "台",
+        "unit_price": 35000,
+        "memo": "適正。3台で10万超は過剰"
+      },
+      {
+        "name": "床下調湿工事（30坪）",
+        "unit": "式",
+        "unit_price": 300000,
+        "memo": "適正上限。50万超は要確認"
+      },
+      {
+        "name": "屋根修理（部分補修 1m2）",
+        "unit": "m2",
+        "unit_price": 25000,
+        "memo": "適正。100万超の部分補修は要確認"
+      },
+      {
+        "name": "外壁コーキング打替（1m）",
+        "unit": "m",
+        "unit_price": 1200,
+        "memo": "適正。30坪で50万超は過剰"
+      },
+      {
+        "name": "雨樋交換（1m 材工）",
+        "unit": "m",
+        "unit_price": 4500,
+        "memo": "適正。30坪全周で30万超は要確認"
+      },
+      {
+        "name": "給湯器交換（エコジョーズ 20号）",
+        "unit": "台",
+        "unit_price": 250000,
+        "memo": "適正上限。40万超は過剰"
+      },
+      {
+        "name": "エアコン取付（標準 材工）",
+        "unit": "台",
+        "unit_price": 65000,
+        "memo": "適正。機器込みで15万超は要確認"
+      },
+      {
+        "name": "水道蛇口交換（1箇所 材工）",
+        "unit": "箇所",
+        "unit_price": 25000,
+        "memo": "適正。5万超は過剰"
+      },
+      {
+        "name": "排水管洗浄（1箇所）",
+        "unit": "箇所",
+        "unit_price": 15000,
+        "memo": "適正。3万超は要確認"
+      },
+      {
+        "name": "外壁塗装（30坪 足場込み）",
+        "unit": "式",
+        "unit_price": 1200000,
+        "memo": "適正上限。150万超は過剰の可能性"
+      },
+      {
+        "name": "屋根塗装（30坪 足場込み）",
+        "unit": "式",
+        "unit_price": 600000,
+        "memo": "適正上限。80万超は要確認"
+      },
+      {
+        "name": "グリストラップ清掃（年1回）",
+        "unit": "回",
+        "unit_price": 35000,
+        "memo": "適正。10万超は過剰"
+      },
+      {
+        "name": "換気扇清掃（1台）",
+        "unit": "台",
+        "unit_price": 8500,
+        "memo": "適正。3万超は過剰"
+      },
+      {
+        "name": "畳交換（1枚 材工）",
+        "unit": "枚",
+        "unit_price": 12000,
+        "memo": "適正。3万超は過剰"
+      }
+    ]
+  }
+}
