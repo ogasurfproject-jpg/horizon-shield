@@ -185,6 +185,15 @@ function renderDashboard() {
     </div>`;
 }
 
+function toggleDetail(idx) {
+  const el = document.getElementById('detail-'+idx);
+  const arrow = document.getElementById('arrow-'+idx);
+  if (!el) return;
+  const isOpen = el.style.display !== 'none';
+  el.style.display = isOpen ? 'none' : 'block';
+  if (arrow) arrow.textContent = isOpen ? '›' : '⌄';
+}
+
 function renderInquiries() {
   if (!state.loaded) return `
     <div class="info-box">ボタンを押してWorkerから最新の問い合わせ一覧を取得します。</div>
@@ -193,7 +202,55 @@ function renderInquiries() {
     <button class="btn-sec" onclick="fetchInquiries()">再読み込み</button>
     <div class="empty">問い合わせはまだありません</div>`;
   return `<button class="btn-sec" onclick="fetchInquiries()">再読み込み</button>` +
-    state.inquiries.map(item => {
+    state.inquiries.map((item,idx) => {
+      const riskLabel = item.risk==='high'?'<span class="risk-high">🔴 高リスク</span>':item.risk==='medium'?'<span class="risk-mid">🟡 中リスク</span>':item.risk==='low'?'<span class="risk-low">🟢 低リスク</span>':'';
+      const rawResult = item.result || item.message || '';
+      let resultItems = [];
+      try {
+        const arr = JSON.parse(rawResult);
+        if (Array.isArray(arr)) resultItems = arr;
+        else if (typeof arr === 'string' && arr) resultItems = [arr];
+      } catch(e) {
+        if (rawResult) resultItems = [rawResult];
+      }
+      const detailHtml = `
+        <div id="detail-${idx}" style="display:none;padding:14px 16px;border-top:1px solid var(--border);background:var(--surface2)">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:10px">診断詳細</div>
+          ${resultItems.map(r=>`<div style="padding:8px 0;border-bottom:1px solid var(--border2);font-size:13px;color:var(--text);line-height:1.8;display:flex;gap:8px;align-items:flex-start"><span style="color:var(--red);font-size:10px;margin-top:4px;flex-shrink:0">▶</span>${esc(String(r))}</div>`).join('')}
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+            <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:8px">顧客情報</div>
+            <div style="font-size:13px;color:var(--text);line-height:2.2">
+              <div>名前：${esc(item.name||'—')}</div>
+              <div>メール：<a href="mailto:${esc(item.email||'')}" style="color:var(--accent);font-weight:700">${esc(item.email||'—')}</a></div>
+              <div>種類：${esc(item.type||'—')}</div>
+              <div>日時：${esc(item.createdAt||item.date||'—')}</div>
+            </div>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:8px">
+            <a href="mailto:${esc(item.email||'')}?subject=【HORIZON SHIELD】診断結果について" style="flex:1;display:block;text-align:center;padding:12px;background:var(--accent);color:#faf9f5;font-size:13px;font-weight:700;text-decoration:none;border-radius:3px">メール返信</a>
+            <button onclick="delItem('${esc(item.key||item.email||'')}');event.stopPropagation()" style="padding:12px 16px;background:transparent;border:1px solid rgba(139,26,26,.3);color:var(--red);font-size:13px;font-weight:700;cursor:pointer;border-radius:3px;font-family:inherit">削除</button>
+          </div>
+        </div>`;
+      return `
+        <div class="card" style="cursor:pointer" onclick="toggleDetail(${idx})">
+          <div class="card-hd" style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="card-name">${esc(item.name||'名前なし')}</div>
+              <div class="card-email">${esc(item.email||'')}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              ${riskLabel}
+              <span style="font-size:20px;color:var(--muted);font-weight:300" id="arrow-${idx}">›</span>
+            </div>
+          </div>
+          <div class="card-bd">
+            ${resultItems.length ? esc(String(resultItems[0])).slice(0,50)+(String(resultItems[0]).length>50?'…':'') : '—'}
+            ${resultItems.length>1?`<span style="color:var(--muted);font-size:11px;margin-left:4px">他${resultItems.length-1}件</span>`:''}
+          </div>
+          ${detailHtml}
+        </div>`;
+    }).join('');
+}
       const riskLabel = item.risk==='high'?'<span class="risk-high">🔴 高リスク</span>':item.risk==='medium'?'<span class="risk-mid">🟡 中リスク</span>':item.risk==='low'?'<span class="risk-low">🟢 低リスク</span>':'';
       const rawResult = item.result || item.message || '';
       let resultHtml = '';
