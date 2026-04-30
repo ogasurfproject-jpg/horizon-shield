@@ -189,54 +189,27 @@ function renderInquiries() {
   if (!state.loaded) return `
     <div class="info-box">ボタンを押してWorkerから最新の問い合わせ一覧を取得します。</div>
     <button class="btn-primary" onclick="fetchInquiries()">問い合わせを読み込む</button>`;
-
   if (!state.inquiries.length) return `
     <button class="btn-sec" onclick="fetchInquiries()">再読み込み</button>
     <div class="empty">問い合わせはまだありません</div>`;
-
   return `<button class="btn-sec" onclick="fetchInquiries()">再読み込み</button>` +
     state.inquiries.map(item => {
       const riskLabel = item.risk==='high'?'<span class="risk-high">🔴 高リスク</span>':item.risk==='medium'?'<span class="risk-mid">🟡 中リスク</span>':item.risk==='low'?'<span class="risk-low">🟢 低リスク</span>':'';
-      let resultHtml = '';
       const rawResult = item.result || item.message || '';
-      try {
-        const arr = JSON.parse(rawResult);
-        if(Array.isArray(arr) && arr.length) {
-          resultHtml = '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">'
-            + '<div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:6px">診断結果</div>'
-            + arr.map(r=>`<div class="result-item">${esc(r)}</div>`).join('')
-            + '</div>';
-        } else if(typeof arr === 'string' && arr) {
-          resultHtml = `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:13px;color:var(--text)">${esc(arr)}</div>`;
-        }
-      } catch(e) {
-        if(rawResult) {
-          resultHtml = '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">'
-            + '<div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:6px">診断結果</div>'
-            + `<div style="font-size:13px;color:var(--text);line-height:1.8">${esc(rawResult)}</div>`
-            + '</div>';
+      let resultHtml = '';
+      if (rawResult) {
+        try {
+          const arr = JSON.parse(rawResult);
+          if (Array.isArray(arr) && arr.length) {
+            resultHtml = '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:6px">診断結果</div>'
+              + arr.map(r=>`<div class="result-item">${esc(String(r))}</div>`).join('')
+              + '</div>';
+          }
+        } catch(e) {
+          resultHtml = `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:13px;color:var(--text);line-height:1.8">${esc(rawResult)}</div>`;
         }
       }
-      } catch(e) {
-        if(item.result) resultHtml = `<div style="margin-top:6px;font-size:13px;color:var(--text)">${esc(item.result)}</div>`;
-      }
-      return `
-        <div class="card">
-          <div class="card-hd">
-            <div class="card-name">${esc(item.name||'名前なし')}</div>
-            <div class="card-email">${esc(item.email||'')}</div>
-          </div>
-          <div class="card-bd">
-            ${riskLabel}
-            <div style="margin-top:6px;font-size:13px;color:var(--text);font-weight:700">${esc(item.type||'')}</div>
-            ${resultHtml}
-            ${item.email?`<div style="margin-top:8px"><a href="mailto:${esc(item.email)}" style="color:var(--accent);font-size:12px;font-weight:700">メールを送る →</a></div>`:''}
-          </div>
-          <div class="card-ft">
-            <span class="card-date">${esc(item.createdAt||item.date||item.created||'')}</span>
-            <button class="del-btn" onclick="delItem('${esc(item.key||item.email||'')}')">削除</button>
-          </div>
-        </div>`;
+      return `<div class="card"><div class="card-hd"><div class="card-name">${esc(item.name||'名前なし')}</div><div class="card-email">${esc(item.email||'')}</div></div><div class="card-bd">${riskLabel}${resultHtml}</div><div class="card-ft"><span class="card-date">${esc(item.createdAt||item.date||item.created||'')}</span><button class="del-btn" onclick="delItem('${esc(item.key||item.email||'')}')">削除</button></div></div>`;
     }).join('');
 }
 
