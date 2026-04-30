@@ -159,13 +159,13 @@ async function loadStats() {
     document.getElementById('s-saved').textContent = '¥' + (data.diagnosis?.total_saved || 0).toLocaleString();
     document.getElementById('s-donate-total').textContent = '¥' + (data.donation?.total || 0).toLocaleString();
     document.getElementById('s-inquiries').textContent = (data.total_inquiries || 0) + '件';
-    renderInquiries(data.inquiries || []);
+    renderInquiries();
   } catch(e) {
     console.error(e);
   }
 }
 
-function renderInquiries(items) {
+function renderInquiries() {
   const list = document.getElementById('inquiry-list');
   if (!items.length) {
     list.innerHTML = '<div class="empty">問い合わせはまだありません</div>';
