@@ -1,0 +1,1435 @@
+{
+  "version": "2026.04_part9",
+  "categories": {
+    "ビス・釘・アンカー全サイズ": [
+      {
+        "name": "コーススレッド 3.8×16mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 680,
+        "memo": "薄物固定"
+      },
+      {
+        "name": "コーススレッド 3.8×25mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 720,
+        "memo": ""
+      },
+      {
+        "name": "コーススレッド 3.8×32mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 780,
+        "memo": ""
+      },
+      {
+        "name": "コーススレッド 3.8×38mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 820,
+        "memo": ""
+      },
+      {
+        "name": "コーススレッド 3.8×45mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 880,
+        "memo": ""
+      },
+      {
+        "name": "コーススレッド 3.8×51mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 950,
+        "memo": ""
+      },
+      {
+        "name": "コーススレッド 3.8×57mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 1050,
+        "memo": ""
+      },
+      {
+        "name": "コーススレッド 3.8×65mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 1100,
+        "memo": ""
+      },
+      {
+        "name": "コーススレッド 3.8×75mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "コーススレッド 3.8×90mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 1400,
+        "memo": ""
+      },
+      {
+        "name": "コーススレッド 4.2×75mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 1500,
+        "memo": ""
+      },
+      {
+        "name": "コーススレッド 4.2×90mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "コーススレッド 4.2×100mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 2000,
+        "memo": ""
+      },
+      {
+        "name": "ビス 3.5×16mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 580,
+        "memo": "内装用"
+      },
+      {
+        "name": "ビス 3.5×25mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 620,
+        "memo": ""
+      },
+      {
+        "name": "ビス 3.5×32mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 680,
+        "memo": ""
+      },
+      {
+        "name": "ビス 3.5×38mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 720,
+        "memo": ""
+      },
+      {
+        "name": "ビス 3.5×45mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 780,
+        "memo": ""
+      },
+      {
+        "name": "ビス 3.5×55mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 850,
+        "memo": ""
+      },
+      {
+        "name": "ビス 3.5×65mm（徳用500本）",
+        "unit": "箱",
+        "unit_price": 950,
+        "memo": ""
+      },
+      {
+        "name": "フロアビス 3.8×38mm（200本）",
+        "unit": "箱",
+        "unit_price": 680,
+        "memo": "床材固定専用"
+      },
+      {
+        "name": "フロアビス 3.8×45mm（200本）",
+        "unit": "箱",
+        "unit_price": 720,
+        "memo": ""
+      },
+      {
+        "name": "フロアビス 3.8×55mm（200本）",
+        "unit": "箱",
+        "unit_price": 780,
+        "memo": ""
+      },
+      {
+        "name": "ステンレスビス 3.5×32mm（100本）",
+        "unit": "箱",
+        "unit_price": 1200,
+        "memo": "外部・水回り"
+      },
+      {
+        "name": "ステンレスビス 3.5×45mm（100本）",
+        "unit": "箱",
+        "unit_price": 1400,
+        "memo": ""
+      },
+      {
+        "name": "ステンレスビス 4.0×65mm（100本）",
+        "unit": "箱",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "N釘 N45（1kg）",
+        "unit": "kg",
+        "unit_price": 280,
+        "memo": ""
+      },
+      {
+        "name": "N釘 N50（1kg）",
+        "unit": "kg",
+        "unit_price": 300,
+        "memo": ""
+      },
+      {
+        "name": "N釘 N65（1kg）",
+        "unit": "kg",
+        "unit_price": 320,
+        "memo": ""
+      },
+      {
+        "name": "N釘 N75（1kg）",
+        "unit": "kg",
+        "unit_price": 340,
+        "memo": "構造用"
+      },
+      {
+        "name": "N釘 N90（1kg）",
+        "unit": "kg",
+        "unit_price": 360,
+        "memo": ""
+      },
+      {
+        "name": "N釘 N100（1kg）",
+        "unit": "kg",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "CN釘 CN50（1kg）",
+        "unit": "kg",
+        "unit_price": 420,
+        "memo": "構造用合板固定"
+      },
+      {
+        "name": "CN釘 CN65（1kg）",
+        "unit": "kg",
+        "unit_price": 440,
+        "memo": ""
+      },
+      {
+        "name": "CN釘 CN75（1kg）",
+        "unit": "kg",
+        "unit_price": 460,
+        "memo": ""
+      },
+      {
+        "name": "CN釘 CN90（1kg）",
+        "unit": "kg",
+        "unit_price": 480,
+        "memo": ""
+      },
+      {
+        "name": "ケミカルアンカー M8×110mm",
+        "unit": "本",
+        "unit_price": 180,
+        "memo": ""
+      },
+      {
+        "name": "ケミカルアンカー M10×130mm",
+        "unit": "本",
+        "unit_price": 220,
+        "memo": ""
+      },
+      {
+        "name": "ケミカルアンカー M12×160mm",
+        "unit": "本",
+        "unit_price": 280,
+        "memo": ""
+      },
+      {
+        "name": "ケミカルアンカー M16×190mm",
+        "unit": "本",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "プラグ（樹脂 6mm 100個）",
+        "unit": "袋",
+        "unit_price": 280,
+        "memo": "コンクリート用"
+      },
+      {
+        "name": "プラグ（樹脂 8mm 100個）",
+        "unit": "袋",
+        "unit_price": 320,
+        "memo": ""
+      },
+      {
+        "name": "プラグ（樹脂 10mm 100個）",
+        "unit": "袋",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "コンクリートビス 4.5×40mm（100本）",
+        "unit": "箱",
+        "unit_price": 880,
+        "memo": ""
+      },
+      {
+        "name": "コンクリートビス 4.5×60mm（100本）",
+        "unit": "箱",
+        "unit_price": 980,
+        "memo": ""
+      }
+    ],
+    "フロアコーティング全種類": [
+      {
+        "name": "ガラスコーティング（1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": "耐久20〜30年。最高グレード。材工込み"
+      },
+      {
+        "name": "UVコーティング（1m2）",
+        "unit": "m2",
+        "unit_price": 5500,
+        "memo": "耐久10〜15年。材工込み"
+      },
+      {
+        "name": "シリコンコーティング（1m2）",
+        "unit": "m2",
+        "unit_price": 3500,
+        "memo": "耐久8〜10年。材工込み"
+      },
+      {
+        "name": "ウレタンコーティング（1m2）",
+        "unit": "m2",
+        "unit_price": 3000,
+        "memo": "耐久5〜8年。材工込み"
+      },
+      {
+        "name": "アクリルコーティング（1m2）",
+        "unit": "m2",
+        "unit_price": 2500,
+        "memo": "耐久3〜5年。材工込み"
+      },
+      {
+        "name": "ナノコーティング（1m2）",
+        "unit": "m2",
+        "unit_price": 4500,
+        "memo": "耐久15年。抗菌効果あり"
+      },
+      {
+        "name": "フロアコーティング（新築30坪LDK）",
+        "unit": "式",
+        "unit_price": 180000,
+        "memo": "材工込み。ガラスコート標準"
+      },
+      {
+        "name": "フロアコーティング（新築全室30坪）",
+        "unit": "式",
+        "unit_price": 350000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "ワックス剥離・再塗布（1m2）",
+        "unit": "m2",
+        "unit_price": 1200,
+        "memo": "既存ワックス除去込み"
+      },
+      {
+        "name": "艶消しコーティング（1m2）",
+        "unit": "m2",
+        "unit_price": 4000,
+        "memo": "マット仕上げ"
+      },
+      {
+        "name": "防滑コーティング（1m2）",
+        "unit": "m2",
+        "unit_price": 3500,
+        "memo": "玄関・浴室前・介護施設"
+      },
+      {
+        "name": "抗ウイルスコーティング（1m2）",
+        "unit": "m2",
+        "unit_price": 3000,
+        "memo": "医療・保育施設向け"
+      }
+    ],
+    "外壁材メーカー品番": [
+      {
+        "name": "ニチハ モエン14 サイディング（14mm）",
+        "unit": "m2",
+        "unit_price": 3800,
+        "memo": "標準品。防火認定取得"
+      },
+      {
+        "name": "ニチハ モエン16 サイディング（16mm）",
+        "unit": "m2",
+        "unit_price": 4500,
+        "memo": "高耐久"
+      },
+      {
+        "name": "ニチハ フュージェ（16mm 超高耐久）",
+        "unit": "m2",
+        "unit_price": 6500,
+        "memo": "30年塗り替え不要"
+      },
+      {
+        "name": "ケイミュー KMEW 親水コートサイディング（16mm）",
+        "unit": "m2",
+        "unit_price": 4200,
+        "memo": "光触媒コート"
+      },
+      {
+        "name": "ケイミュー SOLIDO（16mm 高意匠）",
+        "unit": "m2",
+        "unit_price": 7500,
+        "memo": "高級外壁材"
+      },
+      {
+        "name": "旭トステム AT-WALL（16mm）",
+        "unit": "m2",
+        "unit_price": 4000,
+        "memo": ""
+      },
+      {
+        "name": "東レ ラップサイディング（14mm）",
+        "unit": "m2",
+        "unit_price": 5500,
+        "memo": "木目調"
+      },
+      {
+        "name": "金属サイディング アイジー工業（断熱材付）",
+        "unit": "m2",
+        "unit_price": 6500,
+        "memo": "断熱一体型"
+      },
+      {
+        "name": "金属サイディング ガルスパン（スチール）",
+        "unit": "m2",
+        "unit_price": 5800,
+        "memo": ""
+      },
+      {
+        "name": "ALC旭化成 ヘーベル（75mm）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": "耐火・断熱"
+      },
+      {
+        "name": "ALC旭化成 ヘーベル（100mm）",
+        "unit": "m2",
+        "unit_price": 11000,
+        "memo": ""
+      },
+      {
+        "name": "モルタル外壁（リシン吹付 材工）",
+        "unit": "m2",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "モルタル外壁（スタッコ 材工）",
+        "unit": "m2",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "タイル外壁 LIXIL エコカラット",
+        "unit": "m2",
+        "unit_price": 15000,
+        "memo": "材工込み"
+      }
+    ],
+    "屋根材メーカー品番": [
+      {
+        "name": "ケイミュー コロニアルクァッド（スレート）",
+        "unit": "m2",
+        "unit_price": 3200,
+        "memo": "標準スレート"
+      },
+      {
+        "name": "ケイミュー コロニアルグラッサ",
+        "unit": "m2",
+        "unit_price": 4500,
+        "memo": "高耐久グラッサコート"
+      },
+      {
+        "name": "ケイミュー ROOGA（軽量瓦）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": "地震に強い軽量"
+      },
+      {
+        "name": "ガルバリウム鋼板 アイジー工業 スーパーガルテクト",
+        "unit": "m2",
+        "unit_price": 7500,
+        "memo": "断熱材一体型"
+      },
+      {
+        "name": "ガルバリウム鋼板 アイジー工業 ガルテクト",
+        "unit": "m2",
+        "unit_price": 6500,
+        "memo": ""
+      },
+      {
+        "name": "ガルバリウム鋼板 日鉄鋼板 SGL（縦葺き）",
+        "unit": "m2",
+        "unit_price": 5800,
+        "memo": ""
+      },
+      {
+        "name": "アスファルトシングル CertainTeed",
+        "unit": "m2",
+        "unit_price": 3800,
+        "memo": "北米系デザイン"
+      },
+      {
+        "name": "三州瓦（J形 和瓦）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": "日本伝統。重量注意"
+      },
+      {
+        "name": "平板瓦 鶴弥（スーパートライ110）",
+        "unit": "m2",
+        "unit_price": 7500,
+        "memo": "軽量瓦"
+      },
+      {
+        "name": "ソーラールーフ テスラ Solar Roof",
+        "unit": "m2",
+        "unit_price": 85000,
+        "memo": "太陽光一体型"
+      }
+    ],
+    "断熱材メーカー品番": [
+      {
+        "name": "旭化成 ネオマフォーム（25mm）",
+        "unit": "m2",
+        "unit_price": 2200,
+        "memo": "受注制限中2026年4月。代替品検討必須"
+      },
+      {
+        "name": "旭化成 ネオマフォーム（50mm）",
+        "unit": "m2",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "旭化成 ネオマフォーム（75mm）",
+        "unit": "m2",
+        "unit_price": 5500,
+        "memo": ""
+      },
+      {
+        "name": "積水化学 フェノバボード（25mm）",
+        "unit": "m2",
+        "unit_price": 2500,
+        "memo": "フェノールフォーム代替"
+      },
+      {
+        "name": "積水化学 フェノバボード（50mm）",
+        "unit": "m2",
+        "unit_price": 4200,
+        "memo": ""
+      },
+      {
+        "name": "コーンウォールグラスウール（16K 105mm）",
+        "unit": "m2",
+        "unit_price": 680,
+        "memo": ""
+      },
+      {
+        "name": "マグ・イゾベール グラスウール（24K 105mm）",
+        "unit": "m2",
+        "unit_price": 980,
+        "memo": "高性能"
+      },
+      {
+        "name": "旭ファイバーグラス グラスウール（16K 155mm）",
+        "unit": "m2",
+        "unit_price": 1200,
+        "memo": "天井用"
+      },
+      {
+        "name": "ニチアス ロックウール（50mm）",
+        "unit": "m2",
+        "unit_price": 1500,
+        "memo": "防火・防音"
+      },
+      {
+        "name": "カネカ カネライトフォーム（30mm）",
+        "unit": "m2",
+        "unit_price": 1100,
+        "memo": "押出法ポリスチレン"
+      },
+      {
+        "name": "カネカ カネライトフォーム（50mm）",
+        "unit": "m2",
+        "unit_price": 1600,
+        "memo": ""
+      },
+      {
+        "name": "住友化学 スタイロフォーム（30mm）",
+        "unit": "m2",
+        "unit_price": 1050,
+        "memo": "床断熱標準"
+      },
+      {
+        "name": "住友化学 スタイロフォーム（50mm）",
+        "unit": "m2",
+        "unit_price": 1600,
+        "memo": ""
+      },
+      {
+        "name": "フクビ エアテック断熱（100mm）",
+        "unit": "m2",
+        "unit_price": 2800,
+        "memo": ""
+      }
+    ],
+    "サッシメーカー品番詳細": [
+      {
+        "name": "YKK AP 引違い窓 エピソードNEO 1690×970",
+        "unit": "枚",
+        "unit_price": 55000,
+        "memo": "複層ガラス標準"
+      },
+      {
+        "name": "YKK AP 引違い窓 エピソードNEO 1690×1170",
+        "unit": "枚",
+        "unit_price": 62000,
+        "memo": ""
+      },
+      {
+        "name": "YKK AP 樹脂窓 APW330 引違い 1690×970",
+        "unit": "枚",
+        "unit_price": 88000,
+        "memo": "高断熱"
+      },
+      {
+        "name": "YKK AP 樹脂窓 APW430 引違い 1690×970",
+        "unit": "枚",
+        "unit_price": 128000,
+        "memo": "トリプルガラス"
+      },
+      {
+        "name": "YKK AP 玄関ドア イノベスト D50",
+        "unit": "式",
+        "unit_price": 320000,
+        "memo": ""
+      },
+      {
+        "name": "YKK AP 玄関ドア イノベスト D70",
+        "unit": "式",
+        "unit_price": 420000,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL サーモスII-H 引違い 1690×970",
+        "unit": "枚",
+        "unit_price": 52000,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL エルスターS 引違い 1690×970",
+        "unit": "枚",
+        "unit_price": 78000,
+        "memo": "高断熱樹脂"
+      },
+      {
+        "name": "LIXIL エルスターX 引違い 1690×970",
+        "unit": "枚",
+        "unit_price": 95000,
+        "memo": "トリプルガラス"
+      },
+      {
+        "name": "LIXIL 玄関ドア ジエスタ2 D2仕様",
+        "unit": "式",
+        "unit_price": 280000,
+        "memo": ""
+      },
+      {
+        "name": "三協アルミ 引違い窓 ノイスタ 1690×970",
+        "unit": "枚",
+        "unit_price": 48000,
+        "memo": ""
+      },
+      {
+        "name": "インプラス（内窓 LIXIL）引違い 1690×970",
+        "unit": "枚",
+        "unit_price": 45000,
+        "memo": "断熱リフォーム"
+      },
+      {
+        "name": "プラマードU（内窓 YKK）引違い 1690×970",
+        "unit": "枚",
+        "unit_price": 48000,
+        "memo": ""
+      }
+    ],
+    "床材メーカー品番": [
+      {
+        "name": "朝日ウッドテック ライブナチュラル（12mm）",
+        "unit": "m2",
+        "unit_price": 5500,
+        "memo": "複合フローリング高級品"
+      },
+      {
+        "name": "朝日ウッドテック ライブナチュラルプラス（12mm）",
+        "unit": "m2",
+        "unit_price": 7500,
+        "memo": "無垢材表面"
+      },
+      {
+        "name": "大建工業 トリニティ（12mm）",
+        "unit": "m2",
+        "unit_price": 6500,
+        "memo": ""
+      },
+      {
+        "name": "大建工業 マンション用（10mm）",
+        "unit": "m2",
+        "unit_price": 5000,
+        "memo": "遮音フローリング"
+      },
+      {
+        "name": "永大産業 エクオス（12mm）",
+        "unit": "m2",
+        "unit_price": 4800,
+        "memo": ""
+      },
+      {
+        "name": "永大産業 マルチ ハードコート（12mm）",
+        "unit": "m2",
+        "unit_price": 5500,
+        "memo": ""
+      },
+      {
+        "name": "ウッドワン 無垢フローリング 杉（15mm）",
+        "unit": "m2",
+        "unit_price": 7500,
+        "memo": ""
+      },
+      {
+        "name": "ウッドワン 無垢フローリング 桧（15mm）",
+        "unit": "m2",
+        "unit_price": 9500,
+        "memo": ""
+      },
+      {
+        "name": "ウッドワン 無垢フローリング オーク（15mm）",
+        "unit": "m2",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック ベリティス（12mm）",
+        "unit": "m2",
+        "unit_price": 6000,
+        "memo": ""
+      },
+      {
+        "name": "東リ クッションフロア CF（1.8m幅 m単価）",
+        "unit": "m",
+        "unit_price": 1800,
+        "memo": "水回り標準"
+      },
+      {
+        "name": "東リ フロアタイル（300角）",
+        "unit": "枚",
+        "unit_price": 680,
+        "memo": ""
+      },
+      {
+        "name": "サンゲツ クッションフロア（1.8m幅）",
+        "unit": "m",
+        "unit_price": 1900,
+        "memo": ""
+      },
+      {
+        "name": "リリカラ 木目フロア（12mm）",
+        "unit": "m2",
+        "unit_price": 4500,
+        "memo": ""
+      }
+    ],
+    "クロスメーカー品番": [
+      {
+        "name": "サンゲツ SP-9701（量産クロス 92cm幅）",
+        "unit": "m",
+        "unit_price": 850,
+        "memo": "標準量産品"
+      },
+      {
+        "name": "サンゲツ RE-51011（1000番台）",
+        "unit": "m",
+        "unit_price": 1200,
+        "memo": "デザイン品"
+      },
+      {
+        "name": "サンゲツ FE-74244（抗菌・抗ウイルス）",
+        "unit": "m",
+        "unit_price": 1500,
+        "memo": "医療・保育"
+      },
+      {
+        "name": "リリカラ LL-7001（量産クロス）",
+        "unit": "m",
+        "unit_price": 820,
+        "memo": ""
+      },
+      {
+        "name": "リリカラ LW-2501（1000番台）",
+        "unit": "m",
+        "unit_price": 1150,
+        "memo": ""
+      },
+      {
+        "name": "シンコール SLP-648（量産クロス）",
+        "unit": "m",
+        "unit_price": 800,
+        "memo": ""
+      },
+      {
+        "name": "東リ WVP2001（ビニルクロス 量産）",
+        "unit": "m",
+        "unit_price": 830,
+        "memo": ""
+      },
+      {
+        "name": "トキワ TWP-1001（量産クロス）",
+        "unit": "m",
+        "unit_price": 810,
+        "memo": ""
+      },
+      {
+        "name": "ルノン RH-9001（量産クロス）",
+        "unit": "m",
+        "unit_price": 840,
+        "memo": ""
+      },
+      {
+        "name": "壁紙（輸入品 ウィリアムモリス）",
+        "unit": "m",
+        "unit_price": 4500,
+        "memo": "高級輸入壁紙"
+      },
+      {
+        "name": "珪藻土クロス（1m2）",
+        "unit": "m2",
+        "unit_price": 2800,
+        "memo": "調湿効果"
+      },
+      {
+        "name": "エコクロス（再生紙系）",
+        "unit": "m",
+        "unit_price": 950,
+        "memo": "環境配慮型"
+      }
+    ],
+    "照明器具詳細": [
+      {
+        "name": "パナソニック シーリングライト LEDシリーズ 6畳",
+        "unit": "台",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック シーリングライト LEDシリーズ 12畳",
+        "unit": "台",
+        "unit_price": 15000,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック ダウンライト LGB73022",
+        "unit": "台",
+        "unit_price": 3800,
+        "memo": "埋込型"
+      },
+      {
+        "name": "パナソニック ダウンライト 調光調色",
+        "unit": "台",
+        "unit_price": 6500,
+        "memo": ""
+      },
+      {
+        "name": "オーデリック シーリング OL-251",
+        "unit": "台",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "オーデリック ダウンライト OD-251",
+        "unit": "台",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "東芝ライテック LEDダウンライト",
+        "unit": "台",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "コイズミ ペンダントライト",
+        "unit": "台",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "山田照明 スポットライト",
+        "unit": "台",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "遠藤照明 ベースダウンライト",
+        "unit": "台",
+        "unit_price": 5500,
+        "memo": ""
+      },
+      {
+        "name": "LED蛍光灯 40W型（直管）",
+        "unit": "本",
+        "unit_price": 1500,
+        "memo": "既存器具流用"
+      },
+      {
+        "name": "LED電球 E26（60W相当）",
+        "unit": "個",
+        "unit_price": 580,
+        "memo": ""
+      },
+      {
+        "name": "非常灯 誘導灯（小型）",
+        "unit": "台",
+        "unit_price": 28000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "外部照明 玄関センサーライト",
+        "unit": "台",
+        "unit_price": 8500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "フットライト 階段用",
+        "unit": "台",
+        "unit_price": 3800,
+        "memo": "材工込み"
+      }
+    ],
+    "47都道府県別労務単価_大工（2026年）": [
+      {
+        "name": "大工労務単価 北海道",
+        "unit": "日",
+        "unit_price": 29000,
+        "memo": "公共工事設計労務単価2026年"
+      },
+      {
+        "name": "大工労務単価 青森県",
+        "unit": "日",
+        "unit_price": 26000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 岩手県",
+        "unit": "日",
+        "unit_price": 27000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 宮城県",
+        "unit": "日",
+        "unit_price": 33000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 秋田県",
+        "unit": "日",
+        "unit_price": 26000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 山形県",
+        "unit": "日",
+        "unit_price": 27000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 福島県",
+        "unit": "日",
+        "unit_price": 29000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 茨城県",
+        "unit": "日",
+        "unit_price": 32000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 栃木県",
+        "unit": "日",
+        "unit_price": 31000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 群馬県",
+        "unit": "日",
+        "unit_price": 31000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 埼玉県",
+        "unit": "日",
+        "unit_price": 38000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 千葉県",
+        "unit": "日",
+        "unit_price": 38000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 東京都",
+        "unit": "日",
+        "unit_price": 45000,
+        "memo": "最高水準"
+      },
+      {
+        "name": "大工労務単価 神奈川県",
+        "unit": "日",
+        "unit_price": 42000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 新潟県",
+        "unit": "日",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 富山県",
+        "unit": "日",
+        "unit_price": 29000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 石川県",
+        "unit": "日",
+        "unit_price": 30000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 福井県",
+        "unit": "日",
+        "unit_price": 29000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 山梨県",
+        "unit": "日",
+        "unit_price": 30000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 長野県",
+        "unit": "日",
+        "unit_price": 29000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 岐阜県",
+        "unit": "日",
+        "unit_price": 30000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 静岡県",
+        "unit": "日",
+        "unit_price": 32000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 愛知県",
+        "unit": "日",
+        "unit_price": 38000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 三重県",
+        "unit": "日",
+        "unit_price": 30000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 滋賀県",
+        "unit": "日",
+        "unit_price": 32000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 京都府",
+        "unit": "日",
+        "unit_price": 37000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 大阪府",
+        "unit": "日",
+        "unit_price": 40000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 兵庫県",
+        "unit": "日",
+        "unit_price": 36000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 奈良県",
+        "unit": "日",
+        "unit_price": 30000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 和歌山県",
+        "unit": "日",
+        "unit_price": 27000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 鳥取県",
+        "unit": "日",
+        "unit_price": 26000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 島根県",
+        "unit": "日",
+        "unit_price": 26000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 岡山県",
+        "unit": "日",
+        "unit_price": 30000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 広島県",
+        "unit": "日",
+        "unit_price": 33000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 山口県",
+        "unit": "日",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 徳島県",
+        "unit": "日",
+        "unit_price": 26000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 香川県",
+        "unit": "日",
+        "unit_price": 27000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 愛媛県",
+        "unit": "日",
+        "unit_price": 26000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 高知県",
+        "unit": "日",
+        "unit_price": 25000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 福岡県",
+        "unit": "日",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 佐賀県",
+        "unit": "日",
+        "unit_price": 26000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 長崎県",
+        "unit": "日",
+        "unit_price": 26000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 熊本県",
+        "unit": "日",
+        "unit_price": 27000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 大分県",
+        "unit": "日",
+        "unit_price": 26000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 宮崎県",
+        "unit": "日",
+        "unit_price": 25000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 鹿児島県",
+        "unit": "日",
+        "unit_price": 25000,
+        "memo": ""
+      },
+      {
+        "name": "大工労務単価 沖縄県",
+        "unit": "日",
+        "unit_price": 28000,
+        "memo": ""
+      }
+    ],
+    "防蟻処理剤・防腐材": [
+      {
+        "name": "エコボロン PRO（ホウ酸系 1L）",
+        "unit": "L",
+        "unit_price": 4500,
+        "memo": "人体無害。半永久効果"
+      },
+      {
+        "name": "エコボロン PRO（ホウ酸系 18L）",
+        "unit": "缶",
+        "unit_price": 68000,
+        "memo": ""
+      },
+      {
+        "name": "木材保存剤 ACQ（銅系 18L）",
+        "unit": "缶",
+        "unit_price": 28000,
+        "memo": "土台・柱の加圧注入"
+      },
+      {
+        "name": "防蟻防腐処理剤 シロアリハンター（18L）",
+        "unit": "缶",
+        "unit_price": 22000,
+        "memo": ""
+      },
+      {
+        "name": "防蟻処理剤 タケロック（18L）",
+        "unit": "缶",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "木部保護塗料 キシラデコール（4L）",
+        "unit": "缶",
+        "unit_price": 8500,
+        "memo": "屋外木部"
+      },
+      {
+        "name": "木部保護塗料 キシラデコール（16L）",
+        "unit": "缶",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "木部保護塗料 オスモカラー（2.5L）",
+        "unit": "缶",
+        "unit_price": 8500,
+        "memo": "自然塗料"
+      },
+      {
+        "name": "床下防腐防蟻処理（1m2 材工）",
+        "unit": "m2",
+        "unit_price": 2000,
+        "memo": "新築・既存"
+      },
+      {
+        "name": "土台防蟻処理（加圧注入材 1m）",
+        "unit": "m",
+        "unit_price": 1500,
+        "memo": ""
+      }
+    ],
+    "接着剤・コーキング全品番": [
+      {
+        "name": "セメダイン スーパーX（135ml）",
+        "unit": "本",
+        "unit_price": 980,
+        "memo": "多用途強力接着"
+      },
+      {
+        "name": "セメダイン スーパーXG（135ml）",
+        "unit": "本",
+        "unit_price": 1200,
+        "memo": "耐熱・耐水"
+      },
+      {
+        "name": "コニシ ボンド E350R（1kg）",
+        "unit": "缶",
+        "unit_price": 2800,
+        "memo": "エポキシ系"
+      },
+      {
+        "name": "コニシ フロアメント（18kg）",
+        "unit": "缶",
+        "unit_price": 8500,
+        "memo": "フローリング用"
+      },
+      {
+        "name": "コニシ ウレタンボンド（18kg）",
+        "unit": "缶",
+        "unit_price": 12000,
+        "memo": "無垢フローリング用"
+      },
+      {
+        "name": "サンスター ペンギンシール 変成シリコン（330ml）",
+        "unit": "本",
+        "unit_price": 680,
+        "memo": ""
+      },
+      {
+        "name": "サンスター ペンギンシール ウレタン（330ml）",
+        "unit": "本",
+        "unit_price": 620,
+        "memo": ""
+      },
+      {
+        "name": "信越シリコーン KE-45（330ml）",
+        "unit": "本",
+        "unit_price": 580,
+        "memo": ""
+      },
+      {
+        "name": "横浜ゴム スーパーシール（330ml）",
+        "unit": "本",
+        "unit_price": 650,
+        "memo": ""
+      },
+      {
+        "name": "オート化学 オートンイクシード（1成分 330ml）",
+        "unit": "本",
+        "unit_price": 1500,
+        "memo": "超高耐久30年"
+      },
+      {
+        "name": "オート化学 オートンサイディングシーラント",
+        "unit": "本",
+        "unit_price": 1200,
+        "memo": "サイディング専用"
+      },
+      {
+        "name": "発泡ウレタン フォームガン用（750ml）",
+        "unit": "本",
+        "unit_price": 1800,
+        "memo": "気密・断熱充填"
+      },
+      {
+        "name": "発泡ウレタン スプレー缶（500ml）",
+        "unit": "本",
+        "unit_price": 1200,
+        "memo": ""
+      }
+    ],
+    "換気設備詳細": [
+      {
+        "name": "パナソニック 天井埋込型換気扇 FY-17C8",
+        "unit": "台",
+        "unit_price": 8500,
+        "memo": "トイレ・洗面用"
+      },
+      {
+        "name": "パナソニック 天井埋込型換気扇 FY-24BK6",
+        "unit": "台",
+        "unit_price": 15000,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 熱交換換気 FY-12VBD2",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": "第1種換気"
+      },
+      {
+        "name": "パナソニック 全熱交換換気 FY-18DPX",
+        "unit": "台",
+        "unit_price": 280000,
+        "memo": "大型"
+      },
+      {
+        "name": "三菱電機 ロスナイ VL-100ZMG2",
+        "unit": "台",
+        "unit_price": 45000,
+        "memo": "壁掛け型熱交換"
+      },
+      {
+        "name": "三菱電機 ロスナイ VL-150ZMG2",
+        "unit": "台",
+        "unit_price": 65000,
+        "memo": ""
+      },
+      {
+        "name": "マックス 換気扇 VF-H08K5",
+        "unit": "台",
+        "unit_price": 6500,
+        "memo": ""
+      },
+      {
+        "name": "東芝 換気扇 DVF-T14LMD",
+        "unit": "台",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "富士工業 レンジフード 60cm スタンダード",
+        "unit": "台",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "富士工業 レンジフード 75cm スタンダード",
+        "unit": "台",
+        "unit_price": 55000,
+        "memo": ""
+      },
+      {
+        "name": "富士工業 レンジフード 60cm ハイグレード",
+        "unit": "台",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "クリナップ レンジフード ZRS75ABY14FSZ",
+        "unit": "台",
+        "unit_price": 75000,
+        "memo": ""
+      },
+      {
+        "name": "ダクト用消音ボックス（Φ100）",
+        "unit": "個",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "外壁用換気口 防虫網付き（Φ100）",
+        "unit": "個",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "外壁用換気口 防虫網付き（Φ150）",
+        "unit": "個",
+        "unit_price": 2800,
+        "memo": ""
+      }
+    ]
+  }
+}
