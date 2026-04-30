@@ -506,21 +506,60 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:32px
 
 <div class="divider"></div>
 
-<section id="kira-section">
+<section id="kira-section" style="background:var(--surface);border-top:1px solid var(--border);padding:56px 20px">
   <div class="sec-label">// AI CONSULTANT</div>
-  <div class="kira-header">
-    <div class="kira-avatar">K</div>
-    <div><div style="font-weight:900;font-size:16px">KIRA</div><div class="kira-status"><span class="dot"></span>24時間対応中 · 応答3秒以内</div></div>
-  </div>
-  <div class="chat-box">建設のプロAI「KIRA」に無料で相談できます。見積書の写真を送るだけで、ぼったくりや過剰請求をその場で診断。まずKIRAに話しかけてみてください。</div>
-  <div style="display:flex;flex-direction:column;gap:10px">
-    <a href="https://line.me/R/ti/p/@172piime" class="line-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;font-size:14px;font-weight:900;border-radius:4px">🛡 KIRAにLINEで相談する（無料・24時間）</a>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <a href="https://chatgpt.com/g/g-69e180f9a5048191886069dd58b22572-jian-she-fei-tietuka-by-horizon-shield" class="chat-btn" target="_blank" style="text-align:center;padding:11px;font-size:12px;font-weight:700;border-radius:4px">ChatGPTで診断 →</a>
-      <a href="https://gemini.google.com/gem/1_AqLRwNSP1tZWZNWzyNIrsOrBLI1fAjo" class="chat-btn" target="_blank" style="text-align:center;padding:11px;font-size:12px;font-weight:700;border-radius:4px">Geminiで診断 →</a>
-      <a href="/hs-reverse-estimate/" class="chat-btn" target="_blank" style="text-align:center;padding:11px;font-size:12px;font-weight:700;border-radius:4px;background:rgba(200,168,50,.1);border:1px solid #c8a832;color:#8b6914">★ 逆見積もり診断 →</a>
-      <a href="#diagnosis-section" class="chat-btn" style="text-align:center;padding:11px;font-size:12px;font-weight:700;border-radius:4px">無料AI診断を試す →</a>
+
+  <!-- KIRAヘッダー -->
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding:20px;background:linear-gradient(135deg,rgba(15,30,74,.04),rgba(200,168,50,.03));border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px">
+    <div style="width:52px;height:52px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:24px;color:#faf9f5;flex-shrink:0;box-shadow:0 4px 12px rgba(15,30,74,.2)">K</div>
+    <div>
+      <div style="font-weight:900;font-size:18px;color:var(--accent);letter-spacing:.5px">KIRA</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-top:3px">
+        <span style="width:7px;height:7px;background:#2e7d32;border-radius:50%;display:inline-block;animation:pulse 2s infinite"></span>
+        24時間対応中 &nbsp;·&nbsp; 応答3秒以内 &nbsp;·&nbsp; 建設30年プロ監修
+      </div>
     </div>
+    <div style="margin-left:auto;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:3px;color:var(--muted);opacity:.6">KIRA AI · 2028</div>
+  </div>
+
+  <!-- 説明文 -->
+  <p style="font-size:14px;color:var(--muted);line-height:1.9;margin-bottom:24px;padding:0 4px">建設30年の知識を学習したAI「KIRA」に無料で相談できます。<br>見積書の写真を送るだけで、ぼったくり・過剰請求をその場で診断します。</p>
+
+  <!-- メインCTA：LINE -->
+  <a href="https://line.me/R/ti/p/@172piime" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:18px;background:#06C755;color:#fff;text-decoration:none;font-weight:900;font-size:16px;letter-spacing:.5px;border-radius:4px;margin-bottom:16px;transition:all .2s;box-shadow:0 4px 16px rgba(6,199,85,.25)">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+    KIRAにLINEで相談する（完全無料）
+  </a>
+
+  <!-- サブCTA群 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+    <a href="https://chatgpt.com/g/g-69e180f9a5048191886069dd58b22572-jian-she-fei-tietuka-by-horizon-shield" target="_blank" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 10px;background:var(--bg);border:1px solid var(--border);text-decoration:none;border-radius:4px;transition:all .2s">
+      <span style="font-size:20px">🤖</span>
+      <span style="font-size:12px;font-weight:700;color:var(--text)">ChatGPTで診断</span>
+      <span style="font-size:10px;color:var(--muted)">GPTストア1位</span>
+    </a>
+    <a href="https://gemini.google.com/gem/1_AqLRwNSP1tZWZNWzyNIrsOrBLI1fAjo" target="_blank" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 10px;background:var(--bg);border:1px solid var(--border);text-decoration:none;border-radius:4px;transition:all .2s">
+      <span style="font-size:20px">✨</span>
+      <span style="font-size:12px;font-weight:700;color:var(--text)">Geminiで診断</span>
+      <span style="font-size:10px;color:var(--muted)">Google AI</span>
+    </a>
+    <a href="/hs-reverse-estimate/" target="_blank" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 10px;background:rgba(200,168,50,.06);border:1px solid rgba(200,168,50,.4);text-decoration:none;border-radius:4px;transition:all .2s">
+      <span style="font-size:20px">📋</span>
+      <span style="font-size:12px;font-weight:700;color:#8b6914">逆見積もり診断</span>
+      <span style="font-size:10px;color:var(--muted)">¥5,500 / 無料概算あり</span>
+    </a>
+    <a href="#diagnosis-section" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 10px;background:rgba(15,30,74,.04);border:1px solid rgba(15,30,74,.15);text-decoration:none;border-radius:4px;transition:all .2s">
+      <span style="font-size:20px">🔍</span>
+      <span style="font-size:12px;font-weight:700;color:var(--accent)">無料AI診断</span>
+      <span style="font-size:10px;color:var(--muted)">見積書を今すぐ分析</span>
+    </a>
+  </div>
+
+  <!-- 相場DBリンク -->
+  <div style="text-align:center;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:4px;font-size:12px;color:var(--muted)">
+    <a href="https://shield.the-horizons-innovation.com/souba.html" style="color:var(--accent);font-weight:700;text-decoration:none">📊 相場データベースを見る</a>
+    &nbsp;·&nbsp;
+    <a href="/widget.html" target="_blank" style="color:var(--accent);font-weight:700;text-decoration:none">🔧 見積もりチェッカー</a>
   </div>
 </section>
 
