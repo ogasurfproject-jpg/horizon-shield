@@ -1,0 +1,819 @@
+{
+  "version": "2026.04_part14",
+  "categories": {
+    "左官材料詳細全品番": [
+      {
+        "name": "ポルトランドセメント（25kg）",
+        "unit": "袋",
+        "unit_price": 780,
+        "memo": ""
+      },
+      {
+        "name": "白セメント（25kg）",
+        "unit": "袋",
+        "unit_price": 1800,
+        "memo": "目地・化粧用"
+      },
+      {
+        "name": "アルミナセメント（25kg）",
+        "unit": "袋",
+        "unit_price": 4500,
+        "memo": "耐熱・緊急補修"
+      },
+      {
+        "name": "川砂（1m3）",
+        "unit": "m3",
+        "unit_price": 4800,
+        "memo": "左官・モルタル用"
+      },
+      {
+        "name": "珪砂（25kg 6号）",
+        "unit": "袋",
+        "unit_price": 580,
+        "memo": ""
+      },
+      {
+        "name": "寒水石（20kg）",
+        "unit": "袋",
+        "unit_price": 1200,
+        "memo": "洗い出し仕上げ"
+      },
+      {
+        "name": "石灰（消石灰 20kg）",
+        "unit": "袋",
+        "unit_price": 880,
+        "memo": "漆喰・土壁"
+      },
+      {
+        "name": "漆喰（田川産業 20kg）",
+        "unit": "袋",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "漆喰（日本プラスター うま〜くヌレール 18kg）",
+        "unit": "袋",
+        "unit_price": 6500,
+        "memo": "DIY向け"
+      },
+      {
+        "name": "土壁用荒壁土（1袋）",
+        "unit": "袋",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "珪藻土（フジワラ化学 20kg）",
+        "unit": "袋",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "ジュラク（吉野石膏 20kg）",
+        "unit": "袋",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "石膏プラスター（25kg）",
+        "unit": "袋",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "モルタル混和剤（1L）",
+        "unit": "L",
+        "unit_price": 880,
+        "memo": "接着性向上"
+      },
+      {
+        "name": "防水モルタル（25kg）",
+        "unit": "袋",
+        "unit_price": 1500,
+        "memo": ""
+      },
+      {
+        "name": "薄塗りモルタル（25kg）",
+        "unit": "袋",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "既調合モルタル（25kg）",
+        "unit": "袋",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "左官用メッシュ（1m×50m）",
+        "unit": "巻",
+        "unit_price": 3800,
+        "memo": "ひび割れ防止"
+      },
+      {
+        "name": "左官用ラス（1m×30m）",
+        "unit": "巻",
+        "unit_price": 5500,
+        "memo": ""
+      },
+      {
+        "name": "モルタル接着増強剤（4L）",
+        "unit": "缶",
+        "unit_price": 3200,
+        "memo": ""
+      }
+    ],
+    "内装仕上げ塗り材詳細": [
+      {
+        "name": "PAREX LANKO 外装塗り材（25kg）",
+        "unit": "袋",
+        "unit_price": 3800,
+        "memo": ""
+      },
+      {
+        "name": "日本ペイント水性ケンエース（16kg）",
+        "unit": "缶",
+        "unit_price": 8500,
+        "memo": "内壁塗装"
+      },
+      {
+        "name": "関西ペイント ビニデラックス（16kg）",
+        "unit": "缶",
+        "unit_price": 7500,
+        "memo": ""
+      },
+      {
+        "name": "エスケー化研 エマルションペイント（16kg）",
+        "unit": "缶",
+        "unit_price": 6800,
+        "memo": ""
+      },
+      {
+        "name": "マジックコート（20kg）",
+        "unit": "袋",
+        "unit_price": 4500,
+        "memo": "模様塗り材"
+      },
+      {
+        "name": "ジョリパット（20kg）",
+        "unit": "袋",
+        "unit_price": 5500,
+        "memo": "外装仕上げ"
+      },
+      {
+        "name": "ベルアート（20kg）",
+        "unit": "袋",
+        "unit_price": 4800,
+        "memo": ""
+      },
+      {
+        "name": "グラナダ（20kg）",
+        "unit": "袋",
+        "unit_price": 5200,
+        "memo": "自然石調"
+      },
+      {
+        "name": "スタッコフレックス（20kg）",
+        "unit": "袋",
+        "unit_price": 4200,
+        "memo": "弾性仕上げ"
+      },
+      {
+        "name": "リシン（20kg）",
+        "unit": "袋",
+        "unit_price": 2800,
+        "memo": "吹付け仕上げ"
+      }
+    ],
+    "型枠用副資材": [
+      {
+        "name": "コンパネ用釘 CN50（1kg）",
+        "unit": "kg",
+        "unit_price": 320,
+        "memo": ""
+      },
+      {
+        "name": "コンパネ用釘 CN75（1kg）",
+        "unit": "kg",
+        "unit_price": 340,
+        "memo": ""
+      },
+      {
+        "name": "型枠剥離剤（18L）",
+        "unit": "缶",
+        "unit_price": 3500,
+        "memo": "コンクリート打設前"
+      },
+      {
+        "name": "型枠補修テープ（1巻）",
+        "unit": "巻",
+        "unit_price": 580,
+        "memo": ""
+      },
+      {
+        "name": "コーナー定規（2000mm）",
+        "unit": "本",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "面木（2000mm）",
+        "unit": "本",
+        "unit_price": 180,
+        "memo": "コーナー面取り"
+      },
+      {
+        "name": "水抜きパイプ（Φ20）",
+        "unit": "本",
+        "unit_price": 120,
+        "memo": ""
+      },
+      {
+        "name": "型枠用番線（#16 1kg）",
+        "unit": "kg",
+        "unit_price": 280,
+        "memo": ""
+      },
+      {
+        "name": "型枠パネル（鋼製 1m2）リース",
+        "unit": "m2/月",
+        "unit_price": 800,
+        "memo": ""
+      },
+      {
+        "name": "型枠大引き（H鋼 3m）",
+        "unit": "本",
+        "unit_price": 2800,
+        "memo": ""
+      }
+    ],
+    "石材・大理石詳細": [
+      {
+        "name": "御影石 G603（白 本磨き 30mm）",
+        "unit": "m2",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "御影石 G654（黒 本磨き 30mm）",
+        "unit": "m2",
+        "unit_price": 22000,
+        "memo": ""
+      },
+      {
+        "name": "御影石 G682（赤 本磨き 30mm）",
+        "unit": "m2",
+        "unit_price": 25000,
+        "memo": ""
+      },
+      {
+        "name": "大理石 カラーラホワイト（20mm）",
+        "unit": "m2",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "大理石 クリームマーフィル（20mm）",
+        "unit": "m2",
+        "unit_price": 38000,
+        "memo": ""
+      },
+      {
+        "name": "トラバーチン（20mm）",
+        "unit": "m2",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "スレート石（10mm）",
+        "unit": "m2",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "砂岩（30mm）",
+        "unit": "m2",
+        "unit_price": 15000,
+        "memo": ""
+      },
+      {
+        "name": "テラゾー（人造大理石 現場打ち 1m2）",
+        "unit": "m2",
+        "unit_price": 28000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "石材加工費（面取り 1m）",
+        "unit": "m",
+        "unit_price": 1500,
+        "memo": ""
+      },
+      {
+        "name": "石材加工費（R加工 1m）",
+        "unit": "m",
+        "unit_price": 3500,
+        "memo": ""
+      }
+    ],
+    "仮囲い・養生詳細": [
+      {
+        "name": "仮囲い鋼板（1m×1.8m）",
+        "unit": "枚",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "仮囲い鋼板リース（1m2月）",
+        "unit": "m2/月",
+        "unit_price": 600,
+        "memo": ""
+      },
+      {
+        "name": "仮囲い設置・撤去（1m）",
+        "unit": "m",
+        "unit_price": 3500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "ゲート（電動 1基）",
+        "unit": "基",
+        "unit_price": 250000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "ゲート（手動 1基）",
+        "unit": "基",
+        "unit_price": 85000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "養生シート 防炎（1m×50m）",
+        "unit": "巻",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "養生シート 透明（1m×100m）",
+        "unit": "巻",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "床養生 プラベニヤ（1m×1.8m）",
+        "unit": "枚",
+        "unit_price": 450,
+        "memo": ""
+      },
+      {
+        "name": "階段養生材（1段分）",
+        "unit": "段",
+        "unit_price": 350,
+        "memo": ""
+      },
+      {
+        "name": "養生テープ 布（50mm×25m）",
+        "unit": "巻",
+        "unit_price": 350,
+        "memo": ""
+      },
+      {
+        "name": "マスキングテープ（25mm×18m）",
+        "unit": "巻",
+        "unit_price": 120,
+        "memo": ""
+      },
+      {
+        "name": "マスカー（300mm×25m）",
+        "unit": "本",
+        "unit_price": 280,
+        "memo": "塗装養生"
+      },
+      {
+        "name": "マスカー（550mm×25m）",
+        "unit": "本",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "マスカー（1000mm×25m）",
+        "unit": "本",
+        "unit_price": 680,
+        "memo": ""
+      }
+    ],
+    "地盤改良材料詳細": [
+      {
+        "name": "固化材 セメント系（25kg）",
+        "unit": "袋",
+        "unit_price": 880,
+        "memo": "表層・柱状改良"
+      },
+      {
+        "name": "固化材 高炉セメント（25kg）",
+        "unit": "袋",
+        "unit_price": 780,
+        "memo": "六価クロム低減"
+      },
+      {
+        "name": "固化材 特殊タイプ（腐植土対応 25kg）",
+        "unit": "袋",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "鋼管杭 Φ89.1×4mm（1m）",
+        "unit": "m",
+        "unit_price": 3500,
+        "memo": "小口径鋼管杭"
+      },
+      {
+        "name": "鋼管杭 Φ114.3×4mm（1m）",
+        "unit": "m",
+        "unit_price": 5500,
+        "memo": ""
+      },
+      {
+        "name": "鋼管杭先端翼（Φ250 1個）",
+        "unit": "個",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "既製コンクリート杭 PHC Φ300（1m）",
+        "unit": "m",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "既製コンクリート杭 PHC Φ400（1m）",
+        "unit": "m",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "場所打ちコンクリート杭 Φ600（1m）",
+        "unit": "m",
+        "unit_price": 25000,
+        "memo": ""
+      },
+      {
+        "name": "地盤調査 SWS（5点）",
+        "unit": "式",
+        "unit_price": 55000,
+        "memo": "戸建て標準"
+      },
+      {
+        "name": "地盤調査 ボーリング（1本 15m）",
+        "unit": "本",
+        "unit_price": 250000,
+        "memo": ""
+      },
+      {
+        "name": "土壌汚染調査（1式）",
+        "unit": "式",
+        "unit_price": 350000,
+        "memo": "フェーズ1"
+      }
+    ],
+    "建具金物追加品番": [
+      {
+        "name": "スライドヒンジ（キャビネット用 100個）",
+        "unit": "箱",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "ワンタッチキャッチ（10個）",
+        "unit": "袋",
+        "unit_price": 580,
+        "memo": ""
+      },
+      {
+        "name": "マグネットキャッチ（10個）",
+        "unit": "袋",
+        "unit_price": 480,
+        "memo": ""
+      },
+      {
+        "name": "家具用引手（角型 10個）",
+        "unit": "袋",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "家具用引手（ドロップ型 10個）",
+        "unit": "袋",
+        "unit_price": 2200,
+        "memo": ""
+      },
+      {
+        "name": "棚受け金物（1個）",
+        "unit": "個",
+        "unit_price": 180,
+        "memo": ""
+      },
+      {
+        "name": "可動棚受け（ダボ 100個）",
+        "unit": "袋",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "ステー（折りたたみ 1個）",
+        "unit": "個",
+        "unit_price": 580,
+        "memo": ""
+      },
+      {
+        "name": "スライドレール（3段引き 350mm）",
+        "unit": "本",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "スライドレール（3段引き 450mm）",
+        "unit": "本",
+        "unit_price": 2200,
+        "memo": ""
+      },
+      {
+        "name": "スライドレール（3段引き 550mm）",
+        "unit": "本",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "引出しロック（1個）",
+        "unit": "個",
+        "unit_price": 880,
+        "memo": "子供部屋・薬品棚"
+      },
+      {
+        "name": "ガラス棚受け（4個）",
+        "unit": "袋",
+        "unit_price": 880,
+        "memo": ""
+      },
+      {
+        "name": "家具転倒防止金物（1組）",
+        "unit": "組",
+        "unit_price": 880,
+        "memo": "地震対策"
+      },
+      {
+        "name": "家具転倒防止突っ張り棒（1本）",
+        "unit": "本",
+        "unit_price": 1800,
+        "memo": ""
+      }
+    ],
+    "空調機器メンテナンス": [
+      {
+        "name": "エアコンフィルター清掃（1台）",
+        "unit": "台",
+        "unit_price": 3500,
+        "memo": "年1回推奨"
+      },
+      {
+        "name": "エアコン本体クリーニング（1台）",
+        "unit": "台",
+        "unit_price": 12000,
+        "memo": "プロ清掃"
+      },
+      {
+        "name": "エアコン冷媒補充（1台）",
+        "unit": "台",
+        "unit_price": 15000,
+        "memo": "R32"
+      },
+      {
+        "name": "エアコン冷媒回収（1台）",
+        "unit": "台",
+        "unit_price": 8500,
+        "memo": "フロン回収法"
+      },
+      {
+        "name": "業務用エアコン清掃（天カセ 1台）",
+        "unit": "台",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "換気フィルター交換（1台）",
+        "unit": "台",
+        "unit_price": 3500,
+        "memo": "熱交換換気"
+      },
+      {
+        "name": "ダクト清掃（1m）",
+        "unit": "m",
+        "unit_price": 3500,
+        "memo": "業務用換気"
+      },
+      {
+        "name": "冷媒ガス R32（1kg）",
+        "unit": "kg",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "冷媒ガス R410A（1kg）",
+        "unit": "kg",
+        "unit_price": 8500,
+        "memo": "旧冷媒 高騰"
+      }
+    ],
+    "電気メンテナンス・検査": [
+      {
+        "name": "電気設備定期検査（低圧 1式）",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": "3年毎推奨"
+      },
+      {
+        "name": "電気設備定期検査（高圧 1式）",
+        "unit": "式",
+        "unit_price": 350000,
+        "memo": "年1回義務"
+      },
+      {
+        "name": "絶縁抵抗測定（1回路）",
+        "unit": "回路",
+        "unit_price": 1500,
+        "memo": ""
+      },
+      {
+        "name": "接地抵抗測定（1箇所）",
+        "unit": "箇所",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "漏電調査（1式）",
+        "unit": "式",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "照度測定（1室）",
+        "unit": "室",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "分電盤点検（1面）",
+        "unit": "面",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "非常照明点検（1台）",
+        "unit": "台",
+        "unit_price": 1500,
+        "memo": "年1回義務"
+      },
+      {
+        "name": "避雷針点検（1式）",
+        "unit": "式",
+        "unit_price": 45000,
+        "memo": ""
+      }
+    ],
+    "給排水メンテナンス": [
+      {
+        "name": "貯水槽清掃（1m3以下）",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": "年1回義務"
+      },
+      {
+        "name": "貯水槽清掃（10m3以下）",
+        "unit": "式",
+        "unit_price": 150000,
+        "memo": ""
+      },
+      {
+        "name": "水質検査（貯水槽）",
+        "unit": "式",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "排水管高圧洗浄（1m）",
+        "unit": "m",
+        "unit_price": 1500,
+        "memo": ""
+      },
+      {
+        "name": "排水管カメラ調査（1m）",
+        "unit": "m",
+        "unit_price": 2500,
+        "memo": ""
+      },
+      {
+        "name": "グリストラップ清掃（1回）",
+        "unit": "回",
+        "unit_price": 35000,
+        "memo": "月1回推奨"
+      },
+      {
+        "name": "浄化槽清掃（5人槽）",
+        "unit": "回",
+        "unit_price": 15000,
+        "memo": "年1回義務"
+      },
+      {
+        "name": "浄化槽法定点検（1回）",
+        "unit": "回",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "ポンプ点検整備（1台）",
+        "unit": "台",
+        "unit_price": 25000,
+        "memo": ""
+      },
+      {
+        "name": "水道管漏水調査（1式）",
+        "unit": "式",
+        "unit_price": 55000,
+        "memo": ""
+      }
+    ],
+    "屋外工作物・特殊構造": [
+      {
+        "name": "鉄骨造カーポート（2台用 1式）",
+        "unit": "式",
+        "unit_price": 550000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "鉄骨造ガレージ（1台用 1式）",
+        "unit": "式",
+        "unit_price": 1500000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "鉄骨造物置（3坪 1式）",
+        "unit": "式",
+        "unit_price": 850000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "コンクリートブロック塀（H1.2m 1m）",
+        "unit": "m",
+        "unit_price": 18000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "コンクリートブロック塀（H1.8m 1m）",
+        "unit": "m",
+        "unit_price": 28000,
+        "memo": "控え壁必須"
+      },
+      {
+        "name": "レンガ塀（H1.0m 1m）",
+        "unit": "m",
+        "unit_price": 25000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "大谷石塀（H1.2m 1m）",
+        "unit": "m",
+        "unit_price": 35000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "擁壁（コンクリート H1.0m 1m）",
+        "unit": "m",
+        "unit_price": 55000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "擁壁（コンクリート H2.0m 1m）",
+        "unit": "m",
+        "unit_price": 120000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "擁壁（石積み H1.0m 1m）",
+        "unit": "m",
+        "unit_price": 45000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "土留め（コンクリート H1.0m 1m）",
+        "unit": "m",
+        "unit_price": 35000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "防護柵（ガードレール 1m）",
+        "unit": "m",
+        "unit_price": 8500,
+        "memo": "材工込み"
+      }
+    ]
+  }
+}
