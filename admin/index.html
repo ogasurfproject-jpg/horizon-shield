@@ -2,271 +2,203 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>HORIZON SHIELD 管理画面</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#0f1e4a">
+<title>HS管理</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#030508;--surface:#0a0e14;--border:#1a2030;--accent:#00e5ff;--danger:#ff3d3d;--warn:#ffb800;--green:#00c853;--text:#e8edf5;--muted:#5a6a7a}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh}
-#login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
-.login-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:32px;width:100%;max-width:360px;text-align:center}
-.login-title{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--accent);letter-spacing:3px;margin-bottom:24px}
-.login-box input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:12px;border-radius:4px;font-size:14px;font-family:'Noto Sans JP',sans-serif;outline:none;margin-bottom:12px}
-.login-box input:focus{border-color:var(--accent)}
-.login-btn{width:100%;padding:13px;background:var(--accent);color:var(--bg);border:none;border-radius:4px;font-weight:900;font-size:14px;cursor:pointer;font-family:'Noto Sans JP',sans-serif}
-#app{display:none;padding:16px}
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
-.header-title{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--accent);letter-spacing:2px}
-.logout-btn{font-size:11px;color:var(--muted);cursor:pointer;background:none;border:1px solid var(--border);padding:6px 12px;border-radius:4px;color:var(--text)}
-.sec-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;margin-bottom:10px}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px}
-.stat-card.green{border-color:rgba(0,200,83,0.4)}
-.stat-card.red{border-color:rgba(255,61,61,0.4)}
-.stat-card.blue{border-color:rgba(0,229,255,0.4)}
-.stat-num{font-family:'Share Tech Mono',monospace;font-size:24px;color:var(--green);margin-bottom:4px}
-.stat-num.red{color:var(--danger)}
-.stat-num.blue{color:var(--accent)}
-.stat-num.warn{color:var(--warn)}
-.stat-label{font-size:11px;color:var(--muted)}
-.record-section{margin-bottom:24px}
-.record-form{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px}
-.record-row{display:flex;gap:8px;margin-bottom:8px}
-.record-row input{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:4px;font-size:13px;font-family:'Noto Sans JP',sans-serif;outline:none}
-.record-row input:focus{border-color:var(--accent)}
-.record-btn{padding:10px 16px;border:none;border-radius:4px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;white-space:nowrap}
-.btn-green{background:var(--green);color:var(--bg)}
-.btn-blue{background:var(--accent);color:var(--bg)}
-.btn-red{background:var(--danger);color:#fff}
-.inquiries-section{margin-bottom:24px}
-.inquiry-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:12px}
-.inquiry-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-.inquiry-name{font-weight:700;font-size:15px}
-.inquiry-date{font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;margin-top:2px}
-.inquiry-email{font-size:13px;color:var(--accent);margin-bottom:8px}
-.inquiry-risk{font-size:13px;font-weight:700;margin-bottom:8px}
-.inquiry-result{font-size:14px;color:var(--text);line-height:1.8}
-.inquiry-result-item{padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;color:var(--text)}
-.delete-btn{font-size:11px;color:var(--danger);background:none;border:1px solid rgba(255,61,61,0.3);padding:4px 8px;border-radius:3px;cursor:pointer;flex-shrink:0;margin-left:8px}
-.clear-btn{width:100%;padding:12px;background:rgba(255,61,61,0.1);border:1px solid rgba(255,61,61,0.3);color:var(--danger);border-radius:4px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-top:8px}
-.empty{text-align:center;padding:32px;color:var(--muted);font-size:13px}
-.refresh-btn{font-size:11px;color:var(--accent);background:none;border:1px solid rgba(0,229,255,0.3);padding:6px 12px;border-radius:4px;cursor:pointer;margin-bottom:12px}
-.msg{padding:8px 12px;border-radius:4px;font-size:12px;margin-top:8px;display:none}
-.msg.ok{background:rgba(0,200,83,0.1);border:1px solid rgba(0,200,83,0.3);color:var(--green)}
-.msg.err{background:rgba(255,61,61,0.1);border:1px solid rgba(255,61,61,0.3);color:var(--danger)}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f7f5f0;--surface:#fff;--s2:#f0ede6;--accent:#0f1e4a;--gold:#c8a832;--text:#1a1a2a;--muted:#888880;--border:#dddad0;--green:#2e7d32;--red:#8b1a1a}
+body{font-family:sans-serif;background:var(--bg);color:var(--text);max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.hdr{background:var(--accent);padding:16px;border-bottom:2px solid var(--gold);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:20}
+.hdr-t{font-size:18px;font-weight:900;letter-spacing:2px;color:#fff}.hdr-t span{color:var(--gold)}
+.badge{background:var(--red);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:10px}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-bottom:2px solid var(--border)}
+.ni{padding:10px 4px;text-align:center;cursor:pointer;font-size:10px;font-weight:700;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px}
+.ni.active{color:var(--accent);border-bottom-color:var(--accent)}
+.main{flex:1;padding:16px;overflow-y:auto}
+.card{background:var(--surface);border-radius:4px;border:1px solid var(--border);margin-bottom:12px;overflow:hidden}
+.btn{width:100%;padding:14px;border:none;border-radius:4px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:12px}
+.bp{background:var(--accent);color:#fff}.bs{background:var(--surface);color:var(--text);border:1px solid var(--border)}.bd{background:transparent;color:var(--red);border:1px solid rgba(139,26,26,.3)}
+.empty{text-align:center;padding:40px;color:var(--muted)}
+.info{background:var(--s2);border-radius:4px;padding:14px;font-size:13px;color:var(--muted);margin-bottom:12px;border:1px solid var(--border)}
+.err{background:rgba(139,26,26,.06);color:var(--red);border:1px solid rgba(139,26,26,.2);border-radius:4px;padding:14px;font-size:13px;margin-bottom:12px}
+.ok{background:rgba(46,125,50,.06);color:var(--green);border:1px solid rgba(46,125,50,.2);border-radius:4px;padding:14px;font-size:13px;margin-bottom:12px}
 </style>
 </head>
 <body>
-
-<!-- LOGIN -->
-<div id="login">
-  <div class="login-box">
-    <div class="login-title">// HORIZON SHIELD ADMIN</div>
-    <input type="password" id="pw" placeholder="パスワード" onkeypress="if(event.key==='Enter')doLogin()">
-    <button class="login-btn" onclick="doLogin()">ログイン</button>
-  </div>
+<div class="hdr">
+  <div class="hdr-t">HORIZON<span>SHIELD</span></div>
+  <div id="bw"></div>
 </div>
-
-<!-- APP -->
-<div id="app">
-  <div class="header">
-    <div class="header-title">// ADMIN DASHBOARD</div>
-    <button class="logout-btn" onclick="logout()">ログアウト</button>
-  </div>
-
-  <!-- STATS -->
-  <div class="sec-label">// リアルタイム統計（KV）</div>
-  <div class="stats-grid">
-    <div class="stat-card green">
-      <div class="stat-num" id="s-diagnosis">—</div>
-      <div class="stat-label">累計診断件数</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num warn" id="s-saved">—</div>
-      <div class="stat-label">累計削減金額</div>
-    </div>
-    <div class="stat-card blue">
-      <div class="stat-num blue" id="s-donate-total">—</div>
-      <div class="stat-label">累計寄付額（実績）</div>
-    </div>
-    <div class="stat-card red">
-      <div class="stat-num red" id="s-inquiries">—</div>
-      <div class="stat-label">問い合わせ件数</div>
-    </div>
-  </div>
-  <button class="refresh-btn" onclick="loadStats()">↻ 更新</button>
-
-  <!-- 診断記録 -->
-  <div class="record-section">
-    <div class="sec-label">// 診断実績を記録</div>
-    <div class="record-form">
-      <div class="record-row">
-        <input type="number" id="r-saved" placeholder="削減金額（円）例：150000">
-        <button class="record-btn btn-blue" onclick="recordDiagnosis()">診断を記録</button>
-      </div>
-      <div class="msg" id="diag-msg"></div>
-    </div>
-  </div>
-
-  <!-- 寄付記録 -->
-  <div class="record-section">
-    <div class="sec-label">// 寄付実績を記録（実際に寄付した金額のみ）</div>
-    <div class="record-form">
-      <div class="record-row">
-        <input type="number" id="r-donate" placeholder="寄付金額（円）例：1000">
-        <button class="record-btn btn-green" onclick="recordDonation()">寄付を記録</button>
-      </div>
-      <p style="font-size:11px;color:var(--muted);margin-top:4px">⚠ 実際にMSFに寄付した金額のみ入力してください</p>
-      <div class="msg" id="donate-msg"></div>
-    </div>
-  </div>
-
-  <!-- 問い合わせ一覧 -->
-  <div class="inquiries-section">
-    <div class="sec-label">// 問い合わせ一覧</div>
-    <div id="inquiry-list"></div>
-    <button class="clear-btn" onclick="clearAll()">⚠ 全データ削除</button>
-  </div>
+<div class="nav">
+  <div class="ni active" onclick="go('i',this)">📥 問い合わせ</div>
+  <div class="ni" onclick="go('d',this)">📊 状況</div>
+  <div class="ni" onclick="go('p',this)">⭐ 見込み</div>
+  <div class="ni" onclick="go('s',this)">⚙ 設定</div>
 </div>
-
+<main class="main" id="main"></main>
 <script>
-const WORKER = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
-const PASS = 'Hhzs9k821127@';
-
-function doLogin() {
-  const pw = document.getElementById('pw').value;
-  if (pw === PASS) {
-    document.getElementById('login').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    loadStats();
-  } else {
-    alert('パスワードが違います');
-  }
-}
-
-function logout() {
-  document.getElementById('login').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('pw').value = '';
-}
-
-async function loadStats() {
-  try {
-    const res = await fetch(WORKER + '/admin-stats');
-    const data = await res.json();
-    document.getElementById('s-diagnosis').textContent = (data.diagnosis?.count || 0) + '件';
-    document.getElementById('s-saved').textContent = '¥' + (data.diagnosis?.total_saved || 0).toLocaleString();
-    document.getElementById('s-donate-total').textContent = '¥' + (data.donation?.total || 0).toLocaleString();
-    document.getElementById('s-inquiries').textContent = (data.total_inquiries || 0) + '件';
-    renderInquiries();
-  } catch(e) {
-    console.error(e);
-  }
-}
-
-function renderInquiries() {
-  const list = document.getElementById('inquiry-list');
-  if (!items.length) {
-    list.innerHTML = '<div class="empty">問い合わせはまだありません</div>';
-    return;
-  }
-  const riskLabel = {
-    'high': '🔴 高（過剰請求の可能性大）',
-    'medium': '🟡 中（要確認）',
-    'low': '🟢 低（概ね適正）'
-  };
-  const riskColor = {
-    'high': 'var(--danger)',
-    'medium': 'var(--warn)',
-    'low': 'var(--green)'
-  };
-  list.innerHTML = items.slice().reverse().map(item => {
-    let resultHtml = '';
-    try {
-      const arr = JSON.parse(item.result || '[]');
-      if (arr.length) {
-        resultHtml = arr.map(r => `<div class="inquiry-result-item">⚠ ${r}</div>`).join('');
-      } else {
-        resultHtml = '<div style="color:var(--muted);font-size:12px">診断結果なし</div>';
-      }
-    } catch(e) {
-      resultHtml = `<div style="font-size:12px;color:var(--muted)">${item.result || '—'}</div>`;
+var W='https://hs-kira-proxy.oga-surf-project.workers.dev';
+var st={tab:'i',inq:[],pros:[],loaded:false};
+function go(t,el){st.tab=t;document.querySelectorAll('.ni').forEach(function(n){n.classList.remove('active');});el.classList.add('active');render();}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function td(i){var el=document.getElementById('d'+i);if(!el)return;el.style.display=el.style.display==='none'?'block':'none';}
+function render(){
+  var m=document.getElementById('main');
+  if(st.tab==='i'){
+    if(!st.loaded){m.innerHTML='<div class="info">ボタンを押して問い合わせを取得します。</div><button class="btn bp" onclick="fi()">問い合わせを読み込む</button>';return;}
+    if(!st.inq.length){m.innerHTML='<button class="btn bs" onclick="fi()">再読み込み</button><div class="empty">問い合わせはまだありません</div>';return;}
+    var h='<button class="btn bs" onclick="fi()">再読み込み</button>';
+    for(var i=0;i<st.inq.length;i++){
+      var it=st.inq[i];
+      var raw=it.result||it.message||'';
+      var rows=[];
+      try{var a=JSON.parse(raw);if(Array.isArray(a))rows=a;else if(a)rows=[String(a)];}catch(e){if(raw)rows=[raw];}
+      var prev=rows.length?esc(String(rows[0])).slice(0,60)+(String(rows[0]).length>60?'…':''):'—';
+      var rk=it.risk==='high'?'<span style="color:var(--red);font-weight:700">🔴 高リスク</span>':it.risk==='medium'?'<span style="color:var(--gold);font-weight:700">🟡 中リスク</span>':it.risk==='low'?'<span style="color:var(--green);font-weight:700">🟢 低リスク</span>':'';
+      var dr='';for(var j=0;j<rows.length;j++){dr+='<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">▶ '+esc(String(rows[j]))+'</div>';}
+      var em=esc(it.email||'');var ky=esc(it.key||it.email||'');
+      h+='<div class="card">'
+        +'<div style="padding:14px 16px;background:var(--s2);display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="td('+i+')">'
+        +'<div><div style="font-size:15px;font-weight:700">'+esc(it.name||'名前なし')+'</div><div style="font-size:12px;color:var(--muted)">'+em+'</div></div>'
+        +'<div>'+rk+'</div></div>'
+        +'<div style="padding:10px 16px;font-size:13px;color:var(--muted)">'+prev+'</div>'
+        +'<div id="d'+i+'" style="display:none;padding:14px 16px;border-top:1px solid var(--border);background:var(--s2)">'
+        +'<div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px">診断詳細</div>'
+        +dr
+        +'<div style="margin-top:12px;font-size:13px;line-height:2">'
+        +'<div>メール：<a href="mailto:'+em+'" style="color:var(--accent)">'+em+'</a></div>'
+        +'<div>日時：'+esc(it.createdAt||it.date||'—')+'</div></div>'
+        +'<div style="margin-top:12px;display:flex;gap:8px">'
+        +'<a href="mailto:'+em+'?subject=【HORIZON SHIELD】診断結果について" style="flex:1;display:block;text-align:center;padding:11px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-decoration:none;border-radius:3px">メール返信</a>'
+        +'<button onclick="di(\''+ky+'\');event.stopPropagation()" style="padding:11px 14px;background:transparent;border:1px solid rgba(139,26,26,.3);color:var(--red);font-size:13px;font-weight:700;cursor:pointer;border-radius:3px">
+cat > ~/Desktop/horizon-shield/admin/index.html << 'ADMINEOF'
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#0f1e4a">
+<title>HS管理</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f7f5f0;--surface:#fff;--s2:#f0ede6;--accent:#0f1e4a;--gold:#c8a832;--text:#1a1a2a;--muted:#888880;--border:#dddad0;--green:#2e7d32;--red:#8b1a1a}
+body{font-family:sans-serif;background:var(--bg);color:var(--text);max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.hdr{background:var(--accent);padding:16px;border-bottom:2px solid var(--gold);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:20}
+.hdr-t{font-size:18px;font-weight:900;letter-spacing:2px;color:#fff}.hdr-t span{color:var(--gold)}
+.badge{background:var(--red);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:10px}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-bottom:2px solid var(--border)}
+.ni{padding:10px 4px;text-align:center;cursor:pointer;font-size:10px;font-weight:700;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px}
+.ni.active{color:var(--accent);border-bottom-color:var(--accent)}
+.main{flex:1;padding:16px;overflow-y:auto}
+.card{background:var(--surface);border-radius:4px;border:1px solid var(--border);margin-bottom:12px;overflow:hidden}
+.btn{width:100%;padding:14px;border:none;border-radius:4px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:12px}
+.bp{background:var(--accent);color:#fff}.bs{background:var(--surface);color:var(--text);border:1px solid var(--border)}.bd{background:transparent;color:var(--red);border:1px solid rgba(139,26,26,.3)}
+.empty{text-align:center;padding:40px;color:var(--muted)}
+.info{background:var(--s2);border-radius:4px;padding:14px;font-size:13px;color:var(--muted);margin-bottom:12px;border:1px solid var(--border)}
+.err{background:rgba(139,26,26,.06);color:var(--red);border:1px solid rgba(139,26,26,.2);border-radius:4px;padding:14px;font-size:13px;margin-bottom:12px}
+.ok{background:rgba(46,125,50,.06);color:var(--green);border:1px solid rgba(46,125,50,.2);border-radius:4px;padding:14px;font-size:13px;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-t">HORIZON<span>SHIELD</span></div>
+  <div id="bw"></div>
+</div>
+<div class="nav">
+  <div class="ni active" onclick="go('i',this)">📥 問い合わせ</div>
+  <div class="ni" onclick="go('d',this)">📊 状況</div>
+  <div class="ni" onclick="go('p',this)">⭐ 見込み</div>
+  <div class="ni" onclick="go('s',this)">⚙ 設定</div>
+</div>
+<main class="main" id="main"></main>
+<script>
+var W='https://hs-kira-proxy.oga-surf-project.workers.dev';
+var st={tab:'i',inq:[],pros:[],loaded:false};
+function go(t,el){st.tab=t;document.querySelectorAll('.ni').forEach(function(n){n.classList.remove('active');});el.classList.add('active');render();}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function td(i){var el=document.getElementById('d'+i);if(!el)return;el.style.display=el.style.display==='none'?'block':'none';}
+function render(){
+  var m=document.getElementById('main');
+  if(st.tab==='i'){
+    if(!st.loaded){m.innerHTML='<div class="info">ボタンを押して問い合わせを取得します。</div><button class="btn bp" onclick="fi()">問い合わせを読み込む</button>';return;}
+    if(!st.inq.length){m.innerHTML='<button class="btn bs" onclick="fi()">再読み込み</button><div class="empty">問い合わせはまだありません</div>';return;}
+    var h='<button class="btn bs" onclick="fi()">再読み込み</button>';
+    for(var i=0;i<st.inq.length;i++){
+      var it=st.inq[i];
+      var raw=it.result||it.message||'';
+      var rows=[];
+      try{var a=JSON.parse(raw);if(Array.isArray(a))rows=a;else if(a)rows=[String(a)];}catch(e){if(raw)rows=[raw];}
+      var prev=rows.length?esc(String(rows[0])).slice(0,60)+(String(rows[0]).length>60?'…':''):'—';
+      var rk=it.risk==='high'?'<span style="color:var(--red);font-weight:700">🔴 高リスク</span>':it.risk==='medium'?'<span style="color:var(--gold);font-weight:700">🟡 中リスク</span>':it.risk==='low'?'<span style="color:var(--green);font-weight:700">🟢 低リスク</span>':'';
+      var dr='';for(var j=0;j<rows.length;j++){dr+='<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">▶ '+esc(String(rows[j]))+'</div>';}
+      var em=esc(it.email||'');var ky=esc(it.key||it.email||'');
+      h+='<div class="card">'
+        +'<div style="padding:14px 16px;background:var(--s2);display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="td('+i+')">'
+        +'<div><div style="font-size:15px;font-weight:700">'+esc(it.name||'名前なし')+'</div><div style="font-size:12px;color:var(--muted)">'+em+'</div></div>'
+        +'<div>'+rk+'</div></div>'
+        +'<div style="padding:10px 16px;font-size:13px;color:var(--muted)">'+prev+'</div>'
+        +'<div id="d'+i+'" style="display:none;padding:14px 16px;border-top:1px solid var(--border);background:var(--s2)">'
+        +'<div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px">診断詳細</div>'
+        +dr
+        +'<div style="margin-top:12px;font-size:13px;line-height:2">'
+        +'<div>メール：<a href="mailto:'+em+'" style="color:var(--accent)">'+em+'</a></div>'
+        +'<div>日時：'+esc(it.createdAt||it.date||'—')+'</div></div>'
+        +'<div style="margin-top:12px;display:flex;gap:8px">'
+        +'<a href="mailto:'+em+'?subject=【HORIZON SHIELD】診断結果について" style="flex:1;display:block;text-align:center;padding:11px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-decoration:none;border-radius:3px">メール返信</a>'
+        +'<button onclick="di(\''+ky+'\');event.stopPropagation()" style="padding:11px 14px;background:transparent;border:1px solid rgba(139,26,26,.3);color:var(--red);font-size:13px;font-weight:700;cursor:pointer;border-radius:3px">削除</button>'
+        +'</div></div></div>';
     }
-    const risk = item.risk || '';
-    const color = riskColor[risk] || 'var(--muted)';
-    const label = riskLabel[risk] || '不明';
-    const date = item.created ? new Date(item.created).toLocaleString('ja-JP') : '—';
-    return `
-    <div class="inquiry-card" id="card-${(item.key||'').replace(':','-')}">
-      <div class="inquiry-header">
-        <div>
-          <div class="inquiry-name">${item.name || '—'}</div>
-          <div class="inquiry-date">${date}</div>
-        </div>
-        <button class="delete-btn" onclick="deleteInquiry('${item.key}')">削除</button>
-      </div>
-      <div class="inquiry-email">${item.email || '—'}</div>
-      <div class="inquiry-risk" style="color:${color}">${label}</div>
-      <div class="inquiry-result">${resultHtml}</div>
-    </div>`;
-  }).join('');
-}
-
-async function recordDiagnosis() {
-  const saved = parseInt(document.getElementById('r-saved').value) || 0;
-  const msg = document.getElementById('diag-msg');
-  try {
-    const res = await fetch(WORKER + '/record-diagnosis', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({saved})
-    });
-    const data = await res.json();
-    msg.className = 'msg ok'; msg.style.display = 'block';
-    msg.textContent = '✅ 記録完了 累計' + data.data.count + '件 / ¥' + data.data.total_saved.toLocaleString();
-    document.getElementById('r-saved').value = '';
-    loadStats();
-  } catch(e) {
-    msg.className = 'msg err'; msg.style.display = 'block';
-    msg.textContent = 'エラーが発生しました';
+    m.innerHTML=h;
+  } else if(st.tab==='d'){
+    m.innerHTML='<div class="card" style="padding:16px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">問い合わせ件数</div><div style="font-size:36px;font-weight:900;color:var(--accent)">'+(st.inq.length||'—')+'</div></div>';
+  } else if(st.tab==='p'){
+    if(!st.pros.length){m.innerHTML='<div class="info">見込み客データはまだありません。</div><button class="btn bp" onclick="fp()">読み込む</button>';return;}
+    m.innerHTML='<button class="btn bs" onclick="fp()">再読み込み</button>'+st.pros.map(function(p){return '<div class="card" style="padding:14px 16px"><div style="font-size:14px;font-weight:700">'+esc(p.title||p.name||'未タイトル')+'</div><div style="font-size:11px;color:var(--muted);margin-top:4px">'+esc(p.url||p.source||'')+'</div></div>';}).join('');
+  } else {
+    m.innerHTML='<div class="card" style="padding:16px;margin-bottom:12px">'
+      +'<div style="font-size:11px;color:var(--muted);margin-bottom:8px;word-break:break-all">'+W+'</div>'
+      +'<button class="btn bp" onclick="tc()">接続テスト</button>'
+      +'<div id="tr"></div></div>'
+      +'<div class="card" style="padding:16px"><button class="btn bd" onclick="ca()">全件削除</button></div>';
   }
 }
-
-async function recordDonation() {
-  const amount = parseInt(document.getElementById('r-donate').value) || 0;
-  if (!amount || amount <= 0) { alert('金額を入力してください'); return; }
-  if (!confirm('¥' + amount.toLocaleString() + 'をMSFに寄付済みとして記録しますか？')) return;
-  const msg = document.getElementById('donate-msg');
-  try {
-    const res = await fetch(WORKER + '/record-donation', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({amount})
-    });
-    const data = await res.json();
-    msg.className = 'msg ok'; msg.style.display = 'block';
-    msg.textContent = '✅ 寄付記録完了 累計¥' + data.data.total.toLocaleString();
-    document.getElementById('r-donate').value = '';
-    loadStats();
-  } catch(e) {
-    msg.className = 'msg err'; msg.style.display = 'block';
-    msg.textContent = 'エラーが発生しました';
-  }
+async function fi(){
+  document.getElementById('main').innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">読み込み中...</div>';
+  try{
+    var r=await fetch(W+'/inquiries');
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    var j=await r.json();
+    st.inq=Array.isArray(j)?j:(j.data||j.inquiries||[]);
+    st.loaded=true;
+    document.getElementById('bw').innerHTML=st.inq.length?'<div class="badge">'+st.inq.length+'</div>':'';
+    render();
+  }catch(e){document.getElementById('main').innerHTML='<div class="err">失敗: '+esc(e.message)+'</div><button class="btn bp" onclick="fi()">再試行</button>';}
 }
-
-async function deleteInquiry(key) {
-  if (!confirm('削除しますか？')) return;
-  await fetch(WORKER + '/delete', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({key})
-  });
-  loadStats();
+async function fp(){
+  document.getElementById('main').innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">読み込み中...</div>';
+  try{var r=await fetch(W+'/prospects');var j=await r.json();st.pros=Array.isArray(j)?j:[];render();}
+  catch(e){document.getElementById('main').innerHTML='<div class="err">失敗: '+esc(e.message)+'</div>';}
 }
-
-async function clearAll() {
-  if (!confirm('全データを削除します。本当によろしいですか？')) return;
-  await fetch(WORKER + '/clear', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'});
-  loadStats();
+async function di(key){
+  if(!confirm('削除しますか？'))return;
+  try{
+    var r=await fetch(W+'/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:key})});
+    if(r.ok){st.inq=st.inq.filter(function(i){return(i.key||i.email||'')!==key;});document.getElementById('bw').innerHTML=st.inq.length?'<div class="badge">'+st.inq.length+'</div>':'';render();}
+    else alert('削除失敗');
+  }catch(e){alert('エラー: '+e.message);}
 }
+async function ca(){
+  if(!confirm('全件削除します。よろしいですか？'))return;
+  try{var r=await fetch(W+'/clear',{method:'POST'});if(r.ok){st.inq=[];st.loaded=false;document.getElementById('bw').innerHTML='';render();}else alert('失敗');}
+  catch(e){alert('エラー');}
+}
+async function tc(){
+  var r=document.getElementById('tr');r.innerHTML='テスト中...';
+  try{var res=await fetch(W+'/inquiries');r.innerHTML='<div class="ok">接続OK → HTTP '+res.status+'</div>';}
+  catch(e){r.innerHTML='<div class="err">接続失敗</div>';}
+}
+render();
 </script>
 </body>
 </html>
