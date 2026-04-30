@@ -5,243 +5,555 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>施工不良チェック｜写真を送るだけ・無料診断｜HORIZON SHIELD</title>
 <meta name="description" content="工事後の写真を送るだけ。気になる箇所の傾向をお伝えします。建設実務経験30年・大賀俊勝監修。">
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0A0F1A;--bg2:#111827;--bg3:#0D1420;
-  --gold:#C8960A;--gold2:#F0C030;
-  --cyan:#00C8F0;--cyan2:#00E5FF;
-  --red:#FF4055;--white:#F0F4F8;
-  --gray:#6B8599;--lgray:#9BB5C8;
-  --border:rgba(0,200,240,.15);--border2:rgba(0,200,240,.07);
-  --green:#00E88A;--orange:#FF8C00;
-  --text:#D8E8F0;
+  --bg:#f7f5f0;
+  --bg2:#ffffff;
+  --bg3:#f0ede6;
+  --surface:#fdfcf9;
+  --accent:#0f1e4a;
+  --accent2:#162a6a;
+  --gold:#c8a832;
+  --gold2:#d4b845;
+  --text:#1a1a2a;
+  --muted:#888880;
+  --lgray:#6b6b60;
+  --border:#dddad0;
+  --border2:#e8e5dc;
+  --green:#2e7d32;
+  --red:#8b1a1a;
+  --cyan:#1a6b8a;
+  --cyan-light:#e8f4f8;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--white);font-family:'Noto Sans JP',sans-serif;overflow-x:hidden;line-height:1.8;font-size:15px}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Noto Sans JP',sans-serif;
+  overflow-x:hidden;
+  line-height:1.8;
+  font-size:15px;
+}
+
+/* 背景テクスチャ */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(15,30,74,.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(200,168,50,.04) 0%, transparent 40%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231a1a2a' fill-opacity='0.018'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:0;
+}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:56px;display:flex;justify-content:space-between;align-items:center;background:rgba(10,15,26,.98);border-bottom:1px solid var(--border)}
-.nav-logo{font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:4px;color:var(--white);display:flex;align-items:center;gap:10px}
-.nav-logo span{color:var(--cyan2)}
-.nav-back{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--cyan);text-decoration:none;border:1px solid var(--border);padding:6px 14px;transition:all .2s}
-.nav-back:hover{border-color:var(--cyan);background:rgba(0,200,240,.06)}
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:56px;padding:0 24px;
+  display:flex;justify-content:space-between;align-items:center;
+  background:rgba(247,245,240,.97);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:20px;letter-spacing:3px;
+  color:var(--accent);
+  text-decoration:none;
+  display:flex;align-items:center;gap:4px;
+}
+.nav-logo span{color:var(--gold)}
+.nav-back{
+  font-size:12px;font-weight:700;letter-spacing:1px;
+  color:var(--muted);text-decoration:none;
+  padding:6px 14px;border:1px solid var(--border);
+  border-radius:3px;transition:all .2s;
+}
+.nav-back:hover{color:var(--accent);border-color:var(--accent);background:rgba(15,30,74,.04)}
 
 /* HERO */
-.hero{padding:96px 24px 40px;text-align:center;position:relative;overflow:hidden}
-.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(0,200,240,.06) 0%,transparent 70%)}
-.hero-inner{position:relative;z-index:1}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);border:1px solid rgba(0,200,240,.3);padding:6px 16px;margin-bottom:20px;background:rgba(0,200,240,.04)}
-.badge-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 1.5s ease infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-.hero h1{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(24px,5vw,48px);line-height:1.2;margin-bottom:14px;color:var(--white)}
-.hero h1 em{font-style:normal;color:var(--gold2)}
-.hero-sub{font-size:14px;color:var(--lgray);max-width:500px;margin:0 auto 32px;line-height:2}
+.hero{
+  position:relative;z-index:1;
+  padding:100px 24px 48px;
+  text-align:center;
+  overflow:hidden;
+}
+.hero::after{
+  content:'2028';
+  position:absolute;
+  bottom:-20px;right:-10px;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:160px;
+  color:rgba(15,30,74,.04);
+  letter-spacing:-4px;
+  pointer-events:none;
+  line-height:1;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:700;letter-spacing:2px;
+  color:var(--cyan);
+  border:1px solid rgba(26,107,138,.2);
+  background:var(--cyan-light);
+  padding:5px 16px;margin-bottom:20px;border-radius:20px;
+}
+.badge-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 2s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(36px,8vw,72px);
+  line-height:1;letter-spacing:2px;
+  color:var(--accent);
+  margin-bottom:16px;
+}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero-sub{
+  font-size:14px;color:var(--lgray);
+  max-width:480px;margin:0 auto 32px;line-height:2;
+}
+.hero-tech-line{
+  display:flex;align-items:center;justify-content:center;
+  gap:12px;margin-bottom:32px;
+  font-size:11px;color:var(--muted);letter-spacing:1px;
+}
+.hero-tech-line::before,.hero-tech-line::after{
+  content:'';flex:1;max-width:80px;height:1px;background:var(--border);
+}
 
 /* FUNNEL */
-.funnel-wrap{max-width:720px;margin:0 auto 32px;padding:0 20px}
+.funnel-wrap{max-width:680px;margin:0 auto 36px;padding:0 20px;position:relative;z-index:1}
 .funnel{display:flex;flex-direction:column;gap:2px}
-.funnel-step{background:var(--bg2);border:1px solid var(--border2);padding:16px 20px;display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center;transition:border .2s}
-.funnel-step.highlight{border-color:rgba(200,150,10,.3);background:rgba(200,150,10,.04)}
-.f-num{font-family:'Share Tech Mono',monospace;font-size:20px;color:rgba(0,200,240,.2);font-weight:700;text-align:center}
-.f-num.active{color:var(--cyan)}
-.f-num.gold{color:var(--gold2)}
-.f-title{font-size:14px;font-weight:700;margin-bottom:4px;color:var(--white)}
-.f-desc{font-size:12px;color:var(--gray);line-height:1.7}
-.f-badge{font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 12px;white-space:nowrap;font-weight:700;border-radius:2px}
-.f-badge.free{background:rgba(0,232,138,.1);border:1px solid rgba(0,232,138,.3);color:var(--green)}
-.f-badge.paid{background:rgba(200,150,10,.1);border:1px solid rgba(200,150,10,.4);color:var(--gold2)}
-.funnel-arrow{text-align:center;padding:6px;font-size:14px;color:var(--border)}
+.funnel-step{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  padding:16px 20px;
+  display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center;
+  transition:all .2s;
+}
+.funnel-step:hover{border-color:rgba(15,30,74,.2)}
+.funnel-step.highlight{
+  background:rgba(200,168,50,.05);
+  border-color:rgba(200,168,50,.3);
+}
+.f-num{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px;color:var(--border);text-align:center;
+}
+.f-num.active{color:var(--accent)}
+.f-num.gold{color:var(--gold)}
+.f-title{font-size:14px;font-weight:700;margin-bottom:3px;color:var(--text)}
+.f-desc{font-size:12px;color:var(--muted);line-height:1.7}
+.f-badge{
+  font-size:11px;font-weight:700;
+  padding:4px 12px;border-radius:2px;white-space:nowrap;
+}
+.f-badge.free{background:rgba(46,125,50,.1);border:1px solid rgba(46,125,50,.3);color:var(--green)}
+.f-badge.paid{background:rgba(200,168,50,.1);border:1px solid rgba(200,168,50,.4);color:#8b6914}
+.funnel-arrow{text-align:center;padding:5px;font-size:12px;color:var(--border)}
 
-/* MAIN */
-.main-wrap{max-width:720px;margin:0 auto;padding:0 20px 60px}
-.frame{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden}
+/* MAIN FRAME */
+.main-wrap{max-width:680px;margin:0 auto;padding:0 20px 60px;position:relative;z-index:1}
+.frame{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:4px;
+  box-shadow:0 4px 24px rgba(15,30,74,.06);
+  overflow:hidden;
+}
+.frame-header{
+  background:var(--bg3);
+  border-bottom:1px solid var(--border);
+  padding:14px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.frame-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:16px;letter-spacing:3px;color:var(--accent);
+}
 
 /* STEP BAR */
-.step-bar{display:flex;border-bottom:1px solid var(--border);background:var(--bg3)}
-.sn{flex:1;padding:12px 16px;display:flex;align-items:center;gap:10px;border-right:1px solid var(--border2)}
+.step-bar{display:flex;border-bottom:1px solid var(--border)}
+.sn{
+  flex:1;padding:12px 16px;
+  display:flex;align-items:center;gap:10px;
+  border-right:1px solid var(--border);
+  background:var(--surface);
+}
 .sn:last-child{border-right:none}
-.sn-num{width:24px;height:24px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);flex-shrink:0;transition:all .3s;border-radius:2px}
-.sn-num.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,200,240,.1)}
-.sn-num.done{border-color:var(--green);background:rgba(0,232,138,.1)}
+.sn-num{
+  width:24px;height:24px;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:var(--muted);flex-shrink:0;
+  transition:all .3s;border-radius:2px;
+  font-weight:700;
+}
+.sn-num.active{border-color:var(--accent);color:var(--accent);background:rgba(15,30,74,.05)}
+.sn-num.done{border-color:var(--green);background:rgba(46,125,50,.08);color:var(--green)}
 .sn-num.done svg{width:10px;height:10px;stroke:var(--green);fill:none;stroke-width:2.5;stroke-linecap:round}
-.sn-txt{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--gray)}
-.sn-txt.active{color:var(--cyan)}
+.sn-txt{font-size:10px;letter-spacing:1px;color:var(--muted);font-weight:700}
+.sn-txt.active{color:var(--accent)}
 .sn-txt.done{color:var(--green)}
 
-/* FORM BODY */
+/* FORM */
 .s-body{padding:28px}
 
-/* DROPZONE */
-.drop-zone{border:2px dashed rgba(0,200,240,.2);cursor:pointer;transition:all .3s;margin-bottom:20px;border-radius:4px}
-.drop-zone:hover,.drop-zone.drag{border-color:var(--cyan);background:rgba(0,200,240,.04)}
-.dz-input{display:none}
+.drop-zone{
+  border:2px dashed var(--border);
+  border-radius:4px;
+  cursor:pointer;transition:all .3s;margin-bottom:20px;
+  background:var(--surface);
+}
+.drop-zone:hover,.drop-zone.drag{
+  border-color:var(--accent);
+  background:rgba(15,30,74,.02);
+}
 .dz-inner{padding:40px 24px;text-align:center}
-.dz-icon{width:60px;height:60px;border:1px solid rgba(0,200,240,.2);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;border-radius:4px;background:rgba(0,200,240,.04)}
-.dz-icon svg{width:26px;height:26px;stroke:var(--cyan);fill:none;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
-.dz-title{font-size:16px;font-weight:700;margin-bottom:8px;color:var(--white)}
-.dz-sub{font-size:13px;color:var(--gray);line-height:1.8;margin-bottom:16px}
-.dz-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(0,200,240,.4);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;padding:10px 20px;cursor:pointer;background:transparent;transition:all .2s;border-radius:2px}
-.dz-btn:hover{background:rgba(0,200,240,.08);border-color:var(--cyan)}
+.dz-icon{
+  width:56px;height:56px;
+  border:1px solid var(--border);
+  margin:0 auto 16px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:4px;background:var(--bg3);
+}
+.dz-icon svg{width:24px;height:24px;stroke:var(--accent);fill:none;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+.dz-title{font-size:16px;font-weight:700;margin-bottom:8px;color:var(--text)}
+.dz-sub{font-size:13px;color:var(--muted);line-height:1.9;margin-bottom:18px}
+.dz-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid rgba(15,30,74,.3);color:var(--accent);
+  font-size:12px;font-weight:700;letter-spacing:1px;
+  padding:10px 22px;cursor:pointer;background:transparent;
+  transition:all .2s;border-radius:3px;
+}
+.dz-btn:hover{background:rgba(15,30,74,.05);border-color:var(--accent)}
 
-/* PREVIEW */
 .prev-wrap{display:none;margin-bottom:18px}
 .prev-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.prev-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:2px}
+.prev-label{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:1px}
 .prev-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.p-thumb{position:relative;aspect-ratio:1;overflow:hidden;border:1px solid rgba(0,200,240,.15);border-radius:3px}
-.p-thumb img{width:100%;height:100%;object-fit:cover;filter:brightness(.85)}
-.p-del{position:absolute;top:3px;right:3px;background:rgba(255,64,85,.85);border:none;color:#fff;width:18px;height:18px;font-size:9px;cursor:pointer;opacity:0;transition:opacity .2s;display:flex;align-items:center;justify-content:center;border-radius:2px}
+.p-thumb{position:relative;aspect-ratio:1;overflow:hidden;border:1px solid var(--border);border-radius:3px}
+.p-thumb img{width:100%;height:100%;object-fit:cover}
+.p-del{
+  position:absolute;top:3px;right:3px;
+  background:rgba(139,26,26,.85);border:none;
+  color:#fff;width:18px;height:18px;font-size:9px;
+  cursor:pointer;opacity:0;transition:opacity .2s;
+  display:flex;align-items:center;justify-content:center;border-radius:2px;
+}
 .p-thumb:hover .p-del{opacity:1}
 
-/* FORM FIELDS */
 .fg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-@media(max-width:480px){.fg{grid-template-columns:1fr}}
+@media(max-width:520px){.fg{grid-template-columns:1fr}}
 .fl{margin-bottom:12px}
-.fl-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--lgray);margin-bottom:6px;display:block}
-.fl-input{width:100%;background:var(--bg);border:1px solid rgba(0,200,240,.2);color:var(--white);font-family:'Noto Sans JP',sans-serif;font-size:14px;padding:11px 14px;outline:none;transition:border .2s;border-radius:2px}
-.fl-input:focus{border-color:var(--cyan)}
-.fl-input::placeholder{color:rgba(107,133,153,.5);font-size:13px}
-.fl-select{width:100%;background:var(--bg);border:1px solid rgba(0,200,240,.2);color:var(--lgray);font-family:'Noto Sans JP',sans-serif;font-size:14px;padding:11px 14px;outline:none;cursor:pointer;border-radius:2px}
-.fl-select:focus{border-color:var(--cyan)}
-.fl-textarea{width:100%;background:var(--bg);border:1px solid rgba(0,200,240,.2);color:var(--white);font-family:'Noto Sans JP',sans-serif;font-size:14px;padding:11px 14px;outline:none;resize:vertical;min-height:80px;line-height:1.8;transition:border .2s;border-radius:2px}
-.fl-textarea:focus{border-color:var(--cyan)}
-.fl-textarea::placeholder{color:rgba(107,133,153,.5);font-size:13px}
+.fl-label{
+  font-size:11px;font-weight:700;letter-spacing:1px;
+  color:var(--muted);margin-bottom:6px;display:block;
+}
+.fl-input{
+  width:100%;background:var(--bg);
+  border:1px solid var(--border);color:var(--text);
+  font-family:'Noto Sans JP',sans-serif;font-size:14px;
+  padding:11px 14px;outline:none;transition:border .2s;border-radius:3px;
+}
+.fl-input:focus{border-color:var(--accent)}
+.fl-input::placeholder{color:var(--border);font-size:13px}
+.fl-select{
+  width:100%;background:var(--bg);
+  border:1px solid var(--border);color:var(--lgray);
+  font-family:'Noto Sans JP',sans-serif;font-size:14px;
+  padding:11px 14px;outline:none;cursor:pointer;border-radius:3px;
+}
+.fl-select:focus{border-color:var(--accent)}
+.fl-textarea{
+  width:100%;background:var(--bg);
+  border:1px solid var(--border);color:var(--text);
+  font-family:'Noto Sans JP',sans-serif;font-size:14px;
+  padding:11px 14px;outline:none;resize:vertical;min-height:80px;
+  line-height:1.8;transition:border .2s;border-radius:3px;
+}
+.fl-textarea:focus{border-color:var(--accent)}
+.fl-textarea::placeholder{color:var(--border);font-size:13px}
 
-/* WHAT BOX */
-.what-box{background:rgba(0,200,240,.04);border:1px solid rgba(0,200,240,.15);padding:16px 18px;margin-bottom:20px;border-radius:3px}
-.what-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:12px}
+.what-box{
+  background:var(--cyan-light);
+  border:1px solid rgba(26,107,138,.2);
+  padding:16px 18px;margin-bottom:20px;border-radius:4px;
+}
+.what-label{
+  font-size:11px;font-weight:700;letter-spacing:2px;
+  color:var(--cyan);margin-bottom:12px;
+}
 .what-list{list-style:none}
-.what-list li{font-size:13px;color:var(--text);padding:5px 0;display:flex;align-items:flex-start;gap:10px;line-height:1.7;border-bottom:1px solid rgba(0,200,240,.05)}
+.what-list li{
+  font-size:13px;color:var(--text);padding:5px 0;
+  display:flex;align-items:flex-start;gap:10px;line-height:1.7;
+  border-bottom:1px solid rgba(26,107,138,.1);
+}
 .what-list li:last-child{border-bottom:none}
-.what-list li::before{content:'';width:5px;height:5px;background:var(--cyan);border-radius:50%;flex-shrink:0;margin-top:8px}
-.what-list li.limited{color:var(--gray);font-size:12px}
-.what-list li.limited::before{background:var(--gray)}
+.what-list li::before{
+  content:'';width:5px;height:5px;
+  background:var(--cyan);border-radius:50%;
+  flex-shrink:0;margin-top:8px;
+}
+.what-list li.limited{color:var(--muted);font-size:12px}
+.what-list li.limited::before{background:var(--muted)}
 
-/* SUBMIT */
-.sub-btn{width:100%;background:var(--cyan);border:none;color:#040A12;font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:15px;letter-spacing:2px;padding:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .3s;margin-bottom:12px;border-radius:3px}
-.sub-btn:hover{background:var(--cyan2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,200,240,.3)}
-.sub-btn:disabled{background:rgba(0,200,240,.15);color:var(--gray);cursor:not-allowed;transform:none;box-shadow:none}
+.sub-btn{
+  width:100%;
+  background:var(--accent);border:none;
+  color:#faf9f5;
+  font-family:'Noto Sans JP',sans-serif;font-weight:900;
+  font-size:15px;letter-spacing:1px;
+  padding:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:all .3s;margin-bottom:14px;border-radius:3px;
+}
+.sub-btn:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(15,30,74,.2)}
+.sub-btn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;transform:none;box-shadow:none}
 .sub-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
-.sub-note{display:flex;justify-content:center;gap:20px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:1px;flex-wrap:wrap}
+.sub-note{
+  display:flex;justify-content:center;gap:20px;
+  font-size:11px;color:var(--muted);flex-wrap:wrap;
+}
 .sub-note span{display:flex;align-items:center;gap:4px}
 
 /* SENDING */
-.sending-body{padding:60px 24px;text-align:center;display:none}
-.send-ring{width:80px;height:80px;border:1px solid rgba(0,200,240,.1);margin:0 auto 24px;position:relative;display:flex;align-items:center;justify-content:center;border-radius:50%}
-.send-ring::before{content:'';position:absolute;inset:0;border:2px solid transparent;border-top-color:var(--cyan);animation:spin 1s linear infinite;border-radius:50%}
+.sending-body{padding:64px 24px;text-align:center;display:none}
+.send-ring{
+  width:72px;height:72px;
+  border:1px solid var(--border);
+  margin:0 auto 24px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;
+}
+.send-ring::before{
+  content:'';position:absolute;inset:0;
+  border:2px solid transparent;border-top-color:var(--accent);
+  animation:spin 1s linear infinite;border-radius:50%;
+}
 @keyframes spin{to{transform:rotate(360deg)}}
-.send-ring svg{width:28px;height:28px;stroke:rgba(0,200,240,.4);fill:none;stroke-width:1.3;stroke-linecap:round}
-.send-label{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--cyan);margin-bottom:8px}
-.send-sub{font-size:13px;color:var(--gray)}
-.prog-track{height:3px;background:rgba(0,200,240,.1);max-width:260px;margin:20px auto 0;overflow:hidden;border-radius:2px}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--cyan2));width:0;transition:width .4s}
+.send-ring svg{width:26px;height:26px;stroke:rgba(15,30,74,.3);fill:none;stroke-width:1.2;stroke-linecap:round}
+.send-label{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:5px;color:var(--accent);margin-bottom:8px}
+.send-sub{font-size:13px;color:var(--muted)}
+.prog-track{
+  height:2px;background:var(--border);
+  max-width:240px;margin:20px auto 0;overflow:hidden;border-radius:2px;
+}
+.prog-fill{height:100%;background:var(--accent);width:0;transition:width .4s}
 
 /* DONE */
 .done-body{padding:36px 28px;display:none}
-.done-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border2)}
-.done-check{width:52px;height:52px;border:1px solid rgba(0,232,138,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:4px;background:rgba(0,232,138,.06)}
+.done-header{
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:24px;padding-bottom:20px;
+  border-bottom:1px solid var(--border);
+}
+.done-check{
+  width:52px;height:52px;
+  border:1px solid rgba(46,125,50,.4);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;border-radius:4px;
+  background:rgba(46,125,50,.06);
+}
 .done-check svg{width:24px;height:24px;stroke:var(--green);fill:none;stroke-width:2;stroke-linecap:round}
-.done-title{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(18px,3vw,24px);line-height:1.3}
+.done-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(20px,3vw,28px);letter-spacing:2px;color:var(--accent);line-height:1.2}
 .done-title em{font-style:normal;color:var(--green)}
-.done-sub{font-size:13px;color:var(--lgray);margin-top:4px}
-.kira-box{background:var(--bg3);border:1px solid rgba(0,200,240,.2);padding:22px;margin-bottom:20px;border-radius:4px}
-.kira-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:14px;display:flex;align-items:center;gap:10px}
-.kira-label::after{content:'';flex:1;height:1px;background:rgba(0,200,240,.1)}
-.kira-result{font-size:15px;color:var(--white);line-height:1.9;margin-bottom:16px}
-.kira-amount{background:rgba(255,64,85,.06);border:1px solid rgba(255,64,85,.2);border-radius:3px;padding:14px 18px;margin-bottom:16px;font-size:13px;color:var(--lgray);line-height:1.9}
-.kira-amount strong{color:var(--red);font-size:14px}
+.done-sub{font-size:13px;color:var(--muted);margin-top:4px}
 
-/* UPGRADE */
-.upgrade-box{border:1px solid rgba(200,150,10,.35);background:rgba(200,150,10,.05);padding:24px;margin-bottom:16px;border-radius:4px}
-.upgrade-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--gold2);margin-bottom:10px}
-.upgrade-title{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(16px,2.5vw,22px);margin-bottom:10px;line-height:1.4;color:var(--white)}
-.upgrade-title em{font-style:normal;color:var(--gold2)}
+.kira-box{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-left:3px solid var(--accent);
+  padding:22px;margin-bottom:20px;border-radius:4px;
+}
+.kira-label{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:13px;letter-spacing:4px;color:var(--accent);
+  margin-bottom:14px;display:flex;align-items:center;gap:10px;
+}
+.kira-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.kira-result{font-size:15px;color:var(--text);line-height:1.9;margin-bottom:16px}
+.kira-amount{
+  background:rgba(139,26,26,.04);
+  border:1px solid rgba(139,26,26,.15);
+  border-radius:3px;padding:14px 18px;
+  margin-bottom:16px;font-size:13px;color:var(--lgray);line-height:1.9;
+}
+.kira-amount strong{color:var(--red)}
+
+.upgrade-box{
+  border:1px solid rgba(200,168,50,.4);
+  background:rgba(200,168,50,.04);
+  padding:24px;margin-bottom:16px;border-radius:4px;
+}
+.upgrade-label{
+  font-size:11px;font-weight:700;letter-spacing:3px;
+  color:var(--gold);margin-bottom:10px;
+}
+.upgrade-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(18px,3vw,26px);letter-spacing:2px;
+  margin-bottom:10px;line-height:1.3;color:var(--text);
+}
+.upgrade-title em{font-style:normal;color:var(--gold)}
 .upgrade-desc{font-size:13px;color:var(--lgray);margin-bottom:18px;line-height:1.9}
 .upgrade-btns{display:flex;gap:10px;flex-wrap:wrap}
-.u-btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--gold2);color:#040A12;font-weight:900;font-size:13px;padding:12px 22px;text-decoration:none;transition:all .2s;border-radius:3px}
-.u-btn-primary:hover{background:#FFD040;transform:translateY(-1px)}
-.u-btn-secondary{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid rgba(200,150,10,.4);color:var(--gold2);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;padding:12px 18px;text-decoration:none;transition:all .2s;border-radius:3px}
-.u-btn-secondary:hover{background:rgba(200,150,10,.08);border-color:var(--gold2)}
+.u-btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--accent);color:#faf9f5;
+  font-weight:900;font-size:13px;
+  padding:12px 22px;text-decoration:none;
+  transition:all .2s;border-radius:3px;
+}
+.u-btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.u-btn-secondary{
+  display:inline-flex;align-items:center;gap:8px;
+  background:transparent;
+  border:1px solid rgba(200,168,50,.5);color:#8b6914;
+  font-size:12px;font-weight:700;letter-spacing:1px;
+  padding:12px 18px;text-decoration:none;
+  transition:all .2s;border-radius:3px;
+}
+.u-btn-secondary:hover{background:rgba(200,168,50,.06);border-color:var(--gold)}
 
 /* ERROR */
 .err-body{padding:48px 24px;text-align:center;display:none}
 .err-icon svg{width:40px;height:40px;stroke:var(--red);fill:none;stroke-width:1.3;stroke-linecap:round;margin-bottom:16px}
 .err-title{font-size:16px;font-weight:700;color:var(--red);margin-bottom:10px}
-.err-desc{font-size:13px;color:var(--gray);margin-bottom:22px;line-height:1.9}
-.retry-btn{background:transparent;border:1px solid var(--border);color:var(--lgray);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;padding:10px 22px;cursor:pointer;transition:all .2s;border-radius:2px}
-.retry-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.err-desc{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.9}
+.retry-btn{
+  background:transparent;border:1px solid var(--border);
+  color:var(--muted);font-size:11px;font-weight:700;letter-spacing:1px;
+  padding:10px 22px;cursor:pointer;transition:all .2s;border-radius:3px;
+}
+.retry-btn:hover{border-color:var(--accent);color:var(--accent)}
 
 /* BOTTOM */
-.bottom{max-width:720px;margin:32px auto 0;padding:0 20px 60px}
-.b-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--cyan);margin-bottom:16px;display:flex;align-items:center;gap:10px}
-.b-label::after{content:'';flex:1;height:1px;background:rgba(0,200,240,.08)}
-.types-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px}
+.bottom{max-width:680px;margin:32px auto 0;padding:0 20px 60px;position:relative;z-index:1}
+.b-label{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:14px;letter-spacing:4px;color:var(--accent);
+  margin-bottom:16px;display:flex;align-items:center;gap:10px;
+}
+.b-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.types-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border)}
 @media(max-width:480px){.types-grid{grid-template-columns:1fr}}
-.tg-cell{background:var(--bg2);padding:16px 18px;display:flex;align-items:flex-start;gap:12px;border:1px solid var(--border2)}
-.tg-icon{width:32px;height:32px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;border-radius:3px;background:rgba(0,200,240,.04)}
-.tg-icon svg{width:14px;height:14px;stroke:var(--cyan);fill:none;stroke-width:1.5;stroke-linecap:round}
-.tg-name{font-size:13px;font-weight:700;color:var(--white);margin-bottom:4px}
-.tg-desc{font-size:12px;color:var(--gray);line-height:1.7}
+.tg-cell{
+  background:var(--bg2);padding:16px 18px;
+  display:flex;align-items:flex-start;gap:12px;
+  transition:background .2s;
+}
+.tg-cell:hover{background:var(--surface)}
+.tg-icon{
+  width:32px;height:32px;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:2px;border-radius:3px;
+  background:var(--bg3);
+}
+.tg-icon svg{width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:1.5;stroke-linecap:round}
+.tg-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.tg-desc{font-size:12px;color:var(--muted);line-height:1.7}
 
-.page-footer{text-align:center;padding:24px;border-top:1px solid var(--border2);font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,.2);letter-spacing:2px;line-height:2.4}
-.page-footer a{color:var(--cyan);text-decoration:none}
+.page-footer{
+  text-align:center;padding:28px;
+  border-top:1px solid var(--border);
+  font-size:11px;color:var(--muted);line-height:2.4;
+  position:relative;z-index:1;
+}
+.page-footer a{color:var(--accent);text-decoration:none}
+
+/* 2028装飾 */
+.year-mark{
+  position:absolute;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:11px;letter-spacing:4px;
+  color:var(--muted);opacity:.5;
+}
 </style>
 </head>
 <body>
+
 <nav>
-  <div class="nav-logo">HORIZON <span>SHIELD</span></div>
-  <a href="https://shield.the-horizons-innovation.com" class="nav-back">← TOP</a>
+  <a href="https://shield.the-horizons-innovation.com" class="nav-logo">HORIZON<span>SHIELD</span></a>
+  <a href="https://shield.the-horizons-innovation.com" class="nav-back">← TOPへ戻る</a>
 </nav>
 
 <section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-inner">
-    <div class="hero-badge"><span class="badge-dot"></span>FREE CHECK // 無料診断</div>
-    <h1>写真を送るだけ。<br><em>気になる箇所を確認します。</em></h1>
-    <p class="hero-sub">工事後の写真・見積書PDFをアップロードするだけ。KIRAが即座に気になる点をお伝えします。完全無料。</p>
+  <div class="hero-badge">
+    <span class="badge-dot"></span>
+    FREE CHECK &nbsp;//&nbsp; 無料診断
+  </div>
+  <h1>写真を送るだけ。<br><em>気になる箇所を</em><br>確認します。</h1>
+  <p class="hero-sub">工事後の写真・見積書PDFをアップロードするだけ。<br>建設30年のプロが監修したKIRAが即座に確認します。</p>
+  <div class="hero-tech-line">
+    AI診断 &nbsp;·&nbsp; 建設30年プロ監修 &nbsp;·&nbsp; 完全無料
   </div>
 </section>
 
 <div class="funnel-wrap">
   <div class="funnel">
-    <div class="funnel-step"><div class="f-num active">01</div><div><div class="f-title">写真・PDFを送る</div><div class="f-desc">工事後の気になる箇所の写真またはPDF見積書をアップロード。</div></div><div class="f-badge free">無料</div></div>
+    <div class="funnel-step">
+      <div class="f-num active">01</div>
+      <div><div class="f-title">写真・PDFを送る</div><div class="f-desc">工事後の気になる箇所の写真またはPDF見積書をアップロード。</div></div>
+      <div class="f-badge free">無料</div>
+    </div>
     <div class="funnel-arrow">↓</div>
-    <div class="funnel-step"><div class="f-num active">02</div><div><div class="f-title">KIRAが即座に診断</div><div class="f-desc">AIが写真・工事種類から気になる点を分析し、その場で結果をお伝えします。</div></div><div class="f-badge free">無料</div></div>
+    <div class="funnel-step">
+      <div class="f-num active">02</div>
+      <div><div class="f-title">KIRAが即座に診断</div><div class="f-desc">AIが写真・工事種類から気になる点を分析し、その場で結果をお伝えします。</div></div>
+      <div class="f-badge free">無料</div>
+    </div>
     <div class="funnel-arrow">↓</div>
-    <div class="funnel-step highlight"><div class="f-num gold">03</div><div><div class="f-title">詳細診断・是正要求書</div><div class="f-desc">施工不良の断定・是正箇所の特定・業者への交渉文言・是正要求書の作成は専門家サービスで対応します。</div></div><div class="f-badge paid">¥55,000</div></div>
+    <div class="funnel-step highlight">
+      <div class="f-num gold">03</div>
+      <div><div class="f-title">詳細診断・是正要求書</div><div class="f-desc">施工不良の断定・是正箇所の特定・業者への交渉文言・是正要求書の作成は専門家サービスで対応します。</div></div>
+      <div class="f-badge paid">¥55,000</div>
+    </div>
     <div class="funnel-arrow">↓</div>
-    <div class="funnel-step highlight"><div class="f-num gold">04</div><div><div class="f-title">現場立会い・完全是正</div><div class="f-desc">専門家が現場に立ち会い、施工不良を直接確認。法的効力のある是正要求書をその場で作成します。</div></div><div class="f-badge paid">¥88,000</div></div>
+    <div class="funnel-step highlight">
+      <div class="f-num gold">04</div>
+      <div><div class="f-title">現場立会い・完全是正</div><div class="f-desc">専門家が現場に立ち会い、施工不良を直接確認。法的効力のある是正要求書をその場で作成します。</div></div>
+      <div class="f-badge paid">¥88,000</div>
+    </div>
   </div>
 </div>
 
 <div class="main-wrap">
   <div class="frame">
+    <div class="frame-header">
+      <div class="frame-title">施工不良チェック</div>
+      <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px">POWERED BY KIRA AI</div>
+    </div>
+
     <div class="step-bar">
-      <div class="sn"><div class="sn-num active" id="sn1">01</div><div class="sn-txt active" id="st1">UPLOAD</div></div>
-      <div class="sn"><div class="sn-num" id="sn2">02</div><div class="sn-txt" id="st2">SENDING</div></div>
-      <div class="sn"><div class="sn-num" id="sn3">03</div><div class="sn-txt" id="st3">DONE</div></div>
+      <div class="sn"><div class="sn-num active" id="sn1">01</div><div class="sn-txt active" id="st1">アップロード</div></div>
+      <div class="sn"><div class="sn-num" id="sn2">02</div><div class="sn-txt" id="st2">送信中</div></div>
+      <div class="sn"><div class="sn-num" id="sn3">03</div><div class="sn-txt" id="st3">診断完了</div></div>
     </div>
 
     <div id="s1">
       <div class="s-body">
         <div class="drop-zone" id="dz" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" onclick="document.getElementById('fi').click()">
-          <input type="file" id="fi" accept="image/*,.pdf,application/pdf" multiple onchange="handleFiles(this.files)">
+          <input type="file" id="fi" accept="image/*,.pdf,application/pdf" multiple onchange="handleFiles(this.files)" style="display:none">
           <div class="dz-inner">
-            <div class="dz-icon"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
-            <div class="dz-title">写真・PDF をアップロード</div>
-            <div class="dz-sub">施工写真・見積書PDFなど複数対応<br>最大8件・JPG / PNG / HEIC / PDF</div>
-            <div class="dz-btn">
-              <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
-              ファイルを選択
+            <div class="dz-icon">
+              <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
             </div>
+            <div class="dz-title">写真・PDF をアップロード</div>
+            <div class="dz-sub">施工写真・見積書PDFなど複数対応<br>最大8件 ／ JPG · PNG · HEIC · PDF</div>
+            <div class="dz-btn">↑ ファイルを選択する</div>
           </div>
         </div>
+
         <div class="prev-wrap" id="pw">
           <div class="prev-bar"><span class="prev-label" id="pl">0 FILES</span></div>
           <div class="prev-grid" id="pg"></div>
         </div>
+
         <div class="fg">
           <div class="fl"><span class="fl-label">お名前 *</span><input type="text" class="fl-input" id="fn" placeholder="山田 太郎"></div>
           <div class="fl"><span class="fl-label">メールアドレス *</span><input type="email" class="fl-input" id="fe" placeholder="your@email.com"></div>
@@ -254,7 +566,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:56px;d
           </div>
           <div class="fl"><span class="fl-label">工事完了時期</span><input type="text" class="fl-input" id="fd" placeholder="例：2026年2月"></div>
         </div>
-        <div class="fl"><span class="fl-label">気になる箇所・症状（任意）</span><textarea class="fl-textarea" id="fno" placeholder="例：クロスの継ぎ目が浮いている、床が軋む、窓周りのコーキングが薄い など"></textarea></div>
+
+        <div class="fl">
+          <span class="fl-label">気になる箇所・症状（任意）</span>
+          <textarea class="fl-textarea" id="fno" placeholder="例：クロスの継ぎ目が浮いている、床が軋む、窓周りのコーキングが薄い など"></textarea>
+        </div>
+
         <div class="what-box">
           <div class="what-label">この無料診断でお伝えすること</div>
           <ul class="what-list">
@@ -264,6 +581,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:56px;d
             <li class="limited">※施工不良の断定・是正要求書の作成は¥55,000の有料サービスです</li>
           </ul>
         </div>
+
         <button class="sub-btn" id="sb" onclick="doSubmit()" disabled>
           <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           無料で診断を依頼する →
@@ -271,16 +589,18 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:56px;d
         <div class="sub-note">
           <span>🔒 ファイルは診断後削除</span>
           <span>✓ 完全無料</span>
-          <span>⚡ 即座に結果をお伝え</span>
+          <span>⚡ 即座に結果</span>
         </div>
       </div>
     </div>
 
     <div id="s2" style="display:none">
       <div class="sending-body" id="sb2">
-        <div class="send-ring"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
-        <div class="send-label">KIRA ANALYZING...</div>
-        <div class="send-sub">AIが写真を解析しています</div>
+        <div class="send-ring">
+          <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </div>
+        <div class="send-label">KIRA ANALYZING</div>
+        <div class="send-sub">AIが写真を解析しています...</div>
         <div class="prog-track"><div class="prog-fill" id="pf"></div></div>
       </div>
     </div>
@@ -290,18 +610,18 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:56px;d
         <div class="done-header">
           <div class="done-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
           <div>
-            <div class="done-title">受信完了。<em>KIRAが確認しました。</em></div>
+            <div class="done-title">受信完了。<em>確認しました。</em></div>
             <div class="done-sub">以下の診断結果をメールでもお送りします。</div>
           </div>
         </div>
         <div class="kira-box">
           <div class="kira-label">KIRAからの診断結果</div>
-          <div class="kira-result" id="kira-result"><span style="color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:11px">ANALYZING...</span></div>
+          <div class="kira-result" id="kira-result"><span style="color:var(--accent);font-size:12px;font-weight:700">解析中...</span></div>
           <div class="kira-amount" id="kira-amount" style="display:none"></div>
         </div>
         <div class="upgrade-box">
           <div class="upgrade-label">UPGRADE — より確実に解決したい方へ</div>
-          <div class="upgrade-title">施工不良を<em>完全に確定</em>させたい方へ</div>
+          <div class="upgrade-title">施工不良を<em>完全に確定</em>させたい</div>
           <div class="upgrade-desc">建設実務経験30年の専門家が見積書・写真・現場を確認し、業者への是正要求書を作成します。KIRAの診断で気になる点が見つかった場合、早めのご相談をお勧めします。</div>
           <div class="upgrade-btns">
             <a href="https://shield.the-horizons-innovation.com/#services" class="u-btn-primary">詳細診断 ¥55,000 →</a>
@@ -318,7 +638,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:56px;d
         <div class="err-desc">通信エラーが発生しました。<br>LINEから直接写真をお送りください。</div>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
           <button class="retry-btn" onclick="resetAll()">再試行する</button>
-          <a href="https://line.me/R/ti/p/@172piime" target="_blank" style="display:inline-flex;align-items:center;gap:7px;background:#06C755;color:#fff;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;padding:10px 18px;text-decoration:none;border-radius:3px">LINEで送る</a>
+          <a href="https://line.me/R/ti/p/@172piime" target="_blank" style="display:inline-flex;align-items:center;gap:7px;background:#06C755;color:#fff;font-size:12px;font-weight:700;padding:10px 18px;text-decoration:none;border-radius:3px">LINEで送る</a>
         </div>
       </div>
     </div>
@@ -326,7 +646,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:56px;d
 </div>
 
 <div class="bottom">
-  <div class="b-label">CHECKABLE ITEMS</div>
+  <div class="b-label">確認できる施工箇所</div>
   <div class="types-grid">
     <div class="tg-cell"><div class="tg-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div><div><div class="tg-name">クロスの浮き・継ぎ目</div><div class="tg-desc">壁紙施工不良は引渡し後に拡大しやすい</div></div></div>
     <div class="tg-cell"><div class="tg-icon"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div><div><div class="tg-name">フローリングの段差・反り</div><div class="tg-desc">床材の施工精度は歩行感と耐久性に直結</div></div></div>
@@ -338,8 +658,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:56px;d
 </div>
 
 <div class="page-footer">
-  <a href="https://shield.the-horizons-innovation.com">HORIZON SHIELD</a> // 大賀俊勝（建設実務経験30年）監修<br>
-  © 2026 The HORIZ音s株式会社
+  <a href="https://shield.the-horizons-innovation.com">HORIZON SHIELD</a> &nbsp;·&nbsp; 大賀俊勝（建設実務経験30年）監修<br>
+  © 2026 The HORIZ音s株式会社 &nbsp;·&nbsp; <span style="letter-spacing:3px;opacity:.6">KIRA AI · 2028 TECH</span>
 </div>
 
 <script>
@@ -351,32 +671,26 @@ function onDragLeave(){document.getElementById('dz').classList.remove('drag');}
 function onDrop(e){e.preventDefault();document.getElementById('dz').classList.remove('drag');handleFiles(e.dataTransfer.files);}
 
 function handleFiles(fl){
-  var arr = Array.from(fl).filter(function(f){
-    return f.type.startsWith('image/') || f.type==='application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+  var arr=Array.from(fl).filter(function(f){
+    return f.type.startsWith('image/')||f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf');
   });
-  files = files.concat(arr).slice(0,8);
-  renderPrev();
-  updateBtn();
+  files=files.concat(arr).slice(0,8);
+  renderPrev();updateBtn();
 }
-
 function delFile(i){files.splice(i,1);renderPrev();updateBtn();}
-
 function renderPrev(){
-  var w=document.getElementById('pw');
-  var g=document.getElementById('pg');
-  var l=document.getElementById('pl');
+  var w=document.getElementById('pw'),g=document.getElementById('pg'),l=document.getElementById('pl');
   if(!files.length){w.style.display='none';return;}
   w.style.display='block';
   l.textContent=files.length+' FILE'+(files.length>1?'S':'')+' SELECTED';
   g.innerHTML=files.map(function(f,i){
     var isPdf=f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf');
     var thumb=isPdf
-      ?'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#0D1420;flex-direction:column;gap:4px;padding:4px;text-align:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00C8F0" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span style="font-size:8px;color:#00C8F0;font-family:Share Tech Mono,monospace">'+f.name.slice(0,10)+'</span></div>'
+      ?'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f0ede6;flex-direction:column;gap:4px;padding:4px;text-align:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f1e4a" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span style="font-size:8px;color:#0f1e4a;font-weight:700">'+f.name.slice(0,10)+'</span></div>'
       :'<img src="'+URL.createObjectURL(f)+'">';
     return '<div class="p-thumb">'+thumb+'<button class="p-del" onclick="delFile('+i+')">✕</button></div>';
   }).join('');
 }
-
 function updateBtn(){
   var n=document.getElementById('fn').value.trim();
   var e=document.getElementById('fe').value.trim();
@@ -387,16 +701,12 @@ document.getElementById('fe').addEventListener('input',updateBtn);
 
 function setStep(n){
   [1,2,3].forEach(function(i){
-    var sn=document.getElementById('sn'+i);
-    var st=document.getElementById('st'+i);
+    var sn=document.getElementById('sn'+i),st=document.getElementById('st'+i);
     if(i<n){
       sn.innerHTML='<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
       sn.className='sn-num done';st.className='sn-txt done';
-    }else if(i===n){
-      sn.className='sn-num active';st.className='sn-txt active';
-    }else{
-      sn.className='sn-num';st.className='sn-txt';
-    }
+    }else if(i===n){sn.className='sn-num active';st.className='sn-txt active';}
+    else{sn.className='sn-num';st.className='sn-txt';}
   });
 }
 
@@ -406,47 +716,28 @@ async function doSubmit(){
   var type=document.getElementById('ft').value;
   var note=document.getElementById('fno').value.trim();
   if(!files.length||!name||!email)return;
-
   setStep(2);
   document.getElementById('s1').style.display='none';
   document.getElementById('s2').style.display='block';
   document.getElementById('sb2').style.display='block';
-
   var fill=document.getElementById('pf');
   var p=0;
   var iv=setInterval(function(){if(p<85){p+=5;fill.style.width=p+'%';}},300);
 
-  // LINE通知（1回のみ）
   try{
-    await fetch(KIRA+'/notify',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        message:'【施工チェック依頼】\n名前：'+name+'\nメール：'+email+'\n種類：'+(type||'未選択')+'\n備考：'+(note||'なし')+'\nファイル数：'+files.length+'件\n\n⚠️ 要確認',
-        name:name,email:email,type:type||'',result:''
-      })
-    });
-  }catch(e){console.log('LINE notify failed',e);}
+    await fetch(KIRA+'/notify',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:'【施工チェック依頼】\n名前：'+name+'\nメール：'+email+'\n種類：'+(type||'未選択')+'\n備考：'+(note||'なし')+'\nファイル数：'+files.length+'件\n⚠️ 要確認',name:name,email:email,type:type||'',result:''})});
+  }catch(e){}
 
-  // KIRA診断
-  var kiraText='';
-  var kiraAmount='';
+  var kiraText='',kiraAmount='';
   try{
     var imgs=await Promise.all(files.map(toB64));
-    var prompt='工事の種類：'+(type||'一般リフォーム')+'\n備考：'+(note||'なし')+'\nファイル数：'+files.length+'件\n\n上記の施工について、以下の形式で回答してください：\n1. 最も気になるリスクを1点（「〜が気になります」30文字以内）\n2. もし問題があった場合の修繕費用の目安（例：「修繕費用の目安は〇〜〇万円程度」）\n断定はせず可能性として伝えてください。';
-    var res=await fetch(KIRA+'/anthropic',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:300,
+    var prompt='工事の種類：'+(type||'一般リフォーム')+'\n備考：'+(note||'なし')+'\nファイル数：'+files.length+'件\n\n以下の形式で回答してください：\n1. 最も気になるリスクを1点（「〜が気になります」30文字以内）\n2. もし問題があった場合の修繕費用の目安（例：「修繕費用の目安は〇〜〇万円程度」）\n断定はせず可能性として伝えてください。';
+    var res=await fetch(KIRA+'/anthropic',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,
         messages:[{role:'user',content:imgs.map(function(img){
-          return img.isPdf
-            ?{type:'document',source:{type:'base64',media_type:'application/pdf',data:img.data}}
-            :{type:'image',source:{type:'base64',media_type:img.mediaType,data:img.data}};
-        }).concat([{type:'text',text:prompt}])}]
-      })
-    });
+          return img.isPdf?{type:'document',source:{type:'base64',media_type:'application/pdf',data:img.data}}:{type:'image',source:{type:'base64',media_type:img.mediaType,data:img.data}};
+        }).concat([{type:'text',text:prompt}])}]})});
     var data=await res.json();
     var fullText=data.content&&data.content[0]?data.content[0].text:'';
     var lines=fullText.split('\n').filter(function(l){return l.trim();});
@@ -454,24 +745,11 @@ async function doSubmit(){
     kiraAmount=lines[1]?lines[1].replace(/^2\.\s*/,''):'';
   }catch(e){kiraText='写真を確認しました。詳細な診断をご希望の場合は専門家サービスをご利用ください。';}
 
-  // メール送信
   try{
-    await fetch(KIRA+'/send-email',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        to:email,
-        subject:'KIRAからの診断結果 | HORIZON SHIELD',
-        body:'<div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#0A0F1A;color:#F0F4F8;padding:32px">'
-          +'<h2 style="color:#00C8F0;font-size:18px;margin-bottom:16px">KIRAの診断結果</h2>'
-          +'<p style="font-size:15px;line-height:1.9;margin-bottom:12px">'+kiraText.replace(/\n/g,'<br>')+'</p>'
-          +(kiraAmount?'<div style="background:#0D1420;border:1px solid rgba(255,64,85,.3);padding:14px 18px;margin-bottom:20px;font-size:14px;color:#9BB5C8">'+kiraAmount.replace(/\n/g,'<br>')+'</div>':'')
-          +'<hr style="border:none;border-top:1px solid rgba(255,255,255,.1);margin:24px 0">'
-          +'<p style="font-size:12px;color:#6B8599;line-height:1.8">詳細診断・是正要求書の作成は <a href="https://shield.the-horizons-innovation.com" style="color:#00C8F0">HORIZON SHIELD</a> へ。<br>大賀 俊勝 / The HORIZ音s株式会社</p>'
-          +'</div>'
-      })
-    });
-  }catch(e){console.log('send-email failed',e);}
+    await fetch(KIRA+'/send-email',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({to:email,subject:'KIRAからの診断結果 | HORIZON SHIELD',
+        body:'<div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#f7f5f0;color:#1a1a2a;padding:32px"><h2 style="color:#0f1e4a;font-size:18px;margin-bottom:16px">KIRAの診断結果</h2><p style="font-size:15px;line-height:1.9;margin-bottom:12px">'+kiraText.replace(/\n/g,'<br>')+'</p>'+(kiraAmount?'<div style="background:#fff;border-left:3px solid #8b1a1a;padding:14px 18px;margin-bottom:20px;font-size:14px;color:#6b6b60">'+kiraAmount.replace(/\n/g,'<br>')+'</div>':'')+'<hr style="border:none;border-top:1px solid #dddad0;margin:24px 0"><p style="font-size:12px;color:#888880;line-height:1.8">詳細診断・是正要求書の作成は <a href="https://shield.the-horizons-innovation.com" style="color:#0f1e4a">HORIZON SHIELD</a> へ。<br>大賀 俊勝 / The HORIZ音s株式会社</p></div>'})});
+  }catch(e){}
 
   clearInterval(iv);
   fill.style.width='100%';
@@ -483,8 +761,7 @@ function toB64(f){
   return new Promise(function(res,rej){
     var r=new FileReader();
     r.onload=function(e){res({data:e.target.result.split(',')[1],mediaType:f.type||'image/jpeg',name:f.name,isPdf:f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf')});};
-    r.onerror=rej;
-    r.readAsDataURL(f);
+    r.onerror=rej;r.readAsDataURL(f);
   });
 }
 
@@ -497,13 +774,8 @@ function showDone(kiraText,kiraAmount){
   var amountEl=document.getElementById('kira-amount');
   if(kiraText){
     resultEl.innerHTML=kiraText;
-    if(kiraAmount){
-      amountEl.style.display='block';
-      amountEl.innerHTML='<strong>費用の目安：</strong>'+kiraAmount+'<br><span style="font-size:11px;color:#6B8599">※これはあくまでも目安です。正確な判定は専門家診断（¥55,000）で行います。</span>';
-    }
-  }else{
-    resultEl.innerHTML='担当者が確認次第、ご連絡します。';
-  }
+    if(kiraAmount){amountEl.style.display='block';amountEl.innerHTML='<strong>費用の目安：</strong>'+kiraAmount+'<br><span style="font-size:11px;color:var(--muted)">※これはあくまでも目安です。正確な判定は専門家診断（¥55,000）で行います。</span>';}
+  }else{resultEl.innerHTML='担当者が確認次第、ご連絡します。';}
   window.scrollTo({top:300,behavior:'smooth'});
 }
 
