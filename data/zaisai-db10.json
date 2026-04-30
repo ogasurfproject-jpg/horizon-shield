@@ -1,0 +1,1105 @@
+{
+  "version": "2026.04_part10",
+  "categories": {
+    "太陽光パネルメーカー別品番": [
+      {
+        "name": "パナソニック HIT 245W VBHNxxx",
+        "unit": "枚",
+        "unit_price": 38000,
+        "memo": "変換効率19.7%。高効率"
+      },
+      {
+        "name": "パナソニック EVERVOLT 400W",
+        "unit": "枚",
+        "unit_price": 65000,
+        "memo": "最高グレード"
+      },
+      {
+        "name": "長州産業 CS-340B81",
+        "unit": "枚",
+        "unit_price": 32000,
+        "memo": "国産メーカー"
+      },
+      {
+        "name": "シャープ ND-250AA",
+        "unit": "枚",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "京セラ KJ250P-3FCAB",
+        "unit": "枚",
+        "unit_price": 33000,
+        "memo": ""
+      },
+      {
+        "name": "カナディアンソーラー CS3N-370",
+        "unit": "枚",
+        "unit_price": 28000,
+        "memo": "コスパ良好"
+      },
+      {
+        "name": "ネクストエナジー NEP-240",
+        "unit": "枚",
+        "unit_price": 25000,
+        "memo": "低コスト"
+      },
+      {
+        "name": "LONGi Hi-MO5 400W",
+        "unit": "枚",
+        "unit_price": 22000,
+        "memo": "中国製。安価"
+      },
+      {
+        "name": "QCELL Q.PEAK DUO 390W",
+        "unit": "枚",
+        "unit_price": 30000,
+        "memo": "ドイツ品質"
+      },
+      {
+        "name": "テスラ Solar Panel 400W",
+        "unit": "枚",
+        "unit_price": 45000,
+        "memo": "Solar Roof連携"
+      },
+      {
+        "name": "太陽光パネル設置架台（1枚分）",
+        "unit": "枚",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "太陽光用接続ケーブル（1m）",
+        "unit": "m",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "太陽光用MC4コネクタ（1個）",
+        "unit": "個",
+        "unit_price": 280,
+        "memo": ""
+      }
+    ],
+    "蓄電池メーカー別品番": [
+      {
+        "name": "パナソニック 創蓄連携システム 5.6kWh",
+        "unit": "台",
+        "unit_price": 1200000,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 創蓄連携システム 11.2kWh",
+        "unit": "台",
+        "unit_price": 2000000,
+        "memo": ""
+      },
+      {
+        "name": "長州産業 Smart PV Plus 7.04kWh",
+        "unit": "台",
+        "unit_price": 1300000,
+        "memo": ""
+      },
+      {
+        "name": "シャープ クラウド蓄電池 9.5kWh",
+        "unit": "台",
+        "unit_price": 1800000,
+        "memo": ""
+      },
+      {
+        "name": "ニチコン トライブリッド 12kWh",
+        "unit": "台",
+        "unit_price": 2200000,
+        "memo": "V2H対応"
+      },
+      {
+        "name": "オムロン KPBP-A 9.8kWh",
+        "unit": "台",
+        "unit_price": 1700000,
+        "memo": ""
+      },
+      {
+        "name": "テスラ Powerwall 13.5kWh",
+        "unit": "台",
+        "unit_price": 2500000,
+        "memo": "設置費込み"
+      },
+      {
+        "name": "ダイヤゼブラ電機 5.5kWh",
+        "unit": "台",
+        "unit_price": 1100000,
+        "memo": ""
+      },
+      {
+        "name": "京セラ EnergyFarm 7.2kWh",
+        "unit": "台",
+        "unit_price": 1400000,
+        "memo": ""
+      },
+      {
+        "name": "田淵電機 EIBS7 6.5kWh",
+        "unit": "台",
+        "unit_price": 1250000,
+        "memo": ""
+      }
+    ],
+    "スイッチ・コンセント品番": [
+      {
+        "name": "パナソニック コスモシリーズ コンセント WTF1001",
+        "unit": "個",
+        "unit_price": 280,
+        "memo": "標準品"
+      },
+      {
+        "name": "パナソニック コスモシリーズ スイッチ WTF0001",
+        "unit": "個",
+        "unit_price": 220,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック コスモシリーズ 3路スイッチ",
+        "unit": "個",
+        "unit_price": 380,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック アドバンスシリーズ コンセント",
+        "unit": "個",
+        "unit_price": 580,
+        "memo": "デザイン"
+      },
+      {
+        "name": "パナソニック アドバンスシリーズ スイッチ",
+        "unit": "個",
+        "unit_price": 480,
+        "memo": ""
+      },
+      {
+        "name": "神保電器 NK コンセント NK-1",
+        "unit": "個",
+        "unit_price": 350,
+        "memo": "高品質"
+      },
+      {
+        "name": "神保電器 NK スイッチ",
+        "unit": "個",
+        "unit_price": 300,
+        "memo": ""
+      },
+      {
+        "name": "東芝ライテック コンセント DP-20C",
+        "unit": "個",
+        "unit_price": 260,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 防水コンセント WF2031",
+        "unit": "個",
+        "unit_price": 1800,
+        "memo": "屋外用"
+      },
+      {
+        "name": "パナソニック アース付コンセント",
+        "unit": "個",
+        "unit_price": 480,
+        "memo": "洗濯機・食洗機用"
+      },
+      {
+        "name": "パナソニック USB付コンセント",
+        "unit": "個",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック EV充電コンセント WK4331",
+        "unit": "個",
+        "unit_price": 18000,
+        "memo": "200V"
+      },
+      {
+        "name": "パナソニック テレビコンセント WCS3430",
+        "unit": "個",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック LANコンセント WN4523",
+        "unit": "個",
+        "unit_price": 1800,
+        "memo": "CAT6"
+      },
+      {
+        "name": "フルカラー プレート（1連）",
+        "unit": "個",
+        "unit_price": 120,
+        "memo": ""
+      },
+      {
+        "name": "フルカラー プレート（2連）",
+        "unit": "個",
+        "unit_price": 180,
+        "memo": ""
+      },
+      {
+        "name": "フルカラー プレート（3連）",
+        "unit": "個",
+        "unit_price": 250,
+        "memo": ""
+      }
+    ],
+    "カーテン・ブラインド全種類": [
+      {
+        "name": "ドレープカーテン（既製品 幅100×丈135）",
+        "unit": "枚",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "ドレープカーテン（既製品 幅100×丈178）",
+        "unit": "枚",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "ドレープカーテン（既製品 幅100×丈200）",
+        "unit": "枚",
+        "unit_price": 5500,
+        "memo": ""
+      },
+      {
+        "name": "ドレープカーテン（オーダー 1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "レースカーテン（既製品 幅100×丈135）",
+        "unit": "枚",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "レースカーテン（既製品 幅100×丈178）",
+        "unit": "枚",
+        "unit_price": 2200,
+        "memo": ""
+      },
+      {
+        "name": "遮光カーテン1級（幅100×丈178）",
+        "unit": "枚",
+        "unit_price": 6500,
+        "memo": ""
+      },
+      {
+        "name": "防炎カーテン（1m2）",
+        "unit": "m2",
+        "unit_price": 5500,
+        "memo": "ホテル・店舗必須"
+      },
+      {
+        "name": "アルミブラインド（1m2）",
+        "unit": "m2",
+        "unit_price": 3500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "ウッドブラインド（1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "ロールスクリーン（1m2）",
+        "unit": "m2",
+        "unit_price": 4500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "調光ロールスクリーン（1m2）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "バーチカルブラインド（1m2）",
+        "unit": "m2",
+        "unit_price": 6500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "外付けブラインド（1m2）",
+        "unit": "m2",
+        "unit_price": 28000,
+        "memo": "日射遮蔽 補助金対象"
+      },
+      {
+        "name": "カーテンレール（シングル 2m）",
+        "unit": "本",
+        "unit_price": 2800,
+        "memo": "材工込み"
+      },
+      {
+        "name": "カーテンレール（ダブル 2m）",
+        "unit": "本",
+        "unit_price": 4500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "カーテンレール（木製 2m）",
+        "unit": "本",
+        "unit_price": 8500,
+        "memo": "材工込み"
+      }
+    ],
+    "舗装材詳細": [
+      {
+        "name": "アスファルト舗装（t=50mm 材工）",
+        "unit": "m2",
+        "unit_price": 3500,
+        "memo": "駐車場・道路標準"
+      },
+      {
+        "name": "アスファルト舗装（t=80mm 材工）",
+        "unit": "m2",
+        "unit_price": 5500,
+        "memo": "重交通向け"
+      },
+      {
+        "name": "インターロッキング（材工）",
+        "unit": "m2",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "洗出しコンクリート（材工）",
+        "unit": "m2",
+        "unit_price": 6500,
+        "memo": ""
+      },
+      {
+        "name": "スタンプコンクリート（材工）",
+        "unit": "m2",
+        "unit_price": 12000,
+        "memo": "デザイン舗装"
+      },
+      {
+        "name": "透水性コンクリート（材工）",
+        "unit": "m2",
+        "unit_price": 9500,
+        "memo": "雨水浸透"
+      },
+      {
+        "name": "砂利敷き（t=50mm 材工）",
+        "unit": "m2",
+        "unit_price": 2500,
+        "memo": ""
+      },
+      {
+        "name": "防草シート＋砂利（材工）",
+        "unit": "m2",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "天然石貼り（御影石 材工）",
+        "unit": "m2",
+        "unit_price": 28000,
+        "memo": "玄関アプローチ"
+      },
+      {
+        "name": "タイルテラス（磁器タイル 材工）",
+        "unit": "m2",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "木製枕木（1本）",
+        "unit": "本",
+        "unit_price": 3500,
+        "memo": "アプローチ"
+      },
+      {
+        "name": "縁石設置（1m 材工）",
+        "unit": "m",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "U字溝（300×300 1m 材工）",
+        "unit": "m",
+        "unit_price": 4500,
+        "memo": "排水"
+      }
+    ],
+    "仮設・建設機械リース詳細": [
+      {
+        "name": "仮設トイレ（簡易 1台月）",
+        "unit": "台/月",
+        "unit_price": 15000,
+        "memo": ""
+      },
+      {
+        "name": "仮設トイレ（水洗 1台月）",
+        "unit": "台/月",
+        "unit_price": 25000,
+        "memo": ""
+      },
+      {
+        "name": "仮設事務所（3坪 1月）",
+        "unit": "月",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "仮設事務所（6坪 1月）",
+        "unit": "月",
+        "unit_price": 55000,
+        "memo": ""
+      },
+      {
+        "name": "発電機（2kVA 1日）",
+        "unit": "日",
+        "unit_price": 5500,
+        "memo": ""
+      },
+      {
+        "name": "発電機（5kVA 1日）",
+        "unit": "日",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "コンプレッサー（1日）",
+        "unit": "日",
+        "unit_price": 5500,
+        "memo": ""
+      },
+      {
+        "name": "高圧洗浄機（1日）",
+        "unit": "日",
+        "unit_price": 8500,
+        "memo": ""
+      },
+      {
+        "name": "バックホウ 0.25m3（1日）",
+        "unit": "日",
+        "unit_price": 55000,
+        "memo": ""
+      },
+      {
+        "name": "バックホウ 0.45m3（1日）",
+        "unit": "日",
+        "unit_price": 75000,
+        "memo": ""
+      },
+      {
+        "name": "バックホウ 0.7m3（1日）",
+        "unit": "日",
+        "unit_price": 95000,
+        "memo": ""
+      },
+      {
+        "name": "ミニユンボ 0.08m3（1日）",
+        "unit": "日",
+        "unit_price": 35000,
+        "memo": "狭小地"
+      },
+      {
+        "name": "ラフタークレーン 25t（1日）",
+        "unit": "日",
+        "unit_price": 120000,
+        "memo": ""
+      },
+      {
+        "name": "ラフタークレーン 50t（1日）",
+        "unit": "日",
+        "unit_price": 180000,
+        "memo": ""
+      },
+      {
+        "name": "コンクリートポンプ車（1日）",
+        "unit": "日",
+        "unit_price": 150000,
+        "memo": ""
+      },
+      {
+        "name": "ダンプ 4t（1日）",
+        "unit": "日",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "ダンプ 10t（1日）",
+        "unit": "日",
+        "unit_price": 65000,
+        "memo": ""
+      },
+      {
+        "name": "フォークリフト 1t（1日）",
+        "unit": "日",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "高所作業車 9m（1日）",
+        "unit": "日",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "高所作業車 12m（1日）",
+        "unit": "日",
+        "unit_price": 45000,
+        "memo": ""
+      }
+    ],
+    "工事保険・保証費用": [
+      {
+        "name": "建設工事保険（1億円補償 1現場）",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "賠償責任保険（年間 中小業者）",
+        "unit": "年",
+        "unit_price": 180000,
+        "memo": ""
+      },
+      {
+        "name": "住宅瑕疵担保保険（1棟）",
+        "unit": "棟",
+        "unit_price": 85000,
+        "memo": "新築義務"
+      },
+      {
+        "name": "リフォーム瑕疵保険（1件）",
+        "unit": "件",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "完成保証保険（1件）",
+        "unit": "件",
+        "unit_price": 55000,
+        "memo": ""
+      },
+      {
+        "name": "労災保険（現場 1人月）",
+        "unit": "人月",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "火災保険（建物 10年）",
+        "unit": "式",
+        "unit_price": 180000,
+        "memo": "新築時加入"
+      },
+      {
+        "name": "地震保険（1年）",
+        "unit": "年",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "メーカー保証延長（5年→10年）",
+        "unit": "式",
+        "unit_price": 55000,
+        "memo": "住設機器"
+      }
+    ],
+    "残土・産廃品目別処分費": [
+      {
+        "name": "建設残土処分（1m3）",
+        "unit": "m3",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "建設混合廃棄物処分（1t）",
+        "unit": "t",
+        "unit_price": 65000,
+        "memo": "2026年4月高騰"
+      },
+      {
+        "name": "木材廃棄物処分（1t）",
+        "unit": "t",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "コンクリートガラ処分（1t）",
+        "unit": "t",
+        "unit_price": 12000,
+        "memo": ""
+      },
+      {
+        "name": "金属スクラップ処分（1t）",
+        "unit": "t",
+        "unit_price": 8500,
+        "memo": "買取になる場合も"
+      },
+      {
+        "name": "アスファルトがら処分（1t）",
+        "unit": "t",
+        "unit_price": 15000,
+        "memo": ""
+      },
+      {
+        "name": "廃プラスチック処分（1t）",
+        "unit": "t",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "廃石膏ボード処分（1t）",
+        "unit": "t",
+        "unit_price": 28000,
+        "memo": "2026年4月値上がり"
+      },
+      {
+        "name": "廃畳処分（1枚）",
+        "unit": "枚",
+        "unit_price": 800,
+        "memo": ""
+      },
+      {
+        "name": "廃家電リサイクル（エアコン 1台）",
+        "unit": "台",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "廃家電リサイクル（冷蔵庫 1台）",
+        "unit": "台",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "廃家電リサイクル（洗濯機 1台）",
+        "unit": "台",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "アスベスト廃棄物処分（1t）",
+        "unit": "t",
+        "unit_price": 350000,
+        "memo": "特別管理産廃"
+      },
+      {
+        "name": "廃油処分（1缶 18L）",
+        "unit": "缶",
+        "unit_price": 2500,
+        "memo": ""
+      },
+      {
+        "name": "産廃収集運搬費（1回）",
+        "unit": "回",
+        "unit_price": 25000,
+        "memo": "小型トラック"
+      }
+    ],
+    "コンクリート添加剤・特殊材": [
+      {
+        "name": "AE減水剤（1L）",
+        "unit": "L",
+        "unit_price": 380,
+        "memo": "コンクリートワーカビリティ向上"
+      },
+      {
+        "name": "高性能AE減水剤（1L）",
+        "unit": "L",
+        "unit_price": 680,
+        "memo": ""
+      },
+      {
+        "name": "急結剤（1kg）",
+        "unit": "kg",
+        "unit_price": 850,
+        "memo": "止水・緊急補修"
+      },
+      {
+        "name": "遅延剤（1L）",
+        "unit": "L",
+        "unit_price": 480,
+        "memo": "暑中コンクリート"
+      },
+      {
+        "name": "防水剤（1L）",
+        "unit": "L",
+        "unit_price": 580,
+        "memo": "コンクリート防水"
+      },
+      {
+        "name": "収縮低減剤（1L）",
+        "unit": "L",
+        "unit_price": 980,
+        "memo": "ひび割れ防止"
+      },
+      {
+        "name": "繊維補強材（PP繊維 1kg）",
+        "unit": "kg",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "鋼繊維（スチールファイバー 1kg）",
+        "unit": "kg",
+        "unit_price": 850,
+        "memo": ""
+      },
+      {
+        "name": "エポキシ樹脂注入材（1kg）",
+        "unit": "kg",
+        "unit_price": 3500,
+        "memo": "ひび割れ補修"
+      },
+      {
+        "name": "無収縮モルタル（25kg）",
+        "unit": "袋",
+        "unit_price": 2800,
+        "memo": "柱脚・機械基礎"
+      },
+      {
+        "name": "グラウト材（25kg）",
+        "unit": "袋",
+        "unit_price": 3200,
+        "memo": ""
+      },
+      {
+        "name": "防錆塗料 変性エポキシ（4kg）",
+        "unit": "缶",
+        "unit_price": 5500,
+        "memo": "鉄筋・鉄骨防錆"
+      }
+    ],
+    "造作家具・オーダー家具": [
+      {
+        "name": "造作洗面台（W600 オーク材）",
+        "unit": "台",
+        "unit_price": 180000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "造作洗面台（W900 ウォルナット）",
+        "unit": "台",
+        "unit_price": 280000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "造作キッチン（I型 W2400）",
+        "unit": "式",
+        "unit_price": 850000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "造作食器棚（W1800）",
+        "unit": "台",
+        "unit_price": 380000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "造作本棚（W1800×H2400）",
+        "unit": "台",
+        "unit_price": 280000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "造作テレビボード（W1800）",
+        "unit": "台",
+        "unit_price": 280000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "造作デスク（W1200）",
+        "unit": "台",
+        "unit_price": 150000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "造作階段（ストレート 13段）",
+        "unit": "式",
+        "unit_price": 450000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "造作スケルトン階段（13段）",
+        "unit": "式",
+        "unit_price": 850000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "造作カウンター（1m）",
+        "unit": "m",
+        "unit_price": 85000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "造作クローゼット（1m2）",
+        "unit": "m2",
+        "unit_price": 55000,
+        "memo": "材工込み"
+      },
+      {
+        "name": "造作間仕切り棚（1m）",
+        "unit": "m",
+        "unit_price": 45000,
+        "memo": "材工込み"
+      }
+    ],
+    "植栽・造園資材詳細": [
+      {
+        "name": "シンボルツリー オリーブ（H1.5m）",
+        "unit": "本",
+        "unit_price": 18000,
+        "memo": ""
+      },
+      {
+        "name": "シンボルツリー ヤマボウシ（H2.0m）",
+        "unit": "本",
+        "unit_price": 28000,
+        "memo": ""
+      },
+      {
+        "name": "シンボルツリー ハナミズキ（H2.0m）",
+        "unit": "本",
+        "unit_price": 25000,
+        "memo": ""
+      },
+      {
+        "name": "シンボルツリー エゴノキ（H2.5m）",
+        "unit": "本",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "シンボルツリー ソヨゴ（H2.0m）",
+        "unit": "本",
+        "unit_price": 22000,
+        "memo": ""
+      },
+      {
+        "name": "生垣 レッドロビン（H0.8m 1m）",
+        "unit": "m",
+        "unit_price": 3500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "生垣 サザンカ（H1.0m 1m）",
+        "unit": "m",
+        "unit_price": 4500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "低木 アジサイ（H0.5m）",
+        "unit": "本",
+        "unit_price": 1800,
+        "memo": ""
+      },
+      {
+        "name": "低木 ツツジ（H0.5m）",
+        "unit": "本",
+        "unit_price": 1500,
+        "memo": ""
+      },
+      {
+        "name": "グランドカバー ヒメツルソバ（1m2）",
+        "unit": "m2",
+        "unit_price": 1800,
+        "memo": "材工込み"
+      },
+      {
+        "name": "腐葉土（40L）",
+        "unit": "袋",
+        "unit_price": 1200,
+        "memo": ""
+      },
+      {
+        "name": "客土（黒土 1m3）",
+        "unit": "m3",
+        "unit_price": 5500,
+        "memo": ""
+      },
+      {
+        "name": "バーク堆肥（50L）",
+        "unit": "袋",
+        "unit_price": 980,
+        "memo": ""
+      },
+      {
+        "name": "庭石 飛び石（1個 中型）",
+        "unit": "個",
+        "unit_price": 3500,
+        "memo": ""
+      },
+      {
+        "name": "砂利 那智黒（20kg）",
+        "unit": "袋",
+        "unit_price": 2800,
+        "memo": ""
+      },
+      {
+        "name": "芝（高麗芝 1m2）",
+        "unit": "m2",
+        "unit_price": 1500,
+        "memo": "材工込み"
+      },
+      {
+        "name": "芝（野芝 1m2）",
+        "unit": "m2",
+        "unit_price": 1200,
+        "memo": "材工込み"
+      }
+    ],
+    "住宅性能評価・申請費用": [
+      {
+        "name": "長期優良住宅認定申請費",
+        "unit": "式",
+        "unit_price": 120000,
+        "memo": "追加工事費別途"
+      },
+      {
+        "name": "住宅性能評価（設計評価）",
+        "unit": "式",
+        "unit_price": 120000,
+        "memo": ""
+      },
+      {
+        "name": "住宅性能評価（建設評価）",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": ""
+      },
+      {
+        "name": "BELS評価申請費",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": "省エネ性能表示"
+      },
+      {
+        "name": "フラット35適合証明書",
+        "unit": "式",
+        "unit_price": 55000,
+        "memo": ""
+      },
+      {
+        "name": "気密測定（C値）",
+        "unit": "回",
+        "unit_price": 55000,
+        "memo": ""
+      },
+      {
+        "name": "気密測定（追加）",
+        "unit": "回",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "建築確認申請（木造2階 100m2以下）",
+        "unit": "式",
+        "unit_price": 150000,
+        "memo": "代行費込み"
+      },
+      {
+        "name": "建築確認申請（木造2階 100m2超）",
+        "unit": "式",
+        "unit_price": 200000,
+        "memo": ""
+      },
+      {
+        "name": "中間検査申請費",
+        "unit": "式",
+        "unit_price": 45000,
+        "memo": ""
+      },
+      {
+        "name": "完了検査申請費",
+        "unit": "式",
+        "unit_price": 55000,
+        "memo": ""
+      },
+      {
+        "name": "建物表題登記（新築）",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": "土地家屋調査士"
+      },
+      {
+        "name": "保存登記（所有権）",
+        "unit": "式",
+        "unit_price": 35000,
+        "memo": "司法書士"
+      },
+      {
+        "name": "地盤保証（20年）",
+        "unit": "式",
+        "unit_price": 85000,
+        "memo": "地盤改良後"
+      }
+    ],
+    "特殊塗装・防錆・耐熱塗装": [
+      {
+        "name": "重防食塗装（エポキシ系 1m2）",
+        "unit": "m2",
+        "unit_price": 5500,
+        "memo": "鉄骨・海岸近く"
+      },
+      {
+        "name": "耐熱塗料（800度対応 1L）",
+        "unit": "L",
+        "unit_price": 3800,
+        "memo": "煙突・ボイラー周り"
+      },
+      {
+        "name": "防火塗料（木部用 1L）",
+        "unit": "L",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "床用エポキシ塗料（1m2 材工）",
+        "unit": "m2",
+        "unit_price": 3800,
+        "memo": "工場・駐車場"
+      },
+      {
+        "name": "床用ウレタン塗料（1m2 材工）",
+        "unit": "m2",
+        "unit_price": 4500,
+        "memo": ""
+      },
+      {
+        "name": "MDF水性ウレタン塗装（1m2）",
+        "unit": "m2",
+        "unit_price": 3500,
+        "memo": "造作家具塗装"
+      },
+      {
+        "name": "ラッカー塗装（1m2）",
+        "unit": "m2",
+        "unit_price": 4000,
+        "memo": ""
+      },
+      {
+        "name": "オイル仕上げ（無垢材 1m2）",
+        "unit": "m2",
+        "unit_price": 2500,
+        "memo": ""
+      },
+      {
+        "name": "ガルバリウム鋼板用塗料（16kg）",
+        "unit": "缶",
+        "unit_price": 35000,
+        "memo": ""
+      },
+      {
+        "name": "亜鉛めっき補修スプレー（300ml）",
+        "unit": "本",
+        "unit_price": 1200,
+        "memo": ""
+      }
+    ]
+  }
+}
