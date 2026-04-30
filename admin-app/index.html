@@ -6,96 +6,138 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="manifest" href="/admin-app/manifest.json">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#0f1e4a">
 <title>HS管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--text:#f1f5f9;--sub:#94a3b8;--border:#334155;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--blue:#3b82f6}
-body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',sans-serif;background:var(--bg);color:var(--text);max-width:480px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column}
-.header{background:var(--surface);padding:env(safe-area-inset-top,16px) 16px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-end;position:sticky;top:0;z-index:20}
-.header-left .title{font-size:18px;font-weight:600;letter-spacing:-0.3px}
-.header-left .sub{font-size:12px;color:var(--sub);margin-top:2px}
-.badge{background:var(--red);color:#fff;font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px;min-width:24px;text-align:center}
-.install-bar{display:none;background:var(--blue);padding:12px 16px;cursor:pointer;text-align:center;font-size:14px;font-weight:600;color:#fff}
-.nav{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-bottom:1px solid var(--border)}
-.nav-item{padding:10px 4px 8px;text-align:center;cursor:pointer;font-size:11px;color:var(--sub);border-bottom:2px solid transparent;transition:all .15s}
-.nav-item.active{color:var(--text);border-bottom-color:var(--blue);font-weight:500}
-.nav-icon{font-size:20px;margin-bottom:2px}
-.main{flex:1;padding:14px;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.card{background:var(--surface);border-radius:14px;border:1px solid var(--border);margin-bottom:12px;overflow:hidden}
-.card-hd{padding:14px 16px 10px;border-bottom:1px solid var(--border)}
-.card-name{font-size:15px;font-weight:500}.card-email{font-size:12px;color:var(--sub);margin-top:3px}
-.card-bd{padding:12px 16px;font-size:13px;color:var(--sub);line-height:1.6}
+:root{
+  --bg:#f7f5f0;--surface:#ffffff;--surface2:#f0ede6;
+  --accent:#0f1e4a;--accent2:#162a6a;
+  --gold:#c8a832;--text:#1a1a2a;--muted:#888880;
+  --border:#dddad0;--border2:#e8e5dc;
+  --green:#2e7d32;--amber:#c8a832;--red:#8b1a1a;--blue:#0f1e4a;
+}
+body{font-family:'Noto Sans JP',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);max-width:480px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column}
+
+/* HEADER */
+.header{background:var(--accent);padding:env(safe-area-inset-top,16px) 16px 14px;border-bottom:2px solid var(--gold);display:flex;justify-content:space-between;align-items:flex-end;position:sticky;top:0;z-index:20}
+.header-left .title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:#faf9f5}
+.header-left .title span{color:var(--gold)}
+.header-left .sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;letter-spacing:1px}
+.badge{background:var(--red);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:10px;min-width:24px;text-align:center}
+
+/* NAV */
+.nav{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-bottom:2px solid var(--border)}
+.nav-item{padding:12px 4px 10px;text-align:center;cursor:pointer;font-size:10px;font-weight:700;color:var(--muted);border-bottom:2px solid transparent;transition:all .15s;letter-spacing:.5px;margin-bottom:-2px}
+.nav-item.active{color:var(--accent);border-bottom-color:var(--accent)}
+.nav-icon{margin:0 auto 4px;display:flex;align-items:center;justify-content:center;width:28px;height:28px}
+.nav-icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+
+/* MAIN */
+.main{flex:1;padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* CARDS */
+.card{background:var(--surface);border-radius:4px;border:1px solid var(--border);margin-bottom:12px;overflow:hidden;box-shadow:0 2px 8px rgba(15,30,74,.04)}
+.card-hd{padding:14px 16px 10px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.card-name{font-size:15px;font-weight:700;color:var(--text)}
+.card-email{font-size:12px;color:var(--muted);margin-top:3px}
+.card-bd{padding:12px 16px;font-size:13px;color:var(--muted);line-height:1.8}
 .card-ft{padding:10px 16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.card-date{font-size:11px;color:var(--sub)}
-.del-btn{font-size:12px;color:var(--red);padding:6px 14px;border:1px solid var(--red);border-radius:8px;background:none;cursor:pointer;font-family:inherit}
-.del-btn:active{background:#450a0a}
+.card-date{font-size:11px;color:var(--muted)}
+.del-btn{font-size:12px;font-weight:700;color:var(--red);padding:6px 14px;border:1px solid rgba(139,26,26,.3);border-radius:3px;background:none;cursor:pointer;font-family:inherit}
+.del-btn:active{background:rgba(139,26,26,.08)}
+
+/* RISK BADGE */
+.risk-high{color:var(--red);font-weight:700;font-size:12px}
+.risk-mid{color:var(--amber);font-weight:700;font-size:12px}
+.risk-low{color:var(--green);font-weight:700;font-size:12px}
+
+/* STAT GRID */
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.stat{background:var(--surface);border-radius:14px;border:1px solid var(--border);padding:16px}
-.stat-label{font-size:12px;color:var(--sub);margin-bottom:6px}.stat-val{font-size:30px;font-weight:600}.stat-hint{font-size:11px;color:var(--sub);margin-top:4px}
+.stat{background:var(--surface);border-radius:4px;border:1px solid var(--border);padding:16px;box-shadow:0 2px 8px rgba(15,30,74,.04)}
+.stat-label{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:6px}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--accent);line-height:1}
+.stat-hint{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* SERVICE LIST */
 .svc-list{padding:0 16px}
-.svc-item{display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border);gap:10px}
-.svc-item:last-child{border:none}.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.svc-item{display:flex;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);gap:12px}
+.svc-item:last-child{border:none}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .dot-g{background:var(--green)}.dot-a{background:var(--amber)}.dot-r{background:var(--red)}
-.svc-name{flex:1;font-size:13px}.svc-tag{font-size:11px;color:var(--sub)}
-.btn-primary{width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:12px}
-.btn-primary:active{background:#2563eb}
-.btn-sec{width:100%;padding:12px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:12px;font-size:14px;cursor:pointer;font-family:inherit;margin-bottom:12px}
-.score-bar-bg{background:var(--surface2);border-radius:4px;height:5px;overflow:hidden;margin-top:8px}
-.score-bar{height:5px;border-radius:4px;transition:width .4s}
-.empty{text-align:center;padding:48px 16px;color:var(--sub);font-size:14px}
-.loading{text-align:center;padding:40px;color:var(--sub);font-size:14px}
-.err-box{background:#450a0a;color:#fca5a5;border-radius:10px;padding:14px;font-size:13px;line-height:1.6;margin-bottom:12px}
-.ok-box{background:#052e16;color:#86efac;border-radius:10px;padding:14px;font-size:13px;margin-bottom:12px}
-.info-box{background:var(--surface);border-radius:12px;padding:14px 16px;font-size:13px;color:var(--sub);line-height:1.8;margin-bottom:12px;border:1px solid var(--border)}
+.svc-name{flex:1;font-size:13px;color:var(--text)}
+.svc-tag{font-size:11px;font-weight:700;color:var(--muted)}
+
+/* BUTTONS */
+.btn-primary{width:100%;padding:14px;background:var(--accent);color:#faf9f5;border:none;border-radius:4px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px;letter-spacing:.5px;transition:all .2s}
+.btn-primary:active{background:var(--accent2)}
+.btn-sec{width:100%;padding:12px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px;transition:all .2s}
+.btn-sec:active{background:var(--surface2)}
+.btn-danger{width:100%;padding:12px;background:transparent;color:var(--red);border:1px solid rgba(139,26,26,.3);border-radius:4px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px}
+
+/* SCORE BAR */
+.score-bar-bg{background:var(--border);border-radius:2px;height:4px;overflow:hidden;margin-top:8px}
+.score-bar{height:4px;border-radius:2px;transition:width .4s}
+
+/* MISC */
+.empty{text-align:center;padding:48px 16px;color:var(--muted);font-size:14px}
+.loading{text-align:center;padding:40px;color:var(--muted);font-size:13px;letter-spacing:1px}
+.err-box{background:rgba(139,26,26,.06);color:var(--red);border:1px solid rgba(139,26,26,.2);border-radius:4px;padding:14px;font-size:13px;line-height:1.7;margin-bottom:12px}
+.ok-box{background:rgba(46,125,50,.06);color:var(--green);border:1px solid rgba(46,125,50,.2);border-radius:4px;padding:14px;font-size:13px;margin-bottom:12px;font-weight:700}
+.info-box{background:var(--surface2);border-radius:4px;padding:14px 16px;font-size:13px;color:var(--muted);line-height:1.9;margin-bottom:12px;border:1px solid var(--border)}
+.section-label{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
 .step{display:flex;gap:12px;margin-bottom:10px}
-.step-num{width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.step-text{font-size:13px;color:var(--sub);line-height:1.6;padding-top:2px}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-text{font-size:13px;color:var(--muted);line-height:1.7;padding-top:2px}
+.result-item{padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text);display:flex;align-items:flex-start;gap:6px}
+.result-item:last-child{border:none}
+.result-item::before{content:'';width:4px;height:4px;background:var(--red);border-radius:50%;flex-shrink:0;margin-top:7px}
 </style>
 </head>
 <body>
+
 <div class="header">
   <div class="header-left">
-    <div class="title">HORIZON SHIELD</div>
-    <div class="sub" id="conn-status">管理ダッシュボード</div>
+    <div class="title">HORIZON<span>SHIELD</span></div>
+    <div class="sub" id="conn-status">管理ダッシュボード · 2028</div>
   </div>
   <div id="badge-wrap"></div>
 </div>
-<div class="install-bar" id="install-bar" onclick="installApp()">📲 アプリとしてインストール</div>
+
 <nav class="nav">
-  <div class="nav-item active" onclick="go('inquiries',this)"><div class="nav-icon">📋</div>問い合わせ</div>
-  <div class="nav-item" onclick="go('dashboard',this)"><div class="nav-icon">📊</div>状況</div>
-  <div class="nav-item" onclick="go('prospects',this)"><div class="nav-icon">🎯</div>見込み</div>
-  <div class="nav-item" onclick="go('settings',this)"><div class="nav-icon">⚙️</div>設定</div>
+  <div class="nav-item active" onclick="go('inquiries',this)">
+    <div class="nav-icon">
+      <svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="10"/><circle cx="14" cy="14" r="5"/><line x1="14" y1="4" x2="14" y2="9"/><line x1="14" y1="19" x2="14" y2="24"/><line x1="4" y1="14" x2="9" y2="14"/><line x1="19" y1="14" x2="24" y2="14"/></svg>
+    </div>
+    問い合わせ
+  </div>
+  <div class="nav-item" onclick="go('dashboard',this)">
+    <div class="nav-icon">
+      <svg viewBox="0 0 28 28"><rect x="4" y="4" width="20" height="20"/><rect x="8" y="8" width="12" height="12"/><line x1="4" y1="14" x2="8" y2="14"/><line x1="20" y1="14" x2="24" y2="14"/><line x1="14" y1="4" x2="14" y2="8"/><line x1="14" y1="20" x2="14" y2="24"/><circle cx="14" cy="14" r="2" fill="currentColor"/></svg>
+    </div>
+    状況
+  </div>
+  <div class="nav-item" onclick="go('prospects',this)">
+    <div class="nav-icon">
+      <svg viewBox="0 0 28 28"><polygon points="14,3 17,10 25,10 19,15 21,23 14,18 7,23 9,15 3,10 11,10"/><circle cx="14" cy="13" r="2.5"/></svg>
+    </div>
+    見込み
+  </div>
+  <div class="nav-item" onclick="go('settings',this)">
+    <div class="nav-icon">
+      <svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11"/><circle cx="14" cy="14" r="6"/><circle cx="14" cy="14" r="1.5" fill="currentColor"/><line x1="14" y1="3" x2="14" y2="8"/><line x1="14" y1="20" x2="14" y2="25"/><line x1="3" y1="14" x2="8" y2="14"/><line x1="20" y1="14" x2="25" y2="14"/></svg>
+    </div>
+    設定
+  </div>
 </nav>
+
 <main class="main" id="main"></main>
+
 <script>
 const WORKER = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
-let state = { tab: 'inquiries', inquiries: [], prospects: [], loaded: false };
-let deferredPrompt = null;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('install-bar').style.display = 'block';
-});
-
-window.addEventListener('appinstalled', () => {
-  document.getElementById('install-bar').style.display = 'none';
-  deferredPrompt = null;
-});
-
-async function installApp() {
-  if (!deferredPrompt) {
-    alert('インストール準備中です。ページをリロードしてから再度お試しください。');
-    return;
-  }
-  deferredPrompt.prompt();
-  const result = await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  document.getElementById('install-bar').style.display = 'none';
-}
+let state = { tab:'inquiries', inquiries:[], prospects:[], loaded:false };
 
 function go(tab, el) {
   state.tab = tab;
@@ -103,42 +145,129 @@ function go(tab, el) {
   el.classList.add('active');
   render();
 }
+
 function render() {
-  const m = document.getElementById('main');
-  const fns = { inquiries: renderInquiries, dashboard: renderDashboard, prospects: renderProspects, settings: renderSettings };
-  m.innerHTML = fns[state.tab]();
+  const fns = { inquiries:renderInquiries, dashboard:renderDashboard, prospects:renderProspects, settings:renderSettings };
+  document.getElementById('main').innerHTML = fns[state.tab]();
 }
+
 function renderDashboard() {
+  const now = new Date();
   const svcs = [
-    { name: 'LP (shield.the-horizons-innovation.com)', tag: '稼働中', d: 'g' },
-    { name: 'KIRA AI / Cloudflare Worker v6', tag: '稼働中', d: 'g' },
-    { name: 'note自動投稿 v10 (毎朝9時)', tag: '稼働中', d: 'g' },
-    { name: 'PayPay決済', tag: '契約済み', d: 'g' },
-    { name: 'ゼウス決済', tag: '審査中', d: 'a' },
-    { name: 'PAY.JP', tag: '未申請', d: 'r' },
-    { name: 'Resend ドメイン認証', tag: '設定中', d: 'a' },
-    { name: '持続化補助金 4/30締切', tag: '残14日', d: 'a' },
+    { name:'LP（shield.the-horizons-innovation.com）', tag:'稼働中', d:'g' },
+    { name:'KIRA AI / Cloudflare Worker', tag:'稼働中', d:'g' },
+    { name:'note自動投稿 v10（毎朝9時）', tag:'稼働中', d:'g' },
+    { name:'PayPal決済', tag:'稼働中', d:'g' },
+    { name:'PAY.JP', tag:'審査済', d:'g' },
+    { name:'hs-monitor v14（資材DB更新）', tag:'稼働中', d:'g' },
+    { name:'AEOページ（52件）', tag:'登録済', d:'g' },
+    { name:'ものづくり補助金 第23回', tag:'5/8締切', d:'a' },
   ];
-  return `<div class="stat-grid"><div class="stat"><div class="stat-label">問い合わせ</div><div class="stat-val">${state.inquiries.length}</div><div class="stat-hint">取得済み</div></div><div class="stat"><div class="stat-label">PayPay</div><div class="stat-val" style="font-size:18px;color:var(--green);padding-top:6px">契約済</div><div class="stat-hint">クレカ審査中</div></div></div><div class="card"><div class="card-hd"><div class="card-name">インフラ状況</div></div><div class="svc-list">${svcs.map(s=>`<div class="svc-item"><div class="dot dot-${s.d}"></div><div class="svc-name">${s.name}</div><div class="svc-tag">${s.tag}</div></div>`).join('')}</div></div>`;
+  return `
+    <div class="section-label">TODAY</div>
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="stat-label">問い合わせ</div>
+        <div class="stat-val">${state.inquiries.length||'—'}</div>
+        <div class="stat-hint">取得済み件数</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">今日の日付</div>
+        <div class="stat-val" style="font-size:22px;padding-top:6px">${now.getMonth()+1}/${now.getDate()}</div>
+        <div class="stat-hint">${now.getFullYear()}年</div>
+      </div>
+    </div>
+    <div class="section-label">INFRA</div>
+    <div class="card">
+      <div class="svc-list">
+        ${svcs.map(s=>`<div class="svc-item"><div class="dot dot-${s.d}"></div><div class="svc-name">${s.name}</div><div class="svc-tag">${s.tag}</div></div>`).join('')}
+      </div>
+    </div>`;
 }
+
 function renderInquiries() {
-  if (!state.loaded) return `<button class="btn-primary" onclick="fetchInquiries()">📥 問い合わせを読み込む</button><div class="info-box">ボタンを押してWorkerから最新の問い合わせ一覧を取得します。</div>`;
-  if (!state.inquiries.length) return `<button class="btn-sec" onclick="fetchInquiries()">再読み込み</button><div class="empty">問い合わせはまだありません</div>`;
+  if (!state.loaded) return `
+    <div class="info-box">ボタンを押してWorkerから最新の問い合わせ一覧を取得します。</div>
+    <button class="btn-primary" onclick="fetchInquiries()">問い合わせを読み込む</button>`;
+
+  if (!state.inquiries.length) return `
+    <button class="btn-sec" onclick="fetchInquiries()">再読み込み</button>
+    <div class="empty">問い合わせはまだありません</div>`;
+
   return `<button class="btn-sec" onclick="fetchInquiries()">再読み込み</button>` +
-    state.inquiries.map(item => `<div class="card"><div class="card-hd"><div class="card-name">${esc(item.name||'名前なし')}</div><div class="card-email">${esc(item.email||'')}</div></div><div class="card-bd">${esc((item.result||'診断結果なし').slice(0,150))}${(item.result||'').length>150?'…':''}</div><div class="card-ft"><span class="card-date">${esc(item.createdAt||item.date||'')}</span><button class="del-btn" onclick="delItem('${esc(item.key||item.email||'')}')">削除</button></div></div>`).join('');
+    state.inquiries.map(item => {
+      const riskLabel = item.risk==='high'?'<span class="risk-high">🔴 高リスク</span>':item.risk==='medium'?'<span class="risk-mid">🟡 中リスク</span>':item.risk==='low'?'<span class="risk-low">🟢 低リスク</span>':'';
+      let resultHtml = '';
+      try {
+        const arr = JSON.parse(item.result||'[]');
+        if(Array.isArray(arr) && arr.length) {
+          resultHtml = '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">'
+            + arr.map(r=>`<div class="result-item">${esc(r)}</div>`).join('')
+            + '</div>';
+        }
+      } catch(e) {
+        if(item.result) resultHtml = `<div style="margin-top:6px;font-size:13px;color:var(--text)">${esc(item.result)}</div>`;
+      }
+      return `
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-name">${esc(item.name||'名前なし')}</div>
+            <div class="card-email">${esc(item.email||'')}</div>
+          </div>
+          <div class="card-bd">
+            ${riskLabel}
+            ${resultHtml}
+          </div>
+          <div class="card-ft">
+            <span class="card-date">${esc(item.createdAt||item.date||item.created||'')}</span>
+            <button class="del-btn" onclick="delItem('${esc(item.key||item.email||'')}')">削除</button>
+          </div>
+        </div>`;
+    }).join('');
 }
+
 function renderProspects() {
-  if (!state.prospects.length) return `<button class="btn-primary" onclick="fetchProspects()">🎯 見込み客を読み込む</button><div class="info-box">hs-monitorが検出した見込み客のスコア一覧です。</div>`;
+  if (!state.prospects.length) return `
+    <div class="info-box">hs-monitorが検出した見込み客のスコア一覧です。</div>
+    <button class="btn-primary" onclick="fetchProspects()">見込み客を読み込む</button>`;
+
   return `<button class="btn-sec" onclick="fetchProspects()">再読み込み</button>` +
     state.prospects.map(p => {
       const sc = p.score||0;
-      const col = sc>=85?'var(--green)':sc>=75?'var(--amber)':'var(--sub)';
-      return `<div class="card" style="padding:14px 16px"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="font-size:14px;font-weight:500;flex:1;margin-right:8px">${esc(p.title||p.name||'未タイトル')}</div><div style="font-size:18px;font-weight:600;color:${col}">${sc}</div></div><div style="font-size:12px;color:var(--sub);margin:4px 0 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.url||p.source||'')}</div><div class="score-bar-bg"><div class="score-bar" style="width:${Math.min(sc,100)}%;background:${col}"></div></div></div>`;
+      const col = sc>=85?'var(--green)':sc>=75?'var(--amber)':'var(--muted)';
+      return `
+        <div class="card" style="padding:14px 16px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div style="font-size:14px;font-weight:700;flex:1;margin-right:8px;color:var(--text)">${esc(p.title||p.name||'未タイトル')}</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:${col};line-height:1">${sc}</div>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin:4px 0 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.url||p.source||'')}</div>
+          <div class="score-bar-bg"><div class="score-bar" style="width:${Math.min(sc,100)}%;background:${col}"></div></div>
+        </div>`;
     }).join('');
 }
+
 function renderSettings() {
-  return `<div class="card" style="padding:16px;margin-bottom:12px"><div style="font-weight:500;margin-bottom:12px">接続テスト</div><div style="font-size:13px;color:var(--sub);margin-bottom:12px;word-break:break-all">Worker: ${WORKER}</div><button class="btn-primary" onclick="testConn()">接続テスト</button><div id="test-result"></div></div><div class="card" style="padding:16px;margin-bottom:12px"><div style="font-weight:500;margin-bottom:14px">Androidでアプリとして使う</div><div class="step"><div class="step-num">1</div><div class="step-text">画面上部の青いバーが表示されたらタップ</div></div><div class="step"><div class="step-num">2</div><div class="step-text">または⋮メニュー →「アプリをインストール」</div></div><div class="step"><div class="step-num">3</div><div class="step-text">ホーム画面にアイコンが追加されます</div></div></div>`;
+  return `
+    <div class="section-label">CONNECTION</div>
+    <div class="card" style="padding:16px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:8px">WORKER ENDPOINT</div>
+      <div style="font-size:12px;color:var(--text);word-break:break-all;margin-bottom:14px;padding:10px;background:var(--surface2);border-radius:3px">${WORKER}</div>
+      <button class="btn-primary" onclick="testConn()">接続テスト</button>
+      <div id="test-result"></div>
+    </div>
+    <div class="section-label">DANGER ZONE</div>
+    <div class="card" style="padding:16px;margin-bottom:12px">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.8">問い合わせデータを全件削除します。この操作は取り消せません。</div>
+      <button class="btn-danger" onclick="clearAll()">全件削除</button>
+    </div>
+    <div class="section-label">ANDROID PWA</div>
+    <div class="card" style="padding:16px">
+      <div class="step"><div class="step-num">1</div><div class="step-text">⋮メニュー →「アプリをインストール」</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">ホーム画面にアイコンが追加されます</div></div>
+    </div>`;
 }
+
 async function fetchInquiries() {
   document.getElementById('main').innerHTML = '<div class="loading">読み込み中...</div>';
   try {
@@ -147,13 +276,17 @@ async function fetchInquiries() {
     const json = await res.json();
     state.inquiries = Array.isArray(json) ? json : (json.data||json.inquiries||[]);
     state.loaded = true;
-    document.getElementById('badge-wrap').innerHTML = state.inquiries.length ? `<div class="badge">${state.inquiries.length}</div>` : '';
-    document.getElementById('conn-status').textContent = '接続中 ✓';
+    document.getElementById('badge-wrap').innerHTML = state.inquiries.length
+      ? `<div class="badge">${state.inquiries.length}</div>` : '';
+    document.getElementById('conn-status').textContent = '接続中 ✓ · 2028';
     render();
   } catch(e) {
-    document.getElementById('main').innerHTML = `<div class="err-box">読み込み失敗: ${esc(e.message)}<br><small>Worker v6がデプロイされているか確認してください</small></div><button class="btn-primary" onclick="fetchInquiries()">再試行</button>`;
+    document.getElementById('main').innerHTML = `
+      <div class="err-box">読み込み失敗: ${esc(e.message)}<br><small style="opacity:.7">Workerの/inquiriesエンドポイントを確認してください</small></div>
+      <button class="btn-primary" onclick="fetchInquiries()">再試行</button>`;
   }
 }
+
 async function fetchProspects() {
   document.getElementById('main').innerHTML = '<div class="loading">読み込み中...</div>';
   try {
@@ -163,33 +296,61 @@ async function fetchProspects() {
     state.prospects = Array.isArray(json) ? json : [];
     render();
   } catch(e) {
-    document.getElementById('main').innerHTML = `<div class="err-box">読み込み失敗: ${esc(e.message)}</div><button class="btn-primary" onclick="fetchProspects()">再試行</button>`;
+    document.getElementById('main').innerHTML = `
+      <div class="err-box">読み込み失敗: ${esc(e.message)}</div>
+      <button class="btn-primary" onclick="fetchProspects()">再試行</button>`;
   }
 }
+
 async function delItem(key) {
   if (!confirm('この問い合わせを削除しますか？')) return;
   try {
-    const res = await fetch(WORKER + '/delete', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({key}) });
-    if (res.ok) { state.inquiries = state.inquiries.filter(i => (i.key||i.email||'') !== key); render(); }
-    else { alert('削除失敗: HTTP ' + res.status); }
+    const res = await fetch(WORKER + '/delete', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({key})
+    });
+    if (res.ok) {
+      state.inquiries = state.inquiries.filter(i => (i.key||i.email||'') !== key);
+      document.getElementById('badge-wrap').innerHTML = state.inquiries.length
+        ? `<div class="badge">${state.inquiries.length}</div>` : '';
+      render();
+    } else { alert('削除失敗: HTTP ' + res.status); }
   } catch(e) { alert('エラー: ' + e.message); }
 }
+
+async function clearAll() {
+  if (!confirm('全件削除します。本当によろしいですか？')) return;
+  try {
+    const res = await fetch(WORKER + '/clear', { method:'POST' });
+    if (res.ok) {
+      state.inquiries = [];
+      state.loaded = false;
+      document.getElementById('badge-wrap').innerHTML = '';
+      render();
+    } else { alert('失敗: HTTP ' + res.status); }
+  } catch(e) { alert('エラー: ' + e.message); }
+}
+
 async function testConn() {
   const r = document.getElementById('test-result');
-  r.innerHTML = '<div style="text-align:center;padding:10px;font-size:13px;color:var(--sub)">テスト中...</div>';
+  r.innerHTML = '<div style="text-align:center;padding:10px;font-size:13px;color:var(--muted)">テスト中...</div>';
   for (const ep of ['/inquiries', '/stats', '/']) {
     try {
       const res = await fetch(WORKER + ep);
-      if (res.status !== 404) { r.innerHTML = `<div class="ok-box">接続OK — ${ep} → HTTP ${res.status}</div>`; return; }
+      if (res.status !== 404) {
+        r.innerHTML = `<div class="ok-box">接続OK — ${ep} → HTTP ${res.status}</div>`;
+        return;
+      }
     } catch(e) {}
   }
-  r.innerHTML = `<div class="err-box">全エンドポイントが404です。<br>Worker v6をデプロイしてください。</div>`;
+  r.innerHTML = `<div class="err-box">全エンドポイントが404です。<br>Workerのデプロイを確認してください。</div>`;
 }
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/admin-app/sw.js');
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
 render();
 </script>
 </body>
