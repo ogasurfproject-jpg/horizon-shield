@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="340" viewBox="0 0 680 340">
+<rect width="680" height="340" fill="#080c18"/>
+<line x1="0" y1="200" x2="680" y2="200" stroke="#c9a84c" stroke-width="0.3" opacity="0.15"/>
+<line x1="0" y1="205" x2="680" y2="205" stroke="#c9a84c" stroke-width="0.2" opacity="0.08"/>
+<line x1="0" y1="210" x2="680" y2="210" stroke="#c9a84c" stroke-width="0.15" opacity="0.05"/>
+<line x1="60" y1="198" x2="620" y2="198" stroke="#c9a84c" stroke-width="0.8" opacity="0.9"/>
+<line x1="340" y1="198" x2="60" y2="340" stroke="#c9a84c" stroke-width="0.4" opacity="0.12"/>
+<line x1="340" y1="198" x2="150" y2="340" stroke="#c9a84c" stroke-width="0.3" opacity="0.1"/>
+<line x1="340" y1="198" x2="240" y2="340" stroke="#c9a84c" stroke-width="0.25" opacity="0.08"/>
+<line x1="340" y1="198" x2="340" y2="340" stroke="#c9a84c" stroke-width="0.25" opacity="0.08"/>
+<line x1="340" y1="198" x2="440" y2="340" stroke="#c9a84c" stroke-width="0.25" opacity="0.08"/>
+<line x1="340" y1="198" x2="530" y2="340" stroke="#c9a84c" stroke-width="0.3" opacity="0.1"/>
+<line x1="340" y1="198" x2="620" y2="340" stroke="#c9a84c" stroke-width="0.4" opacity="0.12"/>
+<line x1="100" y1="230" x2="580" y2="230" stroke="#c9a84c" stroke-width="0.2" opacity="0.06"/>
+<line x1="130" y1="260" x2="550" y2="260" stroke="#c9a84c" stroke-width="0.15" opacity="0.05"/>
+<line x1="160" y1="290" x2="520" y2="290" stroke="#c9a84c" stroke-width="0.1" opacity="0.04"/>
+<circle cx="340" cy="198" r="28" fill="#c9a84c" opacity="0.08"/>
+<circle cx="340" cy="198" r="18" fill="#c9a84c" opacity="0.12"/>
+<circle cx="340" cy="198" r="10" fill="#c9a84c" opacity="0.5"/>
+<circle cx="340" cy="198" r="6" fill="#e8c97a" opacity="0.9"/>
+<line x1="340" y1="164" x2="340" y2="172" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
+<line x1="340" y1="224" x2="340" y2="216" stroke="#c9a84c" stroke-width="0.8" opacity="0.3"/>
+<line x1="306" y1="198" x2="314" y2="198" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
+<line x1="374" y1="198" x2="366" y2="198" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
+<line x1="316" y1="174" x2="321" y2="179" stroke="#c9a84c" stroke-width="0.8" opacity="0.4"/>
+<line x1="364" y1="174" x2="359" y2="179" stroke="#c9a84c" stroke-width="0.8" opacity="0.4"/>
+<text x="340" y="118" font-family="'DM Mono', monospace" font-size="13" font-weight="400" fill="#c9a84c" text-anchor="middle" letter-spacing="8">HORIZON</text>
+<text x="340" y="152" font-family="Georgia, serif" font-size="46" font-weight="300" fill="#f2ead8" text-anchor="middle" letter-spacing="3">ESTIMATE</text>
+<text x="340" y="250" font-family="'DM Mono', monospace" font-size="9" font-weight="300" fill="#c9a84c" text-anchor="middle" letter-spacing="6" opacity="0.7">FOR BUSINESS</text>
+<line x1="80" y1="135" x2="200" y2="135" stroke="#c9a84c" stroke-width="0.5" opacity="0.3"/>
+<line x1="480" y1="135" x2="600" y2="135" stroke="#c9a84c" stroke-width="0.5" opacity="0.3"/>
+<circle cx="80" cy="135" r="1.5" fill="#c9a84c" opacity="0.4"/>
+<circle cx="600" cy="135" r="1.5" fill="#c9a84c" opacity="0.4"/>
+<text x="340" y="290" font-family="'DM Mono', monospace" font-size="8" fill="#c9a84c" text-anchor="middle" letter-spacing="4" opacity="0.35">2028</text>
+</svg>
