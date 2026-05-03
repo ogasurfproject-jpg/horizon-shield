@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HORIZON ESTIMATE | AI建設費見積もりエンジン for BtoB</title>
+<meta name="description" content="建設・リフォーム事業者向けAI見積もりエンジン。月額定額で、現場経験30年のノウハウを搭載したAPIを提供します。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #080c18;
+  --navy-mid: #0f1628;
+  --navy-light: #1a2240;
+  --gold: #c9a84c;
+  --gold-light: #e8c97a;
+  --cream: #f2ead8;
+  --cream-dim: #c8c0a8;
+  --white: #ffffff;
+  --sand: #8a7d60;
+  --accent: #4a7fa0;
+  --accent-light: #6aafcf;
+  --text: #ddd8cc;
+  --text-dim: #8a8578;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--navy);
+  color: var(--text);
+  overflow-x: hidden;
+  line-height: 1.8;
+}
+
+/* ── CANVAS HORIZON ── */
+#horizon-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.page-wrapper {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(to bottom, rgba(8,12,24,0.95), transparent);
+}
+
+.nav-logo {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+.nav-logo span {
+  color: var(--cream-dim);
+  font-size: 0.65rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 36px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: var(--cream-dim);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover { color: var(--gold-light); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 40px 80px;
+  position: relative;
+}
+
+.hero-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+
+.hero h1 {
+  font-family: 'Noto Serif JP', serif;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  font-weight: 300;
+  color: var(--cream);
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
+}
+
+.hero h1 strong {
+  font-weight: 600;
+  color: var(--gold-light);
+}
+
+.hero-sub {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1rem;
+  color: var(--text-dim);
+  margin-bottom: 60px;
+  letter-spacing: 0.1em;
+}
+
+.hero-line {
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  margin: 0 auto 40px;
+}
+
+.btn-primary {
+  display: inline-block;
+  padding: 16px 48px;
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold-light);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.4s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gold);
+  transform: translateX(-100%);
+  transition: transform 0.4s ease;
+}
+
+.btn-primary:hover::before { transform: translateX(0); }
+.btn-primary:hover { color: var(--navy); }
+.btn-primary span { position: relative; z-index: 1; }
+
+/* ── SECTION BASE ── */
+section {
+  padding: 100px 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ── HERO OVERRIDE ── */
+section.hero, div.hero {
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 120px 40px 80px !important;
+}
+
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--gold), transparent);
+  opacity: 0.3;
+}
+
+.section-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 300;
+  color: var(--cream);
+  letter-spacing: 0.05em;
+  margin-bottom: 48px;
+  line-height: 1.5;
+}
+
+/* ── VALUE PROPS ── */
+.value-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2px;
+  margin-top: 60px;
+}
+
+.value-card {
+  background: var(--navy-mid);
+  padding: 48px 36px;
+  border-top: 1px solid rgba(201,168,76,0.15);
+  transition: border-color 0.4s, background 0.4s;
+}
+
+.value-card:hover {
+  border-color: rgba(201,168,76,0.5);
+  background: var(--navy-light);
+}
+
+.value-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 2.5rem;
+  color: rgba(201,168,76,0.2);
+  display: block;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+.value-card h3 {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--cream);
+  margin-bottom: 12px;
+  letter-spacing: 0.05em;
+}
+
+.value-card p {
+  font-size: 0.83rem;
+  color: var(--text-dim);
+  line-height: 1.9;
+}
+
+/* ── FEATURES ── */
+.features-section {
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding-top: 100px;
+}
+
+.feature-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  margin-bottom: 100px;
+}
+
+.feature-row.reverse { direction: rtl; }
+.feature-row.reverse > * { direction: ltr; }
+
+.feature-visual {
+  background: var(--navy-mid);
+  border: 1px solid rgba(201,168,76,0.1);
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-visual::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 20%;
+  right: 20%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+}
+
+.feature-diagram {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--accent-light);
+  line-height: 2.2;
+  opacity: 0.8;
+}
+
+.feature-text h3 {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: var(--cream);
+  margin-bottom: 20px;
+  letter-spacing: 0.05em;
+}
+
+.feature-text p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 2;
+  margin-bottom: 16px;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  border: 1px solid rgba(201,168,76,0.3);
+  padding: 4px 12px;
+}
+
+/* ── PRICING ── */
+.pricing-section {
+  text-align: center;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 100px 40px;
+}
+
+.pricing-note {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 60px;
+  letter-spacing: 0.05em;
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2px;
+  text-align: left;
+}
+
+.plan-card {
+  background: var(--navy-mid);
+  padding: 52px 40px;
+  border-top: 2px solid rgba(201,168,76,0.1);
+  position: relative;
+  transition: border-color 0.4s;
+}
+
+.plan-card.featured {
+  border-top-color: var(--gold);
+  background: var(--navy-light);
+}
+
+.plan-badge {
+  position: absolute;
+  top: -1px; right: 32px;
+  background: var(--gold);
+  color: var(--navy);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  padding: 4px 14px;
+  text-transform: uppercase;
+}
+
+.plan-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.plan-price {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 2.8rem;
+  font-weight: 300;
+  color: var(--cream);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.plan-price sub {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  vertical-align: baseline;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.plan-cycle {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  margin-bottom: 32px;
+}
+
+.plan-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin-bottom: 32px;
+}
+
+.plan-features {
+  list-style: none;
+  margin-bottom: 40px;
+}
+
+.plan-features li {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.plan-features li::before {
+  content: '—';
+  color: var(--gold);
+  font-family: 'DM Mono', monospace;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.plan-cta {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  text-align: center;
+  border: 1px solid var(--gold);
+  color: var(--gold-light);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.3s;
+  text-decoration: none;
+}
+
+.plan-cta:hover, .plan-card.featured .plan-cta {
+  background: var(--gold);
+  color: var(--navy);
+}
+
+/* ── FLOW ── */
+.flow-section {
+  border-top: 1px solid rgba(255,255,255,0.05);
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 100px 40px;
+}
+
+.flow-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  position: relative;
+  margin-top: 60px;
+}
+
+.flow-steps::before {
+  content: '';
+  position: absolute;
+  top: 24px;
+  left: 12.5%;
+  right: 12.5%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold), var(--gold), transparent);
+  opacity: 0.2;
+}
+
+.flow-step {
+  text-align: center;
+  padding: 0 20px;
+}
+
+.step-num {
+  width: 48px; height: 48px;
+  border: 1px solid rgba(201,168,76,0.4);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--gold);
+  background: var(--navy);
+  position: relative;
+  z-index: 1;
+}
+
+.flow-step h4 {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--cream);
+  margin-bottom: 10px;
+  letter-spacing: 0.05em;
+}
+
+.flow-step p {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  line-height: 1.8;
+}
+
+/* ── APPEAL ── */
+.appeal-section {
+  border-top: 1px solid rgba(255,255,255,0.05);
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 100px 40px;
+  text-align: center;
+}
+
+.appeal-quote {
+  font-family: 'Noto Serif JP', serif;
+  font-size: clamp(1.3rem, 2.5vw, 2rem);
+  font-weight: 300;
+  color: var(--cream);
+  line-height: 1.8;
+  letter-spacing: 0.1em;
+  max-width: 700px;
+  margin: 0 auto 60px;
+}
+
+.appeal-quote em {
+  font-style: normal;
+  color: var(--gold-light);
+}
+
+.profile-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--navy-mid);
+  border: 1px solid rgba(201,168,76,0.15);
+  padding: 24px 36px;
+  text-align: left;
+}
+
+.profile-avatar {
+  width: 56px; height: 56px;
+  background: var(--navy-light);
+  border: 1px solid rgba(201,168,76,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.2rem;
+  color: var(--gold);
+}
+
+.profile-info h5 {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--cream);
+  margin-bottom: 4px;
+}
+
+.profile-info p {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+
+/* ── APPLY FORM ── */
+.apply-section {
+  border-top: 1px solid rgba(255,255,255,0.05);
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 100px 40px;
+  text-align: center;
+}
+
+.apply-form {
+  margin-top: 48px;
+  text-align: left;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  background: var(--navy-mid);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--cream);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.85rem;
+  padding: 14px 18px;
+  outline: none;
+  transition: border-color 0.3s;
+  appearance: none;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--gold);
+}
+
+.form-group select option { background: var(--navy-mid); }
+.form-group textarea { height: 120px; resize: vertical; }
+
+.form-required {
+  color: var(--gold);
+  margin-left: 4px;
+}
+
+#paypal-button-container {
+  margin-top: 32px;
+}
+
+.form-note {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  text-align: center;
+  margin-top: 16px;
+  line-height: 1.8;
+}
+
+/* ── LEGAL SECTIONS ── */
+.legal-section {
+  border-top: 1px solid rgba(255,255,255,0.05);
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 80px 40px;
+}
+
+.legal-section h2 {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--cream);
+  margin-bottom: 40px;
+  letter-spacing: 0.1em;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(201,168,76,0.15);
+}
+
+.legal-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 40px;
+  font-size: 0.82rem;
+}
+
+.legal-table tr {
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.legal-table th {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  text-align: left;
+  padding: 16px 20px 16px 0;
+  white-space: nowrap;
+  width: 160px;
+  vertical-align: top;
+}
+
+.legal-table td {
+  color: var(--text-dim);
+  padding: 16px 0;
+  line-height: 1.9;
+}
+
+.legal-body h3 {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--cream);
+  margin: 32px 0 12px;
+}
+
+.legal-body p, .legal-body li {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 2;
+  margin-bottom: 8px;
+}
+
+.legal-body ul {
+  padding-left: 20px;
+  margin-bottom: 16px;
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.footer-logo {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+
+.footer-copy {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-bottom: 24px;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: color 0.3s;
+}
+
+.footer-links a:hover { color: var(--gold-light); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8,12,24,0.95);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal-box {
+  background: var(--navy-mid);
+  border: 1px solid rgba(201,168,76,0.2);
+  max-width: 760px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 52px;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 20px; right: 24px;
+  background: none; border: none;
+  color: var(--text-dim);
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.modal-close:hover { color: var(--gold-light); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+.reveal {
+  transform: translateY(24px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  nav { padding: 16px 20px; }
+  .nav-links { display: none; }
+  section, .pricing-section, .flow-section, .appeal-section, .apply-section, .legal-section, .flow-section { padding: 60px 20px; }
+  .feature-row { grid-template-columns: 1fr; gap: 40px; }
+  .feature-row.reverse { direction: ltr; }
+  .flow-steps { grid-template-columns: 1fr 1fr; gap: 40px; }
+  .flow-steps::before { display: none; }
+  .hero { padding: 100px 24px 60px; }
+  .modal-box { padding: 32px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- CANVAS -->
+<canvas id="horizon-canvas"></canvas>
+
+<div class="page-wrapper">
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    HORIZON ESTIMATE<br>
+    <span>for Business</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#features">特徴</a></li>
+    <li><a href="#pricing">料金</a></li>
+    <li><a href="#flow">導入の流れ</a></li>
+    <li><a href="#apply">申し込む</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-eyebrow">AI-Powered Construction Estimate Engine</p>
+  <h1>建設費の<strong>知識格差</strong>を、<br>APIで埋める。</h1>
+  <p class="hero-sub">現場経験30年。そのノウハウを、貴社のシステムへ。</p>
+  <div class="hero-line"></div>
+  <a href="#apply" class="btn-primary"><span>導入を検討する</span></a>
+</section>
+
+<!-- VALUE -->
+<section id="features">
+  <div class="section-label">Why HORIZON ESTIMATE</div>
+  <h2 class="section-title">なぜ今、AI見積もりエンジンが必要か。</h2>
+  <p style="color:var(--text-dim);font-size:0.85rem;line-height:2;max-width:600px;">
+    建設費の不透明さは、発注者と施工者の間に構造的な「情報格差」を生んでいます。
+    HORIZON ESTIMATEは、その格差を解消するためのAPIを、事業者向けに提供します。
+  </p>
+
+  <div class="value-grid" style="margin-top:60px;">
+    <div class="value-card reveal">
+      <span class="value-num">01</span>
+      <h3>30年の職人経験をAPI化</h3>
+      <p>大工→現場監督→CMR→AIエンジニア。現場で積み上げた実勘を、構造化されたAIモデルとして提供。マニュアルには書けない「感覚」が入っています。</p>
+    </div>
+    <div class="value-card reveal">
+      <span class="value-num">02</span>
+      <h3>リアルタイム資材価格連動</h3>
+      <p>日銀CGPIデータと独自収集の資材相場を毎月同期。ウクライナ・関税情勢の変動を係数として即時反映し、見積もりの陳腐化を防ぎます。</p>
+    </div>
+    <div class="value-card reveal">
+      <span class="value-num">03</span>
+      <h3>単純なAPIで即実装</h3>
+      <p>REST API / JSONレスポンス。既存の見積もりシステムへの組み込みも、新規Webアプリへの統合も、シンプルな設計で数日以内に稼働できます。</p>
+    </div>
+    <div class="value-card reveal">
+      <span class="value-num">04</span>
+      <h3>3,350品目の資材データベース</h3>
+      <p>建築・設備・仕上げ・電気・給排水。15カテゴリ、3,350品目以上の資材単価を網羅。特殊工法・施主支給品の調整にも対応します。</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES DETAIL -->
+<div class="features-section">
+  <div style="max-width:1100px;margin:0 auto;padding:0 40px;">
+
+    <div class="feature-row reveal">
+      <div class="feature-visual">
+        <div class="feature-diagram">
+POST /estimate<br>
+{<br>
+&nbsp;&nbsp;"area": 85.4,<br>
+&nbsp;&nbsp;"type": "residential",<br>
+&nbsp;&nbsp;"grade": "standard",<br>
+&nbsp;&nbsp;"region": "tokyo"<br>
+}<br><br>
+→ 200 OK<br>
+{<br>
+&nbsp;&nbsp;"total": 28460000,<br>
+&nbsp;&nbsp;"breakdown": { ... },<br>
+&nbsp;&nbsp;"confidence": 0.91,<br>
+&nbsp;&nbsp;"updated_at": "2026-05"<br>
+}
+        </div>
+      </div>
+      <div class="feature-text">
+        <h3>シンプルなリクエストで、<br>構造化された見積もりを。</h3>
+        <p>面積・用途・グレード・地域を渡すだけで、工種別内訳付きの概算見積もりをJSON形式で返します。</p>
+        <p>信頼度スコア・更新日付・価格変動要因コメントも同梱。見積もりの「根拠」を説明できます。</p>
+        <div class="tag-list">
+          <span class="tag">REST API</span>
+          <span class="tag">JSON</span>
+          <span class="tag">工種別内訳</span>
+          <span class="tag">信頼度スコア</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-row reverse reveal">
+      <div class="feature-visual">
+        <div class="feature-diagram">
+PRICE SYNC — monthly<br>
+━━━━━━━━━━━━━━━━<br>
+日銀CGPI取得 ............... ✓<br>
+Claude Haiku分析 ........... ✓<br>
+係数算出 (×1.0935) ........ ✓<br>
+KV反映 ..................... ✓<br>
+LINE管理者通知 ............. ✓<br>
+Admin承認 .................. ✓<br>
+━━━━━━━━━━━━━━━━<br>
+next sync: 2026-06-10
+        </div>
+      </div>
+      <div class="feature-text">
+        <h3>資材価格は、<br>毎月自動で更新される。</h3>
+        <p>為替・資源価格・国際情勢の変動を、日銀の企業物価指数(CGPI)データと連携して毎月自動同期。</p>
+        <p>管理者承認フローを経て価格係数を更新するため、急激な変動にも安全に対応できます。</p>
+        <div class="tag-list">
+          <span class="tag">日銀CGPI連動</span>
+          <span class="tag">月次自動更新</span>
+          <span class="tag">承認フロー付</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PRICING -->
+<div class="pricing-section" id="pricing">
+  <div class="section-label" style="justify-content:center;">Pricing Plans</div>
+  <h2 class="section-title">料金プラン</h2>
+  <p class="pricing-note">すべてのプランに初月無料トライアル付き。契約はいつでも解約できます。</p>
+
+  <div class="plans-grid reveal">
+
+    <!-- STANDARD -->
+    <div class="plan-card">
+      <div class="plan-name">Standard</div>
+      <div class="plan-price">¥49,800<sub>/月</sub></div>
+      <div class="plan-cycle">税込 ¥54,780 / 月払い</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>見積もりAPI 月500リクエスト</li>
+        <li>3,350品目 資材DBアクセス</li>
+        <li>月次価格自動更新</li>
+        <li>APIキー即時発行</li>
+        <li>メールサポート</li>
+      </ul>
+      <a href="#apply" class="plan-cta" onclick="selectPlan('standard')">このプランで申し込む</a>
+    </div>
+
+    <!-- PRO (featured) -->
+    <div class="plan-card featured">
+      <div class="plan-badge">人気</div>
+      <div class="plan-name">Professional</div>
+      <div class="plan-price">¥98,000<sub>/月</sub></div>
+      <div class="plan-cycle">税込 ¥107,800 / 月払い</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>見積もりAPI 月2,000リクエスト</li>
+        <li>3,350品目 資材DBアクセス</li>
+        <li>月次価格自動更新</li>
+        <li>APIキー即時発行</li>
+        <li>カスタム係数設定（地域・工法）</li>
+        <li>優先メール＋電話サポート</li>
+        <li>月次レポート提供</li>
+      </ul>
+      <a href="#apply" class="plan-cta" onclick="selectPlan('professional')">このプランで申し込む</a>
+    </div>
+
+    <!-- ENTERPRISE -->
+    <div class="plan-card">
+      <div class="plan-name">Enterprise</div>
+      <div class="plan-price" style="font-size:1.8rem;padding-top:8px;">個別見積もり</div>
+      <div class="plan-cycle">大量利用・カスタム連携</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>APIリクエスト無制限</li>
+        <li>専用エンドポイント</li>
+        <li>SLA保証</li>
+        <li>カスタム資材DB構築</li>
+        <li>既存システム連携支援</li>
+        <li>専任担当者付きサポート</li>
+      </ul>
+      <a href="mailto:contact@the-horizons-innovation.com" class="plan-cta">お問い合わせ</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- FLOW -->
+<div class="flow-section" id="flow">
+  <div class="section-label">Getting Started</div>
+  <h2 class="section-title">導入の流れ</h2>
+
+  <div class="flow-steps reveal">
+    <div class="flow-step">
+      <div class="step-num">01</div>
+      <h4>申し込み</h4>
+      <p>フォーム入力→PayPal決済で即時手続き完了。会社名・担当者情報を入力するだけです。</p>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">02</div>
+      <h4>APIキー発行</h4>
+      <p>決済完了後、自動でAPIキーをメール送信。数分以内にテストリクエストが可能になります。</p>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">03</div>
+      <h4>テスト実装</h4>
+      <p>ドキュメントに沿って実装。サンプルコード（JS/Python/PHP）も提供します。</p>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">04</div>
+      <h4>本番稼働</h4>
+      <p>テスト確認後、本番環境へ。疑問点はメール・電話でいつでもサポートします。</p>
+    </div>
+  </div>
+</div>
+
+<!-- APPEAL -->
+<div class="appeal-section reveal">
+  <p class="appeal-quote">
+    「見積もりは、<em>信頼の設計図</em>だ。<br>
+    数字の向こうに、施主の人生がある。」
+  </p>
+  <div class="profile-card">
+    <div class="profile-avatar">大</div>
+    <div class="profile-info">
+      <h5>大賀 俊勝</h5>
+      <p>The HORIZONS株式会社 代表取締役<br>建設経験30年 / 大工→現場監督→CMR→AIエンジニア</p>
+    </div>
+  </div>
+</div>
+
+<!-- APPLY -->
+<div class="apply-section" id="apply">
+  <div class="section-label" style="justify-content:center;">Apply</div>
+  <h2 class="section-title">お申し込み</h2>
+  <p style="color:var(--text-dim);font-size:0.83rem;">下記フォームに入力後、PayPalで決済してください。完了後、自動でAPIキーをメール送信します。</p>
+
+  <form class="apply-form" id="applyForm">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div class="form-group">
+        <label>会社名<span class="form-required">*</span></label>
+        <input type="text" id="company" placeholder="株式会社〇〇建設" required>
+      </div>
+      <div class="form-group">
+        <label>担当者名<span class="form-required">*</span></label>
+        <input type="text" id="name" placeholder="山田 太郎" required>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>メールアドレス<span class="form-required">*</span></label>
+      <input type="email" id="email" placeholder="info@example.co.jp" required>
+    </div>
+    <div class="form-group">
+      <label>電話番号</label>
+      <input type="tel" id="phone" placeholder="03-0000-0000">
+    </div>
+    <div class="form-group">
+      <label>選択プラン<span class="form-required">*</span></label>
+      <select id="plan" required>
+        <option value="">— プランを選択 —</option>
+        <option value="standard">Standard ¥49,800/月</option>
+        <option value="professional">Professional ¥98,000/月</option>
+        <option value="enterprise">Enterprise（要相談）</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>ご用途・導入背景（任意）</label>
+      <textarea id="memo" placeholder="例：自社Webサービスへの組み込み、見積もりアプリ開発など"></textarea>
+    </div>
+
+    <div id="paypal-button-container"></div>
+    <p class="form-note">
+      お申し込みには<a href="#" onclick="openModal('tokushoho')" style="color:var(--gold);">特定商取引法に基づく表記</a>および
+      <a href="#" onclick="openModal('privacy')" style="color:var(--gold);">プライバシーポリシー</a>への同意が必要です。
+    </p>
+  </form>
+</div>
+
+<!-- 特商法 -->
+<div class="legal-section" id="tokushoho-section">
+  <h2>特定商取引法に基づく表記</h2>
+  <div class="legal-body">
+    <table class="legal-table">
+      <tr><th>販売業者</th><td>The HORIZONS株式会社</td></tr>
+      <tr><th>代表者</th><td>大賀 俊勝</td></tr>
+      <tr><th>所在地</th><td>〒107-0062 東京都港区南青山（詳細住所は請求により開示）</td></tr>
+      <tr><th>電話番号</th><td>080-5920-8099（受付：平日10:00〜17:00）</td></tr>
+      <tr><th>メールアドレス</th><td>contact@the-horizons-innovation.com</td></tr>
+      <tr><th>販売価格</th><td>各プランページに表示の価格（税込）</td></tr>
+      <tr><th>支払方法</th><td>PayPal（クレジットカード・銀行引落）</td></tr>
+      <tr><th>支払時期</th><td>申し込み時に初回決済、以降毎月同日に自動課金</td></tr>
+      <tr><th>サービス提供時期</th><td>決済完了後、自動でAPIキーをメール送信（通常数分以内）</td></tr>
+      <tr><th>返品・キャンセル</th><td>デジタルサービスの性質上、原則返金不可。ただし決済当日中のご連絡はご相談に応じます。次月以降の解約はいつでも可能。</td></tr>
+      <tr><th>動作環境</th><td>HTTPS通信が可能な環境。詳細はドキュメントを参照。</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- プライバシーポリシー -->
+<div class="legal-section" id="privacy-section">
+  <h2>プライバシーポリシー</h2>
+  <div class="legal-body">
+    <p>The HORIZONS株式会社（以下「当社」）は、本サービスにおける個人情報の取り扱いについて、以下のとおり定めます。</p>
+
+    <h3>1. 取得する情報</h3>
+    <p>当社は、サービス提供に必要な範囲で以下の情報を取得します。</p>
+    <ul>
+      <li>会社名・氏名・メールアドレス・電話番号（申し込みフォーム入力情報）</li>
+      <li>PayPalを通じた決済情報（当社はカード情報を保持しません）</li>
+      <li>APIの利用ログ（リクエスト数・エラー状況・タイムスタンプ）</li>
+      <li>アクセスログ（IPアドレス・ブラウザ情報）</li>
+    </ul>
+
+    <h3>2. 利用目的</h3>
+    <ul>
+      <li>サービスの提供・APIキー発行・請求処理</li>
+      <li>サポート対応・お問い合わせへの返答</li>
+      <li>サービス改善・障害対応のための分析</li>
+      <li>法令に基づく開示</li>
+    </ul>
+
+    <h3>3. 第三者提供</h3>
+    <p>当社は、法令に基づく場合を除き、取得した個人情報を第三者に提供しません。ただし、決済処理はPayPal株式会社に委託します。</p>
+
+    <h3>4. 情報の管理</h3>
+    <p>取得した情報はCloudflare Workers KVおよびSSL暗号化通信によって安全に管理します。不正アクセス防止のための適切な技術的措置を講じています。</p>
+
+    <h3>5. 情報の開示・削除</h3>
+    <p>ご本人からの情報開示・訂正・削除のご要望は、下記連絡先にてお受けします。本人確認の上、合理的な期間内に対応します。</p>
+
+    <h3>6. Cookie・解析ツール</h3>
+    <p>本サービスは、アクセス解析のためにCookieを使用する場合があります。ブラウザの設定により無効化できますが、一部機能が制限される場合があります。</p>
+
+    <h3>7. お問い合わせ</h3>
+    <p>個人情報に関するお問い合わせ：contact@the-horizons-innovation.com</p>
+
+    <h3>8. 改定</h3>
+    <p>本ポリシーは必要に応じて改定することがあります。重要な変更は本ページにてお知らせします。</p>
+
+    <p style="margin-top:32px;font-size:0.75rem;color:var(--text-dim);">制定：2026年5月 / The HORIZONS株式会社</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">THE HORIZONS株式会社</div>
+  <p class="footer-copy">© 2026 The HORIZONS Inc. All rights reserved.</p>
+  <div class="footer-links">
+    <a href="#tokushoho-section">特定商取引法に基づく表記</a>
+    <a href="#privacy-section">プライバシーポリシー</a>
+    <a href="mailto:contact@the-horizons-innovation.com">お問い合わせ</a>
+    <a href="https://shield.the-horizons-innovation.com" target="_blank">HORIZON SHIELD（個人向け）</a>
+  </div>
+</footer>
+
+</div><!-- /page-wrapper -->
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-tokushoho">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('tokushoho')">✕</button>
+    <h2 style="font-family:'Noto Serif JP',serif;font-size:1.2rem;font-weight:400;color:var(--cream);margin-bottom:32px;">特定商取引法に基づく表記</h2>
+    <table class="legal-table">
+      <tr><th>販売業者</th><td>The HORIZONS株式会社</td></tr>
+      <tr><th>代表者</th><td>大賀 俊勝</td></tr>
+      <tr><th>所在地</th><td>〒107-0062 東京都港区南青山（詳細は請求により開示）</td></tr>
+      <tr><th>電話番号</th><td>080-5920-8099</td></tr>
+      <tr><th>メール</th><td>contact@the-horizons-innovation.com</td></tr>
+      <tr><th>販売価格</th><td>各プランの税込表示価格</td></tr>
+      <tr><th>支払方法</th><td>PayPal</td></tr>
+      <tr><th>支払時期</th><td>申込時・以降毎月自動課金</td></tr>
+      <tr><th>提供時期</th><td>決済完了後数分以内にメール送信</td></tr>
+      <tr><th>返品・解約</th><td>原則返金不可・解約はいつでも可</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-privacy">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('privacy')">✕</button>
+    <h2 style="font-family:'Noto Serif JP',serif;font-size:1.2rem;font-weight:400;color:var(--cream);margin-bottom:24px;">プライバシーポリシー</h2>
+    <div class="legal-body" style="font-size:0.8rem;">
+      <p>The HORIZONS株式会社は、申し込み情報（会社名・氏名・メール・電話）・APIログを、サービス提供・サポート・改善目的で取得・利用します。第三者提供は法令に基づく場合のみ。決済はPayPalに委託。情報の開示・削除はcontact@the-horizons-innovation.comへ。</p>
+    </div>
+  </div>
+</div>
+
+<!-- PAYPAL SDK -->
+<script src="https://www.paypal.com/sdk/js?client-id=AVePXfDeP_YDUgmcFEJNjFHuYkbXZ-VQcLEecJs5Li2la9qDbtZJamy-iXzTxWlPdUODt6KNV3nqUKHP&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
+
+<script>
+// ── HORIZON CANVAS ──
+const canvas = document.getElementById('horizon-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, t = 0;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+resize();
+window.addEventListener('resize', resize);
+
+function drawHorizon() {
+  ctx.clearRect(0, 0, W, H);
+  t += 0.003;
+
+  // Horizon line
+  const horizonY = H * 0.62 + Math.sin(t) * 8;
+  const grad = ctx.createLinearGradient(0, 0, W, 0);
+  grad.addColorStop(0, 'transparent');
+  grad.addColorStop(0.2, 'rgba(201,168,76,0.6)');
+  grad.addColorStop(0.5, 'rgba(201,168,76,1)');
+  grad.addColorStop(0.8, 'rgba(201,168,76,0.6)');
+  grad.addColorStop(1, 'transparent');
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(0, horizonY);
+  ctx.lineTo(W, horizonY);
+  ctx.stroke();
+
+  // Vertical grid lines converging to horizon
+  const vp = { x: W / 2, y: horizonY };
+  const numLines = 12;
+  for (let i = 0; i <= numLines; i++) {
+    const x = (W / numLines) * i;
+    const alpha = 0.04 + 0.04 * Math.sin(t + i * 0.4);
+    ctx.strokeStyle = `rgba(201,168,76,${alpha})`;
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(vp.x + (x - vp.x) * 0.01, horizonY);
+    ctx.lineTo(x, H);
+    ctx.stroke();
+  }
+
+  // Horizontal lines below horizon
+  for (let j = 1; j <= 8; j++) {
+    const y = horizonY + (H - horizonY) * (j / 8);
+    const alpha = 0.03 + 0.02 * (1 - j / 8);
+    ctx.strokeStyle = `rgba(201,168,76,${alpha})`;
+    ctx.lineWidth = 0.4;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(W, y);
+    ctx.stroke();
+  }
+
+  // Stars
+  ctx.fillStyle = 'rgba(201,168,76,0.5)';
+  const stars = [
+    [0.1,0.1],[0.25,0.05],[0.4,0.15],[0.55,0.08],[0.7,0.12],[0.85,0.06],[0.92,0.18],
+    [0.15,0.3],[0.35,0.25],[0.6,0.35],[0.8,0.28],[0.05,0.45],[0.45,0.4],[0.75,0.42]
+  ];
+  stars.forEach(([sx, sy], i) => {
+    const flicker = 0.3 + 0.7 * Math.abs(Math.sin(t * 1.3 + i));
+    ctx.globalAlpha = flicker * 0.4;
+    const r = 0.5 + Math.sin(t + i) * 0.3;
+    ctx.beginPath();
+    ctx.arc(sx * W, sy * H * 0.95, r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+
+  requestAnimationFrame(drawHorizon);
+}
+
+drawHorizon();
+
+// ── REVEAL ON SCROLL ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── PLAN SELECT ──
+function selectPlan(plan) {
+  document.getElementById('plan').value = plan;
+}
+
+// ── MODAL ──
+function openModal(id) {
+  document.getElementById('modal-' + id).classList.add('active');
+  document.body.style.overflow = 'hidden';
+  return false;
+}
+
+function closeModal(id) {
+  document.getElementById('modal-' + id).classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => {
+    if (e.target === m) {
+      m.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+});
+
+// ── PAYPAL BUTTON ──
+paypal.Buttons({
+  style: {
+    shape: 'rect',
+    color: 'gold',
+    layout: 'vertical',
+    label: 'subscribe'
+  },
+  createSubscription: function(data, actions) {
+    const planMap = {
+      standard: 'P-3C2245943L730094SNH3LC4Y',
+      professional: 'P-3C2245943L730094SNH3LC4Y', // 本番では別PlanID
+    };
+    const selectedPlan = document.getElementById('plan').value;
+    if (!selectedPlan || selectedPlan === 'enterprise') {
+      alert('プランを選択してください（エンタープライズはお問い合わせください）');
+      return;
+    }
+    return actions.subscription.create({
+      plan_id: planMap[selectedPlan] || planMap.standard
+    });
+  },
+  onApprove: function(data, actions) {
+    const company = document.getElementById('company').value;
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const plan = document.getElementById('plan').value;
+    const phone = document.getElementById('phone').value;
+    const memo = document.getElementById('memo').value;
+
+    // hs-estimate Workerへ通知
+    fetch('https://hs-estimate.oga-surf-project.workers.dev/webhook/paypal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subscriptionID: data.subscriptionID,
+        company, name, email, plan, phone, memo
+      })
+    });
+
+    document.getElementById('applyForm').innerHTML = `
+      <div style="text-align:center;padding:60px 0;">
+        <div style="font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.2em;color:var(--gold);margin-bottom:24px;">SUBSCRIPTION ACTIVATED</div>
+        <p style="font-family:'Noto Serif JP',serif;font-size:1.2rem;color:var(--cream);margin-bottom:16px;">ありがとうございます。</p>
+        <p style="font-size:0.83rem;color:var(--text-dim);line-height:2;">
+          ${email} にAPIキーを送信しました。<br>
+          数分以内に届かない場合は contact@the-horizons-innovation.com までご連絡ください。
+        </p>
+      </div>
+    `;
+  },
+  onError: function(err) {
+    console.error(err);
+    alert('決済処理中にエラーが発生しました。しばらく経ってから再度お試しください。');
+  }
+}).render('#paypal-button-container');
+</script>
+</body>
+</html>
