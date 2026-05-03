@@ -291,7 +291,6 @@ function computeFromSoubaDB(item, mapping, soubaDB) {
 function extractPlanPrice(planData, planType) {
   if (!planData) return null;
 
-  // 価格フィールドを探索
   // 価格フィールドを探索（v3.0 phase1.5 形式に対応）
   const price =
     planData.HS基準価格_万円 ||
