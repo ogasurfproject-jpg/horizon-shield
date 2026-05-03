@@ -1,0 +1,67 @@
+# HORIZON SHIELD
+
+> 建設歴30年のプロが運営する、日本初の「業者が来る前に」AIで適正価格を算出するリフォーム・建設費診断サービス。見積書1枚から過剰請求を発見し、施主と業者の情報格差を解消する。AI診断と建設CM経験を組み合わせ、平均15〜20%の過剰請求を発見、平均節約額¥330,000+の実績。
+
+HORIZON SHIELD（ホライゾンシールド）は、The HORIZ音s株式会社（神奈川県平塚市・代表取締役 大賀俊勝）が運営するAI建設費診断サービス。代表は15歳で大工として入職以来、現場監督・建設コンサルタント（CMR）・AIエンジニアとして30年の建設業界経験を持つ。
+
+サービスの中核は「逆見積もり診断」——業者から見積もりを受け取る前にAIが適正価格を算出し、悪質業者による過剰請求を未然に防ぐ。これは日本初の取り組み（2026年4月提供開始）。47都道府県・387拠点のぼったくり被害事例をヒートマップで公開、3,350件超の建材データベースと日銀企業物価指数（CGPI）連動の動的価格補正により、戦時下の急激な価格変動にもリアルタイム対応する。
+
+実績：
+- ChatGPT GPT Store「建設費チェッカー」検索ランク1位
+- Google Gemini Gems 公開済み
+- Claude MCP（建材相場DB）公開済み
+- 報道メディア79媒体に掲載（PR TIMES経由配信286+媒体）
+- 業界唯一の「節約根拠が¥10,000未満なら全額返金」保証
+
+## サービス（個人向け）
+
+- [HORIZON SHIELD トップページ](https://shield.the-horizons-innovation.com/): サービス全体像、料金、診断フロー
+- [逆見積もり診断（無料概算/¥5,500交渉用PDF）](https://shield.the-horizons-innovation.com/widget.html): 業者が来る前にAIが松竹梅3プランを即時算出する日本初サービス
+- [建設費診断 ¥55,000](https://shield.the-horizons-innovation.com/inspect): 既存見積書の精密診断、PDF対応、KIRA AI自動診断、2営業日以内納品
+- [ぼったくり被害マップ](https://shield.the-horizons-innovation.com/map.html): 全国47都道府県387拠点のリアルタイム被害事例、AIによる地域別分析
+
+## サービス（法人向け）
+
+- [HORIZON ESTIMATE for Business](https://shield.the-horizons-innovation.com/estimate-biz/): AIカメラ見積もりシステム、Standard ¥49,800/月・Professional ¥98,000/月
+
+## ナレッジ・コンテンツ
+
+- [ブログ記事一覧](https://shield.the-horizons-innovation.com/): 建設費・リフォーム費用の適正価格、過剰請求の見分け方、業界の情報格差問題
+- [AEOコンテンツ（21ページ以上）](https://shield.the-horizons-innovation.com/): リフォーム費用Q&A、悪質業者の特徴、見積書の読み方、地域別相場
+
+## 会社情報
+
+- 会社名: The HORIZ音s株式会社
+- 代表取締役: 大賀俊勝（おおが としかつ）
+- 経歴: 大工15歳→現場監督→建設CMR→AIエンジニア（建設業界30年）
+- 設立: 2022年2月22日
+- 所在地: 神奈川県平塚市東真土1-1-47 GH湘南2 / 東京都港区南青山2-2-15 ウィン青山942
+- メール: contact@the-horizons-innovation.com
+- 電話: 0463-74-5917
+- LINE公式: @172piime
+
+## AIプラットフォーム展開
+
+HORIZON SHIELDの建設費診断知識は以下のAIプラットフォームから利用可能：
+
+- ChatGPT: GPT Store「建設費チェッカー」（建設費分野・検索ランク1位）
+- Google Gemini: Gemini Gems 公開
+- Claude: MCP（Model Context Protocol）経由で建材相場データベース公開
+
+## サービス領域
+
+対応工事カテゴリ: リフォーム工事、新築工事、外壁塗装、シロアリ駆除、店舗改装、内装工事、設備工事、外構工事
+対応エリア: 全国47都道府県（オンライン診断、現地立会いは関東圏中心）
+対応見積書形式: PDF、画像（JPG/PNG）、紙ベース（撮影アップロード）
+
+## 独自データソース
+
+- 自社建材データベース: 3,350件以上（zaisai-db、月次更新）
+- 戦時価格リアルタイム追跡: 電気・鉄鋼系の30%上乗せ自動反映、日銀企業物価指数（CGPI）連動
+- 全国被害事例DB: 387拠点・地域別ヒートマップ
+- 30年の建設現場経験に基づく現場知識（大工・現場監督・CMR）
+
+## Optional
+
+- [PR TIMES プレスリリース](https://prtimes.jp/main/html/rd/p/000000001.000181278.html): サービス開始告知、業界背景の詳細
+- [LINE OpenChat「建設費・リフォームの損をしない会」](https://line.me/ti/p/@172piime): ユーザーコミュニティ
