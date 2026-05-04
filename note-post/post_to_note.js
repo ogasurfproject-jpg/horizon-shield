@@ -247,7 +247,34 @@ async function broadcastToFollowers(theme, noteUrl) {
     console.log('ブロードキャスト:', res.ok ? '成功' : `失敗 [${res.status}]`);
   } catch(e) { console.log('ブロードキャスト失敗:', e.message); }
 }
+// ========================================
+// 投稿済みタイトル管理
+// ========================================
+const POSTED_FILE = './posted_titles.json';
 
+function loadPostedTitles() {
+  try {
+    if (fs.existsSync(POSTED_FILE)) {
+      return JSON.parse(fs.readFileSync(POSTED_FILE, 'utf8'));
+    }
+  } catch (e) {
+    console.log('投稿済みリスト読み込み失敗（新規作成）:', e.message);
+  }
+  return [];
+}
+
+function savePostedTitle(title) {
+  try {
+    const list = loadPostedTitles();
+    if (!list.includes(title)) {
+      list.push(title);
+      fs.writeFileSync(POSTED_FILE, JSON.stringify(list, null, 2), 'utf8');
+      console.log('投稿済みに追加:', title);
+    }
+  } catch (e) {
+    console.error('投稿済みリスト保存失敗:', e.message);
+  }
+}
 async function main() {
   console.log('=== HORIZON SHIELD note自動投稿 v10 開始 ===');
   try {
@@ -257,9 +284,21 @@ async function main() {
     }
     const theme = getTodayTheme();
     console.log('今日のテーマ:', theme.title);
+
+    // ★重複チェック
+    const postedTitles = loadPostedTitles();
+    if (postedTitles.includes(theme.title)) {
+      console.log('⏭ 投稿済みのためスキップ:', theme.title);
+      await sendLine(`⏭ 本日のnote投稿スキップ\n既投稿タイトル: ${theme.title}`);
+      process.exit(0);
+    }
+
     const articleText = await generateArticle(theme);
     const noteUrl = await postToNote(theme, articleText);
     console.log('投稿URL:', noteUrl);
+
+    // ★投稿成功後に記録
+    savePostedTitle(theme.title);
     await sendNtfy(`✅ note投稿完了: ${theme.title}`);
     await sendLine(`✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${noteUrl}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`);
     await broadcastToFollowers(theme, noteUrl);
