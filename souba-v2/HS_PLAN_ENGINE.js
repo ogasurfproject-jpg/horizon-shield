@@ -291,12 +291,13 @@ function computeFromSoubaDB(item, mapping, soubaDB) {
 function extractPlanPrice(planData, planType) {
   if (!planData) return null;
 
-  // 価格フィールドを探索
+  // 価格フィールドを探索（v3.0 phase1.5 形式に対応）
   const price =
     planData.HS基準価格_万円 ||
     (planData.hs_rule_estimate_jpy ? planData.hs_rule_estimate_jpy / 10000 : null) ||
-    (planData.estimated_total_jpy ? avgRange(planData.estimated_total_jpy) / 10000 : null);
-
+    (planData.hs_rule_jpy ? planData.hs_rule_jpy / 10000 : null) ||
+    (planData.estimated_total_jpy ? avgRange(planData.estimated_total_jpy) / 10000 : null) ||
+    (planData.price_jpy ? avgRange(planData.price_jpy) / 10000 : null);
   if (!price) return null;
 
   const multiplier = (PLAN_PROFIT_MULTIPLIER[planType].multiplier_min +

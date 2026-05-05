@@ -14,7 +14,7 @@ const KIRA_SYSTEM = `あなたはHORIZON SHIELDのAI営業スタッフKIRAです
 function generateMessage() {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
-      model: 'claude-3-haiku-20240307',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 300,
       system: KIRA_SYSTEM,
       messages: [{ role: 'user', content: '今日のLINE配信メッセージを1通生成してください。' }]
@@ -33,6 +33,7 @@ function generateMessage() {
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
+        console.log('API Response:', data);
         try {
           const parsed = JSON.parse(data);
           resolve(parsed.content[0].text);

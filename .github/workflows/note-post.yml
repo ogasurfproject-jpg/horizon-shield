@@ -6,21 +6,19 @@ on:
 jobs:
   post-to-note:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Install Chrome
+      - name: Google Chromeインストール
         run: |
-          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
-      - name: Install dependencies
-        run: |
-          cd note-post
-          npm install puppeteer-extra puppeteer-extra-plugin-stealth puppeteer
+      - name: 依存インストール
+        run: cd note-post && PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm install
       - name: note投稿実行
         env:
           NOTE_EMAIL: ${{ secrets.NOTE_EMAIL }}
@@ -30,4 +28,11 @@ jobs:
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
           HATENA_API_KEY: ${{ secrets.HATENA_API_KEY }}
-        run: node note-post/post_to_note.js
+        run: cd note-post && node post_to_note.js
+      - name: 投稿済みリストをコミット
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add note-post/posted_titles.json || true
+          git diff --staged --quiet || git commit -m "chore: update posted_titles"
+          git push || true
