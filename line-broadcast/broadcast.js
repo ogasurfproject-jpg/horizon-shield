@@ -33,6 +33,7 @@ function generateMessage() {
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
+        console.log('API Response:', data);
         try {
           const parsed = JSON.parse(data);
           resolve(parsed.content[0].text);
