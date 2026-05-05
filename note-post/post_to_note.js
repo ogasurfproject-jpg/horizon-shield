@@ -7,10 +7,8 @@
  * 4. NOTE_SESSIONチェックを追加
  */
 
-const puppeteerExtra = require('puppeteer-extra');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+const puppeteer = require('puppeteer');
 const fs = require('fs');
-puppeteerExtra.use(StealthPlugin());
 
 const GUIDE_URL = 'https://shield.the-horizons-innovation.com/kyutoki-guide.html';
 
@@ -166,7 +164,7 @@ async function clickButtonByText(page, text) {
 
 async function postToNote(theme, articleText) {
   console.log('ブラウザ起動中...');
-  const browser = await puppeteerExtra.launch({
+  const browser = await puppeteer.launch({
     executablePath: '/usr/bin/google-chrome-stable',
     headless: true,
     args: [
