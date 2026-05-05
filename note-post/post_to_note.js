@@ -1,3 +1,5 @@
+const puppeteer = require('puppeteer');
+const fs = require('fs');
 /**
  * HORIZON SHIELD note自動投稿 v11
  * 変更点：
@@ -7,8 +9,6 @@
  * 4. NOTE_SESSIONチェックを追加
  */
 
-const puppeteer = require('puppeteer');
-const fs = require('fs');
 
 const GUIDE_URL = 'https://shield.the-horizons-innovation.com/kyutoki-guide.html';
 
