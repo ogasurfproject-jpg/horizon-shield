@@ -1,6 +1,10 @@
 /**
- * HORIZON SHIELD note自動投稿 v10
- * Puppeteerによるブラウザ操作で公開（v4方式に戻す）
+ * HORIZON SHIELD note自動投稿 v11
+ * 変更点：
+ * 1. 不要な NOTE_EMAIL / NOTE_PASSWORD チェック削除（Cookieのみ使用）
+ * 2. 施主のための教科書シリーズ4記事をTHEMESに追加
+ * 3. 全テーマのfooterにkyutoki-guide.htmlのリンクを追加
+ * 4. NOTE_SESSIONチェックを追加
  */
 
 const puppeteerExtra = require('puppeteer-extra');
@@ -8,14 +12,82 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const fs = require('fs');
 puppeteerExtra.use(StealthPlugin());
 
+const GUIDE_URL = 'https://shield.the-horizons-innovation.com/kyutoki-guide.html';
+
 const THEMES = [
-  { title: 'リフォーム業者が絶対に教えない「見積書の5つの罠」', keywords: ['一式見積もり','諸経費','図面なし','数量不明','口頭約束'], angle: '施主が知らない業者の常套手段を暴露する内容', hashtags: ['リフォーム','見積書','建設費','施主','HORIZONSHIELD'] },
-  { title: '「追加工事が必要です」と言われたら疑え。建設30年のプロが語る真実', keywords: ['追加工事','契約外','口頭指示','変更工事査定','証拠'], angle: '追加請求の正当性を見極める方法', hashtags: ['追加工事','リフォーム','建設','施主','HORIZONSHIELD'] },
-  { title: '外壁塗装300万円は高いのか？適正価格の見分け方を徹底解説', keywords: ['外壁塗装','足場代','塗料原価','坪単価','相見積もり'], angle: '具体的な数字で適正価格を解説する内容', hashtags: ['外壁塗装','リフォーム','適正価格','施主','HORIZONSHIELD'] },
-  { title: '工務店選びで失敗しない7つのチェックポイント', keywords: ['建設業許可','施工実績','保証内容','契約書','口コミ'], angle: '施主が業者を選ぶ際の具体的な判断基準', hashtags: ['工務店','リフォーム','建設','施主','HORIZONSHIELD'] },
-  { title: '引き渡し前に必ず確認すべき施工不良チェックリスト20項目', keywords: ['施工不良','完成検査','クロス','床鳴り','防水'], angle: '素人でもできる施工不良の見つけ方', hashtags: ['施工不良','完成検査','リフォーム','施主','HORIZONSHIELD'] },
-  { title: '店舗開業の内装工事、適正価格はいくら？坪単価の相場を業種別に解説', keywords: ['坪単価','飲食店','サロン','クリニック','内装工事'], angle: '業種別の適正な内装工事費用の目安', hashtags: ['内装工事','店舗','坪単価','リフォーム','HORIZONSHIELD'] },
-  { title: '見積書を「高い」と感じたら最初にやるべきこと3つ', keywords: ['見積書確認','内訳','単価','数量','専門家相談'], angle: '見積書に違和感を感じた時の具体的な行動手順', hashtags: ['見積書','リフォーム','建設費','施主','HORIZONSHIELD'] },
+  // ── 既存テーマ ──
+  {
+    title: 'リフォーム業者が絶対に教えない「見積書の5つの罠」',
+    keywords: ['一式見積もり','諸経費','図面なし','数量不明','口頭約束'],
+    angle: '施主が知らない業者の常套手段を暴露する内容',
+    hashtags: ['リフォーム','見積書','建設費','施主','HORIZONSHIELD'],
+  },
+  {
+    title: '「追加工事が必要です」と言われたら疑え。建設30年のプロが語る真実',
+    keywords: ['追加工事','契約外','口頭指示','変更工事査定','証拠'],
+    angle: '追加請求の正当性を見極める方法',
+    hashtags: ['追加工事','リフォーム','建設','施主','HORIZONSHIELD'],
+  },
+  {
+    title: '外壁塗装300万円は高いのか？適正価格の見分け方を徹底解説',
+    keywords: ['外壁塗装','足場代','塗料原価','坪単価','相見積もり'],
+    angle: '具体的な数字で適正価格を解説する内容',
+    hashtags: ['外壁塗装','リフォーム','適正価格','施主','HORIZONSHIELD'],
+  },
+  {
+    title: '工務店選びで失敗しない7つのチェックポイント',
+    keywords: ['建設業許可','施工実績','保証内容','契約書','口コミ'],
+    angle: '施主が業者を選ぶ際の具体的な判断基準',
+    hashtags: ['工務店','リフォーム','建設','施主','HORIZONSHIELD'],
+  },
+  {
+    title: '引き渡し前に必ず確認すべき施工不良チェックリスト20項目',
+    keywords: ['施工不良','完成検査','クロス','床鳴り','防水'],
+    angle: '素人でもできる施工不良の見つけ方',
+    hashtags: ['施工不良','完成検査','リフォーム','施主','HORIZONSHIELD'],
+  },
+  {
+    title: '店舗開業の内装工事、適正価格はいくら？坪単価の相場を業種別に解説',
+    keywords: ['坪単価','飲食店','サロン','クリニック','内装工事'],
+    angle: '業種別の適正な内装工事費用の目安',
+    hashtags: ['内装工事','店舗','坪単価','リフォーム','HORIZONSHIELD'],
+  },
+  {
+    title: '見積書を「高い」と感じたら最初にやるべきこと3つ',
+    keywords: ['見積書確認','内訳','単価','数量','専門家相談'],
+    angle: '見積書に違和感を感じた時の具体的な行動手順',
+    hashtags: ['見積書','リフォーム','建設費','施主','HORIZONSHIELD'],
+  },
+
+  // ── 施主のための教科書シリーズ（新規追加）──
+  {
+    title: '【施主のための教科書①】見積書の読み方・絶対に見るべき5項目',
+    keywords: ['材工一式','型番','撤去処分費','保証期間','消費税'],
+    angle: '見積書を受け取った施主が今すぐ確認すべき5つの項目を具体的に解説する内容',
+    hashtags: ['見積書','リフォーム','施主','建設費','HORIZONSHIELD'],
+    guideLink: true,
+  },
+  {
+    title: '【施主のための教科書②】訪問業者が来たら最初にすべきこと',
+    keywords: ['訪問業者','詐欺','その場契約','会社名確認','緊急交換'],
+    angle: '突然の訪問業者から自分を守るための具体的な行動手順',
+    hashtags: ['訪問業者','詐欺','リフォーム','施主','HORIZONSHIELD'],
+    guideLink: true,
+  },
+  {
+    title: '【施主のための教科書③】補助金を悪用した詐欺の見分け方',
+    keywords: ['給湯省エネ2026','実質ゼロ円','補助金詐欺','先進的窓リノベ','申請代行'],
+    angle: '政府補助金制度を悪用した詐欺パターンと正しい補助金の知識',
+    hashtags: ['補助金','詐欺','リフォーム','給湯器','HORIZONSHIELD'],
+    guideLink: true,
+  },
+  {
+    title: '【施主のための教科書④】大手と地元業者、本当に安いのはどっちか',
+    keywords: ['業者タイプ','大手チェーン','地元工務店','価格構造','下請け'],
+    angle: '業者の規模別価格構造を数字で解説し、本当にコスパの良い選び方を伝える内容',
+    hashtags: ['工務店','リフォーム','業者選び','施主','HORIZONSHIELD'],
+    guideLink: true,
+  },
 ];
 
 function getTodayTheme() {
@@ -29,10 +101,17 @@ async function generateArticle(theme) {
   for (let i = 0; i < 5; i++) {
     response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001', max_tokens: 2000,
-        messages: [{ role: 'user', content: `あなたはHORIZON SHIELDのAIライターです。建設費診断の専門家として、施主目線で以下のテーマについて記事を書いてください。
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2000,
+        messages: [{
+          role: 'user',
+          content: `あなたはHORIZON SHIELDのAIライターです。建設費診断の専門家として、施主目線で以下のテーマについて記事を書いてください。
 
 テーマ：${theme.title}
 キーワード：${theme.keywords.join('、')}
@@ -46,7 +125,8 @@ async function generateArticle(theme) {
 - 記号「*」「**」「#」「##」「_」は使わない
 - 最後にHORIZON SHIELDへの誘導文を1文
 
-本文のみ出力してください。タイトルは不要です。` }],
+本文のみ出力してください。タイトルは不要です。`,
+        }],
       }),
     });
     if (response.status === 529 || response.status === 503) {
@@ -57,9 +137,19 @@ async function generateArticle(theme) {
   }
   const data = await response.json();
   if (data.error) throw new Error(`Claude API失敗: ${data.error.message}`);
-  // 変更後
-  const text = (data.content?.[0]?.text || '').replace(/\n{3,}/g, '\n\n').replace(/\*\*/g, '').replace(/\*/g, '');
-  const footer = `\n\n━━━━━━━━━━━━━━━━\n\n🛡 HORIZON SHIELD — 無料で使える3つの窓口\n\n📍 LPで診断する\nhttps://shield.the-horizons-innovation.com\n\n🤖 ChatGPTで無料診断（建設費カテゴリ1位）\nhttps://chatgpt.com/g/g-69e180f9a5048191886069dd58b22572-jian-she-fei-tietuka-by-horizon-shield\n\n♊ Geminiで無料診断\nhttps://gemini.google.com/gem/1_AqLRwNSP1tZWZNWzyNIrsOrBLI1fAjo\n\n💬 LINEで今すぐ相談（KIRA）\nhttps://line.me/R/ti/p/@172piime`;
+
+  const text = (data.content?.[0]?.text || '')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/\*\*/g, '')
+    .replace(/\*/g, '');
+
+  // 給湯器ガイドリンク（教科書シリーズのみ追加）
+  const guideSection = theme.guideLink
+    ? `\n\n━━━━━━━━━━━━━━━━\n\n📖 給湯器交換の適正価格ガイド【2026年最新】\n建設30年プロが価格・詐欺パターン・補助金を完全解説\n${GUIDE_URL}\n`
+    : '';
+
+  const footer = `${guideSection}\n\n━━━━━━━━━━━━━━━━\n\n🛡 HORIZON SHIELD — 無料で使える3つの窓口\n\n📍 LPで診断する\nhttps://shield.the-horizons-innovation.com\n\n🤖 ChatGPTで無料診断（建設費カテゴリ1位）\nhttps://chatgpt.com/g/g-69e180f9a5048191886069dd58b22572-jian-she-fei-tietuka-by-horizon-shield\n\n♊ Geminiで無料診断\nhttps://gemini.google.com/gem/1_AqLRwNSP1tZWZNWzyNIrsOrBLI1fAjo\n\n💬 LINEで今すぐ相談（KIRA）\nhttps://line.me/R/ti/p/@172piime`;
+
   const fullText = text + footer;
   console.log('記事生成完了 文字数:', fullText.length);
   return fullText;
@@ -79,25 +169,41 @@ async function postToNote(theme, articleText) {
   const browser = await puppeteerExtra.launch({
     executablePath: '/usr/bin/google-chrome-stable',
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-blink-features=AutomationControlled', '--window-size=1920,1080'],
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-blink-features=AutomationControlled',
+      '--window-size=1920,1080',
+    ],
   });
   const page = await browser.newPage();
   await page.setViewport({ width: 1920, height: 1080 });
   await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36');
 
   try {
-    // クッキーをナビゲート前にセット
     const cookieStr = process.env.NOTE_SESSION;
-    const cookies = cookieStr.split(';').map(c => c.trim()).filter(Boolean).map(c => {
-      const eqIdx = c.indexOf('=');
-      return { name: c.slice(0, eqIdx).trim(), value: c.slice(eqIdx + 1).trim() };
-    }).filter(c => !c.name.startsWith('_ga') && !c.name.startsWith('_gi'));
+    const cookies = cookieStr.split(';')
+      .map(c => c.trim())
+      .filter(Boolean)
+      .map(c => {
+        const eqIdx = c.indexOf('=');
+        return { name: c.slice(0, eqIdx).trim(), value: c.slice(eqIdx + 1).trim() };
+      })
+      .filter(c => !c.name.startsWith('_ga') && !c.name.startsWith('_gi'));
+
     for (const c of cookies) {
-      await page.setCookie({ name: c.name, value: c.value, domain: 'note.com', path: '/', httpOnly: true, secure: true });
+      await page.setCookie({
+        name: c.name,
+        value: c.value,
+        domain: 'note.com',
+        path: '/',
+        httpOnly: true,
+        secure: true,
+      });
     }
     console.log('クッキーセット完了:', cookies.map(c => c.name).join(', '));
 
-    // エディタへ
     await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
     await new Promise(r => setTimeout(r, 5000));
     console.log('エディタURL:', page.url());
@@ -107,7 +213,6 @@ async function postToNote(theme, articleText) {
     console.log('contenteditable数:', editableCount);
     if (editableCount === 0) throw new Error('エディタが開けていない');
 
-    // タイトル入力
     const titleEl = await page.$('[placeholder="記事タイトル"]');
     if (titleEl) {
       await titleEl.click();
@@ -116,10 +221,10 @@ async function postToNote(theme, articleText) {
     }
     await new Promise(r => setTimeout(r, 500));
 
-    // 本文入力
     const editables = await page.$$('[contenteditable]');
     await editables[editables.length - 1].click();
     await new Promise(r => setTimeout(r, 500));
+
     const paragraphs = articleText.split('\n\n').filter(p => p.trim());
     for (let i = 0; i < paragraphs.length; i++) {
       await page.keyboard.type(paragraphs[i].trim(), { delay: 0 });
@@ -131,12 +236,10 @@ async function postToNote(theme, articleText) {
     console.log('本文入力完了');
     await new Promise(r => setTimeout(r, 3000));
 
-    // 公開に進む
     const pub = await clickButtonByText(page, '公開に進む');
     console.log('公開に進む:', pub ? '成功' : '失敗');
     await new Promise(r => setTimeout(r, 3000));
 
-    // ハッシュタグ入力
     try {
       const hashtagInput = await page.$('input[placeholder*="ハッシュタグ"], input[placeholder*="タグ"]');
       if (hashtagInput) {
@@ -153,7 +256,6 @@ async function postToNote(theme, articleText) {
     }
     await new Promise(r => setTimeout(r, 1000));
 
-    // 投稿する
     const post = await clickButtonByText(page, '投稿する');
     console.log('投稿する:', post ? '成功' : '失敗');
     await new Promise(r => setTimeout(r, 5000));
@@ -171,13 +273,13 @@ async function postToNote(theme, articleText) {
 async function sendNtfy(message) {
   try {
     await fetch('https://ntfy.sh/horizon-shield-toshi-0222', {
-      method: 'POST', headers: { 'Content-Type': 'text/plain; charset=utf-8' }, body: message,
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      body: message,
     });
   } catch(e) { console.log('ntfy失敗:', e.message); }
 }
-// ========================================
-// はてなブログ投稿
-// ========================================
+
 async function postToHatena(theme, articleText, noteUrl) {
   try {
     const hatenaId = 'horizonshield';
@@ -185,12 +287,17 @@ async function postToHatena(theme, articleText, noteUrl) {
     const endpoint = 'https://blog.hatena.ne.jp/horizonshield/horizonshield.hatenablog.com/atom/entry';
     const credentials = Buffer.from(`${hatenaId}:${apiKey}`).toString('base64');
 
+    const guideSection = theme.guideLink
+      ? `<p>📖 <a href="${GUIDE_URL}">給湯器交換の適正価格ガイド【2026年最新】</a></p>`
+      : '';
+
     const content = `${articleText}
 
 ---
 
 <div style="padding:20px;background:#f5f3ec;border-left:4px solid #c8a832;margin-top:32px;">
 <p style="font-weight:700;margin-bottom:8px;">🛡 HORIZON SHIELD — 建設費診断サービス</p>
+${guideSection}
 <p>📍 <a href="https://shield.the-horizons-innovation.com">無料AI診断はこちら</a></p>
 <p>🤖 <a href="https://chatgpt.com/g/g-69e180f9a5048191886069dd58b22572-jian-she-fei-tietuka-by-horizon-shield">ChatGPTで無料診断</a></p>
 <p>♊ <a href="https://gemini.google.com/gem/1_AqLRwNSP1tZWZNWzyNIrsOrBLI1fAjo">Geminiで無料診断</a></p>
@@ -226,27 +333,43 @@ async function postToHatena(theme, articleText, noteUrl) {
     console.error('はてなブログ投稿エラー:', e.message);
   }
 }
+
 async function sendLine(message) {
   try {
     await fetch('https://api.line.me/v2/bot/message/push', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.LINE_CHANNEL_TOKEN}` },
-      body: JSON.stringify({ to: process.env.LINE_USER_ID, messages: [{ type: 'text', text: message.slice(0, 5000) }] }),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.LINE_CHANNEL_TOKEN}`,
+      },
+      body: JSON.stringify({
+        to: process.env.LINE_USER_ID,
+        messages: [{ type: 'text', text: message.slice(0, 5000) }],
+      }),
     });
   } catch(e) { console.log('LINE失敗:', e.message); }
 }
 
 async function broadcastToFollowers(theme, noteUrl) {
-  const text = `【今日の建設情報】\n\n${theme.title}\n\n続きを読む\n${noteUrl}\n\n━━━━━━━━━━\nコミュニティ参加受付中！\nhttps://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ\n\n見積書の無料AI診断\nhttps://shield.the-horizons-innovation.com`;
+  const guideText = theme.guideLink
+    ? `\n📖 給湯器適正価格ガイド\n${GUIDE_URL}\n`
+    : '';
+
+  const text = `【今日の建設情報】\n\n${theme.title}\n\n続きを読む\n${noteUrl}\n${guideText}\n━━━━━━━━━━\nコミュニティ参加受付中！\nhttps://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ\n\n見積書の無料AI診断\nhttps://shield.the-horizons-innovation.com`;
+
   try {
     const res = await fetch('https://api.line.me/v2/bot/message/broadcast', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.LINE_CHANNEL_TOKEN}` },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.LINE_CHANNEL_TOKEN}`,
+      },
       body: JSON.stringify({ messages: [{ type: 'text', text }] }),
     });
     console.log('ブロードキャスト:', res.ok ? '成功' : `失敗 [${res.status}]`);
   } catch(e) { console.log('ブロードキャスト失敗:', e.message); }
 }
+
 // ========================================
 // 投稿済みタイトル管理
 // ========================================
@@ -275,17 +398,29 @@ function savePostedTitle(title) {
     console.error('投稿済みリスト保存失敗:', e.message);
   }
 }
+
+// ========================================
+// main
+// ========================================
 async function main() {
-  console.log('=== HORIZON SHIELD note自動投稿 v10 開始 ===');
+  console.log('=== HORIZON SHIELD note自動投稿 v11 開始 ===');
   try {
-    const required = ['NOTE_EMAIL', 'NOTE_PASSWORD', 'ANTHROPIC_API_KEY', 'LINE_CHANNEL_TOKEN', 'LINE_USER_ID', 'HATENA_API_KEY'];
+    // ★ NOTE_EMAIL / NOTE_PASSWORD を削除（Cookie認証のため不要）
+    const required = [
+      'NOTE_SESSION',
+      'ANTHROPIC_API_KEY',
+      'LINE_CHANNEL_TOKEN',
+      'LINE_USER_ID',
+      'HATENA_API_KEY',
+    ];
     for (const key of required) {
       if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`);
     }
+
     const theme = getTodayTheme();
     console.log('今日のテーマ:', theme.title);
 
-    // ★重複チェック
+    // 重複チェック
     const postedTitles = loadPostedTitles();
     if (postedTitles.includes(theme.title)) {
       console.log('⏭ 投稿済みのためスキップ:', theme.title);
@@ -297,7 +432,6 @@ async function main() {
     const noteUrl = await postToNote(theme, articleText);
     console.log('投稿URL:', noteUrl);
 
-    // ★投稿成功後に記録
     savePostedTitle(theme.title);
     await sendNtfy(`✅ note投稿完了: ${theme.title}`);
     await sendLine(`✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${noteUrl}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`);
