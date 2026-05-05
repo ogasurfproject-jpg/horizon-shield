@@ -7,8 +7,6 @@
     "post": "node post_to_note.js"
   },
   "dependencies": {
-    "puppeteer": "^21.0.0",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "puppeteer": "^21.0.0"
   }
 }
