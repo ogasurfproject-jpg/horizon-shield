@@ -949,5 +949,14 @@ document.getElementById('terms-modal').addEventListener('click',function(e){if(e
 (function(){var d=new Date().getDate();var r=Math.max(5,20-Math.floor(d*0.45));var el=document.getElementById('slots-remaining');if(el)el.textContent=r;})(); function toggleMenu(){const nav=document.getElementById('nav-main');const btn=document.getElementById('hamburger');const overlay=document.getElementById('mobile-menu-overlay');nav.classList.toggle('open');btn.classList.toggle('open');overlay.classList.toggle('show');document.body.style.overflow=nav.classList.contains('open')?'hidden':''}
 document.querySelectorAll('#nav-main a').forEach(a=>{a.addEventListener('click',()=>{if(window.innerWidth<=640)toggleMenu()})});
 </script>
+<script>
+  (function() {
+    try {
+      fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/track-visit', {
+        method: 'POST', keepalive: true, mode: 'no-cors'
+      }).catch(function(){});
+    } catch(e) {}
+  })();
+</script>
 </body>
 </html>
