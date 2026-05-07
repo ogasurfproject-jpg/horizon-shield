@@ -728,7 +728,7 @@ function parsePlan(text) {
 
   var takeMid = Math.round((tR[0] + tR[1]) / 2);
   document.getElementById('price-take').textContent  = takeMid + '万円';
-  document.getElementById('sub-take').textContent    = '約 ' + tR[0] + '万〜' + tR[1] + '万円';
+  document.getElementById('sub-take').textContent = '正確な金額を見る';
   if (window._purchased) {
     document.getElementById('price-take').classList.remove('masked');
     var lh = document.querySelector('.plan-lock-hint');
