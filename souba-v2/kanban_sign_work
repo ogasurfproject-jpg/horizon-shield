@@ -1,0 +1,196 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "kanban_sign_work",
+    "category_name_jp": "看板・サイン工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐ 店舗開業必須・B2B案件・LED化需要・規制（屋外広告物条例）多数",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 看板業界2026年実勢データ",
+    "scope": "店舗・事業所の看板・サイン工事。アクリル/カルプ/LED/シート切文字/袖看板/ファサードサイン等",
+    "horizons_philosophy": "看板は『見栄えで価格を吹っかけられる』典型領域。HSは材料・LED本体・施工費を明細化して相場を可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "看板本体仕入れ値 × 1.2 + LED/電気部材 + 施工人工 × 日当 + 高所作業費 + (原価 × 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.2,
+      "general_overhead_pct_ideal": 15,
+      "tax_pct": 10,
+      "trade_price_ratio_from_list": 0.55
+    },
+    "HS_pricing_philosophy": {
+      "業者規模別_妥当な利益率_看板": {
+        "個人事業_看板職人": "粗利率 30-40%",
+        "中小看板店": "粗利率 30-40%",
+        "人気看板会社_デザイン込み": "粗利率 35-45%",
+        "大手広告会社": "粗利率 40-50%"
+      },
+      "note": "看板はデザイン費が乗るため、他カテゴリより利益率高め"
+    }
+  },
+  "sign_materials": {
+    "acrylic_panel": {
+      "name": "アクリル板看板",
+      "thickness_mm": [3, 5, 8, 10],
+      "price_per_sqm_jpy": { "min": 8000, "max": 25000 },
+      "use": "屋内・小型店舗"
+    },
+    "calp_carved": {
+      "name": "カルプ切文字（立体文字）",
+      "price_per_char_jpy": { "min": 3000, "max": 15000 },
+      "use": "ファサード・店名表示"
+    },
+    "led_module": {
+      "name": "LEDモジュール（看板内蔵）",
+      "price_per_sqm_jpy": { "min": 15000, "max": 50000 },
+      "lifetime_years": { "min": 5, "max": 10 }
+    },
+    "sheet_cutting_letters": {
+      "name": "カッティングシート文字",
+      "price_per_sqm_jpy": { "min": 3000, "max": 10000 },
+      "use": "ガラス・壁面・窓"
+    },
+    "sus_steel_panel": {
+      "name": "ステンレス・スチールパネル",
+      "price_per_sqm_jpy": { "min": 20000, "max": 60000 },
+      "use": "高級店・耐候性重視"
+    },
+    "fabric_banner": {
+      "name": "幕看板・タペストリー",
+      "price_per_sqm_jpy": { "min": 5000, "max": 15000 }
+    }
+  },
+  "labor": {
+    "kanban_worker_day_rate": { "min": 25000, "max": 35000, "avg": 30000 },
+    "high_work_surcharge": { "min": 20000, "max": 100000, "note": "高所作業車・足場費用別途" }
+  },
+  "additional_costs": {
+    "design_fee": { "name": "デザイン料", "price_jpy": { "min": 30000, "max": 200000 }, "note": "ロゴ作成含む場合上限" },
+    "permit_application": { "name": "屋外広告物許可申請代行", "price_jpy": { "min": 30000, "max": 100000 }, "note": "自治体条例対応" },
+    "demolition_existing": { "name": "既存看板撤去", "price_jpy": { "min": 30000, "max": 150000 } },
+    "scaffold_or_high_lift": { "name": "高所作業車・足場", "price_jpy": { "min": 50000, "max": 300000 } }
+  },
+  "plans": {
+    "small_window_sign": {
+      "name": "ウィンドウサイン（カッティングシート）",
+      "scope": "店舗ガラス面の店名表示・営業時間",
+      "estimated_total_jpy": { "min": 30000, "max": 80000 },
+      "hs_rule_estimate_jpy": 55000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 35000, "max": 75000 },
+        "区分2_中小工務店": { "min": 38000, "max": 80000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 45000, "max": 95000 },
+        "区分4_大手_ハウスメーカー": { "min": 55000, "max": 115000 }
+      }
+    },
+    "facade_calp_sign": {
+      "name": "ファサード・カルプ切文字",
+      "scope": "店名カルプ文字10文字・LED内蔵",
+      "estimated_total_jpy": { "min": 200000, "max": 500000 },
+      "hs_rule_estimate_jpy": 350000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 220000, "max": 470000 },
+        "区分2_中小工務店": { "min": 235000, "max": 500000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 270000, "max": 580000, "note": "デザイン込み" },
+        "区分4_大手_ハウスメーカー": { "min": 320000, "max": 700000 }
+      }
+    },
+    "side_sign_led": {
+      "name": "袖看板（LED内蔵）",
+      "scope": "ビル壁面突出看板・両面表示・LED",
+      "estimated_total_jpy": { "min": 300000, "max": 800000 },
+      "hs_rule_estimate_jpy": 550000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 330000, "max": 750000 },
+        "区分2_中小工務店": { "min": 350000, "max": 800000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 405000, "max": 920000 },
+        "区分4_大手_ハウスメーカー": { "min": 480000, "max": 1100000 }
+      }
+    },
+    "rooftop_pole_sign": {
+      "name": "屋上ポール看板",
+      "scope": "ビル屋上の自立看板・両面・LED",
+      "estimated_total_jpy": { "min": 800000, "max": 2500000 },
+      "hs_rule_estimate_jpy": 1500000,
+      "note": "屋外広告物条例・建築基準法対応必要",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 880000, "max": 2350000 },
+        "区分2_中小工務店": { "min": 940000, "max": 2500000 },
+        "区分3_人気工務店": { "min": 1080000, "max": 2900000, "note": "申請代行込み" },
+        "区分4_大手_ハウスメーカー": { "min": 1300000, "max": 3500000 }
+      }
+    },
+    "led_replacement_existing": {
+      "name": "既存看板のLED化（蛍光灯→LED）",
+      "scope": "既存看板内部の照明をLED化",
+      "estimated_total_jpy": { "min": 80000, "max": 250000 },
+      "hs_rule_estimate_jpy": 150000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 90000, "max": 235000 },
+        "区分2_中小工務店": { "min": 95000, "max": 250000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 110000, "max": 290000 },
+        "区分4_大手_ハウスメーカー": { "min": 130000, "max": 350000 }
+      }
+    },
+    "tachikan_aframe": {
+      "name": "立て看板（A型・スタンド）",
+      "scope": "店頭の移動式看板",
+      "estimated_total_jpy": { "min": 15000, "max": 80000 },
+      "hs_rule_estimate_jpy": 40000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 18000, "max": 75000 },
+        "区分2_中小工務店": { "min": 20000, "max": 80000 },
+        "区分3_人気工務店": { "min": 24000, "max": 92000 },
+        "区分4_大手_ハウスメーカー": { "min": 28000, "max": 110000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "DESIGN_FEE_HIDDEN", "pattern": "デザイン料が一式で内訳不明", "severity": "🚨 HIGH",
+      "reason": "デザイン¥30k-¥200kで幅大。明細要求" },
+    { "code": "PERMIT_FAKE_REQUIRED", "pattern": "不要なのに屋外広告物許可申請を強要", "severity": "⚠️ MEDIUM",
+      "reason": "小型サインは申請不要のケース多い" },
+    { "code": "LED_GRADE_UNCLEAR", "pattern": "LED本体メーカー・型番・寿命表示なし", "severity": "🚨 HIGH" },
+    { "code": "HIGH_WORK_OVERCHARGE", "pattern": "高所作業費が¥500k超で内訳不明", "severity": "🚨 HIGH" },
+    { "code": "BRAND_PREMIUM_NO_BASIS", "pattern": "「デザイン会社価格」として原価の3倍超請求", "severity": "🚨 HIGH" },
+    { "code": "EXISTING_DEMOLITION_SEPARATE", "pattern": "既存看板撤去費を後から追加請求", "severity": "⚠️ MEDIUM" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "新規店舗オープン", "recommendation": "ファサード+ウィンドウサイン", "cost_range": { "min": 250000, "max": 600000 } },
+    { "case": "既存看板の電気代削減", "recommendation": "LED化リフォーム", "cost_range": { "min": 80000, "max": 250000 } },
+    { "case": "店舗閉店・撤退", "recommendation": "看板撤去のみ", "cost_range": { "min": 30000, "max": 150000 } },
+    { "case": "イベント用一時看板", "recommendation": "幕看板・立て看板", "cost_range": { "min": 15000, "max": 80000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "代表": "個人看板職人", "粗利率": "30-40%", "推奨度": "★★★★☆" },
+    "区分2_中小看板店": { "代表": "地域看板専門店", "粗利率": "30-40%", "推奨度": "★★★★★ 第一推奨" },
+    "区分3_人気看板会社": { "代表": "デザイン会社系", "粗利率": "35-45%", "推奨度": "★★★★☆" },
+    "区分4_大手広告会社": { "代表": "全国チェーン・代理店", "粗利率": "40-50%", "推奨度": "★★★☆☆" }
+  },
+  "iran_situation_2026_04_impact": {
+    "副資材_+5_10pct": ["接着剤", "シーリング材"],
+    "建材_+10_20pct": ["アクリル板（石油由来）", "LED関連電子部品"],
+    "_impact_summary": "アクリル・LEDは原油・半導体影響で+10-15%。鋼材使用看板も+10%"
+  },
+  "negotiation_tips": [
+    "デザイン料は別途明細（一式拒否）",
+    "LED本体メーカー・型番・寿命を確認",
+    "屋外広告物条例の申請要否を自治体で確認",
+    "高所作業費は事前見積もり（足場 vs 高所作業車）",
+    "既存看板撤去費を事前合意",
+    "LED化は電気代削減効果で投資回収計算",
+    "デザイン会社経由は中間マージン+30%程度上乗せされる"
+  ],
+  "trade_knowledge": {
+    "summary": "看板工事は店舗開業必須でB2B案件主体。デザイン料・高所作業費・申請代行費が曖昧化されやすい領域。LED化で電気代削減効果あり投資回収可能",
+    "industry_scam_structure": "「ブランドデザイン」名目で原価の3-5倍を請求する業者あり。デザイン費・材料費・施工費の明細を要求することで適正化",
+    "knowledge_source": "TOshi経験 + 看板業界データ"
+  },
+  "connected_clusters": {
+    "tenpo_cluster": {
+      "categories": ["commercial_tenpo_work", "electrical_work", "naishou_tosou"],
+      "synergy": "店舗開業時に看板・電気・内装の同時施工"
+    }
+  }
+}
