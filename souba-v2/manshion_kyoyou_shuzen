@@ -1,0 +1,183 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "manshion_kyoyou_shuzen",
+    "category_name_jp": "マンション共用部修繕工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐⭐ 大規模修繕・管理組合決議必須・談合温床・最大級ぼったくり領域",
+    "knowledge_source": "TOshi 30年の建設実務経験 + マンション管理新聞・国交省マンション標準管理規約",
+    "scope": "マンション共用部の修繕（外壁・屋上防水・廊下床・エントランス・給排水縦管・タイル等）。専有部は対象外",
+    "horizons_philosophy": "マンション大規模修繕は『管理会社系列業者の独占』『コンサル契約による相見積もり妨害』が最大の罠。HSは管理組合が独自に適正価格を判断できる武器を提供",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "材料費 + 労務費 + 仮設工事費 + 諸経費（通常15-25%）+ 消費税 10%",
+    "parameters": {
+      "general_overhead_pct_normal": 15,
+      "general_overhead_pct_acceptable_max": 25,
+      "tax_pct": 10,
+      "note": "大規模修繕は諸経費20%超が業界標準。30%超は過剰"
+    },
+    "HS_pricing_philosophy": {
+      "業者規模別_妥当な利益率_共用部": {
+        "個人事業_専門職人": "原則受注しない（規模・賠償保険要件）",
+        "中小修繕会社": "粗利率 20-30%（薄利多売）",
+        "中堅マンション専門": "粗利率 25-35%（一般的）",
+        "大手ゼネコン系列": "粗利率 30-40%（管理会社系列・談合疑い）"
+      },
+      "規模別利益率_根拠": "管理会社系列業者は粗利40-50%が一般的（仲介マージン込み）"
+    }
+  },
+  "labor": {
+    "tobi_scaffold": { "min": 25000, "max": 32000 },
+    "painter_day_rate": { "min": 22000, "max": 28000 },
+    "waterproof_specialist": { "min": 28000, "max": 35000 },
+    "tile_specialist": { "min": 28000, "max": 35000 },
+    "general_carpenter": { "min": 28000, "max": 35000 }
+  },
+  "additional_costs": {
+    "scaffold_full_building": { "name": "全棟足場（10階建て・40世帯）", "price_jpy": { "min": 5000000, "max": 12000000 } },
+    "consultant_fee_legitimate": { "name": "修繕コンサル費（適正）", "price_jpy": { "min": 1500000, "max": 3500000 }, "note": "工事費の3-5%が業界標準" },
+    "long_term_plan_creation": { "name": "長期修繕計画作成・見直し", "price_jpy": { "min": 300000, "max": 800000 } }
+  },
+  "plans": {
+    "exterior_wall_painting_full": {
+      "name": "外壁塗装フル（大規模修繕）",
+      "scope": "10階建て・40世帯・足場+下地+塗装+シーリング全打替",
+      "estimated_total_jpy": { "min": 25000000, "max": 60000000 },
+      "hs_rule_estimate_jpy": 40000000,
+      "work_days_typical": "60-90日",
+      "note": "マンション本体規模で大幅変動。1世帯あたり¥80-150万が業界水準",
+      "料金_業者規模別_税込_円": {
+        "区分2_中小修繕会社": { "min": 27000000, "max": 50000000, "note": "HS第一推奨（地元密着）" },
+        "区分3_中堅マンション専門": { "min": 30000000, "max": 56000000, "note": "実績重視" },
+        "区分4_大手ゼネコン系列": { "min": 38000000, "max": 70000000, "note": "管理会社経由は要相見積もり" }
+      }
+    },
+    "rooftop_waterproof_renewal": {
+      "name": "屋上防水改修（ウレタン or シート）",
+      "scope": "屋上防水層の全面改修・10年保証",
+      "estimated_total_jpy": { "min": 5000000, "max": 15000000 },
+      "hs_rule_estimate_jpy": 9000000,
+      "note": "屋上面積×単価。ウレタン¥6-8千/㎡、シート¥7-10千/㎡",
+      "料金_業者規模別_税込_円": {
+        "区分2_中小修繕会社": { "min": 5500000, "max": 12000000, "note": "HS第一推奨" },
+        "区分3_中堅マンション専門": { "min": 6500000, "max": 14000000 },
+        "区分4_大手ゼネコン系列": { "min": 8000000, "max": 18000000 }
+      }
+    },
+    "common_hallway_floor_renewal": {
+      "name": "共用廊下床シート張替（全棟）",
+      "scope": "10階建て・廊下総面積800㎡・長尺シート",
+      "estimated_total_jpy": { "min": 4000000, "max": 9000000 },
+      "hs_rule_estimate_jpy": 6000000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小修繕会社": { "min": 4400000, "max": 7500000, "note": "HS第一推奨" },
+        "区分3_中堅マンション専門": { "min": 5000000, "max": 8500000 },
+        "区分4_大手ゼネコン系列": { "min": 6000000, "max": 10500000 }
+      }
+    },
+    "balcony_waterproof_each_unit": {
+      "name": "バルコニー防水（全戸）",
+      "scope": "40世帯・各バルコニー10㎡・ウレタン防水",
+      "estimated_total_jpy": { "min": 3000000, "max": 7000000 },
+      "hs_rule_estimate_jpy": 5000000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小修繕会社": { "min": 3300000, "max": 6000000, "note": "HS第一推奨" },
+        "区分3_中堅マンション専門": { "min": 3800000, "max": 6800000 },
+        "区分4_大手ゼネコン系列": { "min": 4500000, "max": 8200000 }
+      }
+    },
+    "tile_repair_partial": {
+      "name": "外壁タイル部分補修",
+      "scope": "浮き・剥離タイルの調査+打診+張替（30㎡程度）",
+      "estimated_total_jpy": { "min": 800000, "max": 2500000 },
+      "hs_rule_estimate_jpy": 1600000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小修繕会社": { "min": 880000, "max": 2100000, "note": "HS第一推奨" },
+        "区分3_中堅マンション専門": { "min": 1000000, "max": 2400000 },
+        "区分4_大手ゼネコン系列": { "min": 1200000, "max": 2900000 }
+      }
+    },
+    "givehide_ridder_pipe_renewal": {
+      "name": "給排水縦管更新（築30年以上）",
+      "scope": "給水・排水の縦管全面更新・40世帯",
+      "estimated_total_jpy": { "min": 30000000, "max": 80000000 },
+      "hs_rule_estimate_jpy": 50000000,
+      "note": "1世帯あたり¥80-150万。最大の修繕費目",
+      "料金_業者規模別_税込_円": {
+        "区分3_中堅マンション専門": { "min": 33000000, "max": 70000000, "note": "実績重視推奨" },
+        "区分4_大手ゼネコン系列": { "min": 40000000, "max": 90000000 }
+      }
+    },
+    "entrance_renovation": {
+      "name": "エントランス・ロビー改修",
+      "scope": "床石材・天井・照明・自動ドア更新",
+      "estimated_total_jpy": { "min": 5000000, "max": 20000000 },
+      "hs_rule_estimate_jpy": 10000000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小修繕会社": { "min": 5500000, "max": 16000000 },
+        "区分3_中堅マンション専門": { "min": 6500000, "max": 19000000, "note": "デザイン込み" },
+        "区分4_大手ゼネコン系列": { "min": 8000000, "max": 23000000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "CONSULT_INTERMEDIARY_FRAUD", "pattern": "管理会社/コンサルが特定業者だけを相見積もりに含める", "severity": "🔴 CRITICAL",
+      "reason": "管理会社系列の独占で30-50%の上乗せ。管理組合主導の入札必須" },
+    { "code": "CONSULT_FEE_OVER_5PCT", "pattern": "コンサル費が工事費の5%超 / バックリベートあり", "severity": "🔴 CRITICAL",
+      "reason": "適正は3-5%。バックリベート禁止が業界倫理" },
+    { "code": "OVERHEAD_OVER_30PCT", "pattern": "諸経費30%超", "severity": "🚨 HIGH",
+      "reason": "大規模修繕の諸経費は15-25%が標準。30%超は過剰" },
+    { "code": "SCOPE_INFLATION", "pattern": "不要な工事項目を追加（例: 必要なき塗替えを項目化）", "severity": "🚨 HIGH",
+      "reason": "建物状況調査結果に基づく工事範囲が業界標準" },
+    { "code": "MAJORITY_VOTE_PRESSURE", "pattern": "理事会で「早く決めないと値上がり」と急かす", "severity": "🚨 HIGH",
+      "reason": "総会決議が必要な大型工事は通常6-12ヶ月の検討期間" },
+    { "code": "WARRANTY_TOO_SHORT", "pattern": "防水工事の保証が5年未満", "severity": "🚨 HIGH",
+      "reason": "ウレタン10年・シート10年が業界標準" },
+    { "code": "INSURANCE_NONE", "pattern": "施工業者の建設業賠償責任保険なし", "severity": "🔴 CRITICAL" },
+    { "code": "CONSTRUCTION_LICENSE_NONE", "pattern": "建設業許可（特定）を持たない業者が¥4,000万超工事", "severity": "🔴 CRITICAL",
+      "reason": "建設業法違反" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "築12-15年 第1回大規模修繕", "recommendation": "外壁塗装+屋上防水+廊下", "cost_range": { "min": 30000000, "max": 70000000 } },
+    { "case": "築24-30年 第2回大規模修繕", "recommendation": "+給排水縦管検討", "cost_range": { "min": 50000000, "max": 150000000 } },
+    { "case": "屋上漏水", "recommendation": "屋上防水改修", "cost_range": { "min": 5000000, "max": 15000000 } },
+    { "case": "外壁タイル落下", "recommendation": "全棟調査+部分補修", "cost_range": { "min": 800000, "max": 2500000 } },
+    { "case": "エントランス老朽化", "recommendation": "ロビー改修", "cost_range": { "min": 5000000, "max": 20000000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "代表": "個人職人", "粗利率": "—", "推奨度": "—", "特徴": "規模・賠償保険要件で受注不可" },
+    "区分2_中小修繕会社": { "代表": "地域密着の修繕専門", "粗利率": "20-30%", "推奨度": "★★★★★ 第一推奨", "特徴": "薄利多売・コスパ良" },
+    "区分3_中堅マンション専門": { "代表": "実績豊富なマンション専業", "粗利率": "25-35%", "推奨度": "★★★★★", "特徴": "実績・知見豊富" },
+    "区分4_大手ゼネコン系列": { "代表": "ゼネコン子会社・管理会社系列", "粗利率": "30-40%", "推奨度": "★★★☆☆", "特徴": "管理会社経由で相見積もり妨害リスク" }
+  },
+  "iran_situation_2026_04_impact": {
+    "副資材_+5_10pct": ["シーリング", "プライマー", "ビス・金物"],
+    "建材_+10_20pct": ["塗料（石油由来）+10-15%", "防水シート（合成樹脂）+10-15%", "鋼材（給排水管）+15-20%"],
+    "_impact_summary": "大規模修繕全体で+10-15%。鋼材使用部位は+15-20%。長期修繕計画見直し必須"
+  },
+  "negotiation_tips": [
+    "管理組合主導で3社以上の相見積もり（管理会社系列以外を必ず含める）",
+    "コンサル契約は業務範囲・成果物・バックリベート禁止条項を明記",
+    "長期修繕計画の見直しを5年に1度実施（国交省ガイドライン）",
+    "建設業許可（特定）の有無確認（¥4,000万超工事で必須）",
+    "建設業賠償責任保険の保険証券提出を契約条件",
+    "保証期間（防水10年・塗装7-10年）を契約書に明記",
+    "工事中の住民対応窓口・苦情処理を契約書に明記",
+    "支払いは出来高払い（10%/30%/30%/20%/10%等）"
+  ],
+  "trade_knowledge": {
+    "summary": "マンション共用部修繕は最大級の金額・規模の領域。管理会社系列の独占構造で30-50%の上乗せが常態化。管理組合主導の入札+独立コンサル+建物状況調査結果に基づく工事範囲決定が肝",
+    "industry_scam_structure": "①管理会社が特定業者だけ相見積もりに含める②コンサルへのバックリベート③不要工事の追加④諸経費30%超の請求。これらが大規模修繕の典型的な構造的問題",
+    "regulatory_basis": "建設業法（許可・主任技術者）、マンション標準管理規約、長期修繕計画ガイドライン（国交省）",
+    "knowledge_source": "TOshi経験 + マンション管理新聞・国交省ガイドライン"
+  },
+  "connected_clusters": {
+    "manshion_cluster": {
+      "categories": ["gaiheki_tosou", "waterproofing_work", "water_pipe_work", "rope_access_work"],
+      "synergy": "大規模修繕で同時施工"
+    }
+  }
+}
