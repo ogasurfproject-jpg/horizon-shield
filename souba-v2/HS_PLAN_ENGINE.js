@@ -65,7 +65,66 @@ const KOJI_TYPE_MAP = {
   "demolition":     { db: "demolition_master",    grade_map: null },
   "gaikou":         { db: "gaikou_work",          grade_map: null },
   "amido":          { db: "amido_amado_shutter",  grade_map: null },
-  "commercial":     { db: "commercial_tenpo_work", grade_map: null }
+  "commercial":     { db: "commercial_tenpo_work", grade_map: null },
+
+  // ========================================
+  // Phase 1.7 追加カテゴリ（31）- 2026-05-07
+  // ========================================
+
+  // 内装仕上げ
+  "shoji_fusuma":   { db: "shoji_fusuma_work",     grade_map: null },
+  "toko_shuri":     { db: "toko_shuri",            grade_map: null },
+
+  // 窓・ドア
+  "mado_glass":     { db: "mado_glass_work",       grade_map: null },
+
+  // 水回り
+  "builtin_dishwasher": { db: "builtin_dishwasher", grade_map: null },
+  "ih_gas":         { db: "ih_gas_conversion",     grade_map: null },
+  "ofuro_kanso":    { db: "ofuro_kanso_oidaki",    grade_map: null },
+  "shisetsu_pool":  { db: "shisetsu_pool",         grade_map: null },
+
+  // 設備工事
+  "shomei_design":  { db: "shomei_design",         grade_map: null },
+  "wine_cellar":    { db: "wine_cellar",           grade_map: null },
+  "zenkanki":       { db: "zenkanki_jokuki",       grade_map: null },
+
+  // 断熱・省エネ
+  "bouon_shaon":    { db: "bouon_shaon_work",      grade_map: null },
+  "chikyu_chunetsu":{ db: "chikyu_chunetsu",       grade_map: null },
+
+  // 解体・基盤
+  "asbestos":       { db: "asbestos_removal",      grade_map: null },
+  "jutaku_kaitai":  { db: "jutaku_kaitai_partial",  grade_map: null },
+
+  // 非住宅・店舗
+  "kanban_sign":    { db: "kanban_sign_work",      grade_map: null },
+  "gyomu_chubo":    { db: "gyomu_chubo",           grade_map: null },
+
+  // 外構・造園
+  "shokusai_zoen":  { db: "shokusai_zoen",         grade_map: null },
+  "iwa_ishigumi":   { db: "iwa_ishigumi",          grade_map: null },
+  "kaki_seko":      { db: "kaki_seko",             grade_map: null },
+  "monoki_setchi":  { db: "monoki_setchi",         grade_map: null },
+  "carpoort":       { db: "carpoort_single",       grade_map: null },
+
+  // 🏢 マンション専門
+  "manshion_shuzen":{ db: "manshion_kyoyou_shuzen", grade_map: null },
+  "erebata":        { db: "erebata_shuzen",        grade_map: null },
+
+  // 🏠 リフォーム周辺サービス
+  "tokushuseiso":   { db: "tokushuseiso",          grade_map: null },
+  "ihinseiri":      { db: "ihinseiri_seizen",      grade_map: null },
+  "karinosumai":    { db: "karinosumai",           grade_map: null },
+  "hikkoshi":       { db: "hikkoshi_renkei",       grade_map: null },
+
+  // 🏡 IoT・スマートホーム
+  "smart_home":     { db: "smart_home_iot",        grade_map: null },
+  "sec_camera":     { db: "sec_camera_total",      grade_map: null },
+
+  // 🌱 環境・災害対策
+  "uri_riyo":       { db: "uri_riyo",              grade_map: null },
+  "idoseichi":      { db: "idoseichi",             grade_map: null }
 };
 
 
