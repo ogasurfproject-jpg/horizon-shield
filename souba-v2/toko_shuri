@@ -1,0 +1,198 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "toko_shuri",
+    "category_name_jp": "床鳴り・床補修専門工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐ 既存住宅の老朽化対応・床鳴り訪販ぼったくり多発・原因特定が肝",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 大工業界データ",
+    "scope": "床鳴り補修、床のたわみ・凹み修繕、フローリング部分張替え、根太・大引補修、床下点検",
+    "horizons_philosophy": "床鳴りは『原因特定』が最重要。表面修理だけでは再発するため、床下まで含めた診断が必須。HSは原因別の適正工事を可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "材料 × 1.2 + 大工人工 × 日当 + 床下作業費 + (原価 × 15%) + 消費税 10%",
+    "parameters": {
+      "trade_price_ratio_from_list": 0.6,
+      "general_overhead_pct_ideal": 15
+    },
+    "HS_pricing_philosophy": {
+      "業者規模別_妥当な利益率_床補修": {
+        "個人事業_大工": "粗利率 25-35%",
+        "中小工務店": "粗利率 25-35%",
+        "人気工務店": "粗利率 30-40%",
+        "大手リフォーム": "粗利率 35-45%"
+      }
+    }
+  },
+  "floor_materials": {
+    "flooring_general": {
+      "name": "標準フローリング材（複合）",
+      "examples": ["大建工業 トリニティ", "EIDAI ロックフィット", "ノダ Cフロア"],
+      "price_per_sqm_jpy": { "min": 4500, "max": 12000 }
+    },
+    "flooring_premium": {
+      "name": "高級フローリング（無垢）",
+      "examples": ["朝日ウッドテック ライブナチュラル", "イクタ パワフルフロア"],
+      "price_per_sqm_jpy": { "min": 12000, "max": 25000 }
+    },
+    "subfloor_panel": {
+      "name": "捨て張り合板（24mm）",
+      "price_per_sheet_910x1820_jpy": { "min": 3500, "max": 6000 }
+    },
+    "neda_dabiki_zai": {
+      "name": "根太・大引材（杉/ヒノキ）",
+      "price_per_meter_jpy": { "min": 800, "max": 2000 }
+    }
+  },
+  "labor": {
+    "carpenter_day_rate": { "min": 28000, "max": 35000 },
+    "yukashita_specialist": { "min": 30000, "max": 38000, "note": "床下狭所作業対応" }
+  },
+  "additional_costs": {
+    "yukashita_inspection": { "name": "床下点検・原因調査", "price_jpy": { "min": 20000, "max": 60000 } },
+    "kabi_jokyo": { "name": "床下カビ・湿気除去", "price_jpy": { "min": 50000, "max": 200000 } },
+    "shiroari_check": { "name": "シロアリ点検", "price_jpy": { "min": 0, "max": 30000 }, "note": "termite_work.json連携" },
+    "kagu_idou": { "name": "家具移動・養生", "price_jpy": { "min": 10000, "max": 40000 } }
+  },
+  "plans": {
+    "yuka_nari_partial_inject": {
+      "name": "床鳴り部分注入補修",
+      "scope": "床鳴り箇所への接着剤注入・1-3箇所",
+      "estimated_total_jpy": { "min": 30000, "max": 80000 },
+      "hs_rule_estimate_jpy": 55000,
+      "work_days": 0.5,
+      "note": "応急処置。原因が根太/大引の場合は再発リスク",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 33000, "max": 75000 },
+        "区分2_中小工務店": { "min": 35000, "max": 80000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 40000, "max": 92000 },
+        "区分4_大手_ハウスメーカー": { "min": 48000, "max": 110000 }
+      }
+    },
+    "yuka_nari_neda_repair": {
+      "name": "根太・大引の補強（床下作業）",
+      "scope": "根太の追加・補強束の設置・床下から施工",
+      "estimated_total_jpy": { "min": 80000, "max": 200000 },
+      "hs_rule_estimate_jpy": 130000,
+      "work_days": 1.0,
+      "note": "根本原因対応。再発防止",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 88000, "max": 190000 },
+        "区分2_中小工務店": { "min": 95000, "max": 200000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 110000, "max": 230000 },
+        "区分4_大手_ハウスメーカー": { "min": 130000, "max": 280000 }
+      }
+    },
+    "flooring_partial_replace": {
+      "name": "フローリング部分張替（畳1枚分）",
+      "scope": "傷み・凹みのある床材を1.65㎡程度部分張替",
+      "estimated_total_jpy": { "min": 50000, "max": 130000 },
+      "hs_rule_estimate_jpy": 85000,
+      "work_days": 0.7,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 55000, "max": 125000 },
+        "区分2_中小工務店": { "min": 60000, "max": 130000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 68000, "max": 150000 },
+        "区分4_大手_ハウスメーカー": { "min": 82000, "max": 180000 }
+      }
+    },
+    "flooring_room_full_replace": {
+      "name": "フローリング部屋全体張替（重ね張り）",
+      "scope": "6畳・既存床の上に新規フローリング重ね張り",
+      "estimated_total_jpy": { "min": 120000, "max": 280000 },
+      "hs_rule_estimate_jpy": 200000,
+      "work_days": 1.5,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 130000, "max": 265000 },
+        "区分2_中小工務店": { "min": 140000, "max": 280000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 165000, "max": 320000 },
+        "区分4_大手_ハウスメーカー": { "min": 195000, "max": 385000 }
+      }
+    },
+    "flooring_full_demolition_replace": {
+      "name": "フローリング全面張替（既存撤去・床下対応）",
+      "scope": "6畳・既存床撤去+下地補修+新規張り",
+      "estimated_total_jpy": { "min": 200000, "max": 500000 },
+      "hs_rule_estimate_jpy": 350000,
+      "work_days": 3.0,
+      "note": "床下劣化・湿気対策含む完全対応",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 220000, "max": 470000 },
+        "区分2_中小工務店": { "min": 235000, "max": 500000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 270000, "max": 580000 },
+        "区分4_大手_ハウスメーカー": { "min": 325000, "max": 700000 }
+      }
+    },
+    "yukashita_full_inspection_repair": {
+      "name": "床下総合診断+補修（戸建30坪）",
+      "scope": "床下全面点検+カビ/湿気/シロアリ対応+劣化部補修",
+      "estimated_total_jpy": { "min": 150000, "max": 500000 },
+      "hs_rule_estimate_jpy": 300000,
+      "work_days": "1.5-3",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 165000, "max": 470000 },
+        "区分2_中小工務店": { "min": 175000, "max": 500000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 200000, "max": 580000, "note": "床下専門推奨" },
+        "区分4_大手_ハウスメーカー": { "min": 240000, "max": 700000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "DOOR_TO_DOOR_INSPECTION", "pattern": "「無料床下点検」訪問販売", "severity": "🔴 CRITICAL",
+      "reason": "床下点検商法の典型。シロアリ・湿気を捏造して¥50-200万の工事契約に誘導" },
+    { "code": "ROOT_CAUSE_IGNORED", "pattern": "床鳴り原因を特定せず表面注入のみ提案", "severity": "🚨 HIGH",
+      "reason": "原因が根太・大引の場合は再発。床下点検必須" },
+    { "code": "FULL_REPLACE_FORCED", "pattern": "部分修繕で済む案件に全面張替を強要", "severity": "🚨 HIGH",
+      "reason": "傷み範囲が小さければ部分対応で十分（¥5万 vs ¥35万）" },
+    { "code": "MATERIAL_GRADE_UNCLEAR", "pattern": "フローリング材のメーカー・型番不明", "severity": "🚨 HIGH",
+      "reason": "標準¥5,000/㎡と高級¥20,000/㎡で4倍差" },
+    { "code": "YUKASHITA_FAKE_DAMAGE", "pattern": "床下写真を見せて『緊急補修必要』即決迫り", "severity": "🔴 CRITICAL",
+      "reason": "床下写真で恐怖喚起→高額契約の典型手口。第三者点検要" },
+    { "code": "CARPENTRY_QUALIFICATION_NONE", "pattern": "大工資格なき業者が下地補修", "severity": "🚨 HIGH" },
+    { "code": "MOLD_REMOVAL_OVERPRICED", "pattern": "床下カビ除去¥30万超", "severity": "🚨 HIGH",
+      "reason": "適正は¥5-20万。¥30万超は過剰" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "歩くと床鳴りする", "recommendation": "原因調査→部分注入 or 根太補修", "cost_range": { "min": 30000, "max": 200000 } },
+    { "case": "床がへこむ・たわむ", "recommendation": "床下点検+根太補強", "cost_range": { "min": 80000, "max": 300000 } },
+    { "case": "傷み箇所が部分的", "recommendation": "フローリング部分張替", "cost_range": { "min": 50000, "max": 130000 } },
+    { "case": "リビング全面の張替", "recommendation": "重ね張り（既存活用）", "cost_range": { "min": 120000, "max": 280000 } },
+    { "case": "築30年以上・床下劣化", "recommendation": "全面撤去+床下対応", "cost_range": { "min": 200000, "max": 500000 } },
+    { "case": "シロアリ疑い", "recommendation": "termite_work連携の総合点検", "cost_range": { "min": 150000, "max": 500000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "代表": "個人大工・床専門職人", "粗利率": "25-35%", "推奨度": "★★★★★", "特徴": "原因特定能力高い・コスパ良" },
+    "区分2_中小工務店": { "代表": "地域工務店・大工集団", "粗利率": "25-35%", "推奨度": "★★★★★ 第一推奨" },
+    "区分3_人気工務店": { "代表": "床下専門会社・住宅劣化診断士所属", "粗利率": "30-40%", "推奨度": "★★★★☆" },
+    "区分4_大手_ハウスメーカー": { "代表": "全国チェーン", "粗利率": "35-45%", "推奨度": "★★★☆☆" }
+  },
+  "iran_situation_2026_04_impact": {
+    "副資材_+5_10pct": ["接着剤", "ビス・釘類"],
+    "建材_+10_20pct": ["フローリング材（合板系）+10-15%", "根太・大引材+15-20%（木材高騰）"],
+    "_impact_summary": "木材価格上昇影響大。特に集成材・無垢材は+15-20%"
+  },
+  "negotiation_tips": [
+    "床鳴り原因を特定（注入で済むか床下要かは現地調査）",
+    "床下無料点検商法には絶対契約しない",
+    "フローリング材のメーカー・型番を明記",
+    "部分修繕で済む範囲か全面張替必要かは2社以上で確認",
+    "床下点検は別途有料が業界標準（¥2-6万）",
+    "シロアリ・湿気対応は専門業者連携",
+    "工事中の家具移動・養生費を事前確定",
+    "大工技能士資格・住宅劣化診断士資格の確認"
+  ],
+  "trade_knowledge": {
+    "summary": "床鳴り・床補修は原因特定が肝。表面注入¥3-8万、根太補強¥8-20万、部分張替¥5-13万、全面張替¥12-50万。床下点検商法による高額契約被害多発領域",
+    "industry_scam_structure": "「無料床下点検」→『シロアリがいます』『湿気で土台が腐ってます』→¥50-200万の工事契約。床下写真の捏造・他者宅の写真使用例も。第三者の独立点検が防御策",
+    "regulatory_basis": "建築士法・住宅瑕疵担保履行法",
+    "knowledge_source": "TOshi経験 + 床下点検商法被害事例（消費者庁データ）"
+  },
+  "connected_clusters": {
+    "yukashita_cluster": {
+      "categories": ["termite_work", "kiso_hoshu_work", "insulation_work", "floor_replacement_v2"],
+      "synergy": "床下総合診断時に複合工事"
+    }
+  }
+}
