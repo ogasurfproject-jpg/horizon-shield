@@ -1,0 +1,217 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "bouon_shaon_work",
+    "category_name_jp": "防音・遮音工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐ 専門性高・需要増（テレワーク・楽器・シアタールーム）・ぼったくり多発",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 防音工事業界2026年実勢データ",
+    "scope": "壁・床・天井の遮音工事、防音室造作、防音ドア、防音窓（内窓含む）、楽器部屋・シアタールーム工事",
+    "horizons_philosophy": "防音は『効果が見えない』ため業者が過剰提案しやすい領域。HSは目的（騒音源・遮音性能 dB）に応じた適正提案を可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "防音材仕入れ値 × 1.2 + 大工/内装人工 × 日当 + 副資材 + (原価 × 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.2,
+      "general_overhead_pct_ideal": 15,
+      "tax_pct": 10,
+      "trade_price_ratio_from_list": 0.55
+    },
+    "HS_pricing_philosophy": {
+      "業者規模別_妥当な利益率_防音": {
+        "個人事業_専門職人": "粗利率 25-35%",
+        "中小工務店": "粗利率 25-35%",
+        "人気防音専門会社": "粗利率 30-40%",
+        "大手リフォーム": "粗利率 35-45%"
+      }
+    }
+  },
+  "soundproof_materials": {
+    "rockwool_panel": {
+      "name": "ロックウール吸音板",
+      "thickness_mm": [25, 50, 100],
+      "price_per_sqm_jpy": { "min": 2500, "max": 6000 },
+      "use": "壁・天井の吸音"
+    },
+    "glass_wool": {
+      "name": "グラスウール吸音材",
+      "price_per_sqm_jpy": { "min": 2000, "max": 5000 },
+      "use": "壁内充填"
+    },
+    "soundproof_sheet": {
+      "name": "遮音シート（鉛・高密度ゴム系）",
+      "price_per_sqm_jpy": { "min": 3500, "max": 8000 },
+      "use": "壁・床・天井の遮音層"
+    },
+    "soundproof_panel_high": {
+      "name": "高性能遮音パネル",
+      "examples": ["大建工業 ダイケンSP", "吉野石膏 タイガーボード遮音"],
+      "price_per_sqm_jpy": { "min": 8000, "max": 18000 }
+    },
+    "soundproof_door": {
+      "name": "防音ドア",
+      "price_per_unit_jpy": { "min": 100000, "max": 500000 },
+      "performance_db": "T-1（25dB減）からT-4（40dB減）"
+    },
+    "soundproof_window_inner": {
+      "name": "内窓（防音用）",
+      "price_per_unit_jpy": { "min": 80000, "max": 200000 },
+      "examples": ["YKK AP プラマードU", "LIXIL インプラス"]
+    },
+    "floating_floor_kit": {
+      "name": "浮き床工法キット",
+      "price_per_sqm_jpy": { "min": 15000, "max": 35000 },
+      "use": "床の重量衝撃音遮断"
+    }
+  },
+  "labor": {
+    "carpenter_day_rate": { "min": 28000, "max": 35000 },
+    "specialist_soundproof": { "min": 35000, "max": 50000, "note": "防音専門技能者" }
+  },
+  "additional_costs": {
+    "design_acoustic": { "name": "音響設計料", "price_jpy": { "min": 100000, "max": 500000 }, "note": "シアタールーム・スタジオ等" },
+    "ventilation_silencer": { "name": "防音換気扇・消音ダクト", "price_jpy": { "min": 80000, "max": 250000 } },
+    "demolition_existing": { "name": "既存壁・天井解体", "price_jpy": { "min": 50000, "max": 200000 } }
+  },
+  "plans": {
+    "wall_partial_soundproof": {
+      "name": "壁1面の部分防音（吸音+遮音）",
+      "scope": "10㎡程度・隣室との境界壁",
+      "estimated_total_jpy": { "min": 150000, "max": 400000 },
+      "hs_rule_estimate_jpy": 280000,
+      "work_days": 2.0,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 170000, "max": 380000 },
+        "区分2_中小工務店": { "min": 180000, "max": 400000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 210000, "max": 460000 },
+        "区分4_大手_ハウスメーカー": { "min": 250000, "max": 550000 }
+      }
+    },
+    "ceiling_soundproof": {
+      "name": "天井防音（上階の足音対策）",
+      "scope": "6畳程度・遮音シート+吸音材+二重天井",
+      "estimated_total_jpy": { "min": 200000, "max": 500000 },
+      "hs_rule_estimate_jpy": 350000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 220000, "max": 470000 },
+        "区分2_中小工務店": { "min": 235000, "max": 500000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 270000, "max": 580000 },
+        "区分4_大手_ハウスメーカー": { "min": 325000, "max": 700000 }
+      }
+    },
+    "floor_soundproof_living": {
+      "name": "床防音（浮き床工法）",
+      "scope": "リビング10畳・重量衝撃音対策",
+      "estimated_total_jpy": { "min": 300000, "max": 700000 },
+      "hs_rule_estimate_jpy": 500000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 330000, "max": 660000 },
+        "区分2_中小工務店": { "min": 350000, "max": 700000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 405000, "max": 805000 },
+        "区分4_大手_ハウスメーカー": { "min": 480000, "max": 970000 }
+      }
+    },
+    "innerwindow_soundproof_room": {
+      "name": "内窓設置（部屋全体の防音）",
+      "scope": "6畳和室・内窓2枚設置",
+      "estimated_total_jpy": { "min": 200000, "max": 500000 },
+      "hs_rule_estimate_jpy": 350000,
+      "subsidy_eligible": "先進的窓リノベ2026事業対象",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 220000, "max": 470000 },
+        "区分2_中小工務店": { "min": 235000, "max": 500000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 270000, "max": 580000 },
+        "区分4_大手_ハウスメーカー": { "min": 325000, "max": 700000 }
+      }
+    },
+    "music_room_partial": {
+      "name": "楽器部屋（部分防音）",
+      "scope": "ピアノ・電子楽器対応・6畳・全面防音",
+      "estimated_total_jpy": { "min": 800000, "max": 1800000 },
+      "hs_rule_estimate_jpy": 1300000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 880000, "max": 1700000 },
+        "区分2_中小工務店": { "min": 940000, "max": 1800000 },
+        "区分3_人気工務店": { "min": 1080000, "max": 2070000, "note": "防音専門推奨" },
+        "区分4_大手_ハウスメーカー": { "min": 1300000, "max": 2500000 }
+      }
+    },
+    "studio_full_construction": {
+      "name": "本格防音室（スタジオ・シアタールーム）",
+      "scope": "8-10畳・遮音性能D-65以上・浮き床+二重壁+二重天井+防音ドア",
+      "estimated_total_jpy": { "min": 2500000, "max": 5000000 },
+      "hs_rule_estimate_jpy": 3500000,
+      "note": "音響設計込み・要専門設計",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 2800000, "max": 4700000 },
+        "区分2_中小工務店": { "min": 2900000, "max": 5000000 },
+        "区分3_人気工務店": { "min": 3300000, "max": 5750000, "note": "防音専門推奨" },
+        "区分4_大手_ハウスメーカー": { "min": 3950000, "max": 7000000 }
+      }
+    },
+    "drum_room_premium": {
+      "name": "ドラム・大音量楽器対応防音室",
+      "scope": "10畳・遮音性能D-75以上・特殊浮き床",
+      "estimated_total_jpy": { "min": 4000000, "max": 8000000 },
+      "hs_rule_estimate_jpy": 6000000,
+      "料金_業者規模別_税込_円": {
+        "区分3_人気工務店": { "min": 5400000, "max": 9200000, "note": "音響設計+施工" },
+        "区分4_大手_ハウスメーカー": { "min": 6720000, "max": 11500000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "DB_PERFORMANCE_UNCLEAR", "pattern": "遮音性能 dB / D値 / T値の記載なし", "severity": "🔴 CRITICAL",
+      "reason": "防音工事の核心指標。記載なきは効果保証なし" },
+    { "code": "OVER_SPEC_FORCED", "pattern": "TVの音漏れ対策にスタジオ級D-65強要", "severity": "🚨 HIGH",
+      "reason": "用途に応じた適正性能で十分。過剰提案で+200-500万" },
+    { "code": "VENTILATION_IGNORED", "pattern": "防音室造作で換気計画なし", "severity": "🔴 CRITICAL",
+      "reason": "気密室は窒息・カビリスク。消音ダクト必須" },
+    { "code": "ACOUSTIC_DESIGN_MISSING", "pattern": "音響設計なしで¥300万超の防音室提案", "severity": "🚨 HIGH",
+      "reason": "高額防音室は音響設計が必須。なければ効果出ない可能性" },
+    { "code": "MATERIAL_GRADE_UNCLEAR", "pattern": "遮音シート・吸音材のメーカー型番不明", "severity": "🚨 HIGH" },
+    { "code": "FLOATING_FLOOR_FAKE", "pattern": "浮き床工法と称して通常の床上げ", "severity": "🔴 CRITICAL",
+      "reason": "正規浮き床は防振ゴム・遮音層・浮き床ボードの3層構造" },
+    { "code": "DOOR_GRADE_UNCLEAR", "pattern": "防音ドアの遮音等級（T-1〜T-4）記載なし", "severity": "⚠️ MEDIUM" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "上階の足音がうるさい", "recommendation": "天井防音（吸音+遮音）", "cost_range": { "min": 200000, "max": 500000 } },
+    { "case": "隣室の話し声が気になる", "recommendation": "壁部分防音", "cost_range": { "min": 150000, "max": 400000 } },
+    { "case": "外部騒音（道路・電車）", "recommendation": "内窓設置（補助金対象）", "cost_range": { "min": 200000, "max": 500000 } },
+    { "case": "ピアノ・電子楽器を弾きたい", "recommendation": "楽器部屋部分防音", "cost_range": { "min": 800000, "max": 1800000 } },
+    { "case": "ホームシアタールーム", "recommendation": "防音室+音響設計", "cost_range": { "min": 2500000, "max": 5000000 } },
+    { "case": "ドラム・本格スタジオ", "recommendation": "高性能防音室", "cost_range": { "min": 4000000, "max": 8000000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "代表": "防音施工個人職人", "粗利率": "25-35%", "推奨度": "★★★☆☆", "特徴": "小規模案件向け" },
+    "区分2_中小工務店": { "代表": "内装+防音対応工務店", "粗利率": "25-35%", "推奨度": "★★★★★ 第一推奨", "特徴": "部分防音に強い" },
+    "区分3_人気工務店": { "代表": "防音専門会社（音響設計）", "粗利率": "30-40%", "推奨度": "★★★★★", "特徴": "本格防音室・音響設計" },
+    "区分4_大手_ハウスメーカー": { "代表": "ハウスメーカー系", "粗利率": "35-45%", "推奨度": "★★★☆☆" }
+  },
+  "iran_situation_2026_04_impact": {
+    "副資材_+5_10pct": ["接着剤", "コーキング", "ビス・金物"],
+    "建材_+10_20pct": ["遮音シート（ゴム・鉛系）", "ロックウール（鉱物繊維）", "防音ドア（鋼材使用）"],
+    "_impact_summary": "防音材は石油・鉱物資源依存度高く+10-15%の値上げ"
+  },
+  "negotiation_tips": [
+    "目標遮音性能（dB / D値 / T値）を契約書に明記",
+    "用途に応じた適正性能を確認（過剰提案を避ける）",
+    "防音室造作時は換気計画・消音ダクト必須",
+    "音響設計料・施工費・材料費の3区分明細",
+    "浮き床工法は3層構造（防振ゴム+遮音層+床ボード）確認",
+    "防音ドア・窓の遮音等級（T-1〜T-4）型番確認",
+    "完成後の遮音性能測定（dB測定）を契約条件に",
+    "内窓設置は先進的窓リノベ2026補助金活用"
+  ],
+  "trade_knowledge": {
+    "summary": "防音は『効果が見えない』ため過剰提案・手抜き両方のリスク領域。dB値・D値での性能保証と完成後測定が業界標準。本格防音室は音響設計が必須",
+    "industry_scam_structure": "TVの音漏れ程度に¥1,000万級スタジオ施工を提案する業者あり。用途に応じた適正性能を見極めることが重要",
+    "subsidy_info": "内窓設置は先進的窓リノベ2026事業対象（環境省・最大¥100,000/戸）。防音と省エネを両立",
+    "knowledge_source": "TOshi経験 + 防音業界専門知識"
+  },
+  "connected_clusters": {
+    "dannetsu_cluster": { "categories": ["window_reform", "insulation_work"], "synergy": "内窓設置で防音+断熱両立" }
+  }
+}
