@@ -1,0 +1,117 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "smart_home_iot",
+    "category_name_jp": "スマートホーム・IoT工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐ 新興領域・部分導入から全室統合まで幅広・後付け対応中心",
+    "knowledge_source": "TOshi 30年の建設実務経験 + Google Home/Amazon Alexa/Apple HomeKit 2026年データ",
+    "scope": "スマート家電（玄関錠・照明・空調・カーテン・カメラ）の統合・後付け工事",
+    "horizons_philosophy": "スマートホームは『機器選定』『プラットフォーム統一』『電気工事』の3要素。HSは段階別の標準価格を可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "機器仕入れ値 × 1.2 + 電気工 + 設定費 + 諸経費（25-35%）+ 消費税 10%",
+    "parameters": { "trade_price_ratio_from_list": 0.7, "note": "IoT機器はAmazon等定価販売多く業者仕入れ70%程度" }
+  },
+  "labor": {
+    "electrician_day_rate": { "min": 25000, "max": 32000 },
+    "iot_specialist": { "min": 30000, "max": 45000, "note": "設定・統合スキル" }
+  },
+  "additional_costs": {
+    "wifi_strengthening": { "name": "Wi-Fi環境整備（メッシュ化等）", "price_jpy": { "min": 50000, "max": 200000 } },
+    "smart_lock_install": { "name": "スマートロック設置（玄関）", "price_jpy": { "min": 50000, "max": 150000 } },
+    "smart_curtain_motor": { "name": "電動カーテン", "price_per_window_jpy": { "min": 50000, "max": 200000 } }
+  },
+  "plans": {
+    "starter_kit_basic": {
+      "name": "スマートホーム入門（音声+照明3室）",
+      "scope": "Echo/Google Home + スマート電球6個 + スマートリモコン",
+      "estimated_total_jpy": { "min": 80000, "max": 250000 },
+      "hs_rule_estimate_jpy": 150000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 88000, "max": 235000 },
+        "区分2_中小": { "min": 95000, "max": 250000, "note": "HS第一推奨" }
+      }
+    },
+    "smart_lock_addition": {
+      "name": "スマートロック追加（玄関）",
+      "scope": "Sesame/Qrio等 + 既存錠への後付け",
+      "estimated_total_jpy": { "min": 60000, "max": 200000 },
+      "hs_rule_estimate_jpy": 110000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 66000, "max": 190000 },
+        "区分2_中小": { "min": 70000, "max": 200000, "note": "HS第一推奨" }
+      }
+    },
+    "smart_aircon_full": {
+      "name": "全室スマートエアコン化",
+      "scope": "戸建4部屋 + スマートリモコン + 統合制御",
+      "estimated_total_jpy": { "min": 200000, "max": 600000 },
+      "hs_rule_estimate_jpy": 380000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 220000, "max": 555000, "note": "HS第一推奨" },
+        "区分3_専門": { "min": 260000, "max": 640000 }
+      }
+    },
+    "smart_curtain_living": {
+      "name": "電動カーテン（リビング3窓）",
+      "scope": "電動レール+モーター+リモコン+音声連携",
+      "estimated_total_jpy": { "min": 250000, "max": 700000 },
+      "hs_rule_estimate_jpy": 450000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 275000, "max": 660000 },
+        "区分3_専門": { "min": 320000, "max": 760000, "note": "HS第一推奨" }
+      }
+    },
+    "full_smart_house_renovation": {
+      "name": "戸建全室スマートホーム化",
+      "scope": "鍵+照明+空調+カーテン+カメラ統合",
+      "estimated_total_jpy": { "min": 1000000, "max": 3500000 },
+      "hs_rule_estimate_jpy": 1900000,
+      "料金_業者規模別_税込_円": {
+        "区分3_専門": { "min": 1330000, "max": 3500000, "note": "IoT専門推奨" },
+        "区分4_大手": { "min": 1600000, "max": 4200000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "PLATFORM_MIXED", "pattern": "Google/Alexa/Appleの混在で連携不可", "severity": "🚨 HIGH",
+      "reason": "プラットフォーム統一が前提" },
+    { "code": "WIFI_INFRASTRUCTURE_NONE", "pattern": "Wi-Fi環境整備なしで大量機器", "severity": "🚨 HIGH" },
+    { "code": "SUBSCRIPTION_HIDDEN", "pattern": "月額サブスク費用の説明なし", "severity": "🚨 HIGH" },
+    { "code": "SUPPORT_TERM_NONE", "pattern": "メーカーサポート期間（3-5年）の確認なし", "severity": "⚠️ MEDIUM" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "入門・部分導入", "recommendation": "スターターキット", "cost_range": { "min": 80000, "max": 250000 } },
+    { "case": "玄関の利便性向上", "recommendation": "スマートロック", "cost_range": { "min": 60000, "max": 200000 } },
+    { "case": "エアコン外出制御", "recommendation": "全室スマートエアコン", "cost_range": { "min": 200000, "max": 600000 } },
+    { "case": "カーテン自動化", "recommendation": "電動カーテン", "cost_range": { "min": 250000, "max": 700000 } },
+    { "case": "戸建統合", "recommendation": "全室スマートホーム", "cost_range": { "min": 1000000, "max": 3500000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "推奨度": "★★★★☆", "特徴": "コスパ最良・小規模" },
+    "区分2_中小": { "推奨度": "★★★★★ 第一推奨", "特徴": "標準対応" },
+    "区分3_IoT専門": { "推奨度": "★★★★★", "特徴": "統合・大規模" },
+    "区分4_大手": { "推奨度": "★★★☆☆", "特徴": "サブスク提案・割高" }
+  },
+  "iran_situation_2026_04_impact": {
+    "建材_+10_20pct": ["半導体・電子部品"],
+    "_impact_summary": "IoT機器は半導体影響で+10%・納期遅延傾向"
+  },
+  "negotiation_tips": [
+    "プラットフォーム統一（Google/Alexa/Apple）",
+    "Wi-Fi環境整備の必要性確認",
+    "月額サブスク費用の事前確認",
+    "メーカーサポート期間（最低3-5年）",
+    "保証範囲（機器・施工別）"
+  ],
+  "trade_knowledge": {
+    "summary": "スマートホームは段階導入推奨。入門¥8-25万、ロック¥6-20万、空調全室¥20-60万、戸建統合¥100-350万",
+    "knowledge_source": "TOshi経験 + IoT業界データ"
+  },
+  "connected_clusters": {
+    "smart_home_cluster": { "categories": ["shomei_design", "sec_camera_total", "led_electrical_update"], "synergy": "新築・大規模リフォーム時に統合" }
+  }
+}
