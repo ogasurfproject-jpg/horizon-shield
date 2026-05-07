@@ -1,0 +1,121 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "hikkoshi_renkei",
+    "category_name_jp": "引越し連動リフォームサービス",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐ 引越しタイミング活用・原状回復+新居リフォーム同時・繁忙期割増注意",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 引越し業界2026年データ",
+    "scope": "引越し+原状回復+新居リフォームの複合サービス。家財保管・廃品処理・ハウスクリーニング含む",
+    "horizons_philosophy": "引越し連動は『繁忙期割増』『複合割引』のバランス判断。HSは時期別の標準価格を可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "引越し費 + 原状回復 + 新居リフォーム + 家財処分 + 諸経費（15-25%）+ 消費税 10%",
+    "parameters": { "general_overhead_pct_normal": 20 }
+  },
+  "labor": {
+    "moving_worker_day_rate": { "min": 18000, "max": 25000 },
+    "busy_season_surcharge": "+30-50%（3-4月）"
+  },
+  "additional_costs": {
+    "moving_2person_local": { "name": "引越し（2人世帯・近距離）", "price_jpy": { "min": 50000, "max": 150000 } },
+    "moving_4person_local": { "name": "引越し（4人世帯・近距離）", "price_jpy": { "min": 100000, "max": 300000 } },
+    "moving_2person_long": { "name": "引越し（2人・長距離500km超）", "price_jpy": { "min": 200000, "max": 600000 } },
+    "haiki_furniture": { "name": "不要家具・家電処分", "price_jpy": { "min": 30000, "max": 200000 } },
+    "house_cleaning_pre_moveout": { "name": "退去時ハウスクリーニング", "price_jpy": { "min": 30000, "max": 150000 } }
+  },
+  "plans": {
+    "single_simple_move": {
+      "name": "単身・引越し+新居軽リフォーム",
+      "scope": "引越し+新居壁紙+不要品処分",
+      "estimated_total_jpy": { "min": 200000, "max": 500000 },
+      "hs_rule_estimate_jpy": 350000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 220000, "max": 470000, "note": "HS第一推奨" },
+        "区分2_中小": { "min": 235000, "max": 500000 }
+      }
+    },
+    "couple_with_old_renovation": {
+      "name": "夫婦・引越し+原状回復+新居リフォーム",
+      "scope": "引越し+旧居原状回復+新居壁紙/床",
+      "estimated_total_jpy": { "min": 400000, "max": 1200000 },
+      "hs_rule_estimate_jpy": 750000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 440000, "max": 1100000, "note": "HS第一推奨" },
+        "区分3_専門": { "min": 525000, "max": 1300000 }
+      }
+    },
+    "family_full_renovation": {
+      "name": "ファミリー・引越し+新居フル",
+      "scope": "引越し+新居壁紙/床/水回り更新+不要品処分",
+      "estimated_total_jpy": { "min": 1500000, "max": 4000000 },
+      "hs_rule_estimate_jpy": 2400000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 1650000, "max": 3700000, "note": "HS第一推奨" },
+        "区分3_専門": { "min": 1900000, "max": 4250000 }
+      }
+    },
+    "elderly_downsizing": {
+      "name": "高齢者・住み替え（生前整理連動）",
+      "scope": "遺品整理連動+引越し+新居バリアフリー化",
+      "estimated_total_jpy": { "min": 800000, "max": 2500000 },
+      "hs_rule_estimate_jpy": 1500000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 880000, "max": 2300000 },
+        "区分3_専門": { "min": 1020000, "max": 2650000, "note": "高齢者対応推奨" }
+      }
+    },
+    "long_distance_full": {
+      "name": "長距離引越し+新居全面リフォーム",
+      "scope": "500km超+新居全面リフォーム",
+      "estimated_total_jpy": { "min": 2500000, "max": 6000000 },
+      "hs_rule_estimate_jpy": 3800000,
+      "料金_業者規模別_税込_円": {
+        "区分3_専門": { "min": 3000000, "max": 6300000, "note": "HS第一推奨" },
+        "区分4_大手": { "min": 3650000, "max": 7600000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "BUSY_SEASON_OVERCHARGE", "pattern": "3-4月繁忙期で通常の2倍超", "severity": "🚨 HIGH",
+      "reason": "適正は1.3-1.5倍。2倍超は過剰" },
+    { "code": "BUNDLE_DISCOUNT_FAKE", "pattern": "「セット割引」と称し各単体より高額", "severity": "🚨 HIGH" },
+    { "code": "FURNITURE_DISPOSAL_INFLATION", "pattern": "家電処分費の水増し（家電¥10,000等）", "severity": "🚨 HIGH",
+      "reason": "家電リサイクル法料金は¥1,000-7,000程度" },
+    { "code": "INSURANCE_NONE", "pattern": "引越し中の家財保険なし", "severity": "🚨 HIGH" },
+    { "code": "ORIGINAL_RESTORE_OVERCHARGE", "pattern": "原状回復費の水増し（賃貸トラブル）", "severity": "🚨 HIGH" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "単身・新居軽リフォーム", "recommendation": "シンプル", "cost_range": { "min": 200000, "max": 500000 } },
+    { "case": "夫婦・原状回復込み", "recommendation": "夫婦コース", "cost_range": { "min": 400000, "max": 1200000 } },
+    { "case": "ファミリー・新居フル", "recommendation": "フル", "cost_range": { "min": 1500000, "max": 4000000 } },
+    { "case": "高齢者住み替え", "recommendation": "ダウンサイジング", "cost_range": { "min": 800000, "max": 2500000 } },
+    { "case": "長距離+新居全面", "recommendation": "長距離フル", "cost_range": { "min": 2500000, "max": 6000000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "推奨度": "★★★★☆", "特徴": "単身・小規模" },
+    "区分2_中小": { "推奨度": "★★★★★ 第一推奨", "特徴": "標準対応" },
+    "区分3_専門": { "推奨度": "★★★★☆", "特徴": "高齢者・複合対応" },
+    "区分4_大手": { "推奨度": "★★★☆☆", "特徴": "全国対応・割高" }
+  },
+  "iran_situation_2026_04_impact": {
+    "輸送費_+10_15pct": ["燃料・トラック維持費"],
+    "_impact_summary": "引越し料金+10-15%。繁忙期はさらに上乗せ"
+  },
+  "negotiation_tips": [
+    "繁忙期（3-4月）を避けて閑散期（5-12月）に",
+    "セット割引は単体見積もりと比較",
+    "家電リサイクル法料金（¥1-7k）の事前確認",
+    "引越し中の家財保険加入確認",
+    "原状回復の見積もりは引越し前に取得"
+  ],
+  "trade_knowledge": {
+    "summary": "引越し連動リフォームは複合サービス。単身¥20-50万、夫婦¥40-120万、ファミリー¥150-400万、高齢者¥80-250万、長距離フル¥250-600万",
+    "knowledge_source": "TOshi経験 + 引越し業界データ"
+  },
+  "connected_clusters": {
+    "reform_cluster": { "categories": ["karinosumai", "ihinseiri_seizen", "house_cleaning", "skeleton_reform"], "synergy": "住み替え時の包括サービス" }
+  }
+}
