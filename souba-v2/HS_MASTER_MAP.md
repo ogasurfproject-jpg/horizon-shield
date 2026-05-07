@@ -1,26 +1,27 @@
 # HORIZON SHIELD マスターマップ
 
-> **生成日**: 2026-04-19  
-> **全カテゴリ数**: 30  
+> **生成日**: 2026-04-19（Phase 1.7 追記: 2026-05-07）  
+> **全カテゴリ数**: 61（既存30 + Phase 1.7 追加31）
 > **HS哲学**: HSは業者を敵視しない。業者規模別の妥当な利益率（25-45%）レンジを透明化し、『この業者の価格は規模に対して妥当か』を施主が判断できるよう武装化する
 
 ---
 
 ## 📊 統計サマリ
 
-- **総カテゴリ数**: 30
-- **総プラン数**: 328
-- **総Red Flag数**: 480
-- **総データ量**: 1142.2 KB
+- **総カテゴリ数**: 61（既存30 + Phase 1.7 追加31）
+- **総プラン数**: 506（既存328 + Phase 1.7 178）
+- **総Red Flag数**: 655（既存480 + Phase 1.7 175）
+- **総データ量**: 1426.6 KB（既存1142.2 + Phase 1.7 284.4）
 - **補助金対応カテゴリ**: 12
-- **業者規模別価格対応**: 30
-- **2026年4月イラン情勢反映**: 25
+- **業者規模別価格対応**: 61
+- **2026年4月イラン情勢反映**: 56（既存25 + Phase 1.7 31）
 
 ### Wave別分布
 
 | Wave | カテゴリ数 |
 |---|---|
 | Phase1.6 | 8 |
+| **Phase1.7** | **31** |
 | Wave1 | 5 |
 | Wave2 | 2 |
 | Wave3 | 3 |
@@ -43,23 +44,27 @@
 | 大分類 | カテゴリ数 |
 |---|---|
 | バリアフリー | 1 |
-| 内装仕上げ | 3 |
+| 内装仕上げ | 5（既存3 + Phase 1.7 +2） |
 | 内装塗装 | 1 |
-| 外構・造園 | 1 |
+| 外構・造園 | 6（既存1 + Phase 1.7 +5） |
 | 外装塗装 | 1 |
 | 大工・造作 | 1 |
 | 屋根・板金 | 1 |
 | 屋根工事 | 1 |
 | 左官・タイル | 2 |
-| 断熱・省エネ | 1 |
-| 水回り | 4 |
-| 窓・ドア | 3 |
+| 断熱・省エネ | 3（既存1 + Phase 1.7 +2） |
+| 水回り | 8（既存4 + Phase 1.7 +4） |
+| 窓・ドア | 4（既存3 + Phase 1.7 +1） |
 | 耐震・構造 | 1 |
-| 解体・基盤 | 1 |
-| 設備工事 | 4 |
+| 解体・基盤 | 3（既存1 + Phase 1.7 +2） |
+| 設備工事 | 7（既存4 + Phase 1.7 +3） |
 | 防水・補修 | 2 |
 | 防蟻・構造保護 | 1 |
-| 非住宅・店舗 | 1 |
+| 非住宅・店舗 | 3（既存1 + Phase 1.7 +2） |
+| **🏢 マンション専門**（Phase 1.7 新規） | **2** |
+| **🏠 リフォーム周辺サービス**（Phase 1.7 新規） | **4** |
+| **🏡 IoT・スマートホーム**（Phase 1.7 新規） | **2** |
+| **🌱 環境・災害対策**（Phase 1.7 新規） | **2** |
 
 ---
 
@@ -210,7 +215,37 @@
 ### houhan_warning_cluster - 🔴 訪販詐欺多発カテゴリ
 
 **連動カテゴリ**: rain_leak_repair, roof_construction, gaiheki_tosou, bankin_work, termite_work, tile_renga_work, barrier_free_kaigo, water_heater_reform
+### manshion_cluster - 🏢 マンション大規模修繕（Phase 1.7 新規）
 
+**連動カテゴリ**: manshion_kyoyou_shuzen, erebata_shuzen, gaiheki_tosou, waterproofing_work, water_pipe_work, rope_access_work
+
+### shibou_cluster - 🏠 死亡・住み替え包括サービス（Phase 1.7 新規）
+
+**連動カテゴリ**: tokushuseiso, ihinseiri_seizen, house_cleaning, skeleton_reform, demolition_master
+
+### smart_home_cluster - 🏡 スマートホーム統合（Phase 1.7 新規）
+
+**連動カテゴリ**: smart_home_iot, sec_camera_total, shomei_design, electrical_work, led_electrical_update
+
+### kankyou_cluster - 🌱 環境・災害対策（Phase 1.7 新規）
+
+**連動カテゴリ**: uri_riyo, idoseichi, solar_battery_work, chikyu_chunetsu, gaikou_work
+
+### premium_cluster - 🌟 高級住宅機器（Phase 1.7 新規）
+
+**連動カテゴリ**: wine_cellar, shisetsu_pool, kitchen_reform, bathroom_reform, electrical_work
+
+### dentou_cluster_extended - 🎍 伝統建築拡張（Phase 1.7 拡張）
+
+**連動カテゴリ（既存+追加）**: sakan_work, zosaku_tategu_master, tatami_reform, tile_renga_work, **shoji_fusuma_work**, **iwa_ishigumi**, **kaki_seko**
+
+### gaikou_cluster - 🌳 外構・造園拡張（Phase 1.7 拡張）
+
+**連動カテゴリ**: gaikou_work, shokusai_zoen, iwa_ishigumi, kaki_seko, monoki_setchi, carpoort_single, wood_deck_work
+
+### reform_service_cluster - 🏠 大規模リフォーム周辺（Phase 1.7 新規）
+
+**連動カテゴリ**: karinosumai, hikkoshi_renkei, ihinseiri_seizen, house_cleaning, skeleton_reform
 ---
 
 ## 📋 全30カテゴリ詳細
@@ -248,6 +283,101 @@
 | 29 | `window_reform` | 窓リフォーム | Wave2 | 窓・ドア | ★★★★★ | 3.0-phas... | 10 | 18 |
 | 30 | `zosaku_tategu_master` | 造作工事＋建具工事＋下地/躯体（大工工事の真の完全教科書 v3） | Wave1 | 大工・造作 | ★★★★★ | 4.0-phas... | 26 | 17 |
 
+---
+
+## 📋 Phase 1.7 追加カテゴリ（31）
+
+> **追加日**: 2026-05-07  
+> **背景**: 建設業29業種ギャップ解消・部材10000点目標への第一歩  
+> **TOshi哲学**: 業者を敵視しない・業者規模別の妥当な利益率を透明化
+
+### Phase 1.7 統計
+
+- **追加カテゴリ数**: 31
+- **追加プラン数**: 178
+- **追加Red Flags数**: 175
+- **追加データ量**: 284.4 KB
+- **業者規模別価格対応**: 31（全カテゴリ）
+- **2026年4月イラン情勢反映**: 31（全カテゴリ）
+
+### Phase 1.7 全31カテゴリ一覧
+
+| # | カテゴリID | カテゴリ名 | 大分類 | 優先度 | プラン数 | Red Flag数 |
+|---|---|---|---|---|---|---|
+| 31 | `shoji_fusuma_work` | 障子・ふすま張替え工事 | 内装仕上げ | ★★★ | 6 | 9 |
+| 32 | `mado_glass_work` | ガラス交換専門工事 | 窓・ドア | ★★★★ | 7 | 8 |
+| 33 | `kanban_sign_work` | 看板・サイン工事 | 非住宅・店舗 | ★★★★ | 6 | 6 |
+| 34 | `bouon_shaon_work` | 防音・遮音工事 | 断熱・省エネ | ★★★★ | 7 | 7 |
+| 35 | `builtin_dishwasher` | ビルトイン食洗機後付け工事 | 水回り | ★★★★ | 7 | 7 |
+| 36 | `ih_gas_conversion` | IH⇔ガスコンロ変更工事 | 水回り | ★★★★ | 5 | 7 |
+| 37 | `manshion_kyoyou_shuzen` | マンション共用部修繕工事 | 🏢マンション専門 | ★★★★★ | 7 | 8 |
+| 38 | `ofuro_kanso_oidaki` | 浴室乾燥機・追い焚き単体工事 | 水回り | ★★★★ | 6 | 6 |
+| 39 | `erebata_shuzen` | エレベーター修繕・更新工事 | 🏢マンション専門 | ★★★★★ | 6 | 7 |
+| 40 | `toko_shuri` | 床鳴り・床補修専門工事 | 内装仕上げ | ★★★★ | 6 | 7 |
+| 41 | `asbestos_removal` | アスベスト除去工事 | 解体・基盤 | ★★★★★ | 5 | 6 |
+| 42 | `tokushuseiso` | 特殊清掃工事 | 🏠リフォーム周辺サービス | ★★★★ | 6 | 6 |
+| 43 | `ihinseiri_seizen` | 遺品整理・生前整理サービス | 🏠リフォーム周辺サービス | ★★★★ | 6 | 6 |
+| 44 | `jutaku_kaitai_partial` | 住宅部分解体工事 | 解体・基盤 | ★★★★ | 6 | 6 |
+| 45 | `gyomu_chubo` | 業務用厨房工事 | 非住宅・店舗 | ★★★★ | 6 | 6 |
+| 46 | `wine_cellar` | ワインセラー設置工事 | 設備工事 | ★★★ | 5 | 5 |
+| 47 | `shisetsu_pool` | プール・スパ施設工事 | 水回り | ★★★ | 5 | 5 |
+| 48 | `shokusai_zoen` | 造園・植栽工事 | 外構・造園 | ★★★★ | 7 | 5 |
+| 49 | `iwa_ishigumi` | 庭石・石組み工事 | 外構・造園 | ★★★ | 6 | 4 |
+| 50 | `kaki_seko` | 池・水景工事 | 外構・造園 | ★★★ | 6 | 4 |
+| 51 | `monoki_setchi` | 物置設置工事 | 外構・造園 | ★★★ | 5 | 5 |
+| 52 | `carpoort_single` | カーポート単独設置工事 | 外構・造園 | ★★★★ | 7 | 6 |
+| 53 | `shomei_design` | 照明デザイン専門工事 | 設備工事 | ★★★ | 5 | 4 |
+| 54 | `smart_home_iot` | スマートホーム・IoT工事 | 🏡IoT・スマートホーム | ★★★ | 5 | 4 |
+| 55 | `sec_camera_total` | 防犯カメラ・SECOM連携工事 | 🏡IoT・スマートホーム | ★★★★ | 6 | 5 |
+| 56 | `zenkanki_jokuki` | 全館空調・除湿システム工事 | 設備工事 | ★★★★ | 5 | 5 |
+| 57 | `chikyu_chunetsu` | 地中熱利用システム工事 | 断熱・省エネ | ★★ | 4 | 4 |
+| 58 | `uri_riyo` | 雨水利用システム工事 | 🌱環境・災害対策 | ★★ | 5 | 4 |
+| 59 | `idoseichi` | 井戸・井戸ポンプ工事 | 🌱環境・災害対策 | ★★ | 5 | 4 |
+| 60 | `karinosumai` | 仮住まい支援サービス | 🏠リフォーム周辺サービス | ★★★ | 5 | 4 |
+| 61 | `hikkoshi_renkei` | 引越し連動リフォームサービス | 🏠リフォーム周辺サービス | ★★★ | 5 | 5 |
+
+### Phase 1.7 新規大分類の説明
+
+#### 🏢 マンション専門
+
+戸建リフォームと法的構造が根本的に異なる領域。管理組合決議・建設業法特定許可・大規模修繕の独占構造を持つ。
+
+- `manshion_kyoyou_shuzen`: 大規模修繕・管理会社系列の独占暴露
+- `erebata_shuzen`: 4大メーカー独占→独立系で40-50%削減可能
+
+#### 🏠 リフォーム周辺サービス
+
+「工事」ではなく「リフォームに付随するサービス」軸。HSが扱う独自領域。
+
+- `tokushuseiso`: 特殊清掃（孤独死・事件現場）
+- `ihinseiri_seizen`: 遺品整理・生前整理
+- `karinosumai`: 仮住まい手配
+- `hikkoshi_renkei`: 引越し+原状回復+新居リフォーム複合
+
+#### 🏡 IoT・スマートホーム
+
+新興技術領域。プラットフォーム選定・サブスク連動という独自軸。
+
+- `smart_home_iot`: Google/Alexa/Apple 統合
+- `sec_camera_total`: SECOM/ALSOK・10年TCO判断
+
+#### 🌱 環境・災害対策
+
+エネルギー軸ではない「水資源・災害備蓄」軸。
+
+- `uri_riyo`: 雨水利用（自治体助成）
+- `idoseichi`: 井戸（災害備蓄）
+
+### Phase 1.7 重要発見
+
+| カテゴリ | 暴露した業界構造 |
+|---|---|
+| `manshion_kyoyou_shuzen` | 管理会社系列の独占（粗利30-50%上乗せ） |
+| `erebata_shuzen` | 4大メーカー独占→独立系で40-50%削減可能 |
+| `asbestos_removal` | 無資格違法施工リスク（健康被害+処罰） |
+| `toko_shuri` | 床下点検商法（無料点検→¥50-200万契約） |
+| `tokushuseiso` | 遺族の弱みにつけこむ即決契約 |
+| `gyomu_chubo` | グリストラップ省略等の違法施工 |
 ## 🔍 カテゴリ別詳細
 
 ### エアコン工事 (`aircon_work`)
