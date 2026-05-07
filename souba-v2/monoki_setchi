@@ -1,0 +1,146 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "monoki_setchi",
+    "category_name_jp": "物置設置工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐ DIY可能領域だが基礎・転倒防止で業者推奨・台風対策必須",
+    "knowledge_source": "TOshi 30年の建設実務経験 + イナバ/ヨドコウ/タクボ 2026年データ",
+    "scope": "屋外物置の設置工事（基礎+組立+アンカー）。イナバ・ヨド・タクボ等メーカー品",
+    "horizons_philosophy": "物置はDIY可能だが台風対策（アンカー）が肝。HSは本体+基礎+設置を分離して可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "本体 × 1.2 + 基礎工事 + 組立人工 + アンカー工事 + 諸経費（20-30%）+ 消費税 10%",
+    "parameters": { "trade_price_ratio_from_list": 0.55 }
+  },
+  "products": {
+    "small_inaba": {
+      "popular_models": [
+        { "name": "イナバ シンプリー MJX-095A（小型・90×60cm）", "list_price": 50000, "trade_price_estimate": 27500 }
+      ]
+    },
+    "medium_inaba_yodo": {
+      "popular_models": [
+        { "name": "イナバ ナイソー SMK-37H（中型・170×220cm）", "list_price": 180000, "trade_price_estimate": 100000 },
+        { "name": "ヨド エルモ LMD-2218（中型）", "list_price": 200000, "trade_price_estimate": 110000 }
+      ]
+    },
+    "large_inaba_yodo_takubo": {
+      "popular_models": [
+        { "name": "イナバ シンプリー MJX-219D（大型・220×190cm）", "list_price": 280000, "trade_price_estimate": 155000 },
+        { "name": "ヨド ヨド蔵DXタイプ（大型・収納庫）", "list_price": 350000, "trade_price_estimate": 195000 },
+        { "name": "タクボ Mr.ストックマン NE-Z2229（大型）", "list_price": 320000, "trade_price_estimate": 175000 }
+      ]
+    }
+  },
+  "labor": {
+    "carpenter_day_rate": { "min": 22000, "max": 28000 }
+  },
+  "additional_costs": {
+    "concrete_foundation": { "name": "コンクリート基礎", "price_per_unit_jpy": { "min": 30000, "max": 100000 } },
+    "block_foundation": { "name": "ブロック基礎（簡易）", "price_jpy": { "min": 15000, "max": 50000 } },
+    "anchor_typhoon": { "name": "台風対策アンカー", "price_jpy": { "min": 20000, "max": 60000 } },
+    "ground_leveling": { "name": "地ならし・整地", "price_jpy": { "min": 20000, "max": 80000 } },
+    "transport_assembly": { "name": "搬入・組立・廃材処理", "price_jpy": { "min": 30000, "max": 100000 } }
+  },
+  "plans": {
+    "small_inaba_diy_assist": {
+      "name": "小型物置（イナバ シンプリー級・ブロック基礎）",
+      "scope": "本体+ブロック基礎+組立",
+      "estimated_total_jpy": { "min": 80000, "max": 180000 },
+      "hs_rule_estimate_jpy": 130000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 88000, "max": 170000, "note": "HS第一推奨" },
+        "区分2_中小工務店": { "min": 95000, "max": 180000 },
+        "区分3_専門業者": { "min": 110000, "max": 210000 }
+      }
+    },
+    "medium_standard_install": {
+      "name": "中型物置（イナバナイソー級・コンクリート基礎）",
+      "scope": "本体+コン基礎+組立+アンカー",
+      "estimated_total_jpy": { "min": 200000, "max": 400000 },
+      "hs_rule_estimate_jpy": 290000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 220000, "max": 380000, "note": "HS第一推奨" },
+        "区分2_中小工務店": { "min": 235000, "max": 400000 },
+        "区分3_専門業者": { "min": 270000, "max": 460000 }
+      }
+    },
+    "large_takubo_yodozo": {
+      "name": "大型物置（タクボ・ヨド蔵級）",
+      "scope": "本体+コン基礎+組立+アンカー+整地",
+      "estimated_total_jpy": { "min": 350000, "max": 700000 },
+      "hs_rule_estimate_jpy": 500000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 385000, "max": 660000 },
+        "区分2_中小工務店": { "min": 410000, "max": 700000, "note": "HS第一推奨" },
+        "区分3_専門業者": { "min": 470000, "max": 805000 }
+      }
+    },
+    "premium_storage_house": {
+      "name": "収納庫（住宅型・1坪以上）",
+      "scope": "断熱・電気配線対応・基礎しっかり",
+      "estimated_total_jpy": { "min": 700000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 1000000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小工務店": { "min": 770000, "max": 1380000 },
+        "区分3_専門業者": { "min": 880000, "max": 1600000, "note": "HS第一推奨" }
+      }
+    },
+    "removal_only": {
+      "name": "既存物置の撤去のみ",
+      "scope": "撤去+処分+整地",
+      "estimated_total_jpy": { "min": 30000, "max": 150000 },
+      "hs_rule_estimate_jpy": 80000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 33000, "max": 140000, "note": "HS第一推奨" },
+        "区分2_中小工務店": { "min": 35000, "max": 150000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "ANCHOR_NOT_INSTALLED", "pattern": "台風対策アンカーなし", "severity": "🔴 CRITICAL",
+      "reason": "強風で物置飛散事故" },
+    { "code": "FOUNDATION_INADEQUATE", "pattern": "中・大型物置でブロック基礎のみ", "severity": "🚨 HIGH",
+      "reason": "沈下・傾き発生。コン基礎推奨" },
+    { "code": "MODEL_NOT_SPECIFIED", "pattern": "メーカー・型番不明", "severity": "🚨 HIGH",
+      "reason": "イナバ・ヨド・タクボでサイズ・耐久性差大" },
+    { "code": "BODY_LIST_PRICE_NEAR", "pattern": "本体定価OFFなし", "severity": "🚨 HIGH",
+      "reason": "業者仕入れ55%が業界標準" },
+    { "code": "GROUND_LEVELING_HIDDEN", "pattern": "整地費の事後請求", "severity": "⚠️ MEDIUM" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "簡易収納（庭ホース等）", "recommendation": "小型物置", "cost_range": { "min": 80000, "max": 180000 } },
+    { "case": "標準物置（自転車・タイヤ）", "recommendation": "中型物置", "cost_range": { "min": 200000, "max": 400000 } },
+    { "case": "大容量（バイク等）", "recommendation": "大型物置", "cost_range": { "min": 350000, "max": 700000 } },
+    { "case": "本格収納（書斎用途）", "recommendation": "収納庫住宅型", "cost_range": { "min": 700000, "max": 1500000 } },
+    { "case": "既存撤去のみ", "recommendation": "撤去工事", "cost_range": { "min": 30000, "max": 150000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "推奨度": "★★★★★ 第一推奨", "特徴": "コスパ最良" },
+    "区分2_中小工務店": { "推奨度": "★★★★☆", "特徴": "標準対応" },
+    "区分3_専門業者": { "推奨度": "★★★★☆", "特徴": "大型・収納庫対応" }
+  },
+  "iran_situation_2026_04_impact": {
+    "建材_+10_20pct": ["亜鉛鉄板（物置本体）+15-20%", "コンクリート+10%"],
+    "_impact_summary": "本体は鋼材高騰で+15-20%。基礎は+10%"
+  },
+  "negotiation_tips": [
+    "メーカー・型番・サイズの明記",
+    "本体は定価45-55%が業者仕入れ",
+    "中型以上はコンクリート基礎推奨",
+    "台風対策アンカー必須",
+    "整地費の事前確定",
+    "メーカー保証（通常2-3年）の確認"
+  ],
+  "trade_knowledge": {
+    "summary": "物置設置はDIY可能だが基礎・アンカーが肝。小型¥8-18万、中型¥20-40万、大型¥35-70万、収納庫¥70-150万",
+    "industry_scam_structure": "①アンカー省略②本体定価ベース請求③整地費の事後請求",
+    "knowledge_source": "TOshi経験 + イナバ/ヨド/タクボ業界データ"
+  },
+  "connected_clusters": {
+    "gaikou_cluster": { "categories": ["gaikou_work", "carpoort_single", "wood_deck_work"], "synergy": "外構工事同時施工" }
+  }
+}
