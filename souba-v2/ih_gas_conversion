@@ -1,0 +1,183 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "ih_gas_conversion",
+    "category_name_jp": "IH⇔ガスコンロ変更工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐ オール電化/プロパン解約需要・電気工事+ガス工事の複合領域",
+    "knowledge_source": "TOshi 30年の建設実務経験 + Panasonic/日立/三菱/リンナイ/ノーリツ 2026年データ",
+    "scope": "IH→ガス変更、ガス→IH変更、ビルトインコンロのみ交換。専用回路新設・ガス配管延長含む",
+    "horizons_philosophy": "IH/ガス変更は『200V専用回路新設』『ガス配管』が肝。電気工事士・ガス工事士両方の有資格者が必要",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "本体仕入れ値 × 1.2 + 電気工事 + ガス工事 + 設備工人工 + (原価 × 15%) + 消費税 10%",
+    "parameters": {
+      "trade_price_ratio_from_list": 0.5,
+      "note": "コンロ本体は定価50%が業者仕入れ標準"
+    },
+    "HS_pricing_philosophy": {
+      "業者規模別_妥当な利益率": {
+        "個人事業_設備工": "粗利率 25-35%",
+        "中小工務店": "粗利率 25-35%",
+        "人気工務店": "粗利率 30-40%",
+        "大手リフォーム": "粗利率 35-45%"
+      }
+    }
+  },
+  "products": {
+    "IH_panasonic": {
+      "popular_models": [
+        { "name": "KZ-AN57S（3口・75cm）", "list_price": 250000, "trade_price_estimate": 125000 },
+        { "name": "KZ-G33XS（3口・60cm 標準）", "list_price": 180000, "trade_price_estimate": 90000 }
+      ]
+    },
+    "IH_hitachi_mitsubishi": {
+      "popular_models": [
+        { "name": "日立 HT-N9000HTF（3口）", "list_price": 280000, "trade_price_estimate": 140000 },
+        { "name": "三菱 CS-G321MS（3口）", "list_price": 200000, "trade_price_estimate": 100000 }
+      ]
+    },
+    "gas_rinnai": {
+      "popular_models": [
+        { "name": "リンナイ デリシア（3口）", "list_price": 250000, "trade_price_estimate": 125000 },
+        { "name": "リンナイ ビルトインコンロ標準", "list_price": 150000, "trade_price_estimate": 75000 }
+      ]
+    },
+    "gas_noritz": {
+      "popular_models": [
+        { "name": "ノーリツ プログレ（3口・上位）", "list_price": 280000, "trade_price_estimate": 140000 }
+      ]
+    }
+  },
+  "labor": {
+    "setsubi_day_rate": { "min": 22000, "max": 28000 },
+    "electrician_day_rate": { "min": 25000, "max": 32000 },
+    "gas_worker_day_rate": { "min": 28000, "max": 35000, "note": "ガス可とう管接続工事監督者資格者" },
+    "standard_work_time_hours": { "ih_to_ih": 2, "gas_to_gas": 2, "ih_to_gas_full": 6, "gas_to_ih_full": 8 }
+  },
+  "additional_costs": {
+    "dedicated_200v_circuit": { "name": "200V専用回路新設（IH用）", "price_jpy": { "min": 30000, "max": 80000 }, "note": "IH化で必須" },
+    "gas_pipe_extension": { "name": "ガス配管延長", "price_jpy": { "min": 30000, "max": 100000 } },
+    "gas_pipe_seal": { "name": "ガス配管止水・撤去", "price_jpy": { "min": 15000, "max": 40000 } },
+    "cabinet_modification": { "name": "キャビネット改造", "price_jpy": { "min": 20000, "max": 60000 } }
+  },
+  "plans": {
+    "ih_to_ih_simple_replace": {
+      "name": "IH→IH 同等品交換",
+      "scope": "既存IHを新型に交換。配線そのまま",
+      "estimated_total_jpy": { "min": 130000, "max": 220000 },
+      "hs_rule_estimate_jpy": 175000,
+      "work_days": 0.3,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 145000, "max": 210000 },
+        "区分2_中小工務店": { "min": 155000, "max": 220000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 180000, "max": 250000 },
+        "区分4_大手_ハウスメーカー": { "min": 215000, "max": 300000 }
+      }
+    },
+    "gas_to_gas_simple_replace": {
+      "name": "ガス→ガス 同等品交換",
+      "scope": "既存ガスコンロを新型に交換",
+      "estimated_total_jpy": { "min": 100000, "max": 200000 },
+      "hs_rule_estimate_jpy": 150000,
+      "work_days": 0.3,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 110000, "max": 190000 },
+        "区分2_中小工務店": { "min": 120000, "max": 200000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 135000, "max": 230000 },
+        "区分4_大手_ハウスメーカー": { "min": 165000, "max": 275000 }
+      }
+    },
+    "gas_to_ih_full_conversion": {
+      "name": "ガス→IH変更（フル工事）",
+      "scope": "ガス配管止水+200V専用回路新設+IH本体",
+      "estimated_total_jpy": { "min": 220000, "max": 400000 },
+      "hs_rule_estimate_jpy": 310000,
+      "work_days": 1.0,
+      "note": "オール電化への第一歩",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 240000, "max": 380000 },
+        "区分2_中小工務店": { "min": 260000, "max": 400000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 295000, "max": 460000 },
+        "区分4_大手_ハウスメーカー": { "min": 360000, "max": 555000 }
+      }
+    },
+    "ih_to_gas_full_conversion": {
+      "name": "IH→ガス変更（フル工事）",
+      "scope": "200V回路撤去+ガス配管延長+ガスコンロ本体",
+      "estimated_total_jpy": { "min": 250000, "max": 480000 },
+      "hs_rule_estimate_jpy": 360000,
+      "work_days": 1.5,
+      "note": "オール電化からプロパン/都市ガスへ",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 275000, "max": 455000 },
+        "区分2_中小工務店": { "min": 290000, "max": 480000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 335000, "max": 555000 },
+        "区分4_大手_ハウスメーカー": { "min": 410000, "max": 670000 }
+      }
+    },
+    "ih_premium_with_grill": {
+      "name": "上位IH（オーブン機能付）",
+      "scope": "Panasonic KZ-AN57S等。フル工事込み",
+      "estimated_total_jpy": { "min": 320000, "max": 550000 },
+      "hs_rule_estimate_jpy": 430000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小工務店": { "min": 380000, "max": 550000 },
+        "区分3_人気工務店": { "min": 435000, "max": 635000, "note": "Panasonic認定推奨" },
+        "区分4_大手_ハウスメーカー": { "min": 525000, "max": 760000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "MODEL_NOT_SPECIFIED", "pattern": "メーカー・型番不明", "severity": "🔴 CRITICAL",
+      "reason": "標準IH(¥18万)と上位(¥25万)で大差。型番明記必須" },
+    { "code": "DEDICATED_CIRCUIT_HIDDEN", "pattern": "200V専用回路費用を事後請求", "severity": "🔴 CRITICAL",
+      "reason": "ガス→IH変更で必須工事。事前見積もり要" },
+    { "code": "GAS_QUALIFICATION_NONE", "pattern": "ガス工事士資格を持たない業者がガス工事", "severity": "🔴 CRITICAL",
+      "reason": "ガス工事は法令で資格者必須。違法施工はガス漏れリスク" },
+    { "code": "BREAKER_UPGRADE_FAKE", "pattern": "不要なのに分電盤交換を強要", "severity": "🚨 HIGH",
+      "reason": "200V回路1つ追加なら既存盤で対応可能なケース多い" },
+    { "code": "GAS_PIPE_LUMP_SUM", "pattern": "ガス配管工事費が「一式」", "severity": "🚨 HIGH" },
+    { "code": "PROPANE_GAS_FORCED", "pattern": "都市ガス可なのにプロパンガス工事を提案", "severity": "🚨 HIGH",
+      "reason": "プロパンは都市ガスより割高。ガス事業者の確認要" },
+    { "code": "BODY_LIST_PRICE_NEAR", "pattern": "本体価格が定価OFFなし", "severity": "🚨 HIGH",
+      "reason": "コンロは定価50%OFFが業者仕入れ標準" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "既存IHが壊れた", "recommendation": "IH→IH 同等品交換", "cost_range": { "min": 130000, "max": 220000 } },
+    { "case": "既存ガスコンロが壊れた", "recommendation": "ガス→ガス 同等品交換", "cost_range": { "min": 100000, "max": 200000 } },
+    { "case": "オール電化にしたい", "recommendation": "ガス→IH フル変更", "cost_range": { "min": 220000, "max": 400000 } },
+    { "case": "プロパン解約・ガス回帰", "recommendation": "IH→ガス フル変更", "cost_range": { "min": 250000, "max": 480000 } },
+    { "case": "高機能IH希望", "recommendation": "上位IH（オーブン付）", "cost_range": { "min": 320000, "max": 550000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "代表": "設備個人事業", "粗利率": "25-35%", "推奨度": "★★★★☆", "特徴": "同等品交換に強い" },
+    "区分2_中小工務店": { "代表": "水回り・電気複合店", "粗利率": "25-35%", "推奨度": "★★★★★ 第一推奨" },
+    "区分3_人気工務店": { "代表": "メーカー認定店", "粗利率": "30-40%", "推奨度": "★★★★☆" },
+    "区分4_大手_ハウスメーカー": { "代表": "全国チェーン", "粗利率": "35-45%", "推奨度": "★★★☆☆" }
+  },
+  "iran_situation_2026_04_impact": {
+    "副資材_+5_10pct": ["シーリング", "ビス類"],
+    "建材_+10_20pct": ["銅管（ガス管）", "電線（200V）", "電子部品"],
+    "_impact_summary": "ガス管・電線+10-15%。本体は半導体影響で+5-8%"
+  },
+  "negotiation_tips": [
+    "メーカー・型番の明記（Panasonic KZ-AN57S 等）",
+    "本体は定価50%OFFが業者仕入れ標準",
+    "200V専用回路新設要否を事前確認",
+    "ガス工事は有資格者施工を契約書に明記",
+    "分電盤交換要否は2社以上で確認",
+    "都市ガス vs プロパンの料金比較",
+    "工事保証（最低1年）を契約条件に"
+  ],
+  "trade_knowledge": {
+    "summary": "IH⇔ガス変更は電気工事士+ガス工事士の複合領域。同等品交換¥13-22万、フル変更¥22-48万。200V専用回路と ガス工事資格が肝",
+    "industry_scam_structure": "「分電盤交換必須」「プロパン強制」等で本来不要な工事を抱き合わせる手口あり",
+    "knowledge_source": "TOshi経験 + Panasonic/リンナイ業界データ"
+  },
+  "connected_clusters": {
+    "mizumawari_cluster": { "categories": ["kitchen_reform", "electrical_work"], "synergy": "キッチンリフォーム時に変更" }
+  }
+}
