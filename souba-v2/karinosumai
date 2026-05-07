@@ -1,0 +1,117 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "karinosumai",
+    "category_name_jp": "仮住まい支援サービス",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐ 大規模リフォーム必須・マンスリー連携・引越し2回分のコスト",
+    "knowledge_source": "TOshi 30年の建設実務経験 + マンスリーマンション業界2026年データ",
+    "scope": "リフォーム期間中の仮住まい手配（マンスリー/UR/民泊）、家財一時保管、引越し連携",
+    "horizons_philosophy": "仮住まいはリフォーム費用の隠れコスト。HSはリフォーム期間別の総額を可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "賃料 × 月数 + 初期費 + 引越し2回分 + 家財保管 + 諸経費（10-20%）+ 消費税 10%",
+    "parameters": { "general_overhead_pct_normal": 15 }
+  },
+  "labor": {
+    "moving_worker_day_rate": { "min": 18000, "max": 25000 }
+  },
+  "additional_costs": {
+    "monthly_rent_studio": { "name": "マンスリーマンション 1R/1K", "price_per_month_jpy": { "min": 80000, "max": 200000 } },
+    "monthly_rent_family": { "name": "マンスリー ファミリー 2LDK以上", "price_per_month_jpy": { "min": 200000, "max": 500000 } },
+    "moving_2person": { "name": "引越し（2人世帯・近距離）", "price_per_round_jpy": { "min": 50000, "max": 150000 } },
+    "moving_4person": { "name": "引越し（4人世帯・近距離）", "price_per_round_jpy": { "min": 100000, "max": 300000 } },
+    "kazai_storage": { "name": "家財保管（コンテナ）", "price_per_month_jpy": { "min": 20000, "max": 80000 } }
+  },
+  "plans": {
+    "single_1month_simple": {
+      "name": "単身者・1ヶ月（小規模リフォーム）",
+      "scope": "マンスリー1R+引越し2回",
+      "estimated_total_jpy": { "min": 250000, "max": 500000 },
+      "hs_rule_estimate_jpy": 350000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 275000, "max": 470000, "note": "HS第一推奨" },
+        "区分2_中小": { "min": 295000, "max": 500000 }
+      }
+    },
+    "couple_2months_standard": {
+      "name": "夫婦・2ヶ月（中規模リフォーム）",
+      "scope": "マンスリー1LDK+引越し2回+家財保管",
+      "estimated_total_jpy": { "min": 500000, "max": 1100000 },
+      "hs_rule_estimate_jpy": 750000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 550000, "max": 1030000 },
+        "区分2_中小": { "min": 590000, "max": 1100000, "note": "HS第一推奨" }
+      }
+    },
+    "family_3months_full": {
+      "name": "ファミリー・3ヶ月（大規模リフォーム）",
+      "scope": "マンスリー2LDK+引越し2回+家財保管",
+      "estimated_total_jpy": { "min": 1000000, "max": 2500000 },
+      "hs_rule_estimate_jpy": 1600000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 1180000, "max": 2300000, "note": "HS第一推奨" },
+        "区分3_専門": { "min": 1360000, "max": 2650000 }
+      }
+    },
+    "family_6months_long": {
+      "name": "ファミリー・6ヶ月（建替え/フルリノベ）",
+      "scope": "マンスリー or 賃貸2LDK+家財保管",
+      "estimated_total_jpy": { "min": 2000000, "max": 5000000 },
+      "hs_rule_estimate_jpy": 3000000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 2200000, "max": 4600000 },
+        "区分3_専門": { "min": 2550000, "max": 5300000, "note": "HS第一推奨" }
+      }
+    },
+    "kazai_storage_only": {
+      "name": "家財保管のみ（実家・他物件あり）",
+      "scope": "コンテナ2-3ヶ月保管",
+      "estimated_total_jpy": { "min": 100000, "max": 400000 },
+      "hs_rule_estimate_jpy": 200000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 110000, "max": 380000, "note": "HS第一推奨" },
+        "区分2_中小": { "min": 120000, "max": 400000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "PERIOD_INFLATED", "pattern": "リフォーム工期を過大に設定し仮住まい長期化", "severity": "🚨 HIGH",
+      "reason": "工期遅延前提で見積もる業者あり" },
+    { "code": "MOVING_DOUBLE_COUNT", "pattern": "引越し費用の重複計上", "severity": "🚨 HIGH" },
+    { "code": "INSURANCE_NONE", "pattern": "家財保管中の保険なし", "severity": "🚨 HIGH" },
+    { "code": "KEY_MONEY_HIDDEN", "pattern": "礼金・敷金・契約手数料の事後請求", "severity": "🚨 HIGH" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "単身・1ヶ月リフォーム", "recommendation": "1R+引越し", "cost_range": { "min": 250000, "max": 500000 } },
+    { "case": "夫婦・2ヶ月", "recommendation": "1LDK+引越し+保管", "cost_range": { "min": 500000, "max": 1100000 } },
+    { "case": "ファミリー・3ヶ月", "recommendation": "2LDK+引越し+保管", "cost_range": { "min": 1000000, "max": 2500000 } },
+    { "case": "建替え・6ヶ月", "recommendation": "賃貸+家財保管", "cost_range": { "min": 2000000, "max": 5000000 } },
+    { "case": "実家泊・家財のみ", "recommendation": "家財保管", "cost_range": { "min": 100000, "max": 400000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "推奨度": "★★★★★", "特徴": "コスパ最良" },
+    "区分2_中小": { "推奨度": "★★★★★ 第一推奨", "特徴": "標準対応" },
+    "区分3_専門": { "推奨度": "★★★★☆", "特徴": "大規模・長期対応" }
+  },
+  "iran_situation_2026_04_impact": {
+    "賃料_+5_10pct": ["都心マンスリー賃料上昇"],
+    "引越し費_+10_15pct": ["燃料費・人件費"],
+    "_impact_summary": "全プラン+5-15%"
+  },
+  "negotiation_tips": [
+    "リフォーム工期の現実的な見積もり",
+    "礼金・敷金等の初期費用を全て明記",
+    "家財保管中の保険加入確認",
+    "引越し業者は別途相見積もり推奨"
+  ],
+  "trade_knowledge": {
+    "summary": "仮住まいはリフォーム費の隠れコスト。単身1ヶ月¥25-50万、夫婦2ヶ月¥50-110万、ファミリー3ヶ月¥100-250万、建替え6ヶ月¥200-500万",
+    "knowledge_source": "TOshi経験 + マンスリー業界データ"
+  },
+  "connected_clusters": {
+    "reform_cluster": { "categories": ["skeleton_reform", "demolition_master", "hikkoshi_renkei"], "synergy": "大規模リフォーム時に必須" }
+  }
+}
