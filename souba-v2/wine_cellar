@@ -1,0 +1,134 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "wine_cellar",
+    "category_name_jp": "ワインセラー設置工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐ 富裕層市場・温度湿度管理が肝・断熱と空調が要",
+    "knowledge_source": "TOshi 30年の建設実務経験 + フォルスタージャパン/Eurocave 2026年データ",
+    "scope": "ビルトイン・据置型ワインセラー設置、専用セラールーム造作、温度湿度管理空調",
+    "horizons_philosophy": "ワインセラーは『断熱+専用空調+ドア気密性』が三大要素。HSは収納本数・性能別の標準価格を可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "本体仕入れ値 × 1.2 + 設備工 + 大工（セラールーム） + 諸経費（20-30%）+ 消費税 10%",
+    "parameters": { "trade_price_ratio_from_list": 0.55 }
+  },
+  "products": {
+    "compact_30bottle": { "name": "30本収納コンパクト型", "list_price_jpy": { "min": 100000, "max": 250000 } },
+    "standard_100bottle": { "name": "100-150本収納標準型", "list_price_jpy": { "min": 250000, "max": 500000 } },
+    "premium_300bottle": { "name": "300本収納上位型", "list_price_jpy": { "min": 500000, "max": 1200000 } },
+    "eurocave_premium": { "name": "Eurocave等の高級輸入型", "list_price_jpy": { "min": 800000, "max": 2500000 } }
+  },
+  "labor": {
+    "setsubi_day_rate": { "min": 25000, "max": 32000 },
+    "carpenter_day_rate": { "min": 28000, "max": 35000 }
+  },
+  "additional_costs": {
+    "dedicated_outlet": { "name": "専用コンセント新設", "price_jpy": { "min": 25000, "max": 60000 } },
+    "ventilation_room": { "name": "セラールーム換気・空調", "price_jpy": { "min": 200000, "max": 600000 } },
+    "insulation_room": { "name": "セラールーム断熱工事", "price_per_sqm_jpy": { "min": 8000, "max": 20000 } },
+    "humidity_control": { "name": "加湿・除湿装置", "price_jpy": { "min": 80000, "max": 250000 } }
+  },
+  "plans": {
+    "compact_30bottle_install": {
+      "name": "30本収納コンパクト・据置設置",
+      "scope": "本体+設置+専用コンセント",
+      "estimated_total_jpy": { "min": 130000, "max": 320000 },
+      "hs_rule_estimate_jpy": 220000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 145000, "max": 305000 },
+        "区分2_中小業者": { "min": 155000, "max": 320000, "note": "HS第一推奨" },
+        "区分3_専門業者": { "min": 180000, "max": 370000 },
+        "区分4_大手": { "min": 215000, "max": 445000 }
+      }
+    },
+    "standard_builtin_kitchen": {
+      "name": "100本収納・キッチンビルトイン",
+      "scope": "キャビネット改造+本体+専用コンセント",
+      "estimated_total_jpy": { "min": 320000, "max": 700000 },
+      "hs_rule_estimate_jpy": 480000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小業者": { "min": 350000, "max": 660000, "note": "HS第一推奨" },
+        "区分3_専門業者": { "min": 405000, "max": 760000 },
+        "区分4_大手": { "min": 480000, "max": 920000 }
+      }
+    },
+    "premium_300bottle_freestand": {
+      "name": "300本収納・据置（上位機）",
+      "scope": "高級ワインセラー本体+設置+空調連携",
+      "estimated_total_jpy": { "min": 600000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 950000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小業者": { "min": 660000, "max": 1380000 },
+        "区分3_専門業者": { "min": 760000, "max": 1600000, "note": "Eurocave推奨" },
+        "区分4_大手": { "min": 920000, "max": 1900000 }
+      }
+    },
+    "cellar_room_compact": {
+      "name": "ワインセラールーム造作（500本収納・3畳）",
+      "scope": "断熱+専用空調+加湿+気密ドア+ラック",
+      "estimated_total_jpy": { "min": 1500000, "max": 3500000 },
+      "hs_rule_estimate_jpy": 2400000,
+      "work_days": 14,
+      "料金_業者規模別_税込_円": {
+        "区分3_専門業者": { "min": 1900000, "max": 3700000, "note": "セラー専門推奨" },
+        "区分4_大手": { "min": 2300000, "max": 4500000 }
+      }
+    },
+    "cellar_room_premium": {
+      "name": "本格ワインセラールーム（1500本・8畳）",
+      "scope": "高断熱+業務用空調+加湿除湿+棚",
+      "estimated_total_jpy": { "min": 4000000, "max": 9000000 },
+      "hs_rule_estimate_jpy": 6500000,
+      "料金_業者規模別_税込_円": {
+        "区分3_専門業者": { "min": 5200000, "max": 9500000, "note": "セラー専門" },
+        "区分4_大手": { "min": 6300000, "max": 11500000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "MODEL_NOT_SPECIFIED", "pattern": "メーカー・型番・収納本数不明", "severity": "🚨 HIGH" },
+    { "code": "TEMPERATURE_CONTROL_FAKE", "pattern": "コンプレッサー式と称しペルチェ式", "severity": "🚨 HIGH",
+      "reason": "ペルチェは温度精度低い。長期保管不適" },
+    { "code": "INSULATION_INSUFFICIENT", "pattern": "セラールームで断熱仕様明記なし", "severity": "🔴 CRITICAL",
+      "reason": "断熱不足は電気代倍増・温度不安定" },
+    { "code": "VENTILATION_MISSING", "pattern": "セラールームで換気計画なし", "severity": "🔴 CRITICAL",
+      "reason": "コンプレッサー排熱対策なしで温度上昇" },
+    { "code": "BODY_LIST_PRICE_NEAR", "pattern": "本体定価OFFなし", "severity": "🚨 HIGH" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "30本程度・趣味", "recommendation": "コンパクト据置", "cost_range": { "min": 130000, "max": 320000 } },
+    { "case": "100本・キッチン組込", "recommendation": "キッチンビルトイン", "cost_range": { "min": 320000, "max": 700000 } },
+    { "case": "300本・コレクター", "recommendation": "上位据置型", "cost_range": { "min": 600000, "max": 1500000 } },
+    { "case": "500本・専用ルーム", "recommendation": "セラールームコンパクト", "cost_range": { "min": 1500000, "max": 3500000 } },
+    { "case": "1500本・本格コレクション", "recommendation": "セラールーム上位", "cost_range": { "min": 4000000, "max": 9000000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "推奨度": "★★★☆☆", "特徴": "据置設置のみ" },
+    "区分2_中小業者": { "推奨度": "★★★★☆", "特徴": "ビルトイン対応" },
+    "区分3_専門業者": { "推奨度": "★★★★★ 第一推奨", "特徴": "セラールーム専門" },
+    "区分4_大手": { "推奨度": "★★★☆☆", "特徴": "割高" }
+  },
+  "iran_situation_2026_04_impact": {
+    "副資材_+5_10pct": ["コーキング"],
+    "建材_+10_20pct": ["コンプレッサー部品", "断熱材", "輸入機（為替+物流）"],
+    "_impact_summary": "輸入機（Eurocave等）は為替・物流で+10-15%"
+  },
+  "negotiation_tips": [
+    "メーカー・型番・収納本数の明記",
+    "コンプレッサー式 vs ペルチェ式の選択",
+    "セラールームは断熱仕様・換気計画・気密性の3点確認",
+    "本体は定価45-55%が業者仕入れ標準",
+    "メーカー保証期間（1-3年）の確認"
+  ],
+  "trade_knowledge": {
+    "summary": "ワインセラーは収納本数で大幅に価格変動。30本¥13-32万、100本¥32-70万、300本¥60-150万、500本セラールーム¥150-350万、1500本¥400-900万",
+    "industry_scam_structure": "①ペルチェ式偽装②断熱・換気手抜き③輸入機の不当な仕入れ値表示",
+    "knowledge_source": "TOshi経験 + フォルスタージャパン/Eurocave業界データ"
+  },
+  "connected_clusters": {
+    "premium_cluster": { "categories": ["kitchen_reform", "shisetsu_pool", "electrical_work"], "synergy": "高級住宅同時施工" }
+  }
+}
