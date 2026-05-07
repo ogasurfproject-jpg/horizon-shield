@@ -1,0 +1,118 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "shomei_design",
+    "category_name_jp": "照明デザイン専門工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐ デザイン領域・電気工事連動・LED/調光連動・富裕層市場",
+    "knowledge_source": "TOshi 30年の建設実務経験 + Panasonic/コイズミ/ヤマギワ 2026年データ",
+    "scope": "照明計画・コーブ照明・建築化照明・調光調色・スマート照明・ペンダント/シャンデリア",
+    "horizons_philosophy": "照明デザインは『デザイン料』が曖昧化されやすい。HSは器具+施工+デザインを分離して可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "器具仕入れ値 × 1.2 + 電気工 + デザイン料 + 諸経費（25-35%）+ 消費税 10%",
+    "parameters": { "trade_price_ratio_from_list": 0.55 }
+  },
+  "labor": {
+    "electrician_day_rate": { "min": 25000, "max": 32000 }
+  },
+  "additional_costs": {
+    "design_fee": { "name": "デザイン料", "price_jpy": { "min": 50000, "max": 500000 } },
+    "tenjyo_kaiko": { "name": "天井開口・補修", "price_per_unit_jpy": { "min": 5000, "max": 20000 } },
+    "haisen_extension": { "name": "配線延長・スイッチ追加", "price_jpy": { "min": 30000, "max": 150000 } }
+  },
+  "plans": {
+    "downlight_array_living": {
+      "name": "ダウンライト配列（リビング）",
+      "scope": "10畳・LED 6-8灯・調光対応",
+      "estimated_total_jpy": { "min": 150000, "max": 400000 },
+      "hs_rule_estimate_jpy": 270000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 165000, "max": 380000, "note": "HS第一推奨" },
+        "区分3_照明専門": { "min": 195000, "max": 440000 },
+        "区分4_大手": { "min": 235000, "max": 530000 }
+      }
+    },
+    "cove_lighting_design": {
+      "name": "コーブ照明（建築化照明）",
+      "scope": "リビング天井のコーブ造作+間接照明",
+      "estimated_total_jpy": { "min": 400000, "max": 1200000 },
+      "hs_rule_estimate_jpy": 750000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 440000, "max": 1100000 },
+        "区分3_照明専門": { "min": 525000, "max": 1300000, "note": "HS第一推奨" },
+        "区分4_大手": { "min": 630000, "max": 1550000 }
+      }
+    },
+    "chandelier_install": {
+      "name": "シャンデリア設置（高級）",
+      "scope": "ヤマギワ等の輸入シャンデリア+補強",
+      "estimated_total_jpy": { "min": 300000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 700000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 330000, "max": 1380000 },
+        "区分3_照明専門": { "min": 385000, "max": 1600000, "note": "HS第一推奨" },
+        "区分4_大手": { "min": 460000, "max": 1900000 }
+      }
+    },
+    "smart_lighting_full": {
+      "name": "スマート照明全室（調光調色+音声）",
+      "scope": "戸建20畳分・調光調色+スマホ/音声制御",
+      "estimated_total_jpy": { "min": 500000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 950000,
+      "料金_業者規模別_税込_円": {
+        "区分3_照明専門": { "min": 665000, "max": 1600000, "note": "HS第一推奨" },
+        "区分4_大手": { "min": 790000, "max": 1900000 }
+      }
+    },
+    "premium_design_full_house": {
+      "name": "戸建全室の照明デザイン（建築設計連動）",
+      "scope": "新築・大規模リフォーム時の全室統一",
+      "estimated_total_jpy": { "min": 1500000, "max": 5000000 },
+      "hs_rule_estimate_jpy": 2800000,
+      "料金_業者規模別_税込_円": {
+        "区分3_照明専門": { "min": 2000000, "max": 5000000, "note": "デザイン会社推奨" },
+        "区分4_大手": { "min": 2400000, "max": 6000000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "DESIGN_FEE_LUMP", "pattern": "デザイン料が一式で内訳不明", "severity": "🚨 HIGH",
+      "reason": "適正は工事費の10-20%" },
+    { "code": "MODEL_NOT_SPECIFIED", "pattern": "器具メーカー・型番不明", "severity": "🚨 HIGH" },
+    { "code": "DIMMING_FAKE", "pattern": "調光対応と称し位相制御のみ", "severity": "🚨 HIGH",
+      "reason": "PWM調光・DALI調光等の方式明記要" },
+    { "code": "CIRCUIT_OVERLOAD", "pattern": "既存回路容量無視で大量増設", "severity": "🚨 HIGH" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "リビング照明刷新", "recommendation": "ダウンライト配列", "cost_range": { "min": 150000, "max": 400000 } },
+    { "case": "高級感演出", "recommendation": "コーブ照明", "cost_range": { "min": 400000, "max": 1200000 } },
+    { "case": "シャンデリア", "recommendation": "シャンデリア設置", "cost_range": { "min": 300000, "max": 1500000 } },
+    { "case": "スマートホーム", "recommendation": "スマート照明全室", "cost_range": { "min": 500000, "max": 1500000 } },
+    { "case": "新築・全室デザイン", "recommendation": "プレミアムデザイン", "cost_range": { "min": 1500000, "max": 5000000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分2_中小": { "推奨度": "★★★★☆" },
+    "区分3_照明専門": { "推奨度": "★★★★★ 第一推奨", "特徴": "デザイン+施工" },
+    "区分4_大手": { "推奨度": "★★★☆☆" }
+  },
+  "iran_situation_2026_04_impact": {
+    "建材_+10_20pct": ["LED関連電子部品", "アルミ筐体"],
+    "_impact_summary": "全プラン+5-10%"
+  },
+  "negotiation_tips": [
+    "器具メーカー・型番・W数の明記",
+    "デザイン料は工事費の10-20%が標準",
+    "調光方式（PWM/DALI/位相）の明記",
+    "既存回路容量との整合性確認"
+  ],
+  "trade_knowledge": {
+    "summary": "照明デザインは器具+施工+デザインの3要素。ダウンライト¥15-40万、コーブ¥40-120万、シャンデリア¥30-150万、スマート全室¥50-150万",
+    "knowledge_source": "TOshi経験 + Panasonic/コイズミ/ヤマギワ業界データ"
+  },
+  "connected_clusters": {
+    "smart_home_cluster": { "categories": ["smart_home_iot", "electrical_work", "led_electrical_update"], "synergy": "スマートホーム同時施工" }
+  }
+}
