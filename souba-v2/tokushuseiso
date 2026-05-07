@@ -1,0 +1,146 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "tokushuseiso",
+    "category_name_jp": "特殊清掃工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐ 高齢化社会で需要急増・遺族の弱みにつけこむぼったくり多発・専門資格領域",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 事件現場特殊清掃センター・遺品整理士認定協会データ",
+    "scope": "孤独死現場・事件現場の特殊清掃、害虫駆除、消臭・除菌、汚物撤去、感染症対応",
+    "horizons_philosophy": "特殊清掃は遺族が冷静に判断できない状況での契約が多く、価格水増しが横行。HSは状況別の標準価格を可視化し、遺族の判断を支援",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "材料費 + 専門技術者 + 廃棄物処理 + 緊急対応費 + 諸経費（25-35%）+ 消費税 10%",
+    "parameters": { "general_overhead_pct_normal": 25 },
+    "HS_pricing_philosophy": {
+      "業者規模別_妥当な利益率": {
+        "個人事業": "粗利率 30-40%",
+        "中小特殊清掃業者": "粗利率 30-40%",
+        "大手チェーン系": "粗利率 40-50%（フランチャイズ料込み）"
+      }
+    }
+  },
+  "labor": {
+    "specialist_day_rate": { "min": 30000, "max": 50000, "note": "事件現場特殊清掃士・遺品整理士" }
+  },
+  "additional_costs": {
+    "deodorize_machine_rental": { "name": "オゾン消臭・特殊機材", "price_jpy": { "min": 30000, "max": 100000 } },
+    "biohazard_disposal": { "name": "感染症廃棄物処理", "price_jpy": { "min": 20000, "max": 80000 } },
+    "fixtures_replacement": { "name": "畳・床・壁紙の張替（汚染部分）", "price_jpy": { "min": 100000, "max": 800000 } }
+  },
+  "plans": {
+    "kodokushi_basic_1k": {
+      "name": "孤独死現場・基礎清掃（1K）",
+      "scope": "1K・発見後3-7日・床/壁部分汚染",
+      "estimated_total_jpy": { "min": 150000, "max": 350000 },
+      "hs_rule_estimate_jpy": 250000,
+      "work_days": 1,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人事業": { "min": 165000, "max": 330000 },
+        "区分2_中小業者": { "min": 175000, "max": 350000, "note": "HS第一推奨" },
+        "区分3_大手チェーン": { "min": 215000, "max": 425000 }
+      }
+    },
+    "kodokushi_severe_1ldk": {
+      "name": "孤独死現場・重度（1LDK・夏季長期）",
+      "scope": "発見後2週間以上・体液漏出・床下汚染",
+      "estimated_total_jpy": { "min": 400000, "max": 1000000 },
+      "hs_rule_estimate_jpy": 700000,
+      "work_days": 3,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小業者": { "min": 440000, "max": 900000, "note": "HS第一推奨" },
+        "区分3_大手チェーン": { "min": 540000, "max": 1100000 }
+      }
+    },
+    "jiken_genba_post_police": {
+      "name": "事件現場清掃（警察検証後）",
+      "scope": "自殺・他殺現場の遺族向け原状回復",
+      "estimated_total_jpy": { "min": 300000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 700000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小業者": { "min": 330000, "max": 1300000 },
+        "区分3_大手チェーン": { "min": 405000, "max": 1650000 }
+      }
+    },
+    "deodorize_only_room": {
+      "name": "消臭のみ（オゾン処理）",
+      "scope": "1部屋・ペット臭・カビ臭等の消臭",
+      "estimated_total_jpy": { "min": 50000, "max": 150000 },
+      "hs_rule_estimate_jpy": 90000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人事業": { "min": 55000, "max": 140000 },
+        "区分2_中小業者": { "min": 60000, "max": 150000 },
+        "区分3_大手チェーン": { "min": 75000, "max": 180000 }
+      }
+    },
+    "gomi_yashiki_cleanup": {
+      "name": "ゴミ屋敷清掃（1K・腰高ゴミ）",
+      "scope": "ゴミ屋敷の全面清掃・分別搬出",
+      "estimated_total_jpy": { "min": 200000, "max": 800000 },
+      "hs_rule_estimate_jpy": 450000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人事業": { "min": 220000, "max": 720000 },
+        "区分2_中小業者": { "min": 240000, "max": 800000, "note": "HS第一推奨" },
+        "区分3_大手チェーン": { "min": 290000, "max": 970000 }
+      }
+    },
+    "haitsu_kujo_cockroach": {
+      "name": "ゴキブリ大量発生駆除",
+      "scope": "1LDK・大量発生・燻煙+ベイト剤+定期点検",
+      "estimated_total_jpy": { "min": 50000, "max": 200000 },
+      "hs_rule_estimate_jpy": 120000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人事業": { "min": 55000, "max": 190000 },
+        "区分2_中小業者": { "min": 60000, "max": 200000 },
+        "区分3_大手チェーン": { "min": 75000, "max": 245000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "BEREAVED_PRESSURE", "pattern": "遺族の精神的弱みにつけこむ即決契約", "severity": "🔴 CRITICAL",
+      "reason": "クーリングオフ（特商法）対象。8日以内解約可" },
+    { "code": "PRICE_NOT_DISCLOSED", "pattern": "現場見ないと価格言わない／後日請求", "severity": "🚨 HIGH",
+      "reason": "事前見積もり義務" },
+    { "code": "REPLACE_FORCED_HEALTHY", "pattern": "汚染してない畳・壁の張替を強要", "severity": "🚨 HIGH" },
+    { "code": "QUALIFICATION_NONE", "pattern": "事件現場特殊清掃士・遺品整理士資格なし", "severity": "🚨 HIGH" },
+    { "code": "INSURANCE_NONE", "pattern": "業者賠償保険なし", "severity": "🚨 HIGH" },
+    { "code": "DISPOSAL_ILLEGAL", "pattern": "産廃マニフェストなし", "severity": "🔴 CRITICAL" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "孤独死・発見早期（1K）", "recommendation": "基礎清掃", "cost_range": { "min": 150000, "max": 350000 } },
+    { "case": "孤独死・夏季長期", "recommendation": "重度清掃", "cost_range": { "min": 400000, "max": 1000000 } },
+    { "case": "事件現場の原状回復", "recommendation": "事件現場清掃", "cost_range": { "min": 300000, "max": 1500000 } },
+    { "case": "ゴミ屋敷整理", "recommendation": "ゴミ屋敷清掃", "cost_range": { "min": 200000, "max": 800000 } },
+    { "case": "ペット臭・カビ臭", "recommendation": "オゾン消臭", "cost_range": { "min": 50000, "max": 150000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "推奨度": "★★★★☆", "特徴": "コスパ良・1K案件" },
+    "区分2_中小業者": { "推奨度": "★★★★★ 第一推奨", "特徴": "実績豊富・適正価格" },
+    "区分3_大手チェーン": { "推奨度": "★★★☆☆", "特徴": "全国対応・割高" }
+  },
+  "iran_situation_2026_04_impact": {
+    "副資材_+5_10pct": ["消毒液", "オゾン関連消耗品"],
+    "産廃処理費_+10_15pct": ["処分場費用上昇"],
+    "_impact_summary": "全プラン+5-10%"
+  },
+  "negotiation_tips": [
+    "現地見積もり前提（電話だけで価格決めない）",
+    "事件現場特殊清掃士・遺品整理士の資格証確認",
+    "業者賠償責任保険の加入確認",
+    "産廃マニフェスト（A-E票）の受領",
+    "クーリングオフ（特商法8日）の周知",
+    "汚染部分と非汚染部分の区別を明細化",
+    "消臭は施工後の確認を契約条件に",
+    "遺族の代理人（親族）が冷静な状態で契約"
+  ],
+  "trade_knowledge": {
+    "summary": "特殊清掃は遺族の弱みにつけこんだ過剰請求が横行。状況別の標準価格を知ることが防御策。事件現場特殊清掃士・遺品整理士の資格と賠償保険が業者選定の最低条件",
+    "industry_scam_structure": "①遺族の即決契約強要②非汚染部の張替強要③価格事後請求④産廃不法投棄。クーリングオフ権利の周知と冷静な判断が必要",
+    "knowledge_source": "TOshi経験 + 事件現場特殊清掃センター業界データ"
+  },
+  "connected_clusters": {
+    "shibou_cluster": { "categories": ["ihinseiri_seizen", "house_cleaning", "skeleton_reform"], "synergy": "遺品整理→特殊清掃→リフォーム→売却" }
+  }
+}
