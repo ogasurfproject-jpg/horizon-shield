@@ -1,0 +1,229 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "mado_glass_work",
+    "category_name_jp": "ガラス交換専門工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐ 緊急対応多発・割れ修理ぼったくり領域・防犯/省エネで需要増",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 2026年実勢データ（AGC・日本板硝子・セントラル硝子・YKK AP・LIXIL）",
+    "scope": "ガラス単体交換（フロート/網入り/強化/合わせ/Low-E/真空ガラス等）。サッシごと交換は window_reform.json 参照",
+    "horizons_philosophy": "ガラス交換は緊急性が高く、深夜・休日料金で過剰請求されやすい。HSは『緊急時でも適正価格』を可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "description": "HS基準：ガラス交換工事の適正計算ルール",
+    "formula": "ガラス仕入れ値 × 1.2 + ガラス職人人工 × 日当 + 出張費実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.2,
+      "general_overhead_pct_ideal": 15,
+      "tax_pct": 10,
+      "trade_price_ratio_from_list": 0.55,
+      "note": "ガラスは定価55%が業者仕入れ標準。Low-E・真空ガラスは65-70%とやや高め"
+    },
+    "HS_pricing_philosophy": {
+      "業者規模別_妥当な利益率_ガラス": {
+        "個人事業_ガラス職人": "粗利率 25-35%",
+        "中小工務店_ガラス専門店": "粗利率 25-35%",
+        "人気工務店_サッシ専門": "粗利率 30-40%",
+        "大手リフォーム": "粗利率 35-45%"
+      }
+    }
+  },
+  "glass_materials": {
+    "float_glass": {
+      "name": "フロートガラス（普通板ガラス）",
+      "thickness_mm": [3, 5, 6, 8, 10, 12],
+      "price_per_sqm_jpy": { "min": 5000, "max": 12000, "midpoint": 8000 },
+      "trade_price_jpy": { "min": 2750, "max": 6600 },
+      "use": "標準的な窓・室内建具"
+    },
+    "wired_glass": {
+      "name": "網入りガラス（防火）",
+      "price_per_sqm_jpy": { "min": 8000, "max": 18000, "midpoint": 13000 },
+      "use": "防火地域の窓・規制対応"
+    },
+    "tempered_glass": {
+      "name": "強化ガラス（4倍強度）",
+      "price_per_sqm_jpy": { "min": 15000, "max": 30000, "midpoint": 22500 },
+      "use": "浴室・玄関・大型窓"
+    },
+    "laminated_glass": {
+      "name": "合わせガラス（防犯・防音）",
+      "price_per_sqm_jpy": { "min": 20000, "max": 40000, "midpoint": 30000 },
+      "use": "防犯・1階窓・幹線道路沿い"
+    },
+    "low_e_glass": {
+      "name": "Low-E複層ガラス（断熱）",
+      "price_per_sqm_jpy": { "min": 25000, "max": 50000, "midpoint": 37500 },
+      "subsidy_eligible": "先進的窓リノベ2026事業対象",
+      "use": "省エネ・補助金活用"
+    },
+    "vacuum_glass": {
+      "name": "真空ガラス（最高断熱）",
+      "price_per_sqm_jpy": { "min": 50000, "max": 100000, "midpoint": 75000 },
+      "examples": ["AGC スペーシア", "日本板硝子 スペーシアクール"],
+      "use": "高断熱化・既存サッシ活用"
+    }
+  },
+  "labor": {
+    "glass_worker_day_rate_kanto": { "min": 22000, "max": 30000, "avg": 26000 },
+    "emergency_surcharge": {
+      "night_holiday_pct": "20-50%",
+      "note": "緊急対応で1.2-1.5倍が業界標準。3倍以上は過剰請求"
+    },
+    "minimum_charge_per_visit": { "min": 15000, "max": 25000 }
+  },
+  "additional_costs": {
+    "shutchohi": { "price_jpy": { "min": 0, "max": 8000, "typical": 3000 } },
+    "tekkyo_disposal": { "name": "既存ガラス撤去・処分", "price_jpy": { "min": 3000, "max": 10000 } },
+    "scaffold_2nd_floor": { "name": "2階以上の足場", "price_jpy": { "min": 30000, "max": 100000 } },
+    "putty_caulking": { "name": "パテ・コーキング打替え", "price_jpy": { "min": 3000, "max": 8000 } }
+  },
+  "plans": {
+    "float_glass_small_replace": {
+      "name": "フロートガラス小窓交換（0.5㎡以下）",
+      "scope": "標準的な室内ドア・小窓のガラス交換",
+      "estimated_total_jpy": { "min": 12000, "max": 25000 },
+      "hs_rule_estimate_jpy": 18000,
+      "work_days": 0.3,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 14000, "max": 23000 },
+        "区分2_中小工務店": { "min": 15000, "max": 25000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 17000, "max": 28000 },
+        "区分4_大手_ハウスメーカー": { "min": 20000, "max": 35000 }
+      }
+    },
+    "float_glass_medium_replace": {
+      "name": "フロートガラス標準窓交換（1㎡前後）",
+      "estimated_total_jpy": { "min": 20000, "max": 40000 },
+      "hs_rule_estimate_jpy": 30000,
+      "work_days": 0.5,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 24000, "max": 38000 },
+        "区分2_中小工務店": { "min": 25000, "max": 40000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 28000, "max": 45000 },
+        "区分4_大手_ハウスメーカー": { "min": 33000, "max": 55000 }
+      }
+    },
+    "tempered_glass_bath": {
+      "name": "浴室強化ガラス交換",
+      "scope": "浴室ドア・浴室窓の強化ガラス",
+      "estimated_total_jpy": { "min": 35000, "max": 80000 },
+      "hs_rule_estimate_jpy": 55000,
+      "work_days": 0.7,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 40000, "max": 75000 },
+        "区分2_中小工務店": { "min": 42000, "max": 80000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 48000, "max": 92000 },
+        "区分4_大手_ハウスメーカー": { "min": 58000, "max": 110000 }
+      }
+    },
+    "laminated_security_replace": {
+      "name": "合わせガラス（防犯）交換",
+      "scope": "1階窓・玄関側面の防犯化",
+      "estimated_total_jpy": { "min": 45000, "max": 100000 },
+      "hs_rule_estimate_jpy": 70000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 50000, "max": 95000 },
+        "区分2_中小工務店": { "min": 53000, "max": 100000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 60000, "max": 115000 },
+        "区分4_大手_ハウスメーカー": { "min": 72000, "max": 140000 }
+      }
+    },
+    "low_e_pair_glass": {
+      "name": "Low-E複層ガラス交換（補助金対象）",
+      "scope": "断熱化・先進的窓リノベ2026対応",
+      "estimated_total_jpy": { "min": 60000, "max": 130000 },
+      "hs_rule_estimate_jpy": 95000,
+      "subsidy_after_jpy": "補助金最大¥40,000減",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 68000, "max": 125000 },
+        "区分2_中小工務店": { "min": 72000, "max": 130000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 82000, "max": 150000 },
+        "区分4_大手_ハウスメーカー": { "min": 99000, "max": 180000 }
+      }
+    },
+    "vacuum_glass_premium": {
+      "name": "真空ガラス交換（最高断熱）",
+      "scope": "AGCスペーシア等。既存サッシ活用",
+      "estimated_total_jpy": { "min": 100000, "max": 200000 },
+      "hs_rule_estimate_jpy": 150000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 110000, "max": 190000 },
+        "区分2_中小工務店": { "min": 115000, "max": 200000 },
+        "区分3_人気工務店": { "min": 130000, "max": 230000, "note": "サッシ専門推奨" },
+        "区分4_大手_ハウスメーカー": { "min": 158000, "max": 280000 }
+      }
+    },
+    "emergency_night_replace": {
+      "name": "深夜・緊急ガラス交換",
+      "scope": "防犯対策・空き巣被害後等の緊急対応",
+      "estimated_total_jpy": { "min": 30000, "max": 80000 },
+      "hs_rule_estimate_jpy": 50000,
+      "note": "通常価格の1.2-1.5倍が妥当。3倍超は過剰請求",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 32000, "max": 70000 },
+        "区分2_中小工務店": { "min": 35000, "max": 75000 },
+        "区分3_人気工務店": { "min": 40000, "max": 85000 },
+        "区分4_大手_ハウスメーカー": { "min": 48000, "max": 100000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "EMERGENCY_OVERCHARGE_3X", "pattern": "深夜緊急対応で通常価格の3倍超請求", "severity": "🔴 CRITICAL",
+      "reason": "業界標準は1.2-1.5倍。3倍超は明確な過剰請求" },
+    { "code": "GLASS_TYPE_UNCLEAR", "pattern": "ガラス種類・厚み・型番不明", "severity": "🚨 HIGH",
+      "reason": "フロート¥8,000とLow-E¥37,500で5倍差。型番明記要求" },
+    { "code": "WIRED_FORCED", "pattern": "防火地域でないのに網入りガラス強要", "severity": "⚠️ MEDIUM",
+      "reason": "網入りは防火規制対応のみ必要。一般窓は不要" },
+    { "code": "FULL_SASH_FORCED", "pattern": "ガラスだけで済むのにサッシ全交換強要", "severity": "🚨 HIGH",
+      "reason": "ガラス¥30,000で済むのを¥200,000に。窓枠正常なら不要" },
+    { "code": "VACUUM_GLASS_FAKE", "pattern": "Low-Eと真空ガラスを混同・型番偽装", "severity": "🔴 CRITICAL",
+      "reason": "AGCスペーシア等の正規型番確認要" },
+    { "code": "DISPATCH_OVER_10K", "pattern": "出張費¥10,000超 / 出張費別途で総額¥30,000超", "severity": "⚠️ MEDIUM" },
+    { "code": "DOOR_TO_DOOR_SCAM", "pattern": "「ガラスが弱ってます」訪問販売", "severity": "🚨 HIGH" },
+    { "code": "SCALE_MISMATCH_HIGH", "pattern": "業者規模に対して粗利50%超", "severity": "🚨 HIGH" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "子供がガラスを割った（標準窓1枚）", "recommendation": "フロートガラス交換", "cost_range": { "min": 20000, "max": 40000 } },
+    { "case": "空き巣被害・防犯強化", "recommendation": "合わせガラスへ交換", "cost_range": { "min": 45000, "max": 100000 } },
+    { "case": "断熱性能UPしたい", "recommendation": "Low-E複層ガラス", "cost_range": { "min": 60000, "max": 130000 }, "note": "先進的窓リノベ2026対象" },
+    { "case": "結露がひどい", "recommendation": "真空ガラス（既存サッシ活用）", "cost_range": { "min": 100000, "max": 200000 } },
+    { "case": "深夜の緊急対応", "recommendation": "緊急ガラス交換", "cost_range": { "min": 30000, "max": 80000 } }
+  ],
+  "business_size_based_pricing": {
+    "_description": "業者規模4区分・ガラス交換",
+    "区分1_個人事業": { "代表": "地域のガラス職人・小規模ガラス店", "粗利率": "25-35%", "推奨度": "★★★★★", "特徴": "最安・小回り効く" },
+    "区分2_中小工務店": { "代表": "ガラス・サッシ専門店", "粗利率": "25-35%", "推奨度": "★★★★★ 第一推奨", "特徴": "在庫豊富・即対応可" },
+    "区分3_人気工務店": { "代表": "サッシメーカー認定店", "粗利率": "30-40%", "推奨度": "★★★★☆", "特徴": "メーカー保証・特殊ガラス対応" },
+    "区分4_大手リフォーム": { "代表": "ハウスメーカー系・全国チェーン", "粗利率": "35-45%", "推奨度": "★★★☆☆", "特徴": "下請け施工・価格高" }
+  },
+  "iran_situation_2026_04_impact": {
+    "副資材_+5_10pct": ["シーリング材", "パテ", "養生材"],
+    "建材_+10_20pct": ["ガラス全般+10-15%（製造エネルギーコスト）"],
+    "_impact_summary": "ガラスは製造に大量エネルギー使用。原油・天然ガス高騰で全グレード+10-15%の値上げ傾向"
+  },
+  "negotiation_tips": [
+    "ガラス種類・厚み・メーカー型番を明記要求",
+    "出張費は事前確定（¥5,000上限）",
+    "緊急対応は通常価格の1.2-1.5倍が業界標準",
+    "Low-E・真空ガラスは先進的窓リノベ2026補助金活用",
+    "ガラスだけで済むかサッシ交換必要かは現地確認",
+    "防犯ガラスは型式試験合格品（CPマーク）確認",
+    "2階以上は足場代を事前見積もり",
+    "既存ガラス撤去・処分費の事前確定"
+  ],
+  "trade_knowledge": {
+    "summary": "ガラス交換は緊急対応多く深夜・休日割増の温床。業者仕入れはガラス定価55%、Low-E/真空は65-70%が標準。緊急時でも通常の1.2-1.5倍が妥当",
+    "industry_scam_structure": "深夜緊急対応で通常価格の3-5倍を請求する業者あり。事前にHS基準を確認することで適正範囲が分かる",
+    "subsidy_info": "Low-E複層・真空ガラスは先進的窓リノベ2026事業対象（環境省）。最大¥40,000/㎡の補助",
+    "knowledge_source": "TOshi 30年経験 + AGC/日本板硝子業界データ"
+  },
+  "connected_clusters": {
+    "dannetsu_cluster": {
+      "categories": ["window_reform", "entrance_door_reform", "insulation_work"],
+      "synergy": "Low-E化と窓リフォーム同時で補助金最大化"
+    }
+  }
+}
