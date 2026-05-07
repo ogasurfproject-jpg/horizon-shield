@@ -1,0 +1,196 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "ofuro_kanso_oidaki",
+    "category_name_jp": "浴室乾燥機・追い焚き単体工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐ 既存浴室への後付け需要・梅雨/花粉時期の必需品・電気/ガス両方式あり",
+    "knowledge_source": "TOshi 30年の建設実務経験 + TOTO/三菱/ノーリツ/リンナイ 2026年データ",
+    "scope": "既存浴室への浴室乾燥機後付け、追い焚き機能後付け、暖房機能追加。浴室全体リフォームは bathroom_reform.json 参照",
+    "horizons_philosophy": "浴室乾燥機/追い焚きは『既存配管・電源容量による工事費の差』が大きい。HSは状況別の工事費を可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "本体仕入れ値 × 1.2 + 設備工 + 電気 + 場合によりガス工事 + (原価 × 15%) + 消費税 10%",
+    "parameters": { "trade_price_ratio_from_list": 0.5 },
+    "HS_pricing_philosophy": {
+      "業者規模別_妥当な利益率": {
+        "個人事業": "粗利率 25-35%",
+        "中小工務店": "粗利率 25-35%",
+        "人気工務店": "粗利率 30-40%",
+        "大手リフォーム": "粗利率 35-45%"
+      }
+    }
+  },
+  "products": {
+    "yokushitsukansoki_electric": {
+      "name": "電気式浴室乾燥機",
+      "popular_models": [
+        { "name": "三菱 V-141BZ5（標準・天井埋込）", "list_price": 80000, "trade_price_estimate": 40000 },
+        { "name": "Panasonic FY-13UG7E（換気・乾燥・暖房）", "list_price": 95000, "trade_price_estimate": 47500 },
+        { "name": "MAX BS-261H-CX（高性能）", "list_price": 130000, "trade_price_estimate": 65000 }
+      ]
+    },
+    "yokushitsukansoki_gas": {
+      "name": "ガス温水式浴室乾燥機（パワフル）",
+      "popular_models": [
+        { "name": "ノーリツ BDV-3306AUKNC", "list_price": 220000, "trade_price_estimate": 110000 },
+        { "name": "リンナイ RBH-C338K1P", "list_price": 240000, "trade_price_estimate": 120000 }
+      ],
+      "note": "ガス温水暖房付給湯器との連携必要"
+    },
+    "oidaki_units": {
+      "name": "追い焚き専用配管・部材",
+      "components": ["追い焚き配管", "風呂釜", "保温材", "湯張りリモコン"],
+      "price_range_jpy": { "min": 30000, "max": 100000 }
+    },
+    "kyutoki_oidaki_capable": {
+      "name": "追い焚き対応給湯器",
+      "popular_models": [
+        { "name": "ノーリツ GTH-2444SAWX-1（フルオート24号）", "list_price": 350000, "trade_price_estimate": 175000 },
+        { "name": "リンナイ RUF-A2405SAW（オート24号）", "list_price": 320000, "trade_price_estimate": 160000 }
+      ]
+    }
+  },
+  "labor": {
+    "setsubi_day_rate": { "min": 22000, "max": 28000 },
+    "electrician_day_rate": { "min": 25000, "max": 32000 },
+    "standard_work_time_hours": {
+      "kanso_replacement": 3,
+      "kanso_new_install": 8,
+      "oidaki_addition_full": 16,
+      "kyutoki_replacement_oidaki": 6
+    }
+  },
+  "additional_costs": {
+    "ceiling_modification": { "name": "天井開口・補修", "price_jpy": { "min": 30000, "max": 80000 } },
+    "duct_extension": { "name": "ダクト延長・外部排気", "price_jpy": { "min": 20000, "max": 50000 } },
+    "dedicated_circuit_kanso": { "name": "浴乾用専用回路", "price_jpy": { "min": 25000, "max": 50000 } },
+    "oidaki_pipe_routing": { "name": "追い焚き配管引き回し", "price_jpy": { "min": 50000, "max": 150000 }, "note": "床下/壁内距離による" }
+  },
+  "plans": {
+    "kanso_replacement_simple": {
+      "name": "浴室乾燥機 同等品交換",
+      "scope": "既存浴乾の故障交換。配線・ダクトそのまま",
+      "estimated_total_jpy": { "min": 80000, "max": 150000 },
+      "hs_rule_estimate_jpy": 110000,
+      "work_days": 0.4,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 90000, "max": 145000 },
+        "区分2_中小工務店": { "min": 95000, "max": 150000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 110000, "max": 170000 },
+        "区分4_大手_ハウスメーカー": { "min": 130000, "max": 205000 }
+      }
+    },
+    "kanso_new_electric_install": {
+      "name": "電気式浴室乾燥機 新規後付け",
+      "scope": "既存浴室に新設。天井開口+ダクト+専用回路",
+      "estimated_total_jpy": { "min": 180000, "max": 350000 },
+      "hs_rule_estimate_jpy": 250000,
+      "work_days": 1.0,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 195000, "max": 330000 },
+        "区分2_中小工務店": { "min": 210000, "max": 350000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 240000, "max": 400000 },
+        "区分4_大手_ハウスメーカー": { "min": 290000, "max": 485000 }
+      }
+    },
+    "kanso_gas_powerful_install": {
+      "name": "ガス温水式浴室乾燥機 後付け（高出力）",
+      "scope": "ノーリツ/リンナイ系・温水暖房給湯器との連携工事込",
+      "estimated_total_jpy": { "min": 350000, "max": 650000 },
+      "hs_rule_estimate_jpy": 480000,
+      "note": "電気式の3倍以上のパワー。乾燥時間を半分に短縮",
+      "料金_業者規模別_税込_円": {
+        "区分2_中小工務店": { "min": 405000, "max": 650000 },
+        "区分3_人気工務店": { "min": 460000, "max": 750000, "note": "ガス専門推奨" },
+        "区分4_大手_ハウスメーカー": { "min": 555000, "max": 905000 }
+      }
+    },
+    "oidaki_addition_with_new_kyutoki": {
+      "name": "追い焚き機能後付け（給湯器交換+配管）",
+      "scope": "追い焚き非対応→対応給湯器+風呂釜配管+リモコン",
+      "estimated_total_jpy": { "min": 280000, "max": 500000 },
+      "hs_rule_estimate_jpy": 380000,
+      "work_days": 2.0,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 305000, "max": 470000 },
+        "区分2_中小工務店": { "min": 325000, "max": 500000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 370000, "max": 575000 },
+        "区分4_大手_ハウスメーカー": { "min": 445000, "max": 695000 }
+      }
+    },
+    "oidaki_pipe_only_existing_kyutoki": {
+      "name": "追い焚き配管のみ追加（既存給湯器対応）",
+      "scope": "給湯器が追い焚き対応の場合のみ",
+      "estimated_total_jpy": { "min": 80000, "max": 200000 },
+      "hs_rule_estimate_jpy": 130000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 88000, "max": 190000 },
+        "区分2_中小工務店": { "min": 95000, "max": 200000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 110000, "max": 230000 },
+        "区分4_大手_ハウスメーカー": { "min": 130000, "max": 280000 }
+      }
+    },
+    "kyutoki_replacement_oidaki_capable": {
+      "name": "給湯器交換（追い焚き対応へ）",
+      "scope": "給湯専用→オート/フルオート24号に交換",
+      "estimated_total_jpy": { "min": 200000, "max": 400000 },
+      "hs_rule_estimate_jpy": 290000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 220000, "max": 380000 },
+        "区分2_中小工務店": { "min": 235000, "max": 400000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 270000, "max": 460000 },
+        "区分4_大手_ハウスメーカー": { "min": 320000, "max": 555000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "MODEL_NOT_SPECIFIED", "pattern": "メーカー・型番不明", "severity": "🔴 CRITICAL",
+      "reason": "電気式¥8万 vs ガス式¥22万で約3倍差" },
+    { "code": "DEDICATED_CIRCUIT_HIDDEN", "pattern": "電気式の専用回路費用を事後請求", "severity": "🚨 HIGH" },
+    { "code": "DUCT_EXTENSION_LUMP_SUM", "pattern": "ダクト工事費が「一式」", "severity": "🚨 HIGH" },
+    { "code": "GAS_FORCED", "pattern": "電気式で十分な家にガス式強要", "severity": "⚠️ MEDIUM",
+      "reason": "ガス式は本体¥22万+配管工事で電気式の2-3倍コスト" },
+    { "code": "OIDAKI_KYUTOKI_INCOMPATIBLE", "pattern": "既存給湯器が追い焚き非対応なのに配管のみ提案", "severity": "🔴 CRITICAL",
+      "reason": "給湯器交換必須。配管だけ追加しても動かない" },
+    { "code": "BODY_LIST_PRICE_NEAR", "pattern": "本体価格が定価OFFなし", "severity": "🚨 HIGH",
+      "reason": "浴乾・給湯器は定価50%OFFが業者仕入れ標準" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "既存浴乾が壊れた", "recommendation": "同等品交換", "cost_range": { "min": 80000, "max": 150000 } },
+    { "case": "梅雨対策で新設", "recommendation": "電気式浴乾 新規", "cost_range": { "min": 180000, "max": 350000 } },
+    { "case": "強力乾燥が欲しい", "recommendation": "ガス温水式浴乾", "cost_range": { "min": 350000, "max": 650000 } },
+    { "case": "追い焚きが欲しい（給湯器も古い）", "recommendation": "給湯器交換+配管", "cost_range": { "min": 280000, "max": 500000 } },
+    { "case": "給湯器は対応済・配管だけ", "recommendation": "追い焚き配管のみ", "cost_range": { "min": 80000, "max": 200000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "代表": "設備個人事業", "粗利率": "25-35%", "推奨度": "★★★★☆" },
+    "区分2_中小工務店": { "代表": "水回り専門店", "粗利率": "25-35%", "推奨度": "★★★★★ 第一推奨" },
+    "区分3_人気工務店": { "代表": "メーカー認定店・ガス専門", "粗利率": "30-40%", "推奨度": "★★★★☆" },
+    "区分4_大手_ハウスメーカー": { "代表": "全国チェーン", "粗利率": "35-45%", "推奨度": "★★★☆☆" }
+  },
+  "iran_situation_2026_04_impact": {
+    "副資材_+5_10pct": ["シーリング", "保温材"],
+    "建材_+10_20pct": ["銅管（追い焚き配管）", "電子部品", "鋼板（給湯器筐体）"],
+    "_impact_summary": "本体は半導体影響で+5-8%。給湯器は鋼材高騰で+10-15%"
+  },
+  "negotiation_tips": [
+    "メーカー・型番を明記（三菱 V-141BZ5 等）",
+    "本体は定価50%OFFが業者仕入れ標準",
+    "電気式 vs ガス式の必要性を判断（パワー要否）",
+    "既存給湯器の追い焚き対応有無を事前確認",
+    "ダクト工事・専用回路費を別途明細",
+    "電気式は1日工事・ガス式/追い焚きは2日工事",
+    "メーカー保証（1-3年）を確認"
+  ],
+  "trade_knowledge": {
+    "summary": "浴室乾燥機・追い焚き後付けは状況依存度高い領域。電気式¥18-35万、ガス式¥35-65万、追い焚き全工事¥28-50万。既存給湯器の対応可否で大幅コスト変動",
+    "industry_scam_structure": "「給湯器も古いから一緒に」と必要以上の工事を抱き合わせる手口あり。給湯器の使用年数・故障状況で要否判断",
+    "knowledge_source": "TOshi経験 + ノーリツ/リンナイ業界データ"
+  },
+  "connected_clusters": {
+    "mizumawari_cluster": { "categories": ["bathroom_reform", "water_heater_reform"], "synergy": "浴室リフォーム時に同時施工" }
+  }
+}
