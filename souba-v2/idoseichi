@@ -1,0 +1,115 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "idoseichi",
+    "category_name_jp": "井戸・井戸ポンプ工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐ 災害対策・水道代削減・地下水利用権・自治体規制",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 井戸業界2026年データ",
+    "scope": "井戸新設（手掘り/ボーリング）、井戸ポンプ交換、既存井戸再生、水質検査",
+    "horizons_philosophy": "井戸は『地質』『深度』『水質』で価格大変動。HSは深度別の標準価格を可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "ボーリング × 深度 + ポンプ + 配管 + 水質検査 + 諸経費（25-35%）+ 消費税 10%",
+    "parameters": { "general_overhead_pct_normal": 25 }
+  },
+  "labor": {
+    "boring_specialist": { "min": 35000, "max": 50000 }
+  },
+  "additional_costs": {
+    "water_quality_test": { "name": "水質検査（飲用判定）", "price_jpy": { "min": 30000, "max": 80000 } },
+    "permit_application": { "name": "井戸掘削届出", "price_jpy": { "min": 20000, "max": 50000 } },
+    "pump_replacement_only": { "name": "ポンプ単体交換", "price_jpy": { "min": 80000, "max": 300000 } }
+  },
+  "plans": {
+    "shallow_well_diy_assist": {
+      "name": "浅井戸（10m以下・庭散水用）",
+      "scope": "手掘りまたは打抜き10m+ポンプ",
+      "estimated_total_jpy": { "min": 200000, "max": 600000 },
+      "hs_rule_estimate_jpy": 380000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 220000, "max": 555000, "note": "HS第一推奨" },
+        "区分3_専門": { "min": 260000, "max": 640000 }
+      }
+    },
+    "medium_well_30m": {
+      "name": "中深度井戸（30m・本格利用）",
+      "scope": "ボーリング30m+水中ポンプ+配管",
+      "estimated_total_jpy": { "min": 500000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 950000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 550000, "max": 1380000 },
+        "区分3_専門": { "min": 640000, "max": 1600000, "note": "HS第一推奨" }
+      }
+    },
+    "deep_well_80m_drinking": {
+      "name": "深井戸（80m・飲料水）",
+      "scope": "ボーリング80m+飲料適合+水質検査",
+      "estimated_total_jpy": { "min": 1500000, "max": 4000000 },
+      "hs_rule_estimate_jpy": 2500000,
+      "料金_業者規模別_税込_円": {
+        "区分3_専門": { "min": 2000000, "max": 4200000, "note": "井戸専門推奨" },
+        "区分4_大手": { "min": 2400000, "max": 5000000 }
+      }
+    },
+    "well_pump_replacement": {
+      "name": "既存井戸ポンプ交換",
+      "scope": "ポンプ単体交換（深さ問わず）",
+      "estimated_total_jpy": { "min": 100000, "max": 400000 },
+      "hs_rule_estimate_jpy": 200000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 110000, "max": 380000, "note": "HS第一推奨" },
+        "区分2_中小": { "min": 120000, "max": 400000 }
+      }
+    },
+    "old_well_revival": {
+      "name": "古井戸再生（清掃・改修）",
+      "scope": "既存井戸の清掃+ポンプ更新",
+      "estimated_total_jpy": { "min": 200000, "max": 800000 },
+      "hs_rule_estimate_jpy": 450000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 220000, "max": 740000 },
+        "区分3_専門": { "min": 260000, "max": 850000, "note": "HS第一推奨" }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "DRINKING_FAKE_NO_TEST", "pattern": "水質検査なしで飲料適合と称する", "severity": "🔴 CRITICAL" },
+    { "code": "PERMIT_NEGLIGENT", "pattern": "井戸掘削届出（自治体）の案内なし", "severity": "🚨 HIGH" },
+    { "code": "DEPTH_FAKE", "pattern": "ボーリング深度を実測せず請求", "severity": "🔴 CRITICAL" },
+    { "code": "WATER_VEIN_FAKE", "pattern": "「水脈調査」高額請求", "severity": "🚨 HIGH",
+      "reason": "ダウジング等は科学的根拠なし" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "庭散水のみ", "recommendation": "浅井戸10m", "cost_range": { "min": 200000, "max": 600000 } },
+    { "case": "本格生活用水", "recommendation": "中深度30m", "cost_range": { "min": 500000, "max": 1500000 } },
+    { "case": "飲料水確保", "recommendation": "深井戸80m+検査", "cost_range": { "min": 1500000, "max": 4000000 } },
+    { "case": "ポンプ故障", "recommendation": "ポンプ交換", "cost_range": { "min": 100000, "max": 400000 } },
+    { "case": "古井戸の再利用", "recommendation": "古井戸再生", "cost_range": { "min": 200000, "max": 800000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "推奨度": "★★★★☆", "特徴": "ポンプ交換・浅井戸" },
+    "区分2_中小": { "推奨度": "★★★★★ 第一推奨", "特徴": "標準対応" },
+    "区分3_専門": { "推奨度": "★★★★★", "特徴": "深井戸・水質対応" }
+  },
+  "iran_situation_2026_04_impact": {
+    "建材_+10_20pct": ["ポンプ部品", "塩ビ管", "ステンレスケーシング"],
+    "_impact_summary": "全プラン+10-15%"
+  },
+  "negotiation_tips": [
+    "ボーリング深度・本数の実測確認",
+    "水質検査の事前合意（飲料適合）",
+    "井戸掘削届出（自治体）の代行可否",
+    "ポンプメーカー・型番の明記",
+    "メーカー保証（ポンプ通常2-3年）"
+  ],
+  "trade_knowledge": {
+    "summary": "井戸は深度で大幅変動。浅井戸¥20-60万、中深度¥50-150万、深井戸飲料¥150-400万、ポンプ交換¥10-40万",
+    "knowledge_source": "TOshi経験 + 井戸業界データ"
+  },
+  "connected_clusters": {
+    "saigai_cluster": { "categories": ["uri_riyo", "solar_battery_work"], "synergy": "災害対策同時施工" }
+  }
+}
