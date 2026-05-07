@@ -1,0 +1,155 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "jutaku_kaitai_partial",
+    "category_name_jp": "住宅部分解体工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐ 増改築・リフォーム前段階・構造への影響大・無資格業者リスク",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 解体工事業界2026年データ",
+    "scope": "増改築準備のための部分解体（壁・床・天井・間仕切り・水回り撤去等）。建物全体解体は demolition_master 参照",
+    "horizons_philosophy": "部分解体は『構造体への影響』『産廃処分』『近隣対応』が肝。HSは解体範囲別の標準価格と構造的注意点を可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "解体作業 + 養生 + 産廃処分費 + 諸経費（20-30%）+ 消費税 10%",
+    "parameters": { "general_overhead_pct_normal": 25 },
+    "HS_pricing_philosophy": {
+      "業者規模別_妥当な利益率": {
+        "個人事業_大工": "粗利率 25-35%",
+        "中小工務店": "粗利率 25-35%",
+        "解体専門業者": "粗利率 25-35%",
+        "大手リフォーム": "粗利率 35-45%"
+      }
+    }
+  },
+  "labor": {
+    "kaitai_worker_day_rate": { "min": 22000, "max": 30000 }
+  },
+  "additional_costs": {
+    "structural_engineer_check": { "name": "構造計算・建築士確認", "price_jpy": { "min": 50000, "max": 200000 }, "note": "耐力壁撤去時必須" },
+    "scaffold_partial": { "name": "部分足場", "price_jpy": { "min": 30000, "max": 150000 } },
+    "asbestos_pre_check": { "name": "アスベスト事前調査（築古）", "price_jpy": { "min": 50000, "max": 200000 }, "note": "asbestos_removal連携" },
+    "industrial_waste_disposal": { "name": "産廃処分費（コンテナ単位）", "price_per_ton_jpy": { "min": 15000, "max": 35000 } }
+  },
+  "plans": {
+    "naibu_kabe_dismantle": {
+      "name": "内部間仕切り壁撤去（非耐力壁）",
+      "scope": "1部屋分の間仕切り壁・5-10㎡",
+      "estimated_total_jpy": { "min": 50000, "max": 150000 },
+      "hs_rule_estimate_jpy": 95000,
+      "work_days": 0.5,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 55000, "max": 140000 },
+        "区分2_中小工務店": { "min": 60000, "max": 150000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 70000, "max": 175000 },
+        "区分4_大手_ハウスメーカー": { "min": 85000, "max": 210000 }
+      }
+    },
+    "tairyoku_kabe_with_engineer": {
+      "name": "耐力壁撤去（建築士確認含む）",
+      "scope": "耐力壁撤去+構造補強+建築士確認",
+      "estimated_total_jpy": { "min": 200000, "max": 600000 },
+      "hs_rule_estimate_jpy": 380000,
+      "note": "建築士の構造計算・補強計画必須",
+      "料金_業者規模別_税込_円": {
+        "区分2_中小工務店": { "min": 220000, "max": 560000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 260000, "max": 660000 },
+        "区分4_大手_ハウスメーカー": { "min": 320000, "max": 800000 }
+      }
+    },
+    "kitchen_demolition_only": {
+      "name": "キッチン解体・撤去のみ",
+      "scope": "システムキッチン+周辺壁・床撤去",
+      "estimated_total_jpy": { "min": 80000, "max": 200000 },
+      "hs_rule_estimate_jpy": 130000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 88000, "max": 190000 },
+        "区分2_中小工務店": { "min": 95000, "max": 200000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 110000, "max": 230000 },
+        "区分4_大手_ハウスメーカー": { "min": 130000, "max": 280000 }
+      }
+    },
+    "bathroom_demolition_only": {
+      "name": "浴室解体・撤去のみ",
+      "scope": "在来工法浴室の全撤去（タイル+土間+壁）",
+      "estimated_total_jpy": { "min": 150000, "max": 400000 },
+      "hs_rule_estimate_jpy": 270000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 165000, "max": 380000 },
+        "区分2_中小工務店": { "min": 175000, "max": 400000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 205000, "max": 460000 },
+        "区分4_大手_ハウスメーカー": { "min": 245000, "max": 555000 }
+      }
+    },
+    "tenjyo_yuka_partial": {
+      "name": "天井・床の部分撤去（10畳）",
+      "scope": "10畳分の天井+床+下地撤去",
+      "estimated_total_jpy": { "min": 100000, "max": 280000 },
+      "hs_rule_estimate_jpy": 180000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 110000, "max": 265000 },
+        "区分2_中小工務店": { "min": 120000, "max": 280000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 140000, "max": 320000 },
+        "区分4_大手_ハウスメーカー": { "min": 170000, "max": 385000 }
+      }
+    },
+    "zoukaichiku_preparation": {
+      "name": "増築準備の部分解体（外壁開口）",
+      "scope": "増築接続のための外壁・屋根の部分撤去",
+      "estimated_total_jpy": { "min": 200000, "max": 600000 },
+      "hs_rule_estimate_jpy": 380000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小工務店": { "min": 220000, "max": 560000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 260000, "max": 660000 },
+        "区分4_大手_ハウスメーカー": { "min": 320000, "max": 800000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "TAIRYOKU_KABE_NO_ENGINEER", "pattern": "耐力壁撤去で建築士確認なし", "severity": "🔴 CRITICAL",
+      "reason": "建物倒壊リスク。建築基準法違反" },
+    { "code": "ASBESTOS_CHECK_SKIPPED", "pattern": "築40年以上でアスベスト事前調査なし", "severity": "🔴 CRITICAL",
+      "reason": "労安法・大防法違反。健康被害" },
+    { "code": "STRUCTURE_DAMAGE_IGNORED", "pattern": "解体時の構造体損傷を放置・隠蔽", "severity": "🔴 CRITICAL" },
+    { "code": "WASTE_ILLEGAL_DUMP", "pattern": "産廃マニフェストなし", "severity": "🔴 CRITICAL" },
+    { "code": "NEIGHBOR_NOTIFICATION_NONE", "pattern": "近隣説明なしで騒音解体", "severity": "🚨 HIGH" },
+    { "code": "DISPOSAL_FEE_INFLATION", "pattern": "産廃処分費の水増し（実勢の2倍超）", "severity": "🚨 HIGH" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "間仕切り壁撤去（広いLDKに）", "recommendation": "非耐力壁撤去", "cost_range": { "min": 50000, "max": 150000 } },
+    { "case": "耐力壁含む大規模間取り変更", "recommendation": "耐力壁撤去+補強", "cost_range": { "min": 200000, "max": 600000 } },
+    { "case": "キッチンリフォーム前段階", "recommendation": "キッチン解体", "cost_range": { "min": 80000, "max": 200000 } },
+    { "case": "在来浴室→UB前段階", "recommendation": "浴室解体", "cost_range": { "min": 150000, "max": 400000 } },
+    { "case": "増築準備", "recommendation": "増築準備解体", "cost_range": { "min": 200000, "max": 600000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "推奨度": "★★★★☆", "特徴": "小規模解体に強い" },
+    "区分2_中小工務店": { "推奨度": "★★★★★ 第一推奨", "特徴": "リフォーム連動" },
+    "区分3_人気工務店": { "推奨度": "★★★★☆", "特徴": "大規模・耐力壁対応" },
+    "区分4_大手_ハウスメーカー": { "推奨度": "★★★☆☆", "特徴": "下請け・割高" }
+  },
+  "iran_situation_2026_04_impact": {
+    "副資材_+5_10pct": ["養生材"],
+    "産廃処理費_+10_15pct": ["最終処分場費用上昇"],
+    "_impact_summary": "産廃処分費高騰で全プラン+5-10%"
+  },
+  "negotiation_tips": [
+    "耐力壁・非耐力壁の判別を事前確認（建築士相談）",
+    "築40年以上はアスベスト事前調査必須（2023年4月義務化）",
+    "産廃マニフェスト（A-E票）の受領",
+    "近隣説明（騒音・振動・粉塵）を契約条件",
+    "解体時の養生（家具・床・壁）を明記",
+    "解体後の構造体写真記録を要求",
+    "解体業者の建設業許可（解体工事業）確認"
+  ],
+  "trade_knowledge": {
+    "summary": "部分解体は耐力壁判別・アスベスト・産廃処理が肝。間仕切り壁¥5-15万、耐力壁含¥20-60万、浴室解体¥15-40万、キッチン解体¥8-20万が標準",
+    "industry_scam_structure": "①耐力壁撤去で建築士確認なし②産廃の不法投棄③処分費水増し。建設業許可+建築士+マニフェストが防御策",
+    "regulatory_basis": "建設業法・建築基準法・廃棄物処理法・労安法",
+    "knowledge_source": "TOshi経験 + 解体業界データ"
+  },
+  "connected_clusters": {
+    "kaitai_cluster": { "categories": ["demolition_master", "skeleton_reform", "asbestos_removal"], "synergy": "解体→アスベスト処理→新規工事" }
+  }
+}
