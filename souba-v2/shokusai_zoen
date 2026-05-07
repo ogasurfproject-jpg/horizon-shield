@@ -1,0 +1,159 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "shokusai_zoen",
+    "category_name_jp": "造園・植栽工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐ 戸建必須・年間メンテ需要・庭木1本¥10万請求等のぼったくり多発",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 日本造園組合連合会2026年データ",
+    "scope": "庭木植栽・剪定、芝生張替、生垣造成、和風庭園、洋風ガーデン、年間管理契約",
+    "horizons_philosophy": "造園は『樹種・サイズ・施工技能』で価格大変動。HSは樹種別単価+剪定単価を可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "樹木仕入れ値 × 1.3 + 造園工 × 日当 + 諸経費（20-30%）+ 消費税 10%",
+    "parameters": { "trade_price_ratio_from_list": 0.6 }
+  },
+  "labor": {
+    "zoen_worker_day_rate": { "min": 25000, "max": 35000 },
+    "zouenshi_specialist": { "min": 30000, "max": 45000, "note": "造園技能士・庭師" }
+  },
+  "tree_materials": {
+    "low_tree_1.5m": { "name": "低木（1-1.5m）例: ツツジ・サツキ", "price_per_unit_jpy": { "min": 3000, "max": 8000 } },
+    "mid_tree_3m": { "name": "中木（2-3m）例: モミジ・ハナミズキ", "price_per_unit_jpy": { "min": 15000, "max": 50000 } },
+    "high_tree_5m": { "name": "高木（4-5m）例: ケヤキ・松", "price_per_unit_jpy": { "min": 50000, "max": 200000 } },
+    "premium_tree_matsu": { "name": "高級和風（黒松・五葉松）", "price_per_unit_jpy": { "min": 200000, "max": 1500000 } }
+  },
+  "additional_costs": {
+    "haitsuchi_kotori": { "name": "排土・客土", "price_per_cum_jpy": { "min": 8000, "max": 15000 } },
+    "shibahari": { "name": "芝張り", "price_per_sqm_jpy": { "min": 3500, "max": 8000 } },
+    "shibatake_renew": { "name": "芝生全面張替", "price_per_sqm_jpy": { "min": 4500, "max": 10000 } },
+    "kurane_konsui": { "name": "潅水システム（自動散水）", "price_jpy": { "min": 200000, "max": 800000 } }
+  },
+  "plans": {
+    "small_garden_basic": {
+      "name": "小規模庭・低木+芝張り（30㎡）",
+      "scope": "低木5本+芝張り20㎡+排土",
+      "estimated_total_jpy": { "min": 200000, "max": 500000 },
+      "hs_rule_estimate_jpy": 350000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 220000, "max": 470000 },
+        "区分2_中小造園": { "min": 235000, "max": 500000, "note": "HS第一推奨" },
+        "区分3_造園会社": { "min": 270000, "max": 580000 },
+        "区分4_大手": { "min": 325000, "max": 700000 }
+      }
+    },
+    "medium_garden_with_tree": {
+      "name": "中規模庭園・中高木込み（80㎡）",
+      "scope": "中木3本+低木10本+芝50㎡+石積",
+      "estimated_total_jpy": { "min": 500000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 950000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小造園": { "min": 550000, "max": 1380000, "note": "HS第一推奨" },
+        "区分3_造園会社": { "min": 640000, "max": 1600000 },
+        "区分4_大手": { "min": 770000, "max": 1920000 }
+      }
+    },
+    "wafu_teien_premium": {
+      "name": "和風庭園（茶庭・坪庭）",
+      "scope": "黒松・苔・蹲・灯篭・延段",
+      "estimated_total_jpy": { "min": 1500000, "max": 5000000 },
+      "hs_rule_estimate_jpy": 3000000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小造園": { "min": 1700000, "max": 4500000 },
+        "区分3_造園会社": { "min": 1950000, "max": 5200000, "note": "和風専門推奨" },
+        "区分4_大手": { "min": 2350000, "max": 6300000 }
+      }
+    },
+    "ikegaki_creation": {
+      "name": "生垣造成（10m）",
+      "scope": "サザンカ・ツバキ等の苗木+整形",
+      "estimated_total_jpy": { "min": 80000, "max": 250000 },
+      "hs_rule_estimate_jpy": 150000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 88000, "max": 235000 },
+        "区分2_中小造園": { "min": 95000, "max": 250000, "note": "HS第一推奨" },
+        "区分3_造園会社": { "min": 110000, "max": 290000 },
+        "区分4_大手": { "min": 130000, "max": 350000 }
+      }
+    },
+    "annual_maintenance_kotei": {
+      "name": "年間管理契約・標準（年4回剪定）",
+      "scope": "30坪庭・剪定+施肥+消毒+草取り",
+      "estimated_total_jpy": { "min": 80000, "max": 250000 },
+      "hs_rule_estimate_jpy": 150000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 88000, "max": 235000, "note": "HS第一推奨" },
+        "区分2_中小造園": { "min": 95000, "max": 250000 },
+        "区分3_造園会社": { "min": 110000, "max": 290000 }
+      }
+    },
+    "tree_pruning_per_tree": {
+      "name": "庭木剪定・1本単位",
+      "scope": "中木1本（3m級）の剪定",
+      "estimated_total_jpy": { "min": 5000, "max": 25000 },
+      "hs_rule_estimate_jpy": 12000,
+      "note": "高木¥30-100k、特殊樹（松等）は別途",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 5500, "max": 23000 },
+        "区分2_中小造園": { "min": 6000, "max": 25000, "note": "HS第一推奨" },
+        "区分3_造園会社": { "min": 7000, "max": 29000 }
+      }
+    },
+    "matsu_pruning_premium": {
+      "name": "黒松・五葉松の剪定（高級樹）",
+      "scope": "1本・伝統的な手入れ",
+      "estimated_total_jpy": { "min": 50000, "max": 200000 },
+      "hs_rule_estimate_jpy": 100000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 55000, "max": 190000 },
+        "区分2_中小造園": { "min": 60000, "max": 200000 },
+        "区分3_造園会社": { "min": 70000, "max": 230000, "note": "和風専門推奨" }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "TREE_PRICE_INFLATION", "pattern": "中木¥3m級剪定で¥10万超", "severity": "🚨 HIGH",
+      "reason": "適正¥1-2.5万。¥10万超は明確に過大" },
+    { "code": "DOOR_TO_DOOR_TRIM", "pattern": "「無料診断」訪問→高額剪定", "severity": "🚨 HIGH" },
+    { "code": "TREE_GRADE_FAKE", "pattern": "並品を高級品と偽装", "severity": "🚨 HIGH" },
+    { "code": "TRANSPORT_HIDDEN", "pattern": "搬入費・処分費の事後請求", "severity": "🚨 HIGH" },
+    { "code": "MAINTENANCE_LOCK_IN", "pattern": "年間契約を半強制（解約ペナルティ）", "severity": "⚠️ MEDIUM" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "新築の庭づくり", "recommendation": "小規模庭", "cost_range": { "min": 200000, "max": 500000 } },
+    { "case": "本格庭園", "recommendation": "中規模庭園", "cost_range": { "min": 500000, "max": 1500000 } },
+    { "case": "和風茶庭", "recommendation": "和風庭園", "cost_range": { "min": 1500000, "max": 5000000 } },
+    { "case": "目隠し", "recommendation": "生垣造成", "cost_range": { "min": 80000, "max": 250000 } },
+    { "case": "庭の維持管理", "recommendation": "年間契約", "cost_range": { "min": 80000, "max": 250000 } },
+    { "case": "庭木の剪定", "recommendation": "1本単位", "cost_range": { "min": 5000, "max": 200000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "推奨度": "★★★★★", "特徴": "コスパ最良・小規模" },
+    "区分2_中小造園": { "推奨度": "★★★★★ 第一推奨", "特徴": "標準対応" },
+    "区分3_造園会社": { "推奨度": "★★★★☆", "特徴": "和風・大規模" },
+    "区分4_大手": { "推奨度": "★★★☆☆", "特徴": "割高" }
+  },
+  "iran_situation_2026_04_impact": {
+    "副資材_+5_10pct": ["肥料", "薬剤"],
+    "建材_+10_20pct": ["庭石・砕石（輸送費）"],
+    "_impact_summary": "全プラン+5-10%。輸入苗木（一部）は+10%"
+  },
+  "negotiation_tips": [
+    "樹種・本数・サイズの明記",
+    "搬入費・処分費の事前確定",
+    "剪定は1本単価で見積もり",
+    "造園技能士の資格確認（区分3推奨）",
+    "年間契約は解約条件を契約書で確認",
+    "高級樹（松等）は専門業者に依頼"
+  ],
+  "trade_knowledge": {
+    "summary": "造園は樹種・サイズで大幅変動。中木1本剪定¥1-2.5万、高木¥3-10万、松¥5-20万が標準。年間管理¥8-25万",
+    "industry_scam_structure": "①剪定費の水増し②並品の高級品偽装③搬入費の事後請求",
+    "knowledge_source": "TOshi経験 + 日本造園組合連合会業界データ"
+  },
+  "connected_clusters": {
+    "gaikou_cluster": { "categories": ["gaikou_work", "iwa_ishigumi", "kaki_seko", "wood_deck_work"], "synergy": "庭・外構同時施工" }
+  }
+}
