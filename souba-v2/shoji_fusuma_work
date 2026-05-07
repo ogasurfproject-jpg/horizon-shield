@@ -1,0 +1,461 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "shoji_fusuma_work",
+    "category_name_jp": "障子・ふすま張替え工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐ 内装小規模・伝統技能・単価勝負領域・訪販ぼったくり要注意",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 2026年実勢データ（表具師・建具屋・畳屋・モノタロウ等）",
+    "scope": "障子の張替え（紙のみ・障子戸全交換）、ふすまの張替え（紙のみ・骨組み補修・全交換）。雪見障子・組子障子・本ぶすま等の特殊案件も含む",
+    "horizons_philosophy": "HSは業者を敵視しない。表具師・畳屋・建具屋・内装屋の妥当な利益率を透明化。地域密着の伝統技能を持つ業者を支援する立場。低単価工事ゆえの『出張費・追加押し売り』詐欺に注意",
+    "_TOshi_review_needed": true,
+    "_template_role": "Phase 1.7 で 31 新規カテゴリのテンプレート。本ファイルを基準に他カテゴリを生成",
+    "_template_structure": [
+      "1. _meta",
+      "2. horizon_shield_standard",
+      "3. paper_materials / 部材詳細",
+      "4. labor",
+      "5. additional_costs",
+      "6. plans (松竹梅 + 業者規模別)",
+      "7. red_flags",
+      "8. customer_scenario_guide",
+      "9. business_size_based_pricing",
+      "10. iran_situation_2026_04_impact",
+      "11. negotiation_tips",
+      "12. trade_knowledge"
+    ]
+  },
+
+  "horizon_shield_standard": {
+    "description": "HS基準：健全な業者が施主に請求すべき金額の算出ルール（障子・ふすま版）",
+    "formula": "材料仕入れ値 × 1.2 + 表具師人工 × 日当 + 出張費実費 + (原価 × 一般管理費率 15%) + 消費税 10%",
+    "parameters": {
+      "material_markup_from_trade_price": 1.2,
+      "general_overhead_pct_ideal": 15,
+      "general_overhead_pct_acceptable_max": 20,
+      "tax_pct": 10,
+      "trade_price_ratio_from_list": 0.65,
+      "note": "障子・ふすまの紙は定価65%が業者仕入れ標準。手漉き和紙は定価70-80%とやや高め"
+    },
+    "philosophy": "障子・ふすまは『1枚いくら』のシンプル料金体系が業界標準。ただし出張費・付帯工事費で曖昧にする業者多し。HSは紙のグレード×枚数を明細化して施主を守る",
+    "HS_pricing_philosophy": {
+      "原則": "HS基準価格 = 原価 + 業者規模別の妥当な利益率レンジ",
+      "公式": "適正価格 = 材料仕入れ値 × 1.2 + 人工数 × 日当 + 出張費実費 + (原価 × 業者規模別利益率) + 消費税 10%",
+      "業者規模別_妥当な利益率_障子_ふすま": {
+        "個人事業_表具師": "粗利率 25-35%（原価×1.25-1.35）",
+        "中小工務店_建具内装": "粗利率 25-35%（原価×1.25-1.35）",
+        "人気工務店_和室専門": "粗利率 30-40%（原価×1.30-1.40）",
+        "大手リフォーム_ハウスメーカー": "粗利率 35-45%（原価×1.35-1.45）"
+      },
+      "規模別利益率_根拠": "国土交通省建設関連業経営分析、建設業情報管理センター"
+    }
+  },
+
+  "shoji_paper_materials": {
+    "_description": "障子紙の種類・グレード別データ",
+    "futsugami_standard": {
+      "name": "普通紙（最安）",
+      "price_per_sheet_list_jpy": { "min": 500, "max": 1000, "midpoint": 750 },
+      "price_per_sheet_trade_jpy": { "min": 325, "max": 650 },
+      "durability_years": { "min": 1, "max": 3 },
+      "status": "薄手・破れやすい",
+      "note": "子供・ペットいる家庭には不向き。来客用和室など使用頻度低い場所に",
+      "_TOshi_review_needed": true
+    },
+    "kyoukashi_strengthened": {
+      "name": "強化紙（破れにくい）",
+      "price_per_sheet_list_jpy": { "min": 1500, "max": 3000, "midpoint": 2250 },
+      "price_per_sheet_trade_jpy": { "min": 975, "max": 1950 },
+      "durability_years": { "min": 5, "max": 8 },
+      "status": "標準的な選択（最多使用）",
+      "note": "子育て世代に推奨。HS第一推奨グレード"
+    },
+    "washi_handmade": {
+      "name": "手漉き和紙（高級）",
+      "price_per_sheet_list_jpy": { "min": 3000, "max": 8000, "midpoint": 5500 },
+      "price_per_sheet_trade_jpy": { "min": 2100, "max": 5600 },
+      "durability_years": { "min": 8, "max": 15 },
+      "examples": ["美濃和紙", "越前和紙", "土佐和紙"],
+      "note": "茶室・伝統的和室・文化財向け"
+    },
+    "plastic_shoji": {
+      "name": "プラスチック障子紙（合成樹脂系）",
+      "price_per_sheet_list_jpy": { "min": 2000, "max": 4000, "midpoint": 3000 },
+      "price_per_sheet_trade_jpy": { "min": 1300, "max": 2600 },
+      "durability_years": { "min": 10, "max": 15 },
+      "status": "高耐久・現代住宅向け",
+      "note": "破れない・濡れに強い・ペット対応。和の風合いはやや劣る"
+    }
+  },
+
+  "fusuma_paper_materials": {
+    "_description": "ふすま紙の種類・グレード別データ",
+    "ryosan_standard": {
+      "name": "量産紙（最安）",
+      "price_per_sheet_list_jpy": { "min": 1000, "max": 3000, "midpoint": 2000 },
+      "price_per_sheet_trade_jpy": { "min": 650, "max": 1950 },
+      "durability_years": { "min": 5, "max": 8 },
+      "status": "賃貸・引越し直前リフォーム向け",
+      "_TOshi_review_needed": true
+    },
+    "joto_premium": {
+      "name": "上等紙（標準）",
+      "price_per_sheet_list_jpy": { "min": 3000, "max": 10000, "midpoint": 6500 },
+      "price_per_sheet_trade_jpy": { "min": 1950, "max": 6500 },
+      "durability_years": { "min": 10, "max": 15 },
+      "status": "戸建標準・HS第一推奨"
+    },
+    "torinoko_traditional": {
+      "name": "鳥の子紙（高級・伝統）",
+      "price_per_sheet_list_jpy": { "min": 5000, "max": 20000, "midpoint": 12500 },
+      "price_per_sheet_trade_jpy": { "min": 3500, "max": 14000 },
+      "durability_years": { "min": 15, "max": 25 },
+      "examples": ["本鳥の子", "新鳥の子", "上新鳥の子"],
+      "note": "格式高い和室向け。書院造・床の間"
+    },
+    "tegako_artisan": {
+      "name": "手加工紙（最高級）",
+      "price_per_sheet_list_jpy": { "min": 10000, "max": 30000, "midpoint": 20000 },
+      "price_per_sheet_trade_jpy": { "min": 7000, "max": 21000 },
+      "durability_years": { "min": 20, "max": 30 },
+      "note": "絹本系・手描き・本金箔等。文化財・茶室クラス。表具師の技能で価格変動大"
+    }
+  },
+
+  "labor": {
+    "hyogu_shi_day_rate_kanto": {
+      "min": 18000,
+      "max": 25000,
+      "avg": 21500,
+      "source": "全建設総連東京都連2023・建具職人賃金"
+    },
+    "standard_work_time": {
+      "shoji_per_sheet": {
+        "hours_min": 0.5,
+        "hours_max": 1.0,
+        "note": "1人作業・既存撤去含む"
+      },
+      "fusuma_per_sheet_kami_only": {
+        "hours_min": 1.0,
+        "hours_max": 2.0,
+        "note": "紙のみ張替え"
+      },
+      "fusuma_per_sheet_with_uragami": {
+        "hours_min": 2.0,
+        "hours_max": 4.0,
+        "note": "裏張り含む（伝統技法）"
+      }
+    },
+    "minimum_charge_per_visit": {
+      "min": 10000,
+      "max": 20000,
+      "note": "1枚だけの依頼は割高になる業界構造。複数枚まとめが推奨"
+    }
+  },
+
+  "additional_costs": {
+    "shutchohi_dispatch": {
+      "name": "出張費",
+      "price_jpy": { "min": 0, "max": 10000, "typical": 3000 },
+      "note": "地域・業者により大きく変動。3社相見積もりで比較"
+    },
+    "honetsugi_repair": {
+      "name": "骨組み補修（ふすま桟の割れ等）",
+      "price_per_unit_jpy": { "min": 3000, "max": 10000 },
+      "note": "別途請求項目。事前合意要。隠れ追加請求の典型"
+    },
+    "tehiki_kotori_replace": {
+      "name": "引手・取手の交換",
+      "price_per_unit_jpy": { "min": 1000, "max": 5000 },
+      "examples": ["丸引手", "角引手", "アンティーク調引手"]
+    },
+    "transport_existing": {
+      "name": "既存品の搬出・処分",
+      "price_per_set_jpy": { "min": 2000, "max": 8000 },
+      "note": "全交換時のみ発生"
+    },
+    "shoji_kakezuri_repair": {
+      "name": "障子框（かまち）補修",
+      "price_per_unit_jpy": { "min": 5000, "max": 15000 },
+      "note": "木枠が割れた場合"
+    }
+  },
+
+  "plans": {
+    "shoji_kyokashi_4mai_standard": {
+      "name": "障子・強化紙張替え（標準4枚）",
+      "scope": "6畳和室の標準パターン。障子4枚、強化紙、出張費込み",
+      "estimated_total_jpy": { "min": 12000, "max": 24000 },
+      "hs_rule_estimate_jpy": 18000,
+      "work_days": 0.5,
+      "breakdown_sample_hs_rule": {
+        "material_kyoukashi_4枚_trade": 5500,
+        "material_with_markup_x1.2": 6600,
+        "labor_0.5day": 11000,
+        "shutchohi": 3000,
+        "subtotal": 20600,
+        "overhead_15pct": 3090,
+        "tax_10pct": 2369,
+        "total": 26059,
+        "_note": "TOshi Rule原価ベース計算例"
+      },
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 15000, "max": 22000, "note": "表具師個人" },
+        "区分2_中小工務店": { "min": 16000, "max": 24000, "note": "HS第一推奨レンジ" },
+        "区分3_人気工務店": { "min": 18000, "max": 28000 },
+        "区分4_大手_ハウスメーカー": { "min": 22000, "max": 35000 }
+      },
+      "_TOshi_review_needed": true
+    },
+    "shoji_washi_4mai_premium": {
+      "name": "障子・手漉き和紙張替え（4枚・高級）",
+      "scope": "茶室・伝統和室向け。手漉き和紙、出張費込み",
+      "estimated_total_jpy": { "min": 28000, "max": 50000 },
+      "hs_rule_estimate_jpy": 38000,
+      "work_days": 0.7,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 30000, "max": 45000 },
+        "区分2_中小工務店": { "min": 32000, "max": 48000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 36000, "max": 55000, "note": "茶室専門" },
+        "区分4_大手_ハウスメーカー": { "min": 42000, "max": 65000 }
+      }
+    },
+    "fusuma_joto_4mai_standard": {
+      "name": "ふすま・上等紙張替え（標準4枚）",
+      "scope": "6畳和室の標準パターン。ふすま4枚、上等紙、出張費込み",
+      "estimated_total_jpy": { "min": 24000, "max": 48000 },
+      "hs_rule_estimate_jpy": 36000,
+      "work_days": 1.0,
+      "breakdown_sample_hs_rule": {
+        "material_joto_4枚_trade": 16000,
+        "material_with_markup_x1.2": 19200,
+        "labor_1day": 21500,
+        "shutchohi": 3000,
+        "subtotal": 43700,
+        "overhead_15pct": 6555,
+        "tax_10pct": 5026,
+        "total": 55281,
+        "_note": "TOshi Rule原価ベース計算例"
+      },
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 28000, "max": 45000 },
+        "区分2_中小工務店": { "min": 30000, "max": 48000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 33000, "max": 55000 },
+        "区分4_大手_ハウスメーカー": { "min": 38000, "max": 65000 }
+      }
+    },
+    "fusuma_torinoko_4mai_premium": {
+      "name": "ふすま・鳥の子紙張替え（4枚・高級）",
+      "scope": "格式高い和室向け。鳥の子紙、出張費込み",
+      "estimated_total_jpy": { "min": 60000, "max": 120000 },
+      "hs_rule_estimate_jpy": 90000,
+      "work_days": 1.5,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 70000, "max": 105000 },
+        "区分2_中小工務店": { "min": 75000, "max": 115000 },
+        "区分3_人気工務店": { "min": 85000, "max": 130000, "note": "和室専門推奨" },
+        "区分4_大手_ハウスメーカー": { "min": 100000, "max": 150000 }
+      }
+    },
+    "fusuma_full_replace_8mai_premium": {
+      "name": "ふすま全交換（8枚・本鳥の子）",
+      "scope": "ふすま戸そのものを新調。和室2部屋分・8枚",
+      "estimated_total_jpy": { "min": 240000, "max": 480000 },
+      "hs_rule_estimate_jpy": 360000,
+      "work_days": 3.0,
+      "note": "骨組み・引手・縁全て新調。20年以上使用前提",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 270000, "max": 420000 },
+        "区分2_中小工務店": { "min": 290000, "max": 450000 },
+        "区分3_人気工務店": { "min": 320000, "max": 510000 },
+        "区分4_大手_ハウスメーカー": { "min": 380000, "max": 600000 }
+      },
+      "_TOshi_review_needed": true
+    },
+    "yukimi_shoji_repair": {
+      "name": "雪見障子・組子障子の修繕",
+      "scope": "破損した雪見障子のガラス交換・組子の補修",
+      "estimated_total_jpy": { "min": 15000, "max": 50000 },
+      "hs_rule_estimate_jpy": 30000,
+      "work_days": "0.5-1.0",
+      "note": "組子は熟練表具師の技能領域。価格バラつき大",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 18000, "max": 40000 },
+        "区分2_中小工務店": { "min": 20000, "max": 45000 },
+        "区分3_人気工務店": { "min": 25000, "max": 55000, "note": "伝統技能継承業者推奨" },
+        "区分4_大手_ハウスメーカー": { "min": 30000, "max": 70000 }
+      }
+    }
+  },
+
+  "red_flags": [
+    {
+      "code": "DOOR_TO_DOOR_CHEAP_BAIT",
+      "pattern": "訪問販売の「今だけ全部¥5,000で張替え」勧誘",
+      "severity": "🚨 HIGH",
+      "reason": "原価割れの集客餌。実際は出張費・骨組み補修・追加で総額¥30,000超になる典型手口"
+    },
+    {
+      "code": "OUT_OF_TOWN_DISPATCH_FEE",
+      "pattern": "出張費が¥10,000超 / 出張費が「実費」と曖昧",
+      "severity": "⚠️ MEDIUM",
+      "reason": "適正出張費は¥0-5,000。¥10,000超は明確に過大"
+    },
+    {
+      "code": "PAPER_GRADE_UNCLEAR",
+      "pattern": "見積もりに紙のグレード・産地・型番の記載なし",
+      "severity": "🚨 HIGH",
+      "reason": "普通紙¥500と手漉き和紙¥8,000で16倍差。グレード明記が業界標準"
+    },
+    {
+      "code": "FORCED_FULL_REPLACE",
+      "pattern": "紙張替えで済む案件にふすま全交換を強要",
+      "severity": "🚨 HIGH",
+      "reason": "¥36,000で済むのを¥360,000に。骨組みが正常なら紙張替えで十分"
+    },
+    {
+      "code": "HONE_REPAIR_HIDDEN",
+      "pattern": "骨組み補修費を事後請求（事前見積もりに記載なし）",
+      "severity": "⚠️ MEDIUM",
+      "reason": "施工前の現状確認で発見可能。事前合意なき追加は不当"
+    },
+    {
+      "code": "MASHIBARI_ONLY_HIDDEN",
+      "pattern": "「裏張り省略」を施主に告げず安い工法で施工",
+      "severity": "⚠️ MEDIUM",
+      "reason": "本ぶすまは裏張りが必須。表だけ張替えて『正規』と称するのは手抜き"
+    },
+    {
+      "code": "OVER_60K_4MAI_FUSUMA",
+      "pattern": "標準4枚ふすま張替え（上等紙）で¥60,000超",
+      "severity": "🚨 HIGH",
+      "reason": "HS基準¥36,000・大手でも¥48,000上限。¥60,000超は業者規模係数を考慮しても過大"
+    },
+    {
+      "code": "SCALE_MISMATCH_HIGH",
+      "pattern": "業者規模に対して明らかに過剰な利益率（粗利50%超）",
+      "severity": "🚨 HIGH",
+      "reason": "業者規模別妥当利益率（個人・中小25-35%、人気30-40%、大手35-45%）を大幅に超える",
+      "対処": "見積もり内訳の明細化要求、他社相見積もりで比較"
+    },
+    {
+      "code": "DOOR_TO_DOOR_TODAY_DISCOUNT",
+      "pattern": "「今日だけ」「特別価格」「モニター価格」の即決迫り",
+      "severity": "🚨 HIGH",
+      "reason": "優良業者はアポなし訪問営業しない",
+      "対処": "クーリングオフ権確認・3社相見積もり"
+    }
+  ],
+
+  "customer_scenario_guide": [
+    {
+      "case": "築20年戸建・障子の紙だけ汚れた",
+      "recommendation": "強化紙4枚張替え",
+      "cost_range": { "min": 16000, "max": 24000 }
+    },
+    {
+      "case": "ふすまを長持ちさせたい",
+      "recommendation": "上等紙張替え（10-15年耐久）",
+      "cost_range": { "min": 30000, "max": 48000 }
+    },
+    {
+      "case": "茶室・格式高い和室",
+      "recommendation": "手漉き和紙障子＋鳥の子ふすま",
+      "cost_range": { "min": 80000, "max": 200000 }
+    },
+    {
+      "case": "賃貸退去前の最安リフォーム",
+      "recommendation": "量産紙（ふすま）＋普通紙（障子）",
+      "cost_range": { "min": 12000, "max": 20000 }
+    },
+    {
+      "case": "ペット・子供で破れる",
+      "recommendation": "プラスチック障子紙",
+      "cost_range": { "min": 18000, "max": 32000 }
+    },
+    {
+      "case": "築50年以上・骨組みも傷んでいる",
+      "recommendation": "ふすま全交換（新調）",
+      "cost_range": { "min": 240000, "max": 480000 }
+    }
+  ],
+
+  "business_size_based_pricing": {
+    "_description": "業者規模4区分別 妥当な利益率レンジと価格係数（2026年4月時点・障子/ふすま）",
+    "4区分別_妥当な利益率レンジ_2026年4月": {
+      "区分1_個人事業": {
+        "代表例": "地域の表具師個人・畳屋",
+        "粗利率レンジ": "25-35%",
+        "HS基準からの係数": "0.95-0.98",
+        "HS推奨度": "★★★★★",
+        "特徴": "伝統技能・小回り効く・茶室対応可。価格最安帯"
+      },
+      "区分2_中小工務店": {
+        "代表例": "建具・内装専門店（5-20名規模）",
+        "粗利率レンジ": "25-35%",
+        "HS基準からの係数": "1.00-1.03",
+        "HS推奨度": "★★★★★ **第一推奨**",
+        "特徴": "適正価格・地域密着・複数枚案件に強い"
+      },
+      "区分3_人気工務店": {
+        "代表例": "和室・伝統建築専門会社",
+        "粗利率レンジ": "30-40%",
+        "HS基準からの係数": "1.05-1.10",
+        "HS推奨度": "★★★★☆",
+        "特徴": "高級紙・茶室対応・職人紹介可"
+      },
+      "区分4_大手リフォーム": {
+        "代表例": "ハウスメーカー系・全国チェーン",
+        "粗利率レンジ": "35-45%",
+        "HS基準からの係数": "1.12-1.18",
+        "HS推奨度": "★★★☆☆",
+        "特徴": "下請け施工・全国保証・価格高"
+      }
+    },
+    "適正価格判断原則": "障子・ふすまは小規模工事ゆえ、区分1-2の地域密着業者が最もコスパ良。区分3-4は高級紙・伝統技能対応の場合のみ"
+  },
+
+  "iran_situation_2026_04_impact": {
+    "_description": "2026年4月イラン情勢による障子・ふすま材料への影響",
+    "副資材_+5_10pct": [
+      "糊・接着剤（ノリペーストなど）",
+      "養生テープ・マスキング材"
+    ],
+    "建材_直接影響": "限定的。和紙は国産で影響軽微",
+    "間接影響": [
+      "プラスチック障子紙: +10-15%（石油化学由来）",
+      "輸送費: +3-5%（燃料高）"
+    ],
+    "_impact_summary": "他カテゴリより影響軽微。和紙系は国産で安定。プラ障子紙のみ要注意"
+  },
+
+  "negotiation_tips": [
+    "紙のグレード（強化紙/和紙/プラスチック）と産地（美濃・越前等）を明記要求",
+    "1枚あたりの単価で見積もり（一式拒否）",
+    "出張費は事前確定（実費請求は拒否）",
+    "骨組み・引手の補修は事前見積もりに含める",
+    "標準4枚ふすま上等紙で¥48,000超は業者規模問わず過大",
+    "本ぶすまは『裏張り含む』を契約書に明記",
+    "訪問販売の『全部¥5,000』は集客餌・絶対契約しない",
+    "古い障子・ふすまの引取・処分費を事前確認",
+    "茶室クラスは伝統技能継承業者を選ぶ（区分3）",
+    "賃貸退去前は管理会社指定業者の見積もりも比較"
+  ],
+
+  "trade_knowledge": {
+    "summary": "障子・ふすま張替えは小規模・伝統技能領域。業者仕入れは紙の定価65%が標準。1枚あたり障子¥3,000-15,000、ふすま¥6,000-30,000が業界相場。出張費・骨組み補修で総額が上ぶれするケース多発。HSは紙のグレード×枚数×業者規模で適正価格を可視化",
+    "industry_scam_structure": "訪問販売の『全部¥5,000で張替え』は集客餌。実際は『骨が傷んでます』『高級紙に変えますか』で総額¥30,000-60,000に。良心的業者は最初から正規金額を提示する",
+    "paper_grade_reality": "紙のグレードで耐久年数が3-30年と10倍差。子育て世代は強化紙、茶室は手漉き和紙、ペット家庭はプラスチック障子紙が定番",
+    "regional_difference": "京都・奈良など伝統地域は手漉き和紙が標準で価格高め。関東・首都圏は強化紙が標準",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 表具師業界知識 + 国産和紙メーカーデータ"
+  },
+
+  "connected_clusters": {
+    "dentou_cluster": {
+      "description": "伝統建築連動",
+      "categories": ["sakan_work", "zosaku_tategu_master", "tatami_reform", "tile_renga_work"],
+      "synergy": "和室リフォーム時に同時施工で職人手配の効率化"
+    }
+  }
+}
