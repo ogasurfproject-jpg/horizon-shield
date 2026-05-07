@@ -1,0 +1,214 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "builtin_dishwasher",
+    "category_name_jp": "ビルトイン食洗機後付け工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐ 共働き世代需要急増・キッチン全交換不要・コスパ良いリフォーム",
+    "knowledge_source": "TOshi 30年の建設実務経験 + Panasonic/リンナイ/ミーレ/AEG 2026年データ",
+    "scope": "既存キッチンへの食洗機後付け（キャビネット改造含む）。新規キッチン同時施工は kitchen_reform.json 参照",
+    "horizons_philosophy": "食洗機後付けは『キャビネット改造』『電気・給排水接続』が肝。HSは本体・工事・改造費を明細化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "本体仕入れ値 × 1.2 + 設備工 × 日当 + 大工改造費 + 電気工事費 + (原価 × 15%) + 消費税 10%",
+    "parameters": {
+      "trade_price_ratio_from_list": 0.5,
+      "note": "食洗機本体は定価50%が業者仕入れ標準（住設標準）"
+    },
+    "HS_pricing_philosophy": {
+      "業者規模別_妥当な利益率_食洗機": {
+        "個人事業_設備工": "粗利率 25-35%",
+        "中小工務店": "粗利率 25-35%",
+        "人気工務店": "粗利率 30-40%",
+        "大手リフォーム": "粗利率 35-45%"
+      }
+    }
+  },
+  "manufacturers": {
+    "Panasonic": {
+      "popular_models": [
+        { "name": "NP-45MD9S（深型・中位）", "list_price": 280000, "trade_price_estimate": 140000 },
+        { "name": "NP-45RD9S（深型・上位・自動投入）", "list_price": 360000, "trade_price_estimate": 180000 },
+        { "name": "NP-45MS9S（薄型・標準）", "list_price": 220000, "trade_price_estimate": 110000 }
+      ]
+    },
+    "Rinnai": {
+      "popular_models": [
+        { "name": "RSW-D401LP（フロントオープン）", "list_price": 320000, "trade_price_estimate": 160000 },
+        { "name": "RSW-404LP", "list_price": 250000, "trade_price_estimate": 125000 }
+      ]
+    },
+    "Miele": {
+      "popular_models": [
+        { "name": "Miele G7104 SCi（45cmフルインテグレート）", "list_price": 480000, "trade_price_estimate": 290000 },
+        { "name": "Miele G7964 SCVi（60cm 大容量）", "list_price": 720000, "trade_price_estimate": 430000 }
+      ]
+    },
+    "AEG": {
+      "popular_models": [
+        { "name": "FEE93810PM（60cm）", "list_price": 380000, "trade_price_estimate": 230000 }
+      ]
+    }
+  },
+  "labor": {
+    "setsubi_day_rate": { "min": 22000, "max": 28000 },
+    "carpenter_day_rate": { "min": 28000, "max": 35000 },
+    "electrician_day_rate": { "min": 25000, "max": 32000 },
+    "standard_work_time_hours": {
+      "panasonic_45cm_standard": { "min": 4, "max": 6 },
+      "miele_45cm_imported": { "min": 6, "max": 8 },
+      "miele_60cm_imported": { "min": 8, "max": 12 }
+    }
+  },
+  "additional_costs": {
+    "cabinet_modification_panasonic": { "name": "Panasonic 45cm用キャビネット改造", "price_jpy": { "min": 30000, "max": 60000 } },
+    "cabinet_modification_miele_60": { "name": "Miele 60cm用 大型改造", "price_jpy": { "min": 80000, "max": 200000 } },
+    "water_drain_extension": { "name": "給排水延長工事", "price_jpy": { "min": 20000, "max": 50000 } },
+    "dedicated_outlet_200v": { "name": "専用コンセント新設（200V）", "price_jpy": { "min": 25000, "max": 50000 }, "note": "Miele 60cmで必要" },
+    "front_panel_custom": { "name": "フロントパネルカスタム", "price_jpy": { "min": 30000, "max": 80000 }, "note": "キッチン扉と統一" }
+  },
+  "plans": {
+    "panasonic_standard_replacement": {
+      "name": "Panasonic 45cm深型・既設食洗機交換",
+      "scope": "既存ビルトイン食洗機の同サイズ交換。配管そのまま",
+      "estimated_total_jpy": { "min": 180000, "max": 280000 },
+      "hs_rule_estimate_jpy": 230000,
+      "work_days": 0.5,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 200000, "max": 265000 },
+        "区分2_中小工務店": { "min": 210000, "max": 280000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 240000, "max": 320000 },
+        "区分4_大手_ハウスメーカー": { "min": 290000, "max": 385000 }
+      }
+    },
+    "panasonic_new_install": {
+      "name": "Panasonic 45cm深型・新規後付け",
+      "scope": "食洗機なしキッチンに新設。キャビネット改造+配管+電源",
+      "estimated_total_jpy": { "min": 280000, "max": 450000 },
+      "hs_rule_estimate_jpy": 350000,
+      "work_days": 1.5,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 305000, "max": 425000 },
+        "区分2_中小工務店": { "min": 320000, "max": 450000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 365000, "max": 515000 },
+        "区分4_大手_ハウスメーカー": { "min": 440000, "max": 620000 }
+      }
+    },
+    "panasonic_premium_auto": {
+      "name": "Panasonic 上位機種（自動投入・スマホ連携）",
+      "scope": "NP-RD9S系・新規後付け",
+      "estimated_total_jpy": { "min": 380000, "max": 580000 },
+      "hs_rule_estimate_jpy": 450000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 410000, "max": 545000 },
+        "区分2_中小工務店": { "min": 435000, "max": 580000 },
+        "区分3_人気工務店": { "min": 495000, "max": 660000, "note": "Panasonic認定店推奨" },
+        "区分4_大手_ハウスメーカー": { "min": 595000, "max": 800000 }
+      }
+    },
+    "rinnai_front_open": {
+      "name": "リンナイ フロントオープン",
+      "scope": "RSW-D401系・新規後付け",
+      "estimated_total_jpy": { "min": 350000, "max": 550000 },
+      "hs_rule_estimate_jpy": 430000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 380000, "max": 520000 },
+        "区分2_中小工務店": { "min": 405000, "max": 550000, "note": "HS第一推奨" },
+        "区分3_人気工務店": { "min": 460000, "max": 630000 },
+        "区分4_大手_ハウスメーカー": { "min": 555000, "max": 760000 }
+      }
+    },
+    "miele_45cm_imported": {
+      "name": "Miele 45cm（輸入・フルインテグレート）",
+      "scope": "G7104 SCi系・新規後付け・国産規格非対応",
+      "estimated_total_jpy": { "min": 700000, "max": 1100000 },
+      "hs_rule_estimate_jpy": 880000,
+      "note": "輸入機・専用キャビネット改造・専用排水ポンプ等",
+      "料金_業者規模別_税込_円": {
+        "区分2_中小工務店": { "min": 770000, "max": 1100000 },
+        "区分3_人気工務店": { "min": 880000, "max": 1260000, "note": "Miele認定店推奨" },
+        "区分4_大手_ハウスメーカー": { "min": 1050000, "max": 1500000 }
+      }
+    },
+    "miele_60cm_grand": {
+      "name": "Miele 60cm 大容量",
+      "scope": "G7964 SCVi系・大型・輸入",
+      "estimated_total_jpy": { "min": 1000000, "max": 1600000 },
+      "hs_rule_estimate_jpy": 1300000,
+      "料金_業者規模別_税込_円": {
+        "区分3_人気工務店": { "min": 1300000, "max": 1840000, "note": "Miele認定店" },
+        "区分4_大手_ハウスメーカー": { "min": 1550000, "max": 2200000 }
+      }
+    },
+    "removal_only": {
+      "name": "食洗機撤去のみ（配管止水・キャビネット復旧）",
+      "scope": "故障した食洗機を撤去し収納化",
+      "estimated_total_jpy": { "min": 40000, "max": 100000 },
+      "hs_rule_estimate_jpy": 70000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 45000, "max": 95000 },
+        "区分2_中小工務店": { "min": 48000, "max": 100000 },
+        "区分3_人気工務店": { "min": 55000, "max": 115000 },
+        "区分4_大手_ハウスメーカー": { "min": 66000, "max": 140000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "MODEL_NOT_SPECIFIED", "pattern": "メーカー・型番不明 / 「Panasonic製」だけの記載", "severity": "🔴 CRITICAL",
+      "reason": "NP-45MD9S(¥28万)とNP-45RD9S(¥36万)で大差。型番明記必須" },
+    { "code": "BODY_LIST_PRICE_NEAR", "pattern": "本体価格が定価OFFなし or 定価10%OFF未満", "severity": "🚨 HIGH",
+      "reason": "食洗機は定価50%OFFが業者仕入れ標準。定価近い表示は過剰請求" },
+    { "code": "CABINET_MOD_LUMP_SUM", "pattern": "キャビネット改造費が「一式」", "severity": "🚨 HIGH",
+      "reason": "国産45cm改造¥30k-60k vs Miele 60cm改造¥80k-200kで差大" },
+    { "code": "MIELE_NON_AUTHORIZED", "pattern": "Miele設置をMiele認定店以外が施工", "severity": "🔴 CRITICAL",
+      "reason": "輸入機は専用知識必須。非認定施工は故障時メーカー保証対象外" },
+    { "code": "DEDICATED_OUTLET_HIDDEN", "pattern": "200V専用コンセント費用の事後請求", "severity": "⚠️ MEDIUM",
+      "reason": "Miele 60cm等は200V必要。事前見積もり要" },
+    { "code": "SCALE_MISMATCH_HIGH", "pattern": "業者規模に対して粗利50%超", "severity": "🚨 HIGH" },
+    { "code": "FORCED_PREMIUM_GRADE", "pattern": "標準で十分な家庭にMiele強要", "severity": "⚠️ MEDIUM" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "既存食洗機が壊れた", "recommendation": "Panasonic 同サイズ交換", "cost_range": { "min": 180000, "max": 280000 } },
+    { "case": "食洗機初導入（共働き）", "recommendation": "Panasonic 45cm深型・新規", "cost_range": { "min": 280000, "max": 450000 } },
+    { "case": "高機能を求める", "recommendation": "Panasonic 上位機種", "cost_range": { "min": 380000, "max": 580000 } },
+    { "case": "海外製のデザイン重視", "recommendation": "Miele 45cm", "cost_range": { "min": 700000, "max": 1100000 } },
+    { "case": "大家族・大量食器", "recommendation": "Miele 60cm 大容量", "cost_range": { "min": 1000000, "max": 1600000 } },
+    { "case": "故障食洗機の撤去", "recommendation": "撤去・収納化", "cost_range": { "min": 40000, "max": 100000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "代表": "設備個人事業", "粗利率": "25-35%", "推奨度": "★★★★☆", "特徴": "国産機の交換に強い" },
+    "区分2_中小工務店": { "代表": "水回り専門店", "粗利率": "25-35%", "推奨度": "★★★★★ 第一推奨" },
+    "区分3_人気工務店": { "代表": "Panasonic/Miele認定店", "粗利率": "30-40%", "推奨度": "★★★★★", "特徴": "輸入機対応" },
+    "区分4_大手_ハウスメーカー": { "代表": "全国チェーン", "粗利率": "35-45%", "推奨度": "★★★☆☆" }
+  },
+  "iran_situation_2026_04_impact": {
+    "副資材_+5_10pct": ["コーキング", "ビス類"],
+    "建材_+10_20pct": ["銅管（給排水）", "電子部品（半導体）"],
+    "輸入機影響": "Miele等の輸入機は為替・物流費影響で+5-10%。納期も2-4週間延びる傾向",
+    "_impact_summary": "国産機影響は限定的。輸入機は為替+物流+原材料で+10-15%"
+  },
+  "negotiation_tips": [
+    "メーカー・型番の明記要求（Panasonic NP-45MD9S 等）",
+    "本体価格は定価50%OFFが業者仕入れ標準",
+    "キャビネット改造費を別途明細",
+    "200V専用コンセント要否を事前確認",
+    "Miele等輸入機は認定店指定（保証対象）",
+    "工期は半日〜1.5日が標準（輸入機は2日）",
+    "既存食洗機撤去・処分費の事前確定",
+    "メーカー保証期間（1-5年）の確認"
+  ],
+  "trade_knowledge": {
+    "summary": "ビルトイン食洗機後付けは共働き世代需要急増。本体+キャビネット改造+配管+電気の複合工事。国産45cmで¥28-45万、上位¥38-58万、輸入Miele 45cmで¥70-110万、60cmで¥100-160万",
+    "industry_scam_structure": "本体定価ベース表記+改造費一式で¥80万級の請求事例あり。型番・改造費明細・業者仕入れ値で適正化",
+    "trade_price_reality": "Panasonic NP-45MD9S 定価¥28万→業者仕入れ¥14万。施主表示は¥18-22万が適正",
+    "knowledge_source": "TOshi経験 + Panasonic/Miele業界データ"
+  },
+  "connected_clusters": {
+    "mizumawari_cluster": {
+      "categories": ["kitchen_reform", "water_pipe_work", "electrical_work"],
+      "synergy": "キッチン全体リフォームで食洗機同時施工"
+    }
+  }
+}
