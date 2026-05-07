@@ -1,0 +1,129 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "zenkanki_jokuki",
+    "category_name_jp": "全館空調・除湿システム工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐ 高機能住宅市場・ダクト工事+大型機器・新築連動・電気代運用課題",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 三菱/ダイキン/三井ホーム 2026年データ",
+    "scope": "戸建全館空調システム新設、業務用全館空調、除湿器、24時間換気連動",
+    "horizons_philosophy": "全館空調は『初期費¥150-400万』『電気代月¥15-30k』のセット判断必要。HSは10年TCOで可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "本体 × 1.2 + ダクト工事 + 設備工 + 電気工 + 諸経費（25-35%）+ 消費税 10%",
+    "parameters": { "trade_price_ratio_from_list": 0.55 }
+  },
+  "products": {
+    "panasonic_zenkan_kanki": { "name": "Panasonic 全館空調 エアロハス", "list_price": 2000000, "trade_price_estimate": 1100000 },
+    "mitsubishi_zenkan": { "name": "三菱電機 全館空調 エアリゾート", "list_price": 1800000, "trade_price_estimate": 990000 },
+    "daikin_desica": { "name": "ダイキン デシカホームエア（除湿型）", "list_price": 2500000, "trade_price_estimate": 1375000 }
+  },
+  "labor": {
+    "setsubi_specialist": { "min": 30000, "max": 40000 },
+    "duct_specialist": { "min": 28000, "max": 35000 }
+  },
+  "additional_costs": {
+    "duct_work_full_house": { "name": "全館ダクト配管工事", "price_jpy": { "min": 500000, "max": 1500000 } },
+    "machine_room_construction": { "name": "機械室造作", "price_jpy": { "min": 300000, "max": 800000 } },
+    "drain_piping": { "name": "ドレン配管", "price_jpy": { "min": 80000, "max": 250000 } }
+  },
+  "plans": {
+    "compact_zenkan_30tsubo": {
+      "name": "戸建30坪・全館空調（スタンダード）",
+      "scope": "Panasonic/三菱級+ダクト+設置",
+      "estimated_total_jpy": { "min": 1800000, "max": 3500000 },
+      "hs_rule_estimate_jpy": 2500000,
+      "monthly_electricity_estimate_jpy": { "min": 15000, "max": 25000 },
+      "10year_TCO_estimate_jpy": { "min": 3600000, "max": 6500000 },
+      "料金_業者規模別_税込_円": {
+        "区分3_専門": { "min": 2300000, "max": 3700000, "note": "HS第一推奨" },
+        "区分4_大手": { "min": 2750000, "max": 4500000 }
+      }
+    },
+    "premium_zenkan_40tsubo": {
+      "name": "戸建40坪・全館空調（上位機）",
+      "scope": "ダイキン デシカ等の高機能機種",
+      "estimated_total_jpy": { "min": 3000000, "max": 5500000 },
+      "hs_rule_estimate_jpy": 4000000,
+      "monthly_electricity_estimate_jpy": { "min": 18000, "max": 30000 },
+      "10year_TCO_estimate_jpy": { "min": 5160000, "max": 9100000 },
+      "料金_業者規模別_税込_円": {
+        "区分3_専門": { "min": 3700000, "max": 5800000, "note": "HS第一推奨" },
+        "区分4_大手": { "min": 4400000, "max": 7000000 }
+      }
+    },
+    "office_commercial_install": {
+      "name": "オフィス全館空調（業務用）",
+      "scope": "100㎡程度・ダイキン/三菱重工",
+      "estimated_total_jpy": { "min": 4000000, "max": 10000000 },
+      "hs_rule_estimate_jpy": 6500000,
+      "料金_業者規模別_税込_円": {
+        "区分3_専門": { "min": 5400000, "max": 10500000 },
+        "区分4_大手": { "min": 6500000, "max": 12500000 }
+      }
+    },
+    "desica_dehumid_only": {
+      "name": "ダイキン デシカ（除湿専用）",
+      "scope": "高湿度対策・全館除湿",
+      "estimated_total_jpy": { "min": 1200000, "max": 2500000 },
+      "hs_rule_estimate_jpy": 1700000,
+      "料金_業者規模別_税込_円": {
+        "区分3_専門": { "min": 1600000, "max": 2600000, "note": "HS第一推奨" },
+        "区分4_大手": { "min": 1900000, "max": 3100000 }
+      }
+    },
+    "industrial_dehumidifier_basement": {
+      "name": "業務用除湿機（地下室・倉庫）",
+      "scope": "ダイキン/コロナ業務用除湿機",
+      "estimated_total_jpy": { "min": 300000, "max": 1000000 },
+      "hs_rule_estimate_jpy": 600000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 330000, "max": 920000 },
+        "区分3_専門": { "min": 385000, "max": 1060000, "note": "HS第一推奨" }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "ELECTRICITY_COST_HIDDEN", "pattern": "月電気代の概算提示なし", "severity": "🚨 HIGH",
+      "reason": "全館空調は月¥15-30k。10年で¥180-360万のランニングコスト" },
+    { "code": "DUCT_WORK_LUMP", "pattern": "ダクト工事費が「一式」", "severity": "🚨 HIGH" },
+    { "code": "MAINTENANCE_FORGOTTEN", "pattern": "フィルター交換等のメンテ費説明なし", "severity": "🚨 HIGH",
+      "reason": "年¥3-8万の維持費発生" },
+    { "code": "HOUSE_INSULATION_MISMATCH", "pattern": "断熱性能不足の家に全館空調", "severity": "🔴 CRITICAL",
+      "reason": "断熱が悪いと電気代倍増・効果半減" },
+    { "code": "BODY_LIST_PRICE_NEAR", "pattern": "本体定価OFFなし", "severity": "🚨 HIGH" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "戸建30坪・新築/大規模リフォーム", "recommendation": "標準全館空調", "cost_range": { "min": 1800000, "max": 3500000 } },
+    { "case": "戸建40坪・高機能", "recommendation": "上位全館空調", "cost_range": { "min": 3000000, "max": 5500000 } },
+    { "case": "オフィス", "recommendation": "業務用全館空調", "cost_range": { "min": 4000000, "max": 10000000 } },
+    { "case": "高湿度対策", "recommendation": "デシカ除湿", "cost_range": { "min": 1200000, "max": 2500000 } },
+    { "case": "地下室・倉庫", "recommendation": "業務用除湿機", "cost_range": { "min": 300000, "max": 1000000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分2_中小": { "推奨度": "★★★☆☆", "特徴": "業務用除湿のみ" },
+    "区分3_専門": { "推奨度": "★★★★★ 第一推奨", "特徴": "全館空調専門" },
+    "区分4_大手": { "推奨度": "★★★☆☆", "特徴": "ハウスメーカー連動" }
+  },
+  "iran_situation_2026_04_impact": {
+    "建材_+10_20pct": ["銅管", "鋼板", "電子部品"],
+    "_impact_summary": "本体+ダクトで+10-15%。納期4-8週間延びる傾向"
+  },
+  "negotiation_tips": [
+    "10年TCO（初期+電気代+メンテ）で比較",
+    "家の断熱性能との適合確認",
+    "ダクト工事を別途明細",
+    "フィルター交換等のメンテサイクル確認",
+    "本体は定価45-55%が業者仕入れ",
+    "メーカー保証（5-10年）の確認"
+  ],
+  "trade_knowledge": {
+    "summary": "全館空調は初期¥180-550万+月¥15-30k電気代。高断熱住宅前提。10年TCOは¥360-910万",
+    "knowledge_source": "TOshi経験 + Panasonic/三菱/ダイキン業界データ"
+  },
+  "connected_clusters": {
+    "dannetsu_cluster": { "categories": ["insulation_work", "window_reform", "aircon_work"], "synergy": "高断熱化と同時施工" }
+  }
+}
