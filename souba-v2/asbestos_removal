@@ -1,0 +1,141 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "asbestos_removal",
+    "category_name_jp": "アスベスト除去工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐⭐ 法規制厳格・健康被害リスク・無資格業者多数・ぼったくり多発",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 大気汚染防止法・労安法 + 業界実勢2026年データ",
+    "scope": "建材中のアスベスト含有調査・除去・処分。レベル1（吹付）/レベル2（保温・耐火被覆）/レベル3（成形板）",
+    "horizons_philosophy": "アスベストは法規制厳格で適正価格は決まっている。HSはレベル別の標準価格を可視化し、無資格業者の違法施工を防ぐ",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "材料費 + 専門技術者 × 日当 + 養生 + 産廃処理費 + 諸経費（25-35%）+ 消費税 10%",
+    "parameters": { "general_overhead_pct_normal": 25, "tax_pct": 10 },
+    "HS_pricing_philosophy": {
+      "業者規模別_妥当な利益率": {
+        "個人事業": "粗利率 20-30%（規模・保険要件で受注限定）",
+        "中小解体専門": "粗利率 25-35%",
+        "大手専門業者": "粗利率 30-40%",
+        "大手ゼネコン系": "粗利率 35-45%"
+      }
+    }
+  },
+  "labor": {
+    "asbestos_specialist_day_rate": { "min": 30000, "max": 45000, "note": "石綿作業主任者・特化業務従事者" }
+  },
+  "additional_costs": {
+    "preliminary_investigation": { "name": "事前調査（建築物石綿含有建材調査者）", "price_jpy": { "min": 50000, "max": 200000 } },
+    "lab_analysis": { "name": "分析調査（JIS A 1481）", "price_per_sample_jpy": { "min": 15000, "max": 30000 } },
+    "office_notification": { "name": "都道府県・労基署届出", "price_jpy": { "min": 30000, "max": 80000 } },
+    "negative_pressure_room": { "name": "負圧隔離養生", "price_per_sqm_jpy": { "min": 8000, "max": 20000 } },
+    "industrial_waste_disposal": { "name": "石綿含有廃棄物処理", "price_per_kg_jpy": { "min": 80, "max": 250 } }
+  },
+  "plans": {
+    "level3_keisan_calcium_partial": {
+      "name": "レベル3：成形板（ケイカル板等）部分撤去",
+      "scope": "天井・壁の成形板10-30㎡撤去",
+      "estimated_total_jpy": { "min": 200000, "max": 600000 },
+      "hs_rule_estimate_jpy": 380000,
+      "note": "レベル3は最も低リスク。湿潤化+手作業で対応可",
+      "料金_業者規模別_税込_円": {
+        "区分2_中小解体専門": { "min": 220000, "max": 560000, "note": "HS第一推奨" },
+        "区分3_大手専門業者": { "min": 260000, "max": 660000 },
+        "区分4_ゼネコン系": { "min": 320000, "max": 800000 }
+      }
+    },
+    "level3_full_demolition_30tsubo": {
+      "name": "レベル3：戸建30坪 解体時の全面撤去",
+      "scope": "解体に伴う成形板の全面除去・産廃込み",
+      "estimated_total_jpy": { "min": 600000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 1000000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小解体専門": { "min": 660000, "max": 1300000, "note": "HS第一推奨" },
+        "区分3_大手専門業者": { "min": 770000, "max": 1500000 },
+        "区分4_ゼネコン系": { "min": 950000, "max": 1850000 }
+      }
+    },
+    "level2_hoon_removal": {
+      "name": "レベル2：保温・耐火被覆材除去",
+      "scope": "ボイラー・配管の保温材撤去・負圧養生必須",
+      "estimated_total_jpy": { "min": 800000, "max": 2500000 },
+      "hs_rule_estimate_jpy": 1500000,
+      "料金_業者規模別_税込_円": {
+        "区分3_大手専門業者": { "min": 920000, "max": 2200000, "note": "HS第一推奨（実績重要）" },
+        "区分4_ゼネコン系": { "min": 1150000, "max": 2750000 }
+      }
+    },
+    "level1_fukitsuke_full": {
+      "name": "レベル1：吹付アスベスト除去（最高難度）",
+      "scope": "鉄骨耐火被覆吹付・100㎡程度・完全隔離養生",
+      "estimated_total_jpy": { "min": 3000000, "max": 8000000 },
+      "hs_rule_estimate_jpy": 5000000,
+      "note": "労安法・大防法の最厳格管理。事前届出14日前必須",
+      "料金_業者規模別_税込_円": {
+        "区分3_大手専門業者": { "min": 3300000, "max": 7000000, "note": "HS第一推奨" },
+        "区分4_ゼネコン系": { "min": 4150000, "max": 8800000 }
+      }
+    },
+    "investigation_only": {
+      "name": "事前調査のみ（建材含有判定）",
+      "scope": "全建材の試料採取+分析報告書",
+      "estimated_total_jpy": { "min": 100000, "max": 350000 },
+      "hs_rule_estimate_jpy": 200000,
+      "note": "2023年4月以降、解体・改修工事前の事前調査義務化",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人事業": { "min": 110000, "max": 320000, "note": "石綿含有建材調査者必須" },
+        "区分2_中小": { "min": 120000, "max": 350000 },
+        "区分3_大手": { "min": 140000, "max": 410000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "QUALIFICATION_NONE", "pattern": "石綿作業主任者・特化業務資格者なし", "severity": "🔴 CRITICAL",
+      "reason": "違法施工。労安法違反。健康被害＋業者処罰" },
+    { "code": "INVESTIGATION_SKIPPED", "pattern": "事前調査なしで除去工事", "severity": "🔴 CRITICAL",
+      "reason": "2023年4月以降義務化。違反は罰金30万以下" },
+    { "code": "NEGATIVE_PRESSURE_FAKE", "pattern": "レベル1/2で負圧隔離養生なし", "severity": "🔴 CRITICAL",
+      "reason": "粉塵飛散・周辺住民健康被害" },
+    { "code": "WASTE_ILLEGAL_DUMP", "pattern": "産廃マニフェスト記載なし", "severity": "🔴 CRITICAL" },
+    { "code": "PRICE_TOO_LOW", "pattern": "レベル3で¥200k未満", "severity": "🚨 HIGH",
+      "reason": "違法処理（普通産廃に混入）の疑い" },
+    { "code": "NOTIFICATION_SKIPPED", "pattern": "都道府県・労基署届出なし", "severity": "🔴 CRITICAL" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "戸建解体（築40年以上）", "recommendation": "事前調査+レベル3全面撤去", "cost_range": { "min": 700000, "max": 1850000 } },
+    { "case": "リフォームに伴う部分撤去", "recommendation": "レベル3部分撤去", "cost_range": { "min": 200000, "max": 600000 } },
+    { "case": "鉄骨倉庫の解体", "recommendation": "レベル1吹付除去+解体", "cost_range": { "min": 3000000, "max": 8000000 } },
+    { "case": "事前調査のみ", "recommendation": "建材含有判定", "cost_range": { "min": 100000, "max": 350000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "推奨度": "★★★☆☆", "特徴": "事前調査のみ可・本格除去は規模不足" },
+    "区分2_中小解体専門": { "推奨度": "★★★★★ 第一推奨", "特徴": "レベル3対応・コスパ良" },
+    "区分3_大手専門業者": { "推奨度": "★★★★★", "特徴": "レベル1-3全対応・実績豊富" },
+    "区分4_ゼネコン系": { "推奨度": "★★★☆☆", "特徴": "大型案件のみ・割高" }
+  },
+  "iran_situation_2026_04_impact": {
+    "副資材_+5_10pct": ["養生ビニール", "プラスチックシート"],
+    "産廃処理費_+10_15pct": ["最終処分場の処理費高騰"],
+    "_impact_summary": "産廃処理費高騰で全レベル+10-15%。事前調査費は据え置き"
+  },
+  "negotiation_tips": [
+    "事前調査と本工事は別契約（独立性確保）",
+    "石綿作業主任者・特化業務従事者の資格証提示要求",
+    "労基署・都道府県への届出書類コピー受領",
+    "産廃マニフェストA-E票全て受領（5年保管義務）",
+    "負圧隔離養生・粉塵測定の写真記録要求",
+    "保険（建設業賠償・周辺住民被害対応）加入確認",
+    "事前調査者は本工事業者と別の独立調査者推奨"
+  ],
+  "trade_knowledge": {
+    "summary": "アスベスト除去は法規制最厳格。レベル1（吹付）/レベル2（保温）/レベル3（成形板）で工事費が10倍以上違う。2023年4月から事前調査義務化。違法業者多数",
+    "industry_scam_structure": "①無資格業者の違法施工②負圧養生省略③産廃の不法投棄④事前調査スキップ。健康被害+法的責任の重大リスク",
+    "regulatory_basis": "大気汚染防止法・労働安全衛生法（特化則）・廃棄物処理法",
+    "knowledge_source": "TOshi経験 + 厚労省・環境省ガイドライン"
+  },
+  "connected_clusters": {
+    "kaitai_cluster": { "categories": ["demolition_master", "skeleton_reform", "jutaku_kaitai_partial"], "synergy": "解体工事と一体施工" }
+  }
+}
