@@ -1,0 +1,107 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "chikyu_chunetsu",
+    "category_name_jp": "地中熱利用システム工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐ 環境配慮型・高初期費・補助金対象・専門業者限定",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 地中熱利用促進協会 2026年データ",
+    "scope": "地中熱ヒートポンプ（GHP）、地中熱換気、井戸利用空調",
+    "horizons_philosophy": "地中熱は『高初期費』『補助金活用』『電気代削減効果』の3要素。HSは10-20年回収計算で可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "本体 + ボーリング工事 + 設備工 + 諸経費（30-40%）+ 消費税 10%",
+    "parameters": { "general_overhead_pct_normal": 30 }
+  },
+  "labor": {
+    "boring_specialist": { "min": 35000, "max": 50000, "note": "ボーリング工事専門" },
+    "setsubi_specialist": { "min": 30000, "max": 40000 }
+  },
+  "additional_costs": {
+    "boring_per_meter": { "name": "ボーリング工事（垂直）", "price_per_meter_jpy": { "min": 12000, "max": 25000 } },
+    "subsidy_application": { "name": "補助金申請代行", "price_jpy": { "min": 100000, "max": 300000 } }
+  },
+  "plans": {
+    "kodate_30tsubo_standard": {
+      "name": "戸建30坪・地中熱HP（標準）",
+      "scope": "ボーリング100m+地中熱HP+室内ユニット",
+      "estimated_total_jpy": { "min": 3500000, "max": 7000000 },
+      "hs_rule_estimate_jpy": 5000000,
+      "subsidy_eligible": "再エネ補助金最大¥1,000,000",
+      "monthly_savings_estimate_jpy": { "min": 8000, "max": 15000, "note": "通常空調比" },
+      "payback_years": "12-20年",
+      "料金_業者規模別_税込_円": {
+        "区分3_専門": { "min": 4500000, "max": 7400000, "note": "HS第一推奨" },
+        "区分4_大手": { "min": 5400000, "max": 8800000 }
+      }
+    },
+    "premium_40tsubo_full": {
+      "name": "戸建40坪・地中熱フル（上位）",
+      "scope": "ボーリング150m+地中熱HP+全館連動",
+      "estimated_total_jpy": { "min": 5500000, "max": 11000000 },
+      "hs_rule_estimate_jpy": 8000000,
+      "料金_業者規模別_税込_円": {
+        "区分3_専門": { "min": 7200000, "max": 11600000, "note": "専門業者" },
+        "区分4_大手": { "min": 8600000, "max": 14000000 }
+      }
+    },
+    "office_commercial_install": {
+      "name": "オフィス・商業施設地中熱",
+      "scope": "100㎡規模+ボーリング200m",
+      "estimated_total_jpy": { "min": 8000000, "max": 18000000 },
+      "hs_rule_estimate_jpy": 12000000,
+      "料金_業者規模別_税込_円": {
+        "区分3_専門": { "min": 10800000, "max": 18800000 },
+        "区分4_大手": { "min": 13000000, "max": 22500000 }
+      }
+    },
+    "ido_cooling_simple": {
+      "name": "井戸利用空調（簡易型）",
+      "scope": "既存井戸活用+循環ポンプ+室内機",
+      "estimated_total_jpy": { "min": 800000, "max": 2500000 },
+      "hs_rule_estimate_jpy": 1400000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 880000, "max": 2300000 },
+        "区分3_専門": { "min": 1020000, "max": 2650000, "note": "HS第一推奨" }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "PAYBACK_INFLATED", "pattern": "回収年数を過小評価（5年等）", "severity": "🚨 HIGH",
+      "reason": "実際は12-20年が業界標準" },
+    { "code": "SUBSIDY_INCLUDED_FAKE", "pattern": "補助金込み価格と称し申請なし", "severity": "🔴 CRITICAL" },
+    { "code": "BORING_DEPTH_UNCLEAR", "pattern": "ボーリング深さ・本数不明", "severity": "🚨 HIGH" },
+    { "code": "EFFICIENCY_OVERSTATED", "pattern": "COP値（効率）の誇張", "severity": "🚨 HIGH" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "新築・環境配慮", "recommendation": "標準地中熱HP", "cost_range": { "min": 3500000, "max": 7000000 } },
+    { "case": "高機能・大型", "recommendation": "上位フル", "cost_range": { "min": 5500000, "max": 11000000 } },
+    { "case": "業務用", "recommendation": "オフィス地中熱", "cost_range": { "min": 8000000, "max": 18000000 } },
+    { "case": "既存井戸活用", "recommendation": "井戸利用空調", "cost_range": { "min": 800000, "max": 2500000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分2_中小": { "推奨度": "★★☆☆☆", "特徴": "井戸利用のみ" },
+    "区分3_専門": { "推奨度": "★★★★★ 第一推奨", "特徴": "地中熱専門" },
+    "区分4_大手": { "推奨度": "★★★☆☆", "特徴": "大型案件" }
+  },
+  "iran_situation_2026_04_impact": {
+    "建材_+10_20pct": ["銅管", "ヒートポンプ部品"],
+    "_impact_summary": "全プラン+10-15%"
+  },
+  "negotiation_tips": [
+    "補助金申請の代行可否確認",
+    "回収年数（12-20年）の現実的試算",
+    "ボーリング深さ・本数の明記",
+    "COP値（効率）の根拠確認",
+    "メーカー保証（最低10年）"
+  ],
+  "trade_knowledge": {
+    "summary": "地中熱は環境配慮型・高初期費。戸建¥350-700万、上位¥550-1100万、オフィス¥800-1800万。補助金最大¥100万・回収12-20年",
+    "knowledge_source": "TOshi経験 + 地中熱利用促進協会データ"
+  },
+  "connected_clusters": {
+    "dannetsu_cluster": { "categories": ["insulation_work", "solar_battery_work", "zenkanki_jokuki"], "synergy": "高性能住宅同時施工" }
+  }
+}
