@@ -1,0 +1,128 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "kaki_seko",
+    "category_name_jp": "池・水景工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐ 富裕層市場・防水と循環ポンプが要・生体（鯉）対応で技術差大",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 池・水景業界データ",
+    "scope": "庭の池新設、滝・噴水、せせらぎ、循環ポンプ、生体対応（鯉等）、メンテナンス",
+    "horizons_philosophy": "池工事は『防水』『循環』『生体配慮』の三大要素。HSは規模別の標準価格と維持管理を可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "防水工事 + 循環設備 + 石組み + 諸経費（25-35%）+ 消費税 10%",
+    "parameters": { "general_overhead_pct_normal": 25 }
+  },
+  "labor": {
+    "specialist_day_rate": { "min": 28000, "max": 38000 }
+  },
+  "additional_costs": {
+    "circulation_pump": { "name": "循環ポンプ・濾過装置", "price_jpy": { "min": 80000, "max": 500000 } },
+    "uv_sterilizer": { "name": "UV殺菌灯（藻対策）", "price_jpy": { "min": 50000, "max": 200000 } },
+    "rocks_decoration": { "name": "化粧石・水草", "price_jpy": { "min": 50000, "max": 300000 } }
+  },
+  "plans": {
+    "small_pond_basic": {
+      "name": "小型池（2×1m・観賞用）",
+      "scope": "FRP製 or モルタル防水・小型ポンプ",
+      "estimated_total_jpy": { "min": 250000, "max": 600000 },
+      "hs_rule_estimate_jpy": 400000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小造園": { "min": 275000, "max": 555000, "note": "HS第一推奨" },
+        "区分3_造園会社": { "min": 320000, "max": 640000 }
+      }
+    },
+    "koi_pond_standard": {
+      "name": "錦鯉池（標準・3×2m）",
+      "scope": "防水コンクリート+大型循環+UV+排水",
+      "estimated_total_jpy": { "min": 800000, "max": 2500000 },
+      "hs_rule_estimate_jpy": 1500000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小造園": { "min": 880000, "max": 2300000 },
+        "区分3_造園会社": { "min": 1020000, "max": 2650000, "note": "鯉池専門推奨" }
+      }
+    },
+    "koi_pond_premium": {
+      "name": "錦鯉池（本格・5×3m+滝）",
+      "scope": "本格防水+大型濾過+滝+石組み",
+      "estimated_total_jpy": { "min": 2500000, "max": 6000000 },
+      "hs_rule_estimate_jpy": 3800000,
+      "料金_業者規模別_税込_円": {
+        "区分3_造園会社": { "min": 3000000, "max": 6300000, "note": "鯉池専門" },
+        "区分4_大手": { "min": 3650000, "max": 7600000 }
+      }
+    },
+    "seseragi_compact": {
+      "name": "せせらぎ・小川（5m）",
+      "scope": "石組み+循環ポンプ+水草",
+      "estimated_total_jpy": { "min": 300000, "max": 900000 },
+      "hs_rule_estimate_jpy": 550000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小造園": { "min": 330000, "max": 830000 },
+        "区分3_造園会社": { "min": 385000, "max": 970000, "note": "和風専門" }
+      }
+    },
+    "fountain_water_feature": {
+      "name": "噴水・水景オブジェ",
+      "scope": "デザイン噴水+循環+夜間照明",
+      "estimated_total_jpy": { "min": 500000, "max": 2000000 },
+      "hs_rule_estimate_jpy": 1100000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小造園": { "min": 550000, "max": 1850000 },
+        "区分3_造園会社": { "min": 640000, "max": 2120000, "note": "デザイン込み" }
+      }
+    },
+    "annual_maintenance_pond": {
+      "name": "年間メンテナンス（池清掃・水質管理）",
+      "scope": "年4回清掃+水質検査+生体管理",
+      "estimated_total_jpy": { "min": 100000, "max": 400000 },
+      "hs_rule_estimate_jpy": 200000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 110000, "max": 380000, "note": "HS第一推奨" },
+        "区分2_中小造園": { "min": 120000, "max": 400000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "WATERPROOF_INSUFFICIENT", "pattern": "防水仕様明記なし", "severity": "🔴 CRITICAL",
+      "reason": "漏水で池機能不全・基礎に影響" },
+    { "code": "PUMP_CAPACITY_WRONG", "pattern": "ポンプ容量不足", "severity": "🚨 HIGH",
+      "reason": "水質悪化・生体死滅リスク" },
+    { "code": "DRAIN_NONE", "pattern": "排水・オーバーフロー設計なし", "severity": "🔴 CRITICAL" },
+    { "code": "KOI_KNOWLEDGE_NONE", "pattern": "錦鯉池で生体対応知識なし", "severity": "🚨 HIGH",
+      "reason": "鯉死滅事故。鯉専門業者推奨" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "観賞用小池", "recommendation": "小型池", "cost_range": { "min": 250000, "max": 600000 } },
+    { "case": "錦鯉飼育・標準", "recommendation": "錦鯉池標準", "cost_range": { "min": 800000, "max": 2500000 } },
+    { "case": "本格鯉池+滝", "recommendation": "錦鯉池上位", "cost_range": { "min": 2500000, "max": 6000000 } },
+    { "case": "せせらぎ", "recommendation": "せせらぎ", "cost_range": { "min": 300000, "max": 900000 } },
+    { "case": "デザイン噴水", "recommendation": "噴水・水景", "cost_range": { "min": 500000, "max": 2000000 } },
+    { "case": "既存池の維持", "recommendation": "年間メンテ", "cost_range": { "min": 100000, "max": 400000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "推奨度": "★★★★☆", "特徴": "小池・メンテ" },
+    "区分2_中小造園": { "推奨度": "★★★★★ 第一推奨", "特徴": "標準対応" },
+    "区分3_造園会社_鯉専門": { "推奨度": "★★★★★", "特徴": "鯉池・本格水景" },
+    "区分4_大手": { "推奨度": "★★★☆☆", "特徴": "割高" }
+  },
+  "iran_situation_2026_04_impact": {
+    "建材_+10_20pct": ["防水材", "循環ポンプ部品"],
+    "_impact_summary": "全プラン+5-10%"
+  },
+  "negotiation_tips": [
+    "防水仕様（FRP厚み・モルタル仕様）明記",
+    "循環ポンプ容量（池容量×3-5回/日）確認",
+    "排水・オーバーフロー設計の確認",
+    "錦鯉池は鯉専門業者推奨"
+  ],
+  "trade_knowledge": {
+    "summary": "池工事は防水+循環+生体配慮。小池¥25-60万、鯉池標準¥80-250万、本格¥250-600万",
+    "knowledge_source": "TOshi経験 + 鯉養殖業界データ"
+  },
+  "connected_clusters": {
+    "gaikou_cluster": { "categories": ["shokusai_zoen", "iwa_ishigumi", "gaikou_work"], "synergy": "和風庭園同時施工" }
+  }
+}
