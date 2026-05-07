@@ -1,0 +1,133 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "sec_camera_total",
+    "category_name_jp": "防犯カメラ・SECOM連携工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐ 防犯ニーズ拡大・SECOM/ALSOK・自前カメラの選択肢多数・月額連動",
+    "knowledge_source": "TOshi 30年の建設実務経験 + SECOM/ALSOK/Panasonic 2026年データ",
+    "scope": "戸建/店舗の防犯カメラ設置、SECOM/ALSOK連携、録画装置、入退室管理",
+    "horizons_philosophy": "防犯は『初期費用』『月額』『運用コスト』の総合判断が必要。HSは10年TCO（総保有コスト）で可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "機器 × 1.2 + 電気工 + 設定費 + 諸経費（25-35%）+ 消費税 10%",
+    "parameters": { "trade_price_ratio_from_list": 0.6 }
+  },
+  "labor": {
+    "electrician_day_rate": { "min": 25000, "max": 32000 },
+    "security_specialist": { "min": 30000, "max": 40000 }
+  },
+  "additional_costs": {
+    "secom_monthly": { "name": "SECOM月額契約料", "price_per_month_jpy": { "min": 7000, "max": 30000 }, "note": "工事費とは別契約" },
+    "recording_device": { "name": "録画装置（NVR）", "price_jpy": { "min": 50000, "max": 200000 } },
+    "monitor_console": { "name": "監視モニター", "price_jpy": { "min": 30000, "max": 150000 } }
+  },
+  "plans": {
+    "single_camera_diy_assist": {
+      "name": "戸建・防犯カメラ1台（自社運用）",
+      "scope": "玄関上カメラ1台+録画装置+設定",
+      "estimated_total_jpy": { "min": 80000, "max": 200000 },
+      "hs_rule_estimate_jpy": 130000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 88000, "max": 190000, "note": "HS第一推奨" },
+        "区分2_中小": { "min": 95000, "max": 200000 }
+      }
+    },
+    "kodate_4camera_self": {
+      "name": "戸建・防犯カメラ4台（自社運用）",
+      "scope": "玄関+裏口+駐車場+庭の4方向+NVR",
+      "estimated_total_jpy": { "min": 250000, "max": 600000 },
+      "hs_rule_estimate_jpy": 400000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 275000, "max": 555000 },
+        "区分2_中小": { "min": 295000, "max": 600000, "note": "HS第一推奨" },
+        "区分3_専門": { "min": 340000, "max": 690000 }
+      }
+    },
+    "secom_kodate_basic": {
+      "name": "SECOM/ALSOK 戸建基本契約",
+      "scope": "センサー+カメラ+24時間監視（初期工事）",
+      "estimated_total_jpy": { "min": 200000, "max": 500000 },
+      "hs_rule_estimate_jpy": 350000,
+      "monthly_subscription_jpy": { "min": 7000, "max": 15000 },
+      "10year_TCO_estimate_jpy": { "min": 1000000, "max": 2300000, "note": "工事+月額10年合計" },
+      "料金_業者規模別_税込_円": {
+        "区分3_セキュリティ専門": { "min": 280000, "max": 530000, "note": "SECOM/ALSOK直系" },
+        "区分4_大手": { "min": 335000, "max": 635000 }
+      }
+    },
+    "tenpo_8camera_full": {
+      "name": "店舗・8台フル防犯（飲食/小売）",
+      "scope": "店内8台+POS連動+遠隔監視",
+      "estimated_total_jpy": { "min": 600000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 950000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 660000, "max": 1380000 },
+        "区分3_専門": { "min": 760000, "max": 1600000, "note": "HS第一推奨" },
+        "区分4_大手": { "min": 920000, "max": 1900000 }
+      }
+    },
+    "intercom_smart_replace": {
+      "name": "テレビドアホン→スマートインターホン更新",
+      "scope": "Panasonic/アイホン+スマホ連携+録画",
+      "estimated_total_jpy": { "min": 80000, "max": 250000 },
+      "hs_rule_estimate_jpy": 150000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 88000, "max": 235000 },
+        "区分2_中小": { "min": 95000, "max": 250000, "note": "HS第一推奨" }
+      }
+    },
+    "access_control_office": {
+      "name": "オフィス入退室管理（ICカード）",
+      "scope": "電子錠+ICカードリーダー+ログ管理",
+      "estimated_total_jpy": { "min": 300000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 700000,
+      "料金_業者規模別_税込_円": {
+        "区分3_専門": { "min": 980000, "max": 1700000, "note": "セキュリティ専門推奨" },
+        "区分4_大手": { "min": 1180000, "max": 2050000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "MONTHLY_TCO_HIDDEN", "pattern": "月額×10年の総額提示なし", "severity": "🚨 HIGH",
+      "reason": "SECOM 10年で¥84-360万。初期だけ見ては判断ミス" },
+    { "code": "RECORDING_PERIOD_FAKE", "pattern": "録画期間（HDD容量）の表示なし", "severity": "🚨 HIGH" },
+    { "code": "RESOLUTION_FAKE", "pattern": "「フルHD」と称し実際はSD相当", "severity": "🚨 HIGH" },
+    { "code": "SUBSCRIPTION_LOCK_IN", "pattern": "月額契約の長期縛り（5年以上）", "severity": "⚠️ MEDIUM" },
+    { "code": "PRIVACY_LAW_NEGLIGENT", "pattern": "個人情報保護法・撮影範囲規制の説明なし", "severity": "🚨 HIGH" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "玄関1台のみ", "recommendation": "1台システム", "cost_range": { "min": 80000, "max": 200000 } },
+    { "case": "戸建周囲", "recommendation": "4台システム", "cost_range": { "min": 250000, "max": 600000 } },
+    { "case": "本格警備", "recommendation": "SECOM/ALSOK", "cost_range": { "min": 200000, "max": 500000 }, "note": "+月額" },
+    { "case": "店舗", "recommendation": "8台フル", "cost_range": { "min": 600000, "max": 1500000 } },
+    { "case": "インターホン更新", "recommendation": "スマートインターホン", "cost_range": { "min": 80000, "max": 250000 } },
+    { "case": "オフィス入退室", "recommendation": "ICカード", "cost_range": { "min": 300000, "max": 1500000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "推奨度": "★★★★☆", "特徴": "小規模・自社運用" },
+    "区分2_中小": { "推奨度": "★★★★★ 第一推奨", "特徴": "標準対応" },
+    "区分3_セキュリティ専門": { "推奨度": "★★★★★", "特徴": "本格・企業対応" },
+    "区分4_大手": { "推奨度": "★★★☆☆", "特徴": "SECOM/ALSOK直系" }
+  },
+  "iran_situation_2026_04_impact": {
+    "建材_+10_20pct": ["半導体・電子部品"],
+    "_impact_summary": "カメラ・録画装置は半導体影響で+10%"
+  },
+  "negotiation_tips": [
+    "10年TCO（工事+月額）で総合比較",
+    "録画期間（最低14日）と解像度（最低1080p）",
+    "個人情報保護法・撮影範囲規制の遵守",
+    "月額契約の解約条件確認",
+    "メーカー保証（最低3年）"
+  ],
+  "trade_knowledge": {
+    "summary": "防犯カメラは初期+月額+運用の総合判断。1台¥8-20万、4台¥25-60万、SECOM初期¥20-50万+月額¥7-15k、店舗8台¥60-150万",
+    "knowledge_source": "TOshi経験 + SECOM/ALSOK業界データ"
+  },
+  "connected_clusters": {
+    "smart_home_cluster": { "categories": ["smart_home_iot", "electrical_work"], "synergy": "新築・スマートホーム時に統合" }
+  }
+}
