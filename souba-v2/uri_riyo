@@ -1,0 +1,115 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "uri_riyo",
+    "category_name_jp": "雨水利用システム工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐ 環境配慮・自治体助成あり・庭散水/トイレ用水で実用",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 雨水利用市民会議 2026年データ",
+    "scope": "雨水タンク設置（簡易～大型）、雨水トイレ給水、雨水散水システム",
+    "horizons_philosophy": "雨水利用は『水道代削減』『災害時備蓄』の二大価値。HSは規模別の標準価格と助成金を可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "タンク + 配管 + 設備工 + 諸経費（20-30%）+ 消費税 10%",
+    "parameters": { "trade_price_ratio_from_list": 0.6 }
+  },
+  "labor": {
+    "setsubi_day_rate": { "min": 22000, "max": 28000 }
+  },
+  "additional_costs": {
+    "subsidy_application": { "name": "自治体助成金申請", "price_jpy": { "min": 30000, "max": 100000 } },
+    "filter_unit": { "name": "雨水フィルター", "price_jpy": { "min": 30000, "max": 150000 } }
+  },
+  "plans": {
+    "simple_tank_200L": {
+      "name": "簡易雨水タンク（200L・庭散水用）",
+      "scope": "200Lタンク+雨樋接続+蛇口",
+      "estimated_total_jpy": { "min": 50000, "max": 150000 },
+      "hs_rule_estimate_jpy": 90000,
+      "subsidy_eligible": "自治体により¥10,000-50,000助成",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 55000, "max": 140000, "note": "HS第一推奨" },
+        "区分2_中小": { "min": 60000, "max": 150000 }
+      }
+    },
+    "medium_tank_500L": {
+      "name": "中型雨水タンク（500L・本格散水）",
+      "scope": "500Lタンク+電動ポンプ+フィルター",
+      "estimated_total_jpy": { "min": 150000, "max": 350000 },
+      "hs_rule_estimate_jpy": 240000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 165000, "max": 330000 },
+        "区分2_中小": { "min": 175000, "max": 350000, "note": "HS第一推奨" }
+      }
+    },
+    "large_tank_1500L_underground": {
+      "name": "大型雨水タンク（1500L・地中埋設）",
+      "scope": "FRP製1500L+ポンプ+配管+地中埋設",
+      "estimated_total_jpy": { "min": 500000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 900000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 550000, "max": 1380000, "note": "HS第一推奨" },
+        "区分3_専門": { "min": 640000, "max": 1600000 }
+      }
+    },
+    "toilet_uchi_riyo_system": {
+      "name": "雨水トイレ給水システム",
+      "scope": "雨水→トイレタンクへの自動切替",
+      "estimated_total_jpy": { "min": 400000, "max": 1200000 },
+      "hs_rule_estimate_jpy": 700000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 440000, "max": 1100000 },
+        "区分3_専門": { "min": 525000, "max": 1300000, "note": "HS第一推奨" }
+      }
+    },
+    "saigai_tankunit_emergency": {
+      "name": "災害時用備蓄雨水タンク",
+      "scope": "1000L+手動ポンプ+フィルター（飲料前提なら浄水器）",
+      "estimated_total_jpy": { "min": 250000, "max": 700000 },
+      "hs_rule_estimate_jpy": 450000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 275000, "max": 660000 },
+        "区分2_中小": { "min": 295000, "max": 700000, "note": "HS第一推奨" }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "DRINKING_WATER_FAKE", "pattern": "雨水を飲料水化と称し簡易フィルターのみ", "severity": "🔴 CRITICAL",
+      "reason": "正規の浄水・滅菌処理が必要" },
+    { "code": "SUBSIDY_NEGLIGENT", "pattern": "自治体助成金の案内なし", "severity": "🚨 HIGH" },
+    { "code": "OVERFLOW_UNCLEAR", "pattern": "オーバーフロー設計なし", "severity": "🚨 HIGH" },
+    { "code": "FREEZE_PROTECTION_NONE", "pattern": "凍結対策なし（寒冷地）", "severity": "🚨 HIGH" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "庭の散水", "recommendation": "簡易200L", "cost_range": { "min": 50000, "max": 150000 } },
+    { "case": "本格散水", "recommendation": "中型500L", "cost_range": { "min": 150000, "max": 350000 } },
+    { "case": "災害備蓄", "recommendation": "災害用1000L", "cost_range": { "min": 250000, "max": 700000 } },
+    { "case": "トイレ利用", "recommendation": "雨水トイレ給水", "cost_range": { "min": 400000, "max": 1200000 } },
+    { "case": "本格雨水利用", "recommendation": "地中埋設1500L", "cost_range": { "min": 500000, "max": 1500000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "推奨度": "★★★★★", "特徴": "簡易タンク・コスパ最良" },
+    "区分2_中小": { "推奨度": "★★★★★ 第一推奨", "特徴": "標準対応" },
+    "区分3_専門": { "推奨度": "★★★★☆", "特徴": "大型・地中埋設" }
+  },
+  "iran_situation_2026_04_impact": {
+    "副資材_+5_10pct": ["塩ビ管"],
+    "建材_+10_15pct": ["FRPタンク（樹脂）"],
+    "_impact_summary": "全プラン+5-10%"
+  },
+  "negotiation_tips": [
+    "自治体助成金（東京都¥40,000等）の活用",
+    "オーバーフロー・凍結対策の確認",
+    "飲料化は浄水器別途必要",
+    "メーカー保証（タンク10年）の確認"
+  ],
+  "trade_knowledge": {
+    "summary": "雨水利用は環境配慮+災害備蓄の二大価値。簡易¥5-15万、中型¥15-35万、大型¥50-150万、トイレ給水¥40-120万",
+    "knowledge_source": "TOshi経験 + 雨水利用市民会議データ"
+  },
+  "connected_clusters": {
+    "kankyou_cluster": { "categories": ["solar_battery_work", "gaikou_work", "shokusai_zoen"], "synergy": "環境配慮型住宅" }
+  }
+}
