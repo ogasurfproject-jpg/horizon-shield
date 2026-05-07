@@ -1,0 +1,181 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "gyomu_chubo",
+    "category_name_jp": "業務用厨房工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐ 飲食店開業必須・グリストラップ/3相200V/フード等専門領域・行政手続き多数",
+    "knowledge_source": "TOshi 30年の建設実務経験 + ホシザキ/フジマック/タニコー/マルゼン 2026年データ",
+    "scope": "飲食店・社員食堂・病院・学校等の業務用厨房工事。厨房機器・グリストラップ・排気フード・3相200V電源・給排水",
+    "horizons_philosophy": "業務用厨房は専門業者の独占領域で価格不透明。HSは機器単価・工事費を分離して可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "機器仕入れ値 × 1.2 + 設備工 + 電気工 + 排気工 + 諸経費（25-35%）+ 消費税 10%",
+    "parameters": { "trade_price_ratio_from_list": 0.55, "general_overhead_pct_normal": 25 },
+    "HS_pricing_philosophy": {
+      "業者規模別_妥当な利益率": {
+        "個人事業": "粗利率 25-35%",
+        "中小厨房業者": "粗利率 25-35%",
+        "厨房専門会社": "粗利率 30-40%",
+        "大手リース系": "粗利率 35-45%"
+      }
+    }
+  },
+  "equipment": {
+    "fridge_freezer": {
+      "popular_models": [
+        { "name": "ホシザキ HRF-150A（縦型冷凍冷蔵庫）", "list_price": 850000, "trade_price_estimate": 470000 },
+        { "name": "フクシマガリレイ ARN-090RM", "list_price": 600000, "trade_price_estimate": 330000 }
+      ]
+    },
+    "stove_gas": {
+      "popular_models": [
+        { "name": "タニコー 6口テーブルコンロ", "list_price": 280000, "trade_price_estimate": 155000 },
+        { "name": "マルゼン 4口テーブルコンロ", "list_price": 180000, "trade_price_estimate": 100000 }
+      ]
+    },
+    "fryer": {
+      "popular_models": [
+        { "name": "マルゼン 1槽フライヤー（ガス）", "list_price": 220000, "trade_price_estimate": 120000 }
+      ]
+    },
+    "ice_maker": {
+      "popular_models": [
+        { "name": "ホシザキ IM-95M（製氷機 95kg/日）", "list_price": 480000, "trade_price_estimate": 265000 }
+      ]
+    },
+    "dishwasher_commercial": {
+      "popular_models": [
+        { "name": "ホシザキ JWE-450RUB3（業務用食洗機）", "list_price": 380000, "trade_price_estimate": 210000 }
+      ]
+    }
+  },
+  "labor": {
+    "setsubi_day_rate": { "min": 25000, "max": 32000 },
+    "electrician_3phase": { "min": 28000, "max": 35000, "note": "3相200V対応" },
+    "haiki_specialist": { "min": 28000, "max": 35000, "note": "排気フード・ダクト工事" }
+  },
+  "additional_costs": {
+    "grease_trap_install": { "name": "グリストラップ設置（FRP）", "price_jpy": { "min": 200000, "max": 600000 } },
+    "exhaust_food_duct": { "name": "排気フード+ダクト+排気ファン", "price_jpy": { "min": 300000, "max": 1500000 } },
+    "3phase_200v_install": { "name": "3相200V電源新設", "price_jpy": { "min": 150000, "max": 500000 } },
+    "bosui_floor": { "name": "厨房床 防水・防滑工事", "price_per_sqm_jpy": { "min": 8000, "max": 18000 } },
+    "permit_application": { "name": "営業許可・消防検査対応", "price_jpy": { "min": 50000, "max": 200000 } }
+  },
+  "plans": {
+    "small_cafe_basic": {
+      "name": "小型カフェ厨房（10席程度）",
+      "scope": "簡易厨房・コーヒー機・冷凍冷蔵庫・小型シンク等",
+      "estimated_total_jpy": { "min": 1500000, "max": 3500000 },
+      "hs_rule_estimate_jpy": 2400000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小厨房業者": { "min": 1650000, "max": 3200000, "note": "HS第一推奨" },
+        "区分3_厨房専門会社": { "min": 1900000, "max": 3700000 },
+        "区分4_大手": { "min": 2300000, "max": 4500000 }
+      }
+    },
+    "izakaya_full_chubo": {
+      "name": "居酒屋・標準厨房（30席）",
+      "scope": "コンロ・フライヤー・冷蔵冷凍・製氷機・食洗機・グリストラップ・排気フード",
+      "estimated_total_jpy": { "min": 4500000, "max": 9000000 },
+      "hs_rule_estimate_jpy": 6500000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小厨房業者": { "min": 4950000, "max": 8200000, "note": "HS第一推奨" },
+        "区分3_厨房専門会社": { "min": 5700000, "max": 9500000 },
+        "区分4_大手": { "min": 6900000, "max": 11500000 }
+      }
+    },
+    "ramen_shop_full": {
+      "name": "ラーメン店・本格厨房",
+      "scope": "寸胴コンロ・大型ダクト・強力排気・大型シンク",
+      "estimated_total_jpy": { "min": 5500000, "max": 11000000 },
+      "hs_rule_estimate_jpy": 8000000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小厨房業者": { "min": 6050000, "max": 10000000 },
+        "区分3_厨房専門会社": { "min": 7000000, "max": 11600000, "note": "HS第一推奨" },
+        "区分4_大手": { "min": 8400000, "max": 14000000 }
+      }
+    },
+    "yakiniku_with_haiki": {
+      "name": "焼肉店・無煙ロースター・強力排気",
+      "scope": "テーブル毎ロースター+大型集中排気",
+      "estimated_total_jpy": { "min": 8000000, "max": 18000000 },
+      "hs_rule_estimate_jpy": 12500000,
+      "料金_業者規模別_税込_円": {
+        "区分3_厨房専門会社": { "min": 11000000, "max": 18500000, "note": "焼肉専門推奨" },
+        "区分4_大手": { "min": 13100000, "max": 22000000 }
+      }
+    },
+    "fridge_replacement_only": {
+      "name": "業務用冷凍冷蔵庫 単体交換",
+      "scope": "ホシザキHRF-150A等の交換",
+      "estimated_total_jpy": { "min": 600000, "max": 1200000 },
+      "hs_rule_estimate_jpy": 880000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 660000, "max": 1130000 },
+        "区分2_中小": { "min": 700000, "max": 1200000, "note": "HS第一推奨" },
+        "区分3_専門会社": { "min": 810000, "max": 1380000 }
+      }
+    },
+    "exhaust_food_renewal": {
+      "name": "排気フード・ダクト更新",
+      "scope": "既存厨房の排気系統リニューアル",
+      "estimated_total_jpy": { "min": 500000, "max": 2000000 },
+      "hs_rule_estimate_jpy": 1100000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小": { "min": 550000, "max": 1850000, "note": "HS第一推奨" },
+        "区分3_専門会社": { "min": 640000, "max": 2120000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "GREASE_TRAP_SKIPPED", "pattern": "グリストラップなしで飲食店開業", "severity": "🔴 CRITICAL",
+      "reason": "下水道法違反。営業許可取得不可" },
+    { "code": "EXHAUST_INSUFFICIENT", "pattern": "排気量計算なしで小型ファン", "severity": "🔴 CRITICAL",
+      "reason": "労安法・建築基準法違反。火災・酸欠リスク" },
+    { "code": "3PHASE_FORCED", "pattern": "単相で十分な機器に3相200V強要", "severity": "🚨 HIGH" },
+    { "code": "MODEL_NOT_SPECIFIED", "pattern": "厨房機器の型番不明", "severity": "🚨 HIGH",
+      "reason": "ホシザキHRF-150A(¥85万) vs 海外製OEM(¥30万)で大差" },
+    { "code": "BODY_LIST_PRICE_NEAR", "pattern": "本体定価OFFなし", "severity": "🚨 HIGH",
+      "reason": "業者仕入れ55%が業界標準" },
+    { "code": "PERMIT_NEGLIGENT", "pattern": "営業許可・消防検査の対応案内なし", "severity": "🚨 HIGH" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "小型カフェ開業", "recommendation": "簡易厨房", "cost_range": { "min": 1500000, "max": 3500000 } },
+    { "case": "居酒屋開業（30席）", "recommendation": "標準厨房", "cost_range": { "min": 4500000, "max": 9000000 } },
+    { "case": "ラーメン店開業", "recommendation": "本格厨房", "cost_range": { "min": 5500000, "max": 11000000 } },
+    { "case": "焼肉店開業", "recommendation": "無煙ロースター+強力排気", "cost_range": { "min": 8000000, "max": 18000000 } },
+    { "case": "冷凍冷蔵庫交換", "recommendation": "単体交換", "cost_range": { "min": 600000, "max": 1200000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "推奨度": "★★★☆☆", "特徴": "小規模機器交換のみ" },
+    "区分2_中小厨房業者": { "推奨度": "★★★★★ 第一推奨", "特徴": "コスパ良・標準対応" },
+    "区分3_厨房専門会社": { "推奨度": "★★★★☆", "特徴": "大規模・特殊厨房" },
+    "区分4_大手_リース系": { "推奨度": "★★★☆☆", "特徴": "リース・割高" }
+  },
+  "iran_situation_2026_04_impact": {
+    "副資材_+5_10pct": ["シーリング", "配管継手"],
+    "建材_+10_20pct": ["ステンレス（厨房機器）+15-20%", "銅管・電線+10-15%"],
+    "_impact_summary": "ステンレス使用機器は+15-20%。納期も4-8週間延びる傾向"
+  },
+  "negotiation_tips": [
+    "厨房機器のメーカー・型番・容量を明記",
+    "業者仕入れは定価55%（10台以上は50%可）",
+    "グリストラップ・排気フード・3相200Vの要否を建物図面で確認",
+    "営業許可・消防検査の代行可否",
+    "工事保証（最低1年）",
+    "メーカー保証期間（通常1-2年）の確認",
+    "厨房機器のリース vs 購入の比較"
+  ],
+  "trade_knowledge": {
+    "summary": "業務用厨房は専門領域で価格不透明。小型カフェ¥150-350万、居酒屋¥450-900万、ラーメン¥550-1100万、焼肉¥800-1800万が標準",
+    "industry_scam_structure": "①機器の型番不明②本体定価ベース請求③不要な3相強要④グリストラップ省略",
+    "regulatory_basis": "下水道法・労安法・建築基準法・食品衛生法",
+    "knowledge_source": "TOshi経験 + 厨房業界データ"
+  },
+  "connected_clusters": {
+    "tenpo_cluster": { "categories": ["commercial_tenpo_work", "kanban_sign_work", "electrical_work"], "synergy": "店舗開業時に同時施工" }
+  }
+}
