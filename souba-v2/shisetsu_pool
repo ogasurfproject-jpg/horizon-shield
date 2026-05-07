@@ -1,0 +1,121 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "shisetsu_pool",
+    "category_name_jp": "プール・スパ施設工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐ 富裕層市場・プール本体+循環設備+メンテが3大要素",
+    "knowledge_source": "TOshi 30年の建設実務経験 + プール業界2026年データ",
+    "scope": "屋内・屋外プール新設、ジャグジー・スパ、温浴施設、循環濾過設備、メンテナンス契約",
+    "horizons_philosophy": "プール工事は『初期費用』『維持費』『修繕費』の3層で考える必要。HSは年間維持費まで含めて可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "本体工事 + 循環設備 + 配管 + 諸経費（25-35%）+ 消費税 10%",
+    "parameters": { "general_overhead_pct_normal": 25 }
+  },
+  "labor": {
+    "specialist_day_rate": { "min": 30000, "max": 40000 }
+  },
+  "additional_costs": {
+    "circulation_filter": { "name": "循環濾過設備", "price_jpy": { "min": 800000, "max": 3000000 } },
+    "heating_system": { "name": "温水加熱システム", "price_jpy": { "min": 1500000, "max": 5000000 } },
+    "pool_cover": { "name": "プールカバー（自動式）", "price_jpy": { "min": 500000, "max": 2000000 } }
+  },
+  "plans": {
+    "spa_jacuzzi_indoor": {
+      "name": "ジャグジー・室内スパ（小型）",
+      "scope": "2-4人用・ジェット式・温水",
+      "estimated_total_jpy": { "min": 1500000, "max": 4000000 },
+      "hs_rule_estimate_jpy": 2500000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小業者": { "min": 1650000, "max": 3700000, "note": "HS第一推奨" },
+        "区分3_専門業者": { "min": 1900000, "max": 4250000 },
+        "区分4_大手": { "min": 2300000, "max": 5100000 }
+      }
+    },
+    "outdoor_pool_compact": {
+      "name": "屋外プール（コンパクト・5×3m）",
+      "scope": "FRP製・循環設備込み・浅プール",
+      "estimated_total_jpy": { "min": 4000000, "max": 9000000 },
+      "hs_rule_estimate_jpy": 6500000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小業者": { "min": 4400000, "max": 8200000 },
+        "区分3_専門業者": { "min": 5200000, "max": 9500000, "note": "プール専門推奨" },
+        "区分4_大手": { "min": 6300000, "max": 11500000 }
+      }
+    },
+    "outdoor_pool_standard": {
+      "name": "屋外プール標準（10×4m）",
+      "scope": "コンクリート製・温水・循環濾過・カバー",
+      "estimated_total_jpy": { "min": 12000000, "max": 25000000 },
+      "hs_rule_estimate_jpy": 18000000,
+      "料金_業者規模別_税込_円": {
+        "区分3_専門業者": { "min": 15600000, "max": 26000000, "note": "プール専門" },
+        "区分4_大手": { "min": 18800000, "max": 31500000 }
+      }
+    },
+    "indoor_pool_premium": {
+      "name": "室内プール（建屋込み）",
+      "scope": "建屋+プール+循環+温水+除湿",
+      "estimated_total_jpy": { "min": 25000000, "max": 60000000 },
+      "hs_rule_estimate_jpy": 40000000,
+      "料金_業者規模別_税込_円": {
+        "区分3_専門業者": { "min": 33000000, "max": 62000000, "note": "プール専門" },
+        "区分4_大手": { "min": 39000000, "max": 75000000 }
+      }
+    },
+    "annual_maintenance": {
+      "name": "年間メンテナンス契約",
+      "scope": "水質管理・濾過装置点検・薬剤投入",
+      "estimated_total_jpy": { "min": 200000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 600000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小業者": { "min": 220000, "max": 1380000 },
+        "区分3_専門業者": { "min": 260000, "max": 1600000, "note": "HS第一推奨" }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "FILTRATION_INADEQUATE", "pattern": "循環濾過容量不足", "severity": "🔴 CRITICAL",
+      "reason": "水質悪化・衛生問題・全交換コスト" },
+    { "code": "DRAINAGE_PERMIT_NONE", "pattern": "排水放流許可なし（屋外プール）", "severity": "🔴 CRITICAL",
+      "reason": "下水道法・水質汚濁防止法違反" },
+    { "code": "MAINTENANCE_FORGOTTEN", "pattern": "年間維持費の試算なし", "severity": "🚨 HIGH",
+      "reason": "電気・水道・薬剤・人件費で年¥30-150万" },
+    { "code": "WATERPROOF_INSUFFICIENT", "pattern": "防水仕様不明・FRP厚み記載なし", "severity": "🔴 CRITICAL" },
+    { "code": "SAFETY_FEATURE_NONE", "pattern": "排水口安全カバーなし（吸込み事故対策）", "severity": "🔴 CRITICAL" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "ジャグジー設置", "recommendation": "室内スパ", "cost_range": { "min": 1500000, "max": 4000000 } },
+    { "case": "コンパクト屋外プール", "recommendation": "FRP製", "cost_range": { "min": 4000000, "max": 9000000 } },
+    { "case": "標準屋外プール", "recommendation": "コンクリート製", "cost_range": { "min": 12000000, "max": 25000000 } },
+    { "case": "本格室内プール", "recommendation": "建屋込み", "cost_range": { "min": 25000000, "max": 60000000 } },
+    { "case": "既存プール維持", "recommendation": "年間メンテ契約", "cost_range": { "min": 200000, "max": 1500000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分2_中小業者": { "推奨度": "★★★☆☆", "特徴": "ジャグジー対応" },
+    "区分3_専門業者": { "推奨度": "★★★★★ 第一推奨", "特徴": "プール専業・実績豊富" },
+    "区分4_大手": { "推奨度": "★★★☆☆", "特徴": "割高だが大規模対応" }
+  },
+  "iran_situation_2026_04_impact": {
+    "建材_+10_20pct": ["FRP・コンクリート", "ステンレス（循環設備）", "電子部品（制御）"],
+    "_impact_summary": "全プラン+10-15%。設備機器中心に値上げ"
+  },
+  "negotiation_tips": [
+    "初期費用+年間維持費（5年・10年）の総コスト比較",
+    "循環濾過容量の妥当性確認（プール容量×4-6回/日）",
+    "排水放流許可（屋外）の事前確認",
+    "FRP厚み・防水仕様の明記",
+    "排水口安全カバー設置義務（厚労省）",
+    "メンテナンス契約と独立した工事保証"
+  ],
+  "trade_knowledge": {
+    "summary": "プール工事は初期+維持+修繕の3層構造。ジャグジー¥150-400万、コンパクト屋外¥400-900万、標準¥1200-2500万、室内本格¥2500-6000万。年間維持費¥30-150万",
+    "knowledge_source": "TOshi経験 + プール業界データ"
+  },
+  "connected_clusters": {
+    "premium_cluster": { "categories": ["wine_cellar", "gaikou_work", "bathroom_reform"], "synergy": "高級住宅同時施工" }
+  }
+}
