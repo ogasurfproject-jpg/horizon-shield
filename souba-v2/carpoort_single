@@ -1,0 +1,186 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "carpoort_single",
+    "category_name_jp": "カーポート単独設置工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐ 戸建必需品・雪・台風対策で耐久性差大・LIXIL/YKK AP/三協アルミ等",
+    "knowledge_source": "TOshi 30年の建設実務経験 + LIXIL/YKK AP/三協アルミ 2026年データ",
+    "scope": "カーポート単独設置（1台用・2台用・3台用）。ガレージ（建屋）は別カテゴリ",
+    "horizons_philosophy": "カーポートは『屋根材（ポリカ vs 折板）』『積雪・耐風強度』『基礎工事』で価格大変動。HSは仕様別の標準価格を可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "本体 × 1.2 + 基礎工事 + 組立人工 + 諸経費（20-30%）+ 消費税 10%",
+    "parameters": { "trade_price_ratio_from_list": 0.5 }
+  },
+  "products": {
+    "lixil_1car": {
+      "popular_models": [
+        { "name": "LIXIL ネスカR（1台用標準）", "list_price": 200000, "trade_price_estimate": 100000 },
+        { "name": "LIXIL カーポートST（1台用ハイグレード）", "list_price": 350000, "trade_price_estimate": 175000 }
+      ]
+    },
+    "ykk_1car": {
+      "popular_models": [
+        { "name": "YKK AP レイナポート（1台用）", "list_price": 220000, "trade_price_estimate": 110000 }
+      ]
+    },
+    "sankyo_2car": {
+      "popular_models": [
+        { "name": "三協アルミ セルフィ（2台用）", "list_price": 380000, "trade_price_estimate": 190000 },
+        { "name": "三協アルミ U.スタイル（2台用ハイグレード）", "list_price": 550000, "trade_price_estimate": 275000 }
+      ]
+    },
+    "snow_resistant_yodo": {
+      "popular_models": [
+        { "name": "ヨド ヨドコウ ハイガイト（積雪対応・折板屋根）", "list_price": 600000, "trade_price_estimate": 330000 }
+      ]
+    }
+  },
+  "labor": {
+    "carpenter_day_rate": { "min": 22000, "max": 28000 },
+    "extension_specialist": { "min": 25000, "max": 32000 }
+  },
+  "additional_costs": {
+    "concrete_foundation": { "name": "コンクリート基礎（柱毎）", "price_per_unit_jpy": { "min": 30000, "max": 80000 } },
+    "ground_work": { "name": "整地・地ならし", "price_jpy": { "min": 30000, "max": 150000 } },
+    "side_panel": { "name": "サイドパネル（横風雨対策）", "price_jpy": { "min": 50000, "max": 200000 } },
+    "rear_panel": { "name": "後方パネル", "price_jpy": { "min": 30000, "max": 150000 } },
+    "shaping_pavement": { "name": "土間コンクリート（駐車面）", "price_per_sqm_jpy": { "min": 8000, "max": 18000 } }
+  },
+  "plans": {
+    "lixil_nesca_1car": {
+      "name": "LIXIL ネスカR・1台用（標準）",
+      "scope": "本体+基礎+組立",
+      "estimated_total_jpy": { "min": 250000, "max": 450000 },
+      "hs_rule_estimate_jpy": 350000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 275000, "max": 425000, "note": "HS第一推奨" },
+        "区分2_中小工務店": { "min": 295000, "max": 450000 },
+        "区分3_専門業者": { "min": 340000, "max": 520000 },
+        "区分4_大手": { "min": 410000, "max": 620000 }
+      }
+    },
+    "lixil_st_1car_premium": {
+      "name": "LIXIL カーポートST・1台用（上位）",
+      "scope": "ハイグレード・耐風強化",
+      "estimated_total_jpy": { "min": 400000, "max": 650000 },
+      "hs_rule_estimate_jpy": 520000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 440000, "max": 615000 },
+        "区分2_中小工務店": { "min": 470000, "max": 650000, "note": "HS第一推奨" },
+        "区分3_専門業者": { "min": 540000, "max": 750000 },
+        "区分4_大手": { "min": 650000, "max": 900000 }
+      }
+    },
+    "sankyo_2car_standard": {
+      "name": "三協 セルフィ・2台用（標準）",
+      "scope": "本体+基礎4基+組立",
+      "estimated_total_jpy": { "min": 450000, "max": 750000 },
+      "hs_rule_estimate_jpy": 580000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 495000, "max": 705000 },
+        "区分2_中小工務店": { "min": 530000, "max": 750000, "note": "HS第一推奨" },
+        "区分3_専門業者": { "min": 605000, "max": 865000 },
+        "区分4_大手": { "min": 725000, "max": 1035000 }
+      }
+    },
+    "sankyo_u_style_2car_premium": {
+      "name": "三協 U.スタイル・2台用（ハイグレード）",
+      "scope": "デザイン+耐風+耐雪",
+      "estimated_total_jpy": { "min": 700000, "max": 1100000 },
+      "hs_rule_estimate_jpy": 880000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小工務店": { "min": 770000, "max": 1010000 },
+        "区分3_専門業者": { "min": 880000, "max": 1170000, "note": "HS第一推奨" },
+        "区分4_大手": { "min": 1055000, "max": 1400000 }
+      }
+    },
+    "snow_resistant_setsugun_2car": {
+      "name": "積雪地仕様・折板屋根（2台用）",
+      "scope": "積雪150cm対応・折板屋根",
+      "estimated_total_jpy": { "min": 800000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 1100000,
+      "note": "新潟・北陸・北海道等の積雪地",
+      "料金_業者規模別_税込_円": {
+        "区分2_中小工務店": { "min": 880000, "max": 1380000 },
+        "区分3_専門業者": { "min": 1000000, "max": 1600000, "note": "積雪地推奨" },
+        "区分4_大手": { "min": 1200000, "max": 1900000 }
+      }
+    },
+    "3car_carport": {
+      "name": "3台用カーポート",
+      "scope": "幅広対応・基礎6基",
+      "estimated_total_jpy": { "min": 700000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 1000000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小工務店": { "min": 770000, "max": 1380000 },
+        "区分3_専門業者": { "min": 880000, "max": 1600000, "note": "HS第一推奨" },
+        "区分4_大手": { "min": 1055000, "max": 1900000 }
+      }
+    },
+    "doma_concrete_with_carport": {
+      "name": "土間コンクリート同時施工（2台分）",
+      "scope": "駐車面のコンクリート打設30㎡",
+      "estimated_total_jpy": { "min": 250000, "max": 500000 },
+      "hs_rule_estimate_jpy": 360000,
+      "note": "カーポートとセット施工で割安",
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 275000, "max": 470000 },
+        "区分2_中小工務店": { "min": 295000, "max": 500000, "note": "HS第一推奨" },
+        "区分3_専門業者": { "min": 340000, "max": 580000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "MODEL_NOT_SPECIFIED", "pattern": "メーカー・型番・耐風/耐雪等級不明", "severity": "🔴 CRITICAL",
+      "reason": "標準と上位で50%以上の価格差" },
+    { "code": "SETSUGUN_GRADE_FAKE", "pattern": "積雪地で標準仕様強要", "severity": "🔴 CRITICAL",
+      "reason": "雪荷重で倒壊事故" },
+    { "code": "FOUNDATION_INADEQUATE", "pattern": "コンクリート基礎なし（バラスのみ）", "severity": "🔴 CRITICAL",
+      "reason": "強風で倒壊。耐風等級不適合" },
+    { "code": "BODY_LIST_PRICE_NEAR", "pattern": "本体定価OFFなし", "severity": "🚨 HIGH",
+      "reason": "業者仕入れ50%が業界標準" },
+    { "code": "WIND_RESISTANCE_NONE", "pattern": "耐風等級記載なし", "severity": "🚨 HIGH",
+      "reason": "標準38m/s対応か地域に応じた強化品か明記要" },
+    { "code": "GROUND_WORK_HIDDEN", "pattern": "整地・地ならし費の事後請求", "severity": "⚠️ MEDIUM" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "1台分・標準", "recommendation": "LIXIL ネスカR", "cost_range": { "min": 250000, "max": 450000 } },
+    { "case": "1台分・台風対策", "recommendation": "LIXIL ST 上位", "cost_range": { "min": 400000, "max": 650000 } },
+    { "case": "2台分・標準", "recommendation": "三協 セルフィ", "cost_range": { "min": 450000, "max": 750000 } },
+    { "case": "2台分・デザイン重視", "recommendation": "三協 U.スタイル", "cost_range": { "min": 700000, "max": 1100000 } },
+    { "case": "積雪地仕様", "recommendation": "折板屋根・積雪対応", "cost_range": { "min": 800000, "max": 1500000 } },
+    { "case": "3台分", "recommendation": "3台用カーポート", "cost_range": { "min": 700000, "max": 1500000 } },
+    { "case": "土間コン同時", "recommendation": "土間+カーポート", "cost_range": { "min": 250000, "max": 500000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "推奨度": "★★★★★", "特徴": "コスパ最良・1-2台" },
+    "区分2_中小工務店": { "推奨度": "★★★★★ 第一推奨", "特徴": "標準対応" },
+    "区分3_専門業者": { "推奨度": "★★★★☆", "特徴": "積雪地・大型対応" },
+    "区分4_大手": { "推奨度": "★★★☆☆", "特徴": "割高" }
+  },
+  "iran_situation_2026_04_impact": {
+    "建材_+10_20pct": ["アルミフレーム+15-20%", "ポリカ屋根（石油由来）+10-15%", "コンクリート+10%"],
+    "_impact_summary": "本体は鋼材・アルミ高騰で+15-20%。納期も2-4週間延びる傾向"
+  },
+  "negotiation_tips": [
+    "メーカー・型番・耐風/耐雪等級の明記",
+    "本体は定価45-55%が業者仕入れ",
+    "コンクリート基礎の柱数（標準4基/2台用）確認",
+    "積雪地は耐雪等級（50cm/100cm/150cm）確認",
+    "土間コンクリート同時施工で割安",
+    "メーカー保証（通常10年）の確認",
+    "施工保証（最低2年）"
+  ],
+  "trade_knowledge": {
+    "summary": "カーポートは1台用¥25-65万、2台用¥45-110万、3台用¥70-150万、積雪地¥80-150万が標準。耐風・耐雪等級の確認が重要",
+    "industry_scam_structure": "①等級表示なき本体②基礎手抜き（バラス基礎）③本体定価ベース請求④整地費の事後請求",
+    "knowledge_source": "TOshi経験 + LIXIL/YKK AP/三協アルミ業界データ"
+  },
+  "connected_clusters": {
+    "gaikou_cluster": { "categories": ["gaikou_work", "monoki_setchi", "parking_concrete_work", "wood_deck_work"], "synergy": "外構工事同時施工" }
+  }
+}
