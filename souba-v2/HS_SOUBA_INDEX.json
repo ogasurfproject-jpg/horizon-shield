@@ -1,19 +1,22 @@
 {
   "_meta": {
     "index_name": "HS_SOUBA_INDEX",
-    "version": "1.0.0",
-    "generated_at": "2026-04-19",
-    "purpose": "HORIZON SHIELD 全30カテゴリ統合インデックス。KIRA/GPT/Gemini/MCP/LP等の全フロントエンドの起点として使用。機械可読（JSON）・人間可読版はHS_MASTER_MAP.md参照",
+    "version": "1.7.0",
+    "generated_at": "2026-05-08",
+    "phase17_added_at": "2026-05-08",
+    "purpose": "HORIZON SHIELD 全61カテゴリ統合インデックス（既存30 + Phase 1.7 31）。KIRA/GPT/Gemini/MCP/LP等の全フロントエンドの起点として使用。機械可読（JSON）・人間可読版はHS_MASTER_MAP.md参照",
     "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
     "horizons_philosophy": "HSは業者を敵視しない。業者規模別の妥当な利益率（25-45%）レンジを透明化し、『この業者の価格は規模に対して妥当か』を施主が判断できるよう武装化する",
     "repo_url": "https://github.com/ogasurfproject-jpg/horizon-shield",
     "base_path": "souba-v2/",
-    "total_categories": 30
+    "total_categories": 61,
+    "phase17_categories": 31
   },
   "statistics": {
-    "total_categories": 30,
+    "total_categories": 61,
     "by_wave": {
       "Phase1.6": 8,
+      "Phase1.7": 31,
       "Wave5": 5,
       "Wave4": 4,
       "Wave6": 3,
@@ -22,38 +25,42 @@
       "Wave1": 5
     },
     "by_priority": {
-      "★★★": 8,
-      "★★★★": 5,
+      "★★★": 18,
+      "★★★★": 16,
       "🔴CRITICAL": 2,
-      "★★★★★": 14,
-      "★★": 1
+      "★★★★★": 17,
+      "★★": 4
     },
     "by_category_group": {
-      "設備工事": 4,
-      "窓・ドア": 3,
+      "設備工事": 7,
+      "窓・ドア": 4,
       "屋根・板金": 1,
       "バリアフリー": 1,
-      "水回り": 4,
-      "内装仕上げ": 3,
-      "非住宅・店舗": 1,
-      "解体・基盤": 1,
+      "水回り": 8,
+      "内装仕上げ": 5,
+      "非住宅・店舗": 3,
+      "解体・基盤": 3,
       "外装塗装": 1,
-      "外構・造園": 1,
-      "断熱・省エネ": 1,
+      "外構・造園": 6,
+      "断熱・省エネ": 3,
       "内装塗装": 1,
       "防水・補修": 2,
       "屋根工事": 1,
       "左官・タイル": 2,
       "耐震・構造": 1,
       "防蟻・構造保護": 1,
-      "大工・造作": 1
+      "大工・造作": 1,
+      "🏢マンション専門": 2,
+      "🏠リフォーム周辺サービス": 4,
+      "🏡IoT・スマートホーム": 2,
+      "🌱環境・災害対策": 2
     },
-    "total_plans": 328,
-    "total_red_flags": 480,
-    "total_file_size_kb": 1142.2,
-    "subsidy_enabled_count": 12,
-    "bsp_enabled_count": 30,
-    "iran_impact_count": 25
+    "total_plans": 506,
+    "total_red_flags": 655,
+    "total_file_size_kb": 1426.5,
+    "subsidy_enabled_count": 19,
+    "bsp_enabled_count": 61,
+    "iran_impact_count": 30
   },
   "business_size_framework": {
     "_description": "業者規模4区分・妥当利益率レンジ（全カテゴリ共通フレームワーク）",
@@ -104,7 +111,8 @@
         "toilet_reform",
         "water_heater_reform",
         "roof_construction",
-        "gaiheki_tosou"
+        "gaiheki_tosou",
+        "bouon_shaon_work"
       ],
       "必須条件": "開口部（窓・ドア）の断熱改修を含む工事"
     },
@@ -152,6 +160,56 @@
       "対象カテゴリ": [
         "taishin_hokyou"
       ]
+    },
+    "石綿障害予防規則関連助成": {
+      "所管": "厚生労働省",
+      "公式URL": "https://www.mhlw.go.jp/asbestos/",
+      "上限": "¥3,000,000",
+      "対象カテゴリ": [
+        "asbestos_removal"
+      ],
+      "対象工事": "アスベスト除去・封じ込め工事"
+    },
+    "再エネ設備導入支援事業": {
+      "所管": "経済産業省",
+      "金額": "¥2,000,000-5,000,000",
+      "対象カテゴリ": [
+        "chikyu_chunetsu"
+      ],
+      "対象工事": "地中熱HP・再エネシステム"
+    },
+    "マンション管理計画認定制度": {
+      "所管": "国土交通省",
+      "公式URL": "https://www.mlit.go.jp/jutakukentiku/house/jutakukentiku_house_tk5_000130.html",
+      "金額": "金利優遇等",
+      "対象カテゴリ": [
+        "manshion_kyoyou_shuzen"
+      ],
+      "対象工事": "管理計画認定マンションの大規模修繕"
+    },
+    "自治体雨水利用助成": {
+      "所管": "各自治体",
+      "金額": "¥30,000-100,000",
+      "対象カテゴリ": [
+        "uri_riyo"
+      ],
+      "対象工事": "雨水タンク設置"
+    },
+    "自治体井戸災害備蓄助成": {
+      "所管": "各自治体",
+      "金額": "¥50,000-200,000",
+      "対象カテゴリ": [
+        "idoseichi"
+      ],
+      "対象工事": "災害用井戸"
+    },
+    "自治体緑化助成": {
+      "所管": "各自治体",
+      "金額": "¥30,000-200,000",
+      "対象カテゴリ": [
+        "shokusai_zoen"
+      ],
+      "対象工事": "緑化・植栽"
     }
   },
   "category_clusters": {
@@ -219,6 +277,60 @@
       "tile_renga_work",
       "barrier_free_kaigo",
       "water_heater_reform"
+    ],
+    "manshion_cluster": [
+      "manshion_kyoyou_shuzen",
+      "erebata_shuzen",
+      "gaiheki_tosou",
+      "waterproofing_work",
+      "water_pipe_work"
+    ],
+    "shibou_cluster": [
+      "tokushuseiso",
+      "ihinseiri_seizen",
+      "demolition_master"
+    ],
+    "smart_home_cluster": [
+      "smart_home_iot",
+      "sec_camera_total",
+      "shomei_design",
+      "electrical_work"
+    ],
+    "kankyou_cluster": [
+      "uri_riyo",
+      "idoseichi",
+      "chikyu_chunetsu",
+      "gaikou_work"
+    ],
+    "premium_cluster": [
+      "wine_cellar",
+      "shisetsu_pool",
+      "kitchen_reform",
+      "bathroom_reform",
+      "electrical_work"
+    ],
+    "dentou_cluster_extended": [
+      "sakan_work",
+      "zosaku_tategu_master",
+      "tatami_reform",
+      "tile_renga_work",
+      "shoji_fusuma_work",
+      "iwa_ishigumi",
+      "kaki_seko"
+    ],
+    "gaikou_cluster": [
+      "gaikou_work",
+      "shokusai_zoen",
+      "iwa_ishigumi",
+      "kaki_seko",
+      "monoki_setchi",
+      "carpoort_single"
+    ],
+    "reform_service_cluster": [
+      "karinosumai",
+      "hikkoshi_renkei",
+      "ihinseiri_seizen",
+      "demolition_master"
     ]
   },
   "market_impacts_2026_04": {
@@ -229,7 +341,11 @@
         "toilet_reform",
         "kitchen_reform",
         "washroom_reform",
-        "commercial_tenpo_work"
+        "commercial_tenpo_work",
+        "builtin_dishwasher",
+        "ofuro_kanso_oidaki",
+        "shisetsu_pool",
+        "gyomu_chubo"
       ],
       "原因": "ホルムズ海峡封鎖→ナフサ不足→有機溶剤供給断絶",
       "代替推奨": "タカラスタンダード（ホーロー製法で影響小）"
@@ -241,7 +357,9 @@
       "影響カテゴリ": [
         "gaiheki_tosou",
         "roof_construction",
-        "naishou_tosou"
+        "naishou_tosou",
+        "manshion_kyoyou_shuzen",
+        "kanban_sign_work"
       ]
     },
     "ルーフィング値上げ": {
@@ -250,7 +368,8 @@
       "影響カテゴリ": [
         "rain_leak_repair",
         "roof_construction",
-        "bankin_work"
+        "bankin_work",
+        "manshion_kyoyou_shuzen"
       ]
     },
     "鋼材値上げ": {
@@ -260,13 +379,21 @@
         "bankin_work",
         "taishin_hokyou",
         "gaikou_work",
-        "demolition_master"
+        "demolition_master",
+        "erebata_shuzen",
+        "kanban_sign_work",
+        "carpoort_single",
+        "monoki_setchi",
+        "jutaku_kaitai_partial",
+        "gyomu_chubo",
+        "chikyu_chunetsu"
       ]
     },
     "断熱材値上げ": {
       "内容": "発泡系+40-50%・旭化成ネオマフォーム生産停止",
       "影響カテゴリ": [
-        "insulation_work"
+        "insulation_work",
+        "bouon_shaon_work"
       ]
     },
     "冷媒配管値上げ": {
@@ -275,7 +402,8 @@
       "内容": "実質+20%（銅・石油原料高）",
       "影響カテゴリ": [
         "aircon_work",
-        "water_heater_reform"
+        "water_heater_reform",
+        "zenkanki_jokuki"
       ]
     },
     "銅価格高騰": {
@@ -283,7 +411,14 @@
         "electrical_work",
         "water_pipe_work",
         "water_heater_reform",
-        "aircon_work"
+        "aircon_work",
+        "ih_gas_conversion",
+        "wine_cellar",
+        "smart_home_iot",
+        "sec_camera_total",
+        "shomei_design",
+        "zenkanki_jokuki",
+        "chikyu_chunetsu"
       ],
       "影響内容": "電線・銅管+10-15%"
     }
@@ -584,9 +719,9 @@
     },
     {
       "category_id": "electrical_work",
-      "category_name_jp": "電気工事（配線・動力・ダクト・間接照明・通信・太陽光 完全版）",
+      "category_name_jp": "電気工事(配線・動力・ダクト・間接照明・通信・太陽光 完全版)",
       "version": "3.0-phase1.5-toshi-philosophy",
-      "importance": "⭐⭐⭐⭐⭐ プロ領域・有資格者必須（第二種/第一種電気工事士）・法令違反リスク多数",
+      "importance": "⭐⭐⭐⭐⭐ プロ領域・有資格者必須(第二種/第一種電気工事士)・法令違反リスク多数",
       "wave": "Wave3",
       "大分類": "設備工事",
       "建物部位": "電気",
@@ -622,7 +757,7 @@
       "category_id": "entrance_door_reform",
       "category_name_jp": "玄関ドア交換",
       "version": "3.0-phase1.5-toshi-philosophy",
-      "importance": "⭐⭐⭐⭐⭐ 2026年補助金対象・家の顔・断熱リフォームの核（単体申請不可・窓工事セット必須）",
+      "importance": "⭐⭐⭐⭐⭐ 2026年補助金対象・家の顔・断熱リフォームの核(単体申請不可・窓工事セット必須)",
       "wave": "Wave2",
       "大分類": "窓・ドア",
       "建物部位": "玄関ドア",
@@ -685,7 +820,7 @@
       "category_id": "gaiheki_tosou",
       "category_name_jp": "外壁塗装",
       "version": "3.1-phase1.5-verified",
-      "importance": "⭐⭐⭐⭐⭐ HS CORE VALUE（訪問販売ぼったくり最多発領域）",
+      "importance": "⭐⭐⭐⭐⭐ HS CORE VALUE(訪問販売ぼったくり最多発領域)",
       "wave": "Wave1",
       "大分類": "外装塗装",
       "建物部位": "外壁",
@@ -742,7 +877,7 @@
     },
     {
       "category_id": "gaikou_work",
-      "category_name_jp": "外構工事（駐車場・門・塀・フェンス・ウッドデッキ・排水）",
+      "category_name_jp": "外構工事(駐車場・門・塀・フェンス・ウッドデッキ・排水)",
       "version": "3.0-phase1.5-toshi-philosophy",
       "importance": "⭐⭐⭐ 外構工事・建築基準法考慮領域",
       "wave": "Wave5",
@@ -898,7 +1033,7 @@
     },
     {
       "category_id": "rain_leak_repair",
-      "category_name_jp": "雨漏り修理（原因特定・部位別修理・火災保険活用）",
+      "category_name_jp": "雨漏り修理(原因特定・部位別修理・火災保険活用)",
       "version": "3.0-phase1.5-toshi-philosophy",
       "importance": "🔴🔴🔴 CRITICAL最優先・訪販詐欺最多領域・火災保険詐欺含む・v1.0→v3.0一気にUP",
       "wave": "Wave5",
@@ -942,7 +1077,7 @@
       "category_id": "roof_construction",
       "category_name_jp": "屋根工事",
       "version": "3.1-phase1.5-verified",
-      "importance": "⭐⭐⭐⭐⭐ HS CORE VALUE 第2弾（訪問販売・保険金詐欺・アスベスト処理違反など多発領域）",
+      "importance": "⭐⭐⭐⭐⭐ HS CORE VALUE 第2弾(訪問販売・保険金詐欺・アスベスト処理違反など多発領域)",
       "wave": "Wave1",
       "大分類": "屋根工事",
       "建物部位": "屋根",
@@ -1015,7 +1150,7 @@
       "category_id": "sakan_work",
       "category_name_jp": "左官工事",
       "version": "1.0-phase1.6-toshi-philosophy",
-      "importance": "⭐⭐⭐⭐ 伝統技能領域・TOshi家系統（Tatara文化関連）・壁/床/塀の塗り仕上げ",
+      "importance": "⭐⭐⭐⭐ 伝統技能領域・TOshi家系統(Tatara文化関連)・壁/床/塀の塗り仕上げ",
       "wave": "Phase1.6",
       "大分類": "左官・タイル",
       "建物部位": "壁/床/塀",
@@ -1094,7 +1229,7 @@
     },
     {
       "category_id": "tatami_reform",
-      "category_name_jp": "畳替え（裏返し・表替え・新調）",
+      "category_name_jp": "畳替え(裏返し・表替え・新調)",
       "version": "3.0-phase1.5-toshi-philosophy",
       "importance": "⭐⭐ 伝統和室・小規模・単価勝負",
       "wave": "Wave6",
@@ -1352,7 +1487,7 @@
     },
     {
       "category_id": "water_pipe_work",
-      "category_name_jp": "給排水管工事（更新・更生・配管・水栓・追い焚き・機器接続）",
+      "category_name_jp": "給排水管工事(更新・更生・配管・水栓・追い焚き・機器接続)",
       "version": "3.0-phase1.5-toshi-philosophy",
       "importance": "⭐⭐⭐⭐⭐ プロ領域・真の教科書・有資格者必須・水道法遵守",
       "wave": "Wave3",
@@ -1395,7 +1530,7 @@
     },
     {
       "category_id": "waterproofing_work",
-      "category_name_jp": "防水工事（ベランダ・バルコニー・屋上・陸屋根・雨漏り対応）",
+      "category_name_jp": "防水工事(ベランダ・バルコニー・屋上・陸屋根・雨漏り対応)",
       "version": "3.0-phase1.5-toshi-philosophy",
       "importance": "⭐⭐⭐⭐ 見えない工事・2026/4 樹脂材値上げ影響大",
       "wave": "Wave5",
@@ -1419,7 +1554,7 @@
       "category_id": "window_reform",
       "category_name_jp": "窓リフォーム",
       "version": "3.0-phase1.5-toshi-philosophy",
-      "importance": "⭐⭐⭐⭐⭐ 2026年最大補助金事業・断熱リフォームの核（先進的窓リノベ2026最大¥100万/戸）",
+      "importance": "⭐⭐⭐⭐⭐ 2026年最大補助金事業・断熱リフォームの核(先進的窓リノベ2026最大¥100万/戸)",
       "wave": "Wave2",
       "大分類": "窓・ドア",
       "建物部位": "窓",
@@ -1458,7 +1593,7 @@
     },
     {
       "category_id": "zosaku_tategu_master",
-      "category_name_jp": "造作工事＋建具工事＋下地/躯体（大工工事の真の完全教科書 v3）",
+      "category_name_jp": "造作工事＋建具工事＋下地/躯体(大工工事の真の完全教科書 v3)",
       "version": "4.0-phase1.5-toshi-philosophy",
       "importance": "⭐⭐⭐⭐⭐ 大工工事の真骨頂・下地から仕上げまで全網羅の完全教科書",
       "wave": "Wave1",
@@ -1492,6 +1627,996 @@
           "sakan_work",
           "tatami_reform",
           "tile_renga_work"
+        ]
+      },
+      "market_impacts_2026_04": []
+    },
+    {
+      "category_id": "shoji_fusuma_work",
+      "category_name_jp": "障子・ふすま張替え工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐ 伝統建築和紙工事・小規模高頻度・建設業法第19業種",
+      "wave": "Phase1.7",
+      "大分類": "内装仕上げ",
+      "建物部位": "障子/ふすま",
+      "優先度": "★★★",
+      "plans_count": 6,
+      "plans_field_name": "plans",
+      "red_flags_count": 9,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": true,
+      "file_size_kb": 21.4,
+      "file_path": "souba-v2/shoji_fusuma_work.json",
+      "subsidies": [],
+      "connected_categories": {
+        "dentou_cluster_extended": [
+          "sakan_work",
+          "zosaku_tategu_master",
+          "tatami_reform",
+          "tile_renga_work",
+          "iwa_ishigumi",
+          "kaki_seko"
+        ]
+      },
+      "market_impacts_2026_04": []
+    },
+    {
+      "category_id": "mado_glass_work",
+      "category_name_jp": "ガラス交換専門工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐ 窓フレーム残してガラスのみ交換・防犯ガラス需要拡大",
+      "wave": "Phase1.7",
+      "大分類": "窓・ドア",
+      "建物部位": "ガラス",
+      "優先度": "★★★★",
+      "plans_count": 7,
+      "plans_field_name": "plans",
+      "red_flags_count": 8,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": true,
+      "file_size_kb": 13.1,
+      "file_path": "souba-v2/mado_glass_work.json",
+      "subsidies": [],
+      "connected_categories": {},
+      "market_impacts_2026_04": []
+    },
+    {
+      "category_id": "kanban_sign_work",
+      "category_name_jp": "看板・サイン工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐ 屋外広告物条例必須・LEDサイン・店舗開業必須工事",
+      "wave": "Phase1.7",
+      "大分類": "非住宅・店舗",
+      "建物部位": "店舗外装",
+      "優先度": "★★★★",
+      "plans_count": 6,
+      "plans_field_name": "plans",
+      "red_flags_count": 6,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 10.5,
+      "file_path": "souba-v2/kanban_sign_work.json",
+      "subsidies": [],
+      "connected_categories": {},
+      "market_impacts_2026_04": [
+        {
+          "event": "鋼材値上げ",
+          "内容": "異形棒鋼+¥15,000/トン・ガルバリウム+10%"
+        },
+        {
+          "event": "塗料メーカー値上げ",
+          "内容": ""
+        }
+      ]
+    },
+    {
+      "category_id": "bouon_shaon_work",
+      "category_name_jp": "防音・遮音工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐ ピアノ室・楽器室・スタジオ・近隣騒音対策",
+      "wave": "Phase1.7",
+      "大分類": "断熱・省エネ",
+      "建物部位": "壁/床/天井",
+      "優先度": "★★★★",
+      "plans_count": 7,
+      "plans_field_name": "plans",
+      "red_flags_count": 7,
+      "has_subsidy": true,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": true,
+      "file_size_kb": 12.4,
+      "file_path": "souba-v2/bouon_shaon_work.json",
+      "subsidies": [
+        {
+          "name": "みらいエコ住宅2026事業",
+          "所管": "国土交通省",
+          "金額目安": "¥1,000,000/戸（リフォーム）"
+        }
+      ],
+      "connected_categories": {},
+      "market_impacts_2026_04": [
+        {
+          "event": "断熱材値上げ",
+          "内容": "発泡系+40-50%・旭化成ネオマフォーム生産停止"
+        }
+      ]
+    },
+    {
+      "category_id": "builtin_dishwasher",
+      "category_name_jp": "ビルトイン食洗機後付け工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐ パナソニック/三菱電機独占・キッチン下台改造費注意",
+      "wave": "Phase1.7",
+      "大分類": "水回り",
+      "建物部位": "キッチン",
+      "優先度": "★★★★",
+      "plans_count": 7,
+      "plans_field_name": "plans",
+      "red_flags_count": 7,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 12.4,
+      "file_path": "souba-v2/builtin_dishwasher.json",
+      "subsidies": [],
+      "connected_categories": {},
+      "market_impacts_2026_04": [
+        {
+          "event": "TOTO_LIXIL_受注停止",
+          "内容": "ホルムズ海峡封鎖→ナフサ不足→有機溶剤供給断絶"
+        }
+      ]
+    },
+    {
+      "category_id": "ih_gas_conversion",
+      "category_name_jp": "IH⇔ガスコンロ変更工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐ 200V電源工事必要・既存ガス管撤去必須",
+      "wave": "Phase1.7",
+      "大分類": "水回り",
+      "建物部位": "キッチン",
+      "優先度": "★★★★",
+      "plans_count": 5,
+      "plans_field_name": "plans",
+      "red_flags_count": 7,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 10.4,
+      "file_path": "souba-v2/ih_gas_conversion.json",
+      "subsidies": [],
+      "connected_categories": {},
+      "market_impacts_2026_04": [
+        {
+          "event": "銅価格高騰",
+          "内容": "電線・銅管+10-15%"
+        }
+      ]
+    },
+    {
+      "category_id": "manshion_kyoyou_shuzen",
+      "category_name_jp": "マンション共用部修繕工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐⭐ 大規模修繕・管理会社系列独占暴露・粗利30-50%上乗せ",
+      "wave": "Phase1.7",
+      "大分類": "🏢マンション専門",
+      "建物部位": "マンション全体",
+      "優先度": "★★★★★",
+      "plans_count": 7,
+      "plans_field_name": "plans",
+      "red_flags_count": 8,
+      "has_subsidy": true,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 12.2,
+      "file_path": "souba-v2/manshion_kyoyou_shuzen.json",
+      "subsidies": [
+        {
+          "name": "マンション管理計画認定制度",
+          "所管": "国土交通省",
+          "金額目安": "金利優遇等"
+        }
+      ],
+      "connected_categories": {
+        "manshion_cluster": [
+          "erebata_shuzen",
+          "gaiheki_tosou",
+          "waterproofing_work",
+          "water_pipe_work"
+        ]
+      },
+      "market_impacts_2026_04": [
+        {
+          "event": "塗料メーカー値上げ",
+          "内容": ""
+        },
+        {
+          "event": "ルーフィング値上げ",
+          "内容": "40-50%値上げ"
+        }
+      ]
+    },
+    {
+      "category_id": "ofuro_kanso_oidaki",
+      "category_name_jp": "浴室乾燥機・追い焚き単体工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐ 浴室リフォーム伴わない単体工事・電気/ガス資格必須",
+      "wave": "Phase1.7",
+      "大分類": "水回り",
+      "建物部位": "浴室",
+      "優先度": "★★★★",
+      "plans_count": 6,
+      "plans_field_name": "plans",
+      "red_flags_count": 6,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": true,
+      "file_size_kb": 11.3,
+      "file_path": "souba-v2/ofuro_kanso_oidaki.json",
+      "subsidies": [],
+      "connected_categories": {},
+      "market_impacts_2026_04": [
+        {
+          "event": "TOTO_LIXIL_受注停止",
+          "内容": "ホルムズ海峡封鎖→ナフサ不足→有機溶剤供給断絶"
+        }
+      ]
+    },
+    {
+      "category_id": "erebata_shuzen",
+      "category_name_jp": "エレベーター修繕・更新工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐⭐ 4大メーカー独占→独立系で40-50%削減可能",
+      "wave": "Phase1.7",
+      "大分類": "🏢マンション専門",
+      "建物部位": "エレベーター",
+      "優先度": "★★★★★",
+      "plans_count": 6,
+      "plans_field_name": "plans",
+      "red_flags_count": 7,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 11.5,
+      "file_path": "souba-v2/erebata_shuzen.json",
+      "subsidies": [],
+      "connected_categories": {
+        "manshion_cluster": [
+          "manshion_kyoyou_shuzen",
+          "gaiheki_tosou",
+          "waterproofing_work",
+          "water_pipe_work"
+        ]
+      },
+      "market_impacts_2026_04": [
+        {
+          "event": "鋼材値上げ",
+          "内容": "異形棒鋼+¥15,000/トン・ガルバリウム+10%"
+        }
+      ]
+    },
+    {
+      "category_id": "toko_shuri",
+      "category_name_jp": "床鳴り・床補修専門工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐ 床下点検商法・無料点検→¥50-200万契約の温床",
+      "wave": "Phase1.7",
+      "大分類": "内装仕上げ",
+      "建物部位": "床",
+      "優先度": "★★★★",
+      "plans_count": 6,
+      "plans_field_name": "plans",
+      "red_flags_count": 7,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 11.6,
+      "file_path": "souba-v2/toko_shuri.json",
+      "subsidies": [],
+      "connected_categories": {},
+      "market_impacts_2026_04": []
+    },
+    {
+      "category_id": "asbestos_removal",
+      "category_name_jp": "アスベスト除去工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐⭐ 2022年4月以降調査義務化・無資格違法施工リスク・処罰",
+      "wave": "Phase1.7",
+      "大分類": "解体・基盤",
+      "建物部位": "全体",
+      "優先度": "★★★★★",
+      "plans_count": 5,
+      "plans_field_name": "plans",
+      "red_flags_count": 6,
+      "has_subsidy": true,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 8.8,
+      "file_path": "souba-v2/asbestos_removal.json",
+      "subsidies": [
+        {
+          "name": "石綿障害予防規則関連助成",
+          "所管": "厚生労働省",
+          "金額目安": "¥3,000,000上限"
+        }
+      ],
+      "connected_categories": {},
+      "market_impacts_2026_04": []
+    },
+    {
+      "category_id": "tokushuseiso",
+      "category_name_jp": "特殊清掃工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐ 孤独死・事件現場・遺族の弱みにつけこむ即決契約",
+      "wave": "Phase1.7",
+      "大分類": "🏠リフォーム周辺サービス",
+      "建物部位": "全体",
+      "優先度": "★★★★",
+      "plans_count": 6,
+      "plans_field_name": "plans",
+      "red_flags_count": 6,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 8.2,
+      "file_path": "souba-v2/tokushuseiso.json",
+      "subsidies": [],
+      "connected_categories": {
+        "shibou_cluster": [
+          "ihinseiri_seizen",
+          "demolition_master"
+        ]
+      },
+      "market_impacts_2026_04": []
+    },
+    {
+      "category_id": "ihinseiri_seizen",
+      "category_name_jp": "遺品整理・生前整理サービス",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐ 遺品整理士認定協会・古物商許可必須",
+      "wave": "Phase1.7",
+      "大分類": "🏠リフォーム周辺サービス",
+      "建物部位": "全体",
+      "優先度": "★★★★",
+      "plans_count": 6,
+      "plans_field_name": "plans",
+      "red_flags_count": 6,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 8.5,
+      "file_path": "souba-v2/ihinseiri_seizen.json",
+      "subsidies": [],
+      "connected_categories": {
+        "shibou_cluster": [
+          "tokushuseiso",
+          "demolition_master"
+        ],
+        "reform_service_cluster": [
+          "karinosumai",
+          "hikkoshi_renkei",
+          "demolition_master"
+        ]
+      },
+      "market_impacts_2026_04": []
+    },
+    {
+      "category_id": "jutaku_kaitai_partial",
+      "category_name_jp": "住宅部分解体工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐ 増改築前の部分解体・産廃処分費の透明化",
+      "wave": "Phase1.7",
+      "大分類": "解体・基盤",
+      "建物部位": "部分",
+      "優先度": "★★★★",
+      "plans_count": 6,
+      "plans_field_name": "plans",
+      "red_flags_count": 6,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 9.1,
+      "file_path": "souba-v2/jutaku_kaitai_partial.json",
+      "subsidies": [],
+      "connected_categories": {},
+      "market_impacts_2026_04": [
+        {
+          "event": "鋼材値上げ",
+          "内容": "異形棒鋼+¥15,000/トン・ガルバリウム+10%"
+        }
+      ]
+    },
+    {
+      "category_id": "gyomu_chubo",
+      "category_name_jp": "業務用厨房工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐ グリストラップ省略等の違法施工注意・保健所許可必須",
+      "wave": "Phase1.7",
+      "大分類": "非住宅・店舗",
+      "建物部位": "店舗厨房",
+      "優先度": "★★★★",
+      "plans_count": 6,
+      "plans_field_name": "plans",
+      "red_flags_count": 6,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 10.0,
+      "file_path": "souba-v2/gyomu_chubo.json",
+      "subsidies": [],
+      "connected_categories": {},
+      "market_impacts_2026_04": [
+        {
+          "event": "TOTO_LIXIL_受注停止",
+          "内容": "ホルムズ海峡封鎖→ナフサ不足→有機溶剤供給断絶"
+        },
+        {
+          "event": "鋼材値上げ",
+          "内容": "異形棒鋼+¥15,000/トン・ガルバリウム+10%"
+        }
+      ]
+    },
+    {
+      "category_id": "wine_cellar",
+      "category_name_jp": "ワインセラー設置工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐ 高級住宅機器・ユーロカーブ等プレミアム機種",
+      "wave": "Phase1.7",
+      "大分類": "設備工事",
+      "建物部位": "ワインセラー",
+      "優先度": "★★★",
+      "plans_count": 5,
+      "plans_field_name": "plans",
+      "red_flags_count": 5,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 7.9,
+      "file_path": "souba-v2/wine_cellar.json",
+      "subsidies": [],
+      "connected_categories": {
+        "premium_cluster": [
+          "shisetsu_pool",
+          "kitchen_reform",
+          "bathroom_reform",
+          "electrical_work"
+        ]
+      },
+      "market_impacts_2026_04": [
+        {
+          "event": "銅価格高騰",
+          "内容": "冷媒銅管+10-15%"
+        }
+      ]
+    },
+    {
+      "category_id": "shisetsu_pool",
+      "category_name_jp": "プール・スパ施設工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐ 高級住宅機器・濾過装置・水温管理",
+      "wave": "Phase1.7",
+      "大分類": "水回り",
+      "建物部位": "プール",
+      "優先度": "★★★",
+      "plans_count": 5,
+      "plans_field_name": "plans",
+      "red_flags_count": 5,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": true,
+      "file_size_kb": 6.7,
+      "file_path": "souba-v2/shisetsu_pool.json",
+      "subsidies": [],
+      "connected_categories": {
+        "premium_cluster": [
+          "wine_cellar",
+          "kitchen_reform",
+          "bathroom_reform",
+          "electrical_work"
+        ]
+      },
+      "market_impacts_2026_04": [
+        {
+          "event": "TOTO_LIXIL_受注停止",
+          "内容": "ホルムズ海峡封鎖→ナフサ不足→有機溶剤供給断絶"
+        }
+      ]
+    },
+    {
+      "category_id": "shokusai_zoen",
+      "category_name_jp": "造園・植栽工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐ 造園技能士・樹木医・伝統技能領域",
+      "wave": "Phase1.7",
+      "大分類": "外構・造園",
+      "建物部位": "庭",
+      "優先度": "★★★★",
+      "plans_count": 7,
+      "plans_field_name": "plans",
+      "red_flags_count": 5,
+      "has_subsidy": true,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 8.7,
+      "file_path": "souba-v2/shokusai_zoen.json",
+      "subsidies": [
+        {
+          "name": "緑化助成（自治体）",
+          "所管": "各自治体",
+          "金額目安": "¥30,000-200,000"
+        }
+      ],
+      "connected_categories": {
+        "gaikou_cluster": [
+          "gaikou_work",
+          "iwa_ishigumi",
+          "kaki_seko",
+          "monoki_setchi",
+          "carpoort_single"
+        ]
+      },
+      "market_impacts_2026_04": []
+    },
+    {
+      "category_id": "iwa_ishigumi",
+      "category_name_jp": "庭石・石組み工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐ 伝統技能・石工職人・日本庭園の核",
+      "wave": "Phase1.7",
+      "大分類": "外構・造園",
+      "建物部位": "庭",
+      "優先度": "★★★",
+      "plans_count": 6,
+      "plans_field_name": "plans",
+      "red_flags_count": 4,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 6.9,
+      "file_path": "souba-v2/iwa_ishigumi.json",
+      "subsidies": [],
+      "connected_categories": {
+        "dentou_cluster_extended": [
+          "sakan_work",
+          "zosaku_tategu_master",
+          "tatami_reform",
+          "tile_renga_work",
+          "shoji_fusuma_work",
+          "kaki_seko"
+        ],
+        "gaikou_cluster": [
+          "gaikou_work",
+          "shokusai_zoen",
+          "kaki_seko",
+          "monoki_setchi",
+          "carpoort_single"
+        ]
+      },
+      "market_impacts_2026_04": []
+    },
+    {
+      "category_id": "kaki_seko",
+      "category_name_jp": "池・水景工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐ 池/水景・濾過装置・錦鯉飼育対応",
+      "wave": "Phase1.7",
+      "大分類": "外構・造園",
+      "建物部位": "庭",
+      "優先度": "★★★",
+      "plans_count": 6,
+      "plans_field_name": "plans",
+      "red_flags_count": 4,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 6.6,
+      "file_path": "souba-v2/kaki_seko.json",
+      "subsidies": [],
+      "connected_categories": {
+        "dentou_cluster_extended": [
+          "sakan_work",
+          "zosaku_tategu_master",
+          "tatami_reform",
+          "tile_renga_work",
+          "shoji_fusuma_work",
+          "iwa_ishigumi"
+        ],
+        "gaikou_cluster": [
+          "gaikou_work",
+          "shokusai_zoen",
+          "iwa_ishigumi",
+          "monoki_setchi",
+          "carpoort_single"
+        ]
+      },
+      "market_impacts_2026_04": []
+    },
+    {
+      "category_id": "monoki_setchi",
+      "category_name_jp": "物置設置工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐ ヨド/イナバ/タクボ独占・基礎工事費の透明化",
+      "wave": "Phase1.7",
+      "大分類": "外構・造園",
+      "建物部位": "庭/外構",
+      "優先度": "★★★",
+      "plans_count": 5,
+      "plans_field_name": "plans",
+      "red_flags_count": 5,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 7.9,
+      "file_path": "souba-v2/monoki_setchi.json",
+      "subsidies": [],
+      "connected_categories": {
+        "gaikou_cluster": [
+          "gaikou_work",
+          "shokusai_zoen",
+          "iwa_ishigumi",
+          "kaki_seko",
+          "carpoort_single"
+        ]
+      },
+      "market_impacts_2026_04": [
+        {
+          "event": "鋼材値上げ",
+          "内容": "異形棒鋼+¥15,000/トン・ガルバリウム+10%"
+        }
+      ]
+    },
+    {
+      "category_id": "carpoort_single",
+      "category_name_jp": "カーポート単独設置工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐ LIXIL/三協アルミ独占・建築確認申請の有無",
+      "wave": "Phase1.7",
+      "大分類": "外構・造園",
+      "建物部位": "外構",
+      "優先度": "★★★★",
+      "plans_count": 7,
+      "plans_field_name": "plans",
+      "red_flags_count": 6,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 10.3,
+      "file_path": "souba-v2/carpoort_single.json",
+      "subsidies": [],
+      "connected_categories": {
+        "gaikou_cluster": [
+          "gaikou_work",
+          "shokusai_zoen",
+          "iwa_ishigumi",
+          "kaki_seko",
+          "monoki_setchi"
+        ]
+      },
+      "market_impacts_2026_04": [
+        {
+          "event": "鋼材値上げ",
+          "内容": "異形棒鋼+¥15,000/トン・ガルバリウム+10%"
+        }
+      ]
+    },
+    {
+      "category_id": "shomei_design",
+      "category_name_jp": "照明デザイン専門工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐ 間接照明・プロデザイナー・電気工事士資格",
+      "wave": "Phase1.7",
+      "大分類": "設備工事",
+      "建物部位": "照明",
+      "優先度": "★★★",
+      "plans_count": 5,
+      "plans_field_name": "plans",
+      "red_flags_count": 4,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 6.3,
+      "file_path": "souba-v2/shomei_design.json",
+      "subsidies": [],
+      "connected_categories": {
+        "smart_home_cluster": [
+          "smart_home_iot",
+          "sec_camera_total",
+          "electrical_work"
+        ]
+      },
+      "market_impacts_2026_04": [
+        {
+          "event": "銅価格高騰",
+          "内容": "電線+10-15%"
+        }
+      ]
+    },
+    {
+      "category_id": "smart_home_iot",
+      "category_name_jp": "スマートホーム・IoT工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐ Google/Alexa/Apple統合・サブスク料金注意",
+      "wave": "Phase1.7",
+      "大分類": "🏡IoT・スマートホーム",
+      "建物部位": "全体",
+      "優先度": "★★★",
+      "plans_count": 5,
+      "plans_field_name": "plans",
+      "red_flags_count": 4,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 6.5,
+      "file_path": "souba-v2/smart_home_iot.json",
+      "subsidies": [],
+      "connected_categories": {
+        "smart_home_cluster": [
+          "sec_camera_total",
+          "shomei_design",
+          "electrical_work"
+        ]
+      },
+      "market_impacts_2026_04": [
+        {
+          "event": "銅価格高騰",
+          "内容": "電線+10-15%"
+        }
+      ]
+    },
+    {
+      "category_id": "sec_camera_total",
+      "category_name_jp": "防犯カメラ・SECOM連携工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐ SECOM/ALSOK・10年TCO判断・初期費用vs月額",
+      "wave": "Phase1.7",
+      "大分類": "🏡IoT・スマートホーム",
+      "建物部位": "外周",
+      "優先度": "★★★★",
+      "plans_count": 6,
+      "plans_field_name": "plans",
+      "red_flags_count": 5,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 7.3,
+      "file_path": "souba-v2/sec_camera_total.json",
+      "subsidies": [],
+      "connected_categories": {
+        "smart_home_cluster": [
+          "smart_home_iot",
+          "shomei_design",
+          "electrical_work"
+        ]
+      },
+      "market_impacts_2026_04": [
+        {
+          "event": "銅価格高騰",
+          "内容": "電線+10-15%"
+        }
+      ]
+    },
+    {
+      "category_id": "zenkanki_jokuki",
+      "category_name_jp": "全館空調・除湿システム工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐⭐ パナソニック/ダイキン・大型ダクト工事",
+      "wave": "Phase1.7",
+      "大分類": "設備工事",
+      "建物部位": "全体",
+      "優先度": "★★★★",
+      "plans_count": 5,
+      "plans_field_name": "plans",
+      "red_flags_count": 5,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 7.1,
+      "file_path": "souba-v2/zenkanki_jokuki.json",
+      "subsidies": [],
+      "connected_categories": {},
+      "market_impacts_2026_04": [
+        {
+          "event": "冷媒配管値上げ",
+          "内容": "実質+20%（銅・石油原料高）"
+        },
+        {
+          "event": "銅価格高騰",
+          "内容": ""
+        }
+      ]
+    },
+    {
+      "category_id": "chikyu_chunetsu",
+      "category_name_jp": "地中熱利用システム工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐ 地中熱HP・国の補助金あり・初期費用大",
+      "wave": "Phase1.7",
+      "大分類": "断熱・省エネ",
+      "建物部位": "全体",
+      "優先度": "★★",
+      "plans_count": 4,
+      "plans_field_name": "plans",
+      "red_flags_count": 4,
+      "has_subsidy": true,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 5.5,
+      "file_path": "souba-v2/chikyu_chunetsu.json",
+      "subsidies": [
+        {
+          "name": "再エネ設備導入支援事業",
+          "所管": "経済産業省",
+          "金額目安": "¥2,000,000-5,000,000"
+        }
+      ],
+      "connected_categories": {
+        "kankyou_cluster": [
+          "uri_riyo",
+          "idoseichi",
+          "gaikou_work"
+        ]
+      },
+      "market_impacts_2026_04": [
+        {
+          "event": "鋼材値上げ",
+          "内容": "異形棒鋼+¥15,000/トン・ガルバリウム+10%"
+        },
+        {
+          "event": "銅価格高騰",
+          "内容": ""
+        }
+      ]
+    },
+    {
+      "category_id": "uri_riyo",
+      "category_name_jp": "雨水利用システム工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐ 雨水タンク・自治体助成金・災害備蓄",
+      "wave": "Phase1.7",
+      "大分類": "🌱環境・災害対策",
+      "建物部位": "外構",
+      "優先度": "★★",
+      "plans_count": 5,
+      "plans_field_name": "plans",
+      "red_flags_count": 4,
+      "has_subsidy": true,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 5.9,
+      "file_path": "souba-v2/uri_riyo.json",
+      "subsidies": [
+        {
+          "name": "自治体雨水利用助成",
+          "所管": "各自治体",
+          "金額目安": "¥30,000-100,000"
+        }
+      ],
+      "connected_categories": {
+        "kankyou_cluster": [
+          "idoseichi",
+          "chikyu_chunetsu",
+          "gaikou_work"
+        ]
+      },
+      "market_impacts_2026_04": []
+    },
+    {
+      "category_id": "idoseichi",
+      "category_name_jp": "井戸・井戸ポンプ工事",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐ 災害備蓄・井戸掘削・ポンプ交換",
+      "wave": "Phase1.7",
+      "大分類": "🌱環境・災害対策",
+      "建物部位": "外構",
+      "優先度": "★★",
+      "plans_count": 5,
+      "plans_field_name": "plans",
+      "red_flags_count": 4,
+      "has_subsidy": true,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 5.9,
+      "file_path": "souba-v2/idoseichi.json",
+      "subsidies": [
+        {
+          "name": "自治体井戸災害備蓄助成",
+          "所管": "各自治体",
+          "金額目安": "¥50,000-200,000"
+        }
+      ],
+      "connected_categories": {
+        "kankyou_cluster": [
+          "uri_riyo",
+          "chikyu_chunetsu",
+          "gaikou_work"
+        ]
+      },
+      "market_impacts_2026_04": []
+    },
+    {
+      "category_id": "karinosumai",
+      "category_name_jp": "仮住まい支援サービス",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐ 大規模リフォーム時の仮住まい・マンスリーマンション",
+      "wave": "Phase1.7",
+      "大分類": "🏠リフォーム周辺サービス",
+      "建物部位": "全体",
+      "優先度": "★★★",
+      "plans_count": 5,
+      "plans_field_name": "plans",
+      "red_flags_count": 4,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 6.5,
+      "file_path": "souba-v2/karinosumai.json",
+      "subsidies": [],
+      "connected_categories": {
+        "reform_service_cluster": [
+          "hikkoshi_renkei",
+          "ihinseiri_seizen",
+          "demolition_master"
+        ]
+      },
+      "market_impacts_2026_04": []
+    },
+    {
+      "category_id": "hikkoshi_renkei",
+      "category_name_jp": "引越し連動リフォームサービス",
+      "version": "1.0-phase1.7",
+      "importance": "⭐⭐⭐ 引越し+原状回復+新居リフォーム複合",
+      "wave": "Phase1.7",
+      "大分類": "🏠リフォーム周辺サービス",
+      "建物部位": "全体",
+      "優先度": "★★★",
+      "plans_count": 5,
+      "plans_field_name": "plans",
+      "red_flags_count": 5,
+      "has_subsidy": false,
+      "has_business_size_pricing": true,
+      "has_cost_breakdown": false,
+      "has_iran_impact": false,
+      "file_size_kb": 6.9,
+      "file_path": "souba-v2/hikkoshi_renkei.json",
+      "subsidies": [],
+      "connected_categories": {
+        "reform_service_cluster": [
+          "karinosumai",
+          "ihinseiri_seizen",
+          "demolition_master"
         ]
       },
       "market_impacts_2026_04": []
