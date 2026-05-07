@@ -1,0 +1,134 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "iwa_ishigumi",
+    "category_name_jp": "庭石・石組み工事",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐ 伝統技能領域・石材原価不透明・庭師連動",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 石材業界データ",
+    "scope": "庭石配置、石組み、延段、飛び石、石垣、灯篭・蹲設置",
+    "horizons_philosophy": "石材は原産地・サイズで価格変動大。HSは石種別の標準価格を可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "石材費 + 重機費 + 石工人工 + 諸経費（25-35%）+ 消費税 10%",
+    "parameters": { "general_overhead_pct_normal": 25 }
+  },
+  "labor": {
+    "ishikou_day_rate": { "min": 30000, "max": 45000, "note": "石工技能士" }
+  },
+  "stone_materials": {
+    "natural_garden_stone": { "name": "自然石（産地問わず）", "price_per_ton_jpy": { "min": 30000, "max": 200000 } },
+    "premium_kurama_ishi": { "name": "高級・鞍馬石/三波石", "price_per_ton_jpy": { "min": 200000, "max": 800000 } },
+    "tobi_ishi_set": { "name": "飛び石セット", "price_per_set_jpy": { "min": 30000, "max": 150000 } },
+    "stone_lantern": { "name": "石灯篭", "price_per_unit_jpy": { "min": 50000, "max": 800000 } },
+    "tsukubai": { "name": "蹲（つくばい）", "price_per_unit_jpy": { "min": 100000, "max": 500000 } }
+  },
+  "additional_costs": {
+    "crane_truck": { "name": "クレーン車・重機", "price_per_day_jpy": { "min": 50000, "max": 150000 } },
+    "transport_long_distance": { "name": "石材輸送費", "price_jpy": { "min": 30000, "max": 200000 } }
+  },
+  "plans": {
+    "tobi_ishi_path": {
+      "name": "飛び石・延段（5m）",
+      "scope": "玄関アプローチ等の飛び石配置",
+      "estimated_total_jpy": { "min": 80000, "max": 250000 },
+      "hs_rule_estimate_jpy": 150000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 88000, "max": 235000 },
+        "区分2_中小造園": { "min": 95000, "max": 250000, "note": "HS第一推奨" },
+        "区分3_造園会社": { "min": 110000, "max": 290000 }
+      }
+    },
+    "ishi_gumi_compact": {
+      "name": "石組み（小規模・3-5石）",
+      "scope": "庭の主景となる石組み",
+      "estimated_total_jpy": { "min": 200000, "max": 600000 },
+      "hs_rule_estimate_jpy": 380000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小造園": { "min": 220000, "max": 560000, "note": "HS第一推奨" },
+        "区分3_造園会社": { "min": 260000, "max": 660000, "note": "和風専門推奨" }
+      }
+    },
+    "stone_lantern_install": {
+      "name": "石灯篭設置",
+      "scope": "標準サイズ石灯篭1基",
+      "estimated_total_jpy": { "min": 80000, "max": 500000 },
+      "hs_rule_estimate_jpy": 200000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人業者": { "min": 88000, "max": 470000 },
+        "区分2_中小造園": { "min": 95000, "max": 500000 },
+        "区分3_造園会社": { "min": 110000, "max": 580000, "note": "和風専門推奨" }
+      }
+    },
+    "tsukubai_install": {
+      "name": "蹲（つくばい）設置",
+      "scope": "茶庭の蹲・水手鉢込み",
+      "estimated_total_jpy": { "min": 150000, "max": 600000 },
+      "hs_rule_estimate_jpy": 300000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小造園": { "min": 165000, "max": 555000 },
+        "区分3_造園会社": { "min": 195000, "max": 640000, "note": "和風専門推奨" }
+      }
+    },
+    "stone_wall_short": {
+      "name": "石垣（小規模・幅5m高1.5m）",
+      "scope": "野面積み・空積み",
+      "estimated_total_jpy": { "min": 500000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 950000,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小造園": { "min": 550000, "max": 1380000 },
+        "区分3_造園会社": { "min": 640000, "max": 1600000, "note": "石工技能士推奨" }
+      }
+    },
+    "wafu_complete_garden": {
+      "name": "和風庭園・石組みフル（中規模）",
+      "scope": "石組み+灯篭+蹲+飛び石（30㎡庭）",
+      "estimated_total_jpy": { "min": 1500000, "max": 4500000 },
+      "hs_rule_estimate_jpy": 2800000,
+      "料金_業者規模別_税込_円": {
+        "区分3_造園会社": { "min": 1800000, "max": 4700000, "note": "和風専門" },
+        "区分4_大手": { "min": 2200000, "max": 5700000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "STONE_GRADE_FAKE", "pattern": "並品を高級石材と偽装", "severity": "🚨 HIGH",
+      "reason": "鞍馬石・三波石等の産地証明要" },
+    { "code": "TRANSPORT_INFLATION", "pattern": "輸送費の水増し", "severity": "🚨 HIGH" },
+    { "code": "QUALIFICATION_NONE", "pattern": "石工技能士なし（大規模石垣）", "severity": "🚨 HIGH",
+      "reason": "石垣崩壊リスク" },
+    { "code": "WEIGHT_BASIS_UNCLEAR", "pattern": "石材の重量・容積記載なし", "severity": "🚨 HIGH" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "玄関アプローチ", "recommendation": "飛び石", "cost_range": { "min": 80000, "max": 250000 } },
+    { "case": "庭の主景", "recommendation": "石組み", "cost_range": { "min": 200000, "max": 600000 } },
+    { "case": "和風アクセント", "recommendation": "灯篭・蹲", "cost_range": { "min": 80000, "max": 600000 } },
+    { "case": "段差処理", "recommendation": "石垣", "cost_range": { "min": 500000, "max": 1500000 } },
+    { "case": "本格和風庭園", "recommendation": "フル組み", "cost_range": { "min": 1500000, "max": 4500000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "推奨度": "★★★★☆", "特徴": "小規模・飛び石" },
+    "区分2_中小造園": { "推奨度": "★★★★★ 第一推奨", "特徴": "標準対応" },
+    "区分3_造園会社_和風専門": { "推奨度": "★★★★★", "特徴": "高級石材・伝統技能" },
+    "区分4_大手": { "推奨度": "★★★☆☆", "特徴": "割高" }
+  },
+  "iran_situation_2026_04_impact": {
+    "建材_+10_15pct": ["石材輸送費（燃料）"],
+    "_impact_summary": "輸送費高騰で全プラン+5-10%"
+  },
+  "negotiation_tips": [
+    "石材の産地・種類・重量明記",
+    "高級石材は産地証明書要求",
+    "輸送費・重機費を別途明細",
+    "石工技能士資格の確認（大規模）"
+  ],
+  "trade_knowledge": {
+    "summary": "庭石は産地・サイズで10倍以上の価格差。並品¥3-20万/トン、高級鞍馬石・三波石¥20-80万/トン",
+    "knowledge_source": "TOshi経験 + 石材業界データ"
+  },
+  "connected_clusters": {
+    "gaikou_cluster": { "categories": ["shokusai_zoen", "gaikou_work", "kaki_seko"], "synergy": "和風庭園同時施工" }
+  }
+}
