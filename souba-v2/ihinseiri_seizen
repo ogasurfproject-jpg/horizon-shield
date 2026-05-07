@@ -1,0 +1,152 @@
+{
+  "_meta": {
+    "version": "1.0-phase1.7-toshi-philosophy",
+    "updated": "2026-05-07",
+    "category_id": "ihinseiri_seizen",
+    "category_name_jp": "遺品整理・生前整理サービス",
+    "maintainer": "TOshi (大賀 俊勝) / HORIZON SHIELD",
+    "importance": "⭐⭐⭐⭐ 高齢化社会で需要急増・遺品買取詐欺・処分費用水増しが多発",
+    "knowledge_source": "TOshi 30年の建設実務経験 + 遺品整理士認定協会・消費者庁データ",
+    "scope": "故人遺品の整理・分別・処分・搬出、生前整理・終活サポート、デジタル遺品・ペット遺品",
+    "horizons_philosophy": "遺品整理は遺族が冷静に判断できない状況での契約多く、処分費水増し・遺品買い叩きが横行。HSは間取り別の標準価格を可視化",
+    "_TOshi_review_needed": true
+  },
+  "horizon_shield_standard": {
+    "formula": "作業員 × 日当 + 廃棄物処分費 + 仕分け・搬出費 + 諸経費（25-35%）+ 消費税 10%",
+    "parameters": { "general_overhead_pct_normal": 25 },
+    "HS_pricing_philosophy": {
+      "業者規模別_妥当な利益率": {
+        "個人事業": "粗利率 25-35%",
+        "中小遺品整理業者": "粗利率 25-35%",
+        "大手チェーン系": "粗利率 35-45%"
+      }
+    }
+  },
+  "labor": {
+    "specialist_day_rate": { "min": 18000, "max": 25000, "note": "遺品整理士・生前整理アドバイザー" }
+  },
+  "additional_costs": {
+    "high_value_appraisal": { "name": "貴重品査定（骨董・貴金属等）", "price_jpy": { "min": 0, "max": 50000 }, "note": "買取と相殺可" },
+    "kuyo_service": { "name": "供養・お焚き上げ", "price_jpy": { "min": 5000, "max": 30000 } },
+    "digital_data_recovery": { "name": "デジタル遺品（PC/スマホ）データ救出", "price_jpy": { "min": 30000, "max": 150000 } },
+    "industrial_waste_disposal": { "name": "産廃処分費", "price_per_unit_jpy": { "min": 5000, "max": 30000 } }
+  },
+  "plans": {
+    "ihin_1r_basic": {
+      "name": "遺品整理・1R/1K（標準）",
+      "scope": "20-25㎡・家具家電含む全整理",
+      "estimated_total_jpy": { "min": 50000, "max": 150000 },
+      "hs_rule_estimate_jpy": 100000,
+      "work_days": 0.5,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人事業": { "min": 55000, "max": 140000 },
+        "区分2_中小業者": { "min": 60000, "max": 150000, "note": "HS第一推奨" },
+        "区分3_大手チェーン": { "min": 75000, "max": 180000 }
+      }
+    },
+    "ihin_2dk_standard": {
+      "name": "遺品整理・2DK（標準）",
+      "scope": "40-50㎡・家具家電多数",
+      "estimated_total_jpy": { "min": 150000, "max": 300000 },
+      "hs_rule_estimate_jpy": 220000,
+      "work_days": 1,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人事業": { "min": 165000, "max": 285000 },
+        "区分2_中小業者": { "min": 175000, "max": 300000, "note": "HS第一推奨" },
+        "区分3_大手チェーン": { "min": 215000, "max": 360000 }
+      }
+    },
+    "ihin_3ldk_kodate": {
+      "name": "遺品整理・3LDK戸建（標準）",
+      "scope": "70-90㎡・庭含む",
+      "estimated_total_jpy": { "min": 300000, "max": 700000 },
+      "hs_rule_estimate_jpy": 480000,
+      "work_days": 2,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人事業": { "min": 330000, "max": 660000 },
+        "区分2_中小業者": { "min": 350000, "max": 700000, "note": "HS第一推奨" },
+        "区分3_大手チェーン": { "min": 430000, "max": 850000 }
+      }
+    },
+    "ihin_5ldk_premium_kura": {
+      "name": "遺品整理・5LDK戸建+蔵（上位）",
+      "scope": "100㎡超・蔵・骨董品多数・査定込み",
+      "estimated_total_jpy": { "min": 600000, "max": 1500000 },
+      "hs_rule_estimate_jpy": 950000,
+      "work_days": 4,
+      "料金_業者規模別_税込_円": {
+        "区分2_中小業者": { "min": 660000, "max": 1350000 },
+        "区分3_大手チェーン": { "min": 820000, "max": 1700000 }
+      }
+    },
+    "seizen_seiri_service": {
+      "name": "生前整理・終活サポート",
+      "scope": "本人立会いの段階整理（複数回訪問）",
+      "estimated_total_jpy": { "min": 80000, "max": 300000 },
+      "hs_rule_estimate_jpy": 180000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人事業": { "min": 88000, "max": 285000 },
+        "区分2_中小業者": { "min": 95000, "max": 300000, "note": "HS第一推奨" },
+        "区分3_大手チェーン": { "min": 115000, "max": 360000 }
+      }
+    },
+    "digital_pet_special": {
+      "name": "デジタル遺品・ペット遺品対応",
+      "scope": "PC/スマホデータ救出+ペット用品の供養込み",
+      "estimated_total_jpy": { "min": 50000, "max": 200000 },
+      "hs_rule_estimate_jpy": 120000,
+      "料金_業者規模別_税込_円": {
+        "区分1_個人事業": { "min": 55000, "max": 190000 },
+        "区分2_中小業者": { "min": 60000, "max": 200000 },
+        "区分3_大手チェーン": { "min": 75000, "max": 245000 }
+      }
+    }
+  },
+  "red_flags": [
+    { "code": "BUYBACK_LOW_BALL", "pattern": "貴金属・骨董を不当に安く買取", "severity": "🔴 CRITICAL",
+      "reason": "「ついでに買取」で1/10価格にする手口。第三者査定推奨" },
+    { "code": "DISPOSAL_FEE_INFLATION", "pattern": "処分費用の水増し（家電1点¥30,000等）", "severity": "🚨 HIGH",
+      "reason": "適正は¥3,000-15,000/点" },
+    { "code": "BEREAVED_PRESSURE", "pattern": "遺族の弱みにつけこむ即決契約", "severity": "🔴 CRITICAL",
+      "reason": "クーリングオフ対象。8日以内解約可" },
+    { "code": "QUALIFICATION_NONE", "pattern": "遺品整理士資格なし", "severity": "⚠️ MEDIUM" },
+    { "code": "INVENTORY_NONE", "pattern": "搬出物の写真記録・目録作成なし", "severity": "🚨 HIGH" },
+    { "code": "CASH_DEMAND", "pattern": "現金即払い要求（領収書なし）", "severity": "🔴 CRITICAL" }
+  ],
+  "customer_scenario_guide": [
+    { "case": "1人暮らし故人の整理（1K）", "recommendation": "1R/1K標準", "cost_range": { "min": 50000, "max": 150000 } },
+    { "case": "夫婦故人・実家整理（2DK）", "recommendation": "2DK標準", "cost_range": { "min": 150000, "max": 300000 } },
+    { "case": "実家戸建（3LDK）", "recommendation": "3LDK戸建", "cost_range": { "min": 300000, "max": 700000 } },
+    { "case": "資産家・蔵あり戸建", "recommendation": "5LDK上位+査定", "cost_range": { "min": 600000, "max": 1500000 } },
+    { "case": "本人健在・断捨離", "recommendation": "生前整理", "cost_range": { "min": 80000, "max": 300000 } },
+    { "case": "デジタル遺品・ペット", "recommendation": "特殊対応", "cost_range": { "min": 50000, "max": 200000 } }
+  ],
+  "business_size_based_pricing": {
+    "区分1_個人事業": { "推奨度": "★★★★★", "特徴": "コスパ良・小規模対応" },
+    "区分2_中小業者": { "推奨度": "★★★★★ 第一推奨", "特徴": "実績豊富・査定対応" },
+    "区分3_大手チェーン": { "推奨度": "★★★☆☆", "特徴": "全国対応・割高" }
+  },
+  "iran_situation_2026_04_impact": {
+    "副資材_+5_10pct": ["梱包材"],
+    "産廃処理費_+10_15pct": ["処分場費上昇"],
+    "_impact_summary": "全プラン+5-10%。骨董・貴金属の買取相場は需給で変動"
+  },
+  "negotiation_tips": [
+    "事前見積もり（現地立会い）必須",
+    "貴金属・骨董は第三者査定（買取業者と分離）",
+    "遺品整理士・古物商許可の確認",
+    "搬出物の写真記録・目録作成を契約条件に",
+    "クーリングオフ権の周知（特商法8日）",
+    "供養・お焚き上げの要否を事前合意",
+    "デジタル遺品（PC/スマホ）の取扱い別途",
+    "現金即払いではなく振込（領収書必須）"
+  ],
+  "trade_knowledge": {
+    "summary": "遺品整理は1K¥5-15万、2DK¥15-30万、3LDK¥30-70万、5LDK+蔵¥60-150万が標準。買取詐欺・処分費水増しに注意",
+    "industry_scam_structure": "①貴金属の不当買取②処分費水増し③即決契約強要④産廃不法投棄。第三者査定+クーリングオフが防御策",
+    "knowledge_source": "TOshi経験 + 遺品整理士認定協会業界データ"
+  },
+  "connected_clusters": {
+    "shibou_cluster": { "categories": ["tokushuseiso", "house_cleaning", "skeleton_reform", "demolition_master"], "synergy": "整理→清掃→リフォーム→売却 or 解体" }
+  }
+}
