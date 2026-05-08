@@ -448,7 +448,20 @@ const KIRA_SYSTEM = `あなたは「工事費の適正価格を判定するAI」
 ・小額工事の例:障子張替え4枚なら「1.6万円〜2.4万円」
 ・中額工事の例:キッチン交換なら「80万円〜150万円」
 ・高額工事の例:大規模修繕なら「3000万円〜7000万円」
-・カンマ区切り（例:1,000）は使わず、必ず数字のみ`;
+・カンマ区切り（例:1,000）は使わず、必ず数字のみ
+
+# 対応カテゴリ一覧（Phase 1.7追加31カテゴリ含む）
+以下の工事カテゴリに対応している。施主の発言からカテゴリを判定してヒアリングすること。
+
+【水回り】キッチンリフォーム、浴室リフォーム、トイレリフォーム、洗面台リフォーム、給湯器交換、ビルトイン食洗機後付け工事、IH⇔ガスコンロ変更工事、浴室乾燥機・追い焚き単体工事
+【床材・内装】フローリング張替え、クロス張替え、畳リフォーム、障子・ふすま張替え工事、床鳴り・床補修専門工事、防音・遮音工事、照明デザイン専門工事
+【給湯・電気・設備】エアコン工事、電気工事、水道工事、スマートホーム・IoT工事、防犯カメラ・SECOM連携工事、全館空調・除湿システム工事、地中熱利用システム工事、ワインセラー設置工事、雨水利用システム工事、井戸・井戸ポンプ工事
+【外装・構造】屋根工事、外壁塗装、断熱工事、耐震補強、窓リフォーム、玄関ドア交換、防水工事、雨漏り補修、左官工事、タイル工事
+【外構・庭】外構工事、網戸・雨戸・シャッター、カーポート単独設置工事、庭石・石組み工事、池・水景工事、物置設置工事、造園・植栽工事、看板・サイン工事
+【特殊工事】アスベスト除去工事、住宅部分解体工事、特殊清掃工事、ガラス交換専門工事
+【商業・大規模】業務用厨房工事、マンション共用部修繕工事、エレベーター修繕・更新工事、プール・スパ施設工事、商業店舗工事
+【サービス連携】引越し連動リフォームサービス、仮住まい支援サービス、遺品整理・生前整理サービス
+【新築・大規模リフォーム】新築戸建て、マンション購入後リノベーション`;
 
 const EXAMPLES = {
   1:"築15年マンション。\n6畳和室2部屋をフローリングに張り替えたい。\nキッチンもI型2550mmを手頃なものに交換。\n予算は全部で300万以内。",
@@ -494,7 +507,6 @@ function stripMd(text) {
     .replace(/`([^`]+)`/g, '$1')
     .replace(/_{1,2}(.+?)_{1,2}/g, '$1')
     .replace(/\n{3,}/g, '\n\n')
-    // 会社サービス情報・電話番号・LINEアカウントを除去
     .replace(/LINE[^\n]*@[0-9a-z]+[^\n]*/g, '')
     .replace(/0\d{1,4}[-−]\d{1,4}[-−]\d{4}/g, '')
     .replace(/080[-−]\d{4}[-−]\d{4}/g, '')
@@ -589,7 +601,6 @@ async function sendToKira() {
 
   const messages = [...conversationHistory];
 
-  // 会社・サービス情報の出力をブロックするための強制指示
   const lastMsg2 = messages[messages.length - 1];
   if (lastMsg2 && lastMsg2.role === 'user') {
     messages[messages.length - 1] = {
@@ -623,7 +634,6 @@ async function sendToKira() {
     } else {
       {
         addBubble('kira', stripMd(reply));
-        // 情報不足の警告が含まれていたら「それでも出す」ボタンを表示
         const isWarning = /足りない|不足|できません|もう少し|正確な|責任|確認させ/.test(reply);
         if (isWarning && turnCount >= 2) {
           showForceButton();
@@ -644,7 +654,6 @@ async function sendToKira() {
 }
 
 function showForceButton() {
-  // 既にボタンがあれば追加しない
   if (document.getElementById('kira-force-btn')) return;
   const chat = document.getElementById('kc-messages');
   const d = document.createElement('div');
@@ -702,7 +711,6 @@ function parsePlan(text) {
     var re = /(\d[\d,]*\.?\d*)/g;
     while ((m = re.exec(s)) !== null) nums.push(parseFloat(m[1].replace(/,/g,'')));
 
-    // 単位自動判定:1000以上の数字が来たら円単位と判定して万円に変換
     function normalize(arr) {
       if (arr.length === 0) return arr;
       var allLarge = arr.every(function(n) { return n >= 1000; });
@@ -868,18 +876,14 @@ function proceedToPayment() {
 
 /* ── init ── */
 document.addEventListener('DOMContentLoaded', function() {
-  // ヘッダーray注入（28本）
   injectRays('hzRays', 60, 34, 26, 28);
 
-  // KIRA初期メッセージ
   addBubble('kira', 'はじめまして。HORIZON SHIELDの建設費診断AIです。\nやりたい工事の内容を教えてください。\n曖昧な情報でも大丈夫です。詳細は私が順番に確認します。');
 
-  // Enter送信（Shift+Enterは改行）
   document.getElementById('kc-input').addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendToKira(); }
   });
 
-  // 支払いモーダル動的生成
   var modal = document.createElement('div');
   modal.id = 'payment-modal';
   modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;';
@@ -895,7 +899,6 @@ document.addEventListener('DOMContentLoaded', function() {
   document.body.appendChild(modal);
   modal.addEventListener('click', function(e) { if (e.target === modal) closePaymentModal(); });
 
-  // Terms checkbox
   document.getElementById('terms-agree-check-hs').addEventListener('change', function() {
     var btn = document.getElementById('terms-agree-btn-hs');
     if (this.checked) { btn.disabled=false; btn.style.background='#c8a832'; btn.style.color='#000'; btn.style.cursor='pointer'; }
@@ -905,13 +908,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (e.target === document.getElementById('terms-modal-hs')) closeTermsModalHs();
   });
 
-  // admin reset（URLパラメータ）
   if (new URLSearchParams(location.search).get('admin') === 'reset') {
     localStorage.removeItem('hs_reverse_used');
     history.replaceState({}, '', '/hs-reverse-estimate/');
   }
 
-  // KIRAヘッダー5回連続タップでリセットパネル表示
   var adminTapCount = 0, adminTapTimer = null;
   var kcHeader = document.querySelector('.kc-header');
   if (kcHeader) {
@@ -927,7 +928,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // リセットパネル生成
   var rp = document.createElement('div');
   rp.id = 'admin-reset-panel';
   rp.style.cssText = 'display:none;position:fixed;bottom:80px;right:20px;z-index:9000;background:#0f1e4a;border:1px solid #c8a832;border-radius:10px;padding:16px 20px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.4)';
@@ -942,7 +942,6 @@ document.addEventListener('DOMContentLoaded', function() {
     location.reload();
   };
 
-  // 使用済みチェック
   if (localStorage.getItem('hs_reverse_used')) {
     document.querySelector('.hero').insertAdjacentHTML('afterend',
       '<div style="max-width:780px;margin:20px auto;padding:0 20px">'
