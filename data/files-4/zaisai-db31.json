@@ -1,0 +1,1274 @@
+{
+  "version": "2026.04.phase2c",
+  "note": "2026年4月。Phase 2C拡張版 zaisai-db31。最終補完。中東情勢・資材高騰反映。",
+  "categories": {
+    "電線・ケーブル全社バリエーション": [
+      {
+        "name": "パナソニック電工 VVF 2C 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "パナソニック電工 VVF 3C 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 26000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "パナソニック電工 VVF 2C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 28000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "パナソニック電工 VVF 3C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 38000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "パナソニック電工 IV 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 8000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "パナソニック電工 IV 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 11000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "パナソニック電工 CV 2C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 12000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "パナソニック電工 CV 3C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "パナソニック電工 CV 3C 5.5mm 100m",
+        "unit": "巻",
+        "unit_price": 42000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "パナソニック電工 EM-CEE 2C 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 22000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "パナソニック電工 EM-IE 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 14000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "パナソニック電工 アース線IV 2mm2 100m",
+        "unit": "巻",
+        "unit_price": 12000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "住友電工 VVF 2C 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 18360,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "住友電工 VVF 3C 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 26520,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "住友電工 VVF 2C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 28560,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "住友電工 VVF 3C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 38760,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "住友電工 IV 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 8160,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "住友電工 IV 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 11220,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "住友電工 CV 2C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 12240,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "住友電工 CV 3C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 18360,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "住友電工 CV 3C 5.5mm 100m",
+        "unit": "巻",
+        "unit_price": 42840,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "住友電工 EM-CEE 2C 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 22440,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "住友電工 EM-IE 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 14280,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "住友電工 アース線IV 2mm2 100m",
+        "unit": "巻",
+        "unit_price": 12240,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "古河電工 VVF 2C 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 18720,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "古河電工 VVF 3C 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 27040,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "古河電工 VVF 2C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 29120,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "古河電工 VVF 3C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 39520,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "古河電工 IV 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 8320,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "古河電工 IV 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 11440,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "古河電工 CV 2C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 12480,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "古河電工 CV 3C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 18720,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "古河電工 CV 3C 5.5mm 100m",
+        "unit": "巻",
+        "unit_price": 43680,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "古河電工 EM-CEE 2C 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 22880,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "古河電工 EM-IE 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 14560,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "古河電工 アース線IV 2mm2 100m",
+        "unit": "巻",
+        "unit_price": 12480,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "フジクラ VVF 2C 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 19080,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "フジクラ VVF 3C 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 27560,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "フジクラ VVF 2C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 29680,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "フジクラ VVF 3C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 40280,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "フジクラ IV 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 8480,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "フジクラ IV 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 11660,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "フジクラ CV 2C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 12720,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "フジクラ CV 3C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 19080,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "フジクラ CV 3C 5.5mm 100m",
+        "unit": "巻",
+        "unit_price": 44520,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "フジクラ EM-CEE 2C 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 23320,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "フジクラ EM-IE 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 14840,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "フジクラ アース線IV 2mm2 100m",
+        "unit": "巻",
+        "unit_price": 12720,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "日立金属 VVF 2C 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 19440,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "日立金属 VVF 3C 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 28080,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "日立金属 VVF 2C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 30240,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "日立金属 VVF 3C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 41040,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "日立金属 IV 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 8640,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "日立金属 IV 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 11880,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "日立金属 CV 2C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 12960,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "日立金属 CV 3C 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 19440,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "日立金属 CV 3C 5.5mm 100m",
+        "unit": "巻",
+        "unit_price": 45360,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "日立金属 EM-CEE 2C 1.6mm 100m",
+        "unit": "巻",
+        "unit_price": 23760,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "日立金属 EM-IE 2.0mm 100m",
+        "unit": "巻",
+        "unit_price": 15120,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "日立金属 アース線IV 2mm2 100m",
+        "unit": "巻",
+        "unit_price": 12960,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      }
+    ],
+    "保温・遮音・吸音材補完": [
+      {
+        "name": "グラスウール保温材19mm2m",
+        "unit": "本",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 5,
+        "memo": ""
+      },
+      {
+        "name": "グラスウール保温材25mm2m",
+        "unit": "本",
+        "unit_price": 980,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "ロックウール保温材50mm",
+        "unit": "m2",
+        "unit_price": 1200,
+        "standard_qty_30tsubo": 30,
+        "memo": ""
+      },
+      {
+        "name": "ポリエチレン発泡保温材19mm",
+        "unit": "m",
+        "unit_price": 420,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "配管保温材13mm用1m",
+        "unit": "本",
+        "unit_price": 380,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "配管保温材20mm用1m",
+        "unit": "本",
+        "unit_price": 480,
+        "standard_qty_30tsubo": 5,
+        "memo": ""
+      },
+      {
+        "name": "吸音材ウレタン25mm1m2",
+        "unit": "m2",
+        "unit_price": 1200,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "吸音材グラスウール50mm",
+        "unit": "m2",
+        "unit_price": 880,
+        "standard_qty_30tsubo": 15,
+        "memo": ""
+      },
+      {
+        "name": "防音シート重量1m2",
+        "unit": "m2",
+        "unit_price": 1800,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "制振シート1m2",
+        "unit": "m2",
+        "unit_price": 1200,
+        "standard_qty_30tsubo": 15,
+        "memo": ""
+      },
+      {
+        "name": "防音ゴムシート3mm1m2",
+        "unit": "m2",
+        "unit_price": 2200,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "吸音スポンジ10mm1m2",
+        "unit": "m2",
+        "unit_price": 880,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "床衝撃音低減材5mm",
+        "unit": "m2",
+        "unit_price": 1800,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "遮音シート1m2",
+        "unit": "m2",
+        "unit_price": 2200,
+        "standard_qty_30tsubo": 30,
+        "memo": ""
+      },
+      {
+        "name": "防振ゴムパッド50×50",
+        "unit": "個",
+        "unit_price": 580,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コンクリート用振動吸収材",
+        "unit": "m2",
+        "unit_price": 3500,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "二重床用グラスウール",
+        "unit": "m2",
+        "unit_price": 1200,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "浮き床用防振ゴム",
+        "unit": "個",
+        "unit_price": 1200,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "吸音天井板600角",
+        "unit": "枚",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ロックウール吸音板600角",
+        "unit": "枚",
+        "unit_price": 2200,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      }
+    ],
+    "タイル・石材補完": [
+      {
+        "name": "磁器タイル100角白床用",
+        "unit": "m2",
+        "unit_price": 3200,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "磁器タイル300角床用",
+        "unit": "m2",
+        "unit_price": 4200,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "磁器タイル600角大判",
+        "unit": "m2",
+        "unit_price": 8500,
+        "standard_qty_30tsubo": 15,
+        "memo": ""
+      },
+      {
+        "name": "磁器タイル木目調150×600",
+        "unit": "m2",
+        "unit_price": 7800,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "モザイクタイル25角",
+        "unit": "m2",
+        "unit_price": 5800,
+        "standard_qty_30tsubo": 5,
+        "memo": ""
+      },
+      {
+        "name": "テラコッタ300角",
+        "unit": "m2",
+        "unit_price": 6500,
+        "standard_qty_30tsubo": 8,
+        "memo": ""
+      },
+      {
+        "name": "石英岩300角天然石",
+        "unit": "m2",
+        "unit_price": 12000,
+        "standard_qty_30tsubo": 5,
+        "memo": ""
+      },
+      {
+        "name": "大理石タイル300角",
+        "unit": "m2",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "御影石600角",
+        "unit": "m2",
+        "unit_price": 22000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "外壁タイル45二丁",
+        "unit": "m2",
+        "unit_price": 5800,
+        "standard_qty_30tsubo": 30,
+        "memo": ""
+      },
+      {
+        "name": "タイル目地材白1kg",
+        "unit": "袋",
+        "unit_price": 580,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "タイル接着剤弾性20kg",
+        "unit": "袋",
+        "unit_price": 4800,
+        "standard_qty_30tsubo": 5,
+        "memo": ""
+      },
+      {
+        "name": "ピンコロ石御影100角",
+        "unit": "個",
+        "unit_price": 280,
+        "standard_qty_30tsubo": 100,
+        "memo": ""
+      },
+      {
+        "name": "平板石600×300御影",
+        "unit": "枚",
+        "unit_price": 3800,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "レンガ210×100×60標準",
+        "unit": "個",
+        "unit_price": 280,
+        "standard_qty_30tsubo": 100,
+        "memo": ""
+      },
+      {
+        "name": "レンガアンティーク",
+        "unit": "個",
+        "unit_price": 480,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "コンクリートブロックCB150",
+        "unit": "個",
+        "unit_price": 380,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "化粧ブロック標準色",
+        "unit": "個",
+        "unit_price": 980,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "ガラスブロック190角",
+        "unit": "個",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "天然石乱貼り",
+        "unit": "m2",
+        "unit_price": 15000,
+        "standard_qty_30tsubo": 4,
+        "memo": ""
+      },
+      {
+        "name": "スレートタイル600×300",
+        "unit": "m2",
+        "unit_price": 8800,
+        "standard_qty_30tsubo": 8,
+        "memo": ""
+      },
+      {
+        "name": "磁器タイル100×200サブウェイ",
+        "unit": "m2",
+        "unit_price": 4800,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "外構タイル300角外床用",
+        "unit": "m2",
+        "unit_price": 5200,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "玄関タイル600角磁器",
+        "unit": "m2",
+        "unit_price": 7800,
+        "standard_qty_30tsubo": 6,
+        "memo": ""
+      },
+      {
+        "name": "タイル剥離剤4L",
+        "unit": "缶",
+        "unit_price": 3800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "石材用コーティング2L",
+        "unit": "缶",
+        "unit_price": 6800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "タイル補修グラウト1kg",
+        "unit": "袋",
+        "unit_price": 1200,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "目地棒5mm×2m",
+        "unit": "本",
+        "unit_price": 180,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "石材用シーラー4L",
+        "unit": "缶",
+        "unit_price": 5800,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "スペーサー2mm",
+        "unit": "袋",
+        "unit_price": 280,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "防汚コーティング剤1L",
+        "unit": "缶",
+        "unit_price": 4800,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "振動ドリル用タイルビット8mm",
+        "unit": "本",
+        "unit_price": 1800,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "磁器タイル600×1200大判輸入",
+        "unit": "m2",
+        "unit_price": 14000,
+        "standard_qty_30tsubo": 8,
+        "memo": ""
+      },
+      {
+        "name": "人工大理石タイル300角",
+        "unit": "m2",
+        "unit_price": 12000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "ガラスモザイク100角",
+        "unit": "m2",
+        "unit_price": 9800,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "ピンコロ石黒御影",
+        "unit": "個",
+        "unit_price": 380,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "飛び石丸型φ400",
+        "unit": "個",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 5,
+        "memo": ""
+      },
+      {
+        "name": "縁石標準型1m",
+        "unit": "本",
+        "unit_price": 1800,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "グレーチング250×500",
+        "unit": "枚",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 5,
+        "memo": ""
+      },
+      {
+        "name": "境界杭アルミ",
+        "unit": "個",
+        "unit_price": 580,
+        "standard_qty_30tsubo": 8,
+        "memo": ""
+      }
+    ],
+    "省エネ・環境設備補完": [
+      {
+        "name": "床暖房システム温水式6畳",
+        "unit": "式",
+        "unit_price": 280000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "床暖房システム温水式12畳",
+        "unit": "式",
+        "unit_price": 420000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "床暖房システム電気式6畳",
+        "unit": "式",
+        "unit_price": 180000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "床暖房パネル温水式600×900",
+        "unit": "枚",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "床暖房サーモスタット",
+        "unit": "個",
+        "unit_price": 8500,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "床暖房用ヘッダー4回路",
+        "unit": "個",
+        "unit_price": 28000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "HEMS標準",
+        "unit": "式",
+        "unit_price": 250000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "スマートメーター屋内表示",
+        "unit": "台",
+        "unit_price": 45000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "全館空調システム小型",
+        "unit": "式",
+        "unit_price": 850000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "CO2センサー室内",
+        "unit": "個",
+        "unit_price": 15000,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "断熱窓内窓樹脂引違い",
+        "unit": "枚",
+        "unit_price": 45000,
+        "standard_qty_30tsubo": 6,
+        "memo": ""
+      },
+      {
+        "name": "断熱窓複層ガラス交換",
+        "unit": "枚",
+        "unit_price": 35000,
+        "standard_qty_30tsubo": 6,
+        "memo": ""
+      },
+      {
+        "name": "断熱窓トリプルガラス",
+        "unit": "枚",
+        "unit_price": 65000,
+        "standard_qty_30tsubo": 4,
+        "memo": ""
+      },
+      {
+        "name": "高断熱サッシ樹脂フレーム",
+        "unit": "枚",
+        "unit_price": 85000,
+        "standard_qty_30tsubo": 6,
+        "memo": ""
+      },
+      {
+        "name": "エコ給湯器HP370L",
+        "unit": "台",
+        "unit_price": 480000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ガス給湯器省エネ24号",
+        "unit": "台",
+        "unit_price": 280000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "Low-Eガラス複層透明",
+        "unit": "m2",
+        "unit_price": 12000,
+        "standard_qty_30tsubo": 15,
+        "memo": ""
+      },
+      {
+        "name": "Low-Eガラス複層遮熱",
+        "unit": "m2",
+        "unit_price": 14000,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "Low-Eガラストリプル",
+        "unit": "m2",
+        "unit_price": 22000,
+        "standard_qty_30tsubo": 8,
+        "memo": ""
+      },
+      {
+        "name": "真空ガラススペーシア",
+        "unit": "m2",
+        "unit_price": 45000,
+        "standard_qty_30tsubo": 6,
+        "memo": ""
+      },
+      {
+        "name": "太陽光架台スレート用",
+        "unit": "式",
+        "unit_price": 45000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "太陽光架台ガルバ用",
+        "unit": "式",
+        "unit_price": 55000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "接続箱4回路",
+        "unit": "台",
+        "unit_price": 25000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "接続箱8回路",
+        "unit": "台",
+        "unit_price": 38000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ペレットストーブ5kW",
+        "unit": "台",
+        "unit_price": 450000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "薪ストーブ鋳鉄製標準",
+        "unit": "台",
+        "unit_price": 280000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "薪ストーブ用煙突二重断熱1m",
+        "unit": "本",
+        "unit_price": 12000,
+        "standard_qty_30tsubo": 5,
+        "memo": ""
+      },
+      {
+        "name": "薪ストーブ用炉台石材1m2",
+        "unit": "m2",
+        "unit_price": 28000,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "FF式石油ストーブ10kW",
+        "unit": "台",
+        "unit_price": 130000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "温水ルームヒーターパネル型",
+        "unit": "台",
+        "unit_price": 65000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "温水配管架橋ポリ13mm50m",
+        "unit": "巻",
+        "unit_price": 8500,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "循環ポンプ温水用小型",
+        "unit": "台",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "膨張タンク3L",
+        "unit": "個",
+        "unit_price": 5800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "不凍液温水用18L",
+        "unit": "缶",
+        "unit_price": 4800,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "断熱材GW105mm16K",
+        "unit": "m2",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 100,
+        "memo": ""
+      },
+      {
+        "name": "断熱材GW155mm16K",
+        "unit": "m2",
+        "unit_price": 1100,
+        "standard_qty_30tsubo": 55,
+        "memo": ""
+      },
+      {
+        "name": "断熱材GW210mm16K",
+        "unit": "m2",
+        "unit_price": 1400,
+        "standard_qty_30tsubo": 55,
+        "memo": ""
+      },
+      {
+        "name": "断熱材スタイロ50mm",
+        "unit": "m2",
+        "unit_price": 1600,
+        "standard_qty_30tsubo": 55,
+        "memo": ""
+      },
+      {
+        "name": "断熱材フェノール50mm",
+        "unit": "m2",
+        "unit_price": 3200,
+        "standard_qty_30tsubo": 30,
+        "memo": ""
+      },
+      {
+        "name": "断熱材吹付けウレタン50mm",
+        "unit": "m2",
+        "unit_price": 3800,
+        "standard_qty_30tsubo": 55,
+        "memo": ""
+      },
+      {
+        "name": "遮熱シート屋根裏用1×20m",
+        "unit": "巻",
+        "unit_price": 8500,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "遮熱シート外壁用1×20m",
+        "unit": "巻",
+        "unit_price": 6800,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "気密コンセントボックス",
+        "unit": "個",
+        "unit_price": 580,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "気密スリーブ25mm",
+        "unit": "個",
+        "unit_price": 380,
+        "standard_qty_30tsubo": 15,
+        "memo": ""
+      },
+      {
+        "name": "外断熱材EPS50mm",
+        "unit": "m2",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 100,
+        "memo": ""
+      },
+      {
+        "name": "外断熱材EPS100mm",
+        "unit": "m2",
+        "unit_price": 4800,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "透湿防水シート高性能1×30m",
+        "unit": "巻",
+        "unit_price": 12000,
+        "standard_qty_30tsubo": 4,
+        "memo": ""
+      },
+      {
+        "name": "外断熱ビス外壁固定",
+        "unit": "本",
+        "unit_price": 180,
+        "standard_qty_30tsubo": 200,
+        "memo": ""
+      },
+      {
+        "name": "窓用断熱フィルム",
+        "unit": "m2",
+        "unit_price": 3200,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "断熱ブラインド",
+        "unit": "枚",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 6,
+        "memo": ""
+      },
+      {
+        "name": "EV充電設備普通3kW200V",
+        "unit": "台",
+        "unit_price": 150000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "EV充電設備急速15kW",
+        "unit": "台",
+        "unit_price": 650000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "家庭用蓄電池6.5kWh",
+        "unit": "台",
+        "unit_price": 650000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "家庭用蓄電池13kWh",
+        "unit": "台",
+        "unit_price": 1100000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パワーコンディショナ5.5kW",
+        "unit": "台",
+        "unit_price": 302500,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "太陽光パネル400W",
+        "unit": "枚",
+        "unit_price": 66000,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "太陽光パネル500W",
+        "unit": "枚",
+        "unit_price": 82500,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "太陽光パネルシステム5kW工事込み",
+        "unit": "式",
+        "unit_price": 1400000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ソーラー温水器標準",
+        "unit": "式",
+        "unit_price": 280000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "薄膜太陽光パネル",
+        "unit": "枚",
+        "unit_price": 42000,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      }
+    ]
+  }
+}
