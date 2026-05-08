@@ -364,6 +364,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
         <div id="advice-text"></div>
       </div>
     </div>
+    <!-- 出典・トレーサビリティ（Step 3-B 追加） -->
+    <div id="provenance-wrap" style="display:none">
+      <div class="advice-box" style="border-left-color:var(--gold);background:rgba(200,168,50,.04)">
+        <div class="adv-label" style="color:var(--gold)">▸ 算出根拠・出典（他のAIにはない透明性）</div>
+        <div id="provenance-text" style="font-size:11px;color:var(--text);line-height:1.8;font-family:'Share Tech Mono',monospace"></div>
+      </div>
+    </div>
 
     <div class="disclaimer">本サービスはAIによる参考価格提示であり、建設業法上の正式見積もりではありません。HORIZON SHIELDは施工を行いません。施工業者との契約は別途行ってください。</div>
 
@@ -450,8 +457,7 @@ const KIRA_SYSTEM = `あなたは「工事費の適正価格を判定するAI」
 3. 会社情報・電話番号・LINEアカウント・サービス料金・サービス案内を一切出力しない。
 4. 自分はAIであり、サービス案内や会社の宣伝をする立場ではない。
 5. 【最重要】金額は必ず「万円」単位で出力する。円単位での出力は絶対禁止。1万円未満の工事でも「0.5万円〜1万円」「1.5万円〜2.5万円」のように小数点で万円単位で表現する。例:障子4枚張替え¥18,000の場合は「1.6万円〜2.4万円」と書く。
-6. 【最重要・出典明示】金額を提示する際は必ず根拠データを明示する。具体的には===PLAN===内に「出典:」行を入れ、参照したデータベース・基準価格・戦時係数・地域補正の根拠を簡潔に記載する。憶測で金額を出さず、souba-db（HORIZON SHIELD独自DB・3,350項目）と日銀CGPI（企業物価指数）に基づいた数値であることを明示する。「他のAIは推測で答える、KIRAは出典で答える」が原則。
-
+6. 【最重要・出典明示】金額を提示する際は必ず根拠データを明示する。具体的には===PLAN===内に「出典:」行を入れ、参照したデータベース・基準価格・戦時係数・地域補正の根拠を簡潔に記載する。憶測で金額を出さず、souba-db（HORIZON SHIELD独自DB・3,350項目）と日銀CGPI（企業物価指数）に基づいた数値であることを明示する。「他のAIは推測で答える、KIRAは出典で答える」が原則。算出日は必ず「2026年5月」と記載すること（学習データの古い日付を出力しない）。
 # 仕事の内容
 施主がやりたい工事について5項目をヒアリングし、揃い次第「松・竹・梅」の3プランを算出する。
 
@@ -821,6 +827,11 @@ function parsePlan(text) {
   if (adv.trim()) {
     document.getElementById('advice-text').textContent = adv.trim();
     document.getElementById('advice-wrap').style.display = 'block';
+  }
+  // 出典・トレーサビリティ（Step 3-B 追加）
+  if (provenance.trim()) {
+    document.getElementById('provenance-text').textContent = provenance.trim();
+    document.getElementById('provenance-wrap').style.display = 'block';
   }
 
   lastParsedResult = { koji: koji.trim(), plans: { matsu: mR, take: tR, ume: uR }, advice: adv.trim() };
