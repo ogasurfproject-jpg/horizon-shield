@@ -46,10 +46,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
 .mode-desc{font-size:11px;color:var(--muted);line-height:1.7}
 .mode-badge{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:9px;background:rgba(15,30,74,.08);color:var(--navy);padding:2px 8px;margin-top:6px;letter-spacing:1px}
 .mode-btn.active .mode-badge{background:rgba(200,168,50,.15);color:var(--gold)}
-
 .mode-content{display:none;border-top:1px solid var(--border)}
 .mode-content.active{display:block}
-
 .mode-content-inner{padding:20px}
 .hint-box{background:rgba(15,30,74,.04);border-left:2px solid var(--navy);padding:11px 14px;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:1.8}
 .hint-box b{color:var(--navy)}
@@ -77,21 +75,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
 .kc-text{padding:12px 14px}
 .kc-bubble.kira .kc-text{background:white;border:0.5px solid var(--border2);color:var(--text);border-radius:0 10px 10px 10px}
 .kc-bubble.user .kc-text{background:var(--navy);color:#faf9f5;border-radius:10px 10px 0 10px}
-
-/* thinking bubble */
 .kc-thinking{align-self:flex-start}
 .kc-thinking .kc-label{color:var(--navy);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;margin-bottom:4px}
 .kc-thinking-inner{background:white;border:0.5px solid var(--border2);padding:10px 14px;border-radius:0 10px 10px 10px;display:flex;align-items:center;gap:12px}
 .kc-thinking-txt{font-size:12px;color:var(--muted);letter-spacing:.03em}
 .kd{display:inline-block;border-radius:50%;background:var(--gold);animation:dotBlink 1.4s ease-in-out infinite}
 @keyframes dotBlink{0%,60%,100%{opacity:.22}30%{opacity:.85}}
-
-/* hint pills */
 .kc-hints{padding:10px 16px;display:flex;flex-wrap:wrap;gap:6px;background:var(--bg2);border-top:1px solid var(--border)}
 .kc-hint-pill{font-size:11px;background:var(--bg);border:0.5px solid var(--border2);color:var(--navy);padding:6px 12px;cursor:pointer;font-family:inherit;border-radius:14px;transition:all .15s}
 .kc-hint-pill:hover{border-color:var(--gold);color:var(--gold)}
-
-/* input area */
 .kc-input-area{display:flex;align-items:flex-end;gap:8px;padding:12px 16px;border-top:1px solid var(--border);background:var(--bg2)}
 .kc-input{flex:1;background:transparent;border:none;border-bottom:1.5px solid var(--border2);color:var(--text);font-family:inherit;font-size:13px;padding:8px 4px;outline:none;resize:none;line-height:1.6;min-height:38px;max-height:100px}
 .kc-input:focus{border-bottom-color:var(--navy)}
@@ -103,54 +95,69 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
 .kc-err{background:rgba(139,26,26,.06);border:1px solid rgba(139,26,26,.2);padding:12px 16px;font-size:12px;color:var(--crimson);display:none}
 .kc-err.show{display:block}
 
-/* ── RESULTS ── */
+/* ── RESULTS（Phase 2B） ── */
 #results{display:none}
 .extracted-items{padding:16px 20px;border-bottom:1px solid var(--border)}
 .ei-title{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--navy);letter-spacing:3px;margin-bottom:10px}
 .ei-list{font-size:13px;color:var(--muted);line-height:1.9}
 .ei-list .item{padding:4px 0;border-bottom:1px solid var(--border)}
 .ei-list .tag{display:inline-block;background:rgba(15,30,74,.08);color:var(--navy);font-family:'Share Tech Mono',monospace;font-size:10px;padding:1px 6px;margin-right:6px}
-.plans-wrap{padding:20px}
-.plans-title{font-family:'Zen Kaku Gothic New';font-weight:900;font-size:17px;margin-bottom:6px;text-align:center;color:var(--navy)}
-.plans-sub{font-size:11px;color:var(--muted);text-align:center;margin-bottom:18px;letter-spacing:1px}
-.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-@media(max-width:640px){.plans-grid{grid-template-columns:1fr;gap:14px}}
-.plan-card{background:var(--bg);border:0.5px solid var(--border2);padding:16px 12px;position:relative;display:flex;flex-direction:column}
-.plan-card.take{border-color:var(--gold);border-width:1px;background:rgba(200,168,50,.04)}
-.plan-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--bg);border:0.5px solid var(--border2);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:3px 10px;color:var(--muted);white-space:nowrap}
-.plan-card.take .plan-badge{background:var(--gold);color:#fff;border-color:var(--gold);font-weight:700}
-.plan-name{font-size:13px;font-weight:700;margin:6px 0 4px;text-align:center;color:var(--navy)}
-.plan-name .em{color:var(--gold)}
-.plan-target{font-size:10px;color:var(--muted);text-align:center;margin-bottom:10px;line-height:1.5}
-.plan-price{font-family:'Share Tech Mono',monospace;font-size:20px;font-weight:700;color:var(--navy);text-align:center;margin-bottom:2px}
-.plan-card.take .plan-price{color:var(--gold)}
-.plan-price-sub{font-size:10px;color:var(--muted);text-align:center;margin-bottom:12px}
-.plan-items{list-style:none;font-size:11px;color:var(--muted);line-height:1.5;margin-top:auto;padding-top:8px;border-top:0.5px solid var(--border)}
-.plan-items li{padding:3px 0;display:flex;justify-content:space-between;gap:4px}
-.plan-items li span:last-child{color:var(--navy);font-family:'Share Tech Mono',monospace;font-size:10px;white-space:nowrap}
-.plan-price-range{font-family:'Share Tech Mono',monospace;font-size:15px;font-weight:700;color:var(--navy);text-align:center;margin-bottom:2px;letter-spacing:.5px}
-.plan-price-sub.approx{font-style:italic}
-.plan-price.masked{filter:blur(8px);user-select:none}
-.plan-lock-hint{display:none;position:absolute;top:52%;left:50%;transform:translate(-50%,-50%);background:var(--gold);color:var(--bg);font-family:'Share Tech Mono',monospace;font-size:10px;padding:6px 12px;border-radius:3px;white-space:nowrap;letter-spacing:1px;font-weight:900;z-index:2;pointer-events:none}
-.plan-card.take .plan-lock-hint{display:block}
-.plan-card.take{cursor:pointer;transition:transform .2s}
-.plan-card.take:hover{transform:translateY(-2px)}
-.plan-price-wrap{position:relative}
-.plan-unlock-cta{background:rgba(200,168,50,.12);border:1px dashed rgba(200,168,50,.5);padding:10px;text-align:center;font-size:11px;color:var(--gold);letter-spacing:1px;margin:10px 0;cursor:pointer;font-family:'Share Tech Mono',monospace}
-.plan-unlock-cta:hover{background:rgba(200,168,50,.22);border-style:solid}
-.plan-card:not(.take) .plan-unlock-cta{display:none}
 
-.advice-box{background:rgba(15,30,74,.04);border-left:2px solid var(--navy);padding:14px 18px;margin:0 20px 14px;font-size:13px;color:var(--text);line-height:1.8}
+/* リスクスコアメーター */
+.risk-section{padding:20px 20px 0}
+.risk-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.risk-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--navy)}
+.risk-score-wrap{display:flex;align-items:center;gap:10px}
+.risk-score-num{font-family:'Share Tech Mono',monospace;font-size:32px;font-weight:700;color:var(--crimson)}
+.risk-score-unit{font-size:11px;color:var(--muted)}
+.risk-bar-outer{height:6px;background:var(--bg3);border-radius:3px;flex:1}
+.risk-bar-inner{height:6px;border-radius:3px;background:linear-gradient(90deg,#2a7a3a,#c8a832,#8b1a1a);transition:width .8s ease}
+
+/* 最悪シナリオボックス */
+.worst-case-box{background:rgba(139,26,26,.04);border:1px solid rgba(139,26,26,.18);padding:18px 20px;margin:16px 20px 0;position:relative}
+.worst-case-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--crimson);margin-bottom:6px}
+.worst-case-desc{font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.7}
+.worst-case-price{font-family:'Share Tech Mono',monospace;font-size:36px;font-weight:700;color:var(--crimson);letter-spacing:2px}
+.worst-case-price span{font-size:16px;margin-right:4px}
+.worst-case-sub{font-size:10px;color:var(--muted);margin-top:4px}
+
+/* 適正予算ロック */
+.locked-plans{margin:16px 20px 0;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.locked-plans{grid-template-columns:1fr}}
+.locked-row{background:var(--bg);border:0.5px solid var(--border2);padding:14px 16px;position:relative;overflow:hidden}
+.locked-row-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:6px}
+.locked-row-name{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.locked-price{font-family:'Share Tech Mono',monospace;font-size:22px;font-weight:700;color:var(--navy);filter:blur(7px);user-select:none;letter-spacing:1px}
+.locked-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(15,30,74,.88);color:#faf9f5;font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 12px;border-radius:2px;letter-spacing:1px;white-space:nowrap;pointer-events:none}
+
+/* 削減可能額 */
+.savings-section{margin:16px 20px 0;background:rgba(200,168,50,.06);border:1px solid rgba(200,168,50,.25);padding:14px 16px}
+.savings-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--gold);margin-bottom:8px}
+.savings-amount{display:flex;align-items:center;gap:8px}
+.savings-prefix{font-size:12px;color:var(--muted)}
+.savings-blur{font-family:'Share Tech Mono',monospace;font-size:24px;font-weight:700;color:var(--gold);filter:blur(6px);user-select:none;letter-spacing:1px}
+.savings-suffix{font-size:12px;color:var(--muted)}
+.savings-lock{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gold);background:rgba(200,168,50,.15);padding:3px 8px;border-radius:2px;margin-left:auto}
+
+/* Red Flag プレビュー */
+.redflag-section{margin:16px 20px 0}
+.redflag-title{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--navy);margin-bottom:10px}
+.redflag-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(139,26,26,.04);border-left:2px solid var(--crimson);margin-bottom:6px;font-size:12px}
+.redflag-item-name{color:var(--text)}
+.redflag-item-amount{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--crimson);filter:blur(4px);user-select:none}
+.redflag-fade{position:relative;overflow:hidden;margin-top:4px}
+.redflag-fade-inner{opacity:.35}
+.redflag-fade::after{content:'';position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(transparent,var(--bg2))}
+.redflag-remaining{text-align:center;padding:10px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);border-top:0.5px solid var(--border);margin-top:6px}
+
+/* アドバイス */
+.advice-box{background:rgba(15,30,74,.04);border-left:2px solid var(--navy);padding:14px 18px;margin:16px 20px 0;font-size:13px;color:var(--text);line-height:1.8}
 .advice-box .adv-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--navy);margin-bottom:6px}
 
-.alerts{padding:14px 20px;border-top:0.5px solid var(--border)}
-.alert{background:rgba(139,26,26,.04);border-left:2px solid var(--crimson);padding:10px 12px;margin-bottom:8px;font-size:11px;line-height:1.7}
-.alert.high{border-color:var(--gold);background:rgba(200,168,50,.05)}
-.alert-title{font-weight:700;color:var(--crimson);font-size:12px;margin-bottom:3px}
-.alert.high .alert-title{color:var(--gold)}
-.disclaimer{padding:12px 20px;border-top:0.5px solid var(--border);font-size:10px;color:var(--muted);line-height:1.8}
+.disclaimer{padding:12px 20px;border-top:0.5px solid var(--border);margin-top:16px;font-size:10px;color:var(--muted);line-height:1.8}
 
-.cta{background:var(--navy);padding:28px 20px;text-align:center}
+/* CTA */
+.cta{background:var(--navy);padding:28px 20px;text-align:center;margin-top:16px}
 .cta-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--gold);margin-bottom:8px}
 .cta-title{font-size:16px;font-weight:900;margin-bottom:8px;color:#faf9f5}
 .cta-desc{font-size:12px;color:rgba(250,249,245,.65);margin-bottom:14px;line-height:1.8}
@@ -160,6 +167,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
 .cta-btn:hover{background:var(--gold2)}
 .cta-btn.outline{background:transparent;border:1px solid var(--gold);color:var(--gold)}
 .cta-btn.outline:hover{background:rgba(200,168,50,.15)}
+.cta-includes{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:14px}
+.cta-include-item{font-family:'Share Tech Mono',monospace;font-size:9px;background:rgba(200,168,50,.15);color:var(--gold);padding:4px 10px;letter-spacing:1px}
 .legal-ribbon{background:var(--bg2);padding:12px 20px;font-size:10px;color:var(--muted);line-height:1.8;border-top:0.5px solid var(--border)}
 .legal-ribbon b{color:var(--text)}
 
@@ -177,8 +186,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
 .hz-rp2{animation:ripOt 3.2s ease-out infinite .8s}
 .hz-rp3{animation:ripOt 3.2s ease-out infinite 1.6s}
 .hz-rp4{animation:ripOt 3.2s ease-out infinite 2.4s}
-
-/* used banner */
 .used-banner{background:var(--bg2);border:1px solid var(--border2);padding:32px;text-align:center;margin-bottom:20px}
 </style>
 <script src="https://www.paypal.com/sdk/js?client-id=AVePXfDeP_YDUgmcFEJNjFHuYkbXZ-VQcLEecJs5Li2la9qDbtZJamy-iXzTxWlPdUODt6KNV3nqUKHP&currency=JPY&locale=ja_JP"></script>
@@ -215,7 +222,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
       </div>
     </div>
 
-    <!-- 01: estimate mode -->
     <div class="mode-content" id="mode-estimate">
       <div class="mode-content-inner">
         <div class="hint-box"><b>見積もりをお持ちの方は</b>、金額入力型ページをご利用ください。</div>
@@ -223,12 +229,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
       </div>
     </div>
 
-    <!-- 02: KIRA conversation mode -->
     <div class="mode-content active" id="mode-reverse">
       <div class="kc-warn">⚠ <strong>無料診断は1回限りです。</strong>具体的な情報を伝えるほど精度が上がります。</div>
       <div class="kc-wrap">
-
-        <!-- ヘッダー：地平線SVGアート -->
         <div class="kc-header">
           <svg viewBox="0 0 120 50" width="120" height="50" style="overflow:visible;flex-shrink:0">
             <defs>
@@ -241,7 +244,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
             <ellipse cx="60" cy="34" rx="58" ry="30" fill="url(#hglow)"/>
             <g id="hzRays" clip-path="url(#hclip)"></g>
             <circle cx="60" cy="34" r="13" fill="#c8a832" opacity=".08" class="hz-ga"/>
-            <circle cx="60" cy="34" r="8"  fill="#c8a832" opacity=".15" class="hz-gb"/>
+            <circle cx="60" cy="34" r="8" fill="#c8a832" opacity=".15" class="hz-gb"/>
             <circle cx="60" cy="34" r="4.5" fill="#d4af37" class="hz-core"/>
             <line x1="4" y1="34" x2="116" y2="34" stroke="#c8a832" stroke-width=".7" opacity=".4"/>
             <ellipse cx="60" cy="34" rx="10" ry="3.5" fill="none" stroke="#c8a832" stroke-width=".7" class="hz-rp hz-rp1"/>
@@ -254,18 +257,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
             <div class="kc-sub">建設費診断AI — HORIZON SHIELD</div>
           </div>
         </div>
-
-        <!-- チャットエリア（和紙グリッド） -->
         <div class="kc-messages" id="kc-messages"></div>
-
-        <!-- ヒントピル -->
         <div class="kc-hints" id="kc-hints">
           <button class="kc-hint-pill" onclick="fillHint(1)">▸ 例: キッチン+床張替</button>
           <button class="kc-hint-pill" onclick="fillHint(2)">▸ 例: 水回り一式</button>
           <button class="kc-hint-pill" onclick="fillHint(3)">▸ 例: 断熱改修</button>
         </div>
-
-        <!-- テキスト入力（書道スタイル） -->
         <div class="kc-input-area">
           <textarea id="kc-input" class="kc-input" placeholder="やりたい工事を書いてください…" rows="2"></textarea>
           <button class="kc-send" id="kc-send" onclick="sendToKira()">
@@ -280,64 +277,112 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
     </div>
   </div>
 
-  <!-- 3プラン表示 -->
+  <!-- ===== Phase 2B RESULTS ===== -->
   <div id="results" class="frame">
+    <!-- 確定した工事内容 -->
     <div class="extracted-items">
       <div class="ei-title">▸ 確定した工事内容</div>
       <div id="ei-list" class="ei-list"></div>
     </div>
-    <div class="plans-wrap">
-      <div class="plans-title">3プラン並列提示</div>
-      <div class="plans-sub">HS基準 — 業者規模別の妥当利益率レンジで算出</div>
-      <div class="plans-grid">
-        <div class="plan-card">
-          <div class="plan-badge">MATSU / 松</div>
-          <div class="plan-name">理想プラン</div>
-          <div class="plan-target">大手リフォーム会社<br>最上級グレード</div>
-          <div class="plan-price-range" id="range-matsu">¥—</div>
-          <div class="plan-price-sub approx" id="sub-matsu">概算レンジ</div>
-          <ul class="plan-items" id="items-matsu"></ul>
-        </div>
-        <div class="plan-card take" onclick="openTermsFirst()">
-          <div class="plan-badge">★ TAKE / 竹 ★</div>
-          <div class="plan-name"><span class="em">推奨</span>プラン</div>
-          <div class="plan-target">地域の中小工務店<br>★HSが最もおすすめ★</div>
-          <div class="plan-price-wrap">
-            <div class="plan-price masked" id="price-take">¥0,000,000</div>
-            <div class="plan-lock-hint">🔒 ¥5,500で解錠</div>
-          </div>
-          <div class="plan-price-sub" id="sub-take">正確な金額を見る</div>
-          <div class="plan-unlock-cta">▸ ¥5,500でアンロック</div>
-          <ul class="plan-items" id="items-take"></ul>
-        </div>
-        <div class="plan-card">
-          <div class="plan-badge">UME / 梅</div>
-          <div class="plan-name">最安プラン</div>
-          <div class="plan-target">個人事業+ネット調達<br>予算重視</div>
-          <div class="plan-price-range" id="range-ume">¥—</div>
-          <div class="plan-price-sub approx" id="sub-ume">概算レンジ</div>
-          <ul class="plan-items" id="items-ume"></ul>
+
+    <!-- リスクスコア -->
+    <div class="risk-section">
+      <div class="risk-header">
+        <div class="risk-label">▸ 過剰請求リスクスコア</div>
+        <div class="risk-score-wrap">
+          <div class="risk-score-num" id="risk-score-num">--</div>
+          <div class="risk-score-unit">点</div>
         </div>
       </div>
+      <div class="risk-bar-outer">
+        <div class="risk-bar-inner" id="risk-bar" style="width:0%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px">
+        <span>低リスク</span><span>要注意</span><span>高リスク</span>
+      </div>
     </div>
+
+    <!-- 最悪シナリオ（松max） -->
+    <div class="worst-case-box">
+      <div class="worst-case-label">▸ WORST CASE / 大手業者・最悪シナリオ上限</div>
+      <div class="worst-case-desc">悪質業者や大手の最上位グレードで請求された場合の上限額</div>
+      <div class="worst-case-price"><span>¥</span><span id="worst-price">---</span><span style="font-size:16px">万まで</span></div>
+      <div class="worst-case-sub" id="worst-sub"></div>
+    </div>
+
+    <!-- 適正予算（竹・梅 完全ロック） -->
+    <div class="locked-plans">
+      <div class="locked-row">
+        <div class="locked-row-label">TAKE / 竹</div>
+        <div class="locked-row-name">適正プラン<br><span style="font-size:10px;color:var(--muted);font-weight:400">地域中小工務店・推奨</span></div>
+        <div class="locked-price">¥XXX万〜XXX万</div>
+        <div class="locked-overlay">🔒 適正予算を確認する</div>
+      </div>
+      <div class="locked-row">
+        <div class="locked-row-label">UME / 梅</div>
+        <div class="locked-row-name">最安プラン<br><span style="font-size:10px;color:var(--muted);font-weight:400">個人事業者・ネット調達</span></div>
+        <div class="locked-price">¥XXX万〜XXX万</div>
+        <div class="locked-overlay">🔒 最安値を確認する</div>
+      </div>
+    </div>
+
+    <!-- 削減可能額 -->
+    <div class="savings-section">
+      <div class="savings-label">▸ あなたが削減できる可能性のある金額</div>
+      <div class="savings-amount">
+        <div class="savings-prefix">¥</div>
+        <div class="savings-blur" id="savings-amount">XX万〜XX万</div>
+        <div class="savings-suffix">円</div>
+        <div class="savings-lock">🔒 ¥5,500で確認</div>
+      </div>
+    </div>
+
+    <!-- Red Flag プレビュー -->
+    <div class="redflag-section">
+      <div class="redflag-title">▸ 検出された過剰請求パターン</div>
+      <div id="redflag-item-1" class="redflag-item">
+        <span class="redflag-item-name">---</span>
+        <span class="redflag-item-amount">¥XX万超過</span>
+      </div>
+      <div id="redflag-item-2" class="redflag-item">
+        <span class="redflag-item-name">---</span>
+        <span class="redflag-item-amount">¥XX万超過</span>
+      </div>
+      <div class="redflag-fade">
+        <div class="redflag-fade-inner">
+          <div class="redflag-item"><span class="redflag-item-name">諸経費の過剰計上</span><span class="redflag-item-amount">¥XX万超過</span></div>
+          <div class="redflag-item"><span class="redflag-item-name">不要な付帯工事</span><span class="redflag-item-amount">¥XX万超過</span></div>
+        </div>
+      </div>
+      <div class="redflag-remaining" id="redflag-remaining">残り ? 項目 + 交渉テンプレ + 補助金情報 + PDF（9ページ）は¥5,500で確認</div>
+    </div>
+
+    <!-- アドバイス -->
     <div id="advice-wrap" style="display:none">
       <div class="advice-box">
         <div class="adv-label">▸ KIRA からの交渉アドバイス</div>
         <div id="advice-text"></div>
       </div>
     </div>
-    <div id="alerts-wrap" class="alerts" style="display:none">
-      <div class="ei-title">▸ 市場警告</div>
-      <div id="alerts-list"></div>
-    </div>
+
     <div class="disclaimer">本サービスはAIによる参考価格提示であり、建設業法上の正式見積もりではありません。HORIZON SHIELDは施工を行いません。施工業者との契約は別途行ってください。</div>
+
+    <!-- CTA -->
     <div class="cta">
       <div class="cta-label">NEGOTIATION TOOL</div>
-      <div class="cta-title">詳細な参考見積書PDFで<br>業者交渉を優位に</div>
-      <div class="cta-desc">全工事項目の内訳・Red Flag・補助金情報を1枚に。<br>業者との交渉時にそのまま提示できる公式フォーマット。</div>
+      <div class="cta-title">適正予算を確認して<br>業者との交渉を優位に進める</div>
+      <div class="cta-desc">竹・梅の適正価格 / 削減可能額の詳細 / 過剰請求の全証拠<br>業者に渡せる交渉用PDFを即日納品します。</div>
+      <div class="cta-includes">
+        <span class="cta-include-item">竹・梅 適正価格</span>
+        <span class="cta-include-item">削減可能額 詳細</span>
+        <span class="cta-include-item">Red Flag 全項目</span>
+        <span class="cta-include-item">補助金リスト</span>
+        <span class="cta-include-item">交渉テンプレ</span>
+        <span class="cta-include-item">PDF 9ページ</span>
+      </div>
       <div class="cta-price">¥5,500</div>
       <div class="cta-price-sub">税込 / 即時PDF納品 / PayPal対応</div>
-      <button class="cta-btn" onclick="openTermsFirst()">▸ PayPalで購入</button>
+      <button class="cta-btn" onclick="openTermsFirst()">▸ 適正予算を確認する</button>
       <button class="cta-btn outline" onclick="openTermsFirst('bank')">▸ 銀行振込で購入</button>
     </div>
     <div class="legal-ribbon"><b>【建設業法に基づく表示】</b> 本サービスは相場に基づく参考価格提示であり、建設業法上の正式見積もりではありません。施工業者との契約は別途行ってください。</div>
@@ -469,6 +514,29 @@ const EXAMPLES = {
   3:"築25年の戸建て。冬が寒いので断熱したい。\n窓を全部内窓化（P(SS)グレード）。\n給湯器もエコキュートに交換。予算400万前後。"
 };
 
+// ===== Red Flag テンプレート（工事カテゴリ別） =====
+const RED_FLAG_MAP = {
+  'キッチン':   ['キッチン本体の定価割引が不十分', '解体・撤去費の水増し'],
+  '浴室':       ['ユニットバス本体の定価割引なし', '解体費30万超の過剰計上'],
+  'トイレ':     ['便器本体の定価割引なし', '内装工事の抱き合わせ請求'],
+  '外壁':       ['塗料グレード・型番の記載なし', '足場代の水増し（㎡1,500円超）'],
+  '屋根':       ['工法・使用材料の記載なし', '高圧洗浄費5万超の過剰計上'],
+  '水回り':     ['各設備本体の定価割引なし', '給排水工事の「一式」表記'],
+  '断熱':       ['断熱材グレード・厚みの記載なし', '施工面積の不透明な一式計上'],
+  '給湯器':     ['メーカー・型番の記載なし', '撤去処分費の過剰計上'],
+  'エアコン':   ['本体・標準工事以外の追加工事の水増し', '配管カバーの過剰請求'],
+  'フローリング':['材料グレードの記載なし', '下地補修の抱き合わせ過剰請求'],
+  '内装':       ['クロス㎡単価の記載なし', '廃材処分費の過剰計上'],
+  'default':    ['諸経費が工事費15%超の過剰計上', '足場・養生費の不透明な水増し'],
+};
+
+function getRedFlags(kojiText) {
+  for (const [key, flags] of Object.entries(RED_FLAG_MAP)) {
+    if (key !== 'default' && kojiText.includes(key)) return flags;
+  }
+  return RED_FLAG_MAP['default'];
+}
+
 /* ── ray injection ── */
 function injectRays(gId, cx, cy, len, total) {
   const g = document.getElementById(gId);
@@ -488,7 +556,6 @@ function injectRays(gId, cx, cy, len, total) {
   }
 }
 
-/* ── chat helpers ── */
 function escHtml(s) {
   if (!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
@@ -564,7 +631,6 @@ function hideThinking() {
   if (t) t.remove();
 }
 
-/* ── mode select ── */
 function selectMode(mode) {
   currentMode = mode;
   document.querySelectorAll('.mode-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.mode === mode); });
@@ -578,7 +644,6 @@ function fillHint(n) {
   document.getElementById('kc-input').focus();
 }
 
-/* ── main send ── */
 async function sendToKira() {
   const input = document.getElementById('kc-input');
   const text = input.value.trim();
@@ -600,7 +665,6 @@ async function sendToKira() {
   showThinking();
 
   const messages = [...conversationHistory];
-
   const lastMsg2 = messages[messages.length - 1];
   if (lastMsg2 && lastMsg2.role === 'user') {
     messages[messages.length - 1] = {
@@ -613,11 +677,7 @@ async function sendToKira() {
     const res = await fetch(KIRA_PROXY + '/gyaku-mitsumori-chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        system: KIRA_SYSTEM,
-        messages: messages,
-        max_tokens: 1000
-      })
+      body: JSON.stringify({ system: KIRA_SYSTEM, messages: messages, max_tokens: 1000 })
     });
     if (!res.ok) {
       const e = await res.json().catch(function() { return {}; });
@@ -632,16 +692,10 @@ async function sendToKira() {
     if (reply.includes('===PLAN===')) {
       parsePlan(reply);
     } else {
-      {
-        addBubble('kira', stripMd(reply));
-        const isWarning = /足りない|不足|できません|もう少し|正確な|責任|確認させ/.test(reply);
-        if (isWarning && turnCount >= 2) {
-          showForceButton();
-        }
-        if (turnCount >= MAX_TURNS) {
-          await requestFinalPlan();
-        }
-      }
+      addBubble('kira', stripMd(reply));
+      const isWarning = /足りない|不足|できません|もう少し|正確な|責任|確認させ/.test(reply);
+      if (isWarning && turnCount >= 2) showForceButton();
+      if (turnCount >= MAX_TURNS) await requestFinalPlan();
     }
   } catch (e) {
     hideThinking();
@@ -685,12 +739,10 @@ async function requestFinalPlan() {
     hideThinking();
     if (reply.includes('===PLAN===')) parsePlan(reply);
     else addBubble('kira', stripMd(reply));
-  } catch(e) {
-    hideThinking();
-  }
+  } catch(e) { hideThinking(); }
 }
 
-/* ── plan parser ── */
+/* ── Phase 2B: parsePlan ── */
 function parsePlan(text) {
   const planMatch = text.match(/===PLAN===([\s\S]*?)===END===/);
   if (!planMatch) { addBubble('kira', text); return; }
@@ -710,16 +762,12 @@ function parsePlan(text) {
     var m;
     var re = /(\d[\d,]*\.?\d*)/g;
     while ((m = re.exec(s)) !== null) nums.push(parseFloat(m[1].replace(/,/g,'')));
-
     function normalize(arr) {
       if (arr.length === 0) return arr;
       var allLarge = arr.every(function(n) { return n >= 1000; });
-      if (allLarge) {
-        return arr.map(function(n) { return Math.round(n / 10000 * 10) / 10; });
-      }
+      if (allLarge) return arr.map(function(n) { return Math.round(n / 10000 * 10) / 10; });
       return arr;
     }
-
     var normalized = normalize(nums);
     if (normalized.length >= 2) return [normalized[0], normalized[1]];
     if (normalized.length === 1) return [normalized[0], normalized[0]];
@@ -727,31 +775,46 @@ function parsePlan(text) {
   }
 
   var mR = parseRange(matsu), tR = parseRange(take), uR = parseRange(ume);
+  var takeMid = Math.round((tR[0] + tR[1]) / 2) || 1;
 
-  document.getElementById('ei-list').innerHTML = '<div class="item"><span class="tag">工事</span>' + escHtml(koji.trim()) + '</div>';
+  // ① 工事内容
+  document.getElementById('ei-list').innerHTML =
+    '<div class="item"><span class="tag">工事</span>' + escHtml(koji.trim()) + '</div>';
 
-  document.getElementById('range-matsu').textContent = '約 ' + mR[0] + '万〜' + mR[1] + '万円';
-  document.getElementById('sub-matsu').textContent   = '大手リフォーム会社・上位グレード';
-  document.getElementById('items-matsu').innerHTML   = '<li><span>大手リフォーム会社</span></li>';
+  // ② リスクスコア算出（松max ÷ 竹mid × 50、上限99）
+  var riskScore = Math.min(99, Math.round((mR[1] / takeMid) * 50));
+  document.getElementById('risk-score-num').textContent = riskScore;
+  document.getElementById('risk-bar').style.width = riskScore + '%';
+  // スコアに応じて色変更
+  var scoreEl = document.getElementById('risk-score-num');
+  if (riskScore >= 70) scoreEl.style.color = '#8b1a1a';
+  else if (riskScore >= 50) scoreEl.style.color = '#c8a832';
+  else scoreEl.style.color = '#2a7a3a';
 
-  var takeMid = Math.round((tR[0] + tR[1]) / 2);
-  document.getElementById('price-take').textContent  = takeMid + '万円';
-  document.getElementById('sub-take').textContent = '正確な金額を見る';
-  if (window._purchased) {
-    document.getElementById('price-take').classList.remove('masked');
-    var lh = document.querySelector('.plan-lock-hint');
-    var uc = document.querySelector('.plan-unlock-cta');
-    if (lh) lh.style.display = 'none';
-    if (uc) uc.style.display = 'none';
-  } else {
-    document.getElementById('price-take').classList.add('masked');
-  }
-  document.getElementById('items-take').innerHTML = '<li><span>地域の中小工務店</span><span>★推奨</span></li>';
+  // ③ 松maxのみ表示（最悪シナリオ）
+  document.getElementById('worst-price').textContent = mR[1];
+  var diff = Math.round(mR[1] - takeMid);
+  document.getElementById('worst-sub').textContent =
+    '適正価格より最大 ¥' + diff + '万 高い可能性があります';
 
-  document.getElementById('range-ume').textContent = '約 ' + uR[0] + '万〜' + uR[1] + '万円';
-  document.getElementById('sub-ume').textContent   = '個人事業者・ネット調達';
-  document.getElementById('items-ume').innerHTML   = '<li><span>個人事業者</span></li>';
+  // ④ 削減可能額（松max - 梅min）をぼかし表示
+  var savingsMin = Math.round((mR[1] - tR[1]) * 0.5);
+  var savingsMax = Math.round(mR[1] - uR[0]);
+  if (savingsMin < 0) savingsMin = 0;
+  document.getElementById('savings-amount').textContent = savingsMin + '万〜' + savingsMax + '万';
 
+  // ⑤ Red Flag 2項目（工事カテゴリから自動選択）
+  var flags = getRedFlags(koji);
+  var rf1 = document.getElementById('redflag-item-1');
+  var rf2 = document.getElementById('redflag-item-2');
+  rf1.querySelector('.redflag-item-name').textContent = flags[0];
+  rf1.querySelector('.redflag-item-amount').textContent = '¥' + Math.round(diff * 0.3) + '万超過';
+  rf2.querySelector('.redflag-item-name').textContent = flags[1];
+  rf2.querySelector('.redflag-item-amount').textContent = '¥' + Math.round(diff * 0.2) + '万超過';
+  document.getElementById('redflag-remaining').textContent =
+    '残り ' + (Math.floor(riskScore / 12) + 4) + ' 項目 + 交渉テンプレ + 補助金情報 + PDF（9ページ）は¥5,500で確認';
+
+  // アドバイス
   if (adv.trim()) {
     document.getElementById('advice-text').textContent = adv.trim();
     document.getElementById('advice-wrap').style.display = 'block';
@@ -760,7 +823,9 @@ function parsePlan(text) {
   lastParsedResult = { koji: koji.trim(), plans: { matsu: mR, take: tR, ume: uR }, advice: adv.trim() };
 
   document.getElementById('results').style.display = 'block';
-  setTimeout(function() { document.getElementById('results').scrollIntoView({ behavior:'smooth', block:'start' }); }, 80);
+  setTimeout(function() {
+    document.getElementById('results').scrollIntoView({ behavior:'smooth', block:'start' });
+  }, 80);
 }
 
 /* ── payment ── */
@@ -835,12 +900,6 @@ async function downloadPDFWithToken(token) {
     a.href = url; a.download = 'HS_' + orderId + '.pdf'; a.click();
     URL.revokeObjectURL(url);
     window._purchased = true;
-    document.getElementById('price-take').classList.remove('masked');
-    var lh = document.querySelector('.plan-lock-hint');
-    var uc = document.querySelector('.plan-unlock-cta');
-    if (lh) lh.style.display = 'none';
-    if (uc) uc.style.display = 'none';
-    document.getElementById('price-take').textContent = takeMid + '万円';
     alert('✅ PDFをダウンロードしました！業者との交渉にご活用ください。');
   } catch(e) {
     alert('PDF生成エラー: ' + e.message + '\nLINE: https://line.me/R/ti/p/@172piime');
@@ -852,7 +911,6 @@ function purchaseBankTransfer() {
   window.location.href = 'https://shield.the-horizons-innovation.com/bank-transfer.html?type=gyaku-mitsumori';
 }
 
-/* ── terms modal ── */
 function openTermsFirst(mode) {
   if (!lastParsedResult) { alert('先にヒアリングを完了してください'); return; }
   window._termsMode = mode || 'paypal';
@@ -877,7 +935,6 @@ function proceedToPayment() {
 /* ── init ── */
 document.addEventListener('DOMContentLoaded', function() {
   injectRays('hzRays', 60, 34, 26, 28);
-
   addBubble('kira', 'はじめまして。HORIZON SHIELDの建設費診断AIです。\nやりたい工事の内容を教えてください。\n曖昧な情報でも大丈夫です。詳細は私が順番に確認します。');
 
   document.getElementById('kc-input').addEventListener('keydown', function(e) {
