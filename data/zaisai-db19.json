@@ -1,0 +1,3624 @@
+{
+  "version": "2026.04.phase2c",
+  "note": "Phase 2C拡張版 zaisai-db19 2026年4月 資材高騰反映",
+  "categories": {
+    "屋根材全社": [
+      {
+        "name": "ケイミュー コロニアルクァッド",
+        "unit": "m2",
+        "unit_price": 3200,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ケイミュー コロニアル遮熱",
+        "unit": "m2",
+        "unit_price": 4800,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ケイミュー 金属横葺き",
+        "unit": "m2",
+        "unit_price": 5200,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ケイミュー 金属縦葺き",
+        "unit": "m2",
+        "unit_price": 4800,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ケイミュー アスファルトシングル",
+        "unit": "m2",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ケイミュー 平板瓦",
+        "unit": "枚",
+        "unit_price": 450,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ケイミュー 防災瓦",
+        "unit": "枚",
+        "unit_price": 650,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ケイミュー 和型釉薬瓦",
+        "unit": "枚",
+        "unit_price": 380,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ケイミュー 金属断熱屋根材",
+        "unit": "m2",
+        "unit_price": 7500,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ニチハ コロニアルクァッド",
+        "unit": "m2",
+        "unit_price": 3264,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ニチハ コロニアル遮熱",
+        "unit": "m2",
+        "unit_price": 4896,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ニチハ 金属横葺き",
+        "unit": "m2",
+        "unit_price": 5304,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ニチハ 金属縦葺き",
+        "unit": "m2",
+        "unit_price": 4896,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ニチハ アスファルトシングル",
+        "unit": "m2",
+        "unit_price": 2856,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ニチハ 平板瓦",
+        "unit": "枚",
+        "unit_price": 459,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ニチハ 防災瓦",
+        "unit": "枚",
+        "unit_price": 663,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ニチハ 和型釉薬瓦",
+        "unit": "枚",
+        "unit_price": 387,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ニチハ 金属断熱屋根材",
+        "unit": "m2",
+        "unit_price": 7650,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "アイジー工業 コロニアルクァッド",
+        "unit": "m2",
+        "unit_price": 3328,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "アイジー工業 コロニアル遮熱",
+        "unit": "m2",
+        "unit_price": 4992,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "アイジー工業 金属横葺き",
+        "unit": "m2",
+        "unit_price": 5408,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "アイジー工業 金属縦葺き",
+        "unit": "m2",
+        "unit_price": 4992,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "アイジー工業 アスファルトシングル",
+        "unit": "m2",
+        "unit_price": 2912,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "アイジー工業 平板瓦",
+        "unit": "枚",
+        "unit_price": 468,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "アイジー工業 防災瓦",
+        "unit": "枚",
+        "unit_price": 676,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "アイジー工業 和型釉薬瓦",
+        "unit": "枚",
+        "unit_price": 395,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "アイジー工業 金属断熱屋根材",
+        "unit": "m2",
+        "unit_price": 7800,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "旭トステム コロニアルクァッド",
+        "unit": "m2",
+        "unit_price": 3392,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "旭トステム コロニアル遮熱",
+        "unit": "m2",
+        "unit_price": 5088,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "旭トステム 金属横葺き",
+        "unit": "m2",
+        "unit_price": 5512,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "旭トステム 金属縦葺き",
+        "unit": "m2",
+        "unit_price": 5088,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "旭トステム アスファルトシングル",
+        "unit": "m2",
+        "unit_price": 2968,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "旭トステム 平板瓦",
+        "unit": "枚",
+        "unit_price": 477,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "旭トステム 防災瓦",
+        "unit": "枚",
+        "unit_price": 689,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "旭トステム 和型釉薬瓦",
+        "unit": "枚",
+        "unit_price": 402,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "旭トステム 金属断熱屋根材",
+        "unit": "m2",
+        "unit_price": 7950,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "鶴弥 コロニアルクァッド",
+        "unit": "m2",
+        "unit_price": 3456,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "鶴弥 コロニアル遮熱",
+        "unit": "m2",
+        "unit_price": 5184,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "鶴弥 金属横葺き",
+        "unit": "m2",
+        "unit_price": 5616,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "鶴弥 金属縦葺き",
+        "unit": "m2",
+        "unit_price": 5184,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "鶴弥 アスファルトシングル",
+        "unit": "m2",
+        "unit_price": 3024,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "鶴弥 平板瓦",
+        "unit": "枚",
+        "unit_price": 486,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "鶴弥 防災瓦",
+        "unit": "枚",
+        "unit_price": 702,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "鶴弥 和型釉薬瓦",
+        "unit": "枚",
+        "unit_price": 410,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "鶴弥 金属断熱屋根材",
+        "unit": "m2",
+        "unit_price": 8100,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック コロニアルクァッド",
+        "unit": "m2",
+        "unit_price": 3520,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック コロニアル遮熱",
+        "unit": "m2",
+        "unit_price": 5280,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 金属横葺き",
+        "unit": "m2",
+        "unit_price": 5720,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 金属縦葺き",
+        "unit": "m2",
+        "unit_price": 5280,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック アスファルトシングル",
+        "unit": "m2",
+        "unit_price": 3080,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 平板瓦",
+        "unit": "枚",
+        "unit_price": 495,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 防災瓦",
+        "unit": "枚",
+        "unit_price": 715,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 和型釉薬瓦",
+        "unit": "枚",
+        "unit_price": 418,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 金属断熱屋根材",
+        "unit": "m2",
+        "unit_price": 8250,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "KMEW コロニアルクァッド",
+        "unit": "m2",
+        "unit_price": 3584,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "KMEW コロニアル遮熱",
+        "unit": "m2",
+        "unit_price": 5376,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "KMEW 金属横葺き",
+        "unit": "m2",
+        "unit_price": 5824,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "KMEW 金属縦葺き",
+        "unit": "m2",
+        "unit_price": 5376,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "KMEW アスファルトシングル",
+        "unit": "m2",
+        "unit_price": 3136,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "KMEW 平板瓦",
+        "unit": "枚",
+        "unit_price": 504,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "KMEW 防災瓦",
+        "unit": "枚",
+        "unit_price": 728,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "KMEW 和型釉薬瓦",
+        "unit": "枚",
+        "unit_price": 425,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "KMEW 金属断熱屋根材",
+        "unit": "m2",
+        "unit_price": 8400,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "田島ルーフィング コロニアルクァッド",
+        "unit": "m2",
+        "unit_price": 3648,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "田島ルーフィング コロニアル遮熱",
+        "unit": "m2",
+        "unit_price": 5472,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "田島ルーフィング 金属横葺き",
+        "unit": "m2",
+        "unit_price": 5928,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "田島ルーフィング 金属縦葺き",
+        "unit": "m2",
+        "unit_price": 5472,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "田島ルーフィング アスファルトシングル",
+        "unit": "m2",
+        "unit_price": 3192,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "田島ルーフィング 平板瓦",
+        "unit": "枚",
+        "unit_price": 513,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "田島ルーフィング 防災瓦",
+        "unit": "枚",
+        "unit_price": 741,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "田島ルーフィング 和型釉薬瓦",
+        "unit": "枚",
+        "unit_price": 433,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "田島ルーフィング 金属断熱屋根材",
+        "unit": "m2",
+        "unit_price": 8550,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      }
+    ],
+    "衛生器具全社": [
+      {
+        "name": "TOTO 便器 タンク式スタンダード",
+        "unit": "式",
+        "unit_price": 85000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "TOTO 便器 タンクレス",
+        "unit": "式",
+        "unit_price": 180000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "TOTO 便器 高機能タンクレス",
+        "unit": "式",
+        "unit_price": 280000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "TOTO ウォシュレット単体 標準",
+        "unit": "式",
+        "unit_price": 45000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "TOTO ウォシュレット単体 上位",
+        "unit": "式",
+        "unit_price": 85000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "TOTO 洗面台 600mm標準",
+        "unit": "式",
+        "unit_price": 80000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "TOTO 洗面台 750mm標準",
+        "unit": "式",
+        "unit_price": 110000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "TOTO 洗面台 900mmミドル",
+        "unit": "式",
+        "unit_price": 180000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "TOTO 洗面台 1200mm 2ボウル",
+        "unit": "式",
+        "unit_price": 320000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "TOTO ユニットバス 1616標準",
+        "unit": "式",
+        "unit_price": 380000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "TOTO ユニットバス 1620上位",
+        "unit": "式",
+        "unit_price": 550000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "TOTO 浴室乾燥機 電気式",
+        "unit": "式",
+        "unit_price": 85000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "TOTO 浴室乾燥機 ガス式",
+        "unit": "式",
+        "unit_price": 120000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "TOTO 小便器 壁付け標準",
+        "unit": "式",
+        "unit_price": 85000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "TOTO 手洗器 小型壁付け",
+        "unit": "式",
+        "unit_price": 28000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "TOTO 便器 和式→洋式改修",
+        "unit": "式",
+        "unit_price": 220000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL 便器 タンク式スタンダード",
+        "unit": "式",
+        "unit_price": 86700,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL 便器 タンクレス",
+        "unit": "式",
+        "unit_price": 183600,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL 便器 高機能タンクレス",
+        "unit": "式",
+        "unit_price": 285600,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL ウォシュレット単体 標準",
+        "unit": "式",
+        "unit_price": 45900,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL ウォシュレット単体 上位",
+        "unit": "式",
+        "unit_price": 86700,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL 洗面台 600mm標準",
+        "unit": "式",
+        "unit_price": 81600,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL 洗面台 750mm標準",
+        "unit": "式",
+        "unit_price": 112200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL 洗面台 900mmミドル",
+        "unit": "式",
+        "unit_price": 183600,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL 洗面台 1200mm 2ボウル",
+        "unit": "式",
+        "unit_price": 326400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL ユニットバス 1616標準",
+        "unit": "式",
+        "unit_price": 387600,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL ユニットバス 1620上位",
+        "unit": "式",
+        "unit_price": 561000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL 浴室乾燥機 電気式",
+        "unit": "式",
+        "unit_price": 86700,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL 浴室乾燥機 ガス式",
+        "unit": "式",
+        "unit_price": 122400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL 小便器 壁付け標準",
+        "unit": "式",
+        "unit_price": 86700,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL 手洗器 小型壁付け",
+        "unit": "式",
+        "unit_price": 28560,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "LIXIL 便器 和式→洋式改修",
+        "unit": "式",
+        "unit_price": 224400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 便器 タンク式スタンダード",
+        "unit": "式",
+        "unit_price": 88400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 便器 タンクレス",
+        "unit": "式",
+        "unit_price": 187200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 便器 高機能タンクレス",
+        "unit": "式",
+        "unit_price": 291200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック ウォシュレット単体 標準",
+        "unit": "式",
+        "unit_price": 46800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック ウォシュレット単体 上位",
+        "unit": "式",
+        "unit_price": 88400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 洗面台 600mm標準",
+        "unit": "式",
+        "unit_price": 83200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 洗面台 750mm標準",
+        "unit": "式",
+        "unit_price": 114400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 洗面台 900mmミドル",
+        "unit": "式",
+        "unit_price": 187200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 洗面台 1200mm 2ボウル",
+        "unit": "式",
+        "unit_price": 332800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック ユニットバス 1616標準",
+        "unit": "式",
+        "unit_price": 395200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック ユニットバス 1620上位",
+        "unit": "式",
+        "unit_price": 572000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 浴室乾燥機 電気式",
+        "unit": "式",
+        "unit_price": 88400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 浴室乾燥機 ガス式",
+        "unit": "式",
+        "unit_price": 124800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 小便器 壁付け標準",
+        "unit": "式",
+        "unit_price": 88400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 手洗器 小型壁付け",
+        "unit": "式",
+        "unit_price": 29120,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 便器 和式→洋式改修",
+        "unit": "式",
+        "unit_price": 228800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "タカラスタンダード 便器 タンク式スタンダード",
+        "unit": "式",
+        "unit_price": 90100,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "タカラスタンダード 便器 タンクレス",
+        "unit": "式",
+        "unit_price": 190800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "タカラスタンダード 便器 高機能タンクレス",
+        "unit": "式",
+        "unit_price": 296800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "タカラスタンダード ウォシュレット単体 標準",
+        "unit": "式",
+        "unit_price": 47700,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "タカラスタンダード ウォシュレット単体 上位",
+        "unit": "式",
+        "unit_price": 90100,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "タカラスタンダード 洗面台 600mm標準",
+        "unit": "式",
+        "unit_price": 84800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "タカラスタンダード 洗面台 750mm標準",
+        "unit": "式",
+        "unit_price": 116600,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "タカラスタンダード 洗面台 900mmミドル",
+        "unit": "式",
+        "unit_price": 190800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "タカラスタンダード 洗面台 1200mm 2ボウル",
+        "unit": "式",
+        "unit_price": 339200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "タカラスタンダード ユニットバス 1616標準",
+        "unit": "式",
+        "unit_price": 402800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "タカラスタンダード ユニットバス 1620上位",
+        "unit": "式",
+        "unit_price": 583000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "タカラスタンダード 浴室乾燥機 電気式",
+        "unit": "式",
+        "unit_price": 90100,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "タカラスタンダード 浴室乾燥機 ガス式",
+        "unit": "式",
+        "unit_price": 127200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "タカラスタンダード 小便器 壁付け標準",
+        "unit": "式",
+        "unit_price": 90100,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "タカラスタンダード 手洗器 小型壁付け",
+        "unit": "式",
+        "unit_price": 29680,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "タカラスタンダード 便器 和式→洋式改修",
+        "unit": "式",
+        "unit_price": 233200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ジャニス工業 便器 タンク式スタンダード",
+        "unit": "式",
+        "unit_price": 91800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ジャニス工業 便器 タンクレス",
+        "unit": "式",
+        "unit_price": 194400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ジャニス工業 便器 高機能タンクレス",
+        "unit": "式",
+        "unit_price": 302400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ジャニス工業 ウォシュレット単体 標準",
+        "unit": "式",
+        "unit_price": 48600,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ジャニス工業 ウォシュレット単体 上位",
+        "unit": "式",
+        "unit_price": 91800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ジャニス工業 洗面台 600mm標準",
+        "unit": "式",
+        "unit_price": 86400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ジャニス工業 洗面台 750mm標準",
+        "unit": "式",
+        "unit_price": 118800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ジャニス工業 洗面台 900mmミドル",
+        "unit": "式",
+        "unit_price": 194400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ジャニス工業 洗面台 1200mm 2ボウル",
+        "unit": "式",
+        "unit_price": 345600,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ジャニス工業 ユニットバス 1616標準",
+        "unit": "式",
+        "unit_price": 410400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ジャニス工業 ユニットバス 1620上位",
+        "unit": "式",
+        "unit_price": 594000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ジャニス工業 浴室乾燥機 電気式",
+        "unit": "式",
+        "unit_price": 91800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ジャニス工業 浴室乾燥機 ガス式",
+        "unit": "式",
+        "unit_price": 129600,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ジャニス工業 小便器 壁付け標準",
+        "unit": "式",
+        "unit_price": 91800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ジャニス工業 手洗器 小型壁付け",
+        "unit": "式",
+        "unit_price": 30240,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ジャニス工業 便器 和式→洋式改修",
+        "unit": "式",
+        "unit_price": 237600,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      }
+    ],
+    "省エネ・ZEH設備全種": [
+      {
+        "name": "パナソニック 太陽光パネル 250W",
+        "unit": "枚",
+        "unit_price": 41250,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "パナソニック 太陽光パネル 300W",
+        "unit": "枚",
+        "unit_price": 49500,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "パナソニック 太陽光パネル 350W",
+        "unit": "枚",
+        "unit_price": 57750,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "パナソニック 太陽光パネル 380W",
+        "unit": "枚",
+        "unit_price": 62700,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "パナソニック 太陽光パネル 400W",
+        "unit": "枚",
+        "unit_price": 66000,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "パナソニック 太陽光パネル 430W",
+        "unit": "枚",
+        "unit_price": 70950,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "パナソニック 太陽光パネル 450W",
+        "unit": "枚",
+        "unit_price": 74250,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "パナソニック 太陽光パネル 500W",
+        "unit": "枚",
+        "unit_price": 82500,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "パナソニック 太陽光パネル 550W",
+        "unit": "枚",
+        "unit_price": 90750,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "シャープ 太陽光パネル 250W",
+        "unit": "枚",
+        "unit_price": 42900,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "シャープ 太陽光パネル 300W",
+        "unit": "枚",
+        "unit_price": 51480,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "シャープ 太陽光パネル 350W",
+        "unit": "枚",
+        "unit_price": 60060,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "シャープ 太陽光パネル 380W",
+        "unit": "枚",
+        "unit_price": 65208,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "シャープ 太陽光パネル 400W",
+        "unit": "枚",
+        "unit_price": 68640,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "シャープ 太陽光パネル 430W",
+        "unit": "枚",
+        "unit_price": 73788,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "シャープ 太陽光パネル 450W",
+        "unit": "枚",
+        "unit_price": 77220,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "シャープ 太陽光パネル 500W",
+        "unit": "枚",
+        "unit_price": 85800,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "シャープ 太陽光パネル 550W",
+        "unit": "枚",
+        "unit_price": 94380,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "長州産業 太陽光パネル 250W",
+        "unit": "枚",
+        "unit_price": 44550,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "長州産業 太陽光パネル 300W",
+        "unit": "枚",
+        "unit_price": 53460,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "長州産業 太陽光パネル 350W",
+        "unit": "枚",
+        "unit_price": 62370,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "長州産業 太陽光パネル 380W",
+        "unit": "枚",
+        "unit_price": 67716,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "長州産業 太陽光パネル 400W",
+        "unit": "枚",
+        "unit_price": 71280,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "長州産業 太陽光パネル 430W",
+        "unit": "枚",
+        "unit_price": 76626,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "長州産業 太陽光パネル 450W",
+        "unit": "枚",
+        "unit_price": 80190,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "長州産業 太陽光パネル 500W",
+        "unit": "枚",
+        "unit_price": 89100,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "長州産業 太陽光パネル 550W",
+        "unit": "枚",
+        "unit_price": 98010,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "カネカ 太陽光パネル 250W",
+        "unit": "枚",
+        "unit_price": 46200,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "カネカ 太陽光パネル 300W",
+        "unit": "枚",
+        "unit_price": 55440,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "カネカ 太陽光パネル 350W",
+        "unit": "枚",
+        "unit_price": 64680,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "カネカ 太陽光パネル 380W",
+        "unit": "枚",
+        "unit_price": 70224,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "カネカ 太陽光パネル 400W",
+        "unit": "枚",
+        "unit_price": 73920,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "カネカ 太陽光パネル 430W",
+        "unit": "枚",
+        "unit_price": 79464,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "カネカ 太陽光パネル 450W",
+        "unit": "枚",
+        "unit_price": 83160,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "カネカ 太陽光パネル 500W",
+        "unit": "枚",
+        "unit_price": 92400,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "カネカ 太陽光パネル 550W",
+        "unit": "枚",
+        "unit_price": 101640,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "Qセルズ 太陽光パネル 250W",
+        "unit": "枚",
+        "unit_price": 47850,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "Qセルズ 太陽光パネル 300W",
+        "unit": "枚",
+        "unit_price": 57419,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "Qセルズ 太陽光パネル 350W",
+        "unit": "枚",
+        "unit_price": 66990,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "Qセルズ 太陽光パネル 380W",
+        "unit": "枚",
+        "unit_price": 72732,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "Qセルズ 太陽光パネル 400W",
+        "unit": "枚",
+        "unit_price": 76560,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "Qセルズ 太陽光パネル 430W",
+        "unit": "枚",
+        "unit_price": 82302,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "Qセルズ 太陽光パネル 450W",
+        "unit": "枚",
+        "unit_price": 86130,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "Qセルズ 太陽光パネル 500W",
+        "unit": "枚",
+        "unit_price": 95700,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "Qセルズ 太陽光パネル 550W",
+        "unit": "枚",
+        "unit_price": 105270,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "LONGi 太陽光パネル 250W",
+        "unit": "枚",
+        "unit_price": 49500,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "LONGi 太陽光パネル 300W",
+        "unit": "枚",
+        "unit_price": 59400,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "LONGi 太陽光パネル 350W",
+        "unit": "枚",
+        "unit_price": 69300,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "LONGi 太陽光パネル 380W",
+        "unit": "枚",
+        "unit_price": 75240,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "LONGi 太陽光パネル 400W",
+        "unit": "枚",
+        "unit_price": 79200,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "LONGi 太陽光パネル 430W",
+        "unit": "枚",
+        "unit_price": 85140,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "LONGi 太陽光パネル 450W",
+        "unit": "枚",
+        "unit_price": 89100,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "LONGi 太陽光パネル 500W",
+        "unit": "枚",
+        "unit_price": 99000,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "LONGi 太陽光パネル 550W",
+        "unit": "枚",
+        "unit_price": 108900,
+        "standard_qty_30tsubo": 10,
+        "memo": "工事費別"
+      },
+      {
+        "name": "パナソニック 蓄電池（3.5kWh）",
+        "unit": "台",
+        "unit_price": 350000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 蓄電池（5.0kWh）",
+        "unit": "台",
+        "unit_price": 500000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 蓄電池（6.5kWh）",
+        "unit": "台",
+        "unit_price": 650000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 蓄電池（9.8kWh）",
+        "unit": "台",
+        "unit_price": 980000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 蓄電池（11.4kWh）",
+        "unit": "台",
+        "unit_price": 1140000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 蓄電池（13.0kWh）",
+        "unit": "台",
+        "unit_price": 1300000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "シャープ 蓄電池（3.5kWh）",
+        "unit": "台",
+        "unit_price": 367500,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "シャープ 蓄電池（5.0kWh）",
+        "unit": "台",
+        "unit_price": 525000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "シャープ 蓄電池（6.5kWh）",
+        "unit": "台",
+        "unit_price": 682500,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "シャープ 蓄電池（9.8kWh）",
+        "unit": "台",
+        "unit_price": 1029000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "シャープ 蓄電池（11.4kWh）",
+        "unit": "台",
+        "unit_price": 1197000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "シャープ 蓄電池（13.0kWh）",
+        "unit": "台",
+        "unit_price": 1365000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ニチコン 蓄電池（3.5kWh）",
+        "unit": "台",
+        "unit_price": 385000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ニチコン 蓄電池（5.0kWh）",
+        "unit": "台",
+        "unit_price": 550000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ニチコン 蓄電池（6.5kWh）",
+        "unit": "台",
+        "unit_price": 715000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ニチコン 蓄電池（9.8kWh）",
+        "unit": "台",
+        "unit_price": 1078000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ニチコン 蓄電池（11.4kWh）",
+        "unit": "台",
+        "unit_price": 1254000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ニチコン 蓄電池（13.0kWh）",
+        "unit": "台",
+        "unit_price": 1430000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "オムロン 蓄電池（3.5kWh）",
+        "unit": "台",
+        "unit_price": 402499,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "オムロン 蓄電池（5.0kWh）",
+        "unit": "台",
+        "unit_price": 575000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "オムロン 蓄電池（6.5kWh）",
+        "unit": "台",
+        "unit_price": 747500,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "オムロン 蓄電池（9.8kWh）",
+        "unit": "台",
+        "unit_price": 1127000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "オムロン 蓄電池（11.4kWh）",
+        "unit": "台",
+        "unit_price": 1311000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "オムロン 蓄電池（13.0kWh）",
+        "unit": "台",
+        "unit_price": 1495000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "シャープ NEC 蓄電池（3.5kWh）",
+        "unit": "台",
+        "unit_price": 420000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "シャープ NEC 蓄電池（5.0kWh）",
+        "unit": "台",
+        "unit_price": 600000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "シャープ NEC 蓄電池（6.5kWh）",
+        "unit": "台",
+        "unit_price": 780000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "シャープ NEC 蓄電池（9.8kWh）",
+        "unit": "台",
+        "unit_price": 1176000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "シャープ NEC 蓄電池（11.4kWh）",
+        "unit": "台",
+        "unit_price": 1368000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "シャープ NEC 蓄電池（13.0kWh）",
+        "unit": "台",
+        "unit_price": 1560000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パワーコンディショナ（2.0kW）",
+        "unit": "台",
+        "unit_price": 110000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パワーコンディショナ（3.5kW）",
+        "unit": "台",
+        "unit_price": 192500,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パワーコンディショナ（4.0kW）",
+        "unit": "台",
+        "unit_price": 220000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パワーコンディショナ（4.4kW）",
+        "unit": "台",
+        "unit_price": 242000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パワーコンディショナ（5.5kW）",
+        "unit": "台",
+        "unit_price": 302500,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パワーコンディショナ（5.9kW）",
+        "unit": "台",
+        "unit_price": 324500,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パワーコンディショナ（7.5kW）",
+        "unit": "台",
+        "unit_price": 412500,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パワーコンディショナ（9.9kW）",
+        "unit": "台",
+        "unit_price": 544500,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "EV充電設備 普通3kW 100V",
+        "unit": "台",
+        "unit_price": 120000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "EV充電設備 普通3kW 200V",
+        "unit": "台",
+        "unit_price": 150000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "EV充電設備 普通6kW",
+        "unit": "台",
+        "unit_price": 250000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "EV充電設備 急速15kW",
+        "unit": "台",
+        "unit_price": 650000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "EV充電設備 急速50kW",
+        "unit": "台",
+        "unit_price": 2500000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      }
+    ],
+    "電気配線材全種": [
+      {
+        "name": "電線（VVF 2C 1.6mm 100m）",
+        "unit": "巻",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "電線（VVF 3C 1.6mm 100m）",
+        "unit": "巻",
+        "unit_price": 26000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "電線（VVF 2C 2.0mm 100m）",
+        "unit": "巻",
+        "unit_price": 28000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "電線（VVF 3C 2.0mm 100m）",
+        "unit": "巻",
+        "unit_price": 38000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "電線（IV 1.6mm 100m）",
+        "unit": "巻",
+        "unit_price": 8000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "電線（IV 2.0mm 100m）",
+        "unit": "巻",
+        "unit_price": 11000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "電線（IV 2.6mm 100m）",
+        "unit": "巻",
+        "unit_price": 14000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "電線（IV 5.5mm 100m）",
+        "unit": "巻",
+        "unit_price": 22000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "電線（CV 2C 2.0mm 100m）",
+        "unit": "巻",
+        "unit_price": 12000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "電線（CV 3C 2.0mm 100m）",
+        "unit": "巻",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "電線（CV 3C 5.5mm 100m）",
+        "unit": "巻",
+        "unit_price": 42000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月 銅高騰"
+      },
+      {
+        "name": "分電盤（主幹30A 8回路）",
+        "unit": "台",
+        "unit_price": 28800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹30A 12回路）",
+        "unit": "台",
+        "unit_price": 31200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹30A 16回路）",
+        "unit": "台",
+        "unit_price": 33600,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹30A 20回路）",
+        "unit": "台",
+        "unit_price": 36000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹30A 24回路）",
+        "unit": "台",
+        "unit_price": 38400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹30A 30回路）",
+        "unit": "台",
+        "unit_price": 42000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹40A 8回路）",
+        "unit": "台",
+        "unit_price": 32800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹40A 12回路）",
+        "unit": "台",
+        "unit_price": 35200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹40A 16回路）",
+        "unit": "台",
+        "unit_price": 37600,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹40A 20回路）",
+        "unit": "台",
+        "unit_price": 40000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹40A 24回路）",
+        "unit": "台",
+        "unit_price": 42400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹40A 30回路）",
+        "unit": "台",
+        "unit_price": 46000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹50A 8回路）",
+        "unit": "台",
+        "unit_price": 36800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹50A 12回路）",
+        "unit": "台",
+        "unit_price": 39200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹50A 16回路）",
+        "unit": "台",
+        "unit_price": 41600,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹50A 20回路）",
+        "unit": "台",
+        "unit_price": 44000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹50A 24回路）",
+        "unit": "台",
+        "unit_price": 46400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹50A 30回路）",
+        "unit": "台",
+        "unit_price": 50000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹60A 8回路）",
+        "unit": "台",
+        "unit_price": 40800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹60A 12回路）",
+        "unit": "台",
+        "unit_price": 43200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹60A 16回路）",
+        "unit": "台",
+        "unit_price": 45600,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹60A 20回路）",
+        "unit": "台",
+        "unit_price": 48000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹60A 24回路）",
+        "unit": "台",
+        "unit_price": 50400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹60A 30回路）",
+        "unit": "台",
+        "unit_price": 54000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹75A 8回路）",
+        "unit": "台",
+        "unit_price": 46800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹75A 12回路）",
+        "unit": "台",
+        "unit_price": 49200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹75A 16回路）",
+        "unit": "台",
+        "unit_price": 51600,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹75A 20回路）",
+        "unit": "台",
+        "unit_price": 54000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹75A 24回路）",
+        "unit": "台",
+        "unit_price": 56400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹75A 30回路）",
+        "unit": "台",
+        "unit_price": 60000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹100A 8回路）",
+        "unit": "台",
+        "unit_price": 56800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹100A 12回路）",
+        "unit": "台",
+        "unit_price": 59200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹100A 16回路）",
+        "unit": "台",
+        "unit_price": 61600,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹100A 20回路）",
+        "unit": "台",
+        "unit_price": 64000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹100A 24回路）",
+        "unit": "台",
+        "unit_price": 66400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤（主幹100A 30回路）",
+        "unit": "台",
+        "unit_price": 70000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      }
+    ],
+    "合板・面材全種": [
+      {
+        "name": "構造用合板（F☆☆☆☆） 9mm 3×6",
+        "unit": "枚",
+        "unit_price": 1650,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板（F☆☆☆☆） 12mm 3×6",
+        "unit": "枚",
+        "unit_price": 2100,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板（F☆☆☆☆） 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板（F☆☆☆☆） 18mm 3×6",
+        "unit": "枚",
+        "unit_price": 3600,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板（F☆☆☆☆） 24mm 3×6",
+        "unit": "枚",
+        "unit_price": 5200,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板 3mm 3×6",
+        "unit": "枚",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板 4mm 3×6",
+        "unit": "枚",
+        "unit_price": 820,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板 5.5mm 3×6",
+        "unit": "枚",
+        "unit_price": 1050,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板 9mm 3×6",
+        "unit": "枚",
+        "unit_price": 1600,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板 12mm 3×6",
+        "unit": "枚",
+        "unit_price": 2100,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板 18mm 3×6",
+        "unit": "枚",
+        "unit_price": 3500,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板（片面） 4mm 3×6",
+        "unit": "枚",
+        "unit_price": 1200,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板（片面） 5.5mm 3×6",
+        "unit": "枚",
+        "unit_price": 1500,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板（片面） 9mm 3×6",
+        "unit": "枚",
+        "unit_price": 2200,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板（片面） 12mm 3×6",
+        "unit": "枚",
+        "unit_price": 2900,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板（片面） 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 3800,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板（片面） 18mm 3×6",
+        "unit": "枚",
+        "unit_price": 4800,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板（両面） 4mm 3×6",
+        "unit": "枚",
+        "unit_price": 1500,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板（両面） 5.5mm 3×6",
+        "unit": "枚",
+        "unit_price": 1800,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板（両面） 9mm 3×6",
+        "unit": "枚",
+        "unit_price": 2600,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板（両面） 12mm 3×6",
+        "unit": "枚",
+        "unit_price": 3400,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板（両面） 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 4400,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ランバーコア 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ランバーコア 18mm 3×6",
+        "unit": "枚",
+        "unit_price": 3400,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ランバーコア 21mm 3×6",
+        "unit": "枚",
+        "unit_price": 4200,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ランバーコア 24mm 3×6",
+        "unit": "枚",
+        "unit_price": 5000,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ランバーコア 30mm 3×6",
+        "unit": "枚",
+        "unit_price": 6500,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "OSB合板 9mm 3×6",
+        "unit": "枚",
+        "unit_price": 1550,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "OSB合板 11mm 3×6",
+        "unit": "枚",
+        "unit_price": 1900,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "OSB合板 12mm 3×6",
+        "unit": "枚",
+        "unit_price": 2000,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "OSB合板 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 2700,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "OSB合板 18mm 3×6",
+        "unit": "枚",
+        "unit_price": 3400,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "型枠合板 12mm 3×6",
+        "unit": "枚",
+        "unit_price": 2100,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "型枠合板 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 2700,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "型枠合板 18mm 3×6",
+        "unit": "枚",
+        "unit_price": 3400,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "床用合板（防水） 12mm 3×6",
+        "unit": "枚",
+        "unit_price": 2600,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "床用合板（防水） 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 3400,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "床用合板（防水） 18mm 3×6",
+        "unit": "枚",
+        "unit_price": 4300,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "床用合板（防水） 24mm 3×6",
+        "unit": "枚",
+        "unit_price": 6100,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "耐水合板 9mm 3×6",
+        "unit": "枚",
+        "unit_price": 1900,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "耐水合板 12mm 3×6",
+        "unit": "枚",
+        "unit_price": 2500,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "耐水合板 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 3300,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      }
+    ],
+    "石膏ボード全種": [
+      {
+        "name": "石膏ボード（標準） 9.5mm 3×9",
+        "unit": "枚",
+        "unit_price": 820,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "石膏ボード（標準） 12.5mm 3×9",
+        "unit": "枚",
+        "unit_price": 980,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "石膏ボード（標準） 15mm 3×9",
+        "unit": "枚",
+        "unit_price": 1600,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "石膏ボード（標準） 21mm 3×9",
+        "unit": "枚",
+        "unit_price": 2200,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "石膏ボード（耐火） 12.5mm 3×9",
+        "unit": "枚",
+        "unit_price": 1200,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "石膏ボード（耐火） 15mm 3×9",
+        "unit": "枚",
+        "unit_price": 1900,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "石膏ボード（耐火） 21mm 3×9",
+        "unit": "枚",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "石膏ボード（防水） 9.5mm 3×9",
+        "unit": "枚",
+        "unit_price": 1100,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "石膏ボード（防水） 12.5mm 3×9",
+        "unit": "枚",
+        "unit_price": 1400,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "強化石膏ボード 12.5mm 3×9",
+        "unit": "枚",
+        "unit_price": 1600,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "強化石膏ボード 15mm 3×9",
+        "unit": "枚",
+        "unit_price": 2200,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "強化石膏ボード 21mm 3×9",
+        "unit": "枚",
+        "unit_price": 3200,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "ケイ酸カルシウム板 4mm 3×9",
+        "unit": "枚",
+        "unit_price": 1200,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "ケイ酸カルシウム板 6mm 3×9",
+        "unit": "枚",
+        "unit_price": 1800,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "ケイ酸カルシウム板 8mm 3×9",
+        "unit": "枚",
+        "unit_price": 2400,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "ケイ酸カルシウム板 10mm 3×9",
+        "unit": "枚",
+        "unit_price": 3000,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "フレキシブルボード 4mm 3×9",
+        "unit": "枚",
+        "unit_price": 1800,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "フレキシブルボード 6mm 3×9",
+        "unit": "枚",
+        "unit_price": 2500,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "フレキシブルボード 8mm 3×9",
+        "unit": "枚",
+        "unit_price": 3400,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "MGO高強度ボード 6mm 3×9",
+        "unit": "枚",
+        "unit_price": 3200,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "MGO高強度ボード 8mm 3×9",
+        "unit": "枚",
+        "unit_price": 4000,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "MGO高強度ボード 10mm 3×9",
+        "unit": "枚",
+        "unit_price": 4800,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "チヨダグリーンボード 9.5mm 3×9",
+        "unit": "枚",
+        "unit_price": 950,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "チヨダグリーンボード 12.5mm 3×9",
+        "unit": "枚",
+        "unit_price": 1150,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      }
+    ],
+    "シーリング材全色": [
+      {
+        "name": "コーキング材（変性シリコン 白 333ml）",
+        "unit": "本",
+        "unit_price": 380,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（変性シリコン グレー 333ml）",
+        "unit": "本",
+        "unit_price": 380,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（変性シリコン ブラック 333ml）",
+        "unit": "本",
+        "unit_price": 380,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（変性シリコン クリア 333ml）",
+        "unit": "本",
+        "unit_price": 380,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（変性シリコン ベージュ 333ml）",
+        "unit": "本",
+        "unit_price": 380,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（変性シリコン ブラウン 333ml）",
+        "unit": "本",
+        "unit_price": 380,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（変性シリコン ニュートラルグレー 333ml）",
+        "unit": "本",
+        "unit_price": 380,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（シリコン 白 333ml）",
+        "unit": "本",
+        "unit_price": 480,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（シリコン グレー 333ml）",
+        "unit": "本",
+        "unit_price": 480,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（シリコン ブラック 333ml）",
+        "unit": "本",
+        "unit_price": 480,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（シリコン クリア 333ml）",
+        "unit": "本",
+        "unit_price": 480,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（シリコン ベージュ 333ml）",
+        "unit": "本",
+        "unit_price": 480,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（シリコン ブラウン 333ml）",
+        "unit": "本",
+        "unit_price": 480,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（シリコン ニュートラルグレー 333ml）",
+        "unit": "本",
+        "unit_price": 480,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ポリウレタン 白 333ml）",
+        "unit": "本",
+        "unit_price": 580,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ポリウレタン グレー 333ml）",
+        "unit": "本",
+        "unit_price": 580,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ポリウレタン ブラック 333ml）",
+        "unit": "本",
+        "unit_price": 580,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ポリウレタン クリア 333ml）",
+        "unit": "本",
+        "unit_price": 580,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ポリウレタン ベージュ 333ml）",
+        "unit": "本",
+        "unit_price": 580,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ポリウレタン ブラウン 333ml）",
+        "unit": "本",
+        "unit_price": 580,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ポリウレタン ニュートラルグレー 333ml）",
+        "unit": "本",
+        "unit_price": 580,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（アクリル系 白 333ml）",
+        "unit": "本",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（アクリル系 グレー 333ml）",
+        "unit": "本",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（アクリル系 ブラック 333ml）",
+        "unit": "本",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（アクリル系 クリア 333ml）",
+        "unit": "本",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（アクリル系 ベージュ 333ml）",
+        "unit": "本",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（アクリル系 ブラウン 333ml）",
+        "unit": "本",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（アクリル系 ニュートラルグレー 333ml）",
+        "unit": "本",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ポリサルファイド 白 333ml）",
+        "unit": "本",
+        "unit_price": 780,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ポリサルファイド グレー 333ml）",
+        "unit": "本",
+        "unit_price": 780,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ポリサルファイド ブラック 333ml）",
+        "unit": "本",
+        "unit_price": 780,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ポリサルファイド クリア 333ml）",
+        "unit": "本",
+        "unit_price": 780,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ポリサルファイド ベージュ 333ml）",
+        "unit": "本",
+        "unit_price": 780,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ポリサルファイド ブラウン 333ml）",
+        "unit": "本",
+        "unit_price": 780,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ポリサルファイド ニュートラルグレー 333ml）",
+        "unit": "本",
+        "unit_price": 780,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ブチルゴム 白 333ml）",
+        "unit": "本",
+        "unit_price": 880,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ブチルゴム グレー 333ml）",
+        "unit": "本",
+        "unit_price": 880,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ブチルゴム ブラック 333ml）",
+        "unit": "本",
+        "unit_price": 880,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ブチルゴム クリア 333ml）",
+        "unit": "本",
+        "unit_price": 880,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ブチルゴム ベージュ 333ml）",
+        "unit": "本",
+        "unit_price": 880,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ブチルゴム ブラウン 333ml）",
+        "unit": "本",
+        "unit_price": 880,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材（ブチルゴム ニュートラルグレー 333ml）",
+        "unit": "本",
+        "unit_price": 880,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      }
+    ],
+    "給湯器全社": [
+      {
+        "name": "ノーリツ 給湯器（16号 標準）",
+        "unit": "台",
+        "unit_price": 95000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ノーリツ 給湯器（16号 エコジョーズ）",
+        "unit": "台",
+        "unit_price": 135000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ノーリツ 給湯器（16号 エコジョーズ追い焚き）",
+        "unit": "台",
+        "unit_price": 175000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ノーリツ 給湯器（20号 標準）",
+        "unit": "台",
+        "unit_price": 120000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ノーリツ 給湯器（20号 エコジョーズ）",
+        "unit": "台",
+        "unit_price": 160000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ノーリツ 給湯器（20号 エコジョーズ追い焚き）",
+        "unit": "台",
+        "unit_price": 200000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ノーリツ 給湯器（24号 標準）",
+        "unit": "台",
+        "unit_price": 155000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ノーリツ 給湯器（24号 エコジョーズ）",
+        "unit": "台",
+        "unit_price": 195000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ノーリツ 給湯器（24号 エコジョーズ追い焚き）",
+        "unit": "台",
+        "unit_price": 235000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ノーリツ 給湯器（28号 標準）",
+        "unit": "台",
+        "unit_price": 195000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ノーリツ 給湯器（28号 エコジョーズ）",
+        "unit": "台",
+        "unit_price": 235000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ノーリツ 給湯器（28号 エコジョーズ追い焚き）",
+        "unit": "台",
+        "unit_price": 275000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "リンナイ 給湯器（16号 標準）",
+        "unit": "台",
+        "unit_price": 96900,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "リンナイ 給湯器（16号 エコジョーズ）",
+        "unit": "台",
+        "unit_price": 137700,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "リンナイ 給湯器（16号 エコジョーズ追い焚き）",
+        "unit": "台",
+        "unit_price": 178500,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "リンナイ 給湯器（20号 標準）",
+        "unit": "台",
+        "unit_price": 122400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "リンナイ 給湯器（20号 エコジョーズ）",
+        "unit": "台",
+        "unit_price": 163200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "リンナイ 給湯器（20号 エコジョーズ追い焚き）",
+        "unit": "台",
+        "unit_price": 204000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "リンナイ 給湯器（24号 標準）",
+        "unit": "台",
+        "unit_price": 158100,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "リンナイ 給湯器（24号 エコジョーズ）",
+        "unit": "台",
+        "unit_price": 198900,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "リンナイ 給湯器（24号 エコジョーズ追い焚き）",
+        "unit": "台",
+        "unit_price": 239700,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "リンナイ 給湯器（28号 標準）",
+        "unit": "台",
+        "unit_price": 198900,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "リンナイ 給湯器（28号 エコジョーズ）",
+        "unit": "台",
+        "unit_price": 239700,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "リンナイ 給湯器（28号 エコジョーズ追い焚き）",
+        "unit": "台",
+        "unit_price": 280500,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パーパス 給湯器（16号 標準）",
+        "unit": "台",
+        "unit_price": 98800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パーパス 給湯器（16号 エコジョーズ）",
+        "unit": "台",
+        "unit_price": 140400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パーパス 給湯器（16号 エコジョーズ追い焚き）",
+        "unit": "台",
+        "unit_price": 182000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パーパス 給湯器（20号 標準）",
+        "unit": "台",
+        "unit_price": 124800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パーパス 給湯器（20号 エコジョーズ）",
+        "unit": "台",
+        "unit_price": 166400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パーパス 給湯器（20号 エコジョーズ追い焚き）",
+        "unit": "台",
+        "unit_price": 208000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パーパス 給湯器（24号 標準）",
+        "unit": "台",
+        "unit_price": 161200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パーパス 給湯器（24号 エコジョーズ）",
+        "unit": "台",
+        "unit_price": 202800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パーパス 給湯器（24号 エコジョーズ追い焚き）",
+        "unit": "台",
+        "unit_price": 244400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パーパス 給湯器（28号 標準）",
+        "unit": "台",
+        "unit_price": 202800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パーパス 給湯器（28号 エコジョーズ）",
+        "unit": "台",
+        "unit_price": 244400,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パーパス 給湯器（28号 エコジョーズ追い焚き）",
+        "unit": "台",
+        "unit_price": 286000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 給湯器（16号 標準）",
+        "unit": "台",
+        "unit_price": 100700,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 給湯器（16号 エコジョーズ）",
+        "unit": "台",
+        "unit_price": 143100,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 給湯器（16号 エコジョーズ追い焚き）",
+        "unit": "台",
+        "unit_price": 185500,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 給湯器（20号 標準）",
+        "unit": "台",
+        "unit_price": 127200,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 給湯器（20号 エコジョーズ）",
+        "unit": "台",
+        "unit_price": 169600,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 給湯器（20号 エコジョーズ追い焚き）",
+        "unit": "台",
+        "unit_price": 212000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 給湯器（24号 標準）",
+        "unit": "台",
+        "unit_price": 164300,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 給湯器（24号 エコジョーズ）",
+        "unit": "台",
+        "unit_price": 206700,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 給湯器（24号 エコジョーズ追い焚き）",
+        "unit": "台",
+        "unit_price": 249100,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 給湯器（28号 標準）",
+        "unit": "台",
+        "unit_price": 206700,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 給湯器（28号 エコジョーズ）",
+        "unit": "台",
+        "unit_price": 249100,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "パナソニック 給湯器（28号 エコジョーズ追い焚き）",
+        "unit": "台",
+        "unit_price": 291500,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "コロナ 石油給湯器（屋外型）",
+        "unit": "台",
+        "unit_price": 110000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "コロナ 石油給湯器（水道直圧）",
+        "unit": "台",
+        "unit_price": 180000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "長府工産 石油ボイラー",
+        "unit": "台",
+        "unit_price": 220000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ヒートポンプ給湯器（370L）",
+        "unit": "台",
+        "unit_price": 480000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ヒートポンプ給湯器（460L）",
+        "unit": "台",
+        "unit_price": 550000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      }
+    ],
+    "防水材料全種": [
+      {
+        "name": "ウレタン防水材（主剤）（8kg）",
+        "unit": "缶",
+        "unit_price": 9000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "ウレタン防水材（主剤）（16kg）",
+        "unit": "缶",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "ウレタン防水材（主剤）（20kg）",
+        "unit": "缶",
+        "unit_price": 21600,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "ウレタン防水材（硬化剤）（8kg）",
+        "unit": "缶",
+        "unit_price": 3400,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "ウレタン防水材（硬化剤）（16kg）",
+        "unit": "缶",
+        "unit_price": 6800,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "ウレタン防水材（硬化剤）（20kg）",
+        "unit": "缶",
+        "unit_price": 8160,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "ウレタン防水材（トップコート）（8kg）",
+        "unit": "缶",
+        "unit_price": 6000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "ウレタン防水材（トップコート）（16kg）",
+        "unit": "缶",
+        "unit_price": 12000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "ウレタン防水材（トップコート）（20kg）",
+        "unit": "缶",
+        "unit_price": 14400,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "FRP防水材（主剤）（8kg）",
+        "unit": "缶",
+        "unit_price": 11000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "FRP防水材（主剤）（16kg）",
+        "unit": "缶",
+        "unit_price": 22000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "FRP防水材（主剤）（20kg）",
+        "unit": "缶",
+        "unit_price": 26400,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "改質アスファルトシート（2mm）（8kg）",
+        "unit": "缶",
+        "unit_price": 6000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "改質アスファルトシート（2mm）（16kg）",
+        "unit": "缶",
+        "unit_price": 12000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "改質アスファルトシート（2mm）（20kg）",
+        "unit": "缶",
+        "unit_price": 14400,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "改質アスファルトシート（3mm）（8kg）",
+        "unit": "缶",
+        "unit_price": 9000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "改質アスファルトシート（3mm）（16kg）",
+        "unit": "缶",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "改質アスファルトシート（3mm）（20kg）",
+        "unit": "缶",
+        "unit_price": 21600,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "液体防水材（水性）（8kg）",
+        "unit": "缶",
+        "unit_price": 4250,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "液体防水材（水性）（16kg）",
+        "unit": "缶",
+        "unit_price": 8500,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "液体防水材（水性）（20kg）",
+        "unit": "缶",
+        "unit_price": 10200,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "弾性防水塗料（8kg）",
+        "unit": "缶",
+        "unit_price": 11000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "弾性防水塗料（16kg）",
+        "unit": "缶",
+        "unit_price": 22000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "弾性防水塗料（20kg）",
+        "unit": "缶",
+        "unit_price": 26400,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "FRP防水ガラスマット（8kg）",
+        "unit": "缶",
+        "unit_price": 9000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "FRP防水ガラスマット（16kg）",
+        "unit": "缶",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "FRP防水ガラスマット（20kg）",
+        "unit": "缶",
+        "unit_price": 21600,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "防水プライマー（8kg）",
+        "unit": "缶",
+        "unit_price": 1900,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "防水プライマー（16kg）",
+        "unit": "缶",
+        "unit_price": 3800,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "防水プライマー（20kg）",
+        "unit": "缶",
+        "unit_price": 4560,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      }
+    ],
+    "外壁・屋根塗料全種": [
+      {
+        "name": "エスケー化研 クリーンマイルドシリコン（15kg 白）",
+        "unit": "缶",
+        "unit_price": 26000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "エスケー化研 クリーンマイルドシリコン（15kg 淡彩）",
+        "unit": "缶",
+        "unit_price": 27000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "エスケー化研 クリーンマイルドシリコン（15kg 濃彩）",
+        "unit": "缶",
+        "unit_price": 30000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "エスケー化研 クリーンマイルドシリコン（4L 白）",
+        "unit": "缶",
+        "unit_price": 7500,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "エスケー化研 クリーンマイルドフッソ（15kg 白）",
+        "unit": "缶",
+        "unit_price": 45000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "エスケー化研 クリーンマイルドフッソ（15kg 淡彩）",
+        "unit": "缶",
+        "unit_price": 47000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "エスケー化研 クリーンマイルドフッソ（4L 白）",
+        "unit": "缶",
+        "unit_price": 14000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "日本ペイント パーフェクトトップ（14kg 白）",
+        "unit": "缶",
+        "unit_price": 52000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "日本ペイント パーフェクトトップ（14kg 標準色）",
+        "unit": "缶",
+        "unit_price": 54000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "日本ペイント ファインシリコン（16kg 白）",
+        "unit": "缶",
+        "unit_price": 24000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "日本ペイント ファインシリコン（16kg 標準色）",
+        "unit": "缶",
+        "unit_price": 25000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "関西ペイント アレスダイナミックMF（15kg 白）",
+        "unit": "缶",
+        "unit_price": 42000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "関西ペイント アレスダイナミックMF（15kg 淡彩）",
+        "unit": "缶",
+        "unit_price": 44000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "水性シリコン汎用（3.5kg）",
+        "unit": "缶",
+        "unit_price": 6800,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "水性シリコン汎用（7kg）",
+        "unit": "缶",
+        "unit_price": 12000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "水性シリコン汎用（14kg）",
+        "unit": "缶",
+        "unit_price": 22000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "水性フッ素汎用（7kg）",
+        "unit": "缶",
+        "unit_price": 22000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "水性フッ素汎用（14kg）",
+        "unit": "缶",
+        "unit_price": 40000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "屋根用遮熱塗料（サーモアイ）（15kg 標準色）",
+        "unit": "缶",
+        "unit_price": 45000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "屋根用遮熱塗料（サーモアイ）（15kg 淡彩）",
+        "unit": "缶",
+        "unit_price": 47000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "屋根用ガイナ（16kg）",
+        "unit": "缶",
+        "unit_price": 55000,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "鉄部用エポキシプライマー（4L グレー）",
+        "unit": "缶",
+        "unit_price": 4800,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "鉄部用エポキシプライマー（4L 赤さび）",
+        "unit": "缶",
+        "unit_price": 4500,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "木部用浸透型（4L 透明）",
+        "unit": "缶",
+        "unit_price": 4200,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "木部用浸透型（4L オーク）",
+        "unit": "缶",
+        "unit_price": 4500,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "木部用浸透型（4L チーク）",
+        "unit": "缶",
+        "unit_price": 4500,
+        "standard_qty_30tsubo": 2,
+        "memo": "2026年4月"
+      }
+    ]
+  }
+}

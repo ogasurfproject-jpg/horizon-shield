@@ -1,0 +1,3372 @@
+{
+  "version": "2026.04.phase2c",
+  "note": "2026年4月。Phase 2C拡張版 zaisai-db21。",
+  "categories": {
+    "構造用木材全寸法": [
+      {
+        "name": "杉（30×40×3m）",
+        "unit": "本",
+        "unit_price": 540,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（30×40×4m）",
+        "unit": "本",
+        "unit_price": 720,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（30×60×3m）",
+        "unit": "本",
+        "unit_price": 660,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（30×60×4m）",
+        "unit": "本",
+        "unit_price": 880,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（45×45×3m）",
+        "unit": "本",
+        "unit_price": 1080,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（45×45×4m）",
+        "unit": "本",
+        "unit_price": 1440,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（45×60×3m）",
+        "unit": "本",
+        "unit_price": 1320,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（45×60×4m）",
+        "unit": "本",
+        "unit_price": 1760,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（45×90×3m）",
+        "unit": "本",
+        "unit_price": 2100,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（45×90×4m）",
+        "unit": "本",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（45×105×3m）",
+        "unit": "本",
+        "unit_price": 2520,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（45×105×4m）",
+        "unit": "本",
+        "unit_price": 3360,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（60×60×3m）",
+        "unit": "本",
+        "unit_price": 2880,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（60×60×4m）",
+        "unit": "本",
+        "unit_price": 3840,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（90×90×3m）",
+        "unit": "本",
+        "unit_price": 4320,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（90×90×4m）",
+        "unit": "本",
+        "unit_price": 5760,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（105×105×3m）",
+        "unit": "本",
+        "unit_price": 5880,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（105×105×4m）",
+        "unit": "本",
+        "unit_price": 7840,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（105×150×3m）",
+        "unit": "本",
+        "unit_price": 7200,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（105×150×4m）",
+        "unit": "本",
+        "unit_price": 9600,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（105×180×3m）",
+        "unit": "本",
+        "unit_price": 9000,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（105×180×4m）",
+        "unit": "本",
+        "unit_price": 12000,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（105×210×3m）",
+        "unit": "本",
+        "unit_price": 10800,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（105×210×4m）",
+        "unit": "本",
+        "unit_price": 14400,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（105×240×3m）",
+        "unit": "本",
+        "unit_price": 13200,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（105×240×4m）",
+        "unit": "本",
+        "unit_price": 17600,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（120×120×3m）",
+        "unit": "本",
+        "unit_price": 8400,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（120×120×4m）",
+        "unit": "本",
+        "unit_price": 11200,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（150×300×3m）",
+        "unit": "本",
+        "unit_price": 33000,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "杉（150×300×4m）",
+        "unit": "本",
+        "unit_price": 44000,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（30×40×3m）",
+        "unit": "本",
+        "unit_price": 810,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（30×40×4m）",
+        "unit": "本",
+        "unit_price": 1080,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（30×60×3m）",
+        "unit": "本",
+        "unit_price": 990,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（30×60×4m）",
+        "unit": "本",
+        "unit_price": 1320,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（45×45×3m）",
+        "unit": "本",
+        "unit_price": 1620,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（45×45×4m）",
+        "unit": "本",
+        "unit_price": 2160,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（45×60×3m）",
+        "unit": "本",
+        "unit_price": 1980,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（45×60×4m）",
+        "unit": "本",
+        "unit_price": 2640,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（45×90×3m）",
+        "unit": "本",
+        "unit_price": 3150,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（45×90×4m）",
+        "unit": "本",
+        "unit_price": 4200,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（45×105×3m）",
+        "unit": "本",
+        "unit_price": 3780,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（45×105×4m）",
+        "unit": "本",
+        "unit_price": 5040,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（60×60×3m）",
+        "unit": "本",
+        "unit_price": 4320,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（60×60×4m）",
+        "unit": "本",
+        "unit_price": 5760,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（90×90×3m）",
+        "unit": "本",
+        "unit_price": 6480,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（90×90×4m）",
+        "unit": "本",
+        "unit_price": 8640,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（105×105×3m）",
+        "unit": "本",
+        "unit_price": 8820,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（105×105×4m）",
+        "unit": "本",
+        "unit_price": 11760,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（105×150×3m）",
+        "unit": "本",
+        "unit_price": 10800,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（105×150×4m）",
+        "unit": "本",
+        "unit_price": 14400,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（105×180×3m）",
+        "unit": "本",
+        "unit_price": 13500,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（105×180×4m）",
+        "unit": "本",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（105×210×3m）",
+        "unit": "本",
+        "unit_price": 16200,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（105×210×4m）",
+        "unit": "本",
+        "unit_price": 21600,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（105×240×3m）",
+        "unit": "本",
+        "unit_price": 19800,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（105×240×4m）",
+        "unit": "本",
+        "unit_price": 26400,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（120×120×3m）",
+        "unit": "本",
+        "unit_price": 12600,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（120×120×4m）",
+        "unit": "本",
+        "unit_price": 16800,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（150×300×3m）",
+        "unit": "本",
+        "unit_price": 49500,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "桧（150×300×4m）",
+        "unit": "本",
+        "unit_price": 66000,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（30×40×3m）",
+        "unit": "本",
+        "unit_price": 607,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（30×40×4m）",
+        "unit": "本",
+        "unit_price": 810,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（30×60×3m）",
+        "unit": "本",
+        "unit_price": 742,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（30×60×4m）",
+        "unit": "本",
+        "unit_price": 990,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（45×45×3m）",
+        "unit": "本",
+        "unit_price": 1215,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（45×45×4m）",
+        "unit": "本",
+        "unit_price": 1620,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（45×60×3m）",
+        "unit": "本",
+        "unit_price": 1485,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（45×60×4m）",
+        "unit": "本",
+        "unit_price": 1980,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（45×90×3m）",
+        "unit": "本",
+        "unit_price": 2362,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（45×90×4m）",
+        "unit": "本",
+        "unit_price": 3150,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（45×105×3m）",
+        "unit": "本",
+        "unit_price": 2835,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（45×105×4m）",
+        "unit": "本",
+        "unit_price": 3780,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（60×60×3m）",
+        "unit": "本",
+        "unit_price": 3240,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（60×60×4m）",
+        "unit": "本",
+        "unit_price": 4320,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（90×90×3m）",
+        "unit": "本",
+        "unit_price": 4860,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（90×90×4m）",
+        "unit": "本",
+        "unit_price": 6480,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（105×105×3m）",
+        "unit": "本",
+        "unit_price": 6615,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（105×105×4m）",
+        "unit": "本",
+        "unit_price": 8820,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（105×150×3m）",
+        "unit": "本",
+        "unit_price": 8100,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（105×150×4m）",
+        "unit": "本",
+        "unit_price": 10800,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（105×180×3m）",
+        "unit": "本",
+        "unit_price": 10125,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（105×180×4m）",
+        "unit": "本",
+        "unit_price": 13500,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（105×210×3m）",
+        "unit": "本",
+        "unit_price": 12150,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（105×210×4m）",
+        "unit": "本",
+        "unit_price": 16200,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（105×240×3m）",
+        "unit": "本",
+        "unit_price": 14850,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（105×240×4m）",
+        "unit": "本",
+        "unit_price": 19800,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（120×120×3m）",
+        "unit": "本",
+        "unit_price": 9450,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（120×120×4m）",
+        "unit": "本",
+        "unit_price": 12600,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（150×300×3m）",
+        "unit": "本",
+        "unit_price": 37125,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "米松（150×300×4m）",
+        "unit": "本",
+        "unit_price": 49500,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（30×40×3m）",
+        "unit": "本",
+        "unit_price": 641,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（30×40×4m）",
+        "unit": "本",
+        "unit_price": 855,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（30×60×3m）",
+        "unit": "本",
+        "unit_price": 783,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（30×60×4m）",
+        "unit": "本",
+        "unit_price": 1045,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（45×45×3m）",
+        "unit": "本",
+        "unit_price": 1282,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（45×45×4m）",
+        "unit": "本",
+        "unit_price": 1710,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（45×60×3m）",
+        "unit": "本",
+        "unit_price": 1567,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（45×60×4m）",
+        "unit": "本",
+        "unit_price": 2090,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（45×90×3m）",
+        "unit": "本",
+        "unit_price": 2493,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（45×90×4m）",
+        "unit": "本",
+        "unit_price": 3325,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（45×105×3m）",
+        "unit": "本",
+        "unit_price": 2992,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（45×105×4m）",
+        "unit": "本",
+        "unit_price": 3990,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（60×60×3m）",
+        "unit": "本",
+        "unit_price": 3420,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（60×60×4m）",
+        "unit": "本",
+        "unit_price": 4560,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（90×90×3m）",
+        "unit": "本",
+        "unit_price": 5130,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（90×90×4m）",
+        "unit": "本",
+        "unit_price": 6840,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（105×105×3m）",
+        "unit": "本",
+        "unit_price": 6982,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（105×105×4m）",
+        "unit": "本",
+        "unit_price": 9310,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（105×150×3m）",
+        "unit": "本",
+        "unit_price": 8550,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（105×150×4m）",
+        "unit": "本",
+        "unit_price": 11400,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（105×180×3m）",
+        "unit": "本",
+        "unit_price": 10687,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（105×180×4m）",
+        "unit": "本",
+        "unit_price": 14250,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（105×210×3m）",
+        "unit": "本",
+        "unit_price": 12825,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（105×210×4m）",
+        "unit": "本",
+        "unit_price": 17100,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（105×240×3m）",
+        "unit": "本",
+        "unit_price": 15675,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（105×240×4m）",
+        "unit": "本",
+        "unit_price": 20900,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（120×120×3m）",
+        "unit": "本",
+        "unit_price": 9975,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（120×120×4m）",
+        "unit": "本",
+        "unit_price": 13300,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（150×300×3m）",
+        "unit": "本",
+        "unit_price": 39187,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "スプルース（150×300×4m）",
+        "unit": "本",
+        "unit_price": 52250,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（30×40×3m）",
+        "unit": "本",
+        "unit_price": 742,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（30×40×4m）",
+        "unit": "本",
+        "unit_price": 990,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（30×60×3m）",
+        "unit": "本",
+        "unit_price": 907,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（30×60×4m）",
+        "unit": "本",
+        "unit_price": 1210,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（45×45×3m）",
+        "unit": "本",
+        "unit_price": 1485,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（45×45×4m）",
+        "unit": "本",
+        "unit_price": 1980,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（45×60×3m）",
+        "unit": "本",
+        "unit_price": 1815,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（45×60×4m）",
+        "unit": "本",
+        "unit_price": 2420,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（45×90×3m）",
+        "unit": "本",
+        "unit_price": 2887,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（45×90×4m）",
+        "unit": "本",
+        "unit_price": 3850,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（45×105×3m）",
+        "unit": "本",
+        "unit_price": 3465,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（45×105×4m）",
+        "unit": "本",
+        "unit_price": 4620,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（60×60×3m）",
+        "unit": "本",
+        "unit_price": 3960,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（60×60×4m）",
+        "unit": "本",
+        "unit_price": 5280,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（90×90×3m）",
+        "unit": "本",
+        "unit_price": 5940,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（90×90×4m）",
+        "unit": "本",
+        "unit_price": 7920,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（105×105×3m）",
+        "unit": "本",
+        "unit_price": 8085,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（105×105×4m）",
+        "unit": "本",
+        "unit_price": 10780,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（105×150×3m）",
+        "unit": "本",
+        "unit_price": 9900,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（105×150×4m）",
+        "unit": "本",
+        "unit_price": 13200,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（105×180×3m）",
+        "unit": "本",
+        "unit_price": 12375,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（105×180×4m）",
+        "unit": "本",
+        "unit_price": 16500,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（105×210×3m）",
+        "unit": "本",
+        "unit_price": 14850,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（105×210×4m）",
+        "unit": "本",
+        "unit_price": 19800,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（105×240×3m）",
+        "unit": "本",
+        "unit_price": 18150,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（105×240×4m）",
+        "unit": "本",
+        "unit_price": 24200,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（120×120×3m）",
+        "unit": "本",
+        "unit_price": 11550,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（120×120×4m）",
+        "unit": "本",
+        "unit_price": 15400,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（150×300×3m）",
+        "unit": "本",
+        "unit_price": 45375,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "集成材（150×300×4m）",
+        "unit": "本",
+        "unit_price": 60500,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（30×40×3m）",
+        "unit": "本",
+        "unit_price": 877,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（30×40×4m）",
+        "unit": "本",
+        "unit_price": 1170,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（30×60×3m）",
+        "unit": "本",
+        "unit_price": 1072,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（30×60×4m）",
+        "unit": "本",
+        "unit_price": 1430,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（45×45×3m）",
+        "unit": "本",
+        "unit_price": 1755,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（45×45×4m）",
+        "unit": "本",
+        "unit_price": 2340,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（45×60×3m）",
+        "unit": "本",
+        "unit_price": 2145,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（45×60×4m）",
+        "unit": "本",
+        "unit_price": 2860,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（45×90×3m）",
+        "unit": "本",
+        "unit_price": 3412,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（45×90×4m）",
+        "unit": "本",
+        "unit_price": 4550,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（45×105×3m）",
+        "unit": "本",
+        "unit_price": 4095,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（45×105×4m）",
+        "unit": "本",
+        "unit_price": 5460,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（60×60×3m）",
+        "unit": "本",
+        "unit_price": 4680,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（60×60×4m）",
+        "unit": "本",
+        "unit_price": 6240,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（90×90×3m）",
+        "unit": "本",
+        "unit_price": 7020,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（90×90×4m）",
+        "unit": "本",
+        "unit_price": 9360,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（105×105×3m）",
+        "unit": "本",
+        "unit_price": 9555,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（105×105×4m）",
+        "unit": "本",
+        "unit_price": 12740,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（105×150×3m）",
+        "unit": "本",
+        "unit_price": 11700,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（105×150×4m）",
+        "unit": "本",
+        "unit_price": 15600,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（105×180×3m）",
+        "unit": "本",
+        "unit_price": 14625,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（105×180×4m）",
+        "unit": "本",
+        "unit_price": 19500,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（105×210×3m）",
+        "unit": "本",
+        "unit_price": 17550,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（105×210×4m）",
+        "unit": "本",
+        "unit_price": 23400,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（105×240×3m）",
+        "unit": "本",
+        "unit_price": 21450,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（105×240×4m）",
+        "unit": "本",
+        "unit_price": 28600,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（120×120×3m）",
+        "unit": "本",
+        "unit_price": 13650,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（120×120×4m）",
+        "unit": "本",
+        "unit_price": 18200,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（150×300×3m）",
+        "unit": "本",
+        "unit_price": 53625,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "LVL（150×300×4m）",
+        "unit": "本",
+        "unit_price": 71500,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（30×40×3m）",
+        "unit": "本",
+        "unit_price": 573,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（30×40×4m）",
+        "unit": "本",
+        "unit_price": 765,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（30×60×3m）",
+        "unit": "本",
+        "unit_price": 701,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（30×60×4m）",
+        "unit": "本",
+        "unit_price": 935,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（45×45×3m）",
+        "unit": "本",
+        "unit_price": 1147,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（45×45×4m）",
+        "unit": "本",
+        "unit_price": 1530,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（45×60×3m）",
+        "unit": "本",
+        "unit_price": 1402,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（45×60×4m）",
+        "unit": "本",
+        "unit_price": 1870,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（45×90×3m）",
+        "unit": "本",
+        "unit_price": 2231,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（45×90×4m）",
+        "unit": "本",
+        "unit_price": 2975,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（45×105×3m）",
+        "unit": "本",
+        "unit_price": 2677,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（45×105×4m）",
+        "unit": "本",
+        "unit_price": 3570,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（60×60×3m）",
+        "unit": "本",
+        "unit_price": 3060,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（60×60×4m）",
+        "unit": "本",
+        "unit_price": 4080,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（90×90×3m）",
+        "unit": "本",
+        "unit_price": 4590,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（90×90×4m）",
+        "unit": "本",
+        "unit_price": 6120,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（105×105×3m）",
+        "unit": "本",
+        "unit_price": 6247,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（105×105×4m）",
+        "unit": "本",
+        "unit_price": 8330,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（105×150×3m）",
+        "unit": "本",
+        "unit_price": 7650,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（105×150×4m）",
+        "unit": "本",
+        "unit_price": 10200,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（105×180×3m）",
+        "unit": "本",
+        "unit_price": 9562,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（105×180×4m）",
+        "unit": "本",
+        "unit_price": 12750,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（105×210×3m）",
+        "unit": "本",
+        "unit_price": 11475,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（105×210×4m）",
+        "unit": "本",
+        "unit_price": 15300,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（105×240×3m）",
+        "unit": "本",
+        "unit_price": 14025,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（105×240×4m）",
+        "unit": "本",
+        "unit_price": 18700,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（120×120×3m）",
+        "unit": "本",
+        "unit_price": 8925,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（120×120×4m）",
+        "unit": "本",
+        "unit_price": 11900,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（150×300×3m）",
+        "unit": "本",
+        "unit_price": 35062,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "ラジアタパイン（150×300×4m）",
+        "unit": "本",
+        "unit_price": 46750,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（30×40×3m）",
+        "unit": "本",
+        "unit_price": 708,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（30×40×4m）",
+        "unit": "本",
+        "unit_price": 945,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（30×60×3m）",
+        "unit": "本",
+        "unit_price": 866,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（30×60×4m）",
+        "unit": "本",
+        "unit_price": 1155,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（45×45×3m）",
+        "unit": "本",
+        "unit_price": 1417,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（45×45×4m）",
+        "unit": "本",
+        "unit_price": 1890,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（45×60×3m）",
+        "unit": "本",
+        "unit_price": 1732,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（45×60×4m）",
+        "unit": "本",
+        "unit_price": 2310,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（45×90×3m）",
+        "unit": "本",
+        "unit_price": 2756,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（45×90×4m）",
+        "unit": "本",
+        "unit_price": 3675,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（45×105×3m）",
+        "unit": "本",
+        "unit_price": 3307,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（45×105×4m）",
+        "unit": "本",
+        "unit_price": 4410,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（60×60×3m）",
+        "unit": "本",
+        "unit_price": 3780,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（60×60×4m）",
+        "unit": "本",
+        "unit_price": 5040,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（90×90×3m）",
+        "unit": "本",
+        "unit_price": 5670,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（90×90×4m）",
+        "unit": "本",
+        "unit_price": 7560,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（105×105×3m）",
+        "unit": "本",
+        "unit_price": 7717,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（105×105×4m）",
+        "unit": "本",
+        "unit_price": 10290,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（105×150×3m）",
+        "unit": "本",
+        "unit_price": 9450,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（105×150×4m）",
+        "unit": "本",
+        "unit_price": 12600,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（105×180×3m）",
+        "unit": "本",
+        "unit_price": 11812,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（105×180×4m）",
+        "unit": "本",
+        "unit_price": 15750,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（105×210×3m）",
+        "unit": "本",
+        "unit_price": 14175,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（105×210×4m）",
+        "unit": "本",
+        "unit_price": 18900,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（105×240×3m）",
+        "unit": "本",
+        "unit_price": 17325,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（105×240×4m）",
+        "unit": "本",
+        "unit_price": 23100,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（120×120×3m）",
+        "unit": "本",
+        "unit_price": 11025,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（120×120×4m）",
+        "unit": "本",
+        "unit_price": 14700,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（150×300×3m）",
+        "unit": "本",
+        "unit_price": 43312,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      },
+      {
+        "name": "欧州松（150×300×4m）",
+        "unit": "本",
+        "unit_price": 57750,
+        "standard_qty_30tsubo": 10,
+        "memo": "2026年4月"
+      }
+    ],
+    "合板・面材全サイズ": [
+      {
+        "name": "構造用合板F☆☆☆☆ 9mm 3×6",
+        "unit": "枚",
+        "unit_price": 1650,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板F☆☆☆☆ 9mm 3×9",
+        "unit": "枚",
+        "unit_price": 2227,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板F☆☆☆☆ 12mm 3×6",
+        "unit": "枚",
+        "unit_price": 2100,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板F☆☆☆☆ 12mm 3×9",
+        "unit": "枚",
+        "unit_price": 2835,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板F☆☆☆☆ 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板F☆☆☆☆ 15mm 3×9",
+        "unit": "枚",
+        "unit_price": 3780,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板F☆☆☆☆ 18mm 3×6",
+        "unit": "枚",
+        "unit_price": 3600,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板F☆☆☆☆ 18mm 3×9",
+        "unit": "枚",
+        "unit_price": 4860,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板F☆☆☆☆ 24mm 3×6",
+        "unit": "枚",
+        "unit_price": 5200,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板F☆☆☆☆ 24mm 3×9",
+        "unit": "枚",
+        "unit_price": 7020,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板 3mm 3×6",
+        "unit": "枚",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板 3mm 3×9",
+        "unit": "枚",
+        "unit_price": 918,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板 4mm 3×6",
+        "unit": "枚",
+        "unit_price": 820,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板 4mm 3×9",
+        "unit": "枚",
+        "unit_price": 1107,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板 9mm 3×6",
+        "unit": "枚",
+        "unit_price": 1600,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板 9mm 3×9",
+        "unit": "枚",
+        "unit_price": 2160,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板 12mm 3×6",
+        "unit": "枚",
+        "unit_price": 2100,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板 12mm 3×9",
+        "unit": "枚",
+        "unit_price": 2835,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ラワン合板 15mm 3×9",
+        "unit": "枚",
+        "unit_price": 3780,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板片面 4mm 3×6",
+        "unit": "枚",
+        "unit_price": 1200,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板片面 4mm 3×9",
+        "unit": "枚",
+        "unit_price": 1620,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板片面 9mm 3×6",
+        "unit": "枚",
+        "unit_price": 2200,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板片面 9mm 3×9",
+        "unit": "枚",
+        "unit_price": 2970,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板片面 12mm 3×6",
+        "unit": "枚",
+        "unit_price": 2900,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板片面 12mm 3×9",
+        "unit": "枚",
+        "unit_price": 3915,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板片面 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 3800,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板片面 15mm 3×9",
+        "unit": "枚",
+        "unit_price": 5130,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板片面 18mm 3×6",
+        "unit": "枚",
+        "unit_price": 4800,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板片面 18mm 3×9",
+        "unit": "枚",
+        "unit_price": 6480,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板両面 4mm 3×6",
+        "unit": "枚",
+        "unit_price": 1500,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板両面 4mm 3×9",
+        "unit": "枚",
+        "unit_price": 2025,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板両面 9mm 3×6",
+        "unit": "枚",
+        "unit_price": 2600,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板両面 9mm 3×9",
+        "unit": "枚",
+        "unit_price": 3510,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板両面 12mm 3×6",
+        "unit": "枚",
+        "unit_price": 3400,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板両面 12mm 3×9",
+        "unit": "枚",
+        "unit_price": 4590,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板両面 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 4400,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板両面 15mm 3×9",
+        "unit": "枚",
+        "unit_price": 5940,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板両面 18mm 3×6",
+        "unit": "枚",
+        "unit_price": 5200,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "シナ合板両面 18mm 3×9",
+        "unit": "枚",
+        "unit_price": 7020,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "ランバーコア 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ランバーコア 15mm 3×9",
+        "unit": "枚",
+        "unit_price": 3780,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "ランバーコア 18mm 3×6",
+        "unit": "枚",
+        "unit_price": 3400,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ランバーコア 18mm 3×9",
+        "unit": "枚",
+        "unit_price": 4590,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "ランバーコア 21mm 3×6",
+        "unit": "枚",
+        "unit_price": 4200,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ランバーコア 21mm 3×9",
+        "unit": "枚",
+        "unit_price": 5670,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "ランバーコア 24mm 3×6",
+        "unit": "枚",
+        "unit_price": 5000,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ランバーコア 24mm 3×9",
+        "unit": "枚",
+        "unit_price": 6750,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "ランバーコア 30mm 3×6",
+        "unit": "枚",
+        "unit_price": 6500,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "ランバーコア 30mm 3×9",
+        "unit": "枚",
+        "unit_price": 8775,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "OSB合板 9mm 3×6",
+        "unit": "枚",
+        "unit_price": 1550,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "OSB合板 9mm 3×9",
+        "unit": "枚",
+        "unit_price": 2092,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "OSB合板 11mm 3×6",
+        "unit": "枚",
+        "unit_price": 1900,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "OSB合板 11mm 3×9",
+        "unit": "枚",
+        "unit_price": 2565,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "OSB合板 12mm 3×6",
+        "unit": "枚",
+        "unit_price": 2000,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "OSB合板 12mm 3×9",
+        "unit": "枚",
+        "unit_price": 2700,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "OSB合板 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 2700,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "OSB合板 15mm 3×9",
+        "unit": "枚",
+        "unit_price": 3645,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "OSB合板 18mm 3×6",
+        "unit": "枚",
+        "unit_price": 3400,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "OSB合板 18mm 3×9",
+        "unit": "枚",
+        "unit_price": 4590,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "コンクリート型枠合板 12mm 3×6",
+        "unit": "枚",
+        "unit_price": 2100,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "コンクリート型枠合板 12mm 3×9",
+        "unit": "枚",
+        "unit_price": 2835,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "コンクリート型枠合板 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 2700,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "コンクリート型枠合板 15mm 3×9",
+        "unit": "枚",
+        "unit_price": 3645,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "コンクリート型枠合板 18mm 3×6",
+        "unit": "枚",
+        "unit_price": 3400,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "コンクリート型枠合板 18mm 3×9",
+        "unit": "枚",
+        "unit_price": 4590,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "コンクリート型枠合板 21mm 3×6",
+        "unit": "枚",
+        "unit_price": 4200,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "コンクリート型枠合板 21mm 3×9",
+        "unit": "枚",
+        "unit_price": 5670,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "床用防水合板 12mm 3×6",
+        "unit": "枚",
+        "unit_price": 2600,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "床用防水合板 12mm 3×9",
+        "unit": "枚",
+        "unit_price": 3510,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "床用防水合板 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 3400,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "床用防水合板 15mm 3×9",
+        "unit": "枚",
+        "unit_price": 4590,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "床用防水合板 18mm 3×6",
+        "unit": "枚",
+        "unit_price": 4300,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "床用防水合板 18mm 3×9",
+        "unit": "枚",
+        "unit_price": 5805,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "床用防水合板 24mm 3×6",
+        "unit": "枚",
+        "unit_price": 6100,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "床用防水合板 24mm 3×9",
+        "unit": "枚",
+        "unit_price": 8235,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "耐水合板水回り用 9mm 3×6",
+        "unit": "枚",
+        "unit_price": 1900,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "耐水合板水回り用 9mm 3×9",
+        "unit": "枚",
+        "unit_price": 2565,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "耐水合板水回り用 12mm 3×6",
+        "unit": "枚",
+        "unit_price": 2500,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "耐水合板水回り用 12mm 3×9",
+        "unit": "枚",
+        "unit_price": 3375,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "耐水合板水回り用 15mm 3×6",
+        "unit": "枚",
+        "unit_price": 3300,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "耐水合板水回り用 15mm 3×9",
+        "unit": "枚",
+        "unit_price": 4455,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "耐水合板水回り用 18mm 3×6",
+        "unit": "枚",
+        "unit_price": 4200,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "耐水合板水回り用 18mm 3×9",
+        "unit": "枚",
+        "unit_price": 5670,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      }
+    ],
+    "断熱材全種全厚さ": [
+      {
+        "name": "断熱材 グラスウール（10K） 25mm",
+        "unit": "m2",
+        "unit_price": 460,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（10K） 35mm",
+        "unit": "m2",
+        "unit_price": 540,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（10K） 50mm",
+        "unit": "m2",
+        "unit_price": 660,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（10K） 65mm",
+        "unit": "m2",
+        "unit_price": 780,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（10K） 75mm",
+        "unit": "m2",
+        "unit_price": 860,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（10K） 90mm",
+        "unit": "m2",
+        "unit_price": 980,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（10K） 100mm",
+        "unit": "m2",
+        "unit_price": 1060,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（10K） 120mm",
+        "unit": "m2",
+        "unit_price": 1220,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（10K） 140mm",
+        "unit": "m2",
+        "unit_price": 1380,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（10K） 155mm",
+        "unit": "m2",
+        "unit_price": 1500,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（10K） 170mm",
+        "unit": "m2",
+        "unit_price": 1620,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（10K） 185mm",
+        "unit": "m2",
+        "unit_price": 1740,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（10K） 200mm",
+        "unit": "m2",
+        "unit_price": 1860,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（16K） 25mm",
+        "unit": "m2",
+        "unit_price": 580,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（16K） 35mm",
+        "unit": "m2",
+        "unit_price": 660,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（16K） 50mm",
+        "unit": "m2",
+        "unit_price": 780,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（16K） 65mm",
+        "unit": "m2",
+        "unit_price": 900,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（16K） 75mm",
+        "unit": "m2",
+        "unit_price": 980,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（16K） 90mm",
+        "unit": "m2",
+        "unit_price": 1100,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（16K） 100mm",
+        "unit": "m2",
+        "unit_price": 1180,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（16K） 120mm",
+        "unit": "m2",
+        "unit_price": 1340,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（16K） 140mm",
+        "unit": "m2",
+        "unit_price": 1500,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（16K） 155mm",
+        "unit": "m2",
+        "unit_price": 1620,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（16K） 170mm",
+        "unit": "m2",
+        "unit_price": 1740,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（16K） 185mm",
+        "unit": "m2",
+        "unit_price": 1860,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（16K） 200mm",
+        "unit": "m2",
+        "unit_price": 1980,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（24K） 25mm",
+        "unit": "m2",
+        "unit_price": 780,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（24K） 35mm",
+        "unit": "m2",
+        "unit_price": 860,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（24K） 50mm",
+        "unit": "m2",
+        "unit_price": 980,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（24K） 65mm",
+        "unit": "m2",
+        "unit_price": 1100,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（24K） 75mm",
+        "unit": "m2",
+        "unit_price": 1180,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（24K） 90mm",
+        "unit": "m2",
+        "unit_price": 1300,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（24K） 100mm",
+        "unit": "m2",
+        "unit_price": 1380,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（24K） 120mm",
+        "unit": "m2",
+        "unit_price": 1540,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（24K） 140mm",
+        "unit": "m2",
+        "unit_price": 1700,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（24K） 155mm",
+        "unit": "m2",
+        "unit_price": 1820,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（24K） 170mm",
+        "unit": "m2",
+        "unit_price": 1940,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（24K） 185mm",
+        "unit": "m2",
+        "unit_price": 2060,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（24K） 200mm",
+        "unit": "m2",
+        "unit_price": 2180,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（32K） 25mm",
+        "unit": "m2",
+        "unit_price": 980,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（32K） 35mm",
+        "unit": "m2",
+        "unit_price": 1060,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（32K） 50mm",
+        "unit": "m2",
+        "unit_price": 1180,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（32K） 65mm",
+        "unit": "m2",
+        "unit_price": 1300,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（32K） 75mm",
+        "unit": "m2",
+        "unit_price": 1380,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（32K） 90mm",
+        "unit": "m2",
+        "unit_price": 1500,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（32K） 100mm",
+        "unit": "m2",
+        "unit_price": 1580,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（32K） 120mm",
+        "unit": "m2",
+        "unit_price": 1740,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（32K） 140mm",
+        "unit": "m2",
+        "unit_price": 1900,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（32K） 155mm",
+        "unit": "m2",
+        "unit_price": 2020,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（32K） 170mm",
+        "unit": "m2",
+        "unit_price": 2140,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（32K） 185mm",
+        "unit": "m2",
+        "unit_price": 2260,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 グラスウール（32K） 200mm",
+        "unit": "m2",
+        "unit_price": 2380,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG16K） 25mm",
+        "unit": "m2",
+        "unit_price": 620,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG16K） 35mm",
+        "unit": "m2",
+        "unit_price": 700,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG16K） 50mm",
+        "unit": "m2",
+        "unit_price": 820,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG16K） 65mm",
+        "unit": "m2",
+        "unit_price": 940,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG16K） 75mm",
+        "unit": "m2",
+        "unit_price": 1020,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG16K） 90mm",
+        "unit": "m2",
+        "unit_price": 1140,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG16K） 100mm",
+        "unit": "m2",
+        "unit_price": 1220,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG16K） 120mm",
+        "unit": "m2",
+        "unit_price": 1380,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG16K） 140mm",
+        "unit": "m2",
+        "unit_price": 1540,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG16K） 155mm",
+        "unit": "m2",
+        "unit_price": 1660,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG16K） 170mm",
+        "unit": "m2",
+        "unit_price": 1780,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG16K） 185mm",
+        "unit": "m2",
+        "unit_price": 1900,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG16K） 200mm",
+        "unit": "m2",
+        "unit_price": 2020,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG24K） 25mm",
+        "unit": "m2",
+        "unit_price": 820,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG24K） 35mm",
+        "unit": "m2",
+        "unit_price": 900,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG24K） 50mm",
+        "unit": "m2",
+        "unit_price": 1020,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG24K） 65mm",
+        "unit": "m2",
+        "unit_price": 1140,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG24K） 75mm",
+        "unit": "m2",
+        "unit_price": 1220,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG24K） 90mm",
+        "unit": "m2",
+        "unit_price": 1340,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG24K） 100mm",
+        "unit": "m2",
+        "unit_price": 1420,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG24K） 120mm",
+        "unit": "m2",
+        "unit_price": 1580,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG24K） 140mm",
+        "unit": "m2",
+        "unit_price": 1740,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG24K） 155mm",
+        "unit": "m2",
+        "unit_price": 1860,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG24K） 170mm",
+        "unit": "m2",
+        "unit_price": 1980,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG24K） 185mm",
+        "unit": "m2",
+        "unit_price": 2100,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 高性能グラスウール（HG24K） 200mm",
+        "unit": "m2",
+        "unit_price": 2220,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（40K） 25mm",
+        "unit": "m2",
+        "unit_price": 900,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（40K） 35mm",
+        "unit": "m2",
+        "unit_price": 980,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（40K） 50mm",
+        "unit": "m2",
+        "unit_price": 1100,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（40K） 65mm",
+        "unit": "m2",
+        "unit_price": 1220,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（40K） 75mm",
+        "unit": "m2",
+        "unit_price": 1300,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（40K） 90mm",
+        "unit": "m2",
+        "unit_price": 1420,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（40K） 100mm",
+        "unit": "m2",
+        "unit_price": 1500,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（40K） 120mm",
+        "unit": "m2",
+        "unit_price": 1660,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（40K） 140mm",
+        "unit": "m2",
+        "unit_price": 1820,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（40K） 155mm",
+        "unit": "m2",
+        "unit_price": 1940,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（40K） 170mm",
+        "unit": "m2",
+        "unit_price": 2060,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（40K） 185mm",
+        "unit": "m2",
+        "unit_price": 2180,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（40K） 200mm",
+        "unit": "m2",
+        "unit_price": 2300,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（80K） 25mm",
+        "unit": "m2",
+        "unit_price": 1450,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（80K） 35mm",
+        "unit": "m2",
+        "unit_price": 1530,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（80K） 50mm",
+        "unit": "m2",
+        "unit_price": 1650,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（80K） 65mm",
+        "unit": "m2",
+        "unit_price": 1770,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（80K） 75mm",
+        "unit": "m2",
+        "unit_price": 1850,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（80K） 90mm",
+        "unit": "m2",
+        "unit_price": 1970,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（80K） 100mm",
+        "unit": "m2",
+        "unit_price": 2050,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（80K） 120mm",
+        "unit": "m2",
+        "unit_price": 2210,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（80K） 140mm",
+        "unit": "m2",
+        "unit_price": 2370,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（80K） 155mm",
+        "unit": "m2",
+        "unit_price": 2490,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（80K） 170mm",
+        "unit": "m2",
+        "unit_price": 2610,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（80K） 185mm",
+        "unit": "m2",
+        "unit_price": 2730,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 ロックウール（80K） 200mm",
+        "unit": "m2",
+        "unit_price": 2850,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームIB 25mm",
+        "unit": "m2",
+        "unit_price": 1300,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームIB 35mm",
+        "unit": "m2",
+        "unit_price": 1380,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームIB 50mm",
+        "unit": "m2",
+        "unit_price": 1500,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームIB 65mm",
+        "unit": "m2",
+        "unit_price": 1620,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームIB 75mm",
+        "unit": "m2",
+        "unit_price": 1700,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームIB 90mm",
+        "unit": "m2",
+        "unit_price": 1820,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームIB 100mm",
+        "unit": "m2",
+        "unit_price": 1900,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームIB 120mm",
+        "unit": "m2",
+        "unit_price": 2060,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームIB 140mm",
+        "unit": "m2",
+        "unit_price": 2220,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームIB 155mm",
+        "unit": "m2",
+        "unit_price": 2340,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームIB 170mm",
+        "unit": "m2",
+        "unit_price": 2460,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームIB 185mm",
+        "unit": "m2",
+        "unit_price": 2580,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームIB 200mm",
+        "unit": "m2",
+        "unit_price": 2700,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームEX 25mm",
+        "unit": "m2",
+        "unit_price": 1600,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームEX 35mm",
+        "unit": "m2",
+        "unit_price": 1680,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームEX 50mm",
+        "unit": "m2",
+        "unit_price": 1800,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームEX 65mm",
+        "unit": "m2",
+        "unit_price": 1920,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームEX 75mm",
+        "unit": "m2",
+        "unit_price": 2000,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームEX 90mm",
+        "unit": "m2",
+        "unit_price": 2120,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームEX 100mm",
+        "unit": "m2",
+        "unit_price": 2200,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームEX 120mm",
+        "unit": "m2",
+        "unit_price": 2360,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームEX 140mm",
+        "unit": "m2",
+        "unit_price": 2520,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームEX 155mm",
+        "unit": "m2",
+        "unit_price": 2640,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームEX 170mm",
+        "unit": "m2",
+        "unit_price": 2760,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームEX 185mm",
+        "unit": "m2",
+        "unit_price": 2880,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 スタイロフォームEX 200mm",
+        "unit": "m2",
+        "unit_price": 3000,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 フェノールフォームネオマ 25mm",
+        "unit": "m2",
+        "unit_price": 3700,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 フェノールフォームネオマ 35mm",
+        "unit": "m2",
+        "unit_price": 3780,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 フェノールフォームネオマ 50mm",
+        "unit": "m2",
+        "unit_price": 3900,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 フェノールフォームネオマ 65mm",
+        "unit": "m2",
+        "unit_price": 4020,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 フェノールフォームネオマ 75mm",
+        "unit": "m2",
+        "unit_price": 4100,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 フェノールフォームネオマ 90mm",
+        "unit": "m2",
+        "unit_price": 4220,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 フェノールフォームネオマ 100mm",
+        "unit": "m2",
+        "unit_price": 4300,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 フェノールフォームネオマ 120mm",
+        "unit": "m2",
+        "unit_price": 4460,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 フェノールフォームネオマ 140mm",
+        "unit": "m2",
+        "unit_price": 4620,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 フェノールフォームネオマ 155mm",
+        "unit": "m2",
+        "unit_price": 4740,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 フェノールフォームネオマ 170mm",
+        "unit": "m2",
+        "unit_price": 4860,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 フェノールフォームネオマ 185mm",
+        "unit": "m2",
+        "unit_price": 4980,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 フェノールフォームネオマ 200mm",
+        "unit": "m2",
+        "unit_price": 5100,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 硬質ウレタンボード 25mm",
+        "unit": "m2",
+        "unit_price": 2700,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 硬質ウレタンボード 35mm",
+        "unit": "m2",
+        "unit_price": 2780,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 硬質ウレタンボード 50mm",
+        "unit": "m2",
+        "unit_price": 2900,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 硬質ウレタンボード 65mm",
+        "unit": "m2",
+        "unit_price": 3020,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 硬質ウレタンボード 75mm",
+        "unit": "m2",
+        "unit_price": 3100,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 硬質ウレタンボード 90mm",
+        "unit": "m2",
+        "unit_price": 3220,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 硬質ウレタンボード 100mm",
+        "unit": "m2",
+        "unit_price": 3300,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 硬質ウレタンボード 120mm",
+        "unit": "m2",
+        "unit_price": 3460,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 硬質ウレタンボード 140mm",
+        "unit": "m2",
+        "unit_price": 3620,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 硬質ウレタンボード 155mm",
+        "unit": "m2",
+        "unit_price": 3740,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 硬質ウレタンボード 170mm",
+        "unit": "m2",
+        "unit_price": 3860,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 硬質ウレタンボード 185mm",
+        "unit": "m2",
+        "unit_price": 3980,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "断熱材 硬質ウレタンボード 200mm",
+        "unit": "m2",
+        "unit_price": 4100,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      }
+    ]
+  }
+}

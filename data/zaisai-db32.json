@@ -1,0 +1,1014 @@
+{
+  "version": "2026.04.phase2c",
+  "note": "2026年4月。Phase 2C拡張版 zaisai-db32。最終補完。10,000件達成版。",
+  "categories": {
+    "最終補完全種": [
+      {
+        "name": "VVFケーブル2C 1.6mm 100m（パナソニック）",
+        "unit": "巻",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 5,
+        "memo": ""
+      },
+      {
+        "name": "VVFケーブル3C 1.6mm 100m（住友）",
+        "unit": "巻",
+        "unit_price": 26000,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "IV電線2.0mm 100m（古河）",
+        "unit": "巻",
+        "unit_price": 11000,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "CV電線3C 5.5mm 100m（フジクラ）",
+        "unit": "巻",
+        "unit_price": 42000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤30A 8回路",
+        "unit": "台",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤40A 16回路",
+        "unit": "台",
+        "unit_price": 30000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤50A 24回路",
+        "unit": "台",
+        "unit_price": 48000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "分電盤60A 30回路",
+        "unit": "台",
+        "unit_price": 70800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "コンセント2P15A パナソニック",
+        "unit": "個",
+        "unit_price": 280,
+        "standard_qty_30tsubo": 15,
+        "memo": ""
+      },
+      {
+        "name": "スイッチ片切1口 パナソニック",
+        "unit": "個",
+        "unit_price": 280,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "LANコンセントCat6",
+        "unit": "個",
+        "unit_price": 1200,
+        "standard_qty_30tsubo": 8,
+        "memo": ""
+      },
+      {
+        "name": "テレビコンセントF型",
+        "unit": "個",
+        "unit_price": 980,
+        "standard_qty_30tsubo": 4,
+        "memo": ""
+      },
+      {
+        "name": "ガルバリウム鋼板横葺き0.4mm",
+        "unit": "m2",
+        "unit_price": 4800,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "ガルバリウム鋼板縦葺き0.4mm",
+        "unit": "m2",
+        "unit_price": 4200,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "スレート コロニアルクァッド",
+        "unit": "m2",
+        "unit_price": 3200,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "スレート遮熱タイプ",
+        "unit": "m2",
+        "unit_price": 4800,
+        "standard_qty_30tsubo": 70,
+        "memo": ""
+      },
+      {
+        "name": "外壁サイディング ニチハ16mm石目調",
+        "unit": "m2",
+        "unit_price": 4000,
+        "standard_qty_30tsubo": 130,
+        "memo": ""
+      },
+      {
+        "name": "外壁サイディング ケイミュー14mmフラット調",
+        "unit": "m2",
+        "unit_price": 3200,
+        "standard_qty_30tsubo": 130,
+        "memo": ""
+      },
+      {
+        "name": "システムキッチン LIXIL2400スタンダード",
+        "unit": "式",
+        "unit_price": 620000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ユニットバス TOTO1616スタンダード",
+        "unit": "式",
+        "unit_price": 380000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "洗面台 LIXIL750mmスタンダード",
+        "unit": "式",
+        "unit_price": 110000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "便器 LIXIL タンクレス",
+        "unit": "式",
+        "unit_price": 180000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "給湯器 リンナイ24号エコジョーズ",
+        "unit": "台",
+        "unit_price": 280000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "エアコン パナソニック10畳用スタンダード",
+        "unit": "台",
+        "unit_price": 135000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "グラスウール断熱材105mm16K",
+        "unit": "m2",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 100,
+        "memo": ""
+      },
+      {
+        "name": "フェノールフォーム断熱材50mm",
+        "unit": "m2",
+        "unit_price": 3200,
+        "standard_qty_30tsubo": 30,
+        "memo": ""
+      },
+      {
+        "name": "透湿防水シート標準 幅1m",
+        "unit": "m2",
+        "unit_price": 180,
+        "standard_qty_30tsubo": 200,
+        "memo": ""
+      },
+      {
+        "name": "気密テープブチル75mm",
+        "unit": "巻",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 5,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板12mm3×6",
+        "unit": "枚",
+        "unit_price": 2100,
+        "standard_qty_30tsubo": 150,
+        "memo": ""
+      },
+      {
+        "name": "石膏ボード12.5mm3×9",
+        "unit": "枚",
+        "unit_price": 1050,
+        "standard_qty_30tsubo": 200,
+        "memo": ""
+      },
+      {
+        "name": "コーキング材変性シリコン白333ml",
+        "unit": "本",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 30,
+        "memo": ""
+      },
+      {
+        "name": "防水テープ50mm×20m",
+        "unit": "巻",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 5,
+        "memo": ""
+      },
+      {
+        "name": "単管足場30坪1月",
+        "unit": "式",
+        "unit_price": 180000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "くさび緊結式足場30坪2月",
+        "unit": "式",
+        "unit_price": 280000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "木造解体費坪単価重機",
+        "unit": "坪",
+        "unit_price": 45000,
+        "standard_qty_30tsubo": 30,
+        "memo": ""
+      },
+      {
+        "name": "廃棄物収集運搬4tトラック",
+        "unit": "台",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "タイル目地材白1kg",
+        "unit": "袋",
+        "unit_price": 580,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "レンガ標準210×100×60",
+        "unit": "個",
+        "unit_price": 280,
+        "standard_qty_30tsubo": 100,
+        "memo": ""
+      },
+      {
+        "name": "手摺直線型ステンレス35φ 1m",
+        "unit": "本",
+        "unit_price": 6800,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "床段差スロープアルミ1m",
+        "unit": "本",
+        "unit_price": 8500,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "住宅用火災警報器煙式",
+        "unit": "個",
+        "unit_price": 3200,
+        "standard_qty_30tsubo": 5,
+        "memo": ""
+      },
+      {
+        "name": "消火器10型粉末",
+        "unit": "本",
+        "unit_price": 3800,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "防犯カメラ屋外2MP防水",
+        "unit": "台",
+        "unit_price": 12000,
+        "standard_qty_30tsubo": 4,
+        "memo": ""
+      },
+      {
+        "name": "電子錠テンキー式",
+        "unit": "個",
+        "unit_price": 28000,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "自動水栓センサー式",
+        "unit": "個",
+        "unit_price": 35000,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "緊急呼び出しボタン",
+        "unit": "個",
+        "unit_price": 8500,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "太陽光パネル400W（長州産業）",
+        "unit": "枚",
+        "unit_price": 68000,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "蓄電池6.5kWh（ニチコン）",
+        "unit": "台",
+        "unit_price": 630000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "EV充電設備普通3kW",
+        "unit": "台",
+        "unit_price": 150000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "床暖房システム温水6畳",
+        "unit": "式",
+        "unit_price": 280000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "HEMS標準システム",
+        "unit": "式",
+        "unit_price": 250000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "低E複層ガラス透明",
+        "unit": "m2",
+        "unit_price": 12000,
+        "standard_qty_30tsubo": 15,
+        "memo": ""
+      },
+      {
+        "name": "真空ガラススペーシア",
+        "unit": "m2",
+        "unit_price": 45000,
+        "standard_qty_30tsubo": 6,
+        "memo": ""
+      },
+      {
+        "name": "断熱窓内窓樹脂",
+        "unit": "枚",
+        "unit_price": 45000,
+        "standard_qty_30tsubo": 6,
+        "memo": ""
+      },
+      {
+        "name": "防蟻処理剤マイクロカプセル18L",
+        "unit": "缶",
+        "unit_price": 28000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "シロアリ駆除剤バリア18L",
+        "unit": "缶",
+        "unit_price": 35000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "珪藻土内装用5kg",
+        "unit": "袋",
+        "unit_price": 3800,
+        "standard_qty_30tsubo": 8,
+        "memo": ""
+      },
+      {
+        "name": "漆喰本漆喰5kg",
+        "unit": "袋",
+        "unit_price": 8500,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "ジョリパット外壁用20kg",
+        "unit": "缶",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "外壁用弾性シリコン16kg",
+        "unit": "缶",
+        "unit_price": 32000,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "屋根用遮熱シリコン15kg",
+        "unit": "缶",
+        "unit_price": 38000,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "ガイナ遮熱断熱16kg",
+        "unit": "缶",
+        "unit_price": 55000,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "防腐剤キシラデコール4L",
+        "unit": "缶",
+        "unit_price": 8500,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "防腐剤ACQ水性18L",
+        "unit": "缶",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ローラー9インチ平目",
+        "unit": "本",
+        "unit_price": 480,
+        "standard_qty_30tsubo": 5,
+        "memo": ""
+      },
+      {
+        "name": "マスキングテープ18mm塗装",
+        "unit": "巻",
+        "unit_price": 180,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "コーキングガン標準",
+        "unit": "個",
+        "unit_price": 1200,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "マスカー550mm×25m",
+        "unit": "巻",
+        "unit_price": 380,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "造作材杉15×120×4m",
+        "unit": "本",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "鴨居杉1間用",
+        "unit": "本",
+        "unit_price": 3200,
+        "standard_qty_30tsubo": 4,
+        "memo": ""
+      },
+      {
+        "name": "障子標準910×1820",
+        "unit": "枚",
+        "unit_price": 8500,
+        "standard_qty_30tsubo": 4,
+        "memo": ""
+      },
+      {
+        "name": "棚柱ロイヤル1820mm",
+        "unit": "本",
+        "unit_price": 3800,
+        "standard_qty_30tsubo": 4,
+        "memo": ""
+      },
+      {
+        "name": "クローゼットハンガーφ25 2m",
+        "unit": "本",
+        "unit_price": 1200,
+        "standard_qty_30tsubo": 4,
+        "memo": ""
+      },
+      {
+        "name": "巾木木製薄型50×2.5m",
+        "unit": "本",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "廻り縁木製30×2.5m",
+        "unit": "本",
+        "unit_price": 480,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "見切り材T型アルミ2m",
+        "unit": "本",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "捨貼合板12mm3×6",
+        "unit": "枚",
+        "unit_price": 2000,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "野縁30×40×4m",
+        "unit": "本",
+        "unit_price": 420,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "LGSスタッド65mm",
+        "unit": "本",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "コーナービード2.5m",
+        "unit": "本",
+        "unit_price": 280,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "人工芝高品質1m2",
+        "unit": "m2",
+        "unit_price": 4800,
+        "standard_qty_30tsubo": 15,
+        "memo": ""
+      },
+      {
+        "name": "インターロッキング標準",
+        "unit": "m2",
+        "unit_price": 5800,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "デッキ用コンクリート束石",
+        "unit": "個",
+        "unit_price": 580,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "防草シート1m×10m",
+        "unit": "巻",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "芝生コウライシバ1m2",
+        "unit": "m2",
+        "unit_price": 1200,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "外構用LED照明ポールH600",
+        "unit": "個",
+        "unit_price": 18000,
+        "standard_qty_30tsubo": 3,
+        "memo": ""
+      },
+      {
+        "name": "アルミフェンスH1200 1m",
+        "unit": "m",
+        "unit_price": 7500,
+        "standard_qty_30tsubo": 5,
+        "memo": ""
+      },
+      {
+        "name": "カーポート1台用LIXIL",
+        "unit": "式",
+        "unit_price": 280000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "宅配ボックス標準",
+        "unit": "個",
+        "unit_price": 45000,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "ウッドデッキ材人工木1m2",
+        "unit": "m2",
+        "unit_price": 8500,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "断熱材ロックウール40K50mm",
+        "unit": "m2",
+        "unit_price": 720,
+        "standard_qty_30tsubo": 30,
+        "memo": ""
+      },
+      {
+        "name": "断熱材セルロースファイバー",
+        "unit": "m2",
+        "unit_price": 1850,
+        "standard_qty_30tsubo": 30,
+        "memo": ""
+      },
+      {
+        "name": "断熱材炭化コルク50mm",
+        "unit": "m2",
+        "unit_price": 5200,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "外断熱EPS50mm",
+        "unit": "m2",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 50,
+        "memo": ""
+      },
+      {
+        "name": "保温材配管用13mm",
+        "unit": "本",
+        "unit_price": 380,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "吸音材グラスウール50mm",
+        "unit": "m2",
+        "unit_price": 880,
+        "standard_qty_30tsubo": 15,
+        "memo": ""
+      },
+      {
+        "name": "防音シート重量型1m2",
+        "unit": "m2",
+        "unit_price": 1800,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "遮音シート1m2",
+        "unit": "m2",
+        "unit_price": 2200,
+        "standard_qty_30tsubo": 15,
+        "memo": ""
+      },
+      {
+        "name": "プレート1口用",
+        "unit": "個",
+        "unit_price": 120,
+        "standard_qty_30tsubo": 30,
+        "memo": ""
+      },
+      {
+        "name": "埋込ボックス2個用",
+        "unit": "個",
+        "unit_price": 120,
+        "standard_qty_30tsubo": 30,
+        "memo": ""
+      },
+      {
+        "name": "アウトレットボックス4×4",
+        "unit": "個",
+        "unit_price": 280,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "CD管16mm30m",
+        "unit": "巻",
+        "unit_price": 1800,
+        "standard_qty_30tsubo": 4,
+        "memo": ""
+      },
+      {
+        "name": "PF管22mm30m",
+        "unit": "巻",
+        "unit_price": 3200,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "ケーブルステープル1.6用",
+        "unit": "箱",
+        "unit_price": 380,
+        "standard_qty_30tsubo": 5,
+        "memo": ""
+      },
+      {
+        "name": "差込コネクタ2本用",
+        "unit": "個",
+        "unit_price": 38,
+        "standard_qty_30tsubo": 100,
+        "memo": ""
+      },
+      {
+        "name": "絶縁テープ黒",
+        "unit": "巻",
+        "unit_price": 180,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "アース棒10mm×900mm",
+        "unit": "本",
+        "unit_price": 1200,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      },
+      {
+        "name": "検電器低圧用",
+        "unit": "個",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 1,
+        "memo": ""
+      },
+      {
+        "name": "生コン21-18-20通常",
+        "unit": "m3",
+        "unit_price": 23500,
+        "standard_qty_30tsubo": 5,
+        "memo": ""
+      },
+      {
+        "name": "砕石RC-40地業用",
+        "unit": "m3",
+        "unit_price": 4200,
+        "standard_qty_30tsubo": 8,
+        "memo": ""
+      },
+      {
+        "name": "鉄筋D10",
+        "unit": "ton",
+        "unit_price": 118000,
+        "standard_qty_30tsubo": 0.4,
+        "memo": ""
+      },
+      {
+        "name": "鉄筋D13",
+        "unit": "ton",
+        "unit_price": 120000,
+        "standard_qty_30tsubo": 0.6,
+        "memo": ""
+      },
+      {
+        "name": "アンカーボルトM12×600",
+        "unit": "本",
+        "unit_price": 280,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "スペーサー60mm",
+        "unit": "個",
+        "unit_price": 25,
+        "standard_qty_30tsubo": 200,
+        "memo": ""
+      },
+      {
+        "name": "型枠合板12mm3×6",
+        "unit": "枚",
+        "unit_price": 2100,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "セパレーター",
+        "unit": "本",
+        "unit_price": 80,
+        "standard_qty_30tsubo": 200,
+        "memo": ""
+      },
+      {
+        "name": "防湿フィルム0.1mm",
+        "unit": "m2",
+        "unit_price": 80,
+        "standard_qty_30tsubo": 100,
+        "memo": ""
+      },
+      {
+        "name": "スタイロフォーム50mm基礎断熱",
+        "unit": "m2",
+        "unit_price": 1800,
+        "standard_qty_30tsubo": 55,
+        "memo": ""
+      },
+      {
+        "name": "土台105×105×4m米松",
+        "unit": "本",
+        "unit_price": 4200,
+        "standard_qty_30tsubo": 30,
+        "memo": ""
+      },
+      {
+        "name": "大引90×90×4m",
+        "unit": "本",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "1階柱105×105×3m",
+        "unit": "本",
+        "unit_price": 3800,
+        "standard_qty_30tsubo": 30,
+        "memo": ""
+      },
+      {
+        "name": "梁105×210×4m",
+        "unit": "本",
+        "unit_price": 6800,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "垂木45×60×4m",
+        "unit": "本",
+        "unit_price": 980,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "間柱30×105×3m",
+        "unit": "本",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "筋交い45×90×4m",
+        "unit": "本",
+        "unit_price": 1200,
+        "standard_qty_30tsubo": 30,
+        "memo": ""
+      },
+      {
+        "name": "構造用合板24mm床根太レス",
+        "unit": "枚",
+        "unit_price": 4200,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      },
+      {
+        "name": "ダイライト9mm3×9",
+        "unit": "枚",
+        "unit_price": 3800,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "野地板12mm3×6",
+        "unit": "枚",
+        "unit_price": 2000,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "養生テープ50mm×25m",
+        "unit": "巻",
+        "unit_price": 180,
+        "standard_qty_30tsubo": 40,
+        "memo": ""
+      },
+      {
+        "name": "安全ネット1.8×5.4m",
+        "unit": "枚",
+        "unit_price": 1800,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "仮囲い板1.8×0.9m",
+        "unit": "枚",
+        "unit_price": 1200,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "単管パイプ3m",
+        "unit": "本",
+        "unit_price": 980,
+        "standard_qty_30tsubo": 60,
+        "memo": ""
+      }
+    ],
+    "最終補完追加9件": [
+      {
+        "name": "ホールダウン金物HD15",
+        "unit": "個",
+        "unit_price": 2800,
+        "standard_qty_30tsubo": 12,
+        "memo": ""
+      },
+      {
+        "name": "コーススレッド3.8×75 500本",
+        "unit": "箱",
+        "unit_price": 1800,
+        "standard_qty_30tsubo": 8,
+        "memo": ""
+      },
+      {
+        "name": "防湿シート0.2mm",
+        "unit": "m2",
+        "unit_price": 120,
+        "standard_qty_30tsubo": 100,
+        "memo": ""
+      },
+      {
+        "name": "ルーフィング改質アスファルト",
+        "unit": "m2",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 80,
+        "memo": ""
+      },
+      {
+        "name": "棟包みガルバ1m",
+        "unit": "m",
+        "unit_price": 1800,
+        "standard_qty_30tsubo": 12,
+        "memo": ""
+      },
+      {
+        "name": "雨樋丸型φ60 3m",
+        "unit": "本",
+        "unit_price": 980,
+        "standard_qty_30tsubo": 20,
+        "memo": ""
+      },
+      {
+        "name": "竪樋丸型φ60 3m",
+        "unit": "本",
+        "unit_price": 680,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "カラーコーン700mm",
+        "unit": "個",
+        "unit_price": 980,
+        "standard_qty_30tsubo": 10,
+        "memo": ""
+      },
+      {
+        "name": "安全帯胴ベルト型",
+        "unit": "個",
+        "unit_price": 5800,
+        "standard_qty_30tsubo": 2,
+        "memo": ""
+      }
+    ]
+  },
+  "資材高騰情報_2026年4月": {
+    "総合指数_2021年比": "建築部門37%上昇",
+    "直近_2024年12月比": "5〜6%上昇",
+    "特に高騰している品目": [
+      "VVFケーブル（銅高騰）：前年比8〜12%上昇",
+      "生コンクリート：前年比6〜10%上昇",
+      "鉄筋（D10〜D16）：前年比8〜15%上昇",
+      "ガルバリウム鋼板：前年比10〜18%上昇",
+      "構造用合板：前年比5〜8%上昇"
+    ],
+    "品薄・納期遅延品目": [
+      "給湯器（部品不足継続）",
+      "フェノールフォーム系断熱材（受注制限）",
+      "EV充電設備（需要急増）"
+    ],
+    "出典": "クラフトバンク総研2026年4月・日建連2026年1月・経済調査会2026年4月"
+  }
+}
