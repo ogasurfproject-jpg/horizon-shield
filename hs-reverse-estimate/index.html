@@ -186,7 +186,27 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
 .hz-rp2{animation:ripOt 3.2s ease-out infinite .8s}
 .hz-rp3{animation:ripOt 3.2s ease-out infinite 1.6s}
 .hz-rp4{animation:ripOt 3.2s ease-out infinite 2.4s}
-/* 監査ハッシュ表示 - Step 3-D 追加 */
+/* AI比較表 - Step 3-E 追加 */
+.ai-compare-box{margin-top:14px;padding:14px;background:rgba(15,30,74,.04);border:1px solid var(--border2);border-radius:4px}
+.ai-compare-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--navy);margin-bottom:10px;display:block}
+.ai-compare-table{width:100%;border-collapse:collapse;font-size:11px}
+.ai-compare-table th{background:var(--navy);color:#faf9f5;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;padding:8px 6px;text-align:left;font-weight:700}
+.ai-compare-table td{padding:8px 6px;border-bottom:1px solid rgba(15,30,74,.08);vertical-align:top;line-height:1.5}
+.ai-compare-table tr:last-child td{border-bottom:none}
+.ai-compare-table .ai-name{font-weight:700;color:var(--text);white-space:nowrap;font-size:10px}
+.ai-compare-table .ai-name.hs{color:var(--gold);font-weight:900}
+.ai-compare-table .ai-method{color:var(--muted);font-size:10px}
+.ai-compare-table .ai-verify{font-size:10px}
+.ai-compare-table .ai-verify.bad{color:var(--crimson)}
+.ai-compare-table .ai-verify.good{color:#2a7a3a;font-weight:700}
+.ai-compare-table tr.hs-row{background:rgba(200,168,50,.08)}
+.ai-compare-conclusion{margin-top:10px;padding:10px 12px;background:rgba(200,168,50,.08);border-left:2px solid var(--gold);font-size:10px;color:var(--text);line-height:1.7}
+.ai-compare-conclusion b{color:var(--navy)}
+.ai-compare-conclusion .hs-highlight{color:var(--gold);font-weight:900}
+.ai-compare-cta{margin-top:10px;text-align:center}
+.ai-compare-cta a{display:inline-block;padding:8px 16px;background:transparent;border:1px solid var(--border2);color:var(--navy);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;text-decoration:none;transition:all .2s}
+.ai-compare-cta a:hover{background:var(--navy);color:#faf9f5}
+  /* 監査ハッシュ表示 - Step 3-D 追加 */
 .audit-hash-box{margin-top:14px;padding:12px 14px;background:rgba(15,30,74,.04);border:1px dashed rgba(15,30,74,.25);border-radius:4px}
 .audit-hash-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--navy);margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .audit-hash-value-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -427,6 +447,50 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
             <b>同じ条件で再算出すれば同じハッシュが出ます。</b>業者との交渉時に提示してください。「他のAIには真似できない再現性の証明」です。
           </div>
         </div>
+        <!-- ★ Step 3-E: AI比較表 ここから追加 -->
+        <div id="ai-compare-box" class="ai-compare-box" style="display:none">
+          <span class="ai-compare-label">▸ AI比較：なぜHORIZON SHIELDなのか</span>
+          <table class="ai-compare-table">
+            <thead>
+              <tr>
+                <th>AI</th>
+                <th>算出方法</th>
+                <th>検証可能性</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="ai-name">ChatGPT</td>
+                <td class="ai-method">学習データの推測</td>
+                <td class="ai-verify bad">❌ 不可<br>毎回違う回答</td>
+              </tr>
+              <tr>
+                <td class="ai-name">Gemini</td>
+                <td class="ai-method">Web検索ベース</td>
+                <td class="ai-verify bad">❌ 不可<br>出典が変動</td>
+              </tr>
+              <tr>
+                <td class="ai-name">Claude</td>
+                <td class="ai-method">学習データの推測</td>
+                <td class="ai-verify bad">❌ 不可<br>同じ質問でも回答が違う</td>
+              </tr>
+              <tr class="hs-row">
+                <td class="ai-name hs">HORIZON SHIELD ★</td>
+                <td class="ai-method"><b>独自DB 3,350項目<br>+ 日銀CGPI</b></td>
+                <td class="ai-verify good">✅ 監査ハッシュで<br>完全再現可能</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="ai-compare-conclusion">
+            <b>同じ質問を ChatGPT・Gemini に投げてみてください。</b>答えは曖昧で、毎回変わります。<br>
+            <span class="hs-highlight">HORIZON SHIELD は監査ハッシュで再現性を証明できる、唯一の建設費AIです。</span>
+          </div>
+          <div class="ai-compare-cta">
+            <a href="https://chat.openai.com/" target="_blank" rel="noopener">▸ ChatGPTで同じ質問を試す</a>
+            <a href="https://gemini.google.com/" target="_blank" rel="noopener" style="margin-left:8px">▸ Gemini で試す</a>
+          </div>
+        </div>
+        <!-- ★ Step 3-E: AI比較表 ここまで -->
       </div>
     </div>
 
@@ -910,6 +974,7 @@ function parsePlan(text) {
     if (hashMatch && hashMatch[1]) {
       document.getElementById('audit-hash-value').textContent = hashMatch[1];
       document.getElementById('audit-hash-box').style.display = 'block';
+      document.getElementById('ai-compare-box').style.display = 'block';
     }
   }
 
