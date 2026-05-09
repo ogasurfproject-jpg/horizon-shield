@@ -186,7 +186,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
 .hz-rp2{animation:ripOt 3.2s ease-out infinite .8s}
 .hz-rp3{animation:ripOt 3.2s ease-out infinite 1.6s}
 .hz-rp4{animation:ripOt 3.2s ease-out infinite 2.4s}
-/* CV (Coefficient of Variation) バッジ - Step 3-C 追加 */
+/* 監査ハッシュ表示 - Step 3-D 追加 */
+.audit-hash-box{margin-top:14px;padding:12px 14px;background:rgba(15,30,74,.04);border:1px dashed rgba(15,30,74,.25);border-radius:4px}
+.audit-hash-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--navy);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.audit-hash-value-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.audit-hash-value{flex:1;min-width:140px;font-family:'Share Tech Mono',monospace;font-size:14px;font-weight:700;color:var(--gold);letter-spacing:1px;background:#0f1e4a;padding:8px 12px;border-radius:3px;user-select:all;word-break:break-all}
+.audit-hash-copy-btn{font-family:'Share Tech Mono',monospace;font-size:10px;background:var(--navy);color:#faf9f5;border:none;padding:8px 14px;cursor:pointer;letter-spacing:1px;border-radius:3px;display:flex;align-items:center;gap:5px;transition:all .2s}
+.audit-hash-copy-btn:hover{background:var(--gold);color:var(--navy)}
+.audit-hash-copy-btn.copied{background:#2a7a3a;color:#fff}
+.audit-hash-explain{font-size:10px;color:var(--muted);margin-top:8px;line-height:1.7;font-style:italic}
+.audit-hash-explain b{color:var(--navy);font-style:normal}
+  /* CV (Coefficient of Variation) バッジ - Step 3-C 追加 */
 .cv-badges-wrap{padding:14px 20px 0;display:flex;flex-direction:column;gap:8px}
 .cv-badge-row{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--muted)}
 .cv-badge-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--navy);min-width:60px}
@@ -394,11 +404,29 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
         <div id="advice-text"></div>
       </div>
     </div>
-    <!-- 出典・トレーサビリティ（Step 3-B 追加） -->
+   <!-- 出典・トレーサビリティ（Step 3-B 追加 / Step 3-D 監査ハッシュ追加） -->
     <div id="provenance-wrap" style="display:none">
       <div class="advice-box" style="border-left-color:var(--gold);background:rgba(200,168,50,.04)">
         <div class="adv-label" style="color:var(--gold)">▸ 算出根拠・出典（他のAIにはない透明性）</div>
         <div id="provenance-text" style="font-size:11px;color:var(--text);line-height:1.8;font-family:'Share Tech Mono',monospace"></div>
+        
+        <!-- 監査ハッシュ -->
+        <div id="audit-hash-box" class="audit-hash-box" style="display:none">
+          <div class="audit-hash-label">▸ 監査ハッシュ（再現性証明）</div>
+          <div class="audit-hash-value-row">
+            <div class="audit-hash-value" id="audit-hash-value">--</div>
+            <button class="audit-hash-copy-btn" id="audit-hash-copy" onclick="copyAuditHash()">
+              <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="4" y="4" width="9" height="9" rx="1"/>
+                <path d="M3 11V3a1 1 0 011-1h8"/>
+              </svg>
+              <span id="audit-hash-copy-label">コピー</span>
+            </button>
+          </div>
+          <div class="audit-hash-explain">
+            <b>同じ条件で再算出すれば同じハッシュが出ます。</b>業者との交渉時に提示してください。「他のAIには真似できない再現性の証明」です。
+          </div>
+        </div>
       </div>
     </div>
 
@@ -872,10 +900,17 @@ function parsePlan(text) {
     document.getElementById('advice-text').textContent = adv.trim();
     document.getElementById('advice-wrap').style.display = 'block';
   }
-  // 出典・トレーサビリティ（Step 3-B 追加）
+  // 出典・トレーサビリティ（Step 3-B 追加 / Step 3-D 監査ハッシュ追加）
   if (provenance.trim()) {
     document.getElementById('provenance-text').textContent = provenance.trim();
     document.getElementById('provenance-wrap').style.display = 'block';
+    
+    // 監査ハッシュ抽出（Step 3-D）
+    var hashMatch = provenance.match(/監査ハッシュ[：:]\s*([a-f0-9]{8,})/i);
+    if (hashMatch && hashMatch[1]) {
+      document.getElementById('audit-hash-value').textContent = hashMatch[1];
+      document.getElementById('audit-hash-box').style.display = 'block';
+    }
   }
 
   lastParsedResult = { koji: koji.trim(), plans: { matsu: mR, take: tR, ume: uR }, advice: adv.trim() };
@@ -886,7 +921,53 @@ function parsePlan(text) {
   }, 80);
 }
 
-/* ── payment ── */
+/* ── 監査ハッシュ コピー機能（Step 3-D 追加） ── */
+function copyAuditHash() {
+  var hashEl = document.getElementById('audit-hash-value');
+  var btn = document.getElementById('audit-hash-copy');
+  var label = document.getElementById('audit-hash-copy-label');
+  if (!hashEl) return;
+  var hash = hashEl.textContent.trim();
+  if (!hash || hash === '--') return;
+  
+  // クリップボードにコピー
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(hash).then(function() {
+      btn.classList.add('copied');
+      label.textContent = 'コピー完了！';
+      setTimeout(function() {
+        btn.classList.remove('copied');
+        label.textContent = 'コピー';
+      }, 2000);
+    }).catch(function() {
+      fallbackCopy(hash, btn, label);
+    });
+  } else {
+    fallbackCopy(hash, btn, label);
+  }
+}
+
+function fallbackCopy(text, btn, label) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    btn.classList.add('copied');
+    label.textContent = 'コピー完了！';
+    setTimeout(function() {
+      btn.classList.remove('copied');
+      label.textContent = 'コピー';
+    }, 2000);
+  } catch (e) {
+    label.textContent = 'コピー失敗';
+  }
+  document.body.removeChild(ta);
+}
+  /* ── payment ── */
 function openPaymentModal() {
   if (!lastParsedResult) { alert('先にヒアリングを完了してください'); return; }
   document.getElementById('payment-modal').style.display = 'flex';
