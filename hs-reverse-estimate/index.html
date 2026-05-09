@@ -186,7 +186,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
 .hz-rp2{animation:ripOt 3.2s ease-out infinite .8s}
 .hz-rp3{animation:ripOt 3.2s ease-out infinite 1.6s}
 .hz-rp4{animation:ripOt 3.2s ease-out infinite 2.4s}
-.used-banner{background:var(--bg2);border:1px solid var(--border2);padding:32px;text-align:center;margin-bottom:20px}
+/* CV (Coefficient of Variation) バッジ - Step 3-C 追加 */
+.cv-badges-wrap{padding:14px 20px 0;display:flex;flex-direction:column;gap:8px}
+.cv-badge-row{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--muted)}
+.cv-badge-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--navy);min-width:60px}
+.cv-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#c8a832,#d4af37);color:#fff;padding:3px 10px;border-radius:12px;font-family:'Share Tech Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.5px;box-shadow:0 1px 3px rgba(200,168,50,.3)}
+.cv-badge::before{content:'±';font-weight:900;margin-right:1px}
+.cv-explain{font-size:10px;color:var(--muted);padding:8px 20px 0;line-height:1.7;font-style:italic}
+.cv-explain b{color:var(--gold);font-style:normal}
+  .used-banner{background:var(--bg2);border:1px solid var(--border2);padding:32px;text-align:center;margin-bottom:20px}
 </style>
 <script src="https://www.paypal.com/sdk/js?client-id=AVePXfDeP_YDUgmcFEJNjFHuYkbXZ-VQcLEecJs5Li2la9qDbtZJamy-iXzTxWlPdUODt6KNV3nqUKHP&currency=JPY&locale=ja_JP"></script>
 </head>
@@ -357,6 +365,28 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
       <div class="redflag-remaining" id="redflag-remaining">残り ? 項目 + 交渉テンプレ + 補助金情報 + PDF（9ページ）は¥5,500で確認</div>
     </div>
 
+    <!-- CV 誤差バンド表示（Step 3-C 追加） -->
+    <div id="cv-section" style="display:none">
+      <div class="cv-explain">
+        <b>▸ 誤差バンド（CV）</b>とは、業者間の価格バラつきを示す変動係数です。値が小さいほど価格が安定しており、大きいほど業者選びで価格差が出やすいことを意味します。
+      </div>
+      <div class="cv-badges-wrap">
+        <div class="cv-badge-row">
+          <span class="cv-badge-label">MATSU / 松</span>
+          <span class="cv-badge" id="cv-matsu">--</span>
+        </div>
+        <div class="cv-badge-row">
+          <span class="cv-badge-label">TAKE / 竹</span>
+          <span class="cv-badge" id="cv-take">--</span>
+        </div>
+        <div class="cv-badge-row">
+          <span class="cv-badge-label">UME / 梅</span>
+          <span class="cv-badge" id="cv-ume">--</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- アドバイス -->
     <!-- アドバイス -->
     <div id="advice-wrap" style="display:none">
       <div class="advice-box">
@@ -823,6 +853,20 @@ function parsePlan(text) {
   document.getElementById('redflag-remaining').textContent =
     '残り ' + (Math.floor(riskScore / 12) + 4) + ' 項目 + 交渉テンプレ + 補助金情報 + PDF（9ページ）は¥5,500で確認';
 
+ // CV 抽出・表示（Step 3-C 追加）
+  function extractCV(s) {
+    var m = s.match(/CV\s*±([\d.]+)\s*%/);
+    return m ? m[1] : null;
+  }
+  var cvMatsu = extractCV(matsu);
+  var cvTake  = extractCV(take);
+  var cvUme   = extractCV(ume);
+  if (cvMatsu || cvTake || cvUme) {
+    document.getElementById('cv-matsu').textContent = cvMatsu ? cvMatsu + '%' : 'N/A';
+    document.getElementById('cv-take').textContent  = cvTake  ? cvTake  + '%' : 'N/A';
+    document.getElementById('cv-ume').textContent   = cvUme   ? cvUme   + '%' : 'N/A';
+    document.getElementById('cv-section').style.display = 'block';
+  }
   // アドバイス
   if (adv.trim()) {
     document.getElementById('advice-text').textContent = adv.trim();
