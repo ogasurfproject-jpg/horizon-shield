@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HORIZON SHIELD — Pitch Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=Cormorant:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--gold:#C8A84B;
+--gold-light:#E8C96A;
+--gold-dim:#8A6F2E;
+--ink:#080808;
+--ink2:#0E0E0E;
+--white:#F5F0E8;
+--white-dim:rgba(245,240,232,0.55);
+--white-faint:rgba(245,240,232,0.12);
+--red:#C84B4B;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--ink);color:var(--white);font-family:'IBM Plex Mono',monospace}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:7vw 9vw;opacity:0;transform:translateY(32px);transition:opacity 0.65s cubic-bezier(.4,0,.2,1),transform 0.65s cubic-bezier(.4,0,.2,1);pointer-events:none}
+.slide.active{opacity:1;transform:translateY(0);pointer-events:all}
+.slide.exit{opacity:0;transform:translateY(-32px)}
+
+/* NAV */
+nav{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:100}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--white-faint);border:1px solid var(--gold-dim);cursor:pointer;transition:all .3s}
+.dot.active{background:var(--gold);border-color:var(--gold);transform:scale(1.25)}
+.arrows{position:fixed;bottom:2.5rem;right:3rem;display:flex;gap:1rem;z-index:100}
+.arr{background:none;border:1px solid var(--gold-dim);color:var(--gold);width:40px;height:40px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:1.1rem;transition:all .2s}
+.arr:hover{background:var(--gold);color:var(--ink)}
+.slide-num{position:fixed;top:2rem;right:3rem;font-size:11px;color:var(--white-dim);letter-spacing:.2em;z-index:100}
+.logo-mark{position:fixed;top:2rem;left:3rem;font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:.3em;color:var(--gold-dim);z-index:100}
+
+/* GRID LINES */
+.grid-lines{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.03}
+.grid-lines::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 79px,var(--white) 80px)}
+.grid-lines::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 79px,var(--white) 80px)}
+
+/* TYPOGRAPHY */
+.eyebrow{font-size:11px;letter-spacing:.35em;color:var(--gold);text-transform:uppercase;margin-bottom:1.5rem;font-weight:400}
+.display{font-family:'Cormorant Garamond',serif;font-size:clamp(3.2rem,7.5vw,7rem);font-weight:600;line-height:1.0;color:var(--white);margin-bottom:1.2rem}
+.display em{font-style:italic;color:var(--gold);font-weight:300}
+.subtitle{font-size:clamp(0.9rem,1.4vw,1.15rem);color:var(--white-dim);line-height:1.8;max-width:680px;font-weight:300}
+.rule{width:60px;height:1px;background:var(--gold);margin:2rem 0}
+.mono{font-family:'IBM Plex Mono',monospace}
+
+/* SLIDE 1 — COVER */
+#s1{background:var(--ink)}
+#s1 .bg-cross{position:absolute;right:8vw;top:50%;transform:translateY(-50%);opacity:0.06;font-size:38vw;font-family:'Cormorant Garamond',serif;color:var(--white);pointer-events:none;user-select:none;line-height:1}
+#s1 .tag{display:inline-block;border:1px solid var(--gold);padding:6px 14px;font-size:10px;letter-spacing:.3em;color:var(--gold);margin-bottom:2.5rem}
+#s1 .url{margin-top:3rem;font-size:12px;color:var(--white-dim);letter-spacing:.15em}
+#s1 .url span{color:var(--gold)}
+
+/* SLIDE 2 — PROBLEM */
+#s2 .stat-row{display:flex;gap:4vw;margin:2.5rem 0;align-items:flex-end}
+.stat-block{display:flex;flex-direction:column}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,5.5vw,5.5rem);font-weight:600;color:var(--gold);line-height:1}
+.stat-label{font-size:11px;letter-spacing:.2em;color:var(--white-dim);margin-top:.4rem;text-transform:uppercase}
+.divider-v{width:1px;height:80px;background:var(--white-faint);align-self:center}
+.fraud-box{border:1px solid var(--red);padding:1rem 1.5rem;margin-top:1.5rem;max-width:700px;display:flex;align-items:center;gap:1rem}
+.fraud-box .kanji{font-family:'Cormorant Garamond',serif;font-size:2.5rem;color:var(--red);min-width:60px}
+.fraud-box p{font-size:12px;color:var(--white-dim);line-height:1.7}
+.fraud-box p strong{color:var(--white);font-weight:500}
+
+/* SLIDE 3 — STORY */
+#s3 .timeline{display:flex;flex-direction:column;gap:0;margin:2rem 0;position:relative;max-width:680px}
+.t-item{display:flex;gap:2rem;align-items:flex-start;padding-bottom:1.8rem;position:relative}
+.t-item:not(:last-child)::after{content:'';position:absolute;left:22px;top:44px;width:1px;bottom:0;background:var(--white-faint)}
+.t-year{font-size:11px;letter-spacing:.2em;color:var(--gold);min-width:45px;margin-top:3px;text-align:right}
+.t-dot{width:9px;height:9px;border-radius:50%;border:1px solid var(--gold);background:var(--ink);flex-shrink:0;margin-top:4px}
+.t-dot.filled{background:var(--gold)}
+.t-text{font-size:13px;color:var(--white-dim);line-height:1.7}
+.t-text strong{color:var(--white);font-weight:400;display:block;font-size:14px;margin-bottom:.2rem}
+#s3 .quote{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(1.4rem,2.5vw,2rem);color:var(--white-dim);margin-top:1rem;max-width:700px;line-height:1.5}
+#s3 .quote em{color:var(--gold);font-style:normal}
+
+/* SLIDE 4 — ARCHITECTURE */
+#s4 .arch{display:flex;align-items:center;gap:2vw;margin:2.5rem 0;flex-wrap:wrap}
+.arch-block{border:1px solid var(--white-faint);padding:1.2rem 1.5rem;min-width:160px;position:relative}
+.arch-block.gold-border{border-color:var(--gold)}
+.arch-block .label{font-size:10px;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;margin-bottom:.5rem}
+.arch-block .val{font-size:13px;color:var(--white);line-height:1.6}
+.arch-block .badge{position:absolute;top:-10px;left:10px;background:var(--ink);padding:0 6px;font-size:9px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase}
+.arrow-right{color:var(--gold-dim);font-size:1.5rem;flex-shrink:0}
+.hash-display{background:var(--white-faint);border:1px solid var(--gold);padding:.8rem 1.2rem;margin-top:2rem;max-width:700px;font-size:12px;display:flex;align-items:center;gap:1rem}
+.hash-display .h-label{color:var(--gold);font-size:10px;letter-spacing:.2em;white-space:nowrap}
+.hash-display .h-val{color:var(--white);word-break:break-all;opacity:.75}
+.principle{display:flex;gap:2.5rem;margin-top:1.5rem;flex-wrap:wrap}
+.p-item{font-size:12px;color:var(--white-dim)}
+.p-item::before{content:'→ ';color:var(--gold)}
+
+/* SLIDE 5 — TECH */
+#s5 .tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin:2rem 0;max-width:800px}
+.tech-card{border:1px solid var(--white-faint);padding:1.2rem;transition:border-color .2s}
+.tech-card:hover{border-color:var(--gold-dim)}
+.tech-card .tc-icon{font-size:1.5rem;margin-bottom:.8rem;color:var(--gold)}
+.tech-card .tc-title{font-size:11px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase;margin-bottom:.5rem}
+.tech-card .tc-body{font-size:12px;color:var(--white-dim);line-height:1.7}
+.wpc-live{display:flex;align-items:center;gap:1rem;margin-top:2rem;padding:1rem 1.5rem;border:1px solid var(--gold);max-width:400px}
+.wpc-val{font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:600;color:var(--gold)}
+.wpc-info{font-size:11px;color:var(--white-dim);line-height:1.7}
+.wpc-pulse{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+
+/* SLIDE 6 — TRACTION */
+#s6 .traction-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin:2rem 0;max-width:700px}
+.tr-card{border:1px solid var(--white-faint);padding:1.2rem 1.5rem}
+.tr-card .tr-num{font-family:'Cormorant Garamond',serif;font-size:3.5rem;font-weight:600;color:var(--gold);line-height:1}
+.tr-card .tr-label{font-size:11px;letter-spacing:.15em;color:var(--white-dim);margin-top:.3rem;text-transform:uppercase}
+.tr-card .tr-sub{font-size:11px;color:var(--white-faint);margin-top:.5rem}
+.media-strip{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem;max-width:750px}
+.media-badge{font-size:9px;letter-spacing:.15em;color:var(--white-dim);border:1px solid var(--white-faint);padding:3px 8px;text-transform:uppercase}
+
+/* SLIDE 7 — MARKET */
+#s7 .market-stack{display:flex;flex-direction:column;gap:1rem;margin:2rem 0;max-width:680px}
+.mkt{display:flex;align-items:center;gap:1.5rem}
+.mkt-bar{height:32px;background:var(--gold);transition:width 1s cubic-bezier(.4,0,.2,1)}
+.mkt-bar.dim{background:var(--white-faint)}
+.mkt-info{white-space:nowrap}
+.mkt-info .mkt-num{font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--white)}
+.mkt-info .mkt-label{font-size:10px;letter-spacing:.15em;color:var(--white-dim);text-transform:uppercase}
+.roadmap{display:flex;gap:0;margin-top:2rem;max-width:700px}
+.rm-step{flex:1;border-top:2px solid var(--white-faint);padding:.8rem 0 0;position:relative}
+.rm-step.active{border-color:var(--gold)}
+.rm-step .rm-label{font-size:10px;letter-spacing:.15em;color:var(--gold);text-transform:uppercase}
+.rm-step .rm-val{font-size:12px;color:var(--white-dim);margin-top:.3rem}
+
+/* SLIDE 8 — CTA */
+#s8{background:var(--ink)}
+#s8 .cta-links{display:flex;flex-direction:column;gap:1rem;margin:2.5rem 0;max-width:600px}
+.cta-link{display:flex;align-items:center;gap:1.5rem;padding:1rem 1.5rem;border:1px solid var(--white-faint);text-decoration:none;transition:all .2s;cursor:pointer}
+.cta-link:hover{border-color:var(--gold);background:var(--white-faint)}
+.cta-link .cl-icon{font-size:1.2rem;color:var(--gold);min-width:20px}
+.cta-link .cl-label{font-size:10px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase}
+.cta-link .cl-url{font-size:12px;color:var(--white-dim);margin-top:.2rem}
+#s8 .final-line{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(1.2rem,2vw,1.6rem);color:var(--white-dim);margin-top:2rem;max-width:600px;line-height:1.6}
+#s8 .final-line em{color:var(--gold);font-style:normal}
+
+/* Progress bar */
+.progress{position:fixed;top:0;left:0;height:2px;background:var(--gold);transition:width .4s ease;z-index:200}
+</style>
+</head>
+<body>
+<div class="grid-lines"></div>
+<div class="progress" id="progress"></div>
+<div class="logo-mark">HORIZON SHIELD</div>
+<div class="slide-num" id="slide-num">01 / 08</div>
+
+<div class="deck" id="deck">
+
+<!-- SLIDE 1: COVER -->
+<div class="slide active" id="s1">
+  <div class="bg-cross" aria-hidden="true">盾</div>
+  <div class="tag">Show HN · May 2026</div>
+  <div class="eyebrow">Toshikatsu Oga · The HORIZONs Inc.</div>
+  <div class="display">Tamper-proof AI<br>for <em>construction</em><br>quotes.</div>
+  <div class="subtitle">A 30-year carpenter built the system<br>contractors couldn't game.</div>
+  <div class="url">shield.the-horizons-innovation.com · <span>@toshikatsu-oga</span></div>
+</div>
+
+<!-- SLIDE 2: PROBLEM -->
+<div class="slide" id="s2">
+  <div class="eyebrow">The Problem</div>
+  <div class="display">Japan's hidden<br><em>¥1.1T</em> fraud layer.</div>
+  <div class="stat-row">
+    <div class="stat-block">
+      <div class="stat-num">¥7.35<span style="font-size:55%;color:var(--white-dim)">T</span></div>
+      <div class="stat-label">Annual renovation market</div>
+    </div>
+    <div class="divider-v"></div>
+    <div class="stat-block">
+      <div class="stat-num">15–20<span style="font-size:55%;color:var(--white-dim)">%</span></div>
+      <div class="stat-label">Systemic overcharging rate</div>
+    </div>
+    <div class="divider-v"></div>
+    <div class="stat-block">
+      <div class="stat-num">200–300<span style="font-size:45%;color:var(--white-dim)">%</span></div>
+      <div class="stat-label">Hidden markups in lump sums</div>
+    </div>
+  </div>
+  <div class="fraud-box">
+    <div class="kanji">一式</div>
+    <p><strong>"Lump sum" — the contractor's shield.</strong><br>
+    A single line item can hide ¥500,000 in undisclosed markups. 30 years on job sites. Thousands of families overcharged. No tool existed to verify.</p>
+  </div>
+</div>
+
+<!-- SLIDE 3: STORY -->
+<div class="slide" id="s3">
+  <div class="eyebrow">The Founder</div>
+  <div class="display">Carpenter.<br><em>Then</em> engineer.</div>
+  <div class="timeline">
+    <div class="t-item">
+      <div class="t-year">1994</div>
+      <div class="t-dot"></div>
+      <div class="t-text"><strong>First nail. First site.</strong>15 years old. Apprenticed as a carpenter in Shimane Prefecture.</div>
+    </div>
+    <div class="t-item">
+      <div class="t-year">2024</div>
+      <div class="t-dot"></div>
+      <div class="t-text"><strong>First line of code. Age 47.</strong>ChatGPT arrived. Homeowners started asking it for second opinions — and got different numbers every time.</div>
+    </div>
+    <div class="t-item">
+      <div class="t-year">2026</div>
+      <div class="t-dot filled"></div>
+      <div class="t-text"><strong>HORIZON SHIELD ships.</strong>30 years of field knowledge, encoded. Deterministic. Tamper-proof.</div>
+    </div>
+  </div>
+  <div class="quote">"Framing a house at 16 was harder than <em>learning to code at 47</em>."</div>
+</div>
+
+<!-- SLIDE 4: ARCHITECTURE -->
+<div class="slide" id="s4">
+  <div class="eyebrow">The Architecture</div>
+  <div class="display"><em>Deterministic</em><br>by design.</div>
+  <div class="arch">
+    <div class="arch-block">
+      <div class="badge">Input</div>
+      <div class="label">LLM Layer</div>
+      <div class="val">Natural language<br>parsing only.<br>No arithmetic.</div>
+    </div>
+    <div class="arrow-right">→</div>
+    <div class="arch-block gold-border">
+      <div class="badge">Core</div>
+      <div class="label">JCCDB v1.2.1</div>
+      <div class="val">3,350+ items.<br>4 contractor tiers.<br>Real-time WPC.</div>
+    </div>
+    <div class="arrow-right">→</div>
+    <div class="arch-block">
+      <div class="badge">Output</div>
+      <div class="label">SHA-256 Report</div>
+      <div class="val">12-char audit hash.<br>Same input →<br>same answer.</div>
+    </div>
+  </div>
+  <div class="hash-display">
+    <div class="h-label">Audit Hash</div>
+    <div class="h-val" id="hash-display">538811dcd9fd</div>
+  </div>
+  <div class="principle">
+    <span class="p-item">Same input → same hash → same answer</span>
+    <span class="p-item">EU AI Act Art. 12/14 aligned</span>
+    <span class="p-item">Human oversight built in</span>
+  </div>
+</div>
+
+<!-- SLIDE 5: TECHNOLOGY -->
+<div class="slide" id="s5">
+  <div class="eyebrow">Technology</div>
+  <div class="display">Six layers.<br><em>Zero</em> ambiguity.</div>
+  <div class="tech-grid">
+    <div class="tech-card">
+      <div class="tc-icon">⬡</div>
+      <div class="tc-title">Deterministic Core</div>
+      <div class="tc-body">LLM handles only language. Numbers come from a versioned database, not a prediction.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tc-icon">#</div>
+      <div class="tc-title">SHA-256 Audit</div>
+      <div class="tc-body">Every report carries a 12-char hash of canonical input + DB version. Immutable audit trail.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tc-icon">▲</div>
+      <div class="tc-title">War Price Coefficient</div>
+      <div class="tc-body">Real-time supply-chain adjustment. Tracks global material volatility. Updated monthly.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tc-icon">≡</div>
+      <div class="tc-title">4-Tier Pricing</div>
+      <div class="tc-body">Sole trader → Major firm. 25–45% margin ranges. Contractors can't hide inside a tier.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tc-icon">⬡</div>
+      <div class="tc-title">Cloudflare Edge</div>
+      <div class="tc-body">Workers + KV + R2. Zero cold start. Global. 16 API endpoints. PDF generation on-demand.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tc-icon">◎</div>
+      <div class="tc-title">Open Dataset</div>
+      <div class="tc-body">JCCDB v1.1 — CC-BY 4.0. 3,350 items. Peer-reviewed via engrXiv DOI 10.31224/7007.</div>
+    </div>
+  </div>
+  <div class="wpc-live">
+    <div class="wpc-pulse"></div>
+    <div class="wpc-val">×1.0935</div>
+    <div class="wpc-info">War Price Coefficient<br>Live · +9.35% supply-chain premium</div>
+  </div>
+</div>
+
+<!-- SLIDE 6: TRACTION -->
+<div class="slide" id="s6">
+  <div class="eyebrow">Traction</div>
+  <div class="display">Built in public.<br><em>Validated</em> by press.</div>
+  <div class="traction-grid">
+    <div class="tr-card">
+      <div class="tr-num">79</div>
+      <div class="tr-label">Media Outlets</div>
+      <div class="tr-sub">PR TIMES distribution · organic pickup</div>
+    </div>
+    <div class="tr-card">
+      <div class="tr-num">3,350</div>
+      <div class="tr-label">DB Line Items</div>
+      <div class="tr-sub">JCCDB v1.2.1 · 7 categories · CC-BY 4.0</div>
+    </div>
+    <div class="tr-card">
+      <div class="tr-num">1</div>
+      <div class="tr-label">Peer-Reviewed Paper</div>
+      <div class="tr-sub">engrXiv DOI 10.31224/7007 · SSRN 6738701</div>
+    </div>
+    <div class="tr-card">
+      <div class="tr-num">¥0</div>
+      <div class="tr-label">Paid Acquisition</div>
+      <div class="tr-sub">100% organic · built in 8 weeks</div>
+    </div>
+  </div>
+  <div class="media-strip">
+    <div class="media-badge">Yahoo Japan</div>
+    <div class="media-badge">PR TIMES</div>
+    <div class="media-badge">engrXiv</div>
+    <div class="media-badge">Zenodo</div>
+    <div class="media-badge">SSRN</div>
+    <div class="media-badge">+74 outlets</div>
+  </div>
+</div>
+
+<!-- SLIDE 7: MARKET -->
+<div class="slide" id="s7">
+  <div class="eyebrow">Market</div>
+  <div class="display">Japan first.<br><em>Global</em> next.</div>
+  <div class="market-stack" id="market-stack">
+    <div class="mkt">
+      <div class="mkt-bar" style="width:0" data-w="320px"></div>
+      <div class="mkt-info">
+        <div class="mkt-num">¥7.35T</div>
+        <div class="mkt-label">Japan residential renovation</div>
+      </div>
+    </div>
+    <div class="mkt">
+      <div class="mkt-bar dim" style="width:0" data-w="460px"></div>
+      <div class="mkt-info">
+        <div class="mkt-num">$11.4T</div>
+        <div class="mkt-label">Global construction market</div>
+      </div>
+    </div>
+    <div class="mkt">
+      <div class="mkt-bar dim" style="width:0" data-w="200px"></div>
+      <div class="mkt-info">
+        <div class="mkt-num">$1.8T</div>
+        <div class="mkt-label">Addressable overcharge problem</div>
+      </div>
+    </div>
+  </div>
+  <div class="roadmap">
+    <div class="rm-step active">
+      <div class="rm-label">Now</div>
+      <div class="rm-val">Japan B2C<br>¥5,500–¥88,000</div>
+    </div>
+    <div class="rm-step">
+      <div class="rm-label">2026 Q4</div>
+      <div class="rm-val">API licensing<br>for insurers / banks</div>
+    </div>
+    <div class="rm-step">
+      <div class="rm-label">2027</div>
+      <div class="rm-val">SE Asia<br>construction markets</div>
+    </div>
+    <div class="rm-step">
+      <div class="rm-label">2028</div>
+      <div class="rm-val">KURO-AN<br>$50K/unit US export</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 8: CTA -->
+<div class="slide" id="s8">
+  <div class="eyebrow">Contact</div>
+  <div class="display">Let's build<br>the <em>honest</em><br>layer.</div>
+  <div class="cta-links">
+    <div class="cta-link" onclick="window.open('https://shield.the-horizons-innovation.com/index_en.html')">
+      <div class="cl-icon">◎</div>
+      <div>
+        <div class="cl-label">Live Service</div>
+        <div class="cl-url">shield.the-horizons-innovation.com/index_en.html</div>
+      </div>
+    </div>
+    <div class="cta-link" onclick="window.open('https://github.com/ogasurfproject-jpg/japan-construction-cost-database')">
+      <div class="cl-icon">#</div>
+      <div>
+        <div class="cl-label">Open Dataset — JCCDB v1.1 CC-BY 4.0</div>
+        <div class="cl-url">github.com/ogasurfproject-jpg/japan-construction-cost-database</div>
+      </div>
+    </div>
+    <div class="cta-link" onclick="window.open('https://engrxiv.org/preprint/view/7007')">
+      <div class="cl-icon">▲</div>
+      <div>
+        <div class="cl-label">Research Paper — engrXiv</div>
+        <div class="cl-url">DOI 10.31224/7007 · SSRN 6738701 · ORCID 0009-0000-9180-903X</div>
+      </div>
+    </div>
+  </div>
+  <div class="final-line">
+    "The dataset and the commercial service are intentionally separated —<br>
+    <em>research data is CC-BY 4.0 forever</em>, the API pays rent."
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<nav id="nav"></nav>
+<div class="arrows">
+  <button class="arr" id="prev" aria-label="Previous">←</button>
+  <button class="arr" id="next" aria-label="Next">→</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const nav = document.getElementById('nav');
+const progress = document.getElementById('progress');
+const slideNum = document.getElementById('slide-num');
+let current = 0;
+let animating = false;
+
+slides.forEach((_,i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i===0?' active':'');
+  d.onclick = () => goTo(i);
+  nav.appendChild(d);
+});
+
+function goTo(n){
+  if(animating || n===current) return;
+  animating = true;
+  slides[current].classList.add('exit');
+  slides[current].classList.remove('active');
+  setTimeout(()=>{ slides[current].classList.remove('exit'); },650);
+  current = n;
+  slides[current].classList.add('active');
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===current));
+  slideNum.textContent = String(current+1).padStart(2,'0') + ' / ' + String(slides.length).padStart(2,'0');
+  progress.style.width = ((current+1)/slides.length*100)+'%';
+  if(current===6) animateBars();
+  setTimeout(()=>{ animating=false; },650);
+}
+
+document.getElementById('next').onclick = () => goTo(Math.min(current+1, slides.length-1));
+document.getElementById('prev').onclick = () => goTo(Math.max(current-1, 0));
+document.addEventListener('keydown', e => {
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') goTo(Math.min(current+1,slides.length-1));
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') goTo(Math.max(current-1,0));
+});
+
+function animateBars(){
+  document.querySelectorAll('.mkt-bar').forEach(b => {
+    setTimeout(()=>{ b.style.width = b.dataset.w; },100);
+  });
+}
+
+progress.style.width = (1/slides.length*100)+'%';
+</script>
+</body>
+</html>
