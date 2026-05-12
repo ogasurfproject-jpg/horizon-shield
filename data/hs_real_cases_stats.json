@@ -1,0 +1,179 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "total_cases": 73,
+    "generated_at": "2026-05-12",
+    "source": "HS_REAL_CASES KV namespace",
+    "description": "73件の実案件から算出した工種別統計。souba-v2補正・KIRA根拠データとして使用"
+  },
+  "by_category": {
+    "床工事": {
+      "n": 12,
+      "min_jpy": 27500,
+      "max_jpy": 2502000,
+      "avg_jpy": 918744,
+      "median_jpy": 593581,
+      "cv_pct": 96.0,
+      "cases": [
+        "real_005",
+        "real_015",
+        "real_020",
+        "real_037",
+        "real_040",
+        "real_041",
+        "real_042",
+        "real_043",
+        "real_047",
+        "real_048",
+        "real_061",
+        "real_066"
+      ]
+    },
+    "建具修繕・調整": {
+      "n": 9,
+      "min_jpy": 19000,
+      "max_jpy": 361000,
+      "avg_jpy": 84260,
+      "median_jpy": 53500,
+      "cv_pct": 127.9,
+      "cases": [
+        "real_017",
+        "real_018",
+        "real_019",
+        "real_022",
+        "real_033",
+        "real_034",
+        "real_035",
+        "real_038",
+        "real_068"
+      ]
+    },
+    "雨漏り改修": {
+      "n": 3,
+      "min_jpy": 438500,
+      "max_jpy": 860000,
+      "avg_jpy": 671909,
+      "median_jpy": 717229,
+      "cv_pct": 31.9,
+      "cases": [
+        "real_001",
+        "real_053",
+        "real_063"
+      ]
+    },
+    "店舗・テナント改修": {
+      "n": 8,
+      "min_jpy": 180000,
+      "max_jpy": 5703440,
+      "avg_jpy": 1759608,
+      "median_jpy": 1396500,
+      "cv_pct": 102.9,
+      "cases": [
+        "real_004",
+        "real_007",
+        "real_016",
+        "real_039",
+        "real_058",
+        "real_064",
+        "real_069",
+        "real_072"
+      ]
+    },
+    "マンション・集合住宅改修": {
+      "n": 7,
+      "min_jpy": 54000,
+      "max_jpy": 6981746,
+      "avg_jpy": 1958899,
+      "median_jpy": 695918,
+      "cv_pct": 126.2,
+      "cases": [
+        "real_014",
+        "real_024",
+        "real_027",
+        "real_032",
+        "real_044",
+        "real_056",
+        "real_065"
+      ]
+    },
+    "ダンススクール工事": {
+      "n": 5,
+      "min_jpy": 285000,
+      "max_jpy": 3215000,
+      "avg_jpy": 1623800,
+      "median_jpy": 1971000,
+      "cv_pct": 78.2,
+      "cases": [
+        "real_028",
+        "real_029",
+        "real_057",
+        "real_059",
+        "real_060"
+      ]
+    },
+    "屋根・防水工事": {
+      "n": 3,
+      "min_jpy": 108100,
+      "max_jpy": 4450000,
+      "avg_jpy": 2214266,
+      "median_jpy": 2084700,
+      "cv_pct": 98.2,
+      "cases": [
+        "real_002",
+        "real_012",
+        "real_046"
+      ]
+    },
+    "電気工事": {
+      "n": 2,
+      "min_jpy": 40000,
+      "max_jpy": 57800,
+      "avg_jpy": 48900,
+      "median_jpy": 48900,
+      "cv_pct": 25.7,
+      "cases": [
+        "real_009",
+        "real_030"
+      ]
+    },
+    "内装工事全般": {
+      "n": 9,
+      "min_jpy": 58300,
+      "max_jpy": 1900000,
+      "avg_jpy": 729785,
+      "median_jpy": 510000,
+      "cv_pct": 84.3,
+      "cases": [
+        "real_003",
+        "real_013",
+        "real_021",
+        "real_025",
+        "real_026",
+        "real_036",
+        "real_055",
+        "real_062",
+        "real_067"
+      ]
+    },
+    "設備工事": {
+      "n": 3,
+      "min_jpy": 78000,
+      "max_jpy": 165800,
+      "avg_jpy": 120333,
+      "median_jpy": 117200,
+      "cv_pct": 36.6,
+      "cases": [
+        "real_008",
+        "real_070",
+        "real_071"
+      ]
+    }
+  },
+  "negotiation_facts": {
+    "max_reduction_jpy": 490000,
+    "max_reduction_pct": 91,
+    "cases_with_negotiation": 6,
+    "avg_price_gap_multi_plan_pct": 44,
+    "description": "複数版見積もり提示時の平均価格差40〜54%、最大交渉削減¥490,000、保険請求vs実施工91%差"
+  }
+}
