@@ -667,7 +667,7 @@ if(!sessionStorage.getItem('hs_seen')){
   <div class="hero-i">
     <div>
       <div class="h-eye rv"><span class="pulse"></span>工事内容を入力するとリスクが即座にわかります</div>
-      <h1 class="hero-h1 rv">業者より先に、<span class="breath">価格を知る。</span></h1>
+      <h1 class="hero-h1 rv" id="hero-title">業者より先に、<span class="breath">価格を知る。</span></h1>
       <p class="hero-body rv">リフォーム・新築の見積もりが来る前に、AIが「本来の価格」を算出します。<br>下の欄に工事の内容を入力してください。</p>
       <div class="rv">
         <div class="i-lbl">どんな工事を考えていますか？</div>
@@ -1602,6 +1602,20 @@ function proceed(){if(!document.getElementById('agree-chk').checked)return;if(mU
 
 /* ── TRACK VISIT ── */
 try{fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/track-visit',{method:'POST',keepalive:true,mode:'no-cors'}).catch(()=>{});}catch(e){}
+/* ── 日替わりタイトル ── */
+(function(){
+  const titles = [
+    '業者より先に、<span class="breath">価格を知る。</span>',
+    'その見積書、<span class="breath">本当に適正か？</span>',
+    '業者より先に、<span class="breath">価格を知る。</span>',
+    '30年の現場経験が、<span class="breath">あなたの盾になる。</span>',
+    '業者より先に、<span class="breath">価格を知る。</span>',
+    'その「一式」表記、<span class="breath">危険サインかもしれない。</span>',
+    '業者より先に、<span class="breath">価格を知る。</span>',
+  ];
+  const day = new Date().getDay(); // 0=日〜6=土
+  document.getElementById('hero-title').innerHTML = titles[day];
+})();
 </script>
 </body>
 </html>
