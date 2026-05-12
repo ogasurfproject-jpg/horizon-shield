@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>工事完了レポート | HORIZON SHIELD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #b8941f;
+    --gold-light: #d4af37;
+    --text: #1a1a1a;
+    --text-sub: #555;
+    --border: #e0e0e0;
+    --bg: #ffffff;
+    --bg-sub: #f8f7f4;
+    --success: #2a7a4a;
+    --error: #c0392b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.7;
+  }
+
+  /* ヘッダー */
+  .site-header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: var(--text);
+  }
+  .logo span { color: var(--gold); }
+  .header-sub {
+    font-size: 11px;
+    color: var(--text-sub);
+    letter-spacing: 0.15em;
+  }
+
+  /* メインコンテナ */
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 60px 24px 80px;
+  }
+
+  /* ページタイトル */
+  .page-tag {
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    color: var(--gold);
+    font-weight: 500;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .page-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+  .page-lead {
+    font-size: 13px;
+    color: var(--text-sub);
+    line-height: 1.85;
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* 診断情報カード */
+  .diagnosis-card {
+    background: var(--bg-sub);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold-light);
+    padding: 20px 24px;
+    margin-bottom: 40px;
+    border-radius: 2px;
+  }
+  .diagnosis-card-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+  .diagnosis-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .diagnosis-info-item { display: flex; flex-direction: column; gap: 2px; }
+  .diagnosis-info-item .label { font-size: 10px; color: #999; letter-spacing: 0.05em; }
+  .diagnosis-info-item .value { font-weight: 500; color: var(--text); }
+  #hash-display { font-family: 'Courier New', monospace; font-size: 12px; color: var(--gold); }
+
+  /* フォーム */
+  .form-section {
+    margin-bottom: 40px;
+  }
+  .form-section-title {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--text-sub);
+    font-weight: 500;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .field {
+    margin-bottom: 24px;
+  }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .field label .required {
+    color: var(--gold);
+    margin-left: 4px;
+    font-size: 11px;
+  }
+  .field .field-note {
+    font-size: 11px;
+    color: #999;
+    margin-bottom: 8px;
+    line-height: 1.6;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-size: 14px;
+    font-family: 'Noto Sans JP', sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    transition: border-color 0.2s;
+    outline: none;
+    appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--gold-light);
+  }
+  textarea { min-height: 100px; resize: vertical; }
+
+  /* 金額入力 */
+  .amount-wrapper {
+    position: relative;
+  }
+  .amount-wrapper::before {
+    content: '¥';
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-sub);
+    font-size: 14px;
+    z-index: 1;
+  }
+  .amount-wrapper input {
+    padding-left: 32px;
+  }
+  .amount-preview {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--text-sub);
+    min-height: 18px;
+  }
+
+  /* 満足度 */
+  .rating-group {
+    display: flex;
+    gap: 8px;
+  }
+  .rating-btn {
+    flex: 1;
+    padding: 10px 4px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'Noto Sans JP', sans-serif;
+    color: var(--text-sub);
+    border-radius: 2px;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .rating-btn:hover { border-color: var(--gold-light); color: var(--gold); }
+  .rating-btn.active {
+    background: var(--gold-light);
+    border-color: var(--gold-light);
+    color: #fff;
+    font-weight: 500;
+  }
+
+  /* 交渉結果 */
+  .result-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .result-btn {
+    padding: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'Noto Sans JP', sans-serif;
+    color: var(--text-sub);
+    border-radius: 2px;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .result-btn:hover { border-color: var(--gold-light); }
+  .result-btn.active {
+    border-color: var(--gold-light);
+    background: #fdf8ee;
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  /* OTSバッジ */
+  .ots-badge {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #fdf8ee;
+    border: 1px solid #e8d5a0;
+    padding: 16px 20px;
+    border-radius: 2px;
+    margin-bottom: 32px;
+  }
+  .ots-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--gold-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #fff;
+    font-size: 14px;
+  }
+  .ots-text { flex: 1; }
+  .ots-title { font-size: 13px; font-weight: 500; color: var(--gold); margin-bottom: 4px; }
+  .ots-desc { font-size: 11px; color: #888; line-height: 1.7; }
+
+  /* 送信ボタン */
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--text);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    border-radius: 2px;
+    transition: background 0.2s;
+    margin-top: 8px;
+  }
+  .submit-btn:hover { background: #333; }
+  .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+  /* 成功・エラー */
+  .result-message {
+    display: none;
+    padding: 20px 24px;
+    border-radius: 2px;
+    margin-top: 20px;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  .result-message.success {
+    background: #edf7f1;
+    border: 1px solid #a8d5b5;
+    color: var(--success);
+  }
+  .result-message.error {
+    background: #fdf0ee;
+    border: 1px solid #f0b0a8;
+    color: var(--error);
+  }
+  .result-message.show { display: block; }
+
+  /* 成功画面 */
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 60px 24px;
+  }
+  .success-screen.show { display: block; }
+  .success-icon {
+    width: 64px; height: 64px;
+    background: var(--gold-light);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 28px;
+    color: #fff;
+  }
+  .success-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .success-text { font-size: 13px; color: var(--text-sub); line-height: 1.9; }
+  .success-hash {
+    margin-top: 20px;
+    padding: 12px 20px;
+    background: var(--bg-sub);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--gold);
+    display: inline-block;
+  }
+
+  /* フッター */
+  .site-footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 40px;
+    font-size: 11px;
+    color: #aaa;
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 480px) {
+    .site-header { padding: 16px 20px; }
+    .container { padding: 40px 20px 60px; }
+    .page-title { font-size: 26px; }
+    .diagnosis-info { grid-template-columns: 1fr; }
+    .result-group { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">HORIZON <span>SHIELD</span></div>
+  <div class="header-sub">工事完了レポート</div>
+</header>
+
+<div class="container" id="main-form">
+
+  <span class="page-tag">C O N T R A C T  R E P O R T</span>
+  <h1 class="page-title">工事完了後の<br>記録をお願いします</h1>
+  <p class="page-lead">
+    HORIZON SHIELDの診断書をご活用いただきありがとうございます。<br>
+    工事完了後に実際の契約額や交渉結果をご記入いただくと、<br>
+    今後の研究データとして活用され、より多くの施主を守ることにつながります。<br>
+    <strong style="color:var(--text);">入力いただいたデータは匿名化して統計処理されます。</strong>
+  </p>
+
+  <!-- 診断情報 -->
+  <div class="diagnosis-card" id="diagnosis-card" style="display:none;">
+    <div class="diagnosis-card-label">▶ 診断書情報</div>
+    <div class="diagnosis-info">
+      <div class="diagnosis-info-item">
+        <span class="label">監査ハッシュ</span>
+        <span class="value" id="hash-display">—</span>
+      </div>
+      <div class="diagnosis-info-item">
+        <span class="label">診断日</span>
+        <span class="value" id="date-display">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- OTSバッジ -->
+  <div class="ots-badge">
+    <div class="ots-icon">₿</div>
+    <div class="ots-text">
+      <div class="ots-title">ビットコインタイムスタンプ済み</div>
+      <div class="ots-desc">
+        この診断書はOpenTimestampsによりビットコインブロックチェーンに刻印されています。
+        工事完了記録と紐付けることで、将来の家の履歴書・NFT化の素材になります。
+      </div>
+    </div>
+  </div>
+
+  <form id="contract-form">
+
+    <!-- 基本情報 -->
+    <div class="form-section">
+      <div class="form-section-title">01 ／ 基本情報</div>
+
+      <div class="field">
+        <label>監査ハッシュ（診断書に記載）<span class="required">必須</span></label>
+        <div class="field-note">PDFの9ページ目「監査証明書」に記載されている12文字のコードです</div>
+        <input type="text" id="audit-hash" placeholder="例：a1b2c3d4e5f6" maxlength="12">
+      </div>
+
+      <div class="field">
+        <label>工事の種類</label>
+        <input type="text" id="koji-name" placeholder="例：外壁塗装30坪、キッチンリフォーム など">
+      </div>
+
+      <div class="field">
+        <label>工事完了日（おおよそで構いません）</label>
+        <input type="date" id="completion-date">
+      </div>
+    </div>
+
+    <!-- 金額情報 -->
+    <div class="form-section">
+      <div class="form-section-title">02 ／ 金額情報</div>
+
+      <div class="field">
+        <label>最終契約額<span class="required">必須</span></label>
+        <div class="field-note">消費税込みの最終的な工事金額をご入力ください</div>
+        <div class="amount-wrapper">
+          <input type="number" id="contract-amount" placeholder="例：1500000" min="0" step="1000">
+        </div>
+        <div class="amount-preview" id="amount-preview"></div>
+      </div>
+
+      <div class="field">
+        <label>診断前の業者提示額（任意）</label>
+        <div class="field-note">最初に業者から提示された金額（分かる場合）</div>
+        <div class="amount-wrapper">
+          <input type="number" id="initial-amount" placeholder="例：2000000" min="0" step="1000">
+        </div>
+      </div>
+    </div>
+
+    <!-- 交渉結果 -->
+    <div class="form-section">
+      <div class="form-section-title">03 ／ 交渉・診断の活用</div>
+
+      <div class="field">
+        <label>診断書を業者に見せましたか？</label>
+        <div class="result-group" id="showed-group">
+          <button type="button" class="result-btn" data-value="yes">見せた</button>
+          <button type="button" class="result-btn" data-value="no">見せなかった</button>
+          <button type="button" class="result-btn" data-value="referenced">参考にしたが見せていない</button>
+          <button type="button" class="result-btn" data-value="other">その他</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>交渉・値引きはありましたか？</label>
+        <div class="result-group" id="negotiation-group">
+          <button type="button" class="result-btn" data-value="reduced">値引きがあった</button>
+          <button type="button" class="result-btn" data-value="no_change">変わらなかった</button>
+          <button type="button" class="result-btn" data-value="increased">増えた（追加工事等）</button>
+          <button type="button" class="result-btn" data-value="cancelled">別業者に変更した</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>HORIZON SHIELDの診断は役に立ちましたか？</label>
+        <div class="rating-group" id="rating-group">
+          <button type="button" class="rating-btn" data-value="5">とても役立った</button>
+          <button type="button" class="rating-btn" data-value="4">役立った</button>
+          <button type="button" class="rating-btn" data-value="3">普通</button>
+          <button type="button" class="rating-btn" data-value="2">あまり役立たなかった</button>
+          <button type="button" class="rating-btn" data-value="1">役立たなかった</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- コメント -->
+    <div class="form-section">
+      <div class="form-section-title">04 ／ 自由記入（任意）</div>
+      <div class="field">
+        <label>交渉の経緯・感想など</label>
+        <div class="field-note">「業者にこう言ったら値引きされた」「この項目が高かった」など、どんな内容でも構いません</div>
+        <textarea id="comment" placeholder="例：診断書のP4「過剰請求パターン」を見せたら、足場代が20万円値引きされました。"></textarea>
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submit-btn">記録を送信する</button>
+
+    <div class="result-message" id="result-msg"></div>
+
+  </form>
+</div>
+
+<!-- 成功画面 -->
+<div class="success-screen" id="success-screen">
+  <div class="success-icon">✓</div>
+  <h2 class="success-title">記録が完了しました</h2>
+  <p class="success-text">
+    ご協力ありがとうございます。<br>
+    いただいたデータは匿名化のうえ、<br>
+    建設費の情報非対称性研究に活用されます。<br><br>
+    このデータが積み重なることで、<br>
+    日本中の施主が過剰請求から守られます。
+  </p>
+  <div class="success-hash" id="success-hash-display"></div>
+</div>
+
+<footer class="site-footer">
+  HORIZON SHIELD ／ The HORIZ音s株式会社 ／ shield.the-horizons-innovation.com
+</footer>
+
+<script>
+// URLパラメータから audit_hash を取得
+const urlParams = new URLSearchParams(window.location.search);
+const hashFromUrl = urlParams.get('hash');
+if (hashFromUrl) {
+  document.getElementById('audit-hash').value = hashFromUrl;
+  document.getElementById('hash-display').textContent = hashFromUrl;
+  document.getElementById('date-display').textContent = new Date().toLocaleDateString('ja-JP');
+  document.getElementById('diagnosis-card').style.display = 'block';
+}
+
+// 金額フォーマット
+function formatYen(n) {
+  if (!n || isNaN(n)) return '';
+  const abs = Math.abs(n);
+  if (abs >= 100000000) return `¥${(abs / 100000000).toFixed(1)}億円`;
+  if (abs >= 10000) return `¥${Math.floor(abs / 10000).toLocaleString()}万${abs % 10000 > 0 ? (abs % 10000).toLocaleString() + '円' : '円'}`;
+  return `¥${abs.toLocaleString()}円`;
+}
+
+document.getElementById('contract-amount').addEventListener('input', function() {
+  const preview = document.getElementById('amount-preview');
+  const val = parseInt(this.value);
+  preview.textContent = val ? formatYen(val) : '';
+});
+
+// ボタングループ
+function initButtonGroup(groupId) {
+  const group = document.getElementById(groupId);
+  if (!group) return;
+  group.querySelectorAll('[data-value]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      group.querySelectorAll('[data-value]').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+}
+initButtonGroup('showed-group');
+initButtonGroup('negotiation-group');
+initButtonGroup('rating-group');
+
+// フォーム送信
+document.getElementById('contract-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const auditHash = document.getElementById('audit-hash').value.trim();
+  const contractAmount = parseInt(document.getElementById('contract-amount').value);
+  const msgEl = document.getElementById('result-msg');
+  const submitBtn = document.getElementById('submit-btn');
+
+  if (!auditHash) {
+    showMsg('監査ハッシュを入力してください。', 'error');
+    return;
+  }
+  if (!contractAmount || contractAmount <= 0) {
+    showMsg('最終契約額を入力してください。', 'error');
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = '送信中...';
+
+  const payload = {
+    audit_hash: auditHash,
+    contract_amount: contractAmount,
+    initial_amount: parseInt(document.getElementById('initial-amount').value) || null,
+    koji_name: document.getElementById('koji-name').value.trim() || null,
+    completion_date: document.getElementById('completion-date').value || null,
+    showed_diagnosis: document.querySelector('#showed-group .active')?.dataset.value || null,
+    negotiation_result: document.querySelector('#negotiation-group .active')?.dataset.value || null,
+    satisfaction: parseInt(document.querySelector('#rating-group .active')?.dataset.value) || null,
+    comment: document.getElementById('comment').value.trim() || null,
+  };
+
+  try {
+    const res = await fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/log-contract', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+
+    if (res.ok && data.ok) {
+      document.getElementById('main-form').style.display = 'none';
+      document.getElementById('success-hash-display').textContent = `記録ID: ${auditHash}`;
+      document.getElementById('success-screen').classList.add('show');
+    } else {
+      showMsg('送信に失敗しました。もう一度お試しください。', 'error');
+      submitBtn.disabled = false;
+      submitBtn.textContent = '記録を送信する';
+    }
+  } catch (err) {
+    showMsg('通信エラーが発生しました。インターネット接続を確認してください。', 'error');
+    submitBtn.disabled = false;
+    submitBtn.textContent = '記録を送信する';
+  }
+});
+
+function showMsg(text, type) {
+  const el = document.getElementById('result-msg');
+  el.textContent = text;
+  el.className = `result-message ${type} show`;
+}
+</script>
+</body>
+</html>
