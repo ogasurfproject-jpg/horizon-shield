@@ -1593,7 +1593,7 @@ if('IntersectionObserver' in window && window.innerWidth > 900){
 
 /* ── TERMS MODAL ── */
 let mTarget='',mUrl=null;
-function openModal(t,url){mTarget=t;mUrl=url||null;document.getElementById('tmodal').style.display='block';document.body.style.overflow='hidden';document.getElementById('agree-chk').checked=false;const btn=document.getElementById('proceed-btn');btn.classList.remove('active');btn.textContent=mUrl?'同意してPayPalで支払う →':'同意して銀行振込で申し込む →';}
+function openModal(t,url){mTarget=t;mUrl=url||null;var _m=document.getElementById('tmodal');_m.style.display='block';_m.style.background='rgba(0,0,0,.55)';document.body.style.overflow='hidden';document.getElementById('agree-chk').checked=false;const btn=document.getElementById('proceed-btn');btn.classList.remove('active');btn.textContent=mUrl?'同意してPayPalで支払う →':'同意して銀行振込で申し込む →';}
 function closeModal(){document.getElementById('tmodal').style.display='none';document.body.style.overflow='';mUrl=null;}
 function onAgreeChange(){const btn=document.getElementById('proceed-btn');if(document.getElementById('agree-chk').checked){btn.classList.add('active');}else{btn.classList.remove('active');}}
 function proceed(){if(!document.getElementById('agree-chk').checked)return;if(mUrl){window.open(mUrl,'_blank','noopener');closeModal();}else{const t=mTarget;closeModal();window.location.href='/bank-transfer.html?type='+t;}}
