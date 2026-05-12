@@ -570,7 +570,7 @@ const MAX_TURNS = 10;
 let lastParsedResult = null;
 let currentMode = 'reverse';
 let _paypalRendered = false;
-
+let realCasesData = '';
 const KIRA_SYSTEM = `あなたは「工事費の適正価格を判定するAI」です。名前はKIRAです。
 
 # 絶対に守るルール
@@ -807,7 +807,7 @@ async function sendToKira() {
     const res = await fetch(KIRA_PROXY + '/gyaku-mitsumori-chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ system: KIRA_SYSTEM, messages: messages, max_tokens: 1000 })
+      body: JSON.stringify({ system: KIRA_SYSTEM + realCasesData, messages: messages, max_tokens: 1000 })
     });
     if (!res.ok) {
       const e = await res.json().catch(function() { return {}; });
@@ -1139,6 +1139,7 @@ function proceedToPayment() {
 /* ── init ── */
 document.addEventListener('DOMContentLoaded', function() {
   injectRays('hzRays', 60, 34, 26, 28);
+  fetch('https://hs-real-cases-proxy.oga-surf-project.workers.dev/cases/summary').then(function(r){return r.json();}).then(function(d){if(d.ok&&d.summary){realCasesData='\n【TOshi30年実案件データ('+d.summary.total_cases+'件)】平均:¥'+d.summary.price_avg_jpy.toLocaleString()+'　最大:¥'+d.summary.price_max_jpy.toLocaleString();d.summary.koji_type_breakdown&&(realCasesData+='　工事種別:'+Object.keys(d.summary.koji_type_breakdown).join('/'));}}).catch(function(){});
   addBubble('kira', 'はじめまして。HORIZON SHIELDの建設費診断AIです。\nやりたい工事の内容を教えてください。\n曖昧な情報でも大丈夫です。詳細は私が順番に確認します。');
 
   document.getElementById('kc-input').addEventListener('keydown', function(e) {
