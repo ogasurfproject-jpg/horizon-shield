@@ -107,14 +107,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;background:rgba(250,247,242,
    HERO
 ═══════════════════════════════════════ */
 .hero{position:relative;min-height:calc(100vh - 88px);padding:5rem 2.5rem 5rem;display:flex;align-items:center;background:transparent;z-index:1;}
-.hero-i{max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1fr 420px;gap:4.5rem;align-items:center;position:relative;z-index:1;}
+.hero-i{max-width:800px;margin:0 auto;display:block;position:relative;z-index:1;}
 
 .h-eye{display:inline-flex;align-items:center;gap:.45rem;background:rgba(194,78,26,.08);border:1px solid rgba(194,78,26,.16);border-radius:100px;padding:.26rem .9rem;font-size:.62rem;color:var(--clay);letter-spacing:.1em;margin-bottom:1.5rem;font-weight:500;}
 .pulse{width:7px;height:7px;border-radius:50%;background:var(--clay);animation:pulse-r 2s ease-out infinite;flex-shrink:0;}
 @keyframes pulse-r{0%{box-shadow:0 0 0 0 rgba(194,78,26,.5)}70%{box-shadow:0 0 0 8px rgba(194,78,26,0)}100%{box-shadow:0 0 0 0 rgba(194,78,26,0)}}
 
-.hero-h1{font-family:'Instrument Serif',serif;font-size:clamp(2.6rem,5.5vw,4.2rem);font-weight:400;line-height:1.12;letter-spacing:-.01em;color:var(--ink);margin-bottom:.9rem;}
-.hero-h1 .breath{display:block;font-style:italic;color:var(--clay);animation:tb 5s ease-in-out infinite;transform-origin:left center;}
+.hero-h1{font-family:'Noto Serif JP',serif;font-size:clamp(2.8rem,5.8vw,4.6rem);font-weight:900;line-height:1.08;letter-spacing:-.02em;color:var(--ink2);margin-bottom:.9rem;}
+.hero-h1 .breath{display:block;font-style:normal;color:var(--amber);animation:tb 5s ease-in-out infinite;transform-origin:left center;}
 @keyframes tb{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.88;transform:scale(1.01)}}
 
 .hero-body{font-size:.88rem;line-height:2.05;color:var(--t2);font-weight:300;max-width:430px;margin-bottom:1.8rem;letter-spacing:.015em;}
@@ -708,28 +708,6 @@ if(!sessionStorage.getItem('hs_seen')){
         </div>
       </div>
     </div>
-    <div class="g-side">
-      <div class="fc-a"><span class="cd cd-o"></span>ROI 145倍</div>
-      <div class="gc">
-        <div class="gc-glow" id="g-glow"></div>
-        <div class="gc-lbl">過剰請求リスク診断</div>
-        <div class="gsw">
-          <svg class="gsvg" viewBox="0 0 200 200">
-            <defs><linearGradient id="gg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2ECC71"/><stop offset="45%" stop-color="#F5A623"/><stop offset="100%" stop-color="#E8542A"/></linearGradient></defs>
-            <circle class="g-track" cx="100" cy="100" r="87"/>
-            <circle class="g-arc" id="g-arc" cx="100" cy="100" r="87" stroke="url(#gg)"/>
-          </svg>
-          <div class="gcent">
-            <div class="g-pct" id="g-pct">—</div>
-            <div class="g-unit" id="g-unit">工事を入力</div>
-            <div class="g-cat" id="g-cat"></div>
-          </div>
-        </div>
-        <div class="rpill rp-none" id="r-pill"><span class="rp-dot" style="background:var(--t4)"></span><span id="r-txt">診断待機中</span></div>
-      </div>
-      <div class="fc-b"><span class="cd cd-g"></span>SHA-256証明付き</div>
-    </div>
-  </div>
 </div>
 
 <!-- ═══ IMPACT BAR ═══ -->
