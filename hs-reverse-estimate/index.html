@@ -807,7 +807,7 @@ async function sendToKira() {
     const res = await fetch(KIRA_PROXY + '/gyaku-mitsumori-chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ system: KIRA_SYSTEM + realCasesData, messages: messages, max_tokens: 1000 })
+      body: JSON.stringify({ system: KIRA_SYSTEM, messages: messages, max_tokens: 1000 })
     });
     if (!res.ok) {
       const e = await res.json().catch(function() { return {}; });
