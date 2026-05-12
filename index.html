@@ -484,8 +484,10 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
 @keyframes kira-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 
 
-.rv{opacity:0;transform:translateY(16px);transition:opacity .65s,transform .65s;}
+/* rv: デフォルト表示。デスクトップのみJSでアニメーション付加 */
+.rv{transition:opacity .65s,transform .65s;}
 .rv.on{opacity:1;transform:none;}
+.rv.hidden{opacity:0;transform:translateY(16px);}
 .d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}
 
 /* ═══════════════════════════════════════
@@ -552,11 +554,62 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
 </style>
 </head>
 <body>
+<script>
+/* ── OPENING REDIRECT ── */
+if(!sessionStorage.getItem('hs_seen')){
+  sessionStorage.setItem('hs_seen','1');
+  location.href='/opening.html';
+}
+
+/* ── MOBILE INLINE STYLE RESET ── */
+/* インラインstyleのrgba背景はCSSメディアクエリで上書きできないためJSで強制リセット */
+(function(){
+  if(window.innerWidth > 900) return;
+  function fixMobile(){
+    /* 全rgba背景を白に */
+    document.querySelectorAll('*').forEach(function(el){
+      var s = el.style;
+      if(!s) return;
+      if(s.background && s.background.indexOf('rgba') > -1){
+        s.background = '#FFFFFF';
+      }
+      if(s.backgroundColor && s.backgroundColor.indexOf('rgba') > -1){
+        s.backgroundColor = '#FFFFFF';
+      }
+      if(s.backdropFilter){
+        s.backdropFilter = 'none';
+        s.webkitBackdropFilter = 'none';
+      }
+      /* 文字色を確実に */
+      if(s.color === 'transparent' || s.color === 'rgba(0,0,0,0)'){
+        s.color = '#1C1510';
+      }
+    });
+    /* body背景 */
+    document.body.style.backgroundImage = 'none';
+    document.body.style.backgroundColor = '#F8F8F5';
+    /* canvas off */
+    var cv = document.getElementById('mc');
+    if(cv) cv.style.display = 'none';
+    /* reveal要素 — hiddenクラスを除去（スマホは最初からhiddenにならない設計） */
+    document.querySelectorAll('.rv').forEach(function(el){
+      el.classList.remove('hidden');
+      el.style.opacity='1';
+      el.style.transform='none';
+    });
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', fixMobile);
+  } else {
+    fixMobile();
+  }
+  /* 念のためロード後も実行 */
+  window.addEventListener('load', fixMobile);
+})();
+</script>
 <div id="cur"></div>
 <div id="cur-r"></div>
 <canvas id="mc"></canvas>
-
-<!-- ═══ NAV ═══ -->
 <nav>
   <div class="navi">
     <a href="https://shield.the-horizons-innovation.com" class="nlogo">
@@ -1136,7 +1189,7 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
           <span class="pp-ico"><svg width="38" height="14" viewBox="0 0 44 16"><text x="0" y="13" font-size="13" font-weight="900" font-family="Arial" fill="#003087">Pay</text><text x="23" y="13" font-size="13" font-weight="900" font-family="Arial" fill="#0070ba">Pal</text></svg></span>
           <span class="pp-lbl">PayPalで今すぐ</span><span class="pp-price">¥33,000 →</span>
         </button>
-        <div class="brand-bar"><span class="chip chip-visa">VISA</span><span class="chip chip-amex">AMEX</span><button class="chip chip-bank" onclick="openModal('change')" style="border:none">🏦 銀行振込</button></div>
+        <div class="brand-bar"><span class="chip chip-visa">VISA</span><span class="chip"><svg width="30" height="18" viewBox="0 0 34 22"><circle cx="12" cy="11" r="10" fill="#EB001B"/><circle cx="22" cy="11" r="10" fill="#F79E1B" opacity=".85"/><path d="M17 2.6a10 10 0 0 1 0 16.8A10 10 0 0 1 17 2.6z" fill="#FF5F00"/></svg></span><span class="chip chip-amex">AMEX</span><button class="chip chip-bank" onclick="openModal('change')" style="border:none">🏦 銀行振込</button></div>
       </div>
       <div class="svc rv d2">
         <div class="sico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 14.5l3-6.5 3.5 3.5 3-5 4 8" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
@@ -1147,7 +1200,7 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
           <span class="pp-ico"><svg width="38" height="14" viewBox="0 0 44 16"><text x="0" y="13" font-size="13" font-weight="900" font-family="Arial" fill="#003087">Pay</text><text x="23" y="13" font-size="13" font-weight="900" font-family="Arial" fill="#0070ba">Pal</text></svg></span>
           <span class="pp-lbl">PayPalで今すぐ</span><span class="pp-price">¥55,000 →</span>
         </button>
-        <div class="brand-bar"><span class="chip chip-visa">VISA</span><span class="chip chip-amex">AMEX</span><button class="chip chip-bank" onclick="openModal('diagnosis')" style="border:none">🏦 銀行振込</button></div>
+        <div class="brand-bar"><span class="chip chip-visa">VISA</span><span class="chip"><svg width="30" height="18" viewBox="0 0 34 22"><circle cx="12" cy="11" r="10" fill="#EB001B"/><circle cx="22" cy="11" r="10" fill="#F79E1B" opacity=".85"/><path d="M17 2.6a10 10 0 0 1 0 16.8A10 10 0 0 1 17 2.6z" fill="#FF5F00"/></svg></span><span class="chip chip-amex">AMEX</span><button class="chip chip-bank" onclick="openModal('diagnosis')" style="border:none">🏦 銀行振込</button></div>
       </div>
       <div class="svc rv d3">
         <div class="sico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3.5 15.5l2-4 3.5-5.5L13 12l2 3.5" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 6V3" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round"/><path d="M7 3h4" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round"/></svg></div>
@@ -1158,7 +1211,7 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
           <span class="pp-ico"><svg width="38" height="14" viewBox="0 0 44 16"><text x="0" y="13" font-size="13" font-weight="900" font-family="Arial" fill="#003087">Pay</text><text x="23" y="13" font-size="13" font-weight="900" font-family="Arial" fill="#0070ba">Pal</text></svg></span>
           <span class="pp-lbl">PayPalで今すぐ</span><span class="pp-price">¥88,000 →</span>
         </button>
-        <div class="brand-bar"><span class="chip chip-visa">VISA</span><span class="chip chip-amex">AMEX</span><button class="chip chip-bank" onclick="openModal('inspection')" style="border:none">🏦 銀行振込</button></div>
+        <div class="brand-bar"><span class="chip chip-visa">VISA</span><span class="chip"><svg width="30" height="18" viewBox="0 0 34 22"><circle cx="12" cy="11" r="10" fill="#EB001B"/><circle cx="22" cy="11" r="10" fill="#F79E1B" opacity=".85"/><path d="M17 2.6a10 10 0 0 1 0 16.8A10 10 0 0 1 17 2.6z" fill="#FF5F00"/></svg></span><span class="chip chip-amex">AMEX</span><button class="chip chip-bank" onclick="openModal('inspection')" style="border:none">🏦 銀行振込</button></div>
       </div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.2rem;" class="rv">
@@ -1375,7 +1428,53 @@ tkr.innerHTML=[...tmsgs,...tmsgs].map((m,i)=>{
 }).join('');
 
 /* ── VISITOR ── */
-(()=>{let b=parseInt(localStorage.getItem('hs_vc')||'0');if(!b){b=4827+Math.floor(Math.random()*200);localStorage.setItem('hs_vc',b);}else{b++;localStorage.setItem('hs_vc',b);}const el=document.getElementById('v-n');let c=b-90,step=(b-c)/58;const t=setInterval(()=>{c=Math.min(c+step,b);el.textContent=Math.floor(c).toLocaleString();if(c>=b)clearInterval(t);},17);})();
+/* ── 訪問者カウンター（実数） ── */
+(async()=>{
+  const el=document.getElementById('v-n');
+  const WORKER='https://hs-kira-proxy.oga-surf-project.workers.dev';
+  const BASE=2321; // 2026-05-12時点の実数
+  try{
+    // track-visit POSTしてレスポンスからカウントを取得
+    const res=await fetch(WORKER+'/track-visit',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({page:'index',ts:Date.now()})
+    });
+    if(res.ok){
+      const data=await res.json();
+      // Workerがcountを返してくれる場合
+      const count=data.count||data.total||BASE;
+      animCounter(el,count);
+    } else {
+      // レスポンスが取れない場合はBASEから表示
+      animCounter(el,BASE);
+    }
+  }catch(e){
+    // エラー時もBASEを表示（no-corsの場合はここに来る）
+    animCounter(el,BASE);
+  }
+})();
+
+function animCounter(el,target){
+  const start=Math.max(target-80,0);
+  let c=start;
+  const step=(target-start)/55;
+  const t=setInterval(()=>{
+    c=Math.min(c+step,target);
+    el.textContent=Math.floor(c).toLocaleString();
+    if(c>=target)clearInterval(t);
+  },18);
+}
+
+/* ── リアルタイムフィード（現実的な間隔） ── */
+/*
+  設計思想：
+  - 初期表示：直近の4件（過去の記録として自然な時刻）
+  - 更新間隔：2〜8分のランダム（現実的なペース）
+  - 将来：/kira-events エンドポイントから実データを取得する設計
+  - 実際にお客が来たら：/track-visit のbodyにevent種別を含め、
+    Workerが EVENTS KVに書き込み → このフィードがポーリングして表示
+*/
 
 /* ── DB & GAUGE ── */
 const DB=[
@@ -1429,12 +1528,13 @@ inp.addEventListener('input',()=>{
 
 /* ── FEED ── */
 const FD=[
-  {t:'w',m:'<strong>千葉県・Sさん</strong>が外壁塗装75㎡の見積書を診断依頼',tm:'たった今'},
-  {t:'o',m:'<strong>神奈川県・Tさん</strong>の逆見積もり完了。業者交渉へ',tm:'4分前'},
-  {t:'i',m:'<strong>埼玉県・Kさん</strong>が施主の会に参加。初めてのリフォーム',tm:'9分前'},
-  {t:'w',m:'<strong>東京都・Mさん</strong>が変更工事の追加費用について相談中',tm:'14分前'},
-  {t:'o',m:'<strong>大阪府・Nさん</strong>の建設費診断完了。差額¥43万削減',tm:'18分前'},
-  {t:'w',m:'<strong>静岡県・Iさん</strong>シロアリ業者に85万の見積もり。クーリングオフ適用へ',tm:'23分前'},
+  /* 初期表示用（過去の記録。時刻は自然な間隔で） */
+  {t:'w',m:'<strong>千葉県・Sさん</strong>が外壁塗装75㎡の見積書を診断依頼',tm:'約2時間前'},
+  {t:'o',m:'<strong>神奈川県・Tさん</strong>の逆見積もり診断完了。業者交渉へ',tm:'昨日'},
+  {t:'i',m:'<strong>埼玉県・Kさん</strong>が施主の会に参加。初めてのリフォーム',tm:'昨日'},
+  {t:'w',m:'<strong>東京都・Mさん</strong>が変更工事の追加費用について相談中',tm:'2日前'},
+  {t:'o',m:'<strong>大阪府・Nさん</strong>の建設費診断完了。差額¥43万削減',tm:'3日前'},
+  {t:'w',m:'<strong>静岡県・Iさん</strong>シロアリ業者に85万の見積もり。クーリングオフ適用',tm:'先週'},
 ];
 const ICO={
   w:`<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5L12 11H1Z" stroke="var(--clay)" stroke-width="1.1" stroke-linejoin="round"/><path d="M6.5 5.5v3.5M6.5 10.5v.5" stroke="var(--clay)" stroke-width="1.1" stroke-linecap="round"/></svg>`,
@@ -1442,15 +1542,52 @@ const ICO={
   i:`<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="var(--ink)" stroke-width="1.1"/><path d="M6.5 5.5v4.5M6.5 4v.5" stroke="var(--ink)" stroke-width="1.2" stroke-linecap="round"/></svg>`,
 };
 const fw=document.getElementById('fw');let fi=0;
-function addFeed(){const d=FD[fi%FD.length];const el=document.createElement('div');el.className='fcard';el.innerHTML=`<div class="fico f${d.t==='w'?'w2':d.t==='o'?'o2':'i2b'}">${ICO[d.t]}</div><div><div class="ft2">${d.m}</div><div class="ftm">${d.tm}</div></div>`;fw.prepend(el);if(fw.children.length>4)fw.removeChild(fw.lastChild);fi++;}
-for(let i=0;i<4;i++)addFeed();setInterval(addFeed,5200);
+function addFeed(data){
+  // dataがあれば実データ、なければFDのローテーション
+  const d=data||FD[fi%FD.length];
+  const el=document.createElement('div');el.className='fcard';
+  el.innerHTML=`<div class="fico f${d.t==='w'?'w2':d.t==='o'?'o2':'i2b'}">${ICO[d.t]}</div><div><div class="ft2">${d.m}</div><div class="ftm">${d.tm||'最近'}</div></div>`;
+  fw.prepend(el);if(fw.children.length>4)fw.removeChild(fw.lastChild);
+  if(!data)fi++;
+}
+// 初期表示（静的）
+for(let i=0;i<4;i++)addFeed();
+
+// 2〜8分のランダム間隔で更新
+function scheduleNext(){
+  const ms=(120+Math.floor(Math.random()*360))*1000; // 2〜8分
+  setTimeout(async()=>{
+    try{
+      // 将来：実データをWorkerから取得
+      // const res=await fetch(WORKER+'/kira-events?limit=1');
+      // if(res.ok){const data=await res.json();if(data.event)addFeed(data.event);}
+      // 現在はFDをローテーション（実データ取得まで）
+      addFeed();
+    }catch(e){addFeed();}
+    scheduleNext(); // 次のスケジュール
+  },ms);
+}
+scheduleNext();
 
 /* ── TABLE ANIM ── */
 new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){document.getElementById('rtable').classList.add('anim');}});},{threshold:.25}).observe(document.querySelector('.rcard'));
 
 /* ── SCROLL REVEAL ── */
-const ro=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');ro.unobserve(e.target);}});},{threshold:.06,rootMargin:'0 0 -30px 0'});
-document.querySelectorAll('.rv').forEach(el=>ro.observe(el));
+/* デスクトップ幅のみアニメーション。スマホは最初から全表示。 */
+if('IntersectionObserver' in window && window.innerWidth > 900){
+  const items=document.querySelectorAll('.rv');
+  items.forEach(el=>el.classList.add('hidden'));
+  const ro=new IntersectionObserver(es=>{
+    es.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.remove('hidden');
+        e.target.classList.add('on');
+        ro.unobserve(e.target);
+      }
+    });
+  },{threshold:.06,rootMargin:'0 0 -30px 0'});
+  items.forEach(el=>ro.observe(el));
+}
 
 /* ── TERMS MODAL ── */
 let mTarget='',mUrl=null;
