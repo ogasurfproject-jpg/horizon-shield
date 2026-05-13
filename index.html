@@ -594,7 +594,21 @@ if(!sessionStorage.getItem('hs_seen')){
       }
     });
     /* body背景 */
-    document.body.style.backgroundImage = 'none';
+    /* ── FOUNDER グリッド強制1列化 ── */
+    var founderGrid = document.querySelector('#founder [style*="grid-template-columns"]');
+    if(founderGrid){
+      founderGrid.style.gridTemplateColumns = '1fr';
+      founderGrid.style.gap = '1.5rem';
+      founderGrid.style.textAlign = 'center';
+    }
+    /* ── サンプルボタン色復活 ── */
+    var sampleBtn = document.querySelector('.pdf-sec a[href*="sample-report.pdf"]');
+    if(sampleBtn){
+      sampleBtn.style.background = '#C24E1A';
+      sampleBtn.style.color = '#fff';
+    }
+    /* body背景 */
+     document.body.style.backgroundImage = 'none';
     document.body.style.backgroundColor = '#F8F8F5';
     /* canvas off */
     var cv = document.getElementById('mc');
