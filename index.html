@@ -582,7 +582,7 @@ if(!sessionStorage.getItem('hs_seen')){
        if(el.id !== 'tmodal' && !el.closest('.pdf-sec') && !el.closest('.cta-bg') && !el.closest('.media-bg')){s.background='#FFFFFF';}
       }
       if(s.backgroundColor && s.backgroundColor.indexOf('rgba') > -1){
-        if(!el.closest('.pdf-sec') && !el.closest('.cta-bg') && !el.closest('.media-bg')){s.backgroundColor = '#FFFFFF';}
+        if(!el.closest('.pdf-sec') && !el.closest('.cta-bg') && !el.closest('.media-bg') && !el.closest('.free-diag-banner')){s.backgroundColor = '#FFFFFF';}
       }
       if(s.backdropFilter){
         s.backdropFilter = 'none';
