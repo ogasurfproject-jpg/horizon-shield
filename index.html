@@ -511,7 +511,10 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
   .sec{padding:3.5rem 1.4rem !important;}
   /* ── 全セクション背景を確実に白に ── */
   .voices-bg,.sample-sec,.how-bg,.kira-sec,.comm-sec,.research-bg,.free-bg,.faq-bg{
-    background:var(--white) !important;backdrop-filter:none !important;
+    .free-diag-banner{
+  background:linear-gradient(135deg,rgba(194,78,26,.92),rgba(160,64,20,.96)) !important;
+}
+     background:var(--white) !important;backdrop-filter:none !important;
   }
   /* ── カード類 ── */
   .gc,.comm-box,.hstep,.svc,.voice-card,.free-card,.rcard,.fq,.kira-btn{
@@ -579,7 +582,7 @@ if(!sessionStorage.getItem('hs_seen')){
       var s = el.style;
       if(!s) return;
       if(s.background && s.background.indexOf('rgba') > -1){
-       if(el.id !== 'tmodal' && !el.closest('.pdf-sec') && !el.closest('.cta-bg') && !el.closest('.media-bg')){s.background='#FFFFFF';}
+       if(el.id !== 'tmodal' && !el.closest('.pdf-sec') && !el.closest('.cta-bg') && !el.closest('.media-bg') && !el.closest('.free-diag-banner')){s.background='#FFFFFF';}
       }
       if(s.backgroundColor && s.backgroundColor.indexOf('rgba') > -1){
         if(!el.closest('.pdf-sec') && !el.closest('.cta-bg') && !el.closest('.media-bg') && !el.closest('.free-diag-banner')){s.backgroundColor = '#FFFFFF';}
