@@ -25,6 +25,23 @@ if article.get('slug') != slug:
     print(f'Today article not found (got {article.get("slug")}), skipping')
     exit(0)
 
+# 重複チェック：既に今日の記事が投稿済みか確認
+credentials = base64.b64encode(f'{HATENA_ID}:{HATENA_API_KEY}'.encode()).decode()
+list_req = urllib.request.Request(
+    f'https://blog.hatena.ne.jp/{HATENA_ID}/{HATENA_BLOG_ID}/atom/entry',
+    headers={'Authorization': f'Basic {credentials}'},
+    method='GET'
+)
+try:
+    with urllib.request.urlopen(list_req) as r:
+        feed_xml = r.read().decode('utf-8')
+        if article['title'] in feed_xml:
+            print(f'SKIP: Already posted today - {article["title"]}')
+            exit(0)
+except Exception as e:
+    print(f'Warning: Could not check duplicates: {e}')
+
+title = article['title']
 title = article['title']
 url = 'https://shield.the-horizons-innovation.com' + article['url']
 
