@@ -26,3 +26,10 @@ jobs:
           git add blog/
           git diff --staged --quiet || git commit -m "blog post $(date +%Y-%m-%d)"
           git push
+
+      - name: Post to Hatena Blog
+        env:
+          HATENA_ID: horizonshield
+          HATENA_API_KEY: m3uc3uxt6s
+          HATENA_BLOG_ID: horizonshield.hatenablog.com
+        run: python3 post_hatena.py
