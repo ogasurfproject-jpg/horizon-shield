@@ -29,7 +29,7 @@ jobs:
 
       - name: Post to Hatena Blog
         env:
-         HATENA_ID: ${{ secrets.HATENA_ID }}
+          HATENA_ID: ${{ secrets.HATENA_ID }}
           HATENA_API_KEY: ${{ secrets.HATENA_API_KEY }}
           HATENA_BLOG_ID: ${{ secrets.HATENA_BLOG_ID }}
         run: python3 post_hatena.py
