@@ -1,0 +1,7 @@
+name = "hs-estimate"
+main = "index.js"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "HS_ESTIMATE_KV"
+id = "c9c35a586ed04a41b38f564df9965264"
