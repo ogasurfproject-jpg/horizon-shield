@@ -284,7 +284,7 @@ async function open_(){
     await checkDB();
     const cnt=await loadHist();
     const g=cnt>0?'前回の続きですね。\n\n'+cnt+'件の記憶があります。\n見積書を送るか、続きを話してください。':'KIRA v4.0です。\n\n見積書の画像を送れば、即座に診断します。\n地域と工事の種類も教えてください。\n\nあなたの感覚は、正しいかもしれない。';
-    setTimeout(()=>{addMsg('kira',fmt(g),true);setQR(['見積書が高い気がする','「一式」表記が気になる','追加工事を断れなかった','タックダインを勧められた','床下工事が高すぎる']);},200);
+    if(cnt===0){setTimeout(()=>{addMsg('kira',fmt(g),true);setQR(['見積書が高い気がする','「一式」表記が気になる','追加工事を断れなかった','タックダインを勧められた','床下工事が高すぎる']);},200);}
   }
 }
 function close_(){modal.classList.remove('open');opened=false;}
