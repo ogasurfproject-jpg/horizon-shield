@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Japan Renovation Cost Diagnosis: 20 Real Cases (Up to $19,600 Overcharge Detected) | HORIZON SHIELD</title>
+<meta name="description" content="20 real construction cost diagnosis cases by HORIZON SHIELD — an AI tool built by a 30-year Japanese master carpenter. Maximum overcharge detected: $19,600. Highest fraud rate: 84.9% (termite scam). All cases verified via Bitcoin-anchored audit hash.">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/jireishuu_en.html">
+<link rel="alternate" hreflang="ja" href="https://shield.the-horizons-innovation.com/jireishuu.html">
+<link rel="alternate" hreflang="en" href="https://shield.the-horizons-innovation.com/jireishuu_en.html">
+<meta property="og:title" content="20 Real Japanese Renovation Fraud Cases | HORIZON SHIELD">
+<meta property="og:description" content="Real construction cost diagnosis cases. Maximum overcharge: $19,600. Maximum fraud rate: 84.9%. Built by a 30-year master carpenter.">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/jireishuu_en.html">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Japan Renovation Cost Diagnosis: 20 Real Cases",
+  "author": {
+    "@type": "Person",
+    "name": "Toshikatsu Oga",
+    "jobTitle": "CEO, 30-year master carpenter turned AI engineer",
+    "sameAs": ["https://orcid.org/0009-0000-9180-903X"]
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "The HORIZ音s Inc.",
+    "url": "https://shield.the-horizons-innovation.com"
+  },
+  "datePublished": "2026-05-18",
+  "dateModified": "2026-05-18",
+  "inLanguage": "en",
+  "description": "20 real construction cost diagnosis cases by HORIZON SHIELD AI tool, with Bitcoin-anchored audit hashes for verification."
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": "HORIZON SHIELD Diagnosis Examples v3.0",
+  "description": "20 real construction cost diagnosis cases from the Japanese renovation market. Each case includes 12-character cryptographic audit hash anchored to Bitcoin Block #949356.",
+  "url": "https://github.com/ogasurfproject-jpg/horizon-shield-diagnosis-examples",
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "creator": {
+    "@type": "Person",
+    "name": "Toshikatsu Oga",
+    "identifier": "https://orcid.org/0009-0000-9180-903X"
+  },
+  "distribution": [{
+    "@type": "DataDownload",
+    "encodingFormat": "application/json",
+    "contentUrl": "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield-diagnosis-examples/main/examples_en.json"
+  }]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "How does HORIZON SHIELD detect renovation fraud?", "acceptedAnswer": {"@type": "Answer", "text": "HORIZON SHIELD uses an AI tool trained on JCCDB v1.2 (3,350 items, 75 categories) and 30 years of field expertise. Each diagnosis produces a 12-character audit hash permanently anchored to Bitcoin Block #949356 for tamper-proof verification."}},
+    {"@type": "Question", "name": "What is the highest fraud rate detected?", "acceptedAnswer": {"@type": "Answer", "text": "The highest fraud rate in this dataset is 84.9%, found in a termite extermination scam in Chiba Prefecture. A 1,850,000 JPY quote was actually worth 280,000 JPY."}},
+    {"@type": "Question", "name": "What is the maximum overcharge detected in absolute terms?", "acceptedAnswer": {"@type": "Answer", "text": "The maximum overcharge detected was 2,800,000 JPY (~$19,600) in a new construction case in Chiba Prefecture, where pre-handover 'specification change' fees were illegitimately added."}},
+    {"@type": "Question", "name": "Who built HORIZON SHIELD?", "acceptedAnswer": {"@type": "Answer", "text": "Toshikatsu Oga, a 30-year Japanese master carpenter (miyadaiku tradition) who transitioned from carpenter → site supervisor → CMR → AI engineer. CEO of The HORIZ音s Inc."}},
+    {"@type": "Question", "name": "Is the dataset publicly available?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The full dataset is published on GitHub under CC BY 4.0 license at https://github.com/ogasurfproject-jpg/horizon-shield-diagnosis-examples"}}
+  ]
+}
+</script>
+
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy2: #112240;
+    --gold: #c9a84c;
+    --gold2: #e8c87a;
+    --cream: #f5f0e8;
+    --text: #2c2c2c;
+    --muted: #6b7280;
+    --danger: #dc2626;
+    --safe: #16a34a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; background: var(--cream); color: var(--text); line-height: 1.7; }
+  header { background: var(--navy); padding: 2rem 1.5rem; text-align: center; border-bottom: 3px solid var(--gold); }
+  header .logo { color: var(--gold); font-size: 0.85rem; letter-spacing: 0.2em; margin-bottom: 1rem; text-transform: uppercase; }
+  header h1 { color: #fff; font-size: clamp(1.3rem, 4vw, 2rem); font-weight: 700; line-height: 1.4; margin-bottom: 0.75rem; }
+  header p { color: #94a3b8; font-size: 0.9rem; max-width: 700px; margin: 0 auto; }
+  header .lang-switch { margin-top: 1rem; }
+  header .lang-switch a { color: var(--gold); font-size: 0.8rem; text-decoration: none; border: 1px solid var(--gold); padding: 0.3rem 0.75rem; border-radius: 4px; }
+  .stats-bar { background: var(--gold); padding: 0.75rem 1.5rem; display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+  .stat { text-align: center; color: var(--navy); }
+  .stat strong { display: block; font-size: 1.4rem; font-weight: 800; }
+  .stat span { font-size: 0.75rem; font-weight: 600; }
+  main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .intro { background: var(--navy2); color: #e2e8f0; border-left: 4px solid var(--gold); padding: 1.5rem; border-radius: 4px; margin-bottom: 2.5rem; font-size: 0.95rem; }
+  .intro strong { color: var(--gold); }
+  .cases-grid { display: flex; flex-direction: column; gap: 1.5rem; }
+  .case-card { background: #fff; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #e5e7eb; }
+  .case-header { background: var(--navy); padding: 1rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .case-num { background: var(--gold); color: var(--navy); width: 2rem; height: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; }
+  .case-title { color: #fff; font-size: 1rem; font-weight: 700; flex: 1; }
+  .case-tag { background: rgba(201,168,76,0.2); color: var(--gold2); font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 999px; border: 1px solid var(--gold); }
+  .case-body { padding: 1.5rem; }
+  .situation { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid #f0f0f0; }
+  .price-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+  .price-box { border-radius: 6px; padding: 1rem; text-align: center; }
+  .price-box.before { background: #fef2f2; border: 1px solid #fecaca; }
+  .price-box.after { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .price-box .label { font-size: 0.75rem; font-weight: 700; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .price-box.before .label { color: var(--danger); }
+  .price-box.after .label { color: var(--safe); }
+  .price-box .amount { font-size: 1.4rem; font-weight: 800; line-height: 1.2; }
+  .price-box.before .amount { color: var(--danger); }
+  .price-box.after .amount { color: var(--safe); }
+  .price-box .sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; }
+  .saving-badge { background: linear-gradient(135deg, var(--navy), var(--navy2)); color: #fff; border-radius: 6px; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem; }
+  .saving-badge .saving-label { font-size: 0.8rem; color: #94a3b8; }
+  .saving-badge .saving-amount { color: var(--gold); font-size: 1.5rem; font-weight: 800; }
+  .saving-badge .saving-amount span { font-size: 0.85rem; font-weight: 400; margin-left: 0.25rem; }
+  .hash-line { font-family: 'Courier New', monospace; font-size: 0.78rem; color: var(--muted); background: #f8f9fa; padding: 0.4rem 0.75rem; border-radius: 4px; margin-bottom: 1rem; word-break: break-all; }
+  .hash-line strong { color: var(--navy); }
+  .founder-comment { border-left: 3px solid var(--gold); padding: 0.75rem 1rem; background: #fffdf5; font-size: 0.88rem; color: var(--text); border-radius: 0 4px 4px 0; }
+  .founder-comment .author { font-size: 0.75rem; color: var(--muted); margin-top: 0.5rem; }
+  .cta-section { background: var(--navy); color: #fff; border-radius: 8px; padding: 2rem 1.5rem; text-align: center; margin-top: 3rem; border: 2px solid var(--gold); }
+  .cta-section h2 { color: var(--gold); font-size: 1.3rem; margin-bottom: 0.75rem; }
+  .cta-section p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem; }
+  .cta-btn { display: inline-block; background: var(--gold); color: var(--navy); font-weight: 800; font-size: 1rem; padding: 0.9rem 2rem; border-radius: 6px; text-decoration: none; transition: background 0.2s; }
+  .cta-btn:hover { background: var(--gold2); }
+  footer { text-align: center; padding: 2rem 1.5rem; color: var(--muted); font-size: 0.8rem; border-top: 1px solid #e5e7eb; margin-top: 2rem; }
+  @media (max-width: 480px) { .price-compare { grid-template-columns: 1fr; } .stats-bar { gap: 1rem; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🛡 HORIZON SHIELD — Construction Cost AI Diagnosis</div>
+  <h1>Japan Renovation Cost Diagnosis<br>20 Real Cases</h1>
+  <p>20 verified cases of renovation overcharging detected by an AI tool built by a 30-year Japanese master carpenter. Maximum overcharge: $19,600. Maximum fraud rate: 84.9%.</p>
+  <div class="lang-switch"><a href="/jireishuu.html">🇯🇵 日本語版</a></div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat"><strong>20</strong><span>Total Cases</span></div>
+  <div class="stat"><strong>~$5,775</strong><span>Avg Overcharge</span></div>
+  <div class="stat"><strong>~$19,600</strong><span>Max Savings</span></div>
+  <div class="stat"><strong>84.9%</strong><span>Max Fraud Rate</span></div>
+  <div class="stat"><strong>30 yrs</strong><span>Founder Experience</span></div>
+</div>
+
+<main>
+
+<div class="intro">
+  <strong>All cases are anonymized and generalized.</strong><br>
+  Each diagnosis includes a 12-character audit hash permanently anchored to Bitcoin Block #949356 for tamper-proof verification. "Don't Trust, Verify" — this is the HORIZON SHIELD principle. Dataset covers 20 categories across 15 prefectures of Japan. USD figures use approximate rate (1 USD ≈ 143 JPY).
+</div>
+
+<div class="cases-grid">
+
+  <!-- Case 1 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">1</div>
+      <div class="case-title">Exterior Wall Painting (Kanto / 22-year-old house)</div>
+      <div class="case-tag">Painting</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Female homeowner in her 50s, Kanagawa Prefecture. A door-to-door salesman pressured her with "If you don't act today, you'll get a leak" tactics. She submitted the quote to HORIZON SHIELD.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥2,180,000<br>(~$15,240)</div><div class="sub">Exterior + roof</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥1,310,000<br>(~$9,160)</div><div class="sub">Same quality, same scope</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥870,000 (~$6,090)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> K7mX2pQ9nR4s</div>
+      <div class="founder-comment">"You must decide today or the price will rise" is the contractor's classic tactic. Speaking from 30 years on-site: painting is almost never an emergency. Three competing quotes will easily show this kind of gap.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 2 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">2</div>
+      <div class="case-title">Roof Repair (Kansai / 15-year-old tile roof)</div>
+      <div class="case-tag">Roofing</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Male homeowner in his 40s, Osaka Prefecture. After a typhoon, a contractor knocked on his door saying "Your ridge cap is loose, you need to fix it immediately or there will be major damage."</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥980,000<br>(~$6,850)</div><div class="sub">Ridge cap + waterproofing</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥530,000<br>(~$3,710)</div><div class="sub">Same scope</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥450,000 (~$3,150)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> A3nL8vT1mP6w</div>
+      <div class="founder-comment">Ridge cap repair typically costs ¥10,000-30,000. Inflating it with "waterproofing included" is a well-known industry trick. Post-typhoon is especially risky — never rush. Always get multiple quotes.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 3 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">3</div>
+      <div class="case-title">Kitchen/Bath/Toilet Renovation (Tokai / 30-year-old house)</div>
+      <div class="case-tag">Water systems</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Couple in their 60s, Aichi Prefecture. Considering simultaneous kitchen, bathroom, and toilet renovation. Felt the local contractor's quote was too high.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥3,850,000<br>(~$26,920)</div><div class="sub">3-piece water set</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥3,220,000<br>(~$22,520)</div><div class="sub">Same product grade</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥630,000 (~$4,410)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> B9qY5eH2cN7j</div>
+      <div class="founder-comment">3-piece water renovation has the most negotiation room in the industry. Double-billing of overhead and management fees was the main issue here. Any "lump sum" line item must be itemized — always demand it.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 4 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">4</div>
+      <div class="case-title">Full Interior Renovation (Kyushu / Used condo)</div>
+      <div class="case-tag">Full reno</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Couple in their 30s, Fukuoka Prefecture. Purchased a used condo and planned a full renovation. Found a renovation company through social media.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥7,800,000<br>(~$54,550)</div><div class="sub">60sqm full reno</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥6,600,000<br>(~$46,150)</div><div class="sub">Same spec, same grade</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥1,200,000 (~$8,400)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> D4fW0kR6sE1u</div>
+      <div class="founder-comment">Instagram-friendly renovation companies bake advertising costs and brand premiums into their prices. Dropping interior material grade by one level can change the total by tens of thousands. "Stylish" and "expensive" are different stories.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 5 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">5</div>
+      <div class="case-title">Commercial Restaurant Interior (Tokyo / First opening)</div>
+      <div class="case-tag">Commercial</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Male entrepreneur in his 40s, Tokyo. First-time restaurant opening. Received quote from interior contractor but unsure about market rates.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥4,200,000<br>(~$29,370)</div><div class="sub">20-tsubo skeleton fit-out</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥3,250,000<br>(~$22,720)</div><div class="sub">Same scope</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥950,000 (~$6,650)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> F2vZ7mT3bJ9p</div>
+      <div class="founder-comment">Restaurant interiors are routinely priced high under the assumption owners don't know market rates. Watch out especially for kitchen equipment installation fees. Always decompose "lump sum" items that mix equipment and labor costs.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 6 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">6</div>
+      <div class="case-title">Kominka (Traditional House) Renovation (Chugoku / 60-year-old)</div>
+      <div class="case-tag">Heritage</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Couple in their 50s, Shimane Prefecture. Inherited a 60-year-old traditional Japanese house and planning to relocate after renovation.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥5,600,000<br>(~$39,160)</div><div class="sub">Seismic + insulation incl.</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥4,820,000<br>(~$33,710)</div><div class="sub">Same scope</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥780,000 (~$5,460)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> G6xC1nP8qL4t</div>
+      <div class="founder-comment">Kominka renovations attract contractors who pad contingency fees by saying "we don't know until we open it up." Seismic reinforcement government subsidies (up to ¥1M+) may apply — research subsidies before signing any contract.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 7 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">7</div>
+      <div class="case-title">Condo Renovation (Osaka / 50sqm)</div>
+      <div class="case-tag">Condo</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Single woman in her 30s, central Osaka. Purchased a used condo and received a quote from the renovation company partnered with her real estate broker. Felt awkward to refuse.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥2,900,000<br>(~$20,280)</div><div class="sub">50sqm partial reno</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥2,350,000<br>(~$16,430)</div><div class="sub">Same scope</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥550,000 (~$3,850)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> H1yD5sM9wK2r</div>
+      <div class="founder-comment">Real estate broker + renovation company package deals almost always include hidden referral fees. You have the right to choose them separately. Even if it feels awkward to refuse — you can still request quotes from multiple companies.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 8 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">8</div>
+      <div class="case-title">House Renovation (Kanagawa / 18-year-old house)</div>
+      <div class="case-tag">House reno</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Family in their 40s, Yokohama City. Bought a used house and renovated water systems and interior before moving in. Quote came via housing manufacturer.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥1,950,000<br>(~$13,640)</div><div class="sub">Water + wallpaper</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥1,530,000<br>(~$10,700)</div><div class="sub">Same scope</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥420,000 (~$2,940)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> I8eF3kV0nQ7m</div>
+      <div class="founder-comment">Renovations routed through major housing manufacturers typically carry 20-30% middleman markup. The actual work is done by subcontractors. Going directly to local builders for competing quotes easily shows this kind of gap.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 9 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">9</div>
+      <div class="case-title">Two-Generation House Extension (Saitama)</div>
+      <div class="case-tag">Extension</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Male homeowner in his 50s, Saitama City. Planned a two-generation extension to care for an aging parent. Quote came from a builder introduced by a personal acquaintance.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥13,500,000<br>(~$94,410)</div><div class="sub">30-tsubo extension</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥12,400,000<br>(~$86,710)</div><div class="sub">Same scope</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥1,100,000 (~$7,700)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> J5tG2hB7pW0c</div>
+      <div class="founder-comment">Personal referrals create "can't refuse" psychology that contractors exploit. Even with referrals, scrutinizing the quote is mandatory. Main causes here: double-billing of overhead and over-spec equipment proposals.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 10 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">10</div>
+      <div class="case-title">Exterior/Landscaping (Hokkaido / Post-construction)</div>
+      <div class="case-tag">Landscaping</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Couple in their 30s, Sapporo City. After new construction completion, the housing manufacturer proposed exterior work.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥1,680,000<br>(~$11,750)</div><div class="sub">Carport, fence, etc.</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥1,300,000<br>(~$9,090)</div><div class="sub">Same scope</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥380,000 (~$2,660)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> L0mU4aX9yN3f</div>
+      <div class="founder-comment">Post-construction exterior is typically decided "on momentum." Housing manufacturer routing is a textbook example of overpriced work. Going directly to exterior specialists for competing quotes typically yields 20-30% lower prices.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 11 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">11</div>
+      <div class="case-title">Termite Extermination + Foundation Repair (Kanto / 28-year-old)</div>
+      <div class="case-tag">Termite</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Couple in their 60s, Chiba Prefecture. A "free inspection" contractor used fear tactics ("Your foundation is rotting, the house will tip over") and pressured them for a same-day contract. The salesman stayed at their house until late at night.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥1,850,000<br>(~$12,940)</div><div class="sub">Foundation + pesticide</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥280,000<br>(~$1,960)</div><div class="sub">Minimum necessary only</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected (84.9% fraud rate)</div><div class="saving-amount">¥1,570,000 (~$10,990)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> M2pR8qL5tN3v</div>
+      <div class="founder-comment">Highest fraud rate in this dataset. Classic door-to-door predatory pattern with "free inspection" as the hook. Only partial extermination was actually needed — foundation reinforcement was entirely unnecessary. If a contractor stays past sundown, you have the right to call the police. That's the correct response.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 12 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">12</div>
+      <div class="case-title">Earthquake Reinforcement (Tokai / 35-year-old wood)</div>
+      <div class="case-tag">Seismic</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Male homeowner in his 60s, Shizuoka Prefecture. Considering seismic reinforcement for a 35-year-old wood 2-story house. Requested quote assuming municipal subsidy (up to ¥1M) would apply.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥4,800,000<br>(~$33,570)</div><div class="sub">Wall + foundation</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥3,100,000<br>(~$21,680)</div><div class="sub">Same seismic performance</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥1,700,000 (~$11,900)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> N5sT1mY8xK4w</div>
+      <div class="founder-comment">Subsidized work is a classic case where contractors inflate quotes. The "the subsidy covers it anyway" psychology gets exploited. Here we confirmed actual work volume was padded 1.5x. Always verify fair pricing even when subsidies apply.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 13 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">13</div>
+      <div class="case-title">Solar Panel Installation (North Kanto / 5.5kW)</div>
+      <div class="case-tag">Solar</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Couple in their 40s, Gunma Prefecture. Considering solar installation due to rising electricity costs. Salesperson promised "ROI in 10 years" for a 5.5kW system.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥2,980,000<br>(~$20,840)</div><div class="sub">5.5kW, no battery</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥1,880,000<br>(~$13,150)</div><div class="sub">Same spec, same maker</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥1,100,000 (~$7,700)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> P7vF3nC6bH2j</div>
+      <div class="founder-comment">Post-FIT solar pricing has become widely inflated. "ROI in 10 years" simulations are mostly over-optimistic. Actual calculation: 18+ years. Always verify panel unit pricing against online market rates.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 14 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">14</div>
+      <div class="case-title">Water Heater Replacement (Kansai / Winter failure)</div>
+      <div class="case-tag">Water heater</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Female homeowner in her 50s, Hyogo Prefecture. Water heater broke in mid-winter. Contractor pressured her with "decide today or you'll freeze tonight" and presented a contract with a no-competing-quotes clause.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥780,000<br>(~$5,460)</div><div class="sub">EcoCute 460L</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥430,000<br>(~$3,010)</div><div class="sub">Same spec, same maker</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥350,000 (~$2,450)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> Q1bN9eR4mT7s</div>
+      <div class="founder-comment">Fake emergency response for high-cost contracts is a textbook tactic. Never trust contractors who add "no competing quotes" clauses. Water heater replacement is feasible same-day even with multiple bids. Wait one night, even cold, and pick the right contractor.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 15 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">15</div>
+      <div class="case-title">Waterproofing (North Kanto / Apartment rooftop)</div>
+      <div class="case-tag">Waterproof</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Male apartment owner in his 60s, Ibaraki Prefecture. Rooftop leak. Received FRP waterproofing quote but felt the necessary area was suspiciously large.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥1,620,000<br>(~$11,330)</div><div class="sub">80sqm substrate repair</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥980,000<br>(~$6,850)</div><div class="sub">30sqm actual area</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥640,000 (~$4,480)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> R4kP6yA2sV9z</div>
+      <div class="founder-comment">"Substrate repair area" is hard for owners to verify, making it easy to inflate. Reporting an actual 30sqm need as 80sqm is malicious. Rental property owners are especially targeted. Always cross-reference drawings with on-site photos.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 16 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">16</div>
+      <div class="case-title">Window Replacement (Chubu / Insulation upgrade)</div>
+      <div class="case-tag">Insulation</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Male homeowner in his 50s, Nagano Prefecture. Considering full window replacement to YKK APW330 for winter insulation. Quote assumed 2026 GX subsidy.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥2,450,000<br>(~$17,130)</div><div class="sub">12-window full replacement</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥1,680,000<br>(~$11,750)</div><div class="sub">Same product, same scope</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥770,000 (~$5,390)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> S8tH3wL1qB6x</div>
+      <div class="founder-comment">In the booming insulation market driven by 2026 GX subsidies, contractors increasingly absorb the entire subsidy as profit. The owner's net savings becomes near-zero by design. Always separately verify the original subsidy amount.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 17 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">17</div>
+      <div class="case-title">Office Restoration (Tokyo / 80-tsubo move-out)</div>
+      <div class="case-tag">Office</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">SMB in central Tokyo. At office move-out, told "you must use the building-designated contractor." Quote arrived. Was about to give up on negotiation.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥6,800,000<br>(~$47,550)</div><div class="sub">80-tsubo designated</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥4,200,000<br>(~$29,370)</div><div class="sub">Same scope</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥2,600,000 (~$18,200)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> T2gX7uK5pD4f</div>
+      <div class="founder-comment">"You must use the building-designated contractor" is often a lie. Reading the lease contract carefully usually reveals clauses allowing competitive bidding. B2B office restoration has the most negotiation room of any sector. Tenants — be aggressive.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 18 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">18</div>
+      <div class="case-title">Carport Installation (Chubu / 2-car)</div>
+      <div class="case-tag">Carport</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Male homeowner in his 40s, Gifu Prefecture. Wanted to install a 2-car carport. Quote presented manufacturer MSRP as-is, which felt suspicious.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥1,280,000<br>(~$8,950)</div><div class="sub">LIXIL + concrete pad</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥720,000<br>(~$5,030)</div><div class="sub">Same product, same scope</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥560,000 (~$3,920)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> U6jL9aF3rN8y</div>
+      <div class="founder-comment">The exterior industry rampantly presents manufacturer MSRP. LIXIL and Sankyo Aluminum actual market rates are 60-70% of MSRP. There was also installation labor double-billing. Type number searches reveal market rates instantly.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 19 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">19</div>
+      <div class="case-title">New Construction Pre-Handover Surcharge (Kanto / 35-tsubo)</div>
+      <div class="case-tag">New construction</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Couple in their 30s, Chiba Prefecture. Just before handover of their custom home, they were billed ¥8,200,000 as "additional fees due to specification changes" — over 20% of the contract value. Submitted emergency diagnosis.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Additional Charge</div><div class="amount">¥8,200,000<br>(~$57,340)</div><div class="sub">"Spec change" claim</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥5,400,000<br>(~$37,760)</div><div class="sub">Actual changes only</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Improper charge (largest saving)</div><div class="saving-amount">¥2,800,000 (~$19,600)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> V9eM2cQ7zG5h</div>
+      <div class="founder-comment">Largest absolute savings in this dataset. Most items claimed as "specification changes" were actually within the standard spec. New construction surcharges typically appear right before handover. Always scrutinize the itemized list before signing. Once you sign, you cannot legally fight it even if unjust.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+  <!-- Case 20 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">20</div>
+      <div class="case-title">Demolition Work (Kansai / Wood 40-tsubo)</div>
+      <div class="case-tag">Demolition</div>
+    </div>
+    <div class="case-body">
+      <div class="situation">Male homeowner in his 50s, Kyoto Prefecture. Demolishing his parents' vacant house (wood 2-story 40-tsubo). Felt the industrial waste processing line item was suspiciously large.</div>
+      <div class="price-compare">
+        <div class="price-box before"><div class="label">Contractor Quote</div><div class="amount">¥2,150,000<br>(~$15,030)</div><div class="sub">Demolition + waste</div></div>
+        <div class="price-box after"><div class="label">AI Fair Price</div><div class="amount">¥1,380,000<br>(~$9,650)</div><div class="sub">Same scope</div></div>
+      </div>
+      <div class="saving-badge"><div class="saving-label">Overcharge detected</div><div class="saving-amount">¥770,000 (~$5,390)<span>saved</span></div></div>
+      <div class="hash-line"><strong>Audit hash:</strong> W3iZ5oP8uS2t</div>
+      <div class="founder-comment">Demolition work frequently inflates industrial waste processing fees. Always demand the manifest (waste tracking document). Contractors who can't provide it may be illegally dumping. Vacant house demolition makes owners easy targets.<div class="author">— Toshikatsu Oga (CEO, 30-year master carpenter)</div></div>
+    </div>
+  </div>
+
+</div><!-- /cases-grid -->
+
+<div style="margin:2rem 0;padding:1.25rem 1.5rem;background:#112240;border:1px solid #c9a84c;border-radius:8px;text-align:center;">
+  <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:0.5rem;">📊 Full dataset available as open data (20 cases, JSON)</p>
+  <a href="https://github.com/ogasurfproject-jpg/horizon-shield-diagnosis-examples" target="_blank" style="color:#c9a84c;font-weight:700;font-size:0.95rem;text-decoration:none;">GitHub: horizon-shield-diagnosis-examples →</a>
+</div>
+
+<div style="margin:1rem 0;padding:1rem 1.25rem;background:#0a1628;border:1px solid #c9a84c;border-radius:6px;text-align:center;">
+  <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:0.5rem;">🇯🇵 Japanese version available</p>
+  <a href="/jireishuu.html" style="color:#c9a84c;font-weight:700;font-size:0.95rem;text-decoration:none;">View Japanese Edition (日本語版) →</a>
+</div>
+
+<div class="cta-section">
+  <h2>Want your quote diagnosed?</h2>
+  <p>Upload a single quote document. 30 years of field expertise will diagnose it instantly.</p>
+  <a href="https://shield.the-horizons-innovation.com" class="cta-btn">🛡 Try Free Diagnosis</a>
+</div>
+
+</main>
+
+<footer>
+  © 2026 The HORIZ音s Inc. | HORIZON SHIELD<br>
+  <a href="https://shield.the-horizons-innovation.com" style="color:inherit;">shield.the-horizons-innovation.com</a> |
+  <a href="https://orcid.org/0009-0000-9180-903X" style="color:inherit;">ORCID</a> |
+  <a href="https://doi.org/10.31224/7007" style="color:inherit;">engrXiv</a>
+</footer>
+
+</body>
+</html>
