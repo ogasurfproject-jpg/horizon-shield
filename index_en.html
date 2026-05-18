@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HORIZON SHIELD — Bitcoin-anchored AI for construction quotes</title>
+<meta name="description" content="A deterministic AI cost diagnostic system with SHA-256 audit hash and Bitcoin blockchain anchoring (Block #949356). Built by a 30-year construction veteran to address overcharging in Japan's renovation market. JCCDB v1.2.2 open-access on Zenodo and engrXiv.">
+<meta property="og:title" content="HORIZON SHIELD — Bitcoin-anchored AI for construction quotes">
+<meta property="og:description" content="PTKA Protocol Declaration anchored to Bitcoin Block #949356. Same input always produces the same output, verified by cryptographic hash. Built by a 30-year construction veteran.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/index_en.html">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/index_en.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf9f5;
+  --surface:#ffffff;
+  --border:#dddad0;
+  --accent:#0f1e4a;
+  --accent-light:#162a6a;
+  --warn:#c8a832;
+  --gold-deep:#8b6914;
+  --text:#1a1a2a;
+  --muted:#6b6b6b;
+  --code-bg:#f5f4ef;
+  --header-h:60px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',-apple-system,sans-serif;
+  font-size:16px;
+  line-height:1.6;
+  padding-top:var(--header-h);
+  overflow-x:hidden;
+}
+
+/* ─── Header ─── */
+header{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  height:var(--header-h);
+  background:rgba(250,249,245,0.95);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;
+}
+.logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px;letter-spacing:2px;
+  color:var(--accent);text-decoration:none;
+}
+.logo span{color:var(--warn)}
+.lang-switch{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:2px;
+  color:var(--muted);text-decoration:none;
+  padding:6px 12px;border:1px solid var(--border);border-radius:3px;
+  transition:all .2s;
+}
+.lang-switch:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ─── Hero ─── */
+#hero{
+  min-height:90vh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:80px 24px 60px;
+  position:relative;overflow:hidden;
+  max-width:1100px;margin:0 auto;
+}
+.hero-bg{
+  position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 40% at 80% 20%,rgba(15,30,74,0.05) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 60% at 10% 80%,rgba(200,168,50,0.05) 0%,transparent 60%);
+}
+.hero-bg svg{position:absolute;inset:0;width:100%;height:100%}
+.hero-content{position:relative;z-index:1;max-width:800px}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:3px;
+  color:var(--gold-deep);
+  margin-bottom:24px;
+  display:inline-flex;align-items:center;gap:10px;
+}
+.eyebrow::before{
+  content:"";display:block;
+  width:24px;height:1px;background:var(--gold-deep);
+}
+h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(56px,9vw,108px);
+  line-height:.92;letter-spacing:1px;
+  color:var(--accent);
+  margin-bottom:32px;
+}
+h1 .accent{color:var(--warn)}
+.hero-sub{
+  font-size:clamp(18px,2.5vw,22px);
+  line-height:1.6;color:var(--text);
+  max-width:640px;margin-bottom:40px;
+  font-weight:400;
+}
+.hero-sub strong{color:var(--accent);font-weight:700}
+.hero-meta{
+  display:flex;flex-wrap:wrap;gap:16px;
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+  color:var(--muted);
+  padding:16px 0;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  margin-bottom:40px;
+}
+.hero-meta span{display:inline-flex;align-items:center;gap:6px}
+.hero-meta .dot{
+  width:6px;height:6px;background:#2e7d32;border-radius:50%;
+  display:inline-block;
+}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 28px;
+  border-radius:4px;
+  font-weight:700;font-size:15px;letter-spacing:.3px;
+  text-decoration:none;
+  transition:all .2s;
+  border:none;cursor:pointer;
+  font-family:'Inter',sans-serif;
+}
+.btn-primary{
+  background:var(--accent);color:#fff;
+}
+.btn-primary:hover{background:var(--accent-light);transform:translateY(-1px)}
+.btn-secondary{
+  background:transparent;color:var(--accent);
+  border:1px solid var(--accent);
+}
+.btn-secondary:hover{background:rgba(15,30,74,0.05)}
+.btn-tertiary{
+  background:transparent;color:var(--muted);
+  border:1px solid var(--border);
+}
+.btn-tertiary:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ─── Section base ─── */
+section{padding:80px 24px;max-width:1100px;margin:0 auto}
+.section-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:3px;
+  color:var(--accent);
+  margin-bottom:14px;
+  display:flex;align-items:center;gap:10px;
+}
+.section-label::before{
+  content:"";display:block;
+  width:32px;height:1px;background:var(--accent);
+}
+.section-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(36px,6vw,56px);
+  line-height:1;letter-spacing:1px;
+  color:var(--accent);
+  margin-bottom:24px;
+}
+.section-title em{color:var(--warn);font-style:normal}
+.section-lead{
+  font-size:18px;line-height:1.7;
+  color:var(--text);
+  max-width:720px;margin-bottom:40px;
+}
+
+/* ─── Problem section ─── */
+#problem{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);max-width:none}
+#problem > *{max-width:1100px;margin-left:auto;margin-right:auto}
+.problem-grid{
+  display:grid;grid-template-columns:1fr;gap:32px;
+  margin-top:40px;
+}
+@media(min-width:768px){.problem-grid{grid-template-columns:1fr 1fr;gap:48px}}
+.problem-block h3{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:28px;letter-spacing:1px;
+  color:var(--accent);margin-bottom:16px;
+}
+.problem-block p{font-size:15px;line-height:1.8;color:var(--text)}
+.problem-block p + p{margin-top:14px}
+.dialog-box{
+  background:var(--code-bg);
+  border-left:3px solid var(--warn);
+  padding:20px 24px;margin-top:20px;
+  font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7;
+}
+.dialog-box .speaker{color:var(--gold-deep);font-weight:700}
+.dialog-box .quote{color:var(--text);display:block;margin:4px 0 12px;padding-left:12px;border-left:1px solid var(--border)}
+
+/* ─── Solution / How it works ─── */
+#solution{padding-top:80px}
+.arch-diagram{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:32px 24px;
+  margin:40px 0;
+  font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7;
+  overflow-x:auto;
+}
+.arch-flow{display:flex;flex-direction:column;gap:16px}
+.arch-step{
+  display:flex;gap:16px;align-items:flex-start;
+  padding:16px;background:var(--code-bg);
+  border-left:3px solid var(--accent);border-radius:4px;
+}
+.arch-num{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:24px;color:var(--warn);
+  flex-shrink:0;line-height:1;
+}
+.arch-step strong{display:block;color:var(--accent);font-family:'Inter',sans-serif;font-size:14px;font-weight:700;margin-bottom:6px;letter-spacing:0}
+.arch-step span{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.arch-arrow{
+  text-align:center;color:var(--border);
+  font-family:'JetBrains Mono',monospace;font-size:18px;
+}
+.hash-demo{
+  background:var(--accent);color:#fff;
+  padding:20px 24px;border-radius:6px;margin-top:24px;
+  font-family:'JetBrains Mono',monospace;
+}
+.hash-demo .label{font-size:10px;letter-spacing:2px;color:var(--warn);margin-bottom:8px}
+.hash-demo .value{font-size:18px;letter-spacing:2px;font-weight:700}
+.hash-demo .note{font-size:11px;color:rgba(255,255,255,0.6);margin-top:8px}
+
+/* ─── Tech stack ─── */
+#tech{padding-top:0}
+.tech-grid{
+  display:grid;grid-template-columns:1fr;gap:16px;
+  margin-top:32px;
+}
+@media(min-width:768px){.tech-grid{grid-template-columns:1fr 1fr;gap:24px}}
+.tech-card{
+  background:var(--surface);
+  border:1px solid var(--border);border-radius:6px;
+  padding:24px;
+}
+.tech-card h4{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:2px;color:var(--gold-deep);
+  margin-bottom:12px;text-transform:uppercase;
+}
+.tech-card p{font-size:14px;line-height:1.7;color:var(--text)}
+.tech-card code{
+  font-family:'JetBrains Mono',monospace;
+  background:var(--code-bg);padding:2px 6px;
+  border-radius:3px;font-size:12px;
+  color:var(--accent);
+}
+
+/* ─── Author / Story ─── */
+#story{
+  background:var(--accent);color:#fff;
+  padding:80px 24px;max-width:none;
+}
+#story > *{max-width:1100px;margin-left:auto;margin-right:auto}
+#story .section-label{color:var(--warn)}
+#story .section-label::before{background:var(--warn)}
+#story .section-title{color:#fff}
+#story .section-title em{color:var(--warn)}
+.story-text{
+  font-size:17px;line-height:1.85;
+  color:rgba(255,255,255,0.92);
+  max-width:720px;
+}
+.story-text p + p{margin-top:18px}
+.story-text strong{color:var(--warn);font-weight:600}
+.story-stats{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:16px;
+  margin-top:40px;max-width:560px;
+}
+@media(min-width:640px){.story-stats{grid-template-columns:repeat(4,1fr)}}
+.story-stat{
+  border-left:2px solid var(--warn);
+  padding:8px 0 8px 16px;
+}
+.story-stat .num{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:36px;color:var(--warn);line-height:1;
+}
+.story-stat .label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:2px;
+  color:rgba(255,255,255,0.6);
+  margin-top:4px;
+}
+
+/* ─── Resources ─── */
+#resources{padding-top:80px}
+.resource-grid{
+  display:grid;grid-template-columns:1fr;gap:16px;
+  margin-top:32px;
+}
+@media(min-width:640px){.resource-grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1024px){.resource-grid{grid-template-columns:1fr 1fr 1fr}}
+.resource-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:24px;
+  text-decoration:none;
+  color:var(--text);
+  transition:all .2s;
+  display:flex;flex-direction:column;
+}
+.resource-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.resource-card .type{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:2px;
+  color:var(--gold-deep);margin-bottom:12px;
+}
+.resource-card h4{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:24px;letter-spacing:1px;
+  color:var(--accent);margin-bottom:8px;
+}
+.resource-card p{font-size:13px;line-height:1.6;color:var(--muted);margin-bottom:16px;flex-grow:1}
+.resource-card .arrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;color:var(--accent);font-weight:700;
+}
+
+/* ─── Try it ─── */
+#try{
+  background:var(--code-bg);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  padding:80px 24px;max-width:none;
+}
+#try > *{max-width:1100px;margin-left:auto;margin-right:auto}
+.try-row{
+  display:grid;grid-template-columns:1fr;gap:24px;
+  margin-top:32px;
+}
+@media(min-width:768px){.try-row{grid-template-columns:1fr 1fr}}
+.try-card{
+  background:var(--surface);
+  border:1px solid var(--border);border-radius:6px;
+  padding:32px 24px;
+}
+.try-card h4{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:24px;color:var(--accent);
+  margin-bottom:12px;letter-spacing:1px;
+}
+.try-card p{font-size:14px;line-height:1.7;color:var(--text);margin-bottom:20px}
+.try-card code{
+  display:inline-block;
+  font-family:'JetBrains Mono',monospace;
+  background:var(--code-bg);
+  padding:8px 12px;border-radius:4px;
+  font-size:13px;color:var(--accent);
+  margin-bottom:16px;
+}
+
+/* ─── Footer ─── */
+footer{
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  padding:48px 24px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;line-height:1.8;color:var(--muted);
+}
+footer > div{max-width:1100px;margin:0 auto}
+.footer-logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px;letter-spacing:2px;
+  color:var(--accent);margin-bottom:12px;
+}
+.footer-logo span{color:var(--warn)}
+.footer-meta{
+  display:grid;grid-template-columns:1fr;gap:8px;
+  margin:24px 0;
+}
+@media(min-width:640px){.footer-meta{grid-template-columns:repeat(2,1fr)}}
+.footer-meta .key{color:var(--gold-deep);letter-spacing:1px}
+.footer-disclaimer{
+  margin-top:24px;padding-top:24px;
+  border-top:1px solid var(--border);
+  font-size:10px;color:var(--muted);
+}
+
+/* ─── Hover effects for resource cards ─── */
+.resource-card:hover .arrow{transform:translateX(4px);transition:transform .2s}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="/index_en.html" class="logo">HORIZON<span>SHIELD</span></a>
+  <a href="/" class="lang-switch">日本語 →</a>
+</header>
+
+<section id="hero">
+  <div class="hero-bg">
+    <svg viewBox="0 0 1100 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs><pattern id="dots" x="0" y="0" width="44" height="44" patternUnits="userSpaceOnUse">
+        <circle cx="22" cy="22" r="1.2" fill="rgba(15,30,74,0.07)"/>
+      </pattern></defs>
+      <rect width="100%" height="100%" fill="url(#dots)"/>
+    </svg>
+  </div>
+  <div class="hero-content">
+    <div class="eyebrow">// HORIZON SHIELD · 2026</div>
+    <h1>Verifiable AI<br>for construction<br><span class="accent">quotes.</span></h1>
+    <p class="hero-sub">
+      A deterministic cost diagnostic system. <strong>Same input, same output, every time</strong> — verified by a 12-character SHA-256 audit hash printed on every report.
+      <br><br>
+      Built by a 30-year construction veteran to address overcharging in Japan's renovation market.
+    </p>
+    <div class="hero-meta">
+      <span><span class="dot"></span>Open dataset · CC-BY 4.0</span>
+      <span>// engrXiv DOI: 10.31224/7007</span>
+      <span>// EU AI Act-aligned</span>
+    </div>
+    <div class="cta-row">
+      <a href="https://github.com/ogasurfproject-jpg/japan-construction-cost-database" target="_blank" rel="noopener" class="btn btn-primary">
+        View source on GitHub →
+      </a>
+      <a href="https://engrxiv.org/preprint/view/7007" target="_blank" rel="noopener" class="btn btn-secondary">
+        Read the paper
+      </a>
+      <a href="#story" class="btn btn-tertiary">
+        Why this exists
+      </a>
+    </div>
+  </div>
+</section>
+
+<section id="problem">
+  <div class="section-label">// THE PROBLEM</div>
+  <h2 class="section-title">LLMs give different<br>answers <em>each time.</em></h2>
+  <p class="section-lead">
+    That's a problem when a homeowner is negotiating a $20,000 renovation quote with a contractor. The AI's "estimate" becomes worthless at the exact moment it's needed most.
+  </p>
+  <div class="problem-grid">
+    <div class="problem-block">
+      <h3>The negotiation collapse</h3>
+      <p>A homeowner gets a $22,000 quote for exterior repainting. They suspect overcharging. They ask ChatGPT for a fair price range. ChatGPT says <em>"around $9,500–$14,500."</em></p>
+      <p>The homeowner shows this to the contractor. The contractor opens ChatGPT, asks the same question, gets <em>"around $11,000–$16,000."</em> Different answer.</p>
+      <p>The contractor laughs: <em>"AI numbers can't be trusted. We've been in business 30 years."</em> The diagnostic is dead.</p>
+    </div>
+    <div class="problem-block">
+      <h3>The structural issue</h3>
+      <p>This isn't a prompt engineering problem. It's an architectural one. LLMs are <strong>probabilistic by design</strong>. The same query, run twice, produces different completions — that's how they work.</p>
+      <p>For creative writing or code generation, this is fine. For <em>adversarial settings</em> — where two parties with opposing interests need a shared, verifiable reference — it's catastrophic.</p>
+      <p>I needed a diagnostic that any party could re-derive on the spot, byte-for-byte identical, and verify with a single glance.</p>
+      <div class="dialog-box">
+        <div class="speaker">// Contractor's actual rebuttal:</div>
+        <div class="quote">"Ask the AI again. You'll get a different number. So which one is right? Yours, or mine? Neither. That's why you should trust me — I've been in this business 30 years."</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="solution">
+  <div class="section-label">// THE ARCHITECTURE</div>
+  <h2 class="section-title">Separate <em>concerns.</em><br>Hash <em>everything.</em></h2>
+  <p class="section-lead">
+    The fix turned out to be straightforward once I stopped trying to make the LLM deterministic and instead removed the LLM from the deterministic path entirely.
+  </p>
+  <div class="arch-diagram">
+    <div class="arch-flow">
+      <div class="arch-step">
+        <div class="arch-num">01</div>
+        <div>
+          <strong>LLM does intent classification only</strong>
+          <span>Natural language ("外壁塗装 30坪") → canonical category key ("paint_exterior_30tsubo")</span>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-step">
+        <div class="arch-num">02</div>
+        <div>
+          <strong>Deterministic formula computes pricing</strong>
+          <span>87 plans × 7 categories, static dataset (CC-BY 4.0). Pure function of (region, category, year, month).</span>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-step">
+        <div class="arch-num">03</div>
+        <div>
+          <strong>War Price Coefficient applied</strong>
+          <span>Monthly macroeconomic correction factor from Bank of Japan CGPI + manufacturer announcements, subject to human approval. Currently ×1.0935.</span>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-step">
+        <div class="arch-num">04</div>
+        <div>
+          <strong>SHA-256 hash of canonical inputs</strong>
+          <span>hash(region + category + quote + benchmark + year-month) → first 12 hex chars on PDF.</span>
+        </div>
+      </div>
+    </div>
+    <div class="hash-demo">
+      <div class="label">// AUDIT HASH ON SAMPLE PDF</div>
+      <div class="value">538811dcd9fd</div>
+      <div class="note">Any party with the same inputs derives the same hash. The contractor can verify it in 30 seconds, on a public chat interface, in front of the homeowner. No "trust me" required.</div>
+    </div>
+  </div>
+</section>
+
+<section id="tech">
+  <div class="section-label">// TECH STACK</div>
+  <h2 class="section-title">Built on <em>boring</em><br>infrastructure.</h2>
+  <div class="tech-grid">
+    <div class="tech-card">
+      <h4>// FRONTEND</h4>
+      <p>Static HTML/CSS/JS. No framework. Hosted on <code>Cloudflare Pages</code>. Total LP weight: ~80KB. Loads in &lt;200ms even on 3G.</p>
+    </div>
+    <div class="tech-card">
+      <h4>// API LAYER</h4>
+      <p><code>Cloudflare Workers</code> (16 endpoints). LLM proxy uses Claude Sonnet 4 for intent classification only — no pricing logic touches the LLM.</p>
+    </div>
+    <div class="tech-card">
+      <h4>// DATASET</h4>
+      <p>JSON files in GitHub (<code>data/zaisai-db*.json</code>). 3,350 material items, 87 standard renovation plans, 7 work categories. CC-BY 4.0.</p>
+    </div>
+    <div class="tech-card">
+      <h4>// PRICE SYNC</h4>
+      <p>Cron-triggered Worker pulls Bank of Japan CGPI + manufacturer announcements monthly. Computes War Price Coefficient. Human-in-the-loop approval before publishing.</p>
+    </div>
+    <div class="tech-card">
+      <h4>// HASH FUNCTION</h4>
+      <p><code>SHA-256(canonical_input_string)</code>, first 12 hex characters truncated. Stable across regenerations. Implementation: ~20 lines in JavaScript.</p>
+    </div>
+    <div class="tech-card">
+      <h4>// COMPLIANCE</h4>
+      <p>Designed against EU AI Act <code>Art.12</code> (record-keeping) and <code>Art.14</code> (human oversight), even though Japanese consumer-protection AI isn't currently in Annex III scope. Felt right for adversarial settings.</p>
+    </div>
+  </div>
+</section>
+
+<section id="ptka">
+  <div class="section-label">// PTKA PROTOCOL</div>
+  <h2 class="section-title">Pre-Transaction<br>Knowledge <em>Anchoring.</em></h2>
+  <p class="section-lead">
+    Before the contractor issues a quote, the homeowner already holds a verifiable record — anchored to the Bitcoin blockchain. On May 14, 2026, the PTKA Protocol Declaration was permanently anchored to <strong>Bitcoin Block #949356</strong> via OpenTimestamps.
+  </p>
+
+  <div class="arch-diagram">
+    <div class="arch-flow">
+      <div class="arch-step">
+        <div class="arch-num">01</div>
+        <div>
+          <strong>Immutable timestamp</strong>
+          <span>Bitcoin anchoring permanently records the existence date of the diagnostic methodology. No retroactive alteration is possible by any party — including the company itself.</span>
+        </div>
+      </div>
+      <div class="arch-step">
+        <div class="arch-num">02</div>
+        <div>
+          <strong>Independent third-party anchoring — in development</strong>
+          <span>Per-diagnostic anchoring will be operated through an independent third-party framework, currently under construction. This is designed to eliminate the "company verifying itself" pattern.</span>
+        </div>
+      </div>
+      <div class="arch-step">
+        <div class="arch-num">03</div>
+        <div>
+          <strong>Linked to peer-reviewed paper</strong>
+          <span>JCCDB v1.2.2 — open-access on Zenodo (DOI: 10.5281/zenodo.20019572) and engrXiv (DOI: 10.31224/7007). Full methodology is independently verifiable.</span>
+        </div>
+      </div>
+    </div>
+    <div class="hash-demo">
+      <div class="label">// PTKA PROTOCOL DECLARATION — SHA-256</div>
+      <div class="value" style="font-size:0.7rem;letter-spacing:0;word-break:break-all;line-height:1.4;">596da30ba4ca731f21efaa1c4a6537290e996e0f039cbe57704de1674e4a0282</div>
+      <div class="note">Anchored to <strong>Bitcoin Block #949356</strong> on May 14, 2026 JST via OpenTimestamps. Any party can independently verify the declaration's existence and timestamp without trusting The Horizons Co., Ltd.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:3rem;padding:2rem;background:rgba(15,30,74,0.04);border-left:3px solid var(--warn);">
+    <p style="font-family:'Inter',sans-serif;font-style:italic;font-size:1.15rem;color:var(--accent);margin-bottom:0.6rem;line-height:1.5;">
+      "Probabilistic intelligence cannot protect deterministic truth."
+    </p>
+    <p style="font-size:0.85rem;color:var(--muted);line-height:1.7;">
+      AI looks smart. But what protects the homeowner is not intelligence — it is an unalterable record. A nail driven and a hash anchored are the same kind of permanent mark.
+    </p>
+  </div>
+</section>
+
+<section id="story">
+  <div class="section-label">// AUTHOR</div>
+  <h2 class="section-title">Why I built <em>this.</em></h2>
+  <div class="story-text">
+    <p>I'm Toshikatsu Oga. I'm 48. I started as a carpenter's apprentice in Osaka at 15, in 1993.</p>
+    <p>I spent <strong>30 years on construction sites</strong> — first as a carpenter, then site supervisor, then construction manager (the role where you represent the homeowner against contractors). I've watched homeowners get systematically overcharged for three decades. <strong>In my direct field experience, overcharges of 20% or more are common, and significantly higher markups are not unusual.</strong></p>
+    <p>The Japanese term for the worst pattern is "一式" (<em>isshiki</em>) — a single line item meaning "everything bundled together." It's how contractors hide $5,000–$10,000 in margin under one opaque number. There's no legal protection. Architects represent contractors. Lawyers don't know construction. Consumer protection agencies don't have technical expertise.</p>
+    <p>Two years ago, at 46, <strong>I started learning to code.</strong> Python first, then JavaScript. Then LLMs and Cloudflare Workers. Then cryptography. The goal was simple: build a tool that actually works <em>at the moment of negotiation</em>, not just produces a nice-looking PDF.</p>
+    <p>The hardest part wasn't the code. It was realizing the LLM's nondeterminism was structural, not fixable, and that I needed to architect around it instead of fighting it.</p>
+    <p style="font-style:italic;color:rgba(255,255,255,0.7)">
+      Honestly, learning to ship code at 46 was harder than learning to frame a house at 16. I still don't know what I'm doing half the time. But the system runs.
+    </p>
+  </div>
+  <div class="story-stats">
+    <div class="story-stat"><div class="num">30</div><div class="label">YEARS<br>ON SITE</div></div>
+    <div class="story-stat"><div class="num">2</div><div class="label">YEARS<br>CODING</div></div>
+    <div class="story-stat"><div class="num">87</div><div class="label">PLANS<br>OPEN DATA</div></div>
+    <div class="story-stat"><div class="num">3,350</div><div class="label">MATERIAL<br>ITEMS</div></div>
+  </div>
+</section>
+
+<section id="resources">
+  <div class="section-label">// RESOURCES</div>
+  <h2 class="section-title">For <em>verification.</em></h2>
+  <p class="section-lead">Everything is open. Read the paper, audit the dataset, run the code. The whole point is that you don't have to take my word for it.</p>
+  <div class="resource-grid">
+    <a href="https://github.com/ogasurfproject-jpg/japan-construction-cost-database" target="_blank" rel="noopener" class="resource-card">
+      <div class="type">// CODE + DATA</div>
+      <h4>GitHub Repository</h4>
+      <p>The full dataset (87 plans, 3,350 items), worker source, and hash function implementation. CC-BY 4.0 for data, MIT for code.</p>
+      <span class="arrow">github.com/ogasurfproject-jpg/japan-construction-cost-database →</span>
+    </a>
+    <a href="https://engrxiv.org/preprint/view/7007" target="_blank" rel="noopener" class="resource-card">
+      <div class="type">// TECHNICAL PAPER</div>
+      <h4>engrXiv Preprint</h4>
+      <p>"Japan Construction Cost Database: An Open Dataset for LLM-Based Cost Estimation and Fraud Detection." DOI: 10.31224/7007.</p>
+      <span class="arrow">engrxiv.org/preprint/view/7007 →</span>
+    </a>
+    <a href="https://orcid.org/0009-0000-9180-903X" target="_blank" rel="noopener" class="resource-card">
+      <div class="type">// AUTHOR</div>
+      <h4>ORCID Profile</h4>
+      <p>Author identity verification. ORCID ID: 0009-0000-9180-903X. Linked to engrXiv and Zenodo records.</p>
+      <span class="arrow">orcid.org/0009-0000-9180-903X →</span>
+    </a>
+  </div>
+</section>
+
+<section id="try">
+  <div class="section-label">// TRY IT</div>
+  <h2 class="section-title">Run a <em>diagnostic.</em></h2>
+  <p class="section-lead">The live service is in Japanese (the dataset and target users are Japanese), but the architecture is what's portable. The hash will be identical for identical inputs.</p>
+  <div class="try-row">
+    <div class="try-card">
+      <h4>For developers</h4>
+      <p>Clone the repo, run the hash function on a sample input, verify the output matches the published hash on the engrXiv paper.</p>
+      <code>sha256(canonical_input) → first 12 hex chars</code>
+      <a href="https://github.com/ogasurfproject-jpg/japan-construction-cost-database" target="_blank" rel="noopener" class="btn btn-primary" style="display:inline-flex">
+        Clone the repo →
+      </a>
+    </div>
+    <div class="try-card">
+      <h4>For curious humans</h4>
+      <p>The Japanese live service is at <code>shield.the-horizons-innovation.com</code>. Send a quote photo via LINE, get a diagnostic in 30 seconds with an audit hash printed on the PDF.</p>
+      <code>LINE: @172piime (Japanese only)</code>
+      <a href="https://shield.the-horizons-innovation.com/" class="btn btn-secondary" style="display:inline-flex">
+        See the live service (JP)
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>
+    <div class="footer-logo">HORIZON<span>SHIELD</span></div>
+    <p>An open construction-cost diagnostic system with cryptographic provenance.</p>
+    <div class="footer-meta">
+      <div><span class="key">// AUTHOR</span> &nbsp; Toshikatsu Oga (大賀俊勝)</div>
+      <div><span class="key">// ENTITY</span> &nbsp; The Horizons Co., Ltd. (Japan)</div>
+      <div><span class="key">// EMAIL</span> &nbsp; contact@the-horizons-innovation.com</div>
+      <div><span class="key">// ORCID</span> &nbsp; 0009-0000-9180-903X</div>
+      <div><span class="key">// DATA LICENSE</span> &nbsp; CC-BY 4.0</div>
+      <div><span class="key">// PAPER DOI</span> &nbsp; 10.31224/7007</div>
+    </div>
+    <div class="footer-disclaimer">
+      © 2026 The Horizons Co., Ltd. All Rights Reserved. The Japanese live service operates under Japanese consumer-protection law and the Specified Commercial Transactions Act. The English-language presentation here is technical and historical; service access is currently Japan-only.
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

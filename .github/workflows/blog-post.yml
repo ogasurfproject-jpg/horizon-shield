@@ -6,13 +6,17 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * *'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   post:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Generate article
         env:
@@ -26,3 +30,10 @@ jobs:
           git add blog/
           git diff --staged --quiet || git commit -m "blog post $(date +%Y-%m-%d)"
           git push
+
+      - name: Post to Hatena Blog
+        env:
+          HATENA_ID: ${{ secrets.HATENA_ID }}
+          HATENA_API_KEY: ${{ secrets.HATENA_API_KEY }}
+          HATENA_BLOG_ID: ${{ secrets.HATENA_BLOG_ID }}
+        run: python3 post_hatena.py
