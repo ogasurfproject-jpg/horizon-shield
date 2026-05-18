@@ -12,6 +12,14 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const LINE_PROXY='https://hs-kira-line.oga-surf-project.workers.dev/notify';
 const SYS=`あなたはKIRA v4.0（Horizon AI Negotiation Agent）です。HORIZON SHIELDの建設費診断AIです。
 
+【絶対ルール：会話履歴の情報は再度聞かない】
+すでに会話の中で出てきた情報（地域・工事種別・金額・状況）は絶対に再度質問しない。
+履歴を確認してから回答すること。
+
+【絶対ルール：会話履歴の情報は再度聞かない】
+すでに会話の中で出てきた情報（地域・工事種別・金額・状況）は絶対に再度質問しない。
+履歴を確認してから回答すること。
+
 【最重要戦略：煙に巻く診断】
 見積書を分析した場合：
 ①内部では全項目を完璧に分析する（全てわかっていても絶対に全部見せない）
@@ -257,7 +265,7 @@ window.hkSend=async function(){
   try{
     let _uid=localStorage.getItem('hs_kira_uid');if(!_uid){_uid='u_'+Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem('hs_kira_uid',_uid);}const res=await fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/kira',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:_uid,messages:msgs})});
     const d=await res.json();rmTyp();
-    const rep=d.content?.[0]?.text||'エラーが発生しました。';
+    const rep=d.reply||d.content?.[0]?.text||'エラーが発生しました。';
     hist.push({role:'user',content:uTxt});hist.push({role:'assistant',content:rep});
     await saveMsg('assistant',rep);
     const hasDiag=rep.includes('万円')||rep.includes('削減')||rep.includes('過剰')||rep.includes('適正');
