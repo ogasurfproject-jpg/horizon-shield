@@ -255,7 +255,7 @@ window.hkSend=async function(){
   loading=true;document.getElementById('hk-snd').disabled=true;
   addTyp();
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':'sk-ant-api03-HttUPbkAwOzLnFazHL0E1allwGux8Q0SqjrsF4GC721P9NZ4UHaR1Ki0mlUfnF4Uo6MUFa2DISTz43RAIWpVb3Q-2Gs2JQAA','anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,system:SYS,messages:msgs})});
+    let _uid=localStorage.getItem('hs_kira_uid');if(!_uid){_uid='u_'+Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem('hs_kira_uid',_uid);}const res=await fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/kira',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:_uid,messages:msgs})});
     const d=await res.json();rmTyp();
     const rep=d.content?.[0]?.text||'エラーが発生しました。';
     hist.push({role:'user',content:uTxt});hist.push({role:'assistant',content:rep});
