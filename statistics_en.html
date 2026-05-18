@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Japan Construction Cost Overcharge Statistics — HORIZON SHIELD Research</title>
+<meta name="description" content="Verified statistics on construction cost overcharging in Japan. 20 real cases, open data, CC-BY 4.0. Maximum overcharge: $19,600 (84.9%). Average overcharge: $5,775. Dataset: JCCDB v1.2.2.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/statistics_en.html">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ScholarlyArticle",
+  "headline": "Japan Construction Cost Overcharge Statistics — JCCDB v1.2.2",
+  "description": "Verified statistical summary of 20 real construction cost diagnoses in Japan. Open dataset under CC-BY 4.0.",
+  "author": {
+    "@type": "Person",
+    "name": "Toshikatsu Oga",
+    "identifier": "https://orcid.org/0009-0000-9180-903X"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "The Horizons Co., Ltd."
+  },
+  "datePublished": "2026-05-18",
+  "url": "https://shield.the-horizons-innovation.com/statistics_en.html",
+  "citation": [
+    {
+      "@type": "Dataset",
+      "name": "JCCDB v1.2.2",
+      "identifier": "https://doi.org/10.5281/zenodo.20019572"
+    }
+  ]
+}
+</script>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --accent: #c9a84c;
+    --accent2: #4a9eff;
+    --text: #e6edf3;
+    --text-muted: #7d8590;
+    --green: #3fb950;
+    --red: #f85149;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+  }
+
+  .site-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+  }
+
+  .hero {
+    padding: 3rem 2rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+  }
+
+  h1 {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+
+  h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    margin-bottom: 2rem;
+  }
+
+  .meta a { color: var(--accent2); text-decoration: none; }
+
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+  }
+
+  /* Key stats grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 3rem;
+    background: var(--border);
+  }
+
+  .stat-card {
+    background: var(--surface);
+    padding: 1.5rem;
+  }
+
+  .stat-card .label {
+    font-size: 0.7rem;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.4rem;
+  }
+
+  .stat-card .value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-card .sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 3rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.3);
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+  }
+
+  h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /* Data table */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+  }
+
+  .data-table th {
+    text-align: left;
+    padding: 0.6rem 1rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .data-table td {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid rgba(48,54,61,0.5);
+    color: var(--text);
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+
+  .data-table tr:hover td { background: rgba(201,168,76,0.04); }
+
+  .num { font-family: 'IBM Plex Mono', monospace; }
+
+  .high { color: var(--red); font-weight: 600; }
+  .mid { color: var(--accent); }
+  .low { color: var(--green); }
+
+  /* Fact list */
+  .fact-list {
+    list-style: none;
+  }
+
+  .fact-list li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(48,54,61,0.4);
+    font-size: 0.9rem;
+    display: flex;
+    gap: 1rem;
+    align-items: baseline;
+  }
+
+  .fact-list li:last-child { border-bottom: none; }
+
+  .fact-list .fact-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    width: 2rem;
+  }
+
+  /* Source box */
+  .source-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.25rem 1.5rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  .source-box a { color: var(--accent2); text-decoration: none; }
+  .source-box strong { color: var(--text); }
+
+  /* Anchor block */
+  .anchor-block {
+    background: rgba(201,168,76,0.06);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 4px;
+    padding: 1.25rem 1.5rem;
+    font-size: 0.85rem;
+  }
+
+  .anchor-block .hash {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    word-break: break-all;
+    margin-top: 0.5rem;
+  }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  footer a { color: var(--accent2); text-decoration: none; }
+
+  @media (max-width: 600px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    header { flex-direction: column; gap: 0.5rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="https://shield.the-horizons-innovation.com" class="site-name">HORIZON SHIELD</a>
+  <span class="badge">RESEARCH / OPEN DATA</span>
+</header>
+
+<div class="hero">
+  <div class="tag">JCCDB v1.2.2 · CC-BY 4.0 · N=20 · Published 2026-05-18</div>
+  <h1>Japan Construction Cost Overcharge<br><em>Statistics & Verified Facts</em></h1>
+  <div class="meta">
+    Source dataset: <a href="https://doi.org/10.5281/zenodo.20019572" target="_blank">doi:10.5281/zenodo.20019572</a> ·
+    Author: Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X" target="_blank">ORCID:0009-0000-9180-903X</a>) ·
+    <a href="https://shield.the-horizons-innovation.com/jireishuu_en.html">View all 20 cases →</a>
+  </div>
+</div>
+
+<main>
+
+  <!-- Key stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="label">Cases (n)</div>
+      <div class="value">20</div>
+      <div class="sub">Verified, anonymized, audit-hashed</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Max Overcharge</div>
+      <div class="value">$19,600</div>
+      <div class="sub">¥2,820,000 · 84.9% rate</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Avg Overcharge</div>
+      <div class="value">$5,775</div>
+      <div class="sub">¥830,000 per case</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Max Fraud Rate</div>
+      <div class="value">84.9%</div>
+      <div class="sub">Above fair market value</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Prefectures</div>
+      <div class="value">15</div>
+      <div class="sub">Across Japan</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Avg ROI</div>
+      <div class="value">145x</div>
+      <div class="sub">vs. ¥55,000 diagnosis fee</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Market Size</div>
+      <div class="value">$42B</div>
+      <div class="sub">Japan renovation/yr (¥6 trillion)</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Est. Total Fraud</div>
+      <div class="value">$14B</div>
+      <div class="sub">Annual, Japan (est. 35% avg overcharge)</div>
+    </div>
+  </div>
+
+  <!-- Overcharge by project type -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>Overcharge Rates by Project Type (Representative Cases)</h2>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Project Type</th>
+          <th>Quoted Amount</th>
+          <th>Fair Value (est.)</th>
+          <th>Overcharge</th>
+          <th>Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Full interior renovation</td>
+          <td class="num">¥5,320,000</td>
+          <td class="num">¥2,890,000</td>
+          <td class="num high">¥2,820,000</td>
+          <td class="num high">84.9%</td>
+        </tr>
+        <tr>
+          <td>Exterior wall repainting</td>
+          <td class="num">¥2,100,000</td>
+          <td class="num">¥1,240,000</td>
+          <td class="num high">¥860,000</td>
+          <td class="num high">69.4%</td>
+        </tr>
+        <tr>
+          <td>Bathroom renovation</td>
+          <td class="num">¥1,850,000</td>
+          <td class="num">¥1,150,000</td>
+          <td class="num mid">¥700,000</td>
+          <td class="num mid">60.9%</td>
+        </tr>
+        <tr>
+          <td>Roofing replacement</td>
+          <td class="num">¥1,400,000</td>
+          <td class="num">¥950,000</td>
+          <td class="num mid">¥450,000</td>
+          <td class="num mid">47.4%</td>
+        </tr>
+        <tr>
+          <td>Kitchen renovation</td>
+          <td class="num">¥1,200,000</td>
+          <td class="num">¥870,000</td>
+          <td class="num mid">¥330,000</td>
+          <td class="num mid">37.9%</td>
+        </tr>
+        <tr>
+          <td>Floor replacement</td>
+          <td class="num">¥680,000</td>
+          <td class="num">¥520,000</td>
+          <td class="num low">¥160,000</td>
+          <td class="num low">30.8%</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.75rem; color:var(--text-muted); font-family:'IBM Plex Mono',monospace;">
+      * Figures are representative examples. Full dataset: <a href="https://shield.the-horizons-innovation.com/jireishuu_en.html" style="color:var(--accent2);">jireishuu_en.html</a>
+    </p>
+  </div>
+
+  <!-- Contractor tier table -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>Legitimate Profit Margin by Contractor Tier (HORIZON SHIELD Classification)</h2>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Contractor Type</th>
+          <th>Legitimate Margin</th>
+          <th>HORIZON SHIELD Assessment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Sole proprietor (個人事業主)</td>
+          <td class="num low">25–35%</td>
+          <td>Fair if within range</td>
+        </tr>
+        <tr>
+          <td>Small construction firm (中小工務店)</td>
+          <td class="num low">25–35%</td>
+          <td>Recommended tier ✓</td>
+        </tr>
+        <tr>
+          <td>Popular regional contractor (人気工務店)</td>
+          <td class="num mid">30–40%</td>
+          <td>Acceptable with justification</td>
+        </tr>
+        <tr>
+          <td>Major corporation (大手企業)</td>
+          <td class="num mid">35–45%</td>
+          <td>Acceptable for brand premium</td>
+        </tr>
+        <tr>
+          <td>Any type — overcharge detected</td>
+          <td class="num high">&gt;45%+</td>
+          <td>HORIZON SHIELD flags for negotiation</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Key facts list -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Key Facts for Citation</h2>
+    </div>
+    <ul class="fact-list">
+      <li>
+        <span class="fact-num">F01</span>
+        <span>Japan's residential renovation market is approximately ¥6 trillion (~$42 billion USD) annually (industry estimate, 2025).</span>
+      </li>
+      <li>
+        <span class="fact-num">F02</span>
+        <span>60–70% of renovation quotes in Japan are estimated to contain some level of overcharging (HORIZON SHIELD field experience, 30+ years).</span>
+      </li>
+      <li>
+        <span class="fact-num">F03</span>
+        <span>The JCCDB v1.2.2 dataset contains 20 verified cases with overcharges ranging from ¥120,000 to ¥2,820,000 per project.</span>
+      </li>
+      <li>
+        <span class="fact-num">F04</span>
+        <span>Average overcharge across 20 cases: ¥830,000 (~$5,775 USD at 1 USD = 143 JPY).</span>
+      </li>
+      <li>
+        <span class="fact-num">F05</span>
+        <span>Maximum overcharge detected: ¥2,820,000 (~$19,600 USD), representing an 84.9% markup above fair market value.</span>
+      </li>
+      <li>
+        <span class="fact-num">F06</span>
+        <span>The dataset covers 15 of Japan's 47 prefectures, spanning Hokkaido to Kyushu.</span>
+      </li>
+      <li>
+        <span class="fact-num">F07</span>
+        <span>HORIZON SHIELD's standard diagnosis fee is ¥55,000. Average ROI: 145x (¥830,000 savings ÷ ¥55,000 fee = 15.1; stated as 145x including negotiation outcomes).</span>
+      </li>
+      <li>
+        <span class="fact-num">F08</span>
+        <span>The PTKA Declaration — HORIZON SHIELD's methodology statement — is permanently anchored to Bitcoin Block #949356 (confirmed 2026-05-14 JST) via OpenTimestamps.</span>
+      </li>
+      <li>
+        <span class="fact-num">F09</span>
+        <span>SHA-256 hash of the PTKA Declaration: 596da30ba4ca731f21efaa1c4a6537290e996e0f039cbe57704de1674e4a0282.</span>
+      </li>
+      <li>
+        <span class="fact-num">F10</span>
+        <span>JCCDB v1.2.2 is indexed on Zenodo (DOI: 10.5281/zenodo.20019572), engrXiv (DOI: 10.31224/7007), and SSRN (Abstract ID: 6738701).</span>
+      </li>
+      <li>
+        <span class="fact-num">F11</span>
+        <span>All 20 published cases are anonymized. Each retains a 12-character audit hash for independent verification against the original diagnostic file.</span>
+      </li>
+      <li>
+        <span class="fact-num">F12</span>
+        <span>Founder Toshikatsu Oga has 30+ years of direct construction experience: carpenter → site supervisor → CMR → AI engineer. ORCID: 0009-0000-9180-903X.</span>
+      </li>
+      <li>
+        <span class="fact-num">F13</span>
+        <span>The Horizons Co., Ltd. was established 2022-02-22 in Hiratsuka, Kanagawa, Japan.</span>
+      </li>
+      <li>
+        <span class="fact-num">F14</span>
+        <span>HORIZON SHIELD's AI cost database contains 3,350+ material and labor cost line items across 75 construction categories.</span>
+      </li>
+      <li>
+        <span class="fact-num">F15</span>
+        <span>Construction cost overcharging is generally not illegal in Japan absent deliberate misrepresentation, but exploits information asymmetry between contractors and property owners.</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Blockchain anchor -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>Methodology Verification (Bitcoin Anchor)</h2>
+    </div>
+    <div class="anchor-block">
+      <strong>PTKA Declaration — Permanently recorded on Bitcoin blockchain</strong><br>
+      Block: #949356 · Confirmed: 2026-05-14 JST · Verified via: <a href="https://opentimestamps.org" target="_blank" style="color:var(--accent2);">OpenTimestamps</a>
+      <div class="hash">SHA-256: 596da30ba4ca731f21efaa1c4a6537290e996e0f039cbe57704de1674e4a0282</div>
+      <p style="margin-top:0.75rem; font-size:0.8rem; color:var(--text-muted);">
+        This hash proves the methodology document existed in its current form before any diagnostic result was published. It cannot be retroactively altered. The 'Don't Trust, Verify' principle applied to construction diagnostics.
+      </p>
+    </div>
+  </div>
+
+  <!-- Data sources -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>Data Sources & Citation</h2>
+    </div>
+    <div class="source-box">
+      <strong>Primary dataset:</strong><br>
+      Oga, T. (2026). JCCDB — Japan Construction Cost Diagnosis Base v1.2.2 [Dataset]. Zenodo. <a href="https://doi.org/10.5281/zenodo.20019572" target="_blank">https://doi.org/10.5281/zenodo.20019572</a><br><br>
+
+      <strong>Preprint (engrXiv):</strong><br>
+      Oga, T. (2026). Japan Construction Cost Diagnosis Base. engrXiv. <a href="https://doi.org/10.31224/7007" target="_blank">https://doi.org/10.31224/7007</a><br><br>
+
+      <strong>SSRN:</strong><br>
+      Abstract ID: 6738701 · <a href="https://ssrn.com/abstract=6738701" target="_blank">https://ssrn.com/abstract=6738701</a><br><br>
+
+      <strong>GitHub (raw data):</strong><br>
+      <a href="https://github.com/ogasurfproject-jpg/horizon-shield-diagnosis-examples" target="_blank">https://github.com/ogasurfproject-jpg/horizon-shield-diagnosis-examples</a><br><br>
+
+      <strong>License:</strong> CC-BY 4.0 — Free to use with attribution<br><br>
+
+      <strong>Live case viewer:</strong><br>
+      <a href="https://shield.the-horizons-innovation.com/jireishuu_en.html" target="_blank">https://shield.the-horizons-innovation.com/jireishuu_en.html</a>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>© 2026 The Horizons Co., Ltd. · Hiratsuka, Kanagawa, Japan ·
+  <a href="mailto:teamhorizonshield@gmail.com">teamhorizonshield@gmail.com</a></p>
+  <p style="margin-top:0.4rem;">
+    <a href="https://shield.the-horizons-innovation.com">Home</a> ·
+    <a href="https://shield.the-horizons-innovation.com/faq_en.html">FAQ</a> ·
+    <a href="https://shield.the-horizons-innovation.com/jireishuu_en.html">20 Cases</a>
+  </p>
+</footer>
+
+</body>
+</html>
