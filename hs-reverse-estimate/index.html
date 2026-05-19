@@ -963,7 +963,7 @@ async function forceKiraPlan(btn) {
 }
 
 async function requestFinalPlan() {
-  conversationHistory.push({ role: 'user', content: '【強制指示】既に十分な情報が揃っています。これ以上の質問は絶対に禁止。今すぐ下記の正確なフォーマットで3プランを出力してください。\n\n===PLAN===\n工事内容：会話履歴の工事種別をここに記載\n松：◯◯万円〜◯◯万円（大手リフォーム会社）\n竹：◯◯万円〜◯◯万円（中小工務店・推奨）\n梅：◯◯万円〜◯◯万円（個人事業者）\nアドバイス：交渉のコツ2〜3文\n出典：HORIZON SHIELD souba-db v15 / 日銀CGPI 2026-04 / 戦時係数×1.0935 / 算出日：2026年5月\n===END===\n\n金額は会話で言及された規模・地域・築年数から推定してください。フルリノベ80㎡なら松1500-2200万、竹1000-1500万、梅700-1000万が目安。質問は一切禁止。即出力。' });
+  conversationHistory.push({ role: 'user', content: '【強制指示】既に十分な情報が揃っています。これ以上の質問は絶対に禁止。今すぐ下記の正確なフォーマットで3プランを出力してください。\n\n===PLAN===\n工事内容：会話履歴の工事種別をここに記載\n松：◯◯万円〜◯◯万円（大手リフォーム会社）\n竹：◯◯万円〜◯◯万円（中小工務店・推奨）\n梅：◯◯万円〜◯◯万円（個人事業者）\nアドバイス：交渉のコツ2〜3文\n出典：HORIZON SHIELD souba-db v15 / 日銀CGPI 2026-04 / 戦時係数×1.0935 / 算出日：2026年5月\n===END===\n\n金額は会話で言及された規模・地域・築年数から推定してください。金額はKIRA_SYSTEMの積み上げ計算ルールに従い、ヒアリングで確定した全工事項目（躯体・設備・窓・断熱・耐震等）を必ず個別に積み上げて合計すること。一括単価だけで計算することは絶対禁止。質問は一切禁止。即出力。' });
   showThinking();
   try {
     const res = await fetch(KIRA_PROXY + '/gyaku-mitsumori-chat', {
@@ -975,7 +975,7 @@ async function requestFinalPlan() {
     const reply = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : '';
     conversationHistory.push({ role: 'assistant', content: reply });
     hideThinking();
-    if (reply.includes('===PLAN===')) parsePlan(reply);
+    if (reply.includes('===PLAN===')) { parsePlan(reply); setTimeout(() => addBubble('kira', 'これはヒアリング内容に基づいた目安金額です。\n\n設備グレード・窓の枚数・断熱仕様など、さらに詳細を詰めると精度がより上がります（±100〜300万の改善が見込めます）。\n\n引き続き詳細のヒアリングを続けますか？\nそれともこの金額感でOKですか？'), 800); }
     else addBubble('kira', stripMd(reply));
   } catch(e) { hideThinking(); }
 }
