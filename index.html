@@ -703,7 +703,7 @@ if(!sessionStorage.getItem('hs_seen')){
         <div class="det"><span class="det-dot"></span><span id="det-t">検出中...</span></div>
         <div class="pr-row">
           <div class="pr"><div class="pr-l">業者の見積もり相場</div><div class="pr-v" id="pv-c">---</div><div class="pr-n">業者によって大きく変動</div></div>
-          <div class="pr good"><div class="pr-l gl">SHIELD 適正価格</div><div class="pr-v gv" id="pv-s">---</div><div class="pr-n">3,350品目DB + WPC係数</div></div>
+          <div class="pr good"><div class="pr-l gl">SHIELD 適正価格</div><div class="pr-v gv" id="pv-s">---</div><div class="pr-n">65,729品目DB + WPC係数</div></div>
         </div>
         <div class="gap-bar"><div class="gap-l">あなたが守れる金額（推定）</div><div class="gap-v" id="pv-g">---</div></div>
         <div class="ctas">
@@ -878,7 +878,7 @@ if(!sessionStorage.getItem('hs_seen')){
     <h2 class="sec-h2 rv">逆見積もり、<em>3ステップ</em></h2>
     <div class="how-steps">
       <div class="hstep rv"><div class="step-n">01</div><div class="step-t">工事内容を伝える</div><div class="step-d">KIRAに工事の内容・面積を話しかけるだけ。専門用語は不要です。</div><span class="step-tag">KIRA CHAT</span></div>
-      <div class="hstep rv d1"><div class="step-n">02</div><div class="step-t">AIが適正価格を算出</div><div class="step-d">3,350品目・WPC×1.0935係数込みの本来の価格が数分で出力されます。</div><span class="step-tag">PDF OUTPUT</span></div>
+      <div class="hstep rv d1"><div class="step-n">02</div><div class="step-t">AIが適正価格を算出</div><div class="step-d">65,729品目・WPC×1.0935係数込みの本来の価格が数分で出力されます。</div><span class="step-tag">PDF OUTPUT</span></div>
       <div class="hstep rv d2"><div class="step-n">03</div><div class="step-t">業者と対等に交渉</div><div class="step-d">AIの数字を根拠に堂々と交渉。業者に嘘をつかせない盾になります。</div><span class="step-tag">SHA-256 PROOF</span></div>
     </div>
   </div>
@@ -1165,7 +1165,7 @@ if(!sessionStorage.getItem('hs_seen')){
             <div style="font-family:'Instrument Serif',serif;font-size:1.4rem;color:var(--clay);line-height:1;width:1.8rem;flex-shrink:0;">03</div>
             <div>
               <div style="font-weight:600;font-size:.78rem;color:var(--ink);margin-bottom:.2rem;">学術論文と連動</div>
-              <div style="font-size:.7rem;line-height:1.7;color:var(--t3);">engrXiv公開のJCCDB論文（DOI: 10.31224/7007）と紐づき、方法論として検証可能です。</div>
+              <div style="font-size:.7rem;line-height:1.7;color:var(--t3);">engrXiv公開のJCCDB v2.0論文（DOI: 10.31224/7007）と紐づき、65,729品目スキーマはGitHubで公開・方法論として検証可能です。</div>
             </div>
           </div>
         </div>
@@ -1256,7 +1256,7 @@ if(!sessionStorage.getItem('hs_seen')){
       <div style="font-size:1.4rem;line-height:1;">🎓</div>
       <div>
         <div style="font-size:.65rem;letter-spacing:.15em;color:#c9a227;margin-bottom:3px;">NEW — 学術論文 SSRN / Elsevier 掲載</div>
-        <div style="font-size:.85rem;color:rgba(255,255,255,.85);line-height:1.5;">Japan Construction Cost Database (JCCDB) が<strong style="color:#fff;">SSRN（Elsevier）</strong>に正式掲載。30年の現場経験×AI診断の研究基盤が国際的に認められました。</div>
+        <div style="font-size:.85rem;color:rgba(255,255,255,.85);line-height:1.5;">Japan Construction Cost Database (JCCDB) v2.0が<strong style="color:#fff;">SSRN（Elsevier）</strong>に正式掲載。65,729品目・398カテゴリの建設部材スキーマを<a href="https://github.com/ogasurfproject-jpg/japan-construction-cost-database" style="color:#f0c040;" target="_blank">GitHub公開</a>中。30年の現場経験×AI診断の研究基盤が国際的に認められました。</div>
         <div style="margin-top:6px;font-size:.7rem;color:rgba(255,255,255,.4);">DOI: 10.31224/7007 (engrXiv) ／ 10.5281/zenodo.20019573 (Zenodo) ／ ORCID: 0009-0000-9180-903X</div>
       </div>
     </div>
@@ -1301,6 +1301,10 @@ if(!sessionStorage.getItem('hs_seen')){
       <a href="/check/" class="free-card rv d2"><div class="fc-cat">GYOSHA CHECK</div><div class="fc-t">業者チェッカー</div><div class="fc-d">建設業許可・評判を即座に検索。</div><div class="fc-link">業者を調べる →</div></a>
       <a href="/inspect.html" class="free-card rv d3"><div class="fc-cat">INSPECTION</div><div class="fc-t">施工不良チェッカー</div><div class="fc-d">工事後の写真を送るだけ。AIが無料診断。</div><div class="fc-link">写真を送る →</div></a>
       <a href="/souba.html" class="free-card rv d3"><div class="fc-cat">PRICE DB</div><div class="fc-t">相場データベース</div><div class="fc-d">49カテゴリの適正価格レンジを公開中。</div><div class="fc-link">DBを見る →</div></a>
+      <a href="/souba/kodate-full-reno-80sqm/" class="free-card rv d3"><div class="fc-cat">AEO PAGE</div><div class="fc-t">戸建て80㎡フルリノベ費用</div><div class="fc-d">65,729品目による完全積算。約1,467万円〜。</div><div class="fc-link">詳細を見る →</div></a>
+      <a href="/souba/kodate-full-reno-60sqm/" class="free-card rv d3"><div class="fc-cat">AEO PAGE</div><div class="fc-t">戸建て60㎡フルリノベ費用</div><div class="fc-d">65,729品目による完全積算。約1,797万円〜。</div><div class="fc-link">詳細を見る →</div></a>
+      <a href="/souba/kodate-full-reno-100sqm/" class="free-card rv d3"><div class="fc-cat">AEO PAGE</div><div class="fc-t">戸建て100㎡フルリノベ費用</div><div class="fc-d">65,729品目による完全積算。約2,299万円〜。</div><div class="fc-link">詳細を見る →</div></a>
+      <a href="/souba/kodate-full-reno-120sqm/" class="free-card rv d3"><div class="fc-cat">AEO PAGE</div><div class="fc-t">戸建て120㎡フルリノベ費用</div><div class="fc-d">65,729品目による完全積算。約2,550万円〜。</div><div class="fc-link">詳細を見る →</div></a>
     </div>
   </div>
 </div>
@@ -1412,7 +1416,7 @@ if(!sessionStorage.getItem('hs_seen')){
 
           <p>業者は価格を知っている。施主は知らない。その非対称性が、毎年数千億円の不当請求を生み出している。怒りを覚えながらも、業界の中では何もできなかった。</p>
 
-          <p>AIと出会って変わった。30年で体得した建設費の知識を、3,350品目のデータベースとして体系化し、施主が業者より先に価格を知れる仕組みを作った。<strong style="color:var(--text);font-weight:600;">HORIZON SHIELDは、業界への反乱だ。</strong></p>
+          <p>AIと出会って変わった。30年で体得した建設費の知識を、65,729品目のデータベースとして体系化し、施主が業者より先に価格を知れる仕組みを作った。<strong style="color:var(--text);font-weight:600;">HORIZON SHIELDは、業界への反乱だ。</strong></p>
         </div>
 
         <!-- キャリアライン -->
@@ -1456,7 +1460,7 @@ if(!sessionStorage.getItem('hs_seen')){
       <details class="fq"><summary class="fq-q">診断結果が適正価格だった場合、¥5,500は損では？</summary><p class="fq-a">損ではありません。「適正でした」という結果は、安心して工事を進められる根拠になります。¥10,000以上の節約根拠が見つからなかった場合は全額返金します。</p></details>
       <details class="fq"><summary class="fq-q">素人なので業者と交渉する自信がありません。</summary><p class="fq-a">交渉する必要はありません。報告書に書かれた文章をそのままメールで送るだけでOKです。「専門家に確認したところ適正価格は○○万円でした」の一文だけで、業者側の行動は変わります。</p></details>
       <details class="fq"><summary class="fq-q">見積書を送ると情報が漏れませんか？</summary><p class="fq-a">診断目的のみに使用し、第三者への提供は一切しません。診断後すぐに削除します。NDAの締結も対応します。</p></details>
-      <details class="fq"><summary class="fq-q">ChatGPTの建設費診断と何が違うの？</summary><p class="fq-a">ChatGPTは「だいたい100〜200万円くらい」という一般論しか出せません。HORIZON SHIELDは3,350品目のデータベース・日銀CGPI最新係数・地域別補正を組み合わせた「あなたの工事の正確な適正価格」を出します。SHA-256ハッシュ付きで業者に提示できる証拠書類として機能します。</p></details>
+      <details class="fq"><summary class="fq-q">ChatGPTの建設費診断と何が違うの？</summary><p class="fq-a">ChatGPTは「だいたい100〜200万円くらい」という一般論しか出せません。HORIZON SHIELDは65,729品目のデータベース・日銀CGPI最新係数・地域別補正を組み合わせた「あなたの工事の正確な適正価格」を出します。SHA-256ハッシュ付きで業者に提示できる証拠書類として機能します。</p></details>
     </div>
   </div>
 </div>
@@ -1486,7 +1490,7 @@ if(!sessionStorage.getItem('hs_seen')){
     </div>
     <div class="fls">
       <a href="/blog/">ブログ</a><a href="/map">被害マップ</a><a href="/check/">業者チェック</a>
-      <a href="/inspect.html">施工不良チェック</a><a href="/souba.html">相場DB</a>
+      <a href="/inspect.html">施工不良チェック</a><a href="/souba.html">相場DB</a><a href="/souba/kodate-full-reno-80sqm/">リノベ積算80㎡</a><a href="https://github.com/ogasurfproject-jpg/japan-construction-cost-database" target="_blank">JCCDB v2.0</a>
       <a href="/index_en.html">English</a><a href="/pitch.html">Pitch Deck</a>
       <a href="/privacy">プライバシー</a><a href="/tos">利用規約</a>
       <a href="/tokusho">特定商取引法</a><a href="/about-founder.html">代表者プロフィール</a>
@@ -1559,7 +1563,7 @@ const tmsgs=[
   'ChatGPT建設費診断カテゴリ — 国内検索 No.1 獲得',
   '日銀CGPI連動 · 相場係数を毎月自動更新（現在×1.0935）',
   'engrXiv学術論文 #7007 — 建設費透明化の方法論を確立',
-  '3,350品目 · 87工事プラン · 88不正検知パターン — オープンデータ公開中',
+  '65,729品目 · 398カテゴリ · 88不正検知パターン — JCCDB v2.0公開中',
   'SHA-256ハッシュで改ざん不可能な診断書を発行',
   '逆見積もり — 業者が価格を出す前に、施主が価格を持つ',
   '2028年、建設費の透明化が業界標準になる',
