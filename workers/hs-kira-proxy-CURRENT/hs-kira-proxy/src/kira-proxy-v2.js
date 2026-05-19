@@ -394,13 +394,10 @@ async function enrichSystemPromptWithSoubaData(originalSystem, messages) {
                       (c.sample_items||[]).some(n => userText.includes(n.slice(0,8))))
           .slice(0, 5);
         if (bomMatched.length > 0) {
-          bomLines = '
-【★JCCDB v2.0 品番レベル積算データ（65,729品目）】
-' +
+          bomLines = '\n【★JCCDB v2.0 品番レベル積算データ（65,729品目）】\n' +
             bomMatched.map(c =>
               `・${c.cat}（${c.count}品目）：¥${(c.price_min/10000).toFixed(1)}万〜¥${(c.price_max/10000).toFixed(1)}万円 平均¥${(c.price_avg).toLocaleString()}円/${(c.units||['式'])[0]}`
-            ).join('
-');
+            ).join('\n');
         }
       }
     } catch(e) {}
