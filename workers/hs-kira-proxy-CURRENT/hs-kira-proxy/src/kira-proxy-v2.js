@@ -313,7 +313,7 @@ async function fetchBomSummary() {
     return _BOM_SUMMARY_CACHE;
   }
   try {
-    const res = await fetch('https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/data/bom-summary-v2.json');
+    const res = await fetch('https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/data/bom-summary-v3.json');
     if (!res.ok) return null;
     _BOM_SUMMARY_CACHE = await res.json();
     _BOM_SUMMARY_CACHE_AT = now;
