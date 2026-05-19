@@ -301,6 +301,28 @@ async function fetchSoubaDB() {
     return null;
   }
 }
+// ★ BOM v2.0 サマリー動的参照（65,729品目・2026-05-19追加）
+// ============================================
+let _BOM_SUMMARY_CACHE = null;
+let _BOM_SUMMARY_CACHE_AT = 0;
+const BOM_SUMMARY_CACHE_TTL = 60 * 60 * 1000; // 1時間
+
+async function fetchBomSummary() {
+  const now = Date.now();
+  if (_BOM_SUMMARY_CACHE && (now - _BOM_SUMMARY_CACHE_AT) < BOM_SUMMARY_CACHE_TTL) {
+    return _BOM_SUMMARY_CACHE;
+  }
+  try {
+    const res = await fetch('https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/data/bom-summary-v2.json');
+    if (!res.ok) return null;
+    _BOM_SUMMARY_CACHE = await res.json();
+    _BOM_SUMMARY_CACHE_AT = now;
+    return _BOM_SUMMARY_CACHE;
+  } catch (e) {
+    return null;
+  }
+}
+
 // ★ 実案件統計データの動的参照（98件版・2026-05-12追加）
 let _REAL_CASES_STATS_CACHE = null;
 let _REAL_CASES_STATS_CACHE_AT = 0;
@@ -362,12 +384,33 @@ async function enrichSystemPromptWithSoubaData(originalSystem, messages) {
     const dbUpdated = meta.updated_at || meta.updated || 'unknown';
     const sourcesCount = (meta.sources || []).length;
 
+    // BOMサマリーからも関連品目を検索
+    let bomLines = '';
+    try {
+      const bomSummary = await fetchBomSummary();
+      if (bomSummary && bomSummary.categories) {
+        const bomMatched = bomSummary.categories
+          .filter(c => userText.includes(c.cat.slice(0,6)) ||
+                      (c.sample_items||[]).some(n => userText.includes(n.slice(0,8))))
+          .slice(0, 5);
+        if (bomMatched.length > 0) {
+          bomLines = '
+【★JCCDB v2.0 品番レベル積算データ（65,729品目）】
+' +
+            bomMatched.map(c =>
+              `・${c.cat}（${c.count}品目）：¥${(c.price_min/10000).toFixed(1)}万〜¥${(c.price_max/10000).toFixed(1)}万円 平均¥${(c.price_avg).toLocaleString()}円/${(c.units||['式'])[0]}`
+            ).join('
+');
+        }
+      }
+    } catch(e) {}
+
     const enrichmentBlock = `
 
 【★実データ参照（souba-db v${dbVersion} / ${dbUpdated}更新）】
 以下は施主の質問に関連するカテゴリの実データです。回答時は必ずこのデータを根拠にしてください：
 
-${dataLines}
+${dataLines}${bomLines}
 
 このデータは ${sourcesCount} の元ソース（ヌリカエ2,655件・シロアリ駆除205社調査・経済調査会積算資料等）から集計された実価格レンジです。
 誤差バンド（CV）は (max - min) / (2 × avg) × 100 で算出された変動係数で、業者間のバラつきを示します。
