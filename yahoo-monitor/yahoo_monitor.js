@@ -1,7 +1,7 @@
 /**
- * HORIZON SHIELD Yahoo!リアルタイム検索監視
- * GitHub Actionsで30分ごとに実行
- */
+* HORIZON SHIELD Yahoo!リアルタイム検索監視
+* GitHub Actionsで30分ごとに実行
+*/
 
 const puppeteer = require('puppeteer-core');
 const { execSync } = require('child_process');
@@ -26,19 +26,29 @@ const SCORE_THRESHOLD = 75;
 // スコアリング
 // ========================================
 async function scorePost(text) {
-  const prompt = `あなたはHORIZON SHIELD（建設費診断サービス¥55,000〜）の見込み客判定AIです。
+  const prompt = `あなたはHORIZON SHIELD（建設費診断サービス¥55,000〜）の見込み客判定AIです。運営は30年現場を見てきた元大工・大賀俊勝。
 
 投稿: ${text.slice(0, 400)}
 
-以下のJSONのみ返答:
+以下のJSONのみ返答（前置き・コードブロック不要）:
 {
   "score": 0〜100の整数,
   "pattern": "A/B/C/D/除外のいずれか",
   "reason": "15文字以内の判定理由",
   "is_vendor": true/false,
   "urgency": "高/中/低",
-  "reply": "施主への共感リプライ（100文字以内）"
+  "souba_hint": "工事種別が判別できれば一般的な相場レンジ（例: 外壁塗装30坪なら80〜150万が中央値帯）。㎡数や仕様が不明なら断定数字を出さずレンジ表現に留める。判別不能なら空文字",
+  "reply_empathy": "共感型リプライ。まず不安に寄り添い『その違和感は当たってることが多い』と伝え、最後にLINE誘導。120文字以内",
+  "reply_data": "相場感型リプライ。souba_hintのレンジを自然に提示して安心させ、専門家の信頼を出す。最後にLINE誘導。120文字以内",
+  "reply_diagnosis": "即診断型リプライ。『見積書1枚あれば過剰箇所を指摘できます』と軽く行動を促す。押しは弱く。最後にLINE誘導。120文字以内"
 }
+
+全リプライ共通ルール:
+- 押し売り禁止。断定・煽り禁止（「ぼったくり確定」と言い切らない）
+- 特定業者の名指し批判をしない。業者を一律に敵視しない
+- 営業臭を消す。元大工の先輩が後輩に教える温度
+- CTAは「LINEで見積書を無料診断 → @172piime」に統一
+- 末尾に必ず「※AI支援＋人間が確認しています」を入れる
 
 パターンA: 今まさに困っている（80〜100点）
 パターンB: 被害後に怒っている（75〜90点）
@@ -56,7 +66,7 @@ async function scorePost(text) {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 250,
+        max_tokens: 600,
         messages: [{ role: 'user', content: prompt }],
       }),
     });
@@ -65,7 +75,7 @@ async function scorePost(text) {
     return JSON.parse(raw.replace(/```json|```/g, '').trim());
   } catch (e) {
     console.error('スコアリングエラー:', e.message);
-    return { score: 0, pattern: '除外', reason: 'error', is_vendor: false, urgency: '低', reply: '' };
+    return { score: 0, pattern: '除外', reason: 'error', is_vendor: false, urgency: '低', souba_hint: '', reply_empathy: '', reply_data: '', reply_diagnosis: '' };
   }
 }
 
@@ -201,10 +211,15 @@ async function main() {
             `${urgencyMark}【${result.score}点/パターン${result.pattern}】[YahooRT]\n━━━━━━━━━━\n` +
             `🔍 キーワード: ${keyword}\n` +
             `📋 ${post.text.slice(0, 100)}\n\n` +
-            `💡 ${result.reason}\n⏰ 緊急度: ${result.urgency}\n\n` +
-            `📝 推奨リプライ:\n${result.reply || ''}\n→ shield.the-horizons-innovation.com\n\n` +
-            (post.link ? `🔗 元投稿:\n${post.link}\n` : '') +
-            `━━━━━━━━━━`;
+            `💡 ${result.reason}\n⏰ 緊急度: ${result.urgency}\n` +
+            (result.souba_hint ? `📊 相場感: ${result.souba_hint}\n` : '') +
+            `\n──返信ドラフト（1つ選んでコピペ）──\n` +
+            `【A:共感】\n${result.reply_empathy || ''}\n\n` +
+            `【B:相場】\n${result.reply_data || ''}\n\n` +
+            `【C:即診断】\n${result.reply_diagnosis || ''}\n` +
+            (post.link ? `\n🔗 元投稿:\n${post.link}\n` : '') +
+            `━━━━━━━━━━\n` +
+            `⚠️ 1日のリプライは20件まで。同文連投NG。LINE誘導優先`;
 
           await sendLine(msg);
           totalNotified++;
