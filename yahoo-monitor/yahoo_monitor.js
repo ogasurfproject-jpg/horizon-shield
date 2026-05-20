@@ -114,12 +114,12 @@ async function scrapeYahooRealtime(browser, keyword) {
     // Yahoo!リアルタイムのJSレンダリング完了を待つ
     try {
       await page.waitForFunction(
-        () => document.querySelector('[class*="Tweet_bodyWrap"]') !== null,
+        () => document.querySelector('article[class*="PopularTweetItem"]') !== null,
         { timeout: 15000 }
       );
-      console.log(`"${keyword}" Tweet要素を検出`);
+      console.log(`"${keyword}" 投稿要素を検出`);
     } catch (e) {
-      console.log(`"${keyword}" Tweet要素タイムアウト - 10秒待機`);
+      console.log(`"${keyword}" 投稿要素タイムアウト - 10秒待機`);
       await new Promise(r => setTimeout(r, 10000));
     }
 
@@ -127,12 +127,12 @@ async function scrapeYahooRealtime(browser, keyword) {
     const posts = await page.evaluate(() => {
       const items = [];
 
-      // Yahoo!リアルタイム検索の投稿セレクター（DOM解析済み）
+      // Yahoo!リアルタイム検索の投稿セレクター（2026-05 DOM再解析済み）
+      // 投稿1件 = <article class="PopularTweetItem_TrendTweet__xxxx">
       const selectors = [
-        '[class*="Tweet_bodyWrap"]',
-        '[class*="Tweet_bodyContainer"]',
-        '[class*="Tweet_TweetContainer"]',
-        '[class*="Tweet_body"]',
+        'article[class*="PopularTweetItem"]',
+        '[class*="PopularTweet_list"] article',
+        '[class*="PopularTweetItem"]',
       ];
 
       for (const selector of selectors) {
@@ -140,7 +140,7 @@ async function scrapeYahooRealtime(browser, keyword) {
         if (elements.length >= 1) {
           elements.forEach(el => {
             const text = (el.innerText || el.textContent || '').trim();
-            const linkEl = el.closest('[class*="Tweet_TweetContainer"]')?.querySelector('a[href*="twitter.com"], a[href*="x.com"]');
+            const linkEl = el.querySelector('a[href*="twitter.com"], a[href*="x.com"]');
             const link = linkEl?.href || '';
             if (text.length > 15 && text.length < 500) {
               items.push({ text: text.slice(0, 300), link, selector });
