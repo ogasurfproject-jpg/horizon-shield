@@ -510,14 +510,14 @@ nav{
     <div class="funnel-arrow">↓</div>
     <div class="funnel-step highlight">
       <div class="f-num gold">03</div>
-      <div><div class="f-title">詳細診断・是正要求書</div><div class="f-desc">施工不良の断定・是正箇所の特定・業者への交渉文言・是正要求書の作成は専門家サービスで対応します。</div></div>
-      <div class="f-badge paid">¥55,000</div>
+      <div><div class="f-title">項目別の適正単価＋交渉文をメールで納品</div><div class="f-desc">手元の見積もりを項目ごとに適正単価と照合し、業者への交渉文付きPDFをメールでお送りします。</div></div>
+      <div class="f-badge paid">¥5,500</div>
     </div>
     <div class="funnel-arrow">↓</div>
     <div class="funnel-step highlight">
       <div class="f-num gold">04</div>
-      <div><div class="f-title">現場立会い・完全是正</div><div class="f-desc">専門家が現場に立ち会い、施工不良を直接確認。法的効力のある是正要求書をその場で作成します。</div></div>
-      <div class="f-badge paid">¥88,000</div>
+      <div><div class="f-title">より高度な専門家による詳細検証</div><div class="f-desc">建設実務30年の専門家が見積書・写真を精査し、是正要求書まで作成する詳細診断です。</div></div>
+      <div class="f-badge paid">¥¥55,000</div>
     </div>
   </div>
 </div>
@@ -770,10 +770,24 @@ function showDone(kiraText,kiraAmount){
   document.getElementById('s3').style.display='block';
   document.getElementById('db3').style.display='block';
   setStep(3);
+ function mdToHtml(t){
+  if(!t) return '';
+  return t
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/^### (.*)$/gm,'<h4 style="font-size:15px;font-weight:700;margin:14px 0 6px;color:var(--ink2,#1A3A54)">$1</h4>')
+    .replace(/^## (.*)$/gm,'<h3 style="font-size:16px;font-weight:700;margin:16px 0 8px;color:var(--ink2,#1A3A54)">$1</h3>')
+    .replace(/^# (.*)$/gm,'<h3 style="font-size:17px;font-weight:800;margin:18px 0 8px;color:var(--ink2,#1A3A54)">$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^[-・] (.*)$/gm,'<div style="padding-left:1em;text-indent:-1em;margin:3px 0">・$1</div>')
+    .replace(/\n/g,'<br>');
+}
   var resultEl=document.getElementById('kira-result');
   var amountEl=document.getElementById('kira-amount');
   if(kiraText){
-    resultEl.innerHTML=kiraText;
+    // 旧（776行）
+resultEl.innerHTML=kiraText;
+// 新
+resultEl.innerHTML=mdToHtml(kiraText);
     if(kiraAmount){amountEl.style.display='block';amountEl.innerHTML='<strong>費用の目安：</strong>'+kiraAmount+'<br><span style="font-size:11px;color:var(--muted)">※これはあくまでも目安です。正確な判定は専門家診断（¥55,000）で行います。</span>';}
   }else{resultEl.innerHTML='担当者が確認次第、ご連絡します。';}
   window.scrollTo({top:300,behavior:'smooth'});
