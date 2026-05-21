@@ -757,7 +757,58 @@ if(!sessionStorage.getItem('hs_seen')){
     </div>
   </div>
 </div>
+<!-- ═══ 2大入口（逆見積もり / 施工チェック）2026-05-22 新設 ═══ -->
+<div class="sec" style="padding-top:2.2rem;padding-bottom:2.2rem;" id="entry">
+  <div class="sec-i" style="max-width:920px;">
+    <div style="text-align:center;margin-bottom:1.6rem;">
+      <div class="h-eye" style="margin-bottom:.8rem;">
+        <span class="pulse"></span>あなたはどちらですか
+      </div>
+      <h2 style="font-family:'Noto Serif JP',serif;font-size:clamp(1.5rem,3.4vw,2rem);font-weight:900;color:var(--ink2);line-height:1.25;margin:0;">
+        2つの入口から、<span style="color:var(--amber);">今すぐ無料で</span>始める
+      </h2>
+    </div>
 
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;">
+
+      <!-- 左：逆見積もり -->
+      <a href="/hs-reverse-estimate/" style="display:flex;flex-direction:column;background:#fff;border:1px solid rgba(26,58,84,.14);border-radius:16px;padding:1.6rem 1.5rem;text-decoration:none;box-shadow:0 6px 22px rgba(0,0,0,.06);transition:all .22s;">
+        <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.9rem;">
+          <div style="width:46px;height:46px;border-radius:12px;background:var(--clay-m);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--clay)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+          </div>
+          <div style="font-size:.66rem;letter-spacing:.1em;color:var(--clay);font-weight:600;">まだ見積もりがない</div>
+        </div>
+        <div style="font-family:'Noto Serif JP',serif;font-size:1.18rem;font-weight:700;color:var(--ink2);line-height:1.35;margin-bottom:.5rem;">逆見積もりで<br>適正価格を先に持つ</div>
+        <div style="font-size:.82rem;color:#5a6a78;line-height:1.75;flex:1;margin-bottom:1.2rem;">業者に頼む前に、KIRAが対話で適正予算を算出。交渉の武器になるPDFを即日納品します。</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--clay);color:#fff;border-radius:10px;padding:.85rem 1.2rem;">
+          <span style="font-weight:700;font-size:.92rem;">KIRAに無料相談</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+      </a>
+
+      <!-- 右：施工チェック -->
+      <a href="/inspect.html" style="display:flex;flex-direction:column;background:#fff;border:1px solid rgba(26,58,84,.14);border-radius:16px;padding:1.6rem 1.5rem;text-decoration:none;box-shadow:0 6px 22px rgba(0,0,0,.06);transition:all .22s;">
+        <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.9rem;">
+          <div style="width:46px;height:46px;border-radius:12px;background:rgba(26,58,84,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+          <div style="font-size:.66rem;letter-spacing:.1em;color:var(--ink);font-weight:600;">見積もり・工事がある</div>
+        </div>
+        <div style="font-family:'Noto Serif JP',serif;font-size:1.18rem;font-weight:700;color:var(--ink2);line-height:1.35;margin-bottom:.5rem;">写真・PDFを送って<br>その場でチェック</div>
+        <div style="font-size:.82rem;color:#5a6a78;line-height:1.75;flex:1;margin-bottom:1.2rem;">手元の見積書や工事後の写真を送るだけ。AIが過剰請求・施工不良を診断します。</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--ink);color:#fff;border-radius:10px;padding:.85rem 1.2rem;">
+          <span style="font-weight:700;font-size:.92rem;">まず無料でチェック</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+      </a>
+
+    </div>
+
+    <p style="text-align:center;font-size:.66rem;color:#9a9488;margin:1.3rem 0 0;letter-spacing:.05em;">AI診断 ・ 建設30年プロ監修 ・ 業者からは一円も受け取りません</p>
+  </div>
+</div>
+<!-- ═══ /2大入口 ═══ -->
 <!-- ═══ VOICES ═══ -->
 <div class="sec voices-bg" id="voices">
   <div class="sec-i">
