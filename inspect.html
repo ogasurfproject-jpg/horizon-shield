@@ -517,7 +517,7 @@ nav{
     <div class="funnel-step highlight">
       <div class="f-num gold">04</div>
       <div><div class="f-title">より高度な専門家による詳細検証</div><div class="f-desc">建設実務30年の専門家が見積書・写真を精査し、是正要求書まで作成する詳細診断です。</div></div>
-      <div class="f-badge paid">¥¥55,000</div>
+      <div class="f-badge paid">¥55,000</div>
     </div>
   </div>
 </div>
@@ -624,8 +624,8 @@ nav{
           <div class="upgrade-title">施工不良を<em>完全に確定</em>させたい</div>
           <div class="upgrade-desc">建設実務経験30年の専門家が見積書・写真・現場を確認し、業者への是正要求書を作成します。KIRAの診断で気になる点が見つかった場合、早めのご相談をお勧めします。</div>
           <div class="upgrade-btns">
-            <a href="https://shield.the-horizons-innovation.com/#services" class="u-btn-primary">詳細診断 ¥55,000 →</a>
-            <a href="https://shield.the-horizons-innovation.com/#services" class="u-btn-secondary">現場立会い ¥88,000 →</a>
+            <a href="https://shield.the-horizons-innovation.com/#services" class="u-btn-primary">項目別診断PDFをメールで受け取る ¥5,500 → →</a>
+            <a href="https://shield.the-horizons-innovation.com/#services" class="u-btn-secondary">より高度な専門家検証 ¥55,000 →</a>
           </div>
         </div>
       </div>
@@ -757,7 +757,8 @@ async function doSubmit(){
   showDone(kiraText,kiraAmount);
 }
 
-function toB64(f){
+function mdToHtml(t){if(!t)return '';return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/^### (.*)$/gm,'<h4 style="font-size:15px;font-weight:700;margin:14px 0 6px;color:#0f1e4a">$1</h4>').replace(/^## (.*)$/gm,'<h3 style="font-size:16px;font-weight:700;margin:16px 0 8px;color:#0f1e4a">$1</h3>').replace(/^# (.*)$/gm,'<h3 style="font-size:17px;font-weight:800;margin:18px 0 8px;color:#0f1e4a">$1</h3>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/^[-・] (.*)$/gm,'<div style="padding-left:1em;text-indent:-1em;margin:3px 0">・$1</div>').replace(/
+/g,'<br>');} function toB64(f){
   return new Promise(function(res,rej){
     var r=new FileReader();
     r.onload=function(e){res({data:e.target.result.split(',')[1],mediaType:f.type||'image/jpeg',name:f.name,isPdf:f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf')});};
@@ -770,25 +771,12 @@ function showDone(kiraText,kiraAmount){
   document.getElementById('s3').style.display='block';
   document.getElementById('db3').style.display='block';
   setStep(3);
- function mdToHtml(t){
-  if(!t) return '';
-  return t
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/^### (.*)$/gm,'<h4 style="font-size:15px;font-weight:700;margin:14px 0 6px;color:var(--ink2,#1A3A54)">$1</h4>')
-    .replace(/^## (.*)$/gm,'<h3 style="font-size:16px;font-weight:700;margin:16px 0 8px;color:var(--ink2,#1A3A54)">$1</h3>')
-    .replace(/^# (.*)$/gm,'<h3 style="font-size:17px;font-weight:800;margin:18px 0 8px;color:var(--ink2,#1A3A54)">$1</h3>')
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/^[-・] (.*)$/gm,'<div style="padding-left:1em;text-indent:-1em;margin:3px 0">・$1</div>')
-    .replace(/\n/g,'<br>');
-}
   var resultEl=document.getElementById('kira-result');
   var amountEl=document.getElementById('kira-amount');
   if(kiraText){
-    // 旧（776行）
-resultEl.innerHTML=kiraText;
-// 新
+    resultEl.innerHTML=mdToHtml(kiraText);
 resultEl.innerHTML=mdToHtml(kiraText);
-    if(kiraAmount){amountEl.style.display='block';amountEl.innerHTML='<strong>費用の目安：</strong>'+kiraAmount+'<br><span style="font-size:11px;color:var(--muted)">※これはあくまでも目安です。正確な判定は専門家診断（¥55,000）で行います。</span>';}
+    if(kiraAmount){amountEl.style.display='block';amountEl.innerHTML='<strong>費用の目安：</strong>'+kiraAmount+'<br><span style="font-size:11px;color:var(--muted)">※この場での判定は「過剰か・過剰でないか」の目安です。項目別の適正単価＋交渉文PDFはメール納品（¥5,500）で承ります。</span>';}
   }else{resultEl.innerHTML='担当者が確認次第、ご連絡します。';}
   window.scrollTo({top:300,behavior:'smooth'});
 }
