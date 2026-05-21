@@ -624,7 +624,7 @@ nav{
           <div class="upgrade-title">施工不良を<em>完全に確定</em>させたい</div>
           <div class="upgrade-desc">建設実務経験30年の専門家が見積書・写真・現場を確認し、業者への是正要求書を作成します。KIRAの診断で気になる点が見つかった場合、早めのご相談をお勧めします。</div>
           <div class="upgrade-btns">
-            <a href="https://shield.the-horizons-innovation.com/#services" class="u-btn-primary">項目別診断PDFをメールで受け取る ¥5,500 → →</a>
+            <a href="https://shield.the-horizons-innovation.com/#services" class="u-btn-primary">項目別診断PDFをメールで受け取る ¥5,500 → </a>
             <a href="https://shield.the-horizons-innovation.com/#services" class="u-btn-secondary">より高度な専門家検証 ¥55,000 →</a>
           </div>
         </div>
@@ -767,7 +767,7 @@ function showDone(kiraText,kiraAmount){
   var amountEl=document.getElementById('kira-amount');
   if(kiraText){
     resultEl.innerHTML=mdToHtml(kiraText);
-resultEl.innerHTML=mdToHtml(kiraText);
+
     if(kiraAmount){amountEl.style.display='block';amountEl.innerHTML='<strong>費用の目安：</strong>'+kiraAmount+'<br><span style="font-size:11px;color:var(--muted)">※この場での判定は「過剰か・過剰でないか」の目安です。項目別の適正単価＋交渉文PDFはメール納品（¥5,500）で承ります。</span>';}
   }else{resultEl.innerHTML='担当者が確認次第、ご連絡します。';}
   window.scrollTo({top:300,behavior:'smooth'});
