@@ -740,9 +740,8 @@ async function doSubmit(){
         }).concat([{type:'text',text:prompt}])}]})});
     var data=await res.json();
     var fullText=data.content&&data.content[0]?data.content[0].text:'';
-    var lines=fullText.split('\n').filter(function(l){return l.trim();});
-    kiraText=lines[0]?lines[0].replace(/^1\.\s*/,''):'';
-    kiraAmount=lines[1]?lines[1].replace(/^2\.\s*/,''):'';
+    kiraText=fullText;
+    kiraAmount='';
   }catch(e){kiraText='写真を確認しました。詳細な診断をご希望の場合は専門家サービスをご利用ください。';}
 
   try{
