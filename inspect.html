@@ -724,51 +724,60 @@ async function doSubmit(){
   var p=0;
   var iv=setInterval(function(){if(p<85){p+=5;fill.style.width=p+'%';}},300);
 
+  var kiraText='';
+
+  // ① まず画像/PDFをbase64化（ここで失敗してもエラーを画面に出す）
+  var imgs=[];
+  try{
+    imgs=await Promise.all(files.map(toB64));
+  }catch(e){
+    clearInterval(iv);
+    kiraText='ファイルの読み込みに失敗しました（'+(e.message||e)+'）。お手数ですがLINE @172piime から直接お送りください。';
+    showDone(kiraText);
+    return;
+  }
+
+  // ② KIRA診断（/anthropic）
+  try{
+    var prompt='工事の種類：'+(type||'一般リフォーム')+'\n備考：'+(note||'なし')+'\nファイル数：'+files.length+'件\n\n写真または見積書を見て、施主目線で「過剰請求の疑いがあるか・適正か」を判定し、わかりやすく説明してください。断定はせず可能性として伝えてください。';
+    var res=await fetch(KIRA+'/anthropic',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:[{role:'user',content:imgs.map(function(img){
+        return img.isPdf?{type:'document',source:{type:'base64',media_type:'application/pdf',data:img.data}}:{type:'image',source:{type:'base64',media_type:img.mediaType,data:img.data}};
+      }).concat([{type:'text',text:prompt}])}]})});
+    var data=await res.json();
+    kiraText=(data && data.content && data.content[0] && data.content[0].text) ? data.content[0].text : '';
+    if(!kiraText){ kiraText='診断結果を取得できませんでした。お手数ですがLINE @172piime から直接お送りください。'; }
+  }catch(e){
+    kiraText='通信エラーが発生しました（'+(e.message||e)+'）。LINE @172piime から直接お送りください。';
+  }
+
+  // ③ 通知＆データ保管（診断結果も一緒にKVへ保存。メール送信は廃止）
   try{
     await fetch(KIRA+'/notify',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({message:'【施工チェック依頼】\n名前：'+name+'\nメール：'+email+'\n種類：'+(type||'未選択')+'\n備考：'+(note||'なし')+'\nファイル数：'+files.length+'件\n⚠️ 要確認',name:name,email:email,type:type||'',result:''})});
-  }catch(e){}
-
-  var kiraText='',kiraAmount='';
-  try{
-    var imgs=await Promise.all(files.map(toB64));
-    var prompt='工事の種類：'+(type||'一般リフォーム')+'\n備考：'+(note||'なし')+'\nファイル数：'+files.length+'件\n\n以下の形式で回答してください：\n1. 最も気になるリスクを1点（「〜が気になります」30文字以内）\n2. もし問題があった場合の修繕費用の目安（例：「修繕費用の目安は〇〜〇万円程度」）\n断定はせず可能性として伝えてください。';
-    var res=await fetch(KIRA+'/anthropic',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,
-        messages:[{role:'user',content:imgs.map(function(img){
-          return img.isPdf?{type:'document',source:{type:'base64',media_type:'application/pdf',data:img.data}}:{type:'image',source:{type:'base64',media_type:img.mediaType,data:img.data}};
-        }).concat([{type:'text',text:prompt}])}]})});
-    var data=await res.json();
-    var fullText=data.content&&data.content[0]?data.content[0].text:'';
-    kiraText=fullText;
-    kiraAmount='';
-  }catch(e){kiraText='写真を確認しました。詳細な診断をご希望の場合は専門家サービスをご利用ください。';}
-
-  try{
-    await fetch(KIRA+'/send-email',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({to:email,subject:'KIRAからの診断結果 | HORIZON SHIELD',
-        body:'<div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#f7f5f0;color:#1a1a2a;padding:32px"><h2 style="color:#0f1e4a;font-size:18px;margin-bottom:16px">KIRAの診断結果</h2><p style="font-size:15px;line-height:1.9;margin-bottom:12px">'+kiraText.replace(/\n/g,'<br>')+'</p>'+(kiraAmount?'<div style="background:#fff;border-left:3px solid #8b1a1a;padding:14px 18px;margin-bottom:20px;font-size:14px;color:#6b6b60">'+kiraAmount.replace(/\n/g,'<br>')+'</div>':'')+'<hr style="border:none;border-top:1px solid #dddad0;margin:24px 0"><p style="font-size:12px;color:#888880;line-height:1.8">詳細診断・是正要求書の作成は <a href="https://shield.the-horizons-innovation.com" style="color:#0f1e4a">HORIZON SHIELD</a> へ。<br>大賀 俊勝 / The HORIZ音s株式会社</p></div>'})});
+      body:JSON.stringify({
+        message:'【施工チェック依頼】\n名前：'+name+'\nメール：'+email+'\n種類：'+(type||'未選択')+'\n備考：'+(note||'なし')+'\nファイル数：'+files.length+'件\n\n--- KIRA診断 ---\n'+kiraText,
+        name:name, email:email, type:type||'', result:kiraText, risk:''
+      })});
   }catch(e){}
 
   clearInterval(iv);
   fill.style.width='100%';
   await new Promise(function(r){setTimeout(r,400);});
-  showDone(kiraText,kiraAmount);
+  showDone(kiraText);
 }
 
 function mdToHtml(t){if(!t)return '';return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/^### (.*)$/gm,'<h4 style="font-size:15px;font-weight:700;margin:14px 0 6px;color:#0f1e4a">$1</h4>').replace(/^## (.*)$/gm,'<h3 style="font-size:16px;font-weight:700;margin:16px 0 8px;color:#0f1e4a">$1</h3>').replace(/^# (.*)$/gm,'<h3 style="font-size:17px;font-weight:800;margin:18px 0 8px;color:#0f1e4a">$1</h3>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/^[-・] (.*)$/gm,'<div style="padding-left:1em;text-indent:-1em;margin:3px 0">・$1</div>').replace(/\n/g,'<br>');}
-function showDone(kiraText,kiraAmount){
+function showDone(kiraText){
   document.getElementById('s2').style.display='none';
   document.getElementById('s3').style.display='block';
   document.getElementById('db3').style.display='block';
   setStep(3);
   var resultEl=document.getElementById('kira-result');
-  var amountEl=document.getElementById('kira-amount');
   if(kiraText){
-    resultEl.innerHTML=mdToHtml(kiraText);
-
-    if(kiraAmount){amountEl.style.display='block';amountEl.innerHTML='<strong>費用の目安：</strong>'+kiraAmount+'<br><span style="font-size:11px;color:var(--muted)">※この場での判定は「過剰か・過剰でないか」の目安です。項目別の適正単価＋交渉文PDFはメール納品（¥5,500）で承ります。</span>';}
-  }else{resultEl.innerHTML='担当者が確認次第、ご連絡します。';}
+    resultEl.innerHTML=mdToHtml(kiraText)+'<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);line-height:1.8">※この場での判定は「過剰か・過剰でないか」の目安です。項目別の適正単価＋交渉文付きPDFは、お申込み（¥5,500）で承ります。</div>';
+  }else{
+    resultEl.innerHTML='担当者が確認次第、ご連絡します。';
+  }
   window.scrollTo({top:300,behavior:'smooth'});
 }
 
