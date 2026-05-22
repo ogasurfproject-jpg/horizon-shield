@@ -710,7 +710,24 @@ function setStep(n){
   });
 }
 
-async function doSubmit(){
+function toB64(file){
+  return new Promise(function(resolve,reject){
+    var reader=new FileReader();
+    reader.onload=function(){
+      var result=reader.result;
+      var base64=result.indexOf(',')>-1 ? result.split(',')[1] : result;
+      var isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+      resolve({
+        data:base64,
+        mediaType:file.type||'image/jpeg',
+        isPdf:isPdf
+      });
+    };
+    reader.onerror=function(){reject(new Error('ファイル変換エラー'));};
+    reader.readAsDataURL(file);
+  });
+}
+  async function doSubmit(){
   var name=document.getElementById('fn').value.trim();
   var email=document.getElementById('fe').value.trim();
   var type=document.getElementById('ft').value;
