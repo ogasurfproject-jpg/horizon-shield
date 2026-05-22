@@ -756,7 +756,15 @@ function toB64(file){
 
   // ② KIRA診断（/anthropic）
   try{
-    var prompt='工事の種類：'+(type||'一般リフォーム')+'\n備考：'+(note||'なし')+'\nファイル数：'+files.length+'件\n\n写真または見積書を見て、施主目線で「過剰請求の疑いがあるか・適正か」を判定し、わかりやすく説明してください。断定はせず可能性として伝えてください。';
+    var prompt='工事の種類：'+(type||'一般リフォーム')+'\n備考：'+(note||'なし')+'\nファイル数：'+files.length+'件\n\n'
+      +'あなたは建設30年の専門家KIRAです。これは【無料の一次診断】です。施主が次の有料サービス（項目別の適正単価＋交渉文PDF）に進みたくなるよう、以下のルールを厳守して回答してください。\n\n'
+      +'【出力ルール（厳守）】\n'
+      +'1. 写真・見積書を見て、過剰請求・施工不良の「懸念点があるか・なさそうか」だけを判定する。\n'
+      +'2. 懸念がある場合：「気になる点が◯個あります」と件数を示し、各懸念を一言（15文字程度）の見出しだけで挙げる。例：「外壁塗装の内訳が不明確」「下地処理の範囲が曖昧」\n'
+      +'3. 【絶対禁止】具体的な適正金額・相場単価（¥◯◯/㎡等）・「◯倍高い」といった倍率・項目別の正解価格は一切書かない。これらは有料サービスの内容なので無料では出さない。\n'
+      +'4. 最後に必ずこう結ぶ：「具体的にどの項目がいくら過剰か、適正単価と業者への交渉文は、項目別診断（¥5,500）でお作りします。」\n'
+      +'5. 全体で200文字程度。簡潔に。断定はせず「可能性」として伝える。\n'
+      +'6. もし懸念がほぼ無ければ正直に「大きな懸念は見当たりません」と伝えてよい。';
     var res=await fetch(KIRA+'/anthropic',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({messages:[{role:'user',content:imgs.map(function(img){
         return img.isPdf?{type:'document',source:{type:'base64',media_type:'application/pdf',data:img.data}}:{type:'image',source:{type:'base64',media_type:img.mediaType,data:img.data}};
