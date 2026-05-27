@@ -1,1 +1,4 @@
 workers/hs-kira-proxy-CURRENT/hs-kira-proxy/wrangler.jsonc
+workers/hs-monitor/node_modules/
+workers/**/node_modules/
+node_modules/

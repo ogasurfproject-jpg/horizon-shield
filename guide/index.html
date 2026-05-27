@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>見積書は、読めなくて当たり前だ。｜HORIZON SHIELD</title>
+<meta name="description" content="大工として現場に立ち、施工管理として何百枚もの見積書を裏側から見てきた人間が、施主の側に立ってつくった工事費の判断基準。建設歴30年の一次体験から。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F4EDDC;
+    --cream-2:#EFE6D0;
+    --cream-3:#E7DBC0;
+    --navy:#16273F;
+    --navy-2:#1E3454;
+    --ink:#322E26;
+    --ink-soft:#5A5247;
+    --gold:#B0894A;
+    --gold-bright:#C9A85E;
+    --rule:rgba(22,39,63,.14);
+    --mincho:"Shippori Mincho B1",serif;
+    --gothic:"Zen Kaku Gothic New",sans-serif;
+    --gara:"EB Garamond",serif;
+    --maxw:760px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--gothic);
+    background:var(--cream);
+    color:var(--ink);
+    line-height:1.95;
+    font-size:17px;
+    -webkit-font-smoothing:antialiased;
+    letter-spacing:.01em;
+    position:relative;
+    overflow-x:hidden;
+  }
+  /* paper grain */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.045'/%3E%3C/svg%3E");
+  }
+  .wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 28px}
+
+  /* ── reveal animation ── */
+  .rv{opacity:0;transform:translateY(14px);transition:opacity 1s cubic-bezier(.2,.7,.2,1),transform 1s cubic-bezier(.2,.7,.2,1)}
+  .rv.in{opacity:1;transform:none}
+
+  /* ── eyebrow / rules ── */
+  .eyebrow{
+    font-family:var(--gothic);font-weight:500;font-size:12.5px;letter-spacing:.32em;
+    color:var(--gold);text-transform:none;display:flex;align-items:center;gap:14px;
+  }
+  .eyebrow::before{content:"";width:34px;height:1px;background:var(--gold);display:inline-block}
+  .num{font-family:var(--gara);font-style:italic;color:var(--gold);font-size:15px;letter-spacing:.04em}
+
+  /* ── HERO ── */
+  header.hero{padding:120px 0 96px;border-bottom:1px solid var(--rule)}
+  .hero h1{
+    font-family:var(--mincho);font-weight:800;color:var(--navy);
+    font-size:clamp(34px,6.8vw,54px);line-height:1.42;letter-spacing:.02em;
+    margin:30px 0 0;text-indent:-.05em;
+  }
+  .hero .lead{
+    margin-top:34px;font-size:17px;line-height:2.05;color:var(--ink-soft);max-width:620px;
+  }
+  .sig{
+    margin-top:46px;display:flex;align-items:center;gap:16px;font-size:14px;color:var(--ink-soft);
+  }
+  .sig .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex:none}
+  .sig b{font-family:var(--mincho);font-weight:700;color:var(--navy);font-size:15px}
+
+  /* ── section frame ── */
+  section{padding:84px 0;border-bottom:1px solid var(--rule)}
+  .shead{margin-bottom:34px}
+  .shead h2{
+    font-family:var(--mincho);font-weight:700;color:var(--navy);
+    font-size:clamp(25px,4.4vw,33px);line-height:1.5;letter-spacing:.02em;margin-top:18px;
+  }
+  section p{margin-bottom:22px}
+  section p:last-child{margin-bottom:0}
+  .em{color:var(--navy);font-weight:500;border-bottom:1.5px solid var(--gold-bright);padding-bottom:1px}
+
+  /* ── key-point list ── */
+  .points{margin:30px 0 6px;list-style:none}
+  .points li{
+    position:relative;padding:22px 0 22px 30px;border-top:1px solid var(--rule);
+  }
+  .points li:last-child{border-bottom:1px solid var(--rule)}
+  .points li::before{
+    content:"";position:absolute;left:0;top:31px;width:9px;height:9px;
+    border:1.5px solid var(--gold);transform:rotate(45deg);
+  }
+  .points h3{font-family:var(--mincho);font-weight:700;color:var(--navy);font-size:18.5px;margin-bottom:6px;letter-spacing:.02em}
+  .points p{font-size:15.5px;color:var(--ink-soft);line-height:1.9;margin:0}
+
+  /* ── DARK section (determinism) ── */
+  .dark{background:var(--navy);color:var(--cream-2);border:none;position:relative}
+  .dark::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(120% 80% at 50% -10%,rgba(201,168,94,.12),transparent 60%)}
+  .dark .wrap{position:relative;z-index:2}
+  .dark .eyebrow{color:var(--gold-bright)}
+  .dark .eyebrow::before{background:var(--gold-bright)}
+  .dark h2{color:#fff}
+  .dark p{color:rgba(244,237,220,.82)}
+  .dark .em{color:#fff;border-color:var(--gold-bright)}
+  .verify{
+    margin-top:38px;border:1px solid rgba(201,168,94,.4);border-radius:3px;
+    padding:24px 26px;background:rgba(255,255,255,.03);
+  }
+  .verify .vlabel{font-size:11.5px;letter-spacing:.28em;color:var(--gold-bright);margin-bottom:12px}
+  .verify .vhash{
+    font-family:var(--gara);font-style:italic;font-size:18px;color:var(--cream);
+    letter-spacing:.08em;word-break:break-all;
+  }
+  .verify .vnote{font-size:13px;color:rgba(244,237,220,.55);margin-top:12px;line-height:1.8}
+
+  /* ── CASES ── */
+  .cases{display:grid;gap:18px;margin-top:34px}
+  .case{
+    border:1px solid var(--rule);background:rgba(255,255,255,.4);
+    border-radius:3px;padding:26px 28px;position:relative;
+  }
+  .case .ctag{font-family:var(--gothic);font-weight:500;font-size:12px;letter-spacing:.14em;color:var(--gold);margin-bottom:10px;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .case .ctag .amt{font-family:var(--gara);font-style:italic;color:var(--ink-soft);font-size:13.5px;letter-spacing:.02em;white-space:nowrap}
+  .case .cverdict{font-family:var(--mincho);font-weight:700;color:var(--navy);font-size:17.5px;letter-spacing:.02em;margin-bottom:14px;line-height:1.55}
+  .case .cdetect{list-style:none;margin:0 0 14px}
+  .case .cdetect li{position:relative;padding:5px 0 5px 20px;font-size:14.5px;color:var(--ink-soft);line-height:1.8}
+  .case .cdetect li::before{content:"";position:absolute;left:0;top:14px;width:6px;height:6px;border:1.4px solid var(--gold);transform:rotate(45deg)}
+  .case .caction{font-size:13.5px;color:var(--ink);line-height:1.85;padding-top:12px;border-top:1px solid var(--rule)}
+  .case .caction b{font-family:var(--mincho);font-weight:700;color:var(--navy)}
+  .case .chash{font-family:var(--gara);font-style:italic;font-size:11.5px;color:var(--ink-soft);opacity:.7;margin-top:10px;letter-spacing:.04em}
+
+  .statband{
+    margin-top:30px;text-align:center;padding:30px 20px;border:1px solid var(--rule);
+    border-radius:3px;background:var(--cream-2);
+  }
+  .statband .big{font-family:var(--mincho);font-weight:800;color:var(--navy);font-size:clamp(28px,5vw,38px);letter-spacing:.02em}
+  .statband .big .yen{font-size:.62em;color:var(--gold)}
+  .statband .cap{font-size:13.5px;color:var(--ink-soft);margin-top:10px;letter-spacing:.04em}
+
+  /* ── CTA ── */
+  .cta{text-align:center;padding:96px 0}
+  .cta .price{font-family:var(--gara);font-style:italic;color:var(--gold);font-size:18px;letter-spacing:.04em;margin-bottom:14px}
+  .cta h2{font-family:var(--mincho);font-weight:800;color:var(--navy);font-size:clamp(26px,5vw,38px);line-height:1.5;letter-spacing:.02em}
+  .cta p{max-width:520px;margin:24px auto 38px;color:var(--ink-soft);font-size:16px}
+  .btn{
+    display:inline-block;font-family:var(--gothic);font-weight:700;font-size:16px;letter-spacing:.08em;
+    color:var(--cream);background:var(--navy);text-decoration:none;
+    padding:19px 52px;border-radius:2px;position:relative;overflow:hidden;
+    transition:transform .4s cubic-bezier(.2,.7,.2,1),box-shadow .4s ease;
+    box-shadow:0 10px 30px -14px rgba(22,39,63,.6);
+  }
+  .btn::after{content:"";position:absolute;left:0;bottom:0;width:100%;height:2px;background:var(--gold-bright);transform:scaleX(0);transform-origin:left;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+  .btn:hover{transform:translateY(-3px);box-shadow:0 18px 40px -16px rgba(22,39,63,.7)}
+  .btn:hover::after{transform:scaleX(1)}
+  .cta .sub{display:block;margin-top:20px;font-size:13px;color:var(--ink-soft);letter-spacing:.04em}
+
+  /* ── FOOTER ── */
+  footer{background:var(--cream-3);padding:54px 0 64px;text-align:center}
+  footer .co{font-family:var(--mincho);font-weight:700;color:var(--navy);font-size:16px;letter-spacing:.04em}
+  footer .meta{font-size:13px;color:var(--ink-soft);margin-top:10px;line-height:2}
+  footer a{color:var(--ink-soft);text-decoration:none;border-bottom:1px solid var(--rule)}
+  footer a:hover{color:var(--gold)}
+  footer .disc{font-size:11.5px;color:var(--ink-soft);opacity:.8;margin-top:24px;max-width:560px;margin-left:auto;margin-right:auto;line-height:1.85}
+
+  @media(max-width:560px){
+    body{font-size:16px}
+    header.hero{padding:84px 0 72px}
+    section{padding:64px 0}
+    .case .crow{gap:8px 20px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow rv">工事費の適正化  — 建設歴30年の現場から</div>
+    <h1 class="rv">見積書は、<br>読めなくて当たり前だ。</h1>
+    <p class="lead rv">大工として現場に立ち、施工管理として何百枚もの見積書を「出す側」で見てきた人間が、はじめて施主の側に立ってつくった、工事費の判断基準です。難しい知識はいりません。あなたが見るべき場所だけ、お伝えします。</p>
+    <div class="sig rv"><span class="dot"></span><span>HORIZON SHIELD ／ 代表&nbsp;<b>大賀 俊勝</b>（1993年〜現場・大工 → 施工管理 → 建設CM）</span></div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="shead">
+      <span class="num rv">01</span>
+      <h2 class="rv">なぜ、見積書は「読めない」のか。</h2>
+    </div>
+    <p class="rv">リフォームや外装工事の見積書が分かりにくいのは、あなたの理解力の問題ではありません。工事費というのは、<span class="em">契約する前にも、工事が終わった後にも、それが本当に適正だったのか素人には確かめようがない</span>——経済学で「信用財（credence good）」と呼ばれる、構造的に情報が偏った商品です。</p>
+    <p class="rv">医者にかかるとき、車を修理に出すときと同じです。本当のコストを知っているのは、売る側だけ。だから不安になるのは、むしろ正常な感覚なのです。問題は、その不安を解消する「ものさし」が、これまで施主の手元に一つも無かったことにあります。</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="shead">
+      <span class="num rv">02</span>
+      <h2 class="rv">本当の急所は、<br>「目立つ品目」ではない。</h2>
+    </div>
+    <p class="rv">多くの人は「足場代が高い」「材料費が高い」といった、表に並ぶ大きな数字に目を奪われます。けれど、30年現場にいて分かったのは、過剰な請求が本当に潜むのは、もっと見えにくい場所だということです。プロが最初に確かめるのは、次の二つです。</p>
+    <ul class="points">
+      <li class="rv">
+        <h3>諸経費の「比率」</h3>
+        <p>見積総額に対する諸経費（現場管理費・一般管理費）の割合。ひとつの目安は10〜16%です。ここが静かに膨らんでいても、項目名だけを眺めていては絶対に気づけません。総額に占める比率で見て、はじめて見えてきます。</p>
+      </li>
+      <li class="rv">
+        <h3>数量と「一式」のからくり</h3>
+        <p>「㎡」「式」でまとめられた数量が、実際の現場より多く積まれていないか。とくに <span class="em">「一式（"式"）」表記は、もっとも中身が見えにくく、もっとも差が出る場所</span>です。一行の裏に、何が含まれ、何が含まれていないのか。そこを開くのが本来の仕事です。</p>
+      </li>
+    </ul>
+    <p class="rv" style="margin-top:30px">本物の判断は、頭に並ぶ品目をなぞることではなく、この「比率」と「数量」を、地域ごとの相場基準と突き合わせるところから始まります。HORIZON SHIELD は、そこを機械的に、感情を挟まずにやります。</p>
+  </div>
+</section>
+
+<section class="dark">
+  <div class="wrap">
+    <div class="shead">
+      <span class="num rv" style="color:var(--gold-bright)">03</span>
+      <h2 class="rv">同じ条件なら、必ず同じ答え。</h2>
+    </div>
+    <p class="rv">いま、ChatGPTに見積書を見せて「これは高いですか」と尋ねる人がいます。けれど、聞くたびに違う金額が返ってくる。交渉の場で、根拠がそのつど揺らぐ答えは、武器になりません。</p>
+    <p class="rv">HORIZON SHIELD の判断は、<span class="em">65,729項目・398分類の建設費データベース（JCCDB）と、固定したアルゴリズム</span>に基づいています。同じ条件を入れれば、何度でも、誰が入れても、必ず同じ適正額が出る。この<span class="em">再現性</span>こそが、業者の前で崩れない根拠になります。気分や交渉の空気で動かない、一本の物差しです。</p>
+    <p class="rv">この物差しは、公開されたデータベース（DOI付き・誰でも検証可能）と、近年の資材・人件費の上昇を織り込んだ補正係数（WPC&nbsp;×1.0935）に支えられています。「値上がり」と「上乗せ」を、感情でなく数字で切り分けます。</p>
+    <div class="verify rv">
+      <div class="vlabel">VERIFICATION — 静かな担保として</div>
+      <div class="vhash">sha256 : a3f1&hellip;7e9c　／　照合済み</div>
+      <div class="vnote">各診断書には固有の照合ハッシュが付きます。受け取った報告書が、発行時から一字一句変わっていないことを、あとから誰でも確認できる。声高に語ることではありません。ただ、根拠が動かないことを、技術で静かに裏打ちしているだけです。</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="shead">
+      <span class="num rv">04</span>
+      <h2 class="rv">数字より、結果がすべて。</h2>
+    </div>
+    <p class="rv">大切なのは「いくら値切れたか」ではありません。<span class="em">素人には見えない場所に、プロが何を見抜いたか</span>です。実際に診断した見積書から、匿名で3件をご紹介します。金額も指摘も、報告書に記載した事実のままです。</p>
+
+    <div class="cases">
+      <div class="case rv">
+        <div class="ctag"><span>店舗内装工事</span><span class="amt">見積総額 ¥1,188,000</span></div>
+        <div class="cverdict">諸経費の比率が、一般的な水準を超えていた。</div>
+        <ul class="cdetect">
+          <li>現場管理費・諸経費が工事費の<strong>13.9%</strong>（一般的な目安は約10%）と高め。</li>
+          <li>洗濯機の給排水配管が「一式」表記で、材料費と工事費の内訳が見えない。</li>
+        </ul>
+        <div class="caction"><b>提示したこと：</b>諸経費の内訳明細の要求、配管工事の材工分離の確認、適正額¥1,156,500の根拠。</div>
+        <div class="chash">監査ハッシュ：f62d5dcecfb2</div>
+      </div>
+
+      <div class="case rv">
+        <div class="ctag"><span>商業内装・改修</span><span class="amt">諸経費比率 16.7%</span></div>
+        <div class="cverdict">「一式」の奥に、確かめるべき余地が隠れていた。</div>
+        <ul class="cdetect">
+          <li>諸経費が総額の<strong>16.7%</strong>。現場管理費の日数・単価の根拠が示されていない。</li>
+          <li>間仕切りパネルと化粧カウンターの<strong>材工分離が不透明</strong>で、単価の妥当性が判定しにくい。</li>
+        </ul>
+        <div class="caction"><b>提示したこと：</b>図面・仕様書による数量根拠の確認、材工分離の明文化、<b>約15〜25万円</b>の見直し余地。</div>
+        <div class="chash">監査ハッシュ：e90cd449c85b</div>
+      </div>
+
+      <div class="case rv">
+        <div class="ctag"><span>戸建て改修工事</span><span class="amt">見積総額 ¥803,000</span></div>
+        <div class="cverdict">全項目が「一式」。中身が、一切見えなかった。</div>
+        <ul class="cdetect">
+          <li>設備・大工・クロス、<strong>すべての工事が「一式」表記</strong>。施工範囲・数量・材料が不明。</li>
+          <li>諸経費比率13.1%自体は範囲内だが、内訳が無く他社比較もできない状態。</li>
+        </ul>
+        <div class="caction"><b>提示したこと：</b>各工事の施工内容・材料・数量・単価を記した詳細見積書の要求、同条件での相見積もり。</div>
+        <div class="chash">監査ハッシュ：c18b664bd7eb</div>
+      </div>
+    </div>
+
+    <div class="statband rv">
+      <div class="big">過剰請求の検出事例　最大で適正額との差 <span class="yen">84.9%</span></div>
+      <div class="cap">公開済みの過剰請求20事例より。多くは「一式」表記と諸経費比率に論点が集中します（数値は当社が関与・分析した実案件に基づきます）。</div>
+    </div>
+  </div>
+</section>
+
+<div class="cta wrap">
+  <div class="price rv">逆見積もり診断レポート ／ ¥5,500</div>
+  <h2 class="rv">業者が来る前に、<br>適正額を手にする。</h2>
+  <p class="rv">見積書が届いてから慌てるのではなく、相手が金額を出す前に、あなたの手元にものさしを。30年の現場と、65,729項目のデータが、静かに味方します。</p>
+  <a class="btn rv" href="https://shield.the-horizons-innovation.com">逆見積もり診断をはじめる</a>
+  <span class="sub rv">LINEから、最短その場で。お支払いは受け取り内容にご納得のうえで。</span>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="co">The HORIZ音s株式会社</div>
+    <div class="meta">
+      代表取締役&nbsp;大賀 俊勝　／　神奈川・平塚<br>
+      研究背景：<a href="https://shield.the-horizons-innovation.com">JCCDB・VRQフレームワーク（プレプリント公開）</a>
+    </div>
+    <div class="disc">本ページは工事費の適正化に関する情報提供および当社サービスのご案内であり、特定の事業者を誹謗するものではありません。診断結果は判断材料であり、最終的なご契約の判断はお客様ご自身で行っていただくものです。</div>
+  </div>
+</footer>
+
+<script>
+  // 引き算の演出：スクロールに合わせて、静かに立ち上がる
+  const io=new IntersectionObserver((es)=>{
+    es.forEach((e,i)=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  },{threshold:.12,rootMargin:"0px 0px -8% 0px"});
+  document.querySelectorAll('.rv').forEach((el,i)=>{
+    // ヒーロー内は読み込み直後に順に
+    io.observe(el);
+  });
+  // ヒーローの初期表示を確実に（ファーストビュー）
+  window.addEventListener('load',()=>{
+    document.querySelectorAll('header.hero .rv').forEach((el,i)=>{
+      setTimeout(()=>el.classList.add('in'), 120+i*150);
+    });
+  });
+</script>
+</body>
+</html>
