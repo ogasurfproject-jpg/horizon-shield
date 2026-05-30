@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify, Don't Trust — The HORIZON SHIELD Movement</title>
+<meta name="description" content="A former carpenter open-sourced 65,729 construction cost items and anchored them to Bitcoin so no one can fake the numbers. Not a politician. Not a lawyer. We change it ourselves.">
+<meta property="og:title" content="Not a politician. Not a lawyer. We change it ourselves.">
+<meta property="og:description" content="65,729 construction cost items, open and anchored to Bitcoin so no one can quietly rewrite them. Join the movement.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070d18;            /* near-black navy */
+    --bg2:#0c1424;
+    --panel:#111c30;
+    --line:#1e2c44;
+    --ink:#eaf0fb;
+    --ink-dim:#9fb0cc;
+    --cyan:#27e0c4;          /* electric verify */
+    --blue:#3d7bff;          /* electric blue */
+    --red:#ff5a52;           /* alarm / chain of loss */
+    --white:#ffffff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Space Grotesk',-apple-system,sans-serif;
+    background:var(--bg);color:var(--ink);
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .archivo{font-family:'Archivo',sans-serif;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 32px;}
+  .accent{color:var(--cyan);}
+  .blue{color:var(--blue);}
+  .red{color:var(--red);}
+
+  /* HERO */
+  .hero{
+    min-height:92vh;display:flex;align-items:center;
+    padding:80px 0;position:relative;overflow:hidden;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(61,123,255,.18), transparent 60%),
+      radial-gradient(900px 500px at 0% 110%, rgba(39,224,196,.12), transparent 55%),
+      var(--bg);
+  }
+  .grid-bg{position:absolute;inset:0;
+    background-image:linear-gradient(rgba(61,123,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(61,123,255,.05) 1px,transparent 1px);
+    background-size:48px 48px;mask-image:radial-gradient(ellipse at 50% 40%,#000 30%,transparent 75%);}
+  .hero .wrap{position:relative;z-index:2;}
+  .tag{
+    display:inline-block;font-size:13px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--cyan);border:1px solid rgba(39,224,196,.35);border-radius:100px;
+    padding:7px 18px;margin-bottom:34px;font-weight:600;
+  }
+  .hero h1{
+    font-family:'Archivo',sans-serif;font-weight:900;
+    font-size:clamp(40px,8vw,84px);line-height:.98;letter-spacing:-.02em;
+    margin-bottom:30px;text-transform:uppercase;
+  }
+  .hero h1 .line2{color:var(--cyan);}
+  .hero .lead{font-size:clamp(17px,2.4vw,22px);color:var(--ink-dim);max-width:40ch;line-height:1.65;margin-bottom:42px;}
+  .hero .ctas{display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
+  .btn-primary{
+    background:var(--cyan);color:#04221c;font-weight:700;font-size:16px;
+    padding:16px 34px;border-radius:8px;text-decoration:none;border:none;cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease;font-family:'Space Grotesk';
+    box-shadow:0 0 0 rgba(39,224,196,0);
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(39,224,196,.3);}
+  .btn-ghost{color:var(--ink);text-decoration:none;font-weight:500;font-size:15px;border-bottom:1px solid var(--line);padding-bottom:3px;}
+
+  /* PROOF STRIP — builderの土台。最初に実績 */
+  .proof{background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .proof .wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:0;}
+  .proof .cell{padding:46px 28px;text-align:center;border-right:1px solid var(--line);}
+  .proof .cell:last-child{border-right:none;}
+  .proof .big{font-family:'Archivo',sans-serif;font-weight:800;font-size:clamp(30px,4.5vw,46px);line-height:1;margin-bottom:10px;}
+  .proof .lbl{font-size:13.5px;color:var(--ink-dim);letter-spacing:.04em;}
+  .proof .verify{display:block;font-size:12px;color:var(--cyan);margin-top:10px;letter-spacing:.05em;}
+  @media(max-width:720px){.proof .wrap{grid-template-columns:1fr;}.proof .cell{border-right:none;border-bottom:1px solid var(--line);}}
+
+  /* SECTION */
+  section{padding:104px 0;}
+  .eyebrow{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);font-weight:600;margin-bottom:20px;}
+  h2{font-family:'Archivo',sans-serif;font-weight:800;font-size:clamp(28px,5vw,46px);line-height:1.08;letter-spacing:-.01em;margin-bottom:24px;text-transform:uppercase;}
+  p.body{font-size:17px;line-height:1.75;color:var(--ink-dim);max-width:60ch;margin-bottom:20px;}
+  p.body b{color:var(--ink);font-weight:600;}
+
+  /* problem flow */
+  .chain{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:40px 0;}
+  .chain .n{flex:1;min-width:110px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 12px;text-align:center;}
+  .chain .n.loss{border-color:rgba(255,90,82,.35);}
+  .chain .n .l{font-size:12px;color:var(--ink-dim);margin-bottom:6px;}
+  .chain .n .v{font-family:'Archivo';font-weight:700;font-size:17px;}
+  .chain .n.loss .v{color:var(--red);}
+  .chain .arr{align-self:center;color:var(--blue);font-size:18px;}
+  .lossbar{background:linear-gradient(90deg,rgba(255,90,82,.14),transparent);border-left:3px solid var(--red);padding:22px 26px;border-radius:6px;margin:8px 0 0;}
+  .lossbar b{font-family:'Archivo';font-size:clamp(22px,4vw,32px);color:var(--red);font-weight:800;}
+
+  /* manifesto — we the people */
+  .manifesto{background:
+    radial-gradient(800px 400px at 100% 0%, rgba(61,123,255,.14), transparent 60%),
+    var(--bg2);
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);text-align:center;}
+  .manifesto h2{font-size:clamp(30px,6vw,60px);max-width:18ch;margin:0 auto 26px;}
+  .manifesto .sub{font-size:18px;color:var(--ink-dim);max-width:48ch;margin:0 auto;line-height:1.7;}
+  .manifesto .hl{color:var(--cyan);}
+
+  /* future / roadmap */
+  .road{display:grid;gap:14px;margin-top:36px;}
+  .rstep{display:grid;grid-template-columns:160px 1fr;gap:24px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:24px 28px;align-items:center;}
+  .rstep .when{font-family:'Archivo';font-weight:700;}
+  .rstep .when .ph{display:block;font-size:12px;letter-spacing:.1em;margin-top:4px;font-weight:600;font-family:'Space Grotesk';}
+  .rstep.live{border-color:rgba(39,224,196,.4);}
+  .rstep.live .when .ph{color:var(--cyan);}
+  .rstep .when .ph.concept{color:var(--ink-dim);}
+  .rstep .what h3{font-family:'Archivo';font-size:18px;font-weight:700;margin-bottom:5px;}
+  .rstep .what p{font-size:14.5px;color:var(--ink-dim);}
+  @media(max-width:640px){.rstep{grid-template-columns:1fr;gap:8px;}}
+
+  /* CTA */
+  .join{background:
+    radial-gradient(900px 500px at 50% 0%, rgba(39,224,196,.16), transparent 60%),
+    var(--bg);text-align:center;}
+  .join h2{margin-bottom:18px;}
+  .join .sub{color:var(--ink-dim);font-size:18px;max-width:46ch;margin:0 auto 14px;line-height:1.7;}
+  .join .pill{display:inline-block;border:1px solid rgba(39,224,196,.4);color:var(--cyan);border-radius:100px;padding:8px 22px;font-size:14px;letter-spacing:.08em;margin:26px 0 40px;font-weight:600;}
+  .form{max-width:460px;margin:0 auto;text-align:left;}
+  .form label{display:block;font-size:13px;color:var(--ink-dim);margin:18px 0 7px;letter-spacing:.06em;text-transform:uppercase;}
+  .form input,.form select{width:100%;padding:14px 16px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;font-size:15px;font-family:'Space Grotesk';}
+  .form input:focus,.form select:focus{outline:none;border-color:var(--cyan);}
+  .form select option{background:var(--panel);}
+  .form .btn{width:100%;margin-top:30px;padding:17px;border:none;border-radius:8px;background:var(--cyan);color:#04221c;font-weight:700;font-size:17px;cursor:pointer;font-family:'Space Grotesk';transition:transform .15s,box-shadow .15s;}
+  .form .btn:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(39,224,196,.3);}
+  .form .priv{font-size:12px;color:var(--ink-dim);margin-top:16px;text-align:center;line-height:1.6;}
+  .thanks{display:none;text-align:center;padding:30px 0;}
+  .thanks .h{font-family:'Archivo';font-size:24px;color:var(--cyan);margin-bottom:14px;font-weight:800;}
+  .thanks p{color:var(--ink-dim);font-size:15px;line-height:1.8;}
+
+  footer{background:var(--bg2);border-top:1px solid var(--line);padding:48px 0;text-align:center;color:var(--ink-dim);font-size:13px;line-height:1.9;}
+  footer a{color:var(--cyan);text-decoration:none;}
+  footer .nm{color:var(--ink);font-weight:600;letter-spacing:.04em;display:block;margin-bottom:8px;font-family:'Archivo';}
+
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease;}
+  .reveal.in{opacity:1;transform:none;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="grid-bg"></div>
+  <div class="wrap">
+    <span class="tag">The HORIZON SHIELD Movement</span>
+    <h1 class="archivo">Not a politician.<br>Not a lawyer.<br><span class="line2">We change it ourselves.</span></h1>
+    <p class="lead">A former carpenter open-sourced the real cost of construction — and anchored it to Bitcoin, so no one can quietly fake the numbers. Now anyone can check.</p>
+    <div class="ctas">
+      <a href="#join" class="btn-primary">Join the movement</a>
+      <a href="https://shield.the-horizons-innovation.com/proposal-en/" class="btn-ghost" target="_blank" rel="noopener">See the full design →</a>
+    </div>
+  </div>
+</header>
+
+<!-- PROOF: builderの土台。最初に実績で殴る -->
+<div class="proof">
+  <div class="wrap">
+    <div class="cell">
+      <div class="big accent">65,729</div>
+      <div class="lbl">construction cost items, open to everyone</div>
+      <span class="verify">→ free &amp; public (JCCDB)</span>
+    </div>
+    <div class="cell">
+      <div class="big blue">Bitcoin</div>
+      <div class="lbl">methodology anchored on-chain, tamper-proof</div>
+      <span class="verify">→ Block #949356</span>
+    </div>
+    <div class="cell">
+      <div class="big">Live</div>
+      <div class="lbl">AI checks if your quote is fair — already running</div>
+      <span class="verify">→ not a concept</span>
+    </div>
+  </div>
+</div>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="eyebrow">The problem</div>
+    <h2>Where the money<br>actually goes</h2>
+    <p class="body">Construction is a black box. Almost no one can tell a fair price from an inflated one. So the cost of every wasted quote, every layer of middlemen, every hidden fee — <b>gets quietly loaded onto the homeowner who says yes.</b></p>
+    <div class="chain">
+      <div class="n loss"><div class="l">Homeowner pays</div><div class="v">$10,000</div></div>
+      <div class="arr">→</div>
+      <div class="n loss"><div class="l">Lead platform</div><div class="v">−$2,000</div></div>
+      <div class="arr">→</div>
+      <div class="n loss"><div class="l">Prime / GC</div><div class="v">−$2,000</div></div>
+      <div class="arr">→</div>
+      <div class="n loss"><div class="l">Sub + supply</div><div class="v">−$2,500</div></div>
+      <div class="arr">→</div>
+      <div class="n"><div class="l">Actual crew</div><div class="v accent">$3,500</div></div>
+    </div>
+    <div class="lossbar"><b>~65%</b> &nbsp;of what you pay can vanish into costs that have nothing to do with the work.</div>
+    <p class="body" style="margin-top:28px;font-size:14px;">Illustrative of field experience; actual cases vary. We don't state these numbers as absolute — we give you the tools to check your own.</p>
+  </div>
+</section>
+
+<section class="manifesto reveal">
+  <div class="wrap">
+    <div class="eyebrow" style="text-align:center">Why us</div>
+    <h2>The system won't<br>fix itself. <span class="hl">So we will.</span></h2>
+    <p class="sub">I left school as a teenager and became a carpenter. Thirty years on site. A year ago I taught myself to code, with AI as my teacher. I'm not a politician. I'm not a lawyer. I'm one person who got tired of watching people get overcharged — and built the tool to stop it. If one ex-carpenter can do this, ordinary people can change the rest.</p>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="eyebrow">The future — built on what already works</div>
+    <h2>A five-year plan<br>you can verify</h2>
+    <p class="body">This isn't a revolution that burns the old players down. It's a transparent rebuild where, in the long run, everyone has a reason to stay. <b>We're honest about what's real today and what's still ahead</b> — each stage stands on the proven data of the last. No skipping ahead.</p>
+    <div class="road">
+      <div class="rstep live"><div class="when">Stage 1<span class="ph">LIVE NOW</span></div><div class="what"><h3>Verify estimates</h3><p>Send a quote, AI judges if it's fair. Already running.</p></div></div>
+      <div class="rstep"><div class="when">Stage 2<span class="ph concept">CONCEPT · 6–12 mo</span></div><div class="what"><h3>Make good builders visible</h3><p>Contractors rated as not inflating are surfaced through certification.</p></div></div>
+      <div class="rstep"><div class="when">Stage 3<span class="ph concept">CONCEPT · 1–2 yr</span></div><div class="what"><h3>Community self-governance</h3><p>Residents pick their own work from certified pros.</p></div></div>
+      <div class="rstep"><div class="when">Stage 4<span class="ph concept">CONCEPT · 2–3 yr</span></div><div class="what"><h3>Peer verification</h3><p>Certified pros verify each other's work.</p></div></div>
+      <div class="rstep"><div class="when">Stage 5<span class="ph concept">CONCEPT · 3–5 yr</span></div><div class="what"><h3>Joint purchasing &amp; fair pay</h3><p>Buy direct from makers. Real reward for good work.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="join reveal" id="join">
+  <div class="wrap">
+    <div class="eyebrow" style="text-align:center">Join the movement</div>
+    <h2>Stand at the start.</h2>
+    <p class="sub">We're building toward something bigger. The people who move first shape what it becomes. Add your name — and we'll bring you in before anyone else.</p>
+    <div class="pill">Founding supporters get early access, before public launch</div>
+    <div class="form" id="formArea">
+      <label>Email (required)</label>
+      <input type="email" id="email" placeholder="you@example.com">
+      <label>Name (optional)</label>
+      <input type="text" id="name" placeholder="Your name">
+      <label>You are</label>
+      <select id="role">
+        <option value="">Select…</option>
+        <option>A homeowner / about to renovate</option>
+        <option>A contractor or tradesperson</option>
+        <option>In construction / real estate / finance</option>
+        <option>Just here to support the movement</option>
+      </select>
+      <button class="btn" id="submitBtn">Count me in</button>
+      <p class="priv">Free to join. Your email is used only for updates on this movement.</p>
+    </div>
+    <div class="thanks" id="thanksArea">
+      <div class="h">You're in.</div>
+      <p>You're now a founding supporter.<br>The moment we launch, you'll be the first to know.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span class="nm">The HORIZONs Co., Ltd. · HORIZON SHIELD</span>
+    AI construction-cost diagnostics · Founder: Toshikatsu Oga · ORCID 0009-0000-9180-903X<br>
+    Open dataset (JCCDB) · engrXiv DOI 10.31224/7007 · timestamped on Bitcoin<br>
+    <a href="https://shield.the-horizons-innovation.com/">shield.the-horizons-innovation.com</a>
+  </div>
+</footer>
+
+<script>
+  // ===== endpoint (change only this URL after deploy) =====
+  const SUBSCRIBE_ENDPOINT = "https://hs-subscribe.oga-surf-project.workers.dev";
+
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  const btn=document.getElementById('submitBtn');
+  btn.addEventListener('click', async function(){
+    const email=document.getElementById('email').value.trim();
+    if(!email || email.indexOf('@')<0){ alert('Please check your email address'); return; }
+    const name=document.getElementById('name').value.trim();
+    const role=document.getElementById('role').value;
+    btn.disabled=true; const orig=btn.textContent; btn.textContent='Sending…';
+    try{
+      const res=await fetch(SUBSCRIBE_ENDPOINT,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email,name,role,lang:'us'})
+      });
+      const data=await res.json();
+      if(data && data.ok){
+        document.getElementById('formArea').style.display='none';
+        document.getElementById('thanksArea').style.display='block';
+      }else{
+        alert('Something went wrong. Please try again in a moment.');
+        btn.disabled=false; btn.textContent=orig;
+      }
+    }catch(e){
+      alert('Network error. Please try again in a moment.');
+      btn.disabled=false; btn.textContent=orig;
+    }
+  });
+</script>
+</body>
+</html>

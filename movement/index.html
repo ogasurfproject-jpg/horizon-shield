@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>建設業を、施主の側へ。｜HORIZON SHIELD 改革プロジェクト</title>
+<meta name="description" content="施主が払う100万円のうち、65万円が工事と関係ない費用に消えている。30年現場にいた人間が、この構造を変えます。創設メンバー、先行募集。">
+<meta property="og:title" content="建設業を、施主の側へ。">
+<meta property="og:description" content="払った100万円のうち、65万円が工事と関係ない費用に消えている。その構造を、根本から変える。">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ai:#16223c;        /* 深藍 */
+    --ai-fuka:#0f1a30;   /* より深い藍 */
+    --kinari:#f3eee3;    /* 生成り */
+    --kinari-c:#faf6ed;  /* 生成り(カード) */
+    --sumi:#1f2228;      /* 墨 */
+    --sumi-usu:#5c6068;  /* 薄墨 */
+    --kin:#b08d57;       /* 金 */
+    --kin-akarui:#c9a86a;
+    --enji:#9c3a37;      /* 臙脂 */
+    --line:#ddd4c4;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Noto Sans JP',sans-serif;
+    background:var(--kinari);color:var(--sumi);
+    line-height:1.9;-webkit-font-smoothing:antialiased;
+    font-weight:400;
+  }
+  .mincho{font-family:'Noto Serif JP',serif;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 28px;}
+
+  /* ── 縦書きのような静けさを意識した余白設計 ── */
+
+  /* HERO */
+  .hero{
+    background:var(--ai);color:#fff;
+    padding:140px 0 120px;position:relative;overflow:hidden;
+  }
+  .hero::before{ /* 円相のような線 */
+    content:"";position:absolute;right:-180px;top:50%;transform:translateY(-50%);
+    width:560px;height:560px;border:1px solid rgba(255,255,255,.07);border-radius:50%;
+  }
+  .hero .wrap{position:relative;z-index:2;}
+  .hero .small{
+    font-size:14px;letter-spacing:.4em;color:var(--kin-akarui);
+    margin-bottom:40px;font-weight:500;
+  }
+  .hero h1{
+    font-family:'Noto Serif JP',serif;font-weight:600;
+    font-size:clamp(34px,6.5vw,58px);line-height:1.45;
+    letter-spacing:.04em;margin-bottom:40px;
+  }
+  .hero h1 .kin{color:var(--kin-akarui);}
+  .hero .lead{
+    font-size:clamp(16px,2.3vw,19px);color:#c5cdda;line-height:2.1;
+    font-weight:300;max-width:30em;
+  }
+
+  /* SECTION 共通 */
+  section{padding:96px 0;}
+  .label{
+    font-family:'Noto Serif JP',serif;font-size:15px;letter-spacing:.3em;
+    color:var(--kin);margin-bottom:28px;font-weight:500;
+  }
+  h2{
+    font-family:'Noto Serif JP',serif;font-weight:600;
+    font-size:clamp(24px,4.5vw,34px);line-height:1.6;letter-spacing:.03em;
+    margin-bottom:40px;
+  }
+  p.body{font-size:16px;line-height:2.15;margin-bottom:26px;color:#33363d;font-weight:400;}
+  .strong{color:var(--ai);font-weight:700;}
+  .enji{color:var(--enji);font-weight:700;}
+
+  /* いま確実にできること(本物を最初に) */
+  .now-sec{background:var(--kinari-c);}
+  .now-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:36px;}
+  .now-card{background:#fff;border:1px solid var(--line);border-radius:4px;padding:30px 26px;}
+  .now-card .badge{display:inline-block;font-size:11px;letter-spacing:.12em;color:#fff;background:var(--kin);padding:4px 12px;border-radius:2px;margin-bottom:18px;font-weight:500;}
+  .now-card h3{font-family:'Noto Serif JP',serif;font-size:18px;font-weight:600;margin-bottom:12px;line-height:1.5;}
+  .now-card p{font-size:14px;line-height:1.9;color:#3a3d44;}
+  .now-card .verify{display:block;margin-top:14px;font-size:12.5px;color:var(--kin);letter-spacing:.03em;}
+  @media(max-width:600px){.now-grid{grid-template-columns:1fr;}}
+
+  /* 数字の対比(65万→95万) */
+  .figures{
+    display:grid;grid-template-columns:1fr 1fr;gap:0;
+    border:1px solid var(--line);border-radius:4px;overflow:hidden;
+    margin:48px 0;background:var(--kinari-c);
+  }
+  .fig{padding:42px 32px;text-align:center;}
+  .fig:first-child{border-right:1px solid var(--line);}
+  .fig .cap{font-size:13px;letter-spacing:.15em;color:var(--sumi-usu);margin-bottom:14px;}
+  .fig .num{font-family:'Noto Serif JP',serif;font-size:clamp(30px,6vw,46px);font-weight:700;line-height:1;}
+  .fig.ima .num{color:var(--enji);}
+  .fig.mirai .num{color:var(--kin);}
+  .fig .unit{font-size:18px;font-weight:500;}
+  .fig .sub{font-size:13px;color:var(--sumi-usu);margin-top:12px;letter-spacing:.05em;}
+  .figcap{text-align:center;font-size:13px;color:var(--sumi-usu);letter-spacing:.05em;margin-top:-30px;margin-bottom:10px;}
+
+  /* 引用・宣言ブロック */
+  .declare{
+    background:var(--ai);color:#fff;border-radius:4px;
+    padding:64px 48px;margin:0;text-align:center;position:relative;
+  }
+  .declare .q{
+    font-family:'Noto Serif JP',serif;font-size:clamp(20px,3.5vw,28px);
+    line-height:1.9;letter-spacing:.05em;font-weight:500;
+  }
+  .declare .q .kin{color:var(--kin-akarui);}
+
+  /* 私は誰か */
+  .who-sec{background:var(--kinari-c);}
+  .who{display:flex;gap:30px;align-items:flex-start;flex-wrap:wrap;}
+  .who .line{
+    flex:0 0 3px;align-self:stretch;background:var(--kin);min-height:120px;
+  }
+  .who .txt p{font-size:16px;line-height:2.1;margin-bottom:20px;}
+  .who .sign{font-family:'Noto Serif JP',serif;font-size:15px;color:var(--sumi-usu);letter-spacing:.08em;margin-top:8px;}
+  .who .sign b{color:var(--ai);font-weight:600;font-size:17px;}
+
+  /* 未来・段階 */
+  .steps{margin-top:20px;}
+  .step{
+    display:grid;grid-template-columns:90px 1fr;gap:28px;
+    padding:28px 0;border-bottom:1px solid var(--line);align-items:baseline;
+  }
+  .step:last-child{border-bottom:none;}
+  .step .st{font-family:'Noto Serif JP',serif;font-weight:600;color:var(--ai);font-size:15px;letter-spacing:.1em;}
+  .step .st .y{display:block;color:var(--kin);font-size:13px;margin-top:4px;font-family:'Noto Sans JP';font-weight:500;}
+  .step .sd h3{font-family:'Noto Serif JP',serif;font-size:18px;font-weight:600;margin-bottom:6px;}
+  .step .sd p{font-size:14.5px;color:#3a3d44;line-height:1.85;}
+
+  /* CTA(募集) */
+  .cta{background:var(--ai-fuka);color:#fff;padding:110px 0;text-align:center;position:relative;overflow:hidden;}
+  .cta::before{content:"";position:absolute;left:50%;top:-200px;transform:translateX(-50%);width:600px;height:600px;border:1px solid rgba(255,255,255,.05);border-radius:50%;}
+  .cta .wrap{position:relative;z-index:2;}
+  .cta .label{color:var(--kin-akarui);}
+  .cta h2{color:#fff;margin-bottom:24px;}
+  .cta .note{color:#c5cdda;font-size:16px;line-height:2;margin-bottom:14px;font-weight:300;}
+  .cta .gentei{
+    display:inline-block;border:1px solid var(--kin);color:var(--kin-akarui);
+    font-family:'Noto Serif JP',serif;font-size:15px;letter-spacing:.15em;
+    padding:10px 26px;border-radius:2px;margin:30px 0 44px;
+  }
+  /* フォーム */
+  .form{max-width:440px;margin:0 auto;text-align:left;}
+  .form label{display:block;font-size:13px;color:#aab4c5;margin:18px 0 7px;letter-spacing:.08em;}
+  .form input, .form select{
+    width:100%;padding:13px 15px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.04);color:#fff;border-radius:3px;font-size:15px;
+    font-family:'Noto Sans JP';
+  }
+  .form input:focus, .form select:focus{outline:none;border-color:var(--kin);}
+  .form select option{background:var(--ai);color:#fff;}
+  .form .btn{
+    width:100%;margin-top:32px;padding:16px;border:none;border-radius:3px;
+    background:var(--kin);color:var(--ai-fuka);font-family:'Noto Serif JP',serif;
+    font-size:17px;font-weight:600;letter-spacing:.1em;cursor:pointer;
+    transition:background .2s ease;
+  }
+  .form .btn:hover{background:var(--kin-akarui);}
+  .form .privacy{font-size:12px;color:#8b94a5;margin-top:18px;line-height:1.7;text-align:center;}
+  .thanks{display:none;text-align:center;padding:30px 0;}
+  .thanks .mincho{font-size:22px;color:var(--kin-akarui);margin-bottom:16px;}
+  .thanks p{color:#c5cdda;font-size:15px;line-height:2;}
+
+  /* フッター */
+  footer{background:var(--ai);color:#8b94a5;padding:50px 0;text-align:center;font-size:13px;line-height:2;}
+  footer a{color:var(--kin-akarui);text-decoration:none;}
+  footer .mincho{color:#fff;font-size:15px;letter-spacing:.1em;margin-bottom:10px;display:block;}
+
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .8s ease,transform .8s ease;}
+  .reveal.in{opacity:1;transform:none;}
+
+  @media(max-width:600px){
+    .figures{grid-template-columns:1fr;}
+    .fig:first-child{border-right:none;border-bottom:1px solid var(--line);}
+    .step{grid-template-columns:1fr;gap:8px;}
+    section{padding:70px 0;}
+    .declare{padding:48px 28px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="small">HORIZON SHIELD 改革プロジェクト</div>
+    <h1 class="mincho">建設業を、<br><span class="kin">施主の側</span>へ。</h1>
+    <p class="lead">払った百万円のうち、六十五万円が、工事と関係のない費用に消えている。<br>三十年、現場にいた人間が、この構造そのものを変えます。</p>
+  </div>
+</header>
+
+<section class="now-sec reveal">
+  <div class="wrap">
+    <div class="label">いま、確実にできること</div>
+    <h2 class="mincho">未来を語る前に、<br>もう動いているものを。</h2>
+    <p class="body">大きな構想を語る人は、たくさんいます。でも私は、まず「いま、この手で確かめられるもの」から見せます。下の三つは、構想ではありません。すでに存在し、誰でも検証できます。</p>
+    <div class="now-grid">
+      <div class="now-card">
+        <span class="badge">稼働中</span>
+        <h3>AIによる見積もり診断</h3>
+        <p>施主が見積もりを送れば、その金額が適正かをAIが判定する。これは構想ではなく、すでに動いているサービスです。</p>
+      </div>
+      <div class="now-card">
+        <span class="badge">公開済み</span>
+        <h3>建設費データベース<br>JCCDB</h3>
+        <p>六五,七二九項目の建設費データを、誰でも無料で使えるように公開しています。日本で初めての、公開された建設費データベースです。</p>
+        <span class="verify">→ 学術リポジトリで公開・検証可能</span>
+      </div>
+      <div class="now-card">
+        <span class="badge">改ざん不能</span>
+        <h3>ビットコインへの刻印</h3>
+        <p>このデータの記録を、ビットコインのブロックチェーンに刻みました。後から私が数字を書き換えていないことを、第三者が検証できます。</p>
+        <span class="verify">→ Block #949356 に永久記録</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="label">いま、起きていること</div>
+    <h2 class="mincho">あなたのお金は、<br>どこへ消えているのか。</h2>
+    <p class="body">リフォームで百万円を払う。けれど、その全額が工事に使われるわけではありません。紹介サイト、元請、下請け、商社。お金は何層もの中間を通り、そのたびに削られていきます。<span class="strong">実際に手を動かす職人に届くのは、わずか三十五万円ということさえあります。</span></p>
+    <p class="body">なぜ、こんなことが起きるのか。建設業は、価格が見えない「ブラックボックス」だからです。施主には、その金額が適正なのか、水増しされているのか、測るための物差しがありません。だから、気づかないまま払い続けてしまう。</p>
+
+    <div class="figures">
+      <div class="fig ima">
+        <div class="cap">いまの構造</div>
+        <div class="num">六五<span class="unit">万円</span></div>
+        <div class="sub">が、工事と関係ない費用へ</div>
+      </div>
+      <div class="fig mirai">
+        <div class="cap">私たちの構想</div>
+        <div class="num">九五<span class="unit">万円</span></div>
+        <div class="sub">が、職人と工事と材料へ</div>
+      </div>
+    </div>
+    <p class="figcap">※ 百万円の工事における代表的なイメージです。実際の配分は案件により変わります。数字を断定で語らないのが、私たちの姿勢です。</p>
+  </div>
+</section>
+
+<section class="reveal" style="padding-top:0;padding-bottom:96px;">
+  <div class="wrap">
+    <div class="declare">
+      <div class="q mincho">信じるな。<span class="kin">確かめろ。</span><br>それが、はじまりです。</div>
+    </div>
+  </div>
+</section>
+
+<section class="who-sec reveal">
+  <div class="wrap">
+    <div class="label">私は、誰か</div>
+    <div class="who">
+      <div class="line"></div>
+      <div class="txt">
+        <p>私は十五歳で大工の見習いになりました。学校もろくに出ていない、どうしようもない子供でした。それから三十年、現場で生きてきました。家を建て、自分の組を持ち、現場監督になり、施工管理まで。</p>
+        <p>ずっと内側から見てきました。だからこそ、施主が何も知らないまま損をしていく仕組みが、許せなかった。一年前、独学でプログラミングを始めました。師匠はAIでした。そして、施主が自分で価格を確かめられる「物差し」をつくりました。</p>
+        <p>それが、HORIZON SHIELD です。六五,七二九項目の建設費データベースを、誰でも使えるように無料で公開し、改ざんできないようビットコインのブロックチェーンに刻みました。<span class="strong">盛らない。隠さない。すべて検証できる。</span></p>
+        <div class="sign"><b>大賀 俊勝</b>　建設CM・現場監督三十年 ／ JCCDB 構築者 ／ ORCID 0009-0000-9180-903X</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="label">これから、つくる未来</div>
+    <h2 class="mincho">壊すのではなく、<br>つくり直す。五年の計画。</h2>
+    <p class="body">これは、誰かを敵にして潰す革命ではありません。施主も、職人も、工務店も、いずれは紹介サイトや商社さえも、新しい役割の中で得をする。そういう構造へ、一歩ずつ、透明に。</p>
+    <p class="body"><span class="strong">正直に書きます。第一段階(見積もり診断)は、すでに稼働しています。第二段階から先は、これからの構想です。</span>大きな未来をいきなり約束はしません。各段階で実証データを積み、それが揃ってはじめて、次へ進みます。飛び級はしません。だからこそ、信じられる未来になります。</p>
+    <div class="steps">
+      <div class="step"><div class="st">第一段階<span class="y" style="color:var(--enji)">稼働中</span></div><div class="sd"><h3>見積もりの検証</h3><p>施主が見積もりを送れば、AIがその金額が適正かを判定する。すでに稼働しています。</p></div></div>
+      <div class="step"><div class="st">第二段階<span class="y">構想・6〜12ヶ月</span></div><div class="sd"><h3>良い職人を、見えるように</h3><p>「水増ししない」と評価された職人を、認定として可視化する。</p></div></div>
+      <div class="step"><div class="st">第三段階<span class="y">構想・1〜2年</span></div><div class="sd"><h3>地域の自治</h3><p>住民・施主が、自分たちの工事を、認定された業者から自ら選ぶ。</p></div></div>
+      <div class="step"><div class="st">第四段階<span class="y">構想・2〜3年</span></div><div class="sd"><h3>職人の相互認証</h3><p>認定職人どうしが、互いの仕事を検証し合う仕組みをつくる。</p></div></div>
+      <div class="step"><div class="st">第五段階<span class="y">構想・3〜5年</span></div><div class="sd"><h3>共同購入と、正当な報酬</h3><p>メーカー直結の共同購入。良い仕事をした職人に、ふさわしい報酬を。</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta reveal" id="join">
+  <div class="wrap">
+    <div class="label">創設メンバー、先行募集</div>
+    <h2 class="mincho">この改革の、<br>はじまりに立ち会う。</h2>
+    <p class="note">近く、この構想を実現するためのプロジェクトを立ち上げます。<br>その「いちばん最初」に動いてくださる方を、いま、お待ちしています。</p>
+    <div class="gentei">創設メンバーには、正式公開前の先行案内をお届けします</div>
+
+    <div class="form" id="formArea">
+      <label>メールアドレス（必須）</label>
+      <input type="email" id="email" placeholder="you@example.com">
+      <label>お名前（任意）</label>
+      <input type="text" id="name" placeholder="お名前">
+      <label>あなたのお立場</label>
+      <select id="role">
+        <option value="">選択してください</option>
+        <option>これから家を建てる・リフォームする方（施主）</option>
+        <option>職人</option>
+        <option>工務店・建設会社</option>
+        <option>その他・応援したい</option>
+      </select>
+      <button class="btn" id="submitBtn">創設メンバーとして登録する</button>
+      <p class="privacy">登録は無料です。いただいた連絡先は、本プロジェクトのご案内のみに使用します。</p>
+    </div>
+    <div class="thanks" id="thanksArea">
+      <div class="mincho">ありがとうございます。</div>
+      <p>あなたを、創設メンバーとして記録しました。<br>プロジェクトの始動が決まりしだい、いちばん最初にご連絡します。</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span class="mincho">The HORIZONs 株式会社 ／ HORIZON SHIELD</span>
+    建設費診断AIサービス ／ 代表取締役 大賀俊勝<br>
+    <a href="https://shield.the-horizons-innovation.com/">shield.the-horizons-innovation.com</a>
+  </div>
+</footer>
+
+<script>
+  // ===== 送信先(デプロイ後にこのURLだけ書き換える) =====
+  const SUBSCRIBE_ENDPOINT = "https://hs-subscribe.oga-surf-project.workers.dev";
+
+  // スクロール演出
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // フォーム送信(Cloudflare Worker + KV へ)
+  const btn = document.getElementById('submitBtn');
+  btn.addEventListener('click', async function(){
+    const email=document.getElementById('email').value.trim();
+    if(!email || email.indexOf('@')<0){ alert('メールアドレスをご確認ください'); return; }
+    const name=document.getElementById('name').value.trim();
+    const role=document.getElementById('role').value;
+    btn.disabled=true; const orig=btn.textContent; btn.textContent='送信中…';
+    try{
+      const res=await fetch(SUBSCRIBE_ENDPOINT,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email,name,role,lang:'jp'})
+      });
+      const data=await res.json();
+      if(data && data.ok){
+        document.getElementById('formArea').style.display='none';
+        document.getElementById('thanksArea').style.display='block';
+      }else{
+        alert('登録に失敗しました。時間をおいて再度お試しください。');
+        btn.disabled=false; btn.textContent=orig;
+      }
+    }catch(e){
+      alert('通信エラーが発生しました。時間をおいて再度お試しください。');
+      btn.disabled=false; btn.textContent=orig;
+    }
+  });
+</script>
+</body>
+</html>
