@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HORIZON SHIELD — A Design Where All 12 Players Win</title>
+<meta name="description" content="Changing the middleman economy of Japan's renovation industry, at the structural level. A concept proposal by Toshikatsu Oga, HORIZON SHIELD.">
+<meta property="og:title" content="A Design Where All 12 Players Win in the Long Run">
+<meta property="og:description" content="Of the 1,000,000 yen a homeowner pays, about 650,000 disappears into costs unrelated to the work. Here is how to change that — structurally.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Spline+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1b2a4a;
+    --navy-deep:#15223c;
+    --paper:#f4efe6;
+    --paper-card:#fbf8f2;
+    --ink:#23252b;
+    --ink-soft:#5a5d66;
+    --crimson:#9c3a37;
+    --moss:#4a6b4d;
+    --gold:#b08d57;
+    --line:#ddd5c6;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Spline Sans',-apple-system,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  .serif{font-family:'Fraunces',Georgia,serif;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
+
+  /* ---- HERO ---- */
+  .hero{
+    background:var(--navy);
+    color:#fff;
+    padding:120px 0 100px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::after{
+    content:"";position:absolute;right:-120px;top:-120px;
+    width:420px;height:420px;border:1px solid rgba(255,255,255,.08);
+    border-radius:50%;
+  }
+  .hero::before{
+    content:"";position:absolute;right:-40px;bottom:-180px;
+    width:300px;height:300px;border:1px solid rgba(255,255,255,.06);
+    border-radius:50%;
+  }
+  .kicker{
+    font-size:13px;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:30px;font-weight:600;
+  }
+  .hero h1{
+    font-size:clamp(34px,6vw,62px);line-height:1.08;font-weight:600;
+    letter-spacing:-.01em;max-width:16ch;margin-bottom:26px;
+  }
+  .hero .sub{font-size:clamp(17px,2.2vw,21px);color:#c9d2e2;max-width:46ch;font-weight:400;}
+  .hero .who{
+    margin-top:54px;padding-top:26px;border-top:1px solid rgba(255,255,255,.14);
+    font-size:15px;color:#aab4c7;line-height:1.9;
+  }
+  .hero .who strong{color:#fff;font-weight:600;}
+
+  /* ---- SECTION ---- */
+  section{padding:84px 0;}
+  .sec-num{font-size:13px;letter-spacing:.22em;color:var(--gold);font-weight:600;text-transform:uppercase;margin-bottom:14px;}
+  h2.serif{font-size:clamp(26px,4vw,40px);font-weight:600;line-height:1.18;letter-spacing:-.01em;margin-bottom:14px;max-width:22ch;}
+  .lede{font-size:18px;color:var(--ink-soft);max-width:54ch;margin-bottom:46px;}
+
+  /* ---- FLOW (slide 3/4) ---- */
+  .flow{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;margin-bottom:30px;}
+  .flow .node{
+    flex:1;min-width:120px;background:var(--paper-card);border:1px solid var(--line);
+    border-radius:10px;padding:18px 14px;text-align:center;
+  }
+  .flow .node.bad{border-top:3px solid var(--crimson);}
+  .flow .node.good{border-top:3px solid var(--moss);}
+  .flow .node .lbl{font-size:13px;color:var(--ink-soft);margin-bottom:6px;}
+  .flow .node .amt{font-family:'Fraunces',serif;font-size:20px;font-weight:600;}
+  .flow .arrow{align-self:center;color:var(--gold);font-size:20px;flex:0 0 auto;}
+  .bignum{
+    background:var(--navy);color:#fff;border-radius:12px;padding:30px 36px;
+    display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;
+  }
+  .bignum .n{font-family:'Fraunces',serif;font-size:clamp(40px,7vw,64px);font-weight:700;color:var(--gold);line-height:1;}
+  .bignum.greenacc .n{color:#9bc29e;}
+  .bignum .t{font-size:18px;color:#cdd5e3;}
+  .note{font-size:13px;color:var(--ink-soft);margin-top:14px;font-style:italic;}
+
+  /* ---- 12 GRID ---- */
+  .grid12{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  .p12{background:var(--paper-card);border:1px solid var(--line);border-radius:10px;padding:16px;}
+  .p12 .pn{font-family:'Fraunces',serif;color:var(--gold);font-size:15px;font-weight:600;}
+  .p12 .pt{font-weight:600;font-size:15px;margin:4px 0 3px;}
+  .p12 .pd{font-size:12.5px;color:var(--ink-soft);line-height:1.5;}
+  .legend{display:flex;gap:26px;margin-top:22px;font-size:14px;flex-wrap:wrap;}
+  .legend span{display:flex;align-items:center;gap:8px;color:var(--ink-soft);}
+  .dot{width:11px;height:11px;border-radius:3px;display:inline-block;}
+  .dot.g{background:var(--moss);}.dot.r{background:var(--crimson);}
+
+  /* ---- PLAYER CARD (today / changes) ---- */
+  .player{border-top:1px solid var(--line);padding-top:42px;margin-top:42px;}
+  .player:first-of-type{border-top:none;padding-top:0;margin-top:0;}
+  .player .head{display:flex;align-items:baseline;gap:14px;margin-bottom:6px;}
+  .player .head .num{font-family:'Fraunces',serif;font-size:30px;font-weight:700;color:var(--navy);opacity:.32;}
+  .player .head h3{font-size:22px;font-weight:600;}
+  .player .role{color:var(--ink-soft);font-size:14.5px;margin-bottom:22px;}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .col{border-radius:10px;padding:20px 22px;}
+  .col.today{background:#f6e9e6;border:1px solid #e6cdc8;}
+  .col.future{background:#e9f0e8;border:1px solid #cfe0ce;}
+  .col h4{font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px;}
+  .col.today h4{color:var(--crimson);}
+  .col.future h4{color:var(--moss);}
+  .col ul{list-style:none;}
+  .col li{font-size:14px;padding-left:16px;position:relative;margin-bottom:9px;line-height:1.5;}
+  .col li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;}
+  .col.today li::before{background:var(--crimson);opacity:.6;}
+  .col.future li::before{background:var(--moss);opacity:.7;}
+
+  /* ---- transition (10/12) special ---- */
+  .honest{background:var(--paper-card);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:10px;padding:26px 28px;margin-top:10px;}
+  .honest .h{font-family:'Fraunces',serif;font-size:20px;font-weight:600;margin-bottom:10px;}
+  .honest p{color:var(--ink-soft);font-size:15px;margin-bottom:8px;}
+  .honest .ally{color:var(--navy);font-weight:600;font-style:normal;}
+  .routes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px;}
+  .route{background:var(--paper-card);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  .route .rh{background:var(--navy);color:#fff;padding:14px 16px;}
+  .route .rh .rk{font-size:12px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;}
+  .route .rh .rt{font-weight:600;font-size:15px;margin-top:3px;line-height:1.3;}
+  .route .rb{padding:16px;font-size:13.5px;color:var(--ink-soft);white-space:pre-line;line-height:1.6;}
+
+  /* ---- principles ---- */
+  .principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+  .prin{display:flex;gap:16px;background:var(--paper-card);border:1px solid var(--line);border-radius:10px;padding:20px;}
+  .prin .pnum{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--navy);background:var(--paper);border-radius:50%;width:46px;height:46px;display:flex;align-items:center;justify-content:center;flex:0 0 46px;}
+  .prin h3{font-size:16px;margin-bottom:6px;}
+  .prin p{font-size:13.5px;color:var(--ink-soft);line-height:1.55;}
+
+  /* ---- timeline ---- */
+  .timeline{position:relative;}
+  .stage{display:grid;grid-template-columns:120px 1fr;gap:22px;padding:22px 0;border-bottom:1px solid var(--line);}
+  .stage:last-child{border-bottom:none;}
+  .stage .when{text-align:right;}
+  .stage .when .s{font-family:'Fraunces',serif;font-weight:700;color:var(--navy);font-size:18px;}
+  .stage .when .t{font-size:13px;color:var(--gold);font-weight:600;margin-top:2px;}
+  .stage .what h3{font-size:17px;margin-bottom:4px;}
+  .stage .what p{font-size:14px;color:var(--ink-soft);}
+
+  /* ---- conclusion paths ---- */
+  .paths{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:30px;}
+  .path{border-radius:10px;padding:24px;}
+  .path.no{background:#f6e9e6;border:1px solid #e6cdc8;}
+  .path.yes{background:var(--navy);color:#fff;}
+  .path h3{font-size:16px;margin-bottom:14px;}
+  .path.no h3{color:var(--crimson);}
+  .path.yes h3{color:var(--gold);}
+  .path ul{list-style:none;}
+  .path li{font-size:14px;padding-left:16px;position:relative;margin-bottom:8px;}
+  .path li::before{content:"—";position:absolute;left:0;opacity:.5;}
+
+  /* ---- CTA / footer ---- */
+  .cta{background:var(--navy);color:#fff;text-align:center;padding:90px 0;}
+  .cta .big{font-family:'Fraunces',serif;font-size:clamp(26px,4vw,38px);font-weight:600;margin-bottom:18px;}
+  .cta .sub{color:#c9d2e2;font-size:17px;margin-bottom:36px;}
+  .cta a.btn{display:inline-block;background:var(--gold);color:var(--navy-deep);font-weight:600;padding:15px 34px;border-radius:8px;text-decoration:none;font-size:16px;transition:transform .15s ease;}
+  .cta a.btn:hover{transform:translateY(-2px);}
+  .cta .meta{margin-top:46px;padding-top:26px;border-top:1px solid rgba(255,255,255,.14);font-size:13.5px;color:#aab4c7;line-height:1.9;}
+  .cta .meta a{color:var(--gold);text-decoration:none;}
+
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease;}
+  .reveal.in{opacity:1;transform:none;}
+
+  @media(max-width:760px){
+    .grid12{grid-template-columns:repeat(2,1fr);}
+    .twocol,.paths,.routes{grid-template-columns:1fr;}
+    .flow .arrow{transform:rotate(90deg);}
+    .stage{grid-template-columns:1fr;gap:6px;}
+    .stage .when{text-align:left;display:flex;gap:10px;align-items:baseline;}
+    section{padding:60px 0;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">HORIZON SHIELD · Concept Proposal</div>
+    <h1 class="serif">A Design Where All 12 Players Win in the Long Run</h1>
+    <p class="sub">Changing the middleman economy of Japan's renovation industry — at the structural level.</p>
+    <div class="who">
+      <strong>Toshikatsu Oga</strong> · Representative Director, The HORIZONs Co., Ltd.<br>
+      30 years a carpenter · Author of JCCDB · ORCID 0009-0000-9180-903X
+    </div>
+  </div>
+</header>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="sec-num">The conclusion first</div>
+    <h2 class="serif">What this is about, in three lines</h2>
+    <div class="principles" style="margin-top:30px">
+      <div class="prin"><div class="pnum">1</div><div><h3>The industry has a built-in middleman economy</h3><p>Of the 1,000,000 yen a homeowner pays, about 650,000 disappears into costs unrelated to the actual work.</p></div></div>
+      <div class="prin"><div class="pnum">2</div><div><h3>In this design, 10 of 12 players gain</h3><p>Homeowners, craftsmen, builders, manufacturers, communities, government, lenders — all gain.</p></div></div>
+      <div class="prin"><div class="pnum">3</div><div><h3>For the remaining 2, new roles</h3><p>Aggregator platforms and material wholesalers are welcomed not as enemies, but as partners in change.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="reveal" style="background:var(--paper-card)">
+  <div class="wrap">
+    <div class="sec-num">The problem</div>
+    <h2 class="serif">What is happening in renovation today</h2>
+    <p class="lede">Invisible fees are eating into the homeowner's money.</p>
+    <div class="flow">
+      <div class="node bad"><div class="lbl">Homeowner</div><div class="amt">pays ¥1,000,000</div></div>
+      <div class="arrow">→</div>
+      <div class="node bad"><div class="lbl">Aggregator site</div><div class="amt">−¥200,000</div></div>
+      <div class="arrow">→</div>
+      <div class="node bad"><div class="lbl">Prime contractor</div><div class="amt">−¥200,000</div></div>
+      <div class="arrow">→</div>
+      <div class="node bad"><div class="lbl">Subcontractor</div><div class="amt">−¥150,000</div></div>
+      <div class="arrow">→</div>
+      <div class="node bad"><div class="lbl">Wholesaler</div><div class="amt">−¥100,000</div></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="lbl">Actual craftsman</div><div class="amt">¥350,000</div></div>
+    </div>
+    <div class="bignum"><span class="n">¥650,000</span><span class="t">of the ¥1,000,000 paid disappears into costs unrelated to the work.</span></div>
+    <p class="note">* Figures are representative of field experience; actual cases vary.</p>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="sec-num">Our design</div>
+    <h2 class="serif">The same ¥1,000,000, redistributed</h2>
+    <p class="lede">Remove the middleman economy, and the money flows to the work and the craftsmen.</p>
+    <div class="flow">
+      <div class="node"><div class="lbl">Homeowner</div><div class="amt">pays ¥1,000,000</div></div>
+      <div class="arrow">→</div>
+      <div class="node good"><div class="lbl">Our organization</div><div class="amt">¥50,000</div><div class="lbl">operating cost</div></div>
+      <div class="arrow">→</div>
+      <div class="node good"><div class="lbl">Craftsmen + builders</div><div class="amt">¥550,000</div><div class="lbl">higher take-home</div></div>
+      <div class="arrow">→</div>
+      <div class="node good"><div class="lbl">Materials + work</div><div class="amt">¥400,000</div><div class="lbl">direct from makers</div></div>
+    </div>
+    <div class="bignum greenacc"><span class="n">¥950,000</span><span class="t">of the same ¥1,000,000 goes to craftsmen, work, and materials.</span></div>
+    <p class="note">* A representative distribution; actual figures vary by project.</p>
+  </div>
+</section>
+
+<section class="reveal" style="background:var(--paper-card)">
+  <div class="wrap">
+    <div class="sec-num">The players</div>
+    <h2 class="serif">Everyone involved — 12 players</h2>
+    <p class="lede">No one overlooked.</p>
+    <div class="grid12">
+      <div class="p12"><div class="pn">01</div><div class="pt">Homeowner</div><div class="pd">people doing renovation or new builds</div></div>
+      <div class="p12"><div class="pn">02</div><div class="pt">Craftsmen</div><div class="pd">those who do the actual work</div></div>
+      <div class="p12"><div class="pn">03</div><div class="pt">Small builders</div><div class="pd">local small construction firms</div></div>
+      <div class="p12"><div class="pn">04</div><div class="pt">General contractors</div><div class="pd">major prime contractors</div></div>
+      <div class="p12"><div class="pn">05</div><div class="pt">Aggregator sites</div><div class="pd">major referral platforms</div></div>
+      <div class="p12"><div class="pn">06</div><div class="pt">Material wholesaler</div><div class="pd">building-material distribution</div></div>
+      <div class="p12"><div class="pn">07</div><div class="pt">Manufacturers</div><div class="pd">major building-material makers</div></div>
+      <div class="p12"><div class="pn">08</div><div class="pt">Our team</div><div class="pd">the operators of this system</div></div>
+      <div class="p12"><div class="pn">09</div><div class="pt">HORIZON SHIELD</div><div class="pd">the audit engine</div></div>
+      <div class="p12"><div class="pn">10</div><div class="pt">Local communities</div><div class="pd">condo residents, associations</div></div>
+      <div class="p12"><div class="pn">11</div><div class="pt">Government</div><div class="pd">ministries and municipalities</div></div>
+      <div class="p12"><div class="pn">12</div><div class="pt">Lenders</div><div class="pd">renovation-loan providers</div></div>
+    </div>
+    <div class="legend">
+      <span><i class="dot g"></i> 10 players gain</span>
+      <span><i class="dot r"></i> 2 players transition to a new role</span>
+    </div>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="sec-num">Player by player</div>
+    <h2 class="serif">Who gains, and how</h2>
+    <p class="lede">Ten players gain directly. Here is each one — today, and under this design.</p>
+
+    <div class="player">
+      <div class="head"><span class="num">01</span><h3>Homeowner</h3></div>
+      <div class="role">people wanting renovation or a new build</div>
+      <div class="twocol">
+        <div class="col today"><h4>Today</h4><ul>
+          <li>Of ¥1,000,000 paid, ~¥650,000 vanishes into middleman costs</li>
+          <li>No idea who is paid how much</li>
+          <li>Cannot detect inflated quotes themselves</li>
+          <li>A site's "recommended" firm may not actually be good</li>
+          <li>Takes a loan, paying interest on the inflated amount too</li>
+        </ul></div>
+        <div class="col future"><h4>In this design</h4><ul>
+          <li>Of ¥1,000,000 paid, ¥950,000 goes straight to work and craftsmen</li>
+          <li>AI judges whether a quote is truly fair</li>
+          <li>Choose from craftsmen certified as not inflating</li>
+          <li>Every cost visible — a transparent estimate</li>
+          <li>Loans only against the fair amount</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="player">
+      <div class="head"><span class="num">02</span><h3>Craftsmen</h3></div>
+      <div class="role">on-site work — carpentry, electrical, plumbing, etc.</div>
+      <div class="twocol">
+        <div class="col today"><h4>Today</h4><ul>
+          <li>No sales skills, no work</li>
+          <li>Via referral sites, they bear the referral fee</li>
+          <li>Sub-subcontracting cuts take-home pay deeply</li>
+          <li>Good work has no mechanism to be recognized</li>
+          <li>On a ¥1,000,000 job, take-home can be just ¥250,000</li>
+        </ul></div>
+        <div class="col future"><h4>In this design</h4><ul>
+          <li>No referral fees — higher take-home</li>
+          <li>Good work made visible through certification</li>
+          <li>Work comes from skill, not salesmanship</li>
+          <li>On a ¥1,000,000 job, take-home ¥450,000 (up 80%)</li>
+          <li>Share information and materials via a peer network</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="player">
+      <div class="head"><span class="num">03</span><h3>Small builders (SMEs)</h3></div>
+      <div class="role">local small construction firms</div>
+      <div class="twocol">
+        <div class="col today"><h4>Today</h4><ul>
+          <li>Thin margins as a subcontractor to majors</li>
+          <li>Margins eroded at 2nd/3rd-tier subcontracting</li>
+          <li>Want to reach homeowners directly, but sales cost is high</li>
+          <li>The better the regional builder, the harder to win nationwide work</li>
+          <li>Succession problem — unattractive to the next generation</li>
+        </ul></div>
+        <div class="col future"><h4>In this design</h4><ul>
+          <li>Reach homeowners directly as a prime contractor</li>
+          <li>Escape the subcontracting-margin structure</li>
+          <li>Win work from anywhere via a national network</li>
+          <li>Higher craftsman pay makes hiring easier</li>
+          <li>Becomes a trade the next generation can be proud of</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="player">
+      <div class="head"><span class="num">04</span><h3>General contractors</h3></div>
+      <div class="role">major prime construction firms</div>
+      <div class="twocol">
+        <div class="col today"><h4>Today</h4><ul>
+          <li>Subcontracting layers too deep to control site quality</li>
+          <li>Exposed to criticism over exploitative subcontracting</li>
+          <li>Accountability for accidents is tangled</li>
+          <li>Trust with homeowners diluted by the subcontracting chain</li>
+          <li>Must respond to public criticism of margin-skimming</li>
+        </ul></div>
+        <div class="col future"><h4>In this design</h4><ul>
+          <li>Shorter layers improve visibility of site quality</li>
+          <li>Accountability for accidents becomes clear</li>
+          <li>Can promote transparent subcontractor management</li>
+          <li>Social trust restored</li>
+          <li>Resistance at first, but a long-term winner</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="reveal" style="background:var(--paper-card)">
+  <div class="wrap">
+    <div class="sec-num">The honest part — player 05</div>
+    <h2 class="serif">Aggregator sites</h2>
+    <p class="lede">A player that may lose part of its current business. We don't hide it.</p>
+    <div class="honest">
+      <div class="h">Honestly — this player loses its current business.</div>
+      <p>Referral fees from builders (often 10–30% of the contract) disappear in this design.</p>
+      <p class="ally">But they are not enemies. We build new roles together.</p>
+    </div>
+    <div class="routes">
+      <div class="route"><div class="rh"><div class="rk">Route A</div><div class="rt">Become comparison media</div></div><div class="rb">Not referral fees from builders, but reader fees for certification data.
+
+Premium access to lists of certified, quality builders.
+
+Not ad-driven media, but trusted media — value preserved.</div></div>
+      <div class="route"><div class="rh"><div class="rk">Route B</div><div class="rt">Certification-support partner</div></div><div class="rb">Consulting and training that help builders earn certification.
+
+· From sales to skill-improvement support
+· Run training programs
+· Make craftsman skills visible
+
+Become central to raising industry quality.</div></div>
+      <div class="route"><div class="rh"><div class="rk">Route C</div><div class="rt">A partner in change</div></div><div class="rb">Transition gradually over five years. Business does not vanish overnight.
+
+We propose directly to leadership.
+
+Not as an enemy, but as an ally in change.</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="sec-num">The honest part — player 06</div>
+    <h2 class="serif">Material wholesaler</h2>
+    <p class="lede">Also loses part of its distribution margin. And also has a way forward.</p>
+    <div class="honest">
+      <div class="h">Honestly — this player also loses part of its current business.</div>
+      <p>The distribution margin between makers and builders is compressed by joint purchasing.</p>
+      <p class="ally">But there are three paths to transition.</p>
+    </div>
+    <div class="routes">
+      <div class="route"><div class="rh"><div class="rk">Path A</div><div class="rt">Logistics specialist</div></div><div class="rb">From a margin model to a freight model. As the logistics arm of joint purchasing, earn freight from both makers and the operating body.</div></div>
+      <div class="route"><div class="rh"><div class="rk">Path B</div><div class="rt">Construction-management support</div></div><div class="rb">Not just moving materials, but managing delivery, inventory, and on-site logistics. An indispensable partner to the system.</div></div>
+      <div class="route"><div class="rh"><div class="rk">Path C</div><div class="rt">Complement direct sales</div></div><div class="rb">Handle the small-volume, last-mile deliveries to small builders that makers don't want to do.</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="reveal" style="background:var(--paper-card)">
+  <div class="wrap">
+    <div class="sec-num">Player by player</div>
+    <h2 class="serif">The remaining players</h2>
+    <p class="lede">Manufacturers, our team, the engine, communities, government, lenders — each gains too.</p>
+
+    <div class="player">
+      <div class="head"><span class="num">07</span><h3>Manufacturers</h3></div>
+      <div class="role">major building-material manufacturers</div>
+      <div class="twocol">
+        <div class="col today"><h4>Today</h4><ul>
+          <li>Can only distribute through wholesalers</li>
+          <li>Cannot control end-user prices</li>
+          <li>Cannot tell when products are used in inflated quotes</li>
+          <li>Hard to deliver brand value directly to homeowners</li>
+          <li>Forced to push large inventory onto wholesalers</li>
+        </ul></div>
+        <div class="col future"><h4>In this design</h4><ul>
+          <li>Large joint orders enable planned production</li>
+          <li>Compressed wholesale margins make end prices competitive</li>
+          <li>Brand value reaches homeowners directly</li>
+          <li>Visibility into how their products are used</li>
+          <li>A clear winner, after years of wholesale margin-skimming</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="player">
+      <div class="head"><span class="num">08</span><h3>Our team (the operators)</h3></div>
+      <div class="role">The HORIZONs Co., Ltd. / HORIZON SHIELD</div>
+      <div class="twocol">
+        <div class="col today"><h4>Today</h4><ul>
+          <li>A small company; awareness is the challenge</li>
+          <li>No clear path to scale yet</li>
+          <li>Want to change the structure, but lack the power</li>
+          <li>Publish data like JCCDB, but it is underused</li>
+        </ul></div>
+        <div class="col future"><h4>In this design</h4><ul>
+          <li>A sustainable base from audit and operating fees</li>
+          <li>A central position in industry transformation</li>
+          <li>JCCDB realizes its true value</li>
+          <li>Recognition as the architect of a win-for-all design</li>
+          <li>Trusted precisely because it does not monopolize profit</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="player">
+      <div class="head"><span class="num">09</span><h3>HORIZON SHIELD</h3></div>
+      <div class="role">AI audit engine (KIRA) / JCCDB database</div>
+      <div class="twocol">
+        <div class="col today"><h4>Today</h4><ul>
+          <li>It exists, but awareness is limited</li>
+          <li>Paid diagnoses are limited in number</li>
+          <li>JCCDB usage is also limited</li>
+          <li>Effectively an unused tool</li>
+        </ul></div>
+        <div class="col future"><h4>In this design</h4><ul>
+          <li>The industry standard for objective certification</li>
+          <li>A tool craftsmen and builders want to be certified by</li>
+          <li>JCCDB becomes the industry-standard database</li>
+          <li>Infrastructure relied on by homeowners, government, lenders</li>
+          <li>Established as social infrastructure</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="player">
+      <div class="head"><span class="num">10</span><h3>Local communities</h3></div>
+      <div class="role">condo residents, neighborhood and resident associations</div>
+      <div class="twocol">
+        <div class="col today"><h4>Today</h4><ul>
+          <li>Opaque use of repair-reserve funds</li>
+          <li>Contractor selection left to the management company</li>
+          <li>Residents' wishes hard to reflect</li>
+          <li>High-rise management problems are now a social issue</li>
+        </ul></div>
+        <div class="col future"><h4>In this design</h4><ul>
+          <li>Repair-reserve funds used transparently</li>
+          <li>The community itself selects from certified firms</li>
+          <li>Residents' decisions reflected in building management</li>
+          <li>The building's long-term value is protected</li>
+          <li>A model case for new resident self-governance</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="player">
+      <div class="head"><span class="num">11</span><h3>Government</h3></div>
+      <div class="role">national ministries and municipalities</div>
+      <div class="twocol">
+        <div class="col today"><h4>Today</h4><ul>
+          <li>Long troubled by the opacity of construction</li>
+          <li>Can prosecute, but cannot reform the structure</li>
+          <li>Margin-skimming is a problem even in public works</li>
+          <li>Tightening regulation is the only tool</li>
+        </ul></div>
+        <div class="col future"><h4>In this design</h4><ul>
+          <li>Transparency advances, led by the private sector</li>
+          <li>Problems solved by structural reform, not prosecution</li>
+          <li>Applicable to public works as well</li>
+          <li>A globally visible model of construction reform from Japan</li>
+          <li>Aligned with the direction ministries want to drive</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="player">
+      <div class="head"><span class="num">12</span><h3>Lenders</h3></div>
+      <div class="role">renovation-loan providers and regional banks</div>
+      <div class="twocol">
+        <div class="col today"><h4>Today</h4><ul>
+          <li>Risk of lending against inflated quotes</li>
+          <li>Collateral value hard to assess</li>
+          <li>Cannot verify quote validity for borrower protection</li>
+          <li>Risk of being dragged into renovation disputes</li>
+        </ul></div>
+        <div class="col future"><h4>In this design</h4><ul>
+          <li>Lend only against fair quotes</li>
+          <li>Healthier loan portfolios</li>
+          <li>Restored trust in the renovation-loan market</li>
+          <li>In fact, a potential greatest ally</li>
+          <li>Co-develop a fair-amount lending certification scheme</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="sec-num">How it stays fair</div>
+    <h2 class="serif">Five principles to uphold</h2>
+    <p class="lede">No winner-takes-all. To keep a design where everyone wins in the long run.</p>
+    <div class="principles">
+      <div class="prin"><div class="pnum">1</div><div><h3>Make no enemies; bring them in</h3><p>Never publicly call aggregators or wholesalers "enemies." Invite them as partners and design new roles together.</p></div></div>
+      <div class="prin"><div class="pnum">2</div><div><h3>Move in stages, no rush</h3><p>A five-year plan. At each stage, offer every player their next role as we proceed.</p></div></div>
+      <div class="prin"><div class="pnum">3</div><div><h3>Keep absolute transparency</h3><p>Fully disclose who takes how much. Visible to homeowners, craftsmen, and makers alike.</p></div></div>
+      <div class="prin"><div class="pnum">4</div><div><h3>No winner-takes-all</h3><p>The operators do not monopolize profit. Governed by member vote — we hold one vote too.</p></div></div>
+      <div class="prin"><div class="pnum">5</div><div><h3>Define accountability for failure</h3><p>Spell out accountability for accidents and disputes at the design stage. No one escapes; no one bears it all alone.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="reveal" style="background:var(--paper-card)">
+  <div class="wrap">
+    <div class="sec-num">The road</div>
+    <h2 class="serif">Five-year plan — step by step</h2>
+    <p class="lede">Not a dream. Each stage builds on the proven data of the last.</p>
+    <div class="timeline">
+      <div class="stage"><div class="when"><div class="s">Stage 1</div><div class="t">Now</div></div><div class="what"><h3>Verify estimates</h3><p>A homeowner sends a quote → the AI judges it. Already live.</p></div></div>
+      <div class="stage"><div class="when"><div class="s">Stage 2</div><div class="t">6–12 months</div></div><div class="what"><h3>Make good craftsmen visible</h3><p>Craftsmen rated as not inflating are made visible through certification.</p></div></div>
+      <div class="stage"><div class="when"><div class="s">Stage 3</div><div class="t">1–2 years</div></div><div class="what"><h3>Community self-governance</h3><p>Residents and homeowners select their own work from certified firms.</p></div></div>
+      <div class="stage"><div class="when"><div class="s">Stage 4</div><div class="t">2–3 years</div></div><div class="what"><h3>Peer certification of craftsmen</h3><p>A mechanism where certified craftsmen verify each other's work.</p></div></div>
+      <div class="stage"><div class="when"><div class="s">Stage 5</div><div class="t">3–5 years</div></div><div class="what"><h3>Joint purchasing and fair reward</h3><p>Joint purchasing direct from makers. Real reward for good craftsmen.</p></div></div>
+    </div>
+    <p class="note">Each stage's proven data becomes the foundation of trust for the next. No skipping ahead.</p>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="sec-num">Conclusion</div>
+    <h2 class="serif">"Everyone wins" is possible — with conditions</h2>
+    <p class="lede">Ten of twelve players clearly gain. The other two are offered a chance to transition. "Everyone wins instantly" is impossible — but "everyone wins in the long run" is achievable.</p>
+    <div class="paths">
+      <div class="path no"><h3>The revolutionary's path — not ours</h3><ul>
+        <li>Make enemies</li>
+        <li>Try to destroy in the short term</li>
+        <li>Publicly vow to crush the aggregators</li>
+        <li>Get crushed by the resistance</li>
+        <li>Result: no one wins</li>
+      </ul></div>
+      <div class="path yes"><h3>The reformer's path — our choice</h3><ul>
+        <li>Build alliances</li>
+        <li>Pursue structural change over the long run</li>
+        <li>Ask: "will you become a partner in change?"</li>
+        <li>Proceed in stages over five years</li>
+        <li>Result: all 12 players win</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<footer class="cta">
+  <div class="wrap">
+    <div class="big serif">Don't just believe a price. Check it.</div>
+    <div class="sub">The data is open, free, and anchored to the Bitcoin blockchain — so anyone can verify it.</div>
+    <a class="btn" href="https://shield.the-horizons-innovation.com/" target="_blank" rel="noopener">Visit HORIZON SHIELD</a>
+    <div class="meta">
+      The HORIZONs Co., Ltd. · HORIZON SHIELD — AI construction-cost diagnostic service<br>
+      Representative Director Toshikatsu Oga · ORCID <a href="https://orcid.org/0009-0000-9180-903X" target="_blank" rel="noopener">0009-0000-9180-903X</a><br>
+      JCCDB open dataset · engrXiv DOI 10.31224/7007 · Zenodo · timestamped on Bitcoin
+    </div>
+  </div>
+</footer>
+
+<script>
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
