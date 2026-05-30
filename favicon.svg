@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0.35">
+      <stop offset="0" stop-color="#0072AE"/>
+      <stop offset="1" stop-color="#01B5D8"/>
+    </linearGradient>
+    <clipPath id="clip"><path d="M 14.00 16.00 Q 32.00 11.50 50.00 16.00 L 50.00 29.50 C 50.00 41.33 40.10 48.42 32.00 51.00 C 23.90 48.42 14.00 41.33 14.00 29.50 Z"/></clipPath>
+  </defs>
+
+  <!-- 白枠（外形） -->
+  <path d="M 10.50 12.50 Q 32.00 8.00 53.50 12.50 L 53.50 30.00 C 53.50 44.02 41.67 52.44 32.00 55.50 C 22.32 52.44 10.50 44.02 10.50 30.00 Z" fill="#FFFFFF"/>
+
+  <!-- 内側を色で塗り、clipで盾内に限定 -->
+  <g clip-path="url(#clip)">
+    <!-- 上半分：青グラデ -->
+    <rect x="0" y="0" width="64" height="33.20" fill="url(#g)"/>
+    <!-- 下半分：ティール -->
+    <rect x="0" y="35.80" width="64" height="64" fill="#01A3A6"/>
+    <!-- 地平線の白帯（緩いカーブ） -->
+    <path d="M -2 34.50 Q 32 31.30 66 34.50"
+          stroke="#FFFFFF" stroke-width="2.6" fill="none"/>
+  </g>
+</svg>

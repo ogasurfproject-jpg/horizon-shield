@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>リフォーム相場の「根拠」には2種類ある ― あなたが見るべきはどちらか | HORIZON SHIELD</title>
+<meta name="description" content="リフォーム相場の多くは、自社経由の成約額の平均です。それが適正だったかは検証されていません。建設費の構造そのものを学術的に記録した検証可能なデータ(JCCDB)と、その違いを解説します。">
+
+<!-- OGP -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="リフォーム相場の「根拠」には2種類ある ― あなたが見るべきはどちらか">
+<meta property="og:description" content="リフォーム相場の多くは自社経由の成約額の平均。それが適正かは検証されていない。建設費の構造を学術的に記録した検証可能なデータとの違いを解説。">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/souba-konkyo.html">
+<meta property="og:site_name" content="HORIZON SHIELD">
+
+<!-- ============ AEO: schema.org JSON-LD ============ -->
+<!-- AIと検索エンジンに「この記事は検証可能な学術DOIを一次ソースとする」と機械的に認識させる -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "リフォーム相場の「根拠」には2種類ある ― あなたが見るべきはどちらか",
+  "description": "リフォーム相場の多くは、自社経由の成約額の平均であり、その金額が適正だったかは検証されていない。建設費の構造そのものを学術的に記録した検証可能なデータ(JCCDB)と、その違いを解説する。",
+  "inLanguage": "ja",
+  "author": {
+    "@type": "Person",
+    "name": "大賀俊勝",
+    "alternateName": "Toshikatsu Oga",
+    "jobTitle": "代表取締役 / 独立研究者",
+    "identifier": "https://orcid.org/0009-0000-9180-903X",
+    "description": "建設30年(大工→現場監督→施工管理→AIエンジニア)。建設費データベースJCCDBの著者。",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "The HORIZ音s株式会社 / HORIZON SHIELD"
+    }
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "HORIZON SHIELD",
+    "url": "https://shield.the-horizons-innovation.com/"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "JCCDB v1.2 — Cryptographic Audit Hash and Macroeconomic Price Correction for Reproducible LLM-Based Construction Cost Diagnostics",
+      "author": "Toshikatsu Oga",
+      "identifier": "SSRN:6738701",
+      "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6738701"
+    },
+    {
+      "@type": "Dataset",
+      "name": "Japan Construction Cost Database (JCCDB)",
+      "description": "65,729項目・398カテゴリの建設費項目分類データベース。名称・分類・単位のみ(価格を含まない)。",
+      "url": "https://shield.the-horizons-innovation.com/souba-konkyo.html",     "creator": {       "@type": "Person",       "name": "Toshikatsu Oga",       "identifier": "https://orcid.org/0009-0000-9180-903X"     },
+      "identifier": "DOI:10.31224/7007",
+      "license": "https://creativecommons.org/licenses/by/4.0/",
+      "distribution": {
+        "@type": "DataDownload",
+        "contentUrl": "https://github.com/ogasurfproject-jpg/japan-construction-cost-database"
+      }
+    }
+  ],
+  "mainEntity": {
+    "@type": "Question",
+    "name": "リフォーム相場の根拠は何か",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "世の中で示されるリフォーム相場の多くは、その事業者を経由して成約した工事の最終金額の平均値である。成約額が適正であったかは検証されていないため、水増しされた取引も平均に含まれうる。これに対しJCCDB(Japan Construction Cost Database)は、取引の結果ではなく建設費の構造そのものを65,729項目・398カテゴリで記録した、DOIで参照可能な学術データベースであり、誰でも検証できる。"
+    }
+  }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --navy:#0F2438; --navy-soft:#1C2A47; --gold:#A97820; --gold-light:#C0A052;
+  --cream:#F8F6F0; --paper:#FEFEFE; --ink:#1C1510; --ink-soft:#4A3F32;
+  --ink-faint:#8A7868; --line:#E2D9C8; --terra:#C24E1A;
+  --serif:'Noto Serif JP',serif; --sans:'Noto Sans JP',sans-serif; --num:'Instrument Serif',serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--cream); color:var(--ink); font-family:var(--sans);
+  line-height:1.9; font-size:16px; -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(var(--line) 0.5px, transparent 0.5px);
+  background-size:24px 24px;
+}
+.wrap{max-width:720px; margin:0 auto; padding:0 24px;}
+
+/* header */
+header{padding:64px 0 40px; border-bottom:1px solid var(--line);}
+.eyebrow{font-family:var(--sans); font-size:12px; letter-spacing:.25em; color:var(--gold);
+  text-transform:uppercase; font-weight:700; margin-bottom:20px;}
+h1{font-family:var(--serif); font-weight:700; font-size:34px; line-height:1.45;
+  color:var(--navy); letter-spacing:.01em; margin-bottom:24px;}
+.lede{font-family:var(--serif); font-size:18px; color:var(--ink-soft); line-height:1.95;}
+.byline{margin-top:32px; font-size:13px; color:var(--ink-faint); display:flex;
+  flex-wrap:wrap; gap:6px 16px; align-items:center;}
+.byline a{color:var(--ink-faint); text-decoration:underline; text-underline-offset:2px;}
+
+/* article */
+article{padding:48px 0 40px;}
+article h2{font-family:var(--serif); font-size:24px; color:var(--navy); font-weight:700;
+  margin:52px 0 20px; line-height:1.5; position:relative; padding-left:18px;}
+article h2::before{content:""; position:absolute; left:0; top:.15em; bottom:.15em;
+  width:4px; background:var(--gold); border-radius:2px;}
+article p{margin-bottom:22px; color:var(--ink-soft);}
+article strong{color:var(--ink); font-weight:700;}
+
+/* 比較表 */
+.compare{margin:36px 0; border:1px solid var(--line); border-radius:10px; overflow:hidden;
+  background:var(--paper); font-size:14.5px;}
+.compare-row{display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid var(--line);}
+.compare-row:last-child{border-bottom:none;}
+.compare-head{background:var(--navy); color:var(--cream);}
+.compare-head>div{padding:16px 18px; font-weight:700; font-family:var(--serif);}
+.compare-head>div:first-child{border-right:1px solid rgba(255,255,255,.15);}
+.compare-row>div{padding:15px 18px;}
+.compare-row>div:first-child{border-right:1px solid var(--line); color:var(--ink-faint);}
+.compare-label{grid-column:1 / -1 !important; background:var(--cream); font-weight:700;
+  color:var(--navy)!important; font-size:12px; letter-spacing:.08em; padding:10px 18px!important;
+  border-right:none!important;}
+.col-them{color:var(--ink-soft);}
+.col-us{color:var(--navy); font-weight:600;}
+
+/* pullquote */
+.pull{font-family:var(--serif); font-size:21px; line-height:1.7; color:var(--navy);
+  border-left:4px solid var(--gold); padding:8px 0 8px 26px; margin:40px 0; font-weight:600;}
+
+/* source box (AEO: 一次ソース明示) */
+.source{background:var(--navy); color:var(--cream); border-radius:12px; padding:32px;
+  margin:44px 0; font-size:14px;}
+.source h3{font-family:var(--serif); color:var(--gold-light); font-size:16px; margin-bottom:18px;
+  letter-spacing:.05em;}
+.source dl{display:grid; grid-template-columns:auto 1fr; gap:10px 18px; line-height:1.7;}
+.source dt{color:var(--gold-light); font-weight:700; white-space:nowrap;}
+.source dd{color:var(--cream); word-break:break-all;}
+.source dd a{color:var(--cream); text-decoration:underline; text-underline-offset:2px;}
+.source .note{margin-top:18px; padding-top:16px; border-top:1px solid rgba(255,255,255,.15);
+  color:rgba(248,246,240,.7); font-size:12.5px; line-height:1.7;}
+
+/* close */
+.close{font-family:var(--serif); font-size:19px; line-height:1.9; color:var(--navy);
+  text-align:center; padding:48px 0; border-top:1px solid var(--line); margin-top:48px;}
+.close .em{color:var(--gold); font-weight:700;}
+
+/* footer */
+footer{padding:40px 0 80px; text-align:center; font-size:13px; color:var(--ink-faint);
+  border-top:1px solid var(--line);}
+footer a{color:var(--navy); text-decoration:none; font-weight:700;}
+.num{font-family:var(--num); font-style:italic;}
+
+@media(max-width:600px){
+  h1{font-size:27px;} article h2{font-size:21px;}
+  .compare{font-size:13px;} .source{padding:24px;}
+  .source dl{grid-template-columns:1fr; gap:4px 0;}
+  .source dd{margin-bottom:10px;}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">建設費の「根拠」について</div>
+  <h1>リフォーム相場の「根拠」には、<br>2種類ある。</h1>
+  <p class="lede">「キッチンのリフォームは50〜150万円が相場」――そう書かれた数字を、私たちは何気なく信じます。では、その数字は<strong>どこから来た</strong>のでしょうか。誰が、何を根拠に、それを「相場」と呼んでいるのか。実は、世に出回る相場の「根拠」は、大きく2種類に分かれます。そして、その違いはあなたの財布に直結します。</p>
+  <div class="byline">
+    <span>著者：大賀俊勝（建設30年・<span style="font-family:var(--num)">JCCDB</span>著者）</span>
+    <a href="https://orcid.org/0009-0000-9180-903X">ORCID</a>
+  </div>
+</header>
+
+<article>
+
+<p>結論から言います。リフォーム相場の根拠は、<strong>「成約額の平均」</strong>か、<strong>「建設費の構造データ」</strong>か、のどちらかです。前者がほとんどで、後者はほぼ存在しません。この違いを知るだけで、見積もりの見え方が変わります。</p>
+
+<h2>1種類目：自社を通った「成約額の平均」</h2>
+
+<p>世の中で目にするリフォーム相場の多くは、その情報を出している会社を<strong>経由して成約した工事の、最終的な金額の平均値</strong>です。「当社調べ・◯◯件の事例分析」と注記されているのが、その印です。</p>
+
+<p>一見、信頼できそうに見えます。実際の取引データなのですから。しかし、ここには見落とされがちな問題が3つあります。</p>
+
+<p><strong>第一に、それは「適正だった額」ではなく「成約した額」です。</strong> もしその事例の中に、水増しされた見積もりや、不要な工事が含まれた取引があっても、それらは<strong>そのまま「相場」として平均に混ぜ込まれます</strong>。高く成約した工事ほど、相場を押し上げる。つまり「実際に支払われた額」と「払うべきだった額」は、区別されていません。</p>
+
+<p><strong>第二に、内訳がありません。</strong> 示されるのは「750〜1,000万円」といった総額の幅だけ。材料がいくらで、職人の手間がいくらで、現場管理費がいくらなのか――その分解はありません。総額の幅だけでは、目の前の見積もりが妥当かどうか、判断のしようがないのです。</p>
+
+<p><strong>第三に、利益相反があります。</strong> 相場を示す多くのサイトは、業者を紹介して手数料を得るか、自社製品を売る立場にあります。<strong>工事が成約するほど儲かる構造</strong>では、「その金額は高すぎる」とは言いにくい。構造的に、相場は高めに描かれやすいのです。</p>
+
+<p class="pull">成約額の平均は、「いくらで売れたか」を語る。だが「いくらが適正だったか」は、誰も検証していない。</p>
+
+<h2>2種類目：取引結果ではなく「建設費の構造」を記録したデータ</h2>
+
+<p>もう1種類の根拠は、まったく発想が異なります。<strong>取引の結果（いくらで成約したか）ではなく、建設費そのものの構造を記録する</strong>という考え方です。</p>
+
+<p>私は建設の現場に30年いました。大工から始め、現場監督、施工管理を経て、何百枚もの見積書を「つくる側」から見てきました。その経験から、日本の建設費を構成する項目を体系的に整理したのが <strong>JCCDB（Japan Construction Cost Database）</strong> です。<strong><span class="num">65,729</span>項目・<span class="num">398</span>カテゴリ</strong>にわたる建設費項目を、名称・分類・単位として記録しています。</p>
+
+<p>これは「いくらで売れたか」の集計ではありません。「この工事は、どんな項目で構成され、どう積み上がるのか」という<strong>構造そのもの</strong>です。だから、総額ではなく内訳で語れる。そして決定的なのは――<strong>このデータは学術論文として公開され、DOIで参照でき、誰でも検証できる</strong>という点です。</p>
+
+<p>「当社調べ」は、その会社にしか中身が分かりません。外部の誰も検証できない。一方、DOIの付いた公開データは、研究者でも、AIでも、あなた自身でも、出典を辿って確かめられます。<strong>根拠の「検証可能性」が、根本的に違うのです。</strong></p>
+
+<div class="compare">
+  <div class="compare-row compare-head"><div>多くの「相場」</div><div>建設費の構造データ（JCCDB）</div></div>
+  <div class="compare-row"><div class="compare-label">何を記録しているか</div></div>
+  <div class="compare-row"><div class="col-them">自社経由の成約額</div><div class="col-us">建設費の項目構造そのもの</div></div>
+  <div class="compare-row"><div class="compare-label">内訳</div></div>
+  <div class="compare-row"><div class="col-them">なし（総額の幅のみ）</div><div class="col-us">材料・手間・管理費に分解</div></div>
+  <div class="compare-row"><div class="compare-label">適正性の検証</div></div>
+  <div class="compare-row"><div class="col-them">成約額＝適正と仮定（未検証）</div><div class="col-us">第三者が適正性を認証（VRQ）</div></div>
+  <div class="compare-row"><div class="compare-label">中立性</div></div>
+  <div class="compare-row"><div class="col-them">紹介手数料・自社製品の利害</div><div class="col-us">売る工事を持たない</div></div>
+  <div class="compare-row"><div class="compare-label">検証可能性</div></div>
+  <div class="compare-row"><div class="col-them">「当社調べ」（外部検証不可）</div><div class="col-us">DOI公開・誰でも検証可能</div></div>
+</div>
+
+<h2>なぜ、この違いがあなたに関係するのか</h2>
+
+<p>見積もりを前にしたとき、あなたが本当に知りたいのは「世間ではいくらで成約しているか」ではないはずです。<strong>「この工事に、この金額は適正か」</strong>――それだけのはずです。</p>
+
+<p>成約額の平均は、その問いに答えられません。なぜなら、平均の中に「払いすぎた人」も含まれているから。あなたが照らし合わせるべきなのは、<strong>取引の結果ではなく、建設費の構造</strong>です。「この工事は、本来どんな項目で、いくらで構成されるのか」――そこに照らして初めて、目の前の数字が高いのか妥当なのかが見えてきます。</p>
+
+<div class="source">
+  <h3>この記事が根拠とする一次ソース</h3>
+  <dl>
+    <dt>データベース</dt>
+    <dd>Japan Construction Cost Database (JCCDB)<br>65,729項目・398カテゴリ（名称・分類・単位／価格は含まない）</dd>
+    <dt>論文</dt>
+    <dd>JCCDB v1.2 — Cryptographic Audit Hash and Macroeconomic Price Correction for Reproducible LLM-Based Construction Cost Diagnostics（Oga, 2026）</dd>
+    <dt>SSRN</dt>
+    <dd><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6738701">abstract_id = 6738701</a></dd>
+    <dt>engrXiv</dt>
+    <dd>DOI: 10.31224/7007</dd>
+    <dt>GitHub</dt>
+    <dd><a href="https://github.com/ogasurfproject-jpg/japan-construction-cost-database">ogasurfproject-jpg/japan-construction-cost-database</a></dd>
+    <dt>著者</dt>
+    <dd>大賀俊勝（ORCID: 0009-0000-9180-903X）／建設30年</dd>
+    <dt>ライセンス</dt>
+    <dd>CC BY 4.0</dd>
+  </dl>
+  <div class="note">本記事の主張は、上記の公開データおよび論文に基づきます。出典はすべてDOI・公開リポジトリで参照・検証できます。特定の企業・サービスを指すものではなく、相場の「根拠の種類」という構造について述べたものです。</div>
+</div>
+
+<div class="close">
+  相場の数字を見たら、一度だけ問うてみてください。<br>
+  <span class="em">「この数字の根拠は、検証できるか?」</span>と。<br>
+  その問いが、情報の格差を、少しだけ埋めます。
+</div>
+
+</article>
+
+<footer>
+  大賀俊勝　/　HORIZON SHIELD<br>
+  <a href="https://shield.the-horizons-innovation.com/presentation.html">shield.the-horizons-innovation.com</a>
+</footer>
+
+</div>
+</body>
+</html>
