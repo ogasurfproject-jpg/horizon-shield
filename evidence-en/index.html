@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Evidence — HORIZON SHIELD</title>
+<meta name="description" content="Verifiable evidence behind HORIZON SHIELD: open dataset, Bitcoin-anchored records, peer-archived papers. Not opinion. Check it yourself.">
+<!-- TOshi: og:image を入れるなら下に追記（LinkedInのBitcoin画像など） -->
+<style>
+  :root{
+    --bg:#0a1a33; --panel:#0e2240; --line:#1c3357; --line2:#27406b;
+    --ink:#e8eef5; --muted:#9fc2e0; --dim:#6f93b8; --accent:#5fd6a8;
+    --mono:"SFMono-Regular",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);
+    font-family:Georgia,"Times New Roman",serif;line-height:1.65;
+    -webkit-font-smoothing:antialiased;padding:0 24px}
+  .wrap{max-width:860px;margin:0 auto;padding:72px 0 96px}
+  .kicker{font-family:var(--mono);font-size:13px;letter-spacing:3px;
+    text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+  h1{font-size:46px;line-height:1.1;font-weight:400;letter-spacing:-0.5px;margin-bottom:22px}
+  .lede{font-size:19px;color:var(--muted);max-width:680px;margin-bottom:14px}
+  .verify-note{font-family:var(--mono);font-size:13px;color:var(--dim);
+    border-left:2px solid var(--line2);padding-left:14px;margin:30px 0 0}
+  .rule{height:1px;background:var(--line);margin:48px 0}
+  section{margin-bottom:14px}
+  .n{font-family:var(--mono);font-size:12px;color:var(--accent);
+    letter-spacing:2px;text-transform:uppercase}
+  h2{font-size:25px;font-weight:400;margin:8px 0 12px;letter-spacing:-0.3px}
+  .body{font-size:17px;color:var(--muted);max-width:700px}
+  .body strong{color:var(--ink);font-weight:400}
+  .card{background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:22px 24px;margin-top:18px}
+  .row{display:flex;justify-content:space-between;align-items:baseline;
+    gap:16px;padding:9px 0;border-bottom:1px solid var(--line);
+    font-family:var(--mono);font-size:14px;flex-wrap:wrap}
+  .row:last-child{border-bottom:none}
+  .row .k{color:var(--dim)}
+  .row .v{color:var(--ink);text-align:right}
+  a.verify{color:var(--accent);text-decoration:none;
+    font-family:var(--mono);font-size:13px;border-bottom:1px solid transparent;
+    transition:border-color .15s}
+  a.verify:hover{border-bottom-color:var(--accent)}
+  a.verify::after{content:" \2197";font-size:11px}
+  .chip{font-family:var(--mono);font-size:12px;color:var(--bg);
+    background:var(--accent);border-radius:4px;padding:2px 7px;white-space:nowrap}
+  .foot{font-family:var(--mono);font-size:13px;color:var(--dim);
+    margin-top:60px;line-height:1.9}
+  .foot a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line2)}
+  @media(max-width:560px){h1{font-size:34px}.row .v{text-align:left}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="kicker">HORIZON SHIELD</p>
+  <h1>The evidence.<br>Not opinion. Verifiable.</h1>
+  <p class="lede">Every claim below links to a source you can open yourself. The data is public. The records are on Bitcoin. The papers are archived where I cannot quietly edit them.</p>
+  <p class="lede">I started as a carpenter at 15. Thirty years on site. Then I taught myself to build AI. I made this so a homeowner does not need those 30 years to know if a price is fair.</p>
+  <p class="lede">The world is unfair, and too comfortable with it. The people who get overcharged are the ones who were never given the means to know. I think a person has the right to know whether their price is fair. So I built the means.</p>
+  <p class="verify-note">Nothing here asks for trust. Open the links. Check the hashes. Re-verify the timestamps. If something does not hold up, it does not belong here.</p>
+
+  <div class="rule"></div>
+
+  <!-- 1. DATASET -->
+  <section>
+    <p class="n">01 / The dataset</p>
+    <h2>An open construction-cost vocabulary</h2>
+    <p class="body">JCCDB v2.0 catalogues <strong>65,729 items across 398 categories</strong>. Item names, categories, and units. <strong>No prices are baked into the schema.</strong> Pricing lives in a separate reference layer, so the open vocabulary cannot be mistaken for a price quote. Published openly under CC&nbsp;BY&nbsp;4.0.</p>
+    <div class="card">
+      <div class="row"><span class="k">Item schema</span><span class="v">65,729 items / 398 categories (no prices)</span></div>
+      <div class="row"><span class="k">Composition</span><span class="v">verified core 11,250 + extended 54,479</span></div>
+      <div class="row"><span class="k">License</span><span class="v">CC BY 4.0 (core) / CC BY-NC 4.0 (extended)</span></div>
+      <div class="row"><span class="k">Repository</span><a class="verify" href="https://github.com/ogasurfproject-jpg/japan-construction-cost-database">verify on GitHub</a></div>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- 2. BITCOIN -->
+  <section>
+    <p class="n">02 / The cryptographic anchor</p>
+    <h2>Records timestamped on Bitcoin</h2>
+    <p class="body">A government office, an industry body, or a university server can quietly edit a record later. Bitcoin cannot. <strong>Not even by me.</strong> The fingerprints below are confirmed in Bitcoin blocks. Anyone can re-verify them at opentimestamps.org.</p>
+    <div class="card">
+      <div class="row"><span class="k">PTKA protocol declaration</span><span class="v">block 949356 &middot; 2026-05-14</span></div>
+      <div class="row"><span class="k">VRQ working paper v1.4</span><span class="v">block 950337 &middot; 2026-05-21</span></div>
+      <div class="row"><span class="k">VRQ working paper v2.2</span><span class="v">block 950372 &middot; 2026-05-21</span></div>
+      <div class="row"><span class="k">VRQ working paper v2.4</span><span class="v">block 950912 &middot; 2026-05-25</span></div>
+      <div class="row"><span class="k">JCCDB Extended (this paper)</span><span class="v">block 951871 &middot; 2026-06-01</span></div>
+      <div class="row"><span class="k">How to check</span><a class="verify" href="https://opentimestamps.org">verify at opentimestamps.org</a></div>
+    </div>
+    <p class="body" style="margin-top:14px;font-size:15px;color:var(--dim)">Each consumer PDF report also carries a per-diagnostic SHA-256 audit hash, so the same input always reproduces the same fingerprint.</p>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- 3. PAPERS -->
+  <section>
+    <p class="n">03 / The academic record</p>
+    <h2>Archived, open, citable</h2>
+    <p class="body">The method is written up and archived in places that issue permanent identifiers. These are preprints. Open to scrutiny, not hidden behind a paywall.</p>
+    <div class="card">
+      <div class="row"><span class="k">JCCDB origin paper</span><a class="verify" href="https://doi.org/10.5281/zenodo.20019573">Zenodo 10.5281/zenodo.20019573</a></div>
+      <div class="row"><span class="k">JCCDB origin (mirror)</span><a class="verify" href="https://engrxiv.org/preprint/view/7007">engrXiv 7007</a></div>
+      <div class="row"><span class="k">Audit-hash &amp; macro-correction</span><a class="verify" href="https://ssrn.com/abstract=6738701">SSRN 6738701</a></div>
+      <div class="row"><span class="k">Phantom-overcharge extension</span><a class="verify" href="https://doi.org/10.5281/zenodo.20370618">Zenodo 10.5281/zenodo.20370618</a></div>
+    </div>
+    <!-- TOshi: VRQ論文(SSRN 6807738)は現在PRELIMINARY_UPLOAD=未公開。DISTRIBUTEDになったらここに1行足す -->
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- 4. FINDINGS -->
+  <section>
+    <p class="n">04 / What the data shows</p>
+    <h2>Findings, stated honestly</h2>
+    <p class="body">These come from a <strong>self-selected sample</strong> of homeowners who already suspected overcharging. They describe what the tool surfaces, not population averages. Said plainly, on purpose.</p>
+    <div class="card">
+      <div class="row"><span class="k">Largest gap, same job</span><span class="v">up to 91% (98 cases, self-selected)</span></div>
+      <div class="row"><span class="k">Phantom overcharge &middot; fixed</span><span class="v">foot-bath &amp; studio-mirror reversed black&rarr;white</span></div>
+      <div class="row"><span class="k">Real concern surfaced instead</span><span class="v">overhead ratios 12.5% / 17.4%</span></div>
+      <div class="row"><span class="k">Free AI diagnostic</span><a class="verify" href="https://shield.the-horizons-innovation.com">live now &middot; HORIZON SHIELD</a></div>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- 5. WHO -->
+  <section>
+    <p class="n">05 / Who built this</p>
+    <h2>A builder, not an institution</h2>
+    <p class="body"><strong>Toshikatsu Oga.</strong> Carpenter at 15 in Osaka, 1993. Site supervisor, then construction manager, then self-taught AI engineer. Thirty years on the tools before a line of this code.</p>
+    <div class="card">
+      <div class="row"><span class="k">ORCID</span><a class="verify" href="https://orcid.org/0009-0000-9180-903X">0009-0000-9180-903X</a></div>
+      <div class="row"><span class="k">Company</span><span class="v">The HORIZ&#38899;s Co., Ltd. &middot; Hiratsuka, Japan</span></div>
+    </div>
+  </section>
+
+  <p class="foot">
+    Last verified 2026-06-01. All links checked live.<br>
+    HORIZON SHIELD &middot; <a href="https://shield.the-horizons-innovation.com">shield.the-horizons-innovation.com</a>
+  </p>
+
+</div>
+</body>
+</html>
