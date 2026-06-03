@@ -1,10 +1,7 @@
 name: Yahoo!リアルタイム監視
 
 on:
-  schedule:
-    - cron: '*/30 * * * *'  # 30分ごと
   workflow_dispatch:         # 手動実行も可能
-
 jobs:
   yahoo-monitor:
     runs-on: ubuntu-latest
