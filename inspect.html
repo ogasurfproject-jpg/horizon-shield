@@ -302,6 +302,27 @@ nav{
 .what-list li.limited{color:var(--muted);font-size:12px}
 .what-list li.limited::before{background:var(--muted)}
 
+/* ===== 提出同意（追記 2026-06-05）===== */
+.ins-consent{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:16px 18px;margin-bottom:20px;
+}
+.ic-head{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--accent);margin-bottom:8px}
+.ic-row{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:9px 0;border-top:1px solid var(--border2);
+  cursor:pointer;font-size:13px;line-height:1.7;color:var(--text);
+}
+.ic-row:first-of-type{border-top:none}
+.ic-row input{width:20px;height:20px;margin-top:1px;flex-shrink:0;accent-color:var(--accent);cursor:pointer}
+.ic-req{color:var(--red);font-size:10px;font-weight:700;margin-left:5px}
+.ic-opt{color:var(--muted);font-size:10px;font-weight:700;margin-left:5px}
+.ic-row i{display:block;color:var(--muted);font-size:11px;font-style:normal;margin-top:2px}
+.ic-note{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.7}
+.ic-note a{color:var(--accent);text-decoration:underline}
+
 .sub-btn{
   width:100%;
   background:var(--accent);border:none;
@@ -582,6 +603,26 @@ nav{
           </ul>
         </div>
 
+        <!-- ===== 提出同意（追記 2026-06-05）===== -->
+        <div class="ins-consent">
+          <div class="ic-head">送信前のご確認</div>
+          <label class="ic-row">
+            <input type="checkbox" id="ic1">
+            <span>個人情報の取扱いに同意します<b class="ic-req">必須</b></span>
+          </label>
+          <label class="ic-row">
+            <input type="checkbox" id="ic2">
+            <span>第三者（事業者）の情報を含む写真・書類を、診断のために提出することに同意します<b class="ic-req">必須</b></span>
+          </label>
+          <label class="ic-row">
+            <input type="checkbox" id="ic3">
+            <span>匿名化のうえ、診断事例として公開されることに同意します<b class="ic-opt">任意</b>
+            <i>オフのままでも診断は受けられます。</i></span>
+          </label>
+          <div class="ic-note">事業者名・金額の内訳は、公開時に必ず伏せます。<a href="/consent/" target="_blank" rel="noopener">詳しい説明</a></div>
+        </div>
+        <!-- ===== 提出同意ここまで ===== -->
+
         <button class="sub-btn" id="sb" onclick="doSubmit()" disabled>
           <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           無料で診断を依頼する →
@@ -664,6 +705,7 @@ nav{
 
 <script>
 var KIRA = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
+var CONSENT_VERSION = '2026-06-05_v1';
 var files = [];
 
 function onDragOver(e){e.preventDefault();document.getElementById('dz').classList.add('drag');}
@@ -694,10 +736,15 @@ function renderPrev(){
 function updateBtn(){
   var n=document.getElementById('fn').value.trim();
   var e=document.getElementById('fe').value.trim();
-  document.getElementById('sb').disabled=!(files.length>0&&n&&e&&e.indexOf('@')>-1);
+  var c1=document.getElementById('ic1').checked;
+  var c2=document.getElementById('ic2').checked;
+  document.getElementById('sb').disabled=!(files.length>0&&n&&e&&e.indexOf('@')>-1&&c1&&c2);
 }
 document.getElementById('fn').addEventListener('input',updateBtn);
 document.getElementById('fe').addEventListener('input',updateBtn);
+document.getElementById('ic1').addEventListener('change',updateBtn);
+document.getElementById('ic2').addEventListener('change',updateBtn);
+document.getElementById('ic3').addEventListener('change',updateBtn);
 
 function setStep(n){
   [1,2,3].forEach(function(i){
@@ -732,7 +779,11 @@ function toB64(file){
   var email=document.getElementById('fe').value.trim();
   var type=document.getElementById('ft').value;
   var note=document.getElementById('fno').value.trim();
-  if(!files.length||!name||!email)return;
+  var piConsent=document.getElementById('ic1').checked;
+  var tpConsent=document.getElementById('ic2').checked;
+  var pubConsent=document.getElementById('ic3').checked;
+  if(!files.length||!name||!email||!piConsent||!tpConsent)return;
+  var consentAt=new Date().toISOString();
   setStep(2);
   document.getElementById('s1').style.display='none';
   document.getElementById('s2').style.display='block';
@@ -780,12 +831,14 @@ function toB64(file){
     kiraText='通信エラーが発生しました（'+(e.message||e)+'）。LINE @172piime から直接お送りください。';
   }
 
-  // ③ 通知＆データ保管（診断結果も一緒にKVへ保存。メール送信は廃止）
+  // ③ 通知＆データ保管（診断結果＋同意ログも一緒にKVへ保存。メール送信は廃止）
   try{
     await fetch(KIRA+'/notify',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        message:'【施工チェック依頼】\n名前：'+name+'\nメール：'+email+'\n種類：'+(type||'未選択')+'\n備考：'+(note||'なし')+'\nファイル数：'+files.length+'件\n\n--- KIRA診断 ---\n'+kiraText,
-        name:name, email:email, type:type||'', result:kiraText, risk:''
+        message:'【施工チェック依頼】\n名前：'+name+'\nメール：'+email+'\n種類：'+(type||'未選択')+'\n備考：'+(note||'なし')+'\nファイル数：'+files.length+'件\n同意：個人情報='+piConsent+' / 第三者書類='+tpConsent+' / 公開='+pubConsent+'（'+CONSENT_VERSION+'）\n\n--- KIRA診断 ---\n'+kiraText,
+        name:name, email:email, type:type||'', result:kiraText, risk:'',
+        consent_version:CONSENT_VERSION, consent_at:consentAt,
+        pi_consent:piConsent, thirdparty_consent:tpConsent, publish_consent:pubConsent
       })});
   }catch(e){}
 
@@ -814,6 +867,9 @@ function resetAll(){
   files=[];
   ['fn','fe','fd','fno'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('ft').value='';
+  document.getElementById('ic1').checked=false;
+  document.getElementById('ic2').checked=false;
+  document.getElementById('ic3').checked=false;
   document.getElementById('pw').style.display='none';
   document.getElementById('pg').innerHTML='';
   document.getElementById('sb').disabled=true;
