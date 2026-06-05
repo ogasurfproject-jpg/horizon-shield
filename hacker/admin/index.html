@@ -39,6 +39,15 @@ body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height
 .gate button:hover{background:var(--blue)}
 .gate .err{color:var(--alert);font-family:var(--mono);font-size:12px;margin-bottom:10px;min-height:16px}
 
+/* タブ */
+.tabbar{display:flex;border:2px solid var(--rule);background:var(--field);margin-bottom:24px}
+.tab{flex:1;font-family:var(--mono);font-size:13px;background:none;border:none;border-right:1px solid var(--rule);padding:14px;cursor:pointer;color:var(--mut);letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px;transition:.12s}
+.tab:last-child{border-right:none}
+.tab:hover{background:var(--paper);color:var(--ink)}
+.tab.on{background:var(--ink);color:var(--paper);font-weight:500}
+.tab .tc{font-size:11px;color:var(--blue)}
+.tab.on .tc{color:#9db4d6}
+
 .head{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--rule);padding-bottom:14px;margin-bottom:4px}
 .head h2{font-size:20px;font-weight:700}
 .head .count{font-family:var(--mono);font-size:13px;color:var(--blue)}
@@ -68,6 +77,20 @@ body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height
 .btn-rej{background:none;border:none;border-left:1px solid var(--rule);font-family:var(--mono);font-size:12px;color:var(--mut);padding:14px 22px;cursor:pointer}
 .btn-rej:hover{color:var(--alert);background:var(--alert-bg)}
 
+/* コメント承認カード */
+.ccand{border:2px solid var(--rule);background:var(--field);margin-bottom:16px}
+.ccand-head{display:flex;align-items:stretch;border-bottom:1px solid var(--rule)}
+.ccand-card{font-family:var(--mono);font-size:10px;color:var(--blue);padding:10px 16px;flex:1;display:flex;align-items:center;letter-spacing:.06em;text-decoration:none}
+.ccand-card:hover{text-decoration:underline}
+.ccand-time{font-family:var(--mono);font-size:10px;color:var(--mut2);padding:10px 16px;border-left:1px solid var(--rule-soft);display:flex;align-items:center}
+.ccand-body{padding:16px 18px;display:flex;gap:13px;align-items:flex-start}
+.ccmt-av{width:38px;height:38px;flex-shrink:0;background:var(--blue-bg);border:1px solid var(--rule);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:14px;color:var(--blue);overflow:hidden}
+.ccmt-av img{width:100%;height:100%;object-fit:cover}
+.ccmt-main{flex:1;min-width:0}
+.ccmt-name{font-size:13.5px;font-weight:600;margin-bottom:3px}
+.ccmt-text{font-size:14px;color:var(--ink2);line-height:1.65;word-break:break-word}
+.ccand-actions{display:flex;gap:0;border-top:2px solid var(--rule)}
+
 .empty{text-align:center;padding:70px 20px;font-family:var(--mono);font-size:13px;color:var(--mut)}
 .empty .big{font-size:15px;color:var(--ink2);margin-bottom:8px}
 .loading{text-align:center;padding:60px;font-family:var(--mono);color:var(--mut)}
@@ -94,15 +117,38 @@ body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height
 </div>
 
 <div id="app" class="wrap" style="display:none">
-  <div class="head">
-    <div>
-      <h2>公開候補の承認</h2>
-      <span class="count" id="count">— 件</span>
-    </div>
-    <button class="refresh" onclick="load()">↻ 再読込</button>
+
+  <div class="tabbar">
+    <button class="tab on" id="tabCards" onclick="switchTab('cards')">カード承認 <span class="tc" id="tcCards">—</span></button>
+    <button class="tab" id="tabCmts" onclick="switchTab('cmts')">コメント承認 <span class="tc" id="tcCmts">—</span></button>
   </div>
-  <div class="warn">公開前に必ず確認：業者名・施主名・電話番号・住所・会社印が文中に残っていないか。残っていれば修正してから公開、判断に迷えば却下。 / <a class="nav-link" href="/hacker/" target="_blank">棚を見る ▸</a></div>
-  <div id="list"><div class="loading">LOADING...</div></div>
+
+  <!-- ===== カード承認(既存) ===== -->
+  <div id="cardView">
+    <div class="head">
+      <div>
+        <h2>公開候補の承認</h2>
+        <span class="count" id="count">— 件</span>
+      </div>
+      <button class="refresh" onclick="load()">↻ 再読込</button>
+    </div>
+    <div class="warn">公開前に必ず確認：業者名・施主名・電話番号・住所・会社印が文中に残っていないか。残っていれば修正してから公開、判断に迷えば却下。 / <a class="nav-link" href="/hacker/" target="_blank">棚を見る ▸</a></div>
+    <div id="list"><div class="loading">LOADING...</div></div>
+  </div>
+
+  <!-- ===== コメント承認(新規) ===== -->
+  <div id="cmtView" style="display:none">
+    <div class="head">
+      <div>
+        <h2>コメントの承認</h2>
+        <span class="count" id="ccount">— 件</span>
+      </div>
+      <button class="refresh" onclick="loadComments()">↻ 再読込</button>
+    </div>
+    <div class="warn">承認するとコメントが棚に公開されます。業者名・個人名・電話番号が書かれていないか確認。迷えば却下（削除）。返信は即時公開なので、問題があれば早めに対応を。</div>
+    <div id="clist"><div class="loading">LOADING...</div></div>
+  </div>
+
 </div>
 
 <div class="toast" id="toast"></div>
@@ -112,7 +158,17 @@ const API='https://hs-kira-proxy.oga-surf-project.workers.dev';
 let PW='';
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function pad(n){return String(n).padStart(3,'0');}
+function ago(t){if(!t)return '';const d=Date.now()-Number(t);const m=Math.floor(d/60000);if(m<1)return 'たった今';if(m<60)return m+'分前';const h=Math.floor(m/60);if(h<24)return h+'時間前';const dy=Math.floor(h/24);if(dy<7)return dy+'日前';return Math.floor(dy/7)+'週間前';}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2800);}
+
+function switchTab(which){
+  const isCards=which==='cards';
+  document.getElementById('tabCards').classList.toggle('on',isCards);
+  document.getElementById('tabCmts').classList.toggle('on',!isCards);
+  document.getElementById('cardView').style.display=isCards?'block':'none';
+  document.getElementById('cmtView').style.display=isCards?'none':'block';
+  if(!isCards) loadComments();
+}
 
 async function auth(){
   const pw=document.getElementById('pw').value.trim();
@@ -124,8 +180,10 @@ async function auth(){
   document.getElementById('gate').style.display='none';
   document.getElementById('app').style.display='block';
   const d=await r.json(); render(d.pending||[]);
+  loadCommentCount();
 }
 
+/* ===== カード承認(既存ロジック・無変更) ===== */
 async function load(){
   document.getElementById('list').innerHTML='<div class="loading">LOADING...</div>';
   try{
@@ -137,6 +195,7 @@ async function load(){
 
 function render(items){
   document.getElementById('count').textContent=pad(items.length)+' 件';
+  document.getElementById('tcCards').textContent=pad(items.length);
   const box=document.getElementById('list');
   if(!items.length){box.innerHTML='<div class="empty"><div class="big">承認待ちはありません</div>施主が見積もりを送ると、ここに自動で候補が溜まります</div>';return;}
   box.innerHTML=items.map(p=>{
@@ -207,7 +266,84 @@ async function reject(id){
 function updateCount(){
   const n=document.querySelectorAll('.cand').length;
   document.getElementById('count').textContent=pad(n)+' 件';
+  document.getElementById('tcCards').textContent=pad(n);
   if(n===0)document.getElementById('list').innerHTML='<div class="empty"><div class="big">承認待ちはありません</div>施主が見積もりを送ると、ここに自動で候補が溜まります</div>';
+}
+
+/* ===== コメント承認(新規) ===== */
+async function loadCommentCount(){
+  try{
+    const r=await fetch(API+'/hacker/comments-pending?key='+encodeURIComponent(PW));
+    if(!r.ok)return;
+    const d=await r.json();
+    document.getElementById('tcCmts').textContent=pad((d.pending||[]).length);
+  }catch(e){}
+}
+
+async function loadComments(){
+  document.getElementById('clist').innerHTML='<div class="loading">LOADING...</div>';
+  try{
+    const r=await fetch(API+'/hacker/comments-pending?key='+encodeURIComponent(PW));
+    if(r.status===401){toast('認証エラー。再ログインしてください');location.reload();return;}
+    const d=await r.json(); renderComments(d.pending||[]);
+  }catch(e){document.getElementById('clist').innerHTML='<div class="empty">読み込みに失敗しました</div>';}
+}
+
+function renderComments(items){
+  document.getElementById('ccount').textContent=pad(items.length)+' 件';
+  document.getElementById('tcCmts').textContent=pad(items.length);
+  const box=document.getElementById('clist');
+  if(!items.length){box.innerHTML='<div class="empty"><div class="big">承認待ちのコメントはありません</div>施主がコメントを書くと、ここに溜まります</div>';return;}
+  box.innerHTML=items.map((cm,i)=>{
+    const ck=cm.comment_key||'';
+    const ini=(cm.name||'?').slice(0,1);
+    const av=cm.picture?`<img src="${esc(cm.picture)}" alt="">`:esc(ini);
+    return `<div class="ccand" id="cc_${i}">
+      <div class="ccand-head">
+        <a class="ccand-card" href="/hacker/#${esc(cm.card_id||'')}" target="_blank">CARD ${esc(cm.card_id||'?')} ▸</a>
+        <span class="ccand-time">${ago(cm.at)}</span>
+      </div>
+      <div class="ccand-body">
+        <div class="ccmt-av">${av}</div>
+        <div class="ccmt-main">
+          <div class="ccmt-name">${esc(cm.name||'施主')}</div>
+          <div class="ccmt-text">${esc(cm.body||'')}</div>
+        </div>
+      </div>
+      <div class="ccand-actions">
+        <button class="btn-pub" onclick="cApprove('${esc(ck)}',${i})">承認して公開 ▸</button>
+        <button class="btn-rej" onclick="cReject('${esc(ck)}',${i})">却下</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function cApprove(ck,i){
+  try{
+    const res=await fetch(API+'/hacker/comment-approve?key='+encodeURIComponent(PW)+'&comment_key='+encodeURIComponent(ck),{method:'POST'});
+    const d=await res.json();
+    if(d.ok){toast('コメントを公開しました');const el=document.getElementById('cc_'+i);if(el)el.remove();cUpdateCount();}
+    else if(res.status===401){toast('認証エラー。再ログインしてください');location.reload();}
+    else{toast(d.error||'承認に失敗しました');}
+  }catch(e){toast('通信エラーが発生しました');}
+}
+
+async function cReject(ck,i){
+  if(!confirm('このコメントを却下（削除）します。よろしいですか？')) return;
+  try{
+    const res=await fetch(API+'/hacker/comment-reject?key='+encodeURIComponent(PW)+'&comment_key='+encodeURIComponent(ck),{method:'POST'});
+    const d=await res.json();
+    if(d.ok){toast('却下しました');const el=document.getElementById('cc_'+i);if(el)el.remove();cUpdateCount();}
+    else if(res.status===401){toast('認証エラー。再ログインしてください');location.reload();}
+    else{toast(d.error||'却下に失敗しました');}
+  }catch(e){toast('通信エラーが発生しました');}
+}
+
+function cUpdateCount(){
+  const n=document.querySelectorAll('.ccand').length;
+  document.getElementById('ccount').textContent=pad(n)+' 件';
+  document.getElementById('tcCmts').textContent=pad(n);
+  if(n===0)document.getElementById('clist').innerHTML='<div class="empty"><div class="big">承認待ちのコメントはありません</div>施主がコメントを書くと、ここに溜まります</div>';
 }
 
 (function(){try{const s=sessionStorage.getItem('ehn_admin_pw');if(s){document.getElementById('pw').value=s;}}catch(e){}})();
