@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>マイページ — 見積もりハッカー | HORIZON SHIELD</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#152038">
+<link rel="apple-touch-icon" href="/hacker/apple-touch-icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=IBM+Plex+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDE8DC;--paper2:#E3DCCB;--field:#F5F1E8;
+  --ink:#1A1C1A;--ink2:#3C3D38;--mut:#6E6C62;--mut2:#9A968A;
+  --rule:#1A1C1A;--rule-soft:#C3BBA8;
+  --blue:#2B4C7E;--blue-bg:#DCE4EE;
+  --alert:#A8331F;--alert-bg:#EFD9D2;
+  --ok:#3F6B4A;--ok-bg:#D9E4D8;
+  --mono:'JetBrains Mono',monospace;--sans:'IBM Plex Sans JP',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height:100vh;overflow-x:hidden;line-height:1.7;-webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(var(--paper2) .5px,transparent .5px),linear-gradient(90deg,var(--paper2) .5px,transparent .5px);background-size:26px 26px;}
+.mono{font-family:var(--mono)}
+.topbar{border-bottom:2px solid var(--rule);background:var(--paper)}
+.topbar-in{max-width:980px;margin:0 auto;padding:0 22px;display:flex;align-items:stretch;justify-content:space-between;min-height:58px}
+.tb-left{display:flex;align-items:center;gap:16px}
+.logo{display:flex;align-items:baseline;gap:9px;text-decoration:none;color:var(--ink)}
+.logo .mk{font-family:var(--mono);font-weight:800;font-size:17px;letter-spacing:.04em}
+.logo .ja{font-size:12px;color:var(--mut);letter-spacing:.08em}
+.tb-code{font-family:var(--mono);font-size:11px;color:var(--mut2);align-self:center;border-left:1px solid var(--rule-soft);padding-left:16px}
+.tb-right{display:flex;align-items:center}
+.tb-back{font-family:var(--mono);font-size:12px;color:var(--mut);text-decoration:none;padding:0 16px;align-self:center;border-left:1px solid var(--rule-soft)}
+.tb-back:hover{color:var(--ink)}
+.tb-logout{font-family:var(--mono);font-size:11px;color:var(--mut);background:none;border:none;cursor:pointer;border-left:1px solid var(--rule-soft);padding:0 16px;align-self:stretch}
+.tb-logout:hover{color:var(--alert)}
+.wrap{max-width:980px;margin:0 auto;padding:0 22px}
+/* profile head */
+.prof{display:flex;align-items:center;gap:18px;padding:34px 0 28px;border-bottom:2px solid var(--rule)}
+.prof-av{width:64px;height:64px;border:2px solid var(--rule);border-radius:50%;overflow:hidden;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:24px;color:var(--blue);flex-shrink:0}
+.prof-av img{width:100%;height:100%;object-fit:cover}
+.prof-meta .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:var(--blue);margin-bottom:6px}
+.prof-name{font-size:24px;font-weight:700;line-height:1.2}
+.prof-sub{font-family:var(--mono);font-size:12px;color:var(--mut);margin-top:4px}
+/* stat row */
+.stats{display:flex;border:2px solid var(--rule);margin:26px 0;background:var(--field)}
+.stat{flex:1;padding:16px 20px;border-right:1px solid var(--rule-soft)}
+.stat:last-child{border-right:none}
+.stat-k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--mut2);margin-bottom:5px}
+.stat-v{font-family:var(--mono);font-size:28px;font-weight:800;line-height:1}
+.stat-v.pending{color:var(--alert)}
+.stat-v.published{color:var(--ok)}
+/* section */
+.sec{padding:14px 0 30px}
+.sec-h{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--ink);border-bottom:1px solid var(--rule);padding-bottom:8px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
+.sec-h .badge{font-family:var(--mono);font-size:10px;padding:3px 10px;letter-spacing:.08em}
+.badge.p{background:var(--alert-bg);color:var(--alert)}
+.badge.o{background:var(--ok-bg);color:var(--ok)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.mc{border:2px solid var(--rule);background:var(--field);display:flex;flex-direction:column}
+.mc-head{display:flex;align-items:stretch;border-bottom:1px solid var(--rule)}
+.mc-genre{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--blue);padding:8px 12px;flex:1;display:flex;align-items:center}
+.mc-status{font-family:var(--mono);font-size:9px;letter-spacing:.06em;padding:8px 12px;border-left:1px solid var(--rule-soft);display:flex;align-items:center;font-weight:700}
+.mc-status.pending{background:var(--alert-bg);color:var(--alert)}
+.mc-status.published{background:var(--ok-bg);color:var(--ok)}
+.mc-body{padding:15px 16px;flex:1;display:flex;flex-direction:column}
+.mc-title{font-size:17px;font-weight:700;line-height:1.35;margin-bottom:10px}
+.mc-amt{font-family:var(--mono);font-size:15px;font-weight:800;color:var(--blue);margin-bottom:12px}
+.mc-amt.none{font-size:10px;font-weight:400;color:var(--mut2);letter-spacing:.06em}
+.mc-traits{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;flex:1}
+.mc-trait{font-size:11.5px;color:var(--ink2);display:flex;gap:6px;line-height:1.5}
+.mc-trait::before{content:'';width:4px;height:4px;background:var(--alert);flex-shrink:0;margin-top:6px}
+.mc-foot{display:flex;align-items:center;border-top:1px solid var(--rule);font-family:var(--mono);font-size:10.5px;color:var(--mut)}
+.mc-flag{padding:8px 12px;color:var(--alert);font-weight:700}
+.mc-date{padding:8px 12px;border-left:1px solid var(--rule-soft);margin-left:auto}
+.empty{border:2px dashed var(--rule-soft);background:var(--field);padding:36px 20px;text-align:center;font-family:var(--mono);font-size:12.5px;color:var(--mut2);line-height:1.8}
+.empty a{color:var(--blue);text-decoration:underline}
+/* login gate */
+.gate{text-align:center;padding:64px 24px;border:2px solid var(--rule);background:var(--field);margin:40px 0}
+.gate-ic{width:54px;height:54px;margin:0 auto 20px;border:2px solid var(--rule);display:flex;align-items:center;justify-content:center;color:var(--blue)}
+.gate h2{font-size:20px;font-weight:700;margin-bottom:10px}
+.gate p{font-size:13.5px;color:var(--ink2);line-height:1.8;margin-bottom:26px;max-width:420px;margin-left:auto;margin-right:auto}
+.gate-btns{display:flex;flex-direction:column;gap:10px;max-width:300px;margin:0 auto}
+.gate-btn{font-family:var(--mono);font-size:13px;font-weight:500;border:none;cursor:pointer;padding:14px 22px;display:flex;align-items:center;justify-content:center;gap:9px;text-decoration:none;transition:.14s;color:#fff}
+.gate-btn.line{background:#06C755}.gate-btn.google{background:#4285F4}
+.gate-btn:hover{filter:brightness(1.07)}
+.gate-btn .dot{width:7px;height:7px;background:#fff;border-radius:50%}
+.cta-new{display:block;margin:6px 0 40px;padding:16px;background:var(--ink);color:var(--paper);text-decoration:none;text-align:center;font-family:var(--mono);font-size:13px;font-weight:500;transition:.14s}
+.cta-new:hover{background:var(--blue)}
+.loading{text-align:center;padding:60px;font-family:var(--mono);font-size:13px;color:var(--mut)}
+footer{border-top:2px solid var(--rule);background:var(--paper);padding:28px 22px 44px;margin-top:30px}
+.foot-in{max-width:980px;margin:0 auto;font-family:var(--mono);font-size:11.5px;color:var(--mut);line-height:2}
+.foot-in a{color:var(--ink2)}
+.toast{position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:13px;padding:15px 22px;transform:translateY(100%);transition:.3s;text-align:center}
+.toast.on{transform:translateY(0)}
+.hide{display:none!important}
+@media(max-width:680px){.stats{flex-direction:column}.stat{border-right:none;border-bottom:1px solid var(--rule-soft)}.stat:last-child{border-bottom:none}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="tb-left">
+      <a class="logo" href="/hacker/"><span class="mk">EHN</span><span class="ja">見積もりハッカー</span></a>
+      <span class="tb-code">MY PAGE / マイページ</span>
+    </div>
+    <div class="tb-right" id="tbRight">
+      <a class="tb-back" href="/hacker/">← 一覧へ戻る</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- 未ログイン -->
+  <div id="gate" class="gate hide">
+    <div class="gate-ic"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+    <h2>マイページにはログインが必要です</h2>
+    <p>あなたが投稿した見積もりと、その掲載状況を確認できます。</p>
+    <div class="gate-btns">
+      <button class="gate-btn line" onclick="login()"><span class="dot"></span>LINEでログイン</button>
+      <button class="gate-btn google" onclick="loginGoogle()"><span class="dot"></span>Googleでログイン</button>
+    </div>
+  </div>
+
+  <!-- ログイン済み -->
+  <div id="app" class="hide">
+    <div class="prof">
+      <div class="prof-av" id="profAv"></div>
+      <div class="prof-meta">
+        <div class="eyebrow">YOUR SUBMISSIONS</div>
+        <div class="prof-name" id="profName">—</div>
+        <div class="prof-sub">投稿した見積もりの一覧と掲載状況</div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-k">TOTAL / 投稿総数</div><div class="stat-v" id="stTotal">—</div></div>
+      <div class="stat"><div class="stat-k">PENDING / 承認待ち</div><div class="stat-v pending" id="stPending">—</div></div>
+      <div class="stat"><div class="stat-k">PUBLISHED / 公開中</div><div class="stat-v published" id="stPub">—</div></div>
+    </div>
+
+    <a class="cta-new" href="/hacker/submit/">＋ 新しい見積もりを投稿する</a>
+
+    <div id="loading" class="loading">読み込み中...</div>
+
+    <div id="content" class="hide">
+      <div class="sec">
+        <div class="sec-h"><span>承認待ち</span><span class="badge p" id="cntPending">0</span></div>
+        <div class="grid" id="gridPending"></div>
+      </div>
+      <div class="sec">
+        <div class="sec-h"><span>公開中</span><span class="badge o" id="cntPub">0</span></div>
+        <div class="grid" id="gridPub"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer><div class="foot-in"><a href="https://shield.the-horizons-innovation.com">HORIZON SHIELD</a> / 大賀俊勝（建設実務30年）監修 / © 2026 The HORIZ音s株式会社</div></footer>
+<div class="toast" id="toast"></div>
+
+<script>
+const API='https://hs-kira-proxy.oga-surf-project.workers.dev';
+let TOKEN=null,USER=null;
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function pad(n){return String(n).padStart(3,'0');}
+function yen(a){if(a===''||a==null)return '';const n=Number(String(a).replace(/[^0-9]/g,''));if(!n)return '';return '\u00a5'+n.toLocaleString('ja-JP');}
+function fmtDate(t){if(!t)return '';const d=new Date(Number(t));return `${d.getFullYear()}.${pad(d.getMonth()+1).slice(1)}.${pad(d.getDate()).slice(1)}`;}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2800);}
+
+function loadSession(){
+  try{TOKEN=localStorage.getItem('ehn_token');const u=localStorage.getItem('ehn_user');USER=u?JSON.parse(u):null;}catch(e){}
+  if(TOKEN&&USER){
+    document.getElementById('gate').classList.add('hide');
+    document.getElementById('app').classList.remove('hide');
+    renderProfile();fetchMyCards();
+  }else{
+    document.getElementById('gate').classList.remove('hide');
+    document.getElementById('app').classList.add('hide');
+  }
+}
+function renderProfile(){
+  const el=document.getElementById('tbRight');
+  el.innerHTML=`<a class="tb-back" href="/hacker/">← 一覧</a><button class="tb-logout" onclick="logout()">LOGOUT</button>`;
+  document.getElementById('profName').textContent=USER.display_name||'施主';
+  const av=document.getElementById('profAv');
+  if(USER.picture_url){av.innerHTML=`<img src="${esc(USER.picture_url)}" alt="">`;}
+  else{av.textContent=(USER.display_name||'?').slice(0,1);}
+}
+async function login(){try{const r=await fetch(API+'/auth/line-login-start',{method:'POST'});const d=await r.json();if(d.login_url)location.href=d.login_url;else toast('ログインを開始できませんでした');}catch(e){toast('通信エラー');}}
+async function loginGoogle(){try{const r=await fetch(API+'/auth/google-login-start',{method:'POST'});const d=await r.json();if(d.login_url)location.href=d.login_url;else toast('ログインを開始できませんでした');}catch(e){toast('通信エラー');}}
+function logout(){try{localStorage.removeItem('ehn_token');localStorage.removeItem('ehn_user');}catch(e){}TOKEN=null;USER=null;loadSession();toast('ログアウトしました');}
+
+async function fetchMyCards(){
+  try{
+    const r=await fetch(API+'/hacker/my-cards',{headers:{'Authorization':'Bearer '+TOKEN}});
+    if(r.status===401){toast('ログインの有効期限が切れました');setTimeout(()=>logout(),1500);return;}
+    const d=await r.json();
+    if(!d.ok){document.getElementById('loading').textContent='読み込みに失敗しました';return;}
+    renderCards(d.pending||[],d.published||[]);
+  }catch(e){document.getElementById('loading').textContent='通信エラーが発生しました';}
+}
+function cardHtml(c,status){
+  const amt=yen(c.amount)?`<div class="mc-amt">${yen(c.amount)}</div>`:`<div class="mc-amt none">金額 — 非公開</div>`;
+  const traits=(c.traits||[]).slice(0,3).map(t=>`<div class="mc-trait">${esc(t)}</div>`).join('');
+  const stCls=status==='pending'?'pending':'published';
+  const stTx=status==='pending'?'承認待ち':'公開中';
+  return `<div class="mc">
+    <div class="mc-head"><span class="mc-genre">${esc(c.genre||'その他')}</span><span class="mc-status ${stCls}">${stTx}</span></div>
+    <div class="mc-body">
+      <div class="mc-title">${esc(c.title||'見積もり')}</div>
+      ${amt}
+      <div class="mc-traits">${traits}</div>
+    </div>
+    <div class="mc-foot"><span class="mc-flag">赤旗 ${pad(c.red_flags||0)}</span><span class="mc-date">${fmtDate(c.created_at)}</span></div>
+  </div>`;
+}
+function renderCards(pending,published){
+  document.getElementById('loading').classList.add('hide');
+  document.getElementById('content').classList.remove('hide');
+  document.getElementById('stTotal').textContent=pad(pending.length+published.length);
+  document.getElementById('stPending').textContent=pad(pending.length);
+  document.getElementById('stPub').textContent=pad(published.length);
+  document.getElementById('cntPending').textContent=pending.length;
+  document.getElementById('cntPub').textContent=published.length;
+  const gp=document.getElementById('gridPending'),go=document.getElementById('gridPub');
+  gp.innerHTML=pending.length?pending.map(c=>cardHtml(c,'pending')).join(''):'<div class="empty" style="grid-column:1/-1">// 承認待ちの投稿はありません</div>';
+  go.innerHTML=published.length?published.map(c=>cardHtml(c,'published')).join(''):'<div class="empty" style="grid-column:1/-1">// 公開中の投稿はまだありません。<a href="/hacker/submit/">見積もりを投稿する</a></div>';
+}
+loadSession();
+</script>
+</body>
+</html>
