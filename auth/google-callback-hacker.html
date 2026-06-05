@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ログイン中 | 見積もりハッカー</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Noto Sans JP',sans-serif;
+  background:linear-gradient(135deg,#0f1729 0%,#111c38 100%);
+  color:#fff;min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+}
+.card{
+  max-width:440px;width:100%;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(212,175,55,.25);
+  border-radius:20px;padding:40px 28px;text-align:center;
+  backdrop-filter:blur(8px);
+}
+.logo{
+  font-size:10px;letter-spacing:5px;color:#d4af37;font-weight:700;
+  margin-bottom:8px;
+}
+.title{font-size:18px;font-weight:900;margin-bottom:4px;line-height:1.4}
+.subtitle{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:32px}
+.spinner{
+  width:48px;height:48px;margin:0 auto 20px;
+  border:3px solid rgba(212,175,55,.2);
+  border-top-color:#d4af37;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.status{
+  font-size:14px;color:#d4af37;font-weight:700;margin-bottom:8px;
+  line-height:1.6;
+}
+.detail{font-size:12px;color:rgba(255,255,255,.5);line-height:1.7}
+.error-icon{font-size:48px;margin-bottom:12px}
+.btn-line{
+  display:inline-block;margin-top:18px;
+  padding:12px 24px;background:#06c755;color:#fff;
+  text-decoration:none;border-radius:10px;
+  font-weight:700;font-size:14px;
+}
+.btn-line:hover{opacity:.9}
+.btn-retry{
+  display:block;margin-top:10px;
+  padding:10px;background:transparent;color:#d4af37;
+  border:1px solid #d4af37;border-radius:10px;
+  font-size:13px;cursor:pointer;
+  font-family:'Noto Sans JP',sans-serif;
+  width:100%;
+}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">見積もりハッカー</div>
+  <div class="title">🛡 ログイン中</div>
+  <div class="subtitle">Google認証の結果を確認しています</div>
+
+  <div id="loadingView">
+    <div class="spinner"></div>
+    <div class="status" id="statusText">認証情報を確認中...</div>
+    <div class="detail">このまましばらくお待ちください<br>自動的にトップへ移動します</div>
+  </div>
+
+  <div id="errorView" class="hidden">
+    <div class="error-icon">⚠️</div>
+    <div class="status" id="errorTitle">ログインエラー</div>
+    <div class="detail" id="errorDetail">
+      ログイン処理に失敗しました。<br>
+      お手数ですがもう一度お試しください。
+    </div>
+    <a href="https://line.me/R/ti/p/@172piime" target="_blank" rel="noopener" class="btn-line">
+      💬 LINEで問い合わせる
+    </a>
+    <button type="button" class="btn-retry" onclick="location.href='/hacker/'">
+      見積もりハッカーに戻る
+    </button>
+  </div>
+</div>
+
+<script>
+const VERIFY_URL = 'https://hs-kira-proxy.oga-surf-project.workers.dev/auth/google-login-verify';
+const HOME_URL   = '/hacker/';
+
+async function handleCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  const state = params.get('state');
+  const error = params.get('error');
+  const errorDesc = params.get('error_description');
+
+  if (error) {
+    showError(
+      'Googleログインがキャンセルされました',
+      (errorDesc || '認証が中断されました') + '<br>もう一度お試しいただけます。'
+    );
+    return;
+  }
+
+  if (!code || !state) {
+    showError(
+      '認証情報が不足しています',
+      'URLに必要なパラメータが含まれていません。最初からやり直してください。'
+    );
+    return;
+  }
+
+  try {
+    updateStatus('ログインを確定しています...');
+
+    const res = await fetch(VERIFY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, state }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error('HTTP ' + res.status + ': ' + text.slice(0, 200));
+    }
+
+    const data = await res.json();
+
+    if (data.ok && data.token) {
+      try {
+        localStorage.setItem('ehn_token', data.token);
+        if (data.user) {
+          localStorage.setItem('ehn_user', JSON.stringify(data.user));
+        }
+      } catch (e) {}
+      updateStatus('✅ ログイン成功。移動します...');
+      setTimeout(function(){ window.location.href = HOME_URL; }, 700);
+      return;
+    }
+
+    throw new Error('トークンの取得に失敗しました');
+
+  } catch (err) {
+    console.error('Login callback error:', err);
+    showError(
+      'ログインに失敗しました',
+      '一時的なエラーの可能性があります。<br>もう一度お試しいただくか、LINEでお問い合わせください。'
+    );
+  }
+}
+
+function updateStatus(text) {
+  document.getElementById('statusText').textContent = text;
+}
+
+function showError(title, detail) {
+  document.getElementById('loadingView').classList.add('hidden');
+  document.getElementById('errorView').classList.remove('hidden');
+  document.getElementById('errorTitle').textContent = title;
+  document.getElementById('errorDetail').innerHTML = detail;
+}
+
+handleCallback();
+</script>
+
+</body>
+</html>
