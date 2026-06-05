@@ -257,6 +257,16 @@ footer a{color:var(--blue);text-decoration:none}footer a:hover{text-decoration:u
   .ehn{--mx:3px;--my:2px;filter:none}
 }
 </style>
+
+<style id="safe-visible">
+/* 表示優先：演出で隠れるのを防ぐフォールバック */
+.rise{opacity:1 !important;transform:none !important}
+.rule{transform:scaleX(1) !important}
+.bar .fl{width:var(--w) !important}
+.stamp{opacity:.92 !important;transform:rotate(-4deg) !important}
+.ehn{--mx:3px;--my:2px;filter:none !important}
+.misreg::before,.misreg::after{opacity:1}
+</style>
 </head>
 <body>
 
@@ -480,5 +490,19 @@ footer a{color:var(--blue);text-decoration:none}footer a:hover{text-decoration:u
 })();
 </script>
 
+
+<script>
+/* 保険：読み込み完了時に全演出要素を強制表示（オブザーバが不発でも白画面にしない） */
+(function(){
+  function showAll(){
+    document.querySelectorAll('[data-reveal],.rise,.rule,.stamp').forEach(function(el){el.classList.add('show');});
+    document.body.classList.add('loaded');
+  }
+  if(document.readyState==='complete'||document.readyState==='interactive'){showAll();}
+  document.addEventListener('DOMContentLoaded',showAll);
+  window.addEventListener('load',showAll);
+  setTimeout(showAll,400);
+})();
+</script>
 </body>
 </html>
