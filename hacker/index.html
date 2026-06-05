@@ -231,7 +231,7 @@ function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
 function pad(n){return String(n).padStart(3,'0');}
 function yen(a){if(a===''||a==null)return '';const n=Number(String(a).replace(/[^0-9]/g,''));if(!n)return '';return '\u00a5'+n.toLocaleString('ja-JP');}
 function ago(t){if(!t)return '';const d=Date.now()-Number(t);const m=Math.floor(d/60000);if(m<1)return 'たった今';if(m<60)return m+'分前';const h=Math.floor(m/60);if(h<24)return h+'時間前';const dy=Math.floor(h/24);if(dy<7)return dy+'日前';return Math.floor(dy/7)+'週間前';}
-const KAI_URL='https://line.me/ti/g2/REPLACE_ME';
+const KAI_URL='https://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ?utm_source=invitation&utm_medium=link_copy&utm_campaign=default';
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2800);}
 
 function loadSession(){try{TOKEN=localStorage.getItem('ehn_token');const u=localStorage.getItem('ehn_user');USER=u?JSON.parse(u):null;}catch(e){}renderTop();}
