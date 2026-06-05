@@ -116,7 +116,16 @@ body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height
 .pv-verdict{background:var(--alert-bg);border-left:3px solid var(--alert);padding:12px 15px;margin-top:16px;font-size:13.5px;color:#7a2616;line-height:1.6}
 .pv-flags{font-family:var(--mono);font-size:12px;color:var(--alert);font-weight:700;margin-top:14px;letter-spacing:.04em}
 .edit-tip{font-family:var(--mono);font-size:10.5px;color:var(--mut2);margin-top:6px;letter-spacing:.03em}
-.pv-actions{display:flex;gap:12px;margin-top:24px}
+.consent{border:2px solid var(--rule);background:var(--paper);padding:18px 20px;margin-top:24px}
+.consent-h{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--ink);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.consent-h .req{font-size:10px;color:var(--alert);letter-spacing:.04em}
+.ck{display:flex;gap:11px;padding:9px 0;cursor:pointer;align-items:flex-start}
+.ck input{width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:var(--blue);cursor:pointer}
+.ck span{font-size:13px;line-height:1.6;color:var(--ink2)}
+.ck span b{color:var(--ink);font-weight:600}
+.consent-terms{font-family:var(--mono);font-size:10.5px;color:var(--mut2);margin-top:12px;padding-top:12px;border-top:1px solid var(--rule-soft);line-height:1.7}
+.consent-terms a{color:var(--blue);text-decoration:underline}
+.pv-actions{display:flex;gap:12px;margin-top:18px}
 .pv-actions .btn-primary{flex:1}
 /* login gate */
 .gate{text-align:center;padding:64px 24px;border:2px solid var(--rule);background:var(--field);margin:40px 0}
@@ -260,9 +269,16 @@ footer{border-top:2px solid var(--rule);background:var(--paper);padding:28px 22p
       <div class="sec-h"><span>CONFIRM — 掲載内容の確認</span><span class="n">03</span></div>
       <div class="pv-note">// KIRAはこう読み取りました。このまま掲載候補に出します。気になる表現があれば、懸念点はその場で編集できます。<b>業者名・社名・電話番号は書かないでください</b>(自動チェックが弾きます)。</div>
       <div class="pv-card" id="pvCard"></div>
+      <div class="consent">
+        <div class="consent-h"><span>投稿前の確認</span><span class="req">すべて必須</span></div>
+        <label class="ck"><input type="checkbox" id="ck1" onchange="updateConsent()"><span>この見積書は、<b>私が実際に受け取ったもの</b>です。第三者が作成・所有する見積書を無断で投稿していません。</span></label>
+        <label class="ck"><input type="checkbox" id="ck2" onchange="updateConsent()"><span><b>業者名・担当者名・電話番号・住所</b>など、業者や個人を特定できる情報が残っていないか確認しました。</span></label>
+        <label class="ck"><input type="checkbox" id="ck3" onchange="updateConsent()"><span>この内容が<b>匿名化されて公開</b>され、他の施主の判断材料として利用されることに同意します。</span></label>
+        <div class="consent-terms">// 投稿された内容は運営が確認のうえ掲載し、業者名・金額の内訳は伏せられます。詳しくは<a href="/hacker/terms/" target="_blank">投稿に関する利用規約</a>をご確認ください。</div>
+      </div>
       <div class="pv-actions">
         <button class="btn-ghost" onclick="backToUpload()">← やり直す</button>
-        <button class="btn-primary" id="submitBtn" onclick="submitCard()">
+        <button class="btn-primary" id="submitBtn" onclick="submitCard()" disabled>
           <span>この内容で投稿する</span>
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
@@ -425,12 +441,22 @@ function renderPreview(){
       ${c.verdict?`<div class="pv-verdict">${esc(c.verdict)}</div>`:''}
       <div class="pv-flags">赤旗 ${pad(c.red_flags||0)}</div>
     </div>`;
+  // プレビュー再表示のたびに同意チェックをリセット
+  ['ck1','ck2','ck3'].forEach(id=>{const e=document.getElementById(id);if(e)e.checked=false;});
+  updateConsent();
 }
 function editTrait(i,v){if(CARD&&CARD.traits)CARD.traits[i]=v;}
+function updateConsent(){
+  const all=['ck1','ck2','ck3'].every(id=>{const e=document.getElementById(id);return e&&e.checked;});
+  const btn=document.getElementById('submitBtn');
+  if(btn)btn.disabled=!all;
+}
 
 /* ===== 投稿 ===== */
 async function submitCard(){
   if(!CARD){toast('解剖結果がありません');return;}
+  const agreed=['ck1','ck2','ck3'].every(id=>{const e=document.getElementById(id);return e&&e.checked;});
+  if(!agreed){toast('投稿前の確認にすべてチェックしてください');return;}
   const btn=document.getElementById('submitBtn');
   btn.disabled=true;btn.querySelector('span').textContent='送信中...';
   // 空traitを除去
@@ -440,7 +466,7 @@ async function submitCard(){
     const r=await fetch(API+'/hacker/submit-card',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
-      body:JSON.stringify({card:CARD})
+      body:JSON.stringify({card:CARD,agreed:true})
     });
     const d=await r.json();
     if(d.ok){showStep('stepDone');}
