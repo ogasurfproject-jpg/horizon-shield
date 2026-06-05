@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>承認 — 見積もりハッカー管理 | EHN</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=IBM+Plex+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDE8DC;--paper2:#E3DCCB;--field:#F5F1E8;
+  --ink:#1A1C1A;--ink2:#3C3D38;--mut:#6E6C62;--mut2:#9A968A;
+  --rule:#1A1C1A;--rule-soft:#C3BBA8;
+  --blue:#2B4C7E;--blue-bg:#DCE4EE;
+  --alert:#A8331F;--alert-bg:#EFD9D2;
+  --ok:#3F6B4A;--ok-bg:#D9E4D8;
+  --mono:'JetBrains Mono',monospace;--sans:'IBM Plex Sans JP',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height:100vh;line-height:1.7;-webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(var(--paper2) .5px,transparent .5px),linear-gradient(90deg,var(--paper2) .5px,transparent .5px);background-size:26px 26px;}
+.mono{font-family:var(--mono)}
+.topbar{border-bottom:2px solid var(--rule);background:var(--paper)}
+.topbar-in{max-width:980px;margin:0 auto;padding:16px 22px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:baseline;gap:9px}
+.logo .mk{font-family:var(--mono);font-weight:800;font-size:16px}
+.logo .ja{font-size:12px;color:var(--mut)}
+.badge{font-family:var(--mono);font-size:11px;color:var(--alert);border:1px solid var(--alert);padding:3px 9px;letter-spacing:.1em}
+.wrap{max-width:980px;margin:0 auto;padding:28px 22px 80px}
+
+.gate{max-width:380px;margin:80px auto;border:2px solid var(--rule);background:var(--field);padding:30px}
+.gate h1{font-family:var(--mono);font-size:15px;letter-spacing:.1em;margin-bottom:6px}
+.gate p{font-size:12px;color:var(--mut);margin-bottom:20px}
+.gate input{width:100%;background:var(--paper);border:1px solid var(--rule);padding:12px 14px;font-family:var(--mono);font-size:14px;color:var(--ink);outline:none;margin-bottom:12px}
+.gate input:focus{border-color:var(--blue);box-shadow:inset 0 0 0 1px var(--blue)}
+.gate button{width:100%;background:var(--ink);color:var(--paper);border:none;font-family:var(--mono);font-size:13px;padding:12px;cursor:pointer;letter-spacing:.05em}
+.gate button:hover{background:var(--blue)}
+.gate .err{color:var(--alert);font-family:var(--mono);font-size:12px;margin-bottom:10px;min-height:16px}
+
+.head{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--rule);padding-bottom:14px;margin-bottom:4px}
+.head h2{font-size:20px;font-weight:700}
+.head .count{font-family:var(--mono);font-size:13px;color:var(--blue)}
+.refresh{font-family:var(--mono);font-size:11px;background:none;border:1px solid var(--rule);padding:7px 14px;cursor:pointer;color:var(--ink)}
+.refresh:hover{background:var(--field)}
+
+.warn{background:var(--alert-bg);border-left:3px solid var(--alert);padding:11px 14px;font-size:12.5px;color:#7a2616;margin:16px 0;line-height:1.6}
+
+.cand{border:2px solid var(--rule);background:var(--field);margin-bottom:18px}
+.cand-head{display:flex;align-items:stretch;border-bottom:1px solid var(--rule)}
+.cand-genre{font-family:var(--mono);font-size:11px;color:var(--blue);padding:11px 16px;border-right:1px solid var(--rule);letter-spacing:.08em;display:flex;align-items:center}
+.cand-id{font-family:var(--mono);font-size:10px;color:var(--mut2);padding:11px 16px;flex:1;display:flex;align-items:center}
+.cand-flag{font-family:var(--mono);font-size:12px;font-weight:700;padding:11px 16px;border-left:1px solid var(--rule);display:flex;align-items:center}
+.cand-flag.hi{background:var(--alert-bg);color:var(--alert)}
+.cand-flag.ok{background:var(--ok-bg);color:var(--ok)}
+.cand-body{padding:18px}
+.field{display:grid;grid-template-columns:90px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule-soft);align-items:start}
+.field-k{font-family:var(--mono);font-size:10px;color:var(--mut2);letter-spacing:.1em;padding-top:8px}
+.field-v input,.field-v textarea{width:100%;background:var(--paper);border:1px solid var(--rule-soft);padding:8px 10px;font-family:var(--sans);font-size:13.5px;color:var(--ink);outline:none}
+.field-v input:focus,.field-v textarea:focus{border-color:var(--blue)}
+.field-v textarea{resize:vertical;min-height:40px}
+.traits-edit textarea{min-height:64px}
+.poster{font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:4px}
+.cand-actions{display:flex;gap:0;border-top:2px solid var(--rule)}
+.btn-pub{flex:1;background:var(--ink);color:var(--paper);border:none;font-family:var(--mono);font-size:13px;font-weight:500;padding:14px;cursor:pointer;letter-spacing:.05em;transition:.14s}
+.btn-pub:hover{background:var(--ok)}
+.btn-rej{background:none;border:none;border-left:1px solid var(--rule);font-family:var(--mono);font-size:12px;color:var(--mut);padding:14px 22px;cursor:pointer}
+.btn-rej:hover{color:var(--alert);background:var(--alert-bg)}
+
+.empty{text-align:center;padding:70px 20px;font-family:var(--mono);font-size:13px;color:var(--mut)}
+.empty .big{font-size:15px;color:var(--ink2);margin-bottom:8px}
+.loading{text-align:center;padding:60px;font-family:var(--mono);color:var(--mut)}
+.toast{position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:13px;padding:15px 22px;transform:translateY(100%);transition:.3s;text-align:center}
+.toast.on{transform:translateY(0)}
+.nav-link{font-family:var(--mono);font-size:11px;color:var(--blue);text-decoration:none;border-bottom:1px solid var(--blue)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="logo"><span class="mk">EHN</span><span class="ja">承認コンソール</span></div>
+    <span class="badge">ADMIN ONLY</span>
+  </div>
+</div>
+
+<div id="gate" class="gate">
+  <h1>ADMIN / 認証</h1>
+  <p>管理パスワードを入力してください</p>
+  <div class="err" id="gateErr"></div>
+  <input type="password" id="pw" placeholder="ADMIN_PASSWORD" onkeydown="if(event.key==='Enter')auth()">
+  <button onclick="auth()">認証 ▸</button>
+</div>
+
+<div id="app" class="wrap" style="display:none">
+  <div class="head">
+    <div>
+      <h2>公開候補の承認</h2>
+      <span class="count" id="count">— 件</span>
+    </div>
+    <button class="refresh" onclick="load()">↻ 再読込</button>
+  </div>
+  <div class="warn">公開前に必ず確認：業者名・施主名・電話番号・住所・会社印が文中に残っていないか。残っていれば修正してから公開、判断に迷えば却下。 / <a class="nav-link" href="/hacker/" target="_blank">棚を見る ▸</a></div>
+  <div id="list"><div class="loading">LOADING...</div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API='https://hs-kira-proxy.oga-surf-project.workers.dev';
+let PW='';
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function pad(n){return String(n).padStart(3,'0');}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2800);}
+
+async function auth(){
+  const pw=document.getElementById('pw').value.trim();
+  if(!pw){document.getElementById('gateErr').textContent='パスワードを入力してください';return;}
+  PW=pw;
+  const r=await fetch(API+'/hacker/pending?key='+encodeURIComponent(PW));
+  if(r.status===401){document.getElementById('gateErr').textContent='パスワードが違います';PW='';return;}
+  try{sessionStorage.setItem('ehn_admin_pw',PW);}catch(e){}
+  document.getElementById('gate').style.display='none';
+  document.getElementById('app').style.display='block';
+  const d=await r.json(); render(d.pending||[]);
+}
+
+async function load(){
+  document.getElementById('list').innerHTML='<div class="loading">LOADING...</div>';
+  try{
+    const r=await fetch(API+'/hacker/pending?key='+encodeURIComponent(PW));
+    if(r.status===401){toast('認証エラー。再ログインしてください');location.reload();return;}
+    const d=await r.json(); render(d.pending||[]);
+  }catch(e){document.getElementById('list').innerHTML='<div class="empty">読み込みに失敗しました</div>';}
+}
+
+function render(items){
+  document.getElementById('count').textContent=pad(items.length)+' 件';
+  const box=document.getElementById('list');
+  if(!items.length){box.innerHTML='<div class="empty"><div class="big">承認待ちはありません</div>施主が見積もりを送ると、ここに自動で候補が溜まります</div>';return;}
+  box.innerHTML=items.map(p=>{
+    const hi=(p.red_flags||0)>=1;
+    const traits=(p.traits||[]).join('\n');
+    const poster=[p.poster_name&&('投稿者:'+p.poster_name),p.poster_email,p.poster_line_id&&('LINE:'+p.poster_line_id.slice(0,10)+'…')].filter(Boolean).join(' / ')||'投稿者情報なし';
+    return `<div class="cand" id="c_${esc(p.id)}">
+      <div class="cand-head">
+        <span class="cand-genre">${esc(p.genre||'OTHER')}</span>
+        <span class="cand-id">${esc(p.id)}</span>
+        <span class="cand-flag ${hi?'hi':'ok'}">赤旗 ${pad(p.red_flags||0)}</span>
+      </div>
+      <div class="cand-body">
+        <div class="field"><span class="field-k">GENRE</span><span class="field-v"><input id="g_${esc(p.id)}" value="${esc(p.genre||'')}"></span></div>
+        <div class="field"><span class="field-k">TITLE</span><span class="field-v"><input id="t_${esc(p.id)}" value="${esc(p.title||'')}"></span></div>
+        <div class="field"><span class="field-k">REGION</span><span class="field-v"><input id="r_${esc(p.id)}" value="${esc(p.region||'')}" placeholder="例：神奈川（任意）"></span></div>
+        <div class="field"><span class="field-k">BUILDING</span><span class="field-v"><input id="b_${esc(p.id)}" value="${esc(p.building||'')}" placeholder="例：戸建て（任意）"></span></div>
+        <div class="field traits-edit"><span class="field-k">TRAITS</span><span class="field-v"><textarea id="tr_${esc(p.id)}" placeholder="1行に1つ">${esc(traits)}</textarea></span></div>
+        <div class="field"><span class="field-k">RED_FLAGS</span><span class="field-v"><input id="rf_${esc(p.id)}" type="number" value="${p.red_flags||0}" style="max-width:90px"></span></div>
+        <div class="field"><span class="field-k">VERDICT</span><span class="field-v"><input id="v_${esc(p.id)}" value="${esc(p.verdict||'')}"></span></div>
+        <div class="poster">${esc(poster)}</div>
+      </div>
+      <div class="cand-actions">
+        <button class="btn-pub" onclick="publish('${esc(p.id)}')">この内容で公開 ▸</button>
+        <button class="btn-rej" onclick="reject('${esc(p.id)}')">却下</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function publish(id){
+  const g=document.getElementById('g_'+id).value.trim();
+  const t=document.getElementById('t_'+id).value.trim();
+  const r=document.getElementById('r_'+id).value.trim();
+  const b=document.getElementById('b_'+id).value.trim();
+  const tr=document.getElementById('tr_'+id).value.split('\n').map(x=>x.trim()).filter(Boolean);
+  const rf=parseInt(document.getElementById('rf_'+id).value)||0;
+  const v=document.getElementById('v_'+id).value.trim();
+  if(!confirm('この内容で棚に公開します。業者名・個人情報が残っていないか確認しましたか？')) return;
+  try{
+    const res=await fetch(API+'/hacker/publish?key='+encodeURIComponent(PW),{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({pending_id:id,action:'publish',genre:g,title:t,region:r,building:b,traits:tr,red_flags:rf,verdict:v})
+    });
+    const d=await res.json();
+    if(d.ok){toast('公開しました。棚に並びました');const el=document.getElementById('c_'+id);if(el)el.remove();updateCount();}
+    else{toast(d.error||'公開に失敗しました');}
+  }catch(e){toast('通信エラーが発生しました');}
+}
+
+async function reject(id){
+  if(!confirm('この候補を却下（削除）します。よろしいですか？')) return;
+  try{
+    const res=await fetch(API+'/hacker/publish?key='+encodeURIComponent(PW),{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({pending_id:id,action:'reject'})
+    });
+    const d=await res.json();
+    if(d.ok){toast('却下しました');const el=document.getElementById('c_'+id);if(el)el.remove();updateCount();}
+    else{toast(d.error||'却下に失敗しました');}
+  }catch(e){toast('通信エラーが発生しました');}
+}
+
+function updateCount(){
+  const n=document.querySelectorAll('.cand').length;
+  document.getElementById('count').textContent=pad(n)+' 件';
+  if(n===0)document.getElementById('list').innerHTML='<div class="empty"><div class="big">承認待ちはありません</div>施主が見積もりを送ると、ここに自動で候補が溜まります</div>';
+}
+
+(function(){try{const s=sessionStorage.getItem('ehn_admin_pw');if(s){document.getElementById('pw').value=s;}}catch(e){}})();
+</script>
+
+</body>
+</html>
