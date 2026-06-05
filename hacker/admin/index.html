@@ -120,7 +120,8 @@ body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height
 
   <div class="tabbar">
     <button class="tab on" id="tabCards" onclick="switchTab('cards')">カード承認 <span class="tc" id="tcCards">—</span></button>
-    <button class="tab" id="tabCmts" onclick="switchTab('cmts')">コメント承認 <span class="tc" id="tcCmts">—</span></button>
+   <button class="tab" id="tabCmts" onclick="switchTab('cmts')">コメント承認 <span class="tc" id="tcCmts">—</span></button>
+    <button class="tab" id="tabPub" onclick="switchTab('pub')">公開中 <span class="tc" id="tcPub">—</span></button>
   </div>
 
   <!-- ===== カード承認(既存) ===== -->
@@ -136,7 +137,7 @@ body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height
     <div id="list"><div class="loading">LOADING...</div></div>
   </div>
 
-  <!-- ===== コメント承認(新規) ===== -->
+  <!-- ===== 公開中(削除用・新規) ===== -->   <div id="pubView" style="display:none">     <div class="head">       <div>         <h2>公開中の見積もり</h2>         <span class="count" id="pcount">— 件</span>       </div>       <button class="refresh" onclick="loadPublished()">↻ 再読込</button>     </div>     <div class="warn">ここにあるのは棚に公開中のカードです。削除すると棚から即座に消えます（元に戻せません）。投稿者からの削除依頼・問題のある掲載に対応するときに使ってください。</div>     <div id="plist"><div class="loading">LOADING...</div></div>   </div>    <!-- ===== コメント承認(新規) ===== -->
   <div id="cmtView" style="display:none">
     <div class="head">
       <div>
@@ -162,12 +163,14 @@ function ago(t){if(!t)return '';const d=Date.now()-Number(t);const m=Math.floor(
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2800);}
 
 function switchTab(which){
-  const isCards=which==='cards';
-  document.getElementById('tabCards').classList.toggle('on',isCards);
-  document.getElementById('tabCmts').classList.toggle('on',!isCards);
-  document.getElementById('cardView').style.display=isCards?'block':'none';
-  document.getElementById('cmtView').style.display=isCards?'none':'block';
-  if(!isCards) loadComments();
+  document.getElementById('tabCards').classList.toggle('on',which==='cards');
+  document.getElementById('tabCmts').classList.toggle('on',which==='cmts');
+  document.getElementById('tabPub').classList.toggle('on',which==='pub');
+  document.getElementById('cardView').style.display=which==='cards'?'block':'none';
+  document.getElementById('cmtView').style.display=which==='cmts'?'block':'none';
+  document.getElementById('pubView').style.display=which==='pub'?'block':'none';
+  if(which==='cmts') loadComments();
+  if(which==='pub') loadPublished();
 }
 
 async function auth(){
@@ -346,7 +349,7 @@ function cUpdateCount(){
   if(n===0)document.getElementById('clist').innerHTML='<div class="empty"><div class="big">承認待ちのコメントはありません</div>施主がコメントを書くと、ここに溜まります</div>';
 }
 
-(function(){try{const s=sessionStorage.getItem('ehn_admin_pw');if(s){document.getElementById('pw').value=s;}}catch(e){}})();
+/* ===== 公開中(削除用・新規) ===== */ async function loadPublished(){   document.getElementById('plist').innerHTML='<div class="loading">LOADING...</div>';   try{     const r=await fetch(API+'/hacker/cards');     const d=await r.json(); renderPublished(d.cards||[]);   }catch(e){document.getElementById('plist').innerHTML='<div class="empty">読み込みに失敗しました</div>';} } function renderPublished(items){   document.getElementById('pcount').textContent=pad(items.length)+' 件';   document.getElementById('tcPub').textContent=pad(items.length);   const box=document.getElementById('plist');   if(!items.length){box.innerHTML='<div class="empty"><div class="big">公開中の見積もりはありません</div>承認すると、ここに公開カードが並びます</div>';return;}   box.innerHTML=items.map(c=>{     const hi=(c.red_flags||0)>=1;     const traits=(c.traits||[]).map(t=>'・'+esc(t)).join('<br>');     const amt=c.amount?('¥'+Number(String(c.amount).replace(/[^0-9]/g,'')).toLocaleString('ja-JP')):'金額非公開';     const poster=[c.poster_name&&('投稿者:'+c.poster_name),c.poster_line_id&&('LINE:'+c.poster_line_id.slice(0,10)+'…')].filter(Boolean).join(' / ')||'投稿者情報なし';     return `<div class="cand" id="p_${esc(c.id)}">       <div class="cand-head">         <span class="cand-genre">${esc(c.genre||'OTHER')}</span>         <span class="cand-id">${esc(c.id)}</span>         <span class="cand-flag ${hi?'hi':'ok'}">赤旗 ${pad(c.red_flags||0)}</span>       </div>       <div class="cand-body">         <div class="field"><span class="field-k">TITLE</span><span class="field-v">${esc(c.title||'見積もり')}</span></div>         <div class="field"><span class="field-k">AMOUNT</span><span class="field-v">${amt}</span></div>         <div class="field"><span class="field-k">TRAITS</span><span class="field-v">${traits||'—'}</span></div>         <div class="poster">${esc(poster)}</div>       </div>       <div class="cand-actions">         <a class="btn-pub" href="/hacker/#${esc(c.id)}" target="_blank" style="text-decoration:none;text-align:center">棚で見る ▸</a>         <button class="btn-rej" onclick="deletePublished('${esc(c.id)}')">削除</button>       </div>     </div>`;   }).join(''); } async function deletePublished(id){   if(!confirm('この公開カードを棚から削除します。元に戻せません。よろしいですか？')) return;   try{     const res=await fetch(API+'/hacker/delete?key='+encodeURIComponent(PW),{       method:'POST',headers:{'Content-Type':'application/json'},       body:JSON.stringify({type:'published',id})     });     const d=await res.json();     if(d.ok){toast('削除しました');const el=document.getElementById('p_'+id);if(el)el.remove();       const n=document.querySelectorAll('#plist .cand').length;       document.getElementById('pcount').textContent=pad(n)+' 件';document.getElementById('tcPub').textContent=pad(n);       if(n===0)document.getElementById('plist').innerHTML='<div class="empty"><div class="big">公開中の見積もりはありません</div>承認すると、ここに公開カードが並びます</div>';}     else if(res.status===401){toast('認証エラー。再ログインしてください');location.reload();}     else{toast(d.error||'削除に失敗しました');}   }catch(e){toast('通信エラーが発生しました');} } (function(){try{const s=sessionStorage.getItem('ehn_admin_pw');if(s){document.getElementById('pw').value=s;}}catch(e){}})();
 </script>
 
 </body>
