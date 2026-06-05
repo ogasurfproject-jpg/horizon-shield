@@ -240,7 +240,7 @@ function renderTop(){
   if(TOKEN&&USER){
     const ini=(USER.display_name||'?').slice(0,1);
     const av=USER.picture_url?`<img src="${esc(USER.picture_url)}" alt="">`:`<span style="width:26px;height:26px;background:var(--blue-bg);border:1px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;color:var(--blue)">${esc(ini)}</span>`;
-    el.innerHTML=`<div class="tb-user">${av}<span>${esc(USER.display_name||'施主')}</span></div><button class="tb-logout" onclick="logout()">LOGOUT</button>`;
+    el.innerHTML=`<a class="tb-user" href="/hacker/me/" style="text-decoration:none;color:inherit;cursor:pointer">${av}<span>${esc(USER.display_name||'施主')}</span></a><button class="tb-logout" onclick="logout()">LOGOUT</button>`;
   }else{
     el.innerHTML=`<button class="tb-btn" onclick="login()"><span class="dot"></span>LINEでログイン</button><button class="tb-btn" style="background:#4285F4;border-left:1px solid var(--rule-soft)" onclick="loginGoogle()">Googleでログイン</button>`;
   }
