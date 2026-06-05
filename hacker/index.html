@@ -242,10 +242,10 @@ function renderTop(){
     const av=USER.picture_url?`<img src="${esc(USER.picture_url)}" alt="">`:`<span style="width:26px;height:26px;background:var(--blue-bg);border:1px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;color:var(--blue)">${esc(ini)}</span>`;
     el.innerHTML=`<div class="tb-user">${av}<span>${esc(USER.display_name||'施主')}</span></div><button class="tb-logout" onclick="logout()">LOGOUT</button>`;
   }else{
-    el.innerHTML=`<button class="tb-btn" onclick="login()"><span class="dot"></span>LINEでログイン</button>`;
+    el.innerHTML=`<button class="tb-btn" onclick="login()"><span class="dot"></span>LINEでログイン</button><button class="tb-btn" style="background:#4285F4;border-left:1px solid var(--rule-soft)" onclick="loginGoogle()">Googleでログイン</button>`;
   }
 }
-async function login(){try{const r=await fetch(API+'/auth/line-login-start',{method:'POST'});const d=await r.json();if(d.login_url){location.href=d.login_url;}else{toast('ログインを開始できませんでした');}}catch(e){toast('通信エラーが発生しました');}}
+async function login(){try{const r=await fetch(API+'/auth/line-login-start',{method:'POST'});const d=await r.json();if(d.login_url){location.href=d.login_url;}else{toast('ログインを開始できませんでした');}}catch(e){toast('通信エラーが発生しました');}} async function loginGoogle(){try{const r=await fetch(API+'/auth/google-login-start',{method:'POST'});const d=await r.json();if(d.login_url){location.href=d.login_url;}else{toast('ログインを開始できませんでした');}}catch(e){toast('通信エラーが発生しました');}}
 function logout(){try{localStorage.removeItem('ehn_token');localStorage.removeItem('ehn_user');}catch(e){}TOKEN=null;USER=null;renderTop();toast('ログアウトしました');}
 
 async function loadCards(){
