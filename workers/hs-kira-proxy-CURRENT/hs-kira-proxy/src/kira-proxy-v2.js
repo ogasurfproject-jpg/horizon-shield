@@ -62,14 +62,28 @@ const KIRA_SYSTEM_PROMPT = `あなたはKIRA（建設費診断AI）です。The 
 公務員なりすまし/モニター商法/省エネ補助金便乗
 クーリングオフ：訪問販売は契約書受取8日以内なら無条件解約可。相談：188
 
-// 変更後（この行の直前に挿入）
-【HORIZON SHIELD 実績データ（根拠として活用）】
 【HORIZON SHIELD 実績データ（根拠として活用）】
 98件の実案件分析より：同一工事で業者間に最大91%の費用差を確認。複数プラン比較時の価格差は平均40〜54%。交渉介入による削減実績は最大¥490,000（単一案件）。床工事の業者間価格差CV=96%、建具修繕CV=128%。「相見積もりで数十万円変わることは珍しくない」という具体的根拠として、施主への説得材料に使うこと。価格の高低を判断する根拠にはしない。
+
+【契約書・見積書の"書き方"の危険サイン（法律面）】
+以下は過去にトラブルになった典型パターン。該当したら「危険サインです」と指摘し、必ず専門家への相談を案内すること。違法かどうかの断定は絶対にしない。
+- 工事内容・金額・工期が契約書に明記されていない
+- 「追加工事は別途」とだけ書かれ、上限も算定方法もない
+- 着工前なのに全額前金、または高額な手付を要求
+- クーリングオフの記載がない訪問販売契約
+- 「一式」だらけで数量・単価の内訳がない
+→ 返し方：「この書き方は過去にトラブルになりやすいパターンです。消費者契約法・特定商取引法に照らして確認する価値があります。契約前なら国土交通大臣指定の『住まいるダイヤル』（0570-016-100・無料）で見積書チェックを受けられます。すでに揉めているなら弁護士へ。HORIZON SHIELDは建築費の妥当性を判定しますが、法的判断は専門家が行います」
+❌「これは違法です」「契約は無効です」と断定するのは禁止（弁護士法72条）。危険サインの指摘と専門家への振り分けに留める。
 
 【回答ルール】
 ✅ 坪数・地域確認→価格帯案内→警戒ライン超えは明確に指摘→相見積もり3社以上推奨
 ❌ 診断なしで「適正」断言禁止 / 証拠なく「悪徳業者」断言禁止
+
+【無料KIRAと有料診断の線引き（常に厳守）】
+KIRAが無料で提供するのは「一般的な価格の目安」と「業者に証拠（内訳書・写真・数量単価の根拠）を出させる助言」まで。施主が持つ実物の見積書・内訳書が"本当に適正価格か"の確実な判定は、必ず有料診断に繋ぐこと。
+- 着工後の追加請求・変更工事・「別途」費用が妥当か → 変更工事査定（¥33,000・24時間以内に判定書）
+- 全体の見積もり・これから始める工事が高いか → 建設費診断（¥55,000・2営業日でPDF）
+❌「無料で判断します」「すぐ判断できます」と、実物の精査を無料で約束してはいけない。状況を聞いた後は「内訳書が出たら、それが適正かを判定書でお出しします＝変更工事査定¥33,000」と必ず有料判定へ着地させること。
 
 【JCCDB v2.0 データベース（2026-05-19公開）】
 - 品目数：65,729品目 / 398カテゴリ
@@ -177,7 +191,7 @@ function getStrategyPrompt(strategy, scores) {
     case 'DEESCALATE':
       return `\n\n【対応戦略：鎮静化】施主は強い怒りを感じています（怒りスコア:${scores.anger}/10）。まず「それは怒るのは当然です」と共感を示してから冷静な情報提供をしてください。有料診断への誘導は最後の1行だけ、押しつけがましくなく。`;
     case 'CONVERT':
-      return `\n\n【対応戦略：有料診断への誘導】施主は強い不安・緊急性を感じています（不安:${scores.anxiety}/10 緊急度:${scores.urgency}/10）。返答の最後に「今すぐ専門診断（¥55,000）で確実な答えを出しましょう。shield.the-horizons-innovation.com」と明確に案内してください。`;
+      return `\n\n【対応戦略：有料診断への誘導】施主は強い不安・緊急性を感じています（不安:${scores.anxiety}/10 緊急度:${scores.urgency}/10）。返答の最後で、相談内容に最も合うサービスを1つだけ案内してください。【追加工事・変更工事・着工後の追加請求・「別途」と言われた費用が妥当か】の相談なら→「この"着工後の追加請求が妥当か"を24時間以内に判定するのが、HORIZON SHIELDの変更工事査定（¥33,000）です。内訳書をお持ちなら、それが適正価格か判定書でお出しします。shield.the-horizons-innovation.com」。【全体の見積もり・これから始める工事の費用が高いか】の相談なら→「今すぐ専門診断（¥55,000・2営業日でPDF）で確実な答えを出しましょう。shield.the-horizons-innovation.com」。無料のKIRAは一般的な目安と"業者に証拠を出させる助言"までです。実物の内訳書が適正かの確実な判定書が必要なら有料診断が要ると、はっきり伝えること。`;
     case 'ENCOURAGE':
       return `\n\n【対応戦略：励まし・行動促進】施主は諦めかけています（諦めスコア:${scores.resignation}/10）。「まだ間に合います」「あなたには知る権利があります」という言葉で背中を押し、具体的な次のアクションを明示してください。`;
     default:
@@ -398,10 +412,15 @@ async function enrichSystemPromptWithSoubaData(originalSystem, messages) {
 
     const matchedCategories = [];
     const seen = new Set();
+    // ★ 2026-06-02 屋根表記ゆれ対応: cat名エイリアス (屋根系のみ・外壁は不変)
+    const CAT_ALIASES = {
+      '屋根工事': ['屋根工事', '屋根', 'やね', 'ヤネ', '雨漏り', '棟板金', '葺き替え', 'カバー工法']
+    };
     for (const c of soubaDB.categories) {
       const catName = c.cat || '';
       if (!catName || seen.has(catName)) continue;
-      if (userText.includes(catName)) {
+      const aliases = CAT_ALIASES[catName] || [catName];
+      if (aliases.some(a => userText.includes(a))) {
         matchedCategories.push(c);
         seen.add(catName);
         if (matchedCategories.length >= 5) break;
@@ -908,6 +927,712 @@ async function handleCheckoutComplete(request, env, origin) {
   }, 200, origin);
 }
 
+const HACKER_REDIRECT_URI = 'https://shield.the-horizons-innovation.com/auth/line-callback-hacker.html';
+const GOOGLE_REDIRECT_URI = 'https://shield.the-horizons-innovation.com/auth/google-callback-hacker.html';
+const GOOGLE_CLIENT_ID = '40746128548-9ptlge89e1bbes3m50f65kv2qsq0kkm2.apps.googleusercontent.com';
+
+async function handleHackerLoginStart(request, env, origin) {
+  const stateId = crypto.randomUUID();
+  const stateData = { purpose: 'hacker_login', created_at: Date.now() };
+  await env.ORDERS.put(`hacker_session:${stateId}`, JSON.stringify(stateData), { expirationTtl: 300 });
+
+  const lineUrl = new URL('https://access.line.me/oauth2/v2.1/authorize');
+  lineUrl.searchParams.set('response_type', 'code');
+  lineUrl.searchParams.set('client_id',     env.LINE_LOGIN_CHANNEL_ID);
+  lineUrl.searchParams.set('redirect_uri',  HACKER_REDIRECT_URI);
+  lineUrl.searchParams.set('state',         stateId);
+  lineUrl.searchParams.set('scope',         'profile openid');
+
+  return json({ login_url: lineUrl.toString() }, 200, origin);
+}
+
+async function handleHackerLoginVerify(request, env, origin) {
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ error: 'invalid json' }, 400, origin); }
+
+  const { code, state } = body;
+  if (!code || !state) return json({ error: 'missing code or state' }, 400, origin);
+
+  const stateRaw = await env.ORDERS.get(`hacker_session:${state}`);
+  if (!stateRaw) return json({ error: 'session expired or invalid' }, 400, origin);
+
+  const tokenRes = await fetch('https://api.line.me/oauth2/v2.1/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type:    'authorization_code',
+      code:          code,
+      redirect_uri:  HACKER_REDIRECT_URI,
+      client_id:     env.LINE_LOGIN_CHANNEL_ID,
+      client_secret: env.LINE_LOGIN_CHANNEL_SECRET,
+    }).toString(),
+  });
+  if (!tokenRes.ok) {
+    const err = await tokenRes.text();
+    console.error('LINE token error (hacker):', err);
+    return json({ error: 'line token exchange failed', detail: err }, 500, origin);
+  }
+  const token = await tokenRes.json();
+
+  const profileRes = await fetch('https://api.line.me/v2/profile', {
+    headers: { Authorization: `Bearer ${token.access_token}` },
+  });
+  if (!profileRes.ok) return json({ error: 'line profile fetch failed' }, 500, origin);
+  const profile = await profileRes.json();
+  const lineUserId = profile.userId;
+
+  const now = Date.now();
+  const userKey = `user:line:${lineUserId}`;
+  const existingRaw = await env.ORDERS.get(userKey);
+  const userRecord = existingRaw ? JSON.parse(existingRaw) : {
+    provider: 'line', line_user_id: lineUserId, created_at: now,
+  };
+  userRecord.display_name  = profile.displayName || userRecord.display_name || '';
+  userRecord.picture_url   = profile.pictureUrl  || userRecord.picture_url  || '';
+  userRecord.last_login_at = now;
+  await env.ORDERS.put(userKey, JSON.stringify(userRecord));
+
+  const sessionToken = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
+  await env.ORDERS.put(`hacker_token:${sessionToken}`, JSON.stringify({
+    provider: 'line', line_user_id: lineUserId,
+    display_name: userRecord.display_name, picture_url: userRecord.picture_url,
+    issued_at: now,
+  }), { expirationTtl: 60 * 60 * 24 * 90 });
+
+  await env.ORDERS.delete(`hacker_session:${state}`);
+
+  return json({
+    ok: true, token: sessionToken,
+    user: { display_name: userRecord.display_name, picture_url: userRecord.picture_url },
+  }, 200, origin);
+}
+
+async function handleGoogleLoginStart(request, env, origin) {
+  const stateId = crypto.randomUUID();
+  const stateData = { purpose: 'google_login', created_at: Date.now() };
+  await env.ORDERS.put(`hacker_session:${stateId}`, JSON.stringify(stateData), { expirationTtl: 300 });
+
+  const gUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+  gUrl.searchParams.set('response_type', 'code');
+  gUrl.searchParams.set('client_id',     GOOGLE_CLIENT_ID);
+  gUrl.searchParams.set('redirect_uri',  GOOGLE_REDIRECT_URI);
+  gUrl.searchParams.set('state',         stateId);
+  gUrl.searchParams.set('scope',         'openid email profile');
+
+  return json({ login_url: gUrl.toString() }, 200, origin);
+}
+
+async function handleGoogleLoginVerify(request, env, origin) {
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ error: 'invalid json' }, 400, origin); }
+
+  const { code, state } = body;
+  if (!code || !state) return json({ error: 'missing code or state' }, 400, origin);
+
+  const stateRaw = await env.ORDERS.get(`hacker_session:${state}`);
+  if (!stateRaw) return json({ error: 'session expired or invalid' }, 400, origin);
+
+  const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type:    'authorization_code',
+      code:          code,
+      redirect_uri:  GOOGLE_REDIRECT_URI,
+      client_id:     GOOGLE_CLIENT_ID,
+      client_secret: env.GOOGLE_LOGIN_CLIENT_SECRET,
+    }).toString(),
+  });
+  if (!tokenRes.ok) {
+    const err = await tokenRes.text();
+    console.error('Google token error (hacker):', err);
+    return json({ error: 'google token exchange failed', detail: err }, 500, origin);
+  }
+  const token = await tokenRes.json();
+
+  const profileRes = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
+    headers: { Authorization: `Bearer ${token.access_token}` },
+  });
+  if (!profileRes.ok) return json({ error: 'google profile fetch failed' }, 500, origin);
+  const profile = await profileRes.json();
+  const googleUserId = 'google:' + profile.sub;
+
+  const now = Date.now();
+  const userKey = `user:google:${profile.sub}`;
+  const existingRaw = await env.ORDERS.get(userKey);
+  const userRecord = existingRaw ? JSON.parse(existingRaw) : {
+    provider: 'google', line_user_id: googleUserId, created_at: now,
+  };
+  userRecord.display_name  = profile.name    || userRecord.display_name || '';
+  userRecord.picture_url   = profile.picture || userRecord.picture_url  || '';
+  userRecord.last_login_at = now;
+  await env.ORDERS.put(userKey, JSON.stringify(userRecord));
+
+  const sessionToken = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
+  await env.ORDERS.put(`hacker_token:${sessionToken}`, JSON.stringify({
+    provider: 'google', line_user_id: googleUserId,
+    display_name: userRecord.display_name, picture_url: userRecord.picture_url,
+    issued_at: now,
+  }), { expirationTtl: 60 * 60 * 24 * 90 });
+
+  await env.ORDERS.delete(`hacker_session:${state}`);
+
+  return json({
+    ok: true, token: sessionToken,
+    user: { display_name: userRecord.display_name, picture_url: userRecord.picture_url },
+  }, 200, origin);
+}
+
+async function handleHackerMe(request, env, origin) {
+  const auth = request.headers.get('Authorization') || '';
+  const tk = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!tk) return json({ error: 'no token' }, 401, origin);
+
+  const raw = await env.ORDERS.get(`hacker_token:${tk}`);
+  if (!raw) return json({ error: 'invalid or expired token' }, 401, origin);
+
+  const s = JSON.parse(raw);
+  return json({ ok: true, user: { display_name: s.display_name, picture_url: s.picture_url } }, 200, origin);
+}
+
+async function handleHackerCards(request, env, origin) {
+  const idxRaw = await env.ORDERS.get('card_index');
+  const ids = idxRaw ? JSON.parse(idxRaw) : [];
+  const cards = [];
+  for (const id of ids) {
+    const raw = await env.ORDERS.get(`card:${id}`);
+    if (!raw) continue;
+    const c = JSON.parse(raw);
+    if (c.published === false) continue;
+    let commentCount = 0;
+    let likeCount = 0;
+    try {
+      const cl = await env.ORDERS.list({ prefix: `comment:${id}:` });
+      for (const k of cl.keys) {
+        const cr = await env.ORDERS.get(k.name);
+        if (cr) {
+          const cm = JSON.parse(cr);
+          if (cm.status === 'approved') {
+            commentCount++;
+            const ll = await env.ORDERS.list({ prefix: `clike:${k.name}:` });
+            likeCount += ll.keys.length;
+          }
+        }
+      }
+    } catch (e) {}
+    cards.push({
+      id: c.id, genre: c.genre, region: c.region, building: c.building,
+      title: c.title, traits: c.traits || [], red_flags: c.red_flags || 0,
+      verdict: c.verdict || '', amount: c.amount || '', initial: c.initial || '',
+      comment_count: commentCount, like_count: likeCount, created_at: c.created_at,
+    });
+  }
+  return json({ ok: true, cards }, 200, origin);
+}
+
+async function handleHackerCard(request, env, origin) {
+  const url = new URL(request.url);
+  const id = url.searchParams.get('id') || '';
+  if (!id) return json({ error: 'missing id' }, 400, origin);
+  const raw = await env.ORDERS.get(`card:${id}`);
+  if (!raw) return json({ error: 'not found' }, 404, origin);
+  const c = JSON.parse(raw);
+  if (c.published === false) return json({ error: 'not found' }, 404, origin);
+
+  const auth = request.headers.get('Authorization') || '';
+  const tk = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  let myId = '';
+  if (tk) {
+    const sr = await env.ORDERS.get(`hacker_token:${tk}`);
+    if (sr) { try { myId = JSON.parse(sr).line_user_id || ''; } catch (e) {} }
+  }
+
+  const list = await env.ORDERS.list({ prefix: `comment:${id}:` });
+  const comments = [];
+  for (const k of list.keys) {
+    const cr = await env.ORDERS.get(k.name);
+    if (!cr) continue;
+    const cm = JSON.parse(cr);
+    if (cm.status !== 'approved') continue;
+
+    const ll = await env.ORDERS.list({ prefix: `clike:${k.name}:` });
+    const likes = ll.keys.length;
+    const likedByMe = myId ? ll.keys.some(x => x.name.endsWith(`:${myId}`)) : false;
+
+    const rl = await env.ORDERS.list({ prefix: `reply:${k.name}:` });
+    const replies = [];
+    for (const rk of rl.keys) {
+      const rr = await env.ORDERS.get(rk.name);
+      if (!rr) continue;
+      const rm = JSON.parse(rr);
+      replies.push({ name: rm.name, picture: rm.picture || '', body: rm.body, at: rm.at });
+    }
+    replies.sort((a, b) => a.at - b.at);
+
+    comments.push({
+      key: k.name, name: cm.name, picture: cm.picture || '', body: cm.body, at: cm.at,
+      likes, liked_by_me: likedByMe, replies,
+    });
+  }
+  comments.sort((a, b) => a.at - b.at);
+  return json({ ok: true, card: c, comments }, 200, origin);
+}
+
+async function handleHackerComment(request, env, origin) {
+  const auth = request.headers.get('Authorization') || '';
+  const tk = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!tk) return json({ error: 'login required' }, 401, origin);
+  const sessRaw = await env.ORDERS.get(`hacker_token:${tk}`);
+  if (!sessRaw) return json({ error: 'invalid or expired token' }, 401, origin);
+  const sess = JSON.parse(sessRaw);
+
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ error: 'invalid json' }, 400, origin); }
+  const cardId = (body.card_id || '').toString().slice(0, 64);
+  const text = (body.body || '').toString().trim().slice(0, 50);
+  const _ng = ehnNgCheck(text);
+  if (_ng) return json({ error: _ng }, 400, origin);
+  if (!cardId || !text) return json({ error: 'missing card_id or body' }, 400, origin);
+
+  const cardRaw = await env.ORDERS.get(`card:${cardId}`);
+  if (!cardRaw) return json({ error: 'card not found' }, 404, origin);
+
+  const at = Date.now();
+  const commentKey = `comment:${cardId}:${at}-${Math.random().toString(36).slice(2, 6)}`;
+  await env.ORDERS.put(commentKey, JSON.stringify({
+    card_id: cardId,
+    line_user_id: sess.line_user_id,
+    name: sess.display_name || '名無しの施主',
+    picture: sess.picture_url || '',
+    body: text,
+    status: 'pending',
+    at,
+  }), { expirationTtl: 60 * 60 * 24 * 365 });
+
+  return json({ ok: true, status: 'pending', message: '投稿を受け付けました。確認後に公開されます。' }, 200, origin);
+}
+
+async function handleHackerCardAdmin(request, env, origin) {
+  const url = new URL(request.url);
+  const key = url.searchParams.get('key') || '';
+  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) {
+    return json({ error: 'unauthorized' }, 401, origin);
+  }
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ error: 'invalid json' }, 400, origin); }
+
+  const id = (body.id || `card-${Date.now()}`).toString().slice(0, 64);
+  const card = {
+    id,
+    genre:    (body.genre || 'その他').toString(),
+    region:   (body.region || '').toString(),
+    building: (body.building || '').toString(),
+    title:    (body.title || '').toString(),
+    traits:   Array.isArray(body.traits) ? body.traits.slice(0, 8).map(t => t.toString()) : [],
+    red_flags: Number(body.red_flags) || 0,
+    verdict:  (body.verdict || '').toString(),
+    published: body.published === false ? false : true,
+    created_at: Date.now(),
+  };
+  await env.ORDERS.put(`card:${id}`, JSON.stringify(card));
+
+  const idxRaw = await env.ORDERS.get('card_index');
+  const ids = idxRaw ? JSON.parse(idxRaw) : [];
+  if (!ids.includes(id)) { ids.unshift(id); }
+  await env.ORDERS.put('card_index', JSON.stringify(ids));
+
+  return json({ ok: true, card }, 200, origin);
+}
+
+async function handleHackerCommentApprove(request, env, origin) {
+  const url = new URL(request.url);
+  const key = url.searchParams.get('key') || '';
+  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) {
+    return json({ error: 'unauthorized' }, 401, origin);
+  }
+  const ck = url.searchParams.get('comment_key') || '';
+  if (!ck) return json({ error: 'missing comment_key' }, 400, origin);
+  const raw = await env.ORDERS.get(ck);
+  if (!raw) return json({ error: 'not found' }, 404, origin);
+  const cm = JSON.parse(raw);
+  cm.status = 'approved';
+  await env.ORDERS.put(ck, JSON.stringify(cm), { expirationTtl: 60 * 60 * 24 * 365 });
+  return json({ ok: true, status: 'approved' }, 200, origin);
+}
+
+function ehnNgCheck(text) {
+  if (/\d{2,4}[-\s]?\d{2,4}[-\s]?\d{3,4}/.test(text)) return '電話番号らしき記載は投稿できません';
+  if (/(株式会社|有限会社|\(株\)|（株）|㈱|合同会社|工務店|建設|塗装店)/.test(text)) return '業者名・社名らしき記載は投稿できません';
+  return null;
+}
+
+async function handleHackerCommentLike(request, env, origin) {
+  const auth = request.headers.get('Authorization') || '';
+  const tk = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!tk) return json({ error: 'login required' }, 401, origin);
+  const sessRaw = await env.ORDERS.get(`hacker_token:${tk}`);
+  if (!sessRaw) return json({ error: 'invalid or expired token' }, 401, origin);
+  const sess = JSON.parse(sessRaw);
+
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ error: 'invalid json' }, 400, origin); }
+  const commentKey = (body.comment_key || '').toString();
+  if (!commentKey.startsWith('comment:')) return json({ error: 'invalid comment_key' }, 400, origin);
+
+  const likeKey = `clike:${commentKey}:${sess.line_user_id}`;
+  const existing = await env.ORDERS.get(likeKey);
+  let liked;
+  if (existing) {
+    await env.ORDERS.delete(likeKey);
+    liked = false;
+  } else {
+    await env.ORDERS.put(likeKey, '1', { expirationTtl: 60 * 60 * 24 * 365 });
+    liked = true;
+  }
+  const ll = await env.ORDERS.list({ prefix: `clike:${commentKey}:` });
+  return json({ ok: true, liked, likes: ll.keys.length }, 200, origin);
+}
+
+async function handleHackerReply(request, env, origin) {
+  const auth = request.headers.get('Authorization') || '';
+  const tk = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!tk) return json({ error: 'login required' }, 401, origin);
+  const sessRaw = await env.ORDERS.get(`hacker_token:${tk}`);
+  if (!sessRaw) return json({ error: 'invalid or expired token' }, 401, origin);
+  const sess = JSON.parse(sessRaw);
+
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ error: 'invalid json' }, 400, origin); }
+  const commentKey = (body.comment_key || '').toString();
+  const text = (body.body || '').toString().trim().slice(0, 50);
+  if (!commentKey.startsWith('comment:') || !text) return json({ error: 'missing comment_key or body' }, 400, origin);
+
+  const ng = ehnNgCheck(text);
+  if (ng) return json({ error: ng }, 400, origin);
+
+  const at = Date.now();
+  const replyKey = `reply:${commentKey}:${at}-${Math.random().toString(36).slice(2, 6)}`;
+  await env.ORDERS.put(replyKey, JSON.stringify({
+    line_user_id: sess.line_user_id,
+    name: sess.display_name || '名無しの施主',
+    picture: sess.picture_url || '',
+    body: text,
+    at,
+  }), { expirationTtl: 60 * 60 * 24 * 365 });
+
+  return json({ ok: true, reply: { name: sess.display_name || '名無しの施主', picture: sess.picture_url || '', body: text, at } }, 200, origin);
+}
+
+async function classifyEstimate(resultText, typeHint, env) {
+  const sys = `あなたは見積もり仕分け担当のKIRA。入力された建設費の診断結果テキストを読み、以下のJSONだけを返す。前置き・説明・マークダウンは一切付けない。
+{
+  "genre": "トイレ｜浴室｜外壁・屋根｜キッチン｜内装・改装｜給湯器｜その他 のいずれか1つ",
+  "title": "工事内容を表す短い匿名タイトル(12字程度。業者名・施主名・地名は含めない。例:ユニットバス交換)",
+  "amount": "施主が業者から受け取った見積書の合計金額(総額)を数値の文字列で。例:798000。判断できなければ空文字",
+  "traits": ["過剰や不透明の懸念点を15字前後で最大3つ。金額・数字・倍率は書かない"],
+  "red_flags": 懸念点の数(整数),
+  "verdict": "一言の総評(例:内訳の確認を強く推奨)"
+}
+amountは「施主が実際に請求・提示された総額」だけを入れる。KIRAが算出する適正額・過剰額・削減可能額・本来価格は絶対に出力しない(これらはどのフィールドにも書かない)。
+禁止:業者名・施主名・電話番号・住所をどのフィールドにも出力しない。traits/verdictには金額・数字・倍率を書かない。`;
+  const userText = `工事種別ヒント:${typeHint || '不明'}\n\n診断結果:\n${(resultText || '').slice(0, 4000)}`;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 500,
+        system: sys,
+        messages: [{ role: 'user', content: userText }],
+      }),
+    });
+    const data = await res.json();
+    let raw = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : '{}';
+    raw = raw.replace(/```json|```/g, '').trim();
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error('classify error:', e.message);
+    return null;
+  }
+}
+
+async function savePendingCard(cls, poster, env) {
+  if (!cls || !cls.genre) return;
+  const id = 'pending-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6);
+  await env.ORDERS.put(`pending_card:${id}`, JSON.stringify({
+    id,
+    genre:    cls.genre || 'その他',
+    title:    cls.title || '見積もり',
+    amount:   (cls.amount != null ? String(cls.amount) : '').replace(/[^0-9]/g, ''),
+    region:   '',
+    building: '',
+    traits:   Array.isArray(cls.traits) ? cls.traits.slice(0, 5) : [],
+    red_flags: Number(cls.red_flags) || 0,
+    verdict:  cls.verdict || '',
+    poster_name:    poster.name || '',
+    poster_line_id: poster.line_id || '',
+    poster_email:   poster.email || '',
+    status: 'pending',
+    created_at: Date.now(),
+  }), { expirationTtl: 60 * 60 * 24 * 180 });
+}
+
+// ============================================
+// EHN SUBMIT (2026-06-05 additive)
+// ============================================
+async function handleHackerAnalyze(request, env, origin) {
+  const auth = request.headers.get('Authorization') || '';
+  const tk = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!tk) return json({ error: 'login required' }, 401, origin);
+  const sessRaw = await env.ORDERS.get(`hacker_token:${tk}`);
+  if (!sessRaw) return json({ error: 'invalid or expired token' }, 401, origin);
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ error: 'invalid json' }, 400, origin); }
+  const b64 = (body.file_base64 || '').toString();
+  const media = (body.media_type || '').toString();
+  const typeHint = (body.type_hint || '').toString().slice(0, 20);
+  if (!b64) return json({ error: 'file_base64 required' }, 400, origin);
+  const okMedia = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+  if (!okMedia.includes(media)) return json({ error: 'unsupported media_type' }, 400, origin);
+  const readSys = 'あなたは建設費診断のプロKIRA。施主がアップロードした見積書の画像またはPDFを読み取り、以下を日本語のプレーンテキストで簡潔にまとめる。前置き不要。1. 工事の種類。2. 見積書の合計金額(総額。読み取れた数値のみ)。3. 各項目で一式表記が多く内訳不明・相場より高い可能性・諸経費が過大など、過剰や不透明と思われる点を箇条書きで最大5つ。業者名・施主名・電話番号・住所は書き写さない。読み取れない項目は無理に推測しない。';
+  const contentBlock = (media === 'application/pdf')
+    ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 } }
+    : { type: 'image', source: { type: 'base64', media_type: media, data: b64 } };
+  let diagText = '';
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        system: readSys,
+        messages: [{ role: 'user', content: [ contentBlock, { type: 'text', text: '工事種別ヒント:' + (typeHint || '不明') + '。この見積書を読み取り、上記フォーマットでまとめてください。' } ] }],
+      }),
+    });
+    const data = await res.json();
+    diagText = (data && data.content && data.content[0] && data.content[0].text) ? data.content[0].text : '';
+  } catch (e) {
+    return json({ error: 'KIRA read failed: ' + e.message }, 502, origin);
+  }
+  if (!diagText) return json({ error: '見積書を読み取れませんでした。鮮明な画像かPDFでお試しください' }, 422, origin);
+  const cls = await classifyEstimate(diagText, typeHint, env);
+  if (!cls || !cls.genre) return json({ error: '解剖結果の構造化に失敗しました。もう一度お試しください' }, 422, origin);
+  const card = {
+    genre: cls.genre || 'その他',
+    title: cls.title || '見積もり',
+    amount: (cls.amount != null ? String(cls.amount) : '').replace(/[^0-9]/g, ''),
+    traits: Array.isArray(cls.traits) ? cls.traits.slice(0, 5) : [],
+    red_flags: Number(cls.red_flags) || 0,
+    verdict: cls.verdict || '',
+  };
+  return json({ ok: true, card }, 200, origin);
+}
+
+async function handleHackerSubmitCard(request, env, origin) {
+  const auth = request.headers.get('Authorization') || '';
+  const tk = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!tk) return json({ error: 'login required' }, 401, origin);
+  const sessRaw = await env.ORDERS.get(`hacker_token:${tk}`);
+  if (!sessRaw) return json({ error: 'invalid or expired token' }, 401, origin);
+  const sess = JSON.parse(sessRaw);
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ error: 'invalid json' }, 400, origin); }
+  const c = body.card || {};
+  const checkTargets = [c.title || '', ...(Array.isArray(c.traits) ? c.traits : []), c.verdict || ''];
+  for (const t of checkTargets) {
+    const ng = ehnNgCheck(String(t));
+    if (ng) return json({ error: ng }, 400, origin);
+  }
+  const cls = {
+    genre: (c.genre || 'その他').toString(),
+    title: (c.title || '見積もり').toString().slice(0, 40),
+    amount: (c.amount != null ? String(c.amount) : '').replace(/[^0-9]/g, ''),
+    traits: Array.isArray(c.traits) ? c.traits.map(t => String(t).slice(0, 30)).filter(Boolean).slice(0, 5) : [],
+    red_flags: Number(c.red_flags) || 0,
+    verdict: (c.verdict || '').toString().slice(0, 60),
+  };
+  await savePendingCard(cls, { name: sess.display_name || '', email: '', line_id: sess.line_user_id || '' }, env);
+  return json({ ok: true, message: '投稿を受け付けました。運営確認後に掲載されます。' }, 200, origin);
+}
+
+
+// ============================================
+// EHN MY CARDS: 自分の投稿一覧(2026-06-05 additive)
+// ============================================
+async function handleHackerMyCards(request, env, origin) {
+  const auth = request.headers.get('Authorization') || '';
+  const tk = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!tk) return json({ error: 'login required' }, 401, origin);
+  const sessRaw = await env.ORDERS.get(`hacker_token:${tk}`);
+  if (!sessRaw) return json({ error: 'invalid or expired token' }, 401, origin);
+  const sess = JSON.parse(sessRaw);
+  const me = sess.line_user_id || '';
+  if (!me) return json({ ok: true, pending: [], published: [] }, 200, origin);
+
+  const pending = [];
+  const published = [];
+
+  // 承認待ち(pending_card:*)
+  const pl = await env.ORDERS.list({ prefix: 'pending_card:' });
+  for (const k of pl.keys) {
+    const raw = await env.ORDERS.get(k.name);
+    if (!raw) continue;
+    const c = JSON.parse(raw);
+    if (c.poster_line_id === me) {
+      pending.push({ id: c.id, genre: c.genre, title: c.title, amount: c.amount || '', traits: c.traits || [], red_flags: c.red_flags || 0, verdict: c.verdict || '', created_at: c.created_at || 0 });
+    }
+  }
+
+  // 公開中(card_index 経由で card:*)
+  const idxRaw = await env.ORDERS.get('card_index');
+  const ids = idxRaw ? JSON.parse(idxRaw) : [];
+  for (const id of ids) {
+    const raw = await env.ORDERS.get(`card:${id}`);
+    if (!raw) continue;
+    const c = JSON.parse(raw);
+    if (c.poster_line_id === me) {
+      published.push({ id: c.id, genre: c.genre, title: c.title, amount: c.amount || '', traits: c.traits || [], red_flags: c.red_flags || 0, verdict: c.verdict || '', created_at: c.created_at || 0 });
+    }
+  }
+
+  pending.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+  published.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+  return json({ ok: true, pending, published, display_name: sess.display_name || '', picture_url: sess.picture_url || '' }, 200, origin);
+}
+
+
+// ============================================
+// EHN DELETE: 管理画面から投稿削除(pending/published両対応・2026-06-05 additive)
+// ============================================
+async function handleHackerDelete(request, env, origin) {
+  const url = new URL(request.url);
+  const key = url.searchParams.get('key') || '';
+  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) return json({ error: 'unauthorized' }, 401, origin);
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ error: 'invalid json' }, 400, origin); }
+  const type = (body.type || '').toString();
+  const id = (body.id || '').toString();
+  if (!id) return json({ error: 'missing id' }, 400, origin);
+
+  if (type === 'pending') {
+    await env.ORDERS.delete(`pending_card:${id}`);
+    return json({ ok: true, deleted: 'pending', id }, 200, origin);
+  }
+  if (type === 'published') {
+    await env.ORDERS.delete(`card:${id}`);
+    const idxRaw = await env.ORDERS.get('card_index');
+    if (idxRaw) {
+      const ids = JSON.parse(idxRaw).filter(x => x !== id);
+      await env.ORDERS.put('card_index', JSON.stringify(ids));
+    }
+    return json({ ok: true, deleted: 'published', id }, 200, origin);
+  }
+  return json({ error: 'type must be pending or published' }, 400, origin);
+}
+
+async function handleHackerPending(request, env, origin) {
+  const url = new URL(request.url);
+  const key = url.searchParams.get('key') || '';
+  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) return json({ error: 'unauthorized' }, 401, origin);
+  const list = await env.ORDERS.list({ prefix: 'pending_card:' });
+  const items = [];
+  for (const k of list.keys) {
+    const raw = await env.ORDERS.get(k.name);
+    if (!raw) continue;
+    items.push(JSON.parse(raw));
+  }
+  items.sort((a, b) => b.created_at - a.created_at);
+  return json({ ok: true, pending: items }, 200, origin);
+}
+
+async function handleHackerCommentsPending(request, env, origin) {
+  const url = new URL(request.url);
+  const key = url.searchParams.get('key') || '';
+  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) return json({ error: 'unauthorized' }, 401, origin);
+  const list = await env.ORDERS.list({ prefix: 'comment:' });
+  const items = [];
+  for (const k of list.keys) {
+    const raw = await env.ORDERS.get(k.name);
+    if (!raw) continue;
+    const cm = JSON.parse(raw);
+    if (cm.status !== 'pending') continue;
+    items.push({ comment_key: k.name, card_id: cm.card_id, name: cm.name, picture: cm.picture, body: cm.body, at: cm.at });
+  }
+  items.sort((a, b) => b.at - a.at);
+  return json({ ok: true, pending: items }, 200, origin);
+}
+
+async function handleHackerCommentReject(request, env, origin) {
+  const url = new URL(request.url);
+  const key = url.searchParams.get('key') || '';
+  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) return json({ error: 'unauthorized' }, 401, origin);
+  const ck = url.searchParams.get('comment_key') || '';
+  if (!ck) return json({ error: 'missing comment_key' }, 400, origin);
+  await env.ORDERS.delete(ck);
+  return json({ ok: true, deleted: true }, 200, origin);
+}
+
+async function handleHackerPublish(request, env, origin) {
+  const url = new URL(request.url);
+  const key = url.searchParams.get('key') || '';
+  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) return json({ error: 'unauthorized' }, 401, origin);
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ error: 'invalid json' }, 400, origin); }
+
+  const pendingId = (body.pending_id || '').toString();
+  const action = (body.action || 'publish').toString();
+  if (!pendingId) return json({ error: 'missing pending_id' }, 400, origin);
+
+  const pkey = `pending_card:${pendingId}`;
+  const raw = await env.ORDERS.get(pkey);
+  if (!raw) return json({ error: 'pending not found' }, 404, origin);
+  const p = JSON.parse(raw);
+
+  if (action === 'reject') {
+    await env.ORDERS.delete(pkey);
+    return json({ ok: true, action: 'rejected' }, 200, origin);
+  }
+
+  const id = 'card-' + Date.now();
+  const card = {
+    id,
+    genre:    body.genre    || p.genre || 'その他',
+    region:   body.region   || p.region || '',
+    building: body.building || p.building || '',
+    title:    body.title    || p.title || '見積もり',
+    traits:   Array.isArray(body.traits) ? body.traits : (p.traits || []),
+    red_flags: (body.red_flags != null) ? Number(body.red_flags) : (Number(p.red_flags) || 0),
+    verdict:  body.verdict  || p.verdict || '',
+    amount:   body.amount  != null ? String(body.amount) : (p.amount || ''),
+    initial:  body.initial != null ? String(body.initial) : (p.initial || ''),
+    poster_line_id: p.poster_line_id || '',
+    poster_name:    p.poster_name || '',
+    published: true,
+    created_at: Date.now(),
+  };
+  await env.ORDERS.put(`card:${id}`, JSON.stringify(card));
+
+  const idxRaw = await env.ORDERS.get('card_index');
+  const ids = idxRaw ? JSON.parse(idxRaw) : [];
+  if (!ids.includes(id)) ids.unshift(id);
+  await env.ORDERS.put('card_index', JSON.stringify(ids));
+
+  await env.ORDERS.delete(pkey);
+  return json({ ok: true, action: 'published', card }, 200, origin);
+}
+
 // ====================================================================
 // ▼▼▼ v11 NEW: /reverse-estimate ヒアリング判定型 ▼▼▼
 // ====================================================================
@@ -1405,10 +2130,12 @@ if (hearingResult.items && previous_answers) {
 
 export default {
   async fetch(request, env) {
+    // ★ 2026-06-02 B案: env初期値フォールバック(Worker間fetch死亡対策)
+    PRICE_COEFF = parseFloat(env.WAR_COEFF) || 1.0;
     try {
       const _cr = await fetch('https://hs-price-sync.oga-surf-project.workers.dev/current-coefficient');
-      if (_cr.ok) { const _cd = await _cr.json(); PRICE_COEFF = _cd.coefficient || 1.0; }
-    } catch(e) { PRICE_COEFF = 1.0; }
+      if (_cr.ok) { const _cd = await _cr.json(); if (_cd.coefficient) PRICE_COEFF = _cd.coefficient; }
+    } catch(e) { /* fetch死亡時はenv値(WAR_COEFF)を維持 */ }
     const url = new URL(request.url);
     const path = url.pathname;
     const origin = request.headers.get('Origin') || '';
@@ -1430,6 +2157,66 @@ export default {
     // ===== v10: /checkout/complete =====
     if (path === '/checkout/complete' && request.method === 'POST') {
       return handleCheckoutComplete(request, env, origin);
+    }
+    if (path === '/auth/line-login-start' && request.method === 'POST') {
+      return handleHackerLoginStart(request, env, origin);
+    }
+    if (path === '/auth/line-login-verify' && request.method === 'POST') {
+      return handleHackerLoginVerify(request, env, origin);
+    }
+    if (path === '/auth/google-login-start' && request.method === 'POST') {
+      return handleGoogleLoginStart(request, env, origin);
+    }
+    if (path === '/auth/google-login-verify' && request.method === 'POST') {
+      return handleGoogleLoginVerify(request, env, origin);
+    }
+    if (path === '/auth/hacker-me' && request.method === 'GET') {
+      return handleHackerMe(request, env, origin);
+    }
+    if (path === '/hacker/cards' && request.method === 'GET') {
+      return handleHackerCards(request, env, origin);
+    }
+    if (path === '/hacker/card' && request.method === 'GET') {
+      return handleHackerCard(request, env, origin);
+    }
+    if (path === '/hacker/comment' && request.method === 'POST') {
+      return handleHackerComment(request, env, origin);
+    }
+    if (path === '/hacker/card' && request.method === 'POST') {
+      return handleHackerCardAdmin(request, env, origin);
+    }
+    if (path === '/hacker/analyze' && request.method === 'POST') {
+      return handleHackerAnalyze(request, env, origin);
+    }
+    if (path === '/hacker/submit-card' && request.method === 'POST') {
+      return handleHackerSubmitCard(request, env, origin);
+    }
+    if (path === '/hacker/comment-approve' && request.method === 'POST') {
+      return handleHackerCommentApprove(request, env, origin);
+    }
+    if (path === '/hacker/comments-pending' && request.method === 'GET') {
+      return handleHackerCommentsPending(request, env, origin);
+    }
+    if (path === '/hacker/comment-reject' && request.method === 'POST') {
+      return handleHackerCommentReject(request, env, origin);
+    }
+    if (path === '/hacker/comment-like' && request.method === 'POST') {
+      return handleHackerCommentLike(request, env, origin);
+    }
+    if (path === '/hacker/reply' && request.method === 'POST') {
+      return handleHackerReply(request, env, origin);
+    }
+    if (path === '/hacker/my-cards' && request.method === 'GET') {
+      return handleHackerMyCards(request, env, origin);
+    }
+    if (path === '/hacker/pending' && request.method === 'GET') {
+      return handleHackerPending(request, env, origin);
+    }
+    if (path === '/hacker/delete' && request.method === 'POST') {
+      return handleHackerDelete(request, env, origin);
+    }
+    if (path === '/hacker/publish' && request.method === 'POST') {
+      return handleHackerPublish(request, env, origin);
     }
 
     // ===== /kira - マルチAI統合エンドポイント =====
@@ -1803,6 +2590,13 @@ ${claudeAnswer}
             risk: body.risk || '',
             createdAt: new Date().toISOString(),
           }), { expirationTtl: 60 * 60 * 24 * 90 });
+        // ===== 自動仕分け：診断結果を公開候補に溜める（既存処理の後ろに追加・無傷）=====
+        try {
+          if (body.result || body.message) {
+            const cls = await classifyEstimate(body.result || body.message, body.type, env);
+            await savePendingCard(cls, { name: body.name || '', email: body.email || '', line_id: body.line_id || '' }, env);
+          }
+        } catch (e) { console.error('auto-classify hook error:', e.message); }
         }
         return json({ ok: res.ok }, 200, origin);
       } catch (e) { return json({ error: e.message }, 500, origin); }
@@ -1875,11 +2669,234 @@ ${claudeAnswer}
       } catch (e) { return json({ error: e.message }, 500, origin); }
     }
 
+    // ===== /admin-verify（管理者用・無料見積検証 / 2026-05-23追加）=====
+    if (path === '/admin-verify' && request.method === 'POST') {
+      try {
+        const body = await request.json();
+        const estimateText = (body.estimate || '').toString().trim();
+        const memo = (body.memo || '').toString().trim();
+        const fileData = body.fileData || null;
+        const fileType = body.fileType || null;
+        const fileMime = body.fileMime || null;
+        if (!estimateText && !fileData) {
+          return new Response(JSON.stringify({ error: '見積内容もファイルも空です' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+        }
+        const baseSystem = `あなたはHORIZON SHIELDの建設費診断AI「KIRA」です。施主の側に立ち、業者からは一円も受け取っていません。提示された見積書を、根拠のある範囲だけで逆見積もり診断してください。
+
+【診断方針】
+・工事内容・数量・単価・合計を読み取る。
+・souba-db の相場（後述の実データ）と照合する。資材高騰補正としてWPC（戦時価格係数）×1.0935を必要に応じ考慮する。
+・判定は段階的に：白（適正）／グレー（要確認）／黒（過剰の疑い）。施主が認証を断れる判定にする。
+・過剰の疑いは必ず具体的な円金額のレンジで指摘する。
+・相場データが薄い品目は「相場データ不足」と正直に言う。捏造で相場を作らない。
+・Markdownの多用・絵文字は避ける。簡潔に。引き算の美学。
+・最後に「より詳細な項目別診断はHORIZON SHIELD ¥5,500 PDFレポートで」と一文だけ添える（押し売りはしない）。
+・【数量・面積の異常検知】単価が相場内でも、数量・面積そのものが不自然でないか必ず確認する。特に：同一単価が複数行で不自然に同一数量で並んでいないか／居室と廊下・屋根裏・収納が同じ床・壁・クロス面積になっていないか（物理的に不自然）／「一式」表記で数量が隠れていないか。数量の水増しは単価の過剰と同じく具体的な円金額で指摘する。
+・【比率の異常検知】諸経費・現場管理費が工事総額に占める比率を計算する。5%未満は「安い」ではなく「管理費が各行に溶けて不透明」と疑い、20%超は過剰を疑う。
+・【二重計上の誤判定を避ける】見積書は通常「概要ページ（合計のみ）」と「内訳ページ（明細）」の2層構造を持つ。概要の項目と内訳の同名項目が同額で対応しているのは正常であり、二重計上ではない。同じ金額が概要と内訳の両方に現れても、それが「要約と明細の対応関係」なら過剰として計上しない。真の二重計上は、同一工事が内訳の中で複数回、別々に金額計上されている場合のみを指す。疑わしい場合は「二重計上の可能性（要確認）」とグレー扱いにとどめ、確定的な黒や具体的過剰額として断定しない。
+
+【出力構成】
+1. 総評（結論先出し・全体の段階判定）
+2. 白（適正な点）
+3. グレー（要確認）
+4. 黒（過剰の疑い・最重要）
+5. 要確認金額レンジ（円・捏造なしの概算）`;
+        let systemPrompt = baseSystem;
+        try {
+          systemPrompt = await enrichSystemPromptWithSoubaData(baseSystem, [{ role: 'user', content: estimateText }]);
+        } catch (_) {}
+        const textPart = memo ? `${estimateText}\n\n【補足メモ】${memo}` : estimateText;
+        const contentArr = [];
+        if (fileData && fileType === 'pdf') {
+          contentArr.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: fileData } });
+        } else if (fileData && fileType === 'image') {
+          contentArr.push({ type: 'image', source: { type: 'base64', media_type: fileMime || 'image/jpeg', data: fileData } });
+        }
+        contentArr.push({ type: 'text', text: textPart || 'この見積書を診断してください。' });
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': env.ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 2000,
+            system: systemPrompt,
+            messages: [{ role: 'user', content: contentArr }],
+          }),
+        });
+        const data = await res.json();
+        const diagnosis = data?.content?.[0]?.text || '診断結果を取得できませんでした。';
+        const key = `inquiry:${Date.now()}:admin-verify`;
+        await env.KIRA_STATS.put(key, JSON.stringify({
+          name: '【管理者検証】',
+          email: '',
+          type: 'admin-verify',
+          result: diagnosis,
+          estimate: estimateText || (fileData ? '[ファイル添付による診断]' : ''),
+          has_file: !!fileData,
+          actual_fair_price: null,
+          source: 'admin-free-verify',
+          createdAt: new Date().toISOString(),
+        }), { expirationTtl: 60 * 60 * 24 * 365 });
+        return new Response(JSON.stringify({ ok: true, diagnosis, key }), {
+          headers: { 'Content-Type': 'application/json;charset=utf-8' },
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+      }
+    }
+    // ===== /admin-verify ここまで =====
+
+    // ===== /admin-special-audit（¥55,000監査・最上級 / 2026-05-23追加）=====
+    // admin専用（ADMIN_PASSWORDゲート裏で使う想定）。Sonnet 4 + 4観点 + 複数ファイル + OTSハッシュ刻印。
+    if (path === '/admin-special-audit' && request.method === 'POST') {
+      try {
+        const body = await request.json();
+        const estimateText = (body.estimate || '').toString().trim();
+        const memo = (body.memo || '').toString().trim();
+        const files = Array.isArray(body.files) ? body.files : [];
+        // ★戦時価格係数を最新化（逆見積もりと同方式・hs-price-sync承認済み値を動的取得）
+        try {
+          const _wc = await fetch('https://hs-price-sync.oga-surf-project.workers.dev/current-coefficient');
+          if (_wc.ok) { const _wd = await _wc.json(); PRICE_COEFF = _wd.coefficient || 1.0; }
+        } catch (_e) { PRICE_COEFF = 1.0; }
+        if (!estimateText && files.length === 0) {
+          return new Response(JSON.stringify({ error: '見積内容もファイルも空です' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+        }
+        const baseSystem = `あなたはHORIZON SHIELDの最上級建設費監査AI「KIRA」です。¥55,000の有料精密監査として、施主の側に立ち（業者から報酬は受けない）、提示資料を根拠のある範囲だけで監査してください。真の論点は個別品目の単価より、諸経費比率・数量妥当性・材工分離・特約リスクなど全体構造にあることが多い。指摘を盛らず、本当に問題な点だけを鋭く突く（引き算の美学）。
+
+【金額の桁ルール｜厳守】金額は必ず円単位・カンマ区切りで書く（例：130,000円）。「万円」で書くときは必ず（円÷10000）を計算してから書く（130,000円＝13万円、870,000円＝87万円）。桁を一つも足すな・削るな。各工種の小計・諸経費・税抜/税込総額は見積書の数値をそのまま用い、10倍も1/10もしない。本文を出す前に必ず自己検算する：(a)各小計の和が税抜総額にほぼ一致するか (b)諸経費や任意の単一項目が総額を超えていないか (c)述べた比率(パーセント)と金額(円)の桁が矛盾していないか。例：税抜総額100万円の見積で諸経費が130万円になることは有り得ない（正しくは13万円）。
+
+【判定軸・5段階】最終判定は次の5段階のいずれか1つを必ず明示する：白／白寄りグレー／中間グレー／黒寄りグレー／黒。グレーを一語で終わらせず、白寄りか黒寄りかを必ず示す（施主が「危険度」を一目で判断できるようにする）。段階の決定は主に諸経費比率・相場上限超過の項目数・一式項目の比率の3指標で機械的に行う：
+・白＝諸経費10〜16%内かつ相場超過項目ゼロかつ内訳が明瞭。
+・白寄りグレー＝諸経費が適正範囲かつ過剰断定できる項目ゼロだが、一式多用等で内訳透明性が低い（＝危険は小さいが内訳開示を求めるべき状態）。
+・中間グレー＝諸経費がやや高め(16〜20%) または 相場上限付近の項目が1〜2件。
+・黒寄りグレー＝諸経費20%超 または 相場上限超の項目が複数 または 高額が一式に集中し数量根拠が皆無。
+・黒＝相場を明確に超過し過剰と断定できる項目がある／内訳内の二重計上／材料等級と単価が明確に乖離。
+削減額0円でもグレー（特に白寄りグレー）はありうる。金額是正の余地が無いことと、内訳確認を要することは両立する。総評の冒頭で5段階のどれかと判定理由を必ず1文で示す。
+
+【監査の着眼点】
+・souba-db相場と照合。相場データが薄い品目は正直に「相場不足」と言い捏造しない。住宅用小型品の相場を特殊・大型・業務用工事に当てて過剰判定しない（相場欠損による幻の過剰判定の回避）。
+・【★戦時価格係数（最新・自動取得）】現在の戦時価格係数は ${PRICE_COEFF} 倍（hs-price-syncの承認済み値を本監査の都度自動取得）。これは2025年以降の中東情勢・資材高騰を日銀CGPIから算出した公的補正である。souba-dbの相場は平時基準のため、相場の妥当ラインを判定する際は、この係数を反映した水準（相場×${PRICE_COEFF}前後）を「現在の適正上限」とみなすこと。平時相場をそのまま上限として過剰判定してはならない（戦時下では平時比で上振れするのが正常）。
+・【★メーカー供給アラート（最重要・価格より先に警告）】下記は現在進行中の供給制約・受注停止・大幅値上げである。見積書または相談内容に該当工種・該当資材が含まれる場合、価格の妥当性を論じる前に、まず供給状況・納期リスク・代替提案を必ず明示すること。「いくらで出来る」と即答する前に「そもそも今は入手・着工に制約がある」事実を施主に伝えるのが最上級監査の責務である：
+  - 浴室・トイレ（ユニットバス/トイレユニット）：TOTO・LIXILが2026/4/13〜新規受注停止中。代替としてタカラスタンダードを推奨。納期・入手に重大な制約あり。
+  - 屋根・防水・雨漏り（ルーフィング類）：田島ルーフィング等が2026/5/1〜+40〜50%値上げ。5月以降着工分が値上げ対象。
+  - 塗装（塗料・シンナー）：日本ペイント+60%、関西ペイント+50%（2026/5/1〜）。外壁・屋根塗装の材料費は大幅上昇局面。
+  - 断熱材（フェノールフォーム/押出法ポリスチレン/グラスウール）：旭化成ネオマ受注制限〜生産停止、カネカ・スタイロ+40%、グラスウール+20%。代替品の検討が必須。
+  - 給湯器（エコジョーズ等）：納期3〜6ヶ月。先行発注が必須。
+  - エアコン（冷媒配管）：因幡電工+20%（銅・石油原料高）。
+  これらは推測ではなくシステムに登録された実データである。該当しない工種には触れなくてよいが、該当する場合の警告省略は重大な見落としとみなす。
+・諸経費・現場管理費の比率を必ず算出・明示。5%未満は不透明、10〜16%は一般的(グレー止まり・黒にしない)、20%超は過剰を疑う。
+・【数量・面積の異常検知（必ず実施・具体額で指摘）】単価が相場内でも、数量・面積そのものが不自然でないか必ず精査する。特に：(a)同一単価が複数行で不自然に同一数量で並んでいないか／(b)居室と廊下・屋根裏・収納・複数の部屋が同じ床・壁・クロス面積になっていないか（実測なら一致しえない＝コピペ数量の強い疑い）／(c)冷媒配管長・配線長などの数量が階をまたいで完全一致していないか／(d)「一式」表記で数量が隠れていないか。該当を見つけたら「グレーで確認要求」にとどめず、水増し可能性のある金額を「品目：現状◯円→妥当◯円（差◯円）／理由」の形で具体的な円金額で必ず指摘し、削減見込額に積み上げる。数量水増しは単価過剰と同格に扱い、根拠が示せる範囲で黒（または黒寄りグレー）に上げてよい。
+・材工分離が不透明な項目、追加工事の特約（別途協議等）の明文化を精査。
+・概要ページと内訳ページの同名同額対応は正常で二重計上ではない。真の二重計上は内訳内の重複のみ。疑わしきはグレー止まり。
+
+【削減見込額のルール】本文で円を挙げて指摘した項目の積み上げ合計のみとする（レンジ中央値を採らない／指摘していない項目を含めない）。各指摘は「品目：現状◯円→妥当◯円（差◯円）／理由」で根拠を示す。根拠を示せない額は計上しない。削減点が無ければ0円とし適正と明言する。
+
+【比較モード・2通以上で必ず起動】まず発行元（差出会社名・住所・押印）を識別し種別を自動判定する。
+■同一業者の複数版（修正前後）：版を突き合わせ、後版が安い時はその下げ方を区別する。(A)値引き型=材料・仕様・範囲は同じで金額だけ下げた／不要項目を削った＝純粋な改善。改善版を前版より厳しく裁いてはならない。(B)ダウングレード型=材料の等級・仕様・工事範囲そのものを落として安くした（無垢材→合板、必要工程の省略等）＝別グレードの選択肢であり、安さを理由に推奨してはならない。見抜く着眼=材料名・等級・数量・工程を1項目ずつ照合し、工賃/材料費の不自然な大幅減（半額以下等）はグレード低下を疑い明示。ダウングレード時は「安い版は品質が別物」と明言し、価格優先/品質優先で施主が選ぶ選択肢として提示する（品質低下を見過ごし安い方を推さない）。推奨適正額は値引き型なら最新版基準、ダウングレード型なら各版の額を併記し自動集計には最新版を用い別仕様である旨を明記。
+■複数業者の相見積もり（発行元が異なる）：総額の単純比較は厳禁。スコープを揃えてから比較する。手順=(1)全社共通の項目を抽出し基準スコープ（施主が本当にやりたい工事）とする (2)各社を「含む/抜く/上乗せ/材料・等級・工法が違う」で仕分け、特に抜けとグレード違いは安さの正体として金額と共に明示 (3)必要工程（下地処理・養生・廃材処分・電気設備等）を別途/含まずにして安く見せ後で追加請求する手口を検出。安さの理由が必要工程の除外なら不完全な見積である (4)抜けを概算で補った実質総額で本当の割安さを判定（表面総額で判断しない） (5)全社が揃って抜いている必要工程があれば施主の見落としリスクとして指摘 (6)価格/品質/工期で施主の価値観により推奨は変わる前提で各社の長所短所を並べ、単一社を価格だけで断定推奨しない。必要工程を抜いて安く見せる社は注意喚起する。自動集計は実質総額が最も妥当な社の税込総額・推奨適正額を用い、一意に選べなければ判定グレーで各社の実質総額を本文併記する。
+
+【見えない部分の参考レンジ（判定根拠にはしない）】「一式」等で内訳が見えない項目について、不可・判定不能で突き放さず、見積全体から施主が何の工事を望んでいるかを読み取って明示する（例：設備＋大工＋クロス＝戸建ての水回り＋内装改修 等）。その上で、推定した工事に対する概算レンジを参考として示す。厳守事項：(1)souba-dbに該当工種があればその実レンジを使う。(2)souba-dbに無ければ「一般的な目安」と明示して概算幅を出す。(3)相場の手がかりが全く無い特殊・大型工事では正直に「目安を出せる相場が無い」と述べ、数字を創作しない。(4)この参考レンジは飽くまで施主が業者に内訳を問う材料であり、過剰・黒の判定根拠には一切用いない。必ず「※参考値・内訳開示前・判定の根拠ではありません」と注記する。(5)提示見積額がレンジ内か上限付近かを述べてよいが、それを理由に黒判定しない。
+
+【想定・理想工事代金（業者の言い値と独立に算出・推測）】見積から施主が望む工事内容を特定し、各工種をsouba-db相場で積み上げた「想定・理想工事代金」の概算レンジ（合計）を、業者の提示額とは独立に算出して本文に必ず示す。目的は、推奨額が単に安い業者の言い値に依存するのを避け、相場から見た妥当totalの目安を施主へ示すこと。手順：(1)工事内容を工種に分解する。(2)souba-dbに相場がある工種はその実レンジで積む。(3)相場が無い工種は「一般目安」と明示して概算で積むか、根拠皆無なら正直に「この工種は相場目安なし」と除外し総レンジに但し書きする（数字を創作しない）。(4)結果を「想定・理想工事代金：約◯◯万〜◯◯万円（※推測・内訳開示前・判定の根拠ではありません）」の形で示し、各社/各版の提示額がこのレンジに対し安いか高いか妥当かを述べる。(5)この想定額は参考であり、自動集計行の推奨適正額には用いない（自動集計の推奨適正額は従来どおり実額ベース）。比較モードでも単独監査でも必ず本ブロックを出力する。
+
+【出力構成】1.総評（結論先出し・5段階判定のどれかを明示・判定理由1文。比較時は推す版/社も先出し） 2.白（適正な点） 3.グレー（要確認） 4.黒（過剰の疑い） 5.削減見込額の内訳（上記ルールで積み上げ） 6.施主への推奨アクション（交渉カード） 7.比較時のみ：版間/社間比較（変更点・改善判定・残る共通論点・推奨）。Markdown多用と絵文字は避け簡潔に。
+※最後から2番目の行に必ず「出典：souba-db v2.1.0 / 2026-04-18更新」を出力（ハッシュ刻印用）。
+
+【自動集計行】出典行の後に空行1つ空け、最後に次の1行のみを装飾なしで出力：
+【自動集計】見積総額:（半角数字・円・税込総額） / 削減見込額:（半角数字・円） / 推奨適正額:（半角数字・円） / 判定:白|グレー|黒
+・削減見込額は上記ルールの積み上げ合計と一致。推奨適正額=見積総額−削減見込額の整数1個（レンジ不可）。比較モードでは最新版／妥当な社の税込総額を見積総額に用いる。確定不能時のみ 推奨適正額:要手動。・【判定の値は厳守】自動集計行の「判定:」に書く値は必ず 白／グレー／黒 の3語のいずれか1つだけにする。本文では白寄りグレー・中間グレー・黒寄りグレー等の5段階を使ってよいが、自動集計行では白寄り/黒寄り等の細分を書いてはならず、白寄りグレー・中間グレー・黒寄りグレーはすべて自動集計行では「グレー」と表記する（管理画面の集計が3択前提のため）。
+【★絶対ルール・相場算出の基本（実コスト整合＋再現性厳守）】施主が坪数・規模を示した工事は、必ず次の優先順で総額を算出する。推測で安易に㎡単価だけ掛けて総額にしてはならない。
+(1)souba-dbに坪数別・規模別の一式データ（例：外壁塗装30坪一式=70万〜115万、足場込み・3回塗り・付帯込み）があれば、それを正解の総額レンジとして最優先で使う。坪数が中間なら近い2つの一式データから線形に補間する。
+(2)坪数別一式が無い工種に限り、基本データを工種分解して積み上げる：塗装等の材工(㎡単価×面積) ＋ 足場(souba-dbの足場一式/㎡) ＋ 高圧洗浄(souba-dbの洗浄㎡) ＋ コーキング(souba-dbのm単価×延長) ＋ 付帯塗装。各項目は必ずsouba-dbの該当データを用い、無い項目だけ一般目安で補い注記する。
+(3)【最重要・過小評価の禁止】souba-dbの塗装㎡単価（例：シリコン2,300〜3,500円/㎡）は塗装材工のみの単価であり、足場・高圧洗浄・付帯・諸経費は含まない。㎡単価×面積だけを総額として提示することを固く禁ずる（実コストのおよそ半額になり重大な誤り）。必ず足場等を別途加算するか、(1)の一式データを使う。
+(4)積み上げで出した総額は、対応する坪数別一式データのレンジ内に収まるか必ず検算する。一式レンジから大きく外れたら積み直す（外れたまま提示しない）。
+(5)レンジは該当souba-dbのmin〜maxを基準にし、松＝avg〜max帯、竹＝min〜avg帯、梅＝min近辺で構成する。松竹梅のCV(変動係数)は 松=基準CV×0.6／竹=基準CV×0.85／梅=基準CV×1.2 で差別化し、レンジを必要以上に広げない。基準CVはsouba-dbの (max−min)/(2×avg) を用いる。
+(6)同一の質問には毎回ほぼ同一の総額レンジを返すこと（再現性厳守）。本文に算出根拠（使った一式データ名、または積み上げ各項目と金額）を必ず明記し、読み手が同じ手順で再計算できるようにする。ぶれは重大な不具合とみなす。`;
+        let systemPrompt = baseSystem;
+        try {
+          systemPrompt = await enrichSystemPromptWithSoubaData(baseSystem, [{ role: 'user', content: estimateText }]);
+        } catch (_) {}
+        const contentArr = [];
+        for (const f of files) {
+          if (f && f.data && f.type === 'pdf') {
+            contentArr.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: f.data } });
+          } else if (f && f.data && f.type === 'image') {
+            contentArr.push({ type: 'image', source: { type: 'base64', media_type: f.mime || 'image/jpeg', data: f.data } });
+          }
+        }
+        const textPart = memo ? `${estimateText}\n\n【補足メモ】${memo}` : estimateText;
+        contentArr.push({ type: 'text', text: textPart || 'これらの資料を突き合わせて精密監査してください。' });
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': env.ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 8192,
+            temperature: 0,
+            system: systemPrompt,
+            messages: [{ role: 'user', content: contentArr }],
+          }),
+        });
+        const data = await res.json();
+        let audit = data?.content?.[0]?.text || '監査結果を取得できませんでした。';
+        const auditHash = await generateSHA256Hash(estimateText + '|' + files.length + '|' + new Date().toISOString());
+        if (auditHash) {
+          audit = injectAuditHash(audit, auditHash);
+        }
+        const key = `inquiry:${Date.now()}:special-audit`;
+        await env.KIRA_STATS.put(key, JSON.stringify({
+          name: '【¥55,000監査】',
+          email: '',
+          type: 'special-audit',
+          result: audit,
+          estimate: estimateText || (files.length ? `[資料${files.length}点による監査]` : ''),
+          file_count: files.length,
+          audit_hash: auditHash || null,
+          actual_fair_price: null,
+          contract_amount: null,
+          source: 'admin-special-audit',
+          createdAt: new Date().toISOString(),
+        }), { expirationTtl: 60 * 60 * 24 * 365 });
+        return new Response(JSON.stringify({ ok: true, audit, audit_hash: auditHash, key, _debug_price_coeff: PRICE_COEFF }), {
+          headers: { 'Content-Type': 'application/json;charset=utf-8' },
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+      }
+    }
+    // ===== /admin-special-audit ここまで =====
+
     // ===== /admin =====
     if (path === '/admin') {
       try {
+        // ===== admin-auth-gate（2026-05-23追加・サーバ側パスワード判定）=====
+        const _pw = url.searchParams.get('key') || '';
+        const _correct = env.ADMIN_PASSWORD || '';
+        if (!_correct || _pw !== _correct) {
+          const loginHtml = `<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HS管理 ログイン</title>
+<style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:90vh;background:#f5f5f5}.box{background:#fff;padding:32px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);width:300px;text-align:center}input{width:100%;padding:10px;border:1px solid #bbb;border-radius:8px;font-size:15px;box-sizing:border-box;margin:12px 0}button{width:100%;background:#1a3a5c;color:#fff;border:none;padding:11px;border-radius:8px;font-size:15px;cursor:pointer}</style></head>
+<body><div class="box"><div style="font-weight:700;color:#1a3a5c;font-size:17px">HORIZON SHIELD 管理画面</div>
+<input id="pw" type="password" placeholder="パスワード" onkeydown="if(event.key==='Enter')go()" autofocus>
+<button onclick="go()">入る</button>
+<div id="msg" style="color:#c00;font-size:12px;margin-top:8px;min-height:16px"></div></div>
+<script>
+function go(){var p=document.getElementById('pw').value;if(!p){return;}location.href='/admin?key='+encodeURIComponent(p);}
+${_pw ? "document.getElementById('msg').textContent='パスワードが違います';" : ""}
+</script></body></html>`;
+          return new Response(loginHtml, { status: _pw ? 401 : 200, headers: { 'Content-Type': 'text/html;charset=utf-8' } });
+        }
+        // ===== admin-auth-gate ここまで =====
         const list = await env.KIRA_STATS.list();
-        const inquiryKeys = list.keys.filter(k => !k.name.startsWith('history:'));
+        const inquiryKeys = list.keys.filter(k => k.name.startsWith('inquiry:'));
         const historyCount = list.keys.filter(k => k.name.startsWith('history:')).length;
         const items = await Promise.all(
           inquiryKeys.map(async (k) => {
@@ -1887,7 +2904,7 @@ ${claudeAnswer}
             return { key: k.name, ...(val || {}) };
           })
         );
-        const rows = items.map(i => `<tr><td>${i.name||''}</td><td>${i.email||''}</td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.result||''}</td><td><button onclick="del('${i.key}')">削除</button></td></tr>`).join('');
+        const rows = items.map(i => `<tr><td style="text-align:center"><input type="checkbox" class="hsDelChk" value="${i.key}"></td><td>${i.name||''}</td><td>${i.email||''}</td><td onclick="showResult(this)" data-full="${encodeURIComponent(i.result||'')}" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:#1a3a5c">${i.result||''}</td><td style="text-align:right">${i.actual_fair_price ? ('¥'+Number(i.actual_fair_price).toLocaleString()) : '<span style="color:#bbb">—</span>'}</td><td><button onclick="label('${i.key}')" style="background:#1a3a5c;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;margin-right:4px">適正額</button><button onclick="del('${i.key}')">削除</button></td></tr>`).join('');
         const bankKeys = list.keys.filter(k => k.name.startsWith('bank:'));
         const bankItems = await Promise.all(bankKeys.map(async (k) => {
           const val = await env.KIRA_STATS.get(k.name, { type: 'json' });
@@ -1897,20 +2914,139 @@ ${claudeAnswer}
         const html = `<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HS管理</title>
 <style>body{font-family:sans-serif;padding:16px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;font-size:13px}th{background:#f5f5f5}button{padding:4px 8px;cursor:pointer}.stat{background:#f0f4ff;padding:12px;border-radius:8px;margin-bottom:16px;display:flex;gap:24px;flex-wrap:wrap}.badge{background:#3b82f6;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px}</style></head>
 <body><h2>HORIZON SHIELD 管理画面 <span class="badge">v11 + Reverse-Estimate</span></h2>
+<div style="margin:6px 0 14px"><a href="/admin-subscribers?key=${encodeURIComponent(_pw)}" style="display:inline-block;background:#16223c;color:#fff;text-decoration:none;padding:9px 16px;border-radius:8px;font-size:14px;font-weight:700">🛡 創設メンバー 登録者管理 →</a></div>
 <div class="stat"><span>📋 問い合わせ: <strong>${items.length}件</strong></span><span>🧠 記憶ユーザー: <strong>${historyCount}名</strong></span><span>🤖 Claude + Gemini: <strong>連携中</strong></span></div>
+<div style="background:#f0f4ff;border:1px solid #c7d6f5;border-radius:10px;padding:16px;margin-bottom:18px">
+  <div style="font-weight:700;color:#1a3a5c;margin-bottom:8px">🔎 見積を貼って無料検証（管理者専用 / 何度でも無料）</div>
+  <textarea id="estIn" placeholder="ここに見積書の内容を貼り付け（工事内容・数量・単価・金額など。テキストで可）" style="width:100%;min-height:140px;padding:10px;border:1px solid #bbb;border-radius:8px;font-size:13px;box-sizing:border-box"></textarea>
+  <input id="estMemo" type="text" placeholder="補足メモ（任意：地域・坪数・既存状況など）" style="width:100%;padding:8px;border:1px solid #bbb;border-radius:8px;font-size:13px;margin-top:8px;box-sizing:border-box">
+  <div style="margin-top:10px"><label style="font-size:13px;color:#1a3a5c;cursor:pointer">📎 ファイルを添付（画像・PDF・任意）<input id="estFile" type="file" accept="image/*,.pdf" style="display:block;margin-top:6px;font-size:12px"></label><span id="estFileName" style="font-size:12px;color:#888;margin-left:8px"></span></div>
+  <div style="margin-top:10px;display:flex;gap:10px;align-items:center">
+    <button id="estBtn" onclick="verifyEstimate()" style="background:#1a3a5c;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700">検証する</button>
+    <span id="estStatus" style="color:#888;font-size:13px"></span>
+  </div>
+  <div id="estResult" style="display:none;white-space:pre-wrap;line-height:1.7;font-size:13px;color:#222;background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px;margin-top:12px"></div>
+</div>
+<div style="background:#0f1f33;border:2px solid #c9a227;border-radius:12px;padding:18px;margin-bottom:18px;color:#fff">
+  <div style="font-weight:700;color:#c9a227;margin-bottom:4px;font-size:15px">⚖️ 最上級監査（¥55,000グレード）</div>
+  <div style="font-size:12px;color:#9fb4cc;margin-bottom:10px">Sonnet 4 × 複数資料突合 × 改ざん防止ハッシュ刻印。図面・契約書・内訳書をまとめて監査。</div>
+  <textarea id="spIn" placeholder="見積内容をテキストで貼り付け（任意。ファイルだけでも可）" style="width:100%;min-height:100px;padding:10px;border:1px solid #3a5573;border-radius:8px;font-size:13px;box-sizing:border-box;background:#fff;color:#222"></textarea>
+  <input id="spMemo" type="text" placeholder="補足メモ（地域・坪数・築年数・既存状況など）" style="width:100%;padding:8px;border:1px solid #3a5573;border-radius:8px;font-size:13px;margin-top:8px;box-sizing:border-box;background:#fff;color:#222">
+  <div style="margin-top:10px"><label style="font-size:13px;color:#c9a227;cursor:pointer">📎 複数資料を添付（画像・PDF / 図面・契約書・内訳書）<input id="spFiles" type="file" accept="image/*,.pdf" multiple onchange="spShowFiles()" style="display:block;margin-top:6px;font-size:12px;color:#fff"></label><div id="spFileList" style="font-size:12px;color:#9fb4cc;margin-top:6px"></div></div>
+  <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
+    <button id="spBtn" onclick="runSpecialAudit()" style="background:#c9a227;color:#0f1f33;border:none;padding:11px 22px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700">最上級監査を実行</button>
+    <span id="spStatus" style="color:#9fb4cc;font-size:13px"></span>
+  </div>
+  <div id="spResult" style="display:none;white-space:pre-wrap;line-height:1.7;font-size:13px;color:#222;background:#fff;border-radius:8px;padding:14px;margin-top:12px"></div>
+  <div id="spHash" style="display:none;font-size:11px;color:#c9a227;margin-top:8px;font-family:monospace"></div>
+</div>
 <h3 style="margin:16px 0 8px;color:#ffaa00">💰 銀行振込申込</h3>
 <table><tr><th>名前</th><th>メール</th><th>サービス</th><th>金額</th><th>振込日</th><th>状態</th><th>操作</th></tr>${bankRows}</table>
 <h3 style="margin:16px 0 8px;color:#888">📋 問い合わせ</h3>
-<table><tr><th>名前</th><th>メール</th><th>診断結果</th><th>操作</th></tr>${rows}</table>
+<div style="margin:8px 0"><label style="margin-right:12px;cursor:pointer"><input type="checkbox" id="hsChkAll" onclick="hsToggleAll(this)"> 全選択</label><button onclick="hsDelSelected()" style="background:#c0392b;color:#fff;border:none;padding:6px 14px;border-radius:5px;cursor:pointer">選択した行を削除</button></div><table><tr><th>選択</th><th>名前</th><th>メール</th><th>診断結果</th><th>適正額</th><th>操作</th></tr>${rows}</table>
 <script>
 async function confirmPayment(key) {
   if(!confirm('入金確認済みにして、施主に専用URLをメール送信しますか？')) return;
   const r = await fetch('/confirm-payment', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});
   const d = await r.json();
-  if(r.ok) { alert('✅ 送信完了！\n' + d.email + 'に専用URLを送りました'); location.reload(); }
+  if(r.ok) { alert('✅ 送信完了！ ' + d.email + ' に専用URLを送りました'); location.reload(); }
   else alert('エラー: ' + d.error);
 }
-async function del(key){if(!confirm('削除しますか？'))return;const r=await fetch('/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});if(r.ok)location.reload();}</script></body></html>`;
+function showResult(td){const full=decodeURIComponent(td.getAttribute('data-full'));document.getElementById('resultModalBody').textContent=full;document.getElementById('resultModal').style.display='flex';}
+function closeResult(){document.getElementById('resultModal').style.display='none';}
+async function label(key){const v=prompt('実際の適正額を入力してください（円・数字のみ）');if(v===null||v==='')return;const n=Number(v.replace(/[^0-9]/g,''));if(!n){alert('数字を入力してください');return;}const r=await fetch('/log-inquiry-price',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,actual_fair_price:n})});const d=await r.json();if(r.ok){alert('記録しました: ¥'+n.toLocaleString());location.reload();}else{alert('エラー: '+d.error);}}
+async function del(key){if(!confirm('削除しますか？'))return;const r=await fetch('/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});if(r.ok)location.reload();}
+function hsToggleAll(master){var b=document.querySelectorAll('.hsDelChk');for(var i=0;i<b.length;i++){b[i].checked=master.checked;}}
+async function hsDelSelected(){var b=document.querySelectorAll('.hsDelChk:checked');if(b.length===0){alert('削除する行を選んでください');return;}if(!confirm(b.length+'件を削除します。よろしいですか？'))return;var keys=[];for(var i=0;i<b.length;i++){keys.push(b[i].value);}for(var j=0;j<keys.length;j++){try{await fetch('/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:keys[j]})});}catch(e){}}location.reload();}
+/* ===== 自動集計→適正額 自動入力（2026-05-24 追加・追加のみ／バックスラッシュ不使用） ===== */
+function hsAutoFillFairPrices(){
+  var trs=document.querySelectorAll('tr');
+  for(var i=0;i<trs.length;i++){
+    var tr=trs[i];
+    var resultTd=tr.querySelector('td[data-full]');
+    if(!resultTd)continue;
+    var full='';try{full=decodeURIComponent(resultTd.getAttribute('data-full')||'');}catch(e){continue;}
+    var fpSeg=full.match(/推奨適正額[ 　]*[:：][ 　]*([^/]*)/);
+    if(!fpSeg)continue;
+    var fpRaw=fpSeg[1].trim();
+    var n=0;
+    var rangeMan=fpRaw.match(/([0-9,]+(?:\.[0-9]+)?)\s*万[ 　]*[〜~～\-]/);
+    var soloMan=fpRaw.match(/([0-9,]+(?:\.[0-9]+)?)\s*万/);
+    var yen=fpRaw.match(/([0-9,]{4,})\s*円?/);
+    if(rangeMan){ n=Math.round(parseFloat(rangeMan[1].replace(/,/g,''))*10000); }
+    else if(soloMan){ n=Math.round(parseFloat(soloMan[1].replace(/,/g,''))*10000); }
+    else if(yen){ n=Number(yen[1].replace(/,/g,'')); }
+    if(!n)continue;
+    var priceTd=resultTd.nextElementSibling;
+    if(!priceTd)continue;
+    if(priceTd.textContent.trim()!=='—')continue;
+    var key='';var btns=tr.querySelectorAll('button');
+    for(var j=0;j<btns.length;j++){var oc=btns[j].getAttribute('onclick')||'';var p=oc.indexOf("label('");if(p>=0){key=oc.slice(p+7,oc.indexOf("'",p+7));break;}}
+    if(!key)continue;
+    priceTd.innerHTML='¥'+n.toLocaleString()+' <span style="color:#3b82f6;font-size:11px">(自動)</span>';
+    fetch('/log-inquiry-price',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:key,actual_fair_price:n})}).catch(function(){});
+  }
+}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',hsAutoFillFairPrices);}else{hsAutoFillFairPrices();}
+async function verifyEstimate(){
+  const est=document.getElementById('estIn').value.trim();
+  const memo=document.getElementById('estMemo').value.trim();
+  const fileEl=document.getElementById('estFile');
+  const file=fileEl&&fileEl.files&&fileEl.files[0];
+  if(!est&&!file){alert('見積内容を貼り付けるか、ファイルを添付してください');return;}
+  let fileData=null,fileType=null,fileMime=null;
+  if(file){
+    fileMime=file.type;
+    fileType=(file.type==='application/pdf')?'pdf':'image';
+    fileData=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});
+  }
+  const btn=document.getElementById('estBtn');const st=document.getElementById('estStatus');const out=document.getElementById('estResult');
+  btn.disabled=true;st.textContent='診断中…（10〜30秒）';out.style.display='none';
+  try{
+    const r=await fetch('/admin-verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({estimate:est,memo,fileData,fileType,fileMime})});
+    const d=await r.json();
+    if(r.ok){out.textContent=d.diagnosis;out.style.display='block';st.textContent='✅ 完了。一覧に保存しました。3秒後に再読み込みします。';setTimeout(()=>location.reload(),3000);}
+    else{st.textContent='エラー: '+(d.error||'不明');}
+  }catch(e){st.textContent='通信エラー: '+e.message;}
+  btn.disabled=false;
+}
+function spShowFiles(){
+  const fl=document.getElementById('spFiles');const list=document.getElementById('spFileList');
+  if(!fl.files||!fl.files.length){list.textContent='';return;}
+  list.textContent='添付: '+Array.from(fl.files).map(f=>f.name).join(' / ');
+}
+async function runSpecialAudit(){
+  const est=document.getElementById('spIn').value.trim();
+  const memo=document.getElementById('spMemo').value.trim();
+  const fl=document.getElementById('spFiles');
+  const fileEls=fl&&fl.files?Array.from(fl.files):[];
+  if(!est&&fileEls.length===0){alert('見積内容を貼るか、資料を添付してください');return;}
+  const btn=document.getElementById('spBtn');const st=document.getElementById('spStatus');
+  const out=document.getElementById('spResult');const hashEl=document.getElementById('spHash');
+  btn.disabled=true;st.textContent='監査中…（Sonnet 4・30〜90秒）';out.style.display='none';hashEl.style.display='none';
+  try{
+    const files=await Promise.all(fileEls.map(f=>new Promise((res,rej)=>{
+      const r=new FileReader();
+      r.onload=()=>res({data:r.result.split(',')[1],type:(f.type==='application/pdf')?'pdf':'image',mime:f.type});
+      r.onerror=rej;r.readAsDataURL(f);
+    })));
+    const r=await fetch('/admin-special-audit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({estimate:est,memo,files})});
+    const d=await r.json();
+    if(r.ok){
+      out.textContent=d.audit;out.style.display='block';
+      if(d.audit_hash){hashEl.textContent='監査ハッシュ（改ざん防止）: '+d.audit_hash;hashEl.style.display='block';}
+      st.textContent='✅ 監査完了。一覧に保存しました。5秒後に再読み込み。';
+      setTimeout(()=>location.reload(),5000);
+    }else{st.textContent='エラー: '+(d.error||'不明');}
+  }catch(e){st.textContent='通信エラー: '+e.message;}
+  btn.disabled=false;
+}</script>
+<div id="resultModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center" onclick="if(event.target===this)closeResult()">
+<div style="background:#fff;max-width:600px;max-height:80vh;overflow:auto;padding:24px;border-radius:12px;margin:20px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><strong style="font-size:15px">診断結果 全文</strong><button onclick="closeResult()" style="border:none;background:#eee;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:16px">x</button></div>
+<div id="resultModalBody" style="white-space:pre-wrap;line-height:1.7;font-size:13px;color:#333"></div>
+</div></div>
+</body></html>`;
         return new Response(html, { headers: { 'Content-Type': 'text/html;charset=utf-8' } });
       } catch (e) { return new Response('Error: ' + e.message, { status: 500 }); }
     }
@@ -2195,6 +3331,133 @@ if (path === '/log-contract' && request.method === 'POST') {
   }
 }
 // === /log-contract ここまで ===
+    // === /log-inquiry-price 施工チェック診断の正解ラベル入力（学習Phase1）===
+    if (path === '/log-inquiry-price' && request.method === 'POST') {
+      try {
+        const body = await request.json();
+        const { key, actual_fair_price } = body;
+        if (!key || actual_fair_price === undefined || actual_fair_price === null) {
+          return json({ error: 'key and actual_fair_price required' }, 400, origin);
+        }
+        const entry = await env.KIRA_STATS.get(key, { type: 'json' });
+        if (!entry) return json({ error: 'inquiry not found' }, 404, origin);
+        entry.actual_fair_price = Number(actual_fair_price);
+        entry.label_status = 'labeled';
+        entry.labeled_at = new Date().toISOString();
+        await env.KIRA_STATS.put(key, JSON.stringify(entry), { expirationTtl: 60 * 60 * 24 * 90 });
+        return json({ ok: true, key, actual_fair_price: entry.actual_fair_price }, 200, origin);
+      } catch (e) { return json({ error: e.message }, 500, origin); }
+    }
+    // === /log-inquiry-price ここまで ===
+
+    // ============================================================
+    // === 登録者管理（公開前リスト・SUBSCRIBERS KV）2026-05-31 追加 ===
+    //  既存機能・既存KV(KIRA_STATS/ORDERS)には一切触れない。SUBSCRIBERS のみ読む。
+    //  認証は既存 /admin と同じ env.ADMIN_PASSWORD を踏襲（鍵を増やさない）。
+    // ============================================================
+
+    // 登録者一覧（HTML表・role列・個別削除）
+    if (path === '/admin-subscribers') {
+      try {
+        const _pw = url.searchParams.get('key') || '';
+        const _correct = env.ADMIN_PASSWORD || '';
+        if (!_correct || _pw !== _correct) {
+          const loginHtml = `<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>登録者管理 ログイン</title>
+<style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:90vh;background:#f5f5f5}.box{background:#fff;padding:32px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);width:300px;text-align:center}input{width:100%;padding:10px;border:1px solid #bbb;border-radius:8px;font-size:15px;box-sizing:border-box;margin:12px 0}button{width:100%;background:#1a3a5c;color:#fff;border:none;padding:11px;border-radius:8px;font-size:15px;cursor:pointer}</style></head>
+<body><div class="box"><div style="font-weight:700;color:#1a3a5c;font-size:17px">登録者管理（創設メンバー）</div>
+<input id="pw" type="password" placeholder="パスワード" onkeydown="if(event.key==='Enter')go()" autofocus>
+<button onclick="go()">入る</button>
+<div id="msg" style="color:#c00;font-size:12px;margin-top:8px;min-height:16px"></div></div>
+<script>
+function go(){var p=document.getElementById('pw').value;if(!p){return;}location.href='/admin-subscribers?key='+encodeURIComponent(p);}
+${_pw ? "document.getElementById('msg').textContent='パスワードが違います';" : ''}
+<\/script></body></html>`;
+          return new Response(loginHtml, { status: _pw ? 401 : 200, headers: { 'Content-Type': 'text/html;charset=utf-8' } });
+        }
+        if (!env.SUBSCRIBERS) {
+          return new Response('<h2>SUBSCRIBERS KV が未バインドです</h2><p>Cloudflare の hs-kira-proxy → Settings → Bindings で、変数名 SUBSCRIBERS を追加してください（既存バインドには触れないこと）。</p>', { status: 500, headers: { 'Content-Type': 'text/html;charset=utf-8' } });
+        }
+        const _esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        const list = await env.SUBSCRIBERS.list({ prefix: 'subscriber:' });
+        const subs = [];
+        for (const k of list.keys) {
+          try {
+            const v = await env.SUBSCRIBERS.get(k.name, { type: 'json' });
+            if (v) subs.push({ _key: k.name, ...v });
+          } catch (e) {}
+        }
+        subs.sort((a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || '')));
+        const countJp = subs.filter((s) => s.lang === 'jp').length;
+        const countUs = subs.filter((s) => s.lang === 'us').length;
+        const rows = subs.map((s) => {
+          const langLabel = s.lang === 'us' ? '米国(US)' : '日本(JP)';
+          const dt = s.updated_at ? _esc(s.updated_at).replace('T', ' ').slice(0, 16) : '';
+          return `<tr>
+<td>${_esc(s.name) || '<span style=color:#bbb>—</span>'}</td>
+<td style="font-family:monospace;font-size:12px">${_esc(s.email)}</td>
+<td>${_esc(s.role) || '<span style=color:#bbb>（未入力）</span>'}</td>
+<td style="text-align:center">${langLabel}</td>
+<td style="text-align:center">${_esc(s.country) || '—'}</td>
+<td style="font-size:12px;color:#555">${dt}</td>
+<td style="text-align:center"><button onclick="delSub('${_esc(s._key)}','${_esc(s.email)}')" style="background:#c0392b;color:#fff;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:12px">削除</button></td>
+</tr>`;
+        }).join('');
+        const html = `<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>登録者管理</title>
+<style>
+body{font-family:-apple-system,sans-serif;padding:20px;max-width:1100px;margin:0 auto;background:#f5f7fa}
+h2{color:#1a3a5c;border-bottom:3px solid #1a3a5c;padding-bottom:8px}
+.stat{background:#f0f4ff;border:1px solid #c7d6f5;padding:14px 18px;border-radius:10px;margin-bottom:18px;display:flex;gap:28px;flex-wrap:wrap;font-size:15px}
+.stat strong{color:#1a3a5c;font-size:20px}
+table{width:100%;border-collapse:collapse;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06);border-radius:8px;overflow:hidden}
+th,td{border-bottom:1px solid #eef;padding:9px 12px;font-size:13px;text-align:left}
+th{background:#1a3a5c;color:#fff}
+tr:hover{background:#f8fafd}
+.nav{margin-bottom:14px;font-size:13px}
+.nav a{color:#1a3a5c;text-decoration:none;margin-right:14px}
+.empty{padding:40px;text-align:center;color:#999}
+</style></head><body>
+<div class="nav"><a href="/admin?key=${encodeURIComponent(_pw)}">← 診断・問い合わせ管理へ</a><a href="/admin-subscribers?key=${encodeURIComponent(_pw)}">↻ 再読み込み</a></div>
+<h2>🛡 創設メンバー 登録者管理</h2>
+<div class="stat"><span>日本版(JP)：<strong>${countJp}</strong> 名</span><span>米国版(US)：<strong>${countUs}</strong> 名</span><span>合計：<strong>${subs.length}</strong> 名</span></div>
+${subs.length ? `<table><tr><th>名前</th><th>メール</th><th>お立場（なぜ協賛か）</th><th>版</th><th>国</th><th>登録日時(UTC)</th><th>操作</th></tr>${rows}</table>` : '<div class="empty">まだ登録者がいません。</div>'}
+<script>
+async function delSub(key,email){
+  if(!confirm('この登録を削除しますか？\\n\\n'+email+'\\n\\n※元に戻せません'))return;
+  try{
+    const r=await fetch('/admin-subscribers/delete?key='+encodeURIComponent(${JSON.stringify(_pw)}),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});
+    const d=await r.json();
+    if(r.ok&&d.ok){location.reload();}
+    else{alert('削除エラー: '+(d.error||'不明'));}
+  }catch(e){alert('通信エラー: '+e.message);}
+}
+<\/script>
+</body></html>`;
+        return new Response(html, { headers: { 'Content-Type': 'text/html;charset=utf-8' } });
+      } catch (e) {
+        return new Response('Error: ' + e.message, { status: 500 });
+      }
+    }
+
+    // 登録者1件削除（POST・JSON {key}）
+    if (path === '/admin-subscribers/delete' && request.method === 'POST') {
+      try {
+        const _pw = url.searchParams.get('key') || '';
+        const _correct = env.ADMIN_PASSWORD || '';
+        if (!_correct || _pw !== _correct) return json({ error: 'unauthorized' }, 401, origin);
+        if (!env.SUBSCRIBERS) return json({ error: 'SUBSCRIBERS not bound' }, 500, origin);
+        const body = await request.json();
+        const key = body && body.key;
+        if (!key || typeof key !== 'string' || !key.startsWith('subscriber:')) {
+          return json({ error: 'valid subscriber key required' }, 400, origin);
+        }
+        await env.SUBSCRIBERS.delete(key);
+        return json({ ok: true, deleted: key }, 200, origin);
+      } catch (e) {
+        return json({ error: e.message }, 500, origin);
+      }
+    }
+    // === 登録者管理 ここまで ===
+
     return json({ error: 'Not found', path }, 404, origin);
   },
 };
