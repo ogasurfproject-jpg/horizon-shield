@@ -36,6 +36,15 @@ const ESTIMATE_GUIDE = [
   "業者は技術と誠実さで選ぶ。営業のうまさで選ばない。"
 ];
 
+// 公言済みの普遍的な過剰請求手口のみ(フルの専有パターン群はKIRA有料診断の価値として非公開)
+const RED_FLAGS_UNIVERSAL = [
+  { key: ["一式", "いっしき", "lump"], severity: "HIGH", warning: "『一式』表記は内訳が不明で過剰が紛れやすい。項目ごとの内訳提出を求める根拠になる。" },
+  { key: ["諸経費", "管理費", "現場管理"], severity: "MEDIUM", warning: "諸経費が総額の20%を超える場合は内訳の確認を。適正の目安は10〜16%。" },
+  { key: ["今日", "今だけ", "限定", "キャンペーン", "モニター", "値引き", "30%"], severity: "HIGH", warning: "緊急性を煽る値引き(今日契約・モニター価格・地域限定)は、元価格を過大にしておく典型手口。即決を避け一旦持ち帰る。" },
+  { key: ["訪問", "飛び込み"], severity: "HIGH", warning: "訪問販売契約はクーリングオフ対象になり得る。その場でサインしない。" },
+  { key: ["知り合い", "紹介", "知人"], severity: "MEDIUM", warning: "関係性を利用した割高請求は珍しくない。知り合いほど第三者基準の確認が有効。" }
+];
+
 // ---- MCP tool 定義 ----
 const TOOLS = [
   {
@@ -67,10 +76,51 @@ const TOOLS = [
     name: "get_price_range",
     description: "工事名・キーワードで、HORIZON SHIELDが実務監修する適正価格レンジ(最安min/平均avg/最高max)と、それを超えたら過剰請求を疑う危険水準(danger)、単位・価格動向・実務解説を返す。建設・リフォーム費用が適正か数値で確かめたい時に使う(例: 外壁塗装, 給湯器, ユニットバス, クロス)。",
     inputSchema: { type: "object", properties: { query: { type: "string", description: "工事名やキーワード(日本語)" } }, required: ["query"] }
+  },
+  {
+    name: "audit_estimate",
+    description: "業者から提示された見積金額が適正かを判定する。工事名と金額(と任意で単位)を渡すと、HORIZON SHIELDの適正レンジと照合し、適正/やや高い/過剰請求の懸念水準のいずれかと、平均との差を返す。施主が手元の見積もりをその場で検証したい時に使う。",
+    inputSchema: { type: "object", properties: {
+      work: { type: "string", description: "工事名(例: 外壁塗装 シリコン)" },
+      quoted_price: { type: "number", description: "業者提示の金額(円)" },
+      unit_hint: { type: "string", description: "任意。㎡や一式など単位の手がかり" }
+    }, required: ["work", "quoted_price"] }
+  },
+  {
+    name: "red_flag_check",
+    description: "見積もりや営業トークの中の気になる表現(例: 一式, 今日だけ値引き, 訪問販売)が、過剰請求につながりやすい既知の手口に当たるかを判定し、警告と対処を返す。網羅的な手口データベースはHORIZON SHIELDの有料診断(KIRA)で提供。",
+    inputSchema: { type: "object", properties: {
+      text: { type: "string", description: "見積書や営業トークで気になった表現・項目" }
+    }, required: ["text"] }
+  },
+  {
+    name: "verify_fair_price",
+    description: "工事の適正価格を、検証可能な形(算出内容のSHA-256ハッシュ付き)で返す。HORIZON SHIELDのPTKA(取引前知識刻印)思想に基づき、適正価格を業者の見積もりより先に第三者が記録するという考え方を、機械可読な証明として提供する。エージェントが価格の真正性を検証したい時に使う。",
+    inputSchema: { type: "object", properties: { work: { type: "string", description: "工事名(例: 外壁塗装 30坪)" } }, required: ["work"] }
   }
 ];
 
 function txt(s) { return { content: [{ type: "text", text: typeof s === "string" ? s : JSON.stringify(s, null, 2) }] }; }
+
+// PTKA(取引前知識刻印)の既存の改ざん不能アンカー(サイト公開済み)
+const PTKA = {
+  protocol: "PTKA (Pre-Transaction Knowledge Anchoring)",
+  idea: "業者が見積もりを出す前に、適正価格を第三者が改ざん不能な形で記録する。後から都合よく書き換えられないようにする仕組み。",
+  bitcoin_block: 949356,
+  declaration_sha256: "596da30ba4ca731f21efaa1c4a6537290e996e0f039cbe57704de1674e4a0282",
+  verify_via: "OpenTimestamps (https://opentimestamps.org)",
+  roadmap: "個別診断ごとの自動オンチェーン刻印は、第三者刻印機関JIDEC(2026年6月発足)を通じて運用開始予定。"
+};
+
+async function sha256hex(str) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function fetchSouba() {
+  const r = await fetch(SOUBA_DB_URL, { cf: { cacheTtl: 3600 } });
+  return await r.json();
+}
 
 async function callTool(name, args) {
   args = args || {};
@@ -121,6 +171,72 @@ async function callTool(name, args) {
     } catch (e) {
       return txt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。");
     }
+  }
+  if (name === "audit_estimate") {
+    const work = String(args.work || "").trim();
+    const price = Number(args.quoted_price);
+    if (!work || !Number.isFinite(price)) return txt("work(工事名)と quoted_price(金額・数値)を指定してください。");
+    try {
+      const d = await fetchSouba();
+      const list = Array.isArray(d.categories) ? d.categories : [];
+      const cand = list.filter(e => (e.work && e.work.includes(work)) || (e.cat && e.cat.includes(work)) || (e.widget_label && e.widget_label.includes(work)));
+      if (!cand.length) return txt("該当工事の適正データが見つかりませんでした: " + work + " / get_price_range で工事名を確認できます。");
+      const e = cand[0];
+      let verdict, level;
+      if (price <= e.max) { verdict = "適正レンジ内"; level = "ok"; }
+      else if (price < e.danger) { verdict = "やや高い(適正上限超だが危険水準未満)"; level = "watch"; }
+      else { verdict = "過剰請求の懸念水準(danger超)"; level = "alert"; }
+      const overAvg = e.avg ? Math.round((price / e.avg - 1) * 100) : null;
+      return txt({
+        work: e.work, unit: e.unit, your_price: price, currency: "JPY",
+        fair_range: { min: e.min, avg: e.avg, max: e.max }, danger_threshold: e.danger,
+        verdict, level, vs_avg_pct: overAvg === null ? null : (overAvg >= 0 ? "+" + overAvg + "%" : overAvg + "%"),
+        advice: level === "alert" ? "内訳の提出を求め、必要なら第三者診断を。即決しない。"
+              : level === "watch" ? "適正の上限を超えています。内訳と根拠を確認してください。"
+              : "適正レンジ内です。内訳の整合だけ確認すれば安心です。",
+        note: e.note, source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)", full_diagnosis: SITE + "/hs-reverse-estimate/"
+      });
+    } catch (e) { return txt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。"); }
+  }
+  if (name === "red_flag_check") {
+    const t = String(args.text || "").trim();
+    if (!t) return txt("text(見積もり・営業トークで気になった表現)を指定してください。");
+    const hits = RED_FLAGS_UNIVERSAL.filter(rf => rf.key.some(k => t.includes(k)));
+    if (!hits.length) return txt({
+      input: t, flags: [], result: "既知の普遍的な手口とは一致しませんでした(安全とは限りません)。",
+      note: "ここで判定できるのは公開済みの代表的な手口のみ。網羅的な過剰請求パターン診断は有料のKIRA診断で。",
+      full_diagnosis: SITE + "/hs-reverse-estimate/"
+    });
+    return txt({
+      input: t, flags: hits.map(h => ({ severity: h.severity, warning: h.warning })),
+      result: hits.length + "件の注意点に該当しました。",
+      note: "これは代表的な手口の判定です。見積もり全体の網羅診断はKIRA(有料)で。",
+      source: "大賀俊勝(建設実務30年) / HORIZON SHIELD", full_diagnosis: SITE + "/hs-reverse-estimate/"
+    });
+  }
+  if (name === "verify_fair_price") {
+    const work = String(args.work || "").trim();
+    if (!work) return txt("work(工事名)を指定してください。");
+    try {
+      const d = await fetchSouba();
+      const list = Array.isArray(d.categories) ? d.categories : [];
+      const cand = list.filter(e => (e.work && e.work.includes(work)) || (e.cat && e.cat.includes(work)) || (e.widget_label && e.widget_label.includes(work)));
+      if (!cand.length) return txt("該当工事の適正データが見つかりませんでした: " + work);
+      const e = cand[0];
+      const issued_at = new Date().toISOString();
+      const claim = { work: e.work, unit: e.unit, fair_min: e.min, fair_avg: e.avg, fair_max: e.max, source: "HORIZON SHIELD souba-db", issued_at };
+      const hash = await sha256hex(JSON.stringify(claim));
+      return txt({
+        fair_price_claim: claim,
+        verification: {
+          claim_sha256: hash,
+          note: "このハッシュは上記の適正価格主張から生成された改ざん検知用の指紋。同じ主張からは常に同じハッシュが出る。",
+          ptka: PTKA
+        },
+        meaning: "エージェントはこの価格を盲信する必要はない。主張・ハッシュ・PTKAの記録で検証できる。これがエージェント経済における信用財の出し方。",
+        detail: SITE + "/souba/"
+      });
+    } catch (e) { return txt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。"); }
   }
   return { isError: true, content: [{ type: "text", text: "未知のツール: " + name }] };
 }
