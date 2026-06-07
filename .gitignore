@@ -2,3 +2,23 @@ workers/hs-kira-proxy-CURRENT/hs-kira-proxy/wrangler.jsonc
 workers/hs-monitor/node_modules/
 workers/**/node_modules/
 node_modules/
+
+# --- 2026-06-07 追記: 作業ファイル・バックアップを除外 ---
+.DS_Store
+**/.DS_Store
+*.bak
+*.bak-*
+*.bak_*
+**/*.bak.js
+**/kira-proxy-v2.bak*
+**/kira-proxy-v2.js.bak*
+**/wrangler.jsonc.bak*
+**/.wrangler/
+*.py
+*.sh
+add_bulk_delete.py
+add_geo_47.py
+fix_autofill_regex.py
+gen_bath_47.py
+pref_geo.json
+region_coef.json

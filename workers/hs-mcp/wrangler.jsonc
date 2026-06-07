@@ -1,0 +1,6 @@
+{
+  // hs-mcp : HORIZON SHIELD MCP server (独立ワーカー / kira-proxy非依存)
+  "name": "hs-mcp",
+  "main": "src/mcp.js",
+  "compatibility_date": "2025-06-01"
+}

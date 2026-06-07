@@ -1,0 +1,36 @@
+{
+  "name": "hs-monitor",
+  "main": "src/worker.js",
+  "workers_dev": true,
+  "preview_urls": false,
+  "compatibility_date": "2026-03-26",
+  "triggers": {
+    "crons": [
+      "*/30 * * * *"
+    ]
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": false,
+      "persist": true,
+      "head_sampling_rate": 1
+    }
+  },
+  "vars": {
+    "ALERT_FEED_URLS": "https://www.google.com/alerts/feeds/17481724760850010330/5025187038067169872,https://www.google.com/alerts/feeds/17481724760850010330/5025187038067168535,https://www.google.com/alerts/feeds/17481724760850010330/7698509782189990419,https://www.google.com/alerts/feeds/17481724760850010330/14007889136235171511,https://www.google.com/alerts/feeds/17481724760850010330/3957383035144761178,https://www.e-mansion.co.jp/bbs/board/reform/rss/,https://www.e-kodate.com/bbs/search/%E3%83%AA%E3%83%95%E3%82%A9%E3%83%BC%E3%83%A0/?b=reform&rss=1"
+  },
+  "kv_namespaces": [
+    {
+      "id": "a67d53a8777f4952bb81440d60287e91",
+      "binding": "SEEN_STORE"
+    }
+  ]
+}
