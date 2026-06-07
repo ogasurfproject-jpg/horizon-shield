@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>見積もりを投稿する — 見積もりハッカー | HORIZON SHIELD</title>
+<meta name="description" content="あなたが受け取った見積書を、匿名化してデータベースに投稿する。KIRAが自動で解剖し、業者名・個人情報を伏せて掲載候補にします。">
+<meta name="robots" content="noindex,follow">
+<meta name="theme-color" content="#152038">
+<link rel="apple-touch-icon" href="/hacker/apple-touch-icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=IBM+Plex+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDE8DC;--paper2:#E3DCCB;--field:#F5F1E8;
+  --ink:#1A1C1A;--ink2:#3C3D38;--mut:#6E6C62;--mut2:#9A968A;
+  --rule:#1A1C1A;--rule-soft:#C3BBA8;
+  --blue:#2B4C7E;--blue-bg:#DCE4EE;
+  --alert:#A8331F;--alert-bg:#EFD9D2;
+  --ok:#3F6B4A;--ok-bg:#D9E4D8;
+  --mono:'JetBrains Mono',monospace;--sans:'IBM Plex Sans JP',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height:100vh;overflow-x:hidden;line-height:1.7;-webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(var(--paper2) .5px,transparent .5px),linear-gradient(90deg,var(--paper2) .5px,transparent .5px);background-size:26px 26px;}
+.mono{font-family:var(--mono)}
+/* topbar (EHN共通) */
+.topbar{border-bottom:2px solid var(--rule);background:var(--paper)}
+.topbar-in{max-width:840px;margin:0 auto;padding:0 22px;display:flex;align-items:stretch;justify-content:space-between;min-height:58px}
+.tb-left{display:flex;align-items:center;gap:16px}
+.logo{display:flex;align-items:baseline;gap:9px;text-decoration:none;color:var(--ink)}
+.logo .mk{font-family:var(--mono);font-weight:800;font-size:17px;letter-spacing:.04em}
+.logo .ja{font-size:12px;color:var(--mut);letter-spacing:.08em}
+.tb-code{font-family:var(--mono);font-size:11px;color:var(--mut2);align-self:center;border-left:1px solid var(--rule-soft);padding-left:16px}
+.tb-right{display:flex;align-items:center}
+.tb-back{font-family:var(--mono);font-size:12px;color:var(--mut);text-decoration:none;padding:0 16px;align-self:center;border-left:1px solid var(--rule-soft)}
+.tb-back:hover{color:var(--ink)}
+.tb-user{display:flex;align-items:center;gap:10px;padding:0 18px;font-size:13px}
+.tb-user img{width:26px;height:26px;border:1px solid var(--ink);border-radius:50%}
+.tb-user .ini{width:26px;height:26px;background:var(--blue-bg);border:1px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;color:var(--blue)}
+/* wrap */
+.wrap{max-width:840px;margin:0 auto;padding:0 22px}
+/* hero */
+.hero{padding:40px 0 28px;border-bottom:2px solid var(--rule)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.26em;color:var(--blue);margin-bottom:16px}
+.hero h1{font-size:clamp(24px,4.5vw,36px);font-weight:700;line-height:1.25;letter-spacing:-.01em;margin-bottom:14px}
+.hero h1 b{font-weight:700;background:linear-gradient(transparent 62%,var(--alert-bg) 62%)}
+.hero .lead{font-size:14px;color:var(--ink2);max-width:600px;line-height:1.9}
+/* flow strip */
+.flow{display:flex;border:2px solid var(--rule);margin:26px 0;background:var(--field)}
+.flow-step{flex:1;padding:14px 16px;border-right:1px solid var(--rule-soft);position:relative}
+.flow-step:last-child{border-right:none}
+.flow-n{font-family:var(--mono);font-size:10px;color:var(--blue);letter-spacing:.1em;margin-bottom:5px}
+.flow-t{font-size:13px;font-weight:600;line-height:1.4}
+.flow-d{font-size:11px;color:var(--mut);font-family:var(--mono);margin-top:3px}
+/* section */
+.sec{padding:30px 0}
+.sec-h{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--ink);border-bottom:1px solid var(--rule);padding-bottom:8px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
+.sec-h .n{color:var(--mut2)}
+/* dropzone */
+.drop{border:2px dashed var(--rule-soft);background:var(--field);padding:48px 24px;text-align:center;cursor:pointer;transition:.15s}
+.drop:hover,.drop.drag{border-color:var(--blue);background:var(--blue-bg)}
+.drop.has{border-style:solid;border-color:var(--blue);cursor:default;text-align:left;padding:18px 22px}
+.drop-ic{width:46px;height:46px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;border:2px solid var(--rule-soft);border-radius:50%;color:var(--mut)}
+.drop-t{font-size:15px;font-weight:600;margin-bottom:6px}
+.drop-d{font-family:var(--mono);font-size:11.5px;color:var(--mut);line-height:1.7}
+.file-row{display:flex;align-items:center;gap:14px}
+.file-ic{width:40px;height:40px;flex-shrink:0;background:var(--blue-bg);border:1px solid var(--blue);display:flex;align-items:center;justify-content:center;color:var(--blue);font-family:var(--mono);font-size:10px;font-weight:700}
+.file-meta{flex:1;min-width:0}
+.file-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-size{font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:2px}
+.file-x{background:none;border:1px solid var(--rule-soft);color:var(--mut);width:30px;height:30px;cursor:pointer;font-family:var(--mono);flex-shrink:0}
+.file-x:hover{border-color:var(--alert);color:var(--alert)}
+/* type hint */
+.hint-row{margin-top:20px}
+.hint-label{font-family:var(--mono);font-size:11px;color:var(--mut2);letter-spacing:.1em;margin-bottom:10px;display:block}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.tchip{font-family:var(--mono);font-size:12.5px;color:var(--mut);background:var(--field);border:1px solid var(--rule-soft);cursor:pointer;padding:8px 16px;transition:.12s}
+.tchip:hover{color:var(--ink);border-color:var(--ink)}
+.tchip.on{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:500}
+/* primary button */
+.btn-primary{font-family:var(--mono);font-size:14px;font-weight:500;letter-spacing:.02em;background:var(--ink);color:var(--paper);border:none;padding:15px 28px;cursor:pointer;transition:.14s;display:inline-flex;align-items:center;gap:9px;width:100%;justify-content:center}
+.btn-primary:hover:not(:disabled){background:var(--blue)}
+.btn-primary:disabled{background:var(--mut2);cursor:not-allowed}
+.btn-ghost{font-family:var(--mono);font-size:13px;font-weight:500;background:none;color:var(--ink);border:1.5px solid var(--rule);padding:14px 24px;cursor:pointer;transition:.14s}
+.btn-ghost:hover{background:var(--paper2)}
+/* analyzing */
+.analyzing{text-align:center;padding:60px 24px;border:2px solid var(--rule);background:var(--field)}
+.ana-bar{height:3px;background:var(--rule-soft);margin:24px auto 0;max-width:340px;overflow:hidden;position:relative}
+.ana-bar::after{content:'';position:absolute;left:-40%;top:0;height:100%;width:40%;background:var(--blue);animation:slide 1.1s ease-in-out infinite}
+@keyframes slide{0%{left:-40%}100%{left:100%}}
+.ana-t{font-family:var(--mono);font-size:14px;color:var(--ink);letter-spacing:.04em;margin-bottom:8px}
+.ana-d{font-family:var(--mono);font-size:11.5px;color:var(--mut)}
+.ana-log{font-family:var(--mono);font-size:11px;color:var(--mut2);margin-top:22px;text-align:left;max-width:380px;margin-left:auto;margin-right:auto;line-height:1.9;min-height:80px}
+.ana-log .done{color:var(--ok)}
+/* preview card */
+.pv-note{border-left:3px solid var(--blue);background:var(--blue-bg);padding:13px 16px;font-size:13px;color:var(--ink2);line-height:1.7;margin-bottom:22px}
+.pv-card{border:2px solid var(--rule);background:var(--field)}
+.pv-head{display:flex;align-items:stretch;border-bottom:1px solid var(--rule)}
+.pv-genre{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--blue);padding:10px 14px;flex:1;display:flex;align-items:center}
+.pv-tag{font-family:var(--mono);font-size:10px;color:var(--mut2);padding:10px 14px;border-left:1px solid var(--rule-soft);display:flex;align-items:center}
+.pv-body{padding:20px}
+.pv-title{font-size:21px;font-weight:700;line-height:1.3;margin-bottom:14px}
+.pv-amt{border:1.5px solid var(--blue);background:var(--blue-bg);padding:10px 14px;margin-bottom:16px;display:inline-block}
+.pv-amt-k{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--blue);display:block;margin-bottom:2px}
+.pv-amt-v{font-family:var(--mono);font-size:22px;font-weight:800;color:var(--blue);line-height:1}
+.pv-amt-none{font-family:var(--mono);font-size:11px;color:var(--mut2);letter-spacing:.08em;border:1.5px dashed var(--rule-soft);padding:10px 14px;margin-bottom:16px;display:inline-block}
+.pv-sec{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--mut);border-bottom:1px solid var(--rule-soft);padding-bottom:6px;margin:18px 0 12px;display:flex;justify-content:space-between}
+.pv-trait{display:grid;grid-template-columns:26px 1fr;padding:9px 0;border-bottom:1px solid var(--rule-soft);align-items:start}
+.pv-trait .tno{font-family:var(--mono);font-size:11px;color:var(--alert);font-weight:700;padding-top:2px}
+.pv-trait .ttx{font-size:14px;line-height:1.55}
+.pv-trait input{font-family:var(--sans);font-size:14px;border:1px solid transparent;background:none;width:100%;padding:2px 4px;color:var(--ink);outline:none}
+.pv-trait input:focus{border-color:var(--blue);background:var(--paper)}
+.pv-verdict{background:var(--alert-bg);border-left:3px solid var(--alert);padding:12px 15px;margin-top:16px;font-size:13.5px;color:#7a2616;line-height:1.6}
+.pv-flags{font-family:var(--mono);font-size:12px;color:var(--alert);font-weight:700;margin-top:14px;letter-spacing:.04em}
+.edit-tip{font-family:var(--mono);font-size:10.5px;color:var(--mut2);margin-top:6px;letter-spacing:.03em}
+.consent{border:2px solid var(--rule);background:var(--paper);padding:18px 20px;margin-top:24px}
+.consent-h{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--ink);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.consent-h .req{font-size:10px;color:var(--alert);letter-spacing:.04em}
+.ck{display:flex;gap:11px;padding:9px 0;cursor:pointer;align-items:flex-start}
+.ck input{width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:var(--blue);cursor:pointer}
+.ck span{font-size:13px;line-height:1.6;color:var(--ink2)}
+.ck span b{color:var(--ink);font-weight:600}
+.consent-terms{font-family:var(--mono);font-size:10.5px;color:var(--mut2);margin-top:12px;padding-top:12px;border-top:1px solid var(--rule-soft);line-height:1.7}
+.consent-terms a{color:var(--blue);text-decoration:underline}
+.pv-actions{display:flex;gap:12px;margin-top:18px}
+.pv-actions .btn-primary{flex:1}
+/* login gate */
+.gate{text-align:center;padding:64px 24px;border:2px solid var(--rule);background:var(--field);margin:40px 0}
+.gate-ic{width:54px;height:54px;margin:0 auto 20px;border:2px solid var(--rule);display:flex;align-items:center;justify-content:center;color:var(--blue)}
+.gate h2{font-size:20px;font-weight:700;margin-bottom:10px}
+.gate p{font-size:13.5px;color:var(--ink2);line-height:1.8;margin-bottom:26px;max-width:420px;margin-left:auto;margin-right:auto}
+.gate-btns{display:flex;flex-direction:column;gap:10px;max-width:300px;margin:0 auto}
+.gate-btn{font-family:var(--mono);font-size:13px;font-weight:500;border:none;cursor:pointer;padding:14px 22px;display:flex;align-items:center;justify-content:center;gap:9px;text-decoration:none;transition:.14s}
+.gate-btn.line{background:#06C755;color:#fff}
+.gate-btn.google{background:#4285F4;color:#fff}
+.gate-btn:hover{filter:brightness(1.07)}
+.gate-btn .dot{width:7px;height:7px;background:#fff;border-radius:50%}
+.gate-note{font-family:var(--mono);font-size:10.5px;color:var(--mut2);margin-top:20px;line-height:1.7}
+/* done */
+.done-screen{text-align:center;padding:64px 24px;border:2px solid var(--ok);background:var(--ok-bg);margin:40px 0}
+.done-ic{width:54px;height:54px;margin:0 auto 20px;border:2px solid var(--ok);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--ok);font-size:26px}
+.done-screen h2{font-size:21px;font-weight:700;margin-bottom:12px;color:#2c5234}
+.done-screen p{font-size:13.5px;color:var(--ink2);line-height:1.8;margin-bottom:26px;max-width:440px;margin-left:auto;margin-right:auto}
+.done-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.done-btns a{font-family:var(--mono);font-size:13px;text-decoration:none;padding:13px 24px;transition:.14s}
+.done-btns .pri{background:var(--ink);color:var(--paper)}
+.done-btns .pri:hover{background:var(--blue)}
+.done-btns .sec{border:1.5px solid var(--rule);color:var(--ink)}
+.done-btns .sec:hover{background:var(--paper2)}
+/* privacy strip */
+.privacy{border:1px solid var(--rule-soft);background:var(--field);padding:16px 18px;margin-top:24px;display:flex;gap:14px;align-items:flex-start}
+.privacy-ic{flex-shrink:0;color:var(--blue);margin-top:2px}
+.privacy-tx{font-size:12px;color:var(--ink2);line-height:1.75}
+.privacy-tx b{color:var(--ink)}
+/* toast */
+.toast{position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:13px;padding:15px 22px;transform:translateY(100%);transition:.3s;text-align:center;letter-spacing:.03em}
+.toast.on{transform:translateY(0)}
+footer{border-top:2px solid var(--rule);background:var(--paper);padding:28px 22px 44px;margin-top:40px}
+.foot-in{max-width:840px;margin:0 auto;font-family:var(--mono);font-size:11.5px;color:var(--mut);line-height:2}
+.foot-in a{color:var(--ink2)}
+.hide{display:none!important}
+@media(max-width:680px){
+  .flow{flex-direction:column}
+  .flow-step{border-right:none;border-bottom:1px solid var(--rule-soft)}
+  .flow-step:last-child{border-bottom:none}
+  .pv-actions{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="tb-left">
+      <a class="logo" href="/hacker/"><span class="mk">EHN</span><span class="ja">見積もりハッカー</span></a>
+      <span class="tb-code">SUBMIT / 見積もり投稿</span>
+    </div>
+    <div class="tb-right" id="tbRight">
+      <a class="tb-back" href="/hacker/">← 一覧へ戻る</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ===== ログインゲート(未ログイン時) ===== -->
+  <div id="gate" class="gate hide">
+    <div class="gate-ic">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h2>投稿にはログインが必要です</h2>
+    <p>あなたの投稿を管理し、掲載状況をマイページで確認できるようにするため、ログインをお願いしています。受け取った見積書は、KIRAが匿名化して掲載候補にします。</p>
+    <div class="gate-btns">
+      <button class="gate-btn line" onclick="login()"><span class="dot"></span>LINEでログイン</button>
+      <button class="gate-btn google" onclick="loginGoogle()"><span class="dot"></span>Googleでログイン</button>
+    </div>
+    <div class="gate-note">// ログイン情報は投稿者の識別だけに使われ、掲載カードには一切表示されません</div>
+  </div>
+
+  <!-- ===== 投稿フロー(ログイン済み) ===== -->
+  <div id="app" class="hide">
+
+    <div class="hero">
+      <div class="eyebrow">SUBMIT YOUR ESTIMATE</div>
+      <h1>あなたの見積もりを、<b>解剖して共有</b>する。</h1>
+      <p class="lead">受け取った見積書をアップロードするだけ。KIRAが内容を読み取り、業者名・個人情報を伏せて「どこが過剰か」という構造だけを抽出します。あなたの一枚が、次に同じ工事をする誰かの判断材料になる。</p>
+    </div>
+
+    <div class="flow">
+      <div class="flow-step"><div class="flow-n">STEP 01</div><div class="flow-t">見積書をアップ</div><div class="flow-d">PDF / 画像</div></div>
+      <div class="flow-step"><div class="flow-n">STEP 02</div><div class="flow-t">KIRAが解剖</div><div class="flow-d">匿名化・構造化</div></div>
+      <div class="flow-step"><div class="flow-n">STEP 03</div><div class="flow-t">内容を確認</div><div class="flow-d">あなたが最終確認</div></div>
+      <div class="flow-step"><div class="flow-n">STEP 04</div><div class="flow-t">投稿</div><div class="flow-d">運営確認後に掲載</div></div>
+    </div>
+
+    <!-- STEP1+2: アップロード -->
+    <div id="stepUpload" class="sec">
+      <div class="sec-h"><span>UPLOAD — 見積書をアップロード</span><span class="n">01</span></div>
+      <div id="drop" class="drop">
+        <div class="drop-ic">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="drop-t">見積書をドラッグ、またはタップして選択</div>
+        <div class="drop-d">PDF・JPG・PNG / 1ファイル・最大10MB</div>
+      </div>
+      <input type="file" id="fileInput" accept="application/pdf,image/jpeg,image/png,image/webp" style="display:none">
+
+      <div class="hint-row">
+        <span class="hint-label">工事の種類(任意・KIRAの精度が上がります)</span>
+        <div class="chips" id="typeChips">
+          <button class="tchip" data-t="トイレ">トイレ</button>
+          <button class="tchip" data-t="浴室">浴室</button>
+          <button class="tchip" data-t="外壁・屋根">外壁・屋根</button>
+          <button class="tchip" data-t="キッチン">キッチン</button>
+          <button class="tchip" data-t="内装・改装">内装・改装</button>
+          <button class="tchip" data-t="給湯器">給湯器</button>
+          <button class="tchip" data-t="その他">その他</button>
+        </div>
+      </div>
+
+      <div style="margin-top:26px">
+        <button id="analyzeBtn" class="btn-primary" disabled onclick="analyze()">
+          <span>KIRAで解剖する</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+
+      <div class="privacy">
+        <span class="privacy-ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+        <span class="privacy-tx"><b>業者名・個人情報は掲載されません。</b>KIRAは金額の内訳や業者名を伏せ、「どこが過剰か」という構造だけをカード化します。アップロードした見積書の原本が公開されることはありません。</span>
+      </div>
+    </div>
+
+    <!-- 解剖中 -->
+    <div id="stepAnalyzing" class="sec hide">
+      <div class="sec-h"><span>ANALYZING — KIRA解剖中</span><span class="n">02</span></div>
+      <div class="analyzing">
+        <div class="ana-t">KIRAが見積書を読み取っています</div>
+        <div class="ana-d">10〜30秒ほどお待ちください</div>
+        <div class="ana-bar"></div>
+        <div class="ana-log" id="anaLog"></div>
+      </div>
+    </div>
+
+    <!-- STEP3: プレビュー -->
+    <div id="stepPreview" class="sec hide">
+      <div class="sec-h"><span>CONFIRM — 掲載内容の確認</span><span class="n">03</span></div>
+      <div class="pv-note">// KIRAはこう読み取りました。このまま掲載候補に出します。気になる表現があれば、懸念点はその場で編集できます。<b>業者名・社名・電話番号は書かないでください</b>(自動チェックが弾きます)。</div>
+      <div class="pv-card" id="pvCard"></div>
+      <div class="consent">
+        <div class="consent-h"><span>投稿前の確認</span><span class="req">すべて必須</span></div>
+        <label class="ck"><input type="checkbox" id="ck1" onchange="updateConsent()"><span>この見積書は、<b>私が実際に受け取ったもの</b>です。第三者が作成・所有する見積書を無断で投稿していません。</span></label>
+        <label class="ck"><input type="checkbox" id="ck2" onchange="updateConsent()"><span><b>業者名・担当者名・電話番号・住所</b>など、業者や個人を特定できる情報が残っていないか確認しました。</span></label>
+        <label class="ck"><input type="checkbox" id="ck3" onchange="updateConsent()"><span>この内容が<b>匿名化されて公開</b>され、他の施主の判断材料として利用されることに同意します。</span></label>
+        <div class="consent-terms">// 投稿された内容は運営が確認のうえ掲載し、業者名・金額の内訳は伏せられます。詳しくは<a href="/hacker/terms/" target="_blank">投稿に関する利用規約</a>をご確認ください。</div>
+      </div>
+      <div class="pv-actions">
+        <button class="btn-ghost" onclick="backToUpload()">← やり直す</button>
+        <button class="btn-primary" id="submitBtn" onclick="submitCard()" disabled>
+          <span>この内容で投稿する</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 完了 -->
+    <div id="stepDone" class="sec hide">
+      <div class="done-screen">
+        <div class="done-ic">✓</div>
+        <h2>投稿を受け付けました</h2>
+        <p>運営が内容を確認したうえで掲載されます。掲載されると、一覧に並びます。投稿の状況はマイページから確認できます。ありがとうございます。</p>
+        <div class="done-btns">
+          <a class="pri" href="/hacker/">一覧を見る</a>
+          <a class="sec" href="#" onclick="resetAll();return false;">もう一件投稿する</a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /app -->
+</div>
+
+<footer>
+  <div class="foot-in">
+    <a href="https://shield.the-horizons-innovation.com">HORIZON SHIELD</a> / 大賀俊勝（建設実務30年）監修 / © 2026 The HORIZ音s株式会社
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API='https://hs-kira-proxy.oga-surf-project.workers.dev';
+let TOKEN=null,USER=null;
+let FILE=null,FILE_B64=null,FILE_MEDIA=null,TYPE_HINT='';
+let CARD=null; // KIRA解剖結果
+
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function yen(a){if(a===''||a==null)return '';const n=Number(String(a).replace(/[^0-9]/g,''));if(!n)return '';return '\u00a5'+n.toLocaleString('ja-JP');}
+function pad(n){return String(n).padStart(3,'0');}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2800);}
+
+/* ===== セッション ===== */
+function loadSession(){
+  try{TOKEN=localStorage.getItem('ehn_token');const u=localStorage.getItem('ehn_user');USER=u?JSON.parse(u):null;}catch(e){}
+  if(TOKEN&&USER){
+    document.getElementById('gate').classList.add('hide');
+    document.getElementById('app').classList.remove('hide');
+    renderUser();
+  }else{
+    document.getElementById('gate').classList.remove('hide');
+    document.getElementById('app').classList.add('hide');
+  }
+}
+function renderUser(){
+  const el=document.getElementById('tbRight');
+  const ini=(USER.display_name||'?').slice(0,1);
+  const av=USER.picture_url?`<img src="${esc(USER.picture_url)}" alt="">`:`<span class="ini">${esc(ini)}</span>`;
+  el.innerHTML=`<div class="tb-user">${av}<span>${esc(USER.display_name||'施主')}</span></div><a class="tb-back" href="/hacker/">← 一覧</a>`;
+}
+async function login(){try{const r=await fetch(API+'/auth/line-login-start',{method:'POST'});const d=await r.json();if(d.login_url){location.href=d.login_url;}else{toast('ログインを開始できませんでした');}}catch(e){toast('通信エラーが発生しました');}}
+async function loginGoogle(){try{const r=await fetch(API+'/auth/google-login-start',{method:'POST'});const d=await r.json();if(d.login_url){location.href=d.login_url;}else{toast('ログインを開始できませんでした');}}catch(e){toast('通信エラーが発生しました');}}
+
+/* ===== ファイル選択 ===== */
+const drop=document.getElementById('drop'),fileInput=document.getElementById('fileInput');
+drop.addEventListener('click',()=>{if(!FILE)fileInput.click();});
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag');});
+drop.addEventListener('dragleave',()=>drop.classList.remove('drag'));
+drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+fileInput.addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
+
+function handleFile(f){
+  const okTypes=['application/pdf','image/jpeg','image/png','image/webp'];
+  if(!okTypes.includes(f.type)){toast('PDF・JPG・PNG・WebP のみ対応しています');return;}
+  if(f.size>10*1024*1024){toast('ファイルは10MBまでです');return;}
+  FILE=f;FILE_MEDIA=f.type;
+  const reader=new FileReader();
+  reader.onload=()=>{FILE_B64=reader.result.split(',')[1];renderFile();document.getElementById('analyzeBtn').disabled=false;};
+  reader.onerror=()=>toast('ファイルの読み込みに失敗しました');
+  reader.readAsDataURL(f);
+}
+function renderFile(){
+  const kb=FILE.size<1024*1024?(FILE.size/1024).toFixed(0)+' KB':(FILE.size/1024/1024).toFixed(1)+' MB';
+  const ext=FILE_MEDIA==='application/pdf'?'PDF':'IMG';
+  drop.classList.add('has');
+  drop.innerHTML=`<div class="file-row"><div class="file-ic">${ext}</div><div class="file-meta"><div class="file-name">${esc(FILE.name)}</div><div class="file-size">${kb} · 解剖の準備完了</div></div><button class="file-x" onclick="clearFile(event)">✕</button></div>`;
+}
+function clearFile(e){
+  if(e)e.stopPropagation();
+  FILE=null;FILE_B64=null;FILE_MEDIA=null;
+  fileInput.value='';
+  drop.classList.remove('has');
+  drop.innerHTML=`<div class="drop-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div class="drop-t">見積書をドラッグ、またはタップして選択</div><div class="drop-d">PDF・JPG・PNG / 1ファイル・最大10MB</div>`;
+  document.getElementById('analyzeBtn').disabled=true;
+}
+
+/* ===== 工事種別チップ ===== */
+document.getElementById('typeChips').addEventListener('click',e=>{
+  const b=e.target.closest('.tchip');if(!b)return;
+  const on=b.classList.contains('on');
+  document.querySelectorAll('.tchip').forEach(c=>c.classList.remove('on'));
+  if(!on){b.classList.add('on');TYPE_HINT=b.dataset.t;}else{TYPE_HINT='';}
+});
+
+/* ===== ステップ表示制御 ===== */
+function showStep(id){
+  ['stepUpload','stepAnalyzing','stepPreview','stepDone'].forEach(s=>{
+    document.getElementById(s).classList.toggle('hide',s!==id);
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function backToUpload(){showStep('stepUpload');}
+function resetAll(){clearFile();CARD=null;document.querySelectorAll('.tchip').forEach(c=>c.classList.remove('on'));TYPE_HINT='';showStep('stepUpload');}
+
+/* ===== 解剖ログ演出 ===== */
+let anaTimer=null;
+function startAnaLog(){
+  const lines=['> ファイルを受信しました','> 見積書を読み取り中...','> 工事項目を抽出中...','> 相場データベースと照合中...','> 過剰・不透明の懸念点を検出中...','> 匿名化処理を実行中...'];
+  const log=document.getElementById('anaLog');log.innerHTML='';
+  let i=0;
+  anaTimer=setInterval(()=>{
+    if(i>=lines.length){return;}
+    log.innerHTML+=`<div>${lines[i]}</div>`;i++;
+  },1600);
+}
+function stopAnaLog(){if(anaTimer){clearInterval(anaTimer);anaTimer=null;}}
+
+/* ===== KIRA解剖 ===== */
+async function analyze(){
+  if(!FILE_B64){toast('見積書をアップロードしてください');return;}
+  showStep('stepAnalyzing');startAnaLog();
+  try{
+    const r=await fetch(API+'/hacker/analyze',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
+      body:JSON.stringify({file_base64:FILE_B64,media_type:FILE_MEDIA,type_hint:TYPE_HINT})
+    });
+    const d=await r.json();
+    stopAnaLog();
+    if(r.status===401){toast('ログインの有効期限が切れました');setTimeout(()=>{logout();},1500);return;}
+    if(!d.ok||!d.card){toast(d.error||'解剖に失敗しました。別のファイルでお試しください');showStep('stepUpload');return;}
+    CARD=d.card;renderPreview();showStep('stepPreview');
+  }catch(e){stopAnaLog();toast('通信エラーが発生しました');showStep('stepUpload');}
+}
+
+function renderPreview(){
+  const c=CARD;
+  const amtHtml=yen(c.amount)
+    ?`<div class="pv-amt"><span class="pv-amt-k">RECEIVED / 受領見積額</span><span class="pv-amt-v">${yen(c.amount)}</span></div>`
+    :`<div class="pv-amt-none">AMOUNT / 金額 — 読み取り対象外</div>`;
+  const traits=(c.traits||[]).map((t,i)=>`<div class="pv-trait"><span class="tno">${pad(i+1)}</span><input value="${esc(t)}" maxlength="30" data-ti="${i}" oninput="editTrait(${i},this.value)"></div>`).join('')
+    ||'<div style="font-family:var(--mono);font-size:12px;color:var(--mut2);padding:12px 0">// 懸念点は検出されませんでした</div>';
+  document.getElementById('pvCard').innerHTML=`
+    <div class="pv-head"><span class="pv-genre">${esc(c.genre||'その他')}</span><span class="pv-tag">KIRA DRAFT</span></div>
+    <div class="pv-body">
+      <div class="pv-title">${esc(c.title||'見積もり')}</div>
+      ${amtHtml}
+      <div class="pv-sec"><span>検出された懸念点</span><span>${pad((c.traits||[]).length)} / 編集可</span></div>
+      ${traits}
+      <div class="edit-tip">// 各行をタップすると編集できます。金額・倍率・業者名は書かないでください。</div>
+      ${c.verdict?`<div class="pv-verdict">${esc(c.verdict)}</div>`:''}
+      <div class="pv-flags">赤旗 ${pad(c.red_flags||0)}</div>
+    </div>`;
+  // プレビュー再表示のたびに同意チェックをリセット
+  ['ck1','ck2','ck3'].forEach(id=>{const e=document.getElementById(id);if(e)e.checked=false;});
+  updateConsent();
+}
+function editTrait(i,v){if(CARD&&CARD.traits)CARD.traits[i]=v;}
+function updateConsent(){
+  const all=['ck1','ck2','ck3'].every(id=>{const e=document.getElementById(id);return e&&e.checked;});
+  const btn=document.getElementById('submitBtn');
+  if(btn)btn.disabled=!all;
+}
+
+/* ===== 投稿 ===== */
+async function submitCard(){
+  if(!CARD){toast('解剖結果がありません');return;}
+  const agreed=['ck1','ck2','ck3'].every(id=>{const e=document.getElementById(id);return e&&e.checked;});
+  if(!agreed){toast('投稿前の確認にすべてチェックしてください');return;}
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;btn.querySelector('span').textContent='送信中...';
+  // 空traitを除去
+  CARD.traits=(CARD.traits||[]).map(t=>(t||'').trim()).filter(Boolean);
+  CARD.red_flags=CARD.traits.length;
+  try{
+    const r=await fetch(API+'/hacker/submit-card',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
+      body:JSON.stringify({card:CARD,agreed:true})
+    });
+    const d=await r.json();
+    if(d.ok){showStep('stepDone');}
+    else if(r.status===401){toast('ログインの有効期限が切れました');setTimeout(()=>logout(),1500);}
+    else{toast(d.error||'投稿に失敗しました');btn.disabled=false;btn.querySelector('span').textContent='この内容で投稿する';}
+  }catch(e){toast('通信エラーが発生しました');btn.disabled=false;btn.querySelector('span').textContent='この内容で投稿する';}
+}
+
+function logout(){try{localStorage.removeItem('ehn_token');localStorage.removeItem('ehn_user');}catch(e){}TOKEN=null;USER=null;loadSession();}
+
+loadSession();
+</script>
+</body>
+</html>
