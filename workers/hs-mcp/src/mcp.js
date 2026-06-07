@@ -62,6 +62,11 @@ const TOOLS = [
     name: "fair_price_data_sources",
     description: "HORIZON SHIELDの相場データ(souba-db)の出典・更新日・地域係数を返す。価格の根拠を確認したい時に使う。",
     inputSchema: { type: "object", properties: {} }
+  },
+  {
+    name: "get_price_range",
+    description: "工事名・キーワードで、HORIZON SHIELDが実務監修する適正価格レンジ(最安min/平均avg/最高max)と、それを超えたら過剰請求を疑う危険水準(danger)、単位・価格動向・実務解説を返す。建設・リフォーム費用が適正か数値で確かめたい時に使う(例: 外壁塗装, 給湯器, ユニットバス, クロス)。",
+    inputSchema: { type: "object", properties: { query: { type: "string", description: "工事名やキーワード(日本語)" } }, required: ["query"] }
   }
 ];
 
@@ -90,6 +95,31 @@ async function callTool(name, args) {
       return txt({ version: m.version, updated_at: m.updated_at, updated_by: m.updated_by, sources: m.sources, region_multipliers: m.region_multipliers });
     } catch (e) {
       return txt("相場データ出典の取得に失敗しました。" + SITE + "/souba/ を参照してください。");
+    }
+  }
+  if (name === "get_price_range") {
+    const q = String(args.query || "").trim();
+    if (!q) return txt("query(工事名・キーワード)を指定してください。");
+    try {
+      const r = await fetch(SOUBA_DB_URL, { cf: { cacheTtl: 3600 } });
+      const d = await r.json();
+      const list = Array.isArray(d.categories) ? d.categories : [];
+      const hit = list.filter(e =>
+        (e.cat && e.cat.includes(q)) || (e.work && e.work.includes(q)) ||
+        (e.widget_label && e.widget_label.includes(q)) || (e.id && e.id.includes(q.toLowerCase())));
+      if (!hit.length) return txt("該当する価格データが見つかりませんでした: " + q + " / " + SITE + "/souba/ で全カテゴリを確認できます。");
+      const out = hit.map(e => ({
+        work: e.work, unit: e.unit, min: e.min, avg: e.avg, max: e.max,
+        danger_over_charge_threshold: e.danger, trend: e.trend, trend_val: e.trend_val,
+        overcharge_rate_pct: e.overcharge_rate, note: e.note
+      }));
+      return txt({
+        query: q, currency: "JPY", count: out.length, prices: out,
+        guide: "min〜maxが適正レンジ。dangerを超える単価は過剰請求を疑う。地域係数は fair_price_data_sources を参照。",
+        source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)", detail: SITE + "/souba/"
+      });
+    } catch (e) {
+      return txt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。");
     }
   }
   return { isError: true, content: [{ type: "text", text: "未知のツール: " + name }] };
