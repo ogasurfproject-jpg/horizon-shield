@@ -4,6 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>施工不良チェック｜写真を送るだけ・無料診断｜HORIZON SHIELD</title>
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/inspect.html">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {"@type":"WebSite","@id":"https://shield.the-horizons-innovation.com/#website","url":"https://shield.the-horizons-innovation.com/","name":"HORIZON SHIELD","inLanguage":"ja","publisher":{"@id":"https://shield.the-horizons-innovation.com/#org"}},
+    {"@type":"Organization","@id":"https://shield.the-horizons-innovation.com/#org","name":"The HORIZ音s株式会社","url":"https://shield.the-horizons-innovation.com/","telephone":"0463-74-5917","areaServed":"JP","founder":{"@id":"https://shield.the-horizons-innovation.com/#toshi"},"sameAs":["https://github.com/ogasurfproject-jpg","https://huggingface.co/ogasurfproject"]},
+    {"@type":"Person","@id":"https://shield.the-horizons-innovation.com/#toshi","name":"大賀俊勝","alternateName":"TOshi Oga","jobTitle":"代表取締役 / 元大工(現場武30年)","worksFor":{"@id":"https://shield.the-horizons-innovation.com/#org"},"knowsAbout":["建設費","リフォーム見積もり","信用財(credence goods)","建設費の情報非対称性","適正価格診断"],"identifier":"https://orcid.org/0009-0000-9180-903X","sameAs":["https://orcid.org/0009-0000-9180-903X"]},
+    {"@type":"Dataset","@id":"https://shield.the-horizons-innovation.com/#jccdb","name":"Japan Construction Cost Database (JCCDB)","description":"日本の建設費・リフォーム工事の品目を構造化したオープンデータベース。65,729品目・398カテゴリ。価格情報は含まない。","license":"https://creativecommons.org/licenses/by/4.0/","creator":{"@id":"https://shield.the-horizons-innovation.com/#toshi"},"isAccessibleForFree":true,"identifier":"10.5281/zenodo.20019573","sameAs":["https://github.com/ogasurfproject-jpg/japan-construction-cost-database","https://huggingface.co/datasets/ogasurfproject/jccdb","https://doi.org/10.5281/zenodo.20019573","https://doi.org/10.31224/7007"]},
+    {"@type":"Service","@id":"https://shield.the-horizons-innovation.com/#service","name":"HORIZON SHIELD AI建設費診断","serviceType":"建設費・リフォーム見積もりのAI査定","provider":{"@id":"https://shield.the-horizons-innovation.com/#org"},"areaServed":"JP","description":"受け取った見積書を、建設費特化AI「KIRA」と現場経験で査定し、相場との乖離を示すサービス。"}
+  ]
+}
+</script>
 <meta name="description" content="工事後の写真を送るだけ。気になる箇所の傾向をお伝えします。建設実務経験30年・大賀俊勝監修。">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
@@ -302,6 +316,27 @@ nav{
 .what-list li.limited{color:var(--muted);font-size:12px}
 .what-list li.limited::before{background:var(--muted)}
 
+/* ===== 提出同意（追記 2026-06-05）===== */
+.ins-consent{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:16px 18px;margin-bottom:20px;
+}
+.ic-head{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--accent);margin-bottom:8px}
+.ic-row{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:9px 0;border-top:1px solid var(--border2);
+  cursor:pointer;font-size:13px;line-height:1.7;color:var(--text);
+}
+.ic-row:first-of-type{border-top:none}
+.ic-row input{width:20px;height:20px;margin-top:1px;flex-shrink:0;accent-color:var(--accent);cursor:pointer}
+.ic-req{color:var(--red);font-size:10px;font-weight:700;margin-left:5px}
+.ic-opt{color:var(--muted);font-size:10px;font-weight:700;margin-left:5px}
+.ic-row i{display:block;color:var(--muted);font-size:11px;font-style:normal;margin-top:2px}
+.ic-note{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.7}
+.ic-note a{color:var(--accent);text-decoration:underline}
+
 .sub-btn{
   width:100%;
   background:var(--accent);border:none;
@@ -582,6 +617,26 @@ nav{
           </ul>
         </div>
 
+        <!-- ===== 提出同意（追記 2026-06-05）===== -->
+        <div class="ins-consent">
+          <div class="ic-head">送信前のご確認</div>
+          <label class="ic-row">
+            <input type="checkbox" id="ic1">
+            <span>個人情報の取扱いに同意します<b class="ic-req">必須</b></span>
+          </label>
+          <label class="ic-row">
+            <input type="checkbox" id="ic2">
+            <span>第三者（事業者）の情報を含む写真・書類を、診断のために提出することに同意します<b class="ic-req">必須</b></span>
+          </label>
+          <label class="ic-row">
+            <input type="checkbox" id="ic3">
+            <span>匿名化のうえ、診断事例として公開されることに同意します<b class="ic-opt">任意</b>
+            <i>オフのままでも診断は受けられます。</i></span>
+          </label>
+          <div class="ic-note">事業者名・金額の内訳は、公開時に必ず伏せます。<a href="/consent/" target="_blank" rel="noopener">詳しい説明</a></div>
+        </div>
+        <!-- ===== 提出同意ここまで ===== -->
+
         <button class="sub-btn" id="sb" onclick="doSubmit()" disabled>
           <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           無料で診断を依頼する →
@@ -664,6 +719,7 @@ nav{
 
 <script>
 var KIRA = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
+var CONSENT_VERSION = '2026-06-05_v1';
 var files = [];
 
 function onDragOver(e){e.preventDefault();document.getElementById('dz').classList.add('drag');}
@@ -694,10 +750,15 @@ function renderPrev(){
 function updateBtn(){
   var n=document.getElementById('fn').value.trim();
   var e=document.getElementById('fe').value.trim();
-  document.getElementById('sb').disabled=!(files.length>0&&n&&e&&e.indexOf('@')>-1);
+  var c1=document.getElementById('ic1').checked;
+  var c2=document.getElementById('ic2').checked;
+  document.getElementById('sb').disabled=!(files.length>0&&n&&e&&e.indexOf('@')>-1&&c1&&c2);
 }
 document.getElementById('fn').addEventListener('input',updateBtn);
 document.getElementById('fe').addEventListener('input',updateBtn);
+document.getElementById('ic1').addEventListener('change',updateBtn);
+document.getElementById('ic2').addEventListener('change',updateBtn);
+document.getElementById('ic3').addEventListener('change',updateBtn);
 
 function setStep(n){
   [1,2,3].forEach(function(i){
@@ -732,7 +793,11 @@ function toB64(file){
   var email=document.getElementById('fe').value.trim();
   var type=document.getElementById('ft').value;
   var note=document.getElementById('fno').value.trim();
-  if(!files.length||!name||!email)return;
+  var piConsent=document.getElementById('ic1').checked;
+  var tpConsent=document.getElementById('ic2').checked;
+  var pubConsent=document.getElementById('ic3').checked;
+  if(!files.length||!name||!email||!piConsent||!tpConsent)return;
+  var consentAt=new Date().toISOString();
   setStep(2);
   document.getElementById('s1').style.display='none';
   document.getElementById('s2').style.display='block';
@@ -780,12 +845,14 @@ function toB64(file){
     kiraText='通信エラーが発生しました（'+(e.message||e)+'）。LINE @172piime から直接お送りください。';
   }
 
-  // ③ 通知＆データ保管（診断結果も一緒にKVへ保存。メール送信は廃止）
+  // ③ 通知＆データ保管（診断結果＋同意ログも一緒にKVへ保存。メール送信は廃止）
   try{
     await fetch(KIRA+'/notify',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        message:'【施工チェック依頼】\n名前：'+name+'\nメール：'+email+'\n種類：'+(type||'未選択')+'\n備考：'+(note||'なし')+'\nファイル数：'+files.length+'件\n\n--- KIRA診断 ---\n'+kiraText,
-        name:name, email:email, type:type||'', result:kiraText, risk:''
+        message:'【施工チェック依頼】\n名前：'+name+'\nメール：'+email+'\n種類：'+(type||'未選択')+'\n備考：'+(note||'なし')+'\nファイル数：'+files.length+'件\n同意：個人情報='+piConsent+' / 第三者書類='+tpConsent+' / 公開='+pubConsent+'（'+CONSENT_VERSION+'）\n\n--- KIRA診断 ---\n'+kiraText,
+        name:name, email:email, type:type||'', result:kiraText, risk:'',
+        consent_version:CONSENT_VERSION, consent_at:consentAt,
+        pi_consent:piConsent, thirdparty_consent:tpConsent, publish_consent:pubConsent
       })});
   }catch(e){}
 
@@ -814,6 +881,9 @@ function resetAll(){
   files=[];
   ['fn','fe','fd','fno'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('ft').value='';
+  document.getElementById('ic1').checked=false;
+  document.getElementById('ic2').checked=false;
+  document.getElementById('ic3').checked=false;
   document.getElementById('pw').style.display='none';
   document.getElementById('pg').innerHTML='';
   document.getElementById('sb').disabled=true;

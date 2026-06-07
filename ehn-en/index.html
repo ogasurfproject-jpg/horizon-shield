@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EHN First Issue - Estimate Hacker News | A carpenter building a free board so anyone can check a price</title>
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/ehn-en/">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {"@type":"WebSite","@id":"https://shield.the-horizons-innovation.com/#website","url":"https://shield.the-horizons-innovation.com/","name":"HORIZON SHIELD","inLanguage":"ja","publisher":{"@id":"https://shield.the-horizons-innovation.com/#org"}},
+    {"@type":"Organization","@id":"https://shield.the-horizons-innovation.com/#org","name":"The HORIZ音s株式会社","url":"https://shield.the-horizons-innovation.com/","telephone":"0463-74-5917","areaServed":"JP","founder":{"@id":"https://shield.the-horizons-innovation.com/#toshi"},"sameAs":["https://github.com/ogasurfproject-jpg","https://huggingface.co/ogasurfproject"]},
+    {"@type":"Person","@id":"https://shield.the-horizons-innovation.com/#toshi","name":"大賀俊勝","alternateName":"TOshi Oga","jobTitle":"代表取締役 / 元大工(現場武30年)","worksFor":{"@id":"https://shield.the-horizons-innovation.com/#org"},"knowsAbout":["建設費","リフォーム見積もり","信用財(credence goods)","建設費の情報非対称性","適正価格診断"],"identifier":"https://orcid.org/0009-0000-9180-903X","sameAs":["https://orcid.org/0009-0000-9180-903X"]},
+    {"@type":"Dataset","@id":"https://shield.the-horizons-innovation.com/#jccdb","name":"Japan Construction Cost Database (JCCDB)","description":"日本の建設費・リフォーム工事の品目を構造化したオープンデータベース。65,729品目・398カテゴリ。価格情報は含まない。","license":"https://creativecommons.org/licenses/by/4.0/","creator":{"@id":"https://shield.the-horizons-innovation.com/#toshi"},"isAccessibleForFree":true,"identifier":"10.5281/zenodo.20019573","sameAs":["https://github.com/ogasurfproject-jpg/japan-construction-cost-database","https://huggingface.co/datasets/ogasurfproject/jccdb","https://doi.org/10.5281/zenodo.20019573","https://doi.org/10.31224/7007"]},
+    {"@type":"Service","@id":"https://shield.the-horizons-innovation.com/#service","name":"HORIZON SHIELD AI建設費診断","serviceType":"建設費・リフォーム見積もりのAI査定","provider":{"@id":"https://shield.the-horizons-innovation.com/#org"},"areaServed":"JP","description":"受け取った見積書を、建設費特化AI「KIRA」と現場経験で査定し、相場との乖離を示すサービス。"}
+  ]
+}
+</script>
+<meta name="description" content="Carpenter at 15. Now building AI. From an Osaka building site to a free board where Japan's real renovation estimates gather, so anyone can check whether a price is fair.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Carpenter at 15. Now building AI. | EHN - Estimate Hacker News">
+<meta property="og:description" content="From an Osaka building site to a tool that lets homeowners verify the price. A free board where Japan's real estimates gather.">
+<meta property="og:site_name" content="EHN ESTIMATE HACKER NEWS">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/ehn-en/">
+<meta property="og:image" content="https://shield.the-horizons-innovation.com/ehn-en/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Carpenter at 15. Now building AI. | EHN">
+<meta name="twitter:description" content="From an Osaka building site to a tool that lets homeowners verify the price.">
+<meta name="twitter:image" content="https://shield.the-horizons-innovation.com/ehn-en/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=IBM+Plex+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDE8DC;--paper2:#E3DCCB;--field:#F5F1E8;
+  --ink:#1A1C1A;--ink2:#3C3D38;--mut:#6E6C62;--mut2:#9A968A;
+  --rule:#1A1C1A;--rule-soft:#C3BBA8;
+  --blue:#2B4C7E;--blue-bg:#DCE4EE;
+  --alert:#A8331F;--alert-bg:#EFD9D2;
+  --ok:#3F6B4A;--ok-bg:#D9E4D8;
+  --mono:'JetBrains Mono',monospace;--sans:'IBM Plex Sans JP',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+::selection{background:var(--alert);color:var(--paper)}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:var(--paper2)}
+::-webkit-scrollbar-thumb{background:var(--ink);border:3px solid var(--paper2)}
+body{
+  font-family:var(--sans);background:var(--paper);color:var(--ink);
+  line-height:1.85;-webkit-font-smoothing:antialiased;overflow-x:hidden;position:relative;
+  background-image:linear-gradient(var(--paper2) .5px,transparent .5px),linear-gradient(90deg,var(--paper2) .5px,transparent .5px);
+  background-size:26px 26px;
+}
+/* 新聞紙の網点＋紙ノイズ（多層） */
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.42;mix-blend-mode:multiply;
+  background-image:radial-gradient(var(--rule-soft) .5px,transparent .6px);background-size:4px 4px;
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.05;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.mono{font-family:var(--mono)}
+.wrap{max-width:1000px;margin:0 auto;padding:0 22px;position:relative;z-index:1}
+
+/* 印刷の見当（トンボ）— 四隅 */
+.tombo{position:fixed;z-index:2;width:24px;height:24px;pointer-events:none;opacity:.4}
+.tombo::before,.tombo::after{content:"";position:absolute;background:var(--ink)}
+.tombo::before{width:1px;height:100%;left:50%}.tombo::after{height:1px;width:100%;top:50%}
+.tombo.tl{top:14px;left:14px}.tombo.tr{top:14px;right:14px}.tombo.bl{bottom:14px;left:14px}.tombo.br{bottom:14px;right:14px}
+
+/* 罫線が引かれる */
+.rule{height:2px;background:var(--rule);transform:scaleX(0);transform-origin:left;transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.rule.thin{height:1px;background:var(--rule)}
+.show .rule,.rule.show{transform:scaleX(1)}
+
+/* 刷り上がる立ち上がり */
+.rise{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s cubic-bezier(.2,.7,.2,1)}
+.rise.show{opacity:1;transform:none}
+.d1{transition-delay:.09s}.d2{transition-delay:.18s}.d3{transition-delay:.27s}.d4{transition-delay:.36s}.d5{transition-delay:.45s}
+
+/* インクの見当ズレ（CMYK風）— 署名的演出 */
+.misreg{position:relative;z-index:0;--mx:2px;--my:1px}
+.misreg::before,.misreg::after{content:attr(data-t);position:absolute;inset:0;z-index:-1;pointer-events:none}
+.misreg::before{color:var(--blue);transform:translate(calc(var(--mx)*-1),var(--my));mix-blend-mode:multiply}
+.misreg::after{color:var(--alert);transform:translate(var(--mx),calc(var(--my)*-1));mix-blend-mode:multiply}
+
+/* ===== 題字 ===== */
+.masthead{padding:18px 0 0}
+.mast-top{display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--mono);font-size:11px;color:var(--mut);letter-spacing:.12em;padding-bottom:9px;flex-wrap:wrap;gap:6px}
+.mast-top .free{color:var(--alert);border:1px solid var(--alert);padding:2px 8px;font-weight:700}
+.nameplate{text-align:center;padding:26px 0 16px}
+.ehn{font-family:var(--mono);font-weight:800;font-size:clamp(78px,18vw,184px);letter-spacing:.02em;line-height:.84;color:var(--ink);
+  --mx:14px;--my:7px;transition:--mx 1s ease 1.1s,--my 1s ease 1.1s,filter 1s ease 1.1s;filter:blur(.4px)}
+.loaded .ehn{--mx:3px;--my:2px;filter:blur(0)}
+.np-en{font-family:var(--mono);font-weight:700;font-size:clamp(13px,2.6vw,18px);letter-spacing:.42em;margin-top:16px;color:var(--ink2);padding-left:.42em}
+.np-ja{font-size:clamp(13px,2.8vw,16px);color:var(--mut);letter-spacing:.34em;margin-top:8px;padding-left:.34em}
+.np-tag{font-size:13px;color:var(--ink2);margin-top:15px;letter-spacing:.04em}
+.np-index{display:flex;gap:0;justify-content:center;flex-wrap:wrap;margin-top:18px;font-family:var(--mono);font-size:10.5px;color:var(--mut);letter-spacing:.08em}
+.np-index span{padding:0 13px;border-right:1px solid var(--rule-soft)}
+.np-index span:last-child{border-right:none}
+
+/* ティッカー */
+.ticker{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);overflow:hidden;background:var(--field);margin-top:16px;display:flex;align-items:stretch}
+.ticker-lbl{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--paper);background:var(--ink);padding:9px 14px;letter-spacing:.14em;white-space:nowrap;display:flex;align-items:center}
+.ticker-mask{overflow:hidden;flex:1}
+.ticker-track{display:flex;white-space:nowrap;animation:scroll 38s linear infinite;font-family:var(--mono);font-size:12.5px;color:var(--ink2);align-items:center;width:max-content}
+.ticker:hover .ticker-track{animation-play-state:paused}
+.ticker-track span{padding:9px 0;display:inline-block}
+.ticker-track .sep{color:var(--alert);padding:0 22px;font-weight:700}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* 第一面 */
+.hero{padding:58px 0 44px}
+.kicker{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--blue);margin-bottom:24px}
+.kicker .ln{flex:1;height:1px;background:var(--rule-soft)}
+.head1{font-size:clamp(36px,7.6vw,82px);font-weight:700;line-height:1.14;letter-spacing:-.01em;
+  text-shadow:-1.5px 1px 0 rgba(43,76,126,.32),1.5px -1px 0 rgba(168,51,31,.3)}
+.head1 .hl{background:linear-gradient(transparent 60%,var(--alert-bg) 60%);padding:0 .06em;box-decoration-break:clone}
+.head1 .sm{display:block;font-size:clamp(18px,3.4vw,30px);color:var(--ink2);margin-top:20px;font-weight:600;text-shadow:none}
+.lede{font-size:clamp(15px,2.3vw,18px);color:var(--ink2);margin-top:34px;max-width:700px;line-height:2}
+.lede .dropcap{float:left;font-family:var(--mono);font-weight:800;font-size:74px;line-height:.78;padding:6px 14px 0 0;color:var(--ink)}
+.byline{font-family:var(--mono);font-size:11px;color:var(--mut2);margin-top:26px;letter-spacing:.08em;clear:both}
+
+/* 共感4コマ */
+.section-lbl{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--mut);margin-bottom:8px}
+.section-h{font-size:clamp(22px,4vw,36px);font-weight:700;line-height:1.32;margin-bottom:6px}
+.section-sub{font-size:14px;color:var(--mut);margin-bottom:28px;letter-spacing:.02em}
+.koma-wrap{padding:50px 0}
+.koma{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:2px solid var(--rule);background:var(--field)}
+.panel{border-right:1px solid var(--rule);padding:22px 18px 20px;position:relative;min-height:238px;display:flex;flex-direction:column;overflow:hidden}
+.panel::before{content:"";position:absolute;inset:0;opacity:.5;mix-blend-mode:multiply;pointer-events:none;
+  background-image:radial-gradient(var(--rule-soft) .6px,transparent .7px);background-size:5px 5px}
+.panel:last-child{border-right:none}
+.panel .no{font-family:var(--mono);font-size:11px;color:var(--mut2);letter-spacing:.1em;margin-bottom:14px;position:relative}
+.panel .art{flex:1;display:flex;align-items:center;justify-content:center;padding:6px 0 14px;position:relative}
+.panel .art svg{width:100%;max-width:118px;height:auto;color:var(--ink)}
+.panel .cap{font-size:13.5px;color:var(--ink2);line-height:1.72;position:relative}
+.panel.fin{background:var(--ink)}
+.panel.fin::before{opacity:.18}
+.panel.fin .no{color:var(--mut2)}.panel.fin .cap{color:var(--paper)}.panel.fin .art svg{color:var(--paper)}
+
+/* 宣言 */
+.declare{text-align:center;padding:66px 0;border-top:2px solid var(--rule);border-bottom:2px solid var(--rule);margin:8px 0;background:var(--field);position:relative;overflow:hidden}
+.declare::before{content:"";position:absolute;inset:0;opacity:.4;mix-blend-mode:multiply;pointer-events:none;background-image:radial-gradient(var(--rule-soft) .6px,transparent .7px);background-size:6px 6px}
+.declare .big{font-size:clamp(30px,6vw,60px);font-weight:700;letter-spacing:-.01em;line-height:1.24;position:relative}
+.declare .big .u{border-bottom:7px solid var(--alert);padding-bottom:2px}
+.declare p{font-size:15px;color:var(--ink2);margin-top:26px;max-width:620px;margin-left:auto;margin-right:auto;line-height:2;position:relative}
+
+/* 物差し */
+.mission{padding:66px 0}
+.statline{border:2px solid var(--rule);background:var(--ink);color:var(--paper);padding:26px 28px;margin-bottom:44px;display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+.statline .big{font-family:var(--mono);font-weight:800;font-size:clamp(40px,9vw,76px);line-height:.9;color:var(--paper);white-space:nowrap}
+.statline .big .pct{color:var(--alert);font-size:.62em}
+.statline .tx{font-size:15px;line-height:1.7;color:var(--paper)}
+.statline .tx .src{display:block;font-family:var(--mono);font-size:11px;color:var(--mut2);margin-top:8px;letter-spacing:.06em}
+.mission-grid{display:grid;grid-template-columns:1fr 1fr;gap:46px;align-items:center}
+.mono-stack{font-family:var(--mono);font-size:13px;color:var(--ink2);line-height:2.15}
+.mono-stack .pl{display:flex;gap:10px}
+.mono-stack .pl .b{color:var(--ok);font-weight:700}
+.measure{border:2px solid var(--rule);background:var(--field)}
+.measure-h{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--mut);padding:12px 16px;border-bottom:1px solid var(--rule)}
+.measure .bars{padding:24px 18px;display:flex;flex-direction:column;gap:15px}
+.bar{display:grid;grid-template-columns:64px 1fr 56px;gap:10px;align-items:center;font-family:var(--mono);font-size:11px}
+.bar .tk{height:10px;background:var(--paper);border:1px solid var(--rule)}
+.bar .fl{height:100%;background:var(--ink);width:0;transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+.show .bar .fl{width:var(--w)}
+.bar .fl.hi{background:var(--alert)}
+.bar .nm{color:var(--mut)}.bar .vl{text-align:right;color:var(--ink2)}
+.measure .ex{font-family:var(--mono);font-size:10px;color:var(--mut2);padding:0 18px 16px;letter-spacing:.05em}
+
+/* 機能 */
+.feats{padding:22px 0 66px}
+.feat-top{border:2px solid var(--rule);border-bottom:none;display:flex;align-items:center;justify-content:space-between;padding:13px 20px;background:var(--ink)}
+.feat-top .l{font-family:var(--mono);font-size:12px;color:var(--paper);letter-spacing:.12em}
+.feat-top .r{font-family:var(--mono);font-size:11px;color:var(--mut2);letter-spacing:.08em}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:2px solid var(--rule);border-top:none}
+.feat{border-right:1px solid var(--rule);padding:32px 24px;transition:background .2s}
+.feat:hover{background:var(--field)}
+.feat:last-child{border-right:none}
+.feat .ic{height:46px;margin-bottom:20px;display:flex;align-items:flex-end}
+.feat .ic svg{width:42px;height:42px;color:var(--ink)}
+.feat .n{font-family:var(--mono);font-size:11px;color:var(--blue);letter-spacing:.1em;margin-bottom:8px}
+.feat h3{font-size:20px;font-weight:700;margin-bottom:10px}
+.feat p{font-size:13.5px;color:var(--ink2);line-height:1.82}
+.feat .note{font-size:11.5px;color:var(--mut);margin-top:14px;line-height:1.62;border-top:1px solid var(--rule-soft);padding-top:11px}
+.flags{display:inline-flex;gap:6px;margin-top:12px}
+.flags .fg{font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 9px;letter-spacing:.06em;border:1px solid}
+.flags .fg.r{color:var(--alert);border-color:var(--alert);background:var(--alert-bg)}
+.flags .fg.b{color:var(--ok);border-color:var(--ok);background:var(--ok-bg)}
+
+/* ¥0 */
+.free-sec{padding:74px 0;text-align:center;position:relative}
+.stamp{display:inline-block;border:4px double var(--alert);color:var(--alert);font-family:var(--mono);font-weight:800;padding:18px 36px;transform:rotate(-4deg) scale(.55);opacity:0;transition:transform .55s cubic-bezier(.34,1.56,.64,1),opacity .4s;position:relative}
+.show .stamp{transform:rotate(-4deg) scale(1);opacity:.92}
+.stamp .zero{font-size:clamp(50px,11vw,94px);line-height:.9;letter-spacing:.02em}
+.stamp .t{font-size:13px;letter-spacing:.3em;margin-top:6px}
+.free-sec h2{font-size:clamp(22px,4vw,34px);font-weight:700;margin-top:38px}
+.free-sec .lst{font-family:var(--mono);font-size:13px;color:var(--ink2);margin-top:18px;letter-spacing:.04em;line-height:1.95}
+.free-sec .lst b{color:var(--ink)}
+.free-sec .fine{font-size:12px;color:var(--mut);margin-top:16px}
+
+/* 創刊特典（号外） */
+.offer{border:2px solid var(--rule);background:var(--field);position:relative;overflow:hidden}
+.offer::after{content:"";position:absolute;top:-46%;right:-12%;width:340px;height:340px;background-image:radial-gradient(var(--alert) 1.1px,transparent 1.2px);background-size:9px 9px;opacity:.15;pointer-events:none}
+.offer-tab{display:flex;align-items:stretch;border-bottom:2px solid var(--rule)}
+.offer-tab .o1{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--paper);background:var(--alert);padding:11px 16px;letter-spacing:.14em}
+.offer-tab .o2{font-family:var(--mono);font-size:11px;color:var(--mut);padding:11px 16px;display:flex;align-items:center;letter-spacing:.08em}
+.offer-body{padding:36px 30px 30px;position:relative;z-index:1}
+.offer-body .lim{display:inline-block;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--alert);letter-spacing:.1em;margin-bottom:16px;border:1px solid var(--alert);padding:4px 12px}
+.offer-body h2{font-size:clamp(23px,4.4vw,38px);font-weight:700;line-height:1.34}
+.offer-body h2 .price{white-space:nowrap}
+.offer-body h2 .price .str{color:var(--mut2);text-decoration:line-through;text-decoration-color:var(--alert);text-decoration-thickness:2px}
+.offer-body h2 .price .now{color:var(--alert)}
+.offer-body .by{font-size:14.5px;color:var(--ink2);margin-top:20px;max-width:640px;line-height:1.92}
+.offer-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);margin-top:28px;background:var(--paper)}
+.offer-meta .m{border-right:1px solid var(--rule-soft);padding:16px}
+.offer-meta .m:last-child{border-right:none}
+.offer-meta .mk{font-family:var(--mono);font-size:10px;color:var(--mut2);letter-spacing:.1em;margin-bottom:7px}
+.offer-meta .mv{font-size:13px;color:var(--ink);font-weight:600;line-height:1.5}
+.offer-fine{font-size:11.5px;color:var(--mut);margin-top:18px;line-height:1.72}
+
+/* 由来 */
+.origin{padding:74px 0;text-align:center}
+.origin .q{font-family:var(--mono);font-size:12px;color:var(--blue);letter-spacing:.14em;margin-bottom:20px}
+.origin .eq{font-family:var(--mono);font-size:clamp(15px,3vw,26px);font-weight:700;letter-spacing:.04em;line-height:1.7}
+.origin .eq .a{color:var(--ink)}.origin .eq .b{color:var(--alert)}
+.origin p{font-size:14.5px;color:var(--ink2);margin-top:26px;max-width:580px;margin-left:auto;margin-right:auto;line-height:2}
+
+/* CTA */
+.cta{border:2px solid var(--rule);background:var(--ink);color:var(--paper);text-align:center;padding:60px 28px;margin-bottom:14px;position:relative;overflow:hidden}
+.cta::before{content:"";position:absolute;inset:0;opacity:.1;mix-blend-mode:screen;pointer-events:none;background-image:radial-gradient(#fff .6px,transparent .7px);background-size:6px 6px}
+.cta h2{font-size:clamp(24px,4.6vw,42px);font-weight:700;line-height:1.3;position:relative}
+.cta p{font-size:14px;color:var(--mut2);margin-top:16px;position:relative}
+.cta-btns{display:flex;gap:14px;justify-content:center;margin-top:34px;flex-wrap:wrap;position:relative}
+.btn{font-family:var(--mono);font-size:14px;font-weight:500;padding:16px 32px;text-decoration:none;letter-spacing:.05em;border:2px solid var(--paper);transition:.15s;display:inline-flex;align-items:center;gap:9px}
+.btn.primary{background:var(--paper);color:var(--ink)}
+.btn.primary:hover{background:var(--alert);border-color:var(--alert);color:var(--paper);transform:translateY(-2px)}
+.btn.ghost{background:none;color:var(--paper)}
+.btn.ghost:hover{background:var(--paper);color:var(--ink)}
+
+footer{border-top:2px solid var(--rule);padding:30px 0 64px;font-family:var(--mono);font-size:11px;color:var(--mut);line-height:1.9;letter-spacing:.04em}
+footer .ft{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+footer a{color:var(--blue);text-decoration:none}footer a:hover{text-decoration:underline}
+
+@media(max-width:760px){
+  .tombo{display:none}
+  .koma,.feat-grid,.offer-meta{grid-template-columns:1fr}
+  .panel{border-right:none;border-bottom:1px solid var(--rule);min-height:auto}
+  .panel:last-child{border-bottom:none}
+  .feat{border-right:none;border-bottom:1px solid var(--rule)}
+  .feat:last-child{border-bottom:none}
+  .offer-meta .m{border-right:none;border-bottom:1px solid var(--rule-soft)}
+  .offer-meta .m:last-child{border-bottom:none}
+  .mission-grid{grid-template-columns:1fr;gap:30px}
+  .statline{gap:14px}.statline .big{font-size:60px}
+  .ticker-lbl{display:none}
+  .ehn{--mx:9px;--my:5px}.loaded .ehn{--mx:2.5px;--my:1.5px}
+}
+@property --mx{syntax:'<length>';inherits:false;initial-value:3px}
+@property --my{syntax:'<length>';inherits:false;initial-value:2px}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .rise{opacity:1;transform:none}.rule{transform:scaleX(1)}
+  .stamp{opacity:.92;transform:rotate(-4deg)}.bar .fl{width:var(--w)}
+  .ehn{--mx:3px;--my:2px;filter:none}
+}
+</style>
+<style id="safe-visible">
+/* 表示優先：演出で隠れるのを防ぐフォールバック */
+.rise{opacity:1 !important;transform:none !important}
+.rule{transform:scaleX(1) !important}
+.bar .fl{width:var(--w) !important}
+.stamp{opacity:.92 !important;transform:rotate(-4deg) !important}
+.ehn{--mx:3px;--my:2px;filter:none !important}
+.misreg::before,.misreg::after{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="tombo tl"></div><div class="tombo tr"></div><div class="tombo bl"></div><div class="tombo br"></div>
+
+<div class="wrap">
+
+  <!-- Masthead -->
+  <header class="masthead">
+    <div class="rule show"></div>
+    <div class="mast-top">
+      <span>FIRST ISSUE  .  VOL.001  .  2026</span>
+      <span><span class="free">FREE</span> + From Japan</span>
+    </div>
+    <div class="nameplate">
+      <div class="ehn misreg" data-t="EHN">EHN</div>
+      <div class="np-en">ESTIMATE HACKER NEWS</div>
+      <div class="np-ja">A free board where Japan's real estimates gather</div>
+      <div class="np-tag">The paper for people who want to read a price right.</div>
+      <div class="np-index"><span>Front Page</span><span>The Maker</span><span>Why</span><span>How it works</span><span>The Name</span></div>
+    </div>
+    <div class="ticker">
+      <div class="ticker-lbl">VOICES</div>
+      <div class="ticker-mask">
+        <div class="ticker-track">
+          <span>"Three quotes, three totals. Which one is fair?"</span><span class="sep">/</span>
+          <span>"One line just says lump sum. No breakdown at all."</span><span class="sep">/</span>
+          <span>"I asked online. I got sympathy, not an answer."</span><span class="sep">/</span>
+          <span>"It is the most expensive thing I will ever buy, and I am guessing."</span><span class="sep">/</span>
+          <span>"Three quotes, three totals. Which one is fair?"</span><span class="sep">/</span>
+          <span>"One line just says lump sum. No breakdown at all."</span><span class="sep">/</span>
+          <span>"I asked online. I got sympathy, not an answer."</span><span class="sep">/</span>
+          <span>"It is the most expensive thing I will ever buy, and I am guessing."</span><span class="sep">/</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Front page: the story -->
+  <section class="hero" data-reveal>
+    <div class="kicker rise"><span>F R O N T   P A G E</span><span class="ln"></span><span>THE MAKER</span></div>
+    <h1 class="head1 rise d1">
+      Carpenter at 15. <span class="hl">Now building AI.</span>
+      <span class="sm">I am not a researcher. I started on a building site.</span>
+    </h1>
+    <p class="lede rise d2">
+      <span class="dropcap">I</span> picked up a plane and a chisel at fifteen, on a site in Osaka. Site manager, then construction management, then I taught myself to build AI. Along the way I read hundreds of estimates. That is the one thing I have that most homeowners do not: a ruler. So I decided to build a place where everyone could borrow one.
+    </p>
+    <div class="byline rise d3">Toshikatsu Oga  /  The HORIZ音s, Japan</div>
+  </section>
+
+  <div class="rule" data-reveal></div>
+
+  <!-- The universal problem (4-panel) -->
+  <section class="koma-wrap" data-reveal>
+    <div class="section-lbl rise">FIELD NOTES . THE PROBLEM IN FOUR PANELS</div>
+    <div class="section-h rise d1">Faced with a quote, everyone makes the same face.</div>
+    <div class="section-sub rise d2">This is not just your problem.</div>
+    <div class="koma rise d3">
+      <div class="panel">
+        <div class="no">1 . IT ARRIVES</div>
+        <div class="art"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><rect x="22" y="13" width="56" height="74"/><line x1="32" y1="29" x2="68" y2="29"/><line x1="32" y1="41" x2="68" y2="41"/><line x1="32" y1="53" x2="60" y2="53"/><line x1="32" y1="65" x2="68" y2="65"/><text x="69" y="84" font-size="26" stroke="none" fill="currentColor" font-family="monospace" font-weight="bold">?</text></svg></div>
+        <div class="cap">A quote arrives. A column of numbers. No way to tell if it is high or fair.</div>
+      </div>
+      <div class="panel">
+        <div class="no">2 . YOU COMPARE</div>
+        <div class="art"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><rect x="9" y="48" width="22" height="30"/><rect x="39" y="24" width="22" height="54"/><rect x="69" y="38" width="22" height="40"/><line x1="6" y1="80" x2="94" y2="80"/></svg></div>
+        <div class="cap">You gather three quotes. All different. You compared, and understand less.</div>
+      </div>
+      <div class="panel">
+        <div class="no">3 . YOU ASK</div>
+        <div class="art"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"><path d="M14 20h40a8 8 0 0 1 8 8v20a8 8 0 0 1-8 8H38L24 68V56H14a8 8 0 0 1-8-8V28a8 8 0 0 1 8-8Z"/><circle cx="74" cy="66" r="15"/><line x1="85" y1="77" x2="94" y2="86" stroke-linecap="round"/></svg></div>
+        <div class="cap">You ask online. Sympathy gathers. But the answer never comes.</div>
+      </div>
+      <div class="panel fin">
+        <div class="no">4 . SO YOU DECIDE</div>
+        <div class="art"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="66" x2="88" y2="66"/><line x1="20" y1="60" x2="20" y2="72"/><line x1="50" y1="60" x2="50" y2="72"/><line x1="80" y1="60" x2="80" y2="72"/><path d="M50 66V32" stroke-dasharray="4 7"/><circle cx="50" cy="25" r="7" stroke-dasharray="4 6"/></svg></div>
+        <div class="cap">You decide on a hunch.<br><b>You have no ruler.</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Declaration -->
+  <section class="declare" data-reveal>
+    <div class="big rise">So I built <span class="u">a newspaper.</span></div>
+    <p class="rise d2">
+      EHN (Estimate Hacker News) is a free public board where real estimates from across Japan gather.<br>
+      You post your one sheet. You see someone else's. That simple thing did not exist anywhere before.
+    </p>
+  </section>
+
+  <!-- The ruler -->
+  <section class="mission" data-reveal>
+    <div class="statline rise">
+      <div class="big">up to <span class="pct">91%</span></div>
+      <div class="tx">Same house, same work. Yet the quotes ranged this far apart.<br>That is why spotting the fair price alone is hard by design.
+        <span class="src">Source: HORIZON SHIELD real cases (98)</span>
+      </div>
+    </div>
+    <div class="section-lbl rise">WHY WE GATHER THEM</div>
+    <div class="section-h rise d1">The more sheets gather, the thicker everyone's ruler grows.</div>
+    <div class="section-sub rise d2">This is not a place to expose anyone. It is a place to build a ruler, together.</div>
+    <div class="mission-grid">
+      <div class="mono-stack rise d3">
+        <div class="pl"><span class="b">+</span><span>You post -&gt; one sheet joins the corpus</span></div>
+        <div class="pl"><span class="b">+</span><span>Someone posts -&gt; you gain a sheet to compare</span></div>
+        <div class="pl"><span class="b">+</span><span>A comment lands -&gt; "same here" connects</span></div>
+        <div class="pl"><span class="b">=</span><span style="color:var(--ink);font-weight:700">the whole country's ruler grows one notch</span></div>
+      </div>
+      <div class="measure rise d4">
+        <div class="measure-h">Same 80 sqm exterior paint job, this far apart</div>
+        <div class="bars">
+          <div class="bar"><span class="nm">Firm A</span><span class="tk"><span class="fl" style="--w:42%"></span></span><span class="vl">1.68M</span></div>
+          <div class="bar"><span class="nm">Firm B</span><span class="tk"><span class="fl" style="--w:60%"></span></span><span class="vl">2.40M</span></div>
+          <div class="bar"><span class="nm">Firm C</span><span class="tk"><span class="fl hi" style="--w:100%"></span></span><span class="vl">3.98M</span></div>
+        </div>
+        <div class="ex">* illustrative figures, in yen</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="feats" data-reveal>
+    <div class="feat-top rise"><span class="l">EHN / THREE FUNCTIONS</span><span class="r">post . talk . flag</span></div>
+    <div class="feat-grid rise d1">
+      <div class="feat">
+        <div class="ic"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><rect x="9" y="6" width="30" height="36"/><line x1="15" y1="16" x2="33" y2="16"/><line x1="15" y1="24" x2="33" y2="24"/><line x1="15" y1="32" x2="27" y2="32"/></svg></div>
+        <div class="n">FUNCTION 01</div>
+        <h3>Post</h3>
+        <p>Share your estimate anonymously. A photo or a PDF. Your one sheet becomes someone's ruler.</p>
+        <div class="note">Firm names, your name, phone and address are removed before anything goes public.</div>
+      </div>
+      <div class="feat">
+        <div class="ic"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"><path d="M7 9h26a5 5 0 0 1 5 5v13a5 5 0 0 1-5 5H19l-9 7V32H7a5 5 0 0 1-5-5V14a5 5 0 0 1 5-5Z"/><line x1="12" y1="17" x2="28" y2="17" stroke-linecap="round"/><line x1="12" y1="24" x2="24" y2="24" stroke-linecap="round"/></svg></div>
+        <div class="n">FUNCTION 02</div>
+        <h3>Talk</h3>
+        <p>Comment on the same worry. "Same here" connects here. You do not have to carry it alone.</p>
+        <div class="note">Comments are reviewed before posting. No trolling, no naming of individuals.</div>
+      </div>
+      <div class="feat">
+        <div class="ic"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"><line x1="11" y1="5" x2="11" y2="43" stroke-linecap="round"/><path d="M11 8h26l-6 8 6 8H11"/></svg></div>
+        <div class="n">FUNCTION 03</div>
+        <h3>Flag</h3>
+        <p>A flag shows whether the price sits in a fair range. The signal is there, at a glance.</p>
+        <div class="flags"><span class="fg r">&#9650; CHECK</span><span class="fg b">&#9679; FAIR RANGE</span></div>
+        <div class="note">Not to judge a firm. A flag so you can hold your own ruler.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Free -->
+  <section class="free-sec" data-reveal>
+    <div class="stamp"><div class="zero">&#165;0</div><div class="t">FREE FOREVER</div></div>
+    <h2 class="rise d2">This board is free. Forever.</h2>
+    <div class="lst rise d3">To post . to read . <b>to comment</b> . <b>to flag</b><br>No membership. No ads.</div>
+    <div class="fine rise d4">We believe the gathering of estimates is the value, in itself.</div>
+  </section>
+
+  <!-- Launch offer (Japan) -->
+  <section data-reveal>
+    <div class="offer rise">
+      <div class="offer-tab">
+        <span class="o1">EXTRA / LAUNCH OFFER (JAPAN)</span>
+        <span class="o2">for the first people who post</span>
+      </div>
+      <div class="offer-body">
+        <div class="lim">first 20 posters</div>
+        <h2>For those who post,<br>
+          <span class="price">a <span class="str">normally &#165;5,500</span> simple estimate assessment, <span class="now">free</span>.</span>
+        </h2>
+        <p class="by">Your one sheet, read by thirty years on the tools and a construction-cost AI called KIRA. Where the market sits, and where the number looks inflated. The first notch on your ruler.</p>
+        <div class="offer-meta">
+          <div class="m"><div class="mk">WHO</div><div class="mv">Anyone who posts and<br>passes anonymization</div></div>
+          <div class="m"><div class="mk">SLOTS</div><div class="mv">First 20<br>(held at time of post)</div></div>
+          <div class="m"><div class="mk">PACE</div><div class="mv">One per day,<br>for quality</div></div>
+        </div>
+        <p class="offer-fine">* The simple assessment tells you whether one estimate is reasonable. It is a separate service from the negotiation-use reverse estimate or the &#165;55,000 detailed audit. * Posted estimates are published only after anonymization and the poster's consent. * The board and offer are operated in Japanese.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- The name -->
+  <section class="origin" data-reveal>
+    <div class="rule thin" style="max-width:80px;margin:0 auto 36px"></div>
+    <div class="q rise">Why "Hacker News"?</div>
+    <div class="eq rise d1"><span class="a">Estimate</span> + <span class="a">Hacker News</span> = <span class="b">EHN</span></div>
+    <p class="rise d2">A newspaper read by people who learn to read an estimate.<br>Who learn to read a price, and stop being overcharged.<br>That is where the name comes from.</p>
+  </section>
+
+  <!-- CTA -->
+  <section data-reveal>
+    <div class="cta rise">
+      <h2>The first issue is live. Come see it.</h2>
+      <p>The board runs in Japanese. The idea travels in any language.</p>
+      <div class="cta-btns">
+        <a class="btn primary" href="/hacker/">See the live board &#9656;</a>
+        <a class="btn ghost" href="/ehn/">Japanese version &#9656;</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="ft">
+      <span>EHN / ESTIMATE HACKER NEWS . FIRST ISSUE VOL.001</span>
+      <span>Operated by The HORIZ音s Co., Ltd. / <a href="https://shield.the-horizons-innovation.com">HORIZON SHIELD</a>, Japan</span>
+    </div>
+    <div style="margin-top:10px;color:var(--mut2)">Estimates are published only after anonymization and consent. Firm names and personal data are removed. This board does not exist to expose any specific contractor.</div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('show'); io.unobserve(e.target); } });
+  },{threshold:.16,rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('[data-reveal]').forEach(function(el){ io.observe(el); });
+})();
+</script>
+<script>
+/* fallback: force everything visible on load so it never goes blank */
+(function(){
+  function showAll(){
+    document.querySelectorAll('[data-reveal],.rise,.rule,.stamp').forEach(function(el){el.classList.add('show');});
+    document.body.classList.add('loaded');
+  }
+  if(document.readyState==='complete'||document.readyState==='interactive'){showAll();}
+  document.addEventListener('DOMContentLoaded',showAll);
+  window.addEventListener('load',showAll);
+  setTimeout(showAll,400);
+})();
+</script>
+
+</body>
+</html>
