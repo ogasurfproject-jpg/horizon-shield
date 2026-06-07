@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EHN 創刊号 — 見積りハッカーニュース | 日本中の見積りが集まる、完全無料の掲示板</title>
+<title>EHN 創刊号 ・ 見積りハッカーニュース | 日本中の見積りが集まる、完全無料の掲示板</title>
 <meta name="description" content="その見積もり、高い気がする。その勘は、たぶん正しい。EHN(見積りハッカーニュース)は、日本中の見積りが集まる完全無料の掲示板。貼って、共感して、フラッグで照らす。創刊記念、投稿者先着20名に通常¥5,500の簡易見積もり査定を無料で。">
 <meta property="og:type" content="website">
-<meta property="og:title" content="その見積もり、高い気がする。――その勘は、たぶん正しい。｜EHN 創刊号">
+<meta property="og:title" content="その見積もり、高い気がする。その勘は、たぶん正しい。｜EHN 創刊号">
 <meta property="og:description" content="日本中の見積りが集まる、完全無料の掲示板。貼って、共感して、フラッグで照らす。創刊記念、投稿者先着20名に通常¥5,500の簡易見積もり査定を無料で。">
 <meta property="og:site_name" content="EHN ESTIMATE HACKER NEWS">
 <meta property="og:url" content="https://shield.the-horizons-innovation.com/ehn/">
@@ -14,7 +14,7 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="その見積もり、高い気がする。――その勘は、たぶん正しい。｜EHN 創刊号">
+<meta name="twitter:title" content="その見積もり、高い気がする。その勘は、たぶん正しい。｜EHN 創刊号">
 <meta name="twitter:description" content="日本中の見積りが集まる、完全無料の掲示板。創刊記念、投稿者先着20名に通常¥5,500の簡易見積もり査定を無料で。">
 <meta name="twitter:image" content="https://shield.the-horizons-innovation.com/ehn/og.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,7 +54,7 @@ body::after{
 .mono{font-family:var(--mono)}
 .wrap{max-width:1000px;margin:0 auto;padding:0 22px;position:relative;z-index:1}
 
-/* 印刷の見当（トンボ）— 四隅 */
+/* 印刷の見当（トンボ） 四隅 */
 .tombo{position:fixed;z-index:2;width:24px;height:24px;pointer-events:none;opacity:.4}
 .tombo::before,.tombo::after{content:"";position:absolute;background:var(--ink)}
 .tombo::before{width:1px;height:100%;left:50%}.tombo::after{height:1px;width:100%;top:50%}
@@ -70,7 +70,7 @@ body::after{
 .rise.show{opacity:1;transform:none}
 .d1{transition-delay:.09s}.d2{transition-delay:.18s}.d3{transition-delay:.27s}.d4{transition-delay:.36s}.d5{transition-delay:.45s}
 
-/* インクの見当ズレ（CMYK風）— 署名的演出 */
+/* インクの見当ズレ（CMYK風） 署名的演出 */
 .misreg{position:relative;z-index:0;--mx:2px;--my:1px}
 .misreg::before,.misreg::after{content:attr(data-t);position:absolute;inset:0;z-index:-1;pointer-events:none}
 .misreg::before{color:var(--blue);transform:translate(calc(var(--mx)*-1),var(--my));mix-blend-mode:multiply}
@@ -180,6 +180,53 @@ body::after{
 .flags .fg.r{color:var(--alert);border-color:var(--alert);background:var(--alert-bg)}
 .flags .fg.b{color:var(--ok);border-color:var(--ok);background:var(--ok-bg)}
 
+/* 誌面見本：貼ると、こう照らされる */
+.proof{padding:14px 0 66px}
+.proof .lightit{position:absolute;opacity:0;width:0;height:0;pointer-events:none}
+.proof-stage{border:2px solid var(--rule);background:var(--ink);position:relative;overflow:hidden}
+.proof-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;border-bottom:2px solid var(--rule);flex-wrap:wrap}
+.proof-toolbar .pt-lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mut2)}
+.pt-toggle{display:inline-flex;align-items:center;gap:9px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--paper);border:1px solid var(--mut);padding:6px 13px;user-select:none;transition:.18s}
+.pt-toggle:hover{border-color:var(--alert)}
+.pt-toggle .dot{width:9px;height:9px;border:1.5px solid var(--mut2);background:transparent;transition:.18s}
+.proof .lightit:checked ~ .proof-toolbar .pt-toggle{border-color:var(--alert);color:var(--alert)}
+.proof .lightit:checked ~ .proof-toolbar .pt-toggle .dot{background:var(--alert);border-color:var(--alert)}
+.proof .lightit:checked ~ .proof-toolbar .pt-toggle .tx::after{content:" ▼"}
+.proof .lightit:not(:checked) ~ .proof-toolbar .pt-toggle .tx::after{content:" ▶"}
+
+.sheet{position:relative;background:var(--paper);margin:26px;padding:24px 26px 26px;border:1px solid var(--rule)}
+.sheet::before{content:"";position:absolute;inset:0;opacity:.5;mix-blend-mode:multiply;pointer-events:none;background-image:radial-gradient(var(--rule-soft) .55px,transparent .65px);background-size:5px 5px}
+.sheet-head{display:flex;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--rule);padding-bottom:10px;position:relative}
+.sheet-head .sh-l{font-size:20px;font-weight:700;letter-spacing:.18em}
+.sheet-head .sh-r{font-family:var(--mono);font-size:10px;color:var(--mut2);letter-spacing:.12em}
+.sheet-meta{display:flex;flex-wrap:wrap;gap:6px 22px;font-size:12px;color:var(--ink2);padding:13px 0;border-bottom:1px solid var(--rule-soft);position:relative}
+.redact{display:inline-block;background:var(--ink);color:var(--ink);letter-spacing:-.04em;border-radius:1px;user-select:none}
+.sheet-rows{position:relative}
+.row{display:grid;grid-template-columns:1fr 56px 110px;gap:10px;align-items:center;padding:11px 8px;border-bottom:1px solid var(--rule-soft);font-size:14px}
+.row .it{color:var(--ink)}
+.row .qt{font-family:var(--mono);font-size:11px;color:var(--mut);text-align:right}
+.row .am{font-family:var(--mono);font-size:14px;color:var(--ink2);text-align:right}
+.row .am::before{content:"¥";color:var(--mut2);font-size:.82em;margin-right:1px}
+.row.total{border-bottom:none;border-top:2px solid var(--rule);margin-top:2px;font-weight:700}
+.row.total .it{font-weight:700}
+.row.total .am{font-size:16px;color:var(--ink)}
+.row.flag-row{transition:background .35s,box-shadow .35s}
+.proof .lightit:checked ~ .sheet .row.flag-row{background:var(--alert-bg);box-shadow:inset 4px 0 0 var(--alert)}
+
+/* 注釈（編集の赤ペン＋AI） */
+.annot{margin:14px 26px;display:flex;gap:11px;align-items:flex-start;padding:12px 15px;border-left:3px solid;background:var(--field);font-size:12.5px;line-height:1.66;color:var(--ink2);position:relative;max-height:240px;overflow:hidden;transition:opacity .35s,max-height .45s ease,margin .45s ease,padding .45s ease,transform .35s}
+.annot b{font-family:var(--mono)}
+.annot .ah{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.08em;white-space:nowrap;padding-top:1px}
+.annot-alert{border-color:var(--alert)}
+.annot-alert .ah{color:var(--alert)}
+.annot-alert b{color:var(--alert)}
+.annot-kira{border-color:var(--blue);margin-top:-4px}
+.annot-kira .ah{color:var(--blue)}
+.annot-kira b{color:var(--blue)}
+.proof .lightit:not(:checked) ~ .sheet ~ .annot,
+.proof .lightit:not(:checked) ~ .annot{opacity:0;transform:translateY(-6px);pointer-events:none;max-height:0;margin-top:0;margin-bottom:0;padding-top:0;padding-bottom:0;border-left-width:0}
+.proof-ex{font-family:var(--mono);font-size:10px;color:var(--mut2);padding:4px 26px 18px;letter-spacing:.04em;line-height:1.7}
+
 /* ¥0 */
 .free-sec{padding:74px 0;text-align:center;position:relative}
 .stamp{display:inline-block;border:4px double var(--alert);color:var(--alert);font-family:var(--mono);font-weight:800;padding:18px 36px;transform:rotate(-4deg) scale(.55);opacity:0;transition:transform .55s cubic-bezier(.34,1.56,.64,1),opacity .4s;position:relative}
@@ -199,10 +246,10 @@ body::after{
 .offer-tab .o2{font-family:var(--mono);font-size:11px;color:var(--mut);padding:11px 16px;display:flex;align-items:center;letter-spacing:.08em}
 .offer-body{padding:36px 30px 30px;position:relative;z-index:1}
 .offer-body .lim{display:inline-block;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--alert);letter-spacing:.1em;margin-bottom:16px;border:1px solid var(--alert);padding:4px 12px}
-.offer-body h2{font-size:clamp(23px,4.4vw,38px);font-weight:700;line-height:1.34}
-.offer-body h2 .price{white-space:nowrap}
-.offer-body h2 .price .str{color:var(--mut2);text-decoration:line-through;text-decoration-color:var(--alert);text-decoration-thickness:2px}
-.offer-body h2 .price .now{color:var(--alert)}
+.offer-body h2{font-size:clamp(22px,4.4vw,38px);font-weight:700;line-height:1.36;word-break:normal;overflow-wrap:anywhere}
+.offer-body h2 .price{white-space:normal}
+.offer-body h2 .price .str{white-space:nowrap;color:var(--mut2);text-decoration:line-through;text-decoration-color:var(--alert);text-decoration-thickness:2px}
+.offer-body h2 .price .now{white-space:nowrap;color:var(--alert)}
 .offer-body .by{font-size:14.5px;color:var(--ink2);margin-top:20px;max-width:640px;line-height:1.92}
 .offer-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);margin-top:28px;background:var(--paper)}
 .offer-meta .m{border-right:1px solid var(--rule-soft);padding:16px}
@@ -247,6 +294,10 @@ footer a{color:var(--blue);text-decoration:none}footer a:hover{text-decoration:u
   .statline{gap:14px}.statline .big{font-size:60px}
   .ticker-lbl{display:none}
   .ehn{--mx:9px;--my:5px}.loaded .ehn{--mx:2.5px;--my:1.5px}
+  .sheet{margin:14px}.annot{margin:11px 14px}.proof-ex{padding:4px 14px 16px}
+  .row{grid-template-columns:1fr 44px 92px;gap:7px;font-size:13px;padding:10px 4px}
+  .row .am{font-size:12.5px}.row.total .am{font-size:14px}
+  .sheet-head .sh-l{font-size:17px;letter-spacing:.12em}
 }
 @property --mx{syntax:'<length>';inherits:false;initial-value:3px}
 @property --my{syntax:'<length>';inherits:false;initial-value:2px}
@@ -286,7 +337,7 @@ footer a{color:var(--blue);text-decoration:none}footer a:hover{text-decoration:u
       <div class="np-en">ESTIMATE HACKER NEWS</div>
       <div class="np-ja">見 積 り ハ ッ カ ー ニ ュ ー ス</div>
       <div class="np-tag">見積りの達人が読む、たった一つの新聞。</div>
-      <div class="np-index"><span>第一面</span><span>あるある四コマ</span><span>社是</span><span>3つの機能</span><span>創刊特典</span><span>由来</span></div>
+      <div class="np-index"><span>第一面</span><span>あるある四コマ</span><span>社是</span><span>3つの機能</span><span>誌面見本</span><span>創刊特典</span><span>由来</span></div>
     </div>
     <div class="ticker">
       <div class="ticker-lbl">本日の声</div>
@@ -312,7 +363,7 @@ footer a{color:var(--blue);text-decoration:none}footer a:hover{text-decoration:u
     <div class="kicker rise"><span>第 一 面</span><span class="ln"></span><span>FRONT PAGE</span></div>
     <h1 class="head1 rise d1">
       その見積もり、<span class="hl">高い気がする。</span>
-      <span class="sm">――その勘は、たぶん正しい。</span>
+      <span class="sm">その勘は、たぶん正しい。</span>
     </h1>
     <p class="lede rise d2">
       <span class="dropcap">高</span>いのか、妥当なのか。比べる相手がいないまま、判を押す。「正しい」と確かめる<b>物差し</b>が、あなたにはまだ無いからだ。だから、ここに集めることにした。日本中の、本物の見積りを。一枚ずつ。
@@ -419,6 +470,48 @@ footer a{color:var(--blue);text-decoration:none}footer a:hover{text-decoration:u
     </div>
   </section>
 
+  <!-- 誌面見本：貼ると、こう照らされる -->
+  <section class="proof" data-reveal>
+    <div class="section-lbl rise">誌面見本 ・ 投稿された一枚は、こう載る</div>
+    <div class="section-h rise d1">貼った見積りを、編集部と AI が「照らす」。</div>
+    <div class="section-sub rise d2">業者名も個人情報も伏せたうえで掲載。あなたの一枚が、誰かの物差しになる。</div>
+
+    <div class="proof-stage rise d3">
+      <input type="checkbox" id="lightit" class="lightit" checked>
+      <div class="proof-toolbar">
+        <span class="pt-lbl">EHN 誌面プレビュー</span>
+        <label for="lightit" class="pt-toggle"><span class="dot"></span><span class="tx">AI で照らす</span></label>
+      </div>
+
+      <div class="sheet">
+        <div class="sheet-head"><div class="sh-l">御 見 積 書</div><div class="sh-r">作図例 ／ SAMPLE</div></div>
+        <div class="sheet-meta">
+          <span>宛：<span class="redact">▇▇▇▇</span> 様</span>
+          <span>施工：<span class="redact">▇▇▇▇▇▇</span></span>
+          <span>件名：外壁塗装・付帯　80㎡</span>
+        </div>
+        <div class="sheet-rows">
+          <div class="row"><span class="it">外壁塗装　一式</span><span class="qt">80㎡</span><span class="am">1,180,000</span></div>
+          <div class="row"><span class="it">高圧洗浄</span><span class="qt">80㎡</span><span class="am">96,000</span></div>
+          <div class="row"><span class="it">足場 ・ 養生</span><span class="qt">一式</span><span class="am">320,000</span></div>
+          <div class="row flag-row"><span class="it">諸経費　一式</span><span class="qt">一式</span><span class="am">720,000</span></div>
+          <div class="row total"><span class="it">合計（税込）</span><span class="qt"></span><span class="am">2,316,000</span></div>
+        </div>
+      </div>
+
+      <div class="annot annot-alert">
+        <span class="ah">▲ 要確認</span>
+        <span class="ab">「諸経費 一式」が総額の <b>31%</b>。目安(10〜16%)を大きく超えています。何が含まれるか、内訳を聞ける一枚です。</span>
+      </div>
+      <div class="annot annot-kira">
+        <span class="ah">KIRA 査定</span>
+        <span class="ab">同条件の想定相場帯は <b>168〜198万</b>。この一枚は上振れ圏。差がどこに乗っているかを照らします。</span>
+      </div>
+
+      <div class="proof-ex">※ 数字は物差しの考え方を示す作図例です。実際の投稿は匿名化・ご本人の同意確認のうえ掲載します。</div>
+    </div>
+  </section>
+
   <!-- ¥0 -->
   <section class="free-sec" data-reveal>
     <div class="stamp"><div class="zero">¥0</div><div class="t">FREE FOREVER</div></div>
@@ -455,7 +548,7 @@ footer a{color:var(--blue);text-decoration:none}footer a:hover{text-decoration:u
     <div class="rule thin" style="max-width:80px;margin:0 auto 36px"></div>
     <div class="q rise">なぜ「ハッカーニュース」？</div>
     <div class="eq rise d1"><span class="a">Estimate</span> ＋ <span class="a">Hacker News</span> ＝ <span class="b">EHN</span></div>
-    <p class="rise d2">見積りを読み解き、ぼったくりを〝ハック〟する。<br>そんな達人たちが集まって読む、新聞。<br>――それが、この名前の由来です。</p>
+    <p class="rise d2">見積りを読み解き、ぼったくりを〝ハック〟する。<br>そんな達人たちが集まって読む、新聞。<br>それが、この名前の由来です。</p>
   </section>
 
   <!-- CTA -->
