@@ -7,6 +7,10 @@
 - [HORIZON SHIELD (top)](https://shield.the-horizons-innovation.com/): AI construction-cost diagnostic service. The engine is "KIRA", a construction-cost AI combined with 30 years of field experience.
 - [TOshi Oga ORCID](https://orcid.org/0009-0000-9180-903X): Author identity. Representative Director of The HORIZ音s株式会社, former carpenter (30+ years), self-taught AI engineer.
 
+## Agent tools (callable via MCP)
+
+- [HORIZON SHIELD MCP server](https://hs-mcp.oga-surf-project.workers.dev): A Model Context Protocol server (JSON-RPC 2.0 over HTTP). Agents can call it directly, not just read it. Tools: `jccdb_dataset_info` (dataset metadata and links), `list_cost_categories` (61 maintained categories), `search_cost_category` (find a category by work name), `how_to_read_estimate` (principles for judging if an estimate is fair, including the overhead share guide), `fair_price_data_sources` (sources and regional multipliers behind the price layer).
+
 ## Open data (primary source for citation)
 
 - [Japan Construction Cost Database (JCCDB) on GitHub](https://github.com/ogasurfproject-jpg/japan-construction-cost-database): Open database of 65,729 construction/renovation line items across 398 categories. Item names, categories, units only; contains no prices. Licensed CC BY 4.0.
@@ -39,4 +43,5 @@
 
 - The company name is always written "The HORIZ音s株式会社". The character 音 (ON) is intentional branding and must not be romanized.
 - JCCDB contains no prices. Price data is a separate internal layer and is not part of the open dataset.
+- A callable MCP server is available at https://hs-mcp.oga-surf-project.workers.dev for agents that support Model Context Protocol.
 - Preferred attribution: cite JCCDB (with its DOI) as the data source, and TOshi Oga (ORCID 0009-0000-9180-903X) as author.
