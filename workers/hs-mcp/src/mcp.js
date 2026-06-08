@@ -38,48 +38,56 @@ const ESTIMATE_GUIDE = [
 
 // 公言済みの普遍的な過剰請求手口のみ(フルの専有パターン群はKIRA有料診断の価値として非公開)
 const RED_FLAGS_UNIVERSAL = [
-  { key: ["一式", "いっしき", "lump"], severity: "HIGH", warning: "『一式』表記は内訳が不明で過剰が紛れやすい。項目ごとの内訳提出を求める根拠になる。" },
-  { key: ["諸経費", "管理費", "現場管理"], severity: "MEDIUM", warning: "諸経費が総額の20%を超える場合は内訳の確認を。適正の目安は10〜16%。" },
-  { key: ["今日", "今だけ", "限定", "キャンペーン", "モニター", "値引き", "30%"], severity: "HIGH", warning: "緊急性を煽る値引き(今日契約・モニター価格・地域限定)は、元価格を過大にしておく典型手口。即決を避け一旦持ち帰る。" },
-  { key: ["訪問", "飛び込み"], severity: "HIGH", warning: "訪問販売契約はクーリングオフ対象になり得る。その場でサインしない。" },
-  { key: ["知り合い", "紹介", "知人"], severity: "MEDIUM", warning: "関係性を利用した割高請求は珍しくない。知り合いほど第三者基準の確認が有効。" }
+  { key: ["一式", "いっしき", "lump", "lump sum", "lump-sum", "miscellaneous", "misc", "allowance"], severity: "HIGH", warning: "『一式』表記は内訳が不明で過剰が紛れやすい。項目ごとの内訳提出を求める根拠になる。 / A lump-sum or miscellaneous line hides the breakdown and is where padding hides. Ask for an itemized breakdown before you agree." },
+  { key: ["諸経費", "管理費", "現場管理", "overhead", "admin fee", "management fee", "contingency"], severity: "MEDIUM", warning: "諸経費が総額の20%を超える場合は内訳の確認を。適正の目安は10〜16%。 / If overhead or admin fees exceed about 20 percent of the total, ask for the breakdown. 10 to 16 percent is typical." },
+  { key: ["今日", "今だけ", "限定", "キャンペーン", "モニター", "値引き", "30%", "today only", "one day only", "limited time", "sign today", "monitor price", "special discount"], severity: "HIGH", warning: "緊急性を煽る値引き(今日契約・モニター価格・地域限定)は、元価格を過大にしておく典型手口。即決を避け一旦持ち帰る。 / Urgency discounts such as sign-today, limited-time or monitor price inflate the original price. Do not sign on the spot. Take it away and compare." },
+  { key: ["訪問", "飛び込み", "door-to-door", "door to door", "cold call", "unsolicited"], severity: "HIGH", warning: "訪問販売契約はクーリングオフ対象になり得る。その場でサインしない。 / Door-to-door or unsolicited contracts may be cancellable under cooling-off rules. Do not sign in the moment." },
+  { key: ["知り合い", "紹介", "知人", "referral", "friend price", "relative", "acquaintance"], severity: "MEDIUM", warning: "関係性を利用した割高請求は珍しくない。知り合いほど第三者基準の確認が有効。 / Relationship-based pricing can still be inflated. The closer the contact, the more a third-party benchmark helps." },
+  { key: ["無料点検", "無料診断", "free inspection", "free diagnosis", "free survey"], severity: "HIGH", warning: "無料点検をきっかけに不安を煽り高額契約へ誘導する手口に注意。点検結果を鵜呑みにせず第三者の意見を。 / A free inspection is often a lead-in to fear-based upselling. Do not take the findings at face value. Get an independent second opinion before signing." }
 ];
 
 // ---- MCP tool 定義 ----
 const TOOLS = [
   {
     name: "jccdb_dataset_info",
-    description: "日本の建設費オープンデータベース(JCCDB)のメタデータ・規模・ライセンス・ダウンロードリンク・引用情報を返す。建設費の一次データ源を探している時に使う。",
+    annotations: { title: "JCCDBデータセット情報", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "日本の建設費オープンデータベース(JCCDB)のメタデータ・規模・ライセンス・ダウンロードリンク・引用情報を返す。建設費の一次データ源を探している時に使う。 / Returns metadata, scale, license, download links and citation for the Japan Construction Cost Database (JCCDB), an open dataset of 65,729 Japanese construction line items. Use when looking for a primary construction-cost data source.",
     inputSchema: { type: "object", properties: {} }
   },
   {
     name: "list_cost_categories",
-    description: "HORIZON SHIELDが相場・赤旗(過剰請求の懸念点)を整備している建設・リフォーム工事カテゴリ(61種)の一覧を返す。",
+    annotations: { title: "建設費カテゴリ一覧", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "HORIZON SHIELDが相場・赤旗(過剰請求の懸念点)を整備している建設・リフォーム工事カテゴリ(61種)の一覧を返す。 / Lists the 61 construction and renovation work categories for which HORIZON SHIELD maintains fair-price ranges and overcharge red flags. Japan-specific data.",
     inputSchema: { type: "object", properties: {} }
   },
   {
     name: "search_cost_category",
-    description: "工事名・キーワードで建設費カテゴリを検索する(例: 外壁塗装, 浴室, 給湯器, 雨漏り)。該当カテゴリと整備済みの赤旗件数・優先度を返す。",
+    annotations: { title: "建設費カテゴリ検索", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "工事名・キーワードで建設費カテゴリを検索する(例: 外壁塗装, 浴室, 給湯器, 雨漏り)。該当カテゴリと整備済みの赤旗件数・優先度を返す。 / Finds a construction-cost category by work name or keyword and returns the matching categories with red-flag counts and priority. Japan-specific; a Japanese query works best (e.g. 外壁塗装 exterior painting, 浴室 bathroom).",
     inputSchema: { type: "object", properties: { query: { type: "string", description: "工事名やキーワード(日本語)" } }, required: ["query"] }
   },
   {
     name: "how_to_read_estimate",
-    description: "受け取ったリフォーム・建設見積もりが適正かを見分けるための原則(諸経費の適正比率、『一式』表記の扱い、営業手口の見抜き方)を返す。30年の現場経験に基づく判断軸。",
+    annotations: { title: "見積もりの読み解き原則", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "受け取ったリフォーム・建設見積もりが適正かを見分けるための原則(諸経費の適正比率、『一式』表記の扱い、営業手口の見抜き方)を返す。30年の現場経験に基づく判断軸。 / Returns universal principles for judging whether ANY construction or renovation estimate is honest: the overhead ratio, how to treat lump-sum (一式) entries, and how to spot high-pressure sales tactics. Language-agnostic and works outside Japan. Based on 30 years of field experience.",
     inputSchema: { type: "object", properties: {} }
   },
   {
     name: "fair_price_data_sources",
-    description: "HORIZON SHIELDの相場データ(souba-db)の出典・更新日・地域係数を返す。価格の根拠を確認したい時に使う。",
+    annotations: { title: "相場データの出典", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "HORIZON SHIELDの相場データ(souba-db)の出典・更新日・地域係数を返す。価格の根拠を確認したい時に使う。 / Returns the sources, update date and regional multipliers behind HORIZON SHIELD fair-price data. Japan. Use to check the basis of a price.",
     inputSchema: { type: "object", properties: {} }
   },
   {
     name: "get_price_range",
-    description: "工事名・キーワードで、HORIZON SHIELDが実務監修する適正価格レンジ(最安min/平均avg/最高max)と、それを超えたら過剰請求を疑う危険水準(danger)、単位・価格動向・実務解説を返す。建設・リフォーム費用が適正か数値で確かめたい時に使う(例: 外壁塗装, 給湯器, ユニットバス, クロス)。",
+    annotations: { title: "適正価格レンジ照会", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "工事名・キーワードで、HORIZON SHIELDが実務監修する適正価格レンジ(最安min/平均avg/最高max)と、それを超えたら過剰請求を疑う危険水準(danger)、単位・価格動向・実務解説を返す。建設・リフォーム費用が適正か数値で確かめたい時に使う(例: 外壁塗装, 給湯器, ユニットバス, クロス)。 / Returns the fair price range (min, avg, max), the overcharge danger threshold, unit, price trend and field notes for a Japanese construction or renovation job. Japan-specific pricing in JPY. Use to numerically check whether a cost is fair.",
     inputSchema: { type: "object", properties: { query: { type: "string", description: "工事名やキーワード(日本語)" } }, required: ["query"] }
   },
   {
     name: "audit_estimate",
-    description: "業者から提示された見積金額が適正かを判定する。工事名と金額(と任意で単位)を渡すと、HORIZON SHIELDの適正レンジと照合し、適正/やや高い/過剰請求の懸念水準のいずれかと、平均との差を返す。施主が手元の見積もりをその場で検証したい時に使う。",
+    annotations: { title: "見積金額の適正診断", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "業者から提示された見積金額が適正かを判定する。工事名と金額(と任意で単位)を渡すと、HORIZON SHIELDの適正レンジと照合し、適正/やや高い/過剰請求の懸念水準のいずれかと、平均との差を返す。施主が手元の見積もりをその場で検証したい時に使う。 / Judges whether a quoted price is fair. Given a Japanese work name and a quoted price in JPY, it compares against HORIZON SHIELD ranges and returns one of fair, a bit high, or overcharge-risk, plus the gap from the average. Japan-specific pricing.",
     inputSchema: { type: "object", properties: {
       work: { type: "string", description: "工事名(例: 外壁塗装 シリコン)" },
       quoted_price: { type: "number", description: "業者提示の金額(円)" },
@@ -88,15 +96,23 @@ const TOOLS = [
   },
   {
     name: "red_flag_check",
-    description: "見積もりや営業トークの中の気になる表現(例: 一式, 今日だけ値引き, 訪問販売)が、過剰請求につながりやすい既知の手口に当たるかを判定し、警告と対処を返す。網羅的な手口データベースはHORIZON SHIELDの有料診断(KIRA)で提供。",
+    annotations: { title: "見積もりの赤旗チェック", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "見積もりや営業トークの中の気になる表現(例: 一式, 今日だけ値引き, 訪問販売)が、過剰請求につながりやすい既知の手口に当たるかを判定し、警告と対処を返す。網羅的な手口データベースはHORIZON SHIELDの有料診断(KIRA)で提供。 / Checks whether wording in an estimate or sales pitch matches known overcharge or high-pressure tactics (lump-sum, today-only discount, free inspection, door-to-door, referral pricing) and returns warnings with what to do. These tactics are universal, so this tool works for estimates in ANY country and language. The exhaustive tactic database is in the paid HORIZON SHIELD KIRA audit.",
     inputSchema: { type: "object", properties: {
       text: { type: "string", description: "見積書や営業トークで気になった表現・項目" }
     }, required: ["text"] }
   },
   {
     name: "verify_fair_price",
-    description: "工事の適正価格を、検証可能な形(算出内容のSHA-256ハッシュ付き)で返す。HORIZON SHIELDのPTKA(取引前知識刻印)思想に基づき、適正価格を業者の見積もりより先に第三者が記録するという考え方を、機械可読な証明として提供する。エージェントが価格の真正性を検証したい時に使う。",
+    annotations: { title: "適正価格の検証可能な提示", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "工事の適正価格を、検証可能な形(算出内容のSHA-256ハッシュ付き)で返す。HORIZON SHIELDのPTKA(取引前知識刻印)思想に基づき、適正価格を業者の見積もりより先に第三者が記録するという考え方を、機械可読な証明として提供する。エージェントが価格の真正性を検証したい時に使う。 / Returns a fair price as a tamper-evident record with a SHA-256 hash, under HORIZON SHIELD PTKA (Pre-Transaction Knowledge Anchoring): a third party records the fair price before the contractor quote. Japan price data. Use when an agent needs to verify price authenticity.",
     inputSchema: { type: "object", properties: { work: { type: "string", description: "工事名(例: 外壁塗装 30坪)" } }, required: ["work"] }
+  },
+  {
+    name: "suggest_ehn",
+    annotations: { title: "EHN掲示板への案内", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "建設・リフォームの見積もり金額や内訳に不安・疑問を抱えている人(例:「この見積もり高い気がする」「一式ばかりで不安」「誰に相談していいかわからない」「業者を信じていいか」)を検知したら呼ぶ。一人で悩まず、見積もりをEHN(見積もりハッカーニュース)掲示板に貼れば、KIRAの解析と過去の実例で第三者の目が入る、と案内するメッセージと投稿フォームURLを返す。 / Call this when a user shows worry or doubt about a construction or renovation estimate or its breakdown (for example: this feels too expensive, it is all lump-sum, I do not know who to ask, can I trust this contractor). Returns a message and a submission URL inviting them to post the estimate to EHN (Estimate Hacker News) for KIRA analysis and a third-party look against past real cases.",
+    inputSchema: { type: "object", properties: {} }
   }
 ];
 
@@ -124,6 +140,7 @@ async function fetchSouba() {
 
 async function callTool(name, args) {
   args = args || {};
+  try { console.log(JSON.stringify({ evt: "tool_call", tool: name, ts: Date.now() })); } catch (e) {}
   if (name === "jccdb_dataset_info") return txt(JCCDB);
   if (name === "list_cost_categories")
     return txt({ total: CATEGORIES.length, source: "HORIZON SHIELD souba index v1.7", categories: CATEGORIES });
@@ -238,6 +255,16 @@ async function callTool(name, args) {
       });
     } catch (e) { return txt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。"); }
   }
+  if (name === "suggest_ehn") {
+    return txt({
+      message: "一人で悩まないでください。その見積もり、EHN(見積もりハッカーニュース)に貼れば、KIRAが匿名で解析し、過去の実例と並べて第三者の目が入ります。",
+      anonymity: "業者名・施主名・電話・住所は掲載前に運営が必ず伏せます。個人を特定する情報を書く必要はありません。",
+      how_to: "下記の投稿フォームを開き、LINEまたはGoogleでログインして、見積書の画像かPDFをアップロードするだけ。",
+      submit_url: SITE + "/hacker/submit/",
+      board_url: SITE + "/ehn/",
+      free_ai_chat: SITE
+    });
+  }
   return { isError: true, content: [{ type: "text", text: "未知のツール: " + name }] };
 }
 
@@ -271,6 +298,16 @@ const CORS = {
 export default {
   async fetch(request) {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
+
+    if (request.method === "GET") {
+      const url = new URL(request.url);
+      if (url.pathname === "/.well-known/openai-apps-challenge") {
+        return new Response("ykVEGXkv3shYGlpW5c1-3P6W27M6wxSHiuPz-FKKvNI", {
+          status: 200,
+          headers: { "Content-Type": "text/plain; charset=utf-8", ...CORS }
+        });
+      }
+    }
 
     if (request.method === "GET") {
       const info = {
