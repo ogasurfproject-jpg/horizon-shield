@@ -1955,9 +1955,12 @@ async function ehnPickInit(){
     if(!d||!d.ok||!Array.isArray(d.cards))return;
     var now=Date.now(), WEEK=7*24*60*60*1000;
     var recent=d.cards.filter(function(c){return c.created_at && (now-c.created_at)<WEEK;});
+    recent.sort(function(a,b){return b.created_at-a.created_at;});
+    var MAXSHOW=6;
+    var shown=recent.slice(0,MAXSHOW);
     if(recent.length===0)return;
     var grid=document.getElementById('ehn-pick-grid');
-    var html=recent.map(function(c){
+    var html=shown.map(function(c){
       var amt=Number(String(c.amount||'').replace(/[^0-9]/g,''));
       var amtStr=amt?('\u00a5'+amt.toLocaleString('ja-JP')):'\u2014';
       var link=LINKS[c.genre]||'';
@@ -1974,6 +1977,7 @@ async function ehnPickInit(){
       return card;
     }).join('');
     grid.innerHTML=html;
+    if(recent.length>MAXSHOW){var more=document.createElement('div');more.style.cssText='grid-column:1/-1;text-align:center;margin-top:1rem;';more.innerHTML='<a href="/hacker/" style="font-size:.84rem;color:var(--clay);text-decoration:none;font-weight:700;">\u3059\u3079\u3066\u306e\u5b9f\u4f8b\u3092\u898b\u308b ('+recent.length+'\u4ef6) \u2192</a>';grid.appendChild(more);}
     var meta=document.getElementById('ehn-pick-meta');
     var dt=new Date(now);
     var ymd=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
