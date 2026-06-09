@@ -1030,6 +1030,16 @@ if(!sessionStorage.getItem('hs_seen')){
   </div>
 </div>
 
+<!-- ═══ EHN PICKUP (自動生成: 今週の実例) ═══ -->
+<div class="sec" id="ehn-pick" style="display:none;background:rgba(255,255,255,.72);backdrop-filter:blur(14px);">
+  <div class="sec-i">
+    <div class="ey rv"><span class="eline"></span>THIS WEEK / EHN</div>
+    <h2 class="rv" style="font-size:1.5rem;margin:.4rem 0 .3rem;">今週みんなが出した見積もり</h2>
+    <p class="rv" style="color:var(--ink2);font-size:.86rem;margin-bottom:1.4rem;">実際に投稿された見積もりをKIRAが匿名で診断した結果です。<span id="ehn-pick-meta" style="font-family:var(--mono);font-size:.78rem;"></span></p>
+    <div id="ehn-pick-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;"></div>
+  </div>
+</div>
+
 <!-- ═══ KIRA ═══ -->
 <div class="sec kira-sec" id="kira-sec">
   <div class="sec-i">
@@ -1936,6 +1946,43 @@ try{fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/track-visit',{meth
   const day = new Date().getDay(); // 0=日〜6=土
   document.getElementById('hero-title').innerHTML = titles[day];
 })();
+/* EHN PICKUP: 今週の実例を自動描画 */
+async function ehnPickInit(){
+  var LINKS={'浴室':'/ehn/yokushitsu-mitsumori/','外壁・屋根':'/ehn/gaiheki-mitsumori/'};
+  try{
+    var r=await fetch(WORKER+'/hacker/cards');
+    var d=await r.json();
+    if(!d||!d.ok||!Array.isArray(d.cards))return;
+    var now=Date.now(), WEEK=7*24*60*60*1000;
+    var recent=d.cards.filter(function(c){return c.created_at && (now-c.created_at)<WEEK;});
+    if(recent.length===0)return;
+    var grid=document.getElementById('ehn-pick-grid');
+    var html=recent.map(function(c){
+      var amt=Number(String(c.amount||'').replace(/[^0-9]/g,''));
+      var amtStr=amt?('\u00a5'+amt.toLocaleString('ja-JP')):'\u2014';
+      var link=LINKS[c.genre]||'';
+      var flags=Number(c.red_flags)||0;
+      var verdict=(c.verdict||'').toString().slice(0,60);
+      var inner=''
+        +'<div style="font-family:var(--mono);font-size:.72rem;color:var(--ink2);margin-bottom:.4rem;">'+(c.genre||'\u305d\u306e\u4ed6')+'</div>'
+        +'<div style="font-size:1.3rem;font-weight:800;margin-bottom:.5rem;">'+amtStr+'</div>'
+        +(flags>0?'<div style="font-size:.78rem;color:var(--alert);margin-bottom:.4rem;">\u26a1 \u8d64\u65d7 '+flags+'\u4ef6</div>':'')
+        +(verdict?'<div style="font-size:.82rem;color:var(--ink2);line-height:1.5;">'+verdict+'</div>':'');
+      var card='<div style="padding:1.1rem;border:1px solid var(--rule);border-radius:12px;background:#fff;">'+inner;
+      if(link)card+='<a href="'+link+'" style="display:inline-block;margin-top:.7rem;font-size:.78rem;color:var(--clay);text-decoration:none;font-weight:700;">\u540c\u3058\u5de5\u4e8b\u306e\u76f8\u5834\u3092\u898b\u308b \u2192</a>';
+      card+='</div>';
+      return card;
+    }).join('');
+    grid.innerHTML=html;
+    var meta=document.getElementById('ehn-pick-meta');
+    var dt=new Date(now);
+    var ymd=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+    if(meta)meta.textContent=' \u6700\u7d42\u66f4\u65b0 '+ymd+' / \u5b9f\u4f8b '+recent.length+'\u4ef6';
+    document.getElementById('ehn-pick').style.display='';
+  }catch(e){}
+}
+ehnPickInit();
+
 </script>
 </body>
 </html>
