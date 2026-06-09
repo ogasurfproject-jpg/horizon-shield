@@ -1462,6 +1462,26 @@ async function handleHackerSubmitCard(request, env, origin) {
     verdict: (c.verdict || '').toString().slice(0, 60),
   };
   await savePendingCard(cls, { name: sess.display_name || '', email: '', line_id: sess.line_user_id || '' }, env);
+  // EHN新規投稿をLINEへ通知(失敗しても投稿成功は壊さない)【診断版】
+  try {
+    const _lineRes = await fetch('https://api.line.me/v2/bot/message/push', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${env.LINE_CHANNEL_TOKEN}`,
+      },
+      body: JSON.stringify({
+        to: env.LINE_USER_ID,
+        messages: [{
+          type: 'text',
+          text: `📋 EHNに新しい見積もりが投稿されました\n`
+            + `工事: ${cls.genre} / ${cls.title}\n`
+            + `投稿者: ${sess.display_name || '匿名'}\n`
+            + `承認待ちです。管理画面で確認してください。`,
+        }],
+      }),
+    });
+  } catch (_e) {}
   return json({ ok: true, message: '投稿を受け付けました。運営確認後に掲載されます。' }, 200, origin);
 }
 
