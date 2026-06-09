@@ -286,7 +286,7 @@ footer{border-top:2px solid var(--rule);background:var(--paper);padding:30px 22p
   <div class="fl-in" id="tabs"><span class="fl-label">FILTER ▸</span></div>
 </div>
 
-<div class="post-cta"><div class="post-cta-in"><div class="post-cta-tx"><b>あなたの見積もりも、ここに載せられます</b><span>// 受け取った見積書をアップするだけ。KIRAが匿名化して解剖します。業者名・個人情報は伏せられます。</span></div><a class="post-cta-btn" href="/hacker/submit/">見積もりを投稿する ▸</a></div></div><div id="wanted"></div><div class="tiles" id="tiles">
+<div class="post-cta"><div class="post-cta-in"><div class="post-cta-tx"><b>あなたの見積もりも、ここに載せられます</b><span>// 受け取った見積書をアップするだけ。KIRAが匿名化して解剖します。業者名・個人情報は伏せられます。</span></div><a class="post-cta-btn" href="/hacker/submit/">見積もりを投稿する ▸</a></div></div><div id="wanted"></div><div id="articles"></div><div class="tiles" id="tiles">
   <div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>
 </div>
 
@@ -339,6 +339,34 @@ function renderTabs(){
 function setFilter(g){FILTER=g;renderTabs();renderTiles();}
 
 function kansuji(n){var m={0:'\u96f6',1:'\u58f1',2:'\u5f10',3:'\u53c2',4:'\u56db',5:'\u4e94',6:'\u516d',7:'\u4e03',8:'\u516b',9:'\u4e5d',10:'\u62fe'};return m[n]!==undefined?m[n]:String(n);}
+function renderArticles(){
+  var box=document.getElementById('articles');
+  if(!box)return;
+  if(FILTER!=='ALL'){box.innerHTML='';return;}
+  var pool=ALL.filter(function(c){return (c.red_flags||0)>=1;});
+  pool.sort(function(a,b){var d=(b.red_flags||0)-(a.red_flags||0);return d!==0?d:(b.created_at||0)-(a.created_at||0);});
+  var arts=pool.slice(1,3);
+  if(!arts.length){box.innerHTML='';return;}
+  var cards=arts.map(function(c){
+    var amt=yen(c.amount)||'\u975e\u516c\u958b';
+    var flags=c.red_flags||0;
+    var bars='';
+    for(var i=0;i<3;i++){bars+='<span style="flex:1;background:'+(i<Math.min(flags,3)?'var(--alert)':'var(--rule)')+';border-radius:2px;"></span>';}
+    var genre=esc(c.genre||'\u305d\u306e\u4ed6');
+    var title=esc(c.title||(genre+'\u306e\u898b\u7a4d\u3082\u308a'));
+    var verdict=esc((c.verdict||'').toString().slice(0,70));
+    return '<div style="background:var(--field);border:1px solid var(--rule);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:10px;">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-family:var(--mono);font-size:10px;color:var(--mut2);letter-spacing:.1em;">'+genre+'</span><span style="font-family:var(--mono);font-size:10px;color:var(--mut2);">KIRA</span></div>'
+      +'<div style="font-size:15px;font-weight:700;line-height:1.45;">'+title+'</div>'
+      +'<div style="font-family:var(--mono);font-size:22px;font-weight:700;letter-spacing:-.01em;">'+amt+'</div>'
+      +'<div style="display:flex;gap:4px;height:3px;">'+bars+'</div>'
+      +'<div style="font-family:var(--mono);font-size:10px;color:var(--mut2);letter-spacing:.05em;">RED FLAGS '+flags+' \u00b7 KIRA \u89e3\u6790\u6e08</div>'
+      +(verdict?'<div style="font-size:12px;color:var(--mut);line-height:1.6;">'+verdict+'</div>':'')
+      +'<div style="margin-top:auto;display:flex;align-items:center;justify-content:space-between;padding-top:6px;border-top:1px solid var(--rule);"><a href="#" onclick="openCard(\''+esc(c.id)+'\');return false;" style="font-size:12px;font-weight:700;color:var(--ink);text-decoration:none;">\u89e3\u6790\u3092\u8aad\u3080 \u2192</a><span style="font-family:var(--mono);font-size:10px;color:var(--mut2);">\u2661'+(c.like_count||0)+' \u00b7'+(c.comment_count||0)+'</span></div>'
+      +'</div>';
+  }).join('');
+  box.innerHTML='<div style="margin:1.2rem 0;"><div style="display:flex;align-items:baseline;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid var(--rule);margin-bottom:12px;"><span style="font-size:17px;font-weight:700;">\u4eca\u9031\u306e\u30d4\u30c3\u30af\u30a2\u30c3\u30d7</span><span style="font-family:var(--mono);font-size:10px;color:var(--mut2);letter-spacing:.15em;">KIRA ANALYSIS</span></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:10px;">'+cards+'</div></div>';
+}
 function renderWanted(){
   var box=document.getElementById('wanted');
   if(!box)return;
@@ -373,7 +401,9 @@ function renderWanted(){
 }
 function renderTiles(){
   renderWanted();
-  const list=FILTER==='ALL'?ALL:ALL.filter(c=>c.genre===FILTER);
+  renderArticles();
+  let list=FILTER==='ALL'?ALL.slice():ALL.filter(c=>c.genre===FILTER);
+  if(FILTER==='ALL'){var TILE_MAX=2;list.sort(function(a,b){return (b.created_at||0)-(a.created_at||0);});list=list.slice(0,TILE_MAX);}
   const box=document.getElementById('tiles');
   if(!list.length){box.innerHTML='<div class="state"><div class="big">該当する見積もりがありません</div>最初の一件をお待ちください</div>';return;}
   box.innerHTML=list.map((c,i)=>{
