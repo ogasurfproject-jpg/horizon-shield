@@ -286,7 +286,7 @@ footer{border-top:2px solid var(--rule);background:var(--paper);padding:30px 22p
   <div class="fl-in" id="tabs"><span class="fl-label">FILTER ▸</span></div>
 </div>
 
-<div class="post-cta"><div class="post-cta-in"><div class="post-cta-tx"><b>あなたの見積もりも、ここに載せられます</b><span>// 受け取った見積書をアップするだけ。KIRAが匿名化して解剖します。業者名・個人情報は伏せられます。</span></div><a class="post-cta-btn" href="/hacker/submit/">見積もりを投稿する ▸</a></div></div><div class="tiles" id="tiles">
+<div class="post-cta"><div class="post-cta-in"><div class="post-cta-tx"><b>あなたの見積もりも、ここに載せられます</b><span>// 受け取った見積書をアップするだけ。KIRAが匿名化して解剖します。業者名・個人情報は伏せられます。</span></div><a class="post-cta-btn" href="/hacker/submit/">見積もりを投稿する ▸</a></div></div><div id="wanted"></div><div class="tiles" id="tiles">
   <div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>
 </div>
 
@@ -338,7 +338,41 @@ function renderTabs(){
 }
 function setFilter(g){FILTER=g;renderTabs();renderTiles();}
 
+function kansuji(n){var m={0:'\u96f6',1:'\u58f1',2:'\u5f10',3:'\u53c2',4:'\u56db',5:'\u4e94',6:'\u516d',7:'\u4e03',8:'\u516b',9:'\u4e5d',10:'\u62fe'};return m[n]!==undefined?m[n]:String(n);}
+function renderWanted(){
+  var box=document.getElementById('wanted');
+  if(!box)return;
+  if(FILTER!=='ALL'){box.innerHTML='';return;}
+  var pool=ALL.filter(function(c){return (c.red_flags||0)>=1;});
+  if(!pool.length){box.innerHTML='';return;}
+  pool.sort(function(a,b){var d=(b.red_flags||0)-(a.red_flags||0);return d!==0?d:(b.created_at||0)-(a.created_at||0);});
+  var c=pool[0];
+  var amt=yen(c.amount)||'\u975e\u516c\u958b';
+  var flags=c.red_flags||0;
+  var verdict=esc((c.verdict||'').toString().slice(0,80));
+  var genre=esc(c.genre||'\u305d\u306e\u4ed6');
+  box.innerHTML=''
+    +'<div style="background:#f4ecd8;border:3px double #6b4a2b;border-radius:2px;padding:1.4rem 1.2rem;max-width:420px;margin:1.2rem auto;position:relative;font-family:serif;">'
+    +'<div style="text-align:center;color:#7a2518;font-weight:700;font-size:12px;letter-spacing:.3em;border-bottom:1px solid #b89a6a;padding-bottom:7px;margin-bottom:9px;">\u904e\u5270\u8acb\u6c42</div>'
+    +'<div style="text-align:center;color:#2a1d12;font-size:28px;font-weight:700;letter-spacing:.15em;line-height:1.2;">\u5fa1\u6307\u540d\u624b\u914d</div>'
+    +'<div style="text-align:center;color:#7a6a4a;font-size:10px;letter-spacing:.2em;margin-top:3px;">THIS WEEK / WANTED</div>'
+    +'<div style="border-top:1px solid #b89a6a;border-bottom:1px solid #b89a6a;margin:13px 0;padding:11px 0;text-align:center;">'
+      +'<div style="color:#7a6a4a;font-size:10px;letter-spacing:.15em;">\u7f6a\u72b6\u30ce\u5206\u91ce</div>'
+      +'<div style="color:#2a1d12;font-size:18px;font-weight:700;margin-top:2px;">'+genre+'</div>'
+    +'</div>'
+    +'<div style="text-align:center;margin:11px 0;">'
+      +'<div style="color:#7a6a4a;font-size:10px;letter-spacing:.15em;">\u7533\u30b7\u53d7\u30b1\u5019\u984d</div>'
+      +'<div style="color:#7a2518;font-size:25px;font-weight:700;letter-spacing:.05em;">'+amt+'</div>'
+    +'</div>'
+    +'<div style="text-align:center;margin:11px 0;"><span style="background:#7a2518;color:#f4ecd8;font-size:12px;padding:4px 14px;border-radius:2px;letter-spacing:.1em;">\u5bb9\u7591 '+kansuji(flags)+'\u4ef6</span></div>'
+    +(verdict?'<div style="background:rgba(122,37,24,.06);border:1px dashed #b89a6a;padding:9px 11px;margin:11px 0;text-align:center;"><div style="color:#7a6a4a;font-size:10px;letter-spacing:.1em;margin-bottom:3px;">\u304a\u9054\u3057</div><div style="color:#2a1d12;font-size:13px;line-height:1.6;">'+verdict+'</div></div>':'')
+    +'<div style="position:absolute;top:14px;right:12px;width:54px;height:54px;border:2px solid #a33;border-radius:50%;display:flex;align-items:center;justify-content:center;transform:rotate(-12deg);color:#a33;font-size:10px;font-weight:700;text-align:center;line-height:1.2;opacity:.85;">KIRA<br>\u691c\u4e4b</div>'
+    +'<div style="text-align:center;color:#7a6a4a;font-size:10px;line-height:1.5;margin:10px 0 6px;border-top:1px dotted #b89a6a;padding-top:8px;">\u3053\u306e\u898b\u7a4d\u3082\u308a\u3092\u533f\u540d\u3067\u6652\u3057\u3001\u6b21\u306e\u88ab\u5bb3\u3092\u9632\u3050\u3002</div>'
+    +'<div style="text-align:center;"><a href="#" onclick="openCard(\''+esc(c.id)+'\');return false;" style="color:#7a2518;font-size:13px;font-weight:700;border-bottom:1px solid #7a2518;padding-bottom:1px;text-decoration:none;">\u8a73\u3057\u304f\u898b\u308b \u2192</a></div>'
+    +'</div>';
+}
 function renderTiles(){
+  renderWanted();
   const list=FILTER==='ALL'?ALL:ALL.filter(c=>c.genre===FILTER);
   const box=document.getElementById('tiles');
   if(!list.length){box.innerHTML='<div class="state"><div class="big">該当する見積もりがありません</div>最初の一件をお待ちください</div>';return;}
