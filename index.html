@@ -1950,7 +1950,7 @@ try{fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/track-visit',{meth
 async function ehnPickInit(){
   var LINKS={'浴室':'/ehn/yokushitsu-mitsumori/','外壁・屋根':'/ehn/gaiheki-mitsumori/'};
   try{
-    var r=await fetch(WORKER+'/hacker/cards');
+    var r=await fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/hacker/cards');
     var d=await r.json();
     if(!d||!d.ok||!Array.isArray(d.cards))return;
     var now=Date.now(), WEEK=7*24*60*60*1000;
