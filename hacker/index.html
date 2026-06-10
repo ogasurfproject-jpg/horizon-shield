@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>見積もりハッカー / 匿名見積もりデータベース | HORIZON SHIELD</title>
+<title>見積もり達人 / 匿名見積もりデータベース | HORIZON SHIELD</title>
 <meta name="description" content="施主が出し合う、匿名の見積もりデータベース。工務店名・金額の内訳は伏せ、過剰請求の傾向だけを構造化して共有する。">
-<meta name="robots" content="index,follow"> <link rel="manifest" href="/hacker/manifest.json"> <meta name="theme-color" content="#152038"> <meta name="apple-mobile-web-app-capable" content="yes"> <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> <meta name="apple-mobile-web-app-title" content="見積ハッカー"> <link rel="apple-touch-icon" href="/hacker/apple-touch-icon-180.png">
+<meta name="robots" content="index,follow"> <link rel="manifest" href="/hacker/manifest.json"> <meta name="theme-color" content="#152038"> <meta name="apple-mobile-web-app-capable" content="yes"> <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> <meta name="apple-mobile-web-app-title" content="見積達人"> <link rel="apple-touch-icon" href="/hacker/apple-touch-icon-180.png">
 <link rel="canonical" href="https://shield.the-horizons-innovation.com/hacker/">
 <script type="application/ld+json">
 {
@@ -69,7 +69,7 @@
       "@type": "CollectionPage",
       "@id": "https://shield.the-horizons-innovation.com/hacker/#page",
       "url": "https://shield.the-horizons-innovation.com/hacker/",
-      "name": "見積もりハッカー / 匿名見積もりデータベース",
+      "name": "見積もり達人 / 匿名見積もりデータベース",
       "isPartOf": { "@id": "https://shield.the-horizons-innovation.com/#website" },
       "about": { "@id": "https://shield.the-horizons-innovation.com/#jccdb" },
       "description": "施主が出し合う匿名の見積もりデータベース。業者名・金額の内訳は伏せ、過剰請求の傾向を構造化して共有する。各見積もりは建設費AI「KIRA」が解剖する。"
@@ -293,7 +293,7 @@ footer{border-top:2px solid var(--rule);background:var(--paper);padding:30px 22p
 <div class="topbar">
   <div class="topbar-in">
     <div class="tb-left">
-      <a class="logo" href="/hacker/"><span class="mk">EHN</span><span class="ja">見積もりハッカー</span></a>
+      <a class="logo" href="/hacker/"><span class="mk">EHN</span><span class="ja">見積もり達人</span></a>
       <span class="tb-code">ESTIMATE-HACKER-NEWS / REV.01</span>
     </div>
     <div class="tb-right" id="tbRight">
@@ -338,9 +338,11 @@ footer{border-top:2px solid var(--rule);background:var(--paper);padding:30px 22p
 
 <script>
 const API='https://hs-kira-proxy.oga-surf-project.workers.dev';
-let ALL=[],FILTER='ALL',FG='ALL',FR='ALL',TOKEN=null,USER=null;
+let ALL=[],FILTER='ALL',FG='ALL',FR='ALL',FR_CITY='ALL',TOKEN=null,USER=null;
+var CITY2PREF={'札幌市':'北海道','仙台市':'宮城県','さいたま市':'埼玉県','川口市':'埼玉県','千葉市':'千葉県','船橋市':'千葉県','市川市':'千葉県','松戸市':'千葉県','柏市':'千葉県','水戸市':'茨城県','つくば市':'茨城県','宇都宮市':'栃木県','前橋市':'群馬県','高崎市':'群馬県','横浜市':'神奈川県','川崎市':'神奈川県','相模原市':'神奈川県','鎌倉市':'神奈川県','藤沢市':'神奈川県','平塚市':'神奈川県','茅ヶ崎市':'神奈川県','小田原市':'神奈川県','横須賀市':'神奈川県','厚木市':'神奈川県','新宿区':'東京都','渋谷区':'東京都','世田谷区':'東京都','大田区':'東京都','港区':'東京都','八王子市':'東京都','町田市':'東京都','立川市':'東京都','名古屋市':'愛知県','豊田市':'愛知県','岡崎市':'愛知県','一宮市':'愛知県','静岡市':'静岡県','浜松市':'静岡県','新潟市':'新潟県','金沢市':'石川県','京都市':'京都府','大阪市':'大阪府','堺市':'大阪府','東大阪市':'大阪府','豊中市':'大阪府','吹田市':'大阪府','神戸市':'兵庫県','姫路市':'兵庫県','西宮市':'兵庫県','尼崎市':'兵庫県','奈良市':'奈良県','広島市':'広島県','岡山市':'岡山県','高松市':'香川県','福岡市':'福岡県','北九州市':'福岡県','熊本市':'熊本県','鹿児島市':'鹿児島県','那覇市':'沖縄県'};
+function toPref(r){ if(!r) return '未分類'; r=String(r).trim(); if(/[都道府県]$/.test(r)) return r; if(CITY2PREF[r]) return CITY2PREF[r]; var k=Object.keys(CITY2PREF); for(var i=0;i<k.length;i++){ if(r.indexOf(k[i])===0||r.indexOf(k[i])>=0) return CITY2PREF[k[i]]; } return 'その他地域'; }
 function isAllView(){return FG==='ALL'&&FR==='ALL';}
-function matchFilter(c){return (FG==='ALL'||c.genre===FG)&&(FR==='ALL'||c.region===FR);}
+function matchFilter(c){var gOk=(FG==='ALL'||c.genre===FG);var rOk=(FR==='ALL'||toPref(c.region)===FR);var cOk=(FR_CITY==='ALL'||c.region===FR_CITY);return gOk&&rOk&&cOk;}
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function pad(n){return String(n).padStart(3,'0');}
 function yen(a){if(a===''||a==null)return '';const n=Number(String(a).replace(/[^0-9]/g,''));if(!n)return '';return '\u00a5'+n.toLocaleString('ja-JP');}
@@ -371,17 +373,25 @@ function renderSide(){
   const side=document.getElementById('ehn-side');
   if(!side)return;
   function cntG(g){return ALL.filter(function(c){return c.genre===g;}).length;}
-  function cntR(r){return ALL.filter(function(c){return c.region===r;}).length;}
+  function cntR(r){return ALL.filter(function(c){return toPref(c.region)===r;}).length;}
+  function cntCity(city){return ALL.filter(function(c){return c.region===city;}).length;}
+  function citiesOf(pref){return Array.from(new Set(ALL.filter(function(c){return toPref(c.region)===pref&&c.region&&!/[都道府県]$/.test(String(c.region).trim());}).map(function(c){return c.region;}))).sort(function(a,b){return a.localeCompare(b,'ja');});}
   function flagsG(g){var m=0;ALL.forEach(function(c){if(c.genre===g){var f=+c.red_flags||0;if(f>m)m=f;}});return m;}
   var genres=Array.from(new Set(ALL.map(function(c){return c.genre;}).filter(Boolean))).sort();
-  var regions=Array.from(new Set(ALL.map(function(c){return c.region;}).filter(Boolean))).sort();
+  var regions=Array.from(new Set(ALL.map(function(c){return toPref(c.region);}).filter(Boolean))).sort(function(a,b){return a.localeCompare(b,'ja');});
   var total=ALL.length||1;
   var live='<div class="ehn-live"><span class="ehn-hz"><span class="ehn-hz-rays"></span><span class="ehn-hz-sun"></span><span class="ehn-hz-line"></span></span><span class="lbl">KIRA \u76e3\u8996\u4e2d</span></div>';
   function flagBadge(f){
-    if(f>=3)return '<span class="flag" style="color:var(--alert);background:var(--alert-bg)"><i class="ti ti-flag" style="font-size:11px"></i>'+f+'</span>';
-    if(f===2)return '<span class="flag" style="color:#854F0B;background:#FAEEDA"><i class="ti ti-flag" style="font-size:11px"></i>'+f+'</span>';
-    if(f===1)return '<span class="flag" style="color:var(--mut)"><i class="ti ti-flag" style="font-size:11px"></i>1</span>';
-    return '';
+    f = +f || 0;
+    if(f<=0){
+      return '<span class="flag" style="color:var(--mut);background:transparent"><i class="ti ti-flag" style="font-size:17px;color:#9AA0A6"></i></span>';
+    }
+    var col = f>=3 ? 'var(--alert)' : (f===2 ? '#854F0B' : 'var(--mut)');
+    var bg  = f>=3 ? 'var(--alert-bg)' : (f===2 ? '#FAEEDA' : 'transparent');
+    var n = Math.min(f,5);
+    var flags = '';
+    for(var i=0;i<n;i++){ flags += '<i class="ti ti-flag" style="font-size:11px"></i>'; }
+    return '<span class="flag" style="color:'+col+';background:'+bg+'">'+flags+'</span>';
   }
   function fillColor(f){if(f>=3)return 'var(--alert)';if(f===2)return '#BA7517';return 'var(--rule-soft)';}
   function liG(g,label,isAll){
@@ -396,20 +406,31 @@ function renderSide(){
       '<div class="track"><div class="fill" style="width:'+pct+'%;background:'+fc+'"></div></div></div>';
   }
   function liR(r,label,isAll){
-    var on=(FR===r)?' on':'';
+    var on=(FR===r&&isAll)||(FR===r)?' on':'';
+    if(isAll) on=(FR==='ALL')?' on':'';
     var n=isAll?ALL.length:cntR(r);
     var pct=Math.round(n/total*100);
     var fc=isAll?'var(--ink)':'var(--rule-soft)';
-    return '<div class="ehn-side-li'+on+'" onclick="setFilterRegion(\''+esc(r)+'\')">'+
+    var html='<div class="ehn-side-li'+on+'" onclick="setFilterRegion(\''+esc(r)+'\')">'+
       '<div class="lab"><span class="nm">'+esc(label)+'</span><span class="n">'+n+'</span></div>'+
       '<div class="track"><div class="fill" style="width:'+pct+'%;background:'+fc+'"></div></div></div>';
+    if(!isAll&&FR===r){
+      var cities=citiesOf(r);
+      for(var ci=0;ci<cities.length;ci++){
+        var cty=cities[ci]; var cOn=(FR_CITY===cty)?' on':''; var cn=cntCity(cty);
+        html+='<div class="ehn-side-li'+cOn+'" style="padding-left:22px;" onclick="event.stopPropagation();setFilterCity(\''+esc(cty)+'\')">'+
+          '<div class="lab"><span class="nm" style="font-size:11px;color:var(--mut)">└ '+esc(cty)+'</span><span class="n">'+cn+'</span></div></div>';
+      }
+    }
+    return html;
   }
   var gHtml='<div class="ehn-side-grp"><div class="ehn-side-h">\u7f6a\u72b6\u5225 / GENRE</div>'+liG('ALL','\u3059\u3079\u3066',true)+genres.map(function(g){return liG(g,g,false);}).join('')+'</div>';
   var rHtml='<div class="ehn-side-grp"><div class="ehn-side-h">\u51fa\u6ca1\u5730\u57df\u5225 / REGION</div>'+liR('ALL','\u3059\u3079\u3066',true)+regions.map(function(r){return liR(r,r,false);}).join('')+'</div>';
   side.innerHTML=live+gHtml+rHtml;
 }
 function setFilterGenre(g){FG=g;renderSide();renderTiles();}
-function setFilterRegion(r){FR=r;renderSide();renderTiles();}
+function setFilterRegion(r){ if(FR===r&&r!=='ALL'){FR='ALL';FR_CITY='ALL';} else {FR=r;FR_CITY='ALL';} renderSide();renderTiles();}
+function setFilterCity(city){ FR_CITY=(FR_CITY===city)?'ALL':city; renderSide();renderTiles();}
 
 
 function kansuji(n){var m={0:'\u96f6',1:'\u58f1',2:'\u5f10',3:'\u53c2',4:'\u56db',5:'\u4e94',6:'\u516d',7:'\u4e03',8:'\u516b',9:'\u4e5d',10:'\u62fe'};return m[n]!==undefined?m[n]:String(n);}

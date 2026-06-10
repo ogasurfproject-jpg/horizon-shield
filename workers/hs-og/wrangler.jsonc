@@ -1,0 +1,13 @@
+{
+  "name": "hs-og",
+  "main": "src/index.js",
+  "workers_dev": true,
+  "compatibility_date": "2024-09-23",
+  "compatibility_flags": ["nodejs_compat"],
+  "kv_namespaces": [
+    { "id": "700d6bc31fe9460db1ee5dba36ca622c", "binding": "ORDERS" }
+  ],
+  "rules": [
+    { "type": "Data", "globs": ["**/*.ttf"], "fallthrough": true }
+  ]
+}

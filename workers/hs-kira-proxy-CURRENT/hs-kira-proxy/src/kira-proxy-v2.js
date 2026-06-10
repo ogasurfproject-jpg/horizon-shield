@@ -1180,6 +1180,98 @@ async function handleHackerCard(request, env, origin) {
   return json({ ok: true, card: c, comments }, 200, origin);
 }
 
+
+// ============================================
+// EHN 御指名手配 固有URL + OGページ (2026-06-10 additive)
+// SNSクローラにOGを見せ、人間ブラウザは本物の板へ送る。
+// KV読み取り1回のみ・書き込みゼロ。
+// ============================================
+async function handleWantedPage(request, env, origin) {
+  const url = new URL(request.url);
+  const m = url.pathname.match(/^\/hacker\/wanted\/([^\/]+)\/?$/);
+  const id = m ? decodeURIComponent(m[1]) : '';
+  const BASE = 'https://shield.the-horizons-innovation.com';
+  const boardUrl = BASE + '/hacker/';
+
+  let c = null;
+  if (id) {
+    try {
+      const raw = await env.ORDERS.get(`card:${id}`);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.published !== false) c = parsed;
+      }
+    } catch (e) {}
+  }
+
+  if (!c) {
+    return new Response('', { status: 302, headers: { 'Location': boardUrl, ...corsHeaders(origin) } });
+  }
+
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  const genre   = esc(c.genre || 'その他');
+  const verdict = esc(c.verdict || '過剰請求の疑い');
+  const amountNum = (c.amount != null ? String(c.amount) : '').replace(/[^0-9]/g, '');
+  const amountStr = amountNum ? ('\u00a5' + Number(amountNum).toLocaleString('ja-JP')) : '';
+  const redFlags = Number(c.red_flags) || 0;
+  const topTrait = (Array.isArray(c.traits) && c.traits.length) ? esc(c.traits[0]) : '';
+
+  let title = '【御指名手配】' + genre;
+  if (amountStr) title += ' ' + amountStr;
+  title += ' ｜ ' + verdict;
+
+  let desc = '';
+  if (redFlags > 0) desc += '容疑' + redFlags + '件。';
+  if (topTrait)     desc += '容疑筆頭：' + topTrait + '。';
+  desc += 'EHN 見積もりハッカー｜あなたの見積もりも匿名で解剖できる。';
+
+  const pageUrl = BASE + '/hacker/wanted/' + encodeURIComponent(id) + '/';
+  const ogImg   = 'https://hs-og.oga-surf-project.workers.dev/hacker/wanted/' + encodeURIComponent(id) + '/og.png';
+  const titleEsc = esc(title);
+  const descEsc  = esc(desc);
+
+  const html = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${titleEsc}</title>
+<meta name="description" content="${descEsc}">
+<link rel="canonical" href="${pageUrl}">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="EHN 見積もりハッカー">
+<meta property="og:title" content="${titleEsc}">
+<meta property="og:description" content="${descEsc}">
+<meta property="og:url" content="${pageUrl}">
+<meta property="og:image" content="${ogImg}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${titleEsc}">
+<meta name="twitter:description" content="${descEsc}">
+<meta name="twitter:image" content="${ogImg}">
+<meta http-equiv="refresh" content="0;url=${boardUrl}#${encodeURIComponent(id)}">
+</head>
+<body style="font-family:sans-serif;background:#EDE8DC;color:#152038;text-align:center;padding:40px 20px;">
+<p>御指名手配を表示しています…</p>
+<p><a href="${boardUrl}#${encodeURIComponent(id)}" style="color:#A8331F;">表示されない場合はこちら</a></p>
+<script>location.replace(${JSON.stringify(boardUrl)}+'#'+${JSON.stringify(encodeURIComponent(id))});</script>
+</body>
+</html>`;
+
+  return new Response(html, {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/html;charset=UTF-8',
+      'Cache-Control': 'public, max-age=300',
+      ...corsHeaders(origin),
+    },
+  });
+}
+
 async function handleHackerComment(request, env, origin) {
   const auth = request.headers.get('Authorization') || '';
   const tk = auth.startsWith('Bearer ') ? auth.slice(7) : '';
@@ -2198,6 +2290,9 @@ export default {
     }
     if (path === '/hacker/card' && request.method === 'GET') {
       return handleHackerCard(request, env, origin);
+    }
+    if (path.startsWith('/hacker/wanted/') && request.method === 'GET') {
+      return handleWantedPage(request, env, origin);
     }
     if (path === '/hacker/comment' && request.method === 'POST') {
       return handleHackerComment(request, env, origin);
