@@ -164,7 +164,8 @@ body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height
 .tile-trait::before{content:'';width:5px;height:5px;background:var(--alert);flex-shrink:0;margin-top:6px}
 .tile-foot{display:flex;align-items:stretch;border-top:1px solid var(--rule)}
 .tile-flag{font-family:var(--mono);font-size:11px;font-weight:700;padding:9px 12px;flex:1;display:flex;align-items:center;gap:6px}
-.tile-flag.hi{background:var(--alert-bg);color:var(--alert);box-shadow:inset 4px 0 0 var(--alert)}
+.tile-flag.hi{color:var(--alert)}
+.tile-flag.ok{color:var(--ok)}
 .tile-flag.ok{background:var(--ok-bg);color:var(--ok);box-shadow:inset 4px 0 0 var(--ok)}
 .tile-cmt{font-family:var(--mono);font-size:11px;color:var(--mut);padding:9px 10px;border-left:1px solid var(--rule);display:flex;align-items:center;gap:5px} .tile-cmt svg{stroke:currentColor} .tile-stat{font-family:var(--mono);font-size:11px;color:var(--mut);padding:9px 10px;border-left:1px solid var(--rule);display:flex;align-items:center;gap:5px} .tile-stat svg{stroke:currentColor}
 
@@ -392,7 +393,7 @@ function renderSide(){
     var n = Math.min(f,5);
     var flags = '';
     for(var i=0;i<n;i++){ flags += '<i class="ti ti-flag" style="font-size:11px"></i>'; }
-    return '<span class="flag" style="color:'+col+';background:'+bg+'">'+flags+'</span>';
+    return '<span class="flag" style="color:'+col+'">'+flags+'</span>';
   }
   function fillColor(f){if(f>=3)return 'var(--alert)';if(f===2)return '#BA7517';return 'var(--rule-soft)';}
   function liG(g,label,isAll){
@@ -571,7 +572,7 @@ function renderSheet(c,comments){
     <div class="sheet-head"><span class="sh-id">${esc(c.id||'')}</span><span class="sh-genre">${esc(c.genre||'OTHER')}</span><button class="sh-close" onclick="closeModal()">✕</button></div>
     <div class="sheet-body">
       <div class="sh-title">${esc(c.title||'見積もり')}</div>
-      <div class="sh-meta">${who?who+' ':''}<span class="flag ${hi?'hi':'ok'}" style="font-family:var(--mono);font-weight:700;padding:3px 9px;${hi?'background:var(--alert-bg);color:var(--alert)':'background:var(--ok-bg);color:var(--ok)'}">${(c.red_flags||0)>=1?'<i class="ti ti-flag"></i>'.repeat(Math.min(c.red_flags||0,5)):'<i class="ti ti-flag"></i>'}</span></div>
+      <div class="sh-meta">${who?who+' ':''}<span class="flag ${hi?'hi':'ok'}" style="font-family:var(--mono);font-weight:700;padding:3px 9px;${hi?'color:var(--alert)':'color:var(--ok)'}">${(c.red_flags||0)>=1?'<i class="ti ti-flag"></i>'.repeat(Math.min(c.red_flags||0,5)):'<i class="ti ti-flag"></i>'}</span></div>
       ${yen(c.amount)?`<div class="sh-amt"><span class="sh-amt-k">施主が受け取った見積額</span><span class="sh-amt-v">${yen(c.amount)}</span></div>`:''}
       <div class="sec-h"><span>KIRA / 検出された懸念点</span><span class="n">${pad((c.traits||[]).length)}</span></div>
       <div class="findings">${findings}</div>
