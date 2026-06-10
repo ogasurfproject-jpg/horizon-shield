@@ -80,6 +80,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=IBM+Plex+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.30.0/dist/tabler-icons.min.css">
 <style>
 :root{
   --paper:#EDE8DC;--paper2:#E3DCCB;--field:#F5F1E8;
@@ -519,8 +520,7 @@ function renderTiles(){
         ${amt}
         <div class="tile-traits">${traits}</div>
       </div>
-      <div class="tile-foot">
-        <span class="tile-flag ${hi?'hi':'ok'}">赤旗 ${pad(c.red_flags||0)}</span>
+        <span class="tile-flag ${hi?'hi':'ok'}">${(c.red_flags||0)>=1?'<i class="ti ti-flag"></i>'.repeat(Math.min(c.red_flags||0,5)):'<i class="ti ti-flag"></i>'}</span>
         <span class="tile-stat"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>${c.like_count||0}</span>
         <span class="tile-cmt"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>${pad(c.comment_count||0)}</span>
       </div>
@@ -571,7 +571,7 @@ function renderSheet(c,comments){
     <div class="sheet-head"><span class="sh-id">${esc(c.id||'')}</span><span class="sh-genre">${esc(c.genre||'OTHER')}</span><button class="sh-close" onclick="closeModal()">✕</button></div>
     <div class="sheet-body">
       <div class="sh-title">${esc(c.title||'見積もり')}</div>
-      <div class="sh-meta">${who?who+' ':''}<span class="flag ${hi?'hi':'ok'}" style="font-family:var(--mono);font-weight:700;padding:3px 9px;${hi?'background:var(--alert-bg);color:var(--alert)':'background:var(--ok-bg);color:var(--ok)'}">赤旗 ${pad(c.red_flags||0)}</span></div>
+      <div class="sh-meta">${who?who+' ':''}<span class="flag ${hi?'hi':'ok'}" style="font-family:var(--mono);font-weight:700;padding:3px 9px;${hi?'background:var(--alert-bg);color:var(--alert)':'background:var(--ok-bg);color:var(--ok)'}">${(c.red_flags||0)>=1?'<i class="ti ti-flag"></i>'.repeat(Math.min(c.red_flags||0,5)):'<i class="ti ti-flag"></i>'}</span></div>
       ${yen(c.amount)?`<div class="sh-amt"><span class="sh-amt-k">施主が受け取った見積額</span><span class="sh-amt-v">${yen(c.amount)}</span></div>`:''}
       <div class="sec-h"><span>KIRA / 検出された懸念点</span><span class="n">${pad((c.traits||[]).length)}</span></div>
       <div class="findings">${findings}</div>
