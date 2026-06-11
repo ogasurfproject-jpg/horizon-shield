@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>あなた宛の旬な不安 / 事業者ダッシュボード</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDE8DC; --ink:#1A1C1A; --blue:#2B4C7E; --alert:#A8331F;
+  --ok:#3F6B4A; --gold:#B89A6A;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'IBM Plex Sans JP',system-ui,sans-serif;
+  --maru:'Zen Maru Gothic',var(--sans);
+  --line:rgba(26,28,26,.14);
+  --paper2:#E4DECF;
+  --mut:rgba(26,28,26,.56);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.65;-webkit-font-smoothing:antialiased;font-feature-settings:"palt"}
+a{color:inherit}
+.wrap{max-width:840px;margin:0 auto;padding:0 20px}
+
+.top{border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper);z-index:20}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
+.brand{font-family:var(--maru);font-weight:700;font-size:15px;letter-spacing:.04em;text-decoration:none}
+.brand small{font-family:var(--mono);font-weight:400;font-size:10px;color:var(--mut);display:block;letter-spacing:.12em;margin-top:1px}
+.nav{display:flex;gap:18px;align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.04em}
+.nav a{text-decoration:none;color:var(--mut)}
+.nav a:hover{color:var(--ink)}
+
+.hero{padding:46px 0 28px;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;margin:0 0 14px}
+.hero h1{font-family:var(--maru);font-weight:700;font-size:27px;line-height:1.4;margin:0 0 12px}
+.hero p{margin:0;color:var(--mut);font-size:14.5px;max-width:56ch}
+
+/* registration summary */
+.profile{display:flex;flex-wrap:wrap;gap:10px 26px;align-items:flex-start;margin:26px 0 6px;padding:18px;border:1px solid var(--line);background:#F3EFE5}
+.profile .blk{min-width:0}
+.profile .k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--mut);text-transform:uppercase;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--mono);font-size:11px;padding:3px 9px;border:1px solid var(--line);border-radius:1px;color:var(--mut)}
+.chip.on{color:var(--blue);border-color:rgba(43,76,126,.4);background:rgba(43,76,126,.05)}
+.profile .edit{margin-left:auto;align-self:center}
+.mini{font-family:var(--mono);font-size:12px;letter-spacing:.03em;text-decoration:none;color:var(--mut);border-bottom:1px solid var(--line);padding-bottom:1px}
+.mini:hover{color:var(--ink)}
+
+.sec-h{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--mut);text-transform:uppercase;margin:38px 0 6px;display:flex;align-items:center;gap:10px}
+.sec-h::after{content:"";flex:1;height:1px;background:var(--line)}
+.sec-sub{color:var(--mut);font-size:13px;margin:0 0 18px}
+
+/* feed grid */
+.feed{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:640px){.feed{grid-template-columns:1fr}}
+.bcard{border:1px solid var(--line);background:#F3EFE5;padding:17px 17px 15px;display:flex;flex-direction:column}
+.bcard .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px}
+.tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;padding:2px 8px;border:1px solid var(--line);color:var(--mut);border-radius:1px}
+.tag.gen{color:var(--blue);border-color:rgba(43,76,126,.4)}
+.tag.live{color:var(--alert);border-color:rgba(168,51,31,.4)}
+.bcard h3{font-family:var(--maru);font-weight:500;font-size:16px;margin:0 0 12px;line-height:1.45}
+.facts{display:flex;gap:18px;padding:12px 0;border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);margin-bottom:13px}
+.fact .n{font-family:var(--mono);font-weight:700;font-size:21px;line-height:1}
+.fact .n.red{color:var(--alert)} .fact .n.blue{color:var(--blue)}
+.fact .l{font-size:10.5px;color:var(--mut);margin-top:6px;letter-spacing:.02em}
+.amtline{font-family:var(--mono);font-size:12px;color:var(--mut);margin-bottom:14px}
+.amtline b{color:var(--ink);font-weight:700;font-size:14px}
+.bcard .foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ago{font-family:var(--mono);font-size:10.5px;color:var(--mut)}
+.respond{font-family:var(--mono);font-size:11.5px;letter-spacing:.03em;padding:7px 14px;border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;border-radius:1px}
+.respond:hover{background:var(--ink);color:var(--paper)}
+.respond:disabled{opacity:.45;cursor:not-allowed;border-color:var(--line);color:var(--mut)}
+.respond:disabled:hover{background:transparent;color:var(--mut)}
+
+/* states */
+.state{text-align:center;padding:60px 24px;border:1px solid var(--line);background:#F3EFE5;margin:22px 0}
+.state h2{font-family:var(--maru);font-weight:500;font-size:19px;margin:0 0 10px}
+.state p{color:var(--mut);font-size:14px;margin:0 auto 22px;max-width:46ch}
+.btn{display:inline-block;font-family:var(--mono);font-size:13px;letter-spacing:.04em;padding:11px 26px;background:var(--ink);color:var(--paper);text-decoration:none;border:1px solid var(--ink);cursor:pointer}
+.btn:hover{background:transparent;color:var(--ink)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--ink);color:var(--paper)}
+
+.skel{height:160px;border:1px solid var(--line);background:linear-gradient(100deg,#F3EFE5 30%,#ECE6D8 50%,#F3EFE5 70%);background-size:200% 100%;animation:sh 1.3s linear infinite}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.note{border-top:1px solid var(--line);margin-top:42px;padding:26px 0 60px;color:var(--mut);font-size:12.5px;line-height:1.8}
+.note b{color:var(--ink);font-weight:600}
+.note ul{margin:10px 0 0;padding-left:18px}
+.note li{margin-bottom:5px}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:12.5px;padding:12px 20px;opacity:0;transition:.25s;pointer-events:none;max-width:88vw;text-align:center;z-index:60}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:560px){.hero h1{font-size:22px}}
+@media(prefers-reduced-motion:reduce){.skel{animation:none}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/hacker/">見積もり達人<small>FOR BUSINESS</small></a>
+    <nav class="nav">
+      <a href="/hacker/demand/">需要</a>
+      <a href="/hacker/">板</a>
+      <a id="logoutLink" href="#" style="display:none">ログアウト</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <p class="eyebrow">For business</p>
+    <h1>あなたが説明できる、旬な不安だけを</h1>
+    <p>あなたが登録した工種と地域で、いま施主が不安を抱えている見積もりを集めました。価格競争ではなく、説明力で応えるための場です。</p>
+  </section>
+
+  <div id="app">
+    <div style="margin-top:30px"><div class="skel"></div></div>
+  </div>
+
+  <section class="note">
+    <b>この場の約束</b>
+    <ul>
+      <li>表示しているのは工種・地域・受領額・診断結果・閲覧数のみです。施主の氏名や連絡先など個人を特定する情報は提供しません。</li>
+      <li>閲覧数は「その不安にどれだけ注目が集まっているか」を表す需要シグナルです。応募の判断材料としてお使いください。</li>
+      <li>応募は施主の同意を得たうえで成立します。価格の安さではなく、見積もりをどう読み解き、どう説明できるかで選ばれる場として設計しています。</li>
+    </ul>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== 設定: 板と同じ Worker ベースに合わせる =====
+var API = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
+
+var token = localStorage.getItem('ehn_token') || '';
+var logoutLink = document.getElementById('logoutLink');
+if(token){ logoutLink.style.display='inline'; }
+logoutLink.addEventListener('click', function(e){
+  e.preventDefault();
+  localStorage.removeItem('ehn_token'); localStorage.removeItem('ehn_user');
+  location.href='/hacker/';
+});
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function nf(n){ return (parseInt(n,10)||0).toLocaleString('ja-JP'); }
+function yen(n){ if(n==null||n==='') return null; var v=parseInt(n,10); if(isNaN(v))return null; return '\u00A5'+v.toLocaleString('ja-JP'); }
+function timeAgo(ts){ if(!ts)return ''; var t=typeof ts==='number'?ts:Date.parse(ts); if(isNaN(t))return '';
+  var d=Math.floor((Date.now()-t)/1000);
+  if(d<3600) return Math.max(1,Math.floor(d/60))+'分前';
+  if(d<86400) return Math.floor(d/3600)+'時間前';
+  if(d<2592000) return Math.floor(d/86400)+'日前';
+  return Math.floor(d/2592000)+'ヶ月前';
+}
+var toast=document.getElementById('toast'); var tt;
+function showToast(m){ toast.textContent=m; toast.classList.add('show'); clearTimeout(tt); tt=setTimeout(function(){toast.classList.remove('show');},2600); }
+
+function chips(arr,empty){
+  if(!arr || !arr.length) return '<span class="chip">'+empty+'</span>';
+  return arr.map(function(x){ return '<span class="chip on">'+esc(x)+'</span>'; }).join('');
+}
+
+function rfChip(c){
+  var rf=parseInt(c.red_flags,10)||0;
+  return rf>=1
+    ? '<span class="tag" style="color:var(--alert);border-color:rgba(168,51,31,.4)">赤旗 '+Math.min(rf,5)+(rf>5?'+':'')+'</span>'
+    : '<span class="tag" style="color:var(--ok);border-color:rgba(63,107,74,.4)">白旗</span>';
+}
+
+function feedCard(c){
+  var amt=yen(c.amount);
+  return '<article class="bcard">'+
+    '<div class="tags">'+
+      '<span class="tag gen">'+esc(c.genre||'工事')+'</span>'+
+      (c.region?'<span class="tag">'+esc(c.region)+'</span>':'')+
+      '<span class="tag live">検討中</span>'+ rfChip(c)+
+    '</div>'+
+    '<h3>'+esc(c.title||'(無題の見積もり)')+'</h3>'+
+    '<div class="facts">'+
+      '<div class="fact"><div class="n blue">'+nf(c.views)+'</div><div class="l">注目（閲覧）</div></div>'+
+      '<div class="fact"><div class="n red">'+Math.min(parseInt(c.red_flags,10)||0,5)+'</div><div class="l">懸念点</div></div>'+
+    '</div>'+
+    (amt?'<div class="amtline">施主の受領額 <b>'+amt+'</b></div>':'<div class="amtline">受領額 非公開</div>')+
+    '<div class="foot">'+
+      '<span class="ago">'+esc(timeAgo(c.created_at))+'</span>'+
+      '<button class="respond" disabled title="施主の同意フローを準備中です">この不安に応える（準備中）</button>'+
+    '</div>'+
+  '</article>';
+}
+
+function notLoggedIn(){
+  document.getElementById('app').innerHTML =
+    '<div class="state" style="margin-top:30px"><h2>ログインして事業者登録すると、旬な不安が届きます</h2>'+
+    '<p>板にログインし、対応できる工種と地域を登録すると、それに合う検討中の見積もりがここに集まります。</p>'+
+    '<a class="btn" href="/hacker/demand/">事業者登録へ</a></div>';
+}
+function notRegistered(){
+  document.getElementById('app').innerHTML =
+    '<div class="state" style="margin-top:30px"><h2>まだ事業者登録がありません</h2>'+
+    '<p>対応できる工種と地域を登録すると、その分野でいま不安を抱えている施主の見積もりだけが届きます。</p>'+
+    '<a class="btn" href="/hacker/demand/">工種・地域を登録する</a></div>';
+}
+function errState(){
+  document.getElementById('app').innerHTML =
+    '<div class="state" style="margin-top:30px"><h2>読み込めませんでした</h2>'+
+    '<p>通信に失敗しました。時間をおいて再読み込みしてください。問題が続く場合は板から再ログインしてください。</p>'+
+    '<a class="btn ghost" href="/hacker/biz/">再読み込み</a></div>';
+}
+
+function render(reg, cards){
+  var prof='<div class="profile">'+
+    '<div class="blk"><div class="k">対応工種</div><div class="chips">'+chips(reg.genres,'未登録')+'</div></div>'+
+    '<div class="blk"><div class="k">対応地域</div><div class="chips">'+chips(reg.regions,'未登録')+'</div></div>'+
+    '<a class="mini edit" href="/hacker/demand/">登録を編集</a>'+
+  '</div>';
+
+  var feed;
+  if(!cards || !cards.length){
+    feed='<div class="sec-h">あなた宛の旬な不安</div>'+
+      '<div class="state"><h2>いまは該当する案件がありません</h2>'+
+      '<p>あなたの工種・地域で検討中の見積もりが投稿されると、ここに表示されます。登録地域や工種を広げると届きやすくなります。</p>'+
+      '<a class="btn ghost" href="/hacker/demand/">需要ヒートマップを見る</a></div>';
+  } else {
+    cards.sort(function(a,b){ return (parseInt(b.views,10)||0)-(parseInt(a.views,10)||0); });
+    feed='<div class="sec-h">あなた宛の旬な不安</div>'+
+      '<p class="sec-sub">注目（閲覧数）が高い順。いま最も解決を急いでいる施主です。</p>'+
+      '<div class="feed">'+cards.map(feedCard).join('')+'</div>';
+  }
+  document.getElementById('app').innerHTML = prof + feed;
+}
+
+function load(){
+  if(!token){ notLoggedIn(); return; }
+  fetch(API+'/hacker/biz-feed',{headers:{'Authorization':'Bearer '+token}})
+    .then(function(r){
+      if(r.status===401){ notLoggedIn(); throw new Error('auth'); }
+      if(!r.ok) throw new Error('http');
+      return r.json();
+    })
+    .then(function(d){
+      if(d && d.ok===false){ if(/auth|token/.test(d.reason||'')){notLoggedIn();return;} throw new Error('api'); }
+      if(d && d.registered===false){ notRegistered(); return; }
+      render((d && d.registration) || {genres:[],regions:[]}, (d && d.cards) || []);
+    })
+    .catch(function(e){ if(e.message!=='auth') errState(); });
+}
+load();
+</script>
+</body>
+</html>

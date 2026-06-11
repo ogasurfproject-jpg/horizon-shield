@@ -2,235 +2,306 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>マイページ — 見積もり達人 | HORIZON SHIELD</title>
-<meta name="robots" content="noindex,nofollow">
-<meta name="theme-color" content="#152038">
-<link rel="apple-touch-icon" href="/hacker/apple-touch-icon-180.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>あなたの見積もり / 見積もり達人ニュース</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=IBM+Plex+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#EDE8DC;--paper2:#E3DCCB;--field:#F5F1E8;
-  --ink:#1A1C1A;--ink2:#3C3D38;--mut:#6E6C62;--mut2:#9A968A;
-  --rule:#1A1C1A;--rule-soft:#C3BBA8;
-  --blue:#2B4C7E;--blue-bg:#DCE4EE;
-  --alert:#A8331F;--alert-bg:#EFD9D2;
-  --ok:#3F6B4A;--ok-bg:#D9E4D8;
-  --mono:'JetBrains Mono',monospace;--sans:'IBM Plex Sans JP',sans-serif;
+  --paper:#EDE8DC; --ink:#1A1C1A; --blue:#2B4C7E; --alert:#A8331F;
+  --ok:#3F6B4A; --gold:#B89A6A;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'IBM Plex Sans JP',system-ui,sans-serif;
+  --maru:'Zen Maru Gothic',var(--sans);
+  --line:rgba(26,28,26,.14);
+  --paper2:#E4DECF;
+  --mut:rgba(26,28,26,.56);
 }
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height:100vh;overflow-x:hidden;line-height:1.7;-webkit-font-smoothing:antialiased;
-  background-image:linear-gradient(var(--paper2) .5px,transparent .5px),linear-gradient(90deg,var(--paper2) .5px,transparent .5px);background-size:26px 26px;}
-.mono{font-family:var(--mono)}
-.topbar{border-bottom:2px solid var(--rule);background:var(--paper)}
-.topbar-in{max-width:980px;margin:0 auto;padding:0 22px;display:flex;align-items:stretch;justify-content:space-between;min-height:58px}
-.tb-left{display:flex;align-items:center;gap:16px}
-.logo{display:flex;align-items:baseline;gap:9px;text-decoration:none;color:var(--ink)}
-.logo .mk{font-family:var(--mono);font-weight:800;font-size:17px;letter-spacing:.04em}
-.logo .ja{font-size:12px;color:var(--mut);letter-spacing:.08em}
-.tb-code{font-family:var(--mono);font-size:11px;color:var(--mut2);align-self:center;border-left:1px solid var(--rule-soft);padding-left:16px}
-.tb-right{display:flex;align-items:center}
-.tb-back{font-family:var(--mono);font-size:12px;color:var(--mut);text-decoration:none;padding:0 16px;align-self:center;border-left:1px solid var(--rule-soft)}
-.tb-back:hover{color:var(--ink)}
-.tb-logout{font-family:var(--mono);font-size:11px;color:var(--mut);background:none;border:none;cursor:pointer;border-left:1px solid var(--rule-soft);padding:0 16px;align-self:stretch}
-.tb-logout:hover{color:var(--alert)}
-.wrap{max-width:980px;margin:0 auto;padding:0 22px}
-/* profile head */
-.prof{display:flex;align-items:center;gap:18px;padding:34px 0 28px;border-bottom:2px solid var(--rule)}
-.prof-av{width:64px;height:64px;border:2px solid var(--rule);border-radius:50%;overflow:hidden;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:24px;color:var(--blue);flex-shrink:0}
-.prof-av img{width:100%;height:100%;object-fit:cover}
-.prof-meta .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:var(--blue);margin-bottom:6px}
-.prof-name{font-size:24px;font-weight:700;line-height:1.2}
-.prof-sub{font-family:var(--mono);font-size:12px;color:var(--mut);margin-top:4px}
-/* stat row */
-.stats{display:flex;border:2px solid var(--rule);margin:26px 0;background:var(--field)}
-.stat{flex:1;padding:16px 20px;border-right:1px solid var(--rule-soft)}
-.stat:last-child{border-right:none}
-.stat-k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--mut2);margin-bottom:5px}
-.stat-v{font-family:var(--mono);font-size:28px;font-weight:800;line-height:1}
-.stat-v.pending{color:var(--alert)}
-.stat-v.published{color:var(--ok)}
-/* section */
-.sec{padding:14px 0 30px}
-.sec-h{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--ink);border-bottom:1px solid var(--rule);padding-bottom:8px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
-.sec-h .badge{font-family:var(--mono);font-size:10px;padding:3px 10px;letter-spacing:.08em}
-.badge.p{background:var(--alert-bg);color:var(--alert)}
-.badge.o{background:var(--ok-bg);color:var(--ok)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
-.mc{border:2px solid var(--rule);background:var(--field);display:flex;flex-direction:column}
-.mc-head{display:flex;align-items:stretch;border-bottom:1px solid var(--rule)}
-.mc-genre{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--blue);padding:8px 12px;flex:1;display:flex;align-items:center}
-.mc-status{font-family:var(--mono);font-size:9px;letter-spacing:.06em;padding:8px 12px;border-left:1px solid var(--rule-soft);display:flex;align-items:center;font-weight:700}
-.mc-status.pending{background:var(--alert-bg);color:var(--alert)}
-.mc-status.published{background:var(--ok-bg);color:var(--ok)}
-.mc-body{padding:15px 16px;flex:1;display:flex;flex-direction:column}
-.mc-title{font-size:17px;font-weight:700;line-height:1.35;margin-bottom:10px}
-.mc-amt{font-family:var(--mono);font-size:15px;font-weight:800;color:var(--blue);margin-bottom:12px}
-.mc-amt.none{font-size:10px;font-weight:400;color:var(--mut2);letter-spacing:.06em}
-.mc-traits{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;flex:1}
-.mc-trait{font-size:11.5px;color:var(--ink2);display:flex;gap:6px;line-height:1.5}
-.mc-trait::before{content:'';width:4px;height:4px;background:var(--alert);flex-shrink:0;margin-top:6px}
-.mc-foot{display:flex;align-items:center;border-top:1px solid var(--rule);font-family:var(--mono);font-size:10.5px;color:var(--mut)}
-.mc-flag{padding:8px 12px;color:var(--alert);font-weight:700}
-.mc-date{padding:8px 12px;border-left:1px solid var(--rule-soft);margin-left:auto}
-.empty{border:2px dashed var(--rule-soft);background:var(--field);padding:36px 20px;text-align:center;font-family:var(--mono);font-size:12.5px;color:var(--mut2);line-height:1.8}
-.empty a{color:var(--blue);text-decoration:underline}
-/* login gate */
-.gate{text-align:center;padding:64px 24px;border:2px solid var(--rule);background:var(--field);margin:40px 0}
-.gate-ic{width:54px;height:54px;margin:0 auto 20px;border:2px solid var(--rule);display:flex;align-items:center;justify-content:center;color:var(--blue)}
-.gate h2{font-size:20px;font-weight:700;margin-bottom:10px}
-.gate p{font-size:13.5px;color:var(--ink2);line-height:1.8;margin-bottom:26px;max-width:420px;margin-left:auto;margin-right:auto}
-.gate-btns{display:flex;flex-direction:column;gap:10px;max-width:300px;margin:0 auto}
-.gate-btn{font-family:var(--mono);font-size:13px;font-weight:500;border:none;cursor:pointer;padding:14px 22px;display:flex;align-items:center;justify-content:center;gap:9px;text-decoration:none;transition:.14s;color:#fff}
-.gate-btn.line{background:#06C755}.gate-btn.google{background:#4285F4}
-.gate-btn:hover{filter:brightness(1.07)}
-.gate-btn .dot{width:7px;height:7px;background:#fff;border-radius:50%}
-.cta-new{display:block;margin:6px 0 40px;padding:16px;background:var(--ink);color:var(--paper);text-decoration:none;text-align:center;font-family:var(--mono);font-size:13px;font-weight:500;transition:.14s}
-.cta-new:hover{background:var(--blue)}
-.loading{text-align:center;padding:60px;font-family:var(--mono);font-size:13px;color:var(--mut)}
-footer{border-top:2px solid var(--rule);background:var(--paper);padding:28px 22px 44px;margin-top:30px}
-.foot-in{max-width:980px;margin:0 auto;font-family:var(--mono);font-size:11.5px;color:var(--mut);line-height:2}
-.foot-in a{color:var(--ink2)}
-.toast{position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:13px;padding:15px 22px;transform:translateY(100%);transition:.3s;text-align:center}
-.toast.on{transform:translateY(0)}
-.hide{display:none!important}
-@media(max-width:680px){.stats{flex-direction:column}.stat{border-right:none;border-bottom:1px solid var(--rule-soft)}.stat:last-child{border-bottom:none}}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-weight:400;
+  line-height:1.65; -webkit-font-smoothing:antialiased;
+  font-feature-settings:"palt";
+}
+a{color:inherit}
+.wrap{max-width:760px;margin:0 auto;padding:0 20px}
+
+/* header */
+.top{border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper);z-index:20}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
+.brand{font-family:var(--maru);font-weight:700;font-size:15px;letter-spacing:.04em;text-decoration:none}
+.brand small{font-family:var(--mono);font-weight:400;font-size:10px;color:var(--mut);display:block;letter-spacing:.12em;margin-top:1px}
+.nav{display:flex;gap:18px;align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.04em}
+.nav a{text-decoration:none;color:var(--mut)}
+.nav a:hover{color:var(--ink)}
+
+/* hero */
+.hero{padding:46px 0 30px;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;margin:0 0 14px}
+.hero h1{font-family:var(--maru);font-weight:700;font-size:27px;line-height:1.4;margin:0 0 12px;letter-spacing:.01em}
+.hero p{margin:0;color:var(--mut);font-size:14.5px;max-width:54ch}
+
+/* summary */
+.sum{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);margin:30px 0 8px}
+.sum .cell{padding:18px 16px;border-right:1px solid var(--line)}
+.sum .cell:last-child{border-right:none}
+.sum .n{font-family:var(--mono);font-weight:700;font-size:28px;line-height:1;letter-spacing:-.01em}
+.sum .lab{font-size:11.5px;color:var(--mut);margin-top:8px;letter-spacing:.02em}
+
+/* card list */
+.list{margin:14px 0 0}
+.sec-h{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--mut);text-transform:uppercase;margin:34px 0 14px;display:flex;align-items:center;gap:10px}
+.sec-h::after{content:"";flex:1;height:1px;background:var(--line)}
+
+.card{border:1px solid var(--line);background:#F3EFE5;margin-bottom:14px;padding:18px 18px 16px}
+.card .row1{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:10px}
+.tags{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-bottom:9px}
+.tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;padding:2px 8px;border:1px solid var(--line);color:var(--mut);border-radius:1px}
+.tag.gen{color:var(--blue);border-color:rgba(43,76,126,.4)}
+.tag.live{color:var(--alert);border-color:rgba(168,51,31,.4)}
+.card h3{font-family:var(--maru);font-weight:500;font-size:16.5px;margin:0;line-height:1.45}
+.amt{font-family:var(--mono);font-weight:500;font-size:13px;color:var(--mut);margin-top:2px;white-space:nowrap}
+.amt b{color:var(--ink);font-weight:700;font-size:15px}
+
+/* views block */
+.viewbox{display:flex;align-items:flex-end;gap:18px;margin:14px 0 4px;padding-top:14px;border-top:1px dashed var(--line)}
+.vnum{flex:none}
+.vnum .big{font-family:var(--mono);font-weight:700;font-size:34px;line-height:.9;letter-spacing:-.02em}
+.vnum .lab{font-size:10.5px;color:var(--mut);letter-spacing:.04em;margin-top:6px}
+.flowwrap{flex:1;min-width:0}
+.flowlab{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--mut);text-transform:uppercase;margin-bottom:7px}
+.flow{display:flex;height:9px;border:1px solid var(--line);background:var(--paper2);overflow:hidden}
+.flow span{display:block;height:100%}
+.flow .s-search{background:var(--blue)}
+.flow .s-ai{background:var(--gold)}
+.flow .s-sns{background:var(--ok)}
+.flow .s-direct{background:rgba(26,28,26,.5)}
+.flow .s-internal{background:rgba(26,28,26,.22)}
+.flow .s-other{background:rgba(26,28,26,.1)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:9px;font-family:var(--mono);font-size:10px;color:var(--mut);letter-spacing:.02em}
+.legend i{display:inline-block;width:8px;height:8px;margin-right:5px;vertical-align:middle}
+.li-search i{background:var(--blue)} .li-ai i{background:var(--gold)}
+.li-sns i{background:var(--ok)} .li-direct i{background:rgba(26,28,26,.5)}
+.li-internal i{background:rgba(26,28,26,.22)} .li-other i{background:rgba(26,28,26,.1)}
+.legend span.off{opacity:.35}
+
+.meta{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-family:var(--mono);font-size:11px;color:var(--mut)}
+.apply{font-family:var(--mono);font-size:11px;color:var(--mut)}
+.apply b{color:var(--ink)}
+.apply.soon{color:var(--gold)}
+
+/* verdict chip */
+.verdict{font-family:var(--mono);font-size:11px;letter-spacing:.03em;padding:3px 9px;border-radius:1px;white-space:nowrap}
+.verdict.red{color:var(--alert);background:rgba(168,51,31,.07);border:1px solid rgba(168,51,31,.3)}
+.verdict.white{color:var(--ok);background:rgba(63,107,74,.07);border:1px solid rgba(63,107,74,.3)}
+.verdict.na{color:var(--mut);border:1px solid var(--line)}
+
+/* states */
+.state{text-align:center;padding:64px 24px;border:1px solid var(--line);background:#F3EFE5;margin:34px 0}
+.state h2{font-family:var(--maru);font-weight:500;font-size:19px;margin:0 0 10px}
+.state p{color:var(--mut);font-size:14px;margin:0 auto 22px;max-width:42ch}
+.btn{display:inline-block;font-family:var(--mono);font-size:13px;letter-spacing:.04em;padding:11px 26px;background:var(--ink);color:var(--paper);text-decoration:none;border:1px solid var(--ink)}
+.btn:hover{background:transparent;color:var(--ink)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--ink);color:var(--paper)}
+
+.skel{height:120px;border:1px solid var(--line);background:linear-gradient(100deg,#F3EFE5 30%,#ECE6D8 50%,#F3EFE5 70%);background-size:200% 100%;animation:sh 1.3s linear infinite;margin-bottom:14px}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* note */
+.note{border-top:1px solid var(--line);margin-top:40px;padding:26px 0 60px;color:var(--mut);font-size:12.5px;line-height:1.8}
+.note b{color:var(--ink);font-weight:600}
+.note ul{margin:10px 0 0;padding-left:18px}
+.note li{margin-bottom:5px}
+
+@media(max-width:560px){
+  .hero h1{font-size:22px}
+  .sum .n{font-size:23px}
+  .viewbox{flex-direction:column;align-items:stretch;gap:14px}
+  .vnum{display:flex;align-items:baseline;gap:12px}
+  .vnum .lab{margin-top:0}
+  .vnum .big{font-size:30px}
+}
+@media(prefers-reduced-motion:reduce){.skel{animation:none}}
 </style>
 </head>
 <body>
-<div class="topbar">
-  <div class="topbar-in">
-    <div class="tb-left">
-      <a class="logo" href="/hacker/"><span class="mk">EHN</span><span class="ja">見積もり達人</span></a>
-      <span class="tb-code">MY PAGE / マイページ</span>
-    </div>
-    <div class="tb-right" id="tbRight">
-      <a class="tb-back" href="/hacker/">← 一覧へ戻る</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/hacker/">見積もり達人<small>ESTIMATE HACKER NEWS</small></a>
+    <nav class="nav">
+      <a href="/hacker/">板</a>
+      <a href="/hacker/demand/">需要</a>
+      <a id="logoutLink" href="#" style="display:none">ログアウト</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <p class="eyebrow">Your posts</p>
+    <h1>あなたの見積もりが、いま誰に見られているか</h1>
+    <p>あなたが投稿した見積もりの閲覧数と、その人たちがどこから辿り着いたかを記録しています。同じ不安を抱えた人の役に立っている証です。</p>
+  </section>
+
+  <div id="app">
+    <div class="list">
+      <div class="skel"></div><div class="skel"></div>
     </div>
   </div>
-</div>
 
-<div class="wrap">
-  <!-- 未ログイン -->
-  <div id="gate" class="gate hide">
-    <div class="gate-ic"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-    <h2>マイページにはログインが必要です</h2>
-    <p>あなたが投稿した見積もりと、その掲載状況を確認できます。</p>
-    <div class="gate-btns">
-      <button class="gate-btn line" onclick="login()"><span class="dot"></span>LINEでログイン</button>
-      <button class="gate-btn google" onclick="loginGoogle()"><span class="dot"></span>Googleでログイン</button>
-    </div>
-  </div>
+  <section class="note">
+    <b>この数字について</b>
+    <ul>
+      <li>閲覧数は、あなたの投稿が同じ工事を検討中の人にどれだけ届いたかを表します。承認欲求の指標ではなく、情報非対称の解消にどれだけ貢献したかの記録です。</li>
+      <li>流入元は、検索・SNS・AI・直接などの大まかな区分のみを記録します。個々の閲覧者を特定する情報は一切保存していません。</li>
+      <li>あなたの氏名や連絡先が事業者に渡ることはありません。事業者が見られるのは工種と地域の集計だけです。</li>
+    </ul>
+  </section>
 
-  <!-- ログイン済み -->
-  <div id="app" class="hide">
-    <div class="prof">
-      <div class="prof-av" id="profAv"></div>
-      <div class="prof-meta">
-        <div class="eyebrow">YOUR SUBMISSIONS</div>
-        <div class="prof-name" id="profName">—</div>
-        <div class="prof-sub">投稿した見積もりの一覧と掲載状況</div>
-      </div>
-    </div>
-
-    <div class="stats">
-      <div class="stat"><div class="stat-k">TOTAL / 投稿総数</div><div class="stat-v" id="stTotal">—</div></div>
-      <div class="stat"><div class="stat-k">PENDING / 承認待ち</div><div class="stat-v pending" id="stPending">—</div></div>
-      <div class="stat"><div class="stat-k">PUBLISHED / 公開中</div><div class="stat-v published" id="stPub">—</div></div>
-    </div>
-
-    <a class="cta-new" href="/hacker/submit/">＋ 新しい見積もりを投稿する</a>
-
-    <div id="loading" class="loading">読み込み中...</div>
-
-    <div id="content" class="hide">
-      <div class="sec">
-        <div class="sec-h"><span>承認待ち</span><span class="badge p" id="cntPending">0</span></div>
-        <div class="grid" id="gridPending"></div>
-      </div>
-      <div class="sec">
-        <div class="sec-h"><span>公開中</span><span class="badge o" id="cntPub">0</span></div>
-        <div class="grid" id="gridPub"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<footer><div class="foot-in"><a href="https://shield.the-horizons-innovation.com">HORIZON SHIELD</a> / 大賀俊勝（建設実務30年）監修 / © 2026 The HORIZ音s株式会社</div></footer>
-<div class="toast" id="toast"></div>
+</main>
 
 <script>
-const API='https://hs-kira-proxy.oga-surf-project.workers.dev';
-let TOKEN=null,USER=null;
-function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function pad(n){return String(n).padStart(3,'0');}
-function yen(a){if(a===''||a==null)return '';const n=Number(String(a).replace(/[^0-9]/g,''));if(!n)return '';return '\u00a5'+n.toLocaleString('ja-JP');}
-function fmtDate(t){if(!t)return '';const d=new Date(Number(t));return `${d.getFullYear()}.${pad(d.getMonth()+1).slice(1)}.${pad(d.getDate()).slice(1)}`;}
-function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2800);}
+// ===== 設定: 板と同じ Worker ベースに合わせる =====
+var API = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
 
-function loadSession(){
-  try{TOKEN=localStorage.getItem('ehn_token');const u=localStorage.getItem('ehn_user');USER=u?JSON.parse(u):null;}catch(e){}
-  if(TOKEN&&USER){
-    document.getElementById('gate').classList.add('hide');
-    document.getElementById('app').classList.remove('hide');
-    renderProfile();fetchMyCards();
-  }else{
-    document.getElementById('gate').classList.remove('hide');
-    document.getElementById('app').classList.add('hide');
-  }
-}
-function renderProfile(){
-  const el=document.getElementById('tbRight');
-  el.innerHTML=`<a class="tb-back" href="/hacker/">← 一覧</a><button class="tb-logout" onclick="logout()">LOGOUT</button>`;
-  document.getElementById('profName').textContent=USER.display_name||'施主';
-  const av=document.getElementById('profAv');
-  if(USER.picture_url){av.innerHTML=`<img src="${esc(USER.picture_url)}" alt="">`;}
-  else{av.textContent=(USER.display_name||'?').slice(0,1);}
-}
-async function login(){try{const r=await fetch(API+'/auth/line-login-start',{method:'POST'});const d=await r.json();if(d.login_url)location.href=d.login_url;else toast('ログインを開始できませんでした');}catch(e){toast('通信エラー');}}
-async function loginGoogle(){try{const r=await fetch(API+'/auth/google-login-start',{method:'POST'});const d=await r.json();if(d.login_url)location.href=d.login_url;else toast('ログインを開始できませんでした');}catch(e){toast('通信エラー');}}
-function logout(){try{localStorage.removeItem('ehn_token');localStorage.removeItem('ehn_user');}catch(e){}TOKEN=null;USER=null;loadSession();toast('ログアウトしました');}
+var token = localStorage.getItem('ehn_token') || '';
+var logoutLink = document.getElementById('logoutLink');
+if(token){ logoutLink.style.display='inline'; }
+logoutLink.addEventListener('click', function(e){
+  e.preventDefault();
+  localStorage.removeItem('ehn_token'); localStorage.removeItem('ehn_user');
+  location.href='/hacker/';
+});
 
-async function fetchMyCards(){
-  try{
-    const r=await fetch(API+'/hacker/my-cards',{headers:{'Authorization':'Bearer '+TOKEN}});
-    if(r.status===401){toast('ログインの有効期限が切れました');setTimeout(()=>logout(),1500);return;}
-    const d=await r.json();
-    if(!d.ok){document.getElementById('loading').textContent='読み込みに失敗しました';return;}
-    renderCards(d.pending||[],d.published||[]);
-  }catch(e){document.getElementById('loading').textContent='通信エラーが発生しました';}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function nf(n){ return (parseInt(n,10)||0).toLocaleString('ja-JP'); }
+function yen(n){ if(n==null||n==='') return null; var v=parseInt(n,10); if(isNaN(v))return null; return '\u00A5'+v.toLocaleString('ja-JP'); }
+function timeAgo(ts){
+  if(!ts) return '';
+  var t=typeof ts==='number'?ts:Date.parse(ts); if(isNaN(t))return '';
+  var d=Math.floor((Date.now()-t)/1000);
+  if(d<3600) return Math.max(1,Math.floor(d/60))+'分前';
+  if(d<86400) return Math.floor(d/3600)+'時間前';
+  if(d<2592000) return Math.floor(d/86400)+'日前';
+  return Math.floor(d/2592000)+'ヶ月前';
 }
-function cardHtml(c,status){
-  const amt=yen(c.amount)?`<div class="mc-amt">${yen(c.amount)}</div>`:`<div class="mc-amt none">金額 — 非公開</div>`;
-  const traits=(c.traits||[]).slice(0,3).map(t=>`<div class="mc-trait">${esc(t)}</div>`).join('');
-  const stCls=status==='pending'?'pending':'published';
-  const stTx=status==='pending'?'承認待ち':'公開中';
-  return `<div class="mc">
-    <div class="mc-head"><span class="mc-genre">${esc(c.genre||'その他')}</span><span class="mc-status ${stCls}">${stTx}</span></div>
-    <div class="mc-body">
-      <div class="mc-title">${esc(c.title||'見積もり')}</div>
-      ${amt}
-      <div class="mc-traits">${traits}</div>
-    </div>
-    <div class="mc-foot"><span class="mc-flag">赤旗 ${pad(c.red_flags||0)}</span><span class="mc-date">${fmtDate(c.created_at)}</span></div>
-  </div>`;
+
+var SRC_ORDER=['search','ai','sns','direct','internal','other'];
+var SRC_LABEL={search:'検索',ai:'AI',sns:'SNS',direct:'直接',internal:'板内',other:'その他'};
+
+function flowBar(src){
+  src=src||{};
+  var total=0; SRC_ORDER.forEach(function(k){ total+=parseInt(src[k],10)||0; });
+  var segs='', leg='';
+  SRC_ORDER.forEach(function(k){
+    var v=parseInt(src[k],10)||0;
+    var pct= total>0 ? (v/total*100) : 0;
+    if(pct>0) segs+='<span class="s-'+k+'" style="width:'+pct.toFixed(1)+'%"></span>';
+    leg+='<span class="li-'+k+(v===0?' off':'')+'"><i></i>'+SRC_LABEL[k]+' '+v+'</span>';
+  });
+  if(total===0) segs='<span class="s-other" style="width:100%;opacity:.3"></span>';
+  return '<div class="flowwrap"><div class="flowlab">流入の流れ</div>'+
+         '<div class="flow">'+segs+'</div>'+
+         '<div class="legend">'+leg+'</div></div>';
 }
-function renderCards(pending,published){
-  document.getElementById('loading').classList.add('hide');
-  document.getElementById('content').classList.remove('hide');
-  document.getElementById('stTotal').textContent=pad(pending.length+published.length);
-  document.getElementById('stPending').textContent=pad(pending.length);
-  document.getElementById('stPub').textContent=pad(published.length);
-  document.getElementById('cntPending').textContent=pending.length;
-  document.getElementById('cntPub').textContent=published.length;
-  const gp=document.getElementById('gridPending'),go=document.getElementById('gridPub');
-  gp.innerHTML=pending.length?pending.map(c=>cardHtml(c,'pending')).join(''):'<div class="empty" style="grid-column:1/-1">// 承認待ちの投稿はありません</div>';
-  go.innerHTML=published.length?published.map(c=>cardHtml(c,'published')).join(''):'<div class="empty" style="grid-column:1/-1">// 公開中の投稿はまだありません。<a href="/hacker/submit/">見積もりを投稿する</a></div>';
+
+function verdictChip(c){
+  var rf=parseInt(c.red_flags,10)||0;
+  if(rf>=1) return '<span class="verdict red">赤旗 '+Math.min(rf,5)+(rf>5?'+':'')+'</span>';
+  if(c.verdict && /白|シロ|適正|ok/i.test(c.verdict)) return '<span class="verdict white">白旗</span>';
+  if(rf===0) return '<span class="verdict white">白旗</span>';
+  return '<span class="verdict na">診断中</span>';
 }
-loadSession();
+
+function cardHTML(c){
+  var live = c.phase==='active';
+  var amt = yen(c.amount);
+  var apps = (c.applications==null) ?
+      '<span class="apply soon">事業者からの応募: 準備中</span>' :
+      '<span class="apply">事業者からの応募: <b>'+nf(c.applications)+'</b> 件</span>';
+  return '<article class="card">'+
+    '<div class="tags">'+
+      '<span class="tag gen">'+esc(c.genre||'工事')+'</span>'+
+      (c.region?'<span class="tag">'+esc(c.region)+'</span>':'')+
+      (live?'<span class="tag live">検討中</span>':'<span class="tag">記録</span>')+
+      verdictChip(c)+
+    '</div>'+
+    '<div class="row1">'+
+      '<h3>'+esc(c.title||'(無題の見積もり)')+'</h3>'+
+      (amt?'<div class="amt">受領額<br><b>'+amt+'</b></div>':'')+
+    '</div>'+
+    '<div class="viewbox">'+
+      '<div class="vnum"><div class="big">'+nf(c.views)+'</div><div class="lab">回 見られました</div></div>'+
+      flowBar(c.src)+
+    '</div>'+
+    '<div class="meta">'+
+      '<span>投稿 '+esc(timeAgo(c.created_at))+'</span>'+
+      apps+
+    '</div>'+
+  '</article>';
+}
+
+function notLoggedIn(){
+  document.getElementById('app').innerHTML =
+    '<div class="state"><h2>ログインすると、あなたの投稿の記録が見られます</h2>'+
+    '<p>板にログインして見積もりを投稿すると、それが何回・どこから見られたかをここで確認できます。</p>'+
+    '<a class="btn" href="/hacker/">板でログインする</a></div>';
+}
+function emptyState(){
+  document.getElementById('app').innerHTML =
+    '<div class="state"><h2>まだ投稿がありません</h2>'+
+    '<p>受け取った見積もりを投稿すると、同じ工事で不安を抱える人の助けになり、その反響がここに記録されます。</p>'+
+    '<a class="btn" href="/hacker/submit/">見積もりを投稿する</a></div>';
+}
+function errState(){
+  document.getElementById('app').innerHTML =
+    '<div class="state"><h2>記録を読み込めませんでした</h2>'+
+    '<p>通信に失敗しました。時間をおいて再読み込みしてください。問題が続く場合は板から再ログインしてください。</p>'+
+    '<a class="btn ghost" href="/hacker/me/">再読み込み</a></div>';
+}
+
+function render(cards){
+  if(!cards || !cards.length){ emptyState(); return; }
+  var totalV=0, liveN=0;
+  cards.forEach(function(c){ totalV+=parseInt(c.views,10)||0; if(c.phase==='active') liveN++; });
+  // 新しい順 + 検討中を上に
+  cards.sort(function(a,b){
+    var al=a.phase==='active'?1:0, bl=b.phase==='active'?1:0;
+    if(al!==bl) return bl-al;
+    return (Date.parse(b.created_at)||0)-(Date.parse(a.created_at)||0);
+  });
+  var sum='<div class="sum">'+
+    '<div class="cell"><div class="n">'+nf(totalV)+'</div><div class="lab">総閲覧数</div></div>'+
+    '<div class="cell"><div class="n">'+nf(cards.length)+'</div><div class="lab">投稿した見積もり</div></div>'+
+    '<div class="cell"><div class="n">'+nf(liveN)+'</div><div class="lab">いま検討中</div></div>'+
+  '</div>';
+  var body = '<div class="sec-h">あなたの見積もり</div><div class="list">'+
+             cards.map(cardHTML).join('')+'</div>';
+  document.getElementById('app').innerHTML = sum + body;
+}
+
+function load(){
+  if(!token){ notLoggedIn(); return; }
+  fetch(API+'/hacker/my-stats',{headers:{'Authorization':'Bearer '+token}})
+    .then(function(r){
+      if(r.status===401){ notLoggedIn(); throw new Error('auth'); }
+      if(!r.ok) throw new Error('http');
+      return r.json();
+    })
+    .then(function(d){
+      if(d && d.ok===false){ if(/auth|token/.test(d.reason||'')){notLoggedIn();return;} throw new Error('api'); }
+      render((d && d.cards) || []);
+    })
+    .catch(function(e){ if(e.message!=='auth') errState(); });
+}
+load();
 </script>
 </body>
 </html>
