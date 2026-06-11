@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>需要ダッシュボード / 業者向け | 見積もり達人 HORIZON SHIELD</title>
+<meta name="description" content="どの工種・地域に施主の不安が集中しているか。説明力で応えられる事業者のための需要シグナル。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=IBM+Plex+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.30.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --paper:#EDE8DC;--paper2:#E3DCCB;--field:#F5F1E8;
+  --ink:#1A1C1A;--ink2:#3C3D38;--mut:#6E6C62;--mut2:#9A968A;
+  --rule:#1A1C1A;--rule-soft:#C3BBA8;
+  --blue:#2B4C7E;--blue-bg:#DCE4EE;
+  --alert:#A8331F;--alert-bg:#EFD9D2;
+  --ok:#3F6B4A;--ok-bg:#D9E4D8;
+  --gold:#B89A6A;
+  --mono:'JetBrains Mono',monospace;--sans:'IBM Plex Sans JP',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height:100vh;overflow-x:hidden;line-height:1.7;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(var(--rule-soft) .5px,transparent .65px),linear-gradient(var(--paper2) .5px,transparent .5px),linear-gradient(90deg,var(--paper2) .5px,transparent .5px);background-size:5px 5px,26px 26px,26px 26px;}
+.mono{font-family:var(--mono)}
+a{color:inherit}
+
+/* topbar */
+.topbar{border-bottom:2px solid var(--rule);background:var(--paper);position:sticky;top:0;z-index:50}
+.topbar-in{max-width:1180px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:16px}
+.logo{display:flex;align-items:baseline;gap:9px;text-decoration:none;color:var(--ink)}
+.logo .mk{font-family:var(--mono);font-weight:800;font-size:17px;letter-spacing:.04em;text-shadow:-1px .5px 0 rgba(43,76,126,.28),1px -.5px 0 rgba(168,51,31,.26)}
+.logo .ja{font-size:12px;color:var(--mut);letter-spacing:.08em;white-space:nowrap}
+.tb-code{font-family:var(--mono);font-size:11px;color:var(--mut2);align-self:center;border-left:1px solid var(--rule-soft);padding-left:16px}
+.tb-back{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:6px;border:1px solid var(--rule);padding:7px 14px;transition:.14s}
+.tb-back:hover{background:var(--ink);color:var(--paper)}
+
+/* hero */
+.hero{max-width:1180px;margin:0 auto;padding:30px 22px 10px}
+.hero-tag{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--blue);margin-bottom:10px}
+.hero h1{font-size:30px;font-weight:700;line-height:1.3;letter-spacing:-.01em;margin-bottom:12px}
+.hero p{font-size:14px;color:var(--ink2);max-width:680px;line-height:1.8}
+.hero p b{color:var(--blue)}
+
+/* kpi strip */
+.kpis{max-width:1180px;margin:22px auto 0;padding:0 22px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:2px solid var(--rule);background:var(--field)}
+.kpi{padding:16px 18px;border-right:1px solid var(--rule-soft)}
+.kpi:last-child{border-right:none}
+.kpi-k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--mut2);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.kpi-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);animation:pulse 2s ease-in-out infinite}
+.kpi-v{font-family:var(--mono);font-size:30px;font-weight:800;line-height:1;letter-spacing:-.01em}
+.kpi-v span{font-size:12px;font-weight:500;color:var(--mut);margin-left:4px}
+.kpi-sub{font-family:var(--mono);font-size:10px;color:var(--mut);margin-top:6px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* section */
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+.sec{margin-top:40px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--rule);padding-bottom:10px;margin-bottom:18px}
+.sec-h .t{font-size:18px;font-weight:700}
+.sec-h .t .en{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mut2);margin-left:10px;font-weight:500}
+.sec-h .meta{font-family:var(--mono);font-size:11px;color:var(--mut2)}
+.sec-note{font-size:12px;color:var(--mut);margin:-8px 0 16px;line-height:1.7}
+
+/* live cards */
+.live-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.live-card{border:2px solid var(--blue);background:var(--field);display:flex;flex-direction:column;position:relative;overflow:hidden}
+.live-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--blue)}
+.lc-top{display:flex;align-items:center;gap:9px;padding:13px 15px 0}
+.lc-live{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--blue);display:flex;align-items:center;gap:5px}
+.lc-live .d{width:7px;height:7px;border-radius:50%;background:var(--blue);animation:pulse 1.6s ease-in-out infinite}
+.lc-ago{font-family:var(--mono);font-size:10px;color:var(--mut2);margin-left:auto}
+.lc-body{padding:10px 15px 14px}
+.lc-genre{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--blue);margin-bottom:5px}
+.lc-title{font-size:16px;font-weight:700;line-height:1.4;margin-bottom:9px}
+.lc-meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-family:var(--mono);font-size:11px;color:var(--ink2);margin-bottom:11px}
+.lc-meta .reg{color:var(--blue)}
+.lc-amt{font-family:var(--mono);font-size:20px;font-weight:800;letter-spacing:-.01em;margin-bottom:10px}
+.lc-flags{display:flex;align-items:center;gap:4px;color:var(--alert);font-size:13px;margin-bottom:12px}
+.lc-flags .n{font-family:var(--mono);font-size:10px;font-weight:700;margin-left:4px}
+.lc-cta{border-top:1px solid var(--rule-soft);padding:11px 15px;display:flex;align-items:center;justify-content:space-between;background:var(--blue-bg)}
+.lc-cta .lab{font-family:var(--mono);font-size:11px;color:var(--blue);font-weight:700}
+.lc-cta .soon{font-family:var(--mono);font-size:9px;color:var(--mut);border:1px solid var(--rule-soft);padding:2px 7px}
+.live-empty{border:2px dashed var(--rule-soft);background:var(--field);padding:38px 24px;text-align:center}
+.live-empty .ic{font-size:30px;color:var(--mut2);margin-bottom:12px}
+.live-empty .ttl{font-size:15px;font-weight:700;margin-bottom:8px}
+.live-empty .dsc{font-size:12px;color:var(--mut);line-height:1.8;max-width:440px;margin:0 auto}
+
+/* heatmap */
+.heat-scroll{overflow-x:auto;border:2px solid var(--rule);background:var(--field)}
+.heat{border-collapse:collapse;width:100%;min-width:560px;font-family:var(--mono)}
+.heat th,.heat td{border:1px solid var(--rule-soft);text-align:center;font-size:11px}
+.heat thead th{background:var(--paper2);padding:9px 8px;font-weight:700;font-size:10px;letter-spacing:.04em;color:var(--ink)}
+.heat thead th:first-child{text-align:left;padding-left:14px}
+.heat tbody th{background:var(--paper2);text-align:left;padding:9px 14px;font-weight:700;font-size:11px;white-space:nowrap;color:var(--ink)}
+.heat td{padding:0;height:42px;position:relative;color:var(--ink);font-weight:700}
+.heat td .cell{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.heat td .live-mark{position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:var(--blue);animation:pulse 1.6s ease-in-out infinite}
+.heat-legend{display:flex;align-items:center;gap:10px;margin-top:10px;font-family:var(--mono);font-size:10px;color:var(--mut)}
+.heat-legend .scale{display:flex;align-items:center;gap:0;border:1px solid var(--rule-soft)}
+.heat-legend .scale i{width:22px;height:12px;display:block}
+
+/* flag ranking */
+.flagrank{display:flex;flex-direction:column;gap:0;border:2px solid var(--rule);background:var(--field)}
+.fr-row{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--rule-soft)}
+.fr-row:last-child{border-bottom:none}
+.fr-rank{font-family:var(--mono);font-size:18px;font-weight:800;color:var(--mut2);width:24px;flex-shrink:0}
+.fr-rank.top{color:var(--alert)}
+.fr-name{font-size:15px;font-weight:700;min-width:120px}
+.fr-bar-wrap{flex:1;height:10px;background:var(--paper2);position:relative;overflow:hidden}
+.fr-bar{height:100%;background:var(--alert);transform-origin:left}
+.fr-rate{font-family:var(--mono);font-size:14px;font-weight:800;color:var(--alert);min-width:54px;text-align:right}
+.fr-cnt{font-family:var(--mono);font-size:11px;color:var(--mut);min-width:44px;text-align:right}
+
+/* price distribution */
+.price-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.price-card{border:2px solid var(--rule);background:var(--field);padding:16px 18px}
+.pc-genre{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--blue);margin-bottom:4px}
+.pc-cnt{font-family:var(--mono);font-size:10px;color:var(--mut2);margin-bottom:14px}
+.pc-med{font-family:var(--mono);font-size:24px;font-weight:800;letter-spacing:-.01em;margin-bottom:3px}
+.pc-med-k{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--mut2);margin-bottom:14px}
+.pc-track{height:8px;background:var(--paper2);position:relative;margin:14px 0 8px;border-radius:1px}
+.pc-range{position:absolute;height:100%;background:var(--blue-bg);border-left:2px solid var(--blue);border-right:2px solid var(--blue)}
+.pc-medmark{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+.pc-ends{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--mut)}
+
+/* footer */
+.foot{border-top:2px solid var(--rule);margin-top:50px;background:var(--paper)}
+.foot-in{max-width:1180px;margin:0 auto;padding:22px;font-family:var(--mono);font-size:11px;color:var(--mut);line-height:1.9}
+.foot-in a{color:var(--blue)}
+.foot-disc{font-size:10px;color:var(--mut2);margin-top:10px;line-height:1.8}
+
+.state{padding:40px;text-align:center;font-family:var(--mono);color:var(--mut)}
+
+@media(max-width:760px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .kpi:nth-child(2){border-right:none}
+  .kpi:nth-child(1),.kpi:nth-child(2){border-bottom:1px solid var(--rule-soft)}
+  .hero h1{font-size:24px}
+}
+.reg-box{border:2px solid var(--blue);background:var(--field);padding:22px 24px}
+.reg-need{text-align:center;padding:16px 0}
+.reg-need .t{font-size:15px;font-weight:700;margin-bottom:10px}
+.reg-need .d{font-size:12px;color:var(--mut);line-height:1.8;margin-bottom:18px;max-width:460px;margin-left:auto;margin-right:auto}
+.reg-need .btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:13px;font-weight:700;background:var(--ink);color:var(--paper);text-decoration:none;padding:12px 26px;transition:.14s}
+.reg-need .btn:hover{background:var(--blue)}
+.reg-who{font-family:var(--mono);font-size:11px;color:var(--mut);margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--rule-soft);display:flex;align-items:center;gap:8px}
+.reg-who b{color:var(--ink);font-weight:700}
+.reg-grp{margin-bottom:20px}
+.reg-grp-h{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--blue);margin-bottom:10px}
+.reg-chips{display:flex;flex-wrap:wrap;gap:7px}
+.reg-chip{font-family:var(--sans);font-size:13px;color:var(--ink2);background:var(--paper);border:1px solid var(--rule-soft);padding:7px 14px;cursor:pointer;transition:.12s;user-select:none}
+.reg-chip:hover{border-color:var(--blue)}
+.reg-chip.on{background:var(--blue);color:var(--paper);border-color:var(--blue);font-weight:500}
+.reg-submit{font-family:var(--mono);font-size:14px;font-weight:700;background:var(--ink);color:var(--paper);border:none;padding:14px 30px;cursor:pointer;width:100%;transition:.14s;display:flex;align-items:center;justify-content:center;gap:9px}
+.reg-submit:hover:not(:disabled){background:var(--blue)}
+.reg-submit:disabled{background:var(--mut2);cursor:not-allowed}
+.reg-note{font-family:var(--mono);font-size:10px;color:var(--mut2);margin-top:14px;line-height:1.7;padding-top:14px;border-top:1px solid var(--rule-soft)}
+.reg-done{text-align:center;padding:20px 0}
+.reg-done .ic{font-size:34px;color:var(--ok);margin-bottom:12px}
+.reg-done .t{font-size:16px;font-weight:700;margin-bottom:8px}
+.reg-done .d{font-size:12px;color:var(--mut);line-height:1.8}
+.nfloor{font-family:var(--mono);font-size:10px;color:var(--mut2);font-weight:500}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="logo" href="/hacker/">
+      <span class="mk">EHN</span>
+      <span class="ja">見積もり達人</span>
+    </a>
+    <span class="tb-code">DEMAND BOARD / 需要ダッシュボード</span>
+    <a class="tb-back" href="/hacker/"><i class="ti ti-arrow-left"></i>板にもどる</a>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-tag">FOR CONTRACTORS / 事業者向け</div>
+  <h1>いま、どこに施主の不安が集まっているか。</h1>
+  <p>これは相見積もりの募集ではありません。すでに見積もりを受け取り、その金額に<b>不安を抱えている施主</b>が、どの工種・地域に何件いるか。価格competitionではなく、<b>「なぜこの金額なのか」を説明できる力</b>で応えられる事業者のための、需要シグナルです。</p>
+</div>
+
+<div class="nfloor-wrap wrap" style="margin-top:8px"><span class="nfloor" id="nfloorNote"></span></div>
+<div class="kpis" id="kpis">
+  <div class="state">読み込み中...</div>
+</div>
+
+<div class="wrap">
+
+  <div class="sec">
+    <div class="sec-h">
+      <div class="t">いま検討中の案件<span class="en">LIVE / 旬</span></div>
+      <div class="meta" id="liveMeta"></div>
+    </div>
+    <div class="sec-note">施主が「今まさに検討中」として投稿した見積もり。工事はまだ確定していません。説明・対案で応えられる案件です。</div>
+    <div id="liveBox"><div class="state">読み込み中...</div></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h">
+      <div class="t">需要ヒートマップ<span class="en">DEMAND DENSITY</span></div>
+      <div class="meta">工種 × 地域</div>
+    </div>
+    <div class="sec-note">投稿の集中度。色が濃いほど、その工種・地域に不安が集まっています。青い点は「いま検討中(旬)」の案件があるセル。</div>
+    <div class="heat-scroll"><table class="heat" id="heat"><tbody><tr><td class="state">読み込み中...</td></tr></tbody></table></div>
+    <div class="heat-legend">
+      <span>少</span>
+      <span class="scale" id="heatScale"></span>
+      <span>多</span>
+      <span style="margin-left:14px;display:inline-flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:var(--blue);display:inline-block;"></span>検討中あり</span>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h">
+      <div class="t">過剰請求マップ<span class="en">RED FLAG RATE</span></div>
+      <div class="meta">工種別・赤旗率</div>
+    </div>
+    <div class="sec-note">KIRAが赤旗(懸念点)を検知した割合。率が高い工種ほど、施主の不安が深く、誠実な説明で差がつきます。</div>
+    <div class="flagrank" id="flagrank"><div class="state">読み込み中...</div></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h">
+      <div class="t">相場分布<span class="en">PRICE RANGE</span></div>
+      <div class="meta">工種別・受領見積額</div>
+    </div>
+    <div class="sec-note">施主が実際に受け取った見積額の分布。中央値と最小〜最大。自社の見積もりが市場のどこに位置するかの参考に。</div>
+    <div class="price-grid" id="priceGrid"><div class="state">読み込み中...</div></div>
+  </div>
+
+
+  <div class="sec" id="registerSec">
+    <div class="sec-h">
+      <div class="t">事業者として登録<span class="en">FOR CONTRACTORS</span></div>
+    </div>
+    <div class="sec-note">登録すると、あなたの関心地域・工種に「検討中(旬)」の見積もりが投稿されたとき、お知らせを受け取れます。登録は無料です。施主の個人情報は提供されません。お知らせするのは「旬の存在」のみです。</div>
+    <div class="reg-box" id="regBox"><div class="state">読み込み中...</div></div>
+  </div>
+</div>
+
+<div class="foot">
+  <div class="foot-in">
+    <a href="/hacker/">← 見積もり達人(板)にもどる</a> ・ HORIZON SHIELD / 大賀俊勝(建設実務30年)監修 ・ © 2026 The HORIZ音s株式会社
+    <div class="foot-disc">需要データは匿名の投稿を集計したものです。個別の施主・業者を特定できる情報は含みません。「説明を申し出る」機能は近日公開予定です。掲載されている見積もりは、提出者の同意・運営の選定・匿名化を満たしたものです。</div>
+  </div>
+</div>
+
+<script>
+const API='https://hs-kira-proxy.oga-surf-project.workers.dev';
+var ALL=[];
+
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function yen(a){var n=Number(String(a||'').replace(/[^0-9]/g,''));return n?('\u00a5'+n.toLocaleString('ja-JP')):'';}
+function timeAgo(ts){if(!ts)return '';var n=Number(ts);if(!n)return '';if(n<1e12)n*=1000;var d=Date.now()-n;if(d<0)d=0;var mi=Math.floor(d/60000),hr=Math.floor(d/3600000),dy=Math.floor(d/86400000);if(mi<1)return 'たった今';if(mi<60)return mi+'分前';if(hr<24)return hr+'時間前';if(dy<7)return dy+'日前';var dt=new Date(n);return (dt.getMonth()+1)+'月'+dt.getDate()+'日';}
+
+// 都道府県正規化(板と同じCITY2PREF簡略版)
+var CITY2PREF={'札幌市':'北海道','仙台市':'宮城県','さいたま市':'埼玉県','千葉市':'千葉県','横浜市':'神奈川県','川崎市':'神奈川県','相模原市':'神奈川県','鎌倉市':'神奈川県','藤沢市':'神奈川県','平塚市':'神奈川県','茅ヶ崎市':'神奈川県','小田原市':'神奈川県','名古屋市':'愛知県','大阪市':'大阪府','堺市':'大阪府','神戸市':'兵庫県','京都市':'京都府','福岡市':'福岡県','広島市':'広島県'};
+function toPref(r){if(!r)return '未分類';r=String(r).trim();if(/[都道府県]$/.test(r))return r;if(CITY2PREF[r])return CITY2PREF[r];var k=Object.keys(CITY2PREF);for(var i=0;i<k.length;i++){if(r.indexOf(k[i])>=0)return CITY2PREF[k[i]];}return 'その他';}
+
+function heatColor(t){
+  // 0..max を 和紙→藍 のグラデで
+  if(t<=0)return 'transparent';
+  var stops=['#EDE8DC','#DCE4EE','#B9CADF','#7E9AC0','#4E73A4','#2B4C7E'];
+  var idx=Math.min(stops.length-1,t);
+  return stops[idx];
+}
+
+function load(){
+  fetch(API+'/hacker/cards').then(function(r){return r.json();}).then(function(d){
+    ALL=(d&&d.cards)?d.cards:[];
+    renderKpis();renderLive();renderHeat();renderFlagRank();renderPrice();renderRegister();
+  }).catch(function(e){
+    document.getElementById('kpis').innerHTML='<div class="state">需要データの取得に失敗しました</div>';
+  });
+}
+
+function renderKpis(){
+  var n=ALL.length;
+  var act=ALL.filter(function(c){return c.phase==='active';}).length;
+  var flagged=ALL.filter(function(c){return (+c.red_flags||0)>=1;}).length;
+  var rate=n?Math.round(flagged/n*100):0;
+  var amts=ALL.map(function(c){return Number(String(c.amount||'').replace(/[^0-9]/g,''));}).filter(function(x){return x>0;}).sort(function(a,b){return a-b;});
+  var med=amts.length?amts[Math.floor(amts.length/2)]:0;
+  var box=document.getElementById('kpis');
+  box.innerHTML=''
+    +'<div class="kpi"><div class="kpi-k"><span class="kpi-dot"></span>検討中(旬)</div><div class="kpi-v">'+act+'<span>件</span></div><div class="kpi-sub">説明で応募できる案件</div></div>'
+    +'<div class="kpi"><div class="kpi-k">掲載総数</div><div class="kpi-v">'+n+'<span>件</span></div><div class="kpi-sub">匿名見積もりデータベース</div></div>'
+    +'<div class="kpi"><div class="kpi-k">赤旗検知率</div><div class="kpi-v">'+rate+'<span>%</span></div><div class="kpi-sub">'+flagged+'件で懸念点を検知</div></div>'
+    +'<div class="kpi"><div class="kpi-k">受領見積 中央値</div><div class="kpi-v" style="font-size:22px;">'+(med?yen(med):'\u2014')+'</div><div class="kpi-sub">全工種合算</div></div>';
+  var nn=document.getElementById("nfloorNote");
+  if(nn){ nn.textContent = n<30 ? ("// 現在の掲載は "+n+" 件。データ蓄積の初期段階です。割合・分布は件数が増えるほど精度が高まります。") : ("// 掲載 "+n+" 件をもとに集計"); }
+}
+
+function renderLive(){
+  var live=ALL.filter(function(c){return c.phase==='active';});
+  live.sort(function(a,b){return (b.created_at||0)-(a.created_at||0);});
+  document.getElementById('liveMeta').textContent=live.length+' 件';
+  var box=document.getElementById('liveBox');
+  if(!live.length){
+    box.innerHTML='<div class="live-empty"><div class="ic"><i class="ti ti-radar-2"></i></div><div class="ttl">いま検討中の案件は、まだありません</div><div class="dsc">施主が「今まさに検討中」として投稿すると、ここに表示されます。説明・対案で応えられる旬な案件が集まる場所です。まずは下の需要マップで、不安が集中している工種・地域をご確認ください。</div></div>';
+    return;
+  }
+  box.innerHTML='<div class="live-grid">'+live.map(function(c){
+    var f=+c.red_flags||0;
+    var flags=f>=1?(Array(Math.min(f,5)+1).join('<i class="ti ti-flag"></i>'))+'<span class="n">'+f+'つの懸念点</span>':'';
+    var meta=[c.region?'<span class="reg">'+esc(c.region)+'</span>':'',c.building?esc(c.building):''].filter(Boolean).join('');
+    return '<div class="live-card">'
+      +'<div class="lc-top"><span class="lc-live"><span class="d"></span>検討中</span><span class="lc-ago">'+timeAgo(c.created_at)+'</span></div>'
+      +'<div class="lc-body"><div class="lc-genre">'+esc(c.genre||'その他')+'</div><div class="lc-title">'+esc(c.title||'見積もり')+'</div>'
+      +'<div class="lc-meta">'+meta+'</div>'
+      +(yen(c.amount)?'<div class="lc-amt">'+yen(c.amount)+'</div>':'')
+      +(flags?'<div class="lc-flags">'+flags+'</div>':'')
+      +'</div>'
+      +'<div class="lc-cta"><span class="lab">この見積もりに説明を申し出る</span><span class="soon">近日公開</span></div>'
+      +'</div>';
+  }).join('')+'</div>';
+}
+
+function renderHeat(){
+  var genres=Array.from(new Set(ALL.map(function(c){return c.genre||'その他';}))).slice(0,8);
+  var prefs=Array.from(new Set(ALL.map(function(c){return toPref(c.region);}))).filter(function(p){return p!=='未分類';});
+  // 件数の多い地域順に絞る(上位6)
+  prefs=prefs.map(function(p){return {p:p,n:ALL.filter(function(c){return toPref(c.region)===p;}).length};}).sort(function(a,b){return b.n-a.n;}).slice(0,6).map(function(x){return x.p;});
+  if(!genres.length||!prefs.length){document.getElementById('heat').innerHTML='<tbody><tr><td class="state">データが不足しています</td></tr></tbody>';return;}
+  function cnt(g,p){return ALL.filter(function(c){return (c.genre||'その他')===g&&toPref(c.region)===p;}).length;}
+  function hasLive(g,p){return ALL.some(function(c){return (c.genre||'その他')===g&&toPref(c.region)===p&&c.phase==='active';});}
+  var head='<thead><tr><th>工種 \\ 地域</th>'+prefs.map(function(p){return '<th>'+esc(p)+'</th>';}).join('')+'</tr></thead>';
+  var body='<tbody>'+genres.map(function(g){
+    return '<tr><th>'+esc(g)+'</th>'+prefs.map(function(p){
+      var t=cnt(g,p);var lv=hasLive(g,p);
+      return '<td style="background:'+heatColor(t)+';color:'+(t>=4?'#fff':'var(--ink)')+'">'+(t>0?'<span class="cell">'+t+'</span>':'')+(lv?'<span class="live-mark"></span>':'')+'</td>';
+    }).join('')+'</tr>';
+  }).join('')+'</tbody>';
+  document.getElementById('heat').innerHTML=head+body;
+  // legend
+  var sc=document.getElementById('heatScale');
+  sc.innerHTML=[0,1,2,3,4,5].map(function(t){return '<i style="background:'+heatColor(t||0.01)+'"></i>';}).join('');
+}
+
+function renderFlagRank(){
+  var gMap={};
+  ALL.forEach(function(c){var g=c.genre||'その他';if(!gMap[g])gMap[g]={t:0,f:0};gMap[g].t++;if((+c.red_flags||0)>=1)gMap[g].f++;});
+  var arr=Object.keys(gMap).map(function(g){return {g:g,t:gMap[g].t,f:gMap[g].f,rate:gMap[g].t?Math.round(gMap[g].f/gMap[g].t*100):0};});
+  arr.sort(function(a,b){return b.rate-a.rate||b.t-a.t;});
+  var box=document.getElementById('flagrank');
+  if(!arr.length){box.innerHTML='<div class="state">データがありません</div>';return;}
+  box.innerHTML=arr.map(function(x,i){
+    return '<div class="fr-row"><span class="fr-rank'+(i===0?' top':'')+'">'+(i+1)+'</span>'
+      +'<span class="fr-name">'+esc(x.g)+'</span>'
+      +'<span class="fr-bar-wrap"><span class="fr-bar" style="width:'+x.rate+'%"></span></span>'
+      +'<span class="fr-rate">'+x.rate+'%</span>'
+      +'<span class="fr-cnt">'+x.t+'件</span></div>';
+  }).join('');
+}
+
+function renderPrice(){
+  var gMap={};
+  ALL.forEach(function(c){var g=c.genre||'その他';var v=Number(String(c.amount||'').replace(/[^0-9]/g,''));if(v>0){if(!gMap[g])gMap[g]=[];gMap[g].push(v);}});
+  var genres=Object.keys(gMap).filter(function(g){return gMap[g].length>0;});
+  // 件数順
+  genres.sort(function(a,b){return gMap[b].length-gMap[a].length;});
+  var box=document.getElementById('priceGrid');
+  if(!genres.length){box.innerHTML='<div class="state">金額データがありません</div>';return;}
+  // 全体レンジ(各カードのバー位置計算用)
+  var allV=[];Object.keys(gMap).forEach(function(g){allV=allV.concat(gMap[g]);});
+  allV.sort(function(a,b){return a-b;});
+  var gLo=allV[0],gHi=allV[allV.length-1],span=Math.max(1,gHi-gLo);
+  box.innerHTML=genres.map(function(g){
+    var arr=gMap[g].slice().sort(function(a,b){return a-b;});
+    var lo=arr[0],hi=arr[arr.length-1],med=arr[Math.floor(arr.length/2)];
+    var left=(lo-gLo)/span*100,width=Math.max(2,(hi-lo)/span*100),medL=(med-gLo)/span*100;
+    return '<div class="price-card"><div class="pc-genre">'+esc(g)+'</div><div class="pc-cnt">'+arr.length+'件の見積もり</div>'
+      +'<div class="pc-med">'+yen(med)+'</div><div class="pc-med-k">MEDIAN / 中央値</div>'
+      +'<div class="pc-track"><div class="pc-range" style="left:'+left+'%;width:'+width+'%"></div><div class="pc-medmark" style="left:'+medL+'%"></div></div>'
+      +'<div class="pc-ends"><span>'+yen(lo)+'</span><span>'+yen(hi)+'</span></div></div>';
+  }).join('');
+}
+
+var REG_GENRES=['浴室','外壁・屋根','内装・改装','給湯器','トイレ','キッチン','その他'];
+var REG_PREFS=['北海道','宮城県','埼玉県','千葉県','東京都','神奈川県','愛知県','静岡県','大阪府','京都府','兵庫県','広島県','福岡県','その他'];
+var regSel={regions:[],genres:[]};
+function getToken(){try{return localStorage.getItem('ehn_token');}catch(e){return null;}}
+function getUser(){try{var u=localStorage.getItem('ehn_user');return u?JSON.parse(u):null;}catch(e){return null;}}
+function renderRegister(){
+  var box=document.getElementById('regBox');
+  if(!box)return;
+  var tk=getToken();
+  if(!tk){
+    box.innerHTML='<div class="reg-need"><div class="t">事業者登録にはログインが必要です</div><div class="d">見積もり達人(板)でLINEログインしてから、このページに戻ってきてください。ログインは施主・事業者で共通です。あなたが事業者として関心地域・工種を登録すると、旬な案件の通知を受け取れます。</div><a class="btn" href="/hacker/"><i class="ti ti-brand-line"></i>板でログインする</a></div>';
+    return;
+  }
+  var user=getUser();
+  var nm=(user&&user.display_name)?user.display_name:'ログイン済み';
+  fetch(API+'/hacker/contractor-me',{headers:{'Authorization':'Bearer '+tk}}).then(function(r){return r.json();}).then(function(d){
+    var existing=(d&&d.contractor)?d.contractor:null;
+    if(existing){regSel.regions=existing.regions||[];regSel.genres=existing.genres||[];}
+    drawRegForm(box,nm,existing);
+  }).catch(function(){drawRegForm(box,nm,null);});
+}
+function drawRegForm(box,nm,existing){
+  var gChips=REG_GENRES.map(function(g){var on=regSel.genres.indexOf(g)>=0?' on':'';return '<span class="reg-chip'+on+'" onclick="toggleReg(\'genres\',\''+g+'\',this)">'+g+'</span>';}).join('');
+  var rChips=REG_PREFS.map(function(pp){var on=regSel.regions.indexOf(pp)>=0?' on':'';return '<span class="reg-chip'+on+'" onclick="toggleReg(\'regions\',\''+pp+'\',this)">'+pp+'</span>';}).join('');
+  box.innerHTML='<div class="reg-who"><i class="ti ti-user-check"></i><b>'+esc(nm)+'</b> として登録'+(existing?' ・ 登録済み(変更できます)':'')+'</div>'
+    +'<div class="reg-grp"><div class="reg-grp-h">関心のある工種(複数可)</div><div class="reg-chips">'+gChips+'</div></div>'
+    +'<div class="reg-grp"><div class="reg-grp-h">関心のある地域(複数可)</div><div class="reg-chips">'+rChips+'</div></div>'
+    +'<button class="reg-submit" id="regSubmit" onclick="submitReg()">'+(existing?'登録内容を更新する':'この内容で登録する')+'</button>'
+    +'<div class="reg-note">// 現在、通知機能は準備中です。登録いただくと、提供開始時にあなたの関心地域・工種の旬な案件をLINEでお知らせします。登録は無料・いつでも変更/解除できます。施主の個人情報が事業者に渡ることはありません。</div>';
+}
+function toggleReg(kind,val,el){
+  var arr=regSel[kind];var i=arr.indexOf(val);
+  if(i>=0){arr.splice(i,1);el.classList.remove('on');}else{arr.push(val);el.classList.add('on');}
+}
+function submitReg(){
+  var tk=getToken();if(!tk){renderRegister();return;}
+  var btn=document.getElementById('regSubmit');if(btn){btn.disabled=true;btn.textContent='送信中...';}
+  fetch(API+'/hacker/contractor-register',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tk},body:JSON.stringify({regions:regSel.regions,genres:regSel.genres})}).then(function(r){return r.json();}).then(function(d){
+    var box=document.getElementById('regBox');
+    if(d&&d.ok){
+      box.innerHTML='<div class="reg-done"><div class="ic"><i class="ti ti-circle-check"></i></div><div class="t">事業者登録が完了しました</div><div class="d">関心地域・工種を登録しました。通知機能の提供が始まりましたら、旬な案件をLINEでお知らせします。内容はいつでも変更できます。</div></div>';
+    }else{
+      if(btn){btn.disabled=false;btn.textContent='この内容で登録する';}
+      alert((d&&d.error)?d.error:'登録に失敗しました');
+    }
+  }).catch(function(){if(btn){btn.disabled=false;btn.textContent='この内容で登録する';}alert('通信エラーが発生しました');});
+}
+
+load();
+</script>
+</body>
+</html>
