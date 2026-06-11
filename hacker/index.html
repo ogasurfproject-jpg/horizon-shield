@@ -623,6 +623,7 @@ function renderTiles(){
 }
 
 async function openCard(id){
+  ehnTrackView(id);
   const sheet=document.getElementById('sheet'),bg=document.getElementById('modalBg');
   sheet.innerHTML='<div class="sheet-body" style="text-align:center;padding:60px"><span class="mono" style="color:var(--mut)">LOADING...</span></div>';
   bg.classList.add('on');document.body.style.overflow='hidden';
@@ -730,6 +731,24 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
 loadSession();loadCards();
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/hacker/sw.js').catch(function(){});});}
+function ehnTrackView(id){
+  try{
+    if(!id) return;
+    var vid=localStorage.getItem('ehn_vid');
+    if(!vid){vid='v'+Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem('ehn_vid',vid);}
+    var src='other',ref=document.referrer||'',host=location.hostname;
+    if(!ref){src='direct';}
+    else{try{var h=new URL(ref).hostname;
+      if(h.indexOf(host)>=0)src='internal';
+      else if(/google|bing|yahoo|duckduckgo|baidu/.test(h))src='search';
+      else if(/chatgpt|openai|perplexity|gemini|bard|claude|copilot/.test(h))src='ai';
+      else if(/t\.co|twitter|x\.com|facebook|instagram|line|note\.com|hatena|threads|tiktok/.test(h))src='sns';
+      else src='other';
+    }catch(e){}}
+    var qs=new URLSearchParams(location.search);if(qs.get('src'))src=qs.get('src');
+    fetch(API+'/hacker/view',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id,vid:vid,src:src})}).catch(function(){});
+  }catch(e){}
+}
 </script>
 
 </body>
