@@ -160,6 +160,7 @@ const HISTORY_TTL = 60 * 60 * 24 * 30;
 const ALLOWED_ORIGINS = [
   'https://shield.the-horizons-innovation.com',
   'https://hs-kira-proxy.oga-surf-project.workers.dev',
+  'https://yakumo-sim-emi.pages.dev',
 ];
 
 function corsHeaders(origin) {
@@ -1097,6 +1098,34 @@ async function handleHackerMe(request, env, origin) {
   return json({ ok: true, user: { display_name: s.display_name, picture_url: s.picture_url } }, 200, origin);
 }
 
+async function handleContractorRegister(request, env, origin) {
+  const auth = request.headers.get('Authorization') || '';
+  const tk = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!tk) return json({ error: 'login required' }, 401, origin);
+  const sessRaw = await env.ORDERS.get(`hacker_token:${tk}`);
+  if (!sessRaw) return json({ error: 'invalid or expired token' }, 401, origin);
+  const sess = JSON.parse(sessRaw);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: 'invalid json' }, 400, origin); }
+  const regions = Array.isArray(body.regions) ? body.regions.map(r => String(r).slice(0, 10)).slice(0, 47) : [];
+  const genres = Array.isArray(body.genres) ? body.genres.map(g => String(g).slice(0, 20)).slice(0, 20) : [];
+  await env.HS_CONTRACTORS.put('contractor:' + sess.line_user_id, JSON.stringify({
+    line_user_id: sess.line_user_id,
+    display_name: sess.display_name || '',
+    regions, genres, notify: true, registered_at: Date.now(),
+  }));
+  return json({ ok: true, regions, genres }, 200, origin);
+}
+async function handleContractorMe(request, env, origin) {
+  const auth = request.headers.get('Authorization') || '';
+  const tk = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!tk) return json({ error: 'login required' }, 401, origin);
+  const sessRaw = await env.ORDERS.get(`hacker_token:${tk}`);
+  if (!sessRaw) return json({ error: 'invalid or expired token' }, 401, origin);
+  const sess = JSON.parse(sessRaw);
+  const raw = await env.HS_CONTRACTORS.get('contractor:' + sess.line_user_id);
+  return json({ ok: true, contractor: raw ? JSON.parse(raw) : null }, 200, origin);
+}
 async function handleHackerCards(request, env, origin) {
   const idxRaw = await env.ORDERS.get('card_index');
   const ids = idxRaw ? JSON.parse(idxRaw) : [];
@@ -1125,7 +1154,7 @@ async function handleHackerCards(request, env, origin) {
     cards.push({
       id: c.id, genre: c.genre, region: c.region, building: c.building,
       title: c.title, traits: c.traits || [], red_flags: c.red_flags || 0,
-      verdict: c.verdict || '', amount: c.amount || '', initial: c.initial || '',
+      verdict: c.verdict || '', amount: c.amount || '', initial: c.initial || '', phase: c.phase || 'archive',
       comment_count: commentCount, like_count: likeCount, created_at: c.created_at,
     });
   }
@@ -1463,8 +1492,8 @@ async function savePendingCard(cls, poster, env) {
     genre:    cls.genre || 'その他',
     title:    cls.title || '見積もり',
     amount:   (cls.amount != null ? String(cls.amount) : '').replace(/[^0-9]/g, ''),
-    region:   '',
-    building: '',
+    region:   cls.region || '',
+    phase:    cls.phase || 'archive',
     traits:   Array.isArray(cls.traits) ? cls.traits.slice(0, 5) : [],
     red_flags: Number(cls.red_flags) || 0,
     verdict:  cls.verdict || '',
@@ -1552,6 +1581,8 @@ async function handleHackerSubmitCard(request, env, origin) {
     traits: Array.isArray(c.traits) ? c.traits.map(t => String(t).slice(0, 30)).filter(Boolean).slice(0, 5) : [],
     red_flags: Number(c.red_flags) || 0,
     verdict: (c.verdict || '').toString().slice(0, 60),
+    region: (c.region || '').toString().slice(0, 10),
+    phase: (c.phase === 'active' ? 'active' : 'archive'),
   };
   await savePendingCard(cls, { name: sess.display_name || '', email: '', line_id: sess.line_user_id || '' }, env);
   // EHN新規投稿をLINEへ通知(失敗しても投稿成功は壊さない)【診断版】
@@ -1729,6 +1760,7 @@ async function handleHackerPublish(request, env, origin) {
     verdict:  body.verdict  || p.verdict || '',
     amount:   body.amount  != null ? String(body.amount) : (p.amount || ''),
     initial:  body.initial != null ? String(body.initial) : (p.initial || ''),
+    phase:    body.phase || p.phase || 'archive',
     poster_line_id: p.poster_line_id || '',
     poster_name:    p.poster_name || '',
     published: true,
@@ -2306,6 +2338,21 @@ export default {
     if (path === '/hacker/submit-card' && request.method === 'POST') {
       return handleHackerSubmitCard(request, env, origin);
     }
+    if (path === '/hacker/contractor-register' && request.method === 'POST') {
+      return handleContractorRegister(request, env, origin);
+    }
+    if (path === '/hacker/contractor-me' && request.method === 'GET') {
+      return handleContractorMe(request, env, origin);
+    }
+    if (path === '/hacker/view' && request.method === 'POST') {
+      return handleHackerView(request, env, origin);
+    }
+    if (path === '/hacker/my-stats' && request.method === 'GET') {
+      return handleHackerMyStats(request, env, origin);
+    }
+    if (path === '/hacker/biz-feed' && request.method === 'GET') {
+      return handleHackerBizFeed(request, env, origin);
+    }
     if (path === '/hacker/comment-approve' && request.method === 'POST') {
       return handleHackerCommentApprove(request, env, origin);
     }
@@ -2467,6 +2514,77 @@ ${claudeAnswer}
       }
     }
 
+    // ===== /yakumo-estimate（八雲360°採寸→KIRA見積もり / 加盟店向け・2026-06-10追加）=====
+    if (path === '/yakumo-estimate' && request.method === 'POST') {
+      try {
+        const yakumoToken = request.headers.get('X-Yakumo-Token') || '';
+        if (!env.YAKUMO_SHARED_TOKEN || yakumoToken !== env.YAKUMO_SHARED_TOKEN) {
+          return json({ error: 'unauthorized' }, 401, origin);
+        }
+        const body = await request.json();
+        if (!body.messages || !Array.isArray(body.messages)) {
+          return json({ error: 'messages required' }, 400, origin);
+        }
+        if (!body.system) {
+          return json({ error: 'system required' }, 400, origin);
+        }
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': env.ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: body.max_tokens || 2000,
+            system: await enrichSystemPromptWithSoubaData(body.system, body.messages),
+            messages: body.messages,
+          }),
+        });
+        const normalized = normalizeUserInput(body.messages);
+        const auditHash = await generateSHA256Hash(normalized);
+        const cached = auditHash ? await getCachedPlan(env, auditHash) : null;
+        let data;
+        if (false && cached && cached.ai_output) {
+          data = { content: [{ text: cached.ai_output }] };
+        } else {
+          data = await res.json();
+        }
+        if (data?.content?.[0]?.text) {
+          data.content[0].text = await injectMissingCV(data.content[0].text, body.messages);
+          if (auditHash) {
+            data.content[0].text = injectAuditHash(data.content[0].text, auditHash);
+          }
+          if (!cached) {
+            const soubaDB = await fetchSoubaDB();
+            const soubaVersion = soubaDB?._meta?.version || 'unknown';
+            await saveCachedPlan(env, auditHash, normalized, data.content[0].text, soubaVersion, PRICE_COEFF);
+          }
+        }
+        try { await bumpMetric(env, 'yakumo_estimate'); } catch (e) {}
+        try {
+          const userText = body.messages.filter(m => m.role === 'user').map(m => typeof m.content === 'string' ? m.content : '').join(' ');
+          const logKey = `diaglog:${Date.now()}:${Math.random().toString(36).slice(2,8)}`;
+          await env.KIRA_STATS.put(logKey, JSON.stringify({
+            session_id: auditHash ? auditHash.slice(0,12) : null,
+            source: 'yakumo-360',
+            user_input: userText.slice(0, 500),
+            ai_response: data?.content?.[0]?.text?.slice(0, 500) || '',
+            price_coeff: PRICE_COEFF,
+            logged_at: new Date().toISOString(),
+            contract_amount: null,
+            status: 'pending'
+          }), { expirationTtl: 60 * 60 * 24 * 365 });
+        } catch (e) {}
+        return new Response(JSON.stringify(data), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        });
+      } catch (e) {
+        return json({ error: e.message }, 500, origin);
+      }
+    }
     // ===== /gyaku-mitsumori-chat（逆見積もり専用・systemプロンプト直接受渡し）=====
     if (path === '/gyaku-mitsumori-chat' && request.method === 'POST') {
       try {
@@ -3576,3 +3694,93 @@ async function delSub(key,email){
     return json({ error: 'Not found', path }, 404, origin);
   },
 };
+
+// ===================== EHN 閲覧トラッキング基盤 (additive) =====================
+async function _ehnSess(request, env){
+  const auth = request.headers.get('Authorization') || '';
+  const tk = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if(!tk) return null;
+  const raw = await env.ORDERS.get('hacker_token:' + tk);
+  if(!raw) return null;
+  try { return JSON.parse(raw); } catch(e){ return null; }
+}
+
+// POST /hacker/view  body:{id,vid,src}  存在カードのみ計上・24h重複防止
+async function handleHackerView(request, env, origin){
+  try{
+    const b = await request.json().catch(()=>({}));
+    const id = String(b.id||'').trim();
+    const vid = String(b.vid||'').trim().slice(0,64);
+    let src = String(b.src||'other').trim().toLowerCase();
+    const OK = ['search','ai','sns','direct','internal','other'];
+    if(OK.indexOf(src)<0) src='other';
+    if(!id || !vid) return json({ ok:false, reason:'bad_input' }, 400, origin);
+    const card = await env.ORDERS.get('card:'+id);
+    if(!card) return json({ ok:false, reason:'no_card' }, 404, origin);
+    const seenKey = 'view_seen:'+id+':'+vid;
+    if(await env.ORDERS.get(seenKey)) return json({ ok:true, counted:false }, 200, origin);
+    await env.ORDERS.put(seenKey, '1', { expirationTtl:86400 });
+    const vKey = 'card_views:'+id;
+    const cur = parseInt((await env.ORDERS.get(vKey))||'0',10)||0;
+    await env.ORDERS.put(vKey, String(cur+1));
+    const sKey = 'card_src:'+id;
+    let s={}; try{ s=JSON.parse((await env.ORDERS.get(sKey))||'{}'); }catch(e){}
+    s[src]=(s[src]||0)+1;
+    await env.ORDERS.put(sKey, JSON.stringify(s));
+    return json({ ok:true, counted:true }, 200, origin);
+  }catch(e){ return json({ ok:false, reason:'error' }, 500, origin); }
+}
+
+// GET /hacker/my-stats  (Bearer)  本人投稿カード+閲覧数+流入内訳
+async function handleHackerMyStats(request, env, origin){
+  const sess = await _ehnSess(request, env);
+  if(!sess || !sess.line_user_id) return json({ ok:false, reason:'no_auth' }, 401, origin);
+  const me = sess.line_user_id;
+  let ids=[]; try{ ids=JSON.parse((await env.ORDERS.get('card_index'))||'[]'); }catch(e){}
+  const out=[];
+  for(const id of ids){
+    const cRaw = await env.ORDERS.get('card:'+id);
+    if(!cRaw) continue;
+    let c={}; try{ c=JSON.parse(cRaw); }catch(e){ continue; }
+    if((c.poster_line_id||'') !== me) continue;
+    const views = parseInt((await env.ORDERS.get('card_views:'+id))||'0',10)||0;
+    let src={}; try{ src=JSON.parse((await env.ORDERS.get('card_src:'+id))||'{}'); }catch(e){}
+    out.push({
+      id, title:c.title||'', genre:c.genre||'', region:c.region||'',
+      amount:c.amount!=null?c.amount:null, phase:c.phase||'archive',
+      created_at:c.created_at||null, verdict:c.verdict||'',
+      red_flags:c.red_flags||0, views, src, applications:null
+    });
+  }
+  return json({ ok:true, cards:out }, 200, origin);
+}
+
+// GET /hacker/biz-feed  (Bearer)  業者の登録工種×地域に合う旬カード。施主PIIは返さない
+async function handleHackerBizFeed(request, env, origin){
+  const sess = await _ehnSess(request, env);
+  if(!sess || !sess.line_user_id) return json({ ok:false, reason:'no_auth' }, 401, origin);
+  const me = sess.line_user_id;
+  const regRaw = await env.HS_CONTRACTORS.get('contractor:'+me);
+  if(!regRaw) return json({ ok:true, registered:false, cards:[] }, 200, origin);
+  let reg={}; try{ reg=JSON.parse(regRaw); }catch(e){ reg={}; }
+  const genres = Array.isArray(reg.genres)?reg.genres:[];
+  const regions = Array.isArray(reg.regions)?reg.regions:[];
+  const matchG = g => !genres.length || genres.indexOf(g)>=0;
+  const matchR = r => !regions.length || regions.some(x => r && (r===x || r.indexOf(x)>=0 || x.indexOf(r)>=0));
+  let ids=[]; try{ ids=JSON.parse((await env.ORDERS.get('card_index'))||'[]'); }catch(e){}
+  const out=[];
+  for(const id of ids){
+    const cRaw = await env.ORDERS.get('card:'+id);
+    if(!cRaw) continue;
+    let c={}; try{ c=JSON.parse(cRaw); }catch(e){ continue; }
+    if((c.phase||'archive')!=='active') continue;
+    if(!matchG(c.genre||'') || !matchR(c.region||'')) continue;
+    const views = parseInt((await env.ORDERS.get('card_views:'+id))||'0',10)||0;
+    out.push({
+      id, title:c.title||'', genre:c.genre||'', region:c.region||'',
+      amount:c.amount!=null?c.amount:null, red_flags:c.red_flags||0,
+      created_at:c.created_at||null, views
+    });
+  }
+  return json({ ok:true, registered:true, registration:{genres,regions}, cards:out }, 200, origin);
+}
