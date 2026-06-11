@@ -240,6 +240,14 @@ footer{border-top:2px solid var(--rule);background:var(--paper);padding:28px 22p
         </div>
       </div>
 
+
+      <div class="hint-row">
+        <span class="hint-label">この見積もり、今まさに検討中ですか?</span>
+        <select id="phaseSelect" style="font-family:var(--sans);font-size:14px;padding:9px 11px;width:100%;border:1px solid var(--rule);background:var(--paper);color:var(--ink);outline:none">
+          <option value="archive" selected>いいえ / 過去に受け取ったものの共有</option>
+          <option value="active">はい / 今まさに検討中（業者に説明を求められます）</option>
+        </select>
+      </div>
       <div class="hint-row">
         <span class="hint-label">施工地域(任意・単価の判断に使います)</span>
         <select id="regionSelect" style="font-family:var(--sans);font-size:14px;padding:9px 11px;width:100%;border:1px solid var(--rule);background:var(--paper);color:var(--ink);outline:none">
@@ -474,7 +482,7 @@ async function submitCard(){
     const r=await fetch(API+'/hacker/submit-card',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
-      body:JSON.stringify({card:CARD,region:(document.getElementById('regionSelect')||{}).value||'',agreed:true})
+      body:JSON.stringify({card:CARD,region:(document.getElementById('regionSelect')||{}).value||'',phase:(document.getElementById('phaseSelect')||{}).value||'archive',agreed:true})
     });
     const d=await r.json();
     if(d.ok){showStep('stepDone');}

@@ -183,6 +183,17 @@ body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height
 .tile-flags-row.hi{color:var(--alert)} .tile-flags-row.ok{color:var(--ok)}
 .tile-flags-row .flags-n{font-family:var(--mono);font-size:10.5px;font-weight:700;margin-left:4px;letter-spacing:.02em}
 .tile-more{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink);padding:9px 12px;margin-left:auto;display:flex;align-items:center}
+.tile-phase{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--blue);display:flex;align-items:center;gap:4px;margin-left:auto}
+.phase-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0;animation:phasePulse 2s ease-in-out infinite}
+@keyframes phasePulse{0%,100%{opacity:1}50%{opacity:.4}}
+.phasetabs{display:flex;gap:0;border-bottom:2px solid var(--rule);margin:18px 0 4px;max-width:1180px;margin-left:auto;margin-right:auto;padding:0 22px}
+.ptab{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--mut);background:none;border:none;cursor:pointer;padding:11px 16px;display:flex;align-items:center;gap:7px;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.14s}
+.ptab:hover{color:var(--ink)}
+.ptab.on{color:var(--ink);border-bottom-color:var(--ink)}
+.ptab .ptab-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0}
+.ptab.on .ptab-dot{animation:phasePulse 2s ease-in-out infinite}
+.ptab .ptab-n{font-size:10px;color:var(--mut2);font-weight:700}
+.ehn-main .phasetabs{max-width:none;padding:0;margin-top:0}
 
 .state{grid-column:1/-1;padding:80px 22px;text-align:center;color:var(--mut);font-family:var(--mono);font-size:13px}
 .state .big{font-size:15px;color:var(--ink2);margin-bottom:8px;letter-spacing:.04em}
@@ -335,7 +346,7 @@ footer{border-top:2px solid var(--rule);background:var(--paper);padding:30px 22p
 <div class="ehn-layout">
 <aside class="ehn-side" id="ehn-side"></aside>
 <div class="ehn-main">
-<div class="post-cta"><div class="post-cta-in"><div class="post-cta-tx"><b>あなたの見積もりも、ここに載せられます</b><span>// 受け取った見積書をアップするだけ。KIRAが匿名化して解剖します。業者名・個人情報は伏せられます。</span></div><a class="post-cta-btn" href="/hacker/submit/">見積もりを投稿する ▸</a></div></div><div id="wanted"></div><div id="articles"></div><div class="tiles" id="tiles">
+<div class="post-cta"><div class="post-cta-in"><div class="post-cta-tx"><b>あなたの見積もりも、ここに載せられます</b><span>// 受け取った見積書をアップするだけ。KIRAが匿名化して解剖します。業者名・個人情報は伏せられます。</span></div><a class="post-cta-btn" href="/hacker/submit/">見積もりを投稿する ▸</a></div></div><div id="wanted"></div><div id="articles"></div><div class="phasetabs" id="phasetabs"></div><div class="tiles" id="tiles">
   <div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>
 </div>
 
@@ -355,11 +366,11 @@ footer{border-top:2px solid var(--rule);background:var(--paper);padding:30px 22p
 
 <script>
 const API='https://hs-kira-proxy.oga-surf-project.workers.dev';
-let ALL=[],FILTER='ALL',FG='ALL',FR='ALL',FR_CITY='ALL',TOKEN=null,USER=null;
+let ALL=[],FILTER='ALL',FG='ALL',FR='ALL',FR_CITY='ALL',FP='ALL',TOKEN=null,USER=null;
 var CITY2PREF={'札幌市':'北海道','仙台市':'宮城県','さいたま市':'埼玉県','川口市':'埼玉県','千葉市':'千葉県','船橋市':'千葉県','市川市':'千葉県','松戸市':'千葉県','柏市':'千葉県','水戸市':'茨城県','つくば市':'茨城県','宇都宮市':'栃木県','前橋市':'群馬県','高崎市':'群馬県','横浜市':'神奈川県','川崎市':'神奈川県','相模原市':'神奈川県','鎌倉市':'神奈川県','藤沢市':'神奈川県','平塚市':'神奈川県','茅ヶ崎市':'神奈川県','小田原市':'神奈川県','横須賀市':'神奈川県','厚木市':'神奈川県','新宿区':'東京都','渋谷区':'東京都','世田谷区':'東京都','大田区':'東京都','港区':'東京都','八王子市':'東京都','町田市':'東京都','立川市':'東京都','名古屋市':'愛知県','豊田市':'愛知県','岡崎市':'愛知県','一宮市':'愛知県','静岡市':'静岡県','浜松市':'静岡県','新潟市':'新潟県','金沢市':'石川県','京都市':'京都府','大阪市':'大阪府','堺市':'大阪府','東大阪市':'大阪府','豊中市':'大阪府','吹田市':'大阪府','神戸市':'兵庫県','姫路市':'兵庫県','西宮市':'兵庫県','尼崎市':'兵庫県','奈良市':'奈良県','広島市':'広島県','岡山市':'岡山県','高松市':'香川県','福岡市':'福岡県','北九州市':'福岡県','熊本市':'熊本県','鹿児島市':'鹿児島県','那覇市':'沖縄県'};
 function toPref(r){ if(!r) return '未分類'; r=String(r).trim(); if(/[都道府県]$/.test(r)) return r; if(CITY2PREF[r]) return CITY2PREF[r]; var k=Object.keys(CITY2PREF); for(var i=0;i<k.length;i++){ if(r.indexOf(k[i])===0||r.indexOf(k[i])>=0) return CITY2PREF[k[i]]; } return 'その他地域'; }
 function isAllView(){return FG==='ALL'&&FR==='ALL';}
-function matchFilter(c){var gOk=(FG==='ALL'||c.genre===FG);var rOk=(FR==='ALL'||toPref(c.region)===FR);var cOk=(FR_CITY==='ALL'||c.region===FR_CITY);return gOk&&rOk&&cOk;}
+function matchFilter(c){var gOk=(FG==='ALL'||c.genre===FG);var rOk=(FR==='ALL'||toPref(c.region)===FR);var cOk=(FR_CITY==='ALL'||c.region===FR_CITY);var pOk=(FP==='ALL'||(FP==='active'?c.phase==='active':c.phase!=='active'));return gOk&&rOk&&cOk&&pOk;}
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function pad(n){return String(n).padStart(3,'0');}
 function yen(a){if(a===''||a==null)return '';const n=Number(String(a).replace(/[^0-9]/g,''));if(!n)return '';return '\u00a5'+n.toLocaleString('ja-JP');}
@@ -451,6 +462,20 @@ function renderSide(){
 function setFilterGenre(g){FG=g;renderSide();renderTiles();}
 function setFilterRegion(r){ if(FR===r&&r!=='ALL'){FR='ALL';FR_CITY='ALL';} else {FR=r;FR_CITY='ALL';} renderSide();renderTiles();}
 function setFilterCity(city){ FR_CITY=(FR_CITY===city)?'ALL':city; renderSide();renderTiles();}
+function setFilterPhase(p){FP=(FP===p&&p!=='ALL')?'ALL':p;renderPhaseTabs();renderTiles();}
+function renderPhaseTabs(){
+  var box=document.getElementById('phasetabs');
+  if(!box)return;
+  if(!isAllView()){box.innerHTML='';return;}
+  var nAll=ALL.length;
+  var nAct=ALL.filter(function(c){return c.phase==='active';}).length;
+  var nArc=nAll-nAct;
+  function tab(key,label,n,dot){
+    var on=(FP===key)?' on':'';
+    return '<button class="ptab'+on+'" onclick="setFilterPhase(\''+key+'\')">'+(dot?'<span class="ptab-dot"></span>':'')+label+'<span class="ptab-n">'+n+'</span></button>';
+  }
+  box.innerHTML=tab('ALL','すべて',nAll,false)+tab('active','検討中',nAct,true)+tab('archive','過去の記録',nArc,false);
+}
 
 
 function kansuji(n){var m={0:'\u96f6',1:'\u58f1',2:'\u5f10',3:'\u53c2',4:'\u56db',5:'\u4e94',6:'\u516d',7:'\u4e03',8:'\u516b',9:'\u4e5d',10:'\u62fe'};return m[n]!==undefined?m[n]:String(n);}
@@ -491,6 +516,7 @@ function renderWanted(){
     +'</div>';
 }
 function renderTiles(){
+  renderPhaseTabs();
   renderWanted();
   renderArticles();
   let list=ALL.filter(matchFilter);
@@ -514,6 +540,7 @@ function renderTiles(){
           <span class="tile-name">${c.initial?esc(c.initial)+'さん':'施主'}</span>
           <span class="tile-sub">${sub||'地域非公開'}</span>
         </div>
+        ${c.phase==='active'?`<span class="tile-phase"><span class="phase-dot"></span>検討中</span>`:''}
         ${ago?`<span class="tile-ago">${ago}</span>`:''}
       </div>
       <div class="tile-head">
