@@ -307,6 +307,15 @@ export default {
           headers: { "Content-Type": "text/plain; charset=utf-8", ...CORS }
         });
       }
+      if (url.pathname === "/.well-known/glama.json") {
+        return new Response(JSON.stringify({
+          "$schema": "https://glama.ai/mcp/schemas/connector.json",
+          "maintainers": [{ "email": "ogasurfproject@gmail.com" }]
+        }), {
+          status: 200,
+          headers: { "Content-Type": "application/json; charset=utf-8", ...CORS }
+        });
+      }
     }
 
     if (request.method === "GET") {
