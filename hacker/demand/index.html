@@ -64,7 +64,17 @@ a{color:inherit}
 .sec-note{font-size:12px;color:var(--mut);margin:-8px 0 16px;line-height:1.7}
 
 /* live cards */
-.live-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.live-wrap{position:relative}
+.live-grid{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding-bottom:6px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.live-grid::-webkit-scrollbar{height:6px}
+.live-grid::-webkit-scrollbar-thumb{background:var(--rule-soft);border-radius:3px}
+.live-grid>.live-card{flex:0 0 300px;scroll-snap-align:start}
+.live-nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:2px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;z-index:5;transition:.14s;box-shadow:2px 2px 0 rgba(26,28,26,.12)}
+.live-nav:hover{background:var(--ink);color:var(--paper)}
+.live-nav.prev{left:-8px}
+.live-nav.next{right:-8px}
+.live-nav.hide{display:none}
+@media(max-width:760px){.live-nav{display:none}}
 .live-card{border:2px solid var(--blue);background:var(--field);display:flex;flex-direction:column;position:relative;overflow:hidden}
 .live-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--blue)}
 .lc-top{display:flex;align-items:center;gap:9px;padding:13px 15px 0}
@@ -304,7 +314,7 @@ function renderLive(){
     box.innerHTML='<div class="live-empty"><div class="ic"><i class="ti ti-radar-2"></i></div><div class="ttl">いま検討中の案件は、まだありません</div><div class="dsc">施主が「今まさに検討中」として投稿すると、ここに表示されます。説明・対案で応えられる旬な案件が集まる場所です。まずは下の需要マップで、不安が集中している工種・地域をご確認ください。</div></div>';
     return;
   }
-  box.innerHTML='<div class="live-grid">'+live.map(function(c){
+  box.innerHTML='<div class="live-wrap"><button class="live-nav prev hide" onclick="slideLive(-1)"><i class="ti ti-chevron-left"></i></button><div class="live-grid" id="liveGrid" onscroll="updateLiveNav()">'+live.map(function(c){
     var f=+c.red_flags||0;
     var flags=f>=1?(Array(Math.min(f,5)+1).join('<i class="ti ti-flag"></i>'))+'<span class="n">'+f+'つの懸念点</span>':'';
     var meta=[c.region?'<span class="reg">'+esc(c.region)+'</span>':'',c.building?esc(c.building):''].filter(Boolean).join('');
@@ -317,8 +327,11 @@ function renderLive(){
       +'</div>'
       +'<div class="lc-cta"><span class="lab">この見積もりに説明を申し出る</span><span class="soon">近日公開</span></div>'
       +'</div>';
-  }).join('')+'</div>';
+  }).join('')+'</div><button class="live-nav next" onclick="slideLive(1)"><i class="ti ti-chevron-right"></i></button></div>';
+  setTimeout(updateLiveNav,50);
 }
+function slideLive(dir){var g=document.getElementById('liveGrid');if(!g)return;g.scrollBy({left:dir*320,behavior:'smooth'});setTimeout(updateLiveNav,300);}
+function updateLiveNav(){var g=document.getElementById('liveGrid');if(!g)return;var prev=g.parentNode.querySelector('.live-nav.prev'),next=g.parentNode.querySelector('.live-nav.next');var max=g.scrollWidth-g.clientWidth;if(prev)prev.classList.toggle('hide',g.scrollLeft<=4);if(next)next.classList.toggle('hide',g.scrollLeft>=max-4);}
 
 function renderHeat(){
   var genres=Array.from(new Set(ALL.map(function(c){return c.genre||'その他';}))).slice(0,8);
