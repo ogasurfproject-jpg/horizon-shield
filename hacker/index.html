@@ -166,8 +166,23 @@ body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height
 .tile-flag{font-family:var(--mono);font-size:11px;font-weight:700;padding:9px 12px;flex:1;display:flex;align-items:center;gap:6px}
 .tile-flag.hi{color:var(--alert)}
 .tile-flag.ok{color:var(--ok)}
-.tile-flag.ok{background:var(--ok-bg);color:var(--ok);box-shadow:inset 4px 0 0 var(--ok)}
 .tile-cmt{font-family:var(--mono);font-size:11px;color:var(--mut);padding:9px 10px;border-left:1px solid var(--rule);display:flex;align-items:center;gap:5px} .tile-cmt svg{stroke:currentColor} .tile-stat{font-family:var(--mono);font-size:11px;color:var(--mut);padding:9px 10px;border-left:1px solid var(--rule);display:flex;align-items:center;gap:5px} .tile-stat svg{stroke:currentColor}
+.tile-top{display:flex;align-items:center;gap:10px;padding:13px 16px 0}
+.tile-av{width:36px;height:36px;flex-shrink:0;background:var(--blue);color:var(--paper);font-family:var(--mono);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;letter-spacing:.02em}
+.tile-id{display:flex;flex-direction:column;flex:1;min-width:0}
+.tile-name{font-size:13px;font-weight:700;color:var(--ink);line-height:1.3}
+.tile-sub{font-family:var(--mono);font-size:10.5px;color:var(--mut);line-height:1.4}
+.tile-sub .reg{color:var(--blue)}
+.tile-ago{font-family:var(--mono);font-size:10px;color:var(--mut2);align-self:flex-start;white-space:nowrap}
+.tile-rank{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.04em;padding:8px 12px;border-left:1px solid var(--rule-soft);display:flex;align-items:center;gap:5px}
+.rank-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.tile-rank.ok{color:var(--ok)} .tile-rank.ok .rank-dot{background:var(--ok)}
+.tile-rank.warn{color:#8a6a2a} .tile-rank.warn .rank-dot{background:#b89a6a}
+.tile-rank.alert{color:var(--alert)} .tile-rank.alert .rank-dot{background:var(--alert)}
+.tile-flags-row{display:flex;align-items:center;gap:4px;font-size:13px;margin-bottom:10px}
+.tile-flags-row.hi{color:var(--alert)} .tile-flags-row.ok{color:var(--ok)}
+.tile-flags-row .flags-n{font-family:var(--mono);font-size:10.5px;font-weight:700;margin-left:4px;letter-spacing:.02em}
+.tile-more{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink);padding:9px 12px;margin-left:auto;display:flex;align-items:center}
 
 .state{grid-column:1/-1;padding:80px 22px;text-align:center;color:var(--mut);font-family:var(--mono);font-size:13px}
 .state .big{font-size:15px;color:var(--ink2);margin-bottom:8px;letter-spacing:.04em}
@@ -348,6 +363,9 @@ function matchFilter(c){var gOk=(FG==='ALL'||c.genre===FG);var rOk=(FR==='ALL'||
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function pad(n){return String(n).padStart(3,'0');}
 function yen(a){if(a===''||a==null)return '';const n=Number(String(a).replace(/[^0-9]/g,''));if(!n)return '';return '\u00a5'+n.toLocaleString('ja-JP');}
+function timeAgo(ts){if(!ts)return '';var n=Number(ts);if(!n)return '';if(n<1e12)n*=1000;var d=Date.now()-n;if(d<0)d=0;var min=Math.floor(d/60000),hr=Math.floor(d/3600000),day=Math.floor(d/86400000);if(min<1)return 'たった今';if(min<60)return min+'分前';if(hr<24)return hr+'時間前';if(day<7)return day+'日前';var dt=new Date(n);return (dt.getMonth()+1)+'月'+dt.getDate()+'日';}
+function kiraRank(rf){rf=Number(rf)||0;if(rf>=3)return {label:'要注意',cls:'alert'};if(rf>=1)return {label:'要確認',cls:'warn'};return {label:'妥当',cls:'ok'};}
+function avatarOf(init){var s=(init||'').toString().trim();if(!s)return '?';return esc(s.slice(0,2).toUpperCase());}
 function ago(t){if(!t)return '';const d=Date.now()-Number(t);const m=Math.floor(d/60000);if(m<1)return 'たった今';if(m<60)return m+'分前';const h=Math.floor(m/60);if(h<24)return h+'時間前';const dy=Math.floor(h/24);if(dy<7)return dy+'日前';return Math.floor(dy/7)+'週間前';}
 const KAI_URL='https://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ?utm_source=invitation&utm_medium=link_copy&utm_campaign=default';
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2800);}
@@ -505,25 +523,37 @@ function renderTiles(){
   if(!list.length){box.innerHTML='<div class="state"><div class="big">該当する見積もりがありません</div>最初の一件をお待ちください</div>';return;}
   box.innerHTML=list.map((c,i)=>{
     const hi=(c.red_flags||0)>=1;
-    const who=[c.initial?esc(c.initial)+'さん':'',c.region?`<span class="reg">${esc(c.region)}</span>`:''].filter(Boolean).join(' <span class="sep">/</span> ')||'<span style="color:var(--mut2)">施主情報なし</span>';
+    const rank=kiraRank(c.red_flags);
+    const av=avatarOf(c.initial);
+    const ago=timeAgo(c.created_at);
+    const sub=[c.region?`<span class="reg">${esc(c.region)}</span>`:'',c.building?esc(c.building):''].filter(Boolean).join(' · ');
     const amt=yen(c.amount)
       ? `<div class="amt-box"><span class="amt-k">RECEIVED / 受領見積額</span><span class="amt-v">${yen(c.amount)}</span></div>`
       : `<div class="amt-none">AMOUNT / 金額 / 非公開</div>`;
-    const traits=(c.traits||[]).slice(0,3).map(t=>`<div class="tile-trait">${esc(t)}</div>`).join('');
+    const traits=(c.traits||[]).slice(0,2).map(t=>`<div class="tile-trait">${esc(t)}</div>`).join('');
     return `<a class="tile" href="#" onclick="openCard('${esc(c.id)}');return false;">
+      <div class="tile-top">
+        <span class="tile-av">${av}</span>
+        <div class="tile-id">
+          <span class="tile-name">${c.initial?esc(c.initial)+'さん':'施主'}</span>
+          <span class="tile-sub">${sub||'地域非公開'}</span>
+        </div>
+        ${ago?`<span class="tile-ago">${ago}</span>`:''}
+      </div>
       <div class="tile-head">
         <span class="tile-genre">${esc(c.genre||'OTHER')}</span>
-        <span class="tile-no">${pad(i+1)}</span>
+        <span class="tile-rank ${rank.cls}"><span class="rank-dot"></span>KIRA ${rank.label}</span>
       </div>
       <div class="tile-body">
         <div class="tile-title">${esc(c.title||'見積もり')}</div>
-        <div class="tile-who">${who}</div>
         ${amt}
+        <div class="tile-flags-row ${hi?'hi':'ok'}">${hi?'<i class="ti ti-flag"></i>'.repeat(Math.min(c.red_flags||0,5))+`<span class="flags-n">${c.red_flags}つの懸念点</span>`:'<i class="ti ti-flag"></i><span class="flags-n">懸念点なし</span>'}</div>
         <div class="tile-traits">${traits}</div>
       </div>
-        <span class="tile-flag ${hi?'hi':'ok'}">${(c.red_flags||0)>=1?'<i class="ti ti-flag"></i>'.repeat(Math.min(c.red_flags||0,5)):'<i class="ti ti-flag"></i>'}</span>
-        <span class="tile-stat"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>${c.like_count||0}</span>
-        <span class="tile-cmt"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>${pad(c.comment_count||0)}</span>
+      <div class="tile-foot">
+        <span class="tile-stat"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>${c.like_count||0}</span>
+        <span class="tile-cmt"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>${c.comment_count||0}</span>
+        <span class="tile-more">解析を読む →</span>
       </div>
     </a>`;
   }).join('');
