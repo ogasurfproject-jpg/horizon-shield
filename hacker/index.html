@@ -373,6 +373,7 @@ footer{border-top:2px solid var(--rule);background:var(--paper);padding:30px 22p
 .ehn-main .tiles,.ehn-main .post-cta{max-width:none;margin:0;padding:0}
 .ehn-main .post-cta{margin-bottom:22px}
 .ehn-main .tiles{padding:0;margin-top:22px}
+.tiles.live-mode{display:block;max-width:none;padding:0}
 @media(max-width:760px){.ehn-layout{grid-template-columns:1fr;gap:14px;padding:0 14px}.ehn-side{position:static;flex-direction:row;overflow-x:auto;gap:10px;padding-top:14px}.ehn-side-grp{min-width:200px}}
 </style>
 </head>
@@ -617,6 +618,7 @@ function renderWanted(){
 var LIVE_MAX=20;
 function renderLiveCarousel(list){
   var box=document.getElementById('tiles');
+  box.classList.add('live-mode');
   var oldP=document.getElementById('pager'); if(oldP) oldP.remove();
   var sorted=list.slice().sort(function(a,b){return (b.created_at||0)-(a.created_at||0);});
   var show=sorted.slice(0,LIVE_MAX);
@@ -662,6 +664,7 @@ function renderTiles(){
   const box=document.getElementById('tiles');
   if(!list.length){box.innerHTML='<div class="state"><div class="big">該当する見積もりがありません</div>最初の一件をお待ちください</div>';return;}
   if(FP==='active'){ renderLiveCarousel(list); return; }
+  box.classList.remove('live-mode');
   var pageList=(FP==='active')?list:list.slice((PAGE-1)*PERPAGE, (PAGE-1)*PERPAGE+PERPAGE);
   box.innerHTML=pageList.map((c,i)=>{
     const hi=(c.red_flags||0)>=1;
