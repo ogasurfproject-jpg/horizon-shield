@@ -211,11 +211,10 @@ body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height
 .live-more-card{flex:0 0 200px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:1px dashed var(--rule-soft);background:none;text-decoration:none;color:var(--mut)}
 .live-more-card .lm-n{font-family:var(--mono);font-size:30px;font-weight:700;color:var(--ink)}
 .live-more-card .lm-t{font-family:var(--mono);font-size:11px;letter-spacing:.04em}
-.live-nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;z-index:5;transition:.14s}
+.live-navbar{display:flex;justify-content:flex-end;gap:8px;margin-bottom:4px}
+.live-nav{width:34px;height:34px;border-radius:50%;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:.14s;flex:none}
 .live-nav:hover{background:var(--ink);color:var(--paper)}
-.live-nav.prev{left:6px}
-.live-nav.next{right:6px}
-.live-nav.hide{opacity:0;pointer-events:none}
+.live-nav.hide{display:none}
 @media(max-width:640px){.live-card{flex:0 0 85vw}.live-nav{display:none}.live-wrap{padding:0 12px}}
 .pager{display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;max-width:1180px;margin:28px auto 8px;padding:0 22px}
 .pager .pg-btn,.pager .pg-num{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--mut);background:none;border:1px solid var(--rule-soft);cursor:pointer;padding:7px 12px;min-width:36px;transition:.14s;border-radius:1px}
@@ -644,14 +643,13 @@ function renderLiveCarousel(list){
     ? '<a class="live-more-card" href="#" onclick="setFilterPhase(\'archive\');return false;"><span class="lm-n">+'+rest+'</span><span class="lm-t">\u4ed6\u306e\u691c\u8a0e\u4e2d\u6848\u4ef6</span></a>'
     : '';
   box.innerHTML='<div class="live-wrap">'
-    +'<button class="live-nav prev hide" onclick="slideLive(-1)">\u2039</button>'
+    +'<div class="live-navbar"><button class="live-nav prev hide" onclick="slideLive(-1)">\u2039</button><button class="live-nav next" onclick="slideLive(1)">\u203a</button></div>'
     +'<div class="live-grid" id="liveGrid" onscroll="updateLiveNav()">'+cards+moreCard+'</div>'
-    +'<button class="live-nav next" onclick="slideLive(1)">\u203a</button>'
     +'</div>';
   setTimeout(updateLiveNav,50);
 }
 function slideLive(dir){var g=document.getElementById('liveGrid');if(!g)return;g.scrollBy({left:dir*440,behavior:'smooth'});setTimeout(updateLiveNav,300);}
-function updateLiveNav(){var g=document.getElementById('liveGrid');if(!g)return;var prev=g.parentNode.querySelector('.live-nav.prev'),next=g.parentNode.querySelector('.live-nav.next');var max=g.scrollWidth-g.clientWidth;if(prev)prev.classList.toggle('hide',g.scrollLeft<=4);if(next)next.classList.toggle('hide',g.scrollLeft>=max-4);}
+function updateLiveNav(){var g=document.getElementById('liveGrid');if(!g)return;var prev=g.parentNode.querySelector('.live-nav.prev'),next=g.parentNode.querySelector('.live-nav.next');var max=g.scrollWidth-g.clientWidth;var noScroll=(max<=4);if(prev)prev.classList.toggle('hide',noScroll||g.scrollLeft<=4);if(next)next.classList.toggle('hide',noScroll||g.scrollLeft>=max-4);}
 
 function renderTiles(){
   renderPhaseTabs();
