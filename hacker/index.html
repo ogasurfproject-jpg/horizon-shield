@@ -288,6 +288,28 @@ footer{border-top:2px solid var(--rule);background:var(--paper);padding:30px 22p
 .ehn-layout{max-width:1180px;margin:0 auto;padding:0 22px;display:grid;grid-template-columns:240px 1fr;gap:22px;align-items:start}
 .ehn-side{position:sticky;top:70px;display:flex;flex-direction:column;gap:18px;padding-top:22px}
 .ehn-side-grp{margin-bottom:26px}
+.ehn-demand{background:linear-gradient(180deg,var(--field),transparent);border:1px solid var(--rule);padding:14px 14px 4px;margin-bottom:26px}
+.dm-hero{display:flex;align-items:center;justify-content:space-between;padding:4px 0 10px;border-bottom:1px solid var(--rule-soft)}
+.dm-hero-k{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--blue);display:flex;align-items:center;gap:6px}
+.dm-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);animation:phasePulse 2s ease-in-out infinite}
+.dm-hero-v{font-family:var(--mono);font-size:26px;font-weight:800;color:var(--ink);line-height:1}
+.dm-hero-v span{font-size:11px;font-weight:500;color:var(--mut);margin-left:3px}
+.dm-sub{font-family:var(--mono);font-size:10px;color:var(--mut);padding:8px 0;line-height:1.6;border-bottom:1px solid var(--rule-soft)}
+.dm-sub b{color:var(--blue)}
+.dm-block{padding:10px 0;border-bottom:1px solid var(--rule-soft)}
+.dm-bh{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--mut2);margin-bottom:7px}
+.dm-row{display:flex;align-items:center;gap:7px;padding:3px 0;font-size:12px}
+.dm-rank{font-family:var(--mono);font-size:10px;font-weight:800;color:var(--mut2);width:12px}
+.dm-g{font-weight:700;color:var(--ink)}
+.dm-rate{font-family:var(--mono);font-size:10px;color:var(--alert);margin-left:auto}
+.dm-cnt{font-family:var(--mono);font-size:10px;color:var(--mut);min-width:28px;text-align:right}
+.dm-price{display:flex;flex-direction:column;gap:2px}
+.dm-med{font-family:var(--mono);font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-.01em}
+.dm-range{font-family:var(--mono);font-size:10px;color:var(--mut)}
+.dm-trend{display:flex;align-items:center;justify-content:space-between;border-bottom:none}
+.dm-th{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--mut2)}
+.dm-tv{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ok)}
+.dm-diff{font-size:9px;color:var(--mut2);font-weight:500;margin-left:4px}
 .ehn-side-h{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--mut);margin-bottom:12px}
 .ehn-side-li{position:relative;padding:7px 10px 8px 12px;border-left:2px solid transparent;cursor:pointer;transition:background .12s}
 .ehn-side-li:hover{background:var(--field)}
@@ -457,7 +479,45 @@ function renderSide(){
   }
   var gHtml='<div class="ehn-side-grp"><div class="ehn-side-h">\u7f6a\u72b6\u5225 / GENRE</div>'+liG('ALL','\u3059\u3079\u3066',true)+genres.map(function(g){return liG(g,g,false);}).join('')+'</div>';
   var rHtml='<div class="ehn-side-grp"><div class="ehn-side-h">\u51fa\u6ca1\u5730\u57df\u5225 / REGION</div>'+liR('ALL','\u3059\u3079\u3066',true)+regions.map(function(r){return liR(r,r,false);}).join('')+'</div>';
-  side.innerHTML=live+gHtml+rHtml;
+  side.innerHTML=live+buildDemand()+gHtml+rHtml;
+}
+function buildDemand(){
+  var n=ALL.length||0;
+  var act=ALL.filter(function(c){return c.phase==='active';});
+  var nAct=act.length;
+  // 工種別 赤旗率TOP3（赤旗1以上の割合）
+  var gMap={};
+  ALL.forEach(function(c){var g=c.genre||'その他';if(!gMap[g])gMap[g]={t:0,f:0};gMap[g].t++;if((+c.red_flags||0)>=1)gMap[g].f++;});
+  var gArr=Object.keys(gMap).map(function(g){return {g:g,t:gMap[g].t,rate:gMap[g].t?Math.round(gMap[g].f/gMap[g].t*100):0};});
+  gArr.sort(function(a,b){return b.rate-a.rate||b.t-a.t;});
+  var top3=gArr.slice(0,3);
+  // 価格分布（受領見積額の中央値・最小・最大）
+  var amts=ALL.map(function(c){return Number(String(c.amount||'').replace(/[^0-9]/g,''));}).filter(function(x){return x>0;}).sort(function(a,b){return a-b;});
+  var med=0,lo=0,hi=0;
+  if(amts.length){lo=amts[0];hi=amts[amts.length-1];med=amts[Math.floor(amts.length/2)];}
+  function yenS(v){return v?('\u00a5'+v.toLocaleString('ja-JP')):'\u2014';}
+  // 直近7日トレンド
+  var now=Date.now(),wk=7*86400*1000;
+  var d7=ALL.filter(function(c){var t=Number(c.created_at)||0;if(t<1e12)t*=1000;return now-t<=wk;}).length;
+  var d7prev=ALL.filter(function(c){var t=Number(c.created_at)||0;if(t<1e12)t*=1000;var d=now-t;return d>wk&&d<=2*wk;}).length;
+  var diff=d7-d7prev;
+  var arrow=diff>0?'\u2191':(diff<0?'\u2193':'\u2192');
+  var diffTx=diff>0?('+'+diff):(diff<0?String(diff):'\u00b10');
+  // 組み立て
+  var h='<div class="ehn-side-grp ehn-demand"><div class="ehn-side-h">DEMAND / \u4eca\u9031\u306e\u9700\u8981</div>';
+  h+='<div class="dm-hero"><div class="dm-hero-k"><span class="dm-dot"></span>\u691c\u8a0e\u4e2d\uff08\u65ec\uff09</div><div class="dm-hero-v">'+nAct+'<span>\u4ef6</span></div></div>';
+  h+='<div class="dm-sub">\u3046\u3061\u672a\u5fdc\u7b54 <b>'+nAct+'</b> \u4ef6 \u00b7 \u696d\u8005\u304c\u8aac\u660e\u3067\u5fdc\u52df\u3067\u304d\u308b\u6848\u4ef6</div>';
+  if(top3.length){
+    h+='<div class="dm-block"><div class="dm-bh">\u4e0d\u5b89\u304c\u96c6\u4e2d\u3059\u308b\u5de5\u7a2e</div>';
+    top3.forEach(function(x,i){
+      h+='<div class="dm-row"><span class="dm-rank">'+(i+1)+'</span><span class="dm-g">'+esc(x.g)+'</span><span class="dm-rate">\u8d64\u65d7\u7387 '+x.rate+'%</span><span class="dm-cnt">'+x.t+'\u4ef6</span></div>';
+    });
+    h+='</div>';
+  }
+  h+='<div class="dm-block"><div class="dm-bh">\u53d7\u9818\u898b\u7a4d\u984d\u306e\u5206\u5e03</div><div class="dm-price"><span class="dm-med">'+yenS(med)+'</span><span class="dm-range">'+yenS(lo)+' \u301c '+yenS(hi)+'</span></div></div>';
+  h+='<div class="dm-block dm-trend"><span class="dm-th">\u76f4\u8fd17\u65e5\u306e\u6295\u7a3f</span><span class="dm-tv">'+arrow+' '+d7+'\u4ef6<span class="dm-diff">\uff08\u524d\u9031'+diffTx+'\uff09</span></span></div>';
+  h+='</div>';
+  return h;
 }
 function setFilterGenre(g){FG=g;renderSide();renderTiles();}
 function setFilterRegion(r){ if(FR===r&&r!=='ALL'){FR='ALL';FR_CITY='ALL';} else {FR=r;FR_CITY='ALL';} renderSide();renderTiles();}
