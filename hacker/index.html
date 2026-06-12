@@ -427,6 +427,27 @@ footer{border-top:1px solid var(--line);background:transparent;padding:30px 22px
   .tiles{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
   .tile-title{font-size:15px}
 }
+
+/* ===== 御指名手配 / ダーク・ネオン額装 (Step4) ===== */
+.wanted{position:relative;max-width:420px;margin:6px auto 18px;border-radius:var(--r);padding:24px 22px;color:#fff;overflow:hidden;box-shadow:var(--sh-3),0 0 0 1px rgba(229,72,77,.25);background:linear-gradient(165deg,#241126,#451B3A 55%,#6A2150)}
+.wanted::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(300px 150px at 88% -10%,rgba(229,72,77,.45),transparent 60%),radial-gradient(280px 140px at 6% 110%,rgba(155,107,255,.4),transparent 60%)}
+.wanted::after{content:"";position:absolute;inset:6px;border:1px solid rgba(255,255,255,.14);border-radius:13px;pointer-events:none}
+.wanted>*{position:relative;z-index:1}
+.wanted-eyebrow{text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:#FF9DA0;margin-bottom:8px}
+.wanted-title{text-align:center;font-size:30px;font-weight:800;letter-spacing:.14em;line-height:1.15;background:linear-gradient(100deg,#FFB3B6,#C9A8FF 70%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.wanted-sub{text-align:center;font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;color:#C9A8D6;margin-top:4px;margin-bottom:16px}
+.wanted-seal{position:absolute;top:16px;right:14px;width:54px;height:54px;border-radius:50%;border:1.5px solid rgba(255,157,160,.7);display:grid;place-items:center;transform:rotate(-12deg);color:#FF9DA0;font-family:var(--mono);font-size:9px;font-weight:700;text-align:center;line-height:1.25;background:rgba(229,72,77,.08);z-index:2}
+.wanted-row,.wanted-amt{display:flex;flex-direction:column;align-items:center;gap:4px;padding:11px 0;border-top:1px solid rgba(255,255,255,.12)}
+.wanted-k{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:#C9A8D6}
+.wanted-genre{font-size:18px;font-weight:700;color:#fff}
+.wanted-amt-v{font-family:var(--mono);font-size:28px;font-weight:800;letter-spacing:.02em;background:linear-gradient(100deg,#FF9DA0,#FFC4A0);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.wanted-flags{display:flex;align-items:center;justify-content:center;gap:6px;margin:14px auto 0;width:max-content;font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:rgba(229,72,77,.22);border:1px solid rgba(229,72,77,.45);padding:5px 16px;border-radius:var(--r-pill)}
+.wanted-flags i{font-size:13px}
+.wanted-verdict{margin:14px 0 0;padding:11px 13px;border:1px dashed rgba(255,255,255,.2);border-radius:var(--r-sm);text-align:center;background:rgba(255,255,255,.04)}
+.wanted-verdict p{font-size:13px;line-height:1.6;color:#EADFF0;margin-top:4px}
+.wanted-note{text-align:center;font-family:var(--mono);font-size:9.5px;line-height:1.6;color:#B79ACB;margin:14px 0 12px;padding-top:10px;border-top:1px dotted rgba(255,255,255,.16)}
+.wanted-link{display:block;text-align:center;font-family:var(--mono);font-size:13px;font-weight:700;color:#FFB3B6}
+.wanted-link:hover{color:#fff}
 </style>
 </head>
 <body>
@@ -648,23 +669,17 @@ function renderWanted(){
   var verdict=esc((c.verdict||'').toString().slice(0,80));
   var genre=esc(c.genre||'\u305d\u306e\u4ed6');
   box.innerHTML=''
-    +'<div style="background:#f4ecd8;border:3px double #6b4a2b;border-radius:2px;padding:1.4rem 1.2rem;max-width:420px;margin:1.2rem auto;position:relative;font-family:serif;">'
-    +'<div style="text-align:center;color:#7a2518;font-weight:700;font-size:12px;letter-spacing:.3em;border-bottom:1px solid #b89a6a;padding-bottom:7px;margin-bottom:9px;">\u904e\u5270\u8acb\u6c42</div>'
-    +'<div style="text-align:center;color:#2a1d12;font-size:28px;font-weight:700;letter-spacing:.15em;line-height:1.2;">\u5fa1\u6307\u540d\u624b\u914d</div>'
-    +'<div style="text-align:center;color:#7a6a4a;font-size:10px;letter-spacing:.2em;margin-top:3px;">THIS WEEK / WANTED</div>'
-    +'<div style="border-top:1px solid #b89a6a;border-bottom:1px solid #b89a6a;margin:13px 0;padding:11px 0;text-align:center;">'
-      +'<div style="color:#7a6a4a;font-size:10px;letter-spacing:.15em;">\u7f6a\u72b6\u30ce\u5206\u91ce</div>'
-      +'<div style="color:#2a1d12;font-size:18px;font-weight:700;margin-top:2px;">'+genre+'</div>'
-    +'</div>'
-    +'<div style="text-align:center;margin:11px 0;">'
-      +'<div style="color:#7a6a4a;font-size:10px;letter-spacing:.15em;">\u7533\u30b7\u53d7\u30b1\u5019\u984d</div>'
-      +'<div style="color:#7a2518;font-size:25px;font-weight:700;letter-spacing:.05em;">'+amt+'</div>'
-    +'</div>'
-    +'<div style="text-align:center;margin:11px 0;"><span style="background:#7a2518;color:#f4ecd8;font-size:12px;padding:4px 14px;border-radius:2px;letter-spacing:.1em;">\u5bb9\u7591 '+kansuji(flags)+'\u4ef6</span></div>'
-    +(verdict?'<div style="background:rgba(122,37,24,.06);border:1px dashed #b89a6a;padding:9px 11px;margin:11px 0;text-align:center;"><div style="color:#7a6a4a;font-size:10px;letter-spacing:.1em;margin-bottom:3px;">\u304a\u9054\u3057</div><div style="color:#2a1d12;font-size:13px;line-height:1.6;">'+verdict+'</div></div>':'')
-    +'<div style="position:absolute;top:14px;right:12px;width:54px;height:54px;border:2px solid #a33;border-radius:50%;display:flex;align-items:center;justify-content:center;transform:rotate(-12deg);color:#a33;font-size:10px;font-weight:700;text-align:center;line-height:1.2;opacity:.85;">KIRA<br>\u691c\u4e4b</div>'
-    +'<div style="text-align:center;color:#7a6a4a;font-size:10px;line-height:1.5;margin:10px 0 6px;border-top:1px dotted #b89a6a;padding-top:8px;">\u3053\u306e\u898b\u7a4d\u3082\u308a\u3092\u533f\u540d\u3067\u6652\u3057\u3001\u6b21\u306e\u88ab\u5bb3\u3092\u9632\u3050\u3002</div>'
-    +'<div style="text-align:center;"><a href="#" onclick="openCard(\''+esc(c.id)+'\');return false;" style="color:#7a2518;font-size:13px;font-weight:700;border-bottom:1px solid #7a2518;padding-bottom:1px;text-decoration:none;">\u8a73\u3057\u304f\u898b\u308b \u2192</a></div>'
+    +'<div class="wanted">'
+    +'<div class="wanted-seal">KIRA<br>\u691c\u4e4b</div>'
+    +'<div class="wanted-eyebrow">\u904e\u5270\u8acb\u6c42 / OVERCHARGE SUSPECTED</div>'
+    +'<div class="wanted-title">\u5fa1\u6307\u540d\u624b\u914d</div>'
+    +'<div class="wanted-sub">THIS WEEK / WANTED</div>'
+    +'<div class="wanted-row"><span class="wanted-k">\u7f6a\u72b6\u30ce\u5206\u91ce</span><span class="wanted-genre">'+genre+'</span></div>'
+    +'<div class="wanted-amt"><span class="wanted-k">\u7533\u30b7\u53d7\u30b1\u5019\u984d</span><span class="wanted-amt-v">'+amt+'</span></div>'
+    +'<div class="wanted-flags"><i class="ti ti-flag"></i>\u5bb9\u7591 '+kansuji(flags)+'\u4ef6</div>'
+    +(verdict?'<div class="wanted-verdict"><span class="wanted-k">\u304a\u9054\u3057</span><p>'+verdict+'</p></div>':'')
+    +'<div class="wanted-note">\u3053\u306e\u898b\u7a4d\u3082\u308a\u3092\u533f\u540d\u3067\u6652\u3057\u3001\u6b21\u306e\u88ab\u5bb3\u3092\u9632\u3050\u3002</div>'
+    +'<a class="wanted-link" href="#" onclick="openCard(\''+esc(c.id)+'\');return false;">\u8a73\u3057\u304f\u898b\u308b \u2192</a>'
     +'</div>';
 }
 var LIVE_MAX=20;
