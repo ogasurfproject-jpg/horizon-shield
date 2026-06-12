@@ -448,6 +448,16 @@ footer{border-top:1px solid var(--line);background:transparent;padding:30px 22px
 .wanted-note{text-align:center;font-family:var(--mono);font-size:9.5px;line-height:1.6;color:#B79ACB;margin:14px 0 12px;padding-top:10px;border-top:1px dotted rgba(255,255,255,.16)}
 .wanted-link{display:block;text-align:center;font-family:var(--mono);font-size:13px;font-weight:700;color:#FFB3B6}
 .wanted-link:hover{color:#fff}
+
+/* ===== 共有ボタン (Step5 / share) ===== */
+.sh-share{display:flex;align-items:center;gap:6px;border:none;border-left:1px solid var(--line);background:#fff;color:var(--brand);font-family:var(--sans);font-size:12px;font-weight:600;padding:0 16px;cursor:pointer;transition:.14s;white-space:nowrap}
+.sh-share:hover{background:var(--brand-bg)}
+.sh-share svg{width:15px;height:15px;stroke:currentColor;fill:none}
+
+/* ===== タイル共有ボタン (Step5 / tile share) ===== */
+.tile-share{font-family:var(--mono);font-size:11px;color:var(--mut);padding:11px 12px;display:flex;align-items:center;gap:5px;border-left:1px solid var(--line-soft);cursor:pointer;transition:.13s;user-select:none}
+.tile-share:hover{color:var(--brand);background:var(--brand-bg)}
+.tile-share svg{width:13px;height:13px;stroke:currentColor;fill:none}
 </style>
 </head>
 <body>
@@ -531,7 +541,7 @@ async function login(){try{const r=await fetch(API+'/auth/line-login-start',{met
 function logout(){try{localStorage.removeItem('ehn_token');localStorage.removeItem('ehn_user');}catch(e){}TOKEN=null;USER=null;renderTop();toast('ログアウトしました');}
 
 async function loadCards(){
-  try{const r=await fetch(API+'/hacker/cards');const d=await r.json();ALL=d.cards||[];renderStats();renderSide();renderTiles();}
+  try{const r=await fetch(API+'/hacker/cards');const d=await r.json();ALL=d.cards||[];renderStats();renderSide();renderTiles();openFromQuery();}
   catch(e){document.getElementById('tiles').innerHTML='<div class="state"><div class="big">読み込みに失敗しました</div>時間をおいて再度お試しください</div>';}
 }
 function renderStats(){document.getElementById('statCards').textContent=pad(ALL.length);document.getElementById('statFlags').textContent=pad(ALL.reduce((s,c)=>s+(c.red_flags||0),0));}
@@ -766,6 +776,7 @@ function renderTiles(){
       <div class="tile-foot">
         <span class="tile-stat"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>${c.like_count||0}</span>
         <span class="tile-cmt"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>${c.comment_count||0}</span>
+        <span class="tile-share" onclick="event.preventDefault();event.stopPropagation();shareCard('${esc(c.id)}')"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5 8.6 10.5"/></svg>共有</span>
         <span class="tile-more">解析を読む →</span>
       </div>
     </a>`;
@@ -830,7 +841,7 @@ function renderSheet(c,comments){
     ?`<div class="cbox"><textarea id="cmtInput" maxlength="50" oninput="ccount()" placeholder="この見積もりについて、気づいたこと・経験を書く（50字まで）"></textarea><div class="cbox-foot"><span class="cbox-hint">// 確認後に公開・業者名/個人名は不可 <b id="ccnt">0/50</b></span><button class="btn-post" id="postBtn" onclick="postComment('${esc(c.id)}')">POST ▸</button></div></div>`
     :`<div class="need-login"><p>// コメントするにはログインが必要です</p><button class="tb-btn" style="margin:0 auto" onclick="login()"><span class="dot"></span>LINEでログイン</button></div>`;
   document.getElementById('sheet').innerHTML=`
-    <div class="sheet-head"><span class="sh-id">${esc(c.id||'')}</span><span class="sh-genre">${esc(c.genre||'OTHER')}</span><button class="sh-close" onclick="closeModal()">✕</button></div>
+    <div class="sheet-head"><span class="sh-id">${esc(c.id||'')}</span><span class="sh-genre">${esc(c.genre||'OTHER')}</span><button class="sh-share" onclick="shareCard('${esc(c.id||'')}')"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5 8.6 10.5"/></svg>共有</button><button class="sh-close" onclick="closeModal()">✕</button></div>
     <div class="sheet-body">
       <div class="sh-title">${esc(c.title||'見積もり')}</div>
       <div class="sh-meta">${who?who+' ':''}<span class="flag ${hi?'hi':'ok'}" style="font-family:var(--mono);font-weight:700;padding:3px 9px;${hi?'color:var(--alert)':'color:var(--ok)'}">${(c.red_flags||0)>=1?'<i class="ti ti-flag"></i>'.repeat(Math.min(c.red_flags||0,5)):'<i class="ti ti-flag"></i>'}</span></div>
@@ -896,6 +907,17 @@ async function sendReply(ck){
 function closeModal(){document.getElementById('modalBg').classList.remove('on');document.body.style.overflow='';}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
+function openFromQuery(){
+  try{var q=new URLSearchParams(location.search);var cid=q.get('card');if(cid)openCard(cid);}catch(e){}
+}
+async function shareCard(id){
+  if(!id)return;
+  var url=location.origin+'/hacker/?card='+encodeURIComponent(id);
+  var sd={title:'\u898b\u7a4d\u3082\u308a\u9054\u4eba / EHN',text:'\u3053\u306e\u898b\u7a4d\u3082\u308a\u3001\u9ad8\u3044\u306e?\u3000\u533f\u540d\u898b\u7a4d\u3082\u308a\u30c7\u30fc\u30bf\u30d9\u30fc\u30b9\u3067\u89e3\u5256\u4e2d\u3002',url:url};
+  try{if(navigator.share){await navigator.share(sd);return;}}catch(e){if(e&&e.name==='AbortError')return;}
+  try{await navigator.clipboard.writeText(url);toast('\u30ea\u30f3\u30af\u3092\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f');return;}catch(e){}
+  try{var t=document.createElement('textarea');t.value=url;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.focus();t.select();document.execCommand('copy');document.body.removeChild(t);toast('\u30ea\u30f3\u30af\u3092\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f');}catch(e2){toast('\u30b3\u30d4\u30fc\u3067\u304d\u307e\u305b\u3093\u3067\u3057\u305f');}
+}
 loadSession();loadCards();
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/hacker/sw.js').catch(function(){});});}
 function ehnTrackView(id){
