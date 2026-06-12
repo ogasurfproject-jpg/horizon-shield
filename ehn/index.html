@@ -164,330 +164,240 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=Noto+Sans+JP:wght@500;700;900&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#EDE8DC;--paper2:#E3DCCB;--field:#F5F1E8;
-  --ink:#1A1C1A;--ink2:#3C3D38;--mut:#6E6C62;--mut2:#9A968A;
-  --rule:#1A1C1A;--rule-soft:#C3BBA8;
-  --blue:#2B4C7E;--blue-bg:#DCE4EE;
-  --alert:#A8331F;--alert-bg:#EFD9D2;
-  --ok:#3F6B4A;--ok-bg:#D9E4D8;
-  --mono:'JetBrains Mono',monospace;--sans:'IBM Plex Sans JP',sans-serif;--maru:'Zen Maru Gothic',sans-serif;
+  --paper:#F4EFE4;--card:#FFFFFF;--placeholder:#FBF9F3;
+  --ink:#1A1A18;--ink2:#45433D;--mut:#76726A;--mut2:#A39E90;
+  --line:#E2DCCD;--line2:#D8D1BF;--hair:#1A1A18;--dash:#C9C2B1;
+  --red:#C42B1C;--red-ink:#A0210F;--red-bg:#F8E9E5;
+  --gray-bar:#B7B0A2;
+  --ok:#3F8050;--ok-bg:#E4EFE5;
+  --gothic:'Noto Sans JP',sans-serif;--sans:'IBM Plex Sans JP',sans-serif;--mono:'JetBrains Mono',monospace;--maru:'Zen Maru Gothic',sans-serif;
+  --r:10px;--r-sm:7px;--r-pill:999px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-::selection{background:var(--alert);color:var(--paper)}
-::-webkit-scrollbar{width:11px;height:11px}
-::-webkit-scrollbar-track{background:var(--paper2)}
-::-webkit-scrollbar-thumb{background:var(--ink);border:3px solid var(--paper2)}
-body{
-  font-family:var(--sans);background:var(--paper);color:var(--ink);
-  line-height:1.85;-webkit-font-smoothing:antialiased;overflow-x:hidden;position:relative;
-  background-image:linear-gradient(var(--paper2) .5px,transparent .5px),linear-gradient(90deg,var(--paper2) .5px,transparent .5px);
-  background-size:26px 26px;
-}
-/* 新聞紙の網点＋紙ノイズ（多層） */
-body::before{
-  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.42;mix-blend-mode:multiply;
-  background-image:radial-gradient(var(--rule-soft) .5px,transparent .6px);background-size:4px 4px;
-}
-body::after{
-  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.05;mix-blend-mode:multiply;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
+::selection{background:var(--red);color:#fff}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);line-height:1.85;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 .mono{font-family:var(--mono)}
-.wrap{max-width:1000px;margin:0 auto;padding:0 22px;position:relative;z-index:1}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+.g{font-family:var(--gothic);font-weight:900}
 
-/* 印刷の見当（トンボ） 四隅 */
-.tombo{position:fixed;z-index:2;width:24px;height:24px;pointer-events:none;opacity:.4}
-.tombo::before,.tombo::after{content:"";position:absolute;background:var(--ink)}
-.tombo::before{width:1px;height:100%;left:50%}.tombo::after{height:1px;width:100%;top:50%}
-.tombo.tl{top:14px;left:14px}.tombo.tr{top:14px;right:14px}.tombo.bl{bottom:14px;left:14px}.tombo.br{bottom:14px;right:14px}
+/* ===== masthead ===== */
+.mast{background:var(--card);border-bottom:1px solid var(--line2)}
+.mast-in{max-width:1180px;margin:0 auto;padding:14px 26px;display:flex;align-items:center;gap:20px;flex-wrap:nowrap}
+.brand{display:flex;align-items:flex-end;gap:9px;flex:none}
+.brand .ehn{font-family:var(--gothic);font-weight:900;font-size:30px;letter-spacing:.01em;line-height:.9;color:var(--ink)}
+.brand .en{font-family:var(--mono);font-size:8px;letter-spacing:.16em;color:var(--mut);padding-bottom:3px}
+.mast-title{font-family:var(--gothic);font-weight:700;font-size:18px;white-space:nowrap;flex:none}
+.creorder{display:inline-flex;align-items:center;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--red);border:1px solid var(--red);border-radius:3px;padding:2px 7px;flex:none}
+.mast-sp{flex:1 1 auto;min-width:8px}
+.mast-r{display:flex;align-items:center;gap:16px;flex:none}
+.lnk{font-size:13px;font-weight:600;color:var(--ink2);white-space:nowrap}
+.lnk:hover{color:var(--red)}
+.btn{font-family:var(--sans);font-weight:700;border:none;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;text-align:center}
+.btn-red{background:var(--red);color:#fff;font-size:14px;padding:12px 20px;border-radius:7px;box-shadow:0 5px 14px rgba(196,43,28,.22)}
+.btn-red:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.mast-date{font-family:var(--mono);font-size:10.5px;color:var(--mut);text-align:right;line-height:1.5;flex:none}
+@media(max-width:860px){.mast-in{flex-wrap:wrap;gap:10px 14px}.mast-date{display:none}.mast-title{font-size:16px}}
 
-/* 罫線が引かれる */
-.rule{height:2px;background:var(--rule);transform:scaleX(0);transform-origin:left;transition:transform .8s cubic-bezier(.2,.7,.2,1)}
-.rule.thin{height:1px;background:var(--rule)}
-.show .rule,.rule.show{transform:scaleX(1)}
+/* ===== nav ===== */
+.nav{background:var(--card);border-bottom:2px solid var(--hair)}
+.nav-in{max-width:1180px;margin:0 auto;padding:0 26px;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.nav-in::-webkit-scrollbar{display:none}
+.nav-in a{font-size:13px;font-weight:600;color:var(--ink2);padding:12px 16px;white-space:nowrap;transition:.13s}
+.nav-in a:hover{color:var(--red)}
 
-/* 刷り上がる立ち上がり */
-.rise{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s cubic-bezier(.2,.7,.2,1)}
-.rise.show{opacity:1;transform:none}
-.d1{transition-delay:.09s}.d2{transition-delay:.18s}.d3{transition-delay:.27s}.d4{transition-delay:.36s}.d5{transition-delay:.45s}
+/* ===== generic ===== */
+.hr{height:1px;background:var(--hair);max-width:1180px;margin:0 auto}
+section{padding:54px 0}
+.sec-h{font-family:var(--gothic);font-weight:900;font-size:clamp(24px,3.4vw,34px);line-height:1.35;letter-spacing:.01em;margin-bottom:8px}
+.dash{border:1.5px dashed var(--dash);border-radius:var(--r-sm);background:var(--placeholder);display:flex;align-items:center;justify-content:center;text-align:center;color:var(--mut2);font-size:12px;line-height:1.6;padding:14px}
 
-/* インクの見当ズレ（CMYK風） 署名的演出 */
-.misreg{position:relative;z-index:0;--mx:2px;--my:1px}
-.misreg::before,.misreg::after{content:attr(data-t);position:absolute;inset:0;z-index:-1;pointer-events:none}
-.misreg::before{color:var(--blue);transform:translate(calc(var(--mx)*-1),var(--my));mix-blend-mode:multiply}
-.misreg::after{color:var(--alert);transform:translate(var(--mx),calc(var(--my)*-1));mix-blend-mode:multiply}
+/* ===== hero ===== */
+.hero{padding:48px 0 16px}
+.hero-grid{display:grid;grid-template-columns:1.04fr .96fr;gap:44px;align-items:start}
+@media(max-width:880px){.hero-grid{grid-template-columns:1fr;gap:26px}}
+.hero h1{font-family:var(--gothic);font-weight:900;font-size:clamp(30px,4.6vw,46px);line-height:1.32;letter-spacing:.005em;margin-bottom:20px}
+.hero .lede{font-size:14.5px;color:var(--ink2);max-width:500px;margin-bottom:20px}
+.badges{display:flex;flex-wrap:wrap;gap:8px 20px;margin-bottom:28px}
+.badge{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--ink2)}
+.badge svg{width:16px;height:16px;stroke:var(--ink2);fill:none;stroke-width:2}
+.hero-cta{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.hero-cta .btn-red{font-size:15.5px;padding:16px 26px;border-radius:9px}
+.cta-fine{font-family:var(--mono);font-size:11px;color:var(--mut);line-height:1.6}
+.stage{position:relative;min-height:430px}
+.docph{width:74%;margin-top:14px;aspect-ratio:5/6;transform:rotate(-3.5deg);transform-origin:top left;box-shadow:0 10px 30px rgba(26,26,24,.10)}
+.phone{position:absolute;right:0;top:0;width:50%;max-width:236px;background:#15140F;border-radius:30px;padding:10px;box-shadow:0 18px 44px rgba(26,26,24,.22)}
+.phone-scr{background:var(--card);border-radius:22px;padding:18px 16px 18px;text-align:center}
+.phone .notch{width:38%;height:5px;border-radius:3px;background:#3A382E;margin:1px auto 14px}
+.ai-h{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--mut);margin-bottom:12px}
+.ai-check{width:50px;height:50px;border-radius:50%;background:var(--ok);display:grid;place-items:center;margin:0 auto 9px}
+.ai-check svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:3}
+.ai-verdict{font-family:var(--gothic);font-weight:700;font-size:19px;color:var(--ok);margin-bottom:4px}
+.ai-sub{font-size:10.5px;color:var(--mut);margin-bottom:14px;line-height:1.5}
+.ai-box{border-top:1px solid var(--line);padding-top:12px}
+.ai-k{font-size:9.5px;color:var(--mut2)}
+.ai-band{font-family:var(--gothic);font-weight:900;font-size:18px;color:var(--ink);margin:3px 0 11px}
+.ai-mine{font-family:var(--gothic);font-weight:900;font-size:21px;color:var(--ink);margin-top:2px}
+.ai-slider{height:6px;border-radius:3px;margin:13px 0 5px;background:linear-gradient(90deg,#3F8050,#C9A227 52%,#C42B1C)}
+.ai-slider .mk{position:relative;top:-3px;left:74%;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--ink)}
+.ai-scale{display:flex;justify-content:space-between;font-size:9px;color:var(--mut2)}
+.ai-btn{margin-top:13px;border:1px solid var(--line);border-radius:7px;padding:9px;font-size:11.5px;color:var(--ink2)}
+@media(max-width:880px){.stage{min-height:0;display:flex;gap:14px;align-items:flex-start}.docph{width:50%;margin:0}.phone{position:static;width:46%}}
 
-/* ===== 題字 ===== */
-.masthead{padding:18px 0 0}
-.mast-top{display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--mono);font-size:11px;color:var(--mut);letter-spacing:.12em;padding-bottom:9px;flex-wrap:wrap;gap:6px}
-.mast-top .free{color:var(--alert);border:1px solid var(--alert);padding:2px 8px;font-weight:700}
-.nameplate{text-align:center;padding:26px 0 16px}
-.ehn{font-family:var(--mono);font-weight:800;font-size:clamp(78px,18vw,184px);letter-spacing:.02em;line-height:.84;color:var(--ink);
-  --mx:14px;--my:7px;transition:--mx 1s ease 1.1s,--my 1s ease 1.1s,filter 1s ease 1.1s;filter:blur(.4px)}
-.loaded .ehn{--mx:3px;--my:2px;filter:blur(0)}
-.np-en{font-family:var(--mono);font-weight:700;font-size:clamp(13px,2.6vw,18px);letter-spacing:.42em;margin-top:16px;color:var(--ink2);padding-left:.42em}
-.np-ja{font-size:clamp(13px,2.8vw,16px);color:var(--mut);letter-spacing:.34em;margin-top:8px;padding-left:.34em;font-family:var(--maru)}
-.np-tag{font-size:13px;color:var(--ink2);margin-top:15px;letter-spacing:.04em;font-family:var(--maru)}
-.np-index{display:flex;gap:0;justify-content:center;flex-wrap:wrap;margin-top:18px;font-family:var(--mono);font-size:10.5px;color:var(--mut);letter-spacing:.08em}
-.np-index span{padding:0 13px;border-right:1px solid var(--rule-soft)}
-.np-index span:last-child{border-right:none}
+/* ===== ticker ===== */
+.ticker{display:flex;align-items:stretch;border-top:1px solid var(--line2);border-bottom:1px solid var(--line2);background:var(--card);overflow:hidden;margin-top:30px}
+.ticker-l{background:var(--ink);color:#fff;font-family:var(--gothic);font-weight:700;font-size:12px;padding:11px 16px;white-space:nowrap;display:flex;align-items:center;flex:none}
+.ticker-mask{overflow:hidden;flex:1;display:flex;align-items:center}
+.ticker-tr{display:flex;white-space:nowrap;animation:tick 36s linear infinite;font-size:12.5px;color:var(--ink2)}
+.ticker-tr span{padding:11px 4px}
+.ticker-tr .sep{color:var(--red);padding:11px 16px}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-/* ティッカー */
-.ticker{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);overflow:hidden;background:var(--field);margin-top:16px;display:flex;align-items:stretch}
-.ticker-lbl{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--paper);background:var(--ink);padding:9px 14px;letter-spacing:.14em;white-space:nowrap;display:flex;align-items:center}
-.ticker-mask{overflow:hidden;flex:1}
-.ticker-track{display:flex;white-space:nowrap;animation:scroll 38s linear infinite;font-family:var(--mono);font-size:12.5px;color:var(--ink2);align-items:center;width:max-content}
-.ticker:hover .ticker-track{animation-play-state:paused}
-.ticker-track span{padding:9px 0;display:inline-block}
-.ticker-track .sep{color:var(--alert);padding:0 22px;font-weight:700}
-@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+/* ===== 91% ===== */
+.stat-grid{display:grid;grid-template-columns:1fr 440px;gap:40px;align-items:center}
+@media(max-width:880px){.stat-grid{grid-template-columns:1fr;gap:28px}}
+.stat-h{font-family:var(--gothic);font-weight:900;font-size:clamp(26px,3.6vw,40px);line-height:1.34}
+.stat-h .pct{color:var(--red);font-size:1.5em}
+.stat-tx{font-size:13.5px;color:var(--ink2);margin-top:14px;max-width:440px}
+.stat-src{display:block;font-family:var(--mono);font-size:10.5px;color:var(--mut2);margin-top:12px}
+.chart{display:flex;align-items:flex-end;justify-content:center;gap:18px;height:200px;position:relative}
+.cbar{display:flex;flex-direction:column;align-items:center;gap:8px;width:84px}
+.cbar .v{font-family:var(--gothic);font-weight:900;font-size:14px}
+.cbar .b{width:100%;border-radius:3px 3px 0 0}
+.cbar.lo .b{background:var(--gray-bar);height:74px}
+.cbar.lo .v{color:var(--ink2)}
+.cbar.hi .b{background:var(--red);height:170px}
+.cbar.hi .v{color:var(--red)}
+.cbar .k{font-size:10.5px;color:var(--mut);order:-1}
+.diff{width:96px;height:96px;border-radius:50%;background:var(--ink);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;align-self:center;flex:none}
+.diff .dk{font-size:10px;color:#C9C4B6}
+.diff .dv{font-family:var(--gothic);font-weight:900;font-size:18px;line-height:1.1}
+.chart-note{font-family:var(--mono);font-size:10px;color:var(--mut2);text-align:right;margin-top:14px}
 
-/* 第一面 */
-.hero{padding:58px 0 44px}
-.kicker{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--blue);margin-bottom:24px}
-.kicker .ln{flex:1;height:1px;background:var(--rule-soft)}
-.head1{font-size:clamp(36px,7.6vw,82px);font-weight:700;line-height:1.14;letter-spacing:-.01em;
-  text-shadow:-1.5px 1px 0 rgba(43,76,126,.32),1.5px -1px 0 rgba(168,51,31,.3)}
-.head1 .hl{background:linear-gradient(transparent 60%,var(--alert-bg) 60%);padding:0 .06em;box-decoration-break:clone}
-.head1 .sm{display:block;font-size:clamp(18px,3.4vw,30px);color:var(--ink2);margin-top:20px;font-weight:600;text-shadow:none}
-.lede{font-size:clamp(15px,2.3vw,18px);color:var(--ink2);margin-top:34px;max-width:700px;line-height:2}
-.lede .dropcap{float:left;font-family:var(--mono);font-weight:800;font-size:74px;line-height:.78;padding:6px 14px 0 0;color:var(--ink)}
-.byline{font-family:var(--mono);font-size:11px;color:var(--mut2);margin-top:26px;letter-spacing:.08em;clear:both}
+/* ===== 3 steps ===== */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:28px}
+@media(max-width:760px){.steps{grid-template-columns:1fr}}
+.step .ph{height:108px;margin-bottom:18px}
+.step-no{width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;font-family:var(--gothic);font-weight:900;font-size:14px;display:grid;place-items:center;margin-bottom:12px}
+.step h3{font-family:var(--gothic);font-weight:700;font-size:17px;margin-bottom:8px}
+.step p{font-size:13px;color:var(--ink2)}
 
-/* 共感4コマ */
-.section-lbl{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--mut);margin-bottom:8px}
-.section-h{font-size:clamp(22px,4vw,36px);font-weight:700;line-height:1.32;margin-bottom:6px}
-.section-sub{font-size:14px;color:var(--mut);margin-bottom:28px;letter-spacing:.02em}
-.koma-wrap{padding:50px 0}
-.koma{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:2px solid var(--rule);background:var(--field)}
-.panel{border-right:1px solid var(--rule);padding:22px 18px 20px;position:relative;min-height:238px;display:flex;flex-direction:column;overflow:hidden}
-.panel::before{content:"";position:absolute;inset:0;opacity:.5;mix-blend-mode:multiply;pointer-events:none;
-  background-image:radial-gradient(var(--rule-soft) .6px,transparent .7px);background-size:5px 5px}
-.panel:last-child{border-right:none}
-.panel .no{font-family:var(--mono);font-size:11px;color:var(--mut2);letter-spacing:.1em;margin-bottom:14px;position:relative}
-.panel .art{flex:1;display:flex;align-items:center;justify-content:center;padding:6px 0 14px;position:relative}
-.panel .art svg{width:100%;max-width:118px;height:auto;color:var(--ink)}
-.panel .cap{font-size:13.5px;color:var(--ink2);line-height:1.72;position:relative}
-.panel.fin{background:var(--ink)}
-.panel.fin::before{opacity:.18}
-.panel.fin .no{color:var(--mut2)}.panel.fin .cap{color:var(--paper)}.panel.fin .art svg{color:var(--paper)}
+/* ===== cases ===== */
+.cases-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:20px}
+.cases-more{font-size:13px;font-weight:700;color:var(--red);white-space:nowrap}
+.cases{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+@media(max-width:980px){.cases{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:640px){.cases{grid-template-columns:repeat(2,1fr)}}
+.case{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:.15s}
+.case:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(26,26,24,.09)}
+.case .ph{height:96px;margin:13px 13px 0;font-size:10.5px}
+.case-body{padding:13px;display:flex;flex-direction:column;flex:1}
+.case-genre{font-family:var(--mono);font-size:9.5px;font-weight:700;color:var(--ink2);border:1px solid var(--line2);border-radius:4px;padding:2px 7px;align-self:flex-start;margin-bottom:10px}
+.case-loc{font-size:10.5px;color:var(--mut);margin-bottom:6px}
+.case-t{font-size:13px;font-weight:700;line-height:1.45;margin-bottom:10px;flex:1}
+.case-amt{font-family:var(--gothic);font-weight:900;font-size:19px;color:var(--ink);margin-bottom:9px}
+.case-ai{font-size:11px;font-weight:700;color:var(--red);margin-bottom:9px}
+.case-flag{font-family:var(--mono);font-size:10.5px;color:var(--mut);border-top:1px solid var(--line);padding-top:9px;display:flex;align-items:center;gap:5px}
+.case-flag .r{color:var(--red)}
 
-/* 宣言 */
-.declare{text-align:center;padding:66px 0;border-top:2px solid var(--rule);border-bottom:2px solid var(--rule);margin:8px 0;background:var(--field);position:relative;overflow:hidden}
-.declare::before{content:"";position:absolute;inset:0;opacity:.4;mix-blend-mode:multiply;pointer-events:none;background-image:radial-gradient(var(--rule-soft) .6px,transparent .7px);background-size:6px 6px}
-.declare .big{font-size:clamp(30px,6vw,60px);font-weight:700;letter-spacing:-.01em;line-height:1.24;position:relative}
-.declare .big .u{border-bottom:7px solid var(--alert);padding-bottom:2px}
-.declare p{font-size:15px;color:var(--ink2);margin-top:26px;max-width:620px;margin-left:auto;margin-right:auto;line-height:2;position:relative}
+/* ===== words ===== */
+.words{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:760px){.words{grid-template-columns:1fr}}
+.wcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:32px}
+.wtag{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--red);border:1px solid var(--red);border-radius:var(--r-pill);padding:3px 11px;display:inline-block;margin-bottom:18px}
+.wcard h3{font-family:var(--gothic);font-weight:900;font-size:22px;line-height:1.4;margin-bottom:18px}
+.wcard p{font-size:13.5px;color:var(--ink2);margin-bottom:13px}
+.wcard .strong{font-family:var(--gothic);font-weight:900;font-size:17px;color:var(--ink);line-height:1.5;margin-bottom:13px}
+.wcard b{font-weight:700;color:var(--ink)}
+.wcard .ph{height:120px;margin-bottom:20px}
+.wcard .sig{font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:6px}
 
-/* 物差し */
-.mission{padding:66px 0}
-.statline{border:2px solid var(--rule);background:var(--ink);color:var(--paper);padding:26px 28px;margin-bottom:44px;display:flex;align-items:center;gap:26px;flex-wrap:wrap}
-.statline .big{font-family:var(--mono);font-weight:800;font-size:clamp(40px,9vw,76px);line-height:.9;color:var(--paper);white-space:nowrap}
-.statline .big .pct{color:var(--alert);font-size:.62em}
-.statline .tx{font-size:15px;line-height:1.7;color:var(--paper)}
-.statline .tx .src{display:block;font-family:var(--mono);font-size:11px;color:var(--mut2);margin-top:8px;letter-spacing:.06em}
-.mission-grid{display:grid;grid-template-columns:1fr 1fr;gap:46px;align-items:center}
-.mono-stack{font-family:var(--mono);font-size:13px;color:var(--ink2);line-height:2.15}
-.mono-stack .pl{display:flex;gap:10px}
-.mono-stack .pl .b{color:var(--ok);font-weight:700}
-.measure{border:2px solid var(--rule);background:var(--field)}
-.measure-h{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--mut);padding:12px 16px;border-bottom:1px solid var(--rule)}
-.measure .bars{padding:24px 18px;display:flex;flex-direction:column;gap:15px}
-.bar{display:grid;grid-template-columns:64px 1fr 56px;gap:10px;align-items:center;font-family:var(--mono);font-size:11px}
-.bar .tk{height:10px;background:var(--paper);border:1px solid var(--rule)}
-.bar .fl{height:100%;background:var(--ink);width:0;transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
-.show .bar .fl{width:var(--w)}
-.bar .fl.hi{background:var(--alert)}
-.bar .nm{color:var(--mut)}.bar .vl{text-align:right;color:var(--ink2)}
-.measure .ex{font-family:var(--mono);font-size:10px;color:var(--mut2);padding:0 18px 16px;letter-spacing:.05em}
+/* ===== final ===== */
+.final{text-align:center;padding:8px 0 4px;position:relative}
+.final h2{font-family:var(--gothic);font-weight:900;font-size:clamp(26px,4vw,40px);line-height:1.3;margin-bottom:10px}
+.final p{font-size:13.5px;color:var(--mut);margin-bottom:26px}
+.final .btn-red{font-size:16px;padding:17px 34px;border-radius:9px}
+.stopwatch{position:absolute;top:-6px;right:4%;width:70px;height:70px;border:1.5px solid var(--ink);border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-size:10px;color:var(--ink2);text-align:center;line-height:1.3}
+@media(max-width:680px){.stopwatch{display:none}}
 
-/* 機能 */
-.feats{padding:22px 0 66px}
-.feat-top{border:2px solid var(--rule);border-bottom:none;display:flex;align-items:center;justify-content:space-between;padding:13px 20px;background:var(--ink)}
-.feat-top .l{font-family:var(--mono);font-size:12px;color:var(--paper);letter-spacing:.12em}
-.feat-top .r{font-family:var(--mono);font-size:11px;color:var(--mut2);letter-spacing:.08em}
-.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:2px solid var(--rule);border-top:none}
-.feat{border-right:1px solid var(--rule);padding:32px 24px;transition:background .2s}
-.feat:hover{background:var(--field)}
-.feat:last-child{border-right:none}
-.feat .ic{height:46px;margin-bottom:20px;display:flex;align-items:flex-end}
-.feat .ic svg{width:42px;height:42px;color:var(--ink)}
-.feat .n{font-family:var(--mono);font-size:11px;color:var(--blue);letter-spacing:.1em;margin-bottom:8px}
-.feat h3{font-size:20px;font-weight:700;margin-bottom:10px}
-.feat p{font-size:13.5px;color:var(--ink2);line-height:1.82}
-.feat .note{font-size:11.5px;color:var(--mut);margin-top:14px;line-height:1.62;border-top:1px solid var(--rule-soft);padding-top:11px}
-.flags{display:inline-flex;gap:6px;margin-top:12px}
-.flags .fg{font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 9px;letter-spacing:.06em;border:1px solid}
-.flags .fg.r{color:var(--alert);border-color:var(--alert);background:var(--alert-bg)}
-.flags .fg.b{color:var(--ok);border-color:var(--ok);background:var(--ok-bg)}
-
-/* 誌面見本：貼ると、こう照らされる */
-.proof{padding:14px 0 66px}
-.proof .lightit{position:absolute;opacity:0;width:0;height:0;pointer-events:none}
-.proof-stage{border:2px solid var(--rule);background:var(--ink);position:relative;overflow:hidden}
-.proof-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;border-bottom:2px solid var(--rule);flex-wrap:wrap}
-.proof-toolbar .pt-lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mut2)}
-.pt-toggle{display:inline-flex;align-items:center;gap:9px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--paper);border:1px solid var(--mut);padding:6px 13px;user-select:none;transition:.18s}
-.pt-toggle:hover{border-color:var(--alert)}
-.pt-toggle .dot{width:9px;height:9px;border:1.5px solid var(--mut2);background:transparent;transition:.18s}
-.proof .lightit:checked ~ .proof-toolbar .pt-toggle{border-color:var(--alert);color:var(--alert)}
-.proof .lightit:checked ~ .proof-toolbar .pt-toggle .dot{background:var(--alert);border-color:var(--alert)}
-.proof .lightit:checked ~ .proof-toolbar .pt-toggle .tx::after{content:" ▼"}
-.proof .lightit:not(:checked) ~ .proof-toolbar .pt-toggle .tx::after{content:" ▶"}
-
-.sheet{position:relative;background:var(--paper);margin:26px;padding:24px 26px 26px;border:1px solid var(--rule)}
-.sheet::before{content:"";position:absolute;inset:0;opacity:.5;mix-blend-mode:multiply;pointer-events:none;background-image:radial-gradient(var(--rule-soft) .55px,transparent .65px);background-size:5px 5px}
-.sheet-head{display:flex;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--rule);padding-bottom:10px;position:relative}
-.sheet-head .sh-l{font-size:20px;font-weight:700;letter-spacing:.18em}
-.sheet-head .sh-r{font-family:var(--mono);font-size:10px;color:var(--mut2);letter-spacing:.12em}
-.sheet-meta{display:flex;flex-wrap:wrap;gap:6px 22px;font-size:12px;color:var(--ink2);padding:13px 0;border-bottom:1px solid var(--rule-soft);position:relative}
-.redact{display:inline-block;background:var(--ink);color:var(--ink);letter-spacing:-.04em;border-radius:1px;user-select:none}
-.sheet-rows{position:relative}
-.row{display:grid;grid-template-columns:1fr 56px 110px;gap:10px;align-items:center;padding:11px 8px;border-bottom:1px solid var(--rule-soft);font-size:14px}
-.row .it{color:var(--ink)}
-.row .qt{font-family:var(--mono);font-size:11px;color:var(--mut);text-align:right}
-.row .am{font-family:var(--mono);font-size:14px;color:var(--ink2);text-align:right}
-.row .am::before{content:"¥";color:var(--mut2);font-size:.82em;margin-right:1px}
-.row.total{border-bottom:none;border-top:2px solid var(--rule);margin-top:2px;font-weight:700}
-.row.total .it{font-weight:700}
-.row.total .am{font-size:16px;color:var(--ink)}
-.row.flag-row{transition:background .35s,box-shadow .35s}
-.proof .lightit:checked ~ .sheet .row.flag-row{background:var(--alert-bg);box-shadow:inset 4px 0 0 var(--alert)}
-
-/* 注釈（編集の赤ペン＋AI） */
-.annot{margin:14px 26px;display:flex;gap:11px;align-items:flex-start;padding:12px 15px;border-left:3px solid;background:var(--field);font-size:12.5px;line-height:1.66;color:var(--ink2);position:relative;max-height:240px;overflow:hidden;transition:opacity .35s,max-height .45s ease,margin .45s ease,padding .45s ease,transform .35s}
-.annot b{font-family:var(--mono)}
-.annot .ah{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.08em;white-space:nowrap;padding-top:1px}
-.annot-alert{border-color:var(--alert)}
-.annot-alert .ah{color:var(--alert)}
-.annot-alert b{color:var(--alert)}
-.annot-kira{border-color:var(--blue);margin-top:-4px}
-.annot-kira .ah{color:var(--blue)}
-.annot-kira b{color:var(--blue)}
-.proof .lightit:not(:checked) ~ .sheet ~ .annot,
-.proof .lightit:not(:checked) ~ .annot{opacity:0;transform:translateY(-6px);pointer-events:none;max-height:0;margin-top:0;margin-bottom:0;padding-top:0;padding-bottom:0;border-left-width:0}
-.proof-ex{font-family:var(--mono);font-size:10px;color:var(--mut2);padding:4px 26px 18px;letter-spacing:.04em;line-height:1.7}
-
-/* ¥0 */
-.free-sec{padding:74px 0;text-align:center;position:relative}
-.stamp{display:inline-block;border:4px double var(--alert);color:var(--alert);font-family:var(--mono);font-weight:800;padding:18px 36px;transform:rotate(-4deg) scale(.55);opacity:0;transition:transform .55s cubic-bezier(.34,1.56,.64,1),opacity .4s;position:relative}
-.show .stamp{transform:rotate(-4deg) scale(1);opacity:.92}
-.stamp .zero{font-size:clamp(50px,11vw,94px);line-height:.9;letter-spacing:.02em}
-.stamp .t{font-size:13px;letter-spacing:.3em;margin-top:6px}
-.free-sec h2{font-size:clamp(22px,4vw,34px);font-weight:700;margin-top:38px}
-.free-sec .lst{font-family:var(--mono);font-size:13px;color:var(--ink2);margin-top:18px;letter-spacing:.04em;line-height:1.95}
-.free-sec .lst b{color:var(--ink)}
-.free-sec .fine{font-size:12px;color:var(--mut);margin-top:16px}
-
-/* 創刊特典（号外） */
-.offer{border:2px solid var(--rule);background:var(--field);position:relative;overflow:hidden}
-.offer::after{content:"";position:absolute;top:-46%;right:-12%;width:340px;height:340px;background-image:radial-gradient(var(--alert) 1.1px,transparent 1.2px);background-size:9px 9px;opacity:.15;pointer-events:none}
-.offer-tab{display:flex;align-items:stretch;border-bottom:2px solid var(--rule)}
-.offer-tab .o1{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--paper);background:var(--alert);padding:11px 16px;letter-spacing:.14em}
-.offer-tab .o2{font-family:var(--mono);font-size:11px;color:var(--mut);padding:11px 16px;display:flex;align-items:center;letter-spacing:.08em}
-.offer-body{padding:36px 30px 30px;position:relative;z-index:1}
-.offer-body .lim{display:inline-block;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--alert);letter-spacing:.1em;margin-bottom:16px;border:1px solid var(--alert);padding:4px 12px}
-.offer-body h2{font-size:clamp(22px,4.4vw,38px);font-weight:700;line-height:1.36;word-break:normal;overflow-wrap:anywhere}
-.offer-body h2 .price{white-space:normal}
-.offer-body h2 .price .str{white-space:nowrap;color:var(--mut2);text-decoration:line-through;text-decoration-color:var(--alert);text-decoration-thickness:2px}
-.offer-body h2 .price .now{white-space:nowrap;color:var(--alert)}
-.offer-body .by{font-size:14.5px;color:var(--ink2);margin-top:20px;max-width:640px;line-height:1.92}
-.offer-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);margin-top:28px;background:var(--paper)}
-.offer-meta .m{border-right:1px solid var(--rule-soft);padding:16px}
-.offer-meta .m:last-child{border-right:none}
-.offer-meta .mk{font-family:var(--mono);font-size:10px;color:var(--mut2);letter-spacing:.1em;margin-bottom:7px}
-.offer-meta .mv{font-size:13px;color:var(--ink);font-weight:600;line-height:1.5}
-.offer-fine{font-size:11.5px;color:var(--mut);margin-top:18px;line-height:1.72}
-
-/* 由来 */
-.origin{padding:74px 0;text-align:center}
-.origin .q{font-family:var(--mono);font-size:12px;color:var(--blue);letter-spacing:.14em;margin-bottom:20px}
-.origin .eq{font-family:var(--mono);font-size:clamp(15px,3vw,26px);font-weight:700;letter-spacing:.04em;line-height:1.7}
-.origin .eq .a{color:var(--ink)}.origin .eq .b{color:var(--alert)}
-.origin p{font-size:14.5px;color:var(--ink2);margin-top:26px;max-width:580px;margin-left:auto;margin-right:auto;line-height:2}
-
-/* CTA */
-.cta{border:2px solid var(--rule);background:var(--ink);color:var(--paper);text-align:center;padding:60px 28px;margin-bottom:14px;position:relative;overflow:hidden}
-.cta::before{content:"";position:absolute;inset:0;opacity:.1;mix-blend-mode:screen;pointer-events:none;background-image:radial-gradient(#fff .6px,transparent .7px);background-size:6px 6px}
-.cta h2{font-size:clamp(24px,4.6vw,42px);font-weight:700;line-height:1.3;position:relative}
-.cta p{font-size:14px;color:var(--mut2);margin-top:16px;position:relative}
-.cta-btns{display:flex;gap:14px;justify-content:center;margin-top:34px;flex-wrap:wrap;position:relative}
-.btn{font-family:var(--mono);font-size:14px;font-weight:500;padding:16px 32px;text-decoration:none;letter-spacing:.05em;border:2px solid var(--paper);transition:.15s;display:inline-flex;align-items:center;gap:9px}
-.btn.primary{background:var(--paper);color:var(--ink)}
-.btn.primary:hover{background:var(--alert);border-color:var(--alert);color:var(--paper);transform:translateY(-2px)}
-.btn.ghost{background:none;color:var(--paper)}
-.btn.ghost:hover{background:var(--paper);color:var(--ink)}
-
-footer{border-top:2px solid var(--rule);padding:30px 0 64px;font-family:var(--mono);font-size:11px;color:var(--mut);line-height:1.9;letter-spacing:.04em}
-footer .ft{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
-footer a{color:var(--blue);text-decoration:none}footer a:hover{text-decoration:underline}
-
-@media(max-width:760px){
-  .tombo{display:none}
-  .koma,.feat-grid,.offer-meta{grid-template-columns:1fr}
-  .panel{border-right:none;border-bottom:1px solid var(--rule);min-height:auto}
-  .panel:last-child{border-bottom:none}
-  .feat{border-right:none;border-bottom:1px solid var(--rule)}
-  .feat:last-child{border-bottom:none}
-  .offer-meta .m{border-right:none;border-bottom:1px solid var(--rule-soft)}
-  .offer-meta .m:last-child{border-bottom:none}
-  .mission-grid{grid-template-columns:1fr;gap:30px}
-  .statline{gap:14px}.statline .big{font-size:60px}
-  .ticker-lbl{display:none}
-  .ehn{--mx:9px;--my:5px}.loaded .ehn{--mx:2.5px;--my:1.5px}
-  .sheet{margin:14px}.annot{margin:11px 14px}.proof-ex{padding:4px 14px 16px}
-  .row{grid-template-columns:1fr 44px 92px;gap:7px;font-size:13px;padding:10px 4px}
-  .row .am{font-size:12.5px}.row.total .am{font-size:14px}
-  .sheet-head .sh-l{font-size:17px;letter-spacing:.12em}
-}
-@property --mx{syntax:'<length>';inherits:false;initial-value:3px}
-@property --my{syntax:'<length>';inherits:false;initial-value:2px}
-@media(prefers-reduced-motion:reduce){
-  *{animation:none!important;transition:none!important}
-  .rise{opacity:1;transform:none}.rule{transform:scaleX(1)}
-  .stamp{opacity:.92;transform:rotate(-4deg)}.bar .fl{width:var(--w)}
-  .ehn{--mx:3px;--my:2px;filter:none}
-}
-</style>
-
-<style id="safe-visible">
-/* 表示優先：演出で隠れるのを防ぐフォールバック */
-.rise{opacity:1 !important;transform:none !important}
-.rule{transform:scaleX(1) !important}
-.bar .fl{width:var(--w) !important}
-.stamp{opacity:.92 !important;transform:rotate(-4deg) !important}
-.ehn{--mx:3px;--my:2px;filter:none !important}
-.misreg::before,.misreg::after{opacity:1}
+/* ===== footer ===== */
+footer{border-top:2px solid var(--hair);background:var(--card);padding:28px 0 56px;margin-top:50px}
+.ft{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-family:var(--mono);font-size:11.5px;color:var(--mut)}
+.ft .hl{color:var(--red)}
+.ft-note{font-size:11px;color:var(--mut2);margin-top:12px;line-height:1.8}
 </style>
 </head>
 <body>
 
-<div class="tombo tl"></div><div class="tombo tr"></div><div class="tombo bl"></div><div class="tombo br"></div>
-
-<div class="wrap">
-
-  <!-- 題字 -->
-  <header class="masthead">
-    <div class="rule show"></div>
-    <div class="mast-top">
-      <span>創刊号 ・ VOL.001 ・ 2026</span>
-      <span><span class="free">完全無料</span> ＋ 創刊記念 先着20名特典</span>
+<header class="mast">
+  <div class="mast-in">
+    <a class="brand" href="/ehn/"><span class="ehn">EHN</span><span class="en">ESTIMATE HACKER NEWS</span></a>
+    <span class="mast-title">見積もり達人ニュース</span>
+    <span class="creorder">創刊号</span>
+    <span class="mast-sp"></span>
+    <div class="mast-r">
+      <a class="lnk" href="/hacker/">ログイン</a>
+      <a class="btn btn-red" href="/hacker/">見積もりを投稿（無料）</a>
+      <div class="mast-date">創刊号 VOL.001 ／ 2026<br>発行：EHN編集部</div>
     </div>
-    <div class="nameplate">
-      <div class="ehn misreg" data-t="EHN">EHN</div>
-      <div class="np-en">ESTIMATE HACKER NEWS</div>
-      <div class="np-ja">見 積 も り 達 人 ニ ュ ー ス</div>
-      <div class="np-tag">見積もりの達人が読む、たった一つの新聞。</div>
-      <div class="np-index"><span>第一面</span><span>あるある四コマ</span><span>社是</span><span>3つの機能</span><span>誌面見本</span><span>創刊特典</span><span>由来</span></div>
+  </div>
+</header>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a href="#top">トップ</a><a href="#voices">今日の見出し</a><a href="#stat">特集</a><a href="#how">使い方</a><a href="#cases">事例</a><a href="#words">創刊のことば</a>
+  </div>
+</nav>
+
+<div class="wrap" id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <h1>あなたの見積もり、<br>相場より高いですか？<br>安いですか？</h1>
+        <p class="lede">全国のリフォーム見積もりを匿名で持ち寄る、初のコミュニティ新聞、EHN 創刊。</p>
+        <div class="badges">
+          <span class="badge"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>業者名は匿名化</span>
+          <span class="badge"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 14 3-3 3 3 5-5"/></svg>AIが相場を分析</span>
+          <span class="badge"><svg viewBox="0 0 24 24"><path d="M9 11H5v8h4Zm6-6h-4v14h4Zm6 3h-4v11h4Z"/></svg>みんなの事例と比較</span>
+        </div>
+        <div class="hero-cta">
+          <a class="btn btn-red" href="/hacker/">今すぐ自分の見積もりをアップロードする ▸</a>
+          <span class="cta-fine">写真を撮るだけ ・ 完全無料 ・ 匿名で安心</span>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="dash docph">ここに「御見積書」の<br>サンプル画像を挿入</div>
+        <div class="phone">
+          <div class="phone-scr">
+            <div class="notch"></div>
+            <div class="ai-h">AI 分析結果</div>
+            <div class="ai-check"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7"/></svg></div>
+            <div class="ai-verdict">相場内です</div>
+            <div class="ai-sub">この見積もりは相場の範囲内です</div>
+            <div class="ai-box">
+              <span class="ai-k">相場価格帯</span>
+              <div class="ai-band">150万円 〜 190万円</div>
+              <span class="ai-k">あなたの見積もり</span>
+              <div class="ai-mine">180万円</div>
+              <div class="ai-slider"><span class="mk"></span></div>
+              <div class="ai-scale"><span>安い</span><span>高い</span></div>
+              <div class="ai-btn">相談を見る ▸</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="ticker">
-      <div class="ticker-lbl">本日の声</div>
+
+    <div class="ticker" id="voices">
+      <div class="ticker-l">本日の声</div>
       <div class="ticker-mask">
-        <div class="ticker-track">
+        <div class="ticker-tr">
           <span>「外壁塗装、A社180万・B社320万。どっちが本当なん？」</span><span class="sep">／</span>
           <span>「諸経費〝一式〟、中身が一行も書いてない」</span><span class="sep">／</span>
           <span>「相見積もり3社、全部バラバラで余計わからん」</span><span class="sep">／</span>
@@ -501,246 +411,137 @@ footer a{color:var(--blue);text-decoration:none}footer a:hover{text-decoration:u
         </div>
       </div>
     </div>
-  </header>
-
-  <!-- 第一面 -->
-  <section class="hero" data-reveal>
-    <div class="kicker rise"><span>第 一 面</span><span class="ln"></span><span>FRONT PAGE</span></div>
-    <h1 class="head1 rise d1">
-      その見積もり、<span class="hl">高い気がする。</span>
-      <span class="sm">その勘は、たぶん正しい。</span>
-    </h1>
-    <p class="lede rise d2">
-      <span class="dropcap">高</span>いのか、妥当なのか。比べる相手がいないまま、判を押す。「正しい」と確かめる<b>物差し</b>が、あなたにはまだ無いからだ。だから、ここに集めることにした。日本中の、本物の見積もりを。一枚ずつ。
-    </p>
-    <div class="byline rise d3">EHN 編集部 ／ The HORIZ音s株式会社</div>
   </section>
-
-  <div class="rule" data-reveal></div>
-
-  <!-- 共感4コマ -->
-  <section class="koma-wrap" data-reveal>
-    <div class="section-lbl rise">読者投稿 ・ あるある四コマ</div>
-    <div class="section-h rise d1">見積もりを前に、みんな同じ顔をしている。</div>
-    <div class="section-sub rise d2">これ、あなただけの話やない。</div>
-    <div class="koma rise d3">
-      <div class="panel">
-        <div class="no">① 届く</div>
-        <div class="art"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><rect x="22" y="13" width="56" height="74"/><line x1="32" y1="29" x2="68" y2="29"/><line x1="32" y1="41" x2="68" y2="41"/><line x1="32" y1="53" x2="60" y2="53"/><line x1="32" y1="65" x2="68" y2="65"/><text x="69" y="84" font-size="26" stroke="none" fill="currentColor" font-family="monospace" font-weight="bold">?</text></svg></div>
-        <div class="cap">見積もりが届く。数字の羅列。高いのか、安いのか、わからない。</div>
-      </div>
-      <div class="panel">
-        <div class="no">② 比べる</div>
-        <div class="art"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><rect x="9" y="48" width="22" height="30"/><rect x="39" y="24" width="22" height="54"/><rect x="69" y="38" width="22" height="40"/><line x1="6" y1="80" x2="94" y2="80"/></svg></div>
-        <div class="cap">相見積もりを取る。3社バラバラ。比べたのに、もっとわからない。</div>
-      </div>
-      <div class="panel">
-        <div class="no">③ 聞く</div>
-        <div class="art"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"><path d="M14 20h40a8 8 0 0 1 8 8v20a8 8 0 0 1-8 8H38L24 68V56H14a8 8 0 0 1-8-8V28a8 8 0 0 1 8-8Z"/><circle cx="74" cy="66" r="15"/><line x1="85" y1="77" x2="94" y2="86" stroke-linecap="round"/></svg></div>
-        <div class="cap">ネットで聞く。「共感」は集まる。でも、答えは出てこない。</div>
-      </div>
-      <div class="panel fin">
-        <div class="no">④ 結局</div>
-        <div class="art"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="66" x2="88" y2="66"/><line x1="20" y1="60" x2="20" y2="72"/><line x1="50" y1="60" x2="50" y2="72"/><line x1="80" y1="60" x2="80" y2="72"/><path d="M50 66V32" stroke-dasharray="4 7"/><circle cx="50" cy="25" r="7" stroke-dasharray="4 6"/></svg></div>
-        <div class="cap">判断は〝なんとなく〟。<br><b>自分の物差しが、無い。</b></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 宣言 -->
-  <section class="declare" data-reveal>
-    <div class="big rise">だから、<span class="u">新聞を創った。</span></div>
-    <p class="rise d2">
-      EHN（見積もり達人ニュース）は、日本中の見積もりが集まる、完全無料の掲示板。<br>
-      あなたの一枚を貼る。誰かの一枚が見える。それだけのことが、今までどこにも無かった。
-    </p>
-  </section>
-
-  <!-- 物差し -->
-  <section class="mission" data-reveal>
-    <div class="statline rise">
-      <div class="big">最大<span class="pct">91%</span></div>
-      <div class="tx">同じ家、同じ工事。なのに、見積もりにはこれだけの開きがあった。<br>だから「相場」を一人で見抜くのは、そもそも無理がある。
-        <span class="src">出典：HORIZON SHIELD 実例データ（98件）</span>
-      </div>
-    </div>
-    <div class="section-lbl rise">社是 ・ なぜ集めるのか</div>
-    <div class="section-h rise d1">一枚ずつ集まるほど、みんなの物差しが、太くなる。</div>
-    <div class="section-sub rise d2">これは告発の場やない。物差しを、みんなで養う場所や。</div>
-    <div class="mission-grid">
-      <div class="mono-stack rise d3">
-        <div class="pl"><span class="b">＋</span><span>あなたが貼る → コーパスに一枚増える</span></div>
-        <div class="pl"><span class="b">＋</span><span>誰かが貼る → あなたが比べられる一枚が増える</span></div>
-        <div class="pl"><span class="b">＋</span><span>コメントが付く → 「うちもや」が繋がる</span></div>
-        <div class="pl"><span class="b">＝</span><span style="color:var(--ink);font-weight:700">日本中の物差しが、一本太くなる</span></div>
-      </div>
-      <div class="measure rise d4">
-        <div class="measure-h">同じ80㎡・外壁塗装でも、これだけ違う</div>
-        <div class="bars">
-          <div class="bar"><span class="nm">A 社</span><span class="tk"><span class="fl" style="--w:42%"></span></span><span class="vl">168万</span></div>
-          <div class="bar"><span class="nm">B 社</span><span class="tk"><span class="fl" style="--w:60%"></span></span><span class="vl">240万</span></div>
-          <div class="bar"><span class="nm">C 社</span><span class="tk"><span class="fl hi" style="--w:100%"></span></span><span class="vl">398万</span></div>
-        </div>
-        <div class="ex">※ 物差しの考え方を示す作図例</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 機能 -->
-  <section class="feats" data-reveal>
-    <div class="feat-top rise"><span class="l">EHN ／ 3つの機能</span><span class="r">貼る ・ 共感する ・ 照らす</span></div>
-    <div class="feat-grid rise d1">
-      <div class="feat">
-        <div class="ic"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><rect x="9" y="6" width="30" height="36"/><line x1="15" y1="16" x2="33" y2="16"/><line x1="15" y1="24" x2="33" y2="24"/><line x1="15" y1="32" x2="27" y2="32"/></svg></div>
-        <div class="n">FUNCTION 01</div>
-        <h3>貼る</h3>
-        <p>見積もりを匿名で投稿。写真でもPDFでもいい。あなたの一枚が、誰かの物差しになる。</p>
-        <div class="note">業者名・施主名・電話・住所・会社印は、掲載前にこちらで必ず伏せます。</div>
-      </div>
-      <div class="feat">
-        <div class="ic"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"><path d="M7 9h26a5 5 0 0 1 5 5v13a5 5 0 0 1-5 5H19l-9 7V32H7a5 5 0 0 1-5-5V14a5 5 0 0 1 5-5Z"/><line x1="12" y1="17" x2="28" y2="17" stroke-linecap="round"/><line x1="12" y1="24" x2="24" y2="24" stroke-linecap="round"/></svg></div>
-        <div class="n">FUNCTION 02</div>
-        <h3>共感する</h3>
-        <p>同じ悩みにコメント。「うちもそうやった」がここで繋がる。一人で抱えなくていい。</p>
-        <div class="note">コメントは確認のうえ掲載。荒らし・個人名の晒しは載せません。</div>
-      </div>
-      <div class="feat">
-        <div class="ic"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"><line x1="11" y1="5" x2="11" y2="43" stroke-linecap="round"/><path d="M11 8h26l-6 8 6 8H11"/></svg></div>
-        <div class="n">FUNCTION 03</div>
-        <h3>照らす</h3>
-        <p>その見積もりが適正かを、フラッグで照らす。判断材料が、その場で一目でわかる。</p>
-        <div class="flags"><span class="fg r">▲ 要確認</span><span class="fg b">● 妥当圏</span></div>
-        <div class="note">業者を裁くためやない。あなたが自分の物差しを持つためのフラッグです。</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 誌面見本：貼ると、こう照らされる -->
-  <section class="proof" data-reveal>
-    <div class="section-lbl rise">誌面見本 ・ 投稿された一枚は、こう載る</div>
-    <div class="section-h rise d1">貼った見積もりを、編集部と AI が「照らす」。</div>
-    <div class="section-sub rise d2">業者名も個人情報も伏せたうえで掲載。あなたの一枚が、誰かの物差しになる。</div>
-
-    <div class="proof-stage rise d3">
-      <input type="checkbox" id="lightit" class="lightit" checked>
-      <div class="proof-toolbar">
-        <span class="pt-lbl">EHN 誌面プレビュー</span>
-        <label for="lightit" class="pt-toggle"><span class="dot"></span><span class="tx">AI で照らす</span></label>
-      </div>
-
-      <div class="sheet">
-        <div class="sheet-head"><div class="sh-l">御 見 積 書</div><div class="sh-r">作図例 ／ SAMPLE</div></div>
-        <div class="sheet-meta">
-          <span>宛：<span class="redact">▇▇▇▇</span> 様</span>
-          <span>施工：<span class="redact">▇▇▇▇▇▇</span></span>
-          <span>件名：外壁塗装・付帯　80㎡</span>
-        </div>
-        <div class="sheet-rows">
-          <div class="row"><span class="it">外壁塗装　一式</span><span class="qt">80㎡</span><span class="am">1,180,000</span></div>
-          <div class="row"><span class="it">高圧洗浄</span><span class="qt">80㎡</span><span class="am">96,000</span></div>
-          <div class="row"><span class="it">足場 ・ 養生</span><span class="qt">一式</span><span class="am">320,000</span></div>
-          <div class="row flag-row"><span class="it">諸経費　一式</span><span class="qt">一式</span><span class="am">720,000</span></div>
-          <div class="row total"><span class="it">合計（税込）</span><span class="qt"></span><span class="am">2,316,000</span></div>
-        </div>
-      </div>
-
-      <div class="annot annot-alert">
-        <span class="ah">▲ 要確認</span>
-        <span class="ab">「諸経費 一式」が総額の <b>31%</b>。目安(10〜16%)を大きく超えています。何が含まれるか、内訳を聞ける一枚です。</span>
-      </div>
-      <div class="annot annot-kira">
-        <span class="ah">KIRA 査定</span>
-        <span class="ab">同条件の想定相場帯は <b>168〜198万</b>。この一枚は上振れ圏。差がどこに乗っているかを照らします。</span>
-      </div>
-
-      <div class="proof-ex">※ 数字は物差しの考え方を示す作図例です。実際の投稿は匿名化・ご本人の同意確認のうえ掲載します。</div>
-    </div>
-  </section>
-
-  <!-- ¥0 -->
-  <section class="free-sec" data-reveal>
-    <div class="stamp"><div class="zero">¥0</div><div class="t">FREE FOREVER</div></div>
-    <h2 class="rise d2">この掲示板は、ずっと無料。</h2>
-    <div class="lst rise d3">貼るのも ・ 読むのも ・ <b>コメントも</b> ・ <b>フラッグも</b><br>会員費なし。広告なし。</div>
-    <div class="fine rise d4">運営は、見積もりが集まることそのものに価値があると考えています。</div>
-  </section>
-
-  <!-- 創刊特典 -->
-  <section data-reveal>
-    <div class="offer rise">
-      <div class="offer-tab">
-        <span class="o1">号外 ／ 創刊記念 OPENING</span>
-        <span class="o2">投稿者だけの、最初の特典</span>
-      </div>
-      <div class="offer-body">
-        <div class="lim">先着 20 名様 限定</div>
-        <h2>投稿してくれた方に、<br>
-          <span class="price"><span class="str">通常¥5,500</span> の「簡易見積もり査定」を <span class="now">無料</span>で。</span>
-        </h2>
-        <p class="by">あなたが貼ってくれた見積もり一枚を、30年の現場と、建設費特化AI「KIRA」が査定します。どこが相場で、どこが膨らんでいそうか。あなたの物差しの、最初の一目盛りに。</p>
-        <div class="offer-meta">
-          <div class="m"><div class="mk">対象</div><div class="mv">EHNに投稿し<br>匿名化を通過した方</div></div>
-          <div class="m"><div class="mk">枠</div><div class="mv">先着20名様<br>（投稿時点で確保）</div></div>
-          <div class="m"><div class="mk">ご案内</div><div class="mv">品質担保のため<br>1日1名ずつ順次</div></div>
-        </div>
-        <p class="offer-fine">※「簡易見積もり査定」は、見積もり一枚の妥当性をお伝えするものです（業者交渉用の逆見積もりや、¥55,000の精密監査とは別のサービスです）。 ※投稿いただいた見積もりは、匿名化・ご本人の同意確認のうえで掲載します。</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 由来 -->
-  <section class="origin" data-reveal>
-    <div class="rule thin" style="max-width:80px;margin:0 auto 36px"></div>
-    <div class="q rise">なぜ「達人ニュース」？</div>
-    <div class="eq rise d1"><span class="a">Estimate</span> ＋ <span class="a">Hacker News</span> ＝ <span class="b">EHN</span></div>
-    <p class="rise d2">見積もりを読み解き、ぼったくりを〝ハック〟する。<br>そんな達人たちが集まって読む、新聞。<br>それが、この名前の由来です。</p>
-  </section>
-
-  <!-- CTA -->
-  <section data-reveal>
-    <div class="cta rise">
-      <h2>創刊号に、あなたの一枚を。</h2>
-      <p>貼った瞬間、あなたは「物差しを養う側」になる。</p>
-      <div class="cta-btns">
-        <a class="btn primary" href="/hacker/">見積もりを貼る ▸</a>
-        <a class="btn ghost" href="/hacker/">まず棚を見る ▸</a>
-      </div>
-    </div>
-  </section>
-
-  <footer>
-    <div class="ft">
-      <span>EHN ／ ESTIMATE HACKER NEWS ・ 創刊号 VOL.001</span>
-      <span>運営：The HORIZ音s株式会社 ／ <a href="https://shield.the-horizons-innovation.com">HORIZON SHIELD</a></span>
-    </div>
-    <div style="margin-top:10px;color:var(--mut2)">投稿は匿名化・ご本人の同意確認のうえ掲載します。業者名・個人情報は伏せます。本掲示板は特定業者の告発を目的とするものではありません。</div>
-  </footer>
-
 </div>
 
-<script>
-(function(){
-  requestAnimationFrame(function(){ requestAnimationFrame(function(){ document.body.classList.add('loaded'); }); });
-  var io=new IntersectionObserver(function(es){
-    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('show'); io.unobserve(e.target); } });
-  },{threshold:.16,rootMargin:'0px 0px -8% 0px'});
-  document.querySelectorAll('[data-reveal]').forEach(function(el){ io.observe(el); });
-})();
-</script>
+<div class="hr"></div>
 
+<!-- 91% -->
+<div class="wrap"><section id="stat">
+  <div class="stat-grid">
+    <div>
+      <div class="stat-h">同じ工事なのに、最大で<br><span class="pct">91%</span>差がありました。</div>
+      <p class="stat-tx">見積もりは業者によって大きく変わります。だからこそ、みんなの事例を集めて、本当の物差しをつくることが重要です。
+        <span class="stat-src">出典：HORIZON SHIELD 実例データ（98件）</span>
+      </p>
+    </div>
+    <div>
+      <div class="chart">
+        <div class="cbar lo"><span class="v">80万</span><span class="b"></span><span class="k">最安値</span></div>
+        <div class="diff"><span class="dk">差額</span><span class="dv">73万</span></div>
+        <div class="cbar hi"><span class="v">153万</span><span class="b"></span><span class="k">最高値</span></div>
+      </div>
+      <div class="chart-note">※ 外壁塗装・延床30坪・神奈川県の事例</div>
+    </div>
+  </div>
+</section></div>
 
-<script>
-/* 保険：読み込み完了時に全演出要素を強制表示（オブザーバが不発でも白画面にしない） */
-(function(){
-  function showAll(){
-    document.querySelectorAll('[data-reveal],.rise,.rule,.stamp').forEach(function(el){el.classList.add('show');});
-    document.body.classList.add('loaded');
-  }
-  if(document.readyState==='complete'||document.readyState==='interactive'){showAll();}
-  document.addEventListener('DOMContentLoaded',showAll);
-  window.addEventListener('load',showAll);
-  setTimeout(showAll,400);
-})();
-</script>
+<div class="hr"></div>
+
+<!-- 3 steps -->
+<div class="wrap"><section id="how">
+  <div class="sec-h">簡単3ステップで、あなたの見積もりがみんなの役に立ちます</div>
+  <div class="steps">
+    <div class="step">
+      <div class="dash ph">スマホで撮影する<br>イラスト</div>
+      <div class="step-no">1</div>
+      <h3>見積もりを投稿</h3>
+      <p>スマホで見積書を撮影してアップロード。PDFでもOK。</p>
+    </div>
+    <div class="step">
+      <div class="dash ph">AI<br>分析アイコン</div>
+      <div class="step-no">2</div>
+      <h3>AIがすぐに分析</h3>
+      <p>AIが明細を分析し、相場との価格差や特徴を診断します。</p>
+    </div>
+    <div class="step">
+      <div class="dash ph">比較<br>イラスト</div>
+      <div class="step-no">3</div>
+      <h3>みんなの事例と比較</h3>
+      <p>同じ工事の他の事例やコメントと比較できます。</p>
+    </div>
+  </div>
+</section></div>
+
+<div class="hr"></div>
+
+<!-- cases -->
+<div class="wrap"><section id="cases">
+  <div class="cases-head">
+    <div class="sec-h" style="margin:0">特集記事（みんなの見積もり事例）</div>
+    <a class="cases-more" href="/hacker/">すべて見る →</a>
+  </div>
+  <div class="cases">
+    <a class="case" href="/hacker/">
+      <div class="dash ph">床・外構・サッシ・<br>塗装複合の施工写真</div>
+      <div class="case-body"><span class="case-genre">内装・改装</span><div class="case-loc">神奈川県・戸建て</div><div class="case-t">床・外構・サッシ・塗装複合リフォーム</div><div class="case-amt">¥1,391,775</div><div class="case-ai">AI診断：要注意</div><div class="case-flag"><span class="r">⚑</span> 4つの懸念点</div></div>
+    </a>
+    <a class="case" href="/hacker/">
+      <div class="dash ph">シャワーユニット<br>設置工事の施工写真</div>
+      <div class="case-body"><span class="case-genre">浴室</span><div class="case-loc">神奈川県・戸建て</div><div class="case-t">シャワーユニット設置工事</div><div class="case-amt">¥237,670</div><div class="case-ai">AI診断：要確認</div><div class="case-flag"><span class="r">⚑</span> 2つの懸念点</div></div>
+    </a>
+    <a class="case" href="/hacker/">
+      <div class="dash ph">天井カセット型<br>エアコン新設の施工写真</div>
+      <div class="case-body"><span class="case-genre">その他</span><div class="case-loc">大阪府・店舗</div><div class="case-t">天井カセット型エアコン新設工事</div><div class="case-amt">¥668,360</div><div class="case-ai">AI診断：要確認</div><div class="case-flag"><span class="r">⚑</span> 2つの懸念点</div></div>
+    </a>
+    <a class="case" href="/hacker/">
+      <div class="dash ph">鉄骨塗装工事の<br>施工写真</div>
+      <div class="case-body"><span class="case-genre">外壁・屋根</span><div class="case-loc">茨城県・店舗</div><div class="case-t">鉄骨塗装工事</div><div class="case-amt">¥103,000</div><div class="case-ai">AI診断：要注意</div><div class="case-flag"><span class="r">⚑</span> 3つの懸念点</div></div>
+    </a>
+    <a class="case" href="/hacker/">
+      <div class="dash ph">クロス貼り・<br>電気工事の施工写真</div>
+      <div class="case-body"><span class="case-genre">内装・改装</span><div class="case-loc">愛知県・店舗</div><div class="case-t">クロス貼り・電気工事一式</div><div class="case-amt">¥1,760,000</div><div class="case-ai">AI診断：要注意</div><div class="case-flag"><span class="r">⚑</span> 4つの懸念点</div></div>
+    </a>
+  </div>
+</section></div>
+
+<div class="hr"></div>
+
+<!-- words -->
+<div class="wrap"><section id="words">
+  <div class="words">
+    <div class="wcard">
+      <span class="wtag">EHN 創刊のことば</span>
+      <h3>なぜ、見積もりだけが見えないのか。</h3>
+      <p>車には相場があります。家電にも相場があります。でも、リフォームになると、急に相場が見えなくなります。</p>
+      <p>見積もりは、みんな持っています。なのに、みんな見られません。</p>
+      <p class="strong">高いのか。安いのか。妥当なのか。</p>
+      <p>判断材料は、本当は日本中に存在しているのに、見えない。だから、集めることにしました。</p>
+      <p><b>EHNは、日本中の見積もりを持ち寄る新聞です。</b></p>
+    </div>
+    <div class="wcard">
+      <h3 style="margin-bottom:18px">編集部ノート</h3>
+      <div class="dash ph">ここに創刊号の写真<br>または編集部デスク</div>
+      <p class="strong">あなたの一枚を貼る。誰かの一枚が見える。</p>
+      <p>それだけのことが、今までどこにも無かったんです。</p>
+      <p>一枚では分からないことがある。十枚並ぶと、見えてくる。百枚並ぶと、相場が見えてくる。</p>
+      <p><b>だから私たちは、見積もりを集めています。</b></p>
+      <div class="sig">EHN 編集部 ／ 大賀俊勝（建設実務30年 監修）</div>
+    </div>
+  </div>
+</section></div>
+
+<div class="hr"></div>
+
+<!-- final CTA -->
+<div class="wrap"><section>
+  <div class="final">
+    <div class="stopwatch">所要<br>約30秒</div>
+    <h2>あなたの一枚が、次の見出しになる。</h2>
+    <p>日本中の見積もりで、みんなの物差しをつくる。</p>
+    <a class="btn btn-red" href="/hacker/">今すぐ見積もりをアップロードする（無料・匿名）▸</a>
+  </div>
+</section></div>
+
+<footer>
+  <div class="wrap">
+    <div class="ft">
+      <span>EHN ／ ESTIMATE HACKER NEWS ・ 創刊号 VOL.001</span>
+      <span>運営：The HORIZ音s株式会社 ／ <a class="hl" href="https://shield.the-horizons-innovation.com">HORIZON SHIELD</a></span>
+    </div>
+    <div class="ft-note">投稿は匿名化・ご本人の同意確認のうえ掲載します。業者名・個人情報は伏せます。本掲示板は特定業者の告発を目的とするものではありません。掲載されている価格・診断は相場の考え方を示すための表示を含みます。</div>
+  </div>
+</footer>
+
 </body>
 </html>
