@@ -22,3 +22,8 @@ fix_autofill_regex.py
 gen_bath_47.py
 pref_geo.json
 region_coef.json
+
+# --- 2026-06-14 追記: 日付つきバックアップ・作業メモ・ルールを除外 ---
+**/*.bak.*
+HANDOFF_*.md
+GROK_RULES.md
