@@ -1347,6 +1347,18 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://shield.the-horizons-innovation.com/ehn/yane-mitsumori/</loc>
+    <lastmod>2026-06-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://shield.the-horizons-innovation.com/ehn/gaiheki-mitsumori/</loc>
+    <lastmod>2026-06-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://shield.the-horizons-innovation.com/hacker/</loc>
     <lastmod>2026-06-07</lastmod>
     <changefreq>weekly</changefreq>
