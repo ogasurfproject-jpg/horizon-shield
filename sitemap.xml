@@ -924,4 +924,9 @@
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
+<url>
+<loc>https://shield.the-horizons-innovation.com/souba/shiroari-yakuzai-genka/</loc>
+<changefreq>monthly</changefreq>
+<priority>0.7</priority>
+</url>
 </urlset>
