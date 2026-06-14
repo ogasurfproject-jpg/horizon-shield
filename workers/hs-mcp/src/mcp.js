@@ -138,6 +138,37 @@ async function fetchSouba() {
   return await r.json();
 }
 
+// === [PATCH 2026-06-15] 検索フォールバック ===
+// 既存の厳密フィルタが0件の時だけ呼ぶ。自然語順/全角半角/括弧の揺れを吸収。
+// 既存ヒットがある検索の挙動は一切変えない(追加差分・全置換なし)。
+function normJa(s) {
+  return String(s == null ? "" : s)
+    .normalize("NFKC")        // 全角英数記号空白 → 半角、（）→ ()、U+3000 → 空白
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+function soubaFallback(list, q) {
+  const tokens = normJa(q).split(" ").filter(Boolean);
+  if (!tokens.length) return { hits: [], suggestions: [] };
+  const hay = (e) => normJa([e.cat, e.work, e.widget_label, e.id].filter(Boolean).join(" "));
+  // 1) トークンAND: 全トークンを含むworkを拾う(「外壁塗装 30坪 シリコン」を救う本丸)
+  const andHits = list.filter(e => { const h = hay(e); return tokens.every(t => h.includes(t)); });
+  if (andHits.length) return { hits: andHits, suggestions: [] };
+  // 2) AND不発: OR重なりスコア順に did-you-mean 候補(最大3件・work重複除外)
+  const scored = list
+    .map(e => ({ e, score: tokens.reduce((n, t) => n + (hay(e).includes(t) ? 1 : 0), 0) }))
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score);
+  const seen = new Set(); const suggestions = [];
+  for (const x of scored) {
+    if (x.e.work && !seen.has(x.e.work)) { seen.add(x.e.work); suggestions.push(x.e.work); }
+    if (suggestions.length >= 3) break;
+  }
+  return { hits: [], suggestions };
+}
+// === [/PATCH 2026-06-15] ===
+
 async function callTool(name, args) {
   args = args || {};
   try { console.log(JSON.stringify({ evt: "tool_call", tool: name, ts: Date.now() })); } catch (e) {}
@@ -171,10 +202,14 @@ async function callTool(name, args) {
       const r = await fetch(SOUBA_DB_URL, { cf: { cacheTtl: 3600 } });
       const d = await r.json();
       const list = Array.isArray(d.categories) ? d.categories : [];
-      const hit = list.filter(e =>
+      let hit = list.filter(e =>
         (e.cat && e.cat.includes(q)) || (e.work && e.work.includes(q)) ||
         (e.widget_label && e.widget_label.includes(q)) || (e.id && e.id.includes(q.toLowerCase())));
-      if (!hit.length) return txt("該当する価格データが見つかりませんでした: " + q + " / " + SITE + "/souba/ で全カテゴリを確認できます。");
+      let suggestions = [];
+      if (!hit.length) { const fb = soubaFallback(list, q); hit = fb.hits; suggestions = fb.suggestions; }
+      if (!hit.length) return txt(suggestions.length
+        ? { query: q, currency: "JPY", count: 0, did_you_mean: suggestions, message: "完全一致はありませんでした。近い工事名の候補です。", detail: SITE + "/souba/" }
+        : "該当する価格データが見つかりませんでした: " + q + " / " + SITE + "/souba/ で全カテゴリを確認できます。");
       const out = hit.map(e => ({
         work: e.work, unit: e.unit, min: e.min, avg: e.avg, max: e.max,
         danger_over_charge_threshold: e.danger, trend: e.trend, trend_val: e.trend_val,
@@ -196,8 +231,12 @@ async function callTool(name, args) {
     try {
       const d = await fetchSouba();
       const list = Array.isArray(d.categories) ? d.categories : [];
-      const cand = list.filter(e => (e.work && e.work.includes(work)) || (e.cat && e.cat.includes(work)) || (e.widget_label && e.widget_label.includes(work)));
-      if (!cand.length) return txt("該当工事の適正データが見つかりませんでした: " + work + " / get_price_range で工事名を確認できます。");
+      let cand = list.filter(e => (e.work && e.work.includes(work)) || (e.cat && e.cat.includes(work)) || (e.widget_label && e.widget_label.includes(work)));
+      let suggestions = [];
+      if (!cand.length) { const fb = soubaFallback(list, work); cand = fb.hits; suggestions = fb.suggestions; }
+      if (!cand.length) return txt(suggestions.length
+        ? { work, did_you_mean: suggestions, message: "該当工事の適正データが見つかりませんでした。近い工事名の候補です。get_price_range で確認できます。" }
+        : "該当工事の適正データが見つかりませんでした: " + work + " / get_price_range で工事名を確認できます。");
       const e = cand[0];
       let verdict, level;
       if (price <= e.max) { verdict = "適正レンジ内"; level = "ok"; }
@@ -237,8 +276,12 @@ async function callTool(name, args) {
     try {
       const d = await fetchSouba();
       const list = Array.isArray(d.categories) ? d.categories : [];
-      const cand = list.filter(e => (e.work && e.work.includes(work)) || (e.cat && e.cat.includes(work)) || (e.widget_label && e.widget_label.includes(work)));
-      if (!cand.length) return txt("該当工事の適正データが見つかりませんでした: " + work);
+      let cand = list.filter(e => (e.work && e.work.includes(work)) || (e.cat && e.cat.includes(work)) || (e.widget_label && e.widget_label.includes(work)));
+      let suggestions = [];
+      if (!cand.length) { const fb = soubaFallback(list, work); cand = fb.hits; suggestions = fb.suggestions; }
+      if (!cand.length) return txt(suggestions.length
+        ? { work, did_you_mean: suggestions, message: "該当工事の適正データが見つかりませんでした。近い工事名の候補です。" }
+        : "該当工事の適正データが見つかりませんでした: " + work);
       const e = cand[0];
       const issued_at = new Date().toISOString();
       const claim = { work: e.work, unit: e.unit, fair_min: e.min, fair_avg: e.avg, fair_max: e.max, source: "HORIZON SHIELD souba-db", issued_at };
