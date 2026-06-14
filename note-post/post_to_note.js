@@ -13,78 +13,80 @@ const fs = require('fs');
 const GUIDE_URL = 'https://shield.the-horizons-innovation.com/kyutoki-guide.html';
 
 const THEMES = [
-  // ── 既存テーマ ──
+  // 新テーマ: 床下4兄弟(材料費から逆算)
   {
-    title: 'リフォーム業者が絶対に教えない「見積書の5つの罠」',
-    keywords: ['一式見積もり','諸経費','図面なし','数量不明','口頭約束'],
-    angle: '施主が知らない業者の常套手段を暴露する内容',
-    hashtags: ['リフォーム','見積書','建設費','施主','HORIZONSHIELD'],
+    title: 'シロアリ消毒20万円は高いのか。薬剤の原価から逆算する床下防除の適正価格',
+    keywords: ['薬剤原価','バリア工法','坪単価','5年保証','床下面積'],
+    angle: 'シロアリ消毒の見積もりを薬剤の材料費と工法から検証し、適正レンジを示す内容',
+    hashtags: ['シロアリ消毒','床下','適正価格','施主','HORIZONSHIELD'],
   },
   {
-    title: '「追加工事が必要です」と言われたら疑え。建設30年のプロが語る真実',
-    keywords: ['追加工事','契約外','口頭指示','変更工事査定','証拠'],
-    angle: '追加請求の正当性を見極める方法',
-    hashtags: ['追加工事','リフォーム','建設','施主','HORIZONSHIELD'],
+    title: '床下換気扇30万円は本当に必要か。効果と適正費用を現場目線で検証する',
+    keywords: ['床下換気','調湿','結露','効果検証','適正費用'],
+    angle: '床下換気扇の効果と必要性を冷静に評価し、過剰な提案を見抜く判断軸を示す内容',
+    hashtags: ['床下換気扇','リフォーム','適正価格','施主','HORIZONSHIELD'],
   },
   {
-    title: '外壁塗装300万円は高いのか？適正価格の見分け方を徹底解説',
-    keywords: ['外壁塗装','足場代','塗料原価','坪単価','相見積もり'],
-    angle: '具体的な数字で適正価格を解説する内容',
-    hashtags: ['外壁塗装','リフォーム','適正価格','施主','HORIZONSHIELD'],
+    title: '基礎のひび割れ補強で75万円。アラミド繊維の材料費が10万円台という事実',
+    keywords: ['基礎補強','アラミド繊維','エポキシ','材料費','過剰請求'],
+    angle: '基礎補強の見積もりを材料費から逆算し、現場価格との乖離を具体的に示す内容',
+    hashtags: ['基礎補強','リフォーム','材料費','施主','HORIZONSHIELD'],
   },
   {
-    title: '工務店選びで失敗しない7つのチェックポイント',
-    keywords: ['建設業許可','施工実績','保証内容','契約書','口コミ'],
-    angle: '施主が業者を選ぶ際の具体的な判断基準',
-    hashtags: ['工務店','リフォーム','建設','施主','HORIZONSHIELD'],
+    title: '床下調湿剤30万円の正体。ゼオライトは1坪2千円という現実と、見えない敷設量',
+    keywords: ['調湿剤','ゼオライト','防湿シート','敷設量','材料費'],
+    angle: '床下調湿剤の材料費と、敷いた量が見えない構造的な問題を解説する内容',
+    hashtags: ['床下調湿剤','リフォーム','材料費','施主','HORIZONSHIELD'],
+  },
+  // 新テーマ: 物差し論(情報格差の構造)
+  {
+    title: 'なぜリフォーム見積もりは比べられないのか。日本に適正価格の物差しが無い理由',
+    keywords: ['物差し','公開基準','情報格差','信用財','相見積もり'],
+    angle: '適正価格の公開基準が無いために相見積もりが空回りする構造を解説する内容',
+    hashtags: ['リフォーム','見積もり','情報格差','施主','HORIZONSHIELD'],
   },
   {
-    title: '引き渡し前に必ず確認すべき施工不良チェックリスト20項目',
-    keywords: ['施工不良','完成検査','クロス','床鳴り','防水'],
-    angle: '素人でもできる施工不良の見つけ方',
-    hashtags: ['施工不良','完成検査','リフォーム','施主','HORIZONSHIELD'],
+    title: '相見積もりを3社取っても無駄になる時がある。基準が無ければ全部高い',
+    keywords: ['相見積もり','基準','横比較','妥当性','情報格差'],
+    angle: '基準不在のまま相見積もりを取る危うさと、妥当価格の見極め方を伝える内容',
+    hashtags: ['相見積もり','リフォーム','適正価格','施主','HORIZONSHIELD'],
   },
   {
-    title: '店舗開業の内装工事、適正価格はいくら？坪単価の相場を業種別に解説',
-    keywords: ['坪単価','飲食店','サロン','クリニック','内装工事'],
-    angle: '業種別の適正な内装工事費用の目安',
-    hashtags: ['内装工事','店舗','坪単価','リフォーム','HORIZONSHIELD'],
+    title: '一式見積もりはなぜ危険か。内訳が消える瞬間に過剰請求が紛れる',
+    keywords: ['一式','内訳','諸経費','数量明示','過剰請求'],
+    angle: '一式表記の危うさと、項目ごとの内訳提出を求める正当な根拠を解説する内容',
+    hashtags: ['一式見積もり','リフォーム','建設費','施主','HORIZONSHIELD'],
   },
   {
-    title: '見積書を「高い」と感じたら最初にやるべきこと3つ',
-    keywords: ['見積書確認','内訳','単価','数量','専門家相談'],
-    angle: '見積書に違和感を感じた時の具体的な行動手順',
-    hashtags: ['見積書','リフォーム','建設費','施主','HORIZONSHIELD'],
-  },
-
-  // ── 施主のための教科書シリーズ（新規追加）──
-  {
-    title: '【施主のための教科書①】見積書の読み方・絶対に見るべき5項目',
-    keywords: ['材工一式','型番','撤去処分費','保証期間','消費税'],
-    angle: '見積書を受け取った施主が今すぐ確認すべき5つの項目を具体的に解説する内容',
-    hashtags: ['見積書','リフォーム','施主','建設費','HORIZONSHIELD'],
-    guideLink: true,
+    title: '無料一括見積もりサイトの手数料は、最終的に誰が払っているのか',
+    keywords: ['一括見積もり','紹介料','成約手数料','価格転嫁','中立性'],
+    angle: '一括見積もりサイトの紹介料モデルと、手数料が工事額に転嫁される構造を解説する内容',
+    hashtags: ['一括見積もり','リフォーム','手数料','施主','HORIZONSHIELD'],
   },
   {
-    title: '【施主のための教科書②】訪問業者が来たら最初にすべきこと',
-    keywords: ['訪問業者','詐欺','その場契約','会社名確認','緊急交換'],
-    angle: '突然の訪問業者から自分を守るための具体的な行動手順',
-    hashtags: ['訪問業者','詐欺','リフォーム','施主','HORIZONSHIELD'],
-    guideLink: true,
+    title: '訪問販売の床下工事で即決を迫られたら。クーリングオフと消費者ホットライン188',
+    keywords: ['訪問販売','クーリングオフ','消費者ホットライン188','即決','床下'],
+    angle: '訪問販売の床下工事で即決を避け、クーリングオフと188番で身を守る手順を伝える内容',
+    hashtags: ['訪問販売','クーリングオフ','床下','施主','HORIZONSHIELD'],
+  },
+  // 新テーマ: 検算(外壁・屋根・総論)
+  {
+    title: '外壁塗装シリコン30坪150万円は適正か。坪単価で検算する手順',
+    keywords: ['外壁塗装','シリコン','坪単価','足場代','適正レンジ'],
+    angle: '外壁塗装の見積もりを坪単価と材料原価で検算し、適正かを判断する手順を示す内容',
+    hashtags: ['外壁塗装','適正価格','坪単価','施主','HORIZONSHIELD'],
   },
   {
-    title: '【施主のための教科書③】補助金を悪用した詐欺の見分け方',
-    keywords: ['給湯省エネ2026','実質ゼロ円','補助金詐欺','先進的窓リノベ','申請代行'],
-    angle: '政府補助金制度を悪用した詐欺パターンと正しい補助金の知識',
-    hashtags: ['補助金','詐欺','リフォーム','給湯器','HORIZONSHIELD'],
-    guideLink: true,
+    title: '屋根の葺き替え見積もりが高い。材料と工程を分けて見抜く方法',
+    keywords: ['屋根葺き替え','材料費','工程','火災保険','適正価格'],
+    angle: '屋根葺き替えの見積もりを材料と工程に分解し、過剰請求を見抜く方法を伝える内容',
+    hashtags: ['屋根工事','リフォーム','適正価格','施主','HORIZONSHIELD'],
   },
   {
-    title: '【施主のための教科書④】大手と地元業者、本当に安いのはどっちか',
-    keywords: ['業者タイプ','大手チェーン','地元工務店','価格構造','下請け'],
-    angle: '業者の規模別価格構造を数字で解説し、本当にコスパの良い選び方を伝える内容',
-    hashtags: ['工務店','リフォーム','業者選び','施主','HORIZONSHIELD'],
-    guideLink: true,
+    title: '同じ工事で見積もりが120万〜180万に割れる理由。妥当が90万なら全部高い',
+    keywords: ['価格バラつき','妥当価格','業者間格差','物差し','検算'],
+    angle: '同じ工事で業者間の見積もりが割れる理由と、妥当価格を軸に判断する考え方を示す内容',
+    hashtags: ['リフォーム','見積もり','適正価格','施主','HORIZONSHIELD'],
   },
 ];
 
@@ -146,7 +148,7 @@ async function generateArticle(theme) {
     ? `\n\n━━━━━━━━━━━━━━━━\n\n📖 給湯器交換の適正価格ガイド【2026年最新】\n建設30年プロが価格・詐欺パターン・補助金を完全解説\n${GUIDE_URL}\n`
     : '';
 
-  const footer = `${guideSection}\n\n━━━━━━━━━━━━━━━━\n\n🛡 HORIZON SHIELD — 無料で使える3つの窓口\n\n📍 LPで診断する\nhttps://shield.the-horizons-innovation.com\n\n🤖 ChatGPTで無料診断（建設費カテゴリ1位）\nhttps://chatgpt.com/g/g-69e180f9a5048191886069dd58b22572-jian-she-fei-tietuka-by-horizon-shield\n\n♊ Geminiで無料診断\nhttps://gemini.google.com/gem/1_AqLRwNSP1tZWZNWzyNIrsOrBLI1fAjo\n\n💬 LINEで今すぐ相談（KIRA）\nhttps://line.me/R/ti/p/@172piime`;
+  const footer = `${guideSection}\n\n━━━━━━━━━━━━━━━━\n\n🛡 HORIZON SHIELD・無料で使える3つの窓口\n\n📍 LPで診断する\nhttps://shield.the-horizons-innovation.com\n\n🤖 ChatGPTで無料診断（建設費カテゴリ1位）\nhttps://chatgpt.com/g/g-69e180f9a5048191886069dd58b22572-jian-she-fei-tietuka-by-horizon-shield\n\n♊ Geminiで無料診断\nhttps://gemini.google.com/gem/1_AqLRwNSP1tZWZNWzyNIrsOrBLI1fAjo\n\n💬 LINEで今すぐ相談（KIRA）\nhttps://line.me/R/ti/p/@172piime`;
 
   const fullText = text + footer;
   console.log('記事生成完了 文字数:', fullText.length);
@@ -294,7 +296,7 @@ async function postToHatena(theme, articleText, noteUrl) {
 ---
 
 <div style="padding:20px;background:#f5f3ec;border-left:4px solid #c8a832;margin-top:32px;">
-<p style="font-weight:700;margin-bottom:8px;">🛡 HORIZON SHIELD — 建設費診断サービス</p>
+<p style="font-weight:700;margin-bottom:8px;">🛡 HORIZON SHIELD・建設費診断サービス</p>
 ${guideSection}
 <p>📍 <a href="https://shield.the-horizons-innovation.com">無料AI診断はこちら</a></p>
 <p>🤖 <a href="https://chatgpt.com/g/g-69e180f9a5048191886069dd58b22572-jian-she-fei-tietuka-by-horizon-shield">ChatGPTで無料診断</a></p>
