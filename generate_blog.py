@@ -1,4 +1,4 @@
-import os, json, urllib.request, datetime, time
+import os, json, re, urllib.request, datetime, time
 
 TOPICS = [
     'リフォーム見積もりで100万円以上損する人の共通点',
@@ -55,6 +55,19 @@ req = urllib.request.Request(
 )
 with urllib.request.urlopen(req) as r:
     content = json.loads(r.read())['content'][0]['text']
+
+# === [PATCH 2026-06-15] コードフェンス除去(```html / ``` の本番HTML生混入の根治) ===
+# モデルが厳守事項に反してフェンスで囲って返すことがある。
+# 単独行のフェンスを全除去し、先頭末尾のインラインフェンスも剥がす。
+content = content.strip()
+content = re.sub(r'^\s*```[A-Za-z0-9]*[ \t]*\r?\n', '', content)   # 先頭フェンス行
+content = re.sub(r'\r?\n[ \t]*```[ \t]*\s*$', '', content)         # 末尾フェンス行
+content = '\n'.join(
+    line for line in content.splitlines()
+    if not re.match(r'^\s*```[A-Za-z0-9]*\s*$', line)             # 残った単独フェンス行
+)
+content = content.strip()
+# === [/PATCH 2026-06-15] ===
 
 os.makedirs('blog', exist_ok=True)
 
