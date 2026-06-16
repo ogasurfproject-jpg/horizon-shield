@@ -1755,6 +1755,60 @@ async function handleHackerAnalyze(request, env, origin) {
   return json({ ok: true, card }, 200, origin);
 }
 
+// ============================================
+// EHN AUTO-GATE (2026-06-17 additive): 二層オートゲート
+// LIVE=false の間はシャドー観測(全件pending、LINE通知にゲート判定のみ)。
+// 判定を実データで確認して信用できたら true にして再デプロイで自動公開ON。
+// ============================================
+const EHN_AUTO_PUBLISH_LIVE = false;
+
+// 自動公開を許すジャンルのホワイトリスト。未知/「その他」は手動へ回す(保守的)。
+const EHN_GATE_GENRES = ['外壁・屋根','外壁','屋根','浴室','内装・改装','キッチン','トイレ','給湯器','内窓','洗面','外構・エクステリア'];
+
+function ehnAutoGate(cls) {
+  const amt = Number(String(cls.amount || '').replace(/[^0-9]/g, '')) || 0;
+  const title = String(cls.title || '').trim();
+  // reject: 明白なゴミ(金額が常識外・タイトル空/記号のみ)
+  if (amt < 10000 || amt > 100000000) return 'reject';
+  if (title.length < 3) return 'reject';
+  if (!/[0-9A-Za-z\u3040-\u30FF\u4E00-\u9FFF]/.test(title)) return 'reject';
+  // pending: 人の目が要る(未知ジャンル/その他=GEO還流先も無い、長すぎ、赤旗異常)
+  if (!EHN_GATE_GENRES.includes(String(cls.genre || ''))) return 'pending';
+  if (title.length > 36) return 'pending';
+  if ((Number(cls.red_flags) || 0) > 8) return 'pending';
+  // clean な既知ジャンル → 自動公開候補
+  return 'publish';
+}
+
+async function ehnAutoPublish(cls, poster, env) {
+  const id = 'card-' + Date.now();
+  const card = {
+    id,
+    genre:    cls.genre || 'その他',
+    region:   cls.region || '',
+    building: cls.building || '',
+    title:    cls.title || '見積もり',
+    traits:   Array.isArray(cls.traits) ? cls.traits.slice(0, 5) : [],
+    red_flags: Number(cls.red_flags) || 0,
+    verdict:  cls.verdict || '',
+    amount:   (cls.amount != null ? String(cls.amount) : '').replace(/[^0-9]/g, ''),
+    initial:  cls.initial || '',
+    phase:    cls.phase || 'archive',
+    poster_line_id: poster.line_id || '',
+    poster_name:    poster.name || '',
+    published: true,
+    geo_adopted: false,
+    auto_published: true,
+    created_at: Date.now(),
+  };
+  await env.ORDERS.put(`card:${id}`, JSON.stringify(card));
+  const idxRaw = await env.ORDERS.get('card_index');
+  const ids = idxRaw ? JSON.parse(idxRaw) : [];
+  if (!ids.includes(id)) ids.unshift(id);
+  await env.ORDERS.put('card_index', JSON.stringify(ids));
+  return id;
+}
+
 async function handleHackerSubmitCard(request, env, origin) {
   const auth = request.headers.get('Authorization') || '';
   const tk = auth.startsWith('Bearer ') ? auth.slice(7) : '';
@@ -1782,7 +1836,16 @@ async function handleHackerSubmitCard(request, env, origin) {
     initial: (c.initial || '').toString().slice(0, 8),
     phase: (c.phase === 'active' ? 'active' : 'archive'),
   };
-  await savePendingCard(cls, { name: sess.display_name || '', email: '', line_id: sess.line_user_id || '' }, env);
+  const _poster = { name: sess.display_name || '', email: '', line_id: sess.line_user_id || '' };
+  const _gate = ehnAutoGate(cls);
+  if (EHN_AUTO_PUBLISH_LIVE && _gate === 'reject') {
+    return json({ error: '投稿内容を確認できませんでした（金額や工事名をご確認ください）' }, 400, origin);
+  }
+  if (EHN_AUTO_PUBLISH_LIVE && _gate === 'publish') {
+    await ehnAutoPublish(cls, _poster, env);
+  } else {
+    await savePendingCard(cls, _poster, env);
+  }
   // EHN新規投稿をLINEへ通知(失敗しても投稿成功は壊さない)【診断版】
   try {
     const _lineRes = await fetch('https://api.line.me/v2/bot/message/push', {
@@ -1798,7 +1861,8 @@ async function handleHackerSubmitCard(request, env, origin) {
           text: `📋 EHNに新しい見積もりが投稿されました\n`
             + `工事: ${cls.genre} / ${cls.title}\n`
             + `投稿者: ${sess.display_name || '匿名'}\n`
-            + `承認待ちです。管理画面で確認してください。`,
+            + `承認待ちです。管理画面で確認してください。`
+            + `\nゲート判定: ${_gate}${EHN_AUTO_PUBLISH_LIVE ? '（自動運用ON）' : '（シャドー観測中）'}`,
         }],
       }),
     });
