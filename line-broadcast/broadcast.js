@@ -1,4 +1,23 @@
 const https = require('https');
+const fs = require('fs');
+const path = require('path');
+
+// feed(note-post/feed/)から最優先の鮮度テーマを1件読む。無ければ null。
+function loadTopFeed() {
+  const feedDir = path.join(__dirname, '..', 'note-post', 'feed');
+  if (!fs.existsSync(feedDir)) return null;
+  const files = fs.readdirSync(feedDir).filter(f => f.endsWith('.json'));
+  if (files.length === 0) return null;
+  const items = [];
+  for (const f of files) {
+    try { items.push(JSON.parse(fs.readFileSync(path.join(feedDir, f), 'utf-8'))); }
+    catch (e) { /* skip */ }
+  }
+  if (items.length === 0) return null;
+  items.sort((a, b) =>
+    (a.priority === 'urgent' ? 0 : 1) - (b.priority === 'urgent' ? 0 : 1));
+  return items[0];
+}
 
 const KIRA_SYSTEM = `あなたはHORIZON SHIELDのAI営業スタッフKIRAです。
 毎朝、建設費・リフォームに不安を持つ施主向けに、LINE配信メッセージを1通生成してください。
@@ -17,7 +36,14 @@ function generateMessage() {
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 300,
       system: KIRA_SYSTEM,
-      messages: [{ role: 'user', content: '今日のLINE配信メッセージを1通生成してください。' }]
+      messages: [{ role: 'user', content: (function () {
+        const feed = loadTopFeed();
+        if (!feed) return '今日のLINE配信メッセージを1通生成してください。';
+        return '次の市況ネタを元に、今日のLINE配信を1通作成してください。\n'
+          + 'テーマ: ' + feed.title + '\n'
+          + '事実: ' + ((feed.facts || []).join(' / ')) + '\n'
+          + '必ず診断導線(' + (feed.cta || '') + ')とLP(' + (feed.lp_url || '') + ')を含める。150字以内。';
+      })() }]
     });
 
     const req = https.request({
