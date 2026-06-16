@@ -1155,6 +1155,7 @@ async function handleHackerCards(request, env, origin) {
       id: c.id, genre: c.genre, region: c.region, building: c.building,
       title: c.title, traits: c.traits || [], red_flags: c.red_flags || 0,
       verdict: c.verdict || '', amount: c.amount || '', initial: c.initial || '', phase: c.phase || 'archive',
+      geo_adopted: c.geo_adopted === true,
       comment_count: commentCount, like_count: likeCount, created_at: c.created_at,
     });
   }
@@ -1961,6 +1962,7 @@ async function handleHackerPublish(request, env, origin) {
     poster_line_id: p.poster_line_id || '',
     poster_name:    p.poster_name || '',
     published: true,
+    geo_adopted: (body.geo_adopted === true) || (p.geo_adopted === true) || false,
     created_at: Date.now(),
   };
   await env.ORDERS.put(`card:${id}`, JSON.stringify(card));

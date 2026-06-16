@@ -218,6 +218,7 @@ function render(items){
         <div class="field"><span class="field-k">INITIAL 施主</span><span class="field-v"><input id="i_${esc(p.id)}" value="${esc(p.initial||'')}" placeholder="例：T（名字の頭文字1つ。空欄可）" maxlength="3"></span></div>
         <div class="field"><span class="field-k">REGION</span><span class="field-v"><input id="r_${esc(p.id)}" value="${esc(p.region||'')}" placeholder="例：神奈川（任意）"></span></div>
         <div class="field"><span class="field-k">BUILDING</span><span class="field-v"><input id="b_${esc(p.id)}" value="${esc(p.building||'')}" placeholder="例：戸建て（任意）"></span></div>
+        <div class="field"><span class="field-k">GEO採用</span><span class="field-v"><label><input type="checkbox" id="geo_${esc(p.id)}"> このカードを souba/GEO ページに焼く</label></span></div>
         <div class="field traits-edit"><span class="field-k">TRAITS</span><span class="field-v"><textarea id="tr_${esc(p.id)}" placeholder="1行に1つ">${esc(traits)}</textarea></span></div>
         <div class="field"><span class="field-k">RED_FLAGS</span><span class="field-v"><input id="rf_${esc(p.id)}" type="number" value="${p.red_flags||0}" style="max-width:90px"></span></div>
         <div class="field"><span class="field-k">VERDICT</span><span class="field-v"><input id="v_${esc(p.id)}" value="${esc(p.verdict||'')}"></span></div>
@@ -241,11 +242,12 @@ async function publish(id){
   const v=document.getElementById('v_'+id).value.trim();
   const a=document.getElementById('a_'+id).value.trim();
   const ini=document.getElementById('i_'+id).value.trim();
+  const geo=document.getElementById('geo_'+id)?document.getElementById('geo_'+id).checked:false;
   if(!confirm('この内容で棚に公開します。業者名・個人情報が残っていないか確認しましたか？')) return;
   try{
     const res=await fetch(API+'/hacker/publish?key='+encodeURIComponent(PW),{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({pending_id:id,action:'publish',genre:g,title:t,amount:a,initial:ini,region:r,building:b,traits:tr,red_flags:rf,verdict:v})
+      body:JSON.stringify({pending_id:id,action:'publish',genre:g,title:t,amount:a,initial:ini,region:r,building:b,traits:tr,red_flags:rf,verdict:v,geo_adopted:geo})
     });
     const d=await res.json();
     if(d.ok){toast('公開しました。棚に並びました');const el=document.getElementById('c_'+id);if(el)el.remove();updateCount();}
