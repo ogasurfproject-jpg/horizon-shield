@@ -461,6 +461,19 @@ async function main() {
     }
 
     const articleText = await generateArticle(theme);
+
+    // DRY_RUN: 投稿せず記事を表示して終了(Actions上で中身を安全に確認するため)
+    if (process.env.DRY_RUN === '1') {
+      console.log('===== DRY_RUN 記事プレビュー(投稿しない) =====');
+      console.log('タイトル:', theme.title);
+      console.log('ハッシュタグ:', (theme.hashtags || []).join(' '));
+      console.log('----- 本文 -----');
+      console.log(articleText);
+      console.log('----- 本文ここまで 文字数:', (articleText || '').length, '-----');
+      console.log('===== DRY_RUN 終了。投稿していない。=====');
+      process.exit(0);
+    }
+
     const noteUrl = await postToNote(theme, articleText);
     console.log('投稿URL:', noteUrl);
 
