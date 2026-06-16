@@ -1688,6 +1688,7 @@ async function savePendingCard(cls, poster, env) {
     title:    cls.title || '見積もり',
     amount:   (cls.amount != null ? String(cls.amount) : '').replace(/[^0-9]/g, ''),
     region:   cls.region || '',
+    initial:  cls.initial || '',
     phase:    cls.phase || 'archive',
     traits:   Array.isArray(cls.traits) ? cls.traits.slice(0, 5) : [],
     red_flags: Number(cls.red_flags) || 0,
@@ -1777,6 +1778,7 @@ async function handleHackerSubmitCard(request, env, origin) {
     red_flags: Number(c.red_flags) || 0,
     verdict: (c.verdict || '').toString().slice(0, 60),
     region: (c.region || '').toString().slice(0, 10),
+    initial: (c.initial || '').toString().slice(0, 8),
     phase: (c.phase === 'active' ? 'active' : 'archive'),
   };
   await savePendingCard(cls, { name: sess.display_name || '', email: '', line_id: sess.line_user_id || '' }, env);
