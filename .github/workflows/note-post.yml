@@ -3,6 +3,11 @@ on:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: '投稿せず記事プレビューのみ(true=ドライラン)'
+        type: boolean
+        default: false
 jobs:
   post-to-note:
     runs-on: ubuntu-latest
@@ -28,6 +33,7 @@ jobs:
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
           HATENA_API_KEY: ${{ secrets.HATENA_API_KEY }}
+          DRY_RUN: ${{ (github.event.inputs.dry_run == 'true') && '1' || '0' }}
         run: cd note-post && node post_to_note.js
       - name: 投稿済みリストをコミット
         run: |
