@@ -1336,6 +1336,100 @@ async function handleHackerComment(request, env, origin) {
   return json({ ok: true, status: 'pending', message: '投稿を受け付けました。確認後に公開されます。' }, 200, origin);
 }
 
+// ============================================
+// ② 供給側マッチング: 検証済み案件の公開時に、対応工種×地域が合う業者へLINE通知。
+//    既存の HS_CONTRACTORS(contractor:*) と既存のLINE push を流用。新規KV/新規トークン無し。
+//    通知が失敗しても案件公開は壊さない(全体try/catch)。
+//    マッチは寛容方式: 完全一致 / 部分一致 / 区切り分割トークン照合 / 地域エイリアス。
+// ============================================
+const HS_REGION_ALIAS = {
+  kanto:  ['東京', '神奈川', '埼玉', '千葉', '関東', '茨城', '栃木', '群馬'],
+  kinki:  ['大阪', '京都', '兵庫', '奈良', '滋賀', '和歌山', '関西', '近畿'],
+  chubu:  ['愛知', '静岡', '岐阜', '三重', '中部', '名古屋', '北陸', '新潟', '長野', '山梨', '富山', '石川', '福井'],
+  tohoku: ['青森', '岩手', '宮城', '秋田', '山形', '福島', '東北'],
+  other:  ['北海道', '広島', '岡山', '福岡', '沖縄', '九州', '中国', '四国', '山口', '島根', '鳥取', '香川', '徳島', '愛媛', '高知']
+};
+function hsNorm(s) {
+  return String(s == null ? '' : s).normalize('NFKC').trim();
+}
+function hsRegionGroups(value) {
+  const v = hsNorm(value);
+  const groups = new Set();
+  if (!v) return groups;
+  for (const [g, keys] of Object.entries(HS_REGION_ALIAS)) {
+    if (keys.some(k => v.includes(k) || k.includes(v))) groups.add(g);
+  }
+  return groups;
+}
+function hsGenreMatch(cardGenre, contractorGenres) {
+  if (!Array.isArray(contractorGenres) || contractorGenres.length === 0) return true; // 工種未設定=全件受信
+  const cg = hsNorm(cardGenre);
+  if (!cg) return true;
+  const cgToks = cg.split(/[・/／,、\s]+/).filter(Boolean);
+  return contractorGenres.some(g => {
+    const x = hsNorm(g);
+    if (!x) return false;
+    if (x === cg || cg.includes(x) || x.includes(cg)) return true;
+    const xToks = x.split(/[・/／,、\s]+/).filter(Boolean);
+    return cgToks.some(a => xToks.some(b => a === b || a.includes(b) || b.includes(a)));
+  });
+}
+function hsRegionMatch(cardRegion, contractorRegions) {
+  if (!Array.isArray(contractorRegions) || contractorRegions.length === 0) return true; // 地域未設定=全件受信
+  const cr = hsNorm(cardRegion);
+  if (!cr) return true;
+  const crGroups = hsRegionGroups(cr);
+  return contractorRegions.some(r => {
+    const x = hsNorm(r);
+    if (!x) return false;
+    if (x === cr || cr.includes(x) || x.includes(cr)) return true;
+    const xg = hsRegionGroups(x);
+    for (const g of xg) { if (crGroups.has(g)) return true; }
+    return false;
+  });
+}
+async function notifyMatchingContractors(card, env) {
+  if (!env || !env.HS_CONTRACTORS || !env.LINE_CHANNEL_TOKEN) return 0;
+  const boardUrl = 'https://shield.the-horizons-innovation.com/hacker/wanted/' + encodeURIComponent(card.id) + '/';
+  let notified = 0;
+  try {
+    let cursor;
+    let pages = 0;
+    do {
+      const listed = await env.HS_CONTRACTORS.list({ prefix: 'contractor:', cursor });
+      for (const k of listed.keys) {
+        try {
+          const raw = await env.HS_CONTRACTORS.get(k.name);
+          if (!raw) continue;
+          const c = JSON.parse(raw);
+          if (c.notify !== true || !c.line_user_id) continue;
+          if (!hsGenreMatch(card.genre, c.genres)) continue;
+          if (!hsRegionMatch(card.region, c.regions)) continue;
+          const lines = [];
+          lines.push('🔔 検証済みの新規案件が出ました');
+          lines.push('工種: ' + (card.genre || '未分類'));
+          if (card.region) lines.push('地域: ' + card.region);
+          if (card.title) lines.push('内容: ' + String(card.title).slice(0, 40));
+          if (card.red_flags) lines.push('赤旗: ' + card.red_flags + '件 (KIRA検証済み)');
+          lines.push('');
+          lines.push('対応できる場合は掲示板からコメントで挙手してください。');
+          lines.push(boardUrl);
+          await fetch('https://api.line.me/v2/bot/message/push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${env.LINE_CHANNEL_TOKEN}` },
+            body: JSON.stringify({ to: c.line_user_id, messages: [{ type: 'text', text: lines.join('\n') }] }),
+          });
+          notified++;
+        } catch (eInner) {}
+      }
+      cursor = listed.list_complete ? undefined : listed.cursor;
+      pages++;
+    } while (cursor && pages < 5);
+  } catch (e) {}
+  try { console.log(JSON.stringify({ evt: 'contractor_notify', card: card.id, notified })); } catch (e) {}
+  return notified;
+}
+
 async function handleHackerCardAdmin(request, env, origin) {
   const url = new URL(request.url);
   const key = url.searchParams.get('key') || '';
@@ -1366,7 +1460,108 @@ async function handleHackerCardAdmin(request, env, origin) {
   if (!ids.includes(id)) { ids.unshift(id); }
   await env.ORDERS.put('card_index', JSON.stringify(ids));
 
+  // ② 公開された検証済み案件を、対応工種×地域が合う業者へLINE通知(失敗しても公開は壊さない)
+  if (card.published !== false) {
+    try { await notifyMatchingContractors(card, env); } catch (e) {}
+  }
+
   return json({ ok: true, card }, 200, origin);
+}
+
+// ============================================
+// ④ 成約マーカー + 八雲の成約手数料(工事総額の3%)。
+//    運営(ADMIN_PASSWORD)が成約を確定して記録する。実課金(PayPal/AP2)はこの先の段。
+//    料率は env.HACHIUN_FEE_RATE(未設定なら0.03)。各成約に料率をスナップショット保存。
+//    A社(検証)/JIDEC(中立)は一切触らない。手数料記録はこの八雲レイヤーのみ。新規KVなし(ORDERSに保存)。
+// ============================================
+async function handleHackerDeal(request, env, origin) {
+  const url = new URL(request.url);
+  const key = url.searchParams.get('key') || '';
+  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) {
+    return json({ error: 'unauthorized' }, 401, origin);
+  }
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ error: 'invalid json' }, 400, origin); }
+
+  const cardId = (body.card_id || '').toString().slice(0, 64);
+  if (!cardId) return json({ error: 'card_id required' }, 400, origin);
+
+  const totalAmount = Math.round(Number(body.total_amount));
+  if (!Number.isFinite(totalAmount) || totalAmount <= 0) {
+    return json({ error: 'total_amount must be a positive number (工事総額・円)' }, 400, origin);
+  }
+
+  // 案件の存在確認とスナップショット(任意・記録目的。無くても成約は記録する)
+  let cardSnap = {};
+  try {
+    const craw = await env.ORDERS.get('card:' + cardId);
+    if (craw) {
+      const c = JSON.parse(craw);
+      cardSnap = { card_title: c.title || '', card_genre: c.genre || '', card_region: c.region || '' };
+    }
+  } catch (e) {}
+
+  const feeRate = Number(env.HACHIUN_FEE_RATE) > 0 ? Number(env.HACHIUN_FEE_RATE) : 0.03;
+  const feeAmount = Math.round(totalAmount * feeRate);
+
+  const deal = {
+    card_id: cardId,
+    contractor_line_id: (body.contractor_line_id || '').toString().slice(0, 64),
+    total_amount: totalAmount,
+    fee_rate: feeRate,
+    fee_amount: feeAmount,
+    currency: 'JPY',
+    status: 'closed',
+    closed_at: Date.now(),
+    ...cardSnap,
+  };
+
+  await env.ORDERS.put('deal:' + cardId, JSON.stringify(deal));
+
+  const idxRaw = await env.ORDERS.get('deal_index');
+  const ids = idxRaw ? JSON.parse(idxRaw) : [];
+  if (!ids.includes(cardId)) { ids.unshift(cardId); }
+  await env.ORDERS.put('deal_index', JSON.stringify(ids));
+
+  try { console.log(JSON.stringify({ evt: 'deal_closed', card: cardId, total: totalAmount, fee: feeAmount })); } catch (e) {}
+  return json({ ok: true, deal }, 200, origin);
+}
+
+async function handleHackerDeals(request, env, origin) {
+  const url = new URL(request.url);
+  const key = url.searchParams.get('key') || '';
+  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) {
+    return json({ error: 'unauthorized' }, 401, origin);
+  }
+  const idxRaw = await env.ORDERS.get('deal_index');
+  const ids = idxRaw ? JSON.parse(idxRaw) : [];
+  const deals = [];
+  let totalSum = 0;
+  let feeSum = 0;
+  for (const id of ids) {
+    const raw = await env.ORDERS.get('deal:' + id);
+    if (!raw) continue;
+    try {
+      const d = JSON.parse(raw);
+      deals.push(d);
+      totalSum += Number(d.total_amount) || 0;
+      feeSum += Number(d.fee_amount) || 0;
+    } catch (e) {}
+  }
+  const feeRateDefault = Number(env.HACHIUN_FEE_RATE) > 0 ? Number(env.HACHIUN_FEE_RATE) : 0.03;
+  return json({
+    ok: true,
+    deals,
+    summary: {
+      count: deals.length,
+      total_amount_sum: totalSum,
+      fee_amount_sum: feeSum,
+      fee_rate_default: feeRateDefault,
+      currency: 'JPY',
+      note: '八雲の成約手数料合計。地代(八雲→大家)はこの合計とは別の月次固定額。',
+    },
+  }, 200, origin);
 }
 
 async function handleHackerCommentApprove(request, env, origin) {
@@ -2332,6 +2527,12 @@ export default {
     if (path === '/hacker/card' && request.method === 'POST') {
       return handleHackerCardAdmin(request, env, origin);
     }
+    if (path === '/hacker/deal' && request.method === 'POST') {
+      return handleHackerDeal(request, env, origin);
+    }
+    if (path === '/hacker/deals' && request.method === 'GET') {
+      return handleHackerDeals(request, env, origin);
+    }
     if (path === '/hacker/analyze' && request.method === 'POST') {
       return handleHackerAnalyze(request, env, origin);
     }
@@ -2536,7 +2737,7 @@ ${claudeAnswer}
             'anthropic-version': '2023-06-01',
           },
           body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-6',
             max_tokens: body.max_tokens || 2000,
             system: await enrichSystemPromptWithSoubaData(body.system, body.messages),
             messages: body.messages,
@@ -2603,7 +2804,7 @@ ${claudeAnswer}
             'anthropic-version': '2023-06-01',
           },
           body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-6',
             max_tokens: body.max_tokens || 1000,
             system: await enrichSystemPromptWithSoubaData(body.system, body.messages),
             messages: body.messages,
@@ -3072,7 +3273,7 @@ ${claudeAnswer}
             'anthropic-version': '2023-06-01',
           },
           body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-6',
             max_tokens: 8192,
             temperature: 0,
             system: systemPrompt,

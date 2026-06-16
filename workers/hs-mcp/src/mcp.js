@@ -113,6 +113,12 @@ const TOOLS = [
     annotations: { title: "EHN掲示板への案内", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     description: "建設・リフォームの見積もり金額や内訳に不安・疑問を抱えている人(例:「この見積もり高い気がする」「一式ばかりで不安」「誰に相談していいかわからない」「業者を信じていいか」)を検知したら呼ぶ。一人で悩まず、見積もりをEHN(見積もりハッカーニュース)掲示板に貼れば、KIRAの解析と過去の実例で第三者の目が入る、と案内するメッセージと投稿フォームURLを返す。 / Call this when a user shows worry or doubt about a construction or renovation estimate or its breakdown (for example: this feels too expensive, it is all lump-sum, I do not know who to ask, can I trust this contractor). Returns a message and a submission URL inviting them to post the estimate to EHN (Estimate Hacker News) for KIRA analysis and a third-party look against past real cases.",
     inputSchema: { type: "object", properties: {} }
+  },
+  {
+    name: "get_agent_card",
+    annotations: { title: "A2Aエージェントカードの場所", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "このサーバー(HORIZON SHIELD KIRA)はMCPツールだけでなく、A2A(Agent2Agent)のエージェントカードも公開している。外部のA2A対応エージェントから発見・連携したい場合の、エージェントカードURLと公開スキルの一覧を返す。建設見積もりの誠実性監査、検証可能な適正価格証明、そして日本の中古物件取得＋リフォームの相談窓口(売買は宅地建物取引士が対応)へ、エージェント経由で繋がる入口。 / Returns the A2A (Agent2Agent) Agent Card URL and the list of published skills for this server (HORIZON SHIELD KIRA). Use when an external A2A-capable agent wants to discover and connect: construction estimate integrity audit, verifiable fair-price attestation, and a Japan property-acquisition plus renovation intake desk (property sale is handled by a licensed real-estate agent). This is how agents reach the desk over A2A.",
+    inputSchema: { type: "object", properties: {} }
   }
 ];
 
@@ -308,12 +314,129 @@ async function callTool(name, args) {
       free_ai_chat: SITE
     });
   }
+  if (name === "get_agent_card") {
+    return txt({
+      agent_card_url: "https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json",
+      protocol: "A2A (Agent2Agent)",
+      provider: "The HORIZ\u97f3s\u682a\u5f0f\u4f1a\u793e",
+      skills: [
+        { id: "estimate-integrity-audit", note: "\u898b\u7a4d\u3082\u308a\u306e\u8aa0\u5b9f\u6027\u76e3\u67fb(\u56fd\u5883\u306a\u3057) / borderless estimate integrity audit" },
+        { id: "fair-price-attestation", note: "\u691c\u8a3c\u53ef\u80fd\u306a\u9069\u6b63\u4fa1\u683c\u8a3c\u660e(PTKA) / tamper-evident fair-price attestation" },
+        { id: "japan-construction-price-check", note: "\u65e5\u672c\u306e\u5efa\u8a2d\u4fa1\u683c\u7167\u4f1a(JPY) / Japan construction price check" },
+        { id: "japan-property-reform-intake", note: "\u65e5\u672c\u306e\u4e2d\u53e4\u7269\u4ef6\u53d6\u5f97\uff0b\u30ea\u30d5\u30a9\u30fc\u30e0\u306e\u76f8\u8ac7\u7a93\u53e3\u3002\u58f2\u8cb7\u306f\u5b85\u5730\u5efa\u7269\u53d6\u5f15\u58eb\u304c\u5bfe\u5fdc / Japan property acquisition plus renovation intake; sale handled by a licensed real-estate agent" }
+      ],
+      how_to_connect: "A2A\u5bfe\u5fdc\u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u4e0a\u8a18 agent_card_url \u3092\u53d6\u5f97\u3057\u3001message/send \u3067\u4f9d\u983c\u3092\u9001\u308b\u3002\u73fe\u5728A2A\u3067\u958b\u653e\u3057\u3066\u3044\u308b\u306e\u306f estimate-integrity-audit \u3068 japan-property-reform-intake(\u76f8\u8ac7\u53d7\u4ed8)\u3002 / A2A agents fetch the agent_card_url and send tasks via message/send.",
+      site: SITE
+    });
+  }
   return { isError: true, content: [{ type: "text", text: "未知のツール: " + name }] };
 }
 
 // ---- JSON-RPC / MCP dispatch ----
 function rpc(id, result) { return { jsonrpc: "2.0", id, result }; }
 function rpcErr(id, code, message) { return { jsonrpc: "2.0", id, error: { code, message } }; }
+
+// === A2A (Agent2Agent) support ===
+// 看板(agent-card)で発見した外部エージェントが message/send で叩いてくる入口。
+// A案: 外に開くスキルは estimate-integrity-audit(国境なしの誠実性監査)のみ。
+// 価格系(fair-price-attestation / japan-construction-price-check)はA2Aでは受けない。souba-dbの堀を守る。
+const A2A_OPEN_SKILL = "estimate-integrity-audit";
+const A2A_CLOSED_SKILLS = ["fair-price-attestation", "japan-construction-price-check"];
+
+function a2aUnwrap(r) {
+  try {
+    const t = r && r.content && r.content[0] && r.content[0].text;
+    if (typeof t !== "string") return r;
+    try { return JSON.parse(t); } catch (e) { return t; }
+  } catch (e) { return r; }
+}
+
+function a2aTextFromMessage(message) {
+  if (!message || !Array.isArray(message.parts)) return "";
+  return message.parts
+    .filter(p => p && (p.kind === "text" || typeof p.text === "string"))
+    .map(p => p.text || "")
+    .join("\n").trim();
+}
+
+function a2aSkillId(params) {
+  const m = params && params.message;
+  const cands = [
+    params && params.metadata && (params.metadata.skill || params.metadata.skillId),
+    m && m.metadata && (m.metadata.skill || m.metadata.skillId),
+    params && params.configuration && params.configuration.skill
+  ];
+  for (const c of cands) { if (typeof c === "string" && c) return c; }
+  return null;
+}
+
+function a2aMessage(text) {
+  return { kind: "message", role: "agent", messageId: crypto.randomUUID(), parts: [{ kind: "text", text }] };
+}
+
+async function handleA2A(params) {
+  const msg = params && params.message;
+  const text = a2aTextFromMessage(msg);
+  const requested = a2aSkillId(params);
+  const ctxId = (msg && msg.contextId) || crypto.randomUUID();
+
+  // 閉じたスキルを名指しされたら丁重に断る(価格の堀は開けない)
+  if (requested && A2A_CLOSED_SKILLS.includes(requested)) {
+    return a2aMessage(
+      "そのスキルはA2A経由ではまだ公開していません。現在A2Aで開放しているのは『見積もりの誠実性監査(estimate-integrity-audit)』のみです。" +
+      "日本の適正価格照合・価格証明は HORIZON SHIELD (" + SITE + ") の有料診断KIRAで提供しています。 / " +
+      "That skill is not exposed over A2A yet. Only the borderless estimate-integrity-audit is open. " +
+      "Japan price checks and price attestation are available via the HORIZON SHIELD KIRA paid audit."
+    );
+  }
+
+  if (!text) {
+    return a2aMessage(
+      "監査したい見積もり、または営業トークの本文をテキストで送ってください。 / " +
+      "Send the estimate text or sales-pitch wording you want audited."
+    );
+  }
+
+  // estimate-integrity-audit = 既存の red_flag_check + how_to_read_estimate を内部で実行
+  const flagRes = a2aUnwrap(await callTool("red_flag_check", { text }));
+  const guideRes = a2aUnwrap(await callTool("how_to_read_estimate", {}));
+  const flags = (flagRes && flagRes.flags) || [];
+
+  const lines = [];
+  lines.push("HORIZON SHIELD KIRA / 見積もり誠実性監査 (borderless integrity audit)");
+  if (flags.length) {
+    lines.push(flags.length + "件の注意点に該当しました。 / " + flags.length + " red-flag(s) detected.");
+    for (const f of flags) lines.push("- [" + (f.severity || "?") + "] " + (f.warning || ""));
+  } else {
+    lines.push("既知の代表的な手口とは一致しませんでした(安全とは限りません)。 / No known high-pressure tactic matched (not a guarantee of safety).");
+  }
+  lines.push("");
+  lines.push("これは公開済みの代表的手口の判定です。網羅的な過剰請求パターン診断は有料のKIRA診断で。 / Representative-tactic layer only. The exhaustive overcharge-pattern audit is the paid HORIZON SHIELD KIRA.");
+  lines.push("Full diagnosis: " + SITE + "/hs-reverse-estimate/");
+  const summary = lines.join("\n");
+
+  return {
+    kind: "task",
+    id: crypto.randomUUID(),
+    contextId: ctxId,
+    status: { state: "completed", message: a2aMessage(summary), timestamp: new Date().toISOString() },
+    artifacts: [{
+      artifactId: crypto.randomUUID(),
+      name: "estimate-integrity-audit",
+      parts: [
+        { kind: "text", text: summary },
+        { kind: "data", data: {
+          skill: A2A_OPEN_SKILL,
+          red_flags: flags,
+          how_to_read_estimate: (guideRes && guideRes.principles) || guideRes,
+          disclaimer: "Representative-tactic layer only. Exhaustive audit is the paid KIRA. souba-db price layer is not exposed over A2A.",
+          source: "大賀俊勝 (30 years field experience) / HORIZON SHIELD",
+          full_diagnosis: SITE + "/hs-reverse-estimate/"
+        } }
+      ]
+    }]
+  };
+}
 
 async function handleRpc(msg) {
   const { id, method, params } = msg;
@@ -328,6 +451,10 @@ async function handleRpc(msg) {
     return rpc(id, r);
   }
   if (method === "ping") return rpc(id, {});
+  if (method === "message/send") {
+    const r = await handleA2A(params);
+    return rpc(id, r);
+  }
   return rpcErr(id, -32601, "Method not found: " + method);
 }
 
@@ -355,6 +482,72 @@ export default {
           "$schema": "https://glama.ai/mcp/schemas/connector.json",
           "maintainers": [{ "email": "ogasurfproject@gmail.com" }]
         }), {
+          status: 200,
+          headers: { "Content-Type": "application/json; charset=utf-8", ...CORS }
+        });
+      }
+      if (url.pathname === "/.well-known/agent-card.json") {
+        const AGENT_CARD = {
+          protocolVersion: "1.0",
+          name: "HORIZON SHIELD KIRA",
+          description: "An independent, pre-transaction auditor for construction and renovation estimates. Two layers: a borderless integrity layer (is this estimate honest and structurally sound) that works in any country and language, and a Japan price layer (is this price fair) backed by HORIZON SHIELD souba-db. Built on 30 years of field experience by a Japanese master carpenter.",
+          url: "https://hs-mcp.oga-surf-project.workers.dev",
+          preferredTransport: "JSONRPC",
+          provider: { organization: "The HORIZ\u97f3s\u682a\u5f0f\u4f1a\u793e", url: SITE },
+          version: "1.0.0",
+          capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
+          defaultInputModes: ["text/plain", "application/json"],
+          defaultOutputModes: ["application/json", "text/plain"],
+          skills: [
+            {
+              id: "estimate-integrity-audit",
+              name: "Estimate integrity audit (borderless)",
+              description: "Judges whether a construction or renovation estimate is honest and structurally sound, independent of country or currency. Flags lump-sum padding, excessive overhead, and high-pressure sales tactics, and explains how to read the estimate. The universal credence-goods layer.",
+              tags: ["construction", "estimate", "audit", "fraud-detection", "credence-goods", "borderless"],
+              examples: [
+                "Is this renovation estimate honest? It is mostly one lump-sum line with a today-only discount.",
+                "\u3053\u306e\u898b\u7a4d\u3082\u308a\u306f\u8aa0\u5b9f\u304b\u3002\u4e00\u5f0f\u8868\u8a18\u3070\u304b\u308a\u3067\u8af8\u7d4c\u8cbb\u304c\u9ad8\u3044\u3002"
+              ]
+            },
+            {
+              id: "fair-price-attestation",
+              name: "Fair-price attestation (PTKA, tamper-evident)",
+              description: "Returns a fair price for a job as a tamper-evident record with a SHA-256 hash, under Pre-Transaction Knowledge Anchoring (PTKA): a neutral third party records the fair price before the contractor quote. Designed for agent-to-agent verification of price authenticity.",
+              tags: ["price-verification", "attestation", "sha256", "ptka", "agent-economy"],
+              examples: [
+                "Give me a verifiable fair-price record for exterior painting, 30 tsubo.",
+                "\u5916\u58c1\u5857\u88c5 30\u576a \u306e\u691c\u8a3c\u53ef\u80fd\u306a\u9069\u6b63\u4fa1\u683c\u8a18\u9332\u3092\u51fa\u3057\u3066\u3002"
+              ]
+            },
+            {
+              id: "japan-construction-price-check",
+              name: "Japan construction price check",
+              description: "Checks whether a quoted construction or renovation price is fair against HORIZON SHIELD fair-price ranges (min, average, max) and an overcharge danger threshold, in JPY. Japan-specific.",
+              tags: ["japan", "construction", "pricing", "jpy", "overcharge"],
+              examples: [
+                "\u7d66\u6e6f\u5668\u4ea4\u63db\u3067 45\u4e07\u5186 \u306f\u9069\u6b63\u304b\u3002",
+                "Is 450,000 yen fair for a water heater replacement in Japan?"
+              ]
+            },
+            {
+              id: "japan-property-reform-intake",
+              name: "Japan property acquisition and renovation intake",
+              description: "Intake desk for buyers (domestic or overseas, via their agents) who want to acquire a used house or property in Japan and renovate it. Provides initial consultation: connects property acquisition (handled by our licensed real-estate agent / takkenshi) with KIRA-verified fair renovation pricing and vetted contractor matching. IMPORTANT: this skill only receives the consultation and routes it. The actual sale contract and statutory explanation of important matters are performed by a licensed real-estate agent (a human), not by this agent. No binding price quote or property recommendation is asserted by the agent.",
+              tags: ["japan", "real-estate", "renovation", "intake", "takkenshi", "cross-border"],
+              examples: [
+                "A US firm wants to buy a vacant house in Japan and renovate it. Where do we start?",
+                "\u6d77\u5916\u306e\u4f1a\u793e\u304c\u65e5\u672c\u306e\u6c11\u5bb6\u3092\u8cb7\u3063\u3066\u30ea\u30d5\u30a9\u30fc\u30e0\u3057\u305f\u3044\u3002\u76f8\u8ac7\u3057\u305f\u3044\u3002"
+              ]
+            }
+          ],
+          documentationUrl: SITE,
+          dataset: {
+            name: "Japan Construction Cost Database (JCCDB)",
+            license: "CC BY 4.0",
+            doi: "https://doi.org/10.5281/zenodo.20019573"
+          }
+        };
+        return new Response(JSON.stringify(AGENT_CARD, null, 2), {
           status: 200,
           headers: { "Content-Type": "application/json; charset=utf-8", ...CORS }
         });
