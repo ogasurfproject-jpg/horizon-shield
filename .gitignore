@@ -28,3 +28,17 @@ region_coef.json
 HANDOFF_*.md
 GROK_RULES.md
 kira-v4-final.js
+
+# paint-monitor: 実行時データとバックアップと使い捨てパッチは追跡しない
+paint-monitor/*_state.json
+paint-monitor/*.real
+paint-monitor/apply_*.py
+paint-monitor/__pycache__/
+paint-monitor/*.bak*
+
+# paint-monitor: 監視ボット本体とfeed系コードは *.py 除外の例外として追跡する
+!paint-monitor/watch_paint_price.py
+!paint-monitor/watch_water_price.py
+!paint-monitor/watch_madoreno_subsidy.py
+!paint-monitor/feed_emitter.py
+!paint-monitor/make_feed.py
