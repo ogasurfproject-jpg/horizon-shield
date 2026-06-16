@@ -91,6 +91,33 @@ const THEMES = [
 ];
 
 // feed/ に監視由来の鮮度テーマがあれば最優先。なければ従来の日数ローテーション。
+// 捏造検出ゲート: 体験談/創作マーカーが残っていたら true(=不採用)を返す
+function looksFabricated(text) {
+  if (!text) return true;
+  const banned = [
+    /私(?:が|は|たち|ども)?(?:が|は)?(?:関わっ|携わっ|担当|対応|見てき|見た|経験|施工|手がけ)/,
+    /私の(?:経験|経験則|知見|肌感)/,
+    /弊社が(?:対応|担当|施工|手がけ)/,
+    /(?:先日|過去|以前)(?:に|の)?(?:対応|担当|施工|手がけ|あった案件)/,
+    /某(?:戸建て|案件|現場|物件|施主)/,
+    /(?:実際の|これまでの)?現場で(?:見た|見てき|経験)/,
+    /(?:獲得|実現)できました/,
+    /事例(?:も|を)(?:経験|担当)/,
+    /施主(?:が|さん|様)?(?:いました|がいます|に直面)/,
+    /昨年(?:度)?(?:も|は|の同時期)/,
+    /例年(?:より)?/,
+    /過去の(?:事業|実績|データ)で(?:も|は)/,
+    /予定より(?:数|[0-9０-９]+)(?:ヶ月|か月|日)(?:も)?早く/,
+  ];
+  for (const re of banned) {
+    if (re.test(text)) {
+      console.log('  [捏造ゲート] 不採用マーカー検出:', re);
+      return true;
+    }
+  }
+  return false;
+}
+
 function loadFreshThemes() {
   const path = require('path');
   const feedDir = path.join(__dirname, 'feed');
@@ -149,10 +176,16 @@ async function generateArticle(theme) {
 キーワード：${theme.keywords.join('、')}
 切り口：${theme.angle}
 
-条件：
-- 1200〜1500文字
-- 実際の建設現場での経験を交えた具体的な内容
-- 施主が今すぐ使える実践的なアドバイス
+厳守事項(違反は不可):
+1. あなたの役割は、上記の参考事実を施主向けに分かりやすく解説することです。事実を「創作」する役割ではありません。
+2. 一人称の体験談を一切書かないでください。「私が」「弊社が対応した」「先日の案件で」「某戸建てで」のような実体験の描写は全面禁止です。
+3. 参考事実に書かれていない具体的な数字(金額・パーセント・件数・「3ヶ月早く」等)を新たに作り出してはいけません。数字は参考事実にあるものだけを使ってください。
+4. 現在は2026年6月です。「年内」「来年」等は2026年基準。2025年を未来や現在として書かないでください。
+5. 一般的な注意喚起は「〜の場合があります」「公式サイトで必ず確認してください」と、断定を避けて書いてください。
+
+書き方:
+- 1000〜1400文字
+- 施主が次に取るべき行動を、参考事実に基づいて整理する
 - 段落ごとに改行して読みやすく
 - 記号「*」「**」「#」「##」「_」は使わない
 - 最後にHORIZON SHIELDへの誘導文を1文
@@ -173,7 +206,9 @@ async function generateArticle(theme) {
   const text = (data.content?.[0]?.text || '')
     .replace(/\n{3,}/g, '\n\n')
     .replace(/\*\*/g, '')
-    .replace(/\*/g, '');
+    .replace(/\*/g, '')
+    .replace(/^#{1,6}\s*/gm, '')
+    .replace(/^[ \t]*[-=]{3,}[ \t]*$/gm, '');
 
   // 給湯器ガイドリンク（教科書シリーズのみ追加）
   const guideSection = theme.guideLink
@@ -449,7 +484,7 @@ async function main() {
       if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`);
     }
 
-    const theme = getTodayTheme();
+    let theme = getTodayTheme();
     console.log('今日のテーマ:', theme.title);
 
     // 重複チェック
@@ -460,7 +495,21 @@ async function main() {
       process.exit(0);
     }
 
-    const articleText = await generateArticle(theme);
+    let articleText = await generateArticle(theme);
+    // 捏造ゲート: 危険表現が残っていたら最大2回まで書き直す。それでも駄目なら常緑テーマに退避。
+    let gateTries = 0;
+    while (looksFabricated(articleText) && gateTries < 2) {
+      console.log('  [捏造ゲート] 記事を再生成します(試行', gateTries + 1, ')');
+      articleText = await generateArticle(theme);
+      gateTries++;
+    }
+    if (looksFabricated(articleText)) {
+      console.log('  [捏造ゲート] 鮮度テーマで捏造が消えないため、常緑テーマに退避します。');
+      const d = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+      const safeTheme = THEMES[d % THEMES.length];
+      theme = safeTheme;
+      articleText = await generateArticle(theme);
+    }
 
     // DRY_RUN: 投稿せず記事を表示して終了(Actions上で中身を安全に確認するため)
     if (process.env.DRY_RUN === '1') {
