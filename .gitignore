@@ -27,3 +27,4 @@ region_coef.json
 **/*.bak.*
 HANDOFF_*.md
 GROK_RULES.md
+kira-v4-final.js
