@@ -90,7 +90,39 @@ const THEMES = [
   },
 ];
 
+// feed/ に監視由来の鮮度テーマがあれば最優先。なければ従来の日数ローテーション。
+function loadFreshThemes() {
+  const path = require('path');
+  const feedDir = path.join(__dirname, 'feed');
+  if (!fs.existsSync(feedDir)) return [];
+  const fresh = [];
+  for (const f of fs.readdirSync(feedDir)) {
+    if (!f.endsWith('.json')) continue;
+    try {
+      const j = JSON.parse(fs.readFileSync(path.join(feedDir, f), 'utf-8'));
+      fresh.push({
+        title: j.title,
+        keywords: j.keywords || [],
+        angle: (j.angle || '') +
+          ' 参考事実: ' + ((j.facts || []).join(' / ')) +
+          ' 記事末尾で必ず「' + (j.cta || '') + '」とLP(' + (j.lp_url || '') + ')へ誘導する。',
+        hashtags: (j.keywords || []).slice(0, 4).concat(['HORIZONSHIELD']),
+        _priority: j.priority || 'normal',
+        _sourceFile: f,
+      });
+    } catch (e) { /* skip broken json */ }
+  }
+  fresh.sort((a, b) =>
+    (a._priority === 'urgent' ? 0 : 1) - (b._priority === 'urgent' ? 0 : 1));
+  return fresh;
+}
+
 function getTodayTheme() {
+  const fresh = loadFreshThemes();
+  if (fresh.length > 0) {
+    console.log('鮮度テーマを使用:', fresh[0].title, '(' + fresh[0]._priority + ')');
+    return fresh[0];
+  }
   const d = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
   return THEMES[d % THEMES.length];
 }
