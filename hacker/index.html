@@ -810,6 +810,17 @@ async function openCard(id){
     renderSheet(d.card,d.comments||[]);
   }catch(e){sheet.innerHTML='<div class="sheet-body" style="text-align:center;padding:60px;color:var(--mut)">読み込みに失敗しました</div>';}
 }
+async function reportCard(id){
+  if(!id)return;
+  if(!confirm('この投稿に業者名・個人名・電話番号などの問題がありますか？ 通報するといったん非表示になり、運営が確認します。'))return;
+  var reason=prompt('差し支えなければ理由を一言（任意）','')||'';
+  try{
+    var r=await fetch(API+'/hacker/report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({card_id:id,reason:reason})});
+    var d=await r.json();
+    if(d&&d.ok){toast('通報しました。確認後に対応します。');if(typeof closeModal==='function')closeModal();setTimeout(function(){location.reload();},700);}
+    else{toast((d&&d.error)?d.error:'通報に失敗しました');}
+  }catch(e){toast('通信エラーが発生しました');}
+}
 function renderSheet(c,comments){
   const hi=(c.red_flags||0)>=1;
   const who=[c.initial?esc(c.initial)+'さん':'',c.region?esc(c.region):'',c.building?esc(c.building):''].filter(Boolean).join(' · ');
@@ -854,6 +865,7 @@ function renderSheet(c,comments){
       <div class="cmts">${cmtList}</div>
       ${cArea}
       <a class="kai-btn" href="${KAI_URL}" target="_blank" rel="noopener">この話を続ける <b>施主の会</b>（LINEオープンチャット） ▸</a>
+      <div style="text-align:center;margin-top:14px"><a href="#" onclick="reportCard('${esc(c.id||'')}');return false;" style="font-size:11px;color:var(--mut);text-decoration:underline;opacity:.75">⚡ この投稿を通報（業者名・個人情報など）</a></div>
     </div>`;
 }
 async function postComment(cardId){

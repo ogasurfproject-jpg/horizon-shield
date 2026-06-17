@@ -1919,6 +1919,40 @@ async function handleHackerMyCards(request, env, origin) {
 // ============================================
 // EHN DELETE: 管理画面から投稿削除(pending/published両対応・2026-06-05 additive)
 // ============================================
+async function handleHackerReport(request, env, origin) {
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ error: 'invalid json' }, 400, origin); }
+  const id = (body.card_id || '').toString();
+  const reason = (body.reason || '').toString().slice(0, 200);
+  if (!id) return json({ error: 'missing card_id' }, 400, origin);
+  const raw = await env.ORDERS.get(`card:${id}`);
+  if (!raw) return json({ error: 'not found' }, 404, origin);
+  const card = JSON.parse(raw);
+  card.reported = true;
+  card.report_reason = reason;
+  card.reported_at = Date.now();
+  await env.ORDERS.put(`card:${id}`, JSON.stringify(card));
+  // 即時非表示: card_index から外す(KVには残すので後で復元可能)
+  const idxRaw = await env.ORDERS.get('card_index');
+  if (idxRaw) {
+    const ids = JSON.parse(idxRaw).filter(x => x !== id);
+    await env.ORDERS.put('card_index', JSON.stringify(ids));
+  }
+  // 運営へLINE通知(失敗しても通報受付は壊さない)
+  try {
+    await fetch('https://api.line.me/v2/bot/message/push', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${env.LINE_CHANNEL_TOKEN}` },
+      body: JSON.stringify({
+        to: env.LINE_USER_ID,
+        messages: [{ type: 'text', text: `🚩 EHN通報: card ${id} を即時非表示にしました\n理由: ${reason || '(なし)'}\n工事: ${card.genre || ''} / ${card.title || ''}\n管理画面で削除または確認してください。` }],
+      }),
+    });
+  } catch (_e) {}
+  return json({ ok: true, message: '通報を受け付けました。いったん非表示にしました。' }, 200, origin);
+}
+
 async function handleHackerDelete(request, env, origin) {
   const url = new URL(request.url);
   const key = url.searchParams.get('key') || '';
@@ -2606,6 +2640,9 @@ export default {
     }
     if (path === '/hacker/submit-card' && request.method === 'POST') {
       return handleHackerSubmitCard(request, env, origin);
+    }
+    if (path === '/hacker/report' && request.method === 'POST') {
+      return handleHackerReport(request, env, origin);
     }
     if (path === '/hacker/contractor-register' && request.method === 'POST') {
       return handleContractorRegister(request, env, origin);
