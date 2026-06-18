@@ -66,6 +66,22 @@ content = '\n'.join(
 content = content.strip()
 # === [/PATCH 2026-06-15] ===
 
+# === [PATCH 2026-06-18] タイトル/説明文の重複防止: 日付付与＋本文からdesc生成 ===
+_pm = re.search(r'<p[^>]*>(.*?)</p>', content, re.S)
+_intro = re.sub(r'<[^>]+>', '', _pm.group(1)) if _pm else ''
+_intro = re.sub(r'\s+', '', _intro)
+for _ch in (chr(0x2014), chr(0x2013), chr(0x2015)):
+    _intro = _intro.replace(_ch, chr(0x3001))
+_intro = _intro.replace(chr(0x0022), '')
+if len(_intro) >= 40:
+    meta_desc = _intro[:110]
+    if not meta_desc.endswith(chr(0x3002)):
+        meta_desc = meta_desc.rstrip(chr(0x3001)) + chr(0x3002)
+else:
+    meta_desc = topic + ' ' + date_str
+title_unique = topic + chr(0x3010) + date_str + chr(0x3011) + ' | HORIZON SHIELD 建設費診断'
+# === [/PATCH 2026-06-18] ===
+
 os.makedirs('blog', exist_ok=True)
 
 article_html = (
@@ -74,8 +90,9 @@ article_html = (
     '<head>\n'
     '<meta charset="UTF-8">\n'
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
-    '<meta name="description" content="' + topic + ' | HORIZON SHIELD 建設費診断">\n'
-    '<title>' + topic + ' | HORIZON SHIELD</title>\n'
+    '<meta name="description" content="' + meta_desc + '">\n'
+    '<link rel="canonical" href="https://shield.the-horizons-innovation.com/blog/' + slug + '.html">\n'
+    '<title>' + title_unique + '</title>\n'
     '<style>\n'
     'body{font-family:"Hiragino Sans",sans-serif;background:#0a0a0a;color:#e0e0e0;margin:0;padding:0}\n'
     '.container{max-width:800px;margin:0 auto;padding:40px 20px}\n'
