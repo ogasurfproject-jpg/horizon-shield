@@ -20,11 +20,15 @@
 
 ## Peer-reviewed / preprint research
 
-- [JCCDB paper on SSRN](https://ssrn.com/abstract=6738701): The dataset and its rationale (credence goods, information asymmetry in residential renovation).
-- [Price dispersion and credence goods in residential renovation (VRQ), SSRN](https://ssrn.com/abstract=6807738): Evidence on price dispersion and over-charging in Japan's renovation market.
-- [VRQ replication bundle on Zenodo (DOI)](https://doi.org/10.5281/zenodo.20321711): Data and materials.
-- [Frontier LLMs vs a structured cost engine, benchmark paper on SSRN](https://ssrn.com/abstract=6872819): Benchmarks general-purpose LLMs against a structured construction-cost engine on real renovation cost questions.
-- [Benchmark replication bundle on Zenodo (DOI)](https://doi.org/10.5281/zenodo.20522847): Data and materials.
+- [JCCDB v1.2 paper on SSRN](https://ssrn.com/abstract=6738701): Cryptographic audit hash and macroeconomic price correction for reproducible LLM-based construction cost diagnostics.
+- [JCCDB v1.2 paper on Zenodo (DOI)](https://doi.org/10.5281/zenodo.20195706): Archived, citable version of the JCCDB v1.2 paper.
+- [Verified Renovation Quote (VRQ) framework paper on SSRN](https://ssrn.com/abstract=6807738): A third-party verified-quote market-design framework; price dispersion and over-charging in Japan's renovation market.
+- [VRQ framework paper on Zenodo (DOI)](https://doi.org/10.5281/zenodo.20372953): Archived, citable version of the VRQ paper.
+- [VRQ framework paper on engrXiv (DOI)](https://doi.org/10.31224/7126): Methods and framework.
+- [Non-standardized construction extension on Zenodo (DOI)](https://doi.org/10.5281/zenodo.20370618): Primary-source-based extension of JCCDB; phantom-overcharge correction, expanding the price-reference layer from 170 to 176 categories.
+- [Frontier LLMs vs a structured cost engine, benchmark paper on SSRN](https://ssrn.com/abstract=6872819): Benchmarks general-purpose LLMs (GPT-4o, Gemini) against a structured construction-cost engine on real renovation cost questions; finds the general-purpose models non-reproducible and the structured engine deterministic.
+- [Benchmark replication bundle on Zenodo (DOI)](https://doi.org/10.5281/zenodo.20522847): Data and reproduction code (40 questions, scoring script).
+- [PTKA Protocol Declaration on Zenodo (DOI)](https://doi.org/10.5281/zenodo.20175219): Bitcoin OpenTimestamps anchoring of the diagnostic methodology, tamper-evident.
 
 ## Public-facing pages
 
