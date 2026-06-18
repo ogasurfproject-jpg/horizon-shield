@@ -306,7 +306,6 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-<url><loc>https://shield.the-horizons-innovation.com/souba/mado/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://shield.the-horizons-innovation.com/souba/kyutoki-kosho/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://shield.the-horizons-innovation.com/souba/kabe-hibi/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://shield.the-horizons-innovation.com/souba/aircon-kosho/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
@@ -321,7 +320,6 @@
   <url><loc>https://shield.the-horizons-innovation.com/souba/yane-100man/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://shield.the-horizons-innovation.com/souba/reform-100man/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://shield.the-horizons-innovation.com/souba/fuyujimai/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://shield.the-horizons-innovation.com/souba/shiroari-50man/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url>
     <loc>https://shield.the-horizons-innovation.com/souba/gaiheki-150man-takai/</loc>
     <lastmod>2026-04-29</lastmod>
