@@ -117,6 +117,8 @@ Academic record:
 - JCCDB origin paper: [Zenodo 10.5281/zenodo.20019573](https://doi.org/10.5281/zenodo.20019573)
 - Audit-hash and macro-correction: [SSRN 6738701](https://ssrn.com/abstract=6738701)
 - engrXiv mirror: [engrxiv.org/preprint/view/7007](https://engrxiv.org/preprint/view/7007)
+- VRQ framework and PTKA model: [SSRN 6807738](https://ssrn.com/abstract=6807738)
+- Reproduction package (buyer-side verification gate): [GitHub](https://github.com/ogasurfproject-jpg/hs-ehn-verify), archived at [Zenodo 10.5281/zenodo.20756867](https://doi.org/10.5281/zenodo.20756867) (MIT, runnable: `node test/run_local.mjs`)
 
 ## Company
 
