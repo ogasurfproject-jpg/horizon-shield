@@ -294,7 +294,15 @@ APIキー：${apiKey}
         if (!params.room) return json({ error: 'room フィールドが必要です' }, 400);
 
         const estimate = calculateEstimate(params);
-        return json({ ok: true, company: auth.companyName, estimate });
+        const tier = auth.tier || 'external';
+        const verification = {
+          engine: 'HORIZON SHIELD hs-estimate',
+          basis: 'standard_unit_price',
+          overhead_fixed: '10%',
+          markup_by_vendor: false,
+          note: '当社エンジンが標準単価で生成。第三者業者による水増しは構造的に発生しません。',
+        };
+        return json({ ok: true, company: auth.companyName, tier, verification, estimate });
       }
 
       // ---- APIキー確認 ----
@@ -327,6 +335,38 @@ APIキー：${apiKey}
         if (!params.room) return json({ error: 'room フィールドが必要です' }, 400);
         const estimate = calculateEstimate(params);
         return json({ ok: true, company: 'TEST', estimate });
+      }
+
+      // ---- 管理：手動キー発行（八雲モール用・tier指定） ----
+      if (pathname === '/admin/issue-key' && request.method === 'POST') {
+        const adminKey = request.headers.get('X-Admin-Key');
+        if (adminKey !== env.ADMIN_SECRET) return json({ error: 'Forbidden' }, 403);
+
+        const body = await request.json().catch(() => ({}));
+        const tier = body.tier === 'honbu' ? 'honbu' : (body.tier === 'external' ? 'external' : null);
+        if (!tier) return json({ error: 'tier required', allowed: ['honbu', 'external'] }, 400);
+        const companyName = (body.companyName || '').trim() || '未設定';
+
+        const apiKey = generateApiKey();
+        const subscriptionId = 'manual_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+        const subData = {
+          apiKey,
+          companyName,
+          email: body.email || null,
+          lineUserId: body.lineUserId || null,
+          status: 'active',
+          createdAt: new Date().toISOString(),
+          planId: 'manual-yakumo',
+          tier,
+        };
+        await env.HS_ESTIMATE_KV.put(`sub:${subscriptionId}`, JSON.stringify(subData));
+        await env.HS_ESTIMATE_KV.put(`key:${apiKey}`, JSON.stringify({
+          subscriptionId,
+          companyName,
+          status: 'active',
+          tier,
+        }));
+        return json({ ok: true, apiKey, tier, companyName, subscriptionId, note: 'save_this_now_key_is_shown_once' });
       }
 
       return json({ error: 'Not Found', path: pathname }, 404);
