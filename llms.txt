@@ -11,6 +11,12 @@
 
 - [HORIZON SHIELD MCP server](https://hs-mcp.oga-surf-project.workers.dev): A Model Context Protocol server (JSON-RPC 2.0 over HTTP). Agents can call it directly, not just read it. Tools: `jccdb_dataset_info` (dataset metadata and links), `list_cost_categories` (61 maintained categories), `search_cost_category` (find a category by work name), `how_to_read_estimate` (principles for judging if an estimate is fair, including the overhead share guide), `fair_price_data_sources` (sources and regional multipliers behind the price layer).
 
+## Agent-to-agent verification (A2A)
+
+- [Agent Card](https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json): A2A AgentCard for autonomous agents. Primary skill `estimate-integrity-audit` judges whether a construction or renovation estimate is honest (lump-sum padding, excessive overhead, high-pressure tactics) and returns a signed, recomputable verdict. Skill `verify-claim` lets any other agent independently recompute that verdict.
+- [Verification Contract](https://hs-mcp.oga-surf-project.workers.dev/.well-known/verification-contract.json): The public, versioned schema (v0.1.1) for verifying a verdict without trusting the issuer. Recompute SHA-256 over the signed_payload and check it equals claim_sha256; the declaration is timestamp-anchored to Bitcoin via OpenTimestamps. Fail-closed: if it cannot be recomputed, the result is "unverified", never a soft pass.
+- Trust model: conferred, not assumed. No trust in the UI or the issuer is required. Price audit is scoped to Japanese construction; the verification mechanism itself is domain-independent.
+
 ## Open data (primary source for citation)
 
 - [Japan Construction Cost Database (JCCDB) on GitHub](https://github.com/ogasurfproject-jpg/japan-construction-cost-database): Open database of 65,729 construction/renovation line items across 398 categories. Item names, categories, units only; contains no prices. Licensed CC BY 4.0.
