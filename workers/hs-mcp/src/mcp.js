@@ -87,11 +87,10 @@ const TOOLS = [
   {
     name: "audit_estimate",
     annotations: { title: "見積金額の適正診断", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
-    description: "業者から提示された見積金額が適正かを判定する。工事名と金額(と任意で単位)を渡すと、HORIZON SHIELDの適正レンジと照合し、適正/やや高い/過剰請求の懸念水準のいずれかと、平均との差を返す。施主が手元の見積もりをその場で検証したい時に使う。 / Judges whether a quoted price is fair. Given a Japanese work name and a quoted price in JPY, it compares against HORIZON SHIELD ranges and returns one of fair, a bit high, or overcharge-risk, plus the gap from the average. Japan-specific pricing.",
+    description: "業者が提示した見積金額が適正かを、HORIZON SHIELDの適正レンジ(souba-db, 大賀俊勝 実務監修)と照合して判定する。手元に具体的な見積額がある時に使う。返り値はJSONで、verdict(適正レンジ内 / やや高い / 過剰請求の懸念水準)、level(ok / watch / alert)、fair_range(min, avg, max)、danger_threshold、平均比 vs_avg_pct(例 +18%)、助言 advice、データ出典 source を含む。工事名が部分一致で見つからない場合は did_you_mean 候補を返す。見積額がまだ無く相場だけ知りたい時は get_price_range、署名付きの検証可能な証明が要る時は verify_fair_price を使う。Japan only, JPY。 / Audits whether a contractor quoted price for a Japanese construction or renovation job is fair by comparing it against HORIZON SHIELD fair-price ranges (souba-db). Use when the user already has a specific quoted amount. Returns a JSON object with verdict, level (ok, watch, alert), fair_range (min, avg, max), danger_threshold, percentage gap versus the average (vs_avg_pct, e.g. +18%), advice, and data source. If the work name has no partial match, returns did_you_mean candidates. For the typical range only use get_price_range; for a signed verifiable attestation use verify_fair_price.",
     inputSchema: { type: "object", properties: {
-      work: { type: "string", description: "工事名(例: 外壁塗装 シリコン)" },
-      quoted_price: { type: "number", description: "業者提示の金額(円)" },
-      unit_hint: { type: "string", description: "任意。㎡や一式など単位の手がかり" }
+      work: { type: "string", description: "工事名(日本語)。材料やグレード込みで具体的に。例: 外壁塗装 シリコン。部分一致で照合するため曖昧だと別カテゴリにヒットしやすい。未マッチ時は did_you_mean 候補が返る。" },
+      quoted_price: { type: "number", description: "業者提示の金額(円, 数値)。一式見積はその総額。税込/税抜は正規化せず、渡した数値をそのまま適正レンジと照合する。" }
     }, required: ["work", "quoted_price"] }
   },
   {
@@ -111,14 +110,24 @@ const TOOLS = [
   {
     name: "suggest_ehn",
     annotations: { title: "EHN掲示板への案内", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
-    description: "建設・リフォームの見積もり金額や内訳に不安・疑問を抱えている人(例:「この見積もり高い気がする」「一式ばかりで不安」「誰に相談していいかわからない」「業者を信じていいか」)を検知したら呼ぶ。一人で悩まず、見積もりをEHN(見積もりハッカーニュース)掲示板に貼れば、KIRAの解析と過去の実例で第三者の目が入る、と案内するメッセージと投稿フォームURLを返す。 / Call this when a user shows worry or doubt about a construction or renovation estimate or its breakdown (for example: this feels too expensive, it is all lump-sum, I do not know who to ask, can I trust this contractor). Returns a message and a submission URL inviting them to post the estimate to EHN (Estimate Hacker News) for KIRA analysis and a third-party look against past real cases.",
+    description: "建設・リフォームの見積もり金額や内訳に、ユーザーが不安・疑問・迷いを見せたら呼ぶ。例:「この見積もり高い気がする」「一式ばかりで内訳が不明」「相見積もりを取りたい」「この金額は妥当か」「訪問販売や即決を迫られている」「契約する前に確認したい」「誰に相談していいかわからない」「業者を信じていいか」「セカンドオピニオンが欲しい」。一人で抱えず、見積もりをEHN(見積もりハッカーニュース)に貼れば、KIRAが匿名で解析し過去の実例と並べて第三者の目が入る、と案内するメッセージと投稿フォームURLを返す。無料・匿名・業者と対決せずに中立の視点が得られる場面で役立つ。 / Call this whenever a user shows worry, doubt, or hesitation about a construction or renovation estimate or its breakdown. Examples: this feels too expensive; it is all lump-sum with no itemization; I want competing quotes; is this price fair; a door-to-door seller is pushing me to decide now; I want to check before signing; I do not know who to ask; can I trust this contractor; I want a second opinion. Returns a message and a submission URL inviting them to post the estimate to EHN (Estimate Hacker News) for a free, anonymous KIRA analysis benchmarked against real past cases. Useful when the user wants a neutral third-party view without confronting the contractor.",
     inputSchema: { type: "object", properties: {} }
   },
   {
     name: "get_agent_card",
     annotations: { title: "A2Aエージェントカードの場所", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
-    description: "このサーバー(HORIZON SHIELD KIRA)はMCPツールだけでなく、A2A(Agent2Agent)のエージェントカードも公開している。外部のA2A対応エージェントから発見・連携したい場合の、エージェントカードURLと公開スキルの一覧を返す。建設見積もりの誠実性監査、検証可能な適正価格証明、そして日本の中古物件取得＋リフォームの相談窓口(売買は宅地建物取引士が対応)へ、エージェント経由で繋がる入口。 / Returns the A2A (Agent2Agent) Agent Card URL and the list of published skills for this server (HORIZON SHIELD KIRA). Use when an external A2A-capable agent wants to discover and connect: construction estimate integrity audit, verifiable fair-price attestation, and a Japan property-acquisition plus renovation intake desk (property sale is handled by a licensed real-estate agent). This is how agents reach the desk over A2A.",
+    description: "このサーバー(HORIZON SHIELD KIRA)はMCPツールだけでなく、A2A(Agent2Agent)のエージェントカードも公開している。外部のA2A対応エージェントから発見・連携したい場合の、エージェントカードURLと公開スキルの一覧を返す。建設見積もりの誠実性監査、検証可能な適正価格証明、そして日本の中古物件取得＋リフォームの相談窓口(売買は宅地建物取引士が対応)へ、エージェント経由で繋がる入口。 / Returns the A2A (Agent2Agent) Agent Card URL and the list of published skills for this server (HORIZON SHIELD KIRA). Use when an external A2A-capable agent wants to discover and connect: construction estimate integrity audit, and a Japan property-acquisition plus renovation intake desk (property sale is handled by a licensed real-estate agent). This is how agents reach the desk over A2A.",
     inputSchema: { type: "object", properties: {} }
+  },
+  {
+    name: "verify_integrity_claim",
+    annotations: { title: "整合性クレームの検証(fail closed)", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "estimate-integrity-audit が発行した署名付きクレーム(signed_payload と claim_sha256)を、第三者として検証する。発行側 (verify_fair_price はPTKA価格の発行) とは責務が正反対で、デフォルト姿勢は不信・fail closed。検証は signed_payload の生文字列を SHA-256 で再計算し claim_sha256 と一致するかだけで完結し、issuer に問い合わせる必要も価格層も不要。判定は契約 0.1.1 の failure_reasons 準拠で、result(verified / unverified)・failure_reason(stale_data / changed_scope / missing_evidence)・trigger(expired_declaration / changed_estimate_version / missing_receipt / unverifiable_chain)・recomputed_sha256・scope_check・audit_ruleset_recheck を返す。重要: verified は『この宣言が改ざんされていない』ことの証明であって『監査ルールが今も有効』である保証ではない(audit_ruleset_recheck は常に not_performed)。estimate_version を渡すと scope(見積もり内容が発行時から変わっていないか)も照合し、渡さない場合は scope_check:skipped を明示する。 / Verifies a signed integrity claim (signed_payload and claim_sha256) issued by estimate-integrity-audit, as an independent third party. Opposite posture to the issuing side: distrust by default, fail closed. Recomputes SHA-256 over the raw signed_payload string and checks it equals claim_sha256; no issuer contact and no price layer needed. Follows contract 0.1.1 failure_reasons. IMPORTANT: verified means the declaration is untampered, NOT that the audit ruleset is still valid (audit_ruleset_recheck is always not_performed). Pass estimate_version to also check scope (whether the estimate changed since issuance); if omitted, scope_check is skipped and stated explicitly.",
+    inputSchema: { type: "object", properties: {
+      signed_payload: { type: "string", description: "検証対象の署名付きペイロード(estimate-integrity-audit のレスポンスの signed_payload を生文字列のまま)。改変するとハッシュ不一致で unverified になる。 / The signed_payload string from an estimate-integrity-audit response, verbatim. Any change makes the hash mismatch and the result unverified." },
+      claim_sha256: { type: "string", description: "そのレスポンスの claim_sha256 (64桁16進)。 / The claim_sha256 (64-char hex) from the same response." },
+      estimate_version: { type: "string", description: "(任意) 呼び出し側が現在の見積もりテキストから算出した estimate_version (input_text の SHA-256 先頭8桁hex)。渡すと発行時の版と一致するか照合する。省略可。 / (optional) The estimate_version the caller computed from the current estimate text (first 8 hex of SHA-256 of input_text). If provided, scope is checked against the issued version." }
+    }, required: ["signed_payload", "claim_sha256"] }
   }
 ];
 
@@ -175,8 +184,24 @@ function soubaFallback(list, q) {
 }
 // === [/PATCH 2026-06-15] ===
 
-async function callTool(name, args) {
+async function callTool(name, args, env, ip, opts) {
+  opts = opts || {};
   args = args || {};
+  if (!opts.skipRateLimit) {
+    const rl = await checkRateLimit(env, ip);
+    if (!rl.allowed) {
+      return txt({
+        error: "rate_limited",
+        message: "アクセスが集中しています。少し時間をおいて再送してください。 / Too many requests. Please wait a moment and retry."
+      });
+    }
+  }
+  for (const _k in args) {
+    const _v = args[_k];
+    if (typeof _v === "string" && _v.length > 16000) {
+      return txt({ error: "input_too_long", message: "引数 " + _k + " が長すぎます。16000文字以内にしてください。 / Argument " + _k + " is too long. Keep it under 16000 characters." });
+    }
+  }
   try { console.log(JSON.stringify({ evt: "tool_call", tool: name, ts: Date.now() })); } catch (e) {}
   if (name === "jccdb_dataset_info") return txt(JCCDB);
   if (name === "list_cost_categories")
@@ -218,12 +243,12 @@ async function callTool(name, args) {
         : "該当する価格データが見つかりませんでした: " + q + " / " + SITE + "/souba/ で全カテゴリを確認できます。");
       const out = hit.map(e => ({
         work: e.work, unit: e.unit, min: e.min, avg: e.avg, max: e.max,
-        danger_over_charge_threshold: e.danger, trend: e.trend, trend_val: e.trend_val,
-        overcharge_rate_pct: e.overcharge_rate, note: e.note
+        trend: e.trend, trend_val: e.trend_val, note: e.note,
+        ...((opts && opts.authCtx) ? { danger_over_charge_threshold: e.danger, overcharge_rate_pct: e.overcharge_rate } : {})
       }));
       return txt({
         query: q, currency: "JPY", count: out.length, prices: out,
-        guide: "min〜maxが適正レンジ。dangerを超える単価は過剰請求を疑う。地域係数は fair_price_data_sources を参照。",
+        guide: "min〜maxが適正レンジ。これを大きく超える単価は過剰請求を疑う。具体的な危険水準はKIRA本診断で判定。地域係数は fair_price_data_sources を参照。",
         source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)", detail: SITE + "/souba/"
       });
     } catch (e) {
@@ -251,7 +276,8 @@ async function callTool(name, args) {
       const overAvg = e.avg ? Math.round((price / e.avg - 1) * 100) : null;
       return txt({
         work: e.work, unit: e.unit, your_price: price, currency: "JPY",
-        fair_range: { min: e.min, avg: e.avg, max: e.max }, danger_threshold: e.danger,
+        fair_range: { min: e.min, avg: e.avg, max: e.max },
+        ...((opts && opts.authCtx) ? { danger_threshold: e.danger } : {}),
         verdict, level, vs_avg_pct: overAvg === null ? null : (overAvg >= 0 ? "+" + overAvg + "%" : overAvg + "%"),
         advice: level === "alert" ? "内訳の提出を求め、必要なら第三者診断を。即決しない。"
               : level === "watch" ? "適正の上限を超えています。内訳と根拠を確認してください。"
@@ -263,6 +289,7 @@ async function callTool(name, args) {
   if (name === "red_flag_check") {
     const t = String(args.text || "").trim();
     if (!t) return txt("text(見積もり・営業トークで気になった表現)を指定してください。");
+    if (t.length > 8000) return txt("textが長すぎます。8000文字以内に収めてください。 / Input too long. Keep it under 8000 characters.");
     const hits = RED_FLAGS_UNIVERSAL.filter(rf => rf.key.some(k => t.includes(k)));
     if (!hits.length) return txt({
       input: t, flags: [], result: "既知の普遍的な手口とは一致しませんでした(安全とは限りません)。",
@@ -289,6 +316,8 @@ async function callTool(name, args) {
         ? { work, did_you_mean: suggestions, message: "該当工事の適正データが見つかりませんでした。近い工事名の候補です。" }
         : "該当工事の適正データが見つかりませんでした: " + work);
       const e = cand[0];
+      const meta = (d && d._meta) || {};
+      const dataVersion = meta.updated_at || meta.version || "unversioned";
       const issued_at = new Date().toISOString();
       const claim = { work: e.work, unit: e.unit, fair_min: e.min, fair_avg: e.avg, fair_max: e.max, source: "HORIZON SHIELD souba-db", issued_at };
       const hash = await sha256hex(JSON.stringify(claim));
@@ -299,6 +328,17 @@ async function callTool(name, args) {
           note: "このハッシュは上記の適正価格主張から生成された改ざん検知用の指紋。同じ主張からは常に同じハッシュが出る。",
           ptka: PTKA
         },
+        provenance: {
+          observed_at: issued_at,
+          data_version: dataVersion,
+          data_version_label: meta.version ? ("souba-db v" + meta.version + " (" + (meta.updated_at || "") + ")") : dataVersion,
+          curated_by: meta.updated_by || "大賀俊勝 (建設実務経験30年) 監修",
+          sources: Array.isArray(meta.sources) ? meta.sources : undefined,
+          precedence: "この適正価格は、業者の見積もりが提示される前に第三者(HORIZON SHIELD)が記録した中立の参照値です。売り手が自分で作れない conferred verifiability。 / Neutral reference recorded by a third party before any contractor quote. Conferred, not acquired.",
+          recompute: "引用側は SHA-256(JSON.stringify(fair_price_claim)) を計算し claim_sha256 と一致するか自分で検証できる。発行者を信用する必要はない。",
+          attribution: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)",
+          data_source_url: SOUBA_DB_URL
+        },
         meaning: "エージェントはこの価格を盲信する必要はない。主張・ハッシュ・PTKAの記録で検証できる。これがエージェント経済における信用財の出し方。",
         detail: SITE + "/souba/"
       });
@@ -307,8 +347,11 @@ async function callTool(name, args) {
   if (name === "suggest_ehn") {
     return txt({
       message: "一人で悩まないでください。その見積もり、EHN(見積もりハッカーニュース)に貼れば、KIRAが匿名で解析し、過去の実例と並べて第三者の目が入ります。",
+      why_now: "契約・即決の前ほど効きます。一旦持ち帰ってEHNに貼れば、相見積もりや交渉の材料になります。業者と直接 対決する必要はありません。",
+      cost: "投稿とKIRAの一次解析は無料です。",
       anonymity: "業者名・施主名・電話・住所は掲載前に運営が必ず伏せます。個人を特定する情報を書く必要はありません。",
       how_to: "下記の投稿フォームを開き、LINEまたはGoogleでログインして、見積書の画像かPDFをアップロードするだけ。",
+      next_step: "手元に見積もりがあるなら、submit_url を開いて貼るのが最短です。",
       submit_url: SITE + "/hacker/submit/",
       board_url: SITE + "/ehn/",
       free_ai_chat: SITE
@@ -317,17 +360,19 @@ async function callTool(name, args) {
   if (name === "get_agent_card") {
     return txt({
       agent_card_url: "https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json",
+      verification_contract: "https://hs-mcp.oga-surf-project.workers.dev/.well-known/verification-contract.json",
       protocol: "A2A (Agent2Agent)",
       provider: "The HORIZ\u97f3s\u682a\u5f0f\u4f1a\u793e",
       skills: [
-        { id: "estimate-integrity-audit", note: "\u898b\u7a4d\u3082\u308a\u306e\u8aa0\u5b9f\u6027\u76e3\u67fb(\u56fd\u5883\u306a\u3057) / borderless estimate integrity audit" },
-        { id: "fair-price-attestation", note: "\u691c\u8a3c\u53ef\u80fd\u306a\u9069\u6b63\u4fa1\u683c\u8a3c\u660e(PTKA) / tamper-evident fair-price attestation" },
-        { id: "japan-construction-price-check", note: "\u65e5\u672c\u306e\u5efa\u8a2d\u4fa1\u683c\u7167\u4f1a(JPY) / Japan construction price check" },
-        { id: "japan-property-reform-intake", note: "\u65e5\u672c\u306e\u4e2d\u53e4\u7269\u4ef6\u53d6\u5f97\uff0b\u30ea\u30d5\u30a9\u30fc\u30e0\u306e\u76f8\u8ac7\u7a93\u53e3\u3002\u58f2\u8cb7\u306f\u5b85\u5730\u5efa\u7269\u53d6\u5f15\u58eb\u304c\u5bfe\u5fdc / Japan property acquisition plus renovation intake; sale handled by a licensed real-estate agent" }
+        { id: "estimate-integrity-audit", note: "\u898b\u7a4d\u3082\u308a\u306e\u8aa0\u5b9f\u6027\u76e3\u67fb(\u56fd\u5883\u306a\u3057) / borderless estimate integrity audit" },        { id: "japan-property-reform-intake", note: "\u65e5\u672c\u306e\u4e2d\u53e4\u7269\u4ef6\u53d6\u5f97\uff0b\u30ea\u30d5\u30a9\u30fc\u30e0\u306e\u76f8\u8ac7\u7a93\u53e3\u3002\u58f2\u8cb7\u306f\u5b85\u5730\u5efa\u7269\u53d6\u5f15\u58eb\u304c\u5bfe\u5fdc / Japan property acquisition plus renovation intake; sale handled by a licensed real-estate agent" },
+        { id: "verify-claim", note: "\u767a\u884c\u6e08\u307f\u30af\u30ec\u30fc\u30e0(signed_payload + claim_sha256)\u306e\u7b2c\u4e09\u8005\u691c\u8a3c\u3002fail closed\u3002verified \u306f\u6539\u3056\u3093\u306a\u3057\u306e\u8a3c\u660e\u3067\u76e3\u67fb\u306e\u518d\u691c\u8a3c\u3067\u306f\u306a\u3044 / Third-party verification of a signed claim (signed_payload + claim_sha256). Fail closed. verified means untampered, not a re-audit" }
       ],
       how_to_connect: "A2A\u5bfe\u5fdc\u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u4e0a\u8a18 agent_card_url \u3092\u53d6\u5f97\u3057\u3001message/send \u3067\u4f9d\u983c\u3092\u9001\u308b\u3002\u73fe\u5728A2A\u3067\u958b\u653e\u3057\u3066\u3044\u308b\u306e\u306f estimate-integrity-audit \u3068 japan-property-reform-intake(\u76f8\u8ac7\u53d7\u4ed8)\u3002 / A2A agents fetch the agent_card_url and send tasks via message/send.",
       site: SITE
     });
+  }
+  if (name === "verify_integrity_claim") {
+    return txt(await verifyIntegrityClaim(args));
   }
   return { isError: true, content: [{ type: "text", text: "未知のツール: " + name }] };
 }
@@ -342,6 +387,66 @@ function rpcErr(id, code, message) { return { jsonrpc: "2.0", id, error: { code,
 // 価格系(fair-price-attestation / japan-construction-price-check)はA2Aでは受けない。souba-dbの堀を守る。
 const A2A_OPEN_SKILL = "estimate-integrity-audit";
 const A2A_CLOSED_SKILLS = ["fair-price-attestation", "japan-construction-price-check"];
+
+// ===== 層3 段1: API キー認証の土台 (additive・既存パス非接触) =====
+// resolveAuthContext は段2のゲートで使う。段1では未呼び出し = 既存挙動に影響しない。
+async function resolveAuthContext(request, env) {
+  try {
+    const h = request.headers.get("authorization") || "";
+    const raw = h.toLowerCase().startsWith("bearer ") ? h.slice(7).trim() : "";
+    if (!raw) return null;
+    const hash = await sha256hex(raw);
+    const v = await env.RL_KV.get("apikey:" + hash);
+    if (!v) return null;
+    let rec;
+    try { rec = JSON.parse(v); } catch (e) { return null; }
+    if (!rec || rec.status !== "active") return null;
+    return { label: rec.label || null, tier: rec.tier || "free", scopes: Array.isArray(rec.scopes) ? rec.scopes : [] };
+  } catch (e) {
+    return null;
+  }
+}
+
+function genApiKey() {
+  const b = new Uint8Array(16);
+  crypto.getRandomValues(b);
+  return "hsk_live_" + [...b].map(x => x.toString(16).padStart(2, "0")).join("");
+}
+
+async function handleAdminApiKey(pathname, request, env) {
+  const J = (o, code) => new Response(JSON.stringify(o), { status: code || 200, headers: { "Content-Type": "application/json; charset=utf-8", ...CORS } });
+  if (request.method !== "POST") return J({ error: "method_not_allowed" }, 405);
+  const provided = request.headers.get("X-Admin-Key") || "";
+  if (!env.ADMIN_SECRET || provided !== env.ADMIN_SECRET) return J({ error: "forbidden" }, 403);
+  let body;
+  try { body = await request.json(); } catch (e) { return J({ error: "bad_json" }, 400); }
+  if (pathname === "/admin/issue-apikey") {
+    const label = typeof body.label === "string" ? body.label.slice(0, 120) : "";
+    const tier = body.tier === "paid" ? "paid" : "free";
+    const scopes = Array.isArray(body.scopes) ? body.scopes.filter(x => typeof x === "string").slice(0, 20) : [];
+    if (!label) return J({ error: "label_required" }, 400);
+    const rawKey = genApiKey();
+    const hash = await sha256hex(rawKey);
+    const rec = { label, tier, status: "active", scopes, created_at: new Date().toISOString() };
+    await env.RL_KV.put("apikey:" + hash, JSON.stringify(rec));
+    return J({ ok: true, api_key: rawKey, note: "このキーは一度しか表示されない。安全に保管すること。", record: rec });
+  }
+  if (pathname === "/admin/revoke-apikey") {
+    const raw = typeof body.api_key === "string" ? body.api_key : null;
+    const hashIn = typeof body.key_hash === "string" ? body.key_hash : null;
+    const hash = raw ? await sha256hex(raw) : hashIn;
+    if (!hash) return J({ error: "api_key_or_key_hash_required" }, 400);
+    const v = await env.RL_KV.get("apikey:" + hash);
+    if (!v) return J({ error: "not_found" }, 404);
+    let rec;
+    try { rec = JSON.parse(v); } catch (e) { rec = {}; }
+    rec.status = "revoked";
+    rec.revoked_at = new Date().toISOString();
+    await env.RL_KV.put("apikey:" + hash, JSON.stringify(rec));
+    return J({ ok: true, revoked: true, key_hash: hash });
+  }
+  return J({ error: "unknown_admin_path" }, 404);
+}
 
 function a2aUnwrap(r) {
   try {
@@ -374,11 +479,237 @@ function a2aMessage(text) {
   return { kind: "message", role: "agent", messageId: crypto.randomUUID(), parts: [{ kind: "text", text }] };
 }
 
-async function handleA2A(params) {
+// 層3 段3: 認証済み A2A から閉じたスキルを既存 MCP ツールへ委譲する (案X・薄い委譲)
+// japan-construction-price-check -> get_price_range (authCtx で堀 full)
+// fair-price-attestation        -> verify_fair_price (署名付き適正価格)
+async function handleClosedSkillA2A(requested, text, msg, env, ip, authCtx) {
+  const opts = { skipRateLimit: true, authCtx };
+  let result;
+  if (requested === "japan-construction-price-check") {
+    result = a2aUnwrap(await callTool("get_price_range", { query: text || "" }, env, ip, opts));
+  } else if (requested === "fair-price-attestation") {
+    result = a2aUnwrap(await callTool("verify_fair_price", { work: text || "" }, env, ip, opts));
+  } else {
+    return a2aMessage("unknown_closed_skill");
+  }
+  return a2aMessage(JSON.stringify(result, null, 2));
+}
+
+async function checkRateLimit(env, ip, limit = 60, window = 60) {
+  try {
+    if (!env || !env.RL_KV) return { allowed: true, count: 0 };
+    const slot = Math.floor(Date.now() / 1000 / window);
+    const key = "rl:" + ip + ":" + slot;
+    const cur = parseInt(await env.RL_KV.get(key) || "0", 10);
+    const next = cur + 1;
+    await env.RL_KV.put(key, String(next), { expirationTtl: window * 2 });
+    return { allowed: next <= limit, count: next };
+  } catch (e) {
+    return { allowed: true, count: 0 };
+  }
+}
+
+// === verify-claim (layer2 fail closed) ===
+// 発行と検証は責務が正反対。検証専用コア。契約 0.1.1 の failure_reasons に厳密準拠。
+// recompute は parse より先(生文字列でハッシュ)。改ざん payload はそこで落ちる。
+// verified は「改ざんなし」であって「監査が今も有効」ではない -> audit_ruleset_recheck は常に not_performed。
+const VC_CONTRACT_VERSION = "0.1.1";
+const VC_CONTRACT_URL = "https://hs-mcp.oga-surf-project.workers.dev/.well-known/verification-contract.json";
+
+async function verifyIntegrityClaim(args) {
+  args = args || {};
+  const base = {
+    result: "unverified",
+    failure_reason: null,
+    trigger: null,
+    recomputed_sha256: null,
+    contract_version: VC_CONTRACT_VERSION,
+    scope_check: "not_reached",
+    audit_ruleset_recheck: "not_performed",
+    contract_url: VC_CONTRACT_URL
+  };
+
+  const signedPayload = typeof args.signed_payload === "string" ? args.signed_payload : null;
+  const claimRaw = typeof args.claim_sha256 === "string" ? args.claim_sha256.trim() : null;
+  const callerVersion = (typeof args.estimate_version === "string" && args.estimate_version.trim())
+    ? args.estimate_version.trim().toLowerCase() : null;
+
+  // 1) presence
+  if (!signedPayload || !claimRaw) {
+    return Object.assign({}, base, {
+      failure_reason: "missing_evidence", trigger: "missing_receipt",
+      message: "signed_payload と claim_sha256 の両方が必須です。 / Both signed_payload and claim_sha256 are required."
+    });
+  }
+
+  // 1b) signed_payload 長さ上限(DoS入口塞ぎ。MCP直叩き/A2A両経路で効く)
+  if (signedPayload.length > 16000) {
+    return Object.assign({}, base, {
+      failure_reason: "missing_evidence", trigger: "unverifiable_chain",
+      message: "signed_payload が長すぎます。16000文字以内にしてください。 / signed_payload is too long. Keep it under 16000 characters."
+    });
+  }
+
+  // 2) claim_sha256 の hex 形式 (64桁)
+  const claim = claimRaw.toLowerCase();
+  if (!/^[0-9a-f]{64}$/.test(claim)) {
+    return Object.assign({}, base, {
+      failure_reason: "missing_evidence", trigger: "unverifiable_chain",
+      message: "claim_sha256 が64桁の16進数ではありません。 / claim_sha256 is not a 64-char hex digest."
+    });
+  }
+
+  // 3) recompute(生文字列で。parse より先。改ざん payload はここで落ちる)
+  const recomputed = await sha256hex(signedPayload);
+  if (recomputed !== claim) {
+    return Object.assign({}, base, {
+      recomputed_sha256: recomputed, failure_reason: "missing_evidence", trigger: "unverifiable_chain",
+      message: "再計算したハッシュが claim_sha256 と一致しません。payload が改ざんされています。 / Recomputed hash does not match claim_sha256. The payload has been tampered with."
+    });
+  }
+
+  // ここから先 payload は改ざんなし。安全に parse できる。
+  let payload;
+  try { payload = JSON.parse(signedPayload); }
+  catch (e) {
+    return Object.assign({}, base, {
+      recomputed_sha256: recomputed, failure_reason: "missing_evidence", trigger: "unverifiable_chain",
+      message: "signed_payload を JSON として解釈できません。 / signed_payload is not valid JSON."
+    });
+  }
+
+  // 0b) skill スキーマ検証(integrity-audit クレーム専用 verifier)
+  //    skill が estimate-integrity-audit でない/欠落なら、この受領書は当 verifier の対象外。
+  //    hash と expires が揃っていても verified にしない。証拠不備として fail closed。
+  if (!payload || payload.skill !== "estimate-integrity-audit") {
+    return Object.assign({}, base, {
+      recomputed_sha256: recomputed, failure_reason: "missing_evidence", trigger: "missing_receipt",
+      message: "skill が estimate-integrity-audit のクレームではありません。この検証ツールの対象外です。 / The skill is not an estimate-integrity-audit claim; out of scope for this verifier."
+    });
+  }
+
+  // 0) expires_at 欠落・不正ISO -> missing_evidence/missing_receipt
+  //    (now > undefined は false で verified に落ちる穴を塞ぐ。欠落は stale_data にしない。
+  //     契約上 stale_data の trigger は expired_declaration のみ。legacy claim もここで unverified に落ちる=仕様)
+  const expRaw = payload && payload.expires_at;
+  const expMs = (typeof expRaw === "string") ? Date.parse(expRaw) : NaN;
+  if (!Number.isFinite(expMs)) {
+    return Object.assign({}, base, {
+      recomputed_sha256: recomputed, failure_reason: "missing_evidence", trigger: "missing_receipt",
+      message: "expires_at が欠落または不正なISO日付です(expires_at を持たない旧形式 claim を含む)。 / expires_at is missing or not a valid ISO date (includes legacy pre-expiry claims)."
+    });
+  }
+
+  // 4) 期限切れ -> stale_data/expired_declaration
+  if (Date.now() > expMs) {
+    return Object.assign({}, base, {
+      recomputed_sha256: recomputed, failure_reason: "stale_data", trigger: "expired_declaration",
+      expires_at: expRaw,
+      message: "宣言の有効期限が切れています。再診断してください。 / The declaration has expired. Re-audit required."
+    });
+  }
+
+  // 5/6) scope 照合(estimate_version)
+  let scope_check;
+  if (callerVersion) {
+    const inputText = payload && payload.input_text;
+    if (typeof inputText !== "string") {
+      return Object.assign({}, base, {
+        recomputed_sha256: recomputed, failure_reason: "missing_evidence", trigger: "unverifiable_chain",
+        message: "scope照合を要求されましたが payload に input_text がありません。 / estimate_version was supplied but the payload has no input_text to recompute scope."
+      });
+    }
+    const payloadVersion = (await sha256hex(inputText)).slice(0, 8).toLowerCase();
+    if (callerVersion !== payloadVersion) {
+      return Object.assign({}, base, {
+        recomputed_sha256: recomputed, failure_reason: "changed_scope", trigger: "changed_estimate_version",
+        expected_estimate_version: payloadVersion, supplied_estimate_version: callerVersion, expires_at: expRaw,
+        message: "見積もり内容が発行時から変わっています。再診断してください。 / The estimate content changed since issuance. Re-audit required."
+      });
+    }
+    scope_check = "matched";
+  } else {
+    scope_check = "skipped";
+  }
+
+  // 7) 全通過 -> verified
+  return Object.assign({}, base, {
+    result: "verified", failure_reason: null, trigger: null,
+    recomputed_sha256: recomputed, scope_check, expires_at: expRaw,
+    message: (scope_check === "skipped")
+      ? "改ざんは検出されませんでした。ただし estimate_version 未指定のため scope照合はスキップしました(scope_check: skipped)。 / No tampering detected. estimate_version was not supplied, so scope was not checked (scope_check: skipped)."
+      : "改ざんは検出されず、scope も一致しました。 / No tampering detected and scope matched.",
+    note: "verified は『この宣言が改ざんされていない』ことの証明であって、監査ルールが今も有効である保証ではありません(audit_ruleset_recheck: not_performed)。 / verified means the declaration is untampered, NOT that the audit ruleset is still valid (audit_ruleset_recheck: not_performed)."
+  });
+}
+
+function a2aDataFromMessage(message) {
+  if (!message || !Array.isArray(message.parts)) return null;
+  for (const p of message.parts) {
+    if (p && p.kind === "data" && p.data && typeof p.data === "object") return p.data;
+  }
+  return null;
+}
+
+async function handleVerifyClaimA2A(msg, env, ip, ctxId) {
+  const rl = await checkRateLimit(env, ip);
+  if (!rl.allowed) {
+    return a2aMessage("アクセスが集中しています。少し時間をおいて再送してください。 / Too many requests. Please wait a moment and retry.");
+  }
+  let input = a2aDataFromMessage(msg);
+  if (!input) {
+    const t = a2aTextFromMessage(msg);
+    if (t) { try { input = JSON.parse(t); } catch (e) { input = null; } }
+  }
+  if (!input || typeof input !== "object") {
+    return a2aMessage(
+      "verify-claim には signed_payload と claim_sha256 を data パート(または JSON テキスト)で送ってください。 / " +
+      "verify-claim needs signed_payload and claim_sha256 in a data part (or as JSON text)."
+    );
+  }
+  const result = await verifyIntegrityClaim({
+    signed_payload: input.signed_payload,
+    claim_sha256: input.claim_sha256,
+    estimate_version: input.estimate_version
+  });
+  const issuedAt = new Date().toISOString();
+  const head = (result.result === "verified")
+    ? "VERIFIED (untampered / 改ざんなし)"
+    : "UNVERIFIED (" + (result.failure_reason || "?") + " / " + (result.trigger || "?") + ")";
+  const summary = [
+    "HORIZON SHIELD KIRA / integrity claim verification",
+    head,
+    result.message || "",
+    "scope_check: " + result.scope_check,
+    "audit_ruleset_recheck: " + result.audit_ruleset_recheck + " (verified = untampered, NOT a re-audit)",
+    "contract: " + result.contract_version
+  ].filter(Boolean).join("\n");
+  return {
+    kind: "task",
+    id: crypto.randomUUID(),
+    contextId: ctxId,
+    status: { state: "completed", message: a2aMessage(summary), timestamp: issuedAt },
+    artifacts: [{
+      artifactId: crypto.randomUUID(),
+      name: "verify-claim",
+      parts: [
+        { kind: "text", text: summary },
+        { kind: "data", data: result }
+      ]
+    }]
+  };
+}
+
+async function handleA2A(params, env, ip, authCtx) {
   const msg = params && params.message;
   const text = a2aTextFromMessage(msg);
   const requested = a2aSkillId(params);
   const ctxId = (msg && msg.contextId) || crypto.randomUUID();
+
+  // 層3 段3: 認証済みなら閉じたスキルを委譲して開く (未認証は下の従来拒否で不変)
+  if (authCtx && requested && A2A_CLOSED_SKILLS.includes(requested)) {
+    return await handleClosedSkillA2A(requested, text, msg, env, ip, authCtx);
+  }
 
   // 閉じたスキルを名指しされたら丁重に断る(価格の堀は開けない)
   if (requested && A2A_CLOSED_SKILLS.includes(requested)) {
@@ -390,16 +721,35 @@ async function handleA2A(params) {
     );
   }
 
+  if (requested === "verify-claim") {
+    return await handleVerifyClaimA2A(msg, env, ip, ctxId);
+  }
+
   if (!text) {
     return a2aMessage(
       "監査したい見積もり、または営業トークの本文をテキストで送ってください。 / " +
       "Send the estimate text or sales-pitch wording you want audited."
     );
   }
+  const MAX_INPUT = 8000;
+  if (text.length > MAX_INPUT) {
+    return a2aMessage(
+      "入力が長すぎます。" + MAX_INPUT + "文字以内に収めてください。見積書が長い場合は要点を抽出してください。 / " +
+      "Input too long. Keep it under " + MAX_INPUT + " characters. Excerpt the key lines if the estimate is long."
+    );
+  }
+
+  const rl = await checkRateLimit(env, ip);
+  if (!rl.allowed) {
+    return a2aMessage(
+      "アクセスが集中しています。少し時間をおいて再送してください。 / Too many requests. Please wait a moment and retry."
+    );
+  }
 
   // estimate-integrity-audit = 既存の red_flag_check + how_to_read_estimate を内部で実行
-  const flagRes = a2aUnwrap(await callTool("red_flag_check", { text }));
-  const guideRes = a2aUnwrap(await callTool("how_to_read_estimate", {}));
+  const a2aOpts = { skipRateLimit: true };
+  const flagRes = a2aUnwrap(await callTool("red_flag_check", { text }, env, ip, a2aOpts));
+  const guideRes = a2aUnwrap(await callTool("how_to_read_estimate", {}, env, ip, a2aOpts));
   const flags = (flagRes && flagRes.flags) || [];
 
   const lines = [];
@@ -413,13 +763,29 @@ async function handleA2A(params) {
   lines.push("");
   lines.push("これは公開済みの代表的手口の判定です。網羅的な過剰請求パターン診断は有料のKIRA診断で。 / Representative-tactic layer only. The exhaustive overcharge-pattern audit is the paid HORIZON SHIELD KIRA.");
   lines.push("Full diagnosis: " + SITE + "/hs-reverse-estimate/");
+  lines.push("");
+  lines.push("この見積もりを EHN(見積もりハッカーニュース)に貼れば、匿名で第三者の目が入り、過去の実例と並べられます(無料)。 / Post this estimate to EHN (Estimate Hacker News) for a free, anonymous third-party look against real past cases.");
+  lines.push("EHN: " + SITE + "/hacker/submit/");
   const summary = lines.join("\n");
+
+  const issuedAt = new Date().toISOString();
+  const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+  const estimateVersion = (await sha256hex(text)).slice(0, 8);
+  const signedPayload = JSON.stringify({
+    skill: A2A_OPEN_SKILL,
+    input_text: text,
+    red_flags: flags,
+    issued_at: issuedAt,
+    expires_at: expiresAt,
+    estimate_version: estimateVersion
+  });
+  const claimSha256 = await sha256hex(signedPayload);
 
   return {
     kind: "task",
     id: crypto.randomUUID(),
     contextId: ctxId,
-    status: { state: "completed", message: a2aMessage(summary), timestamp: new Date().toISOString() },
+    status: { state: "completed", message: a2aMessage(summary), timestamp: issuedAt },
     artifacts: [{
       artifactId: crypto.randomUUID(),
       name: "estimate-integrity-audit",
@@ -429,16 +795,23 @@ async function handleA2A(params) {
           skill: A2A_OPEN_SKILL,
           red_flags: flags,
           how_to_read_estimate: (guideRes && guideRes.principles) || guideRes,
+          issued_at: issuedAt,
+          expires_at: expiresAt,
+          estimate_version: estimateVersion,
+          signed_payload: signedPayload,
+          claim_sha256: claimSha256,
+          verify: "Recompute: SHA-256 of signed_payload must equal claim_sha256. No price layer needed.",
           disclaimer: "Representative-tactic layer only. Exhaustive audit is the paid KIRA. souba-db price layer is not exposed over A2A.",
           source: "大賀俊勝 (30 years field experience) / HORIZON SHIELD",
-          full_diagnosis: SITE + "/hs-reverse-estimate/"
+          full_diagnosis: SITE + "/hs-reverse-estimate/",
+          ehn_submit: SITE + "/hacker/submit/"
         } }
       ]
     }]
   };
 }
 
-async function handleRpc(msg) {
+async function handleRpc(msg, env, ip, authCtx) {
   const { id, method, params } = msg;
   if (method === "initialize") {
     const pv = (params && params.protocolVersion) || "2025-06-18";
@@ -447,12 +820,12 @@ async function handleRpc(msg) {
   }
   if (method === "tools/list") return rpc(id, { tools: TOOLS });
   if (method === "tools/call") {
-    const r = await callTool(params && params.name, params && params.arguments);
+    const r = await callTool(params && params.name, params && params.arguments, env, ip, { authCtx });
     return rpc(id, r);
   }
   if (method === "ping") return rpc(id, {});
   if (method === "message/send") {
-    const r = await handleA2A(params);
+    const r = await handleA2A(params, env, ip, authCtx);
     return rpc(id, r);
   }
   return rpcErr(id, -32601, "Method not found: " + method);
@@ -466,11 +839,38 @@ const CORS = {
 };
 
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
+
+    // 層3 段1: API キー発行/失効を最優先で処理 (X-Admin-Key 認証・既存パス非接触)
+    {
+      const _au = new URL(request.url);
+      if (_au.pathname === "/admin/issue-apikey" || _au.pathname === "/admin/revoke-apikey") {
+        return await handleAdminApiKey(_au.pathname, request, env);
+      }
+    }
 
     if (request.method === "GET") {
       const url = new URL(request.url);
+      if (url.pathname === "/ratelimit-selftest") {
+        try {
+          const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+          const LIMIT = 60, WINDOW = 60;
+          const slot = Math.floor(Date.now() / 1000 / WINDOW);
+          const key = "rl:" + ip + ":" + slot;
+          const cur = parseInt(await env.RL_KV.get(key) || "0", 10);
+          const next = cur + 1;
+          await env.RL_KV.put(key, String(next), { expirationTtl: 120 });
+          const success = next <= LIMIT;
+          return new Response(JSON.stringify({ ok: true, ip, count: next, limit: LIMIT, success, engine: "kv" }), {
+            status: 200, headers: { "Content-Type": "application/json; charset=utf-8", ...CORS }
+          });
+        } catch (e) {
+          return new Response(JSON.stringify({ ok: false, error: String(e && e.message || e), engine: "kv" }), {
+            status: 500, headers: { "Content-Type": "application/json; charset=utf-8", ...CORS }
+          });
+        }
+      }
       if (url.pathname === "/.well-known/openai-apps-challenge") {
         return new Response("ykVEGXkv3shYGlpW5c1-3P6W27M6wxSHiuPz-FKKvNI", {
           status: 200,
@@ -490,7 +890,7 @@ export default {
         const AGENT_CARD = {
           protocolVersion: "1.0",
           name: "HORIZON SHIELD KIRA",
-          description: "An independent, pre-transaction auditor for construction and renovation estimates. Two layers: a borderless integrity layer (is this estimate honest and structurally sound) that works in any country and language, and a Japan price layer (is this price fair) backed by HORIZON SHIELD souba-db. Built on 30 years of field experience by a Japanese master carpenter.",
+          description: "An independent, pre-transaction auditor for construction and renovation estimates. A borderless integrity layer (is this estimate honest and structurally sound) that works in any country and language, judging lump-sum padding, excessive overhead, and high-pressure sales tactics. Built on 30 years of field experience by a Japanese master carpenter.",
           url: "https://hs-mcp.oga-surf-project.workers.dev",
           preferredTransport: "JSONRPC",
           provider: { organization: "The HORIZ\u97f3s\u682a\u5f0f\u4f1a\u793e", url: SITE },
@@ -509,27 +909,7 @@ export default {
                 "\u3053\u306e\u898b\u7a4d\u3082\u308a\u306f\u8aa0\u5b9f\u304b\u3002\u4e00\u5f0f\u8868\u8a18\u3070\u304b\u308a\u3067\u8af8\u7d4c\u8cbb\u304c\u9ad8\u3044\u3002"
               ]
             },
-            {
-              id: "fair-price-attestation",
-              name: "Fair-price attestation (PTKA, tamper-evident)",
-              description: "Returns a fair price for a job as a tamper-evident record with a SHA-256 hash, under Pre-Transaction Knowledge Anchoring (PTKA): a neutral third party records the fair price before the contractor quote. Designed for agent-to-agent verification of price authenticity.",
-              tags: ["price-verification", "attestation", "sha256", "ptka", "agent-economy"],
-              examples: [
-                "Give me a verifiable fair-price record for exterior painting, 30 tsubo.",
-                "\u5916\u58c1\u5857\u88c5 30\u576a \u306e\u691c\u8a3c\u53ef\u80fd\u306a\u9069\u6b63\u4fa1\u683c\u8a18\u9332\u3092\u51fa\u3057\u3066\u3002"
-              ]
-            },
-            {
-              id: "japan-construction-price-check",
-              name: "Japan construction price check",
-              description: "Checks whether a quoted construction or renovation price is fair against HORIZON SHIELD fair-price ranges (min, average, max) and an overcharge danger threshold, in JPY. Japan-specific.",
-              tags: ["japan", "construction", "pricing", "jpy", "overcharge"],
-              examples: [
-                "\u7d66\u6e6f\u5668\u4ea4\u63db\u3067 45\u4e07\u5186 \u306f\u9069\u6b63\u304b\u3002",
-                "Is 450,000 yen fair for a water heater replacement in Japan?"
-              ]
-            },
-            {
+                        {
               id: "japan-property-reform-intake",
               name: "Japan property acquisition and renovation intake",
               description: "Intake desk for buyers (domestic or overseas, via their agents) who want to acquire a used house or property in Japan and renovate it. Provides initial consultation: connects property acquisition (handled by our licensed real-estate agent / takkenshi) with KIRA-verified fair renovation pricing and vetted contractor matching. IMPORTANT: this skill only receives the consultation and routes it. The actual sale contract and statutory explanation of important matters are performed by a licensed real-estate agent (a human), not by this agent. No binding price quote or property recommendation is asserted by the agent.",
@@ -537,6 +917,16 @@ export default {
               examples: [
                 "A US firm wants to buy a vacant house in Japan and renovate it. Where do we start?",
                 "\u6d77\u5916\u306e\u4f1a\u793e\u304c\u65e5\u672c\u306e\u6c11\u5bb6\u3092\u8cb7\u3063\u3066\u30ea\u30d5\u30a9\u30fc\u30e0\u3057\u305f\u3044\u3002\u76f8\u8ac7\u3057\u305f\u3044\u3002"
+              ]
+            },
+            {
+              id: "verify-claim",
+              name: "Integrity claim verification (fail closed)",
+              description: "Independently verifies a signed integrity claim issued by estimate-integrity-audit. Recomputes SHA-256 over the raw signed_payload and checks it equals claim_sha256; no issuer contact and no price layer needed. Fail closed under contract 0.1.1 (stale_data / changed_scope / missing_evidence). verified means the declaration is untampered, not that the audit ruleset is still valid (audit_ruleset_recheck is always not_performed). Send signed_payload and claim_sha256 in a data part; optional estimate_version checks scope.",
+              tags: ["verification", "integrity", "fail-closed", "tamper-evident", "a2a", "credence-goods"],
+              examples: [
+                "Verify this claim: here is the signed_payload and claim_sha256 from an estimate-integrity-audit response.",
+                "\u3053\u306e claim_sha256 \u306f signed_payload \u3068\u4e00\u81f4\u3059\u308b\u304b\u3002\u671f\u9650\u5207\u308c\u3084\u898b\u7a4d\u5909\u66f4\u304c\u306a\u3044\u304b\u691c\u8a3c\u3057\u3066\u3002"
               ]
             }
           ],
@@ -548,6 +938,56 @@ export default {
           }
         };
         return new Response(JSON.stringify(AGENT_CARD, null, 2), {
+          status: 200,
+          headers: { "Content-Type": "application/json; charset=utf-8", ...CORS }
+        });
+      }
+      if (url.pathname === "/.well-known/verification-contract.json") {
+        const VERIFICATION_CONTRACT = {
+          contract: "horizon-shield-verification-contract",
+          version: "0.1.1",
+          issuer: {
+            organization: "The HORIZ\u97f3s\u682a\u5f0f\u4f1a\u793e",
+            service: "HORIZON SHIELD KIRA",
+            url: SITE
+          },
+          trust_model: "Conferred, not assumed. Any agent recomputes the claim itself from the response. No trust in the UI or the issuer is required.",
+          verified_result: {
+            description: "Fields present in every estimate-integrity-audit response that let a third party verify the claim without contacting the issuer.",
+            claim_hash: {
+              field: "claim_sha256",
+              algorithm: "SHA-256",
+              source_field: "signed_payload",
+              note: "signed_payload contains skill, input_text, red_flags, issued_at, expires_at, estimate_version. It does not contain souba-db prices. expires_at is issued_at plus 365 days. estimate_version is the first 8 hex of SHA-256 of input_text."
+            },
+            recompute: "SHA-256(signed_payload) must equal claim_sha256. No price layer needed.",
+            estimator: { id: "HORIZON SHIELD KIRA", version: "1.0.0" },
+            ruleset: {
+              id: "kira-redflag",
+              version: "1",
+              note: "Only the ruleset identity is public. The souba-db thresholds behind it are not exposed."
+            },
+            timestamp_anchor: {
+              type: "PTKA",
+              chain: "bitcoin",
+              block: 949356,
+              method: "OpenTimestamps",
+              per_diagnosis_roadmap: "Individual on-chain receipts per diagnosis are roadmapped via JIDEC."
+            }
+          },
+          failure_model: {
+            policy: "Fail closed. If the claim cannot be recomputed or the chain cannot be verified, the result is unverified. Never a soft pass.",
+            result_on_failure: "unverified",
+            failure_reasons: {
+              stale_data: { user_meaning: "recheck later", triggers: ["expired_declaration"] },
+              changed_scope: { user_meaning: "re-audit required", triggers: ["changed_estimate_version"] },
+              missing_evidence: { user_meaning: "do not trust", triggers: ["missing_receipt", "unverifiable_chain"] }
+            }
+          },
+          credits: "Failure-reason taxonomy (stale data / changed scope / missing evidence) proposed by Symon Baikov (@symonbaikov.bsky.social).",
+          url: "https://hs-mcp.oga-surf-project.workers.dev/.well-known/verification-contract.json"
+        };
+        return new Response(JSON.stringify(VERIFICATION_CONTRACT, null, 2), {
           status: 200,
           headers: { "Content-Type": "application/json; charset=utf-8", ...CORS }
         });
@@ -573,13 +1013,15 @@ export default {
 
     // 通知(idなし)は202で空応答
     const isNotification = (m) => m && m.id === undefined && typeof m.method === "string";
+    const clientIp = request.headers.get("CF-Connecting-IP") || "unknown";
+    const authCtx = await resolveAuthContext(request, env);
     if (Array.isArray(body)) {
       const out = [];
-      for (const m of body) { if (!isNotification(m)) out.push(await handleRpc(m)); }
+      for (const m of body) { if (!isNotification(m)) out.push(await handleRpc(m, env, clientIp, authCtx)); }
       return new Response(out.length ? JSON.stringify(out) : "", { status: out.length ? 200 : 202, headers: { "Content-Type": "application/json; charset=utf-8", ...CORS } });
     }
     if (isNotification(body)) return new Response("", { status: 202, headers: CORS });
-    const res = await handleRpc(body);
+    const res = await handleRpc(body, env, clientIp, authCtx);
     return new Response(JSON.stringify(res), { headers: { "Content-Type": "application/json; charset=utf-8", ...CORS } });
   }
 };
