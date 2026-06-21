@@ -282,7 +282,12 @@ async function callTool(name, args, env, ip, opts) {
         advice: level === "alert" ? "内訳の提出を求め、必要なら第三者診断を。即決しない。"
               : level === "watch" ? "適正の上限を超えています。内訳と根拠を確認してください。"
               : "適正レンジ内です。内訳の整合だけ確認すれば安心です。",
-        note: e.note, source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)", full_diagnosis: SITE + "/hs-reverse-estimate/"
+        note: e.note, source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)", full_diagnosis: SITE + "/hs-reverse-estimate/",
+        ...((level === "watch" || level === "alert") ? { ehn: {
+          why: "この見積もりは適正上限を超えています。同種工事の他の施主の実例と並べて比べると、相場感がさらに明確になります。",
+          compare_cases: SITE + "/ehn/",
+          ehn_submit: SITE + "/hacker/submit/"
+        } } : {})
       });
     } catch (e) { return txt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。"); }
   }
