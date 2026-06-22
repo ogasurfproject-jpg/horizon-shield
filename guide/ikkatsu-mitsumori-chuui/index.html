@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>一括見積もり・紹介サイトは「適正価格」を保証しない理由｜なぜ紹介と検証は分けるべきか - HORIZON SHIELD</title>
+<meta name="description" content="一括見積もり・リフォーム紹介サイトは便利だが、紹介先の価格が適正かまでは保証できない。紹介手数料で成り立つ仕組み上、紹介元が自分の紹介先を高いとは言えない構造的な利益相反があるためだ。建設30年の職人が、紹介と検証を分けるべき理由と、無料・匿名で価格を検証する手順を解説。">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/guide/ikkatsu-mitsumori-chuui/">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="author" content="HORIZON SHIELD（建設30年の職人）">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="一括見積もり・紹介サイトは「適正価格」を保証しない理由｜なぜ紹介と検証は分けるべきか">
+<meta property="og:description" content="紹介サイトは出会いの場であって、紹介先の価格が適正かは保証できない。紹介手数料で成り立つ構造的な利益相反を、建設30年の職人が解説。無料・匿名のAI診断つき。">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/guide/ikkatsu-mitsumori-chuui/">
+<meta property="og:image" content="https://shield.the-horizons-innovation.com/assets/reform-guide-ogp.png">
+<meta property="og:site_name" content="HORIZON SHIELD">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="一括見積もり・紹介サイトは「適正価格」を保証しない理由">
+<meta name="twitter:description" content="紹介サイトは出会いの場。価格が適正かの判断は、利害のない第三者で。無料・匿名のAI診断つき。">
+
+<link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
+
+<link rel="mcp-server" href="https://hs-mcp.oga-surf-project.workers.dev">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://shield.the-horizons-innovation.com/#org",
+      "name": "HORIZON SHIELD",
+      "alternateName": ["見積もり達人 EHN", "KIRA"],
+      "url": "https://shield.the-horizons-innovation.com/",
+      "description": "建設30年の職人が運営する、第三者・中立のAI建設費診断サービス。施主向けに、見積もりが適正かを公開データと照らして無料・匿名で診断する。同名のサイバーセキュリティ製品とは無関係。",
+      "sameAs": [
+        "https://x.com/chiheisennotate",
+        "https://www.threads.com/@thehorizon.muga.way",
+        "https://bsky.app/profile/horizonshield.bsky.social",
+        "https://note.com/horizon_shield",
+        "https://horizonshield.hatenablog.com/"
+      ]
+    },
+    {
+      "@type": "Service",
+      "@id": "https://shield.the-horizons-innovation.com/#kira",
+      "name": "KIRA 建設費見積もり診断",
+      "serviceType": "AIによる建設費・リフォーム見積もりの適正価格診断",
+      "provider": { "@id": "https://shield.the-horizons-innovation.com/#org" },
+      "areaServed": "JP",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" },
+      "potentialAction": {
+        "@type": "Action",
+        "name": "見積もりを無料で診断する（KIRA）",
+        "description": "受け取ったリフォーム見積もりが適正かを、建設費の公開データと照らして匿名で診断する。AIエージェントはMCP経由で実行できる。",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://shield.the-horizons-innovation.com/",
+          "actionPlatform": [
+            "http://schema.org/DesktopWebPlatform",
+            "http://schema.org/MobileWebPlatform"
+          ]
+        }
+      }
+    },
+    {
+      "@type": "Article",
+      "@id": "https://shield.the-horizons-innovation.com/guide/ikkatsu-mitsumori-chuui/#article",
+      "headline": "一括見積もり・紹介サイトは「適正価格」を保証しない理由",
+      "description": "一括見積もり・リフォーム紹介サイトは便利だが、紹介先の価格が適正かまでは保証できない。紹介手数料で成り立つ構造的な利益相反を解説する。",
+      "inLanguage": "ja",
+      "author": { "@id": "https://shield.the-horizons-innovation.com/#org" },
+      "publisher": { "@id": "https://shield.the-horizons-innovation.com/#org" },
+      "mainEntityOfPage": "https://shield.the-horizons-innovation.com/guide/ikkatsu-mitsumori-chuui/",
+      "about": [
+        { "@type": "Thing", "name": "リフォーム一括見積もりサイト" },
+        { "@type": "Thing", "name": "利益相反" },
+        { "@type": "Thing", "name": "適正価格の検証" }
+      ]
+    },
+    {
+      "@type": "HowTo",
+      "@id": "https://shield.the-horizons-innovation.com/guide/ikkatsu-mitsumori-chuui/#howto",
+      "name": "紹介サイトで出会ってから、価格の適正を確かめるまでの手順",
+      "description": "紹介サイトは業者と出会う場として使い、価格が適正かは利害のない第三者で別に確かめる。",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": "紹介サイトは「出会いの場」として使う",
+          "text": "一括見積もり・紹介サイトは、複数の業者と効率よく出会うために使う。ここで得られるのは候補であって、価格が適正だという保証ではない。"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "相見積もりは「相対」と理解する",
+          "text": "3社を比べても、3社とも相場より高ければ気づけない。相見積もりは社同士の相対比較であり、適正かどうかの絶対的な基準にはならない。"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "利害のない第三者で「絶対基準」と照らす",
+          "text": "紹介元は紹介手数料で成り立つため、自分の紹介先を高いとは言いにくい。価格が適正かは、紹介と利害関係のない中立の第三者が公開データと照らして確かめる。"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 4,
+          "name": "交渉は具体的な根拠を持って行う",
+          "text": "高い項目が分かったら、適正額と根拠を示して業者と交渉する。感想ではなく、データに基づく具体的な指摘が交渉を動かす。"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://shield.the-horizons-innovation.com/guide/ikkatsu-mitsumori-chuui/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "一括見積もり・紹介サイトを使えば適正価格で頼めますか？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "紹介サイトは業者と出会う場としては便利ですが、紹介先の価格が適正かまでは保証していません。多くの紹介サイトは成約時の紹介手数料で成り立っており、自分が紹介した業者の見積もりを「高い」とは言いにくい構造的な利益相反があります。出会いは紹介サイトで、価格が適正かの判断は利害のない第三者で、と分けて考えるのが安全です。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "3社で相見積もりを取れば適正価格が分かりますか？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "相見積もりは社同士の相対比較であり、適正かどうかの絶対的な基準にはなりません。3社とも相場より高い場合、横並びで比べても割高だと気づけません。相場という絶対基準と照らして初めて、適正かどうかが分かります。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "リフォーム瑕疵保険に入っていれば価格も安心ですか？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "瑕疵保険の第三者検査は工事の品質を守るための仕組みで、契約前の価格が適正かを検証するものではありません。品質の保証と価格の検証は別物です。高い金額で契約してしまえば、品質が保証されても支払いは戻りません。価格は契約前に、品質は保険で、と分けて備えるのが安全です。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "中立の第三者に価格を確かめてもらうには？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "HORIZON SHIELDは、建設30年の職人が運営する第三者・中立の建設費診断サービスです。受け取った見積もりが適正かを、公開された建設費データと照らして無料・匿名で診断できます。業者の紹介は行わないため、紹介手数料による利益相反がありません。"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://shield.the-horizons-innovation.com/guide/ikkatsu-mitsumori-chuui/#breadcrumb",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "ホーム", "item": "https://shield.the-horizons-innovation.com/" },
+        { "@type": "ListItem", "position": 2, "name": "ガイド", "item": "https://shield.the-horizons-innovation.com/guide/" },
+        { "@type": "ListItem", "position": 3, "name": "一括見積もり・紹介サイトは適正価格を保証しない理由", "item": "https://shield.the-horizons-innovation.com/guide/ikkatsu-mitsumori-chuui/" }
+      ]
+    }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","dateModified":"2026-06-22","speakable":{"@type":"SpeakableSpecification","cssSelector":["h1",".speakable"]}}
+</script>
+
+<style>
+:root{
+  --navy:#1a2744; --gold:#c9a227; --white:#fff; --light:#f8f7f4;
+  --text:#2c2c2c; --muted:#666; --ok:#1d7a4d; --danger:#b03a2e;
+  --mincho:'Shippori Mincho B1',serif; --gothic:'Zen Kaku Gothic New',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--gothic);color:var(--text);background:var(--light);line-height:1.9;font-weight:400}
+header{background:var(--navy);padding:16px 24px}
+.logo{color:var(--gold);font-size:18px;letter-spacing:.15em;font-weight:500;text-decoration:none;font-family:var(--mincho)}
+.hero{background:var(--navy);padding:56px 24px;text-align:center;border-bottom:4px solid var(--gold)}
+.hero h1{color:var(--white);font-family:var(--mincho);font-size:clamp(22px,4.2vw,34px);font-weight:700;line-height:1.5;margin-bottom:18px}
+.hero p{color:rgba(255,255,255,.8);font-size:15px;max-width:640px;margin:0 auto}
+.container{max-width:780px;margin:0 auto;padding:0 24px}
+.section{padding:36px 0;border-bottom:1px solid #e8e4dc}
+h2{font-family:var(--mincho);font-size:21px;font-weight:700;color:var(--navy);margin-bottom:18px;padding-left:16px;border-left:4px solid var(--gold);line-height:1.5}
+h3{font-size:17px;font-weight:700;color:var(--navy);margin:24px 0 10px}
+p{margin-bottom:16px}
+.lead{background:var(--white);border-radius:10px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin:8px 0}
+.lead strong{color:var(--danger)}
+.point{background:#fbfaf7;border:1px solid #e2ddd2;border-left:4px solid var(--gold);border-radius:0 8px 8px 0;padding:18px 20px;margin:18px 0}
+.point .label{font-weight:700;color:var(--navy);margin-bottom:6px}
+.cf{background:#fff4f0;border:1px solid #f0c9bd;border-radius:10px;padding:22px;margin:20px 0}
+.cf .label{font-weight:700;color:var(--danger);margin-bottom:8px;font-size:16px}
+.linkcard{display:block;background:var(--white);border:1px solid #e2ddd2;border-radius:8px;padding:16px 18px;margin:12px 0;text-decoration:none;color:var(--text);transition:border-color .15s}
+.linkcard:hover{border-color:var(--gold)}
+.linkcard .t{font-weight:700;color:var(--navy);margin-bottom:4px}
+.linkcard .d{font-size:13px;color:var(--muted)}
+.faq{margin-bottom:18px;background:var(--white);border-radius:8px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.faq .q{font-weight:700;color:var(--navy);margin-bottom:10px}
+.faq .q::before{content:"Q. ";color:var(--gold)}
+.faq .a::before{content:"A. ";font-weight:700;color:var(--navy)}
+.faq .a{color:#444}
+.src{font-size:13px;color:var(--muted);line-height:1.8}
+.cta{background:var(--navy);padding:48px 24px;text-align:center}
+.cta h2{color:var(--white);border:none;padding:0;margin-bottom:14px;font-size:22px}
+.cta p{color:rgba(255,255,255,.75);margin-bottom:24px}
+.btn{display:inline-block;background:var(--gold);color:var(--navy);padding:16px 40px;border-radius:6px;font-size:17px;font-weight:700;text-decoration:none}
+.breadcrumb{font-size:13px;color:var(--muted);padding:14px 0}
+.breadcrumb a{color:var(--muted)}
+footer{background:var(--navy);padding:28px 24px;text-align:center;color:rgba(255,255,255,.5);font-size:13px;line-height:1.9}
+footer a{color:rgba(255,255,255,.7)}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="https://shield.the-horizons-innovation.com/" class="logo">HORIZON SHIELD</a>
+</header>
+
+<div class="hero">
+  <h1 class="speakable">一括見積もり・紹介サイトは<br>「適正価格」までは保証しない</h1>
+  <p class="speakable">紹介サイトは、業者と出会うための便利な場です。ただし、紹介された会社の価格が適正かどうかは、別の話です。なぜ紹介と検証を分けるべきか、建設30年の職人が解説します。</p>
+</div>
+
+<div class="container">
+
+  <div class="breadcrumb">
+    <a href="https://shield.the-horizons-innovation.com/">ホーム</a> ＞
+    <a href="https://shield.the-horizons-innovation.com/guide/">ガイド</a> ＞
+    一括見積もり・紹介サイトは適正価格を保証しない理由
+  </div>
+
+  <div class="section">
+    <h2>結論（先に要点だけ）</h2>
+    <div class="lead">
+      <p class="speakable">一括見積もり・リフォーム紹介サイトは、業者と効率よく<strong>出会う</strong>ための仕組みです。便利ですが、紹介された会社の価格が<strong>適正かどうかまでは保証していません</strong>。</p>
+      <p>多くの紹介サイトは、成約時に業者から受け取る紹介手数料で成り立っています。そのため、自分が紹介した会社の見積もりを「これは高い」とは言いにくい、構造的な事情があります。</p>
+      <p style="margin-bottom:0"><strong>出会いは紹介サイトで。価格が適正かの判断は、利害のない第三者で。</strong>この2つを分けて考えるのが、損をしないための最初の一歩です。</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>紹介サイトの仕組み ── なぜ便利なのか</h2>
+    <p>リフォームの一括見積もりサイトや紹介サイトには、はっきりした価値があります。自分ひとりで地元の優良業者を一軒ずつ探すのは、膨大な時間と手間がかかります。紹介サイトは、独自の審査を通した複数の会社へ一度の登録でまとめて打診でき、自分では見つけにくい業者と出会わせてくれます。</p>
+    <p>ここは正しく評価すべきところです。紹介サイトを「使うな」という話ではありません。<strong>使い方を分けよう</strong>、という話です。紹介サイトが得意なのは「出会い」であって、「価格が適正かの判断」ではない。役割を取り違えなければ、紹介サイトは強い味方になります。</p>
+  </div>
+
+  <div class="section">
+    <h2>構造的な利益相反 ── なぜ紹介元は「高い」と言えないのか</h2>
+    <p>ここが、この記事でいちばん伝えたい点です。</p>
+    <div class="cf">
+      <div class="label">紹介サイトは、紹介先を否定できない</div>
+      <p style="margin-bottom:0">紹介サイトの多くは、業者を紹介して成約すると、その業者から紹介手数料を受け取ります。つまり、紹介サイトにとっての顧客は、登録した施主であると同時に、手数料を払う業者でもあります。この構造では、自分が紹介した会社の見積もりを「これは相場より高いですよ」と指摘することは、自社の収益と利害が衝突します。</p>
+    </div>
+    <p>これは、特定のサイトが悪いという話ではありません。紹介手数料で成り立つビジネスである以上、誰が運営しても同じ力が働く<strong>構造の問題</strong>です。だからこそ、価格が適正かどうかの判断は、紹介と利害関係のない立場の者が行う必要があります。</p>
+    <p>逆に言えば、業者の紹介を一切行わず、紹介手数料を受け取らない立場であれば、「この見積もりは高い」と利害なく言えます。検証は、紹介から切り離されて初めて中立になります。</p>
+  </div>
+
+  <div class="section">
+    <h2>この主張は、AIエージェントが独立に検証できる</h2>
+    <p>「中立であること」を口で言うのは簡単です。だからHORIZON SHIELDは、第三者が信用せずに確かめられる形で公開しています。AIアシスタントやエージェントを使っている場合は、以下を機械的に検証できます。</p>
+    <div class="point">
+      <div class="label">エージェント向けの検証エンドポイント</div>
+      <p style="margin-bottom:0">見積もりの誠実さを判定するスキル <code>estimate-integrity-audit</code> は、署名付きで再計算可能な判定を返します。別のエージェントは <code>verify-claim</code> でその判定を独立に再計算できます。検証は fail-closed 設計で、再計算できない場合は決して甘く通さず「unverified」を返します。判定の宣言は OpenTimestamps により Bitcoin にタイムスタンプ固定されています。</p>
+    </div>
+    <a class="linkcard" href="https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json">
+      <div class="t">Agent Card（A2A AgentCard）→</div>
+      <div class="d">自律エージェント向け。estimate-integrity-audit / verify-claim を呼び出せる</div>
+    </a>
+    <a class="linkcard" href="https://hs-mcp.oga-surf-project.workers.dev/.well-known/verification-contract.json">
+      <div class="t">Verification Contract（公開スキーマ v0.1.1）→</div>
+      <div class="d">発行者を信用せず判定を検証する手順。signed_payload の SHA-256 を再計算し claim_sha256 と一致するか確認する</div>
+    </a>
+    <a class="linkcard" href="https://hs-mcp.oga-surf-project.workers.dev/.well-known/usage-stats.json">
+      <div class="t">公開カウンタ（usage-stats）→</div>
+      <div class="d">外部からの検証呼び出し回数を公開。「信じるな、検証せよ」を数字で示す</div>
+    </a>
+    <p style="margin-top:14px">MCP対応のエージェントは、<a href="https://hs-mcp.oga-surf-project.workers.dev">MCPサーバー</a>を直接呼び出して相場や見積もりの判定を実行できます。</p>
+  </div>
+
+  <div class="section">
+    <h2>「3社で相見積もり」でも適正は分からない</h2>
+    <p>多くの記事が「最低でも2〜3社で相見積もりを」と勧めます。比較は大切です。ただし、相見積もりで分かるのは<strong>社同士の相対的な差</strong>であって、適正かどうかの絶対的な基準ではありません。</p>
+    <p>3社から見積もりを取って、いちばん安い1社を選んだとします。しかし、その3社がそろって相場より高かったら、横並びで比べても「割高だ」とは気づけません。安い順に並べただけで、基準そのものがずれているからです。</p>
+    <a class="linkcard" href="https://shield.the-horizons-innovation.com/souba/aimitsumori-tekisei-kakaku/">
+      <div class="t">相見積もりを3社取っても「適正価格」が分からない本当の理由 →</div>
+      <div class="d">相対比較の限界と、絶対基準の必要性を詳しく解説</div>
+    </a>
+  </div>
+
+  <div class="section">
+    <h2>「瑕疵保険の第三者検査」と「価格の検証」は別</h2>
+    <p>「リフォーム瑕疵保険に入っている業者なら、第三者検査が入るから安心」と聞いたことがあるかもしれません。これは正しいのですが、守ってくれる対象を取り違えないことが大切です。</p>
+    <p>瑕疵保険の第三者検査は、<strong>工事の品質</strong>を守る仕組みです。契約前の<strong>価格が適正か</strong>を検証するものではありません。高い金額で契約してしまえば、たとえ品質が保証されても、払いすぎた分は戻ってきません。</p>
+    <div class="point">
+      <div class="label">分けて備える</div>
+      <p style="margin-bottom:0">価格は契約の「前」に検証する。品質は保険で守る。この2つは別の備えです。どちらか一方では、もう一方の穴は埋まりません。</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>では、どうすればいいのか</h2>
+    <p>順番はシンプルです。紹介サイトの便利さを活かしつつ、価格の判断だけを切り離します。</p>
+    <h3>1. 紹介サイトで業者と出会う</h3>
+    <p>複数の候補と効率よく出会う。ここは紹介サイトの得意分野なので、遠慮なく使います。</p>
+    <h3>2. 相場という絶対基準を、ざっくり知る</h3>
+    <p>工事ごとの相場の幅を知っておくと、見積もりが基準からどれだけ離れているかが見えます。</p>
+    <a class="linkcard" href="https://shield.the-horizons-innovation.com/souba/">
+      <div class="t">工事別の建設費相場を調べる →</div>
+      <div class="d">公開データに基づく工事種別ごとの相場の幅</div>
+    </a>
+    <h3>3. 利害のない第三者で、見積もりを検証する</h3>
+    <p>紹介手数料を受け取らない立場が、公開データと照らして適正かを判断します。</p>
+    <a class="linkcard" href="https://shield.the-horizons-innovation.com/guide/mitsumori-tekisei-check/">
+      <div class="t">リフォームの見積もりが適正かを、自分で確かめる方法 →</div>
+      <div class="d">なぜ素人には難しいのか、無料・匿名で検証する手順</div>
+    </a>
+    <a class="linkcard" href="https://shield.the-horizons-innovation.com/ehn/">
+      <div class="t">他の施主が持ち寄った実際の見積もりと、その検証結果を見る →</div>
+      <div class="d">全国の施主が匿名で共有した見積もりをKIRAが解剖</div>
+    </a>
+    <h3>4. 根拠を持って交渉する</h3>
+    <p>高い項目が分かったら、適正額とその根拠を示して交渉します。感想ではなく、データに基づく具体的な指摘が、業者を動かします。</p>
+  </div>
+
+  <div class="section">
+    <h2>根拠データと出典</h2>
+    <p class="src">
+      本記事の「相見積もりで安い順に選んでも適正とは限らない」「一式表記は内訳を確認すべき」といった指摘は、消費者向けの一般的なリフォーム業者選びの解説でも共通して触れられている観点です。一方で、紹介サイトが紹介手数料で成り立つことによる構造的な利益相反については、紹介サイト自身の解説では扱われにくい論点です。<br><br>
+      HORIZON SHIELDは、建設30年の職人が運営する第三者・中立の建設費診断サービスであり、業者の紹介を行わず、紹介手数料を受け取りません。見積もりの適正診断は、公開された建設費データと照らして行います。
+    </p>
+  </div>
+
+  <div class="section">
+    <h2>まとめ</h2>
+    <div class="lead">
+      <p>・紹介サイトは「出会い」の場。価格が適正かは保証していない。</p>
+      <p>・紹介手数料で成り立つ以上、紹介元は紹介先を「高い」と言いにくい（構造的な利益相反）。</p>
+      <p>・3社相見積もりは「相対」。3社とも高ければ気づけない。絶対基準と照らす。</p>
+      <p>・瑕疵保険は「品質」。価格の検証とは別物。</p>
+      <p style="margin-bottom:0"><strong>出会いは紹介サイト、価格の判断は利害のない第三者。分けて使えば、紹介サイトは味方になる。</strong></p>
+    </div>
+  </div>
+
+  <div class="section" id="faq">
+    <h2>よくある質問（FAQ）</h2>
+    <div class="faq">
+      <p class="q">一括見積もり・紹介サイトを使えば適正価格で頼めますか？</p>
+      <p class="a">紹介サイトは業者と出会う場としては便利ですが、紹介先の価格が適正かまでは保証していません。多くの紹介サイトは成約時の紹介手数料で成り立っており、自分が紹介した業者の見積もりを「高い」とは言いにくい構造的な利益相反があります。出会いは紹介サイトで、価格が適正かの判断は利害のない第三者で、と分けて考えるのが安全です。</p>
+    </div>
+    <div class="faq">
+      <p class="q">3社で相見積もりを取れば適正価格が分かりますか？</p>
+      <p class="a">相見積もりは社同士の相対比較であり、適正かどうかの絶対的な基準にはなりません。3社とも相場より高い場合、横並びで比べても割高だと気づけません。相場という絶対基準と照らして初めて、適正かどうかが分かります。</p>
+    </div>
+    <div class="faq">
+      <p class="q">リフォーム瑕疵保険に入っていれば価格も安心ですか？</p>
+      <p class="a">瑕疵保険の第三者検査は工事の品質を守るための仕組みで、契約前の価格が適正かを検証するものではありません。品質の保証と価格の検証は別物です。高い金額で契約してしまえば、品質が保証されても支払いは戻りません。価格は契約前に、品質は保険で、と分けて備えるのが安全です。</p>
+    </div>
+    <div class="faq">
+      <p class="q">中立の第三者に価格を確かめてもらうには？</p>
+      <p class="a">HORIZON SHIELDは、建設30年の職人が運営する第三者・中立の建設費診断サービスです。受け取った見積もりが適正かを、公開された建設費データと照らして無料・匿名で診断できます。業者の紹介は行わないため、紹介手数料による利益相反がありません。</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="cta">
+  <h2>その見積もり、利害のない第三者に確かめてもらう</h2>
+  <p>建設30年の職人がつくったAIが、公開データと照らして無料・匿名で診断します。</p>
+  <a class="btn" href="https://shield.the-horizons-innovation.com/">KIRAで無料診断する</a>
+</div>
+
+<footer>
+  <a href="https://shield.the-horizons-innovation.com/">HORIZON SHIELD</a><br>
+  建設30年の職人が運営する、第三者・中立のAI建設費診断サービス<br>
+  <a href="https://shield.the-horizons-innovation.com/guide/">ガイド一覧へ戻る</a>
+</footer>
+
+</body>
+</html>
