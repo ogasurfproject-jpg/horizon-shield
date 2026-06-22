@@ -429,18 +429,27 @@ function stopAnaLog(){if(anaTimer){clearInterval(anaTimer);anaTimer=null;}}
 async function analyze(){
   if(!FILE_B64){toast('見積書をアップロードしてください');return;}
   showStep('stepAnalyzing');startAnaLog();
+  const _ctrl=new AbortController();
+  const _to=setTimeout(()=>{_ctrl.abort();},90000);
   try{
     const r=await fetch(API+'/hacker/analyze',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
-      body:JSON.stringify({file_base64:FILE_B64,media_type:FILE_MEDIA,type_hint:TYPE_HINT})
+      body:JSON.stringify({file_base64:FILE_B64,media_type:FILE_MEDIA,type_hint:TYPE_HINT}),
+      signal:_ctrl.signal
     });
+    clearTimeout(_to);
     const d=await r.json();
     stopAnaLog();
     if(r.status===401){toast('ログインの有効期限が切れました');setTimeout(()=>{logout();},1500);return;}
-    if(!d.ok||!d.card){toast(d.error||'解剖に失敗しました。別のファイルでお試しください');showStep('stepUpload');return;}
+    if(!d.ok||!d.card){toast(d.error||'解剖に失敗しました。もう一度お試しください');showStep('stepUpload');return;}
     CARD=d.card;renderPreview();showStep('stepPreview');
-  }catch(e){stopAnaLog();toast('通信エラーが発生しました');showStep('stepUpload');}
+  }catch(e){
+    clearTimeout(_to);stopAnaLog();
+    if(e&&e.name==='AbortError'){toast('解剖に時間がかかっています。通信の良い場所でもう一度お試しください');}
+    else{toast('通信エラーが発生しました。もう一度お試しください');}
+    showStep('stepUpload');
+  }
 }
 
 function renderPreview(){
