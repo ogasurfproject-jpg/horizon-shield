@@ -10,6 +10,14 @@ const SERVER = { name: "horizon-shield", version: "1.0.0" };
 const SITE = "https://shield.the-horizons-innovation.com";
 const SOUBA_DB_URL = SITE + "/data/souba-db.json";
 
+// 送客(次の一手)共通ブロック。情報系ツールの行き止まりを塞ぐ。additive。
+const NEXT_ACTIONS = {
+  detail: SITE + "/souba/",
+  board_url: SITE + "/ehn/",
+  ehn_submit: SITE + "/hacker/submit/",
+  note: "判定はここまで。見積もりに不安があれば EHN(見積もりハッカーニュース)に匿名で貼れば、KIRAが過去の実例と並べて第三者の目を入れます(無料)。 / Next: post the estimate to EHN for a free, anonymous third-party look benchmarked against real cases."
+};
+
 const CATEGORIES = [{"id": "aircon_work", "name": "エアコン工事", "group": "設備工事", "priority": "★★★", "red_flags": 9}, {"id": "amido_amado_shutter", "name": "網戸・雨戸・シャッター", "group": "窓・ドア", "priority": "★★★", "red_flags": 8}, {"id": "bankin_work", "name": "板金工事", "group": "屋根・板金", "priority": "★★★★", "red_flags": 9}, {"id": "barrier_free_kaigo", "name": "バリアフリー・介護保険対応リフォーム", "group": "バリアフリー", "priority": "🔴CRITICAL", "red_flags": 20}, {"id": "bathroom_reform", "name": "浴室リフォーム", "group": "水回り", "priority": "★★★★★", "red_flags": 23}, {"id": "cloth_replacement", "name": "クロス(壁紙)張替え", "group": "内装仕上げ", "priority": "★★★", "red_flags": 20}, {"id": "commercial_tenpo_work", "name": "店舗用工事", "group": "非住宅・店舗", "priority": "★★★★★", "red_flags": 10}, {"id": "demolition_master", "name": "解体工事", "group": "解体・基盤", "priority": "★★★★★", "red_flags": 22}, {"id": "electrical_work", "name": "電気工事", "group": "設備工事", "priority": "★★★★★", "red_flags": 27}, {"id": "entrance_door_reform", "name": "玄関ドア交換", "group": "窓・ドア", "priority": "★★★★★", "red_flags": 18}, {"id": "floor_replacement", "name": "床材張替え", "group": "内装仕上げ", "priority": "★★★", "red_flags": 20}, {"id": "gaiheki_tosou", "name": "外壁塗装", "group": "外装塗装", "priority": "★★★★★", "red_flags": 11}, {"id": "gaikou_work", "name": "外構工事", "group": "外構・造園", "priority": "★★★", "red_flags": 22}, {"id": "insulation_work", "name": "断熱工事", "group": "断熱・省エネ", "priority": "★★★★★", "red_flags": 0}, {"id": "kitchen_reform", "name": "キッチンリフォーム", "group": "水回り", "priority": "★★★★★", "red_flags": 21}, {"id": "naishou_tosou", "name": "内装塗装", "group": "内装塗装", "priority": "★★★", "red_flags": 8}, {"id": "rain_leak_repair", "name": "雨漏り修理", "group": "防水・補修", "priority": "🔴CRITICAL", "red_flags": 23}, {"id": "roof_construction", "name": "屋根工事", "group": "屋根工事", "priority": "★★★★★", "red_flags": 13}, {"id": "sakan_work", "name": "左官工事", "group": "左官・タイル", "priority": "★★★★", "red_flags": 9}, {"id": "taishin_hokyou", "name": "耐震補強工事", "group": "耐震・構造", "priority": "★★★★★", "red_flags": 10}, {"id": "tatami_reform", "name": "畳替え", "group": "内装仕上げ", "priority": "★★", "red_flags": 20}, {"id": "termite_work", "name": "シロアリ防除(防蟻)", "group": "防蟻・構造保護", "priority": "★★★★", "red_flags": 0}, {"id": "tile_renga_work", "name": "タイル・れんが工事", "group": "左官・タイル", "priority": "★★★", "red_flags": 9}, {"id": "toilet_reform", "name": "トイレリフォーム", "group": "水回り", "priority": "★★★★", "red_flags": 21}, {"id": "washroom_reform", "name": "洗面所リフォーム", "group": "水回り", "priority": "★★★", "red_flags": 18}, {"id": "water_heater_reform", "name": "給湯器リフォーム", "group": "設備工事", "priority": "★★★★★", "red_flags": 24}, {"id": "water_pipe_work", "name": "給排水管工事", "group": "設備工事", "priority": "★★★★★", "red_flags": 27}, {"id": "waterproofing_work", "name": "防水工事", "group": "防水・補修", "priority": "★★★★", "red_flags": 23}, {"id": "window_reform", "name": "窓リフォーム", "group": "窓・ドア", "priority": "★★★★★", "red_flags": 18}, {"id": "zosaku_tategu_master", "name": "造作・建具・大工工事", "group": "大工・造作", "priority": "★★★★★", "red_flags": 17}, {"id": "shoji_fusuma_work", "name": "障子・ふすま張替え工事", "group": "内装仕上げ", "priority": "★★★", "red_flags": 9}, {"id": "mado_glass_work", "name": "ガラス交換専門工事", "group": "窓・ドア", "priority": "★★★★", "red_flags": 8}, {"id": "kanban_sign_work", "name": "看板・サイン工事", "group": "非住宅・店舗", "priority": "★★★★", "red_flags": 6}, {"id": "bouon_shaon_work", "name": "防音・遮音工事", "group": "断熱・省エネ", "priority": "★★★★", "red_flags": 7}, {"id": "builtin_dishwasher", "name": "ビルトイン食洗機後付け工事", "group": "水回り", "priority": "★★★★", "red_flags": 7}, {"id": "ih_gas_conversion", "name": "IH⇔ガスコンロ変更工事", "group": "水回り", "priority": "★★★★", "red_flags": 7}, {"id": "manshion_kyoyou_shuzen", "name": "マンション共用部修繕工事", "group": "マンション専門", "priority": "★★★★★", "red_flags": 8}, {"id": "ofuro_kanso_oidaki", "name": "浴室乾燥機・追い焚き単体工事", "group": "水回り", "priority": "★★★★", "red_flags": 6}, {"id": "erebata_shuzen", "name": "エレベーター修繕・更新工事", "group": "マンション専門", "priority": "★★★★★", "red_flags": 7}, {"id": "toko_shuri", "name": "床鳴り・床補修専門工事", "group": "内装仕上げ", "priority": "★★★★", "red_flags": 7}, {"id": "asbestos_removal", "name": "アスベスト除去工事", "group": "解体・基盤", "priority": "★★★★★", "red_flags": 6}, {"id": "tokushuseiso", "name": "特殊清掃工事", "group": "リフォーム周辺サービス", "priority": "★★★★", "red_flags": 6}, {"id": "ihinseiri_seizen", "name": "遺品整理・生前整理サービス", "group": "リフォーム周辺サービス", "priority": "★★★★", "red_flags": 6}, {"id": "jutaku_kaitai_partial", "name": "住宅部分解体工事", "group": "解体・基盤", "priority": "★★★★", "red_flags": 6}, {"id": "gyomu_chubo", "name": "業務用厨房工事", "group": "非住宅・店舗", "priority": "★★★★", "red_flags": 6}, {"id": "wine_cellar", "name": "ワインセラー設置工事", "group": "設備工事", "priority": "★★★", "red_flags": 5}, {"id": "shisetsu_pool", "name": "プール・スパ施設工事", "group": "水回り", "priority": "★★★", "red_flags": 5}, {"id": "shokusai_zoen", "name": "造園・植栽工事", "group": "外構・造園", "priority": "★★★★", "red_flags": 5}, {"id": "iwa_ishigumi", "name": "庭石・石組み工事", "group": "外構・造園", "priority": "★★★", "red_flags": 4}, {"id": "kaki_seko", "name": "池・水景工事", "group": "外構・造園", "priority": "★★★", "red_flags": 4}, {"id": "monoki_setchi", "name": "物置設置工事", "group": "外構・造園", "priority": "★★★", "red_flags": 5}, {"id": "carpoort_single", "name": "カーポート単独設置工事", "group": "外構・造園", "priority": "★★★★", "red_flags": 6}, {"id": "shomei_design", "name": "照明デザイン専門工事", "group": "設備工事", "priority": "★★★", "red_flags": 4}, {"id": "smart_home_iot", "name": "スマートホーム・IoT工事", "group": "IoT・スマートホーム", "priority": "★★★", "red_flags": 4}, {"id": "sec_camera_total", "name": "防犯カメラ・連携工事", "group": "IoT・スマートホーム", "priority": "★★★★", "red_flags": 5}, {"id": "zenkanki_jokuki", "name": "全館空調・除湿システム工事", "group": "設備工事", "priority": "★★★★", "red_flags": 5}, {"id": "chikyu_chunetsu", "name": "地中熱利用システム工事", "group": "断熱・省エネ", "priority": "★★", "red_flags": 4}, {"id": "uri_riyo", "name": "雨水利用システム工事", "group": "環境・災害対策", "priority": "★★", "red_flags": 4}, {"id": "idoseichi", "name": "井戸・井戸ポンプ工事", "group": "環境・災害対策", "priority": "★★", "red_flags": 4}, {"id": "karinosumai", "name": "仮住まい支援サービス", "group": "リフォーム周辺サービス", "priority": "★★★", "red_flags": 4}, {"id": "hikkoshi_renkei", "name": "引越し連動リフォームサービス", "group": "リフォーム周辺サービス", "priority": "★★★", "red_flags": 5}];
 
 const JCCDB = {
@@ -91,6 +99,15 @@ const TOOLS = [
     inputSchema: { type: "object", properties: {
       work: { type: "string", description: "工事名(日本語)。材料やグレード込みで具体的に。例: 外壁塗装 シリコン。部分一致で照合するため曖昧だと別カテゴリにヒットしやすい。未マッチ時は did_you_mean 候補が返る。" },
       quoted_price: { type: "number", description: "業者提示の金額(円, 数値)。一式見積はその総額。税込/税抜は正規化せず、渡した数値をそのまま適正レンジと照合する。" }
+    }, required: ["work", "quoted_price"] }
+  },
+  {
+    name: "reverse_estimate_preview",
+    annotations: { title: "逆見積もりプレビュー(無料の気づき)", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "リフォーム検討の初期段階で、業者の概算が高い方向か安い方向かだけを無料で素早く知るためのプレビュー。具体的な適正額(min/avg/max)や危険水準は返さず、平均からの方向(例 +20%高い方向)と、正確な適正額・項目別の内訳・業者交渉用の文言を含む完全な逆見積もりはHORIZON SHIELDのKIRAで生成できる旨を案内する。手元に詳しい見積内訳がまだ無い段階での最初の一歩に向く。具体的な適正レンジが必要なら get_price_range、見積額の詳細診断は audit_estimate を使う。Japan only, JPY。 / A free preview for early-stage renovation planning that tells only the direction (e.g. about +20% above typical) of a contractor rough estimate. It does NOT return the specific fair range (min/avg/max) or danger threshold; instead it points to HORIZON SHIELD KIRA for the full reverse estimate with exact fair amounts, line-item breakdown, and negotiation wording. Use get_price_range for a typical range, audit_estimate for a detailed quote diagnosis.",
+    inputSchema: { type: "object", properties: {
+      work: { type: "string", description: "工事名(日本語)。例: 外壁塗装 シリコン。部分一致で照合。" },
+      quoted_price: { type: "number", description: "業者提示の概算額(円, 数値)。" }
     }, required: ["work", "quoted_price"] }
   },
   {
@@ -196,6 +213,22 @@ async function callTool(name, args, env, ip, opts) {
       });
     }
   }
+  // --- ammeter: usage counters (no payload, no souba, no ip) [waitUntil-durable 2026-06-21] ---
+  if (env && env.RL_KV) {
+    const _bump = async (k) => {
+      try {
+        const c = parseInt(await env.RL_KV.get(k) || "0", 10);
+        await env.RL_KV.put(k, String(c + 1));
+      } catch (e) {}
+    };
+    const _keep = (p) => { try { if (opts.ctx && typeof opts.ctx.waitUntil === "function") opts.ctx.waitUntil(p); } catch (e) {} return p; };
+    const _day = new Date().toISOString().slice(0, 10);
+    _keep(_bump("usage:total").catch(() => {}));
+    _keep(_bump("usage:skill:" + name).catch(() => {}));
+    _keep(_bump("usage:day:" + _day).catch(() => {}));
+    if (name === "verify_integrity_claim") _keep(_bump("usage:verify:total").catch(() => {}));
+  }
+
   for (const _k in args) {
     const _v = args[_k];
     if (typeof _v === "string" && _v.length > 16000) {
@@ -203,16 +236,16 @@ async function callTool(name, args, env, ip, opts) {
     }
   }
   try { console.log(JSON.stringify({ evt: "tool_call", tool: name, ts: Date.now() })); } catch (e) {}
-  if (name === "jccdb_dataset_info") return txt(JCCDB);
+  if (name === "jccdb_dataset_info") return txt({ ...JCCDB, next_actions: NEXT_ACTIONS });
   if (name === "list_cost_categories")
-    return txt({ total: CATEGORIES.length, source: "HORIZON SHIELD souba index v1.7", categories: CATEGORIES });
+    return txt({ total: CATEGORIES.length, source: "HORIZON SHIELD souba index v1.7", categories: CATEGORIES, next_actions: NEXT_ACTIONS });
   if (name === "search_cost_category") {
     const q = String(args.query || "").trim();
     if (!q) return txt("query(工事名・キーワード)を指定してください。");
     const hit = CATEGORIES.filter(c =>
       (c.name && c.name.includes(q)) || (c.group && c.group.includes(q)) || (c.id && c.id.includes(q.toLowerCase())));
     if (!hit.length) return txt("該当カテゴリが見つかりませんでした: " + q + " / list_cost_categories で全一覧を確認できます。");
-    return txt({ query: q, matches: hit, note: "red_flags = HORIZON SHIELDが整備済みの過剰請求の懸念点の数" });
+    return txt({ query: q, matches: hit, note: "red_flags = HORIZON SHIELDが整備済みの過剰請求の懸念点の数", next_actions: NEXT_ACTIONS });
   }
   if (name === "how_to_read_estimate")
     return txt({ principles: ESTIMATE_GUIDE, source: "大賀俊勝(建設実務30年) / HORIZON SHIELD", detail: SITE + "/guide/" });
@@ -221,7 +254,7 @@ async function callTool(name, args, env, ip, opts) {
       const r = await fetch(SOUBA_DB_URL, { cf: { cacheTtl: 3600 } });
       const d = await r.json();
       const m = d._meta || {};
-      return txt({ version: m.version, updated_at: m.updated_at, updated_by: m.updated_by, sources: m.sources, region_multipliers: m.region_multipliers });
+      return txt({ version: m.version, updated_at: m.updated_at, updated_by: m.updated_by, sources: m.sources, region_multipliers: m.region_multipliers, next_actions: NEXT_ACTIONS });
     } catch (e) {
       return txt("相場データ出典の取得に失敗しました。" + SITE + "/souba/ を参照してください。");
     }
@@ -255,6 +288,48 @@ async function callTool(name, args, env, ip, opts) {
       return txt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。");
     }
   }
+  if (name === "reverse_estimate_preview") {
+    const work = String(args.work || "").trim();
+    const price = Number(args.quoted_price);
+    if (!work || !Number.isFinite(price)) return txt("work(工事名)と quoted_price(概算額・数値)を指定してください。");
+    try {
+      const d = await fetchSouba();
+      const list = Array.isArray(d.categories) ? d.categories : [];
+      let cand = list.filter(e => (e.work && e.work.includes(work)) || (e.cat && e.cat.includes(work)) || (e.widget_label && e.widget_label.includes(work)));
+      let suggestions = [];
+      if (!cand.length) { const fb = soubaFallback(list, work); cand = fb.hits; suggestions = fb.suggestions; }
+      if (!cand.length) return txt(suggestions.length
+        ? { work, did_you_mean: suggestions, message: "該当工事が見つかりませんでした。近い工事名の候補です。" }
+        : "該当工事が見つかりませんでした: " + work);
+      const e = cand[0];
+      if (e.unit && e.unit !== "一式" && e.danger && price > e.danger * 10) {
+        return txt({
+          work: e.work, unit_mismatch: true,
+          message: "この工事は「" + e.unit + "あたり」の単価で扱われています。入力された金額は総額の可能性があります。",
+          how_to_proceed: "単価(" + e.unit + "あたり)で照合するか、面積・数量を添えた総額診断は完全版をご利用ください。",
+          how_to_get_full: SITE + "/hs-reverse-estimate/",
+          source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)"
+        });
+      }
+      const overAvg = e.avg ? Math.round((price / e.avg - 1) * 100) : null;
+      let direction;
+      if (overAvg === null) direction = "判定不可(平均データ無し)";
+      else if (overAvg >= 20) direction = "高い方向(平均を大きく上回る可能性)";
+      else if (overAvg >= 5) direction = "やや高い方向";
+      else if (overAvg <= -5) direction = "安い方向";
+      else direction = "平均的な水準";
+      return txt({
+        work: e.work,
+        your_quote_direction: direction,
+        vs_avg_pct: overAvg === null ? null : (overAvg >= 0 ? "+" + overAvg + "%" : overAvg + "%"),
+        note: "これは方向性の目安です。正確な適正額や項目別の内訳は含みません。",
+        what_full_provides: "完全な逆見積もりは、工事ごとの適正単価・数量・松竹梅プラン・業者交渉用の文言を含みます。",
+        how_to_get_full: SITE + "/hs-reverse-estimate/",
+        for_detailed_audit: "手元に詳しい見積内訳がある場合は audit_estimate、具体的な相場レンジは get_price_range を使えます。",
+        source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)"
+      });
+    } catch (e) { return txt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。"); }
+  }
   if (name === "audit_estimate") {
     const work = String(args.work || "").trim();
     const price = Number(args.quoted_price);
@@ -269,6 +344,15 @@ async function callTool(name, args, env, ip, opts) {
         ? { work, did_you_mean: suggestions, message: "該当工事の適正データが見つかりませんでした。近い工事名の候補です。get_price_range で確認できます。" }
         : "該当工事の適正データが見つかりませんでした: " + work + " / get_price_range で工事名を確認できます。");
       const e = cand[0];
+      if (e.unit && e.unit !== "一式" && e.danger && price > e.danger * 10) {
+        return txt({
+          work: e.work, unit_mismatch: true,
+          message: "この工事は「" + e.unit + "あたり」の単価で扱われています。入力された金額は総額の可能性があります。",
+          how_to_proceed: "単価(" + e.unit + "あたり)で照合するか、面積・数量を添えた総額診断は完全版をご利用ください。",
+          how_to_get_full: SITE + "/hs-reverse-estimate/",
+          source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)"
+        });
+      }
       let verdict, level;
       if (price <= e.max) { verdict = "適正レンジ内"; level = "ok"; }
       else if (price < e.danger) { verdict = "やや高い(適正上限超だが危険水準未満)"; level = "watch"; }
@@ -283,6 +367,7 @@ async function callTool(name, args, env, ip, opts) {
               : level === "watch" ? "適正の上限を超えています。内訳と根拠を確認してください。"
               : "適正レンジ内です。内訳の整合だけ確認すれば安心です。",
         note: e.note, source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)", full_diagnosis: SITE + "/hs-reverse-estimate/",
+        next_actions: NEXT_ACTIONS,
         ...((level === "watch" || level === "alert") ? { ehn: {
           why: "この見積もりは適正上限を超えています。同種工事の他の施主の実例と並べて比べると、相場感がさらに明確になります。",
           compare_cases: SITE + "/ehn/",
@@ -656,7 +741,7 @@ function a2aDataFromMessage(message) {
   return null;
 }
 
-async function handleVerifyClaimA2A(msg, env, ip, ctxId) {
+async function handleVerifyClaimA2A(msg, env, ip, ctxId, ctx) {
   const rl = await checkRateLimit(env, ip);
   if (!rl.allowed) {
     return a2aMessage("アクセスが集中しています。少し時間をおいて再送してください。 / Too many requests. Please wait a moment and retry.");
@@ -677,6 +762,18 @@ async function handleVerifyClaimA2A(msg, env, ip, ctxId) {
     claim_sha256: input.claim_sha256,
     estimate_version: input.estimate_version
   });
+  // --- ammeter2: A2A verify-claim outcome split (counts only) [waitUntil-durable 2026-06-21] ---
+  if (env && env.RL_KV) {
+    const _vk = (result && result.result === "verified")
+      ? "usage:verify:verified" : "usage:verify:unverified";
+    const _vp = (async () => {
+      try {
+        const c = parseInt(await env.RL_KV.get(_vk) || "0", 10);
+        await env.RL_KV.put(_vk, String(c + 1));
+      } catch (e) {}
+    })().catch(() => {});
+    try { if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(_vp); } catch (e) {}
+  }
   const issuedAt = new Date().toISOString();
   const head = (result.result === "verified")
     ? "VERIFIED (untampered / 改ざんなし)"
@@ -705,7 +802,7 @@ async function handleVerifyClaimA2A(msg, env, ip, ctxId) {
   };
 }
 
-async function handleA2A(params, env, ip, authCtx) {
+async function handleA2A(params, env, ip, authCtx, ctx) {
   const msg = params && params.message;
   const text = a2aTextFromMessage(msg);
   const requested = a2aSkillId(params);
@@ -727,7 +824,7 @@ async function handleA2A(params, env, ip, authCtx) {
   }
 
   if (requested === "verify-claim") {
-    return await handleVerifyClaimA2A(msg, env, ip, ctxId);
+    return await handleVerifyClaimA2A(msg, env, ip, ctxId, ctx);
   }
 
   if (!text) {
@@ -816,7 +913,7 @@ async function handleA2A(params, env, ip, authCtx) {
   };
 }
 
-async function handleRpc(msg, env, ip, authCtx) {
+async function handleRpc(msg, env, ip, authCtx, ctx) {
   const { id, method, params } = msg;
   if (method === "initialize") {
     const pv = (params && params.protocolVersion) || "2025-06-18";
@@ -825,12 +922,12 @@ async function handleRpc(msg, env, ip, authCtx) {
   }
   if (method === "tools/list") return rpc(id, { tools: TOOLS });
   if (method === "tools/call") {
-    const r = await callTool(params && params.name, params && params.arguments, env, ip, { authCtx });
+    const r = await callTool(params && params.name, params && params.arguments, env, ip, { authCtx, ctx });
     return rpc(id, r);
   }
   if (method === "ping") return rpc(id, {});
   if (method === "message/send") {
-    const r = await handleA2A(params, env, ip, authCtx);
+    const r = await handleA2A(params, env, ip, authCtx, ctx);
     return rpc(id, r);
   }
   return rpcErr(id, -32601, "Method not found: " + method);
@@ -844,7 +941,7 @@ const CORS = {
 };
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
 
     // 層3 段1: API キー発行/失効を最優先で処理 (X-Admin-Key 認証・既存パス非接触)
@@ -891,11 +988,32 @@ export default {
           headers: { "Content-Type": "application/json; charset=utf-8", ...CORS }
         });
       }
+      if (url.pathname === "/.well-known/usage-stats.json") {
+        const _keys = ["usage:total", "usage:verify:total",
+          "usage:verify:verified", "usage:verify:unverified",
+          "usage:skill:estimate-integrity-audit", "usage:skill:verify_integrity_claim",
+          "usage:skill:verify_fair_price", "usage:skill:audit_estimate"];
+        const _out = {};
+        for (const k of _keys) {
+          try { _out[k] = parseInt(await env.RL_KV.get(k) || "0", 10); } catch (e) { _out[k] = null; }
+        }
+        const _day = new Date().toISOString().slice(0, 10);
+        try { _out["usage:day:" + _day] = parseInt(await env.RL_KV.get("usage:day:" + _day) || "0", 10); } catch (e) {}
+        return new Response(JSON.stringify({
+          service: "HORIZON SHIELD KIRA",
+          note: "External call counters. No payloads, prices, or IPs are stored. Counts only.",
+          counters: _out,
+          generated_at: new Date().toISOString()
+        }, null, 2), {
+          status: 200,
+          headers: { "Content-Type": "application/json; charset=utf-8", ...CORS }
+        });
+      }
       if (url.pathname === "/.well-known/agent-card.json") {
         const AGENT_CARD = {
           protocolVersion: "1.0",
           name: "HORIZON SHIELD KIRA",
-          description: "An independent, pre-transaction auditor for construction and renovation estimates. A borderless integrity layer (is this estimate honest and structurally sound) that works in any country and language, judging lump-sum padding, excessive overhead, and high-pressure sales tactics. Built on 30 years of field experience by a Japanese master carpenter.",
+          description: "An independent, pre-transaction auditor for construction and renovation estimates. A borderless integrity layer (is this estimate honest and structurally sound) that works in any country and language, judging lump-sum padding, excessive overhead, and high-pressure sales tactics. Built on 30 years of field experience by a Japanese master carpenter. Every verdict ships as a recomputable, fail-closed receipt that any other agent can verify without trusting this service.",
           url: "https://hs-mcp.oga-surf-project.workers.dev",
           preferredTransport: "JSONRPC",
           provider: { organization: "The HORIZ\u97f3s\u682a\u5f0f\u4f1a\u793e", url: SITE },
@@ -907,11 +1025,13 @@ export default {
             {
               id: "estimate-integrity-audit",
               name: "Estimate integrity audit (borderless)",
-              description: "Judges whether a construction or renovation estimate is honest and structurally sound, independent of country or currency. Flags lump-sum padding, excessive overhead, and high-pressure sales tactics, and explains how to read the estimate. The universal credence-goods layer.",
-              tags: ["construction", "estimate", "audit", "fraud-detection", "credence-goods", "borderless"],
+              description: "Judges whether a construction or renovation estimate is honest and structurally sound, independent of country or currency. Flags lump-sum padding, excessive overhead, and high-pressure sales tactics, and explains how to read the estimate. The universal credence-goods layer. Its response includes a signed verification envelope (signed_payload and claim_sha256) that the verify-claim skill can independently recompute.",
+              tags: ["construction", "estimate", "audit", "fraud-detection", "credence-goods", "borderless", "price-verification", "overcharge-detection"],
               examples: [
                 "Is this renovation estimate honest? It is mostly one lump-sum line with a today-only discount.",
-                "\u3053\u306e\u898b\u7a4d\u3082\u308a\u306f\u8aa0\u5b9f\u304b\u3002\u4e00\u5f0f\u8868\u8a18\u3070\u304b\u308a\u3067\u8af8\u7d4c\u8cbb\u304c\u9ad8\u3044\u3002"
+                "\u3053\u306e\u898b\u7a4d\u3082\u308a\u306f\u8aa0\u5b9f\u304b\u3002\u4e00\u5f0f\u8868\u8a18\u3070\u304b\u308a\u3067\u8af8\u7d4c\u8cbb\u304c\u9ad8\u3044\u3002",
+                "Check this contractor bid against market rates",
+                "Give me an independent, recomputable second opinion on this estimate"
               ]
             },
                         {
@@ -1022,11 +1142,11 @@ export default {
     const authCtx = await resolveAuthContext(request, env);
     if (Array.isArray(body)) {
       const out = [];
-      for (const m of body) { if (!isNotification(m)) out.push(await handleRpc(m, env, clientIp, authCtx)); }
+      for (const m of body) { if (!isNotification(m)) out.push(await handleRpc(m, env, clientIp, authCtx, ctx)); }
       return new Response(out.length ? JSON.stringify(out) : "", { status: out.length ? 200 : 202, headers: { "Content-Type": "application/json; charset=utf-8", ...CORS } });
     }
     if (isNotification(body)) return new Response("", { status: 202, headers: CORS });
-    const res = await handleRpc(body, env, clientIp, authCtx);
+    const res = await handleRpc(body, env, clientIp, authCtx, ctx);
     return new Response(JSON.stringify(res), { headers: { "Content-Type": "application/json; charset=utf-8", ...CORS } });
   }
 };
