@@ -29,7 +29,7 @@ const JCCDB = {
   links: {
     github: "https://github.com/ogasurfproject-jpg/japan-construction-cost-database",
     huggingface: "https://huggingface.co/datasets/ogasurfproject/jccdb",
-    zenodo_doi: "https://doi.org/10.5281/zenodo.20019573",
+    zenodo_doi: "https://doi.org/10.5281/zenodo.20019572",
     engrxiv_doi: "https://doi.org/10.31224/7007"
   },
   author: { name: "大賀俊勝 / TOshi Oga", orcid: "https://orcid.org/0009-0000-9180-903X" },
@@ -1067,7 +1067,7 @@ export default {
           dataset: {
             name: "Japan Construction Cost Database (JCCDB)",
             license: "CC BY 4.0",
-            doi: "https://doi.org/10.5281/zenodo.20019573"
+            doi: "https://doi.org/10.5281/zenodo.20019572"
           }
         };
         return new Response(JSON.stringify(AGENT_CARD, null, 2), {
