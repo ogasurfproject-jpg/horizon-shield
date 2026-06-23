@@ -55,3 +55,4 @@ index.html.bak
 **/worker-configuration.d.ts
 patch_parent_bridge.py
 isolate_bridges.py
+patch_sitemap_checks.py
