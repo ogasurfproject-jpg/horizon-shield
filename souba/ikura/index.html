@@ -132,6 +132,16 @@ footer a{color:var(--gold);text-decoration:none}
 <a class="r-card" href="https://shield.the-horizons-innovation.com/souba/amamori-check/">雨漏りチェック</a>
 <a class="r-card" href="https://shield.the-horizons-innovation.com/souba/uchimado-check/">内窓チェック</a>
 <a class="r-card" href="https://shield.the-horizons-innovation.com/souba/shiroari-check/">シロアリチェック</a>
+<a class="r-card" href="https://shield.the-horizons-innovation.com/souba/aircon-check/">エアコンチェック</a>
+<a class="r-card" href="https://shield.the-horizons-innovation.com/souba/bousui-check/">防水チェック</a>
+<a class="r-card" href="https://shield.the-horizons-innovation.com/souba/cloth-check/">クロスチェック</a>
+<a class="r-card" href="https://shield.the-horizons-innovation.com/souba/denki-check/">電気工事チェック</a>
+<a class="r-card" href="https://shield.the-horizons-innovation.com/souba/floor-check/">フローリングチェック</a>
+<a class="r-card" href="https://shield.the-horizons-innovation.com/souba/gaikou-check/">外構チェック</a>
+<a class="r-card" href="https://shield.the-horizons-innovation.com/souba/genkan-check/">玄関ドアチェック</a>
+<a class="r-card" href="https://shield.the-horizons-innovation.com/souba/kaitai-check/">解体チェック</a>
+<a class="r-card" href="https://shield.the-horizons-innovation.com/souba/kyuhaisuikan-check/">給排水管チェック</a>
+<a class="r-card" href="https://shield.the-horizons-innovation.com/souba/munaita-check/">棟板金チェック</a>
 <a class="r-card" href="https://shield.the-horizons-innovation.com/ehn/">EHN 実例ボード</a>
 </div>
 </div>
@@ -229,6 +239,7 @@ navigator.modelContext.registerTool({name:"get_typical_cost",description:"Get th
 navigator.modelContext.registerTool({name:"check_estimate_fairness",description:"Judge whether a specific Japanese renovation contractor estimate is fair or overcharged, once the user has a quoted price."+NEUTRAL,inputSchema:{type:"object",properties:{work:{type:"string"},quoted_price:{type:"number",description:"JPY"}},required:["work","quoted_price"]},annotations:{readOnlyHint:true},execute:async function(i){return await callKira("audit_estimate",{work:(i&&i.work)||"",quoted_price:(i&&i.quoted_price)});}});
 navigator.modelContext.registerTool({name:"get_renovation_cost_overview",description:"Return this page's overview table of typical Japanese renovation costs across the major work types (exterior wall, roof, bathroom, kitchen, toilet, water heater, leak repair, inner window, termite).",inputSchema:{type:"object",properties:{}},annotations:{readOnlyHint:true},execute:async function(){return{overview:overviewTable()};}});
 navigator.modelContext.registerTool({name:"get_next_steps",description:"Free next steps for a Japanese renovation: get a typical range, then once a quote exists check it for overcharging, post it anonymously to the EHN board, or generate a negotiation-ready reverse estimate.",inputSchema:{type:"object",properties:{}},annotations:{readOnlyHint:true},execute:async function(){return{ehn_submit:EHN,ehn_board:BOARD,reverse_estimate:REV,agent_card:CARD};}});
+navigator.modelContext.registerTool({name:"list_overcharge_red_flags",description:"List the universal overcharge and scam red flags to watch for on any Japanese renovation estimate before signing (lump-sum padding, missing maker/model/grade, door-to-door and today-only pressure, overhead above 20 percent, blocked competing quotes), curated by a 30-year master carpenter. Work-specific red flags are on each per-work check page."+NEUTRAL,inputSchema:{type:"object",properties:{}},annotations:{readOnlyHint:true},execute:async function(){return{red_flags:[{severity:"CRITICAL",warning:"設備のメーカー・型番・グレードが不明（適正比較の最低条件）"},{severity:"HIGH",warning:"工事費・材料費が『一式』計上で内訳が無い"},{severity:"HIGH",warning:"訪問販売で『今日だけ』『今すぐ』と即決を迫る"},{severity:"HIGH",warning:"諸経費が工事費の20%超（適正は概ね10〜16%）"},{severity:"MEDIUM",warning:"相見積もりを嫌がる・妨害する"}],note:"代表的な普遍赤旗のみ。工種別の詳細は各チェックページで判定してください。"};}});
 })();
 </script>
 </body>
