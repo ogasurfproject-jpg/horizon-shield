@@ -42,3 +42,16 @@ paint-monitor/*.bak*
 !paint-monitor/watch_madoreno_subsidy.py
 !paint-monitor/feed_emitter.py
 !paint-monitor/make_feed.py
+
+# --- data and state files (2026-06-21 cleanup) ---
+adopt.json
+cards.json
+cards20.json
+cards20_template.json
+geo_recirc_map.json
+# --- confidential docs (never commit to public repo) ---
+docs/proposal_honbu.md
+index.html.bak
+**/worker-configuration.d.ts
+patch_parent_bridge.py
+isolate_bridges.py
