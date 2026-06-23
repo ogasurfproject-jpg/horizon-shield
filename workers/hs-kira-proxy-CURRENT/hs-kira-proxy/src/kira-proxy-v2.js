@@ -334,6 +334,73 @@ async function bumpMetric(env, key) {
     // 計測失敗は本処理に絶対影響させない
   }
 }
+// === [PATCH gateway-reference] 追加のみ・無変更（SOUBA_SOURCE未設定時はgithub動作）===
+const RAW_REPO = 'https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main';
+
+function isGateway(env) {
+  return env && env.SOUBA_SOURCE === 'gateway';
+}
+
+class ReferenceUnavailableError extends Error {
+  constructor(message, scope = 'diagnostic', key = '') {
+    super(message);
+    this.name = 'ReferenceUnavailableError';
+    this.scope = scope;
+    this.key = key;
+  }
+}
+
+function reference503(origin, scope, key = '') {
+  return json({ error: 'reference_unavailable', scope, key }, 503, origin);
+}
+
+function handleReferenceError(e, origin) {
+  if (e instanceof ReferenceUnavailableError) {
+    return reference503(origin, e.scope, e.key);
+  }
+  return null;
+}
+
+function gatewayFetchOpts(env) {
+  return { headers: { 'X-Gateway-Token': env.GATEWAY_TOKEN } };
+}
+
+function referenceUrl(env, kind, subpath = '') {
+  if (!isGateway(env)) {
+    if (kind === 'souba-db') return RAW_REPO + '/data/souba-db.json';
+    if (kind === 'bom') return RAW_REPO + '/data/bom-summary-v3.json';
+    if (kind === 'real_cases') return RAW_REPO + '/data/hs_real_cases_stats.json';
+    if (kind === 'souba-v2') return RAW_REPO + '/souba-v2/' + subpath;
+    throw new Error('unknown kind');
+  }
+  const base = String(env.GATEWAY_URL || '').replace(/\/$/, '');
+  if (kind === 'souba-db') return base + '/reference/souba-db.json';
+  if (kind === 'bom') return base + '/reference/bom-summary-v3.json';
+  if (kind === 'real_cases') return base + '/reference/hs_real_cases_stats.json';
+  if (kind === 'souba-v2') return base + '/reference/souba-v2/' + subpath;
+  throw new Error('unknown kind');
+}
+
+async function assertReferenceStamp(res, data, env, scope = 'diagnostic', key = 'stamp') {
+  if (!isGateway(env)) return;
+  const ver = res.headers.get('X-Reference-Version');
+  if (!ver) throw new ReferenceUnavailableError('missing X-Reference-Version', scope, key);
+  if (!data || !data._meta || !data._meta.version) throw new ReferenceUnavailableError('missing _meta.version', scope, key);
+  if (ver !== data._meta.version) throw new ReferenceUnavailableError('reference_version_mismatch', scope, key);
+}
+
+function rethrowIfGateway(env, e) {
+  if (isGateway(env)) throw e;
+}
+async function referenceFetch(env, kind, subpath = '') {
+  const url = referenceUrl(env, kind, subpath);
+  if (isGateway(env)) {
+    return env.GATEWAY.fetch(new Request(url, gatewayFetchOpts(env)));
+  }
+  return fetch(url);
+}
+// === [/PATCH gateway-reference] ===
+
 // ============================================
 // ★ v11-PROVENANCE-A3: souba-db 動的参照（2026-05-09 追加）
 // ============================================
@@ -341,18 +408,27 @@ let _SOUBA_DB_CACHE = null;
 let _SOUBA_DB_CACHE_AT = 0;
 const SOUBA_DB_CACHE_TTL = 60 * 60 * 1000; // 1時間
 
-async function fetchSoubaDB() {
+async function fetchSoubaDB(env) {
   const now = Date.now();
-  if (_SOUBA_DB_CACHE && (now - _SOUBA_DB_CACHE_AT) < SOUBA_DB_CACHE_TTL) {
+  if (!isGateway(env) && _SOUBA_DB_CACHE && (now - _SOUBA_DB_CACHE_AT) < SOUBA_DB_CACHE_TTL) {
     return _SOUBA_DB_CACHE;
   }
   try {
-    const res = await fetch('https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/data/souba-db.json');
-    if (!res.ok) return null;
-    _SOUBA_DB_CACHE = await res.json();
-    _SOUBA_DB_CACHE_AT = now;
-    return _SOUBA_DB_CACHE;
+    const res = await referenceFetch(env, 'souba-db');
+    if (!res.ok) {
+      if (isGateway(env)) throw new ReferenceUnavailableError('souba-db status ' + res.status, 'diagnostic', 'souba-db');
+      return null;
+    }
+    const data = await res.json();
+    await assertReferenceStamp(res, data, env, 'diagnostic', 'souba-db');
+    if (!isGateway(env)) {
+      _SOUBA_DB_CACHE = data;
+      _SOUBA_DB_CACHE_AT = now;
+    }
+    return data;
   } catch (e) {
+    console.log('DEBUG fetchSoubaDB catch:', e && e.message, 'url:', referenceUrl(env, 'souba-db'), 'gw:', isGateway(env));
+    if (isGateway(env)) throw (e instanceof ReferenceUnavailableError ? e : new ReferenceUnavailableError(String(e && e.message), 'diagnostic', 'souba-db'));
     return null;
   }
 }
@@ -362,18 +438,26 @@ let _BOM_SUMMARY_CACHE = null;
 let _BOM_SUMMARY_CACHE_AT = 0;
 const BOM_SUMMARY_CACHE_TTL = 60 * 60 * 1000; // 1時間
 
-async function fetchBomSummary() {
+async function fetchBomSummary(env) {
   const now = Date.now();
-  if (_BOM_SUMMARY_CACHE && (now - _BOM_SUMMARY_CACHE_AT) < BOM_SUMMARY_CACHE_TTL) {
+  if (!isGateway(env) && _BOM_SUMMARY_CACHE && (now - _BOM_SUMMARY_CACHE_AT) < BOM_SUMMARY_CACHE_TTL) {
     return _BOM_SUMMARY_CACHE;
   }
   try {
-    const res = await fetch('https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/data/bom-summary-v3.json');
-    if (!res.ok) return null;
-    _BOM_SUMMARY_CACHE = await res.json();
-    _BOM_SUMMARY_CACHE_AT = now;
-    return _BOM_SUMMARY_CACHE;
+    const res = await referenceFetch(env, 'bom');
+    if (!res.ok) {
+      if (isGateway(env)) throw new ReferenceUnavailableError('bom status ' + res.status, 'diagnostic', 'bom-summary-v3');
+      return null;
+    }
+    const data = await res.json();
+    await assertReferenceStamp(res, data, env, 'diagnostic', 'bom-summary-v3');
+    if (!isGateway(env)) {
+      _BOM_SUMMARY_CACHE = data;
+      _BOM_SUMMARY_CACHE_AT = now;
+    }
+    return data;
   } catch (e) {
+    if (isGateway(env)) throw (e instanceof ReferenceUnavailableError ? e : new ReferenceUnavailableError(String(e && e.message), 'diagnostic', 'bom-summary-v3'));
     return null;
   }
 }
@@ -383,26 +467,37 @@ let _REAL_CASES_STATS_CACHE = null;
 let _REAL_CASES_STATS_CACHE_AT = 0;
 const REAL_CASES_STATS_TTL = 60 * 60 * 1000;
 
-async function fetchRealCasesStats() {
+async function fetchRealCasesStats(env) {
   const now = Date.now();
-  if (_REAL_CASES_STATS_CACHE && (now - _REAL_CASES_STATS_CACHE_AT) < REAL_CASES_STATS_TTL) {
+  if (!isGateway(env) && _REAL_CASES_STATS_CACHE && (now - _REAL_CASES_STATS_CACHE_AT) < REAL_CASES_STATS_TTL) {
     return _REAL_CASES_STATS_CACHE;
   }
   try {
-    const res = await fetch('https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/data/hs_real_cases_stats.json');
-    if (!res.ok) return null;
-    _REAL_CASES_STATS_CACHE = await res.json();
-    _REAL_CASES_STATS_CACHE_AT = now;
-    return _REAL_CASES_STATS_CACHE;
+    const res = await referenceFetch(env, 'real_cases');
+    if (!res.ok) {
+      if (isGateway(env)) throw new ReferenceUnavailableError('real_cases status ' + res.status, 'diagnostic', 'hs_real_cases_stats');
+      return null;
+    }
+    const data = await res.json();
+    await assertReferenceStamp(res, data, env, 'diagnostic', 'hs_real_cases_stats');
+    if (!isGateway(env)) {
+      _REAL_CASES_STATS_CACHE = data;
+      _REAL_CASES_STATS_CACHE_AT = now;
+    }
+    return data;
   } catch (e) {
+    if (isGateway(env)) throw (e instanceof ReferenceUnavailableError ? e : new ReferenceUnavailableError(String(e && e.message), 'diagnostic', 'hs_real_cases_stats'));
     return null;
   }
 }
 
-async function enrichSystemPromptWithSoubaData(originalSystem, messages) {
+async function enrichSystemPromptWithSoubaData(env, originalSystem, messages) {
   try {
-    const soubaDB = await fetchSoubaDB();
-    if (!soubaDB || !soubaDB.categories) return originalSystem;
+    const soubaDB = await fetchSoubaDB(env);
+    if (!soubaDB || !soubaDB.categories) {
+      if (isGateway(env)) throw new ReferenceUnavailableError('souba-db empty', 'diagnostic', 'souba-db');
+      return originalSystem;
+    }
 
     const userText = messages
       .filter(m => m.role === 'user')
@@ -447,7 +542,7 @@ async function enrichSystemPromptWithSoubaData(originalSystem, messages) {
     // BOMサマリーからも関連品目を検索
     let bomLines = '';
     try {
-      const bomSummary = await fetchBomSummary();
+      const bomSummary = await fetchBomSummary(env);
       if (bomSummary && bomSummary.categories) {
         const bomMatched = bomSummary.categories
           .filter(c => userText.includes(c.cat.slice(0,6)) ||
@@ -460,7 +555,7 @@ async function enrichSystemPromptWithSoubaData(originalSystem, messages) {
             ).join('\n');
         }
       }
-    } catch(e) {}
+    } catch(e) { rethrowIfGateway(env, e); }
 
     const enrichmentBlock = `
 
@@ -481,26 +576,30 @@ ${dataLines}${bomLines}
     // ★ 実案件統計ファクトの追加
     let realCasesBlock = '';
     try {
-      const stats = await fetchRealCasesStats();
+      const stats = await fetchRealCasesStats(env);
       if (stats && stats.kira_fact_summary) {
         realCasesBlock = `\n\n【★実案件統計（${stats.total_cases || 98}件）】\n${stats.kira_fact_summary}`;
       }
-    } catch(e) {}
+    } catch(e) { rethrowIfGateway(env, e); }
 
     return originalSystem + enrichmentBlock + realCasesBlock;
   } catch (e) {
+    if (isGateway(env)) throw e;
     return originalSystem;
   }
 }
 // ============================================
 // ★ v11-PROVENANCE-A4: AI出力にCVを後処理で確実に注入（2026-05-09 追加）
 // ============================================
-async function injectMissingCV(aiText, messages) {
+async function injectMissingCV(env, aiText, messages) {
   try {
     if (!aiText || typeof aiText !== 'string') return aiText;
 
-    const soubaDB = await fetchSoubaDB();
-    if (!soubaDB || !soubaDB.categories) return aiText;
+    const soubaDB = await fetchSoubaDB(env);
+    if (!soubaDB || !soubaDB.categories) {
+      if (isGateway(env)) throw new ReferenceUnavailableError('souba-db empty', 'diagnostic', 'inject');
+      return aiText;
+    }
 
     const userText = messages
       .filter(m => m.role === 'user')
@@ -559,6 +658,7 @@ async function injectMissingCV(aiText, messages) {
     }
     return finalText;
   } catch (e) {
+    if (isGateway(env)) throw e;
     return aiText;
   }
 }
@@ -1834,7 +1934,7 @@ async function handleHackerSubmitCard(request, env, origin) {
     verdict: (c.verdict || '').toString().slice(0, 60),
     region: (c.region || '').toString().slice(0, 10),
     initial: (c.initial || '').toString().slice(0, 8),
-    phase: (c.phase === 'active' ? 'active' : 'archive'),
+    phase: ((c.phase === 'active' || body.phase === 'active') ? 'active' : 'archive'),
   };
   const _poster = { name: sess.display_name || '', email: '', line_id: sess.line_user_id || '' };
   const _gate = ehnAutoGate(cls);
@@ -2295,18 +2395,24 @@ if (previousAnswers && Object.keys(previousAnswers).length > 0) {
   }
 }
 
-async function generatePlansFromItems(items) {
-  const REPO = 'https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/souba-v2';
-  const tradeDB = await fetch(`${REPO}/trade_prices_jusetsu.json`).then(r => r.json()).catch(() => ({}));
+async function generatePlansFromItems(items, env) {
+  const tradeRes = await referenceFetch(env, 'souba-v2', 'trade_prices_jusetsu.json');
+  if (!tradeRes.ok && isGateway(env)) throw new ReferenceUnavailableError('trade_prices ' + tradeRes.status, 'estimate', 'trade_prices_jusetsu.json');
+  const tradeDB = tradeRes.ok ? await tradeRes.json() : {};
+  if (isGateway(env) && tradeRes.ok) await assertReferenceStamp(tradeRes, tradeDB, env, 'estimate', 'trade_prices_jusetsu.json');
   const neededCats = [...new Set(items.map(i => KOJI_TYPE_MAP[i.koji_type]?.db).filter(Boolean))];
   const soubaDB = {};
   await Promise.all(neededCats.map(async (cat) => {
-    try {
-      const r = await fetch(`${REPO}/${cat}.json`);
-      if (r.ok) soubaDB[cat] = await r.json();
-    } catch (e) {}
+    const r = await referenceFetch(env, 'souba-v2', `${cat}.json`);
+    if (!r.ok) { if (isGateway(env)) throw new ReferenceUnavailableError('souba-v2 ' + cat + ' ' + r.status, 'estimate', cat); return; }
+    const catData = await r.json();
+    if (isGateway(env)) await assertReferenceStamp(r, catData, env, 'estimate', cat);
+    soubaDB[cat] = catData;
   }));
-  return generatePlans(items, soubaDB, tradeDB);
+  if (isGateway(env)) {
+    for (const cat of neededCats) if (!soubaDB[cat]) throw new ReferenceUnavailableError('missing ' + cat, 'estimate', cat);
+  }
+  return generatePlans(items, soubaDB, tradeDB, env);
 }
 
 function getMarketAlerts(items) {
@@ -2318,13 +2424,13 @@ function getMarketAlerts(items) {
   return alerts;
 }
 
-function generatePlans(items, soubaDB, tradeDB) {
+function generatePlans(items, soubaDB, tradeDB, env) {
   const totals = { matsu: 0, take: 0, ume: 0 };
   const validItems = { matsu: [], take: [], ume: [] };
   const errors = [];
 
   for (const item of items) {
-    const result = computeItemPlan(item, soubaDB, tradeDB);
+    const result = computeItemPlan(item, soubaDB, tradeDB, env);
     if (result.error) { errors.push(result); continue; }
 
     if (item.layout_change && LAYOUT_CHANGE_EXTRA_JPY[item.layout_change]) {
@@ -2346,6 +2452,12 @@ function generatePlans(items, soubaDB, tradeDB) {
     }
   }
 
+  if (isGateway(env)) {
+    if (errors.length > 0) throw new ReferenceUnavailableError('plan_errors', 'estimate', (errors[0] && errors[0].koji_type) || '');
+    for (const pt of ['matsu', 'take', 'ume']) {
+      if (!totals[pt] || totals[pt] <= 0) throw new ReferenceUnavailableError('empty plan ' + pt, 'estimate', pt);
+    }
+  }
   return {
     matsu: { ...PLAN_PROFIT_MULTIPLIER.matsu, total: totals.matsu, total_man_en: Math.round(totals.matsu / 10000), items: validItems.matsu, summary: `大手リフォーム会社相場 ¥${totals.matsu.toLocaleString()}` },
     take:  { ...PLAN_PROFIT_MULTIPLIER.take,  total: totals.take,  total_man_en: Math.round(totals.take / 10000),  items: validItems.take,  summary: `★中小工務店相場 ¥${totals.take.toLocaleString()}` },
@@ -2355,15 +2467,15 @@ function generatePlans(items, soubaDB, tradeDB) {
   };
 }
 
-function computeItemPlan(item, soubaDB, tradeDB) {
+function computeItemPlan(item, soubaDB, tradeDB, env) {
   const mapping = KOJI_TYPE_MAP[item.koji_type];
   if (!mapping) return { error: `Unknown koji_type: ${item.koji_type}`, koji_type: item.koji_type };
   if (mapping.trade_key && tradeDB[mapping.trade_key]) {
     const r = computeFromTradeDB(item, mapping, tradeDB[mapping.trade_key]);
-    if (r._needs_souba_db) return computeFromSoubaDB(item, mapping, soubaDB);
+    if (r._needs_souba_db) return computeFromSoubaDB(item, mapping, soubaDB, env);
     return r;
   }
-  return computeFromSoubaDB(item, mapping, soubaDB);
+  return computeFromSoubaDB(item, mapping, soubaDB, env);
 }
 
 function computeFromTradeDB(item, mapping, tradeCategoryData) {
@@ -2408,11 +2520,17 @@ function buildTradePlan(gradeData, installTotal, planType, maker, gradeName, pri
   return { maker, series: gradeData.series, grade: gradeName, total: total_man_en * 10000, total_man_en, message: `${maker} ${gradeData.series}（${gradeName}）`, _coeff_applied: PRICE_COEFF, _provenance: { source: "trade-db", db_file: "trade_prices_jusetsu.json", maker, series: gradeData.series, grade: gradeName, coeff_source: "hs-price-sync@/current-coefficient", coeff_value: PRICE_COEFF, calculated_at: new Date().toISOString() } };
 }
 
-function computeFromSoubaDB(item, mapping, soubaDB) {
+function computeFromSoubaDB(item, mapping, soubaDB, env) {
   const catData = soubaDB[mapping.db];
-  if (!catData) return { error: `Category ${mapping.db} not found`, koji_type: item.koji_type };
+  if (!catData) {
+    if (isGateway(env)) throw new ReferenceUnavailableError('missing category ' + mapping.db, 'estimate', mapping.db);
+    return { error: `Category ${mapping.db} not found`, koji_type: item.koji_type };
+  }
   const plansField = Object.keys(catData).find(k => k.toLowerCase().includes('plan') && k !== 'plans_template');
-  if (!plansField) return { error: `No plans in ${mapping.db}`, koji_type: item.koji_type };
+  if (!plansField) {
+    if (isGateway(env)) throw new ReferenceUnavailableError('no plans ' + mapping.db, 'estimate', mapping.db);
+    return { error: `No plans in ${mapping.db}`, koji_type: item.koji_type };
+  }
 
   const plans = catData[plansField];
   const isList = Array.isArray(plans);
@@ -2477,6 +2595,7 @@ function materialLabel(k) {
 
 async function handleReverseEstimate(request, env, origin) {
   if (request.method !== 'POST') return json({ error: 'POST only' }, 405, origin);
+  if (isGateway(env) && (!env.GATEWAY_URL || !env.GATEWAY_TOKEN)) return reference503(origin, 'estimate', 'env');
   const body = await request.json();
   const { natural_language_input, previous_answers = null } = body;
   if (!natural_language_input) return json({ error: 'natural_language_input required' }, 400, origin);
@@ -2542,16 +2661,23 @@ if (hearingResult.items && previous_answers) {
   }
 
   if (hearingResult.status === 'ready') {
-    const plans = await generatePlansFromItems(hearingResult.items);    return json({
-      status: 'ready',
-      extracted_items: hearingResult.items,
-      plans,
-      market_alerts: getMarketAlerts(hearingResult.items),
-      disclaimer: "本結果は国土交通省・メーカー公式データ等に基づく相場の参考価格提示であり、建設業法上の正式見積もりではありません。施工業者との契約は別途行ってください。",
-      match_url: `https://hs-pdf-gen.oga-surf-project.workers.dev/match?region=${encodeURIComponent((hearingResult.items[0]?.region)||'')}&koji_type=${encodeURIComponent((hearingResult.items[0]?.koji_type)||'')}`,
-      match_coming_soon: true,
-      cta: { label: "詳細な参考見積書PDF（業者交渉用）", price_jpy: 5500, url: "/reverse-estimate/purchase" }
-    }, 200, origin);
+    try {
+      const plans = await generatePlansFromItems(hearingResult.items, env);
+      return json({
+        status: 'ready',
+        extracted_items: hearingResult.items,
+        plans,
+        market_alerts: getMarketAlerts(hearingResult.items),
+        disclaimer: "本結果は国土交通省・メーカー公式データ等に基づく相場の参考価格提示であり、建設業法上の正式見積もりではありません。施工業者との契約は別途行ってください。",
+        match_url: `https://hs-pdf-gen.oga-surf-project.workers.dev/match?region=${encodeURIComponent((hearingResult.items[0]?.region)||'')}&koji_type=${encodeURIComponent((hearingResult.items[0]?.koji_type)||'')}`,
+        match_coming_soon: true,
+        cta: { label: "詳細な参考見積書PDF（業者交渉用）", price_jpy: 5500, url: "/reverse-estimate/purchase" }
+      }, 200, origin);
+    } catch (e) {
+      const r = handleReferenceError(e, origin);
+      if (r) return r;
+      throw e;
+    }
   }
 
   return json({
@@ -2844,7 +2970,7 @@ ${claudeAnswer}
           body: JSON.stringify({
             model: 'claude-sonnet-4-6',
             max_tokens: body.max_tokens || 2000,
-            system: await enrichSystemPromptWithSoubaData(body.system, body.messages),
+            system: await enrichSystemPromptWithSoubaData(env, body.system, body.messages),
             messages: body.messages,
           }),
         });
@@ -2858,12 +2984,12 @@ ${claudeAnswer}
           data = await res.json();
         }
         if (data?.content?.[0]?.text) {
-          data.content[0].text = await injectMissingCV(data.content[0].text, body.messages);
+          data.content[0].text = await injectMissingCV(env, data.content[0].text, body.messages);
           if (auditHash) {
             data.content[0].text = injectAuditHash(data.content[0].text, auditHash);
           }
           if (!cached) {
-            const soubaDB = await fetchSoubaDB();
+            const soubaDB = await fetchSoubaDB(env);
             const soubaVersion = soubaDB?._meta?.version || 'unknown';
             await saveCachedPlan(env, auditHash, normalized, data.content[0].text, soubaVersion, PRICE_COEFF);
           }
@@ -2888,6 +3014,7 @@ ${claudeAnswer}
           headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
         });
       } catch (e) {
+        const _rr = handleReferenceError(e, origin); if (_rr) return _rr;
         return json({ error: e.message }, 500, origin);
       }
     }
@@ -2911,7 +3038,7 @@ ${claudeAnswer}
           body: JSON.stringify({
             model: 'claude-sonnet-4-6',
             max_tokens: body.max_tokens || 1000,
-            system: await enrichSystemPromptWithSoubaData(body.system, body.messages),
+            system: await enrichSystemPromptWithSoubaData(env, body.system, body.messages),
             messages: body.messages,
           }),
         });
@@ -2937,14 +3064,14 @@ ${claudeAnswer}
 
         // ★ v11-PROVENANCE-A4: CV後処理（CV欠けてる行に自動追加）
         if (data?.content?.[0]?.text) {
-          data.content[0].text = await injectMissingCV(data.content[0].text, body.messages);
+          data.content[0].text = await injectMissingCV(env, data.content[0].text, body.messages);
           // ★ v11-PROVENANCE-A5: audit_hash を出典に注入
           if (auditHash) {
             data.content[0].text = injectAuditHash(data.content[0].text, auditHash);
           }
           // ★ v11-PROVENANCE-A5: 新規生成時はキャッシュ保存
           if (!cached) {
-            const soubaDB = await fetchSoubaDB();
+            const soubaDB = await fetchSoubaDB(env);
             const soubaVersion = soubaDB?._meta?.version || 'unknown';
             await saveCachedPlan(env, auditHash, normalized, data.content[0].text, soubaVersion, PRICE_COEFF);
           }
@@ -2984,6 +3111,7 @@ ${claudeAnswer}
           headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
         });
       } catch (e) {
+        const _rr = handleReferenceError(e, origin); if (_rr) return _rr;
         return json({ error: e.message }, 500, origin);
       }
     }
@@ -3242,8 +3370,8 @@ ${claudeAnswer}
 5. 要確認金額レンジ（円・捏造なしの概算）`;
         let systemPrompt = baseSystem;
         try {
-          systemPrompt = await enrichSystemPromptWithSoubaData(baseSystem, [{ role: 'user', content: estimateText }]);
-        } catch (_) {}
+          systemPrompt = await enrichSystemPromptWithSoubaData(env, baseSystem, [{ role: 'user', content: estimateText }]);
+        } catch (e) { const _rr = handleReferenceError(e, origin); if (_rr) return _rr; if (isGateway(env)) throw e; }
         const textPart = memo ? `${estimateText}\n\n【補足メモ】${memo}` : estimateText;
         const contentArr = [];
         if (fileData && fileType === 'pdf') {
@@ -3284,6 +3412,7 @@ ${claudeAnswer}
           headers: { 'Content-Type': 'application/json;charset=utf-8' },
         });
       } catch (e) {
+        const _rr = handleReferenceError(e, origin); if (_rr) return _rr;
         return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
       }
     }
@@ -3358,8 +3487,8 @@ ${claudeAnswer}
 (6)同一の質問には毎回ほぼ同一の総額レンジを返すこと（再現性厳守）。本文に算出根拠（使った一式データ名、または積み上げ各項目と金額）を必ず明記し、読み手が同じ手順で再計算できるようにする。ぶれは重大な不具合とみなす。`;
         let systemPrompt = baseSystem;
         try {
-          systemPrompt = await enrichSystemPromptWithSoubaData(baseSystem, [{ role: 'user', content: estimateText }]);
-        } catch (_) {}
+          systemPrompt = await enrichSystemPromptWithSoubaData(env, baseSystem, [{ role: 'user', content: estimateText }]);
+        } catch (e) { const _rr = handleReferenceError(e, origin); if (_rr) return _rr; if (isGateway(env)) throw e; }
         const contentArr = [];
         for (const f of files) {
           if (f && f.data && f.type === 'pdf') {
@@ -3409,6 +3538,7 @@ ${claudeAnswer}
           headers: { 'Content-Type': 'application/json;charset=utf-8' },
         });
       } catch (e) {
+        const _rr = handleReferenceError(e, origin); if (_rr) return _rr;
         return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
       }
     }
