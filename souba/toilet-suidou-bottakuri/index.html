@@ -8,6 +8,7 @@
 <link rel="author" href="https://shield.the-horizons-innovation.com/about-founder.html">
 <meta name="description" content="トイレ交換（組み合わせ便器+ウォシュレット）は工事費込みで約8〜12万円が原価フロア、適正総額は約15万円。水道トラブル業者・訪問販売の40万円超が過剰請求か、建設30年プロが解説。">
 <link rel="canonical" href="https://shield.the-horizons-innovation.com/souba/toilet-suidou-bottakuri/">
+<link rel="alternate" type="application/json" title="HORIZON SHIELD KIRA Agent Card (A2A)" href="https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -147,7 +148,32 @@ footer a{color:rgba(255,255,255,0.6);margin:0 8px}
             <div class="faq-a">組み合わせ便器交換の適正が平均15万円である以上、40万円を超える見積もりは内訳の開示を求めるべき危険水準です。トイレの詰まりや水漏れの緊急時に呼んだ水道修理業者が、その場で高額な便器交換やタンクレス化を勧めてくる手口に特に注意してください。本体価格・工事費・諸経費を1行ずつ明記した見積書の再提出を書面で求め、緊急でも即決しないことが大切です。訪問販売であれば契約日を含め8日間はクーリングオフ（無条件解約）が可能です。迷ったら消費者ホットライン188へ相談してください。</div>
         </div>
   </div>
-  <div class="cta-box">
+  <div class="kira-live" style="margin:24px 0;padding:20px;border:2px solid #c8a44a;border-radius:10px">
+<h2>このトイレ見積もり、KIRAが今すぐ判定</h2>
+<p>金額を入れると、中立AI(HORIZON SHIELD KIRA)が適正レンジと照合します。会員登録なし・無料。</p>
+<input id="kira-price" type="number" placeholder="見積もり総額（円）例：400000" style="padding:8px;width:240px">
+<button id="kira-btn" onclick="kiraAudit()" style="padding:8px 18px;background:#c8a44a;color:#fff;border:none;border-radius:6px;cursor:pointer">KIRAで判定</button>
+<div id="kira-result" style="margin-top:14px"></div>
+<script>
+async function kiraAudit(){
+  var p=parseInt(document.getElementById('kira-price').value,10);
+  var out=document.getElementById('kira-result');
+  if(!p){out.textContent='金額を入れてください';return;}
+  out.textContent='KIRAが照合中...';
+  try{
+    var res=await fetch('https://hs-mcp.oga-surf-project.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'audit_estimate',arguments:{work:'トイレ交換 組み合わせ便器',quoted_price:p}}})});
+    var d=await res.json();
+    var t=d.result&&d.result.content&&d.result.content[0]&&d.result.content[0].text;
+    out.textContent=t||'判定を取得できませんでした。時間をおいて再度お試しください。';
+  }catch(e){out.textContent='通信エラー。EHNに匿名で貼って第三者の目を入れることもできます。';}
+}
+</script>
+</div>
+<div class="resonate"><h2>あわせて確認（過剰請求の手口）</h2><div class="r-grid">
+<a class="r-card" href="https://shield.the-horizons-innovation.com/souba/kajou-seikyu-jirei-20/">過剰請求の実例20選<span>他工事の手口もまとめて確認</span></a>
+<a class="r-card" href="https://shield.the-horizons-innovation.com/ehn/">EHN 見積もり実例ボード<span>匿名で第三者の目を入れる（無料）</span></a>
+</div></div>
+<div class="cta-box">
     <h3>🛡 見積書が適正かどうか、今すぐ確認できます</h3>
     <p>建設30年のプロが監修したAIが、あなたの見積書を即座に分析。<br>¥5,500で交渉用の逆見積書PDFを即日発行します。</p>
     <a href="https://shield.the-horizons-innovation.com" class="cta-btn">▶ 無料AI診断を試す</a>
