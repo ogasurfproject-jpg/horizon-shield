@@ -1,0 +1,19 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ogasurfproject-jpg/horizon-shield-webmcp",
+  "title": "HORIZON SHIELD WebMCP Intake",
+  "description": "Intake desk for AI agents: bridges construction quotes to KIRA fair-price audit and EHN check.",
+  "version": "1.0.0",
+  "websiteUrl": "https://shield.the-horizons-innovation.com",
+  "repository": {
+    "url": "https://github.com/ogasurfproject-jpg/horizon-shield",
+    "source": "github",
+    "subfolder": "workers/hs-webmcp"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://hs-webmcp.oga-surf-project.workers.dev/mcp"
+    }
+  ]
+}
