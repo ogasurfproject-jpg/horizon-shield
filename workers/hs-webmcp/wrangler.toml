@@ -1,0 +1,7 @@
+name = "hs-webmcp"
+main = "index.js"
+compatibility_date = "2026-06-25"
+
+[[services]]
+binding = "HS_MCP_SVC"
+service = "hs-mcp"
