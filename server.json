@@ -1,0 +1,19 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ogasurfproject-jpg/horizon-shield",
+  "title": "HORIZON SHIELD KIRA",
+  "description": "Independent auditor for construction estimates. Flags overcharge with verifiable signed receipts.",
+  "version": "1.0.1",
+  "websiteUrl": "https://shield.the-horizons-innovation.com",
+  "repository": {
+    "url": "https://github.com/ogasurfproject-jpg/horizon-shield",
+    "source": "github",
+    "subfolder": "workers/hs-mcp"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://hs-mcp.oga-surf-project.workers.dev"
+    }
+  ]
+}
