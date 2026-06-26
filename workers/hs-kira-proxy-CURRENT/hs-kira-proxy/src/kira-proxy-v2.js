@@ -1307,7 +1307,7 @@ async function handleHackerCard(request, env, origin) {
     });
   }
   comments.sort((a, b) => a.at - b.at);
-  return json({ ok: true, card: c, comments }, 200, origin);
+  return json({ ok: true, card: { id: c.id, genre: c.genre, region: c.region, building: c.building, title: c.title, traits: c.traits || [], red_flags: c.red_flags || 0, verdict: c.verdict || '', amount: c.amount || '', initial: c.initial || '', phase: c.phase || 'archive', geo_adopted: c.geo_adopted === true, published: c.published, created_at: c.created_at }, comments }, 200, origin);
 }
 
 
