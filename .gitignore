@@ -56,3 +56,16 @@ index.html.bak
 patch_parent_bridge.py
 isolate_bridges.py
 patch_sitemap_checks.py
+
+# --- 2026-06-26 追記: MCP publisherツール・作業中間物を除外 ---
+mcp-publisher
+main
+workers/hs-design/wrangler.toml
+handoff_to_next_claude.txt
+MODLIST.txt
+changed_files_doi.txt
+changed_files_doi_clean.txt
+redflag_mapping_*.csv
+redflag_mapping_*.json
+souba_audit*.csv
+souba_noindex_audit.csv
