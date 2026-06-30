@@ -42,6 +42,8 @@ paint-monitor/*.bak*
 !paint-monitor/watch_madoreno_subsidy.py
 !paint-monitor/feed_emitter.py
 !paint-monitor/make_feed.py
+# indexnow_submit.py: 鍵を環境変数化済み(INDEXNOW_KEYはローカルのみ)。常用ツールとして追跡
+!indexnow_submit.py
 
 # --- data and state files (2026-06-21 cleanup) ---
 adopt.json
