@@ -421,6 +421,82 @@ const FOOTER = `
 
 #建設費診断 #リフォーム #見積もり #ぼったくり #HORIZONSHIELD #大賀俊勝`;
 
+// ========================================
+// ★ X断言投稿ネタ生成（NETA-KIT追加）
+//   監視で拾った「施主の生の言葉」から、Xに自分で投稿する断言ネタを3本作りLINE送信
+//   ※既存のリプライ機能とは別系統。追いかけリプライでなく「自分で投稿」用。
+// ========================================
+async function generateXPostIdeas(env) {
+  try {
+    // 監視で蓄積した見込み客の「生の言葉」を取得（高スコア順）
+    const prospects = await listProspects(env);
+    const voices = (Array.isArray(prospects) ? prospects : [])
+      .map(p => (p.firstTitle || p.lastTitle || '').trim())
+      .filter(t => t.length > 8)
+      .slice(0, 12);
+
+    // 生の言葉が無い日は、汎用テーマで生成（空振り防止）
+    const voiceBlock = voices.length > 0
+      ? voices.map((v, i) => `${i + 1}. ${v}`).join('\n')
+      : '（本日は監視で拾えた生の声が少ないため、リフォーム見積もりの一般的な不安をネタにすること）';
+
+    const prompt = `あなたは大賀俊勝（建設業30年・大工→現場監督→CM→AIエンジニア）。
+施主がXで実際に呟いていた「生の不安の言葉」を下に並べます。
+この生の言葉を踏まえ、あなた自身がXに投稿する「断言ポスト」を3本作ってください。
+
+【施主が実際に呟いた言葉】
+${voiceBlock}
+
+【断言ポストの型（必ず守る）】
+・1行目：定説をひっくり返す一行（「みんなこう言うが、違う」）
+・2〜3行目：30年の現場からの本音（一次体験）
+・最後：具体的な数字1つ、または見るべき1点
+・売り込み・URL・料金は書かない（価値100%）
+・1本140〜220文字。リプライ誘発の余白を残す。
+
+JSONのみ返答：
+{"posts":["1本目の全文","2本目の全文","3本目の全文"]}`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1200,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+
+    const data = await res.json();
+    let parsed;
+    try {
+      parsed = JSON.parse((data.content?.[0]?.text || '{}').replace(/```json|```/g, '').trim());
+    } catch {
+      parsed = { posts: [] };
+    }
+    const posts = Array.isArray(parsed.posts) ? parsed.posts.slice(0, 3) : [];
+    if (posts.length === 0) { console.log('Xネタ生成: 0件（スキップ）'); return; }
+
+    const body = posts.map((p, i) => `【${i + 1}本目】\n${p}`).join('\n\n━━━━━━━━━━\n\n');
+    const message =
+      `🐦【X断言ポスト ネタ3本 ready】\n` +
+      `（施主の生の声 ${voices.length}件から生成）\n` +
+      `━━━━━━━━━━\n\n` +
+      `${body}\n\n` +
+      `━━━━━━━━━━\n` +
+      `👆 どれか1本を選んでXに投稿。来たリプには必ず返信（会話が最強）。`;
+
+    await sendLine(message, env);
+    console.log('Xネタ生成・LINE送信完了:', posts.length + '本 / 生の声' + voices.length + '件');
+  } catch (e) {
+    console.error('Xネタ生成エラー:', e.message);
+  }
+}
+
 async function generateAndSendArticle(env) {
   try {
     // ★ テーマ・タイトルをその都度AIが生成
@@ -781,6 +857,7 @@ export default {
     if (jstHour === 8) {
   ctx.waitUntil(generateAndSendArticle(env));
   ctx.waitUntil(fetchAndSaveMaterialNews(env));
+  ctx.waitUntil(generateXPostIdeas(env));
 }
     ctx.waitUntil(scanAndNotify(env));
   },
