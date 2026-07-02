@@ -2903,6 +2903,7 @@ ${geminiInfo}
 
     // ===== /debate =====
     if (path === '/debate') {
+      return json({ error: 'route disabled' }, 403, origin);
       try {
         const body = await request.json();
         const question = body.question || '';
@@ -3149,6 +3150,7 @@ ${claudeAnswer}
 
     // ===== /history =====
     if (path === '/history' && request.method === 'GET') {
+      return json({ error: 'route disabled' }, 403, origin);
       const userId = url.searchParams.get('userId');
       if (!userId) return json({ error: 'userId required' }, 400, origin);
       const history = await getHistory(env, userId);
@@ -3156,6 +3158,7 @@ ${claudeAnswer}
     }
 
     if (path === '/history/clear' && request.method === 'POST') {
+      return json({ error: 'route disabled' }, 403, origin);
       try {
         const body = await request.json();
         await clearHistory(env, body.userId);
@@ -3220,6 +3223,7 @@ ${claudeAnswer}
 
     // ===== /send-email =====
     if (path === '/send-email' && request.method === 'POST') {
+      return json({ error: 'route disabled' }, 403, origin);
       try {
         const body = await request.json();
         const res = await fetch('https://api.resend.com/emails', {
@@ -3721,6 +3725,7 @@ async function runSpecialAudit(){
     }
 
   if (path === '/paypay/quick-checkout' && request.method === 'POST') {
+  return json({ error: 'route disabled' }, 403, origin);
   try {
     const body = await request.json();
     const merchantPaymentId = `hs-gyaku-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
@@ -3851,6 +3856,7 @@ if (path === '/checkout/paypal/capture' && request.method === 'POST') {
 }
 
 if (path === '/checkout/paypay-status' && request.method === 'POST') {
+  return json({ error: 'route disabled' }, 403, origin);
   try {
     const { merchant_payment_id } = await request.json();
     if (!merchant_payment_id) return json({ error: 'merchant_payment_id required' }, 400, origin);

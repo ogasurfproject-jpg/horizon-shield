@@ -71,3 +71,7 @@ redflag_mapping_*.csv
 redflag_mapping_*.json
 souba_audit*.csv
 souba_noindex_audit.csv
+
+_KEYS_DO_NOT_COMMIT.txt
+paint-monitor/*.log
+*.OLD-*
