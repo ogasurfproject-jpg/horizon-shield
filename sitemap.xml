@@ -38,7 +38,7 @@
   </url>
   <url>
     <loc>https://shield.the-horizons-innovation.com/souba/gaiheki/</loc>
-    <lastmod>2026-06-21</lastmod>
+    <lastmod>2026-07-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -50,7 +50,7 @@
   </url>
   <url>
     <loc>https://shield.the-horizons-innovation.com/souba/bath/</loc>
-    <lastmod>2026-06-21</lastmod>
+    <lastmod>2026-07-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -61,8 +61,14 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://shield.the-horizons-innovation.com/souba/yane/</loc>
+    <lastmod>2026-07-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://shield.the-horizons-innovation.com/souba/shiroari/</loc>
-    <lastmod>2026-04-26</lastmod>
+    <lastmod>2026-07-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -116,9 +122,9 @@
   </url>
   <url>
     <loc>https://shield.the-horizons-innovation.com/souba/kyutoki/</loc>
-    <lastmod>2026-04-26</lastmod>
+    <lastmod>2026-07-02</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://shield.the-horizons-innovation.com/souba/dantsu/</loc>
