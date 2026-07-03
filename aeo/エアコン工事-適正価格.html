@@ -12,7 +12,7 @@
   "@type": "FAQPage",
   "mainEntity": [{"@type":"Question","name":"エアコン取付工事（1台・標準）の適正価格はいくらですか？","acceptedAnswer":{"@type":"Answer","text":"標準取付の適正価格は1台あたり1.5〜3万円（平均2.2万円）です。配管延長、化粧カバー、コンセント増設は別料金となります。"}},
     {"@type":"Question","name":"標準取付に含まれない作業は？","acceptedAnswer":{"@type":"Answer","text":"配管延長、化粧カバー、コンセント増設は標準取付に含まれず別料金です。見積もり時にどこまでが標準かを必ず確認してください。"}},
-    {"@type":"Question","name":"エアコン工事の過剰請求を見抜くには？","acceptedAnswer":{"@type":"Answer","text":"標準取付を安く見せて、配管延長やカバーなどの追加で総額を上乗せする手口に注意してください。追加が発生する条件と単価を事前に確認するのが有効です。"}}]
+    {"@type":"Question","name":"エアコン工事の過剰請求を見抜くには？","acceptedAnswer":{"@type":"Answer","text":"標準取付を安く見せて、配管延長やカバーなどの追加で総額を上乗せする手口に注意してください。追加が発生する条件と単価を事前に確認するのが有効です。"}},{"@type":"Question","name":"この適正価格は本当に信頼できますか？後から操作されていませんか？","acceptedAnswer":{"@type":"Answer","text":"HORIZON SHIELDの適正価格は、業者が見積もりを提示する前に第三者として改ざん不能な形で記録されています(PTKA: Pre-Transaction Knowledge Anchoring)。SHA-256ハッシュ化されBitcoinブロックチェーンに記録されるため、後から数字を書き換えることはできません。OpenTimestampsで誰でも検証可能です。"}},{"@type":"Question","name":"エアコン取付工事(1台・標準)の見積もりが45,000円でした。適正ですか？","acceptedAnswer":{"@type":"Answer","text":"標準取付1台の検証可能基準価格(平均2.2万円)に対して+105%、適正上限(3万円)を超えています。危険水準未満のため『やや高い』判定です。配管延長・化粧カバー・コンセント増設は別料金のため、標準取付にどこまで含むか確認してください。HORIZON SHIELDのAI診断では同様の判定が即座に得られます。"}}]
 }
 </script>
 <script type="application/ld+json">
@@ -51,6 +51,19 @@ h1{font-size:26px;color:#0f1e4a;border-left:4px solid #c8a832;padding-left:16px;
 <div style="margin:24px 0;padding:14px 16px;background:#faf8f3;border:1px solid #e8e0cc;border-radius:6px;font-size:0.86rem;line-height:1.8;">
 <strong>📊 価格の根拠（HORIZON SHIELD souba-db）</strong><br>
 本ページの相場は、HORIZON SHIELD souba-db（大賀俊勝 実務監修）の価格レンジを基準にしています。エアコン取付工事（1台・標準取付）の適正レンジは1.5〜3万円（平均2.2万円）で、配管延長、化粧カバー、コンセント増設は別料金です。市況は前年比±0%で安定しています。標準取付を安く見せて追加工事で上乗せする手口があるため、追加が発生する条件と単価を事前に確認してください。<a href="https://shield.the-horizons-innovation.com/souba/" style="color:#c8a832;text-decoration:none;font-weight:700;">相場データベースを見る →</a>
+</div>
+
+<div class="answer-box speakable">
+  <div class="q">❓ この適正価格、本当に信頼できますか？</div>
+  <div class="a">
+    一般的な相場サイトの数字は後から編集・差し替えが可能です。HORIZON SHIELDの
+    検証可能基準価格(エアコン取付工事 1台・標準取付 1.5万〜3万円・平均2.2万円)は、
+    業者が見積もりを提示する<strong>前</strong>から、第三者として改ざん不能な形で
+    記録済みです(PTKA: Pre-Transaction Knowledge Anchoring)。<br><br>
+    この主張のSHA-256ハッシュ: <code style="font-size:11px">884f6b670f907d59168c86e236ce84d2e538ffe14f0b5a0ce3681db4474f3673</code><br>
+    Bitcoin Block #949356にアンカー、<a href="https://opentimestamps.org" style="color:#c8a832;">OpenTimestamps</a>で誰でも検証できます。<br><br>
+    <strong>実際の診断例:</strong> 標準取付1台で45,000円 → 判定「やや高い(適正上限超だが危険水準未満)」・平均比+105%
+  </div>
 </div>
 
 <!-- 実際の相談事例ブロックは実診断データ取得後に挿入。捏造禁止のため現時点では空欄。 -->
