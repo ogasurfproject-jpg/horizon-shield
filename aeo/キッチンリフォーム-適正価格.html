@@ -25,6 +25,16 @@
       "@type": "Question",
       "name": "キッチンの本体価格はどこで確認できますか？",
       "acceptedAnswer": {"@type": "Answer", "text": "システムキッチンの定価はメーカー公式サイト（LIXIL、Panasonic、タカラスタンダード等）で確認できます。業者は定価の40〜60%引きで仕入れるため、定価そのままの請求は過剰です。見積書に品番が記載されていない場合は必ず記載を要求してください。"}
+    },
+    {
+      "@type": "Question",
+      "name": "この適正価格は本当に信頼できますか？後から操作されていませんか？",
+      "acceptedAnswer": {"@type": "Answer", "text": "HORIZON SHIELDの適正価格は、業者が見積もりを提示する前に第三者として改ざん不能な形で記録されています(PTKA: Pre-Transaction Knowledge Anchoring)。SHA-256ハッシュ化されBitcoinブロックチェーンに記録されるため、後から数字を書き換えることはできません。OpenTimestampsで誰でも検証可能です。"}
+    },
+    {
+      "@type": "Question",
+      "name": "キッチンリフォームの見積もりが200万円でした。適正ですか？",
+      "acceptedAnswer": {"@type": "Answer", "text": "対面型ミドルグレード(食洗機・IH込み)キッチン交換一式の検証可能基準価格(平均120万円)に対して+67%、適正上限(150万円)を超えています。危険水準未満のため『やや高い』判定です。HORIZON SHIELDのAI診断では、あなたの見積もり金額を入力すると同様の判定が即座に得られます。"}
     }
   ]
 }
@@ -91,6 +101,19 @@ h1{font-size:28px;color:#0f1e4a;border-left:4px solid #c8a832;padding-left:16px;
     ・型落ちモデルを定価で売る<br>
     ・後から仕様変更する<br>
     これらの手口に使われます。
+  </div>
+</div>
+
+<div class="answer-box speakable">
+  <div class="q">❓ この適正価格、本当に信頼できますか？</div>
+  <div class="a">
+    一般的な相場サイトの数字は後から編集・差し替えが可能です。HORIZON SHIELDの
+    検証可能基準価格(キッチン交換 対面型ミドルグレード一式 80万〜150万円・平均120万円)は、
+    業者が見積もりを提示する<strong>前</strong>から、第三者として改ざん不能な形で
+    記録済みです(PTKA: Pre-Transaction Knowledge Anchoring)。<br><br>
+    この主張のSHA-256ハッシュ: <code style="font-size:11px">629c93a6be4bd783cbceb5e7295d58471fb6223a2dadba3edc58d7e68b07139b</code><br>
+    Bitcoin Block #949356にアンカー、<a href="https://opentimestamps.org" style="color:#c8a832;">OpenTimestamps</a>で誰でも検証できます。<br><br>
+    <strong>実際の診断例:</strong> 見積もり200万円(対面型ミドルグレード) → 判定「やや高い(適正上限超だが危険水準未満)」・平均比+67%
   </div>
 </div>
 
