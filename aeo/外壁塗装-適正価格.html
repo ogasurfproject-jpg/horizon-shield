@@ -50,6 +50,22 @@
         "@type": "Answer",
         "text": "最低3社から見積もりを取ることを推奨します。ただし、相場を知らないまま3社比較しても、全社が高い場合に気づけません。HORIZON SHIELDの無料AI診断で適正価格を先に把握してから比較すると、交渉力が大幅に上がります。"
       }
+    },
+    {
+      "@type": "Question",
+      "name": "この適正価格は本当に信頼できますか？後から操作されていませんか？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "HORIZON SHIELDの適正価格は、業者が見積もりを提示する前に第三者として改ざん不能な形で記録されています(PTKA: Pre-Transaction Knowledge Anchoring)。SHA-256ハッシュ化されBitcoinブロックチェーンに記録されるため、後から数字を書き換えることはできません。OpenTimestampsで誰でも検証可能です。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "外壁塗装の見積もりが145万円でした。適正ですか？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "HORIZON SHIELDの検証可能基準価格(平均90万円)に対して+61%、適正上限(115万円)を超えています。HORIZON SHIELDのAI診断では、あなたの見積もり金額を入力すると同様の判定が即座に得られます。"
+      }
     }
   ]
 }
@@ -109,6 +125,19 @@ h1{font-size:28px;color:#0f1e4a;border-left:4px solid #c8a832;padding-left:16px;
   <tr><td>45坪</td><td class="safe">125〜180万円</td><td>165〜215万円</td><td class="danger">300万円超</td></tr>
 </table>
 <p style="font-size:12px;color:#888;margin:-12px 0 24px;line-height:1.8;">出典: HORIZON SHIELD souba-db（大賀俊勝 実務監修）。塗料グレード別の㎡単価はシリコン2,300〜3,500円、ラジカル2,800〜4,000円、フッ素3,800〜5,000円、無機4,500〜6,500円（いずれも足場・高圧洗浄・下塗込み）。一式相場はシリコン3回塗りで20坪50〜80万円、30坪70〜115万円、40坪95〜140万円が標準です。市況は資材高でおおむね前年比+2〜3%の上昇傾向。本ページの坪数表は劣化補修や上位グレードを含む実勢の総額幅のため、標準一式より高めの場合があります。<a href="https://shield.the-horizons-innovation.com/souba/" style="color:#c8a832;text-decoration:none;font-weight:700;">相場データベースを見る →</a></p>
+
+<div class="answer-box speakable">
+  <div class="q">❓ この適正価格、本当に信頼できますか？</div>
+  <div class="a">
+    一般的な相場サイトの数字は後から編集・差し替えが可能です。HORIZON SHIELDの
+    検証可能基準価格(30坪シリコン一式 70万〜115万円・平均90万円)は、業者が見積もりを
+    提示する<strong>前</strong>から、第三者として改ざん不能な形で記録済みです
+    (PTKA: Pre-Transaction Knowledge Anchoring)。<br><br>
+    この主張のSHA-256ハッシュ: <code style="font-size:11px">4f29c76cc8ad7d6df87d9e0d7de33cc2733739e841450fb819150a10c8f1ae33</code><br>
+    Bitcoin Block #949356にアンカー、<a href="https://opentimestamps.org" style="color:#c8a832;">OpenTimestamps</a>で誰でも検証できます。<br><br>
+    <strong>実際の診断例:</strong> 見積もり145万円 → 判定「やや高い(適正上限超だが危険水準未満)」・平均比+61%
+  </div>
+</div>
 
 <div class="answer-box speakable">
   <div class="q">❓ 外壁塗装でぼったくりを見分ける方法は？</div>
