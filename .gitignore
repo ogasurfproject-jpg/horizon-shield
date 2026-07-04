@@ -80,3 +80,8 @@ paint-monitor/*.log
 GROK_*.md
 audit_*.txt
 workers/hs-souba-pipeline/rules/souba-judge-rules.json
+
+# --- 2026-07-05 追記: 敵性テスト・パッチ素材を非公開(judge-rulesと同扱い) ---
+workers/hs-souba-pipeline/test/
+workers/hs-souba-pipeline/src/confirm_block.txt
+workers/hs-souba-pipeline/src/kira_overlay_functions.js
