@@ -88,6 +88,115 @@ const THEMES = [
     angle: '同じ工事で業者間の見積もりが割れる理由と、妥当価格を軸に判断する考え方を示す内容',
     hashtags: ['リフォーム','見積もり','適正価格','施主','HORIZONSHIELD'],
   },
+  // 追加: 常緑テーマ(在庫拡充。設備/仕上げ/契約/営業手口)
+  {
+    title: '給湯器交換で40万円は妥当か。エコキュート本体価格と工事費を分けて見る',
+    keywords: ['給湯器','エコキュート','本体価格','工事費','見積もり'],
+    angle: '給湯器交換の見積もりを本体と工事費に分解し、金額が動く要因を示す内容',
+    hashtags: ['給湯器','リフォーム','適正価格','施主','HORIZONSHIELD'],
+  },
+  {
+    title: 'ユニットバス交換100万円の内訳。本体グレードと工事費のどこで金額が動くか',
+    keywords: ['ユニットバス','浴室リフォーム','本体グレード','工事費','内訳'],
+    angle: '浴室交換の見積もりを本体グレードと工事費に分けて、金額の変動要因を示す内容',
+    hashtags: ['浴室リフォーム','ユニットバス','適正価格','施主','HORIZONSHIELD'],
+  },
+  {
+    title: 'トイレ交換で25万円。便器本体と設置工事、どこまでが適正か',
+    keywords: ['トイレ交換','便器','設置工事','適正価格','見積もり'],
+    angle: 'トイレ交換の見積もりを本体と設置工事に分け、適正の目安を示す内容',
+    hashtags: ['トイレリフォーム','適正価格','施主','見積もり','HORIZONSHIELD'],
+  },
+  {
+    title: 'システムキッチン交換の見積もりが割れる理由。本体定価と実売の差を知る',
+    keywords: ['システムキッチン','本体定価','実売価格','工事費','値引き'],
+    angle: 'キッチン交換で見積もりが割れる理由を、本体定価と実売の差から示す内容',
+    hashtags: ['キッチンリフォーム','適正価格','施主','見積もり','HORIZONSHIELD'],
+  },
+  {
+    title: 'クロス張替えの単価が業者で倍違う。平米あたりの相場と数量の数え方',
+    keywords: ['クロス張替え','壁紙','平米単価','数量','相場'],
+    angle: 'クロス張替えの平米単価と数量の数え方を示し、金額比較の軸を作る内容',
+    hashtags: ['クロス張替え','内装','適正価格','施主','HORIZONSHIELD'],
+  },
+  {
+    title: 'ベランダ防水の見積もりが読めない。FRPとウレタン、工法で価格が変わる理由',
+    keywords: ['ベランダ防水','FRP','ウレタン','工法','単価'],
+    angle: 'ベランダ防水の工法差と価格の関係を整理し、見積もりを読む軸を示す内容',
+    hashtags: ['防水工事','ベランダ','適正価格','施主','HORIZONSHIELD'],
+  },
+  {
+    title: 'フローリング張替えは重ね張りと張替えで金額が別物。どちらを勧められているか',
+    keywords: ['フローリング','重ね張り','張替え','工法','費用'],
+    angle: 'フローリングの重ね張りと張替えの違いと費用差を示し、判断軸を作る内容',
+    hashtags: ['フローリング','リフォーム','適正価格','施主','HORIZONSHIELD'],
+  },
+  {
+    title: '雨樋の交換工事、足場代が本体より高くなる仕組み',
+    keywords: ['雨樋','足場代','交換工事','内訳','見積もり'],
+    angle: '雨樋交換で足場代が占める割合を示し、見積もりの見方を整理する内容',
+    hashtags: ['雨樋','外装','適正価格','施主','HORIZONSHIELD'],
+  },
+  {
+    title: '分電盤交換とアンペア変更、電気工事の見積もりで確認すべき項目',
+    keywords: ['分電盤','アンペア変更','電気工事','見積もり','確認項目'],
+    angle: '電気工事の見積もりで確認すべき項目を、分電盤とアンペア変更を例に示す内容',
+    hashtags: ['電気工事','リフォーム','施主','見積もり','HORIZONSHIELD'],
+  },
+  {
+    title: '解体工事の見積もりに潜む「処分費一式」。廃材の量で金額は変わる',
+    keywords: ['解体工事','処分費','一式','廃材','数量'],
+    angle: '解体工事の処分費一式の中身を整理し、廃材量で金額が動く点を示す内容',
+    hashtags: ['解体工事','適正価格','施主','見積もり','HORIZONSHIELD'],
+  },
+  {
+    title: '相見積もりの正しい取り方。同じ条件を揃えないと比較にならない',
+    keywords: ['相見積もり','条件統一','比較','数量','仕様'],
+    angle: '相見積もりで条件を揃える重要性と、比較可能にする手順を示す内容',
+    hashtags: ['相見積もり','リフォーム','施主','見積もり','HORIZONSHIELD'],
+  },
+  {
+    title: 'リフォーム契約書で必ず確認する条項。着工前に見るべきポイント',
+    keywords: ['契約書','確認条項','着工前','工期','支払条件'],
+    angle: 'リフォーム契約書で着工前に確認すべき条項を整理して示す内容',
+    hashtags: ['リフォーム契約','施主','トラブル防止','見積もり','HORIZONSHIELD'],
+  },
+  {
+    title: '火災保険を使えばリフォームが無料、という営業トークの落とし穴',
+    keywords: ['火災保険','リフォーム','営業トーク','注意点','トラブル'],
+    angle: '火災保険を使った無料リフォームという勧誘の注意点を整理して示す内容',
+    hashtags: ['火災保険','リフォーム詐欺注意','施主','消費者','HORIZONSHIELD'],
+  },
+  {
+    title: '外壁塗装の「モニター価格」はなぜ安く見えるのか。値引きの原資を考える',
+    keywords: ['外壁塗装','モニター価格','値引き','原資','見積もり'],
+    angle: '外壁塗装のモニター価格が安く見える仕組みを、値引きの原資から考える内容',
+    hashtags: ['外壁塗装','適正価格','施主','見積もり','HORIZONSHIELD'],
+  },
+  {
+    title: 'コーキング打ち替えと増し打ちの違い。外壁塗装の見積もりで見落としやすい項目',
+    keywords: ['コーキング','打ち替え','増し打ち','外壁塗装','見積もり'],
+    angle: 'コーキングの打ち替えと増し打ちの違いと費用への影響を示す内容',
+    hashtags: ['外壁塗装','コーキング','施主','見積もり','HORIZONSHIELD'],
+  },
+  {
+    title: '屋根カバー工法と葺き替え、金額差の理由と向き不向き',
+    keywords: ['屋根','カバー工法','葺き替え','金額差','向き不向き'],
+    angle: '屋根のカバー工法と葺き替えの金額差と適した状況を整理して示す内容',
+    hashtags: ['屋根工事','適正価格','施主','見積もり','HORIZONSHIELD'],
+  },
+  {
+    title: '内窓設置の見積もり、サッシ本体とガラスのグレードで費用が変わる',
+    keywords: ['内窓','サッシ','ガラスグレード','断熱','費用'],
+    angle: '内窓設置の費用がサッシとガラスのグレードで変わる点を整理して示す内容',
+    hashtags: ['内窓','断熱リフォーム','施主','見積もり','HORIZONSHIELD'],
+  },
+  {
+    title: '「今日契約なら値引き」はなぜ危険か。即決を迫る営業の見分け方',
+    keywords: ['即決','値引き','営業','見分け方','クーリングオフ'],
+    angle: '即決を迫る値引き営業の危険性と、落ち着いて判断する方法を示す内容',
+    hashtags: ['訪問販売注意','施主','消費者','リフォーム','HORIZONSHIELD'],
+  },
 ];
 
 // feed/ に監視由来の鮮度テーマがあれば最優先。なければ従来の日数ローテーション。
@@ -144,14 +253,24 @@ function loadFreshThemes() {
   return fresh;
 }
 
-function getTodayTheme() {
+function getTodayTheme(postedTitles) {
+  const posted = Array.isArray(postedTitles) ? postedTitles : [];
   const fresh = loadFreshThemes();
-  if (fresh.length > 0) {
-    console.log('鮮度テーマを使用:', fresh[0].title, '(' + fresh[0]._priority + ')');
-    return fresh[0];
+  for (let i = 0; i < fresh.length; i++) {
+    if (posted.indexOf(fresh[i].title) === -1) {
+      console.log('鮮度テーマを使用:', fresh[i].title, '(' + fresh[i]._priority + ')');
+      return fresh[i];
+    }
   }
+  const n = THEMES.length;
   const d = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-  return THEMES[d % THEMES.length];
+  for (let k = 0; k < n; k++) {
+    const t = THEMES[(d + k) % n];
+    if (posted.indexOf(t.title) === -1) {
+      return t;
+    }
+  }
+  return null;
 }
 
 async function generateArticle(theme) {
@@ -484,7 +603,13 @@ async function main() {
       if (!process.env[key]) throw new Error(`環境変数未設定: ${key}`);
     }
 
-    let theme = getTodayTheme();
+    const postedTitlesForPick = loadPostedTitles();
+    let theme = getTodayTheme(postedTitlesForPick);
+    if (!theme) {
+      console.log('未投稿テーマの在庫切れ(THEMES/feed全て投稿済み)。スキップ。');
+      await sendLine('⏭ 本日のnote投稿スキップ 未投稿テーマの在庫切れ');
+      process.exit(0);
+    }
     console.log('今日のテーマ:', theme.title);
 
     // 重複チェック
