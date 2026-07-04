@@ -4,8 +4,8 @@ on:
   repository_dispatch:
     types: [blog-post]
   workflow_dispatch:
-  # schedule: GEO改造まで daily自動生成を停止
-  #   - cron: '0 0 * * *'
+  schedule:
+    - cron: '0 0 * * *'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
