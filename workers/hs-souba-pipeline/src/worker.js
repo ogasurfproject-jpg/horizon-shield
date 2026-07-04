@@ -1039,6 +1039,51 @@ async function runConfirm(env) {
   return summary;
 }
 
+/* ------------------------------------------------------- rollback (EXP-3 gate armer) */
+/*
+ * runRollback: 外部(TOshi/正本反映)が「この自動確定は誤り」と判断した時に呼ぶ。
+ * souba:confirmed:{cat} を削除して KIRA を正本にフォールバックさせ、rollback_count を +1 する。
+ * これにより EXP-3 の phase昇格ゲート(rollback_count==0 条件)が実弾になる。
+ * 方向反転の自動検知はしない(市場変動と区別できず偽陽性のため)。取り消しは明示操作のみ。
+ */
+async function runRollback(env, catId, reason) {
+  const kv = env.HS_DESIGN_KV;
+  const at = jstNow();
+  if (!catId) return { ok: false, error: 'category_id required', at: at };
+
+  const existing = await kvGetJson(kv, 'souba:confirmed:' + catId);
+  if (!existing) {
+    return { ok: false, error: 'not_found', category_id: catId, at: at };
+  }
+
+  // 1) 確定オーバーレイを削除(KIRAは次診断から正本にフォールバック)
+  await kv.delete('souba:confirmed:' + catId);
+  await removeFromIndex(kv, 'souba:confirmed:index', catId);
+
+  // 2) rollback_count を +1(EXP-3ゲートが読む値)
+  const state = await readDelegationState(kv);
+  state.metrics = state.metrics || {};
+  state.metrics.rollback_count = (state.metrics.rollback_count || 0) + 1;
+  await kvPutJson(kv, 'pipeline:delegation', state);
+
+  // 3) 監査記録
+  const stamp = jstStamp();
+  const rid = 'rb_' + stamp.ymd + '_' + stamp.hms + '_' + randHex(4);
+  const record = {
+    rollback_id: rid,
+    category_id: catId,
+    reason: reason ? String(reason) : '',
+    reverted_provenance: existing.provenance || null,
+    reverted_fields: existing.fields || null,
+    rollback_count_after: state.metrics.rollback_count,
+    at: at
+  };
+  await kvPutJson(kv, 'souba:rollback:' + rid, record, 180 * 86400);
+  await pushIndex(kv, 'souba:rollback:index', rid);
+
+  return { ok: true, rolled_back: catId, rollback_id: rid, rollback_count: state.metrics.rollback_count, at: at };
+}
+
 /* ------------------------------------------------------------- entrypoints */
 
 function json(obj, status) {
@@ -1068,6 +1113,20 @@ export default {
       const judge = await runJudge(env);
       const confirm = await runConfirm(env);
       return json({ ok: true, learn: learn, judge: judge, confirm: confirm });
+    }
+
+    if (request.method === 'POST' && url.pathname === '/rollback') {
+      const token = request.headers.get('x-pipeline-token') || '';
+      if (!env.PIPELINE_TOKEN || token !== env.PIPELINE_TOKEN) {
+        return json({ ok: false, error: 'unauthorized' }, 403);
+      }
+      let body = {};
+      try { body = await request.json(); } catch (e) { body = {}; }
+      const catId = body && body.category_id ? String(body.category_id) : '';
+      const reason = body && body.reason ? String(body.reason) : '';
+      const result = await runRollback(env, catId, reason);
+      const status = result.ok ? 200 : (result.error === 'not_found' ? 404 : 400);
+      return json(result, status);
     }
 
     return json({ ok: false, error: 'not found' }, 404);
