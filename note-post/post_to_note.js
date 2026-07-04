@@ -630,8 +630,19 @@ async function main() {
     }
     if (looksFabricated(articleText)) {
       console.log('  [捏造ゲート] 鮮度テーマで捏造が消えないため、常緑テーマに退避します。');
+      const posted = loadPostedTitles();
       const d = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-      const safeTheme = THEMES[d % THEMES.length];
+      const n = THEMES.length;
+      let safeTheme = null;
+      for (let k = 0; k < n; k++) {
+        const t = THEMES[(d + k) % n];
+        if (posted.indexOf(t.title) === -1) { safeTheme = t; break; }
+      }
+      if (!safeTheme) {
+        console.log('  [note] safe theme sold out; skip posting.');
+        await sendLine('note post skipped: evergreen theme inventory empty (captcha fallback)');
+        process.exit(0);
+      }
       theme = safeTheme;
       articleText = await generateArticle(theme);
     }
