@@ -75,3 +75,8 @@ souba_noindex_audit.csv
 _KEYS_DO_NOT_COMMIT.txt
 paint-monitor/*.log
 *.OLD-*
+
+# --- 2026-07-05 追記: Grok作業メモ・監査出力を除外(公開リポに上げない) ---
+GROK_*.md
+audit_*.txt
+workers/hs-souba-pipeline/rules/souba-judge-rules.json
