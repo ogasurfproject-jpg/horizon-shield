@@ -1,0 +1,34 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hs-souba-pipeline",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-01-01",
+  "observability": { "enabled": true },
+
+  "triggers": {
+    "crons": ["0 21 * * *", "0 9 * * *"]
+  },
+
+  "kv_namespaces": [
+    {
+      "binding": "HS_DESIGN_KV",
+      "id": "ebeee94b11644031a2deaea32093ac8b"
+    }
+  ],
+
+  "vars": {
+    "//SOUBA_DB_URL": "data/souba-db.json の raw または gateway URL を大賀が設定。未設定なら learn は提案を作らずログのみ",
+    "SOUBA_DB_URL": "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/data/souba-db.json",
+    "//FEED_MANIFEST_URL": "feed一覧JSON(配列)。無ければ FEED_GITHUB_API_URL を使う",
+    "FEED_MANIFEST_URL": "",
+    "//FEED_GITHUB_API_URL": "GitHub contents API のディレクトリURL 例: https://api.github.com/repos/OWNER/REPO/contents/note-post/feed",
+    "FEED_GITHUB_API_URL": "https://api.github.com/repos/ogasurfproject-jpg/horizon-shield/contents/note-post/feed",
+    "//DEFAULT_COEFF": "設計価格->施工単価の既定換算係数。paint-monitor運用の0.62に合わせる",
+    "DEFAULT_COEFF": "0.62"
+  }
+
+  // secret PIPELINE_TOKEN は大賀が手動:
+  //   wrangler secret put PIPELINE_TOKEN
+  // /run を叩くとき x-pipeline-token ヘッダに同値を入れる。
+  // deploy も大賀手動。番人はここまで(設計・検証・present)。
+}
