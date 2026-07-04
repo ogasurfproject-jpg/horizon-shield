@@ -432,6 +432,81 @@ async function fetchSoubaDB(env) {
     return null;
   }
 }
+
+// === [PATCH souba-overlay] 判断確定KVの重ね読み(kira-proxy-v2.jsに追加する関数群) ===
+// fetchSoubaDB 関数の直後(モジュールレベル)に追加する。
+// souba-db.json(正本)の上に souba:confirmed:*(judge確定)を重ねて診断に使う。
+// danger は正本優先(オーバーレイでは変更しない=制約4)。
+
+async function fetchConfirmedOverlay(env) {
+  if (!env.HS_DESIGN_KV) return { categories: {}, notices: [] };
+  const kv = env.HS_DESIGN_KV;
+  const categories = {};
+  try {
+    const idxRaw = await kv.get('souba:confirmed:index');
+    const ids = idxRaw ? JSON.parse(idxRaw) : [];
+    if (Array.isArray(ids)) {
+      for (let i = 0; i < ids.length; i++) {
+        const raw = await kv.get('souba:confirmed:' + ids[i]);
+        if (!raw) continue;
+        let row;
+        try { row = JSON.parse(raw); } catch (e) { continue; }
+        // 汚染防御: provenance と content_hash 必須
+        if (!row || !row.category_id || !row.fields) continue;
+        if (!row.provenance || !row.provenance.content_hash) continue;
+        categories[row.category_id] = row;
+      }
+    }
+  } catch (e) { /* overlay失敗は正本のみで続行 */ }
+
+  const notices = [];
+  try {
+    const nRaw = await kv.get('souba:meta:index');
+    const nIdx = nRaw ? JSON.parse(nRaw) : [];
+    if (Array.isArray(nIdx)) {
+      for (let j = 0; j < nIdx.length && j < 20; j++) {
+        const nr = await kv.get('souba:meta:notice:' + nIdx[j]);
+        if (!nr) continue;
+        try { notices.push(JSON.parse(nr)); } catch (e) { /* skip */ }
+      }
+    }
+  } catch (e) { /* skip */ }
+
+  return { categories: categories, notices: notices };
+}
+
+function mergeSoubaOverlay(baseDb, overlay) {
+  if (!baseDb || !baseDb.categories || !overlay) return baseDb;
+  const map = overlay.categories || {};
+  const keys = Object.keys(map);
+  const hasNotices = overlay.notices && overlay.notices.length > 0;
+  if (keys.length === 0 && !hasNotices) return baseDb;
+
+  const out = JSON.parse(JSON.stringify(baseDb));
+  const arr = out.categories;
+  if (Array.isArray(arr)) {
+    for (let i = 0; i < arr.length; i++) {
+      const c = arr[i];
+      const cid = c.id || c.category_id;
+      const ov = map[cid];
+      if (!ov || !ov.fields) continue;
+      const f = ov.fields;
+      if (f.min != null) c.min = f.min;
+      if (f.avg != null) c.avg = f.avg;
+      if (f.max != null) c.max = f.max;
+      // danger は上書きしない(正本優先=制約4の二重ガード)
+      if (ov.provenance && ov.provenance.confirmed_at) {
+        c._kv_confirmed_at = ov.provenance.confirmed_at;
+        c._kv_proposal_id = ov.provenance.proposal_id;
+      }
+    }
+  }
+  if (!out._meta) out._meta = {};
+  if (keys.length > 0) out._meta.kv_overlay_count = keys.length;
+  out._meta_notices = overlay.notices || [];
+  return out;
+}
+
 // ★ BOM v2.0 サマリー動的参照（65,729品目・2026-05-19追加）
 // ============================================
 let _BOM_SUMMARY_CACHE = null;
@@ -493,7 +568,11 @@ async function fetchRealCasesStats(env) {
 
 async function enrichSystemPromptWithSoubaData(env, originalSystem, messages) {
   try {
-    const soubaDB = await fetchSoubaDB(env);
+    let soubaDB = await fetchSoubaDB(env);
+    try {
+      const _overlay = await fetchConfirmedOverlay(env);
+      soubaDB = mergeSoubaOverlay(soubaDB, _overlay);
+    } catch (e) { if (isGateway(env)) { /* overlay失敗は正本のみで続行 */ } }
     if (!soubaDB || !soubaDB.categories) {
       if (isGateway(env)) throw new ReferenceUnavailableError('souba-db empty', 'diagnostic', 'souba-db');
       return originalSystem;
@@ -582,7 +661,14 @@ ${dataLines}${bomLines}
       }
     } catch(e) { rethrowIfGateway(env, e); }
 
-    return originalSystem + enrichmentBlock + realCasesBlock;
+    let metaNoticeBlock = '';
+    if (soubaDB && Array.isArray(soubaDB._meta_notices) && soubaDB._meta_notices.length > 0) {
+      const _lines = soubaDB._meta_notices.slice(0, 5).map(function (n) {
+        return '・' + (n.title || '') + ': ' + ((n.facts || []).join(' / '));
+      }).join('\n');
+      metaNoticeBlock = '\n\n【★補助金・制度メタ(価格データではない)】\n' + _lines;
+    }
+    return originalSystem + enrichmentBlock + realCasesBlock + metaNoticeBlock;
   } catch (e) {
     if (isGateway(env)) throw e;
     return originalSystem;
@@ -595,7 +681,11 @@ async function injectMissingCV(env, aiText, messages) {
   try {
     if (!aiText || typeof aiText !== 'string') return aiText;
 
-    const soubaDB = await fetchSoubaDB(env);
+    let soubaDB = await fetchSoubaDB(env);
+    try {
+      const _ov = await fetchConfirmedOverlay(env);
+      soubaDB = mergeSoubaOverlay(soubaDB, _ov);
+    } catch (e) { /* 正本フォールバック */ }
     if (!soubaDB || !soubaDB.categories) {
       if (isGateway(env)) throw new ReferenceUnavailableError('souba-db empty', 'diagnostic', 'inject');
       return aiText;
@@ -2879,6 +2969,8 @@ ${geminiInfo}
           messages = [...history, { role: 'user', content: userText }];
         }
 
+        // enrich(overlay) applied to /kira: 判断確定相場をLINE本体にも届ける
+        systemPrompt = await enrichSystemPromptWithSoubaData(env, systemPrompt, messages);
         const claudeData = await callClaude(env, messages, systemPrompt);
         const assistantText = claudeData?.content?.[0]?.text || 'すみません、回答を生成できませんでした。';
 
@@ -3133,7 +3225,8 @@ ${claudeAnswer}
         } else {
           return json({ error: 'messages or message required' }, 400, origin);
         }
-        const data = await callClaude(env, messages);
+        const _anthSystem = await enrichSystemPromptWithSoubaData(env, KIRA_SYSTEM_PROMPT, messages);
+        const data = await callClaude(env, messages, _anthSystem);
         if (userId && data.content && data.content[0]) {
           const assistantMsg = { role: 'assistant', content: data.content[0].text || '' };
           await saveHistory(env, userId, [...messages, assistantMsg]);
