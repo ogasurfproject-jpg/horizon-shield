@@ -86,6 +86,4 @@ workers/hs-souba-pipeline/test/
 workers/hs-souba-pipeline/src/confirm_block.txt
 workers/hs-souba-pipeline/src/kira_overlay_functions.js
 _archive/
-workers/hs-kira-proxy-CURRENT/hs-kira-proxy/src/souba-proposals-admin.js
-scripts/*.md
 scripts/*.md
