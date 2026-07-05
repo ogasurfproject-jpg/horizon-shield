@@ -236,6 +236,22 @@ function loadFreshThemes() {
     if (!f.endsWith('.json')) continue;
     try {
       const j = JSON.parse(fs.readFileSync(path.join(feedDir, f), 'utf-8'));
+      // 鮮度フィルタ: 日付が取れて FRESH_MAX_DAYS より古い feed は読み飛ばす。
+      // 日付が無い feed は従来通り採用(fail-open)。
+      const FRESH_MAX_DAYS = 14;
+      const _dateStr = j.created_at || j.observed_at || j.date || j.published_at || null;
+      let _freshAt = null;
+      if (_dateStr) {
+        const _ms = Date.parse(_dateStr);
+        if (!isNaN(_ms)) {
+          _freshAt = _dateStr;
+          const _ageDays = (Date.now() - _ms) / 86400000;
+          if (_ageDays > FRESH_MAX_DAYS) {
+            console.log('  [鮮度フィルタ] 古いfeedを除外:', f, '(' + Math.round(_ageDays) + '日前)');
+            continue;
+          }
+        }
+      }
       fresh.push({
         title: j.title,
         keywords: j.keywords || [],
@@ -245,6 +261,7 @@ function loadFreshThemes() {
         hashtags: (j.keywords || []).slice(0, 4).concat(['HORIZONSHIELD']),
         _priority: j.priority || 'normal',
         _sourceFile: f,
+        _freshAt: _freshAt,
       });
     } catch (e) { /* skip broken json */ }
   }
