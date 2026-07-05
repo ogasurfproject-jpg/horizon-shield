@@ -87,3 +87,4 @@ workers/hs-souba-pipeline/src/confirm_block.txt
 workers/hs-souba-pipeline/src/kira_overlay_functions.js
 _archive/
 scripts/*.md
+blog/*.bak-*
