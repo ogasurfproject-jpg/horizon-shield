@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
     steps:
       - uses: actions/checkout@v4
 
@@ -30,6 +31,17 @@ jobs:
           git add blog/
           git diff --staged --quiet || git commit -m "blog post $(date +%Y-%m-%d)"
           git push
+
+      # --- HS-DEPLOY-DISPATCH v1 (2026-07-06): GITHUB_TOKEN push does not fire on:push workflows,
+      # so explicitly dispatch the Pages deploy when a new article was committed today.
+      - name: Trigger Pages deploy
+        run: |
+          if git log -1 --pretty=%s | grep -q "blog post $(date +%Y-%m-%d)"; then
+            curl -s -X POST -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github+json" https://api.github.com/repos/${{ github.repository }}/actions/workflows/static.yml/dispatches -d '{"ref":"main"}'
+            echo "DEPLOY DISPATCHED"
+          else
+            echo "SKIP: no new article commit today"
+          fi
 
       - name: Post to Hatena Blog
         env:
