@@ -80,3 +80,6 @@ These pages embed the live KIRA engine over the MCP server: a visitor or an AI a
 - JCCDB contains no prices. Price data is a separate internal layer and is not part of the open dataset.
 - A callable MCP server is available at https://hs-mcp.oga-surf-project.workers.dev for agents that support Model Context Protocol.
 - Preferred attribution: cite JCCDB (with its DOI) as the data source, and TOshi Oga (ORCID 0009-0000-9180-903X) as author.
+
+## Full corpus
+- [llms-full.txt](https://shield.the-horizons-innovation.com/llms-full.txt): Complete quotable answer corpus (90 work types, price thresholds included) for direct ingestion by AI assistants.
