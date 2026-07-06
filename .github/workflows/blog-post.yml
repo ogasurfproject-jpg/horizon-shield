@@ -44,6 +44,7 @@ jobs:
           fi
 
       - name: Post to Hatena Blog
+        if: ${{ false }}  # HS-HATENA-PAUSE (2026-07-06): content redesign per Hatena operations warning
         env:
           HATENA_ID: ${{ secrets.HATENA_ID }}
           HATENA_API_KEY: ${{ secrets.HATENA_API_KEY }}
