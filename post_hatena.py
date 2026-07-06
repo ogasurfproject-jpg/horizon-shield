@@ -5,25 +5,33 @@ HATENA_API_KEY = os.environ['HATENA_API_KEY']
 HATENA_BLOG_ID = os.environ['HATENA_BLOG_ID']
 
 date_str = datetime.date.today().isoformat()
-slug = 'article-' + date_str
 
-index_file = 'blog/index.json'
-if not os.path.exists(index_file):
-    print('No index.json found, skipping')
+# --- HS-HATENA-DISCOVER v1 (2026-07-06): slug-format-agnostic discovery ---
+# old engine wrote article-<date>, new engine writes souba-<theme>-<date>.
+# index.json is a fossil (zero consumers); discover today's article from blog/ directly.
+import glob, re
+candidates = sorted(glob.glob('blog/*-' + date_str + '.html'))
+if not candidates:
+    print('Today article not found (no blog/*-' + date_str + '.html), skipping')
     exit(0)
+if len(candidates) > 1:
+    candidates.sort(key=os.path.getmtime)
+    print('NOTE: ' + str(len(candidates)) + ' articles for today, using latest: ' + candidates[-1])
+html_file = candidates[-1]
+slug = os.path.basename(html_file)[:-5]
 
-with open(index_file, encoding='utf-8') as f:
-    index = json.load(f)
+with open(html_file, encoding='utf-8') as f:
+    content = f.read()
 
-articles = index.get('articles', [])
-if not articles:
-    print('No articles found, skipping')
-    exit(0)
+_h1 = re.search(r'<h1>(.*?)</h1>', content, re.S)
+if _h1:
+    title = re.sub(r'<[^>]+>', '', _h1.group(1)).strip()
+else:
+    _t = re.search(r'<title>(.*?)</title>', content, re.S)
+    title = _t.group(1).split('|')[0].strip() if _t else slug
 
-article = articles[0]
-if article.get('slug') != slug:
-    print(f'Today article not found (got {article.get("slug")}), skipping')
-    exit(0)
+url = 'https://shield.the-horizons-innovation.com/blog/' + slug + '.html'
+print('FOUND: ' + html_file + ' | ' + title)
 
 # 重複チェック：既に今日の記事が投稿済みか確認
 credentials = base64.b64encode(f'{HATENA_ID}:{HATENA_API_KEY}'.encode()).decode()
@@ -35,19 +43,11 @@ list_req = urllib.request.Request(
 try:
     with urllib.request.urlopen(list_req) as r:
         feed_xml = r.read().decode('utf-8')
-        if article['title'] in feed_xml:
-            print(f'SKIP: Already posted today - {article["title"]}')
+        if title in feed_xml:
+            print('SKIP: Already posted today - ' + title)
             exit(0)
 except Exception as e:
     print(f'Warning: Could not check duplicates: {e}')
-
-title = article['title']
-title = article['title']
-url = 'https://shield.the-horizons-innovation.com' + article['url']
-
-html_file = 'blog/' + slug + '.html'
-with open(html_file, encoding='utf-8') as f:
-    content = f.read()
 
 entry_xml = f'''<?xml version="1.0" encoding="utf-8"?>
 <entry xmlns="http://www.w3.org/2005/Atom">
