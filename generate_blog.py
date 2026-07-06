@@ -215,5 +215,26 @@ used.add(target)
 with open(USED, "w", encoding="utf-8") as f:
     json.dump(sorted(used), f, ensure_ascii=False, indent=2)
 
+# --- HS-INDEX-APPEND v1 (2026-07-06): auto-append new article to blog/index.html ---
+IDX = "blog/index.html"
+try:
+    with open(IDX, encoding="utf-8") as _fi:
+        _idx = _fi.read()
+    if canon in _idx:
+        print("INDEX: already listed, skip (" + slug + ")")
+    elif _idx.count("<ul>") != 1:
+        print("WARN INDEX: expected exactly 1 <ul>, got " + str(_idx.count("<ul>")) + " -- append aborted, article still generated: " + out_path)
+    else:
+        _h1m = re.search(r"<h1>(.*?)</h1>", html, re.S)
+        _h1_txt = _h1m.group(1).strip() if _h1m else target
+        _li = '<li><a href="' + canon + '">' + _h1_txt + '</a><span style="color:#666;font-size:13px"> ' + date_str + '</span></li>'
+        _idx = _idx.replace("<ul>", "<ul>" + _li, 1)
+        with open(IDX, "w", encoding="utf-8") as _fo:
+            _fo.write(_idx)
+        print("INDEX: appended " + slug)
+except Exception as _e:
+    print("WARN INDEX: append failed (" + str(_e) + ") -- article still generated: " + out_path)
+
+
 print("SUCCESS: " + slug + " (cat=" + target + ", souba-db v" + data_ver + ")")
 print("残り未使用カテゴリ: " + str(len(pool) - 1))
