@@ -1,0 +1,59 @@
+{
+  // ============================================================
+  // hs-pdf-gen wrangler.jsonc 【確定版 v1 / 2026-07-06 23:0x】
+  // 根拠: 本番Version 65b0a87e (2026-06-29, 100%配信中) の
+  //       `wrangler versions view` 機械転記。推測値ゼロ。
+  // 配置先: ~/Desktop/horizon-shield/workers/hs-pdf-gen/wrangler.jsonc
+  //
+  // 本番からの意図的な差分は2点のみ:
+  //   1. observability有効化(沈黙ゼロ化の一環 — console.errorが
+  //      Workers Logsに残るようになる。不要なら行ごと削除可)
+  //   2. workers_dev:true の明示(widget/kira-proxy/PayPal IPNが全て
+  //      workers.dev URLを叩くため、URL死守を明文化)
+  // secretsは書かない(deployで消えない): LINE_CHANNEL_TOKEN /
+  //   LINE_USER_ID / NTFY_TOPIC_URL / PAYPAY_API_SECRET / RESEND_API_KEY
+  //
+  // デプロイ前チェック(順守): node --check → dry-run →
+  //   ダッシュボード「ドメインとルート」がworkers.devのみと確認 →
+  //   deploy(TOshi手動のみ)
+  // ============================================================
+
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hs-pdf-gen",
+
+  // アカウント取り違え防止(oga.surf.project@ / HORIZON SHIELD側)
+  "account_id": "c15ff64aba400e541853dec1fbe5e76a",
+
+  "main": "src/worker.js",
+
+  // 本番実測値そのまま
+  "compatibility_date": "2026-03-10",
+  "triggers": { "crons": ["*/30 * * * *"] },
+  "compatibility_flags": ["nodejs_compat"],
+
+  // ダッシュボード設定のplain varsをdeployが消さないための保険
+  "keep_vars": true,
+
+  // 意図的追加1: Workers Logs有効化
+  "observability": { "enabled": true },
+
+  // 意図的追加2: workers.dev URLの明示的死守
+  "workers_dev": true,
+
+  "kv_namespaces": [
+    { "binding": "ORDERS", "id": "700d6bc31fe9460db1ee5dba36ca622c" }
+  ],
+
+  "r2_buckets": [
+    // FONTS_BUCKETはコード未使用の遺産だが本番ミラーとして維持。
+    // 剥がすのは別途の意図的判断(今日はしない)。
+    { "binding": "FONTS_BUCKET", "bucket_name": "hs-fonts" },
+    { "binding": "PDFS_BUCKET", "bucket_name": "hs-pdfs" }
+  ],
+
+  "browser": { "binding": "MYBROWSER" },
+
+  "vars": {
+    "ENVIRONMENT": "production"
+  }
+}

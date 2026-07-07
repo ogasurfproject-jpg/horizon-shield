@@ -17287,7 +17287,8 @@ function generateNegotiationPhrases(d2) {
 __name(generateNegotiationPhrases, "generateNegotiationPhrases");
 function generateHTML(d2, orderInfo) {
   const phrases = generateNegotiationPhrases(d2);
-  const now = fmtDate();
+  const _j = new Date(Date.now() + 9*60*60*1000);
+  const now = _j.getUTCFullYear() + '\u5e74' + String(_j.getUTCMonth()+1).padStart(2,'0') + '\u6708' + String(_j.getUTCDate()).padStart(2,'0') + '\u65e5 ' + String(_j.getUTCHours()).padStart(2,'0') + ':' + String(_j.getUTCMinutes()).padStart(2,'0');
   const regionText = d2.region === "all" ? "\u5168\u56FD\u5E73\u5747" : `${d2.regionLabel}\uFF08${d2.regionMult >= 1 ? "+" : ""}${Math.round((d2.regionMult - 1) * 100)}%\u88DC\u6B63\uFF09`;
   const overchargeRate = d2.item.overcharge_rate ?? 50;
   const trendText = d2.item.trend_val || "\xB10%";
@@ -17838,10 +17839,531 @@ function generateHTML(d2, orderInfo) {
   </div>
 </div>
 
+
+<div style="background:#1a1a2e; border-radius:10px; padding:14px 20px; display:flex; justify-content:space-between; align-items:center;">
+    <div style="font-size:10px; color:rgba(255,255,255,0.4); letter-spacing:1px;">\u76E3\u67FB\u30CF\u30C3\u30B7\u30E5\uFF08\u518D\u73FE\u6027\u8A3C\u660E\uFF09</div>
+    <div style="font-size:13px; font-weight:700; color:#c9a227; font-family:monospace; letter-spacing:2px;">${d2.auditHash || "\u2014"}</div>
+  </div>
 </body>
 </html>`;
 }
 __name(generateHTML, "generateHTML");
+// ==== HS-MEISAI-AUDIT v7 BEGIN (injected additive) ====
+// bench: meisai-layer v0.3 / OTS=repair10 / design=plan-mirror(IPAGothic)
+var HS_MEISAI_BENCH = {"schema_version": "meisai-layer v0.3", "status": "PARTIAL — sealing_uchikae/ashiba/kouatsu_senjo/veranda_frp はsouba-db監修値で確定。他項目はDRAFT継続(SP3)", "created": "2026-07-07", "scope": {"categories": ["gaiheki_tosou", "yane_tosou(塗装のみ)"], "note": "初期対応スコープ=住宅塗装単能見積。複合見積(店舗改装等)はセクション毎に工種名寄せ後、対応工種のみ突合。souba-db本体(61カテゴリ)は不可侵、本ファイルは別棚", "storage_plan": "確定後 KVキー meisai:bench:tosou (HS_DESIGN_KV, put はTOshi手動 --remote)"}, "pricing_basis": "税抜・全国基準(地域係数1.0)・2026上期・30坪2階建て戸建て標準。判定時に souba_db_anchor.region_multipliers を乗じて地域補正(souba-db v2.1.0と同一体系)", "review_protocol": "各itemの review 欄に赤入れ(数値直接上書き可)。空欄=未監修。全review確定後に status を confirmed へ変更しKV登録", "doctrine_anchor": {"source": "HORIZON SHIELD how_to_read_estimate (大賀俊勝 実務監修) 2026-07-07取得", "shokeihi": "諸経費(現場管理費・一般管理費)の目安は総額の10〜16%。20%を超えたら内訳の提出を求める根拠になる", "isshiki": "『一式』表記は内訳が不明なため過剰が紛れやすい。内訳提出を求めるのが対処", "sales": "緊急性を煽る営業(今日契約すれば値引き等)は判断材料を奪う典型"}, "quantity_models": {"note": "全係数DRAFT。判定=記載数量がモデル推定から±30%超乖離で watch(水増し・過小の両方向)", "nobeyuka_m2_per_tsubo": 3.31, "gaiheki_area": {"formula": "延床㎡ × k", "k_range": [1.1, 1.4], "k_default": 1.2, "example_30tsubo": "99㎡ × 1.2 ≈ 119㎡ (レンジ109〜139㎡)", "review": ""}, "ashiba_area": {"formula": "外壁塗装面積 × k または (外周m+8)×軒高m", "k_range": [1.3, 1.8], "example_30tsubo": "≈170〜240㎡", "review": "", "souba_anchor_30tsubo": "架け面積200㎡前後(souba-db監修・2階建て30坪)"}, "sealing_length_m": {"formula": "外壁面積(窯業系サイディング) × k [m/㎡]", "k_range": [1.2, 1.9], "example_30tsubo": "≈150〜250m(目地+サッシ廻り)", "review": ""}, "yane_area": {"formula": "1階床面積 × k (勾配・軒の出)", "k_range": [1.1, 1.5], "example_30tsubo_sounikai": "≈55〜75㎡", "review": ""}, "futai_defaults_30tsubo": {"note": "整合検算・数量欠落補完用のモデル定数(lean/mid/hot)。SP2監修対象", "nokiten_m2": [15, 18, 25], "amadoi_m": [45, 55, 70], "hafu_m": [35, 40, 50], "mizukiri_m": [35, 40, 50], "amado_mai": [2, 4, 6], "keren_isshiki_yen": [15000, 25000, 40000], "haizai_isshiki_yen": [10000, 20000, 40000], "review": ""}}, "composition_gaiheki_only_pct": {"note": "手置き値を廃止し、bottom-up再構成(lean/mid/hot)からのモデル導出に置換。総額比%。シーリング有無で2表 ※v0.3でbench3項目が監修値に更新 — 構成比の再導出はSP3完了後にまとめて実施", "derived_siding_full_uchikae": {"kasetsu": [14.5, 16.4], "senjo": [1.6, 2.2], "yojo": [3.6, 4.0], "shitaji": [2.1, 2.3], "sealing": [17.3, 18.0], "tosou_kabe": [26.2, 35.2], "futai": [13.4, 13.8], "haizai": [1.5, 2.1], "shokeihi": [10.0, 16.0]}, "derived_no_sealing_mortar": {"kasetsu": [18.0, 20.8], "senjo": [2.0, 2.8], "yojo": [4.6, 4.9], "shitaji": [2.7, 2.8], "sealing": [0.0, 0.0], "tosou_kabe": [33.3, 43.5], "futai": [17.0, 17.2], "haizai": [1.8, 2.7], "shokeihi": [10.0, 16.0]}, "shokeihi_doctrine_override": [10, 16], "review": ""}, "rules": {"R1_tanka_gap": {"logic": "記載単価 vs bench: max超過+0〜20%=watch / max+20%超 または danger超=alert / min比-30%下回り=watch(手抜き・後出し増額の兆候)", "review": ""}, "R2_composition": {"logic": "セクション構成比が composition レンジ外=watch / レンジ幅の1.5倍を超えて逸脱=alert", "review": ""}, "R3_isshiki": {"logic": "doctrine接地。unit=式 かつ amount>=50,000 → 『内訳提出要求リスト』へ(watch) / 中核工程(足場・塗装工程・シーリング)が式=alert(数量根拠なし) / 一式合計÷小計 > 35% = watch", "calibration": "正例Q-0000000086は一式25件・小計比32.1%でwatch線の内側", "review": ""}, "R4_shokeihi": {"logic": "doctrine接地。諸経費比率 <=16% = ok / 16〜20% = watch / >20% = alert(内訳提出を求める根拠)", "calibration": "正例Q-0000000086 = 15.37% (ok)", "review": ""}, "R5_quantity": {"logic": "quantity_models 推定から±30%超乖離 = watch。外壁面積・足場面積・シーリングm・屋根面積が対象", "review": ""}, "R6_lexicon": {"logic": "既存 red_flag_check へ接続。検知語彙(候補): 足場代無料 / 足場サービス / 今日契約 / 本日限り / モニター価格 / キャンペーン値引き / 訪問販売。※足場無料は他項目転嫁の常套句", "review": ""}, "R7_escalation": {"logic": "市況転嫁の主張(例: 資材30%上昇適用済み)がある行は bench+15% まで暫定許容。ただし根拠(仕入価格の変動説明)の確認事項として必ず出力。15%はDRAFT", "review": ""}}, "families": [{"family": "kasetsu", "label": "仮設", "fallback_terms": ["仮設工事", "足場工事一式"]}, {"family": "senjo", "label": "洗浄", "fallback_terms": ["洗浄工事"]}, {"family": "yojo", "label": "養生", "fallback_terms": []}, {"family": "shitaji", "label": "下地補修", "fallback_terms": ["下地補修工事", "補修工事"]}, {"family": "sealing", "label": "シーリング", "fallback_terms": ["シーリング", "コーキング", "シーリング工事"]}, {"family": "tosou_kabe", "label": "外壁塗装工程", "fallback_terms": ["中塗り", "上塗り", "仕上塗装", "外壁塗装工事", "塗装工事"]}, {"family": "futai", "label": "付帯部", "fallback_terms": ["付帯部塗装", "付帯塗装"]}, {"family": "bousui", "label": "防水", "fallback_terms": ["防水工事", "ベランダ防水"]}, {"family": "yane", "label": "屋根塗装", "fallback_terms": ["屋根塗装", "屋根中塗り", "屋根上塗り"]}, {"family": "keihi", "label": "経費", "fallback_terms": []}, {"family": "sonota", "label": "その他", "fallback_terms": []}, {"match_note": "名寄せは items[].aliases の最長一致・特異語優先。bareな一般語(コーキング等)は family fallback ヒットとし、グレード・工法不明のまま単価判定せず『要確認』出力に回す"}], "items": [{"code": "ashiba", "family": "kasetsu", "canonical": "仮設足場(くさび緊結式)", "aliases": ["仮設足場", "くさび緊結式足場", "くさび式足場", "ビケ足場", "単管足場", "単管ブラケット足場", "足場架払", "足場設置", "足場仮設", "架設足場", "外部足場"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 700, "avg": 900, "max": 1200, "danger": 1800}, "qty_hint_30tsubo": "170〜240㎡(架面積)", "note": "souba-db監修値。メッシュシート養生込み(架け面積ベース)。『足場代無料』はR6直行", "review": "souba-db監修値に置換(2026-07-07)", "source": "souba-db確定(足場設置㎡単価+30坪一式15〜25万・架け面積200㎡前後)"}, {"code": "mesh_sheet", "family": "kasetsu", "canonical": "飛散防止ネット", "aliases": ["飛散防止ネット", "メッシュシート", "飛散防止メッシュ", "養生ネット", "防炎シート"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 100, "avg": 150, "max": 250, "danger": 400}, "qty_hint_30tsubo": "足場架面積と同等", "note": "souba-db監修では足場単価に込み。単独計上行が足場と併記される場合は重複計上の疑い(要確認)", "review": ""}, {"code": "kouatsu_senjo", "family": "senjo", "canonical": "高圧洗浄", "aliases": ["高圧洗浄", "高圧水洗浄", "水洗い", "洗浄費"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 100, "avg": 180, "max": 250, "danger": 400}, "qty_hint_30tsubo": "外壁+屋根面積", "note": "", "review": "souba-db監修値に置換(2026-07-07)", "source": "souba-db確定(高圧洗浄㎡単価。単独発注は割高)"}, {"code": "bio_senjo", "family": "senjo", "canonical": "バイオ高圧洗浄", "aliases": ["バイオ高圧洗浄", "バイオ洗浄", "薬品洗浄", "カビ除去洗浄"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 200, "avg": 300, "max": 450, "danger": 700}, "qty_hint_30tsubo": "外壁面積", "note": "通常洗浄との差額根拠(カビ・藻の実在)を確認事項に", "review": ""}, {"code": "yojo", "family": "yojo", "canonical": "養生(マスキング・ビニール)", "aliases": ["養生", "養生費", "マスキング養生", "ビニール養生", "窓養生", "開口部養生", "簡易養生費"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 250, "avg": 350, "max": 500, "danger": 800}, "qty_hint_30tsubo": "一式計上なら30,000〜50,000円相当", "note": "式計上が多い項目。式ならR3経由で金額妥当性のみ判定", "review": ""}, {"code": "keren_shitaji", "family": "shitaji", "canonical": "ケレン・下地調整", "aliases": ["ケレン", "ケレン作業", "下地調整", "下地処理", "目荒らし", "錆落とし"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 200, "avg": 400, "max": 600, "danger": 1000}, "qty_hint_30tsubo": "劣化部のみ〜全面", "note": "劣化状況依存で最も幅が出る。大額一式はalert対象", "review": ""}, {"code": "crack_hoshu", "family": "shitaji", "canonical": "クラック補修(Vカットシール)", "aliases": ["クラック補修", "ひび割れ補修", "Vカット補修", "Uカットシール", "爆裂補修"], "unit": "m", "unit_norm": "m", "bench": {"min": 1500, "avg": 2200, "max": 3000, "danger": 4500}, "qty_hint_30tsubo": "実在クラック延長のみ", "note": "ヘアクラック刷り込みは500〜1,000円/m(別水準)。爆裂は箇所単価になりがち→要確認出力", "review": ""}, {"code": "sealing_uchikae", "family": "sealing", "canonical": "シーリング打替え", "aliases": ["シーリング打替え", "シーリング打ち替え", "コーキング打替え", "コーキング打ち替え", "シール打替", "目地打替え", "打ち替え"], "unit": "m", "unit_norm": "m", "bench": {"min": 800, "avg": 1200, "max": 1500, "danger": 2250}, "qty_hint_30tsubo": "150〜250m(窯業系)", "note": "高耐候材(オートンイクシード等)指定は+200〜400円/m許容", "review": "souba-db監修値に置換(2026-07-07)", "source": "souba-db確定(コーキング打ち替え m単価: 既存撤去+プライマー+新規打設込み)"}, {"code": "sealing_mashiuchi", "family": "sealing", "canonical": "シーリング増し打ち", "aliases": ["シーリング増し打ち", "コーキング増し打ち", "増し打ち", "打ち増し"], "unit": "m", "unit_norm": "m", "bench": {"min": 500, "avg": 700, "max": 900, "danger": 1400}, "qty_hint_30tsubo": "サッシ廻り中心", "note": "窯業系サイディングの目地を増し打ちで済ます提案はwatch(打替えが原則)。サッシ廻りは増し打ちが標準", "review": ""}, {"code": "shitanuri", "family": "tosou_kabe", "canonical": "下塗り(シーラー/フィラー)", "aliases": ["下塗り", "下塗", "シーラー", "プライマー塗布", "フィラー", "微弾性フィラー", "サーフェーサー", "下塗材塗布"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 600, "avg": 750, "max": 1000, "danger": 1500}, "qty_hint_30tsubo": "外壁面積", "note": "微弾性フィラーは800〜1,200円/㎡水準", "review": ""}, {"code": "uwanuri_urethane", "family": "tosou_kabe", "canonical": "ウレタン 中塗り+上塗り(2回計)", "aliases": ["ウレタン塗装", "ウレタン中塗り", "ウレタン上塗り", "ウレタン樹脂塗料"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 1400, "avg": 1700, "max": 2100, "danger": 3000}, "qty_hint_30tsubo": "外壁面積", "note": "2回計。1回単価表記は×2で正規化して照合", "review": ""}, {"code": "uwanuri_silicon", "family": "tosou_kabe", "canonical": "シリコン 中塗り+上塗り(2回計)", "aliases": ["シリコン塗装", "シリコン中塗り", "シリコン上塗り", "シリコン樹脂塗料"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 1600, "avg": 2000, "max": 2600, "danger": 3600}, "qty_hint_30tsubo": "外壁面積", "note": "souba-db『シリコン㎡単価2,300-3,500(足場・洗浄・下塗込み)』との分母整合=監修ポイントSP1", "review": ""}, {"code": "uwanuri_radical", "family": "tosou_kabe", "canonical": "ラジカル 中塗り+上塗り(2回計)", "aliases": ["ラジカル塗装", "ラジカル制御型塗料", "ラジカル中塗り", "ラジカル上塗り"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 1900, "avg": 2300, "max": 2900, "danger": 4000}, "qty_hint_30tsubo": "外壁面積", "note": "", "review": ""}, {"code": "uwanuri_fusso", "family": "tosou_kabe", "canonical": "フッ素 中塗り+上塗り(2回計)", "aliases": ["フッ素塗装", "フッ素中塗り", "フッ素上塗り", "4Fフッ素"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 2600, "avg": 3100, "max": 3800, "danger": 5200}, "qty_hint_30tsubo": "外壁面積", "note": "", "review": ""}, {"code": "uwanuri_muki", "family": "tosou_kabe", "canonical": "無機 中塗り+上塗り(2回計)", "aliases": ["無機塗装", "無機ハイブリッド", "無機中塗り", "無機上塗り"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 3200, "avg": 3900, "max": 4800, "danger": 6500}, "qty_hint_30tsubo": "外壁面積", "note": "", "review": ""}, {"code": "nokiten", "family": "futai", "canonical": "軒天塗装", "aliases": ["軒天塗装", "軒天井塗装", "軒裏塗装", "軒天"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 800, "avg": 1100, "max": 1500, "danger": 2200}, "qty_hint_30tsubo": "10〜25㎡", "note": "NAD/EP系", "review": ""}, {"code": "amadoi", "family": "futai", "canonical": "雨樋塗装", "aliases": ["雨樋塗装", "樋塗装", "竪樋塗装", "軒樋塗装"], "unit": "m", "unit_norm": "m", "bench": {"min": 800, "avg": 1000, "max": 1200, "danger": 1800}, "qty_hint_30tsubo": "40〜70m", "note": "", "review": ""}, {"code": "hafu", "family": "futai", "canonical": "破風・鼻隠し塗装", "aliases": ["破風塗装", "破風板塗装", "鼻隠し塗装", "破風・鼻隠し"], "unit": "m", "unit_norm": "m", "bench": {"min": 800, "avg": 1000, "max": 1300, "danger": 2000}, "qty_hint_30tsubo": "30〜50m", "note": "", "review": ""}, {"code": "amado", "family": "futai", "canonical": "雨戸・戸袋塗装", "aliases": ["雨戸塗装", "戸袋塗装", "雨戸吹付け", "雨戸・戸袋"], "unit": "枚", "unit_norm": "mai", "bench": {"min": 2000, "avg": 3000, "max": 5000, "danger": 8000}, "qty_hint_30tsubo": "実在枚数", "note": "吹付け標準", "review": ""}, {"code": "mizukiri", "family": "futai", "canonical": "水切り塗装", "aliases": ["水切り塗装", "土台水切り塗装", "水切板金塗装", "水切り"], "unit": "m", "unit_norm": "m", "bench": {"min": 400, "avg": 600, "max": 800, "danger": 1300}, "qty_hint_30tsubo": "30〜50m", "note": "", "review": ""}, {"code": "shutter_box", "family": "futai", "canonical": "シャッターボックス・庇塗装", "aliases": ["シャッターボックス塗装", "シャッターBOX", "シャッターボックス", "庇塗装", "霧除け塗装"], "unit": "箇所", "unit_norm": "kasho", "bench": {"min": 2000, "avg": 3500, "max": 5000, "danger": 8000}, "qty_hint_30tsubo": "実在箇所数", "note": "", "review": ""}, {"code": "veranda_topcoat", "family": "bousui", "canonical": "ベランダ防水トップコート", "aliases": ["トップコート", "FRPトップコート", "ベランダ防水トップ", "防水トップコート塗布", "トップコート塗替え"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 2000, "avg": 2800, "max": 3500, "danger": 5000}, "qty_hint_30tsubo": "8〜15㎡", "note": "下地処理込み前提", "review": ""}, {"code": "veranda_urethane", "family": "bousui", "canonical": "ウレタン防水(通気緩衝工法)", "aliases": ["ウレタン防水", "通気緩衝工法", "ウレタン塗膜防水"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 5500, "avg": 6500, "max": 8000, "danger": 11000}, "qty_hint_30tsubo": "8〜15㎡", "note": "密着工法は4,500〜6,000円/㎡水準(別レンジ)→摘要に密着とあれば読み替え", "review": ""}, {"code": "yane_taspacer", "family": "yane", "canonical": "タスペーサー(縁切り)", "aliases": ["タスペーサー", "縁切り", "縁切り部材", "タスペーサー設置"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 200, "avg": 350, "max": 500, "danger": 800}, "qty_hint_30tsubo": "屋根面積(スレート)", "note": "個数単価表記(30〜60円/個+施工)もあり→㎡換算して照合。スレート塗装で不在ならそれ自体が要確認(雨漏りリスク)", "review": ""}, {"code": "yane_shitanuri", "family": "yane", "canonical": "屋根下塗り(シーラー)", "aliases": ["屋根下塗り", "屋根シーラー", "屋根プライマー", "遮熱シーラー"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 600, "avg": 800, "max": 1100, "danger": 1700}, "qty_hint_30tsubo": "屋根面積", "note": "劣化強い場合2回下塗りあり(×2許容、摘要に明記要求)", "review": ""}, {"code": "yane_uwanuri_silicon", "family": "yane", "canonical": "屋根シリコン 中塗り+上塗り(2回計)", "aliases": ["屋根シリコン塗装", "屋根用シリコン", "屋根シリコン中塗り", "屋根シリコン上塗り"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 1800, "avg": 2200, "max": 2800, "danger": 3900}, "qty_hint_30tsubo": "屋根面積", "note": "", "review": ""}, {"code": "yane_uwanuri_shanetsu", "family": "yane", "canonical": "屋根遮熱塗料 中塗り+上塗り(2回計)", "aliases": ["遮熱塗装", "遮熱塗料", "サーモアイ", "ガイナ", "遮熱シリコン"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 2200, "avg": 2700, "max": 3400, "danger": 4700}, "qty_hint_30tsubo": "屋根面積", "note": "商品名(サーモアイ等)での名寄せ含む", "review": ""}, {"code": "mune_bankin_hoshu", "family": "yane", "canonical": "棟板金 釘締め・コーキング補修", "aliases": ["棟板金補修", "釘浮き補修", "棟押え釘締め", "棟板金釘打ち", "貫板補修"], "unit": "式", "unit_norm": "shiki", "bench": {"min": 10000, "avg": 20000, "max": 30000, "danger": 50000}, "qty_hint_30tsubo": "一式妥当域", "note": "式が標準の例外項目(R3の式alertから除外)", "review": ""}, {"code": "mune_bankin_koukan", "family": "yane", "canonical": "棟板金交換(貫板込み)", "aliases": ["棟板金交換", "棟板金取替", "貫板交換", "棟交換"], "unit": "m", "unit_norm": "m", "bench": {"min": 4000, "avg": 5000, "max": 6500, "danger": 9500}, "qty_hint_30tsubo": "実測延長", "note": "樹脂貫板指定は+500〜1,000円/m許容", "review": ""}, {"code": "haizai", "family": "keihi", "canonical": "廃材処分費", "aliases": ["廃材処分費", "産廃処分費", "産業廃棄物処理費", "残材処分", "廃棄物処分"], "unit": "式", "unit_norm": "shiki", "bench": {"min": 10000, "avg": 20000, "max": 40000, "danger": 70000}, "qty_hint_30tsubo": "塗装単能なら少量", "note": "式が標準の例外項目", "review": ""}, {"code": "shokeihi", "family": "keihi", "canonical": "諸経費(現場管理費・一般管理費)", "aliases": ["諸経費", "現場管理費", "一般管理費", "一般管理負担額", "運搬費", "交通費", "現場経費", "雑費"], "unit": "式", "unit_norm": "shiki", "bench": null, "qty_hint_30tsubo": null, "note": "単価ベンチなし。R4(比率10-16%/20%超alert)で判定。同familyの複数行は合算して比率算出", "review": ""}, {"code": "veranda_frp", "family": "bousui", "canonical": "FRP防水 新装(2層+トップ)", "aliases": ["FRP防水", "FRP防水一式", "FRP2層", "FRP防水工事"], "unit": "㎡", "unit_norm": "m2", "bench": {"min": 6000, "avg": 9000, "max": 12000, "danger": 18000}, "qty_hint_30tsubo": "8〜15㎡", "note": "souba-db『ベランダ防水10㎡(FRP)一式6〜12万』の㎡換算。下地処理+プライマー+FRP2層+トップコート込み", "source": "souba-db確定", "review": "souba-db由来で追加(2026-07-07)"}], "supervision_points": [{"id": "SP1", "status": "データで完全解決(第2次実測でシーリング包含も確定)", "title": "souba-db㎡単価の分母 → 導出完了", "resolution": "分母=換算面積(坪×10.0〜11.4㎡)。一式÷㎡単価で導出。㎡単価の明細直接照合を禁止するengine_ruleをanchor節に刻印。旧SP1の『4,150>3,500矛盾』は分母を外壁実面積と誤仮定した作業者(Claude)のでっち上げで、正しい照合ではbottom-up midはsouba-dbレンジ内", "remaining_confirmation_1点": "解決済み(2026-07-07 第2次実測): calibration.interpretation_CONFIRMED参照", "review": ""}, {"id": "SP2", "title": "数量モデル係数の現場感補正", "detail": "外壁k=1.1〜1.4、足場k=1.3〜1.8、シーリング1.2〜1.9m/㎡、屋根k=1.1〜1.5 — 30年の実測感覚での補正が要る", "review": ""}, {"id": "SP3", "title": "bench全数値とdanger線・安すぎ閾値", "detail": "31項目の min/avg/max/danger は市場一般水準からのDRAFT。特に足場max1,000・シーリング打替max1,300・R1の安すぎ判定(-30%)の妥当性 ※2026-07-07: sealing_uchikae/ashiba/kouatsu_senjo/veranda_frp はsouba-db監修値で確定済み。残draft=養生/ケレン/クラック/増し打ち/下塗り/グレード別中上塗り/付帯5種/トップコート/ウレタン防水/屋根系5種/廃材", "review": ""}], "souba_db_anchor": {"source": "HORIZON SHIELD souba-db v2.1.0 (updated 2026-06-15, 大賀俊勝 実務監修) — get_price_range / fair_price_data_sources 2026-07-07取得", "data_sources": ["ヌリカエ 2025年12月施工データ2,655件", "リショップナビ 2026年2〜3月集計", "テイガク 2026年屋根リフォーム単価表", "リフォームガイド 2026年最新版", "タカラスタンダード リフォーム実例集", "SHUKEN Re 2026年時点実績", "シロアリ駆除業者人気ランキング 2026年4月205社調査", "経済調査会『積算資料ポケット版 リフォーム編 2026』"], "region_multipliers": {"all": 1, "kanto": 1.1, "kinki": 1.06, "chubu": 1, "tohoku": 0.95, "other": 0.93}, "gaiheki_isshiki_silicon": {"20tsubo": [500000, 650000, 800000], "30tsubo": [700000, 900000, 1150000], "40tsubo": [950000, 1200000, 1400000], "note": "足場・養生・3回塗り・付帯塗装込み"}, "yane_isshiki_silicon_30tsubo": {"range": [250000, 500000, 600000], "note": "高圧洗浄・縁切り・3回塗り・足場込み(単体施工アンカー)"}, "set_gaiheki_yane_30tsubo": {"range": [900000, 1100000, 1300000], "yane_marginal_avg": 200000, "recon_mid_marginal": 263373, "gap_vs_marginal_pct": 31.7, "note": "セット時の屋根judgeはセット差分(限界費用)アンカー、単体施工なら単体アンカーを使う。屋根benchはmid再構成が限界費用比+31.7%と熱い→SP3で屋根κ監修(セット差分アンカー自体もmin差200K/max差150Kと幅が狭く逆転しており参考値)"}, "tanka_silicon_per_m2": {"range": [2300, 3000, 3500], "denominator_DERIVED": "換算面積 ≈ 坪数×10.0〜11.4㎡ (一式÷㎡単価から導出: 20坪→217〜229㎡ / 30坪→300〜329㎡ / 40坪→400〜413㎡)。外壁実面積(延床×1.2)の約2.5倍", "engine_rule": "この㎡単価を見積書の実測数量行と直接照合してはならない(分母が実面積でない)。総額判定は一式アンカー、明細判定は層2bench(κ補正後)を使う"}, "calibration": {"method": "bottom-up再構成(bench×数量モデル, 30坪mid) を souba-db 30坪一式avg 900,000 に照合", "recon_mid_with_sealing": 1101637, "recon_mid_without_sealing": 865371, "gap_vs_avg_with_sealing_pct": 22.4, "gap_vs_avg_without_sealing_pct": -3.8, "kappa_gaiheki": 1.04, "policy": "effective_bench = draft_bench × κ。エンジンは常時 bottom-upΣ を souba-db一式レンジ内チェック(逸脱=設定破損とみなし判定停止)。正はsouba-db(実務監修済)", "interpretation_CONFIRMED": "シーリング打替は外壁一式に含まれない(別途)。証拠3本: ①souba-db自身がコーキング打替を独立商品として保持 ②一式note包含列挙(足場・養生・3回塗り・付帯)にシーリング非記載 ③bottom-up照合の一致度(別途-2.4%系 vs 込み+22.4%)。2026-07-07データ確定"}}};
+// ============================================================
+// HS-MEISAI-ENGINE v2 — 見積書明細診断エンジン (Workers互換・依存ゼロ)
+// v2: ワンポイントアドバイス(大賀原則・rule連動・決定論) + 交渉用文面の自動生成
+// v1: 本家plan版(逆見積もり診断)デザイン完全ミラー / IPAGothic / OTS表示 /
+//     諸経費行の判定同期 / R5重複抑制 / 客向けコピー整理
+// ============================================================
+
+function hsMzNorm(s) {
+  if (!s) return "";
+  var t = String(s);
+  t = t.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); });
+  t = t.replace(/[\s\u3000]+/g, "");
+  return t;
+}
+
+var HS_MZ_UNIT_MAP = { "平米": "㎡", "m2": "㎡", "M2": "㎡", "㎡": "㎡", "m": "m", "ｍ": "m", "メートル": "m", "枚": "枚", "本": "本", "個": "個", "箇所": "箇所", "式": "式", "缶": "缶", "袋": "袋", "巻": "巻", "箱": "箱", "台": "台", "人工": "人工", "回": "回", "立米": "m3", "各種": "各種" };
+
+function hsMzUnit(u) { return HS_MZ_UNIT_MAP[hsMzNorm(u)] || hsMzNorm(u); }
+
+function hsMzBuildMatcher(bench) {
+  var entries = [];
+  bench.items.forEach(function (it) {
+    it.aliases.forEach(function (a) { entries.push({ key: hsMzNorm(a), code: it.code, item: it }); });
+  });
+  entries.sort(function (a, b) { return b.key.length - a.key.length; });
+  var fams = [];
+  bench.families.forEach(function (f) {
+    if (f.family) f.fallback_terms.forEach(function (t) { fams.push({ key: hsMzNorm(t), family: f.family }); });
+  });
+  fams.sort(function (a, b) { return b.key.length - a.key.length; });
+  return function (desc) {
+    var d = hsMzNorm(desc);
+    for (var i = 0; i < entries.length; i++) if (d.indexOf(entries[i].key) >= 0) return { kind: "item", code: entries[i].code, item: entries[i].item };
+    for (var j = 0; j < fams.length; j++) if (d.indexOf(fams[j].key) >= 0) return { kind: "family", family: fams[j].family };
+    return { kind: "none" };
+  };
+}
+
+function hsMzGates(ex) {
+  var g = { errors: [], warns: [], pass: false };
+  var items = ex.rows.filter(function (r) { return r.type === "item"; });
+  items.forEach(function (r) {
+    var calc = r.qty * r.unit_price;
+    if (Math.abs(calc - r.amount) > 0.5) g.errors.push("G1 行検算NG No." + r.no + ": " + r.qty + "×" + r.unit_price + "≠" + r.amount);
+  });
+  var sum = items.reduce(function (s, r) { return s + r.amount; }, 0);
+  if (Math.round(sum) !== ex.doc.subtotal_ex_tax) g.errors.push("G2 Σ明細 " + Math.round(sum) + " ≠ 小計 " + ex.doc.subtotal_ex_tax);
+  var tax = Math.round(ex.doc.subtotal_ex_tax * ex.doc.tax_rate_pct / 100);
+  if (tax !== ex.doc.tax) g.errors.push("G3 税額NG");
+  if (ex.doc.subtotal_ex_tax + ex.doc.tax !== ex.doc.total_inc_tax) g.errors.push("G3 総額NG");
+  var pt = ex.doc.payment_terms || [];
+  if (pt.length) {
+    var sa = pt.reduce(function (s, p) { return s + p.amount; }, 0);
+    var sp = pt.reduce(function (s, p) { return s + p.pct; }, 0);
+    if (sa !== ex.doc.total_inc_tax) g.errors.push("G4 支払条件Σ " + sa + " ≠ 総額");
+    if (Math.abs(sp - 100) > 0.01) g.errors.push("G4 支払比率Σ " + sp + "%");
+    var front = pt.filter(function (p) { return /契約時|着手時|着工時/.test(p.timing); }).reduce(function (s, p) { return s + p.pct; }, 0);
+    g.front_load_pct = front;
+    if (front >= 50) g.warns.push("着工前受領比率 " + front + "%(高め・出来高払いの交渉余地)");
+    pt.forEach(function (p) { if (p.amount_printed) g.warns.push("原本印字と推定不一致: " + p.timing + " 印字" + p.amount_printed); });
+  }
+  g.sum_items = Math.round(sum);
+  g.pass = g.errors.length === 0;
+  return g;
+}
+
+function hsMeisaiAudit(ex, bench, opts) {
+  opts = opts || {};
+  var region = opts.region || "all";
+  var mult = (bench.souba_db_anchor.region_multipliers[region] || 1);
+  var kappa = bench.souba_db_anchor.calibration.kappa_gaiheki || 1;
+  var eff = kappa * mult;
+  var match = hsMzBuildMatcher(bench);
+  var gates = hsMzGates(ex);
+  var findings = [];
+  var rowsOut = [];
+  var isshikiTotal = 0, keihiTotal = 0, overCand = 0;
+  var keihiRowIdx = [];
+  var isshikiOkCodes = { mune_bankin_hoshu: 1, haizai: 1, shokeihi: 1 };
+  var coreCodes = { ashiba: 1, sealing_uchikae: 1, sealing_mashiuchi: 1, uwanuri_silicon: 1, uwanuri_radical: 1, uwanuri_fusso: 1, uwanuri_muki: 1, uwanuri_urethane: 1, shitanuri: 1 };
+  var lex = /(足場代?(無料|サービス))|今日(だけ|契約)|本日限り|モニター価格|キャンペーン(値引き|価格)|訪問販売/;
+  var esc = /(価格上昇|高騰|資材.*(上昇|値上)|戦争影響)/;
+  var curSection = null;
+  var subtotal = ex.doc.subtotal_ex_tax;
+
+  var qm = null;
+  if (opts.category === "gaiheki_tosou" && opts.tsubo) {
+    var nobe = opts.tsubo * bench.quantity_models.nobeyuka_m2_per_tsubo;
+    var wallMid = nobe * 1.2;
+    qm = { wall: wallMid, scaf: wallMid * 1.55, seal: wallMid * 1.55 };
+  }
+
+  ex.rows.forEach(function (r) {
+    if (r.type === "section") {
+      curSection = r;
+      if (esc.test(r.description)) findings.push({ level: "confirm", rule: "R7", no: r.no, msg: "市況転嫁の主張あり(『" + r.description + "』)。根拠の説明を確認事項に" });
+      if (lex.test(r.description)) findings.push({ level: "alert", rule: "R6", no: r.no, msg: "警戒語彙: " + r.description });
+      return;
+    }
+    var m = match(r.description);
+    var verdict = "ok", reason = "";
+    var unit = hsMzUnit(r.unit);
+    if (lex.test(r.description)) { findings.push({ level: "alert", rule: "R6", no: r.no, msg: "警戒語彙: " + r.description }); }
+    if (esc.test(r.description)) { findings.push({ level: "confirm", rule: "R7", no: r.no, msg: "No." + r.no + " 市況転嫁の主張。根拠確認を" }); }
+
+    if (unit === "式") {
+      isshikiTotal += r.amount;
+      var codeOk = (m.kind === "item" && isshikiOkCodes[m.code]);
+      var isKeihi = (m.kind === "item" && m.code === "shokeihi") || (curSection && /諸経費/.test(curSection.description));
+      if (isKeihi) { keihiTotal += r.amount; keihiRowIdx.push(rowsOut.length); }
+      if (!codeOk && !isKeihi && r.amount >= 50000) { verdict = "watch"; reason = "一式" + Math.round(r.amount / 10000) + "万円 — 内訳の提出を求める"; }
+      if (m.kind === "item" && coreCodes[m.code]) { verdict = "alert"; reason = "中核工程が一式(数量根拠なし)"; }
+    } else if (m.kind === "item" && m.item.bench && hsMzUnit(m.item.unit) === unit && r.qty > 0 && opts.category === "gaiheki_tosou") {
+      var price = r.unit_price;
+      var d = hsMzNorm(r.description);
+      var isTwoCoat = /中塗り\+上塗り|2回計/.test(m.item.canonical);
+      var single = isTwoCoat && ((d.indexOf("中塗") >= 0) !== (d.indexOf("上塗") >= 0));
+      if (single) price = price * 2;
+      var b = m.item.bench;
+      var eMax = b.max * eff, eMin = b.min * eff, eDanger = b.danger * eff;
+      if (price > eDanger) { verdict = "alert"; reason = "危険水準超(" + Math.round(price) + " > " + Math.round(eDanger) + ")"; }
+      else if (price > eMax * 1.2) { verdict = "alert"; reason = "適正上限+20%超(上限" + Math.round(eMax) + ")"; }
+      else if (price > eMax) { verdict = "watch"; reason = "適正上限超(上限" + Math.round(eMax) + ", +" + Math.round(100 * (price - eMax) / eMax) + "%)"; }
+      else if (price < eMin * 0.7) { verdict = "watch"; reason = "安すぎ(下限" + Math.round(eMin) + "比-30%超。手抜き・後出し増額の兆候)"; }
+      if (price > eMax) {
+        var capUnit = single ? eMax / 2 : eMax;
+        overCand += Math.max(0, r.amount - r.qty * capUnit);
+      }
+      if (qm && m.code !== "mesh_sheet") {
+        var ref = null;
+        if (m.code === "ashiba") ref = qm.scaf;
+        else if (m.code === "sealing_uchikae" || m.code === "sealing_mashiuchi") ref = qm.seal;
+        else if (["kouatsu_senjo", "yojo", "shitanuri", "uwanuri_silicon", "uwanuri_radical", "uwanuri_fusso", "uwanuri_muki", "uwanuri_urethane"].indexOf(m.code) >= 0) ref = qm.wall;
+        if (ref && Math.abs(r.qty - ref) / ref > 0.30) {
+          findings.push({ level: "watch", rule: "R5", no: r.no, msg: "No." + r.no + " 数量" + r.qty + unit + " がモデル推定" + Math.round(ref) + "から±30%超乖離(水増し/過小の両面確認)" });
+        }
+      }
+    } else {
+      if (verdict === "ok") {
+        if (m.kind === "item" && opts.category !== "gaiheki_tosou") { verdict = "confirm"; reason = "名寄せ一致(" + m.code + ")だがスコープ外カテゴリ — 単価判定保留"; }
+        else if (m.kind === "family") { verdict = "confirm"; reason = "分類のみ一致(" + m.family + ")・グレード/工法不明 — 要確認"; }
+        else if (m.kind === "item") { verdict = "confirm"; reason = "単位不整合または数量なし — 要確認"; }
+        else { verdict = "confirm"; reason = "名寄せ未マッチ — 要確認(スコープ外項目)"; }
+      }
+    }
+    rowsOut.push({ no: r.no, description: r.description, qty: r.qty, unit: r.unit, unit_price: r.unit_price, amount: r.amount, matched: m.kind === "item" ? m.code : (m.kind === "family" ? "family:" + m.family : null), verdict: verdict, reason: reason });
+    if (verdict === "watch" || verdict === "alert") findings.push({ level: verdict, rule: unit === "式" ? "R3" : "R1", no: r.no, msg: "No." + r.no + " " + r.description.slice(0, 24) + " — " + reason });
+  });
+
+  var isshikiPct = 100 * isshikiTotal / subtotal;
+  if (isshikiPct > 35) findings.push({ level: "watch", rule: "R3", msg: "一式合計が小計の" + isshikiPct.toFixed(1) + "%(>35%)" });
+  var keihiPct = 100 * keihiTotal / subtotal;
+  var keihiLevel = keihiPct <= 16 ? "ok" : (keihiPct <= 20 ? "watch" : "alert");
+  if (keihiLevel !== "ok") {
+    findings.push({ level: keihiLevel, rule: "R4", msg: "諸経費率 " + keihiPct.toFixed(1) + "%(目安10〜16%・20%超は内訳提出を求める水準)" });
+    keihiRowIdx.forEach(function (i) {
+      rowsOut[i].verdict = keihiLevel;
+      rowsOut[i].reason = "諸経費率 " + keihiPct.toFixed(1) + "%(目安10〜16%)";
+    });
+  }
+
+  var totalAnchor = null;
+  if (opts.category === "gaiheki_tosou" && opts.tsubo && bench.souba_db_anchor.gaiheki_isshiki_silicon[opts.tsubo + "tsubo"]) {
+    var a = bench.souba_db_anchor.gaiheki_isshiki_silicon[opts.tsubo + "tsubo"];
+    var lo = a[0] * mult, av = a[1] * mult, hi = a[2] * mult;
+    var v = subtotal <= hi ? (subtotal < lo ? "watch" : "ok") : (subtotal > hi * 1.2 ? "alert" : "watch");
+    totalAnchor = { range: [Math.round(lo), Math.round(av), Math.round(hi)], verdict: v, vs_avg_pct: Math.round(1000 * (subtotal - av) / av) / 10 };
+    if (v !== "ok") findings.push({ level: v, rule: "TOTAL", msg: "総額(税抜)" + subtotal.toLocaleString() + "円 vs 適正 " + Math.round(lo).toLocaleString() + "〜" + Math.round(hi).toLocaleString() + "円(" + region + "補正) 平均比" + (totalAnchor.vs_avg_pct > 0 ? "+" : "") + totalAnchor.vs_avg_pct + "%" });
+  }
+  (ex.doc.doc_notes || []).forEach(function (n) {
+    if (lex.test(n)) findings.push({ level: "alert", rule: "R6", msg: "備考に警戒語彙: " + n });
+    if (esc.test(n)) findings.push({ level: "confirm", rule: "R7", msg: "備考に市況転嫁の主張: 根拠確認を" });
+  });
+
+  // findings dedupe
+  var seen = {};
+  findings = findings.filter(function (f) {
+    var k = f.level + "|" + f.rule + "|" + f.msg;
+    if (seen[k]) return false;
+    seen[k] = 1;
+    return true;
+  });
+
+  var counts = { ok: 0, watch: 0, alert: 0, confirm: 0 };
+  rowsOut.forEach(function (r) { counts[r.verdict] = (counts[r.verdict] || 0) + 1; });
+  var out = {
+    gates: gates, rows: rowsOut, findings: findings, total_anchor: totalAnchor,
+    summary: { region: region, kappa: kappa, counts: counts, isshiki_pct: Math.round(isshikiPct * 10) / 10, keihi_pct: Math.round(keihiPct * 10) / 10, keihi_level: keihiLevel, front_load_pct: gates.front_load_pct || null, over_candidate_yen: Math.round(overCand) }
+  };
+  out.advice = hsBuildAdvice(out);
+  out.negotiation = hsBuildNegotiation(ex, out);
+  return out;
+}
+
+// ---- ワンポイントアドバイス(大賀原則・rule連動) / 交渉用文面 ----
+function hsBuildAdvice(audit) {
+  var A = {
+    TOTAL: "総額が適正レンジを超える時は、値引き交渉より先に数量と単価の根拠確認が効く。同条件で相見積もり2社を。",
+    R4: "諸経費は総額の10〜16%が目安。20%超は現場管理費・一般管理費の内訳提出を求める根拠になる。",
+    R1: "単価は『材料+手間+経費』で説明できるのが誠実な見積もり。算定根拠は口頭でなく書面で求める。",
+    R5: "数量は自分で裏が取れる。外壁塗装面積は延床×1.1〜1.4、足場は(外周+8m)×高さが概算の目安。",
+    R3: "『一式』は内訳が出て初めて比較できる。内訳提出を渋る業者とは契約しない。",
+    R6: "即決を迫る営業は判断材料を奪う典型。その場で決めず、必ず書面に残して持ち帰る。",
+    R7: "値上げの主張にはメーカー通知など仕入れ側の根拠提示を求める。率の妥当性はそこで判る。"
+  };
+  var order = ["TOTAL", "R4", "R1", "R5", "R3", "R6", "R7"];
+  var present = {};
+  audit.findings.forEach(function (f) { present[f.rule] = 1; });
+  var out = [];
+  order.forEach(function (k) { if (present[k] && out.length < 4) out.push(A[k]); });
+  if ((audit.summary.front_load_pct || 0) >= 50 && out.length < 4) out.push("着工前の支払いが5割を超える配分は重い。中間・完工時への配分替え(出来高払い)を相談する。");
+  if (!out.length) out.push("大きな疑義は見当たらない。着工前に工程表・保証書面・追加工事の扱いを書面で確認しておく。");
+  return out;
+}
+
+function hsBuildNegotiation(ex, audit) {
+  var items = [];
+  audit.findings.forEach(function (f) {
+    if (items.length >= 6) return;
+    if (f.rule === "R1" && f.no) items.push("No." + f.no + " の単価について、算定根拠(材料・手間・経費の別)のご提示");
+    else if (f.rule === "R5" && f.no) items.push("No." + f.no + " の数量について、算出根拠(図面・実測値)のご提示");
+    else if (f.rule === "R3" && f.no) items.push("No." + f.no + " の一式計上について、内訳明細のご提示");
+    else if (f.rule === "R4") items.push("諸経費について、現場管理費・一般管理費の内訳のご提示");
+    else if (f.rule === "R7") items.push("価格改定の適用分について、根拠資料(メーカー通知等)のご提示");
+  });
+  var seen = {};
+  items = items.filter(function (x) { if (seen[x]) return false; seen[x] = 1; return true; });
+  var head = (ex.doc.issuer ? ex.doc.issuer + " 御中\n\n" : "") + "お見積書" + (ex.doc.estimate_no ? "(" + ex.doc.estimate_no + ")" : "") + "を拝見いたしました。検討を進めるにあたり、以下の点についてご教示いただけますでしょうか。\n\n";
+  var body = items.length ? items.map(function (x, i) { return (i + 1) + ". " + x; }).join("\n") : "1. 工程表と保証内容(書面)のご提示\n2. 追加工事が発生する場合の事前承認フローのご確認";
+  var foot = "\n\nご提示いただいた内容をもとに、前向きに検討させていただきます。何卒よろしくお願いいたします。";
+  return head + body + foot;
+}
+
+// ---- 紺×金 診断書HTML(本家plan版デザイン完全ミラー / IPAGothic) ----
+function hsGenerateEstimateAuditHTML(ex, audit, meta) {
+  meta = meta || {};
+  function h(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function yen(n) { return n == null ? "" : Math.round(n).toLocaleString(); }
+  var vLabel = { ok: "妥当", watch: "要注意", alert: "過大疑い", confirm: "要確認" };
+  var vColor = { ok: "#2e7d32", watch: "#b26a00", alert: "#b02a2a", confirm: "#888" };
+  var ruleLabel = { R1: "単価", R2: "構成比", R3: "一式", R4: "諸経費", R5: "数量", R6: "営業手口", R7: "市況転嫁", TOTAL: "総額", G: "検算" };
+  var worst = "ok";
+  if ((audit.summary.counts.watch || 0) > 0 || audit.summary.keihi_level === "watch") worst = "watch";
+  if ((audit.summary.counts.alert || 0) > 0 || audit.summary.keihi_level === "alert" || (audit.total_anchor && audit.total_anchor.verdict === "alert")) worst = "alert";
+  var worstLabel = { ok: "適正レンジ内", watch: "要注意あり", alert: "過大疑いあり" };
+
+  var rowsHtml = "";
+  audit.rows.forEach(function (r) {
+    var bg = r.verdict === "alert" ? "#fbeaea" : (r.verdict === "watch" ? "#fbf4e2" : "#fff");
+    rowsHtml += "<tr style='background:" + bg + "'><td class='c'>" + r.no + "</td><td>" + h(r.description) + "</td><td class='n'>" + (r.qty == null ? "" : r.qty) + " " + h(r.unit || "") + "</td><td class='n'>" + yen(r.unit_price) + "</td><td class='n'>" + yen(r.amount) + "</td><td class='c' style='color:" + vColor[r.verdict] + ";font-weight:700'>" + vLabel[r.verdict] + "</td><td class='rs'>" + h(r.reason) + "</td></tr>";
+  });
+
+  var fHtml = "";
+  audit.findings.forEach(function (f) {
+    var c = f.level === "alert" ? "#b02a2a" : (f.level === "watch" ? "#b26a00" : "#555");
+    fHtml += "<li><span class='tag'>" + (ruleLabel[f.rule] || f.rule) + "</span><span style='color:" + c + "'>" + h(f.msg) + "</span></li>";
+  });
+
+  var adviceHtml = "";
+  (audit.advice || []).forEach(function (a) { adviceHtml += "<li>" + h(a) + "</li>"; });
+  var negoHtml = audit.negotiation ? h(audit.negotiation).replace(/\n/g, "<br>") : "";
+
+  var gatesLine = audit.gates.pass
+    ? "整合検算 PASS — 明細" + audit.rows.length + "行の数量×単価・合計・税・支払条件が一致"
+    : "整合検算 FAIL — " + h(audit.gates.errors.join(" / "));
+
+  return "<!DOCTYPE html><html lang='ja'><head><meta charset='UTF-8'><style>" +
+    "*{margin:0;padding:0;box-sizing:border-box}" +
+    "body{font-family:IPAGothic,sans-serif;background:#fff;color:#1a1a2e;line-height:1.7}" +
+    ".cover{background:linear-gradient(160deg,#0a0e1a 0%,#1a1a2e 40%,#0f3460 100%);color:#fff;height:100vh;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:60px;page-break-after:always}" +
+    ".cover::before{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(201,162,39,0.12) 0%,transparent 70%)}" +
+    ".cover::after{content:'';position:absolute;bottom:-100px;left:-100px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(15,52,96,0.6) 0%,transparent 70%)}" +
+    ".cover-stamp{position:absolute;top:40px;right:40px;z-index:10;width:100px;height:100px;border-radius:50%;border:2.5px solid #c9a227;background:rgba(201,162,39,0.08);display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 0 20px rgba(201,162,39,0.2)}" +
+    ".cover-stamp-text{font-size:9px;font-weight:700;color:#c9a227;letter-spacing:2px}.cover-stamp-check{font-size:20px;color:#c9a227;line-height:1}" +
+    ".cover-eyebrow{background:rgba(201,162,39,0.15);border:1px solid rgba(201,162,39,0.4);border-radius:30px;padding:6px 20px;font-size:10px;letter-spacing:3px;color:#c9a227;margin-bottom:32px;z-index:1}" +
+    ".cover-title{font-size:42px;font-weight:900;text-align:center;line-height:1.2;margin-bottom:16px;z-index:1}.cover-title em{color:#c9a227;font-style:normal;display:block}" +
+    ".cover-sub{font-size:14px;color:rgba(255,255,255,0.6);text-align:center;margin-bottom:48px;z-index:1;line-height:1.8}" +
+    ".cover-case{background:rgba(255,255,255,0.05);border:1px solid rgba(201,162,39,0.5);border-radius:16px;padding:24px 40px;text-align:center;margin-bottom:40px;z-index:1;max-width:560px;width:100%}" +
+    ".cover-case-label{font-size:10px;color:#c9a227;letter-spacing:3px;margin-bottom:10px}.cover-case-val{font-size:17px;font-weight:700;line-height:1.5}" +
+    ".cover-verdict{font-size:13px;letter-spacing:2px;border:1px solid rgba(201,162,39,0.5);border-radius:30px;padding:8px 28px;z-index:1;margin-bottom:24px}" +
+    ".cover-meta{font-size:12px;color:rgba(255,255,255,0.5);z-index:1}" +
+    ".cover-footer{position:absolute;bottom:32px;font-size:10px;color:rgba(255,255,255,0.3);text-align:center;z-index:1}" +
+    ".page{padding:52px 52px 40px;position:relative}" +
+    ".page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid #eee}" +
+    ".page-logo{font-size:11px;font-weight:700;color:#0f3460;letter-spacing:2px}.page-num{font-size:10px;color:#999}" +
+    ".section-title{font-size:11px;color:#c9a227;font-weight:700;letter-spacing:3px;margin:26px 0 10px;text-transform:uppercase}" +
+    ".cards{display:flex;gap:12px;margin-bottom:6px}" +
+    ".card{flex:1;border:1px solid #e6e2d6;border-left:4px solid #c9a227;border-radius:8px;padding:12px 14px}" +
+    ".card .k{font-size:9.5px;color:#888;letter-spacing:1px;margin-bottom:4px}.card .v{font-size:17px;font-weight:900;color:#0f3460}.card .s{font-size:10px;color:#777;margin-top:2px}" +
+    "table{width:100%;border-collapse:collapse;font-size:10px;margin-top:4px}" +
+    "thead{display:table-header-group}th{background:#0f3460;color:#fff;padding:6px 5px;font-weight:700;border:1px solid #0f3460}" +
+    "td{padding:5px;border:1px solid #ddd;vertical-align:top}.n{text-align:right;white-space:nowrap}.c{text-align:center;white-space:nowrap}.rs{color:#555;font-size:9.5px}" +
+    "ol.findings{margin:4px 0 0 18px;font-size:11px}ol.findings li{margin-bottom:5px}" +
+    ".tag{display:inline-block;background:rgba(201,162,39,0.14);color:#8a6d12;border:1px solid rgba(201,162,39,0.5);border-radius:3px;font-size:9px;padding:1px 7px;margin-right:7px;letter-spacing:1px;vertical-align:middle}" +
+    "ul.advice{margin:2px 0 0 18px;font-size:11px}ul.advice li{margin-bottom:4px}" +
+    ".nego{border:1px solid #e6e2d6;border-left:4px solid #0f3460;border-radius:8px;padding:12px 16px;font-size:10.5px;line-height:1.9;background:#fafafa}" +
+    ".ptka{border:1px dashed #c9a227;border-radius:8px;padding:10px 14px;font-size:10px;color:#555;background:#fdfbf5}" +
+    ".ptka b{color:#0f3460}.mono{font-family:monospace;letter-spacing:1px}" +
+    ".gates{font-size:11px;color:#2e7d32;margin-bottom:2px}" +
+    ".gates.ng{color:#b02a2a}" +
+    ".foot{margin-top:22px;font-size:9px;color:#999;line-height:1.6;border-top:1px solid #eee;padding-top:10px}" +
+    "@page{size:A4;margin:0}" +
+    "</style></head><body>" +
+    // ---- 表紙 ----
+    "<div class='cover'>" +
+    "<div class='cover-stamp'><div class='cover-stamp-check'>&#10003;</div><div class='cover-stamp-text'>PTKA</div></div>" +
+    "<div class='cover-eyebrow'>HORIZON SHIELD — LINE ITEM AUDIT</div>" +
+    "<div class='cover-title'>見積書<em>明細診断書</em></div>" +
+    "<div class='cover-sub'>項目別の単価・数量・構成を第三者基準で突合し、<br>交渉に使える根拠として刻印します。</div>" +
+    "<div class='cover-case'><div class='cover-case-label'>SUBJECT</div><div class='cover-case-val'>" + h(ex.doc.title || "-") + "<br><span style='font-size:12px;font-weight:400;color:rgba(255,255,255,0.65)'>見積番号 " + h(ex.doc.estimate_no || "-") + " ／ 税込総額 " + yen(ex.doc.total_inc_tax) + "円</span></div></div>" +
+    "<div class='cover-verdict' style='color:" + (worst === "alert" ? "#ff9d9d" : (worst === "watch" ? "#ffd98a" : "#9fd6a8")) + "'>総合所見: " + worstLabel[worst] + "</div>" +
+    "<div class='cover-meta'>診断日 " + h(meta.date || "") + " ／ 地域補正 " + h(audit.summary.region) + " ／ bench " + h(meta.benchVersion || "") + "</div>" +
+    "<div class='cover-footer'>The HORIZ音s株式会社 ／ HORIZON SHIELD — 買い手のための第三者診断</div>" +
+    "</div>" +
+    // ---- 本文 ----
+    "<div class='page'>" +
+    "<div class='page-header'><div class='page-logo'>HORIZON SHIELD</div><div class='page-num'>ESTIMATE AUDIT ／ " + h(ex.doc.estimate_no || "-") + "</div></div>" +
+    "<div class='section-title'>Summary ／ 総括</div>" +
+    "<div class='gates" + (audit.gates.pass ? "" : " ng") + "'>" + gatesLine + "</div>" +
+    "<div class='cards'>" +
+    "<div class='card'><div class='k'>総額判定" + (audit.total_anchor ? "(適正 " + yen(audit.total_anchor.range[0]) + "〜" + yen(audit.total_anchor.range[2]) + "円)" : "") + "</div><div class='v' style='color:" + (audit.total_anchor ? vColor[audit.total_anchor.verdict] : "#0f3460") + "'>" + (audit.total_anchor ? vLabel[audit.total_anchor.verdict] + " " + (audit.total_anchor.vs_avg_pct > 0 ? "+" : "") + audit.total_anchor.vs_avg_pct + "%" : "対象外") + "</div><div class='s'>" + (audit.total_anchor ? "souba-db平均比" : "スコープ外カテゴリ") + "</div></div>" +
+    "<div class='card'><div class='k'>単価超過の過大候補額</div><div class='v' style='color:" + (audit.summary.over_candidate_yen > 0 ? "#b02a2a" : "#0f3460") + "'>約 " + yen(audit.summary.over_candidate_yen) + "円</div><div class='s'>適正上限との差の合計(参考)</div></div>" +
+    "<div class='card'><div class='k'>諸経費率(目安10〜16%)</div><div class='v' style='color:" + vColor[audit.summary.keihi_level] + "'>" + audit.summary.keihi_pct + "%</div><div class='s'>一式比率 " + audit.summary.isshiki_pct + "%" + (audit.summary.front_load_pct != null ? " ／ 着工前受領 " + audit.summary.front_load_pct + "%" : "") + "</div></div>" +
+    "</div>" +
+    (fHtml ? "<div class='section-title'>Findings ／ 指摘事項</div><ol class='findings'>" + fHtml + "</ol>" : "") +
+    (adviceHtml ? "<div class='section-title'>One Point Advice ／ ワンポイントアドバイス(監修: 大賀俊勝・建設実務30年)</div><ul class='advice'>" + adviceHtml + "</ul>" : "") +
+    "<div class='section-title'>Line Item Audit ／ 明細突合表</div>" +
+    "<table><thead><tr><th>No.</th><th>摘要</th><th>数量</th><th>単価</th><th>金額</th><th>判定</th><th>根拠</th></tr></thead><tbody>" + rowsHtml + "</tbody></table>" +
+    (negoHtml ? "<div class='section-title'>Negotiation ／ 交渉用文面(そのままコピーして使えます)</div><div class='nego'>" + negoHtml + "</div>" : "") +
+    "<div class='section-title'>PTKA ／ 取引前知識刻印</div>" +
+    "<div class='ptka'><b>SHA-256:</b> <span class='mono'>" + h(meta.auditHash || "発行時に刻印") + "</span><br><b>OpenTimestamps:</b> " + h(meta.ots || "未刻印") + "</div>" +
+    "<div class='foot'>本診断は souba-db(大賀俊勝 実務監修)および明細基準 " + h(meta.benchVersion || "") + " に基づく買い手側の第三者所見であり、工事金額を保証するものではありません。単価・数量・構成比の判定スコープは外壁塗装・屋根塗装。その他の工事カテゴリには検算・一式・諸経費・営業手口の普遍原則のみを適用します。判定原則: 諸経費は総額の10〜16%が目安・『一式』は内訳の提出を求める(建設実務30年)。The HORIZ音s株式会社</div>" +
+    "</div></body></html>";
+}
+
+
+async function hsHandleEstimateAudit(request, env) {
+  try {
+    var hsTk = request.headers.get("X-HS-TOKEN") || new URL(request.url).searchParams.get("token") || "";
+    if (env.HS_AUDIT_TOKEN && hsTk !== env.HS_AUDIT_TOKEN) {
+      return new Response(JSON.stringify({ error: "unauthorized(HS_AUDIT_TOKEN)" }), { status: 401, headers: { "Content-Type": "application/json; charset=utf-8" } });
+    }
+    var body = await request.json();
+    var ex = body.extracted || body;
+    var opts = body.opts || {};
+    var fmt = body.format || "html";
+    var audit = hsMeisaiAudit(ex, HS_MEISAI_BENCH, opts);
+    var enc = new TextEncoder().encode(JSON.stringify(ex));
+    var digest = await crypto.subtle.digest("SHA-256", enc);
+    var fullHex = Array.from(new Uint8Array(digest)).map(function (b) { return b.toString(16).padStart(2, "0"); }).join("");
+    var hash = fullHex.slice(0, 16).toUpperCase();
+    // OTS刻印(修理10): OpenTimestampsカレンダーへdigest送信、証明をR2へ。失敗しても診断は止めない
+    var otsStatus = "未刻印";
+    try {
+      var ctl = new AbortController();
+      var tid = setTimeout(function () { ctl.abort(); }, 4000);
+      var otsRes = await fetch("https://a.pool.opentimestamps.org/digest", { method: "POST", body: digest, signal: ctl.signal });
+      clearTimeout(tid);
+      if (otsRes.ok) {
+        var proof = await otsRes.arrayBuffer();
+        await env.PDFS_BUCKET.put("ots/" + hash + ".ots", proof, { customMetadata: { sha256: fullHex, kind: "estimate-audit" } });
+        otsStatus = "刻印済 — a.pool.opentimestamps.org ／ 証明 ots/" + hash + ".ots";
+      } else {
+        otsStatus = "送信不可(HTTP " + otsRes.status + ") — 再刻印対象";
+      }
+    } catch (e2) {
+      otsStatus = "送信不可 — 再刻印対象";
+    }
+    if (fmt === "json") {
+      return new Response(JSON.stringify({ auditHash: hash, sha256: fullHex, ots: otsStatus, benchVersion: HS_MEISAI_BENCH.schema_version, audit: audit }), { headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders() } });
+    }
+    var jstDate = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
+    var html = hsGenerateEstimateAuditHTML(ex, audit, { date: jstDate, benchVersion: HS_MEISAI_BENCH.schema_version, auditHash: hash, ots: otsStatus });
+    if (fmt === "pdf") {
+      var browser = await puppeteer_cloudflare_default.launch(env.MYBROWSER);
+      try {
+        var page = await browser.newPage();
+        await page.setContent(html, { waitUntil: "load" });
+        await page.evaluateHandle("document.fonts.ready");
+        var pdfBuffer = await page.pdf({ format: "A4", printBackground: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+        return new Response(pdfBuffer, { headers: { "Content-Type": "application/pdf", "Content-Disposition": 'inline; filename="hs-estimate-audit.pdf"', ...corsHeaders() } });
+      } finally {
+        await browser.close();
+      }
+    }
+    if (fmt === "email") {
+      var to = body.to;
+      if (!to) {
+        return new Response(JSON.stringify({ error: "to required for format=email" }), { status: 400, headers: { "Content-Type": "application/json; charset=utf-8" } });
+      }
+      if (HS_MAIL_ALLOWLIST.indexOf(String(to).toLowerCase().trim()) < 0) {
+        return new Response(JSON.stringify({ error: "宛先未許可(暫定allowlist運用。修理7のtoken認証で本開放)", to: to }), { status: 403, headers: { "Content-Type": "application/json; charset=utf-8" } });
+      }
+      var browser2 = await puppeteer_cloudflare_default.launch(env.MYBROWSER);
+      var pdfBuffer2;
+      try {
+        var page2 = await browser2.newPage();
+        await page2.setContent(html, { waitUntil: "load" });
+        await page2.evaluateHandle("document.fonts.ready");
+        pdfBuffer2 = await page2.pdf({ format: "A4", printBackground: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+      } finally {
+        await browser2.close();
+      }
+      var docId = "audit-" + hash;
+      await env.PDFS_BUCKET.put("pdfs/" + docId + ".pdf", pdfBuffer2, { httpMetadata: { contentType: "application/pdf" }, customMetadata: { sha256: fullHex, kind: "estimate-audit" } });
+      var pdfUrl = new URL(request.url).origin + "/pdf/" + docId;
+      var subject = "【HORIZON SHIELD】見積書明細診断書のお届け(" + (ex.doc.estimate_no || docId) + ")";
+      var mailHtml = "<div style='font-family:sans-serif;max-width:560px;margin:0 auto;color:#1a1a2e'>" +
+        "<div style='background:linear-gradient(160deg,#0a0e1a,#1a1a2e,#0f3460);color:#fff;padding:22px 26px;border-bottom:3px solid #c9a227'>" +
+        "<div style='font-size:11px;letter-spacing:3px;color:#c9a227'>HORIZON SHIELD</div>" +
+        "<div style='font-size:19px;font-weight:900;margin-top:6px'>見積書明細診断書が発行されました</div></div>" +
+        "<div style='padding:20px 26px;font-size:14px;line-height:1.9'>" +
+        "<p>ご依頼の見積書(" + (ex.doc.estimate_no || "-") + ")の明細診断が完了しました。以下より診断書(PDF)をご確認ください。</p>" +
+        "<p style='text-align:center;margin:22px 0'><a href='" + pdfUrl + "' style='background:#0f3460;color:#fff;text-decoration:none;padding:12px 30px;border-radius:6px;font-weight:700'>診断書を開く</a></p>" +
+        "<p style='font-size:12px;color:#555'>PTKA刻印 SHA-256: <span style='font-family:monospace'>" + hash + "</span><br>OpenTimestamps: " + otsStatus + "</p>" +
+        "<p style='font-size:11px;color:#999'>本診断は買い手側の第三者所見であり、工事金額を保証するものではありません。<br>The HORIZ音s株式会社 ／ HORIZON SHIELD</p>" +
+        "</div></div>";
+      var sent = false;
+      if (typeof sendResendEmail === "function") {
+        sent = await sendResendEmail(to, subject, mailHtml, env);
+      }
+      return new Response(JSON.stringify({ sent: sent, to: to, pdfUrl: pdfUrl, auditHash: hash, ots: otsStatus }), { headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders() } });
+    }
+    return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8", ...corsHeaders() } });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: "estimate-audit failed", detail: String(e && e.message || e) }), { status: 400, headers: { "Content-Type": "application/json; charset=utf-8" } });
+  }
+}
+
+
+// ---- 番犬カナリア: 固定入力でエンジン整合を常時監視(状態遷移でLINE警報/復旧通知) ----
+var HS_AUDIT_CANARY_EX = {"schema_version":"0.1","extraction_method":"canary","source_file":"(canary)","doc":{"doc_type":"estimate","issuer":"CANARY","customer":"CANARY","customer_contact":null,"title":"外壁塗装 カナリア固定入力","estimate_no":"CANARY-001","issue_date":"2026-07-07","valid_until":"2026-12-31","currency":"JPY","subtotal_ex_tax":454000,"tax_rate_pct":10,"tax":45400,"total_inc_tax":499400,"payment_terms":[],"doc_notes":[]},"rows":[{"no":1,"type":"section","description":"仮設工事","qty":null,"unit":null,"unit_price":null,"amount":null,"flags":[]},{"no":2,"type":"item","description":"仮設足場(くさび式)","qty":200,"unit":"㎡","unit_price":800,"amount":160000,"flags":[]},{"no":3,"type":"section","description":"塗装工事","qty":null,"unit":null,"unit_price":null,"amount":null,"flags":[]},{"no":4,"type":"item","description":"下塗り(シーラー)","qty":120,"unit":"㎡","unit_price":750,"amount":90000,"flags":[]},{"no":5,"type":"item","description":"シリコン中塗り","qty":120,"unit":"㎡","unit_price":1700,"amount":204000,"flags":[]}]};
+var HS_AUDIT_CANARY_EXPECT = { hash: "C025E288675EE898", counts: '{"ok":2,"watch":1,"alert":0,"confirm":0}' };
+async function hsAuditCanary(env) {
+  var report = { service: "estimate-audit-canary", ok: false, checks: {}, ts: new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 19) };
+  try {
+    var audit = hsMeisaiAudit(HS_AUDIT_CANARY_EX, HS_MEISAI_BENCH, { region: "kanto", tsubo: 30, category: "gaiheki_tosou" });
+    var enc = new TextEncoder().encode(JSON.stringify(HS_AUDIT_CANARY_EX));
+    var digest = await crypto.subtle.digest("SHA-256", enc);
+    var hash = Array.from(new Uint8Array(digest)).map(function (b) { return b.toString(16).padStart(2, "0"); }).join("").slice(0, 16).toUpperCase();
+    report.checks.gates = audit.gates.pass === true;
+    report.checks.hash = (hash === HS_AUDIT_CANARY_EXPECT.hash);
+    report.checks.counts = (JSON.stringify(audit.summary.counts) === HS_AUDIT_CANARY_EXPECT.counts);
+    report.checks.bench = (HS_MEISAI_BENCH.schema_version === "meisai-layer v0.3");
+    report.ok = report.checks.gates && report.checks.hash && report.checks.counts && report.checks.bench;
+  } catch (e) {
+    report.error = String(e && e.message || e);
+  }
+  var state = report.ok ? "OK" : "NG";
+  var prev = null;
+  try { prev = await env.ORDERS.get("canary:estimate-audit"); } catch (e2) {}
+  if (state !== prev) {
+    try { await env.ORDERS.put("canary:estimate-audit", state); } catch (e3) {}
+    if (typeof sendLineMessage === "function" && env.LINE_USER_ID) {
+      var msg = state === "NG"
+        ? "【番犬】見積書明細診断カナリア異常\n" + JSON.stringify(report.checks) + (report.error ? "\nerr: " + report.error : "")
+        : "【番犬】見積書明細診断カナリア復旧(OK)";
+      try { await sendLineMessage(env.LINE_USER_ID, msg, env); } catch (e4) {}
+    }
+  }
+  report.state = state;
+  report.prev = prev;
+  return new Response(JSON.stringify(report), { status: report.ok ? 200 : 500, headers: { "Content-Type": "application/json; charset=utf-8" } });
+}
+
+
+// ---- v5: 施錠allowlist + Vision抽出(画像→明細JSON→ゲート→任意で即診断) ----
+var HS_MAIL_ALLOWLIST = ["oga.surf.project@gmail.com", "contact@the-horizons-innovation.com"];
+var HS_EXTRACT_PROMPT = "あなたは建設見積書のOCR構造化エンジン。画像の見積書を以下スキーマのJSONだけで返す(コードフェンス・説明文一切禁止)。{schema_version:'0.1', doc:{doc_type:'estimate', issuer, customer, title, estimate_no, issue_date(YYYY-MM-DD), valid_until, currency:'JPY', subtotal_ex_tax(数値), tax_rate_pct(数値), tax(数値), total_inc_tax(数値), payment_terms:[{timing,pct,amount}], doc_notes:[備考文字列]}, rows:[{no(数値), type:'section'|'item', description(摘要を原文どおり1行に), qty(数値|null), unit(原文単位|null), unit_price(数値|null), amount(数値|null), flags:[]}]} 規則: 見出し行(金額なし・◉○等)はtype=section。数量・単価・金額は数値(カンマ除去)。値引き・マイナスは負数。読めない値はnull。摘要の折返しは結合。全行をNo順に漏れなく。JSONのみ出力。";
+async function hsExtractEstimate(request, env) {
+  try {
+    var hsTk = request.headers.get("X-HS-TOKEN") || new URL(request.url).searchParams.get("token") || "";
+    if (env.HS_AUDIT_TOKEN && hsTk !== env.HS_AUDIT_TOKEN) {
+      return new Response(JSON.stringify({ error: "unauthorized(HS_AUDIT_TOKEN)" }), { status: 401, headers: { "Content-Type": "application/json; charset=utf-8" } });
+    }
+    if (!env.ANTHROPIC_API_KEY) {
+      return new Response(JSON.stringify({ error: "ANTHROPIC_API_KEY未設定。hs-pdf-genで npx wrangler secret put ANTHROPIC_API_KEY を実行(キーはHS_DESIGN_KV secret:anthropic-key)" }), { status: 503, headers: { "Content-Type": "application/json; charset=utf-8" } });
+    }
+    var body = await request.json();
+    if (!body.image_b64) {
+      return new Response(JSON.stringify({ error: "image_b64 required" }), { status: 400, headers: { "Content-Type": "application/json; charset=utf-8" } });
+    }
+    var mt = body.media_type || "image/jpeg";
+    var res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
+      body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 16000, messages: [{ role: "user", content: [{ type: "image", source: { type: "base64", media_type: mt, data: body.image_b64 } }, { type: "text", text: HS_EXTRACT_PROMPT }] }] })
+    });
+    if (!res.ok) {
+      var t = await res.text();
+      return new Response(JSON.stringify({ error: "vision api error", status: res.status, detail: t.slice(0, 300) }), { status: 502, headers: { "Content-Type": "application/json; charset=utf-8" } });
+    }
+    var data = await res.json();
+    var txt = (data.content || []).filter(function (c) { return c.type === "text"; }).map(function (c) { return c.text; }).join("");
+    txt = txt.replace(/```json|```/g, "").trim();
+    var ex;
+    try {
+      ex = JSON.parse(txt);
+    } catch (pe) {
+      return new Response(JSON.stringify({ error: "extract parse failed", raw_head: txt.slice(0, 500) }), { status: 422, headers: { "Content-Type": "application/json; charset=utf-8" } });
+    }
+    var gates = hsMzGates(ex);
+    var out = { extracted: ex, gates: gates };
+    if (body.run_audit && gates.pass) {
+      out.audit = hsMeisaiAudit(ex, HS_MEISAI_BENCH, body.opts || {});
+    }
+    return new Response(JSON.stringify(out), { headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders() } });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: "extract failed", detail: String(e && e.message || e) }), { status: 400, headers: { "Content-Type": "application/json; charset=utf-8" } });
+  }
+}
+
+// ==== HS-MEISAI-AUDIT v7 END ====
 function parsePlanText(planText) {
   const result = {
     koji_content: "",
@@ -18551,6 +19073,11 @@ async function generatePDF(params, env) {
     customer_name: params.customer_name || ""
   };
   const d2 = await diagnose(params, env);
+  try {
+    const _hsrc = [params.koji_type||'', String(params.teiji_kingaku||''), params.region||'', orderInfo.orderId, String(d2.adjMin)+'-'+String(d2.adjAvg)+'-'+String(d2.adjMax)].join('|');
+    const _hbuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(_hsrc));
+    d2.auditHash = Array.from(new Uint8Array(_hbuf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('').slice(0,16).toUpperCase();
+  } catch(_e) { d2.auditHash = null; }
   const html = generateHTML(d2, orderInfo);
   const browser = await puppeteer_cloudflare_default.launch(env.MYBROWSER);
   try {
@@ -18603,9 +19130,9 @@ async function sendResendEmail(to, subject, html, env) {
         "Authorization": `Bearer ${env.RESEND_API_KEY}`
       },
       body: JSON.stringify({
-        // TODO: kira@the-horizons-innovation.com のドメイン認証完了後に from を戻す
-        // (補助金通過後、お名前.com のネームサーバー問題を専門家に依頼して解決予定)
-        from: "HORIZON SHIELD <onboarding@resend.dev>",
+        // HS-FROM-FIX v1 (2026-07-06): ドメイン認証完了につき正規差出人へ切替
+        // (旧: onboarding@resend.dev サンドボックス — 所有者宛にしか届かない仕様だった)
+        from: "HORIZON SHIELD <kira@the-horizons-innovation.com>",
         to: [to],
         reply_to: "contact@the-horizons-innovation.com",
         subject,
@@ -18794,6 +19321,131 @@ function json(data, status = 200) {
   });
 }
 __name(json, "json");
+// === HS-PIPE-FIX v1 (2026-07-06) 修理1: 自己fetch根絶+書き戻し+SJIS+失敗可視化 ===
+function hsGetRawIpnField(body, key) {
+  const parts = body.split("&");
+  for (const p of parts) {
+    const eq = p.indexOf("=");
+    if (eq > 0 && p.slice(0, eq) === key) return p.slice(eq + 1);
+  }
+  return null;
+}
+__name(hsGetRawIpnField, "hsGetRawIpnField");
+function hsDecodeSjisIpnField(rawEncoded) {
+  try {
+    const bytes = [];
+    for (let i = 0; i < rawEncoded.length; i++) {
+      const c = rawEncoded[i];
+      if (c === "%" && i + 2 < rawEncoded.length) {
+        bytes.push(parseInt(rawEncoded.substr(i + 1, 2), 16));
+        i += 2;
+      } else if (c === "+") {
+        bytes.push(32);
+      } else {
+        bytes.push(rawEncoded.charCodeAt(i));
+      }
+    }
+    return new TextDecoder("shift_jis").decode(new Uint8Array(bytes));
+  } catch (e) {
+    try { return decodeURIComponent(rawEncoded.replace(/\+/g, " ")); } catch (e2) { return rawEncoded; }
+  }
+}
+__name(hsDecodeSjisIpnField, "hsDecodeSjisIpnField");
+async function hsProcessPaidOrder(order, origin, env) {
+  const orderId = order.orderId;
+  const { pdfBuffer, orderInfo, diagnosis } = await generatePlanPDFAuto({
+    orderId: orderId,
+    koji_type: order.kojiType,
+    teiji_kingaku: Number(order.teijiKingaku),
+    region: order.region,
+    customer_name: order.customerName
+  }, env);
+  await env.PDFS_BUCKET.put("pdfs/" + orderId + ".pdf", pdfBuffer, {
+    httpMetadata: { contentType: "application/pdf" }
+  });
+  const pdfUrl = origin + "/pdf/" + orderId;
+  const sendResult = await sendPDFToCustomer({
+    customer_name: order.customerName,
+    line_user_id: null,
+    email: order.customerEmail || null
+  }, pdfUrl, diagnosis, env);
+  let status = "generated_manual_forward_needed";
+  if (sendResult.email) status = "delivered_email";
+  try {
+    const raw = await env.ORDERS.get("order:" + orderId);
+    const rec = raw ? JSON.parse(raw) : order;
+    rec.pdfUrl = pdfUrl;
+    rec.status = status;
+    rec.generatedAt = new Date(Date.now() + 9 * 3600 * 1000).toISOString().replace("Z", "+09:00");
+    await env.ORDERS.put("order:" + orderId, JSON.stringify(rec));
+  } catch (wbErr) {
+    console.error("write-back error:", wbErr);
+  }
+  await notifyToshi(orderInfo, diagnosis, env);
+  if (!sendResult.email) {
+    const fwdMsg = [
+      "\u{1F4E8} \u624B\u52D5\u8EE2\u9001\u30D1\u30C3\u30B1\u30FC\u30B8(\u9867\u5BA2\u30E1\u30FC\u30EB\u672A\u9054)",
+      "\u6CE8\u6587ID: " + orderId,
+      "\u9867\u5BA2: " + (order.customerName || "\u4E0D\u660E"),
+      "\u5B9B\u5148: " + (order.customerEmail || "\u30E1\u30FC\u30EB\u672A\u6355\u6349"),
+      "PDF: " + pdfUrl,
+      "\u4E0A\u306E\u30EA\u30F3\u30AF\u3092\u9867\u5BA2\u3078\u8EE2\u9001\u3057\u3066\u3084\u3002Resend\u30C9\u30E1\u30A4\u30F3\u8A8D\u8A3C\u5F8C\u306F\u81EA\u52D5\u5316\u3055\u308C\u308B\u3002"
+    ].join("\n");
+    await sendLineMessage(env.LINE_USER_ID, fwdMsg, env);
+  }
+  return { pdfUrl: pdfUrl, delivered: sendResult.email, status: status };
+}
+__name(hsProcessPaidOrder, "hsProcessPaidOrder");
+// === HS-PIPE-FIX v1 ここまで ===
+// === HS-TPLUNIFY-A v1 (2026-07-07) 商品テンプレ統一: plan版自動生成 ===
+async function generatePlanPDFAuto(params, env) {
+  const orderInfo = {
+    orderId: params.orderId || ("plan-" + Date.now()),
+    customer_name: params.customer_name || "\u304A\u5BA2\u69D8"
+  };
+  const d2 = await diagnose(params, env);
+  let hsHash = null;
+  try {
+    const _hsrc = [params.koji_type || "", String(params.teiji_kingaku || ""), params.region || "", orderInfo.orderId, String(d2.adjMin) + "-" + String(d2.adjAvg) + "-" + String(d2.adjMax)].join("|");
+    const _hbuf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(_hsrc));
+    hsHash = Array.from(new Uint8Array(_hbuf)).map(function(b) { return b.toString(16).padStart(2, "0"); }).join("").slice(0, 16).toUpperCase();
+  } catch (_e) { hsHash = null; }
+  const fy = function(n) { return "\u00A5" + Number(n || 0).toLocaleString(); };
+  const planData = {
+    koji_content: (d2.koji_name || params.koji_type || "") + "\u3000\uFF0F\u3000\u5BFE\u8C61\u5730\u57DF: " + (params.region || "\u2014"),
+    breakdown: [
+      "\u9069\u6B63\u76F8\u5834\uFF08\u6700\u4F4E\uFF09\uFF1A" + fy(d2.adjMin),
+      "\u9069\u6B63\u76F8\u5834\uFF08\u4E2D\u592E\u5024\uFF09\uFF1A" + fy(d2.adjAvg),
+      "\u9069\u6B63\u76F8\u5834\uFF08\u6700\u9AD8\uFF09\uFF1A" + fy(d2.adjMax),
+      "\u696D\u8005\u63D0\u793A\u984D\uFF1A" + fy(params.teiji_kingaku) + "\uFF08\u76F8\u5834\u6BD4 " + (d2.gapPct || "\u2014") + "%\uFF09"
+    ],
+    subtotal: fy(d2.adjMin) + "\uFF08\u9069\u6B63\u6700\u5B89\u30FB\u76EE\u5B89\uFF09",
+    expenses: "\u4E0A\u8A18\u76EE\u5B89\u306B\u542B\u3080\uFF08\u73FE\u5834\u6761\u4EF6\u306B\u3088\u308A\u5909\u52D5\uFF09",
+    matsu: fy(d2.adjMax) + "\uFF08\u30CF\u30A4\u30B0\u30EC\u30FC\u30C9\u4ED5\u69D8\u60F3\u5B9A\uFF09",
+    take: fy(d2.adjAvg) + "\uFF08\u6A19\u6E96\u4ED5\u69D8\u30FB\u76F8\u5834\u4E2D\u592E\u5024\uFF09",
+    ume: fy(d2.adjMin) + "\uFF08\u9069\u6B63\u6700\u5B89\u30E9\u30A4\u30F3\uFF09",
+    advice: "\u8A3A\u65AD\u7D50\u679C\u306F\u300C" + (d2.statusLabel || "") + "\u300D\u3002\u3054\u63D0\u793A\u984D\u306F\u9069\u6B63\u76F8\u5834\u306E" + (d2.gapPct || "\u2014") + "%\u3067\u3059\u3002\u672C\u66F8\u306E3\u30D7\u30E9\u30F3\u3068\u5185\u8A33\u3092\u6839\u62E0\u306B\u3001\u9069\u6B63\u30EC\u30F3\u30B8\u5185\u3067\u306E\u518D\u898B\u7A4D\u3082\u308A\u3092\u4EA4\u6E09\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    source: "HORIZON SHIELD souba-db\uFF08\u65BD\u5DE5\u30C7\u30FC\u30BF2,655\u4EF6\u307B\u304B\u516C\u7684\u76F8\u5834\u8CC7\u6599\u30FB\u5EFA\u8A2D\u5B9F\u52D930\u5E74\u76E3\u4FEE\uFF09",
+    planHash: hsHash
+  };
+  const html = generatePlanHTML(planData, orderInfo);
+  const browser = await puppeteer_cloudflare_default.launch(env.MYBROWSER);
+  try {
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "load" });
+    await page.evaluateHandle("document.fonts.ready");
+    const pdfBuffer = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      margin: { top: "0", right: "0", bottom: "0", left: "0" }
+    });
+    return { pdfBuffer, orderInfo, diagnosis: d2 };
+  } finally {
+    await browser.close();
+  }
+}
+__name(generatePlanPDFAuto, "generatePlanPDFAuto");
+// === HS-TPLUNIFY-A v1 ここまで ===
 var worker_default = {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -18932,6 +19584,26 @@ var worker_default = {
           }
         });
       }
+      if (pathname === "/generate-plan-auto" && request.method === "POST") {
+        const params = await request.json();
+        const { pdfBuffer, orderInfo } = await generatePlanPDFAuto(params, env);
+        return new Response(pdfBuffer, {
+          headers: {
+            "Content-Type": "application/pdf",
+            "Content-Disposition": `inline; filename="hs-plan-auto-${orderInfo.orderId}.pdf"`,
+            ...corsHeaders()
+          }
+        });
+      }
+      if (pathname === "/audit-canary" && request.method === "GET") {
+        return hsAuditCanary(env);
+      }
+      if (pathname === "/extract-estimate" && request.method === "POST") {
+        return hsExtractEstimate(request, env);
+      }
+      if (pathname === "/generate-estimate-audit" && request.method === "POST") {
+        return hsHandleEstimateAudit(request, env);
+      }
       if (pathname === "/generate-plan" && request.method === "POST") {
         const params = await request.json();
         const orderInfo = {
@@ -19026,7 +19698,7 @@ var worker_default = {
 
       if (pathname === "/generate-and-send" && request.method === "POST") {
         const params = await request.json();
-        const { pdfBuffer, orderInfo, diagnosis } = await generatePDF(params, env);
+        const { pdfBuffer, orderInfo, diagnosis } = await generatePlanPDFAuto(params, env);
         await env.PDFS_BUCKET.put(`pdfs/${orderInfo.orderId}.pdf`, pdfBuffer, {
           httpMetadata: { contentType: "application/pdf" }
         });
@@ -19091,44 +19763,54 @@ var worker_default = {
           const kojiType = customData.koji_type || "gaiheki_30tsubo";
           const teijiKingaku = customData.teiji_kingaku || 15e5;
           const region = customData.region || "kanto";
-          const customerName = customData.customer_name || params.get("first_name") || "\u65BD\u4E3B\u69D8";
+          const hsRawFirstName = hsGetRawIpnField(body, "first_name");
+          const hsCharset = params.get("charset") || "";
+          const hsDecodedFirstName = hsRawFirstName && /shift_jis/i.test(hsCharset) ? hsDecodeSjisIpnField(hsRawFirstName) : params.get("first_name");
+          const customerName = customData.customer_name || hsDecodedFirstName || "\u65BD\u4E3B\u69D8";
           const customerEmail = customData.customer_email || params.get("payer_email") || "";
           const amount = params.get("mc_gross") || customData.amount || "55000";
           const serviceType = customData.service_type || "\u5EFA\u8A2D\u8CBB\u8A3A\u65AD";
-          await env.ORDERS.put(`order:${orderId}`, JSON.stringify({
-            orderId,
-            txnId,
-            kojiType,
-            teijiKingaku,
-            region,
-            customerName,
-            customerEmail,
-            amount,
-            serviceType,
-            status: "paid",
-            paidAt: (/* @__PURE__ */ new Date()).toISOString(),
-            paymentMethod: "paypal"
-          }));
+          const hsExistingRaw = await env.ORDERS.get(`order:${orderId}`);
+          const hsExisting = hsExistingRaw ? JSON.parse(hsExistingRaw) : null;
+          if (!hsExisting) {
+            await env.ORDERS.put(`order:${orderId}`, JSON.stringify({
+              orderId,
+              txnId,
+              kojiType,
+              teijiKingaku,
+              region,
+              customerName,
+              customerEmail,
+              amount,
+              serviceType,
+              status: "paid",
+              paidAt: (/* @__PURE__ */ new Date()).toISOString(),
+              paymentMethod: "paypal"
+            }));
+          }
           let pdfUrl = "";
-          try {
-            const pdfReq = new Request("https://hs-pdf-gen.oga-surf-project.workers.dev/generate-and-send", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                koji_type: kojiType,
-                teiji_kingaku: Number(teijiKingaku),
-                region,
-                customer_name: customerName,
-                customer_email: customerEmail,
-                order_id: orderId,
-                service_type: serviceType
-              })
-            });
-            const pdfRes = await fetch(pdfReq);
-            const pdfData = await pdfRes.json();
-            pdfUrl = pdfData.pdf_url || "";
-          } catch (pdfErr) {
-            console.error("PDF\u751F\u6210\u30A8\u30E9\u30FC:", pdfErr);
+          if (hsExisting && hsExisting.pdfUrl) {
+            pdfUrl = hsExisting.pdfUrl;
+          } else {
+            try {
+              const hsResult = await hsProcessPaidOrder({
+                orderId, kojiType, teijiKingaku, region, customerName, customerEmail, amount, serviceType
+              }, url.origin, env);
+              pdfUrl = hsResult.pdfUrl;
+            } catch (pdfErr) {
+              console.error("PDF\u751F\u6210\u30A8\u30E9\u30FC:", pdfErr);
+              try {
+                await env.ORDERS.put("error:hs-pdf-gen:webhook:" + orderId, JSON.stringify({
+                  at: new Date().toISOString(),
+                  orderId: orderId,
+                  message: String(pdfErr && pdfErr.message || pdfErr)
+                }));
+              } catch (e9) {}
+              try {
+                await sendLineMessage(env.LINE_USER_ID, "\u{1F6A8} PDF\u751F\u6210\u5931\u6557 " + orderId + " \u2014 PayPal\u304C\u81EA\u52D5\u518D\u9001\u3059\u308B\u3002\u9023\u7D9A\u3059\u308B\u306A\u3089\u8981\u78BA\u8A8D\u3002", env);
+              } catch (e10) {}
+              return Response.json({ error: "pdf generation failed, will retry via IPN" }, { status: 500 });
+            }
           }
           try {
             const lineMsg = [
@@ -19177,9 +19859,12 @@ var worker_default = {
         const orderRaw = await env.ORDERS.get(`order:${orderId}`);
         if (!orderRaw) return json({ error: "Order not found" }, 404);
         const order = JSON.parse(orderRaw);
-        const { pdfBuffer, orderInfo, diagnosis } = await generatePDF({
-          ...order,
-          orderId
+        const { pdfBuffer, orderInfo, diagnosis } = await generatePlanPDFAuto({
+          orderId,
+          koji_type: order.kojiType || order.koji_type,
+          teiji_kingaku: Number(order.teijiKingaku || order.teiji_kingaku),
+          region: order.region,
+          customer_name: order.customerName || order.customer_name
         }, env);
         await env.PDFS_BUCKET.put(`pdfs/${orderId}.pdf`, pdfBuffer, {
           httpMetadata: { contentType: "application/pdf" }
@@ -19228,3 +19913,8 @@ export {
   worker_default as default
 };
 //# sourceMappingURL=worker.js.map
+
+// ==== HS-MEISAI-SCHEDULED v5 (canary cron hook, additive) ====
+worker_default.scheduled = async function (controller, env, ctx) {
+  ctx.waitUntil(hsAuditCanary(env).catch(function () {}));
+};

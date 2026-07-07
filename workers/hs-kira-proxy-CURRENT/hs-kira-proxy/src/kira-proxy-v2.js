@@ -3677,11 +3677,34 @@ ${_pw ? "document.getElementById('msg').textContent='パスワードが違いま
           return { key: k.name, ...(val || {}) };
         }));
         const bankRows = bankItems.map(i => `<tr style="background:${i.status==='confirmed'?'#0a2a1a':'#2a1a0a'}"><td>${i.name||''}</td><td>${i.email||''}</td><td>${i.service||''}</td><td>${i.amount||''}</td><td>${i.transferDate||''}</td><td><span style="color:${i.status==='confirmed'?'#00ff88':'#ffaa00'}">${i.status==='confirmed'?'✅確認済':'⏳未確認'}</span></td><td>${i.status!=='confirmed'?`<button onclick="confirmPayment('${i.key}')" style="background:#00ff88;color:#000;border:none;padding:4px 8px;border-radius:4px;cursor:pointer">入金確認</button>`:''}</td></tr>`).join('');
+        // === HS-ADMIN-ORDERS v1 (2026-07-07) 修理4: 注文(ORDERS)棚の陳列 ===
+        let orderRows = "";
+        let orderCount = 0;
+        try {
+          const orderList = await env.ORDERS.list({ prefix: "order:" });
+          const orderItems = await Promise.all(orderList.keys.map(async (k) => {
+            const v = await env.ORDERS.get(k.name, { type: "json" });
+            return { key: k.name, ...(v || {}) };
+          }));
+          orderItems.sort((a, b) => String(b.paidAt || b.paid_at || "").localeCompare(String(a.paidAt || a.paid_at || "")));
+          orderCount = orderItems.length;
+          orderRows = orderItems.slice(0, 50).map(o => {
+            const st = String(o.status || "");
+            const stColor = (st === "delivered_email" || st === "delivered") ? "#00aa55" : (st === "generated_manual_forward_needed" ? "#dd8800" : (st === "paid" ? "#cc3333" : "#888"));
+            const amt = o.amount ? ("¥" + Number(o.amount).toLocaleString()) : "";
+            const when = String(o.paidAt || o.paid_at || "");
+            const pdf = o.pdfUrl ? ('<a href="' + o.pdfUrl + '" target="_blank" rel="noopener">PDF</a>') : '<span style="color:#bbb">—</span>';
+            return '<tr><td>' + (o.orderId || o.key) + '</td><td>' + (o.customerName || o.customer_name || "") + '</td><td>' + (o.customerEmail || o.customer_email || o.email || "") + '</td><td style="text-align:right">' + amt + '</td><td>' + (o.serviceType || o.koji_type || "") + '</td><td><span style="color:' + stColor + ';font-weight:700">' + st + '</span></td><td>' + pdf + '</td><td>' + when + '</td></tr>';
+          }).join("");
+        } catch (ordErr) {
+          orderRows = '<tr><td colspan="8" style="color:#c00">注文一覧の取得に失敗: ' + String(ordErr && ordErr.message || ordErr) + '</td></tr>';
+        }
+        // === HS-ADMIN-ORDERS v1 ここまで ===
         const html = `<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HS管理</title>
 <style>body{font-family:sans-serif;padding:16px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;font-size:13px}th{background:#f5f5f5}button{padding:4px 8px;cursor:pointer}.stat{background:#f0f4ff;padding:12px;border-radius:8px;margin-bottom:16px;display:flex;gap:24px;flex-wrap:wrap}.badge{background:#3b82f6;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px}</style></head>
 <body><h2>HORIZON SHIELD 管理画面 <span class="badge">v11 + Reverse-Estimate</span></h2>
 <div style="margin:6px 0 14px"><a href="/admin-subscribers?key=${encodeURIComponent(_pw)}" style="display:inline-block;background:#16223c;color:#fff;text-decoration:none;padding:9px 16px;border-radius:8px;font-size:14px;font-weight:700">🛡 創設メンバー 登録者管理 →</a></div>
-<div class="stat"><span>📋 問い合わせ: <strong>${items.length}件</strong></span><span>🧠 記憶ユーザー: <strong>${historyCount}名</strong></span><span>🤖 Claude + Gemini: <strong>連携中</strong></span></div>
+<div class="stat"><span>💳 注文: <strong>${orderCount}件</strong></span><span>📋 問い合わせ: <strong>${items.length}件</strong></span><span>🧠 記憶ユーザー: <strong>${historyCount}名</strong></span><span>🤖 Claude + Gemini: <strong>連携中</strong></span></div>
 <div style="background:#f0f4ff;border:1px solid #c7d6f5;border-radius:10px;padding:16px;margin-bottom:18px">
   <div style="font-weight:700;color:#1a3a5c;margin-bottom:8px">🔎 見積を貼って無料検証（管理者専用 / 何度でも無料）</div>
   <textarea id="estIn" placeholder="ここに見積書の内容を貼り付け（工事内容・数量・単価・金額など。テキストで可）" style="width:100%;min-height:140px;padding:10px;border:1px solid #bbb;border-radius:8px;font-size:13px;box-sizing:border-box"></textarea>
@@ -3706,6 +3729,8 @@ ${_pw ? "document.getElementById('msg').textContent='パスワードが違いま
   <div id="spResult" style="display:none;white-space:pre-wrap;line-height:1.7;font-size:13px;color:#222;background:#fff;border-radius:8px;padding:14px;margin-top:12px"></div>
   <div id="spHash" style="display:none;font-size:11px;color:#c9a227;margin-top:8px;font-family:monospace"></div>
 </div>
+<h3 style="margin:16px 0 8px;color:#00aa55">💳 注文（PayPal/PayPay）</h3>
+<table><tr><th>注文ID</th><th>顧客</th><th>メール</th><th>金額</th><th>種別</th><th>状態</th><th>PDF</th><th>決済日時</th></tr>${orderRows}</table>
 <h3 style="margin:16px 0 8px;color:#ffaa00">💰 銀行振込申込</h3>
 <table><tr><th>名前</th><th>メール</th><th>サービス</th><th>金額</th><th>振込日</th><th>状態</th><th>操作</th></tr>${bankRows}</table>
 <h3 style="margin:16px 0 8px;color:#888">📋 問い合わせ</h3>
