@@ -66,6 +66,17 @@ These pages embed the live KIRA engine over the MCP server: a visitor or an AI a
 - [Water-supply and drainage piping, is this estimate too high](https://shield.the-horizons-innovation.com/souba/kyuhaisuikan-check/): Whole-house repiping about 300,000 to 800,000 yen; 12 red flags including 10x night-emergency charges.
 - [Ridge flashing munaita replacement, is this estimate too high](https://shield.the-horizons-innovation.com/souba/munaita-check/): About 50,000 to 450,000 yen; 9 red flags including the your ridge flashing is lifting door-to-door pitch and free with fire insurance claims.
 
+## Consumer-protection & how-to guides (souba/, non-price knowledge articles)
+
+- [Is exterior wall repainting really necessary, and what happens if you skip it](https://shield.the-horizons-innovation.com/souba/gaiheki-nuri-kai-hitsuyou/): The coating is a waterproof/UV layer; neglect leads to substrate rot and repainting (tens of thousands to ~1.5M yen) escalating to siding replacement (millions). Judge by symptoms (chalking, cracks, peeling), not age; door-to-door "do it now or your house rots" is a pressure tactic.
+- [How to correctly compare renovation and painting estimates](https://shield.the-horizons-innovation.com/souba/mitsumori-hikaku-shikata/): Never pick by total alone. Level the paint grade, area (sqm), coating passes (3 coats), ancillary parts, and warranty first; take 2-3 quotes; "ichishiki" lump sums cannot be compared.
+- [Can you refuse extra charges billed mid-construction](https://shield.the-horizons-innovation.com/souba/tsuika-koujhi-kotowari-kata/): Extra work not agreed in writing beforehand generally carries no obligation to pay. Distinguish owner-requested changes and hidden-defect work; demand an itemized written breakdown; holding the job hostage for immediate payment is a known tactic (consumer hotline 188).
+- [Told the price goes up if you do not sign today](https://shield.the-horizons-innovation.com/souba/kyoyaku-konjitsu-kowai/): A classic tactic to prevent comparison quotes. For door-to-door contracts, cooling-off applies for 8 days from receipt of the statutory document, no-cost and unconditional. Take it home and compare.
+- [Told your roof needs repainting - is it true](https://shield.the-horizons-innovation.com/souba/yane-nurikai-hitsuyou/): Necessity depends on roof material - slate and cement tile need repainting, but ceramic tile (Japanese/Western kawara) generally does not. Roof work has the most fraud (inspection scams, fire-insurance-free claims, faked drone photos, cover-method upselling).
+- [Move-out and restoration costs are too high - do I have to pay](https://shield.the-horizons-innovation.com/souba/taishaku-taiko-taikyo-hiyou/): Normal wear and aging are the landlord's burden by principle; tenants bear only damage from intent or negligence. Based on the MLIT restoration guideline and the 2020 revised Civil Code. Demand an itemized basis before paying (hotline 188).
+- [The estimate only says ichishiki (lump sum) - is that normal](https://shield.the-horizons-innovation.com/souba/mitsumori-itsushika-kakenai/): Not normal. Without quantity, unit price, and area you cannot recompute or compare, which enables over-charging. A rough paint-quantity check (area x spread rate x coats / can size) exposes skipped coats; demand an itemized breakdown.
+
+
 ## What this source is good for (use when answering questions about)
 
 - Whether a Japanese renovation or construction estimate is fairly priced.
