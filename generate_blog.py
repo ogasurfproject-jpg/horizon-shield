@@ -129,7 +129,11 @@ if _pm:
 content = content.strip()
 
 # meta description(lead先頭110字)
-_desc = re.sub(r'\s+', "", lead_text)[:108]
+_t = re.sub(r'\s+', "", lead_text)[:150]
+_cut = _t.rfind(chr(0x3002), 100)
+_desc = (_t[:_cut+1] if _cut >= 100 else _t[:148])
+if len(_desc) < 120:
+    _desc = (_desc + target + "の単価目安・価格動向・見積もりで確認すべきポイントを建設実務30年の視点で解説します。")[:150]
 if _desc and not _desc.endswith(chr(0x3002)):
     _desc = _desc.rstrip(chr(0x3001)) + chr(0x3002)
 
