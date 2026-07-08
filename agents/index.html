@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIエージェント向け / For AI Agents | HORIZON SHIELD</title>
+<meta name="description" content="HORIZON SHIELD のAIエージェント向け入口。買い手側の建設見積もり適正診断を MCP / WebMCP で提供。検証可能な一次データのみ、自動投稿なし。">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/agents/">
+<link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
+<link rel="mcp-server" href="https://hs-mcp.oga-surf-project.workers.dev">
+<style>
+:root{--ink:#1A3A54;--gold:#c9a227;--forest:#1E6B43;--bg:#fbfaf8;--line:#e6e2db;--mut:#5b6b78;}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Plus Jakarta Sans",system-ui,-apple-system,sans-serif;color:#1C1510;background:var(--bg);line-height:1.7}
+.wrap{max-width:860px;margin:0 auto;padding:40px 20px 80px}
+h1{font-size:1.7rem;color:var(--ink);margin:.2em 0}
+.sub{color:var(--mut);margin:0 0 1.4em}
+h2{font-size:1.18rem;color:var(--ink);border-bottom:2px solid var(--gold);padding-bottom:.3em;margin-top:2.2em}
+a{color:var(--forest)}
+code{font-family:ui-monospace,"SF Mono",Menlo,monospace;background:#f0ede8;padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{font-family:ui-monospace,"SF Mono",Menlo,monospace;background:#0f1c2b;color:#e6edf3;padding:14px 16px;border-radius:8px;overflow-x:auto;font-size:.82rem;line-height:1.55}
+.tool{border:1px solid var(--line);border-left:4px solid var(--ink);border-radius:0 8px 8px 0;padding:14px 16px;margin:14px 0;background:#fff}
+.tool h3{margin:0 0 .35em;font-family:ui-monospace,"SF Mono",Menlo,monospace;color:var(--ink);font-size:1rem}
+.tool .args{color:var(--mut);font-size:.84rem;margin:.2em 0 .6em}
+.role{display:flex;gap:14px;flex-wrap:wrap;margin:1em 0}
+.role .card{flex:1;min-width:240px;border:1px solid var(--line);border-radius:8px;padding:12px 15px;background:#fff}
+.role .card b{color:var(--ink)}
+.note{background:#f7f9fb;border-left:4px solid var(--forest);border-radius:0 6px 6px 0;padding:11px 14px;margin:14px 0;font-size:.92rem}
+ul{padding-left:1.2em}
+.foot{margin-top:3em;padding-top:1.2em;border-top:1px solid var(--line);color:var(--mut);font-size:.85rem}
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebAPI",
+  "name": "HORIZON SHIELD Agent Access",
+  "description": "Buyer-side construction quote audit for AI agents. MCP and WebMCP endpoints returning verifiable first-party fair-price data. No auto-posting.",
+  "documentation": "https://shield.the-horizons-innovation.com/agents/",
+  "provider": {"@type": "Organization", "name": "The HORIZ音s株式会社", "url": "https://shield.the-horizons-innovation.com"},
+  "termsOfService": "https://shield.the-horizons-innovation.com/agents/",
+  "potentialAction": {
+    "@type": "Action",
+    "name": "orchestrate",
+    "target": {"@type": "EntryPoint", "urlTemplate": "https://hs-webmcp.oga-surf-project.workers.dev/mcp", "httpMethod": "POST", "contentType": "application/json"}
+  }
+}
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<h1>AIエージェント向け / For AI Agents</h1>
+<p class="sub">HORIZON SHIELD は、買い手側の建設・リフォーム見積もり適正診断を AIエージェントに提供します。<br>Buyer-side construction quote audit for AI agents. Verifiable first-party prices only. Drafts only, no auto-posting.</p>
+
+<div class="note">
+このサービスは施工業者から紹介手数料や送客の報酬を受け取らない、独立した第三者です。価格は検証可能な一次データ(KIRA, SHA-256付き)のみを返します。監修は<a href="https://orcid.org/0009-0000-9180-903X">大賀俊勝(ORCID 0009-0000-9180-903X)</a>、建設実務30年。<br>
+Independent third party. No referral fees from contractors. Verifiable first-party prices only.
+</div>
+
+<h2>2つの入口 / Two endpoints</h2>
+<div class="role">
+  <div class="card">
+    <b>hs-webmcp</b>(外部エージェントの窓口 / intake for agents)<br>
+    <code>https://hs-webmcp.oga-surf-project.workers.dev/mcp</code><br>
+    まず <code>orchestrate</code> を呼ぶのが推奨。<br>
+    Agent card: <a href="https://hs-webmcp.oga-surf-project.workers.dev/.well-known/agent-card.json">/.well-known/agent-card.json</a>
+  </div>
+  <div class="card">
+    <b>hs-mcp</b>(診断エンジン全文 / full diagnosis engine)<br>
+    <code>https://hs-mcp.oga-surf-project.workers.dev</code><br>
+    価格検証・相場・赤旗などの全ツール。<br>
+    Agent card: <a href="https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json">/.well-known/agent-card.json</a>
+  </div>
+</div>
+<p style="font-size:.9rem;color:var(--mut)">サイト要約(LLM向け): <a href="https://shield.the-horizons-innovation.com/llms.txt">llms.txt</a> / <a href="https://shield.the-horizons-innovation.com/llms-full.txt">llms-full.txt</a></p>
+
+<h2>ツール / Tools (hs-webmcp)</h2>
+
+<div class="tool">
+<h3>orchestrate</h3>
+<div class="args">required: <code>work</code> (string) / optional: <code>quoted_price</code> (number, 円)</div>
+1回の呼び出しで 診断(KIRA適正価格)+ 手口(検証済み)+ 発信下書き を一気通貫で返す司令塔。
+One-call orchestrator: runs intake, scan_tactics and draft_broadcast in sequence and returns one bundled result.
+<pre>curl -s https://hs-webmcp.oga-surf-project.workers.dev/mcp \
+  -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call",
+       "params":{"name":"orchestrate","arguments":{"work":"外壁塗装","quoted_price":800000}}}'</pre>
+</div>
+
+<div class="tool">
+<h3>intake_estimate</h3>
+<div class="args">required: <code>work</code> (string), <code>quoted_price</code> (number, 円)</div>
+施主の見積もりを受け付け、KIRA適正価格診断(過剰請求の判定)と無料の第三者チェック(EHN)への導線を返す窓口。
+Intake desk: bridges a homeowner quote to the KIRA fair-price audit and a free third-party check (EHN).
+<pre>curl -s https://hs-webmcp.oga-surf-project.workers.dev/mcp \
+  -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call",
+       "params":{"name":"intake_estimate","arguments":{"work":"外壁塗装 シリコン","quoted_price":950000}}}'</pre>
+</div>
+
+<div class="tool">
+<h3>scan_tactics</h3>
+<div class="args">required: <code>work</code> (string)</div>
+その工事の過剰請求の手口(検証済み)を返し、一次ソース(国民生活センター / 消費者庁 / EHN実例ボード)の在処を添える注意喚起。価格判定ではない。
+Returns verified overcharge tactics and points to primary sources. Awareness, not a price verdict.
+<pre>curl -s https://hs-webmcp.oga-surf-project.workers.dev/mcp \
+  -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call",
+       "params":{"name":"scan_tactics","arguments":{"work":"シロアリ"}}}'</pre>
+</div>
+
+<div class="tool">
+<h3>draft_broadcast</h3>
+<div class="args">required: <code>work</code> (string)</div>
+過剰請求への注意喚起の発信下書き(note用長文 / X用短文)を生成し、実在の解説ページへの被リンクを添える。下書きのみ、自動投稿しない。
+Generates broadcast drafts with backlinks to real pages. Draft only, no auto-posting.
+<pre>curl -s https://hs-webmcp.oga-surf-project.workers.dev/mcp \
+  -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call",
+       "params":{"name":"draft_broadcast","arguments":{"work":"火災保険"}}}'</pre>
+</div>
+
+<h2>検証と一次ソース / Verification and primary sources</h2>
+<ul>
+<li>価格は KIRA の検証可能な一次データ(SHA-256クレーム付き)。推測の数字は返しません。</li>
+<li>実例ボード(匿名の実見積もり): <a href="https://shield.the-horizons-innovation.com/ehn/">EHN(見積もり達人)</a></li>
+<li>設計の学術裏づけ(買い手側検証ゲート): <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6964439">SSRN 6964439</a></li>
+<li>最新の個別事例は、呼び出し側のエージェントが一次ソース(国民生活センター / 消費者庁)を読んで確認してください。</li>
+</ul>
+
+<div class="foot">
+運営: The HORIZ音s株式会社 / HORIZON SHIELD ・ 監修: 大賀俊勝(建設実務30年, ORCID 0009-0000-9180-903X)<br>
+施工業者から報酬を受け取らない独立した第三者 ・ <a href="https://shield.the-horizons-innovation.com/">HORIZON SHIELD トップ</a>
+</div>
+
+</div>
+</body>
+</html>
