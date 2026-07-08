@@ -22,6 +22,7 @@
 - [HORIZON SHIELD WebMCP intake server](https://hs-webmcp.oga-surf-project.workers.dev/mcp): A separate, public MCP endpoint (streamable-http) acting as an intake desk for external LLMs and agents. It bridges a homeowner construction-quote question to the internal KIRA audit without exposing the internal server. Tools: orchestrate (one call runs audit + tactics scan + broadcast draft), intake_estimate (bridges a quote to KIRA fair-price audit and returns the verdict plus a free EHN third-party-check path), scan_tactics (verified overcharge tactics for a job, with primary-source links), draft_broadcast (awareness drafts with backlinks to real HORIZON SHIELD pages; first-party prices only, no auto-posting).
 - [WebMCP server manifest](https://shield.the-horizons-innovation.com/server-webmcp.json): MCP Registry manifest for the intake server (io.github.ogasurfproject-jpg/horizon-shield-webmcp).
 - [WebMCP agent card](https://hs-webmcp.oga-surf-project.workers.dev/.well-known/agent-card.json): A2A discovery card for the intake desk. Read-only, CORS-open, fail-closed. Use this endpoint when an agent wants to act (submit a quote for audit), versus the human-readable pages which are for reading and citing.
+- [Agent access page](https://shield.the-horizons-innovation.com/agents/): Human and LLM readable directory of the agent endpoints and tools, with copy-paste curl examples for each WebMCP tool (orchestrate, intake_estimate, scan_tactics, draft_broadcast) and links to both agent cards.
 
 
 ## Open data (primary source for citation)
