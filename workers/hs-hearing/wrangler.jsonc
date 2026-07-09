@@ -1,5 +1,5 @@
 {
-  // hs-hearing : 八雲モール 加盟店 自動ヒアリング + 生きた加盟店MCPサーバー(独立ワーカー)
+  // hs-hearing : Yakumoモール 加盟店 自動ヒアリング + 生きた加盟店MCP + メール返信の安全網(Email Routing)
   "name": "hs-hearing",
   "main": "src/hearing.js",
   "compatibility_date": "2025-06-01",
@@ -10,11 +10,22 @@
       "id": "REPLACE_WITH_HS_HEARING_KV_ID"
     }
   ],
+  // Workers AI: メール返信のプローズをヒアリングschemaに構造化する既定エンジン(外部APIキー不要)
+  "ai": { "binding": "AI" },
   "vars": {
     "PUBLIC_DATA_URL": "https://shield.the-horizons-innovation.com/data/yakumo-contractors.json",
-    "GH_DISPATCH_REPO": "ogasurfproject-jpg/horizon-shield"
+    "GH_DISPATCH_REPO": "ogasurfproject-jpg/horizon-shield",
+    "HEARING_FROM": "Yakumo <hearing@the-horizons-innovation.com>"
   }
   // secrets (wrangler secret put ...):
-  //   HEARING_ADMIN_SECRET  : 管理エンドポイント認証
-  //   GH_DISPATCH_TOKEN     : 任意。GitHub repository_dispatch 用PAT。未設定なら生成トリガーは起動しない(fail-closed)
+  //   HEARING_ADMIN_SECRET : 管理エンドポイント認証(必須)
+  //   GH_DISPATCH_TOKEN    : GitHub repository_dispatch 用PAT。未設定なら生成は起動しない(fail-closed)
+  //   RESEND_API_KEY       : ヒアリング案内メール送信(任意。hs-estimate と同じ鍵で可)
+  //   LINE_CHANNEL_TOKEN / LINE_USER_ID / NTFY_TOPIC_URL : 通知(任意。hs-estimate と同じ値で可)
+  //   LLM_API_URL / LLM_API_KEY / LLM_MODEL : Workers AI の代わりに外部LLMを使う場合(任意)
+  //
+  // Email Routing 設定(Cloudflareダッシュボード):
+  //   1) the-horizons-innovation.com の Email Routing を有効化(MXレコード自動追加)
+  //   2) ルール: hearing@the-horizons-innovation.com → Send to a Worker → hs-hearing
+  //   3) RESEND 側で hearing@ の送信ドメインを検証(SPF/DKIM)。送信元と受信先を一致させ返信を自動照合。
 }

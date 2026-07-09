@@ -329,6 +329,96 @@ function agentCard(origin) {
   };
 }
 
+/* ------------------------------ email intake (Cloudflare Email Routing) ------------------------------ */
+async function readRaw(message) {
+  try { return await new Response(message.raw).text(); } catch (_e) { return ""; }
+}
+function extractPlainBody(raw) {
+  const sep = raw.indexOf("\r\n\r\n");
+  const sep2 = raw.indexOf("\n\n");
+  const useCRLF = sep >= 0 && (sep2 < 0 || sep <= sep2);
+  const hIdx = useCRLF ? sep : sep2;
+  const headerBlock = hIdx >= 0 ? raw.slice(0, hIdx) : raw.slice(0, 2000);
+  let body = hIdx >= 0 ? raw.slice(hIdx + (useCRLF ? 4 : 2)) : raw;
+  const ct = headerBlock.match(/Content-Type:\s*multipart\/[^;]+;[\s\S]*?boundary="?([^"\r\n;]+)"?/i);
+  if (ct) {
+    const parts = body.split("--" + ct[1]);
+    const textPart = parts.find((p) => /Content-Type:\s*text\/plain/i.test(p));
+    if (textPart) {
+      const p = textPart.indexOf("\r\n\r\n") >= 0 ? textPart.indexOf("\r\n\r\n") + 4 : (textPart.indexOf("\n\n") >= 0 ? textPart.indexOf("\n\n") + 2 : 0);
+      body = textPart.slice(p);
+      if (/Content-Transfer-Encoding:\s*base64/i.test(textPart)) { try { body = atob(body.replace(/\s+/g, "")); } catch (_e) {} }
+    }
+  }
+  body = body.replace(/=\r?\n/g, "").replace(/=([0-9A-Fa-f]{2})/g, (_m, h) => String.fromCharCode(parseInt(h, 16)));
+  // 引用行(>)を落として要点だけ残す
+  return body.split(/\r?\n/).filter((l) => !l.trim().startsWith(">")).join("\n").slice(0, 6000).trim();
+}
+function subjectToken(subject) {
+  const m = (subject || "").match(/ref:([A-Za-z0-9_-]{6,})/);
+  return m ? m[1] : "";
+}
+async function resolveStoreFromEmail(env, message) {
+  const subject = (message.headers && message.headers.get("subject")) || "";
+  const tok = subjectToken(subject);
+  if (tok) {
+    const rec = await env.HS_HEARING_KV.get("htok:" + tok, "json");
+    if (rec) return { store_id: rec.store_id, via: "subject-token" };
+  }
+  const from = (message.from || "").toLowerCase();
+  if (from) {
+    const sid = await env.HS_HEARING_KV.get("email2store:" + from, "text");
+    if (sid) return { store_id: sid, via: "sender-email" };
+  }
+  return null;
+}
+async function llmStructure(env, text, store) {
+  const sys = "You extract structured data from a Japanese renovation/construction contractor's email reply. Output ONLY a JSON object (no prose, no code fences) with keys: company (string), rep (string), license (string), area (string, city level), areas (comma-separated string of service areas), works (array of trade strings in Japanese e.g. 外壁塗装), strengths (string), faqs (array of objects with q and a), trust (string), contact (string), hours (string). Do NOT invent prices or amounts. Unknown fields: empty string or empty array.";
+  const usr = "既知の会社名: " + ((store && store.company) || "") + "\n--- 返信本文 ---\n" + text;
+  let out = "";
+  try {
+    if (env.AI && typeof env.AI.run === "function") {
+      const r = await env.AI.run(env.LLM_MODEL || "@cf/meta/llama-3.1-8b-instruct", { messages: [{ role: "system", content: sys }, { role: "user", content: usr }], max_tokens: 900 });
+      out = (r && (r.response || r.result || r.output_text)) || "";
+    } else if (env.LLM_API_URL && env.LLM_API_KEY) {
+      const r = await fetch(env.LLM_API_URL, { method: "POST", headers: { "Authorization": "Bearer " + env.LLM_API_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ model: env.LLM_MODEL || "gpt-4o-mini", temperature: 0, messages: [{ role: "system", content: sys }, { role: "user", content: usr }] }) });
+      const j = await r.json();
+      out = (j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || "";
+    } else {
+      return { ok: false, reason: "llm-not-configured" };
+    }
+  } catch (e) { return { ok: false, reason: "llm-error:" + String(e).slice(0, 60) }; }
+  const m = out.match(/\{[\s\S]*\}/);
+  if (!m) return { ok: false, reason: "no-json" };
+  try { return { ok: true, raw: JSON.parse(m[0]) }; } catch (_e) { return { ok: false, reason: "json-parse-fail" }; }
+}
+async function notify(env, text) {
+  const jobs = [];
+  if (env.LINE_CHANNEL_TOKEN && env.LINE_USER_ID) {
+    jobs.push(fetch("https://api.line.me/v2/bot/message/push", { method: "POST", headers: { "Authorization": "Bearer " + env.LINE_CHANNEL_TOKEN, "Content-Type": "application/json" }, body: JSON.stringify({ to: env.LINE_USER_ID, messages: [{ type: "text", text: text.slice(0, 1900) }] }) }).catch(() => {}));
+  }
+  if (env.NTFY_TOPIC_URL) jobs.push(fetch(env.NTFY_TOPIC_URL, { method: "POST", body: text.slice(0, 1900) }).catch(() => {}));
+  await Promise.all(jobs);
+}
+async function sendHearingEmail(env, { to, token, company, origin }) {
+  if (!env.RESEND_API_KEY) return { ok: false, reason: "RESEND_API_KEY 未設定" };
+  const from = env.HEARING_FROM || "Yakumo <hearing@the-horizons-innovation.com>";
+  const link = (origin || "https://hs-hearing.oga-surf-project.workers.dev") + "/h/" + token;
+  const subject = "【Yakumo 加盟店ヒアリングのお願い / ref:" + token + "】" + (company || "");
+  const htmlBody =
+    '<div style="font-family:sans-serif;line-height:1.8;color:#222;">' +
+    '<p>' + (company || "") + ' ご担当者さま</p>' +
+    '<p>Yakumo(HORIZON SHIELD)加盟の手続きとして、簡単なヒアリングにご協力ください。下記フォームから約5分で完了します。</p>' +
+    '<p><a href="' + link + '" style="display:inline-block;background:#15847a;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:700;">ヒアリングフォームを開く</a></p>' +
+    '<p style="color:#666;font-size:13px;">フォームが開けない場合は、このメールにそのままご返信いただいても構いません。内容を確認して手続きします（件名はそのままにしてください）。</p>' +
+    '<p style="color:#888;font-size:12px;">The HORIZ音s株式会社 / HORIZON SHIELD / Yakumo ・ TEL 0463-74-5917</p></div>';
+  try {
+    const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ from, to, subject, html: htmlBody }) });
+    const j = await r.json().catch(() => ({}));
+    return { ok: r.ok, status: r.status, id: j.id, hearing_url: link };
+  } catch (e) { return { ok: false, reason: String(e).slice(0, 80) }; }
+}
+
 /* ------------------------------ router ------------------------------ */
 export default {
   async fetch(request, env) {
@@ -410,7 +500,21 @@ export default {
         };
         await env.HS_HEARING_KV.put("store:" + store_id, JSON.stringify(store));
         await env.HS_HEARING_KV.put("htok:" + token, JSON.stringify({ store_id, member_no: store.member_no, company: store.company, created_at: store.created_at }));
-        return json({ ok: true, store, hearing_url: url.origin + "/h/" + token });
+        // メール返信を送信元アドレスで店に紐づけるための逆引き(email監視の照合用)
+        if (store.email) await env.HS_HEARING_KV.put("email2store:" + store.email.toLowerCase(), store_id);
+        return json({ ok: true, store, hearing_url: url.origin + "/h/" + token, email_ref: "ref:" + token });
+      }
+
+      // ヒアリング案内メールを送信(RESEND)。件名に ref:<token> を入れて返信を自動照合できるようにする。
+      if (path === "/admin/send-hearing" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const tok = safeStr(b.token, 60).replace(/[^A-Za-z0-9_-]/g, "");
+        const to = safeStr(b.to, 120);
+        if (!tok || !to) return json({ error: "token と to が必要" }, 400);
+        const tokRec = await env.HS_HEARING_KV.get("htok:" + tok, "json");
+        if (!tokRec) return json({ error: "unknown_token" }, 404);
+        const res = await sendHearingEmail(env, { to, token: tok, company: tokRec.company, origin: url.origin });
+        return json(res, res.ok ? 200 : 502);
       }
 
       // 正規化済みプロフィールをエクスポート(生成側/確認用)
@@ -436,5 +540,44 @@ export default {
     if (path === "/") return json({ server: SERVER.name, mall: MALL_URL, mcp: url.origin + "/mcp", agent_card: url.origin + "/.well-known/agent-card.json" });
 
     return json({ error: "not_found" }, 404);
+  },
+
+  // Cloudflare Email Routing の宛先ワーカー。堤さんがメールで返信してきた分を安全網として吸い取る。
+  // 方針(TOshi確定): 構造化 -> 関所(必須項目チェック + 下流 validate.py) -> 通れば自動公開 / 落ちたら通知。
+  async email(message, env, _ctx) {
+    try {
+      const subject = (message.headers && message.headers.get("subject")) || "";
+      const resolved = await resolveStoreFromEmail(env, message);
+      if (!resolved) {
+        // どの店にも紐づかない = 自動処理しない(fail-closed)。通知だけして手動判断に回す。
+        await notify(env, "[Yakumo] 未紐づけのメール受信。from=" + (message.from || "?") + " subj=" + subject);
+        return;
+      }
+      const store = await env.HS_HEARING_KV.get("store:" + resolved.store_id, "json");
+      const raw = await readRaw(message);
+      const text = extractPlainBody(raw);
+      // 生返信は必ず保存(監査・手動フォールバック用)。時刻はDate.now()で一意化。
+      await env.HS_HEARING_KV.put("emailreply:" + resolved.store_id + ":" + Date.now(), JSON.stringify({ from: message.from, subject, text, at: new Date().toISOString(), via: resolved.via }));
+
+      const structured = await llmStructure(env, text, store);
+      if (!structured.ok) {
+        await notify(env, "[Yakumo] メール返信を受信(自動構造化できず: " + structured.reason + ")。手動確認を。store=" + resolved.store_id + " from=" + message.from);
+        return;
+      }
+      const profile = normalizeProfile(store || { store_id: resolved.store_id }, structured.raw);
+      // 入口の関所: 必須項目(社名・所在地・工種)が無ければ自動公開しない(fail-closed)。
+      if (!profile.company || !profile.area || !(profile.works && profile.works.length)) {
+        await notify(env, "[Yakumo] メール返信を構造化したが必須項目が不足。自動公開せず通知。store=" + resolved.store_id + " from=" + message.from);
+        return;
+      }
+      const now = new Date().toISOString();
+      await env.HS_HEARING_KV.put("hearing:" + resolved.store_id, JSON.stringify({ store_id: resolved.store_id, profile, answered_at: now, completed: true, source: "email" }));
+      if (store) { store.status = "hearing_done"; store.hearing_done_at = now; await env.HS_HEARING_KV.put("store:" + resolved.store_id, JSON.stringify(store)); }
+      // 生成トリガー。下流の GitHub Action で validate.py(関所A) を通過した分だけ公開される。
+      const gen = await triggerGeneration(env, profile);
+      await notify(env, "[Yakumo] メール返信を自動構造化→生成トリガー: " + ((store && store.company) || resolved.store_id) + " via " + resolved.via + " / dispatch=" + JSON.stringify(gen));
+    } catch (e) {
+      await notify(env, "[Yakumo] email handler error: " + String(e).slice(0, 120));
+    }
   },
 };
