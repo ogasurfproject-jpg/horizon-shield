@@ -58,11 +58,13 @@
   /* AI proof */
   .pill4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:4px 0 2px;}
   @media(max-width:520px){.pill4{grid-template-columns:repeat(2,1fr);}}
-  .p{border:1px solid var(--line);border-radius:11px;padding:11px 10px;text-align:center;background:rgba(8,11,17,.4);}
-  .p .ratio{font-size:10px;color:var(--bronze);letter-spacing:.1em;}
-  .p .name{font-size:13px;font-weight:800;margin:3px 0 1px;}
+  .p{border:1px solid var(--line);border-radius:11px;padding:12px 10px;text-align:center;background:rgba(8,11,17,.4);}
+  .p .name{font-size:14px;font-weight:800;margin:0 0 1px;}
   .p .sub{font-size:10.5px;color:var(--faint);line-height:1.5;}
-  .p .st{font-size:10.5px;margin-top:6px;padding:2px 0;border-top:1px solid var(--line);}
+  .p .alloc{font-size:10.5px;color:var(--bronze);letter-spacing:.04em;margin-top:6px;}
+  .p .st{font-size:10.5px;margin-top:6px;padding:4px 0 0;border-top:1px solid var(--line);}
+  .ratio-cap{color:var(--faint);font-size:12px;margin:2px 0 12px;line-height:1.65;}
+  .ratio-cap b{color:var(--dim);font-weight:700;}
   .st-live{color:var(--verify);} .st-wait{color:var(--bronze);} .st-off{color:var(--faint);}
 
   pre.json{background:#05070B;border:1px solid var(--line);border-radius:10px;padding:12px;overflow:auto;font-size:11.5px;color:#B9C6D8;max-height:320px;margin:10px 0 0;line-height:1.6;}
@@ -129,11 +131,12 @@
     <div class="sect">
       <div class="sect-t">02 ／ あなたの自動生成ページ(GEO / AEO / LLMO / WebMCP)</div>
       <p class="sect-d">ヒアリングの回答をもとに、あなたの店を三方(施主・AI・検索)から見つけてもらうページを自動で作り、運営代行します。検証(KIRA)を通ったものだけ公開します。Google/Bingでエラーを出さない構成で発行します。</p>
+      <p class="ratio-cap"><b>力の入れ方の配分（黄金比 GEO 40：AEO 30：LLMO 20：WebMCP 10）。</b>数字はページの枚数ではなく、どこにどれだけ重点を置くかの比率です。下の「状態」が今の進み具合です。</p>
       <div class="pill4">
-        <div class="p"><div class="ratio">4</div><div class="name">GEO</div><div class="sub">地域×工種の発見ページ</div><div class="st" id="stGeo">—</div></div>
-        <div class="p"><div class="ratio">3</div><div class="name">AEO</div><div class="sub">FAQ・回答最適化</div><div class="st" id="stAeo">—</div></div>
-        <div class="p"><div class="ratio">2</div><div class="name">LLMO</div><div class="sub">AI向け解説・強み</div><div class="st" id="stLlmo">—</div></div>
-        <div class="p"><div class="ratio">1</div><div class="name">WebMCP</div><div class="sub">AIが直接読む口</div><div class="st" id="stMcp">—</div></div>
+        <div class="p"><div class="name">GEO</div><div class="sub">地域×工種の発見ページ</div><div class="alloc">配分 40%</div><div class="st" id="stGeo">—</div></div>
+        <div class="p"><div class="name">AEO</div><div class="sub">FAQ・回答最適化</div><div class="alloc">配分 30%</div><div class="st" id="stAeo">—</div></div>
+        <div class="p"><div class="name">LLMO</div><div class="sub">AI向け解説・強み</div><div class="alloc">配分 20%</div><div class="st" id="stLlmo">—</div></div>
+        <div class="p"><div class="name">WebMCP</div><div class="sub">AIが直接読む口</div><div class="alloc">配分 10%</div><div class="st" id="stMcp">—</div></div>
       </div>
       <div class="box" id="genStatusBox" style="margin-top:12px;"></div>
     </div>
