@@ -92,3 +92,4 @@ blog/*.bak-*
 !tools/yakumo/generate.py
 !tools/yakumo/validate.py
 !tools/yakumo/issue_no001.sh
+!tools/yakumo/deploy_all.sh
