@@ -19760,16 +19760,55 @@ var worker_default = {
           }
           const txnId = params.get("txn_id") || "unknown";
           const orderId = customData.orderId || `paypal-${txnId}`;
-          const kojiType = customData.koji_type || "gaiheki_30tsubo";
-          const teijiKingaku = customData.teiji_kingaku || 15e5;
-          const region = customData.region || "kanto";
           const hsRawFirstName = hsGetRawIpnField(body, "first_name");
           const hsCharset = params.get("charset") || "";
           const hsDecodedFirstName = hsRawFirstName && /shift_jis/i.test(hsCharset) ? hsDecodeSjisIpnField(hsRawFirstName) : params.get("first_name");
           const customerName = customData.customer_name || hsDecodedFirstName || "\u65BD\u4E3B\u69D8";
           const customerEmail = customData.customer_email || params.get("payer_email") || "";
-          const amount = params.get("mc_gross") || customData.amount || "55000";
-          const serviceType = customData.service_type || "\u5EFA\u8A2D\u8CBB\u8A3A\u65AD";
+          const amount = params.get("mc_gross") || customData.amount || "";
+          // ===== FAIL-CLOSED GATE (2026-07-09) =====
+          // \u30D2\u30A2\u30EA\u30F3\u30B0\u30C7\u30FC\u30BF(\u5DE5\u4E8B\u7A2E\u5225\u30FB\u63D0\u793A\u984D)\u306E\u7121\u3044\u6C7A\u6E08\u304B\u3089\u8A3A\u65AD\u3092\u751F\u6210\u3057\u306A\u3044\u3002
+          // \u65E7\u5B9F\u88C5\u306F\u3053\u3053\u3067 gaiheki_30tsubo / 1,500,000 / kanto \u3092\u65E2\u5B9A\u5024\u3068\u3057\u3066\u88DC\u5B8C\u3057\u3001
+          // \u5B9F\u5728\u3057\u306A\u3044\u300C\u5916\u58C1\u5857\u88C5\u300D\u8A3A\u65AD\u3092\u81EA\u52D5\u9001\u4FE1\u3057\u3066\u3044\u305F(2026-07-06 \u8AA4\u8A3A\u65AD\u4E8B\u6545\u306E\u6839\u672C\u539F\u56E0)\u3002
+          // \u691C\u8A3C\u3067\u304D\u306A\u3044\u3082\u306E\u306F\u767A\u884C\u3057\u306A\u3044 \u2014 verify-claim \u3068\u540C\u3058 fail-closed \u539F\u5247\u3002
+          const hsHasHearing = typeof customData.koji_type === "string" && customData.koji_type.length > 0 && Number(customData.teiji_kingaku) > 0;
+          if (!hsHasHearing) {
+            const hsHeldExisting = await env.ORDERS.get(`order:${orderId}`);
+            if (!hsHeldExisting) {
+              await env.ORDERS.put(`order:${orderId}`, JSON.stringify({
+                orderId,
+                txnId,
+                customerName,
+                customerEmail,
+                amount,
+                status: "needs_hearing",
+                holdReason: "custom_data_missing_or_invalid",
+                customRaw: String(customRaw).slice(0, 500),
+                paidAt: (/* @__PURE__ */ new Date()).toISOString(),
+                paymentMethod: "paypal"
+              }));
+            }
+            const hsAlert = [
+              "\u{1F6A8} \u8981\u5BFE\u5FDC\uFF1A\u6C7A\u6E08\u3042\u308A\u30FB\u30D2\u30A2\u30EA\u30F3\u30B0\u6B20\u843D\uFF08fail-closed\u767A\u52D5\u30FB\u81EA\u52D5PDF\u505C\u6B62\uFF09",
+              `\u9867\u5BA2\uFF1A${customerName}`,
+              `\u30E1\u30FC\u30EB\uFF1A${customerEmail || "(IPN\u306B\u7121\u3057)"}`,
+              `\u91D1\u984D\uFF1A\u00A5${Number(amount || 0).toLocaleString()}`,
+              `\u6CE8\u6587ID\uFF1A${orderId}`,
+              `txn_id\uFF1A${txnId}`,
+              "\u2192 \u30D2\u30A2\u30EA\u30F3\u30B0\u53D6\u5F97\u5F8C\u3001\u624B\u52D5\u3067\u6B63\u3057\u3044\u8A3A\u65AD\u3092\u767A\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u81EA\u52D5\u751F\u6210\u306F\u884C\u3063\u3066\u3044\u307E\u305B\u3093\u3002"
+            ].join("\n");
+            try { await sendLineMessage(env.LINE_USER_ID, hsAlert, env); } catch (e3) {}
+            try { await sendNtfyNotification("\u{1F6A8} \u6C7A\u6E08\u3042\u308A\u30FB\u30D2\u30A2\u30EA\u30F3\u30B0\u6B20\u843D", hsAlert, env, "urgent", "warning,paypal"); } catch (e4) {}
+            if (customerEmail) {
+              const hsMailHtml = `<div style="font-family:sans-serif;line-height:1.8;color:#14202b"><p>\u304A\u5BA2\u69D8</p><p>\u3053\u306E\u305F\u3073\u306FHORIZON SHIELD\u306B\u3054\u6C7A\u6E08\u3044\u305F\u3060\u304D\u3001\u8AA0\u306B\u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\uFF08\u3054\u6CE8\u6587ID: ${orderId}\uFF09\u3002</p><p>\u6B63\u78BA\u306A\u8A3A\u65AD\u3092\u304A\u5C4A\u3051\u3059\u308B\u305F\u3081\u3001\u3054\u76F8\u8AC7\u306E<b>\u5DE5\u4E8B\u5185\u5BB9\u306E\u78BA\u8A8D</b>\u3092\u304A\u9858\u3044\u3057\u3066\u304A\u308A\u307E\u3059\u3002\u304A\u624B\u6570\u3067\u3059\u304C\u3001\u672C\u30E1\u30FC\u30EB\u3078\u306E\u8FD4\u4FE1\u3067\u4EE5\u4E0B\u3092\u304A\u77E5\u3089\u305B\u304F\u3060\u3055\u3044\u3002</p><ol><li>\u5DE5\u4E8B\u306E\u7A2E\u985E\uFF08\u4F8B\uFF1A\u30AD\u30C3\u30C1\u30F3\u4EA4\u63DB\u3001\u5185\u88C5\u30EA\u30D5\u30A9\u30FC\u30E0\u3001\u5916\u58C1\u5857\u88C5 \u306A\u3069\uFF09</li><li>\u696D\u8005\u304B\u3089\u63D0\u793A\u3055\u308C\u305F\u898B\u7A4D\u91D1\u984D</li><li>\u304A\u4F4F\u307E\u3044\u306E\u90FD\u9053\u5E9C\u770C</li><li>\u898B\u7A4D\u66F8\u3092\u304A\u6301\u3061\u306E\u5834\u5408\u306F\u6DFB\u4ED8\uFF08\u5199\u771F\u30FBPDF\u53EF\uFF09</li></ol><p>\u3054\u8FD4\u4FE1\u306E\u78BA\u8A8D\u5F8C\u3001\u62C5\u5F53\uFF08\u5EFA\u8A2D\u5B9F\u52D930\u5E74\u30FB\u5927\u8CC0\uFF09\u304C\u8A3A\u65AD\u30EC\u30DD\u30FC\u30C8\u3092\u4F5C\u6210\u3057\u3066\u304A\u5C4A\u3051\u3057\u307E\u3059\u3002\u5185\u5BB9\u304C\u78BA\u8A8D\u3067\u304D\u306A\u3044\u307E\u307E\u306E\u81EA\u52D5\u8A3A\u65AD\u306F\u3001\u6B63\u78BA\u6027\u3092\u5B88\u308B\u305F\u3081\u884C\u3063\u3066\u304A\u308A\u307E\u305B\u3093\u3002</p><p>The HORIZ\u97F3s\u682A\u5F0F\u4F1A\u793E / HORIZON SHIELD<br>https://shield.the-horizons-innovation.com<br>TEL: 0463-74-5917</p></div>`;
+              try { await sendResendEmail(customerEmail, "\u3010HORIZON SHIELD\u3011\u3054\u6C7A\u6E08\u306E\u78BA\u8A8D\u3068\u5DE5\u4E8B\u5185\u5BB9\u306E\u304A\u4F3A\u3044", hsMailHtml, env); } catch (e5) {}
+            }
+            return Response.json({ ok: true, held: "needs_hearing", orderId });
+          }
+          const kojiType = customData.koji_type;
+          const teijiKingaku = Number(customData.teiji_kingaku);
+          const region = customData.region || "all";
+          const serviceType = customData.service_type || "\u9006\u898B\u7A4D\u3082\u308A\u8A3A\u65AD";
           const hsExistingRaw = await env.ORDERS.get(`order:${orderId}`);
           const hsExisting = hsExistingRaw ? JSON.parse(hsExistingRaw) : null;
           if (!hsExisting) {

@@ -1330,16 +1330,18 @@ document.addEventListener('DOMContentLoaded', function() {
     location.reload();
   };
 
-  if (localStorage.getItem('hs_reverse_used')) {
+  /* FAIL-CLOSED (2026-07-09): 固定PayPalリンク(NCP)はヒアリングデータを運べず
+     誤診断(2026-07-06)の原因となったため廃止。購入希望者はヒアリング→SDK決済へ再誘導。 */
+  if (localStorage.getItem('hs_reverse_used') && !sessionStorage.getItem('hs_purchase_intent')) {
     document.querySelector('.hero').insertAdjacentHTML('afterend',
       '<div style="max-width:780px;margin:20px auto;padding:0 20px">'
       + '<div class="used-banner">'
       + '<div style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:var(--gold);letter-spacing:3px;margin-bottom:12px">FREE LIMIT REACHED</div>'
       + '<div style="font-size:20px;font-weight:900;margin-bottom:12px;color:var(--navy)">無料ヒアリングは1回限りです</div>'
       + '<div style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:24px">結果はお手元に残りましたか？<br>交渉用PDFを手に入れて業者と戦ってください。</div>'
-      + '<a href="https://www.paypal.com/ncp/payment/H747QJMWFM4BS" target="_blank" rel="noopener"'
+      + '<a href="#" onclick="sessionStorage.setItem(\'hs_purchase_intent\',\'1\');location.reload();return false;"'
       + ' style="display:block;padding:16px;background:var(--navy);color:#faf9f5;text-decoration:none;font-size:15px;font-weight:900;margin-bottom:10px;text-align:center">'
-      + '¥5,500で交渉PDFを手に入れる →</a>'
+      + '¥5,500で交渉PDFを手に入れる（ヒアリングを再開）→</a>'
       + '<a href="https://line.me/R/ti/p/@172piime" target="_blank" rel="noopener"'
       + ' style="display:block;padding:12px;background:transparent;border:1px solid var(--border2);color:var(--navy);text-decoration:none;font-size:13px;text-align:center">'
       + 'LINEで直接相談する（無料）</a>'

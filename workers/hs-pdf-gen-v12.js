@@ -1878,13 +1878,48 @@ export default {
 
           const txnId     = params.get('txn_id') || 'unknown';
           const orderId   = customData.orderId || `paypal-${txnId}`;
-          const kojiType  = customData.koji_type || 'gaiheki_30tsubo';
-          const teijiKingaku = customData.teiji_kingaku || 1500000;
-          const region    = customData.region || 'kanto';
           const customerName  = customData.customer_name  || params.get('first_name') || '施主様';
           const customerEmail = customData.customer_email || params.get('payer_email') || '';
-          const amount    = params.get('mc_gross') || customData.amount || '55000';
-          const serviceType = customData.service_type || '建設費診断';
+          const amount    = params.get('mc_gross') || customData.amount || '';
+          // ===== FAIL-CLOSED GATE (2026-07-09) =====
+          // ヒアリングデータ(工事種別・提示額)の無い決済から診断を生成しない。
+          // 旧実装はここで gaiheki_30tsubo / 1,500,000 / kanto を既定値として補完し、
+          // 実在しない「外壁塗装」診断を自動送信していた(2026-07-06 誤診断事故の根本原因)。
+          // 検証できないものは発行しない — verify-claim と同じ fail-closed 原則。
+          const hsHasHearing = typeof customData.koji_type === 'string' && customData.koji_type.length > 0 && Number(customData.teiji_kingaku) > 0;
+          if (!hsHasHearing) {
+            const hsHeldExisting = await env.ORDERS.get(`order:${orderId}`);
+            if (!hsHeldExisting) {
+              await env.ORDERS.put(`order:${orderId}`, JSON.stringify({
+                orderId, txnId, customerName, customerEmail, amount,
+                status: 'needs_hearing',
+                holdReason: 'custom_data_missing_or_invalid',
+                customRaw: String(customRaw).slice(0, 500),
+                paidAt: new Date().toISOString(),
+                paymentMethod: 'paypal'
+              }));
+            }
+            const hsAlert = [
+              '🚨 要対応：決済あり・ヒアリング欠落（fail-closed発動・自動PDF停止）',
+              `顧客：${customerName}`,
+              `メール：${customerEmail || '(IPNに無し)'}`,
+              `金額：¥${Number(amount || 0).toLocaleString()}`,
+              `注文ID：${orderId}`,
+              `txn_id：${txnId}`,
+              '→ ヒアリング取得後、手動で正しい診断を発行してください。自動生成は行っていません。'
+            ].join('\n');
+            try { await sendLineMessage(env.LINE_USER_ID, hsAlert, env); } catch (e3) {}
+            try { await sendNtfyNotification('🚨 決済あり・ヒアリング欠落', hsAlert, env, 'urgent', 'warning,paypal'); } catch (e4) {}
+            if (customerEmail) {
+              const hsMailHtml = `<div style="font-family:sans-serif;line-height:1.8;color:#14202b"><p>お客様</p><p>このたびはHORIZON SHIELDにご決済いただき、誠にありがとうございます（ご注文ID: ${orderId}）。</p><p>正確な診断をお届けするため、ご相談の<b>工事内容の確認</b>をお願いしております。お手数ですが、本メールへの返信で以下をお知らせください。</p><ol><li>工事の種類（例：キッチン交換、内装リフォーム、外壁塗装 など）</li><li>業者から提示された見積金額</li><li>お住まいの都道府県</li><li>見積書をお持ちの場合は添付（写真・PDF可）</li></ol><p>ご返信の確認後、担当（建設実務30年・大賀）が診断レポートを作成してお届けします。内容が確認できないままの自動診断は、正確性を守るため行っておりません。</p><p>The HORIZ音s株式会社 / HORIZON SHIELD<br>https://shield.the-horizons-innovation.com<br>TEL: 0463-74-5917</p></div>`;
+              try { await sendResendEmail(customerEmail, '【HORIZON SHIELD】ご決済の確認と工事内容のお伺い', hsMailHtml, env); } catch (e5) {}
+            }
+            return Response.json({ ok: true, held: 'needs_hearing', orderId });
+          }
+          const kojiType  = customData.koji_type;
+          const teijiKingaku = Number(customData.teiji_kingaku);
+          const region    = customData.region || 'all';
+          const serviceType = customData.service_type || '逆見積もり診断';
 
           // 注文をKVに保存
           await env.ORDERS.put(`order:${orderId}`, JSON.stringify({
