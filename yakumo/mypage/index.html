@@ -39,6 +39,9 @@
   .score .k{font-size:11px;color:var(--faint);letter-spacing:.08em;}
   .score .v{font-size:26px;font-weight:800;color:var(--ink);line-height:1.2;}
   .score .v small{font-size:13px;color:var(--dim);font-weight:600;}
+  .rank{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:56px;padding:8px 12px;border-radius:12px;border:1.5px solid;line-height:1;}
+  .rank .rl{font-family:"JetBrains Mono",monospace;font-weight:800;font-size:24px;line-height:1;}
+  .rank .rc{font-size:10.5px;margin-top:4px;letter-spacing:.03em;}
 
   /* sections */
   .sect{margin-top:26px;}
@@ -185,6 +188,24 @@ const yen = n => "¥" + Number(n||0).toLocaleString();
 function getParam(n){ return new URLSearchParams(location.search).get(n) || ""; }
 function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
 
+// 加盟店ランク: 適正度スコア(0-100)→6段階。緑A>青A>緑B>青B>緑C>青C。緑Aが最高。境目はここ一箇所で調整。
+function scoreToRank(s){
+  if(s==null||isNaN(s)) return null; s=Number(s);
+  if(s>=95) return {letter:"A",color:"green",label:"緑A"};
+  if(s>=90) return {letter:"A",color:"blue", label:"青A"};
+  if(s>=85) return {letter:"B",color:"green",label:"緑B"};
+  if(s>=80) return {letter:"B",color:"blue", label:"青B"};
+  if(s>=75) return {letter:"C",color:"green",label:"緑C"};
+  return {letter:"C",color:"blue",label:"青C"};
+}
+const RANK_GREEN="#3DDC84", RANK_BLUE="#4F9EF5";
+function rankBadge(score){
+  const r=scoreToRank(score); if(!r) return "";
+  const col=r.color==="green"?RANK_GREEN:RANK_BLUE, bg=r.color==="green"?"rgba(61,220,132,.09)":"rgba(79,158,245,.09)";
+  return '<span class="rank" title="加盟店ランク '+r.label+'" style="border-color:'+col+';background:'+bg+';">'
+    +'<span class="rl" style="color:'+col+';">'+r.letter+'</span><span class="rc" style="color:'+col+';">'+r.label+'</span></span>';
+}
+
 async function boot(code){
   CODE = code;
   let info;
@@ -239,8 +260,8 @@ function renderHero(){
     $("hState").innerHTML = '<span class="state verified"><span class="dot"></span>検証済み ・ KIRA適正診断 通過</span>';
     $("hScore").style.display = "flex";
     $("hScore").innerHTML =
+      '<div class="score" style="display:flex;flex-direction:column;align-items:center;gap:7px;"><div class="k">加盟店ランク</div>'+rankBadge(PUB.fairness_score)+'</div>' +
       '<div class="score"><div class="k">適正度スコア</div><div class="v">'+esc(PUB.fairness_score)+'<small> / 100</small></div></div>' +
-      '<div class="score"><div class="k">誠実度ティア</div><div class="v">'+esc(PUB.integrity_tier||"-")+'</div></div>' +
       '<div class="score"><div class="k">レッドフラグ</div><div class="v">'+(PUB.red_flags_detected!=null?esc(PUB.red_flags_detected):"-")+'<small> 件</small></div></div>';
   } else {
     $("hState").innerHTML = '<span class="state pending"><span class="dot"></span>検証手続き中(fail-closed)</span>';

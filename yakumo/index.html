@@ -97,9 +97,11 @@
   .row .nm{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .row .mt{font-size:12px;color:var(--ink-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .row .tg{display:inline-block;font-size:10.5px;color:var(--ink-faint);border:1px solid var(--line);border-radius:5px;padding:1px 6px;margin-right:4px;margin-top:5px;}
-  .row .sc{text-align:right;flex:none;}
-  .row .sc .n{font-family:"Space Grotesk";font-weight:700;font-size:24px;color:var(--verify);line-height:1;}
-  .row .sc .l{font-size:10px;color:var(--ink-faint);margin-top:3px;}
+  .row .sc{text-align:right;flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+  .row .sc .l{font-size:10px;color:var(--ink-faint);}
+  .rank{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:50px;padding:6px 9px;border-radius:11px;border:1.5px solid;line-height:1;}
+  .rank .rl{font-family:"Space Grotesk",sans-serif;font-weight:800;font-size:20px;line-height:1;}
+  .rank .rc{font-size:9.5px;margin-top:3px;letter-spacing:.03em;}
   .row .vd{width:7px;height:7px;border-radius:50%;background:var(--verify);flex:none;animation:pulse 2.8s infinite;}
   .row.pending{opacity:.62;cursor:default;}
   .row.pending:hover{transform:none;border-color:var(--line);}
@@ -225,6 +227,27 @@
   const STATS_URL = 'https://hs-mcp.oga-surf-project.workers.dev/.well-known/usage-stats.json';
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+  // 加盟店ランク: 適正度スコア(0-100)→6段階。緑A>青A>緑B>青B>緑C>青C。緑Aが最高。
+  // 境目はここ一箇所で調整可能。緑=各文字の上位 / 青=下位。
+  function scoreToRank(s){
+    if(s == null || isNaN(s)) return null; s = Number(s);
+    if(s >= 95) return {letter:'A', color:'green', label:'緑A'};
+    if(s >= 90) return {letter:'A', color:'blue',  label:'青A'};
+    if(s >= 85) return {letter:'B', color:'green', label:'緑B'};
+    if(s >= 80) return {letter:'B', color:'blue',  label:'青B'};
+    if(s >= 75) return {letter:'C', color:'green', label:'緑C'};
+    return {letter:'C', color:'blue', label:'青C'};
+  }
+  const RANK_GREEN = '#3DDC84', RANK_BLUE = '#4F9EF5';
+  function rankBadge(score){
+    const r = scoreToRank(score); if(!r) return '';
+    const col = r.color === 'green' ? RANK_GREEN : RANK_BLUE;
+    const bg  = r.color === 'green' ? 'rgba(61,220,132,.09)' : 'rgba(79,158,245,.09)';
+    return '<span class="rank" title="加盟店ランク '+r.label+'" style="border-color:'+col+';background:'+bg+';">'
+      + '<span class="rl" style="color:'+col+';">'+r.letter+'</span>'
+      + '<span class="rc" style="color:'+col+';">'+r.label+'</span></span>';
+  }
+
   function countUp(el, target, step, speed){
     if(!el) return;
     if(reduce){ el.textContent = target.toLocaleString(); return; }
@@ -255,7 +278,6 @@
     const pending = items.filter(c => !(c.verification === 'verified' && c.fairness_score != null));
     let html = '';
     for(const c of verified){
-      const tier = esc(c.integrity_tier || 'A');
       const tags = (c.works||[]).slice(0,3).map(w => '<span class="tg">'+esc(w)+'</span>').join('') + (c.area ? '<span class="tg">'+esc(c.area)+'</span>' : '');
       // 専用ページ(例 /yakumo/no001/)があればそこへ。無ければ汎用の店ページへ(モールに戻すループを防ぐ)。
       const purl = (c.profile_url && c.profile_url !== '/yakumo/') ? c.profile_url : ('/yakumo/store/?m=' + encodeURIComponent(c.member_no || ''));
@@ -264,7 +286,7 @@
         + '<div class="mid"><div class="nm">'+esc(c.name)+'</div>'
         + '<div class="mt">'+esc(c.area||'')+' ・ 加盟 '+esc(c.member_no||'')+'</div>'
         + '<div>'+tags+'</div></div>'
-        + '<div class="sc"><div class="n">'+esc(c.fairness_score)+'</div><div class="l">適正度 / '+tier+'</div></div>'
+        + '<div class="sc">'+rankBadge(c.fairness_score)+'<div class="l">適正度 '+esc(c.fairness_score)+'</div></div>'
         + '<span class="vd" title="検証済み"></span></a>';
     }
     for(const c of pending){

@@ -39,6 +39,9 @@
   .score .k{font-size:11px;color:var(--faint);letter-spacing:.06em;}
   .score .v{font-size:26px;font-weight:800;color:var(--ink);line-height:1.2;}
   .score .v small{font-size:13px;color:var(--dim);font-weight:600;}
+  .rank{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:58px;padding:8px 12px;border-radius:12px;border:1.5px solid;line-height:1;}
+  .rank .rl{font-family:"Space Grotesk",sans-serif;font-weight:800;font-size:26px;line-height:1;}
+  .rank .rc{font-size:11px;margin-top:4px;letter-spacing:.03em;}
   .sect{margin-top:24px;}
   .sect-t{font-size:12.5px;color:var(--bronze);letter-spacing:.06em;margin:0 0 8px;border-top:1px solid var(--line);padding-top:20px;font-family:"JetBrains Mono",monospace;}
   .box{border:1px solid var(--line);border-radius:12px;padding:16px;background:rgba(16,22,33,.35);}
@@ -119,6 +122,25 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function param(n){ return new URLSearchParams(location.search).get(n) || ''; }
 
+// 加盟店ランク: 適正度スコア(0-100)→6段階。緑A>青A>緑B>青B>緑C>青C。緑Aが最高。境目はここ一箇所で調整。
+function scoreToRank(s){
+  if(s==null||isNaN(s)) return null; s=Number(s);
+  if(s>=95) return {letter:'A',color:'green',label:'緑A'};
+  if(s>=90) return {letter:'A',color:'blue', label:'青A'};
+  if(s>=85) return {letter:'B',color:'green',label:'緑B'};
+  if(s>=80) return {letter:'B',color:'blue', label:'青B'};
+  if(s>=75) return {letter:'C',color:'green',label:'緑C'};
+  return {letter:'C',color:'blue',label:'青C'};
+}
+const RANK_GREEN='#3DDC84', RANK_BLUE='#4F9EF5';
+function rankColor(r){ return r.color==='green'?RANK_GREEN:RANK_BLUE; }
+function rankBadge(score){
+  const r=scoreToRank(score); if(!r) return '';
+  const col=rankColor(r), bg=r.color==='green'?'rgba(61,220,132,.09)':'rgba(79,158,245,.09)';
+  return '<span class="rank" title="加盟店ランク '+r.label+'" style="border-color:'+col+';background:'+bg+';">'
+    +'<span class="rl" style="color:'+col+';">'+r.letter+'</span><span class="rc" style="color:'+col+';">'+r.label+'</span></span>';
+}
+
 function show(id){ ['loading','notfound','main'].forEach(x=>$(x).style.display = x===id ? (id==='main'?'block':'flex') : 'none'); }
 
 function jsonld(c, verified){
@@ -143,8 +165,8 @@ function render(c){
     $('hState').innerHTML = '<span class="state verified"><span class="dot"></span>検証済み ・ KIRA適正診断 通過</span>';
     $('hScore').style.display='flex';
     $('hScore').innerHTML =
+      '<div class="score" style="display:flex;flex-direction:column;align-items:center;gap:7px;"><div class="k">加盟店ランク</div>'+rankBadge(c.fairness_score)+'</div>'+
       '<div class="score"><div class="k">適正度スコア</div><div class="v">'+esc(c.fairness_score)+'<small> / 100</small></div></div>'+
-      '<div class="score"><div class="k">誠実度ティア</div><div class="v">'+esc(c.integrity_tier||'A')+'</div></div>'+
       '<div class="score"><div class="k">レッドフラグ</div><div class="v">'+(c.red_flags_detected!=null?esc(c.red_flags_detected):'0')+'<small> 件</small></div></div>';
   } else {
     $('hero').classList.add('pending');
@@ -157,10 +179,11 @@ function render(c){
 
   if(verified){
     const sha = c.claim_sha256 ? esc(c.claim_sha256) : null;
+    const rk = scoreToRank(c.fairness_score); const rkc = rk ? rankColor(rk) : 'var(--ink)';
     $('proofBox').innerHTML =
       '<div class="kv"><span class="k">検証</span><span class="v">KIRA適正診断 通過</span></div>'+
+      '<div class="kv"><span class="k">加盟店ランク</span><span class="v" style="color:'+rkc+';">'+(rk?esc(rk.label):'-')+'</span></div>'+
       '<div class="kv"><span class="k">適正度スコア</span><span class="v">'+esc(c.fairness_score)+' / 100</span></div>'+
-      '<div class="kv"><span class="k">誠実度ティア</span><span class="v">'+esc(c.integrity_tier||'A')+'</span></div>'+
       (sha ? '<div style="padding-top:10px;"><p class="receipt">署名レシート(SHA-256)。発行者を信用せず、自分で再計算して照合できます。<br><span class="h mono">'+sha+'</span></p></div>' : '<p class="receipt" style="padding-top:10px;">署名レシートは発行準備中です。</p>');
   } else {
     $('proofBox').innerHTML = '<p class="receipt">この店は加盟が確定し、初回ヒアリングと適正診断(KIRA)を進めています。<b style="color:var(--warn);">通過するまでスコアは出しません</b>（fail-closed）。確定し次第、適正度スコアと署名レシートをここに掲載します。</p>';
