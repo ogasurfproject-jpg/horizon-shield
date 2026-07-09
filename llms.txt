@@ -212,3 +212,10 @@ These pages embed the live KIRA engine over the MCP server: a visitor or an AI a
 - [KIRAをChatGPT/Claude/Geminiから使う｜MCP・A2A・GPT/Gem](https://shield.the-horizons-innovation.com/webmcp/kira-multi-platform/): HORIZON SHIELDのAI「KIRA」を、MCP対応クライアント・A2Aエージェント・ChatGPT版/Gemini版から利用する方法を解説。
 - [建設見積もりの誠実性監査をエージェント/APIで｜estimate-integrity-audit](https://shield.the-horizons-innovation.com/webmcp/estimate-integrity-audit-api/): HORIZON SHIELDの誠実性監査スキル（estimate-integrity-audit）を、A2A/MCP経由でエージェントから呼び出す方法とfail-closedの検証を解説。
 - [日本の中古物件取得＋リフォーム相談窓口（A2A）｜HORIZON SHIELD](https://shield.the-horizons-innovation.com/webmcp/property-reform-intake-a2a/): HORIZON SHIELDのjapan-property-reform-intakeは、日本の中古物件取得とリフォームの相談をA2Aで受け付ける窓口。売買は宅地建物取引士が対応。
+
+## Yakumo (verified contractor mall)
+
+- [Yakumo 加盟店モール](https://shield.the-horizons-innovation.com/yakumo/): A neutral mall of Japanese renovation and construction contractors operated by The HORIZ音s株式会社 (HORIZON SHIELD). Only stores that pass an independent fair-price and overcharge audit (KIRA) are listed. It takes no referral fees, so it can show only verified stores. Each store carries an integrity score, a tier, and a recomputable signed receipt (claim_sha256). Prices are never shown to homeowners, only scores and tiers.
+- [Yakumo verified-stores MCP](https://hs-hearing.oga-surf-project.workers.dev/mcp): A live MCP server (JSON-RPC over HTTP) that lets agents discover verified contractors. Tools: list_verified_stores (filter by area and trade), get_contractor_profile (by member_no). Read-only, fail-closed, no prices returned. Stores still in verification return verification:"pending".
+- [Yakumo agent card (A2A)](https://hs-hearing.oga-surf-project.workers.dev/.well-known/agent-card.json): A2A discovery card for the verified-contractor directory. Skill list-verified-contractors.
+- [加盟No.001 リフォーム職人株式会社](https://shield.the-horizons-innovation.com/yakumo/no001/): Founding member of the Yakumo mall, based in Nagakute, Aichi. Trades: exterior painting, roofing, interior. Undergoing the KIRA fair-price verification.

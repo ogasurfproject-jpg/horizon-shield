@@ -1,0 +1,52 @@
+{
+  "schema": "yakumo-contractors/v1",
+  "note": "Yakumoモールの真実源。hs-hearing の検証パイプラインがこのファイルを更新する。金額は施主向け画面に出さない(スコア・ティアのみ)。fairness_score / integrity_tier は audit_estimate の実結果が出るまで null。null の店は『検証手続き中』としてゲート表示され、施主向けスコアは出さない。",
+  "generated_at": "2026-07-09T00:00:00+09:00",
+  "operator": "The HORIZ音s株式会社 / HORIZON SHIELD",
+  "mall_url": "https://shield.the-horizons-innovation.com/yakumo/",
+  "stats": {
+    "note": "実数は hs-mcp /.well-known/usage-stats.json をライブ取得(下記はフォールバック)。",
+    "usage_total": 414,
+    "verify_total": 11,
+    "source_count": 8,
+    "jccdb_items": 65729,
+    "as_of": "2026-06-30"
+  },
+  "contractors": [
+    {
+      "member_no": "No.001",
+      "store_id": "hs-partner-001",
+      "name": "リフォーム職人株式会社",
+      "rep": null,
+      "area": "愛知県長久手市",
+      "areas_served": ["愛知県", "長久手市", "名古屋市", "日進市", "尾張旭市", "瀬戸市", "みよし市"],
+      "works": ["外壁塗装", "屋根", "内装"],
+      "license_verified": false,
+      "status": "onboarding",
+      "verification": "pending",
+      "fairness_score": null,
+      "integrity_tier": null,
+      "red_flags_detected": null,
+      "claim_sha256": null,
+      "ptka_block": null,
+      "profile_url": "/yakumo/no001/",
+      "mcp_url": "https://hs-hearing.oga-surf-project.workers.dev/mcp",
+      "webmcp_option": true,
+      "plan": {
+        "base_tier": "honbu",
+        "base_fee_ex_tax": 29800,
+        "webmcp_addon_ex_tax": 12000,
+        "total_ex_tax": 41800,
+        "currency": "JPY",
+        "tax_note": "全て税抜。税込は各自 x1.1。"
+      },
+      "hearing": {
+        "sent": false,
+        "completed": false,
+        "last_answer_at": null
+      },
+      "joined_at": "2026-07-09",
+      "verified_at": null
+    }
+  ]
+}
