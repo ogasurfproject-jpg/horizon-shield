@@ -735,7 +735,7 @@ export default {
             plan: s.plan || null,
             email: s.email || "",
             token: s.token || null,
-            hearing_url: s.token ? (url.origin + "/h/" + s.token) : null,
+            hearing_url: s.token ? ("https://shield.the-horizons-innovation.com/yakumo/register/?code=" + s.token) : null,
             created_at: s.created_at || null,
             hearing_completed: !!(h && h.completed),
             hearing_source: (h && h.source) || null,
