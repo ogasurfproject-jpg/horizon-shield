@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCPサーバー接続ガイド｜HORIZON SHIELDのエンドポイントとtools/call</title>
+<meta name="description" content="HORIZON SHIELDのMCPエンドポイント（hs-webmcp / hs-mcp）への接続方法、tools/callの呼び出し例（curl）を解説。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/webmcp/mcp-server-setup/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MCPサーバー接続ガイド｜HORIZON SHIELDのエンドポイントとtools/call">
+<meta property="og:description" content="HORIZON SHIELDのMCPエンドポイント（hs-webmcp / hs-mcp）への接続方法、tools/callの呼び出し例（curl）を解説。">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/webmcp/mcp-server-setup/">
+<meta property="og:site_name" content="HORIZON SHIELD">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="author" content="大賀俊勝 / HORIZON SHIELD">
+<style>
+:root{--ink:#14202b;--muted:#5b6b78;--line:#e4e9ee;--bg:#f6f8fa;--brand:#0b5cab;--brand2:#08427a;--warn:#b3541e;--warnbg:#fff6ee;--hl:#eaf3ff;--ok:#0a7d54}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;font-family:-apple-system,"Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif;color:var(--ink);line-height:1.85;background:#fff;font-size:16.5px}
+a{color:var(--brand);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px}
+header.site{border-bottom:1px solid var(--line);background:#fff;position:sticky;top:0;z-index:10}
+header.site .wrap{display:flex;align-items:center;justify-content:space-between;height:56px}
+.logo{font-weight:800;letter-spacing:.02em;color:var(--brand2)}
+.logo small{display:block;font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.08em}
+nav.crumbs{font-size:12.5px;color:var(--muted);padding:10px 0}
+nav.crumbs a{color:var(--muted)}nav.crumbs span{margin:0 6px}
+main{padding:6px 0 40px}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:.06em}
+.badge.geo{background:#eaf3ff;color:#0b5cab}.badge.aeo{background:#eafaf1;color:#0a7d54}.badge.llmo{background:#f3edff;color:#6b3fb0}
+h1{font-size:27px;line-height:1.45;margin:.4em 0 .3em;letter-spacing:.01em}
+h2{font-size:20px;margin:1.8em 0 .5em;padding-bottom:.25em;border-bottom:2px solid var(--line)}
+h3{font-size:16.5px;margin:1.2em 0 .3em}
+p{margin:.6em 0}
+.lead{font-size:17.5px;color:#26333f}
+.updated{font-size:12.5px;color:var(--muted)}
+.tldr{background:var(--bg);border:1px solid var(--line);border-left:5px solid var(--brand);border-radius:10px;padding:16px 20px;margin:18px 0}
+.tldr h2{border:0;margin:.1em 0 .4em;font-size:16px;color:var(--brand2)}
+.tldr ul{margin:.2em 0;padding-left:1.2em}.tldr li{margin:.35em 0;font-weight:600}
+.answerbox{background:var(--hl);border:1px solid #cfe2fb;border-radius:10px;padding:16px 20px;margin:18px 0;font-size:17px}
+.answerbox .lbl{font-size:12px;font-weight:700;color:var(--brand);letter-spacing:.08em}
+.defbox{background:#faf7ff;border:1px solid #e6dcff;border-left:5px solid #6b3fb0;border-radius:10px;padding:16px 20px;margin:18px 0}
+.defbox .lbl{font-size:12px;font-weight:700;color:#6b3fb0;letter-spacing:.08em}
+.table-wrap{overflow-x:auto;margin:16px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+table caption{caption-side:top;text-align:left;font-size:12.5px;color:var(--muted);padding:4px 2px}
+.price th,.price td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.price thead th{background:var(--brand2);color:#fff;font-weight:700;text-align:center;white-space:nowrap}
+.price td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.price td.hl{background:var(--hl);font-weight:700}
+.price th[scope=row]{background:#fbfcfd;font-weight:600;width:32%}
+.note-row td{background:#fcfdfe;color:var(--muted);font-size:12.5px;border-top:0}
+.region th,.region td{border:1px solid var(--line);padding:6px 10px}.region td.n{text-align:right}
+.region thead th{background:#f0f4f8}
+.redflags{background:var(--warnbg);border:1px solid #f2d9c4;border-radius:10px;padding:8px 20px 16px;margin:20px 0}
+.redflags h2{border:0;color:var(--warn)}.redflags ul{padding-left:1.2em}.redflags li{margin:.4em 0}
+.rf-note{font-size:13px;color:var(--warn)}
+.faq .qa{border-bottom:1px solid var(--line);padding:12px 0}
+.faq .q{font-size:16px;color:var(--brand2);margin:.1em 0 .3em}.faq .q::before{content:"Q. ";color:var(--brand)}
+.faq .a{color:#2b3945}.faq .a::before{content:"A. ";font-weight:700;color:var(--ok)}
+.eeat{background:#fbfcfd;border:1px solid var(--line);border-radius:10px;padding:8px 20px 14px;margin:24px 0;font-size:14px;color:#3a4753}
+.eeat h2{font-size:16px;border:0}
+.src-list{font-size:12.5px;color:var(--muted);columns:2}
+.disc{font-size:12.5px;color:var(--muted)}
+.cta{background:linear-gradient(180deg,#f4f9ff,#eaf3ff);border:1px solid #cfe2fb;border-radius:14px;padding:8px 22px 22px;margin:26px 0}
+.cta h2{border:0}
+.cta-grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:640px){.cta-grid{grid-template-columns:1fr 1fr 1fr}}
+.cta-card{display:flex;flex-direction:column;gap:6px;background:#fff;border:1px solid #cfe2fb;border-radius:10px;padding:14px 16px}
+.cta-card:hover{border-color:var(--brand);text-decoration:none}
+.cta-card.primary{background:var(--brand);border-color:var(--brand)}
+.cta-card.primary .cta-t,.cta-card.primary .cta-d{color:#fff}
+.cta-t{font-weight:800;font-size:15px;color:var(--brand2)}.cta-d{font-size:12.5px;color:var(--muted);line-height:1.6}
+.related{margin:24px 0}.related ul{list-style:none;padding:0;display:grid;gap:8px}
+@media(min-width:640px){.related ul{grid-template-columns:1fr 1fr}}
+.related li a{display:block;border:1px solid var(--line);border-radius:8px;padding:10px 14px;background:#fff;font-size:14px}
+.related li a:hover{border-color:var(--brand);text-decoration:none}
+.hub ul{list-style:none;padding:0;display:grid;gap:10px}
+@media(min-width:640px){.hub ul{grid-template-columns:1fr 1fr}}
+.hub li{border:1px solid var(--line);border-radius:10px;padding:12px 16px;background:#fff}
+.hub li a{font-weight:700;font-size:15px}
+.hub .hub-d{display:block;font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.6}
+.src{font-size:12px;color:var(--muted)}
+details summary{cursor:pointer;font-size:13px;color:var(--brand);margin:.4em 0}
+footer.site{border-top:1px solid var(--line);background:var(--bg);font-size:12.5px;color:var(--muted);padding:22px 0;margin-top:30px}
+footer.site a{color:var(--muted)}
+.foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin:.4em 0}
+.badge.webmcp{background:#e6f6f4;color:#0a6b6b}
+.agentbox{background:#eafaf7;border:1px solid #bfe6df;border-left:5px solid #0a6b6b;border-radius:10px;padding:16px 20px;margin:18px 0}
+.agentbox .lbl{font-size:12px;font-weight:700;color:#0a6b6b;letter-spacing:.08em}
+.tools th,.tools td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.tools thead th{background:#0a6b6b;color:#fff}
+.tools th[scope=row]{background:#fbfcfd;white-space:nowrap;width:34%}
+.tools code{background:#eef4f3;padding:1px 6px;border-radius:5px;font-size:13px;color:#0a5c5c}
+pre.code{background:#0f2230;color:#e7eef5;border-radius:10px;padding:14px 16px;overflow-x:auto;font-size:12.5px;line-height:1.6}
+pre.code code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;white-space:pre}
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "HOME",
+      "item": "https://shield.the-horizons-innovation.com"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "エージェント連携 (WebMCP)",
+      "item": "https://shield.the-horizons-innovation.com/webmcp/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "MCPサーバー接続ガイド",
+      "item": null
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "MCPサーバー接続ガイド｜HORIZON SHIELDのエンドポイントとtools/call",
+  "description": "HORIZON SHIELDのMCPエンドポイント（hs-webmcp / hs-mcp）への接続方法、tools/callの呼び出し例（curl）を解説。",
+  "inLanguage": "ja",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://shield.the-horizons-innovation.com/webmcp/mcp-server-setup/"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "大賀俊勝",
+    "alternateName": "TOshi Oga",
+    "identifier": "https://orcid.org/0009-0000-9180-903X",
+    "sameAs": "https://orcid.org/0009-0000-9180-903X",
+    "jobTitle": "建設実務30年・監修者",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "The HORIZ音s株式会社"
+    }
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "The HORIZ音s株式会社",
+    "url": "https://shield.the-horizons-innovation.com",
+    "brand": "HORIZON SHIELD",
+    "logo": "https://shield.the-horizons-innovation.com/logo.png"
+  },
+  "datePublished": "2026-07-08",
+  "dateModified": "2026-07-08",
+  "isAccessibleForFree": true,
+  "isBasedOn": "https://doi.org/10.5281/zenodo.20019572",
+  "citation": [
+    "ヌリカエ 2025年12月施工データ2,655件",
+    "リショップナビ 2026年2〜3月集計",
+    "テイガク 2026年屋根リフォーム単価表",
+    "リフォームガイド 2026年最新版",
+    "タカラスタンダード リフォーム実例集",
+    "SHUKEN Re 2026年時点実績",
+    "シロアリ駆除業者人気ランキング 2026年4月205社調査",
+    "経済調査会『積算資料ポケット版 リフォーム編 2026』"
+  ],
+  "keywords": null
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "どのエンドポイントを使う？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "外部連携は hs-webmcp、詳細診断は hs-mcp です。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "必要なパラメータは？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "work（工事名・必須）と quoted_price（円・任意/必須）です。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "エージェントはまず何を呼べばいい？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "hs-webmcp の orchestrate を最初に呼ぶのが推奨です。1回の呼び出しで適正価格診断・過剰請求の手口・発信下書きをまとめて受け取れます。価格は検証可能な一次データのみ、自動投稿はしません。"
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site"><div class="wrap">
+<a class="logo" href="https://shield.the-horizons-innovation.com">HORIZON SHIELD<small>業者より先に、価格を知る。</small></a>
+<a href="https://shield.the-horizons-innovation.com/hs-reverse-estimate/" style="font-size:13px;font-weight:700">逆見積もり ¥5,500 ▸</a>
+</div></header>
+<div class="wrap">
+<nav class="crumbs" aria-label="パンくず"><a href='https://shield.the-horizons-innovation.com'>HOME</a><span>›</span><a href='https://shield.the-horizons-innovation.com/webmcp/'>エージェント連携 (WebMCP)</a><span>›</span><span aria-current='page'>MCPサーバー接続ガイド</span></nav>
+<main>
+<span class="badge webmcp">WebMCP ｜ エージェント</span>
+<h1>MCPサーバー接続ガイド</h1>
+<p class="updated">最終更新: 2026-07-08｜監修: 大賀俊勝（建設実務30年）</p>
+
+<div class='agentbox'><span class='lbl'>AGENT / MCP</span><p>HORIZON SHIELDは2つのMCPエンドポイントを公開しています。外部エージェント向けの入口 hs-webmcp（/mcp）と、フル診断エンジン hs-mcp です。MCPクライアントは tools/call でツールを呼び出します。まずは hs-webmcp の orchestrate から始めるのが推奨です。</p></div>
+<aside class='tldr' aria-label='結論'><h2>30秒でわかる結論</h2><ul><li>入口=hs-webmcp（/mcp）、診断エンジン=hs-mcp</li><li>MCPクライアントは tools/call でツール実行</li><li>推奨の最初の呼び出しは orchestrate</li></ul></aside>
+<section><h2>提供ツール（tools/call）</h2><div class='table-wrap'><table class='tools'><caption>WebMCP ツール（MCP: tools/call）</caption><thead><tr><th>ツール</th><th>説明</th></tr></thead><tbody><tr><th scope='row'><code>orchestrate</code></th><td>1回の呼び出しで「適正診断＋手口＋発信下書き」を一気通貫で返す司令塔。まず最初に呼ぶ推奨ツール。</td></tr><tr><th scope='row'><code>intake_estimate</code></th><td>施主の見積もりを受け、KIRA適正価格診断とEHN（無料の第三者チェック）へ橋渡しする。</td></tr><tr><th scope='row'><code>scan_tactics</code></th><td>工事別の検証済み過剰請求の手口と一次ソースの在処を返す（価格判定ではない注意喚起）。</td></tr><tr><th scope='row'><code>draft_broadcast</code></th><td>注意喚起の発信下書き（note/X）と解説ページへの被リンクを生成（自動投稿なし・一次データのみ）。</td></tr></tbody></table></div></section>
+<section><h2>エンドポイント</h2><p>外部エージェント入口: https://hs-webmcp.oga-surf-project.workers.dev/mcp 。フル診断エンジン: https://hs-mcp.oga-surf-project.workers.dev 。エージェントカードは各 /.well-known/agent-card.json で取得できます。</p></section>
+<section><h2>呼び出しの流れ</h2><p>tools/call で orchestrate を呼び、work（工事名）と quoted_price（見積額・円）を渡します。下記はcurlの例です。</p></section>
+<section><h2>呼び出し例（curl）</h2><pre class='code'><code>curl -s https://hs-webmcp.oga-surf-project.workers.dev/mcp \
+  -H &#x27;Content-Type: application/json&#x27; \
+  -d &#x27;{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:1,&quot;method&quot;:&quot;tools/call&quot;,
+       &quot;params&quot;:{&quot;name&quot;:&quot;orchestrate&quot;,
+                 &quot;arguments&quot;:{&quot;work&quot;:&quot;外壁塗装&quot;,&quot;quoted_price&quot;:800000}}}&#x27;</code></pre></section>
+<section class='eeat'><h2>エンドポイント・一次ソース</h2><ul class='src-list'><li><a href='https://hs-webmcp.oga-surf-project.workers.dev/.well-known/agent-card.json' rel='nofollow'>WebMCP エージェントカード</a></li><li><a href='https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json' rel='nofollow'>hs-mcp エージェントカード</a></li><li><a href='https://shield.the-horizons-innovation.com/agents/' rel='nofollow'>エージェント向けアクセスページ</a></li></ul></section>
+<section class='faq' aria-label='よくある質問'><h2>よくある質問（FAQ）</h2><div class='qa'><h3 class='q'>どのエンドポイントを使う？</h3><div class='a'><p>外部連携は hs-webmcp、詳細診断は hs-mcp です。</p></div></div><div class='qa'><h3 class='q'>必要なパラメータは？</h3><div class='a'><p>work（工事名・必須）と quoted_price（円・任意/必須）です。</p></div></div><div class='qa'><h3 class='q'>エージェントはまず何を呼べばいい？</h3><div class='a'><p>hs-webmcp の orchestrate を最初に呼ぶのが推奨です。1回の呼び出しで適正価格診断・過剰請求の手口・発信下書きをまとめて受け取れます。価格は検証可能な一次データのみ、自動投稿はしません。</p></div></div></section>
+<section class='eeat' aria-label='監修・出典'><h2>監修者・データ出典（E-E-A-T）</h2><p><strong>監修:</strong> 大賀俊勝（建設実務経験30年）（<a href='https://orcid.org/0009-0000-9180-903X' rel='nofollow'>ORCID</a>）。本ページの価格は <strong>souba-db v2.1.0 / souba index v1.7</strong>（2026-06-15更新）に基づきます。品目体系は日本建設費オープンデータベース <a href='https://github.com/ogasurfproject-jpg/japan-construction-cost-database' rel='nofollow'>JCCDB</a>（65,729品目・398カテゴリ・CC BY 4.0／DOI: <a href='https://doi.org/10.5281/zenodo.20019572' rel='nofollow'>https://doi.org/10.5281/zenodo.20019572</a>）を参照。</p><details><summary>価格データの一次ソース一覧</summary><ul class='src-list'><li>ヌリカエ 2025年12月施工データ2,655件</li><li>リショップナビ 2026年2〜3月集計</li><li>テイガク 2026年屋根リフォーム単価表</li><li>リフォームガイド 2026年最新版</li><li>タカラスタンダード リフォーム実例集</li><li>SHUKEN Re 2026年時点実績</li><li>シロアリ駆除業者人気ランキング 2026年4月205社調査</li><li>経済調査会『積算資料ポケット版 リフォーム編 2026』</li></ul></details><p class='disc'>※ 表示価格は一般的な適正レンジの目安です。実際の費用は現地条件・仕様・時期で変動します。個別の見積もり診断は下記の逆見積もり・EHNをご利用ください。</p></section>
+<section class='cta' aria-label='次のアクション'><h2>この工事、見積もりは適正ですか？</h2><p>金額に少しでも不安があるなら、業者と対決する前に第三者の目を入れるのが最短です。</p><div class='cta-grid'><a class='cta-card primary' href='https://shield.the-horizons-innovation.com/hs-reverse-estimate/'><span class='cta-t'>逆見積もり診断 ¥5,500</span><span class='cta-d'>建設30年プロ監修AIが適正価格を算出。9ページPDF＋SHA-256証明＋交渉テンプレを即日発行。</span></a><a class='cta-card' href='https://shield.the-horizons-innovation.com/hacker/submit/'><span class='cta-t'>EHNに無料で貼る</span><span class='cta-d'>見積もりハッカーニュースに匿名投稿。KIRAが過去の実例と並べて一次解析（無料）。</span></a><a class='cta-card' href='https://shield.the-horizons-innovation.com/'><span class='cta-t'>無料AIチャットで相談</span><span class='cta-d'>まずは気軽に。KIRAが工事内容と相場をその場で回答します。</span></a></div></section>
+<nav class='related' aria-label='関連ページ'><h2>関連ページ</h2><ul><li><a href='https://shield.the-horizons-innovation.com/webmcp/webmcp-toha/'>WebMCPとは</a></li><li><a href='https://shield.the-horizons-innovation.com/webmcp/orchestrate-tool/'>orchestrateツール</a></li><li><a href='https://shield.the-horizons-innovation.com/webmcp/a2a-agent-renkei/'>A2A連携の始め方</a></li></ul></nav>
+</main>
+</div>
+<footer class="site"><div class="wrap">
+<div class="foot-links">
+<a href="https://shield.the-horizons-innovation.com/souba/">相場データベース</a>
+<a href="https://shield.the-horizons-innovation.com/ehn/">EHN 見積もりハッカーニュース</a>
+<a href="https://shield.the-horizons-innovation.com/hs-reverse-estimate/">逆見積もり診断</a>
+<a href="https://shield.the-horizons-innovation.com/guide/">ガイド</a>
+<a href="https://shield.the-horizons-innovation.com/tokusho">特商法表記</a>
+<a href="https://shield.the-horizons-innovation.com/privacy">プライバシー</a>
+</div>
+<p>© The HORIZ音s株式会社 / HORIZON SHIELD. 建設費の適正価格を、検証可能な形で。データ: JCCDB (CC BY 4.0)・souba-db souba-db v2.1.0 / souba index v1.7。</p>
+<p>本コンテンツは一般的な費用目安であり、特定業者への評価・特定の工事の適正性を保証するものではありません。</p>
+</div></footer>
+</body>
+</html>
