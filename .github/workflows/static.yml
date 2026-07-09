@@ -31,13 +31,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # Build the published site into _public, EXCLUDING non-public files.
+      # The repository itself and its git history are left untouched (we copy, then prune the copy).
+      # These files are server-side only (workers/tooling/generators) and are never loaded by a browser;
+      # the live pages call the deployed Cloudflare Workers, not these repo paths. Nothing on the site changes.
+      - name: Build published site (exclude non-public source)
+        run: |
+          mkdir -p _public
+          rsync -a --exclude='.git' --exclude='_public' ./ _public/
+          # server-side code, tooling, CI, internal engine sources, docs
+          rm -rf _public/tools _public/workers _public/.github
+          rm -f  _public/kira.js _public/kira-v4.js
+          # all Python (generators, patch scripts, tests) and internal markdown docs
+          find _public -type f -name '*.py' -delete
+          find _public -type f -name '*.md' -delete
+          echo "----- published top-level after prune -----"
+          ls -1 _public
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
+          # Publish only the pruned copy, not the whole repository
+          path: '_public'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
