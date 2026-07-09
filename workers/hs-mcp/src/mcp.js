@@ -87,6 +87,12 @@ const TOOLS = [
     inputSchema: { type: "object", properties: {} }
   },
   {
+    name: "get_maker_price_policy",
+    annotations: { title: "設備メーカー別の値引き・定価ポリシー", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "設備メーカー(タカラスタンダード/LIXIL/クリナップ/パナソニック/TOTO/トクラス)の定価設定と実勢値引き率を返す。キッチン・浴室等で『本体が定価通りか』を評価する前に使う。メーカーによって『定価通り』の意味が反転する — タカラは定価が低く値引き1〜2割が正常、他社は定価が高く5〜6割引が通常。maker を渡すとそのメーカー、省略で全社一覧と使い方を返す。 / Returns the list-price policy and typical discount rate of a Japanese fixture maker (Takara Standard, LIXIL, Cleanup, Panasonic, TOTO, Toclas). Call before judging whether a kitchen or bath unit priced 'at list' is fair, because 'at list' means opposite things by maker (Takara sets list low, 10-20% off is normal; others set list high, 50-60% off is typical). Pass maker for one; omit for the full list.",
+    inputSchema: { type: "object", properties: { maker: { type: "string", description: "メーカー名(例: タカラスタンダード, LIXIL, クリナップ, パナソニック, TOTO)。省略可。" } } }
+  },
+  {
     name: "get_price_range",
     annotations: { title: "適正価格レンジ照会", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     description: "工事名・キーワードで、HORIZON SHIELDが実務監修する適正価格レンジ(最安min/平均avg/最高max)と、それを超えたら過剰請求を疑う危険水準(danger)、単位・価格動向・実務解説を返す。建設・リフォーム費用が適正か数値で確かめたい時に使う(例: 外壁塗装, 給湯器, ユニットバス, クロス)。 / Returns the fair price range (min, avg, max), the overcharge danger threshold, unit, price trend and field notes for a Japanese construction or renovation job. Japan-specific pricing in JPY. Use to numerically check whether a cost is fair.",
@@ -168,6 +174,17 @@ async function sha256hex(str) {
 async function fetchSouba() {
   const r = await fetch(SOUBA_DB_URL, { cf: { cacheTtl: 3600 } });
   return await r.json();
+}
+
+// メーカー価格ポリシー: テキスト中のメーカー名/別名を検出して該当ポリシーを返す(無ければnull)
+function makerPolicyMatch(d, text) {
+  const mp = d && d.maker_price_policy;
+  if (!mp || !Array.isArray(mp.makers) || !text) return null;
+  const t = String(text).toLowerCase();
+  return mp.makers.find(m =>
+    (m.maker && String(text).includes(m.maker)) ||
+    (Array.isArray(m.aliases) && m.aliases.some(a => t.includes(String(a).toLowerCase())))
+  ) || null;
 }
 
 // === [PATCH 2026-06-15] 検索フォールバック ===
@@ -259,6 +276,24 @@ async function callTool(name, args, env, ip, opts) {
       return txt("相場データ出典の取得に失敗しました。" + SITE + "/souba/ を参照してください。");
     }
   }
+  if (name === "get_maker_price_policy") {
+    try {
+      const d = await fetchSouba();
+      const mp = d.maker_price_policy;
+      if (!mp || !Array.isArray(mp.makers)) return txt("メーカー価格ポリシーが未整備です。" + SITE + "/souba/ を参照してください。");
+      const q = String(args.maker || "").trim();
+      if (!q) return txt({
+        makers: mp.makers.map(m => ({ maker: m.maker, list_price_policy: m.list_price_policy, typical_discount_pct: m.typical_discount_pct, interpretation: m.interpretation })),
+        key_insight: mp.key_insight, how_to_use: mp.how_to_use, caveat: mp.caveat,
+        updated_at: mp.updated_at, source: "HORIZON SHIELD souba-db maker_price_policy (大賀俊勝 実務監修)", detail: SITE + "/souba/"
+      });
+      const hit = makerPolicyMatch(d, q);
+      if (!hit) return txt({ query: q, message: "該当メーカーが見つかりませんでした。", makers: mp.makers.map(m => m.maker) });
+      return txt({ ...hit, key_insight: mp.key_insight, global_caveat: mp.caveat, source: "HORIZON SHIELD souba-db maker_price_policy (大賀俊勝 実務監修)", detail: SITE + "/souba/" });
+    } catch (e) {
+      return txt("メーカー価格ポリシーの取得に失敗しました。" + SITE + "/souba/ を参照してください。");
+    }
+  }
   if (name === "get_price_range") {
     const q = String(args.query || "").trim();
     if (!q) return txt("query(工事名・キーワード)を指定してください。");
@@ -279,8 +314,11 @@ async function callTool(name, args, env, ip, opts) {
         trend: e.trend, trend_val: e.trend_val, note: e.note,
         ...((opts && opts.authCtx) ? { danger_over_charge_threshold: e.danger, overcharge_rate_pct: e.overcharge_rate } : {})
       }));
+      const mk = makerPolicyMatch(d, q);
+      const makerNote = mk ? { maker: mk.maker, list_price_policy: mk.list_price_policy, typical_discount_pct: mk.typical_discount_pct, interpretation: mk.interpretation, caveat: d.maker_price_policy && d.maker_price_policy.caveat } : null;
       return txt({
         query: q, currency: "JPY", count: out.length, prices: out,
+        ...(makerNote ? { maker_note: makerNote } : {}),
         guide: "min〜maxが適正レンジ。これを大きく超える単価は過剰請求を疑う。具体的な危険水準はKIRA本診断で判定。地域係数は fair_price_data_sources を参照。",
         source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)", detail: SITE + "/souba/"
       });

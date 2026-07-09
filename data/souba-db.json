@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "version": "2.1.0",
-    "updated_at": "2026-06-15",
-    "updated_by": "大賀俊勝（建設実務経験30年）監修 / 2026年6月 玄関ドア カバー工法 松竹梅追加(公開相場複数ソース照合)",
+    "version": "2.2.0",
+    "updated_at": "2026-07-09",
+    "updated_by": "大賀俊勝（建設実務経験30年）監修 / 2026年7月 メーカー価格ポリシー層(maker_price_policy)追加：設備5社の定価設定・実勢値引きをデータ化(公開相場複数ソース照合) / 2026年6月 玄関ドア カバー工法 松竹梅追加",
     "sources": [
       "ヌリカエ 2025年12月施工データ2,655件",
       "リショップナビ 2026年2〜3月集計",
@@ -2778,5 +2778,88 @@
       "note": "カバー工法 高断熱・親子/両開き。本体40〜60万+工事。はつり工法(枠ごと40〜100万)とは別。danger超は要内訳確認。",
       "widget_label": "玄関ドア カバー工法(高断熱・親子)"
     }
-  ]
+  ],
+  "maker_price_policy": {
+    "_note": "設備メーカー別の定価設定と実勢値引き率。『本体が定価通りか』の評価はメーカーで反転する。get_maker_price_policy で参照。主にシステムキッチンの実勢（浴室・洗面・トイレも概ね同傾向、確度はキッチンが最高）。",
+    "categories": ["システムキッチン", "システムバス", "洗面化粧台", "トイレ"],
+    "key_insight": "『定価通り＝割高』は多くのメーカーで正しいが、タカラスタンダードは例外。タカラは定価を低く設定し値引き1〜2割が正常。他社(LIXIL/クリナップ/パナソニック/TOTO)は定価を高く設定し5〜6割引が通常。メーカーが判るだけで『定価通り』の評価が反転する。",
+    "how_to_use": "設備本体にメーカー名が判れば、そのメーカーの typical_discount_pct を定価に当て『定価×(1−値引き)＝実売想定』で照合する。メーカー不明時はグレード相場(categories)で代替。",
+    "caveat": "値引き率だけで判断しない。深い商品値引き＋施工費水増しの『撒き餌値引き(bait pricing)』に注意。必ず工事総額で比較する。",
+    "makers": [
+      {
+        "maker": "タカラスタンダード",
+        "aliases": ["タカラ", "Takara", "takara"],
+        "list_price_policy": "低め（定価≒実売）",
+        "typical_discount_pct": { "normal_min": 10, "normal_max": 20, "campaign_max": 25 },
+        "customer_pays_pct_of_list": { "min": 75, "max": 90 },
+        "dealer_cost_ratio": "高め（約0.65〜0.75）",
+        "interpretation": "『ほぼ定価通り』は正常水準。定価に近くても割高とは限らない。過剰な値切りより総額と施工費を見る。",
+        "signature": "ホーロー(琺瑯)。値引きが渋いのは定価が元々低いため。",
+        "example_series": ["リフィット", "エーデル", "グランディア", "レミュー"]
+      },
+      {
+        "maker": "LIXIL",
+        "aliases": ["リクシル", "lixil"],
+        "list_price_policy": "高め",
+        "typical_discount_pct": { "normal_min": 50, "normal_max": 60, "campaign_max": 70 },
+        "customer_pays_pct_of_list": { "min": 30, "max": 50 },
+        "dealer_cost_ratio": "低め（約0.30〜0.45）",
+        "interpretation": "定価から5〜6割引が通常。『定価通り』や2〜3割引どまりは割高を疑う。",
+        "signature": "国内最大手。セラミックトップのリシェル等。",
+        "example_series": ["シエラS", "リシェルSI", "ノクト"]
+      },
+      {
+        "maker": "クリナップ",
+        "aliases": ["Cleanup", "cleanup", "クリンナップ"],
+        "list_price_policy": "高め",
+        "typical_discount_pct": { "normal_min": 50, "normal_max": 60, "campaign_max": 65 },
+        "customer_pays_pct_of_list": { "min": 35, "max": 50 },
+        "dealer_cost_ratio": "低め（約0.35〜0.45）",
+        "interpretation": "5〜6割引が通常。『定価通り』は割高を疑う。",
+        "signature": "ステンレス躯体が強み。",
+        "example_series": ["ステディア", "ラクエラ"]
+      },
+      {
+        "maker": "パナソニック",
+        "aliases": ["Panasonic", "panasonic", "パナ"],
+        "list_price_policy": "高め",
+        "typical_discount_pct": { "normal_min": 50, "normal_max": 60, "campaign_max": 65 },
+        "customer_pays_pct_of_list": { "min": 35, "max": 50 },
+        "dealer_cost_ratio": "低め（約0.35〜0.45）",
+        "interpretation": "5〜6割引が通常。『定価通り』は割高を疑う。",
+        "signature": "家電連携・トリプルワイドIH等。",
+        "example_series": ["ラクシーナ", "Vスタイル"]
+      },
+      {
+        "maker": "TOTO",
+        "aliases": ["トートー", "toto"],
+        "list_price_policy": "高め",
+        "typical_discount_pct": { "normal_min": 45, "normal_max": 55, "campaign_max": 60 },
+        "customer_pays_pct_of_list": { "min": 40, "max": 55 },
+        "dealer_cost_ratio": "低め（約0.40〜0.50）",
+        "interpretation": "5割前後の値引きが通常。『定価通り』は割高を疑う。",
+        "signature": "水回り総合。すべり台シンク・きれい除菌水等。",
+        "example_series": ["ミッテ", "ザ・クラッソ"]
+      },
+      {
+        "maker": "トクラス",
+        "aliases": ["Toclas", "toclas", "ヤマハリビング"],
+        "list_price_policy": "高め",
+        "typical_discount_pct": { "normal_min": 50, "normal_max": 60, "campaign_max": 65 },
+        "customer_pays_pct_of_list": { "min": 35, "max": 50 },
+        "dealer_cost_ratio": "低め（約0.35〜0.45）",
+        "interpretation": "5〜6割引が通常。人造大理石が強み。",
+        "signature": "旧ヤマハリビングテック。人造大理石トップ・シンク。",
+        "example_series": ["Bb", "コラージア"]
+      }
+    ],
+    "sources": [
+      "リフォーム成功学『システムキッチンの値引き率』 reformfact.com/kitchen-discount-rate/",
+      "タカララボ『タカラスタンダードの値引き』 takarab.com/takara-nebiki/",
+      "大賀俊勝（建設実務30年）実務監修"
+    ],
+    "disclaimer": "値引き率は時期・販路・数量で変動する目安。最終確認はメーカーSR(ショールーム)見積で。",
+    "updated_at": "2026-07-09",
+    "updated_by": "大賀俊勝 監修 / メーカー価格ポリシー層 初版"
+  }
 }
