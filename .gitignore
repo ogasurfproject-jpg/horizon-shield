@@ -88,3 +88,7 @@ workers/hs-souba-pipeline/src/kira_overlay_functions.js
 _archive/
 scripts/*.md
 blog/*.bak-*
+# yakumo tools: 生成器・検証器・発行スクリプトは常用ツールとして *.py/*.sh 除外の例外で追跡
+!tools/yakumo/generate.py
+!tools/yakumo/validate.py
+!tools/yakumo/issue_no001.sh

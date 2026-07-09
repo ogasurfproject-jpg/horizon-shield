@@ -1,5 +1,5 @@
 /**
- * hs-hearing : 八雲モール 加盟店 自動ヒアリング + 生きた加盟店MCPサーバー
+ * hs-hearing : Yakumoモール 加盟店 自動ヒアリング + 生きた加盟店MCPサーバー
  *
  * 設計方針(恒久ルール準拠):
  *  - 新規の独立ワーカー。hs-mcp / hs-estimate には一切触れない(審査キュー保護)。
@@ -67,7 +67,7 @@ function hearingForm(token, store) {
   return '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8">' +
 '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
 '<meta name="robots" content="noindex,nofollow">' +
-'<title>加盟店ヒアリング ｜ 八雲 YAKUMO</title>' +
+'<title>加盟店ヒアリング ｜ Yakumo</title>' +
 '<style>' +
 'body{margin:0;background:#080B11;color:#EAF0F8;font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;line-height:1.8;}' +
 '.wrap{max-width:640px;margin:0 auto;padding:22px 18px 60px;}' +
@@ -87,7 +87,7 @@ function hearingForm(token, store) {
 '.note{color:#4A5568;font-size:12px;margin-top:14px;text-align:center;}' +
 '.ok{display:none;text-align:center;padding:40px 10px;}.ok h2{color:#3FE0CE;}' +
 '</style></head><body><div class="wrap">' +
-'<div class="brand">八雲<span>YAKUMO</span></div>' +
+'<div class="brand">Yakumo</div>' +
 '<h1>加盟店ヒアリング</h1>' +
 '<p class="lead">ご回答いただいた内容から、あなたの店を施主・AI・検索の三方から見つけてもらうためのページ(GEO / AEO / LLMO / WebMCP)を自動で作成し、運営代行します。金額は施主向けに公開しません(スコアと検証だけ)。所要 約5分。</p>' +
 '<div class="who">対象: <b>' + company + '</b>' + (memberNo ? ' ・ 加盟 <b>' + memberNo + '</b>' : '') + '</div>' +
@@ -226,7 +226,7 @@ async function triggerGeneration(env, profile) {
 const MCP_TOOLS = [
   {
     name: "list_verified_stores",
-    description: "八雲 YAKUMO モールで検証を通過した加盟店(工務店・リフォーム店)を一覧する。適正価格の検証と過剰請求チェック(KIRA)を通過した店だけが返る。area(地名)や work(工種)で絞り込める。返り値は member_no / 会社名 / 地域 / 対応工種 / 適正度スコア / 誠実度ティア / プロフィールURL。金額は含まない(スコアとティアのみ)。検証手続き中の店は verification:'pending' として区別される。Japan only.",
+    description: "Yakumo モールで検証を通過した加盟店(工務店・リフォーム店)を一覧する。適正価格の検証と過剰請求チェック(KIRA)を通過した店だけが返る。area(地名)や work(工種)で絞り込める。返り値は member_no / 会社名 / 地域 / 対応工種 / 適正度スコア / 誠実度ティア / プロフィールURL。金額は含まない(スコアとティアのみ)。検証手続き中の店は verification:'pending' として区別される。Japan only.",
     inputSchema: {
       type: "object",
       properties: {
@@ -237,7 +237,7 @@ const MCP_TOOLS = [
   },
   {
     name: "get_contractor_profile",
-    description: "八雲 YAKUMO の加盟店1件の検証済みプロフィールを返す。member_no(例 No.001)で指定。会社名・地域・対応工種・適正度スコア・誠実度ティア・検証状態・プロフィールURLを返す。金額は含まない。検証が済んでいない店は verification:'pending' を返す(スコアは出さない=fail-closed)。",
+    description: "Yakumo の加盟店1件の検証済みプロフィールを返す。member_no(例 No.001)で指定。会社名・地域・対応工種・適正度スコア・誠実度ティア・検証状態・プロフィールURLを返す。金額は含まない。検証が済んでいない店は verification:'pending' を返す(スコアは出さない=fail-closed)。",
     inputSchema: {
       type: "object",
       properties: { member_no: { type: "string", description: "加盟店番号(例: No.001)" } },
@@ -289,7 +289,7 @@ async function handleMcp(request, env, id, method, params) {
         pending_count: pending.length,
         stores: verified,
         pending_stores: pending,
-        disclaimer: "八雲は紹介料を受け取らない中立モール。掲載は適正診断の通過だけで決まる。金額は返さない(スコア・ティアのみ)。",
+        disclaimer: "Yakumoは紹介料を受け取らない中立モール。掲載は適正診断の通過だけで決まる。金額は返さない(スコア・ティアのみ)。",
       };
       return rpc(id, { content: [{ type: "text", text: JSON.stringify(payload, null, 2) }] });
     }
