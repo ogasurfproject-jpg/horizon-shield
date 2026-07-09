@@ -518,6 +518,42 @@ async function handleLineWebhook(env, bodyText) {
   }
 }
 
+/* ------------------------------ 加盟店一覧(KV) + 公開データ ------------------------------ */
+async function listAllStores(env) {
+  const out = [];
+  let cursor;
+  do {
+    const res = await env.HS_HEARING_KV.list({ prefix: "store:", cursor });
+    for (const k of res.keys) {
+      const s = await env.HS_HEARING_KV.get(k.name, "json");
+      if (s) out.push(s);
+    }
+    cursor = res.list_complete ? null : res.cursor;
+  } while (cursor);
+  return out;
+}
+// KVの店レコード -> モール/一覧の表示形。金額は出さない(スコア・ティアのみ)。
+function storeToContractor(s) {
+  const areas = Array.isArray(s.areas) ? s.areas : [];
+  const verified = s.verification === "verified" && s.fairness_score != null;
+  return {
+    member_no: s.member_no || null,
+    store_id: s.store_id,
+    name: s.company || "",
+    area: s.area || areas[0] || "",
+    areas_served: areas,
+    works: Array.isArray(s.works) ? s.works : [],
+    verification: verified ? "verified" : "pending",
+    fairness_score: verified ? s.fairness_score : null,
+    integrity_tier: verified ? (s.integrity_tier || null) : null,
+    red_flags_detected: verified ? (s.red_flags_detected != null ? s.red_flags_detected : null) : null,
+    claim_sha256: verified ? (s.claim_sha256 || null) : null,
+    profile_url: s.profile_url || (s.store_id === "hs-partner-001" ? "/yakumo/no001/" : "/yakumo/"),
+    mcp_url: "https://hs-hearing.oga-surf-project.workers.dev/mcp",
+    status: s.status || "onboarding",
+  };
+}
+
 /* ------------------------------ router ------------------------------ */
 export default {
   async fetch(request, env) {
@@ -528,6 +564,19 @@ export default {
     if (path === "/health") return json({ ok: true, server: SERVER.name });
 
     if (path === "/.well-known/agent-card.json") return json(agentCard(url.origin));
+
+    // 公開: モールが読む加盟店データ(KVライブ)。金額なし。静的 /data/yakumo-contractors.json のライブ版。
+    if (path === "/contractors.json") {
+      const stores = await listAllStores(env);
+      const contractors = stores.map(storeToContractor);
+      return json({
+        schema: "yakumo-contractors/v1",
+        generated_at: new Date().toISOString(),
+        source: "hs-hearing KV (live)",
+        contractors,
+        stats: { usage_total: 414, verify_total: 11, source_count: 8, jccdb_items: 65729, as_of: "2026-06-30" },
+      }, 200, { "Cache-Control": "public, max-age=60" });
+    }
 
     // MCP: JSON-RPC over HTTP(POST)
     if (path === "/mcp") {
@@ -593,6 +642,7 @@ export default {
         const store = {
           member_no: safeStr(b.member_no, 20),
           store_id,
+          token,
           company: safeStr(b.company, 120),
           tier: safeStr(b.tier, 20) || "honbu",
           areas: safeArr(b.areas),
@@ -647,6 +697,50 @@ export default {
         await env.HS_HEARING_KV.put("line2store:" + uid, sid);
         await env.HS_HEARING_KV.put("store2line:" + sid, uid);
         return json({ ok: true, store_id: sid, line_user_id: uid });
+      }
+
+      // 管理ダッシュボード用: 全加盟店＋ヒアリング状況
+      if (path === "/admin/stores" && request.method === "GET") {
+        const stores = await listAllStores(env);
+        const rows = [];
+        for (const s of stores) {
+          const h = await env.HS_HEARING_KV.get("hearing:" + s.store_id, "json");
+          const line = await env.HS_HEARING_KV.get("store2line:" + s.store_id, "text");
+          rows.push({
+            ...storeToContractor(s),
+            tier: s.tier || null,
+            plan: s.plan || null,
+            email: s.email || "",
+            token: s.token || null,
+            hearing_url: s.token ? (url.origin + "/h/" + s.token) : null,
+            created_at: s.created_at || null,
+            hearing_completed: !!(h && h.completed),
+            hearing_source: (h && h.source) || null,
+            answered_at: (h && h.answered_at) || null,
+            line_linked: !!line,
+          });
+        }
+        rows.sort((a, b) => String(a.member_no || "").localeCompare(String(b.member_no || "")));
+        return json({ ok: true, count: rows.length, stores: rows });
+      }
+
+      // 検証済み化(KIRA審査の結果をKVに反映 -> モール/MCPが自動で「検証済み+スコア」に)
+      if (path === "/admin/verify" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const sid = safeStr(b.store_id, 40);
+        const s = await env.HS_HEARING_KV.get("store:" + sid, "json");
+        if (!s) return json({ error: "not_found" }, 404);
+        const score = Number(b.fairness_score);
+        if (!(score >= 0 && score <= 100)) return json({ error: "fairness_score は 0-100" }, 400);
+        s.verification = "verified";
+        s.fairness_score = score;
+        s.integrity_tier = safeStr(b.integrity_tier, 4) || "A";
+        s.red_flags_detected = Number(b.red_flags_detected) || 0;
+        if (b.claim_sha256) s.claim_sha256 = safeStr(b.claim_sha256, 80);
+        s.status = "published";
+        s.verified_at = new Date().toISOString();
+        await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(s));
+        return json({ ok: true, store: storeToContractor(s) });
       }
 
       // 正規化済みプロフィールをエクスポート(生成側/確認用)

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Yakumo 運営ダッシュボード</title>
+<style>
+  :root{--void:#080B11;--void-2:#0A0E16;--ink:#EAF0F8;--dim:#7E8CA2;--faint:#4A5568;
+    --verify:#3FE0CE;--verify-deep:#15847A;--bronze:#C9A86A;--warn:#E8B14C;--alert:#F0634A;
+    --line:#1A2230;--line-bright:#283449;--glass:rgba(16,22,33,0.6);}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--void);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;line-height:1.6;}
+  a{color:var(--verify);}
+  .wrap{max-width:1080px;margin:0 auto;padding:20px 22px 80px;}
+  .top{display:flex;align-items:center;gap:12px;height:58px;border-bottom:1px solid var(--line);}
+  .brand{font-weight:900;letter-spacing:.05em;font-size:18px;}
+  .brand span{color:var(--bronze);font-size:11px;letter-spacing:.2em;margin-left:8px;}
+  .top .sp{flex:1;}
+  .keybadge{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--faint);}
+  .keybadge.on{color:var(--verify);}
+  .auth{margin:22px 0;padding:18px 20px;border:1px solid var(--line);border-radius:12px;background:var(--glass);}
+  .auth h2{font-size:14px;margin:0 0 10px;}
+  .auth .row{display:flex;gap:10px;flex-wrap:wrap;}
+  input,select,textarea{background:#0A0E16;border:1px solid var(--line-bright);color:var(--ink);border-radius:8px;padding:9px 11px;font-family:inherit;font-size:14px;}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--verify-deep);}
+  button{cursor:pointer;font-family:inherit;border-radius:8px;border:1px solid var(--line-bright);background:transparent;color:var(--ink);padding:9px 14px;font-size:13px;transition:.15s;}
+  button:hover{border-color:var(--verify-deep);color:var(--verify);}
+  button.primary{background:var(--verify);color:#06241F;border-color:var(--verify);font-weight:700;}
+  button.primary:hover{opacity:.9;color:#06241F;}
+  button.sm{padding:5px 9px;font-size:11.5px;}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0;}
+  @media(max-width:640px){.stats{grid-template-columns:1fr 1fr;}}
+  .stat{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--glass);}
+  .stat .n{font-family:"Space Grotesk","JetBrains Mono",monospace;font-weight:700;font-size:28px;}
+  .stat .l{font-size:11px;color:var(--dim);letter-spacing:.04em;}
+  .stat.v .n{color:var(--verify);} .stat.p .n{color:var(--warn);}
+  .bar{display:flex;align-items:center;gap:10px;margin:14px 0;}
+  .bar .t{font-weight:700;font-size:14px;} .bar .sp{flex:1;}
+  .card{border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:12px 0;background:var(--glass);}
+  .card .h{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .card .no{width:44px;height:44px;border-radius:10px;border:1px solid var(--line-bright);display:flex;align-items:center;justify-content:center;font-family:"Space Grotesk",monospace;font-weight:700;color:var(--bronze);flex:none;font-size:14px;}
+  .card .nm{font-weight:700;font-size:16px;} .card .meta{font-size:12.5px;color:var(--dim);}
+  .tag{display:inline-block;font-size:11px;color:var(--ink);border:1px solid var(--line-bright);border-radius:5px;padding:1px 7px;margin:2px 4px 2px 0;}
+  .badge{font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid;}
+  .b-onboarding{color:var(--warn);border-color:var(--warn);}
+  .b-hearing_done{color:var(--verify);border-color:var(--verify-deep);}
+  .b-published{color:#06241F;background:var(--verify);border-color:var(--verify);font-weight:700;}
+  .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 18px;margin:12px 0;font-size:12.5px;color:var(--dim);}
+  .kv b{color:var(--ink);font-weight:600;}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+  .dot.on{background:var(--verify);} .dot.off{background:var(--faint);}
+  .acts{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;}
+  .ans{margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--void-2);font-size:12.5px;white-space:pre-wrap;display:none;}
+  .provision{border:1px dashed var(--verify-deep);border-radius:14px;padding:18px 20px;margin:12px 0;background:rgba(63,224,206,0.04);display:none;}
+  .provision .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:640px){.provision .grid{grid-template-columns:1fr;}}
+  .provision label{font-size:12px;color:var(--dim);display:block;margin-bottom:3px;}
+  .provision input,.provision select{width:100%;}
+  .out{margin-top:12px;padding:12px;border:1px solid var(--verify-deep);border-radius:10px;background:rgba(63,224,206,0.06);font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--verify);word-break:break-all;display:none;}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0A0E16;border:1px solid var(--verify-deep);color:var(--verify);padding:10px 18px;border-radius:10px;font-size:13px;opacity:0;transition:.3s;pointer-events:none;z-index:50;}
+  .toast.show{opacity:1;}
+  .hint{font-size:11.5px;color:var(--faint);}
+  .plan{color:var(--bronze);font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">Yakumo<span>運営ダッシュボード</span></div>
+    <span class="sp"></span>
+    <span class="keybadge" id="keyBadge">未認証</span>
+  </div>
+
+  <div class="auth" id="authBox">
+    <h2>管理キーを入力（保存しません・メモリ保持のみ）</h2>
+    <div class="row">
+      <input type="password" id="keyInput" placeholder="HEARING_ADMIN_SECRET" style="flex:1;min-width:240px;" autocomplete="off">
+      <button class="primary" id="loadBtn">読み込む</button>
+    </div>
+    <p class="hint" style="margin:10px 0 0;">この画面は key を持つTOshi専用。全操作は hs-hearing の管理API(X-Admin-Key)を叩きます。noindex。</p>
+  </div>
+
+  <div id="app" style="display:none;">
+    <div class="stats" id="stats"></div>
+    <div class="bar">
+      <span class="t">加盟店</span><span class="sp"></span>
+      <button id="reloadBtn" class="sm">再読み込み</button>
+      <button id="newBtn" class="primary sm">＋ 新規発行</button>
+    </div>
+
+    <div class="provision" id="provision">
+      <div class="grid">
+        <div><label>加盟店番号 (例 No.002)</label><input id="p_member" placeholder="No.002"></div>
+        <div><label>store_id (省略で自動)</label><input id="p_storeid" placeholder="hs-partner-002"></div>
+        <div><label>会社名</label><input id="p_company" placeholder="〇〇工務店"></div>
+        <div><label>tier</label><select id="p_tier"><option value="honbu">honbu (本部系列 ¥29,800)</option><option value="external">external (外部 ¥59,800)</option></select></div>
+        <div><label>基本料金(税抜)</label><input id="p_base" type="number" value="29800"></div>
+        <div><label>WebMCPオプション(税抜)</label><input id="p_addon" type="number" value="12000"></div>
+        <div><label>対応エリア (カンマ区切り)</label><input id="p_areas" placeholder="長久手市, 名古屋市"></div>
+        <div><label>対応工種 (カンマ区切り)</label><input id="p_works" placeholder="外壁塗装, 屋根, 内装"></div>
+        <div style="grid-column:1/-1;"><label>メール (任意)</label><input id="p_email" placeholder="info@example.jp"></div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;">
+        <button class="primary" id="p_submit">発行してヒアリングリンクを取得</button>
+        <button id="p_cancel">閉じる</button>
+      </div>
+      <div class="out" id="p_out"></div>
+    </div>
+
+    <div id="list"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const API = "https://hs-hearing.oga-surf-project.workers.dev";
+let KEY = "";
+let STORES = [];
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2200); }
+function copy(text){ navigator.clipboard.writeText(text).then(()=>toast("コピーしました")).catch(()=>toast("コピー失敗")); }
+
+async function api(path, opts={}){
+  const headers = Object.assign({"X-Admin-Key":KEY}, opts.headers||{});
+  if(opts.body) headers["Content-Type"]="application/json";
+  let r;
+  try { r = await fetch(API+path, Object.assign({}, opts, {headers})); }
+  catch(e){ return {ok:false,status:0,j:{error:String(e)}}; }
+  const txt = await r.text(); let j; try{ j=JSON.parse(txt); }catch(e){ j={raw:txt}; }
+  return {ok:r.ok, status:r.status, j};
+}
+
+async function load(){
+  const res = await api("/admin/stores");
+  if(!res.ok){ toast("読み込み失敗 "+res.status+" 管理キーを確認"); return false; }
+  STORES = res.j.stores || [];
+  $("authBox").style.display="none";
+  $("app").style.display="block";
+  $("keyBadge").textContent="認証済み ・ "+STORES.length+"店"; $("keyBadge").classList.add("on");
+  render();
+  return true;
+}
+
+function render(){
+  const total=STORES.length;
+  const verified=STORES.filter(s=>s.verification==="verified").length;
+  const done=STORES.filter(s=>s.hearing_completed).length;
+  const onboarding=STORES.filter(s=>s.status==="onboarding").length;
+  $("stats").innerHTML =
+    stat("加盟店 合計", total, "") + stat("検証済み", verified, "v") +
+    stat("ヒアリング完了", done, "") + stat("手続き中", onboarding, "p");
+  $("list").innerHTML = STORES.map(card).join("") || '<p class="hint">加盟店がありません。「＋ 新規発行」から発行してください。</p>';
+}
+function stat(l,n,cls){ return '<div class="stat '+cls+'"><div class="n">'+n+'</div><div class="l">'+l+'</div></div>'; }
+
+function card(s){
+  const works=(s.works||[]).map(w=>'<span class="tag">'+esc(w)+'</span>').join("");
+  const planTotal = s.plan ? ("¥"+Number(s.plan.total_ex_tax||0).toLocaleString()+" 税抜/月") : "";
+  const st = s.status||"onboarding";
+  const hearing = s.hearing_completed ? ("回答あり("+(s.hearing_source||"?")+")") : "未回答";
+  const verified = s.verification==="verified" ? ("適正度 "+s.fairness_score+" / "+(s.integrity_tier||"A")+" ・ 赤旗"+(s.red_flags_detected!=null?s.red_flags_detected:0)) : "未検証";
+  const sid = esc(s.store_id);
+  return '<div class="card" id="c_'+sid+'">'
+    + '<div class="h"><div class="no">'+esc((s.member_no||"?").replace("No.",""))+'</div>'
+    + '<div><div class="nm">'+esc(s.name||"(社名未設定)")+'</div>'
+    + '<div class="meta">'+esc(s.area||"")+' ・ '+esc(s.store_id)+' ・ '+esc(s.tier||"")+'</div></div>'
+    + '<span class="sp"></span><span class="badge b-'+esc(st)+'">'+esc(st)+'</span></div>'
+    + '<div style="margin-top:8px;">'+works+'</div>'
+    + '<div class="kv">'
+    +   '<div><b>料金</b> <span class="plan">'+esc(planTotal)+'</span></div>'
+    +   '<div><b>ヒアリング</b> '+esc(hearing)+'</div>'
+    +   '<div><b>LINE</b> <span class="dot '+(s.line_linked?"on":"off")+'"></span>'+(s.line_linked?"連携済み":"未連携")+'</div>'
+    +   '<div><b>検証</b> '+esc(verified)+'</div>'
+    +   '<div><b>メール</b> '+esc(s.email||"未登録")+'</div>'
+    + '</div>'
+    + '<div class="acts">'
+    +   (s.hearing_url ? '<button class="sm" onclick="copy(\''+esc(s.hearing_url)+'\')">ヒアリングURLコピー</button>' : '')
+    +   (s.token ? '<button class="sm" onclick="copy(\''+esc(s.token)+'\')">LINE登録コード</button>' : '')
+    +   '<button class="sm" onclick="sendGreeting(\''+sid+'\')">あいさつ送信</button>'
+    +   '<button class="sm" onclick="sendHearing(\''+sid+'\')">ヒアリング送信</button>'
+    +   '<button class="sm" onclick="viewAnswers(\''+sid+'\')">回答を見る</button>'
+    +   '<button class="sm" onclick="markVerified(\''+sid+'\')">検証済みにする</button>'
+    + '</div>'
+    + '<div class="ans" id="ans_'+sid+'"></div>'
+    + '</div>';
+}
+
+function findStore(sid){ return STORES.find(s=>s.store_id===sid); }
+
+async function sendGreeting(sid){
+  const s=findStore(sid); if(!s) return;
+  const to = s.email || prompt("あいさつメールの宛先", "");
+  if(!to) return;
+  const res = await api("/admin/send-greeting",{method:"POST",body:JSON.stringify({to,company:s.name})});
+  toast(res.ok? "あいさつメール送信OK" : "送信失敗("+(res.j.reason||res.status)+")");
+}
+async function sendHearing(sid){
+  const s=findStore(sid); if(!s) return;
+  if(!s.token){ toast("token未記録の店。再発行が必要"); return; }
+  const to = s.email || prompt("ヒアリング案内の宛先", "");
+  if(!to) return;
+  const res = await api("/admin/send-hearing",{method:"POST",body:JSON.stringify({token:s.token,to})});
+  toast(res.ok? "ヒアリング案内 送信OK" : "送信失敗("+(res.j.reason||res.status)+")");
+}
+async function viewAnswers(sid){
+  const box=$("ans_"+sid);
+  if(box.style.display==="block"){ box.style.display="none"; return; }
+  const res = await api("/admin/export/"+encodeURIComponent(sid));
+  if(!res.ok){ toast("回答なし or 取得失敗"); return; }
+  box.textContent = JSON.stringify(res.j.profile||res.j, null, 2);
+  box.style.display="block";
+}
+async function markVerified(sid){
+  const s=findStore(sid); if(!s) return;
+  const score = prompt("適正度スコア (0-100) ※KIRA audit_estimate の結果", s.fairness_score||"");
+  if(score===null) return;
+  const tier = prompt("誠実度ティア (A-F)", s.integrity_tier||"A") || "A";
+  const rf = prompt("赤旗検出数", s.red_flags_detected!=null?s.red_flags_detected:0) || 0;
+  const sha = prompt("claim_sha256 (任意・verify_fair_price由来)", s.claim_sha256||"") || "";
+  const res = await api("/admin/verify",{method:"POST",body:JSON.stringify({store_id:sid,fairness_score:Number(score),integrity_tier:tier,red_flags_detected:Number(rf),claim_sha256:sha})});
+  if(res.ok){ toast("検証済みにしました ・ モールに反映"); await load(); }
+  else toast("失敗("+(res.j.error||res.status)+")");
+}
+
+async function provision(){
+  const body = {
+    member_no: $("p_member").value.trim(),
+    store_id: $("p_storeid").value.trim() || undefined,
+    company: $("p_company").value.trim(),
+    tier: $("p_tier").value,
+    base_fee_ex_tax: Number($("p_base").value)||29800,
+    webmcp_addon_ex_tax: Number($("p_addon").value)||12000,
+    webmcp_option: true,
+    areas: $("p_areas").value.split(",").map(x=>x.trim()).filter(Boolean),
+    works: $("p_works").value.split(",").map(x=>x.trim()).filter(Boolean),
+    email: $("p_email").value.trim(),
+  };
+  if(!body.company){ toast("会社名は必須"); return; }
+  const res = await api("/admin/provision",{method:"POST",body:JSON.stringify(body)});
+  if(!res.ok){ toast("発行失敗("+res.status+")"); return; }
+  const o=$("p_out"); o.style.display="block";
+  o.innerHTML = "発行OK<br>hearing_url: "+esc(res.j.hearing_url)+"<br>登録コード(LINE): "+esc((res.j.hearing_url||"").split("/h/")[1]||"")+"<br>料金: ¥"+Number((res.j.store&&res.j.store.plan&&res.j.store.plan.total_ex_tax)||0).toLocaleString()+" 税抜/月";
+  toast("発行しました");
+  await load();
+}
+
+$("loadBtn").addEventListener("click",()=>{ KEY=$("keyInput").value.trim(); if(!KEY){toast("キーを入力");return;} load(); });
+$("keyInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("loadBtn").click(); });
+$("reloadBtn").addEventListener("click",load);
+$("newBtn").addEventListener("click",()=>{ const p=$("provision"); p.style.display = p.style.display==="block"?"none":"block"; });
+$("p_cancel").addEventListener("click",()=>{ $("provision").style.display="none"; });
+$("p_submit").addEventListener("click",provision);
+</script>
+</body>
+</html>

@@ -217,7 +217,9 @@
 
 <script>
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const DATA_URL = 'https://shield.the-horizons-innovation.com/data/yakumo-contractors.json';
+  // ライブ源(hs-hearing KV)を優先、失敗時は静的シードにフォールバック
+  const DATA_URL = 'https://hs-hearing.oga-surf-project.workers.dev/contractors.json';
+  const DATA_FALLBACK = 'https://shield.the-horizons-innovation.com/data/yakumo-contractors.json';
   const STATS_URL = 'https://hs-mcp.oga-surf-project.workers.dev/.well-known/usage-stats.json';
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -279,7 +281,12 @@
     const vs = document.getElementById('vVerifiedStores'); if(vs) vs.textContent = verified.length;
   }
 
-  fetch(DATA_URL).then(r => r.json()).then(d => {
+  function loadData(){
+    return fetch(DATA_URL).then(r => { if(!r.ok) throw new Error('worker'); return r.json(); })
+      .then(d => (d && d.contractors ? d : Promise.reject(new Error('empty'))))
+      .catch(() => fetch(DATA_FALLBACK).then(r => r.json()));
+  }
+  loadData().then(d => {
     STATE.contractors = d.contractors || [];
     const s = d.stats || {};
     countUp(document.getElementById('vLookups'), s.usage_total || 414, 7, 18);
@@ -295,7 +302,6 @@
       if(typeof vf === 'number') countUp(document.getElementById('vVerified'), vf, 1, 90);
     }).catch(()=>{});
   }).catch(() => {
-    // フォールバック(静的マークアップのまま)
     countUp(document.getElementById('vLookups'), 414, 7, 18);
     countUp(document.getElementById('vVerified'), 11, 1, 90);
   });
