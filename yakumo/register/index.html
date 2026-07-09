@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Yakumo 加盟店 登録</title>
+<style>
+  :root{--void:#080B11;--void-2:#0A0E16;--ink:#EAF0F8;--dim:#7E8CA2;--faint:#4A5568;
+    --verify:#3FE0CE;--verify-deep:#15847A;--bronze:#C9A86A;--alert:#F0634A;
+    --line:#1A2230;--line-bright:#283449;--glass:rgba(16,22,33,0.55);}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--void);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;line-height:1.8;-webkit-font-smoothing:antialiased;}
+  a{color:var(--verify);}
+  .wrap{max-width:640px;margin:0 auto;padding:22px 18px 70px;}
+  .brand{font-weight:900;letter-spacing:.05em;font-size:18px;}
+  .brand span{color:var(--bronze);font-size:12px;letter-spacing:.2em;margin-left:8px;}
+  .center{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;}
+  .card{border:1px solid var(--line);border-radius:14px;padding:22px;background:var(--glass);width:100%;}
+  h1{font-size:22px;margin:14px 0 4px;font-weight:700;}
+  .lead{color:var(--dim);font-size:14px;margin:0 0 18px;}
+  .welcome{border:1px solid var(--verify-deep);border-radius:14px;padding:16px 18px;background:linear-gradient(180deg,rgba(63,224,206,0.06),rgba(63,224,206,0.02));margin:16px 0 22px;}
+  .welcome .no{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;color:var(--bronze);}
+  .welcome .co{font-size:19px;font-weight:700;margin:4px 0;}
+  .welcome .plan{font-size:12.5px;color:var(--dim);}
+  label{display:block;margin:16px 0 6px;font-weight:700;font-size:14px;}
+  label .req{color:var(--alert);font-size:11px;margin-left:6px;} label .opt{color:var(--faint);font-size:11px;margin-left:6px;}
+  .hint{color:var(--faint);font-size:12px;margin:0 0 6px;}
+  input,textarea,select{width:100%;background:var(--void-2);border:1px solid var(--line-bright);color:var(--ink);border-radius:9px;padding:11px 12px;font-family:inherit;font-size:15px;}
+  input:focus,textarea:focus{outline:none;border-color:var(--verify-deep);}
+  textarea{min-height:84px;resize:vertical;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}@media(max-width:520px){.row2{grid-template-columns:1fr;}}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{border:1px solid var(--line-bright);border-radius:999px;padding:8px 14px;font-size:13px;color:var(--dim);cursor:pointer;user-select:none;}
+  .chip.on{border-color:var(--verify-deep);color:var(--verify);background:rgba(63,224,206,.06);}
+  .sub{border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0;background:rgba(16,22,33,.35);}
+  .add{background:transparent;border:1px dashed var(--line-bright);color:var(--dim);border-radius:9px;padding:9px 14px;font-family:inherit;font-size:13px;cursor:pointer;margin-top:6px;}
+  .section-t{font-size:13px;color:var(--bronze);font-family:"JetBrains Mono",monospace;letter-spacing:.06em;margin:26px 0 2px;border-top:1px solid var(--line);padding-top:20px;}
+  button.primary{width:100%;margin-top:26px;background:var(--verify);color:#06241F;border:0;border-radius:11px;padding:15px;font-weight:800;font-size:16px;cursor:pointer;}
+  button.go{background:var(--verify);color:#06241F;border:0;border-radius:10px;padding:11px 20px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .note{color:var(--faint);font-size:12px;margin-top:14px;text-align:center;}
+  .err{color:var(--alert);font-size:13px;}
+  .done{display:none;text-align:center;padding:44px 12px;}
+  .done h2{color:var(--verify);}
+  .foot{margin-top:28px;border-top:1px solid var(--line);padding-top:16px;font-size:11.5px;color:var(--faint);text-align:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand" style="margin-bottom:6px;">Yakumo<span>加盟店 登録</span></div>
+
+  <!-- コード入力(コードがURLに無い時) -->
+  <div class="center" id="codeGate" style="display:none;">
+    <div class="card">
+      <h1>加盟店 登録</h1>
+      <p class="lead">運営(Yakumo / HORIZON SHIELD)からお伝えした<br><b>登録コード</b>を入力してください。</p>
+      <input type="text" id="codeInput" placeholder="ht_ で始まるコード" autocomplete="off" style="text-align:center;">
+      <button class="primary" id="codeBtn">進む</button>
+      <p class="err" id="codeErr"></p>
+    </div>
+  </div>
+
+  <!-- 登録フォーム -->
+  <div id="formWrap" style="display:none;">
+    <div class="welcome">
+      <div class="no" id="wNo"></div>
+      <div class="co" id="wCo"></div>
+      <div class="plan" id="wPlan"></div>
+    </div>
+    <p class="lead">ご登録ありがとうございます。以下にご記入いただくと、貴社を施主・AI・検索の三方から見つけてもらうページ(GEO / AEO / LLMO / WebMCP)を自動で作成し、運営代行します。金額は施主向けに公開しません。所要 約5分。</p>
+    <form id="f">
+      <div class="section-t">会社情報</div>
+      <label>正式な社名 <span class="req">必須</span></label>
+      <input type="text" id="company" required>
+      <div class="row2">
+        <div><label>代表者名 <span class="opt">任意</span></label><input type="text" id="rep"></div>
+        <div><label>建設業許可番号 <span class="opt">任意</span></label><input type="text" id="license"></div>
+      </div>
+      <label>所在地(市区町村まで) <span class="req">必須</span></label>
+      <input type="text" id="area" placeholder="例：愛知県長久手市" required>
+      <label>対応エリア <span class="hint">(施主が探す地名。カンマ区切り)</span></label>
+      <input type="text" id="areas" placeholder="例：長久手市, 名古屋市, 日進市">
+
+      <div class="section-t">対応工種</div>
+      <label>対応できる工種 <span class="req">必須</span></label>
+      <p class="hint">当てはまるものをタップ。その他は自由入力へ。</p>
+      <div class="chips" id="works"></div>
+      <input type="text" id="worksOther" placeholder="その他の工種(自由入力)" style="margin-top:10px;">
+
+      <div class="section-t">強み・実績</div>
+      <label>各工種の強み・こだわり <span class="hint">(使う塗料・工法・保証年数など)</span></label>
+      <textarea id="strengths" placeholder="例：外壁は無機塗料が標準。3回塗りを徹底し、施工後10年保証。屋根はカバー工法とはつりの両対応で、下地の状態を写真で説明します。"></textarea>
+      <label>信頼の裏づけ <span class="opt">任意</span> <span class="hint">(受賞歴・加盟団体・アフター保証・施工実績数など)</span></label>
+      <textarea id="trust" placeholder="例：地域密着20年、施工実績1,200件。塗装技能士在籍。工事後も年1回の無料点検。"></textarea>
+
+      <div class="section-t">見積もり例(適正診断に使用)</div>
+      <label>実際の見積もり例 <span class="hint">(KIRA監査に使います。金額は公開しません。1〜3件)</span></label>
+      <div id="estimates">
+        <div class="sub est"><div class="row2"><input type="text" class="e-work" placeholder="工種(例:外壁塗装 30坪)"><input type="text" class="e-amount" placeholder="概算金額(例:900000)"></div><input type="text" class="e-detail" placeholder="内訳の要点(任意)" style="margin-top:8px;"></div>
+      </div>
+      <button type="button" class="add" id="addEst">＋ 見積もり例を追加</button>
+
+      <div class="section-t">よくある質問</div>
+      <label>施主からよく聞かれる質問と答え <span class="hint">(FAQページの素材。3件ほど)</span></label>
+      <div id="faqs">
+        <div class="sub faq"><input type="text" class="q" placeholder="質問(例:外壁塗装の適した時期は?)"><textarea class="a" placeholder="答え" style="margin-top:8px;"></textarea></div>
+        <div class="sub faq"><input type="text" class="q" placeholder="質問"><textarea class="a" placeholder="答え" style="margin-top:8px;"></textarea></div>
+      </div>
+      <button type="button" class="add" id="addFaq">＋ 質問を追加</button>
+
+      <div class="section-t">連絡先</div>
+      <div class="row2">
+        <div><label>施主対応の連絡先 <span class="opt">任意</span></label><input type="text" id="contact" placeholder="電話 または メール"></div>
+        <div><label>対応時間・定休日 <span class="opt">任意</span></label><input type="text" id="hours" placeholder="例：9-18時 / 日曜定休"></div>
+      </div>
+      <label>公開してほしくない情報 <span class="opt">任意</span></label>
+      <input type="text" id="ng" placeholder="例：担当者の個人携帯は載せないでほしい">
+
+      <button type="submit" class="primary">登録を完了する</button>
+      <p class="note">送信内容は The HORIZ音s株式会社(HORIZON SHIELD)が加盟店運営のために使用します。金額は施主向けに公開しません。</p>
+    </form>
+  </div>
+
+  <!-- 完了 -->
+  <div class="done" id="done">
+    <h2>登録ありがとうございます</h2>
+    <p style="color:var(--dim);">内容を受け取りました。適正診断(KIRA)とページ作成の準備に入ります。追記や修正があれば、いつでもこのページから再送信できます。結果は運営からご連絡します。</p>
+  </div>
+
+  <div class="foot">Yakumo ・ The HORIZ音s株式会社 / HORIZON SHIELD ・ TEL 0463-74-5917</div>
+</div>
+
+<script>
+const WORKER = "https://hs-hearing.oga-surf-project.workers.dev";
+const WORK_CHOICES = ["外壁塗装","屋根","内装","クロス","床・フローリング","浴室","キッチン","トイレ","洗面","水道","外構","防水","リノベーション全般"];
+let CODE = "";
+
+const $ = id => document.getElementById(id);
+function getParam(n){ return new URLSearchParams(location.search).get(n) || ""; }
+
+function renderChips(selected){
+  const set = new Set((selected||[]).map(String));
+  $("works").innerHTML = WORK_CHOICES.map(w =>
+    '<span class="chip'+(set.has(w)?" on":"")+'" data-w="'+w+'">'+w+'</span>').join("");
+  document.querySelectorAll("#works .chip").forEach(c => c.addEventListener("click",()=>c.classList.toggle("on")));
+}
+
+async function loadInfo(code){
+  CODE = code;
+  let info;
+  try {
+    const r = await fetch(WORKER + "/register-info?token=" + encodeURIComponent(code));
+    info = await r.json();
+  } catch(e){ info = {exists:false}; }
+  if(!info.exists){
+    $("codeGate").style.display = "flex";
+    if($("codeErr")) $("codeErr").textContent = code ? "コードが無効か、期限切れです。運営にご確認ください。" : "";
+    return;
+  }
+  // 前もって埋める
+  $("wNo").textContent = (info.member_no ? "加盟 " + info.member_no + " ・ " : "") + "FOUNDING MEMBER";
+  $("wCo").textContent = info.company || "";
+  if(info.plan && info.plan.total_ex_tax){
+    $("wPlan").textContent = "ご契約プラン: " + (info.tier==="honbu"?"本部系列 ":"") + "¥" + Number(info.plan.total_ex_tax).toLocaleString() + " 税抜/月" + (info.plan.webmcp_addon_ex_tax? "(WebMCP運用オプション込み)":"");
+  }
+  $("company").value = info.company || "";
+  $("area").value = info.area || (info.areas && info.areas[0]) || "";
+  $("areas").value = (info.areas || []).join(", ");
+  renderChips(info.works || []);
+  $("codeGate").style.display = "none";
+  $("formWrap").style.display = "block";
+}
+
+function val(id){ const e=$(id); return e ? e.value.trim() : ""; }
+
+$("addEst")?.addEventListener("click",()=>{
+  const d=document.createElement("div"); d.className="sub est";
+  d.innerHTML='<div class="row2"><input type="text" class="e-work" placeholder="工種"><input type="text" class="e-amount" placeholder="概算金額"></div><input type="text" class="e-detail" placeholder="内訳の要点(任意)" style="margin-top:8px;">';
+  $("estimates").appendChild(d);
+});
+$("addFaq")?.addEventListener("click",()=>{
+  const d=document.createElement("div"); d.className="sub faq";
+  d.innerHTML='<input type="text" class="q" placeholder="質問"><textarea class="a" placeholder="答え" style="margin-top:8px;"></textarea>';
+  $("faqs").appendChild(d);
+});
+
+$("codeBtn")?.addEventListener("click",()=>{
+  const c = $("codeInput").value.trim().replace(/[^A-Za-z0-9_-]/g,"");
+  if(!c){ $("codeErr").textContent="コードを入力してください。"; return; }
+  history.replaceState(null,"","?code="+c);
+  loadInfo(c);
+});
+$("codeInput")?.addEventListener("keydown",e=>{ if(e.key==="Enter") $("codeBtn").click(); });
+
+$("f")?.addEventListener("submit",ev=>{
+  ev.preventDefault();
+  const works=[];
+  document.querySelectorAll("#works .chip.on").forEach(c=>works.push(c.getAttribute("data-w")));
+  const wo=val("worksOther"); if(wo) wo.split(",").forEach(x=>{x=x.trim(); if(x) works.push(x);});
+  const estimates=[];
+  document.querySelectorAll("#estimates .est").forEach(c=>{
+    const w=c.querySelector(".e-work").value.trim(), a=c.querySelector(".e-amount").value.trim(), de=c.querySelector(".e-detail").value.trim();
+    if(w||a) estimates.push({work:w,amount:a,detail:de});
+  });
+  const faqs=[];
+  document.querySelectorAll("#faqs .faq").forEach(c=>{
+    const q=c.querySelector(".q").value.trim(), a=c.querySelector(".a").value.trim();
+    if(q&&a) faqs.push({q:q,a:a});
+  });
+  const payload={company:val("company"),rep:val("rep"),license:val("license"),area:val("area"),areas:val("areas"),works:works,strengths:val("strengths"),estimates:estimates,faqs:faqs,trust:val("trust"),contact:val("contact"),hours:val("hours"),ng:val("ng")};
+  if(!payload.company||!payload.area||works.length===0){ alert("社名・所在地・工種は必須です。"); return; }
+  fetch(WORKER + "/h/" + CODE,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
+    .then(r=>r.json()).then(res=>{
+      if(res&&res.ok){ $("formWrap").style.display="none"; $("done").style.display="block"; window.scrollTo(0,0); }
+      else alert((res&&res.error)||"送信に失敗しました。時間をおいて再度お試しください。");
+    }).catch(()=>alert("通信エラー。時間をおいて再度お試しください。"));
+});
+
+// 起動: ?code= があれば読み込み、無ければコード入力
+const initial = getParam("code").replace(/[^A-Za-z0-9_-]/g,"");
+if(initial) loadInfo(initial); else $("codeGate").style.display="flex";
+</script>
+</body>
+</html>
