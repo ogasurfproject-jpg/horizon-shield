@@ -574,7 +574,8 @@ export default {
         generated_at: new Date().toISOString(),
         source: "hs-hearing KV (live)",
         contractors,
-        stats: { usage_total: 414, verify_total: 11, source_count: 8, jccdb_items: 65729, as_of: "2026-06-30" },
+        // 照会/検証の回数はここに置かない(実測でない数字を配らない)。実カウンタは hs-mcp /.well-known/usage-stats.json。
+        stats: { source_count: 8, jccdb_items: 65729, as_of: "2026-06-30" },
       }, 200, { "Cache-Control": "public, max-age=60" });
     }
 
