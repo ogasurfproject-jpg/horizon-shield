@@ -210,4 +210,43 @@ Cloudflare Email Routing が hs-hearing ワーカーの email() に配送
 
 ---
 
+---
+
+## 10. LINE での加盟店ヒアリング + 段階式メール(2026-07-09 追加)
+
+TOshi方針: 初回メールは「あいさつ」、本格ヒアリングは翌週。加えて、加盟店がLINEでも登録・回答でき、回答が来ればメールと同じく自動で構造化->fail-closed関所->GEO/AEO/LLMO/WebMCP生成が走る。`hs-hearing` に追加済み(要 再デプロイ)。
+
+### 追加エンドポイント(hs-hearing)
+- `POST /line/webhook` : LINE Messaging API の Webhook 宛先。署名検証(LINE_CHANNEL_SECRET)->イベント処理。
+  - 未登録ユーザー: メッセージ内の登録コード(`ht_...`=provisionのtoken)で store に紐づけ(`line2store:<userId>`)。コード無しは案内のみ。
+  - 登録済み: プローズ回答を LLM 構造化 -> 必須項目(社名/地域/工種)が揃えば hearing 保存 + 生成トリガー、揃わねば聞き返し(fail-closed)。
+- `POST /admin/send-greeting {to, company?}` : 初回あいさつメール(RESEND)。フォームリンクは載せない。
+- `POST /admin/link-line {store_id, line_user_id}` : LINE userId を店に手動紐づけ(自己登録コードを使わない予備)。
+
+### LINE 設定(LINE Developers)
+1. Messaging API チャネルの Webhook URL = `https://hs-hearing.oga-surf-project.workers.dev/line/webhook`(Use webhook を ON)。
+2. secret を hs-hearing に:
+   - `wrangler secret put LINE_CHANNEL_SECRET`(チャネルシークレット。署名検証)
+   - `wrangler secret put LINE_CHANNEL_ACCESS_TOKEN`(長期のチャネルアクセストークン。自動返信)
+3. 加盟店に「登録コード(ht_...)」を伝える -> 公式アカウント友だち追加 -> コード送信で紐づく -> 以降そのトークに工種・エリア・強みを送れば自動生成。
+
+### 段階式メール(初回あいさつ -> 翌週ヒアリング)
+- 今週(あいさつ): `POST /admin/send-greeting {to:"info@cdream-designers.jp","company":"リフォーム職人株式会社"}`
+- 来週(本格ヒアリング): `POST /admin/send-hearing {token:"ht_0e25f1dd9e25b469133b301957cdff9b","to":"info@cdream-designers.jp"}`(件名に ref トークンが入り、メール返信も自動照合)
+- どちらも `X-Admin-Key: <HEARING_ADMIN_SECRET>` 必須。RESEND_API_KEY と送信ドメイン検証が前提。
+
+### 再デプロイ(この追加を本番へ)
+```
+git fetch origin feat/yakumo-line-intake
+git checkout main && git merge --no-ff feat/yakumo-line-intake -m "merge: Yakumo LINE intake + greeting mail" && git push origin main
+cd workers/hs-hearing && CLOUDFLARE_ACCOUNT_ID=c15ff64aba400e541853dec1fbe5e76a npx wrangler deploy
+```
+
+### No.001 の現状(2026-07-09 実機)
+- hs-hearing provision 成功。hearing_url = `https://hs-hearing.oga-surf-project.workers.dev/h/ht_0e25f1dd9e25b469133b301957cdff9b` / token `ht_0e25f1dd9e25b469133b301957cdff9b` / email `info@cdream-designers.jp` / plan ¥41,800税抜。
+- hs-estimate の honbuキー発行は `Forbidden`(ADMIN_SECRET不一致)で未完。正しい hs-estimate ADMIN_SECRET で `bash tools/yakumo/issue_no001.sh --run` を撃ち直せば hse_ キーが出る。
+- hs-hearing 本番 Version: `10eabaa1-87d0-4274-8e30-7d68d286f5b1` / KV `HS_HEARING_KV` id `cae22b3bf47b46bebdfcdfd6a724f8ab`。
+
+---
+
 *作成 2026-07-09 / 次セッションはこの手順書を起点に。*

@@ -23,6 +23,14 @@
   //   RESEND_API_KEY       : ヒアリング案内メール送信(任意。hs-estimate と同じ鍵で可)
   //   LINE_CHANNEL_TOKEN / LINE_USER_ID / NTFY_TOPIC_URL : 通知(任意。hs-estimate と同じ値で可)
   //   LLM_API_URL / LLM_API_KEY / LLM_MODEL : Workers AI の代わりに外部LLMを使う場合(任意)
+  //   LINE_CHANNEL_SECRET       : LINE Webhook 署名検証(加盟店ヒアリングのLINE版)。設定推奨
+  //   LINE_CHANNEL_ACCESS_TOKEN : LINE 返信用チャネルアクセストークン(加盟店へ自動返信)
+  //
+  // LINE 設定(LINE Developers コンソール):
+  //   1) Messaging API チャネルの Webhook URL に https://hs-hearing.oga-surf-project.workers.dev/line/webhook を設定+有効化
+  //   2) チャネルシークレット -> LINE_CHANNEL_SECRET / チャネルアクセストークン(長期) -> LINE_CHANNEL_ACCESS_TOKEN
+  //   3) 加盟店は公式アカウントを友だち追加し、登録コード(ht_...=provisionのtoken)を送ると紐づく
+  //      -> 以降そのトークに工種・エリア・強みを送れば、メールと同じく自動で構造化->生成される
   //
   // Email Routing 設定(Cloudflareダッシュボード):
   //   1) the-horizons-innovation.com の Email Routing を有効化(MXレコード自動追加)
