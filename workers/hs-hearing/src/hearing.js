@@ -403,7 +403,7 @@ async function notify(env, text) {
 async function sendHearingEmail(env, { to, token, company, origin }) {
   if (!env.RESEND_API_KEY) return { ok: false, reason: "RESEND_API_KEY 未設定" };
   const from = env.HEARING_FROM || "Yakumo <hearing@the-horizons-innovation.com>";
-  const link = (origin || "https://hs-hearing.oga-surf-project.workers.dev") + "/h/" + token;
+  const link = "https://shield.the-horizons-innovation.com/yakumo/register/?code=" + token;
   const subject = "【Yakumo 加盟店ヒアリングのお願い / ref:" + token + "】" + (company || "");
   const htmlBody =
     '<div style="font-family:sans-serif;line-height:1.8;color:#222;">' +
@@ -495,7 +495,7 @@ async function handleLineWebhook(env, bodyText) {
           await env.HS_HEARING_KV.put("line2store:" + userId, tokRec.store_id);
           await env.HS_HEARING_KV.put("store2line:" + tokRec.store_id, userId);
           await lineReply(env, replyToken,
-            (tokRec.company || "加盟店") + " さま、登録が完了しました。\nこの LINE に、対応できる工種・エリア・強み(使う塗料や工法、保証など)を、そのまま送ってください。まとめて1通でもOKです。折り返しページ作成に入ります。");
+            (tokRec.company || "加盟店") + " さま、登録が完了しました。\nこの LINE に、対応できる工種・エリア・強み(使う塗料や工法、保証など)を、そのまま送ってください。まとめて1通でもOKです。\nフォームで入力したい場合はこちら:\nhttps://shield.the-horizons-innovation.com/yakumo/register/?code=" + m[0]);
           continue;
         }
       }
@@ -576,6 +576,29 @@ export default {
         contractors,
         stats: { usage_total: 414, verify_total: 11, source_count: 8, jccdb_items: 65729, as_of: "2026-06-30" },
       }, 200, { "Cache-Control": "public, max-age=60" });
+    }
+
+    // 登録画面用: 登録コード(token)で店の表示情報を返す(招待された加盟店向け・公開)。金額はtierと合算のみ。
+    if (path === "/register-info") {
+      const tok = safeStr(url.searchParams.get("token"), 80).replace(/[^A-Za-z0-9_-]/g, "");
+      if (!tok) return json({ exists: false });
+      const rec = await env.HS_HEARING_KV.get("htok:" + tok, "json");
+      if (!rec) return json({ exists: false });
+      const store = await env.HS_HEARING_KV.get("store:" + rec.store_id, "json");
+      if (!store) return json({ exists: false });
+      const hearing = await env.HS_HEARING_KV.get("hearing:" + store.store_id, "json");
+      return json({
+        exists: true,
+        member_no: store.member_no || null,
+        company: store.company || "",
+        area: (store.areas && store.areas[0]) || "",
+        areas: store.areas || [],
+        works: store.works || [],
+        tier: store.tier || "honbu",
+        plan: store.plan || null,
+        status: store.status || "onboarding",
+        already_answered: !!(hearing && hearing.completed),
+      });
     }
 
     // MCP: JSON-RPC over HTTP(POST)
