@@ -125,6 +125,7 @@
   <div class="done" id="done">
     <h2>登録ありがとうございます</h2>
     <p style="color:var(--dim);">内容を受け取りました。適正診断(KIRA)とページ作成の準備に入ります。追記や修正があれば、いつでもこのページから再送信できます。結果は運営からご連絡します。</p>
+    <a class="primary" id="doneMypage" href="#" style="display:inline-block;width:auto;padding:13px 26px;text-decoration:none;margin-top:20px;">マイページを開く</a>
   </div>
 
   <div class="foot">Yakumo ・ The HORIZ音s株式会社 / HORIZON SHIELD ・ TEL 0463-74-5917</div>
@@ -211,7 +212,7 @@ $("f")?.addEventListener("submit",ev=>{
   if(!payload.company||!payload.area||works.length===0){ alert("社名・所在地・工種は必須です。"); return; }
   fetch(WORKER + "/h/" + CODE,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
     .then(r=>r.json()).then(res=>{
-      if(res&&res.ok){ $("formWrap").style.display="none"; $("done").style.display="block"; window.scrollTo(0,0); }
+      if(res&&res.ok){ $("doneMypage").href="/yakumo/mypage/?code="+encodeURIComponent(CODE); $("formWrap").style.display="none"; $("done").style.display="block"; window.scrollTo(0,0); }
       else alert((res&&res.error)||"送信に失敗しました。時間をおいて再度お試しください。");
     }).catch(()=>alert("通信エラー。時間をおいて再度お試しください。"));
 });

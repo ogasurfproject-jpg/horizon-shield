@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Yakumo 加盟店マイページ</title>
+<style>
+  :root{--void:#080B11;--void-2:#0A0E16;--ink:#EAF0F8;--dim:#7E8CA2;--faint:#4A5568;
+    --verify:#3FE0CE;--verify-deep:#15847A;--bronze:#C9A86A;--alert:#F0634A;
+    --line:#1A2230;--line-bright:#283449;--glass:rgba(16,22,33,0.55);}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--void);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;line-height:1.8;-webkit-font-smoothing:antialiased;}
+  a{color:var(--verify);}
+  code,.mono{font-family:"JetBrains Mono","SFMono-Regular",Consolas,monospace;}
+  .wrap{max-width:680px;margin:0 auto;padding:22px 18px 70px;}
+  .brand{font-weight:900;letter-spacing:.05em;font-size:18px;}
+  .brand span{color:var(--bronze);font-size:12px;letter-spacing:.2em;margin-left:8px;}
+  .center{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;}
+  .card{border:1px solid var(--line);border-radius:14px;padding:22px;background:var(--glass);width:100%;}
+  h1{font-size:22px;margin:14px 0 4px;font-weight:700;}
+  .lead{color:var(--dim);font-size:14px;margin:0 0 18px;}
+  input{width:100%;background:var(--void-2);border:1px solid var(--line-bright);color:var(--ink);border-radius:9px;padding:11px 12px;font-family:inherit;font-size:15px;}
+  input:focus{outline:none;border-color:var(--verify-deep);}
+  button.primary{width:100%;margin-top:18px;background:var(--verify);color:#06241F;border:0;border-radius:11px;padding:15px;font-weight:800;font-size:16px;cursor:pointer;}
+  .err{color:var(--alert);font-size:13px;}
+
+  /* hero */
+  .hero{border:1px solid var(--verify-deep);border-radius:16px;padding:20px 20px 22px;background:linear-gradient(180deg,rgba(63,224,206,0.07),rgba(63,224,206,0.02));margin:16px 0 10px;}
+  .hero .no{font-size:11px;letter-spacing:.12em;color:var(--bronze);}
+  .hero .co{font-size:22px;font-weight:800;margin:4px 0 2px;}
+  .hero .meta{font-size:12.5px;color:var(--dim);}
+  .state{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:700;border:1px solid var(--line-bright);}
+  .state.verified{color:var(--verify);border-color:var(--verify-deep);background:rgba(63,224,206,.07);}
+  .state.pending{color:var(--bronze);border-color:#4a3d22;background:rgba(201,168,106,.06);}
+  .dot{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor;}
+  .scorewrap{display:flex;gap:14px;margin-top:16px;flex-wrap:wrap;}
+  .score{flex:1;min-width:120px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:rgba(8,11,17,.5);}
+  .score .k{font-size:11px;color:var(--faint);letter-spacing:.08em;}
+  .score .v{font-size:26px;font-weight:800;color:var(--ink);line-height:1.2;}
+  .score .v small{font-size:13px;color:var(--dim);font-weight:600;}
+
+  /* sections */
+  .sect{margin-top:26px;}
+  .sect-t{font-size:12.5px;color:var(--bronze);letter-spacing:.06em;margin:0 0 4px;border-top:1px solid var(--line);padding-top:22px;font-family:"JetBrains Mono",monospace;}
+  .sect-d{color:var(--dim);font-size:13.5px;margin:0 0 12px;}
+  .box{border:1px solid var(--line);border-radius:12px;padding:16px;background:rgba(16,22,33,.35);}
+  .row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;}
+  .row:last-child{border-bottom:0;}
+  .row .k{color:var(--dim);}
+  .row .v{text-align:right;font-weight:600;}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px;}
+  .chip{border:1px solid var(--line-bright);border-radius:999px;padding:5px 12px;font-size:12.5px;color:var(--verify);background:rgba(63,224,206,.05);}
+  .btn{display:inline-block;background:var(--verify);color:#06241F;border:0;border-radius:10px;padding:11px 18px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px;text-decoration:none;}
+  .btn.ghost{background:transparent;color:var(--verify);border:1px solid var(--verify-deep);}
+  .btn.block{display:block;text-align:center;width:100%;}
+
+  /* AI proof */
+  .pill4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:4px 0 2px;}
+  @media(max-width:520px){.pill4{grid-template-columns:repeat(2,1fr);}}
+  .p{border:1px solid var(--line);border-radius:11px;padding:11px 10px;text-align:center;background:rgba(8,11,17,.4);}
+  .p .ratio{font-size:10px;color:var(--bronze);letter-spacing:.1em;}
+  .p .name{font-size:13px;font-weight:800;margin:3px 0 1px;}
+  .p .sub{font-size:10.5px;color:var(--faint);line-height:1.5;}
+  .p .st{font-size:10.5px;margin-top:6px;padding:2px 0;border-top:1px solid var(--line);}
+  .st-live{color:var(--verify);} .st-wait{color:var(--bronze);} .st-off{color:var(--faint);}
+
+  pre.json{background:#05070B;border:1px solid var(--line);border-radius:10px;padding:12px;overflow:auto;font-size:11.5px;color:#B9C6D8;max-height:320px;margin:10px 0 0;line-height:1.6;}
+  .toggle{color:var(--verify);font-size:13px;cursor:pointer;user-select:none;display:inline-flex;gap:6px;align-items:center;margin-top:10px;}
+  .embed{background:#05070B;border:1px solid var(--line-bright);border-radius:10px;padding:12px;font-size:11.5px;color:#B9C6D8;overflow:auto;white-space:pre;line-height:1.6;}
+  .copy{margin-top:8px;}
+  .copied{color:var(--verify);font-size:12px;margin-left:10px;}
+  .badgebox{display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
+  .badgebox img{max-width:200px;border-radius:8px;background:#fff0;}
+  .muted{color:var(--faint);font-size:12px;}
+  .foot{margin-top:30px;border-top:1px solid var(--line);padding-top:16px;font-size:11.5px;color:var(--faint);text-align:center;}
+  .toplinks{display:flex;gap:14px;font-size:12.5px;margin-top:6px;}
+  .toplinks a{color:var(--dim);text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand" style="margin-bottom:2px;">Yakumo<span>加盟店マイページ</span></div>
+  <div class="toplinks">
+    <a href="/yakumo/" target="_blank">モールを見る ↗</a>
+    <a id="lnkProfile" href="/yakumo/" target="_blank" style="display:none;">自分の掲載ページ ↗</a>
+  </div>
+
+  <!-- コード入力 -->
+  <div class="center" id="codeGate" style="display:none;">
+    <div class="card">
+      <h1>加盟店マイページ</h1>
+      <p class="lead">運営(Yakumo / HORIZON SHIELD)からお伝えした<br><b>登録コード</b>を入力してください。</p>
+      <input type="text" id="codeInput" placeholder="ht_ で始まるコード" autocomplete="off" style="text-align:center;">
+      <button class="primary" id="codeBtn">開く</button>
+      <p class="err" id="codeErr"></p>
+    </div>
+  </div>
+
+  <!-- 本体 -->
+  <div id="main" style="display:none;">
+
+    <!-- HERO: 検証状態 -->
+    <div class="hero">
+      <div class="no" id="hNo"></div>
+      <div class="co" id="hCo"></div>
+      <div class="meta" id="hMeta"></div>
+      <div id="hState"></div>
+      <div class="scorewrap" id="hScore" style="display:none;"></div>
+    </div>
+
+    <!-- AIから見つけてもらえる状態(認知の証明) -->
+    <div class="sect">
+      <div class="sect-t">01 ／ AI・検索から見つけてもらえる状態</div>
+      <p class="sect-d">あなたの店は Yakumo の「生きたMCPサーバー」に載っています。MCPに対応したAI(エージェント)が施主の相談に答えるとき、あなたを検証済みの候補として取り出せます。金額は一切出さず、適正度スコアと検証だけを渡します。</p>
+      <div class="box">
+        <div class="row"><span class="k">MCPエンドポイント</span><span class="v mono" style="font-size:11.5px;">/mcp</span></div>
+        <div class="row"><span class="k">エージェントカード(A2A)</span><span class="v"><a href="https://hs-hearing.oga-surf-project.workers.dev/.well-known/agent-card.json" target="_blank" style="font-size:12px;">公開中 ↗</a></span></div>
+        <div class="row"><span class="k">あなたの照会キー</span><span class="v mono" id="mMember" style="font-size:12.5px;">—</span></div>
+        <div class="toggle" id="mToggle">▸ AIが実際に受け取るデータを見る(ライブ照会)</div>
+        <div id="mResultWrap" style="display:none;">
+          <pre class="json" id="mResult">照会中…</pre>
+          <button class="btn ghost" id="mRerun" style="margin-top:10px;font-size:13px;padding:9px 16px;">もう一度ライブ照会する</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 自動生成ページ 4:3:2:1 -->
+    <div class="sect">
+      <div class="sect-t">02 ／ あなたの自動生成ページ(GEO / AEO / LLMO / WebMCP)</div>
+      <p class="sect-d">ヒアリングの回答をもとに、あなたの店を三方(施主・AI・検索)から見つけてもらうページを自動で作り、運営代行します。検証(KIRA)を通ったものだけ公開します。Google/Bingでエラーを出さない構成で発行します。</p>
+      <div class="pill4">
+        <div class="p"><div class="ratio">4</div><div class="name">GEO</div><div class="sub">地域×工種の発見ページ</div><div class="st" id="stGeo">—</div></div>
+        <div class="p"><div class="ratio">3</div><div class="name">AEO</div><div class="sub">FAQ・回答最適化</div><div class="st" id="stAeo">—</div></div>
+        <div class="p"><div class="ratio">2</div><div class="name">LLMO</div><div class="sub">AI向け解説・強み</div><div class="st" id="stLlmo">—</div></div>
+        <div class="p"><div class="ratio">1</div><div class="name">WebMCP</div><div class="sub">AIが直接読む口</div><div class="st" id="stMcp">—</div></div>
+      </div>
+      <div class="box" id="genStatusBox" style="margin-top:12px;"></div>
+    </div>
+
+    <!-- バッジ -->
+    <div class="sect">
+      <div class="sect-t">03 ／ 検証済みバッジ</div>
+      <p class="sect-d">自社サイト・Googleビジネスプロフィール・SNSに貼ると、検証済みの証明になり、Yakumoのあなたのページへリンクします(認知と信頼の後押し)。</p>
+      <div class="box" id="badgeBox"></div>
+    </div>
+
+    <!-- 掲載情報 -->
+    <div class="sect">
+      <div class="sect-t">04 ／ 掲載情報</div>
+      <p class="sect-d">モールとAIに渡している内容です。追記・修正はいつでも反映できます。</p>
+      <div class="box">
+        <div class="row"><span class="k">社名</span><span class="v" id="pCo">—</span></div>
+        <div class="row"><span class="k">所在地</span><span class="v" id="pArea">—</span></div>
+        <div class="row"><span class="k">対応エリア</span><span class="v" id="pAreas" style="max-width:60%;">—</span></div>
+        <div style="padding:9px 0 2px;"><span class="k" style="color:var(--dim);font-size:14px;">対応工種</span><div class="chips" id="pWorks"></div></div>
+        <a class="btn block" id="btnUpdate" style="margin-top:16px;" href="#">内容を更新・追記する</a>
+        <p class="muted" style="text-align:center;margin:10px 0 0;">回答フォームが開きます。前回の内容に上書きで反映されます。</p>
+      </div>
+    </div>
+
+    <!-- ご契約プラン -->
+    <div class="sect">
+      <div class="sect-t">05 ／ ご契約内容</div>
+      <div class="box" id="planBox">
+        <div class="row"><span class="k">プラン</span><span class="v" id="plTier">—</span></div>
+        <div class="row"><span class="k">本部運用</span><span class="v" id="plBase">—</span></div>
+        <div class="row" id="plMcpRow"><span class="k">WebMCP運用オプション</span><span class="v" id="plMcp">—</span></div>
+        <div class="row"><span class="k" style="color:var(--ink);font-weight:700;">合計(税抜/月)</span><span class="v" id="plTotal" style="color:var(--verify);font-size:17px;">—</span></div>
+        <p class="muted" style="margin:10px 0 0;">金額は施主・AI・検索には一切公開しません。表示はご本人確認用です。</p>
+      </div>
+    </div>
+
+    <div class="foot">Yakumo ・ The HORIZ音s株式会社 / HORIZON SHIELD ・ TEL 0463-74-5917<br>紹介料を受け取らない中立モール。掲載は適正診断(KIRA)の通過だけで決まります。</div>
+  </div>
+</div>
+
+<script>
+const WORKER = "https://hs-hearing.oga-surf-project.workers.dev";
+const SITE = "https://shield.the-horizons-innovation.com";
+const BADGE = SITE + "/badges/yakumo-verified.svg";
+let CODE="", INFO=null, PUB=null;
+
+const $ = id => document.getElementById(id);
+const yen = n => "¥" + Number(n||0).toLocaleString();
+function getParam(n){ return new URLSearchParams(location.search).get(n) || ""; }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
+
+async function boot(code){
+  CODE = code;
+  let info;
+  try { info = await (await fetch(WORKER + "/register-info?token=" + encodeURIComponent(code))).json(); }
+  catch(e){ info = {exists:false}; }
+  if(!info || !info.exists){
+    $("codeGate").style.display = "flex";
+    if($("codeErr")) $("codeErr").textContent = code ? "コードが無効か、期限切れです。運営にご確認ください。" : "";
+    return;
+  }
+  INFO = info;
+  $("codeGate").style.display = "none";
+  $("main").style.display = "block";
+  renderProfile(info);
+  renderPlan(info);
+  $("btnUpdate").href = "/yakumo/register/?code=" + encodeURIComponent(code);
+  $("mMember").textContent = info.member_no || "(発番待ち)";
+  // 公開ビュー(検証状態)をライブMCPから取得
+  await loadPublicView(info.member_no);
+  renderHero();
+  renderGenStatus();
+  renderBadge();
+}
+
+async function mcpProfile(memberNo){
+  if(!memberNo) return null;
+  try{
+    const r = await fetch(WORKER + "/mcp", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({jsonrpc:"2.0",id:1,method:"tools/call",params:{name:"get_contractor_profile",arguments:{member_no:memberNo}}})
+    });
+    const j = await r.json();
+    const txt = j && j.result && j.result.content && j.result.content[0] && j.result.content[0].text;
+    return txt ? JSON.parse(txt) : null;
+  }catch(e){ return null; }
+}
+
+async function loadPublicView(memberNo){
+  PUB = await mcpProfile(memberNo);
+  if(PUB && PUB.profile_url){
+    const l = $("lnkProfile"); l.href = PUB.profile_url; l.style.display = "inline";
+  }
+}
+
+function renderHero(){
+  $("hNo").textContent = (INFO.member_no ? "加盟 " + INFO.member_no + " ・ " : "") + "FOUNDING MEMBER";
+  $("hCo").textContent = INFO.company || "";
+  const areas = (INFO.areas||[]).slice(0,4).join(" / ");
+  $("hMeta").textContent = [INFO.area, areas].filter(Boolean).join(" ・ ");
+  const verified = PUB && PUB.verification === "verified" && PUB.fairness_score != null;
+  if(verified){
+    $("hState").innerHTML = '<span class="state verified"><span class="dot"></span>検証済み ・ KIRA適正診断 通過</span>';
+    $("hScore").style.display = "flex";
+    $("hScore").innerHTML =
+      '<div class="score"><div class="k">適正度スコア</div><div class="v">'+esc(PUB.fairness_score)+'<small> / 100</small></div></div>' +
+      '<div class="score"><div class="k">誠実度ティア</div><div class="v">'+esc(PUB.integrity_tier||"-")+'</div></div>' +
+      '<div class="score"><div class="k">レッドフラグ</div><div class="v">'+(PUB.red_flags_detected!=null?esc(PUB.red_flags_detected):"-")+'<small> 件</small></div></div>';
+  } else {
+    $("hState").innerHTML = '<span class="state pending"><span class="dot"></span>検証手続き中(fail-closed)</span>';
+    $("hScore").style.display = "none";
+  }
+}
+
+// 生成ページの状態: ヒアリング前 / 生成準備中 / 公開中 を正直に出す(嘘をつかない)
+function renderGenStatus(){
+  const answered = !!INFO.already_answered;
+  const verified = PUB && PUB.verification === "verified";
+  let cls, label, msg, btn="";
+  if(!answered){
+    cls="st-wait"; label="ヒアリング待ち";
+    msg = "まずはヒアリングにご回答ください。回答が入ると、この4枠のページ生成が自動で始まります。";
+    btn = '<a class="btn block" style="margin-top:12px;" href="/yakumo/register/?code='+encodeURIComponent(CODE)+'">ヒアリングに回答する</a>';
+  } else if(!verified){
+    cls="st-wait"; label="生成準備中";
+    msg = "回答を受け取りました。適正診断(KIRA)を通過したページから順に自動公開します。検証を通るまでは公開しません(fail-closed)。";
+  } else {
+    cls="st-live"; label="公開中";
+    msg = "検証を通過し、公開運用中です。追記があればいつでも反映します。";
+    if(PUB && PUB.profile_url) btn = '<a class="btn block" style="margin-top:12px;" href="'+esc(PUB.profile_url)+'" target="_blank">公開ページを見る ↗</a>';
+  }
+  ["stGeo","stAeo","stLlmo","stMcp"].forEach(id=>{ const e=$(id); e.className="st "+cls; e.textContent=label; });
+  $("genStatusBox").innerHTML = '<p style="margin:0;color:var(--dim);font-size:13.5px;">'+msg+'</p>'+btn;
+}
+
+function renderBadge(){
+  const verified = PUB && PUB.verification === "verified";
+  const box = $("badgeBox");
+  if(!verified){
+    box.innerHTML = '<p style="margin:0;color:var(--dim);font-size:13.5px;">検証(KIRA)を通過すると、ここに<b>検証済みバッジ</b>と貼り付け用コードを発行します。検証前のバッジ発行はしません(fail-closed)。</p>';
+    return;
+  }
+  const url = (PUB && PUB.profile_url) || (SITE + "/yakumo/");
+  const embed = '<a href="'+url+'" rel="noopener" target="_blank">\n  <img src="'+BADGE+'" alt="Yakumo 検証済み加盟店 - HORIZON SHIELD" width="200">\n</a>';
+  box.innerHTML =
+    '<div class="badgebox"><img src="'+BADGE+'" alt="Yakumo 検証済みバッジ">' +
+    '<div style="flex:1;min-width:180px;"><p style="margin:0 0 8px;color:var(--dim);font-size:13px;">下のコードを自社サイトに貼るだけ。Yakumoのあなたの検証ページにリンクします。</p></div></div>' +
+    '<div class="embed" id="embedCode">'+esc(embed)+'</div>' +
+    '<button class="btn copy" id="btnCopy">コードをコピー</button><span class="copied" id="copiedMsg" style="display:none;">コピーしました</span>';
+  const raw = embed;
+  $("btnCopy").addEventListener("click", ()=>{
+    navigator.clipboard.writeText(raw).then(()=>{ $("copiedMsg").style.display="inline"; setTimeout(()=>$("copiedMsg").style.display="none",1800); })
+    .catch(()=>{ const r=document.createRange(); r.selectNode($("embedCode")); getSelection().removeAllRanges(); getSelection().addRange(r); });
+  });
+}
+
+function renderProfile(info){
+  $("pCo").textContent = info.company || "—";
+  $("pArea").textContent = info.area || (info.areas&&info.areas[0]) || "—";
+  $("pAreas").textContent = (info.areas||[]).join("、") || "—";
+  $("pWorks").innerHTML = (info.works||[]).map(w=>'<span class="chip">'+esc(w)+'</span>').join("") || '<span class="muted">未登録</span>';
+}
+
+function renderPlan(info){
+  const p = info.plan || {};
+  const base = p.base_fee_ex_tax != null ? p.base_fee_ex_tax : 29800;
+  const total = p.total_ex_tax != null ? p.total_ex_tax : base;
+  const addon = Math.max(0, total - base);
+  $("plTier").textContent = (info.tier === "honbu" ? "本部系列 No.001" : (info.tier || "本部系列"));
+  $("plBase").textContent = yen(base) + " 税抜";
+  if(addon > 0){ $("plMcp").textContent = yen(addon) + " 税抜"; }
+  else { $("plMcpRow").style.display = "none"; }
+  $("plTotal").textContent = yen(total) + " 税抜 / 月";
+}
+
+// ライブMCP照会の表示(認知の証明)
+$("mToggle").addEventListener("click", async ()=>{
+  const w = $("mResultWrap");
+  if(w.style.display === "none"){ w.style.display="block"; $("mToggle").textContent = "▾ AIが実際に受け取るデータを見る(ライブ照会)"; await runMcp(); }
+  else { w.style.display="none"; $("mToggle").textContent = "▸ AIが実際に受け取るデータを見る(ライブ照会)"; }
+});
+$("mRerun").addEventListener("click", runMcp);
+async function runMcp(){
+  $("mResult").textContent = "照会中…";
+  const v = await mcpProfile(INFO && INFO.member_no);
+  $("mResult").textContent = v ? JSON.stringify(v, null, 2) : "（まだ照会できません。発番後にライブ表示されます。）";
+}
+
+$("codeBtn")?.addEventListener("click", ()=>{
+  const c = $("codeInput").value.trim().replace(/[^A-Za-z0-9_-]/g,"");
+  if(!c){ $("codeErr").textContent="コードを入力してください。"; return; }
+  history.replaceState(null,"","?code="+c);
+  boot(c);
+});
+$("codeInput")?.addEventListener("keydown", e=>{ if(e.key==="Enter") $("codeBtn").click(); });
+
+const initial = getParam("code").replace(/[^A-Za-z0-9_-]/g,"");
+if(initial) boot(initial); else $("codeGate").style.display="flex";
+</script>
+</body>
+</html>
