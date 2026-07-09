@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="index,follow">
+<title id="ttl">加盟店プロフィール ｜ Yakumo</title>
+<meta id="mdesc" name="description" content="Yakumo(HORIZON SHIELD)の検証済み加盟店プロフィール。適正価格の検証と過剰請求チェック(KIRA)を通過した店だけを、金額ではなくスコアと署名レシートで示します。">
+<meta property="og:type" content="profile">
+<meta property="og:site_name" content="Yakumo ｜ HORIZON SHIELD">
+<link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
+<link rel="mcp-server" href="https://hs-hearing.oga-surf-project.workers.dev/mcp" title="Yakumo 検証済み加盟店の探索MCP">
+<style>
+  :root{--void:#080B11;--void-2:#0A0E16;--ink:#EAF0F8;--dim:#7E8CA2;--faint:#4A5568;
+    --verify:#3FE0CE;--verify-deep:#15847A;--bronze:#C9A86A;--alert:#F0634A;--warn:#E8B14C;
+    --line:#1A2230;--line-bright:#283449;--glass:rgba(16,22,33,0.55);}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--void);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;line-height:1.8;-webkit-font-smoothing:antialiased;}
+  a{color:var(--verify);text-decoration:none;}
+  code,.mono{font-family:"JetBrains Mono","SFMono-Regular",Consolas,monospace;}
+  .wrap{max-width:680px;margin:0 auto;padding:20px 18px 70px;}
+  .top{display:flex;align-items:center;gap:10px;height:52px;}
+  .brand{font-weight:900;letter-spacing:.05em;font-size:18px;color:var(--ink);}
+  .brand span{color:var(--bronze);font-size:11px;letter-spacing:.2em;margin-left:8px;}
+  .top .sp{flex:1;}
+  .top a.back{font-size:12.5px;color:var(--dim);}
+  .center{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;}
+  .hero{border:1px solid var(--verify-deep);border-radius:16px;padding:20px;background:linear-gradient(180deg,rgba(63,224,206,0.07),rgba(63,224,206,0.02));margin:12px 0 10px;}
+  .hero.pending{border-color:#4a3d22;background:linear-gradient(180deg,rgba(201,168,106,.06),rgba(201,168,106,.02));}
+  .hero .no{font-size:11px;letter-spacing:.12em;color:var(--bronze);}
+  .hero .co{font-size:23px;font-weight:800;margin:4px 0 2px;}
+  .hero .meta{font-size:12.5px;color:var(--dim);}
+  .state{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:700;border:1px solid var(--line-bright);}
+  .state.verified{color:var(--verify);border-color:var(--verify-deep);background:rgba(63,224,206,.07);}
+  .state.pending{color:var(--bronze);border-color:#4a3d22;background:rgba(201,168,106,.06);}
+  .dot{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor;}
+  .scorewrap{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;}
+  .score{flex:1;min-width:110px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:rgba(8,11,17,.5);}
+  .score .k{font-size:11px;color:var(--faint);letter-spacing:.06em;}
+  .score .v{font-size:26px;font-weight:800;color:var(--ink);line-height:1.2;}
+  .score .v small{font-size:13px;color:var(--dim);font-weight:600;}
+  .sect{margin-top:24px;}
+  .sect-t{font-size:12.5px;color:var(--bronze);letter-spacing:.06em;margin:0 0 8px;border-top:1px solid var(--line);padding-top:20px;font-family:"JetBrains Mono",monospace;}
+  .box{border:1px solid var(--line);border-radius:12px;padding:16px;background:rgba(16,22,33,.35);}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+  .chip{border:1px solid var(--line-bright);border-radius:999px;padding:6px 13px;font-size:13px;color:var(--verify);background:rgba(63,224,206,.05);}
+  .kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px;}
+  .kv:last-child{border-bottom:0;}.kv .k{color:var(--dim);}.kv .v{text-align:right;font-weight:600;}
+  .receipt{font-size:12px;color:var(--dim);line-height:1.7;}
+  .receipt .h{word-break:break-all;color:var(--verify);font-size:11.5px;}
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+  .btn{display:inline-block;background:var(--verify);color:#06241F;border-radius:10px;padding:11px 18px;font-weight:700;font-size:14px;}
+  .btn.ghost{background:transparent;color:var(--verify);border:1px solid var(--verify-deep);}
+  .muted{color:var(--faint);font-size:12px;}
+  .foot{margin-top:28px;border-top:1px solid var(--line);padding-top:16px;font-size:11.5px;color:var(--faint);text-align:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <span class="brand">Yakumo<span>加盟店プロフィール</span></span>
+    <span class="sp"></span>
+    <a class="back" href="/yakumo/">← モール一覧</a>
+  </div>
+
+  <div id="loading" class="center"><p class="muted">読み込み中…</p></div>
+
+  <div id="notfound" class="center" style="display:none;">
+    <div class="box" style="max-width:420px;">
+      <p style="font-weight:700;">この加盟店が見つかりませんでした</p>
+      <p class="muted">リンクが古いか、まだ掲載前の可能性があります。</p>
+      <div class="btnrow" style="justify-content:center;"><a class="btn" href="/yakumo/">モール一覧へ</a></div>
+    </div>
+  </div>
+
+  <div id="main" style="display:none;">
+    <div class="hero" id="hero">
+      <div class="no" id="hNo"></div>
+      <div class="co" id="hCo"></div>
+      <div class="meta" id="hMeta"></div>
+      <div id="hState"></div>
+      <div class="scorewrap" id="hScore" style="display:none;"></div>
+    </div>
+
+    <div class="sect">
+      <div class="sect-t">対応工種</div>
+      <div class="box"><div class="chips" id="works"></div></div>
+    </div>
+
+    <div class="sect">
+      <div class="sect-t">対応エリア</div>
+      <div class="box" id="areasBox"></div>
+    </div>
+
+    <div class="sect">
+      <div class="sect-t">検証の裏づけ</div>
+      <div class="box" id="proofBox"></div>
+    </div>
+
+    <div class="sect">
+      <div class="box" style="text-align:center;">
+        <p class="muted" style="margin:0 0 12px;">Yakumoは紹介料を受け取らない中立モールです。掲載は適正診断(KIRA)の通過だけで決まり、金額は施主・AIに公開しません。</p>
+        <div class="btnrow" style="justify-content:center;">
+          <a class="btn" href="/yakumo/">検証済み加盟店を一覧で見る</a>
+          <a class="btn ghost" href="/souba/">工事別の適正相場を調べる</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">Yakumo ・ The HORIZ音s株式会社 / HORIZON SHIELD ・ TEL 0463-74-5917</div>
+</div>
+
+<script>
+const DATA_URL = 'https://hs-hearing.oga-surf-project.workers.dev/contractors.json';
+const DATA_FALLBACK = 'https://shield.the-horizons-innovation.com/data/yakumo-contractors.json';
+const SITE = 'https://shield.the-horizons-innovation.com';
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function param(n){ return new URLSearchParams(location.search).get(n) || ''; }
+
+function show(id){ ['loading','notfound','main'].forEach(x=>$(x).style.display = x===id ? (id==='main'?'block':'flex') : 'none'); }
+
+function jsonld(c, verified){
+  const g = {"@context":"https://schema.org","@type":"Organization","name":c.name,
+    "areaServed": (c.areas_served&&c.areas_served.length?c.areas_served:[c.area]).filter(Boolean),
+    "memberOf":{"@type":"Organization","name":"Yakumo ｜ HORIZON SHIELD","url":SITE+"/yakumo/"},
+    "knowsAbout": c.works||[]};
+  if(verified){ g.award = "Yakumo 検証済み(KIRA適正診断 通過) ・ 適正度スコア "+c.fairness_score+" / ティア "+(c.integrity_tier||'A'); }
+  const s=document.createElement('script'); s.type='application/ld+json'; s.textContent=JSON.stringify(g); document.head.appendChild(s);
+}
+
+function render(c){
+  const verified = c.verification === 'verified' && c.fairness_score != null;
+  document.title = c.name + ' ｜ Yakumo 検証済み加盟店';
+  const m=$('mdesc'); if(m) m.setAttribute('content', c.name+'（'+(c.area||'')+'）のYakumo加盟店プロフィール。'+(verified?('KIRA適正診断を通過。適正度スコア '+c.fairness_score+' / ティア '+(c.integrity_tier||'A')+'。'):'検証手続き中。')+'金額は非公開、スコアと署名レシートで裏づけます。');
+  const can=document.createElement('link'); can.rel='canonical'; can.href=SITE+'/yakumo/store/?m='+encodeURIComponent(c.member_no||''); document.head.appendChild(can);
+
+  $('hNo').textContent = (c.member_no ? '加盟 '+c.member_no+' ・ ' : '') + 'YAKUMO VERIFIED MEMBER';
+  $('hCo').textContent = c.name || '';
+  $('hMeta').textContent = [c.area, (c.areas_served||[]).slice(0,4).join(' / ')].filter(Boolean).join(' ・ ');
+  if(verified){
+    $('hState').innerHTML = '<span class="state verified"><span class="dot"></span>検証済み ・ KIRA適正診断 通過</span>';
+    $('hScore').style.display='flex';
+    $('hScore').innerHTML =
+      '<div class="score"><div class="k">適正度スコア</div><div class="v">'+esc(c.fairness_score)+'<small> / 100</small></div></div>'+
+      '<div class="score"><div class="k">誠実度ティア</div><div class="v">'+esc(c.integrity_tier||'A')+'</div></div>'+
+      '<div class="score"><div class="k">レッドフラグ</div><div class="v">'+(c.red_flags_detected!=null?esc(c.red_flags_detected):'0')+'<small> 件</small></div></div>';
+  } else {
+    $('hero').classList.add('pending');
+    $('hState').innerHTML = '<span class="state pending"><span class="dot"></span>検証手続き中（fail-closed）</span>';
+  }
+
+  $('works').innerHTML = (c.works||[]).map(w=>'<span class="chip">'+esc(w)+'</span>').join('') || '<span class="muted">準備中</span>';
+  const areas = (c.areas_served&&c.areas_served.length) ? c.areas_served : (c.area?[c.area]:[]);
+  $('areasBox').innerHTML = areas.length ? '<div class="chips">'+areas.map(a=>'<span class="chip" style="color:var(--dim);border-color:var(--line);background:transparent;">'+esc(a)+'</span>').join('')+'</div>' : '<span class="muted">準備中</span>';
+
+  if(verified){
+    const sha = c.claim_sha256 ? esc(c.claim_sha256) : null;
+    $('proofBox').innerHTML =
+      '<div class="kv"><span class="k">検証</span><span class="v">KIRA適正診断 通過</span></div>'+
+      '<div class="kv"><span class="k">適正度スコア</span><span class="v">'+esc(c.fairness_score)+' / 100</span></div>'+
+      '<div class="kv"><span class="k">誠実度ティア</span><span class="v">'+esc(c.integrity_tier||'A')+'</span></div>'+
+      (sha ? '<div style="padding-top:10px;"><p class="receipt">署名レシート(SHA-256)。発行者を信用せず、自分で再計算して照合できます。<br><span class="h mono">'+sha+'</span></p></div>' : '<p class="receipt" style="padding-top:10px;">署名レシートは発行準備中です。</p>');
+  } else {
+    $('proofBox').innerHTML = '<p class="receipt">この店は加盟が確定し、初回ヒアリングと適正診断(KIRA)を進めています。<b style="color:var(--warn);">通過するまでスコアは出しません</b>（fail-closed）。確定し次第、適正度スコアと署名レシートをここに掲載します。</p>';
+  }
+  jsonld(c, verified);
+  show('main');
+}
+
+const M = param('m').trim();
+if(!M){ show('notfound'); }
+else {
+  fetch(DATA_URL).then(r=>{ if(!r.ok) throw 0; return r.json(); })
+    .then(d=> (d&&d.contractors)?d:Promise.reject(0))
+    .catch(()=> fetch(DATA_FALLBACK).then(r=>r.json()))
+    .then(d=>{
+      const list = (d&&d.contractors)||[];
+      const c = list.find(x => x.member_no===M || x.store_id===M || (x.member_no||'').replace(/^No\./,'')===M.replace(/^No\./,''));
+      if(c) render(c); else show('notfound');
+    })
+    .catch(()=> show('notfound'));
+}
+</script>
+</body>
+</html>

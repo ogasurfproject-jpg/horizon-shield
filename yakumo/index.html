@@ -18,7 +18,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
-<link rel="mcp-server" href="https://hs-mcp.oga-surf-project.workers.dev">
+<link rel="mcp-server" href="https://hs-hearing.oga-surf-project.workers.dev/mcp" title="Yakumo 検証済み加盟店の探索MCP(list_verified_stores)">
+<link rel="alternate" type="application/json" href="https://hs-hearing.oga-surf-project.workers.dev/.well-known/agent-card.json" title="Yakumo エージェントカード(A2A)">
+<link rel="mcp-server" href="https://hs-mcp.oga-surf-project.workers.dev" title="HORIZON SHIELD 見積り監査MCP">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
 {"@type":"Organization","@id":"https://shield.the-horizons-innovation.com/#org","name":"HORIZON SHIELD","alternateName":"The HORIZ音s株式会社","url":"https://shield.the-horizons-innovation.com","telephone":"0463-74-5917"},
@@ -156,8 +158,8 @@
       <button id="qBtn">検索</button>
     </div>
     <div class="proof">
-      <p class="line"><span class="dotlive"></span><span class="nv" id="vLookups">0</span> 回 AIに照会され、その答えは <span class="nv" id="vVerified">0</span> 回 <b>独立に検証</b>された。</p>
-      <p class="back">裏付け ・ souba-db <b id="vSrc">8</b>ソース 照合 ／ JCCDB <b id="vJccdb">65,729</b>項目(DOI) ／ 検証済み加盟店 <b id="vVerifiedStores">0</b>社</p>
+      <p class="line"><span class="dotlive"></span>HORIZON SHIELD の適正診断は <span class="nv" id="vLookups">0</span> 回 AIに照会され、<span class="nv" id="vVerified">0</span> 件が <b>独立検証</b>に付された。</p>
+      <p class="back">裏付け ・ souba-db <b id="vSrc">8</b>ソース 照合 ／ JCCDB <b id="vJccdb">65,729</b>項目(DOI) ／ Yakumo 検証済み加盟店 <b id="vVerifiedStores">0</b>社(募集中)</p>
     </div>
   </section>
 
@@ -255,7 +257,9 @@
     for(const c of verified){
       const tier = esc(c.integrity_tier || 'A');
       const tags = (c.works||[]).slice(0,3).map(w => '<span class="tg">'+esc(w)+'</span>').join('') + (c.area ? '<span class="tg">'+esc(c.area)+'</span>' : '');
-      html += '<a class="row" href="https://shield.the-horizons-innovation.com'+esc(c.profile_url||'/yakumo/')+'" aria-label="'+esc(c.name)+'の詳細">'
+      // 専用ページ(例 /yakumo/no001/)があればそこへ。無ければ汎用の店ページへ(モールに戻すループを防ぐ)。
+      const purl = (c.profile_url && c.profile_url !== '/yakumo/') ? c.profile_url : ('/yakumo/store/?m=' + encodeURIComponent(c.member_no || ''));
+      html += '<a class="row" href="https://shield.the-horizons-innovation.com'+esc(purl)+'" aria-label="'+esc(c.name)+'の詳細">'
         + '<div class="tier">'+esc((c.member_no||'').replace('No.',''))+'</div>'
         + '<div class="mid"><div class="nm">'+esc(c.name)+'</div>'
         + '<div class="mt">'+esc(c.area||'')+' ・ 加盟 '+esc(c.member_no||'')+'</div>'
