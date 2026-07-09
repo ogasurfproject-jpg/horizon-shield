@@ -419,6 +419,141 @@ async function sendHearingEmail(env, { to, token, company, origin }) {
   } catch (e) { return { ok: false, reason: String(e).slice(0, 80) }; }
 }
 
+// 初回あいさつメール(TOshi方針: 初回はあいさつ、本格ヒアリングは翌週)。フォームリンクは載せない。
+async function sendGreetingEmail(env, { to, company }) {
+  if (!env.RESEND_API_KEY) return { ok: false, reason: "RESEND_API_KEY 未設定" };
+  const from = env.HEARING_FROM || "Yakumo <hearing@the-horizons-innovation.com>";
+  const subject = "Yakumo 加盟 御礼のごあいさつ" + (company ? " / " + company : "");
+  const html =
+    '<div style="font-family:sans-serif;line-height:1.9;color:#222;">' +
+    '<p>' + (company || "") + ' ご担当者さま</p>' +
+    '<p>このたびは Yakumo(HORIZON SHIELD)へのご加盟、誠にありがとうございます。加盟No.001 として、心より歓迎いたします。</p>' +
+    '<p>Yakumo は紹介料を受け取らない中立の加盟店モールです。適正価格の検証を通った店だけを、施主とAIの前にお並べします。貴社の強みを、施主・AI・検索の三方から見つけてもらえるよう、運営を代行してまいります。</p>' +
+    '<p>来週より、簡単なヒアリング(工種・エリア・強みなど)を順にお願いしてまいります。まずは御礼のごあいさつまで。どうぞよろしくお願いいたします。</p>' +
+    '<p style="color:#888;font-size:12px;">The HORIZ音s株式会社 / HORIZON SHIELD / Yakumo ・ TEL 0463-74-5917</p></div>';
+  try {
+    const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ from, to, subject, html }) });
+    return { ok: r.ok, status: r.status };
+  } catch (e) { return { ok: false, reason: String(e).slice(0, 80) }; }
+}
+
+/* ------------------------------ LINE intake (加盟店ヒアリングのLINE版) ------------------------------ */
+// メールと同じ設計。加盟店がLINEで登録->回答->自動構造化->同じfail-closed関所->生成トリガー。
+async function verifyLineSignature(secret, bodyText, signature) {
+  if (!secret) return true; // 未設定時は検証スキップ(初期設定用)。本番は LINE_CHANNEL_SECRET を必ず設定すること。
+  if (!signature) return false;
+  try {
+    const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(bodyText));
+    const b64 = btoa(String.fromCharCode(...new Uint8Array(sig)));
+    return b64 === signature;
+  } catch (_e) { return false; }
+}
+async function lineReply(env, replyToken, text) {
+  if (!env.LINE_CHANNEL_ACCESS_TOKEN || !replyToken) return;
+  try {
+    await fetch("https://api.line.me/v2/bot/message/reply", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + env.LINE_CHANNEL_ACCESS_TOKEN, "Content-Type": "application/json" },
+      body: JSON.stringify({ replyToken, messages: [{ type: "text", text: String(text).slice(0, 1900) }] }),
+    });
+  } catch (_e) {}
+}
+// メール/LINE共通: 回答テキストを取り込み、構造化->関所->生成トリガー。source で経路を区別。
+async function ingestHearingAnswer(env, store_id, store, text, source) {
+  await env.HS_HEARING_KV.put(source + "reply:" + store_id + ":" + Date.now(),
+    JSON.stringify({ text: String(text).slice(0, 6000), at: new Date().toISOString(), source }));
+  const structured = await llmStructure(env, text, store);
+  if (!structured.ok) return { ok: false, reason: structured.reason };
+  const profile = normalizeProfile(store || { store_id }, structured.raw);
+  if (!profile.company || !profile.area || !(profile.works && profile.works.length)) {
+    return { ok: false, reason: "missing-required" };
+  }
+  const now = new Date().toISOString();
+  await env.HS_HEARING_KV.put("hearing:" + store_id, JSON.stringify({ store_id, profile, answered_at: now, completed: true, source }));
+  if (store) { store.status = "hearing_done"; store.hearing_done_at = now; await env.HS_HEARING_KV.put("store:" + store_id, JSON.stringify(store)); }
+  const gen = await triggerGeneration(env, profile);
+  return { ok: true, gen };
+}
+async function handleLineWebhook(env, bodyText) {
+  let body; try { body = JSON.parse(bodyText); } catch (_e) { return; }
+  const events = Array.isArray(body.events) ? body.events : [];
+  for (const ev of events) {
+    if (ev.type !== "message" || !ev.message || ev.message.type !== "text") continue;
+    const userId = ev.source && ev.source.userId;
+    const replyToken = ev.replyToken;
+    const text = String(ev.message.text || "");
+    if (!userId) continue;
+
+    const linkedStoreId = await env.HS_HEARING_KV.get("line2store:" + userId, "text");
+    if (!linkedStoreId) {
+      // 未登録: メッセージ内に既知の登録コード(ht_トークン)があれば紐づける。
+      const m = text.match(/ht_[A-Za-z0-9]{8,}/);
+      if (m) {
+        const tokRec = await env.HS_HEARING_KV.get("htok:" + m[0], "json");
+        if (tokRec) {
+          await env.HS_HEARING_KV.put("line2store:" + userId, tokRec.store_id);
+          await env.HS_HEARING_KV.put("store2line:" + tokRec.store_id, userId);
+          await lineReply(env, replyToken,
+            (tokRec.company || "加盟店") + " さま、登録が完了しました。\nこの LINE に、対応できる工種・エリア・強み(使う塗料や工法、保証など)を、そのまま送ってください。まとめて1通でもOKです。折り返しページ作成に入ります。");
+          continue;
+        }
+      }
+      await lineReply(env, replyToken, "Yakumo 加盟店ヒアリングです。運営からお伝えした登録コード(ht_で始まる文字列)を、このトークにそのまま送ってください。");
+      continue;
+    }
+
+    // 登録済み: これはヒアリング回答。取り込んで自動構造化->関所->生成。
+    const store = await env.HS_HEARING_KV.get("store:" + linkedStoreId, "json");
+    const res = await ingestHearingAnswer(env, linkedStoreId, store, text, "line");
+    if (res.ok) {
+      await lineReply(env, replyToken, "受け取りました。ありがとうございます。検証とページ作成の準備に入ります。追記があれば、いつでもこのトークに送ってください。");
+      await notify(env, "[Yakumo] LINE回答を自動構造化->生成トリガー: " + ((store && store.company) || linkedStoreId));
+    } else if (res.reason === "missing-required") {
+      await lineReply(env, replyToken, "ありがとうございます。もう少しだけ、社名・地域(市区町村)・対応工種が分かるように教えていただけますか？(例: リフォーム職人株式会社 / 長久手市 / 外壁塗装・屋根・内装)");
+    } else {
+      await lineReply(env, replyToken, "受け取りました。内容を確認して運営からご連絡します。");
+      await notify(env, "[Yakumo] LINE回答を受信(自動構造化できず: " + res.reason + ")。手動確認を。store=" + linkedStoreId);
+    }
+  }
+}
+
+/* ------------------------------ 加盟店一覧(KV) + 公開データ ------------------------------ */
+async function listAllStores(env) {
+  const out = [];
+  let cursor;
+  do {
+    const res = await env.HS_HEARING_KV.list({ prefix: "store:", cursor });
+    for (const k of res.keys) {
+      const s = await env.HS_HEARING_KV.get(k.name, "json");
+      if (s) out.push(s);
+    }
+    cursor = res.list_complete ? null : res.cursor;
+  } while (cursor);
+  return out;
+}
+// KVの店レコード -> モール/一覧の表示形。金額は出さない(スコア・ティアのみ)。
+function storeToContractor(s) {
+  const areas = Array.isArray(s.areas) ? s.areas : [];
+  const verified = s.verification === "verified" && s.fairness_score != null;
+  return {
+    member_no: s.member_no || null,
+    store_id: s.store_id,
+    name: s.company || "",
+    area: s.area || areas[0] || "",
+    areas_served: areas,
+    works: Array.isArray(s.works) ? s.works : [],
+    verification: verified ? "verified" : "pending",
+    fairness_score: verified ? s.fairness_score : null,
+    integrity_tier: verified ? (s.integrity_tier || null) : null,
+    red_flags_detected: verified ? (s.red_flags_detected != null ? s.red_flags_detected : null) : null,
+    claim_sha256: verified ? (s.claim_sha256 || null) : null,
+    profile_url: s.profile_url || (s.store_id === "hs-partner-001" ? "/yakumo/no001/" : "/yakumo/"),
+    mcp_url: "https://hs-hearing.oga-surf-project.workers.dev/mcp",
+    status: s.status || "onboarding",
+  };
+}
+
 /* ------------------------------ router ------------------------------ */
 export default {
   async fetch(request, env) {
@@ -430,6 +565,19 @@ export default {
 
     if (path === "/.well-known/agent-card.json") return json(agentCard(url.origin));
 
+    // 公開: モールが読む加盟店データ(KVライブ)。金額なし。静的 /data/yakumo-contractors.json のライブ版。
+    if (path === "/contractors.json") {
+      const stores = await listAllStores(env);
+      const contractors = stores.map(storeToContractor);
+      return json({
+        schema: "yakumo-contractors/v1",
+        generated_at: new Date().toISOString(),
+        source: "hs-hearing KV (live)",
+        contractors,
+        stats: { usage_total: 414, verify_total: 11, source_count: 8, jccdb_items: 65729, as_of: "2026-06-30" },
+      }, 200, { "Cache-Control": "public, max-age=60" });
+    }
+
     // MCP: JSON-RPC over HTTP(POST)
     if (path === "/mcp") {
       if (request.method === "GET") return json({ server: SERVER, transport: "jsonrpc", tools: MCP_TOOLS.map((t) => t.name), mall: MALL_URL });
@@ -440,6 +588,19 @@ export default {
       // 単発想定(バッチは先頭のみ)。
       const m = msgs[0] || {};
       return handleMcp(request, env, m.id != null ? m.id : null, m.method, m.params);
+    }
+
+    // LINE Webhook: 加盟店ヒアリングのLINE版(登録->回答->自動構造化->生成)
+    if (path === "/line/webhook") {
+      if (request.method === "GET") return json({ ok: true, line: "webhook" }); // 疎通確認用
+      if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+      const bodyText = await request.text();
+      const sig = request.headers.get("x-line-signature") || "";
+      const okSig = await verifyLineSignature(env.LINE_CHANNEL_SECRET, bodyText, sig);
+      if (!okSig) return json({ error: "bad_signature" }, 403);
+      // LINEは即200を要求。処理は待たずに返す(waitUntilが無ければawaitでも可)。
+      await handleLineWebhook(env, bodyText);
+      return json({ ok: true });
     }
 
     // ヒアリングフォーム(GET) / 回答受信(POST)
@@ -481,6 +642,7 @@ export default {
         const store = {
           member_no: safeStr(b.member_no, 20),
           store_id,
+          token,
           company: safeStr(b.company, 120),
           tier: safeStr(b.tier, 20) || "honbu",
           areas: safeArr(b.areas),
@@ -515,6 +677,70 @@ export default {
         if (!tokRec) return json({ error: "unknown_token" }, 404);
         const res = await sendHearingEmail(env, { to, token: tok, company: tokRec.company, origin: url.origin });
         return json(res, res.ok ? 200 : 502);
+      }
+
+      // 初回あいさつメール(TOshi方針: 初回はあいさつ、本格ヒアリングは翌週 send-hearing で)
+      if (path === "/admin/send-greeting" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const to = safeStr(b.to, 120);
+        if (!to) return json({ error: "to が必要" }, 400);
+        const res = await sendGreetingEmail(env, { to, company: safeStr(b.company, 120) });
+        return json(res, res.ok ? 200 : 502);
+      }
+
+      // LINE userId を店に手動で紐づける(自己登録コードを使わない場合の予備)
+      if (path === "/admin/link-line" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const sid = safeStr(b.store_id, 40);
+        const uid = safeStr(b.line_user_id, 60);
+        if (!sid || !uid) return json({ error: "store_id と line_user_id が必要" }, 400);
+        await env.HS_HEARING_KV.put("line2store:" + uid, sid);
+        await env.HS_HEARING_KV.put("store2line:" + sid, uid);
+        return json({ ok: true, store_id: sid, line_user_id: uid });
+      }
+
+      // 管理ダッシュボード用: 全加盟店＋ヒアリング状況
+      if (path === "/admin/stores" && request.method === "GET") {
+        const stores = await listAllStores(env);
+        const rows = [];
+        for (const s of stores) {
+          const h = await env.HS_HEARING_KV.get("hearing:" + s.store_id, "json");
+          const line = await env.HS_HEARING_KV.get("store2line:" + s.store_id, "text");
+          rows.push({
+            ...storeToContractor(s),
+            tier: s.tier || null,
+            plan: s.plan || null,
+            email: s.email || "",
+            token: s.token || null,
+            hearing_url: s.token ? (url.origin + "/h/" + s.token) : null,
+            created_at: s.created_at || null,
+            hearing_completed: !!(h && h.completed),
+            hearing_source: (h && h.source) || null,
+            answered_at: (h && h.answered_at) || null,
+            line_linked: !!line,
+          });
+        }
+        rows.sort((a, b) => String(a.member_no || "").localeCompare(String(b.member_no || "")));
+        return json({ ok: true, count: rows.length, stores: rows });
+      }
+
+      // 検証済み化(KIRA審査の結果をKVに反映 -> モール/MCPが自動で「検証済み+スコア」に)
+      if (path === "/admin/verify" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const sid = safeStr(b.store_id, 40);
+        const s = await env.HS_HEARING_KV.get("store:" + sid, "json");
+        if (!s) return json({ error: "not_found" }, 404);
+        const score = Number(b.fairness_score);
+        if (!(score >= 0 && score <= 100)) return json({ error: "fairness_score は 0-100" }, 400);
+        s.verification = "verified";
+        s.fairness_score = score;
+        s.integrity_tier = safeStr(b.integrity_tier, 4) || "A";
+        s.red_flags_detected = Number(b.red_flags_detected) || 0;
+        if (b.claim_sha256) s.claim_sha256 = safeStr(b.claim_sha256, 80);
+        s.status = "published";
+        s.verified_at = new Date().toISOString();
+        await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(s));
+        return json({ ok: true, store: storeToContractor(s) });
       }
 
       // 正規化済みプロフィールをエクスポート(生成側/確認用)

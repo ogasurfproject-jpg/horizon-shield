@@ -7,7 +7,7 @@
     {
       // 発行手順: wrangler kv namespace create HS_HEARING_KV  → 出た id をここに貼る
       "binding": "HS_HEARING_KV",
-      "id": "REPLACE_WITH_HS_HEARING_KV_ID"
+      "id": "cae22b3bf47b46bebdfcdfd6a724f8ab"
     }
   ],
   // Workers AI: メール返信のプローズをヒアリングschemaに構造化する既定エンジン(外部APIキー不要)
