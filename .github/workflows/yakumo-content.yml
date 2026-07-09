@@ -1,0 +1,117 @@
+name: yakumo-content-autopublish
+
+# 八雲 加盟店ヒアリング -> GEO/AEO/LLMO/WebMCP 自動生成 -> fail-closed検証 -> 公開 -> IndexNow
+# トリガー:
+#   - repository_dispatch (event_type: yakumo-hearing-completed)  = hs-hearing Worker が回答受信時に叩く
+#   - workflow_dispatch                                           = 手動テスト(profile_json を渡す)
+#
+# 安全設計: validate.py が1枚でも落とせば job が失敗し、commit は一切行われない(fail-closed)。
+# IndexNow 送信は indexnow_submit.py の3関所(200/マーカー/MOAT)を通ったURLだけ。落ちれば送らない。
+
+on:
+  repository_dispatch:
+    types: [yakumo-hearing-completed]
+  workflow_dispatch:
+    inputs:
+      profile_json:
+        description: "テスト用の正規化プロフィールJSON(1行)"
+        required: false
+        default: '{"member_no":"No.001","company":"リフォーム職人株式会社","area":"愛知県長久手市","areas_served":["長久手市","名古屋市","日進市"],"works":["外壁塗装","屋根","内装"],"strengths":"","faqs":[]}'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: yakumo-content
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    outputs:
+      published: ${{ steps.commit.outputs.published }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Extract profile (repository_dispatch)
+        if: github.event_name == 'repository_dispatch'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const p = context.payload.client_payload && context.payload.client_payload.profile;
+            if (!p) { core.setFailed('client_payload.profile がありません'); return; }
+            fs.writeFileSync('/tmp/profile.json', JSON.stringify(p));
+            core.info('profile written for ' + (p.company || '(no company)'));
+
+      - name: Extract profile (manual)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const raw = ${{ toJSON(inputs.profile_json) }};
+            let p;
+            try { p = JSON.parse(raw); } catch (e) { core.setFailed('profile_json が不正なJSON: ' + e.message); return; }
+            fs.writeFileSync('/tmp/profile.json', JSON.stringify(p));
+            core.info('manual profile written');
+
+      - name: Generate pages (GEO/AEO/LLMO/WebMCP 4:3:2:1)
+        run: python3 tools/yakumo/generate.py --profile /tmp/profile.json
+
+      - name: Validate pages (fail-closed gate)
+        run: python3 tools/yakumo/validate.py --manifest tools/yakumo/last_manifest.json
+
+      - name: Commit and push (only if validation passed)
+        id: commit
+        run: |
+          if [ -z "$(git status --porcelain yakumo/ tools/yakumo/last_manifest.json sitemap.xml)" ]; then
+            echo "変更なし。公開スキップ。"
+            echo "published=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name  "yakumo-bot"
+          git config user.email "yakumo-bot@users.noreply.github.com"
+          git add yakumo/ tools/yakumo/last_manifest.json sitemap.xml
+          COUNT=$(python3 -c "import json;print(json.load(open('tools/yakumo/last_manifest.json'))['count'])")
+          git commit -m "yakumo: auto-publish ${COUNT} verified-partner pages (GEO/AEO/LLMO/WebMCP)"
+          for i in 1 2 3 4; do
+            if git push origin main; then break; fi
+            echo "push retry $i"; sleep $((2**i))
+          done
+          echo "published=true" >> "$GITHUB_OUTPUT"
+
+  indexnow:
+    needs: generate
+    if: needs.generate.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Wait for GitHub Pages deploy
+        run: sleep 150
+
+      - name: Submit to IndexNow (3-gate self-check inside; only live URLs go)
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+        run: |
+          if [ -z "$INDEXNOW_KEY" ]; then
+            echo "INDEXNOW_KEY 未設定。送信スキップ(fail-safe)。Secrets に追加すれば次回から自動送信。"
+            exit 0
+          fi
+          URLS=$(python3 -c "import json;print(','.join(json.load(open('tools/yakumo/last_manifest.json'))['urls']))")
+          echo "submit: $URLS"
+          # /yakumo/ 配下は souba還流マーカー必須を外す(--no-marker)。3関所(200/MOAT)は内部で実施。
+          python3 indexnow_submit.py --urls "$URLS" --no-marker --send

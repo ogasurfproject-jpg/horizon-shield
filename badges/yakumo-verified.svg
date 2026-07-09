@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="340" height="72" viewBox="0 0 340 72" role="img" aria-label="八雲 YAKUMO 加盟店 - HORIZON SHIELD">
+  <defs>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#C9A86A"/><stop offset="1" stop-color="#3FE0CE"/>
+    </linearGradient>
+  </defs>
+  <rect x="0.5" y="0.5" width="339" height="71" rx="12" fill="#080B11" stroke="#1A2230"/>
+  <rect x="0.5" y="0.5" width="339" height="71" rx="12" fill="none" stroke="url(#hair)" stroke-opacity="0.35"/>
+  <g transform="translate(20,18)">
+    <path d="M18 1 L33 8 V20 C33 29 26 34 18 36 C10 34 3 29 3 20 V8 Z" fill="none" stroke="#C9A86A" stroke-width="1.6"/>
+    <path d="M9 16 H27 M8 21 H28 M12 26 H24" stroke="#3FE0CE" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+  <g font-family="'Space Grotesk','Hiragino Sans',system-ui,sans-serif">
+    <text x="70" y="30" fill="#EAF0F8" font-size="19" font-weight="700" letter-spacing="0.5">八雲 YAKUMO</text>
+    <text x="70" y="49" fill="#3FE0CE" font-size="11.5" font-weight="600" letter-spacing="1.5">加盟店 ・ VERIFIED CONTRACTOR MALL</text>
+  </g>
+  <g transform="translate(300,20)">
+    <circle cx="8" cy="8" r="7" fill="none" stroke="#3FE0CE" stroke-width="1.4"/>
+    <path d="M4.5 8 L7 10.5 L11.5 5.5" fill="none" stroke="#3FE0CE" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

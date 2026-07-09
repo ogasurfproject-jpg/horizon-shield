@@ -1,0 +1,160 @@
+# 八雲モール完成 + 自動ヒアリング + WebMCP運用 引き継ぎ / 実行手順書 (2026-07-09)
+
+> このセッションで作った物と、TOshi が手動で叩く手順を全部まとめた。値は実機確認済み or 設計値。
+> 恒久ルール順守: Claude は本番を叩かない(コマンドを出すだけ) / 追加差分のみ / fail-closed / 会社名 The HORIZ音s / 金額は施主向け非表示 / em・en・bar dash 不使用。
+
+---
+
+## 0. 何を作ったか(TOshi の4つの依頼に対応)
+
+1. **加盟店番号 No.001 発行** … リフォーム職人株式会社を honbu(¥29,800税抜)+ WebMCPオプション(¥12,000税抜)= **¥41,800税抜/月** で発行する手順とスクリプト。
+2. **モールの完成形** … `/yakumo/`(店一覧)・`/yakumo/no001/`(店詳細)・`/yakumo/apply/`(加盟案内)。データ源 `data/yakumo-contractors.json` を読んで自動描画。金額非表示・スコア/ティアのみ・検証手続き中の店はゲート表示。
+3. **自動ヒアリング → 生きたMCP → 新鮮な GEO/AEO/LLMO/WebMCP** … 新規ワーカー `hs-hearing` がヒアリングフォームを配信し、返信を自動で構造化KV保存。回答から GitHub Action が GEO/AEO/LLMO/WebMCP を **黄金比 4:3:2:1** で自動生成 → **fail-closed 検証** → 通過分だけ公開 → IndexNow 送信。検証済み加盟店は `hs-hearing` の **MCP面**(`list_verified_stores` / `get_contractor_profile`)から AI が発見できる。
+4. **認知度拡大の仕掛け** … 生成する全ページがモールと HORIZON SHIELD へバックリンク。加盟店が自社サイトに貼る**検証バッジ**(`/badges/`)が被リンクを生む。`llms.txt` に八雲節を追加(LLM が八雲を引用)。`sitemap.xml` に登録。A2A エージェントカードで他エージェントも発見。
+
+---
+
+## 1. なぜ「絶対に Google/Bing にエラーを出さない」が守れるか(fail-closed の二重関所)
+
+生成 → 公開の間に、機械の関所を2枚置いた。1枚でも落ちたら**公開しない**。
+
+- **関所A(静的・公開前)** `tools/yakumo/validate.py`:
+  JSON-LD が全て正当なJSONで @type/@context を持つ / canonical がパスと一致 / robots=index,follow / title・description・author 有り / 禁止語(MOAT: `32.5` `danger_threshold` `WPC`)なし / em・en・bar dash なし / **金額数字なし**(施主向け) / モール+HSへのバックリンク有り / 裸相対リンクなし。**1枚でもNGなら Action が失敗し commit されない。**
+- **関所B(実弾・送信前)** `indexnow_submit.py`(既存・3関所):
+  各URLを物理再チェックし 200 / MOAT漏れなし を満たすものだけ IndexNow へ。落ちたURLは送らない。GitHub Pages 未反映のURLは自動で除外される。
+
+この設計なら、壊れたページや機密漏れページが検索エンジンに渡ることが構造的に起きない。
+
+---
+
+## 2. 自動ループの全体像
+
+```
+堤さん(リフォーム職人) がヒアリングフォームに回答
+        │  POST /h/<token>   (hs-hearing Worker)
+        ▼
+hs-hearing が回答を正規化して KV 保存(見積もり例は監査用・金額は生成に渡さない)
+        │  repository_dispatch: yakumo-hearing-completed  (GH_DISPATCH_TOKEN 設定時)
+        ▼
+GitHub Action (.github/workflows/yakumo-content.yml)
+   generate.py  → GEO4 / AEO3 / LLMO2 / WebMCP1 を /yakumo/ 配下に生成
+   validate.py  → 関所A(fail-closed)。1枚でも落ちたら中止(commit なし)
+   commit+push  → main へ(Pages が自動配信)+ sitemap.xml 追記
+        │  (Pages デプロイ待ち 150s)
+        ▼
+   indexnow_submit.py --send → 関所B を通ったURLだけ Bing/IndexNow へ
+        ▼
+   施主・検索・AI が新ページ経由で 八雲モール と HORIZON SHIELD に到達(認知度)
+```
+
+「検証通過なら公開まで全自動」= 関所A・Bを全通過したものだけ、人手なしで公開まで進む。
+
+---
+
+## 3. 実行手順(TOshi 手動・この順で)
+
+### STEP A. 静的コンテンツをマージ(ブラウザPR)
+ブランチ `feat/yakumo-mall-hearing-webmcp` を main へ。含まれる物:
+`yakumo/`(モール一式)/ `badges/`(バッジ)/ `data/yakumo-contractors.json` / `tools/yakumo/`(生成器・検証器・スクリプト)/ `.github/workflows/yakumo-content.yml` / `llms.txt`(追記)/ `sitemap.xml`(追記)。
+- PR作成: `https://github.com/ogasurfproject-jpg/horizon-shield/pull/new/feat/yakumo-mall-hearing-webmcp`
+- マージ後、ブラウザで確認: `https://shield.the-horizons-innovation.com/yakumo/` が表示される / `https://shield.the-horizons-innovation.com/data/yakumo-contractors.json` が開ける。
+
+### STEP B. hs-hearing ワーカーをデプロイ
+```bash
+cd "$(git rev-parse --show-toplevel)/workers/hs-hearing"
+# 1) KV を作って wrangler.jsonc の id を差し替える
+CLOUDFLARE_ACCOUNT_ID=c15ff64aba400e541853dec1fbe5e76a npx wrangler kv namespace create HS_HEARING_KV
+#   → 出た id を workers/hs-hearing/wrangler.jsonc の "REPLACE_WITH_HS_HEARING_KV_ID" に貼る
+# 2) シークレット
+CLOUDFLARE_ACCOUNT_ID=c15ff64aba400e541853dec1fbe5e76a npx wrangler secret put HEARING_ADMIN_SECRET   # openssl rand -hex 24 等
+CLOUDFLARE_ACCOUNT_ID=c15ff64aba400e541853dec1fbe5e76a npx wrangler secret put GH_DISPATCH_TOKEN       # GitHub PAT(repo:dispatch可)。未設定なら生成は起動しない(fail-closed)
+# 3) デプロイ
+node --check src/hearing.js && CLOUDFLARE_ACCOUNT_ID=c15ff64aba400e541853dec1fbe5e76a npx wrangler deploy
+# 確認
+curl -s https://hs-hearing.oga-surf-project.workers.dev/health
+curl -s https://hs-hearing.oga-surf-project.workers.dev/.well-known/agent-card.json | head -c 200
+```
+
+### STEP C. GitHub Secrets(自動公開の燃料)
+リポジトリ Settings → Secrets and variables → Actions:
+- `INDEXNOW_KEY` … IndexNow鍵(既存の `_KEYS_DO_NOT_COMMIT.txt` の値)。未設定でも生成・公開は動く(IndexNow送信だけ skip=fail-safe)。
+ワークフローはマージ時に自動で有効化。手動テストは Actions → yakumo-content-autopublish → Run workflow(既定の profile_json でお試し可)。
+
+### STEP D. No.001 発行 + ヒアリングリンク生成
+```bash
+export HS_ESTIMATE_ADMIN='＜hs-estimate の ADMIN_SECRET＞'
+export HS_HEARING_ADMIN='＜STEP B で設定した HEARING_ADMIN_SECRET＞'
+export NO001_EMAIL='＜リフォーム職人の連絡先メール(任意)＞'
+bash tools/yakumo/issue_no001.sh            # まず表示だけ
+bash tools/yakumo/issue_no001.sh --run      # 実行(honbuキー発行 + provision + hearing_url 取得)
+```
+- STEP1 の戻りに `subscriptionId` と `apiKey`(hse_)。apiKey は平文保存しない。
+- STEP2 の戻りの `hearing_url` を **堤さんに送る**。
+
+### STEP E. 回答が来たら自動で走る
+堤さんが回答 → hs-hearing が dispatch → Action が生成・検証・公開・IndexNow。Actions のログで結果確認。
+
+---
+
+## 4. 「検証済みスコア」を出す時(唯一の手動ステップ・意図的)
+
+生成ページとモールは、最初は正直に「検証手続き中」を表示する(スコアはまだ出さない=fail-closed)。
+KIRA が堤さんの見積もり例を `audit_estimate` で診断し、赤旗数と適正度が出たら、`data/yakumo-contractors.json` の No.001 を更新して verified に切り替える:
+```json
+"verification": "verified",
+"fairness_score": 97,          // audit_estimate の実結果
+"integrity_tier": "A",
+"red_flags_detected": 0,
+"claim_sha256": "＜verify_fair_price の署名レシート＞",
+"verified_at": "2026-07-1x"
+```
+main へ commit すれば、モール・店詳細・MCP面が自動で「検証済み+スコア」に切り替わる(HTMLは触らない。JSONだけ)。
+※ ここだけ手動なのは意図的。スコアは第三者監査の結果であり、自己申告で自動発行しない(誠実さが唯一の武器)。
+
+---
+
+## 5. 継続運用(初回バッチの後)
+
+- 新しい加盟店が来たら STEP D の provision を会社情報で叩く(`member_no`/`store_id`/`company`/`tier`/`areas`/`works`)→ hearing_url を渡す。以降は同じ自動ループ。
+- 同じ店の情報が変わったら、同じトークンで再回答してもらえば再生成される(`/yakumo/` 自ネームスペースなので既存の souba/faq を汚さない)。
+- IndexNow は1日100件上限。1店=10ページなので余裕。複数店を同日に処理する時だけ注意。
+- 生成は `/yakumo/souba|faq|llmo|webmcp/` 配下のみに書く。**本体の `/souba/` `/faq/` 等には一切書かない**(重複ゼロ設計)。
+
+---
+
+## 6. 検証済み(このセッションで実機/ローカル確認した事)
+
+- `hs-hearing` ルーティング/MCP(initialize・tools/list・tools/call)/agent-card/admin をローカル実行で確認。`list_verified_stores` は検証済みだけ `stores` に、未検証は `pending_stores` に分離。金額は返さない。`get_contractor_profile No.001` は pending でスコア null(fail-closed)。provision は plan.total_ex_tax=41800 を計算し hearing_url を返す。
+- 生成器: サンプルプロフィールで 10ページ(GEO4/AEO3/LLMO2/WebMCP1)生成 → 検証器で 0エラー。
+- 検証器の fail-closed: MOAT語・金額・壊れ相対リンクを注入したら exit 1 で全体を止めることを確認。
+- 全新規ファイル: node --check / py_compile / bash -n / JSON parse / HTML parse すべて通過。禁止ダッシュは新規追記分にゼロ(llms.txt 106行目の em-dash は**既存**・今回対象外)。
+
+---
+
+## 7. 値・URL リファレンス(新規)
+
+| 種別 | 値 |
+|---|---|
+| ブランチ | `feat/yakumo-mall-hearing-webmcp` |
+| モール | `https://shield.the-horizons-innovation.com/yakumo/` |
+| 店詳細 No.001 | `https://shield.the-horizons-innovation.com/yakumo/no001/` |
+| 加盟案内 | `https://shield.the-horizons-innovation.com/yakumo/apply/` |
+| バッジ配布 | `https://shield.the-horizons-innovation.com/badges/` |
+| データ源 | `data/yakumo-contractors.json` |
+| ヒアリング/MCP ワーカー | `https://hs-hearing.oga-surf-project.workers.dev` |
+| MCP エンドポイント | `.../mcp`(tools: list_verified_stores, get_contractor_profile) |
+| A2A カード | `.../.well-known/agent-card.json` |
+| KV(新規) | `HS_HEARING_KV`(STEP B で作成) |
+| Cloudflare account | `c15ff64aba400e541853dec1fbe5e76a` |
+| No.001 会社 | リフォーム職人株式会社(愛知県長久手市 / 外壁塗装・屋根・内装) |
+| No.001 料金(税抜) | honbu ¥29,800 + WebMCP ¥12,000 = **¥41,800/月**(税込 x1.1 = ¥45,980) |
+| GitHub Action | `.github/workflows/yakumo-content.yml`(dispatch: `yakumo-hearing-completed`) |
+
+---
+
+## 8. 触っていない物(安全のため)
+
+- **hs-mcp / hs-estimate のコードは一切変更していない**(審査キュー保護 + 動いてる本番を触らない)。八雲の生きたMCPは独立ワーカー `hs-hearing` に置いた。
+- 将来 hs-mcp の審査が全部通ったら、hs-mcp 側に `list_verified_stores` を追加してもよい(その時は追加差分・要再提出覚悟で)。今はやらない。
+
+*作成 2026-07-09 / 次セッションはこの手順書を起点に。*

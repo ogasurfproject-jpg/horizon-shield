@@ -1,0 +1,20 @@
+{
+  // hs-hearing : 八雲モール 加盟店 自動ヒアリング + 生きた加盟店MCPサーバー(独立ワーカー)
+  "name": "hs-hearing",
+  "main": "src/hearing.js",
+  "compatibility_date": "2025-06-01",
+  "kv_namespaces": [
+    {
+      // 発行手順: wrangler kv namespace create HS_HEARING_KV  → 出た id をここに貼る
+      "binding": "HS_HEARING_KV",
+      "id": "REPLACE_WITH_HS_HEARING_KV_ID"
+    }
+  ],
+  "vars": {
+    "PUBLIC_DATA_URL": "https://shield.the-horizons-innovation.com/data/yakumo-contractors.json",
+    "GH_DISPATCH_REPO": "ogasurfproject-jpg/horizon-shield"
+  }
+  // secrets (wrangler secret put ...):
+  //   HEARING_ADMIN_SECRET  : 管理エンドポイント認証
+  //   GH_DISPATCH_TOKEN     : 任意。GitHub repository_dispatch 用PAT。未設定なら生成トリガーは起動しない(fail-closed)
+}
