@@ -1,0 +1,128 @@
+{
+  "generated_at": "2026-07-10T13:13:52Z",
+  "member_no": "No.001",
+  "company": "リフォーム職人株式会社",
+  "focus": null,
+  "count": 9,
+  "ratio": {
+    "geo": 3,
+    "aeo": 3,
+    "llmo": 2,
+    "webmcp": 1
+  },
+  "urls": [
+    "https://shield.the-horizons-innovation.com/yakumo/souba/gaiheki-tosou-nagakute/",
+    "https://shield.the-horizons-innovation.com/yakumo/souba/yane-nagakute/",
+    "https://shield.the-horizons-innovation.com/yakumo/souba/naiso-nagakute/",
+    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-nagakute-faq-gaiheki-tosou/",
+    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-nagakute-faq-yane/",
+    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-nagakute-faq-naiso/",
+    "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-kensho-zumi-kameiten-toha/",
+    "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi/",
+    "https://shield.the-horizons-innovation.com/yakumo/webmcp/yakumo-verified-stores-mcp/"
+  ],
+  "pages": [
+    {
+      "type": "geo",
+      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/gaiheki-tosou-nagakute/",
+      "path": "yakumo/souba/gaiheki-tosou-nagakute/index.html"
+    },
+    {
+      "type": "geo",
+      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/yane-nagakute/",
+      "path": "yakumo/souba/yane-nagakute/index.html"
+    },
+    {
+      "type": "geo",
+      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/naiso-nagakute/",
+      "path": "yakumo/souba/naiso-nagakute/index.html"
+    },
+    {
+      "type": "aeo",
+      "url": "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-nagakute-faq-gaiheki-tosou/",
+      "path": "yakumo/faq/yakumo-nagakute-faq-gaiheki-tosou/index.html"
+    },
+    {
+      "type": "aeo",
+      "url": "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-nagakute-faq-yane/",
+      "path": "yakumo/faq/yakumo-nagakute-faq-yane/index.html"
+    },
+    {
+      "type": "aeo",
+      "url": "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-nagakute-faq-naiso/",
+      "path": "yakumo/faq/yakumo-nagakute-faq-naiso/index.html"
+    },
+    {
+      "type": "llmo",
+      "url": "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-kensho-zumi-kameiten-toha/",
+      "path": "yakumo/llmo/yakumo-kensho-zumi-kameiten-toha/index.html"
+    },
+    {
+      "type": "llmo",
+      "url": "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi/",
+      "path": "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi/index.html"
+    },
+    {
+      "type": "webmcp",
+      "url": "https://shield.the-horizons-innovation.com/yakumo/webmcp/yakumo-verified-stores-mcp/",
+      "path": "yakumo/webmcp/yakumo-verified-stores-mcp/index.html"
+    }
+  ],
+  "dup_skipped": [],
+  "new_fingerprints": [
+    {
+      "slug": "yakumo/souba/gaiheki-tosou-nagakute",
+      "tsha": "0725fc0d",
+      "simhash": "1ceb82c86328d2ec",
+      "m": "no001"
+    },
+    {
+      "slug": "yakumo/souba/yane-nagakute",
+      "tsha": "5c7c96c7",
+      "simhash": "87b02c97bb848e0",
+      "m": "no001"
+    },
+    {
+      "slug": "yakumo/souba/naiso-nagakute",
+      "tsha": "051f1cee",
+      "simhash": "20eb12c9737852e8",
+      "m": "no001"
+    },
+    {
+      "slug": "yakumo/faq/yakumo-nagakute-faq-gaiheki-tosou",
+      "tsha": "6492fa9f",
+      "simhash": "b6db96c81134596a",
+      "m": "no001"
+    },
+    {
+      "slug": "yakumo/faq/yakumo-nagakute-faq-yane",
+      "tsha": "f768472f",
+      "simhash": "aa6834c83f1c31e6",
+      "m": "no001"
+    },
+    {
+      "slug": "yakumo/faq/yakumo-nagakute-faq-naiso",
+      "tsha": "8aa07d41",
+      "simhash": "646d32c91da6096a",
+      "m": "no001"
+    },
+    {
+      "slug": "yakumo/llmo/yakumo-kensho-zumi-kameiten-toha",
+      "tsha": "fafd01aa",
+      "simhash": "a02d22c977acb2e0",
+      "m": "no001"
+    },
+    {
+      "slug": "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi",
+      "tsha": "40d4a273",
+      "simhash": "a16bb2c935bcd6c8",
+      "m": "no001"
+    },
+    {
+      "slug": "yakumo/webmcp/yakumo-verified-stores-mcp",
+      "tsha": "7f058a5f",
+      "simhash": "c279b41965f6afbf",
+      "m": "no001"
+    }
+  ]
+}
