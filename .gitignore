@@ -93,3 +93,4 @@ blog/*.bak-*
 !tools/yakumo/validate.py
 !tools/yakumo/issue_no001.sh
 !tools/yakumo/deploy_all.sh
+.anthropic_key

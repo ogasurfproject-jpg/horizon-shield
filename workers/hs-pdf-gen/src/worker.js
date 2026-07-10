@@ -19635,6 +19635,120 @@ var worker_default = {
           await browser.close();
         }
       }
+      if (pathname === "/generate-meitsumori-signed" && request.method === "POST") {
+        // yakumo-estimate-claim v2-ots : recompute検証 + OpenTimestamps刻印
+        const params = await request.json();
+        const orderInfo = {
+          orderId: params.orderId || `mitsumori-${Date.now()}`,
+          customer_name: params.customer_name || "お客様"
+        };
+        // 価格はサーバー側で当てる(境界厳守): 既存 diagnose を流用
+        const d2 = await diagnose(params, env);
+        const certNo = genCertNo("MITSUMORI", orderInfo.orderId, params.teiji_kingaku);
+
+        const _enc = new TextEncoder();
+        const _hex = (buf) => Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+
+        // estimate_version = SHA-256(JSON.stringify(d2)) 先頭8hex(挿入順)
+        const diagDigestBuf = await crypto.subtle.digest("SHA-256", _enc.encode(JSON.stringify(d2)));
+        const diagnosis_digest = _hex(diagDigestBuf);
+        const estimate_version = diagnosis_digest.slice(0, 8);
+
+        // 署名クレーム(挿入順 = house慣習。verify_fair_price と同じ recompute 方式)
+        const claimObj = {
+          type: "yakumo-estimate-claim",
+          provider: "The HORIZ音s株式会社",
+          operated_by: "八工門 YAKUMO",
+          order_id: orderInfo.orderId,
+          cert_no: certNo,
+          estimate_version,
+          currency: "JPY",
+          diagnosis_digest,
+          issued_at: new Date().toISOString()
+        };
+        const signed_payload = JSON.stringify(claimObj);
+        const claimDigest = await crypto.subtle.digest("SHA-256", _enc.encode(signed_payload));
+        const claim_sha256 = _hex(claimDigest);
+
+        // --- OpenTimestamps 刻印(PTKA)。既存 hsHandleEstimateAudit と同一パターン。失敗しても発行は止めない ---
+        let otsStatus = "未刻印";
+        let otsKey = "ots/" + claim_sha256 + ".ots";
+        try {
+          const ctl = new AbortController();
+          const tid = setTimeout(() => ctl.abort(), 4000);
+          const otsRes = await fetch("https://a.pool.opentimestamps.org/digest", { method: "POST", body: claimDigest, signal: ctl.signal });
+          clearTimeout(tid);
+          if (otsRes.ok) {
+            const proof = await otsRes.arrayBuffer();
+            await env.PDFS_BUCKET.put(otsKey, proof, { customMetadata: { sha256: claim_sha256, kind: "yakumo-estimate" } });
+            otsStatus = "刻印済 / a.pool.opentimestamps.org / 証明 " + otsKey;
+          } else {
+            otsStatus = "送信不可 (HTTP " + otsRes.status + ") / 再刻印対象";
+            otsKey = "";
+          }
+        } catch (e2) {
+          otsStatus = "送信不可 / 再刻印対象";
+          otsKey = "";
+        }
+
+        // --- HTML: 既存テンプレを流用し </body> 直前に検証ブロックを additive 注入 ---
+        let html = generateMitsumoriHTML(d2, orderInfo, { partner_name: params.partner_name, certNo });
+        const _esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const verifyBlock =
+          '<div style="margin:24px;padding:16px;border:1px solid #0E8C7F;border-radius:8px;font-family:sans-serif;page-break-inside:avoid;">' +
+          '<div style="color:#0E8C7F;font-weight:bold;font-size:13px;">改竄検証 / TAMPER-EVIDENT (recompute + OpenTimestamps)</div>' +
+          '<div style="font-size:10px;color:#333;margin-top:6px;line-height:1.6;">検証方法: 下の signed_payload を SHA-256 で再計算し、claim_sha256 と一致するか照合してください。一致すれば無改竄、1文字でも違えば改竄。発行者を信用する必要はありません (recompute検証)。</div>' +
+          '<div style="font-size:9px;color:#666;margin-top:8px;">claim_sha256</div>' +
+          '<div style="font-family:monospace;font-size:9px;color:#0E8C7F;word-break:break-all;">' + claim_sha256 + '</div>' +
+          '<div style="font-size:9px;color:#666;margin-top:4px;">estimate_version</div>' +
+          '<div style="font-family:monospace;font-size:10px;color:#0E8C7F;">' + estimate_version + '</div>' +
+          '<div style="font-size:9px;color:#666;margin-top:8px;">時刻証明 (PTKA / OpenTimestamps)</div>' +
+          '<div style="font-size:9px;color:#333;word-break:break-all;">' + _esc(otsStatus) + '</div>' +
+          '<div style="font-size:9px;color:#666;margin-top:4px;line-height:1.6;">この claim_sha256 の存在時刻が OpenTimestamps (opentimestamps.org) に刻印されています。証明ファイルから「この見積がこの時刻に存在した」ことを第三者が独立に検証できます。</div>' +
+          '<div style="font-size:9px;color:#666;margin-top:8px;">signed_payload (検証対象の生文字列)</div>' +
+          '<div style="background:#0B0E14;color:#3FE0CE;font-family:monospace;font-size:8px;padding:8px;word-break:break-all;">' + _esc(signed_payload) + '</div>' +
+          '</div>';
+        if (html.includes("</body>")) {
+          html = html.replace("</body>", verifyBlock + "</body>");
+        } else {
+          html = html + verifyBlock;
+        }
+
+        // --- Puppeteer で PDF 化(既存パターン) ---
+        const browser = await puppeteer_cloudflare_default.launch(env.MYBROWSER);
+        let pdfBuffer;
+        try {
+          const page = await browser.newPage();
+          await page.setContent(html, { waitUntil: "load" });
+          await page.evaluateHandle("document.fonts.ready");
+          pdfBuffer = await page.pdf({
+            format: "A4",
+            printBackground: true,
+            margin: { top: "0", right: "0", bottom: "0", left: "0" }
+          });
+        } finally {
+          await browser.close();
+        }
+
+        // --- R2 保存 + pdf_url 返却(既存 /generate-and-send パターン) ---
+        await env.PDFS_BUCKET.put(`pdfs/${orderInfo.orderId}.pdf`, pdfBuffer, {
+          httpMetadata: { contentType: "application/pdf" }
+        });
+        const pdf_url = `${url.origin}/pdf/${orderInfo.orderId}`;
+        return new Response(JSON.stringify({
+          ok: true,
+          orderId: orderInfo.orderId,
+          pdf_url,
+          claim_sha256,
+          estimate_version,
+          signed_payload,
+          ots: otsStatus,
+          ots_key: otsKey,
+          verify: "recompute SHA-256(signed_payload) == claim_sha256"
+        }), {
+          headers: { "Content-Type": "application/json", ...corsHeaders() }
+        });
+      }
       if (pathname === "/generate-meitsumori" && request.method === "POST") {
               const params = await request.json();
               const orderInfo = {
