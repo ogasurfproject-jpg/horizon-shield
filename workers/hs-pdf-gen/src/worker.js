@@ -19636,26 +19636,62 @@ var worker_default = {
         }
       }
       if (pathname === "/generate-meitsumori-signed" && request.method === "POST") {
-        // yakumo-estimate-claim v2-ots : recompute検証 + OpenTimestamps刻印
+        // yakumo-estimate-claim yakumo-template-v3 : サンプル紙面 + recompute検証 + OTS刻印
         const params = await request.json();
         const orderInfo = {
           orderId: params.orderId || `mitsumori-${Date.now()}`,
           customer_name: params.customer_name || "お客様"
         };
-        // 価格はサーバー側で当てる(境界厳守): 既存 diagnose を流用
-        const d2 = await diagnose(params, env);
-        const certNo = genCertNo("MITSUMORI", orderInfo.orderId, params.teiji_kingaku);
 
         const _enc = new TextEncoder();
         const _hex = (buf) => Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+        const _esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const _yen = (n) => "¥" + Math.round(n).toLocaleString("ja-JP");
 
-        // estimate_version = SHA-256(JSON.stringify(d2)) 先頭8hex(挿入順)
-        const diagDigestBuf = await crypto.subtle.digest("SHA-256", _enc.encode(JSON.stringify(d2)));
+        const hasYakumoData = Array.isArray(params.rooms) && params.rooms.length > 0 && Array.isArray(params.items) && params.items.length > 0;
+
+        let d2 = null;
+        let certNo;
+        let subtotal = 0, tax = 0, total = 0;
+        let itemsNorm = [];
+        let inputForVersion;
+
+        if (hasYakumoData) {
+          // 八工門経路: 明細から合計をサーバー側で計算
+          itemsNorm = params.items.map((it) => {
+            const qty = Number(it.qty) || 0;
+            const up = Number(it.unit_price) || 0;
+            return { work: String(it.work || ""), qty, unit: String(it.unit || ""), unit_price: up, amount: Math.round(qty * up) };
+          });
+          subtotal = itemsNorm.reduce((a, it) => a + it.amount, 0);
+          tax = Math.round(subtotal * 0.10);
+          total = subtotal + tax;
+          certNo = genCertNo("MITSUMORI", orderInfo.orderId, total);
+          inputForVersion = JSON.stringify({ rooms: params.rooms, items: itemsNorm, subtotal, tax, total });
+        } else {
+          // 従来経路(v2互換): 既存 diagnose を流用
+          d2 = await diagnose(params, env);
+          certNo = genCertNo("MITSUMORI", orderInfo.orderId, params.teiji_kingaku);
+          inputForVersion = JSON.stringify(d2);
+        }
+
+        const diagDigestBuf = await crypto.subtle.digest("SHA-256", _enc.encode(inputForVersion));
         const diagnosis_digest = _hex(diagDigestBuf);
         const estimate_version = diagnosis_digest.slice(0, 8);
 
-        // 署名クレーム(挿入順 = house慣習。verify_fair_price と同じ recompute 方式)
-        const claimObj = {
+        // 署名クレーム(挿入順 = house慣習 / recompute 方式)
+        const claimObj = hasYakumoData ? {
+          type: "yakumo-estimate-claim",
+          provider: "The HORIZ音s株式会社",
+          operated_by: "八工門 YAKUMO",
+          order_id: orderInfo.orderId,
+          cert_no: certNo,
+          estimate_version,
+          currency: "JPY",
+          amount_incl_tax: total,
+          line_items_digest: diagnosis_digest,
+          issued_at: new Date().toISOString()
+        } : {
           type: "yakumo-estimate-claim",
           provider: "The HORIZ音s株式会社",
           operated_by: "八工門 YAKUMO",
@@ -19670,7 +19706,7 @@ var worker_default = {
         const claimDigest = await crypto.subtle.digest("SHA-256", _enc.encode(signed_payload));
         const claim_sha256 = _hex(claimDigest);
 
-        // --- OpenTimestamps 刻印(PTKA)。既存 hsHandleEstimateAudit と同一パターン。失敗しても発行は止めない ---
+        // --- OpenTimestamps 刻印(PTKA)。失敗しても発行は止めない ---
         let otsStatus = "未刻印";
         let otsKey = "ots/" + claim_sha256 + ".ots";
         try {
@@ -19691,27 +19727,83 @@ var worker_default = {
           otsKey = "";
         }
 
-        // --- HTML: 既存テンプレを流用し </body> 直前に検証ブロックを additive 注入 ---
-        let html = generateMitsumoriHTML(d2, orderInfo, { partner_name: params.partner_name, certNo });
-        const _esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        // --- 検証ブロック(両経路共通・recompute案内) ---
         const verifyBlock =
-          '<div style="margin:24px;padding:16px;border:1px solid #0E8C7F;border-radius:8px;font-family:sans-serif;page-break-inside:avoid;">' +
-          '<div style="color:#0E8C7F;font-weight:bold;font-size:13px;">改竄検証 / TAMPER-EVIDENT (recompute + OpenTimestamps)</div>' +
-          '<div style="font-size:10px;color:#333;margin-top:6px;line-height:1.6;">検証方法: 下の signed_payload を SHA-256 で再計算し、claim_sha256 と一致するか照合してください。一致すれば無改竄、1文字でも違えば改竄。発行者を信用する必要はありません (recompute検証)。</div>' +
-          '<div style="font-size:9px;color:#666;margin-top:8px;">claim_sha256</div>' +
+          '<div style="margin:0 14mm 8mm;padding:14px 16px;border:1px solid #0E8C7F;border-radius:8px;page-break-inside:avoid;">' +
+          '<div style="color:#0E8C7F;font-weight:bold;font-size:12px;">改竄検証 / TAMPER-EVIDENT (recompute + OpenTimestamps)</div>' +
+          '<div style="font-size:9.5px;color:#333;margin-top:6px;line-height:1.7;">検証方法: 下の signed_payload を SHA-256 で再計算し、claim_sha256 と一致するか照合してください。1文字でも違えば改竄。発行者を信用する必要はありません。</div>' +
+          '<div style="font-size:8.5px;color:#666;margin-top:8px;">claim_sha256</div>' +
           '<div style="font-family:monospace;font-size:9px;color:#0E8C7F;word-break:break-all;">' + claim_sha256 + '</div>' +
-          '<div style="font-size:9px;color:#666;margin-top:4px;">estimate_version</div>' +
+          '<div style="font-size:8.5px;color:#666;margin-top:4px;">estimate_version</div>' +
           '<div style="font-family:monospace;font-size:10px;color:#0E8C7F;">' + estimate_version + '</div>' +
-          '<div style="font-size:9px;color:#666;margin-top:8px;">時刻証明 (PTKA / OpenTimestamps)</div>' +
-          '<div style="font-size:9px;color:#333;word-break:break-all;">' + _esc(otsStatus) + '</div>' +
-          '<div style="font-size:9px;color:#666;margin-top:4px;line-height:1.6;">この claim_sha256 の存在時刻が OpenTimestamps (opentimestamps.org) に刻印されています。証明ファイルから「この見積がこの時刻に存在した」ことを第三者が独立に検証できます。</div>' +
-          '<div style="font-size:9px;color:#666;margin-top:8px;">signed_payload (検証対象の生文字列)</div>' +
-          '<div style="background:#0B0E14;color:#3FE0CE;font-family:monospace;font-size:8px;padding:8px;word-break:break-all;">' + _esc(signed_payload) + '</div>' +
+          '<div style="font-size:8.5px;color:#666;margin-top:6px;">時刻証明 (PTKA / OpenTimestamps)</div>' +
+          '<div style="font-size:8.5px;color:#333;word-break:break-all;">' + _esc(otsStatus) + '</div>' +
+          '<div style="font-size:8.5px;color:#666;margin-top:8px;">signed_payload (検証対象の生文字列)</div>' +
+          '<div style="background:#0B0E14;color:#3FE0CE;font-family:monospace;font-size:7.5px;padding:8px;border-radius:4px;word-break:break-all;line-height:1.5;">' + _esc(signed_payload) + '</div>' +
           '</div>';
-        if (html.includes("</body>")) {
-          html = html.replace("</body>", verifyBlock + "</body>");
+
+        let html;
+        if (hasYakumoData) {
+          // ============ 八工門専用テンプレ(サンプル紙面) ============
+          const roomsRows = params.rooms.map((r) =>
+            '<tr><td>' + _esc(r.name || "") + '</td><td class="num">' + (Number(r.area_m2) || 0).toFixed(1) + '</td><td class="num">' + (Number(r.perimeter_m) || 0).toFixed(1) + '</td><td class="num">' + (Number(r.ceiling_m) || 0).toFixed(2) + '</td></tr>'
+          ).join("");
+          const totArea = params.rooms.reduce((a, r) => a + (Number(r.area_m2) || 0), 0);
+          const itemRows = itemsNorm.map((it) =>
+            '<tr><td>' + _esc(it.work) + '</td><td class="num">' + it.qty + '</td><td class="num">' + _esc(it.unit) + '</td><td class="num">' + _yen(it.unit_price) + '</td><td class="num">' + _yen(it.amount) + '</td></tr>'
+          ).join("");
+          const issuedJst = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 16).replace("T", " ") + " JST";
+          html = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>' +
+            '@page{size:A4;margin:0}' +
+            'body{font-family:"Noto Sans CJK JP","Hiragino Kaku Gothic ProN",sans-serif;color:#1A1F2B;margin:0;font-size:10px;}' +
+            '.page{padding:14mm 14mm 10mm;}' +
+            '.hd{display:flex;justify-content:space-between;align-items:flex-end;}' +
+            '.hd h1{font-size:19px;margin:0;color:#0B0E14;letter-spacing:1px;}' +
+            '.hd .sub{text-align:right;color:#5A6472;font-size:8.5px;line-height:1.6;}' +
+            '.rule{height:2px;background:#0E8C7F;margin:6px 0 2px;}' +
+            '.rule2{height:1px;background:#C9A86A;margin:0 0 10px;}' +
+            'table{width:100%;border-collapse:collapse;margin:4px 0 12px;}' +
+            'th{background:#1A1F2B;color:#fff;font-size:9px;padding:6px 8px;text-align:left;}' +
+            'td{border-bottom:1px solid #D9DEE6;padding:6px 8px;font-size:9.5px;}' +
+            'tr:nth-child(even) td{background:#F5F7FA;}' +
+            '.num{text-align:right;font-variant-numeric:tabular-nums;}' +
+            'th.num,th:not(:first-child){text-align:right;}' +
+            '.totrow td{background:#0E8C7F!important;color:#fff;font-weight:bold;}' +
+            '.meta{width:100%;border-collapse:collapse;margin-bottom:10px;}' +
+            '.meta td{border-bottom:1px solid #D9DEE6;padding:5px 8px;font-size:9px;}' +
+            '.meta .k{color:#5A6472;font-size:8.5px;width:26mm;}' +
+            '.meta .mono{font-family:monospace;color:#0E8C7F;}' +
+            'h2{font-size:12px;margin:12px 0 2px;color:#1A1F2B;}' +
+            '.tots{width:60mm;margin-left:auto;border-collapse:collapse;}' +
+            '.tots td{padding:5px 8px;font-size:9.5px;border-bottom:1px solid #D9DEE6;}' +
+            '.tots .grand td{background:#0E8C7F;color:#fff;font-weight:bold;border:none;}' +
+            '.src{color:#5A6472;font-size:8px;margin:8px 0;}' +
+            '.ft{color:#5A6472;font-size:8px;line-height:1.7;border-top:1px solid #D9DEE6;padding-top:6px;margin-top:8px;}' +
+            '</style></head><body><div class="page">' +
+            '<div class="hd"><h1>八工門 AI採寸 見積書</h1><div class="sub">A HORIZON SHIELD MALL<br>検証可能見積 / VERIFIABLE ESTIMATE</div></div>' +
+            '<div class="rule"></div><div class="rule2"></div>' +
+            '<table class="meta"><tr><td class="k">発行日時</td><td>' + issuedJst + '</td><td class="k">見積番号</td><td>' + _esc(orderInfo.orderId) + '</td></tr>' +
+            '<tr><td class="k">estimate_version</td><td class="mono">' + estimate_version + '</td><td class="k">八工門 version</td><td>yakumo-sim</td></tr></table>' +
+            '<h2>採寸結果 (360度室内AI採寸)</h2>' +
+            '<table><tr><th>部屋名</th><th>床面積 (m2)</th><th>周長 (m)</th><th>天井高 (m)</th></tr>' + roomsRows +
+            '<tr class="totrow"><td>合計 床面積</td><td class="num">' + totArea.toFixed(1) + '</td><td></td><td></td></tr></table>' +
+            '<h2>見積内訳</h2>' +
+            '<table><tr><th>工種</th><th>数量</th><th>単位</th><th>単価</th><th>金額</th></tr>' + itemRows + '</table>' +
+            '<table class="tots"><tr><td>小計 (税抜)</td><td class="num">' + _yen(subtotal) + '</td></tr>' +
+            '<tr><td>消費税 (10%)</td><td class="num">' + _yen(tax) + '</td></tr>' +
+            '<tr class="grand"><td>合計 (税込)</td><td class="num">' + _yen(total) + '</td></tr></table>' +
+            '</div>' + verifyBlock + '<div class="page" style="padding-top:0">' +
+            '<div class="src">価格提示: 加盟店' + (params.partner_name ? " " + _esc(params.partner_name) : "") + ' / 署名・時刻証明: HORIZON SHIELD</div>' +
+            '<div class="ft">構築 = The HORIZ音s株式会社 (HORIZON SHIELD) / 運営 = 八工門 YAKUMO / TEL 0463-74-5917<br>この見積書は The HORIZ音s株式会社 (HORIZON SHIELD) の検証基盤で署名され、八工門 YAKUMO が発行しています。</div>' +
+            '</div></body></html>';
         } else {
-          html = html + verifyBlock;
+          // ============ 従来経路: 既存テンプレ + 検証ブロック注入(v2互換) ============
+          html = generateMitsumoriHTML(d2, orderInfo, { partner_name: params.partner_name, certNo });
+          if (html.includes("</body>")) {
+            html = html.replace("</body>", verifyBlock + "</body>");
+          } else {
+            html = html + verifyBlock;
+          }
         }
 
         // --- Puppeteer で PDF 化(既存パターン) ---
@@ -19730,7 +19822,7 @@ var worker_default = {
           await browser.close();
         }
 
-        // --- R2 保存 + pdf_url 返却(既存 /generate-and-send パターン) ---
+        // --- R2 保存 + pdf_url 返却 ---
         await env.PDFS_BUCKET.put(`pdfs/${orderInfo.orderId}.pdf`, pdfBuffer, {
           httpMetadata: { contentType: "application/pdf" }
         });
@@ -19738,10 +19830,12 @@ var worker_default = {
         return new Response(JSON.stringify({
           ok: true,
           orderId: orderInfo.orderId,
+          template: hasYakumoData ? "yakumo-v3" : "legacy",
           pdf_url,
           claim_sha256,
           estimate_version,
           signed_payload,
+          amount_incl_tax: hasYakumoData ? total : void 0,
           ots: otsStatus,
           ots_key: otsKey,
           verify: "recompute SHA-256(signed_payload) == claim_sha256"
