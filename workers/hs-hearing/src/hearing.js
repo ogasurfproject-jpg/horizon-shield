@@ -600,7 +600,11 @@ export default {
     const path = url.pathname;
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
 
-    if (path === "/health") return json({ ok: true, server: SERVER.name });
+    if (path === "/health") {
+      // 保全: 心臓の脈(最終巡回)と内臓検診(弐号)の要約を出す。件数のみで中身は出さない(非機微)。
+      const g = await AP.guardianStatus(env).catch(() => null);
+      return json({ ok: true, server: SERVER.name, version: SERVER.version, ...(g || {}) });
+    }
 
     if (path === "/.well-known/agent-card.json") return json(agentCard(url.origin));
 
@@ -977,6 +981,17 @@ export default {
       if (path === "/admin/tick" && request.method === "POST") {
         const log = await AP.runDailyTick(env, { listAllStores, triggerGeneration });
         return json({ ok: true, log });
+      }
+
+      // 保全エージェント弐号の単独実行(内臓検診のみ)
+      if (path === "/admin/selfheal" && request.method === "POST") {
+        const report = await AP.selfHeal(env, await listAllStores(env));
+        return json({ ok: true, report });
+      }
+      // 壱号が読む詳細レポート(修復済み一覧と未解決課題)
+      if (path === "/admin/guardian" && request.method === "GET") {
+        const g = (await env.HS_HEARING_KV.get("guardian:last", "json")) || null;
+        return json({ ok: true, report: g });
       }
 
       // 旧レコードにトークンを後付け(No.001対応)

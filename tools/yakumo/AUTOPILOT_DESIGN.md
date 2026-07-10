@@ -109,7 +109,23 @@ cron: 毎日 06:17 JST(wrangler.jsonc triggers.crons = "17 21 * * *" UTC)
 5. 任意: KV news:sources にRSSを設定(/admin/news-sources)。GH secrets に HEARING_ADMIN_SECRET を入れると
    ActionsからKV台帳同期・活動コールバックが有効化(未設定でもfail-openで動く)。
 
-## 11. 非目標(やらないこと)
+## 11. 保全エージェント(二人体制・三段構え)
+
+方針(TOshi): エージェントが内部の構造エラーを察知し報告。軽微は自動修復。難しいものはTOshiとClaudeで修繕。
+
+- **壱号(ソト回り)**: .github/workflows/yakumo-guardian.yml。6時間ごとに本番を巡回。
+  検知: ワーカー生存 / cronの脈(最終巡回26h超で警報) / 公開済みページの404 / モール表示と堀語・金額漏れ /
+  MCP応答 / 公開JSONのPII・料金漏れ / 直近の自動公開の失敗 / 弐号の未解決報告。
+  自動修復: 公開済みページが404かつrepoに実体あり -> Pagesデプロイを自ら発火し、3分後に再確認(今日の404事件の再発防止)。
+  報告: 異常時はIssue「🛡 保全レポート」を起票/追記(TOshiへメール通知)。全緑に戻れば自動クローズ。
+  未解決のチェックボックスが「俺とお前で修繕」する作業台になる。
+- **弐号(ウチ回り)**: autopilot.js selfHeal()。毎朝の巡回に同乗し、/admin/selfheal で単独実行も可。
+  自動修復: htok索引の張り直し / email逆引きの再構築 / autopilot枠の初期化 / 活動フィード破損の初期化。
+  報告のみ(自動で直さない): member_no・company欠損 / 検証済みなのにスコア欠損(fail-closed違反) /
+  hearing破損 / 重複ゼロ台帳(dedupe:index)の破損(台帳は勝手に初期化しない。repoのmanifestから再同期)。
+  結果は guardian:last に記録し、/health が要約(件数のみ)を公開、壱号が詳細を回収する。
+
+## 12. 非目標(やらないこと)
 
 - KIRAスコアの自動改変・自己申告だけでの自動「検証済み」化(検証はTOshiの承認ボタンのまま。ここは信頼の芯)。
 - 金額の施主向け公開。堀(配分・エンジン)の公開面への露出。

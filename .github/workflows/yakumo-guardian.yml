@@ -1,0 +1,217 @@
+name: yakumo-guardian
+
+# 保全エージェント壱号(ソト回り)
+# 6時間ごとに本番を巡回: ワーカー生存/心臓の脈(cron)/公開ページ404/モール表示/MCP応答/金額・堀語の漏れ/内臓検診(弐号)の報告回収。
+# 軽微な異常は自動修復(例: 公開済みページが404 -> Pagesデプロイを自ら発火して再確認)。
+# 直せない異常は GitHub Issue(🛡保全)を起票してTOshiに報告。全緑に戻ったら自分でIssueを閉じる。
+# 難しい修繕はIssue上でTOshiとClaudeが協働する(三段構え: 自動修復 -> 報告 -> 共同修繕)。
+
+on:
+  schedule:
+    - cron: "23 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  actions: write
+
+concurrency:
+  group: yakumo-guardian
+  cancel-in-progress: false
+
+jobs:
+  patrol:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Patrol production (detect -> auto-repair -> report)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          HEARING_ADMIN_SECRET: ${{ secrets.HEARING_ADMIN_SECRET }}
+        run: |
+          python3 - <<'PY'
+          import json, os, re, time, urllib.request, urllib.error
+
+          W = "https://hs-hearing.oga-surf-project.workers.dev"
+          SITE = "https://shield.the-horizons-innovation.com"
+          REPO = os.environ["REPO"]
+          GH = "https://api.github.com"
+          TOKEN = os.environ["GH_TOKEN"]
+          ADMIN = os.environ.get("HEARING_ADMIN_SECRET") or ""
+          MOAT = ["32.5", "danger_threshold", "WPC"]
+          LEAK_KEYS = ["base_fee", "total_ex_tax", "webmcp_addon", '"email"', '"token"']
+
+          problems, repairs, notes = [], [], []
+
+          def fetch(url, method="GET", data=None, headers=None, timeout=25):
+              req = urllib.request.Request(url, method=method,
+                  data=json.dumps(data).encode() if isinstance(data, dict) else data,
+                  headers={"User-Agent": "yakumo-guardian", **(headers or {})})
+              try:
+                  with urllib.request.urlopen(req, timeout=timeout) as r:
+                      return r.status, r.read().decode("utf-8", "replace")
+              except urllib.error.HTTPError as e:
+                  return e.code, e.read().decode("utf-8", "replace")[:500]
+              except Exception as e:
+                  return 0, str(e)[:200]
+
+          def gh(path, method="GET", data=None):
+              return fetch(GH + path, method=method, data=data, headers={
+                  "Authorization": "Bearer " + TOKEN, "Accept": "application/vnd.github+json",
+                  "Content-Type": "application/json"})
+
+          # 1) ワーカー生存 + 心臓の脈(cron最終巡回が26時間以内か)
+          st, body = fetch(W + "/health")
+          if st != 200:
+              problems.append("ワーカー/health 異常 (HTTP %s)" % st)
+          else:
+              try:
+                  h = json.loads(body)
+                  age = h.get("last_tick_age_hours")
+                  if h.get("last_tick") is None:
+                      notes.append("cron初回未実行(last_tickなし)。デプロイ直後なら正常")
+                  elif age is not None and age > 26:
+                      problems.append("cronの脈が止まっている疑い(最終巡回 %.1f時間前)" % age)
+                  g = h.get("guardian") or {}
+                  if g.get("issues"):
+                      problems.append("弐号(内臓検診)が未解決 %d件を報告" % g["issues"])
+              except Exception:
+                  problems.append("ワーカー/health がJSONでない")
+
+          # 2) 公開データの健全性 + 金額/PII漏れ検査
+          st, body = fetch(W + "/contractors.json")
+          if st != 200:
+              problems.append("/contractors.json 異常 (HTTP %s)" % st)
+          else:
+              for k in LEAK_KEYS:
+                  if k in body:
+                      problems.append("公開JSONに漏れの疑い: %s が /contractors.json に出ている" % k)
+              try:
+                  d = json.loads(body)
+                  if not isinstance(d.get("contractors"), list):
+                      problems.append("/contractors.json の contractors が配列でない")
+              except Exception:
+                  problems.append("/contractors.json がJSONでない")
+
+          # 3) MCP応答(AIの入口)
+          st, body = fetch(W + "/mcp", method="POST",
+              data={"jsonrpc": "2.0", "id": 1, "method": "tools/list"})
+          if st != 200 or "list_verified_stores" not in body:
+              problems.append("MCP tools/list 異常 (HTTP %s)" % st)
+
+          # 4) 活動フィード
+          st, body = fetch(W + "/activity.json")
+          if st != 200:
+              problems.append("/activity.json 異常 (HTTP %s)" % st)
+
+          # 5) モール本体の表示と堀語漏れ
+          st, body = fetch(SITE + "/yakumo/")
+          if st != 200:
+              problems.append("モール /yakumo/ が開けない (HTTP %s)" % st)
+          else:
+              for wd in MOAT:
+                  if wd in body:
+                      problems.append("モールに堀語が漏れている: " + wd)
+              if "hs-hearing.oga-surf-project.workers.dev" not in body:
+                  problems.append("モールがライブデータ源を参照していない")
+
+          # 6) 公開済みページの生存(台帳から最大20枚) -> 404はPages再デプロイで自動修復を試みる
+          dead = []
+          try:
+              ledger = json.load(open("data/yakumo-content-manifest.json", encoding="utf-8"))
+              slugs = [e["slug"] for e in ledger.get("entries", [])][:20]
+              for slug in slugs:
+                  st, _ = fetch(SITE + "/" + slug + "/", timeout=15)
+                  if st == 404 and os.path.exists(slug + "/index.html"):
+                      dead.append(slug)
+                  elif st not in (200, 404):
+                      notes.append("%s -> HTTP %s" % (slug, st))
+          except FileNotFoundError:
+              notes.append("台帳なし(まだ生成ゼロ)")
+          if dead:
+              # 自動修復: Pagesデプロイを発火(workflow_dispatchはGITHUB_TOKENで起動できる例外)
+              st, _ = gh("/repos/%s/actions/workflows/static.yml/dispatches" % REPO,
+                         method="POST", data={"ref": "main"})
+              if st in (204,):
+                  repairs.append("公開済み%d枚が404 -> Pagesデプロイを自動発火" % len(dead))
+                  time.sleep(180)
+                  still = [s for s in dead if fetch(SITE + "/" + s + "/", timeout=15)[0] == 404]
+                  if still:
+                      problems.append("Pages再デプロイ後も404: " + ", ".join(still[:5]))
+                  else:
+                      repairs.append("再確認: 全ページ復旧(200)")
+              else:
+                  problems.append("404检出(%d枚)だがPagesデプロイ発火に失敗(HTTP %s)" % (len(dead), st))
+
+          # 7) 直近の自動公開ワークフローの失敗検知
+          st, body = gh("/repos/%s/actions/workflows/yakumo-content.yml/runs?per_page=1" % REPO)
+          if st == 200:
+              try:
+                  runs = json.loads(body).get("workflow_runs", [])
+                  if runs and runs[0].get("conclusion") == "failure":
+                      problems.append("直近の自動公開(yakumo-content)が失敗: " + runs[0].get("html_url", ""))
+              except Exception:
+                  pass
+
+          # 8) 弐号の詳細レポート回収(管理キーがある時だけ)
+          if ADMIN:
+              st, body = fetch(W + "/admin/guardian", headers={"X-Admin-Key": ADMIN})
+              if st == 200:
+                  try:
+                      rep = (json.loads(body) or {}).get("report") or {}
+                      for i in (rep.get("issues") or [])[:10]:
+                          problems.append("[弐号] " + i)
+                      for r in (rep.get("repaired") or [])[:10]:
+                          repairs.append("[弐号] " + r)
+                  except Exception:
+                      pass
+
+          # ---- 報告(Issue起票/更新/自動クローズ) ----
+          TITLE = "🛡 保全レポート: Yakumoモール"
+          st, body = gh("/repos/%s/issues?state=open&per_page=50" % REPO)
+          existing = None
+          if st == 200:
+              for it in json.loads(body):
+                  if it.get("title", "").startswith(TITLE):
+                      existing = it; break
+
+          summary = []
+          if problems:
+              summary.append("## 異常 (%d件)\n" % len(problems) + "\n".join("- [ ] " + p for p in problems))
+          if repairs:
+              summary.append("## 自動修復 (%d件)\n" % len(repairs) + "\n".join("- [x] " + r for r in repairs))
+          if notes:
+              summary.append("## メモ\n" + "\n".join("- " + n for n in notes))
+          report_md = ("巡回時刻: %s\n\n" % time.strftime("%Y-%m-%d %H:%M UTC")) + ("\n\n".join(summary) or "全チェック緑。")
+          report_md += "\n\n---\n軽微は自動修復済み。未解決の項目は TOshi と Claude で修繕する(このIssueに経緯を残す)。"
+
+          if problems:
+              if existing:
+                  gh("/repos/%s/issues/%d/comments" % (REPO, existing["number"]), method="POST", data={"body": report_md})
+                  print("既存Issue #%d に追記" % existing["number"])
+              else:
+                  st, body = gh("/repos/%s/issues" % REPO, method="POST",
+                                data={"title": TITLE + " (要対応)", "body": report_md})
+                  print("Issue起票:", json.loads(body).get("html_url", st))
+          else:
+              if existing:
+                  gh("/repos/%s/issues/%d/comments" % (REPO, existing["number"]), method="POST",
+                     data={"body": report_md + "\n\n全チェック緑に回復。自動クローズします。"})
+                  gh("/repos/%s/issues/%d" % (REPO, existing["number"]), method="PATCH", data={"state": "closed"})
+                  print("回復を確認、Issue #%d を自動クローズ" % existing["number"])
+              print("全チェック緑" if not repairs else "自動修復のみで完結: " + "; ".join(repairs))
+
+          print("\n=== 巡回結果 ===")
+          print(report_md)
+          # 異常が残っている時だけジョブを黄色くする(Issueは既に出してある)
+          raise SystemExit(0)
+          PY

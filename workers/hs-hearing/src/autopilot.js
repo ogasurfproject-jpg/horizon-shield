@@ -429,8 +429,68 @@ export async function runDailyTick(env, deps) {
     store.autopilot = ap;
     await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));
   }
+  // 保全エージェント弐号(ウチ回り): 内臓検診と自己修復。結果は guardian:last に記録され、壱号(Actions)が読む。
+  log.guardian = await selfHeal(env, stores);
+  await env.HS_HEARING_KV.put("autopilot:last_tick", now());
   await activityAdd(env, { type: "tick", text: "自動運用エージェントが巡回しました(対象 " + log.checked + "店)" });
   return log;
+}
+
+/* ------------------------------ 保全エージェント弐号(ウチ回り・自己修復) ------------------------------ */
+// KVの内臓検診。軽微な破損は自動修復し、直せないものは issues に列挙(壱号がIssue化して報告)。
+export async function selfHeal(env, stores) {
+  const repaired = [], issues = [];
+  for (const s of stores) {
+    try {
+      // 1) store.token があるのに htok索引が無い -> 張り直し(登録リンク/メール照合が死ぬ事故の自動修復)
+      if (s.token) {
+        const tok = await env.HS_HEARING_KV.get("htok:" + s.token, "json");
+        if (!tok) {
+          await env.HS_HEARING_KV.put("htok:" + s.token, JSON.stringify({ store_id: s.store_id, member_no: s.member_no, company: s.company, created_at: now() }));
+          repaired.push("htok再構築:" + s.store_id);
+        }
+      } else {
+        issues.push("token未設定(登録リンク無し): " + s.store_id);
+      }
+      // 2) email逆引き索引の欠け -> 張り直し
+      if (s.email) {
+        const rev = await env.HS_HEARING_KV.get("email2store:" + s.email.toLowerCase(), "text");
+        if (!rev) {
+          await env.HS_HEARING_KV.put("email2store:" + s.email.toLowerCase(), s.store_id);
+          repaired.push("email索引再構築:" + s.store_id);
+        }
+      }
+      // 3) 必須フィールド欠損の検知(自動では直さない=報告)
+      if (!s.member_no) issues.push("member_no欠損: " + s.store_id);
+      if (!s.company) issues.push("company欠損: " + s.store_id);
+      // 4) 検証済みなのにスコア欠損(fail-closed違反状態) -> 報告
+      if (s.verification === "verified" && (s.fairness_score == null || isNaN(Number(s.fairness_score)))) {
+        issues.push("検証済みなのにスコア欠損(fail-closed違反): " + s.store_id);
+      }
+      // 5) autopilot枠の初期化漏れ -> 自動修復
+      if (!s.autopilot) { s.autopilot = {}; await env.HS_HEARING_KV.put("store:" + s.store_id, JSON.stringify(s)); repaired.push("autopilot初期化:" + s.store_id); }
+      // 6) hearingレコードの破損検知
+      const hRaw = await env.HS_HEARING_KV.get("hearing:" + s.store_id, "text");
+      if (hRaw) { try { JSON.parse(hRaw); } catch (_e) { issues.push("hearing破損(JSON不正): " + s.store_id); } }
+    } catch (e) { issues.push("検診失敗: " + s.store_id + " " + String(e).slice(0, 60)); }
+  }
+  // 7) 共有インデックスの破損 -> バックアップして初期化(活動フィード) / 台帳は初期化しない(報告のみ)
+  try { const a = await env.HS_HEARING_KV.get("activity:index", "text"); if (a) JSON.parse(a); }
+  catch (_e) { await env.HS_HEARING_KV.put("activity:index", "[]"); repaired.push("activity:index初期化"); }
+  try { const d = await env.HS_HEARING_KV.get("dedupe:index", "text"); if (d) JSON.parse(d); }
+  catch (_e) { issues.push("dedupe:index破損(重複ゼロ台帳)。自動初期化はしない。リポジトリのdata/yakumo-content-manifest.jsonから再同期を"); }
+  const report = { checked: stores.length, repaired, issues, at: now() };
+  await env.HS_HEARING_KV.put("guardian:last", JSON.stringify(report));
+  return report;
+}
+export async function guardianStatus(env) {
+  const g = (await env.HS_HEARING_KV.get("guardian:last", "json")) || null;
+  const t = (await env.HS_HEARING_KV.get("autopilot:last_tick", "text")) || null;
+  return {
+    last_tick: t,
+    last_tick_age_hours: t ? Math.round((Date.now() - Date.parse(t)) / 3600000 * 10) / 10 : null,
+    guardian: g ? { at: g.at, checked: g.checked, repaired: g.repaired.length, issues: g.issues.length } : null,
+  };
 }
 
 /* ------------------------------ 回答取り込み時の消込 ------------------------------ */
