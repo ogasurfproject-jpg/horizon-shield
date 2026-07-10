@@ -604,7 +604,7 @@ async function checkRateLimit(env, ip, limit = 60, window = 60) {
 // 発行と検証は責務が正反対。検証専用コア。契約 0.1.1 の failure_reasons に厳密準拠。
 // recompute は parse より先(生文字列でハッシュ)。改ざん payload はそこで落ちる。
 // verified は「改ざんなし」であって「監査が今も有効」ではない -> audit_ruleset_recheck は常に not_performed。
-const VC_CONTRACT_VERSION = "0.1.1";
+const VC_CONTRACT_VERSION = "0.2";
 const VC_CONTRACT_URL = "https://hs-mcp.oga-surf-project.workers.dev/.well-known/verification-contract.json";
 
 async function verifyIntegrityClaim(args) {
@@ -727,6 +727,8 @@ async function verifyIntegrityClaim(args) {
   return Object.assign({}, base, {
     result: "verified", failure_reason: null, trigger: null,
     recomputed_sha256: recomputed, scope_check, expires_at: expRaw,
+    claim_contract: typeof payload.contract === "string" ? payload.contract : "0.1.1",
+    ruleset: payload.ruleset && payload.ruleset.id ? { id: String(payload.ruleset.id), version: String(payload.ruleset.version || ""), folded_into_hash: true } : { id: "kira-redflag", version: "1", folded_into_hash: false, legacy_note: "0.1.1 claim: ruleset identity was metadata alongside the hash, not folded into it. vc-contract-0.2" },
     message: (scope_check === "skipped")
       ? "改ざんは検出されませんでした。ただし estimate_version 未指定のため scope照合はスキップしました(scope_check: skipped)。 / No tampering detected. estimate_version was not supplied, so scope was not checked (scope_check: skipped)."
       : "改ざんは検出されず、scope も一致しました。 / No tampering detected and scope matched.",
@@ -876,6 +878,8 @@ async function handleA2A(params, env, ip, authCtx, ctx) {
   const estimateVersion = (await sha256hex(text)).slice(0, 8);
   const signedPayload = JSON.stringify({
     skill: A2A_OPEN_SKILL,
+    contract: "0.2",
+    ruleset: { id: "kira-redflag", version: "1" },
     input_text: text,
     red_flags: flags,
     issued_at: issuedAt,
@@ -896,6 +900,8 @@ async function handleA2A(params, env, ip, authCtx, ctx) {
         { kind: "text", text: summary },
         { kind: "data", data: {
           skill: A2A_OPEN_SKILL,
+          contract: "0.2",
+          ruleset: { id: "kira-redflag", version: "1" },
           red_flags: flags,
           how_to_read_estimate: (guideRes && guideRes.principles) || guideRes,
           issued_at: issuedAt,
@@ -1084,7 +1090,7 @@ export default {
       if (url.pathname === "/.well-known/verification-contract.json") {
         const VERIFICATION_CONTRACT = {
           contract: "horizon-shield-verification-contract",
-          version: "0.1.1",
+          version: "0.2",
           issuer: {
             organization: "The HORIZ\u97f3s\u682a\u5f0f\u4f1a\u793e",
             service: "HORIZON SHIELD KIRA",
@@ -1097,14 +1103,14 @@ export default {
               field: "claim_sha256",
               algorithm: "SHA-256",
               source_field: "signed_payload",
-              note: "signed_payload contains skill, input_text, red_flags, issued_at, expires_at, estimate_version. It does not contain souba-db prices. expires_at is issued_at plus 365 days. estimate_version is the first 8 hex of SHA-256 of input_text."
+              note: "From contract 0.2, signed_payload contains skill, contract, ruleset {id, version}, input_text, red_flags, issued_at, expires_at, estimate_version. The ruleset identity is folded INTO the hashed payload, so an old claim recomputes as what it was, under the rules that made it. It does not contain souba-db prices. expires_at is issued_at plus 365 days. estimate_version is the first 8 hex of SHA-256 of input_text. Claims issued under 0.1.1 lack the contract and ruleset fields; their ruleset identity was metadata only and verifiers report folded_into_hash: false for them."
             },
             recompute: "SHA-256(signed_payload) must equal claim_sha256. No price layer needed.",
             estimator: { id: "HORIZON SHIELD KIRA", version: "1.0.0" },
             ruleset: {
               id: "kira-redflag",
               version: "1",
-              note: "Only the ruleset identity is public. The souba-db thresholds behind it are not exposed."
+              note: "Ruleset identity is public and, from contract 0.2, folded into signed_payload itself (hashed). The souba-db thresholds behind it are not exposed."
             },
             timestamp_anchor: {
               type: "PTKA",
@@ -1123,7 +1129,11 @@ export default {
               missing_evidence: { user_meaning: "do not trust", triggers: ["missing_receipt", "unverifiable_chain"] }
             }
           },
-          credits: "Failure-reason taxonomy (stale data / changed scope / missing evidence) proposed by Symon Baikov (@symonbaikov.bsky.social).",
+          credits: "Failure-reason taxonomy (stale data / changed scope / missing evidence) proposed by Symon Baikov (@symonbaikov.bsky.social). Folding the ruleset identity into the hashed payload (contract 0.2) prompted by Federico Blanco Sanchez-Llanos.",
+          changelog: {
+            "0.2": "contract and ruleset {id, version} folded INTO signed_payload (hashed). Prevents silent reinterpretation of old claims under a newer ruleset. Prompted by Federico Blanco Sanchez-Llanos. vc-contract-0.2",
+            "0.1.1": "ruleset identity as metadata alongside claim_sha256 (outside the hash)."
+          },
           url: "https://hs-mcp.oga-surf-project.workers.dev/.well-known/verification-contract.json"
         };
         return new Response(JSON.stringify(VERIFICATION_CONTRACT, null, 2), {
