@@ -16,7 +16,9 @@
  *  var GH_DISPATCH_REPO       = ogasurfproject-jpg/horizon-shield   (任意)
  */
 
-const SERVER = { name: "HORIZON SHIELD YAKUMO", version: "1.0.0" };
+import * as AP from "./autopilot.js";
+
+const SERVER = { name: "HORIZON SHIELD YAKUMO", version: "2.0.0" };
 const PUBLIC_DATA_FALLBACK = "https://shield.the-horizons-innovation.com/data/yakumo-contractors.json";
 const MALL_URL = "https://shield.the-horizons-innovation.com/yakumo/";
 
@@ -198,13 +200,17 @@ function normalizeProfile(store, raw) {
 }
 
 /* ------------------------------ GitHub dispatch (optional, fail-closed) ------------------------------ */
-async function triggerGeneration(env, profile) {
+async function triggerGeneration(env, profile, store) {
   if (!env.GH_DISPATCH_TOKEN || !env.GH_DISPATCH_REPO) {
     return { triggered: false, reason: "dispatch-not-configured" };
   }
   // 金額は payload から除外して渡す(生成側は金額を扱わない)
   const clientProfile = { ...profile };
   delete clientProfile.estimates_for_audit;
+  // AUTOPILOT: フォーカスと完成度、ニュースダイジェストを同梱(生成側がページ構成を変える)
+  const ap = (store && store.autopilot) || {};
+  const news = await AP.newsDigest(env).catch(() => ({ items: [] }));
+  const autopilot = { focus_primary: ap.focus_primary || null, completeness: ap.completeness || 0, news: (news.items || []).slice(0, 5) };
   try {
     const r = await fetch("https://api.github.com/repos/" + env.GH_DISPATCH_REPO + "/dispatches", {
       method: "POST",
@@ -214,7 +220,7 @@ async function triggerGeneration(env, profile) {
         "Content-Type": "application/json",
         "User-Agent": "hs-hearing-worker",
       },
-      body: JSON.stringify({ event_type: "yakumo-hearing-completed", client_payload: { profile: clientProfile } }),
+      body: JSON.stringify({ event_type: "yakumo-hearing-completed", client_payload: { profile: clientProfile, autopilot } }),
     });
     return { triggered: r.ok, status: r.status };
   } catch (e) {
@@ -256,11 +262,22 @@ function publicView(c) {
     works: c.works || [],
     verification: verified ? "verified" : "pending",
     fairness_score: verified ? c.fairness_score : null,
+    rank_score: verified ? (c.rank_score != null ? c.rank_score : c.fairness_score) : null,
+    engagement_state: c.engagement_state || "active",
     integrity_tier: verified ? (c.integrity_tier || null) : null,
     red_flags_detected: verified ? (c.red_flags_detected != null ? c.red_flags_detected : null) : null,
     profile_url: c.profile_url ? ("https://shield.the-horizons-innovation.com" + c.profile_url) : MALL_URL,
     note: verified ? "検証済み(KIRA適正診断 通過)" : "検証手続き中。通過するまでスコアは出しません(fail-closed)。",
   };
+}
+// MCPはKVライブを一次ソースに(静的シードはフォールバック)。AIが常に最新の検証状態を引ける。
+async function liveContractors(env) {
+  try {
+    const stores = await listAllStores(env);
+    if (stores.length) return stores.map(storeToContractor);
+  } catch (_e) {}
+  const pub = await fetchPublished(env);
+  return pub.contractors || [];
 }
 
 async function handleMcp(request, env, id, method, params) {
@@ -273,7 +290,7 @@ async function handleMcp(request, env, id, method, params) {
   if (method === "tools/call") {
     const name = params && params.name;
     const args = (params && params.arguments) || {};
-    const { contractors } = await fetchPublished(env);
+    const contractors = await liveContractors(env);
     if (name === "list_verified_stores") {
       const area = safeStr(args.area, 40);
       const work = safeStr(args.work, 40);
@@ -459,20 +476,38 @@ async function lineReply(env, replyToken, text) {
     });
   } catch (_e) {}
 }
-// メール/LINE共通: 回答テキストを取り込み、構造化->関所->生成トリガー。source で経路を区別。
+// メール/LINE共通: 回答テキストを取り込み、構造化->マージ->関所->生成トリガー。source で経路を区別。
+// AUTOPILOT: 既存プロフィールに統合(上書きしない)、pending質問の消込、フォーカス判定、完成度再計算、活動記録。
 async function ingestHearingAnswer(env, store_id, store, text, source) {
   await env.HS_HEARING_KV.put(source + "reply:" + store_id + ":" + Date.now(),
     JSON.stringify({ text: String(text).slice(0, 6000), at: new Date().toISOString(), source }));
   const structured = await llmStructure(env, text, store);
   if (!structured.ok) return { ok: false, reason: structured.reason };
-  const profile = normalizeProfile(store || { store_id }, structured.raw);
+  const incoming = normalizeProfile(store || { store_id }, structured.raw);
+  const prev = await env.HS_HEARING_KV.get("hearing:" + store_id, "json");
+  // pending質問の消込(回答の生文を extra[qid] に紐づけ、ペナルティ即回復)
+  const extraPatch = store ? AP.settlePendingOnAnswer(store, text) : {};
+  incoming.extra = { ...(incoming.extra || {}), ...extraPatch };
+  const profile = AP.mergeProfiles(prev && prev.profile, incoming);
   if (!profile.company || !profile.area || !(profile.works && profile.works.length)) {
     return { ok: false, reason: "missing-required" };
   }
   const now = new Date().toISOString();
   await env.HS_HEARING_KV.put("hearing:" + store_id, JSON.stringify({ store_id, profile, answered_at: now, completed: true, source }));
-  if (store) { store.status = "hearing_done"; store.hearing_done_at = now; await env.HS_HEARING_KV.put("store:" + store_id, JSON.stringify(store)); }
-  const gen = await triggerGeneration(env, profile);
+  if (store) {
+    store.status = store.status === "published" ? "published" : "hearing_done";
+    store.hearing_done_at = now;
+    const ap = store.autopilot || {};
+    if (!ap.focus_primary) {
+      const f = await AP.classifyFocus(env, store, profile);
+      if (f.primary) { ap.focus_primary = f.primary; ap.focus_all = f.all; ap.focus_via = f.via; }
+    }
+    ap.completeness = AP.computeCompleteness(profile, ap).score;
+    store.autopilot = ap;
+    await env.HS_HEARING_KV.put("store:" + store_id, JSON.stringify(store));
+    await AP.activityAdd(env, { type: "answered", member_no: store.member_no, text: (store.company || "加盟店") + " がヒアリングに回答しました(完成度 " + ap.completeness + "%)" });
+  }
+  const gen = await triggerGeneration(env, profile, store);
   return { ok: true, gen };
 }
 async function handleLineWebhook(env, bodyText) {
@@ -536,6 +571,7 @@ async function listAllStores(env) {
 function storeToContractor(s) {
   const areas = Array.isArray(s.areas) ? s.areas : [];
   const verified = s.verification === "verified" && s.fairness_score != null;
+  const penalty = (s.autopilot && Number(s.autopilot.penalty)) || 0;
   return {
     member_no: s.member_no || null,
     store_id: s.store_id,
@@ -544,7 +580,10 @@ function storeToContractor(s) {
     areas_served: areas,
     works: Array.isArray(s.works) ? s.works : [],
     verification: verified ? "verified" : "pending",
+    // fairness_score は KIRA純正のまま(不改変)。表示ランクは rank_score(運用状態込み)から。
     fairness_score: verified ? s.fairness_score : null,
+    rank_score: verified ? Math.max(0, Number(s.fairness_score) - penalty) : null,
+    engagement_state: penalty >= 5 ? "at_risk" : penalty > 0 ? "stale" : "active",
     integrity_tier: verified ? (s.integrity_tier || null) : null,
     red_flags_detected: verified ? (s.red_flags_detected != null ? s.red_flags_detected : null) : null,
     claim_sha256: verified ? (s.claim_sha256 || null) : null,
@@ -588,6 +627,8 @@ export default {
       const store = await env.HS_HEARING_KV.get("store:" + rec.store_id, "json");
       if (!store) return json({ exists: false });
       const hearing = await env.HS_HEARING_KV.get("hearing:" + store.store_id, "json");
+      const ap = store.autopilot || {};
+      const refs = await AP.refCount(env, store.member_no);
       return json({
         exists: true,
         member_no: store.member_no || null,
@@ -599,7 +640,26 @@ export default {
         plan: store.plan || null,
         status: store.status || "onboarding",
         already_answered: !!(hearing && hearing.completed),
+        // AUTOPILOT: マイページ用の運用状態(本人向け・公開安全)
+        focus_primary: ap.focus_primary || null,
+        completeness: ap.completeness != null ? ap.completeness : null,
+        pending_question: (ap.pending && ap.pending.text) || null,
+        referral_count: refs,
       });
+    }
+
+    // 公開: 活動フィード(認知ループ)。金額・連絡先・個人情報なしの文言のみ。
+    if (path === "/activity.json") {
+      const items = await AP.activityList(env, 30);
+      return json({ items: items.filter((x) => x.type !== "tick"), updated_at: new Date().toISOString() },
+        200, { "Cache-Control": "public, max-age=60" });
+    }
+
+    // 公開: 紹介リンク着地カウント(加盟店が加盟店を呼ぶ導線)。PIIなし。
+    if (path === "/ref-hit") {
+      const ref = safeStr(url.searchParams.get("ref"), 20).replace(/[^A-Za-z0-9.]/g, "");
+      if (ref) await AP.refHit(env, ref);
+      return new Response(null, { status: 204, headers: cors });
     }
 
     // MCP: JSON-RPC over HTTP(POST)
@@ -643,12 +703,27 @@ export default {
         if (!safeStr(raw.company) || !safeStr(raw.area) || !safeArr(raw.works).length) {
           return json({ ok: false, error: "社名・所在地・工種は必須です。" }, 400);
         }
-        const profile = normalizeProfile(store || tokRec, raw);
+        const incoming = normalizeProfile(store || tokRec, raw);
+        const prev = await env.HS_HEARING_KV.get("hearing:" + tokRec.store_id, "json");
+        if (store) AP.settlePendingOnAnswer(store, JSON.stringify(raw).slice(0, 3000)); // フォーム再送=pending消込+ペナルティ回復
+        const profile = AP.mergeProfiles(prev && prev.profile, incoming);
         const now = new Date().toISOString();
-        const record = { token, store_id: tokRec.store_id, profile, answered_at: now, completed: true };
+        const record = { token, store_id: tokRec.store_id, profile, answered_at: now, completed: true, source: "form" };
         await env.HS_HEARING_KV.put("hearing:" + tokRec.store_id, JSON.stringify(record));
-        if (store) { store.status = "hearing_done"; store.hearing_done_at = now; await env.HS_HEARING_KV.put("store:" + tokRec.store_id, JSON.stringify(store)); }
-        const gen = await triggerGeneration(env, profile);  // 検証通過なら公開まで全自動(GitHub Action側でfail-closed検証)
+        if (store) {
+          store.status = store.status === "published" ? "published" : "hearing_done";
+          store.hearing_done_at = now;
+          const ap2 = store.autopilot || {};
+          if (!ap2.focus_primary) {
+            const f = await AP.classifyFocus(env, store, profile);
+            if (f.primary) { ap2.focus_primary = f.primary; ap2.focus_all = f.all; ap2.focus_via = f.via; }
+          }
+          ap2.completeness = AP.computeCompleteness(profile, ap2).score;
+          store.autopilot = ap2;
+          await env.HS_HEARING_KV.put("store:" + tokRec.store_id, JSON.stringify(store));
+          await AP.activityAdd(env, { type: "answered", member_no: store.member_no, text: (store.company || "加盟店") + " がヒアリングに回答しました(完成度 " + ap2.completeness + "%)" });
+        }
+        const gen = await triggerGeneration(env, profile, store);  // 検証通過なら公開まで全自動(GitHub Action側でfail-closed検証)
         return json({ ok: true, generation: gen });
       }
     }
@@ -688,6 +763,7 @@ export default {
         await env.HS_HEARING_KV.put("htok:" + token, JSON.stringify({ store_id, member_no: store.member_no, company: store.company, created_at: store.created_at }));
         // メール返信を送信元アドレスで店に紐づけるための逆引き(email監視の照合用)
         if (store.email) await env.HS_HEARING_KV.put("email2store:" + store.email.toLowerCase(), store_id);
+        await AP.activityAdd(env, { type: "joined", member_no: store.member_no, text: "新しい加盟店を迎えました(" + (store.member_no || store_id) + ")。検証の手続きが始まります。" });
         return json({ ok: true, store, hearing_url: url.origin + "/h/" + token, email_ref: "ref:" + token });
       }
 
@@ -730,6 +806,7 @@ export default {
         for (const s of stores) {
           const h = await env.HS_HEARING_KV.get("hearing:" + s.store_id, "json");
           const line = await env.HS_HEARING_KV.get("store2line:" + s.store_id, "text");
+          const ap = s.autopilot || {};
           rows.push({
             ...storeToContractor(s),
             tier: s.tier || null,
@@ -742,6 +819,16 @@ export default {
             hearing_source: (h && h.source) || null,
             answered_at: (h && h.answered_at) || null,
             line_linked: !!line,
+            autopilot: {
+              focus_primary: ap.focus_primary || null,
+              completeness: ap.completeness != null ? ap.completeness : null,
+              pending: ap.pending ? { qids: ap.pending.qids, sent_at: ap.pending.sent_at, via: ap.pending.via } : null,
+              asked_count: (ap.asked || []).length,
+              nudges: ap.nudges || 0,
+              penalty: ap.penalty || 0,
+              last_answer_at: ap.last_answer_at || null,
+            },
+            referral_count: await AP.refCount(env, s.member_no),
           });
         }
         rows.sort((a, b) => String(a.member_no || "").localeCompare(String(b.member_no || "")));
@@ -764,6 +851,7 @@ export default {
         s.status = "published";
         s.verified_at = new Date().toISOString();
         await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(s));
+        await AP.activityAdd(env, { type: "verified", member_no: s.member_no, text: (s.company || "加盟店") + " が適正価格の第三者検証(KIRA)を通過しました" });
         return json({ ok: true, store: storeToContractor(s) });
       }
 
@@ -783,6 +871,128 @@ export default {
         return json({ ok: true, record: rec });
       }
 
+      /* ---------- AUTOPILOT admin ---------- */
+      // 追撃質問を今すぐ送る(自動選定・重複質問ゼロ)
+      if (path === "/admin/followup" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const sid = safeStr(b.store_id, 40);
+        const store = await env.HS_HEARING_KV.get("store:" + sid, "json");
+        if (!store) return json({ error: "not_found" }, 404);
+        const hearing = await env.HS_HEARING_KV.get("hearing:" + sid, "json");
+        const ap = store.autopilot || {};
+        const qs = AP.nextQuestions((hearing && hearing.profile) || {}, ap, Number(b.max) || 2);
+        if (!qs.length) return json({ ok: false, reason: "質問なし(完成度が十分か、全て送信済み)" });
+        const r = await AP.sendQuestions(env, store, qs, "followup");
+        if (!r.ok) return json({ ok: false, reason: r.reason }, 502);
+        ap.pending = { qids: qs.map((q) => q.qid), text: qs.map((q) => q.text).join("\n"), sent_at: new Date().toISOString(), via: r.via };
+        ap.asked = [...(ap.asked || []), ...qs.map((q) => ({ qid: q.qid, at: new Date().toISOString(), answered: false }))].slice(-50);
+        ap.last_send_at = new Date().toISOString();
+        store.autopilot = ap;
+        await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));
+        return json({ ok: true, sent: qs.map((q) => q.qid), via: r.via });
+      }
+
+      // フォーカス再判定
+      if (path === "/admin/classify" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const sid = safeStr(b.store_id, 40);
+        const store = await env.HS_HEARING_KV.get("store:" + sid, "json");
+        if (!store) return json({ error: "not_found" }, 404);
+        const hearing = await env.HS_HEARING_KV.get("hearing:" + sid, "json");
+        const ap = store.autopilot || {};
+        if (b.focus && ["recruit","leads","homeowners","franchise","brand"].includes(b.focus)) {
+          ap.focus_primary = b.focus; ap.focus_all = [b.focus]; ap.focus_via = "manual";
+        } else {
+          const f = await AP.classifyFocus(env, store, (hearing && hearing.profile) || null);
+          ap.focus_primary = f.primary; ap.focus_all = f.all; ap.focus_via = f.via;
+        }
+        ap.completeness = AP.computeCompleteness((hearing && hearing.profile) || {}, ap).score;
+        store.autopilot = ap;
+        await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));
+        return json({ ok: true, focus_primary: ap.focus_primary, via: ap.focus_via, completeness: ap.completeness });
+      }
+
+      // 注意喚起を今すぐ送る(こんなことはありますか？)
+      if (path === "/admin/nudge" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const sid = safeStr(b.store_id, 40);
+        const store = await env.HS_HEARING_KV.get("store:" + sid, "json");
+        if (!store) return json({ error: "not_found" }, 404);
+        const hearing = await env.HS_HEARING_KV.get("hearing:" + sid, "json");
+        const ap = store.autopilot || {};
+        const qs = AP.nextQuestions((hearing && hearing.profile) || {}, ap, 1);
+        const r = await AP.sendQuestions(env, store, qs.length ? qs : [{ qid: "q_trust", text: AP.QUESTION_BANK.q_trust.text }], "nudge");
+        if (!r.ok) return json({ ok: false, reason: r.reason }, 502);
+        ap.nudges = (ap.nudges || 0) + 1;
+        store.autopilot = ap;
+        await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));
+        return json({ ok: true, via: r.via, nudges: ap.nudges });
+      }
+
+      // 運用状態の全容
+      if (path.startsWith("/admin/autopilot/") && request.method === "GET") {
+        const sid = safeStr(decodeURIComponent(path.slice("/admin/autopilot/".length)), 60);
+        const store = await env.HS_HEARING_KV.get("store:" + sid, "json");
+        if (!store) return json({ error: "not_found" }, 404);
+        const hearing = await env.HS_HEARING_KV.get("hearing:" + sid, "json");
+        const ap = store.autopilot || {};
+        const comp = AP.computeCompleteness((hearing && hearing.profile) || {}, ap);
+        return json({ ok: true, autopilot: ap, completeness: comp.score, missing: comp.missing, referral_count: await AP.refCount(env, store.member_no) });
+      }
+
+      // 重複ゼロ台帳
+      if (path === "/admin/dedup-check" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        return json(await AP.dedupCheck(env, { slug: safeStr(b.slug, 160), title: safeStr(b.title, 300), body: String(b.body || "").slice(0, 30000) }));
+      }
+      if (path === "/admin/dedup-register" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        return json({ ok: true, ...(await AP.dedupRegister(env, b.items || [])) });
+      }
+
+      // ニュース(設定制・捏造ゼロ)
+      if (path === "/admin/news" && request.method === "GET") return json(await AP.newsDigest(env));
+      if (path === "/admin/news-refresh" && request.method === "POST") return json(await AP.newsRefresh(env));
+      if (path === "/admin/news-sources" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const urls = (Array.isArray(b.urls) ? b.urls : []).map((u) => safeStr(u, 300)).filter((u) => u.startsWith("https://")).slice(0, 5);
+        await env.HS_HEARING_KV.put("news:sources", JSON.stringify(urls));
+        return json({ ok: true, sources: urls });
+      }
+
+      // 活動フィードへの外部記録(GitHub Actionの公開コールバック用)
+      if (path === "/admin/activity" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        await AP.activityAdd(env, { type: safeStr(b.type, 30) || "note", member_no: safeStr(b.member_no, 20), text: safeStr(b.text, 200) });
+        return json({ ok: true });
+      }
+
+      // SNS下書き(コピペ投稿用)
+      if (path === "/admin/sns-drafts" && request.method === "POST") {
+        const events = await AP.activityList(env, 10);
+        return json({ ok: true, drafts: AP.snsDrafts(events) });
+      }
+
+      // 日次処理の手動実行
+      if (path === "/admin/tick" && request.method === "POST") {
+        const log = await AP.runDailyTick(env, { listAllStores, triggerGeneration });
+        return json({ ok: true, log });
+      }
+
+      // 旧レコードにトークンを後付け(No.001対応)
+      if (path === "/admin/link-token" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const sid = safeStr(b.store_id, 40);
+        const tok = safeStr(b.token, 60).replace(/[^A-Za-z0-9_-]/g, "");
+        const store = await env.HS_HEARING_KV.get("store:" + sid, "json");
+        if (!store || !tok) return json({ error: "not_found_or_bad_token" }, 404);
+        store.token = tok;
+        await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));
+        const existing = await env.HS_HEARING_KV.get("htok:" + tok, "json");
+        if (!existing) await env.HS_HEARING_KV.put("htok:" + tok, JSON.stringify({ store_id: sid, member_no: store.member_no, company: store.company, created_at: new Date().toISOString() }));
+        return json({ ok: true, store_id: sid, token: tok });
+      }
+
       return json({ error: "unknown_admin_route" }, 404);
     }
 
@@ -790,6 +1000,18 @@ export default {
     if (path === "/") return json({ server: SERVER.name, mall: MALL_URL, mcp: url.origin + "/mcp", agent_card: url.origin + "/.well-known/agent-card.json" });
 
     return json({ error: "not_found" }, 404);
+  },
+
+  // AUTOPILOT: 日次cron(wrangler.jsonc triggers.crons)。巡回して追撃質問・注意喚起・ニュース更新を自動実行。
+  async scheduled(_event, env, ctx) {
+    ctx.waitUntil((async () => {
+      try {
+        const log = await AP.runDailyTick(env, { listAllStores, triggerGeneration });
+        await notify(env, "[Yakumo AUTOPILOT] 日次巡回 完了: " + JSON.stringify({ checked: log.checked, sent: log.sent.length, nudged: log.nudged.length, penalized: log.penalized.length }).slice(0, 400));
+      } catch (e) {
+        await notify(env, "[Yakumo AUTOPILOT] 日次巡回 エラー: " + String(e).slice(0, 200));
+      }
+    })());
   },
 
   // Cloudflare Email Routing の宛先ワーカー。堤さんがメールで返信してきた分を安全網として吸い取る。
@@ -809,23 +1031,17 @@ export default {
       // 生返信は必ず保存(監査・手動フォールバック用)。時刻はDate.now()で一意化。
       await env.HS_HEARING_KV.put("emailreply:" + resolved.store_id + ":" + Date.now(), JSON.stringify({ from: message.from, subject, text, at: new Date().toISOString(), via: resolved.via }));
 
-      const structured = await llmStructure(env, text, store);
-      if (!structured.ok) {
-        await notify(env, "[Yakumo] メール返信を受信(自動構造化できず: " + structured.reason + ")。手動確認を。store=" + resolved.store_id + " from=" + message.from);
-        return;
-      }
-      const profile = normalizeProfile(store || { store_id: resolved.store_id }, structured.raw);
-      // 入口の関所: 必須項目(社名・所在地・工種)が無ければ自動公開しない(fail-closed)。
-      if (!profile.company || !profile.area || !(profile.works && profile.works.length)) {
+      // AUTOPILOT共通取り込み: 構造化->マージ->pending消込->関所->生成トリガー(fail-closed)
+      const res = await ingestHearingAnswer(env, resolved.store_id, store, text, "email");
+      if (!res.ok && res.reason === "missing-required") {
         await notify(env, "[Yakumo] メール返信を構造化したが必須項目が不足。自動公開せず通知。store=" + resolved.store_id + " from=" + message.from);
         return;
       }
-      const now = new Date().toISOString();
-      await env.HS_HEARING_KV.put("hearing:" + resolved.store_id, JSON.stringify({ store_id: resolved.store_id, profile, answered_at: now, completed: true, source: "email" }));
-      if (store) { store.status = "hearing_done"; store.hearing_done_at = now; await env.HS_HEARING_KV.put("store:" + resolved.store_id, JSON.stringify(store)); }
-      // 生成トリガー。下流の GitHub Action で validate.py(関所A) を通過した分だけ公開される。
-      const gen = await triggerGeneration(env, profile);
-      await notify(env, "[Yakumo] メール返信を自動構造化→生成トリガー: " + ((store && store.company) || resolved.store_id) + " via " + resolved.via + " / dispatch=" + JSON.stringify(gen));
+      if (!res.ok) {
+        await notify(env, "[Yakumo] メール返信を受信(自動構造化できず: " + res.reason + ")。手動確認を。store=" + resolved.store_id + " from=" + message.from);
+        return;
+      }
+      await notify(env, "[Yakumo] メール返信を自動構造化→生成トリガー: " + ((store && store.company) || resolved.store_id) + " via " + resolved.via + " / dispatch=" + JSON.stringify(res.gen));
     } catch (e) {
       await notify(env, "[Yakumo] email handler error: " + String(e).slice(0, 120));
     }

@@ -39,18 +39,18 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Extract profile (repository_dispatch)
+      - name: Extract dispatch payload (repository_dispatch)
         if: github.event_name == 'repository_dispatch'
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const p = context.payload.client_payload && context.payload.client_payload.profile;
-            if (!p) { core.setFailed('client_payload.profile がありません'); return; }
-            fs.writeFileSync('/tmp/profile.json', JSON.stringify(p));
-            core.info('profile written for ' + (p.company || '(no company)'));
+            const cp = context.payload.client_payload || {};
+            if (!cp.profile) { core.setFailed('client_payload.profile がありません'); return; }
+            fs.writeFileSync('/tmp/dispatch.json', JSON.stringify({ client_payload: cp }));
+            core.info('dispatch written for ' + (cp.profile.company || '(no company)') + ' focus=' + ((cp.autopilot||{}).focus_primary || 'none'));
 
-      - name: Extract profile (manual)
+      - name: Extract dispatch payload (manual)
         if: github.event_name == 'workflow_dispatch'
         uses: actions/github-script@v7
         with:
@@ -59,11 +59,11 @@ jobs:
             const raw = ${{ toJSON(inputs.profile_json) }};
             let p;
             try { p = JSON.parse(raw); } catch (e) { core.setFailed('profile_json が不正なJSON: ' + e.message); return; }
-            fs.writeFileSync('/tmp/profile.json', JSON.stringify(p));
-            core.info('manual profile written');
+            fs.writeFileSync('/tmp/dispatch.json', JSON.stringify({ client_payload: { profile: p, autopilot: p.autopilot || {} } }));
+            core.info('manual dispatch written');
 
-      - name: Generate pages (GEO/AEO/LLMO/WebMCP 4:3:2:1)
-        run: python3 tools/yakumo/generate.py --profile /tmp/profile.json
+      - name: Generate pages (GEO/AEO/LLMO/WebMCP + focus, dedup gate A)
+        run: python3 tools/yakumo/generate.py --dispatch /tmp/dispatch.json
 
       - name: Validate pages (fail-closed gate)
         run: python3 tools/yakumo/validate.py --manifest tools/yakumo/last_manifest.json
@@ -71,14 +71,14 @@ jobs:
       - name: Commit and push (only if validation passed)
         id: commit
         run: |
-          if [ -z "$(git status --porcelain yakumo/ tools/yakumo/last_manifest.json sitemap.xml)" ]; then
+          if [ -z "$(git status --porcelain yakumo/ tools/yakumo/last_manifest.json sitemap.xml data/yakumo-content-manifest.json)" ]; then
             echo "変更なし。公開スキップ。"
             echo "published=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git config user.name  "yakumo-bot"
           git config user.email "yakumo-bot@users.noreply.github.com"
-          git add yakumo/ tools/yakumo/last_manifest.json sitemap.xml
+          git add yakumo/ tools/yakumo/last_manifest.json sitemap.xml data/yakumo-content-manifest.json
           COUNT=$(python3 -c "import json;print(json.load(open('tools/yakumo/last_manifest.json'))['count'])")
           git commit -m "yakumo: auto-publish ${COUNT} verified-partner pages (GEO/AEO/LLMO/WebMCP)"
           for i in 1 2 3 4; do
@@ -115,3 +115,25 @@ jobs:
           echo "submit: $URLS"
           # /yakumo/ 配下は souba還流マーカー必須を外す(--no-marker)。3関所(200/MOAT)は内部で実施。
           python3 indexnow_submit.py --urls "$URLS" --no-marker --send
+
+      # AUTOPILOT: 公開を活動フィードに記録 + 指紋台帳をワーカーKVに同期(fail-open: 未設定でも失敗させない)
+      - name: Activity callback + dedup ledger sync (optional)
+        env:
+          HEARING_ADMIN_SECRET: ${{ secrets.HEARING_ADMIN_SECRET }}
+        run: |
+          if [ -z "$HEARING_ADMIN_SECRET" ]; then echo "HEARING_ADMIN_SECRET 未設定。コールバック省略(fail-open)。"; exit 0; fi
+          W="https://hs-hearing.oga-surf-project.workers.dev"
+          COUNT=$(python3 -c "import json;print(json.load(open('tools/yakumo/last_manifest.json'))['count'])")
+          MEMBER=$(python3 -c "import json;print(json.load(open('tools/yakumo/last_manifest.json')).get('member_no') or '')")
+          curl -s -X POST "$W/admin/activity" -H "X-Admin-Key: $HEARING_ADMIN_SECRET" -H "Content-Type: application/json" \
+            -d "{\"type\":\"published\",\"member_no\":\"$MEMBER\",\"text\":\"加盟店の紹介ページを${COUNT}枚 検証通過のうえ公開しました\"}" || true
+          python3 - <<'PY' || true
+          import json,urllib.request,os
+          man=json.load(open('tools/yakumo/last_manifest.json'))
+          items=man.get('new_fingerprints') or []
+          if items:
+              req=urllib.request.Request('https://hs-hearing.oga-surf-project.workers.dev/admin/dedup-register',
+                  data=json.dumps({'items':items}).encode(),
+                  headers={'X-Admin-Key':os.environ['HEARING_ADMIN_SECRET'],'Content-Type':'application/json'})
+              print(urllib.request.urlopen(req,timeout=20).read()[:200])
+          PY

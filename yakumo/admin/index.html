@@ -175,6 +175,7 @@ function card(s){
     +   '<div><b>LINE</b> <span class="dot '+(s.line_linked?"on":"off")+'"></span>'+(s.line_linked?"連携済み":"未連携")+'</div>'
     +   '<div><b>検証</b> '+esc(verified)+'</div>'
     +   '<div><b>メール</b> '+esc(s.email||"未登録")+'</div>'
+    +   autopilotKv(s)
     + '</div>'
     + '<div class="acts">'
     +   (s.hearing_url ? '<button class="sm" onclick="copy(\''+esc(s.hearing_url)+'\')">ヒアリングURLコピー</button>' : '')
@@ -183,12 +184,51 @@ function card(s){
     +   '<button class="sm" onclick="sendHearing(\''+sid+'\')">ヒアリング送信</button>'
     +   '<button class="sm" onclick="viewAnswers(\''+sid+'\')">回答を見る</button>'
     +   '<button class="sm" onclick="markVerified(\''+sid+'\')">検証済みにする</button>'
+    +   '<button class="sm" onclick="apFollowup(\''+sid+'\')">追撃質問を送る</button>'
+    +   '<button class="sm" onclick="apClassify(\''+sid+'\')">フォーカス再判定</button>'
+    +   '<button class="sm" onclick="apNudge(\''+sid+'\')">注意喚起</button>'
+    +   '<button class="sm" onclick="apSns()">SNS下書き</button>'
     + '</div>'
     + '<div class="ans" id="ans_'+sid+'"></div>'
     + '</div>';
 }
 
 function findStore(sid){ return STORES.find(s=>s.store_id===sid); }
+
+// AUTOPILOT表示と操作
+const FOCUS_JP = {recruit:"人材確保", leads:"案件獲得", homeowners:"施主集客", franchise:"加盟店募集", brand:"認知"};
+function autopilotKv(s){
+  const ap = s.autopilot || {};
+  const focus = FOCUS_JP[ap.focus_primary] || "見極め中";
+  const comp = ap.completeness != null ? (ap.completeness + "%") : "-";
+  const pend = ap.pending ? ("待ち(" + (ap.pending.qids||[]).join(",") + ")") : "なし";
+  const pen = ap.penalty ? ('<span style="color:var(--alert);">-' + ap.penalty + "</span>") : "0";
+  return '<div><b>フォーカス</b> ' + esc(focus) + '</div>'
+       + '<div><b>完成度</b> ' + esc(comp) + '</div>'
+       + '<div><b>質問</b> ' + esc(pend) + '</div>'
+       + '<div><b>ペナルティ</b> ' + pen + ' ・ 紹介 ' + (s.referral_count||0) + '件</div>';
+}
+async function apFollowup(sid){
+  const res = await api("/admin/followup",{method:"POST",body:JSON.stringify({store_id:sid})});
+  toast(res.ok ? ("追撃質問 送信OK("+(res.j.via||"")+": "+(res.j.sent||[]).join(",")+")") : ("送信不可: "+(res.j.reason||res.status)));
+  if(res.ok) load();
+}
+async function apClassify(sid){
+  const res = await api("/admin/classify",{method:"POST",body:JSON.stringify({store_id:sid})});
+  toast(res.ok ? ("フォーカス: "+(FOCUS_JP[res.j.focus_primary]||"判定不能")+" / 完成度 "+res.j.completeness+"%") : "判定失敗");
+  if(res.ok) load();
+}
+async function apNudge(sid){
+  if(!confirm("注意喚起(ご様子うかがい)を送りますか？")) return;
+  const res = await api("/admin/nudge",{method:"POST",body:JSON.stringify({store_id:sid})});
+  toast(res.ok ? ("注意喚起 送信OK("+res.j.via+")") : ("送信不可: "+(res.j.reason||res.status)));
+}
+async function apSns(){
+  const res = await api("/admin/sns-drafts",{method:"POST",body:"{}"});
+  if(!res.ok){ toast("取得失敗"); return; }
+  const text = (res.j.drafts||[]).join("\n\n----\n\n");
+  navigator.clipboard.writeText(text).then(()=>toast("SNS下書きをコピーしました("+(res.j.drafts||[]).length+"本)")).catch(()=>alert(text));
+}
 
 async function sendGreeting(sid){
   const s=findStore(sid); if(!s) return;

@@ -109,6 +109,23 @@
       <div class="scorewrap" id="hScore" style="display:none;"></div>
     </div>
 
+    <!-- 運用状態(AUTOPILOT): フォーカス・ヒアリング完成度・次の質問 -->
+    <div class="sect" id="opsSect" style="display:none;">
+      <div class="sect-t">00 ／ 運用状態(自動ヒアリング)</div>
+      <div class="box">
+        <div class="row"><span class="k">運用フォーカス</span><span class="v" id="opFocus">見極め中</span></div>
+        <div class="row"><span class="k">ヒアリング完成度</span><span class="v" id="opComp">-</span></div>
+        <div style="height:8px;background:#0A0E16;border:1px solid var(--line);border-radius:99px;margin:10px 0 4px;overflow:hidden;"><div id="opBar" style="height:100%;width:0%;background:var(--verify);"></div></div>
+        <p class="muted" style="margin:8px 0 0;">完成度が上がるほど、生成ページの質と量が上がります。</p>
+        <div id="opPending" style="display:none;margin-top:12px;border:1px dashed var(--verify-deep);border-radius:10px;padding:12px 14px;">
+          <div style="font-size:12px;color:var(--bronze);letter-spacing:.06em;margin-bottom:6px;">運営からの質問(回答待ち)</div>
+          <p id="opPendingText" style="margin:0;color:var(--dim);font-size:13.5px;white-space:pre-wrap;"></p>
+          <a class="btn block" id="opAnswer" style="margin-top:12px;" href="#">フォームで回答する</a>
+          <p class="muted" style="text-align:center;margin:8px 0 0;">届いたメール・LINEにそのまま返信でもOKです。</p>
+        </div>
+      </div>
+    </div>
+
     <!-- AIから見つけてもらえる状態(認知の証明) -->
     <div class="sect">
       <div class="sect-t">01 ／ AI・検索から見つけてもらえる状態</div>
@@ -156,6 +173,17 @@
         <div style="padding:9px 0 2px;"><span class="k" style="color:var(--dim);font-size:14px;">対応工種</span><div class="chips" id="pWorks"></div></div>
         <a class="btn block" id="btnUpdate" style="margin-top:16px;" href="#">内容を更新・追記する</a>
         <p class="muted" style="text-align:center;margin:10px 0 0;">回答フォームが開きます。前回の内容に上書きで反映されます。</p>
+      </div>
+    </div>
+
+    <!-- 紹介プログラム(加盟店が加盟店を呼ぶ・Yakumoの認知が上がる) -->
+    <div class="sect">
+      <div class="sect-t">04b ／ 紹介プログラム</div>
+      <p class="sect-d">お知り合いの工務店・職人さんに、この紹介リンクを渡してください。リンク経由の加盟相談はあなたの紹介実績として刻まれます。仲間が増えるほど、Yakumoとあなたのページの発見力も上がります。</p>
+      <div class="box">
+        <div class="row"><span class="k">あなたの紹介実績</span><span class="v" id="refCount" style="color:var(--verify);">0 件</span></div>
+        <div class="embed" id="refLink" style="margin-top:10px;"></div>
+        <button class="btn copy" id="refCopy">紹介リンクをコピー</button><span class="copied" id="refCopied" style="display:none;">コピーしました</span>
       </div>
     </div>
 
@@ -216,6 +244,7 @@ async function boot(code){
   $("main").style.display = "block";
   renderProfile(info);
   renderPlan(info);
+  renderOps(info, code);
   $("btnUpdate").href = "/yakumo/register/?code=" + encodeURIComponent(code);
   $("mMember").textContent = info.member_no || "(発番待ち)";
   // 公開ビュー(検証状態)をライブMCPから取得
@@ -254,8 +283,9 @@ function renderHero(){
   if(verified){
     $("hState").innerHTML = '<span class="state verified"><span class="dot"></span>検証済み ・ KIRA適正診断 通過</span>';
     $("hScore").style.display = "flex";
+    const rscore = PUB.rank_score != null ? PUB.rank_score : PUB.fairness_score; // ランクは運用状態込み。スコアはKIRA純正
     $("hScore").innerHTML =
-      '<div class="score" style="display:flex;flex-direction:column;align-items:center;gap:7px;"><div class="k">加盟店ランク</div>'+rankBadge(PUB.fairness_score)+'</div>' +
+      '<div class="score" style="display:flex;flex-direction:column;align-items:center;gap:7px;"><div class="k">加盟店ランク</div>'+rankBadge(rscore)+((rscore < PUB.fairness_score) ? '<div class="k" style="color:#E8B14C;">運用状態により一時調整中</div>' : '')+'</div>' +
       '<div class="score"><div class="k">適正度スコア</div><div class="v">'+esc(PUB.fairness_score)+'<small> / 100</small></div></div>' +
       '<div class="score"><div class="k">レッドフラグ</div><div class="v">'+(PUB.red_flags_detected!=null?esc(PUB.red_flags_detected):"-")+'<small> 件</small></div></div>';
   } else {
@@ -311,6 +341,31 @@ function renderProfile(info){
   $("pArea").textContent = info.area || (info.areas&&info.areas[0]) || "—";
   $("pAreas").textContent = (info.areas||[]).join("、") || "—";
   $("pWorks").innerHTML = (info.works||[]).map(w=>'<span class="chip">'+esc(w)+'</span>').join("") || '<span class="muted">未登録</span>';
+}
+
+// 運用状態(AUTOPILOT)+紹介プログラム
+const FOCUS_JP = {recruit:"人材確保", leads:"案件・元請け獲得", homeowners:"施主集客", franchise:"協力店・加盟店募集", brand:"認知度アップ"};
+function renderOps(info, code){
+  const hasOps = info.completeness != null || info.focus_primary || info.pending_question;
+  if(hasOps){
+    $("opsSect").style.display = "block";
+    $("opFocus").textContent = FOCUS_JP[info.focus_primary] || "見極め中(ヒアリングで判定します)";
+    const c = Math.max(0, Math.min(100, Number(info.completeness||0)));
+    $("opComp").textContent = c + "%";
+    $("opBar").style.width = c + "%";
+    if(info.pending_question){
+      $("opPending").style.display = "block";
+      $("opPendingText").textContent = info.pending_question;
+      $("opAnswer").href = "/yakumo/register/?code=" + encodeURIComponent(code);
+    }
+  }
+  // 紹介プログラム
+  const refUrl = "https://shield.the-horizons-innovation.com/yakumo/apply/?ref=" + encodeURIComponent(info.member_no || "");
+  $("refCount").textContent = (Number(info.referral_count||0)) + " 件";
+  $("refLink").textContent = refUrl;
+  $("refCopy").addEventListener("click", ()=>{
+    navigator.clipboard.writeText(refUrl).then(()=>{ $("refCopied").style.display="inline"; setTimeout(()=>$("refCopied").style.display="none",1800); }).catch(()=>{});
+  });
 }
 
 function renderPlan(info){

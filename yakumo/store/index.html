@@ -159,8 +159,9 @@ function render(c){
   if(verified){
     $('hState').innerHTML = '<span class="state verified"><span class="dot"></span>検証済み ・ KIRA適正診断 通過</span>';
     $('hScore').style.display='flex';
+    const rscore = c.rank_score != null ? c.rank_score : c.fairness_score; // ランクは運用状態込み。スコア表記はKIRA純正のまま
     $('hScore').innerHTML =
-      '<div class="score" style="display:flex;flex-direction:column;align-items:center;gap:7px;"><div class="k">加盟店ランク</div>'+rankBadge(c.fairness_score)+'</div>'+
+      '<div class="score" style="display:flex;flex-direction:column;align-items:center;gap:7px;"><div class="k">加盟店ランク</div>'+rankBadge(rscore)+((rscore < c.fairness_score) ? '<div class="k" style="color:var(--warn);">運用状態により一時調整中</div>' : '')+'</div>'+
       '<div class="score"><div class="k">適正度スコア</div><div class="v">'+esc(c.fairness_score)+'<small> / 100</small></div></div>'+
       '<div class="score"><div class="k">レッドフラグ</div><div class="v">'+(c.red_flags_detected!=null?esc(c.red_flags_detected):'0')+'<small> 件</small></div></div>';
   } else {
@@ -174,7 +175,7 @@ function render(c){
 
   if(verified){
     const sha = c.claim_sha256 ? esc(c.claim_sha256) : null;
-    const rk = scoreToRank(c.fairness_score); const rkc = rk ? rankColor(rk) : 'var(--ink)';
+    const rk = scoreToRank(c.rank_score != null ? c.rank_score : c.fairness_score); const rkc = rk ? rankColor(rk) : 'var(--ink)';
     $('proofBox').innerHTML =
       '<div class="kv"><span class="k">検証</span><span class="v">KIRA適正診断 通過</span></div>'+
       '<div class="kv"><span class="k">加盟店ランク</span><span class="v" style="color:'+rkc+';">'+(rk?esc(rk.label):'-')+'</span></div>'+

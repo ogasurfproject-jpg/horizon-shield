@@ -132,6 +132,41 @@ def check_page(relpath):
 
     return errs
 
+def check_duplicates(paths):
+    """重複ゼロ関所B: バッチ内の相互重複 + 台帳(自slug以外)との衝突を検査。generate.py と同一指紋。"""
+    try:
+        import generate as G  # 同ディレクトリ(tools/yakumo)
+    except Exception as e:
+        return ["DEDUP_MODULE_LOAD_FAIL: " + str(e)[:80]]
+    errs = []
+    ledger = G.ledger_load().get("entries", [])
+    fps = []
+    for p in paths:
+        abspath = os.path.join(REPO_ROOT, p)
+        if not os.path.exists(abspath):
+            continue
+        html = open(abspath, encoding="utf-8").read()
+        canonical = path_to_canonical(p)
+        fps.append((p, G.fingerprint(canonical, html)))
+    # バッチ内 相互
+    for i in range(len(fps)):
+        for j in range(i + 1, len(fps)):
+            a, b = fps[i][1], fps[j][1]
+            if a["tsha"] == b["tsha"]:
+                errs.append("DUPLICATE_IN_BATCH(title): %s == %s" % (fps[i][0], fps[j][0]))
+            elif a["simhash"] != "0" and G.hamming64(a["simhash"], b["simhash"]) <= 6:
+                errs.append("DUPLICATE_IN_BATCH(near): %s ~= %s" % (fps[i][0], fps[j][0]))
+    # 台帳(自分のslug以外)との衝突
+    for (p, fp) in fps:
+        for e in ledger:
+            if e.get("slug") == fp["slug"]:
+                continue  # 自分自身(更新)は許可
+            if e.get("tsha") == fp["tsha"]:
+                errs.append("DUPLICATE_VS_LEDGER(title): %s == %s" % (p, e["slug"])); break
+            if e.get("simhash") and fp["simhash"] != "0" and G.hamming64(fp["simhash"], e["simhash"]) <= 6:
+                errs.append("DUPLICATE_VS_LEDGER(near): %s ~= %s" % (p, e["slug"])); break
+    return errs
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--manifest")
@@ -158,6 +193,16 @@ def main():
                 print("        - " + e)
         else:
             print("  PASS " + p)
+
+    # 重複ゼロ関所B(同じダブりは絶対に出さない)
+    dup_errs = check_duplicates(paths)
+    if dup_errs:
+        total_err += len(dup_errs)
+        print("  NG   [DEDUP GATE]")
+        for e in dup_errs:
+            print("        - " + e)
+    else:
+        print("  PASS [DEDUP GATE] 重複なし")
     print("\n=== 検証結果: %d ページ / エラー %d 件 ===" % (len(paths), total_err))
     if total_err:
         print("不適格。1枚でも落ちたらバッチ全体を公開しない(fail-closed)。")

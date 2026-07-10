@@ -12,6 +12,8 @@
   ],
   // Workers AI: メール返信のプローズをヒアリングschemaに構造化する既定エンジン(外部APIキー不要)
   "ai": { "binding": "AI" },
+  // AUTOPILOT: 日次巡回cron(21:17 UTC = 06:17 JST)。追撃質問・注意喚起・ニュース更新を自動実行。
+  "triggers": { "crons": ["17 21 * * *"] },
   "vars": {
     "PUBLIC_DATA_URL": "https://shield.the-horizons-innovation.com/data/yakumo-contractors.json",
     "GH_DISPATCH_REPO": "ogasurfproject-jpg/horizon-shield",

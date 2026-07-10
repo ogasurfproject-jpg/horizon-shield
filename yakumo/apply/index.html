@@ -61,6 +61,8 @@
     <a class="btn" href="https://shield.the-horizons-innovation.com/">HORIZON SHIELD について見る</a>
   </div>
 
+  <p id="refNote" style="display:none;font-size:12.5px;color:#7E8CA2;margin-top:14px;">加盟店からのご紹介で来られた方ですね。お電話の際に「紹介リンク経由」とお伝えください。</p>
+
   <footer>
     <div>© 2026 The HORIZ音s株式会社 ／ HORIZON SHIELD ／ Yakumo</div>
     <div style="margin-top:10px;">
@@ -70,5 +72,15 @@
     </div>
   </footer>
 </div>
+<script>
+// 紹介プログラム: ?ref=No.XXX で着地したら紹介カウントを1回だけ記録(個人情報なし)
+(function(){
+  var ref = new URLSearchParams(location.search).get("ref") || "";
+  ref = ref.replace(/[^A-Za-z0-9.]/g, "");
+  if(!ref) return;
+  document.getElementById("refNote").style.display = "block";
+  fetch("https://hs-hearing.oga-surf-project.workers.dev/ref-hit?ref=" + encodeURIComponent(ref)).catch(function(){});
+})();
+</script>
 </body>
 </html>

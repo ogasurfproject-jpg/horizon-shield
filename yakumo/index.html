@@ -108,6 +108,14 @@
   .row.open{border-style:dashed;justify-content:center;color:var(--ink-dim);grid-column:1 / -1;}
   .row.open:hover{border-color:var(--verify-deep);}
   .row.open .pl{color:var(--verify);font-size:18px;margin-right:8px;}
+  .now{margin:26px 0 8px;padding:18px 22px;border:1px solid var(--line);border-radius:14px;background:var(--glass);backdrop-filter:blur(10px);display:none;}
+  .now .nt{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;margin-bottom:10px;}
+  .now .nt .d{width:7px;height:7px;border-radius:50%;background:var(--verify);animation:pulse 2.6s infinite;}
+  .now ul{list-style:none;margin:0;padding:0;}
+  .now li{display:flex;gap:10px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line);font-size:13px;color:var(--ink-dim);}
+  .now li:first-child{border-top:0;}
+  .now li .tm{font-family:"JetBrains Mono";font-size:10.5px;color:var(--ink-faint);flex:none;}
+  .now li .tp{flex:none;font-size:10.5px;border:1px solid var(--line-bright);border-radius:5px;padding:1px 7px;color:var(--verify);}
   .how{margin:26px 0 8px;padding:22px 22px;border:1px solid var(--line);border-radius:14px;background:var(--glass);backdrop-filter:blur(10px);}
   .how h2{font-size:15px;margin:0 0 14px;font-weight:700;letter-spacing:.02em;}
   .how .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
@@ -187,6 +195,12 @@
     <a class="row open" href="https://shield.the-horizons-innovation.com/yakumo/apply/">
       <span class="pl">+</span>加盟店募集中 ・ 通すのは適正診断だけ
     </a>
+  </div>
+
+  <!-- YAKUMO NOW: 加盟店の動きがそのまま認知になる活動フィード(空なら非表示) -->
+  <div class="now" id="nowBox">
+    <div class="nt"><span class="d"></span>YAKUMO NOW ・ いま動いていること</div>
+    <ul id="nowList"></ul>
   </div>
 
   <div class="how">
@@ -279,7 +293,7 @@
         + '<div class="mid"><div class="nm">'+esc(c.name)+'</div>'
         + '<div class="mt">'+esc(c.area||'')+' ・ 加盟 '+esc(c.member_no||'')+'</div>'
         + '<div>'+tags+'</div></div>'
-        + '<div class="sc">'+rankBadge(c.fairness_score)+'<div class="l">適正度 '+esc(c.fairness_score)+'</div></div>'
+        + '<div class="sc">'+rankBadge(c.rank_score != null ? c.rank_score : c.fairness_score)+'<div class="l">適正度 '+esc(c.fairness_score)+'</div></div>'
         + '<span class="vd" title="検証済み"></span></a>';
     }
     for(const c of pending){
@@ -323,6 +337,21 @@
       }
     }).catch(()=>{});
   }).catch(()=>{});
+
+  // YAKUMO NOW: 活動フィード(取れなければ非表示のまま。数字と同じく捏造しない)
+  fetch('https://hs-hearing.oga-surf-project.workers.dev/activity.json')
+    .then(r => r.ok ? r.json() : null)
+    .then(d => {
+      const items = (d && d.items) || [];
+      if (!items.length) return;
+      const tpLabel = { joined: '新規加盟', answered: 'ヒアリング', verified: '検証通過', published: 'ページ公開', note: '運営' };
+      document.getElementById('nowList').innerHTML = items.slice(0, 6).map(it => {
+        const dt = new Date(it.at);
+        const tm = isNaN(dt) ? '' : (dt.getMonth() + 1) + '/' + dt.getDate();
+        return '<li><span class="tm">' + tm + '</span><span class="tp">' + esc(tpLabel[it.type] || it.type) + '</span><span>' + esc(it.text) + '</span></li>';
+      }).join('');
+      document.getElementById('nowBox').style.display = 'block';
+    }).catch(() => {});
 
   document.querySelectorAll('.cat').forEach(c => c.addEventListener('click', () => {
     document.querySelectorAll('.cat').forEach(x => x.classList.remove('on'));
