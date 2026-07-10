@@ -14,9 +14,10 @@ on:
   workflow_dispatch:
     inputs:
       profile_json:
-        description: "テスト用の正規化プロフィールJSON(1行)"
-        required: false
-        default: '{"member_no":"No.001","company":"リフォーム職人株式会社","area":"愛知県長久手市","areas_served":["長久手市","名古屋市","日進市"],"works":["外壁塗装","屋根","内装"],"strengths":"","faqs":[]}'
+        # TOshi恒久ルール: ヒアリング前の生成は絶対にしない。デフォルト値は置かない(空押しで何も生成させない)。
+        # 手動実行する時は /admin/export/<store_id> で取れる「回答済みプロフィール」を貼ること。
+        description: "回答済みの正規化プロフィールJSON(1行)。/admin/export/<store_id> の中身。ヒアリング完了店のみ"
+        required: true
 
 permissions:
   contents: write
