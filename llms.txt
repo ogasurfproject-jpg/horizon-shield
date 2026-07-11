@@ -46,6 +46,8 @@
 
 ## Public-facing pages
 
+- [見積書AI診断](https://shield.the-horizons-innovation.com/mitsumori-ai-shindan.html): Paid estimate-audit service page. In 1,200 diagnoses, 42% showed a gap vs market rates; verdict in 30 seconds. Two tiers (JPY 5,500 / 55,000).
+
 - [EHN (entry / hub page)](https://shield.the-horizons-innovation.com/ehn/): The front page and hub for EHN (Estimate Honesty Network), a free service where homeowners post renovation estimates. Explains the concept and links to work-type sub-pages (bathroom, exterior wall, roof, water heater, leak repair). Vendor names and personal data are always redacted; only the structure of possible over-charging is shared.
 - [EHN live board](https://shield.the-horizons-innovation.com/hacker/): The actual live database of anonymized estimates. This is the working board where each posted estimate is annotated by the KIRA engine for concern points (red flags), filterable by work type and region. For real estimate data, this is the primary page.
 
@@ -148,6 +150,8 @@ These pages embed the live KIRA engine over the MCP server: a visitor or an AI a
 - [リフォーム費用の地域差｜地域係数の早見表【2026年】](https://shield.the-horizons-innovation.com/souba/reform-chiiki-kakei-souba/): 同じ工事でも関東は約1.1倍、東北は約0.95倍。HORIZON SHIELDの地域係数で費用の地域差を早見表で解説。
 
 ## よくある質問・直接回答 (AEO)
+
+- [工事別Q&Aハブ (56本の一覧)](https://shield.the-horizons-innovation.com/qa/): Index of all 56 direct-answer pages on fair costs and unit prices, grouped by trade.
 - [「今日契約すれば割引」は本当にお得？【リフォーム営業の心理】](https://shield.the-horizons-innovation.com/faq/kyoyaku-waribiki-hontou/): 『本日限定値引き』が危険な理由を建設30年プロが解説。即決を迫る営業は判断材料を奪う典型的な手口。
 - [リフォーム見積もりの諸経費、適正な比率は？【10〜16%が目安】](https://shield.the-horizons-innovation.com/faq/shokeihi-tekisei-hiritsu/): 諸経費（現場管理費・一般管理費）の適正比率は総額の10〜16%。20%超で内訳提出を求める根拠になる理由を解説。
 - [手抜き工事を見抜くポイント【外壁・屋根・防水】](https://shield.the-horizons-innovation.com/faq/tenuki-koji-miwake/): 外壁塗装の3回塗り省略、屋根の縁切り省略、防水の下地処理不足など、手抜き工事を見抜くポイントを建設30年プロが解説。
