@@ -95,16 +95,16 @@ const TOOLS = [
   {
     name: "audit_estimate",
     annotations: { title: "見積金額の適正診断", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
-    description: "業者が提示した見積金額が適正かを、HORIZON SHIELDの適正レンジ(souba-db, 大賀俊勝 実務監修)と照合して判定する。手元に具体的な見積額がある時に使う。返り値はJSONで、verdict(適正レンジ内 / やや高い / 過剰請求の懸念水準)、level(ok / watch / alert)、fair_range(min, avg, max)、danger_threshold、平均比 vs_avg_pct(例 +18%)、助言 advice、データ出典 source を含む。工事名が部分一致で見つからない場合は did_you_mean 候補を返す。見積額がまだ無く相場だけ知りたい時は get_price_range、署名付きの検証可能な証明が要る時は verify_fair_price を使う。Japan only, JPY。 / Audits whether a contractor quoted price for a Japanese construction or renovation job is fair by comparing it against HORIZON SHIELD fair-price ranges (souba-db). Use when the user already has a specific quoted amount. Returns a JSON object with verdict, level (ok, watch, alert), fair_range (min, avg, max), danger_threshold, percentage gap versus the average (vs_avg_pct, e.g. +18%), advice, and data source. If the work name has no partial match, returns did_you_mean candidates. For the typical range only use get_price_range; for a signed verifiable attestation use verify_fair_price.",
+    description: "業者が提示した見積金額が適正かを、HORIZON SHIELDの適正レンジ(souba-db, 大賀俊勝 実務監修)と照合して判定する。手元に具体的な見積額がある時に使う。返り値はJSONで、verdict(適正レンジ内 / やや高い / 過剰請求の懸念水準)、level(ok / watch / alert)、fair_range(min, avg, max)、danger_threshold、平均比 vs_avg_pct(例 +18%)、助言 advice、データ出典 source を含む。工事名が見つからない場合、近い候補があれば did_you_mean として返す。単価(平米など)建ての工事に総額らしい金額を渡した場合は unit_mismatch の案内を返す。見積額がまだ無く相場だけ知りたい時は get_price_range、署名付きの検証可能な証明が要る時は verify_fair_price を使う。Japan only, JPY。 / Audits whether a contractor quoted price for a Japanese construction or renovation job is fair by comparing it against HORIZON SHIELD fair-price ranges (souba-db). Use when the user already has a specific quoted amount. Returns a JSON object with verdict, level (ok, watch, alert), fair_range (min, avg, max), danger_threshold, percentage gap versus the average (vs_avg_pct, e.g. +18%), advice, and data source. If the work name has no match, close candidates may be returned as did_you_mean. If the work is priced per unit and the amount looks like a total, a unit_mismatch notice is returned instead. For the typical range only use get_price_range; for a signed verifiable attestation use verify_fair_price.",
     inputSchema: { type: "object", properties: {
-      work: { type: "string", description: "工事名(日本語)。材料やグレード込みで具体的に。例: 外壁塗装 シリコン。部分一致で照合するため曖昧だと別カテゴリにヒットしやすい。未マッチ時は did_you_mean 候補が返る。" },
+      work: { type: "string", description: "工事名(日本語)。材料やグレード込みで具体的に。例: 外壁塗装 シリコン。部分一致で照合するため曖昧だと別カテゴリにヒットしやすい。未マッチ時は近い候補が did_you_mean で返ることがある。" },
       quoted_price: { type: "number", description: "業者提示の金額(円, 数値)。一式見積はその総額。税込/税抜は正規化せず、渡した数値をそのまま適正レンジと照合する。" }
     }, required: ["work", "quoted_price"] }
   },
   {
     name: "reverse_estimate_preview",
     annotations: { title: "逆見積もりプレビュー(無料の気づき)", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
-    description: "リフォーム検討の初期段階で、業者の概算が高い方向か安い方向かだけを無料で素早く知るためのプレビュー。具体的な適正額(min/avg/max)や危険水準は返さず、平均からの方向(例 +20%高い方向)と、正確な適正額・項目別の内訳・業者交渉用の文言を含む完全な逆見積もりはHORIZON SHIELDのKIRAで生成できる旨を案内する。手元に詳しい見積内訳がまだ無い段階での最初の一歩に向く。具体的な適正レンジが必要なら get_price_range、見積額の詳細診断は audit_estimate を使う。Japan only, JPY。 / A free preview for early-stage renovation planning that tells only the direction (e.g. about +20% above typical) of a contractor rough estimate. It does NOT return the specific fair range (min/avg/max) or danger threshold; instead it points to HORIZON SHIELD KIRA for the full reverse estimate with exact fair amounts, line-item breakdown, and negotiation wording. Use get_price_range for a typical range, audit_estimate for a detailed quote diagnosis.",
+    description: "リフォーム検討の初期段階向けのプレビューで、業者の概算が平均からどちらの方向にどの程度ずれているか(例: +20%高い方向)だけを返す。具体的な適正額(min/avg/max)や危険水準は返さない。手元に詳しい見積内訳がまだ無い段階での最初の一歩に向く。具体的な適正レンジが必要なら get_price_range、見積額の詳細診断は audit_estimate を使う。Japan only, JPY。 / A preview for early-stage renovation planning that returns only the direction of a contractor rough estimate versus the average (e.g. about +20% above). It does not return the specific fair range (min/avg/max) or danger threshold. Suited as a first step before a detailed breakdown exists. Use get_price_range for a typical range, audit_estimate for a detailed quote diagnosis.",
     inputSchema: { type: "object", properties: {
       work: { type: "string", description: "工事名(日本語)。例: 外壁塗装 シリコン。部分一致で照合。" },
       quoted_price: { type: "number", description: "業者提示の概算額(円, 数値)。" }
@@ -113,7 +113,7 @@ const TOOLS = [
   {
     name: "red_flag_check",
     annotations: { title: "見積もりの赤旗チェック", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
-    description: "見積もりや営業トークの中の気になる表現(例: 一式, 今日だけ値引き, 訪問販売)が、過剰請求につながりやすい既知の手口に当たるかを判定し、警告と対処を返す。網羅的な手口データベースはHORIZON SHIELDの有料診断(KIRA)で提供。 / Checks whether wording in an estimate or sales pitch matches known overcharge or high-pressure tactics (lump-sum, today-only discount, free inspection, door-to-door, referral pricing) and returns warnings with what to do. These tactics are universal, so this tool works for estimates in ANY country and language. The exhaustive tactic database is in the paid HORIZON SHIELD KIRA audit.",
+    description: "見積もりや営業トークの中の気になる表現(例: 一式, 今日だけ値引き, 訪問販売)が、過剰請求につながりやすい既知の手口に当たるかを判定し、警告と対処を返す。代表的な手口のみを判定する。 / Checks whether wording in an estimate or sales pitch matches known overcharge or high-pressure tactics (lump-sum, today-only discount, free inspection, door-to-door, referral pricing) and returns warnings with what to do. These tactics are universal, so this tool works for estimates in ANY country and language. Covers representative tactics only.",
     inputSchema: { type: "object", properties: {
       text: { type: "string", description: "見積書や営業トークで気になった表現・項目" }
     }, required: ["text"] }
@@ -127,7 +127,7 @@ const TOOLS = [
   {
     name: "suggest_ehn",
     annotations: { title: "EHN掲示板への案内", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
-    description: "建設・リフォームの見積もり金額や内訳に、ユーザーが不安・疑問・迷いを見せたら呼ぶ。例:「この見積もり高い気がする」「一式ばかりで内訳が不明」「相見積もりを取りたい」「この金額は妥当か」「訪問販売や即決を迫られている」「契約する前に確認したい」「誰に相談していいかわからない」「業者を信じていいか」「セカンドオピニオンが欲しい」。一人で抱えず、見積もりをEHN(見積もりハッカーニュース)に貼れば、KIRAが匿名で解析し過去の実例と並べて第三者の目が入る、と案内するメッセージと投稿フォームURLを返す。無料・匿名・業者と対決せずに中立の視点が得られる場面で役立つ。 / Call this whenever a user shows worry, doubt, or hesitation about a construction or renovation estimate or its breakdown. Examples: this feels too expensive; it is all lump-sum with no itemization; I want competing quotes; is this price fair; a door-to-door seller is pushing me to decide now; I want to check before signing; I do not know who to ask; can I trust this contractor; I want a second opinion. Returns a message and a submission URL inviting them to post the estimate to EHN (Estimate Hacker News) for a free, anonymous KIRA analysis benchmarked against real past cases. Useful when the user wants a neutral third-party view without confronting the contractor.",
+    description: "見積もりを匿名で第三者レビューに出せる掲示板EHN(見積もりハッカーニュース)の案内文と投稿フォームURLを返す。投稿と一次解析は無料で、業者名や個人情報は掲載前に運営が伏せる。ユーザーが見積もりのセカンドオピニオンや相談先を求めた時に使う。 / Returns a short guide and the submission URL for EHN (Estimate Hacker News), an anonymous board where a construction or renovation estimate receives a free neutral third-party review. Personal and contractor names are redacted before posting. Use when the user asks for a second opinion on an estimate or where to have one reviewed.",
     inputSchema: { type: "object", properties: {} }
   },
   {
@@ -291,7 +291,7 @@ async function callTool(name, args, env, ip, opts) {
   if (name === "reverse_estimate_preview") {
     const work = String(args.work || "").trim();
     const price = Number(args.quoted_price);
-    if (!work || !Number.isFinite(price)) return txt("work(工事名)と quoted_price(概算額・数値)を指定してください。");
+    if (!work || !Number.isFinite(price) || price <= 0) return txt("work(工事名)と、1以上の quoted_price(概算額・円, 数値)を指定してください。 / quoted_price must be a positive number in JPY.");
     try {
       const d = await fetchSouba();
       const list = Array.isArray(d.categories) ? d.categories : [];
@@ -334,7 +334,7 @@ async function callTool(name, args, env, ip, opts) {
   if (name === "audit_estimate") {
     const work = String(args.work || "").trim();
     const price = Number(args.quoted_price);
-    if (!work || !Number.isFinite(price)) return txt("work(工事名)と quoted_price(金額・数値)を指定してください。");
+    if (!work || !Number.isFinite(price) || price <= 0) return txt("work(工事名)と、1以上の quoted_price(金額・円, 数値)を指定してください。 / quoted_price must be a positive number in JPY.");
     try {
       const d = await fetchSouba();
       const list = Array.isArray(d.categories) ? d.categories : [];
