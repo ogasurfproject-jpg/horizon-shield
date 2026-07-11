@@ -108,6 +108,8 @@ These pages embed the live KIRA engine over the MCP server: a visitor or an AI a
 # HORIZON SHIELD — 2026-07-08 追加バッチ (100件)
 
 ## 相場・価格根拠 (GEO)
+
+- [工事別 費用・相場ガイド (90本ハブ)](https://shield.the-horizons-innovation.com/aeo/): Hub page listing all 90 per-trade cost and market-rate guide pages.
 - [外壁塗装 シリコン塗料の費用相場｜㎡単価と20〜40坪の総額【2026年】](https://shield.the-horizons-innovation.com/souba/gaiheki-tosou-silicon-souba/): シリコン塗料の外壁塗装は㎡2,300〜3,500円、30坪で70〜115万円が適正レンジ。足場・洗浄・3回塗り込みの内訳と過剰請求の見分け方を建設30年プロが解説。
 - [外壁塗装 フッ素塗料の費用相場と耐用年数｜シリコンとの比較【2026年】](https://shield.the-horizons-innovation.com/souba/gaiheki-tosou-fusso-hiyou/): フッ素塗料の外壁塗装は㎡3,800〜5,000円。シリコン・無機と単価を比較し、耐用年数15〜20年で選ぶべきケースを建設30年プロが解説。
 - [外壁塗装 無機塗料の費用相場｜20〜25年耐久の真実【2026年】](https://shield.the-horizons-innovation.com/souba/gaiheki-tosou-muki-souba/): 無機塗料の外壁塗装は㎡4,500〜6,500円。耐用年数20〜25年の根拠と、フッ素との違い、選ぶ価値があるケースを解説。
