@@ -293,6 +293,14 @@ export default {
           headers: { "Content-Type": "application/json", ...CORS },
         });
       }
+      if (path === "/.well-known/glama.json") {
+        return new Response(JSON.stringify({
+          "$schema": "https://glama.ai/mcp/schemas/connector.json",
+          "maintainers": [{ "email": "ogasurfproject@gmail.com" }]
+        }, null, 2), {
+          headers: { "Content-Type": "application/json", ...CORS },
+        });
+      }
       return new Response(
         JSON.stringify({
           name: "hs-webmcp",
