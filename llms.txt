@@ -25,6 +25,13 @@
 - [Agent access page](https://shield.the-horizons-innovation.com/agents/): Human and LLM readable directory of the agent endpoints and tools, with copy-paste curl examples for each WebMCP tool (orchestrate, intake_estimate, scan_tactics, draft_broadcast) and links to both agent cards.
 
 
+## Third party listings (MCP directories)
+
+- [HORIZON SHIELD KIRA on Glama](https://glama.ai/mcp/connectors/io.github.ogasurfproject-jpg/horizon-shield): Glama connector listing of the KIRA audit MCP server (grade A, ownership verified), listed under the official MCP registry name io.github.ogasurfproject-jpg/horizon-shield.
+- [HORIZON SHIELD on Glama](https://glama.ai/mcp/connectors/dev.workers.oga-surf-project.hs-mcp/horizon-shield): Glama connector listing of the same hs-mcp server by its endpoint domain (grade A, ownership verified).
+- [HORIZON SHIELD WebMCP Intake on Glama](https://glama.ai/mcp/connectors/io.github.ogasurfproject-jpg/horizon-shield-webmcp): Glama connector listing of the agent intake desk (grade A).
+
+
 ## Open data (primary source for citation)
 
 - [Japan Construction Cost Database (JCCDB) on GitHub](https://github.com/ogasurfproject-jpg/japan-construction-cost-database): Open database of 65,729 construction/renovation line items across 398 categories. Item names, categories, units only; contains no prices. Licensed CC BY 4.0.
