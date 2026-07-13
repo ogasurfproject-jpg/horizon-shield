@@ -784,7 +784,7 @@ if(!sessionStorage.getItem('hs_seen')){
         <div class="det"><span class="det-dot"></span><span id="det-t">検出中...</span></div>
         <div class="pr-row">
           <div class="pr"><div class="pr-l">業者の見積もり相場</div><div class="pr-v" id="pv-c">---</div><div class="pr-n">業者によって大きく変動</div></div>
-          <div class="pr good"><div class="pr-l gl">SHIELD 適正価格</div><div class="pr-v gv" id="pv-s">---</div><div class="pr-n">65,729品目DB + WPC係数</div></div>
+          <div class="pr good"><div class="pr-l gl">SHIELD 適正価格</div><div class="pr-v gv" id="pv-s">---</div><div class="pr-n">65,729品目DB + 市況補正</div></div>
         </div>
         <div class="gap-bar"><div class="gap-l">あなたが守れる金額（推定）</div><div class="gap-v" id="pv-g">---</div></div>
         <div class="ctas">
@@ -991,7 +991,7 @@ if(!sessionStorage.getItem('hs_seen')){
                 <tr><td>養生・飛散防止</td><td class="sv">¥22,000</td><td class="ev">¥45,000</td><td class="dv">+¥23,000</td></tr>
                 <tr><td>下地処理・ケレン</td><td class="sv">¥35,000</td><td class="ev">¥80,000</td><td class="dv">+¥45,000</td></tr>
                 <tr><td>人件費（5日）</td><td class="sv">¥175,000</td><td class="ev">¥350,000</td><td class="dv">+¥175,000</td></tr>
-                <tr class="tot"><td>合計（WPC係数込）</td><td class="sv">¥503,800</td><td class="ev">¥875,000</td><td class="dv" style="font-size:.76rem">+¥371,200</td></tr>
+                <tr class="tot"><td>合計（市況補正込）</td><td class="sv">¥503,800</td><td class="ev">¥875,000</td><td class="dv" style="font-size:.76rem">+¥371,200</td></tr>
               </tbody>
             </table>
             <div class="save-row"><div class="sl">過剰請求を回避できた金額</div><div class="sn">¥371,200</div></div>
@@ -1010,7 +1010,7 @@ if(!sessionStorage.getItem('hs_seen')){
     <h2 class="sec-h2 rv">逆見積もり、<em>3ステップ</em></h2>
     <div class="how-steps">
       <div class="hstep rv"><div class="step-n">01</div><div class="step-t">工事内容を伝える</div><div class="step-d">KIRAに工事の内容・面積を話しかけるだけ。専門用語は不要です。</div><span class="step-tag">KIRA CHAT</span></div>
-      <div class="hstep rv d1"><div class="step-n">02</div><div class="step-t">AIが適正価格を算出</div><div class="step-d">65,729品目・WPC×1.0935係数込みの本来の価格が数分で出力されます。</div><span class="step-tag">PDF OUTPUT</span></div>
+      <div class="hstep rv d1"><div class="step-n">02</div><div class="step-t">AIが適正価格を算出</div><div class="step-d">65,729品目と最新市況の補正を織り込んだ本来の価格が数分で出力されます。</div><span class="step-tag">PDF OUTPUT</span></div>
       <div class="hstep rv d2"><div class="step-n">03</div><div class="step-t">業者と対等に交渉</div><div class="step-d">AIの数字を根拠に堂々と交渉。業者に嘘をつかせない盾になります。</div><span class="step-tag">SHA-256 PROOF</span></div>
     </div>
   </div>
