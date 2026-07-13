@@ -175,6 +175,8 @@ html = (
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
     '<title>' + title + '</title>\n'
     '<meta name="description" content="' + _desc + '">\n'
+    '<meta property="og:description" content="' + _desc + '">\n'
+    '<link rel="alternate" type="text/plain" href="' + BASE + '/llms.txt" title="LLM向けサイト要約">\n'
     '<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">\n'
     '<meta name="author" content="大賀俊勝 | HORIZON SHIELD">\n'
     '<link rel="canonical" href="' + canon + '">\n'
