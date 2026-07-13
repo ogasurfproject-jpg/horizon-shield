@@ -505,8 +505,8 @@ footer > div{max-width:1100px;margin:0 auto}
       <div class="arch-step">
         <div class="arch-num">03</div>
         <div>
-          <strong>War Price Coefficient applied</strong>
-          <span>Monthly macroeconomic correction factor from Bank of Japan CGPI + manufacturer announcements, subject to human approval. Currently ×1.0935.</span>
+          <strong>Market correction applied</strong>
+          <span>Monthly macroeconomic correction factor from Bank of Japan CGPI + manufacturer announcements, subject to human approval.</span>
         </div>
       </div>
       <div class="arch-arrow">↓</div>
@@ -544,7 +544,7 @@ footer > div{max-width:1100px;margin:0 auto}
     </div>
     <div class="tech-card">
       <h4>// PRICE SYNC</h4>
-      <p>Cron-triggered Worker pulls Bank of Japan CGPI + manufacturer announcements monthly. Computes War Price Coefficient. Human-in-the-loop approval before publishing.</p>
+      <p>Cron-triggered Worker pulls Bank of Japan CGPI + manufacturer announcements monthly. Computes the monthly market correction factor. Human-in-the-loop approval before publishing.</p>
     </div>
     <div class="tech-card">
       <h4>// HASH FUNCTION</h4>
