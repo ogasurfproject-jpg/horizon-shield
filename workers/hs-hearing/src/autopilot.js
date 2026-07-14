@@ -191,11 +191,12 @@ export function mergeProfiles(base, incoming) {
 async function sendEmailRaw(env, { to, subject, html }) {
   if (!env.RESEND_API_KEY) return { ok: false, reason: "RESEND_API_KEY 未設定" };
   const from = env.HEARING_FROM || "Yakumo <hearing@the-horizons-innovation.com>";
+  const replyTo = env.HEARING_REPLY_TO || "contact@the-horizons-innovation.com";
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
-      body: JSON.stringify({ from, to, subject, html }),
+      body: JSON.stringify({ from, to, reply_to: replyTo, subject, html }),
     });
     return { ok: r.ok, status: r.status };
   } catch (e) { return { ok: false, reason: String(e).slice(0, 80) }; }
@@ -226,8 +227,11 @@ export async function sendQuestions(env, store, questions, kind) {
   if (store.email) {
     const refTag = store.token ? " / ref:" + store.token : "";
     const subject = (kind === "nudge" ? "【Yakumo ご様子うかがい" : "【Yakumo 追加ヒアリング") + refTag + "】" + company;
+    const formLink = store.token
+      ? '<p style="font-size:13px;"><a href="https://shield.the-horizons-innovation.com/yakumo/register/?code=' + store.token + '">フォームから追記する場合はこちら</a>(前回の続きから入力できます)</p>'
+      : "";
     const html = '<div style="font-family:sans-serif;line-height:1.9;color:#222;"><p>' +
-      intro.replace(/\n/g, "<br>") + "</p><p>" + qText.replace(/\n/g, "<br>") + "</p>" +
+      intro.replace(/\n/g, "<br>") + "</p><p>" + qText.replace(/\n/g, "<br>") + "</p>" + formLink +
       '<p style="color:#888;font-size:12px;">このメールにそのまま返信してください。The HORIZ音s株式会社 / HORIZON SHIELD / Yakumo</p></div>';
     const r = await sendEmailRaw(env, { to: store.email, subject, html });
     if (r.ok) return { ok: true, via: "email" };

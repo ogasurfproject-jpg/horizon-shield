@@ -6,7 +6,7 @@
  *  - fail-closed。検証できないもの・不明なものは出さない・返さない。
  *  - 金額は施主向けに出さない(スコア・ティアのみ)。見積もり例は監査用にKVへ保存するだけ。
  *  - 会社名は The HORIZ音s株式会社(音インタクト)。em/en/bar dash 不使用。
- *  - MCP面は read-only・CORS開放。堀(souba中身/WPC/PTKA実装)は一切露出しない。
+ *  - MCP面は read-only・CORS開放。堀(内部実装の詳細)は一切露出しない。
  *
  * バインド(wrangler.jsonc):
  *  KV  HS_HEARING_KV
@@ -417,20 +417,28 @@ async function notify(env, text) {
   if (env.NTFY_TOPIC_URL) jobs.push(fetch(env.NTFY_TOPIC_URL, { method: "POST", body: text.slice(0, 1900) }).catch(() => {}));
   await Promise.all(jobs);
 }
-async function sendHearingEmail(env, { to, token, company, origin }) {
+async function sendHearingEmail(env, { to, token, company, memberNo, origin }) {
   if (!env.RESEND_API_KEY) return { ok: false, reason: "RESEND_API_KEY 未設定" };
   const from = env.HEARING_FROM || "Yakumo <hearing@the-horizons-innovation.com>";
+  const replyTo = env.HEARING_REPLY_TO || "contact@the-horizons-innovation.com";
   const link = "https://shield.the-horizons-innovation.com/yakumo/register/?code=" + token;
-  const subject = "【Yakumo 加盟店ヒアリングのお願い / ref:" + token + "】" + (company || "");
+  const subject = "【Yakumo】ご加盟の御礼とヒアリングのお願い(約5分) / ref:" + token;
+  const welcome = memberNo ? "加盟" + memberNo + "として、心より歓迎いたします。" : "ご加盟を心より歓迎いたします。";
   const htmlBody =
-    '<div style="font-family:sans-serif;line-height:1.8;color:#222;">' +
-    '<p>' + (company || "") + ' ご担当者さま</p>' +
-    '<p>Yakumo(HORIZON SHIELD)加盟の手続きとして、簡単なヒアリングにご協力ください。下記フォームから約5分で完了します。</p>' +
+    '<div style="font-family:sans-serif;line-height:1.9;color:#222;">' +
+    '<p>' + (company || "ご担当者") + ' さま</p>' +
+    '<p>いつもお世話になっております。Yakumo(HORIZON SHIELD)運営、The HORIZ音s株式会社の大賀です。</p>' +
+    '<p>このたびはYakumoへのご加盟、誠にありがとうございます。' + welcome + '</p>' +
+    '<p>Yakumoは、紹介料を受け取らない中立の加盟店モールです。適正価格の第三者検証(KIRA)を通った店だけを、施主、AI、検索の三方に並べ、貴社が見つけてもらえる導線の運営を当方が代行します。</p>' +
+    '<p>さっそくですが、貴社の紹介ページ群を作成するため、ヒアリングにご協力ください。下記から約5分で入力できます。</p>' +
     '<p><a href="' + link + '" style="display:inline-block;background:#15847a;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:700;">ヒアリングフォームを開く</a></p>' +
-    '<p style="color:#666;font-size:13px;">フォームが開けない場合は、このメールにそのままご返信いただいても構いません。内容を確認して手続きします（件名はそのままにしてください）。</p>' +
-    '<p style="color:#888;font-size:12px;">The HORIZ音s株式会社 / HORIZON SHIELD / Yakumo ・ TEL 0463-74-5917</p></div>';
+    '<p style="font-size:14px;color:#444;">・途中保存も再送信もできます。分からない所は空欄で大丈夫です。<br>' +
+    '・フォームが難しければ、このメールにそのままご返信いただく形でも結構です(件名は変えずにお願いします)。<br>' +
+    '・「実際の見積もり例」は1から3件お願いしています。適正診断(KIRA)にだけ使い、金額は一切公開しません。公開されるのはスコアと検証状態のみです。</p>' +
+    '<p style="font-size:14px;color:#444;">ご回答をいただきますと、紹介ページを作成し掲載を開始します。適正診断を通過しましたら表示が「検証済み」に切り替わります。それまでの間は「検証手続き中」と正直に表示する運用です。</p>' +
+    '<p style="color:#888;font-size:12px;">The HORIZ音s株式会社(HORIZON SHIELD / Yakumo運営) 代表取締役 大賀俊勝 ・ TEL 0463-74-5917 ・ <a href="https://shield.the-horizons-innovation.com/yakumo/">Yakumoモール</a></p></div>';
   try {
-    const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ from, to, subject, html: htmlBody }) });
+    const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ from, to, reply_to: replyTo, subject, html: htmlBody }) });
     const j = await r.json().catch(() => ({}));
     return { ok: r.ok, status: r.status, id: j.id, hearing_url: link };
   } catch (e) { return { ok: false, reason: String(e).slice(0, 80) }; }
@@ -440,6 +448,7 @@ async function sendHearingEmail(env, { to, token, company, origin }) {
 async function sendGreetingEmail(env, { to, company }) {
   if (!env.RESEND_API_KEY) return { ok: false, reason: "RESEND_API_KEY 未設定" };
   const from = env.HEARING_FROM || "Yakumo <hearing@the-horizons-innovation.com>";
+  const replyTo = env.HEARING_REPLY_TO || "contact@the-horizons-innovation.com";
   const subject = "Yakumo 加盟 御礼のごあいさつ" + (company ? " / " + company : "");
   const html =
     '<div style="font-family:sans-serif;line-height:1.9;color:#222;">' +
@@ -449,7 +458,7 @@ async function sendGreetingEmail(env, { to, company }) {
     '<p>来週より、簡単なヒアリング(工種・エリア・強みなど)を順にお願いしてまいります。まずは御礼のごあいさつまで。どうぞよろしくお願いいたします。</p>' +
     '<p style="color:#888;font-size:12px;">The HORIZ音s株式会社 / HORIZON SHIELD / Yakumo ・ TEL 0463-74-5917</p></div>';
   try {
-    const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ from, to, subject, html }) });
+    const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ from, to, reply_to: replyTo, subject, html }) });
     return { ok: r.ok, status: r.status };
   } catch (e) { return { ok: false, reason: String(e).slice(0, 80) }; }
 }
@@ -506,6 +515,15 @@ async function ingestHearingAnswer(env, store_id, store, text, source) {
     store.autopilot = ap;
     await env.HS_HEARING_KV.put("store:" + store_id, JSON.stringify(store));
     await AP.activityAdd(env, { type: "answered", member_no: store.member_no, text: (store.company || "加盟店") + " がヒアリングに回答しました(完成度 " + ap.completeness + "%)" });
+  }
+  // 薄いページを構造的に作らない: 完成度が基準未満なら生成を保留し、追撃質問で厚みを取りにいく
+  const genMin = Number(env.GEN_MIN_COMPLETENESS || 60);
+  const compNow = store && store.autopilot && store.autopilot.completeness != null
+    ? store.autopilot.completeness
+    : AP.computeCompleteness(profile, (store && store.autopilot) || {}).score;
+  if (compNow < genMin) {
+    await notify(env, "[Yakumo] 回答を取り込み。完成度" + compNow + "%が基準" + genMin + "%未満のため生成を保留。追撃質問で補完する。store=" + store_id);
+    return { ok: true, gen: { triggered: false, held: true, completeness: compNow, min: genMin } };
   }
   const gen = await triggerGeneration(env, profile, store);
   return { ok: true, gen };
@@ -727,7 +745,18 @@ export default {
           await env.HS_HEARING_KV.put("store:" + tokRec.store_id, JSON.stringify(store));
           await AP.activityAdd(env, { type: "answered", member_no: store.member_no, text: (store.company || "加盟店") + " がヒアリングに回答しました(完成度 " + ap2.completeness + "%)" });
         }
-        const gen = await triggerGeneration(env, profile, store);  // 検証通過なら公開まで全自動(GitHub Action側でfail-closed検証)
+        // 薄いページを構造的に作らない: 完成度が基準未満なら生成を保留し、追撃質問で厚みを取りにいく
+        const genMin = Number(env.GEN_MIN_COMPLETENESS || 60);
+        const compNow = store && store.autopilot && store.autopilot.completeness != null
+          ? store.autopilot.completeness
+          : AP.computeCompleteness(profile, (store && store.autopilot) || {}).score;
+        let gen;
+        if (compNow >= genMin) {
+          gen = await triggerGeneration(env, profile, store);  // 検証通過なら公開まで全自動(GitHub Action側でfail-closed検証)
+        } else {
+          gen = { triggered: false, held: true, completeness: compNow, min: genMin };
+          await notify(env, "[Yakumo] フォーム回答を受信。完成度" + compNow + "%が基準" + genMin + "%未満のため生成を保留。追撃質問で補完する。store=" + tokRec.store_id);
+        }
         return json({ ok: true, generation: gen });
       }
     }
@@ -779,7 +808,7 @@ export default {
         if (!tok || !to) return json({ error: "token と to が必要" }, 400);
         const tokRec = await env.HS_HEARING_KV.get("htok:" + tok, "json");
         if (!tokRec) return json({ error: "unknown_token" }, 404);
-        const res = await sendHearingEmail(env, { to, token: tok, company: tokRec.company, origin: url.origin });
+        const res = await sendHearingEmail(env, { to, token: tok, company: tokRec.company, memberNo: tokRec.member_no, origin: url.origin });
         return json(res, res.ok ? 200 : 502);
       }
 
