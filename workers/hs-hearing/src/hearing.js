@@ -422,6 +422,7 @@ async function sendHearingEmail(env, { to, token, company, memberNo, origin }) {
   const from = env.HEARING_FROM || "Yakumo <hearing@the-horizons-innovation.com>";
   const replyTo = env.HEARING_REPLY_TO || "contact@the-horizons-innovation.com";
   const link = "https://shield.the-horizons-innovation.com/yakumo/register/?code=" + token;
+  const refLink = memberNo ? "https://shield.the-horizons-innovation.com/yakumo/apply/?ref=" + encodeURIComponent(memberNo) : "https://shield.the-horizons-innovation.com/yakumo/apply/";
   const subject = "【Yakumo】ご加盟の御礼とヒアリングのお願い(約5分) / ref:" + token;
   const welcome = memberNo ? "加盟" + memberNo + "として、心より歓迎いたします。" : "ご加盟を心より歓迎いたします。";
   const htmlBody =
@@ -436,6 +437,10 @@ async function sendHearingEmail(env, { to, token, company, memberNo, origin }) {
     '・フォームが難しければ、このメールにそのままご返信いただく形でも結構です(件名は変えずにお願いします)。<br>' +
     '・「実際の見積もり例」は1から3件お願いしています。適正診断(KIRA)にだけ使い、金額は一切公開しません。公開されるのはスコアと検証状態のみです。</p>' +
     '<p style="font-size:14px;color:#444;">ご回答をいただきますと、紹介ページを作成し掲載を開始します。適正診断を通過しましたら表示が「検証済み」に切り替わります。それまでの間は「検証手続き中」と正直に表示する運用です。</p>' +
+    '<div style="margin-top:18px;padding:14px 16px;border:1px solid #d7e3e0;border-radius:10px;background:#f4f9f8;font-size:14px;color:#333;">' +
+    '<p style="margin:0 0 6px;font-weight:700;">信頼できる職人仲間のご紹介をお願いできませんか</p>' +
+    '<p style="margin:0 0 10px;">Yakumoは紹介料を取らない中立モールです。適正価格で誠実に仕事をされている工務店・リフォーム店をご存じでしたら、下記のリンクをそのままお渡しください。貴社からのご紹介として承ります。</p>' +
+    '<p style="margin:0;"><a href="' + refLink + '" style="color:#15847a;font-weight:700;">' + refLink + '</a></p></div>' +
     '<p style="color:#888;font-size:12px;">The HORIZ音s株式会社(HORIZON SHIELD / Yakumo運営) 代表取締役 大賀俊勝 ・ TEL 0463-74-5917 ・ <a href="https://shield.the-horizons-innovation.com/yakumo/">Yakumoモール</a></p></div>';
   try {
     const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ from, to, reply_to: replyTo, subject, html: htmlBody }) });
@@ -667,6 +672,10 @@ export default {
         completeness: ap.completeness != null ? ap.completeness : null,
         pending_question: (ap.pending && ap.pending.text) || null,
         referral_count: refs,
+        // 紹介導線: この店専用の紹介リンク(他の工務店を誘う口)。member_noが無ければ汎用applyを返す。
+        referral_link: store.member_no
+          ? "https://shield.the-horizons-innovation.com/yakumo/apply/?ref=" + encodeURIComponent(store.member_no)
+          : "https://shield.the-horizons-innovation.com/yakumo/apply/",
       });
     }
 
@@ -810,6 +819,29 @@ export default {
         if (!tokRec) return json({ error: "unknown_token" }, 404);
         const res = await sendHearingEmail(env, { to, token: tok, company: tokRec.company, memberNo: tokRec.member_no, origin: url.origin });
         return json(res, res.ok ? 200 : 502);
+      }
+
+      // メール返信の全自動取り込み(Google Apps Script 橋渡し用)。
+      // MXがGoogle Workspaceのため Cloudflare Email Routing は使わず、Apps Scriptが受信箱を見張って
+      // ref:トークン付きの返信本文をここへPOSTする。件名tokenか送信元emailで店に照合し、同じ ingest 経路へ。
+      if (path === "/admin/email-ingest" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const text = safeStr(b.text, 6000);
+        if (!text) return json({ error: "text が必要" }, 400);
+        let sid = null;
+        const tok = safeStr(b.token, 60).replace(/[^A-Za-z0-9_-]/g, "");
+        if (tok) {
+          const rec = await env.HS_HEARING_KV.get("htok:" + tok, "json");
+          if (rec) sid = rec.store_id;
+        }
+        if (!sid && b.from) {
+          const fromAddr = safeStr(b.from, 120).toLowerCase();
+          sid = await env.HS_HEARING_KV.get("email2store:" + fromAddr, "text");
+        }
+        if (!sid) return json({ ok: false, reason: "unresolved(tokenもfromも店に紐づかず)" }, 404);
+        const store = await env.HS_HEARING_KV.get("store:" + sid, "json");
+        const res = await ingestHearingAnswer(env, sid, store, text, "email");
+        return json({ ok: res.ok, store_id: sid, result: res });
       }
 
       // 初回あいさつメール(TOshi方針: 初回はあいさつ、本格ヒアリングは翌週 send-hearing で)
