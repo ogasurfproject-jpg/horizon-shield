@@ -2,6 +2,8 @@
 
 > A **Model Context Protocol (MCP)** server that lets AI agents check whether a Japanese construction or renovation estimate is fair, against open data, and return a verifiable result.
 
+[![HORIZON SHIELD KIRA on Glama](https://glama.ai/mcp/servers/ogasurfproject-jpg/horizon-shield/badges/score.svg)](https://glama.ai/mcp/servers/ogasurfproject-jpg/horizon-shield)
+
 This repository is an **MCP server implementation**. It exposes read-only tools over the Model Context Protocol so that MCP-compatible clients and AI agents (Claude, and any other MCP host) can call construction-cost verification as a tool, not just read a web page.
 
 - **Protocol:** Model Context Protocol (MCP)
@@ -63,6 +65,27 @@ Returns a verdict (for example, overcharge-risk), the fair range (min, avg, max)
 
 - Fair-price data is built on the openly published **JCCDB** dataset (65,729 Japanese construction line items, CC BY 4.0).
 - The verification model, PTKA (Pre-Transaction Knowledge Anchoring), is documented in the VRQ framework preprinted on SSRN, and anchored on the Bitcoin blockchain (independent of any company).
+
+## Verifiable verdict receipts
+
+Twenty real overcharge diagnoses are published as tamper-evident receipts. Each verdict is served at its own URL, with three artifacts at the same path:
+
+- `claim.txt`: the canonical claim as raw bytes
+- its SHA-256 digest
+- `proof.ots`: an OpenTimestamps proof anchored to the Bitcoin blockchain (raw binary, no wrapper)
+
+Anyone can re-verify a verdict in two lines, with no trust in the issuer:
+
+```
+sha256sum claim.txt
+ots verify -f claim.txt proof.ots
+```
+
+If any figure were changed after the fact, the hash would stop matching. This is the floor for a third-party audit: the reader checks the number instead of trusting it.
+
+- Index of the 20 receipts: https://shield.the-horizons-innovation.com/souba/kajou-seikyu-jirei-20/
+- Example (exterior wall repaint, 39.9 percent overcharge): https://shield.the-horizons-innovation.com/souba/kajou-seikyu-jirei-20/v/K7mX2pQ9nR4s/
+- The dataset these verdicts belong to is anchored at Bitcoin block 949356.
 
 ## Author
 
