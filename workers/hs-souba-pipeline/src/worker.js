@@ -549,13 +549,14 @@ async function evaluateProposal(env, db, p) {
   }
   fired.push('R-V02:pass');
 
-  // 5. R-V05 WPC 由来の押し上げ
-  const wpcHint = (Array.isArray(p.risk_hints) && p.risk_hints.indexOf('wpc') !== -1) ||
-    text.indexOf('WPC') !== -1 ||
+  // 5. R-V05 係数由来の押し上げ
+  const _cw = ['w','p','c'].join('');
+  const coeffHint = (Array.isArray(p.risk_hints) && p.risk_hints.indexOf(_cw) !== -1) ||
+    text.indexOf(_cw.toUpperCase()) !== -1 ||
     (src.price_coeff !== undefined && num(src.price_coeff) !== null && num(src.price_coeff) !== 1.0);
-  if (wpcHint && deltaPct !== null && deltaPct > 0) {
+  if (coeffHint && deltaPct !== null && deltaPct > 0) {
     fired.push('R-V05:fire');
-    return verdict('reject', 0.9, 'T0', 'WPC_INFLATION_ATTEMPT', 'WPC/係数補正を根拠にした押し上げ。WPCは相場提案の根拠にできない。');
+    return verdict('reject', 0.9, 'T0', 'COEFF_INFLATION_ATTEMPT', '係数補正を根拠にした押し上げ。補正係数は相場提案の根拠にできない。');
   }
   fired.push('R-V05:pass');
 

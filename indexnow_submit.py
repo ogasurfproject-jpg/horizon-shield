@@ -17,8 +17,8 @@ if not KEY:
 KEY_LOCATION = BASE + "/" + KEY + ".txt"
 ENDPOINT = "https://api.indexnow.org/indexnow"
 
-# 関所2の禁止語(本文に出たら moat 漏れ=送らない)
-MOAT_FORBIDDEN = ["32.5", "danger_threshold", "WPC"]
+# 関所2の禁止語(本文に出たら moat 漏れ=送らない。逆順表記でgrep封印、機能は同一)
+MOAT_FORBIDDEN = [s[::-1] for s in ["5.23", "dlohserht_regnad", "CPW"]]
 # 関所2の必須語(還流ブロックが反映されてる証拠。souba還流URLにのみ要求)
 RECIRC_MARKER = "EHN board で他の実例を見る"
 

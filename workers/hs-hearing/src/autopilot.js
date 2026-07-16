@@ -230,8 +230,9 @@ export async function sendQuestions(env, store, questions, kind) {
     const formLink = store.token
       ? '<p style="font-size:13px;"><a href="https://shield.the-horizons-innovation.com/yakumo/register/?code=' + store.token + '">フォームから追記する場合はこちら</a>(前回の続きから入力できます)</p>'
       : "";
+    const lineInvite = '<p style="font-size:13px;">やり取りはLINEでも可能です。HORIZON SHIELD公式LINE(ID: @172piime)の友だち追加はこちら: <a href="https://line.me/R/ti/p/@172piime">https://line.me/R/ti/p/@172piime</a></p>';
     const html = '<div style="font-family:sans-serif;line-height:1.9;color:#222;"><p>' +
-      intro.replace(/\n/g, "<br>") + "</p><p>" + qText.replace(/\n/g, "<br>") + "</p>" + formLink +
+      intro.replace(/\n/g, "<br>") + "</p><p>" + qText.replace(/\n/g, "<br>") + "</p>" + formLink + lineInvite +
       '<p style="color:#888;font-size:12px;">このメールにそのまま返信してください。The HORIZ音s株式会社 / HORIZON SHIELD / Yakumo</p></div>';
     const r = await sendEmailRaw(env, { to: store.email, subject, html });
     if (r.ok) return { ok: true, via: "email" };

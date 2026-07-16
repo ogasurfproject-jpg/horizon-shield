@@ -23,7 +23,7 @@
  * 追加のバインディング不要（既存のKIRA_STATS, ORDERSをそのまま使う）
  * 追加のシークレット不要（既存のANTHROPIC_API_KEYをそのまま使う）
  */
-let PRICE_COEFF = 1.0; // ★戦時価格係数（hs-price-syncから取得）
+let PRICE_COEFF = 1.0; // ★価格補正係数（hs-price-syncから取得）
 const KIRA_SYSTEM_PROMPT = `あなたはKIRA（建設費診断AI）です。The HORIZ音s株式会社が提供する建設費診断サービス「HORIZON SHIELD」のAIアシスタントです。
 
 【KIRAの人格】
@@ -2671,7 +2671,7 @@ function extractPlanPrice(p, planType) {
   const price = p.HS基準価格_万円 || (p.hs_rule_estimate_jpy ? p.hs_rule_estimate_jpy / 10000 : null) || (p.hs_rule_jpy ? p.hs_rule_jpy / 10000 : null) || (p.estimated_total_jpy ? avgRange(p.estimated_total_jpy) / 10000 : null) || (p.price_jpy ? avgRange(p.price_jpy) / 10000 : null);
   if (!price) return null;
   const mul = (PLAN_PROFIT_MULTIPLIER[planType].multiplier_min + PLAN_PROFIT_MULTIPLIER[planType].multiplier_max) / 2;
-  const total_man_en = Math.round(price * mul * PRICE_COEFF);  // ★戦時係数適用（v11-SAFE-bugfix01）
+  const total_man_en = Math.round(price * mul * PRICE_COEFF);  // ★価格補正係数適用（v11-SAFE-bugfix01）
   return { name: p.name, total_man_en, total: total_man_en * 10000, work_days: p.work_days || null, scope: p.scope || null, message: `${p.name}（${PLAN_PROFIT_MULTIPLIER[planType].target_business}）`, _coeff_applied: PRICE_COEFF };
 }
 
@@ -3449,7 +3449,7 @@ ${claudeAnswer}
 
 【診断方針】
 ・工事内容・数量・単価・合計を読み取る。
-・souba-db の相場（後述の実データ）と照合する。資材高騰補正としてWPC（戦時価格係数）×1.0935を必要に応じ考慮する。
+・souba-db の相場（後述の実データ）と照合する。資材高騰の補正が必要な場合は、システム側の価格補正係数（hs-price-sync連携の承認済み値）の水準を考慮する。
 ・判定は段階的に：白（適正）／グレー（要確認）／黒（過剰の疑い）。施主が認証を断れる判定にする。
 ・過剰の疑いは必ず具体的な円金額のレンジで指摘する。
 ・相場データが薄い品目は「相場データ不足」と正直に言う。捏造で相場を作らない。
@@ -3523,7 +3523,7 @@ ${claudeAnswer}
         const estimateText = (body.estimate || '').toString().trim();
         const memo = (body.memo || '').toString().trim();
         const files = Array.isArray(body.files) ? body.files : [];
-        // ★戦時価格係数を最新化（逆見積もりと同方式・hs-price-sync承認済み値を動的取得）
+        // ★価格補正係数を最新化（逆見積もりと同方式・hs-price-sync承認済み値を動的取得）
         try {
           const _wc = await fetch('https://hs-price-sync.oga-surf-project.workers.dev/current-coefficient');
           if (_wc.ok) { const _wd = await _wc.json(); PRICE_COEFF = _wd.coefficient || 1.0; }
@@ -3545,7 +3545,7 @@ ${claudeAnswer}
 
 【監査の着眼点】
 ・souba-db相場と照合。相場データが薄い品目は正直に「相場不足」と言い捏造しない。住宅用小型品の相場を特殊・大型・業務用工事に当てて過剰判定しない（相場欠損による幻の過剰判定の回避）。
-・【★戦時価格係数（最新・自動取得）】現在の戦時価格係数は ${PRICE_COEFF} 倍（hs-price-syncの承認済み値を本監査の都度自動取得）。これは2025年以降の中東情勢・資材高騰を日銀CGPIから算出した公的補正である。souba-dbの相場は平時基準のため、相場の妥当ラインを判定する際は、この係数を反映した水準（相場×${PRICE_COEFF}前後）を「現在の適正上限」とみなすこと。平時相場をそのまま上限として過剰判定してはならない（戦時下では平時比で上振れするのが正常）。
+・【★価格補正係数（最新・自動取得）】現在の価格補正係数は ${PRICE_COEFF} 倍（hs-price-syncの承認済み値を本監査の都度自動取得）。これは2025年以降の中東情勢・資材高騰を日銀CGPIから算出した公的補正である。souba-dbの相場は平時基準のため、相場の妥当ラインを判定する際は、この係数を反映した水準（相場×${PRICE_COEFF}前後）を「現在の適正上限」とみなすこと。平時相場をそのまま上限として過剰判定してはならない（資材高騰下では平時比で上振れするのが正常）。
 ・【★メーカー供給アラート（最重要・価格より先に警告）】下記は現在進行中の供給制約・受注停止・大幅値上げである。見積書または相談内容に該当工種・該当資材が含まれる場合、価格の妥当性を論じる前に、まず供給状況・納期リスク・代替提案を必ず明示すること。「いくらで出来る」と即答する前に「そもそも今は入手・着工に制約がある」事実を施主に伝えるのが最上級監査の責務である：
   - 浴室・トイレ（ユニットバス/トイレユニット）：TOTO・LIXILが2026/4/13〜新規受注停止中。代替としてタカラスタンダードを推奨。納期・入手に重大な制約あり。
   - 屋根・防水・雨漏り（ルーフィング類）：田島ルーフィング等が2026/5/1〜+40〜50%値上げ。5月以降着工分が値上げ対象。

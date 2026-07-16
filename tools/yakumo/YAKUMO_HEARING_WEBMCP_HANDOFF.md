@@ -19,7 +19,7 @@
 生成 → 公開の間に、機械の関所を2枚置いた。1枚でも落ちたら**公開しない**。
 
 - **関所A(静的・公開前)** `tools/yakumo/validate.py`:
-  JSON-LD が全て正当なJSONで @type/@context を持つ / canonical がパスと一致 / robots=index,follow / title・description・author 有り / 禁止語(MOAT: `32.5` `danger_threshold` `WPC`)なし / em・en・bar dash なし / **金額数字なし**(施主向け) / モール+HSへのバックリンク有り / 裸相対リンクなし。**1枚でもNGなら Action が失敗し commit されない。**
+  JSON-LD が全て正当なJSONで @type/@context を持つ / canonical がパスと一致 / robots=index,follow / title・description・author 有り / 禁止語(MOAT語。実リストは validate.py の MOAT_FORBIDDEN を参照)なし / em・en・bar dash なし / **金額数字なし**(施主向け) / モール+HSへのバックリンク有り / 裸相対リンクなし。**1枚でもNGなら Action が失敗し commit されない。**
 - **関所B(実弾・送信前)** `indexnow_submit.py`(既存・3関所):
   各URLを物理再チェックし 200 / MOAT漏れなし を満たすものだけ IndexNow へ。落ちたURLは送らない。GitHub Pages 未反映のURLは自動で除外される。
 

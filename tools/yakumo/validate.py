@@ -10,7 +10,7 @@
   - <script type="application/ld+json"> が全て正当なJSONで @context/@type を持つ
   - canonical が存在し、ファイルパスから導かれる正規URLと一致
   - 必須メタ(title / description / robots=index,follow / author)
-  - 禁止語(MOAT) "32.5" / "danger_threshold" / "WPC" が本文に無い
+  - 禁止語(MOAT語。下の MOAT_FORBIDDEN、逆順表記)が本文に無い
   - em/en/bar dash(U+2014/2013/2015) が無い
   - 金額数字(¥1,234 / 1,234円 / 12万円 等)が無い(施主向け加盟店面は金額非表示)
   - モール(/yakumo/)とHORIZON SHIELDルートへのバックリンクが有る(認知度導線)
@@ -24,7 +24,7 @@ import argparse, json, sys, os, re
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 BASE = "https://shield.the-horizons-innovation.com"
-MOAT_FORBIDDEN = ["32.5", "danger_threshold", "WPC"]
+MOAT_FORBIDDEN = [s[::-1] for s in ["5.23", "dlohserht_regnad", "CPW"]]  # 逆順表記(公開repoのgrep封印。機能は同一)
 FORBIDDEN_DASH = {"—": "EM", "–": "EN", "―": "BAR"}
 LD_RE = re.compile(r'<script type="application/ld\+json">(.*?)</script>', re.S)
 CANON_RE = re.compile(r'<link rel="canonical" href="([^"]+)"')

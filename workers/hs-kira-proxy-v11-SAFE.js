@@ -23,7 +23,7 @@
  * 追加のバインディング不要（既存のKIRA_STATS, ORDERSをそのまま使う）
  * 追加のシークレット不要（既存のANTHROPIC_API_KEYをそのまま使う）
  */
-let PRICE_COEFF = 1.0; // ★戦時価格係数（hs-price-syncから取得）
+let PRICE_COEFF = 1.0; // ★価格補正係数（hs-price-syncから取得）
 const KIRA_SYSTEM_PROMPT = `あなたはKIRA（建設費診断AI）です。The HORIZ音s株式会社が提供する建設費診断サービス「HORIZON SHIELD」のAIアシスタントです。
 
 【KIRAの人格】
