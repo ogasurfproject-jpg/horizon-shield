@@ -66,6 +66,21 @@
           "@type": "PropertyValue",
           "propertyID": "reduction_rate_percent",
           "value": "45.9"
+        },
+        {
+          "@type": "PropertyValue",
+          "propertyID": "canonical_claim",
+          "value": "https://shield.the-horizons-innovation.com/souba/kajou-seikyu-jirei-20/v/A3nL8vT1mP6w/claim.txt"
+        },
+        {
+          "@type": "PropertyValue",
+          "propertyID": "claim_sha256",
+          "value": "63807af47163dd83dae510f30d1fe428f00350cd55ae62da1e83d7c7e4708054"
+        },
+        {
+          "@type": "PropertyValue",
+          "propertyID": "ots_proof",
+          "value": "https://shield.the-horizons-innovation.com/souba/kajou-seikyu-jirei-20/v/A3nL8vT1mP6w/proof.ots"
         }
       ],
       "isPartOf": {
@@ -171,6 +186,7 @@
     <h2>検証可能性(レシート)</h2>
     <p class="proof">この判定は識別子 <b class="hash">audit_hash A3nL8vT1mP6w</b> を持ちます。この audit_hash は「HORIZON SHIELD 診断事例データセット v3.0」の一部として宣言され、そのデータセット宣言は <b>Bitcoin Block #949356</b> にアンカーされています。よって数字を後から書き換えることはできません。元データは<a href="https://github.com/ogasurfproject-jpg/horizon-shield-diagnosis-examples">GitHubで公開</a>しています。</p>
     <p class="proof">この1件の判定は、単独のURL(https://shield.the-horizons-innovation.com/souba/kajou-seikyu-jirei-20/v/A3nL8vT1mP6w/)で参照・引用・検証できます。データセット全体ではなく、この判定そのものを名指しで指し示せます。</p>
+    <p class="proof">OTSタイムスタンプ: この判定の正準クレームは <a href="claim.txt">claim.txt</a>(生バイト)として配信し、そのSHA-256は <b class="hash">63807af47163dd83dae510f30d1fe428f00350cd55ae62da1e83d7c7e4708054</b> です。このダイジェストをOpenTimestampsでBitcoinにアンカーする証明を <a href="proof.ots">proof.ots</a>(生バイナリ、ラッパー無し)として同じURL配下で配信しています。検証: sha256sum claim.txt でダイジェストを再計算し、ots verify -f claim.txt proof.ots で刻印を確認できます。発行者を信用する必要はありません。</p>
   </section>
 
   <section>
