@@ -641,18 +641,74 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
   .media-stat{gap:1rem !important;}
   .pdf-cta{flex-direction:column !important;text-align:center !important;}
 }
+
+/* ── OPENING SPLASH OVERLAY (同一URL・転送なし・SEO安全) ── */
+#hs-splash{position:fixed;inset:0;z-index:99999;background:#FAF8F4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.4rem;font-family:'Plus Jakarta Sans',sans-serif;animation:hs-splash-auto 3.8s ease forwards;}
+#hs-splash::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 3px,rgba(0,0,0,.012) 3px,rgba(0,0,0,.012) 4px),repeating-linear-gradient(0deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 11px,rgba(0,0,0,.008) 11px,rgba(0,0,0,.008) 12px);pointer-events:none;}
+#hs-splash.hs-hide{display:none !important;}
+#hs-splash .hs-sp-inner{display:flex;flex-direction:column;align-items:center;gap:2.4rem;position:relative;z-index:1;animation:hs-wrap-in 0.8s ease forwards;opacity:0;}
+#hs-splash .hs-brand{font-family:'Instrument Serif',serif;font-size:1.5rem;letter-spacing:.18em;color:#1A3A54;text-align:center;}
+#hs-splash .hs-tagline{font-size:.72rem;color:#8A7868;letter-spacing:.18em;margin-top:.3rem;font-weight:300;text-align:center;}
+#hs-splash .hs-progress-wrap{width:160px;height:1.5px;background:rgba(28,21,16,.1);border-radius:1px;overflow:hidden;}
+#hs-splash .hs-progress-bar{height:100%;background:linear-gradient(90deg,#C24E1A,#A97820);width:0%;border-radius:1px;animation:hs-progress 2.8s cubic-bezier(.4,0,.2,1) forwards;animation-delay:0.3s;}
+@keyframes hs-wrap-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes hs-progress{0%{width:0%}100%{width:100%}}
+@keyframes hs-splash-auto{0%,84%{opacity:1;visibility:visible}100%{opacity:0;visibility:hidden;pointer-events:none}}
+@media (prefers-reduced-motion: reduce){#hs-splash{animation-duration:0.5s;}}
 </style>
 <link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
 <link rel="mcp-server" href="https://hs-mcp.oga-surf-project.workers.dev">
 </head>
 <body>
+<!-- ── OPENING SPLASH (同一URL・転送なし・SEO安全) ── -->
+<div id="hs-splash" role="presentation" aria-hidden="true">
+  <div class="hs-sp-inner">
+    <div class="hs-orb-wrap" style="position:relative;width:180px;height:180px;"><svg width="180" height="180" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;">
+      <defs>
+        <radialGradient id="op-orb" cx="38%" cy="32%" r="60%">
+          <stop offset="0%" stop-color="#FFE060"/><stop offset="22%" stop-color="#F5A800"/><stop offset="50%" stop-color="#C87000"/><stop offset="80%" stop-color="#7A3C00"/><stop offset="100%" stop-color="#3E1A00"/>
+        </radialGradient>
+        <radialGradient id="op-glw" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="rgba(220,140,0,0.22)"/><stop offset="100%" stop-color="rgba(200,110,0,0)"/>
+        </radialGradient>
+        <filter id="op-gf" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="10"/></filter>
+        <filter id="op-rf"><feGaussianBlur stdDeviation="0.5"/></filter>
+        <filter id="op-ray"><feGaussianBlur stdDeviation="0.6"/></filter>
+      </defs>
+      <ellipse cx="100" cy="118" rx="82" ry="20" fill="rgba(180,110,0,0.07)" filter="url(#op-gf)"><animate attributeName="opacity" values="0.4;0.9;0.4" dur="4s" repeatCount="indefinite"/><animate attributeName="ry" values="17;24;17" dur="4s" repeatCount="indefinite"/></ellipse>
+      <g filter="url(#op-rf)">
+        <ellipse cx="100" cy="110" rx="86" ry="20" fill="none" stroke="rgba(160,100,0,0.12)" stroke-width="0.8" stroke-dasharray="9 13"><animate attributeName="stroke-dashoffset" from="0" to="-548" dur="32s" repeatCount="indefinite"/></ellipse>
+        <ellipse cx="100" cy="108" rx="70" ry="16" fill="none" stroke="rgba(160,100,0,0.20)" stroke-width="0.9" stroke-dasharray="9 12"><animate attributeName="stroke-dashoffset" from="0" to="440" dur="24s" repeatCount="indefinite"/></ellipse>
+        <ellipse cx="100" cy="107" rx="55" ry="13" fill="none" stroke="rgba(160,100,0,0.29)" stroke-width="1" stroke-dasharray="7 9"><animate attributeName="stroke-dashoffset" from="0" to="-348" dur="17s" repeatCount="indefinite"/></ellipse>
+        <ellipse cx="100" cy="106" rx="41" ry="10" fill="none" stroke="rgba(160,100,0,0.40)" stroke-width="1.1" stroke-dasharray="6 8"><animate attributeName="stroke-dashoffset" from="0" to="260" dur="12s" repeatCount="indefinite"/></ellipse>
+        <ellipse cx="100" cy="105" rx="28" ry="7" fill="none" stroke="rgba(160,100,0,0.52)" stroke-width="1.3" stroke-dasharray="5 7"><animate attributeName="stroke-dashoffset" from="0" to="-178" dur="8.5s" repeatCount="indefinite"/></ellipse>
+      </g>
+      <line x1="4" y1="106" x2="196" y2="106" stroke="rgba(160,100,0,0.20)" stroke-width="0.6"/>
+      <g filter="url(#op-ray)">
+        <line x1="100" y1="58" x2="100" y2="34" stroke="rgba(160,90,0,0.82)" stroke-width="1.3"><animate attributeName="opacity" values="0.5;1;0.5" dur="2.4s" repeatCount="indefinite"/></line>
+        <line x1="100" y1="58" x2="81" y2="39" stroke="rgba(160,90,0,0.62)" stroke-width="1"/><line x1="100" y1="58" x2="119" y2="39" stroke="rgba(160,90,0,0.62)" stroke-width="1"/>
+        <line x1="100" y1="58" x2="64" y2="47" stroke="rgba(160,90,0,0.44)" stroke-width="0.8"/><line x1="100" y1="58" x2="136" y2="47" stroke="rgba(160,90,0,0.44)" stroke-width="0.8"/>
+      </g>
+      <circle cx="100" cy="62" r="42" fill="url(#op-glw)"><animate attributeName="r" values="38;48;38" dur="4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.7;1;0.7" dur="4s" repeatCount="indefinite"/></circle>
+      <circle cx="100" cy="62" r="26" fill="url(#op-orb)"><animate attributeName="r" values="23;27;23" dur="4s" repeatCount="indefinite"/></circle>
+      <ellipse cx="91" cy="54" rx="9" ry="5.5" fill="rgba(255,255,200,0.44)"/><ellipse cx="88" cy="52" rx="3.5" ry="2" fill="rgba(255,255,240,0.65)"/>
+    </svg></div>
+    <div><div class="hs-brand">HORIZON SHIELD</div><div class="hs-tagline">AI × 大工30年 ｜ 施主を守る</div></div>
+    <div class="hs-progress-wrap"><div class="hs-progress-bar"></div></div>
+  </div>
+</div>
 <script>
-/* ── OPENING REDIRECT ── */
-if(!sessionStorage.getItem('hs_seen')){
-  sessionStorage.setItem('hs_seen','1');
-  location.href='/opening.html';
-}
-
+(function(){
+  var sp=document.getElementById("hs-splash");
+  if(!sp)return;
+  var seen=false;
+  try{seen=!!sessionStorage.getItem("hs_seen");}catch(e){}
+  if(seen){sp.classList.add("hs-hide");return;}
+  try{sessionStorage.setItem("hs_seen","1");}catch(e){}
+  setTimeout(function(){if(sp&&sp.parentNode){sp.parentNode.removeChild(sp);}},3800);
+})();
+</script>
+<script>
 /* ── MOBILE INLINE STYLE RESET ── */
 /* インラインstyleのrgba背景はCSSメディアクエリで上書きできないためJSで強制リセット */
 (function(){
