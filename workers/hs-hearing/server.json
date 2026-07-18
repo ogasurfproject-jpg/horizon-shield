@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ogasurfproject-jpg/hs-hearing",
   "title": "HORIZON SHIELD YAKUMO (verified contractor directory)",
-  "description": "Neutral, verification-gated MCP directory of Japanese renovation and construction contractors. Only stores that pass an independent fair-price and overcharge audit (KIRA, backed by the open JCCDB dataset of 65,729 items) are listed; prices are never exposed, only integrity scores and tiers (fail-closed). Tools: find_contractor (free-text discovery orchestrator), list_verified_stores (by area and trade), get_contractor_profile, mall_overview, how_verification_works. Resources for the mall, verification method, and categories; prompts to find a contractor and check trustworthiness. No referral fees; no auto-posting.",
+  "description": "Neutral, verification-gated MCP directory of Japan construction contractors (KIRA-audited).",
   "version": "2.1.0",
   "websiteUrl": "https://shield.the-horizons-innovation.com/yakumo/",
   "repository": {
