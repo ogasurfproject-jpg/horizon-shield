@@ -48,7 +48,14 @@
   @keyframes drift1{0%,100%{transform:translate(0,0);}50%{transform:translate(-40px,30px);}}
   @keyframes drift2{0%,100%{transform:translate(0,0);}50%{transform:translate(34px,24px);}}
   .shell{position:relative;z-index:2;max-width:1040px;margin:0 auto;padding:0 26px;}
-  .top{display:flex;align-items:center;gap:16px;height:64px;}
+  .top{display:flex;align-items:center;gap:10px 14px;min-height:64px;flex-wrap:wrap;position:sticky;top:0;z-index:60;margin:0 -26px;padding:10px 26px;background:rgba(8,11,17,0.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);}
+  .nav{display:flex;gap:3px;flex-wrap:wrap;align-items:center;}
+  .nav a{font-size:12.5px;color:var(--ink-dim);text-decoration:none;padding:7px 11px;border-radius:8px;transition:.18s;white-space:nowrap;}
+  .nav a:hover{color:var(--verify);background:rgba(63,224,206,0.07);}
+  .nav a.on{color:var(--verify);border:1px solid var(--verify-deep);}
+  .navcta{background:var(--verify);color:#06241F;border-radius:9px;padding:9px 15px;font-weight:700;font-size:12.5px;text-decoration:none;white-space:nowrap;font-family:"Space Grotesk",inherit;}
+  .navcta:hover{filter:brightness(1.06);}
+  @media(max-width:640px){.nav{order:3;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}.nav::-webkit-scrollbar{display:none;}}
   .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
   .brand svg{width:27px;height:27px;}
   .brand .k{font-weight:900;font-size:19px;letter-spacing:.05em;color:var(--ink);}
@@ -152,9 +159,16 @@
       </svg>
       <span class="k">Yakumo</span>
     </a>
-    <span class="opby">A HORIZON SHIELD MALL</span>
+    <nav class="nav" aria-label="サイト内ナビ">
+      <a class="on" href="https://shield.the-horizons-innovation.com/yakumo/">モール</a>
+      <a href="https://shield.the-horizons-innovation.com/souba/">相場を調べる</a>
+      <a href="https://shield.the-horizons-innovation.com/ehn/">実例ボード（EHN）</a>
+      <a href="https://shield.the-horizons-innovation.com/yakumo/apply/">加盟する</a>
+      <a href="https://shield.the-horizons-innovation.com/">HORIZON SHIELD</a>
+    </nav>
     <span class="sp"></span>
     <span class="live"><span class="d"></span>検証ライブ稼働中</span>
+    <a class="navcta" href="https://shield.the-horizons-innovation.com/hacker/submit/">見積もりを無料診断</a>
   </div>
 
   <section class="hero">
