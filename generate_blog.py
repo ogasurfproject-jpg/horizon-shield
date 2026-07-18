@@ -91,7 +91,7 @@ prompt = (
     "- <h2>と<p>タグのみ使用。markdown(#,##,*,**)禁止。HTMLタグ以外の記号を装飾に使わない\n"
     "- 800〜1200文字\n"
     "- 最初の<p>で結論(この工事の適正価格の要点)を述べる\n"
-    "- 最後の<p>に「見積書が気になる方はLINEで無料診断ができます」と書く\n\n"
+    "- 最後の<p>に「見積書が気になる方は、EHN（見積もりハッカーニュース）に匿名で貼れば、無料でAI診断ができます」と書く\n\n"
     "【souba-db実測データ(唯一の根拠)】\n" + facts
 )
 
@@ -205,8 +205,11 @@ html = (
     '<div class="lead">' + lead_text + '</div>\n'
     '<article>\n' + content + '\n</article>\n'
     '<div class="related">\n<h3>この数値の裏付けを見る</h3>\n' + related + '</div>\n'
-    '<div class="cta">\n<div class="cta-title">あなたの見積書、無料で診断します</div>\n'
-    '<a href="https://line.me/R/ti/p/@172piime">LINEで無料相談する</a>\n</div>\n'
+    '<div class="cta">\n<div class="cta-title">その見積書、匿名で無料診断できます</div>\n'
+    '<p style="color:#bbb;font-size:14px;margin:0 0 16px;line-height:1.7">「一式」を数量・単価に分解し、オープン建設費DB（65,729品目）と照合。建設30年監修のAI「KIRA」が「盛られやすい所」に印をつけます。写真を貼るだけ・完全匿名・無料。</p>\n'
+    '<a href="https://shield.the-horizons-innovation.com/ehn/" style="display:inline-block;background:#f97316;color:#111;padding:15px 34px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;margin:6px 4px">見積もりを匿名で無料診断する（30秒）</a>\n'
+    '<div style="color:#666;font-size:13px;margin:10px 0">または</div>\n'
+    '<a href="https://line.me/R/ti/p/@172piime" style="display:inline-block;background:#06c755;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px;margin:4px">LINEで相談する</a>\n</div>\n'
     '<footer>\n<a href="' + BASE + '">HORIZON SHIELD</a> ｜ '
     '<a href="' + BASE + '/blog/">ブログ一覧</a><br><br>\n© 2026 The HORIZ音s株式会社\n</footer>\n'
     '</div>\n</body>\n</html>'
