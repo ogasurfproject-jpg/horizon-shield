@@ -94,3 +94,4 @@ blog/*.bak-*
 !tools/yakumo/issue_no001.sh
 !tools/yakumo/deploy_all.sh
 .anthropic_key
+!tools/yakumo/provision_store.py
