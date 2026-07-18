@@ -22,6 +22,15 @@
   var ENDPOINT = ORIGIN + '/mcp?store=' + encodeURIComponent(store);
   var SITE = 'https://shield.the-horizons-innovation.com';
 
+  // --- 軽量計測ビーコン(匿名。金額や入力内容は一切送らない。event名だけ) ---
+  function ping(ev) {
+    try {
+      var u = ORIGIN + '/beacon?store=' + encodeURIComponent(store) + '&event=' + ev;
+      if (navigator.sendBeacon) { navigator.sendBeacon(u, ''); return; }
+      if (window.fetch) { fetch(u, { method: 'POST', mode: 'no-cors', keepalive: true }).catch(function () {}); }
+    } catch (e) {}
+  }
+
   function esc(s) {
     s = (s == null ? '' : String(s));
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -99,7 +108,17 @@
   var panel = root.querySelector('#panel');
   var result = root.querySelector('#result');
 
-  function open() { panel.classList.add('open'); var w = root.querySelector('#hsw'); if (w) w.focus(); }
+  // EHN導線クリックの計測(リンク先はそのまま新規タブで開く)
+  result.addEventListener('click', function (e) {
+    var t = e.target;
+    while (t && t !== result) {
+      if (t.className === 'ehn' || t.className === 'ehn2') { ping('ehn_click'); break; }
+      t = t.parentNode;
+    }
+  });
+
+  var opened = false;
+  function open() { panel.classList.add('open'); if (!opened) { opened = true; ping('open'); } var w = root.querySelector('#hsw'); if (w) w.focus(); }
   function close() { panel.classList.remove('open'); }
   root.querySelector('#fab').addEventListener('click', function () { panel.classList.contains('open') ? close() : open(); });
   root.querySelector('#x').addEventListener('click', close);
@@ -189,4 +208,7 @@
     ferr.textContent = '';
     diagnose(w, parseInt(praw, 10));
   });
+
+  // 表示計測(ウィジェットが実際に描画された時に1回)
+  ping('view');
 })();

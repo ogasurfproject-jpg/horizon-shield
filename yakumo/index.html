@@ -325,6 +325,13 @@
     const src = document.getElementById('vSrc'); if(src && s.source_count) src.textContent = s.source_count;
     const jc = document.getElementById('vJccdb'); if(jc && s.jccdb_items) jc.textContent = Number(s.jccdb_items).toLocaleString();
     render();
+    // 貢献レポート用: モール一覧に表示された店を件数だけ計上(初回描画時に1回。入力内容や個人情報は送らない)
+    try {
+      const evs = (STATE.contractors || []).slice(0, 20)
+        .map(c => ({ store: String(c.store_id || c.member_no || ''), event: 'mall_list' }))
+        .filter(e => e.store);
+      if(evs.length) fetch('https://hs-webmcp.oga-surf-project.workers.dev/beacon', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ events: evs }), keepalive: true }).catch(() => {});
+    } catch(e) {}
     // 照会/検証の回数は捏造しない。hs-mcpの実カウンタ(呼び出し数のみ・payload/価格/IPは非保存)が
     // 取れた時だけ、その実数を表示する。取れなければ一文ごと非表示のまま(fail-closed)。
     fetch(STATS_URL).then(r => r.ok ? r.json() : null).then(u => {

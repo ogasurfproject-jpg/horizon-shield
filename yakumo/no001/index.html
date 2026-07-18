@@ -134,7 +134,7 @@
 
   <div class="cta">
     <p>この店の見積もりを受け取った方へ。金額が適正か、建設実務30年監修の相場データで第三者チェックできます(無料相談)。Yakumoは施工業者から報酬を受け取らない中立の立場です。</p>
-    <a class="btn" href="https://shield.the-horizons-innovation.com/">HORIZON SHIELD で見積もりを確認する</a>
+    <a class="btn" id="ctaBtn" href="https://shield.the-horizons-innovation.com/">HORIZON SHIELD で見積もりを確認する</a>
   </div>
 
   <footer>
@@ -165,6 +165,15 @@
         document.getElementById('scoreL').textContent = '適正度 / ' + (c.integrity_tier || 'A') + ' ・ 赤旗 ' + (c.red_flags_detected != null ? c.red_flags_detected : 0) + ' 件';
       }
     }).catch(()=>{});
+
+  // 貢献レポート用の計測(件数のみ。閲覧者の情報は送らない)
+  try {
+    var hsCta = document.getElementById('ctaBtn');
+    if (hsCta) hsCta.addEventListener('click', function(){
+      try { navigator.sendBeacon('https://hs-webmcp.oga-surf-project.workers.dev/beacon?store=hs-partner-001&event=mall_click', ''); } catch(e) {}
+    });
+  } catch(e) {}
 </script>
+<img src="https://hs-webmcp.oga-surf-project.workers.dev/px.gif?store=hs-partner-001&event=mall_view" width="1" height="1" alt="" style="position:absolute;left:-9999px;" decoding="async" fetchpriority="low">
 </body>
 </html>

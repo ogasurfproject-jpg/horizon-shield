@@ -280,7 +280,19 @@ async function liveContractors(env) {
   return pub.contractors || [];
 }
 
-async function handleMcp(request, env, id, method, params) {
+// 露出計測フィード(hs-webmcp /beacon へ件数だけ流す)。店に見せる「貢献レポート」の AI 面の実数。
+// fail-open: 計測が落ちても MCP 応答は絶対に壊さない。store_id と event 名以外は送らない。
+const STATS_SINK = "https://hs-webmcp.oga-surf-project.workers.dev/beacon";
+function feedStats(ctx, events) {
+  try {
+    if (!events || !events.length) return;
+    const body = JSON.stringify({ events: events.slice(0, 20) });
+    const p = fetch(STATS_SINK, { method: "POST", headers: { "Content-Type": "application/json" }, body }).catch(() => {});
+    if (ctx && ctx.waitUntil) ctx.waitUntil(p);
+  } catch (_e) {}
+}
+
+async function handleMcp(request, env, id, method, params, ctx) {
   if (method === "initialize") {
     const pv = (params && params.protocolVersion) || "2025-06-18";
     return rpc(id, { protocolVersion: pv, capabilities: { tools: {} }, serverInfo: SERVER });
@@ -294,9 +306,12 @@ async function handleMcp(request, env, id, method, params) {
     if (name === "list_verified_stores") {
       const area = safeStr(args.area, 40);
       const work = safeStr(args.work, 40);
-      let list = contractors.map(publicView);
-      if (area) list = list.filter((c) => (c.area || "").includes(area) || (c.areas_served || []).some((a) => a.includes(area)));
-      if (work) list = list.filter((c) => (c.works || []).some((w) => w.includes(work)));
+      let raw = contractors;
+      if (area) raw = raw.filter((c) => (c.area || "").includes(area) || (c.areas_served || []).some((a) => a.includes(area)));
+      if (work) raw = raw.filter((c) => (c.works || []).some((w) => w.includes(work)));
+      // AI検索の結果にこの店たちが表示された = agent_view(貢献レポートのAI面の実数)
+      feedStats(ctx, raw.map((c) => ({ store: String(c.store_id || c.member_no || ""), event: "agent_view" })).filter((e) => e.store));
+      const list = raw.map(publicView);
       const verified = list.filter((c) => c.verification === "verified");
       const pending = list.filter((c) => c.verification !== "verified");
       const payload = {
@@ -315,6 +330,8 @@ async function handleMcp(request, env, id, method, params) {
       if (!mn) return rpc(id, { content: [{ type: "text", text: JSON.stringify({ error: "member_no is required" }) }], isError: true });
       const c = contractors.find((x) => x.member_no === mn || x.store_id === mn);
       if (!c) return rpc(id, { content: [{ type: "text", text: JSON.stringify({ error: "not_found", member_no: mn }) }], isError: true });
+      // AIがこの店の詳細を照会した = agent_hit(施主へ紹介する直前の照会)
+      feedStats(ctx, [{ store: String(c.store_id || c.member_no || ""), event: "agent_hit" }]);
       return rpc(id, { content: [{ type: "text", text: JSON.stringify(publicView(c), null, 2) }] });
     }
     return rpcErr(id, -32601, "unknown tool: " + name);
@@ -618,7 +635,7 @@ function storeToContractor(s) {
 
 /* ------------------------------ router ------------------------------ */
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
@@ -702,7 +719,7 @@ export default {
       const msgs = Array.isArray(body) ? body : [body];
       // 単発想定(バッチは先頭のみ)。
       const m = msgs[0] || {};
-      return handleMcp(request, env, m.id != null ? m.id : null, m.method, m.params);
+      return handleMcp(request, env, m.id != null ? m.id : null, m.method, m.params, ctx);
     }
 
     // LINE Webhook: 加盟店ヒアリングのLINE版(登録->回答->自動構造化->生成)

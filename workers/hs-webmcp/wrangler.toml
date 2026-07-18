@@ -5,3 +5,12 @@ compatibility_date = "2026-06-25"
 [[services]]
 binding = "HS_MCP_SVC"
 service = "hs-mcp"
+
+# 店別計測カウンタ(SQLite-backed Durable Object)。件数のみ・fail-open。
+[[durable_objects.bindings]]
+name = "STATS"
+class_name = "StatsDO"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["StatsDO"]

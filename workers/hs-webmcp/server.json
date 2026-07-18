@@ -3,7 +3,7 @@
   "name": "io.github.ogasurfproject-jpg/hs-webmcp",
   "title": "HORIZON SHIELD WebMCP (KIRA)",
   "description": "Neutral, independent construction-cost estimate-integrity desk for Japan. Bridges homeowner renovation quotes to a fair-price audit over an open construction-cost database (JCCDB, 65,729 items). Exposes tools (estimate intake, overcharge-tactic scan, awareness draft, one-call orchestrate), resources (cost categories, price ranges, dataset info, EHN), and prompts (diagnose_my_estimate, how_to_read_an_estimate). Verifiable first-party prices only; no auto-posting; no auth (public read-only desk).",
-  "version": "0.2.0",
+  "version": "0.4.1",
   "websiteUrl": "https://shield.the-horizons-innovation.com",
   "repository": {
     "url": "https://github.com/ogasurfproject-jpg/horizon-shield",

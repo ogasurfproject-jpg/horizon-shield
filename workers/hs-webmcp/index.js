@@ -4,13 +4,20 @@
 // 仕様: MCP最新準拠(2025-06-18)。tools + resources + prompts + completion + logging を実装。
 //       Streamable HTTP(単一エンドポイント POST /mcp / GETは405)。stateless・CORS開放・fail-closed。
 //       表向きは全店同一のKIRA(Glama仕様・名前なし)。store_idで裏個別識別+WebMCP課金ゲートのみ。
-// v0.2.0
+// v0.3.0: 店別計測(StatsDO: SQLite Durable Object)+ /beacon + 鍵付き /stats ダッシュボードを追加。
+//         計測は fail-open(計測の失敗が本体を壊すことは無い)。入力内容・金額は記録しない。件数のみ。
+// v0.4.1: /mypage・/stats を Glama Overview 準拠に(クリーンなKPIタイル + 統合Activityチャート)。診断をAI/ツール指標へ移し矛盾を除去。
+// v0.4.0: ★意味の転換: 計測の主役は「加盟店に見せる貢献レポート」(/mypage、店専用リンク)。
+//         Glamaが出店者に Analytics を見せるのと同じ立場を、HORIZON SHIELD が加盟店に対して取る。
+//         + /px.gif(モール静的ページ用ピクセル: mall_view/mall_list/mall_click)
+//         + POST /beacon の JSON一括形式(hs-hearing から agent_view/agent_hit を流し込む)
+//         + /stats(運営)に店舗別の露出列と「店舗用リンク」発行を追加。
 
 const HS_MCP = "https://hs-mcp.oga-surf-project.workers.dev";
 const SITE = "https://shield.the-horizons-innovation.com";
 const SELF = "https://hs-webmcp.oga-surf-project.workers.dev";
 
-const SERVER = { name: "hs-webmcp", title: "HORIZON SHIELD WebMCP (KIRA)", version: "0.2.0" };
+const SERVER = { name: "hs-webmcp", title: "HORIZON SHIELD WebMCP (KIRA)", version: "0.4.1" };
 const SUPPORTED_VERSIONS = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"];
 const DEFAULT_VERSION = "2025-06-18";
 
@@ -195,6 +202,15 @@ const EMBED_JS = `/* HORIZON SHIELD KIRA embed widget  (served at /embed.js?stor
   var ENDPOINT = ORIGIN + '/mcp?store=' + encodeURIComponent(store);
   var SITE = 'https://shield.the-horizons-innovation.com';
 
+  // --- 軽量計測ビーコン(匿名。金額や入力内容は一切送らない。event名だけ) ---
+  function ping(ev) {
+    try {
+      var u = ORIGIN + '/beacon?store=' + encodeURIComponent(store) + '&event=' + ev;
+      if (navigator.sendBeacon) { navigator.sendBeacon(u, ''); return; }
+      if (window.fetch) { fetch(u, { method: 'POST', mode: 'no-cors', keepalive: true }).catch(function () {}); }
+    } catch (e) {}
+  }
+
   function esc(s) {
     s = (s == null ? '' : String(s));
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -272,7 +288,17 @@ const EMBED_JS = `/* HORIZON SHIELD KIRA embed widget  (served at /embed.js?stor
   var panel = root.querySelector('#panel');
   var result = root.querySelector('#result');
 
-  function open() { panel.classList.add('open'); var w = root.querySelector('#hsw'); if (w) w.focus(); }
+  // EHN導線クリックの計測(リンク先はそのまま新規タブで開く)
+  result.addEventListener('click', function (e) {
+    var t = e.target;
+    while (t && t !== result) {
+      if (t.className === 'ehn' || t.className === 'ehn2') { ping('ehn_click'); break; }
+      t = t.parentNode;
+    }
+  });
+
+  var opened = false;
+  function open() { panel.classList.add('open'); if (!opened) { opened = true; ping('open'); } var w = root.querySelector('#hsw'); if (w) w.focus(); }
   function close() { panel.classList.remove('open'); }
   root.querySelector('#fab').addEventListener('click', function () { panel.classList.contains('open') ? close() : open(); });
   root.querySelector('#x').addEventListener('click', close);
@@ -362,6 +388,9 @@ const EMBED_JS = `/* HORIZON SHIELD KIRA embed widget  (served at /embed.js?stor
     ferr.textContent = '';
     diagnose(w, parseInt(praw, 10));
   });
+
+  // 表示計測(ウィジェットが実際に描画された時に1回)
+  ping('view');
 })();
 `;
 
@@ -620,14 +649,462 @@ async function completeArg(argument, env) {
   return { completion: { values: hit, total: hit.length, hasMore: false } };
 }
 
+// ---------------- 計測(店別カウンタ)。役割: 「HORIZON SHIELD が各加盟店に何を運んだか」を店に見せる ----------------
+// Glama が出店者(俺たち)に Analytics を見せるのと同じ立場を、HORIZON SHIELD が加盟店に対して取る。
+// 方針: 件数のみ記録(day x store x event x tool)。入力内容・金額・IP・UAは一切保存しない。
+//       書き込みは waitUntil + fail-open。計測が落ちても本体(/mcp, /embed.js)は絶対に壊れない。
+// events(店サイト側): view(ウィジェット表示) open(パネル起動) ehn_click(EHN導線) fetch(embed.js取得)
+// events(モール側)  : mall_view(店ページ閲覧) mall_list(モール一覧に表示) mall_click(店ページの相談導線)
+// events(AI側)      : agent_view(AI検索一覧に表示) agent_hit(AIが店詳細を照会) <- hs-hearing が /beacon(JSON) で流す
+// events(内部)      : rpc(メソッド別) tool(ツール別) verdict(ok/watch/alert) denied(課金ゲート拒否)
+const EV_WIDGET = ["view", "open", "ehn_click"];
+const EV_PX = ["mall_view", "mall_list", "mall_click"];
+const EV_FEED = ["view", "open", "ehn_click", "mall_view", "mall_list", "mall_click", "agent_view", "agent_hit"];
+const PX_GIF = Uint8Array.from(atob("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"), (c) => c.charCodeAt(0));
+
+async function sha256hex(s) {
+  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(d)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+// 店専用リンクのトークン(STATS_KEYから決定論的に導出。保存不要。STATS_KEYを回すと全店ぶん回る)
+async function mypageToken(env, storeId) {
+  const h = await sha256hex("hs-mypage:" + ((env && env.STATS_KEY) || "") + ":" + storeId);
+  return h.slice(0, 20);
+}
+
+function jstDay(offsetDays) {
+  const t = Date.now() + 9 * 3600 * 1000 - (offsetDays ? offsetDays * 86400 * 1000 : 0);
+  return new Date(t).toISOString().slice(0, 10);
+}
+function track(env, ctx, events) {
+  try {
+    if (!env || !env.STATS || !ctx || !events || events.length === 0) return;
+    const clean = events.map((e) => ({
+      store: String((e && e.store) || "").slice(0, 40),
+      event: String((e && e.event) || "").slice(0, 24),
+      tool: String((e && e.tool) || "").slice(0, 40),
+    })).filter((e) => e.event);
+    if (clean.length === 0) return;
+    const stub = env.STATS.get(env.STATS.idFromName("v1"));
+    const body = JSON.stringify({ day: jstDay(), events: clean });
+    ctx.waitUntil(stub.fetch("https://stats.internal/track", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body,
+    }).catch(() => {}));
+  } catch (e) { /* fail-open: 計測は本体を壊さない */ }
+}
+function auditLevel(out) {
+  try {
+    const t = (out && out.audit) || (out && out.steps && out.steps.intake && out.steps.intake.audit);
+    if (!t) return null;
+    const a = typeof t === "string" ? JSON.parse(t) : t;
+    const lv = a && a.level;
+    return (lv === "ok" || lv === "watch" || lv === "alert") ? lv : null;
+  } catch (e) { return null; }
+}
+
+export class StatsDO {
+  constructor(state, env) {
+    this.sql = state.storage.sql;
+    this.sql.exec(
+      "CREATE TABLE IF NOT EXISTS ev (" +
+      "day TEXT NOT NULL, store TEXT NOT NULL, event TEXT NOT NULL, tool TEXT NOT NULL, " +
+      "n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (day, store, event, tool))"
+    );
+  }
+  async fetch(request) {
+    const url = new URL(request.url);
+    try {
+      if (request.method === "POST" && url.pathname === "/track") {
+        const body = await request.json();
+        const day = String((body && body.day) || "");
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return new Response("bad day", { status: 400 });
+        const events = Array.isArray(body && body.events) ? body.events.slice(0, 20) : [];
+        for (const e of events) {
+          const store = String((e && e.store) || "").slice(0, 40);
+          const event = String((e && e.event) || "").slice(0, 24);
+          const tool = String((e && e.tool) || "").slice(0, 40);
+          if (!event) continue;
+          this.sql.exec(
+            "INSERT INTO ev (day, store, event, tool, n) VALUES (?, ?, ?, ?, 1) " +
+            "ON CONFLICT (day, store, event, tool) DO UPDATE SET n = n + 1",
+            day, store, event, tool
+          );
+        }
+        return new Response(null, { status: 204 });
+      }
+      if (request.method === "GET" && url.pathname === "/query") {
+        const days = Math.max(1, Math.min(180, Number(url.searchParams.get("days")) || 30));
+        const since = jstDay(days - 1);
+        this.sql.exec("DELETE FROM ev WHERE day < ?", jstDay(400)); // 保持400日
+        const rows = this.sql.exec(
+          "SELECT day, store, event, tool, n FROM ev WHERE day >= ? ORDER BY day ASC", since
+        ).toArray();
+        return new Response(JSON.stringify({ since, days, rows }), {
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      return new Response("not found", { status: 404 });
+    } catch (e) {
+      return new Response("stats error", { status: 500 });
+    }
+  }
+}
+
+// ---------------- /stats ダッシュボード(鍵付き・noindex・サーバ側描画) ----------------
+function escHtml(s) {
+  s = (s == null ? "" : String(s));
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+function statsAgg(rows, storeFilter) {
+  const use = rows.filter((r) => {
+    if (storeFilter === "__all") return true;
+    if (storeFilter === "__none") return r.store === "";
+    return r.store === storeFilter;
+  });
+  const total = {}; const byDay = {}; const tools = {}; const rpcs = {}; const verdicts = {}; const byStore = {};
+  for (const r of use) {
+    total[r.event] = (total[r.event] || 0) + r.n;
+    if (!byDay[r.event]) byDay[r.event] = {};
+    byDay[r.event][r.day] = (byDay[r.event][r.day] || 0) + r.n;
+    if (r.event === "tool") tools[r.tool] = (tools[r.tool] || 0) + r.n;
+    if (r.event === "rpc") rpcs[r.tool] = (rpcs[r.tool] || 0) + r.n;
+    if (r.event === "verdict") verdicts[r.tool] = (verdicts[r.tool] || 0) + r.n;
+  }
+  for (const r of rows) {
+    if (!byStore[r.store]) byStore[r.store] = {};
+    byStore[r.store][r.event] = (byStore[r.store][r.event] || 0) + r.n;
+  }
+  return { total, byDay, tools, rpcs, verdicts, byStore };
+}
+// クリーンなKPIタイル(Glama Overview 準拠。タイル内にグラフは入れない。数字 + 補助1行)
+function kpiTile(label, value, color, sub) {
+  return '<div class="card"><div class="lbl"><span class="dot" style="background:' + color + '"></span>' + escHtml(label) + "</div>" +
+    '<div class="num">' + Number(value).toLocaleString() + "</div>" +
+    (sub ? '<div class="sub">' + sub + "</div>" : "") + "</div>";
+}
+// 統合 Activity チャート(Glama の Activity 相当)。日別の積み上げ棒 + 凡例 + 日付軸。
+// series = [{ label, color, day:{'YYYY-MM-DD': n} }]。データが薄い日も軸に残す(Glama同様)。
+function activityChart(dayList, series) {
+  const W = 720, H = 210, padL = 8, padR = 8, padT = 10, axisH = 22;
+  const plotH = H - padT - axisH;
+  const n = dayList.length;
+  const step = (W - padL - padR) / Math.max(1, n);
+  const bw = Math.max(3, Math.min(26, step - 2)); // 2px の面ギャップ
+  let max = 0;
+  for (const d of dayList) {
+    let s = 0; for (const se of series) s += (se.day[d] || 0);
+    if (s > max) max = s;
+  }
+  const scale = max > 0 ? plotH / max : 0;
+  let bars = "";
+  for (let i = 0; i < n; i++) {
+    const d = dayList[i];
+    const x = padL + i * step + (step - bw) / 2;
+    let yTop = padT + plotH;
+    let total = 0;
+    for (const se of series) {
+      const v = se.day[d] || 0; total += v;
+      if (v <= 0) continue;
+      const h = Math.max(1.5, v * scale);
+      yTop -= h;
+      bars += '<rect x="' + x.toFixed(1) + '" y="' + yTop.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) +
+        '" rx="2" fill="' + se.color + '"><title>' + escHtml(d) + " ・ " + escHtml(se.label) + " : " + v + "</title></rect>";
+      yTop -= 2; // 面ギャップ
+    }
+    if (total === 0) {
+      bars += '<rect x="' + x.toFixed(1) + '" y="' + (padT + plotH - 1).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="1" rx="0.5" fill="#26262a"><title>' + escHtml(d) + " : 0</title></rect>";
+    }
+  }
+  // 日付軸ラベル(最初 / 中央 / 最後)
+  function axLabel(i, anchor) {
+    const d = dayList[i]; if (!d) return "";
+    const x = padL + i * step + step / 2;
+    return '<text x="' + x.toFixed(1) + '" y="' + (H - 6) + '" fill="#6b7280" font-size="10" text-anchor="' + anchor + '">' + escHtml(d.slice(5)) + "</text>";
+  }
+  const axis = axLabel(0, "start") + axLabel(Math.floor((n - 1) / 2), "middle") + axLabel(n - 1, "end");
+  const svg = '<svg viewBox="0 0 ' + W + " " + H + '" width="100%" height="' + H + '" role="img" aria-label="日別アクティビティ" preserveAspectRatio="none" style="display:block">' +
+    bars + axis + "</svg>";
+  const legend = '<div class="legend">' + series.map((se) =>
+    '<span class="lg"><span class="dot" style="background:' + se.color + '"></span>' + escHtml(se.label) + " " +
+    Number(dayList.reduce((a, d) => a + (se.day[d] || 0), 0)).toLocaleString() + "</span>").join("") + "</div>";
+  return '<div class="chart">' + legend + svg + "</div>";
+}
+// series 用: rows から (event -> {day:n}) を作る
+function daySeriesFromRows(rows, dayList, matchFn) {
+  const out = {};
+  for (const r of rows) {
+    if (!matchFn(r)) continue;
+    out[r.day] = (out[r.day] || 0) + r.n;
+  }
+  return out;
+}
+async function statsPage(url, env) {
+  const KEY = env && env.STATS_KEY;
+  const given = url.searchParams.get("key") || "";
+  if (!KEY) return new Response("stats disabled: STATS_KEY 未設定(wrangler secret put STATS_KEY で設定)", { status: 403, headers: { "Content-Type": "text/plain; charset=utf-8" } });
+  if (given !== KEY) return new Response("forbidden", { status: 403, headers: { "Content-Type": "text/plain; charset=utf-8" } });
+  if (!env.STATS) return new Response("stats unavailable: STATS binding 未設定", { status: 500, headers: { "Content-Type": "text/plain; charset=utf-8" } });
+
+  const days = [7, 30, 90].includes(Number(url.searchParams.get("days"))) ? Number(url.searchParams.get("days")) : 30;
+  const storeFilter = url.searchParams.get("store") || "__all";
+  const stub = env.STATS.get(env.STATS.idFromName("v1"));
+  const res = await stub.fetch("https://stats.internal/query?days=" + days);
+  if (!res.ok) return new Response("stats query failed", { status: 502, headers: { "Content-Type": "text/plain; charset=utf-8" } });
+  const data = await res.json();
+  const rows = data.rows || [];
+  if (url.searchParams.get("format") === "json") {
+    return new Response(JSON.stringify({ since: data.since, days, rows }, null, 2), { headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
+  }
+
+  const dayList = [];
+  for (let i = days - 1; i >= 0; i--) dayList.push(jstDay(i));
+  const agg = statsAgg(rows, storeFilter);
+  const stores = Object.keys(agg.byStore).sort();
+  const C = { a: "#3b82f6", b: "#0d9488", c: "#ea580c", d: "#8b5cf6" };
+  const VS = { ok: "#22c55e", watch: "#f59e0b", alert: "#ef4444" };
+  const VT = { ok: "適正レンジ内", watch: "やや高い", alert: "過剰請求の懸念" };
+  const mergeDay = (a, b) => { const o = {}; for (const key in (a || {})) o[key] = (o[key] || 0) + a[key]; for (const key in (b || {})) o[key] = (o[key] || 0) + b[key]; return o; };
+  const actSeries = [
+    { label: "AI検索表示", color: C.b, day: agg.byDay.agent_view || {} },
+    { label: "AI照会・診断", color: C.c, day: mergeDay(agg.byDay.agent_hit, agg.byDay.tool) },
+    { label: "モール閲覧", color: C.a, day: agg.byDay.mall_view || {} },
+    { label: "自サイト表示", color: C.d, day: agg.byDay.view || {} },
+  ];
+  function trow(cols, tag) {
+    const t = tag || "td";
+    return "<tr>" + cols.map((c) => "<" + t + ">" + c + "</" + t + ">").join("") + "</tr>";
+  }
+  const storeOpts = ['<option value="__all"' + (storeFilter === "__all" ? " selected" : "") + ">全店(合算)</option>"]
+    .concat(stores.map((s) => {
+      const v = s === "" ? "__none" : s;
+      const lb = s === "" ? "(直接アクセス/storeなし)" : s;
+      return '<option value="' + escHtml(v) + '"' + (storeFilter === v ? " selected" : "") + ">" + escHtml(lb) + "</option>";
+    })).join("");
+  const daysLink = (d) => "/stats?key=" + encodeURIComponent(given) + "&days=" + d + "&store=" + encodeURIComponent(storeFilter);
+  const verdictChips = ["ok", "watch", "alert"].map((k) =>
+    '<span class="chip"><span class="dot" style="background:' + VS[k] + '"></span>' + VT[k] + " " + (agg.verdicts[k] || 0) + "件</span>"
+  ).join("");
+  const toolRows = Object.keys(agg.tools).sort((a, b) => agg.tools[b] - agg.tools[a]).map((t) => trow([escHtml(t), agg.tools[t].toLocaleString()])).join("");
+  const rpcRows = Object.keys(agg.rpcs).sort((a, b) => agg.rpcs[b] - agg.rpcs[a]).map((t) => trow([escHtml(t), agg.rpcs[t].toLocaleString()])).join("");
+  const exposChips = [
+    ["モール店ページ閲覧", agg.total.mall_view || 0], ["モール一覧に表示", agg.total.mall_list || 0], ["店ページ相談導線", agg.total.mall_click || 0],
+    ["AI検索に表示", agg.total.agent_view || 0], ["AIが店詳細を照会", agg.total.agent_hit || 0],
+  ].map((x) => '<span class="chip">' + escHtml(x[0]) + " " + Number(x[1]).toLocaleString() + "</span>").join("");
+  const storeRows = (await Promise.all(stores.map(async (s) => {
+    const m = agg.byStore[s];
+    const link = s === ""
+      ? '<span style="color:#6b7280">なし</span>'
+      : '<a style="color:#f97316" href="/mypage?store=' + encodeURIComponent(s) + "&k=" + encodeURIComponent(await mypageToken(env, s)) + '" target="_blank" rel="noopener">店舗用リンク</a>';
+    return trow([escHtml(s === "" ? "(直接アクセス/storeなし)" : s),
+      (m.mall_view || 0).toLocaleString(), (m.mall_list || 0).toLocaleString(), (m.mall_click || 0).toLocaleString(),
+      (m.agent_view || 0).toLocaleString(), (m.agent_hit || 0).toLocaleString(),
+      (m.view || 0).toLocaleString(), (m.open || 0).toLocaleString(),
+      (m.tool || 0).toLocaleString(), (m.ehn_click || 0).toLocaleString(), (m.denied || 0).toLocaleString(),
+      link]);
+  }))).join("");
+
+  const html = "<!doctype html><html lang=\"ja\"><head><meta charset=\"utf-8\">" +
+    '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<meta name="robots" content="noindex,nofollow">' +
+    "<title>KIRA 計測ダッシュボード | HORIZON SHIELD</title><style>" +
+    "*{box-sizing:border-box}body{margin:0;background:#0f0f10;color:#e8e8ea;font-family:system-ui,'Hiragino Sans',Meiryo,sans-serif;line-height:1.7}" +
+    ".wrap{max-width:980px;margin:0 auto;padding:28px 18px 60px}" +
+    "h1{font-size:20px;margin:0}h1 .tag{font-size:11px;font-weight:700;color:#f97316;border:1px solid #f97316;border-radius:999px;padding:2px 8px;margin-left:10px;vertical-align:middle}" +
+    ".sub{color:#9aa4b2;font-size:12px;margin-top:6px}" +
+    ".filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0 14px}" +
+    ".filters a{color:#9aa4b2;text-decoration:none;font-size:13px;padding:6px 12px;border:1px solid #2a2a2e;border-radius:999px}" +
+    ".filters a.on{color:#111;background:#f97316;border-color:#f97316;font-weight:800}" +
+    "select{background:#161719;color:#fff;border:1px solid #313235;border-radius:10px;padding:8px 10px;font-size:13px}" +
+    "button{background:#f97316;color:#111;border:0;border-radius:10px;padding:8px 14px;font-weight:800;font-size:13px;cursor:pointer}" +
+    ".grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:14px 0}" +
+    ".card{background:#141416;border:1px solid #26262a;border-radius:14px;padding:14px 15px}" +
+    ".lbl{color:#9aa4b2;font-size:12px;font-weight:700}.num{font-size:28px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;margin:2px 0 8px}" +
+    ".dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:baseline}" +
+    ".chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 2px}" +
+    ".chip{background:#141416;border:1px solid #26262a;border-radius:999px;padding:6px 12px;font-size:13px}" +
+    ".chart{background:#141416;border:1px solid #26262a;border-radius:14px;padding:12px 14px 6px;margin:6px 0}.legend{display:flex;flex-wrap:wrap;gap:14px;margin:0 2px 8px}.lg{color:#9aa4b2;font-size:12px}" +
+    "h2{font-size:14px;color:#9aa4b2;margin:26px 0 8px;font-weight:700}" +
+    "table{width:100%;border-collapse:collapse;background:#141416;border:1px solid #26262a;border-radius:14px;overflow:hidden}" +
+    "th,td{padding:9px 12px;font-size:13px;text-align:left;border-bottom:1px solid #202024}th{color:#9aa4b2;font-weight:700;font-size:12px}" +
+    "tr:last-child td{border-bottom:0}td:nth-child(n+2),th:nth-child(n+2){text-align:right;font-variant-numeric:tabular-nums}" +
+    ".ft{color:#6b7280;font-size:11px;margin-top:26px;border-top:1px solid #222;padding-top:12px}" +
+    "</style></head><body><div class=\"wrap\">" +
+    '<h1>KIRA 計測ダッシュボード<span class="tag">' + escHtml(String(days)) + "日間</span></h1>" +
+    '<div class="sub">集計はJST日次 | 件数のみ記録(入力内容・金額・個人情報は保存しない) | ' + escHtml(data.since) + " から " + escHtml(jstDay()) + " まで</div>" +
+    '<div class="filters">' +
+    '<a href="' + daysLink(7) + '"' + (days === 7 ? ' class="on"' : "") + ">7日</a>" +
+    '<a href="' + daysLink(30) + '"' + (days === 30 ? ' class="on"' : "") + ">30日</a>" +
+    '<a href="' + daysLink(90) + '"' + (days === 90 ? ' class="on"' : "") + ">90日</a>" +
+    '<form method="GET" action="/stats" style="display:flex;gap:8px;align-items:center;margin:0">' +
+    '<input type="hidden" name="key" value="' + escHtml(given) + '"><input type="hidden" name="days" value="' + days + '">' +
+    '<select name="store">' + storeOpts + "</select><button type=\"submit\">表示</button></form></div>" +
+    '<div class="grid">' +
+    kpiTile("AI検索での表示", agg.total.agent_view || 0, C.b, "AIの加盟店検索(八雲MCP)に登場") +
+    kpiTile("AIの照会・診断", (agg.total.agent_hit || 0) + (agg.total.tool || 0), C.c, "照会 " + Number(agg.total.agent_hit || 0).toLocaleString() + " ・ 診断 " + Number(agg.total.tool || 0).toLocaleString()) +
+    kpiTile("モール店ページ閲覧", agg.total.mall_view || 0, C.a, "一覧表示 " + Number(agg.total.mall_list || 0).toLocaleString() + " ・ 相談 " + Number(agg.total.mall_click || 0).toLocaleString()) +
+    kpiTile("自サイト・ウィジェット", agg.total.view || 0, C.d, "起動 " + Number(agg.total.open || 0).toLocaleString() + " ・ EHN " + Number(agg.total.ehn_click || 0).toLocaleString()) +
+    "</div>" +
+    "<h2>アクティビティ(日別)</h2>" + activityChart(dayList, actSeries) +
+    "<h2>診断の判定分布(" + escHtml(String(days)) + "日間)</h2><div class=\"chips\">" + verdictChips + "</div>" +
+    "<h2>外への露出の内訳(モール / AIエージェント)</h2><div class=\"chips\">" + exposChips + "</div>" +
+    "<h2>店舗別(全店・期間内)。「店舗用リンク」が加盟店に渡す貢献レポート</h2><table><thead>" + trow(["store", "店P閲覧", "一覧表示", "導線", "AI表示", "AI照会", "表示", "起動", "ツール", "EHN", "拒否", "貢献レポート"], "th") + "</thead><tbody>" +
+    (storeRows || trow(["まだデータがありません", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "なし"])) + "</tbody></table>" +
+    '<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">' +
+    "<div><h2>ツール別実行数</h2><table><thead>" + trow(["tool", "回"], "th") + "</thead><tbody>" + (toolRows || trow(["(なし)", "0"])) + "</tbody></table></div>" +
+    "<div><h2>JSON-RPC メソッド別</h2><table><thead>" + trow(["method", "回"], "th") + "</thead><tbody>" + (rpcRows || trow(["(なし)", "0"])) + "</tbody></table></div>" +
+    "</div>" +
+    '<div class="ft">HORIZON SHIELD hs-webmcp v' + escHtml(SERVER.version) + " | embed.js取得(参考): " + ((agg.total.fetch || 0)).toLocaleString() + " | JSONで取得: /stats?key=...&format=json | このページは noindex。URLの key は第三者に渡さないこと。</div>" +
+    "</div></body></html>";
+  return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex" } });
+}
+
+// ---------------- /mypage 加盟店向け「貢献レポート」(店専用リンク。他店の数字は一切見えない) ----------------
+// これが本命。Glama が出店者に見せる Analytics の立場を、HORIZON SHIELD が加盟店(堤さん達)に対して取る。
+// 「モールとAIが、あなたの店を今月これだけ世に見せた」を、店側が自分のリンクでいつでも見られる。
+async function mypagePage(url, env) {
+  const KEY = env && env.STATS_KEY;
+  const plain = { "Content-Type": "text/plain; charset=utf-8" };
+  if (!KEY) return new Response("mypage disabled: STATS_KEY 未設定", { status: 403, headers: plain });
+  const store = String(url.searchParams.get("store") || "").slice(0, 40);
+  const k = String(url.searchParams.get("k") || "");
+  if (!store || !k) return new Response("forbidden", { status: 403, headers: plain });
+  const want = await mypageToken(env, store);
+  if (k !== want) return new Response("forbidden", { status: 403, headers: plain });
+  if (!env.STATS) return new Response("stats unavailable", { status: 500, headers: plain });
+
+  const days = [7, 30, 90].includes(Number(url.searchParams.get("days"))) ? Number(url.searchParams.get("days")) : 30;
+  const stub = env.STATS.get(env.STATS.idFromName("v1"));
+  const res = await stub.fetch("https://stats.internal/query?days=" + days);
+  if (!res.ok) return new Response("query failed", { status: 502, headers: plain });
+  const data = await res.json();
+  const rows = (data.rows || []).filter((r) => r.store === store);
+
+  // 店名の解決(取れなければ store_id のまま。fail-open)
+  let dispName = store, memberNo = "";
+  try {
+    const db = await loadContractors();
+    const c = db && (db.contractors || []).find((x) => x.store_id === store);
+    if (c) { dispName = c.name || store; memberNo = c.member_no || ""; }
+  } catch (e) {}
+
+  const dayList = [];
+  for (let i = days - 1; i >= 0; i--) dayList.push(jstDay(i));
+  const total = {}; const byDay = {}; const verdicts = {}; const intakeByDay = {};
+  let intakeN = 0;
+  for (const r of rows) {
+    total[r.event] = (total[r.event] || 0) + r.n;
+    if (!byDay[r.event]) byDay[r.event] = {};
+    byDay[r.event][r.day] = (byDay[r.event][r.day] || 0) + r.n;
+    if (r.event === "verdict") verdicts[r.tool] = (verdicts[r.tool] || 0) + r.n;
+    if (r.event === "tool" && r.tool === "intake_estimate") { intakeN += r.n; intakeByDay[r.day] = (intakeByDay[r.day] || 0) + r.n; }
+  }
+  const C = { a: "#3b82f6", b: "#0d9488", c: "#ea580c", d: "#8b5cf6" };
+  const VS = { ok: "#22c55e", watch: "#f59e0b", alert: "#ef4444" };
+  const VT = { ok: "適正レンジ内", watch: "やや高い", alert: "過剰請求の懸念" };
+  const dseries = (fn) => daySeriesFromRows(rows, dayList, fn);
+  const actSeries = [
+    { label: "AI検索表示", color: C.b, day: dseries((r) => r.event === "agent_view") },
+    { label: "AI照会・診断", color: C.c, day: dseries((r) => r.event === "agent_hit" || r.event === "tool") },
+    { label: "モール閲覧", color: C.a, day: dseries((r) => r.event === "mall_view") },
+    { label: "モール相談", color: C.d, day: dseries((r) => r.event === "mall_click") },
+  ];
+  const verdictTotal = (verdicts.ok || 0) + (verdicts.watch || 0) + (verdicts.alert || 0);
+  const hasDiag = intakeN > 0 || verdictTotal > 0;
+  const hasWidget = (total.view || 0) + (total.open || 0) + (total.ehn_click || 0) > 0;
+  const dl = (d) => "/mypage?store=" + encodeURIComponent(store) + "&k=" + encodeURIComponent(k) + "&days=" + d;
+  const verdictChips = ["ok", "watch", "alert"].map((key) =>
+    '<span class="chip"><span class="dot" style="background:' + VS[key] + '"></span>' + VT[key] + " " + (verdicts[key] || 0) + "件</span>"
+  ).join("");
+
+  const html = "<!doctype html><html lang=\"ja\"><head><meta charset=\"utf-8\">" +
+    '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<meta name="robots" content="noindex,nofollow">' +
+    "<title>貢献レポート | " + escHtml(dispName) + " | HORIZON SHIELD</title><style>" +
+    "*{box-sizing:border-box}body{margin:0;background:#0f0f10;color:#e8e8ea;font-family:system-ui,'Hiragino Sans',Meiryo,sans-serif;line-height:1.7}" +
+    ".wrap{max-width:860px;margin:0 auto;padding:28px 18px 60px}" +
+    ".brand{font-size:12px;font-weight:800;color:#f97316;letter-spacing:.08em}" +
+    "h1{font-size:22px;margin:6px 0 0}h1 .no{font-size:11px;font-weight:700;color:#f97316;border:1px solid #f97316;border-radius:999px;padding:2px 8px;margin-left:10px;vertical-align:middle}" +
+    ".sub{color:#9aa4b2;font-size:12px;margin-top:6px}" +
+    ".filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0 6px}" +
+    ".filters a{color:#9aa4b2;text-decoration:none;font-size:13px;padding:6px 12px;border:1px solid #2a2a2e;border-radius:999px}" +
+    ".filters a.on{color:#111;background:#f97316;border-color:#f97316;font-weight:800}" +
+    ".grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:12px 0}" +
+    ".card{background:#141416;border:1px solid #26262a;border-radius:14px;padding:14px 15px}" +
+    ".lbl{color:#9aa4b2;font-size:12px;font-weight:700}.num{font-size:28px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;margin:2px 0 8px}" +
+    ".sub2,.sub{color:#8b95a3;font-size:11px}.card .sub{margin:0 0 8px}" +
+    ".dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:baseline}" +
+    ".chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 2px}" +
+    ".chip{background:#141416;border:1px solid #26262a;border-radius:999px;padding:6px 12px;font-size:13px}" +
+    ".chart{background:#141416;border:1px solid #26262a;border-radius:14px;padding:12px 14px 6px;margin:6px 0}.legend{display:flex;flex-wrap:wrap;gap:14px;margin:0 2px 8px}.lg{color:#9aa4b2;font-size:12px}" +
+    "h2{font-size:14px;color:#e8e8ea;margin:26px 0 4px;font-weight:800;border-left:3px solid #f97316;padding-left:10px}" +
+    ".h2s{color:#8b95a3;font-size:12px;margin:0 0 8px;padding-left:13px}" +
+    ".note{background:#141416;border:1px solid #26262a;border-radius:14px;padding:14px 16px;color:#9aa4b2;font-size:12px;margin-top:26px;line-height:1.9}" +
+    ".ft{color:#6b7280;font-size:11px;margin-top:22px;border-top:1px solid #222;padding-top:12px}" +
+    ".ft a{color:#9aa4b2}" +
+    "</style></head><body><div class=\"wrap\">" +
+    '<div class="brand">HORIZON SHIELD | Yakumo モール</div>' +
+    "<h1>" + escHtml(dispName) + (memberNo ? '<span class="no">加盟 ' + escHtml(memberNo) + "</span>" : "") + "</h1>" +
+    '<div class="sub">貢献レポート(あなたの店専用) | 集計はJST日次 | ' + escHtml(data.since) + " から " + escHtml(jstDay()) + " まで</div>" +
+    '<div class="filters">' +
+    '<a href="' + dl(7) + '"' + (days === 7 ? ' class="on"' : "") + ">7日</a>" +
+    '<a href="' + dl(30) + '"' + (days === 30 ? ' class="on"' : "") + ">30日</a>" +
+    '<a href="' + dl(90) + '"' + (days === 90 ? ' class="on"' : "") + ">90日</a></div>" +
+    "<h2>HORIZON SHIELD があなたの店を世に見せた回数</h2>" +
+    '<p class="h2s">モール(人が見る面)と、AIエージェント(ChatGPT / Claude 等が見る面)の、両方で数えています。</p>' +
+    '<div class="grid">' +
+    kpiTile("AI検索での表示", total.agent_view || 0, C.b, "AIの加盟店検索(八雲MCP)に登場") +
+    kpiTile("AIの照会・診断", (total.agent_hit || 0) + (total.tool || 0), C.c, "照会 " + Number(total.agent_hit || 0).toLocaleString() + " ・ 診断 " + Number(intakeN).toLocaleString()) +
+    kpiTile("モール店ページ閲覧", total.mall_view || 0, C.a, "モール一覧に表示 " + Number(total.mall_list || 0).toLocaleString() + " 回") +
+    kpiTile("モールからの相談", total.mall_click || 0, C.d, "施主が第三者チェックへ進んだ数") +
+    "</div>" +
+    "<h2>日別のアクティビティ</h2>" +
+    '<p class="h2s">HORIZON SHIELD があなたの店を、日ごとにどれだけ世へ運んだか。</p>' +
+    activityChart(dayList, actSeries) +
+    (hasDiag ? ("<h2>AI診断の判定内訳</h2>" +
+      '<p class="h2s">AIがあなたの店に関して見積もりを診断したとき、その結果の内訳です。</p>' +
+      '<div class="chips">' + verdictChips + "</div>") : "") +
+    (hasWidget ? ("<h2>あなたのサイトでの KIRA ウィジェット</h2>" +
+      '<p class="h2s">あなたのサイトに設置した KIRA が、訪問者にどれだけ働いたか(未設置の店には表示されません)。</p>' +
+      '<div class="grid">' +
+      kpiTile("ウィジェット表示", total.view || 0, C.a, "実描画ベース") +
+      kpiTile("パネル起動", total.open || 0, C.b, "ページ毎ユニーク") +
+      kpiTile("EHN第三者チェック", total.ehn_click || 0, C.d, "匿名の無料チェックへの導線") +
+      "</div>") : "") +
+    '<div class="note">この数字について: 計測は件数のみです。施主の入力内容・金額・個人情報は記録していません。' +
+    "このリンクはあなたの店専用です(他店の数字は見えません)。リンクの取り扱いにはご注意ください。" +
+    "KIRA は施工業者から紹介料や送客報酬を受け取らない、独立した第三者です。</div>" +
+    '<div class="ft">運営 The HORIZ音s株式会社 | <a href="' + SITE + '/yakumo/" target="_blank" rel="noopener">Yakumo モール</a> | HORIZON SHIELD hs-webmcp v' + escHtml(SERVER.version) + "</div>" +
+    "</div></body></html>";
+  return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex" } });
+}
+
 // ---------------- HTTP + JSON-RPC dispatch ----------------
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
     const method = request.method;
 
     if (method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
+
+    // 計測ビーコン。query形式(embedウィジェット発)と JSON一括形式(hs-hearing 等のサーバ発)。常に204。
+    if (method === "POST" && path === "/beacon") {
+      const evq = String(url.searchParams.get("event") || "");
+      if (evq) {
+        if (EV_FEED.includes(evq)) {
+          track(env, ctx, [{ store: url.searchParams.get("store") || "", event: evq, tool: "" }]);
+        }
+      } else {
+        try {
+          const body = await request.json();
+          const evs = (Array.isArray(body && body.events) ? body.events : []).slice(0, 20)
+            .filter((e) => e && EV_FEED.includes(String(e.event)))
+            .map((e) => ({ store: String(e.store || ""), event: String(e.event), tool: "" }));
+          track(env, ctx, evs);
+        } catch (e) { /* 計上できない形式は黙って捨てる(fail-open) */ }
+      }
+      return new Response(null, { status: 204, headers: CORS });
+    }
 
     // GET: discovery/info(MCPエンドポイントは405)
     if (method === "GET") {
@@ -637,8 +1114,20 @@ export default {
         return new Response(SECURITY_TXT, { headers: { "Content-Type": "text/plain; charset=utf-8", ...CORS } });
       if (path === "/.well-known/glama.json")
         return new Response(JSON.stringify({ "$schema": "https://glama.ai/mcp/schemas/connector.json", maintainers: [{ email: "ogasurfproject@gmail.com" }] }, null, 2), { headers: { "Content-Type": "application/json", ...CORS } });
-      if (path === "/embed.js")
+      if (path === "/embed.js") {
+        track(env, ctx, [{ store: url.searchParams.get("store") || "", event: "fetch", tool: "" }]);
         return new Response(EMBED_JS, { headers: { "Content-Type": "application/javascript; charset=utf-8", "Cache-Control": "public, max-age=300", ...CORS } });
+      }
+      if (path === "/stats") return statsPage(url, env);
+      if (path === "/mypage") return mypagePage(url, env);
+      // モール静的ページ用の計測ピクセル(JS不要。キャッシュ禁止で毎回カウント)
+      if (path === "/px.gif") {
+        const ev = String(url.searchParams.get("event") || "");
+        if (EV_PX.includes(ev)) {
+          track(env, ctx, [{ store: url.searchParams.get("store") || "", event: ev, tool: "" }]);
+        }
+        return new Response(PX_GIF, { headers: { "Content-Type": "image/gif", "Cache-Control": "no-store, private", ...CORS } });
+      }
       if (path === "/mcp")
         return new Response("Method Not Allowed. Use POST for JSON-RPC.", { status: 405, headers: { Allow: "POST, OPTIONS", ...CORS } });
       // 人間向け情報(ルート等)。MCPエンドポイントではない。
@@ -679,6 +1168,10 @@ export default {
     if (isResponse || isNotification) return new Response(null, { status: 202, headers: CORS });
 
     const { id, method: rpcMethod, params } = msg || {};
+
+    // メソッド別の軽量計測(件数のみ)
+    const storeQS = url.searchParams.get("store") || "";
+    track(env, ctx, [{ store: storeQS, event: "rpc", tool: String(rpcMethod || "unknown") }]);
 
     if (rpcMethod === "initialize") {
       const req = params && params.protocolVersion;
@@ -731,12 +1224,19 @@ export default {
       // 裏でstoreを検証(表のツール仕様は不変)。未契約storeはここでfail-closed。
       const storeId = url.searchParams.get("store");
       const gate = await verifyStore(storeId);
-      if (!gate.ok) return rpcErr(id, gate.code, gate.message);
+      if (!gate.ok) {
+        track(env, ctx, [{ store: storeId || "", event: "denied", tool: "" }]);
+        return rpcErr(id, gate.code, gate.message);
+      }
       const tenant = gate.store ? { store_id: gate.store.store_id, member_no: gate.store.member_no } : null;
       const name = params && params.name;
       const out = await runTool(name, (params && params.arguments) || {}, env);
       if (out === null) return rpcErr(id, -32602, "Unknown tool: " + name);
       if (tenant) out._tenant = tenant;
+      const tev = [{ store: storeId || "", event: "tool", tool: String(name || "") }];
+      const lv = auditLevel(out);
+      if (lv) tev.push({ store: storeId || "", event: "verdict", tool: lv });
+      track(env, ctx, tev);
       return rpc(id, { content: [{ type: "text", text: JSON.stringify(out) }], structuredContent: out });
     }
 
