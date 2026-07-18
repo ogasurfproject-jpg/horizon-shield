@@ -281,6 +281,39 @@ async function handleOrchestrate(args, env) {
   return out;
 }
 
+// ---------- store裏識別(Glama仕様は不変・全店同一。名前は出さず store_id で裏個別識別+課金ゲート) ----------
+// 真実源(公開JSON)。単一ソースを保ち、hs-webmcp側でミラーを持たない。
+const CONTRACTORS_URL = "https://shield.the-horizons-innovation.com/data/yakumo-contractors.json";
+
+// 課金ゲートの芯(純関数): WebMCP有料オプション契約店だけ稼働する。honbuのみは false。
+function isProvisioned(c) {
+  return !!(c && c.webmcp_option === true && c.webmcp && c.webmcp.enabled === true);
+}
+
+async function loadContractors() {
+  try {
+    const cache = caches.default;
+    let res = await cache.match(CONTRACTORS_URL);
+    if (!res) {
+      res = await fetch(CONTRACTORS_URL, { cf: { cacheTtl: 120, cacheEverything: true } });
+      if (res && res.ok) { await cache.put(CONTRACTORS_URL, res.clone()); }
+    }
+    if (!res || !res.ok) return null;
+    return await res.json();
+  } catch (e) { return null; }
+}
+
+// store未指定=従来の共通窓口(後方互換)。指定あり=契約店だけ通す(fail-closed)。
+async function verifyStore(storeId) {
+  if (!storeId) return { ok: true, store: null };
+  const db = await loadContractors();
+  if (!db) return { ok: false, code: -32002, message: "store registry unavailable (fail-closed)" };
+  const c = (db.contractors || []).find((x) => x.store_id === storeId);
+  if (!c) return { ok: false, code: -32001, message: "unknown store: " + storeId };
+  if (!isProvisioned(c)) return { ok: false, code: -32001, message: "store not provisioned for WebMCP (paid option required)" };
+  return { ok: true, store: c };
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
@@ -332,21 +365,27 @@ export default {
     if (method === "tools/list") return rpc(id, { tools: TOOLS });
     if (method === "ping") return rpc(id, {});
     if (method === "tools/call") {
+      // 裏でstoreを検証(表のツール仕様は不変)。未契約storeはここでfail-closed。
+      const storeId = new URL(request.url).searchParams.get("store");
+      const gate = await verifyStore(storeId);
+      if (!gate.ok) return rpcErr(id, gate.code, gate.message);
+      const tenant = gate.store ? { store_id: gate.store.store_id, member_no: gate.store.member_no } : null;
+      const stamp = (out) => { if (tenant) out._tenant = tenant; return out; };
       const name = params?.name;
       if (name === "orchestrate") {
-        const out = await handleOrchestrate(params?.arguments || {}, env);
+        const out = stamp(await handleOrchestrate(params?.arguments || {}, env));
         return rpc(id, { content: [{ type: "text", text: JSON.stringify(out) }] });
       }
       if (name === "intake_estimate") {
-        const out = await handleIntake(params?.arguments || {}, env);
+        const out = stamp(await handleIntake(params?.arguments || {}, env));
         return rpc(id, { content: [{ type: "text", text: JSON.stringify(out) }] });
       }
       if (name === "scan_tactics") {
-        const out = await handleScanTactics(params?.arguments || {}, env);
+        const out = stamp(await handleScanTactics(params?.arguments || {}, env));
         return rpc(id, { content: [{ type: "text", text: JSON.stringify(out) }] });
       }
       if (name === "draft_broadcast") {
-        const out = await handleDraftBroadcast(params?.arguments || {}, env);
+        const out = stamp(await handleDraftBroadcast(params?.arguments || {}, env));
         return rpc(id, { content: [{ type: "text", text: JSON.stringify(out) }] });
       }
       return rpcErr(id, -32601, "Unknown tool: " + name);

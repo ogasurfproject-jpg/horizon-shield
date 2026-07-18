@@ -46,7 +46,18 @@
         "last_answer_at": null
       },
       "joined_at": "2026-07-09",
-      "verified_at": null
+      "verified_at": null,
+      "webmcp": {
+        "enabled": true,
+        "requires_option": true,
+        "store_id": "hs-partner-001",
+        "endpoint": "https://hs-webmcp.oga-surf-project.workers.dev/mcp?store=hs-partner-001",
+        "embed_id": "no001",
+        "audit_engine": "kira-neutral",
+        "note": "表向きは全店同一のKIRA(Glama仕様・名前なし)。store_idで裏個別識別と課金ゲートのみ。",
+        "provisioned_at": null,
+        "status": "draft"
+      }
     }
   ]
 }
