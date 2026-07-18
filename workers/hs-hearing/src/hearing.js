@@ -18,9 +18,11 @@
 
 import * as AP from "./autopilot.js";
 
-const SERVER = { name: "HORIZON SHIELD YAKUMO", version: "2.0.0" };
+const SERVER = { name: "HORIZON SHIELD YAKUMO", version: "2.1.0" };
 const PUBLIC_DATA_FALLBACK = "https://shield.the-horizons-innovation.com/data/yakumo-contractors.json";
 const MALL_URL = "https://shield.the-horizons-innovation.com/yakumo/";
+const SITE_URL = "https://shield.the-horizons-innovation.com";
+const MCP_SUPPORTED = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"];
 
 /* ------------------------------ helpers ------------------------------ */
 const cors = {
@@ -250,6 +252,25 @@ const MCP_TOOLS = [
       required: ["member_no"],
     },
   },
+  {
+    name: "find_contractor",
+    description: "施主の相談文(自由記述)から Yakumo の検証済み加盟店を探す司令塔。need(例:『愛知県で外壁塗装できる信頼できる業者』)を渡すと地域と工種を推定し、検証を通過した店を返す。該当が無ければ相場(souba)や無料の第三者チェック(EHN)への導線を返す。金額は返さない(スコア・ティアのみ)。紹介料なし・verified-first・Japan only。",
+    inputSchema: {
+      type: "object",
+      properties: { need: { type: "string", description: "探している内容(日本語自由記述)。例: 神奈川で屋根の雨漏り修理、長久手で内装リフォーム" } },
+      required: ["need"],
+    },
+  },
+  {
+    name: "mall_overview",
+    description: "Yakumo モール全体の要約を返す。検証済み加盟店の数・対応工種カテゴリ・地域・検証の仕組みの要点・主要リンク(モール/加盟/相場/実例ボード)。AIが Yakumo というモール/MCP を一言で説明するための入口。金額は含まない。",
+    inputSchema: { type: "object", properties: {} },
+  },
+  {
+    name: "how_verification_works",
+    description: "Yakumo の掲載審査(KIRA適正診断)がどう機能するかを返す。適正価格の検証・過剰請求の赤旗検出・適正度スコアと誠実度ティア・再計算できる署名レシート(SHA-256)・掲載後の継続監視・fail-closed(通らない店は施主向けに一切出さない)・中立(紹介料なし)。施主が『検証済み』の意味を理解するための説明。",
+    inputSchema: { type: "object", properties: {} },
+  },
 ];
 
 function publicView(c) {
@@ -292,13 +313,143 @@ function feedStats(ctx, events) {
   } catch (_e) {}
 }
 
+/* ------------ Yakumo MCP: 参照データ・prompts・discovery ロジック(Glama級) ------------ */
+const YAKUMO_INSTRUCTIONS =
+  "Yakumo は HORIZON SHIELD が運営する中立(紹介料なし)の検証済み加盟店ディレクトリ。掲載は KIRA 適正診断の通過だけで決まり(fail-closed)、金額は出さずスコア・ティアで表す。" +
+  "tools: find_contractor(自由記述から検証済み店を探す司令塔), list_verified_stores(地域x工種で一覧), get_contractor_profile(1件詳細), mall_overview(モール要約), how_verification_works(審査の仕組み)。" +
+  "resources: yakumo://mall, yakumo://verification, yakumo://categories, yakumo://store/{member_no}。prompts: find_a_contractor / is_this_store_trustworthy。" +
+  "断定せず施主の判断を尊重。紹介料は受け取らない。Japan, verified-first。";
+const VERIFY_MD =
+  "# Yakumo の検証の仕組み\n\n" +
+  "Yakumo は施工業者から紹介手数料や送客報酬を受け取りません。掲載の可否は、独立第三者(KIRA, 大賀俊勝 建設実務30年 監修)の適正診断を通過するかどうかだけで決まります。\n\n" +
+  "- 実際の見積もり例を、オープン建設費DB(JCCDB 65,729品目)と souba-db に照合し適正価格を検証。\n" +
+  "- 一式計上・過大な諸経費・訪問販売の即決圧力など、過剰請求の赤旗を検出。\n" +
+  "- 工種ごとに適正度スコア(0-100)と誠実度ティア(A-F)を算出。1工種でも過剰があれば全体が下がる。\n" +
+  "- 結果に、誰でも再計算できる署名レシート(SHA-256)を添付。施主は根拠を手元で検証できる。\n" +
+  "- 掲載後も単価の水増しを継続監視。逸脱すれば本部へ通知。\n" +
+  "- 通過しない店は施主向けに一切表示しない(fail-closed)。\n\n" +
+  "金額そのものは施主向けページには出さず、スコア・ティア・検証で示します。判断はあなた自身。";
+const YAKUMO_RESOURCES = [
+  { uri: "yakumo://mall", name: "yakumo-mall", title: "Yakumo モール概要", description: "検証済み加盟店の数・工種・地域・検証の要点・主要リンク", mimeType: "application/json" },
+  { uri: "yakumo://verification", name: "yakumo-verification", title: "Yakumo の検証の仕組み", description: "KIRA適正診断・スコア・署名レシート・fail-closed の説明", mimeType: "text/markdown" },
+  { uri: "yakumo://categories", name: "yakumo-categories", title: "対応工種カテゴリ", description: "モールで扱う工種の一覧(件数付き)", mimeType: "application/json" },
+];
+const YAKUMO_RESOURCE_TEMPLATES = [
+  { uriTemplate: "yakumo://store/{member_no}", name: "yakumo-store", title: "加盟店プロフィール", description: "member_no(例 No.001)で検証済みプロフィールを取得", mimeType: "application/json" },
+];
+const YAKUMO_PROMPTS = [
+  { name: "find_a_contractor", title: "検証済みの職人を探す", description: "地域と工種から Yakumo の検証済み加盟店を探して施主に渡す手順。", arguments: [{ name: "area", description: "地域(例: 愛知県)", required: false }, { name: "work", description: "工種(例: 外壁塗装)", required: false }] },
+  { name: "is_this_store_trustworthy", title: "この店は信頼できるか", description: "member_no の店の検証状態を確認し『検証済み』の意味を施主に説明する手順。", arguments: [{ name: "member_no", description: "加盟店番号(例: No.001)", required: true }] },
+];
+const WORK_HINTS = ["外壁塗装", "屋根", "雨漏り", "防水", "塗装", "内装", "クロス", "フローリング", "床", "浴室", "ユニットバス", "キッチン", "トイレ", "洗面", "水道", "給湯", "外構", "エクステリア", "カーポート", "駐車場", "解体", "シロアリ", "防蟻", "太陽光", "蓄電池", "窓", "サッシ", "増改築", "リフォーム"];
+
+function tallyWorks(contractors) {
+  const w = {};
+  for (const c of contractors) for (const x of (c.works || [])) if (x) w[x] = (w[x] || 0) + 1;
+  return w;
+}
+function tallyAreas(contractors) {
+  const a = {};
+  for (const c of contractors) { if (c.area) a[c.area] = (a[c.area] || 0) + 1; for (const x of (c.areas_served || [])) if (x) a[x] = (a[x] || 0) + 1; }
+  return a;
+}
+function mallOverview(contractors) {
+  const list = contractors.map(publicView);
+  const verified = list.filter((c) => c.verification === "verified");
+  const works = tallyWorks(contractors);
+  return {
+    mall: MALL_URL,
+    operator: "The HORIZ音s株式会社 / HORIZON SHIELD",
+    verified_count: verified.length,
+    total_listed: list.length,
+    work_categories: Object.keys(works).sort((a, b) => works[b] - works[a]),
+    areas: Object.keys(tallyAreas(contractors)),
+    verification: "掲載は KIRA 適正診断の通過だけで決まる。紹介料なし。金額は出さずスコア・ティアで表す。fail-closed。",
+    dataset: "JCCDB 65,729品目に照合(souba-db, 大賀俊勝 実務監修)",
+    links: { mall: MALL_URL, apply: SITE_URL + "/yakumo/apply/", souba: SITE_URL + "/souba/", ehn: SITE_URL + "/ehn/", free_check: SITE_URL + "/hacker/submit/" },
+    disclaimer: "Yakumoは紹介料を受け取らない中立モール。金額の断定はせず、判断は施主自身。",
+  };
+}
+function findMatches(contractors, area, work) {
+  let raw = contractors;
+  if (area) raw = raw.filter((c) => (c.area || "").includes(area) || (c.areas_served || []).some((a) => a.includes(area)) || area.includes((c.area || "").slice(0, 2)));
+  if (work) raw = raw.filter((c) => (c.works || []).some((w) => w.includes(work) || work.includes(w)));
+  return raw;
+}
+
 async function handleMcp(request, env, id, method, params, ctx) {
   if (method === "initialize") {
-    const pv = (params && params.protocolVersion) || "2025-06-18";
-    return rpc(id, { protocolVersion: pv, capabilities: { tools: {} }, serverInfo: SERVER });
+    const req = params && params.protocolVersion;
+    const pv = MCP_SUPPORTED.includes(req) ? req : "2025-06-18";
+    return rpc(id, {
+      protocolVersion: pv,
+      capabilities: { tools: { listChanged: false }, resources: { listChanged: false, subscribe: false }, prompts: { listChanged: false }, completions: {} },
+      serverInfo: SERVER,
+      instructions: YAKUMO_INSTRUCTIONS,
+    });
   }
-  if (method === "notifications/initialized") return new Response(null, { status: 202, headers: cors });
+  if (method && method.indexOf("notifications/") === 0) return new Response(null, { status: 202, headers: cors });
+  if (method === "ping") return rpc(id, {});
   if (method === "tools/list") return rpc(id, { tools: MCP_TOOLS });
+  if (method === "resources/list") return rpc(id, { resources: YAKUMO_RESOURCES });
+  if (method === "resources/templates/list") return rpc(id, { resourceTemplates: YAKUMO_RESOURCE_TEMPLATES });
+  if (method === "prompts/list") return rpc(id, { prompts: YAKUMO_PROMPTS });
+
+  if (method === "resources/read") {
+    const uri = params && params.uri;
+    if (!uri) return rpcErr(id, -32602, "params.uri required");
+    const contractors = await liveContractors(env);
+    if (uri === "yakumo://mall") return rpc(id, { contents: [{ uri, mimeType: "application/json", text: JSON.stringify(mallOverview(contractors), null, 2) }] });
+    if (uri === "yakumo://verification") return rpc(id, { contents: [{ uri, mimeType: "text/markdown", text: VERIFY_MD }] });
+    if (uri === "yakumo://categories") return rpc(id, { contents: [{ uri, mimeType: "application/json", text: JSON.stringify({ categories: tallyWorks(contractors), areas: tallyAreas(contractors) }, null, 2) }] });
+    const m = String(uri).match(/^yakumo:\/\/store\/(.+)$/);
+    if (m) {
+      const mn = decodeURIComponent(m[1]);
+      const c = contractors.find((x) => x.member_no === mn || x.store_id === mn);
+      if (!c) return rpcErr(id, -32002, "store not found: " + mn);
+      return rpc(id, { contents: [{ uri, mimeType: "application/json", text: JSON.stringify(publicView(c), null, 2) }] });
+    }
+    return rpcErr(id, -32002, "resource not found: " + uri);
+  }
+
+  if (method === "prompts/get") {
+    const name = params && params.name;
+    const a = (params && params.arguments) || {};
+    if (name === "find_a_contractor") {
+      const area = safeStr(a.area, 40); const work = safeStr(a.work, 40);
+      const text = "Yakumo(中立・検証済みの加盟店ディレクトリ)で職人を探してください。" +
+        (area ? "地域: " + area + "。" : "") + (work ? "工種: " + work + "。" : "") + "\n\n" +
+        "手順: (1) find_contractor に need(地域と工種を含む自由記述)を渡し検証済みの店を取得。" +
+        "(2) 気になる店は get_contractor_profile で適正度スコアとティアを確認。" +
+        "(3) 金額は断定せず、掲載が『KIRA適正診断の通過』を意味することを施主に伝える。" +
+        "(4) 該当が無ければ相場(" + SITE_URL + "/souba/)や無料の第三者チェック(" + SITE_URL + "/ehn/)を案内。紹介料は受け取らない中立の立場を明示。";
+      return rpc(id, { description: "検証済みの職人を探す手順", messages: [{ role: "user", content: { type: "text", text } }] });
+    }
+    if (name === "is_this_store_trustworthy") {
+      const mn = safeStr(a.member_no, 20);
+      if (!mn) return rpcErr(id, -32602, "prompt requires argument: member_no");
+      const text = "Yakumo 加盟店 " + mn + " が信頼できるかを、施主にわかる言葉で説明してください。\n\n" +
+        "手順: (1) get_contractor_profile に member_no=" + mn + " を渡し検証状態・適正度スコア・誠実度ティア・赤旗件数を取得。" +
+        "(2) how_verification_works で『検証済み』が何を保証するか(適正診断の通過・署名レシート・継続監視・fail-closed)を確認。" +
+        "(3) verification が pending ならスコアは出さない(まだ通過していない)ことを正直に伝える。" +
+        "(4) 金額は断定せず、判断材料を渡すに留める。Yakumoは紹介料を受け取らない中立の立場。";
+      return rpc(id, { description: "店の信頼性を確認する手順", messages: [{ role: "user", content: { type: "text", text } }] });
+    }
+    return rpcErr(id, -32602, "unknown prompt: " + name);
+  }
+
+  if (method === "completion/complete") {
+    const argument = params && params.argument;
+    if (!argument || !argument.name) return rpcErr(id, -32602, "params.argument required");
+    const contractors = await liveContractors(env);
+    const val = safeStr(argument.value, 40);
+    let pool = [];
+    if (argument.name === "work") pool = Object.keys(tallyWorks(contractors));
+    else if (argument.name === "area") pool = Object.keys(tallyAreas(contractors));
+    const hit = pool.filter((x) => x.includes(val)).slice(0, 100);
+    return rpc(id, { completion: { values: hit, total: hit.length, hasMore: false } });
+  }
+
   if (method === "tools/call") {
     const name = params && params.name;
     const args = (params && params.arguments) || {};
@@ -306,9 +457,7 @@ async function handleMcp(request, env, id, method, params, ctx) {
     if (name === "list_verified_stores") {
       const area = safeStr(args.area, 40);
       const work = safeStr(args.work, 40);
-      let raw = contractors;
-      if (area) raw = raw.filter((c) => (c.area || "").includes(area) || (c.areas_served || []).some((a) => a.includes(area)));
-      if (work) raw = raw.filter((c) => (c.works || []).some((w) => w.includes(work)));
+      const raw = findMatches(contractors, area, work);
       // AI検索の結果にこの店たちが表示された = agent_view(貢献レポートのAI面の実数)
       feedStats(ctx, raw.map((c) => ({ store: String(c.store_id || c.member_no || ""), event: "agent_view" })).filter((e) => e.store));
       const list = raw.map(publicView);
@@ -333,6 +482,38 @@ async function handleMcp(request, env, id, method, params, ctx) {
       // AIがこの店の詳細を照会した = agent_hit(施主へ紹介する直前の照会)
       feedStats(ctx, [{ store: String(c.store_id || c.member_no || ""), event: "agent_hit" }]);
       return rpc(id, { content: [{ type: "text", text: JSON.stringify(publicView(c), null, 2) }] });
+    }
+    if (name === "find_contractor") {
+      const need = safeStr(args.need, 200);
+      if (!need) return rpc(id, { content: [{ type: "text", text: JSON.stringify({ error: "need is required" }) }], isError: true });
+      const work = WORK_HINTS.find((w) => need.includes(w)) || "";
+      let area = "";
+      const pref = need.match(/(北海道|東京都|大阪府|京都府|..県)/);
+      if (pref) area = pref[1];
+      if (!area) { const ak = Object.keys(tallyAreas(contractors)); area = ak.find((a) => need.includes(a) || need.includes(a.slice(0, 2))) || ""; }
+      const raw = findMatches(contractors, area, work);
+      feedStats(ctx, raw.map((c) => ({ store: String(c.store_id || c.member_no || ""), event: "agent_view" })).filter((e) => e.store));
+      const list = raw.map(publicView);
+      const verified = list.filter((c) => c.verification === "verified");
+      const pending = list.filter((c) => c.verification !== "verified");
+      const payload = {
+        understood: { area: area || null, work: work || null },
+        verified_count: verified.length,
+        stores: verified,
+        pending_stores: pending,
+        guidance: verified.length
+          ? "検証済みの店です。get_contractor_profile で各店の適正度スコアとティアを確認できます。金額は出しません。判断は施主自身。"
+          : "条件に合う検証済みの店がまだありません。相場は souba、実際の見積もりチェックは EHN(無料・匿名)を案内してください。",
+        next: { mall: MALL_URL, souba: SITE_URL + "/souba/", ehn: SITE_URL + "/ehn/", free_check: SITE_URL + "/hacker/submit/" },
+        disclaimer: "Yakumoは紹介料を受け取らない中立モール。掲載は適正診断の通過だけで決まる。",
+      };
+      return rpc(id, { content: [{ type: "text", text: JSON.stringify(payload, null, 2) }] });
+    }
+    if (name === "mall_overview") {
+      return rpc(id, { content: [{ type: "text", text: JSON.stringify(mallOverview(contractors), null, 2) }] });
+    }
+    if (name === "how_verification_works") {
+      return rpc(id, { content: [{ type: "text", text: JSON.stringify({ how_it_works: VERIFY_MD, mall: MALL_URL, apply: SITE_URL + "/yakumo/apply/", neutral: true, referral_fees: false }, null, 2) }] });
     }
     return rpcErr(id, -32601, "unknown tool: " + name);
   }
@@ -634,11 +815,97 @@ function storeToContractor(s) {
 }
 
 /* ------------------------------ router ------------------------------ */
+/* ------------------------------ Yakumo WebMCP embed (served at /embed.js) ------------------------------ */
+// 検証済みの職人を地域x工種で探せる discovery ウィジェット。どのサイトにも <script src=".../embed.js"> 1行で載る。
+// Shadow DOM でホストCSSと隔離。localStorage不使用。金額は出さない(スコア・ティアのみ)。裏で Yakumo MCP を叩く。
+const YAKUMO_EMBED_JS = "/* HORIZON SHIELD Yakumo 案内ウィジェット (served at /embed.js). Shadow DOM, no localStorage. */\n" +
+"(function(){\n" +
+"  if(window.__HS_YAKUMO_EMBED__)return; window.__HS_YAKUMO_EMBED__=true;\n" +
+"  var me=document.currentScript, ORIGIN='https://hs-hearing.oga-surf-project.workers.dev';\n" +
+"  try{ if(me&&me.src) ORIGIN=new URL(me.src).origin; }catch(e){}\n" +
+"  var MCP=ORIGIN+'/mcp', SITE='https://shield.the-horizons-innovation.com';\n" +
+"  function esc(s){s=(s==null?'':String(s));return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');}\n" +
+"  var CSS='*{box-sizing:border-box}'+\n" +
+"    '.fab{position:fixed;left:20px;bottom:20px;z-index:2147483000;background:#3FE0CE;color:#06241F;border:0;border-radius:999px;padding:13px 19px;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,.4);font-family:system-ui,\"Hiragino Sans\",Meiryo,sans-serif}'+\n" +
+"    '.fab .d{display:inline-block;width:8px;height:8px;border-radius:50%;background:#06241F;margin-right:8px;vertical-align:middle;opacity:.7}'+\n" +
+"    '.panel{position:fixed;left:20px;bottom:80px;z-index:2147483000;width:360px;max-width:calc(100vw - 28px);max-height:calc(100vh - 116px);overflow:auto;background:#0A0E16;color:#EAF0F8;border:1px solid #1A2230;border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.55);font-family:system-ui,\"Hiragino Sans\",Meiryo,sans-serif;display:none;line-height:1.7}'+\n" +
+"    '.panel.open{display:block}'+\n" +
+"    '.hd{display:flex;align-items:center;justify-content:space-between;padding:15px 17px;border-bottom:1px solid #1A2230;position:sticky;top:0;background:#0A0E16}'+\n" +
+"    '.ttl{font-weight:800;font-size:15px;color:#fff}'+\n" +
+"    '.tag{font-size:10.5px;font-weight:700;color:#3FE0CE;border:1px solid #15847A;border-radius:999px;padding:2px 8px;margin-left:7px;vertical-align:middle}'+\n" +
+"    '.x{background:0;border:0;color:#7E8CA2;font-size:22px;line-height:1;cursor:pointer;padding:2px 6px}'+\n" +
+"    '.bd{padding:15px 17px}'+\n" +
+"    '.lead{color:#9aa4b2;font-size:12.5px;margin:0 0 12px}'+\n" +
+"    'label{display:block;font-size:11.5px;color:#7E8CA2;margin:10px 0 4px;font-weight:700}'+\n" +
+"    'input{width:100%;background:#111722;border:1px solid #283449;color:#fff;border-radius:9px;padding:10px 11px;font-size:14px;outline:none}'+\n" +
+"    'input:focus{border-color:#15847A}'+\n" +
+"    '.go{width:100%;margin-top:13px;background:#3FE0CE;color:#06241F;border:0;border-radius:9px;padding:12px;font-weight:800;font-size:14px;cursor:pointer}'+\n" +
+"    '.go:disabled{opacity:.6}'+\n" +
+"    '.rc{margin-top:13px}'+\n" +
+"    '.st{display:block;background:#111722;border:1px solid #283449;border-radius:11px;padding:12px 13px;margin-bottom:9px;text-decoration:none;color:inherit}'+\n" +
+"    '.st:hover{border-color:#15847A}'+\n" +
+"    '.st .nm{font-weight:800;font-size:14px;color:#fff}'+\n" +
+"    '.st .mt{font-size:11.5px;color:#9aa4b2;margin-top:2px}'+\n" +
+"    '.st .tg{display:inline-block;font-size:10px;color:#7E8CA2;border:1px solid #283449;border-radius:5px;padding:1px 6px;margin:5px 4px 0 0}'+\n" +
+"    '.st .sc{float:right;font-family:\"Space Grotesk\",system-ui;font-weight:800;color:#3FE0CE;font-size:13px;border:1px solid #15847A;border-radius:7px;padding:2px 8px}'+\n" +
+"    '.muted{color:#7E8CA2;font-size:12px;margin:8px 0}'+\n" +
+"    '.lk{display:block;text-align:center;margin-top:9px;background:#3FE0CE;color:#06241F;font-weight:800;font-size:13px;border-radius:9px;padding:11px;text-decoration:none}'+\n" +
+"    '.lk2{display:block;text-align:center;margin-top:7px;color:#EAF0F8;font-size:12.5px;text-decoration:underline}'+\n" +
+"    '.ft{color:#4A5568;font-size:10.5px;margin-top:12px;border-top:1px solid #1A2230;padding-top:10px;line-height:1.6}';\n" +
+"  var HTML='<button class=\"fab\" id=\"fab\" aria-label=\"検証済みの職人を探す\"><span class=\"d\"></span>検証済みの職人を探す</button>'+\n" +
+"    '<div class=\"panel\" id=\"panel\" role=\"dialog\" aria-label=\"Yakumo 検証済みの職人を探す\">'+\n" +
+"      '<div class=\"hd\"><div class=\"ttl\">検証済みの職人を探す<span class=\"tag\">中立・紹介料なし</span></div><button class=\"x\" id=\"x\" aria-label=\"閉じる\">&times;</button></div>'+\n" +
+"      '<div class=\"bd\">'+\n" +
+"        '<p class=\"lead\">Yakumo は適正価格の検証と過剰請求チェック(KIRA)を通過した加盟店だけを掲載する中立モールです。金額ではなくスコア・ティアで示します。判断はあなた自身。</p>'+\n" +
+"        '<label for=\"ya\">地域</label><input id=\"ya\" placeholder=\"例: 愛知県 / 長久手市\" autocomplete=\"off\">'+\n" +
+"        '<label for=\"yw\">工種</label><input id=\"yw\" placeholder=\"例: 外壁塗装 / 屋根 / 内装\" autocomplete=\"off\">'+\n" +
+"        '<button class=\"go\" id=\"go\">検証済みの店を探す</button>'+\n" +
+"        '<div class=\"rc\" id=\"rc\"></div>'+\n" +
+"        '<div class=\"ft\">運営 The HORIZ音s株式会社 / HORIZON SHIELD。Yakumo は施工業者から紹介料や送客報酬を受け取らない、独立した第三者です。</div>'+\n" +
+"      '</div></div>';\n" +
+"  var host=document.createElement('div'); (document.body||document.documentElement).appendChild(host);\n" +
+"  var root=host.attachShadow?host.attachShadow({mode:'open'}):host;\n" +
+"  var box=document.createElement('div'); box.innerHTML='<style>'+CSS+'</style>'+HTML; root.appendChild(box);\n" +
+"  var panel=root.querySelector('#panel'), rc=root.querySelector('#rc');\n" +
+"  function open(){panel.classList.add('open');var a=root.querySelector('#ya');if(a)a.focus();}\n" +
+"  function close(){panel.classList.remove('open');}\n" +
+"  root.querySelector('#fab').addEventListener('click',function(){panel.classList.contains('open')?close():open();});\n" +
+"  root.querySelector('#x').addEventListener('click',close);\n" +
+"  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});\n" +
+"  function links(){return '<a class=\"lk\" href=\"'+SITE+'/yakumo/\" target=\"_blank\" rel=\"noopener\">Yakumo モールで一覧を見る</a>'+'<a class=\"lk2\" href=\"'+SITE+'/ehn/\" target=\"_blank\" rel=\"noopener\">見積もりを匿名で無料チェック(EHN)</a>';}\n" +
+"  function render(d){\n" +
+"    var stores=(d&&d.stores)||[];\n" +
+"    if(!stores.length){ rc.innerHTML='<p class=\"muted\">条件に合う検証済みの店がまだ見つかりませんでした。モール全体を見るか、手元の見積もりを無料でチェックできます。</p>'+links(); return; }\n" +
+"    var h='';\n" +
+"    for(var i=0;i<stores.length;i++){ var s=stores[i];\n" +
+"      var works=(s.works||[]).slice(0,4).map(function(w){return '<span class=\"tg\">'+esc(w)+'</span>';}).join('');\n" +
+"      var sc=(s.integrity_tier?('<span class=\"sc\">'+esc(s.integrity_tier)+(s.fairness_score!=null?(' '+esc(s.fairness_score)):'')+'</span>'):'');\n" +
+"      h+='<a class=\"st\" href=\"'+esc(s.profile_url||(SITE+'/yakumo/'))+'\" target=\"_blank\" rel=\"noopener\">'+sc+'<div class=\"nm\">'+esc(s.name||'加盟店')+'</div><div class=\"mt\">'+esc(s.area||'')+' ・ '+esc(s.member_no||'')+'</div>'+works+'</a>';\n" +
+"    }\n" +
+"    rc.innerHTML=h+links();\n" +
+"  }\n" +
+"  function search(){\n" +
+"    var area=(root.querySelector('#ya').value||'').trim(), work=(root.querySelector('#yw').value||'').trim();\n" +
+"    var go=root.querySelector('#go'); go.disabled=true; rc.innerHTML='<p class=\"muted\">検証済みの店を照合しています…</p>';\n" +
+"    fetch(MCP,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'list_verified_stores',arguments:{area:area,work:work}}})})\n" +
+"      .then(function(r){return r.json();}).then(function(j){ go.disabled=false; var out=null; try{ out=JSON.parse(j.result.content[0].text); }catch(e){} if(!out){ rc.innerHTML='<p class=\"muted\">ただいま混み合っています。少し時間をおいてお試しください。</p>'+links(); return;} render(out); })\n" +
+"      .catch(function(){ go.disabled=false; rc.innerHTML='<p class=\"muted\">通信に失敗しました。時間をおいてお試しください。</p>'+links(); });\n" +
+"  }\n" +
+"  root.querySelector('#go').addEventListener('click',search);\n" +
+"})();\n";
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+
+    if (path === "/embed.js")
+      return new Response(YAKUMO_EMBED_JS, { headers: { "Content-Type": "application/javascript; charset=utf-8", "Cache-Control": "public, max-age=300", ...cors } });
+    if (path === "/.well-known/security.txt")
+      return new Response("Contact: mailto:contact@the-horizons-innovation.com\nExpires: 2027-07-18T00:00:00.000Z\nPreferred-Languages: ja, en\nCanonical: " + url.origin + "/.well-known/security.txt\nPolicy: " + SITE_URL + "/\n", { headers: { "Content-Type": "text/plain; charset=utf-8", ...cors } });
+    if (path === "/.well-known/glama.json")
+      return json({ "$schema": "https://glama.ai/mcp/schemas/connector.json", maintainers: [{ email: "ogasurfproject@gmail.com" }] });
 
     if (path === "/health") {
       // 保全: 心臓の脈(最終巡回)と内臓検診(弐号)の要約を出す。件数のみで中身は出さない(非機微)。
@@ -712,13 +979,21 @@ export default {
 
     // MCP: JSON-RPC over HTTP(POST)
     if (path === "/mcp") {
-      if (request.method === "GET") return json({ server: SERVER, transport: "jsonrpc", tools: MCP_TOOLS.map((t) => t.name), mall: MALL_URL });
+      // Streamable HTTP: POST専用。GET/DELETEは405(仕様準拠)。
+      if (request.method === "GET") return new Response("Method Not Allowed. Use POST for JSON-RPC.", { status: 405, headers: { Allow: "POST, OPTIONS", ...cors } });
+      if (request.method === "DELETE") return new Response("Method Not Allowed (stateless server, no session).", { status: 405, headers: { Allow: "POST, OPTIONS", ...cors } });
       if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+      const pv = request.headers.get("MCP-Protocol-Version");
+      if (pv && !MCP_SUPPORTED.includes(pv)) return new Response("Unsupported MCP-Protocol-Version: " + pv, { status: 400, headers: cors });
       let body;
       try { body = await request.json(); } catch (_e) { return rpcErr(null, -32700, "parse error"); }
       const msgs = Array.isArray(body) ? body : [body];
       // 単発想定(バッチは先頭のみ)。
       const m = msgs[0] || {};
+      // 通知・レスポンス(idなし/methodなし)は 202 空(仕様)。
+      const hasId = m && Object.prototype.hasOwnProperty.call(m, "id") && m.id != null;
+      const isResp = m && (Object.prototype.hasOwnProperty.call(m, "result") || Object.prototype.hasOwnProperty.call(m, "error")) && !m.method;
+      if (isResp || (m && m.method && !hasId)) return new Response(null, { status: 202, headers: cors });
       return handleMcp(request, env, m.id != null ? m.id : null, m.method, m.params, ctx);
     }
 
