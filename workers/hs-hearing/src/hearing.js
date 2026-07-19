@@ -358,7 +358,7 @@ const YAKUMO_PROMPTS = [
   { name: "find_a_contractor", title: "検証済みの職人を探す", description: "地域と工種から Yakumo の検証済み加盟店を探して施主に渡す手順。", arguments: [{ name: "area", description: "地域(例: 愛知県)", required: false }, { name: "work", description: "工種(例: 外壁塗装)", required: false }] },
   { name: "is_this_store_trustworthy", title: "この店は信頼できるか", description: "member_no の店の検証状態を確認し『検証済み』の意味を施主に説明する手順。", arguments: [{ name: "member_no", description: "加盟店番号(例: No.001)", required: true }] },
 ];
-const WORK_HINTS = ["外壁塗装", "屋根", "雨漏り", "防水", "塗装", "内装", "クロス", "フローリング", "床", "浴室", "ユニットバス", "キッチン", "トイレ", "洗面", "水道", "給湯", "外構", "エクステリア", "カーポート", "駐車場", "解体", "シロアリ", "防蟻", "太陽光", "蓄電池", "窓", "サッシ", "増改築", "リフォーム"];
+const WORK_HINTS = ["外壁塗装", "屋根", "雨漏り", "防水", "塗装", "内装", "クロス", "フローリング", "床", "浴室", "ユニットバス", "キッチン", "トイレ", "洗面", "水道", "給湯", "外構", "エクステリア", "カーポート", "駐車場", "解体", "シロアリ", "防蟻", "太陽光", "蓄電池", "窓", "サッシ", "増改築", "リフォーム", "野立て看板", "看板", "広告塔", "サイン工事"];
 
 function tallyWorks(contractors) {
   const w = {};
