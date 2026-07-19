@@ -7,16 +7,10 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://shield.the-horizons-innovation.com/map</loc>
+    <loc>https://shield.the-horizons-innovation.com/map.html</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://shield.the-horizons-innovation.com/inspect/</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://shield.the-horizons-innovation.com/check/</loc>
@@ -1734,4 +1728,9 @@
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
+<url><loc>https://shield.the-horizons-innovation.com/souba/nodate-kanban-secchi-hiyou/</loc><lastmod>2026-07-19</lastmod></url>
+<url><loc>https://shield.the-horizons-innovation.com/souba/kanban-secchi-koji-hiyou/</loc><lastmod>2026-07-19</lastmod></url>
+<url><loc>https://shield.the-horizons-innovation.com/privacy/</loc><lastmod>2026-07-19</lastmod></url>
+<url><loc>https://shield.the-horizons-innovation.com/tokusho/</loc><lastmod>2026-07-19</lastmod></url>
+<url><loc>https://shield.the-horizons-innovation.com/tos/</loc><lastmod>2026-07-19</lastmod></url>
 </urlset>
