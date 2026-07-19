@@ -1,0 +1,11 @@
+name = "hs-billing"
+main = "index.js"
+compatibility_date = "2026-06-25"
+
+# Stripe 決済 -> WebMCP オプションのライブ権利。件数と状態のみ。金額・カード情報は保存しない。
+# セットアップ:
+#   1) wrangler kv namespace create BILLING_KV   (出力の id を下の id= に貼る)
+#   2) wrangler secret put STRIPE_WEBHOOK_SECRET  (Stripe の webhook signing secret = whsec_...)
+[[kv_namespaces]]
+binding = "BILLING_KV"
+id = "b226bb07c34d467f83a821c9eb75c69a"

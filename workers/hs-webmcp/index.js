@@ -17,7 +17,7 @@ const HS_MCP = "https://hs-mcp.oga-surf-project.workers.dev";
 const SITE = "https://shield.the-horizons-innovation.com";
 const SELF = "https://hs-webmcp.oga-surf-project.workers.dev";
 
-const SERVER = { name: "hs-webmcp", title: "HORIZON SHIELD WebMCP (KIRA)", version: "0.4.1" };
+const SERVER = { name: "hs-webmcp", title: "HORIZON SHIELD WebMCP (KIRA)", version: "0.5.0" };
 const SUPPORTED_VERSIONS = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"];
 const DEFAULT_VERSION = "2025-06-18";
 
@@ -563,14 +563,33 @@ async function loadContractors() {
     return await res.json();
   } catch (e) { return null; }
 }
+// 課金の第2経路: Stripe 決済で hs-billing がライブ有効化した店(git push 不要)。
+// fail-closed: hs-billing が落ちる/不明なら false。手動フラグ(isProvisioned)は今まで通り優先。
+const BILLING_URL = "https://hs-billing.oga-surf-project.workers.dev";
+async function billingEntitled(storeId) {
+  if (!storeId) return false;
+  try {
+    const url = BILLING_URL + "/entitlement?store=" + encodeURIComponent(storeId);
+    const cache = caches.default;
+    let res = await cache.match(url);
+    if (!res) {
+      res = await fetch(url, { cf: { cacheTtl: 60, cacheEverything: true } });
+      if (res && res.ok) await cache.put(url, res.clone());
+    }
+    if (!res || !res.ok) return false;
+    const j = await res.json();
+    return !!(j && j.active === true);
+  } catch (e) { return false; }
+}
 async function verifyStore(storeId) {
   if (!storeId) return { ok: true, store: null };
   const db = await loadContractors();
   if (!db) return { ok: false, code: -32002, message: "store registry unavailable (fail-closed)" };
   const c = (db.contractors || []).find((x) => x.store_id === storeId);
   if (!c) return { ok: false, code: -32001, message: "unknown store: " + storeId };
-  if (!isProvisioned(c)) return { ok: false, code: -32001, message: "store not provisioned for WebMCP (paid option required)" };
-  return { ok: true, store: c };
+  if (isProvisioned(c)) return { ok: true, store: c };
+  if (await billingEntitled(storeId)) return { ok: true, store: c, via: "billing" };
+  return { ok: false, code: -32001, message: "store not provisioned for WebMCP (paid option required)" };
 }
 
 // ---------------- Resources 読み取り(裏でhs-mcpの読み取り専用ツールへ委譲) ----------------
