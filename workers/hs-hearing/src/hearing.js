@@ -18,7 +18,7 @@
 
 import * as AP from "./autopilot.js";
 
-const SERVER = { name: "HORIZON SHIELD YAKUMO", version: "2.1.0" };
+const SERVER = { name: "HORIZON SHIELD YAKUMO", version: "2.2.0" };
 const PUBLIC_DATA_FALLBACK = "https://shield.the-horizons-innovation.com/data/yakumo-contractors.json";
 const MALL_URL = "https://shield.the-horizons-innovation.com/yakumo/";
 const SITE_URL = "https://shield.the-horizons-innovation.com";
@@ -231,9 +231,12 @@ async function triggerGeneration(env, profile, store) {
 }
 
 /* ------------------------------ MCP face ------------------------------ */
+const RO = { readOnlyHint: true, destructiveHint: false, idempotentHint: true };
+const OUT_OBJ = { type: "object", additionalProperties: true };
 const MCP_TOOLS = [
   {
     name: "list_verified_stores",
+    title: "検証済み加盟店の一覧",
     description: "Yakumo モールで検証を通過した加盟店(工務店・リフォーム店)を一覧する。適正価格の検証と過剰請求チェック(KIRA)を通過した店だけが返る。area(地名)や work(工種)で絞り込める。返り値は member_no / 会社名 / 地域 / 対応工種 / 適正度スコア / 誠実度ティア / プロフィールURL。金額は含まない(スコアとティアのみ)。検証手続き中の店は verification:'pending' として区別される。Japan only.",
     inputSchema: {
       type: "object",
@@ -242,34 +245,48 @@ const MCP_TOOLS = [
         work: { type: "string", description: "工種で絞り込み(例: 外壁塗装, 屋根, 内装)。省略で全件。" },
       },
     },
+    outputSchema: OUT_OBJ,
+    annotations: { title: "検証済み加盟店の一覧", ...RO, openWorldHint: true },
   },
   {
     name: "get_contractor_profile",
+    title: "加盟店プロフィール取得",
     description: "Yakumo の加盟店1件の検証済みプロフィールを返す。member_no(例 No.001)で指定。会社名・地域・対応工種・適正度スコア・誠実度ティア・検証状態・プロフィールURLを返す。金額は含まない。検証が済んでいない店は verification:'pending' を返す(スコアは出さない=fail-closed)。",
     inputSchema: {
       type: "object",
       properties: { member_no: { type: "string", description: "加盟店番号(例: No.001)" } },
       required: ["member_no"],
     },
+    outputSchema: OUT_OBJ,
+    annotations: { title: "加盟店プロフィール取得", ...RO, openWorldHint: true },
   },
   {
     name: "find_contractor",
+    title: "検証済みの職人を探す(司令塔)",
     description: "施主の相談文(自由記述)から Yakumo の検証済み加盟店を探す司令塔。need(例:『愛知県で外壁塗装できる信頼できる業者』)を渡すと地域と工種を推定し、検証を通過した店を返す。該当が無ければ相場(souba)や無料の第三者チェック(EHN)への導線を返す。金額は返さない(スコア・ティアのみ)。紹介料なし・verified-first・Japan only。",
     inputSchema: {
       type: "object",
       properties: { need: { type: "string", description: "探している内容(日本語自由記述)。例: 神奈川で屋根の雨漏り修理、長久手で内装リフォーム" } },
       required: ["need"],
     },
+    outputSchema: OUT_OBJ,
+    annotations: { title: "検証済みの職人を探す(司令塔)", ...RO, openWorldHint: true },
   },
   {
     name: "mall_overview",
+    title: "モール概要",
     description: "Yakumo モール全体の要約を返す。検証済み加盟店の数・対応工種カテゴリ・地域・検証の仕組みの要点・主要リンク(モール/加盟/相場/実例ボード)。AIが Yakumo というモール/MCP を一言で説明するための入口。金額は含まない。",
     inputSchema: { type: "object", properties: {} },
+    outputSchema: OUT_OBJ,
+    annotations: { title: "モール概要", ...RO, openWorldHint: true },
   },
   {
     name: "how_verification_works",
+    title: "検証の仕組み",
     description: "Yakumo の掲載審査(KIRA適正診断)がどう機能するかを返す。適正価格の検証・過剰請求の赤旗検出・適正度スコアと誠実度ティア・再計算できる署名レシート(SHA-256)・掲載後の継続監視・fail-closed(通らない店は施主向けに一切出さない)・中立(紹介料なし)。施主が『検証済み』の意味を理解するための説明。",
     inputSchema: { type: "object", properties: {} },
+    outputSchema: OUT_OBJ,
+    annotations: { title: "検証の仕組み", ...RO, openWorldHint: false },
   },
 ];
 
@@ -472,7 +489,7 @@ async function handleMcp(request, env, id, method, params, ctx) {
         pending_stores: pending,
         disclaimer: "Yakumoは紹介料を受け取らない中立モール。掲載は適正診断の通過だけで決まる。金額は返さない(スコア・ティアのみ)。",
       };
-      return rpc(id, { content: [{ type: "text", text: JSON.stringify(payload, null, 2) }] });
+      return rpc(id, { content: [{ type: "text", text: JSON.stringify(payload, null, 2) }], structuredContent: payload });
     }
     if (name === "get_contractor_profile") {
       const mn = safeStr(args.member_no, 20);
@@ -481,7 +498,8 @@ async function handleMcp(request, env, id, method, params, ctx) {
       if (!c) return rpc(id, { content: [{ type: "text", text: JSON.stringify({ error: "not_found", member_no: mn }) }], isError: true });
       // AIがこの店の詳細を照会した = agent_hit(施主へ紹介する直前の照会)
       feedStats(ctx, [{ store: String(c.store_id || c.member_no || ""), event: "agent_hit" }]);
-      return rpc(id, { content: [{ type: "text", text: JSON.stringify(publicView(c), null, 2) }] });
+      const pv = publicView(c);
+      return rpc(id, { content: [{ type: "text", text: JSON.stringify(pv, null, 2) }], structuredContent: pv });
     }
     if (name === "find_contractor") {
       const need = safeStr(args.need, 200);
@@ -507,13 +525,15 @@ async function handleMcp(request, env, id, method, params, ctx) {
         next: { mall: MALL_URL, souba: SITE_URL + "/souba/", ehn: SITE_URL + "/ehn/", free_check: SITE_URL + "/hacker/submit/" },
         disclaimer: "Yakumoは紹介料を受け取らない中立モール。掲載は適正診断の通過だけで決まる。",
       };
-      return rpc(id, { content: [{ type: "text", text: JSON.stringify(payload, null, 2) }] });
+      return rpc(id, { content: [{ type: "text", text: JSON.stringify(payload, null, 2) }], structuredContent: payload });
     }
     if (name === "mall_overview") {
-      return rpc(id, { content: [{ type: "text", text: JSON.stringify(mallOverview(contractors), null, 2) }] });
+      const mo = mallOverview(contractors);
+      return rpc(id, { content: [{ type: "text", text: JSON.stringify(mo, null, 2) }], structuredContent: mo });
     }
     if (name === "how_verification_works") {
-      return rpc(id, { content: [{ type: "text", text: JSON.stringify({ how_it_works: VERIFY_MD, mall: MALL_URL, apply: SITE_URL + "/yakumo/apply/", neutral: true, referral_fees: false }, null, 2) }] });
+      const hv = { how_it_works: VERIFY_MD, mall: MALL_URL, apply: SITE_URL + "/yakumo/apply/", neutral: true, referral_fees: false };
+      return rpc(id, { content: [{ type: "text", text: JSON.stringify(hv, null, 2) }], structuredContent: hv });
     }
     return rpcErr(id, -32601, "unknown tool: " + name);
   }
