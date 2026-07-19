@@ -179,6 +179,53 @@ function json(data, status = 200, origin = '') {
   });
 }
 
+// ===== security helpers (added 2026-07-19: H8) =====
+// 定数時間比較（掟 L1）。SHA-256 して XOR 集約。長さ差で分岐しない。
+async function ctEqual(a, b) {
+  a = String(a == null ? '' : a); b = String(b == null ? '' : b);
+  const enc = new TextEncoder();
+  const ha = await crypto.subtle.digest('SHA-256', enc.encode(a));
+  const hb = await crypto.subtle.digest('SHA-256', enc.encode(b));
+  const x = new Uint8Array(ha), y = new Uint8Array(hb);
+  let out = 0;
+  for (let i = 0; i < x.length; i++) out |= x[i] ^ y[i];
+  return out === 0;
+}
+
+// 管理ゲート：?key= / Authorization: Bearer / X-Admin-Key を定数時間で照合。
+// ADMIN_PASSWORD 未設定なら拒否（fail-closed）。
+async function kiraAdminOk(request, env) {
+  if (!env.ADMIN_PASSWORD) return false;
+  let provided = '';
+  try { provided = new URL(request.url).searchParams.get('key') || ''; } catch (_) {}
+  if (!provided) provided = (request.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
+  if (!provided) provided = request.headers.get('X-Admin-Key') || '';
+  if (!provided) return false;
+  return await ctEqual(provided, env.ADMIN_PASSWORD);
+}
+
+// 公開フォーム用の簡易レート制限（KV固定窓）。
+// これは濫用抑止であり、KV障害時はお客様のフォームを止めないよう fail-open（設計判断）。
+async function kiraRateOk(env, route, ip, limit, windowSec) {
+  try {
+    if (!env.KIRA_STATS || !ip) return true;
+    const bucket = Math.floor(Date.now() / (windowSec * 1000));
+    const rlKey = 'rl:' + route + ':' + ip + ':' + bucket;
+    const cur = parseInt((await env.KIRA_STATS.get(rlKey)) || '0', 10) || 0;
+    if (cur >= limit) return false;
+    await env.KIRA_STATS.put(rlKey, String(cur + 1), { expirationTtl: Math.max(60, windowSec * 2) });
+    return true;
+  } catch (_) {
+    return true;
+  }
+}
+
+// 公開フォームのオリジン検査：Origin があれば許可リスト必須。無ければ通す（curl等はレート制限で抑える）。
+function kiraOriginOk(origin) {
+  if (!origin) return true;
+  return ALLOWED_ORIGINS.includes(origin);
+}
+
 function determineStrategy(scores) {
   const { anxiety, anger, resignation, urgency } = scores;
   if (anger >= 7) return 'DEESCALATE';
@@ -3261,6 +3308,7 @@ ${claudeAnswer}
 
     // ===== /inquiries =====
     if (path === '/inquiries') {
+      if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
       try {
         const list = await env.KIRA_STATS.list();
         const inquiryKeys = list.keys.filter(k =>
@@ -3280,6 +3328,7 @@ ${claudeAnswer}
 
     // ===== /delete =====
     if (path === '/delete' && request.method === 'POST') {
+      if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
       try {
         const body = await request.json();
         if (!body.key) return json({ error: 'key required' }, 400, origin);
@@ -3289,6 +3338,7 @@ ${claudeAnswer}
     }
     // ===== /prospects =====
     if (path === '/prospects') {
+      if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
       try {
         const list = await env.KIRA_STATS.list({ prefix: 'prospect:' });
         if (list.keys.length === 0) return json([], 200, origin);
@@ -3335,8 +3385,11 @@ ${claudeAnswer}
 
     // ===== /notify =====
     if (path === '/notify' && request.method === 'POST') {
+      if (!kiraOriginOk(origin)) return json({ error: 'forbidden origin' }, 403, origin);
+      if (!(await kiraRateOk(env, 'notify', request.headers.get('CF-Connecting-IP') || '', 10, 60))) return json({ error: 'rate limited' }, 429, origin);
       try {
         const body = await request.json();
+        if (JSON.stringify(body || {}).length > 32768) return json({ error: 'payload too large' }, 413, origin);
         // LINE送信
         const res = await fetch('https://api.line.me/v2/bot/message/push', {
           method: 'POST',
@@ -3368,20 +3421,25 @@ ${claudeAnswer}
 
     // ===== /bank-order =====
     if (path === '/bank-order' && request.method === 'POST') {
+      if (!kiraOriginOk(origin)) return json({ error: 'forbidden origin' }, 403, origin);
+      if (!(await kiraRateOk(env, 'bank-order', request.headers.get('CF-Connecting-IP') || '', 5, 60))) return json({ error: 'rate limited' }, 429, origin);
       try {
         const body = await request.json();
-        const key = body.key || ('bank:' + Date.now());
-        await env.KIRA_STATS.put(key, JSON.stringify({
-          ...body,
-          status: 'pending',
-          createdAt: new Date().toISOString()
-        }), { expirationTtl: 60 * 60 * 24 * 90 });
+        if (JSON.stringify(body || {}).length > 8192) return json({ error: 'payload too large' }, 413, origin);
+        // 任意キー禁止（KV汚染/任意上書き対策）。常に安全な bank: キーを生成する。
+        const key = 'bank:' + Date.now() + ':' + crypto.randomUUID().slice(0, 8);
+        const rec = { ...body };
+        delete rec.key;
+        rec.status = 'pending';
+        rec.createdAt = new Date().toISOString();
+        await env.KIRA_STATS.put(key, JSON.stringify(rec), { expirationTtl: 60 * 60 * 24 * 90 });
         return json({ ok: true, key }, 200, origin);
       } catch (e) { return json({ error: e.message }, 500, origin); }
     }
 
     // ===== /confirm-payment =====
     if (path === '/confirm-payment' && request.method === 'POST') {
+      if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
       try {
         const body = await request.json();
         const { key } = body;
@@ -3392,7 +3450,7 @@ ${claudeAnswer}
 
         await env.KIRA_STATS.put(key, JSON.stringify({ ...order, status: 'confirmed', confirmedAt: new Date().toISOString() }));
 
-        const token = btoa(key + ':' + Date.now()).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
+        const token = crypto.randomUUID().replace(/-/g, '');
         const inspectUrl = `https://shield.the-horizons-innovation.com/inspect/?token=${token}&type=${order.service}`;
 
         await env.KIRA_STATS.put('token:' + token, JSON.stringify({
@@ -4071,6 +4129,7 @@ tr:hover{background:#f8fafd}
           },
         });
       }
+      if (!(await kiraRateOk(env, 'track-visit', request.headers.get('CF-Connecting-IP') || '', 60, 60))) return json({ error: 'rate limited' }, 429, origin);
       await bumpMetric(env, 'lp_visit');
       // ★ 累計カウンター（2026-05-12実数BASE=2321から継続）
       const BASE = 2321;
@@ -4096,6 +4155,7 @@ tr:hover{background:#f8fafd}
     // === /track-visit ここまで ===
 // === /log-contract 最終契約額入力（研究データPhase1）===
 if (path === '/log-contract' && request.method === 'POST') {
+  if (!(await kiraRateOk(env, 'log-contract', request.headers.get('CF-Connecting-IP') || '', 30, 60))) return json({ error: 'rate limited' }, 429, origin);
   try {
     const body = await request.json();
     const { audit_hash, contract_amount } = body;
@@ -4126,6 +4186,7 @@ if (path === '/log-contract' && request.method === 'POST') {
 // === /log-contract ここまで ===
     // === /log-inquiry-price 施工チェック診断の正解ラベル入力（学習Phase1）===
     if (path === '/log-inquiry-price' && request.method === 'POST') {
+      if (!(await kiraRateOk(env, 'log-inquiry-price', request.headers.get('CF-Connecting-IP') || '', 30, 60))) return json({ error: 'rate limited' }, 429, origin);
       try {
         const body = await request.json();
         const { key, actual_fair_price } = body;

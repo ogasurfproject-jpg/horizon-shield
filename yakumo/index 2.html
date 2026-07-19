@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yakumo ｜ 検証を通った加盟店だけが並ぶ建設モール | HORIZON SHIELD</title>
+<meta name="description" content="Yakumoは、HORIZON SHIELDが運営する中立の加盟店モールです。掲載される工務店・リフォーム店は、すべて適正価格の検証と過剰請求チェック(KIRA)を通過。紹介料を受け取らない第三者が、再計算できる署名レシートとスコアで根拠を示します。施主は根拠を自分で確かめてから選べます。">
+<meta name="author" content="大賀俊勝 | HORIZON SHIELD">
+<link rel="author" href="https://shield.the-horizons-innovation.com/about-founder.html">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/yakumo/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Yakumo ｜ 検証を通った加盟店だけが並ぶ建設モール">
+<meta property="og:description" content="適正価格の検証と過剰請求チェックを通過した加盟店だけが並ぶ、中立の建設モール。紹介料を取らない第三者が署名レシートとスコアで根拠を示す。">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/yakumo/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
+<link rel="mcp-server" href="https://hs-mcp.oga-surf-project.workers.dev">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"Organization","@id":"https://shield.the-horizons-innovation.com/#org","name":"HORIZON SHIELD","alternateName":"The HORIZ音s株式会社","url":"https://shield.the-horizons-innovation.com","telephone":"0463-74-5917"},
+{"@type":"WebSite","@id":"https://shield.the-horizons-innovation.com/yakumo/#site","name":"Yakumo","url":"https://shield.the-horizons-innovation.com/yakumo/","publisher":{"@id":"https://shield.the-horizons-innovation.com/#org"}},
+{"@type":"Service","@id":"https://shield.the-horizons-innovation.com/yakumo/#service","name":"Yakumo 加盟店モール","serviceType":"検証済み建設・リフォーム加盟店モール","provider":{"@id":"https://shield.the-horizons-innovation.com/#org"},"areaServed":"JP","description":"適正価格の検証と過剰請求チェックを通過した工務店・リフォーム店だけを掲載する中立モール。紹介料を受け取らない第三者が、再計算可能な署名レシートとスコアで各店の信頼を示す。"},
+{"@type":"CollectionPage","@id":"https://shield.the-horizons-innovation.com/yakumo/#page","isPartOf":{"@id":"https://shield.the-horizons-innovation.com/yakumo/#site"},"about":{"@id":"https://shield.the-horizons-innovation.com/yakumo/#service"},"speakable":{"@type":"SpeakableSpecification","cssSelector":["h1",".speakable"]}}
+]}
+</script>
+<style>
+  :root{
+    --void:#080B11;--void-2:#0A0E16;--ink:#EAF0F8;--ink-dim:#7E8CA2;--ink-faint:#4A5568;
+    --verify:#3FE0CE;--verify-deep:#15847A;--verify-glow:rgba(63,224,206,0.13);
+    --bronze:#C9A86A;--bronze-glow:rgba(201,168,106,0.12);--alert:#F0634A;--warn:#E8B14C;
+    --line:#1A2230;--line-bright:#283449;--glass:rgba(16,22,33,0.55);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;min-height:100vh;background:var(--void);color:var(--ink);overflow-x:hidden;
+    font-family:"Zen Kaku Gothic New",system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+  .field{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+  .orb{position:absolute;border-radius:50%;filter:blur(80px);will-change:transform;}
+  .o1{width:420px;height:420px;background:var(--verify-glow);top:-6%;left:60%;animation:drift1 19s ease-in-out infinite;}
+  .o2{width:360px;height:360px;background:var(--bronze-glow);top:-3%;left:4%;animation:drift2 23s ease-in-out infinite;}
+  @keyframes drift1{0%,100%{transform:translate(0,0);}50%{transform:translate(-40px,30px);}}
+  @keyframes drift2{0%,100%{transform:translate(0,0);}50%{transform:translate(34px,24px);}}
+  .shell{position:relative;z-index:2;max-width:1040px;margin:0 auto;padding:0 26px;}
+  .top{display:flex;align-items:center;gap:16px;height:64px;}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .brand svg{width:27px;height:27px;}
+  .brand .k{font-weight:900;font-size:19px;letter-spacing:.05em;color:var(--ink);}
+  .brand .n{font-family:"Space Grotesk";font-weight:700;font-size:12.5px;letter-spacing:.2em;color:var(--bronze);}
+  .top .sp{flex:1;}
+  .top .opby{font-size:11px;color:var(--ink-faint);}
+  .live{display:flex;align-items:center;gap:7px;font-family:"JetBrains Mono";font-size:11px;color:var(--verify);}
+  .live .d{width:7px;height:7px;border-radius:50%;background:var(--verify);animation:pulse 2.6s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,224,206,.5);}70%{box-shadow:0 0 0 7px rgba(63,224,206,0);}100%{box-shadow:0 0 0 0 rgba(63,224,206,0);}}
+  .hero{text-align:center;padding:52px 0 30px;}
+  .hero .eye{font-family:"JetBrains Mono";font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--verify);margin-bottom:18px;}
+  .hero h1{font-weight:300;font-size:clamp(28px,5vw,46px);line-height:1.22;margin:0 0 14px;letter-spacing:.01em;}
+  .hero h1 b{font-weight:700;}
+  .hero .sub{font-size:14px;color:var(--ink-dim);max-width:520px;margin:0 auto 26px;line-height:1.8;}
+  .search{display:flex;gap:7px;max-width:440px;margin:0 auto;background:var(--glass);border:1px solid var(--line);
+    border-radius:11px;padding:5px 5px 5px 15px;align-items:center;backdrop-filter:blur(12px);transition:border-color .25s;}
+  .search:focus-within{border-color:var(--verify-deep);}
+  .search input{flex:1;background:transparent;border:0;color:var(--ink);font-family:inherit;font-size:13.5px;outline:none;}
+  .search input::placeholder{color:var(--ink-faint);}
+  .search button{background:var(--verify);color:#06241F;border:0;border-radius:8px;padding:9px 16px;font-family:"Space Grotesk",inherit;font-weight:700;font-size:13px;letter-spacing:.04em;cursor:pointer;}
+  .proof{margin-top:34px;text-align:center;}
+  .proof .line{font-size:clamp(15px,2.4vw,20px);font-weight:500;line-height:1.7;color:var(--ink-dim);letter-spacing:.01em;}
+  .proof .line .nv{font-family:"Space Grotesk";font-weight:700;color:var(--verify);font-size:1.32em;letter-spacing:.01em;}
+  .proof .line b{color:var(--ink);font-weight:700;}
+  .proof .back{margin-top:14px;font-family:"JetBrains Mono";font-size:11px;color:var(--ink-faint);letter-spacing:.03em;}
+  .proof .back b{color:var(--bronze);font-weight:500;}
+  .proof .dotlive{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--verify);margin-right:7px;vertical-align:middle;animation:pulse 2.6s infinite;}
+  .cats{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:34px 0 8px;padding-top:24px;border-top:1px solid var(--line);}
+  .cats .lbl{font-family:"JetBrains Mono";font-size:11px;color:var(--ink-faint);letter-spacing:.08em;margin-right:6px;}
+  .cat{background:transparent;border:1px solid var(--line);color:var(--ink-dim);border-radius:999px;padding:7px 14px;font-family:inherit;font-size:12.5px;cursor:pointer;transition:.2s;}
+  .cat:hover,.cat.on{border-color:var(--verify-deep);color:var(--verify);}
+  .cats .sp{flex:1;}
+  .cats .sort{font-family:"JetBrains Mono";font-size:11.5px;color:var(--ink-faint);}
+  .list-head{display:flex;align-items:center;gap:10px;margin:22px 0 12px;}
+  .list-head .t{font-size:13px;font-weight:700;}
+  .list-head .c{font-family:"JetBrains Mono";font-size:11px;color:var(--ink-faint);}
+  .list{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding-bottom:20px;}
+  @media(max-width:640px){.list{grid-template-columns:1fr;}}
+  .row{display:flex;align-items:center;gap:15px;background:var(--glass);border:1px solid var(--line);
+    border-radius:14px;padding:16px 18px;backdrop-filter:blur(10px);cursor:pointer;
+    transition:border-color .22s,transform .22s;text-decoration:none;color:inherit;}
+  .row:hover{border-color:var(--verify-deep);transform:translateY(-2px);}
+  .row .tier{width:46px;height:46px;border-radius:12px;border:1px solid var(--verify-deep);background:rgba(63,224,206,0.05);
+    display:flex;align-items:center;justify-content:center;font-family:"Space Grotesk";font-weight:700;font-size:19px;color:var(--bronze);flex:none;}
+  .row .mid{flex:1;min-width:0;}
+  .row .nm{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .row .mt{font-size:12px;color:var(--ink-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .row .tg{display:inline-block;font-size:10.5px;color:var(--ink-faint);border:1px solid var(--line);border-radius:5px;padding:1px 6px;margin-right:4px;margin-top:5px;}
+  .row .sc{text-align:right;flex:none;}
+  .row .sc .n{font-family:"Space Grotesk";font-weight:700;font-size:24px;color:var(--verify);line-height:1;}
+  .row .sc .l{font-size:10px;color:var(--ink-faint);margin-top:3px;}
+  .row .vd{width:7px;height:7px;border-radius:50%;background:var(--verify);flex:none;animation:pulse 2.8s infinite;}
+  .row.pending{opacity:.62;cursor:default;}
+  .row.pending:hover{transform:none;border-color:var(--line);}
+  .row.pending .tier{border-style:dashed;border-color:var(--line-bright);color:var(--ink-faint);}
+  .row.pending .gate{font-size:11.5px;color:var(--warn);margin-top:2px;}
+  .row.open{border-style:dashed;justify-content:center;color:var(--ink-dim);grid-column:1 / -1;}
+  .row.open:hover{border-color:var(--verify-deep);}
+  .row.open .pl{color:var(--verify);font-size:18px;margin-right:8px;}
+  .how{margin:26px 0 8px;padding:22px 22px;border:1px solid var(--line);border-radius:14px;background:var(--glass);backdrop-filter:blur(10px);}
+  .how h2{font-size:15px;margin:0 0 14px;font-weight:700;letter-spacing:.02em;}
+  .how .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  @media(max-width:720px){.how .steps{grid-template-columns:1fr 1fr;}}
+  .how .st{border:1px solid var(--line);border-radius:10px;padding:13px 13px;}
+  .how .st .no{font-family:"JetBrains Mono";font-size:11px;color:var(--verify);}
+  .how .st .ti{font-weight:700;font-size:13px;margin:5px 0 4px;}
+  .how .st .de{font-size:11.5px;color:var(--ink-dim);line-height:1.6;}
+  .join{margin:20px 0 10px;padding:26px 24px;border:1px solid var(--verify-deep);border-radius:16px;
+    background:linear-gradient(180deg,rgba(63,224,206,0.06),rgba(63,224,206,0.02));text-align:center;}
+  .join h2{font-size:19px;margin:0 0 8px;font-weight:700;}
+  .join p{font-size:13px;color:var(--ink-dim);max-width:560px;margin:0 auto 18px;line-height:1.8;}
+  .join a.btn{display:inline-block;background:var(--verify);color:#06241F;border-radius:10px;padding:13px 30px;
+    font-family:"Space Grotesk",inherit;font-weight:700;font-size:14px;letter-spacing:.03em;text-decoration:none;}
+  .join .fine{margin-top:14px;font-family:"JetBrains Mono";font-size:11px;color:var(--ink-faint);}
+  footer{position:relative;z-index:2;border-top:1px solid var(--line);margin-top:26px;}
+  .foot{max-width:1040px;margin:0 auto;padding:22px 26px 46px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--ink-faint);}
+  .foot .w{color:var(--ink-dim);} .foot .w b{color:var(--bronze);}
+  .foot .sp{flex:1;} .foot a{color:var(--ink-dim);text-decoration:none;} .foot a:hover{color:var(--verify);}
+  :focus-visible{outline:2px solid var(--verify);outline-offset:3px;}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;}.orb{display:none;}}
+</style>
+</head>
+<body>
+
+<div class="field"><div class="orb o1"></div><div class="orb o2"></div></div>
+
+<div class="shell">
+  <div class="top">
+    <a class="brand" href="https://shield.the-horizons-innovation.com/yakumo/">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <path d="M16 2 L28 8 V17 C28 24 22 28.5 16 30 C10 28.5 4 24 4 17 V8 Z" stroke="#C9A86A" stroke-width="1.4"/>
+        <path d="M9 14 H23 M8 18 H24 M11 22 H21" stroke="#3FE0CE" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <span class="k">Yakumo</span>
+    </a>
+    <span class="opby">A HORIZON SHIELD MALL</span>
+    <span class="sp"></span>
+    <span class="live"><span class="d"></span>検証ライブ稼働中</span>
+  </div>
+
+  <section class="hero">
+    <p class="eye">YAKUMO ・ VERIFIED CONTRACTOR MALL</p>
+    <h1><span class="speakable">検証を通った加盟店が、<br><b>ひとつの場に集まる。</b></span></h1>
+    <p class="sub">掲載される店は、適正価格の検証と過剰請求チェック(KIRA)を通過した店だけ。紹介料は受け取りません。スコアと再計算できる署名レシートで、根拠を自分で確かめてから選べます。</p>
+    <div class="search">
+      <input id="q" type="text" placeholder="工種や地域で検索（例：外壁塗装 愛知）" aria-label="工種や地域で検索">
+      <button id="qBtn">検索</button>
+    </div>
+    <div class="proof">
+      <p class="line"><span class="dotlive"></span><span class="nv" id="vLookups">0</span> 回 AIに照会され、その答えは <span class="nv" id="vVerified">0</span> 回 <b>独立に検証</b>された。</p>
+      <p class="back">裏付け ・ souba-db <b id="vSrc">8</b>ソース 照合 ／ JCCDB <b id="vJccdb">65,729</b>項目(DOI) ／ 検証済み加盟店 <b id="vVerifiedStores">0</b>社</p>
+    </div>
+  </section>
+
+  <div class="cats">
+    <span class="lbl">CATEGORY</span>
+    <button class="cat on" data-cat="すべて">すべて</button><button class="cat" data-cat="外壁・屋根">外壁・屋根</button>
+    <button class="cat" data-cat="水まわり">水まわり</button><button class="cat" data-cat="内装">内装</button><button class="cat" data-cat="外構">外構</button>
+    <span class="sp"></span>
+    <span class="sort">適正度スコア 高い順</span>
+  </div>
+
+  <div class="list-head"><span class="t">加盟店</span><span class="c" id="lc">読み込み中…</span></div>
+
+  <div class="list" id="list">
+    <!-- JSが /data/yakumo-contractors.json から描画。以下は no-JS フォールバック。 -->
+    <div class="row pending">
+      <div class="tier">001</div>
+      <div class="mid">
+        <div class="nm">リフォーム職人株式会社</div>
+        <div class="gate">加盟確定 ・ 初回ヒアリングと適正診断(KIRA)を実施中。通過後にスコアを表示します。</div>
+        <div><span class="tg">外壁塗装</span><span class="tg">屋根</span><span class="tg">内装</span><span class="tg">愛知県長久手市</span></div>
+      </div>
+      <div class="sc"><div class="l">検証手続き中</div></div>
+    </div>
+    <a class="row open" href="https://shield.the-horizons-innovation.com/yakumo/apply/">
+      <span class="pl">+</span>加盟店募集中 ・ 通すのは適正診断だけ
+    </a>
+  </div>
+
+  <div class="how">
+    <h2>Yakumoが「検証済み」と言える理由</h2>
+    <div class="steps">
+      <div class="st"><div class="no">01</div><div class="ti">申請とヒアリング</div><div class="de">加盟店が工種・地域・実際の見積もり例を提出。人手ではなく自動ヒアリングで受け取ります。</div></div>
+      <div class="st"><div class="no">02</div><div class="ti">KIRAが適正診断</div><div class="de">souba-db(建設実務30年監修)と照合し、過剰請求の赤旗を検出。合格しない店は施主に出ません。</div></div>
+      <div class="st"><div class="no">03</div><div class="ti">スコアと署名レシート</div><div class="de">適正度スコアと誠実度ティアを付与。誰でも再計算できる署名レシート(SHA-256)を添付します。</div></div>
+      <div class="st"><div class="no">04</div><div class="ti">掲載と継続監視</div><div class="de">通過した店だけ掲載。単価の水増しは自動監視し、逸脱すれば本部に通知が飛びます。</div></div>
+    </div>
+  </div>
+
+  <div class="join">
+    <h2>加盟をご検討の工務店・リフォーム店へ</h2>
+    <p>Yakumoは紹介料を取りません。通すのは適正診断だけ。検証済みバッジと、あなたの店を施主・AI・検索の三方から見つけてもらう導線(GEO / AEO / LLMO / WebMCP)を運営代行します。まずは自動ヒアリングにお答えください。</p>
+    <a class="btn" href="https://shield.the-horizons-innovation.com/yakumo/apply/">加盟の相談・自動ヒアリングに進む</a>
+    <div class="fine">TEL 0463-74-5917 ／ 運営 The HORIZ音s株式会社</div>
+  </div>
+</div>
+
+<footer><div class="foot">
+  <span class="w">このモールは <b>The HORIZ音s株式会社</b>(HORIZON SHIELD)が構築し、Yakumo が運営する中立の加盟店モールです。掲載店は KIRA の適正診断を通過した店のみ。</span>
+  <span class="sp"></span>
+  <a href="https://shield.the-horizons-innovation.com/">HORIZON SHIELD</a>
+  <a href="https://shield.the-horizons-innovation.com/souba/">工事別の相場</a>
+  <a href="https://shield.the-horizons-innovation.com/ehn/">EHN 実例ボード</a>
+  <a href="https://shield.the-horizons-innovation.com/yakumo/apply/">加盟の相談</a>
+  <span>TEL 0463-74-5917</span>
+</div></footer>
+
+<script>
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const DATA_URL = 'https://shield.the-horizons-innovation.com/data/yakumo-contractors.json';
+  const STATS_URL = 'https://hs-mcp.oga-surf-project.workers.dev/.well-known/usage-stats.json';
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function countUp(el, target, step, speed){
+    if(!el) return;
+    if(reduce){ el.textContent = target.toLocaleString(); return; }
+    let v = 0; const t = setInterval(() => { v += step; if(v >= target){ v = target; clearInterval(t); } el.textContent = Math.round(v).toLocaleString(); }, speed);
+  }
+
+  const catMatch = (cat, works) => {
+    if(cat === 'すべて') return true;
+    const map = {'外壁・屋根':['外壁塗装','屋根','塗装','防水'],'水まわり':['浴室','キッチン','トイレ','洗面','水道'],'内装':['内装','クロス','床','フローリング'],'外構':['外構','エクステリア','カーポート','駐車場']};
+    const keys = map[cat] || [cat];
+    return (works || []).some(w => keys.some(k => w.includes(k)));
+  };
+
+  let STATE = { contractors: [], cat: 'すべて', q: '' };
+
+  function render(){
+    const list = document.getElementById('list');
+    const lc = document.getElementById('lc');
+    if(!list) return;
+    const q = STATE.q.trim();
+    const items = STATE.contractors.filter(c => {
+      if(!catMatch(STATE.cat, c.works)) return false;
+      if(q){ const hay = [(c.name||''), (c.area||''), (c.areas_served||[]).join(' '), (c.works||[]).join(' ')].join(' '); if(!hay.includes(q)) return false; }
+      return true;
+    });
+    const verified = items.filter(c => c.verification === 'verified' && c.fairness_score != null)
+                          .sort((a,b) => (b.fairness_score||0) - (a.fairness_score||0));
+    const pending = items.filter(c => !(c.verification === 'verified' && c.fairness_score != null));
+    let html = '';
+    for(const c of verified){
+      const tier = esc(c.integrity_tier || 'A');
+      const tags = (c.works||[]).slice(0,3).map(w => '<span class="tg">'+esc(w)+'</span>').join('') + (c.area ? '<span class="tg">'+esc(c.area)+'</span>' : '');
+      html += '<a class="row" href="https://shield.the-horizons-innovation.com'+esc(c.profile_url||'/yakumo/')+'" aria-label="'+esc(c.name)+'の詳細">'
+        + '<div class="tier">'+esc((c.member_no||'').replace('No.',''))+'</div>'
+        + '<div class="mid"><div class="nm">'+esc(c.name)+'</div>'
+        + '<div class="mt">'+esc(c.area||'')+' ・ 加盟 '+esc(c.member_no||'')+'</div>'
+        + '<div>'+tags+'</div></div>'
+        + '<div class="sc"><div class="n">'+esc(c.fairness_score)+'</div><div class="l">適正度 / '+tier+'</div></div>'
+        + '<span class="vd" title="検証済み"></span></a>';
+    }
+    for(const c of pending){
+      const tags = (c.works||[]).slice(0,3).map(w => '<span class="tg">'+esc(w)+'</span>').join('') + (c.area ? '<span class="tg">'+esc(c.area)+'</span>' : '');
+      const gate = c.status === 'onboarding'
+        ? '加盟確定 ・ 初回ヒアリングと適正診断(KIRA)を実施中。通過後にスコアを表示します。'
+        : 'KIRAの適正診断を通過するまでスコアは表示されません。';
+      html += '<div class="row pending">'
+        + '<div class="tier">'+esc((c.member_no||'?').replace('No.',''))+'</div>'
+        + '<div class="mid"><div class="nm">'+esc(c.name)+'</div>'
+        + '<div class="gate">'+esc(gate)+'</div>'
+        + '<div>'+tags+'</div></div>'
+        + '<div class="sc"><div class="l">検証手続き中</div></div></div>';
+    }
+    html += '<a class="row open" href="https://shield.the-horizons-innovation.com/yakumo/apply/"><span class="pl">+</span>加盟店募集中 ・ 通すのは適正診断だけ</a>';
+    list.innerHTML = html;
+    if(lc) lc.textContent = '検証済み ' + verified.length + ' ・ 審査中 ' + pending.length + ' ・ 募集中';
+    const vs = document.getElementById('vVerifiedStores'); if(vs) vs.textContent = verified.length;
+  }
+
+  fetch(DATA_URL).then(r => r.json()).then(d => {
+    STATE.contractors = d.contractors || [];
+    const s = d.stats || {};
+    countUp(document.getElementById('vLookups'), s.usage_total || 414, 7, 18);
+    countUp(document.getElementById('vVerified'), s.verify_total || 11, 1, 90);
+    const src = document.getElementById('vSrc'); if(src && s.source_count) src.textContent = s.source_count;
+    const jc = document.getElementById('vJccdb'); if(jc && s.jccdb_items) jc.textContent = Number(s.jccdb_items).toLocaleString();
+    render();
+    // 実使用統計をライブ上書き(取得できれば)
+    fetch(STATS_URL).then(r => r.ok ? r.json() : null).then(u => {
+      if(!u) return;
+      const lk = u['usage:total'] ?? u.usage_total, vf = u['usage:verify:total'] ?? u.verify_total;
+      if(typeof lk === 'number') countUp(document.getElementById('vLookups'), lk, Math.max(1,Math.round(lk/60)), 18);
+      if(typeof vf === 'number') countUp(document.getElementById('vVerified'), vf, 1, 90);
+    }).catch(()=>{});
+  }).catch(() => {
+    // フォールバック(静的マークアップのまま)
+    countUp(document.getElementById('vLookups'), 414, 7, 18);
+    countUp(document.getElementById('vVerified'), 11, 1, 90);
+  });
+
+  document.querySelectorAll('.cat').forEach(c => c.addEventListener('click', () => {
+    document.querySelectorAll('.cat').forEach(x => x.classList.remove('on'));
+    c.classList.add('on'); STATE.cat = c.dataset.cat || 'すべて'; render();
+  }));
+  const doSearch = () => { STATE.q = (document.getElementById('q').value || ''); render(); };
+  document.getElementById('qBtn').addEventListener('click', doSearch);
+  document.getElementById('q').addEventListener('keydown', e => { if(e.key === 'Enter') doSearch(); });
+
+  if(!reduce){ const orbs = [...document.querySelectorAll('.orb')];
+    window.addEventListener('pointermove', e => { const x = (e.clientX/innerWidth-.5), y = (e.clientY/innerHeight-.5);
+      orbs.forEach((o,i) => { o.style.transform = 'translate('+(x*(i+1)*7)+'px,'+(y*(i+1)*7)+'px)'; }); }); }
+</script>
+</body>
+</html>

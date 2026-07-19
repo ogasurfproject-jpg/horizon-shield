@@ -41,12 +41,109 @@ async function authenticate(request, env) {
   return data;
 }
 
-// ---- PayPal webhook検証 ----
-async function verifyPayPalWebhook(request, env) {
-  // PayPalのwebhook検証（本番では署名検証を実装）
-  // 現状はtransmission-idの存在確認のみ
+// ---- PayPal OAuth トークン取得（client_credentials） ----
+async function getPayPalAccessToken(env) {
+  const clientId = env.PAYPAL_CLIENT_ID;
+  const clientSecret = env.PAYPAL_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return null;
+  const base = env.PAYPAL_API_BASE || 'https://api-m.paypal.com';
+  try {
+    const res = await fetch(`${base}/v1/oauth2/token`, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + btoa(`${clientId}:${clientSecret}`),
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'grant_type=client_credentials',
+    });
+    if (!res.ok) { console.error('PayPal OAuth failed:', res.status); return null; }
+    const data = await res.json();
+    return data.access_token || null;
+  } catch (e) {
+    console.error('PayPal OAuth error:', e);
+    return null;
+  }
+}
+
+// ---- PayPal webhook 署名検証（実検証・fail-closed） ----
+// 掟: 不明/未設定/失敗は必ず false（拒否）に倒す。
+async function verifyPayPalWebhook(request, env, rawBody) {
+  // 応急キルスイッチ: PAYPAL_WEBHOOK_KILL を立てれば即拒否（PayPal側無効化の補助）
+  if (env.PAYPAL_WEBHOOK_KILL === '1' || env.PAYPAL_WEBHOOK_KILL === 'true') {
+    console.error('PayPal webhook rejected: kill switch active');
+    return false;
+  }
+  const webhookId = env.PAYPAL_WEBHOOK_ID;
+  if (!webhookId) {
+    console.error('PayPal webhook rejected: PAYPAL_WEBHOOK_ID not configured');
+    return false;
+  }
+  // 署名ヘッダ（すべて必須）
+  const authAlgo = request.headers.get('paypal-auth-algo');
+  const certUrl = request.headers.get('paypal-cert-url');
   const transmissionId = request.headers.get('paypal-transmission-id');
-  return !!transmissionId;
+  const transmissionSig = request.headers.get('paypal-transmission-sig');
+  const transmissionTime = request.headers.get('paypal-transmission-time');
+  if (!authAlgo || !certUrl || !transmissionId || !transmissionSig || !transmissionTime) {
+    console.error('PayPal webhook rejected: missing signature headers');
+    return false;
+  }
+  // cert_url は paypal.com 系ホストのみ許可（偽証明書URL/SSRF対策）
+  try {
+    const host = new URL(certUrl).hostname.toLowerCase();
+    if (host !== 'paypal.com' && !host.endsWith('.paypal.com')) {
+      console.error('PayPal webhook rejected: cert_url host not allowed:', host);
+      return false;
+    }
+  } catch {
+    console.error('PayPal webhook rejected: malformed cert_url');
+    return false;
+  }
+  // 検証イベント本体（受信した生ボディをパース）
+  let event;
+  try {
+    event = JSON.parse(rawBody);
+  } catch {
+    console.error('PayPal webhook rejected: body is not valid JSON');
+    return false;
+  }
+  const token = await getPayPalAccessToken(env);
+  if (!token) {
+    console.error('PayPal webhook rejected: could not obtain access token');
+    return false;
+  }
+  const base = env.PAYPAL_API_BASE || 'https://api-m.paypal.com';
+  try {
+    const res = await fetch(`${base}/v1/notifications/verify-webhook-signature`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        auth_algo: authAlgo,
+        cert_url: certUrl,
+        transmission_id: transmissionId,
+        transmission_sig: transmissionSig,
+        transmission_time: transmissionTime,
+        webhook_id: webhookId,
+        webhook_event: event,
+      }),
+    });
+    if (!res.ok) {
+      console.error('PayPal verify-webhook-signature HTTP error:', res.status);
+      return false;
+    }
+    const data = await res.json();
+    if (data.verification_status !== 'SUCCESS') {
+      console.error('PayPal signature verification failed:', data.verification_status);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('PayPal verify error:', e);
+    return false;
+  }
 }
 
 // ---- LINE通知 ----
@@ -174,10 +271,16 @@ export default {
 
       // ---- PayPal Webhook ----
       if (pathname === '/webhook/paypal' && request.method === 'POST') {
-        const isValid = await verifyPayPalWebhook(request, env);
-        if (!isValid) return json({ error: 'Invalid webhook' }, 400);
+        const rawBody = await request.text();
+        const isValid = await verifyPayPalWebhook(request, env, rawBody);
+        if (!isValid) return json({ error: 'Invalid webhook signature' }, 403);
 
-        const body = await request.json();
+        let body;
+        try {
+          body = JSON.parse(rawBody);
+        } catch {
+          return json({ error: 'Invalid JSON body' }, 400);
+        }
         const eventType = body.event_type;
         console.log('PayPal webhook:', eventType);
 

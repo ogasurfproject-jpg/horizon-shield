@@ -218,13 +218,13 @@ async function callTool(name, args, env, ip, opts) {
     const _bump = async (k) => {
       try {
         const c = parseInt(await env.RL_KV.get(k) || "0", 10);
-        await env.RL_KV.put(k, String(c + 1));
+        await env.RL_KV.put(k, String(c + 1), { expirationTtl: 60 * 60 * 24 * 400 });
       } catch (e) {}
     };
     const _keep = (p) => { try { if (opts.ctx && typeof opts.ctx.waitUntil === "function") opts.ctx.waitUntil(p); } catch (e) {} return p; };
     const _day = new Date().toISOString().slice(0, 10);
     _keep(_bump("usage:total").catch(() => {}));
-    _keep(_bump("usage:skill:" + name).catch(() => {}));
+    if (TOOLS.some((t) => t.name === name)) _keep(_bump("usage:skill:" + name).catch(() => {}));
     _keep(_bump("usage:day:" + _day).catch(() => {}));
     if (name === "verify_integrity_claim") _keep(_bump("usage:verify:total").catch(() => {}));
   }
@@ -358,6 +358,8 @@ async function callTool(name, args, env, ip, opts) {
       if (price <= e.max) { verdict = "適正レンジ内"; level = "ok"; }
       else if (price < e.danger) { verdict = "やや高い(適正上限超だが危険水準未満)"; level = "watch"; }
       else { verdict = "過剰請求の懸念水準(danger超)"; level = "alert"; }
+      // L8: 無認証には danger 境界を明かさない(alert を watch に丸め、境界オラクルを塞ぐ)
+      if (!(opts && opts.authCtx) && level === "alert") { level = "watch"; verdict = "適正上限を超えています(内訳の確認を推奨)"; }
       const overAvg = e.avg ? Math.round((price / e.avg - 1) * 100) : null;
       return txt({
         work: e.work, unit: e.unit, your_price: price, currency: "JPY",
@@ -504,11 +506,21 @@ function genApiKey() {
   return "hsk_live_" + [...b].map(x => x.toString(16).padStart(2, "0")).join("");
 }
 
+async function ctEqual(a, b) {
+  a = String(a == null ? "" : a); b = String(b == null ? "" : b);
+  const enc = new TextEncoder();
+  const ha = await crypto.subtle.digest("SHA-256", enc.encode(a));
+  const hb = await crypto.subtle.digest("SHA-256", enc.encode(b));
+  const x = new Uint8Array(ha), y = new Uint8Array(hb);
+  let out = 0;
+  for (let i = 0; i < x.length; i++) out |= x[i] ^ y[i];
+  return out === 0;
+}
 async function handleAdminApiKey(pathname, request, env) {
   const J = (o, code) => new Response(JSON.stringify(o), { status: code || 200, headers: { "Content-Type": "application/json; charset=utf-8", ...CORS } });
   if (request.method !== "POST") return J({ error: "method_not_allowed" }, 405);
   const provided = request.headers.get("X-Admin-Key") || "";
-  if (!env.ADMIN_SECRET || provided !== env.ADMIN_SECRET) return J({ error: "forbidden" }, 403);
+  if (!env.ADMIN_SECRET || !(await ctEqual(provided, env.ADMIN_SECRET))) return J({ error: "forbidden" }, 403);
   let body;
   try { body = await request.json(); } catch (e) { return J({ error: "bad_json" }, 400); }
   if (pathname === "/admin/issue-apikey") {
@@ -596,7 +608,7 @@ async function checkRateLimit(env, ip, limit = 60, window = 60) {
     await env.RL_KV.put(key, String(next), { expirationTtl: window * 2 });
     return { allowed: next <= limit, count: next };
   } catch (e) {
-    return { allowed: true, count: 0 };
+    return { allowed: false, count: 0 };
   }
 }
 
@@ -962,6 +974,8 @@ export default {
     if (request.method === "GET") {
       const url = new URL(request.url);
       if (url.pathname === "/ratelimit-selftest") {
+        const _k = url.searchParams.get("key") || request.headers.get("X-Admin-Key") || "";
+        if (!env.ADMIN_SECRET || !(await ctEqual(_k, env.ADMIN_SECRET))) return new Response("forbidden", { status: 403, headers: CORS });
         try {
           const ip = request.headers.get("CF-Connecting-IP") || "unknown";
           const LIMIT = 60, WINDOW = 60;

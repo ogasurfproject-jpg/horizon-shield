@@ -13,6 +13,7 @@ export default {
     const m = url.pathname.match(/\/hacker\/wanted\/([^\/]+)\/og\.png$/);
     if (m) id = decodeURIComponent(m[1]);
     if (!id) id = url.searchParams.get('id') || '';
+    const hadId = !!id; // L13: 明示idが指定されたか(不一致なら404にして重いレンダの増幅を止める)
 
     let c = null;
     if (id) {
@@ -22,6 +23,8 @@ export default {
       } catch (e) {}
     }
     if (!c) {
+      // L13: idを指定されたのに該当カード無し = 404(bogus id での重いレンダ増幅DoSを止める)。
+      if (hadId) return new Response('not found', { status: 404, headers: { 'Cache-Control': 'public, max-age=3600' } });
       c = { genre: 'その他', amount: '929500', red_flags: 5, traits: ['型枠工事が複数項目で一式表記、内訳不明'] };
     }
 
@@ -72,10 +75,14 @@ export default {
         '</div>' +
       '</div>';
 
-    return new ImageResponse(html, {
+    const img = new ImageResponse(html, {
       width: 1200,
       height: 630,
       fonts: [ { name: 'wanted', data: fontData, weight: 400, style: 'normal' } ],
     });
+    // L13: 成功時は長寿命キャッシュ(CFエッジで再レンダを避ける)。
+    const headers = new Headers(img.headers);
+    headers.set('Cache-Control', 'public, max-age=86400, s-maxage=604800');
+    return new Response(img.body, { status: img.status, headers });
   },
 };

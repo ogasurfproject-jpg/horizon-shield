@@ -142,6 +142,19 @@ body{font-family:'Noto Sans JP',-apple-system,BlinkMacSystemFont,sans-serif;back
 const WORKER = 'https://hs-kira-proxy.oga-surf-project.workers.dev';
 let state = { tab:'inquiries', inquiries:[], prospects:[], loaded:false };
 
+// 管理パスワード（2026-07-19 H8: worker 側で ?key= を必須化）。一度入れたらセッション中は保持。
+function adminKey() {
+  let k = '';
+  try { k = sessionStorage.getItem('hs_admin_key') || ''; } catch(e) {}
+  if (!k) {
+    k = (window.prompt('管理パスワードを入力してください') || '').trim();
+    if (k) { try { sessionStorage.setItem('hs_admin_key', k); } catch(e) {} }
+  }
+  return k;
+}
+function clearAdminKey() { try { sessionStorage.removeItem('hs_admin_key'); } catch(e) {} }
+function withKey(u) { return u + (u.indexOf('?') >= 0 ? '&' : '?') + 'key=' + encodeURIComponent(adminKey()); }
+
 function go(tab, el) {
   state.tab = tab;
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -228,7 +241,7 @@ function renderInquiries() {
         +'</div>'
         +'<div style="margin-top:14px;display:flex;gap:8px">'
         +'<a href="mailto:'+email+'?subject=【HORIZON SHIELD】診断結果について" style="flex:1;display:block;text-align:center;padding:12px;background:var(--accent);color:#faf9f5;font-size:13px;font-weight:700;text-decoration:none;border-radius:3px">メール返信</a>'
-        +'<button onclick="delItem(''+key+'');event.stopPropagation()" style="padding:12px 16px;background:transparent;border:1px solid rgba(139,26,26,.3);color:var(--red);font-size:13px;font-weight:700;cursor:pointer;border-radius:3px;font-family:inherit">削除</button>'
+        +'<button onclick="delItem(\''+key+'\');event.stopPropagation()" style="padding:12px 16px;background:transparent;border:1px solid rgba(139,26,26,.3);color:var(--red);font-size:13px;font-weight:700;cursor:pointer;border-radius:3px;font-family:inherit">削除</button>'
         +'</div></div></div>';
     }).join('');
 }
@@ -278,7 +291,8 @@ function renderSettings() {
 async function fetchInquiries() {
   document.getElementById('main').innerHTML = '<div class="loading">読み込み中...</div>';
   try {
-    const res = await fetch(WORKER + '/inquiries');
+    const res = await fetch(withKey(WORKER + '/inquiries'));
+    if (res.status === 401) { clearAdminKey(); throw new Error('認証エラー: パスワードを再入力してください'); }
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     state.inquiries = Array.isArray(json) ? json : (json.data||json.inquiries||[]);
@@ -297,7 +311,8 @@ async function fetchInquiries() {
 async function fetchProspects() {
   document.getElementById('main').innerHTML = '<div class="loading">読み込み中...</div>';
   try {
-    const res = await fetch(WORKER + '/prospects');
+    const res = await fetch(withKey(WORKER + '/prospects'));
+    if (res.status === 401) { clearAdminKey(); throw new Error('認証エラー: パスワードを再入力してください'); }
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     state.prospects = Array.isArray(json) ? json : [];
@@ -312,11 +327,12 @@ async function fetchProspects() {
 async function delItem(key) {
   if (!confirm('この問い合わせを削除しますか？')) return;
   try {
-    const res = await fetch(WORKER + '/delete', {
+    const res = await fetch(withKey(WORKER + '/delete'), {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({key})
     });
+    if (res.status === 401) { clearAdminKey(); alert('認証エラー: パスワードを再入力してください'); return; }
     if (res.ok) {
       state.inquiries = state.inquiries.filter(i => (i.key||i.email||'') !== key);
       document.getElementById('badge-wrap').innerHTML = state.inquiries.length
@@ -329,7 +345,7 @@ async function delItem(key) {
 async function clearAll() {
   if (!confirm('全件削除します。本当によろしいですか？')) return;
   try {
-    const res = await fetch(WORKER + '/clear', { method:'POST' });
+    const res = await fetch(withKey(WORKER + '/clear'), { method:'POST' });
     if (res.ok) {
       state.inquiries = [];
       state.loaded = false;
@@ -344,7 +360,7 @@ async function testConn() {
   r.innerHTML = '<div style="text-align:center;padding:10px;font-size:13px;color:var(--muted)">テスト中...</div>';
   for (const ep of ['/inquiries', '/stats', '/']) {
     try {
-      const res = await fetch(WORKER + ep);
+      const res = await fetch(withKey(WORKER + ep));
       if (res.status !== 404) {
         r.innerHTML = `<div class="ok-box">接続OK — ${ep} → HTTP ${res.status}</div>`;
         return;

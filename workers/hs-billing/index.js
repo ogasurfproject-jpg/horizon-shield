@@ -47,9 +47,20 @@ async function verifyStripeSig(rawBody, sigHeader, secret, toleranceSec) {
 async function handleEvent(evt, env) {
   try {
     if (!env.BILLING_KV || !evt) return;
+    // L12: 本番は livemode のみ処理（テストモードのイベントで本番entを動かさない）。
+    if (evt.livemode !== true) return;
+    // L2: event.id で冪等化（重複配信・再送を無視）。
+    const evtId = String(evt.id || "").slice(0, 80);
+    if (evtId) {
+      if (await env.BILLING_KV.get("evt:" + evtId)) return;
+      await env.BILLING_KV.put("evt:" + evtId, "1", { expirationTtl: 60 * 60 * 24 * 3 });
+    }
     const type = evt.type;
     const obj = (evt.data && evt.data.object) || {};
     if (type === "checkout.session.completed") {
+      // M5: 実際に支払われた場合のみ有効化（無決済 / 100%オフでの有効化を防ぐ）。
+      // トライアルを提供する場合はここに "no_payment_required" を明示的に足すこと。
+      if (obj.payment_status !== "paid") return;
       // 決済成立: client_reference_id(推奨) か metadata.store_id で店を特定して有効化。
       const store = safeStore(obj.client_reference_id || (obj.metadata && obj.metadata.store_id) || "");
       const sub = String(obj.subscription || "").slice(0, 80);
@@ -57,12 +68,20 @@ async function handleEvent(evt, env) {
         await env.BILLING_KV.put("ent:" + store, "active");
         if (sub) await env.BILLING_KV.put("sub:" + sub, store); // 解約時に sub -> store を引くため
       }
+    } else if (type === "customer.subscription.updated" && ["active", "trialing"].includes(obj.status)) {
+      // H7: past_due 等から active/trialing に復活したら再有効化（払っている店の締め出しを解消）。
+      const sub = String(obj.id || "").slice(0, 80);
+      const store = sub ? await env.BILLING_KV.get("sub:" + sub) : null;
+      if (store) await env.BILLING_KV.put("ent:" + safeStore(store), "active");
     } else if (type === "customer.subscription.deleted" ||
       (type === "customer.subscription.updated" && ["canceled", "unpaid", "incomplete_expired", "past_due"].includes(obj.status))) {
-      // 解約・失効: 対応する店を無効化。
+      // 解約・失効・一時停止: 対応する店を無効化。
       const sub = String(obj.id || "").slice(0, 80);
       const store = sub ? await env.BILLING_KV.get("sub:" + sub) : null;
       if (store) await env.BILLING_KV.put("ent:" + safeStore(store), "inactive");
+      // L2: 終端状態のみ sub->store を削除（past_due / unpaid の一時停止では H7 復活のためマッピングを残す）。
+      const terminal = type === "customer.subscription.deleted" || obj.status === "canceled" || obj.status === "incomplete_expired";
+      if (sub && terminal) await env.BILLING_KV.delete("sub:" + sub);
     }
   } catch (e) { /* fail-open on processing; signature already verified */ }
 }

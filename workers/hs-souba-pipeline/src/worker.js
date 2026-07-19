@@ -1097,6 +1097,16 @@ function json(obj, status) {
 // テスト/将来再利用用の名前付きexport (default exportは不変)
 export { runLearn, runJudge, evaluateProposal, canonicalJson, sha256Hex, getCategory, buildProposal, mapFeedItem, classifyChange, runConfirm, eligibleForConfirm };
 
+async function ctEqual(a, b) {
+  a = String(a == null ? "" : a); b = String(b == null ? "" : b);
+  const enc = new TextEncoder();
+  const ha = await crypto.subtle.digest("SHA-256", enc.encode(a));
+  const hb = await crypto.subtle.digest("SHA-256", enc.encode(b));
+  const x = new Uint8Array(ha), y = new Uint8Array(hb);
+  let out = 0;
+  for (let i = 0; i < x.length; i++) out |= x[i] ^ y[i];
+  return out === 0;
+}
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -1107,7 +1117,7 @@ export default {
 
     if (request.method === 'POST' && url.pathname === '/run') {
       const token = request.headers.get('x-pipeline-token') || '';
-      if (!env.PIPELINE_TOKEN || token !== env.PIPELINE_TOKEN) {
+      if (!env.PIPELINE_TOKEN || !(await ctEqual(token, env.PIPELINE_TOKEN))) {
         return json({ ok: false, error: 'unauthorized' }, 403);
       }
       const learn = await runLearn(env);
@@ -1118,7 +1128,7 @@ export default {
 
     if (request.method === 'POST' && url.pathname === '/rollback') {
       const token = request.headers.get('x-pipeline-token') || '';
-      if (!env.PIPELINE_TOKEN || token !== env.PIPELINE_TOKEN) {
+      if (!env.PIPELINE_TOKEN || !(await ctEqual(token, env.PIPELINE_TOKEN))) {
         return json({ ok: false, error: 'unauthorized' }, 403);
       }
       let body = {};

@@ -256,14 +256,16 @@ export async function activityList(env, n = 30) {
 }
 
 /* ------------------------------ 紹介プログラム ------------------------------ */
+// L16: refHit/refCount のキー生成を統一(正規化不一致による紹介数の取りこぼしを防ぐ)。
+function refKey(memberNo) { return "ref:" + S(memberNo, 20).replace(/[^A-Za-z0-9.]/g, ""); }
 export async function refHit(env, memberNo) {
-  const key = "ref:" + S(memberNo, 20).replace(/[^A-Za-z0-9.]/g, "");
+  const key = refKey(memberNo);
   const cur = parseInt((await env.HS_HEARING_KV.get(key, "text")) || "0", 10) || 0;
   await env.HS_HEARING_KV.put(key, String(cur + 1));
   return cur + 1;
 }
 export async function refCount(env, memberNo) {
-  return parseInt((await env.HS_HEARING_KV.get("ref:" + S(memberNo, 20), "text")) || "0", 10) || 0;
+  return parseInt((await env.HS_HEARING_KV.get(refKey(memberNo), "text")) || "0", 10) || 0;
 }
 
 /* ------------------------------ 重複ゼロ台帳(simhash) ------------------------------ */
@@ -334,6 +336,10 @@ export async function newsRefresh(env) {
   const items = [];
   for (const url of sources.slice(0, 5)) {
     try {
+      // L11: https のみ + 内部ホスト遮断(SSRF多重防御。sourcesは管理者設定だが念のため)。
+      if (!/^https:\/\//i.test(String(url))) continue;
+      let _h = ""; try { _h = new URL(url).hostname.toLowerCase(); } catch (_e) { continue; }
+      if (_h === "localhost" || _h.endsWith(".internal") || /^(127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.)/.test(_h)) continue;
       const r = await fetch(url, { headers: { "User-Agent": "yakumo-autopilot" } });
       if (!r.ok) continue;
       const xml = (await r.text()).slice(0, 200000);

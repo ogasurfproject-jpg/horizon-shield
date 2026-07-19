@@ -17190,6 +17190,29 @@ function escapeHtml(s2) {
   return String(s2).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 __name(escapeHtml, "escapeHtml");
+async function hsCtEqual(a, b) {
+  a = String(a == null ? "" : a); b = String(b == null ? "" : b);
+  const enc = new TextEncoder();
+  const ha = await crypto.subtle.digest("SHA-256", enc.encode(a));
+  const hb = await crypto.subtle.digest("SHA-256", enc.encode(b));
+  const x = new Uint8Array(ha), y = new Uint8Array(hb);
+  let out = 0;
+  for (let i = 0; i < x.length; i++) out |= x[i] ^ y[i];
+  return out === 0;
+}
+__name(hsCtEqual, "hsCtEqual");
+async function hsPdfSig(orderId, exp, env) {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.PDF_URL_SECRET || ""), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const mac = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(orderId + "." + exp));
+  return [...new Uint8Array(mac)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+__name(hsPdfSig, "hsPdfSig");
+async function hsSignedPdfUrl(origin, orderId, env) {
+  const exp = Date.now() + 1e3 * 60 * 60 * 24 * 180;
+  const sig = await hsPdfSig(orderId, exp, env);
+  return origin + "/pdf/" + encodeURIComponent(orderId) + "?exp=" + exp + "&sig=" + sig;
+}
+__name(hsSignedPdfUrl, "hsSignedPdfUrl");
 async function diagnose(params, env) {
   const { koji_type, teiji_kingaku, region = "all" } = params;
   const sobaObj = await env.PDFS_BUCKET.get("souba-db.json");
@@ -18256,7 +18279,7 @@ async function hsHandleEstimateAudit(request, env) {
       }
       var docId = "audit-" + hash;
       await env.PDFS_BUCKET.put("pdfs/" + docId + ".pdf", pdfBuffer2, { httpMetadata: { contentType: "application/pdf" }, customMetadata: { sha256: fullHex, kind: "estimate-audit" } });
-      var pdfUrl = new URL(request.url).origin + "/pdf/" + docId;
+      var pdfUrl = await hsSignedPdfUrl(new URL(request.url).origin, docId, env);
       var subject = "【HORIZON SHIELD】見積書明細診断書のお届け(" + (ex.doc.estimate_no || docId) + ")";
       var mailHtml = "<div style='font-family:sans-serif;max-width:560px;margin:0 auto;color:#1a1a2e'>" +
         "<div style='background:linear-gradient(160deg,#0a0e1a,#1a1a2e,#0f3460);color:#fff;padding:22px 26px;border-bottom:3px solid #c9a227'>" +
@@ -18404,6 +18427,12 @@ function parsePlanText(planText) {
       result.source = t2.replace("\u51FA\u5178\uFF1A", "").trim();
     }
   }
+  // H5: escape every parsed field before it is interpolated into the PDF HTML template
+  // (prevents HTML/script injection and renderer SSRF via puppeteer setContent).
+  for (const _k of ["koji_content", "subtotal", "expenses", "matsu", "take", "ume", "advice", "source"]) {
+    result[_k] = escapeHtml(result[_k] || "");
+  }
+  result.breakdown = result.breakdown.map((_b) => escapeHtml(_b));
   return result;
 }
 __name(parsePlanText, "parsePlanText");
@@ -18611,7 +18640,7 @@ function generatePlanHTML(d2, orderInfo) {
     <div class="cover-case-label">\u8A3A\u65AD\u5DE5\u4E8B\u5185\u5BB9</div>
     <div class="cover-case-val">${d2.koji_content || "\u5DE5\u4E8B\u5185\u5BB9\u672A\u5165\u529B"}</div>
   </div>
-  <div class="cover-meta">${orderInfo.customer_name.replace(/様$/, "").trim()} \u69D8 \uFF0F \u8A3A\u65AD\u65E5\uFF1A${now}</div>
+  <div class="cover-meta">${escapeHtml(orderInfo.customer_name.replace(/様$/, "").trim())} \u69D8 \uFF0F \u8A3A\u65AD\u65E5\uFF1A${now}</div>
   <div class="cover-footer">HORIZON SHIELD \uFF0F The HORIZ\u97F3s\u682A\u5F0F\u4F1A\u793E \uFF0F shield.the-horizons-innovation.com</div>
 </div>
 
@@ -19363,7 +19392,7 @@ async function hsProcessPaidOrder(order, origin, env) {
   await env.PDFS_BUCKET.put("pdfs/" + orderId + ".pdf", pdfBuffer, {
     httpMetadata: { contentType: "application/pdf" }
   });
-  const pdfUrl = origin + "/pdf/" + orderId;
+  const pdfUrl = await hsSignedPdfUrl(origin, orderId, env);
   const sendResult = await sendPDFToCustomer({
     customer_name: order.customerName,
     line_user_id: null,
@@ -19826,7 +19855,7 @@ var worker_default = {
         await env.PDFS_BUCKET.put(`pdfs/${orderInfo.orderId}.pdf`, pdfBuffer, {
           httpMetadata: { contentType: "application/pdf" }
         });
-        const pdf_url = `${url.origin}/pdf/${orderInfo.orderId}`;
+        const pdf_url = await hsSignedPdfUrl(url.origin, orderInfo.orderId, env);
         return new Response(JSON.stringify({
           ok: true,
           orderId: orderInfo.orderId,
@@ -19905,12 +19934,14 @@ var worker_default = {
             }
 
       if (pathname === "/generate-and-send" && request.method === "POST") {
+        const _tok = url.searchParams.get("token") || request.headers.get("X-PDF-Token") || "";
+        if (!env.PDFGEN_TOKEN || !(await hsCtEqual(_tok, env.PDFGEN_TOKEN))) return json({ error: "unauthorized" }, 401);
         const params = await request.json();
         const { pdfBuffer, orderInfo, diagnosis } = await generatePlanPDFAuto(params, env);
         await env.PDFS_BUCKET.put(`pdfs/${orderInfo.orderId}.pdf`, pdfBuffer, {
           httpMetadata: { contentType: "application/pdf" }
         });
-        const pdfUrl = `${url.origin}/pdf/${orderInfo.orderId}`;
+        const pdfUrl = await hsSignedPdfUrl(url.origin, orderInfo.orderId, env);
         const customerInfo = {
           customer_name: params.customer_name || "\u30C6\u30B9\u30C8\u592A\u90CE",
           line_user_id: params.line_user_id || null,
@@ -20077,7 +20108,7 @@ var worker_default = {
         await env.PDFS_BUCKET.put(`pdfs/${orderId}.pdf`, pdfBuffer, {
           httpMetadata: { contentType: "application/pdf" }
         });
-        const pdfUrl = `${url.origin}/pdf/${orderId}`;
+        const pdfUrl = await hsSignedPdfUrl(url.origin, orderId, env);
         const customerInfo = {
           customer_name: order.customer_name,
           line_user_id: order.line_user_id || null,
@@ -20088,14 +20119,20 @@ var worker_default = {
         return json({ ok: true, orderId });
       }
       if (pathname.startsWith("/pdf/") && request.method === "GET") {
-        const orderId = pathname.replace("/pdf/", "");
+        const orderId = decodeURIComponent(pathname.replace("/pdf/", ""));
+        // M9: require a valid HMAC signature (+ expiry). fail-closed. blocks IDOR enumeration.
+        if (!env.PDF_URL_SECRET) return new Response("forbidden", { status: 403 });
+        const _exp = Number(url.searchParams.get("exp") || 0);
+        const _sig = url.searchParams.get("sig") || "";
+        if (!_exp || Date.now() > _exp) return new Response("link expired", { status: 403 });
+        if (!(await hsCtEqual(_sig, await hsPdfSig(orderId, _exp, env)))) return new Response("forbidden", { status: 403 });
         const obj = await env.PDFS_BUCKET.get(`pdfs/${orderId}.pdf`);
         if (!obj) return new Response("PDF not found", { status: 404 });
         return new Response(obj.body, {
           headers: {
             "Content-Type": "application/pdf",
             "Content-Disposition": `inline; filename="HORIZON_SHIELD_${orderId}.pdf"`,
-            "Cache-Control": "public, max-age=604800"
+            "Cache-Control": "private, max-age=3600"
           }
         });
       }

@@ -1,0 +1,52 @@
+===== weekly run 2026-07-08 00:31 =====
+=== LLM可視率モニター run 2026-07-08-0031 / 15問 ===
+
+[ 1/15]   comp  (price) 外壁塗装 30坪 相場 いくら
+          -> gaiheki-concierge.com, gaiheki-madoguchi.com, house-make-tosou.jp, manaka-reform-chiba.com
+[ 2/15]   comp  (price) シロアリ駆除 費用 適正価格
+          -> asante.co.jp, ayanotosou.co.jp, az-support.co.jp, ecolabo-kumamoto.jp
+[ 3/15]   comp  (price) 屋根 葺き替え 30坪 費用
+          -> gaiheki-madoguchi.com, gaiso-labo.com, horiikawara.com, kamisei.co.jp
+[ 4/15]   comp  (price) 給湯器 交換 費用 相場
+          -> curama.jp, gas-kyutouki.co.jp, gasspec.jp, home.tokyo-gas.co.jp
+[ 5/15]   comp  (price) トイレ リフォーム 費用 目安
+          -> curama.jp, esmile-24.com, jp.toto.com, kakaku.com
+[ 6/15]   comp  (judge) 外壁塗装の見積もりで150万円は高いですか
+          -> asahieito.co.jp, gaiheki-madoguchi.com, gaiheki-tosou.shop, gaihekitosou-partners.jp
+[ 7/15]   comp  (judge) リフォームの見積もりが一式ばかりで内訳がなく不安です
+          -> chord.or.jp, city.ise.mie.jp, cleanup.jp, commuture.com
+[ 8/15]   none  (judge) この屋根修理の見積もりが適正かどうか知りたい
+Traceback (most recent call last):
+  File "/Users/oogatoshikatsu/Desktop/horizon-shield/llm_visibility_monitor.py", line 177, in <module>
+    main()
+  File "/Users/oogatoshikatsu/Desktop/horizon-shield/llm_visibility_monitor.py", line 111, in main
+    ans, urls = call_claude(api_key, q)
+  File "/Users/oogatoshikatsu/Desktop/horizon-shield/llm_visibility_monitor.py", line 57, in call_claude
+    with urllib.request.urlopen(req, timeout=120) as r:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 517, in open
+    response = self._open(req, data)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 534, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 1389, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 1350, in do_open
+    r = h.getresponse()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/http/client.py", line 1349, in getresponse
+    response.begin()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/http/client.py", line 316, in begin
+    version, status, reason = self._read_status()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/http/client.py", line 277, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/socket.py", line 704, in readinto
+    return self._sock.recv_into(b)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/ssl.py", line 1241, in recv_into
+    return self.read(nbytes, buffer)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/ssl.py", line 1099, in read
+    return self._sslobj.read(len, buffer)
+KeyboardInterrupt
+===== weekly run 2026-07-08 00:35 =====
+===== weekly run 2026-07-08 00:39 =====

@@ -47,9 +47,16 @@ async function sha256Hex(str) {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
+function ctEqSync(a, b) {
+  a = String(a == null ? "" : a); b = String(b == null ? "" : b);
+  if (a.length !== b.length) return false;
+  let out = 0;
+  for (let i = 0; i < a.length; i++) out |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return out === 0;
+}
 function adminOk(request, env) {
   const key = request.headers.get("X-Admin-Key") || "";
-  return env.HEARING_ADMIN_SECRET && key && key === env.HEARING_ADMIN_SECRET;
+  return !!(env.HEARING_ADMIN_SECRET && key && ctEqSync(key, env.HEARING_ADMIN_SECRET)); // L1: 定数時間比較
 }
 async function fetchPublished(env) {
   const url = (env.PUBLIC_DATA_URL || PUBLIC_DATA_FALLBACK);
@@ -688,14 +695,25 @@ async function sendGreetingEmail(env, { to, company }) {
 
 /* ------------------------------ LINE intake (加盟店ヒアリングのLINE版) ------------------------------ */
 // メールと同じ設計。加盟店がLINEで登録->回答->自動構造化->同じfail-closed関所->生成トリガー。
+// 定数時間の比較（掟 L1）。SHA-256 して XOR 集約、長さ差でも分岐しない。
+async function ctEqual(a, b) {
+  a = String(a == null ? "" : a); b = String(b == null ? "" : b);
+  const enc = new TextEncoder();
+  const ha = await crypto.subtle.digest("SHA-256", enc.encode(a));
+  const hb = await crypto.subtle.digest("SHA-256", enc.encode(b));
+  const x = new Uint8Array(ha), y = new Uint8Array(hb);
+  let out = 0;
+  for (let i = 0; i < x.length; i++) out |= x[i] ^ y[i];
+  return out === 0;
+}
 async function verifyLineSignature(secret, bodyText, signature) {
-  if (!secret) return true; // 未設定時は検証スキップ(初期設定用)。本番は LINE_CHANNEL_SECRET を必ず設定すること。
+  if (!secret) return false; // H6: fail-closed。未設定は検証不能として拒否（LINE_CHANNEL_SECRET を必ず設定）。
   if (!signature) return false;
   try {
     const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
     const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(bodyText));
     const b64 = btoa(String.fromCharCode(...new Uint8Array(sig)));
-    return b64 === signature;
+    return await ctEqual(b64, signature); // H6: 定数時間比較
   } catch (_e) { return false; }
 }
 async function lineReply(env, replyToken, text) {
@@ -968,7 +986,6 @@ export default {
         areas: store.areas || [],
         works: store.works || [],
         tier: store.tier || "honbu",
-        plan: store.plan || null,
         status: store.status || "onboarding",
         already_answered: !!(hearing && hearing.completed),
         // AUTOPILOT: マイページ用の運用状態(本人向け・公開安全)

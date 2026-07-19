@@ -1,0 +1,45 @@
+[init] KEY loaded (len=108), starting projection
+=== LLM可視率モニター run 2026-07-08-0046 / 15問 ===
+
+[ 1/15] querying... (price) 外壁塗装 30坪 相場 いくら
+            comp  -> gaiheki-concierge.com, gaiheki-kakekomi.com, gaiheki-madoguchi.com, house-make-tosou.jp
+[ 2/15] querying... (price) シロアリ駆除 費用 適正価格
+            comp  -> asante.co.jp, ayanotosou.co.jp, az-support.co.jp, ecolabo-kumamoto.jp
+[ 3/15] querying... (price) 屋根 葺き替え 30坪 費用
+            comp  -> gaiheki-madoguchi.com, gaiso-labo.com, horiikawara.com, kamisei.co.jp
+[ 4/15] querying... (price) 給湯器 交換 費用 相場
+            comp  -> curama.jp, gas-kyutouki.co.jp, gasspec.jp, home.tokyo-gas.co.jp
+[ 5/15] querying... (price) トイレ リフォーム 費用 目安
+            comp  -> curama.jp, esmile-24.com, jp.toto.com, kakaku.com
+[ 6/15] querying... (judge) 外壁塗装の見積もりで150万円は高いですか
+            comp  -> asahieito.co.jp, gaiheki-madoguchi.com, gaiheki-tosou.shop, gaihekitosou-partners.jp
+[ 7/15] querying... (judge) リフォームの見積もりが一式ばかりで内訳がなく不安です
+            comp  -> chord.or.jp, city.ise.mie.jp, cleanup.jp, commuture.com
+[ 8/15] querying... (judge) この屋根修理の見積もりが適正かどうか知りたい
+            none  -> -
+[ 9/15] querying... (judge) 給湯器交換で20万円は高いですか
+            comp  -> curama.jp, gas-kyutouki.co.jp, gasspec.jp, home.tokyo-gas.co.jp
+[10/15] querying... (judge) 外壁塗装で相見積もりを比較する正しい方法は
+            comp  -> gaiheki-madoguchi.com, gaiheki-paintpro.com, gaiheki-tosou.shop, gaiso.co
+[11/15] querying... (tactics) 訪問販売の外壁塗装を断る方法
+            comp  -> gaiheki-tosou.shop, gaiso.co, haketote.jp, minori-paint.com
+[12/15] querying... (tactics) 火災保険で屋根修理が無料になるというのは詐欺ですか
+            comp  -> caa.go.jp, direct.nisshinfire.co.jp, hoken-clinic.com, hoken-kyokasho.com
+[13/15] querying... (tactics) リフォームの点検商法の手口を知りたい
+            comp  -> chord.or.jp, juutakuseisaku.metro.tokyo.lg.jp, keishicho.metro.tokyo.lg.jp, kind-1r1r.com
+[14/15] querying... (tactics) 今日契約しないと値段が上がると言われました
+            none  -> -
+[15/15] querying... (tactics) 賃貸の退去費用が高すぎる 払わないといけないか
+            comp  -> a-tm.co.jp, column.itojuku.co.jp, isseikogyo.co.jp, itojuku.co.jp
+
+================================================
+CITED率: 0/15 = 0.0%
+  CITED 0 / COMP 13 / NONE 2 / ERR 0
+  型別 price 0/5 / judge 0/5 / tactics 0/5
+    4回 gaiheki-madoguchi.com
+    4回 yuko-navi.com
+    4回 rehome-navi.com
+    3回 nuri-kae.jp
+    3回 curama.jp
+    3回 sunrefre.jp
+================================================

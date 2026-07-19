@@ -322,9 +322,10 @@ const EMBED_JS = `/* HORIZON SHIELD KIRA embed widget  (served at /embed.js?stor
       '<span class="you" style="left:' + yo + '%;background:' + c + '"></span>' +
       '</div><div class="lbls"><span>' + yen(fr.min) + '</span><span>適正帯(平均 ' + yen(fr.avg) + ')</span><span>' + yen(fr.max) + '</span></div></div>';
   }
+  function safeUrl(u){ u = String(u == null ? '' : u); return (u.lastIndexOf('https://',0)===0 || u.lastIndexOf('http://',0)===0) ? u : ''; }
   function ehnBlock(a) {
-    var board = (a && a.next_actions && a.next_actions.board_url) || (a && a.ehn && a.ehn.compare_cases) || (SITE + '/ehn/');
-    var submit = (a && a.next_actions && a.next_actions.ehn_submit) || (a && a.ehn && a.ehn.ehn_submit) || (SITE + '/hacker/submit/');
+    var board = safeUrl((a && a.next_actions && a.next_actions.board_url) || (a && a.ehn && a.ehn.compare_cases)) || (SITE + '/ehn/');
+    var submit = safeUrl((a && a.next_actions && a.next_actions.ehn_submit) || (a && a.ehn && a.ehn.ehn_submit)) || (SITE + '/hacker/submit/');
     return '<a class="ehn" href="' + esc(submit) + '" target="_blank" rel="noopener">この見積もりを匿名で第三者チェック(無料)</a>' +
       '<a class="ehn2" href="' + esc(board) + '" target="_blank" rel="noopener">みんなの実例と並べて見る</a>';
   }
@@ -350,7 +351,7 @@ const EMBED_JS = `/* HORIZON SHIELD KIRA embed widget  (served at /embed.js?stor
     result.innerHTML = '<div class="rc">' + html + '</div>';
   }
   function renderSoft(out) {
-    var ehn = (out && out.next && out.next.ehn) || (SITE + '/ehn/');
+    var ehn = safeUrl(out && out.next && out.next.ehn) || (SITE + '/ehn/');
     result.innerHTML = '<div class="rc"><p class="adv">' + esc((out && out.message) || '今回は診断できませんでした。') + '</p>' +
       '<a class="ehn" href="' + esc(ehn) + '" target="_blank" rel="noopener">EHNで匿名・無料の第三者チェック</a></div>';
   }
@@ -857,11 +858,25 @@ function daySeriesFromRows(rows, dayList, matchFn) {
   }
   return out;
 }
+async function ctEqual(a, b) {
+  a = String(a == null ? "" : a); b = String(b == null ? "" : b);
+  const enc = new TextEncoder();
+  const ha = await crypto.subtle.digest("SHA-256", enc.encode(a));
+  const hb = await crypto.subtle.digest("SHA-256", enc.encode(b));
+  const x = new Uint8Array(ha), y = new Uint8Array(hb);
+  let out = 0;
+  for (let i = 0; i < x.length; i++) out |= x[i] ^ y[i];
+  return out === 0;
+}
+async function knownStoreSet() {
+  const db = await loadContractors();
+  return new Set(((db && db.contractors) || []).map((c) => c.store_id));
+}
 async function statsPage(url, env) {
   const KEY = env && env.STATS_KEY;
   const given = url.searchParams.get("key") || "";
   if (!KEY) return new Response("stats disabled: STATS_KEY 未設定(wrangler secret put STATS_KEY で設定)", { status: 403, headers: { "Content-Type": "text/plain; charset=utf-8" } });
-  if (given !== KEY) return new Response("forbidden", { status: 403, headers: { "Content-Type": "text/plain; charset=utf-8" } });
+  if (!(await ctEqual(given, KEY))) return new Response("forbidden", { status: 403, headers: { "Content-Type": "text/plain; charset=utf-8" } });
   if (!env.STATS) return new Response("stats unavailable: STATS binding 未設定", { status: 500, headers: { "Content-Type": "text/plain; charset=utf-8" } });
 
   const days = [7, 30, 90].includes(Number(url.searchParams.get("days"))) ? Number(url.searchParams.get("days")) : 30;
@@ -988,7 +1003,7 @@ async function mypagePage(url, env) {
   const k = String(url.searchParams.get("k") || "");
   if (!store || !k) return new Response("forbidden", { status: 403, headers: plain });
   const want = await mypageToken(env, store);
-  if (k !== want) return new Response("forbidden", { status: 403, headers: plain });
+  if (!(await ctEqual(k, want))) return new Response("forbidden", { status: 403, headers: plain });
   if (!env.STATS) return new Response("stats unavailable", { status: 500, headers: plain });
 
   const days = [7, 30, 90].includes(Number(url.searchParams.get("days"))) ? Number(url.searchParams.get("days")) : 30;
@@ -1108,17 +1123,21 @@ export default {
 
     // 計測ビーコン。query形式(embedウィジェット発)と JSON一括形式(hs-hearing 等のサーバ発)。常に204。
     if (method === "POST" && path === "/beacon") {
+      // M7: 未知storeの水増し / KV肥大を防ぐ。store は空(匿名)か既知登録のみ計上。
+      const known = await knownStoreSet();
+      const okStore = (s) => !s || known.has(s);
       const evq = String(url.searchParams.get("event") || "");
       if (evq) {
-        if (EV_FEED.includes(evq)) {
-          track(env, ctx, [{ store: url.searchParams.get("store") || "", event: evq, tool: "" }]);
+        const st = String(url.searchParams.get("store") || "").slice(0, 40);
+        if (EV_FEED.includes(evq) && okStore(st)) {
+          track(env, ctx, [{ store: st, event: evq, tool: "" }]);
         }
       } else {
         try {
           const body = await request.json();
           const evs = (Array.isArray(body && body.events) ? body.events : []).slice(0, 20)
-            .filter((e) => e && EV_FEED.includes(String(e.event)))
-            .map((e) => ({ store: String(e.store || ""), event: String(e.event), tool: "" }));
+            .map((e) => ({ store: String((e && e.store) || "").slice(0, 40), event: String((e && e.event) || ""), tool: "" }))
+            .filter((e) => EV_FEED.includes(e.event) && okStore(e.store));
           track(env, ctx, evs);
         } catch (e) { /* 計上できない形式は黙って捨てる(fail-open) */ }
       }

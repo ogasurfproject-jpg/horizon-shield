@@ -760,9 +760,33 @@ async function listProspects(env) {
 // ========================================
 // エントリーポイント
 // ========================================
+
+// 定数時間比較（掟 L1）。SHA-256 して XOR 集約。
+async function ctEqual(a, b) {
+  a = String(a == null ? '' : a); b = String(b == null ? '' : b);
+  const enc = new TextEncoder();
+  const ha = await crypto.subtle.digest('SHA-256', enc.encode(a));
+  const hb = await crypto.subtle.digest('SHA-256', enc.encode(b));
+  const x = new Uint8Array(ha), y = new Uint8Array(hb);
+  let out = 0;
+  for (let i = 0; i < x.length; i++) out |= x[i] ^ y[i];
+  return out === 0;
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    // 2026-07-19 H1/H2/M2/M3/M4: 制御ルートは CONTROL_TOKEN 必須（scheduled は別経路なので無影響）
+    const CONTROL_PATHS = ['/scan', '/test', '/prospects', '/fetch-material-news', '/reset-seen', '/update-db'];
+    if (CONTROL_PATHS.includes(url.pathname)) {
+      const provided = url.searchParams.get('token')
+        || (request.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '')
+        || request.headers.get('X-Control-Token') || '';
+      if (!env.CONTROL_TOKEN || !(await ctEqual(provided, env.CONTROL_TOKEN))) {
+        return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+      }
+    }
 
     if (url.pathname === '/scan') {
       const result = await scanAndNotify(env);
@@ -786,7 +810,7 @@ export default {
       });
       const body = await res.text();
       return new Response(
-        `STATUS: ${res.status}\nTO: ${env.LINE_USER_ID}\nTOKEN_HEAD: ${(env.LINE_CHANNEL_TOKEN||'').slice(0,10)}...\nBODY: ${body}`,
+        `STATUS: ${res.status}\nBODY: ${body}`,
         { headers: { 'Content-Type': 'text/plain' } }
       );
     }
