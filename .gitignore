@@ -95,3 +95,8 @@ blog/*.bak-*
 !tools/yakumo/deploy_all.sh
 .anthropic_key
 !tools/yakumo/provision_store.py
+visibility-runs/
+visibility-summary.json
+main,
+*.log
+* 2.*
