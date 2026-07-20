@@ -108,7 +108,7 @@ const ABOUT_MD =
   "施工業者から紹介手数料や送客報酬を受け取らない、独立した第三者の建設費・見積もり検証窓口です。" +
   "建設実務30年(大賀俊勝)監修のAI『KIRA』が、オープン建設費データベース(JCCDB, 65,729品目)に照らして見積もりの誠実性を一次診断します。" +
   "価格は検証可能な一次データのみを用い、断定せず、確認すべき点を施主にお渡しします。契約を急かすことはありません。\n\n" +
-  "運営: The HORIZ音s株式会社 / 監修 大賀俊勝(ORCID 0009-0000-9180-903X)。";
+  "運営: The HORIZONs株式会社 / 監修 大賀俊勝(ORCID 0009-0000-9180-903X)。";
 const EHN_MD =
   "# 見積もりハッカーニュース(EHN)\n\n" +
   "手元の見積もりを匿名で貼るだけの無料掲示板です(30秒)。KIRAが『一式』を数量・単価に分解し、" +
@@ -152,8 +152,8 @@ const PROMPTS = [
 // ---------------- A2A エージェントカード(別プロトコル・発見の補助) ----------------
 const AGENT_CARD = {
   protocol: "A2A (Agent2Agent)",
-  name: "HORIZON SHIELD WebMCP Intake",
-  provider: "The HORIZ音s株式会社",
+  name: "HORIZON SHIELD: Construction Estimate Auditor for Japan (KIRA)",
+  provider: "The HORIZONs株式会社",
   version: SERVER.version,
   role: "集客窓口(外部エージェント/LLM向けの入口)。受けた見積もり相談を内部KIRA(hs-mcp)の適正診断へ橋渡しする。",
   skills: [
@@ -273,7 +273,7 @@ const EMBED_JS = `/* HORIZON SHIELD KIRA embed widget  (served at /embed.js?stor
           '<div class="err" id="ferr"></div>' +
         '</div>' +
         '<div id="result"></div>' +
-        '<div class="ft">運営 The HORIZ音s株式会社 / 監修 大賀俊勝(建設実務30年)。KIRAは施工業者から紹介料や送客報酬を受け取らない、独立した第三者です。</div>' +
+        '<div class="ft">運営 The HORIZONs株式会社 / 監修 大賀俊勝(建設実務30年)。KIRAは施工業者から紹介料や送客報酬を受け取らない、独立した第三者です。</div>' +
       '</div>' +
     '</div>';
 
@@ -1107,7 +1107,7 @@ async function mypagePage(url, env) {
     '<div class="note">この数字について: 計測は件数のみです。施主の入力内容・金額・個人情報は記録していません。' +
     "このリンクはあなたの店専用です(他店の数字は見えません)。リンクの取り扱いにはご注意ください。" +
     "KIRA は施工業者から紹介料や送客報酬を受け取らない、独立した第三者です。</div>" +
-    '<div class="ft">運営 The HORIZ音s株式会社 | <a href="' + SITE + '/yakumo/" target="_blank" rel="noopener">Yakumo モール</a> | HORIZON SHIELD hs-webmcp v' + escHtml(SERVER.version) + "</div>" +
+    '<div class="ft">運営 The HORIZONs株式会社 | <a href="' + SITE + '/yakumo/" target="_blank" rel="noopener">Yakumo モール</a> | HORIZON SHIELD hs-webmcp v' + escHtml(SERVER.version) + "</div>" +
     "</div></body></html>";
   return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex" } });
 }
