@@ -1,0 +1,9 @@
+{
+  "name": "hs-design",
+  "main": "index.js",
+  "compatibility_date": "2024-01-01",
+  "workers_dev": true,
+  "kv_namespaces": [
+    { "binding": "HS_DESIGN_KV", "id": "ebeee94b11644031a2deaea32093ac8b" }
+  ]
+}
