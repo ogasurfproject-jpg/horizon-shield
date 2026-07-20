@@ -17,7 +17,7 @@
  *   - LINE/Email/ntfy の3チャネル並列通知 (Promise.allSettled)
  *   - 顧客通知は LINE+Email の2系統 (LINE ID あり/なし両対応)
  *   - TOshi通知は LINE+Email+ntfy の3系統 (障害耐性↑)
- *   - 法人表記修正: The HORIZONs → The HORIZ音s
+ *   - 法人表記修正: The HORIZONs → The HORIZONs
  */
 
 import puppeteer from '@cloudflare/puppeteer';
@@ -748,7 +748,7 @@ function generateHTML(d, orderInfo) {
       本書は建設業界の一般的な相場データに基づくAI算出による参考見積もりであり、確定金額ではありません。<br>
       実際の工事費用は、現場の状況（構造・築年数・搬入条件・既存設備の状態・地域の人件費水準等）により大幅に変動する可能性があります。<br>
       本書は業者との価格交渉における「相場感の参考資料」としてご活用ください。最終的な契約判断はお客様ご自身の責任において行ってください。<br>
-      本書の内容に基づく交渉結果について、HORIZON SHIELD（The HORIZ音s株式会社）は一切の責任を負いかねます。
+      本書の内容に基づく交渉結果について、HORIZON SHIELD（The HORIZONs株式会社）は一切の責任を負いかねます。
     </div>
   </div>
 
@@ -769,7 +769,7 @@ function generateHTML(d, orderInfo) {
   <div class="company-box">
     <div class="company-name">HORIZON SHIELD</div>
     <div class="company-info">
-      運営: The HORIZ音s株式会社<br>
+      運営: The HORIZONs株式会社<br>
       所在地: 東京都港区南青山2-2-15 ウィン青山942<br>
       Web: https://shield.the-horizons-innovation.com &nbsp;&nbsp; LINE: @172piime
     </div>
@@ -1044,7 +1044,7 @@ function generatePlanHTML(d, orderInfo) {
     <div class="cover-case-val">${d.koji_content || '工事内容未入力'}</div>
   </div>
   <div class="cover-meta">${orderInfo.customer_name.replace(/様$/, '').trim()} 様 ／ 診断日：${now}</div>
-  <div class="cover-footer">HORIZON SHIELD ／ The HORIZ音s株式会社 ／ shield.the-horizons-innovation.com</div>
+  <div class="cover-footer">HORIZON SHIELD ／ The HORIZONs株式会社 ／ shield.the-horizons-innovation.com</div>
 </div>
 
 <!-- ===== 適正予算3プラン + 内訳 ===== -->
@@ -1108,7 +1108,7 @@ function generatePlanHTML(d, orderInfo) {
     </div>
     <div style="flex:1;">
       <div class="profile-name">大賀 俊勝</div>
-      <div class="profile-title">The HORIZ音s株式会社 代表取締役 ／ 建設実務30年・査定500件超</div>
+      <div class="profile-title">The HORIZONs株式会社 代表取締役 ／ 建設実務30年・査定500件超</div>
       <div class="profile-bio">大工・現場監督・CMR（コンストラクション・マネジメント）を経て、AI技術と現場経験を融合したHORIZON SHIELDを創業。「施主が損をしない社会をつくる」をミッションに建設費の透明化に取り組む。<br><br>建設費相場データベース「Japan Construction Cost Database (JCCDB)」を構築・公開。学術論文はSSRN（Elsevier）・engrXiv・Zenodoに掲載。ORCID: 0009-0000-9180-903X</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
         <span style="background:rgba(201,162,39,0.2);border:1px solid rgba(201,162,39,0.4);border-radius:6px;padding:4px 10px;font-size:10px;color:#c9a227;">SSRN / Elsevier 掲載</span>
@@ -1316,11 +1316,11 @@ function generatePlanHTML(d, orderInfo) {
   </div>
   <div style="background:#f8f8f8; border-radius:12px; padding:20px 24px; margin-bottom:20px; font-size:11px; color:#666; line-height:1.9;">
     <div style="font-weight:700; color:#333; margin-bottom:8px;">■ 免責事項</div>
-    本レポートは建設業界の一般的な相場データに基づくAI算出による参考資料であり、確定金額ではありません。実際の工事費用は現場の状況により大幅に変動します。本書は価格交渉における相場感の参考資料としてご活用ください。最終的な契約判断はお客様ご自身の責任において行ってください。本書の内容に基づく交渉結果についてHORIZON SHIELD（The HORIZ音s株式会社）は一切の責任を負いかねます。
+    本レポートは建設業界の一般的な相場データに基づくAI算出による参考資料であり、確定金額ではありません。実際の工事費用は現場の状況により大幅に変動します。本書は価格交渉における相場感の参考資料としてご活用ください。最終的な契約判断はお客様ご自身の責任において行ってください。本書の内容に基づく交渉結果についてHORIZON SHIELD（The HORIZONs株式会社）は一切の責任を負いかねます。
   </div>
   <div style="background:linear-gradient(135deg, rgba(201,162,39,0.08), rgba(201,162,39,0.03)); border:1px solid rgba(201,162,39,0.3); border-radius:12px; padding:20px 24px; margin-bottom:20px;">
     <div style="font-size:13px; font-weight:900; color:#c9a227; margin-bottom:10px;">HORIZON SHIELD</div>
-    <div style="font-size:11px; color:#555; line-height:1.9;">運営：The HORIZ音s株式会社<br>所在地：東京都港区南青山2-2-15 ウィン青山942<br>Web：https://shield.the-horizons-innovation.com　LINE：@172piime</div>
+    <div style="font-size:11px; color:#555; line-height:1.9;">運営：The HORIZONs株式会社<br>所在地：東京都港区南青山2-2-15 ウィン青山942<br>Web：https://shield.the-horizons-innovation.com　LINE：@172piime</div>
   </div>
   <div style="background:#1a1a2e; border-radius:10px; padding:14px 20px; display:flex; justify-content:space-between; align-items:center;">
     <div style="font-size:10px; color:rgba(255,255,255,0.4); letter-spacing:1px;">監査ハッシュ（再現性証明）</div>
@@ -1522,7 +1522,7 @@ ${pdfUrl}
 
 ━━━━━━━━━━━━━━━━
 HORIZON SHIELD
-The HORIZ音s株式会社
+The HORIZONs株式会社
 shield.the-horizons-innovation.com`;
 
   const emailHtml = `<!DOCTYPE html>
@@ -1559,7 +1559,7 @@ shield.the-horizons-innovation.com`;
     </p>
     <p style="font-size:12px; color:#999; margin-top:20px; line-height:1.6;">
       HORIZON SHIELD<br>
-      運営: The HORIZ音s株式会社<br>
+      運営: The HORIZONs株式会社<br>
       所在地: 東京都港区南青山2-2-15 ウィン青山942
     </p>
   </div>

@@ -17829,7 +17829,7 @@ function generateHTML(d2, orderInfo) {
       \u672C\u66F8\u306F\u5EFA\u8A2D\u696D\u754C\u306E\u4E00\u822C\u7684\u306A\u76F8\u5834\u30C7\u30FC\u30BF\u306B\u57FA\u3065\u304FAI\u7B97\u51FA\u306B\u3088\u308B\u53C2\u8003\u898B\u7A4D\u3082\u308A\u3067\u3042\u308A\u3001\u78BA\u5B9A\u91D1\u984D\u3067\u306F\u3042\u308A\u307E\u305B\u3093\u3002<br>
       \u5B9F\u969B\u306E\u5DE5\u4E8B\u8CBB\u7528\u306F\u3001\u73FE\u5834\u306E\u72B6\u6CC1\uFF08\u69CB\u9020\u30FB\u7BC9\u5E74\u6570\u30FB\u642C\u5165\u6761\u4EF6\u30FB\u65E2\u5B58\u8A2D\u5099\u306E\u72B6\u614B\u30FB\u5730\u57DF\u306E\u4EBA\u4EF6\u8CBB\u6C34\u6E96\u7B49\uFF09\u306B\u3088\u308A\u5927\u5E45\u306B\u5909\u52D5\u3059\u308B\u53EF\u80FD\u6027\u304C\u3042\u308A\u307E\u3059\u3002<br>
       \u672C\u66F8\u306F\u696D\u8005\u3068\u306E\u4FA1\u683C\u4EA4\u6E09\u306B\u304A\u3051\u308B\u300C\u76F8\u5834\u611F\u306E\u53C2\u8003\u8CC7\u6599\u300D\u3068\u3057\u3066\u3054\u6D3B\u7528\u304F\u3060\u3055\u3044\u3002\u6700\u7D42\u7684\u306A\u5951\u7D04\u5224\u65AD\u306F\u304A\u5BA2\u69D8\u3054\u81EA\u8EAB\u306E\u8CAC\u4EFB\u306B\u304A\u3044\u3066\u884C\u3063\u3066\u304F\u3060\u3055\u3044\u3002<br>
-      \u672C\u66F8\u306E\u5185\u5BB9\u306B\u57FA\u3065\u304F\u4EA4\u6E09\u7D50\u679C\u306B\u3064\u3044\u3066\u3001HORIZON SHIELD\uFF08The HORIZ\u97F3s\u682A\u5F0F\u4F1A\u793E\uFF09\u306F\u4E00\u5207\u306E\u8CAC\u4EFB\u3092\u8CA0\u3044\u304B\u306D\u307E\u3059\u3002
+      \u672C\u66F8\u306E\u5185\u5BB9\u306B\u57FA\u3065\u304F\u4EA4\u6E09\u7D50\u679C\u306B\u3064\u3044\u3066\u3001HORIZON SHIELD\uFF08The HORIZONs\u682A\u5F0F\u4F1A\u793E\uFF09\u306F\u4E00\u5207\u306E\u8CAC\u4EFB\u3092\u8CA0\u3044\u304B\u306D\u307E\u3059\u3002
     </div>
   </div>
 
@@ -17850,7 +17850,7 @@ function generateHTML(d2, orderInfo) {
   <div class="company-box">
     <div class="company-name">HORIZON SHIELD</div>
     <div class="company-info">
-      \u904B\u55B6: The HORIZ\u97F3s\u682A\u5F0F\u4F1A\u793E<br>
+      \u904B\u55B6: The HORIZONs\u682A\u5F0F\u4F1A\u793E<br>
       \u6240\u5728\u5730: \u6771\u4EAC\u90FD\u6E2F\u533A\u5357\u9752\u5C712-2-15 \u30A6\u30A3\u30F3\u9752\u5C71942<br>
       Web: https://shield.the-horizons-innovation.com &nbsp;&nbsp; LINE: @172piime
     </div>
@@ -18186,7 +18186,7 @@ function hsGenerateEstimateAuditHTML(ex, audit, meta) {
     "<div class='cover-case'><div class='cover-case-label'>SUBJECT</div><div class='cover-case-val'>" + h(ex.doc.title || "-") + "<br><span style='font-size:12px;font-weight:400;color:rgba(255,255,255,0.65)'>見積番号 " + h(ex.doc.estimate_no || "-") + " ／ 税込総額 " + yen(ex.doc.total_inc_tax) + "円</span></div></div>" +
     "<div class='cover-verdict' style='color:" + (worst === "alert" ? "#ff9d9d" : (worst === "watch" ? "#ffd98a" : "#9fd6a8")) + "'>総合所見: " + worstLabel[worst] + "</div>" +
     "<div class='cover-meta'>診断日 " + h(meta.date || "") + " ／ 地域補正 " + h(audit.summary.region) + " ／ bench " + h(meta.benchVersion || "") + "</div>" +
-    "<div class='cover-footer'>The HORIZ音s株式会社 ／ HORIZON SHIELD — 買い手のための第三者診断</div>" +
+    "<div class='cover-footer'>The HORIZONs株式会社 ／ HORIZON SHIELD — 買い手のための第三者診断</div>" +
     "</div>" +
     // ---- 本文 ----
     "<div class='page'>" +
@@ -18205,7 +18205,7 @@ function hsGenerateEstimateAuditHTML(ex, audit, meta) {
     (negoHtml ? "<div class='section-title'>Negotiation ／ 交渉用文面(そのままコピーして使えます)</div><div class='nego'>" + negoHtml + "</div>" : "") +
     "<div class='section-title'>PTKA ／ 取引前知識刻印</div>" +
     "<div class='ptka'><b>SHA-256:</b> <span class='mono'>" + h(meta.auditHash || "発行時に刻印") + "</span><br><b>OpenTimestamps:</b> " + h(meta.ots || "未刻印") + "</div>" +
-    "<div class='foot'>本診断は souba-db(大賀俊勝 実務監修)および明細基準 " + h(meta.benchVersion || "") + " に基づく買い手側の第三者所見であり、工事金額を保証するものではありません。単価・数量・構成比の判定スコープは外壁塗装・屋根塗装。その他の工事カテゴリには検算・一式・諸経費・営業手口の普遍原則のみを適用します。判定原則: 諸経費は総額の10〜16%が目安・『一式』は内訳の提出を求める(建設実務30年)。The HORIZ音s株式会社</div>" +
+    "<div class='foot'>本診断は souba-db(大賀俊勝 実務監修)および明細基準 " + h(meta.benchVersion || "") + " に基づく買い手側の第三者所見であり、工事金額を保証するものではありません。単価・数量・構成比の判定スコープは外壁塗装・屋根塗装。その他の工事カテゴリには検算・一式・諸経費・営業手口の普遍原則のみを適用します。判定原則: 諸経費は総額の10〜16%が目安・『一式』は内訳の提出を求める(建設実務30年)。The HORIZONs株式会社</div>" +
     "</div></body></html>";
 }
 
@@ -18289,7 +18289,7 @@ async function hsHandleEstimateAudit(request, env) {
         "<p>ご依頼の見積書(" + (ex.doc.estimate_no || "-") + ")の明細診断が完了しました。以下より診断書(PDF)をご確認ください。</p>" +
         "<p style='text-align:center;margin:22px 0'><a href='" + pdfUrl + "' style='background:#0f3460;color:#fff;text-decoration:none;padding:12px 30px;border-radius:6px;font-weight:700'>診断書を開く</a></p>" +
         "<p style='font-size:12px;color:#555'>PTKA刻印 SHA-256: <span style='font-family:monospace'>" + hash + "</span><br>OpenTimestamps: " + otsStatus + "</p>" +
-        "<p style='font-size:11px;color:#999'>本診断は買い手側の第三者所見であり、工事金額を保証するものではありません。<br>The HORIZ音s株式会社 ／ HORIZON SHIELD</p>" +
+        "<p style='font-size:11px;color:#999'>本診断は買い手側の第三者所見であり、工事金額を保証するものではありません。<br>The HORIZONs株式会社 ／ HORIZON SHIELD</p>" +
         "</div></div>";
       var sent = false;
       if (typeof sendResendEmail === "function") {
@@ -18641,7 +18641,7 @@ function generatePlanHTML(d2, orderInfo) {
     <div class="cover-case-val">${d2.koji_content || "\u5DE5\u4E8B\u5185\u5BB9\u672A\u5165\u529B"}</div>
   </div>
   <div class="cover-meta">${escapeHtml(orderInfo.customer_name.replace(/様$/, "").trim())} \u69D8 \uFF0F \u8A3A\u65AD\u65E5\uFF1A${now}</div>
-  <div class="cover-footer">HORIZON SHIELD \uFF0F The HORIZ\u97F3s\u682A\u5F0F\u4F1A\u793E \uFF0F shield.the-horizons-innovation.com</div>
+  <div class="cover-footer">HORIZON SHIELD \uFF0F The HORIZONs\u682A\u5F0F\u4F1A\u793E \uFF0F shield.the-horizons-innovation.com</div>
 </div>
 
 <!-- ===== \u9069\u6B63\u4E88\u7B973\u30D7\u30E9\u30F3 + \u5185\u8A33 ===== -->
@@ -18705,7 +18705,7 @@ function generatePlanHTML(d2, orderInfo) {
     </div>
     <div style="flex:1;">
       <div class="profile-name">\u5927\u8CC0 \u4FCA\u52DD</div>
-      <div class="profile-title">The HORIZ\u97F3s\u682A\u5F0F\u4F1A\u793E \u4EE3\u8868\u53D6\u7DE0\u5F79 \uFF0F \u5EFA\u8A2D\u5B9F\u52D930\u5E74\u30FB\u67FB\u5B9A500\u4EF6\u8D85</div>
+      <div class="profile-title">The HORIZONs\u682A\u5F0F\u4F1A\u793E \u4EE3\u8868\u53D6\u7DE0\u5F79 \uFF0F \u5EFA\u8A2D\u5B9F\u52D930\u5E74\u30FB\u67FB\u5B9A500\u4EF6\u8D85</div>
       <div class="profile-bio">\u5927\u5DE5\u30FB\u73FE\u5834\u76E3\u7763\u30FBCMR\uFF08\u30B3\u30F3\u30B9\u30C8\u30E9\u30AF\u30B7\u30E7\u30F3\u30FB\u30DE\u30CD\u30B8\u30E1\u30F3\u30C8\uFF09\u3092\u7D4C\u3066\u3001AI\u6280\u8853\u3068\u73FE\u5834\u7D4C\u9A13\u3092\u878D\u5408\u3057\u305FHORIZON SHIELD\u3092\u5275\u696D\u3002\u300C\u65BD\u4E3B\u304C\u640D\u3092\u3057\u306A\u3044\u793E\u4F1A\u3092\u3064\u304F\u308B\u300D\u3092\u30DF\u30C3\u30B7\u30E7\u30F3\u306B\u5EFA\u8A2D\u8CBB\u306E\u900F\u660E\u5316\u306B\u53D6\u308A\u7D44\u3080\u3002<br><br>\u5EFA\u8A2D\u8CBB\u76F8\u5834\u30C7\u30FC\u30BF\u30D9\u30FC\u30B9\u300CJapan Construction Cost Database (JCCDB)\u300D\u3092\u69CB\u7BC9\u30FB\u516C\u958B\u3002\u5B66\u8853\u8AD6\u6587\u306FSSRN\uFF08Elsevier\uFF09\u30FBengrXiv\u30FBZenodo\u306B\u63B2\u8F09\u3002ORCID: 0009-0000-9180-903X</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
         <span style="background:rgba(201,162,39,0.2);border:1px solid rgba(201,162,39,0.4);border-radius:6px;padding:4px 10px;font-size:10px;color:#c9a227;">SSRN / Elsevier \u63B2\u8F09</span>
@@ -18913,11 +18913,11 @@ function generatePlanHTML(d2, orderInfo) {
   </div>
   <div style="background:#f8f8f8; border-radius:12px; padding:20px 24px; margin-bottom:20px; font-size:11px; color:#666; line-height:1.9;">
     <div style="font-weight:700; color:#333; margin-bottom:8px;">\u25A0 \u514D\u8CAC\u4E8B\u9805</div>
-    \u672C\u30EC\u30DD\u30FC\u30C8\u306F\u5EFA\u8A2D\u696D\u754C\u306E\u4E00\u822C\u7684\u306A\u76F8\u5834\u30C7\u30FC\u30BF\u306B\u57FA\u3065\u304FAI\u7B97\u51FA\u306B\u3088\u308B\u53C2\u8003\u8CC7\u6599\u3067\u3042\u308A\u3001\u78BA\u5B9A\u91D1\u984D\u3067\u306F\u3042\u308A\u307E\u305B\u3093\u3002\u5B9F\u969B\u306E\u5DE5\u4E8B\u8CBB\u7528\u306F\u73FE\u5834\u306E\u72B6\u6CC1\u306B\u3088\u308A\u5927\u5E45\u306B\u5909\u52D5\u3057\u307E\u3059\u3002\u672C\u66F8\u306F\u4FA1\u683C\u4EA4\u6E09\u306B\u304A\u3051\u308B\u76F8\u5834\u611F\u306E\u53C2\u8003\u8CC7\u6599\u3068\u3057\u3066\u3054\u6D3B\u7528\u304F\u3060\u3055\u3044\u3002\u6700\u7D42\u7684\u306A\u5951\u7D04\u5224\u65AD\u306F\u304A\u5BA2\u69D8\u3054\u81EA\u8EAB\u306E\u8CAC\u4EFB\u306B\u304A\u3044\u3066\u884C\u3063\u3066\u304F\u3060\u3055\u3044\u3002\u672C\u66F8\u306E\u5185\u5BB9\u306B\u57FA\u3065\u304F\u4EA4\u6E09\u7D50\u679C\u306B\u3064\u3044\u3066HORIZON SHIELD\uFF08The HORIZ\u97F3s\u682A\u5F0F\u4F1A\u793E\uFF09\u306F\u4E00\u5207\u306E\u8CAC\u4EFB\u3092\u8CA0\u3044\u304B\u306D\u307E\u3059\u3002
+    \u672C\u30EC\u30DD\u30FC\u30C8\u306F\u5EFA\u8A2D\u696D\u754C\u306E\u4E00\u822C\u7684\u306A\u76F8\u5834\u30C7\u30FC\u30BF\u306B\u57FA\u3065\u304FAI\u7B97\u51FA\u306B\u3088\u308B\u53C2\u8003\u8CC7\u6599\u3067\u3042\u308A\u3001\u78BA\u5B9A\u91D1\u984D\u3067\u306F\u3042\u308A\u307E\u305B\u3093\u3002\u5B9F\u969B\u306E\u5DE5\u4E8B\u8CBB\u7528\u306F\u73FE\u5834\u306E\u72B6\u6CC1\u306B\u3088\u308A\u5927\u5E45\u306B\u5909\u52D5\u3057\u307E\u3059\u3002\u672C\u66F8\u306F\u4FA1\u683C\u4EA4\u6E09\u306B\u304A\u3051\u308B\u76F8\u5834\u611F\u306E\u53C2\u8003\u8CC7\u6599\u3068\u3057\u3066\u3054\u6D3B\u7528\u304F\u3060\u3055\u3044\u3002\u6700\u7D42\u7684\u306A\u5951\u7D04\u5224\u65AD\u306F\u304A\u5BA2\u69D8\u3054\u81EA\u8EAB\u306E\u8CAC\u4EFB\u306B\u304A\u3044\u3066\u884C\u3063\u3066\u304F\u3060\u3055\u3044\u3002\u672C\u66F8\u306E\u5185\u5BB9\u306B\u57FA\u3065\u304F\u4EA4\u6E09\u7D50\u679C\u306B\u3064\u3044\u3066HORIZON SHIELD\uFF08The HORIZONs\u682A\u5F0F\u4F1A\u793E\uFF09\u306F\u4E00\u5207\u306E\u8CAC\u4EFB\u3092\u8CA0\u3044\u304B\u306D\u307E\u3059\u3002
   </div>
   <div style="background:linear-gradient(135deg, rgba(201,162,39,0.08), rgba(201,162,39,0.03)); border:1px solid rgba(201,162,39,0.3); border-radius:12px; padding:20px 24px; margin-bottom:20px;">
     <div style="font-size:13px; font-weight:900; color:#c9a227; margin-bottom:10px;">HORIZON SHIELD</div>
-    <div style="font-size:11px; color:#555; line-height:1.9;">\u904B\u55B6\uFF1AThe HORIZ\u97F3s\u682A\u5F0F\u4F1A\u793E<br>\u6240\u5728\u5730\uFF1A\u6771\u4EAC\u90FD\u6E2F\u533A\u5357\u9752\u5C712-2-15 \u30A6\u30A3\u30F3\u9752\u5C71942<br>Web\uFF1Ahttps://shield.the-horizons-innovation.com\u3000LINE\uFF1A@172piime</div>
+    <div style="font-size:11px; color:#555; line-height:1.9;">\u904B\u55B6\uFF1AThe HORIZONs\u682A\u5F0F\u4F1A\u793E<br>\u6240\u5728\u5730\uFF1A\u6771\u4EAC\u90FD\u6E2F\u533A\u5357\u9752\u5C712-2-15 \u30A6\u30A3\u30F3\u9752\u5C71942<br>Web\uFF1Ahttps://shield.the-horizons-innovation.com\u3000LINE\uFF1A@172piime</div>
   </div>
   <div style="background:#1a1a2e; border-radius:10px; padding:14px 20px; display:flex; justify-content:space-between; align-items:center;">
     <div style="font-size:10px; color:rgba(255,255,255,0.4); letter-spacing:1px;">\u76E3\u67FB\u30CF\u30C3\u30B7\u30E5\uFF08\u518D\u73FE\u6027\u8A3C\u660E\uFF09</div>
@@ -19025,7 +19025,7 @@ function generateMitsumoriHTML(d2, orderInfo, opt) {
     \u30BF\u30A4\u30E0\u30B9\u30BF\u30F3\u30D7\u523B\u5370\u6B04\uFF08OpenTimestamps\uFF09: ________________________\uFF08\u5C06\u6765\u81EA\u52D5\u523B\u5370\uFF09
   </div>
 
-  <div class="footer">The HORIZ\u97F3s\u682A\u5F0F\u4F1A\u793E \uFF0F HORIZON SHIELD \uFF0F \u672C\u8A3C\u660E\u66F8\u306F\u5EFA\u8A2D\u8CBB\u306E\u60C5\u5831\u975E\u5BFE\u79F0\u3092\u662F\u6B63\u3059\u308B\u7B2C\u4E09\u8005\u8A8D\u8A3C\u3067\u3042\u308B</div>
+  <div class="footer">The HORIZONs\u682A\u5F0F\u4F1A\u793E \uFF0F HORIZON SHIELD \uFF0F \u672C\u8A3C\u660E\u66F8\u306F\u5EFA\u8A2D\u8CBB\u306E\u60C5\u5831\u975E\u5BFE\u79F0\u3092\u662F\u6B63\u3059\u308B\u7B2C\u4E09\u8005\u8A8D\u8A3C\u3067\u3042\u308B</div>
 </div>
 </body></html>`;
 }
@@ -19090,7 +19090,7 @@ function generateKanryoHTML(params, orderInfo, opt) {
     \u30BF\u30A4\u30E0\u30B9\u30BF\u30F3\u30D7\u523B\u5370\u6B04\uFF08OpenTimestamps\uFF09: ________________________\uFF08\u5C06\u6765\u81EA\u52D5\u523B\u5370\uFF09
   </div>
 
-  <div class="footer">The HORIZ\u97F3s\u682A\u5F0F\u4F1A\u793E \uFF0F HORIZON SHIELD \uFF0F \u672C\u8A3C\u660E\u66F8\u306F\u5DE5\u4E8B\u5B8C\u4E86\u306E\u7B2C\u4E09\u8005\u691C\u67FB\u8A18\u9332\u3067\u3042\u308B</div>
+  <div class="footer">The HORIZONs\u682A\u5F0F\u4F1A\u793E \uFF0F HORIZON SHIELD \uFF0F \u672C\u8A3C\u660E\u66F8\u306F\u5DE5\u4E8B\u5B8C\u4E86\u306E\u7B2C\u4E09\u8005\u691C\u67FB\u8A18\u9332\u3067\u3042\u308B</div>
 </div>
 </body></html>`;
 }
@@ -19271,7 +19271,7 @@ ${pdfUrl}
 
 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501
 HORIZON SHIELD
-The HORIZ\u97F3s\u682A\u5F0F\u4F1A\u793E
+The HORIZONs\u682A\u5F0F\u4F1A\u793E
 shield.the-horizons-innovation.com`;
   const emailHtml = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"></head>
@@ -19307,7 +19307,7 @@ shield.the-horizons-innovation.com`;
     </p>
     <p style="font-size:12px; color:#999; margin-top:20px; line-height:1.6;">
       HORIZON SHIELD<br>
-      \u904B\u55B6: The HORIZ\u97F3s\u682A\u5F0F\u4F1A\u793E<br>
+      \u904B\u55B6: The HORIZONs\u682A\u5F0F\u4F1A\u793E<br>
       \u6240\u5728\u5730: \u6771\u4EAC\u90FD\u6E2F\u533A\u5357\u9752\u5C712-2-15 \u30A6\u30A3\u30F3\u9752\u5C71942
     </p>
   </div>
@@ -19711,7 +19711,7 @@ var worker_default = {
         // 署名クレーム(挿入順 = house慣習 / recompute 方式)
         const claimObj = hasYakumoData ? {
           type: "yakumo-estimate-claim",
-          provider: "The HORIZ音s株式会社",
+          provider: "The HORIZONs株式会社",
           operated_by: "八工門 YAKUMO",
           order_id: orderInfo.orderId,
           cert_no: certNo,
@@ -19722,7 +19722,7 @@ var worker_default = {
           issued_at: new Date().toISOString()
         } : {
           type: "yakumo-estimate-claim",
-          provider: "The HORIZ音s株式会社",
+          provider: "The HORIZONs株式会社",
           operated_by: "八工門 YAKUMO",
           order_id: orderInfo.orderId,
           cert_no: certNo,
@@ -19823,7 +19823,7 @@ var worker_default = {
             '<tr class="grand"><td>合計 (税込)</td><td class="num">' + _yen(total) + '</td></tr></table>' +
             '</div>' + verifyBlock + '<div class="page" style="padding-top:0">' +
             '<div class="src">価格提示: 加盟店' + (params.partner_name ? " " + _esc(params.partner_name) : "") + ' / 署名・時刻証明: HORIZON SHIELD</div>' +
-            '<div class="ft">構築 = The HORIZ音s株式会社 (HORIZON SHIELD) / 運営 = 八工門 YAKUMO / TEL 0463-74-5917<br>この見積書は The HORIZ音s株式会社 (HORIZON SHIELD) の検証基盤で署名され、八工門 YAKUMO が発行しています。</div>' +
+            '<div class="ft">構築 = The HORIZONs株式会社 (HORIZON SHIELD) / 運営 = 八工門 YAKUMO / TEL 0463-74-5917<br>この見積書は The HORIZONs株式会社 (HORIZON SHIELD) の検証基盤で署名され、八工門 YAKUMO が発行しています。</div>' +
             '</div></body></html>';
         } else {
           // ============ 従来経路: 既存テンプレ + 検証ブロック注入(v2互換) ============

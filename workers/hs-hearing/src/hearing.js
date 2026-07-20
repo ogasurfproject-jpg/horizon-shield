@@ -5,7 +5,7 @@
  *  - 新規の独立ワーカー。hs-mcp / hs-estimate には一切触れない(審査キュー保護)。
  *  - fail-closed。検証できないもの・不明なものは出さない・返さない。
  *  - 金額は施主向けに出さない(スコア・ティアのみ)。見積もり例は監査用にKVへ保存するだけ。
- *  - 会社名は The HORIZ音s株式会社(音インタクト)。em/en/bar dash 不使用。
+ *  - 会社名は The HORIZONs株式会社(音インタクト)。em/en/bar dash 不使用。
  *  - MCP面は read-only・CORS開放。堀(内部実装の詳細)は一切露出しない。
  *
  * バインド(wrangler.jsonc):
@@ -148,7 +148,7 @@ function hearingForm(token, store) {
 '<input type="text" id="ng" placeholder="例：担当者の個人携帯は載せないでほしい">' +
 
 '<button type="submit" class="submit">回答を送信する</button>' +
-'<p class="note">送信内容は The HORIZ音s株式会社(HORIZON SHIELD)が加盟店運営のために使用します。金額は施主向けに公開しません。</p>' +
+'<p class="note">送信内容は The HORIZONs株式会社(HORIZON SHIELD)が加盟店運営のために使用します。金額は施主向けに公開しません。</p>' +
 '</form>' +
 '<div class="ok" id="ok"><h2>ありがとうございます</h2><p style="color:#7E8CA2;">回答を受け取りました。適正診断(KIRA)とページ作成の準備に入ります。結果は運営からご連絡します。</p></div>' +
 
@@ -383,7 +383,7 @@ function mallOverview(contractors) {
   const works = tallyWorks(contractors);
   return {
     mall: MALL_URL,
-    operator: "The HORIZ音s株式会社 / HORIZON SHIELD",
+    operator: "The HORIZONs株式会社 / HORIZON SHIELD",
     verified_count: verified.length,
     total_listed: list.length,
     work_categories: Object.keys(works).sort((a, b) => works[b] - works[a]),
@@ -489,7 +489,7 @@ async function handleMcp(request, env, id, method, params, ctx) {
       const pending = list.filter((c) => c.verification !== "verified");
       const payload = {
         mall: MALL_URL,
-        operator: "The HORIZ音s株式会社 / HORIZON SHIELD",
+        operator: "The HORIZONs株式会社 / HORIZON SHIELD",
         verified_count: verified.length,
         pending_count: pending.length,
         stores: verified,
@@ -553,7 +553,7 @@ function agentCard(origin) {
     protocolVersion: "0.3.0",
     name: "HORIZON SHIELD YAKUMO",
     description: "A neutral, verification-gated directory of Japanese renovation and construction contractors. Only stores that pass an independent fair-price and overcharge audit (KIRA) are listed. Discover verified stores by area and trade; prices are never exposed, only integrity scores and tiers.",
-    provider: { organization: "The HORIZ音s株式会社", url: "https://shield.the-horizons-innovation.com/yakumo/" },
+    provider: { organization: "The HORIZONs株式会社", url: "https://shield.the-horizons-innovation.com/yakumo/" },
     url: origin + "/mcp",
     preferredTransport: "JSONRPC",
     capabilities: { streaming: false },
@@ -653,7 +653,7 @@ async function sendHearingEmail(env, { to, token, company, memberNo, origin }) {
   const htmlBody =
     '<div style="font-family:sans-serif;line-height:1.9;color:#222;">' +
     '<p>' + (company || "ご担当者") + ' さま</p>' +
-    '<p>いつもお世話になっております。Yakumo(HORIZON SHIELD)運営、The HORIZ音s株式会社の大賀です。</p>' +
+    '<p>いつもお世話になっております。Yakumo(HORIZON SHIELD)運営、The HORIZONs株式会社の大賀です。</p>' +
     '<p>このたびはYakumoへのご加盟、誠にありがとうございます。' + welcome + '</p>' +
     '<p>Yakumoは、紹介料を受け取らない中立の加盟店モールです。適正価格の第三者検証(KIRA)を通った店だけを、施主、AI、検索の三方に並べ、貴社が見つけてもらえる導線の運営を当方が代行します。</p>' +
     '<p>さっそくですが、貴社の紹介ページ群を作成するため、ヒアリングにご協力ください。下記から約5分で入力できます。</p>' +
@@ -666,7 +666,7 @@ async function sendHearingEmail(env, { to, token, company, memberNo, origin }) {
     '<p style="margin:0 0 6px;font-weight:700;">信頼できる職人仲間のご紹介をお願いできませんか</p>' +
     '<p style="margin:0 0 10px;">Yakumoは紹介料を取らない中立モールです。適正価格で誠実に仕事をされている工務店・リフォーム店をご存じでしたら、下記のリンクをそのままお渡しください。貴社からのご紹介として承ります。</p>' +
     '<p style="margin:0;"><a href="' + refLink + '" style="color:#15847a;font-weight:700;">' + refLink + '</a></p></div>' +
-    '<p style="color:#888;font-size:12px;">The HORIZ音s株式会社(HORIZON SHIELD / Yakumo運営) 代表取締役 大賀俊勝 ・ TEL 0463-74-5917 ・ <a href="https://shield.the-horizons-innovation.com/yakumo/">Yakumoモール</a></p></div>';
+    '<p style="color:#888;font-size:12px;">The HORIZONs株式会社(HORIZON SHIELD / Yakumo運営) 代表取締役 大賀俊勝 ・ TEL 0463-74-5917 ・ <a href="https://shield.the-horizons-innovation.com/yakumo/">Yakumoモール</a></p></div>';
   try {
     const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ from, to, reply_to: replyTo, subject, html: htmlBody }) });
     const j = await r.json().catch(() => ({}));
@@ -686,7 +686,7 @@ async function sendGreetingEmail(env, { to, company }) {
     '<p>このたびは Yakumo(HORIZON SHIELD)へのご加盟、誠にありがとうございます。加盟No.001 として、心より歓迎いたします。</p>' +
     '<p>Yakumo は紹介料を受け取らない中立の加盟店モールです。適正価格の検証を通った店だけを、施主とAIの前にお並べします。貴社の強みを、施主・AI・検索の三方から見つけてもらえるよう、運営を代行してまいります。</p>' +
     '<p>来週より、簡単なヒアリング(工種・エリア・強みなど)を順にお願いしてまいります。まずは御礼のごあいさつまで。どうぞよろしくお願いいたします。</p>' +
-    '<p style="color:#888;font-size:12px;">The HORIZ音s株式会社 / HORIZON SHIELD / Yakumo ・ TEL 0463-74-5917</p></div>';
+    '<p style="color:#888;font-size:12px;">The HORIZONs株式会社 / HORIZON SHIELD / Yakumo ・ TEL 0463-74-5917</p></div>';
   try {
     const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ from, to, reply_to: replyTo, subject, html }) });
     return { ok: r.ok, status: r.status };
@@ -899,7 +899,7 @@ const YAKUMO_EMBED_JS = "/* HORIZON SHIELD Yakumo 案内ウィジェット (serv
 "        '<label for=\"yw\">工種</label><input id=\"yw\" placeholder=\"例: 外壁塗装 / 屋根 / 内装\" autocomplete=\"off\">'+\n" +
 "        '<button class=\"go\" id=\"go\">検証済みの店を探す</button>'+\n" +
 "        '<div class=\"rc\" id=\"rc\"></div>'+\n" +
-"        '<div class=\"ft\">運営 The HORIZ音s株式会社 / HORIZON SHIELD。Yakumo は施工業者から紹介料や送客報酬を受け取らない、独立した第三者です。</div>'+\n" +
+"        '<div class=\"ft\">運営 The HORIZONs株式会社 / HORIZON SHIELD。Yakumo は施工業者から紹介料や送客報酬を受け取らない、独立した第三者です。</div>'+\n" +
 "      '</div></div>';\n" +
 "  var host=document.createElement('div'); (document.body||document.documentElement).appendChild(host);\n" +
 "  var root=host.attachShadow?host.attachShadow({mode:'open'}):host;\n" +

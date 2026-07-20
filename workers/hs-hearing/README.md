@@ -6,7 +6,7 @@ Yakumo is the contractor-directory layer of [HORIZON SHIELD](https://shield.the-
 
 - **MCP endpoint:** `https://hs-hearing.oga-surf-project.workers.dev/mcp` (Streamable HTTP, POST JSON-RPC)
 - **Registry:** `io.github.ogasurfproject-jpg/hs-hearing`
-- **Operator:** The HORIZ音s株式会社 / supervised by 大賀俊勝 (Toshikatsu Oga, 30 years in construction, ORCID 0009-0000-9180-903X)
+- **Operator:** The HORIZONs株式会社 / supervised by 大賀俊勝 (Toshikatsu Oga, 30 years in construction, ORCID 0009-0000-9180-903X)
 - **Backing dataset:** JCCDB, an open construction-cost database of 65,729 items (CC BY 4.0)
 
 ## Tools

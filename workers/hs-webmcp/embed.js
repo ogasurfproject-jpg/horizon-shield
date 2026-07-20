@@ -93,7 +93,7 @@
           '<div class="err" id="ferr"></div>' +
         '</div>' +
         '<div id="result"></div>' +
-        '<div class="ft">運営 The HORIZ音s株式会社 / 監修 大賀俊勝(建設実務30年)。KIRAは施工業者から紹介料や送客報酬を受け取らない、独立した第三者です。</div>' +
+        '<div class="ft">運営 The HORIZONs株式会社 / 監修 大賀俊勝(建設実務30年)。KIRAは施工業者から紹介料や送客報酬を受け取らない、独立した第三者です。</div>' +
       '</div>' +
     '</div>';
 

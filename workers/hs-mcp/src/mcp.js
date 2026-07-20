@@ -33,7 +33,7 @@ const JCCDB = {
     engrxiv_doi: "https://doi.org/10.31224/7007"
   },
   author: { name: "大賀俊勝 / TOshi Oga", orcid: "https://orcid.org/0009-0000-9180-903X" },
-  publisher: "The HORIZ音s株式会社"
+  publisher: "The HORIZONs株式会社"
 };
 
 const ESTIMATE_GUIDE = [
@@ -455,7 +455,7 @@ async function callTool(name, args, env, ip, opts) {
       agent_card_url: "https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json",
       verification_contract: "https://hs-mcp.oga-surf-project.workers.dev/.well-known/verification-contract.json",
       protocol: "A2A (Agent2Agent)",
-      provider: "The HORIZ\u97f3s\u682a\u5f0f\u4f1a\u793e",
+      provider: "The HORIZONs\u682a\u5f0f\u4f1a\u793e",
       skills: [
         { id: "estimate-integrity-audit", note: "\u898b\u7a4d\u3082\u308a\u306e\u8aa0\u5b9f\u6027\u76e3\u67fb(\u56fd\u5883\u306a\u3057) / borderless estimate integrity audit" },        { id: "japan-property-reform-intake", note: "\u65e5\u672c\u306e\u4e2d\u53e4\u7269\u4ef6\u53d6\u5f97\uff0b\u30ea\u30d5\u30a9\u30fc\u30e0\u306e\u76f8\u8ac7\u7a93\u53e3\u3002\u58f2\u8cb7\u306f\u5b85\u5730\u5efa\u7269\u53d6\u5f15\u58eb\u304c\u5bfe\u5fdc / Japan property acquisition plus renovation intake; sale handled by a licensed real-estate agent" },
         { id: "verify-claim", note: "\u767a\u884c\u6e08\u307f\u30af\u30ec\u30fc\u30e0(signed_payload + claim_sha256)\u306e\u7b2c\u4e09\u8005\u691c\u8a3c\u3002fail closed\u3002verified \u306f\u6539\u3056\u3093\u306a\u3057\u306e\u8a3c\u660e\u3067\u76e3\u67fb\u306e\u518d\u691c\u8a3c\u3067\u306f\u306a\u3044 / Third-party verification of a signed claim (signed_payload + claim_sha256). Fail closed. verified means untampered, not a re-audit" }
@@ -1037,7 +1037,7 @@ export default {
           description: "An independent, pre-transaction auditor for construction and renovation estimates. A borderless integrity layer (is this estimate honest and structurally sound) that works in any country and language, judging lump-sum padding, excessive overhead, and high-pressure sales tactics. Built on 30 years of field experience by a Japanese master carpenter. Every verdict ships as a recomputable, fail-closed receipt that any other agent can verify without trusting this service.",
           url: "https://hs-mcp.oga-surf-project.workers.dev",
           preferredTransport: "JSONRPC",
-          provider: { organization: "The HORIZ\u97f3s\u682a\u5f0f\u4f1a\u793e", url: SITE },
+          provider: { organization: "The HORIZONs\u682a\u5f0f\u4f1a\u793e", url: SITE },
           version: "1.0.0",
           capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
           defaultInputModes: ["text/plain", "application/json"],
@@ -1106,7 +1106,7 @@ export default {
           contract: "horizon-shield-verification-contract",
           version: "0.2",
           issuer: {
-            organization: "The HORIZ\u97f3s\u682a\u5f0f\u4f1a\u793e",
+            organization: "The HORIZONs\u682a\u5f0f\u4f1a\u793e",
             service: "HORIZON SHIELD KIRA",
             url: SITE
           },

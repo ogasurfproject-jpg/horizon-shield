@@ -233,7 +233,7 @@ export async function sendQuestions(env, store, questions, kind) {
     const lineInvite = '<p style="font-size:13px;">やり取りはLINEでも可能です。HORIZON SHIELD公式LINE(ID: @172piime)の友だち追加はこちら: <a href="https://line.me/R/ti/p/@172piime">https://line.me/R/ti/p/@172piime</a></p>';
     const html = '<div style="font-family:sans-serif;line-height:1.9;color:#222;"><p>' +
       intro.replace(/\n/g, "<br>") + "</p><p>" + qText.replace(/\n/g, "<br>") + "</p>" + formLink + lineInvite +
-      '<p style="color:#888;font-size:12px;">このメールにそのまま返信してください。The HORIZ音s株式会社 / HORIZON SHIELD / Yakumo</p></div>';
+      '<p style="color:#888;font-size:12px;">このメールにそのまま返信してください。The HORIZONs株式会社 / HORIZON SHIELD / Yakumo</p></div>';
     const r = await sendEmailRaw(env, { to: store.email, subject, html });
     if (r.ok) return { ok: true, via: "email" };
     return { ok: false, reason: r.reason || ("email-status-" + r.status) };

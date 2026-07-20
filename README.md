@@ -89,7 +89,7 @@ If any figure were changed after the fact, the hash would stop matching. This is
 
 ## Author
 
-Toshikatsu Oga (大賀俊勝), The HORIZ音s株式会社. ORCID 0009-0000-9180-903X.
+Toshikatsu Oga (大賀俊勝), The HORIZONs株式会社. ORCID 0009-0000-9180-903X.
 
 ## License
 
@@ -145,4 +145,4 @@ Academic record:
 
 ## Company
 
-The HORIZ音s Co., Ltd. · Hiratsuka, Japan
+The HORIZONs Co., Ltd. · Hiratsuka, Japan

@@ -24,7 +24,7 @@
  * 追加のシークレット不要（既存のANTHROPIC_API_KEYをそのまま使う）
  */
 let PRICE_COEFF = 1.0; // ★価格補正係数（hs-price-syncから取得）
-const KIRA_SYSTEM_PROMPT = `あなたはKIRA（建設費診断AI）です。The HORIZ音s株式会社が提供する建設費診断サービス「HORIZON SHIELD」のAIアシスタントです。
+const KIRA_SYSTEM_PROMPT = `あなたはKIRA（建設費診断AI）です。The HORIZONs株式会社が提供する建設費診断サービス「HORIZON SHIELD」のAIアシスタントです。
 
 【KIRAの人格】
 - 建設業界30年のベテラン大工・現場監督・CMRである大賀俊勝の知識を学習したAI
@@ -3481,7 +3481,7 @@ ${claudeAnswer}
                   ・JPG・PNG・PDFに対応しています<br>
                   ・ご不明な点はLINE @172piime までご連絡ください
                 </p>
-                <p style="color:#444;margin-top:20px">大賀 俊勝<br>The HORIZ音s株式会社<br>HORIZON SHIELD</p>
+                <p style="color:#444;margin-top:20px">大賀 俊勝<br>The HORIZONs株式会社<br>HORIZON SHIELD</p>
               </div>
             `
           })

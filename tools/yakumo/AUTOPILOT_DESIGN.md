@@ -1,6 +1,6 @@
 # Yakumo 自動運用エージェント(AUTOPILOT) 設計書
 
-作成 2026-07-10 ／ 運用 The HORIZ音s株式会社(HORIZON SHIELD) ／ 対象 workers/hs-hearing + tools/yakumo + yakumo/*
+作成 2026-07-10 ／ 運用 The HORIZONs株式会社(HORIZON SHIELD) ／ 対象 workers/hs-hearing + tools/yakumo + yakumo/*
 
 ## 0. 目的(TOshi要求の写し)
 

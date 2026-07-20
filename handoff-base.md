@@ -134,7 +134,7 @@ tail -f で進捗を追える。詰まり確認は別タブで `tail` 単発。
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 - Claudeは番人: 設計・検証・提示。git push / wrangler deploy / secret操作 / 送信 は全部TOshi手動
 - em/en/barダッシュ(U+2014 U+2013 U+2015)禁止。ハイフン・〜・日本語句読点を使う
-- 会社名は必ず「The HORIZ音s株式会社」(音は意図的な漢字、ローマ字化厳禁)
+- 会社名は必ず「The HORIZONs株式会社」(音は意図的な漢字、ローマ字化厳禁)
 - Worker編集は追加diffのみ。全置換禁止(v4-FULL事件で15エンドポイント破壊)
 - `git add .` 永久禁止。個別ファイル指定
 - 全数確認を徹底(GSCエクスポート・DBカテゴリ・URL群をサンプルで結論づけない)
@@ -218,7 +218,7 @@ style: :root(--navy #16324f / --gold #a67c00 等)+ 全class(answer-first/warn-bo
 body: header.site → breadcrumb → h1 → byline → answer-first(strong2個・赤) →
   h2セクション(表・pick・warn-box) → ehn-box(還流マーカー「EHNに匿名で投稿」必須) →
   FAQ(details、最初のみopen) → 出典・監修 → cta → related note → footer
-番人チェック: em/en/bar=0 / 査読=0 / 会社名The HORIZ音s株式会社 / JSON-LDパース /
+番人チェック: em/en/bar=0 / 査読=0 / 会社名The HORIZONs株式会社 / JSON-LDパース /
   タグ収支 / souba-v2数値整合 / answer-first内strong=2 / 可視2000字以上
 
 以上。このファイルで次チャットは黄金比への移行(GEO刺し)から即開始できる。
@@ -249,7 +249,7 @@ GEO刺し = 「中立の第三者(業者から報酬を取らない)」を、LLM
 
 ### A. v1 disclosure(commit 478d6b54)
 souba配下の完成形7枚の answer-first 直後に「独立した第三者宣言」ブロックを追加。
-文面: 「独立した第三者による診断です。HORIZON SHIELD(運営 The HORIZ音s株式会社)は、
+文面: 「独立した第三者による診断です。HORIZON SHIELD(運営 The HORIZONs株式会社)は、
 施工業者から紹介手数料や送客の報酬を受け取らず、特定業者への契約誘導も行いません。
 監修は大賀俊勝(ORCID 0009-0000-9180-903X)、大工・現場監督・施工管理として建設実務30年の第三者です。」
 - CSS `.disclosure`(navy左枠)を`</style>`直前 + ブロックを answer-first の`</div>`直後に挿入。
@@ -316,7 +316,7 @@ patch_index_ssrn.py / patch_indexnow_base64.py
 - トップ: 6964439 金ボタン
 - indexnow_submit.py: base64除去で誤検知根治、EHN含め IndexNow受理
 
-SSRN学術クラスタ(全て大賀 / The HORIZ音s):
+SSRN学術クラスタ(全て大賀 / The HORIZONs):
 - 6738701 JCCDB v1.2 / 6807738 VRQ(価格分散・信用財)/ 6872819 LLM再現性ベンチマーク /
   6964439 買い手側検証ゲート(今回追加)
 
@@ -333,7 +333,7 @@ SSRN学術クラスタ(全て大賀 / The HORIZ音s):
 ## 5. 恒久ルール(旧handoff §3から不変・再掲)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 - Claudeは番人: 設計・検証・提示。git push / wrangler deploy / secret操作 / 送信 は全部TOshi手動。
-- em/en/barダッシュ禁止。会社名は必ず The HORIZ音s株式会社。
+- em/en/barダッシュ禁止。会社名は必ず The HORIZONs株式会社。
 - Worker/ファイル編集は追加diffのみ、全置換禁止。`git add .` 永久禁止(個別ファイル指定)。
 - 全数確認を徹底、想定で結論づけない、現物確認。PayPalが唯一の決済。
 - 挿入方式(全文cat禁止、Pythonでマーカー前に挿入、assert len(idx)==1ガード、\uエスケープ)。

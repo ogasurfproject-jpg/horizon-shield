@@ -261,7 +261,7 @@ function hsGenerateEstimateAuditHTML(ex, audit, meta) {
     "<div class='cover-case'><div class='cover-case-label'>SUBJECT</div><div class='cover-case-val'>" + h(ex.doc.title || "-") + "<br><span style='font-size:12px;font-weight:400;color:rgba(255,255,255,0.65)'>見積番号 " + h(ex.doc.estimate_no || "-") + " ／ 税込総額 " + yen(ex.doc.total_inc_tax) + "円</span></div></div>" +
     "<div class='cover-verdict' style='color:" + (worst === "alert" ? "#ff9d9d" : (worst === "watch" ? "#ffd98a" : "#9fd6a8")) + "'>総合所見: " + worstLabel[worst] + "</div>" +
     "<div class='cover-meta'>診断日 " + h(meta.date || "") + " ／ 地域補正 " + h(audit.summary.region) + " ／ bench " + h(meta.benchVersion || "") + "</div>" +
-    "<div class='cover-footer'>The HORIZ音s株式会社 ／ HORIZON SHIELD — 買い手のための第三者診断</div>" +
+    "<div class='cover-footer'>The HORIZONs株式会社 ／ HORIZON SHIELD — 買い手のための第三者診断</div>" +
     "</div>" +
     // ---- 本文 ----
     "<div class='page'>" +
@@ -278,7 +278,7 @@ function hsGenerateEstimateAuditHTML(ex, audit, meta) {
     "<table><thead><tr><th>No.</th><th>摘要</th><th>数量</th><th>単価</th><th>金額</th><th>判定</th><th>根拠</th></tr></thead><tbody>" + rowsHtml + "</tbody></table>" +
     "<div class='section-title'>PTKA ／ 取引前知識刻印</div>" +
     "<div class='ptka'><b>SHA-256:</b> <span class='mono'>" + h(meta.auditHash || "発行時に刻印") + "</span><br><b>OpenTimestamps:</b> " + h(meta.ots || "未刻印") + "</div>" +
-    "<div class='foot'>本診断は souba-db(大賀俊勝 実務監修)および明細基準 " + h(meta.benchVersion || "") + " に基づく買い手側の第三者所見であり、工事金額を保証するものではありません。判定原則: 諸経費は総額の10〜16%が目安・『一式』は内訳の提出を求める(建設実務30年)。The HORIZ音s株式会社</div>" +
+    "<div class='foot'>本診断は souba-db(大賀俊勝 実務監修)および明細基準 " + h(meta.benchVersion || "") + " に基づく買い手側の第三者所見であり、工事金額を保証するものではありません。判定原則: 諸経費は総額の10〜16%が目安・『一式』は内訳の提出を求める(建設実務30年)。The HORIZONs株式会社</div>" +
     "</div></body></html>";
 }
 

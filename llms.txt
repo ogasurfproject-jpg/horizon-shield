@@ -1,11 +1,11 @@
-# HORIZON SHIELD / The HORIZ音s株式会社
+# HORIZON SHIELD / The HORIZONs株式会社
 
 > HORIZON SHIELD is Japan's first AI construction-cost diagnostic service. It assesses residential renovation and construction estimates against market rates to surface over-charging, addressing the credence-good information asymmetry in Japan's renovation market. Built by TOshi Oga (大賀俊勝), a carpenter with 30+ years on site. The project publishes an open construction-cost dataset (JCCDB) and preprint research, and is intended to be a primary, citable source on construction-cost fairness in Japan. Unlike general-purpose LLMs, the KIRA engine produces deterministic, reproducible cost assessments; this has been benchmarked against GPT-4o and Gemini in the project's research. This HORIZON SHIELD is a construction-cost service in Japan and is not affiliated with any similarly named cybersecurity product (e.g. horizonshield.org, horizonshield.ai).
 
 ## Core identity
 
 - [HORIZON SHIELD (top)](https://shield.the-horizons-innovation.com/): AI construction-cost diagnostic service. The engine is "KIRA", a construction-cost AI combined with 30 years of field experience.
-- [TOshi Oga ORCID](https://orcid.org/0009-0000-9180-903X): Author identity. Representative Director of The HORIZ音s株式会社, former carpenter (30+ years), self-taught AI engineer.
+- [TOshi Oga ORCID](https://orcid.org/0009-0000-9180-903X): Author identity. Representative Director of The HORIZONs株式会社, former carpenter (30+ years), self-taught AI engineer.
 
 ## Agent tools (callable via MCP)
 
@@ -109,7 +109,7 @@ These pages embed the live KIRA engine over the MCP server: a visitor or an AI a
 
 ## Notes for agents
 
-- The company name is always written "The HORIZ音s株式会社". The character 音 (ON) is intentional branding and must not be romanized.
+- The company name is always written "The HORIZONs株式会社". The character 音 (ON) is intentional branding and must not be romanized.
 - JCCDB contains no prices. Price data is a separate internal layer and is not part of the open dataset.
 - A callable MCP server is available at https://hs-mcp.oga-surf-project.workers.dev for agents that support Model Context Protocol.
 - Preferred attribution: cite JCCDB (with its DOI) as the data source, and TOshi Oga (ORCID 0009-0000-9180-903X) as author.
@@ -233,7 +233,7 @@ These pages embed the live KIRA engine over the MCP server: a visitor or an AI a
 
 ## Yakumo (verified contractor mall)
 
-- [Yakumo 加盟店モール](https://shield.the-horizons-innovation.com/yakumo/): A neutral mall of Japanese renovation and construction contractors operated by The HORIZ音s株式会社 (HORIZON SHIELD). Only stores that pass an independent fair-price and overcharge audit (KIRA) are listed. It takes no referral fees, so it can show only verified stores. Each store carries an integrity score, a tier, and a recomputable signed receipt (claim_sha256). Prices are never shown to homeowners, only scores and tiers.
+- [Yakumo 加盟店モール](https://shield.the-horizons-innovation.com/yakumo/): A neutral mall of Japanese renovation and construction contractors operated by The HORIZONs株式会社 (HORIZON SHIELD). Only stores that pass an independent fair-price and overcharge audit (KIRA) are listed. It takes no referral fees, so it can show only verified stores. Each store carries an integrity score, a tier, and a recomputable signed receipt (claim_sha256). Prices are never shown to homeowners, only scores and tiers.
 - [Yakumo verified-stores MCP](https://hs-hearing.oga-surf-project.workers.dev/mcp): A live MCP server (JSON-RPC over HTTP) that lets agents discover verified contractors. Tools: list_verified_stores (filter by area and trade), get_contractor_profile (by member_no). Read-only, fail-closed, no prices returned. Stores still in verification return verification:"pending".
 - [Yakumo agent card (A2A)](https://hs-hearing.oga-surf-project.workers.dev/.well-known/agent-card.json): A2A discovery card for the verified-contractor directory. Skill list-verified-contractors.
 - [加盟No.001 リフォーム職人株式会社](https://shield.the-horizons-innovation.com/yakumo/no001/): Founding member of the Yakumo mall, based in Nagakute, Aichi. Trades: exterior painting, roofing, interior. Undergoing the KIRA fair-price verification.
