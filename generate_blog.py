@@ -128,12 +128,12 @@ if _pm:
     content = content[:_pm.start()] + content[_pm.end():]
 content = content.strip()
 
-# meta description(lead先頭110字)
-_t = re.sub(r'\s+', "", lead_text)[:150]
-_cut = _t.rfind(chr(0x3002), 100)
-_desc = (_t[:_cut+1] if _cut >= 100 else _t[:148])
-if len(_desc) < 120:
-    _desc = (_desc + target + "の単価目安・価格動向・見積もりで確認すべきポイントを建設実務30年の視点で解説します。")[:150]
+# meta description(150〜160字、Bing推奨レンジ)
+_t = re.sub(r'\s+', "", lead_text)[:200]
+_cut = _t.rfind(chr(0x3002), 140, 160)
+_desc = (_t[:_cut+1] if _cut >= 140 else _t[:158])
+if len(_desc) < 150:
+    _desc = (_desc + target + "の単価目安・価格動向・見積もりで確認すべきポイントを、建設実務30年の監修とオープンデータ65729品目で解説します。")[:158]
 if _desc and not _desc.endswith(chr(0x3002)):
     _desc = _desc.rstrip(chr(0x3001)) + chr(0x3002)
 
