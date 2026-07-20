@@ -2017,7 +2017,7 @@ try{fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/track-visit',{meth
     'その「一式」表記、<span class="breath">危険サインかもしれない。</span>',
     '業者より先に、<span class="breath">価格を知る。</span>',
   ];
-  const day = new Date().getDay(); // 0=日〜6=土
+  const day = 0; // タイトル固定（インデックス安定化のため）
   document.getElementById('hero-title').innerHTML = titles[day];
 })();
 /* EHN PICKUP: 今週の実例を自動描画 */

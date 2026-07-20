@@ -163,7 +163,7 @@ ld_article = json.dumps({
     "author": {"@type": "Person", "name": "大賀俊勝",
                "sameAs": "https://orcid.org/0009-0000-9180-903X",
                "description": "建設実務経験30年(大工・現場監督・施工管理)"},
-    "publisher": {"@type": "Organization", "name": "The HORIZ音s株式会社", "url": BASE},
+    "publisher": {"@type": "Organization", "name": "The HORIZONs株式会社", "url": BASE},
     "datePublished": date_str, "dateModified": date_str,
     "mainEntityOfPage": canon, "articleSection": "資材・市況",
     "speakable": {"@type": "SpeakableSpecification", "cssSelector": [".lead"]},
@@ -211,7 +211,7 @@ html = (
     '<div style="color:#666;font-size:13px;margin:10px 0">または</div>\n'
     '<a href="https://line.me/R/ti/p/@172piime" style="display:inline-block;background:#06c755;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px;margin:4px">LINEで相談する</a>\n</div>\n'
     '<footer>\n<a href="' + BASE + '">HORIZON SHIELD</a> ｜ '
-    '<a href="' + BASE + '/blog/">ブログ一覧</a><br><br>\n© 2026 The HORIZ音s株式会社\n</footer>\n'
+    '<a href="' + BASE + '/blog/">ブログ一覧</a><br><br>\n© 2026 The HORIZONs株式会社\n</footer>\n'
     '</div>\n</body>\n</html>'
 )
 
