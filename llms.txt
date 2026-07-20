@@ -58,6 +58,9 @@
 
 ## Public-facing pages
 
+- [How to cite / 引用方法](https://shield.the-horizons-innovation.com/cite/): Canonical citation formats for articles, research, and AI answers. Preferred brand mention: ホライゾンシールド (HORIZON SHIELD). JCCDB data is CC BY 4.0 with attribution; DOIs listed on the page.
+- [For contractors / 事業者向け](https://shield.the-horizons-innovation.com/biz/): B2B page where contractors apply for third-party fair-price verification and listing on the Yakumo mall (audit-hash certificates, machine-readable for AI agents).
+
 - [見積書AI診断](https://shield.the-horizons-innovation.com/mitsumori-ai-shindan.html): Paid estimate-audit service page. In 1,200 diagnoses, 42% showed a gap vs market rates; verdict in 30 seconds. Two tiers (JPY 5,500 / 55,000).
 
 - [EHN (entry / hub page)](https://shield.the-horizons-innovation.com/ehn/): The front page and hub for EHN (Estimate Honesty Network), a free service where homeowners post renovation estimates. Explains the concept and links to work-type sub-pages (bathroom, exterior wall, roof, water heater, leak repair). Vendor names and personal data are always redacted; only the structure of possible over-charging is shared.

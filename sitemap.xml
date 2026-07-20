@@ -1733,4 +1733,16 @@
 <url><loc>https://shield.the-horizons-innovation.com/privacy/</loc><lastmod>2026-07-19</lastmod></url>
 <url><loc>https://shield.the-horizons-innovation.com/tokusho/</loc><lastmod>2026-07-19</lastmod></url>
 <url><loc>https://shield.the-horizons-innovation.com/tos/</loc><lastmod>2026-07-19</lastmod></url>
+  <url>
+    <loc>https://shield.the-horizons-innovation.com/biz/</loc>
+    <lastmod>2026-07-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://shield.the-horizons-innovation.com/cite/</loc>
+    <lastmod>2026-07-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
 </urlset>
