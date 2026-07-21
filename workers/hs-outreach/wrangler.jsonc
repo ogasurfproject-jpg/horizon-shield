@@ -1,5 +1,4 @@
 {
-  // hs-outreach : HORIZON SHIELD 加盟店アウトリーチ送信Worker
   "name": "hs-outreach",
   "main": "src/outreach.js",
   "compatibility_date": "2025-06-01",
@@ -7,20 +6,15 @@
     { "binding": "OUTREACH_QUEUE", "id": "4635bcba0943454295fcec375ef3ae73" },
     { "binding": "OUTREACH_DATA", "id": "681c5913473e49e3a96f6fe1be35cb37" }
   ],
-  // 平日 9:00-17:00 JST(=0-8 UTC)に毎時。人間らしい時間帯で throttle 送信。
-  "triggers": {
-    "crons": ["0 0-8 * * 1-5"]
-  },
-  // 非機密の既定値。機密(RESEND_API_KEY / ADMIN_TOKEN / UNSUB_SECRET / WEBHOOK_SECRET)は
-  //   wrangler secret put で入れる。DRY_RUN は最初 "true"(shadow)、納得したら "false" に。
+  "triggers": { "crons": ["0 0-8 * * 1-5"] },
   "vars": {
     "DRY_RUN": "true",
     "PUBLIC_BASE": "https://hs-outreach.oga-surf-project.workers.dev",
-    "FROM_ADDRESS": "HORIZON SHIELD <hello@outreach.the-horizons-innovation.com>",
-    "REPLY_TO": "toshi@the-horizons-innovation.com",
-    "UNSUB_MAILBOX": "unsubscribe@outreach.the-horizons-innovation.com",
+    "FROM_ADDRESS": "HORIZON SHIELD <outreach@the-horizons-innovation.com>",
+    "REPLY_TO": "contact@the-horizons-innovation.com",
+    "UNSUB_MAILBOX": "unsubscribe@the-horizons-innovation.com",
     "SENDER_BLOCK": "The HORIZONs株式会社 / HORIZON SHIELD（法人番号 7021001075279）　神奈川県／電話 0463-74-5917",
-    "TEST_INBOX": "toshi@the-horizons-innovation.com",
+    "TEST_INBOX": "oga.surf.project@gmail.com",
     "PDF_URL": "https://shield.the-horizons-innovation.com/biz/kamei-annai.pdf",
     "PDF_FILENAME": "HORIZON_SHIELD_加盟のご案内.pdf",
     "PER_RUN_MAX": "3",
