@@ -1,0 +1,1 @@
+export default { fetch() { return new Response("Assets have not yet been deployed...") } }

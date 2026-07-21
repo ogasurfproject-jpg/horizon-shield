@@ -1,0 +1,26 @@
+// ===================================================================
+//  wrangler.jsonc  —  【救出・参照用スタブ / RESCUE REFERENCE STUB】
+//  worker: hs-followup
+//  用途: フォローアップ（週1実装）。/health /create-case が稼働、他は501スタブ。KV: FOLLOWUP。
+//
+//  ⚠ これは Cloudflare 上のデプロイ済みバンドルから救出したコードに
+//     後付けした最小 wrangler 設定です。バージョン管理・可読性のためのもので、
+//     この設定で「再デプロイする前提」では作られていません。
+//     本番は今も Cloudflare 上でそのまま動いています（このファイルでは動いていない）。
+//     万一これで再デプロイする時は、必ず下記プレースホルダを実値に直し、
+//     compatibility_date / cron / KV id / secret をダッシュボードと突き合わせること。
+// ===================================================================
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hs-followup",
+  "main": "src/worker.js",
+  "compatibility_date": "2025-01-01",   // PLACEHOLDER: 実値はダッシュボード Settings→Runtime で確認
+  "compatibility_flags": ["nodejs_compat"],  // PLACEHOLDER: 実際のflagに合わせる（不要なら削除）
+  // トリガー: あり（scheduled handlerはTODO段階）
+  "triggers": { "crons": [ /* "実際のcron式をダッシュボードから" */ ] },
+  "kv_namespaces": [
+    { "binding": "FOLLOWUP", "id": "<FILL_FROM_DASHBOARD>" },
+  ],
+  // secrets（値はコードに入れない。`npx wrangler secret put <NAME>` で設定・Cloudflare上に既存）:
+  //   ADMIN_KEY
+}
