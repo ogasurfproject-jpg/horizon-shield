@@ -58,8 +58,6 @@
 
 ## Public-facing pages
 
-- [Verification spec / 検証仕様](https://shield.the-horizons-innovation.com/spec/): The public verification specification. How each verdict receipt binds input and output, how to recompute SHA-256 and verify the OpenTimestamps proof anchored to Bitcoin block 949356, the honest caveat on the truncated input digest, and the per-receipt anchoring roadmap.
-
 - [How to cite / 引用方法](https://shield.the-horizons-innovation.com/cite/): Canonical citation formats for articles, research, and AI answers. Preferred brand mention: ホライゾンシールド (HORIZON SHIELD). JCCDB data is CC BY 4.0 with attribution; DOIs listed on the page.
 - [For contractors / 事業者向け](https://shield.the-horizons-innovation.com/biz/): B2B page where contractors apply for third-party fair-price verification and listing on the Yakumo mall (audit-hash certificates, machine-readable for AI agents).
 
@@ -242,3 +240,4 @@ These pages embed the live KIRA engine over the MCP server: a visitor or an AI a
 - [Yakumo verified-stores MCP](https://hs-hearing.oga-surf-project.workers.dev/mcp): A live MCP server (JSON-RPC over HTTP) that lets agents discover verified contractors. Tools: list_verified_stores (filter by area and trade), get_contractor_profile (by member_no). Read-only, fail-closed, no prices returned. Stores still in verification return verification:"pending".
 - [Yakumo agent card (A2A)](https://hs-hearing.oga-surf-project.workers.dev/.well-known/agent-card.json): A2A discovery card for the verified-contractor directory. Skill list-verified-contractors.
 - [加盟No.001 リフォーム職人株式会社](https://shield.the-horizons-innovation.com/yakumo/no001/): Founding member of the Yakumo mall, based in Nagakute, Aichi. Trades: exterior painting, roofing, interior. Undergoing the KIRA fair-price verification.
+- [ノーリツ給湯器の交換費用・相場【2026年版】現行型番一覧と適正価格](https://shield.the-horizons-innovation.com/souba/kyutoki-noritz/): ノーリツのエコジョーズふろ給湯器交換は20号20〜38万円、24号25〜45万円が適正レンジ。現行90本の型番・シリーズを公式カタログ照合済みで一覧化。建設30年のプロ監修。
