@@ -58,6 +58,8 @@
 
 ## Public-facing pages
 
+- [Verification spec / 検証仕様](https://shield.the-horizons-innovation.com/spec/): The public verification specification. How each verdict receipt binds input and output, how to recompute SHA-256 and verify the OpenTimestamps proof anchored to Bitcoin block 949356, the honest caveat on the truncated input digest, and the per-receipt anchoring roadmap.
+
 - [How to cite / 引用方法](https://shield.the-horizons-innovation.com/cite/): Canonical citation formats for articles, research, and AI answers. Preferred brand mention: ホライゾンシールド (HORIZON SHIELD). JCCDB data is CC BY 4.0 with attribution; DOIs listed on the page.
 - [For contractors / 事業者向け](https://shield.the-horizons-innovation.com/biz/): B2B page where contractors apply for third-party fair-price verification and listing on the Yakumo mall (audit-hash certificates, machine-readable for AI agents).
 

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verdict Receipt and Integrity Claim: Verification Specification | HORIZON SHIELD（ホライゾンシールド）</title>
+<meta name="description" content="The public verification specification for HORIZON SHIELD（ホライゾンシールド）. How each verdict receipt binds its inputs and outputs, how anyone can recompute the SHA-256 and verify the OpenTimestamps proof anchored to Bitcoin, and what is live versus roadmap. Distrust by default, fail closed.">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/spec/">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Verdict Receipt and Integrity Claim: Verification Specification | HORIZON SHIELD">
+<meta property="og:description" content="How anyone can independently recompute a HORIZON SHIELD verdict from public data. Two live layers, the honest caveats, and the per-receipt anchoring roadmap.">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/spec/">
+<meta property="og:site_name" content="HORIZON SHIELD">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "@id": "https://shield.the-horizons-innovation.com/spec/",
+  "name": "Verdict Receipt and Integrity Claim: Verification Specification",
+  "headline": "Verdict Receipt and Integrity Claim: Verification Specification (v0.1)",
+  "inLanguage": "en",
+  "about": "Recomputable third party verification of construction estimate audits",
+  "author": {"@type": "Person", "name": "Toshikatsu Oga", "identifier": "https://orcid.org/0009-0000-9180-903X"},
+  "publisher": {"@type": "Organization", "name": "The HORIZONs株式会社", "alternateName": ["HORIZON SHIELD", "ホライゾンシールド"], "url": "https://shield.the-horizons-innovation.com/"},
+  "version": "0.1"
+}
+</script>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F8F8F5;--white:#FEFEFE;--warm:#F3EBD8;--warm2:#E8DCC8;
+  --clay:#C24E1A;--forest:#1E6B43;--forest-p:#E8F4ED;
+  --ink:#1A3A54;--ink2:#0F2438;
+  --danger:#8B1A1A;--amber-p:#FAF3E0;--amber:#A97820;
+  --text:#1C1510;--t2:#4A3F32;--t3:#8A7868;
+  --l1:rgba(28,21,16,.07);--l2:rgba(28,21,16,.12);
+  --code:#0F2438;--code-t:#D8E0EC;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans','Noto Sans JP',sans-serif;line-height:1.85;}
+.wrap{max-width:840px;margin:0 auto;padding:0 24px;}
+header{border-bottom:1px solid var(--l1);background:var(--white);}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0;}
+.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;color:var(--text);}
+.brand b{font-family:'Instrument Serif',serif;font-size:20px;color:var(--ink2);}
+.brand span{font-size:11px;color:var(--t3);}
+.tag{font-family:'Space Mono',monospace;font-size:11px;color:var(--clay);letter-spacing:.06em;}
+.hero{padding:52px 0 12px;}
+.ver{font-family:'Space Mono',monospace;font-size:12px;color:var(--clay);letter-spacing:.1em;margin-bottom:14px;}
+h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:clamp(27px,4.5vw,40px);line-height:1.28;color:var(--ink2);letter-spacing:-.01em;}
+.stand{margin-top:18px;font-size:16px;color:var(--t2);max-width:640px;}
+.honest{margin:28px 0 8px;background:var(--amber-p);border:1px solid rgba(169,120,32,.3);border-left:4px solid var(--amber);border-radius:10px;padding:18px 22px;}
+.honest b{color:var(--ink2);}
+.honest p{font-size:14px;color:var(--t2);}
+section{padding:30px 0;border-top:1px solid var(--l1);}
+h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:21px;color:var(--ink2);margin-bottom:6px;}
+.badge{display:inline-block;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em;padding:3px 9px;border-radius:5px;vertical-align:middle;margin-left:10px;}
+.live{background:var(--forest-p);color:var(--forest);}
+.road{background:var(--warm2);color:var(--amber);}
+h2+.lead{margin:10px 0 14px;color:var(--t2);font-size:15px;}
+p{font-size:15px;color:var(--t2);margin-bottom:12px;}
+p b,li b{color:var(--ink2);}
+ul{margin:6px 0 14px 22px;}
+li{font-size:14.5px;color:var(--t2);margin-bottom:7px;}
+pre{background:var(--code);color:var(--code-t);border-radius:10px;padding:18px 20px;overflow-x:auto;margin:12px 0 16px;font-family:'Space Mono',monospace;font-size:12.5px;line-height:1.7;}
+pre .k{color:#9FD8B4;}
+pre .c{color:#8D94A8;}
+code{font-family:'Space Mono',monospace;font-size:.9em;background:rgba(28,21,16,.06);padding:2px 6px;border-radius:4px;color:var(--ink2);}
+.field{width:100%;border-collapse:collapse;margin:8px 0 16px;font-size:13.5px;}
+.field th,.field td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--l1);vertical-align:top;}
+.field th{font-family:'Space Mono',monospace;font-size:11px;color:var(--t3);letter-spacing:.05em;}
+.field td:first-child{font-family:'Space Mono',monospace;color:var(--ink2);white-space:nowrap;}
+footer{padding:36px 0 60px;border-top:1px solid var(--l1);font-size:12px;color:var(--t3);line-height:1.8;}
+footer a{color:var(--ink);}
+a{color:var(--clay);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="https://shield.the-horizons-innovation.com/"><b>HORIZON SHIELD</b><span>ホライゾンシールド</span></a>
+    <span class="tag">VERIFICATION SPEC</span>
+  </div>
+</header>
+
+<div class="hero wrap">
+  <div class="ver">SPEC v0.1 · DRAFT · 2026-07-21</div>
+  <h1>Verdict Receipt and Integrity Claim: Verification Specification</h1>
+  <p class="stand">Every verdict HORIZON SHIELD issues is meant to be recomputed by a stranger who trusts none of our infrastructure. This document states exactly what each receipt binds, how to recompute it from public data, and, just as plainly, where the binding is not yet as strong as it will be.</p>
+  <div class="honest">
+    <p><b>Read this first.</b> A verified hash proves a declaration was not tampered with. It does not prove the audit ruleset behind it is still current. Our verifier reports that limit in every response (<code>audit_ruleset_recheck: not_performed</code>), and the input digest is currently truncated (see Section 3). We would rather name these than let the word "verified" carry more weight than it earns.</p>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <h2>1. The verdict receipt<span class="badge live">LIVE</span></h2>
+    <p class="lead">One immutable receipt per verdict, served at a stable address, next to its own timestamp proof.</p>
+    <p>Each verdict lives at <code>/souba/&lt;case&gt;/v/&lt;audit_hash&gt;/</code> and carries three files: a human page (<code>index.html</code>), the machine payload (<code>claim.txt</code>), and its OpenTimestamps proof (<code>proof.ots</code>). The payload is a single line of JSON. This is a real receipt, verbatim from production:</p>
+    <pre>{<span class="k">"type"</span>:"hs_verdict_claim",<span class="k">"version"</span>:"1.0",<span class="k">"audit_hash"</span>:"B9qY5eH2cN7j",
+ <span class="k">"work"</span>:"水回りリフォーム",<span class="k">"presented_amount_jpy"</span>:3850000,
+ <span class="k">"corrected_amount_jpy"</span>:3220000,<span class="k">"reduction_amount_jpy"</span>:630000,
+ <span class="k">"reduction_rate_percent"</span>:"16.4",<span class="k">"dataset"</span>:"HORIZON SHIELD 診断事例データセット v3.0",
+ <span class="k">"dataset_anchor"</span>:"Bitcoin Block #949356",
+ <span class="k">"permalink"</span>:"https://shield.the-horizons-innovation.com/souba/kajou-seikyu-jirei-20/v/B9qY5eH2cN7j/",
+ <span class="k">"claim_created"</span>:"2026-07-16"}</pre>
+    <table class="field">
+      <tr><th>field</th><th>meaning</th></tr>
+      <tr><td>audit_hash</td><td>Stable identifier for this verdict. Also the address segment.</td></tr>
+      <tr><td>presented / corrected / reduction_amount_jpy</td><td>The verdict itself: quoted amount, fair amount, the gap, in JPY.</td></tr>
+      <tr><td>dataset</td><td>The comparison basis this verdict ran against, by name and version.</td></tr>
+      <tr><td>dataset_anchor</td><td>The Bitcoin block the dataset declaration is timestamped into (Section 4).</td></tr>
+      <tr><td>permalink</td><td>Self locating: the receipt names its own canonical address.</td></tr>
+    </table>
+    <p>The paired <code>proof.ots</code> is the OpenTimestamps proof that this exact <code>claim.txt</code> existed at or before its anchored block time. It is served raw at <code>/souba/&lt;case&gt;/v/&lt;audit_hash&gt;/proof.ots</code>, no wrapper, exactly the bytes an <code>ots verify</code> needs.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>2. The integrity claim and the verifier<span class="badge live">LIVE</span></h2>
+    <p class="lead">A second, tool-checkable representation whose posture is distrust by default.</p>
+    <p>Alongside the receipt, an audit emits a signed integrity claim: a <code>signed_payload</code> string and its <code>claim_sha256</code>. Verification is complete on its own. Recompute SHA-256 over the raw <code>signed_payload</code> string and check it equals <code>claim_sha256</code>. No call back to the issuer, no price layer, no trust in us.</p>
+    <p>The public MCP tool <code>verify_integrity_claim</code> does exactly this, fail closed, and returns a contract-shaped result:</p>
+    <ul>
+      <li><b>result</b>: verified or unverified.</li>
+      <li><b>recomputed_sha256</b>: what we got, so you can compare against your own.</li>
+      <li><b>failure_reason</b>: stale_data, changed_scope, or missing_evidence.</li>
+      <li><b>scope_check</b>: whether the estimate still matches the issued version, or <code>skipped</code> if you did not pass one.</li>
+      <li><b>audit_ruleset_recheck</b>: always <code>not_performed</code>. Verified means untampered, not that the ruleset is still valid. We will not let that ambiguity hide.</li>
+    </ul>
+    <p>The tool is read only, needs no API key, and can be pointed at any claim, including ones we did not issue. That is the point. A check you can only run through us is not a check.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>3. Input binding and scope<span class="badge live">LIVE</span><span class="badge road">CAVEAT</span></h2>
+    <p class="lead">This is the load bearing question, so here is the honest answer.</p>
+    <p>The claim binds both sides. The verdict numbers are in the payload. The input is bound through <code>estimate_version</code>, a SHA-256 digest of the raw estimate text. So a verifier who holds the original quote can confirm the verdict was issued for exactly that document, then re-run the comparison against the same public dataset. The line items themselves stay out of the payload on purpose. Quotes carry private detail, so we commit to them by hash and reveal only to whoever already holds the document.</p>
+    <p><b>The caveat, named plainly.</b> Today <code>estimate_version</code> is truncated to the first 8 hex of that SHA-256. Eight hex is enough to bind scope for a holder who is checking one known document. It is not enough to resist a determined search for a second document that collides. So today it gives scope binding, not grind resistance. The fix is in Section 6, and it is not cosmetic. It is the difference between the two claims.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>4. The anchor<span class="badge live">LIVE</span></h2>
+    <p>The dataset behind every verdict is fixed by the PTKA Declaration (Pre-Transaction Knowledge Anchoring): our methodology statement, timestamped into the Bitcoin blockchain via OpenTimestamps so it cannot be quietly rewritten after the fact.</p>
+    <pre><span class="c"># PTKA Declaration</span>
+SHA-256 : 596da30ba4ca731f21efaa1c4a6537290e996e0f039cbe57704de1674e4a0282
+Block   : Bitcoin #949356
+Confirmed: 2026-05-14 JST
+Via     : OpenTimestamps (https://opentimestamps.org)</pre>
+    <p>Each receipt names this same anchor in its <code>dataset_anchor</code> field, so the chain from a single verdict back to a public, timestamped methodology is followable without contacting us.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>5. Recompute it yourself<span class="badge live">LIVE</span></h2>
+    <p class="lead">The whole claim is that a stranger can run this. So here is the run.</p>
+    <pre><span class="c"># A. verify the timestamp proof on a receipt</span>
+curl -sO https://shield.the-horizons-innovation.com/souba/kajou-seikyu-jirei-20/v/B9qY5eH2cN7j/claim.txt
+curl -sO https://shield.the-horizons-innovation.com/souba/kajou-seikyu-jirei-20/v/B9qY5eH2cN7j/proof.ots
+ots verify -f claim.txt proof.ots
+<span class="c"># confirms this exact claim.txt existed at or before the Bitcoin block time</span>
+
+<span class="c"># B. verify a signed integrity claim (no trust in us)</span>
+printf '%s' "$SIGNED_PAYLOAD" | shasum -a 256
+<span class="c"># the output must equal the claim_sha256 the audit reported</span></pre>
+    <p>If step A fails, the receipt was altered after stamping. If step B does not match, the declaration was altered. Either way the correct answer is to reject it, which is the same posture our own verifier takes.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>6. Roadmap and conformance<span class="badge road">ROADMAP</span></h2>
+    <p class="lead">What closes the gap in Section 3, stated as commitments, not as done.</p>
+    <ul>
+      <li><b>Full input digest.</b> Move <code>estimate_version</code> from 8 hex to the full SHA-256. This is the change that turns scope binding into grind resistance.</li>
+      <li><b>Per receipt, not per estimate.</b> Each verdict is the unit a spend decision hangs on, so the proof stays attached to each verdict, mirroring the existing <code>/v/&lt;audit_hash&gt;/</code> layout. An estimate level rollup, if it comes, is a convenience index, never the trust anchor.</li>
+      <li><b>Self declared proof URL.</b> Add one field to each receipt payload pointing at its own raw <code>proof.ots</code> route, so the receipt is machine followable end to end without knowing our path convention, the same shape peer ledgers already expose.</li>
+      <li><b>Per audit on chain stamping.</b> Automatic per verdict anchoring is planned through JIDEC, a third party stamping body launched 2026-06, so no single verdict depends on us to remember it.</li>
+    </ul>
+    <p>This spec is a draft and will move. Conformance notes and independent review are welcome. The contact below is real.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Author: Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>), 30 years on construction sites. Operator: The HORIZONs株式会社 (Corporate Number 7021001075279).<br>
+    Related: <a href="https://shield.the-horizons-innovation.com/cite/">How to cite</a> · <a href="https://shield.the-horizons-innovation.com/llms.txt">llms.txt</a> · MCP endpoint: https://hs-mcp.oga-surf-project.workers.dev (read only, no key)<br>
+    Zero referral fees. Verdicts, scores, and listing order are not for sale. This document describes integrity, not the validity of any particular ruleset over time.<br>
+    © 2026 The HORIZONs株式会社（HORIZON SHIELD ／ ホライゾンシールド）
+  </div>
+</footer>
+
+</body>
+</html>
