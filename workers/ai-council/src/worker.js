@@ -26,7 +26,7 @@ const COST_PER_MILLION = {
   grok_output: 2.50
 };
 
-const ADMIN_PASSWORD = "Hhzs9k821127@";
+// ADMIN_PASSWORD は env.ADMIN_PASSWORD（wrangler secret）から読む。ハードコード撤去（2026-07-21 ハードニング）。
 
 // ============================================
 // Main Handler
@@ -75,8 +75,8 @@ async function handleCouncil(request, env, headers) {
   const body = await request.json();
   const { question, password } = body;
 
-  // Auth
-  if (password !== ADMIN_PASSWORD) {
+  // Auth（env.ADMIN_PASSWORD 未設定なら常に拒否＝fail-closed）
+  if (!env.ADMIN_PASSWORD || password !== env.ADMIN_PASSWORD) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers });
   }
   if (!question || question.length < 3) {

@@ -167,7 +167,7 @@ function isPaymentRequest(text) {
 }
 __name(isPaymentRequest, "isPaymentRequest");
 function buildBankMessage(env, service = null) {
-  const bankInfo = env.BANK_INFO || "\u9759\u5CA1\u9280\u884C \u5E73\u585A\u652F\u5E97 \u666E\u901A\u9810\u91D1 0479810 \u30B6\u30DB\u30E9\u30A4\u30BA\u30F3\u30BA\u30AB\u30D6\u30B7\u30AD\u30AC\u30A4\u30B7\u30E3";
+  const bankInfo = env.BANK_INFO || "\u9280\u884C\u540D \u652F\u5E97 \u7A2E\u5225 \u53E3\u5EA7\u756A\u53F7 \u540D\u7FA9";
   const [bankName, branch, type, number, name] = bankInfo.split(" ");
   const serviceInfo = service ? {
     "SVC-01": { name: "\u5EFA\u8A2D\u8CBB\u8A3A\u65AD\uFF08\u898B\u7A4D\u66F8\u67FB\u5B9A\uFF09", amount: "\xA555,000" },
