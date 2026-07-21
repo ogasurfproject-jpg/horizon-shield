@@ -1,0 +1,32 @@
+// ===================================================================
+//  wrangler.jsonc  —  【救出・参照用スタブ / RESCUE REFERENCE STUB】
+//  worker: hs-genka-ingest
+//  用途: 原価データ取り込み。Apify連携＋管理ダッシュボード（/dashboard）。
+//
+//  ⚠ これは Cloudflare 上のデプロイ済みバンドルから救出したコードに
+//     後付けした最小 wrangler 設定です。バージョン管理・可読性のためのもので、
+//     この設定で「再デプロイする前提」では作られていません。
+//     本番は今も Cloudflare 上でそのまま動いています（このファイルでは動いていない）。
+//     万一これで再デプロイする時は、必ず下記プレースホルダを実値に直し、
+//     compatibility_date / cron / KV id / secret をダッシュボードと突き合わせること。
+//  NOTE: このworkerのソースは esbuild でバンドル済み(sourceMappingURLあり/.mapは取得不可)。
+//        救出したのは“束ねられた実行コード”であり、元の分割ソースそのものではない。
+// ===================================================================
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hs-genka-ingest",
+  "main": "src/index.js",
+  "compatibility_date": "2025-01-01",   // PLACEHOLDER: 実値はダッシュボード Settings→Runtime で確認
+  "compatibility_flags": ["nodejs_compat"],  // PLACEHOLDER: 実際のflagに合わせる（不要なら削除）
+  // トリガー: あり（Apify actor-runをPOST）
+  "triggers": { "crons": [ /* "実際のcron式をダッシュボードから" */ ] },
+  "kv_namespaces": [
+    { "binding": "GENKA_PENDING", "id": "<FILL_FROM_DASHBOARD>" },
+    { "binding": "GENKA_VERIFIED", "id": "<FILL_FROM_DASHBOARD>" },
+  ],
+  "vars": {
+    "APIFY_ACTOR_ID": "<PLAINTEXT_VAR_値をダッシュボードから>",
+  },
+  // secrets（値はコードに入れない。`npx wrangler secret put <NAME>` で設定・Cloudflare上に既存）:
+  //   INGEST_SECRET, APIFY_TOKEN
+}

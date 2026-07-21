@@ -1,0 +1,41 @@
+// ===================================================================
+//  wrangler.jsonc  —  【救出・参照用スタブ / RESCUE REFERENCE STUB】
+//  worker: hs-internal-mcp
+//  用途: 内部MCPサーバー（12 tools・JSON-RPC/SSE）＋定時ヘルスチェック。
+//
+//  ⚠ これは Cloudflare 上のデプロイ済みバンドルから救出したコードに
+//     後付けした最小 wrangler 設定です。バージョン管理・可読性のためのもので、
+//     この設定で「再デプロイする前提」では作られていません。
+//     本番は今も Cloudflare 上でそのまま動いています（このファイルでは動いていない）。
+//     万一これで再デプロイする時は、必ず下記プレースホルダを実値に直し、
+//     compatibility_date / cron / KV id / secret をダッシュボードと突き合わせること。
+//  NOTE: このworkerのソースは esbuild でバンドル済み(sourceMappingURLあり/.mapは取得不可)。
+//        救出したのは“束ねられた実行コード”であり、元の分割ソースそのものではない。
+// ===================================================================
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hs-internal-mcp",
+  "main": "src/worker.js",
+  "compatibility_date": "2025-01-01",   // PLACEHOLDER: 実値はダッシュボード Settings→Runtime で確認
+  "compatibility_flags": ["nodejs_compat"],  // PLACEHOLDER: 実際のflagに合わせる（不要なら削除）
+  // トリガー: ~30分毎（4兄弟workerのhealth check→HS_DESIGN_KV+LINE）
+  "triggers": { "crons": [ /* "実際のcron式をダッシュボードから" */ ] },
+  "kv_namespaces": [
+    { "binding": "HS_DESIGN_KV", "id": "<FILL_FROM_DASHBOARD>" },
+    { "binding": "GENKA_VERIFIED", "id": "<FILL_FROM_DASHBOARD>" },
+    { "binding": "HS_ESTIMATE_KV", "id": "<FILL_FROM_DASHBOARD>" },
+    { "binding": "ORDERS", "id": "<FILL_FROM_DASHBOARD>" },
+  ],
+  "services": [
+    { "binding": "PDF_GEN", "service": "hs-pdf-gen" },
+    { "binding": "ESTIMATE", "service": "hs-estimate" },
+    { "binding": "GYOSHA_CHECK", "service": "hs-gyosha-check" },
+    { "binding": "GENKA_INGEST", "service": "hs-genka-ingest" },
+  ],
+  "vars": {
+    "ALERT_FEED_URLS": "<PLAINTEXT_VAR_値をダッシュボードから>",
+    "ALERT_LINE_TO": "<PLAINTEXT_VAR_値をダッシュボードから>",
+  },
+  // secrets（値はコードに入れない。`npx wrangler secret put <NAME>` で設定・Cloudflare上に既存）:
+  //   INTERNAL_MCP_KEY, ANTHROPIC_API_KEY, ESTIMATE_ADMIN_KEY, INGEST_SECRET, LINE_CHANNEL_TOKEN
+}
