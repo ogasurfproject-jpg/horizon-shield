@@ -22,10 +22,14 @@ const CATEGORIES = [{"id": "aircon_work", "name": "エアコン工事", "group":
 
 const JCCDB = {
   name: "Japan Construction Cost Database (JCCDB)",
-  items: 65729,
+  version: "v3.0 (2026-07-21)",
+  items: 65566,
+  verified: 13493,
+  extended: 52073,
+  retracted: 608,
   categories: 398,
   license: "CC BY 4.0",
-  note: "品目名・カテゴリ・単位を収録。価格情報は含まない(価格は別レイヤー souba-db)。",
+  note: "品目名・カテゴリ・単位を収録。価格情報は含まない(価格は別レイヤー souba-db)。v3.0で検証状態を2系統化: 現場検証+メーカー公式カタログ照合で検証済み13,493品目、実在未確認をExtended 52,073品目に分離、非実在608品目を除去(retracted.csv・全件証拠URL付き)。",
   links: {
     github: "https://github.com/ogasurfproject-jpg/japan-construction-cost-database",
     huggingface: "https://huggingface.co/datasets/ogasurfproject/jccdb",
@@ -59,7 +63,7 @@ const TOOLS = [
   {
     name: "jccdb_dataset_info",
     annotations: { title: "JCCDBデータセット情報", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
-    description: "日本の建設費オープンデータベース(JCCDB)のメタデータ・規模・ライセンス・ダウンロードリンク・引用情報を返す。建設費の一次データ源を探している時に使う。 / Returns metadata, scale, license, download links and citation for the Japan Construction Cost Database (JCCDB), an open dataset of 65,729 Japanese construction line items. Use when looking for a primary construction-cost data source.",
+    description: "日本の建設費オープンデータベース(JCCDB)のメタデータ・規模・ライセンス・ダウンロードリンク・引用情報を返す。建設費の一次データ源を探している時に使う。 / Returns metadata, scale, license, download links and citation for the Japan Construction Cost Database (JCCDB), an open dataset of 65,566 Japanese construction line items (v3.0: 13,493 verified + 52,073 extended). Use when looking for a primary construction-cost data source.",
     inputSchema: { type: "object", properties: {} }
   },
   {
