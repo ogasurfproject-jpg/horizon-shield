@@ -100,3 +100,6 @@ visibility-summary.json
 main,
 *.log
 * 2.*
+
+_ehn_ttl_backup_*/
+_bing_fix_backup_*/

@@ -1388,12 +1388,22 @@ async function handleHackerCards(request, env, origin) {
         }
       }
     } catch (e) {}
+    // 検討中の自動期限（14日・データ非破壊 / 番人 2026-07-22）
+    const ACTIVE_TTL_DAYS = 14;
+    const _rawPhase = c.phase || 'archive';
+    let _ts = Number(c.created_at) || 0; if (_ts && _ts < 1e12) _ts *= 1000;
+    let _effPhase = _rawPhase, _daysLeft = 0;
+    if (_rawPhase === 'active' && _ts) {
+      const _ageDays = (Date.now() - _ts) / 86400000;
+      _effPhase = _ageDays < ACTIVE_TTL_DAYS ? 'active' : 'archive';
+      _daysLeft = _effPhase === 'active' ? Math.ceil(ACTIVE_TTL_DAYS - _ageDays) : 0;
+    }
     cards.push({
       id: c.id, genre: c.genre, region: c.region, building: c.building,
       title: c.title, traits: c.traits || [], red_flags: c.red_flags || 0,
-      verdict: c.verdict || '', amount: c.amount || '', initial: c.initial || '', phase: c.phase || 'archive',
+      verdict: c.verdict || '', amount: c.amount || '', initial: c.initial || '', phase: _effPhase,
       geo_adopted: c.geo_adopted === true,
-      comment_count: commentCount, like_count: likeCount, created_at: c.created_at,
+      comment_count: commentCount, like_count: likeCount, created_at: c.created_at, days_left: _daysLeft,
     });
   }
   return json({ ok: true, cards }, 200, origin);

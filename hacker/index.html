@@ -764,7 +764,7 @@ function renderTiles(){
           <span class="tile-name">${c.initial?esc(c.initial)+'さん':'施主'}</span>
           <span class="tile-sub">${sub||'地域非公開'}</span>
         </div>
-        ${c.phase==='active'?`<span class="tile-phase"><span class="phase-dot"></span>検討中</span>`:''}
+        ${c.phase==='active'?`<span class="tile-phase"><span class="phase-dot"></span>検討中${c.days_left?` · あと${c.days_left}日`:''}</span>`:''}
         ${ago?`<span class="tile-ago">${ago}</span>`:''}
       </div>
       <div class="tile-head">
