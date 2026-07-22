@@ -462,6 +462,26 @@ footer{border-top:1px solid var(--line);background:transparent;padding:30px 22px
 </style>
 <link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
 <link rel="mcp-server" href="https://hs-mcp.oga-surf-project.workers.dev">
+<style id="ehn-warm-override">
+/* EHN「要確認の一件」カード 温色化（番人 2026-07-22 / 紫→クリーム・可逆） */
+.wanted{background:#fbf7f1 !important;border:1px solid rgba(43,38,34,.08) !important;border-radius:22px !important;
+  box-shadow:0 14px 34px -22px rgba(120,70,40,.5), 0 2px 0 rgba(255,255,255,.6) inset !important;
+  color:#2b2622 !important;position:relative !important;overflow:visible !important;padding:24px 22px !important;}
+.wanted-eyebrow{color:#e0714f !important;letter-spacing:.12em !important}
+.wanted-title{background:none !important;-webkit-text-fill-color:#2b2622 !important;color:#2b2622 !important;letter-spacing:.02em !important;font-size:26px !important}
+.wanted-sub{color:#9a8f83 !important}
+.wanted-seal{background:#f4e2d8 !important;color:#b8542f !important;border:1px solid rgba(184,84,47,.28) !important;transform:none !important}
+.wanted-row,.wanted-amt{border-top:1px solid rgba(43,38,34,.08) !important}
+.wanted-k{color:#6b6157 !important;letter-spacing:.1em !important}
+.wanted-genre{background:#eef3ea !important;color:#5c7a52 !important;border:1px solid rgba(92,122,82,.22) !important;border-radius:999px !important;padding:4px 12px !important}
+.wanted-amt-v{color:#2b2622 !important}
+.wanted-flags{background:#fbeadf !important;color:#b8542f !important;border:1px solid rgba(184,84,47,.22) !important}
+.wanted-verdict{border-top:1px dashed rgba(43,38,34,.14) !important;color:#6b6157 !important}
+.wanted-note{color:#6b6157 !important;border-top:1px dashed rgba(43,38,34,.14) !important}
+.wanted-link{background:#e0714f !important;color:#fff !important;border-radius:12px !important;padding:11px !important;border:none !important}
+/* ハエ門の指定席（右下①）。絵が来たら .wanted 内に <img class="wanted-mascot" src="..."> を1行足すだけ */
+.wanted-mascot{position:absolute !important;right:-14px;bottom:-18px;width:96px;height:auto;filter:drop-shadow(0 10px 16px rgba(184,84,47,.35));pointer-events:none;z-index:3}
+</style>
 </head>
 <body>
 
