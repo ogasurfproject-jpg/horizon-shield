@@ -482,6 +482,26 @@ footer{border-top:1px solid var(--line);background:transparent;padding:30px 22px
 /* ハエ門の指定席（右下①）。絵が来たら .wanted 内に <img class="wanted-mascot" src="..."> を1行足すだけ */
 .wanted-mascot{position:absolute !important;right:-14px;bottom:-18px;width:96px;height:auto;filter:drop-shadow(0 10px 16px rgba(184,84,47,.35));pointer-events:none;z-index:3}
 </style>
+<style id="ehn-header-override">
+/* EHN ヘッダー 朝焼け化（番人 2026-07-22 / 濃紺紫→水色+地平線の太陽・可逆） */
+.titleblock{
+  background:
+    radial-gradient(circle at 26% 130%, #ffe0ad 0%, #f3a44b 9%, #e5764c 16%, rgba(229,118,76,0) 47%),
+    linear-gradient(180deg,#cfe6f2 0%,#e6f0f3 48%,#fdeede 100%) !important;
+  color:#1b2b44 !important;
+}
+.titleblock::before,.titleblock::after{opacity:0 !important;background:none !important}
+.titleblock h1{color:#1b2b44 !important}
+.titleblock h1 b{background:none !important;-webkit-text-fill-color:#e0714f !important;color:#e0714f !important}
+.titleblock .lead{color:#42546e !important}
+.titleblock .eyebrow{background:rgba(255,255,255,.62) !important;color:#2f6a8f !important;border:1px solid rgba(47,106,143,.28) !important}
+.titleblock .spec-cell{background:rgba(255,255,255,.74) !important;border:1px solid rgba(27,43,68,.10) !important}
+.titleblock .spec-k{color:#7d8ba0 !important}
+.titleblock .spec-v{color:#1b2b44 !important}
+.titleblock .spec-v.alert{color:#c2543a !important}
+.titleblock .spec-v.blue{color:#5c7a52 !important}
+.titleblock .spec-cell .u{color:#8598ad !important}
+</style>
 </head>
 <body>
 
