@@ -13,6 +13,11 @@ Env:
 """
 import os, re, sys, json, base64, subprocess, urllib.request, datetime
 
+_op = urllib.request.build_opener()
+_op.addheaders = [("User-Agent", "hs-ledger-stamper/1.0 (+github-actions)")]
+urllib.request.install_opener(_op)
+
+
 LEDGER_URL = os.environ["LEDGER_URL"].rstrip("/")
 TOKEN = os.environ["LEDGER_ADMIN_TOKEN"]
 

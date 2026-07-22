@@ -1,0 +1,25 @@
+name: JIDEC stamp
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: jidec-stamp
+  cancel-in-progress: false
+jobs:
+  stamp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install OpenTimestamps client
+        run: pip install opentimestamps-client
+      - name: Stamp pending ledger entries
+        env:
+          LEDGER_URL: https://hs-ledger.oga-surf-project.workers.dev
+          LEDGER_ADMIN_TOKEN: ${{ secrets.LEDGER_ADMIN_TOKEN }}
+        run: python scripts/jidec_stamp.py
