@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gemini AI 見積もり監査 ─ HORIZON SHIELD</title>
+<meta name="description" content="建設・リフォーム見積もりの適正性を、Gemini AI が相場データ(大賀俊勝 実務監修)と照合して即診断。判定にはBitcoinに刻印された検証可能な署名レシートが付く、世界初の建設見積もり監査。運営 The HORIZONs株式会社。">
+<meta property="og:title" content="Gemini AI 見積もり監査 ─ HORIZON SHIELD">
+<meta property="og:description" content="AIが適正性を判定し、その判定を第三者が暗号学的に検証できる。世界初の建設見積もり監査。">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/gemini-shindan/">
+<style>
+  :root{--bg:#0c1424;--panel:#14203a;--ink:#eaf1fb;--sub:#9db0cf;--dim:#6f83a4;
+    --sun1:#ffe0ad;--sun2:#f3a44b;--sun3:#e5764c;--ok:#4ade80;--warn:#e8c87a;--mcp:#8ad0c4;}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1000px 520px at 82% -12%,#1c2c4c 0,#0c1424 62%),#0c1424;
+    color:var(--ink);font-family:-apple-system,"Hiragino Kaku Gothic ProN",system-ui,sans-serif;line-height:1.75;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:720px;margin:0 auto;padding:30px 20px 70px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.02em;font-size:15px}
+  .dot{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 50% 62%,var(--sun1),var(--sun2) 55%,var(--sun3))}
+  .hero{margin:26px 0 8px}
+  h1{font-size:26px;line-height:1.35;margin:.2em 0}
+  h1 .g{background:linear-gradient(90deg,var(--sun2),var(--sun3));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lead{color:var(--sub);font-size:15px}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 6px}
+  .badge{font-size:11.5px;padding:4px 11px;border-radius:999px;border:1px solid #2b3c5c;background:#101a30;color:var(--sub)}
+  .badge b{color:var(--ink)}
+  .box{background:linear-gradient(160deg,#152340,#101a30);border:1px solid #263552;border-radius:16px;padding:20px;margin:20px 0;box-shadow:0 18px 50px #0005}
+  .in{display:flex;gap:8px}
+  textarea{flex:1;background:#0a1220;border:1px solid #2b3c5c;border-radius:12px;color:var(--ink);padding:12px 14px;font:inherit;font-size:14px;resize:vertical;min-height:54px}
+  button{background:linear-gradient(135deg,var(--sun2),var(--sun3));border:0;border-radius:12px;color:#1a1206;font-weight:800;padding:0 18px;cursor:pointer;font-size:14px;white-space:nowrap}
+  button:disabled{opacity:.5;cursor:default}
+  .ex{margin-top:12px;font-size:12.5px;color:var(--sub)}
+  .ex a{color:var(--sun2);text-decoration:none;cursor:pointer;margin-right:14px;white-space:nowrap}
+  .ans{margin-top:16px;background:#0a1220;border:1px dashed #34496e;border-radius:12px;padding:16px 18px;white-space:pre-wrap;font-size:14.5px;display:none}
+  .meta{margin-top:10px;font-size:11.5px;color:var(--dim)}
+  .tag{display:inline-block;background:#16233d;border:1px solid #2b3c5c;border-radius:999px;padding:1px 9px;margin:2px 4px 0 0;color:var(--warn);font-size:11px}
+  .how{margin-top:22px}
+  .how h2{font-size:16px;border-left:3px solid var(--sun2);padding-left:10px;margin:0 0 8px}
+  .step{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid #182238;font-size:13.5px;color:var(--sub)}
+  .step:last-child{border-bottom:0}
+  .num{color:var(--sun2);font-weight:800}
+  .foot{margin-top:30px;border-top:1px solid #22314b;padding-top:16px;font-size:12px;color:var(--dim)}
+  .foot a{color:var(--mcp);text-decoration:none;margin-right:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><span class="dot"></span>HORIZON SHIELD</div>
+
+  <div class="hero">
+    <h1><span class="g">Gemini AI</span> 見積もり監査</h1>
+    <p class="lead">工事名と見積額を入れるだけ。Gemini が相場データ（大賀俊勝 実務監修）と照合して適正性を即診断。しかもその判定には、<b>Bitcoinに刻印された検証可能な署名レシート</b>が付く ── AIが「適正」と言うだけでなく、第三者が自分で検証できる。世界初の建設見積もり監査です。</p>
+    <div class="badges">
+      <span class="badge"><b>相場データ</b> souba-db</span>
+      <span class="badge"><b>監修</b> 大賀俊勝・建設実務30年</span>
+      <span class="badge"><b>証拠</b> Bitcoin刻印の署名レシート</span>
+      <span class="badge"><b>エンジン</b> Google Gemini</span>
+    </div>
+  </div>
+
+  <div class="box">
+    <div class="in">
+      <textarea id="q" placeholder="例: 外壁塗装シリコン30坪、見積98万円は適正？"></textarea>
+      <button id="go">監査</button>
+    </div>
+    <div class="ex">例:
+      <a data-q="外壁塗装シリコン30坪、業者見積98万円は適正？">外壁塗装98万</a>
+      <a data-q="「本日中の契約で足場代を一式サービス、今だけ50万円値引き」この営業トークは危ない？">営業トーク診断</a>
+      <a data-q="給湯器交換の相場を教えて。第三者検証できる署名付きで。">給湯器＋署名</a>
+    </div>
+    <div class="ans" id="ans"></div>
+    <div class="meta" id="meta"></div>
+  </div>
+
+  <div class="how">
+    <h2>なぜ信用できるのか</h2>
+    <div class="step"><span class="num">1</span><span>Gemini が相場データベース(souba-db)を実際に照合。憶測ではなく数値根拠で判定します。</span></div>
+    <div class="step"><span class="num">2</span><span>「一式」表記や「今日だけ値引き」などの営業手口も自動で赤旗チェック。</span></div>
+    <div class="step"><span class="num">3</span><span>適正価格には SHA-256 署名ハッシュと Bitcoin ブロックへの刻印(PTKA)が付き、発行者を信用せず誰でも自分で検証できます。</span></div>
+  </div>
+
+  <div class="how">
+    <h2>どのAIからでも使える</h2>
+    <div class="step"><span class="num">◆</span><span>HORIZON SHIELD は標準規格(MCP)で公開されているため、ChatGPT・Gemini・Claude・Perplexity など、どのAIエージェントからでも同じ監査（署名レシート付き）を呼び出せます。このページは Gemini 版です。</span></div>
+  </div>
+
+  <div class="foot">
+    <a href="https://shield.the-horizons-innovation.com/">HORIZON SHIELD</a>
+    <a href="https://shield.the-horizons-innovation.com/souba/">相場を見る</a>
+    <a href="https://shield.the-horizons-innovation.com/tokusho.html">特商法</a>
+    <div style="margin-top:8px">運営: The HORIZONs株式会社 ・ 判定は参考情報です。最終的なご判断はご自身でお願いします。</div>
+  </div>
+</div>
+<script>
+  const ENDPOINT = "https://hs-gemini-audit.oga-surf-project.workers.dev";
+  const q = document.getElementById("q"), go = document.getElementById("go"), ans = document.getElementById("ans"), meta = document.getElementById("meta");
+  document.querySelectorAll(".ex a").forEach(a => a.onclick = () => { q.value = a.dataset.q; q.focus(); });
+  async function run(){
+    const question = q.value.trim(); if(!question) return;
+    go.disabled = true; ans.style.display = "block"; ans.textContent = "監査中…"; meta.textContent = "";
+    try{
+      const r = await fetch(ENDPOINT, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({question}) });
+      const j = await r.json();
+      if(r.status === 429){ ans.textContent = "アクセスが集中しています。少し待って再度お試しください。"; }
+      else if(j.error){ ans.textContent = "エラー: " + j.error; }
+      else{
+        ans.textContent = j.answer || "(回答なし)";
+        const tags = (j.tools_used||[]).map(t => '<span class="tag">'+t+'</span>').join("");
+        meta.innerHTML = tags ? ("使用した監査ツール: " + tags) : "";
+      }
+    }catch(e){ ans.textContent = "通信エラー: " + e; }
+    go.disabled = false;
+  }
+  go.onclick = run;
+  q.addEventListener("keydown", e => { if((e.metaKey||e.ctrlKey) && e.key === "Enter") run(); });
+</script>
+</body>
+</html>
