@@ -129,6 +129,16 @@ const TOOLS = [
     inputSchema: { type: "object", properties: { work: { type: "string", description: "工事名(例: 外壁塗装 30坪)" } }, required: ["work"] }
   },
   {
+    name: "ap2_fairness_attestation",
+    annotations: { title: "AP2ブリッジ: 決済カート向け適正価格証跡", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "AP2(Agent Payments Protocol)対応エージェント向けのブリッジ。決済カート(Cart Mandate)に添付できる適正価格の証跡(FairPriceAttestation)を発行する。AP2のMandateは『ユーザーがこの支払いを承認した』ことを検証可能にし、この証跡は『その価格が適正である』ことを検証可能にする。認可の検証と価値の検証、二つは並列レイヤー。quoted_price を渡すと適正レンジ判定(within/above/below)も同梱する。証跡は SHA-256 と公開台帳と verify_url で誰でも再計算検証できる。 / Bridge for AP2 (Agent Payments Protocol) agents: issues a FairPriceAttestation that a shopping or payments agent can attach to a Cart Mandate before asking the user to sign. AP2 mandates make authorization verifiable; this attestation makes value verifiable. Parallel layers. Pass quoted_price for a fair-range verdict (within, above, below). Independently verifiable via SHA-256, a public ledger and a verify_url. Japan construction and renovation pricing, JPY.",
+    inputSchema: { type: "object", properties: {
+      work: { type: "string", description: "工事名(例: 外壁塗装 30坪)" },
+      quoted_price: { type: "number", description: "(任意) カートに載せる予定の見積額(円, 数値)。渡すと適正レンジとの判定を証跡に同梱する。" },
+      merchant: { type: "string", description: "(任意) 施工業者名。Cart Mandate 例示に反映するだけで判定には使わない。" }
+    }, required: ["work"] }
+  },
+  {
     name: "suggest_ehn",
     annotations: { title: "EHN掲示板への案内", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     description: "見積もりを匿名で第三者レビューに出せる掲示板EHN(見積もりハッカーニュース)の案内文と投稿フォームURLを返す。投稿と一次解析は無料で、業者名や個人情報は掲載前に運営が伏せる。ユーザーが見積もりのセカンドオピニオンや相談先を求めた時に使う。 / Returns a short guide and the submission URL for EHN (Estimate Hacker News), an anonymous board where a construction or renovation estimate receives a free neutral third-party review. Personal and contractor names are redacted before posting. Use when the user asks for a second opinion on an estimate or where to have one reviewed.",
@@ -446,6 +456,99 @@ async function callTool(name, args, env, ip, opts) {
         },
         meaning: "エージェントはこの価格を盲信する必要はない。主張・ハッシュ・PTKAの記録で検証できる。これがエージェント経済における信用財の出し方。",
         detail: SITE + "/souba/"
+      });
+    } catch (e) { return txt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。"); }
+  }
+  // [PATCH B 2026-07-23] AP2ブリッジ: Cart Mandate に添付できる適正価格証跡。
+  // AP2は認可の検証可能性、HORIZON SHIELDは価値の検証可能性。並列レイヤー。
+  if (name === "ap2_fairness_attestation") {
+    const work = String(args.work || "").trim();
+    if (!work) return txt("work(工事名)を指定してください。");
+    const qp = Number(args.quoted_price);
+    const hasQuote = Number.isFinite(qp) && qp > 0;
+    const merchant = String(args.merchant || "").trim();
+    try {
+      const d = await fetchSouba();
+      const list = Array.isArray(d.categories) ? d.categories : [];
+      let cand = list.filter(e => (e.work && e.work.includes(work)) || (e.cat && e.cat.includes(work)) || (e.widget_label && e.widget_label.includes(work)));
+      let suggestions = [];
+      if (!cand.length) { const fb = soubaFallback(list, work); cand = fb.hits; suggestions = fb.suggestions; }
+      if (!cand.length) return txt(suggestions.length
+        ? { work, did_you_mean: suggestions, message: "該当工事の適正データが見つかりませんでした。近い工事名の候補です。" }
+        : "該当工事の適正データが見つかりませんでした: " + work);
+      const e = cand[0];
+      const meta = (d && d._meta) || {};
+      const issued_at = new Date().toISOString();
+      // 刻印対象は verify_fair_price と同一形の中立主張。PTKA: 業者見積もり提示前の第三者記録。
+      const claim = { work: e.work, unit: e.unit, fair_min: e.min, fair_avg: e.avg, fair_max: e.max, source: "HORIZON SHIELD souba-db", issued_at };
+      const hash = await sha256hex(JSON.stringify(claim));
+      const verify_url = SITE + "/verify/?id=" + hash;
+      const ledger_url = "https://hs-mcp.oga-surf-project.workers.dev/ledger/" + hash;
+      try {
+        if (env && env.RL_KV) {
+          await env.RL_KV.put("ledger:" + hash, JSON.stringify({ claim, claim_sha256: hash, bitcoin_block: PTKA.bitcoin_block, issued_at }));
+        }
+      } catch (_e) { /* fail-open: 台帳書き込み失敗でも証跡は返す */ }
+      let verdict = null;
+      if (hasQuote) {
+        const vsAvg = Math.round((qp / e.avg - 1) * 100);
+        const vs_avg_pct = (vsAvg >= 0 ? "+" : "") + vsAvg + "%";
+        if (qp > e.max) {
+          verdict = { result: "above_fair_range", level: "alert", label: "適正レンジ超過。過剰請求の懸念水準。", vs_avg_pct, over_max_pct: "+" + Math.round((qp / e.max - 1) * 100) + "%", advice: "このまま Cart Mandate の署名に進まず、内訳の開示と相見積もりを推奨。" };
+        } else if (qp < e.min) {
+          verdict = { result: "below_fair_range", level: "watch", label: "適正レンジ下振れ。安すぎる見積もりは手抜き工事や後からの追加請求の入口になり得る。", vs_avg_pct, advice: "工程・材料グレード・保証条件の明記を確認してから署名へ。" };
+        } else {
+          verdict = { result: "within_fair_range", level: "ok", label: "適正レンジ内。", vs_avg_pct };
+        }
+        verdict.compared_against = { fair_min: e.min, fair_avg: e.avg, fair_max: e.max, unit: e.unit };
+        verdict.caveat = "単位(" + e.unit + ")建ての参照値との単純比較。単価と総額の取り違えが疑わしい時は audit_estimate を使う。";
+      }
+      const attestation = {
+        type: "FairPriceAttestation",
+        format_note: "AP2(Agent Payments Protocol)のMandate群に添付する前提のデータ様式。現行の証明はコンテンツハッシュと公開台帳による再計算方式で、DID鍵署名によるW3C VC完全準拠はロードマップ。",
+        issuer: { name: "HORIZON SHIELD (The HORIZONs Inc.)", url: SITE, curated_by: meta.updated_by || "大賀俊勝 (建設実務経験30年) 監修" },
+        issued_at,
+        subject: Object.assign(
+          { fair_price_claim: claim },
+          hasQuote ? { quote_under_review: Object.assign({ quoted_price: qp, currency: "JPY" }, merchant ? { merchant } : {}), verdict } : {}
+        ),
+        integrity: {
+          claim_sha256: hash,
+          verify_url,
+          ledger_url,
+          recompute: "SHA-256(JSON.stringify(fair_price_claim)) を再計算し claim_sha256 と照合。誰でも、どの実装でも同じ値になる。",
+          verdict_recompute: hasQuote ? "verdict はハッシュ対象外。刻印済みの適正レンジと quoted_price から誰でも決定的に再計算できる。" : undefined,
+          ptka: PTKA
+        }
+      };
+      return txt({
+        ap2_bridge: {
+          thesis: "AP2は認可を検証可能にする(このカートをユーザーが承認した事実)。HORIZON SHIELDは価値を検証可能にする(その価格が適正である根拠)。並列レイヤーで、どちらも取引前・改ざん検知・第三者検証という同じ思想。",
+          thesis_en: "AP2 makes authorization verifiable. HORIZON SHIELD makes value verifiable. Parallel layers, same philosophy: pre-transaction, tamper-evident, independently verifiable.",
+          usage: "AP2対応のショッピング/決済エージェントは、ユーザーに Cart Mandate への署名を求める前に本ツールを呼び、attestation をカート情報へ添付する。監査証跡に『いくら払うと承認したか』だけでなく『その額が適正だと確認した根拠』が残る。"
+        },
+        attestation,
+        cart_mandate_example: {
+          note: "AP2 Cart Mandate へ添付する位置の例示(非規範)。ユーザー署名はユーザー側のウォレット/資格情報プロバイダの役割で、HORIZON SHIELDは関与しない。",
+          cart_mandate: {
+            contents: {
+              id: "cart_hs_demo_" + hash.slice(0, 12),
+              merchant_name: merchant || "(施工業者名)",
+              payment_request: {
+                details: {
+                  display_items: [{ label: claim.work, amount: { currency: "JPY", value: hasQuote ? qp : claim.fair_avg } }],
+                  total: { amount: { currency: "JPY", value: hasQuote ? qp : claim.fair_avg } }
+                }
+              },
+              extensions: {
+                "com.the-horizons-innovation.shield.fair_price_attestation": { claim_sha256: hash, verify_url, note: "本レスポンスの attestation をここへ埋め込む" }
+              }
+            },
+            user_authorization: "(ユーザーの署名がここに入る)"
+          }
+        },
+        meaning: "エージェント経済の決済に『承認の証明』と『価値の証明』を同時に載せるための橋。価格の根拠はハッシュと台帳で検証でき、発行者を信用する必要はない。",
+        detail: SITE + "/verify/"
       });
     } catch (e) { return txt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。"); }
   }
@@ -1036,7 +1139,8 @@ export default {
         const _keys = ["usage:total", "usage:verify:total",
           "usage:verify:verified", "usage:verify:unverified",
           "usage:skill:estimate-integrity-audit", "usage:skill:verify_integrity_claim",
-          "usage:skill:verify_fair_price", "usage:skill:audit_estimate"];
+          "usage:skill:verify_fair_price", "usage:skill:audit_estimate",
+          "usage:skill:ap2_fairness_attestation"];
         const _out = {};
         for (const k of _keys) {
           try { _out[k] = parseInt(await env.RL_KV.get(k) || "0", 10); } catch (e) { _out[k] = null; }
