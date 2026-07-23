@@ -1,0 +1,15 @@
+{
+  "name": "horizon-shield",
+  "displayName": "HORIZON SHIELD",
+  "version": "1.0.0",
+  "description": "Audit Japanese construction and renovation estimates against the open JCCDB dataset and return Bitcoin-anchored, independently recomputable fair-price receipts. Read-only remote MCP, no API key.",
+  "author": {
+    "name": "Toshikatsu Oga",
+    "email": "contact@the-horizons-innovation.com",
+    "url": "https://shield.the-horizons-innovation.com"
+  },
+  "homepage": "https://shield.the-horizons-innovation.com",
+  "repository": "https://github.com/ogasurfproject-jpg/horizon-shield",
+  "license": "MIT",
+  "keywords": ["mcp", "construction", "estimate", "audit", "japan", "real-estate", "fair-price", "verifiable"]
+}

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "horizon-shield": {
+      "type": "http",
+      "url": "https://hs-mcp.oga-surf-project.workers.dev"
+    }
+  }
+}
