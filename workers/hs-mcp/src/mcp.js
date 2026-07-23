@@ -418,11 +418,19 @@ async function callTool(name, args, env, ip, opts) {
       const issued_at = new Date().toISOString();
       const claim = { work: e.work, unit: e.unit, fair_min: e.min, fair_avg: e.avg, fair_max: e.max, source: "HORIZON SHIELD souba-db", issued_at };
       const hash = await sha256hex(JSON.stringify(claim));
+      // [PATCH 2026-07-23] 個別レシートを台帳(RL_KV)へ追記し、クリック検証URLを付与。KV失敗でも監査は返す(fail-open)。
+      const verify_url = SITE + "/verify/?id=" + hash;
+      try {
+        if (env && env.RL_KV) {
+          await env.RL_KV.put("ledger:" + hash, JSON.stringify({ claim, claim_sha256: hash, bitcoin_block: PTKA.bitcoin_block, issued_at }));
+        }
+      } catch (_e) { /* ledger is best-effort; never block the receipt */ }
       return txt({
         fair_price_claim: claim,
         verification: {
           claim_sha256: hash,
-          note: "このハッシュは上記の適正価格主張から生成された改ざん検知用の指紋。同じ主張からは常に同じハッシュが出る。",
+          verify_url,
+          note: "このハッシュは上記の適正価格主張から生成された改ざん検知用の指紋。同じ主張からは常に同じハッシュが出る。verify_url を開けば誰でも再計算・照合できる。",
           ptka: PTKA
         },
         provenance: {
@@ -977,6 +985,17 @@ export default {
 
     if (request.method === "GET") {
       const url = new URL(request.url);
+      // [PATCH 2026-07-23] 個別レシートの台帳参照。/ledger/<claim_sha256> で保存済みの主張JSONを返す(CORS付き)。
+      if (url.pathname.startsWith("/ledger/")) {
+        const id = url.pathname.slice(8).trim().toLowerCase();
+        if (!/^[0-9a-f]{64}$/.test(id)) {
+          return new Response(JSON.stringify({ error: "bad_id", message: "id must be a 64-char hex claim_sha256" }), { status: 400, headers: { "Content-Type": "application/json; charset=utf-8", ...CORS } });
+        }
+        let rec = null;
+        try { rec = env.RL_KV ? await env.RL_KV.get("ledger:" + id) : null; } catch (_e) { rec = null; }
+        if (!rec) return new Response(JSON.stringify({ error: "not_found", id }), { status: 404, headers: { "Content-Type": "application/json; charset=utf-8", ...CORS } });
+        return new Response(rec, { status: 200, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=300", ...CORS } });
+      }
       if (url.pathname === "/ratelimit-selftest") {
         const _k = url.searchParams.get("key") || request.headers.get("X-Admin-Key") || "";
         if (!env.ADMIN_SECRET || !(await ctEqual(_k, env.ADMIN_SECRET))) return new Response("forbidden", { status: 403, headers: CORS });

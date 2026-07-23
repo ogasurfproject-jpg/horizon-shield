@@ -155,6 +155,24 @@ async function run(){
   }
 }
 document.getElementById('go').addEventListener('click',run);
+
+// 個別レシート: /verify/?id=<claim_sha256> なら台帳から主張を取得して自動照合
+const LEDGER_BASE="https://hs-mcp.oga-surf-project.workers.dev/ledger/";
+async function loadFromId(){
+  const id=new URLSearchParams(location.search).get('id');
+  if(!id||!/^[0-9a-f]{64}$/i.test(id))return;
+  try{
+    const r=await fetch(LEDGER_BASE+id.toLowerCase());
+    if(!r.ok)throw 0;
+    const rec=await r.json();
+    if(rec&&rec.claim){
+      document.getElementById('claim').value=JSON.stringify(rec.claim,null,2);
+      if(rec.claim_sha256)document.getElementById('expected').value=rec.claim_sha256;
+      await run();
+    }
+  }catch(e){/* 台帳に無ければ例示のまま。手入力で検証可能 */}
+}
+loadFromId();
 </script>
 </body>
 </html>
