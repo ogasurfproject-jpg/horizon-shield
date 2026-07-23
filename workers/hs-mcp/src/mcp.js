@@ -183,6 +183,25 @@ const OUTPUT_SCHEMAS = {
 };
 TOOLS.forEach(t => { if (OUTPUT_SCHEMAS[t.name]) t.outputSchema = OUTPUT_SCHEMAS[t.name]; });
 
+// [PATCH 2026-07-23] 各ツールに英語の表示名(title, MCP 2025-06-18)を付与。name は不変。
+const TOOL_TITLES = {
+  get_jccdb_dataset_info: "Get JCCDB Dataset Info",
+  list_cost_categories: "List Cost Categories",
+  search_cost_category: "Search Cost Category",
+  get_estimate_reading_guide: "Get Estimate Reading Guide",
+  get_fair_price_sources: "Get Fair Price Data Sources",
+  get_price_range: "Get Fair Price Range",
+  audit_estimate: "Audit Estimate Against Fair Price",
+  preview_reverse_estimate: "Preview Reverse Estimate",
+  check_red_flags: "Check Estimate Red Flags",
+  verify_fair_price: "Verify Fair Price (Signed Receipt)",
+  suggest_ehn: "Suggest EHN Review Board",
+  get_agent_card: "Get A2A Agent Card",
+  verify_integrity_claim: "Verify Integrity Claim",
+  create_ap2_fairness_attestation: "Create AP2 Fairness Attestation"
+};
+TOOLS.forEach(t => { if (TOOL_TITLES[t.name]) t.title = TOOL_TITLES[t.name]; });
+
 // [PATCH 2026-07-23] 命名規約対応: tools/list は verb+object の新名を出す。
 // 旧名は公開API契約(既存の ChatGPT/Gemini/Claude 連携・llms.txt・A2A)なので、
 // 呼び出しは新旧どちらも受け付け、内部は旧名(=各ハンドラのキー)に正規化する。無停止改名。
