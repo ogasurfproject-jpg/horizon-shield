@@ -4,7 +4,67 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HORIZON SHIELD ｜ 検証 Verify</title>
-<meta name="description" content="HORIZON SHIELD の署名レシート(適正価格の主張)を、あなた自身がSHA-256で再計算して検証できるページ。発行者を信用する必要はありません。">
+<meta name="description" content="HORIZON SHIELD の署名レシート(適正価格の主張)を、あなた自身がSHA-256で再計算して検証できるページ。発行者を信用する必要はありません。 / Recompute the SHA-256 of a HORIZON SHIELD fair-price receipt yourself. Don't trust the issuer, verify the math.">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/verify/">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="HORIZON SHIELD">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ja_JP">
+<meta property="og:title" content="HORIZON SHIELD ｜ Verify a fair-price receipt yourself">
+<meta property="og:description" content="Don't trust us. Verify. Recompute the SHA-256 of a HORIZON SHIELD fair-price claim in your own browser and check it matches the receipt. Nothing is sent to any server. The fair price is recorded before the contractor quote (PTKA) and the declaration is anchored to the Bitcoin blockchain via OpenTimestamps.">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/verify/">
+<meta property="og:image" content="https://shield.the-horizons-innovation.com/ogp-4.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="HORIZON SHIELD ｜ Verify a fair-price receipt yourself">
+<meta name="twitter:description" content="Recompute the SHA-256 yourself. Don't trust the issuer, verify the math. PTKA fair-price receipts, anchored to Bitcoin.">
+<meta name="twitter:image" content="https://shield.the-horizons-innovation.com/ogp-4.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "@id": "https://shield.the-horizons-innovation.com/verify/#app",
+      "name": "HORIZON SHIELD Verify",
+      "url": "https://shield.the-horizons-innovation.com/verify/",
+      "applicationCategory": "SecurityApplication",
+      "operatingSystem": "All",
+      "browserRequirements": "Requires JavaScript and the Web Crypto API",
+      "inLanguage": ["en", "ja"],
+      "description": "A browser tool that independently recomputes the SHA-256 of a HORIZON SHIELD fair-price claim and checks it against the receipt claim_sha256. Verification runs entirely client side; nothing is sent to any server. Trust is conferred by recomputation, not assumed in the issuer.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" },
+      "isAccessibleForFree": true,
+      "publisher": { "@id": "https://shield.the-horizons-innovation.com/#org" },
+      "author": {
+        "@type": "Person",
+        "name": "TOshi Oga",
+        "alternateName": "大賀俊勝",
+        "identifier": "https://orcid.org/0009-0000-9180-903X"
+      }
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://shield.the-horizons-innovation.com/#org",
+      "name": "The HORIZONs Inc.",
+      "alternateName": "The HORIZONs株式会社",
+      "url": "https://shield.the-horizons-innovation.com"
+    },
+    {
+      "@type": "HowTo",
+      "name": "Verify a HORIZON SHIELD fair-price receipt without trusting the issuer",
+      "description": "Recompute the receipt hash yourself and confirm the fair-price claim was not altered.",
+      "totalTime": "PT1M",
+      "tool": [{ "@type": "HowToTool", "name": "Any device with a modern web browser" }],
+      "step": [
+        { "@type": "HowToStep", "position": 1, "name": "Open the receipt", "text": "Open the verify_url from a HORIZON SHIELD receipt, or paste the fair_price_claim JSON into the page." },
+        { "@type": "HowToStep", "position": 2, "name": "Recompute", "text": "The page computes SHA-256 of JSON.stringify(fair_price_claim) locally in your browser using the Web Crypto API." },
+        { "@type": "HowToStep", "position": 3, "name": "Compare", "text": "Check that your recomputed hash equals the receipt claim_sha256. If they match, the claim was not tampered with. If a single figure was changed, the hash stops matching." }
+      ]
+    }
+  ]
+}
+</script>
 <style>
   :root{
     --bg:#0b0f17; --card:#141d2b; --line:rgba(255,255,255,.10);

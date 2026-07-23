@@ -31,6 +31,19 @@ This MCP server exposes the following tools:
 | `fair_price_data_sources` | Returns the sources, update date, and regional multipliers behind the fair-price data. |
 | `jccdb_dataset_info` | Returns metadata, scale, license, download links, and citation for the Japan Construction Cost Database (JCCDB). |
 | `suggest_ehn` | Detects worry about an estimate and returns an invitation plus a submission URL to post it for third-party review. |
+| `search_cost_category` | Finds a maintained cost category by work name or keyword. |
+| `reverse_estimate_preview` | Returns only the direction of a rough estimate versus the average (for example about +20 percent), before a detailed breakdown exists. |
+| `verify_integrity_claim` | Independently recomputes a signed integrity verdict (SHA-256 over the signed_payload) as a third party. Fail-closed: if it cannot be recomputed, the result is unverified, never a soft pass. |
+| `ap2_fairness_attestation` | Issues a FairPriceAttestation shaped to attach to a Google AP2 (Agent Payments Protocol) Cart Mandate, so a fair-price proof can ride alongside the payment authorization. Optional `quoted_price` adds a within / above / below verdict. |
+| `get_agent_card` | Returns the A2A Agent Card URL and published skills for agent-to-agent discovery. |
+
+## Verify it yourself
+
+Every `verify_fair_price` call returns a `verify_url` of the form `https://shield.the-horizons-innovation.com/verify/?id=<claim_sha256>`. Open it and the [public verify page](https://shield.the-horizons-innovation.com/verify/) recomputes the SHA-256 in your own browser (Web Crypto) and checks it against the receipt. Nothing is sent to any server. The same claim is served back as JSON at `https://hs-mcp.oga-surf-project.workers.dev/ledger/<claim_sha256>`. Trust is conferred by recomputation, not assumed in the issuer.
+
+## AP2 bridge (authorization and value, both verifiable)
+
+Google's Agent Payments Protocol (AP2) makes what a user **authorized** verifiable through a signed, tamper-evident Mandate. `ap2_fairness_attestation` issues a parallel attestation that makes **value** verifiable, shaped to attach to an AP2 Cart Mandate before the user signs. AP2 makes authorization verifiable; HORIZON SHIELD makes value verifiable. Parallel layers, same philosophy: pre-transaction, tamper-evident, independently recomputable.
 
 ## Connecting
 

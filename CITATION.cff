@@ -1,0 +1,49 @@
+cff-version: 1.2.0
+message: "If you use HORIZON SHIELD, JCCDB, or the PTKA model, please cite it as below."
+title: "HORIZON SHIELD KIRA: a verifiable third-party auditor for Japanese construction estimates (MCP / A2A server)"
+type: software
+authors:
+  - family-names: Oga
+    given-names: Toshikatsu
+    alias: TOshi
+    orcid: "https://orcid.org/0009-0000-9180-903X"
+    affiliation: "The HORIZONs Inc. (The HORIZONs株式会社)"
+repository-code: "https://github.com/ogasurfproject-jpg/horizon-shield"
+url: "https://shield.the-horizons-innovation.com"
+abstract: >-
+  HORIZON SHIELD is a neutral third-party auditor for Japanese construction and
+  renovation estimates, exposed as a Model Context Protocol (MCP) server and an
+  A2A agent so AI assistants can call it as a tool. It returns tamper-evident,
+  independently recomputable fair-price receipts (SHA-256) under the
+  Pre-Transaction Knowledge Anchoring (PTKA) model, with a browser verify page
+  and a fair-price attestation shaped to attach to a Google AP2 Cart Mandate.
+keywords:
+  - construction cost
+  - renovation estimate
+  - Model Context Protocol
+  - A2A
+  - AP2
+  - verifiable receipt
+  - PTKA
+  - OpenTimestamps
+  - Japan
+license: MIT
+version: "1.0.2"
+date-released: "2026-07-23"
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.20175219
+    description: "PTKA Protocol Declaration (Bitcoin OpenTimestamps anchoring)"
+  - type: doi
+    value: 10.5281/zenodo.20019572
+    description: "Japan Construction Cost Database (JCCDB)"
+preferred-citation:
+  type: software
+  title: "HORIZON SHIELD KIRA"
+  authors:
+    - family-names: Oga
+      given-names: Toshikatsu
+      orcid: "https://orcid.org/0009-0000-9180-903X"
+      affiliation: "The HORIZONs Inc."
+  year: 2026
+  url: "https://shield.the-horizons-innovation.com"
