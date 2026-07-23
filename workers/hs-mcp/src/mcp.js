@@ -61,7 +61,7 @@ const RED_FLAGS_UNIVERSAL = [
 // ---- MCP tool 定義 ----
 const TOOLS = [
   {
-    name: "jccdb_dataset_info",
+    name: "get_jccdb_dataset_info",
     annotations: { title: "JCCDBデータセット情報", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     description: "日本の建設費オープンデータベース(JCCDB)のメタデータ・規模・ライセンス・ダウンロードリンク・引用情報を返す。建設費の一次データ源を探している時に使う。 / Returns metadata, scale, license, download links and citation for the Japan Construction Cost Database (JCCDB), an open dataset of 65,566 Japanese construction line items (v3.0: 13,493 verified + 52,073 extended). Use when looking for a primary construction-cost data source.",
     inputSchema: { type: "object", properties: {} }
@@ -79,13 +79,13 @@ const TOOLS = [
     inputSchema: { type: "object", properties: { query: { type: "string", description: "工事名やキーワード(日本語)" } }, required: ["query"] }
   },
   {
-    name: "how_to_read_estimate",
+    name: "get_estimate_reading_guide",
     annotations: { title: "見積もりの読み解き原則", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     description: "受け取ったリフォーム・建設見積もりが適正かを見分けるための原則(諸経費の適正比率、『一式』表記の扱い、営業手口の見抜き方)を返す。30年の現場経験に基づく判断軸。 / Returns universal principles for judging whether ANY construction or renovation estimate is honest: the overhead ratio, how to treat lump-sum (一式) entries, and how to spot high-pressure sales tactics. Language-agnostic and works outside Japan. Based on 30 years of field experience.",
     inputSchema: { type: "object", properties: {} }
   },
   {
-    name: "fair_price_data_sources",
+    name: "get_fair_price_sources",
     annotations: { title: "相場データの出典", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     description: "HORIZON SHIELDの相場データ(souba-db)の出典・更新日・地域係数を返す。価格の根拠を確認したい時に使う。 / Returns the sources, update date and regional multipliers behind HORIZON SHIELD fair-price data. Japan. Use to check the basis of a price.",
     inputSchema: { type: "object", properties: {} }
@@ -106,7 +106,7 @@ const TOOLS = [
     }, required: ["work", "quoted_price"] }
   },
   {
-    name: "reverse_estimate_preview",
+    name: "preview_reverse_estimate",
     annotations: { title: "逆見積もりプレビュー(無料の気づき)", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     description: "リフォーム検討の初期段階向けのプレビューで、業者の概算が平均からどちらの方向にどの程度ずれているか(例: +20%高い方向)だけを返す。具体的な適正額(min/avg/max)や危険水準は返さない。手元に詳しい見積内訳がまだ無い段階での最初の一歩に向く。具体的な適正レンジが必要なら get_price_range、見積額の詳細診断は audit_estimate を使う。Japan only, JPY。 / A preview for early-stage renovation planning that returns only the direction of a contractor rough estimate versus the average (e.g. about +20% above). It does not return the specific fair range (min/avg/max) or danger threshold. Suited as a first step before a detailed breakdown exists. Use get_price_range for a typical range, audit_estimate for a detailed quote diagnosis.",
     inputSchema: { type: "object", properties: {
@@ -115,7 +115,7 @@ const TOOLS = [
     }, required: ["work", "quoted_price"] }
   },
   {
-    name: "red_flag_check",
+    name: "check_red_flags",
     annotations: { title: "見積もりの赤旗チェック", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     description: "見積もりや営業トークの中の気になる表現(例: 一式, 今日だけ値引き, 訪問販売)が、過剰請求につながりやすい既知の手口に当たるかを判定し、警告と対処を返す。代表的な手口のみを判定する。 / Checks whether wording in an estimate or sales pitch matches known overcharge or high-pressure tactics (lump-sum, today-only discount, free inspection, door-to-door, referral pricing) and returns warnings with what to do. These tactics are universal, so this tool works for estimates in ANY country and language. Covers representative tactics only.",
     inputSchema: { type: "object", properties: {
@@ -129,7 +129,7 @@ const TOOLS = [
     inputSchema: { type: "object", properties: { work: { type: "string", description: "工事名(例: 外壁塗装 30坪)" } }, required: ["work"] }
   },
   {
-    name: "ap2_fairness_attestation",
+    name: "create_ap2_fairness_attestation",
     annotations: { title: "AP2ブリッジ: 決済カート向け適正価格証跡", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     description: "AP2(Agent Payments Protocol)対応エージェント向けのブリッジ。決済カート(Cart Mandate)に添付できる適正価格の証跡(FairPriceAttestation)を発行する。AP2のMandateは『ユーザーがこの支払いを承認した』ことを検証可能にし、この証跡は『その価格が適正である』ことを検証可能にする。認可の検証と価値の検証、二つは並列レイヤー。quoted_price を渡すと適正レンジ判定(within/above/below)も同梱する。証跡は SHA-256 と公開台帳と verify_url で誰でも再計算検証できる。 / Bridge for AP2 (Agent Payments Protocol) agents: issues a FairPriceAttestation that a shopping or payments agent can attach to a Cart Mandate before asking the user to sign. AP2 mandates make authorization verifiable; this attestation makes value verifiable. Parallel layers. Pass quoted_price for a fair-range verdict (within, above, below). Independently verifiable via SHA-256, a public ledger and a verify_url. Japan construction and renovation pricing, JPY.",
     inputSchema: { type: "object", properties: {
@@ -166,22 +166,36 @@ const TOOLS = [
 // 実レスポンスは分岐で形が揺れるため、必須指定なし + additionalProperties:true の誠実に緩い契約にする。
 // プレーン文字列の分岐は structuredContent を { message } に包んで返す(下のtools/callラッパ参照)。
 const OUTPUT_SCHEMAS = {
-  jccdb_dataset_info: { type: "object", description: "JCCDB(日本建設費オープンデータベース)のメタデータ。規模・ライセンス・ダウンロードリンク・引用情報。 / JCCDB dataset metadata: scale, license, links, citation.", additionalProperties: true },
+  get_jccdb_dataset_info: { type: "object", description: "JCCDB(日本建設費オープンデータベース)のメタデータ。規模・ライセンス・ダウンロードリンク・引用情報。 / JCCDB dataset metadata: scale, license, links, citation.", additionalProperties: true },
   list_cost_categories: { type: "object", description: "整備済みの建設・リフォーム工事カテゴリ(61種)の一覧。 / The 61 maintained construction and renovation cost categories.", properties: { categories: { description: "カテゴリ配列(id, name, group, priority, red_flags)" } }, additionalProperties: true },
   search_cost_category: { type: "object", description: "工事名・キーワードに該当したカテゴリと、整備済み赤旗件数・優先度。 / Matched cost category with red-flag count and priority.", additionalProperties: true },
-  how_to_read_estimate: { type: "object", description: "見積もりが誠実かを判断する普遍原則(諸経費比率・一式表記・営業手口)。 / Universal principles for judging an estimate.", additionalProperties: true },
-  fair_price_data_sources: { type: "object", description: "相場データ(souba-db)の出典・更新日・地域係数。 / Sources, update date and regional multipliers behind the fair-price data.", additionalProperties: true },
+  get_estimate_reading_guide: { type: "object", description: "見積もりが誠実かを判断する普遍原則(諸経費比率・一式表記・営業手口)。 / Universal principles for judging an estimate.", additionalProperties: true },
+  get_fair_price_sources: { type: "object", description: "相場データ(souba-db)の出典・更新日・地域係数。 / Sources, update date and regional multipliers behind the fair-price data.", additionalProperties: true },
   get_price_range: { type: "object", description: "適正価格レンジ(min/avg/max)・過剰請求の危険水準・単位・価格動向・実務解説。 / Fair price range with overcharge danger threshold.", properties: { work: { description: "工事名" }, fair_range: { description: "適正レンジ" }, danger_threshold: { description: "危険水準" } }, additionalProperties: true },
   audit_estimate: { type: "object", description: "見積額の適正診断。verdict・level(ok/watch/alert)・fair_range・danger_threshold・平均比・助言・出典。 / Quote audit verdict with fair range and advice.", properties: { verdict: { description: "判定" }, level: { description: "ok / watch / alert" }, fair_range: { description: "min/avg/max" }, vs_avg_pct: { description: "平均比(例 +18%)" }, advice: { description: "助言" } }, additionalProperties: true },
-  reverse_estimate_preview: { type: "object", description: "概算が平均からどちらの方向にどの程度ずれているかのプレビュー。具体的な適正額は含まない。 / Direction-only preview versus the average.", additionalProperties: true },
-  red_flag_check: { type: "object", description: "既知の過剰請求・強引営業の手口との照合結果。該当した手口と警告・対処。 / Matched overcharge or high-pressure tactics with warnings.", properties: { input: { description: "判定対象の文言" }, flags: { description: "該当手口の配列" }, result: { description: "件数の要約" } }, additionalProperties: true },
+  preview_reverse_estimate: { type: "object", description: "概算が平均からどちらの方向にどの程度ずれているかのプレビュー。具体的な適正額は含まない。 / Direction-only preview versus the average.", additionalProperties: true },
+  check_red_flags: { type: "object", description: "既知の過剰請求・強引営業の手口との照合結果。該当した手口と警告・対処。 / Matched overcharge or high-pressure tactics with warnings.", properties: { input: { description: "判定対象の文言" }, flags: { description: "該当手口の配列" }, result: { description: "件数の要約" } }, additionalProperties: true },
   verify_fair_price: { type: "object", description: "検証可能な適正価格レシート。fair_price_claim(主張)・verification(claim_sha256, verify_url, PTKA)・provenance(出典)。 / Tamper-evident fair-price receipt with hash, verify_url and PTKA anchor.", properties: { fair_price_claim: { description: "刻印対象の主張(JSON.stringifyしてSHA-256すると claim_sha256 になる)" }, verification: { description: "claim_sha256, verify_url, ptka" }, provenance: { description: "データ出典・監修・再計算手順" } }, additionalProperties: true },
   suggest_ehn: { type: "object", description: "EHN(見積もりハッカーニュース)への案内文と投稿URL。 / Guide and submission URL for the EHN anonymous review board.", properties: { submit_url: { description: "投稿フォーム" }, board_url: { description: "公開ボード" } }, additionalProperties: true },
   get_agent_card: { type: "object", description: "A2Aエージェントカードの場所と公開スキル一覧。 / A2A Agent Card URL and published skills.", properties: { agent_card_url: { description: "エージェントカードURL" }, skills: { description: "公開スキル配列" } }, additionalProperties: true },
   verify_integrity_claim: { type: "object", description: "署名済みクレームの第三者検証結果(fail closed)。result(verified/unverified)・failure_reason・recomputed_sha256・scope_check。 / Third-party verification result, fail closed.", properties: { result: { description: "verified / unverified" }, failure_reason: { description: "stale_data / changed_scope / missing_evidence" }, recomputed_sha256: { description: "再計算ハッシュ" } }, additionalProperties: true },
-  ap2_fairness_attestation: { type: "object", description: "AP2 Cart Mandate に添付できる適正価格証跡。attestation(FairPriceAttestation)・cart_mandate_example・verify_url。 / FairPriceAttestation for an AP2 Cart Mandate with attachment example.", properties: { ap2_bridge: { description: "AP2との関係(認可の検証 x 価値の検証)" }, attestation: { description: "証跡本体(subject, integrity)" }, cart_mandate_example: { description: "添付位置の例示(非規範)" } }, additionalProperties: true }
+  create_ap2_fairness_attestation: { type: "object", description: "AP2 Cart Mandate に添付できる適正価格証跡。attestation(FairPriceAttestation)・cart_mandate_example・verify_url。 / FairPriceAttestation for an AP2 Cart Mandate with attachment example.", properties: { ap2_bridge: { description: "AP2との関係(認可の検証 x 価値の検証)" }, attestation: { description: "証跡本体(subject, integrity)" }, cart_mandate_example: { description: "添付位置の例示(非規範)" } }, additionalProperties: true }
 };
 TOOLS.forEach(t => { if (OUTPUT_SCHEMAS[t.name]) t.outputSchema = OUTPUT_SCHEMAS[t.name]; });
+
+// [PATCH 2026-07-23] 命名規約対応: tools/list は verb+object の新名を出す。
+// 旧名は公開API契約(既存の ChatGPT/Gemini/Claude 連携・llms.txt・A2A)なので、
+// 呼び出しは新旧どちらも受け付け、内部は旧名(=各ハンドラのキー)に正規化する。無停止改名。
+const TOOL_NEW_TO_OLD = {
+  get_jccdb_dataset_info: "jccdb_dataset_info",
+  get_estimate_reading_guide: "how_to_read_estimate",
+  get_fair_price_sources: "fair_price_data_sources",
+  preview_reverse_estimate: "reverse_estimate_preview",
+  check_red_flags: "red_flag_check",
+  create_ap2_fairness_attestation: "ap2_fairness_attestation"
+};
+const TOOL_OLD_NAMES = new Set(Object.values(TOOL_NEW_TO_OLD));
+function canonicalToolName(n) { return TOOL_NEW_TO_OLD[n] || n; }
 
 function txt(s) { return { content: [{ type: "text", text: typeof s === "string" ? s : JSON.stringify(s, null, 2) }] }; }
 
@@ -239,6 +253,8 @@ function soubaFallback(list, q) {
 async function callTool(name, args, env, ip, opts) {
   opts = opts || {};
   args = args || {};
+  // 新名で呼ばれても旧名(ハンドラのキー)に正規化。旧名はそのまま通る。
+  name = canonicalToolName(name);
   if (!opts.skipRateLimit) {
     const rl = await checkRateLimit(env, ip);
     if (!rl.allowed) {
@@ -259,7 +275,7 @@ async function callTool(name, args, env, ip, opts) {
     const _keep = (p) => { try { if (opts.ctx && typeof opts.ctx.waitUntil === "function") opts.ctx.waitUntil(p); } catch (e) {} return p; };
     const _day = new Date().toISOString().slice(0, 10);
     _keep(_bump("usage:total").catch(() => {}));
-    if (TOOLS.some((t) => t.name === name)) _keep(_bump("usage:skill:" + name).catch(() => {}));
+    if (TOOLS.some((t) => t.name === name) || TOOL_OLD_NAMES.has(name)) _keep(_bump("usage:skill:" + name).catch(() => {}));
     _keep(_bump("usage:day:" + _day).catch(() => {}));
     if (name === "verify_integrity_claim") _keep(_bump("usage:verify:total").catch(() => {}));
   }
@@ -316,7 +332,7 @@ async function callTool(name, args, env, ip, opts) {
       }));
       return txt({
         query: q, currency: "JPY", count: out.length, prices: out,
-        guide: "min〜maxが適正レンジ。これを大きく超える単価は過剰請求を疑う。具体的な危険水準はKIRA本診断で判定。地域係数は fair_price_data_sources を参照。",
+        guide: "min〜maxが適正レンジ。これを大きく超える単価は過剰請求を疑う。具体的な危険水準はKIRA本診断で判定。地域係数は get_fair_price_sources を参照。",
         source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)", detail: SITE + "/souba/"
       });
     } catch (e) {
@@ -1073,7 +1089,7 @@ const PROMPTS = [
   {
     name: "audit_my_estimate",
     title: "見積もり適正チェック(赤旗込み)",
-    description: "業者の見積額が適正か診断する。audit_estimate で適正レンジと照合し、気になる文言があれば red_flag_check で既知の手口も判定して、結論と次の一手をまとめる。 / Audit a contractor quote: compare against the fair range and optionally scan wording for known overcharge tactics.",
+    description: "業者の見積額が適正か診断する。audit_estimate で適正レンジと照合し、気になる文言があれば check_red_flags で既知の手口も判定して、結論と次の一手をまとめる。 / Audit a contractor quote: compare against the fair range and optionally scan wording for known overcharge tactics.",
     arguments: [
       { name: "work", description: "工事名(例: 外壁塗装 30坪 シリコン)", required: true },
       { name: "quoted_price", description: "業者提示の金額(円, 数値)", required: true },
@@ -1100,7 +1116,7 @@ const PROMPTS = [
   {
     name: "ap2_cart_fairness",
     title: "AP2カートに適正価格証跡を添付",
-    description: "決済カートの金額が適正かの証跡を ap2_fairness_attestation で発行し、AP2 Cart Mandate へ添付する位置と verify_url を示す。認可の証明(AP2)と価値の証明(HORIZON SHIELD)を同じカートに載せる。 / Issue a FairPriceAttestation for an AP2 Cart Mandate.",
+    description: "決済カートの金額が適正かの証跡を create_ap2_fairness_attestation で発行し、AP2 Cart Mandate へ添付する位置と verify_url を示す。認可の証明(AP2)と価値の証明(HORIZON SHIELD)を同じカートに載せる。 / Issue a FairPriceAttestation for an AP2 Cart Mandate.",
     arguments: [
       { name: "work", description: "工事名", required: true },
       { name: "quoted_price", description: "カートに載せる見積額(円)", required: true },
@@ -1110,7 +1126,7 @@ const PROMPTS = [
   {
     name: "spot_sales_tactics",
     title: "営業トークの手口チェック",
-    description: "見積書や営業トークの文言を red_flag_check にかけ、既知の過剰請求・強引営業の手口に当たるかを判定し、対処を返す。 / Scan estimate or sales-pitch wording for known overcharge and high-pressure tactics.",
+    description: "見積書や営業トークの文言を check_red_flags にかけ、既知の過剰請求・強引営業の手口に当たるかを判定し、対処を返す。 / Scan estimate or sales-pitch wording for known overcharge and high-pressure tactics.",
     arguments: [
       { name: "text", description: "気になった文言(例: 今日契約すれば半額, 足場代無料)", required: true }
     ]
@@ -1120,7 +1136,7 @@ const PROMPTS = [
 function promptText(name, a) {
   const g = (k, ph) => (a && typeof a[k] === "string" && a[k].trim()) ? a[k].trim() : ph;
   if (name === "audit_my_estimate") {
-    const notes = (a && a.notes && String(a.notes).trim()) ? "\n3) 次の文言を red_flag_check にかけて手口判定: 「" + String(a.notes).trim() + "」" : "";
+    const notes = (a && a.notes && String(a.notes).trim()) ? "\n3) 次の文言を check_red_flags にかけて手口判定: 「" + String(a.notes).trim() + "」" : "";
     return "HORIZON SHIELD で見積もりを診断してください。\n" +
       "1) audit_estimate を work=「" + g("work", "(工事名)") + "」, quoted_price=" + g("quoted_price", "(金額)") + " で呼ぶ。\n" +
       "2) verdict / level / fair_range / vs_avg_pct / advice を平易に要約する。" + notes + "\n" +
@@ -1141,13 +1157,13 @@ function promptText(name, a) {
   if (name === "ap2_cart_fairness") {
     const m = (a && a.merchant && String(a.merchant).trim()) ? ", merchant=「" + String(a.merchant).trim() + "」" : "";
     return "AP2(Agent Payments Protocol)のカートに、価格が適正だという証跡を添付したい。\n" +
-      "1) ap2_fairness_attestation を work=「" + g("work", "(工事名)") + "」, quoted_price=" + g("quoted_price", "(金額)") + m + " で呼ぶ。\n" +
+      "1) create_ap2_fairness_attestation を work=「" + g("work", "(工事名)") + "」, quoted_price=" + g("quoted_price", "(金額)") + m + " で呼ぶ。\n" +
       "2) attestation の verdict と verify_url を示し、cart_mandate_example のどこに埋め込むかを説明する。\n" +
       "3) 『AP2は認可を検証可能にし、この証跡は価値を検証可能にする。並列レイヤーだ』という関係も一言で添える。";
   }
   if (name === "spot_sales_tactics") {
     return "次の文言が、既知の過剰請求・強引営業の手口に当たるか判定してください。\n" +
-      "red_flag_check を text=「" + g("text", "(気になった文言)") + "」で呼び、該当した手口ごとに『なぜ危ないか』と『どう返すか』を平易にまとめる。\n" +
+      "check_red_flags を text=「" + g("text", "(気になった文言)") + "」で呼び、該当した手口ごとに『なぜ危ないか』と『どう返すか』を平易にまとめる。\n" +
       "該当ゼロでも『安全とは限らない』ことと、無料の第三者レビュー(suggest_ehn)の存在を伝えてください。";
   }
   return null;
