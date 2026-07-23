@@ -17,7 +17,7 @@
   "compatibility_date": "2025-01-01",   // PLACEHOLDER: 実値はダッシュボード Settings→Runtime で確認
   "compatibility_flags": ["nodejs_compat"],  // PLACEHOLDER: 実際のflagに合わせる（不要なら削除）
   "kv_namespaces": [
-    { "binding": "SUBSCRIBERS", "id": "<FILL_FROM_DASHBOARD>" },
+    { "binding": "SUBSCRIBERS", "id": "f817858512394e63ba44dd9dbcd281d3" },
   ],
   // secrets（値はコードに入れない。`npx wrangler secret put <NAME>` で設定・Cloudflare上に既存）:
   //   LINE_CHANNEL_TOKEN, LINE_USER_ID

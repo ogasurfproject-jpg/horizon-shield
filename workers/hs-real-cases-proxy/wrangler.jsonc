@@ -17,6 +17,6 @@
   "compatibility_date": "2025-01-01",   // PLACEHOLDER: 実値はダッシュボード Settings→Runtime で確認
   "compatibility_flags": ["nodejs_compat"],  // PLACEHOLDER: 実際のflagに合わせる（不要なら削除）
   "kv_namespaces": [
-    { "binding": "HS_REAL_CASES", "id": "<FILL_FROM_DASHBOARD>" },
+    { "binding": "HS_REAL_CASES", "id": "5e831fffb0594d0fa2aca49293956284" },
   ],
 }

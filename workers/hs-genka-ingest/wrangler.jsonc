@@ -21,8 +21,8 @@
   // トリガー: あり（Apify actor-runをPOST）
   "triggers": { "crons": [ /* "実際のcron式をダッシュボードから" */ ] },
   "kv_namespaces": [
-    { "binding": "GENKA_PENDING", "id": "<FILL_FROM_DASHBOARD>" },
-    { "binding": "GENKA_VERIFIED", "id": "<FILL_FROM_DASHBOARD>" },
+    { "binding": "GENKA_PENDING", "id": "84fd239f856943af8d0a5d8588422dd4" },
+    { "binding": "GENKA_VERIFIED", "id": "6f3214d203b0443bbf051d07a56db52a" },
   ],
   "vars": {
     "APIFY_ACTOR_ID": "<PLAINTEXT_VAR_値をダッシュボードから>",
