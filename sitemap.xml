@@ -1750,4 +1750,16 @@
     <lastmod>2026-07-21</lastmod>
     <changefreq>weekly</changefreq>
   </url>
+  <url>
+    <loc>https://shield.the-horizons-innovation.com/movement/</loc>
+    <lastmod>2026-07-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://shield.the-horizons-innovation.com/inspect.html</loc>
+    <lastmod>2026-07-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
