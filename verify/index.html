@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HORIZON SHIELD ｜ 検証 Verify</title>
+<meta name="description" content="HORIZON SHIELD の署名レシート(適正価格の主張)を、あなた自身がSHA-256で再計算して検証できるページ。発行者を信用する必要はありません。">
+<style>
+  :root{
+    --bg:#0b0f17; --card:#141d2b; --line:rgba(255,255,255,.10);
+    --gold:#E0A45C; --goldL:#F0C987; --green:#34D399; --greenL:#5BE7B0;
+    --tx:#EAF0F8; --mut:#93A2B8; --mono:"DejaVu Sans Mono","SF Mono",Menlo,Consolas,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Noto Sans CJK JP","Noto Sans JP",-apple-system,"Segoe UI",sans-serif;
+    background:
+      radial-gradient(900px 560px at 88% -10%, rgba(224,164,92,.14), transparent 60%),
+      radial-gradient(760px 540px at 4% 108%, rgba(52,211,153,.10), transparent 60%),
+      linear-gradient(160deg,#0b0f17,#101827 55%,#0c1119);
+    color:var(--tx); -webkit-font-smoothing:antialiased; min-height:100vh; padding:34px 18px 60px;}
+  .wrap{max-width:820px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:13px;margin-bottom:6px}
+  .brand svg{width:40px;height:40px}
+  .brand .wm{font-weight:800;font-size:22px;letter-spacing:2px}
+  .brand .wm span{color:var(--gold)}
+  h1{font-size:30px;font-weight:800;margin-top:16px;line-height:1.25}
+  h1 .g{color:var(--green)}
+  .lead{color:var(--mut);font-size:16px;line-height:1.6;margin-top:10px}
+  .lead b{color:var(--goldL);font-weight:700}
+  .card{background:linear-gradient(160deg,var(--card),#111a29);border:1px solid var(--line);
+    border-radius:16px;padding:22px;margin-top:22px;box-shadow:0 24px 60px -34px rgba(0,0,0,.7)}
+  label{display:block;font-size:13px;font-weight:800;letter-spacing:1px;color:var(--mut);margin-bottom:8px}
+  textarea,input{width:100%;background:#0d1420;border:1px solid var(--line);border-radius:10px;
+    color:#DCE7F5;font-family:var(--mono);font-size:14px;padding:13px 14px;line-height:1.55}
+  textarea{height:210px;resize:vertical}
+  input{margin-top:2px}
+  .row2{margin-top:16px}
+  .btn{margin-top:18px;width:100%;border:none;cursor:pointer;border-radius:12px;padding:15px;
+    font-size:17px;font-weight:800;letter-spacing:.5px;color:#0b0f17;
+    background:linear-gradient(150deg,var(--goldL),var(--gold))}
+  .btn:active{transform:translateY(1px)}
+  .out{margin-top:18px;border-radius:12px;padding:0;overflow:hidden;display:none}
+  .out.show{display:block}
+  .verdict{padding:16px 18px;font-size:20px;font-weight:800;display:flex;align-items:center;gap:12px}
+  .ok{background:rgba(52,211,153,.14);border:1px solid rgba(52,211,153,.5);color:var(--greenL)}
+  .no{background:rgba(255,99,99,.12);border:1px solid rgba(255,99,99,.5);color:#FF9B9B}
+  .detail{padding:14px 18px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-top:none;
+    border-radius:0 0 12px 12px}
+  .detail .k{font-size:12px;font-weight:800;letter-spacing:1px;color:var(--mut);margin-top:12px}
+  .detail .k:first-child{margin-top:0}
+  .detail .v{font-family:var(--mono);font-size:13px;color:#CFE3FF;word-break:break-all;margin-top:4px}
+  .detail .v.big{font-size:15px}
+  .how{margin-top:26px}
+  .how h2{font-size:17px;font-weight:800;color:#C9D3E4;margin-bottom:8px}
+  .how p{color:var(--mut);font-size:14.5px;line-height:1.65;margin-top:8px}
+  .how code{font-family:var(--mono);background:rgba(255,255,255,.06);padding:2px 6px;border-radius:5px;color:#CFE3FF;font-size:13px}
+  .anchor{margin-top:16px;display:flex;gap:12px;flex-wrap:wrap}
+  .pill{font-size:13px;color:#C3CFE0;background:rgba(255,255,255,.04);border:1px solid var(--line);
+    border-radius:999px;padding:8px 14px}
+  .pill b{color:var(--goldL)}
+  a{color:var(--gold);font-weight:700;text-decoration:none}
+  .foot{margin-top:30px;color:#6C7A90;font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .foot a{color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <svg viewBox="0 0 64 64" fill="none"><path d="M32 3 L57 13 V32 C57 47 46 57 32 61 C18 57 7 47 7 32 V13 Z" fill="#E0A45C" stroke="#F0C987" stroke-width="2"/><path d="M22 32 l7 8 14-17" stroke="#0b0f17" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div class="wm">HORIZON <span>SHIELD</span></div>
+  </div>
+
+  <h1>信じるな、<span class="g">検証しろ</span>。<br>Don't trust us. Verify.</h1>
+  <p class="lead">HORIZON SHIELD の適正価格の主張には <b>SHA-256 の指紋</b> が付きます。発行者(私たち)を信用する必要はありません。下の主張から、<b>あなた自身がハッシュを再計算</b>して、レシートの <code>claim_sha256</code> と一致するか確かめられます。These fair-price claims are independently verifiable. Recompute the hash yourself.</p>
+
+  <div class="card">
+    <label>署名レシートの主張 (fair_price_claim JSON)</label>
+    <textarea id="claim" spellcheck="false">{
+  "work": "外壁塗装 30坪 一式（シリコン）",
+  "unit": "一式",
+  "fair_min": 700000,
+  "fair_avg": 900000,
+  "fair_max": 1150000,
+  "source": "HORIZON SHIELD souba-db",
+  "issued_at": "2026-07-23T01:38:27.744Z"
+}</textarea>
+
+    <div class="row2">
+      <label>レシートの claim_sha256 (照合したい値)</label>
+      <input id="expected" spellcheck="false" value="bda488c774664ba886b5343040ed5e4c61658b52bebd1c62ddd64c007838264a">
+    </div>
+
+    <button class="btn" id="go">再計算して検証 ／ Recompute &amp; Verify</button>
+
+    <div class="out" id="out">
+      <div class="verdict" id="verdict"></div>
+      <div class="detail">
+        <div class="k">YOU COMPUTED / あなたの再計算値</div>
+        <div class="v big" id="computed"></div>
+        <div class="k">HASHED PREIMAGE / ハッシュ対象 (canonical JSON)</div>
+        <div class="v" id="preimage"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="how">
+    <h2>仕組み ／ How it works</h2>
+    <p>レシートの <code>claim_sha256</code> は、主張オブジェクトの正準JSON <code>JSON.stringify(fair_price_claim)</code> を UTF-8 で SHA-256 した値です。このページは同じ計算をあなたのブラウザ内(Web Crypto)で行い、サーバーには何も送りません。値が一致すれば、その主張は改ざんされていない証拠です。The hash is <code>SHA-256(JSON.stringify(claim))</code>, recomputed locally in your browser. Nothing is sent to any server. Key order must match the issued claim.</p>
+    <div class="anchor">
+      <span class="pill">PTKA: 業者の見積もり提示 <b>前</b> に第三者が記録</span>
+      <span class="pill">PTKA宣言の Bitcoin 刻印 <b>block #949356</b></span>
+      <span class="pill"><a href="https://opentimestamps.org" rel="noopener">OpenTimestamps で検証</a></span>
+    </div>
+    <p style="margin-top:14px;font-size:13px;color:#7E8DA6">補足：block #949356 は PTKA(取引前知識刻印)の宣言を Bitcoin に刻んだ点。監査1件ごとの個別ハッシュのオンチェーン刻印は、第三者刻印機関 JIDEC を通じて順次運用。いずれも「発行者を信用せず、数学で確かめる」ための仕組みです。</p>
+  </div>
+
+  <div class="foot">
+    <div>The HORIZONs Inc. ／ 大賀俊勝 実務監修30年</div>
+    <div><a href="https://shield.the-horizons-innovation.com">shield.the-horizons-innovation.com</a></div>
+  </div>
+</div>
+
+<script>
+async function sha256hex(str){
+  const buf = new TextEncoder().encode(str);
+  const dig = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(dig)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function run(){
+  const out=document.getElementById('out');
+  const verdict=document.getElementById('verdict');
+  const raw=document.getElementById('claim').value;
+  let obj;
+  try{ obj=JSON.parse(raw); }
+  catch(e){
+    out.classList.add('show');
+    verdict.className='verdict no';
+    verdict.textContent='JSON エラー: '+e.message;
+    document.getElementById('computed').textContent='';
+    document.getElementById('preimage').textContent='';
+    return;
+  }
+  const preimage=JSON.stringify(obj);
+  const h=await sha256hex(preimage);
+  const expected=document.getElementById('expected').value.trim().toLowerCase();
+  document.getElementById('computed').textContent=h;
+  document.getElementById('preimage').textContent=preimage;
+  out.classList.add('show');
+  if(h===expected){
+    verdict.className='verdict ok';
+    verdict.textContent='✓ 一致 MATCH ｜ この主張は改ざんされていません';
+  }else{
+    verdict.className='verdict no';
+    verdict.textContent='✕ 不一致 MISMATCH ｜ 値が違います(改変または別の主張)';
+  }
+}
+document.getElementById('go').addEventListener('click',run);
+</script>
+</body>
+</html>
