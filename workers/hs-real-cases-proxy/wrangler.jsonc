@@ -14,7 +14,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "hs-real-cases-proxy",
   "main": "src/worker.js",
-  "compatibility_date": "2025-01-01",   // PLACEHOLDER: 実値はダッシュボード Settings→Runtime で確認
+  "compatibility_date": "2026-05-12",   // live実測 2026-07-23（wrangler versions view）
   "compatibility_flags": ["nodejs_compat"],  // PLACEHOLDER: 実際のflagに合わせる（不要なら削除）
   "kv_namespaces": [
     { "binding": "HS_REAL_CASES", "id": "5e831fffb0594d0fa2aca49293956284" },

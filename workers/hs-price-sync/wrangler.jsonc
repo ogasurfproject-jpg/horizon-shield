@@ -14,12 +14,12 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "hs-price-sync",
   "main": "src/worker.js",
-  "compatibility_date": "2025-01-01",   // PLACEHOLDER: 実値はダッシュボード Settings→Runtime で確認
+  "compatibility_date": "2026-04-20",   // live実測 2026-07-23（wrangler versions view）
   "compatibility_flags": ["nodejs_compat"],  // PLACEHOLDER: 実際のflagに合わせる（不要なら削除）
   // トリガー: 毎月10日 22:00 JST（UTC 13:00）
   "triggers": { "crons": [ /* "実際のcron式をダッシュボードから" */ ] },
   "kv_namespaces": [
-    { "binding": "KV", "id": "50f83c2cc5b248bf9d85289f57e029aa" }  // 推定: title=PRICE_SYNC。deploy前に settings で実バインド確認
+    { "binding": "KV", "id": "50f83c2cc5b248bf9d85289f57e029aa" }  // title=PRICE_SYNC（live一致確認 2026-07-23）
   ],
   // secrets（値はコードに入れない。`npx wrangler secret put <NAME>` で設定・Cloudflare上に既存）:
   //   ANTHROPIC_API_KEY, ESTAT_APP_ID, LINE_CHANNEL_TOKEN, LINE_USER_ID

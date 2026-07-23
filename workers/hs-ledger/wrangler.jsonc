@@ -2,7 +2,7 @@
 {
   "name": "hs-ledger",
   "main": "src/worker.js",
-  "compatibility_date": "2025-01-01",   // PLACEHOLDER: 実値はダッシュボード Settings→Runtime で確認
+  "compatibility_date": "2026-05-18",   // live実測 2026-07-23（wrangler versions view）
   "kv_namespaces": [
     { "binding": "LEDGER", "id": "37f6ebec621e42e9b9d6362ef6114e78" }  // KV "LEDGER"(実ID確認済み)
   ]

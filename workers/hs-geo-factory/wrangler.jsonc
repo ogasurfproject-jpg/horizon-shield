@@ -16,7 +16,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "hs-geo-factory",
   "main": "src/index.js",
-  "compatibility_date": "2025-01-01",   // PLACEHOLDER: 実値はダッシュボード Settings→Runtime で確認
+  "compatibility_date": "2026-01-01",   // live実測 2026-07-23（wrangler versions view）
   "compatibility_flags": ["nodejs_compat"],  // PLACEHOLDER: 実際のflagに合わせる（不要なら削除）
   "kv_namespaces": [
     { "binding": "GEO_KV", "id": "99abeb0c048e41318f2960b19d362f76" },

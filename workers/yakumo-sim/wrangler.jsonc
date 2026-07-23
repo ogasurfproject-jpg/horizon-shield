@@ -15,7 +15,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "yakumo-sim",
   "main": "src/main.js",
-  "compatibility_date": "2025-01-01",   // PLACEHOLDER: 実値はダッシュボード Settings→Runtime で確認
+  "compatibility_date": "2026-05-27",   // live未設定(null)・静的アセット系。作成日を既定に(2026-07-23確認)
   "compatibility_flags": ["nodejs_compat"],  // PLACEHOLDER: 実際のflagに合わせる（不要なら削除）
   // "assets": { "directory": "./public", "binding": "ASSETS" },  // 実ロジックは静的アセット側
 }

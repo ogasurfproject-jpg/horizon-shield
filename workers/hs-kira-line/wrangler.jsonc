@@ -16,10 +16,10 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "hs-kira-line",
   "main": "src/worker.js",
-  "compatibility_date": "2025-01-01",   // PLACEHOLDER: 実値はダッシュボード Settings→Runtime で確認
+  "compatibility_date": "2026-03-28",   // live実測 2026-07-23（wrangler versions view）
   "compatibility_flags": ["nodejs_compat"],  // PLACEHOLDER: 実際のflagに合わせる（不要なら削除）
   "kv_namespaces": [
-    { "binding": "SEEN_STORE", "id": "<FILL_FROM_DASHBOARD>" },
+    { "binding": "SEEN_STORE", "id": "a67d53a8777f4952bb81440d60287e91" }  // KV title=HS_MONITOR_SEEN（hs-monitor と共有・live一致確認 2026-07-23）,
   ],
   "vars": {
     "LINE_USER_ID": "<PLAINTEXT_VAR_値をダッシュボードから>",

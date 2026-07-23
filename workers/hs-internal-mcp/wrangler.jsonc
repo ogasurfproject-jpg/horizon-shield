@@ -16,7 +16,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "hs-internal-mcp",
   "main": "src/worker.js",
-  "compatibility_date": "2025-01-01",   // PLACEHOLDER: 実値はダッシュボード Settings→Runtime で確認
+  "compatibility_date": "2026-06-28",   // live実測 2026-07-23（wrangler versions view）
   "compatibility_flags": ["nodejs_compat"],  // PLACEHOLDER: 実際のflagに合わせる（不要なら削除）
   // トリガー: ~30分毎（4兄弟workerのhealth check→HS_DESIGN_KV+LINE）
   "triggers": { "crons": [ /* "実際のcron式をダッシュボードから" */ ] },
