@@ -19,7 +19,7 @@
   "compatibility_date": "2025-01-01",   // PLACEHOLDER: 実値はダッシュボード Settings→Runtime で確認
   "compatibility_flags": ["nodejs_compat"],  // PLACEHOLDER: 実際のflagに合わせる（不要なら削除）
   "kv_namespaces": [
-    { "binding": "GEO_KV", "id": "<FILL_FROM_DASHBOARD>" },
+    { "binding": "GEO_KV", "id": "99abeb0c048e41318f2960b19d362f76" },
   ],
   // secrets（値はコードに入れない。`npx wrangler secret put <NAME>` で設定・Cloudflare上に既存）:
   //   ADMIN_KEY, LINE_CHANNEL_TOKEN, LINE_USER_ID

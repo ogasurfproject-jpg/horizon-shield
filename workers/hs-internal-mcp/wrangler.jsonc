@@ -21,10 +21,10 @@
   // トリガー: ~30分毎（4兄弟workerのhealth check→HS_DESIGN_KV+LINE）
   "triggers": { "crons": [ /* "実際のcron式をダッシュボードから" */ ] },
   "kv_namespaces": [
-    { "binding": "HS_DESIGN_KV", "id": "<FILL_FROM_DASHBOARD>" },
-    { "binding": "GENKA_VERIFIED", "id": "<FILL_FROM_DASHBOARD>" },
-    { "binding": "HS_ESTIMATE_KV", "id": "<FILL_FROM_DASHBOARD>" },
-    { "binding": "ORDERS", "id": "<FILL_FROM_DASHBOARD>" },
+    { "binding": "HS_DESIGN_KV", "id": "ebeee94b11644031a2deaea32093ac8b" },
+    { "binding": "GENKA_VERIFIED", "id": "6f3214d203b0443bbf051d07a56db52a" },
+    { "binding": "HS_ESTIMATE_KV", "id": "c9c35a586ed04a41b38f564df9965264" },
+    { "binding": "ORDERS", "id": "700d6bc31fe9460db1ee5dba36ca622c" },
   ],
   "services": [
     { "binding": "PDF_GEN", "service": "hs-pdf-gen" },

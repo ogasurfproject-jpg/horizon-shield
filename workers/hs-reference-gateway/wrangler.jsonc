@@ -19,7 +19,7 @@
   "compatibility_date": "2025-01-01",   // PLACEHOLDER: 実値はダッシュボード Settings→Runtime で確認
   "compatibility_flags": ["nodejs_compat"],  // PLACEHOLDER: 実際のflagに合わせる（不要なら削除）
   "r2_buckets": [
-    { "binding": "REFERENCE_BUCKET", "bucket_name": "<FILL_FROM_DASHBOARD>" },
+    { "binding": "REFERENCE_BUCKET", "bucket_name": "hs-reference-data" },
   ],
   "vars": {
     "MODE": "<PLAINTEXT_VAR_値をダッシュボードから>",

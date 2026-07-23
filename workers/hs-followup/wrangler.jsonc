@@ -19,7 +19,7 @@
   // トリガー: あり（scheduled handlerはTODO段階）
   "triggers": { "crons": [ /* "実際のcron式をダッシュボードから" */ ] },
   "kv_namespaces": [
-    { "binding": "FOLLOWUP", "id": "<FILL_FROM_DASHBOARD>" },
+    { "binding": "FOLLOWUP", "id": "bb1da83e30914ea998eaeadbe389c79c" },
   ],
   // secrets（値はコードに入れない。`npx wrangler secret put <NAME>` で設定・Cloudflare上に既存）:
   //   ADMIN_KEY
