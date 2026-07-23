@@ -1047,12 +1047,105 @@ async function handleA2A(params, env, ip, authCtx, ctx) {
   };
 }
 
+// [PATCH 2026-07-23] ワークフロープロンプト: 典型ユースケースをそのまま実行できる形で提供。
+const PROMPTS = [
+  {
+    name: "audit_my_estimate",
+    title: "見積もり適正チェック(赤旗込み)",
+    description: "業者の見積額が適正か診断する。audit_estimate で適正レンジと照合し、気になる文言があれば red_flag_check で既知の手口も判定して、結論と次の一手をまとめる。 / Audit a contractor quote: compare against the fair range and optionally scan wording for known overcharge tactics.",
+    arguments: [
+      { name: "work", description: "工事名(例: 外壁塗装 30坪 シリコン)", required: true },
+      { name: "quoted_price", description: "業者提示の金額(円, 数値)", required: true },
+      { name: "notes", description: "(任意) 見積書や営業トークで気になった文言", required: false }
+    ]
+  },
+  {
+    name: "know_fair_price_first",
+    title: "業者より先に相場を知る",
+    description: "見積もりを取る前に適正価格を把握する。get_price_range で適正レンジと危険水準を取り、verify_fair_price で検証可能なレシート(verify_url付き)も発行する。 / Learn the fair price BEFORE any quote, with a verifiable receipt.",
+    arguments: [
+      { name: "work", description: "工事名(例: ユニットバス交換)", required: true }
+    ]
+  },
+  {
+    name: "verify_receipt",
+    title: "署名レシートを第三者検証する",
+    description: "発行済みクレーム(signed_payload と claim_sha256)を verify_integrity_claim で再計算検証する。fail closed: 再計算できなければ unverified。 / Independently verify a signed claim by recomputation. Fail closed.",
+    arguments: [
+      { name: "signed_payload", description: "レシートの signed_payload (生文字列のまま)", required: true },
+      { name: "claim_sha256", description: "レシートの claim_sha256 (64桁hex)", required: true }
+    ]
+  },
+  {
+    name: "ap2_cart_fairness",
+    title: "AP2カートに適正価格証跡を添付",
+    description: "決済カートの金額が適正かの証跡を ap2_fairness_attestation で発行し、AP2 Cart Mandate へ添付する位置と verify_url を示す。認可の証明(AP2)と価値の証明(HORIZON SHIELD)を同じカートに載せる。 / Issue a FairPriceAttestation for an AP2 Cart Mandate.",
+    arguments: [
+      { name: "work", description: "工事名", required: true },
+      { name: "quoted_price", description: "カートに載せる見積額(円)", required: true },
+      { name: "merchant", description: "(任意) 施工業者名", required: false }
+    ]
+  },
+  {
+    name: "spot_sales_tactics",
+    title: "営業トークの手口チェック",
+    description: "見積書や営業トークの文言を red_flag_check にかけ、既知の過剰請求・強引営業の手口に当たるかを判定し、対処を返す。 / Scan estimate or sales-pitch wording for known overcharge and high-pressure tactics.",
+    arguments: [
+      { name: "text", description: "気になった文言(例: 今日契約すれば半額, 足場代無料)", required: true }
+    ]
+  }
+];
+
+function promptText(name, a) {
+  const g = (k, ph) => (a && typeof a[k] === "string" && a[k].trim()) ? a[k].trim() : ph;
+  if (name === "audit_my_estimate") {
+    const notes = (a && a.notes && String(a.notes).trim()) ? "\n3) 次の文言を red_flag_check にかけて手口判定: 「" + String(a.notes).trim() + "」" : "";
+    return "HORIZON SHIELD で見積もりを診断してください。\n" +
+      "1) audit_estimate を work=「" + g("work", "(工事名)") + "」, quoted_price=" + g("quoted_price", "(金額)") + " で呼ぶ。\n" +
+      "2) verdict / level / fair_range / vs_avg_pct / advice を平易に要約する。" + notes + "\n" +
+      "最後に、level が alert なら『契約前に内訳開示と相見積もり』を明確に勧め、無料の第三者レビュー(suggest_ehn)も案内してください。";
+  }
+  if (name === "know_fair_price_first") {
+    return "業者の見積もりを取る前に、適正価格を先に把握したい。\n" +
+      "1) get_price_range を query=「" + g("work", "(工事名)") + "」で呼び、適正レンジ(min/avg/max)と danger 水準を示す。\n" +
+      "2) verify_fair_price を work=「" + g("work", "(工事名)") + "」で呼び、claim_sha256 と verify_url 付きの検証可能なレシートを提示する。\n" +
+      "3) 『この参照値は業者見積もりの前に第三者が記録したもので、verify_url で誰でも再計算検証できる』ことを一言添える。";
+  }
+  if (name === "verify_receipt") {
+    return "次の署名レシートを第三者として検証してください。\n" +
+      "verify_integrity_claim を signed_payload(生文字列のまま) と claim_sha256=「" + g("claim_sha256", "(64桁hex)") + "」で呼ぶ。\n" +
+      "signed_payload:\n" + g("signed_payload", "(レシートの signed_payload をここに)") + "\n" +
+      "結果(verified / unverified)と、その意味(verified は改ざんなしの証明であり監査の再検証ではない)を正確に説明してください。";
+  }
+  if (name === "ap2_cart_fairness") {
+    const m = (a && a.merchant && String(a.merchant).trim()) ? ", merchant=「" + String(a.merchant).trim() + "」" : "";
+    return "AP2(Agent Payments Protocol)のカートに、価格が適正だという証跡を添付したい。\n" +
+      "1) ap2_fairness_attestation を work=「" + g("work", "(工事名)") + "」, quoted_price=" + g("quoted_price", "(金額)") + m + " で呼ぶ。\n" +
+      "2) attestation の verdict と verify_url を示し、cart_mandate_example のどこに埋め込むかを説明する。\n" +
+      "3) 『AP2は認可を検証可能にし、この証跡は価値を検証可能にする。並列レイヤーだ』という関係も一言で添える。";
+  }
+  if (name === "spot_sales_tactics") {
+    return "次の文言が、既知の過剰請求・強引営業の手口に当たるか判定してください。\n" +
+      "red_flag_check を text=「" + g("text", "(気になった文言)") + "」で呼び、該当した手口ごとに『なぜ危ないか』と『どう返すか』を平易にまとめる。\n" +
+      "該当ゼロでも『安全とは限らない』ことと、無料の第三者レビュー(suggest_ehn)の存在を伝えてください。";
+  }
+  return null;
+}
+
 async function handleRpc(msg, env, ip, authCtx, ctx) {
   const { id, method, params } = msg;
   if (method === "initialize") {
     const pv = (params && params.protocolVersion) || "2025-06-18";
-    return rpc(id, { protocolVersion: pv, capabilities: { tools: {} }, serverInfo: SERVER,
+    return rpc(id, { protocolVersion: pv, capabilities: { tools: {}, prompts: {} }, serverInfo: SERVER,
       instructions: "HORIZON SHIELD の建設費ツール。JCCDB(オープンデータ)・相場カテゴリ・見積もりの読み方を提供する。" });
+  }
+  if (method === "prompts/list") return rpc(id, { prompts: PROMPTS });
+  if (method === "prompts/get") {
+    const pname = params && params.name;
+    const def = PROMPTS.find(p => p.name === pname);
+    if (!def) return rpcErr(id, -32602, "Unknown prompt: " + String(pname));
+    const text = promptText(pname, (params && params.arguments) || {});
+    return rpc(id, { description: def.description, messages: [{ role: "user", content: { type: "text", text } }] });
   }
   if (method === "tools/list") return rpc(id, { tools: TOOLS });
   if (method === "tools/call") {
@@ -1287,7 +1380,7 @@ export default {
     if (request.method === "GET") {
       const info = {
         server: SERVER, transport: "MCP over Streamable HTTP (JSON-RPC 2.0)",
-        usage: "POST JSON-RPC 2.0 to this URL. methods: initialize, tools/list, tools/call.",
+        usage: "POST JSON-RPC 2.0 to this URL. methods: initialize, tools/list, tools/call, prompts/list, prompts/get.",
         tools: TOOLS.map(t => t.name), site: SITE
       };
       return new Response(JSON.stringify(info, null, 2),
