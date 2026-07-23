@@ -162,6 +162,27 @@ const TOOLS = [
   }
 ];
 
+// [PATCH 2026-07-23] 出力スキーマ: 全ツールに outputSchema を付与(MCP 2025-06-18)。
+// 実レスポンスは分岐で形が揺れるため、必須指定なし + additionalProperties:true の誠実に緩い契約にする。
+// プレーン文字列の分岐は structuredContent を { message } に包んで返す(下のtools/callラッパ参照)。
+const OUTPUT_SCHEMAS = {
+  jccdb_dataset_info: { type: "object", description: "JCCDB(日本建設費オープンデータベース)のメタデータ。規模・ライセンス・ダウンロードリンク・引用情報。 / JCCDB dataset metadata: scale, license, links, citation.", additionalProperties: true },
+  list_cost_categories: { type: "object", description: "整備済みの建設・リフォーム工事カテゴリ(61種)の一覧。 / The 61 maintained construction and renovation cost categories.", properties: { categories: { description: "カテゴリ配列(id, name, group, priority, red_flags)" } }, additionalProperties: true },
+  search_cost_category: { type: "object", description: "工事名・キーワードに該当したカテゴリと、整備済み赤旗件数・優先度。 / Matched cost category with red-flag count and priority.", additionalProperties: true },
+  how_to_read_estimate: { type: "object", description: "見積もりが誠実かを判断する普遍原則(諸経費比率・一式表記・営業手口)。 / Universal principles for judging an estimate.", additionalProperties: true },
+  fair_price_data_sources: { type: "object", description: "相場データ(souba-db)の出典・更新日・地域係数。 / Sources, update date and regional multipliers behind the fair-price data.", additionalProperties: true },
+  get_price_range: { type: "object", description: "適正価格レンジ(min/avg/max)・過剰請求の危険水準・単位・価格動向・実務解説。 / Fair price range with overcharge danger threshold.", properties: { work: { description: "工事名" }, fair_range: { description: "適正レンジ" }, danger_threshold: { description: "危険水準" } }, additionalProperties: true },
+  audit_estimate: { type: "object", description: "見積額の適正診断。verdict・level(ok/watch/alert)・fair_range・danger_threshold・平均比・助言・出典。 / Quote audit verdict with fair range and advice.", properties: { verdict: { description: "判定" }, level: { description: "ok / watch / alert" }, fair_range: { description: "min/avg/max" }, vs_avg_pct: { description: "平均比(例 +18%)" }, advice: { description: "助言" } }, additionalProperties: true },
+  reverse_estimate_preview: { type: "object", description: "概算が平均からどちらの方向にどの程度ずれているかのプレビュー。具体的な適正額は含まない。 / Direction-only preview versus the average.", additionalProperties: true },
+  red_flag_check: { type: "object", description: "既知の過剰請求・強引営業の手口との照合結果。該当した手口と警告・対処。 / Matched overcharge or high-pressure tactics with warnings.", properties: { input: { description: "判定対象の文言" }, flags: { description: "該当手口の配列" }, result: { description: "件数の要約" } }, additionalProperties: true },
+  verify_fair_price: { type: "object", description: "検証可能な適正価格レシート。fair_price_claim(主張)・verification(claim_sha256, verify_url, PTKA)・provenance(出典)。 / Tamper-evident fair-price receipt with hash, verify_url and PTKA anchor.", properties: { fair_price_claim: { description: "刻印対象の主張(JSON.stringifyしてSHA-256すると claim_sha256 になる)" }, verification: { description: "claim_sha256, verify_url, ptka" }, provenance: { description: "データ出典・監修・再計算手順" } }, additionalProperties: true },
+  suggest_ehn: { type: "object", description: "EHN(見積もりハッカーニュース)への案内文と投稿URL。 / Guide and submission URL for the EHN anonymous review board.", properties: { submit_url: { description: "投稿フォーム" }, board_url: { description: "公開ボード" } }, additionalProperties: true },
+  get_agent_card: { type: "object", description: "A2Aエージェントカードの場所と公開スキル一覧。 / A2A Agent Card URL and published skills.", properties: { agent_card_url: { description: "エージェントカードURL" }, skills: { description: "公開スキル配列" } }, additionalProperties: true },
+  verify_integrity_claim: { type: "object", description: "署名済みクレームの第三者検証結果(fail closed)。result(verified/unverified)・failure_reason・recomputed_sha256・scope_check。 / Third-party verification result, fail closed.", properties: { result: { description: "verified / unverified" }, failure_reason: { description: "stale_data / changed_scope / missing_evidence" }, recomputed_sha256: { description: "再計算ハッシュ" } }, additionalProperties: true },
+  ap2_fairness_attestation: { type: "object", description: "AP2 Cart Mandate に添付できる適正価格証跡。attestation(FairPriceAttestation)・cart_mandate_example・verify_url。 / FairPriceAttestation for an AP2 Cart Mandate with attachment example.", properties: { ap2_bridge: { description: "AP2との関係(認可の検証 x 価値の検証)" }, attestation: { description: "証跡本体(subject, integrity)" }, cart_mandate_example: { description: "添付位置の例示(非規範)" } }, additionalProperties: true }
+};
+TOOLS.forEach(t => { if (OUTPUT_SCHEMAS[t.name]) t.outputSchema = OUTPUT_SCHEMAS[t.name]; });
+
 function txt(s) { return { content: [{ type: "text", text: typeof s === "string" ? s : JSON.stringify(s, null, 2) }] }; }
 
 // PTKA(取引前知識刻印)の既存の改ざん不能アンカー(サイト公開済み)
@@ -1150,6 +1171,17 @@ async function handleRpc(msg, env, ip, authCtx, ctx) {
   if (method === "tools/list") return rpc(id, { tools: TOOLS });
   if (method === "tools/call") {
     const r = await callTool(params && params.name, params && params.arguments, env, ip, { authCtx, ctx });
+    // [PATCH 2026-07-23] outputSchema対応: テキストがJSONなら structuredContent としても返す。
+    // プレーン文字列は { message } に包む。スキーマは additionalProperties:true なので常に適合する。
+    try {
+      if (r && !r.isError && Array.isArray(r.content) && r.content[0] && r.content[0].type === "text") {
+        const t = r.content[0].text;
+        let sc;
+        try { const p = JSON.parse(t); sc = Array.isArray(p) ? { items: p } : (p && typeof p === "object" ? p : { message: String(p) }); }
+        catch (_e) { sc = { message: t }; }
+        r.structuredContent = sc;
+      }
+    } catch (_e) { /* structuredContent はベストエフォート。本文content優先 */ }
     return rpc(id, r);
   }
   if (method === "ping") return rpc(id, {});
