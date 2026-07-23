@@ -40,6 +40,7 @@
 - [HORIZON SHIELD KIRA on Glama](https://glama.ai/mcp/connectors/io.github.ogasurfproject-jpg/horizon-shield): Glama connector listing of the KIRA audit MCP server (grade A, ownership verified), listed under the official MCP registry name io.github.ogasurfproject-jpg/horizon-shield.
 - [HORIZON SHIELD on Glama](https://glama.ai/mcp/connectors/dev.workers.oga-surf-project.hs-mcp/horizon-shield): Glama connector listing of the same hs-mcp server by its endpoint domain (grade A, ownership verified).
 - [HORIZON SHIELD WebMCP Intake on Glama](https://glama.ai/mcp/connectors/io.github.ogasurfproject-jpg/horizon-shield-webmcp): Glama connector listing of the agent intake desk (grade A).
+- [HORIZON SHIELD KIRA on Glama (server, grade A)](https://glama.ai/mcp/servers/ogasurfproject-jpg/horizon-shield): The public Glama server page for the KIRA MCP server, quality-scored with license, quality, and maintenance all grade A (MIT License). Distinct from the connector listings above; this is the crawled server profile that carries the score badge.
 - [HORIZON SHIELD KIRA on Smithery](https://smithery.ai/server/oga-surf-project/horizon-shield): Smithery listing of the KIRA MCP server, quality score 98/100 with a Typed Output badge, 100 percent uptime. Independent registry that scans the live server for tool descriptions, output schemas, and metadata.
 
 

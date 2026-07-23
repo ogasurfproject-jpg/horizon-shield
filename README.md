@@ -2,7 +2,7 @@
 
 > A **Model Context Protocol (MCP)** server that lets AI agents check whether a Japanese construction or renovation estimate is fair, against open data, and return a verifiable result.
 
-[![Glama: Grade A](https://img.shields.io/badge/Glama-Grade_A_verified-1f6feb)](https://glama.ai/mcp/connectors/io.github.ogasurfproject-jpg/horizon-shield) [![Smithery](https://img.shields.io/badge/Smithery-98%2F100-e35f34)](https://smithery.ai/server/oga-surf-project/horizon-shield)
+[![HORIZON SHIELD KIRA on Glama](https://glama.ai/mcp/servers/ogasurfproject-jpg/horizon-shield/badges/score.svg)](https://glama.ai/mcp/servers/ogasurfproject-jpg/horizon-shield) [![Smithery](https://img.shields.io/badge/Smithery-98%2F100-e35f34)](https://smithery.ai/server/oga-surf-project/horizon-shield)
 
 This repository is an **MCP server implementation**. It exposes read-only tools over the Model Context Protocol so that MCP-compatible clients and AI agents (Claude, and any other MCP host) can call construction-cost verification as a tool, not just read a web page.
 
