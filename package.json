@@ -7,7 +7,7 @@
     "post": "node post_to_note.js"
   },
   "dependencies": {
-    "puppeteer": "^21.0.0"
+    "puppeteer-core": "21.11.0"
   },
   "license": "MIT",
   "homepage": "https://shield.the-horizons-innovation.com",
