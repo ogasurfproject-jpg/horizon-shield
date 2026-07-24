@@ -1,0 +1,14 @@
+{
+  "name": "the-horizons",
+  "owner": {
+    "name": "The HORIZONs Co., Ltd.",
+    "url": "https://shield.the-horizons-innovation.com"
+  },
+  "plugins": [
+    {
+      "name": "horizon-shield",
+      "source": "./plugin",
+      "description": "Audit Japanese construction and renovation estimates against the open JCCDB dataset and return Bitcoin-anchored, independently recomputable fair-price receipts. Read-only remote MCP, no API key. Adds /audit, /red-flags, /verify."
+    }
+  ]
+}

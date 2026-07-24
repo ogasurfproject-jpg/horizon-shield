@@ -6,6 +6,28 @@ This plugin bundles:
 
 - A remote MCP connector (`horizon-shield`) that points at the public HORIZON SHIELD server at `https://hs-mcp.oga-surf-project.workers.dev`. Read-only, no API key.
 - A skill that teaches Claude when and how to use the audit tools.
+- Three slash commands: `/audit`, `/red-flags`, `/verify`.
+
+## Install
+
+From Claude Code or Cowork:
+
+```
+/plugin marketplace add ogasurfproject-jpg/horizon-shield
+/plugin install horizon-shield@the-horizons
+```
+
+Then reload:
+
+```
+/reload-plugins
+```
+
+## Commands
+
+- `/audit <work name> <quoted price in JPY>` : judge a quote as fair, a bit high, or overcharge-risk, with the gap from the average.
+- `/red-flags <estimate or sales wording>` : flag known overcharge and high-pressure tactics.
+- `/verify <work name>` : issue a tamper-evident fair-price receipt (SHA-256, recomputable at a verify URL).
 
 ## What it does
 

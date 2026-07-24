@@ -1,8 +1,8 @@
 {
   "name": "horizon-shield",
   "displayName": "HORIZON SHIELD",
-  "version": "1.0.0",
-  "description": "Audit Japanese construction and renovation estimates against the open JCCDB dataset and return Bitcoin-anchored, independently recomputable fair-price receipts. Read-only remote MCP, no API key.",
+  "version": "1.1.0",
+  "description": "Audit Japanese construction and renovation estimates against the open JCCDB dataset and return Bitcoin-anchored, independently recomputable fair-price receipts. Read-only remote MCP, no API key. Adds /audit, /red-flags, /verify commands.",
   "author": {
     "name": "Toshikatsu Oga",
     "email": "contact@the-horizons-innovation.com",
