@@ -19496,21 +19496,6 @@ var worker_default = {
           }
         });
       }
-      if (pathname === "/canary" && request.method === "GET") {
-        var __canaryEnc = new TextEncoder().encode(JSON.stringify(HS_AUDIT_CANARY_EX));
-        var __canaryDigest = await crypto.subtle.digest("SHA-256", __canaryEnc);
-        var __canaryHex = Array.from(new Uint8Array(__canaryDigest)).map(function(b) { return b.toString(16).padStart(2, "0"); }).join("");
-        var __canaryLive = __canaryHex.slice(0, 16).toUpperCase();
-        return new Response(JSON.stringify({
-          purpose: "public witness for independent verification per JIDEC entries #3 (script) and #4 (bundled source)",
-          canary_ex: HS_AUDIT_CANARY_EX,
-          canary_expect_hash: HS_AUDIT_CANARY_EXPECT.hash,
-          live_computed_hash: __canaryLive,
-          match: __canaryLive === HS_AUDIT_CANARY_EXPECT.hash,
-          verifier_hint: "Compare canary_ex to the CANARY in verify_finding_v0.py (JIDEC entry #3). live_computed_hash must equal canary_expect_hash and both must equal C025E288675EE898.",
-          spec: "SPEC_HASH_INDEPENDENCE_v1.md (JIDEC entry #2)"
-        }, null, 2), { headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders() } });
-      }
       if (pathname === "/font-test" && request.method === "GET") {
         const testHtml = `<!DOCTYPE html>
 <html>
