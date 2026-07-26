@@ -1,10 +1,15 @@
 // hs-ledger — 2026-07-23 番人v3起案（liveから救出したworkerのrepo収載用）
+// 2026-07-26 追記: Phase 3b — /paths/{sha}/replay の cross-worker 再観測用に
+//   PDF_GEN service binding を追加（hs-pdf-gen をループバックなしで呼ぶ）。
 {
   "name": "hs-ledger",
   "main": "src/worker.js",
   "compatibility_date": "2026-05-18",   // live実測 2026-07-23（wrangler versions view）
   "kv_namespaces": [
     { "binding": "LEDGER", "id": "37f6ebec621e42e9b9d6362ef6114e78" }  // KV "LEDGER"(実ID確認済み)
+  ],
+  "services": [
+    { "binding": "PDF_GEN", "service": "hs-pdf-gen" }  // Phase 3b: cross-worker replay
   ]
   // secrets(ファイルに書かない・wrangler secret put で設定): LEDGER_ADMIN_TOKEN
 }

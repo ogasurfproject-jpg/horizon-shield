@@ -67,6 +67,9 @@ function asPathV1(record_canonical) {
   } catch {}
   return null;
 }
+async function sha256hexBuf(buf) {
+  return [...new Uint8Array(await crypto.subtle.digest("SHA-256", buf))].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 function pathCard(e, obj, origin) {
   return {
     entry: e.n,
@@ -357,8 +360,10 @@ export default {
         // client-side replay, which runs outside Cloudflare and re-fetches for real. This
         // reports only what it can actually verify — it never emits a false DRIFT.
         const selfHost = url.host;
+        const hasPdfGen = env.PDF_GEN && typeof env.PDF_GEN.fetch === "function";
         const diffs = [];
         let drift = false, reobserved = 0;
+        const fetchTotal = obj.nodes.filter((x) => x.kind === "fetch").length;
         for (const nd of obj.nodes) {
           if (nd.kind !== "fetch") continue;
           const u = nd.request && nd.request.url;
@@ -368,25 +373,41 @@ export default {
           const lm = uo && uo.pathname.match(/^\/ledger\/(\d+)$/);
           const isRaw = uo && uo.searchParams.get("format") === "raw";
           if (uo && uo.host === selfHost && lm && isRaw) {
+            // this ledger's own immutable entry — read from KV, no loopback
             const te = await getEntry(env, Number(lm[1]));
             const freshSha = te ? (await sha256hex(te.record_canonical)).toLowerCase() : null;
             const changed = freshSha !== anchored;
             if (changed) drift = true;
             reobserved++;
             diffs.push({ n: nd.n, url: u, source: "ledger KV (immutable)", anchored_body_sha256: anchored, fresh_body_sha256: freshSha, changed });
+          } else if (uo && hasPdfGen && /^hs-pdf-gen\./.test(uo.host)) {
+            // cross-worker node re-observed via service binding (no public-hostname loopback)
+            let freshSha = null, err = null;
+            try {
+              const r = await env.PDF_GEN.fetch(new Request(u, { headers: { "user-agent": "hs-ledger-replay" } }));
+              freshSha = await sha256hexBuf(await r.arrayBuffer());
+            } catch (ex) { err = String((ex && ex.message) || ex); }
+            const changed = err ? true : freshSha !== anchored;
+            if (changed) drift = true;
+            reobserved++;
+            diffs.push({ n: nd.n, url: u, source: "service binding PDF_GEN", anchored_body_sha256: anchored, fresh_body_sha256: freshSha, changed, ...(err ? { error: err } : {}) });
           } else {
-            diffs.push({ n: nd.n, url: u, deferred: "cross-host node — re-verify with client-side `jidec_path.py --replay`" });
+            diffs.push({ n: nd.n, url: u, deferred: "cross-host node not bound server-side — re-verify with client-side `jidec_path.py --replay`" });
           }
         }
+        const full = reobserved === fetchTotal && fetchTotal > 0;
         const result = reobserved === 0
-          ? "INCONCLUSIVE — no server-re-observable ledger nodes; run client-side replay"
+          ? "INCONCLUSIVE — no server-re-observable nodes; run client-side replay"
           : drift
-            ? "DRIFT — a ledger-immutable node changed (investigate)"
-            : "MATCH (partial) — server-re-observable ledger nodes unchanged; cross-host nodes deferred to client";
+            ? "DRIFT — a re-observed node changed (investigate)"
+            : full
+              ? "MATCH — all fetch nodes re-observed server-side, no drift"
+              : "MATCH (partial) — re-observed nodes unchanged; unbound nodes deferred to client";
         return json({
           path_id: sha, entry: Number(nRef), anchored_verdict: obj.verdict && obj.verdict.outcome,
-          reobserved_nodes: reobserved, drift, result, diffs,
-          note: "Server-side replay re-observes only this ledger's own immutable entries from KV (no loopback, no false positives). Cross-worker nodes such as /canary are re-fetched by the client-side replay outside Cloudflare.",
+          reobserved_nodes: reobserved, fetch_nodes: fetchTotal, coverage: full ? "full" : "partial",
+          drift, result, diffs,
+          note: "Ledger's own entries are re-observed from KV; hs-pdf-gen nodes via the PDF_GEN service binding (no loopback). Any node that cannot be re-observed server-side is deferred to client-side replay, never counted as drift.",
         });
       }
     }
