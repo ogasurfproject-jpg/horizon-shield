@@ -340,6 +340,12 @@ curl -s "${origin}/ledger/5?format=raw" | shasum -a 256
 The output must equal the cited id. If it does not, the citation is bad and
 nothing else on this site matters.
 
+Hash exactly what you receive. The raw route serves the anchored bytes verbatim;
+there is no canonicalisation step to apply and none to guess. If something in the
+middle re-indents or re-encodes the response first — a browser view, a markdown
+converter, a summarising fetch tool — the digest will not match, and the mismatch
+is that intermediary, not the ledger. Pipe curl straight into your hash tool.
+
 ## 3. Check the timestamp
 
 \`\`\`
@@ -352,10 +358,17 @@ honest, not a failure: Bitcoin confirmation takes hours.
 
 ## 4. Reproduce the audit itself
 
-\`GET ${origin}/verify/{n}\` returns a seven-step recipe: which bytes to fetch,
-which reference bundle is pinned, which algorithm commit to check out, and what
-each recomputed hash must equal. If all seven match, the result is the
-deterministic output of the declared inputs. Our assertion is not needed.
+\`GET ${origin}/verify/{n}\` returns a recipe for any entry.
+
+For an entry that declares a \`jidec-claim-v1\` audit it is a seven-step recipe:
+which bytes to fetch, which reference bundle is pinned, which algorithm commit to
+check out, and what each recomputed hash must equal. If all seven match, the
+result is the deterministic output of the declared inputs.
+
+For every other entry — specifications, source witnesses, correction notices — it
+is a three-step byte-level recipe: fetch, hash, check the timestamp. That is less
+than a full audit reproduction, and the route says so rather than pretending
+otherwise. Either way our assertion is not needed.
 
 ## Endpoints
 
@@ -704,7 +717,38 @@ export default {
       const e = await getEntry(env, n);
       if (!e) return json({ error: "not found" }, 404);
       const sch = parseClaimSchema(e.record_canonical);
-      if (sch.schema !== "v1") return json({ error: "verification recipe available for v1 claims only", schema: sch.schema, note: "entry #1 is v0 (concept-proof only)" }, 400);
+      if (sch.schema !== "v1") {
+        // 2026-07-26: this used to return 400. That was wrong, and a blank third-party
+        // agent found it: llms.txt section 4 and the correction notice anchored as entry #7
+        // both send a reader to this route, and both are right — it was the route that was
+        // too narrow. Every entry, whatever its schema, is verifiable at the byte level.
+        // A verifier who is told to come here must get a recipe, not an error.
+        return json({
+          entry: n,
+          claim_sha256: e.claim_sha256,
+          bitcoin_status: e.ots_status,
+          bitcoin_block: e.bitcoin_block,
+          record_kind: sch.schema,
+          scope:
+            "Byte-level integrity and timestamp only. This entry does not declare a jidec-claim-v1 audit, " +
+            "so there is no pinned reference bundle or algorithm commit to recompute. What you can establish " +
+            "here is that these exact bytes existed at or before the anchored time and have not changed.",
+          bytes_note:
+            "The raw route serves the anchored bytes verbatim as text/plain. Hash exactly what you receive. " +
+            "There is no canonicalisation step to apply and none to guess. If an intermediary (a browser view, " +
+            "a markdown converter, a summarising fetch tool) re-indents or re-encodes the response before you " +
+            "hash it, the digest will not match and the mismatch is the intermediary, not the ledger. " +
+            "Pipe curl straight into your hash tool.",
+          one_liner: `curl -s "${origin}/ledger/${n}?format=raw" | shasum -a 256   # must print ${e.claim_sha256}`,
+          recipe: [
+            { step: 1, action: "fetch the exact anchored bytes", url: `${origin}/ledger/${n}?format=raw`, verify: `shasum -a 256 => ${e.claim_sha256}` },
+            { step: 2, action: "fetch and check the Bitcoin proof", url: `${origin}/ledger/${n}/ots`, verify: e.ots_status === "unstamped" ? "not stamped yet — nothing to check" : "ots verify -f <bytes file> <proof>, or upload both at https://opentimestamps.org" },
+            { step: 3, action: "read what this does and does not prove", url: `${origin}/health`, verify: "see the transparency object; the limits are stated there, not implied" },
+          ],
+          conclusion:
+            "If step 1 matches and step 2 verifies, the conclusion holds without any assertion from HORIZON SHIELD.",
+        });
+      }
       const c = sch.claim;
       const recipeDoc = {
         entry: n,

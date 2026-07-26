@@ -1,5 +1,26 @@
 # HORIZON SHIELD MCP Server
 
+## JIDEC — verify this project without trusting it
+
+The verification process behind HORIZON SHIELD's results is published as a
+Bitcoin-anchored, append-only public ledger. You do not have to trust us: fetch
+the anchored bytes, hash them yourself, and check the timestamp.
+
+- Start here: <https://hs-ledger.oga-surf-project.workers.dev/llms.txt>
+- Ledger index: <https://hs-ledger.oga-surf-project.workers.dev/ledger>
+- Machine-readable catalog (RFC 9727): <https://hs-ledger.oga-surf-project.workers.dev/.well-known/api-catalog>
+- Read-only MCP endpoint: <https://hs-jidec-mcp.oga-surf-project.workers.dev/mcp>
+
+One line is enough to check any entry:
+
+```
+curl -s "https://hs-ledger.oga-surf-project.workers.dev/ledger/5?format=raw" | shasum -a 256
+```
+
+What this proves and what it does not is stated by the ledger itself at
+`/health` under `transparency`, including that OpenTimestamps has no RFC, ISO or
+eIDAS standing.
+
 > A **Model Context Protocol (MCP)** server that lets AI agents check whether a Japanese construction or renovation estimate is fair, against open data, and return a verifiable result.
 
 [![HORIZON SHIELD KIRA on Glama](https://glama.ai/mcp/servers/ogasurfproject-jpg/horizon-shield/badges/score.svg)](https://glama.ai/mcp/servers/ogasurfproject-jpg/horizon-shield) [![Smithery](https://img.shields.io/badge/Smithery-98%2F100-e35f34)](https://smithery.ai/server/oga-surf-project/horizon-shield)
