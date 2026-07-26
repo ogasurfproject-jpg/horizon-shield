@@ -225,7 +225,15 @@ const PTKA = {
   bitcoin_block: 949356,
   declaration_sha256: "596da30ba4ca731f21efaa1c4a6537290e996e0f039cbe57704de1674e4a0282",
   verify_via: "OpenTimestamps (https://opentimestamps.org)",
-  roadmap: "個別診断ごとの自動オンチェーン刻印は、第三者刻印機関JIDEC(2026年6月発足)を通じて運用開始予定。"
+  jidec: {
+    status: "operational",
+    since: "2026-07",
+    ledger: "https://hs-ledger.oga-surf-project.workers.dev",
+    catalog: "https://hs-ledger.oga-surf-project.workers.dev/.well-known/api-catalog",
+    guide: "https://hs-ledger.oga-surf-project.workers.dev/llms.txt",
+    note: "第三者刻印機関JIDECは稼働中。検証プロセス自体をSHA-256で内容アドレス化し、OpenTimestamps経由でBitcoinに錨を打った公開台帳を運用している。HORIZON SHIELDを信用しなくても第三者が検証を再実行できる。"
+  },
+  roadmap: "個別診断ごとの自動オンチェーン刻印は、稼働中のJIDEC台帳(https://hs-ledger.oga-surf-project.workers.dev)へ順次移行中。"
 };
 
 async function sha256hex(str) {
@@ -1377,6 +1385,14 @@ export default {
             }
           ],
           documentationUrl: SITE,
+          ledger: {
+            name: "JIDEC",
+            description: "Bitcoin-anchored append-only public ledger of the verification process itself. Lets a third party re-run our verification without trusting us.",
+            url: "https://hs-ledger.oga-surf-project.workers.dev",
+            catalog: "https://hs-ledger.oga-surf-project.workers.dev/.well-known/api-catalog",
+            agentCard: "https://hs-ledger.oga-surf-project.workers.dev/.well-known/agent-card.json",
+            mcp: "https://hs-jidec-mcp.oga-surf-project.workers.dev/mcp"
+          },
           dataset: {
             name: "Japan Construction Cost Database (JCCDB)",
             license: "CC BY 4.0",
@@ -1418,7 +1434,16 @@ export default {
               chain: "bitcoin",
               block: 949356,
               method: "OpenTimestamps",
-              per_diagnosis_roadmap: "Individual on-chain receipts per diagnosis are roadmapped via JIDEC."
+              jidec: {
+                status: "operational",
+                ledger: "https://hs-ledger.oga-surf-project.workers.dev",
+                catalog: "https://hs-ledger.oga-surf-project.workers.dev/.well-known/api-catalog",
+                verification_guide: "https://hs-ledger.oga-surf-project.workers.dev/llms.txt",
+                mcp: "https://hs-jidec-mcp.oga-surf-project.workers.dev/mcp",
+                note: "JIDEC is live: an append-only, Bitcoin-anchored public ledger of the verification process itself. Resolve any citation at /cite/{citation}; recompute the hash yourself from /ledger/{n}?format=raw. No trust in HORIZON SHIELD is required.",
+                limits: "JIDEC is NOT a conformant SCITT Transparency Service and OpenTimestamps has no RFC/ISO/ETSI/eIDAS standing. See https://hs-ledger.oga-surf-project.workers.dev/health for the full self-declared limits."
+              },
+              per_diagnosis_roadmap: "Per-diagnosis receipts are being migrated onto the live JIDEC ledger at https://hs-ledger.oga-surf-project.workers.dev."
             }
           },
           failure_model: {

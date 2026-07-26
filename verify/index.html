@@ -172,6 +172,14 @@
       <span class="pill"><a href="https://opentimestamps.org" rel="noopener">OpenTimestamps で検証</a></span>
     </div>
     <p style="margin-top:14px;font-size:13px;color:#7E8DA6">補足：block #949356 は PTKA(取引前知識刻印)の宣言を Bitcoin に刻んだ点。監査1件ごとの個別ハッシュのオンチェーン刻印は、第三者刻印機関 JIDEC を通じて順次運用。いずれも「発行者を信用せず、数学で確かめる」ための仕組みです。</p>
+    <div style="margin-top:18px;padding:14px 16px;border:1px solid #2A3448;border-radius:10px;background:#131A28">
+      <p style="margin:0 0 8px;font-size:14px;font-weight:600;color:#E6EDF7">この検証が証明していないこと</p>
+      <p style="margin:0 0 6px;font-size:13px;line-height:1.7;color:#9AA8BF">ハッシュが一致したとき証明されるのは、<b>その主張が発行後に書き換えられていない</b>ことだけです。次の3つは証明していません。</p>
+      <p style="margin:0 0 6px;font-size:13px;line-height:1.7;color:#9AA8BF">・その金額の判定が正しいこと。価格判定の中身（相場データベースの閾値）はハッシュに含まれていません。</p>
+      <p style="margin:0 0 6px;font-size:13px;line-height:1.7;color:#9AA8BF">・判定ルールが現在も妥当であること。検証は発行時のルールで再計算するだけで、ルールの再審査は行いません（<code>audit_ruleset_recheck</code> は常に <code>not_performed</code>）。</p>
+      <p style="margin:0 0 10px;font-size:13px;line-height:1.7;color:#9AA8BF">・OpenTimestamps に制度上の地位があること。RFC も ISO も ETSI も eIDAS 上の地位もありません。監査法人に出すなら RFC 3161 か eIDAS 適格タイムスタンプを併せて求めてください。</p>
+      <p style="margin:0;font-size:13px;line-height:1.7;color:#9AA8BF">検証プロセスそのものを第三者が再実行できるようにした公開台帳が <a href="https://hs-ledger.oga-surf-project.workers.dev/llms.txt" style="color:#6FA8FF">JIDEC</a> です。こちらを信用せずに確かめたい場合は、そこから始めてください。</p>
+    </div>
   </div>
 
   <div class="foot">
