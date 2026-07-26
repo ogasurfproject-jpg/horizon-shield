@@ -67,10 +67,6 @@ function asPathV1(record_canonical) {
   } catch {}
   return null;
 }
-const REPLAY_HOST_OK = (host) => /(^|\.)oga-surf-project\.workers\.dev$/.test(String(host));
-async function sha256hexBuf(buf) {
-  return [...new Uint8Array(await crypto.subtle.digest("SHA-256", buf))].map((b) => b.toString(16).padStart(2, "0")).join("");
-}
 function pathCard(e, obj, origin) {
   return {
     entry: e.n,
@@ -354,35 +350,43 @@ export default {
       }
 
       if (pm[2] && request.method === "GET") {
-        // Server-side replay: re-fetch each FETCH node's URL (compute nodes are deterministic
-        // functions of them), recompute the body hash, and diff against the anchored observation.
+        // Server-side replay. A Worker fetching another worker on the same account by its
+        // public workers.dev hostname loops back to itself, so we do NOT fetch: we re-observe
+        // only THIS ledger's own immutable entries directly from KV (which cannot loop and
+        // cannot lie), and defer cross-host nodes (e.g. /canary on hs-pdf-gen) to the
+        // client-side replay, which runs outside Cloudflare and re-fetches for real. This
+        // reports only what it can actually verify — it never emits a false DRIFT.
+        const selfHost = url.host;
         const diffs = [];
-        let drift = false;
+        let drift = false, reobserved = 0;
         for (const nd of obj.nodes) {
           if (nd.kind !== "fetch") continue;
           const u = nd.request && nd.request.url;
-          let host = "";
-          try { host = new URL(u).host; } catch {}
-          if (!REPLAY_HOST_OK(host)) {
-            diffs.push({ n: nd.n, url: u, skipped: "host not in replay allowlist" });
-            continue;
+          const anchored = (nd.response && nd.response.body_sha256) || null;
+          let uo = null;
+          try { uo = new URL(u); } catch {}
+          const lm = uo && uo.pathname.match(/^\/ledger\/(\d+)$/);
+          const isRaw = uo && uo.searchParams.get("format") === "raw";
+          if (uo && uo.host === selfHost && lm && isRaw) {
+            const te = await getEntry(env, Number(lm[1]));
+            const freshSha = te ? (await sha256hex(te.record_canonical)).toLowerCase() : null;
+            const changed = freshSha !== anchored;
+            if (changed) drift = true;
+            reobserved++;
+            diffs.push({ n: nd.n, url: u, source: "ledger KV (immutable)", anchored_body_sha256: anchored, fresh_body_sha256: freshSha, changed });
+          } else {
+            diffs.push({ n: nd.n, url: u, deferred: "cross-host node — re-verify with client-side `jidec_path.py --replay`" });
           }
-          let freshSha = null, status = null, err = null;
-          try {
-            const r = await fetch(u, { headers: { "user-agent": "hs-ledger-replay" } });
-            status = r.status;
-            freshSha = await sha256hexBuf(await r.arrayBuffer());
-          } catch (ex) { err = String(ex && ex.message || ex); }
-          const anchored = nd.response && nd.response.body_sha256;
-          const changed = err ? true : freshSha !== anchored;
-          if (changed) drift = true;
-          diffs.push({ n: nd.n, url: u, status, anchored_body_sha256: anchored, fresh_body_sha256: freshSha, changed, ...(err ? { error: err } : {}) });
         }
+        const result = reobserved === 0
+          ? "INCONCLUSIVE — no server-re-observable ledger nodes; run client-side replay"
+          : drift
+            ? "DRIFT — a ledger-immutable node changed (investigate)"
+            : "MATCH (partial) — server-re-observable ledger nodes unchanged; cross-host nodes deferred to client";
         return json({
           path_id: sha, entry: Number(nRef), anchored_verdict: obj.verdict && obj.verdict.outcome,
-          drift, diffs,
-          result: drift ? "DRIFT — a re-fetched node differs from the anchored observation" : "MATCH — no drift on fetch nodes",
-          note: "Server re-fetches only this project's own hosts. Compute nodes are deterministic over their input fetch nodes, so matching fetch bytes imply matching computes.",
+          reobserved_nodes: reobserved, drift, result, diffs,
+          note: "Server-side replay re-observes only this ledger's own immutable entries from KV (no loopback, no false positives). Cross-worker nodes such as /canary are re-fetched by the client-side replay outside Cloudflare.",
         });
       }
     }
