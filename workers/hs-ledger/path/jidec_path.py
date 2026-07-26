@@ -229,16 +229,93 @@ def walk_entry4(base, pdfgen, transport=urllib_transport, clock=time.time, walke
 
 
 # --------------------------------------------------------------------------
+# replay — re-walk an anchored path and report drift (the "reverse" direction)
+# --------------------------------------------------------------------------
+def load_anchored(source, transport=urllib_transport):
+    """Load an anchored path from a ledger URL (…/ledger/{n}?format=raw) or a
+    local file. Both the ledger's canonical form and the human path JSON carry
+    nodes/assertions/verdict, which is all replay needs."""
+    if source.startswith("http://") or source.startswith("https://"):
+        status, _headers, body = transport("GET", source, None, None)
+        if status != 200:
+            raise RuntimeError("could not fetch anchored path: HTTP %s" % status)
+        return json.loads(body.decode("utf-8"))
+    with open(source, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _node_observation(node):
+    """The content-addressed, drift-relevant value of a node (timestamps and
+    durations are deliberately excluded — they change every walk by design)."""
+    if node.get("kind") == "fetch":
+        return "response.body_sha256", node["response"]["body_sha256"]
+    return "output_sha256", node["output_sha256"]
+
+
+# node indices whose bytes are immutable once anchored (a ledger entry's raw
+# record cannot change); drift here is not "redeploy", it is alarming.
+IMMUTABLE_NODES = {2}
+
+
+def replay(anchored, base, pdfgen, transport=urllib_transport, clock=time.time):
+    fresh = walk_entry4(base, pdfgen, transport=transport, clock=clock)["presented"]
+    a_nodes, f_nodes = anchored.get("nodes", []), fresh.get("nodes", [])
+    diffs = []
+    for i in range(max(len(a_nodes), len(f_nodes))):
+        a = a_nodes[i] if i < len(a_nodes) else None
+        f = f_nodes[i] if i < len(f_nodes) else None
+        if a is None or f is None:
+            diffs.append({"n": i, "changed": True, "what": "node count differs"})
+            continue
+        af, av = _node_observation(a)
+        _ff, fv = _node_observation(f)
+        what = a.get("label") or a.get("request", {}).get("url", "")
+        diffs.append({
+            "n": i, "kind": a.get("kind"), "field": af,
+            "anchored": av, "fresh": fv, "changed": (av != fv),
+            "immutable": i in IMMUTABLE_NODES, "what": what,
+        })
+    av_verdict = anchored.get("verdict", {}).get("outcome")
+    fv_verdict = fresh.get("verdict", {}).get("outcome")
+    drift = any(d["changed"] for d in diffs) or (av_verdict != fv_verdict)
+    return {"drift": drift, "diffs": diffs,
+            "anchored_verdict": av_verdict, "fresh_verdict": fv_verdict}
+
+
+# --------------------------------------------------------------------------
 # cli
 # --------------------------------------------------------------------------
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="Record a JIDEC verification path.")
+    ap = argparse.ArgumentParser(description="Record or replay a JIDEC verification path.")
     ap.add_argument("--walk", default="entry4", choices=["entry4"])
     ap.add_argument("--base", default="https://hs-ledger.oga-surf-project.workers.dev")
     ap.add_argument("--pdfgen", default="https://hs-pdf-gen.oga-surf-project.workers.dev")
     ap.add_argument("--out", default="path_entry4.json")
     ap.add_argument("--seed", default="seed_path.json")
+    ap.add_argument("--replay", default=None,
+                    help="anchored path source (ledger URL or local file). Re-walks and reports drift.")
     args = ap.parse_args(argv)
+
+    if args.replay:
+        anchored = load_anchored(args.replay)
+        rep = replay(anchored, args.base, args.pdfgen)
+        print("replay of: %s" % args.replay)
+        print("anchored verdict: %s  |  fresh verdict: %s"
+              % (rep["anchored_verdict"], rep["fresh_verdict"]))
+        for d in rep["diffs"]:
+            tag = "DRIFT" if d.get("changed") else " ok  "
+            imm = " [immutable]" if d.get("immutable") else ""
+            print("  [%s] node %s %s %s%s" % (tag, d["n"], d.get("kind", ""), d.get("what", ""), imm))
+            if d.get("changed") and "anchored" in d:
+                print("         anchored %s = %s" % (d.get("field"), d.get("anchored")))
+                print("         fresh    %s = %s" % (d.get("field"), d.get("fresh")))
+        if rep["drift"]:
+            alarming = any(d.get("changed") and d.get("immutable") for d in rep["diffs"])
+            print("RESULT: DRIFT — the live system differs from the anchored observation"
+                  + ("  (an IMMUTABLE node changed — investigate)" if alarming else ""))
+            return 2
+        print("RESULT: MATCH — no drift since anchoring")
+        return 0
 
     result = walk_entry4(args.base, args.pdfgen)
 
