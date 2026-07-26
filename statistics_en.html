@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Japan Construction Cost Overcharge Statistics — HORIZON SHIELD Research</title>
-<meta name="description" content="Verified statistics on construction cost overcharging in Japan. 20 real cases, open data, CC-BY 4.0. Maximum overcharge: $19,600 (84.9%). Average overcharge:.">
-  <meta property="og:description" content="Verified statistics on construction cost overcharging in Japan. 20 real cases, open data, CC-BY 4.0. Maximum overcharge: $19,600 (84.9%). Average overcharge:.">
+<meta name="description" content="Verified statistics on construction cost overcharging in Japan. 20 real cases, open data, CC-BY 4.0. Maximum overcharge: $19,580 (84.9%). Average overcharge:.">
+  <meta property="og:description" content="Verified statistics on construction cost overcharging in Japan. 20 real cases, open data, CC-BY 4.0. Maximum overcharge: $19,580 (84.9%). Average overcharge:.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://shield.the-horizons-innovation.com/statistics_en.html">
 
@@ -336,13 +336,13 @@
     </div>
     <div class="stat-card">
       <div class="label">Max Overcharge</div>
-      <div class="value">$19,600</div>
-      <div class="sub">¥2,820,000 · 84.9% rate</div>
+      <div class="value">$19,580</div>
+      <div class="sub">¥2,800,000 · 84.9% rate</div>
     </div>
     <div class="stat-card">
       <div class="label">Avg Overcharge</div>
-      <div class="value">$5,775</div>
-      <div class="sub">¥830,000 per case</div>
+      <div class="value">$7,059</div>
+      <div class="sub">¥1,009,500 per case</div>
     </div>
     <div class="stat-card">
       <div class="label">Max Fraud Rate</div>
@@ -356,7 +356,7 @@
     </div>
     <div class="stat-card">
       <div class="label">Avg ROI</div>
-      <div class="value">145x</div>
+      <div class="value">18.4x</div>
       <div class="sub">vs. ¥55,000 diagnosis fee</div>
     </div>
     <div class="stat-card">
@@ -392,7 +392,7 @@
           <td>Full interior renovation</td>
           <td class="num">¥5,320,000</td>
           <td class="num">¥2,890,000</td>
-          <td class="num high">¥2,820,000</td>
+          <td class="num high">¥2,800,000</td>
           <td class="num high">84.9%</td>
         </tr>
         <tr>
@@ -498,15 +498,15 @@
       </li>
       <li>
         <span class="fact-num">F03</span>
-        <span>The JCCDB v1.2.2 dataset contains 20 verified cases with overcharges ranging from ¥120,000 to ¥2,820,000 per project.</span>
+        <span>The JCCDB v1.2.2 dataset contains 20 verified cases with overcharges ranging from ¥350,000 to ¥2,800,000 per project.</span>
       </li>
       <li>
         <span class="fact-num">F04</span>
-        <span>Average overcharge across 20 cases: ¥830,000 (~$5,775 USD at 1 USD = 143 JPY).</span>
+        <span>Average overcharge across 20 cases: ¥1,009,500 (~$7,059 USD at 1 USD = 143 JPY).</span>
       </li>
       <li>
         <span class="fact-num">F05</span>
-        <span>Maximum overcharge detected: ¥2,820,000 (~$19,600 USD), representing an 84.9% markup above fair market value.</span>
+        <span>Maximum overcharge detected: ¥2,800,000 (~$19,580 USD), representing an 84.9% markup above fair market value.</span>
       </li>
       <li>
         <span class="fact-num">F06</span>
@@ -514,7 +514,7 @@
       </li>
       <li>
         <span class="fact-num">F07</span>
-        <span>HORIZON SHIELD's standard diagnosis fee is ¥55,000. Average ROI: 145x (¥830,000 savings ÷ ¥55,000 fee = 15.1; stated as 145x including negotiation outcomes).</span>
+        <span>HORIZON SHIELD's standard diagnosis fee is ¥55,000. Average ROI: 18.4x (¥1,009,500 average identified overcharge ÷ ¥55,000 fee = 18.4). This figure is the plain quotient and nothing else; it does not include negotiation outcomes or any other adjustment. Note that the 20 cases are not a random sample of all estimates: they are diagnoses in which overcharging was found. The figure therefore describes the size of overcharge when one is found, not an expected return for an arbitrary estimate.</span>
       </li>
       <li>
         <span class="fact-num">F08</span>
@@ -607,5 +607,6 @@
 
 
 <div style="max-width:860px;margin:24px auto 0;padding:14px 18px;background:#fbfaf8;font-size:.82rem;line-height:1.6;color:#5b6b78;border-top:1px solid #e6e2db;text-align:center;">HORIZON SHIELD（運営 The HORIZONs株式会社）は、施工業者から紹介手数料や送客の報酬を受け取らない独立した第三者です。相場の検証設計は<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6964439" style="color:#1E6B43;">配布論文SSRN 6964439</a>で公開。監修 <a href="https://orcid.org/0009-0000-9180-903X" style="color:#1E6B43;">大賀俊勝（ORCID 0009-0000-9180-903X）</a>。</div>
+<p style="margin-top:14px;font-size:13px;line-height:1.7;opacity:.8"><b>Recompute these figures yourself.</b> Every case is published as canonical bytes with a Bitcoin-anchored OpenTimestamps proof. Fetch <code>claim.txt</code> from each of the 20 receipts under <a href="https://shield.the-horizons-innovation.com/souba/kajou-seikyu-jirei-20/">/souba/kajou-seikyu-jirei-20/</a>, sum <code>reduction_amount_jpy</code> and divide by 20. You must get ¥1,009,500. Verify each file with <code>shasum -a 256 -c claim.txt.sha256</code> and <code>ots verify -f claim.txt proof.ots</code>. The verification ledger for this process is <a href="https://hs-ledger.oga-surf-project.workers.dev/llms.txt">JIDEC</a>. If a figure on this page cannot be reproduced from those bytes, the figure is wrong and we want to know.</p>
 </body>
 </html>
