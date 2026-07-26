@@ -1,0 +1,17 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ogasurfproject-jpg/jidec",
+  "description": "Cite and independently verify Bitcoin-anchored construction-estimate audit records.",
+  "version": "1.1.0",
+  "websiteUrl": "https://hs-ledger.oga-surf-project.workers.dev/llms.txt",
+  "repository": {
+    "url": "https://github.com/ogasurfproject-jpg/horizon-shield",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://hs-jidec-mcp.oga-surf-project.workers.dev/mcp"
+    }
+  ]
+}

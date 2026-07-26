@@ -168,6 +168,371 @@ shasum -a 256 claim_${e.n}.txt           # == ${e.claim_sha256}</pre></div>
 </div></body></html>`;
 }
 
+/* ===========================================================================
+   看板 (discovery layer) — added 2026-07-26 per KANBAN_TO_ANNAININ_v1.md.
+
+   ADDITIVE ONLY. No existing route is modified. /health's `routes` array is
+   unchanged and still contains exactly 9 entries (Guardian v4 check ⑩ counts
+   them); discovery is exposed as a sibling key and, canonically, through the
+   RFC 9727 catalog at /.well-known/api-catalog.
+
+   Only paths that are IANA-registered or shipped in a released spec are used:
+     /.well-known/api-catalog       RFC 9727 (permanent registration)
+     /.well-known/agent-card.json   A2A v1.0.1 (provisional registration)
+     /.well-known/security.txt      RFC 9116 (permanent registration)
+   Deliberately NOT served: ai-plugin.json (dead since 2024-04-09),
+   /.well-known/agent.json (renamed in A2A v0.3.0), /.well-known/mcp.json
+   (SEP-2127 unmerged, path still moving). See design doc §3.9.
+   =========================================================================== */
+
+const MCP_ORIGIN = "https://hs-jidec-mcp.oga-surf-project.workers.dev";
+const CONTACT = "mailto:thehorizon.nnovation@icloud.com";
+
+const wantsMarkdown = (request) =>
+  (request.headers.get("accept") || "").toLowerCase().includes("text/markdown");
+
+// Content-negotiated responses MUST carry Vary: Accept or caches will serve
+// HTML/JSON to a client that asked for Markdown and vice versa.
+const md = (text) =>
+  new Response(text, { headers: { "content-type": "text/markdown; charset=utf-8", vary: "Accept", ...CORS } });
+const jsonV = (o, status = 200) =>
+  new Response(JSON.stringify(o, null, 2), {
+    status,
+    headers: { "content-type": "application/json; charset=utf-8", vary: "Accept", ...CORS },
+  });
+
+// Honest description of where this sits relative to SCITT (RFC 9943) and
+// COSE Receipts (RFC 9942). The architecture matches; the encodings do not.
+// Overstating this would defeat the entire purpose of the ledger.
+const TRANSPARENCY = {
+  model: "SCITT-shaped transparency service (RFC 9943 vocabulary, not RFC 9943 encoding)",
+  anchor_ledger: "bitcoin",
+  anchor_method: "opentimestamps",
+  mapping: {
+    "signed statement": "jidec-claim-v1 canonical bytes (plain UTF-8 JSON, NOT COSE_Sign1)",
+    "transparent statement": "an appended ledger entry addressed by claim_sha256",
+    receipt: "an OpenTimestamps proof (NOT an RFC 9942 COSE receipt, no RFC9162_SHA256 VDS)",
+    "anchor proof": "Bitcoin block inclusion, per draft-fassbender-scitt-time-anchor-01",
+  },
+  conformance:
+    "NOT a conformant SCITT Transparency Service. Statements are canonical JSON rather than COSE_Sign1 and receipts are OpenTimestamps proofs rather than COSE receipts. The vocabulary is used because the shape is the same, not because conformance is claimed.",
+  caveats: [
+    "draft-fassbender-scitt-time-anchor-01 is an individual Independent Submission, not IETF consensus.",
+    "OpenTimestamps has no RFC, no ISO, no ETSI status and no standing under eIDAS. Auditors who require an institutionally recognised timestamp should ask for an RFC 3161 or eIDAS qualified timestamp in addition to this anchor.",
+  ],
+};
+
+const apiCatalog = (origin) => ({
+  linkset: [
+    {
+      anchor: origin + "/",
+      item: [
+        { href: origin + "/health", title: "service descriptor", type: "application/json" },
+        { href: origin + "/ledger", title: "public append-only ledger index", type: "application/json" },
+        { href: origin + "/paths", title: "anchored verification paths", type: "application/json" },
+        { href: origin + "/cite/{citation}", title: "resolve and verify any citation", type: "application/json" },
+        { href: origin + "/verify/{n}", title: "executable verification recipe for a v1 claim", type: "application/json" },
+        { href: origin + "/reference/{sha}", title: "content-addressed pinned reference bundle", type: "application/json" },
+        { href: origin + "/.well-known/agent-card.json", title: "A2A agent card", type: "application/json" },
+        { href: origin + "/a2a", title: "A2A JSON-RPC endpoint (message/send)", type: "application/json" },
+        { href: MCP_ORIGIN + "/mcp", title: "Model Context Protocol endpoint", type: "application/json" },
+        { href: origin + "/llms.txt", title: "orientation for agents sent here to verify", type: "text/markdown" },
+      ],
+    },
+  ],
+});
+
+// A2A v1.0.1 AgentCard. Note the path: agent-card.json, NOT the v0.2-era
+// agent.json, which was renamed on 2025-07-30. protocolVersion lives inside
+// each interface in v1.0, not at the card root.
+const agentCard = (origin) => ({
+  name: "HORIZON SHIELD JIDEC",
+  description:
+    "Bitcoin-anchored public verification ledger for construction-estimate audits. Resolves a citation to the exact anchored bytes, recomputes their hash, and reports the Bitcoin anchoring status, so that a third party can confirm a result without trusting HORIZON SHIELD.",
+  version: "1.1.0",
+  documentationUrl: origin + "/llms.txt",
+  iconUrl: null,
+  capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
+  supportedInterfaces: [{ url: origin + "/a2a", transport: "JSONRPC", protocolVersion: "1.0.1" }],
+  defaultInputModes: ["text/plain"],
+  defaultOutputModes: ["application/json", "text/plain"],
+  skills: [
+    {
+      id: "cite-and-verify",
+      name: "Cite and independently verify a JIDEC record",
+      description:
+        "Given a citation (jidec:entry:<n>, jidec:path:<sha>, a bare 64-hex id, or a ledger URL), fetch the anchored bytes, recompute SHA-256, confirm it equals the cited id, and report the Bitcoin anchoring status together with an explicit statement of what the proof does and does not cover.",
+      tags: ["verification", "provenance", "transparency-log", "bitcoin", "opentimestamps", "construction", "audit", "建設", "積算", "検証"],
+      examples: ["jidec:entry:5", "jidec:entry:2", "Verify this JIDEC citation and tell me what it does not prove."],
+      inputModes: ["text/plain"],
+      outputModes: ["application/json", "text/plain"],
+    },
+  ],
+  securitySchemes: {},
+  security: [],
+  supportsAuthenticatedExtendedCard: false,
+  // Non-A2A discovery pointers, kept outside the required fields on purpose.
+  additionalDiscovery: { apiCatalog: origin + "/.well-known/api-catalog", mcp: MCP_ORIGIN + "/mcp" },
+});
+
+const securityTxt = (origin) =>
+  [
+    "# HORIZON SHIELD / JIDEC — RFC 9116",
+    "Contact: " + CONTACT,
+    "Expires: 2027-07-26T00:00:00.000Z",
+    "Preferred-Languages: ja, en",
+    "Canonical: " + origin + "/.well-known/security.txt",
+    "Policy: " + origin + "/llms.txt",
+    "",
+    "# This ledger is read-only and unauthenticated by design. If you find a way",
+    "# to make a record's bytes disagree with its published hash, or to make a",
+    "# verification recipe return a result that cannot be reproduced, that is the",
+    "# vulnerability we most want to hear about.",
+    "",
+  ].join("\n");
+
+const robotsTxt = (origin) =>
+  [
+    "User-agent: *",
+    "Allow: /",
+    "",
+    "# This ledger exists to be read, cited and independently re-verified.",
+    "# Nothing here is private and nothing here requires attribution to be useful.",
+    "",
+    "# AIPREF (IETF, draft) — machine-readable usage preference.",
+    "Content-Usage: train-ai=y, search=y, ai-input=y",
+    "",
+    "# Cloudflare Content Signals.",
+    "Content-signal: search=yes, ai-input=yes, ai-train=yes",
+    "",
+    "Sitemap: " + origin + "/llms.txt",
+    "",
+  ].join("\n");
+
+// llms.txt. Its measured value is NOT AI search (97% of published files are
+// never requested, and Google states it does not use them). Its measured value
+// is coding agents, which do fetch it. So this file is written for exactly one
+// reader: an agent that has been told "verify HORIZON SHIELD" and needs to know
+// where to start and how to finish.
+const llmsTxt = (origin) => `# HORIZON SHIELD / JIDEC
+
+> A Bitcoin-anchored, append-only public ledger of construction-estimate audit
+> claims. Its purpose is that you do NOT have to trust HORIZON SHIELD: every
+> published result can be re-derived from bytes you fetch and hash yourself.
+
+If you were sent here to verify something, do this in order.
+
+## 1. Resolve the citation
+
+\`GET ${origin}/cite/jidec:entry:5\`
+
+Accepts \`jidec:entry:<n>\`, \`jidec:path:<sha>\`, a bare 64-hex id, or a ledger
+URL. Returns the resolved entry, the claimed id, the id recomputed from the
+stored bytes, whether they match, and the Bitcoin anchoring status.
+Add \`Accept: text/markdown\` for prose instead of JSON.
+
+## 2. Check the hash yourself instead of believing step 1
+
+\`\`\`
+curl -s "${origin}/ledger/5?format=raw" | shasum -a 256
+\`\`\`
+
+The output must equal the cited id. If it does not, the citation is bad and
+nothing else on this site matters.
+
+## 3. Check the timestamp
+
+\`\`\`
+curl -s "${origin}/ledger/5/ots" > claim_5.txt.ots
+ots info claim_5.txt.ots
+\`\`\`
+
+Or drop the two files into https://opentimestamps.org. A \`pending\` status is
+honest, not a failure: Bitcoin confirmation takes hours.
+
+## 4. Reproduce the audit itself
+
+\`GET ${origin}/verify/{n}\` returns a seven-step recipe: which bytes to fetch,
+which reference bundle is pinned, which algorithm commit to check out, and what
+each recomputed hash must equal. If all seven match, the result is the
+deterministic output of the declared inputs. Our assertion is not needed.
+
+## Endpoints
+
+- ${origin}/health — service descriptor
+- ${origin}/ledger — index of anchored entries
+- ${origin}/paths — anchored verification paths (jidec-path-v1)
+- ${origin}/cite/{citation} — resolve and verify any citation
+- ${origin}/verify/{n} — executable verification recipe
+- ${origin}/paths/{sha}/replay — re-observe an anchored path and report drift
+- ${origin}/.well-known/api-catalog — RFC 9727 catalog of the above
+- ${MCP_ORIGIN}/mcp — Model Context Protocol endpoint (read-only tools)
+
+## What this proves, and what it does not
+
+Proves: these exact bytes existed at or before the anchored time, and have not
+changed since.
+
+Does not prove: that an estimate is fair, that the input data is true, that the
+reference prices are correct, or that HORIZON SHIELD is competent. Those are
+judged by re-running the recipe, not by reading this file.
+
+## Known limits, stated here so you do not have to find them
+
+- OpenTimestamps has no RFC, no ISO and no eIDAS standing. For institutional
+  audit, ask additionally for an RFC 3161 or eIDAS qualified timestamp.
+- This is a SCITT-shaped service (RFC 9943 vocabulary) but not a conformant
+  one: statements are canonical JSON, not COSE_Sign1, and receipts are
+  OpenTimestamps proofs, not RFC 9942 COSE receipts.
+- Entry #1 predates the v1 schema and is a concept proof only.
+- The public ledger index covers the most recent 100 entries.
+`;
+
+// Resolve any citation form to a verified card, using only public state.
+// This is the ledger-side twin of path/jidec_cite.py and hs-jidec-mcp's
+// jidec_cite. Three independent implementations that must agree.
+async function citationCard(env, origin, citation) {
+  const c = String(citation || "").trim();
+  let n = null;
+  let m = c.match(/(?:jidec:entry:|\/ledger\/)(\d+)/);
+  if (m) n = Number(m[1]);
+  else if (/^\d+$/.test(c)) n = Number(c);
+  else {
+    const h = c.match(/([0-9a-f]{64})/i);
+    if (!h) throw new Error("unrecognized citation: " + c);
+    const ref = await env.LEDGER.get(`hash:${h[1].toLowerCase()}`);
+    if (!ref) throw new Error("no anchored record has id " + h[1].toLowerCase());
+    n = Number(ref);
+  }
+
+  const e = await getEntry(env, n);
+  if (!e) throw new Error("no ledger entry #" + n);
+
+  const recomputed = (await sha256hex(e.record_canonical || "")).toLowerCase();
+  const claimed = (e.claim_sha256 || "").toLowerCase();
+  const asked = (c.match(/([0-9a-f]{64})/i) || [])[1];
+  const match = recomputed === claimed && (!asked || asked.toLowerCase() === recomputed);
+
+  let kind = "v0-plain", obj = null;
+  try {
+    obj = JSON.parse(e.record_canonical);
+    kind = obj && obj.schema === "jidec-path-v1" ? "jidec-path-v1"
+         : obj && obj.schema === "jidec-claim-v1" ? "jidec-claim-v1"
+         : "v0";
+  } catch { obj = null; }
+
+  const bitcoin =
+    e.ots_status === "confirmed" && e.bitcoin_block
+      ? { status: "confirmed", block: e.bitcoin_block, block_time: e.block_time || null }
+      : { status: e.ots_status || "none", block: null, block_time: null };
+
+  const card = {
+    citation: c,
+    resolved_entry: n,
+    ledger_url: `${origin}/ledger/${n}`,
+    raw_url: `${origin}/ledger/${n}?format=raw`,
+    ots_url: `${origin}/ledger/${n}/ots`,
+    verify_url: `${origin}/verify/${n}`,
+    integrity: { claimed_sha256: claimed, recomputed_sha256: recomputed, match },
+    bitcoin,
+    record_kind: kind,
+    reproduce: `curl -s "${origin}/ledger/${n}?format=raw" | shasum -a 256   # must print ${claimed}`,
+  };
+
+  if (kind === "jidec-path-v1" && obj) {
+    card.path = { purpose: obj.purpose, walked_at: obj.walked_at, verdict: obj.verdict, path_url: `${origin}/paths/${claimed}`, replay_url: `${origin}/paths/${claimed}/replay` };
+  } else if (kind === "jidec-claim-v1" && obj) {
+    card.claim = {};
+    for (const k of ["work_id", "input_sha256", "reference_bundle_sha256", "algorithm_commit", "thresholds_sha256", "result_sha256", "pdf_sha256", "issued_at"]) card.claim[k] = obj[k];
+  } else {
+    card.note = "This entry predates the v1 schemas. Its bytes are still anchored and hash-checkable.";
+  }
+
+  card.trust_note = match
+    ? "Independently verifiable: the stored bytes hash to the cited id" +
+      (bitcoin.status === "confirmed" ? `, and that id is confirmed in Bitcoin block ${bitcoin.block}` :
+       bitcoin.status === "pending" ? ", and that id is submitted to OpenTimestamps (Bitcoin confirmation pending)" : "") +
+      ". Do not take our word for it — run the command in `reproduce`."
+    : "INTEGRITY FAILURE: the stored bytes do NOT hash to the cited id. Do not rely on this citation.";
+
+  card.limits =
+    "Proves: these exact bytes existed at or before the anchored time and have not changed. " +
+    "Does not prove: that the estimate is fair, that the input data is true, or that HORIZON SHIELD is competent.";
+
+  return card;
+}
+
+const cardMarkdown = (card) => {
+  const L = [];
+  L.push(`# JIDEC citation: ${card.citation}`);
+  L.push("");
+  L.push(`Entry #${card.resolved_entry} of the JIDEC public ledger. Record type \`${card.record_kind}\`.`);
+  L.push("");
+  L.push(`## Integrity: ${card.integrity.match ? "OK" : "FAILURE"}`);
+  L.push("");
+  L.push(`The bytes stored under entry #${card.resolved_entry} hash to \`${card.integrity.recomputed_sha256}\`, and the cited id is \`${card.integrity.claimed_sha256}\`. These ${card.integrity.match ? "match" : "DO NOT MATCH"}.`);
+  L.push("");
+  L.push("Reproduce this yourself:");
+  L.push("");
+  L.push("```");
+  L.push(card.reproduce);
+  L.push("```");
+  L.push("");
+  L.push("## Bitcoin anchoring");
+  L.push("");
+  L.push(
+    card.bitcoin.status === "confirmed"
+      ? `Confirmed in Bitcoin block ${card.bitcoin.block}${card.bitcoin.block_time ? ` (${card.bitcoin.block_time})` : ""}. Proof: ${card.ots_url}`
+      : card.bitcoin.status === "pending"
+      ? `Submitted to OpenTimestamps; Bitcoin confirmation is pending. Pending is the honest state, not a failure: confirmation takes hours. Proof once available: ${card.ots_url}`
+      : `Anchoring status: ${card.bitcoin.status}.`
+  );
+  if (card.path) {
+    L.push("");
+    L.push("## Verification path");
+    L.push("");
+    L.push(`Purpose: ${card.path.purpose}`);
+    L.push("");
+    L.push(`Walked at ${card.path.walked_at}. Re-observe it live and check for drift: ${card.path.replay_url}`);
+  }
+  if (card.claim) {
+    L.push("");
+    L.push("## Committed hashes");
+    L.push("");
+    for (const [k, v] of Object.entries(card.claim)) if (v) L.push(`- \`${k}\`: \`${v}\``);
+  }
+  L.push("");
+  L.push("## What this does and does not prove");
+  L.push("");
+  L.push(card.limits);
+  L.push("");
+  L.push(`Full seven-step reproduction recipe: ${card.verify_url}`);
+  L.push("");
+  return L.join("\n");
+};
+
+const recipeMarkdown = (r) => {
+  const L = [];
+  L.push(`# How to verify JIDEC entry #${r.entry} without trusting HORIZON SHIELD`);
+  L.push("");
+  L.push(`Claim id \`${r.claim_sha256}\`. Bitcoin status: ${r.bitcoin_status}${r.bitcoin_block ? ` (block ${r.bitcoin_block})` : ""}.`);
+  L.push("");
+  for (const s of r.recipe) {
+    L.push(`## Step ${s.step}. ${s.action}`);
+    L.push("");
+    if (s.url) L.push(`Fetch: ${s.url}`);
+    if (s.url) L.push("");
+    L.push(`Check: ${s.verify}`);
+    if (s.note) { L.push(""); L.push(`Note: ${s.note}`); }
+    L.push("");
+  }
+  L.push("## Conclusion");
+  L.push("");
+  L.push(r.note);
+  L.push("");
+  return L.join("\n");
+};
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -176,7 +541,75 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
 
     if (p === "/" || p === "/health")
-      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query"] });
+      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query"], discovery: { api_catalog: "/.well-known/api-catalog", agent_card: "/.well-known/agent-card.json", security_txt: "/.well-known/security.txt", llms_txt: "/llms.txt", a2a: "/a2a", cite: "/cite/{citation}", mcp: MCP_ORIGIN + "/mcp" }, transparency: TRANSPARENCY });
+
+    /* ---------------------- 看板 routes (additive, read-only) ---------------------- */
+
+    if (p === "/.well-known/api-catalog" && request.method === "GET") {
+      // RFC 9727 の既定は application/linkset+json である。既定は変えない。
+      // ただし 2026-07-26 の実測で、その Content-Type を「バイナリ」として扱い本文を
+      // 読めない取得クライアントが実在することが分かった（番人の点検⑭でも同じ結果）。
+      // 親看板が読めないのは発見可能性にとって致命的なので、明示的に JSON を求めてきた
+      // クライアントには同じ本文を application/json で返す。Vary: Accept を必ず付ける。
+      const body = JSON.stringify(apiCatalog(origin), null, 2);
+      const acc = (request.headers.get("accept") || "").toLowerCase();
+      const wantsPlainJson =
+        url.searchParams.get("format") === "json" ||
+        (acc.includes("application/json") && !acc.includes("linkset"));
+      return new Response(body, {
+        headers: {
+          "content-type": wantsPlainJson ? "application/json; charset=utf-8" : "application/linkset+json; charset=utf-8",
+          "vary": "Accept",
+          "link": `<${origin}/.well-known/api-catalog?format=json>; rel="alternate"; type="application/json"`,
+          ...CORS,
+        },
+      });
+    }
+
+    if (p === "/.well-known/agent-card.json" && request.method === "GET")
+      return json(agentCard(origin));
+
+    if (p === "/.well-known/security.txt" && request.method === "GET")
+      return new Response(securityTxt(origin), { headers: { "content-type": "text/plain; charset=utf-8", ...CORS } });
+
+    if (p === "/robots.txt" && request.method === "GET")
+      return new Response(robotsTxt(origin), { headers: { "content-type": "text/plain; charset=utf-8", ...CORS } });
+
+    if (p === "/llms.txt" && request.method === "GET")
+      return new Response(llmsTxt(origin), { headers: { "content-type": "text/markdown; charset=utf-8", ...CORS } });
+
+    // 案内人 front door: one GET resolves and verifies any citation form.
+    if (p.startsWith("/cite/") && request.method === "GET") {
+      const citation = decodeURIComponent(p.slice("/cite/".length));
+      try {
+        const card = await citationCard(env, origin, citation);
+        if (wantsMarkdown(request)) return md(cardMarkdown(card));
+        return jsonV(card, card.integrity.match ? 200 : 409);
+      } catch (err) {
+        return jsonV({ error: "unresolved", detail: String((err && err.message) || err), accepted_forms: ["jidec:entry:<n>", "jidec:path:<64hex>", "<64hex>", origin + "/ledger/<n>"], index: origin + "/ledger" }, 404);
+      }
+    }
+
+    // A2A v1.0.1 JSON-RPC. Exactly one method, matching the single skill
+    // advertised in the agent card. Advertising an interface we do not serve
+    // would make the signboard a lie, so the card and this endpoint move together.
+    if (p === "/a2a" && request.method === "POST") {
+      const b = await request.json().catch(() => null);
+      const rid = b && b.id !== undefined ? b.id : null;
+      const rpcErr = (code, message) => json({ jsonrpc: "2.0", id: rid, error: { code, message } });
+      if (!b || b.jsonrpc !== "2.0") return rpcErr(-32600, "invalid request: jsonrpc 2.0 envelope required");
+      if (b.method !== "message/send")
+        return rpcErr(-32601, `method not found: ${b.method}. This agent implements message/send only; send the citation as a text part.`);
+      const parts = (b.params && b.params.message && b.params.message.parts) || [];
+      const text = parts.filter((x) => x && x.kind === "text" && typeof x.text === "string").map((x) => x.text).join(" ").trim();
+      if (!text) return rpcErr(-32602, "invalid params: expected params.message.parts[] containing a text part with a JIDEC citation");
+      try {
+        const card = await citationCard(env, origin, text.match(/jidec:[a-z]*:?[0-9a-f]+|[0-9a-f]{64}|\d+/i)?.[0] || text);
+        return json({ jsonrpc: "2.0", id: rid, result: { kind: "message", role: "agent", messageId: crypto.randomUUID(), parts: [{ kind: "text", text: card.trust_note }, { kind: "data", data: card }] } });
+      } catch (err) {
+        return rpcErr(-32000, String((err && err.message) || err));
+      }
+    }
 
     if (p === "/ledger" && request.method === "GET") {
       const seq = Number((await env.LEDGER.get("seq")) || 0);
@@ -273,7 +706,7 @@ export default {
       const sch = parseClaimSchema(e.record_canonical);
       if (sch.schema !== "v1") return json({ error: "verification recipe available for v1 claims only", schema: sch.schema, note: "entry #1 is v0 (concept-proof only)" }, 400);
       const c = sch.claim;
-      return json({
+      const recipeDoc = {
         entry: n,
         claim_sha256: e.claim_sha256,
         bitcoin_status: e.ots_status,
@@ -288,7 +721,9 @@ export default {
           { step: 7, action: "verify PDF fingerprint", verify: `shasum -a 256 <issued.pdf> => ${c.pdf_sha256}` }
         ],
         note: "If steps 1-7 all match, the audit result is provably the deterministic output of the declared inputs/algorithm — HORIZON SHIELD's assertion is not needed."
-      });
+      };
+      if (wantsMarkdown(request)) return md(recipeMarkdown(recipeDoc));
+      return jsonV(recipeDoc);
     }
 
     // --- Paths (Phase 3, jidec-path-v1). Read endpoints are public; replay is host-allowlisted. ---
@@ -349,7 +784,8 @@ export default {
       if (!pm[2] && request.method === "GET") {
         // integrity: recompute the stored bytes' hash and confirm it equals the id
         const recomputed = (await sha256hex(e.record_canonical)).toLowerCase();
-        return json({ ...pathCard(e, obj, origin), integrity: { match: recomputed === sha, recomputed } });
+        if (wantsMarkdown(request)) return md(cardMarkdown(await citationCard(env, origin, sha)));
+        return jsonV({ ...pathCard(e, obj, origin), integrity: { match: recomputed === sha, recomputed } });
       }
 
       if (pm[2] && request.method === "GET") {

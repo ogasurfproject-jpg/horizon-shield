@@ -1,15 +1,39 @@
-// hs-ledger — 2026-07-23 番人v3起案（liveから救出したworkerのrepo収載用）
-// 2026-07-26 追記: Phase 3b — /paths/{sha}/replay の cross-worker 再観測用に
-//   PDF_GEN service binding を追加（hs-pdf-gen をループバックなしで呼ぶ）。
 {
+  // hs-ledger — JIDEC public verification ledger
+  //
+  // ★2026-07-26 修正（看板v1.1 と同じ一手）:
+  //   このファイルは長らく「初回デプロイ用の空欄つきメモ」のままだった。
+  //   本番の hs-ledger には (a) 実物の KV 名前空間 (b) hs-pdf-gen への
+  //   PDF_GEN サービスバインディング が既に載っているのに、ここには
+  //   どちらも書かれていなかった。
+  //
+  //   このまま `npx wrangler deploy` すると **PDF_GEN バインディングが消える**。
+  //   消えても派手には壊れない。replay が hs-pdf-gen ノードを再観測できなくなり、
+  //   そのノードが deferred に落ちるだけである。deferred はドリフト扱いしない
+  //   設計なので、台帳は「異常なし」と言い続ける。**静かに検証能力だけが減る**。
+  //   これは JIDEC にとって最も質の悪い壊れ方なので、先に埋めた。
+  //
+  //   同じ理由で account_id と workers_dev も明示した。いずれも実測値である
+  //   （KV id: kv_namespaces_list / サービス名: workers_list / 2026-07-26）。
+  //
+  // 秘密はこのファイルに書かない。LEDGER_ADMIN_TOKEN は wrangler secret 側にあり、
+  // secret は deploy で消えない。消えるのは平文 vars とバインディングである。
+  //
+  // デプロイ前に必ず: node test/ledger.test.mjs && node test/mcp.test.mjs
   "name": "hs-ledger",
   "main": "src/worker.js",
-  "compatibility_date": "2026-05-18",   // live実測 2026-07-23（wrangler versions view）
+  "compatibility_date": "2026-05-18",
+  "account_id": "c15ff64aba400e541853dec1fbe5e76a",
+  "workers_dev": true,
   "kv_namespaces": [
-    { "binding": "LEDGER", "id": "37f6ebec621e42e9b9d6362ef6114e78" }  // KV "LEDGER"(実ID確認済み)
+    { "binding": "LEDGER", "id": "37f6ebec621e42e9b9d6362ef6114e78" }
   ],
   "services": [
-    { "binding": "PDF_GEN", "service": "hs-pdf-gen" }  // Phase 3b: cross-worker replay
+    // 第二の掟：同一アカウントの workers.dev を fetch すると自分に戻ってくる。
+    // 過去にこれで FALSE DRIFT を出した。だから公開URLではなくバインディングで呼ぶ。
+    { "binding": "PDF_GEN", "service": "hs-pdf-gen" }
   ]
-  // secrets(ファイルに書かない・wrangler secret put で設定): LEDGER_ADMIN_TOKEN
+  // PENDING_STALE_HOURS は任意。未設定なら STALE_HOURS_DEFAULT=6 が効く。
+  // ダッシュボードで設定していた場合、vars を宣言しない deploy で消える点に注意
+  // （消えても既定値6に戻るだけで、壊れはしない）。
 }
