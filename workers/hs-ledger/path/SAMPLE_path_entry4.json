@@ -1,0 +1,123 @@
+{
+  "schema": "jidec-path-v1",
+  "purpose": "verify hs-pdf-gen /canary self-matches and the Bitcoin-anchored entry #4 source carries the same canary constant",
+  "walked_at": "2026-07-25T10:00:00Z",
+  "walker": {
+    "tool": "jidec_path.py",
+    "version": "1"
+  },
+  "base": "https://hs-ledger.oga-surf-project.workers.dev",
+  "nodes": [
+    {
+      "n": 0,
+      "kind": "fetch",
+      "request": {
+        "method": "GET",
+        "url": "https://hs-pdf-gen.oga-surf-project.workers.dev/canary",
+        "headers_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "body_sha256": null
+      },
+      "response": {
+        "status": 200,
+        "headers_sha256": "940a617179f48cedaf9e31fe07bb583861ebee3edf13e258621a715110e3e31d",
+        "body_sha256": "b49ac84e69dfd246affee8e24a4a3c1417c0c339991fddbcf3dd2e9199bd0e69"
+      },
+      "duration_ms": 0
+    },
+    {
+      "n": 1,
+      "kind": "compute",
+      "label": "parse /canary json; extract live_computed_hash, canary_expect_hash, match",
+      "inputs": [
+        {
+          "from_node": 0
+        }
+      ],
+      "output_sha256": "9d9ca4794d798b2c4c5d99f5b60f0f2914625caab269231433d10066c6d7afc6",
+      "output_preview": "{\"canary_expect_hash\":\"C025E288675EE898\",\"live_computed_hash\":\"C025E288675EE898\""
+    },
+    {
+      "n": 2,
+      "kind": "fetch",
+      "request": {
+        "method": "GET",
+        "url": "https://hs-ledger.oga-surf-project.workers.dev/ledger/4?format=raw",
+        "headers_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "body_sha256": null
+      },
+      "response": {
+        "status": 200,
+        "headers_sha256": "d6a8d581b176b5f321b15b67e747117c1670f9fd35c22c1b56d81d121c212412",
+        "body_sha256": "0cb92f5e5d032e11455efc383c98059acb49e9c4c3429345224ae27d40ac4cde"
+      },
+      "duration_ms": 0
+    },
+    {
+      "n": 3,
+      "kind": "compute",
+      "label": "grep anchored entry #4 source for the canary constant and its name",
+      "inputs": [
+        {
+          "from_node": 2
+        }
+      ],
+      "output_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+      "output_preview": "true"
+    }
+  ],
+  "assertions": [
+    {
+      "claim": "/canary self-match is true",
+      "op": "eq",
+      "result": true,
+      "evidence_nodes": [
+        0,
+        1
+      ],
+      "observed_sha256": "3cbc87c7681f34db4617feaa2c8801931bc5e42d8d0f560e756dd4cd92885f18"
+    },
+    {
+      "claim": "live_computed_hash == C025E288675EE898",
+      "op": "eq",
+      "result": true,
+      "evidence_nodes": [
+        0,
+        1
+      ],
+      "observed_sha256": "9788618ea62300bad39e0b43fb2df1f717bb5b62cf1598c8ce9d41de0d7d16da"
+    },
+    {
+      "claim": "canary_expect_hash == C025E288675EE898",
+      "op": "eq",
+      "result": true,
+      "evidence_nodes": [
+        0,
+        1
+      ],
+      "observed_sha256": "9788618ea62300bad39e0b43fb2df1f717bb5b62cf1598c8ce9d41de0d7d16da"
+    },
+    {
+      "claim": "anchored entry #4 source carries the same canary constant",
+      "op": "eq",
+      "result": true,
+      "evidence_nodes": [
+        2,
+        3
+      ],
+      "observed_sha256": "3cbc87c7681f34db4617feaa2c8801931bc5e42d8d0f560e756dd4cd92885f18"
+    }
+  ],
+  "verdict": {
+    "outcome": "PASS",
+    "n_pass": 4,
+    "n_total": 4
+  },
+  "replay": {
+    "how": "re-run the same walk against `base`; recompute every node body_sha256 and re-evaluate assertions",
+    "match_means": "no drift since anchoring",
+    "mismatch_means": "the live system now differs from the anchored observation"
+  },
+  "prev_path_refs": [],
+  "path_id": "e7fada1d10cfe773bcbba4ece6e0fe26d0add291b53ddbcde51933730bc9dddc",
+  "cite_as": "jidec:path:e7fada1d10cfe773bcbba4ece6e0fe26d0add291b53ddbcde51933730bc9dddc"
+}
