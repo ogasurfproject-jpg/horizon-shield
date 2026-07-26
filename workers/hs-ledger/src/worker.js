@@ -55,6 +55,38 @@ function parseClaimSchema(record_canonical) {
   }
 }
 
+// --- jidec-path-v1 (per JIDEC_PATH_SPEC_v1.md, anchored as entry #5). A path is a
+// content-addressed verification walk. These server-side endpoints (Phase 3) resolve,
+// view, query, and re-walk paths. All reads are public; replay only re-fetches this
+// project's own workers.dev hosts (allowlist below) so it cannot be turned into an
+// open fetch proxy.
+function asPathV1(record_canonical) {
+  try {
+    const j = JSON.parse(record_canonical);
+    if (j && j.schema === "jidec-path-v1" && Array.isArray(j.nodes)) return j;
+  } catch {}
+  return null;
+}
+const REPLAY_HOST_OK = (host) => /(^|\.)oga-surf-project\.workers\.dev$/.test(String(host));
+async function sha256hexBuf(buf) {
+  return [...new Uint8Array(await crypto.subtle.digest("SHA-256", buf))].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function pathCard(e, obj, origin) {
+  return {
+    entry: e.n,
+    path_id: e.claim_sha256,
+    cite_as: `jidec:path:${e.claim_sha256}`,
+    bitcoin: e.ots_status === "confirmed" ? { status: "confirmed", block: e.bitcoin_block, block_time: e.block_time } : { status: e.ots_status || "none", block: null },
+    purpose: obj.purpose,
+    walked_at: obj.walked_at,
+    verdict: obj.verdict,
+    assertions: (obj.assertions || []).map((a) => ({ claim: a.claim, result: a.result })),
+    ledger_url: `${origin}/ledger/${e.n}`,
+    raw_url: `${origin}/ledger/${e.n}?format=raw`,
+    replay_url: `${origin}/paths/${e.claim_sha256}/replay`,
+  };
+}
+
 // --- Age-based pending status. Per Federico's "Reversal Test": a fresh pending
 // and a stale one are genuinely different facts, and collapsing them into one
 // badge is how a real anchor ends up looking like a stalled one. Purely derived
@@ -145,7 +177,7 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
 
     if (p === "/" || p === "/health")
-      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2)", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}"] });
+      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query"] });
 
     if (p === "/ledger" && request.method === "GET") {
       const seq = Number((await env.LEDGER.get("seq")) || 0);
@@ -258,6 +290,101 @@ export default {
         ],
         note: "If steps 1-7 all match, the audit result is provably the deterministic output of the declared inputs/algorithm — HORIZON SHIELD's assertion is not needed."
       });
+    }
+
+    // --- Paths (Phase 3, jidec-path-v1). Read endpoints are public; replay is host-allowlisted. ---
+
+    // List every entry whose record is a verification path.
+    if (p === "/paths" && request.method === "GET") {
+      const seq = Number((await env.LEDGER.get("seq")) || 0);
+      const out = [];
+      for (let n = seq; n >= 1 && out.length < 100; n--) {
+        const e = await getEntry(env, n);
+        if (!e) continue;
+        const obj = asPathV1(e.record_canonical);
+        if (obj) out.push({ n, path_id: e.claim_sha256, purpose: obj.purpose, verdict: obj.verdict, ots_status: e.ots_status, bitcoin_block: e.bitcoin_block, url: `${origin}/paths/${e.claim_sha256}` });
+      }
+      return json({ paths: out });
+    }
+
+    // Reverse index query: find paths that fetched a URL substring or observed a SHA.
+    if (p === "/paths/query" && request.method === "POST") {
+      const b = await request.json().catch(() => null);
+      if (!b || (typeof b.contains_url !== "string" && typeof b.contains_sha !== "string"))
+        return json({ error: "contains_url (string) or contains_sha (string) required" }, 400);
+      const wantUrl = typeof b.contains_url === "string" ? b.contains_url : null;
+      const wantSha = typeof b.contains_sha === "string" ? b.contains_sha.toLowerCase() : null;
+      const seq = Number((await env.LEDGER.get("seq")) || 0);
+      const hits = [];
+      for (let n = 1; n <= seq; n++) {
+        const e = await getEntry(env, n);
+        if (!e) continue;
+        const obj = asPathV1(e.record_canonical);
+        if (!obj) continue;
+        let matched = false;
+        for (const nd of obj.nodes) {
+          if (wantUrl && nd.request && typeof nd.request.url === "string" && nd.request.url.includes(wantUrl)) matched = true;
+          if (wantSha) {
+            const bs = nd.response && nd.response.body_sha256;
+            const os = nd.output_sha256;
+            if ((bs && bs.toLowerCase() === wantSha) || (os && os.toLowerCase() === wantSha)) matched = true;
+          }
+        }
+        if (wantSha && e.claim_sha256 && e.claim_sha256.toLowerCase() === wantSha) matched = true;
+        if (matched) hits.push({ n, path_id: e.claim_sha256, purpose: obj.purpose, url: `${origin}/paths/${e.claim_sha256}` });
+      }
+      return json({ query: { contains_url: wantUrl, contains_sha: wantSha }, note: "linear scan over anchored paths; a secondary index is future work at scale", hits });
+    }
+
+    // Resolve a path by its id (O(1) via the hash: key) and, optionally, re-walk it.
+    const pm = p.match(/^\/paths\/([0-9a-f]{64})(\/replay)?$/i);
+    if (pm) {
+      const sha = pm[1].toLowerCase();
+      const nRef = await env.LEDGER.get(`hash:${sha}`);
+      if (!nRef) return json({ error: "no anchored path with that id", path_id: sha }, 404);
+      const e = await getEntry(env, Number(nRef));
+      if (!e) return json({ error: "entry missing" }, 404);
+      const obj = asPathV1(e.record_canonical);
+      if (!obj) return json({ error: "entry is not a jidec-path-v1 record", entry: Number(nRef) }, 400);
+
+      if (!pm[2] && request.method === "GET") {
+        // integrity: recompute the stored bytes' hash and confirm it equals the id
+        const recomputed = (await sha256hex(e.record_canonical)).toLowerCase();
+        return json({ ...pathCard(e, obj, origin), integrity: { match: recomputed === sha, recomputed } });
+      }
+
+      if (pm[2] && request.method === "GET") {
+        // Server-side replay: re-fetch each FETCH node's URL (compute nodes are deterministic
+        // functions of them), recompute the body hash, and diff against the anchored observation.
+        const diffs = [];
+        let drift = false;
+        for (const nd of obj.nodes) {
+          if (nd.kind !== "fetch") continue;
+          const u = nd.request && nd.request.url;
+          let host = "";
+          try { host = new URL(u).host; } catch {}
+          if (!REPLAY_HOST_OK(host)) {
+            diffs.push({ n: nd.n, url: u, skipped: "host not in replay allowlist" });
+            continue;
+          }
+          let freshSha = null, status = null, err = null;
+          try {
+            const r = await fetch(u, { headers: { "user-agent": "hs-ledger-replay" } });
+            status = r.status;
+            freshSha = await sha256hexBuf(await r.arrayBuffer());
+          } catch (ex) { err = String(ex && ex.message || ex); }
+          const anchored = nd.response && nd.response.body_sha256;
+          const changed = err ? true : freshSha !== anchored;
+          if (changed) drift = true;
+          diffs.push({ n: nd.n, url: u, status, anchored_body_sha256: anchored, fresh_body_sha256: freshSha, changed, ...(err ? { error: err } : {}) });
+        }
+        return json({
+          path_id: sha, entry: Number(nRef), anchored_verdict: obj.verdict && obj.verdict.outcome,
+          drift, diffs,
+          result: drift ? "DRIFT — a re-fetched node differs from the anchored observation" : "MATCH — no drift on fetch nodes",
+          note: "Server re-fetches only this project's own hosts. Compute nodes are deterministic over their input fetch nodes, so matching fetch bytes imply matching computes.",
+        });
+      }
     }
 
     const m = p.match(/^\/ledger\/(\d+)(\/ots)?$/);
