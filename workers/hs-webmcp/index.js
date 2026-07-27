@@ -43,15 +43,23 @@ const TOOLS = [
     name: "ask",
     title: "一文で聞けば、正しい窓口に繋ぐ",
     description:
-      "何をしたいかを日本語の一文で渡すと、内部で正しい窓口に振り分けて答えを返す単一入口。" +
-      "見積もりの適正診断(KIRA)・台帳(JIDEC)に錨を打った記録の検証・過剰請求の手口・検証済み加盟店の探索、" +
-      "の4方向へ決定的な規則で振り分ける(判定にLLMは使わない)。" +
-      "**返り値には必ず verify(この答えを検証するURL)と limits(この答えが証明していないこと)が入る。**" +
-      "引用ID(jidec:entry:N)や64桁のSHA-256を ref に渡せば、台帳の記録をそのまま解決する。" +
-      "どれにも当たらない場合も404にはせず、4つの入口を案内して返す。 / " +
-      "Single entry point: pass one sentence and it routes to fair-price audit, ledger verification, " +
-      "overcharge tactics, or the verified-contractor directory. Deterministic routing, no LLM in the loop. " +
-      "Every reply carries a verification URL and an explicit statement of what it does not prove.",
+      "Check whether a construction or renovation quote in JAPAN is fairly priced, against 65,520 open " +
+      "catalogue items and Bitcoin-anchored verification records. Single entry point: pass one sentence.\n" +
+      "USE WHEN: the user has a quote or a price for building/renovation work in Japan and wants to know if " +
+      "it is reasonable; or wants to check a HORIZON SHIELD receipt or a jidec: citation; or asks about " +
+      "overcharging tactics used by contractors; or is looking for a verified contractor.\n" +
+      "DO NOT USE WHEN: the work is outside Japan; the question is not about construction or renovation; " +
+      "the user has already signed or paid and needs consumer-protection help; or there is an active " +
+      "emergency (gas smell, collapse, water not stopping). In those cases this tool does not answer - it " +
+      "returns the appropriate outside destination instead, and says so.\n" +
+      "Every reply carries verify (a URL that checks the answer) and limits (what the answer does NOT prove). " +
+      "Routing is a deterministic keyword table, not an LLM, so the same input always routes the same way.\n" +
+      "Examples: \"is 800,000 yen high for exterior wall painting?\" / \"is jidec:entry:9 genuine?\" / " +
+      "\"how do I refuse a door-to-door sales pitch?\"\n" +
+      "日本の建設・リフォーム見積もりが適正かを確認する単一入口。日本語の一文で渡してよい。" +
+      "適正診断・台帳(JIDEC)の記録検証・過剰請求の手口・検証済み加盟店の4方向へ決定的に振り分ける。" +
+      "日本国外/建設以外/契約後の紛争/緊急時は**答えずに適切な外部の窓口を返す。**" +
+      "返り値には必ず verify(検証URL)と limits(証明していないこと)が入る。",
     inputSchema: {
       type: "object",
       properties: {
@@ -589,9 +597,56 @@ async function handleOrchestrate(args, env) {
    - 既存4ツールには一切触らない。OpenAI 審査中プラグインと Glama の登録が既存を指している。
 */
 
+/* --- v2 深層: 緊急・範囲外を最上位に置く ---------------------------------
+   v1 の振り分けは「金額があれば診断」が上位だったので、
+   **「屋根が崩れて雨漏り、修理80万と言われた」が価格診断に落ちていた。**
+   水が漏れている人に相場を返すのは有害である。だから緊急を最上位に上げる。
+   広めに拾い、迷ったら緊急側に倒す。価格診断を1回逃すのと、漏水を放置させるのとでは
+   損の大きさが違う。**緊急の応答には価格の数字を1つも入れない。**
+
+   窓口は実測で確かめたものだけを書く（2026-07-27 確認）:
+   - 消費者ホットライン 188 は全国共通。郵便番号で最寄りの消費生活センターへ繋ぐ。
+     年末年始・点検日を除き原則毎日。土日祝は国民生活センターが後方支援。
+   - ガスの緊急連絡先は**全国共通ではない**（0570-002299 は東京ガスネットワークの番号）。
+     だから番号は書かず、手順と「検針票・メーターに書かれた自社の緊急番号へ」と返す。
+     手順（換気／機器栓とメーター栓を閉める／スイッチ・換気扇・火気に触れない／屋外から連絡）は
+     事業者を問わず共通なので、それだけを書く。
+*/
+// 緊急語。**単語一致では誤爆する**（実測: 「火災保険を使ったリフォーム」が緊急に落ちた）。
+// 火災/煙/傾きは、危険が今起きていることを示す語と組でしか拾わない。
+const ASK_EMERGENCY_RE = /ガス漏れ|ガス臭|ガスの臭い|崩落|倒壊|感電|漏電|水浸し|噴き出|生き埋め|閉じ込め|天井が抜け|天井が落ち|落ちてき/i;
+const ASK_EMERGENCY_CTX_RE = /(火事|火災)(?!保険|報知|警報)|煙が(?:出て|上が|充満)|(?:急に|どんどん|大きく)?傾(?:いてきた|きが進|いて危|いて怖)|倒れそう|崩れそう|崩れて|崩れた|割れて落ち|抜け落ち|剥がれ落ち|大量の水/;
+// 「水が止まらない」「止まらない水」の両方の語順を拾う。日本語は語順が自由なので、
+// 固定文字列で書くと片方だけ落ちる（実測で落ちた）。
+const ASK_WATER_RUNNING_RE = /(水|漏れ|漏水)[^。！？\n]{0,12}止まら|止まら[^。！？\n]{0,12}(水|漏れ)/;
+const ASK_URGENT_LEAK_RE = /雨漏り|漏水|水漏れ/i;
+const ASK_URGENT_NOW_RE = /今|いま|至急|緊急|すぐ|止まらな|ひどい|激し|どんどん|大量/i;
+const ASK_DISPUTE_RE = /契約(?:して|し(?:た|ちゃ|てし))|サイン(?:して|した|しちゃ)|判(?:を)?押(?:して|した)|解約|クーリング|返金|支払(?:って|った|ってしま)|振り込(?:んで|んだ)|騙され(?:た|て)|被害に(?:あ|遭)/i;
+// 海外判定。**通貨表記は所在地の証拠にならない**（実測: 「ドル建てで払えと言われた」は
+// 日本国内の施主が受けている赤旗であって、海外案件ではない）。地名と明示的な語だけで判定する。
+const ASK_ABROAD_RE = /アメリカ|米国|カリフォルニア|ニューヨーク|イギリス|英国|ロンドン|カナダ|オーストラリア|ドイツ|フランス|中国|韓国|台湾|シンガポール|ベトナム|ハワイ|海外(?:の|で|に)|国外(?:の|で|に)|現地(?:の)?(?:相場|業者)/;
+const ASK_OTHERDOMAIN_RE = /自動車|車検|バイク|パソコン|スマホ|保険料の見直し|医療費|歯科|美容整形|引越しだけ|旅行|飲食店のメニュー|株|投資信託|仮想通貨|税理士|確定申告/i;
+
+// 建設・リフォームであることの積極的な証拠。他分野判定の除外条件に使う。
+const ASK_CONSTRUCTION_RE = /工事|リフォーム|建設|建築|施工|外壁|屋根|塗装|解体|内装|基礎|足場|水回り|キッチン|浴室|トイレ|洗面|給湯|サッシ|フローリング|クロス|外構|防水|断熱|シロアリ|大工|工務店|見積書|坪単価|新築|改修|修繕/;
 const ASK_VERIFY_RE = /検証|本物|改ざん|改竄|ハッシュ|hash|証明|真正|台帳|ledger|jidec|錨|anchor|timestamp|タイムスタンプ|receipt|レシート|受領/i;
-const ASK_PRICE_RE = /高い|安い|相場|適正|妥当|見積|価格|金額|円|万円|いくら|ぼったく|過剰|price|estimate|quote|fair/i;
-const ASK_TACTIC_RE = /手口|訪問販売|飛び込み|詐欺|騙|断り方|断る|勧誘|点検商法|クーリング|不安|怪しい|tactic|scam|pressure/i;
+// 症状の相談（傾き・ひび・剥がれ）も診断側に流す。工種が読めれば相場レンジを返せる。
+// 価格語。**数字＋万（円を書かない）が日本語では最も普通の言い方**なので必ず拾う。
+// 実測: 「屋根塗装が120万と言われた」は円が無いため価格の問いと認識されず、案内に落ちていた。
+const ASK_PRICE_RE = /高い|安い|相場|適正|妥当|見積|価格|金額|費用|料金|工事費|単価|予算|[0-9０-９][0-9０-９,，.]*\s*万|円|いくら|ぼったく|過剰|傾い|ひび|クラック|剥が|浮い|診断して|見てほしい|price|estimate|quote|fair|cost/i;
+// 手口・赤旗。**語彙はサイトが実際に扱っている手口から取った**（aeo/ と souba/ の
+// 該当ページを全部洗って抽出）。ここが薄いと、施主がいちばん困っている相談が
+// 案内に落ちる。実測でそれが起きた: 「火災保険を使ったリフォームは違法ですか」は
+// aeo/火災保険-リフォーム詐欺.html が正面から扱っている典型的な赤旗なのに、
+// 振り分け表に語が無くて案内止まりだった。
+//
+// 「保険」「無料」「0円」は単独では拾わない（火災保険の一般的な質問や、
+// 無料相談の問い合わせまで手口扱いすると誤爆する）。**手口を示す語と組でのみ拾う。**
+const ASK_TACTIC_RE = /手口|訪問販売|飛び込み|詐欺|騙|断り方|断る|勧誘|点検商法|クーリング|不安|怪しい|今だけ|即決|今日中|無料点検|ドル建て|前金|手抜き|悪質|悪徳|しつこ|帰らな|強引|一式(?:見積|表記|で書)|追加工事|水増し|tactic|scam|pressure/i;
+// 組で拾う赤旗。保険金・0円・実質無料の話法は、単独語ではなく文脈で判定する。
+// 「無料相談」「無料見積もり」はうちへの問い合わせであって手口ではない。先に除外する。
+const ASK_NOT_TACTIC_RE = /無料(?:相談|見積|診断|査定|で相談)|相談(?:は|って|できま|したい)/;
+const ASK_TACTIC_CTX_RE = /(?:火災)?保険[^。！？\n]{0,14}(?:使|適用|申請|下り|おり|無料|0円|ゼロ円|実質|負担な|自己負担)|(?:0円|ゼロ円|無料|タダ)[^。！？\n]{0,10}(?:工事|リフォーム|修理|直せ|できま|になり)|自己負担(?:は)?(?:0|ゼロ|な)|保険金[^。！？\n]{0,10}(?:申請|請求|使)/;
 const ASK_WHO_RE = /業者|加盟店|どこに頼|誰に頼|工務店|職人|店舗|探し|紹介|contractor|who/i;
 const HEX64_RE = /\b[0-9a-f]{64}\b/i;
 const JIDEC_RE = /jidec:(?:entry|path):[0-9a-f]+/i;
@@ -616,23 +671,46 @@ function askRoute(ask, args) {
   const a = String(ask || "");
   const ref = String((args && args.ref) || "").trim();
   const amount = Number(args && args.amount);
+  // 0. 緊急が全てに優先する。金額が書いてあっても価格診断に落とさない。
+  if (ASK_EMERGENCY_RE.test(a) || ASK_EMERGENCY_CTX_RE.test(a) || ASK_WATER_RUNNING_RE.test(a)) return { to: "emergency" };
+  if (ASK_URGENT_LEAK_RE.test(a) && ASK_URGENT_NOW_RE.test(a)) return { to: "emergency" };
+  // 0-b. 契約後・支払い後は制度的救済が先。価格の適否より期限のあるほうを先に出す。
+  // 用語の質問（「クーリングオフとは」）は紛争ではない。窓口ではなく解説へ回す。
+  const isDefinitional = /とは|の意味|って何|とは何|どういう(?:意味|こと)/.test(a);
+  if (ASK_DISPUTE_RE.test(a) && !isDefinitional) return { to: "dispute" };
+  // 0-c. 持っていないデータで答えない。
+  if (ASK_ABROAD_RE.test(a)) return { to: "abroad" };
+  // 他分野の語があるとき、価格語があっても建設に落とさない。
+  // 「車検費用が高い」は価格の問いだが、うちの領分ではない。**価格語は建設の証拠にならない。**
+  // 建設語が同時にあるときだけ、建設の問いとして扱う（例:「車庫の解体費用」）。
+  if (ASK_OTHERDOMAIN_RE.test(a) && !ASK_CONSTRUCTION_RE.test(a)) return { to: "otherdomain" };
   // 1. 明示の参照が最優先。曖昧さが無いものから先に判定する。
   const m = ref.match(JIDEC_RE) || ref.match(HEX64_RE) || a.match(JIDEC_RE) || a.match(HEX64_RE);
   if (m) return { to: "ledger", cite: m[0] };
   if (/^\d+$/.test(ref)) return { to: "ledger", cite: "jidec:entry:" + ref };
   // 2. 検証の語。金額の語より先に見る（「この受領書の金額は本物か」は検証の問いである）。
   if (ASK_VERIFY_RE.test(a)) return { to: "ledger", cite: null };
-  // 3. 金額があるか、価格の語。
+  // 3. 手口・赤旗を価格より先に見る。
+  //    **赤旗の相談はほぼ必ず価格語を含む**（「保険金で自己負担0円」の「円」、
+  //    「一式見積もりしかもらえない」の「見積」）。価格を先に見ると全部そちらへ流れ、
+  //    工種が読めずに案内へ落ちる。実測でそうなった。施主が一番困っている相談なので、
+  //    ここを取りこぼすのが一番損が大きい。
+  //    ただし工種と金額が両方揃っているものは診断を優先する
+  //    （「外壁塗装80万は高い?」を手口に流さないため）。
+  const hasWorkAndAmount = !!pickWork(a, args) && !!pickAmount(a, args);
+  const isTactic = (ASK_TACTIC_RE.test(a) || ASK_TACTIC_CTX_RE.test(a)) && !ASK_NOT_TACTIC_RE.test(a);
+  if (!hasWorkAndAmount && isTactic) return { to: "tactics" };
+  // 4. 金額があるか、価格の語。
   if ((Number.isFinite(amount) && amount > 0) || ASK_PRICE_RE.test(a)) return { to: "audit" };
-  // 4. 手口。
-  if (ASK_TACTIC_RE.test(a)) return { to: "tactics" };
+  // 4-b. 価格にも当たらず、手口の語だけがあるとき。
+  if (isTactic) return { to: "tactics" };
   // 5. 業者探し。
   if (ASK_WHO_RE.test(a)) return { to: "who" };
   return { to: "guide" };
 }
 
 // 工種らしき語を取り出す。取れなければ null（推測で診断を走らせない）。
-const ASK_WORKS = ["外壁塗装","屋根","トイレ","キッチン","浴室","ユニットバス","洗面","給湯器","エコキュート",
+const ASK_WORKS = ["外壁塗装","雨漏り","屋根","外壁","トイレ","キッチン","浴室","ユニットバス","洗面","給湯器","エコキュート",
   "シロアリ","防蟻","内窓","窓","サッシ","玄関","フローリング","床","クロス","壁紙","解体","外構","カーポート",
   "エアコン","断熱","防水","雨漏り","足場","電気","配管","給排水","リノベ","リフォーム","新築","造作","塗装"];
 function pickWork(ask, args) {
@@ -646,10 +724,15 @@ function pickAmount(ask, args) {
   const n = Number(args && args.amount);
   if (Number.isFinite(n) && n > 0) return n;
   const a = String(ask || "");
-  let m = a.match(/([0-9０-９,，]+)\s*万円/);
-  if (m) { const v = Number(m[1].replace(/[,，]/g, "").replace(/[０-９]/g, (d) => "0123456789"["０１２３４５６７８９".indexOf(d)])) * 10000; if (v > 0) return v; }
+  const num = (s) => Number(String(s).replace(/[,，]/g, "").replace(/[０-９]/g, (d) => "0123456789"["０１２３４５６７８９".indexOf(d)]));
+  // 「120万円」だけでなく「120万」も拾う。**円を書かないのが日本語では普通の言い方**で、
+  // ここを落とすと工種と金額が揃っているのに揃っていない扱いになり、振り分けがずれる
+  // （実測: 「屋根塗装が120万と言われたが今だけ半額らしい」が診断ではなく手口へ行った）。
+  let m = a.match(/([0-9０-９,，]+(?:\.[0-9０-９]+)?)\s*万\s*円?/);
+  if (m) { const v = Math.round(num(m[1]) * 10000); if (v > 0) return v; }
+  // 「1200000円」「1,200,000円」。3桁以下は数量や品番のことが多いので採らない。
   m = a.match(/([0-9０-９,，]{4,})\s*円/);
-  if (m) { const v = Number(m[1].replace(/[,，]/g, "").replace(/[０-９]/g, (d) => "0123456789"["０１２３４５６７８９".indexOf(d)])); if (v > 0) return v; }
+  if (m) { const v = num(m[1]); if (v > 0) return v; }
   return null;
 }
 
@@ -673,6 +756,95 @@ async function handleAsk(args, env) {
     };
   }
   const r = askRoute(ask, args);
+
+  // ---- 緊急（すべてに優先）。ここに価格の数字は1つも入れない ----
+  if (r.to === "emergency") {
+    return {
+      ok: true,
+      answered_by: "self (out of scope: emergency)",
+      routed_out: true,
+      result: {
+        scope: "outside",
+        why: "危険が続いている状態に見える。価格の適否より先に、止めること。",
+        first: [
+          "火災・けが・倒壊・閉じ込め・感電のおそれがあるなら 119。",
+          "ガスの臭いがするなら、まず窓と戸を開けて換気する。機器栓とメーター栓を閉める。**照明・換気扇のスイッチに触れない**（小さな火花が出る）。ライター・マッチは使わない。連絡は屋外に出てから行う。",
+          "ガス会社の緊急連絡先は全国共通ではない。**検針票かガスメーターに書かれている自社の緊急番号**にかける。",
+          "水が止まらないなら止水栓を閉める。賃貸・分譲なら管理会社か大家へ先に連絡する（自分で業者を呼ぶと費用負担で揉めることがある）。",
+        ],
+        after: "収まってから、修理見積もりが適正かは ask で確認できる。**急かされて即決する必要は無い。**",
+        note: "緊急時の応急対応につけこんだ高額請求は実際にある。落ち着いてから相見積もりを取ってよい。",
+      },
+      verify: "https://www.fdma.go.jp/",
+      limits: "**これは問いの分類だけで、状況の危険度を評価したものではない。**判断は現場にいる人間が行うこと。金額についてはここでは何も答えていない。",
+      next: ["収まってから ask に工事名と金額を渡す"],
+    };
+  }
+
+  // ---- 契約後・支払い後 → 制度的救済を先に ----
+  if (r.to === "dispute") {
+    return {
+      ok: true,
+      answered_by: "self (out of scope: consumer protection)",
+      routed_out: true,
+      result: {
+        scope: "outside",
+        why: "契約・支払いが済んだ後の話に見える。価格の適否より、期限のある救済が先。",
+        go_to: [
+          { name: "消費者ホットライン 188", url: "https://www.caa.go.jp/policies/policy/local_cooperation/local_consumer_administration/hotline/",
+            note: "全国共通の3桁番号。郵便番号から最寄りの消費生活センターへ繋がる。年末年始等を除き原則毎日。土日祝は国民生活センターが後方支援。（2026-07-27 に一次情報で確認）" },
+          { name: "国民生活センター", url: "https://www.kokusen.go.jp/map/", note: "全国の消費生活センター一覧。" },
+        ],
+        why_first: "訪問販売のクーリング・オフには**法定の期間**がある。過ぎると使えない。相場の確認は後からでもできるが、期限は戻らない。",
+        still_available: "並行して、その金額が相場から見てどうかは ask で確認できる（work と amount を渡す）。相談の材料になる。",
+      },
+      verify: "https://www.kokusen.go.jp/map/",
+      limits: "**うちは法律の助言をしない。**クーリング・オフが使えるかどうかも判断していない。ここでやったのは窓口の案内だけである。",
+      next: ["ask（work と amount を渡して相場を確認）"],
+    };
+  }
+
+  // ---- 日本以外 → 持っていないデータで答えない ----
+  if (r.to === "abroad") {
+    return {
+      ok: true,
+      answered_by: "self (out of scope: outside Japan)",
+      routed_out: true,
+      result: {
+        scope: "outside",
+        why: "日本国外の建設費に見える。**うちのデータは日本のものしか無い。**",
+        honest: "日本の単価を為替換算して他国の相場として出すことはしない。人件費も工法も規制も違うので、数字として意味がない。",
+        go_to: [
+          { name: "その国の公的な積算資料・建設物価指数", url: null, note: "多くの国に公的な建設費指数がある。まずそれを探すほうが確実。" },
+          { name: "現地の複数業者からの相見積もり", url: null, note: "国が変わっても、複数社から取って内訳を比べる原則は変わらない。" },
+        ],
+      },
+      verify: "https://github.com/ogasurfproject-jpg/japan-construction-cost-database",
+      limits: "**日本国外については何も知らないし、推測もしない。**",
+      next: [],
+    };
+  }
+
+  // ---- 建設以外 ----
+  if (r.to === "otherdomain") {
+    return {
+      ok: true,
+      answered_by: "self (out of scope: not construction)",
+      routed_out: true,
+      result: {
+        scope: "outside",
+        why: "建設・リフォーム以外の話に見える。**うちの領分ではない。**",
+        honest: "領分外のことを、それらしく答えることはしない。",
+        go_to: [
+          { name: "消費者ホットライン 188", url: "https://www.caa.go.jp/policies/policy/local_cooperation/local_consumer_administration/hotline/",
+            note: "分野を問わず、消費者トラブル全般の相談窓口。" },
+        ],
+      },
+      verify: "https://www.kokusen.go.jp/map/",
+      limits: "**分類しただけで、内容については何も評価していない。**",
+      next: [],
+    };
+  }
 
   // ---- 台帳（検証）----
   if (r.to === "ledger") {
@@ -1528,8 +1700,16 @@ export default {
       //   案内(guide)に落ちて終わっているのか、台帳まで繋がったのかが区別できない。
       //   記録するのは振り分け先の固定語彙のみ。入力文もIPも記録しない。
       if (name === "ask" && out && out.answered_by) {
-        const dest = String(out.answered_by).replace(/[^A-Za-z0-9 ()\-]/g, "").slice(0, 40);
+        const dest = String(out.answered_by).replace(/[^A-Za-z0-9 ():\-]/g, "").slice(0, 40);
         tev.push({ store: storeId || "", event: "route", tool: dest });
+        // ★v2: 改善の入力になる2つ。どちらも固定語彙で1点だけ。入力文は記録しない。
+        //   fallthrough … 案内に落ちた率。高いなら説明文か振り分け表が現実と合っていない。
+        //   routed_out  … 外へ流した率。0のまま増えないなら相互ルーティングは理屈倒れだった。
+        if (out.routed_out === true) {
+          tev.push({ store: storeId || "", event: "routed_out", tool: dest });
+        } else if (out.answered_by === "self" && out.result && out.result.entries) {
+          tev.push({ store: storeId || "", event: "fallthrough", tool: "guide" });
+        }
       }
       track(env, ctx, tev);
       return rpc(id, { content: [{ type: "text", text: JSON.stringify(out) }], structuredContent: out });
