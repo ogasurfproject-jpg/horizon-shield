@@ -24,7 +24,30 @@
 import { loadWorker, sha256Hex, mockKV, checker } from "./load.mjs";
 
 const ledger = await loadWorker("src/worker.js");
-const mcp = await loadWorker("hs-jidec-mcp/src/worker.js");
+
+// hs-jidec-mcp の置き場所は配布形態で変わる。
+//   リポジトリでは  workers/hs-jidec-mcp/    （= hs-ledger の**隣**）
+//   配布zipでは     ledger_sync/hs-jidec-mcp/（= hs-ledger の**中**）
+// 2026-07-26、リポジトリ側でこのテストが ENOENT のまま即死していることが分かった。
+// 落ちていたのはテストであって本番ではない。だが**動かないテストは無いテストより悪い**。
+// 「ツールが4本あること」を守るはずの見張りが、実は一度も見張っていなかった。
+// だから置き場所を決め打ちにせず、両方試し、見つからなければ理由を言って落ちる。
+let mcp = null;
+let mcpFrom = null;
+for (const cand of ["hs-jidec-mcp/src/worker.js", "../hs-jidec-mcp/src/worker.js"]) {
+  try {
+    mcp = await loadWorker(cand);
+    mcpFrom = cand;
+    break;
+  } catch (e) {
+    if (String((e && e.code) || "") !== "ENOENT") throw e;
+  }
+}
+if (!mcp) {
+  console.error("FAIL  hs-jidec-mcp のソースが見つからない（hs-jidec-mcp/src/worker.js も ../hs-jidec-mcp/src/worker.js も無い）");
+  process.exit(1);
+}
+console.log("# mcp source: " + mcpFrom);
 
 const rec2 = JSON.stringify({ title: "SPEC_HASH_INDEPENDENCE_v1.md", sha256: "deadbeef" });
 const h2 = await sha256Hex(rec2);

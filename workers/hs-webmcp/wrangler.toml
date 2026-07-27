@@ -2,9 +2,26 @@ name = "hs-webmcp"
 main = "index.js"
 compatibility_date = "2026-06-25"
 
+# ★2026-07-27 追加の前に読むこと。
+#   wrangler deploy は **このファイルに書かれていないバインディングを消す**。
+#   下の3本（HS_MCP_SVC / LEDGER_SVC / STATS）が deploy --dry-run で
+#   全部見えることを目で確認してから押すこと。2本以下なら押さない。
+#   計測は既存の STATS(Durable Object) を使う。ask の振り分け先は event="route" で入る。
+#   Analytics Engine は足さない。同一Workerに計測系を2つ置くと、どちらが真かで揉める。
+#   特に STATS(Durable Object) が消えると店別計測が黙って死ぬ。派手に壊れないので気づけない。
+
 [[services]]
 binding = "HS_MCP_SVC"
 service = "hs-mcp"
+
+# ★2026-07-27 追加。正面玄関から台帳(JIDEC)への出口。
+#   これが無かったので、llms.txt が「まずここを呼べ」と指している窓口から、
+#   検証経路へ一切辿り着けなかった（index.js に "jidec"/"ledger" が 0 件だった）。
+#   公開ホスト名で叩かないこと。同一アカウントの workers.dev を fetch すると
+#   外に出ずに自分へ戻る。過去に FALSE DRIFT を出した罠である。
+[[services]]
+binding = "LEDGER_SVC"
+service = "hs-ledger"
 
 # 店別計測カウンタ(SQLite-backed Durable Object)。件数のみ・fail-open。
 [[durable_objects.bindings]]

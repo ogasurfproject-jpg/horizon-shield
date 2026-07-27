@@ -141,4 +141,76 @@ chk("existing /ledger/{n} route untouched", r.s === 200);
 r = await go("/nope");
 chk("unknown route still 404", r.s === 404);
 
+// ── 看板の実測（Analytics Engine）────────────────────────────
+//
+// ここまでの全アサーションは KANBAN_AE バインディングが**無い** env で走った。
+// つまり「バインディングが無くても本番は一切壊れない」ことは、上の全部が
+// 既に証明している。以下はその逆、「バインディングがあるとき本当に書かれるか」
+// を見る。計測が黙って止まるのは、計測が無いことより見つけにくい壊れ方である。
+
+const points = [];
+const aeEnv = { ...env, KANBAN_AE: { writeDataPoint: (dp) => points.push(dp) } };
+async function goAE(path, init) {
+  const rr = await worker.fetch(new Request(B + path, init), aeEnv);
+  await rr.text();
+  return rr.status;
+}
+
+points.length = 0;
+await goAE("/health");
+chk("AE: /health writes exactly one datapoint", points.length === 1, String(points.length));
+chk("AE: route label is 'health'", points[0] && points[0].indexes[0] === "health", JSON.stringify(points[0]));
+chk("AE: status is recorded", points[0] && points[0].doubles[1] === 200, JSON.stringify(points[0] && points[0].doubles));
+
+points.length = 0;
+await goAE("/ledger/2?format=raw", { headers: { "user-agent": "curl/8.7.1" } });
+chk("AE: entry-raw is its own label", points[0] && points[0].blobs[0] === "entry-raw", JSON.stringify(points[0]));
+chk("AE: curl is classified as curl", points[0] && points[0].blobs[1] === "curl", JSON.stringify(points[0]));
+
+points.length = 0;
+await goAE("/cite/jidec:entry:2", { headers: { "user-agent": "Mozilla/5.0 (compatible; ClaudeBot/1.0)" } });
+chk("AE: /cite collapses to one label", points[0] && points[0].blobs[0] === "cite", JSON.stringify(points[0]));
+chk("AE: a crawler that says Mozilla is still a crawler", points[0] && points[0].blobs[1] === "ai-crawler", JSON.stringify(points[0]));
+
+// カーディナリティ：エントリ番号も SHA も、ラベルにもインデックスにも入らないこと。
+points.length = 0;
+await goAE("/verify/2");
+await goAE("/paths/" + "a".repeat(64));
+const labels = points.map((d) => d.indexes[0] + "|" + d.blobs[0]);
+chk("AE: no entry number leaks into the label", !labels.some((s) => /\d{1,}/.test(s.replace(/[^0-9]/g, "")) && /2/.test(s)), labels.join(","));
+chk("AE: no sha leaks into the label", !labels.some((s) => /[0-9a-f]{16,}/.test(s)), labels.join(","));
+
+// 管理ルートは一切測らない。トークンを持つ側の行動は記録しない。
+points.length = 0;
+await goAE("/ledger/append", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
+await goAE("/reference/pin", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
+await goAE("/ledger/pending");
+chk("AE: admin routes write nothing", points.length === 0, JSON.stringify(points));
+
+// クエリ文字列も UA 全文も Referer のパスも、どこにも現れないこと。
+points.length = 0;
+await goAE("/ledger/2?format=json&secret=leakme", {
+  headers: { "user-agent": "SomeAgent/1.0 (token=abc123)", referer: "https://example.org/private/page?q=zzz" },
+});
+const flat = JSON.stringify(points);
+chk("AE: query string never recorded", !/leakme/.test(flat), flat);
+chk("AE: full user-agent never recorded", !/abc123/.test(flat), flat);
+chk("AE: referer path never recorded", !/private|zzz/.test(flat) && /example\.org/.test(flat), flat);
+
+// 計測が落ちても応答は返ること（最上位の掟）。
+points.length = 0;
+const brokenEnv = { ...env, KANBAN_AE: { writeDataPoint: () => { throw new Error("AE down"); } } };
+const rb = await worker.fetch(new Request(B + "/health"), brokenEnv);
+await rb.text();
+chk("AE: a throwing sink does not kill the request", rb.status === 200, String(rb.status));
+
+// OPTIONS（プリフライト）は数えない。
+points.length = 0;
+await goAE("/health", { method: "OPTIONS" });
+chk("AE: preflight is not counted", points.length === 0, JSON.stringify(points));
+
+// /health が計測していることを自分で公言していること。
+chk("/health declares what it measures", !!hj.privacy && hj.privacy.access_measurement === "enabled");
+chk("/health declares that it does not record IPs", !!hj.privacy && hj.privacy.not_recorded.includes("IP address"));
+
 process.exit(chk.done() ? 1 : 0);

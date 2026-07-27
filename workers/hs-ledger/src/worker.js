@@ -222,6 +222,134 @@ const TRANSPARENCY = {
   ],
 };
 
+/* ------------------- 看板の実測（Analytics Engine・書き込みのみ） -------------------
+   看板v1.1 は「見つけてもらう」ための層である。見つけてもらえたかどうかを一度も
+   測っていないなら、それは看板ではなく願望である。ここで足すのはその一本だけ。
+
+   記録するもの（すべて固定語彙・低カーディナリティ）
+     route     正規化した入口名。"cite" "verify" "api-catalog" など。番号もSHAも入らない。
+     ua_class  クライアントの種類。"ai-crawler" "curl" "browser" など。UA全文は入らない。
+     method    GET / POST
+     ref_host  Referer の**ホスト名だけ**。パスもクエリも捨てる。
+     status    応答コード。404 が多い入口は「導線が間違っている」という意味である。
+
+   記録しないもの
+     IPアドレス、cf.* の地理情報、クエリ文字列、User-Agent 全文、Referer のパス、
+     リクエスト本文、認証ヘッダ、エントリ番号、SHA-256。
+
+   管理ルート（/ledger/append・/reference/pin・/ledger/pending）は一切記録しない。
+   トークンを持つ側の行動を測る理由が無いし、測れば漏れる面が増えるだけである。
+
+   バインディングが無い環境（テスト、ローカル、バインディングが落ちた本番）では
+   黙って何もしない。最上位の掟：計測は本番を殺してはならない。
+   ただし逆向きの掟も効いている。ここが黙って何もしなくなったとき、台帳は
+   「異常なし」と言い続ける。だからテストが、バインディングを渡したときに実際に
+   1点書かれることを毎回確かめる。静かに減るのを止められるのはテストだけである。 */
+
+const PRIVACY = {
+  access_measurement: "enabled",
+  purpose: "to measure whether the discovery layer is reached at all, and by what kind of client",
+  recorded: [
+    "normalised route label (no entry numbers, no hashes)",
+    "client class derived from the User-Agent (not the string itself)",
+    "HTTP method",
+    "Referer hostname only",
+    "HTTP status code",
+  ],
+  not_recorded: [
+    "IP address",
+    "geolocation",
+    "query strings",
+    "full User-Agent string",
+    "Referer path",
+    "request bodies",
+    "credentials",
+    "ledger entry numbers",
+    "SHA-256 values",
+  ],
+  admin_routes: "POST /ledger/append, POST /reference/pin and GET /ledger/pending are not measured at all",
+  storage: "Cloudflare Analytics Engine only; this Worker keeps no copy in KV and exposes no read route for it",
+};
+
+// 管理ルート：計測対象から外す。
+const AE_SKIP = new Set(["/ledger/append", "/reference/pin", "/ledger/pending"]);
+
+// パスを固定語彙に落とす。ここが可変語を返すとカーディナリティが爆発するので、
+// 番号もSHAも必ず捨てる。未知のパスは "other" にまとめる（404 の山として見える）。
+function routeLabel(p, url) {
+  if (p === "/" || p === "/health") return "health";
+  if (p === "/.well-known/api-catalog") return "api-catalog";
+  if (p === "/.well-known/agent-card.json") return "agent-card";
+  if (p === "/.well-known/security.txt") return "security-txt";
+  if (p === "/robots.txt") return "robots";
+  if (p === "/llms.txt") return "llms";
+  if (p === "/a2a") return "a2a";
+  if (p.startsWith("/cite/")) return "cite";
+  if (p === "/ledger") return "ledger-index";
+  if (p === "/paths") return "paths-index";
+  if (p === "/paths/query") return "paths-query";
+  if (/^\/paths\/[0-9a-f]{64}\/replay$/i.test(p)) return "path-replay";
+  if (/^\/paths\/[0-9a-f]{64}$/i.test(p)) return "path";
+  if (/^\/verify\/\d+$/.test(p)) return "verify";
+  if (/^\/reference\/[0-9a-f]{64}$/i.test(p)) return "reference";
+  if (/^\/ledger\/\d+\/ots$/.test(p)) return "ots";
+  if (/^\/ledger\/\d+$/.test(p)) {
+    // format の**値そのもの**は記録しない。3値のラベルに畳んでから記録する。
+    const f = url.searchParams.get("format");
+    return f === "raw" ? "entry-raw" : f === "json" ? "entry-json" : "entry";
+  }
+  return "other";
+}
+
+// UA を種類に畳む。全文は記録しない。判定順序が重要である。
+// クローラの UA はたいてい "Mozilla/5.0" を含むので、ブラウザ判定より前に置く。
+function uaClass(ua) {
+  const s = String(ua || "").toLowerCase();
+  if (!s) return "none";
+  if (/claudebot|anthropic|gptbot|oai-searchbot|chatgpt-user|perplexity|ccbot|google-extended|meta-externalagent|bytespider|amazonbot|applebot-extended/.test(s)) return "ai-crawler";
+  if (/googlebot|bingbot|duckduckbot|applebot|yandexbot|baiduspider|slurp|ahrefsbot|semrushbot|petalbot/.test(s)) return "search-crawler";
+  if (/opentimestamps|ots-cli/.test(s)) return "opentimestamps";
+  if (/hs-ledger-replay|jidec|horizon-shield/.test(s)) return "jidec-internal";
+  if (/headlesschrome|puppeteer|playwright/.test(s)) return "headless-browser";
+  if (/curl/.test(s)) return "curl";
+  if (/wget/.test(s)) return "wget";
+  if (/python|urllib|requests|httpx|aiohttp/.test(s)) return "python";
+  if (/node|undici|axios|got\/|go-http-client|okhttp|java\/|ruby|php|powershell/.test(s)) return "runtime";
+  if (/mozilla|safari|chrome|firefox|edge/.test(s)) return "browser";
+  return "other";
+}
+
+// Referer は**ホスト名だけ**。どこから辿って来たかは知りたいが、
+// その人が何を読んでいたかを知る必要は無い。
+function refHost(request) {
+  const r = request.headers.get("referer") || "";
+  if (!r) return "";
+  try {
+    return new URL(r).hostname.slice(0, 64);
+  } catch {
+    return "unparseable";
+  }
+}
+
+function noteHit(env, request, status) {
+  try {
+    const ae = env && env.KANBAN_AE;
+    if (!ae || typeof ae.writeDataPoint !== "function") return;
+    if (request.method === "OPTIONS") return;
+    const url = new URL(request.url);
+    const p = url.pathname.replace(/\/+$/, "") || "/";
+    if (AE_SKIP.has(p)) return;
+    const route = routeLabel(p, url);
+    ae.writeDataPoint({
+      indexes: [route],
+      blobs: [route, uaClass(request.headers.get("user-agent")), request.method, refHost(request)],
+      doubles: [1, Number(status) || 0],
+    });
+  } catch {
+    /* 計測は本番を殺さない。ここで throw させない。 */
+  }
+}
+
 const apiCatalog = (origin) => ({
   linkset: [
     {
@@ -546,15 +674,17 @@ const recipeMarkdown = (r) => {
   return L.join("\n");
 };
 
-export default {
-  async fetch(request, env) {
+// ルーティング本体。export default の fetch はこれを呼んで、返ってきた status を
+// 見てから看板の実測を1点書く。ここを分けたのは、応答コードまで含めて測るためである。
+// 「どの入口が 404 を返しているか」は、看板にとって最も重要な一列である。
+async function handle(request, env) {
     const url = new URL(request.url);
     const p = url.pathname.replace(/\/+$/, "") || "/";
     const origin = url.origin;
     if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
 
     if (p === "/" || p === "/health")
-      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query"], discovery: { api_catalog: "/.well-known/api-catalog", agent_card: "/.well-known/agent-card.json", security_txt: "/.well-known/security.txt", llms_txt: "/llms.txt", a2a: "/a2a", cite: "/cite/{citation}", mcp: MCP_ORIGIN + "/mcp" }, transparency: TRANSPARENCY });
+      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query"], discovery: { api_catalog: "/.well-known/api-catalog", agent_card: "/.well-known/agent-card.json", security_txt: "/.well-known/security.txt", llms_txt: "/llms.txt", a2a: "/a2a", cite: "/cite/{citation}", mcp: MCP_ORIGIN + "/mcp" }, transparency: TRANSPARENCY, privacy: PRIVACY });
 
     /* ---------------------- 看板 routes (additive, read-only) ---------------------- */
 
@@ -924,5 +1054,14 @@ export default {
     }
 
     return json({ error: "not found", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots"] }, 404);
+}
+
+export default {
+  async fetch(request, env) {
+    const res = await handle(request, env);
+    // 実測は応答を返す**前**に1点書く。writeDataPoint は待たない呼び出しなので
+    // 遅延は増えない。noteHit の中は全部 try で囲ってあり、ここは throw しない。
+    noteHit(env, request, res && res.status);
+    return res;
   },
 };

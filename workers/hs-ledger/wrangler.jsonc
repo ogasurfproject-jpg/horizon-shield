@@ -32,6 +32,17 @@
     // 第二の掟：同一アカウントの workers.dev を fetch すると自分に戻ってくる。
     // 過去にこれで FALSE DRIFT を出した。だから公開URLではなくバインディングで呼ぶ。
     { "binding": "PDF_GEN", "service": "hs-pdf-gen" }
+  ],
+  // ★2026-07-26 追加：看板の実測。
+  //   dataset はこの deploy で自動的に作られる。事前に作る操作は要らない。
+  //   バインディング名を変えるとコード側の env.KANBAN_AE と外れ、計測が
+  //   **黙って止まる**（コードは何も投げない設計なので誰も気づかない）。
+  //   名前を変えるなら src/worker.js の noteHit も一緒に変えること。
+  //   読み出しは Cloudflare 側（GraphQL / SQL API）で行う。Worker には
+  //   読み出しルートを一切足していない。足せばアカウント用のAPIトークンを
+  //   Worker に持たせることになり、公開台帳が持つべきでない秘密が増える。
+  "analytics_engine_datasets": [
+    { "binding": "KANBAN_AE", "dataset": "hs_ledger_kanban" }
   ]
   // PENDING_STALE_HOURS は任意。未設定なら STALE_HOURS_DEFAULT=6 が効く。
   // ダッシュボードで設定していた場合、vars を宣言しない deploy で消える点に注意

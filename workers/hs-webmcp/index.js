@@ -16,6 +16,7 @@
 const HS_MCP = "https://hs-mcp.oga-surf-project.workers.dev";
 const SITE = "https://shield.the-horizons-innovation.com";
 const SELF = "https://hs-webmcp.oga-surf-project.workers.dev";
+const LEDGER = "https://hs-ledger.oga-surf-project.workers.dev";
 
 const SERVER = { name: "hs-webmcp", title: "HORIZON SHIELD WebMCP (KIRA)", version: "0.5.0" };
 const SUPPORTED_VERSIONS = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"];
@@ -38,6 +39,32 @@ const RO = { readOnlyHint: true, destructiveHint: false, idempotentHint: true };
 const OUT_OBJ = { type: "object", additionalProperties: true };
 
 const TOOLS = [
+  {
+    name: "ask",
+    title: "一文で聞けば、正しい窓口に繋ぐ",
+    description:
+      "何をしたいかを日本語の一文で渡すと、内部で正しい窓口に振り分けて答えを返す単一入口。" +
+      "見積もりの適正診断(KIRA)・台帳(JIDEC)に錨を打った記録の検証・過剰請求の手口・検証済み加盟店の探索、" +
+      "の4方向へ決定的な規則で振り分ける(判定にLLMは使わない)。" +
+      "**返り値には必ず verify(この答えを検証するURL)と limits(この答えが証明していないこと)が入る。**" +
+      "引用ID(jidec:entry:N)や64桁のSHA-256を ref に渡せば、台帳の記録をそのまま解決する。" +
+      "どれにも当たらない場合も404にはせず、4つの入口を案内して返す。 / " +
+      "Single entry point: pass one sentence and it routes to fair-price audit, ledger verification, " +
+      "overcharge tactics, or the verified-contractor directory. Deterministic routing, no LLM in the loop. " +
+      "Every reply carries a verification URL and an explicit statement of what it does not prove.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        ask: { type: "string", description: "やりたいことを一文で。例:「外壁塗装80万は高いですか」「jidec:entry:9 は本物ですか」" },
+        work: { type: "string", description: "(任意)工事名。分かっているなら渡すと推測を挟まない。" },
+        amount: { type: "number", description: "(任意)業者提示の金額(円)", minimum: 0 },
+        ref: { type: "string", description: "(任意)検証したい引用ID。jidec:entry:N / 64桁hex / エントリ番号" },
+      },
+      required: [],
+    },
+    outputSchema: OUT_OBJ,
+    annotations: { title: "一文で聞けば、正しい窓口に繋ぐ", ...RO, openWorldHint: true },
+  },
   {
     name: "orchestrate",
     title: "集客→診断→発信 一括実行",
@@ -157,6 +184,7 @@ const AGENT_CARD = {
   version: SERVER.version,
   role: "集客窓口(外部エージェント/LLM向けの入口)。受けた見積もり相談を内部KIRA(hs-mcp)の適正診断へ橋渡しする。",
   skills: [
+    { id: "ask", note: "**まずここ。**一文を渡せば、診断・台帳検証・手口・加盟店探索の正しい窓口へ決定的に振り分ける。返り値に検証URLと『証明していないこと』が必ず入る。" },
     { id: "orchestrate", note: "診断+手口+発信下書きを一気通貫で返す司令塔。価格は一次データのみ・自動投稿なし。" },
     { id: "estimate-intake", note: "施主の見積もりを受け、KIRA適正診断とEHN(無料の第三者チェック)へ橋渡し。" },
     { id: "scan-tactics", note: "工事別の過剰請求の手口(検証済み)と一次ソースの在処を返す注意喚起。" },
@@ -165,6 +193,10 @@ const AGENT_CARD = {
   bridges_to: {
     internal_mcp: HS_MCP,
     internal_agent_card: HS_MCP + "/.well-known/agent-card.json",
+    verification_ledger: LEDGER,
+    ledger_index: LEDGER + "/ledger",
+    ledger_llms_txt: LEDGER + "/llms.txt",
+    note: "検証したい記録があるなら ask に ref を渡せばここへ繋がる。著者を信頼せずに確かめられる。",
   },
   how_to_connect: "MCPクライアントは POST /mcp に JSON-RPC(initialize/tools|resources|prompts/*)。A2A対応エージェントはこのカードで窓口を発見できる。",
   site: SITE,
@@ -539,7 +571,224 @@ async function handleOrchestrate(args, env) {
   return out;
 }
 
+/* ==================== ask : 単一入口ルーター ====================
+   なぜ足すか。llms.txt はここを「正面玄関」と名指ししているのに、この窓口から
+   **台帳(JIDEC)への出口が1本も無かった**（実測: index.js に "jidec"/"ledger" が0件）。
+   つまり正面から入ったエージェントは、診断は受け取れるが「その診断が本当か」を
+   著者抜きで確かめる経路に到達できない。売りが「信頼しなくても検証できる」ことなのに、
+   正面玄関にその出口が無い。タスク#70 が公開サイトで見つけた穴の、エージェント層版である。
+
+   設計の掟:
+   - 振り分けに LLM を使わない。決定的でないと再現できない（この会社の全部が再現可能性の上に立つ）。
+     遅くなるし課金も増える。表で足りないと数字が示したら、そのとき考える。
+   - 上流は必ずサービスバインディングで呼ぶ。同一アカウントの workers.dev を fetch すると
+     外に出ずに自分へ戻る（過去に FALSE DRIFT を出した罠）。
+   - 返り値に verify(この答えを検証するURL) と limits(これが証明していないこと) を必ず入れる。
+     答えだけ返す窓口はいくらでもある。限界を一緒に返す窓口はそう無い。
+   - どれにも当たらなくても 404 にしない。案内を返す。案内した先が動かないのは案内が無いより悪い。
+   - 既存4ツールには一切触らない。OpenAI 審査中プラグインと Glama の登録が既存を指している。
+*/
+
+const ASK_VERIFY_RE = /検証|本物|改ざん|改竄|ハッシュ|hash|証明|真正|台帳|ledger|jidec|錨|anchor|timestamp|タイムスタンプ|receipt|レシート|受領/i;
+const ASK_PRICE_RE = /高い|安い|相場|適正|妥当|見積|価格|金額|円|万円|いくら|ぼったく|過剰|price|estimate|quote|fair/i;
+const ASK_TACTIC_RE = /手口|訪問販売|飛び込み|詐欺|騙|断り方|断る|勧誘|点検商法|クーリング|不安|怪しい|tactic|scam|pressure/i;
+const ASK_WHO_RE = /業者|加盟店|どこに頼|誰に頼|工務店|職人|店舗|探し|紹介|contractor|who/i;
+const HEX64_RE = /\b[0-9a-f]{64}\b/i;
+const JIDEC_RE = /jidec:(?:entry|path):[0-9a-f]+/i;
+
+// 台帳をサービスバインディングで呼ぶ。バインディングが無い環境では null を返して
+// 呼び出し側が案内にフォールバックする（黙って壊れない）。
+async function callLedger(path, env) {
+  if (!env || !env.LEDGER_SVC || typeof env.LEDGER_SVC.fetch !== "function") return null;
+  try {
+    const res = await env.LEDGER_SVC.fetch(new Request(LEDGER + path, {
+      headers: { "user-agent": "hs-webmcp-ask" },
+    }));
+    const text = await res.text();
+    try { return { status: res.status, json: JSON.parse(text) }; }
+    catch { return { status: res.status, text: text.slice(0, 4000) }; }
+  } catch (e) {
+    return { status: 0, error: String((e && e.message) || e) };
+  }
+}
+
+function askRoute(ask, args) {
+  const a = String(ask || "");
+  const ref = String((args && args.ref) || "").trim();
+  const amount = Number(args && args.amount);
+  // 1. 明示の参照が最優先。曖昧さが無いものから先に判定する。
+  const m = ref.match(JIDEC_RE) || ref.match(HEX64_RE) || a.match(JIDEC_RE) || a.match(HEX64_RE);
+  if (m) return { to: "ledger", cite: m[0] };
+  if (/^\d+$/.test(ref)) return { to: "ledger", cite: "jidec:entry:" + ref };
+  // 2. 検証の語。金額の語より先に見る（「この受領書の金額は本物か」は検証の問いである）。
+  if (ASK_VERIFY_RE.test(a)) return { to: "ledger", cite: null };
+  // 3. 金額があるか、価格の語。
+  if ((Number.isFinite(amount) && amount > 0) || ASK_PRICE_RE.test(a)) return { to: "audit" };
+  // 4. 手口。
+  if (ASK_TACTIC_RE.test(a)) return { to: "tactics" };
+  // 5. 業者探し。
+  if (ASK_WHO_RE.test(a)) return { to: "who" };
+  return { to: "guide" };
+}
+
+// 工種らしき語を取り出す。取れなければ null（推測で診断を走らせない）。
+const ASK_WORKS = ["外壁塗装","屋根","トイレ","キッチン","浴室","ユニットバス","洗面","給湯器","エコキュート",
+  "シロアリ","防蟻","内窓","窓","サッシ","玄関","フローリング","床","クロス","壁紙","解体","外構","カーポート",
+  "エアコン","断熱","防水","雨漏り","足場","電気","配管","給排水","リノベ","リフォーム","新築","造作","塗装"];
+function pickWork(ask, args) {
+  const explicit = String((args && args.work) || "").trim();
+  if (explicit) return explicit;
+  const a = String(ask || "");
+  for (const w of ASK_WORKS) if (a.includes(w)) return w;
+  return null;
+}
+function pickAmount(ask, args) {
+  const n = Number(args && args.amount);
+  if (Number.isFinite(n) && n > 0) return n;
+  const a = String(ask || "");
+  let m = a.match(/([0-9０-９,，]+)\s*万円/);
+  if (m) { const v = Number(m[1].replace(/[,，]/g, "").replace(/[０-９]/g, (d) => "0123456789"["０１２３４５６７８９".indexOf(d)])) * 10000; if (v > 0) return v; }
+  m = a.match(/([0-9０-９,，]{4,})\s*円/);
+  if (m) { const v = Number(m[1].replace(/[,，]/g, "").replace(/[０-９]/g, (d) => "0123456789"["０１２３４５６７８９".indexOf(d)])); if (v > 0) return v; }
+  return null;
+}
+
+const ASK_ENTRIES = {
+  audit: { tool: "intake_estimate", what: "見積もりが適正かの診断(KIRA)" },
+  verify: { tool: "ask（ref に jidec:entry:N か 64桁hex を渡す）", what: "台帳に錨を打った記録の検証" },
+  tactics: { tool: "scan_tactics", what: "工種別の過剰請求の手口と一次ソース" },
+  who: { tool: "—（Yakumo 加盟店ディレクトリ）", what: "検証済み加盟店の探索", url: SITE + "/yakumo/" },
+};
+
+async function handleAsk(args, env) {
+  const ask = String((args && args.ask) || "").trim();
+  if (!ask && !(args && args.ref)) {
+    return {
+      ok: false,
+      answered_by: "self",
+      result: { message: "ask に一文を入れてください。例:「外壁塗装80万は高いですか」「jidec:entry:9 は本物ですか」" },
+      verify: LEDGER + "/ledger",
+      limits: "この窓口は入口を選ぶだけで、それ自体は何も証明しない。",
+      next: ["intake_estimate", "scan_tactics"],
+    };
+  }
+  const r = askRoute(ask, args);
+
+  // ---- 台帳（検証）----
+  if (r.to === "ledger") {
+    if (r.cite) {
+      const got = await callLedger("/cite/" + encodeURIComponent(r.cite), env);
+      if (got && got.json) {
+        const n = got.json.entry || (String(r.cite).match(/\d+/) || [])[0];
+        return {
+          ok: got.status === 200,
+          answered_by: "hs-ledger (JIDEC)",
+          result: got.json,
+          verify: n ? LEDGER + "/verify/" + n : LEDGER + "/ledger",
+          limits: "この検証が示すのは、そのバイト列が錨の時刻以前に存在し変更されていないこと**だけ**である。" +
+                  "記載内容が真実であることや、記録した者が正しかったことは証明しない。",
+          next: ["ask（別の引用IDで）", "intake_estimate"],
+        };
+      }
+      return {
+        ok: false, answered_by: "self",
+        result: { message: "台帳に問い合わせられなかった。引用IDを直接開けば同じことが確かめられる。",
+                  cite: r.cite, url: LEDGER + "/cite/" + encodeURIComponent(r.cite) },
+        verify: LEDGER + "/ledger",
+        limits: "**これは『記録が無い』ことの証拠ではない。**こちらから台帳に届かなかっただけである。",
+        next: ["ask（時間をおいて再試行）"],
+      };
+    }
+    const idx = await callLedger("/ledger", env);
+    return {
+      ok: true,
+      answered_by: "hs-ledger (JIDEC)",
+      result: {
+        how: "引用ID（jidec:entry:N）か 64桁の SHA-256 を ask の ref に渡せば、その記録を解決して整合を返す。",
+        index: idx && idx.json ? idx.json : { note: "索引を取得できなかった", url: LEDGER + "/ledger" },
+        one_liner: 'curl -s "' + LEDGER + '/ledger/9?format=raw" | shasum -a 256',
+      },
+      verify: LEDGER + "/ledger",
+      limits: "台帳は SCITT 準拠ではなく、OpenTimestamps に RFC・ISO・ETSI・eIDAS の地位は無い。" +
+              "制度的な監査には RFC 3161 か eIDAS 適格タイムスタンプを別途求めること。",
+      next: ["ask（ref に引用IDを渡す）"],
+    };
+  }
+
+  // ---- 診断 ----
+  if (r.to === "audit") {
+    const work = pickWork(ask, args);
+    const amount = pickAmount(ask, args);
+    if (!work) {
+      return {
+        ok: false, answered_by: "self",
+        result: { message: "工種が読み取れなかった。work に工事名を入れて呼び直してほしい（例: 外壁塗装）。**推測で診断は走らせない。**",
+                  categories: SITE + "/souba/" },
+        verify: SITE + "/souba-konkyo.html",
+        limits: "工種が違えば相場も違う。当てずっぽうの工種で出した数字は根拠にならない。",
+        next: ["intake_estimate", "ask（work を明示して）"],
+      };
+    }
+    if (!amount) {
+      const out = { ok: true, answered_by: "hs-mcp (KIRA)", result: null,
+        verify: SITE + "/souba-konkyo.html",
+        limits: "金額が無いのでレンジのみ。**あなたの見積もりが適正かの判定ではない。**",
+        next: ["ask（amount を付けて）", "intake_estimate"] };
+      try { out.result = JSON.parse(await callHsMcp("get_price_range", { work }, env)); }
+      catch (e) { out.ok = false; out.result = { message: "相場レンジを取得できなかった", detail: String((e && e.message) || e) }; }
+      return out;
+    }
+    const out = { ok: true, answered_by: "hs-mcp (KIRA)", result: null,
+      verify: SITE + "/souba-konkyo.html",
+      limits: "相場との比較であって、工事の要否・品質・業者の信用は判定していない。" +
+              "現場条件で正当に高くなることもある。**内訳の確認は省略できない。**",
+      next: ["scan_tactics", "EHN に匿名で貼る: " + SITE + "/ehn/"] };
+    try { out.result = JSON.parse(await callHsMcpAudit(work, amount, env)); }
+    catch (e) { out.ok = false; out.result = { message: "診断を実行できなかった", detail: String((e && e.message) || e) }; }
+    return out;
+  }
+
+  // ---- 手口 ----
+  if (r.to === "tactics") {
+    const work = pickWork(ask, args);
+    const res = await handleScanTactics({ work: work || "" }, env);
+    return {
+      ok: true, answered_by: "hs-webmcp (scan_tactics)", result: res,
+      verify: SITE + "/souba-konkyo.html",
+      limits: "手口の一覧であって、**目の前の業者がそれをやっているという判定ではない。**",
+      next: ["ask（金額を添えて診断へ）", "draft_broadcast"],
+    };
+  }
+
+  // ---- 業者探し ----
+  if (r.to === "who") {
+    return {
+      ok: true, answered_by: "self",
+      result: { message: "検証済み加盟店(Yakumo)は公開ディレクトリで探せる。", url: SITE + "/yakumo/",
+                note: "**紹介料は取っていない。**掲載は適正価格の検証を通った店に限る。" },
+      verify: SITE + "/yakumo/",
+      limits: "掲載は検証を通ったことを示すだけで、**個々の工事の品質を保証するものではない。**" +
+              "掲載店が少ない地域では選択肢にならない。",
+      next: ["ask（金額を添えて診断へ）"],
+    };
+  }
+
+  // ---- 案内（404 を返さない）----
+  return {
+    ok: true, answered_by: "self",
+    result: {
+      message: "どの入口が要るか判断できなかったので、4つとも出す。一文を足して呼び直せば直接繋ぐ。",
+      entries: ASK_ENTRIES,
+      examples: ["外壁塗装80万は高いですか", "jidec:entry:9 は本物ですか", "訪問販売の断り方", "この地域の検証済み業者"],
+    },
+    verify: LEDGER + "/ledger",
+    limits: "この応答は案内であって、何の診断も検証も行っていない。",
+    next: ["intake_estimate", "scan_tactics"],
+  };
+}
+
 async function runTool(name, args, env) {
+  if (name === "ask") return handleAsk(args || {}, env);
   if (name === "orchestrate") return handleOrchestrate(args || {}, env);
   if (name === "intake_estimate") return handleIntake(args || {}, env);
   if (name === "scan_tactics") return handleScanTactics(args || {}, env);
@@ -1274,6 +1523,14 @@ export default {
       const tev = [{ store: storeId || "", event: "tool", tool: String(name || "") }];
       const lv = auditLevel(out);
       if (lv) tev.push({ store: storeId || "", event: "verdict", tool: lv });
+      // ★2026-07-27: ask がどこへ振り分けたかを1点だけ記録する。
+      //   「ルーティングが効いたか」はこの列でしか分からない。ask の呼び出し数だけ見ても、
+      //   案内(guide)に落ちて終わっているのか、台帳まで繋がったのかが区別できない。
+      //   記録するのは振り分け先の固定語彙のみ。入力文もIPも記録しない。
+      if (name === "ask" && out && out.answered_by) {
+        const dest = String(out.answered_by).replace(/[^A-Za-z0-9 ()\-]/g, "").slice(0, 40);
+        tev.push({ store: storeId || "", event: "route", tool: dest });
+      }
       track(env, ctx, tev);
       return rpc(id, { content: [{ type: "text", text: JSON.stringify(out) }], structuredContent: out });
     }
