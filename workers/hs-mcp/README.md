@@ -38,7 +38,7 @@ Works with any MCP client: **Claude  |  ChatGPT  |  Gemini  |  Perplexity  |  Cu
 | `how_to_read_estimate` | Universal principles for judging any estimate (overhead ratio, lump-sum, tactics) |
 | `fair_price_data_sources` | Sources, update date, and regional multipliers behind the data |
 | `suggest_ehn` | Suggest an EHN (anonymous-estimate) entry |
-| `jccdb_dataset_info` | JCCDB open dataset (65,729 items, CC BY 4.0)  -  metadata & citation |
+| `jccdb_dataset_info` | JCCDB open dataset (65,520 items, CC BY 4.0)  -  metadata & citation |
 | `verify_integrity_claim` | Third-party verification of an issued signed claim (fail-closed) |
 | `get_agent_card` | A2A (Agent2Agent) agent card for agent interop |
 

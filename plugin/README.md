@@ -1,6 +1,6 @@
 # HORIZON SHIELD (Claude plugin)
 
-Audit Japanese construction and renovation estimates against the open JCCDB dataset (65,729 line items, CC BY 4.0) and return Bitcoin-anchored, independently recomputable fair-price receipts.
+Audit Japanese construction and renovation estimates against the open JCCDB dataset (65,520 line items, CC BY 4.0) and return Bitcoin-anchored, independently recomputable fair-price receipts.
 
 This plugin bundles:
 

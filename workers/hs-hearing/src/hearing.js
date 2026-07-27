@@ -346,7 +346,7 @@ const YAKUMO_INSTRUCTIONS =
 const VERIFY_MD =
   "# Yakumo の検証の仕組み\n\n" +
   "Yakumo は施工業者から紹介手数料や送客報酬を受け取りません。掲載の可否は、独立第三者(KIRA, 大賀俊勝 建設実務30年 監修)の適正診断を通過するかどうかだけで決まります。\n\n" +
-  "- 実際の見積もり例を、オープン建設費DB(JCCDB 65,729品目)と souba-db に照合し適正価格を検証。\n" +
+  "- 実際の見積もり例を、オープン建設費DB(JCCDB 65,520品目)と souba-db に照合し適正価格を検証。\n" +
   "- 一式計上・過大な諸経費・訪問販売の即決圧力など、過剰請求の赤旗を検出。\n" +
   "- 工種ごとに適正度スコア(0-100)と誠実度ティア(A-F)を算出。1工種でも過剰があれば全体が下がる。\n" +
   "- 結果に、誰でも再計算できる署名レシート(SHA-256)を添付。施主は根拠を手元で検証できる。\n" +
@@ -389,7 +389,7 @@ function mallOverview(contractors) {
     work_categories: Object.keys(works).sort((a, b) => works[b] - works[a]),
     areas: Object.keys(tallyAreas(contractors)),
     verification: "掲載は KIRA 適正診断の通過だけで決まる。紹介料なし。金額は出さずスコア・ティアで表す。fail-closed。",
-    dataset: "JCCDB 65,729品目に照合(souba-db, 大賀俊勝 実務監修)",
+    dataset: "JCCDB 65,520品目に照合(souba-db, 大賀俊勝 実務監修)",
     links: { mall: MALL_URL, apply: SITE_URL + "/yakumo/apply/", souba: SITE_URL + "/souba/", ehn: SITE_URL + "/ehn/", free_check: SITE_URL + "/hacker/submit/" },
     disclaimer: "Yakumoは紹介料を受け取らない中立モール。金額の断定はせず、判断は施主自身。",
   };
@@ -963,7 +963,7 @@ export default {
         source: "hs-hearing KV (live)",
         contractors,
         // 照会/検証の回数はここに置かない(実測でない数字を配らない)。実カウンタは hs-mcp /.well-known/usage-stats.json。
-        stats: { source_count: 8, jccdb_items: 65729, as_of: "2026-06-30" },
+        stats: { source_count: 8, jccdb_items: 65520, as_of: "2026-06-30" },
       }, 200, { "Cache-Control": "public, max-age=60" });
     }
 

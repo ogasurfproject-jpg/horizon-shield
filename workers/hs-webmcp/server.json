@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ogasurfproject-jpg/hs-webmcp",
   "title": "HORIZON SHIELD: Construction Estimate Auditor for Japan (KIRA)",
-  "description": "Check whether a Japanese construction or renovation quote is fair. A neutral, independent third-party estimate-integrity desk: audits a homeowner's quote against an open 65,729-item construction-cost database (JCCDB), flags known overcharge tactics with primary sources, and drafts awareness content. Verifiable first-party prices only (SHA-256); no referral fees; no auto-posting. Tools: intake_estimate, scan_tactics, draft_broadcast, orchestrate.",
+  "description": "Check whether a Japanese construction or renovation quote is fair. A neutral, independent third-party estimate-integrity desk: audits a homeowner's quote against an open 65,520-item construction-cost database (JCCDB), flags known overcharge tactics with primary sources, and drafts awareness content. Verifiable first-party prices only (SHA-256); no referral fees; no auto-posting. Tools: intake_estimate, scan_tactics, draft_broadcast, orchestrate.",
   "version": "0.4.1",
   "websiteUrl": "https://shield.the-horizons-innovation.com",
   "repository": {

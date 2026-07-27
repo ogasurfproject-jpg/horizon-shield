@@ -1,6 +1,6 @@
 # HORIZON SHIELD — Construction Estimate Auditor for Japan (KIRA)
 
-> A **Model Context Protocol (MCP)** server that lets an AI agent check whether a Japanese construction or renovation **quote is fair** — auditing it against an **open 65,729-item cost database**, flagging known **overcharge tactics**, and returning a **verifiable, tamper-evident** result. Neutral third party. No referral fees. No auto-posting.
+> A **Model Context Protocol (MCP)** server that lets an AI agent check whether a Japanese construction or renovation **quote is fair** — auditing it against an **open 65,520-item cost database**, flagging known **overcharge tactics**, and returning a **verifiable, tamper-evident** result. Neutral third party. No referral fees. No auto-posting.
 
 <!-- Glama badge: copy the exact SVG URL from your listing page (Glama > your server > "Badges") and paste it here -->
 <!-- [![HORIZON SHIELD WebMCP on Glama](GLAMA_BADGE_URL)](GLAMA_LISTING_URL) -->
@@ -10,7 +10,7 @@
 - **Protocol:** Model Context Protocol (MCP), streamable HTTP
 - **Endpoint:** `https://hs-webmcp.oga-surf-project.workers.dev/mcp`
 - **Access:** read-only, no API key required
-- **Data region:** Japan (JPY) — built on the open **JCCDB** dataset (65,729 line items) + 61 curated work categories
+- **Data region:** Japan (JPY) — built on the open **JCCDB** dataset (65,520 line items) + 61 curated work categories
 - **Supervision:** 30 years of construction field experience (Toshikatsu Oga, ORCID `0009-0000-9180-903X`)
 - **Operator:** THE HORIZONS INC — independent, takes **no** referral fees or kickbacks from contractors
 
@@ -38,7 +38,7 @@ Once connected, ask your agent:
 
 ## Resources & prompts
 
-**Resources:** `about-horizon-shield`, `jccdb-dataset-info` (65,729 items, license + citation), `souba-categories` (61 work categories), `souba-sources` (fair-price sources + regional multipliers), `ehn-info` (free anonymous estimate-review board).
+**Resources:** `about-horizon-shield`, `jccdb-dataset-info` (65,520 items, license + citation), `souba-categories` (61 work categories), `souba-sources` (fair-price sources + regional multipliers), `ehn-info` (free anonymous estimate-review board).
 **Resource templates:** `souba://category/{query}` (category search), `souba://price/{work}` (fair price range: min / avg / max).
 **Prompts:** `diagnose_my_estimate`, `how_to_read_an_estimate`.
 
@@ -61,7 +61,7 @@ This is a remote MCP server — point any MCP client at the endpoint:
 
 - **Neutral third party.** Takes no referral fees or send-off rewards from contractors.
 - **Verifiable.** Fair prices are returned as tamper-evident records with a **SHA-256** hash, under a Pre-Transaction Knowledge Anchoring model (a third party records the fair price *before* the contractor's quote).
-- **Open data.** Built on the public **JCCDB** dataset (65,729 line items) plus 61 curated categories with maintained price ranges and red flags.
+- **Open data.** Built on the public **JCCDB** dataset (65,520 line items) plus 61 curated categories with maintained price ranges and red flags.
 - **No pressure, no auto-posting.** It returns what to ask, points to primary sources, and never publishes on its own.
 
 ## Links

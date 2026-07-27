@@ -83,7 +83,7 @@
       '<div class="hd"><div class="ttl">KIRA 見積もり診断<span class="tag">無料・匿名</span></div>' +
         '<button class="x" id="x" aria-label="閉じる">&times;</button></div>' +
       '<div class="bd">' +
-        '<p class="lead">建設30年監修のAIが、業者の見積もりが適正かをオープン建設費DB(65,729品目)に照らして一次診断します。判断はあなた自身。契約は急かしません。</p>' +
+        '<p class="lead">建設30年監修のAIが、業者の見積もりが適正かをオープン建設費DB(65,520品目)に照らして一次診断します。判断はあなた自身。契約は急かしません。</p>' +
         '<div id="form">' +
           '<label for="hsw">工事名</label>' +
           '<input id="hsw" placeholder="例: 外壁塗装 シリコン 30坪" autocomplete="off">' +

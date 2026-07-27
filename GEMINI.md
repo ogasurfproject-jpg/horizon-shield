@@ -1,6 +1,6 @@
 # HORIZON SHIELD
 
-You have the HORIZON SHIELD tools available. HORIZON SHIELD audits Japanese construction and renovation cost estimates against the open JCCDB dataset (65,729 line items) and returns fair-price references as tamper-evident, independently recomputable receipts.
+You have the HORIZON SHIELD tools available. HORIZON SHIELD audits Japanese construction and renovation cost estimates against the open JCCDB dataset (65,520 line items) and returns fair-price references as tamper-evident, independently recomputable receipts.
 
 When a user asks whether a construction or renovation quote is fair:
 

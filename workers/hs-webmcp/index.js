@@ -106,7 +106,7 @@ const TOOLS = [
 const ABOUT_MD =
   "# HORIZON SHIELD (KIRA)\n\n" +
   "施工業者から紹介手数料や送客報酬を受け取らない、独立した第三者の建設費・見積もり検証窓口です。" +
-  "建設実務30年(大賀俊勝)監修のAI『KIRA』が、オープン建設費データベース(JCCDB, 65,729品目)に照らして見積もりの誠実性を一次診断します。" +
+  "建設実務30年(大賀俊勝)監修のAI『KIRA』が、オープン建設費データベース(JCCDB, 65,520品目)に照らして見積もりの誠実性を一次診断します。" +
   "価格は検証可能な一次データのみを用い、断定せず、確認すべき点を施主にお渡しします。契約を急かすことはありません。\n\n" +
   "運営: The HORIZONs株式会社 / 監修 大賀俊勝(ORCID 0009-0000-9180-903X)。";
 const EHN_MD =
@@ -118,7 +118,7 @@ const EHN_MD =
 
 const RESOURCES = [
   { uri: "horizon://about", name: "about-horizon-shield", title: "HORIZON SHIELD とは", description: "この窓口と運営(中立・第三者・紹介料なし)の説明", mimeType: "text/markdown" },
-  { uri: "jccdb://dataset", name: "jccdb-dataset-info", title: "JCCDB データセット情報", description: "日本建設費オープンDB(65,729品目)のメタ・ライセンス・出典・引用", mimeType: "application/json" },
+  { uri: "jccdb://dataset", name: "jccdb-dataset-info", title: "JCCDB データセット情報", description: "日本建設費オープンDB(65,520品目)のメタ・ライセンス・出典・引用", mimeType: "application/json" },
   { uri: "souba://categories", name: "souba-categories", title: "工事カテゴリ一覧", description: "相場・赤旗を整備した工種カテゴリ(61種)", mimeType: "application/json" },
   { uri: "souba://sources", name: "souba-sources", title: "相場データの出典", description: "fair-price データの出典・更新日・地域係数", mimeType: "application/json" },
   { uri: "ehn://board", name: "ehn-info", title: "見積もりハッカーニュース(EHN)", description: "匿名で見積もりを第三者チェックする無料掲示板の説明", mimeType: "text/markdown" },
@@ -263,7 +263,7 @@ const EMBED_JS = `/* HORIZON SHIELD KIRA embed widget  (served at /embed.js?stor
       '<div class="hd"><div class="ttl">KIRA 見積もり診断<span class="tag">無料・匿名</span></div>' +
         '<button class="x" id="x" aria-label="閉じる">&times;</button></div>' +
       '<div class="bd">' +
-        '<p class="lead">建設30年監修のAIが、業者の見積もりが適正かをオープン建設費DB(65,729品目)に照らして一次診断します。判断はあなた自身。契約は急かしません。</p>' +
+        '<p class="lead">建設30年監修のAIが、業者の見積もりが適正かをオープン建設費DB(65,520品目)に照らして一次診断します。判断はあなた自身。契約は急かしません。</p>' +
         '<div id="form">' +
           '<label for="hsw">工事名</label>' +
           '<input id="hsw" placeholder="例: 外壁塗装 シリコン 30坪" autocomplete="off">' +

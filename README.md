@@ -31,7 +31,7 @@ This repository is an **MCP server implementation**. It exposes read-only tools 
 - **Transport:** remote server over HTTP / SSE
 - **Endpoint:** `https://hs-mcp.oga-surf-project.workers.dev`
 - **Access:** read-only, no API key required
-- **Data region:** Japan (JPY), built on the open JCCDB dataset (65,729 line items)
+- **Data region:** Japan (JPY), built on the open JCCDB dataset (65,520 line items)
 
 ## What it does
 
@@ -97,7 +97,7 @@ Returns a verdict (for example, overcharge-risk), the fair range (min, avg, max)
 
 ## Data and verification
 
-- Fair-price data is built on the openly published **JCCDB** dataset (65,729 Japanese construction line items, CC BY 4.0).
+- Fair-price data is built on the openly published **JCCDB** dataset (65,520 Japanese construction line items, CC BY 4.0).
 - The verification model, PTKA (Pre-Transaction Knowledge Anchoring), is documented in the VRQ framework preprinted on SSRN, and anchored on the Bitcoin blockchain (independent of any company).
 
 ## Verifiable verdict receipts
