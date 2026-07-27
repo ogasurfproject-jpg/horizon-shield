@@ -277,6 +277,110 @@ function soubaFallback(list, q) {
 }
 // === [/PATCH 2026-06-15] ===
 
+// === [PATCH 2026-07-27] 工種照合の断定禁止 ===
+// これまでは includes() で当たった候補の**配列1番目**をそのまま診断に使っていた。
+// 並び順が判定を決めていたということである。実測（souba-db 183件 / 照会語 370件の全数走査）で
+// **65語が候補割れ、うち24語は過大請求を「適正レンジ内・安心です」と返していた。**
+// 実例:「屋根塗装 120万円」→ 外壁＋屋根塗装セット(90〜130万)に当たり「適正」。
+//       真の候補は 屋根塗装 30坪シリコン(25〜60万)で、平均の2.4倍・上限の2倍である。
+// **これは会社の存在理由の逆をやっていた。**
+//
+// 直し方は3段。
+//  1) 一致の質に段位を付け、最上位の段だけを候補にする。先頭一致は部分一致より強い。
+//     これだけで「屋根塗装」は正しく 屋根塗装 30坪 に着く（先頭一致がそれ1件だから）。
+//  2) それでも複数残るとき、**金額は照会時に分かっているのだから候補全部に判定を通す。**
+//     全員が同じ結論なら答える。割れたら答えない。**曖昧さを件数ではなく結果で測る。**
+//  3) 署名・刻印する経路（verify_fair_price / AP2）は金額が無いことがある。
+//     そこはレンジが重ならない候補が残った時点で拒否する。
+//     **誤った主張に署名して台帳に刻むのは、署名しないより悪い。**
+//
+// 判定が一致して複数残った場合に表示するレンジは**最も厳しい候補**を採る。
+// 甘い側に倒すと、過大請求を「適正」と見せる側へ誤る。誤る向きを選べるなら、施主を守る側へ倒す。
+function matchTier(e, q) {
+  const nq = normJa(q);
+  if (!nq) return 99;
+  const w = normJa(e.work || ""), c = normJa(e.cat || ""), l = normJa(e.widget_label || ""), i = normJa(e.id || "");
+  if (w === nq) return 0;                                  // work 完全一致
+  if (c === nq || l === nq) return 1;                      // cat / 表示名 完全一致
+  if (w.startsWith(nq)) return 2;                          // work 先頭一致
+  if (w.includes(nq) || c.includes(nq) || l.includes(nq) || (i && i.includes(nq))) return 3; // 部分一致
+  return 99;
+}
+// 最上位の段に居るものだけを返す。段の中では元の並びを保つ（再現性のため）。
+function pickCands(list, q) {
+  const scored = list.map((e, i) => ({ e, t: matchTier(e, q), i })).filter(x => x.t < 99);
+  if (!scored.length) return [];
+  const best = Math.min.apply(null, scored.map(x => x.t));
+  return scored.filter(x => x.t === best).sort((a, b) => a.i - b.i).map(x => x.e);
+}
+// 絞らずに段位で並べ替えるだけ。get_price_range は全件返すのが正しい振る舞いなので絞らない。
+function sortByTier(list, q) {
+  return list.map((e, i) => ({ e, t: matchTier(e, q), i }))
+    .sort((a, b) => (a.t - b.t) || (a.i - b.i)).map(x => x.e);
+}
+// [2026-07-27 追加] **適正レンジを下回る見積も「適正」ではない。**
+// 旧実装は price <= max なら無条件で ok だったので、
+// 屋根葺き替え(適正90〜180万)に 10万円 を渡しても「適正レンジ内です。安心です」と返していた。
+// souba-db 183件に対する走査で、**min 未満なのに ok になる組が 693/915 あった。**
+// 安すぎる見積は手抜き・後からの追加請求・そもそも別工事のことがあり、
+// 施主にとっては高すぎるのと同じくらい危ない。
+// なお**この扱いは既にうちの中に在った。**hs-pdf-gen/hs-meisai-engine.js の総額判定は
+//   subtotal <= hi ? (subtotal < lo ? "watch" : "ok") : ...
+// と書かれていて、下回りを watch にしている。MCP 側にだけ持ち込まれていなかった。
+// 二つのエンジンが同じ見積に違う判定を出す状態だったということである。ここで揃える。
+function verdictOf(e, price) {
+  if (e.unit && e.unit !== "一式" && e.danger && price > e.danger * 10) return "unit_mismatch";
+  if (price < e.min) return "below";
+  if (price <= e.max) return "ok";
+  if (price < (e.danger || e.max)) return "watch";
+  return "alert";
+}
+function verdictsAgree(cand, price) {
+  const first = verdictOf(cand[0], price);
+  return cand.every(e => verdictOf(e, price) === first);
+}
+// 金額を伴わない場面での「実質同じか」。共通部分があり、平均が1.5倍未満で、単位が揃っていること。
+function rangesAgree(cand) {
+  if (cand.length <= 1) return true;
+  const lo = Math.max.apply(null, cand.map(e => e.min));
+  const hi = Math.min.apply(null, cand.map(e => e.max));
+  if (lo > hi) return false;
+  const avgs = cand.map(e => e.avg).filter(v => v > 0);
+  if (avgs.length && Math.max.apply(null, avgs) / Math.min.apply(null, avgs) >= 1.5) return false;
+  const units = {}; cand.forEach(e => { units[e.unit || ""] = 1; });
+  if (Object.keys(units).length > 1) return false;
+  return true;
+}
+// 甘い側に倒さない。上限がいちばん低い候補を採る。
+function strictest(cand) {
+  return cand.reduce((a, b) => (b.max < a.max ? b : a));
+}
+function matchedNote(cand) {
+  return cand.length > 1
+    ? { count: cand.length,
+        selected_because: "候補が複数あるが判定は一致した。表示するレンジは**上限がいちばん低い候補**を採っている（甘い側に倒さないため）。",
+        others: cand.filter(e => e !== strictest(cand)).slice(0, 5).map(e => e.work) }
+    : { count: 1, selected_because: "一致は1件。" };
+}
+// 断定を拒むときの返し方。既にある unit_mismatch と同じ形にそろえる。
+function ambiguousReply(work, cand, why) {
+  return {
+    work, ambiguous: true,
+    message: "この工事名では候補が複数あり、どれを指すかで適正額が変わります。判定は出しません。",
+    why,
+    candidates: cand.slice(0, 8).map(e => ({
+      work: e.work, unit: e.unit, fair_range: { min: e.min, avg: e.avg, max: e.max }, note: e.note
+    })),
+    how_to_proceed: "上の候補から工事名をそのまま指定して、もう一度お尋ねください。",
+    limits: "候補を挙げただけであって、**どれが正しいかをこちらで決めることはできない。** 工事名が絞り込めないまま出した金額は、根拠のない数字になる。",
+    detail: SITE + "/souba/",
+    source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)"
+  };
+}
+// テストから実物を叩けるように出す。**テストが写しを検査したら、写しが正しいことしか分からない。**
+export { matchTier, pickCands, sortByTier, verdictOf, verdictsAgree, rangesAgree, strictest };
+// === [/PATCH 2026-07-27] ===
+
 async function callTool(name, args, env, ip, opts) {
   opts = opts || {};
   args = args || {};
@@ -344,9 +448,9 @@ async function callTool(name, args, env, ip, opts) {
       const r = await fetch(SOUBA_DB_URL, { cf: { cacheTtl: 3600 } });
       const d = await r.json();
       const list = Array.isArray(d.categories) ? d.categories : [];
-      let hit = list.filter(e =>
-        (e.cat && e.cat.includes(q)) || (e.work && e.work.includes(q)) ||
-        (e.widget_label && e.widget_label.includes(q)) || (e.id && e.id.includes(q.toLowerCase())));
+      // 全件返すのは正しい（複数の相場を並べて見せることが施主の助けになる）。
+      // ただし**並び順が診断の入力になっている**ので、一致の質の順に並べ替える。
+      let hit = sortByTier(list.filter(e => matchTier(e, q) < 99), q);
       let suggestions = [];
       if (!hit.length) { const fb = soubaFallback(list, q); hit = fb.hits; suggestions = fb.suggestions; }
       if (!hit.length) return txt(suggestions.length
@@ -373,13 +477,25 @@ async function callTool(name, args, env, ip, opts) {
     try {
       const d = await fetchSouba();
       const list = Array.isArray(d.categories) ? d.categories : [];
-      let cand = list.filter(e => (e.work && e.work.includes(work)) || (e.cat && e.cat.includes(work)) || (e.widget_label && e.widget_label.includes(work)));
+      let cand = pickCands(list, work);
       let suggestions = [];
       if (!cand.length) { const fb = soubaFallback(list, work); cand = fb.hits; suggestions = fb.suggestions; }
       if (!cand.length) return txt(suggestions.length
         ? { work, did_you_mean: suggestions, message: "該当工事が見つかりませんでした。近い工事名の候補です。" }
         : "該当工事が見つかりませんでした: " + work);
-      const e = cand[0];
+      // 単価建ての候補に総額らしい金額を渡しているものは、候補から外す（明らかに指していない）。
+      // 全部が単価建てなら従来どおり unit_mismatch を返す。
+      {
+        const priced = cand.filter(x => verdictOf(x, price) !== "unit_mismatch");
+        if (priced.length) cand = priced;
+      }
+      // **候補が複数あって判定が割れるなら、断定しない。**
+      if (cand.length > 1 && !verdictsAgree(cand, price)) {
+        return txt(ambiguousReply(work, cand,
+          "候補ごとに適正レンジが違い、この金額に対する判定が一致しませんでした（例: ある候補では適正、別の候補では過剰請求の懸念）。"));
+      }
+      const _matched = matchedNote(cand);
+      const e = cand.length > 1 ? strictest(cand) : cand[0];
       if (e.unit && e.unit !== "一式" && e.danger && price > e.danger * 10) {
         return txt({
           work: e.work, unit_mismatch: true,
@@ -416,13 +532,25 @@ async function callTool(name, args, env, ip, opts) {
     try {
       const d = await fetchSouba();
       const list = Array.isArray(d.categories) ? d.categories : [];
-      let cand = list.filter(e => (e.work && e.work.includes(work)) || (e.cat && e.cat.includes(work)) || (e.widget_label && e.widget_label.includes(work)));
+      let cand = pickCands(list, work);
       let suggestions = [];
       if (!cand.length) { const fb = soubaFallback(list, work); cand = fb.hits; suggestions = fb.suggestions; }
       if (!cand.length) return txt(suggestions.length
         ? { work, did_you_mean: suggestions, message: "該当工事の適正データが見つかりませんでした。近い工事名の候補です。get_price_range で確認できます。" }
         : "該当工事の適正データが見つかりませんでした: " + work + " / get_price_range で工事名を確認できます。");
-      const e = cand[0];
+      // 単価建ての候補に総額らしい金額を渡しているものは、候補から外す（明らかに指していない）。
+      // 全部が単価建てなら従来どおり unit_mismatch を返す。
+      {
+        const priced = cand.filter(x => verdictOf(x, price) !== "unit_mismatch");
+        if (priced.length) cand = priced;
+      }
+      // **候補が複数あって判定が割れるなら、断定しない。**
+      if (cand.length > 1 && !verdictsAgree(cand, price)) {
+        return txt(ambiguousReply(work, cand,
+          "候補ごとに適正レンジが違い、この金額に対する判定が一致しませんでした（例: ある候補では適正、別の候補では過剰請求の懸念）。"));
+      }
+      const _matched = matchedNote(cand);
+      const e = cand.length > 1 ? strictest(cand) : cand[0];
       if (e.unit && e.unit !== "一式" && e.danger && price > e.danger * 10) {
         return txt({
           work: e.work, unit_mismatch: true,
@@ -433,24 +561,35 @@ async function callTool(name, args, env, ip, opts) {
         });
       }
       let verdict, level;
-      if (price <= e.max) { verdict = "適正レンジ内"; level = "ok"; }
+      if (price < e.min) { verdict = "適正レンジを下回る(安すぎ)"; level = "watch"; }
+      else if (price <= e.max) { verdict = "適正レンジ内"; level = "ok"; }
       else if (price < e.danger) { verdict = "やや高い(適正上限超だが危険水準未満)"; level = "watch"; }
       else { verdict = "過剰請求の懸念水準(danger超)"; level = "alert"; }
       // L8: 無認証には danger 境界を明かさない(alert を watch に丸め、境界オラクルを塞ぐ)
       if (!(opts && opts.authCtx) && level === "alert") { level = "watch"; verdict = "適正上限を超えています(内訳の確認を推奨)"; }
       const overAvg = e.avg ? Math.round((price / e.avg - 1) * 100) : null;
       return txt({
-        work: e.work, unit: e.unit, your_price: price, currency: "JPY",
+        work: e.work, work_query: work, unit: e.unit, your_price: price, currency: "JPY",
+        matched: _matched,
         fair_range: { min: e.min, avg: e.avg, max: e.max },
         ...((opts && opts.authCtx) ? { danger_threshold: e.danger } : {}),
         verdict, level, vs_avg_pct: overAvg === null ? null : (overAvg >= 0 ? "+" + overAvg + "%" : overAvg + "%"),
         advice: level === "alert" ? "内訳の提出を求め、必要なら第三者診断を。即決しない。"
+              : (level === "watch" && price < e.min)
+                ? "適正レンジを下回っています。**安いことは、それだけでは良い知らせではありません。**"
+                  + "工事範囲が狭い・下地処理や足場が抜けている・着工後に追加請求が来る、のいずれかを疑って、"
+                  + "見積書に何が含まれ何が含まれていないかを書面で確認してください。"
               : level === "watch" ? "適正の上限を超えています。内訳と根拠を確認してください。"
               : "適正レンジ内です。内訳の整合だけ確認すれば安心です。",
         note: e.note, source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)", full_diagnosis: SITE + "/hs-reverse-estimate/",
         next_actions: NEXT_ACTIONS,
+        // [2026-07-27] 安すぎ判定を足したとき、ここの文面が「高い」前提のままだった。
+        // 同じ応答の中に「適正レンジを下回る」と「適正上限を超えています」が並んでいた。
+        // **一つの応答が相反することを言うのは、何も言わないより悪い。**向きで文面を分ける。
         ...((level === "watch" || level === "alert") ? { ehn: {
-          why: "この見積もりは適正上限を超えています。同種工事の他の施主の実例と並べて比べると、相場感がさらに明確になります。",
+          why: price < e.min
+            ? "この見積もりは適正レンジを下回っています。同種工事の他の施主の実例と並べると、何が含まれていないのかが見えてきます。"
+            : "この見積もりは適正上限を超えています。同種工事の他の施主の実例と並べて比べると、相場感がさらに明確になります。",
           compare_cases: SITE + "/ehn/",
           ehn_submit: SITE + "/hacker/submit/"
         } } : {})
@@ -480,13 +619,21 @@ async function callTool(name, args, env, ip, opts) {
     try {
       const d = await fetchSouba();
       const list = Array.isArray(d.categories) ? d.categories : [];
-      let cand = list.filter(e => (e.work && e.work.includes(work)) || (e.cat && e.cat.includes(work)) || (e.widget_label && e.widget_label.includes(work)));
+      let cand = pickCands(list, work);
       let suggestions = [];
       if (!cand.length) { const fb = soubaFallback(list, work); cand = fb.hits; suggestions = fb.suggestions; }
       if (!cand.length) return txt(suggestions.length
         ? { work, did_you_mean: suggestions, message: "該当工事の適正データが見つかりませんでした。近い工事名の候補です。" }
         : "該当工事の適正データが見つかりませんでした: " + work);
-      const e = cand[0];
+      // **署名して台帳に刻む経路。**金額が無いこともあるので、レンジの重なりで判断する。
+      // 重ならない候補が残っているのに刻むと、**誤った主張に署名が付いて残る。**
+      // 検証者がハッシュを再計算しても、それは改竄が無いことしか示さない。中身の正しさは示さない。
+      if (cand.length > 1 && !rangesAgree(cand)) {
+        return txt(ambiguousReply(work, cand,
+          "候補ごとに適正レンジが重ならないため、どの主張に署名すべきかを決められませんでした。**確定できない主張には署名しません。**"));
+      }
+      const _matched = matchedNote(cand);
+      const e = cand.length > 1 ? strictest(cand) : cand[0];
       const meta = (d && d._meta) || {};
       const dataVersion = meta.updated_at || meta.version || "unversioned";
       const issued_at = new Date().toISOString();
@@ -534,13 +681,21 @@ async function callTool(name, args, env, ip, opts) {
     try {
       const d = await fetchSouba();
       const list = Array.isArray(d.categories) ? d.categories : [];
-      let cand = list.filter(e => (e.work && e.work.includes(work)) || (e.cat && e.cat.includes(work)) || (e.widget_label && e.widget_label.includes(work)));
+      let cand = pickCands(list, work);
       let suggestions = [];
       if (!cand.length) { const fb = soubaFallback(list, work); cand = fb.hits; suggestions = fb.suggestions; }
       if (!cand.length) return txt(suggestions.length
         ? { work, did_you_mean: suggestions, message: "該当工事の適正データが見つかりませんでした。近い工事名の候補です。" }
         : "該当工事の適正データが見つかりませんでした: " + work);
-      const e = cand[0];
+      // **署名して台帳に刻む経路。**金額が無いこともあるので、レンジの重なりで判断する。
+      // 重ならない候補が残っているのに刻むと、**誤った主張に署名が付いて残る。**
+      // 検証者がハッシュを再計算しても、それは改竄が無いことしか示さない。中身の正しさは示さない。
+      if (cand.length > 1 && !rangesAgree(cand)) {
+        return txt(ambiguousReply(work, cand,
+          "候補ごとに適正レンジが重ならないため、どの主張に署名すべきかを決められませんでした。**確定できない主張には署名しません。**"));
+      }
+      const _matched = matchedNote(cand);
+      const e = cand.length > 1 ? strictest(cand) : cand[0];
       const meta = (d && d._meta) || {};
       const issued_at = new Date().toISOString();
       // 刻印対象は verify_fair_price と同一形の中立主張。PTKA: 業者見積もり提示前の第三者記録。
