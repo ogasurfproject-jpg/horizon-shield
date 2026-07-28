@@ -812,6 +812,69 @@ async function handleLineWebhook(env, bodyText) {
   }
 }
 
+
+/* ------------------------------ KIRA橋渡し (hs-kira-lineからの内部連携) ------------------------------ */
+// KIRA公式LINE(@172piime)のWebhookは hs-kira-line が持つ。加盟店フラグの立った相手のメッセージだけが
+// ここへ転送され、ヒアリングとして取り込み、返信文を返す。登録コード(ht_)不要の自動開始に対応。
+async function handleKiraBridge(env, userId, text) {
+  const t = String(text || "").trim();
+  let storeId = await env.HS_HEARING_KV.get("line2store:" + userId, "text");
+
+  // 本文に既知の登録コードがあれば従来どおり紐づけ(招待済み加盟店)
+  if (!storeId) {
+    const m = t.match(/ht_[A-Za-z0-9]{8,}/);
+    if (m) {
+      const tokRec = await env.HS_HEARING_KV.get("htok:" + m[0], "json");
+      if (tokRec) {
+        await env.HS_HEARING_KV.put("line2store:" + userId, tokRec.store_id);
+        await env.HS_HEARING_KV.put("store2line:" + tokRec.store_id, userId);
+        return { ok: true, reply: (tokRec.company || "加盟店") + " さま、登録が完了しました。\nこの LINE に、対応できる工種・エリア・強み(使う塗料や工法、保証など)を、そのまま送ってください。まとめて1通でもOKです。\nフォームで入力したい場合はこちら:\nhttps://shield.the-horizons-innovation.com/yakumo/register/?code=" + m[0] };
+      }
+    }
+  }
+
+  // 初回: 店レコードを自動作成して即ヒアリング開始(コード不要)
+  if (!storeId) {
+    const rand = (n) => { const a = "abcdefghjkmnpqrstuvwxyz23456789"; const u = crypto.getRandomValues(new Uint8Array(n)); let s = ""; for (const b of u) s += a[b % a.length]; return s; };
+    storeId = "kira-" + rand(8);
+    const token = "ht_" + rand(12);
+    const nowIso = new Date().toISOString();
+    const store = { store_id: storeId, company: "", areas: [], works: [], tier: "honbu", status: "onboarding", source: "kira-line", token, created_at: nowIso, autopilot: {} };
+    await env.HS_HEARING_KV.put("store:" + storeId, JSON.stringify(store));
+    await env.HS_HEARING_KV.put("htok:" + token, JSON.stringify({ store_id: storeId, company: "", issued_at: nowIso, via: "kira-bridge" }));
+    await env.HS_HEARING_KV.put("line2store:" + userId, storeId);
+    await env.HS_HEARING_KV.put("store2line:" + storeId, userId);
+    await AP.activityAdd(env, { type: "onboard", text: "KIRA経由で新しい加盟店ヒアリングが始まりました" });
+    await notify(env, "[Yakumo] KIRA経由で加盟店ヒアリング開始。store=" + storeId + " line=" + userId);
+    return { ok: true, reply: "加盟店へのご関心、ありがとうございます。\nこちらは HORIZON SHIELD / Yakumo の加盟店窓口です。ここからは自動ヒアリングで進めます(担当の大賀も内容をすべて確認します)。\n\nまず、次の3つをこのままご返信ください。まとめて1通で大丈夫です。\n1) 会社名(屋号)\n2) 対応エリア(市区町村)\n3) 対応できる工種と強み(例: 外壁塗装、無機3回塗り10年保証)\n\nフォームでの入力をご希望の場合はこちら:\nhttps://shield.the-horizons-innovation.com/yakumo/register/?code=" + token };
+  }
+
+  // 登録済み: トリガー語だけの短文は案内を返す(回答としては取り込まない)
+  if (t.replace(/\s/g, "").length <= 6 && t.indexOf("加盟店") >= 0) {
+    return { ok: true, reply: "ヒアリング進行中です。会社名(屋号)・対応エリア(市区町村)・対応できる工種と強みを、このままご返信ください。" };
+  }
+
+  // 回答として取り込み(構造化->マージ->関所->生成トリガー)
+  const store = await env.HS_HEARING_KV.get("store:" + storeId, "json");
+  const res = await ingestHearingAnswer(env, storeId, store, t, "line");
+  if (res.ok) {
+    let followup = "";
+    try {
+      const h = await env.HS_HEARING_KV.get("hearing:" + storeId, "json");
+      const s2 = await env.HS_HEARING_KV.get("store:" + storeId, "json");
+      const qs = AP.nextQuestions((h && h.profile) || {}, (s2 && s2.autopilot) || {}, 2);
+      if (qs && qs.length) followup = "\n\n続けて、差し支えなければ:\n" + qs.map((q) => "・" + q.text).join("\n\n");
+    } catch (_e) {}
+    await notify(env, "[Yakumo] KIRA経由の回答を自動構造化->反映: " + (((store || {}).company) || storeId));
+    return { ok: true, reply: "受け取りました。ありがとうございます。内容は自動で掲載準備に反映しました。" + followup + "\n\n追記はいつでもこのトークにどうぞ。" };
+  }
+  if (res.reason === "missing-required") {
+    return { ok: true, reply: "ありがとうございます。もう少しだけ、社名・地域(市区町村)・対応工種が分かるように教えていただけますか？(例: リフォーム職人株式会社 / 長久手市 / 外壁塗装・屋根・内装)" };
+  }
+  await notify(env, "[Yakumo] KIRA経由回答(自動構造化できず: " + res.reason + ")。手動確認を。store=" + storeId);
+  return { ok: true, reply: "受け取りました。内容を確認して運営からご連絡します。" };
+}
+
 /* ------------------------------ 加盟店一覧(KV) + 公開データ ------------------------------ */
 async function listAllStores(env) {
   const out = [];
@@ -1032,6 +1095,18 @@ export default {
       const isResp = m && (Object.prototype.hasOwnProperty.call(m, "result") || Object.prototype.hasOwnProperty.call(m, "error")) && !m.method;
       if (isResp || (m && m.method && !hasId)) return new Response(null, { status: 202, headers: cors });
       return handleMcp(request, env, m.id != null ? m.id : null, m.method, m.params, ctx);
+    }
+
+    // KIRA(hs-kira-line)からの橋渡し: 加盟店メッセージを受け、返信文を返す(内部連携・共有鍵必須)
+    if (path === "/kira-bridge") {
+      if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+      const bkey = request.headers.get("X-Bridge-Key") || "";
+      if (!env.KIRA_BRIDGE_KEY || !(await ctEqual(bkey, env.KIRA_BRIDGE_KEY))) return json({ error: "forbidden" }, 403);
+      let bb; try { bb = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+      const uid = safeStr(bb.userId, 64);
+      if (!/^U[0-9a-f]{32}$/.test(uid)) return json({ error: "bad_user" }, 400);
+      const out = await handleKiraBridge(env, uid, safeStr(bb.text, 6000));
+      return json(out);
     }
 
     // LINE Webhook: 加盟店ヒアリングのLINE版(登録->回答->自動構造化->生成)

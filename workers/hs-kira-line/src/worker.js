@@ -932,6 +932,39 @@ async function isPartner(userId, text, env) {
 }
 __name(isPartner, "isPartner");
 async function handlePartnerMessage(userMessage, replyToken, userId, justJoined, env) {
+  // Yakumo自動ヒアリング(hs-hearing)へ橋渡し。失敗時は従来の手動フローに自動フォールバック。
+  if (env.KIRA_BRIDGE_KEY) {
+    try {
+      const br = await fetch("https://hs-hearing.oga-surf-project.workers.dev/kira-bridge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Bridge-Key": env.KIRA_BRIDGE_KEY },
+        body: JSON.stringify({ userId, text: userMessage })
+      });
+      if (br.ok) {
+        const data = await br.json();
+        if (data && data.ok && data.reply) {
+          await replyToLine(replyToken, data.reply, env.LINE_CHANNEL_TOKEN);
+          if (justJoined) {
+            await pushToLine(
+              env.LINE_USER_ID,
+              `\u{1F91D}\u3010\u52A0\u76DF\u5E97\u304B\u3089\u9023\u7D61\u3011
+\u30E6\u30FC\u30B6\u30FCID: ${userId}
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+${userMessage}
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+\u203BYakumo\u81EA\u52D5\u30D2\u30A2\u30EA\u30F3\u30B0\u304C\u5BFE\u5FDC\u4E2D\u3067\u3059\u3002\u56DE\u7B54\u306F\u81EA\u52D5\u3067\u69CB\u9020\u5316\u30FB\u53CD\u6620\u3055\u308C\u307E\u3059(\u5BFE\u5FDC\u4E0D\u8981)\u3002`,
+              env.LINE_CHANNEL_TOKEN
+            );
+          }
+          return;
+        }
+      }
+      console.error("kira-bridge non-ok:", br.status);
+    } catch (e) {
+      console.error("kira-bridge error:", e.message);
+    }
+  }
+  // ---- フォールバック(従来どおり) ----
   if (justJoined) {
     const welcome = `\u52A0\u76DF\u5E97\u3054\u62C5\u5F53\u8005\u3055\u307E\u3001\u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\u3002
 \u3053\u3061\u3089\u306F HORIZON SHIELD\uFF08The HORIZ\u97F3s\u682A\u5F0F\u4F1A\u793E\uFF09\u306E\u52A0\u76DF\u5E97\u7A93\u53E3\u3067\u3059\u3002
