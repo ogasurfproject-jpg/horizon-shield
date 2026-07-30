@@ -183,6 +183,19 @@ export function mergeProfiles(base, incoming) {
   out.estimates_for_audit = ests.slice(0, 8);
   out.cases = uniq([...(a.cases || []), ...(b.cases || [])]).slice(0, 10);
   out.extra = { ...(a.extra || {}), ...(b.extra || {}) };
+  // 採用(recruit): 任意トラック。集客のみの店には無い。フィールド単位で情報量の多い方を残し、職種は和集合。
+  if (a.recruit || b.recruit) {
+    const ra = a.recruit || {}, rb = b.recruit || {};
+    const rout = { ...ra };
+    for (const k of ["employment_type", "salary_min", "salary_max", "salary_unit", "bonus_allowance",
+                     "insurance_holidays", "ideal_person", "qualifications", "inexperienced_ok",
+                     "training", "workplace", "culture", "apply_method", "apply_contact"]) {
+      const av = S(ra[k], 2000), bv = S(rb[k], 2000);
+      rout[k] = bv.length > av.length ? bv : av;
+    }
+    rout.roles = uniq([...(ra.roles || []), ...(rb.roles || [])]).slice(0, 12);
+    out.recruit = rout;
+  }
   for (const k of ["member_no", "store_id"]) out[k] = a[k] || b[k] || null;
   return out;
 }

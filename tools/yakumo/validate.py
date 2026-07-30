@@ -12,7 +12,8 @@
   - 必須メタ(title / description / robots=index,follow / author)
   - 禁止語(MOAT語。下の MOAT_FORBIDDEN、逆順表記)が本文に無い
   - em/en/bar dash(U+2014/2013/2015) が無い
-  - 金額数字(¥1,234 / 1,234円 / 12万円 等)が無い(施主向け加盟店面は金額非表示)
+  - 金額数字(¥1,234 / 1,234円 / 12万円 等)が無い(施主向け加盟店面は金額非表示)。
+    ただし採用ページ(/recruit/)は求人給与の表示が必要なため、可視テキストの金額チェックを免除する。
   - モール(/yakumo/)とHORIZON SHIELDルートへのバックリンクが有る(認知度導線)
   - 内部リンクが絶対URL(https://shield.the-horizons-innovation.com/...)で壊れていない形
 
@@ -45,6 +46,11 @@ def path_to_canonical(relpath):
     if not rel.endswith('/'):
         rel += '/'
     return BASE + "/" + rel
+
+def is_recruit_path(relpath):
+    # 採用(求人)ページは給与表示が必要なため、金額チェックを免除する名前空間。
+    # 施主向け(souba / faq 等)は従来どおり金額非表示のまま(このヘルパで区別する)。
+    return "/recruit/" in ("/" + relpath.replace("\\", "/"))
 
 def visible_text(html):
     t = SCRIPT_STYLE_RE.sub(' ', html)
@@ -113,10 +119,11 @@ def check_page(relpath):
 
     vis = visible_text(html)
 
-    # 金額(可視テキスト)
-    mm = MONEY_RE.search(vis)
-    if mm:
-        errs.append("MONEY_ON_PAGE: " + mm.group(0).strip())
+    # 金額(可視テキスト): 施主向けは非表示。ただし採用(/recruit/)は求人給与の表示が必要なため免除。
+    if not is_recruit_path(relpath):
+        mm = MONEY_RE.search(vis)
+        if mm:
+            errs.append("MONEY_ON_PAGE: " + mm.group(0).strip())
 
     # バックリンク(認知度導線)
     if (BASE + "/yakumo/") not in html:

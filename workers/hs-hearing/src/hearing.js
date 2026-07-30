@@ -147,6 +147,50 @@ function hearingForm(token, store) {
 '<label>公開してほしくない情報 <span class="opt">任意</span></label>' +
 '<input type="text" id="ng" placeholder="例：担当者の個人携帯は載せないでほしい">' +
 
+// ---- 採用(社員募集) 任意セクション。集客だけの店は全て空欄でOK(採用ページは作られない) ----
+'<div style="margin-top:34px;border-top:1px solid #1A2230;padding-top:16px;"></div>' +
+'<h1 style="font-size:18px;">採用(社員募集) <span class="opt" style="font-size:12px;">任意</span></h1>' +
+'<p class="lead">職人・スタッフの募集がある場合だけご記入ください。入力すると、給与や待遇を載せた採用ページ(求人検索やAIに見つかる JobPosting 付き)を作成します。空欄なら採用ページは作りません。</p>' +
+
+'<label>募集職種 <span class="opt">任意</span> <span class="hint">(当てはまるものをタップ。その他は自由入力へ)</span></label>' +
+'<div class="chips" id="rroles">' +
+['塗装工','屋根工','防水工','大工','内装工','左官','板金工','現場監督','施工管理','営業','事務']
+  .map(function(w){return '<span class="chip" data-w="'+w+'">'+w+'</span>';}).join('') +
+'</div>' +
+'<input type="text" id="rrolesOther" placeholder="その他の職種(カンマ区切りで自由入力)" style="margin-top:10px;">' +
+
+'<div class="row2"><div><label>雇用形態 <span class="opt">任意</span></label><input type="text" id="rEmployment" placeholder="例：正社員 / 契約社員 / パート"></div>' +
+'<div><label>勤務地 <span class="opt">任意</span></label><input type="text" id="rWorkplace" placeholder="例：神奈川県平塚市とその周辺"></div></div>' +
+
+'<label>給与レンジ <span class="opt">任意</span> <span class="hint">(下限・上限。採用ページにだけ表示します)</span></label>' +
+'<div class="row2"><div><select id="rSalaryUnit"><option value="月給">月給</option><option value="時給">時給</option><option value="日給">日給</option><option value="年収">年収</option></select></div><div></div></div>' +
+'<div class="row2"><div><input type="text" id="rSalaryMin" placeholder="下限(例：250000)"></div>' +
+'<div><input type="text" id="rSalaryMax" placeholder="上限(例：400000)"></div></div>' +
+
+'<label>賞与・各種手当 <span class="opt">任意</span></label>' +
+'<input type="text" id="rBonus" placeholder="例：賞与年2回、資格手当、家族手当、交通費支給">' +
+
+'<label>社会保険・休日・年間休日 <span class="opt">任意</span></label>' +
+'<input type="text" id="rInsurance" placeholder="例：社会保険完備、週休2日、年間休日110日">' +
+
+'<label>必要・歓迎する資格 <span class="opt">任意</span></label>' +
+'<input type="text" id="rQualifications" placeholder="例：要普通自動車免許、歓迎：塗装技能士">' +
+
+'<label>未経験の可否 <span class="opt">任意</span></label>' +
+'<input type="text" id="rInexperienced" placeholder="例：未経験歓迎 / 経験者優遇">' +
+
+'<label>入社後の研修・教育体制(リスキリング) <span class="opt">任意</span> <span class="hint">(助成金を活用した教育など)</span></label>' +
+'<textarea id="rTraining" placeholder="例：未経験は先輩と2人1組で1年。助成金を活用した研修制度あり。資格取得を会社が支援。"></textarea>' +
+
+'<label>求める人物像 <span class="opt">任意</span></label>' +
+'<textarea id="rIdeal" placeholder="例：ものづくりが好きな方。チームで動ける方。長く腰を据えて働きたい方。"></textarea>' +
+
+'<label>会社の魅力・社風 <span class="opt">任意</span></label>' +
+'<textarea id="rCulture" placeholder="例：若手が多く風通しの良い職場。技術を教え合う文化。地域密着で残業は少なめ。"></textarea>' +
+
+'<div class="row2"><div><label>応募方法 <span class="opt">任意</span></label><input type="text" id="rApplyMethod" placeholder="例：フォーム / LINE / 電話"></div>' +
+'<div><label>応募の連絡先 <span class="opt">任意</span></label><input type="text" id="rApplyContact" placeholder="電話 / メール / LINE ID"></div></div>' +
+
 '<button type="submit" class="submit">回答を送信する</button>' +
 '<p class="note">送信内容は The HORIZONs株式会社(HORIZON SHIELD)が加盟店運営のために使用します。金額は施主向けに公開しません。</p>' +
 '</form>' +
@@ -155,6 +199,7 @@ function hearingForm(token, store) {
 '<script>' +
 'var TOKEN=' + JSON.stringify(token) + ';' +
 'document.querySelectorAll("#works .chip").forEach(function(c){c.addEventListener("click",function(){c.classList.toggle("on");});});' +
+'document.querySelectorAll("#rroles .chip").forEach(function(c){c.addEventListener("click",function(){c.classList.toggle("on");});});' +
 'document.getElementById("addEst").addEventListener("click",function(){var d=document.createElement("div");d.className="card est";d.innerHTML=\'<div class="row2"><div><input type="text" class="e-work" placeholder="工種"></div><div><input type="text" class="e-amount" placeholder="概算金額"></div></div><input type="text" class="e-detail" placeholder="内訳の要点(任意)" style="margin-top:8px;">\';document.getElementById("estimates").appendChild(d);});' +
 'document.getElementById("addFaq").addEventListener("click",function(){var d=document.createElement("div");d.className="card faq";d.innerHTML=\'<input type="text" class="q" placeholder="質問"><textarea class="a" placeholder="答え" style="margin-top:8px;"></textarea>\';document.getElementById("faqs").appendChild(d);});' +
 'function val(id){var e=document.getElementById(id);return e?e.value.trim():"";}' +
@@ -163,7 +208,12 @@ function hearingForm(token, store) {
 'var wo=val("worksOther");if(wo){wo.split(",").forEach(function(x){x=x.trim();if(x)works.push(x);});}' +
 'var estimates=[];document.querySelectorAll("#estimates .est").forEach(function(c){var w=c.querySelector(".e-work").value.trim();var a=c.querySelector(".e-amount").value.trim();var de=c.querySelector(".e-detail").value.trim();if(w||a)estimates.push({work:w,amount:a,detail:de});});' +
 'var faqs=[];document.querySelectorAll("#faqs .faq").forEach(function(c){var q=c.querySelector(".q").value.trim();var a=c.querySelector(".a").value.trim();if(q&&a)faqs.push({q:q,a:a});});' +
+'var rroles=[];document.querySelectorAll("#rroles .chip.on").forEach(function(c){rroles.push(c.getAttribute("data-w"));});' +
+'var rro=val("rrolesOther");if(rro){rro.split(",").forEach(function(x){x=x.trim();if(x)rroles.push(x);});}' +
+'var recruit={roles:rroles,employment_type:val("rEmployment"),salary_min:val("rSalaryMin"),salary_max:val("rSalaryMax"),salary_unit:val("rSalaryUnit"),bonus_allowance:val("rBonus"),insurance_holidays:val("rInsurance"),ideal_person:val("rIdeal"),qualifications:val("rQualifications"),inexperienced_ok:val("rInexperienced"),training:val("rTraining"),workplace:val("rWorkplace"),culture:val("rCulture"),apply_method:val("rApplyMethod"),apply_contact:val("rApplyContact")};' +
+'var hasR=rroles.length||recruit.employment_type||recruit.salary_min||recruit.salary_max||recruit.bonus_allowance||recruit.insurance_holidays||recruit.ideal_person||recruit.qualifications||recruit.inexperienced_ok||recruit.training||recruit.workplace||recruit.culture||recruit.apply_method||recruit.apply_contact;' +
 'var payload={company:val("company"),rep:val("rep"),license:val("license"),area:val("area"),areas:val("areas"),works:works,strengths:val("strengths"),estimates:estimates,faqs:faqs,trust:val("trust"),contact:val("contact"),hours:val("hours"),ng:val("ng")};' +
+'if(hasR)payload.recruit=recruit;' +
 'if(!payload.company||!payload.area||works.length===0){alert("社名・所在地・工種は必須です。");return;}' +
 'fetch("/h/"+TOKEN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).then(function(r){return r.json();}).then(function(res){if(res&&res.ok){document.getElementById("f").style.display="none";document.getElementById("ok").style.display="block";window.scrollTo(0,0);}else{alert((res&&res.error)||"送信に失敗しました。時間をおいて再度お試しください。");}}).catch(function(){alert("通信エラー。時間をおいて再度お試しください。");});' +
 '});' +
@@ -172,6 +222,62 @@ function hearingForm(token, store) {
 }
 
 /* ------------------------------ normalize answers ------------------------------ */
+// 採用(recruit)トラックの正規化。全項目が空なら null を返す(集客のみの店は影響を受けない=完全に任意)。
+function normalizeRecruit(r) {
+  if (!r || typeof r !== "object") return null;
+  const rec = {
+    roles: safeArr(r.roles, 12, 60),
+    employment_type: safeStr(r.employment_type, 60),
+    salary_min: safeStr(r.salary_min, 20).replace(/[^0-9]/g, ""),
+    salary_max: safeStr(r.salary_max, 20).replace(/[^0-9]/g, ""),
+    salary_unit: safeStr(r.salary_unit, 12),
+    bonus_allowance: safeStr(r.bonus_allowance, 400),
+    insurance_holidays: safeStr(r.insurance_holidays, 400),
+    ideal_person: safeStr(r.ideal_person, 400),
+    qualifications: safeStr(r.qualifications, 400),
+    inexperienced_ok: safeStr(r.inexperienced_ok, 60),
+    training: safeStr(r.training, 600),
+    workplace: safeStr(r.workplace, 200),
+    culture: safeStr(r.culture, 600),
+    apply_method: safeStr(r.apply_method, 60),
+    apply_contact: safeStr(r.apply_contact, 160),
+  };
+  const hasContent = rec.roles.length || rec.employment_type || rec.salary_min || rec.salary_max ||
+    rec.bonus_allowance || rec.insurance_holidays || rec.ideal_person || rec.qualifications ||
+    rec.inexperienced_ok || rec.training || rec.workplace || rec.culture || rec.apply_method || rec.apply_contact;
+  return hasContent ? rec : null;
+}
+// recruit の構造化データを、generate.py が参照する qid(q_recruit_roles/terms/culture)にも供給する。
+//   roles -> q_recruit_roles / 雇用形態・給与・賞与・保険・資格・勤務地・応募 -> q_recruit_terms / 社風・人物像・研修 -> q_recruit_culture
+function recruitToExtra(rec) {
+  if (!rec) return {};
+  const at = new Date().toISOString();
+  const salaryText = (rec.salary_min || rec.salary_max)
+    ? (rec.salary_unit || "給与") + " " + [rec.salary_min, rec.salary_max].filter(Boolean).join("〜") + "円"
+    : "";
+  const roles = rec.roles.join("、");
+  const terms = [
+    rec.employment_type && ("雇用形態: " + rec.employment_type),
+    salaryText && ("給与: " + salaryText),
+    rec.bonus_allowance && ("賞与・手当: " + rec.bonus_allowance),
+    rec.insurance_holidays && ("保険・休日: " + rec.insurance_holidays),
+    rec.qualifications && ("資格: " + rec.qualifications),
+    rec.inexperienced_ok && ("未経験: " + rec.inexperienced_ok),
+    rec.workplace && ("勤務地: " + rec.workplace),
+    rec.apply_method && ("応募方法: " + rec.apply_method),
+    rec.apply_contact && ("連絡先: " + rec.apply_contact),
+  ].filter(Boolean).join(" / ");
+  const culture = [
+    rec.culture,
+    rec.ideal_person && ("求める人物像: " + rec.ideal_person),
+    rec.training && ("入社後の研修(リスキリング): " + rec.training),
+  ].filter(Boolean).join(" / ");
+  const out = {};
+  if (roles) out.q_recruit_roles = { text: roles, at };
+  if (terms) out.q_recruit_terms = { text: terms, at };
+  if (culture) out.q_recruit_culture = { text: culture, at };
+  return out;
+}
 function normalizeProfile(store, raw) {
   const areasField = safeStr(raw.areas, 400);
   const areas_served = areasField
@@ -188,7 +294,8 @@ function normalizeProfile(store, raw) {
   const faqs = Array.isArray(raw.faqs)
     ? raw.faqs.slice(0, 8).map((f) => ({ q: safeStr(f.q, 120), a: safeStr(f.a, 600) })).filter((f) => f.q && f.a)
     : [];
-  return {
+  const recruit = normalizeRecruit(raw.recruit);  // 採用: 未入力なら null(集客のみの店は影響なし)
+  const out = {
     member_no: (store && store.member_no) || null,
     store_id: (store && store.store_id) || null,
     company: safeStr(raw.company, 120) || (store && store.company) || "",
@@ -206,6 +313,11 @@ function normalizeProfile(store, raw) {
     // 見積もり例は監査用。生成ページには金額を出さない。
     estimates_for_audit: estimates,
   };
+  if (recruit) {
+    out.recruit = recruit;                       // 構造化: generate.py の採用トラック(JobPosting・給与表示)が読む
+    out.extra = recruitToExtra(recruit);         // 既存 qid 供給の仕組みにも同じデータを渡す(focus頁/完成度)
+  }
+  return out;
 }
 
 /* ------------------------------ GitHub dispatch (optional, fail-closed) ------------------------------ */

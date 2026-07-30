@@ -616,6 +616,294 @@ def focus_page(profile, focus, news):
     body += cta_and_footer()
     return canonical, head(title, desc, canonical, [ld, org_person_graph(canonical)]) + body
 
+# ---------------- recruit track (採用: 採用トップ + 職種別。給与表示OK=validate.py が /recruit/ を免除) ----------------
+# 施主向けの safe_pub(金額伏せ)は使わない。ダッシュだけ clean_dashes で除去し、給与は可視で出す。
+ROLE_SLUG = {
+    "塗装工": "tosou", "塗装職人": "tosou", "塗装": "tosou",
+    "現場監督": "genba-kantoku", "現場管理": "genba-kanri", "施工管理": "sekou-kanri",
+    "大工": "daiku", "内装工": "naiso", "防水工": "bousui", "屋根工": "yane-ko",
+    "板金工": "bankin", "左官": "sakan", "営業": "eigyo", "事務": "jimu",
+}
+def role_slug(role):
+    key = (role or "").strip()
+    if key in ROLE_SLUG:
+        return ROLE_SLUG[key]
+    for k in sorted(ROLE_SLUG, key=len, reverse=True):
+        if k and k in key:
+            return ROLE_SLUG[k]
+    return "r-" + hashlib.sha1(key.encode("utf-8")).hexdigest()[:6]
+
+# 職種ごとの一般的な仕事内容(建設実務の一般知識。金額なし・地域固有の創作なし)。ページの独自性も担保する。
+ROLE_BLURB = {
+    "塗装": "外壁や屋根の下地処理(高圧洗浄・ケレン)から下塗り・中塗り・上塗りまで、塗膜の品質を左右する工程を担います。",
+    "現場": "工程管理・安全管理・品質管理を通じて、職人と施主の間に立ち、現場を円滑に進める役割です。",
+    "施工管理": "工程・安全・品質・原価の管理を担い、複数の職人をまとめて工事全体を進行します。",
+    "大工": "木工事の造作や下地組みなど、建物の骨格と仕上がりを支える技術職です。",
+    "防水": "ベランダや屋上の防水層の施工を担い、建物を雨水の浸入から守ります。",
+    "内装": "クロスや床の仕上げなど、住まいの印象を決める内装工事を担当します。",
+    "屋根": "屋根材の葺き替えやカバー工法、板金の取り付けなど、雨仕舞いの要となる工程を受け持ちます。",
+    "板金": "屋根や外壁の板金加工・取り付けを担い、雨仕舞いの要となる工程を受け持ちます。",
+    "左官": "モルタルや漆喰の塗り付けなど、下地づくりと仕上げの両面を支える技術職です。",
+    "営業": "施主からの相談対応や現地調査、見積もりの説明などを担当します。",
+    "事務": "受発注や書類作成、電話対応など、現場を支える管理業務を担当します。",
+}
+def role_blurb(role):
+    for k in sorted(ROLE_BLURB, key=len, reverse=True):
+        if k in (role or ""):
+            return ROLE_BLURB[k]
+    return ""
+
+EMPLOYMENT_TYPE_LD = {
+    "正社員": "FULL_TIME", "契約社員": "CONTRACTOR", "パート": "PART_TIME", "アルバイト": "PART_TIME",
+    "業務委託": "CONTRACTOR", "派遣": "TEMPORARY", "インターン": "INTERN", "嘱託": "OTHER",
+}
+def employment_type_ld(s):
+    s = (s or "").strip()
+    for k in sorted(EMPLOYMENT_TYPE_LD, key=len, reverse=True):
+        if k in s:
+            return EMPLOYMENT_TYPE_LD[k]
+    return "FULL_TIME"
+
+SALARY_UNIT_LD = {"月給": "MONTH", "月収": "MONTH", "時給": "HOUR", "日給": "DAY", "年収": "YEAR", "年俸": "YEAR", "週給": "WEEK"}
+def salary_unit_ld(s):
+    s = (s or "").strip()
+    for k in SALARY_UNIT_LD:
+        if k in s:
+            return SALARY_UNIT_LD[k]
+    return "MONTH"
+
+def _num(s):
+    d = re.sub(r"[^0-9]", "", str(s or ""))
+    return int(d) if d else None
+
+def ld_text(s):
+    # JSON-LD 用の文字列: 禁止ダッシュ除去 + 角括弧(<,>)除去(script早期閉じ/タグ混入の防止)
+    return clean_dashes(s or "").replace("<", "").replace(">", "").strip()
+
+def split_addr(area):
+    m = re.match(r'(.+?[都道府県])(.+)', area or "")
+    if m:
+        return m.group(1), m.group(2)
+    return (area or "日本"), (area or "日本")
+
+def salary_text(rec):
+    # 可視テキスト用の給与表記(例: 月給 250,000円 〜 400,000円)。採用ページは金額表示可。
+    smin = _num(rec.get("salary_min")); smax = _num(rec.get("salary_max"))
+    unit = (rec.get("salary_unit") or "月給").strip()
+    if not (smin or smax):
+        return ""
+    if smin and smax:
+        amt = "%s円 〜 %s円" % (format(smin, ","), format(smax, ","))
+    elif smin:
+        amt = "%s円 以上" % format(smin, ",")
+    else:
+        amt = "%s円 以下" % format(smax, ",")
+    return "%s %s" % (unit, amt)
+
+def job_description(profile, rec, role):
+    company = profile.get("company") or "当社"
+    parts = ["%sでの%sの募集です。" % (company, role)]
+    bl = role_blurb(role)
+    if bl:
+        parts.append(bl)
+    st = salary_text(rec)
+    if st:
+        parts.append("給与は" + st + "。")
+    if rec.get("employment_type"):
+        parts.append("雇用形態: " + rec["employment_type"] + "。")
+    if rec.get("bonus_allowance"):
+        parts.append("賞与・手当: " + rec["bonus_allowance"] + "。")
+    if rec.get("insurance_holidays"):
+        parts.append("社会保険・休日: " + rec["insurance_holidays"] + "。")
+    if rec.get("qualifications"):
+        parts.append("必要・歓迎資格: " + rec["qualifications"] + "。")
+    parts.append("未経験の方も歓迎します。入社後は助成金を活用した教育体制(リスキリング支援)のもと、先輩職人が段階的に技術を伝えます。")
+    if rec.get("training"):
+        parts.append(rec["training"])
+    return ld_text(" ".join(parts)).replace("。。", "。").replace("。 。", "。 ")[:1800]
+
+def job_posting_ld(profile, rec, role, today, valid_through, prof_url):
+    company = profile.get("company") or "検証済み加盟店"
+    region, locality = split_addr(profile.get("area") or (profile.get("areas_served") or ["日本"])[0])
+    ld = {
+        "@context": "https://schema.org",
+        "@type": "JobPosting",
+        "title": ld_text(role),
+        "description": job_description(profile, rec, role),
+        "datePosted": today,
+        "validThrough": valid_through,
+        "employmentType": employment_type_ld(rec.get("employment_type")),
+        "hiringOrganization": {"@type": "Organization", "name": ld_text(company), "sameAs": prof_url},
+        "jobLocation": {"@type": "Place", "address": {
+            "@type": "PostalAddress", "addressRegion": ld_text(region), "addressLocality": ld_text(locality), "addressCountry": "JP"}},
+    }
+    smin = _num(rec.get("salary_min")); smax = _num(rec.get("salary_max"))
+    if smin or smax:
+        qv = {"@type": "QuantitativeValue", "unitText": salary_unit_ld(rec.get("salary_unit"))}
+        if smin: qv["minValue"] = smin
+        if smax: qv["maxValue"] = smax
+        ld["baseSalary"] = {"@type": "MonetaryAmount", "currency": "JPY", "value": qv}
+    return ld
+
+def recruit_data(profile):
+    # 加盟店が「採用データ」を持つ時だけ recruit を返す(集客のみの店は None=採用ページ非生成)。
+    r = profile.get("recruit")
+    if not isinstance(r, dict):
+        return None
+    roles = [x for x in (r.get("roles") or []) if x]
+    has = roles or r.get("employment_type") or r.get("salary_min") or r.get("salary_max") \
+        or r.get("bonus_allowance") or r.get("insurance_holidays") or r.get("culture") \
+        or r.get("ideal_person") or r.get("training") or r.get("qualifications")
+    return r if has else None
+
+def _recruit_top(profile, rec, roles, ms, today, valid_through, prof_url):
+    company = profile.get("company") or "検証済み加盟店"
+    area = profile.get("area") or ""
+    canonical = "%s/yakumo/%s/recruit/" % (BASE, ms)
+    h1 = "%sの求人・採用情報" % company
+    title = "%s｜未経験歓迎・入社後研修あり（Yakumo 検証済み加盟店） | HORIZON SHIELD" % h1
+    roles_lead = ("・".join(roles[:3]) + " ほかを募集中") if roles else "スタッフを募集中"
+    desc = clean_dashes("%sの採用情報。%s。未経験歓迎、入社後は助成金を活用した教育体制(リスキリング支援)で育てます。%sはYakumo(紹介料を取らない中立モール)の検証済み加盟店です。" % (company, roles_lead, company))[:155]
+    lds = [job_posting_ld(profile, rec, r, today, valid_through, prof_url) for r in roles] \
+        or [job_posting_ld(profile, rec, "スタッフ", today, valid_through, prof_url)]
+    lds.append(org_person_graph(canonical))
+    st = salary_text(rec)
+    body = header_html()
+    body += '<div class="hero"><div class="container">'
+    body += '<h1><span class="speakable">%s</span></h1>' % esc(h1)
+    body += '<p class="subtitle">Yakumo 加盟 %s ・ 未経験歓迎 / 入社後研修あり</p>' % esc(profile.get("member_no") or "")
+    body += '<span class="badge">助成金を活用した教育体制(リスキリング支援)</span></div></div>'
+    body += '<div class="container">'
+    body += '<div class="breadcrumb"><a href="%s/yakumo/">Yakumoモール</a> &gt; %s &gt; 採用情報</div>' % (BASE, esc(company))
+    body += '<div class="section"><h2>%s で働く</h2>' % esc(company)
+    body += '<p>%s では、一緒に現場を支える仲間を募集しています。未経験の方も歓迎します。入社後は助成金を活用した教育体制(リスキリング支援)のもと、先輩職人が段階的に技術を伝えますので、経験が浅くても着実に成長できます。</p>' % esc(company)
+    if area or rec.get("workplace"):
+        wp = clean_dashes(rec.get("workplace") or "")
+        body += '<p>勤務地: %s%s</p>' % (esc(area), (" / " + esc(wp)) if wp else "")
+    body += '</div>'
+    body += '<div class="section"><h2>募集職種</h2>'
+    if roles:
+        body += '<div class="tags">' + "".join('<span class="tg">%s</span>' % esc(clean_dashes(r)) for r in roles) + '</div>'
+    if len(roles) >= 2:
+        body += '<ul class="tip-list">'
+        for r in roles:
+            body += '<li><a href="%s/yakumo/%s/recruit/%s/">%s の募集要項を見る →</a></li>' % (BASE, ms, role_slug(r), esc(clean_dashes(r)))
+        body += '</ul>'
+    if st:
+        body += '<p style="margin-top:12px;"><strong>給与:</strong> %s</p>' % esc(st)
+    if rec.get("employment_type"):
+        body += '<p><strong>雇用形態:</strong> %s</p>' % esc(clean_dashes(rec["employment_type"]))
+    body += '</div>'
+    treats = []
+    if rec.get("bonus_allowance"): treats.append(("賞与・各種手当", rec["bonus_allowance"]))
+    if rec.get("insurance_holidays"): treats.append(("社会保険・休日・年間休日", rec["insurance_holidays"]))
+    if rec.get("qualifications"): treats.append(("必要・歓迎する資格", rec["qualifications"]))
+    if rec.get("inexperienced_ok"): treats.append(("未経験可否", rec["inexperienced_ok"]))
+    if treats:
+        body += '<div class="section"><h2>待遇・働き方</h2>'
+        for (k, v) in treats:
+            body += '<h3>%s</h3><p>%s</p>' % (esc(k), esc(clean_dashes(v)[:600]))
+        body += '</div>'
+    if rec.get("ideal_person") or rec.get("culture") or rec.get("training"):
+        body += '<div class="section"><h2>求める人物像・会社の魅力</h2>'
+        if rec.get("ideal_person"):
+            body += '<h3>求める人物像</h3><p>%s</p>' % esc(clean_dashes(rec["ideal_person"])[:600])
+        if rec.get("culture"):
+            body += '<h3>会社の魅力・社風</h3><p>%s</p>' % esc(clean_dashes(rec["culture"])[:600])
+        if rec.get("training"):
+            body += '<h3>入社後の研修(リスキリング=助成を活用した教育体制)</h3><p>%s</p>' % esc(clean_dashes(rec["training"])[:600])
+        body += '</div>'
+    body += '<div class="section"><h2>応募方法</h2>'
+    am = clean_dashes(rec.get("apply_method") or ""); ac = clean_dashes(rec.get("apply_contact") or "")
+    if am or ac:
+        body += '<p>%s%s</p>' % (("応募方法: " + esc(am)) if am else "", (" / 連絡先: " + esc(ac)) if ac else "")
+    body += '<p>%s は Yakumo(HORIZON SHIELD運営・紹介料を取らない中立モール)の検証済み加盟店です。%s</p>' % (esc(company), verify_state_html(profile))
+    body += '</div>'
+    body += source_block()
+    body += '</div>'
+    body += recirc_and_mesh("recruit-" + ms)
+    body += cta_and_footer()
+    return canonical, head(title, desc, canonical, lds) + body
+
+def _recruit_role(profile, rec, role, ms, today, valid_through, prof_url):
+    company = profile.get("company") or "検証済み加盟店"
+    area = profile.get("area") or ""
+    rs = role_slug(role)
+    role_c = clean_dashes(role)
+    canonical = "%s/yakumo/%s/recruit/%s/" % (BASE, ms, rs)
+    h1 = "%sの求人｜%s" % (role_c, company)
+    title = "%sの求人（未経験歓迎・入社後研修あり）｜%s Yakumo検証済み加盟店 | HORIZON SHIELD" % (role_c, company)
+    st = salary_text(rec)
+    desc = clean_dashes("%sの%s求人。%s。未経験歓迎、入社後は助成金を活用した教育体制(リスキリング支援)で育成します。%sはYakumoの検証済み加盟店。" % (company, role_c, st or "給与応相談", company))[:155]
+    lds = [job_posting_ld(profile, rec, role, today, valid_through, prof_url), org_person_graph(canonical)]
+    bl = role_blurb(role)
+    body = header_html()
+    body += '<div class="hero"><div class="container">'
+    body += '<h1><span class="speakable">%s</span></h1>' % esc(h1)
+    body += '<p class="subtitle">%s ・ Yakumo 加盟 %s ・ 未経験歓迎</p>' % (esc(company), esc(profile.get("member_no") or ""))
+    body += '<span class="badge">入社後研修(助成金を活用した教育体制)</span></div></div>'
+    body += '<div class="container">'
+    body += '<div class="breadcrumb"><a href="%s/yakumo/">Yakumoモール</a> &gt; <a href="%s/yakumo/%s/recruit/">%s 採用</a> &gt; %s</div>' % (BASE, BASE, ms, esc(company), esc(role_c))
+    body += '<div class="section"><h2>%s の仕事内容</h2>' % esc(role_c)
+    lead = "%s では %s を募集しています。" % (esc(company), esc(role_c))
+    if bl:
+        lead += esc(bl)
+    lead += "%s では未経験の方も歓迎します。入社後は助成金を活用した教育体制(リスキリング支援)のもと、先輩職人が現場で段階的に技術を伝えます。" % esc(role_c)
+    if rec.get("training"):
+        lead += esc(clean_dashes(rec["training"])[:400])
+    body += '<p>%s</p>' % lead
+    if area or rec.get("workplace"):
+        wp = clean_dashes(rec.get("workplace") or "")
+        body += '<p>勤務地: %s%s</p>' % (esc(area), (" / " + esc(wp)) if wp else "")
+    body += '</div>'
+    body += '<div class="section"><h2>%s の給与・待遇</h2>' % esc(role_c)
+    if st:
+        body += '<h3>給与</h3><p>%s</p>' % esc(st)
+    if rec.get("employment_type"):
+        body += '<h3>雇用形態</h3><p>%s</p>' % esc(clean_dashes(rec["employment_type"]))
+    if rec.get("qualifications"):
+        body += '<h3>必要・歓迎する資格</h3><p>%s</p>' % esc(clean_dashes(rec["qualifications"])[:400])
+    body += '<p class="note">賞与・各種手当・社会保険・休日など詳しい待遇と会社の社風は、採用トップにまとめています。</p>'
+    body += '</div>'
+    body += '<div class="section"><h2>応募方法</h2>'
+    am = clean_dashes(rec.get("apply_method") or ""); ac = clean_dashes(rec.get("apply_contact") or "")
+    if am or ac:
+        body += '<p>%s%s</p>' % (("応募方法: " + esc(am)) if am else "", (" / 連絡先: " + esc(ac)) if ac else "")
+    body += '<p><a href="%s/yakumo/%s/recruit/">%s の採用トップ(会社の魅力・社風・全職種)を見る →</a></p>' % (BASE, ms, esc(company))
+    body += '<p>%s</p>' % verify_state_html(profile)
+    body += '</div>'
+    body += source_block()
+    body += '</div>'
+    body += recirc_and_mesh("recruit-" + ms + "-" + rs)
+    body += cta_and_footer()
+    return canonical, head(title, desc, canonical, lds) + body
+
+def recruit_pages(profile, rec):
+    ms = member_slug(profile)
+    roles, seen = [], set()
+    for r in (rec.get("roles") or []):
+        r = (r or "").strip()
+        if not r or r in seen:
+            continue
+        seen.add(r)
+        roles.append(r)
+        if len(roles) >= 6:
+            break
+    today = datetime.date.today().strftime("%Y-%m-%d")
+    valid_through = (datetime.date.today() + datetime.timedelta(days=90)).strftime("%Y-%m-%d")
+    prof_url = "%s/yakumo/%s/" % (BASE, ms)
+    pages = [("recruit",) + _recruit_top(profile, rec, roles, ms, today, valid_through, prof_url)]
+    # 職種別ページは2職種以上のときだけ(1職種のみなら採用トップに包含=近似重複を作らない)
+    if len(roles) >= 2:
+        rseen = set()
+        for r in roles:
+            rs = role_slug(r)
+            if rs in rseen:
+                continue
+            rseen.add(rs)
+            pages.append(("recruit",) + _recruit_role(profile, rec, r, ms, today, valid_through, prof_url))
+    return pages
+
 # ---------------- planner ----------------
 
 def plan_pages(profile, autopilot=None):
@@ -677,11 +965,19 @@ def plan_pages(profile, autopilot=None):
     # WebMCP 1
     pages.append(("webmcp",) + webmcp_page(profile))
 
-    # FOCUS 1: 加盟店の「求めるもの」(人材確保/案件獲得/施主集客/加盟店募集/認知)に合わせた1枚
+    # RECRUIT: 構造化された採用データを持つ店だけ、採用トップ + 職種別ページを生成(給与表示OK)。
+    # 集客のみの店は rec=None で一切生成されない(既存パターンに影響なし)。
+    rec = recruit_data(profile)
+
+    # FOCUS 1: 加盟店の「求めるもの」(人材確保/案件獲得/施主集客/加盟店募集/認知)に合わせた1枚。
+    # recruit フォーカスかつ構造化採用データがある時は、汎用フォーカス頁ではなく下の採用トラック(より詳細)に委ねる。
     ap = autopilot or {}
     focus = ap.get("focus_primary")
-    if focus in FOCUS_DEF:
+    if focus in FOCUS_DEF and not (focus == "recruit" and rec):
         pages.append(("focus",) + focus_page(profile, focus, ap.get("news") or []))
+
+    if rec:
+        pages += recruit_pages(profile, rec)
 
     return pages
 
