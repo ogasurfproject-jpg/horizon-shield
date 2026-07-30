@@ -20,6 +20,8 @@ HS_HEARING = "https://hs-hearing.oga-surf-project.workers.dev/mcp"
 
 BASE_FEE = 29800
 WEBMCP_ADDON = 12000
+ONBOARDING_FEE = 1500000
+ONBOARDING_TERMS = "着手金50%(750000) + 残金50%(納品時)"
 
 def member_to_no(member):
     # "No.002" -> "no002"
@@ -40,6 +42,9 @@ def main():
     pa.add_argument("--areas", default="", help="対応エリア(カンマ区切り)")
     pa.add_argument("--works", required=True, help="対応工種(カンマ区切り)。例: 外壁塗装,屋根")
     pa.add_argument("--webmcp", action="store_true", help="WebMCP有料オプション契約(弟子=横に立つKIRAを立てる)")
+    pa.add_argument("--recruit", action="store_true", help="採用(社員募集)トラックを有効化(recruit_option=true)")
+    pa.add_argument("--onboarding-fee", type=int, default=ONBOARDING_FEE, help="導入費(税抜・一括)。既定 1500000")
+    pa.add_argument("--onboarding-terms", default=ONBOARDING_TERMS, help="導入費の支払条件(既定は着手金50パーセント + 残金50パーセント)")
     pa.add_argument("--embed-id", default="", help="embed_id(省略時は memberから自動: no002 等)")
     pa.add_argument("--joined-at", default="", help="加盟日 YYYY-MM-DD(省略可)")
     args = pa.parse_args()
@@ -85,11 +90,14 @@ def main():
         "profile_url": "/yakumo/" + no + "/",
         "mcp_url": HS_HEARING,
         "webmcp_option": bool(args.webmcp),
+        "recruit_option": bool(args.recruit),
         "plan": {
             "base_tier": "honbu",
             "base_fee_ex_tax": BASE_FEE,
             "webmcp_addon_ex_tax": WEBMCP_ADDON if args.webmcp else 0,
             "total_ex_tax": total,
+            "onboarding_fee_ex_tax": int(args.onboarding_fee),
+            "onboarding_terms": args.onboarding_terms,
             "currency": "JPY",
             "tax_note": "全て税抜。税込は各自 x1.1。",
         },
@@ -115,8 +123,11 @@ def main():
         json.dump(db, f, ensure_ascii=False, indent=2)
         f.write("\n")
 
-    print("OK: " + args.member + " (" + args.company + ") を追加。webmcp_option=" + str(bool(args.webmcp)))
+    print("OK: " + args.member + " (" + args.company + ") を追加。webmcp_option=" + str(bool(args.webmcp)) + " recruit_option=" + str(bool(args.recruit)))
     print("  月額(税抜): " + format(total, ",") + " 円" + ("  (honbu " + format(BASE_FEE, ",") + " + WebMCP " + format(WEBMCP_ADDON, ",") + ")" if args.webmcp else "  (honbuのみ)"))
+    print("  導入費(税抜・一括): " + format(int(args.onboarding_fee), ",") + " 円 / 支払条件: " + args.onboarding_terms)
+    if args.recruit:
+        print("  採用トラック: 有効。ヒアリングの採用項目が入ると /yakumo/" + no + "/recruit/ に採用ページ(JobPosting付き)を生成する。")
     print("  真実源: data/yakumo-contractors.json を更新した。")
     if args.webmcp:
         print("")

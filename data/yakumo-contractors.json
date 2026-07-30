@@ -58,6 +58,55 @@
         "provisioned_at": null,
         "status": "draft"
       }
+    },
+    {
+      "member_no": "No.002",
+      "store_id": "hs-partner-002",
+      "name": "ミネオトーヨー株式会社",
+      "rep": null,
+      "area": "神奈川県平塚市",
+      "areas_served": ["神奈川県", "平塚市", "茅ヶ崎市", "藤沢市"],
+      "works": ["リフォーム"],
+      "license_verified": false,
+      "status": "onboarding",
+      "verification": "pending",
+      "fairness_score": null,
+      "integrity_tier": null,
+      "red_flags_detected": null,
+      "claim_sha256": null,
+      "ptka_block": null,
+      "profile_url": "/yakumo/no002/",
+      "mcp_url": "https://hs-hearing.oga-surf-project.workers.dev/mcp",
+      "webmcp_option": true,
+      "recruit_option": true,
+      "plan": {
+        "base_tier": "honbu",
+        "base_fee_ex_tax": 29800,
+        "webmcp_addon_ex_tax": 12000,
+        "total_ex_tax": 41800,
+        "onboarding_fee_ex_tax": 1500000,
+        "onboarding_terms": "着手金50%(750000) + 残金50%(納品時)",
+        "currency": "JPY",
+        "tax_note": "全て税抜。税込は各自 x1.1。"
+      },
+      "hearing": {
+        "sent": false,
+        "completed": false,
+        "last_answer_at": null
+      },
+      "joined_at": null,
+      "verified_at": null,
+      "webmcp": {
+        "enabled": true,
+        "requires_option": true,
+        "store_id": "hs-partner-002",
+        "endpoint": "https://hs-webmcp.oga-surf-project.workers.dev/mcp?store=hs-partner-002",
+        "embed_id": "no002",
+        "audit_engine": "kira-neutral",
+        "note": "表向きは全店同一のKIRA(Glama仕様・名前なし)。store_idで裏個別識別と課金ゲートのみ。",
+        "provisioned_at": null,
+        "status": "draft"
+      }
     }
   ]
 }
