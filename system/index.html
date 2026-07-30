@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HORIZON SHIELD MCP System ｜ AIが呼び出せる見積もり監査システム（システム導入）</title>
+<meta name="description" content="HORIZON SHIELD MCP System は、65,520品目の公開コストDBとBitcoinアンカー検証を14ツールで提供する見積もり監査システム。A2Aエージェントカードで呼び出され、AP2でフェアプライスを証明して決済に添付。GEO・AEO・LLMO・WebMCPでAIに推される。自社サービスへのシステム導入を促進。建設・不動産・保険・士業に対応。">
+<style>
+  :root{
+    --bg:#080C1A;--bg2:#0E1730;--card:#111c34;--line:#22304f;
+    --gold:#F5B301;--gold2:#FFD264;--gold3:#E08A00;
+    --ink:#EAF0FF;--mut:#9fb0d0;--mut2:#6d7fa3;--ok:#3ecf8e;--warn:#ff6b6b;--cyan:#5fd0e6;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",Meiryo,sans-serif;
+    line-height:1.75;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+  .gold{color:var(--gold)} .cy{color:var(--cyan)}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;font-weight:700;letter-spacing:.05em;
+    color:var(--gold2);background:rgba(245,179,1,.10);border:1px solid rgba(245,179,1,.32);padding:7px 14px;border-radius:999px}
+  .btn{display:inline-flex;align-items:center;gap:9px;font-weight:800;font-size:1rem;padding:15px 30px;border-radius:12px;cursor:pointer;transition:.18s;border:0}
+  .btn-gold{background:linear-gradient(180deg,var(--gold2),var(--gold3));color:#231600;box-shadow:0 10px 26px rgba(245,179,1,.28)}
+  .btn-gold:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(245,179,1,.4)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn-ghost:hover{border-color:var(--gold);color:var(--gold2)}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(8,12,26,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800}
+  .brand small{display:block;font-size:.62rem;color:var(--mut);font-weight:600;letter-spacing:.14em}
+  .logo{width:34px;height:34px;flex:0 0 auto}
+  .nav .btn{padding:10px 18px;font-size:.9rem}
+  @media(max-width:640px){.nav-cta-text{display:none}.nav .btn{padding:10px 14px}}
+
+  .hero{position:relative;padding:72px 0 58px;text-align:center;overflow:hidden}
+  .hero::before{content:"";position:absolute;inset:0;z-index:0;
+    background:radial-gradient(1100px 520px at 50% -8%,rgba(245,179,1,.17),transparent 60%),linear-gradient(180deg,var(--bg2),var(--bg))}
+  .hero>*{position:relative;z-index:1}
+  .hero-shield{width:88px;height:88px;margin:0 auto 18px;filter:drop-shadow(0 10px 30px rgba(245,179,1,.35))}
+  .sysname{font-weight:900;line-height:1.05;margin-top:6px}
+  .sysname .brandline{font-size:clamp(1.1rem,3vw,1.6rem);letter-spacing:.16em;color:var(--mut)}
+  .sysname .sysword{display:block;font-size:clamp(2.4rem,8vw,5rem);letter-spacing:-.01em;
+    background:linear-gradient(180deg,#FFF6DE,var(--gold2) 45%,var(--gold3));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero h1{font-size:clamp(1.15rem,2.8vw,1.55rem);font-weight:800;color:var(--ink);margin:20px auto 0;max-width:24em;line-height:1.5}
+  .hero .lead{color:var(--mut);font-size:clamp(.98rem,2.2vw,1.12rem);max-width:38em;margin:16px auto 30px}
+  .hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .strip{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:38px}
+  .chip{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;padding:12px 18px;min-width:148px}
+  .chip b{display:block;font-size:1.34rem;font-weight:900;color:var(--gold2);line-height:1.1}
+  .chip span{font-size:.75rem;color:var(--mut2);letter-spacing:.03em}
+  .aud{margin-top:24px;color:var(--mut2);font-size:.86rem}.aud b{color:var(--ink)}
+
+  section{padding:62px 0;border-top:1px solid rgba(34,48,79,.5)}
+  .kicker{color:var(--gold);font-weight:800;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase}
+  .pill-no{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:8px;background:linear-gradient(180deg,var(--gold2),var(--gold3));color:#231600;font-weight:900;margin-right:10px;vertical-align:middle}
+  h2{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:900;line-height:1.3;margin:10px 0 8px}
+  .sub{color:var(--mut);max-width:42em;margin-bottom:8px}
+  .grid{display:grid;gap:18px;margin-top:32px}
+  .g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:820px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .card h3{font-size:1.08rem;font-weight:800;margin:12px 0 7px}
+  .card p{color:var(--mut);font-size:.94rem}
+  .ic{width:44px;height:44px;border-radius:11px;display:grid;place-items:center;font-size:1.3rem;background:rgba(245,179,1,.12);border:1px solid rgba(245,179,1,.28)}
+
+  .flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:stretch;gap:14px;margin-top:32px}
+  @media(max-width:760px){.flow{grid-template-columns:1fr;gap:10px}.flow .arrow{transform:rotate(90deg);justify-self:center}}
+  .fbox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;text-align:center}
+  .fbox .t{font-size:.72rem;letter-spacing:.1em;color:var(--gold);font-weight:800}
+  .fbox h4{margin:8px 0 4px;font-size:1.02rem}.fbox p{color:var(--mut);font-size:.85rem}
+  .fbox.mid{border-color:rgba(245,179,1,.45);box-shadow:0 0 0 1px rgba(245,179,1,.14) inset}
+  .arrow{display:grid;place-items:center;color:var(--gold);font-size:1.5rem;font-weight:900}
+  .tools{display:flex;flex-wrap:wrap;gap:9px;margin-top:22px;justify-content:center}
+  .tool{font-size:.8rem;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--cyan);
+    background:rgba(95,208,230,.08);border:1px solid rgba(95,208,230,.25);padding:6px 11px;border-radius:8px}
+
+  .pillar{border-left:3px solid var(--gold);background:linear-gradient(90deg,rgba(245,179,1,.05),transparent 60%);border-radius:0 16px 16px 0;padding-left:20px}
+  .badge-now{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.05em;color:#231600;
+    background:linear-gradient(180deg,var(--gold2),var(--gold3));padding:4px 11px;border-radius:999px;margin-left:10px;vertical-align:middle}
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:32px}
+  @media(max-width:600px){.compare{grid-template-columns:1fr}}
+  .compare .card{padding:26px}
+  .compare .tag{font-size:.76rem;font-weight:800;letter-spacing:.06em;padding:5px 11px;border-radius:999px;display:inline-block}
+  .them .tag{background:rgba(255,107,107,.12);color:#ff9a9a;border:1px solid rgba(255,107,107,.3)}
+  .us{border-color:rgba(245,179,1,.45);box-shadow:0 0 0 1px rgba(245,179,1,.15) inset}
+  .us .tag{background:rgba(62,207,142,.12);color:var(--ok);border:1px solid rgba(62,207,142,.3)}
+  .compare ul{list-style:none;margin-top:16px;display:grid;gap:11px}
+  .compare li{padding-left:26px;position:relative;font-size:.95rem;color:var(--mut)}
+  .them li::before{content:"✕";position:absolute;left:0;color:#ff8080;font-weight:800}
+  .us li::before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800}
+  .us li{color:var(--ink)}
+
+  .tag-gold{background:rgba(245,179,1,.14);color:var(--gold2);border:1px solid rgba(245,179,1,.4);font-size:.78rem;font-weight:800;padding:5px 12px;border-radius:999px;display:inline-block}
+  .benflist{list-style:none;margin-top:14px;display:grid;gap:10px}
+  .benflist li{padding-left:26px;position:relative;color:var(--ink);font-size:.96rem}
+  .benflist li::before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800}
+
+  .steps{display:grid;gap:16px;margin-top:32px;grid-template-columns:repeat(4,1fr)}
+  @media(max-width:860px){.steps{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.steps{grid-template-columns:1fr}}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .step .n{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:900;color:#231600;background:linear-gradient(180deg,var(--gold2),var(--gold3));margin-bottom:12px}
+  .step h4{font-size:1rem;margin-bottom:5px}.step p{color:var(--mut);font-size:.86rem}
+
+  .proof{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 26px;margin-top:26px}
+  @media(max-width:600px){.proof{grid-template-columns:1fr}}
+  .proof div{padding:13px 0;border-bottom:1px solid rgba(34,48,79,.6);font-size:.92rem;color:var(--mut);display:flex;gap:11px}
+  .proof b{color:var(--ink);font-weight:700}.proof .k{color:var(--gold);flex:0 0 auto}
+
+  .terms{background:linear-gradient(180deg,rgba(245,179,1,.06),transparent);border:1px dashed rgba(245,179,1,.4);border-radius:16px;padding:26px;margin-top:28px}
+  .terms table{width:100%;border-collapse:collapse}
+  .terms td{padding:14px 6px;border-bottom:1px solid rgba(34,48,79,.7);vertical-align:top}
+  .terms td:first-child{color:var(--gold2);font-weight:800;width:40%;font-size:.95rem}
+  .terms .fill{color:var(--mut2);font-style:italic}
+  .terms td:nth-child(2){color:var(--ink);font-weight:700}
+  .terms .tsub{display:block;font-size:.8rem;color:var(--mut2);margin-top:5px;font-weight:400;line-height:1.55}
+  .note{font-size:.82rem;color:var(--mut2);margin-top:14px;padding:12px 15px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid var(--line)}
+
+  details{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:12px;overflow:hidden}
+  summary{padding:18px 22px;cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"＋";color:var(--gold);font-weight:800;flex:0 0 auto}
+  details[open] summary::after{content:"－"}
+  details p{padding:0 22px 20px;color:var(--mut);font-size:.93rem}
+
+  .ctaband{background:linear-gradient(135deg,var(--bg2),#152245);border:1px solid rgba(245,179,1,.3);border-radius:22px;padding:48px 30px;text-align:center;margin:20px 0}
+  .ctaband h2{margin-bottom:10px}.ctaband p{color:var(--mut);max-width:34em;margin:0 auto 26px}.ctaband .btn{margin:6px}
+
+  footer{border-top:1px solid var(--line);padding:40px 0;color:var(--mut2);font-size:.84rem}
+  footer .wrap{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center}
+  footer b{color:var(--ink)}
+  .disc{font-size:.74rem;color:var(--mut2);margin-top:14px;line-height:1.7}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+  <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD264"/><stop offset=".55" stop-color="#F5B301"/><stop offset="1" stop-color="#E08A00"/></linearGradient>
+  <symbol id="shield" viewBox="0 0 512 512">
+    <path d="M256 92 L392 138 V262 C392 342 330 396 256 424 C182 396 120 342 120 262 V138 Z" fill="#12213F"/>
+    <clipPath id="sc"><path d="M256 92 L392 138 V262 C392 342 330 396 256 424 C182 396 120 342 120 262 V138 Z"/></clipPath>
+    <g clip-path="url(#sc)"><circle cx="256" cy="312" r="58" fill="url(#g)"/><rect x="120" y="311" width="272" height="7" fill="url(#g)"/>
+      <g stroke="url(#g)" stroke-width="9" stroke-linecap="round"><line x1="256" y1="196" x2="256" y2="228"/><line x1="196" y1="212" x2="212" y2="240"/><line x1="316" y1="212" x2="300" y2="240"/><line x1="160" y1="250" x2="184" y2="270"/><line x1="352" y1="250" x2="328" y2="270"/></g></g>
+    <path d="M256 92 L392 138 V262 C392 342 330 396 256 424 C182 396 120 342 120 262 V138 Z" fill="none" stroke="url(#g)" stroke-width="14" stroke-linejoin="round"/>
+  </symbol>
+</defs></svg>
+
+<header><div class="wrap nav">
+  <div class="brand"><svg class="logo"><use href="#shield"/></svg><div>HORIZON SHIELD<small>MCP SYSTEM</small></div></div>
+  <a href="#contact" class="btn btn-gold"><span class="nav-cta-text">システム</span>導入を相談</a>
+</div></header>
+
+<!-- HERO -->
+<section class="hero" style="border:0"><div class="wrap">
+  <svg class="hero-shield"><use href="#shield"/></svg>
+  <div class="eyebrow">世界初のBitcoin検証型システム（MCP・A2A・AP2 対応）</div>
+  <div class="sysname"><span class="brandline">HORIZON SHIELD</span><span class="sysword">MCP System</span></div>
+  <h1>AIエージェントが"検証つきで取引"する時代の、見積もり監査システム。</h1>
+  <p class="lead">建設・リフォーム見積もりを、65,520品目の公開コストDBと改ざん不能のBitcoin検証で監査。14のツールで、AIに呼ばれ（A2A）、フェアプライスを証明して決済に添付（AP2）。<b>導入すれば</b>、この全部が自社の武器になる。</p>
+  <div class="hero-cta">
+    <a href="#contact" class="btn btn-gold">システム導入を相談する →</a>
+    <a href="#system" class="btn btn-ghost">システムを見る</a>
+  </div>
+  <div class="strip">
+    <div class="chip"><b>14</b><span>ツール（MCP API）</span></div>
+    <div class="chip"><b>65,520</b><span>品目のコストDB</span></div>
+    <div class="chip"><b>A2A・AP2</b><span>エージェント商取引対応</span></div>
+    <div class="chip"><b>Anthropic・Glama</b><span>公式ディレクトリ掲載</span></div>
+  </div>
+  <p class="aud">対象：見積もりを扱う事業者（建設・リフォーム・不動産・保険・士業 ほか）。自社サービス・アプリ・AIに組み込めます。</p>
+</div></section>
+
+<!-- THE SYSTEM -->
+<section id="system"><div class="wrap">
+  <div class="kicker">システムの正体</div>
+  <h2>これは、AIが"呼び出せる"見積もり監査システム。</h2>
+  <p class="sub">見積もりを渡すと「適正／警戒／危険」の判定と、改ざん不能の受領書を返す監査エンジン。65,520品目のコストDB・61工種の相場・691の危険サインが根拠です。すべて MCP 標準の 14ツールとして公開され、人間のアプリからも、AIエージェントからも、同じAPIで呼べます。</p>
+  <div class="flow">
+    <div class="fbox"><div class="t">INPUT</div><h4>見積もりを渡す</h4><p>工事名＋金額／見積書</p></div>
+    <div class="arrow">→</div>
+    <div class="fbox mid"><div class="t">HORIZON SHIELD MCP</div><h4>14ツールで監査</h4><p>65,520品目DB × 相場 × 危険サイン</p></div>
+    <div class="arrow">→</div>
+    <div class="fbox"><div class="t">OUTPUT</div><h4>結果＋受領書</h4><p>適正判定＋Bitcoin検証可能な証明</p></div>
+  </div>
+  <div class="tools">
+    <span class="tool">get_price_range</span><span class="tool">audit_estimate</span><span class="tool">check_red_flags</span><span class="tool">verify_fair_price</span><span class="tool">preview_reverse_estimate</span><span class="tool">create_ap2_fairness_attestation</span><span class="tool">get_agent_card</span><span class="tool">verify_integrity_claim</span><span class="tool">…全14ツール</span>
+  </div>
+</div></section>
+
+<!-- PILLAR 1: A2A / AP2 -->
+<section id="a2a"><div class="wrap"><div class="pillar">
+  <div class="kicker"><span class="pill-no">1</span>最前線の機能 <span class="badge-now">今、対応済み</span></div>
+  <h2>A2A・AP2で、AIエージェントに<span class="gold">"検証つきで取引される側"</span>になる。</h2>
+  <p class="sub">AIエージェントが業者やサービスを自律的に探し、比べ、支払う時代が始まっています。HORIZON SHIELD MCP System は、その商取引レイヤーに<b>すでに対応済み</b>。ここが、他が持っていない先行アドバンテージです。</p>
+  <div class="grid g2">
+    <div class="card"><div class="ic">🪪</div><h3>A2A エージェントカード</h3><p><code>get_agent_card</code> で、AIエージェントがあなたのサービスを"発見し・呼び出せる"入口を公開。物件取得・リフォーム受付などのエージェント連携に対応。</p></div>
+    <div class="card"><div class="ic">💳</div><h3>AP2 フェアプライス証明</h3><p><code>create_ap2_fairness_attestation</code> で、Google Agent Payments Protocol の Cart Mandate に"適正価格の証明"を添付。AIの決済フローに「これは適正だ」という裏付けを載せられる。</p></div>
+  </div>
+</div></div></section>
+
+<!-- PILLAR 2: AI visibility -->
+<section id="visibility"><div class="wrap"><div class="pillar">
+  <div class="kicker"><span class="pill-no">2</span>AI可視化スタック</div>
+  <h2>GEO・AEO・LLMO・WebMCPで、<span class="gold">"AIに推される側"</span>になる。</h2>
+  <p class="sub">これからの集客は「検索で上位」ではなく「AIに引用・推薦される」こと。HORIZON SHIELD は、AI検索・回答エンジン・LLM・ブラウザエージェントの全方位で"見つけられ、呼ばれる"最適化を設計に組み込んでいます。導入すれば、その導線に自社が乗ります。</p>
+  <div class="grid g4">
+    <div class="card"><div class="ic">🧭</div><h3>GEO</h3><p>生成AI検索に、根拠つきで引用される構造。</p></div>
+    <div class="card"><div class="ic">💡</div><h3>AEO</h3><p>回答エンジン（AI Overviews等）に"答え"として拾われる。</p></div>
+    <div class="card"><div class="ic">📚</div><h3>LLMO</h3><p>LLMの知識に"検証可能な一次情報"として載る。</p></div>
+    <div class="card"><div class="ic">🌐</div><h3>WebMCP</h3><p>ブラウザ内AI（Gemini in Chrome 等）が、ページ上で直接ツールを呼べる。</p></div>
+  </div>
+</div></div></section>
+
+<!-- PILLAR 3: verification core -->
+<section id="core"><div class="wrap"><div class="pillar">
+  <div class="kicker"><span class="pill-no">3</span>すべての土台</div>
+  <h2>JIDEC・Bitcoinで、<span class="gold">"運営を信じなくても検証できる"</span>。</h2>
+  <p class="sub">上の2つを支えるのが、改ざん不能の検証コア。全データのSHA-256をBitcoinに錨打ち（JIDEC）します。第三者が記録のバイトを取得し、ハッシュを再計算し、タイムスタンプを照合すれば、運営を信用せずに正しさを確かめられます。「当社調べ」を、数学に置き換える仕組みです。</p>
+</div></div></section>
+
+<!-- ADOPT = JOIN -->
+<section id="join"><div class="wrap">
+  <div class="kicker">システム導入</div>
+  <h2>これを、<span class="gold">ゼロから作らずに丸ごと</span>導入する。</h2>
+  <p class="sub">見積もりを扱う事業なら、業種を問わず導入できます。導入すれば、A2A/AP2・AI可視化・検証コアのすべてが、自社サービスの武器になります。</p>
+  <div class="compare">
+    <div class="card them"><span class="tag">自社でゼロから作る</span>
+      <ul>
+        <li>相場DBの整備・モデル開発・保守が膨大</li>
+        <li>結局「当社調べ」で外部検証されない</li>
+        <li>A2A/AP2・AI可視化も全部自前で設計</li>
+        <li>検証基盤の構築・運用も一から</li>
+      </ul></div>
+    <div class="card us"><span class="tag">HORIZON SHIELD を導入</span>
+      <ul>
+        <li>65,520品目DB・14ツールを<b>即利用</b></li>
+        <li>Bitcoinで<b>第三者が独立検証</b>できる裏付け</li>
+        <li>A2A/AP2・GEO・AEO・LLMO・WebMCP <b>標準装備</b></li>
+        <li>DB更新・検証・可視化は<b>本部が継続担保</b></li>
+      </ul></div>
+  </div>
+</div></section>
+
+<!-- INDUSTRY BENEFITS (construction = one rich card, others listed) -->
+<section id="industry"><div class="wrap">
+  <div class="kicker">業種別メリット</div>
+  <h2>あなたの業種で、こう効く。</h2>
+  <p class="sub">システムはどの業種でも使えます。業種ごとに"刺さる"活かし方を用意しています。</p>
+  <div class="card us" style="margin-top:32px">
+    <span class="tag-gold">建設・リフォーム（メリット多数）</span>
+    <ul class="benflist">
+      <li>検証済み業者モール「<b>YAKUMO</b>」に掲載（KIRA監査済みの業者だけが載る中立モール）</li>
+      <li>顧客にもAIにも"信頼できる業者"として発見される入口を持てる</li>
+      <li>YAKUMOは<b>すでに稼働</b>。導入した瞬間に既存基盤の優位を受けられる</li>
+      <li>見積もり監査で、過大請求トラブルやクレームを未然に減らす</li>
+    </ul>
+  </div>
+  <div class="grid g3">
+    <div class="card"><div class="ic">🏠</div><h3>不動産</h3><p>物件取得・リフォーム提案に、"適正価格の裏付け"を添付できる。</p></div>
+    <div class="card"><div class="ic">🛡</div><h3>保険</h3><p>修理・原状回復の見積もり妥当性を、中立に監査できる。</p></div>
+    <div class="card"><div class="ic">⚖️</div><h3>士業・その他</h3><p>紛争・相続・査定に、"第三者の検証可能な根拠"を提示できる。</p></div>
+  </div>
+</div></section>
+
+<!-- STEPS -->
+<section id="flow"><div class="wrap">
+  <div class="kicker">システム導入の流れ</div>
+  <h2>相談から運用開始まで</h2>
+  <div class="steps">
+    <div class="step"><div class="n">1</div><h4>相談</h4><p>課題・業種・使い方をヒアリング。最適な組み込み方をご提案。</p></div>
+    <div class="step"><div class="n">2</div><h4>接続・契約</h4><p>MCP接続情報を発行し、利用契約。建設業はYAKUMO審査。</p></div>
+    <div class="step"><div class="n">3</div><h4>導入・研修</h4><p>サイト／アプリ／AIへ組み込み。監修による初期サポート。</p></div>
+    <div class="step"><div class="n">4</div><h4>運用</h4><p>本番開始。DB更新・検証・可視化は本部が継続担保。</p></div>
+  </div>
+</div></section>
+
+<!-- TERMS placeholder -->
+<section id="terms"><div class="wrap">
+  <div class="kicker">料金・プラン</div>
+  <h2>導入条件</h2>
+  <p class="sub">必要な部品を積み上げる形です（すべて税別）。土台だけで始めて、あとからYAKUMO掲載・WebMCPを積み増せます。フル構成でも初期150万円以内に収まります。</p>
+  <div class="terms"><table>
+    <tr><td>初期費用（土台・MCP構築）</td><td>¥600,000<span class="tsub">DB化＋第三者検証＋GEO＋御社専用MCPの構築（一回きり）</span></td></tr>
+    <tr><td>月額（システム利用料）</td><td>¥14,800〜<span class="tsub">MCPサーバーを自社で持たず、運用は本部が担う（出店・WebMCP分は加算）</span></td></tr>
+    <tr><td>出店（公開先を選ぶ）</td><td>YAKUMOモール出店 ＋¥200,000（月 ＋¥15,000）／ 自社サーバー付帯 ＋¥300,000〜（月 ＋¥25,000）<span class="tsub">土台で建てた窓口を"どこで公開するか"。共有モールか、御社専用サーバーか。</span></td></tr>
+    <tr><td>YAKUMO加盟（建設業むけ）</td><td>審査通過で <b class="gold">無料</b><span class="tsub">※第三者審査があります。適正価格の基準を満たさない場合は加盟いただけません（落ちる場合もあります）。これが"検証済みモール"の信頼を守ります。</span></td></tr>
+    <tr><td>WebMCP（サイト連携・先行）</td><td>¥500,000〜<span class="tsub">御社サイト上でAIが直接実行。W3C標準の先行対応（本格化は2026年後半見込み）</span></td></tr>
+    <tr><td>想定収益・導入効果<span class="tsub">※海外の実測にもとづく想定</span></td><td>AI経由の流入は、従来検索よりコンバージョンが数倍高い。<b class="gold">ChatGPT経由 15.9% vs Google自然検索 1.76%（約9倍）</b>［Seer, 2025］。AI流入は前年比 <b class="gold">売上+254%・CV+31%</b>［Adobe, 2025ホリデー］。GEO施策で3か月 <b class="gold">AI流入+43%・CV+83%</b>［Go Fish］。</td></tr>
+    <tr><td>広告費（削減効果）</td><td>AIに"推薦される"のは、クリック課金のない <b>earned</b> チャネル。<b class="gold">AI流入は全体の0.5%で申込の12.1%</b>を生む［Ahrefs, 2025］。＝広告費をかけずに、成約する客が来る。</td></tr>
+    <tr><td>その他・大規模</td><td>自社サーバー専用・自社モール構築（フランチャイズ本部型）は個別お見積もり。</td></tr>
+  </table>
+  <div class="note">💡 目安構成：土台 ¥600,000 ＋ YAKUMO出店 ¥200,000 ＋ WebMCP ¥500,000〜 ＝ 初期 約130万円〜（150万円以内）。月額 ¥14,800〜（出店・WebMCP分を加算）。すべて税別。※想定収益は海外の実測データにもとづく参考値で、国内での成果を保証するものではありません。</div>
+  </div>
+</div></section>
+
+<!-- PROOF -->
+<section id="proof"><div class="wrap">
+  <div class="kicker">信頼の証（すべて公開・検証可能）</div>
+  <h2>「信じてください」とは、言いません。</h2>
+  <div class="proof">
+    <div><span class="k">◈</span><span><b>Bitcoinアンカー</b>：JIDEC検証パス Block 959634 で確定（OpenTimestamps）</span></div>
+    <div><span class="k">◈</span><span><b>公開DOI</b>：Zenodo 10.5281/zenodo.20019572 ／ engrXiv 10.31224/7007</span></div>
+    <div><span class="k">◈</span><span><b>ORCID</b>：0009-0000-9180-903X</span></div>
+    <div><span class="k">◈</span><span><b>コストDB</b>：JCCDB v3.1・65,520品目・CC BY 4.0で公開</span></div>
+    <div><span class="k">◈</span><span><b>MCP掲載</b>：Anthropic MCP Directory ／ Glama に登録</span></div>
+    <div><span class="k">◈</span><span><b>監修</b>：大賀俊勝（建設実務30年）／ The HORIZONs株式会社</span></div>
+  </div>
+</div></section>
+
+<!-- FAQ -->
+<section id="faq"><div class="wrap">
+  <div class="kicker">よくある質問</div>
+  <h2>FAQ</h2>
+  <details open><summary>MCPシステムとは、結局なにが導入されるのですか？</summary><p>見積もりを監査する14のツール（API）と、その根拠となる65,520品目のコストDB・Bitcoin検証基盤です。自社サイト・アプリ・AIエージェントから同じAPIで呼び出せます。導入すると、A2A/AP2・AI可視化まで一式が使えます。</p></details>
+  <details><summary>A2A／AP2に"対応済み"とは、具体的に何ができますか？</summary><p>A2Aエージェントカード（get_agent_card）でAIエージェントがサービスを発見・呼び出しでき、AP2（create_ap2_fairness_attestation）でフェアプライスの証明をGoogle Agent Payments Protocolの決済に添付できます。AIが"検証して取引する"流れに、今から乗れます。</p></details>
+  <details><summary>GEO／AEO／LLMO／WebMCPで、導入企業に何が起きますか？</summary><p>AI検索・回答エンジン・LLM・ブラウザAIに「検証可能な情報源」として拾われ、"AIに推される側"になります。これからの集客の主戦場です。</p></details>
+  <details><summary>どの業種で使えますか？建設以外でも導入できますか？</summary><p>見積もりを扱う事業なら業種を問わず導入できます。建設・リフォームはYAKUMOモール掲載などメリットが特に多く、不動産・保険・士業にも同じ仕組みで展開できます。</p></details>
+  <details><summary>費用はいくらですか？</summary><p>業種・規模に応じて個別にご案内します。確定した料金は「料金・プラン」欄に掲載します（仮の数字は掲載していません）。</p></details>
+</div></section>
+
+<!-- CTA -->
+<section id="contact" style="border:0"><div class="wrap">
+  <div class="ctaband">
+    <svg class="hero-shield" style="width:60px;height:60px;margin-bottom:12px"><use href="#shield"/></svg>
+    <div class="kicker">システム導入</div>
+    <h2>AIに"検証つきで取引される側"へ、今のうちに。</h2>
+    <p>HORIZON SHIELD MCP System を、御社の武器に。まずは課題と業種をお聞かせください。</p>
+    <a href="mailto:contact@the-horizons-innovation.com?subject=HORIZON%20SHIELD%20MCP%20System%20システム導入の相談" class="btn btn-gold">システム導入を相談する →</a>
+    <a href="https://shield.the-horizons-innovation.com" class="btn btn-ghost">公式サイトを見る</a>
+    <p style="margin-top:22px;font-size:.86rem;color:var(--mut2)">contact@the-horizons-innovation.com ／ shield.the-horizons-innovation.com</p>
+  </div>
+</div></section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand"><svg class="logo"><use href="#shield"/></svg><div>HORIZON SHIELD MCP System<small>The HORIZONs株式会社</small></div></div>
+    <div>監修：大賀俊勝（建設実務30年）</div>
+  </div>
+  <div class="wrap"><p class="disc">※コストDB・検証記録は CC BY 4.0 で公開し、Bitcoinアンカーにより第三者が独立検証できます。ツール名（get_price_range 等）は実装済みのMCPツールです。A2Aはエージェント間連携、AP2はGoogle Agent Payments Protocolを指します。料金・プラン・YAKUMO掲載条件は確定後に記載します（現時点は記入用ひな形）。</p></div>
+</footer>
+
+</body>
+</html>
