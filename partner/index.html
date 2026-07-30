@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HORIZON SHIELD 認定パートナー募集 ｜ 世界初・Bitcoin検証型 見積もり監査</title>
+<style>
+  :root{
+    --bg:#080C1A; --bg2:#0E1730; --card:#111c34; --line:#22304f;
+    --gold:#F5B301; --gold2:#FFD264; --gold3:#E08A00;
+    --ink:#EAF0FF; --mut:#9fb0d0; --mut2:#6d7fa3;
+    --ok:#3ecf8e; --warn:#ff6b6b;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",Meiryo,sans-serif;
+    line-height:1.75; -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+  .gold{color:var(--gold)}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;font-weight:700;letter-spacing:.06em;
+    color:var(--gold2);background:rgba(245,179,1,.10);border:1px solid rgba(245,179,1,.32);
+    padding:7px 14px;border-radius:999px}
+  .btn{display:inline-flex;align-items:center;gap:9px;font-weight:800;font-size:1rem;
+    padding:15px 30px;border-radius:12px;cursor:pointer;transition:.18s;border:0}
+  .btn-gold{background:linear-gradient(180deg,var(--gold2),var(--gold3));color:#231600;
+    box-shadow:0 10px 26px rgba(245,179,1,.28)}
+  .btn-gold:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(245,179,1,.4)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn-ghost:hover{border-color:var(--gold);color:var(--gold2)}
+
+  /* header */
+  header{position:sticky;top:0;z-index:50;background:rgba(8,12,26,.82);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.01em}
+  .brand small{display:block;font-size:.62rem;color:var(--mut);font-weight:600;letter-spacing:.14em}
+  .logo{width:34px;height:34px;flex:0 0 auto}
+  .nav .btn{padding:10px 18px;font-size:.9rem}
+  @media(max-width:640px){.nav-cta-text{display:none}.nav .btn{padding:10px 14px}}
+
+  /* hero */
+  .hero{position:relative;padding:74px 0 60px;text-align:center;overflow:hidden}
+  .hero::before{content:"";position:absolute;inset:0;z-index:0;
+    background:radial-gradient(1100px 520px at 50% -8%,rgba(245,179,1,.16),transparent 60%),
+               linear-gradient(180deg,var(--bg2),var(--bg))}
+  .hero>*{position:relative;z-index:1}
+  .hero-shield{width:96px;height:96px;margin:0 auto 20px;filter:drop-shadow(0 10px 30px rgba(245,179,1,.35))}
+  .hero h1{font-size:clamp(1.85rem,5.2vw,3.25rem);line-height:1.28;font-weight:900;letter-spacing:.005em;margin:18px auto 0;max-width:16em}
+  .hero h1 .u{background:linear-gradient(180deg,transparent 62%,rgba(245,179,1,.35) 62%)}
+  .hero .lead{color:var(--mut);font-size:clamp(1rem,2.3vw,1.18rem);max-width:34em;margin:20px auto 30px}
+  .hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .strip{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:40px}
+  .chip{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;
+    padding:12px 18px;min-width:150px}
+  .chip b{display:block;font-size:1.42rem;font-weight:900;color:var(--gold2);line-height:1.1}
+  .chip span{font-size:.76rem;color:var(--mut2);letter-spacing:.04em}
+
+  /* section */
+  section{padding:64px 0;border-top:1px solid rgba(34,48,79,.5)}
+  .kicker{color:var(--gold);font-weight:800;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase}
+  h2{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:900;line-height:1.3;margin:10px 0 8px;letter-spacing:.01em}
+  .sub{color:var(--mut);max-width:40em;margin-bottom:8px}
+  .grid{display:grid;gap:18px;margin-top:34px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:820px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .card h3{font-size:1.08rem;font-weight:800;margin:12px 0 7px}
+  .card p{color:var(--mut);font-size:.94rem}
+  .ic{width:44px;height:44px;border-radius:11px;display:grid;place-items:center;font-size:1.3rem;
+    background:rgba(245,179,1,.12);border:1px solid rgba(245,179,1,.28)}
+
+  /* problem numbers */
+  .statbig{display:grid;gap:18px;grid-template-columns:repeat(3,1fr);margin-top:34px}
+  @media(max-width:700px){.statbig{grid-template-columns:1fr}}
+  .statbig .card{text-align:center}
+  .statbig .num{font-size:2.5rem;font-weight:900;color:var(--gold2);line-height:1.05}
+  .statbig .lbl{color:var(--mut);font-size:.9rem;margin-top:6px}
+  .src{font-size:.72rem;color:var(--mut2);margin-top:12px}
+  .src a{color:var(--mut);text-decoration:underline}
+
+  /* compare */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:34px}
+  @media(max-width:600px){.compare{grid-template-columns:1fr}}
+  .compare .card{padding:26px}
+  .compare .tag{font-size:.76rem;font-weight:800;letter-spacing:.08em;padding:5px 11px;border-radius:999px;display:inline-block}
+  .them .tag{background:rgba(255,107,107,.12);color:#ff9a9a;border:1px solid rgba(255,107,107,.3)}
+  .us{border-color:rgba(245,179,1,.45);box-shadow:0 0 0 1px rgba(245,179,1,.15) inset}
+  .us .tag{background:rgba(62,207,142,.12);color:var(--ok);border:1px solid rgba(62,207,142,.3)}
+  .compare ul{list-style:none;margin-top:16px;display:grid;gap:11px}
+  .compare li{padding-left:26px;position:relative;font-size:.95rem;color:var(--mut)}
+  .them li::before{content:"✕";position:absolute;left:0;color:#ff8080;font-weight:800}
+  .us li::before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800}
+  .us li{color:var(--ink)}
+
+  /* steps */
+  .steps{display:grid;gap:16px;margin-top:34px;grid-template-columns:repeat(5,1fr)}
+  @media(max-width:860px){.steps{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.steps{grid-template-columns:1fr}}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;position:relative}
+  .step .n{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:900;
+    color:#231600;background:linear-gradient(180deg,var(--gold2),var(--gold3));margin-bottom:12px}
+  .step h4{font-size:1rem;margin-bottom:5px}
+  .step p{color:var(--mut);font-size:.86rem}
+
+  /* proof list */
+  .proof{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 26px;margin-top:28px}
+  @media(max-width:600px){.proof{grid-template-columns:1fr}}
+  .proof div{padding:13px 0;border-bottom:1px solid rgba(34,48,79,.6);font-size:.92rem;color:var(--mut);display:flex;gap:11px}
+  .proof b{color:var(--ink);font-weight:700}
+  .proof .k{color:var(--gold);flex:0 0 auto}
+
+  /* terms placeholder */
+  .terms{background:linear-gradient(180deg,rgba(245,179,1,.06),transparent);
+    border:1px dashed rgba(245,179,1,.4);border-radius:16px;padding:26px;margin-top:30px}
+  .terms table{width:100%;border-collapse:collapse}
+  .terms td{padding:14px 6px;border-bottom:1px solid rgba(34,48,79,.7);vertical-align:top}
+  .terms td:first-child{color:var(--gold2);font-weight:800;width:38%;font-size:.95rem}
+  .terms .fill{color:var(--mut2);font-style:italic}
+  .note{font-size:.82rem;color:var(--mut2);margin-top:14px;padding:12px 15px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid var(--line)}
+
+  /* faq */
+  details{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:12px;overflow:hidden}
+  summary{padding:18px 22px;cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"＋";color:var(--gold);font-weight:800;flex:0 0 auto}
+  details[open] summary::after{content:"－"}
+  details p{padding:0 22px 20px;color:var(--mut);font-size:.93rem}
+
+  /* cta band */
+  .ctaband{background:linear-gradient(135deg,var(--bg2),#152245);border:1px solid rgba(245,179,1,.3);
+    border-radius:22px;padding:48px 30px;text-align:center;margin:20px 0}
+  .ctaband h2{margin-bottom:10px}
+  .ctaband p{color:var(--mut);max-width:32em;margin:0 auto 26px}
+  .ctaband .btn{margin:6px}
+
+  footer{border-top:1px solid var(--line);padding:40px 0;color:var(--mut2);font-size:.84rem}
+  footer .wrap{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center}
+  footer b{color:var(--ink)}
+  .disc{font-size:.74rem;color:var(--mut2);margin-top:14px;line-height:1.7}
+</style>
+</head>
+<body>
+
+<!-- shield logo (reused) -->
+<svg width="0" height="0" style="position:absolute"><defs>
+  <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD264"/><stop offset=".55" stop-color="#F5B301"/><stop offset="1" stop-color="#E08A00"/></linearGradient>
+  <symbol id="shield" viewBox="0 0 512 512">
+    <path d="M256 92 L392 138 V262 C392 342 330 396 256 424 C182 396 120 342 120 262 V138 Z" fill="#12213F"/>
+    <clipPath id="sc"><path d="M256 92 L392 138 V262 C392 342 330 396 256 424 C182 396 120 342 120 262 V138 Z"/></clipPath>
+    <g clip-path="url(#sc)">
+      <circle cx="256" cy="312" r="58" fill="url(#g)"/>
+      <rect x="120" y="311" width="272" height="7" fill="url(#g)"/>
+      <g stroke="url(#g)" stroke-width="9" stroke-linecap="round">
+        <line x1="256" y1="196" x2="256" y2="228"/><line x1="196" y1="212" x2="212" y2="240"/>
+        <line x1="316" y1="212" x2="300" y2="240"/><line x1="160" y1="250" x2="184" y2="270"/>
+        <line x1="352" y1="250" x2="328" y2="270"/>
+      </g>
+    </g>
+    <path d="M256 92 L392 138 V262 C392 342 330 396 256 424 C182 396 120 342 120 262 V138 Z" fill="none" stroke="url(#g)" stroke-width="14" stroke-linejoin="round"/>
+  </symbol>
+</defs></svg>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand">
+      <svg class="logo"><use href="#shield"/></svg>
+      <div>HORIZON SHIELD<small>THE HORIZONs</small></div>
+    </div>
+    <a href="#contact" class="btn btn-gold"><span class="nav-cta-text">パートナー</span>資料請求</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" style="border:0">
+  <div class="wrap">
+    <svg class="hero-shield"><use href="#shield"/></svg>
+    <div class="eyebrow">🛡 世界初・Bitcoinアンカー型 検証台帳</div>
+    <h1>「その見積もり、適正ですか？」に、<br><span class="u">"証明"で答える</span>事業を。</h1>
+    <p class="lead">7.3兆円のリフォーム市場で、"誰でも独立検証できる第三者監査"を武器にする。<br>HORIZON SHIELD <b class="gold">認定パートナー（加盟店）</b>募集。</p>
+    <div class="hero-cta">
+      <a href="#contact" class="btn btn-gold">資料請求する →</a>
+      <a href="#model" class="btn btn-ghost">仕組みを見る</a>
+    </div>
+    <div class="strip">
+      <div class="chip"><b>7.3兆円</b><span>リフォーム市場規模</span></div>
+      <div class="chip"><b>65,520</b><span>公開コストDB品目</span></div>
+      <div class="chip"><b>691</b><span>過大請求の危険サイン</span></div>
+      <div class="chip"><b>Bitcoin</b><span>改ざん不能の検証</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY NOW -->
+<section id="why">
+  <div class="wrap">
+    <div class="kicker">なぜ、今か</div>
+    <h2>成長する市場。だが、<span class="gold">"適正価格が分からない"</span>不信も拡大している。</h2>
+    <p class="sub">リフォーム需要は伸び続ける一方で、過大請求・訪問販売トラブルの相談は高止まり。消費者は「この金額は妥当なのか」を判断できず、業界全体の信頼が問われている。ここに、第三者監査の大きな空白がある。</p>
+    <div class="statbig">
+      <div class="card"><div class="num">7.3兆円</div><div class="lbl">2024年度の住宅リフォーム市場規模</div></div>
+      <div class="card"><div class="num">4年連続</div><div class="lbl">リフォーム相談が年1万件超（国民生活センター）</div></div>
+      <div class="card"><div class="num">約5倍</div><div class="lbl">訪問販売リフォーム相談の増加（5年で）</div></div>
+    </div>
+    <p class="src">出典：住宅リフォーム市場規模＝矢野経済研究所「住宅リフォーム市場に関する調査（2025年）」7兆3,470億円（2024年度）／相談件数・訪販相談の推移＝国民生活センター（各種相談の件数や傾向）。</p>
+  </div>
+</section>
+
+<!-- WHAT IS IT -->
+<section id="model">
+  <div class="wrap">
+    <div class="kicker">HORIZON SHIELD とは</div>
+    <h2>"当社調べ" を、<span class="gold">"誰でも検証できる事実"</span> に変える技術基盤。</h2>
+    <p class="sub">建設実務30年の監修のもと構築した、公開コストデータベースとBitcoinアンカー検証を組み合わせた"信用不要"の見積もり監査システム。加盟パートナーは、これを自社の武器としてそのまま使えます。</p>
+    <div class="grid g3">
+      <div class="card"><div class="ic">📊</div><h3>65,520品目のコストDB</h3><p>JCCDB v3.1（CC BY 4.0・公開）。61工種の適正相場と691の危険サインを内蔵し、見積もりの妥当性を数値で判定。</p></div>
+      <div class="card"><div class="ic">🔗</div><h3>Bitcoinで改ざん不能</h3><p>全データのSHA-256をBitcoinに錨打ち（JIDEC）。「運営を信じてください」ではなく、第三者が独立に検証できる。</p></div>
+      <div class="card"><div class="ic">🎓</div><h3>学術的な裏付け</h3><p>Zenodo・engrXivに公開DOI 2件、ORCID登録。根拠が査読可能な形で外部に存在する。</p></div>
+      <div class="card"><div class="ic">🤖</div><h3>AIエージェント対応（MCP）</h3><p>Anthropic／Glama等に掲載。14ツール＋A2Aエージェントカード＋AP2決済連携で、AIが直接"適正価格"を呼び出せる。</p></div>
+      <div class="card"><div class="ic">🗾</div><h3>地域係数まで実装</h3><p>関東×1.1／近畿×1.06／中部×1.0／東北×0.95 ほか、地域差を織り込んだ相場判定。あなたの商圏に合う。</p></div>
+      <div class="card"><div class="ic">🛡</div><h3>中立・第三者の立場</h3><p>紹介料なし・自動投稿なし・一次データのみ。「業者に忖度しない監査」という唯一のポジション。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section id="diff">
+  <div class="wrap">
+    <div class="kicker">他社との決定的な違い</div>
+    <h2>相見積もりサイトでも、一括見積もりでもない。</h2>
+    <div class="compare">
+      <div class="card them">
+        <span class="tag">よくある比較・紹介サービス</span>
+        <ul>
+          <li>根拠は「当社調べ」——外部から検証できない</li>
+          <li>紹介料・成約手数料で中立性が揺らぐ</li>
+          <li>「安いところ」は分かっても"適正か"は分からない</li>
+          <li>AIエージェントから呼び出せない</li>
+        </ul>
+      </div>
+      <div class="card us">
+        <span class="tag">HORIZON SHIELD</span>
+        <ul>
+          <li>Bitcoin＋SHA-256で<b>誰でも独立検証できる</b></li>
+          <li>紹介料なし・中立の第三者監査</li>
+          <li>65,520品目DBで<b>"適正価格そのもの"</b>を提示</li>
+          <li>MCP対応でAI時代の入口を先取り</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARTNER BENEFITS -->
+<section id="support">
+  <div class="wrap">
+    <div class="kicker">加盟パートナーが手にするもの</div>
+    <h2>ゼロから作らない。<span class="gold">"検証可能"という看板</span>ごと導入する。</h2>
+    <div class="grid g2">
+      <div class="card"><div class="ic">⚙️</div><h3>監査システムの利用権</h3><p>見積もり監査・相場判定・危険サイン検出のエンジンを、自社サービスとして提供できる。〔提供範囲・利用条件は本部で確定〕</p></div>
+      <div class="card"><div class="ic">🏅</div><h3>認定ロゴ・ブランド</h3><p>「HORIZON SHIELD 認定パートナー」の肩書きとロゴ。"検証可能な監査"を掲げる差別化を、初日から。</p></div>
+      <div class="card"><div class="ic">📚</div><h3>研修・監修ノウハウ</h3><p>建設実務30年の監修者による、見積もりの読み方・危険サインの実務ノウハウを研修で提供。〔内容は要確定〕</p></div>
+      <div class="card"><div class="ic">📡</div><h3>集客・AI可視化支援</h3><p>AI検索最適化（GEO/AEO/LLMO）とMCP経由の流入設計。"AIに見つけてもらう"導線づくりを支援。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TERMS (placeholders) -->
+<section id="terms">
+  <div class="wrap">
+    <div class="kicker">募集要項・収益モデル</div>
+    <h2>開業条件</h2>
+    <p class="sub">下記は記入用のひな形です。実際の条件（本部で確定した数字）を入れてください。</p>
+    <div class="terms">
+      <table>
+        <tr><td>加盟金</td><td class="fill">¥〔　要記入　〕</td></tr>
+        <tr><td>保証金</td><td class="fill">¥〔　要記入　〕</td></tr>
+        <tr><td>ロイヤリティ</td><td class="fill">〔　月額 ¥　／ 売上の　％　など要記入　〕</td></tr>
+        <tr><td>開業に必要な資金の目安</td><td class="fill">¥〔　要記入　〕</td></tr>
+        <tr><td>想定収益モデル</td><td class="fill">〔　例：月間◯件の監査 × 単価◯円 … 実数を記入　〕</td></tr>
+        <tr><td>契約期間・募集エリア</td><td class="fill">〔　要記入　〕</td></tr>
+      </table>
+      <div class="note">⚠️ このブロックの金額・条件は、あえて空欄にしています。HORIZON SHIELD は「検証可能・数字に誠実」がブランドの根幹のため、確定していない収益・費用を仮の数字で載せていません。実際の条件が決まり次第、ここに記入してください。</div>
+    </div>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section id="flow">
+  <div class="wrap">
+    <div class="kicker">加盟までの流れ</div>
+    <h2>お問い合わせから開業まで</h2>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h4>資料請求</h4><p>フォーム・メールでお問い合わせ。詳細資料をお送りします。</p></div>
+      <div class="step"><div class="n">2</div><h4>説明・面談</h4><p>事業内容・システム・条件をご説明。ご質問に回答。</p></div>
+      <div class="step"><div class="n">3</div><h4>審査・契約</h4><p>相互確認のうえ、加盟契約を締結。</p></div>
+      <div class="step"><div class="n">4</div><h4>研修・導入</h4><p>監査システムの導入と実務研修を実施。</p></div>
+      <div class="step"><div class="n">5</div><h4>開業</h4><p>認定パートナーとして営業開始。継続サポート。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF -->
+<section id="proof">
+  <div class="wrap">
+    <div class="kicker">信頼の証（すべて公開・検証可能）</div>
+    <h2>「信じてください」とは、言いません。</h2>
+    <p class="sub">HORIZON SHIELD の根拠は、運営を信用しなくても第三者が独立に確かめられる形で公開されています。これが、加盟パートナーの説得力になります。</p>
+    <div class="proof">
+      <div><span class="k">◈</span><span><b>Bitcoinアンカー</b>：JIDEC検証パス Block 959634 で確定（OpenTimestamps）</span></div>
+      <div><span class="k">◈</span><span><b>公開DOI</b>：Zenodo 10.5281/zenodo.20019572 ／ engrXiv 10.31224/7007</span></div>
+      <div><span class="k">◈</span><span><b>ORCID</b>：0009-0000-9180-903X</span></div>
+      <div><span class="k">◈</span><span><b>一次データ</b>：GitHub／Hugging Face で公開（CC BY 4.0）</span></div>
+      <div><span class="k">◈</span><span><b>MCP掲載</b>：Anthropic MCP Directory／Glama 等に登録</span></div>
+      <div><span class="k">◈</span><span><b>監修</b>：大賀俊勝（建設実務30年）／ The HORIZONs株式会社</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="kicker">よくある質問</div>
+    <h2>FAQ</h2>
+    <details open><summary>建設・リフォームの経験がなくても加盟できますか？</summary><p>監査の根拠は公開データベースとシステムが担うため、専門知識は研修で補えます。ただし詳しい加盟条件・対象者は本部にご確認ください。〔対象者の要件を記入〕</p></details>
+    <details><summary>既存の工務店・不動産・士業ですが、事業に追加できますか？</summary><p>はい、"検証可能な第三者監査"は既存事業の信頼強化・集客に相性が良い設計です。既存顧客への付加価値としても活用いただけます。</p></details>
+    <details><summary>「Bitcoinで検証」とは、具体的に何ができるのですか？</summary><p>公開記録のバイトを取得し、SHA-256を再計算し、Bitcoinのタイムスタンプと照合すれば、運営を信用せずに"改ざんされていないこと"を第三者が確認できます。データの正しさを、権威ではなく数学で保証します。</p></details>
+    <details><summary>AIエージェント対応（MCP）は、加盟店に何のメリットがありますか？</summary><p>ChatGPT／Claude／Gemini等のAIが「適正価格」を調べる際、あなたのサービスが"呼び出される側"になれます。AI検索時代の入口を、早い段階で押さえられます。</p></details>
+    <details><summary>費用・収益はどのくらいですか？</summary><p>加盟金・ロイヤリティ・想定収益は、確定した実数を「募集要項」欄に記載します。仮の数字は掲載していません。詳細は資料請求ください。</p></details>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="contact" style="border:0">
+  <div class="wrap">
+    <div class="ctaband">
+      <svg class="hero-shield" style="width:64px;height:64px;margin-bottom:14px"><use href="#shield"/></svg>
+      <div class="kicker">認定パートナー募集</div>
+      <h2>"適正価格" を、あなたの地域の武器に。</h2>
+      <p>世界初のBitcoin検証型・見積もり監査を、あなたの事業に。まずは資料請求から。</p>
+      <a href="mailto:contact@the-horizons-innovation.com?subject=HORIZON%20SHIELD%20認定パートナー%20資料請求" class="btn btn-gold">資料を請求する →</a>
+      <a href="https://shield.the-horizons-innovation.com" class="btn btn-ghost">公式サイトを見る</a>
+      <p style="margin-top:22px;font-size:.86rem;color:var(--mut2)">contact@the-horizons-innovation.com ／ shield.the-horizons-innovation.com</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand">
+      <svg class="logo"><use href="#shield"/></svg>
+      <div>HORIZON SHIELD<small>The HORIZONs株式会社</small></div>
+    </div>
+    <div>監修：大賀俊勝（建設実務30年）</div>
+  </div>
+  <div class="wrap"><p class="disc">※本ページの市場規模は矢野経済研究所「住宅リフォーム市場に関する調査（2025年）」、相談件数の傾向は国民生活センター公表資料に基づきます。加盟金・ロイヤリティ・収益等の条件は確定後に記載します（現時点は記入用ひな形）。データベース・検証記録は CC BY 4.0 で公開し、Bitcoinアンカーにより第三者が独立検証できます。</p></div>
+</footer>
+
+</body>
+</html>
