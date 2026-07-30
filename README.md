@@ -1,4 +1,22 @@
-# HORIZON SHIELD MCP Server
+<div align="center">
+
+# 🛡️ HORIZON SHIELD
+
+### Verifiable construction‑estimate auditing for AI agents
+
+**Don't trust the estimate. Verify it.**
+
+An [MCP](https://modelcontextprotocol.io) server that lets AI agents check whether a Japanese construction or renovation estimate is fair — against open data — and returns a result **anyone can verify against Bitcoin** (OpenTimestamps). No account, no key.
+
+[![MCP Registry](https://img.shields.io/badge/MCP-Registry-2f6feb)](https://registry.modelcontextprotocol.io/v0.1/servers?search=horizon-shield)
+[![Transport: streamable-http](https://img.shields.io/badge/transport-streamable--http-2ea043)](https://hs-mcp.oga-surf-project.workers.dev)
+[![Open data: JCCDB 65,520 · CC BY 4.0](https://img.shields.io/badge/open%20data-JCCDB%2065%2C520%20%C2%B7%20CC--BY%204.0-e36209)](https://github.com/ogasurfproject-jpg/japan-construction-cost-database)
+[![Anchored: Bitcoin / OpenTimestamps](https://img.shields.io/badge/anchored-Bitcoin%20%2F%20OpenTimestamps-f7931a)](https://hs-ledger.oga-surf-project.workers.dev/ledger)
+[![Auth: none](https://img.shields.io/badge/auth-none-6e7681)]()
+
+</div>
+
+---
 
 ## JIDEC — verify this project without trusting it
 
