@@ -18,6 +18,8 @@ jobs:
       actions: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Generate article
         env:
@@ -30,7 +32,14 @@ jobs:
           git config user.email "kira@the-horizons-innovation.com"
           git add blog/
           git diff --staged --quiet || git commit -m "blog post $(date +%Y-%m-%d)"
-          git push
+          # main may have advanced (other commits) — rebase on top and retry so the push isn't rejected
+          for attempt in 1 2 3 4 5; do
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              echo "pushed on attempt $attempt"; exit 0
+            fi
+            echo "push attempt $attempt failed; retrying in 3s..."; sleep 3
+          done
+          echo "ERROR: push failed after 5 attempts"; exit 1
 
       # --- HS-DEPLOY-DISPATCH v1 (2026-07-06): GITHUB_TOKEN push does not fire on:push workflows,
       # so explicitly dispatch the Pages deploy when a new article was committed today.
