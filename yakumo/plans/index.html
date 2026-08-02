@@ -3,98 +3,88 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Yakumo 加盟・AI可視化 運用プラン 料金表</title>
+<title>Yakumo 加盟・AI可視化 運用プラン｜HORIZON SHIELD</title>
+<meta name="description" content="検証済み加盟店として中立モールYakumoに掲載し、AIと検索に見つけられる状態をつくり維持する運用プラン。紹介料0円・成果報酬なし。">
 <style>
-  :root{ --green:#1E6B43; --navy:#243b53; --ink:#33404d; --muted:#5b6b78; --line:#e6e2db; --bg:#fbfaf8; --gold:#b9932f; }
+  :root{ --green:#1E6B43; --navy:#243b53; --ink:#33404d; --muted:#5b6b78; --line:#e6e2db; --bg:#fbfaf8; }
   *{box-sizing:border-box; margin:0; padding:0;}
-  body{font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif; color:var(--ink); background:#fff; line-height:1.7; -webkit-font-smoothing:antialiased;}
+  body{font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif; color:var(--ink); background:#fff; line-height:1.7;}
   .wrap{max-width:1080px; margin:0 auto; padding:44px 24px 80px;}
   .kicker{color:var(--green); font-weight:700; letter-spacing:.08em; font-size:.82rem;}
   h1{font-size:2rem; color:var(--navy); margin:6px 0 10px; line-height:1.3;}
   .lead{color:var(--muted); font-size:1rem; max-width:760px;}
   .neutral{margin:22px 0 8px; background:var(--green); color:#fff; border-radius:14px; padding:18px 22px;}
-  .neutral b{font-size:1.05rem;}
-  .neutral p{font-size:.9rem; opacity:.95; margin-top:4px;}
+  .neutral b{font-size:1.05rem;} .neutral p{font-size:.9rem; opacity:.95; margin-top:4px;}
   h2{font-size:1.25rem; color:var(--navy); margin:52px 0 6px;}
   .sub{color:var(--muted); font-size:.9rem; margin-bottom:20px;}
   .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
   .card{border:1px solid var(--line); border-radius:16px; padding:24px 20px; background:#fff; display:flex; flex-direction:column;}
   .card.reco{border:2px solid var(--green); box-shadow:0 12px 30px rgba(30,107,67,.10); position:relative;}
-  .badge{position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:var(--green); color:#fff; font-size:.72rem; font-weight:700; padding:5px 14px; border-radius:999px; letter-spacing:.05em;}
+  .badge{position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:var(--green); color:#fff; font-size:.72rem; font-weight:700; padding:5px 14px; border-radius:999px;}
   .tier{font-size:1.15rem; font-weight:700; color:var(--navy);}
   .target{color:var(--muted); font-size:.8rem; margin:2px 0 16px; min-height:2.4em;}
-  .price-init{font-size:.82rem; color:var(--muted);}
-  .price-init b{color:var(--ink); font-size:.95rem;}
-  .price-mo{margin:8px 0 4px;}
-  .price-mo .num{font-size:2rem; font-weight:800; color:var(--green); letter-spacing:-.02em;}
-  .price-mo .unit{font-size:.85rem; color:var(--muted);}
+  .price-init{font-size:.82rem; color:var(--muted);} .price-init b{color:var(--ink); font-size:.95rem;}
+  .price-mo{margin:8px 0 4px;} .price-mo .num{font-size:2rem; font-weight:800; color:var(--green);} .price-mo .unit{font-size:.85rem; color:var(--muted);}
   .tax{font-size:.72rem; color:var(--muted);}
-  ul.feat{list-style:none; margin:18px 0 0; padding-top:16px; border-top:1px solid var(--line);}
-  ul.feat li{font-size:.86rem; padding:6px 0 6px 22px; position:relative; color:var(--ink);}
+  ul.feat{list-style:none; margin:18px 0 0; padding-top:16px; border-top:1px solid var(--line); flex:1;}
+  ul.feat li{font-size:.86rem; padding:6px 0 6px 22px; position:relative;}
   ul.feat li::before{content:"✓"; color:var(--green); font-weight:800; position:absolute; left:0;}
-  ul.feat li.off{color:#a9b2ba;}
-  ul.feat li.off::before{content:"–"; color:#c7ccd1;}
+  ul.feat li.off{color:#a9b2ba;} ul.feat li.off::before{content:"–"; color:#c7ccd1;}
+  .cta{margin-top:18px;} .cta-note{font-size:.72rem; color:var(--muted); margin-top:8px; text-align:center;}
   table{width:100%; border-collapse:collapse; margin-top:6px; font-size:.88rem;}
   th,td{border:1px solid var(--line); padding:11px 12px; text-align:left; vertical-align:top;}
-  thead th{background:var(--navy); color:#fff; font-weight:600; font-size:.85rem;}
-  thead th:first-child{width:34%;}
+  thead th{background:var(--navy); color:#fff; font-weight:600; font-size:.85rem;} thead th:first-child{width:34%;}
   tbody th{background:var(--bg); font-weight:600; color:var(--navy); font-size:.85rem;}
-  td.c{text-align:center;}
-  .yes{color:var(--green); font-weight:800;}
-  .no{color:#c7ccd1; font-weight:800;}
-  .small{font-size:.8rem;}
-  .why{background:var(--bg); border-left:4px solid var(--green); border-radius:0 12px 12px 0; padding:18px 22px; margin-top:14px;}
-  .why b{color:var(--navy);}
-  .cmp td.good{color:var(--green); font-weight:700;}
-  .cmp td.bad{color:#b0563f;}
-  .note{margin-top:44px; background:#fff; border:1px dashed var(--line); border-radius:12px; padding:20px 22px; font-size:.82rem; color:var(--muted);}
-  .note b{color:var(--ink);}
-  .foot{margin-top:30px; text-align:center; color:var(--muted); font-size:.78rem;}
+  td.c{text-align:center;} .yes{color:var(--green); font-weight:800;} .no{color:#c7ccd1; font-weight:800;} .small{font-size:.8rem;}
+  .why{background:var(--bg); border-left:4px solid var(--green); border-radius:0 12px 12px 0; padding:18px 22px; margin-top:14px;} .why b{color:var(--navy);}
+  .cmp td.good{color:var(--green); font-weight:700;} .cmp td.bad{color:#b0563f;}
+  .note{margin-top:44px; background:#fff; border:1px dashed var(--line); border-radius:12px; padding:20px 22px; font-size:.82rem; color:var(--muted);} .note b{color:var(--ink);}
+  .legal-links{margin-top:26px; text-align:center; font-size:.82rem;} .legal-links a{color:var(--green); margin:0 10px;}
+  .foot{margin-top:20px; text-align:center; color:var(--muted); font-size:.78rem;}
   @media(max-width:820px){ .cards{grid-template-columns:1fr;} h1{font-size:1.6rem;} .wrap{padding:30px 16px 60px;} }
 </style>
 </head>
 <body>
 <div class="wrap">
-
   <div class="kicker">HORIZON SHIELD ／ Yakumo</div>
-  <h1>加盟・AI可視化 運用プラン 料金表</h1>
-  <p class="lead">弊社が運用して、検証済み加盟店として中立モール Yakumo に掲載し、AI（生成エンジン）と検索から見つけられる状態を作り、維持し続けるためのプランです。<b>成果報酬（紹介料の中抜き）は一切ありません。</b>定額の運用料だけです。</p>
+  <h1>加盟・AI可視化 運用プラン</h1>
+  <p class="lead">弊社が運用して、検証済み加盟店として中立モール Yakumo に掲載し、AI（生成エンジン）と検索から見つけられる状態を作り、維持し続けるプランです。<b>成果報酬（紹介料の中抜き）は一切ありません。</b>定額の運用料だけです。</p>
 
   <div class="neutral">
     <b>紹介料 0円 ／ 成果報酬なし ／ 中立の第三者検証モール</b>
-    <p>獲得したお客様は100%御社のもの。1件成約ごとの中抜きはしません。だから、施工に集中できます。</p>
+    <p>獲得したお客様は100%御社のもの。1件成約ごとの中抜きはしません。</p>
   </div>
 
   <h2>3つのプラン</h2>
-  <p class="sub">御社の規模とカバーしたい工種に合わせて選べます。金額は税抜・提案ベースです。</p>
+  <p class="sub">金額はすべて税込です。「申し込む」ボタンで月額のサブスクリプションが開始します。初期費用は申込後に別途ご請求します。</p>
 
   <div class="cards">
-
     <div class="card">
       <div class="tier">ライト</div>
       <div class="target">一人親方・小規模工務店。まず「検証済み」の看板とAI掲載を持ちたい方。</div>
-      <div class="price-init">初期費用 <b>¥49,800</b></div>
-      <div class="price-mo"><span class="num">¥9,800</span> <span class="unit">/ 月</span></div>
-      <div class="tax">税抜・年間契約</div>
+      <div class="price-init">初期費用 <b>¥54,780</b>（税込）</div>
+      <div class="price-mo"><span class="num">¥10,780</span> <span class="unit">/ 月（税込）</span></div>
+      <div class="tax">いつでも解約可・最低契約期間なし</div>
       <ul class="feat">
         <li>KIRA 適正診断（検証バッジ）</li>
         <li>Yakumo モール掲載（fail-closed）</li>
         <li>主力1工種のプロフィール生成<br><span class="small">（GEO / AEO / LLMO / JSON-LD）</span></li>
-        <li>集約MCPからの被参照（find_contractor）</li>
+        <li>集約MCPからの被参照</li>
         <li>四半期に1回のプロフィール更新</li>
         <li class="off">施工事例の継続追加</li>
         <li class="off">被引用モニタリング月次レポート</li>
         <li class="off">専用WebMCPエンドポイント</li>
       </ul>
+      <div class="cta"><div id="pp-light"></div><p class="cta-note">月額のみ。初期費用¥54,780（税込）は申込後に別途請求。</p></div>
     </div>
 
     <div class="card reco">
       <div class="badge">おすすめ</div>
       <div class="tier">スタンダード</div>
       <div class="target">中小リフォーム会社。複数工種で、継続的にAIと検索からの発見を強くしたい方。</div>
-      <div class="price-init">初期費用 <b>¥148,000</b></div>
-      <div class="price-mo"><span class="num">¥39,800</span> <span class="unit">/ 月</span></div>
-      <div class="tax">税抜・年間契約</div>
+      <div class="price-init">初期費用 <b>¥162,800</b>（税込）</div>
+      <div class="price-mo"><span class="num">¥43,780</span> <span class="unit">/ 月（税込）</span></div>
+      <div class="tax">いつでも解約可・最低契約期間なし</div>
       <ul class="feat">
         <li>ライトの全内容</li>
         <li>最大5工種のプロフィール生成</li>
@@ -105,14 +95,15 @@
         <li class="off">専用WebMCPエンドポイント</li>
         <li class="off">四半期の戦略レビュー</li>
       </ul>
+      <div class="cta"><div id="pp-standard"></div><p class="cta-note">月額のみ。初期費用¥162,800（税込）は申込後に別途請求。</p></div>
     </div>
 
     <div class="card">
       <div class="tier">プレミアム</div>
       <div class="target">地域有力店・多店舗・FC。全工種を押さえ、AI時代の代表的存在になりたい方。</div>
-      <div class="price-init">初期費用 <b>¥298,000〜</b></div>
-      <div class="price-mo"><span class="num">¥98,000</span> <span class="unit">/ 月〜</span></div>
-      <div class="tax">税抜・年間契約</div>
+      <div class="price-init">初期費用 <b>¥327,800〜</b>（税込）</div>
+      <div class="price-mo"><span class="num">¥107,800</span> <span class="unit">/ 月〜（税込）</span></div>
+      <div class="tax">いつでも解約可・最低契約期間なし</div>
       <ul class="feat">
         <li>スタンダードの全内容</li>
         <li>全工種カバー・事例の継続量産</li>
@@ -121,54 +112,61 @@
         <li>JIDEC 完全監査ログ</li>
         <li>四半期の戦略レビュー・優先サポート</li>
       </ul>
+      <div class="cta"><div id="pp-premium"></div><p class="cta-note">月額のみ。初期費用¥327,800（税込）は申込後に別途請求。</p></div>
     </div>
-
   </div>
 
   <h2>月々の運用に含まれるもの</h2>
-  <p class="sub">月額は「作って終わり」ではありません。検証を生かし続け、AIに引用されやすい状態を維持し続けるための運用費です。</p>
+  <p class="sub">月額は「作って終わり」ではなく、検証を生かし続け、AIに引用されやすい状態を維持し続けるための運用費です。</p>
   <table>
-    <thead>
-      <tr><th>運用項目</th><th class="c">ライト</th><th class="c">スタンダード</th><th class="c">プレミアム</th></tr>
-    </thead>
+    <thead><tr><th>運用項目</th><th class="c">ライト</th><th class="c">スタンダード</th><th class="c">プレミアム</th></tr></thead>
     <tbody>
       <tr><th>検証の維持（fail-closed 再検証）</th><td class="c"><span class="yes">✓</span></td><td class="c"><span class="yes">✓</span></td><td class="c"><span class="yes">✓</span></td></tr>
       <tr><th>Yakumo モール掲載の維持</th><td class="c"><span class="yes">✓</span></td><td class="c"><span class="yes">✓</span></td><td class="c"><span class="yes">✓</span></td></tr>
       <tr><th>プロフィール更新</th><td class="c small">四半期1回</td><td class="c small">毎月</td><td class="c small">毎月＋随時</td></tr>
       <tr><th>施工事例ページの追加</th><td class="c"><span class="no">–</span></td><td class="c small">月2件</td><td class="c small">継続量産</td></tr>
       <tr><th>GEO / AEO / LLMO 再最適化</th><td class="c small">四半期</td><td class="c small">毎月</td><td class="c small">毎月</td></tr>
-      <tr><th>被引用モニタリング（①）月次レポート</th><td class="c"><span class="no">–</span></td><td class="c"><span class="yes">✓</span></td><td class="c"><span class="yes">✓</span></td></tr>
+      <tr><th>被引用モニタリング月次レポート</th><td class="c"><span class="no">–</span></td><td class="c"><span class="yes">✓</span></td><td class="c"><span class="yes">✓</span></td></tr>
       <tr><th>専用WebMCPエンドポイント</th><td class="c"><span class="no">–</span></td><td class="c"><span class="no">–</span></td><td class="c"><span class="yes">✓</span></td></tr>
       <tr><th>戦略レビュー</th><td class="c"><span class="no">–</span></td><td class="c"><span class="no">–</span></td><td class="c small">四半期</td></tr>
     </tbody>
   </table>
 
-  <div class="why">
-    <b>なぜ「月額」なのか。</b> AIと検索のルールは常に変わります。一度作ったプロフィールも、放置すれば半年で陳腐化します。月額運用料は、①検証を生かし続ける（fail-closed）②事例と情報を足し続ける ③AIに引用されやすい形に保ち続ける ④引用状況を毎月見える化する、ための費用です。「作って終わり」を、「効き続ける」に変えるのが運用の役割です。
-  </div>
+  <div class="why"><b>なぜ「月額」なのか。</b> AIと検索のルールは常に変わります。放置すればプロフィールは陳腐化します。月額は、検証を生かし続け・事例を足し続け・AIに引用されやすい形に保ち続け・引用状況を毎月見える化するための費用です。</div>
 
   <h2>一般のリフォームポータルとの違い</h2>
-  <p class="sub">同じ「掲載」でも、根本的にモデルが違います。</p>
   <table class="cmp">
-    <thead>
-      <tr><th>比較項目</th><th>一般のリフォームポータル</th><th>Yakumo 運用プラン</th></tr>
-    </thead>
+    <thead><tr><th>比較項目</th><th>一般のリフォームポータル</th><th>Yakumo 運用プラン</th></tr></thead>
     <tbody>
       <tr><th>費用モデル</th><td class="bad">成果報酬（1件ごとに中抜き）</td><td class="good">定額の運用料のみ・中抜き0円</td></tr>
       <tr><th>獲得したお客様</th><td class="bad">実質ポータル経由の関係</td><td class="good">100%御社のもの</td></tr>
       <tr><th>掲載基準</th><td class="bad">有料なら玉石混交</td><td class="good">検証を通った店だけ（fail-closed）</td></tr>
-      <tr><th>AI（生成エンジン）対応</th><td class="bad">基本なし</td><td class="good">GEO / AEO / LLMO を標準実装</td></tr>
+      <tr><th>AI対応</th><td class="bad">基本なし</td><td class="good">GEO / AEO / LLMO を標準実装</td></tr>
       <tr><th>信頼の裏付け</th><td class="bad">サイトの言い値</td><td class="good">JIDEC で誰でも検証可能</td></tr>
     </tbody>
   </table>
 
-  <div class="note">
-    <b>この料金表について（正直な注記）。</b> 金額は建築DX・AEO運用の市場相場から逆算した<b>提案ベース</b>です。実際の生成・検証・監視にかかる工数（＝原価）を見てから最終調整してください。<br>
-    また、本プランが提供するのは<b>「AIと検索に見つけられ、引用されやすい状態」と、その継続監視</b>です。<b>集客数・成約数・「◯◯万円得した」といった成果は、実績データが出るまで数字として約束しません。</b>断定は信用を損ないます。効果は「可視化された引用状況」で正直に示していきます。
-  </div>
+  <div class="note"><b>本サービスについて。</b> 提供するのは「AIと検索に見つけられ、引用されやすい状態」の構築と維持です。<b>集客数・成約数などの成果は、実績データが出るまで数字としては保証しません。</b>効果は可視化された引用状況で正直にご報告します。価格はすべて税込です。</div>
 
-  <div class="foot">HORIZON SHIELD ／ Yakumo（運営 The HORIZONs株式会社）　※価格は税抜・提案ベース。実運用コストに合わせて調整可。</div>
-
+  <div class="legal-links"><a href="/tokushoho.html">特定商取引法に基づく表記</a><a href="/privacy.html">プライバシーポリシー</a></div>
+  <div class="foot">HORIZON SHIELD ／ Yakumo（運営 The HORIZONs株式会社）</div>
 </div>
+
+<!-- PayPal サブスクリプション・ボタン -->
+<!-- PayPal本番Client ID 設定済み（HORIZON SHIELD Live app） -->
+<script src="https://www.paypal.com/sdk/js?client-id=AVePXfDeP_YDUgmcFEJNjFHuYkbXZ-VQcLEecJs5Li2la9qDbtZJamy-iXzTxWlPdUODt6KNV3nqUKHP&vault=true&intent=subscription&currency=JPY"></script>
+<script>
+  function ppButton(sel, planId){
+    if(!window.paypal) return;
+    paypal.Buttons({
+      style:{shape:'pill', color:'blue', layout:'vertical', label:'subscribe'},
+      createSubscription:function(data, actions){ return actions.subscription.create({plan_id:planId}); },
+      onApprove:function(data){ window.location.href='/thankyou.html'; }
+    }).render(sel);
+  }
+  ppButton('#pp-light',   'P-80P32446VE695222LNJXJFWY');
+  ppButton('#pp-standard','P-5FS22270DD2361531NJXJIBQ');
+  ppButton('#pp-premium', 'P-9A414727W8562743MNJXJJ2Q');
+</script>
 </body>
 </html>
