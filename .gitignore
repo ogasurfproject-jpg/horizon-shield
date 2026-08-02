@@ -103,3 +103,5 @@ main,
 
 _ehn_ttl_backup_*/
 _bing_fix_backup_*/
+client_secret.json
+token.json
