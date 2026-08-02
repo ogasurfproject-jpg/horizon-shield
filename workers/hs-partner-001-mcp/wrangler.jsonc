@@ -1,0 +1,24 @@
+{
+  // Yakumo WebMCP Partner 専用MCP (リフォーム職人株式会社 / No.001)
+  // 独立worker。hs-mcp / gateway への binding は張らない(独立の証)。
+  // HS_HEARING_KV は「読み取り」で共有(hs-hearing が書き、この worker は読むだけ)。
+  "name": "hs-partner-001-mcp",
+  "main": "src/worker.js",
+  "compatibility_date": "2024-01-01",
+
+  "vars": {
+    "STORE_ID": "hs-partner-001",
+    "PARTNER_NAME": "リフォーム職人株式会社"
+  },
+
+  // 堤さんの店データ源。hs-hearing と同じ namespace を読む。
+  // 注意: KV binding は namespace 単位(キー前方一致で絞る仕組みは無い)。
+  // よって worker には HS_HEARING_KV 全体の read 権が付く。安全は worker.js 側で担保する
+  // (STORE_ID を env で固定し、store:/hearing: の当該キーだけ読む。token/email/料金は出さない)。
+  "kv_namespaces": [
+    {
+      "binding": "HS_HEARING_KV",
+      "id": "cae22b3bf47b46bebdfcdfd6a724f8ab"
+    }
+  ]
+}
