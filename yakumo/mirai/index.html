@@ -8,12 +8,11 @@
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://shield.the-horizons-innovation.com/yakumo/mirai/">
 <style>
-  :root{ --green:#1E6B43; --green-d:#155134; --navy:#243b53; --ink:#33404d; --muted:#5b6b78; --line:#e6e2db; --bg:#fbfaf8; --warn:#b0563f; --gold:#b9932f; }
+  :root{ --green:#1E6B43; --green-d:#155134; --navy:#243b53; --navy-d:#1a2b3d; --ink:#33404d; --muted:#5b6b78; --line:#e6e2db; --bg:#fbfaf8; --warn:#b0563f; --gold:#b9932f; }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;color:var(--ink);background:#fff;line-height:1.8;-webkit-font-smoothing:antialiased;}
   .wrap{max-width:1000px;margin:0 auto;padding:0 24px;}
   a{color:inherit;}
-  /* hero */
   .hero{background:linear-gradient(180deg,#f3f7f4,#fff);border-bottom:1px solid var(--line);padding:64px 0 54px;}
   .kick{color:var(--green);font-weight:700;letter-spacing:.1em;font-size:.82rem;}
   h1{font-size:2.4rem;color:var(--navy);line-height:1.28;margin:12px 0 16px;}
@@ -23,12 +22,10 @@
   .btn{display:inline-block;text-decoration:none;font-weight:700;border-radius:999px;padding:13px 26px;font-size:.95rem;}
   .btn-p{background:var(--green);color:#fff;} .btn-p:hover{background:var(--green-d);}
   .btn-s{background:#fff;color:var(--green);border:1.5px solid var(--green);}
-  /* section */
   h2{font-size:1.5rem;color:var(--navy);margin:0 0 8px;text-align:center;}
   .s-sub{color:var(--muted);font-size:.92rem;text-align:center;margin-bottom:30px;}
   section{padding:56px 0;}
   section.alt{background:var(--bg);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
-  /* before/after */
   .ba{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:stretch;}
   .ba-col{border-radius:16px;padding:26px 24px;}
   .ba-before{background:#fbf3f1;border:1px solid #eBD3cd;}
@@ -41,30 +38,37 @@
   .ba-before li::before{content:"✕";position:absolute;left:0;color:var(--warn);font-weight:800;}
   .ba-after li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:800;}
   .ba-arrow{display:flex;align-items:center;justify-content:center;color:var(--green);font-size:1.8rem;font-weight:800;}
-  /* scenario */
   .scene{max-width:760px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;}
   .scene .q{background:var(--navy);color:#eaf0f8;padding:20px 24px;font-size:1.02rem;}
   .scene .q small{display:block;color:#9fb2c9;font-size:.78rem;margin-bottom:4px;}
   .scene .a{padding:22px 24px;font-size:.96rem;}
   .scene .a b{color:var(--green);}
   .scene .a .pill{display:inline-block;background:#eef7f1;color:var(--green);border:1px solid var(--green);border-radius:8px;padding:2px 9px;font-size:.8rem;font-weight:700;margin-top:8px;}
-  /* steps */
   .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
   .step{border:1px solid var(--line);border-radius:16px;padding:24px 20px;background:#fff;}
   .step .n{font-family:monospace;color:var(--gold);font-weight:700;font-size:.85rem;}
   .step h3{color:var(--navy);font-size:1.02rem;margin:8px 0 6px;}
   .step p{color:var(--muted);font-size:.86rem;}
-  /* neutral */
   .neutral{max-width:820px;margin:0 auto;background:#fff;border:1.5px solid var(--gold);border-radius:16px;padding:22px 26px;text-align:center;}
   .neutral b{color:var(--gold);font-size:1.05rem;}
   .neutral p{color:var(--muted);font-size:.9rem;margin-top:5px;}
-  /* final cta */
+  .auth{background:linear-gradient(180deg,var(--navy),var(--navy-d));border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .auth h2{color:#fff;}
+  .auth .s-sub{color:#9fb2c9;max-width:640px;margin-left:auto;margin-right:auto;}
+  .auth-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:6px;}
+  .auth-card{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:26px 24px;}
+  .auth-card .lbl{color:var(--gold);font-weight:700;letter-spacing:.12em;font-size:.76rem;}
+  .auth-card h3{color:#fff;font-size:1.14rem;margin:9px 0 11px;line-height:1.5;}
+  .auth-card p{color:#c4d0dd;font-size:.9rem;line-height:1.9;}
+  .auth-card a{color:#f0d98a;text-decoration:underline;text-underline-offset:2px;}
+  .auth-close{max-width:720px;margin:30px auto 0;text-align:center;color:#fff;font-size:1.12rem;font-weight:700;line-height:1.7;}
+  .auth-close span{color:var(--gold);}
   .final{background:linear-gradient(135deg,var(--green),var(--green-d));color:#fff;text-align:center;padding:60px 24px;}
   .final h2{color:#fff;} .final p{color:#dbeee2;max-width:620px;margin:8px auto 24px;}
   .final .btn-p{background:#fff;color:var(--green);} .final .btn-s{background:transparent;color:#fff;border-color:#fff;}
   .note{max-width:820px;margin:34px auto 0;font-size:.8rem;color:var(--muted);text-align:center;}
   .foot{text-align:center;color:var(--muted);font-size:.78rem;padding:24px;}
-  @media(max-width:820px){ .ba{grid-template-columns:1fr;} .ba-arrow{transform:rotate(90deg);} .steps{grid-template-columns:1fr;} h1{font-size:1.7rem;} }
+  @media(max-width:820px){ .ba{grid-template-columns:1fr;} .ba-arrow{transform:rotate(90deg);} .steps{grid-template-columns:1fr;} .auth-grid{grid-template-columns:1fr;} h1{font-size:1.7rem;} }
 </style>
 </head>
 <body>
@@ -73,7 +77,7 @@
     <div class="wrap">
       <div class="kick">加盟店の未来 ／ Yakumo × HORIZON SHIELD</div>
       <h1>これからの施主は、<br><span class="g">AIに「業者」を聞く。</span></h1>
-      <p class="lead">「この地域で、適正価格で信頼できるリフォーム会社は？」——そう聞かれたとき、AIが名前を挙げるのは、"AIが読める形で信頼を証明できている会社"だけです。Yakumoは、御社をその1社にします。</p>
+      <p class="lead">「この地域で、適正価格で信頼できるリフォーム会社は？」そう聞かれたとき、AIが名前を挙げるのは、"AIが読める形で信頼を証明できている会社"だけです。Yakumoは、御社をその1社にします。</p>
       <div class="hero-cta">
         <a class="btn btn-p" href="https://shield.the-horizons-innovation.com/yakumo/plans/">料金プランを見る</a>
         <a class="btn btn-s" href="mailto:contact@the-horizons-innovation.com?subject=Yakumo加盟のご相談">まず相談する</a>
@@ -122,6 +126,36 @@
     </div>
   </section>
 
+  <section class="auth">
+    <div class="wrap">
+      <h2>なぜ、HORIZON にそれが言えるのか</h2>
+      <p class="s-sub">新しい仕組みほど、"誰が言っているか"で決まります。だから、包み隠さずお見せします。</p>
+      <div class="auth-grid">
+        <div class="auth-card">
+          <div class="lbl">立ち位置</div>
+          <h3>私たちは、業者を敵視しません</h3>
+          <p>一括見積サイトは、業者から手数料を抜き、施主には不安を売ります。HORIZON は逆です。規模に応じた妥当な利益率（25〜45%）を透明にし、業者も施主も、どちらも損をしない取引を守る。この立ち位置には、まだ誰も座っていません。</p>
+        </div>
+        <div class="auth-card">
+          <div class="lbl">証明</div>
+          <h3>「正直」を、仕組みで担保しています</h3>
+          <p>適正価格を、後から書き換えられない形で記録する（PTKA：ビットコインのブロックに刻印）。誰でも検証できる公開台帳（JIDEC）。そして、実際に動く AI 連携（MCP）。言葉ではなく、動く実装で示します。</p>
+        </div>
+        <div class="auth-card">
+          <div class="lbl">現場</div>
+          <h3>机上の理論では、ありません</h3>
+          <p>代表・大賀俊勝。15歳から大阪で大工として始まり、現場監督、コンストラクション・マネージャーとして30年以上。適正価格データ（souba-db）は、この現場経験に基づく実務監修です。業界を外から眺める人間の言葉ではありません。</p>
+        </div>
+        <div class="auth-card">
+          <div class="lbl">検証</div>
+          <h3>疑うなら、確かめてください</h3>
+          <p>個人の意見ではなく、引用できる公的データとして公開しています。研究者ID（ORCID：<a href="https://orcid.org/0009-0000-9180-903X" target="_blank" rel="noopener">0009-0000-9180-903X</a>）、日本建設費オープンデータベース（JCCDB）、DOI付き論文、Wikidata。名前も、番号も、隠しません。</p>
+        </div>
+      </div>
+      <p class="auth-close">盛った数字は、ひとつもありません。<br><span>それが、私たちの信頼の作り方です。</span></p>
+    </div>
+  </section>
+
   <section>
     <div class="wrap">
       <h2>仕組みは、たった3ステップ</h2>
@@ -153,7 +187,7 @@
     </div>
   </div>
 
-  <div class="foot">HORIZON SHIELD ／ Yakumo ・ The HORIZONs株式会社　｜　<a href="/tokusho.html" style="color:var(--green);">特商法</a>　<a href="/privacy.html" style="color:var(--green);">プライバシー</a></div>
+  <div class="foot">HORIZON SHIELD ／ Yakumo ・ The HORIZ音s株式会社　｜　<a href="/tokusho.html" style="color:var(--green);">特商法</a>　<a href="/privacy.html" style="color:var(--green);">プライバシー</a></div>
 
 </body>
 </html>
