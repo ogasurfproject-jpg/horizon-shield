@@ -2963,7 +2963,7 @@ export default {
     // ===== /kira - マルチAI統合エンドポイント =====
     if (path === '/kira') {
       try {
-        const body = await request.json();
+        const body = await request.json().catch(() => ({}));
         const userId = body.userId || null;
 
         let userText = '';

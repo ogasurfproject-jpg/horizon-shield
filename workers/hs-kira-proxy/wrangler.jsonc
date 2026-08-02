@@ -1,0 +1,19 @@
+{
+  "name": "hs-kira-proxy",
+  "main": "src/kira-proxy-v2.js",
+  "compatibility_date": "2024-01-01",
+  "kv_namespaces": [
+    { "binding": "HS_CONTRACTORS", "id": "dc36080b34034751a54aa0a5df56ba78" },
+    { "binding": "HS_DESIGN_KV", "id": "ebeee94b11644031a2deaea32093ac8b" },
+    { "binding": "KIRA_STATS", "id": "7dc9f40e09ab4d97877c9f0bae4c55f4" },
+    { "binding": "ORDERS", "id": "700d6bc31fe9460db1ee5dba36ca622c" },
+    { "binding": "SUBSCRIBERS", "id": "f817858512394e63ba44dd9dbcd281d3" }
+  ],
+  "services": [
+    { "binding": "GATEWAY", "service": "hs-reference-gateway" }
+  ],
+  "vars": {
+    "GATEWAY_URL": "https://hs-reference-gateway.oga-surf-project.workers.dev",
+    "SOUBA_SOURCE": "gateway"
+  }
+}
