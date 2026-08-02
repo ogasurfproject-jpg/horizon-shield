@@ -53,6 +53,13 @@
 
   "browser": { "binding": "MYBROWSER" },
 
+  // JIDEC v1: hs-ledger への直結(同一アカウント内サービスバインディング)。
+  // append時のworkers.devループバック事故を避ける。secretは別途:
+  //   npx wrangler secret put LEDGER_ADMIN_TOKEN (hs-ledger側と同じ値)
+  "services": [
+    { "binding": "LEDGER", "service": "hs-ledger" }
+  ],
+
   "vars": {
     "ENVIRONMENT": "production"
   }

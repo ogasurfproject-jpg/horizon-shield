@@ -18209,6 +18209,94 @@ function hsGenerateEstimateAuditHTML(ex, audit, meta) {
     "</div></body></html>";
 }
 
+// ============================================================================
+// JIDEC v1 クレーム生成 + 台帳append
+// SPEC_HASH_INDEPENDENCE_v1.md 準拠。決定論の監査結果を、入力・データセット・
+// アルゴリズムコミット・しきい値まで含めてBitcoinにアンカーする。
+// 既存の v0 ハッシュ(auditHash/sha256)は消さない。v0とv1は共存する。
+// ============================================================================
+
+var HS_LEDGER_BASE = "https://hs-ledger.oga-surf-project.workers.dev";
+var HS_ALGO_REPO = "https://github.com/ogasurfproject-jpg/horizon-shield";
+
+// hsMeisaiAudit が実際に使う判定しきい値。
+// 注意(正直さの担保): 現状これらの数値は hsMeisaiAudit 内にべた書きされている値の
+// 手写しコピー。thresholds_sha256 を完全に本物にするには、後続リファクタで
+// hsMeisaiAudit 内のべた書きをこの定数への参照に置き換える。
+var HS_MEISAI_THRESHOLDS = {
+  front_load_warn_pct: 50,
+  isshiki_pct_watch: 35,
+  isshiki_watch_min_yen: 50000,
+  keihi_ok_max_pct: 16,
+  keihi_watch_max_pct: 20,
+  qty_model_deviation_frac: 0.3,
+  total_over_hi_alert_mult: 1.2,
+  unit_price_over_max_alert_mult: 1.2,
+  unit_price_under_min_watch_mult: 0.7
+};
+
+// hsMeisaiAudit が読む「ユーザー入力ではないもの」全部＝参照バンドル。
+// この正規バイト列を hs-ledger の /reference/pin で一度だけ固定する。
+function hsReferenceBundle() {
+  return {
+    _meta: { version: "meisai-bench@" + HS_MEISAI_BENCH.schema_version },
+    meisai_bench: HS_MEISAI_BENCH,
+    thresholds: HS_MEISAI_THRESHOLDS
+  };
+}
+
+// 決定論JSON(キーをソート)。どのエンジンでも同じバイト列＝同じSHA-256になる。
+function hsCanon(v) {
+  if (v === null || typeof v !== "object") return JSON.stringify(v);
+  if (Array.isArray(v)) return "[" + v.map(hsCanon).join(",") + "]";
+  return "{" + Object.keys(v).sort()
+    .filter(function (k) { return v[k] !== undefined; })
+    .map(function (k) { return JSON.stringify(k) + ":" + hsCanon(v[k]); })
+    .join(",") + "}";
+}
+
+// hs-ledger の sha256hex と同じ64桁小文字。v0の .slice(0,16).toUpperCase は使わない。
+async function hsSha256Hex(input) {
+  var bytes = typeof input === "string" ? new TextEncoder().encode(input) : input;
+  var buf = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(buf)).map(function (b) { return b.toString(16).padStart(2, "0"); }).join("");
+}
+
+// v1クレームを組む。audit = hsMeisaiAudit の返り値。
+async function hsBuildV1Claim(ex, opts, audit, pdfBytes, env) {
+  var commit = String(env.ALGORITHM_COMMIT || "").toLowerCase();
+  if (!/^[0-9a-f]{40}$/.test(commit)) throw new Error("ALGORITHM_COMMIT must be a 40-hex git SHA");
+  var bundle = hsReferenceBundle();
+  var claim = {
+    schema: "jidec-claim-v1",
+    issued_at: new Date().toISOString(),
+    work_id: (ex && ex.doc && (ex.doc.title || ex.doc.estimate_no)) || "estimate-audit",
+    input_sha256: await hsSha256Hex(hsCanon({ extracted: ex, opts: opts || {} })),
+    reference_bundle_sha256: await hsSha256Hex(hsCanon(bundle)),
+    reference_bundle_version: bundle._meta.version,
+    algorithm_commit: commit,
+    algorithm_url: HS_ALGO_REPO + "/tree/" + commit + "/workers/hs-pdf-gen",
+    thresholds_sha256: await hsSha256Hex(hsCanon(HS_MEISAI_THRESHOLDS)),
+    result_sha256: await hsSha256Hex(hsCanon(audit)),
+    pdf_sha256: await hsSha256Hex(pdfBytes),
+    verifier_recipe_url: HS_LEDGER_BASE + "/verify/{n}"
+  };
+  var record_canonical = hsCanon(claim);
+  var claim_sha256 = await hsSha256Hex(record_canonical);
+  return { claim: claim, record_canonical: record_canonical, claim_sha256: claim_sha256, work_id: claim.work_id };
+}
+
+// 台帳にappend。サービスバインディング env.LEDGER 優先。無ければ公開URLへ。
+async function hsLedgerAppend(built, env) {
+  var body = JSON.stringify({ claim_sha256: built.claim_sha256, record_canonical: built.record_canonical, work: built.work_id });
+  var headers = { "content-type": "application/json", "X-Ledger-Key": env.LEDGER_ADMIN_TOKEN || "" };
+  var target = HS_LEDGER_BASE + "/ledger/append";
+  var res = (env.LEDGER && typeof env.LEDGER.fetch === "function")
+    ? await env.LEDGER.fetch(new Request(target, { method: "POST", headers: headers, body: body }))
+    : await fetch(target, { method: "POST", headers: headers, body: body });
+  var out = await res.json().catch(function () { return {}; });
+  return { status: res.status, n: (out.n != null ? out.n : null), schema: out.schema || null, dedup: !!out.dedup, error: out.error || null };
+}
 
 async function hsHandleEstimateAudit(request, env) {
   try {
@@ -18254,7 +18342,23 @@ async function hsHandleEstimateAudit(request, env) {
         await page.setContent(html, { waitUntil: "load" });
         await page.evaluateHandle("document.fonts.ready");
         var pdfBuffer = await page.pdf({ format: "A4", printBackground: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
-        return new Response(pdfBuffer, { headers: { "Content-Type": "application/pdf", "Content-Disposition": 'inline; filename="hs-estimate-audit.pdf"', ...corsHeaders() } });
+        // JIDEC v1: クレーム生成 + 台帳append。失敗してもPDF発行は止めない。
+        var jidec = {};
+        try {
+          var built = await hsBuildV1Claim(ex, opts, audit, pdfBuffer, env);
+          var appended = await hsLedgerAppend(built, env);
+          jidec = { claim_sha256: built.claim_sha256, entry: appended.n, dedup: appended.dedup, error: appended.error };
+        } catch (eJidec) {
+          jidec = { error: String((eJidec && eJidec.message) || eJidec) };
+        }
+        var pdfHeaders = { "Content-Type": "application/pdf", "Content-Disposition": 'inline; filename="hs-estimate-audit.pdf"', ...corsHeaders() };
+        if (jidec.claim_sha256) pdfHeaders["X-JIDEC-Claim-Sha256"] = jidec.claim_sha256;
+        if (jidec.entry != null) {
+          pdfHeaders["X-JIDEC-Entry"] = String(jidec.entry);
+          pdfHeaders["X-JIDEC-Verify"] = HS_LEDGER_BASE + "/verify/" + jidec.entry;
+        }
+        if (jidec.error) pdfHeaders["X-JIDEC-Error"] = String(jidec.error).slice(0, 200);
+        return new Response(pdfBuffer, { headers: pdfHeaders });
       } finally {
         await browser.close();
       }
@@ -19647,6 +19751,9 @@ var worker_default = {
       }
       if (pathname === "/generate-estimate-audit" && request.method === "POST") {
         return hsHandleEstimateAudit(request, env);
+      }
+      if (pathname === "/v1/reference-bundle" && request.method === "GET") {
+        return new Response(hsCanon(hsReferenceBundle()), { headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders() } });
       }
       if (pathname === "/generate-plan" && request.method === "POST") {
         const params = await request.json();
