@@ -1293,7 +1293,14 @@ export default {
       // 加盟店をプロビジョン + WebMCPオプション有効化 + ヒアリングトークン発行
       if (path === "/admin/provision" && request.method === "POST") {
         let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
-        const store_id = safeStr(b.store_id, 40) || ("hs-partner-" + safeStr(b.member_no, 10).replace(/[^0-9]/g, "").padStart(3, "0"));
+        // 採番の正は member_no。連番(001,002...)は member_no に語らせ、caller の store_id は信用しない。
+        // これで「明示 store_id=hs-partner-000 が自動採番を握り潰す」-000事故を構造的に殺す。
+        const mnDigits = safeStr(b.member_no, 10).replace(/[^0-9]/g, "");
+        const explicitId = safeStr(b.store_id, 40);
+        const store_id = mnDigits ? ("hs-partner-" + mnDigits.padStart(3, "0")) : (explicitId || "hs-partner-000");
+        if (explicitId && explicitId !== store_id) {
+          await notify(env, "[Yakumo] provision: 明示store_id=" + explicitId + " が member_no由来(" + store_id + ")と不整合。member_no由来を採用。呼び出し側のstore_id指定は不要。");
+        }
         const token = (b.token && safeStr(b.token, 60).replace(/[^A-Za-z0-9_-]/g, "")) ||
           ("ht_" + [...crypto.getRandomValues(new Uint8Array(16))].map((x) => x.toString(16).padStart(2, "0")).join(""));
         const store = {
