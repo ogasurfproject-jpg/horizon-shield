@@ -109,6 +109,10 @@
   .rank{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:30px;padding:0 10px;border-radius:8px;border:1.5px solid;font-family:"Space Grotesk",system-ui,sans-serif;font-weight:800;font-size:16px;line-height:1;}
   .row .vd{width:7px;height:7px;border-radius:50%;background:var(--verify);flex:none;animation:pulse 2.8s infinite;}
   .row.pending{opacity:.62;cursor:default;}
+  .row.webmcp{position:relative;margin-top:8px;opacity:1;border:1.5px solid var(--bronze);background:linear-gradient(135deg,rgba(201,168,106,0.12),var(--glass));box-shadow:0 0 0 1px rgba(201,168,106,.14),0 10px 30px rgba(201,168,106,.06);}
+  .row.webmcp:hover{border-color:var(--warn);}
+  .row.webmcp .tier{border-color:var(--bronze);background:rgba(201,168,106,0.08);color:var(--warn);}
+  .wmcp-badge{position:absolute;top:-10px;left:14px;display:inline-flex;align-items:center;gap:5px;background:var(--void);border:1px solid var(--bronze);color:var(--warn);font-size:10px;font-weight:800;font-family:"Space Grotesk",system-ui,sans-serif;letter-spacing:.03em;padding:3px 10px;border-radius:999px;white-space:nowrap;z-index:3;}
   .row.pending:hover{transform:none;border-color:var(--line);}
   .row.pending .tier{border-style:dashed;border-color:var(--line-bright);color:var(--ink-faint);}
   .row.pending .gate{font-size:11.5px;color:var(--warn);margin-top:2px;}
@@ -198,7 +202,8 @@
 
   <div class="list" id="list">
     <!-- JSが /data/yakumo-contractors.json から描画。以下は no-JS フォールバック。 -->
-    <div class="row pending">
+    <div class="row pending webmcp">
+      <span class="wmcp-badge">🔌 WebMCP Partner</span>
       <div class="tier">001</div>
       <div class="mid">
         <div class="nm">リフォーム職人株式会社</div>
@@ -303,7 +308,8 @@
       const tags = (c.works||[]).slice(0,3).map(w => '<span class="tg">'+esc(w)+'</span>').join('') + (c.area ? '<span class="tg">'+esc(c.area)+'</span>' : '');
       // 専用ページ(例 /yakumo/no001/)があればそこへ。無ければ汎用の店ページへ(モールに戻すループを防ぐ)。
       const purl = (c.profile_url && c.profile_url !== '/yakumo/') ? c.profile_url : ('/yakumo/store/?m=' + encodeURIComponent(c.member_no || ''));
-      html += '<a class="row" href="https://shield.the-horizons-innovation.com'+esc(purl)+'" aria-label="'+esc(c.name)+'の詳細">'
+      html += '<a class="row'+(c.webmcp_option?' webmcp':'')+'" href="https://shield.the-horizons-innovation.com'+esc(purl)+'" aria-label="'+esc(c.name)+'の詳細">'
+        + (c.webmcp_option?'<span class="wmcp-badge">🔌 WebMCP Partner</span>':'')
         + '<div class="tier">'+esc((c.member_no||'').replace('No.',''))+'</div>'
         + '<div class="mid"><div class="nm">'+esc(c.name)+'</div>'
         + '<div class="mt">'+esc(c.area||'')+' ・ 加盟 '+esc(c.member_no||'')+'</div>'
@@ -316,7 +322,8 @@
       const gate = c.status === 'onboarding'
         ? '加盟確定 ・ 初回ヒアリングと適正診断(KIRA)を実施中。通過後にスコアを表示します。'
         : 'KIRAの適正診断を通過するまでスコアは表示されません。';
-      html += '<div class="row pending">'
+      html += '<div class="row pending'+(c.webmcp_option?' webmcp':'')+'">'
+        + (c.webmcp_option?'<span class="wmcp-badge">🔌 WebMCP Partner</span>':'')
         + '<div class="tier">'+esc((c.member_no||'?').replace('No.',''))+'</div>'
         + '<div class="mid"><div class="nm">'+esc(c.name)+'</div>'
         + '<div class="gate">'+esc(gate)+'</div>'
