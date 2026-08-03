@@ -1,252 +1,441 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>加盟店の未来 ｜ AIに選ばれる会社へ ｜ Yakumo / HORIZON SHIELD</title>
-<meta name="description" content="これからの施主は、AIに業者を聞く。Yakumoに加盟すると、御社はAIと検索に見つけられ、検証済みの信頼で選ばれる会社になります。紹介料0円・成果報酬なし。">
-<meta name="robots" content="index,follow">
-<link rel="canonical" href="https://shield.the-horizons-innovation.com/yakumo/mirai/">
-<style>
-  :root{ --green:#1E6B43; --green-d:#155134; --navy:#243b53; --navy-d:#1a2b3d; --ink:#33404d; --muted:#5b6b78; --line:#e6e2db; --bg:#fbfaf8; --warn:#b0563f; --gold:#b9932f; }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;color:var(--ink);background:#fff;line-height:1.8;-webkit-font-smoothing:antialiased;}
-  .wrap{max-width:1000px;margin:0 auto;padding:0 24px;}
-  a{color:inherit;}
-  .hero{background:linear-gradient(180deg,#f3f7f4,#fff);border-bottom:1px solid var(--line);padding:64px 0 54px;}
-  .kick{color:var(--green);font-weight:700;letter-spacing:.1em;font-size:.82rem;}
-  h1{font-size:2.4rem;color:var(--navy);line-height:1.28;margin:12px 0 16px;}
-  h1 .g{color:var(--green);}
-  .lead{color:var(--muted);font-size:1.05rem;max-width:720px;}
-  .hero-cta{margin-top:26px;display:flex;gap:12px;flex-wrap:wrap;}
-  .btn{display:inline-block;text-decoration:none;font-weight:700;border-radius:999px;padding:13px 26px;font-size:.95rem;}
-  .btn-p{background:var(--green);color:#fff;} .btn-p:hover{background:var(--green-d);}
-  .btn-s{background:#fff;color:var(--green);border:1.5px solid var(--green);}
-  h2{font-size:1.5rem;color:var(--navy);margin:0 0 8px;text-align:center;}
-  .s-sub{color:var(--muted);font-size:.92rem;text-align:center;margin-bottom:30px;}
-  section{padding:56px 0;}
-  section.alt{background:var(--bg);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
-  .ba{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:stretch;}
-  .ba-col{border-radius:16px;padding:26px 24px;}
-  .ba-before{background:#fbf3f1;border:1px solid #eBD3cd;}
-  .ba-after{background:#eef7f1;border:1.5px solid var(--green);}
-  .ba-col h3{font-size:1.1rem;margin-bottom:14px;}
-  .ba-before h3{color:var(--warn);} .ba-after h3{color:var(--green);}
-  .ba-col ul{list-style:none;}
-  .ba-col li{position:relative;padding:8px 0 8px 28px;font-size:.92rem;border-top:1px dashed rgba(0,0,0,.06);}
-  .ba-col li:first-child{border-top:none;}
-  .ba-before li::before{content:"✕";position:absolute;left:0;color:var(--warn);font-weight:800;}
-  .ba-after li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:800;}
-  .ba-arrow{display:flex;align-items:center;justify-content:center;color:var(--green);font-size:1.8rem;font-weight:800;}
-  .scene{max-width:760px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;}
-  .scene .q{background:var(--navy);color:#eaf0f8;padding:20px 24px;font-size:1.02rem;}
-  .scene .q small{display:block;color:#9fb2c9;font-size:.78rem;margin-bottom:4px;}
-  .scene .a{padding:22px 24px;font-size:.96rem;}
-  .scene .a b{color:var(--green);}
-  .scene .a .pill{display:inline-block;background:#eef7f1;color:var(--green);border:1px solid var(--green);border-radius:8px;padding:2px 9px;font-size:.8rem;font-weight:700;margin-top:8px;}
-  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
-  .step{border:1px solid var(--line);border-radius:16px;padding:24px 20px;background:#fff;}
-  .step .n{font-family:monospace;color:var(--gold);font-weight:700;font-size:.85rem;}
-  .step h3{color:var(--navy);font-size:1.02rem;margin:8px 0 6px;}
-  .step p{color:var(--muted);font-size:.86rem;}
-  .neutral{max-width:820px;margin:0 auto;background:#fff;border:1.5px solid var(--gold);border-radius:16px;padding:22px 26px;text-align:center;}
-  .neutral b{color:var(--gold);font-size:1.05rem;}
-  .neutral p{color:var(--muted);font-size:.9rem;margin-top:5px;}
-  .auth{background:linear-gradient(180deg,var(--navy),var(--navy-d));border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
-  .auth h2{color:#fff;}
-  .auth .s-sub{color:#9fb2c9;max-width:640px;margin-left:auto;margin-right:auto;}
-  .auth-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:6px;}
-  .auth-card{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:26px 24px;}
-  .auth-card .lbl{color:var(--gold);font-weight:700;letter-spacing:.12em;font-size:.76rem;}
-  .auth-card h3{color:#fff;font-size:1.14rem;margin:9px 0 11px;line-height:1.5;}
-  .auth-card p{color:#c4d0dd;font-size:.9rem;line-height:1.9;}
-  .auth-card a{color:#f0d98a;text-decoration:underline;text-underline-offset:2px;}
-  .auth-close{max-width:720px;margin:30px auto 0;text-align:center;color:#fff;font-size:1.12rem;font-weight:700;line-height:1.7;}
-  .auth-close span{color:var(--gold);}
-  .auth-matrix{max-width:720px;margin:6px auto 24px;overflow-x:auto;}
-  .auth-matrix table{width:100%;border-collapse:collapse;}
-  .auth-matrix th,.auth-matrix td{padding:13px 8px;text-align:center;border-bottom:1px solid rgba(255,255,255,.1);}
-  .auth-matrix thead th{color:#9fb2c9;font-weight:700;font-size:.8rem;line-height:1.35;}
-  .auth-matrix tbody th{text-align:left;color:#c4d0dd;font-weight:600;font-size:.9rem;white-space:nowrap;}
-  .auth-matrix .y{color:#7fd6a3;font-weight:800;font-size:1.15rem;}
-  .auth-matrix .n{color:#8a99a8;font-weight:700;font-size:1.05rem;}
-  .auth-matrix .p{color:#e8c765;font-weight:700;font-size:1.05rem;}
-  .auth-matrix tr.hs{background:rgba(232,199,101,.12);}
-  .auth-matrix tr.hs th{color:#e8c765;font-weight:800;}
-  .auth-matrix tr.hs .y{color:#f0d98a;}
-  .auth-matrix .cap{text-align:center;color:#9fb2c9;font-size:.9rem;margin-top:16px;line-height:1.7;}
-  .auth-matrix .cap b{color:#e8c765;}
-  .auth-matrix .disc{text-align:center;color:#6f8093;font-size:.74rem;margin-top:8px;}
-  .final{background:linear-gradient(135deg,var(--green),var(--green-d));color:#fff;text-align:center;padding:60px 24px;}
-  .final h2{color:#fff;} .final p{color:#dbeee2;max-width:620px;margin:8px auto 24px;}
-  .final .btn-p{background:#fff;color:var(--green);} .final .btn-s{background:transparent;color:#fff;border-color:#fff;}
-  .note{max-width:820px;margin:34px auto 0;font-size:.8rem;color:var(--muted);text-align:center;}
-  .foot{text-align:center;color:var(--muted);font-size:.78rem;padding:24px;}
-  @media(max-width:820px){ .ba{grid-template-columns:1fr;} .ba-arrow{transform:rotate(90deg);} .steps{grid-template-columns:1fr;} .auth-grid{grid-template-columns:1fr;} h1{font-size:1.7rem;} }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>加盟店の未来 ｜ AIに選ばれる会社へ ｜ Yakumo / HORIZON SHIELD</title>
+  <meta name="description" content="これからの施主はAIに業者を聞く。Yakumoは御社を「AIに選ばれる1社」にします。紹介料0円・検証済み信頼・いつでも解約可。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://shield.the-horizons-innovation.com/yakumo/mirai/">
+  <meta property="og:title" content="加盟店の未来 ｜ AIに選ばれる会社へ ｜ Yakumo / HORIZON SHIELD">
+  <meta property="og:description" content="これからの施主はAIに業者を聞く。Yakumoは御社を「AIに選ばれる1社」にします。紹介料0円・検証済み信頼・いつでも解約可。">
+  <meta property="og:type" content="website">
+  <style id="tw">
+*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:Noto Sans JP,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.container{width:100%}@media (min-width:640px){.container{max-width:640px}}@media (min-width:768px){.container{max-width:768px}}@media (min-width:1024px){.container{max-width:1024px}}@media (min-width:1280px){.container{max-width:1280px}}@media (min-width:1536px){.container{max-width:1536px}}.pointer-events-none{pointer-events:none}.absolute{position:absolute}.relative{position:relative}.inset-0{inset:0}.-top-4{top:-1rem}.bottom-10{bottom:2.5rem}.bottom-20{bottom:5rem}.bottom-24{bottom:6rem}.left-1\/2{left:50%}.left-16{left:4rem}.left-8{left:2rem}.right-0{right:0}.right-12{right:3rem}.right-20{right:5rem}.top-0{top:0}.top-1\/2{top:50%}.top-10{top:2.5rem}.top-16{top:4rem}.z-10{z-index:10}.mx-auto{margin-left:auto;margin-right:auto}.mb-10{margin-bottom:2.5rem}.mb-12{margin-bottom:3rem}.mb-14{margin-bottom:3.5rem}.mb-16{margin-bottom:4rem}.mb-2{margin-bottom:.5rem}.mb-20{margin-bottom:5rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mb-6{margin-bottom:1.5rem}.mb-8{margin-bottom:2rem}.mt-0\.5{margin-top:.125rem}.mt-10{margin-top:2.5rem}.mt-12{margin-top:3rem}.mt-16{margin-top:4rem}.mt-6{margin-top:1.5rem}.flex{display:flex}.inline-flex{display:inline-flex}.table{display:table}.grid{display:grid}.hidden{display:none}.h-16{height:4rem}.h-3{height:.75rem}.h-40{height:10rem}.h-6{height:1.5rem}.h-72{height:18rem}.h-80{height:20rem}.h-96{height:24rem}.h-\[600px\]{height:600px}.min-h-screen{min-height:100vh}.w-16{width:4rem}.w-3{width:.75rem}.w-40{width:10rem}.w-6{width:1.5rem}.w-72{width:18rem}.w-80{width:20rem}.w-96{width:24rem}.w-\[600px\]{width:600px}.w-full{width:100%}.min-w-\[240px\]{min-width:240px}.min-w-\[260px\]{min-width:260px}.min-w-\[280px\]{min-width:280px}.min-w-\[300px\]{min-width:300px}.min-w-\[640px\]{min-width:640px}.max-w-2xl{max-width:42rem}.max-w-3xl{max-width:48rem}.max-w-4xl{max-width:56rem}.max-w-5xl{max-width:64rem}.flex-shrink-0{flex-shrink:0}.-translate-x-1\/2{--tw-translate-x:-50%}.-translate-x-1\/2,.-translate-y-1\/2{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.-translate-y-1\/2{--tw-translate-y:-50%}.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes bounce{0%,to{transform:translateY(-25%);animation-timing-function:cubic-bezier(.8,0,1,1)}50%{transform:none;animation-timing-function:cubic-bezier(0,0,.2,1)}}.animate-bounce{animation:bounce 1s infinite}.flex-col{flex-direction:column}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-center{justify-content:center}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.space-y-5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem*var(--tw-space-y-reverse))}.space-y-6>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem*var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-\[2rem\]{border-radius:2rem}.rounded-full{border-radius:9999px}.border{border-width:1px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-b-2{border-bottom-width:2px}.border-l-4{border-left-width:4px}.border-t{border-top-width:1px}.border-gold-400{--tw-border-opacity:1;border-color:rgb(212 175 55/var(--tw-border-opacity,1))}.border-gold-500{--tw-border-opacity:1;border-color:rgb(201 162 39/var(--tw-border-opacity,1))}.border-gray-100{--tw-border-opacity:1;border-color:rgb(243 244 246/var(--tw-border-opacity,1))}.border-gray-100\/80{border-color:rgba(243,244,246,.8)}.border-gray-200\/80{border-color:rgba(229,231,235,.8)}.border-white\/10{border-color:hsla(0,0%,100%,.1)}.border-white\/20{border-color:hsla(0,0%,100%,.2)}.border-white\/5{border-color:hsla(0,0%,100%,.05)}.border-white\/50{border-color:hsla(0,0%,100%,.5)}.bg-blue-500{--tw-bg-opacity:1;background-color:rgb(59 130 246/var(--tw-bg-opacity,1))}.bg-gold-400{--tw-bg-opacity:1;background-color:rgb(212 175 55/var(--tw-bg-opacity,1))}.bg-gold-400\/10{background-color:rgba(212,175,55,.1)}.bg-gold-400\/30{background-color:rgba(212,175,55,.3)}.bg-gold-500{--tw-bg-opacity:1;background-color:rgb(201 162 39/var(--tw-bg-opacity,1))}.bg-gold-500\/10{background-color:rgba(201,162,39,.1)}.bg-gray-400{--tw-bg-opacity:1;background-color:rgb(156 163 175/var(--tw-bg-opacity,1))}.bg-navy-800\/50{background-color:rgba(18,30,54,.5)}.bg-navy-900{--tw-bg-opacity:1;background-color:rgb(11 20 38/var(--tw-bg-opacity,1))}.bg-warm-100{--tw-bg-opacity:1;background-color:rgb(245 240 232/var(--tw-bg-opacity,1))}.bg-warm-50{--tw-bg-opacity:1;background-color:rgb(251 248 243/var(--tw-bg-opacity,1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.p-6{padding:1.5rem}.p-8{padding:2rem}.px-10{padding-left:2.5rem;padding-right:2.5rem}.px-12{padding-left:3rem;padding-right:3rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-14{padding-top:3.5rem;padding-bottom:3.5rem}.py-2\.5{padding-top:.625rem;padding-bottom:.625rem}.py-20{padding-top:5rem;padding-bottom:5rem}.py-24{padding-top:6rem;padding-bottom:6rem}.py-28{padding-top:7rem;padding-bottom:7rem}.py-5{padding-top:1.25rem;padding-bottom:1.25rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.pb-1{padding-bottom:.25rem}.pl-4{padding-left:1rem}.text-left{text-align:left}.text-center{text-align:center}.font-serif{font-family:"Noto Serif JP",serif}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-\[15px\]{font-size:15px}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-normal{font-weight:400}.leading-\[1\.25\]{line-height:1.25}.leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}.leading-tight{line-height:1.25}.tracking-\[0\.25em\]{letter-spacing:.25em}.tracking-\[0\.2em\]{letter-spacing:.2em}.tracking-\[0\.35em\]{letter-spacing:.35em}.tracking-\[0\.3em\]{letter-spacing:.3em}.tracking-wide{letter-spacing:.025em}.text-gold-400{--tw-text-opacity:1;color:rgb(212 175 55/var(--tw-text-opacity,1))}.text-gold-600{--tw-text-opacity:1;color:rgb(184 134 11/var(--tw-text-opacity,1))}.text-gray-200{--tw-text-opacity:1;color:rgb(229 231 235/var(--tw-text-opacity,1))}.text-gray-300{--tw-text-opacity:1;color:rgb(209 213 219/var(--tw-text-opacity,1))}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175/var(--tw-text-opacity,1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128/var(--tw-text-opacity,1))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99/var(--tw-text-opacity,1))}.text-navy-700{--tw-text-opacity:1;color:rgb(26 42 74/var(--tw-text-opacity,1))}.text-navy-800{--tw-text-opacity:1;color:rgb(18 30 54/var(--tw-text-opacity,1))}.text-navy-900{--tw-text-opacity:1;color:rgb(11 20 38/var(--tw-text-opacity,1))}.text-red-400\/90{color:hsla(0,91%,71%,.9)}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.text-white\/50{color:hsla(0,0%,100%,.5)}.text-yellow-400\/90{color:rgba(250,204,21,.9)}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.opacity-20{opacity:.2}.opacity-25{opacity:.25}.opacity-40{opacity:.4}.opacity-80{opacity:.8}.shadow-lg{--tw-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color),0 4px 6px -4px var(--tw-shadow-color)}.shadow-lg,.shadow-sm{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgba(0,0,0,.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color),0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.outline{outline-style:solid}.blur-3xl{--tw-blur:blur(64px);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.hover\:border-gold-400\/20:hover{border-color:rgba(212,175,55,.2)}.hover\:bg-gold-400:hover{--tw-bg-opacity:1;background-color:rgb(212 175 55/var(--tw-bg-opacity,1))}.hover\:bg-white\/10:hover{background-color:hsla(0,0%,100%,.1)}.hover\:text-gold-400:hover{--tw-text-opacity:1;color:rgb(212 175 55/var(--tw-text-opacity,1))}@media (min-width:640px){.sm\:block{display:block}.sm\:flex-row{flex-direction:row}.sm\:text-4xl{font-size:2.25rem;line-height:2.5rem}.sm\:text-5xl{font-size:3rem;line-height:1}}@media (min-width:768px){.md\:mb-20{margin-bottom:5rem}.md\:block{display:block}.md\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.md\:flex-row{flex-direction:row}.md\:gap-8{gap:2rem}.md\:p-10{padding:2.5rem}.md\:p-12{padding:3rem}.md\:p-8{padding:2rem}.md\:py-32{padding-top:8rem;padding-bottom:8rem}.md\:py-36{padding-top:9rem;padding-bottom:9rem}.md\:text-2xl{font-size:1.5rem;line-height:2rem}.md\:text-3xl{font-size:1.875rem;line-height:2.25rem}.md\:text-4xl{font-size:2.25rem;line-height:2.5rem}.md\:text-5xl{font-size:3rem;line-height:1}.md\:text-6xl{font-size:3.75rem;line-height:1}.md\:text-base{font-size:1rem;line-height:1.5rem}.md\:text-xl{font-size:1.25rem;line-height:1.75rem}}@media (min-width:1024px){.lg\:text-5xl{font-size:3rem;line-height:1}.lg\:text-\[3\.25rem\]{font-size:3.25rem}.lg\:text-\[3\.5rem\]{font-size:3.5rem}}
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      font-family: 'Noto Sans JP', sans-serif; 
+      scroll-behavior: smooth;
+    }
+    .font-serif { font-family: 'Noto Serif JP', serif; }
+    .gradient-hero {
+      background: linear-gradient(165deg, #0B1426 0%, #121E36 35%, #1A2A4A 70%, #243656 100%);
+    }
+    .text-shadow-soft { text-shadow: 0 2px 24px rgba(0,0,0,0.35); }
+    .card-glow { transition: box-shadow 0.4s ease, transform 0.3s ease; }
+    .card-glow:hover { 
+      box-shadow: 0 0 50px rgba(212, 175, 55, 0.18); 
+      transform: translateY(-2px);
+    }
+    .cta-button {
+      transition: all 0.3s ease;
+    }
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 32px rgba(212, 175, 55, 0.4);
+    }
+    .cta-button:focus-visible {
+      outline: 3px solid #D4AF37;
+      outline-offset: 4px;
+    }
+    a:focus-visible, button:focus-visible {
+      outline: 3px solid #D4AF37;
+      outline-offset: 3px;
+    }
+    /* Skip link for accessibility */
+    .skip-link {
+      position: absolute;
+      top: -100px;
+      left: 16px;
+      background: #D4AF37;
+      color: #0B1426;
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 100;
+      font-weight: 700;
+      transition: top 0.3s;
+    }
+    .skip-link:focus {
+      top: 16px;
+    }
+  </style>
 </head>
-<body>
+<body class="bg-warm-50 text-navy-900 antialiased">
 
-  <div class="hero">
-    <div class="wrap">
-      <div class="kick">加盟店の未来 ／ Yakumo × HORIZON SHIELD</div>
-      <h1>これからの施主は、<br><span class="g">AIに「業者」を聞く。</span></h1>
-      <p class="lead">「この地域で、適正価格で信頼できるリフォーム会社は？」そう聞かれたとき、AIが名前を挙げるのは、"AIが読める形で信頼を証明できている会社"だけです。Yakumoは、御社をその1社にします。</p>
-      <div class="hero-cta">
-        <a class="btn btn-p" href="https://shield.the-horizons-innovation.com/yakumo/plans/">料金プランを見る</a>
-        <a class="btn btn-s" href="mailto:contact@the-horizons-innovation.com?subject=Yakumo加盟のご相談">まず相談する</a>
-      </div>
+  <!-- Skip Link (Accessibility) -->
+  <a href="#main" class="skip-link">メインコンテンツへスキップ</a>
+
+  <!-- ========== HERO ========== -->
+  <header class="gradient-hero min-h-screen flex items-center relative overflow-hidden">
+    <!-- Decorative orbs -->
+    <div class="absolute inset-0 pointer-events-none opacity-25">
+      <div class="absolute top-16 left-8 w-80 h-80 bg-gold-400 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-24 right-12 w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-40"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gold-400/10 rounded-full blur-3xl"></div>
     </div>
-  </div>
-
-  <section>
-    <div class="wrap">
-      <h2>導入したら、何が変わるのか</h2>
-      <p class="s-sub">同じ腕、同じ誠実さ。変わるのは「見つけられ方」と「選ばれ方」です。</p>
-      <div class="ba">
-        <div class="ba-col ba-before">
-          <h3>今のまま</h3>
-          <ul>
-            <li>AIに聞かれても、御社の存在は挙がらない</li>
-            <li>安さでしか比べられず、価格競争に消耗する</li>
-            <li>ポータルに、1件成約ごとに手数料を抜かれる</li>
-            <li>誠実な仕事の価値が、施主に伝わらない</li>
-            <li>「検証済み」という客観的な信頼の裏付けがない</li>
-          </ul>
-        </div>
-        <div class="ba-arrow">→</div>
-        <div class="ba-col ba-after">
-          <h3>Yakumo 導入後</h3>
-          <ul>
-            <li>AIが「この地域の信頼できる店」として御社を挙げる</li>
-            <li>適正価格 × 誠実さで、根拠とともに選ばれる</li>
-            <li>紹介料0円。獲得したお客様は100%御社のもの</li>
-            <li>検証済みスコアと署名レシートで、信頼が数字で伝わる</li>
-            <li>JIDECで誰でも検証できる、揺るがない裏付けを持つ</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="alt">
-    <div class="wrap">
-      <h2>その未来は、こう起きる</h2>
-      <p class="s-sub">施主がAIに相談する。その瞬間に、御社が候補として挙がる。</p>
-      <div class="scene">
-        <div class="q"><small>施主が AI に聞く</small>「愛知県で、外壁塗装を適正価格で頼める、信頼できる会社を教えて」</div>
-        <div class="a">AIは、Yakumoの検証済みデータを読み、こう答えます。<br>「<b>検証済みの加盟店</b>として、御社が候補に挙がります。適正価格の第三者検証（KIRA）を通過しており、根拠は誰でも確認できます」<br><span class="pill">🔌 WebMCP Partner なら、AIが御社を"直接照会"できます</span></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="auth">
-    <div class="wrap">
-      <h2>なぜ、HORIZON にそれが言えるのか</h2>
-      <p class="s-sub">新しい仕組みほど、"誰が言っているか"で決まります。だから、包み隠さずお見せします。</p>
-      <div class="auth-matrix">
-        <table>
-          <thead>
-            <tr>
-              <th></th>
-              <th>紹介料0円<br>中抜きなし</th>
-              <th>業者の利益を<br>守る</th>
-              <th>施主を過剰<br>請求から守る</th>
-              <th>第三者が<br>検証できる</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th>一括見積ポータル</th>
-              <td><span class="n">×</span></td>
-              <td><span class="n">×</span></td>
-              <td><span class="p">△</span></td>
-              <td><span class="n">×</span></td>
-            </tr>
-            <tr>
-              <th>紹介・マッチングサイト</th>
-              <td><span class="n">×</span></td>
-              <td><span class="p">△</span></td>
-              <td><span class="p">△</span></td>
-              <td><span class="n">×</span></td>
-            </tr>
-            <tr>
-              <th>比較・ランキングサイト</th>
-              <td><span class="p">△</span></td>
-              <td><span class="n">×</span></td>
-              <td><span class="p">△</span></td>
-              <td><span class="n">×</span></td>
-            </tr>
-            <tr class="hs">
-              <th>HORIZON SHIELD ／ Yakumo</th>
-              <td><span class="y">○</span></td>
-              <td><span class="y">○</span></td>
-              <td><span class="y">○</span></td>
-              <td><span class="y">○</span></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="cap">他は、どこかが欠けています。<b>すべてを満たすのは、HORIZON だけです。</b></p>
-        <p class="disc">一般的なサービス類型の比較です（特定のサービスを指すものではありません）。</p>
-      </div>
-      <div class="auth-grid">
-        <div class="auth-card">
-          <div class="lbl">立ち位置</div>
-          <h3>私たちは、業者を敵視しません</h3>
-          <p>一括見積サイトは、業者から手数料を抜き、施主には不安を売ります。HORIZON は逆です。規模に応じた妥当な利益率（25〜45%）を透明にし、業者も施主も、どちらも損をしない取引を守る。この立ち位置には、まだ誰も座っていません。</p>
-        </div>
-        <div class="auth-card">
-          <div class="lbl">証明</div>
-          <h3>「正直」を、仕組みで担保しています</h3>
-          <p>適正価格を、後から書き換えられない形で記録する（PTKA：ビットコインのブロックに刻印）。誰でも検証できる公開台帳（JIDEC）。そして、実際に動く AI 連携（MCP）。言葉ではなく、動く実装で示します。</p>
-        </div>
-        <div class="auth-card">
-          <div class="lbl">現場</div>
-          <h3>机上の理論では、ありません</h3>
-          <p>代表・大賀俊勝。15歳から大阪で大工として始まり、現場監督、コンストラクション・マネージャーとして30年以上。適正価格データ（souba-db）は、この現場経験に基づく実務監修です。業界を外から眺める人間の言葉ではありません。</p>
-        </div>
-        <div class="auth-card">
-          <div class="lbl">検証</div>
-          <h3>疑うなら、確かめてください</h3>
-          <p>個人の意見ではなく、引用できる公的データとして公開しています。研究者ID（ORCID：<a href="https://orcid.org/0009-0000-9180-903X" target="_blank" rel="noopener">0009-0000-9180-903X</a>）、日本建設費オープンデータベース（JCCDB）、DOI付き論文、Wikidata。名前も、番号も、隠しません。</p>
+    
+    <div class="container mx-auto px-6 py-24 relative z-10">
+      <div class="max-w-4xl mx-auto text-center">
+        <p class="text-gold-400 text-sm md:text-base tracking-[0.35em] mb-10 font-medium">
+          加盟店の未来 ／ Yakumo × HORIZON SHIELD
+        </p>
+        
+        <h1 class="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-[3.5rem] font-medium text-white leading-[1.25] mb-10 text-shadow-soft">
+          これからの施主は、<br class="hidden sm:block">
+          <span class="text-gold-400">AIに「業者」を聞く。</span>
+        </h1>
+        
+        <p class="text-lg md:text-xl text-gray-300 leading-relaxed mb-5 max-w-2xl mx-auto">
+          「この地域で、適正価格で信頼できる会社は？」<br class="hidden md:block">
+          そう聞かれたとき、AIが名前を挙げるのは
+        </p>
+        
+        <p class="text-xl md:text-2xl text-white font-medium mb-12">
+          <span class="border-b-2 border-gold-400 pb-1">“検証済みの信頼”を持つ会社</span>だけです。
+        </p>
+        
+        <p class="text-2xl md:text-3xl font-serif text-gold-400 mb-14 tracking-wide">
+          Yakumoは、御社をその1社にします。
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <a href="#apply" 
+             class="cta-button inline-flex items-center justify-center bg-gold-500 hover:bg-gold-400 text-navy-900 font-bold text-lg px-10 py-5 rounded-full shadow-lg min-w-[280px]">
+            まず、無料で適正診断を受ける
+          </a>
+          <a href="#why" 
+             class="inline-flex items-center justify-center border border-white/50 text-white hover:bg-white/10 font-medium text-lg px-10 py-5 rounded-full transition min-w-[240px]">
+            なぜHORIZONなのか
+          </a>
+          <a href="https://shield.the-horizons-innovation.com/yakumo/plans/" class="inline-flex items-center justify-center border border-gold-400/60 text-gold-300 hover:bg-gold-400/10 font-medium text-lg px-10 py-5 rounded-full transition min-w-[240px]">料金プランを見る</a>
         </div>
       </div>
-      <p class="auth-close">盛った数字は、ひとつもありません。<br><span>それが、私たちの信頼の作り方です。</span></p>
     </div>
-  </section>
+    
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/50 animate-bounce" aria-hidden="true">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+      </svg>
+    </div>
+  </header>
 
-  <section>
-    <div class="wrap">
-      <h2>仕組みは、たった3ステップ</h2>
-      <p class="s-sub">弊社が運用します。御社は、いつも通り良い仕事をするだけ。</p>
-      <div class="steps">
-        <div class="step"><div class="n">01 ／ 検証</div><h3>KIRA 適正診断を通る</h3><p>過剰請求チェックを通過。通った店だけが載る（fail-closed）。安さではなく「適正×誠実」を検証します。</p></div>
-        <div class="step"><div class="n">02 ／ 掲載</div><h3>中立モール Yakumo に載る</h3><p>紹介料0円の中立モールに掲載。獲得したお客様は100%御社のもの。中抜きはしません。</p></div>
-        <div class="step"><div class="n">03 ／ AI可視化</div><h3>AIと検索に見つけられる</h3><p>御社のプロフィールをAIが読める形（GEO/AEO/LLMO）に整え、維持します。引用状況も毎月見える化。</p></div>
+  <main id="main">
+
+    <!-- ========== 危機と希望 ========== -->
+    <section class="py-24 md:py-32 bg-warm-50" aria-labelledby="change-heading">
+      <div class="container mx-auto px-6">
+        <div class="max-w-4xl mx-auto text-center mb-16 md:mb-20">
+          <p class="text-gold-600 text-sm tracking-[0.25em] mb-5 font-medium">同じ腕。同じ誠実さ。</p>
+          <h2 id="change-heading" class="font-serif text-3xl md:text-4xl lg:text-5xl font-medium text-navy-900 leading-snug">
+            変わるのは、ただ一つ。<br>
+            <span class="text-navy-700">「見つけられ方」と「選ばれ方」だけです。</span>
+          </h2>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <!-- 今のまま -->
+          <div class="bg-white rounded-3xl p-8 md:p-10 border border-gray-200/80 shadow-sm">
+            <div class="flex items-center gap-3 mb-8">
+              <span class="w-3 h-3 rounded-full bg-gray-400" aria-hidden="true"></span>
+              <h3 class="text-xl font-bold text-gray-500">今のまま</h3>
+            </div>
+            <ul class="space-y-5 text-gray-600 text-[15px] md:text-base leading-relaxed">
+              <li class="flex gap-3"><span class="text-gray-400 mt-0.5" aria-hidden="true">・</span><span>AIに聞かれても、御社の存在は挙がらない</span></li>
+              <li class="flex gap-3"><span class="text-gray-400 mt-0.5" aria-hidden="true">・</span><span>安さでしか比べられず、価格競争に消耗する</span></li>
+              <li class="flex gap-3"><span class="text-gray-400 mt-0.5" aria-hidden="true">・</span><span>ポータルに、1件成約ごとに手数料を抜かれる</span></li>
+              <li class="flex gap-3"><span class="text-gray-400 mt-0.5" aria-hidden="true">・</span><span>誠実な仕事の価値が、施主に伝わらない</span></li>
+              <li class="flex gap-3"><span class="text-gray-400 mt-0.5" aria-hidden="true">・</span><span>「検証済み」という客観的な裏付けがない</span></li>
+            </ul>
+          </div>
+          
+          <!-- Yakumo導入後 -->
+          <div class="bg-navy-900 rounded-3xl p-8 md:p-10 shadow-xl card-glow relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-gold-400/10 rounded-full blur-3xl" aria-hidden="true"></div>
+            <div class="flex items-center gap-3 mb-8 relative">
+              <span class="w-3 h-3 rounded-full bg-gold-400" aria-hidden="true"></span>
+              <h3 class="text-xl font-bold text-gold-400">Yakumo 導入後</h3>
+            </div>
+            <ul class="space-y-5 text-gray-200 text-[15px] md:text-base leading-relaxed relative">
+              <li class="flex gap-3"><span class="text-gold-400 mt-0.5" aria-hidden="true">●</span><span>AIが「この地域の信頼できる店」として御社を挙げる</span></li>
+              <li class="flex gap-3"><span class="text-gold-400 mt-0.5" aria-hidden="true">●</span><span>適正価格 × 誠実さで、根拠とともに選ばれる</span></li>
+              <li class="flex gap-3"><span class="text-gold-400 mt-0.5" aria-hidden="true">●</span><span>紹介料0円。獲得したお客様は100%御社のもの</span></li>
+              <li class="flex gap-3"><span class="text-gold-400 mt-0.5" aria-hidden="true">●</span><span>検証済みスコアと署名レシートで、信頼が数字で伝わる</span></li>
+              <li class="flex gap-3"><span class="text-gold-400 mt-0.5" aria-hidden="true">●</span><span>JIDECで誰でも検証できる、揺るがない裏付けを持つ</span></li>
+            </ul>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="alt">
-    <div class="wrap">
-      <div class="neutral">
-        <b>紹介料 0円 ／ 成果報酬なし ／ いつでも解約可</b>
-        <p>1件成約ごとの中抜きはしません。最低契約期間もありません。合わなければ、いつでも止められます。</p>
+    <!-- ========== その未来はこう起きる ========== -->
+    <section class="py-24 md:py-32 bg-white" aria-labelledby="scenario-heading">
+      <div class="container mx-auto px-6">
+        <div class="max-w-3xl mx-auto">
+          <h2 id="scenario-heading" class="font-serif text-3xl md:text-4xl font-medium text-center text-navy-900 mb-14">
+            その未来は、こう起きる
+          </h2>
+          
+          <div class="bg-warm-100 rounded-[2rem] p-8 md:p-12 relative">
+            <div class="absolute -top-4 left-8 bg-navy-900 text-white text-xs tracking-[0.2em] px-5 py-2.5 rounded-full font-medium">
+              SCENARIO
+            </div>
+            
+            <p class="text-gray-600 mb-8 text-lg leading-relaxed">
+              施主がAIに相談する。その瞬間に、御社が候補として挙がる。
+            </p>
+            
+            <div class="bg-white rounded-2xl p-6 mb-6 border-l-4 border-gold-500 shadow-sm">
+              <p class="text-sm text-gray-500 mb-2">施主がAIに聞く</p>
+              <p class="text-navy-800 font-medium text-lg leading-relaxed">
+                「愛知県で、外壁塗装を適正価格で頼める、信頼できる会社を教えて」
+              </p>
+            </div>
+            
+            <p class="text-gray-600 mb-5">AIは、Yakumoの検証済みデータを読み、こう答えます。</p>
+            
+            <div class="bg-navy-900 rounded-2xl p-6 md:p-8 text-white">
+              <p class="text-sm text-gold-400 mb-4 tracking-wide">AIの回答</p>
+              <p class="leading-relaxed text-lg">
+                「<strong class="text-gold-400">検証済みの加盟店</strong>として、御社が候補に挙がります。<br class="hidden sm:block">
+                適正価格の第三者検証（KIRA）を通過しており、<br class="hidden sm:block">
+                根拠は誰でも確認できます。」
+              </p>
+            </div>
+            
+            <p class="mt-10 text-center text-navy-700 font-medium text-lg">
+              🔌 WebMCP Partnerなら、AIが御社を“直接照会”できます
+            </p>
+          </div>
+        </div>
       </div>
-      <p class="note"><b>正直にお伝えします。</b>本サービスが提供するのは「AIと検索に見つけられ、引用されやすい状態」と、その維持です。集客数・成約数などの成果は、実績データが出るまで数字としては保証しません。効果は、可視化された引用状況で正直にご報告します。</p>
-    </div>
-  </section>
+    </section>
 
-  <div class="final">
-    <h2>AI時代の、地域の代表店へ。</h2>
-    <p>最初の一歩は、検証を受けることだけ。あとは弊社が、御社を「AIに選ばれる状態」に運用し続けます。</p>
-    <div class="hero-cta" style="justify-content:center;">
-      <a class="btn btn-p" href="https://shield.the-horizons-innovation.com/yakumo/plans/">料金プランを見る</a>
-      <a class="btn btn-s" href="mailto:contact@the-horizons-innovation.com?subject=Yakumo加盟のご相談">まず相談する</a>
-    </div>
-  </div>
+    <!-- ========== なぜHORIZONなのか ========== -->
+    <section id="why" class="py-24 md:py-32 bg-navy-900 text-white" aria-labelledby="why-heading">
+      <div class="container mx-auto px-6">
+        <div class="max-w-4xl mx-auto text-center mb-16 md:mb-20">
+          <p class="text-gold-400 text-sm tracking-[0.3em] mb-5 font-medium">WHY HORIZON</p>
+          <h2 id="why-heading" class="font-serif text-3xl md:text-4xl lg:text-5xl font-medium mb-8">
+            なぜ、HORIZONにそれが言えるのか
+          </h2>
+          <p class="text-gray-300 text-lg md:text-xl leading-relaxed">
+            新しい仕組みほど、“誰が言っているか”で決まります。<br class="hidden md:block">
+            だから、包み隠さずお見せします。
+          </p>
+        </div>
+        
+        <!-- 比較表 -->
+        <div class="max-w-4xl mx-auto mb-20 overflow-x-auto rounded-2xl">
+          <table class="w-full text-sm md:text-base min-w-[640px]" role="table">
+            <thead>
+              <tr class="border-b border-white/20">
+                <th scope="col" class="py-5 text-left text-gray-400 font-normal pl-4"></th>
+                <th scope="col" class="py-5 text-center text-gray-400 font-normal">紹介料0円<br><span class="text-xs opacity-80">中抜きなし</span></th>
+                <th scope="col" class="py-5 text-center text-gray-400 font-normal">業者の利益を<br>守る</th>
+                <th scope="col" class="py-5 text-center text-gray-400 font-normal">施主を過剰請求<br>から守る</th>
+                <th scope="col" class="py-5 text-center text-gray-400 font-normal">第三者が<br>検証できる</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-white/10">
+                <th scope="row" class="py-5 text-left text-gray-300 font-normal pl-4">一括見積ポータル</th>
+                <td class="py-5 text-center text-red-400/90">×</td>
+                <td class="py-5 text-center text-red-400/90">×</td>
+                <td class="py-5 text-center text-yellow-400/90">△</td>
+                <td class="py-5 text-center text-red-400/90">×</td>
+              </tr>
+              <tr class="border-b border-white/10">
+                <th scope="row" class="py-5 text-left text-gray-300 font-normal pl-4">紹介・マッチングサイト</th>
+                <td class="py-5 text-center text-red-400/90">×</td>
+                <td class="py-5 text-center text-yellow-400/90">△</td>
+                <td class="py-5 text-center text-yellow-400/90">△</td>
+                <td class="py-5 text-center text-red-400/90">×</td>
+              </tr>
+              <tr class="border-b border-white/10">
+                <th scope="row" class="py-5 text-left text-gray-300 font-normal pl-4">比較・ランキングサイト</th>
+                <td class="py-5 text-center text-yellow-400/90">△</td>
+                <td class="py-5 text-center text-red-400/90">×</td>
+                <td class="py-5 text-center text-yellow-400/90">△</td>
+                <td class="py-5 text-center text-red-400/90">×</td>
+              </tr>
+              <tr class="bg-gold-500/10">
+                <th scope="row" class="py-6 text-left font-bold text-gold-400 pl-4">HORIZON SHIELD／Yakumo</th>
+                <td class="py-6 text-center text-gold-400 font-bold text-2xl">○</td>
+                <td class="py-6 text-center text-gold-400 font-bold text-2xl">○</td>
+                <td class="py-6 text-center text-gold-400 font-bold text-2xl">○</td>
+                <td class="py-6 text-center text-gold-400 font-bold text-2xl">○</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="text-center text-gray-400 text-sm mt-6 px-4">
+            他は、どこかが欠けています。<strong class="text-white">すべてを満たすのは、HORIZONだけです。</strong>
+          </p>
+        </div>
+        
+        <!-- 4つの柱 -->
+        <div class="grid md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto">
+          <article class="bg-navy-800/50 rounded-3xl p-8 border border-white/5 hover:border-gold-400/20 transition">
+            <p class="text-gold-400 text-xs tracking-[0.25em] mb-4 font-medium">立ち位置</p>
+            <h3 class="font-serif text-xl md:text-2xl font-medium mb-5">私たちは、業者を敵視しません</h3>
+            <p class="text-gray-300 leading-relaxed">
+              一括見積サイトは、業者から手数料を抜き、施主には不安を売ります。HORIZONは逆です。規模に応じた妥当な利益率（25〜45%）を透明にし、業者も施主も、どちらも損をしない取引を守る。この立ち位置には、まだ誰も座っていません。
+            </p>
+          </article>
+          
+          <article class="bg-navy-800/50 rounded-3xl p-8 border border-white/5 hover:border-gold-400/20 transition">
+            <p class="text-gold-400 text-xs tracking-[0.25em] mb-4 font-medium">証明</p>
+            <h3 class="font-serif text-xl md:text-2xl font-medium mb-5">「正直」を、仕組みで担保しています</h3>
+            <p class="text-gray-300 leading-relaxed">
+              適正価格を、後から書き換えられない形で記録する（PTKA：ビットコインのブロックに刻印）。誰でも検証できる公開台帳（JIDEC）。そして、実際に動くAI連携（MCP）。言葉ではなく、動く実装で示します。
+            </p>
+          </article>
+          
+          <article class="bg-navy-800/50 rounded-3xl p-8 border border-white/5 hover:border-gold-400/20 transition">
+            <p class="text-gold-400 text-xs tracking-[0.25em] mb-4 font-medium">現場</p>
+            <h3 class="font-serif text-xl md:text-2xl font-medium mb-5">机上の理論では、ありません</h3>
+            <p class="text-gray-300 leading-relaxed">
+              代表・大賀俊勝。15歳から大阪で大工として始まり、現場監督、コンストラクション・マネージャーとして30年以上。適正価格データ（souba-db）は、この現場経験に基づく実務監修です。業界を外から眺める人間の言葉ではありません。
+            </p>
+          </article>
+          
+          <article class="bg-navy-800/50 rounded-3xl p-8 border border-white/5 hover:border-gold-400/20 transition">
+            <p class="text-gold-400 text-xs tracking-[0.25em] mb-4 font-medium">検証</p>
+            <h3 class="font-serif text-xl md:text-2xl font-medium mb-5">疑うなら、確かめてください</h3>
+            <p class="text-gray-300 leading-relaxed">
+              個人の意見ではなく、引用できる公的データとして公開しています。研究者ID（ORCID：0009-0000-9180-903X）、日本建設費オープンデータベース（JCCDB）、DOI付き論文、Wikidata。名前も、番号も、隠しません。<br><br>
+              <strong class="text-white">盛った数字は、ひとつもありません。</strong><br>
+              それが、私たちの信頼の作り方です。
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
 
-  <div class="foot">HORIZON SHIELD ／ Yakumo ・ The HORIZ音s株式会社　｜　<a href="/tokusho.html" style="color:var(--green);">特商法</a>　<a href="/privacy.html" style="color:var(--green);">プライバシー</a></div>
+    <!-- ========== 3ステップ ========== -->
+    <section class="py-24 md:py-32 bg-warm-50" aria-labelledby="steps-heading">
+      <div class="container mx-auto px-6">
+        <div class="max-w-3xl mx-auto text-center mb-16 md:mb-20">
+          <h2 id="steps-heading" class="font-serif text-3xl md:text-4xl lg:text-5xl font-medium text-navy-900 mb-8">
+            仕組みは、たった3ステップ
+          </h2>
+          <p class="text-lg md:text-xl text-navy-700 leading-relaxed">
+            弊社が運用します。<br>
+            御社は、いつも通り良い仕事をするだけ。
+          </p>
+        </div>
+        
+        <div class="max-w-4xl mx-auto space-y-6">
+          <div class="flex flex-col md:flex-row gap-6 items-start bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100/80">
+            <div class="flex-shrink-0 w-16 h-16 bg-navy-900 text-gold-400 rounded-full flex items-center justify-center font-serif text-2xl font-medium" aria-hidden="true">01</div>
+            <div>
+              <h3 class="text-xl md:text-2xl font-bold text-navy-900 mb-3">検証 ／ KIRA 適正診断を通る</h3>
+              <p class="text-gray-600 leading-relaxed text-lg">過剰請求チェックを通過。通った店だけが載る（fail-closed）。安さではなく「適正×誠実」を検証します。</p>
+            </div>
+          </div>
+          
+          <div class="flex flex-col md:flex-row gap-6 items-start bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100/80">
+            <div class="flex-shrink-0 w-16 h-16 bg-navy-900 text-gold-400 rounded-full flex items-center justify-center font-serif text-2xl font-medium" aria-hidden="true">02</div>
+            <div>
+              <h3 class="text-xl md:text-2xl font-bold text-navy-900 mb-3">掲載 ／ 中立モール Yakumo に載る</h3>
+              <p class="text-gray-600 leading-relaxed text-lg">紹介料0円の中立モールに掲載。獲得したお客様は100%御社のもの。中抜きはしません。</p>
+            </div>
+          </div>
+          
+          <div class="flex flex-col md:flex-row gap-6 items-start bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100/80">
+            <div class="flex-shrink-0 w-16 h-16 bg-navy-900 text-gold-400 rounded-full flex items-center justify-center font-serif text-2xl font-medium" aria-hidden="true">03</div>
+            <div>
+              <h3 class="text-xl md:text-2xl font-bold text-navy-900 mb-3">AI可視化 ／ AIと検索に見つけられる</h3>
+              <p class="text-gray-600 leading-relaxed text-lg">御社のプロフィールをAIが読める形（GEO/AEO/LLMO）に整え、維持します。引用状況も毎月見える化。</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="max-w-3xl mx-auto mt-16 text-center">
+          <p class="text-2xl md:text-3xl font-serif text-navy-900 mb-6 tracking-wide">
+            紹介料 0円 ／ 成果報酬なし ／ いつでも解約可
+          </p>
+          <p class="text-gray-600 leading-relaxed text-lg">
+            1件成約ごとの中抜きはしません。最低契約期間もありません。<br>
+            合わなければ、いつでも止められます。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 正直にお伝えします ========== -->
+    <section class="py-20 bg-white border-t border-gray-100" aria-labelledby="honesty-heading">
+      <div class="container mx-auto px-6">
+        <div class="max-w-2xl mx-auto bg-warm-100 rounded-3xl p-8 md:p-12">
+          <h2 id="honesty-heading" class="text-gold-600 font-bold text-lg mb-5">正直にお伝えします。</h2>
+          <p class="text-navy-800 leading-relaxed text-lg">
+            本サービスが提供するのは「AIと検索に見つけられ、引用されやすい状態」と、その維持です。<br><br>
+            集客数・成約数などの成果は、実績データが出るまで数字としては保証しません。<br>
+            効果は、可視化された引用状況で正直にご報告します。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 最終CTA ========== -->
+    <section id="apply" class="py-28 md:py-36 gradient-hero relative overflow-hidden" aria-labelledby="final-cta-heading">
+      <div class="absolute inset-0 pointer-events-none opacity-20">
+        <div class="absolute top-10 right-20 w-72 h-72 bg-gold-400 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-20 left-16 w-96 h-96 bg-gold-400/30 rounded-full blur-3xl"></div>
+      </div>
+      
+      <div class="container mx-auto px-6 relative z-10">
+        <div class="max-w-3xl mx-auto text-center">
+          <h2 id="final-cta-heading" class="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-medium text-white mb-10 leading-tight text-shadow-soft">
+            AI時代の、<br>
+            <span class="text-gold-400">地域の代表店へ。</span>
+          </h2>
+          
+          <p class="text-xl md:text-2xl text-gray-300 mb-4">
+            最初の一歩は、検証を受けることだけ。
+          </p>
+          <p class="text-lg text-gray-400 mb-14 leading-relaxed">
+            あとは弊社が、御社を「AIに選ばれる状態」に<br class="hidden md:block">運用し続けます。
+          </p>
+          
+          <div class="flex flex-col sm:flex-row gap-5 justify-center items-center">
+            <a href="https://shield.the-horizons-innovation.com/" 
+               class="cta-button inline-flex items-center justify-center bg-gold-500 hover:bg-gold-400 text-navy-900 font-bold text-lg px-12 py-5 rounded-full shadow-xl min-w-[300px]">
+              無料でKIRA適正診断を申し込む
+            </a>
+            <a href="https://line.me/R/ti/p/@172piime" 
+               class="inline-flex items-center justify-center border-2 border-white/50 text-white hover:bg-white/10 font-medium text-lg px-10 py-5 rounded-full transition min-w-[260px]">
+              まずは話を聞いてみる
+            </a>
+            <a href="https://shield.the-horizons-innovation.com/yakumo/plans/" class="inline-flex items-center justify-center border-2 border-gold-400/60 text-gold-300 hover:bg-gold-400/10 font-medium text-lg px-10 py-5 rounded-full transition min-w-[260px]">料金プランを見る</a>
+          </div>
+          
+          <p class="mt-12 text-sm text-gray-400 tracking-wide">
+            紹介料0円 ・ 成果報酬なし ・ いつでも解約可
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="bg-navy-900 text-gray-400 py-14 border-t border-white/5">
+    <div class="container mx-auto px-6 text-center">
+      <p class="text-white font-medium text-lg mb-2">HORIZON SHIELD ／ Yakumo</p>
+      <p class="text-sm mb-8">The HORIZ音s株式会社</p>
+      <nav class="flex justify-center gap-8 text-sm mb-10" aria-label="フッターナビゲーション">
+        <a href="https://shield.the-horizons-innovation.com/tokusho.html" class="hover:text-gold-400 transition">特商法</a>
+        <a href="https://shield.the-horizons-innovation.com/privacy.html" class="hover:text-gold-400 transition">プライバシー</a>
+        <a href="https://orcid.org/0009-0000-9180-903X" class="hover:text-gold-400 transition" target="_blank" rel="noopener">ORCID</a>
+      </nav>
+      <p class="text-xs text-gray-500">© The HORIZ音s株式会社. All rights reserved.</p>
+    </div>
+  </footer>
 
 </body>
 </html>
