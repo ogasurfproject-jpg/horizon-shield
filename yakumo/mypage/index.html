@@ -101,6 +101,13 @@
   <!-- 本体 -->
   <div id="main" style="display:none;">
 
+    <div id="loginGate" style="display:none;border:1px solid var(--verify-deep);border-radius:14px;padding:18px 20px;margin:0 0 18px;background:linear-gradient(180deg,rgba(63,224,206,0.06),rgba(63,224,206,0.01));">
+      <div style="font-weight:800;font-size:15px;margin-bottom:4px;">あなたの実績・グラフを見る</div>
+      <div style="color:var(--dim);font-size:13px;margin-bottom:14px;">AI検索・モール閲覧・診断などの数字は、ご本人だけが見られます。Yakumoに登録したGoogleアカウントでログインしてください。</div>
+      <a class="btn block" style="text-decoration:none;" href="https://hs-hearing.oga-surf-project.workers.dev/auth/google">Googleでログイン</a>
+    </div>
+
+
     <!-- HERO: 検証状態 -->
     <div class="hero">
       <div class="no" id="hNo"></div>
@@ -402,8 +409,31 @@ $("codeBtn")?.addEventListener("click", ()=>{
 });
 $("codeInput")?.addEventListener("keydown", e=>{ if(e.key==="Enter") $("codeBtn").click(); });
 
+const initialStore = getParam("store").replace(/[^A-Za-z0-9_-]/g,"");
 const initial = getParam("code").replace(/[^A-Za-z0-9_-]/g,"");
-if(initial) boot(initial); else $("codeGate").style.display="flex";
+if(initial) boot(initial);
+else if(initialStore) bootPublic(initialStore);
+else $("codeGate").style.display="flex";
+
+// 公開ビュー: store指定で公開情報だけ表示。料金・運用状態・紹介は出さない。グラフはログインの奥。
+async function bootPublic(store){
+  let info;
+  try { info = await (await fetch(WORKER + "/public-profile?store=" + encodeURIComponent(store))).json(); }
+  catch(e){ info = {exists:false}; }
+  if(!info || !info.exists){ $("codeGate").style.display="flex"; return; }
+  INFO = info;
+  $("codeGate").style.display = "none";
+  $("main").style.display = "block";
+  renderProfile(info);
+  $("mMember").textContent = info.member_no || "(発番待ち)";
+  await loadPublicView(info.member_no);
+  renderHero();
+  renderGenStatus();
+  renderBadge();
+  // グラフはログインの奥。ログイン誘導を出す(料金/運用状態/紹介は呼ばない=非公開)。
+  const g = document.getElementById("loginGate");
+  if(g) g.style.display = "block";
+}
 </script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
