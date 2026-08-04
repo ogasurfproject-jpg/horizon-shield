@@ -94,6 +94,52 @@ async function verifyStripeSig(rawBody, sigHeader, secret, toleranceSec) {
 }
 
 // gateway_ask の実処理。(2)ルーティング -> (3)課金ゲート -> adapter呼び出し -> (検証)レシート。
+async function storeToken(env, storeId) {
+  return await hmacHex(env.GATEWAY_STORE_SALT, "hs-gateway-store:" + storeId);
+}
+async function verifyStoreToken(env, storeId, provided) {
+  if (!env || !env.GATEWAY_STORE_SALT) return true;
+  if (!storeId || !provided) return false;
+  return timingSafeEqualHex(String(provided), await storeToken(env, storeId));
+}
+
+var PAYPAL_API_DEFAULT = "https://api-m.sandbox.paypal.com";
+function paypalBase(env) {
+  return env && env.PAYPAL_API_BASE ? env.PAYPAL_API_BASE : PAYPAL_API_DEFAULT;
+}
+async function paypalAccessToken(env) {
+  var creds = btoa(env.PAYPAL_CLIENT_ID + ":" + env.PAYPAL_CLIENT_SECRET);
+  var res = await fetch(paypalBase(env) + "/v1/oauth2/token", {
+    method: "POST",
+    headers: { "Authorization": "Basic " + creds, "Content-Type": "application/x-www-form-urlencoded" },
+    body: "grant_type=client_credentials"
+  });
+  if (!res.ok) return null;
+  var j = await res.json().catch(function () { return null; });
+  return j && j.access_token ? j.access_token : null;
+}
+async function paypalVerifyWebhook(env, hdrs, eventObj) {
+  var token = await paypalAccessToken(env);
+  if (!token) return { ok: false, reason: "oauth_failed" };
+  var body = {
+    auth_algo: hdrs.get("paypal-auth-algo"),
+    cert_url: hdrs.get("paypal-cert-url"),
+    transmission_id: hdrs.get("paypal-transmission-id"),
+    transmission_sig: hdrs.get("paypal-transmission-sig"),
+    transmission_time: hdrs.get("paypal-transmission-time"),
+    webhook_id: env.PAYPAL_WEBHOOK_ID,
+    webhook_event: eventObj
+  };
+  var res = await fetch(paypalBase(env) + "/v1/notifications/verify-webhook-signature", {
+    method: "POST",
+    headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) return { ok: false, reason: "verify_http_" + res.status };
+  var j = await res.json().catch(function () { return null; });
+  return { ok: j && j.verification_status === "SUCCESS", status: j && j.verification_status };
+}
+
 async function handleGatewayAsk(args, storeId, env) {
   var ask = String(args && args.ask || "").trim();
   if (!ask) return { ok: false, message: "ask に一文を入れてください。" };
@@ -249,6 +295,15 @@ export default {
         }
         return new Response(JSON.stringify(await prepaidStatus(env), null, 2), { headers: { "Content-Type": "application/json", "Cache-Control": "no-store", ...CORS } });
       }
+      if (path === "/admin/token") {
+        var _tk = url.searchParams.get("key") || "";
+        if (!env || !env.ADMIN_KEY || _tk !== env.ADMIN_KEY) return new Response(JSON.stringify({ error: "forbidden" }), { status: 403, headers: { "Content-Type": "application/json", ...CORS } });
+        var _ts = url.searchParams.get("store") || "";
+        if (!_ts) return new Response(JSON.stringify({ error: "need store" }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
+        if (!env.GATEWAY_STORE_SALT) return new Response(JSON.stringify({ error: "GATEWAY_STORE_SALT unset" }), { status: 501, headers: { "Content-Type": "application/json", ...CORS } });
+        var _tok = await storeToken(env, _ts);
+        return new Response(JSON.stringify({ store: _ts, token: _tok, usage: "?store=" + _ts + "&t=" + _tok }, null, 2), { headers: { "Content-Type": "application/json", "Cache-Control": "no-store", ...CORS } });
+      }
       if (path === "/admin/grant") {
         var gkey = url.searchParams.get("key") || "";
         if (!env || !env.ADMIN_KEY || gkey !== env.ADMIN_KEY) return new Response(JSON.stringify({ error: "forbidden" }), { status: 403, headers: { "Content-Type": "application/json", ...CORS } });
@@ -269,6 +324,25 @@ export default {
     // 実 Stripe はまだ繋がない。だが「署名・時刻・冪等の3検証を通らないと grant しない」形を
     // コードで確定させておく。これが穴(3)の塞ぎ。secret 未投入なら 501 で無効(誤発火しない)。
     // hs-billing と同じ HMAC-SHA256(t + "." + rawBody) 方式で揃える。
+    if (path === "/billing/webhook" && env && env.PAYPAL_WEBHOOK_ID) {
+      if (!env.PAYPAL_CLIENT_ID || !env.PAYPAL_CLIENT_SECRET) {
+        return new Response(JSON.stringify({ error: "paypal_not_configured" }), { status: 501, headers: { "Content-Type": "application/json", ...CORS } });
+      }
+      var praw = await request.text();
+      var pevt;
+      try { pevt = JSON.parse(praw); } catch (e) { return new Response("invalid json", { status: 400, headers: CORS }); }
+      var pver = await paypalVerifyWebhook(env, request.headers, pevt);
+      if (!pver.ok) return new Response(JSON.stringify({ error: "invalid_signature", detail: pver.reason || pver.status || null }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
+      if (pevt && pevt.event_type === "PAYMENT.CAPTURE.COMPLETED") {
+        var pres = pevt.resource || {};
+        var pparts = String(pres.custom_id || "").split(":");
+        var pstore = String(pparts[0] || "").slice(0, 40);
+        var ptickets = Math.floor(Number(pparts[1]) || 0);
+        var pevtId = String(pevt.id || "").slice(0, 80);
+        if (pstore && ptickets > 0) ctx.waitUntil(grantTickets(pstore, ptickets, pevtId, env));
+      }
+      return new Response(JSON.stringify({ received: true }), { headers: { "Content-Type": "application/json", ...CORS } });
+    }
     if (path === "/billing/webhook") {
       if (!env || !env.STRIPE_WEBHOOK_SECRET) {
         return new Response(JSON.stringify({ error: "billing_not_configured" }), { status: 501, headers: { "Content-Type": "application/json", ...CORS } });
@@ -324,6 +398,13 @@ export default {
     if (rpcMethod === "tools/list") return rpc(id, { tools: TOOLS });
     if (rpcMethod === "tools/call") {
       var storeId = url.searchParams.get("store");
+      if (storeId && env && env.TICKETS_KV) {
+        var _stok = url.searchParams.get("t") || request.headers.get("x-store-token") || "";
+        if (!(await verifyStoreToken(env, storeId, _stok))) {
+          var _deny = { ok: false, reason: "invalid_store_token", message: "店のトークンが不正です。" };
+          return rpc(id, { content: [{ type: "text", text: JSON.stringify(_deny) }], structuredContent: _deny });
+        }
+      }
       var name = params && params.name;
       var out = await runTool(name, params && params.arguments || {}, storeId, env);
       if (out === null) return rpcErr(id, -32602, "Unknown tool: " + name);
