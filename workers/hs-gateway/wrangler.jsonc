@@ -1,0 +1,39 @@
+{
+  // hs-gateway: 検証可能ゲートウェイ(設計ドラフト)。独立worker。
+  // hs-mcp(審査中)には一切依存しない。建設は hs-webmcp を service binding で呼ぶ。
+  "name": "hs-gateway",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-01",
+
+  // 建設ディレクトリ(Yakumo)への service binding。同一アカウント c15ff64a 内なので binding が最適。
+  // registry.js の construction.binding_name = "YAKUMO_SVC" と一致させること。
+  "services": [
+    { "binding": "YAKUMO_SVC", "service": "hs-webmcp" },
+    { "binding": "LEDGER_SVC", "service": "hs-ledger" }
+  ],
+
+  // チケット残高・冪等・前払式残高総額を持つ Gateway 専用KV。
+  // 【TOshiの手】作成: npx wrangler kv namespace create TICKETS_KV
+  //   出て来た id を下の "REPLACE_WITH_TICKETS_KV_ID" に貼る。
+  "kv_namespaces": [
+    { "binding": "TICKETS_KV", "id": "c45840666e794534805b2dda6fb3ad5d" }
+  ],
+
+  // チケット台帳の Durable Object(強整合)。金勘定はここで直列化する(二重使用を原理的に防ぐ)。
+  // クラス TicketLedgerDO は src/index.js で re-export 済み。
+  "durable_objects": {
+    "bindings": [
+      { "name": "TICKETS_DO", "class_name": "TicketLedgerDO" }
+    ]
+  },
+  // SQLite backed DO は migration 必須。新規作成なので new_sqlite_classes。
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["TicketLedgerDO"] }
+  ]
+
+  // --- secret(平文で書かない。TOshiが wrangler secret put で投入) ---
+  //   LEDGER_ADMIN_TOKEN    : hs-ledger /ledger/append 用。未投入なら台帳追記はスキップ(番人モード)。
+  //   ADMIN_KEY             : /admin/prepaid の閲覧キー(前払式残高の運営確認用)。
+  //   STRIPE_WEBHOOK_SECRET : /billing/webhook のチャージ入口。未投入なら 501 で無効(誤発火しない)。
+  // すべて実行系。番人(Claude)は投入しない。
+}
