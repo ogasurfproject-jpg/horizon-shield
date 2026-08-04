@@ -324,6 +324,42 @@ export default {
     // 実 Stripe はまだ繋がない。だが「署名・時刻・冪等の3検証を通らないと grant しない」形を
     // コードで確定させておく。これが穴(3)の塞ぎ。secret 未投入なら 501 で無効(誤発火しない)。
     // hs-billing と同じ HMAC-SHA256(t + "." + rawBody) 方式で揃える。
+    if (path === "/billing/create" && env && env.PAYPAL_CLIENT_ID) {
+      var cbody = await request.json().catch(function () { return null; });
+      var cstore = String(cbody && cbody.store || "").replace(/[^A-Za-z0-9._-]/g, "").slice(0, 40);
+      var ctickets = Math.floor(Number(cbody && cbody.tickets) || 0);
+      if (!cstore || ctickets < 1 || ctickets > 1000) {
+        return new Response(JSON.stringify({ ok: false, error: "bad_store_or_tickets" }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
+      }
+      var cyen = ctickets * 100;
+      var ctok = await paypalAccessToken(env);
+      if (!ctok) return new Response(JSON.stringify({ ok: false, error: "oauth_failed" }), { status: 502, headers: { "Content-Type": "application/json", ...CORS } });
+      var cres = await fetch(paypalBase(env) + "/v2/checkout/orders", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + ctok, "Content-Type": "application/json" },
+        body: JSON.stringify({ intent: "CAPTURE", purchase_units: [{ custom_id: cstore + ":" + ctickets, amount: { currency_code: "JPY", value: String(cyen) } }], payment_source: { paypal: { experience_context: { return_url: "https://example.com/ok", cancel_url: "https://example.com/cancel" } } } })
+      });
+      var cj = await cres.json().catch(function () { return null; });
+      if (!cres.ok || !cj || !cj.id) return new Response(JSON.stringify({ ok: false, error: "order_create_failed" }), { status: 502, headers: { "Content-Type": "application/json", ...CORS } });
+      var capprove = "";
+      for (var i = 0; cj.links && i < cj.links.length; i++) { if (cj.links[i].rel === "payer-action" || cj.links[i].rel === "approve") { capprove = cj.links[i].href; break; } }
+      return new Response(JSON.stringify({ ok: true, order_id: cj.id, approve_url: capprove, store: cstore, tickets: ctickets, yen: cyen }), { headers: { "Content-Type": "application/json", "Cache-Control": "no-store", ...CORS } });
+    }
+    if (path === "/billing/capture" && env && env.PAYPAL_CLIENT_ID) {
+      var pbody = await request.json().catch(function () { return null; });
+      var poid = String(pbody && pbody.order_id || "").replace(/[^A-Za-z0-9]/g, "").slice(0, 40);
+      if (!poid) return new Response(JSON.stringify({ ok: false, error: "need_order_id" }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
+      var ptok = await paypalAccessToken(env);
+      if (!ptok) return new Response(JSON.stringify({ ok: false, error: "oauth_failed" }), { status: 502, headers: { "Content-Type": "application/json", ...CORS } });
+      var pcres = await fetch(paypalBase(env) + "/v2/checkout/orders/" + poid + "/capture", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + ptok, "Content-Type": "application/json" },
+        body: "{}"
+      });
+      var pcj = await pcres.json().catch(function () { return null; });
+      var pstatus = pcj && pcj.status || null;
+      return new Response(JSON.stringify({ ok: pstatus === "COMPLETED", status: pstatus }), { status: pcres.ok ? 200 : 502, headers: { "Content-Type": "application/json", ...CORS } });
+    }
     if (path === "/billing/webhook" && env && env.PAYPAL_WEBHOOK_ID) {
       if (!env.PAYPAL_CLIENT_ID || !env.PAYPAL_CLIENT_SECRET) {
         return new Response(JSON.stringify({ error: "paypal_not_configured" }), { status: 501, headers: { "Content-Type": "application/json", ...CORS } });
