@@ -56,6 +56,18 @@ async function priceOf(op) {
   return PRICES[serviceOf(op)] || 1;
 }
 
+var PACKS = [
+  { tickets: 30,  yen: 3000,  label: "お試し" },
+  { tickets: 100, yen: 9500,  label: "標準" },
+  { tickets: 300, yen: 27000, label: "お得" },
+  { tickets: 500, yen: 42500, label: "大口" }
+];
+function packPrice(tickets) {
+  var t = Math.floor(Number(tickets) || 0);
+  for (var i = 0; i < PACKS.length; i++) { if (PACKS[i].tickets === t) return PACKS[i].yen; }
+  return null;
+}
+
 async function getBalance(store, env) {
   var r = await doCall(env, "/balance", { store: safeStore(store) });
   return r && r.ok ? Number(r.balance || 0) : 0;
@@ -118,4 +130,4 @@ async function prepaidStatus(env) {
   };
 }
 
-export { getBalance, priceOf, canAfford, spend, refund, grantTickets, prepaidStatus, PRICES, YEN_PER_TICKET, PREPAID_THRESHOLD_YEN };
+export { getBalance, priceOf, canAfford, spend, refund, grantTickets, prepaidStatus, PRICES, PACKS, packPrice, YEN_PER_TICKET, PREPAID_THRESHOLD_YEN };

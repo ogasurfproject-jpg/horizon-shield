@@ -19,7 +19,7 @@
 import { publicDirectoryList, getDirectory } from "./registry.js";
 import { routeVertical } from "./router.js";
 import { callDirectory, buildReceipt, appendToLedger } from "./adapter.js";
-import { canAfford, spend, refund, grantTickets, prepaidStatus, getBalance, PRICES, YEN_PER_TICKET } from "./tickets.js";
+import { canAfford, spend, refund, grantTickets, prepaidStatus, getBalance, PRICES, PACKS, packPrice, YEN_PER_TICKET } from "./tickets.js";
 import { TicketLedgerDO } from "./ticket_do.js";
 
 var SERVER = { name: "hs-gateway", title: "HORIZON SHIELD Verifiable Gateway", version: "0.1.0-draft" };
@@ -277,7 +277,8 @@ export default {
       if (path === "/pricing") {
         var plist = {};
         for (var k in PRICES) { plist[k] = { tickets: PRICES[k], yen: PRICES[k] * YEN_PER_TICKET }; }
-        return new Response(JSON.stringify({ ok: true, yen_per_ticket: YEN_PER_TICKET, min_pack_tickets: 30, services: plist, note: "1処理あたりの消費チケット。最小購入は30枚。" }, null, 2), { headers: { "Content-Type": "application/json", ...CORS } });
+        var packlist = PACKS.map(function (pk) { var per = pk.yen / pk.tickets; return { tickets: pk.tickets, yen: pk.yen, per_ticket_yen: per, discount_pct: Math.round((1 - per / YEN_PER_TICKET) * 100), label: pk.label }; });
+        return new Response(JSON.stringify({ ok: true, yen_per_ticket: YEN_PER_TICKET, packs: packlist, services: plist, note: "servicesは1処理あたりの消費枚数。packsは購入単位(まとめ買いほど割安)。" }, null, 2), { headers: { "Content-Type": "application/json", ...CORS } });
       }
       if (path === "/" || path === "/health") {
         var prepaid = await prepaidStatus(env);
@@ -333,10 +334,10 @@ export default {
       var cbody = await request.json().catch(function () { return null; });
       var cstore = String(cbody && cbody.store || "").replace(/[^A-Za-z0-9._-]/g, "").slice(0, 40);
       var ctickets = Math.floor(Number(cbody && cbody.tickets) || 0);
-      if (!cstore || ctickets < 30 || ctickets > 100000) {
-        return new Response(JSON.stringify({ ok: false, error: "bad_store_or_tickets" }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
+      var cyen = packPrice(ctickets);
+      if (!cstore || cyen == null) {
+        return new Response(JSON.stringify({ ok: false, error: "not_a_valid_pack", valid_packs: PACKS }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
       }
-      var cyen = ctickets * 100;
       var ctok = await paypalAccessToken(env);
       if (!ctok) return new Response(JSON.stringify({ ok: false, error: "oauth_failed" }), { status: 502, headers: { "Content-Type": "application/json", ...CORS } });
       var cres = await fetch(paypalBase(env) + "/v2/checkout/orders", {
