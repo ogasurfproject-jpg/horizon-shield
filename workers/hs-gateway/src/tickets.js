@@ -33,8 +33,27 @@ function safeStore(x) {
 }
 
 // 価格表(処理種別ごとの消費枚数)。将来 KV や設定に出せるが、まずは既定1枚。
+var PRICES = {
+  "diagnose": 1,
+  "intake": 2,
+  "pdf": 5,
+  "measure": 5,
+  "review": 10,
+  "report": 20,
+  "lead": 200
+};
+function serviceOf(op) {
+  var o = String(op || "");
+  if (o.indexOf(":") >= 0) {
+    var svc = o.split(":")[0];
+    if (svc === "call") return "diagnose";
+    if (PRICES[svc] != null) return svc;
+  }
+  if (PRICES[o] != null) return o;
+  return "diagnose";
+}
 async function priceOf(op) {
-  return 1;
+  return PRICES[serviceOf(op)] || 1;
 }
 
 async function getBalance(store, env) {
@@ -99,4 +118,4 @@ async function prepaidStatus(env) {
   };
 }
 
-export { getBalance, priceOf, canAfford, spend, refund, grantTickets, prepaidStatus, YEN_PER_TICKET, PREPAID_THRESHOLD_YEN };
+export { getBalance, priceOf, canAfford, spend, refund, grantTickets, prepaidStatus, PRICES, YEN_PER_TICKET, PREPAID_THRESHOLD_YEN };

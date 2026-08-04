@@ -19,7 +19,7 @@
 import { publicDirectoryList, getDirectory } from "./registry.js";
 import { routeVertical } from "./router.js";
 import { callDirectory, buildReceipt, appendToLedger } from "./adapter.js";
-import { canAfford, spend, refund, grantTickets, prepaidStatus, getBalance } from "./tickets.js";
+import { canAfford, spend, refund, grantTickets, prepaidStatus, getBalance, PRICES, YEN_PER_TICKET } from "./tickets.js";
 import { TicketLedgerDO } from "./ticket_do.js";
 
 var SERVER = { name: "hs-gateway", title: "HORIZON SHIELD Verifiable Gateway", version: "0.1.0-draft" };
@@ -274,6 +274,11 @@ export default {
 
     if (method === "GET") {
       // 公開 read: サービス記述子。業種一覧と前払式残高の健全性(値は総額のみ、店別は出さない)。
+      if (path === "/pricing") {
+        var plist = {};
+        for (var k in PRICES) { plist[k] = { tickets: PRICES[k], yen: PRICES[k] * YEN_PER_TICKET }; }
+        return new Response(JSON.stringify({ ok: true, yen_per_ticket: YEN_PER_TICKET, min_pack_tickets: 30, services: plist, note: "1処理あたりの消費チケット。最小購入は30枚。" }, null, 2), { headers: { "Content-Type": "application/json", ...CORS } });
+      }
       if (path === "/" || path === "/health") {
         var prepaid = await prepaidStatus(env);
         return new Response(JSON.stringify({
@@ -328,7 +333,7 @@ export default {
       var cbody = await request.json().catch(function () { return null; });
       var cstore = String(cbody && cbody.store || "").replace(/[^A-Za-z0-9._-]/g, "").slice(0, 40);
       var ctickets = Math.floor(Number(cbody && cbody.tickets) || 0);
-      if (!cstore || ctickets < 1 || ctickets > 1000) {
+      if (!cstore || ctickets < 30 || ctickets > 100000) {
         return new Response(JSON.stringify({ ok: false, error: "bad_store_or_tickets" }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
       }
       var cyen = ctickets * 100;
