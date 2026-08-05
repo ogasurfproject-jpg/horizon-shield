@@ -421,6 +421,40 @@ export default {
     if (pv && !SUPPORTED_VERSIONS.includes(pv)) return new Response("Unsupported MCP-Protocol-Version: " + pv, { status: 400, headers: CORS });
 
     var msg;
+    if (path === "/report" && env && env.PDFGEN_SVC) {
+      var rstore = url.searchParams.get("store") || "";
+      if (!rstore) return new Response(JSON.stringify({ ok: false, error: "store_required" }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
+      var rtok = url.searchParams.get("t") || request.headers.get("x-store-token") || "";
+      if (!(await verifyStoreToken(env, rstore, rtok))) {
+        return new Response(JSON.stringify({ ok: false, error: "invalid_store_token" }), { status: 401, headers: { "Content-Type": "application/json", ...CORS } });
+      }
+      var rpayload = await request.json().catch(function () { return null; });
+      if (!rpayload || typeof rpayload !== "object") {
+        return new Response(JSON.stringify({ ok: false, error: "bad_payload" }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
+      }
+      var rrid = requestId();
+      var rsp = await spend(rstore, "report", env, rrid);
+      if (!rsp.ok) {
+        return new Response(JSON.stringify({ ok: false, error: "insufficient_tickets", need: rsp.need, balance: rsp.balance }), { status: 402, headers: { "Content-Type": "application/json", ...CORS } });
+      }
+      try {
+        var pres = await env.PDFGEN_SVC.fetch(new Request("https://pdfgen.internal/generate-meitsumori", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(rpayload)
+        }));
+        if (!pres.ok) {
+          await refund(rstore, env, rrid);
+          return new Response(JSON.stringify({ ok: false, error: "pdf_gen_failed", status: pres.status, refunded: true }), { status: 502, headers: { "Content-Type": "application/json", ...CORS } });
+        }
+        var pdfBuf = await pres.arrayBuffer();
+        return new Response(pdfBuf, { status: 200, headers: { "Content-Type": "application/pdf", "X-Tickets-Spent": String(rsp.spent), "X-Balance-After": String(rsp.balance_after), ...CORS } });
+      } catch (e) {
+        await refund(rstore, env, rrid);
+        return new Response(JSON.stringify({ ok: false, error: "pdf_gen_unreachable", detail: String(e && e.message || e), refunded: true }), { status: 502, headers: { "Content-Type": "application/json", ...CORS } });
+      }
+    }
+
     try { msg = await request.json(); } catch (e) { return rpcErr(null, -32700, "Parse error"); }
 
     var hasId = msg && Object.prototype.hasOwnProperty.call(msg, "id") && msg.id != null;

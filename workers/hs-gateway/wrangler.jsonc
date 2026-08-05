@@ -9,7 +9,8 @@
   // registry.js の construction.binding_name = "YAKUMO_SVC" と一致させること。
   "services": [
     { "binding": "YAKUMO_SVC", "service": "hs-webmcp" },
-    { "binding": "LEDGER_SVC", "service": "hs-ledger" }
+    { "binding": "LEDGER_SVC", "service": "hs-ledger" },
+    { "binding": "PDFGEN_SVC", "service": "hs-pdf-gen" }
   ],
 
   // チケット残高・冪等・前払式残高総額を持つ Gateway 専用KV。
