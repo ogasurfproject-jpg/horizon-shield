@@ -338,6 +338,12 @@ export default {
       if (!cstore || cyen == null) {
         return new Response(JSON.stringify({ ok: false, error: "not_a_valid_pack", valid_packs: PACKS }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
       }
+      var ps = await prepaidStatus(env);
+      var ceiling = (env && env.SALES_CEILING_YEN && Number(env.SALES_CEILING_YEN)) || (ps && Number(ps.threshold_yen)) || 10000000;
+      var projected = ((ps && Number(ps.total_unused_balance_yen)) || 0) + ctickets * YEN_PER_TICKET;
+      if (projected > ceiling) {
+        return new Response(JSON.stringify({ ok: false, error: "sales_paused_balance_cap", message: "現在、チケットの新規販売を一時停止しています。", current_unused_yen: (ps && ps.total_unused_balance_yen) || 0, ceiling_yen: ceiling }), { status: 409, headers: { "Content-Type": "application/json", ...CORS } });
+      }
       var ctok = await paypalAccessToken(env);
       if (!ctok) return new Response(JSON.stringify({ ok: false, error: "oauth_failed" }), { status: 502, headers: { "Content-Type": "application/json", ...CORS } });
       var cres = await fetch(paypalBase(env) + "/v2/checkout/orders", {
