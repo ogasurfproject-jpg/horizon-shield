@@ -432,17 +432,27 @@ export default {
       if (!rpayload || typeof rpayload !== "object") {
         return new Response(JSON.stringify({ ok: false, error: "bad_payload" }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
       }
+      var rservice = url.searchParams.get("service") || "report";
+      var rmap = { "report": { op: "report", path: "/generate-meitsumori" }, "audit": { op: "audit", path: "/generate-estimate-audit" } };
+      var rcfg = rmap[rservice];
+      if (!rcfg) return new Response(JSON.stringify({ ok: false, error: "unknown_service", valid: Object.keys(rmap) }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
       var rrid = requestId();
-      var rsp = await spend(rstore, "report", env, rrid);
+      var rsp = await spend(rstore, rcfg.op, env, rrid);
       if (!rsp.ok) {
         return new Response(JSON.stringify({ ok: false, error: "insufficient_tickets", need: rsp.need, balance: rsp.balance }), { status: 402, headers: { "Content-Type": "application/json", ...CORS } });
       }
       try {
-        var pres = await env.PDFGEN_SVC.fetch(new Request("https://pdfgen.internal/generate-meitsumori", {
+        var rheaders = { "Content-Type": "application/json" };
+        var rurl = "https://pdfgen.internal" + rcfg.path;
+        if (rservice === "audit" && env.HS_AUDIT_TOKEN) {
+          rheaders["X-HS-TOKEN"] = env.HS_AUDIT_TOKEN;
+          rurl = rurl + "?token=" + encodeURIComponent(env.HS_AUDIT_TOKEN);
+        }
+        var pres = await env.PDFGEN_SVC.fetch(rurl, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: rheaders,
           body: JSON.stringify(rpayload)
-        }));
+        });
         if (!pres.ok) {
           await refund(rstore, env, rrid);
           return new Response(JSON.stringify({ ok: false, error: "pdf_gen_failed", status: pres.status, refunded: true }), { status: 502, headers: { "Content-Type": "application/json", ...CORS } });

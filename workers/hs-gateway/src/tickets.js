@@ -40,6 +40,7 @@ var PRICES = {
   "measure": 5,
   "review": 10,
   "report": 20,
+  "audit": 30,
   "lead": 200
 };
 function serviceOf(op) {
