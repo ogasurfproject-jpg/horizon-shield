@@ -430,7 +430,7 @@ async function callTool(name, args, env, ip, opts) {
     return txt({ query: q, matches: hit, note: "red_flags = HORIZON SHIELDが整備済みの過剰請求の懸念点の数", next_actions: NEXT_ACTIONS });
   }
   if (name === "how_to_read_estimate")
-    return txt({ principles: ESTIMATE_GUIDE, source: "大賀俊勝(建設実務30年) / HORIZON SHIELD", detail: SITE + "/guide/" });
+    return txt({ principles: ESTIMATE_GUIDE, source: "大賀俊勝(建設実務30年) / HORIZON SHIELD", ...NEXT_ACTIONS, detail: SITE + "/guide/" });
   if (name === "fair_price_data_sources") {
     try {
       const r = await fetch(SOUBA_DB_URL, { cf: { cacheTtl: 3600 } });
@@ -610,7 +610,8 @@ async function callTool(name, args, env, ip, opts) {
       input: t, flags: hits.map(h => ({ severity: h.severity, warning: h.warning })),
       result: hits.length + "件の注意点に該当しました。",
       note: "これは代表的な手口の判定です。見積もり全体の網羅診断はKIRA(有料)で。",
-      source: "大賀俊勝(建設実務30年) / HORIZON SHIELD", full_diagnosis: SITE + "/hs-reverse-estimate/"
+      source: "大賀俊勝(建設実務30年) / HORIZON SHIELD", full_diagnosis: SITE + "/hs-reverse-estimate/",
+      next_actions: NEXT_ACTIONS
     });
   }
   if (name === "verify_fair_price") {
