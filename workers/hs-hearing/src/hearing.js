@@ -1145,11 +1145,21 @@ export default {
     // 登録画面用: 登録コード(token)で店の表示情報を返す(招待された加盟店向け・公開)。金額はtierと合算のみ。
     if (path === "/register-info") {
       const tok = safeStr(url.searchParams.get("token"), 80).replace(/[^A-Za-z0-9_-]/g, "");
-      if (!tok) return json({ exists: false });
-      const rec = await env.HS_HEARING_KV.get("htok:" + tok, "json");
-      if (!rec) return json({ exists: false });
-      const store = await env.HS_HEARING_KV.get("store:" + rec.store_id, "json");
-      if (!store) return json({ exists: false });
+      let store;
+      if (!tok) {
+        const bstore = safeStr(url.searchParams.get("store"), 60).replace(/[^A-Za-z0-9_-]/g, "");
+        if (adminOk(request, env) && bstore) {
+          store = await env.HS_HEARING_KV.get("store:" + bstore, "json");
+          if (!store) return json({ exists: false });
+        } else {
+          return json({ exists: false });
+        }
+      } else {
+        const rec = await env.HS_HEARING_KV.get("htok:" + tok, "json");
+        if (!rec) return json({ exists: false });
+        store = await env.HS_HEARING_KV.get("store:" + rec.store_id, "json");
+        if (!store) return json({ exists: false });
+      }
       const hearing = await env.HS_HEARING_KV.get("hearing:" + store.store_id, "json");
       const ap = store.autopilot || {};
       const refs = await AP.refCount(env, store.member_no);
@@ -1172,6 +1182,24 @@ export default {
         referral_link: store.member_no
           ? "https://shield.the-horizons-innovation.com/yakumo/apply/?ref=" + encodeURIComponent(store.member_no)
           : "https://shield.the-horizons-innovation.com/yakumo/apply/",
+      });
+    }
+
+    // 公開: 加盟店プロフィール(認証不要・公開安全8項目のみ。料金/運用状態/紹介/トークンは返さない)
+    if (path === "/public-profile") {
+      const sid = safeStr(url.searchParams.get("store"), 60).replace(/[^A-Za-z0-9_-]/g, "");
+      if (!sid) return json({ exists: false }, 404);
+      const store = await env.HS_HEARING_KV.get("store:" + sid, "json");
+      if (!store) return json({ exists: false }, 404);
+      return json({
+        exists: true,
+        store_id: store.store_id || sid,
+        member_no: store.member_no || null,
+        company: store.company || "",
+        area: (store.areas && store.areas[0]) || "",
+        areas: store.areas || [],
+        works: store.works || [],
+        status: store.status || "onboarding",
       });
     }
 
