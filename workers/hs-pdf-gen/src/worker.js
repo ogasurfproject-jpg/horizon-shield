@@ -18186,7 +18186,7 @@ function hsGenerateEstimateAuditHTML(ex, audit, meta) {
     "<div class='cover-case'><div class='cover-case-label'>SUBJECT</div><div class='cover-case-val'>" + h(ex.doc.title || "-") + "<br><span style='font-size:12px;font-weight:400;color:rgba(255,255,255,0.65)'>見積番号 " + h(ex.doc.estimate_no || "-") + " ／ 税込総額 " + yen(ex.doc.total_inc_tax) + "円</span></div></div>" +
     "<div class='cover-verdict' style='color:" + (worst === "alert" ? "#ff9d9d" : (worst === "watch" ? "#ffd98a" : "#9fd6a8")) + "'>総合所見: " + worstLabel[worst] + "</div>" +
     "<div class='cover-meta'>診断日 " + h(meta.date || "") + " ／ 地域補正 " + h(audit.summary.region) + " ／ bench " + h(meta.benchVersion || "") + "</div>" +
-    "<div class='cover-footer'>The HORIZONs株式会社 ／ HORIZON SHIELD — 買い手のための第三者診断</div>" +
+    "<div class='cover-footer'>The HORIZ音s株式会社 ／ HORIZON SHIELD — 買い手のための第三者診断</div>" +
     "</div>" +
     // ---- 本文 ----
     "<div class='page'>" +
@@ -18205,7 +18205,7 @@ function hsGenerateEstimateAuditHTML(ex, audit, meta) {
     (negoHtml ? "<div class='section-title'>Negotiation ／ 交渉用文面(そのままコピーして使えます)</div><div class='nego'>" + negoHtml + "</div>" : "") +
     "<div class='section-title'>PTKA ／ 取引前知識刻印</div>" +
     "<div class='ptka'><b>SHA-256:</b> <span class='mono'>" + h(meta.auditHash || "発行時に刻印") + "</span><br><b>OpenTimestamps:</b> " + h(meta.ots || "未刻印") + "</div>" +
-    "<div class='foot'>本診断は souba-db(大賀俊勝 実務監修)および明細基準 " + h(meta.benchVersion || "") + " に基づく買い手側の第三者所見であり、工事金額を保証するものではありません。単価・数量・構成比の判定スコープは外壁塗装・屋根塗装。その他の工事カテゴリには検算・一式・諸経費・営業手口の普遍原則のみを適用します。判定原則: 諸経費は総額の10〜16%が目安・『一式』は内訳の提出を求める(建設実務30年)。The HORIZONs株式会社</div>" +
+    "<div class='foot'>本診断は souba-db(大賀俊勝 実務監修)および明細基準 " + h(meta.benchVersion || "") + " に基づく買い手側の第三者所見であり、工事金額を保証するものではありません。単価・数量・構成比の判定スコープは外壁塗装・屋根塗装。その他の工事カテゴリには検算・一式・諸経費・営業手口の普遍原則のみを適用します。判定原則: 諸経費は総額の10〜16%が目安・『一式』は内訳の提出を求める(建設実務30年)。The HORIZ音s株式会社</div>" +
     "</div></body></html>";
 }
 
@@ -18629,7 +18629,7 @@ async function hsHandleEstimateAudit(request, env) {
         "<p>ご依頼の見積書(" + (ex.doc.estimate_no || "-") + ")の明細診断が完了しました。以下より診断書(PDF)をご確認ください。</p>" +
         "<p style='text-align:center;margin:22px 0'><a href='" + pdfUrl + "' style='background:#0f3460;color:#fff;text-decoration:none;padding:12px 30px;border-radius:6px;font-weight:700'>診断書を開く</a></p>" +
         "<p style='font-size:12px;color:#555'>PTKA刻印 SHA-256: <span style='font-family:monospace'>" + hash + "</span><br>OpenTimestamps: " + otsStatus + "</p>" +
-        "<p style='font-size:11px;color:#999'>本診断は買い手側の第三者所見であり、工事金額を保証するものではありません。<br>The HORIZONs株式会社 ／ HORIZON SHIELD</p>" +
+        "<p style='font-size:11px;color:#999'>本診断は買い手側の第三者所見であり、工事金額を保証するものではありません。<br>The HORIZ音s株式会社 ／ HORIZON SHIELD</p>" +
         "</div></div>";
       var sent = false;
       if (typeof sendResendEmail === "function") {
@@ -20072,7 +20072,7 @@ var worker_default = {
         // 署名クレーム(挿入順 = house慣習 / recompute 方式)
         const claimObj = hasYakumoData ? {
           type: "yakumo-estimate-claim",
-          provider: "The HORIZONs株式会社",
+          provider: "The HORIZ音s株式会社",
           operated_by: "八工門 YAKUMO",
           order_id: orderInfo.orderId,
           cert_no: certNo,
@@ -20083,7 +20083,7 @@ var worker_default = {
           issued_at: new Date().toISOString()
         } : {
           type: "yakumo-estimate-claim",
-          provider: "The HORIZONs株式会社",
+          provider: "The HORIZ音s株式会社",
           operated_by: "八工門 YAKUMO",
           order_id: orderInfo.orderId,
           cert_no: certNo,
@@ -20184,7 +20184,7 @@ var worker_default = {
             '<tr class="grand"><td>合計 (税込)</td><td class="num">' + _yen(total) + '</td></tr></table>' +
             '</div>' + verifyBlock + '<div class="page" style="padding-top:0">' +
             '<div class="src">価格提示: 加盟店' + (params.partner_name ? " " + _esc(params.partner_name) : "") + ' / 署名・時刻証明: HORIZON SHIELD</div>' +
-            '<div class="ft">構築 = The HORIZONs株式会社 (HORIZON SHIELD) / 運営 = 八工門 YAKUMO / TEL 0463-74-5917<br>この見積書は The HORIZONs株式会社 (HORIZON SHIELD) の検証基盤で署名され、八工門 YAKUMO が発行しています。</div>' +
+            '<div class="ft">構築 = The HORIZ音s株式会社 (HORIZON SHIELD) / 運営 = 八工門 YAKUMO / TEL 0463-74-5917<br>この見積書は The HORIZ音s株式会社 (HORIZON SHIELD) の検証基盤で署名され、八工門 YAKUMO が発行しています。</div>' +
             '</div></body></html>';
         } else {
           // ============ 従来経路: 既存テンプレ + 検証ブロック注入(v2互換) ============
