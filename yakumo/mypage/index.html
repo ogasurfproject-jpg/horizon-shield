@@ -515,6 +515,8 @@ async function bootPublic(store){
   // グラフはログインの奥。ログイン誘導を出す(料金/運用状態/紹介は呼ばない=非公開)。
   const g = document.getElementById("loginGate");
   if(g) g.style.display = "block";
+  // 管理者(?admin=1)は公開ビューでもチケット購入導線を出す
+  if(getParam("admin")==="1"){ info.store_id = info.store_id || store; renderTickets(info); }
 }
 </script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script><!-- End Cloudflare Web Analytics -->
