@@ -488,10 +488,7 @@ const initialStore = getParam("store").replace(/[^A-Za-z0-9_-]/g,"");
 const initial = getParam("code").replace(/[^A-Za-z0-9_-]/g,"");
 const isAdmin = getParam("admin") === "1";
 if(isAdmin && initialStore){
-  $("codeGate").style.display="flex";
-  $("adminBox").style.display="block";
-  $("adminBtn").onclick=function(){ bootAdmin(initialStore, $("adminKey").value); };
-  $("adminKey").addEventListener("keydown",function(e){ if(e.key==="Enter") bootAdmin(initialStore,$("adminKey").value); });
+  bootPublic(initialStore);
 }
 else if(initial) boot(initial);
 else if(initialStore) bootPublic(initialStore);
