@@ -25,24 +25,25 @@ Works with any MCP client: **Claude  |  ChatGPT  |  Gemini  |  Perplexity  |  Cu
 - **Field-supervised data.** souba-db is curated from multiple public price sources plus
   30 years of on-site experience  -  not scraped guesses.
 
-## Tools (13)
+## Tools (14)
 | Tool | What it does |
 |---|---|
 | `get_price_range` | Fair price range (min/avg/max), overcharge danger threshold, unit, trend |
 | `audit_estimate` | Judge a specific quoted amount vs the fair range  -  verdict, % gap, advice |
 | `verify_fair_price` | Fair price as a **tamper-evident signed receipt** (SHA-256 + Bitcoin / PTKA) |
-| `red_flag_check` | Detect overcharge / high-pressure sales tactics (lump-sum, today-only, etc.) |
-| `reverse_estimate_preview` | Early-stage preview: which way a rough estimate deviates from average |
+| `check_red_flags` | Detect overcharge / high-pressure sales tactics (lump-sum, today-only, etc.) |
+| `preview_reverse_estimate` | Early-stage preview: which way a rough estimate deviates from average |
 | `search_cost_category` | Find a construction-cost category by keyword |
 | `list_cost_categories` | List the curated cost categories |
-| `how_to_read_estimate` | Universal principles for judging any estimate (overhead ratio, lump-sum, tactics) |
-| `fair_price_data_sources` | Sources, update date, and regional multipliers behind the data |
+| `get_estimate_reading_guide` | Universal principles for judging any estimate (overhead ratio, lump-sum, tactics) |
+| `get_fair_price_sources` | Sources, update date, and regional multipliers behind the data |
 | `suggest_ehn` | Suggest an EHN (anonymous-estimate) entry |
-| `jccdb_dataset_info` | JCCDB open dataset (65,520 items, CC BY 4.0)  -  metadata & citation |
+| `get_jccdb_dataset_info` | JCCDB open dataset (65,520 items, CC BY 4.0)  -  metadata & citation |
 | `verify_integrity_claim` | Third-party verification of an issued signed claim (fail-closed) |
+| `create_ap2_fairness_attestation` | FairPriceAttestation shaped to attach to a Google AP2 Cart Mandate (optional quoted_price adds within/above/below) |
 | `get_agent_card` | A2A (Agent2Agent) agent card for agent interop |
 
-Pricing is Japan-specific (JPY). Several tools (`red_flag_check`, `how_to_read_estimate`) are
+Pricing is Japan-specific (JPY). Several tools (`check_red_flags`, `get_estimate_reading_guide`) are
 language-agnostic and work for estimates anywhere.
 
 ## Try it
