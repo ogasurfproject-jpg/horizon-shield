@@ -94,6 +94,11 @@
       <p class="lead" style="margin-top:0;">Yakumoに登録したGoogleアカウントで入れます。<br><span style="color:var(--dim);font-size:12px;">または、運営からお伝えした<b>登録コード</b>を入力:</span></p>
       <input type="text" id="codeInput" placeholder="ht_ で始まるコード" autocomplete="off" style="text-align:center;">
       <button class="primary" id="codeBtn">開く</button>
+      <div id="adminBox" style="display:none;margin-top:14px;border-top:1px solid var(--line);padding-top:14px;">
+        <p class="lead" style="margin:0 0 8px;color:var(--dim);font-size:12px;">運営管理者：管理キーで任意店を閲覧</p>
+        <input type="password" id="adminKey" placeholder="管理キー" autocomplete="off" style="text-align:center;">
+        <button class="primary" id="adminBtn" style="margin-top:8px;">管理者として開く</button>
+      </div>
       <p class="err" id="codeErr"></p>
     </div>
   </div>
@@ -246,6 +251,23 @@ function scoreToRank(s){
 function rankBadge(score){
   const r=scoreToRank(score); if(!r) return "";
   return '<span class="rank" title="加盟店ランク '+r.label+'" style="border-color:'+r.color+';background:'+r.color+'1A;color:'+r.color+';">'+r.label+'</span>';
+}
+
+async function bootAdmin(store, key){
+  if(!key){ $("codeErr").textContent="管理キーを入力してください。"; return; }
+  let info;
+  try {
+    info = await (await fetch(WORKER + "/register-info?store=" + encodeURIComponent(store), { headers: { "X-Admin-Key": key } })).json();
+  } catch(e){ info = {exists:false}; }
+  if(!info || !info.exists){ $("codeErr").textContent="管理キーが不正か、店が見つかりません。"; return; }
+  INFO = info; CODE = "";
+  $("codeGate").style.display="none";
+  $("main").style.display="block";
+  renderProfile(info); renderPlan(info); renderOps(info, "");
+  $("mMember").textContent = info.member_no || "(発番待ち)";
+  await loadPublicView(info.member_no);
+  renderHero();
+  renderTickets(info);
 }
 
 async function boot(code){
@@ -464,7 +486,14 @@ $("codeInput")?.addEventListener("keydown", e=>{ if(e.key==="Enter") $("codeBtn"
 
 const initialStore = getParam("store").replace(/[^A-Za-z0-9_-]/g,"");
 const initial = getParam("code").replace(/[^A-Za-z0-9_-]/g,"");
-if(initial) boot(initial);
+const isAdmin = getParam("admin") === "1";
+if(isAdmin && initialStore){
+  $("codeGate").style.display="flex";
+  $("adminBox").style.display="block";
+  $("adminBtn").onclick=function(){ bootAdmin(initialStore, $("adminKey").value); };
+  $("adminKey").addEventListener("keydown",function(e){ if(e.key==="Enter") bootAdmin(initialStore,$("adminKey").value); });
+}
+else if(initial) boot(initial);
 else if(initialStore) bootPublic(initialStore);
 else $("codeGate").style.display="flex";
 
