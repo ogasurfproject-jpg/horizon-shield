@@ -41,6 +41,7 @@ var PRICES = {
   "review": 10,
   "report": 20,
   "audit": 30,
+  "compare": 50,
   "lead": 200
 };
 function serviceOf(op) {

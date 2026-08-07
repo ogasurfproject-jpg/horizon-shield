@@ -18237,6 +18237,242 @@ var HS_MEISAI_THRESHOLDS = {
 
 // hsMeisaiAudit が読む「ユーザー入力ではないもの」全部＝参照バンドル。
 // この正規バイト列を hs-ledger の /reference/pin で一度だけ固定する。
+function hsCompareAudits(quotes, bench, opts) {
+  opts = opts || {};
+  var audits = quotes.map(function (q) {
+    var a = hsMeisaiAudit(q.extracted, bench, opts);
+    return {
+      vendor: q.vendor || "-",
+      total_inc_tax: (q.extracted && q.extracted.doc && q.extracted.doc.total_inc_tax) || 0,
+      total_anchor: a.total_anchor,
+      summary: a.summary,
+      rows: a.rows
+    };
+  });
+  var byTotal = audits.slice().sort(function (x, y) { return x.total_inc_tax - y.total_inc_tax; });
+  var cheapest = byTotal.length ? byTotal[0].vendor : null;
+  var highest = byTotal.length ? byTotal[byTotal.length - 1].vendor : null;
+  var codeMap = {};
+  audits.forEach(function (au) {
+    (au.rows || []).forEach(function (r) {
+      var mc = r && r.matched;
+      if (!r || r.type === "section" || !mc) return;
+      if (!codeMap[mc]) codeMap[mc] = { code: mc, canonical: r.description || mc, byVendor: {} };
+      codeMap[mc].byVendor[au.vendor] = { unit_price: r.unit_price, qty: r.qty, verdict: r.verdict, reason: r.reason };
+    });
+  });
+  var matrix = Object.keys(codeMap).map(function (k) { return codeMap[k]; });
+  return {
+    vendors: audits.map(function (a) { return a.vendor; }),
+    cheapest: cheapest,
+    highest: highest,
+    audits: audits,
+    matrix: matrix
+  };
+}
+
+function hsGenerateCompareHTML(cmp, meta) {
+  meta = meta || {};
+  function h(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function yen(n) { return n == null ? "" : Math.round(n).toLocaleString(); }
+  var vLabel = { ok: "妥当", watch: "要注意", alert: "過大疑い", confirm: "要確認" };
+  var vColor = { ok: "#2e7d32", watch: "#b26a00", alert: "#b02a2a", confirm: "#888" };
+  var cellBg = { ok: "#fff", watch: "#fbf4e2", alert: "#fbeaea", confirm: "#f7f7f7" };
+  var audience = meta.audience === "partner" ? "partner" : "owner";
+  var vendors = cmp.vendors || [];
+  var audits = cmp.audits || [];
+  var matrix = cmp.matrix || [];
+
+  var minTotal = null;
+  audits.forEach(function (a) { if (minTotal === null || a.total_inc_tax < minTotal) minTotal = a.total_inc_tax; });
+
+  var flag = {};
+  vendors.forEach(function (v) { flag[v] = { high: [], low: [], mid: [] }; });
+  matrix.forEach(function (m) {
+    var present = [];
+    vendors.forEach(function (v) {
+      var c = m.byVendor[v];
+      if (c && c.unit_price != null) present.push({ v: v, p: c.unit_price, verdict: c.verdict });
+    });
+    var minP = null;
+    present.forEach(function (x) { if (minP === null || x.p < minP) minP = x.p; });
+    present.forEach(function (x) {
+      if (x.verdict === "alert") flag[x.v].high.push(m.canonical);
+      else if (x.verdict === "watch" && x.p === minP) flag[x.v].low.push(m.canonical);
+      else if (x.verdict === "watch") flag[x.v].mid.push(m.canonical);
+    });
+  });
+
+  var totalRows = "";
+  audits.forEach(function (a) {
+    var mark = "";
+    if (a.vendor === cmp.cheapest) mark += "<span class='mk mk-lo'>最安</span>";
+    if (a.vendor === cmp.highest) mark += "<span class='mk mk-hi'>最高</span>";
+    var diff = a.total_inc_tax - minTotal;
+    var diffPct = minTotal > 0 ? Math.round(diff / minTotal * 1000) / 10 : 0;
+    var ta = a.total_anchor;
+    var s = a.summary || {};
+    var cnt = s.counts || {};
+    totalRows += "<tr><td><b>" + h(a.vendor) + "</b>" + mark + "</td>" +
+      "<td class='n'>" + yen(a.total_inc_tax) + "円</td>" +
+      "<td class='n'>" + (diff === 0 ? "基準" : "+" + yen(diff) + "円 (+" + diffPct + "%)") + "</td>" +
+      "<td class='c' style='color:" + (ta ? vColor[ta.verdict] : "#888") + "'>" + (ta ? vLabel[ta.verdict] + " " + (ta.vs_avg_pct > 0 ? "+" : "") + ta.vs_avg_pct + "%" : "対象外") + "</td>" +
+      "<td class='n' style='color:" + ((s.over_candidate_yen > 0) ? "#b02a2a" : "#0f3460") + "'>約 " + yen(s.over_candidate_yen || 0) + "円</td>" +
+      "<td class='c' style='color:" + (vColor[s.keihi_level] || "#888") + "'>" + (s.keihi_pct == null ? "-" : s.keihi_pct + "%") + "</td>" +
+      "<td class='c'><span style='color:#b26a00'>要注意 " + (cnt.watch || 0) + "</span> ／ <span style='color:#b02a2a'>過大疑い " + (cnt.alert || 0) + "</span></td></tr>";
+  });
+
+  var mHead = "<tr><th>工種 ／ 項目</th>";
+  vendors.forEach(function (v) { mHead += "<th>" + h(v) + "</th>"; });
+  mHead += "</tr>";
+  var mRows = "";
+  matrix.forEach(function (m) {
+    mRows += "<tr><td>" + h(m.canonical) + "<div class='code'>" + h(m.code) + "</div></td>";
+    vendors.forEach(function (v) {
+      var c = m.byVendor[v];
+      if (!c) { mRows += "<td class='c' style='color:#bbb'>記載なし</td>"; return; }
+      mRows += "<td class='n' style='background:" + (cellBg[c.verdict] || "#fff") + "'>" + yen(c.unit_price) + " 円" +
+        "<div class='vt' style='color:" + (vColor[c.verdict] || "#888") + "'>" + (vLabel[c.verdict] || "") + "</div>" +
+        "<div class='rs'>" + h(c.reason || "") + "</div></td>";
+    });
+    mRows += "</tr>";
+  });
+  if (!mRows) mRows = "<tr><td colspan='" + (vendors.length + 1) + "' class='c'>名寄せできた共通工種がありません(カテゴリ範囲外の可能性)</td></tr>";
+
+  var revHtml = "";
+  audits.forEach(function (a) {
+    var f = flag[a.vendor] || { high: [], low: [], mid: [] };
+    var s = a.summary || {};
+    var parts = [];
+    if (f.high.length) parts.push("上限を超える単価が " + f.high.length + "件(" + h(f.high.slice(0, 3).join("、")) + ")");
+    if (f.low.length) parts.push("他社より低く下限を割る単価が " + f.low.length + "件(" + h(f.low.slice(0, 3).join("、")) + ")");
+    if (f.mid.length) parts.push("その他の要注意が " + f.mid.length + "件");
+    if (!parts.length) parts.push("単価はいずれも適正レンジ内");
+    var tail = "";
+    if (a.vendor === cmp.cheapest && f.low.length) tail = "総額が最も低い一方で下限割れの項目があります。仕様・塗り回数・材料グレードの削減が価格に反映されている可能性があるため、内訳の確認をおすすめします。";
+    else if (a.vendor === cmp.cheapest) tail = "総額が最も低く、単価面で下限割れは検出されていません。";
+    else if (a.vendor === cmp.highest && f.high.length) tail = "総額が最も高く、上限を超える単価が含まれます。該当項目の根拠提示を求めてください。";
+    revHtml += "<div class='rev'><div class='rev-h'>" + h(a.vendor) + "</div><div class='rev-b'>" +
+      parts.join("／") + "。単価超過の過大候補額 約 " + yen(s.over_candidate_yen || 0) + "円、諸経費率 " +
+      (s.keihi_pct == null ? "-" : s.keihi_pct + "%") + "、一式比率 " + (s.isshiki_pct == null ? "-" : s.isshiki_pct + "%") + "。" + tail + "</div></div>";
+  });
+
+  var subText = audience === "partner"
+    ? "お客様への説明資料として、各社の単価を<br>第三者基準で同じ物差しに並べた資料です。"
+    : "同じ工事の見積書を souba-db の物差しに当て、<br>どの社がどの工種で盛っているか、削っているかを示します。";
+
+  return "<!DOCTYPE html><html lang='ja'><head><meta charset='UTF-8'><style>" +
+    "*{margin:0;padding:0;box-sizing:border-box}" +
+    "body{font-family:IPAGothic,sans-serif;background:#fff;color:#1a1a2e;line-height:1.7}" +
+    ".cover{background:linear-gradient(160deg,#0a0e1a 0%,#1a1a2e 40%,#0f3460 100%);color:#fff;height:100vh;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:60px;page-break-after:always}" +
+    ".cover::before{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(201,162,39,0.12) 0%,transparent 70%)}" +
+    ".cover::after{content:'';position:absolute;bottom:-100px;left:-100px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(15,52,96,0.6) 0%,transparent 70%)}" +
+    ".cover-stamp{position:absolute;top:40px;right:40px;z-index:10;width:100px;height:100px;border-radius:50%;border:2.5px solid #c9a227;background:rgba(201,162,39,0.08);display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 0 20px rgba(201,162,39,0.2)}" +
+    ".cover-stamp-text{font-size:9px;font-weight:700;color:#c9a227;letter-spacing:2px}.cover-stamp-check{font-size:20px;color:#c9a227;line-height:1}" +
+    ".cover-eyebrow{background:rgba(201,162,39,0.15);border:1px solid rgba(201,162,39,0.4);border-radius:30px;padding:6px 20px;font-size:10px;letter-spacing:3px;color:#c9a227;margin-bottom:32px;z-index:1}" +
+    ".cover-title{font-size:42px;font-weight:900;text-align:center;line-height:1.2;margin-bottom:16px;z-index:1}.cover-title em{color:#c9a227;font-style:normal;display:block}" +
+    ".cover-sub{font-size:14px;color:rgba(255,255,255,0.6);text-align:center;margin-bottom:48px;z-index:1;line-height:1.8}" +
+    ".cover-case{background:rgba(255,255,255,0.05);border:1px solid rgba(201,162,39,0.5);border-radius:16px;padding:24px 40px;text-align:center;margin-bottom:40px;z-index:1;max-width:600px;width:100%}" +
+    ".cover-case-label{font-size:10px;color:#c9a227;letter-spacing:3px;margin-bottom:10px}.cover-case-val{font-size:17px;font-weight:700;line-height:1.5}" +
+    ".cover-verdict{font-size:13px;letter-spacing:2px;border:1px solid rgba(201,162,39,0.5);border-radius:30px;padding:8px 28px;z-index:1;margin-bottom:24px;color:#ffd98a}" +
+    ".cover-meta{font-size:12px;color:rgba(255,255,255,0.5);z-index:1}" +
+    ".cover-footer{position:absolute;bottom:32px;font-size:10px;color:rgba(255,255,255,0.3);text-align:center;z-index:1}" +
+    ".page{padding:52px 52px 40px;position:relative}.page.brk{page-break-before:always}" +
+    ".page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid #eee}" +
+    ".page-logo{font-size:11px;font-weight:700;color:#0f3460;letter-spacing:2px}.page-num{font-size:10px;color:#999}" +
+    ".section-title{font-size:11px;color:#c9a227;font-weight:700;letter-spacing:3px;margin:26px 0 10px;text-transform:uppercase}" +
+    ".lead{font-size:10.5px;color:#555;margin-bottom:6px}" +
+    "table{width:100%;border-collapse:collapse;font-size:10px;margin-top:4px}" +
+    "thead{display:table-header-group}th{background:#0f3460;color:#fff;padding:6px 5px;font-weight:700;border:1px solid #0f3460}" +
+    "td{padding:5px;border:1px solid #ddd;vertical-align:top}.n{text-align:right;white-space:nowrap}.c{text-align:center;white-space:nowrap}.rs{color:#555;font-size:9px;white-space:normal;text-align:left}" +
+    ".mk{display:inline-block;border-radius:3px;font-size:9px;padding:1px 6px;margin-left:6px;letter-spacing:1px}" +
+    ".mk-lo{background:#e8f3e9;color:#2e7d32;border:1px solid #a8cfae}.mk-hi{background:#fbeaea;color:#b02a2a;border:1px solid #e0a9a9}" +
+    ".code{font-size:8.5px;color:#aaa;font-family:monospace}.vt{font-size:9px;font-weight:700}" +
+    ".rev{border:1px solid #e6e2d6;border-left:4px solid #0f3460;border-radius:8px;padding:10px 14px;margin-bottom:8px;background:#fafafa}" +
+    ".rev-h{font-size:12px;font-weight:900;color:#0f3460;margin-bottom:3px}.rev-b{font-size:10.5px;color:#444;line-height:1.8}" +
+    ".neutral{border:1px dashed #c9a227;border-radius:8px;padding:10px 14px;font-size:10.5px;color:#555;background:#fdfbf5;margin-top:10px}" +
+    ".neutral b{color:#0f3460}" +
+    ".foot{margin-top:22px;font-size:9px;color:#999;line-height:1.6;border-top:1px solid #eee;padding-top:10px}" +
+    "@page{size:A4;margin:0}" +
+    "</style></head><body>" +
+    "<div class='cover'>" +
+    "<div class='cover-stamp'><div class='cover-stamp-check'>&#10003;</div><div class='cover-stamp-text'>PTKA</div></div>" +
+    "<div class='cover-eyebrow'>HORIZON SHIELD ／ MULTI VENDOR COMPARISON</div>" +
+    "<div class='cover-title'>複数業者<em>比較診断書</em></div>" +
+    "<div class='cover-sub'>" + subText + "</div>" +
+    "<div class='cover-case'><div class='cover-case-label'>SUBJECT</div><div class='cover-case-val'>" + h(meta.title || "-") +
+    "<br><span style='font-size:12px;font-weight:400;color:rgba(255,255,255,0.65)'>比較 " + vendors.length + "社 ／ " + h(vendors.join(" ・ ")) + "</span></div></div>" +
+    "<div class='cover-verdict'>推薦なし ／ 送客料を受け取らない第三者</div>" +
+    "<div class='cover-meta'>診断日 " + h(meta.date || "") + " ／ 地域補正 " + h(meta.region || "all") + " ／ bench " + h(meta.benchVersion || "") + "</div>" +
+    "<div class='cover-footer'>The HORIZ音s株式会社 ／ HORIZON SHIELD ／ 買い手のための第三者診断</div>" +
+    "</div>" +
+    "<div class='page'>" +
+    "<div class='page-header'><div class='page-logo'>HORIZON SHIELD</div><div class='page-num'>COMPARISON ／ " + vendors.length + " VENDORS</div></div>" +
+    "<div class='section-title'>Total ／ 総額比較</div>" +
+    "<div class='lead'>税込総額を並べ、最安との差額を示します。最安が最良とは限りません。単価の内訳は次の工種別マトリクスで確認してください。</div>" +
+    "<table><thead><tr><th>業者</th><th>税込総額</th><th>最安との差</th><th>総額判定</th><th>過大候補額</th><th>諸経費率</th><th>明細の旗</th></tr></thead><tbody>" + totalRows + "</tbody></table>" +
+    "<div class='section-title'>Matrix ／ 工種別マトリクス</div>" +
+    "<div class='lead'>行が工種、列が各社の単価です。赤は適正上限を超える単価、黄は要注意(下限割れを含む)を示します。</div>" +
+    "<table><thead>" + mHead + "</thead><tbody>" + mRows + "</tbody></table>" +
+    "</div>" +
+    "<div class='page brk'>" +
+    "<div class='page-header'><div class='page-logo'>HORIZON SHIELD</div><div class='page-num'>REVIEW ／ 総評</div></div>" +
+    "<div class='section-title'>Review ／ 各社所見(監修: 大賀俊勝・建設実務30年)</div>" + revHtml +
+    "<div class='neutral'><b>本書の立場:</b> 当社はいずれの業者も推薦しません。各社の見積書を souba-db という同一の物差しに当て、上限を超える単価と下限を割る単価を機械的に示すだけです。安い見積もりが良い見積もりとは限りません。下限割れは、仕様・工程・材料グレードが落ちている可能性を示す信号です。当社は施工業者から紹介料・送客報酬を一切受け取りません。</div>" +
+    "<div class='foot'>本比較は souba-db(大賀俊勝 実務監修)および明細基準 " + h(meta.benchVersion || "") + " に基づく買い手側の第三者所見であり、工事金額・施工品質・契約の成否を保証するものではありません。単価判定のスコープは外壁塗装・屋根塗装です。その他のカテゴリには検算・一式・諸経費・営業手口の普遍原則のみを適用します。判定原則: 諸経費は総額の10〜16%が目安、『一式』は内訳の提出を求める(建設実務30年)。The HORIZ音s株式会社</div>" +
+    "</div></body></html>";
+}
+
+async function hsHandleCompare(request, env) {
+  try {
+    var hsTk = request.headers.get("X-HS-TOKEN") || new URL(request.url).searchParams.get("token") || "";
+    if (env.HS_AUDIT_TOKEN && hsTk !== env.HS_AUDIT_TOKEN) {
+      return new Response(JSON.stringify({ error: "unauthorized(HS_AUDIT_TOKEN)" }), { status: 401, headers: { "Content-Type": "application/json; charset=utf-8" } });
+    }
+    var body = await request.json();
+    var quotes = body.quotes || [];
+    var opts = body.opts || {};
+    var fmt = body.format || "json";
+    if (!Array.isArray(quotes) || quotes.length < 2) {
+      return new Response(JSON.stringify({ error: "quotes must be an array of 2+ estimates" }), { status: 400, headers: { "Content-Type": "application/json; charset=utf-8" } });
+    }
+    var cmp = hsCompareAudits(quotes, HS_MEISAI_BENCH, opts);
+    if (fmt === "pdf") {
+      var jstDate = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
+      var cmpHtml = hsGenerateCompareHTML(cmp, {
+        date: jstDate,
+        benchVersion: HS_MEISAI_BENCH.schema_version,
+        title: body.title || (quotes[0] && quotes[0].extracted && quotes[0].extracted.doc && quotes[0].extracted.doc.title) || "-",
+        region: opts.region || "all",
+        audience: opts.audience || "owner"
+      });
+      var cbrowser = await puppeteer_cloudflare_default.launch(env.MYBROWSER);
+      try {
+        var cpage = await cbrowser.newPage();
+        await cpage.setContent(cmpHtml, { waitUntil: "load" });
+        await cpage.evaluateHandle("document.fonts.ready");
+        var cpdf = await cpage.pdf({ format: "A4", printBackground: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+        return new Response(cpdf, { headers: { "Content-Type": "application/pdf", "Content-Disposition": 'inline; filename="hs-compare.pdf"', "X-HS-Vendors": String((cmp.vendors || []).length), ...corsHeaders() } });
+      } finally {
+        await cbrowser.close();
+      }
+    }
+    if (fmt === "html") {
+      var jstDate2 = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
+      return new Response(hsGenerateCompareHTML(cmp, {
+        date: jstDate2,
+        benchVersion: HS_MEISAI_BENCH.schema_version,
+        title: body.title || (quotes[0] && quotes[0].extracted && quotes[0].extracted.doc && quotes[0].extracted.doc.title) || "-",
+        region: opts.region || "all",
+        audience: opts.audience || "owner"
+      }), { headers: { "Content-Type": "text/html; charset=utf-8", ...corsHeaders() } });
+    }
+    return new Response(JSON.stringify({ benchVersion: HS_MEISAI_BENCH.schema_version, compare: cmp }), { headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders() } });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: "compare failed", detail: String(e && e.message || e) }), { status: 400, headers: { "Content-Type": "application/json; charset=utf-8" } });
+  }
+}
+
 function hsReferenceBundle() {
   return {
     _meta: { version: "meisai-bench@" + HS_MEISAI_BENCH.schema_version },
@@ -19751,6 +19987,9 @@ var worker_default = {
       }
       if (pathname === "/generate-estimate-audit" && request.method === "POST") {
         return hsHandleEstimateAudit(request, env);
+      }
+      if (pathname === "/generate-compare" && request.method === "POST") {
+        return hsHandleCompare(request, env);
       }
       if (pathname === "/v1/reference-bundle" && request.method === "GET") {
         return new Response(hsCanon(hsReferenceBundle()), { headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders() } });

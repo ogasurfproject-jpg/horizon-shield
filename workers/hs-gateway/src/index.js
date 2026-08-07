@@ -433,7 +433,7 @@ export default {
         return new Response(JSON.stringify({ ok: false, error: "bad_payload" }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
       }
       var rservice = url.searchParams.get("service") || "report";
-      var rmap = { "report": { op: "report", path: "/generate-meitsumori" }, "audit": { op: "audit", path: "/generate-estimate-audit" } };
+      var rmap = { "report": { op: "report", path: "/generate-meitsumori" }, "audit": { op: "audit", path: "/generate-estimate-audit" }, "compare": { op: "compare", path: "/generate-compare" } };
       var rcfg = rmap[rservice];
       if (!rcfg) return new Response(JSON.stringify({ ok: false, error: "unknown_service", valid: Object.keys(rmap) }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
       var rrid = requestId();
@@ -444,7 +444,7 @@ export default {
       try {
         var rheaders = { "Content-Type": "application/json" };
         var rurl = "https://pdfgen.internal" + rcfg.path;
-        if (rservice === "audit" && env.HS_AUDIT_TOKEN) {
+        if ((rservice === "audit" || rservice === "compare") && env.HS_AUDIT_TOKEN) {
           rheaders["X-HS-TOKEN"] = env.HS_AUDIT_TOKEN;
           rurl = rurl + "?token=" + encodeURIComponent(env.HS_AUDIT_TOKEN);
         }
