@@ -207,12 +207,23 @@
       </div>
     </div>
 
-    <div class="foot">Yakumo ・ The HORIZONs株式会社 / HORIZON SHIELD ・ TEL 0463-74-5917<br>紹介料を受け取らない中立モール。掲載は適正診断(KIRA)の通過だけで決まります。</div>
+    <div class="sect" id="tktSect" style="display:none;">
+      <div class="sect-t">06 ／ チケット(処理チケット)</div>
+      <div class="box">
+        <div class="row"><span class="k">現在の残高</span><span class="v" id="tktBal" style="color:var(--verify);">—</span></div>
+        <p class="muted" style="margin:8px 0 12px;">レポートや比較診断などの処理にはチケットを使用します。まとめ買いほど割安です。</p>
+        <div id="tktPacks" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+        <p class="muted" style="margin:12px 0 0;font-size:12px;">チケットは当社の役務提供の対価としてのみ使用でき、換金・第三者への譲渡はできません。有効期限なし。決済は PayPal。</p>
+      </div>
+    </div>
+
+    <div class="foot">Yakumo ・ The HORIZ音s株式会社 / HORIZON SHIELD ・ TEL 0463-74-5917<br>紹介料を受け取らない中立モール。掲載は適正診断(KIRA)の通過だけで決まります。</div>
   </div>
 </div>
 
 <script>
 const WORKER = "https://hs-hearing.oga-surf-project.workers.dev";
+const GW = "https://hs-gateway.oga-surf-project.workers.dev";
 const SITE = "https://shield.the-horizons-innovation.com";
 const BADGE = SITE + "/badges/yakumo-verified.svg";
 let CODE="", INFO=null, PUB=null;
@@ -253,6 +264,7 @@ async function boot(code){
   renderProfile(info);
   renderPlan(info);
   renderOps(info, code);
+  renderTickets(info);
   $("btnUpdate").href = "/yakumo/register/?code=" + encodeURIComponent(code);
   $("mMember").textContent = info.member_no || "(発番待ち)";
   // 公開ビュー(検証状態)をライブMCPから取得
@@ -374,6 +386,47 @@ function renderOps(info, code){
   $("refCopy").addEventListener("click", ()=>{
     navigator.clipboard.writeText(refUrl).then(()=>{ $("refCopied").style.display="inline"; setTimeout(()=>$("refCopied").style.display="none",1800); }).catch(()=>{});
   });
+}
+
+async function renderTickets(info){
+  if(!info || !info.store_id){ return; }
+  var sect = $("tktSect"); if(!sect) return;
+  sect.style.display = "block";
+  // 残高(store別。トークンが無ければ非表示のまま購入は可能)
+  try {
+    var br = await (await fetch(GW + "/balance?store=" + encodeURIComponent(info.store_id) + (info.store_token ? "&t=" + encodeURIComponent(info.store_token) : ""))).json();
+    if(br && br.ok){ $("tktBal").textContent = br.tickets + " 枚(" + (br.yen||0).toLocaleString() + "円相当)"; }
+    else { $("tktBal").textContent = "ログイン後に表示"; }
+  } catch(e){ $("tktBal").textContent = "—"; }
+  // パック一覧
+  try {
+    var pr = await (await fetch(GW + "/pricing")).json();
+    var packs = (pr && pr.packs) || [];
+    var box = $("tktPacks"); box.innerHTML = "";
+    packs.forEach(function(pk){
+      var b = document.createElement("button");
+      b.className = "btn";
+      b.style.cssText = "flex-direction:column;align-items:flex-start;padding:12px 14px;height:auto;";
+      var disc = pk.discount_pct>0 ? " <span style='color:var(--verify);font-size:11px;'>" + pk.discount_pct + "%お得</span>" : "";
+      b.innerHTML = "<span style='font-weight:700;'>" + pk.tickets + " 枚" + disc + "</span><span style='color:var(--dim);font-size:13px;margin-top:2px;'>" + pk.yen.toLocaleString() + " 円(税込)</span>";
+      b.onclick = function(){ buyTickets(info.store_id, pk.tickets, b); };
+      box.appendChild(b);
+    });
+  } catch(e){}
+}
+
+async function buyTickets(store, tickets, btn){
+  if(btn){ btn.disabled = true; btn.style.opacity = "0.6"; }
+  try {
+    var r = await (await fetch(GW + "/billing/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ store: store, tickets: tickets })
+    })).json();
+    if(r && r.ok && r.approve_url){ window.location.href = r.approve_url; return; }
+    alert(r && r.error === "sales_paused_balance_cap" ? "現在チケットの新規販売を一時停止しています。" : "購入を開始できませんでした。時間をおいて再度お試しください。");
+  } catch(e){ alert("通信エラーが発生しました。"); }
+  if(btn){ btn.disabled = false; btn.style.opacity = "1"; }
 }
 
 function renderPlan(info){

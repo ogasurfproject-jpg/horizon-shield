@@ -280,6 +280,14 @@ export default {
         var packlist = PACKS.map(function (pk) { var per = pk.yen / pk.tickets; return { tickets: pk.tickets, yen: pk.yen, per_ticket_yen: per, discount_pct: Math.round((1 - per / YEN_PER_TICKET) * 100), label: pk.label }; });
         return new Response(JSON.stringify({ ok: true, yen_per_ticket: YEN_PER_TICKET, packs: packlist, services: plist, note: "servicesは1処理あたりの消費枚数。packsは購入単位(まとめ買いほど割安)。" }, null, 2), { headers: { "Content-Type": "application/json", ...CORS } });
       }
+      if (path === "/balance") {
+        var bstore = url.searchParams.get("store");
+        var btok = url.searchParams.get("t") || request.headers.get("x-store-token") || "";
+        if (!bstore) return new Response(JSON.stringify({ ok: false, error: "store required" }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
+        if (!(await verifyStoreToken(env, bstore, btok))) return new Response(JSON.stringify({ ok: false, error: "invalid_store_token" }), { status: 401, headers: { "Content-Type": "application/json", ...CORS } });
+        var bbal = await getBalance(bstore, env);
+        return new Response(JSON.stringify({ ok: true, store: bstore, tickets: bbal, yen: bbal * YEN_PER_TICKET }, null, 2), { headers: { "Content-Type": "application/json", ...CORS } });
+      }
       if (path === "/" || path === "/health") {
         var prepaid = await prepaidStatus(env);
         return new Response(JSON.stringify({
