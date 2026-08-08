@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verification Directory · HORIZON SHIELD</title>
+<meta name="description" content="A public conformance registry for MCP and A2A agents. Don't trust the issuer. Recompute the verdict. Every entry states what was checked, what was not, and a SHA-256 anyone can recompute. The gate applies its own conditions to itself; where a condition does not apply, that is stated, not skipped.">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/verify-directory/">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Verification Directory · HORIZON SHIELD">
+<meta property="og:description" content="A public conformance registry for MCP and A2A agents. Don't trust the issuer. Recompute the verdict.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08080a; --bg-2:#0d0d10; --surface:#121216; --surface-2:#17171c; --raise:#1c1c22;
+  --line:rgba(255,255,255,.07); --line-2:rgba(255,255,255,.12);
+  --ink:#f4f4f5; --ink-2:#a9a9b3; --ink-3:#6f6f7a;
+  --emerald:#34d399; --emerald-dim:#0f3b30; --emerald-ink:#6ee7b7;
+  --amber:#fbbf24; --amber-dim:#3a2c07;
+  --clay:#fb923c; --clay-dim:#3a2410;
+  --slate:#94a3b8; --slate-dim:#20242b;
+  --blue:#60a5fa;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'Inter','Noto Sans JP',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--sans); line-height:1.6;
+  -webkit-font-smoothing:antialiased; letter-spacing:-0.006em;
+  background-image:
+    radial-gradient(900px 500px at 82% -8%, rgba(52,211,153,.10), transparent 60%),
+    radial-gradient(700px 420px at 6% 2%, rgba(96,165,250,.06), transparent 55%);
+  background-attachment:fixed;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--mono)}
+.jp{font-family:var(--sans);color:var(--ink-3);font-size:.82em;letter-spacing:0}
+
+/* top bar */
+header{position:sticky;top:0;z-index:20;background:rgba(8,8,10,.72);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{display:flex;align-items:center;gap:11px;font-weight:700;font-size:15px;letter-spacing:-.02em}
+.mark{width:26px;height:30px;flex:none}
+.logo .sub{color:var(--ink-3);font-weight:500;font-size:11px;font-family:var(--mono);letter-spacing:.02em}
+.navlinks{display:flex;gap:26px;font-size:13.5px;color:var(--ink-2)}
+.navlinks a:hover{color:var(--ink)}
+@media(max-width:680px){.navlinks{display:none}}
+
+/* hero */
+.hero{padding:88px 0 52px;position:relative}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;color:var(--emerald-ink);background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.22);border-radius:999px;padding:5px 13px;margin-bottom:26px}
+.eyebrow .pulse{width:7px;height:7px;border-radius:50%;background:var(--emerald);box-shadow:0 0 0 3px rgba(52,211,153,.18)}
+h1{font-size:clamp(38px,6.4vw,68px);line-height:1.02;font-weight:800;letter-spacing:-.035em}
+h1 .g{background:linear-gradient(180deg,#fff,#9ca3af);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{margin-top:24px;font-size:clamp(16px,2.2vw,19px);color:var(--ink-2);max-width:660px;line-height:1.65}
+.lede b{color:var(--ink);font-weight:600}
+.herojp{margin-top:14px;font-size:14px;color:var(--ink-3);max-width:620px;line-height:1.7}
+.cta{margin-top:34px;display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:9px;font-size:14px;font-weight:600;padding:12px 20px;border-radius:11px;border:1px solid var(--line-2);transition:.15s}
+.btn.pri{background:var(--emerald);color:#04231a;border-color:transparent}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.gho{background:var(--surface);color:var(--ink);}
+.btn.gho:hover{background:var(--surface-2);border-color:rgba(255,255,255,.2)}
+.btn .k{font-family:var(--mono);font-size:12px}
+.meta{margin-top:40px;display:flex;flex-wrap:wrap;gap:10px 26px;font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.meta b{color:var(--ink-2);font-weight:500}
+.meta .dot{color:var(--emerald)}
+
+/* section shell */
+section{padding:56px 0;border-top:1px solid var(--line)}
+.kh{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px}
+h2{font-size:clamp(24px,3.4vw,32px);font-weight:700;letter-spacing:-.03em}
+.slead{margin-top:12px;color:var(--ink-2);font-size:15.5px;max-width:680px}
+
+/* verifies / not */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:32px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+.panel{background:linear-gradient(180deg,var(--surface),var(--bg-2));border:1px solid var(--line);border-radius:18px;padding:26px}
+.panel .ph{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;margin-bottom:16px}
+.panel .ph .ic{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.panel.yes .ic{background:var(--emerald-dim);color:var(--emerald)}
+.panel.no .ic{background:var(--clay-dim);color:var(--clay)}
+.panel ul{list-style:none}
+.panel li{display:flex;gap:12px;padding:11px 0;border-top:1px solid var(--line);font-size:13.8px;color:var(--ink-2)}
+.panel li:first-child{border-top:none}
+.panel li .n{font-family:var(--mono);font-size:11px;color:var(--ink-3);flex:none;width:20px;padding-top:2px}
+.panel li b{color:var(--ink);font-weight:600}
+.panel li .jp{display:block;margin-top:2px}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:9px 14px;margin:26px 0 26px}
+.lg{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2)}
+.pill{font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.pill .d{width:6px;height:6px;border-radius:50%}
+.pill.pass{background:var(--emerald-dim);color:var(--emerald-ink)} .pill.pass .d{background:var(--emerald)}
+.pill.na{background:var(--slate-dim);color:var(--slate)} .pill.na .d{background:var(--slate)}
+.pill.pend{background:var(--amber-dim);color:var(--amber)} .pill.pend .d{background:var(--amber)}
+.pill.hold{background:var(--clay-dim);color:var(--clay)} .pill.hold .d{background:var(--clay)}
+
+/* registry entry */
+.entry{background:linear-gradient(180deg,var(--surface),var(--bg-2));border:1px solid var(--line);border-radius:20px;padding:26px 26px 22px;margin-bottom:16px;position:relative;overflow:hidden}
+.entry.self{border-color:rgba(52,211,153,.3)}
+.entry.self::before{content:"";position:absolute;inset:0;background:radial-gradient(500px 180px at 100% 0,rgba(52,211,153,.08),transparent 60%);pointer-events:none}
+.ehead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;position:relative}
+.eidx{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin-bottom:8px}
+.ename{font-size:20px;font-weight:700;letter-spacing:-.02em}
+.erole{font-size:13px;color:var(--ink-3);margin-top:4px;max-width:560px;line-height:1.55}
+.status{font-family:var(--mono);font-size:11.5px;font-weight:700;padding:7px 13px;border-radius:999px;white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
+.status .d{width:7px;height:7px;border-radius:50%}
+.status.verified{background:var(--emerald);color:#04231a}
+.status.verified .d{background:#04231a}
+.status.pending{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(251,191,36,.3)} .status.pending .d{background:var(--amber)}
+.status.hold{background:var(--clay-dim);color:var(--clay);border:1px solid rgba(251,146,60,.3)} .status.hold .d{background:var(--clay)}
+
+.conds{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:22px 0 18px}
+@media(max-width:640px){.conds{grid-template-columns:repeat(2,1fr)}}
+.cond{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 12px 11px;text-align:center}
+.cond .cl{font-size:10.5px;color:var(--ink-3);letter-spacing:.02em;margin-bottom:9px;line-height:1.3;min-height:2.5em;display:flex;align-items:center;justify-content:center}
+
+.endpoint{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:11px 14px;display:flex;align-items:center;gap:10px;overflow-x:auto;white-space:nowrap}
+.endpoint .verb{color:#04231a;background:var(--emerald);font-weight:700;font-size:10px;padding:2px 7px;border-radius:5px;flex:none}
+.endpoint .verb.post{background:var(--blue)}
+.endpoint a{color:var(--emerald-ink)}
+.enote{font-size:13.5px;color:var(--ink-2);margin-top:16px;line-height:1.7}
+.enote b{color:var(--ink);font-weight:600}
+.proof{margin-top:14px;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.16);border-radius:11px;padding:12px 14px;line-height:1.75;word-break:break-word}
+.proof .lb{color:var(--emerald);font-weight:700}
+.proof a{color:var(--emerald-ink)}
+
+/* code */
+.code{background:#0b0b0e;border:1px solid var(--line);border-radius:16px;padding:22px 22px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.85;margin-top:8px}
+.code .c{color:#5c6270} .code .g{color:var(--emerald-ink)} .code .b{color:var(--blue)}
+.code .cmd{color:var(--ink)}
+
+/* tiers */
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
+@media(max-width:760px){.tiers{grid-template-columns:1fr}}
+.tier{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px}
+.tier.free{border-color:rgba(52,211,153,.25)}
+.tier .tn{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink)}
+.tier .tp{font-family:var(--mono);font-size:12px;font-weight:700;margin:8px 0 12px;display:inline-block;padding:3px 10px;border-radius:6px}
+.tier .tp.free{background:var(--emerald-dim);color:var(--emerald-ink)}
+.tier .tp.paid{background:var(--slate-dim);color:var(--slate)}
+.tier p{font-size:13px;color:var(--ink-2)}
+
+/* confirm (draft) */
+.confirm{margin-top:34px;background:var(--surface);border:1px dashed var(--line-2);border-radius:16px;padding:24px 26px}
+.confirm .ch{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:14px}
+.confirm ol{margin:0;padding-left:20px} .confirm li{margin:9px 0;font-size:13.5px;color:var(--ink-2)} .confirm li b{color:var(--ink)}
+
+footer{border-top:1px solid var(--line);padding:44px 0 72px;font-size:12.5px;color:var(--ink-3);line-height:1.9}
+footer a{color:var(--ink-2)} footer a:hover{color:var(--ink)}
+footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--ink);font-size:15px;margin-bottom:16px}
+
+/* ---- live layer ---- */
+.livechip{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px;padding:5px 11px;border-radius:999px;border:1px solid var(--line-2);color:var(--ink-2);transition:.2s}
+.livechip .d{width:7px;height:7px;border-radius:50%;background:var(--ink-3);flex:none}
+.livechip.ok{border-color:rgba(52,211,153,.4);color:var(--emerald-ink);background:rgba(52,211,153,.06)} .livechip.ok .d{background:var(--emerald);box-shadow:0 0 0 3px rgba(52,211,153,.18)}
+.livechip.busy .d{background:var(--amber);animation:bl 1s ease-in-out infinite}
+.livechip.off{border-color:var(--line);color:var(--ink-3)} .livechip.off .d{background:var(--ink-3)}
+@keyframes bl{0%,100%{opacity:.3}50%{opacity:1}}
+.livehash{margin-top:12px;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.16);border-radius:11px;padding:12px 14px;line-height:1.7;word-break:break-all;display:none}
+.livehash.show{display:block}
+.livehash .lb{color:var(--emerald);font-weight:700}
+.livehash .x{color:var(--clay)}
+.livehash.fail{background:rgba(251,146,60,.06);border-color:rgba(251,146,60,.22)}
+
+/* console */
+.console{background:linear-gradient(180deg,var(--surface),var(--bg-2));border:1px solid var(--line);border-radius:20px;padding:26px;margin-top:30px}
+.console .cbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.console input{flex:1;min-width:240px;background:#0b0b0e;border:1px solid var(--line-2);border-radius:11px;padding:12px 14px;color:var(--ink);font-family:var(--mono);font-size:13px;outline:none}
+.console input:focus{border-color:rgba(52,211,153,.5)}
+.console .go{background:var(--emerald);color:#04231a;border:none;border-radius:11px;padding:12px 22px;font-weight:700;font-size:13.5px;cursor:pointer;font-family:var(--sans)}
+.console .go:disabled{opacity:.5;cursor:default}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.preset{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 11px;cursor:pointer}
+.preset:hover{border-color:var(--line-2);color:var(--ink)}
+.result{display:none;margin-top:6px}
+.result.show{display:block}
+.result .rline{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 0;border-top:1px solid var(--line)}
+.result .rlabel{font-family:var(--mono);font-size:12.5px;color:var(--ink-2)}
+.rverd{font-family:var(--mono);font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px}
+.rverd.pass{background:var(--emerald);color:#04231a}
+.rverd.fail{background:var(--clay-dim);color:var(--clay);border:1px solid rgba(251,146,60,.3)}
+.rchecks{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0}
+@media(max-width:640px){.rchecks{grid-template-columns:repeat(2,1fr)}}
+.rraw{margin-top:12px;font-family:var(--mono);font-size:11px;color:var(--ink-3);background:#0b0b0e;border:1px solid var(--line);border-radius:11px;padding:14px;max-height:220px;overflow:auto;white-space:pre;line-height:1.6}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="https://shield.the-horizons-innovation.com/">
+      <svg class="mark" viewBox="0 0 26 30" fill="none" aria-hidden="true">
+        <path d="M13 1.4 L24 6 V15 C24 22.2 19 27.2 13 29 C7 27.2 2 22.2 2 15 V6 Z" fill="#0d2a20" stroke="#34d399" stroke-width="1.6"/>
+        <path d="M13 8 V21 M8.5 13.5 L13 8 L17.5 13.5" stroke="#34d399" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>HORIZON SHIELD <span class="sub">/ verify-directory</span></span>
+    </a>
+    <nav class="navlinks">
+      <a href="#verifies">What it checks</a>
+      <a href="#registry">Registry</a>
+      <a href="#recompute">Recompute</a>
+      <a href="https://shield.the-horizons-innovation.com/spec/">Spec</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero wrap">
+  <span class="eyebrow"><span class="pulse"></span>PUBLIC CONFORMANCE REGISTRY · MCP + A2A</span>
+  <h1><span class="g">Don't trust the issuer.<br>Recompute the verdict.</span></h1>
+  <p class="lede">A public directory of MCP and A2A agents that have been measured against five deterministic conditions. Every verdict carries a <b>SHA-256 anyone can recompute</b>. Passing entries are green; anything still in process stays visibly separate. Where a condition does not apply, it is <b>stated, not skipped</b>.</p>
+  <p class="herojp jp">検証の扉が実測した対象を並べる公開レジストリ。適合は緑、手続き中は分けて表示し、対象外は明記する。判定はSHA-256で誰でも再計算でき、扉は自分自身にも同じ基準を当てる。</p>
+  <div class="cta">
+    <a class="btn pri" href="#console"><span class="k">$</span> Run a live check</a>
+    <a class="btn gho" href="#registry">View the registry</a>
+  </div>
+  <div class="meta" style="align-items:center">
+    <span id="liveself" class="livechip off"><span class="d"></span>live self-check: idle</span>
+    <span><span class="dot">●</span> <b>gate v0.1.0</b></span>
+    <span>4 entries</span>
+    <span>self-applied</span>
+    <span>fail-closed</span>
+    <span>snapshot <b>2026-08-08</b></span>
+  </div>
+</div>
+
+<section id="verifies">
+  <div class="wrap">
+    <div class="kh">The five conditions</div>
+    <h2>What the gate measures, and what it refuses to</h2>
+    <p class="slead">No human discretion. The gate calls the endpoint itself and decides deterministically. Self-declaration is never the evidence. That is why it can be free and open.</p>
+    <div class="grid2">
+      <div class="panel yes">
+        <div class="ph"><span class="ic">✓</span> The gate verifies</div>
+        <ul>
+          <li><span class="n">01</span><span><b>Live MCP endpoint.</b> Responds to <span class="mono">initialize</span> and <span class="mono">tools/list</span> with at least one tool.<span class="jp">MCPとして実在し応答する</span></span></li>
+          <li><span class="n">02</span><span><b>A2A agent card.</b> <span class="mono">/.well-known/agent-card.json</span> returns JSON with name and description.<span class="jp">エージェントカードの公開</span></span></li>
+          <li><span class="n">03</span><span><b>Compensation disclosure.</b> The card declares who pays it (<span class="mono">paid_by</span>, referral_fee, listing_fee).<span class="jp">報酬構造の開示</span></span></li>
+          <li><span class="n">04</span><span><b>Determinism.</b> Identical input returns identical output across runs.<span class="jp">同じ入力に同じ出力</span></span></li>
+          <li><span class="n">05</span><span><b>Self-verification.</b> Every verdict carries a SHA-256 that any third party can recompute.<span class="jp">判定自体が再計算可能</span></span></li>
+        </ul>
+      </div>
+      <div class="panel no">
+        <div class="ph"><span class="ic">✕</span> The gate does not verify</div>
+        <ul>
+          <li><span class="n">01</span><span>Whether any <b>price or figure</b> the server returns is correct. Price validation is a separate, paid tier.<span class="jp">価格の正しさは別層</span></span></li>
+          <li><span class="n">02</span><span>Whether the declared compensation is <b>truthful</b>. Only the absence of disclosure disqualifies; a false declaration is grounds for revocation.<span class="jp">開示の真偽は判定しない</span></span></li>
+          <li><span class="n">03</span><span>The <b>quality, competence, or fitness</b> of the underlying business.<span class="jp">事業の品質・力量</span></span></li>
+          <li><span class="n">04</span><span>That the ruleset is still current. <b>Verified means untampered</b>, not re-audited (<span class="mono">audit_ruleset_recheck: not_performed</span>).<span class="jp">verifiedは改ざんなしの意味</span></span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="registry">
+  <div class="wrap">
+    <div class="kh">The registry · snapshot 2026-08-08</div>
+    <h2>Every entry, in its real state</h2>
+    <p class="slead">Green is not painted ahead of measurement. An entry the gate could not reach, or one still in hearing, says so.</p>
+    <div class="legend">
+      <span class="lg"><span class="pill pass"><span class="d"></span>PASS</span> measured and met</span>
+      <span class="lg"><span class="pill na"><span class="d"></span>N/A</span> stated, not applicable</span>
+      <span class="lg"><span class="pill pend"><span class="d"></span>IN PROCESS</span> fail-closed, not yet passed</span>
+      <span class="lg"><span class="pill hold"><span class="d"></span>HELD</span> the gate cannot reach it (same account)</span>
+    </div>
+
+    <!-- 01 gate self -->
+    <div class="entry self">
+      <div class="ehead">
+        <div>
+          <div class="eidx">ENTRY 01 / self-applied</div>
+          <div class="ename">Yakumo Verification Gate</div>
+          <div class="erole">The gate itself. It answers "who verifies the verifier" by passing its own conditions first. <span class="jp">検証の扉 自身</span></div>
+        </div>
+        <span class="status verified"><span class="d"></span>VERIFIED</span>
+      </div>
+      <div class="conds">
+        <div class="cond"><div class="cl">MCP endpoint</div><span class="pill na"><span class="d"></span>N/A</span></div>
+        <div class="cond"><div class="cl">Agent card</div><span class="pill pass"><span class="d"></span>PASS</span></div>
+        <div class="cond"><div class="cl">Compensation</div><span class="pill pass"><span class="d"></span>PASS</span></div>
+        <div class="cond"><div class="cl">Determinism</div><span class="pill pass"><span class="d"></span>PASS</span></div>
+        <div class="cond"><div class="cl">Self-verify</div><span class="pill pass"><span class="d"></span>PASS</span></div>
+      </div>
+      <div class="endpoint"><span class="verb">GET</span><a href="https://hs-verify-gate.oga-surf-project.workers.dev/self">/self</a> · <a href="https://hs-verify-gate.oga-surf-project.workers.dev/spec">/spec</a> · <span class="verb post">POST</span>/check {"endpoint":"https://..."}</div>
+      <div class="enote">Condition 01 is marked <b>N/A and stated</b>: the gate is an HTTP checker, not an MCP server. Declaring the non-applicable case rather than hiding it is the point. Its compensation is declared in the same shape it demands of applicants: <span class="mono">paid_by=buyer, referral_fee=false, listing_fee=false, success_fee_pct=0</span>.</div>
+      <div class="proof"><span class="lb">recompute:</span> fetch <a href="https://hs-verify-gate.oga-surf-project.workers.dev/self">/self</a>, drop the <span class="mono">record_sha256</span> and <span class="mono">recompute_note</span> fields, JSON.stringify the remainder in key order, take the SHA-256. It must equal <span class="mono">record_sha256</span>. The gate holds itself to the standard it applies to others.</div>
+      <div id="gate-livehash" class="livehash"></div>
+    </div>
+
+    <!-- 02 hs-mcp -->
+    <div class="entry">
+      <div class="ehead">
+        <div>
+          <div class="eidx">ENTRY 02 / audit server</div>
+          <div class="ename">HORIZON SHIELD <span class="mono" style="font-size:14px;color:var(--ink-3)">· hs-mcp</span></div>
+          <div class="erole">The estimate-integrity audit MCP. A2A capable, 14 tools, 3 published skills. <span class="jp">見積もり誠実性監査の本体MCP</span></div>
+        </div>
+        <span class="status hold"><span class="d"></span>HELD · unreachable</span>
+      </div>
+      <div class="conds">
+        <div class="cond"><div class="cl">MCP endpoint</div><span class="pill pass"><span class="d"></span>SEEN</span></div>
+        <div class="cond"><div class="cl">Agent card</div><span class="pill pass"><span class="d"></span>SEEN</span></div>
+        <div class="cond"><div class="cl">Compensation</div><span class="pill hold"><span class="d"></span>HELD</span></div>
+        <div class="cond"><div class="cl">Determinism</div><span class="pill hold"><span class="d"></span>HELD</span></div>
+        <div class="cond"><div class="cl">Self-verify</div><span class="pill pass"><span class="d"></span>SEEN</span></div>
+      </div>
+      <div class="endpoint"><span class="verb">GET</span><a href="https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json">/.well-known/agent-card.json</a> · verification-contract.json</div>
+      <div class="enote">The agent card is live (provider <b>The HORIZ音s Co., Ltd.</b>, skills: estimate-integrity-audit, japan-property-reform-intake, verify-claim). But hs-mcp is on the <b>same Cloudflare account</b> as the gate, and a Worker to Worker call over workers.dev never reaches it. <b>Measured, both ways, on 2026-08-08:</b> from the gate, <span class="mono">/mcp</span> and <span class="mono">/.well-known/agent-card.json</span> both answer <span class="mono">404</span>; from a machine outside the account, the same three URLs answer <span class="mono">200</span>. So the conditions stay <b>held</b> rather than failed, and the honest reading is that this host is <b>verifiable from outside, not by us</b>. Green is not painted early.</div>
+      <div class="proof"><span class="lb">anchor:</span> this operator's ledger is timestamped to Bitcoin via JIDEC · path #6 · block #959634 · verdict PASS 4/4 · ots confirmed · <a href="https://hs-ledger.oga-surf-project.workers.dev/paths/baa7a7d26994fe4541a65b7c4c3a0a30029d98cb2ca1f69e082116ad659f0309">follow on hs-ledger</a></div>
+    </div>
+
+    <!-- 03 partner 001 -->
+    <div class="entry">
+      <div class="ehead">
+        <div>
+          <div class="eidx">ENTRY 03 / member No.001</div>
+          <div class="ename">Reform Shokunin Inc. <span class="jp">リフォーム職人株式会社</span></div>
+          <div class="erole">Yakumo mall member, verification in progress (KIRA fair-price diagnosis running).</div>
+        </div>
+        <span class="status pending"><span class="d"></span>IN PROCESS</span>
+      </div>
+      <div class="conds">
+        <div class="cond"><div class="cl">MCP endpoint</div><span class="pill pend"><span class="d"></span>PROC</span></div>
+        <div class="cond"><div class="cl">Agent card</div><span class="pill pend"><span class="d"></span>PROC</span></div>
+        <div class="cond"><div class="cl">Compensation</div><span class="pill pend"><span class="d"></span>PROC</span></div>
+        <div class="cond"><div class="cl">Determinism</div><span class="pill pend"><span class="d"></span>PROC</span></div>
+        <div class="cond"><div class="cl">Self-verify</div><span class="pill pend"><span class="d"></span>PROC</span></div>
+      </div>
+      <div class="endpoint"><span class="verb">GET</span><a href="https://shield.the-horizons-innovation.com/yakumo/no001/">/yakumo/no001/</a></div>
+      <div class="enote">KIRA fair-price diagnosis is under way. <b>No store may call itself "verified" until it passes</b> (fail-closed). In-process members are marked <span class="mono">verification:"pending"</span> and turn green only on passing. This is the core of the design and it is not relaxed.</div>
+    </div>
+
+    <!-- 04 partner 002 -->
+    <div class="entry">
+      <div class="ehead">
+        <div>
+          <div class="eidx">ENTRY 04 / member No.002</div>
+          <div class="ename">Mineo Toyo Juki Co., Ltd. <span class="jp">ミネオトーヨー住器株式会社</span></div>
+          <div class="erole">Dedicated MCP live (hs-partner-002-mcp · get_partner_profile). Window and entrance-door replacement, glass repair, screen re-netting, 12 municipalities.</div>
+        </div>
+        <span class="status pending"><span class="d"></span>IN PROCESS · 60%</span>
+      </div>
+      <div class="conds">
+        <div class="cond"><div class="cl">MCP endpoint</div><span class="pill pass"><span class="d"></span>LIVE</span></div>
+        <div class="cond"><div class="cl">Agent card</div><span class="pill hold"><span class="d"></span>HELD</span></div>
+        <div class="cond"><div class="cl">Compensation</div><span class="pill hold"><span class="d"></span>HELD</span></div>
+        <div class="cond"><div class="cl">Determinism</div><span class="pill hold"><span class="d"></span>HELD</span></div>
+        <div class="cond"><div class="cl">Self-verify</div><span class="pill hold"><span class="d"></span>HELD</span></div>
+      </div>
+      <div class="endpoint"><span class="verb">GET</span><a href="https://hs-partner-002-mcp.oga-surf-project.workers.dev">hs-partner-002-mcp.oga-surf-project.workers.dev</a></div>
+      <div class="enote">The dedicated MCP (<span class="mono">get_partner_profile</span>) is live. Profile completeness 60, hearing in progress, so the store's own state is <b>pending</b> (it turns verified on reaching <span class="mono">published</span>). It is also on the same account as the gate, so the gate's request never reaches it and the machine check stays <b>held</b>. An external checker or a custom domain reaches a verdict. The name and the state are shown as measured, not inflated.</div>
+    </div>
+
+  </div>
+</section>
+
+<section id="console">
+  <div class="wrap">
+    <div class="kh">Live conformance check</div>
+    <h2>Paste any MCP endpoint. The gate checks it, then you recompute the verdict</h2>
+    <p class="slead">This runs in your browser, against the live gate. The verdict's SHA-256 is recomputed here, on your side, and compared. Nothing is taken on trust.</p>
+    <div class="console">
+      <div class="presets">
+        <button class="preset" data-ep="https://hs-verify-gate.oga-surf-project.workers.dev/self">gate /self · self-applied</button>
+        <button class="preset" data-ep="https://hs-mcp.oga-surf-project.workers.dev/mcp">hs-mcp · expect unreachable</button>
+      </div>
+      <div class="cbar">
+        <input id="epin" type="text" spellcheck="false" autocapitalize="off" value="https://hs-verify-gate.oga-surf-project.workers.dev/self">
+        <button id="rungo" class="go">Check</button>
+      </div>
+      <div id="cstatus" class="livechip off"><span class="d"></span>ready</div>
+      <div id="cresult" class="result">
+        <div class="rline"><span class="rlabel" id="rendpoint"></span><span id="rverd" class="rverd"></span></div>
+        <div class="rchecks" id="rchecks"></div>
+        <div id="rrecompute" class="livehash"></div>
+        <div class="rraw" id="rraw"></div>
+      </div>
+    </div>
+    <p class="slead" style="margin-top:16px;font-size:13.5px">Endpoints on the same Cloudflare account as the gate (hs-mcp, No.002) come back with every condition failed, because a Worker to Worker call over workers.dev never reaches the target. Measured on 2026-08-08: the gate sees <span class="mono">404</span> on paths that answer <span class="mono">200</span> from any machine outside the account. The gate puts that in the verdict instead of hiding it, and the verdict's hash still recomputes, so a failed check is still a verifiable statement. Run it from your own machine and those hosts respond normally.</p>
+  </div>
+</section>
+
+<section id="recompute">
+  <div class="wrap">
+    <div class="kh">Verify it yourself</div>
+    <h2>The whole claim is that a stranger can run this</h2>
+    <p class="slead">No API key. Read-only. Point it at our servers, or at any server we never touched.</p>
+    <div class="code">
+<span class="c"># A. Recompute a verdict (the gate's own, or any MCP's)</span>
+<span class="cmd">curl -s</span> <span class="g">https://hs-verify-gate.oga-surf-project.workers.dev/self</span>
+<span class="c"># drop record_sha256 + recompute_note, JSON.stringify in key order, then SHA-256</span>
+<span class="c"># if it equals record_sha256, the verdict was not tampered with</span>
+
+<span class="c"># B. Run any MCP endpoint through the gate, from your side</span>
+<span class="cmd">curl -s -X POST</span> <span class="g">https://hs-verify-gate.oga-surf-project.workers.dev/check</span> <span class="b">\</span>
+  -H <span class="g">'content-type: application/json'</span> <span class="b">\</span>
+  -d <span class="g">'{"endpoint":"https://your-server/mcp"}'</span>
+
+<span class="c"># C. Third-party check a signed claim (fail-closed, no price layer, no key)</span>
+<span class="c"># MCP tool verify_integrity_claim( signed_payload, claim_sha256 )</span>
+    </div>
+    <p class="slead" style="margin-top:18px">If A does not match, the verdict was altered. If B fails, the applicant sees exactly why it failed (so it can be run before applying). If C does not match, the declaration was altered. In every case the correct response is to reject, the same posture the gate takes toward itself.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kh">Tiers</div>
+    <h2>Conformance is free. The price layer is separate, and labeled</h2>
+    <div class="tiers">
+      <div class="tier free"><div class="tn">verified</div><div class="tp free">FREE</div><p>Conformance and disclosure, measured. No price validation.</p></div>
+      <div class="tier"><div class="tn">verified_plus_data</div><div class="tp paid">PAID</div><p>Figures traced to a third-party obtainable primary source.</p></div>
+      <div class="tier"><div class="tn">yakumo_partner</div><div class="tp paid">PAID</div><p>Dedicated MCP server, operations, and a full audit log.</p></div>
+    </div>
+
+  </div>
+</section>
+
+<section id="policy">
+  <div class="wrap">
+    <div class="kh">Listing policy</div>
+    <h2>The rules this directory binds itself to</h2>
+    <p class="slead">A registry is only worth reading if its own rules are fixed in advance and stated in public. These are ours.</p>
+    <div class="grid2" style="margin-top:26px">
+      <div class="panel yes">
+        <div class="ph"><span class="ic">✓</span> How an entry earns its state</div>
+        <ul>
+          <li><span class="n">01</span><span><b>Green only after measurement.</b> An entry turns verified when the gate has actually measured it. It is never granted in advance, and never for paying.<span class="jp">実測を通ってから緑になる</span></span></li>
+          <li><span class="n">02</span><span><b>In-process is shown, not hidden.</b> An applicant part-way through appears with its real state rather than being left off the page.<span class="jp">手続き中も隠さず並べる</span></span></li>
+          <li><span class="n">03</span><span><b>Non-applicable is stated.</b> A condition that does not apply is marked N/A with the reason, never silently skipped.<span class="jp">対象外は理由つきで明記</span></span></li>
+          <li><span class="n">04</span><span><b>Unreachable is not failure.</b> If the gate cannot reach a host, the entry is held and says so, with the measurement in both directions.<span class="jp">到達不能は不適合と区別する</span></span></li>
+        </ul>
+      </div>
+      <div class="panel no">
+        <div class="ph"><span class="ic">✕</span> What this directory will not do</div>
+        <ul>
+          <li><span class="n">01</span><span><b>Order is not for sale.</b> Position on this page, and the verdict itself, cannot be bought. Zero referral fees.<span class="jp">掲載順も判定も売り物ではない</span></span></li>
+          <li><span class="n">02</span><span><b>No quiet edits.</b> A verdict is not rewritten in place. It carries a hash and a timestamp; a changed verdict is a new measurement.<span class="jp">黙って書き換えない</span></span></li>
+          <li><span class="n">03</span><span><b>Revocation on false disclosure.</b> The gate does not judge whether a declaration is true, but a declaration later shown to be false is grounds for removal.<span class="jp">虚偽の開示は取消事由</span></span></li>
+          <li><span class="n">04</span><span><b>No exemption for the operator.</b> HORIZON SHIELD's own servers sit in this list under the same conditions, including the ones they currently do not pass.<span class="jp">運営も同じ基準で並ぶ</span></span></li>
+        </ul>
+      </div>
+    </div>
+    <p class="slead" style="margin-top:22px;font-size:13.5px">Corrections are welcome and are treated as defects. If an entry here is wrong, or a condition is measured differently on your side, say so and it is re-measured in public. The contact below is real.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fbrand">
+      <svg class="mark" viewBox="0 0 26 30" fill="none" aria-hidden="true" style="width:22px;height:26px">
+        <path d="M13 1.4 L24 6 V15 C24 22.2 19 27.2 13 29 C7 27.2 2 22.2 2 15 V6 Z" fill="#0d2a20" stroke="#34d399" stroke-width="1.6"/>
+        <path d="M13 8 V21 M8.5 13.5 L13 8 L17.5 13.5" stroke="#34d399" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      HORIZON SHIELD
+    </div>
+    Operator: The HORIZ音s Co., Ltd. (Corporate Number 7021001075279). Supervised by Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>), 30 years on construction sites.<br>
+    Data: <a href="https://doi.org/10.5281/zenodo.20019573">JCCDB (DOI 10.5281/zenodo.20019573, CC BY 4.0)</a>. Related: <a href="https://shield.the-horizons-innovation.com/spec/">Verification Spec</a> · <a href="https://shield.the-horizons-innovation.com/verify/">Recompute a receipt</a> · gate: hs-verify-gate.oga-surf-project.workers.dev<br>
+    Zero referral fees. Verdicts, scores, and listing order are not for sale. This page describes tamper-resistance, not the validity of any ruleset over time.<br>
+    © 2026 The HORIZ音s Co., Ltd. · HORIZON SHIELD · Yakumo
+  </div>
+</footer>
+
+<script>
+"use strict";
+const GATE = "https://hs-verify-gate.oga-surf-project.workers.dev";
+const LABELS = { mcp_endpoint:"MCP endpoint", agent_card:"Agent card", compensation_disclosure:"Compensation", determinism:"Determinism", self_verification:"Self-verify" };
+
+// 取得したJSON由来の値は全て innerHTML 前にエスケープする(貼られたendpointは信用しない)。
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]; }); }
+async function sha256hex(s){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+// worker と同じ正準化: record_sha256 と recompute_note を外し、キー順のまま stringify して SHA-256。
+async function recompute(record){
+  const r = JSON.parse(JSON.stringify(record)); // 深いクローン(キー順保持)
+  const exp = r.record_sha256;
+  delete r.record_sha256; delete r.recompute_note;
+  const got = await sha256hex(JSON.stringify(r));
+  return { exp, got, match: exp === got };
+}
+function chip(el, cls, msg){ el.className = "livechip " + cls; el.innerHTML = '<span class="d"></span>' + msg; }
+
+function condPill(key, c){
+  const label = esc(LABELS[key] || key);
+  let cls = "pass", txt = "PASS";
+  if (c && c.detail && c.detail.applicable === false) { cls = "na"; txt = "N/A"; }
+  else if (c && c.pass === true) { cls = "pass"; txt = "PASS"; }
+  else { cls = "hold"; txt = (c && /1104|Worker-to-Worker|not reach|http 404/i.test(c.reason || "")) ? "UNREACH" : "FAIL"; }
+  return '<div class="cond"><div class="cl">' + label + '</div><span class="pill ' + cls + '"><span class="d"></span>' + txt + '</span></div>';
+}
+
+async function renderResult(record, endpoint){
+  const cres = document.getElementById("cresult");
+  cres.classList.add("show");
+  document.getElementById("rendpoint").textContent = endpoint;
+  const rverd = document.getElementById("rverd");
+  const rchecks = document.getElementById("rchecks");
+  const rrec = document.getElementById("rrecompute");
+  const rraw = document.getElementById("rraw");
+
+  if (record.error){
+    rverd.className = "rverd fail"; rverd.textContent = String(record.error);
+    rchecks.innerHTML = ""; rrec.className = "livehash";
+    rraw.textContent = JSON.stringify(record, null, 2);
+    return;
+  }
+  const status = record.status || "unknown";
+  const passed = status === "verified";
+  rverd.className = "rverd " + (passed ? "pass" : "fail");
+  rverd.textContent = status.toUpperCase();
+  rchecks.innerHTML = Object.entries(record.checks || {}).map(([k,v]) => condPill(k,v)).join("");
+
+  if (record.record_sha256){
+    const rc = await recompute(record);
+    rrec.className = "livehash show" + (rc.match ? "" : " fail");
+    rrec.innerHTML = rc.match
+      ? '<span class="lb">recomputed &#10003;</span> the verdict\'s record_sha256 matches, recomputed in your browser<br>' + esc(rc.got)
+      : '<span class="x">recompute &#10007;</span> mismatch<br>expected ' + esc(rc.exp) + '<br>got ' + esc(rc.got);
+  } else {
+    rrec.className = "livehash";
+  }
+  rraw.textContent = JSON.stringify(record, null, 2);
+}
+
+async function runCheck(endpoint){
+  const st = document.getElementById("cstatus");
+  const go = document.getElementById("rungo");
+  go.disabled = true;
+  chip(st, "busy", "checking " + endpoint + " …");
+  try{
+    let res, u;
+    try { u = new URL(endpoint); } catch(_e){ throw new Error("invalid URL"); }
+    const gateOrigin = new URL(GATE).origin;
+    // 扉のオリジンの introspection (/self,/spec,/health) だけ直接GET。
+    // それ以外は必ず扉の /check を通す。任意サーバの自己申告を verified 表示に化けさせない。
+    if (u.origin === gateOrigin && /\/(self|spec|health)$/.test(u.pathname)){
+      res = await fetch(endpoint, { method:"GET" });
+    } else {
+      res = await fetch(GATE + "/check", { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify({ endpoint }) });
+    }
+    const text = await res.text();
+    let record; try { record = JSON.parse(text); } catch(_e){ throw new Error("non-JSON response"); }
+    await renderResult(record, endpoint);
+    chip(st, record.status === "verified" ? "ok" : "off", record.status === "verified" ? "verified · recomputed on your side" : "verdict returned · recomputed on your side");
+  }catch(e){
+    chip(st, "off", "live check offline: " + e.message + " (deploy the CORS patch to enable)");
+  }finally{
+    go.disabled = false;
+  }
+}
+
+async function autoSelf(){
+  const c = document.getElementById("liveself");
+  const box = document.getElementById("gate-livehash");
+  chip(c, "busy", "live self-check: running …");
+  try{
+    const res = await fetch(GATE + "/self");
+    const record = JSON.parse(await res.text());
+    if (!record || !record.record_sha256){ chip(c, "off", "live self-check: unexpected response"); return; }
+    const rc = await recompute(record);
+    if (rc.match && record.status === "verified"){
+      chip(c, "ok", "live self-check: verified, hash recomputed &#10003;");
+      box.className = "livehash show";
+      box.innerHTML = '<span class="lb">live &#10003;</span> fetched /self and recomputed record_sha256 in your browser: match<br>' + esc(rc.got);
+    } else {
+      chip(c, "off", "live self-check: mismatch");
+      box.className = "livehash show fail";
+      box.innerHTML = '<span class="x">recompute &#10007;</span> ' + esc(rc.exp) + ' vs ' + esc(rc.got);
+    }
+  }catch(e){
+    chip(c, "off", "live self-check: offline (deploy CORS to enable)");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+  document.querySelectorAll(".preset").forEach(function(b){
+    b.addEventListener("click", function(){ document.getElementById("epin").value = b.getAttribute("data-ep"); runCheck(b.getAttribute("data-ep")); });
+  });
+  document.getElementById("rungo").addEventListener("click", function(){ runCheck(document.getElementById("epin").value.trim()); });
+  document.getElementById("epin").addEventListener("keydown", function(e){ if(e.key === "Enter") runCheck(e.target.value.trim()); });
+  autoSelf();
+});
+</script>
+
+</body>
+</html>
