@@ -274,6 +274,153 @@ function spec() {
   };
 }
 
+// ---- 公開履歴と自動再測定 ----
+// 「測定が変われば緑ではなくなる」と公開ページに書いた以上、誰かが測り直さねばならない。
+// ここがその実装。記録するのは公開判定のみで、申請者の秘密も顧客データも持たない。
+
+// KV が無い環境でも動く。履歴が無効になるだけで、判定機能そのものは影響を受けない。
+const HISTORY_MAX = 30;   // 1エンドポイントあたりの保持件数
+const CHANGES_MAX = 50;   // 変化ログの保持件数
+
+// 監視対象の既定値。KV の watch:endpoints があればそちらを使う。
+const DEFAULT_WATCHLIST = [
+  "https://hs-mcp.oga-surf-project.workers.dev/mcp",
+  "https://hs-hearing.oga-surf-project.workers.dev/mcp",
+  "https://hs-webmcp.oga-surf-project.workers.dev/mcp",
+  "https://hs-partner-001-mcp.oga-surf-project.workers.dev/mcp",
+  "https://hs-partner-002-mcp.oga-surf-project.workers.dev/mcp"
+];
+
+async function watchlist(env) {
+  if (env && env.HS_VERIFY_KV) {
+    try {
+      const v = await env.HS_VERIFY_KV.get("watch:endpoints", "json");
+      if (Array.isArray(v) && v.length) return v;
+    } catch (_e) { /* KV が読めなければ既定値で続ける */ }
+  }
+  return DEFAULT_WATCHLIST;
+}
+
+async function histKey(endpoint) {
+  return "hist:" + (await sha256hex(endpoint)).slice(0, 16);
+}
+
+// 状態の指紋。**record_sha256 を使ってはいけない。**
+// あれは checked_at を含むので毎回変わり、毎日「変化した」と誤検知する。
+// 変化として意味があるのは status と各条件の合否だけ。
+function stateFingerprint(record) {
+  const checks = record && record.checks ? record.checks : {};
+  const parts = Object.keys(checks).sort().map((k) => k + "=" + (checks[k] && checks[k].pass ? "1" : "0"));
+  return (record && record.status ? record.status : "unknown") + "|" + parts.join(",");
+}
+
+function summarise(record) {
+  const checks = (record && record.checks) || {};
+  const out = {};
+  for (const k of Object.keys(checks)) {
+    out[k] = {
+      pass: !!checks[k].pass,
+      measured: checks[k].measured === false ? false : true
+    };
+  }
+  return {
+    at: record.checked_at,
+    status: record.status,
+    record_sha256: record.record_sha256,
+    conditions: out,
+    fingerprint: stateFingerprint(record)
+  };
+}
+
+async function recordHistory(env, endpoint, record) {
+  if (!env || !env.HS_VERIFY_KV) return null;
+  const key = await histKey(endpoint);
+  let prev = null;
+  try { prev = await env.HS_VERIFY_KV.get(key, "json"); } catch (_e) {}
+  const entries = (prev && Array.isArray(prev.entries)) ? prev.entries : [];
+  const last = entries.length ? entries[entries.length - 1] : null;
+  const entry = summarise(record);
+
+  const changed = !last || last.fingerprint !== entry.fingerprint;
+  entries.push(entry);
+  while (entries.length > HISTORY_MAX) entries.shift();
+
+  try {
+    await env.HS_VERIFY_KV.put(key, JSON.stringify({ endpoint, entries }));
+  } catch (_e) { /* 書けなくても判定は返す */ }
+
+  if (changed && last) {
+    // 初回は「変化」ではない。前があって違ったときだけ記録する。
+    // **何が変わったかを書く。** status だけでは pending -> pending にしかならず、
+    // 通知を受け取る側に一番必要な情報が抜ける。
+    const flips = [];
+    const keys = new Set(Object.keys(last.conditions || {}).concat(Object.keys(entry.conditions || {})));
+    for (const k of keys) {
+      const before = last.conditions && last.conditions[k] ? last.conditions[k].pass : null;
+      const after = entry.conditions && entry.conditions[k] ? entry.conditions[k].pass : null;
+      if (before !== after) {
+        flips.push({ condition: k, from: before, to: after });
+      }
+    }
+    let changes = [];
+    try { changes = (await env.HS_VERIFY_KV.get("changes:recent", "json")) || []; } catch (_e) {}
+    changes.push({
+      at: entry.at,
+      endpoint,
+      status_from: last.status,
+      status_to: entry.status,
+      conditions_changed: flips,
+      summary: flips.length
+        ? flips.map((f) => f.condition + " " + (f.from ? "pass" : "fail") + " to " + (f.to ? "pass" : "fail")).join(", ")
+        : "status changed with no condition flip"
+    });
+    while (changes.length > CHANGES_MAX) changes.shift();
+    try { await env.HS_VERIFY_KV.put("changes:recent", JSON.stringify(changes)); } catch (_e) {}
+  }
+  return { changed: changed && !!last, entry };
+}
+
+async function readHistory(env, endpoint) {
+  if (!env || !env.HS_VERIFY_KV) {
+    return { endpoint, entries: [], note: "History storage is not bound on this deployment, so nothing has been recorded yet." };
+  }
+  const key = await histKey(endpoint);
+  try {
+    const v = await env.HS_VERIFY_KV.get(key, "json");
+    if (v) return v;
+  } catch (_e) {}
+  return { endpoint, entries: [], note: "No history recorded for this endpoint yet. It may not be on the watchlist." };
+}
+
+async function readChanges(env) {
+  if (!env || !env.HS_VERIFY_KV) {
+    return { changes: [], note: "History storage is not bound on this deployment." };
+  }
+  try {
+    const v = await env.HS_VERIFY_KV.get("changes:recent", "json");
+    return { changes: v || [], note: "State changes recorded by the daily re-measurement. A change means a condition flipped, not merely that a new verdict was issued." };
+  } catch (_e) {
+    return { changes: [], note: "could not read changes" };
+  }
+}
+
+// 毎日の再測定。**allow_tool_call は決して渡さない。** 他人のツールは呼ばない。
+async function runDailySweep(env) {
+  const list = await watchlist(env);
+  const results = [];
+  for (const endpoint of list) {
+    try {
+      const record = await runCheck(endpoint, false);
+      const r = await recordHistory(env, endpoint, record);
+      results.push({ endpoint, status: record.status, changed: !!(r && r.changed) });
+    } catch (e) {
+      results.push({ endpoint, error: String(e && e.message || e) });
+    }
+    await new Promise((r) => setTimeout(r, 300));
+  }
+  return results;
+}
+
 // ---- MCP インターフェース ----
 // 扉は HTTP チェッカーであると同時に MCP サーバーでもある。
 // MCP クライアントから「このサーバーは適合しているか」を会話中に確かめられる。
@@ -525,7 +672,13 @@ async function runSpecDigest() {
 }
 
 export default {
-  async fetch(request) {
+  // Cron Trigger。毎日の再測定。
+  // 「測定が変われば緑ではなくなる」と公開した以上、測り直す者が要る。
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(runDailySweep(env));
+  },
+
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
 
@@ -554,6 +707,23 @@ export default {
         transport: "MCP over Streamable HTTP (JSON-RPC 2.0)",
         usage: "POST JSON-RPC to this URL. methods: initialize, tools/list, tools/call.",
         tools: MCP_TOOLS.map((t) => t.name)
+      });
+    }
+
+    // 公開履歴。誰でも読める。認証も鍵も要らない。
+    if (path === "/history") {
+      const ep = url.searchParams.get("endpoint");
+      if (!ep) return json({ error: "endpoint_required", usage: "/history?endpoint=https://your-server/mcp" }, 400);
+      return json(await readHistory(env, ep));
+    }
+    if (path === "/changes") return json(await readChanges(env));
+    if (path === "/watchlist") {
+      return json({
+        watched: await watchlist(env),
+        cadence: "daily",
+        note: "These endpoints are re-measured on a schedule so a verdict on this site does not silently go stale. No tool on any watched server is ever called by the sweep.",
+        history: "/history?endpoint=...",
+        changes: "/changes"
       });
     }
 
@@ -592,6 +762,6 @@ export default {
       });
     }
 
-    return json({ error: "not_found", path, endpoints: ["/mcp", "/check", "/spec", "/self", "/health"] }, 404);
+    return json({ error: "not_found", path, endpoints: ["/mcp", "/check", "/spec", "/self", "/history", "/changes", "/watchlist", "/health"] }, 404);
   }
 };
