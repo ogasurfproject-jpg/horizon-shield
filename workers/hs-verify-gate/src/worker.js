@@ -147,7 +147,25 @@ function checkCompensation(card) {
 
 // ---- 条件4. 数値主張の再計算可能性(決定論性) ----
 // 同じ入力を複数回投げ、返る内容が一致するかを実測する。
-async function checkDeterminism(endpoint, toolName) {
+async function checkDeterminism(endpoint, toolName, allowToolCall) {
+  // 既定ではツールを呼ばない。決定論性を測るには相手のツールを実行する必要があり、
+  // 先頭のツールが破壊的な操作である可能性がある。所有者の明示的な同意なしには触らない。
+  if (!allowToolCall) {
+    return {
+      pass: false,
+      measured: false,
+      reason:
+        "not measured: measuring determinism requires calling one of your tools, and this gate " +
+        "does not call tools on a server without the owner's consent. The first tool listed may " +
+        "be destructive. To have this condition measured, re-run with allow_tool_call set to true " +
+        "from a request you control.",
+      detail: {
+        consent_required: true,
+        how_to_measure: 'POST /check {"endpoint":"https://your-server/mcp","allow_tool_call":true}',
+        tool_that_would_be_called: toolName || null
+      }
+    };
+  }
   if (!toolName) return { pass: false, reason: "no tool available to test", detail: {} };
   const outs = [];
   for (let i = 0; i < CONFIG.determinism_runs; i++) {
@@ -170,7 +188,7 @@ async function checkDeterminism(endpoint, toolName) {
 }
 
 // ---- 判定の組み立て ----
-async function runCheck(endpoint) {
+async function runCheck(endpoint, allowToolCall) {
   const started = new Date().toISOString();
   const results = {};
 
@@ -181,7 +199,7 @@ async function runCheck(endpoint) {
 
   const firstTool = results.mcp_endpoint.detail && results.mcp_endpoint.detail.tools
     ? results.mcp_endpoint.detail.tools[0] : null;
-  results.determinism = await checkDeterminism(endpoint, firstTool);
+  results.determinism = await checkDeterminism(endpoint, firstTool, allowToolCall === true);
 
   const passed = Object.values(results).every((r) => r.pass);
 
@@ -194,7 +212,10 @@ async function runCheck(endpoint) {
     scope_note:
       "This gate verifies conformance and disclosure only. It does NOT verify that any price " +
       "or figure returned by the server is correct. Price validation is a separate, paid tier " +
-      "and is currently available for Japanese construction only.",
+      "and is currently available for Japanese construction only. By default this gate calls no " +
+      "tools on the server being checked, so determinism is reported as not measured rather than " +
+      "guessed. Send allow_tool_call true to have it measured on a server you control.",
+    tools_called: allowToolCall === true ? "one tool, twice, with empty arguments, by consent" : "none",
     checks: results
   };
 
@@ -240,7 +261,7 @@ function spec() {
         },
         note: "Content is not judged. Only the absence of disclosure disqualifies."
       },
-      determinism: "Calling the same tool with the same arguments returns identical content across runs",
+      determinism: "Calling the same tool with the same arguments returns identical content across runs. NOT measured by default: doing so requires executing a tool on the checked server, which this gate will not do without the owner's consent. Send allow_tool_call true to measure it.",
       self_verification: "Every verdict carries a SHA-256 that any third party can recompute"
     },
     tiers: {
@@ -378,14 +399,19 @@ export default {
         return json({ error: "https_required" }, 400);
       }
       try {
-        return json(await runCheck(endpoint));
+        return json(await runCheck(endpoint, body && body.allow_tool_call === true));
       } catch (e) {
         return json({ error: "check_failed", message: String(e && e.message || e) }, 500);
       }
     }
 
     if (path === "/check" && request.method === "GET") {
-      return json({ ok: true, usage: 'POST /check {"endpoint":"https://your-server/mcp"}', spec: "/spec" });
+      return json({
+        ok: true,
+        usage: 'POST /check {"endpoint":"https://your-server/mcp"}',
+        note: "By default no tool on the checked server is called, so determinism comes back as not measured. Add \"allow_tool_call\": true to measure it, and only do that for a server you control.",
+        spec: "/spec"
+      });
     }
 
     return json({ error: "not_found", path, endpoints: ["/check", "/spec", "/self", "/health"] }, 404);

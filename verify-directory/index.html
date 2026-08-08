@@ -244,7 +244,7 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
           <li><span class="n">01</span><span><b>Live MCP endpoint.</b> Responds to <span class="mono">initialize</span> and <span class="mono">tools/list</span> with at least one tool.<span class="jp">MCPとして実在し応答する</span></span></li>
           <li><span class="n">02</span><span><b>A2A agent card.</b> <span class="mono">/.well-known/agent-card.json</span> returns JSON with name and description.<span class="jp">エージェントカードの公開</span></span></li>
           <li><span class="n">03</span><span><b>Compensation disclosure.</b> The card declares who pays it (<span class="mono">paid_by</span>, referral_fee, listing_fee).<span class="jp">報酬構造の開示</span></span></li>
-          <li><span class="n">04</span><span><b>Determinism.</b> Identical input returns identical output across runs.<span class="jp">同じ入力に同じ出力</span></span></li>
+          <li><span class="n">04</span><span><b>Determinism.</b> Identical input returns identical output across runs. <b>Not measured unless you ask for it.</b> Measuring this means executing a tool on your server, and the first tool listed may be destructive, so the gate will not do it without the owner's consent.<span class="jp">同じ入力に同じ出力。ただし持ち主の同意なしにツールは呼ばない</span></span></li>
           <li><span class="n">05</span><span><b>Self-verification.</b> Every verdict carries a SHA-256 that any third party can recompute.<span class="jp">判定自体が再計算可能</span></span></li>
         </ul>
       </div>
@@ -368,6 +368,10 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
     <div class="kh">Live conformance check</div>
     <h2>Paste any MCP endpoint. The gate checks it, then you recompute the verdict</h2>
     <p class="slead">This runs in your browser, against the live gate. The verdict's SHA-256 is recomputed here, on your side, and compared. Nothing is taken on trust.</p>
+    <div class="panel" style="margin-top:20px;border-color:rgba(52,211,153,.28)">
+      <div class="ph"><span class="ic">✓</span> The gate calls no tools on the server you point it at</div>
+      <p style="font-size:13.6px;color:var(--ink-2);margin:0">Every verdict carries a <span class="mono">tools_called</span> field, and by default it reads <span class="mono">none</span>. Measuring determinism would mean executing a tool on the checked server, and the first tool a server lists may well be destructive. So the gate reports that condition as <b>not measured</b> rather than guessing, and says why. If you own the server and want it measured, send <span class="mono">allow_tool_call: true</span> and the verdict will record that a tool was called by consent. You can point this at somebody else's endpoint without touching their data.<span class="jp" style="display:block;margin-top:8px">他人のサーバーには許可なくツールを呼ばない。測っていないものを測ったことにしない。</span></p>
+    </div>
     <div class="console">
       <div class="presets">
         <button class="preset" data-ep="https://hs-verify-gate.oga-surf-project.workers.dev/self">gate /self · self-applied</button>
@@ -434,7 +438,7 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
     <div class="grid2" style="margin-top:30px">
       <div class="panel yes">
         <div class="ph"><span class="ic">1</span> Measure yourself first</div>
-        <p style="font-size:13.6px;color:var(--ink-2);margin:0 0 12px">One command. No key, no signup. The verdict names the condition that failed and why, so you can fix it before anyone else looks.</p>
+        <p style="font-size:13.6px;color:var(--ink-2);margin:0 0 12px">One command. No key, no signup. The verdict names the condition that failed and why, so you can fix it before anyone else looks. No tool on your server is called unless you add <span class="mono">allow_tool_call: true</span>.</p>
         <div class="code" style="margin-top:0;font-size:11.5px">curl -s -X POST <span class="g">https://hs-verify-gate.oga-surf-project.workers.dev/check</span> <span class="b">\</span>
   -H <span class="g">'content-type: application/json'</span> <span class="b">\</span>
   -d <span class="g">'{"endpoint":"https://your-server/mcp"}'</span></div>
