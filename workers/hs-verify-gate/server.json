@@ -1,0 +1,23 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ogasurfproject-jpg/hs-verify-gate",
+  "title": "Yakumo Verification Gate: conformance and disclosure checker for MCP servers",
+  "description": "Check whether an MCP server exists, publishes an A2A agent card, declares who pays it, returns identical output for identical input, and issues verdicts anyone can recompute. Free, no key, no account. Conformance and disclosure only: it says nothing about whether any figure a checked server returns is correct. By default it calls no tool on the server being checked, because the first tool a server lists may be destructive, so determinism is reported as not measured rather than guessed. Every verdict carries a SHA-256 you recompute yourself, so you never have to trust the party that issued it. The operator's own servers are listed under the same conditions, and the first run against them scored 0.0 percent on disclosure.",
+  "version": "0.1.0",
+  "websiteUrl": "https://shield.the-horizons-innovation.com/verify-directory/",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/icon.png",
+      "mimeType": "image/png",
+      "sizes": ["512x512"]
+    }
+  ],
+  "repository": {
+    "url": "https://github.com/ogasurfproject-jpg/horizon-shield",
+    "source": "github",
+    "subfolder": "workers/hs-verify-gate"
+  },
+  "remotes": [
+    { "type": "streamable-http", "url": "https://hs-verify-gate.oga-surf-project.workers.dev/mcp" }
+  ]
+}

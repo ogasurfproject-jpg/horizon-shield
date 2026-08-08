@@ -227,6 +227,7 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
     <span><span class="dot">●</span> <b>gate v0.1.0</b></span>
     <span>4 entries</span>
     <span>self-applied</span>
+    <span>gate speaks MCP</span>
     <span>fail-closed</span>
     <span>snapshot <b>2026-08-08</b></span>
   </div>
@@ -271,6 +272,7 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
       <span class="lg"><span class="pill na"><span class="d"></span>N/A</span> stated, not applicable</span>
       <span class="lg"><span class="pill pend"><span class="d"></span>IN PROCESS</span> fail-closed, not yet passed</span>
       <span class="lg"><span class="pill hold"><span class="d"></span>HELD</span> the gate cannot reach it (same account)</span>
+      <span class="lg"><span class="pill hold"><span class="d"></span>NOT SELF</span> applies, but we did not measure it ourselves</span>
     </div>
 
     <!-- 01 gate self -->
@@ -284,14 +286,14 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
         <span class="status verified"><span class="d"></span>VERIFIED</span>
       </div>
       <div class="conds">
-        <div class="cond"><div class="cl">MCP endpoint</div><span class="pill na"><span class="d"></span>N/A</span></div>
+        <div class="cond"><div class="cl">MCP endpoint</div><span class="pill hold"><span class="d"></span>NOT SELF</span></div>
         <div class="cond"><div class="cl">Agent card</div><span class="pill pass"><span class="d"></span>PASS</span></div>
         <div class="cond"><div class="cl">Compensation</div><span class="pill pass"><span class="d"></span>PASS</span></div>
         <div class="cond"><div class="cl">Determinism</div><span class="pill pass"><span class="d"></span>PASS</span></div>
         <div class="cond"><div class="cl">Self-verify</div><span class="pill pass"><span class="d"></span>PASS</span></div>
       </div>
-      <div class="endpoint"><span class="verb">GET</span><a href="https://hs-verify-gate.oga-surf-project.workers.dev/self">/self</a> · <a href="https://hs-verify-gate.oga-surf-project.workers.dev/spec">/spec</a> · <span class="verb post">POST</span>/check {"endpoint":"https://..."}</div>
-      <div class="enote">Condition 01 is marked <b>N/A and stated</b>: the gate is an HTTP checker, not an MCP server. Declaring the non-applicable case rather than hiding it is the point. Its compensation is declared in the same shape it demands of applicants: <span class="mono">paid_by=buyer, referral_fee=false, listing_fee=false, success_fee_pct=0</span>.</div>
+      <div class="endpoint"><span class="verb post">POST</span><a href="https://hs-verify-gate.oga-surf-project.workers.dev/mcp">/mcp</a> · <span class="verb">GET</span><a href="https://hs-verify-gate.oga-surf-project.workers.dev/self">/self</a> · <a href="https://hs-verify-gate.oga-surf-project.workers.dev/spec">/spec</a> · <span class="verb post">POST</span>/check</div>
+      <div class="enote">The gate now speaks MCP itself, at <span class="mono">/mcp</span>, with three tools. <span class="mono">get_conditions</span> takes no arguments and returns the same thing every time, which is why it is listed first. <span class="mono">check_conformance</span> measures any endpoint. <span class="mono">verify_verdict</span> recomputes the hash of a verdict this gate issued, so the tool that lets you distrust the issuer is provided by the issuer.<br><br>Condition 01 used to be marked not applicable here, on the grounds that the gate was an HTTP checker rather than an MCP server. That is no longer true, so the row changed. It now says <b>applicable, served, and not measured by us</b>. The gate cannot reach itself over the network from inside its own account, and it will not claim to have measured something it did not. Point another checker at <span class="mono">/mcp</span> from outside and the claim is either confirmed or destroyed.<br><br>Its compensation is declared in the same shape it demands of applicants. <span class="mono">paid_by=buyer, referral_fee=false, listing_fee=false, success_fee_pct=0</span>.</div>
       <div class="proof"><span class="lb">recompute:</span> fetch <a href="https://hs-verify-gate.oga-surf-project.workers.dev/self">/self</a>, drop the <span class="mono">record_sha256</span> and <span class="mono">recompute_note</span> fields, JSON.stringify the remainder in key order, take the SHA-256. It must equal <span class="mono">record_sha256</span>. The gate holds itself to the standard it applies to others.</div>
       <div id="gate-livehash" class="livehash"></div>
     </div>

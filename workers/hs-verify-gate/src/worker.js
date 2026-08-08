@@ -274,6 +274,141 @@ function spec() {
   };
 }
 
+// ---- MCP インターフェース ----
+// 扉は HTTP チェッカーであると同時に MCP サーバーでもある。
+// MCP クライアントから「このサーバーは適合しているか」を会話中に確かめられる。
+
+const MCP_TOOLS = [
+  {
+    // **1本目に置くのは意図的。** 引数を取らず、読み取り専用で、毎回同じ結果を返す。
+    // 他所の適合チェッカーが1本目を空引数で叩いても、何も壊れず決定論的に応答する。
+    name: "get_conditions",
+    title: "Get the conformance conditions",
+    description:
+      "Return the five conditions this gate measures, what it explicitly does not verify, " +
+      "and the tier definitions. Takes no arguments and returns identical output every time. " +
+      "Read this before running a check so you know what a verdict does and does not claim.",
+    inputSchema: { type: "object", properties: {}, additionalProperties: false }
+  },
+  {
+    name: "check_conformance",
+    title: "Check an MCP server for conformance and disclosure",
+    description:
+      "Measure a public MCP endpoint against five conditions: it speaks MCP, it publishes an A2A " +
+      "agent card, it declares who pays it, identical input returns identical output, and the " +
+      "verdict itself can be recomputed by anyone. Free, no key. Conformance and disclosure only; " +
+      "this says nothing about whether any figure the checked server returns is correct. " +
+      "By default no tool on the checked server is called, so determinism comes back as not " +
+      "measured rather than guessed. Set allow_tool_call true only for a server you control.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        endpoint: { type: "string", description: "https URL of the MCP endpoint to measure" },
+        allow_tool_call: {
+          type: "boolean",
+          description: "Consent to executing one tool on the checked server, twice, with empty arguments. Only set this for a server you own. Default false."
+        }
+      },
+      required: ["endpoint"],
+      additionalProperties: false
+    }
+  },
+  {
+    name: "verify_verdict",
+    title: "Recompute a verdict hash without trusting the issuer",
+    description:
+      "Take a verdict this gate issued and recompute its record_sha256 independently. Removes " +
+      "record_sha256 and recompute_note, serialises the remainder in key order, and hashes it. " +
+      "Returns whether the verdict was altered after it was issued. You do not have to trust the " +
+      "party that issued the verdict, including this one.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        record: { type: "object", description: "The full verdict object as returned by check_conformance or GET /self" }
+      },
+      required: ["record"],
+      additionalProperties: false
+    }
+  }
+];
+
+function mcpText(obj) {
+  return { content: [{ type: "text", text: typeof obj === "string" ? obj : JSON.stringify(obj, null, 2) }] };
+}
+
+async function verifyVerdict(record) {
+  if (!record || typeof record !== "object") {
+    return { verified: false, reason: "record must be an object" };
+  }
+  const expected = record.record_sha256;
+  if (!expected) {
+    return { verified: false, reason: "record has no record_sha256 to check against" };
+  }
+  const copy = JSON.parse(JSON.stringify(record));
+  delete copy.record_sha256;
+  delete copy.recompute_note;
+  const got = await sha256hex(JSON.stringify(copy));
+  return {
+    verified: got === expected,
+    expected_sha256: expected,
+    recomputed_sha256: got,
+    method: "Remove record_sha256 and recompute_note, JSON.stringify the remainder in key order, SHA-256.",
+    note: got === expected
+      ? "The verdict was not altered after it was issued."
+      : "Mismatch. The verdict was altered after it was issued, or it was not issued by this gate. Reject it."
+  };
+}
+
+async function handleMcp(body) {
+  const id = body && body.id;
+  const method = body && body.method;
+
+  if (method === "initialize") {
+    return {
+      jsonrpc: "2.0", id,
+      result: {
+        protocolVersion: (body.params && body.params.protocolVersion) || "2024-11-05",
+        capabilities: { tools: {} },
+        serverInfo: { name: "hs-verify-gate", version: CONFIG.version }
+      }
+    };
+  }
+  if (method === "notifications/initialized") return null;
+  if (method === "tools/list") {
+    return { jsonrpc: "2.0", id, result: { tools: MCP_TOOLS } };
+  }
+  if (method === "tools/call") {
+    const name = body.params && body.params.name;
+    const args = (body.params && body.params.arguments) || {};
+
+    if (name === "get_conditions") {
+      return { jsonrpc: "2.0", id, result: mcpText(spec()) };
+    }
+    if (name === "check_conformance") {
+      const endpoint = args.endpoint;
+      if (!endpoint || typeof endpoint !== "string") {
+        return { jsonrpc: "2.0", id, result: mcpText({ error: "endpoint_required" }) };
+      }
+      let parsed;
+      try { parsed = new URL(endpoint); }
+      catch (_e) { return { jsonrpc: "2.0", id, result: mcpText({ error: "invalid_url" }) }; }
+      if (parsed.protocol !== "https:") {
+        return { jsonrpc: "2.0", id, result: mcpText({ error: "https_required" }) };
+      }
+      try {
+        return { jsonrpc: "2.0", id, result: mcpText(await runCheck(endpoint, args.allow_tool_call === true)) };
+      } catch (e) {
+        return { jsonrpc: "2.0", id, result: mcpText({ error: "check_failed", message: String(e && e.message || e) }) };
+      }
+    }
+    if (name === "verify_verdict") {
+      return { jsonrpc: "2.0", id, result: mcpText(await verifyVerdict(args.record)) };
+    }
+    return { jsonrpc: "2.0", id, result: mcpText({ error: "unknown_tool", name }) };
+  }
+  return { jsonrpc: "2.0", id, error: { code: -32601, message: "method not found: " + method } };
+}
+
 // ---- 扉自身のエージェントカード ----
 // 標準を提案する側が、その標準を満たしていなければ意味がない。
 function ownAgentCard(origin) {
@@ -298,12 +433,19 @@ function ownAgentCard(origin) {
       success_fee_pct: 0,
       disclosure_url: "https://shield.the-horizons-innovation.com/yakumo/plans/"
     },
+    preferredTransport: "JSONRPC",
     skills: [
       {
         id: "check",
         name: "Conformance check",
-        description: "POST /check with an MCP endpoint URL. Returns a verdict with a recomputable SHA-256.",
+        description: "POST /check with an MCP endpoint URL, or call the check_conformance tool over MCP at /mcp. Returns a verdict with a recomputable SHA-256.",
         tags: ["mcp", "verification", "conformance", "disclosure"]
+      },
+      {
+        id: "verify",
+        name: "Verdict verification",
+        description: "Recompute the SHA-256 of a verdict this gate issued, so you do not have to trust the issuer. Available as the verify_verdict tool over MCP.",
+        tags: ["verification", "tamper-evident", "recomputable"]
       }
     ]
   };
@@ -338,10 +480,23 @@ async function selfCheck(origin) {
   };
 
   // 扉は MCP サーバーではないため、条件1は対象外であることを明示する(隠さない)。
+  // この扉は MCP サーバーでもあるので、条件1は該当する。
+  // ただし同一アカウント制約で自分自身に到達できないため、自分では測れない。
+  // 「対象外」と書くのは嘘になるので、測れないことをそのまま書く。
   checks.mcp_endpoint = {
     pass: true,
-    reason: "not applicable: this gate is an HTTP checker, not an MCP server. Stated rather than hidden.",
-    detail: { applicable: false, endpoints: ["/check", "/spec", "/self", "/health"] }
+    measured: false,
+    reason:
+      "applicable and served, but not self measured. This gate now speaks MCP at /mcp, so the " +
+      "condition applies to it. It cannot reach itself over the network from inside its own " +
+      "account, so it does not claim to have measured this. Point another checker at " +
+      "/mcp from outside and the claim is either confirmed or destroyed.",
+    detail: {
+      applicable: true,
+      self_measured: false,
+      mcp_endpoint: origin + "/mcp",
+      http_endpoints: ["/check", "/spec", "/self", "/health"]
+    }
   };
 
   const passed = Object.values(checks).every((r) => r.pass);
@@ -379,6 +534,29 @@ export default {
       return new Response(null, { status: 204, headers: CORS_HEADERS });
     }
 
+    // MCP over Streamable HTTP。扉自身を MCP クライアントから呼べるようにする。
+    if (path === "/mcp" && request.method === "POST") {
+      let body;
+      try { body = await request.json(); }
+      catch (_e) {
+        return json({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "parse error" } }, 400);
+      }
+      if (Array.isArray(body)) {
+        return json({ jsonrpc: "2.0", id: null, error: { code: -32600, message: "batch not supported" } }, 400);
+      }
+      const res = await handleMcp(body);
+      if (res === null) return new Response(null, { status: 202, headers: CORS_HEADERS });
+      return json(res);
+    }
+    if (path === "/mcp" && request.method === "GET") {
+      return json({
+        ok: true,
+        transport: "MCP over Streamable HTTP (JSON-RPC 2.0)",
+        usage: "POST JSON-RPC to this URL. methods: initialize, tools/list, tools/call.",
+        tools: MCP_TOOLS.map((t) => t.name)
+      });
+    }
+
     if (path === "/health") return json({ ok: true, gate_version: CONFIG.version });
     if (path === "/spec") return json(spec());
     if (path === "/.well-known/agent-card.json") return json(ownAgentCard(url.origin));
@@ -414,6 +592,6 @@ export default {
       });
     }
 
-    return json({ error: "not_found", path, endpoints: ["/check", "/spec", "/self", "/health"] }, 404);
+    return json({ error: "not_found", path, endpoints: ["/mcp", "/check", "/spec", "/self", "/health"] }, 404);
   }
 };
