@@ -19,6 +19,15 @@
 
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" };
 
+// 公開・読み取り専用のチェッカーなので、誰でもブラウザから叩けるよう CORS を開く。
+// これが無いと shield ドメインの検証ディレクトリから /self・/check を実測取得できない。
+const CORS_HEADERS = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "GET, POST, OPTIONS",
+  "access-control-allow-headers": "content-type",
+  "access-control-max-age": "86400"
+};
+
 // 仕様確定までの暫定値。名称や閾値はここだけ直せば全体に効く。
 const CONFIG = {
   version: "0.1.0",
@@ -29,7 +38,7 @@ const CONFIG = {
 };
 
 function json(obj, status) {
-  return new Response(JSON.stringify(obj, null, 2), { status: status || 200, headers: JSON_HEADERS });
+  return new Response(JSON.stringify(obj, null, 2), { status: status || 200, headers: { ...JSON_HEADERS, ...CORS_HEADERS } });
 }
 
 async function sha256hex(s) {
@@ -343,6 +352,11 @@ export default {
   async fetch(request) {
     const url = new URL(request.url);
     const path = url.pathname;
+
+    // CORS プリフライト。ブラウザからの POST /check は content-type で preflight が飛ぶ。
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: CORS_HEADERS });
+    }
 
     if (path === "/health") return json({ ok: true, gate_version: CONFIG.version });
     if (path === "/spec") return json(spec());
