@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>検証済み見積もり ／ 見積書に、あなたが自分では作れない証明を添える ／ Yakumo</title>
+<meta name="description" content="見積書に第三者検証のレシートを添える。適正価格は見積もりが出る前に第三者が記録し、Bitcoinに固定されているため、売り手が後から作ることはできない。施主は自分のブラウザでSHA-256を再計算して確認できる。紹介料0円・成果報酬なし。">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/yakumo/kensho-zumi-mitsumori/">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="検証済み見積もり ／ 見積書に、あなたが自分では作れない証明を添える">
+<meta property="og:description" content="適正価格は見積もりが出る前に第三者が記録している。だから売り手には作れない。施主は自分で再計算して確認できる。">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/yakumo/kensho-zumi-mitsumori/">
+<style>
+  :root{ --green:#1E6B43; --navy:#243b53; --ink:#33404d; --muted:#5b6b78; --line:#e6e2db; --bg:#fbfaf8; --gold:#c9a227; --code:#0F2438; --code-t:#D8E0EC; }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif; color:var(--ink); background:#fff; line-height:1.8;}
+  .wrap{max-width:1000px; margin:0 auto; padding:44px 24px 80px;}
+  .kicker{color:var(--green); font-weight:700; letter-spacing:.08em; font-size:.82rem;}
+  h1{font-size:2rem; color:var(--navy); margin:8px 0 14px; line-height:1.35;}
+  .lead{color:var(--muted); font-size:1.02rem; max-width:780px;}
+  .lead b{color:var(--ink);}
+  h2{font-size:1.3rem; color:var(--navy); margin:56px 0 8px;}
+  .sub{color:var(--muted); font-size:.9rem; margin-bottom:22px;}
+  h3{font-size:1.05rem; color:var(--navy); margin:0 0 8px;}
+  p{margin-bottom:14px;}
+
+  .hero-band{margin:26px 0 8px; background:var(--green); color:#fff; border-radius:16px; padding:24px 26px;}
+  .hero-band b{font-size:1.08rem; display:block; margin-bottom:6px;}
+  .hero-band p{font-size:.92rem; opacity:.95; margin:0;}
+
+  .problem{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:8px;}
+  @media(max-width:800px){ .problem{grid-template-columns:1fr;} }
+  .pcard{border:1px solid var(--line); border-radius:14px; padding:22px 24px; background:#fff;}
+  .pcard.bad{border-left:4px solid #b0563f;}
+  .pcard.good{border-left:4px solid var(--green); background:var(--bg);}
+  .pcard .tag{font-size:.75rem; font-weight:700; letter-spacing:.06em; margin-bottom:8px; display:block;}
+  .pcard.bad .tag{color:#b0563f;} .pcard.good .tag{color:var(--green);}
+  .pcard p{font-size:.92rem; margin:0;}
+  .pcard .quote{font-size:.95rem; color:var(--navy); font-weight:600; margin-bottom:10px;}
+
+  .flow{counter-reset:s; margin-top:8px;}
+  .step{display:flex; gap:18px; padding:20px 0; border-bottom:1px solid var(--line);}
+  .step:last-child{border-bottom:none;}
+  .step .n{counter-increment:s; flex:none; width:34px; height:34px; border-radius:10px; background:var(--green); color:#fff; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:.9rem;}
+  .step .n::before{content:counter(s);}
+  .step .b{flex:1;}
+  .step .b p{font-size:.92rem; color:var(--muted); margin:0;}
+  .step .b .who{font-size:.75rem; font-weight:700; letter-spacing:.05em; color:var(--gold); display:block; margin-bottom:3px;}
+
+  .code{background:var(--code); color:var(--code-t); border-radius:12px; padding:20px 22px; overflow-x:auto; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.78rem; line-height:1.9; white-space:pre; margin:10px 0 6px;}
+  .code .k{color:#9FD8B4;} .code .c{color:#8D94A8;}
+
+  .why{background:var(--bg); border-left:4px solid var(--green); border-radius:0 12px 12px 0; padding:20px 24px; margin-top:16px;}
+  .why b{color:var(--navy);} .why p{font-size:.93rem; margin:0;}
+
+  table{width:100%; border-collapse:collapse; margin-top:8px; font-size:.9rem;}
+  th,td{border:1px solid var(--line); padding:12px 14px; text-align:left; vertical-align:top;}
+  thead th{background:var(--navy); color:#fff; font-weight:600; font-size:.86rem;}
+  tbody th{background:var(--bg); font-weight:600; color:var(--navy); font-size:.86rem; width:32%;}
+
+  .price-slot{border:2px dashed var(--gold); border-radius:14px; padding:22px 24px; background:#fffdf5; margin-top:10px;}
+  .price-slot .h{font-weight:700; color:#8a6d10; font-size:.95rem; margin-bottom:10px;}
+  .price-slot ol{margin:0; padding-left:20px;} .price-slot li{font-size:.88rem; margin:8px 0; color:var(--ink);}
+  .price-slot li b{color:var(--navy);}
+
+  .faq-item{margin-bottom:14px; background:#fff; border:1px solid var(--line); border-radius:12px; padding:18px 22px;}
+  .faq-item .q{font-weight:700; color:var(--navy); margin-bottom:8px; font-size:.98rem;}
+  .faq-item .q::before{content:"Q. "; color:var(--gold);}
+  .faq-item .a{font-size:.92rem; color:var(--ink); margin:0;}
+  .faq-item .a::before{content:"A. "; font-weight:700; color:var(--navy);}
+
+  .neutral{margin-top:16px; border:1px solid var(--line); border-radius:14px; padding:20px 24px; background:#fff;}
+  .neutral h3{margin-bottom:10px;}
+  .neutral ul{list-style:none; margin:0;}
+  .neutral li{font-size:.9rem; padding:8px 0 8px 26px; position:relative; border-bottom:1px solid var(--line); color:var(--muted);}
+  .neutral li:last-child{border-bottom:none;}
+  .neutral li::before{content:"✓"; color:var(--green); font-weight:800; position:absolute; left:0;}
+  .neutral li b{color:var(--navy);}
+
+  .note{margin-top:44px; background:#fff; border:1px dashed var(--line); border-radius:12px; padding:20px 24px; font-size:.85rem; color:var(--muted);}
+  .note b{color:var(--ink);}
+  .foot{margin-top:22px; text-align:center; color:var(--muted); font-size:.78rem;}
+  .legal-links{margin-top:26px; text-align:center; font-size:.82rem;} .legal-links a{color:var(--green); margin:0 10px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kicker">HORIZON SHIELD ／ Yakumo</div>
+  <h1>検証済み見積もり<br>見積書に、あなたが自分では作れない証明を添える</h1>
+  <p class="lead">「うちの見積もりは適正です」と、売り手が自分で証明することはできません。どれだけ誠実に積算しても、それは<b>言い値</b>として受け取られます。この商品は、その一点だけを解きます。<b>見積もりが提示される前に</b>第三者が記録した適正価格を、あなたの見積書に添えられる形で発行します。</p>
+
+  <div class="hero-band">
+    <b>なぜ売り手には作れないのか</b>
+    <p>適正価格の記録は、あなたの見積もりより先に存在しています。第三者が観測し、SHA-256で指紋を取り、Bitcoinブロックチェーンに固定したもの。後から都合よく作ることも、書き換えることもできません。売り手が自力では獲得できない種類の証明です。</p>
+  </div>
+
+  <h2>何が変わるか</h2>
+  <p class="sub">値引き交渉そのものが無くなるわけではありません。変わるのは、交渉が何を巡って行われるかです。</p>
+  <div class="problem">
+    <div class="pcard bad">
+      <span class="tag">これまで</span>
+      <div class="quote">「他社はもっと安かった」</div>
+      <p>根拠が提示されないまま、金額だけが比べられます。誠実に積算した会社ほど不利になり、説明の言葉を尽くしても、それは売り手の主張として割り引かれます。結果として、下げるか失注するかの二択に追い込まれます。</p>
+    </div>
+    <div class="pcard good">
+      <span class="tag">検証済み見積もりを添えた場合</span>
+      <div class="quote">「この工事の適正はいくらか」</div>
+      <p>第三者が事前に記録した参照レンジが、判断の土台になります。あなたの金額がその中に収まっていれば、それは主張ではなく照合結果です。話題が「安いか高いか」から「適正か」に移ります。</p>
+    </div>
+  </div>
+
+  <h2>施主は、あなたを信じる必要がありません</h2>
+  <p class="sub">ここがこの商品の中心です。施主は発行元も信じなくて構いません。自分の手元で計算して確かめられます。</p>
+  <p>発行されたレシートには <code>verify_url</code> が付きます。施主がそのURLを開くと、<b>施主自身のブラウザ</b>がSHA-256を計算し直し、レシートに記録された指紋と一致するかを照合します。値が1文字でも書き換えられていれば、一致しません。サーバーには何も送信されません。</p>
+  <div class="code"><span class="c">レシートの中身（実際の形）</span>
+{
+  <span class="k">"fair_price_claim"</span>: { "work": ..., "unit": ..., "fair_min": ..., "fair_avg": ..., "fair_max": ..., "issued_at": ... },
+  <span class="k">"verification"</span>: {
+    "claim_sha256": "改ざん検知用の指紋",
+    "verify_url": "https://shield.the-horizons-innovation.com/verify/?id=...",
+    "ptka": "Bitcoinブロックへの固定記録"
+  },
+  <span class="k">"provenance"</span>: { "curated_by": "大賀俊勝 建設実務30年 監修", "recompute": "SHA-256を自分で計算して照合できる", ... }
+}</div>
+  <div class="why"><b>これは「信用してください」ではありません。</b><p>「信用しなくていいので、計算してください」という提示です。施主にとって、売り手の言葉より強いのはこちらです。そして売り手にとっても、疑われた時に差し出せるものがあるという意味を持ちます。</p></div>
+
+  <h2>発行から手渡しまで</h2>
+  <div class="flow">
+    <div class="step"><span class="n"></span><div class="b"><span class="who">工務店</span><h3>工事内容を指定してレシートを発行する</h3><p>工種と数量を指定すると、その工事の適正レンジが記録され、指紋つきのレシートが発行されます。金額を入力する必要はありません。適正の側が先に決まります。</p></div></div>
+    <div class="step"><span class="n"></span><div class="b"><span class="who">工務店</span><h3>見積書に添えて施主に渡す</h3><p>PDFまたはURLで渡します。見積書そのものを送る必要はありません。適正レンジの記録と、その検証手段だけが渡ります。</p></div></div>
+    <div class="step"><span class="n"></span><div class="b"><span class="who">施主</span><h3>URLを開くだけで、自分で照合できる</h3><p>ブラウザが自動でSHA-256を再計算し、一致を確認します。専門知識も、アプリのインストールも要りません。</p></div></div>
+    <div class="step"><span class="n"></span><div class="b"><span class="who">誰でも</span><h3>後からでも、何年後でも検証できる</h3><p>記録はBitcoinブロックチェーンに固定されています。発行元が消えても、記録が改ざんされていないことは第三者が独立に確認できます。</p></div></div>
+  </div>
+
+  <h2>月額プランとの関係</h2>
+  <p class="sub">これは運用プランの置き換えではなく、上に乗る商品です。</p>
+  <table>
+    <thead><tr><th>比較項目</th><th>運用プラン（月額）</th><th>検証済み見積もり（発行ごと）</th></tr></thead>
+    <tbody>
+      <tr><th>目的</th><td>AIと検索から見つけられる状態を作り、維持する</td><td>目の前の一件の商談で、金額の根拠を提示する</td></tr>
+      <tr><th>効果が出るまで</th><td>継続的に積み上がる性質のもの</td><td>その商談で使える</td></tr>
+      <tr><th>費用の形</th><td>定額</td><td>発行した分だけ</td></tr>
+      <tr><th>加盟の要否</th><td>加盟店として掲載される</td><td>加盟していなくても発行できる</td></tr>
+      <tr><th>成果報酬</th><td>なし</td><td>なし。成約しても追加費用は発生しない</td></tr>
+    </tbody>
+  </table>
+
+  <h2>料金</h2>
+  <div class="price-slot">
+    <div class="h">確定待ち（本番公開前に代表が決める項目）</div>
+    <ol>
+      <li><b>1件あたりの発行料</b>をいくらに置くか。月額プラン加入者は月N件まで込み、という形にするか。</li>
+      <li><b>回数券・月間上限つき定額</b>を用意するか（月20件まで定額など）。</li>
+      <li><b>加盟していない工務店</b>にも同額で開放するか、加盟店価格を分けるか。</li>
+      <li><b>PDF発行</b>を標準に含めるか、URLのみを標準としてPDFは別扱いにするか。</li>
+      <li>施主が直接発行を依頼できる<b>施主向けの窓口</b>を同時に開くか、まずは工務店経由に限るか。</li>
+    </ol>
+  </div>
+
+  <h2>中立性はどう担保されているか</h2>
+  <div class="neutral">
+    <h3>この商品が守る線</h3>
+    <ul>
+      <li><b>成果報酬はありません。</b>レシートを添えて成約しても、発行元の収入は増えません。だから「通りやすい数字」を出す動機が存在しません。</li>
+      <li><b>紹介料は0円です。</b>獲得したお客様は100%御社のものです。</li>
+      <li><b>金額の入力を求めません。</b>適正レンジは工事内容から決まります。見積額に合わせて調整することはできません。</li>
+      <li><b>判定を曲げる余地がありません。</b>同じ工事内容からは常に同じレシートが出ます。人の裁量が入りません。</li>
+      <li><b>複数の候補でレンジが重なり合わない場合、署名しません。</b>確定できない主張に指紋を付けて残すことはしません。</li>
+    </ul>
+  </div>
+
+  <h2>よくある質問</h2>
+  <div class="faq-item"><div class="q">見積書の中身を提出する必要がありますか</div><p class="a">必要ありません。渡すのは工事内容に対する適正レンジの記録です。見積書そのものや原価は発行元にも施主にも渡りません。</p></div>
+  <div class="faq-item"><div class="q">自社の金額がレンジより高い場合はどうなりますか</div><p class="a">レシートは適正レンジを記録するもので、御社の金額を評価するものではありません。レンジより高い理由がある工事は当然あります。その場合、レシートは「なぜ高いのか」を説明する土台になります。根拠が無いまま高い場合には、それが露呈します。この商品は都合の良い数字を作る道具ではありません。</p></div>
+  <div class="faq-item"><div class="q">施主に「この会社が作った数字でしょう」と言われませんか</div><p class="a">その反論は正しく、だからこの設計になっています。数字を信じてもらう必要はありません。施主は自分のブラウザで指紋を計算し直せます。加えて記録はBitcoinブロックチェーンに固定され、元になった相場データはDOI付きのオープンデータとして公開されています。発行元を信用しない立場のまま検証できます。</p></div>
+  <div class="faq-item"><div class="q">成約率は上がりますか</div><p class="a">数字としては保証しません。実績データが出るまで、効果を数値で約束することはしません。確実に言えるのは、これまで差し出せなかった「売り手が自分では作れない証明」を差し出せるようになる、という一点です。</p></div>
+
+  <div class="note"><b>本サービスについて。</b> 提供するのは、工事内容に対する中立の適正価格記録と、その改ざん検知手段です。<b>個別の見積書が妥当であることの保証ではありません。</b>また「verified」は記録が改ざんされていないことの証明であって、監査ルールが将来にわたり有効であることの保証ではありません。相場データの出典はJCCDB（DOI 10.5281/zenodo.20019573・CC BY 4.0）、監修は大賀俊勝（ORCID 0009-0000-9180-903X・建設実務30年）です。価格は税込表示とします。</div>
+
+  <div class="legal-links"><a href="/tokusho.html">特定商取引法に基づく表記</a><a href="/privacy.html">プライバシーポリシー</a><a href="/verify/">検証ページ</a><a href="/verify-directory/">検証ディレクトリ</a></div>
+  <div class="foot">HORIZON SHIELD ／ Yakumo（運営 The HORIZ音s株式会社）</div>
+</div>
+</body>
+</html>
