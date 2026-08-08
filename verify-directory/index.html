@@ -206,7 +206,8 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
     <nav class="navlinks">
       <a href="#verifies">What it checks</a>
       <a href="#registry">Registry</a>
-      <a href="#recompute">Recompute</a>
+      <a href="#join" style="color:var(--emerald-ink)">Get listed</a>
+      <a href="https://shield.the-horizons-innovation.com/verify-directory/badge/">Badge</a>
       <a href="https://shield.the-horizons-innovation.com/spec/">Spec</a>
     </nav>
   </div>
@@ -219,7 +220,7 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
   <p class="herojp jp">検証の扉が実測した対象を並べる公開レジストリ。適合は緑、手続き中は分けて表示し、対象外は明記する。判定はSHA-256で誰でも再計算でき、扉は自分自身にも同じ基準を当てる。</p>
   <div class="cta">
     <a class="btn pri" href="#console"><span class="k">$</span> Run a live check</a>
-    <a class="btn gho" href="#registry">View the registry</a>
+    <a class="btn gho" href="#join">Get listed, free</a>
   </div>
   <div class="meta" style="align-items:center">
     <span id="liveself" class="livechip off"><span class="d"></span>live self-check: idle</span>
@@ -421,6 +422,54 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
       <div class="tier"><div class="tn">yakumo_partner</div><div class="tp paid">PAID</div><p>Dedicated MCP server, operations, and a full audit log.</p></div>
     </div>
 
+  </div>
+</section>
+
+<section id="join">
+  <div class="wrap">
+    <div class="kh">Get listed</div>
+    <h2>Three steps, no account, no fee, no waiting list</h2>
+    <p class="slead">Listing is free and always will be. Nobody pays to appear here, nobody pays for position, and the verdict itself is never sold. You do not need to pass before you start.</p>
+
+    <div class="grid2" style="margin-top:30px">
+      <div class="panel yes">
+        <div class="ph"><span class="ic">1</span> Measure yourself first</div>
+        <p style="font-size:13.6px;color:var(--ink-2);margin:0 0 12px">One command. No key, no signup. The verdict names the condition that failed and why, so you can fix it before anyone else looks.</p>
+        <div class="code" style="margin-top:0;font-size:11.5px">curl -s -X POST <span class="g">https://hs-verify-gate.oga-surf-project.workers.dev/check</span> <span class="b">\</span>
+  -H <span class="g">'content-type: application/json'</span> <span class="b">\</span>
+  -d <span class="g">'{"endpoint":"https://your-server/mcp"}'</span></div>
+      </div>
+      <div class="panel yes">
+        <div class="ph"><span class="ic">2</span> Open an issue</div>
+        <p style="font-size:13.6px;color:var(--ink-2);margin:0 0 12px">Public, on GitHub, with a template. Submissions are visible to everyone, including the ones that failed. There is no private queue and no fast lane.</p>
+        <div class="endpoint" style="margin-top:0"><span class="verb">GET</span><a href="https://github.com/ogasurfproject-jpg/horizon-shield/issues/new?template=list-my-server.yml">github.com/ogasurfproject-jpg/horizon-shield/issues/new</a></div>
+        <p style="font-size:13.2px;color:var(--ink-3);margin-top:12px">You may open one even if you failed. Ask why, and the answer is free.<span class="jp" style="display:block;margin-top:3px">落ちていても開いてよい</span></p>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <div class="ph"><span class="ic">3</span> We re-measure, in public, and reply with the hash</div>
+      <p style="font-size:13.6px;color:var(--ink-2);margin:0">We do not take your word for the result, and you should not take ours. We run the check ourselves, read-only, and post the verdict with its <span class="mono">record_sha256</span> in the same issue so you can recompute it. If it passes, the row goes up. If it does not, the reply says what to change, and that costs nothing either.</p>
+    </div>
+
+    <div class="grid2" style="margin-top:16px">
+      <div class="panel">
+        <div class="ph"><span class="ic">✓</span> What being listed gives you</div>
+        <ul>
+          <li><span class="n">01</span><span>A row with your <b>measured state</b>, condition by condition, that a third party can reproduce.<span class="jp">再現できる実測の行</span></span></li>
+          <li><span class="n">02</span><span>A <b>free badge</b> you may embed. Nobody pays to display it, and it links back to a live verdict rather than a picture. <a href="https://shield.the-horizons-innovation.com/verify-directory/badge/" style="color:var(--emerald-ink)">Take it here</a>.<span class="jp">無料バッジ</span></span></li>
+          <li><span class="n">03</span><span>A place where the <b>disclosure question is already answered</b>, so anyone evaluating you does not have to ask.<span class="jp">開示が済んでいる場所</span></span></li>
+        </ul>
+      </div>
+      <div class="panel no">
+        <div class="ph"><span class="ic">✕</span> What it does not give you</div>
+        <ul>
+          <li><span class="n">01</span><span>Any statement that your prices, figures, or answers are <b>correct</b>. This is conformance and disclosure only.<span class="jp">数値の正しさは含まない</span></span></li>
+          <li><span class="n">02</span><span>A permanent certificate. The row reflects a <b>current measurement</b> and stops being green when the measurement does.<span class="jp">状態が変われば失われる</span></span></li>
+          <li><span class="n">03</span><span>Better position for paying. There is nothing to pay, and <b>order is not for sale</b>.<span class="jp">順位は売っていない</span></span></li>
+        </ul>
+      </div>
+    </div>
   </div>
 </section>
 

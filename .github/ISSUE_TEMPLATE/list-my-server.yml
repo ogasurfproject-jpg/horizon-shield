@@ -1,0 +1,97 @@
+name: List my MCP server in the Verification Directory
+description: Free. No listing fee, no account, and position is not for sale.
+title: "[listing] "
+labels: ["listing-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Listing is free and always will be. Nobody pays to appear here, nobody pays for
+        position, and the verdict itself is never sold.
+
+        Before you open this, run the check yourself. It takes one command, needs no key,
+        and it tells you exactly which condition failed and why:
+
+        ```
+        curl -s -X POST https://hs-verify-gate.oga-surf-project.workers.dev/check \
+          -H 'content-type: application/json' \
+          -d '{"endpoint":"https://your-server/mcp"}'
+        ```
+
+        You do not have to pass to open this issue. If you failed and want a second pair of
+        eyes on why, open it anyway and say so. That is also free.
+
+        The conditions are published at
+        https://hs-verify-gate.oga-surf-project.workers.dev/spec
+
+  - type: input
+    id: endpoint
+    attributes:
+      label: MCP endpoint
+      description: The URL the gate should measure. It must be https and publicly reachable.
+      placeholder: https://your-server.example.com/mcp
+    validations:
+      required: true
+
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: What did the check return when you ran it?
+      options:
+        - "verified (all conditions passed)"
+        - "pending (one or more conditions failed)"
+        - "I have not run it yet"
+        - "I ran it but could not interpret the result"
+    validations:
+      required: true
+
+  - type: input
+    id: record_sha256
+    attributes:
+      label: record_sha256 from your verdict
+      description: >
+        Optional. Paste the record_sha256 the gate returned. We re-measure independently
+        regardless, so this is only used to confirm we are looking at the same verdict.
+      placeholder: 64 hex characters
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything we should know
+      description: >
+        Optional. If a condition does not apply to your server, say why. Non-applicable
+        conditions are listed as N/A with the reason, not silently skipped.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: understood
+    attributes:
+      label: Before you submit
+      options:
+        - label: >
+            I understand this verifies conformance and disclosure only. It says nothing
+            about whether any price, figure, or answer my server returns is correct.
+          required: true
+        - label: >
+            I understand the listing reflects a measurement, not a certificate. If my
+            server stops meeting a condition, the row stops being green.
+          required: true
+        - label: >
+            I understand that if my published compensation declaration is later shown to
+            be false, that is grounds for removal. The gate does not judge whether the
+            declaration is good, only whether it exists.
+          required: true
+        - label: >
+            I understand my entry will show its real state, including conditions that
+            fail. The operator's own servers are listed under the same rule.
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        We will re-measure your endpoint ourselves, read-only, and reply in this issue
+        with the verdict and its hash. If it passes, the entry goes up. If it does not,
+        the reply tells you what to change, and that costs nothing either.
