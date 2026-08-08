@@ -1,0 +1,9 @@
+{
+  // Yakumo 検証の扉 / Verification Gate (v0 適合性チェッカー)
+  // 独立worker。KV も他サービスへの binding も持たない。
+  // 判定は申請された URL を実測するだけで、当社のデータには一切触れない。
+  // これが「無料で開放できる」ことの技術的な裏づけでもある。
+  "name": "hs-verify-gate",
+  "main": "src/worker.js",
+  "compatibility_date": "2024-01-01"
+}
