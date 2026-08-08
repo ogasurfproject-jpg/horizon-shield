@@ -133,7 +133,7 @@ h2{font-size:clamp(24px,3.4vw,32px);font-weight:700;letter-spacing:-.03em}
 .proof a{color:var(--emerald-ink)}
 
 /* code */
-.code{background:#0b0b0e;border:1px solid var(--line);border-radius:16px;padding:22px 22px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.85;margin-top:8px}
+.code{background:#0b0b0e;border:1px solid var(--line);border-radius:16px;padding:22px 22px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.85;margin-top:8px;white-space:pre;tab-size:2}
 .code .c{color:#5c6270} .code .g{color:var(--emerald-ink)} .code .b{color:var(--blue)}
 .code .cmd{color:var(--ink)}
 
@@ -421,6 +421,70 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
       <div class="tier"><div class="tn">yakumo_partner</div><div class="tp paid">PAID</div><p>Dedicated MCP server, operations, and a full audit log.</p></div>
     </div>
 
+  </div>
+</section>
+
+<section id="funded">
+  <div class="wrap">
+    <div class="kh">How this is funded</div>
+    <h2>The gate demands that you declare who pays you. So we go first</h2>
+    <p class="slead">Condition 03 requires every applicant to publish who funds it. It would be incoherent for the operator of that condition to say less about itself than it asks of others. This is the operator's declaration, in the same shape the gate reads from an agent card.</p>
+
+    <div class="code" style="margin-top:24px">
+<span class="c">GET https://hs-verify-gate.oga-surf-project.workers.dev/.well-known/agent-card.json</span>
+
+"compensation": {
+  <span class="g">"paid_by"</span>: "buyer",
+  <span class="g">"referral_fee"</span>: false,
+  <span class="g">"listing_fee"</span>: false,
+  <span class="g">"success_fee_pct"</span>: 0,
+  <span class="g">"disclosure_url"</span>: "https://shield.the-horizons-innovation.com/yakumo/plans/"
+}
+    </div>
+    <p class="slead" style="margin-top:14px;font-size:13.5px"><b>Read the fourth line first.</b> The operator earns nothing extra when an entry passes. There is no success fee, so there is no financial reason to be generous with a verdict. The three lines above it say the same thing from other directions: nobody pays to be listed, nobody pays for position, and no cut is taken from work that results from being found here.<span class="jp" style="display:block;margin-top:6px">成功報酬0。誰かを通しても運営の収入は増えない。判定を甘くする動機が構造的に無い。</span></p>
+
+    <div class="grid2" style="margin-top:32px">
+      <div class="panel yes">
+        <div class="ph"><span class="ic">✓</span> Why the check itself is free</div>
+        <ul>
+          <li><span class="n">01</span><span><b>No human reviews an application.</b> The verdict is computed from measurement, so one more applicant costs close to nothing. Free is a consequence of the design, not a promotion that expires.<span class="jp">人の裁量が無いから無料にできる</span></span></li>
+          <li><span class="n">02</span><span><b>A fee would corrupt it.</b> If passing cost money, the operator would have a reason to pass people. Removing the human removed the discretion, and removing the fee removed the motive.<span class="jp">有料にすれば通す動機が生まれる</span></span></li>
+          <li><span class="n">03</span><span><b>You can run it without us.</b> The conditions are published at <span class="mono">/spec</span>, the verdict recomputes from public bytes, and the check is open to any endpoint, including ones we would rather not have checked.<span class="jp">運営を通さずに走らせられる</span></span></li>
+        </ul>
+      </div>
+      <div class="panel no">
+        <div class="ph"><span class="ic">✕</span> What is never charged for</div>
+        <ul>
+          <li><span class="n">01</span><span><b>Being listed.</b> No listing fee, at any tier, ever.<span class="jp">掲載料</span></span></li>
+          <li><span class="n">02</span><span><b>Position on this page.</b> Order is fixed by the registry, not by payment.<span class="jp">掲載順</span></span></li>
+          <li><span class="n">03</span><span><b>The verdict.</b> A conformance result is never sold, discounted, or expedited.<span class="jp">判定そのもの</span></span></li>
+          <li><span class="n">04</span><span><b>Introductions.</b> Zero referral fees. Work that comes to a listed party is theirs, with no cut taken.<span class="jp">紹介料</span></span></li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 style="margin-top:44px;font-size:22px">So what is actually sold</h2>
+    <p class="slead">Two things, both above the free line, both stated in the machine-readable spec at <span class="mono">/spec</span> as <span class="mono">tiers</span>.</p>
+    <div class="tiers" style="margin-top:20px">
+      <div class="tier"><div class="tn">verified_plus_data</div><div class="tp paid">PAID</div><p>The free tier checks that a server discloses and behaves consistently. This one checks the <b>numbers</b>: that each figure traces to a primary source a third party can obtain independently. Conformance says the machine is honest about itself; this says the data survives an outside look.</p></div>
+      <div class="tier"><div class="tn">yakumo_partner</div><div class="tp paid">PAID</div><p>A dedicated MCP server built and operated for one organisation, with a full audit log. This is construction and operations work, priced as a build and a monthly service, never as a fee for a verdict.</p></div>
+    </div>
+
+    <div class="panel" style="margin-top:26px;border-color:rgba(251,191,36,.3)">
+      <div class="ph" style="color:var(--amber)"><span class="ic" style="background:var(--amber-dim);color:var(--amber)">!</span> The limit, stated rather than hidden</div>
+      <p style="font-size:13.8px;color:var(--ink-2);margin:0">The paid layers exist today for <b>Japanese construction only</b>, because that is where the underlying dataset, the thirty years of site experience, and the licensing sit. If you arrived here as an MCP developer outside that field, the honest answer is that <b>there is currently nothing here to sell you</b>, and the conformance check is genuinely all you will be charged for, which is nothing. This page would rather say that than manufacture an offer.<span class="jp" style="display:block;margin-top:8px">有料層は現在、日本の建設のみ。それ以外の読者に今売れるものは無い。無い、と書く。</span></p>
+    </div>
+
+    <div class="panel" style="margin-top:16px;border-color:rgba(251,146,60,.3)">
+      <div class="ph" style="color:var(--clay)"><span class="ic" style="background:var(--clay-dim);color:var(--clay)">!</span> The conflict of interest, and how it is bounded</div>
+      <p style="font-size:13.8px;color:var(--ink-2);margin:0 0 12px">Anyone who both issues a verdict and sells help obtaining it has a conflict. Naming it is not enough, so here is what actually bounds it.</p>
+      <ul style="list-style:none;margin:0">
+        <li style="display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-2)"><span class="mono" style="color:var(--ink-3);flex:none;width:20px">01</span><span><b style="color:var(--ink)">There is no discretion to sell.</b> The verdict is deterministic. No amount paid changes what <span class="mono">initialize</span> returns, or whether two identical calls produce identical output.</span></li>
+        <li style="display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-2)"><span class="mono" style="color:var(--ink-3);flex:none;width:20px">02</span><span><b style="color:var(--ink)">The failing reasons are free.</b> Anyone can run <span class="mono">POST /check</span> before applying and read exactly which condition failed and why. The information needed to fix it is not behind the paid layer.</span></li>
+        <li style="display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-2)"><span class="mono" style="color:var(--ink-3);flex:none;width:20px">03</span><span><b style="color:var(--ink)">Paid engagement is disclosed on the row.</b> If a listed party is a paying customer of the operator, its entry says so. A verdict that came after money changed hands is still a verdict, but the reader gets to know.</span></li>
+        <li style="display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-2)"><span class="mono" style="color:var(--ink-3);flex:none;width:20px">04</span><span><b style="color:var(--ink)">The operator is listed under the same conditions.</b> Two HORIZON SHIELD entries on this page currently do not pass. They stay visible, unpassed.</span></li>
+      </ul>
+    </div>
   </div>
 </section>
 
