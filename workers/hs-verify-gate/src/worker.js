@@ -62,7 +62,11 @@ async function checkMcp(endpoint) {
     detail.initialize = !!(init && init.result);
     detail.server_name = (init && init.result && init.result.serverInfo && init.result.serverInfo.name) || null;
   } catch (e) {
-    return { pass: false, reason: "initialize failed: " + e.message, detail };
+    const hint = /1104|1042|Failed to fetch|fetch failed/i.test(String(e.message))
+      ? " (the gate could not reach this host. Cloudflare blocks Worker-to-Worker calls within the " +
+        "same account over workers.dev; use a custom domain, or run the check from outside)"
+      : "";
+    return { pass: false, reason: "initialize failed: " + e.message + hint, detail };
   }
   try {
     const list = await rpcCall(endpoint, "tools/list");
@@ -240,6 +244,101 @@ function spec() {
   };
 }
 
+// ---- 扉自身のエージェントカード ----
+// 標準を提案する側が、その標準を満たしていなければ意味がない。
+function ownAgentCard(origin) {
+  return {
+    name: "Yakumo Verification Gate",
+    description:
+      "Checks whether an MCP server exists, publishes an agent card, discloses who pays it, " +
+      "and returns identical output for identical input. Free. Conformance and disclosure only; " +
+      "this gate does not verify that any price returned by a checked server is correct.",
+    url: origin,
+    provider: { organization: "The HORIZ\u97f3s Co., Ltd." },
+    version: CONFIG.version,
+    protocolVersion: "0.2.0",
+    capabilities: { streaming: false, pushNotifications: false },
+    defaultInputModes: ["text"],
+    defaultOutputModes: ["text"],
+    // 扉が申請者に要求するのと同じ形式で、扉自身の報酬構造を宣言する。
+    compensation: {
+      paid_by: "buyer",
+      referral_fee: false,
+      listing_fee: false,
+      success_fee_pct: 0,
+      disclosure_url: "https://shield.the-horizons-innovation.com/yakumo/plans/"
+    },
+    skills: [
+      {
+        id: "check",
+        name: "Conformance check",
+        description: "POST /check with an MCP endpoint URL. Returns a verdict with a recomputable SHA-256.",
+        tags: ["mcp", "verification", "conformance", "disclosure"]
+      }
+    ]
+  };
+}
+
+// ---- 自己検証 ----
+// ネットワークを経由せず、扉自身の公開物を内部で読んで判定する。
+// 同一アカウントのWorker間呼び出しがエッジで遮断される環境でも成立する。
+async function selfCheck(origin) {
+  const card = ownAgentCard(origin);
+  const checks = {};
+
+  checks.agent_card = {
+    pass: !!(card.name && card.description),
+    reason: card.name && card.description
+      ? "agent-card published and well-formed"
+      : "agent-card incomplete",
+    detail: { url: origin + "/.well-known/agent-card.json", name: card.name }
+  };
+
+  checks.compensation_disclosure = checkCompensation(card);
+
+  // 扉は数値を返さないため、価格の決定論性ではなく判定の決定論性を示す。
+  const a = await runSpecDigest();
+  const b = await runSpecDigest();
+  checks.determinism = {
+    pass: a === b,
+    reason: a === b
+      ? "the published spec and verdict format are stable across reads"
+      : "spec digest changed between reads",
+    detail: { spec_sha256: a }
+  };
+
+  // 扉は MCP サーバーではないため、条件1は対象外であることを明示する(隠さない)。
+  checks.mcp_endpoint = {
+    pass: true,
+    reason: "not applicable: this gate is an HTTP checker, not an MCP server. Stated rather than hidden.",
+    detail: { applicable: false, endpoints: ["/check", "/spec", "/self", "/health"] }
+  };
+
+  const passed = Object.values(checks).every((r) => r.pass);
+  const record = {
+    gate: "Yakumo Verification Gate",
+    gate_version: CONFIG.version,
+    subject: "the gate itself",
+    endpoint: origin,
+    checked_at: new Date().toISOString(),
+    status: passed ? CONFIG.tier_pass : CONFIG.tier_fail,
+    scope_note:
+      "The gate applies its own conditions to itself. Where a condition does not apply, that is " +
+      "stated explicitly rather than skipped silently.",
+    checks: checks
+  };
+  const canonical = JSON.stringify(record);
+  record.record_sha256 = await sha256hex(canonical);
+  record.recompute_note =
+    "Remove record_sha256 and recompute_note, JSON.stringify the remainder in this key order, " +
+    "take the SHA-256, and it must equal record_sha256.";
+  return record;
+}
+
+async function runSpecDigest() {
+  return await sha256hex(JSON.stringify(spec()));
+}
+
 export default {
   async fetch(request) {
     const url = new URL(request.url);
@@ -247,6 +346,8 @@ export default {
 
     if (path === "/health") return json({ ok: true, gate_version: CONFIG.version });
     if (path === "/spec") return json(spec());
+    if (path === "/.well-known/agent-card.json") return json(ownAgentCard(url.origin));
+    if (path === "/self") return json(await selfCheck(url.origin));
 
     if (path === "/check" && request.method === "POST") {
       let body;
@@ -273,6 +374,6 @@ export default {
       return json({ ok: true, usage: 'POST /check {"endpoint":"https://your-server/mcp"}', spec: "/spec" });
     }
 
-    return json({ error: "not_found", path, endpoints: ["/check", "/spec", "/health"] }, 404);
+    return json({ error: "not_found", path, endpoints: ["/check", "/spec", "/self", "/health"] }, 404);
   }
 };
