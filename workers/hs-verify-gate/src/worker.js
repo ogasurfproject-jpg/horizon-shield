@@ -33,6 +33,8 @@ const CONFIG = {
   version: "0.1.0",
   tier_pass: "verified",        // 通過時の称号(暫定)
   tier_fail: "pending",         // 未通過(不合格とは呼ばない)
+  tier_held: "held",            // 到達できず測れなかった。不適合とは別の状態
+  unreachable_streak: 3,        // 連続これだけ到達不能が続くまで通知しない
   timeout_ms: 10000,
   determinism_runs: 2           // 決定論性の確認に何回叩くか
 };
@@ -75,7 +77,7 @@ async function checkMcp(endpoint) {
       ? " (the gate could not reach this host. Cloudflare blocks Worker-to-Worker calls within the " +
         "same account over workers.dev; use a custom domain, or run the check from outside)"
       : "";
-    return { pass: false, reason: "initialize failed: " + e.message + hint, detail };
+    return { pass: false, transport: true, reason: "initialize failed: " + e.message + hint, detail };
   }
   try {
     const list = await rpcCall(endpoint, "tools/list");
@@ -84,7 +86,7 @@ async function checkMcp(endpoint) {
     detail.tools = tools.map((t) => t.name).slice(0, 50);
     if (!tools.length) return { pass: false, reason: "tools/list returned no tools", detail };
   } catch (e) {
-    return { pass: false, reason: "tools/list failed: " + e.message, detail };
+    return { pass: false, transport: true, reason: "tools/list failed: " + e.message, detail };
   }
   return { pass: true, reason: "MCP endpoint responds to initialize and tools/list", detail };
 }
@@ -95,7 +97,7 @@ async function checkAgentCard(endpoint) {
   const url = origin + "/.well-known/agent-card.json";
   try {
     const res = await withTimeout(fetch(url), CONFIG.timeout_ms);
-    if (!res.ok) return { pass: false, reason: "agent-card not reachable (http " + res.status + ")", detail: { url } };
+    if (!res.ok) return { pass: false, transport: true, reason: "agent-card not reachable (http " + res.status + ")", detail: { url } };
     const card = await res.json();
     const missing = ["name", "description"].filter((k) => !card[k]);
     if (missing.length) {
@@ -108,7 +110,7 @@ async function checkAgentCard(endpoint) {
       card: card
     };
   } catch (e) {
-    return { pass: false, reason: "agent-card fetch failed: " + e.message, detail: { url } };
+    return { pass: false, transport: true, reason: "agent-card fetch failed: " + e.message, detail: { url } };
   }
 }
 
@@ -194,7 +196,7 @@ async function runCheck(endpoint, allowToolCall) {
 
   results.mcp_endpoint = await checkMcp(endpoint);
   const cardRes = await checkAgentCard(endpoint);
-  results.agent_card = { pass: cardRes.pass, reason: cardRes.reason, detail: cardRes.detail };
+  results.agent_card = { pass: cardRes.pass, transport: cardRes.transport === true, reason: cardRes.reason, detail: cardRes.detail };
   results.compensation_disclosure = checkCompensation(cardRes.card);
 
   const firstTool = results.mcp_endpoint.detail && results.mcp_endpoint.detail.tools
@@ -202,13 +204,17 @@ async function runCheck(endpoint, allowToolCall) {
   results.determinism = await checkDeterminism(endpoint, firstTool, allowToolCall === true);
 
   const passed = Object.values(results).every((r) => r.pass);
+  // 「届かなかった」と「届いた上で条件を満たさない」は別の事実。
+  // fail-closed は変えない。緑にはしない。ただし理由の書き分けはする。
+  const unreachable = Object.values(results).some((r) => r && r.transport === true);
 
   const record = {
     gate: "Yakumo Verification Gate",
     gate_version: CONFIG.version,
     endpoint: endpoint,
     checked_at: started,
-    status: passed ? CONFIG.tier_pass : CONFIG.tier_fail,
+    reachable: !unreachable,
+    status: passed ? CONFIG.tier_pass : (unreachable ? CONFIG.tier_held : CONFIG.tier_fail),
     scope_note:
       "This gate verifies conformance and disclosure only. It does NOT verify that any price " +
       "or figure returned by the server is correct. Price validation is a separate, paid tier " +
@@ -282,6 +288,61 @@ function spec() {
 const HISTORY_MAX = 30;   // 1エンドポイントあたりの保持件数
 const CHANGES_MAX = 50;   // 変化ログの保持件数
 
+// ---- 監視レジストリと通知 ----
+// 判定は無料と有料で完全に同一。値段が付くのは「測る頻度」と「変化を知らされるか」だけ。
+// 判定そのものを売った時点で中立性が死ぬので、そこには決して値段を付けない。
+const REGISTRY_KEY = "watch:registry";
+const REGISTRY_MAX = 500;
+const MAX_PER_SWEEP = 15;        // 1本につき外部アクセス3回。Free の 50/request に収まる上限
+const FREE_INTERVAL_DAYS = 7;    // 無料層は週1回
+const NOTIFY_TIMEOUT_MS = 5000;
+
+async function readRegistry(env) {
+  if (!env || !env.HS_VERIFY_KV) return {};
+  try { return (await env.HS_VERIFY_KV.get(REGISTRY_KEY, "json")) || {}; }
+  catch (_e) { return {}; }
+}
+
+async function writeRegistry(env, reg) {
+  if (!env || !env.HS_VERIFY_KV) return false;
+  try { await env.HS_VERIFY_KV.put(REGISTRY_KEY, JSON.stringify(reg)); return true; }
+  catch (_e) { return false; }
+}
+
+async function readSweepLast(env) {
+  if (!env || !env.HS_VERIFY_KV) {
+    return { ran: false, note: "History storage is not bound on this deployment." };
+  }
+  try {
+    const v = await env.HS_VERIFY_KV.get("sweep:last", "json");
+    if (v) return v;
+  } catch (_e) {}
+  return { ran: false, note: "No sweep has completed yet. If the cron is registered, the first run happens at 18:00 UTC." };
+}
+
+// 無料層は週1回。エンドポイントごとに測る日をずらし、1日に固まらないようにする。
+async function isDueToday(endpoint, tier, now) {
+  if (tier !== "free") return true;
+  const h = await sha256hex(endpoint);
+  const bucket = parseInt(h.slice(0, 4), 16) % FREE_INTERVAL_DAYS;
+  return Math.floor(now / 86400000) % FREE_INTERVAL_DAYS === bucket;
+}
+
+// 変化したときだけ飛ばす。判定は公開されているので、これは「早く知る」ことの対価。
+async function notifyChange(target, payload) {
+  if (!target || !/^https:\/\//i.test(target)) return { sent: false, reason: "no https webhook" };
+  try {
+    const res = await withTimeout(fetch(target, {
+      method: "POST",
+      headers: JSON_HEADERS,
+      body: JSON.stringify(payload)
+    }), NOTIFY_TIMEOUT_MS);
+    return { sent: true, status: res.status };
+  } catch (e) {
+    return { sent: false, reason: String((e && e.message) || e) };
+  }
+}
+
 // 監視対象の既定値。KV の watch:endpoints があればそちらを使う。
 const DEFAULT_WATCHLIST = [
   "https://hs-mcp.oga-surf-project.workers.dev/mcp",
@@ -291,14 +352,29 @@ const DEFAULT_WATCHLIST = [
   "https://hs-partner-002-mcp.oga-surf-project.workers.dev/mcp"
 ];
 
+// 既定の自社分、旧来の watch:endpoints、新しい watch:registry を束ねて返す。
+// 返すのは {endpoint, tier, webhook} の配列。tier は self / free / paid。
 async function watchlist(env) {
+  const out = [];
+  const seen = new Set();
+  const push = (ep, tier, webhook) => {
+    if (typeof ep !== "string" || seen.has(ep)) return;
+    seen.add(ep);
+    out.push({ endpoint: ep, tier: tier, webhook: webhook || null });
+  };
+  for (const ep of DEFAULT_WATCHLIST) push(ep, "self", null);
   if (env && env.HS_VERIFY_KV) {
     try {
-      const v = await env.HS_VERIFY_KV.get("watch:endpoints", "json");
-      if (Array.isArray(v) && v.length) return v;
+      const legacy = await env.HS_VERIFY_KV.get("watch:endpoints", "json");
+      if (Array.isArray(legacy)) for (const ep of legacy) push(ep, "self", null);
     } catch (_e) { /* KV が読めなければ既定値で続ける */ }
   }
-  return DEFAULT_WATCHLIST;
+  const reg = await readRegistry(env);
+  for (const ep of Object.keys(reg)) {
+    const r = reg[ep] || {};
+    push(ep, r.tier === "paid" ? "paid" : "free", r.webhook || null);
+  }
+  return out;
 }
 
 async function histKey(endpoint) {
@@ -318,14 +394,19 @@ function summarise(record) {
   const checks = (record && record.checks) || {};
   const out = {};
   for (const k of Object.keys(checks)) {
+    // **理由を落とさない。** 赤くなった記録に理由が無いと、読み手は誤解しかできない。
+    const r = checks[k] && typeof checks[k].reason === "string" ? checks[k].reason : null;
     out[k] = {
       pass: !!checks[k].pass,
-      measured: checks[k].measured === false ? false : true
+      measured: checks[k].measured === false ? false : true,
+      transport: checks[k].transport === true,
+      reason: r ? r.slice(0, 240) : null
     };
   }
   return {
     at: record.checked_at,
     status: record.status,
+    reachable: record.reachable !== false,
     record_sha256: record.record_sha256,
     conditions: out,
     fingerprint: stateFingerprint(record)
@@ -342,12 +423,22 @@ async function recordHistory(env, endpoint, record) {
   const entry = summarise(record);
 
   const changed = !last || last.fingerprint !== entry.fingerprint;
+  let lastFlips = [];
   entries.push(entry);
   while (entries.length > HISTORY_MAX) entries.shift();
 
   try {
     await env.HS_VERIFY_KV.put(key, JSON.stringify({ endpoint, entries }));
   } catch (_e) { /* 書けなくても判定は返す */ }
+
+  // 到達できなかった回が連続で何回続いたか。1回の回線の詰まりで赤い通知を飛ばさない。
+  // **誤報を1回でも出した監視に、二度目の金は払われない。**
+  let streak = 0;
+  for (let i = entries.length - 1; i >= 0; i--) {
+    if (entries[i] && entries[i].reachable === false) streak++;
+    else break;
+  }
+  const suppressed = entry.reachable === false && streak < CONFIG.unreachable_streak;
 
   if (changed && last) {
     // 初回は「変化」ではない。前があって違ったときだけ記録する。
@@ -362,6 +453,7 @@ async function recordHistory(env, endpoint, record) {
         flips.push({ condition: k, from: before, to: after });
       }
     }
+    lastFlips = flips;
     let changes = [];
     try { changes = (await env.HS_VERIFY_KV.get("changes:recent", "json")) || []; } catch (_e) {}
     changes.push({
@@ -370,6 +462,9 @@ async function recordHistory(env, endpoint, record) {
       status_from: last.status,
       status_to: entry.status,
       conditions_changed: flips,
+      reachable: entry.reachable !== false,
+      unreachable_streak: streak,
+      alert_suppressed: suppressed,
       summary: flips.length
         ? flips.map((f) => f.condition + " " + (f.from ? "pass" : "fail") + " to " + (f.to ? "pass" : "fail")).join(", ")
         : "status changed with no condition flip"
@@ -377,7 +472,16 @@ async function recordHistory(env, endpoint, record) {
     while (changes.length > CHANGES_MAX) changes.shift();
     try { await env.HS_VERIFY_KV.put("changes:recent", JSON.stringify(changes)); } catch (_e) {}
   }
-  return { changed: changed && !!last, entry };
+  // 3回連続で到達不能になった時点で、ちょうど1回だけ鳴らす。
+  // 指紋は2回目以降変わらないので、changed だけを見ていると永久に鳴らない。
+  const crossed = entry.reachable === false && streak === CONFIG.unreachable_streak;
+  return {
+    changed: changed && !!last,
+    alertable: (changed && !!last && !suppressed) || crossed,
+    unreachable_streak: streak,
+    entry,
+    flips: lastFlips
+  };
 }
 
 async function readHistory(env, endpoint) {
@@ -405,20 +509,62 @@ async function readChanges(env) {
 }
 
 // 毎日の再測定。**allow_tool_call は決して渡さない。** 他人のツールは呼ばない。
-async function runDailySweep(env) {
+async function runDailySweep(env, opts) {
+  const now = Date.now();
+  const force = !!(opts && opts.force);
   const list = await watchlist(env);
+
+  const due = [];
+  const skipped = [];
+  for (const w of list) {
+    if (force || (await isDueToday(w.endpoint, w.tier, now))) due.push(w);
+    else skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "not due today (weekly cadence)" });
+  }
+  // 上限で落ちた分は必ず記録する。黙って切ると「全部測った」ように読める。
+  for (const w of due.slice(MAX_PER_SWEEP)) {
+    skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "over MAX_PER_SWEEP for this run" });
+  }
+  const run = due.slice(0, MAX_PER_SWEEP);
+
   const results = [];
-  for (const endpoint of list) {
+  for (const w of run) {
     try {
-      const record = await runCheck(endpoint, false);
-      const r = await recordHistory(env, endpoint, record);
-      results.push({ endpoint, status: record.status, changed: !!(r && r.changed) });
+      const record = await runCheck(w.endpoint, false);
+      const r = await recordHistory(env, w.endpoint, record);
+      const changed = !!(r && r.changed);
+      const alertable = !!(r && r.alertable);
+      let notified = null;
+      if (alertable && w.webhook) {
+        notified = await notifyChange(w.webhook, {
+          event: "conformance_change",
+          endpoint: w.endpoint,
+          at: r.entry.at,
+          status: r.entry.status,
+          reachable: r.entry.reachable !== false,
+          conditions_changed: r.flips || [],
+          history: "/history?endpoint=" + encodeURIComponent(w.endpoint),
+          note: "The verdict is free and public. What you are paying for is being told, and being measured daily."
+        });
+      }
+      results.push({ endpoint: w.endpoint, tier: w.tier, status: record.status, reachable: record.reachable !== false, changed, alert_suppressed: changed && !alertable, notified });
     } catch (e) {
-      results.push({ endpoint, error: String(e && e.message || e) });
+      results.push({ endpoint: w.endpoint, tier: w.tier, error: String((e && e.message) || e) });
     }
     await new Promise((r) => setTimeout(r, 300));
   }
-  return results;
+
+  const out = {
+    ran: true,
+    at: new Date(now).toISOString(),
+    watched_total: list.length,
+    measured: results.length,
+    results,
+    skipped
+  };
+  if (env && env.HS_VERIFY_KV) {
+    try { await env.HS_VERIFY_KV.put("sweep:last", JSON.stringify(out)); } catch (_e) {}
+  }
+  return out;
 }
 
 // ---- MCP インターフェース ----
@@ -717,10 +863,89 @@ export default {
       return json(await readHistory(env, ep));
     }
     if (path === "/changes") return json(await readChanges(env));
-    if (path === "/watchlist") {
+    if (path === "/sweep/last") return json(await readSweepLast(env));
+
+    // 監視の登録。誰でも自分のエンドポイントを載せられる。判定は変わらない。
+    if (path === "/watch" && request.method === "GET") {
+      const reg = await readRegistry(env);
+      const ep = url.searchParams.get("endpoint");
+      if (ep) {
+        const r = reg[ep];
+        if (!r) return json({ endpoint: ep, registered: false });
+        return json({
+          endpoint: ep, registered: true, tier: r.tier,
+          cadence: r.tier === "paid" ? "daily" : "weekly",
+          notified: !!r.webhook, added_at: r.added_at || null
+        });
+      }
       return json({
-        watched: await watchlist(env),
-        cadence: "daily",
+        count: Object.keys(reg).length,
+        max: REGISTRY_MAX,
+        usage: 'POST /watch with {"endpoint":"https://your-server/mcp","webhook":"https://your-endpoint-for-alerts"}',
+        note: "Registering changes nothing about the verdict. It changes how often we re-measure, and whether you are told when a condition flips."
+      });
+    }
+
+    if (path === "/watch" && request.method === "POST") {
+      let body;
+      try { body = await request.json(); }
+      catch (_e) { return json({ error: "invalid_json" }, 400); }
+      const ep = body && body.endpoint;
+      if (typeof ep !== "string" || !/^https:\/\//i.test(ep)) {
+        return json({ error: "endpoint_required", note: "endpoint must be an https URL" }, 400);
+      }
+      const hook = body ? body.webhook : undefined;
+      if (hook !== undefined && hook !== null && (typeof hook !== "string" || !/^https:\/\//i.test(hook))) {
+        return json({ error: "webhook_must_be_https" }, 400);
+      }
+      if (!env || !env.HS_VERIFY_KV) return json({ error: "storage_unavailable" }, 503);
+      const reg = await readRegistry(env);
+      const prev = reg[ep] || null;
+      if (!prev && Object.keys(reg).length >= REGISTRY_MAX) {
+        return json({ error: "registry_full", max: REGISTRY_MAX }, 429);
+      }
+      const admin = !!(env.SWEEP_TOKEN && request.headers.get("x-sweep-token") === env.SWEEP_TOKEN);
+      const tier = admin && body.tier === "paid" ? "paid" : ((prev && prev.tier === "paid") ? "paid" : "free");
+      reg[ep] = {
+        tier: tier,
+        webhook: hook === undefined ? ((prev && prev.webhook) || null) : (hook || null),
+        added_at: (prev && prev.added_at) || new Date().toISOString()
+      };
+      const ok = await writeRegistry(env, reg);
+      return json({
+        ok: ok,
+        endpoint: ep,
+        tier: tier,
+        cadence: tier === "paid" ? "daily" : "weekly",
+        notified: !!reg[ep].webhook,
+        history: "/history?endpoint=" + encodeURIComponent(ep),
+        note: "The verdict is identical for every tier and free to read for anyone. Paying changes the cadence and the alert, never the result."
+      });
+    }
+
+    // 掃引の手動実行。cron を待たずに測れるようにする。運営のみ。
+    if (path === "/sweep" && request.method === "POST") {
+      if (!env || !env.SWEEP_TOKEN) {
+        return json({ error: "sweep_token_not_configured" }, 503);
+      }
+      if (request.headers.get("x-sweep-token") !== env.SWEEP_TOKEN) {
+        return json({ error: "forbidden" }, 403);
+      }
+      let force = false;
+      try { const b = await request.json(); force = !!(b && b.force); } catch (_e) {}
+      return json(await runDailySweep(env, { force: force }));
+    }
+    if (path === "/watchlist") {
+      const wl = await watchlist(env);
+      return json({
+        watched: wl.map((w) => ({
+          endpoint: w.endpoint,
+          tier: w.tier,
+          cadence: w.tier === "free" ? "weekly" : "daily",
+          notified: !!w.webhook
+        })),
+        cadence: "daily for self and paid, weekly for free",
+        verdict_is_identical_for_every_tier: true,
         note: "These endpoints are re-measured on a schedule so a verdict on this site does not silently go stale. No tool on any watched server is ever called by the sweep.",
         history: "/history?endpoint=...",
         changes: "/changes"
@@ -762,6 +987,6 @@ export default {
       });
     }
 
-    return json({ error: "not_found", path, endpoints: ["/mcp", "/check", "/spec", "/self", "/history", "/changes", "/watchlist", "/health"] }, 404);
+    return json({ error: "not_found", path, endpoints: ["/mcp", "/check", "/spec", "/self", "/history", "/changes", "/watchlist", "/watch", "/sweep", "/sweep/last", "/health"] }, 404);
   }
 };
