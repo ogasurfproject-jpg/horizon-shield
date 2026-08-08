@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="248" height="56" viewBox="0 0 248 56" role="img" aria-label="Conformance verified by HORIZON SHIELD">
+  <title>Conformance verified: MCP endpoint, agent card, compensation disclosure, determinism, recomputable verdict</title>
+  <rect x="0.5" y="0.5" width="247" height="55" rx="10" fill="#0b0b0e" stroke="rgba(255,255,255,0.12)"/>
+  <g transform="translate(14,13)">
+    <path d="M11 1.2 L20.5 5.2 V13 C20.5 19.2 16.2 23.6 11 25.2 C5.8 23.6 1.5 19.2 1.5 13 V5.2 Z" fill="#0d2a20" stroke="#34d399" stroke-width="1.4"/>
+    <path d="M11 7 V18 M7.2 11.8 L11 7 L14.8 11.8" stroke="#34d399" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="46" y="24" font-family="'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9.5" letter-spacing="1.1" fill="#6f6f7a">CONFORMANCE</text>
+  <text x="46" y="39" font-family="Inter,system-ui,-apple-system,sans-serif" font-size="14" font-weight="700" fill="#f4f4f5">VERIFIED</text>
+  <g transform="translate(150,0)">
+    <line x1="0" y1="14" x2="0" y2="42" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>
+    <text x="12" y="23" font-family="Inter,system-ui,sans-serif" font-size="9" fill="#6f6f7a">HORIZON</text>
+    <text x="12" y="34" font-family="Inter,system-ui,sans-serif" font-size="9" fill="#6f6f7a">SHIELD</text>
+    <circle cx="80" cy="28" r="3.5" fill="#34d399"/>
+  </g>
+</svg>

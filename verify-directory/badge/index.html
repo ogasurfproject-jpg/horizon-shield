@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conformance badge ／ HORIZON SHIELD Verification Directory</title>
+<meta name="description" content="If your MCP server passes the five conditions, embed this badge. It is free, it links back to the live verdict, and it is revoked by measurement rather than by us. Nobody pays to display it.">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/verify-directory/badge/">
+<meta name="robots" content="index,follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08080a;--surface:#121216;--surface-2:#17171c;
+  --line:rgba(255,255,255,.07);--line-2:rgba(255,255,255,.12);
+  --ink:#f4f4f5;--ink-2:#a9a9b3;--ink-3:#6f6f7a;
+  --emerald:#34d399;--emerald-ink:#6ee7b7;--emerald-dim:#0f3b30;
+  --amber:#fbbf24;--amber-dim:#3a2c07;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'Inter','Noto Sans JP',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;letter-spacing:-.006em;-webkit-font-smoothing:antialiased;
+ background-image:radial-gradient(800px 420px at 85% -10%,rgba(52,211,153,.09),transparent 60%);background-attachment:fixed}
+.wrap{max-width:920px;margin:0 auto;padding:0 28px}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--mono)}
+.jp{color:var(--ink-3);font-size:.82em;letter-spacing:0}
+header{border-bottom:1px solid var(--line);background:rgba(8,8,10,.72);backdrop-filter:blur(14px);position:sticky;top:0;z-index:9}
+.bar{display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{display:flex;align-items:center;gap:11px;font-weight:700;font-size:15px}
+.logo .sub{color:var(--ink-3);font-weight:500;font-size:11px;font-family:var(--mono)}
+.mark{width:26px;height:30px;flex:none}
+.navlinks{display:flex;gap:24px;font-size:13.5px;color:var(--ink-2)}
+.navlinks a:hover{color:var(--ink)}
+.hero{padding:72px 0 40px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;color:var(--emerald-ink);background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.22);border-radius:999px;padding:5px 13px;margin-bottom:24px}
+h1{font-size:clamp(32px,5vw,50px);line-height:1.05;font-weight:800;letter-spacing:-.035em}
+.lede{margin-top:22px;font-size:17px;color:var(--ink-2);max-width:640px;line-height:1.65}
+.lede b{color:var(--ink);font-weight:600}
+section{padding:48px 0;border-top:1px solid var(--line)}
+.kh{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px}
+h2{font-size:clamp(22px,3.2vw,29px);font-weight:700;letter-spacing:-.03em}
+.slead{margin-top:12px;color:var(--ink-2);font-size:15.5px;max-width:660px}
+.badgebox{display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap;background:#f7f7f5;border-radius:18px;padding:38px;margin-top:26px}
+.badgebox.dark{background:#0b0b0e;border:1px solid var(--line)}
+.code{background:#0b0b0e;border:1px solid var(--line);border-radius:14px;padding:20px 22px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.85;margin-top:14px;white-space:pre;color:#c9c9d1}
+.code .t{color:#6ee7b7}.code .a{color:#60a5fa}.code .c{color:#5c6270}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:26px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+.panel{background:linear-gradient(180deg,var(--surface),#0d0d10);border:1px solid var(--line);border-radius:18px;padding:24px}
+.panel .ph{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;margin-bottom:14px}
+.panel .ic{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;background:var(--emerald-dim);color:var(--emerald)}
+.panel.warn .ic{background:var(--amber-dim);color:var(--amber)}
+.panel.warn .ph{color:var(--amber)}
+.panel ul{list-style:none}
+.panel li{display:flex;gap:12px;padding:11px 0;border-top:1px solid var(--line);font-size:13.6px;color:var(--ink-2)}
+.panel li:first-child{border-top:none}
+.panel li .n{font-family:var(--mono);font-size:11px;color:var(--ink-3);flex:none;width:20px;padding-top:2px}
+.panel li b{color:var(--ink);font-weight:600}
+.panel li .jp{display:block;margin-top:3px}
+footer{border-top:1px solid var(--line);padding:40px 0 70px;font-size:12.5px;color:var(--ink-3);line-height:1.9}
+footer a{color:var(--ink-2)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="https://shield.the-horizons-innovation.com/verify-directory/">
+      <svg class="mark" viewBox="0 0 26 30" fill="none" aria-hidden="true"><path d="M13 1.4 L24 6 V15 C24 22.2 19 27.2 13 29 C7 27.2 2 22.2 2 15 V6 Z" fill="#0d2a20" stroke="#34d399" stroke-width="1.6"/><path d="M13 8 V21 M8.5 13.5 L13 8 L17.5 13.5" stroke="#34d399" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>HORIZON SHIELD <span class="sub">/ badge</span></span>
+    </a>
+    <nav class="navlinks">
+      <a href="https://shield.the-horizons-innovation.com/verify-directory/">Directory</a>
+      <a href="https://hs-verify-gate.oga-surf-project.workers.dev/spec">Spec</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero wrap">
+  <span class="eyebrow">FREE · NO REGISTRATION · REVOKED BY MEASUREMENT</span>
+  <h1>Passed the five<br>conditions? Take<br>the badge.</h1>
+  <p class="lede">If the gate measures your server as conformant, you are welcome to display this. It costs nothing, it requires no account, and <b>nobody pays to show it</b>. It links back to a live verdict that anyone can recompute, so it is worth exactly as much as the measurement behind it, and not a cent more.</p>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="kh">The badge</div>
+    <h2>One asset, two backgrounds</h2>
+    <p class="slead">Plain SVG. No script, no tracking pixel, no phone-home. It is an image and a link.</p>
+    <div class="badgebox">
+      <svg width="248" height="56" viewBox="0 0 248 56" role="img" aria-label="Conformance verified by HORIZON SHIELD">
+        <rect x="0.5" y="0.5" width="247" height="55" rx="10" fill="#0b0b0e" stroke="rgba(255,255,255,0.12)"/>
+        <g transform="translate(14,13)"><path d="M11 1.2 L20.5 5.2 V13 C20.5 19.2 16.2 23.6 11 25.2 C5.8 23.6 1.5 19.2 1.5 13 V5.2 Z" fill="#0d2a20" stroke="#34d399" stroke-width="1.4"/><path d="M11 7 V18 M7.2 11.8 L11 7 L14.8 11.8" stroke="#34d399" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <text x="46" y="24" font-family="ui-monospace,Menlo,monospace" font-size="9.5" letter-spacing="1.1" fill="#6f6f7a">CONFORMANCE</text>
+        <text x="46" y="39" font-family="Inter,system-ui,sans-serif" font-size="14" font-weight="700" fill="#f4f4f5">VERIFIED</text>
+        <g transform="translate(150,0)"><line x1="0" y1="14" x2="0" y2="42" stroke="rgba(255,255,255,0.10)"/><text x="12" y="23" font-family="Inter,system-ui,sans-serif" font-size="9" fill="#6f6f7a">HORIZON</text><text x="12" y="34" font-family="Inter,system-ui,sans-serif" font-size="9" fill="#6f6f7a">SHIELD</text><circle cx="80" cy="28" r="3.5" fill="#34d399"/></g>
+      </svg>
+    </div>
+
+    <div class="kh" style="margin-top:34px">HTML</div>
+    <div class="code"><span class="c">&lt;!-- replace YOUR_ENDPOINT with the URL the gate measured --&gt;</span>
+<span class="t">&lt;a</span> <span class="a">href</span>=<span class="t">"https://shield.the-horizons-innovation.com/verify-directory/"</span>
+   <span class="a">rel</span>=<span class="t">"noopener"</span>&gt;
+  <span class="t">&lt;img</span> <span class="a">src</span>=<span class="t">"https://shield.the-horizons-innovation.com/badges/conformance-verified.svg"</span>
+       <span class="a">alt</span>=<span class="t">"Conformance verified by HORIZON SHIELD"</span> <span class="a">width</span>=<span class="t">"248"</span> <span class="a">height</span>=<span class="t">"56"</span>&gt;
+<span class="t">&lt;/a&gt;</span></div>
+
+    <div class="kh" style="margin-top:26px">Markdown</div>
+    <div class="code">[![Conformance verified by HORIZON SHIELD](https://shield.the-horizons-innovation.com/badges/conformance-verified.svg)](https://shield.the-horizons-innovation.com/verify-directory/)</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kh">Terms, such as they are</div>
+    <h2>What displaying it means, and what it does not</h2>
+    <div class="grid2">
+      <div class="panel">
+        <div class="ph"><span class="ic">✓</span> You may display it when</div>
+        <ul>
+          <li><span class="n">01</span><span>The gate has <b>measured</b> your endpoint as conformant. Run <span class="mono">POST /check</span> yourself and see.<span class="jp">実測で適合したとき</span></span></li>
+          <li><span class="n">02</span><span>You keep the link to the directory intact, so a reader can reach the live verdict rather than the picture alone.<span class="jp">リンクを外さないこと</span></span></li>
+          <li><span class="n">03</span><span>You are honest about scope: this says your server discloses and behaves consistently, nothing about your prices.<span class="jp">価格の正しさは含まない</span></span></li>
+        </ul>
+      </div>
+      <div class="panel warn">
+        <div class="ph"><span class="ic">!</span> It stops being true when</div>
+        <ul>
+          <li><span class="n">01</span><span>Your endpoint stops meeting a condition. The badge is a claim about a <b>current measurement</b>, not a certificate you keep.<span class="jp">状態が変われば無効</span></span></li>
+          <li><span class="n">02</span><span>A published compensation declaration turns out to be false. The gate does not judge content, but a false declaration is grounds for removal.<span class="jp">虚偽の開示は取消事由</span></span></li>
+          <li><span class="n">03</span><span>Anyone can check at any time, including your competitors and your customers. That is the point of it being free.<span class="jp">誰でもいつでも検証できる</span></span></li>
+        </ul>
+      </div>
+    </div>
+    <p class="slead" style="margin-top:22px;font-size:13.6px">There is no revocation committee. If the measurement changes, the verdict changes, and the badge is simply no longer accurate. We do not police it, and we do not need to: the link next to it is live.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kh">Before you take it</div>
+    <h2>Check yourself first. It is free and it takes one command</h2>
+    <div class="code"><span class="c">$ curl -s -X POST https://hs-verify-gate.oga-surf-project.workers.dev/check \</span>
+<span class="c">    -H 'content-type: application/json' \</span>
+<span class="c">    -d '{"endpoint":"https://your-server/mcp"}'</span>
+
+<span class="c"># the verdict tells you exactly which condition failed, and why</span>
+<span class="c"># the record_sha256 is yours to recompute; you do not have to trust the result</span></div>
+    <p class="slead" style="margin-top:18px">The operator's own servers are listed in the directory under the same conditions, including the ones that took several tries to pass. On 2026-08-08 the first run against our own servers returned <b>0.0%</b> on compensation disclosure. We publish that too.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Operator: The HORIZ音s Co., Ltd. (Corporate Number 7021001075279). Supervised by Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>).<br>
+    <a href="https://shield.the-horizons-innovation.com/verify-directory/">Verification Directory</a> · <a href="https://hs-verify-gate.oga-surf-project.workers.dev/spec">Conditions (machine readable)</a> · <a href="https://shield.the-horizons-innovation.com/spec/">Verification spec</a><br>
+    The badge is free. Nobody pays to display it, and no listing, position, or verdict is for sale.<br>
+    © 2026 The HORIZ音s Co., Ltd. · HORIZON SHIELD
+  </div>
+</footer>
+</body>
+</html>
