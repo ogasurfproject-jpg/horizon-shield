@@ -1,12 +1,11 @@
 {
-  // ★デプロイ禁止★ cron の式が未確認。live には scheduled ハンドラがあるが、
-  // versions view では cron 式が読めない。ダッシュボードの Settings > Triggers で
-  // 実際の式を確認し、下の triggers に書き戻すまで deploy しないこと。
-  // 空のまま deploy すると定期実行が黙って消える。
-  // 2026-08-09 live照合。KV は binding 名がそのまま "KV"。title=PRICE_SYNC。
+  // 2026-08-09 live照合済み。デプロイ可。
+  // cron はダッシュボード実測: 0 13 10 * *（毎月10日 13:00）。
+  // ANTHROPIC_API_KEY / ESTAT_APP_ID / LINE_CHANNEL_TOKEN / LINE_USER_ID は Secret。
   "name": "hs-price-sync",
   "main": "src/worker.js",
   "compatibility_date": "2026-04-20",
+  "triggers": { "crons": ["0 13 10 * *"] },
   "kv_namespaces": [
     { "binding": "KV", "id": "50f83c2cc5b248bf9d85289f57e029aa" }
   ]

@@ -1,12 +1,11 @@
 {
-  // ★デプロイ禁止★ cron の式が未確認。live には scheduled ハンドラがあるが、
-  // versions view では cron 式が読めない。ダッシュボードの Settings > Triggers で
-  // 実際の式を確認し、下の triggers に書き戻すまで deploy しないこと。
-  // 空のまま deploy すると定期実行が黙って消える。
-  // 2026-08-09 live照合。ALERT_FEED_URLS と ALERT_LINE_TO は本番では Secret。
+  // 2026-08-09 live照合済み。デプロイ可。
+  // cron はダッシュボード実測: */30 * * * *（30分ごと）。
+  // ALERT_FEED_URLS / ALERT_LINE_TO ほか7本は Secret なので vars には置かない。
   "name": "hs-internal-mcp",
   "main": "src/worker.js",
   "compatibility_date": "2026-06-28",
+  "triggers": { "crons": ["*/30 * * * *"] },
   "kv_namespaces": [
     { "binding": "GENKA_VERIFIED", "id": "6f3214d203b0443bbf051d07a56db52a" },
     { "binding": "HS_DESIGN_KV", "id": "ebeee94b11644031a2deaea32093ac8b" },

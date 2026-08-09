@@ -1,17 +1,16 @@
 {
-  // ★デプロイ禁止★ cron の式が未確認。live には scheduled ハンドラがあるが、
-  // versions view では cron 式が読めない。ダッシュボードの Settings > Triggers で
-  // 実際の式を確認し、下の triggers に書き戻すまで deploy しないこと。
-  // 空のまま deploy すると定期実行が黙って消える。
-  // 2026-08-09 live照合。ANTHROPIC_API_KEY / GITHUB_TOKEN / LINE_CHANNEL_TOKEN /
-  // LINE_USER_ID は本番では Secret なので vars に置かない。
-  // ★GITHUB_REPO の値は本番に先頭スペースが入っている(" horizon-shield")。
-  //   実測どおり再現している。直すなら意図的に直すこと。
+  // 2026-08-09 ダッシュボード実測: scheduled() ハンドラはあるが cron が1本も無い。
+  // つまり定期実行は一度も起きていない。動かしたいなら cron を足すこと。
+  // 現状に合わせて triggers は書かない（書くと今無いものを作ることになる）。
+  // live照合済み。ANTHROPIC_API_KEY / GITHUB_TOKEN / LINE_CHANNEL_TOKEN /
+  // LINE_USER_ID は Secret。
+  // ★GITHUB_REPO は 2026-08-09 のダッシュボード実測では先頭スペース無しの
+  //   "horizon-shield" だった。versions view の表示に空白が入って見えたのは表示側。
   "name": "hs-blog-post",
   "main": "src/worker.js",
   "compatibility_date": "2026-03-29",
   "vars": {
     "GITHUB_OWNER": "ogasurfproject-jpg",
-    "GITHUB_REPO": " horizon-shield"
+    "GITHUB_REPO": "horizon-shield"
   }
 }

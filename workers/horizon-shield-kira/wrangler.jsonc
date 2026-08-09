@@ -1,10 +1,9 @@
 {
-  // ★デプロイ禁止★ cron の式が未確認。live には scheduled ハンドラがあるが、
-  // versions view では cron 式が読めない。ダッシュボードの Settings > Triggers で
-  // 実際の式を確認し、下の triggers に書き戻すまで deploy しないこと。
-  // 空のまま deploy すると定期実行が黙って消える。
-  // 2026-08-09 live照合: バインディング無し。LINE_USER_ID と ALERT_FEED_URLS は
-  // 本番では Secret。vars に書くと平文で上書きされるので置かない。
+  // 2026-08-09 ダッシュボード実測: scheduled() ハンドラはあるが cron が1本も無い。
+  // つまり定期実行は一度も起きていない。動かしたいなら cron を足すこと。
+  // 現状に合わせて triggers は書かない（書くと今無いものを作ることになる）。
+  // live照合済み。バインディング無し。ALERT_FEED_URLS / ANTHROPIC_API_KEY /
+  // LINE_CHANNEL_TOKEN / LINE_USER_ID は全部 Secret なので vars には置かない。
   "name": "horizon-shield-kira",
   "main": "src/worker.js",
   "compatibility_date": "2026-03-26"
