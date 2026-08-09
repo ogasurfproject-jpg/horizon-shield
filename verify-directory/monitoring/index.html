@@ -176,7 +176,7 @@
     paypal.Buttons({
       style:{shape:'pill', color:'blue', layout:'vertical', label:'subscribe'},
       createSubscription:function(data, actions){ return actions.subscription.create({plan_id:planId}); },
-      onApprove:function(data){ window.location.href='/thankyou.html'; }
+      onApprove:function(data){ var s = (data && data.subscriptionID) ? ('?s=' + encodeURIComponent(data.subscriptionID)) : ''; window.location.href='/verify-directory/monitoring/start/' + s; }
     }).render(sel);
     return true;
   }

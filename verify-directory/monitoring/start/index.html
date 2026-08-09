@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Start monitoring / HORIZON SHIELD</title>
+<meta name="robots" content="noindex">
+<style>
+  :root{
+    --bg:#08080a;--surface:#121216;--surface-2:#17171c;
+    --line:rgba(255,255,255,.07);--line-2:rgba(255,255,255,.12);
+    --ink:#f4f4f5;--ink-2:#a9a9b3;--ink-3:#6f6f7a;
+    --emerald:#34d399;--emerald-ink:#6ee7b7;
+    --amber:#fbbf24;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:'Inter','Noto Sans JP',system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;letter-spacing:-.006em;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(800px 420px at 85% -10%,rgba(52,211,153,.09),transparent 60%);background-attachment:fixed}
+  a{color:var(--emerald-ink);text-decoration:none}
+  .wrap{max-width:800px;margin:0 auto;padding:0 22px}
+  header{border-bottom:1px solid var(--line);background:rgba(8,8,10,.72);backdrop-filter:blur(14px)}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;font-size:13px}
+  header .brand{font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+  header .brand span{color:var(--ink-3);font-family:var(--mono);font-weight:400}
+  header nav a{color:var(--ink-2);margin-left:18px}
+  .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--emerald-ink);text-transform:uppercase}
+  h1{font-size:clamp(28px,4.6vw,40px);line-height:1.08;font-weight:800;letter-spacing:-.035em;margin:14px 0 14px}
+  .lead{font-size:16px;color:var(--ink-2);max-width:640px}
+  .lead b{color:var(--ink)}
+  section{padding:40px 0;border-top:1px solid var(--line)}
+  section:first-of-type{border-top:none;padding-top:48px}
+  h2{font-size:22px;font-weight:700;letter-spacing:-.03em;margin-bottom:8px}
+  .slead{color:var(--ink-2);font-size:14.5px;margin-bottom:18px}
+  .subid{background:var(--surface-2);border:1px solid var(--line-2);border-radius:12px;padding:16px 18px;margin:16px 0;font-family:var(--mono);font-size:14px;word-break:break-all}
+  .subid .lb{display:block;font-family:var(--sans);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:6px}
+  .subid b{color:var(--emerald-ink)}
+  pre{background:var(--surface);border:1px solid var(--line-2);border-radius:12px;padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:12.8px;line-height:1.75;color:var(--ink-2);margin-top:12px}
+  pre b{color:var(--emerald-ink);font-weight:400}
+  ol{margin:0;padding-left:22px}
+  ol li{font-size:14.5px;color:var(--ink-2);margin:10px 0}
+  ol li b{color:var(--ink)}
+  .panel{background:var(--surface);border:1px solid var(--line-2);border-radius:14px;padding:20px 22px;margin-top:18px}
+  .panel .ph{font-weight:700;font-size:14.5px;margin-bottom:8px}
+  .panel p{font-size:13.8px;color:var(--ink-2)}
+  .panel p + p{margin-top:9px}
+  .jp{display:block;color:var(--ink-3);font-size:12.6px;margin-top:8px;line-height:1.85}
+  .mono{font-family:var(--mono);font-size:12.8px}
+  footer{border-top:1px solid var(--line);padding:32px 0 64px;font-size:12.5px;color:var(--ink-3);line-height:1.9}
+  footer a{color:var(--ink-2)}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <div class="brand">HORIZON SHIELD <span>/ monitoring</span></div>
+  <nav>
+    <a href="/verify-directory/">Directory</a>
+    <a href="/verify-directory/monitoring/">Pricing</a>
+    <a href="/spec/">Spec</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+
+<section>
+  <div class="kicker">Subscription active</div>
+  <h1>Thank you. Two things left, and then we start measuring.</h1>
+  <p class="lead">You have paid for cadence and for being told. <b>You have not paid for a verdict, and nothing you just did moves a single condition.</b> Here is how to tell us what to watch.</p>
+  <div class="subid" id="subbox" style="display:none">
+    <span class="lb">Your PayPal subscription id</span>
+    <b id="subid"></b>
+  </div>
+</section>
+
+<section>
+  <h2>1. Tell us what to watch</h2>
+  <p class="slead">Up to three endpoints on this subscription. One command each, no account, no key.</p>
+<pre>curl -s -X POST https://gate.horizonshield.dev/watch \
+  -H 'content-type: application/json' \
+  -d '{"endpoint":"<b>https://your-server/mcp</b>",
+       "webhook":"<b>https://your-endpoint-for-alerts</b>"}'</pre>
+  <p class="slead" style="margin-top:14px">The webhook is optional but it is most of what you are paying for. It must be https. We POST a small JSON to it when a condition actually flips, and never otherwise. We never send it anything about your users, because we never see anything about your users.</p>
+  <p class="slead">You can check what we hold for an endpoint at any time:</p>
+<pre>curl -s "https://gate.horizonshield.dev/watch?endpoint=<b>https://your-server/mcp</b>"</pre>
+</section>
+
+<section>
+  <h2>2. Send us the subscription id</h2>
+  <p class="slead">Registration alone puts you on the free weekly cadence. To switch you to daily measurement and alerts, we need to connect your payment to your endpoints.</p>
+  <p class="slead">Email <span class="mono">contact@the-horizons-innovation.com</span> with your subscription id and the endpoints you registered. Subject line: <span class="mono">monitoring</span>.</p>
+  <div class="panel">
+    <div class="ph">This step is manual today, and we would rather say so than pretend</div>
+    <p>You are among the first paying subscribers, so a person reads your email and flips the tier by hand. It takes minutes, not days. We will automate it when the volume justifies it, and not before, because a payment webhook written for nobody is a payment webhook nobody has tested.</p>
+    <p>Until the tier is switched, your endpoints are already being measured weekly and the history is already public. Nothing is lost in the gap.<span class="jp">最初の購読者なので、ここは人が手で切り替えます。切り替わるまでの間も週1回の測定と公開履歴は動いています。</span></p>
+  </div>
+</section>
+
+<section>
+  <h2>What happens after that</h2>
+  <ol>
+    <li><b>Measured every day.</b> The sweep calls no tool on your server. It reads your endpoint and your agent card, nothing else.</li>
+    <li><b>A webhook when a condition flips</b>, with the condition named and the reason in plain words.</li>
+    <li><b>No alert on a single unreachable check.</b> Three consecutive unreachable measurements before anything is sent. A network blip is not a failure.</li>
+    <li><b>The history stays public</b>, at <span class="mono">/history?endpoint=...</span>, whether the news is good or bad. Paying means you hear first, not that nobody else hears.</li>
+    <li><b>Cancel any time</b> from your PayPal account. Your public history stays, because deleting a record on request would make every record worthless.</li>
+  </ol>
+</section>
+
+<footer><div class="wrap">
+  Operator: The HORIZONs Co., Ltd. (Corporate Number 7021001075279). Supervised by Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>).<br>
+  Listing is free, the verdict is free, and neither is for sale. <a href="/verify-directory/">Verification Directory</a> &middot; <a href="/verify-directory/monitoring/">Pricing</a> &middot; <a href="/tokusho.html">Legal notice</a><br>
+  &copy; 2026 The HORIZONs Co., Ltd. &middot; HORIZON SHIELD
+</div></footer>
+
+</div>
+
+<script>
+  var q = new URLSearchParams(window.location.search);
+  var s = q.get('s');
+  if (s && /^[A-Za-z0-9\-]{6,40}$/.test(s)) {
+    document.getElementById('subid').textContent = s;
+    document.getElementById('subbox').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
