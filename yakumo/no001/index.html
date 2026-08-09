@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
-<link rel="mcp-server" href="https://hs-hearing.oga-surf-project.workers.dev/mcp">
+<link rel="mcp-server" href="https://hearing.horizonshield.dev/mcp">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
 {"@type":"Organization","@id":"https://shield.the-horizons-innovation.com/#org","name":"HORIZON SHIELD","alternateName":"The HORIZONs株式会社","url":"https://shield.the-horizons-innovation.com","telephone":"0463-74-5917"},
@@ -139,7 +139,7 @@
     <h2>この店はAIからも見つけられます（WebMCP）</h2>
     <p style="color:var(--ink-dim);font-size:14px;">Yakumoの加盟店データは、人だけでなくAIエージェントからも検証付きで参照できます。外部のLLM/エージェントは下記のMCPエンドポイントから、検証済み加盟店を発見し、適正性を確認できます。</p>
     <div class="mcp-box">
-      <div><span class="k">MCP</span> https://hs-hearing.oga-surf-project.workers.dev/mcp</div>
+      <div><span class="k">MCP</span> https://hearing.horizonshield.dev/mcp</div>
       <div><span class="k">tool</span> list_verified_stores { area?: "愛知県", work?: "外壁塗装" }</div>
       <div><span class="k">tool</span> get_contractor_profile { member_no: "No.001" }</div>
       <div><span class="k">A2A </span> /.well-known/agent-card.json</div>
@@ -184,11 +184,11 @@
   try {
     var hsCta = document.getElementById('ctaBtn');
     if (hsCta) hsCta.addEventListener('click', function(){
-      try { navigator.sendBeacon('https://hs-webmcp.oga-surf-project.workers.dev/beacon?store=hs-partner-001&event=mall_click', ''); } catch(e) {}
+      try { navigator.sendBeacon('https://web.horizonshield.dev/beacon?store=hs-partner-001&event=mall_click', ''); } catch(e) {}
     });
   } catch(e) {}
 </script>
-<img src="https://hs-webmcp.oga-surf-project.workers.dev/px.gif?store=hs-partner-001&event=mall_view" width="1" height="1" alt="" style="position:absolute;left:-9999px;" decoding="async" fetchpriority="low">
+<img src="https://web.horizonshield.dev/px.gif?store=hs-partner-001&event=mall_view" width="1" height="1" alt="" style="position:absolute;left:-9999px;" decoding="async" fetchpriority="low">
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

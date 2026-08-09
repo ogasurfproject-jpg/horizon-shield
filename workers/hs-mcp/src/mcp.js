@@ -703,7 +703,7 @@ async function callTool(name, args, env, ip, opts) {
       const claim = { work: e.work, unit: e.unit, fair_min: e.min, fair_avg: e.avg, fair_max: e.max, source: "HORIZON SHIELD souba-db", issued_at };
       const hash = await sha256hex(JSON.stringify(claim));
       const verify_url = SITE + "/verify/?id=" + hash;
-      const ledger_url = "https://hs-mcp.oga-surf-project.workers.dev/ledger/" + hash;
+      const ledger_url = "https://mcp.horizonshield.dev/ledger/" + hash;
       try {
         if (env && env.RL_KV) {
           await env.RL_KV.put("ledger:" + hash, JSON.stringify({ claim, claim_sha256: hash, bitcoin_block: PTKA.bitcoin_block, issued_at }));
@@ -787,8 +787,8 @@ async function callTool(name, args, env, ip, opts) {
   }
   if (name === "get_agent_card") {
     return txt({
-      agent_card_url: "https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json",
-      verification_contract: "https://hs-mcp.oga-surf-project.workers.dev/.well-known/verification-contract.json",
+      agent_card_url: "https://mcp.horizonshield.dev/.well-known/agent-card.json",
+      verification_contract: "https://mcp.horizonshield.dev/.well-known/verification-contract.json",
       protocol: "A2A (Agent2Agent)",
       provider: "The HORIZONs\u682a\u5f0f\u4f1a\u793e",
       skills: [
@@ -952,7 +952,7 @@ async function checkRateLimit(env, ip, limit = 60, window = 60) {
 // recompute は parse より先(生文字列でハッシュ)。改ざん payload はそこで落ちる。
 // verified は「改ざんなし」であって「監査が今も有効」ではない -> audit_ruleset_recheck は常に not_performed。
 const VC_CONTRACT_VERSION = "0.2";
-const VC_CONTRACT_URL = "https://hs-mcp.oga-surf-project.workers.dev/.well-known/verification-contract.json";
+const VC_CONTRACT_URL = "https://mcp.horizonshield.dev/.well-known/verification-contract.json";
 
 async function verifyIntegrityClaim(args) {
   args = args || {};
@@ -1486,7 +1486,7 @@ export default {
           protocolVersion: "0.3.0",
           name: "HORIZON SHIELD KIRA",
           description: "An independent, pre-transaction auditor for construction and renovation estimates. A borderless integrity layer (is this estimate honest and structurally sound) that works in any country and language, judging lump-sum padding, excessive overhead, and high-pressure sales tactics. Built on 30 years of field experience by a Japanese master carpenter. Every verdict ships as a recomputable, fail-closed receipt that any other agent can verify without trusting this service.",
-          url: "https://hs-mcp.oga-surf-project.workers.dev",
+          url: "https://mcp.horizonshield.dev",
           preferredTransport: "JSONRPC",
           provider: { organization: "The HORIZONs\u682a\u5f0f\u4f1a\u793e", url: SITE },
           version: "1.0.0",
@@ -1626,7 +1626,7 @@ export default {
             "0.2": "contract and ruleset {id, version} folded INTO signed_payload (hashed). Prevents silent reinterpretation of old claims under a newer ruleset. Prompted by Federico Blanco Sanchez-Llanos. vc-contract-0.2",
             "0.1.1": "ruleset identity as metadata alongside claim_sha256 (outside the hash)."
           },
-          url: "https://hs-mcp.oga-surf-project.workers.dev/.well-known/verification-contract.json"
+          url: "https://mcp.horizonshield.dev/.well-known/verification-contract.json"
         };
         return new Response(JSON.stringify(VERIFICATION_CONTRACT, null, 2), {
           status: 200,

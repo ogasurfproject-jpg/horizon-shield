@@ -18,9 +18,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
-<link rel="mcp-server" href="https://hs-hearing.oga-surf-project.workers.dev/mcp" title="Yakumo 検証済み加盟店の探索MCP(list_verified_stores)">
-<link rel="alternate" type="application/json" href="https://hs-hearing.oga-surf-project.workers.dev/.well-known/agent-card.json" title="Yakumo エージェントカード(A2A)">
-<link rel="mcp-server" href="https://hs-mcp.oga-surf-project.workers.dev" title="HORIZON SHIELD 見積り監査MCP">
+<link rel="mcp-server" href="https://hearing.horizonshield.dev/mcp" title="Yakumo 検証済み加盟店の探索MCP(list_verified_stores)">
+<link rel="alternate" type="application/json" href="https://hearing.horizonshield.dev/.well-known/agent-card.json" title="Yakumo エージェントカード(A2A)">
+<link rel="mcp-server" href="https://mcp.horizonshield.dev" title="HORIZON SHIELD 見積り監査MCP">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
 {"@type":"Organization","@id":"https://shield.the-horizons-innovation.com/#org","name":"HORIZON SHIELD","alternateName":"The HORIZONs株式会社","url":"https://shield.the-horizons-innovation.com","telephone":"0463-74-5917"},
@@ -255,9 +255,9 @@
 <script>
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   // ライブ源(hs-hearing KV)を優先、失敗時は静的シードにフォールバック
-  const DATA_URL = 'https://hs-hearing.oga-surf-project.workers.dev/contractors.json';
+  const DATA_URL = 'https://hearing.horizonshield.dev/contractors.json';
   const DATA_FALLBACK = 'https://shield.the-horizons-innovation.com/data/yakumo-contractors.json';
-  const STATS_URL = 'https://hs-mcp.oga-surf-project.workers.dev/.well-known/usage-stats.json';
+  const STATS_URL = 'https://mcp.horizonshield.dev/.well-known/usage-stats.json';
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   // 加盟店ランク: 適正度スコア(0-100)→6段階(Glama式)。A+ > A > B+ > B > C+ > C。A+が最高。
@@ -353,7 +353,7 @@
       const evs = (STATE.contractors || []).slice(0, 20)
         .map(c => ({ store: String(c.store_id || c.member_no || ''), event: 'mall_list' }))
         .filter(e => e.store);
-      if(evs.length) fetch('https://hs-webmcp.oga-surf-project.workers.dev/beacon', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ events: evs }), keepalive: true }).catch(() => {});
+      if(evs.length) fetch('https://web.horizonshield.dev/beacon', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ events: evs }), keepalive: true }).catch(() => {});
     } catch(e) {}
     // 照会/検証の回数は捏造しない。hs-mcpの実カウンタ(呼び出し数のみ・payload/価格/IPは非保存)が
     // 取れた時だけ、その実数を表示する。取れなければ一文ごと非表示のまま(fail-closed)。
@@ -369,7 +369,7 @@
   }).catch(()=>{});
 
   // YAKUMO NOW: 活動フィード(取れなければ非表示のまま。数字と同じく捏造しない)
-  fetch('https://hs-hearing.oga-surf-project.workers.dev/activity.json')
+  fetch('https://hearing.horizonshield.dev/activity.json')
     .then(r => r.ok ? r.json() : null)
     .then(d => {
       const items = (d && d.items) || [];

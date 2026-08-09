@@ -10,7 +10,7 @@ Open your Codex config file at `~/.codex/config.toml` and add:
 
 ```toml
 [mcp_servers.horizon-shield]
-url = "https://hs-mcp.oga-surf-project.workers.dev"
+url = "https://mcp.horizonshield.dev"
 ```
 
 No authentication is required. HORIZON SHIELD is a public, read-only service.
@@ -36,4 +36,4 @@ audit_estimate, check_red_flags, get_price_range, get_estimate_reading_guide, ge
 ## Links
 
 Website: https://shield.the-horizons-innovation.com
-MCP endpoint: https://hs-mcp.oga-surf-project.workers.dev
+MCP endpoint: https://mcp.horizonshield.dev

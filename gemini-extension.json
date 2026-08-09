@@ -4,7 +4,7 @@
   "description": "Audit Japanese construction and renovation estimates against the open JCCDB dataset and return Bitcoin-anchored, independently recomputable fair-price receipts. Remote MCP server, read-only, no API key.",
   "mcpServers": {
     "horizon-shield": {
-      "httpUrl": "https://hs-mcp.oga-surf-project.workers.dev"
+      "httpUrl": "https://mcp.horizonshield.dev"
     }
   },
   "contextFileName": "GEMINI.md"

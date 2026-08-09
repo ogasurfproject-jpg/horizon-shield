@@ -271,13 +271,13 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
       <span class="lg"><span class="pill pass"><span class="d"></span>PASS</span> measured and met</span>
       <span class="lg"><span class="pill na"><span class="d"></span>N/A</span> stated, not applicable</span>
       <span class="lg"><span class="pill pend"><span class="d"></span>IN PROCESS</span> fail-closed, not yet passed</span>
-      <span class="lg"><span class="pill hold"><span class="d"></span>HELD</span> the gate cannot reach it (same account)</span>
+      <span class="lg"><span class="pill hold"><span class="d"></span>HELD</span> the gate could not reach it, and the record says why</span>
       <span class="lg"><span class="pill hold"><span class="d"></span>NOT SELF</span> applies, but we did not measure it ourselves</span>
     </div>
 
     <div class="panel" style="margin-bottom:22px;border-color:rgba(52,211,153,.28)">
       <div class="ph"><span class="ic">↻</span> These rows are re-measured every day, and the history is public</div>
-      <p style="font-size:13.6px;color:var(--ink-2);margin:0">A verdict that is measured once and then framed is a verdict that quietly goes stale. Every watched endpoint is re-checked on a schedule, and what came back is kept where anyone can read it. A <b>change</b> means a condition actually flipped, not that a fresh verdict was issued, because every verdict carries a new timestamp and would otherwise look different every single day. The sweep calls <b>no tool</b> on any watched server.<br><br><span class="mono" style="font-size:12.5px"><a href="https://hs-verify-gate.oga-surf-project.workers.dev/watchlist" style="color:var(--emerald-ink)">/watchlist</a> · <a href="https://hs-verify-gate.oga-surf-project.workers.dev/changes" style="color:var(--emerald-ink)">/changes</a> · /history?endpoint=...</span><span class="jp" style="display:block;margin-top:10px">毎日測り直し、履歴を公開する。変化とは条件が実際に反転したことを指す。掃引でツールは呼ばない。</span></p>
+      <p style="font-size:13.6px;color:var(--ink-2);margin:0">A verdict that is measured once and then framed is a verdict that quietly goes stale. Every watched endpoint is re-checked on a schedule, and what came back is kept where anyone can read it. A <b>change</b> means a condition actually flipped, not that a fresh verdict was issued, because every verdict carries a new timestamp and would otherwise look different every single day. The sweep calls <b>no tool</b> on any watched server.<br><br><span class="mono" style="font-size:12.5px"><a href="https://gate.horizonshield.dev/watchlist" style="color:var(--emerald-ink)">/watchlist</a> · <a href="https://gate.horizonshield.dev/changes" style="color:var(--emerald-ink)">/changes</a> · /history?endpoint=...</span><span class="jp" style="display:block;margin-top:10px">毎日測り直し、履歴を公開する。変化とは条件が実際に反転したことを指す。掃引でツールは呼ばない。</span></p>
     </div>
 
     <!-- 01 gate self -->
@@ -297,9 +297,9 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
         <div class="cond"><div class="cl">Determinism</div><span class="pill pass"><span class="d"></span>PASS</span></div>
         <div class="cond"><div class="cl">Self-verify</div><span class="pill pass"><span class="d"></span>PASS</span></div>
       </div>
-      <div class="endpoint"><span class="verb post">POST</span><a href="https://hs-verify-gate.oga-surf-project.workers.dev/mcp">/mcp</a> · <span class="verb">GET</span><a href="https://hs-verify-gate.oga-surf-project.workers.dev/self">/self</a> · <a href="https://hs-verify-gate.oga-surf-project.workers.dev/spec">/spec</a> · <span class="verb post">POST</span>/check</div>
+      <div class="endpoint"><span class="verb post">POST</span><a href="https://gate.horizonshield.dev/mcp">/mcp</a> · <span class="verb">GET</span><a href="https://gate.horizonshield.dev/self">/self</a> · <a href="https://gate.horizonshield.dev/spec">/spec</a> · <span class="verb post">POST</span>/check</div>
       <div class="enote">The gate now speaks MCP itself, at <span class="mono">/mcp</span>, with three tools. <span class="mono">get_conditions</span> takes no arguments and returns the same thing every time, which is why it is listed first. <span class="mono">check_conformance</span> measures any endpoint. <span class="mono">verify_verdict</span> recomputes the hash of a verdict this gate issued, so the tool that lets you distrust the issuer is provided by the issuer.<br><br>Condition 01 used to be marked not applicable here, on the grounds that the gate was an HTTP checker rather than an MCP server. That is no longer true, so the row changed. It now says <b>applicable, served, and not measured by us</b>. The gate cannot reach itself over the network from inside its own account, and it will not claim to have measured something it did not. Point another checker at <span class="mono">/mcp</span> from outside and the claim is either confirmed or destroyed.<br><br>Its compensation is declared in the same shape it demands of applicants. <span class="mono">paid_by=buyer, referral_fee=false, listing_fee=false, success_fee_pct=0</span>.</div>
-      <div class="proof"><span class="lb">recompute:</span> fetch <a href="https://hs-verify-gate.oga-surf-project.workers.dev/self">/self</a>, drop the <span class="mono">record_sha256</span> and <span class="mono">recompute_note</span> fields, JSON.stringify the remainder in key order, take the SHA-256. It must equal <span class="mono">record_sha256</span>. The gate holds itself to the standard it applies to others.</div>
+      <div class="proof"><span class="lb">recompute:</span> fetch <a href="https://gate.horizonshield.dev/self">/self</a>, drop the <span class="mono">record_sha256</span> and <span class="mono">recompute_note</span> fields, JSON.stringify the remainder in key order, take the SHA-256. It must equal <span class="mono">record_sha256</span>. The gate holds itself to the standard it applies to others.</div>
       <div id="gate-livehash" class="livehash"></div>
     </div>
 
@@ -311,17 +311,17 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
           <div class="ename">HORIZON SHIELD <span class="mono" style="font-size:14px;color:var(--ink-3)">· hs-mcp</span></div>
           <div class="erole">The estimate-integrity audit MCP. A2A capable, 14 tools, 3 published skills. <span class="jp">見積もり誠実性監査の本体MCP</span></div>
         </div>
-        <span class="status hold"><span class="d"></span>HELD · unreachable</span>
+        <span class="status pending"><span class="d"></span>IN PROCESS</span>
       </div>
       <div class="conds">
-        <div class="cond"><div class="cl">MCP endpoint</div><span class="pill pass"><span class="d"></span>SEEN</span></div>
-        <div class="cond"><div class="cl">Agent card</div><span class="pill pass"><span class="d"></span>SEEN</span></div>
-        <div class="cond"><div class="cl">Compensation</div><span class="pill hold"><span class="d"></span>HELD</span></div>
-        <div class="cond"><div class="cl">Determinism</div><span class="pill hold"><span class="d"></span>HELD</span></div>
-        <div class="cond"><div class="cl">Self-verify</div><span class="pill pass"><span class="d"></span>SEEN</span></div>
+        <div class="cond"><div class="cl">MCP endpoint</div><span class="pill pass"><span class="d"></span>PASS</span></div>
+        <div class="cond"><div class="cl">Agent card</div><span class="pill pass"><span class="d"></span>PASS</span></div>
+        <div class="cond"><div class="cl">Compensation</div><span class="pill pass"><span class="d"></span>PASS</span></div>
+        <div class="cond"><div class="cl">Determinism</div><span class="pill hold"><span class="d"></span>NOT MEASURED</span></div>
+        <div class="cond"><div class="cl">Self-verify</div><span class="pill pass"><span class="d"></span>PASS</span></div>
       </div>
-      <div class="endpoint"><span class="verb">GET</span><a href="https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json">/.well-known/agent-card.json</a> · verification-contract.json</div>
-      <div class="enote">The agent card is live (provider <b>The HORIZ音s Co., Ltd.</b>, skills: estimate-integrity-audit, japan-property-reform-intake, verify-claim). But hs-mcp is on the <b>same Cloudflare account</b> as the gate, and a Worker to Worker call over workers.dev never reaches it. <b>Measured, both ways, on 2026-08-08:</b> from the gate, <span class="mono">/mcp</span> and <span class="mono">/.well-known/agent-card.json</span> both answer <span class="mono">404</span>; from a machine outside the account, the same three URLs answer <span class="mono">200</span>. So the conditions stay <b>held</b> rather than failed, and the honest reading is that this host is <b>verifiable from outside, not by us</b>. Green is not painted early.</div>
+      <div class="endpoint"><span class="verb">GET</span><a href="https://mcp.horizonshield.dev/.well-known/agent-card.json">/.well-known/agent-card.json</a> · verification-contract.json</div>
+      <div class="enote">The agent card is live (provider <b>The HORIZ音s Co., Ltd.</b>, skills: estimate-integrity-audit, japan-property-reform-intake, verify-claim). <b>Until 2026-08-08</b> this host sat on workers.dev, on the same Cloudflare account as the gate, and a Worker to Worker call never arrived: the gate saw <span class="mono">404</span> on paths that answer <span class="mono">200</span> from any machine outside the account. That was recorded rather than hidden. <b>On 2026-08-09 the host moved onto its own domain and the gate reached it.</b> Endpoint, agent card and compensation all pass, measured. Determinism is still <b>not measured</b>, because the sweep calls no tool on any server, and that includes ours. So this entry reads <b>in process</b> and not verified. We did not relax the rule for ourselves.<span class="jp" style="display:block;margin-top:8px">実測で届くようになった。ただし自分のサーバーにも同意なしにツールを呼ばないので、determinism は未測定のままで pending。</span></div>
       <div class="proof"><span class="lb">anchor:</span> this operator's ledger is timestamped to Bitcoin via JIDEC · path #6 · block #959634 · verdict PASS 4/4 · ots confirmed · <a href="https://hs-ledger.oga-surf-project.workers.dev/paths/baa7a7d26994fe4541a65b7c4c3a0a30029d98cb2ca1f69e082116ad659f0309">follow on hs-ledger</a></div>
     </div>
 
@@ -357,14 +357,14 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
         <span class="status pending"><span class="d"></span>IN PROCESS · 60%</span>
       </div>
       <div class="conds">
-        <div class="cond"><div class="cl">MCP endpoint</div><span class="pill pass"><span class="d"></span>LIVE</span></div>
-        <div class="cond"><div class="cl">Agent card</div><span class="pill hold"><span class="d"></span>HELD</span></div>
-        <div class="cond"><div class="cl">Compensation</div><span class="pill hold"><span class="d"></span>HELD</span></div>
-        <div class="cond"><div class="cl">Determinism</div><span class="pill hold"><span class="d"></span>HELD</span></div>
-        <div class="cond"><div class="cl">Self-verify</div><span class="pill hold"><span class="d"></span>HELD</span></div>
+        <div class="cond"><div class="cl">MCP endpoint</div><span class="pill pass"><span class="d"></span>PASS</span></div>
+        <div class="cond"><div class="cl">Agent card</div><span class="pill pass"><span class="d"></span>PASS</span></div>
+        <div class="cond"><div class="cl">Compensation</div><span class="pill pass"><span class="d"></span>PASS</span></div>
+        <div class="cond"><div class="cl">Determinism</div><span class="pill hold"><span class="d"></span>NOT MEASURED</span></div>
+        <div class="cond"><div class="cl">Self-verify</div><span class="pill pass"><span class="d"></span>PASS</span></div>
       </div>
-      <div class="endpoint"><span class="verb">GET</span><a href="https://hs-partner-002-mcp.oga-surf-project.workers.dev">hs-partner-002-mcp.oga-surf-project.workers.dev</a></div>
-      <div class="enote">The dedicated MCP (<span class="mono">get_partner_profile</span>) is live. Profile completeness 60, hearing in progress, so the store's own state is <b>pending</b> (it turns verified on reaching <span class="mono">published</span>). It is also on the same account as the gate, so the gate's request never reaches it and the machine check stays <b>held</b>. An external checker or a custom domain reaches a verdict. The name and the state are shown as measured, not inflated.</div>
+      <div class="endpoint"><span class="verb">GET</span><a href="https://p002.horizonshield.dev">p002.horizonshield.dev</a></div>
+      <div class="enote">The dedicated MCP (<span class="mono">get_partner_profile</span>) is live. Profile completeness 60, hearing in progress, so the store's own state is <b>pending</b> (it turns verified on reaching <span class="mono">published</span>). Until 2026-08-08 the gate could not reach this host either, for the same same-account reason. <b>On 2026-08-09 it moved onto its own domain, and the machine check now passes</b> on endpoint, card and compensation, measured. Determinism stays <b>not measured</b>, because the sweep calls no tool on anyone, this store included. The name and the state are shown as measured, not inflated.</div>
     </div>
 
   </div>
@@ -381,11 +381,11 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
     </div>
     <div class="console">
       <div class="presets">
-        <button class="preset" data-ep="https://hs-verify-gate.oga-surf-project.workers.dev/self">gate /self · self-applied</button>
-        <button class="preset" data-ep="https://hs-mcp.oga-surf-project.workers.dev/mcp">hs-mcp · expect unreachable</button>
+        <button class="preset" data-ep="https://gate.horizonshield.dev/self">gate /self · self-applied</button>
+        <button class="preset" data-ep="https://mcp.horizonshield.dev/mcp">hs-mcp · now reachable</button>
       </div>
       <div class="cbar">
-        <input id="epin" type="text" spellcheck="false" autocapitalize="off" value="https://hs-verify-gate.oga-surf-project.workers.dev/self">
+        <input id="epin" type="text" spellcheck="false" autocapitalize="off" value="https://gate.horizonshield.dev/self">
         <button id="rungo" class="go">Check</button>
       </div>
       <div id="cstatus" class="livechip off"><span class="d"></span>ready</div>
@@ -396,7 +396,7 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
         <div class="rraw" id="rraw"></div>
       </div>
     </div>
-    <p class="slead" style="margin-top:16px;font-size:13.5px">Endpoints on the same Cloudflare account as the gate (hs-mcp, No.002) come back with every condition failed, because a Worker to Worker call over workers.dev never reaches the target. Measured on 2026-08-08: the gate sees <span class="mono">404</span> on paths that answer <span class="mono">200</span> from any machine outside the account. The gate puts that in the verdict instead of hiding it, and the verdict's hash still recomputes, so a failed check is still a verifiable statement. Run it from your own machine and those hosts respond normally.</p>
+    <p class="slead" style="margin-top:16px;font-size:13.5px"><b>Until 2026-08-08</b>, endpoints on the same Cloudflare account as the gate came back with every condition failed, because a Worker to Worker call over workers.dev never reached the target. The gate saw <span class="mono">404</span> on paths that answer <span class="mono">200</span> from any machine outside the account, and it put that in the verdict instead of hiding it. <b>On 2026-08-09 those hosts moved onto their own domain, and the gate reaches them.</b> One host still cannot be reached, and it is the gate itself: a Worker cannot fetch its own hostname, so the record reads <span class="mono">held</span> with <span class="mono">http 522</span> and the reason in plain words. We left that entry on the watchlist rather than quietly dropping the one that fails.</p>
   </div>
 </section>
 
@@ -407,12 +407,12 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
     <p class="slead">No API key. Read-only. Point it at our servers, or at any server we never touched.</p>
     <div class="code">
 <span class="c"># A. Recompute a verdict (the gate's own, or any MCP's)</span>
-<span class="cmd">curl -s</span> <span class="g">https://hs-verify-gate.oga-surf-project.workers.dev/self</span>
+<span class="cmd">curl -s</span> <span class="g">https://gate.horizonshield.dev/self</span>
 <span class="c"># drop record_sha256 + recompute_note, JSON.stringify in key order, then SHA-256</span>
 <span class="c"># if it equals record_sha256, the verdict was not tampered with</span>
 
 <span class="c"># B. Run any MCP endpoint through the gate, from your side</span>
-<span class="cmd">curl -s -X POST</span> <span class="g">https://hs-verify-gate.oga-surf-project.workers.dev/check</span> <span class="b">\</span>
+<span class="cmd">curl -s -X POST</span> <span class="g">https://gate.horizonshield.dev/check</span> <span class="b">\</span>
   -H <span class="g">'content-type: application/json'</span> <span class="b">\</span>
   -d <span class="g">'{"endpoint":"https://your-server/mcp"}'</span>
 
@@ -446,7 +446,7 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
       <div class="panel yes">
         <div class="ph"><span class="ic">1</span> Measure yourself first</div>
         <p style="font-size:13.6px;color:var(--ink-2);margin:0 0 12px">One command. No key, no signup. The verdict names the condition that failed and why, so you can fix it before anyone else looks. No tool on your server is called unless you add <span class="mono">allow_tool_call: true</span>.</p>
-        <div class="code" style="margin-top:0;font-size:11.5px">curl -s -X POST <span class="g">https://hs-verify-gate.oga-surf-project.workers.dev/check</span> <span class="b">\</span>
+        <div class="code" style="margin-top:0;font-size:11.5px">curl -s -X POST <span class="g">https://gate.horizonshield.dev/check</span> <span class="b">\</span>
   -H <span class="g">'content-type: application/json'</span> <span class="b">\</span>
   -d <span class="g">'{"endpoint":"https://your-server/mcp"}'</span></div>
       </div>
@@ -491,7 +491,7 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
     <p class="slead">Condition 03 requires every applicant to publish who funds it. It would be incoherent for the operator of that condition to say less about itself than it asks of others. This is the operator's declaration, in the same shape the gate reads from an agent card.</p>
 
     <div class="code" style="margin-top:24px">
-<span class="c">GET https://hs-verify-gate.oga-surf-project.workers.dev/.well-known/agent-card.json</span>
+<span class="c">GET https://gate.horizonshield.dev/.well-known/agent-card.json</span>
 
 "compensation": {
   <span class="g">"paid_by"</span>: "buyer",
@@ -587,7 +587,7 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
       HORIZON SHIELD
     </div>
     Operator: The HORIZ音s Co., Ltd. (Corporate Number 7021001075279). Supervised by Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>), 30 years on construction sites.<br>
-    Data: <a href="https://doi.org/10.5281/zenodo.20019573">JCCDB (DOI 10.5281/zenodo.20019573, CC BY 4.0)</a>. Related: <a href="https://shield.the-horizons-innovation.com/spec/">Verification Spec</a> · <a href="https://shield.the-horizons-innovation.com/verify/">Recompute a receipt</a> · gate: hs-verify-gate.oga-surf-project.workers.dev<br>
+    Data: <a href="https://doi.org/10.5281/zenodo.20019573">JCCDB (DOI 10.5281/zenodo.20019573, CC BY 4.0)</a>. Related: <a href="https://shield.the-horizons-innovation.com/spec/">Verification Spec</a> · <a href="https://shield.the-horizons-innovation.com/verify/">Recompute a receipt</a> · gate: gate.horizonshield.dev<br>
     Zero referral fees. Verdicts, scores, and listing order are not for sale. This page describes tamper-resistance, not the validity of any ruleset over time.<br>
     © 2026 The HORIZ音s Co., Ltd. · HORIZON SHIELD · Yakumo
   </div>
@@ -595,7 +595,7 @@ footer .fbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:va
 
 <script>
 "use strict";
-const GATE = "https://hs-verify-gate.oga-surf-project.workers.dev";
+const GATE = "https://gate.horizonshield.dev";
 const LABELS = { mcp_endpoint:"MCP endpoint", agent_card:"Agent card", compensation_disclosure:"Compensation", determinism:"Determinism", self_verification:"Self-verify" };
 
 // 取得したJSON由来の値は全て innerHTML 前にエスケープする(貼られたendpointは信用しない)。

@@ -13,9 +13,9 @@
 //         + POST /beacon の JSON一括形式(hs-hearing から agent_view/agent_hit を流し込む)
 //         + /stats(運営)に店舗別の露出列と「店舗用リンク」発行を追加。
 
-const HS_MCP = "https://hs-mcp.oga-surf-project.workers.dev";
+const HS_MCP = "https://mcp.horizonshield.dev";
 const SITE = "https://shield.the-horizons-innovation.com";
-const SELF = "https://hs-webmcp.oga-surf-project.workers.dev";
+const SELF = "https://web.horizonshield.dev";
 const LEDGER = "https://hs-ledger.oga-surf-project.workers.dev";
 
 const SERVER = { name: "hs-webmcp", title: "HORIZON SHIELD WebMCP (KIRA)", version: "0.5.0" };
@@ -247,7 +247,7 @@ const EMBED_JS = `/* HORIZON SHIELD KIRA embed widget  (served at /embed.js?stor
     }
   }
   var store = '';
-  var ORIGIN = 'https://hs-webmcp.oga-surf-project.workers.dev';
+  var ORIGIN = 'https://web.horizonshield.dev';
   try { var u = new URL(srcUrl); store = u.searchParams.get('store') || ''; ORIGIN = u.origin; } catch (e) {}
   if (me && me.getAttribute && me.getAttribute('data-store')) store = me.getAttribute('data-store');
   var ENDPOINT = ORIGIN + '/mcp?store=' + encodeURIComponent(store);

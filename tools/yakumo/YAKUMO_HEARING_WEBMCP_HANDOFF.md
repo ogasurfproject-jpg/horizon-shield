@@ -71,8 +71,8 @@ CLOUDFLARE_ACCOUNT_ID=c15ff64aba400e541853dec1fbe5e76a npx wrangler secret put G
 # 3) デプロイ
 node --check src/hearing.js && CLOUDFLARE_ACCOUNT_ID=c15ff64aba400e541853dec1fbe5e76a npx wrangler deploy
 # 確認
-curl -s https://hs-hearing.oga-surf-project.workers.dev/health
-curl -s https://hs-hearing.oga-surf-project.workers.dev/.well-known/agent-card.json | head -c 200
+curl -s https://hearing.horizonshield.dev/health
+curl -s https://hearing.horizonshield.dev/.well-known/agent-card.json | head -c 200
 ```
 
 ### STEP C. GitHub Secrets(自動公開の燃料)
@@ -141,7 +141,7 @@ main へ commit すれば、モール・店詳細・MCP面が自動で「検証�
 | 加盟案内 | `https://shield.the-horizons-innovation.com/yakumo/apply/` |
 | バッジ配布 | `https://shield.the-horizons-innovation.com/badges/` |
 | データ源 | `data/yakumo-contractors.json` |
-| ヒアリング/MCP ワーカー | `https://hs-hearing.oga-surf-project.workers.dev` |
+| ヒアリング/MCP ワーカー | `https://hearing.horizonshield.dev` |
 | MCP エンドポイント | `.../mcp`(tools: list_verified_stores, get_contractor_profile) |
 | A2A カード | `.../.well-known/agent-card.json` |
 | KV(新規) | `HS_HEARING_KV`(STEP B で作成) |
@@ -187,7 +187,7 @@ Cloudflare Email Routing が hs-hearing ワーカーの email() に配送
    - LLMは既定で **Workers AI**(`ai` バインド・外部キー不要)。別のLLMを使うなら `LLM_API_URL` / `LLM_API_KEY` / `LLM_MODEL`。
 4. 案内メールを送る(件名に ref トークンが自動で入る):
    ```
-   curl -s -X POST https://hs-hearing.oga-surf-project.workers.dev/admin/send-hearing \
+   curl -s -X POST https://hearing.horizonshield.dev/admin/send-hearing \
      -H "X-Admin-Key: $HS_HEARING_ADMIN" -H "Content-Type: application/json" \
      -d '{"token":"＜provisionで出たtoken＞","to":"＜堤さんのメール＞"}'
    ```

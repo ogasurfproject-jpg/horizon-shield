@@ -225,7 +225,7 @@ async function run(){
 document.getElementById('go').addEventListener('click',run);
 
 // 個別レシート: /verify/?id=<claim_sha256> なら台帳から主張を取得して自動照合
-const LEDGER_BASE="https://hs-mcp.oga-surf-project.workers.dev/ledger/";
+const LEDGER_BASE="https://mcp.horizonshield.dev/ledger/";
 async function loadFromId(){
   const id=new URLSearchParams(location.search).get('id');
   if(!id||!/^[0-9a-f]{64}$/i.test(id))return;

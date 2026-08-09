@@ -439,7 +439,7 @@ async function liveContractors(env) {
 
 // 露出計測フィード(hs-webmcp /beacon へ件数だけ流す)。店に見せる「貢献レポート」の AI 面の実数。
 // fail-open: 計測が落ちても MCP 応答は絶対に壊さない。store_id と event 名以外は送らない。
-const STATS_SINK = "https://hs-webmcp.oga-surf-project.workers.dev/beacon";
+const STATS_SINK = "https://web.horizonshield.dev/beacon";
 function feedStats(ctx, events) {
   try {
     if (!events || !events.length) return;
@@ -1034,7 +1034,7 @@ function storeToContractor(s) {
     red_flags_detected: verified ? (s.red_flags_detected != null ? s.red_flags_detected : null) : null,
     claim_sha256: verified ? (s.claim_sha256 || null) : null,
     profile_url: s.profile_url || (s.store_id === "hs-partner-001" ? "/yakumo/no001/" : "/yakumo/"),
-    mcp_url: "https://hs-hearing.oga-surf-project.workers.dev/mcp",
+    mcp_url: "https://hearing.horizonshield.dev/mcp",
     status: s.status || "onboarding",
   };
 }
@@ -1046,7 +1046,7 @@ function storeToContractor(s) {
 const YAKUMO_EMBED_JS = "/* HORIZON SHIELD Yakumo 案内ウィジェット (served at /embed.js). Shadow DOM, no localStorage. */\n" +
 "(function(){\n" +
 "  if(window.__HS_YAKUMO_EMBED__)return; window.__HS_YAKUMO_EMBED__=true;\n" +
-"  var me=document.currentScript, ORIGIN='https://hs-hearing.oga-surf-project.workers.dev';\n" +
+"  var me=document.currentScript, ORIGIN='https://hearing.horizonshield.dev';\n" +
 "  try{ if(me&&me.src) ORIGIN=new URL(me.src).origin; }catch(e){}\n" +
 "  var MCP=ORIGIN+'/mcp', SITE='https://shield.the-horizons-innovation.com';\n" +
 "  function esc(s){s=(s==null?'':String(s));return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');}\n" +

@@ -10,7 +10,7 @@
   <meta property="og:description" content="外壁塗装の見積もり、これ高い？今すぐ無料でAI診断を建設実務30年のプロがsouba-dbの実測データで解説します。適正相場の目安は80万〜150万円。訪問販売の即決を断る方法や、相見積もりの取り方まであわせて確認できます。見積書のチェックポイント、過剰請求の見分け方、業者に確認すべき点まで具体的にまとめました。">
 <meta name="keywords" content="外壁塗装 見積もり 高い,外壁塗装 ぼったくり,外壁塗装 適正価格,外壁塗装 AI 診断">
 <link rel="canonical" href="https://shield.the-horizons-innovation.com/souba/gaiheki-check/">
-<link rel="alternate" type="application/json" title="HORIZON SHIELD KIRA Agent Card (A2A)" href="https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json">
+<link rel="alternate" type="application/json" title="HORIZON SHIELD KIRA Agent Card (A2A)" href="https://mcp.horizonshield.dev/.well-known/agent-card.json">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"外壁塗装の見積もりが高いかどうか、どう確認すればいいですか？","acceptedAnswer":{"@type":"Answer","text":"外壁塗装は㎡単価で確認するのが最も確実です。シリコンなら㎡2,300〜3,500円、フッ素なら3,500〜5,000円が適正。30坪2階建てなら総額80〜150万円が適正で、シリコンで120万円超は相場の約1.4倍にあたり過剰請求が疑われます。出典：HORIZON SHIELD建設費相場データベース2026年版（建設実務30年・大賀俊勝監修）。このページでは見積金額を入力するとその場で中立AI（HORIZON SHIELD KIRA）が無料判定します。"}},
@@ -19,7 +19,7 @@
 ]}
 </script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"HORIZON SHIELD KIRA 見積もり整合性診断","applicationCategory":"BusinessApplication","operatingSystem":"Web, A2A, MCP","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"},"url":"https://shield.the-horizons-innovation.com/souba/gaiheki-check/","provider":{"@type":"Organization","name":"The HORIZONs株式会社","url":"https://shield.the-horizons-innovation.com/"},"potentialAction":{"@type":"AssessAction","name":"Audit a construction estimate","target":"https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json"}}
+{"@context":"https://schema.org","@type":"WebApplication","name":"HORIZON SHIELD KIRA 見積もり整合性診断","applicationCategory":"BusinessApplication","operatingSystem":"Web, A2A, MCP","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"},"url":"https://shield.the-horizons-innovation.com/souba/gaiheki-check/","provider":{"@type":"Organization","name":"The HORIZONs株式会社","url":"https://shield.the-horizons-innovation.com/"},"potentialAction":{"@type":"AssessAction","name":"Audit a construction estimate","target":"https://mcp.horizonshield.dev/.well-known/agent-card.json"}}
 </script>
 <style>
 :root{--navy:#1a2744;--gold:#c9a227;--white:#fff;--light:#f8f7f4;--text:#2c2c2c;--muted:#666;--danger:#c0392b;--ok:#27ae60;--warn:#e67e22}
@@ -84,7 +84,7 @@ footer a{color:var(--gold);text-decoration:none}
 ]}
 </script>
 <link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
-<link rel="mcp-server" href="https://hs-mcp.oga-surf-project.workers.dev">
+<link rel="mcp-server" href="https://mcp.horizonshield.dev">
 </head>
 <body>
 <header>
@@ -148,7 +148,7 @@ footer a{color:var(--gold);text-decoration:none}
 <div class="agent">
 <h3>AIエージェント・開発者の方へ</h3>
 <p>この診断は、A2A／MCP対応の公開エージェント <strong>HORIZON SHIELD KIRA</strong> が処理しています。あなたのエージェントから直接呼び出せます。</p>
-<p>Agent Card: <code>https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json</code></p>
+<p>Agent Card: <code>https://mcp.horizonshield.dev/.well-known/agent-card.json</code></p>
 <p>独立・取引前・再計算可能・フェイルクローズドの検証層。判定は署名付きで、発行元に接触せず第三者が検証できます。</p>
 </div>
 <div class="recirc">
@@ -160,7 +160,7 @@ footer a{color:var(--gold);text-decoration:none}
 </div>
 <footer>© The HORIZONs株式会社 ｜ <a href="https://shield.the-horizons-innovation.com/">HORIZON SHIELD</a> ｜ 業者から報酬を受け取らない中立の建設費診断</footer>
 <script>
-const KIRA_ENDPOINT="https://hs-mcp.oga-surf-project.workers.dev";
+const KIRA_ENDPOINT="https://mcp.horizonshield.dev";
 const EHN_SUBMIT="https://shield.the-horizons-innovation.com/hacker/submit/";
 const REVERSE="https://shield.the-horizons-innovation.com/hs-reverse-estimate/";
 async function askKira(){
@@ -197,7 +197,7 @@ out.innerHTML=h;
 (function(){
 if(!('modelContext' in navigator)||!navigator.modelContext||typeof navigator.modelContext.registerTool!=='function')return;
 var WORK="外壁塗装",UNIT="per square meter (㎡)";
-var KE="https://hs-mcp.oga-surf-project.workers.dev";
+var KE="https://mcp.horizonshield.dev";
 var EHN="https://shield.the-horizons-innovation.com/hacker/submit/";
 var BOARD="https://shield.the-horizons-innovation.com/ehn/";
 var REV="https://shield.the-horizons-innovation.com/hs-reverse-estimate/";

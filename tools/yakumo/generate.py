@@ -226,7 +226,7 @@ def head(title, desc, canonical, jsonld_list, extra_link=""):
 '<meta property="og:title" content="%s">\n'
 '<meta property="og:url" content="%s">\n'
 '<link rel="alternate" type="text/plain" href="%s/llms.txt" title="LLM向けサイト要約">\n'
-'<link rel="mcp-server" href="https://hs-hearing.oga-surf-project.workers.dev/mcp">\n'
+'<link rel="mcp-server" href="https://hearing.horizonshield.dev/mcp">\n'
 '%s\n%s\n'
 '<style>%s</style>\n</head>\n'
 ) % (esc(title), esc(desc), BASE, esc(canonical), esc(title), esc(canonical), BASE, extra_link, blocks, STYLE)
@@ -518,14 +518,14 @@ def webmcp_page(profile):
     desc = "Yakumoの検証済み加盟店は、AIエージェントからMCP経由で参照できます。list_verified_stores / get_contractor_profile で、地域と工種から検証済みの工務店を発見。金額は返さず、適正度スコアとティアのみ。"
     ld = {"@context":"https://schema.org","@type":"WebAPI","name":"YAKUMO Verified Stores MCP","description":desc,
           "provider":{"@type":"Organization","name":"The HORIZONs株式会社","alternateName":"HORIZON SHIELD"},
-          "documentation":canonical,"url":"https://hs-hearing.oga-surf-project.workers.dev/mcp"}
+          "documentation":canonical,"url":"https://hearing.horizonshield.dev/mcp"}
     body = header_html()
     body += '<div class="hero"><div class="container"><h1><span class="speakable">Yakumo 検証済み加盟店を<br>AIから参照する（WebMCP）</span></h1><p class="subtitle">人にもAIにも、同じ検証済みデータを開く</p><span class="badge">MCP ・ A2A 対応</span></div></div>'
     body += '<div class="container"><div class="breadcrumb"><a href="%s/yakumo/">Yakumoモール</a> &gt; WebMCP &gt; verified-stores</div>' % BASE
     body += '<div class="section"><h2>エンドポイント</h2>'
     body += ('<div class="mcp-box">'
-             '<div><span class="k">MCP</span> https://hs-hearing.oga-surf-project.workers.dev/mcp</div>'
-             '<div><span class="k">A2A</span> https://hs-hearing.oga-surf-project.workers.dev/.well-known/agent-card.json</div>'
+             '<div><span class="k">MCP</span> https://hearing.horizonshield.dev/mcp</div>'
+             '<div><span class="k">A2A</span> https://hearing.horizonshield.dev/.well-known/agent-card.json</div>'
              '<div><span class="k">tool</span> list_verified_stores { area?, work? }</div>'
              '<div><span class="k">tool</span> get_contractor_profile { member_no }</div>'
              '</div>')
@@ -536,7 +536,7 @@ def webmcp_page(profile):
     body += '</div>'
     body += recirc_and_mesh(slug)
     body += cta_and_footer()
-    return canonical, head(title, desc, canonical, [ld, org_person_graph(canonical)], extra_link='<link rel="mcp-server" href="https://hs-hearing.oga-surf-project.workers.dev/mcp">') + body
+    return canonical, head(title, desc, canonical, [ld, org_person_graph(canonical)], extra_link='<link rel="mcp-server" href="https://hearing.horizonshield.dev/mcp">') + body
 
 # ---------------- focus page (加盟店の「求めるもの」に合わせた1枚) ----------------
 FOCUS_DEF = {

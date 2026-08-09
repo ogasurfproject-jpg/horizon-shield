@@ -9,7 +9,7 @@
 An [MCP](https://modelcontextprotocol.io) server that lets AI agents check whether a Japanese construction or renovation estimate is fair — against open data — and returns a result **anyone can verify against Bitcoin** (OpenTimestamps). No account, no key.
 
 [![MCP Registry](https://img.shields.io/badge/MCP-Registry-2f6feb)](https://registry.modelcontextprotocol.io/v0.1/servers?search=horizon-shield)
-[![Transport: streamable-http](https://img.shields.io/badge/transport-streamable--http-2ea043)](https://hs-mcp.oga-surf-project.workers.dev)
+[![Transport: streamable-http](https://img.shields.io/badge/transport-streamable--http-2ea043)](https://mcp.horizonshield.dev)
 [![Open data: JCCDB 65,520 · CC BY 4.0](https://img.shields.io/badge/open%20data-JCCDB%2065%2C520%20%C2%B7%20CC--BY%204.0-e36209)](https://github.com/ogasurfproject-jpg/japan-construction-cost-database)
 [![Anchored: Bitcoin / OpenTimestamps](https://img.shields.io/badge/anchored-Bitcoin%20%2F%20OpenTimestamps-f7931a)](https://hs-ledger.oga-surf-project.workers.dev/ledger)
 [![Auth: none](https://img.shields.io/badge/auth-none-6e7681)]()
@@ -47,7 +47,7 @@ This repository is an **MCP server implementation**. It exposes read-only tools 
 
 - **Protocol:** Model Context Protocol (MCP)
 - **Transport:** remote server over HTTP / SSE
-- **Endpoint:** `https://hs-mcp.oga-surf-project.workers.dev`
+- **Endpoint:** `https://mcp.horizonshield.dev`
 - **Access:** read-only, no API key required
 - **Data region:** Japan (JPY), built on the open JCCDB dataset (65,520 line items)
 
@@ -78,7 +78,7 @@ This MCP server exposes the following tools:
 
 ## Verify it yourself
 
-Every `verify_fair_price` call returns a `verify_url` of the form `https://shield.the-horizons-innovation.com/verify/?id=<claim_sha256>`. Open it and the [public verify page](https://shield.the-horizons-innovation.com/verify/) recomputes the SHA-256 in your own browser (Web Crypto) and checks it against the receipt. Nothing is sent to any server. The same claim is served back as JSON at `https://hs-mcp.oga-surf-project.workers.dev/ledger/<claim_sha256>`. Trust is conferred by recomputation, not assumed in the issuer.
+Every `verify_fair_price` call returns a `verify_url` of the form `https://shield.the-horizons-innovation.com/verify/?id=<claim_sha256>`. Open it and the [public verify page](https://shield.the-horizons-innovation.com/verify/) recomputes the SHA-256 in your own browser (Web Crypto) and checks it against the receipt. Nothing is sent to any server. The same claim is served back as JSON at `https://mcp.horizonshield.dev/ledger/<claim_sha256>`. Trust is conferred by recomputation, not assumed in the issuer.
 
 ## AP2 bridge (authorization and value, both verifiable)
 
@@ -95,7 +95,7 @@ Example client configuration (using `mcp-remote`):
   "mcpServers": {
     "horizon-shield": {
       "command": "npx",
-      "args": ["-y", "mcp-remote", "https://hs-mcp.oga-surf-project.workers.dev/sse"]
+      "args": ["-y", "mcp-remote", "https://mcp.horizonshield.dev/sse"]
     }
   }
 }

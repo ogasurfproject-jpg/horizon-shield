@@ -13,7 +13,7 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://hs-webmcp.oga-surf-project.workers.dev/mcp"
+      "url": "https://web.horizonshield.dev/mcp"
     }
   ]
 }

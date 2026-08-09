@@ -8,7 +8,7 @@
 **WebMCP Intake (KIRA)** is the public intake desk of HORIZON SHIELD. A homeowner commissioning construction work cannot reliably tell whether a quote is honest — a textbook **credence-good** problem. This server makes a neutral, third-party **fair-price audit callable as a tool**, so an agent can *check* a number instead of trusting it.
 
 - **Protocol:** Model Context Protocol (MCP), streamable HTTP
-- **Endpoint:** `https://hs-webmcp.oga-surf-project.workers.dev/mcp`
+- **Endpoint:** `https://web.horizonshield.dev/mcp`
 - **Access:** read-only, no API key required
 - **Data region:** Japan (JPY) — built on the open **JCCDB** dataset (65,520 line items) + 61 curated work categories
 - **Supervision:** 30 years of construction field experience (Toshikatsu Oga, ORCID `0009-0000-9180-903X`)
@@ -51,7 +51,7 @@ This is a remote MCP server — point any MCP client at the endpoint:
   "mcpServers": {
     "horizon-shield-intake": {
       "command": "npx",
-      "args": ["-y", "mcp-remote", "https://hs-webmcp.oga-surf-project.workers.dev/mcp"]
+      "args": ["-y", "mcp-remote", "https://web.horizonshield.dev/mcp"]
     }
   }
 }
@@ -68,7 +68,7 @@ This is a remote MCP server — point any MCP client at the endpoint:
 
 - Website: https://shield.the-horizons-innovation.com
 - Free estimate-review board (EHN): https://shield.the-horizons-innovation.com/ehn/
-- Main MCP server (raw audit tools): `https://hs-mcp.oga-surf-project.workers.dev`
+- Main MCP server (raw audit tools): `https://mcp.horizonshield.dev`
 
 ## Keywords
 

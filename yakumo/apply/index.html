@@ -81,7 +81,7 @@
   ref = ref.replace(/[^A-Za-z0-9.]/g, "");
   if(!ref) return;
   document.getElementById("refNote").style.display = "block";
-  fetch("https://hs-hearing.oga-surf-project.workers.dev/ref-hit?ref=" + encodeURIComponent(ref)).catch(function(){});
+  fetch("https://hearing.horizonshield.dev/ref-hit?ref=" + encodeURIComponent(ref)).catch(function(){});
 })();
 </script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script><!-- End Cloudflare Web Analytics -->

@@ -68,7 +68,7 @@ souba配下の中1000-2000字の薄いページ7枚を、answer-first + FAQ(deta
 ### E. WebMCP 現物診断
 - hs-webmcp Worker は実在・稼働(200)。workers/hs-webmcp/index.js。ツール4本:
   orchestrate / intake_estimate / scan_tactics / draft_broadcast
-- server-webmcp.json も本番200配信済み。エンドポイント https://hs-webmcp.oga-surf-project.workers.dev/mcp
+- server-webmcp.json も本番200配信済み。エンドポイント https://web.horizonshield.dev/mcp
 - 「モノは完成、llms.txtからの導線だけ欠けてた」→ 今日 llms.txt に追記して解消
 
 ### F. LLM可視率モニター 構築・自動化・ベースライン実測(神の方程式思想)
@@ -151,8 +151,8 @@ tail -f で進捗を追える。詰まり確認は別タブで `tail` 単発。
 - 本番: https://shield.the-horizons-innovation.com
 - Cloudflareアカウント(HORIZON SHIELD): oga.surf.project@gmail.com / c15ff64aba400e541853dec1fbe5e76a
 - KV(HS_DESIGN_KV): ebeee94b11644031a2deaea32093ac8b(handoff:latest / secret:anthropic-key 等)
-- hs-mcp(内部KIRA): https://hs-mcp.oga-surf-project.workers.dev
-- hs-webmcp(集客窓口): https://hs-webmcp.oga-surf-project.workers.dev/mcp
+- hs-mcp(内部KIRA): https://mcp.horizonshield.dev
+- hs-webmcp(集客窓口): https://web.horizonshield.dev/mcp
 - IndexNow鍵: 66d033698bc674177529370486124c05
 - ORCID: 0009-0000-9180-903X
 - 可視率モニター: `~/Desktop/horizon-shield/llm_visibility_monitor.py`

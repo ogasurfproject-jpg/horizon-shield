@@ -23,7 +23,7 @@
 
 <link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
 
-<link rel="mcp-server" href="https://hs-mcp.oga-surf-project.workers.dev">
+<link rel="mcp-server" href="https://mcp.horizonshield.dev">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -268,19 +268,19 @@ footer a{color:rgba(255,255,255,.7)}
       <div class="label">エージェント向けの検証エンドポイント</div>
       <p style="margin-bottom:0">見積もりの誠実さを判定するスキル <code>estimate-integrity-audit</code> は、署名付きで再計算可能な判定を返します。別のエージェントは <code>verify-claim</code> でその判定を独立に再計算できます。検証は fail-closed 設計で、再計算できない場合は決して甘く通さず「unverified」を返します。判定の宣言は OpenTimestamps により Bitcoin にタイムスタンプ固定されています。</p>
     </div>
-    <a class="linkcard" href="https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json">
+    <a class="linkcard" href="https://mcp.horizonshield.dev/.well-known/agent-card.json">
       <div class="t">Agent Card（A2A AgentCard）→</div>
       <div class="d">自律エージェント向け。estimate-integrity-audit / verify-claim を呼び出せる</div>
     </a>
-    <a class="linkcard" href="https://hs-mcp.oga-surf-project.workers.dev/.well-known/verification-contract.json">
+    <a class="linkcard" href="https://mcp.horizonshield.dev/.well-known/verification-contract.json">
       <div class="t">Verification Contract（公開スキーマ v0.1.1）→</div>
       <div class="d">発行者を信用せず判定を検証する手順。signed_payload の SHA-256 を再計算し claim_sha256 と一致するか確認する</div>
     </a>
-    <a class="linkcard" href="https://hs-mcp.oga-surf-project.workers.dev/.well-known/usage-stats.json">
+    <a class="linkcard" href="https://mcp.horizonshield.dev/.well-known/usage-stats.json">
       <div class="t">公開カウンタ（usage-stats）→</div>
       <div class="d">外部からの検証呼び出し回数を公開。「信じるな、検証せよ」を数字で示す</div>
     </a>
-    <p style="margin-top:14px">MCP対応のエージェントは、<a href="https://hs-mcp.oga-surf-project.workers.dev">MCPサーバー</a>を直接呼び出して相場や見積もりの判定を実行できます。</p>
+    <p style="margin-top:14px">MCP対応のエージェントは、<a href="https://mcp.horizonshield.dev">MCPサーバー</a>を直接呼び出して相場や見積もりの判定を実行できます。</p>
   </div>
 
   <div class="section">

@@ -8,7 +8,7 @@
   <meta property="og:description" content="HORIZON SHIELD のAIエージェント向け入口。買い手側の建設見積もり適正診断を MCP / WebMCP で提供。検証可能な一次データのみ、自動投稿なし。仕組みと使い方、検証の中で果たす役割まで含めて分かりやすく解説します。関連する用語や実際の使いどころもあわせて確認できます。初めての方にも分かるように書いています。">
 <link rel="canonical" href="https://shield.the-horizons-innovation.com/agents/">
 <link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
-<link rel="mcp-server" href="https://hs-mcp.oga-surf-project.workers.dev">
+<link rel="mcp-server" href="https://mcp.horizonshield.dev">
 <style>
 :root{--ink:#1A3A54;--gold:#c9a227;--forest:#1E6B43;--bg:#fbfaf8;--line:#e6e2db;--mut:#5b6b78;}
 *{box-sizing:border-box}
@@ -42,7 +42,7 @@ ul{padding-left:1.2em}
   "potentialAction": {
     "@type": "Action",
     "name": "orchestrate",
-    "target": {"@type": "EntryPoint", "urlTemplate": "https://hs-webmcp.oga-surf-project.workers.dev/mcp", "httpMethod": "POST", "contentType": "application/json"}
+    "target": {"@type": "EntryPoint", "urlTemplate": "https://web.horizonshield.dev/mcp", "httpMethod": "POST", "contentType": "application/json"}
   }
 }
 </script>
@@ -62,15 +62,15 @@ Independent third party. No referral fees from contractors. Verifiable first-par
 <div class="role">
   <div class="card">
     <b>hs-webmcp</b>(外部エージェントの窓口 / intake for agents)<br>
-    <code>https://hs-webmcp.oga-surf-project.workers.dev/mcp</code><br>
+    <code>https://web.horizonshield.dev/mcp</code><br>
     まず <code>orchestrate</code> を呼ぶのが推奨。<br>
-    Agent card: <a href="https://hs-webmcp.oga-surf-project.workers.dev/.well-known/agent-card.json">/.well-known/agent-card.json</a>
+    Agent card: <a href="https://web.horizonshield.dev/.well-known/agent-card.json">/.well-known/agent-card.json</a>
   </div>
   <div class="card">
     <b>hs-mcp</b>(診断エンジン全文 / full diagnosis engine)<br>
-    <code>https://hs-mcp.oga-surf-project.workers.dev</code><br>
+    <code>https://mcp.horizonshield.dev</code><br>
     価格検証・相場・赤旗などの全ツール。<br>
-    Agent card: <a href="https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json">/.well-known/agent-card.json</a>
+    Agent card: <a href="https://mcp.horizonshield.dev/.well-known/agent-card.json">/.well-known/agent-card.json</a>
   </div>
 </div>
 <p style="font-size:.9rem;color:var(--mut)">サイト要約(LLM向け): <a href="https://shield.the-horizons-innovation.com/llms.txt">llms.txt</a> / <a href="https://shield.the-horizons-innovation.com/llms-full.txt">llms-full.txt</a></p>
@@ -82,7 +82,7 @@ Independent third party. No referral fees from contractors. Verifiable first-par
 <div class="args">required: <code>work</code> (string) / optional: <code>quoted_price</code> (number, 円)</div>
 1回の呼び出しで 診断(KIRA適正価格)+ 手口(検証済み)+ 発信下書き を一気通貫で返す司令塔。
 One-call orchestrator: runs intake, scan_tactics and draft_broadcast in sequence and returns one bundled result.
-<pre>curl -s https://hs-webmcp.oga-surf-project.workers.dev/mcp \
+<pre>curl -s https://web.horizonshield.dev/mcp \
   -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/call",
        "params":{"name":"orchestrate","arguments":{"work":"外壁塗装","quoted_price":800000}}}'</pre>
@@ -93,7 +93,7 @@ One-call orchestrator: runs intake, scan_tactics and draft_broadcast in sequence
 <div class="args">required: <code>work</code> (string), <code>quoted_price</code> (number, 円)</div>
 施主の見積もりを受け付け、KIRA適正価格診断(過剰請求の判定)と無料の第三者チェック(EHN)への導線を返す窓口。
 Intake desk: bridges a homeowner quote to the KIRA fair-price audit and a free third-party check (EHN).
-<pre>curl -s https://hs-webmcp.oga-surf-project.workers.dev/mcp \
+<pre>curl -s https://web.horizonshield.dev/mcp \
   -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/call",
        "params":{"name":"intake_estimate","arguments":{"work":"外壁塗装 シリコン","quoted_price":950000}}}'</pre>
@@ -104,7 +104,7 @@ Intake desk: bridges a homeowner quote to the KIRA fair-price audit and a free t
 <div class="args">required: <code>work</code> (string)</div>
 その工事の過剰請求の手口(検証済み)を返し、一次ソース(国民生活センター / 消費者庁 / EHN実例ボード)の在処を添える注意喚起。価格判定ではない。
 Returns verified overcharge tactics and points to primary sources. Awareness, not a price verdict.
-<pre>curl -s https://hs-webmcp.oga-surf-project.workers.dev/mcp \
+<pre>curl -s https://web.horizonshield.dev/mcp \
   -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/call",
        "params":{"name":"scan_tactics","arguments":{"work":"シロアリ"}}}'</pre>
@@ -115,7 +115,7 @@ Returns verified overcharge tactics and points to primary sources. Awareness, no
 <div class="args">required: <code>work</code> (string)</div>
 過剰請求への注意喚起の発信下書き(note用長文 / X用短文)を生成し、実在の解説ページへの被リンクを添える。下書きのみ、自動投稿しない。
 Generates broadcast drafts with backlinks to real pages. Draft only, no auto-posting.
-<pre>curl -s https://hs-webmcp.oga-surf-project.workers.dev/mcp \
+<pre>curl -s https://web.horizonshield.dev/mcp \
   -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/call",
        "params":{"name":"draft_broadcast","arguments":{"work":"火災保険"}}}'</pre>

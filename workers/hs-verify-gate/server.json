@@ -22,7 +22,7 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://hs-verify-gate.oga-surf-project.workers.dev/mcp"
+      "url": "https://gate.horizonshield.dev/mcp"
     }
   ]
 }

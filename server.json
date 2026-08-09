@@ -18,6 +18,6 @@
     "subfolder": "workers/hs-mcp"
   },
   "remotes": [
-    { "type": "streamable-http", "url": "https://hs-mcp.oga-surf-project.workers.dev" }
+    { "type": "streamable-http", "url": "https://mcp.horizonshield.dev" }
   ]
 }

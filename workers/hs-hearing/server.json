@@ -13,7 +13,7 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://hs-hearing.oga-surf-project.workers.dev/mcp"
+      "url": "https://hearing.horizonshield.dev/mcp"
     }
   ]
 }

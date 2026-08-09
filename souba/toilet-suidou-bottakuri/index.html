@@ -9,7 +9,7 @@
 <meta name="description" content="水道業者にトイレ交換で40万円。便器の本体価格はいくらですか？を建設実務30年のプロがsouba-dbの実測データで解説します。適正相場の目安は8万〜12万円。梅(最安)・竹(標準)・松(大手)の3プランで、あなたの見積もりが適正か比較できます。業者に聞くべき点や相見積もりの取り方まで、過剰請求を避ける判断材料をまとめました。">
   <meta property="og:description" content="水道業者にトイレ交換で40万円。便器の本体価格はいくらですか？を建設実務30年のプロがsouba-dbの実測データで解説します。適正相場の目安は8万〜12万円。梅(最安)・竹(標準)・松(大手)の3プランで、あなたの見積もりが適正か比較できます。業者に聞くべき点や相見積もりの取り方まで、過剰請求を避ける判断材料をまとめました。">
 <link rel="canonical" href="https://shield.the-horizons-innovation.com/souba/toilet-suidou-bottakuri/">
-<link rel="alternate" type="application/json" title="HORIZON SHIELD KIRA Agent Card (A2A)" href="https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json">
+<link rel="alternate" type="application/json" title="HORIZON SHIELD KIRA Agent Card (A2A)" href="https://mcp.horizonshield.dev/.well-known/agent-card.json">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -102,7 +102,7 @@ footer a{color:rgba(255,255,255,0.6);margin:0 8px}
 ]}
 </script>
 <link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
-<link rel="mcp-server" href="https://hs-mcp.oga-surf-project.workers.dev">
+<link rel="mcp-server" href="https://mcp.horizonshield.dev">
 <link data-hs-gfonts rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
 </head>
 <body>
@@ -171,7 +171,7 @@ async function kiraAudit(){
   if(!p){out.textContent='金額を入れてください';return;}
   out.textContent='KIRAが照合中...';
   try{
-    var res=await fetch('https://hs-mcp.oga-surf-project.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'audit_estimate',arguments:{work:'トイレ交換 組み合わせ便器',quoted_price:p}}})});
+    var res=await fetch('https://mcp.horizonshield.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'audit_estimate',arguments:{work:'トイレ交換 組み合わせ便器',quoted_price:p}}})});
     var d=await res.json();
     var t=d.result&&d.result.content&&d.result.content[0]&&d.result.content[0].text;
     out.textContent=t||'判定を取得できませんでした。時間をおいて再度お試しください。';

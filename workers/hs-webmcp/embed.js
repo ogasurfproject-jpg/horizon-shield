@@ -16,7 +16,7 @@
     }
   }
   var store = '';
-  var ORIGIN = 'https://hs-webmcp.oga-surf-project.workers.dev';
+  var ORIGIN = 'https://web.horizonshield.dev';
   try { var u = new URL(srcUrl); store = u.searchParams.get('store') || ''; ORIGIN = u.origin; } catch (e) {}
   if (me && me.getAttribute && me.getAttribute('data-store')) store = me.getAttribute('data-store');
   var ENDPOINT = ORIGIN + '/mcp?store=' + encodeURIComponent(store);

@@ -9,7 +9,7 @@ just say *"fair"*  -  it hands you cryptographic proof you can verify yourself.
 
 Works with any MCP client: **Claude  |  ChatGPT  |  Gemini  |  Perplexity  |  Cursor  |  Cline** and more.
 
-- **Remote endpoint (streamable HTTP):** `https://hs-mcp.oga-surf-project.workers.dev`
+- **Remote endpoint (streamable HTTP):** `https://mcp.horizonshield.dev`
 - **No auth, no install**  -  add the URL as a custom connector.
 - **Registry name:** `io.github.ogasurfproject-jpg/horizon-shield`
 - Operator: The HORIZONs Inc.  |  https://shield.the-horizons-innovation.com
@@ -49,10 +49,10 @@ language-agnostic and work for estimates anywhere.
 ## Try it
 ```bash
 # server info
-curl https://hs-mcp.oga-surf-project.workers.dev
+curl https://mcp.horizonshield.dev
 
 # list tools (JSON-RPC 2.0)
-curl -X POST https://hs-mcp.oga-surf-project.workers.dev \
+curl -X POST https://mcp.horizonshield.dev \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 ```

@@ -373,7 +373,7 @@ async function handleKiraResponse(userMessage, replyToken, userId, env) {
     const hit = mcpKeywords.some((k) => userMessage.includes(k));
     if (hit) {
       const q = encodeURIComponent(userMessage.slice(0, 30));
-      const res = await fetch(`https://hs-mcp.oga-surf-project.workers.dev/api/search?q=${q}`);
+      const res = await fetch(`https://mcp.horizonshield.dev/api/search?q=${q}`);
       const data = await res.json();
       if (data.results && data.results.length > 0) {
         const top3 = data.results.slice(0, 3).map(
@@ -935,7 +935,7 @@ async function handlePartnerMessage(userMessage, replyToken, userId, justJoined,
   // Yakumo自動ヒアリング(hs-hearing)へ橋渡し。失敗時は従来の手動フローに自動フォールバック。
   if (env.KIRA_BRIDGE_KEY) {
     try {
-      const br = await fetch("https://hs-hearing.oga-surf-project.workers.dev/kira-bridge", {
+      const br = await fetch("https://hearing.horizonshield.dev/kira-bridge", {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Bridge-Key": env.KIRA_BRIDGE_KEY },
         body: JSON.stringify({ userId, text: userMessage })

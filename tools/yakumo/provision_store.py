@@ -15,8 +15,8 @@ import json, sys, argparse, re, os
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 CONTRACTORS = os.path.join(REPO_ROOT, "data", "yakumo-contractors.json")
-WEBMCP = "https://hs-webmcp.oga-surf-project.workers.dev"
-HS_HEARING = "https://hs-hearing.oga-surf-project.workers.dev/mcp"
+WEBMCP = "https://web.horizonshield.dev"
+HS_HEARING = "https://hearing.horizonshield.dev/mcp"
 
 BASE_FEE = 29800
 WEBMCP_ADDON = 12000

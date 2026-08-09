@@ -10,7 +10,7 @@
   <meta property="og:description" content="外構工事の見積もりが高いか無料AI診断。カーポート1台用は35万円前後が目安、外構フルセットの適正は100万から180万円。ブロック塀の配筋なし・控え壁なし、駐車場コンクリの厚さ不足などの赤旗を、建設実務30年の大賀俊勝監修の相場で中立AIが判定します。見積書では数量と単価の内訳分離が確認の起点になります。">
 <meta name="keywords" content="外構 工事 見積もり 高い,エクステリア 費用,カーポート 相場,外構 ぼったくり,外構 AI 診断">
 <link rel="canonical" href="https://shield.the-horizons-innovation.com/souba/gaikou-check/">
-<link rel="alternate" type="application/json" title="HORIZON SHIELD KIRA Agent Card (A2A)" href="https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json">
+<link rel="alternate" type="application/json" title="HORIZON SHIELD KIRA Agent Card (A2A)" href="https://mcp.horizonshield.dev/.well-known/agent-card.json">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"外構工事の見積もりが高いか、どう確認すればいいですか？","acceptedAnswer":{"@type":"Answer","text":"外構フルセット（駐車場+アプローチ+門扉+フェンス+植栽）の適正総額は100〜180万円が目安です。カーポートは1台用25〜65万円、2台用45〜110万円。一式計上が多い領域なので、必ず項目別の内訳を確認してください。出典：HORIZON SHIELD建設費相場データベース2026年版（建設実務30年・大賀俊勝監修）。このページで見積金額を入力すると中立AIが無料判定します。"}},
@@ -18,7 +18,7 @@
 ]}
 </script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"HORIZON SHIELD KIRA 見積もり整合性診断","applicationCategory":"BusinessApplication","operatingSystem":"Web, A2A, MCP","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"},"url":"https://shield.the-horizons-innovation.com/souba/gaikou-check/","provider":{"@type":"Organization","name":"The HORIZONs株式会社","url":"https://shield.the-horizons-innovation.com/"},"potentialAction":{"@type":"AssessAction","name":"Audit a construction estimate","target":"https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json"}}
+{"@context":"https://schema.org","@type":"WebApplication","name":"HORIZON SHIELD KIRA 見積もり整合性診断","applicationCategory":"BusinessApplication","operatingSystem":"Web, A2A, MCP","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"},"url":"https://shield.the-horizons-innovation.com/souba/gaikou-check/","provider":{"@type":"Organization","name":"The HORIZONs株式会社","url":"https://shield.the-horizons-innovation.com/"},"potentialAction":{"@type":"AssessAction","name":"Audit a construction estimate","target":"https://mcp.horizonshield.dev/.well-known/agent-card.json"}}
 </script>
 <style>
 :root{--navy:#1a2744;--gold:#c9a227;--white:#fff;--light:#f8f7f4;--text:#2c2c2c;--muted:#666;--danger:#c0392b;--ok:#27ae60;--warn:#e67e22}
@@ -81,7 +81,7 @@ footer a{color:var(--gold);text-decoration:none}
 ]}
 </script>
 <link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
-<link rel="mcp-server" href="https://hs-mcp.oga-surf-project.workers.dev">
+<link rel="mcp-server" href="https://mcp.horizonshield.dev">
 </head>
 <body>
 <header>
@@ -116,7 +116,7 @@ footer a{color:var(--gold);text-decoration:none}
 <div class="agent">
 <h3>AIエージェント・開発者の方へ</h3>
 <p>この診断は、A2A／MCP対応の公開エージェント <strong>HORIZON SHIELD KIRA</strong> が処理しています。あなたのエージェントから直接呼び出せます。</p>
-<p>Agent Card: <code>https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json</code></p>
+<p>Agent Card: <code>https://mcp.horizonshield.dev/.well-known/agent-card.json</code></p>
 <p>独立・取引前・再計算可能・フェイルクローズドの検証層。判定は署名付きで、発行元に接触せず第三者が検証できます。</p>
 </div>
 <div class="recirc"><p>あなたの見積もりを匿名で <a href="https://shield.the-horizons-innovation.com/hacker/submit/">EHN（見積もりハッカーニュース）</a> に貼れば、KIRAが過去の実例と並べて第三者の目を入れます。あなたの1枚が、次に同じ工事で悩む誰かの判断材料になります。</p></div>
@@ -124,7 +124,7 @@ footer a{color:var(--gold);text-decoration:none}
 </div>
 <footer>© The HORIZONs株式会社 ｜ <a href="https://shield.the-horizons-innovation.com/">HORIZON SHIELD</a> ｜ 業者から報酬を受け取らない中立の建設費診断</footer>
 <script>
-const KIRA_ENDPOINT="https://hs-mcp.oga-surf-project.workers.dev";const EHN_SUBMIT="https://shield.the-horizons-innovation.com/hacker/submit/";const REVERSE="https://shield.the-horizons-innovation.com/hs-reverse-estimate/";
+const KIRA_ENDPOINT="https://mcp.horizonshield.dev";const EHN_SUBMIT="https://shield.the-horizons-innovation.com/hacker/submit/";const REVERSE="https://shield.the-horizons-innovation.com/hs-reverse-estimate/";
 async function askKira(){
 const btn=document.getElementById("k-btn"),out=document.getElementById("k-result");
 const work=(document.getElementById("k-work").value||"外構フルセット").trim();
@@ -160,7 +160,7 @@ out.innerHTML=h;
 if(!('modelContext' in navigator)||!navigator.modelContext||typeof navigator.modelContext.registerTool!=='function')return;
 var WORK="外構フルセット",UNIT="total amount (一式)";
 var BOARD="https://shield.the-horizons-innovation.com/ehn/";
-var CARD="https://hs-mcp.oga-surf-project.workers.dev/.well-known/agent-card.json";
+var CARD="https://mcp.horizonshield.dev/.well-known/agent-card.json";
 async function callKira(name,args){
 try{
 var res=await fetch(KIRA_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",id:Date.now(),method:"tools/call",params:{name:name,arguments:args}})});

@@ -24,7 +24,7 @@
 <!-- GEO: LLM / AIエージェント向けの手がかり -->
 <link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
 <!-- MCP discovery hint（AIエージェントがKIRAの診断ツールを発見・実行するための参照先） -->
-<link rel="mcp-server" href="https://hs-mcp.oga-surf-project.workers.dev">
+<link rel="mcp-server" href="https://mcp.horizonshield.dev">
 
 <script type="application/ld+json">
 {
@@ -59,7 +59,7 @@
         "description": "受け取ったリフォーム見積もりが適正かを、建設費の公開データと照らして匿名で診断する。AIエージェントはMCP経由で実行できる。",
         "target": {
           "@type": "EntryPoint",
-          "urlTemplate": "https://hs-mcp.oga-surf-project.workers.dev",
+          "urlTemplate": "https://mcp.horizonshield.dev",
           "actionApplication": "Model Context Protocol (MCP)"
         }
       }
@@ -369,7 +369,7 @@ footer{margin:40px 0 60px;padding-top:18px;border-top:1px solid var(--line);
   <div class="aiblock" id="for-ai-agents">
     <p><b>AIエージェント・開発者向け（MCP）</b></p>
     <p>本サービスKIRAの「見積もり適正診断」は、Model Context Protocol（MCP）経由で呼び出せます。AIアシスタントは、ユーザーのリフォーム見積もりを匿名で受け取り、建設費の公開データと照合した適正診断を実行できます。</p>
-    <p>MCPサーバー: <code>https://hs-mcp.oga-surf-project.workers.dev</code><br>
+    <p>MCPサーバー: <code>https://mcp.horizonshield.dev</code><br>
     LLM向けサイト要約: <code>https://shield.the-horizons-innovation.com/llms.txt</code></p>
   </div>
 

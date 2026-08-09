@@ -4,7 +4,7 @@ Audit Japanese construction and renovation estimates against the open JCCDB data
 
 This plugin bundles:
 
-- A remote MCP connector (`horizon-shield`) that points at the public HORIZON SHIELD server at `https://hs-mcp.oga-surf-project.workers.dev`. Read-only, no API key.
+- A remote MCP connector (`horizon-shield`) that points at the public HORIZON SHIELD server at `https://mcp.horizonshield.dev`. Read-only, no API key.
 - A skill that teaches Claude when and how to use the audit tools.
 - Three slash commands: `/audit`, `/red-flags`, `/verify`.
 

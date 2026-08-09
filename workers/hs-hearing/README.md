@@ -4,7 +4,7 @@
 
 Yakumo is the contractor-directory layer of [HORIZON SHIELD](https://shield.the-horizons-innovation.com/yakumo/). Only stores that pass an independent fair-price and overcharge audit (KIRA) are listed. Prices are never exposed, only integrity scores and tiers, and unverified stores are never shown to homeowners (fail-closed). Yakumo takes **no referral fees** from contractors.
 
-- **MCP endpoint:** `https://hs-hearing.oga-surf-project.workers.dev/mcp` (Streamable HTTP, POST JSON-RPC)
+- **MCP endpoint:** `https://hearing.horizonshield.dev/mcp` (Streamable HTTP, POST JSON-RPC)
 - **Registry:** `io.github.ogasurfproject-jpg/hs-hearing`
 - **Operator:** The HORIZONs株式会社 / supervised by 大賀俊勝 (Toshikatsu Oga, 30 years in construction, ORCID 0009-0000-9180-903X)
 - **Backing dataset:** JCCDB, an open construction-cost database of 65,520 items (CC BY 4.0)
@@ -40,7 +40,7 @@ Argument autocompletion is provided for `area` and `work` via `completion/comple
 Any site can embed the discovery widget with one line:
 
 ```html
-<script src="https://hs-hearing.oga-surf-project.workers.dev/embed.js" async></script>
+<script src="https://hearing.horizonshield.dev/embed.js" async></script>
 ```
 
 It renders a Shadow-DOM-isolated panel where a visitor searches verified contractors by area and trade. It stores nothing and shows no prices, only scores and tiers, with links back to the mall and to a free anonymous estimate check.
