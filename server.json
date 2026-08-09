@@ -2,14 +2,16 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ogasurfproject-jpg/horizon-shield",
   "title": "HORIZON SHIELD — construction & renovation estimate auditor",
-  "description": "Independent third-party auditor for Japanese construction & renovation estimates. Flags overcharge and returns tamper-evident, browser-recomputable fair-price receipts (SHA-256, PTKA/JIDEC). Also exposes an A2A agent card (get_agent_card) with a property-acquisition / renovation intake desk for agent workflows, and issues an AP2 fair-price attestation (create_ap2_fairness_attestation) that attaches to a Google Agent Payments Protocol Cart Mandate.",
-  "version": "1.0.3",
+  "description": "Independent pre-transaction audit for construction estimates. Free, and every verdict recomputes.",
+  "version": "1.0.4",
   "websiteUrl": "https://shield.the-horizons-innovation.com",
   "icons": [
     {
       "src": "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/icon.png",
       "mimeType": "image/png",
-      "sizes": ["512x512"]
+      "sizes": [
+        "512x512"
+      ]
     }
   ],
   "repository": {
@@ -18,6 +20,9 @@
     "subfolder": "workers/hs-mcp"
   },
   "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.horizonshield.dev" }
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.horizonshield.dev"
+    }
   ]
 }
