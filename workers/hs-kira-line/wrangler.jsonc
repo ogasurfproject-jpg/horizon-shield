@@ -1,22 +1,22 @@
 {
-  // ★デプロイ禁止★ cron の式が未確認。live には scheduled ハンドラがあるが、
-  // versions view では cron 式が読めない。ダッシュボードの Settings > Triggers で
-  // 実際の式を確認し、下の triggers に書き戻すまで deploy しないこと。
-  // 空のまま deploy すると定期実行が黙って消える。
-  // ★★本番が既に壊れている★★ 2026-08-09 live照合で判明。
-  // BANK_INFO と LINE_USER_ID の本番の値が、置き換え用の日本語文字列そのものになっている。
-  // つまり過去に一度、この設定のまま deploy されている。LINE の宛先が無効なので
-  // 通知は飛んでおらず、振込先も文字列のまま。実値を入れるまで直らない。
-  // compatibility_flags は live にも nodejs_compat があるので、ここだけは残す。
+  // 2026-08-09 live照合済み。デプロイ可。
+  //
+  // 判明したこと（記録として残す）:
+  //  - 本番の BANK_INFO と LINE_USER_ID に、置き換え用の日本語文字列がそのまま入っていた。
+  //    過去に一度その状態で deploy されている。LINE API はエラーを返さないので気づけなかった。
+  //  - BANK_INFO は顧客に案内する振込先。8/9にダッシュボードで実値へ修正済み。
+  //  - LINE_USER_ID は代表への push 通知の宛先で、コード内8箇所で使う。
+  //    他の5本の Worker と同じく Secret に寄せた。vars には置かない。
+  //  - cron はダッシュボードの Triggers から実測: 0 * * * *（毎時0分）。
   "name": "hs-kira-line",
   "main": "src/worker.js",
   "compatibility_date": "2026-03-28",
   "compatibility_flags": ["nodejs_compat"],
+  "triggers": { "crons": ["0 * * * *"] },
   "kv_namespaces": [
     { "binding": "SEEN_STORE", "id": "a67d53a8777f4952bb81440d60287e91" }
   ],
   "vars": {
-    "BANK_INFO": "<TOshiが実値を入れる。今は本番も壊れている>",
-    "LINE_USER_ID": "<TOshiが実値を入れる。今は本番も壊れている>"
+    "BANK_INFO": "\u9759\u5ca1\u9280\u884c \u5e73\u585a\u652f\u5e97 \u666e\u901a 0479810 The HORIZ\u97f3s\u682a\u5f0f\u4f1a\u793e"
   }
 }
