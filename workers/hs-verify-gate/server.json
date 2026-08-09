@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ogasurfproject-jpg/hs-verify-gate",
   "title": "Yakumo Verification Gate: conformance and disclosure checker for MCP servers",
-  "description": "Conformance and disclosure checker for MCP servers. Free, no key, verdicts you can recompute.",
-  "version": "0.1.0",
+  "description": "Conformance checker for MCP servers. Free, no key, verdicts recomputable and re-measured daily.",
+  "version": "0.2.0",
   "websiteUrl": "https://shield.the-horizons-innovation.com/verify-directory/",
   "icons": [
     {
