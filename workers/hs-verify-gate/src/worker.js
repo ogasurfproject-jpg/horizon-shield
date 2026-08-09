@@ -344,12 +344,17 @@ async function notifyChange(target, payload) {
 }
 
 // 監視対象の既定値。KV の watch:endpoints があればそちらを使う。
+// 2026-08-09 workers.dev から独自ドメインへ。
+// 同一アカウント内では扉から workers.dev の兄弟 Worker に届かず、
+// 全条件が held のまま記録され続けていた。届く道を作ってから測る。
+// **扉自身もここに入れる。** 自分に同じ基準を当てられない物差しは、物差しではない。
 const DEFAULT_WATCHLIST = [
-  "https://hs-mcp.oga-surf-project.workers.dev/mcp",
-  "https://hs-hearing.oga-surf-project.workers.dev/mcp",
-  "https://hs-webmcp.oga-surf-project.workers.dev/mcp",
-  "https://hs-partner-001-mcp.oga-surf-project.workers.dev/mcp",
-  "https://hs-partner-002-mcp.oga-surf-project.workers.dev/mcp"
+  "https://mcp.horizonshield.dev/mcp",
+  "https://hearing.horizonshield.dev/mcp",
+  "https://web.horizonshield.dev/mcp",
+  "https://p001.horizonshield.dev/mcp",
+  "https://p002.horizonshield.dev/mcp",
+  "https://gate.horizonshield.dev/mcp"
 ];
 
 // 既定の自社分、旧来の watch:endpoints、新しい watch:registry を束ねて返す。
