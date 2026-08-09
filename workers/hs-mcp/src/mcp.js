@@ -1493,6 +1493,16 @@ export default {
           capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
           defaultInputModes: ["text/plain", "application/json"],
           defaultOutputModes: ["application/json", "text/plain"],
+          // 誰がこのサーバーに金を払っているか。扉(Yakumo Verification Gate)の条件3。
+          // 説明文に書いてある "accepts no payment from contractors" を、
+          // 人間可読の英文だけでなく機械可読の項目としても置く。
+          compensation: {
+            paid_by: "buyer",
+            referral_fee: false,
+            listing_fee: false,
+            success_fee_pct: 0,
+            disclosure_url: "https://shield.the-horizons-innovation.com/verify-directory/"
+          },
           skills: [
             {
               id: "estimate-integrity-audit",

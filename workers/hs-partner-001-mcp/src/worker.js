@@ -145,6 +145,16 @@ function agentCard(env, origin) {
     capabilities: { streaming: false, pushNotifications: false },
     defaultInputModes: ["text"],
     defaultOutputModes: ["text"],
+    // 誰がこのサーバーに金を払っているか。扉(Yakumo Verification Gate)の条件3。
+    // 専用MCPは WebMCP Partner ティアの提供物なので、負担するのは加盟店(売り手)側。
+    // 紹介料0円・成果報酬0は Yakumo 全体の中核主張。掲載枠ではないので listing_fee は false。
+    compensation: {
+      paid_by: "seller",
+      referral_fee: false,
+      listing_fee: false,
+      success_fee_pct: 0,
+      disclosure_url: "https://shield.the-horizons-innovation.com/verify-directory/"
+    },
     skills: [
       {
         id: "get_partner_profile",

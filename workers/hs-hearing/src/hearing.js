@@ -671,6 +671,18 @@ function agentCard(origin) {
     capabilities: { streaming: false },
     defaultInputModes: ["application/json"],
     defaultOutputModes: ["application/json"],
+    // 誰がこのサーバーに金を払っているか。扉の条件3。
+    // 費用を払っているのは加盟店(売り手)なので seller と正直に書く。
+    // listing_fee は 2026-08-08 時点で true。月額3プランすべてにモール掲載が
+    // 含まれ、支払い無しで掲載される道が無いため。無料掲載層を作った日に
+    // false へ変える。宣言を先に変えることはしない。
+    compensation: {
+      paid_by: "seller",
+      referral_fee: false,
+      listing_fee: true,
+      success_fee_pct: 0,
+      disclosure_url: "https://shield.the-horizons-innovation.com/verify-directory/"
+    },
     skills: [
       {
         id: "list-verified-contractors",

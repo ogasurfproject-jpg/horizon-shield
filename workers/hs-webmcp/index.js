@@ -189,6 +189,17 @@ const AGENT_CARD = {
   protocol: "A2A (Agent2Agent)",
   name: "HORIZON SHIELD: Construction Estimate Auditor for Japan (KIRA)",
   provider: "The HORIZONs株式会社",
+  // A2A の必須項目。これが無いと適合チェッカーがカードを認識できない。
+  // 2026-08-08 に自社ゲートで発覚。role は非標準なので残しつつ標準項目を足す。
+  description: "Check whether a Japanese construction or renovation quote is fair. A neutral, independent third-party estimate-integrity desk: audits a homeowner's quote against an open 65,520-item construction-cost database (JCCDB), flags known overcharge tactics with primary sources, and drafts awareness content. Verifiable first-party prices only (SHA-256); no referral fees; no auto-posting.",
+  // 誰がこのサーバーに金を払っているか。扉の条件3。
+  compensation: {
+    paid_by: "buyer",
+    referral_fee: false,
+    listing_fee: false,
+    success_fee_pct: 0,
+    disclosure_url: "https://shield.the-horizons-innovation.com/verify-directory/"
+  },
   version: SERVER.version,
   role: "集客窓口(外部エージェント/LLM向けの入口)。受けた見積もり相談を内部KIRA(hs-mcp)の適正診断へ橋渡しする。",
   skills: [
