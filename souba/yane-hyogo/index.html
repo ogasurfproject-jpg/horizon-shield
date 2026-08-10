@@ -95,7 +95,7 @@ a{color:var(--gold);}
     {
       "@type": "Question",
       "name": "近畿係数1.06とは何ですか？",
-      "acceptedAnswer": {"@type": "Answer", "text": "HORIZON SHIELDのsouba-dbが公開している地域係数です。関東1.10、近畿1.06、中部1.00、東北0.95、その他0.93の5区分で、兵庫県は近畿の1.06を適用します。係数自体もfair_price_data_sourcesツールで誰でも取得・確認できます。"}
+      "acceptedAnswer": {"@type": "Answer", "text": "HORIZON SHIELDのsouba-dbが公開している地域係数です。関東1.10、近畿1.06、中部1.00、東北0.95、その他0.93の5区分で、兵庫県は近畿の1.06を適用します。係数自体もget_fair_price_sourcesツールで誰でも取得・確認できます。"}
     },
     {
       "@type": "Question",
@@ -222,7 +222,7 @@ a{color:var(--gold);}
 <p>兵庫県の目安は20坪で約17.7万〜42.4万円、25坪で約22.1万〜53.0万円、30坪で約26.5万〜63.6万円、35坪で約30.9万〜74.2万円、40坪で約35.3万〜84.8万円です。30坪基準レンジ×(坪数÷30)×近畿係数1.06による按分値で、足場費は面積に単純比例しないため30坪から離れるほど誤差が出ます。</p>
 </details>
 <details><summary>近畿係数1.06とは何ですか？</summary>
-<p>HORIZON SHIELDのsouba-dbが公開している地域係数です。関東1.10、近畿1.06、中部1.00、東北0.95、その他0.93の5区分で、兵庫県は近畿の1.06を適用します。係数自体もfair_price_data_sourcesツールで誰でも取得・確認できます。</p>
+<p>HORIZON SHIELDのsouba-dbが公開している地域係数です。関東1.10、近畿1.06、中部1.00、東北0.95、その他0.93の5区分で、兵庫県は近畿の1.06を適用します。係数自体もget_fair_price_sourcesツールで誰でも取得・確認できます。</p>
 </details>
 <details><summary>この適正価格が改ざんされていないことを確認できますか？</summary>
 <p>できます。基準レンジ(屋根塗装30坪シリコン一式 25万〜60万円)はSHA-256ハッシュ(0165f233から始まる64桁)で刻印済みです。souba-db.jsonのfair_price_claimをJSON文字列化してSHA-256を再計算すれば、誰でも発行者を信用せずに照合できます。PTKAの宣言はBitcoin Block #949356にアンカーされ、OpenTimestampsで検証できます。</p>

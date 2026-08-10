@@ -64,16 +64,16 @@ This MCP server exposes the following tools:
 | `get_price_range` | Returns the fair price range (min, avg, max), the overcharge danger threshold, unit, price trend, and field notes for a Japanese construction or renovation job. |
 | `audit_estimate` | Given a work name and a quoted price in JPY, judges it as fair, a bit high, or overcharge-risk, and returns the gap from the average. |
 | `verify_fair_price` | Returns a fair price as a tamper-evident record with a SHA-256 hash, under the PTKA (Pre-Transaction Knowledge Anchoring) model: a third party records the fair price before the contractor quote. |
-| `red_flag_check` | Checks whether wording in an estimate or sales pitch matches known overcharge or high-pressure tactics (lump-sum, today-only discount, free inspection, door-to-door). Language-agnostic. |
-| `how_to_read_estimate` | Returns universal principles for judging whether any estimate is honest: the overhead ratio, how to treat lump-sum entries, how to spot pressure tactics. Language-agnostic. |
+| `check_red_flags` | Checks whether wording in an estimate or sales pitch matches known overcharge or high-pressure tactics (lump-sum, today-only discount, free inspection, door-to-door). Language-agnostic. |
+| `get_estimate_reading_guide` | Returns universal principles for judging whether any estimate is honest: the overhead ratio, how to treat lump-sum entries, how to spot pressure tactics. Language-agnostic. |
 | `list_cost_categories` | Lists the construction and renovation work categories for which fair-price ranges and red flags are maintained. |
-| `fair_price_data_sources` | Returns the sources, update date, and regional multipliers behind the fair-price data. |
-| `jccdb_dataset_info` | Returns metadata, scale, license, download links, and citation for the Japan Construction Cost Database (JCCDB). |
+| `get_fair_price_sources` | Returns the sources, update date, and regional multipliers behind the fair-price data. |
+| `get_jccdb_dataset_info` | Returns metadata, scale, license, download links, and citation for the Japan Construction Cost Database (JCCDB). |
 | `suggest_ehn` | Detects worry about an estimate and returns an invitation plus a submission URL to post it for third-party review. |
 | `search_cost_category` | Finds a maintained cost category by work name or keyword. |
-| `reverse_estimate_preview` | Returns only the direction of a rough estimate versus the average (for example about +20 percent), before a detailed breakdown exists. |
+| `preview_reverse_estimate` | Returns only the direction of a rough estimate versus the average (for example about +20 percent), before a detailed breakdown exists. |
 | `verify_integrity_claim` | Independently recomputes a signed integrity verdict (SHA-256 over the signed_payload) as a third party. Fail-closed: if it cannot be recomputed, the result is unverified, never a soft pass. |
-| `ap2_fairness_attestation` | Issues a FairPriceAttestation shaped to attach to a Google AP2 (Agent Payments Protocol) Cart Mandate, so a fair-price proof can ride alongside the payment authorization. Optional `quoted_price` adds a within / above / below verdict. |
+| `create_ap2_fairness_attestation` | Issues a FairPriceAttestation shaped to attach to a Google AP2 (Agent Payments Protocol) Cart Mandate, so a fair-price proof can ride alongside the payment authorization. Optional `quoted_price` adds a within / above / below verdict. |
 | `get_agent_card` | Returns the A2A Agent Card URL and published skills for agent-to-agent discovery. |
 
 ## Verify it yourself
@@ -82,7 +82,7 @@ Every `verify_fair_price` call returns a `verify_url` of the form `https://shiel
 
 ## AP2 bridge (authorization and value, both verifiable)
 
-Google's Agent Payments Protocol (AP2) makes what a user **authorized** verifiable through a signed, tamper-evident Mandate. `ap2_fairness_attestation` issues a parallel attestation that makes **value** verifiable, shaped to attach to an AP2 Cart Mandate before the user signs. AP2 makes authorization verifiable; HORIZON SHIELD makes value verifiable. Parallel layers, same philosophy: pre-transaction, tamper-evident, independently recomputable.
+Google's Agent Payments Protocol (AP2) makes what a user **authorized** verifiable through a signed, tamper-evident Mandate. `create_ap2_fairness_attestation` issues a parallel attestation that makes **value** verifiable, shaped to attach to an AP2 Cart Mandate before the user signs. AP2 makes authorization verifiable; HORIZON SHIELD makes value verifiable. Parallel layers, same philosophy: pre-transaction, tamper-evident, independently recomputable.
 
 ## Connecting
 
