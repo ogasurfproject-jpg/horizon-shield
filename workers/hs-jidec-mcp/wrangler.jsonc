@@ -9,5 +9,23 @@
   "observability": { "enabled": true },
   "services": [
     { "binding": "LEDGER_SVC", "service": "hs-ledger" }
+  ],
+
+  // ★2026-08-11 追加：カスタムドメイン。
+  //   ダッシュボードの Add Domain / Add Route は "No zones match horizonshield.dev"
+  //   と言って弾くが、これは画面側の不具合である。ゾーンの Account ID は
+  //   c15ff64aba400e541853dec1fbe5e76a で、この worker と同一（実測、2026-08-11）。
+  //   Zone ID は 3cfbb072435b7010cc98dce59d0b82e5。wrangler は API を直接叩くので
+  //   ここに書けば通る。
+  //
+  //   custom_domain:true にすると wrangler が DNS レコードごと作る。
+  //   pattern に /* を付けないこと（custom_domain 形式では不要）。
+  //
+  //   ★workers_dev は true のまま絶対に残すこと。
+  //     Bitcoin に固定済みの JIDEC 記録が hs-ledger.oga-surf-project.workers.dev を
+  //     永久に指している。旧ホストを落とすと過去の証跡が全部検証不能になる。
+  //     新ドメインは「追加」であって「移行」ではない。
+  "routes": [
+    { "pattern": "jidec.horizonshield.dev", "custom_domain": true }
   ]
 }
