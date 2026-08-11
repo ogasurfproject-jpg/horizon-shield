@@ -3,6 +3,20 @@
   "name": "hs-mcp",
   "main": "src/mcp.js",
   "compatibility_date": "2025-06-01",
+  // ★2026-08-11 第1段。現在の状態を明文化するだけで、何も変えない。
+  //   このファイルには workers_dev の記述が無かった。wrangler は routes が
+  //   書かれていない限り workers_dev を true とみなすので、現状は true。
+  //   つまりこの行は「今そうなっていること」を書いただけである。
+  //
+  //   先に固定しておく理由: routes を足すと wrangler は workers_dev の既定を
+  //   false に切り替える。routes と workers_dev を同じデプロイで初めて触ると、
+  //   その相互作用が本番で一度きり発生する。先にこちらを明示しておけば、
+  //   相互作用そのものが起こり得なくなる。
+  //
+  //   hs-mcp.oga-surf-project.workers.dev はまだ mcpservers.org の掲載・
+  //   Glamaのキャッシュ・利用者のブックマークが指している。落とせない。
+  "workers_dev": true,
+
   "kv_namespaces": [
     {
       "binding": "RL_KV",
