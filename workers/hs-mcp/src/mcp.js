@@ -29,10 +29,12 @@ const JCCDB = {
   retracted: 608,
   categories: 402,
   license: "CC BY 4.0",
-  note: "品目名・カテゴリ・単位を収録。価格情報は含まない(価格は別レイヤー souba-db)。v3.1(2026-07-27): 総数65,520・重複ゼロ。検証済み13,207＋Extended 52,313＝65,520。カテゴリは2粒度で、CSVのcategory列が72、細粒度スキーマ(jccdb-v3-schema.json)が402。v3.0で非実在608品目を除去(retracted.csv・全件証拠URL付き)、v3.1で完全一致の重複589行を除去し実在品目543件を追加、うち非実在と証明済みだった28件は差し戻した(rejected-readd csv)。全ファイルのSHA-256はリリース宣言 JCCDB_v3_1_RELEASE_DECLARATION.md (sha256 2fc5db673c8055a77a53ad997c73d4f14bbb4346b46c304e9376e52189dada8a, commit 1c9b9de) に記載し、JIDEC台帳経由でBitcoinに錨を打っている。著者を信頼せずに再計算できる。注意: Zenodo DOIが指す公開スナップショットはv2.1(65,729品目)のままである。",
+  note: "品目名・カテゴリ・単位を収録。価格情報は含まない(価格は別レイヤー souba-db)。v3.1(2026-07-27): 総数65,520・重複ゼロ。検証済み13,207＋Extended 52,313＝65,520。カテゴリは2粒度で、CSVのcategory列が72、細粒度スキーマ(jccdb-v3-schema.json)が402。v3.0で非実在608品目を除去(retracted.csv・全件証拠URL付き)、v3.1で完全一致の重複589行を除去し実在品目543件を追加、うち非実在と証明済みだった28件は差し戻した(rejected-readd csv)。全ファイルのSHA-256はリリース宣言 JCCDB_v3_1_RELEASE_DECLARATION.md (sha256 2fc5db673c8055a77a53ad997c73d4f14bbb4346b46c304e9376e52189dada8a, commit 1c9b9de) に記載し、JIDEC台帳経由でBitcoinに錨を打っている。著者を信頼せずに再計算できる。配布物の所在: データセット本体はGitHubとHugging Faceにある。Zenodo(20019572/20019573)とengrXivのDOIはいずれも解説論文のPDFであり、データセットのスナップショットではない。Zenodoに置かれた品目数のスナップショットは存在しない。",
   links: {
     github: "https://github.com/ogasurfproject-jpg/japan-construction-cost-database",
     huggingface: "https://huggingface.co/datasets/ogasurfproject/jccdb",
+    // 以下2つは解説論文のPDF。データセット本体ではない(2026-08-11 実物確認)。
+    // キー名は後方互換のため据え置き。データを取りに行く先は github / huggingface。
     zenodo_doi: "https://doi.org/10.5281/zenodo.20019572",
     engrxiv_doi: "https://doi.org/10.31224/7007"
   },
