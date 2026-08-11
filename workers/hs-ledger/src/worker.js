@@ -185,7 +185,10 @@ shasum -a 256 claim_${e.n}.txt           # == ${e.claim_sha256}</pre></div>
    (SEP-2127 unmerged, path still moving). See design doc §3.9.
    =========================================================================== */
 
-const MCP_ORIGIN = "https://hs-jidec-mcp.oga-surf-project.workers.dev";
+// 2026-08-11: advertised origin moved to the domain we control. The old
+// workers.dev hostname still answers and must never be retired - anchored
+// records cite it - but new citations should point at horizonshield.dev.
+const MCP_ORIGIN = "https://jidec.horizonshield.dev";
 
 // --- Self-host identity for replay (2026-08-11).
 //   replay decides "is this anchored node one of MY OWN immutable entries?" by
