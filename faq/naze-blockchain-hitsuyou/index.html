@@ -156,12 +156,12 @@ pre.code code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;white-space:
   "datePublished": "2026-07-17",
   "dateModified": "2026-07-17",
   "isAccessibleForFree": true,
-  "isBasedOn": "https://doi.org/10.5281/zenodo.20019572",
+  "isBasedOn": "https://github.com/ogasurfproject-jpg/japan-construction-cost-database",
   "citation": [
     "OpenTimestamps (opentimestamps.org)",
     "HORIZON SHIELD 判定レシート公開20枚（souba/kajou-seikyu-jirei-20）",
     "SSRN 6964439",
-    "JCCDB DOI: 10.5281/zenodo.20019572"
+    "JCCDB 解説論文 DOI: 10.5281/zenodo.20019572"
   ],
   "keywords": null
 }
@@ -218,7 +218,7 @@ pre.code code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;white-space:
 <section><h2>仕組みは3ステップ</h2><p>①判定内容を1バイトも揺れない形式のクレーム（claim.txt）に固定する。②そのSHA-256指紋を取る。③指紋をOpenTimestampsでビットコインのブロックチェーンに刻む。レシートは固定URLの静的ページとして公開され、claim.txtと証明ファイル（proof）を誰でも取得できます。実物は<a href='https://shield.the-horizons-innovation.com/souba/kajou-seikyu-jirei-20/v/K7mX2pQ9nR4s/'>公開中の判定レシート例</a>で確認できます。</p></section>
 <section><h2>速度と費用への影響はゼロ</h2><p>刻む処理は判定の裏側で行われ、利用者の画面表示には一切関与しません（レシートはただの静的ページです）。OpenTimestampsは集約方式のため、アンカーの費用もゼロです。「ブロックチェーンは遅くて高い」という一般論は、この構成には当てはまりません。</p></section>
 <section class='faq' aria-label='よくある質問'><h2>よくある質問（FAQ）</h2><div class='qa'><h3 class='q'>Web3やNFTと関係ありますか？</h3><div class='a'><p>ありません。トークンも投機も無関係で、使うのはビットコインの「後から書き換えられない時計」としての性質だけです。</p></div></div><div class='qa'><h3 class='q'>HORIZON SHIELDのサービスが終了したら検証できなくなりますか？</h3><div class='a'><p>レシートとclaim.txtとproofファイルが手元にあれば、発行者が存在しなくても検証できます。発行者に依存しないことが、この設計の目的そのものです。</p></div></div><div class='qa'><h3 class='q'>どうやって検証しますか？</h3><div class='a'><p>レシートに記載の手順どおり、claim.txtのSHA-256を計算して照合し、OpenTimestampsのクライアントで証明ファイルを確認します。コマンド2行で、費用はかかりません。</p></div></div></section>
-<section class='eeat' aria-label='監修・出典'><h2>監修者・データ出典（E-E-A-T）</h2><p><strong>監修:</strong> 大賀俊勝（建設実務経験30年）（<a href='https://orcid.org/0009-0000-9180-903X' rel='nofollow'>ORCID</a>）。本ページは検証の仕組みの解説です。判定レシートの実物は<a href='https://shield.the-horizons-innovation.com/souba/kajou-seikyu-jirei-20/v/K7mX2pQ9nR4s/'>公開中の判定ページ</a>で確認できます（公開20枚、すべてOpenTimestampsでビットコインに確定済み）。設計の詳細は論文（<a href='https://ssrn.com/abstract=6964439' rel='nofollow'>SSRN 6964439</a>）にまとめています。品目体系は日本建設費オープンデータベース <a href='https://github.com/ogasurfproject-jpg/japan-construction-cost-database' rel='nofollow'>JCCDB</a>（65,520品目・402カテゴリ・CC BY 4.0／DOI: <a href='https://doi.org/10.5281/zenodo.20019572' rel='nofollow'>https://doi.org/10.5281/zenodo.20019572</a>）を参照。</p><p class='disc'>※ 本ページは一般的な仕組みの解説であり、特定業者への評価を行うものではありません。個別の見積もり診断は下記の逆見積もり・EHNをご利用ください。</p></section>
+<section class='eeat' aria-label='監修・出典'><h2>監修者・データ出典（E-E-A-T）</h2><p><strong>監修:</strong> 大賀俊勝（建設実務経験30年）（<a href='https://orcid.org/0009-0000-9180-903X' rel='nofollow'>ORCID</a>）。本ページは検証の仕組みの解説です。判定レシートの実物は<a href='https://shield.the-horizons-innovation.com/souba/kajou-seikyu-jirei-20/v/K7mX2pQ9nR4s/'>公開中の判定ページ</a>で確認できます（公開20枚、すべてOpenTimestampsでビットコインに確定済み）。設計の詳細は論文（<a href='https://ssrn.com/abstract=6964439' rel='nofollow'>SSRN 6964439</a>）にまとめています。品目体系は日本建設費オープンデータベース <a href='https://github.com/ogasurfproject-jpg/japan-construction-cost-database' rel='nofollow'>JCCDB</a>（65,520品目・402カテゴリ・CC BY 4.0／解説論文DOI: <a href='https://doi.org/10.5281/zenodo.20019572' rel='nofollow'>https://doi.org/10.5281/zenodo.20019572</a>）を参照。</p><p class='disc'>※ 本ページは一般的な仕組みの解説であり、特定業者への評価を行うものではありません。個別の見積もり診断は下記の逆見積もり・EHNをご利用ください。</p></section>
 <section class='cta' aria-label='次のアクション'><h2>この工事、見積もりは適正ですか？</h2><p>金額に少しでも不安があるなら、業者と対決する前に第三者の目を入れるのが最短です。</p><div class='cta-grid'><a class='cta-card primary' href='https://shield.the-horizons-innovation.com/hs-reverse-estimate/'><span class='cta-t'>逆見積もり診断 ¥5,500</span><span class='cta-d'>建設30年プロ監修AIが適正価格を算出。9ページPDF＋SHA-256証明＋交渉テンプレを即日発行。</span></a><a class='cta-card' href='https://shield.the-horizons-innovation.com/hacker/submit/'><span class='cta-t'>EHNに無料で貼る</span><span class='cta-d'>見積もりハッカーニュースに匿名投稿。KIRAが過去の実例と並べて一次解析（無料）。</span></a><a class='cta-card' href='https://shield.the-horizons-innovation.com/'><span class='cta-t'>無料AIチャットで相談</span><span class='cta-d'>まずは気軽に。KIRAが工事内容と相場をその場で回答します。</span></a></div></section>
 <nav class='related' aria-label='関連ページ'><h2>関連ページ</h2><ul><li><a href='https://shield.the-horizons-innovation.com/faq/second-opinion-reform/'>リフォーム前にセカンドオピニオンを取る方法</a></li><li><a href='https://shield.the-horizons-innovation.com/faq/mitsumorisho-doko-miru/'>見積書のどこを見れば過剰請求がわかる？</a></li></ul></nav>
 </main>

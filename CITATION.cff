@@ -36,7 +36,7 @@ identifiers:
     description: "PTKA Protocol Declaration (Bitcoin OpenTimestamps anchoring)"
   - type: doi
     value: 10.5281/zenodo.20019572
-    description: "Japan Construction Cost Database (JCCDB)"
+    description: "JCCDB v1.2.2 paper (the dataset itself has no DOI; it is published on GitHub and Hugging Face)"
 preferred-citation:
   type: software
   title: "HORIZON SHIELD KIRA"
