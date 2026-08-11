@@ -32,6 +32,54 @@ AEO_MAP = {
     "玄関ドア": "玄関ドア交換-適正価格",
 }
 
+# --- JCCDB 品目数の実測取得 (2026-08-11) --------------------------------------
+# このファイルの冒頭に「燃料は souba-db の実測数値【のみ】。数値の創作余地ゼロ
+# (捏造ガード)」と書いてある。にもかかわらず JCCDB の品目数だけは 65729 が直に
+# 書かれており、v2.1 -> v3.1 (65,729 -> 65,520) で実物とズレていた。誰も気づか
+# ないまま、記事が古い数字を主張し続けていた。
+#
+# 数字はライブのMCPサーバーから取る。取れなければ生成を止める(fail-closed)。
+# 古い数字で記事を出すより、記事が出ないほうがましである。ワークフローはこの
+# 例外で落ち、commit は行われない。
+JCCDB_MCP = "https://mcp.horizonshield.dev"
+
+def _mcp_tool(tool, args=None, timeout=20):
+    body = json.dumps({
+        "jsonrpc": "2.0", "id": 1, "method": "tools/call",
+        "params": {"name": tool, "arguments": args or {}},
+    }).encode("utf-8")
+    req = urllib.request.Request(JCCDB_MCP, data=body, method="POST", headers={
+        "Content-Type": "application/json",
+        "Accept": "application/json, text/event-stream",
+    })
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        raw = r.read().decode("utf-8")
+    # streamable HTTP は素のJSONで返ることも SSE フレームで返ることもある。
+    # まず素として読み、駄目なら data: 行を拾う。どちらでも駄目なら例外のまま落とす。
+    try:
+        env = json.loads(raw)
+    except ValueError:
+        data = "".join(l[5:].strip() for l in raw.splitlines() if l.startswith("data:"))
+        if not data:
+            raise RuntimeError("MCP応答を解釈できない: %r" % raw[:200])
+        env = json.loads(data)
+    if "error" in env:
+        raise RuntimeError("MCP error: %s" % env["error"])
+    parts = env["result"]["content"]
+    text = "".join(c.get("text", "") for c in parts if c.get("type") == "text")
+    return json.loads(text)
+
+def fetch_jccdb():
+    """(件数int, 表示用str, バージョンstr) を返す。失敗したら例外を投げて生成を止める。"""
+    d = _mcp_tool("get_jccdb_dataset_info")
+    n = d.get("items")
+    if not isinstance(n, int) or n <= 0:
+        raise RuntimeError("JCCDB items が数値ではない: %r" % (n,))
+    return n, format(n, ","), str(d.get("version", "")).strip()
+
+JCCDB_ITEMS, JCCDB_ITEMS_FMT, JCCDB_VERSION = fetch_jccdb()
+
+
 def load_json(path, default):
     try:
         with open(path, encoding="utf-8") as f:
@@ -133,7 +181,7 @@ _t = re.sub(r'\s+', "", lead_text)[:200]
 _cut = _t.rfind(chr(0x3002), 140, 160)
 _desc = (_t[:_cut+1] if _cut >= 140 else _t[:158])
 if len(_desc) < 150:
-    _desc = (_desc + target + "の単価目安・価格動向・見積もりで確認すべきポイントを、建設実務30年の監修とオープンデータ65729品目で解説します。")[:158]
+    _desc = (_desc + target + "の単価目安・価格動向・見積もりで確認すべきポイントを、建設実務30年の監修とオープンデータ" + str(JCCDB_ITEMS) + "品目で解説します。")[:158]
 if _desc and not _desc.endswith(chr(0x3002)):
     _desc = _desc.rstrip(chr(0x3001)) + chr(0x3002)
 
@@ -206,7 +254,7 @@ html = (
     '<article>\n' + content + '\n</article>\n'
     '<div class="related">\n<h3>この数値の裏付けを見る</h3>\n' + related + '</div>\n'
     '<div class="cta">\n<div class="cta-title">その見積書、匿名で無料診断できます</div>\n'
-    '<p style="color:#bbb;font-size:14px;margin:0 0 16px;line-height:1.7">「一式」を数量・単価に分解し、オープン建設費DB（65,729品目）と照合。建設30年監修のAI「KIRA」が「盛られやすい所」に印をつけます。写真を貼るだけ・完全匿名・無料。</p>\n'
+    '<p style="color:#bbb;font-size:14px;margin:0 0 16px;line-height:1.7">「一式」を数量・単価に分解し、オープン建設費DB（" + JCCDB_ITEMS_FMT + "品目）と照合。建設30年監修のAI「KIRA」が「盛られやすい所」に印をつけます。写真を貼るだけ・完全匿名・無料。</p>\n'
     '<a href="https://shield.the-horizons-innovation.com/ehn/" style="display:inline-block;background:#f97316;color:#111;padding:15px 34px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;margin:6px 4px">見積もりを匿名で無料診断する（30秒）</a>\n'
     '<div style="color:#666;font-size:13px;margin:10px 0">または</div>\n'
     '<a href="https://line.me/R/ti/p/@172piime" style="display:inline-block;background:#06c755;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px;margin:4px">LINEで相談する</a>\n</div>\n'
