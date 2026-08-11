@@ -32,50 +32,39 @@ AEO_MAP = {
     "玄関ドア": "玄関ドア交換-適正価格",
 }
 
-# --- JCCDB 品目数の実測取得 (2026-08-11) --------------------------------------
+# --- JCCDB 品目数の取得 (2026-08-11) ------------------------------------------
 # このファイルの冒頭に「燃料は souba-db の実測数値【のみ】。数値の創作余地ゼロ
 # (捏造ガード)」と書いてある。にもかかわらず JCCDB の品目数だけは 65729 が直に
 # 書かれており、v2.1 -> v3.1 (65,729 -> 65,520) で実物とズレていた。誰も気づか
 # ないまま、記事が古い数字を主張し続けていた。
 #
-# 数字はライブのMCPサーバーから取る。取れなければ生成を止める(fail-closed)。
-# 古い数字で記事を出すより、記事が出ないほうがましである。ワークフローはこの
-# 例外で落ち、commit は行われない。
-JCCDB_MCP = "https://mcp.horizonshield.dev"
-
-def _mcp_tool(tool, args=None, timeout=20):
-    body = json.dumps({
-        "jsonrpc": "2.0", "id": 1, "method": "tools/call",
-        "params": {"name": tool, "arguments": args or {}},
-    }).encode("utf-8")
-    req = urllib.request.Request(JCCDB_MCP, data=body, method="POST", headers={
-        "Content-Type": "application/json",
-        "Accept": "application/json, text/event-stream",
-    })
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        raw = r.read().decode("utf-8")
-    # streamable HTTP は素のJSONで返ることも SSE フレームで返ることもある。
-    # まず素として読み、駄目なら data: 行を拾う。どちらでも駄目なら例外のまま落とす。
-    try:
-        env = json.loads(raw)
-    except ValueError:
-        data = "".join(l[5:].strip() for l in raw.splitlines() if l.startswith("data:"))
-        if not data:
-            raise RuntimeError("MCP応答を解釈できない: %r" % raw[:200])
-        env = json.loads(data)
-    if "error" in env:
-        raise RuntimeError("MCP error: %s" % env["error"])
-    parts = env["result"]["content"]
-    text = "".join(c.get("text", "") for c in parts if c.get("type") == "text")
-    return json.loads(text)
+# 数字は MCP サーバーのソースにある JCCDB 定数から読む。ライブの mcp.horizonshield.dev
+# を叩く案は捨てた: Cloudflare 側が Python-urllib を 403 で弾くうえ、ネットワークが
+# 記事生成の前提条件になる。同一リポジトリ・同一コミットの定数を読めば、記事と
+# MCP サーバーが食い違うことは構造的に起きない。
+#
+# 読めなければ生成を止める(fail-closed)。古い数字で記事を出すより、記事が出ない
+# ほうがましである。ワークフローはこの例外で落ち、commit は行われない。
+JCCDB_SOURCE = "workers/hs-mcp/src/mcp.js"
 
 def fetch_jccdb():
-    """(件数int, 表示用str, バージョンstr) を返す。失敗したら例外を投げて生成を止める。"""
-    d = _mcp_tool("get_jccdb_dataset_info")
-    n = d.get("items")
-    if not isinstance(n, int) or n <= 0:
-        raise RuntimeError("JCCDB items が数値ではない: %r" % (n,))
-    return n, format(n, ","), str(d.get("version", "")).strip()
+    """(件数int, 表示用str, バージョンstr) を返す。読めなければ例外で生成を止める。"""
+    try:
+        src = open(JCCDB_SOURCE, encoding="utf-8").read()
+    except OSError as e:
+        raise RuntimeError("JCCDB定数を読めない (%s): %s" % (JCCDB_SOURCE, e))
+    block = re.search(r"const\s+JCCDB\s*=\s*\{(.*?)\n\};", src, re.S)
+    if not block:
+        raise RuntimeError("JCCDB 定数ブロックが見つからない: %s" % JCCDB_SOURCE)
+    body = block.group(1)
+    m = re.search(r"\bitems\s*:\s*(\d+)", body)
+    if not m:
+        raise RuntimeError("JCCDB.items が読めない: %s" % JCCDB_SOURCE)
+    n = int(m.group(1))
+    if n <= 0:
+        raise RuntimeError("JCCDB.items が不正: %d" % n)
+    v = re.search(r"\bversion\s*:\s*\"([^\"]*)\"", body)
+    return n, format(n, ","), (v.group(1) if v else "")
 
 JCCDB_ITEMS, JCCDB_ITEMS_FMT, JCCDB_VERSION = fetch_jccdb()
 
