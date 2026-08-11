@@ -3,11 +3,11 @@
   "name": "io.github.ogasurfproject-jpg/horizon-shield",
   "title": "HORIZON SHIELD — construction & renovation estimate auditor",
   "description": "Independent pre-transaction audit for construction estimates. Free, and every verdict recomputes.",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "websiteUrl": "https://shield.the-horizons-innovation.com",
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/icon.png",
+      "src": "https://mcp.horizonshield.dev/icon.png",
       "mimeType": "image/png",
       "sizes": [
         "512x512"
