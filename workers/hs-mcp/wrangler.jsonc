@@ -22,5 +22,20 @@
       "binding": "RL_KV",
       "id": "1bf80c9f870f403ea93d2eec90a7402e"
     }
+  ],
+
+  // ★2026-08-11 第2段。mcp.horizonshield.dev をリポジトリから再現可能にする。
+  //   これも現状を書き写すだけで、稼働中のものは変えない。
+  //
+  //   形式に注意: この hostname は Custom Domain ではなく Zone Route である
+  //   (Domains タブの実物確認)。ledger / jidec が使う custom_domain:true を
+  //   ここに書くと、生きている Route を別形式へ変換しにいく。同じ形で書く。
+  //   zone_id は horizonshield.dev の Overview / API パネルの実測値。
+  //
+  //   ★このリストは wrangler にとって「正」である。ここに書かなかったルートは
+  //     消える。追加・削除する時は必ず Domains タブの全行と突き合わせること。
+  //     2026-08-11 時点の実測はこの1件のみ。
+  "routes": [
+    { "pattern": "mcp.horizonshield.dev/*", "zone_id": "3cfbb072435b7010cc98dce59d0b82e5" }
   ]
 }
