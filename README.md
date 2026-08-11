@@ -11,7 +11,7 @@ An [MCP](https://modelcontextprotocol.io) server that lets AI agents check wheth
 [![MCP Registry](https://img.shields.io/badge/MCP-Registry-2f6feb)](https://registry.modelcontextprotocol.io/v0.1/servers?search=horizon-shield)
 [![Transport: streamable-http](https://img.shields.io/badge/transport-streamable--http-2ea043)](https://mcp.horizonshield.dev)
 [![Open data: JCCDB 65,520 · CC BY 4.0](https://img.shields.io/badge/open%20data-JCCDB%2065%2C520%20%C2%B7%20CC--BY%204.0-e36209)](https://github.com/ogasurfproject-jpg/japan-construction-cost-database)
-[![Anchored: Bitcoin / OpenTimestamps](https://img.shields.io/badge/anchored-Bitcoin%20%2F%20OpenTimestamps-f7931a)](https://hs-ledger.oga-surf-project.workers.dev/ledger)
+[![Anchored: Bitcoin / OpenTimestamps](https://img.shields.io/badge/anchored-Bitcoin%20%2F%20OpenTimestamps-f7931a)](https://ledger.horizonshield.dev/ledger)
 [![Auth: none](https://img.shields.io/badge/auth-none-6e7681)]()
 
 </div>
@@ -24,15 +24,20 @@ The verification process behind HORIZON SHIELD's results is published as a
 Bitcoin-anchored, append-only public ledger. You do not have to trust us: fetch
 the anchored bytes, hash them yourself, and check the timestamp.
 
-- Start here: <https://hs-ledger.oga-surf-project.workers.dev/llms.txt>
-- Ledger index: <https://hs-ledger.oga-surf-project.workers.dev/ledger>
-- Machine-readable catalog (RFC 9727): <https://hs-ledger.oga-surf-project.workers.dev/.well-known/api-catalog>
-- Read-only MCP endpoint: <https://hs-jidec-mcp.oga-surf-project.workers.dev/mcp>
+- Start here: <https://ledger.horizonshield.dev/llms.txt>
+- Ledger index: <https://ledger.horizonshield.dev/ledger>
+- Machine-readable catalog (RFC 9727): <https://ledger.horizonshield.dev/.well-known/api-catalog>
+- Read-only MCP endpoint: <https://jidec.horizonshield.dev/mcp>
+
+The previous hostnames — `hs-ledger.oga-surf-project.workers.dev` and
+`hs-jidec-mcp.oga-surf-project.workers.dev` — still answer and always will.
+Records already anchored to Bitcoin cite them, so retiring them would make past
+receipts unverifiable. The addresses above are simply the ones we now publish.
 
 One line is enough to check any entry:
 
 ```
-curl -s "https://hs-ledger.oga-surf-project.workers.dev/ledger/5?format=raw" | shasum -a 256
+curl -s "https://ledger.horizonshield.dev/ledger/5?format=raw" | shasum -a 256
 ```
 
 What this proves and what it does not is stated by the ledger itself at
