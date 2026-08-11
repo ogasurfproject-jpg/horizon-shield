@@ -186,6 +186,25 @@ shasum -a 256 claim_${e.n}.txt           # == ${e.claim_sha256}</pre></div>
    =========================================================================== */
 
 const MCP_ORIGIN = "https://hs-jidec-mcp.oga-surf-project.workers.dev";
+
+// --- Self-host identity for replay (2026-08-11).
+//   replay decides "is this anchored node one of MY OWN immutable entries?" by
+//   comparing the node's URL host to the host the request came in on. That was
+//   correct while this worker answered on exactly one hostname. The moment it
+//   also answers on a custom domain, every node anchored under the *other*
+//   hostname stops matching, falls through to `deferred`, and replay quietly
+//   reports INCONCLUSIVE instead of re-observing from KV. No error is raised —
+//   the ledger just stops proving as much as it could. That is the exact
+//   failure mode wrangler.jsonc warns about, so identity is a SET, not the
+//   incoming host.
+//   Add every hostname this ledger has ever answered on. Never remove one:
+//   anchored records point at them forever.
+const SELF_LEDGER_HOSTS = new Set([
+  "hs-ledger.oga-surf-project.workers.dev",
+  "ledger.horizonshield.dev",
+]);
+const isSelfLedgerHost = (host, incomingHost) =>
+  host === incomingHost || SELF_LEDGER_HOSTS.has(host);
 const CONTACT = "mailto:thehorizon.nnovation@icloud.com";
 
 const wantsMarkdown = (request) =>
@@ -982,7 +1001,7 @@ async function handle(request, env) {
           try { uo = new URL(u); } catch {}
           const lm = uo && uo.pathname.match(/^\/ledger\/(\d+)$/);
           const isRaw = uo && uo.searchParams.get("format") === "raw";
-          if (uo && uo.host === selfHost && lm && isRaw) {
+          if (uo && isSelfLedgerHost(uo.host, selfHost) && lm && isRaw) {
             // this ledger's own immutable entry — read from KV, no loopback
             const te = await getEntry(env, Number(lm[1]));
             const freshSha = te ? (await sha256hex(te.record_canonical)).toLowerCase() : null;
