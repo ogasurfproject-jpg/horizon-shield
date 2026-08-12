@@ -19050,7 +19050,7 @@ function generatePlanHTML(d2, orderInfo) {
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
         <span style="background:rgba(201,162,39,0.2);border:1px solid rgba(201,162,39,0.4);border-radius:6px;padding:4px 10px;font-size:10px;color:#c9a227;">SSRN / Elsevier \u63B2\u8F09</span>
         <span style="background:rgba(201,162,39,0.2);border:1px solid rgba(201,162,39,0.4);border-radius:6px;padding:4px 10px;font-size:10px;color:#c9a227;">DOI: 10.31224/7007</span>
-        <span style="background:rgba(201,162,39,0.2);border:1px solid rgba(201,162,39,0.4);border-radius:6px;padding:4px 10px;font-size:10px;color:#c9a227;">Zenodo: 10.5281/zenodo.20019572</span>
+        <span style="background:rgba(201,162,39,0.2);border:1px solid rgba(201,162,39,0.4);border-radius:6px;padding:4px 10px;font-size:10px;color:#c9a227;">Zenodo \u89E3\u8AAC\u8AD6\u6587: 10.5281/zenodo.20019572</span>
         <span style="background:rgba(201,162,39,0.2);border:1px solid rgba(201,162,39,0.4);border-radius:6px;padding:4px 10px;font-size:10px;color:#c9a227;">\u671D\u65E5\u30FB\u6771\u6D0B\u7D4C\u6E08\u30FBTBS\u7B49 79\u5A92\u4F53\u63B2\u8F09</span>
       </div>
       <div class="profile-message">
