@@ -18,7 +18,7 @@ const SITE = "https://shield.the-horizons-innovation.com";
 const SELF = "https://web.horizonshield.dev";
 const LEDGER = "https://hs-ledger.oga-surf-project.workers.dev";
 
-const SERVER = { name: "hs-webmcp", title: "HORIZON SHIELD WebMCP (KIRA)", version: "0.5.0" };
+const SERVER = { name: "hs-webmcp", title: "HORIZON SHIELD WebMCP (KIRA)", version: "0.6.0" };
 const SUPPORTED_VERSIONS = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"];
 const DEFAULT_VERSION = "2025-06-18";
 
@@ -38,9 +38,60 @@ const INSTRUCTIONS =
 const RO = { readOnlyHint: true, destructiveHint: false, idempotentHint: true };
 const OUT_OBJ = { type: "object", additionalProperties: true };
 
+const K = (d) => ({ type: "string", description: d });
+const B_ = (d) => ({ type: "boolean", description: d });
+// 実装が実際に返すキーだけを書く。additionalProperties は true のままにして、
+// 将来キーが増えてもスキーマが嘘にならないようにする（矛盾は自動減点対象）。
+const OUT_ROUTE = { type: "object", additionalProperties: true, required: ["ok"], properties: {
+  ok: B_("Whether the request was handled."),
+  answered_by: K("Which desk answered: the router itself, an internal audit, the ledger, or a guide fallback."),
+  result: { type: "object", additionalProperties: true, description: "The answering desk's payload." },
+  verify: K("URL where the caller can recompute and check the claim."),
+  limits: K("What this answer does NOT prove. Always present."),
+  next: { type: "array", items: { type: "string" }, description: "Tool names to call next." },
+  routed_out: B_("True when the question was routed to an external desk rather than answered here."),
+  message: K("Reason when ok is false.")
+} };
+const OUT_FULL = { type: "object", additionalProperties: true, required: ["ok"], properties: {
+  ok: B_("Whether the flow ran."),
+  work: K("The work item the flow was run for."),
+  flow: K("The fixed step order that was executed."),
+  steps: { type: "object", additionalProperties: true, description: "One entry per step: intake, scan_tactics, draft_broadcast. A step may be skipped or fail without failing the flow." },
+  notice: K("Standing caveat: first-party prices only, drafts only, no auto-posting."),
+  source: K("Which server produced this."),
+  message: K("Reason when ok is false.")
+} };
+const OUT_INTAKE = { type: "object", additionalProperties: true, required: ["ok"], properties: {
+  ok: B_("Whether the quote was accepted for audit."),
+  audit: { type: "object", additionalProperties: true, description: "The fair-price verdict from the internal KIRA audit." },
+  next: { type: "array", items: { type: "string" }, description: "Suggested follow-up tools or paths, including the free third-party check." },
+  source: K("Which server produced this."),
+  message: K("Reason when ok is false.")
+} };
+const OUT_TACTICS = { type: "object", additionalProperties: true, required: ["ok"], properties: {
+  ok: B_("Whether tactics were found."),
+  verified_tactics: { type: "array", items: { type: "object", additionalProperties: true }, description: "Documented overcharge tactics for the work type." },
+  primary_sources: { type: "array", items: { type: "object", additionalProperties: true }, description: "Where each tactic is documented publicly." },
+  disclaimer: K("Awareness material. Not a price verdict on any specific quote."),
+  scan_mode: K("How the set was assembled."),
+  source: K("Which server produced this.")
+} };
+const OUT_DRAFT = { type: "object", additionalProperties: true, required: ["ok"], properties: {
+  ok: B_("Whether a draft was produced."),
+  notice: K("This is a DRAFT. A human finalises it. Nothing is posted."),
+  price_source: K("Which first-party data any figure in the draft came from."),
+  post_targets: { type: "array", items: { type: "object", additionalProperties: true }, description: "Per-channel draft text (note long form, X short form) with backlinks." },
+  source: K("Which server produced this.")
+} };
+
+// 旧名 -> 現行名。2026-08-14 の改名で verb_noun に揃えた。旧名で呼ばれても動く（非破壊）。
+// tools/list には現行名しか出さない。ここを消すと旧クライアントが黙って落ちる。
+const TOOL_ALIASES = { ask: "route_request", orchestrate: "run_full_audit" };
+const canonicalToolName = (n) => TOOL_ALIASES[String(n || "")] || String(n || "");
+
 const TOOLS = [
   {
-    name: "ask",
+    name: "route_request",
     title: "一文で聞けば、正しい窓口に繋ぐ",
     description:
       "Check whether a construction or renovation quote in JAPAN is fairly priced, against 65,520 open " +
@@ -70,11 +121,11 @@ const TOOLS = [
       },
       required: [],
     },
-    outputSchema: OUT_OBJ,
+    outputSchema: OUT_ROUTE,
     annotations: { title: "一文で聞けば、正しい窓口に繋ぐ", ...RO, openWorldHint: true },
   },
   {
-    name: "orchestrate",
+    name: "run_full_audit",
     title: "集客→診断→発信 一括実行",
     description:
       "1回の呼び出しで HORIZON SHIELD の集客→診断→注意喚起→発信を一気通貫で回す司令塔。work(と任意の quoted_price)を渡すと、内部で intake(KIRA適正診断)・scan_tactics(検証済み手口+一次ソース)・draft_broadcast(発信下書き+被リンク)を順に実行し、結果を1つに束ねて返す。価格は検証可能な一次データのみ。発信は下書きで自動投稿しない。 / One-call orchestrator returning audit + tactics + broadcast draft. Verifiable first-party prices only. Drafts only, no auto-posting.\nUSE WHEN: the caller wants all three steps (audit, tactics, broadcast draft) for one named work item in a single call and will act on the combined result.\nDO NOT USE WHEN: only one step is needed. Call intake_estimate for a verdict on a specific quote, scan_tactics for the documented overcharge tactics, or draft_broadcast for publishable text. If the request is still a free-form question with no work item, call ask first. This tool never posts anything.",
@@ -86,7 +137,7 @@ const TOOLS = [
       },
       required: ["work"],
     },
-    outputSchema: OUT_OBJ,
+    outputSchema: OUT_FULL,
     annotations: { title: "集客→診断→発信 一括実行", ...RO, openWorldHint: true },
   },
   {
@@ -102,7 +153,7 @@ const TOOLS = [
       },
       required: ["work", "quoted_price"],
     },
-    outputSchema: OUT_OBJ,
+    outputSchema: OUT_INTAKE,
     annotations: { title: "見積もり適正診断(KIRA)", ...RO, openWorldHint: false },
   },
   {
@@ -117,7 +168,7 @@ const TOOLS = [
       },
       required: ["work"],
     },
-    outputSchema: OUT_OBJ,
+    outputSchema: OUT_TACTICS,
     annotations: { title: "過剰請求の手口スキャン", ...RO, openWorldHint: true },
   },
   {
@@ -132,7 +183,7 @@ const TOOLS = [
       },
       required: ["work"],
     },
-    outputSchema: OUT_OBJ,
+    outputSchema: OUT_DRAFT,
     annotations: { title: "注意喚起の発信下書き", ...RO, openWorldHint: true },
   },
 ];
@@ -203,11 +254,11 @@ const AGENT_CARD = {
   version: SERVER.version,
   role: "集客窓口(外部エージェント/LLM向けの入口)。受けた見積もり相談を内部KIRA(hs-mcp)の適正診断へ橋渡しする。",
   skills: [
-    { id: "ask", note: "**まずここ。**一文を渡せば、診断・台帳検証・手口・加盟店探索の正しい窓口へ決定的に振り分ける。返り値に検証URLと『証明していないこと』が必ず入る。" },
-    { id: "orchestrate", note: "診断+手口+発信下書きを一気通貫で返す司令塔。価格は一次データのみ・自動投稿なし。" },
-    { id: "estimate-intake", note: "施主の見積もりを受け、KIRA適正診断とEHN(無料の第三者チェック)へ橋渡し。" },
-    { id: "scan-tactics", note: "工事別の過剰請求の手口(検証済み)と一次ソースの在処を返す注意喚起。" },
-    { id: "draft-broadcast", note: "注意喚起の発信下書き(note/X)と解説ページへの被リンクを生成。自動投稿しない。" },
+    { id: "route_request", note: "**まずここ。**一文を渡せば、診断・台帳検証・手口・加盟店探索の正しい窓口へ決定的に振り分ける。返り値に検証URLと『証明していないこと』が必ず入る。" },
+    { id: "run_full_audit", note: "診断+手口+発信下書きを一気通貫で返す司令塔。価格は一次データのみ・自動投稿なし。" },
+    { id: "intake_estimate", note: "施主の見積もりを受け、KIRA適正診断とEHN(無料の第三者チェック)へ橋渡し。" },
+    { id: "scan_tactics", note: "工事別の過剰請求の手口(検証済み)と一次ソースの在処を返す注意喚起。" },
+    { id: "draft_broadcast", note: "注意喚起の発信下書き(note/X)と解説ページへの被リンクを生成。自動投稿しない。" },
   ],
   bridges_to: {
     internal_mcp: HS_MCP,
@@ -574,7 +625,7 @@ async function handleOrchestrate(args, env) {
   const work = String(args && args.work || "").trim();
   if (!work) return { ok: false, message: "work(工事名/キーワード)が必要です。" };
   const price = Number(args && args.quoted_price);
-  const out = { ok: true, work, flow: "intake -> scan_tactics -> draft_broadcast", steps: {} };
+  const out = { ok: true, work, flow: "intake_estimate -> scan_tactics -> draft_broadcast", steps: {} };
   if (price) {
     try { out.steps.intake = await handleIntake({ work, quoted_price: price }, env); }
     catch (e) { out.steps.intake = { ok: false, message: "intake失敗(取れた分のみ返す)" }; }
@@ -989,9 +1040,10 @@ async function handleAsk(args, env) {
   };
 }
 
-async function runTool(name, args, env) {
-  if (name === "ask") return handleAsk(args || {}, env);
-  if (name === "orchestrate") return handleOrchestrate(args || {}, env);
+async function runTool(rawName, args, env) {
+  const name = canonicalToolName(rawName); // 旧名(ask/orchestrate)も受ける
+  if (name === "route_request") return handleAsk(args || {}, env);
+  if (name === "run_full_audit") return handleOrchestrate(args || {}, env);
   if (name === "intake_estimate") return handleIntake(args || {}, env);
   if (name === "scan_tactics") return handleScanTactics(args || {}, env);
   if (name === "draft_broadcast") return handleDraftBroadcast(args || {}, env);
@@ -1729,7 +1781,7 @@ export default {
       //   「ルーティングが効いたか」はこの列でしか分からない。ask の呼び出し数だけ見ても、
       //   案内(guide)に落ちて終わっているのか、台帳まで繋がったのかが区別できない。
       //   記録するのは振り分け先の固定語彙のみ。入力文もIPも記録しない。
-      if (name === "ask" && out && out.answered_by) {
+      if (canonicalToolName(name) === "route_request" && out && out.answered_by) {
         const dest = String(out.answered_by).replace(/[^A-Za-z0-9 ():\-]/g, "").slice(0, 40);
         tev.push({ store: storeId || "", event: "route", tool: dest });
         // ★v2: 改善の入力になる2つ。どちらも固定語彙で1点だけ。入力文は記録しない。
