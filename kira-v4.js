@@ -232,6 +232,8 @@ function setQR(btns){
   btns.forEach(t=>{const b=document.createElement('button');b.className='hk-qb';b.textContent=t;b.onclick=()=>{document.getElementById('hk-ta').value=t;hkSend();};q.appendChild(b);});
 }
 function fmt(t){
+  // モデル出力を先にエスケープ（注入タグを無害化）。以降で付ける<b>/<a>/<br>は当方生成で安全。
+  t=String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   t=t.replace(/約[\d〜~\-\s,万円]+万円/g,'<b>$&</b>');
   t=t.replace(/¥[\d,]+/g,'<b>$&</b>');
   t=t.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank">$1</a>');

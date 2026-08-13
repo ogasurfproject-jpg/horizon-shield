@@ -204,6 +204,30 @@ https://hs-price-sync.oga-surf-project.workers.dev/proposal/latest`;
 }
 
 // =============================================
+// 管理者認証（fail-closed・定数時間比較）
+//   PRICE_ADMIN_KEY を Secret に設定すること。未設定なら承認系は全拒否。
+// =============================================
+async function ctEqual(a, b) {
+  a = String(a == null ? '' : a); b = String(b == null ? '' : b);
+  const enc = new TextEncoder();
+  const ha = await crypto.subtle.digest('SHA-256', enc.encode(a));
+  const hb = await crypto.subtle.digest('SHA-256', enc.encode(b));
+  const x = new Uint8Array(ha), y = new Uint8Array(hb);
+  let out = 0;
+  for (let i = 0; i < x.length; i++) out |= x[i] ^ y[i];
+  return out === 0;
+}
+async function priceAdminOk(request, env) {
+  if (!env.PRICE_ADMIN_KEY) return false; // 未設定は全拒否（fail-closed）
+  const u = new URL(request.url);
+  let provided = u.searchParams.get('key') || '';
+  if (!provided) provided = (request.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
+  if (!provided) provided = request.headers.get('X-Admin-Key') || '';
+  if (!provided) return false;
+  return await ctEqual(provided, env.PRICE_ADMIN_KEY);
+}
+
+// =============================================
 // メイン ハンドラ
 // =============================================
 export default {
@@ -215,6 +239,7 @@ export default {
     // /run-now - 手動で提案生成＋KV保存＋LINE通知
     // ========================================
     if (url.pathname === '/run-now') {
+      if (!(await priceAdminOk(request, env))) return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: cors });
       try {
         const proposal = await generateProposal(env);
         const yearMonth = new Date().toISOString().slice(0, 7);
@@ -241,6 +266,7 @@ export default {
     // ★NEW: /notify-test - LINE通知単体テスト（KVから最新読み出して送る）
     // ========================================
     if (url.pathname === '/notify-test') {
+      if (!(await priceAdminOk(request, env))) return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: cors });
       if (!env.KV) return new Response(JSON.stringify({ error: 'KV not bound' }), { status: 500, headers: cors });
       const yearMonth = new Date().toISOString().slice(0, 7);
       const raw = await env.KV.get(`PROPOSAL:${yearMonth}`);
@@ -283,6 +309,19 @@ export default {
     // ========================================
     if (url.pathname === '/admin' || url.pathname === '/admin/price') {
       if (!env.KV) return new Response('KV not bound', { status: 500 });
+      // 管理コンソールのパスワードゲート（fail-closed: PRICE_ADMIN_KEY 未設定なら常にログイン画面）
+      const _pw = url.searchParams.get('key') || '';
+      if (!env.PRICE_ADMIN_KEY || !(await ctEqual(_pw, env.PRICE_ADMIN_KEY))) {
+        const loginHtml = `<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HS価格承認 ログイン</title>
+<style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:90vh;background:#0a0a0a;color:#e0e0e0;margin:0}.box{background:#111;padding:32px;border:1px solid #333;border-radius:12px;width:300px;text-align:center}input{width:100%;padding:10px;border:1px solid #444;border-radius:8px;font-size:15px;box-sizing:border-box;margin:12px 0;background:#0a0a0a;color:#e0e0e0}button{width:100%;background:#00a86b;color:#fff;border:none;padding:11px;border-radius:8px;font-size:15px;cursor:pointer}</style></head>
+<body><div class="box"><div style="font-weight:700;color:#00d4ff;font-size:17px">価格承認コンソール</div>
+<input id="pw" type="password" placeholder="パスワード" onkeydown="if(event.key==='Enter')go()" autofocus>
+<button onclick="go()">入る</button>
+<div id="msg" style="color:#ff4444;font-size:12px;margin-top:8px;min-height:16px"></div></div>
+<script>function go(){var p=document.getElementById('pw').value;if(!p)return;location.href='/admin?key='+encodeURIComponent(p);}
+${_pw ? "document.getElementById('msg').textContent='パスワードが違います';" : ""}</script></body></html>`;
+        return new Response(loginHtml, { status: _pw ? 401 : 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+      }
       const yearMonth = new Date().toISOString().slice(0, 7);
       const raw = await env.KV.get(`PROPOSAL:${yearMonth}`);
       const active = await env.KV.get('PRICE_INDEX_ACTIVE');
@@ -366,7 +405,7 @@ async function approve() {
   const msg = document.getElementById('msg');
   msg.textContent = '処理中...';
   try {
-    const r = await fetch('/proposal/approve', {method:'POST'});
+    const r = await fetch('/proposal/approve', {method:'POST', headers:{'X-Admin-Key': ${JSON.stringify(_pw).replace(/</g, '\\u003c')}}});
     const d = await r.json();
     if (d.success) { msg.style.color='#00ff88'; msg.textContent = '✅ 承認完了！係数 ×'+d.coefficient+' を反映しました'; }
     else { msg.style.color='#ff4444'; msg.textContent = '❌ エラー: '+JSON.stringify(d); }
@@ -375,7 +414,7 @@ async function approve() {
 async function reject() {
   if (!confirm('却下しますか？')) return;
   const msg = document.getElementById('msg');
-  const r = await fetch('/proposal/reject', {method:'POST'});
+  const r = await fetch('/proposal/reject', {method:'POST', headers:{'X-Admin-Key': ${JSON.stringify(_pw).replace(/</g, '\\u003c')}}});
   const d = await r.json();
   msg.style.color='#aaa'; msg.textContent = '却下しました';
   setTimeout(()=>location.reload(), 1000);
@@ -392,6 +431,7 @@ async function reject() {
     // ★NEW: /proposal/approve - 承認 → KV保存
     // ========================================
     if (url.pathname === '/proposal/approve' && request.method === 'POST') {
+      if (!(await priceAdminOk(request, env))) return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
       if (!env.KV) return new Response(JSON.stringify({ error: 'KV not bound' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
       const yearMonth = new Date().toISOString().slice(0, 7);
       const raw = await env.KV.get(`PROPOSAL:${yearMonth}`);
@@ -418,6 +458,7 @@ async function reject() {
     // ★NEW: /proposal/reject - 却下
     // ========================================
     if (url.pathname === '/proposal/reject' && request.method === 'POST') {
+      if (!(await priceAdminOk(request, env))) return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
       if (!env.KV) return new Response(JSON.stringify({ error: 'KV not bound' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
       const yearMonth = new Date().toISOString().slice(0, 7);
       const raw = await env.KV.get(`PROPOSAL:${yearMonth}`);
@@ -448,6 +489,7 @@ async function reject() {
     // /debug/boj-iran-war（既存）
     // ========================================
     if (url.pathname === '/debug/boj-iran-war') {
+      if (!(await priceAdminOk(request, env))) return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: cors });
       const proposal = await generateProposal(env);
       return new Response(JSON.stringify(proposal, null, 2), { headers: cors });
     }

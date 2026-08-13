@@ -89,6 +89,12 @@ function handleOptions() {
  * }
  */
 async function handleCreateCase(request, env) {
+  // 任意の共有トークン認証: FOLLOWUP_CREATE_TOKEN を設定すると必須になる（未設定なら従来通り開放）。
+  // ※呼び出し元がバックエンドなら、この Secret を設定して未認証の KV 書き込みを塞ぐこと。
+  if (env.FOLLOWUP_CREATE_TOKEN) {
+    const provided = request.headers.get("X-Followup-Token") || new URL(request.url).searchParams.get("token") || "";
+    if (provided !== env.FOLLOWUP_CREATE_TOKEN) return errorResponse("unauthorized", 401);
+  }
   let body;
   try {
     body = await request.json();
@@ -104,6 +110,19 @@ async function handleCreateCase(request, env) {
     }
   }
 
+  // 入力の正規化・上限（KV肥大化・異常値の防止）
+  const capStr = (v, n) => String(v == null ? "" : v).slice(0, n);
+  const finiteNum = (v) => {
+    if (v === null || v === undefined || v === '') return null; // 未指定は null のまま（0 にしない）
+    const x = Number(typeof v === 'string' ? v.replace(/[,\uFF0C\s\u5186]/g, '') : v);
+    return Number.isFinite(x) ? x : null;
+  };
+  const gyoshaEstimate = finiteNum(body.gyosha_estimate);
+  const kiraEstimate = finiteNum(body.kira_estimate);
+  if (gyoshaEstimate === null || kiraEstimate === null || gyoshaEstimate < 0 || kiraEstimate < 0 || gyoshaEstimate > 1e10 || kiraEstimate > 1e10) {
+    return errorResponse("金額が不正です");
+  }
+
   const caseId = generateCaseId();
   const diagnosisDate = today();
   const followupScheduledDate = addDays(diagnosisDate, 30);
@@ -116,18 +135,18 @@ async function handleCreateCase(request, env) {
     followup_responded_date: null,
     status: "pending", // pending → sent → responded
     input: {
-      region: body.region,
-      koji_type: body.koji_type,
-      menseki: body.menseki ?? null,
+      region: capStr(body.region, 80),
+      koji_type: capStr(body.koji_type, 120),
+      menseki: finiteNum(body.menseki),
     },
     intervention: {
-      gyosha_estimate: Number(body.gyosha_estimate),
-      kira_estimate: Number(body.kira_estimate),
+      gyosha_estimate: gyoshaEstimate,
+      kira_estimate: kiraEstimate,
       kira_estimate_range: [
-        body.kira_range_low ? Number(body.kira_range_low) : null,
-        body.kira_range_high ? Number(body.kira_range_high) : null,
+        finiteNum(body.kira_range_low),
+        finiteNum(body.kira_range_high),
       ],
-      pdf_purchased: body.pdf_purchased ?? false,
+      pdf_purchased: body.pdf_purchased === true,
     },
     outcome: null, // フォロー回答後に埋まる
   };

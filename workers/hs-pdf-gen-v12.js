@@ -832,6 +832,11 @@ function parsePlanText(planText) {
       result.source = t.replace('出典：', '').trim();
     }
   }
+  // H5: PDF HTMLテンプレートに差し込む前に全フィールドをエスケープ（HTML/スクリプト注入・puppeteer setContent SSRF防止）
+  for (const _k of ['koji_content', 'subtotal', 'expenses', 'matsu', 'take', 'ume', 'advice', 'source']) {
+    result[_k] = escapeHtml(result[_k] || '');
+  }
+  result.breakdown = (result.breakdown || []).map((_b) => escapeHtml(_b));
   return result;
 }
 
