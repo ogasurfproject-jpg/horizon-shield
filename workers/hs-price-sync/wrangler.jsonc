@@ -4,6 +4,8 @@
   // ANTHROPIC_API_KEY / ESTAT_APP_ID / LINE_CHANNEL_TOKEN / LINE_USER_ID は Secret。
   "name": "hs-price-sync",
   "main": "src/worker.js",
+  "preview_urls": false,
+  "observability": { "enabled": true, "logs": { "enabled": true } },
   "compatibility_date": "2026-04-20",
   "triggers": { "crons": ["0 13 10 * *"] },
   "kv_namespaces": [

@@ -4,6 +4,8 @@
   // ALERT_FEED_URLS / ALERT_LINE_TO ほか7本は Secret なので vars には置かない。
   "name": "hs-internal-mcp",
   "main": "src/worker.js",
+  "preview_urls": false,
+  "observability": { "enabled": true, "logs": { "enabled": true } },
   "compatibility_date": "2026-06-28",
   "triggers": { "crons": ["*/30 * * * *"] },
   "kv_namespaces": [
