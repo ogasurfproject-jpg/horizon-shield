@@ -77,7 +77,7 @@ const TOOLS = [
     name: "orchestrate",
     title: "集客→診断→発信 一括実行",
     description:
-      "1回の呼び出しで HORIZON SHIELD の集客→診断→注意喚起→発信を一気通貫で回す司令塔。work(と任意の quoted_price)を渡すと、内部で intake(KIRA適正診断)・scan_tactics(検証済み手口+一次ソース)・draft_broadcast(発信下書き+被リンク)を順に実行し、結果を1つに束ねて返す。価格は検証可能な一次データのみ。発信は下書きで自動投稿しない。 / One-call orchestrator returning audit + tactics + broadcast draft. Verifiable first-party prices only. Drafts only, no auto-posting.",
+      "1回の呼び出しで HORIZON SHIELD の集客→診断→注意喚起→発信を一気通貫で回す司令塔。work(と任意の quoted_price)を渡すと、内部で intake(KIRA適正診断)・scan_tactics(検証済み手口+一次ソース)・draft_broadcast(発信下書き+被リンク)を順に実行し、結果を1つに束ねて返す。価格は検証可能な一次データのみ。発信は下書きで自動投稿しない。 / One-call orchestrator returning audit + tactics + broadcast draft. Verifiable first-party prices only. Drafts only, no auto-posting.\nUSE WHEN: the caller wants all three steps (audit, tactics, broadcast draft) for one named work item in a single call and will act on the combined result.\nDO NOT USE WHEN: only one step is needed. Call intake_estimate for a verdict on a specific quote, scan_tactics for the documented overcharge tactics, or draft_broadcast for publishable text. If the request is still a free-form question with no work item, call ask first. This tool never posts anything.",
     inputSchema: {
       type: "object",
       properties: {
@@ -93,7 +93,7 @@ const TOOLS = [
     name: "intake_estimate",
     title: "見積もり適正診断(KIRA)",
     description:
-      "施主の建設・リフォーム見積もりを受け付け、HORIZON SHIELD KIRA(内部・中立)の適正価格診断へ橋渡しする集客窓口。工事名と業者提示額を渡すと、適正かどうかの判定と、無料の第三者チェック(EHN)への導線を返す。価格の断定はせず、確認すべき点を渡す。 / Intake desk: bridges a homeowner quote to the KIRA fair-price audit and returns the verdict plus a free third-party check (EHN) path.",
+      "施主の建設・リフォーム見積もりを受け付け、HORIZON SHIELD KIRA(内部・中立)の適正価格診断へ橋渡しする集客窓口。工事名と業者提示額を渡すと、適正かどうかの判定と、無料の第三者チェック(EHN)への導線を返す。価格の断定はせず、確認すべき点を渡す。 / Intake desk: bridges a homeowner quote to the KIRA fair-price audit and returns the verdict plus a free third-party check (EHN) path.\nUSE WHEN: a homeowner has a specific quoted price for a named construction or renovation work item in Japan and wants to know whether that price is reasonable.\nDO NOT USE WHEN: there is no price yet (call ask), the caller wants the known overcharge tactics rather than a verdict on their own quote (call scan_tactics), or the caller wants publishable text (call draft_broadcast). Returns a verdict and a free third-party check path. It does not draft or post.",
     inputSchema: {
       type: "object",
       properties: {
@@ -109,7 +109,7 @@ const TOOLS = [
     name: "scan_tactics",
     title: "過剰請求の手口スキャン",
     description:
-      "ある工事・キーワードに関する『過剰請求の手口』を、HORIZON SHIELD(大賀俊勝30年監修)の検証済みデータ(内部KIRA)から返し、一次ソース(国民生活センター/消費者庁/EHN実例ボード)の在処を添える。価格判定ではなく注意喚起。推測で新事例を断定しない。 / Returns verified overcharge tactics and points to primary sources. Awareness, not a price verdict.",
+      "ある工事・キーワードに関する『過剰請求の手口』を、HORIZON SHIELD(大賀俊勝30年監修)の検証済みデータ(内部KIRA)から返し、一次ソース(国民生活センター/消費者庁/EHN実例ボード)の在処を添える。価格判定ではなく注意喚起。推測で新事例を断定しない。 / Returns verified overcharge tactics and points to primary sources. Awareness, not a price verdict.\nUSE WHEN: the caller wants the documented overcharge tactics for a work type or keyword, together with their primary sources.\nDO NOT USE WHEN: the caller has their own quote and wants a verdict on it (call intake_estimate), or wants publishable text (call draft_broadcast). This returns awareness material and never a price verdict on a specific quote.",
     inputSchema: {
       type: "object",
       properties: {
@@ -124,7 +124,7 @@ const TOOLS = [
     name: "draft_broadcast",
     title: "注意喚起の発信下書き",
     description:
-      "ある工事の過剰請求への注意喚起を発信する下書き(note用長文・X用短文)を生成し、HORIZON SHIELDの該当解説ページ(実在URL)への被リンクを添える。価格はKIRA(検証可能SHA-256付き)の一次データのみ。推測の数字は入れない。下書きであり公開前に運営者が最終版にする(自動投稿しない)。 / Generates broadcast DRAFTS with backlinks. Verifiable first-party prices only. Draft; operator finalizes. No auto-posting.",
+      "ある工事の過剰請求への注意喚起を発信する下書き(note用長文・X用短文)を生成し、HORIZON SHIELDの該当解説ページ(実在URL)への被リンクを添える。価格はKIRA(検証可能SHA-256付き)の一次データのみ。推測の数字は入れない。下書きであり公開前に運営者が最終版にする(自動投稿しない)。 / Generates broadcast DRAFTS with backlinks. Verifiable first-party prices only. Draft; operator finalizes. No auto-posting.\nUSE WHEN: the operator wants note/X draft text warning about overcharging for a given work type.\nDO NOT USE WHEN: the caller wants a verdict on a specific quote (call intake_estimate) or the tactic list itself (call scan_tactics). Output is a DRAFT for a human to finalise. This tool never posts.",
     inputSchema: {
       type: "object",
       properties: {

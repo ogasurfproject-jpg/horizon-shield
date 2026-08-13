@@ -2,6 +2,12 @@ name = "hs-webmcp"
 main = "index.js"
 compatibility_date = "2026-06-25"
 
+# 2026-08-14 追加。無記載だとデプロイ時にダッシュボード設定を既定値で上書きする。
+#   observability を落とすとログが消え、workers_dev を省くと web.horizonshield.dev の他に
+#   workers.dev のURLが勝手に生える（hs-verify-gate / hs-hearing で実際に起きた）。
+preview_urls = false
+workers_dev = false
+
 # ★2026-07-27 追加の前に読むこと。
 #   wrangler deploy は **このファイルに書かれていないバインディングを消す**。
 #   下の3本（HS_MCP_SVC / LEDGER_SVC / STATS）が deploy --dry-run で
@@ -31,3 +37,9 @@ class_name = "StatsDO"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["StatsDO"]
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
