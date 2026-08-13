@@ -209,8 +209,8 @@ footer .top{color:var(--ink-2);font-size:13.5px;margin-bottom:14px}
 
   <div class="metastrip">
     <span><span class="dot">●</span> <b>read-only</b> — it calls no tools on the server you point it at</span>
-    <span><b>free forever</b>, listing included</span>
-    <span>the checker is <b>on its own list</b>, and does not pass everything</span>
+    <span><span class="dot">●</span> <b>free forever</b>, listing included</span>
+    <span><span class="dot">●</span> the checker is <b>on its own list</b>, and does not pass everything</span>
   </div>
 
   <div class="tool">
@@ -231,6 +231,12 @@ footer .top{color:var(--ink-2);font-size:13.5px;margin-bottom:14px}
       <div class="rverd" id="rverd">—</div>
       <div class="mono" style="font-size:11.5px;color:var(--ink-3);margin-top:9px" id="rendpoint"></div>
       <div class="rchecks" id="rchecks"></div>
+      <div style="font-size:11.5px;color:var(--ink-3);margin-top:10px;line-height:1.7">
+        <span class="pill pend"><span class="d"></span>NOT MEASURED</span>
+        means exactly that. If the record says a condition was not measured, this page will not paint it green,
+        <b style="color:var(--ink-2)">even when the same record carries <span class="mono">pass: true</span></b>.
+        Green only after measurement, including for us.
+      </div>
       <div class="livehash" id="rrecompute"></div>
       <details class="raw"><summary>raw verdict</summary><pre id="rraw"></pre></details>
     </div>
@@ -404,6 +410,9 @@ function condPill(key, c){
   const label = esc(LABELS[key] || key);
   let cls = "pass", txt = "PASS";
   if (c && c.detail && c.detail.applicable === false) { cls = "na"; txt = "N/A"; }
+  // A condition the issuer says it did not measure must never be painted green,
+  // even when the record carries pass:true. Green only after measurement.
+  else if (c && (c.measured === false || (c.detail && c.detail.self_measured === false))) { cls = "pend"; txt = "NOT MEASURED"; }
   else if (c && c.pass === true) { cls = "pass"; txt = "PASS"; }
   else { cls = "hold"; txt = (c && /1104|Worker-to-Worker|not reach|http 404/i.test(c.reason || "")) ? "UNREACH" : "FAIL"; }
   return '<div class="cond"><div class="cl">' + label + '</div><span class="pill ' + cls + '"><span class="d"></span>' + txt + '</span></div>';
