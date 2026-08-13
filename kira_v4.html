@@ -314,13 +314,13 @@ async function renderMemory(){
     if(prospects && prospects.length > 0){
       html += prospects.map(p=>`<div class="memory-item prospect">
         <b>🔴 見込み客 ／ ${new Date(p.diagnosed_at).toLocaleString('ja-JP')}</b>
-        地域：${p.region||'不明'} ／ ${p.concern_summary?.substring(0,60)||''}
+        地域：${escHtml(p.region||'不明')} ／ ${escHtml(p.concern_summary?.substring(0,60)||'')}
       </div>`).join('');
     }
     if(msgs && msgs.length > 0){
       html += msgs.map(m=>`<div class="memory-item">
         <b>${m.role==='user'?'施主':'KIRA'} ／ ${new Date(m.created_at).toLocaleString('ja-JP')}</b>
-        ${m.content.substring(0,70)}${m.content.length>70?'…':''}
+        ${escHtml(m.content.substring(0,70))}${m.content.length>70?'…':''}
       </div>`).join('');
     }
     if(!html) html = '<div class="memory-item">記憶なし</div>';
@@ -406,7 +406,10 @@ function setQR(btns){
     qr.appendChild(btn);
   });
 }
+function escHtml(v){ return (v==null?'':String(v)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function fmt(text){
+  // モデル出力・利用者入力を先にエスケープ。以降で付ける<b>/<a>/<br>は当方生成で安全。
+  text=escHtml(text);
   text=text.replace(/約[\d〜~\-\s,万円]+万円/g,'<b>$&</b>');
   text=text.replace(/¥[\d,]+/g,'<b>$&</b>');
   text=text.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank">$1</a>');
