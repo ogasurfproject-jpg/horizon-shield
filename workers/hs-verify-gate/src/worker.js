@@ -48,6 +48,15 @@ async function sha256hex(s) {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+// 定数時間比較: 両者を SHA-256(64桁hex) 化して XOR 集約。長さ差でも分岐しない。
+async function ctEqual(a, b) {
+  const ha = await sha256hex(String(a == null ? "" : a));
+  const hb = await sha256hex(String(b == null ? "" : b));
+  let out = 0;
+  for (let i = 0; i < ha.length; i++) out |= ha.charCodeAt(i) ^ hb.charCodeAt(i);
+  return out === 0;
+}
+
 function withTimeout(p, ms) {
   return Promise.race([
     p,
@@ -652,7 +661,7 @@ async function verifyVerdict(record) {
     recomputed_sha256: got,
     method: "Remove record_sha256 and recompute_note, JSON.stringify the remainder in key order, SHA-256.",
     note: got === expected
-      ? "The verdict was not altered after it was issued."
+      ? "record_sha256 matches a recompute of this record. This proves only internal self-consistency (the body hashes to its own stored digest); it is NOT proof of authorship or that this gate issued it — anyone can compute the same hash with the public method above. For issuer authenticity/anchoring, rely on the JIDEC ledger, not this unkeyed checksum."
       : "Mismatch. The verdict was altered after it was issued, or it was not issued by this gate. Reject it."
   };
 }
@@ -909,7 +918,7 @@ export default {
       if (!prev && Object.keys(reg).length >= REGISTRY_MAX) {
         return json({ error: "registry_full", max: REGISTRY_MAX }, 429);
       }
-      const admin = !!(env.SWEEP_TOKEN && request.headers.get("x-sweep-token") === env.SWEEP_TOKEN);
+      const admin = !!(env.SWEEP_TOKEN && await ctEqual(request.headers.get("x-sweep-token") || "", env.SWEEP_TOKEN));
       const tier = admin && body.tier === "paid" ? "paid" : ((prev && prev.tier === "paid") ? "paid" : "free");
       reg[ep] = {
         tier: tier,
@@ -933,7 +942,7 @@ export default {
       if (!env || !env.SWEEP_TOKEN) {
         return json({ error: "sweep_token_not_configured" }, 503);
       }
-      if (request.headers.get("x-sweep-token") !== env.SWEEP_TOKEN) {
+      if (!(await ctEqual(request.headers.get("x-sweep-token") || "", env.SWEEP_TOKEN))) {
         return json({ error: "forbidden" }, 403);
       }
       let force = false;

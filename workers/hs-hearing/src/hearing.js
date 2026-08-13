@@ -39,6 +39,18 @@ const rpc = (id, result) => json({ jsonrpc: "2.0", id, result });
 const rpcErr = (id, code, message) => json({ jsonrpc: "2.0", id, error: { code, message } });
 
 function safeStr(v, max = 400) { return (v == null ? "" : String(v)).slice(0, max); }
+function escHtml(v) { return (v == null ? "" : String(v)).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
+// 金額を円の数値文字列にする。「90万」→900000 のように億/万/千を展開。単位なし(純粋な数字)は従来通り数字のみ。
+function parseJpYen(v) {
+  const s = String(v == null ? "" : v).replace(/[,，\s円]/g, "").replace(/^(?:約|およそ|凡そ)/, "");
+  if (!s) return "";
+  const m = s.match(/^(?:(\d+(?:\.\d+)?)億)?(?:(\d+(?:\.\d+)?)万)?(?:(\d+(?:\.\d+)?)千)?(\d+)?$/);
+  if (m && (m[1] || m[2] || m[3])) {
+    const total = parseFloat(m[1] || 0) * 1e8 + parseFloat(m[2] || 0) * 1e4 + parseFloat(m[3] || 0) * 1e3 + parseFloat(m[4] || 0);
+    return String(Math.round(total));
+  }
+  return s.replace(/[^0-9]/g, "");
+}
 function safeArr(v, maxItems = 30, maxLen = 120) {
   if (!Array.isArray(v)) return [];
   return v.slice(0, maxItems).map((x) => safeStr(x, maxLen)).filter(Boolean);
@@ -72,8 +84,8 @@ async function fetchPublished(env) {
 
 /* ------------------------------ hearing form ------------------------------ */
 function hearingForm(token, store) {
-  const company = safeStr(store && store.company, 120) || "加盟店";
-  const memberNo = safeStr(store && store.member_no, 20) || "";
+  const company = escHtml(safeStr(store && store.company, 120) || "加盟店");
+  const memberNo = escHtml(safeStr(store && store.member_no, 20) || "");
   // インラインJSはバッククォートを使わない(ワーカー側テンプレートリテラルとの衝突回避)
   return '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8">' +
 '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
@@ -287,7 +299,7 @@ function normalizeProfile(store, raw) {
   const estimates = Array.isArray(raw.estimates)
     ? raw.estimates.slice(0, 5).map((e) => ({
         work: safeStr(e.work, 80),
-        amount: safeStr(e.amount, 20).replace(/[^0-9]/g, ""),  // 監査用の数値のみ
+        amount: parseJpYen(safeStr(e.amount, 20)),  // 監査用の数値のみ（万/億/千を展開）
         detail: safeStr(e.detail, 200),
       })).filter((e) => e.work || e.amount)
     : [];

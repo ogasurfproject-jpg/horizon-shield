@@ -122,6 +122,17 @@ var TOOLS = [
     inputSchema: { type: "object", properties: {} }
   }
 ];
+// 定数時間比較（SHA-256してXOR集約）。管理キーの照合に使う。
+async function ctEqual(a, b) {
+  a = String(a == null ? "" : a); b = String(b == null ? "" : b);
+  const enc = new TextEncoder();
+  const ha = await crypto.subtle.digest("SHA-256", enc.encode(a));
+  const hb = await crypto.subtle.digest("SHA-256", enc.encode(b));
+  const x = new Uint8Array(ha), y = new Uint8Array(hb);
+  let out = 0;
+  for (let i = 0; i < x.length; i++) out |= x[i] ^ y[i];
+  return out === 0;
+}
 async function callTool(name, args, env) {
   switch (name) {
     // ---- 資料生成層 → hs-pdf-gen (binding: PDF_GEN) ----
@@ -713,7 +724,9 @@ var worker_default = {
       return new Response(null, { status: 204, headers: CORS });
     }
     if (url.pathname === "/admin-gen" && req.method === "POST") {
-      if (!env.INTERNAL_MCP_KEY || url.searchParams.get("key") !== env.INTERNAL_MCP_KEY) {
+      // key はヘッダ優先で受ける（URLに秘密を載せない）。比較は定数時間。
+      const _k = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "") || req.headers.get("X-Internal-Key") || url.searchParams.get("key") || "";
+      if (!env.INTERNAL_MCP_KEY || !(await ctEqual(_k, env.INTERNAL_MCP_KEY))) {
         return new Response(JSON.stringify({ ok: false, error: "bad key" }), { status: 401, headers: { "Content-Type": "application/json", ...CORS } });
       }
       let body;
@@ -726,7 +739,8 @@ var worker_default = {
       return new Response(JSON.stringify(out), { headers: { "Content-Type": "application/json", ...CORS } });
     }
     const auth = req.headers.get("Authorization") || "";
-    const ok = env.INTERNAL_MCP_KEY && auth === `Bearer ${env.INTERNAL_MCP_KEY}`;
+    const _m = auth.match(/^Bearer\s+(.*)$/i);
+    const ok = !!(env.INTERNAL_MCP_KEY && _m && await ctEqual(_m[1], env.INTERNAL_MCP_KEY));
     if (!ok) {
       return new Response(JSON.stringify({ ok: false, error: "unauthorized" }), {
         status: 401,
