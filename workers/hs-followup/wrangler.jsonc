@@ -5,6 +5,8 @@
   // live照合済み。Secret も vars も無し。KV は FOLLOWUP のみ。
   "name": "hs-followup",
   "main": "src/worker.js",
+  "preview_urls": false,
+  "observability": { "enabled": true, "logs": { "enabled": true } },
   "compatibility_date": "2026-05-12",
   "kv_namespaces": [
     { "binding": "FOLLOWUP", "id": "bb1da83e30914ea998eaeadbe389c79c" }

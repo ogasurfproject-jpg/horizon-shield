@@ -2,6 +2,9 @@
   // hs-hearing : Yakumoモール 加盟店 自動ヒアリング + 生きた加盟店MCP + メール返信の安全網(Email Routing)
   "name": "hs-hearing",
   "main": "src/hearing.js",
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": { "enabled": true, "logs": { "enabled": true } },
   "compatibility_date": "2025-06-01",
   "kv_namespaces": [
     {

@@ -10,6 +10,9 @@
   // 顧客データも申請者の秘密も入らない。入るのは既に公開されている判定だけ。
   "name": "hs-verify-gate",
   "main": "src/worker.js",
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": { "enabled": true, "logs": { "enabled": true } },
   "compatibility_date": "2024-01-01",
 
   // 毎日の再測定。UTC 18:00 = JST 翌03:00。負荷の薄い時間に置く。
