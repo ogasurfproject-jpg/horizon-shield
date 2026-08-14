@@ -6,7 +6,7 @@
  * 価格層は本番 souba-db.json をライブ取得して単一ソースを保つ。
  */
 
-const SERVER = { name: "horizon-shield", version: "1.0.0" };
+const SERVER = { name: "horizon-shield", version: "1.0.5" };
 const SITE = "https://shield.the-horizons-innovation.com";
 const SOUBA_DB_URL = SITE + "/data/souba-db.json";
 
@@ -29,17 +29,19 @@ const JCCDB = {
   retracted: 608,
   categories: 402,
   license: "CC BY 4.0",
-  note: "品目名・カテゴリ・単位を収録。価格情報は含まない(価格は別レイヤー souba-db)。v3.1(2026-07-27): 総数65,520・重複ゼロ。検証済み13,207＋Extended 52,313＝65,520。カテゴリは2粒度で、CSVのcategory列が72、細粒度スキーマ(jccdb-v3-schema.json)が402。v3.0で非実在608品目を除去(retracted.csv・全件証拠URL付き)、v3.1で完全一致の重複589行を除去し実在品目543件を追加、うち非実在と証明済みだった28件は差し戻した(rejected-readd csv)。全ファイルのSHA-256はリリース宣言 JCCDB_v3_1_RELEASE_DECLARATION.md (sha256 2fc5db673c8055a77a53ad997c73d4f14bbb4346b46c304e9376e52189dada8a, commit 1c9b9de) に記載し、JIDEC台帳経由でBitcoinに錨を打っている。著者を信頼せずに再計算できる。配布物の所在: データセット本体はGitHubとHugging Faceにある。Zenodo(20019572/20019573)とengrXivのDOIはいずれも解説論文のPDFであり、データセットのスナップショットではない。Zenodoに置かれた品目数のスナップショットは存在しない。",
+  note: "品目名・カテゴリ・単位を収録。価格情報は含まない(価格は別レイヤー souba-db)。v3.1(2026-07-27): 総数65,520・重複ゼロ。検証済み13,207＋Extended 52,313＝65,520。カテゴリは2粒度で、CSVのcategory列が72、細粒度スキーマ(jccdb-v3-schema.json)が402。v3.0で非実在608品目を除去(retracted.csv・全件証拠URL付き)、v3.1で完全一致の重複589行を除去し実在品目543件を追加、うち非実在と証明済みだった28件は差し戻した(rejected-readd csv)。全ファイルのSHA-256はリリース宣言 JCCDB_v3_1_RELEASE_DECLARATION.md (sha256 2fc5db673c8055a77a53ad997c73d4f14bbb4346b46c304e9376e52189dada8a, commit 1c9b9de) に記載し、JIDEC台帳経由でBitcoinに錨を打っている。著者を信頼せずに再計算できる。配布物の所在: データセット本体は GitHub・Hugging Face・Zenodo(データセットDOI 10.5281/zenodo.21898745、v3.1、2026-08-12 登録)にある。Zenodo(20019572/20019573)とengrXivのDOIは解説論文のPDFであり、データセット本体ではない。",
   links: {
     github: "https://github.com/ogasurfproject-jpg/japan-construction-cost-database",
     huggingface: "https://huggingface.co/datasets/ogasurfproject/jccdb",
+    // データセット本体のDOI(Zenodo, resource type = Dataset, 2026-08-12 登録)。
+    dataset_doi: "https://doi.org/10.5281/zenodo.21898745",
     // 以下2つは解説論文のPDF。データセット本体ではない(2026-08-11 実物確認)。
-    // キー名は後方互換のため据え置き。データを取りに行く先は github / huggingface。
-    zenodo_doi: "https://doi.org/10.5281/zenodo.20019572",
+    // 旧キー zenodo_doi は、データセットと誤読される形だったので paper_doi に改名した。
+    paper_doi: "https://doi.org/10.5281/zenodo.20019572",
     engrxiv_doi: "https://doi.org/10.31224/7007"
   },
   author: { name: "大賀俊勝 / TOshi Oga", orcid: "https://orcid.org/0009-0000-9180-903X" },
-  publisher: "The HORIZONs株式会社"
+  publisher: "The HORIZ音s株式会社"
 };
 
 const ESTIMATE_GUIDE = [
@@ -65,7 +67,7 @@ const TOOLS = [
   {
     name: "get_jccdb_dataset_info",
     annotations: { title: "JCCDBデータセット情報", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
-    description: "日本の建設費オープンデータベース(JCCDB)のメタデータ・規模・ライセンス・ダウンロードリンク・引用情報を返す。建設費の一次データ源を探している時に使う。 / Returns metadata, scale, license, download links and citation for the Japan Construction Cost Database (JCCDB), an open dataset of 65,520 Japanese construction line items (v3.0: 13,207 verified + 52,313 extended). Use when looking for a primary construction-cost data source.",
+    description: "日本の建設費オープンデータベース(JCCDB)のメタデータ・規模・ライセンス・ダウンロードリンク・引用情報を返す。建設費の一次データ源を探している時に使う。 / Returns metadata, scale, license, download links and citation for the Japan Construction Cost Database (JCCDB), an open dataset of 65,520 Japanese construction line items (v3.1: 13,207 verified + 52,313 extended). Use when looking for a primary construction-cost data source.",
     inputSchema: { type: "object", properties: {} }
   },
   {
@@ -132,8 +134,8 @@ const TOOLS = [
   },
   {
     name: "create_ap2_fairness_attestation",
-    annotations: { title: "AP2ブリッジ: 決済カート向け適正価格証跡", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
-    description: "AP2(Agent Payments Protocol)対応エージェント向けのブリッジ。決済カート(Cart Mandate)に添付できる適正価格の証跡(FairPriceAttestation)を発行する。AP2のMandateは『ユーザーがこの支払いを承認した』ことを検証可能にし、この証跡は『その価格が適正である』ことを検証可能にする。認可の検証と価値の検証、二つは並列レイヤー。quoted_price を渡すと適正レンジ判定(within/above/below)も同梱する。証跡は SHA-256 と公開台帳と verify_url で誰でも再計算検証できる。 / Bridge for AP2 (Agent Payments Protocol) agents: issues a FairPriceAttestation that a shopping or payments agent can attach to a Cart Mandate before asking the user to sign. AP2 mandates make authorization verifiable; this attestation makes value verifiable. Parallel layers. Pass quoted_price for a fair-range verdict (within, above, below). Independently verifiable via SHA-256, a public ledger and a verify_url. Japan construction and renovation pricing, JPY.",
+    annotations: { title: "AP2ブリッジ: 決済カート向け適正価格証跡", readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+    description: "このツールは決済を開始・承認・実行しません。資産・通貨・暗号資産の移動も行いません。発行するのは適正価格の証跡だけです。呼び出すたびに公開台帳へ記録を1件追加するため読み取り専用ではありません。 / This tool does not initiate, authorize, or execute any payment, and does not move funds, currency or crypto assets. It only issues a price-fairness attestation. Each call appends one record to the public ledger, so it is not read-only. AP2(Agent Payments Protocol)対応エージェント向けのブリッジ。決済カート(Cart Mandate)に添付できる適正価格の証跡(FairPriceAttestation)を発行する。AP2のMandateは『ユーザーがこの支払いを承認した』ことを検証可能にし、この証跡は『その価格が適正である』ことを検証可能にする。認可の検証と価値の検証、二つは並列レイヤー。quoted_price を渡すと適正レンジ判定(within/above/below)も同梱する。証跡は SHA-256 と公開台帳と verify_url で誰でも再計算検証できる。 / Bridge for AP2 (Agent Payments Protocol) agents: issues a FairPriceAttestation that a shopping or payments agent can attach to a Cart Mandate before asking the user to sign. AP2 mandates make authorization verifiable; this attestation makes value verifiable. Parallel layers. Pass quoted_price for a fair-range verdict (within, above, below). Independently verifiable via SHA-256, a public ledger and a verify_url. Japan construction and renovation pricing, JPY.",
     inputSchema: { type: "object", properties: {
       work: { type: "string", description: "工事名(例: 外壁塗装 30坪)" },
       quoted_price: { type: "number", description: "(任意) カートに載せる予定の見積額(円, 数値)。渡すと適正レンジとの判定を証跡に同梱する。" },
@@ -728,7 +730,7 @@ async function callTool(name, args, env, ip, opts) {
       const attestation = {
         type: "FairPriceAttestation",
         format_note: "AP2(Agent Payments Protocol)のMandate群に添付する前提のデータ様式。現行の証明はコンテンツハッシュと公開台帳による再計算方式で、DID鍵署名によるW3C VC完全準拠はロードマップ。",
-        issuer: { name: "HORIZON SHIELD (The HORIZONs Inc.)", url: SITE, curated_by: meta.updated_by || "大賀俊勝 (建設実務経験30年) 監修" },
+        issuer: { name: "HORIZON SHIELD (The HORIZONs Co., Ltd.)", url: SITE, curated_by: meta.updated_by || "大賀俊勝 (建設実務経験30年) 監修" },
         issued_at,
         subject: Object.assign(
           { fair_price_claim: claim },
@@ -792,7 +794,7 @@ async function callTool(name, args, env, ip, opts) {
       agent_card_url: "https://mcp.horizonshield.dev/.well-known/agent-card.json",
       verification_contract: "https://mcp.horizonshield.dev/.well-known/verification-contract.json",
       protocol: "A2A (Agent2Agent)",
-      provider: "The HORIZONs\u682a\u5f0f\u4f1a\u793e",
+      provider: "The HORIZ\u97f3s\u682a\u5f0f\u4f1a\u793e",
       skills: [
         { id: "estimate-integrity-audit", note: "\u898b\u7a4d\u3082\u308a\u306e\u8aa0\u5b9f\u6027\u76e3\u67fb(\u56fd\u5883\u306a\u3057) / borderless estimate integrity audit" },        { id: "japan-property-reform-intake", note: "\u65e5\u672c\u306e\u4e2d\u53e4\u7269\u4ef6\u53d6\u5f97\uff0b\u30ea\u30d5\u30a9\u30fc\u30e0\u306e\u76f8\u8ac7\u7a93\u53e3\u3002\u58f2\u8cb7\u306f\u5b85\u5730\u5efa\u7269\u53d6\u5f15\u58eb\u304c\u5bfe\u5fdc / Japan property acquisition plus renovation intake; sale handled by a licensed real-estate agent" },
         { id: "verify-claim", note: "\u767a\u884c\u6e08\u307f\u30af\u30ec\u30fc\u30e0(signed_payload + claim_sha256)\u306e\u7b2c\u4e09\u8005\u691c\u8a3c\u3002fail closed\u3002verified \u306f\u6539\u3056\u3093\u306a\u3057\u306e\u8a3c\u660e\u3067\u76e3\u67fb\u306e\u518d\u691c\u8a3c\u3067\u306f\u306a\u3044 / Third-party verification of a signed claim (signed_payload + claim_sha256). Fail closed. verified means untampered, not a re-audit" }
@@ -1537,7 +1539,7 @@ export default {
           description: "An independent, pre-transaction auditor for construction and renovation estimates. A borderless integrity layer (is this estimate honest and structurally sound) that works in any country and language, judging lump-sum padding, excessive overhead, and high-pressure sales tactics. Built on 30 years of field experience by a Japanese master carpenter. Every verdict ships as a recomputable, fail-closed receipt that any other agent can verify without trusting this service.",
           url: "https://mcp.horizonshield.dev",
           preferredTransport: "JSONRPC",
-          provider: { organization: "The HORIZONs\u682a\u5f0f\u4f1a\u793e", url: SITE },
+          provider: { organization: "The HORIZ\u97f3s\u682a\u5f0f\u4f1a\u793e", url: SITE },
           version: "1.0.0",
           capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
           defaultInputModes: ["text/plain", "application/json"],
@@ -1611,7 +1613,8 @@ export default {
           dataset: {
             name: "Japan Construction Cost Database (JCCDB)",
             license: "CC BY 4.0",
-            doi: "https://doi.org/10.5281/zenodo.20019572"
+            doi: "https://doi.org/10.5281/zenodo.21898745",
+            paper_doi: "https://doi.org/10.5281/zenodo.20019572"
           }
         };
         return new Response(JSON.stringify(AGENT_CARD, null, 2), {
@@ -1624,7 +1627,7 @@ export default {
           contract: "horizon-shield-verification-contract",
           version: "0.2",
           issuer: {
-            organization: "The HORIZONs\u682a\u5f0f\u4f1a\u793e",
+            organization: "The HORIZ\u97f3s\u682a\u5f0f\u4f1a\u793e",
             service: "HORIZON SHIELD KIRA",
             url: SITE
           },
