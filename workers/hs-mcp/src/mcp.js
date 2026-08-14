@@ -1737,14 +1737,21 @@ export default {
         });
       }
 
+      // ★2026-08-14: MCP の Streamable HTTP 仕様は「このエンドポイントで SSE ストリームを
+      //   提供しないサーバーは GET に 405 を返さなければならない」としている。
+      //   このサーバーは SSE を提供しないので、200 は仕様違反だった。
+      //   適合性を測る道具を売っている側が MUST を破っているのは筋が通らないので直した。
+      //   本文は従来とまったく同じ info のまま。減らしたのは情報ではなく、番号だけ。
+      //   戻すときは status: 405 と Allow を消せば元の 200 に戻る。
       const info = {
         server: SERVER, transport: "MCP over Streamable HTTP (JSON-RPC 2.0)",
         usage: "POST JSON-RPC 2.0 to this URL. methods: initialize, tools/list, tools/call, prompts/list, prompts/get.",
         sse: "not offered. This endpoint does not open an event stream on GET.",
+        spec_note: "GET returns 405 because the MCP Streamable HTTP specification requires it of a server that does not open an SSE stream on this endpoint. The body below is the same information a 200 used to carry; nothing was removed. POST JSON-RPC 2.0 to this same URL to use the server.",
         tools: TOOLS.map(t => t.name), site: SITE
       };
       return new Response(JSON.stringify(info, null, 2),
-        { headers: { "Content-Type": "application/json; charset=utf-8", ...CORS } });
+        { status: 405, headers: { "Content-Type": "application/json; charset=utf-8", "Allow": "POST", ...CORS } });
     }
 
     if (request.method !== "POST")
