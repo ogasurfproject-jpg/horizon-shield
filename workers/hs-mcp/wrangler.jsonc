@@ -3,6 +3,14 @@
   "name": "hs-mcp",
   "main": "src/mcp.js",
   "compatibility_date": "2025-06-01",
+
+  // ★2026-08-14 第3段。wrangler がダッシュボード側を黙って上書きするのを塞ぐ。
+  //   §19.3 の実測: このファイルに書いていない項目は、ローカルの既定値で
+  //   リモートを上書きされる。hs-followup では observability が true->false に
+  //   落ちかけた(ログが切れる)。対策済みの5本に hs-mcp が入っていなかったので揃える。
+  //   workers_dev はここでは触らない。上の理由(掲載・キャッシュ・ブックマーク)がある。
+  "preview_urls": false,
+  "observability": { "enabled": true, "logs": { "enabled": true } },
   // ★2026-08-11 第1段。現在の状態を明文化するだけで、何も変えない。
   //   このファイルには workers_dev の記述が無かった。wrangler は routes が
   //   書かれていない限り workers_dev を true とみなすので、現状は true。
