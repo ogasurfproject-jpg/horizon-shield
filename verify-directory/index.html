@@ -210,7 +210,7 @@ footer .top{color:var(--ink-2);font-size:13.5px;margin-bottom:14px}
   <div class="metastrip">
     <span><span class="dot">●</span> <b>read-only</b> — it calls no tools on the server you point it at</span>
     <span><span class="dot">●</span> <b>free forever</b>, listing included</span>
-    <span><span class="dot">●</span> the checker is <b>on its own list</b>, and does not pass everything</span>
+    <span><span class="dot">●</span> the checker is <b>on its own list</b>, and does not pass its own test</span>
   </div>
 
   <div class="tool">
@@ -252,7 +252,7 @@ footer .top{color:var(--ink-2);font-size:13.5px;margin-bottom:14px}
   <div class="wrap">
     <div class="confess">
       <div class="big">We wrote the five conditions. Then we failed all five.</div>
-      <p>On the first run, our own servers did not meet a single one of the rules we had just published. We fixed what we could and left the rest visible. <b>Three of the four rows on the list today still do not pass</b>, and the only one that reads verified is the checker itself — which refuses to claim it measured a condition it did not, and which sits on its own watchlist as <span class="mono">held · http 522</span>, because a Worker cannot fetch its own hostname.</p>
+      <p>On the first run, our own servers did not meet a single one of the rules we had just published. We fixed what we could and left the rest visible. <b>Not one of the four rows on the list today passes.</b> That includes the checker itself: it cannot reach its own hostname from inside its own account, so it has not measured that condition — and it refuses to count an unmeasured condition as a pass, because that is the rule it applies to everyone else. Its own verdict therefore reads <span class="mono">pending</span>, and on the watchlist it sits as <span class="mono">held · http 522</span>.</p>
       <p>If the people who write the test are the only ones who pass it, the test is decoration. That is the whole reason this thing is worth pointing at your server: <b>it is allowed to come back red, including for us.</b></p>
     </div>
   </div>
@@ -303,11 +303,11 @@ footer .top{color:var(--ink-2);font-size:13.5px;margin-bottom:14px}
 <section id="registry">
   <div class="wrap">
     <div class="kh">The list, today</div>
-    <h2>Four rows. Three still do not pass. None of them came from outside.</h2>
+    <h2>Four rows. Not one of them passes. None of them came from outside.</h2>
     <p class="slead">Two are our own servers and two are member firms we brought in ourselves, so <b>no outside name has registered yet</b>. That is not a soft launch we are dressing up — it is the state of the register, and hiding it would make every other row here worthless. Rows are re-measured on a schedule and the history stays public, so a change means a condition actually flipped, not that a fresh verdict was issued. The sweep calls no tool on anyone, us included.</p>
     <div class="why">
       <div class="card"><div class="n">ENTRY 01 · self-applied</div><h4>The checker itself</h4>
-        <p>Answers "who verifies the verifier" by going first, and it is the one row that reads verified. It now speaks MCP at <span class="mono">/mcp</span>, so the tool that lets you distrust the issuer is <b>provided by the issuer</b>. Its endpoint row still says <b>served, not measured by us</b>: a Worker cannot fetch its own hostname, so on the watchlist it appears as <b>held, http 522</b>, with the reason in plain words. <b>We left the failing one visible</b> rather than quietly dropping it.</p></div>
+        <p>Answers "who verifies the verifier" by going first — and then fails its own test. It now speaks MCP at <span class="mono">/mcp</span>, so the tool that lets you distrust the issuer is <b>provided by the issuer</b>. Its endpoint row reads <b>served, not measured by us</b>: a Worker cannot fetch its own hostname. For a while the record carried <span class="mono">pass: true</span> on that row anyway, which made the gate's own verdict read verified. <b>It was the only server this gate was lenient with, so we removed the leniency.</b> The verdict now reads <span class="mono">pending</span>, and the row stays visible rather than being quietly dropped.</p></div>
       <div class="card"><div class="n">ENTRY 02 · our audit server</div><h4>hs-mcp</h4>
         <p>Endpoint, card and disclosure all pass, measured. Determinism stays <b>not measured</b>, because the sweep calls no tool on any server and that includes ours. So it reads <b>in process</b>, not verified. <b>We did not relax the rule for ourselves.</b></p></div>
       <div class="card"><div class="n">ENTRIES 03–04 · members</div><h4>Two member firms</h4>
@@ -332,7 +332,7 @@ footer .top{color:var(--ink-2);font-size:13.5px;margin-bottom:14px}
 
     <div class="honest">
       <div class="t">And what we cannot give you</div>
-      <p><b>Traffic.</b> Our own listing on another MCP directory has produced 54,911 impressions, 24 clicks and zero tool calls — real numbers off our dashboard, not a guess. A directory is not a distribution channel, and anyone telling you otherwise has not measured it. What this gives you is a record. A record is worth something precisely because it takes time to make, <b>which is the same reason it cannot be bought later.</b></p>
+      <p><b>Traffic.</b> Our own listing on another MCP directory had produced 54,911 impressions, 24 clicks and zero tool calls as of 2026-08-09 — real numbers off our dashboard, not a guess, and dated because a number without a date quietly stops being true. A directory is not a distribution channel, and anyone telling you otherwise has not measured it. What this gives you is a record. A record is worth something precisely because it takes time to make, <b>which is the same reason it cannot be bought later.</b></p>
     </div>
   </div>
 </section>

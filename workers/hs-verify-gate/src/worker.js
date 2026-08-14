@@ -791,13 +791,16 @@ async function selfCheck(origin) {
   // ただし同一アカウント制約で自分自身に到達できないため、自分では測れない。
   // 「対象外」と書くのは嘘になるので、測れないことをそのまま書く。
   checks.mcp_endpoint = {
-    pass: true,
+    // 測っていない条件を pass にはしない。/check が他人に適用しているのと同じ扱い。
+    // これ一個で扉の総合判定が verified になっていた。自分にだけ甘い物差しは物差しではない。
+    pass: false,
     measured: false,
     reason:
-      "applicable and served, but not self measured. This gate now speaks MCP at /mcp, so the " +
-      "condition applies to it. It cannot reach itself over the network from inside its own " +
-      "account, so it does not claim to have measured this. Point another checker at " +
-      "/mcp from outside and the claim is either confirmed or destroyed.",
+      "not measured: this gate now speaks MCP at /mcp, so the condition applies to it. It cannot " +
+      "reach itself over the network from inside its own account, so it has not measured this, " +
+      "and it does not count an unmeasured condition as a pass. That is the same rule this gate " +
+      "applies to every other server it checks. Point another checker at /mcp from outside and " +
+      "the claim is either confirmed or destroyed.",
     detail: {
       applicable: true,
       self_measured: false,
