@@ -1,0 +1,20 @@
+{
+  // hs-verify-relay — 扉(hs-verify-gate)の同一ゾーン522を迂回する中継。
+  //
+  // workers.dev に住む理由:
+  //   HTTPで呼ばれた扉は自ゾーン(horizonshield.dev)への subrequest が 522 になる
+  //   (2026-08-14〜15 実測)。HTTP文脈の扉→同一アカウント workers.dev は届くことを
+  //   実測済み (2026-08-15朝)。扉→この中継→horizonshield.dev は公開エッジを通る。
+  //   ★cron文脈の扉→workers.dev は塞がっている(過去実測)。だから扉側は
+  //     HTTP文脈のときだけこの中継を使う。cronは従来どおり直接で通る。
+  //
+  // binding は持たない。KVも持たない。状態ゼロ。
+  // secret は RELAY_TOKEN のみ (wrangler secret put RELAY_TOKEN)。
+  // 扉側にも同じ値を RELAY_TOKEN として入れ、扉の RELAY_URL がここを指す。
+  "name": "hs-verify-relay",
+  "main": "src/worker.js",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true, "logs": { "enabled": true } },
+  "compatibility_date": "2024-01-01"
+}

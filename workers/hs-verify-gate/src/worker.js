@@ -64,8 +64,64 @@ function withTimeout(p, ms) {
   ]);
 }
 
+// ---- 測定経路 (2026-08-15) ----
+// 実測: HTTPで呼ばれたこのWorkerから自ゾーンへの subrequest は 522 になる。
+// cron起動なら通る。外部ゾーンへは通る。最初に外から見つけたのは Federico。
+// 対象が自ゾーンのときだけ、別ゾーンの hs-verify-relay を経由して公開エッジで測る。
+// service binding は使わない。公開経路を測らない私道になるからだ。
+const PROBE_UA = "HORIZON-SHIELD-verify-gate/0.2 (+https://gate.horizonshield.dev/spec; conformance probe; read-only)";
+const OWN_ZONE = "horizonshield.dev";
+let GATE_ENV = null;       // 入口で env を差す。値は毎回同一なので競合しない
+let GATE_CONTEXT = "none"; // "http" | "cron"。★中継は http 文脈のみ。cron→workers.dev は塞がっている(実測)
+
+function isOwnZone(u) {
+  try {
+    const h = new URL(u).hostname;
+    return h === OWN_ZONE || h.endsWith("." + OWN_ZONE);
+  } catch (_e) { return false; }
+}
+
+function relayConfigured() {
+  return GATE_CONTEXT === "http" && !!(GATE_ENV && GATE_ENV.RELAY_URL && GATE_ENV.RELAY_TOKEN);
+}
+
+function probeVia(endpoint) {
+  return (isOwnZone(endpoint) && relayConfigured())
+    ? "relay (hs-verify-relay, a separate worker outside this zone path; the whole probe traverses the public edge, because a Worker invoked over HTTP cannot reach its own zone directly \u2014 measured 2026-08-14/15)"
+    : "direct from the gate worker (" + GATE_CONTEXT + " context)";
+}
+
+async function probeFetch(url, init) {
+  const opts = init ? { ...init } : {};
+  opts.headers = { ...(opts.headers || {}), "user-agent": PROBE_UA };
+  if (!(isOwnZone(url) && relayConfigured())) {
+    return await fetch(url, opts);
+  }
+  const res = await fetch(GATE_ENV.RELAY_URL, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-relay-token": GATE_ENV.RELAY_TOKEN },
+    body: JSON.stringify({
+      url: url,
+      method: opts.method === "POST" ? "POST" : "GET",
+      headers: opts.headers,
+      body: typeof opts.body === "string" ? opts.body : null
+    })
+  });
+  let wrapped = null;
+  try { wrapped = await res.json(); } catch (_e) { wrapped = null; }
+  if (res.status === 502 && wrapped && wrapped.error === "target_fetch_failed") {
+    // 中継までは届いたが、中継から相手に届かなかった = 公開エッジ経由の相手側到達性の事実
+    throw new Error("unreachable via public-edge relay: " + String(wrapped.message || "fetch failed"));
+  }
+  if (!res.ok || !wrapped || wrapped.relayed !== true) {
+    // 中継そのものに届かない/設定不良 = こちら側の故障。相手の記録にしない文言で返す
+    throw new Error("relay unavailable (http " + res.status + "): gate-side failure, not a statement about the target");
+  }
+  return new Response(wrapped.body || "", { status: wrapped.status, headers: wrapped.headers || {} });
+}
+
 async function rpcCall(endpoint, method, params) {
-  const res = await withTimeout(fetch(endpoint, {
+  const res = await withTimeout(probeFetch(endpoint, {
     method: "POST",
     headers: JSON_HEADERS,
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params: params || {} })
@@ -105,7 +161,7 @@ async function checkAgentCard(endpoint) {
   const origin = new URL(endpoint).origin;
   const url = origin + "/.well-known/agent-card.json";
   try {
-    const res = await withTimeout(fetch(url), CONFIG.timeout_ms);
+    const res = await withTimeout(probeFetch(url), CONFIG.timeout_ms);
     if (!res.ok) return { pass: false, transport: true, reason: "agent-card not reachable (http " + res.status + ")", detail: { url } };
     const card = await res.json();
     const missing = ["name", "description"].filter((k) => !card[k]);
@@ -231,6 +287,7 @@ async function runCheck(endpoint, allowToolCall) {
       "tools on the server being checked, so determinism is reported as not measured rather than " +
       "guessed. Send allow_tool_call true to have it measured on a server you control.",
     tools_called: allowToolCall === true ? "one tool, twice, with empty arguments, by consent" : "none",
+    probed_via: probeVia(endpoint),
     checks: results
   };
 
@@ -955,10 +1012,14 @@ export default {
   // Cron Trigger。毎日の再測定。
   // 「測定が変われば緑ではなくなる」と公開した以上、測り直す者が要る。
   async scheduled(event, env, ctx) {
+    GATE_ENV = env;
+    GATE_CONTEXT = "cron";
     ctx.waitUntil(runDailySweep(env));
   },
 
   async fetch(request, env, ctx) {
+    GATE_ENV = env;
+    GATE_CONTEXT = "http";
     const url = new URL(request.url);
     const path = url.pathname;
 

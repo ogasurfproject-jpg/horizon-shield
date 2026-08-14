@@ -10,7 +10,7 @@
   // 顧客データも申請者の秘密も入らない。入るのは既に公開されている判定だけ。
   "name": "hs-verify-gate",
   "main": "src/worker.js",
-  "workers_dev": false,
+  "workers_dev": true,
   "preview_urls": false,
   "observability": { "enabled": true, "logs": { "enabled": true } },
   "compatibility_date": "2024-01-01",
@@ -22,5 +22,13 @@
 
   "kv_namespaces": [
     { "binding": "HS_VERIFY_KV", "id": "ab98336fc22d4d0f947501d843d2d228" }
-  ]
+  ],
+
+  // 同一ゾーン522の迂回先 (2026-08-15)。RELAY_TOKEN は secret で入れる:
+  //   npx wrangler secret put RELAY_TOKEN
+  // 中継側(hs-verify-relay)にも同じ値を入れる。片方だけだと 403 で
+  // 「relay unavailable: gate-side failure」が判定に出る(相手の記録にはならない)。
+  "vars": {
+    "RELAY_URL": "https://hs-verify-relay.oga-surf-project.workers.dev"
+  }
 }
