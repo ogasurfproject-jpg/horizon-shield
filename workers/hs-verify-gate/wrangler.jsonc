@@ -10,7 +10,10 @@
   // 顧客データも申請者の秘密も入らない。入るのは既に公開されている判定だけ。
   "name": "hs-verify-gate",
   "main": "src/worker.js",
-  "workers_dev": true,
+  // 2026-08-15 朝、同一ゾーン522の診断のために一時的に true にした
+  // (workers.dev入口ならcron同様に通ることを実測し、中継設計の根拠になった)。
+  // 診断は終わり、恒久対応は hs-verify-relay 経由。公開入口は custom domain 1本に戻す。
+  "workers_dev": false,
   "preview_urls": false,
   "observability": { "enabled": true, "logs": { "enabled": true } },
   "compatibility_date": "2024-01-01",

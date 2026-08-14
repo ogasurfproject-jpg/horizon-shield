@@ -138,6 +138,10 @@ async function checkMcp(endpoint) {
     detail.initialize = !!(init && init.result);
     detail.server_name = (init && init.result && init.result.serverInfo && init.result.serverInfo.name) || null;
   } catch (e) {
+    if (/gate-side failure/.test(String(e && e.message))) {
+      // 中継の故障。対象のことは何も分かっていない。boolean にもそう言わせる。
+      return { pass: false, gate_side: true, measured: false, reason: "not measured: " + e.message, detail };
+    }
     const hint = /1104|1042|Failed to fetch|fetch failed/i.test(String(e.message))
       ? " (the gate could not reach this host. Cloudflare blocks Worker-to-Worker calls within the " +
         "same account over workers.dev; use a custom domain, or run the check from outside)"
@@ -151,6 +155,9 @@ async function checkMcp(endpoint) {
     detail.tools = tools.map((t) => t.name).slice(0, 50);
     if (!tools.length) return { pass: false, reason: "tools/list returned no tools", detail };
   } catch (e) {
+    if (/gate-side failure/.test(String(e && e.message))) {
+      return { pass: false, gate_side: true, measured: false, reason: "not measured: " + e.message, detail };
+    }
     return { pass: false, transport: true, reason: "tools/list failed: " + e.message, detail };
   }
   return { pass: true, reason: "MCP endpoint responds to initialize and tools/list", detail };
@@ -175,6 +182,9 @@ async function checkAgentCard(endpoint) {
       card: card
     };
   } catch (e) {
+    if (/gate-side failure/.test(String(e && e.message))) {
+      return { pass: false, gate_side: true, measured: false, reason: "not measured: " + e.message, detail: { url } };
+    }
     return { pass: false, transport: true, reason: "agent-card fetch failed: " + e.message, detail: { url } };
   }
 }
@@ -261,14 +271,19 @@ async function runCheck(endpoint, allowToolCall) {
 
   results.mcp_endpoint = await checkMcp(endpoint);
   const cardRes = await checkAgentCard(endpoint);
-  results.agent_card = { pass: cardRes.pass, transport: cardRes.transport === true, reason: cardRes.reason, detail: cardRes.detail };
-  results.compensation_disclosure = checkCompensation(cardRes.card);
+  results.agent_card = { pass: cardRes.pass, transport: cardRes.transport === true, ...(cardRes.gate_side === true ? { gate_side: true, measured: false } : {}), reason: cardRes.reason, detail: cardRes.detail };
+  // カードが「取れなかった」のが中継故障なら、開示の有無も分かっていない。落ちた顔をさせない。
+  results.compensation_disclosure = cardRes.gate_side === true
+    ? { pass: false, gate_side: true, measured: false, reason: "not measured: the agent card could not be fetched because the gate's relay path was unavailable, so whether compensation is disclosed is unknown" }
+    : checkCompensation(cardRes.card);
 
   const firstTool = results.mcp_endpoint.detail && results.mcp_endpoint.detail.tools
     ? results.mcp_endpoint.detail.tools[0] : null;
   results.determinism = await checkDeterminism(endpoint, firstTool, allowToolCall === true);
 
   const passed = Object.values(results).every((r) => r.pass);
+  // gate-side = こちらの測定装置の故障。unreachable(相手に届かない)と混ぜない。
+  const gateSide = Object.values(results).some((r) => r && r.gate_side === true);
   // 「届かなかった」と「届いた上で条件を満たさない」は別の事実。
   // fail-closed は変えない。緑にはしない。ただし理由の書き分けはする。
   const unreachable = Object.values(results).some((r) => r && r.transport === true);
@@ -278,8 +293,8 @@ async function runCheck(endpoint, allowToolCall) {
     gate_version: CONFIG.version,
     endpoint: endpoint,
     checked_at: started,
-    reachable: !unreachable,
-    status: passed ? CONFIG.tier_pass : (unreachable ? CONFIG.tier_held : CONFIG.tier_fail),
+    reachable: gateSide ? null : !unreachable,
+    status: passed ? CONFIG.tier_pass : ((unreachable || gateSide) ? CONFIG.tier_held : CONFIG.tier_fail),
     scope_note:
       "This gate verifies conformance and disclosure only. It does NOT verify that any price " +
       "or figure returned by the server is correct. Price validation is a separate, paid tier " +
@@ -288,6 +303,12 @@ async function runCheck(endpoint, allowToolCall) {
       "guessed. Send allow_tool_call true to have it measured on a server you control.",
     tools_called: allowToolCall === true ? "one tool, twice, with empty arguments, by consent" : "none",
     probed_via: probeVia(endpoint),
+    ...(gateSide ? {
+      measurement_note:
+        "This measurement did not happen. The gate's own relay path was unavailable, so nothing in " +
+        "this record says anything about the target. reachable is null rather than false for exactly " +
+        "that reason: an instrument failure is not a statement about the thing it failed to measure."
+    } : {}),
     checks: results
   };
 
@@ -471,7 +492,7 @@ function summarise(record) {
       pass: !!checks[k].pass,
       measured: checks[k].measured === false ? false : true,
       transport: checks[k].transport === true,
-      reason: r ? r.slice(0, 240) : null
+      reason: r ? r.slice(0, 400) : null
     };
   }
   return {
