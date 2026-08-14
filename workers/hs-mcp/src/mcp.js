@@ -1688,9 +1688,59 @@ export default {
     }
 
     if (request.method === "GET") {
+      // ★2026-08-14: ここは「知らないパス」にも 200 + server info を返していた。
+      //   実測で /sse が毎秒1回叩かれ続けており、200 が返るので SSE クライアントが
+      //   永久に再接続していた。HTTP は成功、ログは Ok、エラー率にも出ない。
+      //   実装していないものに OK を返すのは、この事業の原則に反する。
+      //   注: 手前のブロックの url はスコープ外なので、ここで取り直す。
+      const _u = new URL(request.url);
+      const _p = (_u.pathname.replace(/\/+$/, "") || "/");
+      const _isEndpoint = (_p === "/" || _p === "/mcp");
+
+      if (_p === "/health") {
+        // 測ったものだけを書く。KV に実際に触れて、その結果を報告する。
+        let kv = "not_checked";
+        try { await env.RL_KV.get("__health"); kv = "reachable"; }
+        catch (e) { kv = "unreachable: " + String((e && e.message) || e).slice(0, 120); }
+        const ok = (kv === "reachable");
+        return new Response(JSON.stringify({
+          ok,
+          server: SERVER,
+          checked: { worker: "running", kv },
+          not_checked: ["data freshness", "tool output correctness"],
+          note: "This reports only what it actually tested. It does not assert that any tool returns correct data."
+        }, null, 2), {
+          status: ok ? 200 : 503,
+          headers: { "Content-Type": "application/json; charset=utf-8", ...CORS }
+        });
+      }
+
+      if (!_isEndpoint) {
+        const _sse = (_p === "/sse" || _p.endsWith("/sse"));
+        return new Response(JSON.stringify({
+          error: _sse ? "sse_not_supported" : "not_found",
+          path: _u.pathname,
+          message: _sse
+            ? ("This server does not implement the legacy SSE transport and does not open an event stream on GET. " +
+               "Use MCP over Streamable HTTP: POST JSON-RPC 2.0 to " + _u.origin + "/ . " +
+               "Until 2026-08-14 this path answered 200 with server metadata, which made SSE clients reconnect " +
+               "in a loop without ever surfacing an error. That was our bug, not yours.")
+            : ("No such path on this server. The MCP endpoint is " + _u.origin + "/ (POST JSON-RPC 2.0)."),
+          endpoint: _u.origin + "/",
+          transport: "MCP over Streamable HTTP (JSON-RPC 2.0)",
+          known_paths: ["/", "/health", "/icon.png", "/ledger/<claim_sha256>",
+                        "/.well-known/agent-card.json", "/.well-known/verification-contract.json",
+                        "/.well-known/glama.json", "/.well-known/usage-stats.json"]
+        }, null, 2), {
+          status: _sse ? 405 : 404,
+          headers: { "Content-Type": "application/json; charset=utf-8", ...(_sse ? { "Allow": "POST" } : {}), ...CORS }
+        });
+      }
+
       const info = {
         server: SERVER, transport: "MCP over Streamable HTTP (JSON-RPC 2.0)",
         usage: "POST JSON-RPC 2.0 to this URL. methods: initialize, tools/list, tools/call, prompts/list, prompts/get.",
+        sse: "not offered. This endpoint does not open an event stream on GET.",
         tools: TOOLS.map(t => t.name), site: SITE
       };
       return new Response(JSON.stringify(info, null, 2),
