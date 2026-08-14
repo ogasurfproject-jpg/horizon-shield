@@ -591,6 +591,7 @@ const MCP_TOOLS = [
     // 他所の適合チェッカーが1本目を空引数で叩いても、何も壊れず決定論的に応答する。
     name: "get_conditions",
     title: "Get the conformance conditions",
+    annotations: { title: "Get the conformance conditions", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     description:
       "Return the five conditions this gate measures, what it explicitly does not verify, " +
       "and the tier definitions. Takes no arguments and returns identical output every time. " +
@@ -600,6 +601,7 @@ const MCP_TOOLS = [
   {
     name: "check_conformance",
     title: "Check an MCP server for conformance and disclosure",
+    annotations: { title: "Check an MCP server for conformance and disclosure", readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: true },
     description:
       "Measure a public MCP endpoint against five conditions: it speaks MCP, it publishes an A2A " +
       "agent card, it declares who pays it, identical input returns identical output, and the " +
@@ -623,6 +625,7 @@ const MCP_TOOLS = [
   {
     name: "verify_verdict",
     title: "Recompute a verdict hash without trusting the issuer",
+    annotations: { title: "Recompute a verdict hash without trusting the issuer", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     description:
       "Take a verdict this gate issued and recompute its record_sha256 independently. Removes " +
       "record_sha256 and recompute_note, serialises the remainder in key order, and hashes it. " +
@@ -634,6 +637,30 @@ const MCP_TOOLS = [
         record: { type: "object", description: "The full verdict object as returned by check_conformance or GET /self" }
       },
       required: ["record"],
+      additionalProperties: false
+    }
+  },
+  {
+    // ★2026-08-14 追加。エージェントが加盟者を引けるようにする。
+    //   ここが無いと、レジストリは人間が読むページのままで、
+    //   「機械が選ぶ時代のための記録」という主張が自分の実装で裏切られる。
+    //   新しい保存はしない。既にある watch:registry と hist:* を読むだけ。
+    name: "lookup_server",
+    title: "Look up an MCP server on this register",
+    annotations: { title: "Look up an MCP server on this register", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    description:
+      "Look up what this register already holds about an MCP endpoint: whether it is watched, how " +
+      "often it is re-measured, how many measurements exist, when the first and latest were taken, " +
+      "and the latest verdict with the record_sha256 you can recompute yourself. Reads stored " +
+      "measurements only \u2014 it contacts nothing and measures nothing, so use check_conformance " +
+      "for a fresh reading. An endpoint that is absent is reported as absent and that is NOT a " +
+      "negative verdict: it means nobody has measured it here, not that it failed.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        endpoint: { type: "string", description: "https URL of the MCP endpoint to look up, exactly as it appears on the register" }
+      },
+      required: ["endpoint"],
       additionalProperties: false
     }
   }
@@ -666,7 +693,73 @@ async function verifyVerdict(record) {
   };
 }
 
-async function handleMcp(body) {
+// レジストリ照会。**測らない。既に保存されているものを読むだけ。**
+// 未登録を「不合格」として返さないことが、この関数のいちばん大事な仕様である。
+const LOOKUP_HISTORY_MAX_RETURN = 20;
+
+async function lookupServer(env, endpoint) {
+  const wl = await watchlist(env);
+  const watched = wl.find((w) => w && w.endpoint === endpoint) || null;
+  const reg = await readRegistry(env);
+  const regEntry = reg[endpoint] || null;
+  const hist = await readHistory(env, endpoint);
+  const entries = (hist && Array.isArray(hist.entries)) ? hist.entries : [];
+  const latest = entries.length ? entries[entries.length - 1] : null;
+
+  const historyUrl = "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(endpoint);
+
+  if (!watched && !regEntry && !entries.length) {
+    return {
+      endpoint: endpoint,
+      on_register: false,
+      register_size: wl.length,
+      means:
+        "This register holds no measurements for this endpoint.",
+      does_not_mean:
+        "This is not a verdict and not a blacklist. An absent row means nobody has measured this " +
+        "endpoint here, not that it was measured and failed. Do not treat absence as a negative " +
+        "signal about the server or the people who run it.",
+      how_to_appear:
+        "Anyone can add it, including someone who does not own it, because the check is read-only " +
+        "and calls no tool: POST https://gate.horizonshield.dev/watch with " +
+        "{\"endpoint\":\"" + endpoint + "\"}. Free, weekly re-measurement, no account and no fee.",
+      fresh_reading: "Call check_conformance with this endpoint to measure it right now."
+    };
+  }
+
+  const tier = watched ? watched.tier : (regEntry && regEntry.tier === "paid" ? "paid" : "free");
+  return {
+    endpoint: endpoint,
+    on_register: true,
+    tier: tier,
+    cadence: tier === "paid" ? "daily" : (tier === "self" ? "daily" : "weekly"),
+    added_at: (regEntry && regEntry.added_at) || null,
+    alerted_on_change: !!(watched && watched.webhook) || !!(regEntry && regEntry.webhook),
+    measurements: entries.length,
+    // 監視対象に入っていることと、測られたことは別である。
+    // ここを混ぜた瞬間に「載っている=合格」という読み方が生まれる。
+    standing: entries.length
+      ? "measured"
+      : "watched, not yet measured \u2014 being on the watchlist is not a measurement and this gate does not count it as one",
+    first_measured_at: entries.length ? entries[0].at : null,
+    last_measured_at: latest ? latest.at : null,
+    latest: latest,
+    history: entries.slice(-LOOKUP_HISTORY_MAX_RETURN),
+    history_truncated: entries.length > LOOKUP_HISTORY_MAX_RETURN,
+    full_history_url: historyUrl,
+    means:
+      "A row is a series of measurements taken at stated times, each carrying a record_sha256 you " +
+      "can recompute without trusting this gate. The dates are the point: they cannot be created " +
+      "retroactively, so a long row is evidence of duration and nothing else can substitute for it.",
+    does_not_mean:
+      "Not a certificate, and not a statement that any figure this server returns is correct. This " +
+      "measures conduct and disclosure only. A passing row stops passing when the measurement does, " +
+      "and a condition recorded as not measured is never counted as a pass \u2014 including for the " +
+      "gate itself, whose own verdict currently reads pending."
+  };
+}
+
+async function handleMcp(body, env) {
   const id = body && body.id;
   const method = body && body.method;
 
@@ -710,6 +803,30 @@ async function handleMcp(body) {
     }
     if (name === "verify_verdict") {
       return { jsonrpc: "2.0", id, result: mcpText(await verifyVerdict(args.record)) };
+    }
+    if (name === "lookup_server") {
+      const endpoint = args.endpoint;
+      if (!endpoint || typeof endpoint !== "string") {
+        return { jsonrpc: "2.0", id, result: mcpText({ error: "endpoint_required" }) };
+      }
+      let parsedLookup;
+      try { parsedLookup = new URL(endpoint); }
+      catch (_e) { return { jsonrpc: "2.0", id, result: mcpText({ error: "invalid_url" }) }; }
+      if (parsedLookup.protocol !== "https:") {
+        return { jsonrpc: "2.0", id, result: mcpText({ error: "https_required" }) };
+      }
+      if (!env || !env.HS_VERIFY_KV) {
+        return { jsonrpc: "2.0", id, result: mcpText({
+          endpoint: endpoint,
+          error: "storage_unavailable",
+          note: "History storage is not bound on this deployment, so this gate cannot say whether the endpoint is on the register. It is not reporting absence, because it does not know."
+        }) };
+      }
+      try {
+        return { jsonrpc: "2.0", id, result: mcpText(await lookupServer(env, endpoint)) };
+      } catch (e) {
+        return { jsonrpc: "2.0", id, result: mcpText({ error: "lookup_failed", message: String(e && e.message || e) }) };
+      }
     }
     return { jsonrpc: "2.0", id, result: mcpText({ error: "unknown_tool", name }) };
   }
@@ -860,7 +977,7 @@ export default {
       if (Array.isArray(body)) {
         return json({ jsonrpc: "2.0", id: null, error: { code: -32600, message: "batch not supported" } }, 400);
       }
-      const res = await handleMcp(body);
+      const res = await handleMcp(body, env);
       if (res === null) return new Response(null, { status: 202, headers: CORS_HEADERS });
       return json(res);
     }

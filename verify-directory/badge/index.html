@@ -100,15 +100,22 @@ footer a{color:var(--ink-2)}
     </div>
 
     <div class="kh" style="margin-top:34px">HTML</div>
-    <div class="code"><span class="c">&lt;!-- replace YOUR_ENDPOINT with the URL the gate measured --&gt;</span>
-<span class="t">&lt;a</span> <span class="a">href</span>=<span class="t">"https://shield.the-horizons-innovation.com/verify-directory/"</span>
+    <p class="slead" style="margin-bottom:14px">The link points at <b>your</b> verdict, not at us. Replace <code>YOUR_ENDPOINT</code> with the URL the gate measured, URL-encoded. A reader who clicks the badge lands on every measurement taken of that one endpoint, with the <code>record_sha256</code> for each — not on a page about us. If the badge ever stops being accurate, the thing next to it says so before we do.</p>
+    <div class="code"><span class="c">&lt;!-- replace YOUR_ENDPOINT with the URL the gate measured, URL-encoded --&gt;</span>
+<span class="t">&lt;a</span> <span class="a">href</span>=<span class="t">"https://gate.horizonshield.dev/history?endpoint=YOUR_ENDPOINT"</span>
    <span class="a">rel</span>=<span class="t">"noopener"</span>&gt;
   <span class="t">&lt;img</span> <span class="a">src</span>=<span class="t">"https://shield.the-horizons-innovation.com/badges/conformance-verified.svg"</span>
        <span class="a">alt</span>=<span class="t">"Conformance verified by HORIZON SHIELD"</span> <span class="a">width</span>=<span class="t">"248"</span> <span class="a">height</span>=<span class="t">"56"</span>&gt;
 <span class="t">&lt;/a&gt;</span></div>
 
     <div class="kh" style="margin-top:26px">Markdown</div>
-    <div class="code">[![Conformance verified by HORIZON SHIELD](https://shield.the-horizons-innovation.com/badges/conformance-verified.svg)](https://shield.the-horizons-innovation.com/verify-directory/)</div>
+    <div class="code">[![Conformance verified by HORIZON SHIELD](https://shield.the-horizons-innovation.com/badges/conformance-verified.svg)](https://gate.horizonshield.dev/history?endpoint=YOUR_ENDPOINT)</div>
+
+    <div class="kh" style="margin-top:26px">Example</div>
+    <div class="code"><span class="c">&lt;!-- endpoint https://your-server.example/mcp becomes --&gt;</span>
+https://gate.horizonshield.dev/history?endpoint=https%3A%2F%2Fyour-server.example%2Fmcp</div>
+
+    <p class="slead" style="margin-top:14px">An agent can ask the same question without a browser: call <code>lookup_server</code> on <code>https://gate.horizonshield.dev/mcp</code> with your endpoint. It reads stored measurements only, contacts nothing, and reports an absent endpoint as absent rather than as a failure.</p>
   </div>
 </section>
 
