@@ -184,6 +184,9 @@ table.price tr.hi td{background:rgba(52,211,153,.04)}
 footer{border-top:1px solid var(--line);padding:38px 0 56px;font-size:12.7px;color:var(--ink-3);line-height:1.85}
 footer a{color:var(--ink-2);border-bottom:1px solid var(--line-2)}
 footer .top{color:var(--ink-2);font-size:13.5px;margin-bottom:14px}
+.regrow{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line, rgba(127,127,127,.3));border-radius:10px;margin:10px 0;font-size:14px}
+.regrow .grow{flex:1 1 260px;word-break:break-all}
+.regrow a{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -303,7 +306,7 @@ footer .top{color:var(--ink-2);font-size:13.5px;margin-bottom:14px}
 <section id="registry">
   <div class="wrap">
     <div class="kh">The list, today</div>
-    <h2>Four rows. Not one of them passes. None of them came from outside.</h2>
+    <h2>Every row, drawn live from the register. Ours sit in the same table.</h2>
     <p class="slead">Two are our own servers and two are member firms we brought in ourselves, so <b>no outside name has registered yet</b>. That is not a soft launch we are dressing up — it is the state of the register, and hiding it would make every other row here worthless. Rows are re-measured on a schedule and the history stays public, so a change means a condition actually flipped, not that a fresh verdict was issued. The sweep calls no tool on anyone, us included.</p>
     <div class="why">
       <div class="card"><div class="n">ENTRY 01 · self-applied</div><h4>The checker itself</h4>
@@ -313,6 +316,9 @@ footer .top{color:var(--ink-2);font-size:13.5px;margin-bottom:14px}
       <div class="card"><div class="n">ENTRIES 03–04 · members</div><h4>Two member firms</h4>
         <p>Both in progress. No listed party may call itself verified before it passes — in-process entries are marked pending and turn green only on passing. That is the core of the design and it is not relaxed for anybody.</p></div>
     </div>
+    <div class="kh" style="margin-top:28px">The rows, live</div>
+    <p class="slead">This table is read from the gate's public register at <span class="mono">/register</span> every time this page loads. A member that joins appears here on the next load, with its latest verdict and full public history. <span id="reglive-note">Loading the register…</span></p>
+    <div id="regrows"></div>
   </div>
 </section>
 
@@ -472,7 +478,50 @@ async function runCheck(endpoint){
     go.disabled = false;
   }
 }
+async function loadRegister(){
+  const box = document.getElementById("regrows");
+  const note = document.getElementById("reglive-note");
+  if (!box || !note) return;
+  try{
+    const res = await fetch(GATE + "/register");
+    const data = await res.json();
+    const rows = Array.isArray(data.rows) ? data.rows : [];
+    box.textContent = "";
+    if (!rows.length){
+      note.textContent = "The register answered with zero rows. That is the state of the register, not an error.";
+      return;
+    }
+    note.textContent = rows.length + " rows on the register right now. Absence is not a negative verdict.";
+    rows.forEach(function(r){
+      const d = document.createElement("div"); d.className = "regrow";
+      const ep = document.createElement("span"); ep.className = "mono grow"; ep.textContent = r.endpoint; d.appendChild(ep);
+      const st = document.createElement("span"); st.className = "mono";
+      st.textContent = (r.latest && r.latest.status)
+        ? (r.latest.status + " \u00b7 " + String(r.latest.at || "").slice(0, 10))
+        : "no measurement stored yet";
+      d.appendChild(st);
+      if (typeof r.measurements === "number"){
+        const m = document.createElement("span"); m.className = "mono";
+        m.textContent = r.measurements + (r.measurements === 1 ? " measurement" : " measurements");
+        d.appendChild(m);
+      }
+      const h = document.createElement("a"); h.href = r.history_url; h.textContent = "history"; d.appendChild(h);
+      const b = document.createElement("a"); b.href = "#"; b.textContent = "measure now";
+      b.addEventListener("click", function(ev){
+        ev.preventDefault();
+        const inp = document.getElementById("epin");
+        if (inp) inp.value = r.endpoint;
+        runCheck(r.endpoint);
+      });
+      d.appendChild(b);
+      box.appendChild(d);
+    });
+  }catch(e){
+    note.textContent = "live register unavailable (" + e.message + ") \u2014 the summary above still stands, and the gate answers at /register directly.";
+  }
+}
 document.addEventListener("DOMContentLoaded", function(){
+  loadRegister();
   document.querySelectorAll(".preset").forEach(function(b){
     b.addEventListener("click", function(){ document.getElementById("epin").value = b.getAttribute("data-ep"); runCheck(b.getAttribute("data-ep")); });
   });

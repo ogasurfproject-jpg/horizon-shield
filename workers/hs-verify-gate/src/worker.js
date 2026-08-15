@@ -460,6 +460,54 @@ async function readSweepLast(env) {
   return { ran: false, note: "No sweep has completed yet. If the cron is registered, the first run happens at 18:00 UTC." };
 }
 
+// 公開の登録簿。watchlist と既存の hist:* を読むだけで、何も測らず、何も保存しない。
+// webhook は通知の宛先であって公開情報ではないので、決して出さない。
+// 未掲載は不合格ではない。ここで測られたことが無い、それだけを意味する。
+const REGISTER_JOIN_MAX = 50;
+
+async function publicRegister(env) {
+  const list = await watchlist(env);
+  const rows = [];
+  let joined = 0;
+  for (const w of list) {
+    const row = {
+      endpoint: w.endpoint,
+      tier: w.tier,
+      cadence: w.tier === "free" ? "weekly" : "daily",
+      measurements: null,
+      first_at: null,
+      latest: null,
+      history_url: "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(w.endpoint)
+    };
+    if (joined < REGISTER_JOIN_MAX) {
+      joined++;
+      const hist = await readHistory(env, w.endpoint);
+      const entries = (hist && Array.isArray(hist.entries)) ? hist.entries : [];
+      row.measurements = entries.length;
+      row.first_at = entries.length ? (entries[0].at || null) : null;
+      const latest = entries.length ? entries[entries.length - 1] : null;
+      if (latest) {
+        row.latest = {
+          at: latest.at || null,
+          status: latest.status || null,
+          record_sha256: latest.record_sha256 || null
+        };
+      }
+    } else {
+      row.note = "not joined with history in this response: over REGISTER_JOIN_MAX (" + REGISTER_JOIN_MAX + "). The history_url works regardless.";
+    }
+    rows.push(row);
+  }
+  return {
+    count: rows.length,
+    max: REGISTRY_MAX,
+    gate_commit: gateCommit(),
+    note: "The public register. Rows are scheduled measurements, not endorsements. An endpoint that is absent has simply never been measured here; absence is NOT a negative verdict. Webhooks are never published. Every stored verdict carries a record_sha256 you can recompute yourself.",
+    join: 'POST /watch with {"endpoint":"https://your-server/mcp"}',
+    rows: rows
+  };
+}
+
 // 無料層は週1回。エンドポイントごとに測る日をずらし、1日に固まらないようにする。
 async function isDueToday(endpoint, tier, now) {
   if (tier !== "free") return true;
@@ -1153,6 +1201,11 @@ export default {
     }
     if (path === "/changes") return json(await readChanges(env));
     if (path === "/sweep/last") return json(await readSweepLast(env));
+
+    // 公開の登録簿。加盟者の行を、人間もエージェントも一覧で読める。
+    if (path === "/register" && request.method === "GET") {
+      return json(await publicRegister(env));
+    }
 
     // 監視の登録。誰でも自分のエンドポイントを載せられる。判定は変わらない。
     if (path === "/watch" && request.method === "GET") {
