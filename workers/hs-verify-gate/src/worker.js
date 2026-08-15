@@ -130,13 +130,43 @@ async function rpcCall(endpoint, method, params) {
   return await res.json();
 }
 
+// ---- 表面(surface)のハッシュ ----
+// JCS風の安定直列化。キーを再帰的にソートするだけの決定論的 stringify。
+function canonicalJson(v) {
+  if (v === null || typeof v !== "object") return JSON.stringify(v === undefined ? null : v);
+  if (Array.isArray(v)) return "[" + v.map(canonicalJson).join(",") + "]";
+  return "{" + Object.keys(v).sort().map((k) => JSON.stringify(k) + ":" + canonicalJson(v[k])).join(",") + "}";
+}
+
+// ハッシュは16hex(64bit)に切る。変更検出用の指紋であって、暗号学的な同一性証明ではない。
+// 名前ハッシュだけでは「名前を残して inputSchema を書き換える」変更(統合破壊の第1位)が見えない。
+// だからマニフェスト全体と、ツール1本ごとの指紋を持つ。
+async function surfaceHashes(tools, initResult, pages, complete) {
+  const sorted = tools.slice().sort((a, b) => (String(a.name) < String(b.name) ? -1 : 1));
+  const strip = (t) => ({ name: t.name, description: t.description || "", inputSchema: t.inputSchema || null });
+  const perTool = {};
+  for (const t of sorted) {
+    perTool[String(t.name)] = (await sha256hex(canonicalJson(strip(t)))).slice(0, 16);
+  }
+  return {
+    complete: complete,
+    pages_followed: pages,
+    names_hash: (await sha256hex(JSON.stringify(sorted.map((t) => String(t.name))))).slice(0, 16),
+    manifest_hash: (await sha256hex(canonicalJson(sorted.map(strip)))).slice(0, 16),
+    server_info_hash: initResult ? (await sha256hex(canonicalJson(initResult))).slice(0, 16) : null,
+    tool_hashes: perTool
+  };
+}
+
 // ---- 条件1. 実在する MCP エンドポイント ----
 async function checkMcp(endpoint) {
   const detail = {};
+  let initResult = null;
   try {
     const init = await rpcCall(endpoint, "initialize", { protocolVersion: "2024-11-05" });
     detail.initialize = !!(init && init.result);
     detail.server_name = (init && init.result && init.result.serverInfo && init.result.serverInfo.name) || null;
+    initResult = init && init.result ? { serverInfo: init.result.serverInfo || null, capabilities: init.result.capabilities || null } : null;
   } catch (e) {
     if (/gate-side failure/.test(String(e && e.message))) {
       // 中継の故障。対象のことは何も分かっていない。boolean にもそう言わせる。
@@ -149,10 +179,21 @@ async function checkMcp(endpoint) {
     return { pass: false, transport: true, reason: "initialize failed: " + e.message + hint, detail };
   }
   try {
-    const list = await rpcCall(endpoint, "tools/list");
-    const tools = (list && list.result && list.result.tools) || [];
+    // カーソルを最後まで辿る(上限3ページ)。辿り切れなければ surface は complete: false。
+    // 部分読みから「ツールが消えた」と主張するのが、この測定の最悪の故障だから。
+    let tools = [];
+    let cursor = null;
+    let pages = 0;
+    do {
+      const list = await rpcCall(endpoint, "tools/list", cursor ? { cursor: cursor } : {});
+      const batch = (list && list.result && list.result.tools) || [];
+      tools = tools.concat(batch);
+      cursor = (list && list.result && list.result.nextCursor) || null;
+      pages += 1;
+    } while (cursor && pages < 3);
     detail.tool_count = tools.length;
     detail.tools = tools.map((t) => t.name).slice(0, 50);
+    detail.surface = await surfaceHashes(tools, initResult, pages, !cursor);
     if (!tools.length) return { pass: false, reason: "tools/list returned no tools", detail };
   } catch (e) {
     if (/gate-side failure/.test(String(e && e.message))) {
@@ -380,7 +421,7 @@ const CHANGES_MAX = 50;   // 変化ログの保持件数
 // 判定そのものを売った時点で中立性が死ぬので、そこには決して値段を付けない。
 const REGISTRY_KEY = "watch:registry";
 const REGISTRY_MAX = 500;
-const MAX_PER_SWEEP = 15;        // 1本につき外部アクセス3回。Free の 50/request に収まる上限
+const MAX_PER_SWEEP = 9;         // 1本あたり最悪 1(init)+3(tools/listページ)+1(card)=5。9×5=45 ≤ 50(Free枠)
 const FREE_INTERVAL_DAYS = 7;    // 無料層は週1回
 const NOTIFY_TIMEOUT_MS = 5000;
 
@@ -501,6 +542,9 @@ function summarise(record) {
     reachable: record.reachable !== false,
     record_sha256: record.record_sha256,
     conditions: out,
+    // 表面の指紋。fingerprint には入れない — 表面の変化は条件の flip ではなく、
+    // 警報を鳴らさない。MCP 仕様自体が tools/list の変化を正常運用と見なしている。
+    surface: (checks.mcp_endpoint && checks.mcp_endpoint.detail && checks.mcp_endpoint.detail.surface) || null,
     fingerprint: stateFingerprint(record)
   };
 }
@@ -513,6 +557,22 @@ async function recordHistory(env, endpoint, record) {
   const entries = (prev && Array.isArray(prev.entries)) ? prev.entries : [];
   const last = entries.length ? entries[entries.length - 1] : null;
   const entry = summarise(record);
+
+  // 表面が前回と違えば、日付付きの差分をこのエントリ自身に残す。
+  // 指標にしない。回数も割合も作らない。何が増え、何が消え、何の définition が変わったか、だけ。
+  // 両方 complete のときだけ比較する — 部分読みとの比較から「削除」を出さない。
+  const prevSurface = last && last.surface ? last.surface : null;
+  if (entry.surface && prevSurface && entry.surface.complete === true && prevSurface.complete === true
+      && entry.surface.manifest_hash !== prevSurface.manifest_hash) {
+    const prevT = prevSurface.tool_hashes || {};
+    const curT = entry.surface.tool_hashes || {};
+    entry.surface_change = {
+      added: Object.keys(curT).filter((k) => !(k in prevT)),
+      removed: Object.keys(prevT).filter((k) => !(k in curT)),
+      definition_changed: Object.keys(curT).filter((k) => (k in prevT) && curT[k] !== prevT[k]),
+      note: "The tool surface changed between measurements. This is a dated fact, not a defect: the MCP specification treats tool-list changes as normal operation (notifications/tools/list_changed). Recorded for anyone; judged by no one."
+    };
+  }
 
   const changed = !last || last.fingerprint !== entry.fingerprint;
   let lastFlips = [];
