@@ -31,6 +31,63 @@ function b64ToBytes(b64) {
 const getEntry = async (env, n) => { const r = await env.LEDGER.get(`entry:${n}`); return r ? JSON.parse(r) : null; };
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+// ---- NENRIN Phase 2: witness intake (entry #19 の実装) ----
+// 受理の規則は機械的のみ。ここに「運営者の判断」という分岐は存在しない。
+const WITNESS_MAX_BYTES = 65536;
+const WITNESS_DAILY_GLOBAL = 50;
+const WITNESS_DAILY_PER_IP = 5;
+const WITNESS_BATCH_MAX = 200;
+
+function witnessValidate(recordCanonical) {
+  let r;
+  try { r = JSON.parse(recordCanonical); } catch (_e) { return { ok: false, why: "record_canonical is not JSON" }; }
+  if (!r || typeof r !== "object" || Array.isArray(r)) return { ok: false, why: "record must be a JSON object" };
+  if (r.schema !== "jidec-path-v1") return { ok: false, why: "schema must be jidec-path-v1" };
+  for (const k of ["purpose", "walked_at", "base"]) {
+    if (typeof r[k] !== "string" || !r[k]) return { ok: false, why: "missing string field: " + k };
+  }
+  if (!Array.isArray(r.nodes) || r.nodes.length < 1) return { ok: false, why: "nodes must be a non-empty array" };
+  if (!Array.isArray(r.assertions) || r.assertions.length < 1) return { ok: false, why: "assertions must be a non-empty array" };
+  if (!r.verdict || typeof r.verdict !== "object") return { ok: false, why: "verdict object required" };
+  const w = r.witness;
+  if (!w || typeof w !== "object") return { ok: false, why: "witness object required (NENRIN extension): { name, vantage }. name may be 'anonymous'." };
+  if (typeof w.name !== "string" || !w.name) return { ok: false, why: "witness.name required ('anonymous' is allowed)" };
+  if (typeof w.vantage !== "string" || !w.vantage) return { ok: false, why: "witness.vantage required (network/tool the walk was taken from)" };
+  return { ok: true, purpose: r.purpose, witness_name: w.name, vantage: w.vantage };
+}
+
+async function witnessVerifySig(recordCanonical, sigB64, pubB64) {
+  try {
+    const key = await crypto.subtle.importKey("raw", b64ToBytes(pubB64), { name: "Ed25519" }, false, ["verify"]);
+    return await crypto.subtle.verify({ name: "Ed25519" }, key, b64ToBytes(sigB64), enc.encode(recordCanonical));
+  } catch (_e) { return false; }
+}
+
+function witnessSelfDescription(origin) {
+  return {
+    service: "NENRIN witness intake (JIDEC ledger)",
+    spec: "NENRIN v1, anchored as ledger entry #19",
+    what_this_is:
+      "Any party may submit a verification walk (jidec-path-v1 with a witness field) it took of any " +
+      "public endpoint. Accepted submissions sit in a public pending pool and are anchored in daily " +
+      "batches as nenrin-witness-batch-v1 ledger entries. Acceptance is mechanical: schema, size, " +
+      "rate, duplicate, and signature validity if a signature is present. There is no editorial " +
+      "review and no route by which the operator declines a schema-valid submission.",
+    limits_stated_not_hidden: {
+      max_bytes: WITNESS_MAX_BYTES,
+      daily_global: WITNESS_DAILY_GLOBAL,
+      daily_per_ip: WITNESS_DAILY_PER_IP,
+      batch_max: WITNESS_BATCH_MAX,
+      note: "These caps exist because the pool is free to submit to and the chain is append-only. " +
+            "A schema-valid submission inside the caps cannot be refused."
+    },
+    signature: "Optional Ed25519 over the exact record_canonical bytes (signature_ed25519_b64 + public_key_ed25519_b64). Present and invalid: rejected. Absent: accepted and recorded as signed: false.",
+    privacy: "No IP addresses are stored. Rate counters use a 16-hex prefix of sha256(ip) and expire within 25 hours.",
+    how_to_submit: 'POST /witness with {"record_canonical":"<exact bytes of your jidec-path-v1 walk, including a witness:{name,vantage} field>"}',
+    pool: origin + "/witness/pending"
+  };
+}
+
 // --- v1 canonical claim schema (per SPEC_HASH_INDEPENDENCE_v1.md, anchored as entry #2).
 // Following Pang-jo Chun's 2026-07-25 critique: the Bitcoin-anchored hash MUST commit to
 // (input, reference bundle content SHA, algorithm commit, thresholds, result, PDF)
@@ -294,7 +351,7 @@ const PRIVACY = {
 };
 
 // 管理ルート：計測対象から外す。
-const AE_SKIP = new Set(["/ledger/append", "/reference/pin", "/ledger/pending"]);
+const AE_SKIP = new Set(["/ledger/append", "/reference/pin", "/ledger/pending", "/witness/anchor"]);
 
 // パスを固定語彙に落とす。ここが可変語を返すとカーディナリティが爆発するので、
 // 番号もSHAも必ず捨てる。未知のパスは "other" にまとめる（404 の山として見える）。
@@ -706,7 +763,7 @@ async function handle(request, env) {
     if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
 
     if (p === "/" || p === "/health")
-      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query"], discovery: { api_catalog: "/.well-known/api-catalog", agent_card: "/.well-known/agent-card.json", security_txt: "/.well-known/security.txt", llms_txt: "/llms.txt", a2a: "/a2a", cite: "/cite/{citation}", mcp: MCP_ORIGIN + "/mcp" }, transparency: TRANSPARENCY, privacy: PRIVACY });
+      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query", "/witness", "/witness/pending", "/witness/{sha}"], discovery: { api_catalog: "/.well-known/api-catalog", agent_card: "/.well-known/agent-card.json", security_txt: "/.well-known/security.txt", llms_txt: "/llms.txt", a2a: "/a2a", cite: "/cite/{citation}", mcp: MCP_ORIGIN + "/mcp" }, transparency: TRANSPARENCY, privacy: PRIVACY });
 
     /* ---------------------- 看板 routes (additive, read-only) ---------------------- */
 
@@ -774,6 +831,115 @@ async function handle(request, env) {
       } catch (err) {
         return rpcErr(-32000, String((err && err.message) || err));
       }
+    }
+
+    /* ---------------------- NENRIN witness intake (additive) ---------------------- */
+
+    if (p === "/witness" && request.method === "GET") {
+      return json(witnessSelfDescription(origin));
+    }
+
+    if (p === "/witness" && request.method === "POST") {
+      const b = await request.json().catch(() => null);
+      if (!b || typeof b.record_canonical !== "string")
+        return json({ error: "record_canonical (string) required", help: origin + "/witness" }, 400);
+      if (b.record_canonical.length > WITNESS_MAX_BYTES)
+        return json({ error: "too_large", max_bytes: WITNESS_MAX_BYTES }, 413);
+      const v = witnessValidate(b.record_canonical);
+      if (!v.ok) return json({ error: "invalid_witness_record", why: v.why, help: origin + "/witness" }, 422);
+
+      const day = new Date().toISOString().slice(0, 10);
+      const g = Number((await env.LEDGER.get(`wit:count:${day}`)) || 0);
+      if (g >= WITNESS_DAILY_GLOBAL)
+        return json({ error: "daily_global_cap_reached", cap: WITNESS_DAILY_GLOBAL, note: "stated at GET /witness; try tomorrow" }, 429);
+      const ip = request.headers.get("cf-connecting-ip") || "unknown";
+      const ipKey = `wit:ip:${day}:${(await sha256hex(ip)).slice(0, 16)}`;
+      const gi = Number((await env.LEDGER.get(ipKey)) || 0);
+      if (gi >= WITNESS_DAILY_PER_IP)
+        return json({ error: "daily_per_ip_cap_reached", cap: WITNESS_DAILY_PER_IP, note: "stated at GET /witness; try tomorrow" }, 429);
+
+      let signed = false;
+      if (b.signature_ed25519_b64 || b.public_key_ed25519_b64) {
+        if (!b.signature_ed25519_b64 || !b.public_key_ed25519_b64)
+          return json({ error: "signature_and_public_key_must_come_together" }, 422);
+        signed = await witnessVerifySig(b.record_canonical, b.signature_ed25519_b64, b.public_key_ed25519_b64);
+        if (!signed) return json({ error: "signature_invalid", note: "a present signature must verify; omit it to submit unsigned" }, 422);
+      }
+
+      const sha = (await sha256hex(b.record_canonical)).toLowerCase();
+      const dupP = await env.LEDGER.get(`wit:pending:${sha}`);
+      const dupA = await env.LEDGER.get(`wit:anchored:${sha}`);
+      if (dupP || dupA) return json({ sha, status: dupA ? "anchored" : "pending", dedup: true, url: `${origin}/witness/${sha}` });
+
+      const stored = {
+        sha, record_canonical: b.record_canonical, signed,
+        public_key_ed25519_b64: signed ? b.public_key_ed25519_b64 : null,
+        purpose: v.purpose, witness_name: v.witness_name, vantage: v.vantage,
+        submitted_at: new Date().toISOString()
+      };
+      await env.LEDGER.put(`wit:pending:${sha}`, JSON.stringify(stored));
+      await env.LEDGER.put(`wit:count:${day}`, String(g + 1), { expirationTtl: 90000 });
+      await env.LEDGER.put(ipKey, String(gi + 1), { expirationTtl: 90000 });
+      return json({
+        sha, status: "pending", signed, url: `${origin}/witness/${sha}`,
+        anchor_policy: "pending submissions are bundled into a nenrin-witness-batch-v1 ledger entry in daily batches; the batch anchor fixes the existence time of every record in it"
+      }, 201);
+    }
+
+    if (p === "/witness/pending" && request.method === "GET") {
+      const listed = await env.LEDGER.list({ prefix: "wit:pending:" });
+      const out = [];
+      for (const k of listed.keys) {
+        const raw = await env.LEDGER.get(k.name);
+        if (!raw) continue;
+        const s = JSON.parse(raw);
+        out.push({ sha: s.sha, purpose: s.purpose, witness_name: s.witness_name, vantage: s.vantage, signed: s.signed, submitted_at: s.submitted_at });
+      }
+      return json({ count: out.length, pending: out, note: "public pool; anchored in daily batches" });
+    }
+
+    const wm = p.match(/^\/witness\/([0-9a-f]{64})$/i);
+    if (wm && request.method === "GET") {
+      const sha = wm[1].toLowerCase();
+      const raw = (await env.LEDGER.get(`wit:pending:${sha}`)) || null;
+      const anch = (await env.LEDGER.get(`wit:anchored:${sha}`)) || null;
+      if (!raw && !anch) return json({ error: "not found", sha }, 404);
+      if (raw) { const s = JSON.parse(raw); return json({ status: "pending", ...s }); }
+      const a = JSON.parse(anch);
+      return json({ status: "anchored", sha, ledger_entry: a.n, url: `${origin}/ledger/${a.n}`, record: a.stored || null });
+    }
+
+    if (p === "/witness/anchor" && request.method === "POST") {
+      if (!(await auth(request, env))) return json({ error: "unauthorized" }, 401);
+      const listed = await env.LEDGER.list({ prefix: "wit:pending:" });
+      const keys = listed.keys.slice(0, WITNESS_BATCH_MAX);
+      if (!keys.length) return json({ ok: true, anchored: 0, note: "pool is empty" });
+      const items = [];
+      for (const k of keys) {
+        const raw = await env.LEDGER.get(k.name);
+        if (raw) items.push(JSON.parse(raw));
+      }
+      items.sort((a, b2) => (a.sha < b2.sha ? -1 : 1));
+      const batch = {
+        schema: "nenrin-witness-batch-v1",
+        anchored_at: new Date().toISOString(),
+        count: items.length,
+        records: items.map((s) => ({ sha: s.sha, purpose: s.purpose, witness_name: s.witness_name, vantage: s.vantage, signed: s.signed }))
+      };
+      const canonical = JSON.stringify(batch);
+      const h = (await sha256hex(canonical)).toLowerCase();
+      const dup = await env.LEDGER.get(`hash:${h}`);
+      if (dup) return json({ n: Number(dup), url: `${origin}/ledger/${dup}`, dedup: true });
+      const n = Number((await env.LEDGER.get("seq")) || 0) + 1;
+      const entry = { n, work: `NENRIN witness batch (${items.length} records)`, claim_sha256: h, record_canonical: canonical, schema: "v0-plain", created_at: new Date().toISOString(), ots_status: "unstamped", bitcoin_block: null, block_time: null, stamped_at: null };
+      await env.LEDGER.put(`entry:${n}`, JSON.stringify(entry));
+      await env.LEDGER.put(`hash:${h}`, String(n));
+      await env.LEDGER.put("seq", String(n));
+      for (const s of items) {
+        await env.LEDGER.put(`wit:anchored:${s.sha}`, JSON.stringify({ n, stored: s }));
+        await env.LEDGER.delete(`wit:pending:${s.sha}`);
+      }
+      return json({ n, url: `${origin}/ledger/${n}`, anchored: items.length, note: "stamp the ledger as usual; the batch anchor covers every record listed in it" }, 201);
     }
 
     if (p === "/ledger" && request.method === "GET") {
