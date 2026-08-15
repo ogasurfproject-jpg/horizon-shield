@@ -91,6 +91,16 @@ function probeVia(endpoint) {
     : "direct from the gate worker (" + GATE_CONTEXT + " context)";
 }
 
+// デプロイ時に deploy_gate.sh が --var GATE_COMMIT:<sha> で注入する。
+// 注入なしでデプロイされたら、判定には "unpinned" が載る。空白ではなく名指しで。
+// コミットSHAは内容アドレスであり、この値が record_sha256 の中を旅することで
+// 「どのバイト列のコードがこの判定を出したか」が判定自身に固定される。
+function gateCommit() {
+  return (GATE_ENV && GATE_ENV.GATE_COMMIT)
+    ? String(GATE_ENV.GATE_COMMIT)
+    : "unpinned: this deployment did not inject a commit (deploy_gate.sh not used)";
+}
+
 async function probeFetch(url, init) {
   const opts = init ? { ...init } : {};
   opts.headers = { ...(opts.headers || {}), "user-agent": PROBE_UA };
@@ -332,6 +342,7 @@ async function runCheck(endpoint, allowToolCall) {
   const record = {
     gate: "Yakumo Verification Gate",
     gate_version: CONFIG.version,
+    gate_commit: gateCommit(),
     endpoint: endpoint,
     checked_at: started,
     reachable: gateSide ? null : !unreachable,
@@ -369,6 +380,7 @@ function spec() {
   return {
     gate: "Yakumo Verification Gate",
     version: CONFIG.version,
+    gate_commit: gateCommit(),
     what_this_verifies: [
       "The server actually exists and speaks MCP",
       "The server publishes an A2A agent card",
@@ -1068,6 +1080,7 @@ async function selfCheck(origin) {
   const record = {
     gate: "Yakumo Verification Gate",
     gate_version: CONFIG.version,
+    gate_commit: gateCommit(),
     subject: "the gate itself",
     endpoint: origin,
     checked_at: new Date().toISOString(),
@@ -1228,7 +1241,7 @@ export default {
       });
     }
 
-    if (path === "/health") return json({ ok: true, gate_version: CONFIG.version });
+    if (path === "/health") return json({ ok: true, gate_version: CONFIG.version, gate_commit: gateCommit() });
     if (path === "/spec") return json(spec());
     if (path === "/.well-known/agent-card.json") return json(ownAgentCard(url.origin));
     if (path === "/self") return json(await selfCheck(url.origin));
