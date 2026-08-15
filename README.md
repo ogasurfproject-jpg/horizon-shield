@@ -13,6 +13,7 @@ An [MCP](https://modelcontextprotocol.io) server that lets AI agents check wheth
 [![Open data: JCCDB 65,520 · CC BY 4.0](https://img.shields.io/badge/open%20data-JCCDB%2065%2C520%20%C2%B7%20CC--BY%204.0-e36209)](https://github.com/ogasurfproject-jpg/japan-construction-cost-database)
 [![Anchored: Bitcoin / OpenTimestamps](https://img.shields.io/badge/anchored-Bitcoin%20%2F%20OpenTimestamps-f7931a)](https://ledger.horizonshield.dev/ledger)
 [![Auth: none](https://img.shields.io/badge/auth-none-6e7681)]()
+[![GitHub stars](https://img.shields.io/github/stars/ogasurfproject-jpg/horizon-shield?style=social)](https://github.com/ogasurfproject-jpg/horizon-shield/stargazers)
 [![HORIZON SHIELD KIRA on Glama](https://glama.ai/mcp/servers/ogasurfproject-jpg/horizon-shield/badges/score.svg)](https://glama.ai/mcp/servers/ogasurfproject-jpg/horizon-shield)
 [![Smithery](https://img.shields.io/badge/Smithery-98%2F100-e35f34)](https://smithery.ai/server/oga-surf-project/horizon-shield)
 
@@ -43,6 +44,8 @@ curl -s https://ledger.horizonshield.dev/witness
 ```
 
 We are the first test subject under our own rules. The ledger keeps the record of our gate failing its own test, and the full 522 incident that started all of this. Unflattering records stay.
+
+**If a register that cannot delete criticism of its own operator is infrastructure you want to exist, star this repository.** Stars are how researchers and agent platforms find it. The rings accumulate either way. They accumulate faster with witnesses.
 
 ## Repository map
 
