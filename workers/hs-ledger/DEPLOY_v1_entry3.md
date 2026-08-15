@@ -62,7 +62,7 @@ git push
 ```
 cd ~/Documents/ホライゾンシールドシステム/horizon-shield/workers/hs-ledger
 curl -s -X POST https://hs-ledger.oga-surf-project.workers.dev/ledger/append \
-  -H "X-Ledger-Key: umKnf7qGF8leSZwfJhFYzhkPCLYs" \
+  -H "X-Ledger-Key: <LEDGER_ADMIN_TOKEN>" \
   -H "content-type: application/json" \
   --data @seed_entry_3.json | python3 -m json.tool
 ```
@@ -81,7 +81,7 @@ curl -s -X POST https://hs-ledger.oga-surf-project.workers.dev/ledger/append \
 ```
 PATH="$HOME/Library/Python/3.9/bin:$PATH" \
 LEDGER_URL="https://hs-ledger.oga-surf-project.workers.dev" \
-LEDGER_ADMIN_TOKEN="umKnf7qGF8leSZwfJhFYzhkPCLYs" \
+LEDGER_ADMIN_TOKEN="<LEDGER_ADMIN_TOKEN>" \
 python3 ~/jidec/jidec_stamp.py
 ```
 

@@ -32,7 +32,7 @@ curl -s https://hs-ledger.oga-surf-project.workers.dev/health | jq
 ```
 cd ~/jidec/jidec-ledger
 curl -s -X POST https://hs-ledger.oga-surf-project.workers.dev/ledger/append \
-  -H "X-Ledger-Key: umKnf7qGF8leSZwfJhFYzhkPCLYs" \
+  -H "X-Ledger-Key: <LEDGER_ADMIN_TOKEN>" \
   -H "content-type: application/json" \
   --data @seed_entry_2.json | jq
 ```
