@@ -20,11 +20,11 @@ This record documents the real event that motivated discrepancy records as a fir
 
 A week of green history, every sample honest, every sample taken from a vantage that shared fate with the thing being measured.
 
-## Witness B: Federico Blanco Sanchez-Llanos, external vantage
+## Witness B: babyblueviper1, external vantage
 
 From his own network, plain curl, no browser tooling, invoking the gate's public HTTP check. Reported 2026-08-15 (JST): `reachable: false`, `mcp_endpoint` failed with `initialize failed: http 522`, agent card fetch likewise 522. Before trusting any of it, he independently recomputed the gate's `record_sha256`: removed the two excluded fields, canonicalised, hashed, and confirmed the match.
 
-His written consent to be named here: "Yes, name me on the reproduction -- happy to be the 'off my network' data point, that's real and it's yours to use."
+His written consent to be named here: "Yes, name me on the reproduction -- happy to be the 'off my network' data point, that's real and it's yours to use." The name is his own stated choice: babyblueviper1 is the identity he publishes under wherever records of this kind are cited, and he asked in writing that this permanent record use it consistently.
 
 ## Operator reproduction and boundary
 
