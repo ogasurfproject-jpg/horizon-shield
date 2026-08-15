@@ -756,8 +756,20 @@ async function llmStructure(env, text, store) {
   let out = "";
   try {
     if (env.AI && typeof env.AI.run === "function") {
-      const r = await env.AI.run(env.LLM_MODEL || "@cf/meta/llama-3.1-8b-instruct", { messages: [{ role: "system", content: sys }, { role: "user", content: usr }], max_tokens: 900 });
-      out = (r && (r.response || r.result || r.output_text)) || "";
+      // モデル1本に賭けない。提供終了で顧客対応が止まった事故(2026-08-15)の再発防止。
+      const tried = [];
+      for (const model of (env.LLM_MODEL ? [env.LLM_MODEL] : AP.AI_MODEL_CHAIN)) {
+        try {
+          const r = await env.AI.run(model, { messages: [{ role: "system", content: sys }, { role: "user", content: usr }], max_tokens: 900 });
+          out = (r && (r.response || r.result || r.output_text)) || "";
+          if (out) break;
+          tried.push(model + " -> empty");
+        } catch (e) {
+          tried.push(model + " -> " + String((e && e.message) || e).slice(0, 60));
+        }
+      }
+      // 黙って失敗しない。何を試して何と言われたかを理由に残す。
+      if (!out) return { ok: false, reason: "llm-all-models-failed: " + tried.join(" | ") };
     } else if (env.LLM_API_URL && env.LLM_API_KEY) {
       const r = await fetch(env.LLM_API_URL, { method: "POST", headers: { "Authorization": "Bearer " + env.LLM_API_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ model: env.LLM_MODEL || "gpt-4o-mini", temperature: 0, messages: [{ role: "system", content: sys }, { role: "user", content: usr }] }) });
       const j = await r.json();

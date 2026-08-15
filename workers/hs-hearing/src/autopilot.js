@@ -58,6 +58,16 @@ export const QUESTION_BANK = {
     q_brand_message:   { w: 3, text: "会社として一番伝えたいメッセージをひとことで。" },
   },
 };
+/* ------------------------------ AIモデルの綱 ------------------------------ */
+// Workers AI のモデルは予告のうえ提供終了になる。1本に賭けると、その日に顧客対応が止まる。
+// 2026-05-30 に llama-3.1/3/2 系が終了し、実際に止まった。二度目は無い形にする。
+// 上から順に試し、最初に応答したものを使う。env.LLM_MODEL が設定されていればそれを優先。
+export const AI_MODEL_CHAIN = [
+  "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "@cf/zai-org/glm-4.7-flash",
+  "@cf/google/gemma-4-26b-a4b-it",
+];
+
 export const FOCUS_KEYS = ["recruit", "leads", "homeowners", "franchise", "brand"];
 const FOCUS_LABEL = { recruit: "人材確保", leads: "案件・元請け獲得", homeowners: "施主集客", franchise: "協力店・加盟店募集", brand: "認知度アップ" };
 const FOCUS_KEYWORDS = {
@@ -146,13 +156,19 @@ export async function classifyFocus(env, store, profile) {
   // 3) Workers AI 補助(任意)
   try {
     if (env.AI && typeof env.AI.run === "function" && corpus.length > 40) {
-      const r = await env.AI.run(env.LLM_MODEL || "@cf/meta/llama-3.1-8b-instruct", {
-        messages: [
-          { role: "system", content: "Classify a Japanese contractor's primary goal. Reply with EXACTLY one word from: recruit, leads, homeowners, franchise, brand, unknown." },
-          { role: "user", content: corpus.slice(0, 1500) },
-        ], max_tokens: 8,
-      });
-      const out = S((r && (r.response || r.result)) || "", 40).toLowerCase();
+      const msgs = [
+        { role: "system", content: "Classify a Japanese contractor's primary goal. Reply with EXACTLY one word from: recruit, leads, homeowners, franchise, brand, unknown." },
+        { role: "user", content: corpus.slice(0, 1500) },
+      ];
+      let raw = "";
+      for (const model of (env.LLM_MODEL ? [env.LLM_MODEL] : AI_MODEL_CHAIN)) {
+        try {
+          const r = await env.AI.run(model, { messages: msgs, max_tokens: 8 });
+          raw = (r && (r.response || r.result)) || "";
+          if (raw) break;
+        } catch (_e) { /* 次のモデルへ。ここは補助判定なので落ちても本流は止めない */ }
+      }
+      const out = S(raw, 40).toLowerCase();
       const k = FOCUS_KEYS.find((x) => out.includes(x));
       if (k) return { primary: k, all: [k], via: "llm" };
     }
