@@ -18,8 +18,8 @@ _op.addheaders = [("User-Agent", "hs-ledger-stamper/1.0 (+github-actions)")]
 urllib.request.install_opener(_op)
 
 
-LEDGER_URL = os.environ["LEDGER_URL"].rstrip("/")
-TOKEN = os.environ["LEDGER_ADMIN_TOKEN"]
+LEDGER_URL = os.environ["LEDGER_URL"].strip().rstrip("/")
+TOKEN = os.environ["LEDGER_ADMIN_TOKEN"].strip()
 
 
 def api(path, method="GET", body=None):
