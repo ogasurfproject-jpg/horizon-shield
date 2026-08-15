@@ -1693,10 +1693,11 @@ export default {
 
     if (method !== "POST") return new Response("Method Not Allowed", { status: 405, headers: CORS });
 
-    // MCP-Protocol-Version ヘッダ: 提示があり未対応なら400
-    const pvHeader = request.headers.get("MCP-Protocol-Version");
-    if (pvHeader && !SUPPORTED_VERSIONS.includes(pvHeader))
-      return new Response("Unsupported MCP-Protocol-Version: " + pvHeader, { status: 400, headers: CORS });
+    // MCP-Protocol-Version ヘッダ: 未知の版でも拒否しない。
+    // 2026-08-15 実測: Glamaの検査機が 2026-07-28 を名乗り、旧実装の400門前払いが
+    // 健康診断を赤にしていた(wrangler tailで全リクエスト捕捉済み)。未知の版は
+    // initialize の交渉に任せ、こちらの既定版で答える。新しい版を名乗る正しい相手を
+    // 弾くより、受けて交渉結果を返す方が相互運用の実利がある。
 
     let msg;
     try { msg = await request.json(); }
