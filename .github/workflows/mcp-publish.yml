@@ -1,0 +1,44 @@
+name: MCP registry publish
+
+# 公式MCPレジストリ(registry.modelcontextprotocol.io)へserver.jsonを公開する。
+# 認証はGitHub OIDC。トークンの保管も持ち出しも無い。io.github.ogasurfproject-jpg/* の名前空間はこのリポジトリのオーナー権限で通る。
+# 使い方: Actions -> MCP registry publish -> Run workflow -> server_dir に対象ディレクトリを入れる。
+# 例: workers/hs-jidec-mcp や workers/hs-webmcp。ルートのserver.json(hs-mcp)は "." を入れる。
+
+on:
+  workflow_dispatch:
+    inputs:
+      server_dir:
+        description: "server.jsonがあるディレクトリ。例: workers/hs-jidec-mcp、ルートは ."
+        required: true
+        default: "workers/hs-jidec-mcp"
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: mcp-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download mcp-publisher 1.8.1 (sha256 pinned)
+        run: |
+          curl -sL -o pub.tar.gz "https://github.com/modelcontextprotocol/registry/releases/download/v1.8.1/mcp-publisher_linux_amd64.tar.gz"
+          echo "a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc  pub.tar.gz" | sha256sum -c -
+          tar xzf pub.tar.gz mcp-publisher
+
+      - name: Login with GitHub OIDC
+        run: ./mcp-publisher login github-oidc
+
+      - name: Publish
+        env:
+          SERVER_DIR: ${{ github.event.inputs.server_dir }}
+        run: |
+          cd "$SERVER_DIR"
+          "$GITHUB_WORKSPACE/mcp-publisher" publish
