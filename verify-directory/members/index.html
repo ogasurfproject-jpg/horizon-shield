@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The register | HORIZON SHIELD verify directory</title>
+<meta name="description" content="Every server on the HORIZON SHIELD register, with its latest nightly verdict and full public measurement history.">
+<style>
+:root{
+  --bg:#08080a; --bg-2:#0d0d10; --surface:#121216;
+  --line:rgba(255,255,255,.07); --line-2:rgba(255,255,255,.12);
+  --ink:#f4f4f5; --ink-2:#a9a9b3; --ink-3:#6f6f7a;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'Inter',system-ui,-apple-system,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.62;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(900px 500px at 82% -8%,rgba(52,211,153,.10),transparent 60%);background-attachment:fixed}
+.wrap{max-width:940px;margin:0 auto;padding:0 26px}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--mono)}
+header{position:sticky;top:0;background:rgba(8,8,10,.74);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);z-index:20}
+.bar{display:flex;align-items:center;justify-content:space-between;height:58px}
+.logo{font-weight:700;font-size:15px}
+.logo .sub{color:var(--ink-3);font-weight:500;font-size:11px;font-family:var(--mono)}
+.nav{display:flex;gap:16px;font-size:13.5px;color:var(--ink-2);align-items:center}
+.nav a:hover{color:var(--ink)}
+.langbtn{border:1px solid var(--line-2);border-radius:999px;padding:3px 12px;font-size:12px}
+.hero{padding:46px 0 8px}
+h1{font-size:2rem;letter-spacing:-.025em;line-height:1.25}
+.lead{color:var(--ink-2);margin-top:12px;max-width:620px}
+.count{color:var(--ink-3);font-size:.82rem;margin-top:16px;font-family:var(--mono)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin:22px 0 8px}
+.mcard{display:block;background:var(--surface);border:1px solid var(--line-2);border-radius:12px;padding:18px 20px;transition:border-color .15s}
+.mcard:hover{border-color:var(--ink-3)}
+.mtop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.mname{font-weight:650;font-size:1rem;line-height:1.35}
+.mja{color:var(--ink-3);font-size:.78rem;margin-top:3px}
+.badge{flex-shrink:0;font-size:.7rem;padding:2px 9px;border-radius:999px;border:1px solid;white-space:nowrap}
+.b-pass{color:#7ee2a8;border-color:#2f6f4a}
+.b-pend{color:#e2c97e;border-color:#6f5c2f}
+.b-none{color:#9aa4b2;border-color:#3a4250}
+.mep{color:var(--ink-3);font-size:.68rem;font-family:var(--mono);margin-top:10px;word-break:break-all}
+.mmeta{color:var(--ink-2);font-size:.75rem;margin-top:8px}
+.card{background:var(--surface);border:1px solid var(--line-2);border-radius:14px;padding:24px;margin:26px 0}
+h2{font-size:1.05rem;margin-bottom:10px}
+.note{color:var(--ink-2);font-size:.84rem;margin:8px 0}
+.cta{display:inline-block;margin-top:12px;border:1px solid var(--line-2);border-radius:8px;padding:8px 16px;font-size:.85rem;color:var(--ink-2)}
+.cta:hover{color:var(--ink);border-color:var(--ink-3)}
+footer{color:var(--ink-3);font-size:.78rem;padding:26px 0 50px}
+</style>
+</head>
+<body>
+<header><div class="wrap bar">
+  <div class="logo">HORIZON SHIELD <span class="sub">/ verify</span></div>
+  <div class="nav">
+    <a id="dirlink" href="../">Directory</a>
+    <a id="getlisted" href="../#listed">Get listed</a>
+    <a id="langbtn" class="langbtn" href="#">日本語</a>
+  </div>
+</div></header>
+
+<div class="wrap hero">
+  <h1 id="h1">The register</h1>
+  <p class="lead" id="lead"></p>
+  <p class="count" id="count"></p>
+</div>
+
+<div class="wrap">
+  <div class="grid" id="grid"></div>
+  <div class="card">
+    <h2 id="lh"></h2>
+    <p class="note" id="l1"></p>
+    <p class="note" id="l2"></p>
+    <a class="cta" id="cta" href="../#listed"></a>
+  </div>
+  <footer>Public code: <a class="mono" href="https://github.com/ogasurfproject-jpg/horizon-shield" rel="noopener" style="color:var(--ink-2)">github.com/ogasurfproject-jpg/horizon-shield</a></footer>
+</div>
+
+<script>
+const GATE = "https://gate.horizonshield.dev";
+const qs = new URLSearchParams(location.search);
+const LANG = qs.get("lang") === "ja" ? "ja" : "en";
+const STR = {
+  en: {
+    dir: "Directory", listed: "Get listed", langbtn: "日本語",
+    h1: "The register",
+    lead: "Every server measured by the gate, with its latest nightly verdict and its full public history. Listing is not endorsement, and absence is not a negative verdict.",
+    count: function(n){ return n + " rows on the register right now"; },
+    loading: "Reading the register…",
+    zero: "The register answered with zero rows. That is the state of the register, not an error.",
+    fail: function(e){ return "The instrument could not read (" + e + "). No verdict is made. The register answers directly at " + GATE + "/register"; },
+    notyet: "not measured yet",
+    meas: function(n){ return n + (n === 1 ? " public measurement" : " public measurements"); },
+    lh: "What a row here means",
+    l1: "Rows are scheduled measurements, not endorsements. A green row means the conditions that were measured passed on that date. It does not mean the numbers a server returns are correct, or that the business behind it is any good.",
+    l2: "Every verdict carries a record_sha256 anyone can recompute. Open any member page and the command is right there. No trust in the operator is required.",
+    cta: "Put your own server on this list"
+  },
+  ja: {
+    dir: "ディレクトリ", listed: "掲載を申し込む", langbtn: "English",
+    h1: "登録簿",
+    lead: "検証ゲートが測っている全サーバーと、毎晩の最新判定、そして全ての公開履歴。掲載は推薦ではない。未掲載も不合格ではない。",
+    count: function(n){ return "現在 " + n + " 行"; },
+    loading: "登録簿を読み込み中…",
+    zero: "登録簿は0行と答えた。これは登録簿の状態であって、エラーではない。",
+    fail: function(e){ return "計器が読めなかった（" + e + "）。判定はしない。登録簿は " + GATE + "/register で直接読める。"; },
+    notyet: "未測定",
+    meas: function(n){ return "公開測定 " + n + " 回"; },
+    lh: "この1行が意味すること",
+    l1: "各行は予定された測定の記録であって、推薦ではない。緑は「測定した条件がその日は通った」という意味だ。返される数字が正しいことも、その裏の商売が良いことも意味しない。",
+    l2: "全ての判定には誰でも再計算できる record_sha256 が付く。各ページを開けば検証コマンドがそのまま置いてある。運営者を信用する必要はない。",
+    cta: "自分のサーバーをこの一覧に載せる"
+  }
+};
+const T = STR[LANG];
+function el(tag, cls, text){
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+function badgeClass(s){
+  return s === "pass" ? "b-pass" : (s === "pending" || s === "held") ? "b-pend" : "b-none";
+}
+function setStatics(){
+  document.documentElement.lang = LANG;
+  document.title = (LANG === "ja" ? "登録簿" : "The register") + " | HORIZON SHIELD verify directory";
+  document.getElementById("dirlink").textContent = T.dir;
+  document.getElementById("getlisted").textContent = T.listed;
+  const lb = document.getElementById("langbtn");
+  lb.textContent = T.langbtn;
+  lb.href = LANG === "ja" ? "./" : "./?lang=ja";
+  document.getElementById("h1").textContent = T.h1;
+  document.getElementById("lead").textContent = T.lead;
+  document.getElementById("count").textContent = T.loading;
+  document.getElementById("lh").textContent = T.lh;
+  document.getElementById("l1").textContent = T.l1;
+  document.getElementById("l2").textContent = T.l2;
+  document.getElementById("cta").textContent = T.cta;
+}
+async function main(){
+  setStatics();
+  const grid = document.getElementById("grid");
+  const count = document.getElementById("count");
+  try{
+    const data = await (await fetch(GATE + "/register")).json();
+    const rows = Array.isArray(data.rows) ? data.rows : [];
+    if (!rows.length){ count.textContent = T.zero; return; }
+    count.textContent = T.count(rows.length);
+    rows.forEach(function(r){
+      const lb = r.operator_label || {};
+      const primary = LANG === "ja" ? (lb.ja || lb.en || r.endpoint) : (lb.en || lb.ja || r.endpoint);
+      const secondary = LANG === "ja" ? lb.en : lb.ja;
+      const a = el("a", "mcard");
+      a.href = "../member.html?endpoint=" + encodeURIComponent(r.endpoint) + (LANG === "ja" ? "&lang=ja" : "");
+      const top = el("div", "mtop");
+      const names = el("div");
+      names.appendChild(el("div", "mname", primary));
+      if (secondary && secondary !== primary) names.appendChild(el("div", "mja", secondary));
+      top.appendChild(names);
+      const stat = (r.latest && r.latest.status) ? r.latest.status : T.notyet;
+      top.appendChild(el("span", "badge " + badgeClass(stat), stat));
+      a.appendChild(top);
+      a.appendChild(el("div", "mep", r.endpoint));
+      if (typeof r.measurements === "number") a.appendChild(el("div", "mmeta", T.meas(r.measurements)));
+      grid.appendChild(a);
+    });
+  }catch(e){
+    count.textContent = T.fail(e.message);
+  }
+}
+document.addEventListener("DOMContentLoaded", main);
+</script>
+</body>
+</html>

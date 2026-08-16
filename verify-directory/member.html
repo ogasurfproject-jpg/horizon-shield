@@ -49,6 +49,7 @@ footer{color:var(--ink-3);font-size:.78rem;padding:30px 0 50px}
 <header><div class="wrap bar">
   <div class="logo">HORIZON SHIELD <span class="sub">/ verify</span></div>
   <div class="nav">
+    <a id="memberslink" href="./members/">Members</a>
     <a id="backlink" href="./">Back to the list</a>
     <a id="langbtn" class="langbtn" href="#">日本語</a>
   </div>
@@ -73,6 +74,7 @@ const qs = new URLSearchParams(location.search);
 const LANG = qs.get("lang") === "ja" ? "ja" : "en";
 const STR = {
   en: {
+    members: "Members",
     back: "Back to the list",
     langbtn: "日本語",
     proveH: "What this page proves, and what it does not",
@@ -92,7 +94,8 @@ const STR = {
     notyet: "not yet measured"
   },
   ja: {
-    back: "一覧へ戻る",
+    members: "登録簿",
+    back: "ディレクトリへ",
     langbtn: "English",
     proveH: "このページが証明すること、しないこと",
     prove1: "ここに並ぶ判定は、毎晩の自動測定の記録だ。掲載は推薦ではない。名前と説明は運営者が付けた表示名であり、測定値ではない。同じ注記はregister APIの応答にも書いてある。",
@@ -124,6 +127,9 @@ function badgeClass(stat){
 function setStatics(ep){
   document.documentElement.lang = LANG;
   document.getElementById("backlink").textContent = T.back;
+  const ml = document.getElementById("memberslink");
+  ml.textContent = T.members;
+  ml.href = LANG === "ja" ? "./members/?lang=ja" : "./members/";
   const lb = document.getElementById("langbtn");
   lb.textContent = T.langbtn;
   const nq = new URLSearchParams(location.search);
