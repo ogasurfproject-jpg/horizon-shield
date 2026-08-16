@@ -199,6 +199,7 @@ footer .top{color:var(--ink-2);font-size:13.5px;margin-bottom:14px}
 .regmeta .mono{opacity:.75}
 a.regname{color:inherit;border-bottom:1px dashed rgba(255,255,255,.35)}
 a.regname:hover{border-bottom-style:solid}
+.regja{color:#9aa4b2;font-size:.8rem}
 </style>
 </head>
 <body>
@@ -508,10 +509,14 @@ async function loadRegister(){
     rows.forEach(function(r){
       const d = document.createElement("div"); d.className = "regcard";
       const top = document.createElement("div"); top.className = "regtop";
+      const lb0 = r.operator_label || {};
       const nm = document.createElement("a"); nm.className = "regname";
       nm.href = "member.html?endpoint=" + encodeURIComponent(r.endpoint);
-      nm.textContent = (r.operator_label && r.operator_label.ja) ? r.operator_label.ja : r.endpoint;
+      nm.textContent = lb0.en ? lb0.en : (lb0.ja ? lb0.ja : r.endpoint);
       top.appendChild(nm);
+      if (lb0.en && lb0.ja){
+        top.appendChild(Object.assign(document.createElement("span"), { className: "regja", textContent: lb0.ja }));
+      }
       const stat = (r.latest && r.latest.status) ? r.latest.status : "not yet measured";
       const st = document.createElement("span");
       st.className = "regbadge " + (stat === "pass" ? "b-pass" : (stat === "pending" || stat === "held") ? "b-pend" : "b-none");

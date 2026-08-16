@@ -1,15 +1,14 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>加盟店ページ | HORIZON SHIELD verify directory</title>
+<title>Member page | HORIZON SHIELD verify directory</title>
 <style>
 :root{
   --bg:#08080a; --bg-2:#0d0d10; --surface:#121216;
   --line:rgba(255,255,255,.07); --line-2:rgba(255,255,255,.12);
   --ink:#f4f4f5; --ink-2:#a9a9b3; --ink-3:#6f6f7a;
-  --emerald:#34d399; --amber:#fbbf24; --slate:#94a3b8;
   --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --sans:'Inter',system-ui,-apple-system,sans-serif;
 }
@@ -23,11 +22,12 @@ header{position:sticky;top:0;background:rgba(8,8,10,.74);backdrop-filter:blur(14
 .bar{display:flex;align-items:center;justify-content:space-between;height:58px}
 .logo{font-weight:700;font-size:15px}
 .logo .sub{color:var(--ink-3);font-weight:500;font-size:11px;font-family:var(--mono)}
-.back{font-size:13.5px;color:var(--ink-2)}
-.back:hover{color:var(--ink)}
+.nav{display:flex;gap:18px;font-size:13.5px;color:var(--ink-2);align-items:center}
+.nav a:hover{color:var(--ink)}
+.langbtn{border:1px solid var(--line-2);border-radius:999px;padding:3px 12px;font-size:12px}
 .card{background:var(--surface);border:1px solid var(--line-2);border-radius:14px;padding:26px;margin:26px 0}
 h1{font-size:1.55rem;letter-spacing:-.02em}
-.desc{color:var(--ink-2);margin-top:6px}
+.sub2{color:var(--ink-2);margin-top:6px}
 .eprow{margin-top:12px;font-size:.8rem;color:var(--ink-3);word-break:break-all}
 .badge{display:inline-block;font-size:.78rem;padding:3px 12px;border-radius:999px;border:1px solid;margin-left:10px;vertical-align:middle}
 .b-pass{color:#7ee2a8;border-color:#2f6f4a}
@@ -48,24 +48,70 @@ footer{color:var(--ink-3);font-size:.78rem;padding:30px 0 50px}
 <body>
 <header><div class="wrap bar">
   <div class="logo">HORIZON SHIELD <span class="sub">/ verify</span></div>
-  <a class="back" href="./">一覧へ戻る</a>
+  <div class="nav">
+    <a id="backlink" href="./">Back to the list</a>
+    <a id="langbtn" class="langbtn" href="#">日本語</a>
+  </div>
 </div></header>
 <section><div class="wrap">
-  <div id="content"><p class="note" style="margin-top:26px">読み込み中…</p></div>
+  <div id="content"><p class="note" style="margin-top:26px" id="loading">Loading…</p></div>
   <div class="card">
-    <h2>このページが証明すること、しないこと</h2>
-    <p class="note">ここに並ぶ判定は、毎晩の自動測定の記録だ。掲載は推薦ではない。名前と説明は運営者が付けた表示名であり、測定値ではない。同じ注記はregister APIの応答にも書いてある。</p>
-    <p class="note">各行の record_sha256 は誰でも再計算して照合できる。下の検証コマンドがそのままそれをやる。運営者を信用する必要はない。</p>
+    <h2 id="ph">What this page proves, and what it does not</h2>
+    <p class="note" id="p1"></p>
+    <p class="note" id="p2"></p>
   </div>
   <div class="card">
-    <h2>自分の手で検証する</h2>
-    <p class="note">ターミナルで1行。返ってきた記録のハッシュと、このページの表のハッシュが一致するかを見る。</p>
+    <h2 id="vh">Verify it yourself</h2>
+    <p class="note" id="vn"></p>
     <div class="cmd" id="verifycmd"></div>
   </div>
-  <footer class="wrap" style="padding-left:0">公開コード: <a class="mono" href="https://github.com/ogasurfproject-jpg/horizon-shield" rel="noopener" style="color:var(--ink-2)">github.com/ogasurfproject-jpg/horizon-shield</a></footer>
+  <footer class="wrap" style="padding-left:0">Public code: <a class="mono" href="https://github.com/ogasurfproject-jpg/horizon-shield" rel="noopener" style="color:var(--ink-2)">github.com/ogasurfproject-jpg/horizon-shield</a></footer>
 </div></section>
 <script>
 const GATE = "https://gate.horizonshield.dev";
+const qs = new URLSearchParams(location.search);
+const LANG = qs.get("lang") === "ja" ? "ja" : "en";
+const STR = {
+  en: {
+    back: "Back to the list",
+    langbtn: "日本語",
+    proveH: "What this page proves, and what it does not",
+    prove1: "The verdicts here are records of automated nightly measurement. Listing is not endorsement. Names and descriptions are display names assigned by the operator, not measurements. The register API carries the same note.",
+    prove2: "Every record_sha256 can be recomputed by anyone. The command below does exactly that. No trust in the operator is required.",
+    verifyH: "Verify it yourself",
+    verifyN: "One line in a terminal. Compare the hashes it returns with the hashes in the table above.",
+    histH: "Measurement history (newest first)",
+    cols: ["Measured at", "Verdict", "record_sha256"],
+    site: "Official site (Japanese)",
+    nfH: "This address is not on the register",
+    nfN: "Absence is not a negative verdict. It only means it has never been measured here.",
+    meas: function(n, first){ return n + " public measurements" + (first ? ", first on " + first : ""); },
+    none: "No stored measurements yet.",
+    noEp: "No endpoint specified. Come here by clicking a name on the list.",
+    fail: "The instrument could not read ({e}). No verdict is made. The register answers directly at " + GATE + "/register",
+    notyet: "not yet measured"
+  },
+  ja: {
+    back: "一覧へ戻る",
+    langbtn: "English",
+    proveH: "このページが証明すること、しないこと",
+    prove1: "ここに並ぶ判定は、毎晩の自動測定の記録だ。掲載は推薦ではない。名前と説明は運営者が付けた表示名であり、測定値ではない。同じ注記はregister APIの応答にも書いてある。",
+    prove2: "各行の record_sha256 は誰でも再計算して照合できる。下の検証コマンドがそのままそれをやる。運営者を信用する必要はない。",
+    verifyH: "自分の手で検証する",
+    verifyN: "ターミナルで1行。返ってきた記録のハッシュと、上の表のハッシュが一致するかを見る。",
+    histH: "測定履歴（新しい順）",
+    cols: ["測定日時", "判定", "record_sha256"],
+    site: "公式サイトを見る",
+    nfH: "この住所はregisterに無い",
+    nfN: "未掲載は不合格ではない。ここで測られたことが無い、それだけを意味する。",
+    meas: function(n, first){ return "公開測定 " + n + " 回" + (first ? "、初回 " + first : ""); },
+    none: "保存された測定はまだ無い。",
+    noEp: "endpointが指定されていない。一覧から店名をクリックして来てくれ。",
+    fail: "計器が読めなかった（{e}）。判定はしない。registerは " + GATE + "/register で直接読める。",
+    notyet: "not yet measured"
+  }
+};
+const T = STR[LANG];
 function el(tag, cls, text){
   const e = document.createElement(tag);
   if (cls) e.className = cls;
@@ -75,54 +121,69 @@ function el(tag, cls, text){
 function badgeClass(stat){
   return stat === "pass" ? "b-pass" : (stat === "pending" || stat === "held") ? "b-pend" : "b-none";
 }
+function setStatics(ep){
+  document.documentElement.lang = LANG;
+  document.getElementById("backlink").textContent = T.back;
+  const lb = document.getElementById("langbtn");
+  lb.textContent = T.langbtn;
+  const nq = new URLSearchParams(location.search);
+  if (LANG === "ja") nq.delete("lang"); else nq.set("lang", "ja");
+  lb.href = "member.html" + (nq.toString() ? "?" + nq.toString() : "");
+  document.getElementById("ph").textContent = T.proveH;
+  document.getElementById("p1").textContent = T.prove1;
+  document.getElementById("p2").textContent = T.prove2;
+  document.getElementById("vh").textContent = T.verifyH;
+  document.getElementById("vn").textContent = T.verifyN;
+  document.getElementById("verifycmd").textContent =
+    ep ? "curl -s \"" + GATE + "/history?endpoint=" + encodeURIComponent(ep) + "\"" : "curl -s \"" + GATE + "/register\"";
+}
 async function main(){
   const box = document.getElementById("content");
-  const cmd = document.getElementById("verifycmd");
-  const ep = new URLSearchParams(location.search).get("endpoint");
+  const ep = qs.get("endpoint");
+  setStatics(ep);
   box.textContent = "";
   if (!ep){
-    box.appendChild(el("p", "note", "endpointが指定されていない。一覧から店名をクリックして来てくれ。"));
-    if (cmd) cmd.textContent = "curl -s \"" + GATE + "/register\"";
+    box.appendChild(el("p", "note", T.noEp));
     return;
   }
-  if (cmd) cmd.textContent = "curl -s \"" + GATE + "/history?endpoint=" + encodeURIComponent(ep) + "\"";
   try {
     const reg = await (await fetch(GATE + "/register")).json();
     const row = (Array.isArray(reg.rows) ? reg.rows : []).find(function(r){ return r.endpoint === ep; });
     const card = el("div", "card");
     if (!row){
-      card.appendChild(el("h1", null, "この住所はregisterに無い"));
-      card.appendChild(el("p", "note", "未掲載は不合格ではない。ここで測られたことが無い、それだけを意味する。"));
+      card.appendChild(el("h1", null, T.nfH));
+      card.appendChild(el("p", "note", T.nfN));
       card.appendChild(el("p", "eprow mono", ep));
       box.appendChild(card);
       return;
     }
-    const name = (row.operator_label && row.operator_label.ja) ? row.operator_label.ja : row.endpoint;
-    const h1 = el("h1", null, name);
-    const stat = (row.latest && row.latest.status) ? row.latest.status : "not yet measured";
-    const bg = el("span", "badge " + badgeClass(stat), stat);
-    h1.appendChild(bg);
+    const lb = row.operator_label || {};
+    const primary = LANG === "ja" ? (lb.ja || lb.en || row.endpoint) : (lb.en || lb.ja || row.endpoint);
+    const secondary = LANG === "ja" ? lb.en : lb.ja;
+    const h1 = el("h1", null, primary);
+    const stat = (row.latest && row.latest.status) ? row.latest.status : T.notyet;
+    h1.appendChild(el("span", "badge " + badgeClass(stat), stat));
     card.appendChild(h1);
-    if (row.operator_label && row.operator_label.en) card.appendChild(el("p", "desc", row.operator_label.en));
+    if (secondary && secondary !== primary) card.appendChild(el("p", "sub2", secondary));
     card.appendChild(el("p", "eprow mono", row.endpoint));
-    if (typeof row.measurements === "number") card.appendChild(el("p", "note", "公開測定 " + row.measurements + " 回" + (row.first_at ? "、初回 " + String(row.first_at).slice(0,10) : "")));
-    if (row.operator_label && row.operator_label.url){
-      const a = el("a", "sitelink", "公式サイトを見る");
-      a.href = row.operator_label.url; a.rel = "noopener";
+    if (typeof row.measurements === "number") card.appendChild(el("p", "note", T.meas(row.measurements, row.first_at ? String(row.first_at).slice(0,10) : "")));
+    if (lb.url){
+      const a = el("a", "sitelink", T.site);
+      a.href = lb.url; a.rel = "noopener";
       card.appendChild(a);
     }
     box.appendChild(card);
 
     const hcard = el("div", "card");
-    hcard.appendChild(el("h2", null, "測定履歴（新しい順）"));
+    hcard.appendChild(el("h2", null, T.histH));
     const hist = await (await fetch(GATE + "/history?endpoint=" + encodeURIComponent(ep))).json();
     const entries = (hist && Array.isArray(hist.entries)) ? hist.entries.slice().reverse() : [];
     if (!entries.length){
-      hcard.appendChild(el("p", "note", "保存された測定はまだ無い。"));
+      hcard.appendChild(el("p", "note", T.none));
     } else {
       const t = el("table");
       const tr0 = el("tr");
-      ["測定日時", "判定", "record_sha256"].forEach(function(h){ tr0.appendChild(el("th", null, h)); });
+      T.cols.forEach(function(h){ tr0.appendChild(el("th", null, h)); });
       t.appendChild(tr0);
       entries.forEach(function(e2){
         const tr = el("tr");
@@ -137,7 +198,7 @@ async function main(){
     }
     box.appendChild(hcard);
   } catch (err){
-    box.appendChild(el("p", "note", "計器が読めなかった（" + err.message + "）。判定はしない。registerは " + GATE + "/register で直接読める。"));
+    box.appendChild(el("p", "note", T.fail.replace("{e}", err.message)));
   }
 }
 document.addEventListener("DOMContentLoaded", main);
