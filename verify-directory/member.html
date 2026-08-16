@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>加盟店ページ | HORIZON SHIELD verify directory</title>
+<style>
+:root{
+  --bg:#08080a; --bg-2:#0d0d10; --surface:#121216;
+  --line:rgba(255,255,255,.07); --line-2:rgba(255,255,255,.12);
+  --ink:#f4f4f5; --ink-2:#a9a9b3; --ink-3:#6f6f7a;
+  --emerald:#34d399; --amber:#fbbf24; --slate:#94a3b8;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'Inter',system-ui,-apple-system,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.62;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(900px 500px at 82% -8%,rgba(52,211,153,.10),transparent 60%);background-attachment:fixed}
+.wrap{max-width:860px;margin:0 auto;padding:0 26px}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--mono)}
+header{position:sticky;top:0;background:rgba(8,8,10,.74);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;height:58px}
+.logo{font-weight:700;font-size:15px}
+.logo .sub{color:var(--ink-3);font-weight:500;font-size:11px;font-family:var(--mono)}
+.back{font-size:13.5px;color:var(--ink-2)}
+.back:hover{color:var(--ink)}
+.card{background:var(--surface);border:1px solid var(--line-2);border-radius:14px;padding:26px;margin:26px 0}
+h1{font-size:1.55rem;letter-spacing:-.02em}
+.desc{color:var(--ink-2);margin-top:6px}
+.eprow{margin-top:12px;font-size:.8rem;color:var(--ink-3);word-break:break-all}
+.badge{display:inline-block;font-size:.78rem;padding:3px 12px;border-radius:999px;border:1px solid;margin-left:10px;vertical-align:middle}
+.b-pass{color:#7ee2a8;border-color:#2f6f4a}
+.b-pend{color:#e2c97e;border-color:#6f5c2f}
+.b-none{color:#9aa4b2;border-color:#3a4250}
+.sitelink{display:inline-block;margin-top:14px;border:1px solid var(--line-2);border-radius:8px;padding:7px 14px;font-size:.85rem;color:var(--ink-2)}
+.sitelink:hover{color:var(--ink);border-color:var(--ink-3)}
+h2{font-size:1.05rem;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+th{color:var(--ink-3);font-weight:500;text-align:left}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line)}
+.sha{font-family:var(--mono);font-size:.68rem;color:var(--ink-3);word-break:break-all}
+.note{color:var(--ink-2);font-size:.84rem;margin:8px 0}
+.cmd{background:var(--bg-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-family:var(--mono);font-size:.72rem;overflow-x:auto;white-space:pre;margin-top:8px}
+footer{color:var(--ink-3);font-size:.78rem;padding:30px 0 50px}
+</style>
+</head>
+<body>
+<header><div class="wrap bar">
+  <div class="logo">HORIZON SHIELD <span class="sub">/ verify</span></div>
+  <a class="back" href="./">一覧へ戻る</a>
+</div></header>
+<section><div class="wrap">
+  <div id="content"><p class="note" style="margin-top:26px">読み込み中…</p></div>
+  <div class="card">
+    <h2>このページが証明すること、しないこと</h2>
+    <p class="note">ここに並ぶ判定は、毎晩の自動測定の記録だ。掲載は推薦ではない。名前と説明は運営者が付けた表示名であり、測定値ではない。同じ注記はregister APIの応答にも書いてある。</p>
+    <p class="note">各行の record_sha256 は誰でも再計算して照合できる。下の検証コマンドがそのままそれをやる。運営者を信用する必要はない。</p>
+  </div>
+  <div class="card">
+    <h2>自分の手で検証する</h2>
+    <p class="note">ターミナルで1行。返ってきた記録のハッシュと、このページの表のハッシュが一致するかを見る。</p>
+    <div class="cmd" id="verifycmd"></div>
+  </div>
+  <footer class="wrap" style="padding-left:0">公開コード: <a class="mono" href="https://github.com/ogasurfproject-jpg/horizon-shield" rel="noopener" style="color:var(--ink-2)">github.com/ogasurfproject-jpg/horizon-shield</a></footer>
+</div></section>
+<script>
+const GATE = "https://gate.horizonshield.dev";
+function el(tag, cls, text){
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+function badgeClass(stat){
+  return stat === "pass" ? "b-pass" : (stat === "pending" || stat === "held") ? "b-pend" : "b-none";
+}
+async function main(){
+  const box = document.getElementById("content");
+  const cmd = document.getElementById("verifycmd");
+  const ep = new URLSearchParams(location.search).get("endpoint");
+  box.textContent = "";
+  if (!ep){
+    box.appendChild(el("p", "note", "endpointが指定されていない。一覧から店名をクリックして来てくれ。"));
+    if (cmd) cmd.textContent = "curl -s \"" + GATE + "/register\"";
+    return;
+  }
+  if (cmd) cmd.textContent = "curl -s \"" + GATE + "/history?endpoint=" + encodeURIComponent(ep) + "\"";
+  try {
+    const reg = await (await fetch(GATE + "/register")).json();
+    const row = (Array.isArray(reg.rows) ? reg.rows : []).find(function(r){ return r.endpoint === ep; });
+    const card = el("div", "card");
+    if (!row){
+      card.appendChild(el("h1", null, "この住所はregisterに無い"));
+      card.appendChild(el("p", "note", "未掲載は不合格ではない。ここで測られたことが無い、それだけを意味する。"));
+      card.appendChild(el("p", "eprow mono", ep));
+      box.appendChild(card);
+      return;
+    }
+    const name = (row.operator_label && row.operator_label.ja) ? row.operator_label.ja : row.endpoint;
+    const h1 = el("h1", null, name);
+    const stat = (row.latest && row.latest.status) ? row.latest.status : "not yet measured";
+    const bg = el("span", "badge " + badgeClass(stat), stat);
+    h1.appendChild(bg);
+    card.appendChild(h1);
+    if (row.operator_label && row.operator_label.en) card.appendChild(el("p", "desc", row.operator_label.en));
+    card.appendChild(el("p", "eprow mono", row.endpoint));
+    if (typeof row.measurements === "number") card.appendChild(el("p", "note", "公開測定 " + row.measurements + " 回" + (row.first_at ? "、初回 " + String(row.first_at).slice(0,10) : "")));
+    if (row.operator_label && row.operator_label.url){
+      const a = el("a", "sitelink", "公式サイトを見る");
+      a.href = row.operator_label.url; a.rel = "noopener";
+      card.appendChild(a);
+    }
+    box.appendChild(card);
+
+    const hcard = el("div", "card");
+    hcard.appendChild(el("h2", null, "測定履歴（新しい順）"));
+    const hist = await (await fetch(GATE + "/history?endpoint=" + encodeURIComponent(ep))).json();
+    const entries = (hist && Array.isArray(hist.entries)) ? hist.entries.slice().reverse() : [];
+    if (!entries.length){
+      hcard.appendChild(el("p", "note", "保存された測定はまだ無い。"));
+    } else {
+      const t = el("table");
+      const tr0 = el("tr");
+      ["測定日時", "判定", "record_sha256"].forEach(function(h){ tr0.appendChild(el("th", null, h)); });
+      t.appendChild(tr0);
+      entries.forEach(function(e2){
+        const tr = el("tr");
+        tr.appendChild(el("td", "mono", String(e2.at || "").replace("T", " ").slice(0, 19)));
+        const td = el("td");
+        td.appendChild(el("span", "badge " + badgeClass(e2.status || ""), e2.status || "?"));
+        tr.appendChild(td);
+        tr.appendChild(el("td", "sha", e2.record_sha256 || ""));
+        t.appendChild(tr);
+      });
+      hcard.appendChild(t);
+    }
+    box.appendChild(hcard);
+  } catch (err){
+    box.appendChild(el("p", "note", "計器が読めなかった（" + err.message + "）。判定はしない。registerは " + GATE + "/register で直接読める。"));
+  }
+}
+document.addEventListener("DOMContentLoaded", main);
+</script>
+</body>
+</html>

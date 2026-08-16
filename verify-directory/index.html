@@ -197,6 +197,8 @@ footer .top{color:var(--ink-2);font-size:13.5px;margin-bottom:14px}
 .regdesc{color:#9aa4b2;font-size:.85rem;margin-top:4px}
 .regmeta{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:.8rem;align-items:baseline}
 .regmeta .mono{opacity:.75}
+a.regname{color:inherit;border-bottom:1px dashed rgba(255,255,255,.35)}
+a.regname:hover{border-bottom-style:solid}
 </style>
 </head>
 <body>
@@ -506,7 +508,8 @@ async function loadRegister(){
     rows.forEach(function(r){
       const d = document.createElement("div"); d.className = "regcard";
       const top = document.createElement("div"); top.className = "regtop";
-      const nm = document.createElement("span"); nm.className = "regname";
+      const nm = document.createElement("a"); nm.className = "regname";
+      nm.href = "member.html?endpoint=" + encodeURIComponent(r.endpoint);
       nm.textContent = (r.operator_label && r.operator_label.ja) ? r.operator_label.ja : r.endpoint;
       top.appendChild(nm);
       const stat = (r.latest && r.latest.status) ? r.latest.status : "not yet measured";
