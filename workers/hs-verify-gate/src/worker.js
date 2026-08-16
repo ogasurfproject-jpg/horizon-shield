@@ -1312,6 +1312,43 @@ export default {
     if (path === "/health") return json({ ok: true, gate_version: CONFIG.version, gate_commit: gateCommit() });
     if (path === "/spec") return json(spec());
     if (path === "/.well-known/agent-card.json") return json(ownAgentCard(url.origin));
+    // A machine that has only the hostname can find the register without being told where
+    // to look. Same bytes as /register, plus the statement of what the rows are and are not,
+    // shaped so that a crawler which reads nothing else still quotes it correctly.
+    if (path === "/.well-known/mcp-register.json" && request.method === "GET") {
+      const reg = await publicRegister(env);
+      return json({
+        "@context": "https://schema.org",
+        "@type": "Dataset",
+        "@id": "https://github.com/ogasurfproject-jpg/mcp-conduct-register#dataset",
+        name: "MCP Conduct Register: measured conduct of Model Context Protocol servers",
+        description: "A machine generated record of how MCP servers behaved when measured. Not a curated list, not a ranking, not an endorsement. Rows are produced by a scheduled measurement, not by selection.",
+        url: "https://shield.the-horizons-innovation.com/verify-directory/",
+        license: "https://opensource.org/licenses/MIT",
+        isAccessibleForFree: true,
+        creator: {
+          "@type": "Organization",
+          name: "The HORIZONs Co., Ltd.",
+          url: "https://shield.the-horizons-innovation.com/",
+          founder: { "@type": "Person", name: "Toshikatsu Oga", identifier: "https://orcid.org/0009-0000-9180-903X" }
+        },
+        distribution: [
+          { "@type": "DataDownload", encodingFormat: "application/json", contentUrl: "https://gate.horizonshield.dev/register" },
+          { "@type": "DataDownload", encodingFormat: "application/json", contentUrl: "https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/register.json" },
+          { "@type": "application/atom+xml", encodingFormat: "application/atom+xml", contentUrl: "https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/feed.xml" }
+        ],
+        rows_are_selected_by: "nobody, the schedule decides what is measured and the code copies the result",
+        what_this_does_not_claim: "That a listed server returns correct numbers, that the business behind it is competent, or that it is safe to use.",
+        disputes: {
+          how: "Measure any listed endpoint yourself and submit the observation to the public ledger under your own name and vantage.",
+          intake: "https://ledger.horizonshield.dev/witness",
+          operator_veto: "none, the code has no route to refuse a schema valid submission"
+        },
+        count: reg.count,
+        gate_commit: reg.gate_commit,
+        rows: reg.rows
+      });
+    }
     if (path === "/self") return json(await selfCheck(url.origin));
 
     if (path === "/check" && request.method === "POST") {
