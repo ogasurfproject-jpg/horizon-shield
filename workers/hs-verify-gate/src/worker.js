@@ -470,8 +470,9 @@ const OPERATOR_LABELS = {
   "https://web.horizonshield.dev/mcp":     { ja: "KIRA\u76f8\u8ac7\u7a93\u53e3", en: "KIRA intake desk for renovation questions", url: "https://shield.the-horizons-innovation.com" },
   "https://hearing.horizonshield.dev/mcp": { ja: "YAKUMO\u52a0\u76df\u5e97\u30c7\u30a3\u30ec\u30af\u30c8\u30ea", en: "YAKUMO verified contractor directory", url: "https://shield.the-horizons-innovation.com/yakumo/" },
   "https://gate.horizonshield.dev/mcp":    { ja: "\u691c\u8a3c\u30b2\u30fc\u30c8\uff08\u3053\u306e\u691c\u67fb\u6a5f\u81ea\u8eab\uff09", en: "The verification gate, measuring itself", url: "https://shield.the-horizons-innovation.com/verify-directory/" },
-  "https://p001.horizonshield.dev/mcp":    { ja: "\u52a0\u76df\u5e97\uff08\u63b2\u8f09\u6e96\u5099\u4e2d\uff09", en: "Member firm, name pending consent" },
-  "https://p002.horizonshield.dev/mcp":    { ja: "\u52a0\u76df\u5e97\uff08\u63b2\u8f09\u6e96\u5099\u4e2d\uff09", en: "Member firm, name pending consent" }
+  "https://jidec.horizonshield.dev/mcp":   { ja: "JIDEC \u516c\u958b\u691c\u8a3c\u53f0\u5e33", en: "JIDEC, the Bitcoin anchored public ledger", url: "https://ledger.horizonshield.dev/llms.txt" },
+  "https://p001.horizonshield.dev/mcp":    { ja: "\u30ea\u30d5\u30a9\u30fc\u30e0\u8077\u4eba\u682a\u5f0f\u4f1a\u793e\uff08\u52a0\u76dfNo.001\uff09", en: "Reform Shokunin Co., Ltd. (member No.001, Aichi)", url: "https://shield.the-horizons-innovation.com/yakumo/no001/" },
+  "https://p002.horizonshield.dev/mcp":    { ja: "\u30df\u30cd\u30aa\u30c8\u30fc\u30e8\u30fc\u4f4f\u5668\u682a\u5f0f\u4f1a\u793e\uff08\u52a0\u76dfNo.002\uff09", en: "Mineo Toyo Juki Co., Ltd. (member No.002)" }
 };
 
 const REGISTER_JOIN_MAX = 50;
@@ -553,6 +554,7 @@ const DEFAULT_WATCHLIST = [
   "https://mcp.horizonshield.dev/mcp",
   "https://hearing.horizonshield.dev/mcp",
   "https://web.horizonshield.dev/mcp",
+  "https://jidec.horizonshield.dev/mcp",
   "https://p001.horizonshield.dev/mcp",
   "https://p002.horizonshield.dev/mcp",
   "https://gate.horizonshield.dev/mcp"
