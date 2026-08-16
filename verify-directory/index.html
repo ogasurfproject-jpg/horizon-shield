@@ -201,6 +201,128 @@ a.regname{color:inherit;border-bottom:1px dashed rgba(255,255,255,.35)}
 a.regname:hover{border-bottom-style:solid}
 .regja{color:#9aa4b2;font-size:.8rem}
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Dataset",
+      "@id": "https://shield.the-horizons-innovation.com/verify-directory/#dataset",
+      "name": "MCP Conduct Register: measured conduct of Model Context Protocol servers",
+      "alternateName": [
+        "HORIZON SHIELD verification directory",
+        "MCP conformance register"
+      ],
+      "description": "A machine generated register of how Model Context Protocol servers behaved when measured. Rows are produced by a scheduled measurement, not by curation. Each verdict carries a SHA-256 that any third party can recompute from the published bytes, and accumulated records are anchored to Bitcoin through OpenTimestamps. Records unflattering to the operator are retained, including failures of the operator's own servers, because the code contains no route for removing them. Listing is not endorsement and absence is not a negative verdict.",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/",
+      "sameAs": [
+        "https://github.com/ogasurfproject-jpg/mcp-conduct-register"
+      ],
+      "keywords": [
+        "Model Context Protocol",
+        "MCP",
+        "AI agents",
+        "transparency log",
+        "conformance",
+        "verifiable records",
+        "OpenTimestamps",
+        "Bitcoin anchoring",
+        "vendor neutral registry"
+      ],
+      "license": "https://opensource.org/licenses/MIT",
+      "isAccessibleForFree": true,
+      "creator": {
+        "@id": "https://shield.the-horizons-innovation.com/#org"
+      },
+      "publisher": {
+        "@id": "https://shield.the-horizons-innovation.com/#org"
+      },
+      "measurementTechnique": "Scheduled HTTP measurement of the MCP initialize handshake, agent card retrieval, payer disclosure and determinism, with the measuring route disclosed in every verdict and the producing commit hashed into the record.",
+      "variableMeasured": [
+        "endpoint reachability",
+        "agent card presence",
+        "payer disclosure",
+        "determinism",
+        "record_sha256"
+      ],
+      "distribution": [
+        {
+          "@type": "DataDownload",
+          "encodingFormat": "application/json",
+          "contentUrl": "https://gate.horizonshield.dev/register",
+          "name": "Live register API, no key required"
+        },
+        {
+          "@type": "DataDownload",
+          "encodingFormat": "application/json",
+          "contentUrl": "https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/register.json",
+          "name": "Daily JSON snapshot"
+        },
+        {
+          "@type": "DataDownload",
+          "encodingFormat": "text/markdown",
+          "contentUrl": "https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/README.md",
+          "name": "Daily Markdown table"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://shield.the-horizons-innovation.com/verify-directory/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How is this different from a curated list of good MCP servers?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A curated list is a human recommending things. This is a scheduled measurement reporting what it observed. No human selects a row, and the generator that writes the table is public so the claim can be checked."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can a server pay to be listed, or to be listed higher?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No, and there is nothing to buy. The order of the table is the order the API returns. There is no ranking and no score. What can be purchased is measurement cadence and alerting, which moves no condition and changes no verdict."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What does a passing row actually prove?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "That the conditions which were measured passed on that date, from the vantage that measured them. It does not prove the numbers a server returns are correct, that the business behind it is competent, or that it is safe to use."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What happens when the operator's own server fails?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The failure is published like any other. The gate measures its own endpoint under the same rules. The founding record of the ledger behind this register is a disagreement between two independent witnesses about the operator's own server, in which both witnesses turned out to be correct."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can a verdict be disputed?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Anyone can measure an endpoint and submit the observation to the public ledger under their own name and vantage. If that report conflicts with the register, the conflict becomes a permanent citable record. The operator holds no veto in code."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How can this register be cited?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The standalone repository carries a CITATION.cff file, so GitHub renders a citation in BibTeX and APA form, and a register.json snapshot is published for machine readers."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
