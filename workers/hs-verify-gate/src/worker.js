@@ -463,6 +463,17 @@ async function readSweepLast(env) {
 // 公開の登録簿。watchlist と既存の hist:* を読むだけで、何も測らず、何も保存しない。
 // webhook は通知の宛先であって公開情報ではないので、決して出さない。
 // 未掲載は不合格ではない。ここで測られたことが無い、それだけを意味する。
+// 表示名。運営者が付けた名前であって、測定値ではない。registerの応答でもそう明記する。
+// 加盟店の実名は本人の書面同意が取れてから入れる。それまでは掲載準備中。
+const OPERATOR_LABELS = {
+  "https://mcp.horizonshield.dev/mcp":     { ja: "KIRA\u9069\u6b63\u8a3a\u65ad", en: "KIRA fair price audit (the flagship MCP server)" },
+  "https://web.horizonshield.dev/mcp":     { ja: "KIRA\u76f8\u8ac7\u7a93\u53e3", en: "KIRA intake desk for renovation questions" },
+  "https://hearing.horizonshield.dev/mcp": { ja: "YAKUMO\u52a0\u76df\u5e97\u30c7\u30a3\u30ec\u30af\u30c8\u30ea", en: "YAKUMO verified contractor directory" },
+  "https://gate.horizonshield.dev/mcp":    { ja: "\u691c\u8a3c\u30b2\u30fc\u30c8\uff08\u3053\u306e\u691c\u67fb\u6a5f\u81ea\u8eab\uff09", en: "The verification gate, measuring itself" },
+  "https://p001.horizonshield.dev/mcp":    { ja: "\u52a0\u76df\u5e97\uff08\u63b2\u8f09\u6e96\u5099\u4e2d\uff09", en: "Member firm, name pending consent" },
+  "https://p002.horizonshield.dev/mcp":    { ja: "\u52a0\u76df\u5e97\uff08\u63b2\u8f09\u6e96\u5099\u4e2d\uff09", en: "Member firm, name pending consent" }
+};
+
 const REGISTER_JOIN_MAX = 50;
 
 async function publicRegister(env) {
@@ -479,6 +490,8 @@ async function publicRegister(env) {
       latest: null,
       history_url: "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(w.endpoint)
     };
+    const lbl = OPERATOR_LABELS[w.endpoint];
+    if (lbl) row.operator_label = lbl;
     if (joined < REGISTER_JOIN_MAX) {
       joined++;
       const hist = await readHistory(env, w.endpoint);
@@ -502,7 +515,7 @@ async function publicRegister(env) {
     count: rows.length,
     max: REGISTRY_MAX,
     gate_commit: gateCommit(),
-    note: "The public register. Rows are scheduled measurements, not endorsements. An endpoint that is absent has simply never been measured here; absence is NOT a negative verdict. Webhooks are never published. Every stored verdict carries a record_sha256 you can recompute yourself.",
+    note: "The public register. Rows are scheduled measurements, not endorsements. An endpoint that is absent has simply never been measured here; absence is NOT a negative verdict. Webhooks are never published. Every stored verdict carries a record_sha256 you can recompute yourself. The operator_label field is a display name assigned by the operator, not a measurement.",
     join: 'POST /watch with {"endpoint":"https://your-server/mcp"}',
     rows: rows
   };

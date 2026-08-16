@@ -187,6 +187,16 @@ footer .top{color:var(--ink-2);font-size:13.5px;margin-bottom:14px}
 .regrow{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line, rgba(127,127,127,.3));border-radius:10px;margin:10px 0;font-size:14px}
 .regrow .grow{flex:1 1 260px;word-break:break-all}
 .regrow a{white-space:nowrap}
+.regcard{border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px 16px;margin:10px 0;background:rgba(255,255,255,.03)}
+.regtop{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.regname{font-weight:700;font-size:1.05rem}
+.regbadge{font-size:.75rem;padding:2px 10px;border-radius:999px;border:1px solid}
+.b-pass{color:#7ee2a8;border-color:#2f6f4a}
+.b-pend{color:#e2c97e;border-color:#6f5c2f}
+.b-none{color:#9aa4b2;border-color:#3a4250}
+.regdesc{color:#9aa4b2;font-size:.85rem;margin-top:4px}
+.regmeta{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:.8rem;align-items:baseline}
+.regmeta .mono{opacity:.75}
 </style>
 </head>
 <body>
@@ -494,19 +504,28 @@ async function loadRegister(){
     }
     note.textContent = rows.length + " rows on the register right now. Absence is not a negative verdict.";
     rows.forEach(function(r){
-      const d = document.createElement("div"); d.className = "regrow";
-      const ep = document.createElement("span"); ep.className = "mono grow"; ep.textContent = r.endpoint; d.appendChild(ep);
-      const st = document.createElement("span"); st.className = "mono";
-      st.textContent = (r.latest && r.latest.status)
-        ? (r.latest.status + " \u00b7 " + String(r.latest.at || "").slice(0, 10))
-        : "no measurement stored yet";
-      d.appendChild(st);
+      const d = document.createElement("div"); d.className = "regcard";
+      const top = document.createElement("div"); top.className = "regtop";
+      const nm = document.createElement("span"); nm.className = "regname";
+      nm.textContent = (r.operator_label && r.operator_label.ja) ? r.operator_label.ja : r.endpoint;
+      top.appendChild(nm);
+      const stat = (r.latest && r.latest.status) ? r.latest.status : "not yet measured";
+      const st = document.createElement("span");
+      st.className = "regbadge " + (stat === "pass" ? "b-pass" : (stat === "pending" || stat === "held") ? "b-pend" : "b-none");
+      st.textContent = stat + ((r.latest && r.latest.at) ? " \u00b7 " + String(r.latest.at).slice(0, 10) : "");
+      top.appendChild(st);
+      d.appendChild(top);
+      if (r.operator_label && r.operator_label.en){
+        const en = document.createElement("div"); en.className = "regdesc"; en.textContent = r.operator_label.en; d.appendChild(en);
+      }
+      const meta = document.createElement("div"); meta.className = "regmeta";
+      const ep = document.createElement("span"); ep.className = "mono"; ep.textContent = r.endpoint; meta.appendChild(ep);
       if (typeof r.measurements === "number"){
         const m = document.createElement("span"); m.className = "mono";
         m.textContent = r.measurements + (r.measurements === 1 ? " measurement" : " measurements");
-        d.appendChild(m);
+        meta.appendChild(m);
       }
-      const h = document.createElement("a"); h.href = r.history_url; h.textContent = "history"; d.appendChild(h);
+      const h = document.createElement("a"); h.href = r.history_url; h.textContent = "history"; meta.appendChild(h);
       const b = document.createElement("a"); b.href = "#"; b.textContent = "measure now";
       b.addEventListener("click", function(ev){
         ev.preventDefault();
@@ -514,7 +533,8 @@ async function loadRegister(){
         if (inp) inp.value = r.endpoint;
         runCheck(r.endpoint);
       });
-      d.appendChild(b);
+      meta.appendChild(b);
+      d.appendChild(meta);
       box.appendChild(d);
     });
   }catch(e){
