@@ -44,6 +44,17 @@ th,td{padding:8px 10px;border-bottom:1px solid var(--line)}
 .cmd{background:var(--bg-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-family:var(--mono);font-size:.72rem;overflow-x:auto;white-space:pre;margin-top:8px}
 footer{color:var(--ink-3);font-size:.78rem;padding:30px 0 50px}
 </style>
+<script type="application/ld+json" id="staticld">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": "https://shield.the-horizons-innovation.com/verify-directory/member.html",
+  "name": "Member record: measured conduct of a single MCP server",
+  "description": "The measurement history of one server on the HORIZON SHIELD register, with every verdict and its recomputable record_sha256. Listing is not endorsement.",
+  "isPartOf": {"@id": "https://shield.the-horizons-innovation.com/#website"},
+  "about": {"@id": "https://shield.the-horizons-innovation.com/verify-directory/#dataset"}
+}
+</script>
 </head>
 <body>
 <header><div class="wrap bar">
@@ -124,6 +135,41 @@ function el(tag, cls, text){
 function badgeClass(stat){
   return stat === "pass" ? "b-pass" : (stat === "pending" || stat === "held") ? "b-pend" : "b-none";
 }
+// This page is one row of a public dataset. Declaring that row as its own Dataset lets a
+// crawler cite the record for a single server without scraping the table, and carries the
+// same caveat the humans see: a listing is not an endorsement.
+function injectRecordLD(row, lb){
+  try {
+    const latest = row.latest || {};
+    const name = lb.en || lb.ja || row.endpoint;
+    const ld = {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      "@id": location.origin + location.pathname + "?endpoint=" + encodeURIComponent(row.endpoint),
+      "name": "Measured conduct record: " + name,
+      "description": "The public measurement history of " + name + " (" + row.endpoint + ") on the HORIZON SHIELD register. Latest verdict: " + (latest.status || "not measured yet") + ". Listing is not endorsement, and a passing verdict means only that the measured conditions passed on that date, from the vantage that measured them.",
+      "url": location.href,
+      "license": "https://opensource.org/licenses/MIT",
+      "isAccessibleForFree": true,
+      "creator": {"@type": "Organization", "name": "The HORIZONs Co., Ltd.", "url": "https://shield.the-horizons-innovation.com/"},
+      "isPartOf": {"@type": "Dataset", "@id": "https://shield.the-horizons-innovation.com/verify-directory/#dataset"},
+      "measurementTechnique": "Scheduled HTTP measurement with the measuring route disclosed in every verdict and the producing commit hashed into the record.",
+      "distribution": [{"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": row.history_url || (GATE + "/history?endpoint=" + encodeURIComponent(row.endpoint))}]
+    };
+    if (typeof row.measurements === "number") ld.size = row.measurements + " public measurements";
+    if (latest.at) ld.dateModified = latest.at;
+    if (latest.record_sha256) ld.identifier = "sha256:" + latest.record_sha256;
+    if (lb.url) ld.creator.sameAs = [lb.url];
+    const s = document.createElement("script");
+    s.type = "application/ld+json";
+    s.id = "recordld";
+    s.textContent = JSON.stringify(ld, null, 2);
+    document.head.appendChild(s);
+  } catch (e) {
+    // Structured data is a convenience for machines. If it cannot be built, the page
+    // still shows the humans the same records, so this failure is not worth surfacing.
+  }
+}
 function setStatics(ep){
   document.documentElement.lang = LANG;
   document.getElementById("backlink").textContent = T.back;
@@ -164,6 +210,7 @@ async function main(){
       return;
     }
     const lb = row.operator_label || {};
+    injectRecordLD(row, lb);
     const primary = LANG === "ja" ? (lb.ja || lb.en || row.endpoint) : (lb.en || lb.ja || row.endpoint);
     const secondary = LANG === "ja" ? lb.en : lb.ja;
     const h1 = el("h1", null, primary);
