@@ -463,6 +463,19 @@ async function readSweepLast(env) {
 // 公開の登録簿。watchlist と既存の hist:* を読むだけで、何も測らず、何も保存しない。
 // webhook は通知の宛先であって公開情報ではないので、決して出さない。
 // 未掲載は不合格ではない。ここで測られたことが無い、それだけを意味する。
+// ツール呼び出しの同意。所有者が明示的に依頼したエンドポイントだけをここに入れる。
+// determinism は所有者のツールを2回呼ばないと測れず、同意のない呼び出しは絶対にしない。
+// だから同意のないサーバーは determinism が not measured のままになり、verified には届かない。
+// それは不合格ではなく、測っていないという意味であり、register の応答でもそう説明する。
+// 追加は運営者の手作業。所有者からの依頼が無い限り足さない。勝手に足せる経路は用意しない。
+const TOOL_CALL_CONSENT = new Set([
+  "https://mcp.horizonshield.dev/mcp",
+  "https://web.horizonshield.dev/mcp",
+  "https://hearing.horizonshield.dev/mcp",
+  "https://jidec.horizonshield.dev/mcp",
+  "https://gate.horizonshield.dev/mcp"
+]);
+
 // 表示名。運営者が付けた名前であって、測定値ではない。registerの応答でもそう明記する。
 // 加盟店の実名は本人の書面同意が取れてから入れる。それまでは掲載準備中。
 const OPERATOR_LABELS = {
@@ -493,6 +506,10 @@ async function publicRegister(env) {
     };
     const lbl = OPERATOR_LABELS[w.endpoint];
     if (lbl) row.operator_label = lbl;
+    row.tool_call_consent = TOOL_CALL_CONSENT.has(w.endpoint);
+    if (!row.tool_call_consent) {
+      row.why_not_verified = "The owner has not asked for tool calls, so determinism is not measured and this row cannot reach verified. That is not a failure, it is an unmeasured condition.";
+    }
     if (joined < REGISTER_JOIN_MAX) {
       joined++;
       const hist = await readHistory(env, w.endpoint);
@@ -735,7 +752,9 @@ async function readChanges(env) {
   }
 }
 
-// 毎日の再測定。**allow_tool_call は決して渡さない。** 他人のツールは呼ばない。
+// 毎日の再測定。**同意のないエンドポイントには allow_tool_call を決して渡さない。**
+// 同意済み (TOOL_CALL_CONSENT) だけ determinism まで測る。同意の有無は判定に影響するので、
+// 各行の応答に tool_call_consent として開示する。隠れた優遇に見えないようにするためだ。
 async function runDailySweep(env, opts) {
   const now = Date.now();
   const force = !!(opts && opts.force);
@@ -756,7 +775,7 @@ async function runDailySweep(env, opts) {
   const results = [];
   for (const w of run) {
     try {
-      const record = await runCheck(w.endpoint, false);
+      const record = await runCheck(w.endpoint, TOOL_CALL_CONSENT.has(w.endpoint));
       const r = await recordHistory(env, w.endpoint, record);
       const changed = !!(r && r.changed);
       const alertable = !!(r && r.alertable);
@@ -1220,6 +1239,56 @@ export default {
     // 公開の登録簿。加盟者の行を、人間もエージェントも一覧で読める。
     if (path === "/register" && request.method === "GET") {
       return json(await publicRegister(env));
+    }
+
+    // 通過した行だけ。0件なら0件と返す。空を隠すために基準を緩めることはしない。
+    if (path === "/verified.json" && request.method === "GET") {
+      const reg = await publicRegister(env);
+      const all = Array.isArray(reg.rows) ? reg.rows : [];
+      const verified = all.filter((r) => r.latest && r.latest.status === CONFIG.tier_pass);
+      return json({
+        "@context": "https://schema.org",
+        "@type": "Dataset",
+        name: "MCP servers that passed every measured condition",
+        description: "The subset of the public register whose latest scheduled measurement passed all five conditions, including determinism. Passing means the measured conditions passed on that date, from the vantage that measured them. It does not mean the numbers a server returns are correct, that the business behind it is competent, or that it is safe to use.",
+        url: "https://shield.the-horizons-innovation.com/verify-directory/",
+        license: "https://opensource.org/licenses/MIT",
+        isAccessibleForFree: true,
+        updated: new Date().toISOString(),
+        gate_commit: gateCommit(),
+        verified_count: verified.length,
+        register_count: all.length,
+        why_the_count_can_be_zero: "Determinism cannot be measured without calling a tool on the server, and this gate never calls a tool without the owner asking for it. A server whose owner has not asked stays unmeasured on that condition and therefore stays short of verified. Unmeasured is not failed.",
+        how_to_become_verified: {
+          step_1: "Check yourself with consent: POST /check with {\"endpoint\":\"https://your-server/mcp\",\"allow_tool_call\":true}",
+          step_2: "If it returns verified, ask the operator to record your consent so the nightly sweep measures the same way.",
+          step_3: "The row turns verified on the next sweep, and stays that way only while it keeps passing.",
+          note: "Nothing here is bought. The verdict is the measurement."
+        },
+        badge_for_a_verified_server: {
+          where: "your own /.well-known/agent-card.json",
+          why: "so an agent reading your card directly learns the record exists without visiting any page we control",
+          block: {
+            verification: {
+              provider: "HORIZON SHIELD verification gate",
+              register: "https://gate.horizonshield.dev/register",
+              your_history: "https://gate.horizonshield.dev/history?endpoint=<your endpoint>",
+              record_sha256: "<the hash of the verdict you are citing>",
+              recompute: "Fetch the history, hash the record, compare. No trust in the provider is required."
+            }
+          },
+          honesty_rule: "Publish the block only while the row actually reads verified. If it stops passing, remove it. The register will show the truth either way, so a stale badge only costs you."
+        },
+        servers: verified.map((r) => ({
+          endpoint: r.endpoint,
+          name: (r.operator_label && (r.operator_label.en || r.operator_label.ja)) || null,
+          status: r.latest.status,
+          verified_at: r.latest.at,
+          record_sha256: r.latest.record_sha256,
+          measurements: r.measurements,
+          history_url: r.history_url
+        }))
+      });
     }
 
     // 監視の登録。誰でも自分のエンドポイントを載せられる。判定は変わらない。
