@@ -57,6 +57,19 @@ We are the first test subject under our own rules. The ledger keeps the record o
 | `verify-directory` | The public register page: every listed server, our own included, with its live verdict |
 | everything else | The GitHub Pages site for the human facing service at the-horizons-innovation.com |
 
+## The register, as a repository
+
+The same measurements are published as a standalone, machine generated repository:
+**[mcp-conduct-register](https://github.com/ogasurfproject-jpg/mcp-conduct-register)**.
+
+Nobody selects the rows there either. A script rebuilds the table from the public API once a day,
+and the same run writes a
+[`register.json`](https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/register.json)
+snapshot so an agent can read the register without parsing Markdown. It carries a `CITATION.cff`,
+so the register can be cited the way a dataset is cited, and an
+[`llms.txt`](https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/llms.txt)
+that states in plain words what the register is and, more importantly, what it is not.
+
 ## JIDEC: verify this project without trusting it
 
 The verification process behind HORIZON SHIELD's results is published as a Bitcoin anchored, append only public ledger. You do not have to trust us: fetch the anchored bytes, hash them yourself, and check the timestamp.

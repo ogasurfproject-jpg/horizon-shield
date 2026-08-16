@@ -358,6 +358,22 @@ a.regname:hover{border-bottom-style:solid}
   </div>
 </section>
 
+<section>
+  <div class="wrap">
+    <div class="kh">The same rows, for machines</div>
+    <h2>An agent should not have to read this page</h2>
+    <p class="slead">Everything above is also published as a repository that rebuilds itself from the same API once a day:
+      <a href="https://github.com/ogasurfproject-jpg/mcp-conduct-register" rel="noopener">mcp-conduct-register</a>.
+      A script writes the table, so nobody chooses the rows there either. The same run publishes a
+      <a href="https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/register.json" rel="noopener">register.json</a>
+      snapshot and an
+      <a href="https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/llms.txt" rel="noopener">llms.txt</a>,
+      and the repository carries a citation file, so the register can be quoted and cited without going through any page we control.</p>
+    <p class="slead">The live API underneath all of it answers directly, with no key:
+      <span class="mono">curl -s https://gate.horizonshield.dev/register</span></p>
+  </div>
+</section>
+
 <section id="listed">
   <div class="wrap">
     <div class="kh">Get listed</div>

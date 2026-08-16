@@ -69,6 +69,10 @@ footer{color:var(--ink-3);font-size:.78rem;padding:26px 0 50px}
 <div class="wrap">
   <div class="grid" id="grid"></div>
   <div class="card">
+    <h2 id="mh"></h2>
+    <p class="note" id="m1"></p>
+  </div>
+  <div class="card">
     <h2 id="lh"></h2>
     <p class="note" id="l1"></p>
     <p class="note" id="l2"></p>
@@ -92,6 +96,8 @@ const STR = {
     fail: function(e){ return "The instrument could not read (" + e + "). No verdict is made. The register answers directly at " + GATE + "/register"; },
     notyet: "not measured yet",
     meas: function(n){ return n + (n === 1 ? " public measurement" : " public measurements"); },
+    mh: "The same rows, for machines",
+    m1a: "This table is also published as a repository that rebuilds itself from the same API once a day, with a JSON snapshot and a citation file: ",
     lh: "What a row here means",
     l1: "Rows are scheduled measurements, not endorsements. A green row means the conditions that were measured passed on that date. It does not mean the numbers a server returns are correct, or that the business behind it is any good.",
     l2: "Every verdict carries a record_sha256 anyone can recompute. Open any member page and the command is right there. No trust in the operator is required.",
@@ -107,6 +113,8 @@ const STR = {
     fail: function(e){ return "計器が読めなかった（" + e + "）。判定はしない。登録簿は " + GATE + "/register で直接読める。"; },
     notyet: "未測定",
     meas: function(n){ return "公開測定 " + n + " 回"; },
+    mh: "同じ行を、機械のために",
+    m1a: "この表は、同じAPIから1日に1度自動で再生成されるリポジトリとしても公開されている。JSONスナップショットと引用ファイル付き: ",
     lh: "この1行が意味すること",
     l1: "各行は予定された測定の記録であって、推薦ではない。緑は「測定した条件がその日は通った」という意味だ。返される数字が正しいことも、その裏の商売が良いことも意味しない。",
     l2: "全ての判定には誰でも再計算できる record_sha256 が付く。各ページを開けば検証コマンドがそのまま置いてある。運営者を信用する必要はない。",
@@ -134,6 +142,15 @@ function setStatics(){
   document.getElementById("h1").textContent = T.h1;
   document.getElementById("lead").textContent = T.lead;
   document.getElementById("count").textContent = T.loading;
+  document.getElementById("mh").textContent = T.mh;
+  const m1 = document.getElementById("m1");
+  m1.textContent = T.m1a;
+  const ml2 = document.createElement("a");
+  ml2.href = "https://github.com/ogasurfproject-jpg/mcp-conduct-register";
+  ml2.rel = "noopener";
+  ml2.textContent = "mcp-conduct-register";
+  ml2.style.borderBottom = "1px dashed rgba(255,255,255,.35)";
+  m1.appendChild(ml2);
   document.getElementById("lh").textContent = T.lh;
   document.getElementById("l1").textContent = T.l1;
   document.getElementById("l2").textContent = T.l2;
