@@ -25,7 +25,7 @@ An [MCP](https://modelcontextprotocol.io) server that lets AI agents check wheth
 
 > A tree adds one ring a year. Nobody can paint one in afterwards. NENRIN gives that property to software services.
 
-In one measured thirty day window, this server appeared in **93,983** AI search results and was invoked **0** times. Discovery is solved. Choice is not. An agent picking between 90,000 servers can only read what each vendor wrote about itself. NENRIN adds the missing layer: records of conduct that the vendor did not author and cannot delete.
+In one thirty day window, measured 2026-08-17, this server appeared in **93,983** AI search results. How many of those became a call from outside, we cannot say. The usage counter deliberately stores no IP addresses, so it cannot separate our own automated checks from external traffic. An earlier version of this paragraph said the answer was **0**. This instrument cannot establish that, so the claim is withdrawn here rather than quietly deleted. Discovery is solved. Choice is not. An agent picking between 90,000 servers can only read what each vendor wrote about itself. NENRIN adds the missing layer: records of conduct that the vendor did not author and cannot delete.
 
 How it works, in three lines:
 
