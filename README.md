@@ -15,7 +15,7 @@ An [MCP](https://modelcontextprotocol.io) server that lets AI agents check wheth
 [![Auth: none](https://img.shields.io/badge/auth-none-6e7681)]()
 [![GitHub stars](https://img.shields.io/github/stars/ogasurfproject-jpg/horizon-shield?style=social)](https://github.com/ogasurfproject-jpg/horizon-shield/stargazers)
 [![HORIZON SHIELD KIRA on Glama](https://glama.ai/mcp/servers/ogasurfproject-jpg/horizon-shield/badges/score.svg)](https://glama.ai/mcp/servers/ogasurfproject-jpg/horizon-shield)
-[![Smithery](https://img.shields.io/badge/Smithery-98%2F100-e35f34)](https://smithery.ai/server/oga-surf-project/horizon-shield)
+[![Smithery](https://img.shields.io/badge/Smithery-listed-e35f34)](https://smithery.ai/servers/oga-surf-project/horizon-shield)
 
 </div>
 
