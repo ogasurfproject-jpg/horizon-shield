@@ -486,6 +486,13 @@ https://shield.the-horizons-innovation.com/presentation.html
   history.messages.push({ role: "assistant", content: aiReply });
   history.phase = newPhase;
   history.recommendedService = recommendedService;
+  // the follow-up clock measures silence, not membership age
+  if (history.followupSent && history.followupSent.length) {
+    history.followupRounds = (history.followupRounds || 0) + 1;
+    if (history.followupRounds <= 2) history.followupSent = [];
+  }
+  history.lastEventAt = Date.now();
+  history.lastKind = "chat";
   await saveHistory(userId, history, env);
   await replyToLine(replyToken, aiReply, env.LINE_CHANNEL_TOKEN);
   if (newPhase === "CLOSING" && history.messages.length >= 6) {
@@ -530,6 +537,7 @@ KIRA\u304C\u4ECA\u3059\u3050\u5206\u6790\u3057\u307E\u3059...
 
 \u203B\u3053\u306E\u898B\u7A4D\u66F8\u3092\u5EFA\u8A2D\u8CBB\u8A3A\u65AD\u306E\u305F\u3081\u306B\u5F53\u793E\u3067\u53D6\u308A\u6271\u3046\u3053\u3068\u306B\u540C\u610F\u306E\u3046\u3048\u9001\u4ED8\u3044\u305F\u3060\u3044\u305F\u3082\u306E\u3068\u3057\u3066\u9032\u3081\u307E\u3059\u3002\u4E8B\u696D\u8005\u540D\u30FB\u91D1\u984D\u306E\u5185\u8A33\u306F\u516C\u958B\u3057\u307E\u305B\u3093\u3002`, env.LINE_CHANNEL_TOKEN);
   await logConsent(userId, "line_image", env);
+    await touchDiagnosis(userId, env, partnerFlag);
   try {
     const imageRes = await fetch(`https://api-data.line.me/v2/bot/message/${messageId}/content`, {
       headers: { Authorization: `Bearer ${env.LINE_CHANNEL_TOKEN}` }
@@ -929,6 +937,7 @@ KIRA\u304C\u4ECA\u3059\u3050\u5206\u6790\u3057\u307E\u3059...
 
 \u203B\u3053\u306E\u898B\u7A4D\u66F8\u3092\u5EFA\u8A2D\u8CBB\u8A3A\u65AD\u306E\u305F\u3081\u306B\u5F53\u793E\u3067\u53D6\u308A\u6271\u3046\u3053\u3068\u306B\u540C\u610F\u306E\u3046\u3048\u9001\u4ED8\u3044\u305F\u3060\u3044\u305F\u3082\u306E\u3068\u3057\u3066\u9032\u3081\u307E\u3059\u3002\u4E8B\u696D\u8005\u540D\u30FB\u91D1\u984D\u306E\u5185\u8A33\u306F\u516C\u958B\u3057\u307E\u305B\u3093\u3002`, env.LINE_CHANNEL_TOKEN);
   await logConsent(userId, "line_pdf", env);
+    await touchDiagnosis(userId, env, partnerFlag);
   try {
     const fileRes = await fetch(`https://api-data.line.me/v2/bot/message/${messageId}/content`, {
       headers: { Authorization: `Bearer ${env.LINE_CHANNEL_TOKEN}` }
@@ -1148,6 +1157,60 @@ function containsCompanyKeyword(text) {
   return ["\u696D\u8005", "\u4F1A\u793E", "\u5DE5\u52D9\u5E97", "\u65BD\u5DE5\u4F1A\u793E", "\u30EA\u30D5\u30A9\u30FC\u30E0\u4F1A\u793E", "\u5EFA\u8A2D\u4F1A\u793E"].some((k) => text.includes(k));
 }
 __name(containsCompanyKeyword, "containsCompanyKeyword");
+
+// 2026-08-17 patch35. Three measured holes in the follow-up scheduler:
+//  1. handleFileMessage / handleImageMessage never wrote a chat: record, so the
+//     people who did the highest-intent thing (send an actual estimate) were the
+//     only ones the scheduler could not see.
+//  2. the clock was anchored on registeredAt, i.e. how long ago someone added us,
+//     not how long they have been silent. It fired canned copy at people who were
+//     mid-conversation, and went permanently quiet on day 8.
+//  3. partners were only excluded from the TEXT path, so a member store could be
+//     sent consumer drip copy.
+// The clock now measures silence. A member store is never in the pool. Someone who
+// sent an estimate gets copy that knows they sent one, instead of being asked to
+// send one.
+var FOLLOWUP_DIAGNOSIS = [
+  { key: "d24h", delay: 60 * 60 * 24 * 1e3, text: `KIRA\u3067\u3059\u3002
+
+\u6628\u65E5\u304A\u9001\u308A\u3044\u305F\u3060\u3044\u305F\u898B\u7A4D\u66F8\u306E\u4EF6\u3001\u305D\u306E\u5F8C\u3044\u304B\u304C\u3067\u3059\u304B\u3002
+
+\u8AAD\u307F\u65B9\u3067\u5206\u304B\u3089\u306A\u3044\u3068\u3053\u308D\u3084\u3001\u696D\u8005\u3055\u3093\u306B\u4F55\u3092\u805E\u3051\u3070\u3044\u3044\u304B\u8FF7\u3046\u70B9\u304C\u3042\u308C\u3070\u3001\u305D\u306E\u307E\u307E\u9001\u3063\u3066\u304F\u3060\u3055\u3044\u3002` },
+  { key: "d72h", delay: 60 * 60 * 72 * 1e3, text: `KIRA\u3067\u3059\u3002
+
+\u696D\u8005\u3055\u3093\u3068\u306E\u304A\u8A71\u306F\u9032\u3093\u3067\u3044\u307E\u3059\u304B\u3002
+
+\u91D1\u984D\u306E\u6839\u62E0\u3092\u805E\u304F\u3068\u304D\u306E\u8A00\u3044\u65B9\u3084\u3001\u4ED6\u793E\u3068\u6BD4\u3079\u308B\u6642\u306E\u898B\u3069\u3053\u308D\u306A\u3069\u3001\u5FC5\u8981\u3067\u3057\u305F\u3089\u304A\u624B\u4F1D\u3044\u3057\u307E\u3059\u3002` },
+  { key: "d7d", delay: 60 * 60 * 24 * 7 * 1e3, text: `KIRA\u3067\u3059\u3002
+
+\u305D\u306E\u5F8C\u3001\u5DE5\u4E8B\u306E\u8A71\u306F\u3069\u3046\u306A\u308A\u307E\u3057\u305F\u304B\u3002
+
+\u6C7A\u307E\u3063\u305F\u3001\u3084\u3081\u305F\u3001\u307E\u3060\u8FF7\u3063\u3066\u3044\u308B\u3002\u3069\u308C\u3067\u3082\u69CB\u3044\u307E\u305B\u3093\u3002\u3072\u3068\u3053\u3068\u805E\u304B\u305B\u3066\u3044\u305F\u3060\u3051\u308B\u3068\u3001\u6B21\u306B\u304A\u7B54\u3048\u3059\u308B\u3068\u304D\u306E\u53C2\u8003\u306B\u306A\u308A\u307E\u3059\u3002` }
+];
+async function touchDiagnosis(userId, env, partnerFlag) {
+  // A partner is not a lead. Do not put one in the drip pool at all.
+  if (partnerFlag) return;
+  try {
+    const history = await getHistory(userId, env);
+    const now = Date.now();
+    if (!history.registeredAt) history.registeredAt = now;
+    // new activity restarts the silence clock, and clears the ladder so the
+    // next quiet stretch can be followed up again. Capped, so nobody is
+    // dripped at forever.
+    if (history.followupSent && history.followupSent.length) {
+      history.followupRounds = (history.followupRounds || 0) + 1;
+      if (history.followupRounds <= 2) history.followupSent = [];
+    }
+    history.lastEventAt = now;
+    history.lastKind = "diagnosis";
+    if (!Array.isArray(history.messages)) history.messages = [];
+    await saveHistory(userId, history, env);
+  } catch (e) {
+    console.error("touchDiagnosis error:", e.message);
+  }
+}
+__name(touchDiagnosis, "touchDiagnosis");
+
 async function runFollowups(env) {
   const FOLLOWUP_MESSAGES = [
     {
@@ -1190,6 +1253,10 @@ async function runFollowups(env) {
     for (const { name } of keys) {
       const userId = name.replace("chat:", "");
       if (userId === env.LINE_USER_ID) continue;
+      // a member store is not a lead: never drip consumer copy at one
+      let isP = false;
+      try { isP = !!(await env.SEEN_STORE.get(`partner:${userId}`)); } catch (_e) {}
+      if (isP) continue;
       const data = await env.SEEN_STORE.get(name);
       if (!data) continue;
       let history;
@@ -1201,9 +1268,11 @@ async function runFollowups(env) {
       if (!history.registeredAt) continue;
       if (["CLOSING", "COMPLETE"].includes(history.phase)) continue;
       if (!history.followupSent) history.followupSent = [];
-      const elapsed = now - history.registeredAt;
+      // silence, not membership age. Someone mid-conversation is not followed up.
+      const elapsed = now - (history.lastEventAt || history.registeredAt);
       let updated = false;
-      for (const msg of FOLLOWUP_MESSAGES) {
+      const ladder = history.lastKind === "diagnosis" ? FOLLOWUP_DIAGNOSIS : FOLLOWUP_MESSAGES;
+      for (const msg of ladder) {
         if (elapsed >= msg.delay && !history.followupSent.includes(msg.key)) {
           await pushToLine(userId, msg.text, env.LINE_CHANNEL_TOKEN);
           history.followupSent.push(msg.key);
