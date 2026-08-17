@@ -1520,8 +1520,15 @@ export default {
         for (const k of _keys) {
           try { _out[k] = parseInt(await env.RL_KV.get(k) || "0", 10); } catch (e) { _out[k] = null; }
         }
-        const _day = new Date().toISOString().slice(0, 10);
-        try { _out["usage:day:" + _day] = parseInt(await env.RL_KV.get("usage:day:" + _day) || "0", 10); } catch (e) {}
+        // last 30 days, oldest data still in KV (day keys carry a 400-day TTL).
+        // The first question about any usage number is "over what period?".
+        // Answer it in the payload instead of making people guess.
+        const _dates = [];
+        for (let _i = 0; _i < 30; _i++) _dates.push(new Date(Date.now() - _i * 86400000).toISOString().slice(0, 10));
+        const _vals = await Promise.all(_dates.map((_d) => env.RL_KV.get("usage:day:" + _d).then((_v) => parseInt(_v || "0", 10)).catch(() => 0)));
+        _dates.forEach((_d, _i) => { _out["usage:day:" + _d] = _vals[_i]; });
+        _out["usage:last30d:total"] = _vals.reduce((_a, _b) => _a + _b, 0);
+        _out["usage:last30d:window"] = _dates[29] + " to " + _dates[0] + " (UTC days)";
         return new Response(JSON.stringify({
           service: "HORIZON SHIELD KIRA",
           note: "External call counters. No payloads, prices, or IPs are stored. Counts only.",
