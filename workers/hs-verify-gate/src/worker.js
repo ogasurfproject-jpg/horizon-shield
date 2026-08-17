@@ -30,7 +30,7 @@ const CORS_HEADERS = {
 
 // 仕様確定までの暫定値。名称や閾値はここだけ直せば全体に効く。
 const CONFIG = {
-  version: "0.2.0",
+  version: "0.2.1",
   tier_pass: "verified",        // 通過時の称号(暫定)
   tier_fail: "pending",         // 未通過(不合格とは呼ばない)
   tier_held: "held",            // 到達できず測れなかった。不適合とは別の状態
@@ -220,7 +220,16 @@ async function checkAgentCard(endpoint) {
   const url = origin + "/.well-known/agent-card.json";
   try {
     const res = await withTimeout(probeFetch(url), CONFIG.timeout_ms);
-    if (!res.ok) return { pass: false, transport: true, reason: "agent-card not reachable (http " + res.status + ")", detail: { url } };
+    if (!res.ok) {
+      // An HTTP status IS an answer from the far side. 404 means "reached,
+      // and no card is published there": a failed condition, not
+      // unreachability, and it must not flip the whole record to held.
+      // Only gateway-shaped statuses (502-504 and Cloudflare's 52x edge
+      // codes) mean the origin behind the URL did not actually answer.
+      const gatewayish = (res.status >= 502 && res.status <= 504) || (res.status >= 520 && res.status <= 530);
+      if (gatewayish) return { pass: false, transport: true, reason: "agent-card not reachable (http " + res.status + ")", detail: { url } };
+      return { pass: false, reason: "agent-card not published (http " + res.status + ": the server answered; no card lives at this path)", detail: { url } };
+    }
     const card = await res.json();
     const missing = ["name", "description"].filter((k) => !card[k]);
     if (missing.length) {

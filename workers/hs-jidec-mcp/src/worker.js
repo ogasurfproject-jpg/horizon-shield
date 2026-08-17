@@ -53,7 +53,7 @@
 // under the old hostname still re-observe correctly when reached through this.
 const LEDGER_ORIGIN = "https://ledger.horizonshield.dev";
 const HEX64 = /^[0-9a-f]{64}$/i;
-const VERSION = "1.1.0";
+const VERSION = "1.2.0";
 const PROTOCOL_VERSION = "2025-11-25";
 
 /* ------------------------------ origin policy ------------------------------ */
@@ -347,6 +347,38 @@ const SERVER_INFO = {
     "JIDEC is a Bitcoin-anchored public verification ledger. Every tool here is read-only and requires no trust in HORIZON SHIELD: you fetch the bytes, you recompute the hash, you check the timestamp. Start with jidec_list_paths, then jidec_cite a record, then jidec_how_to_verify if you want to reproduce the result yourself.",
 };
 
+
+// The card the Yakumo Verification Gate reads (conditions 2 and 3): the card
+// exists, and the compensation block states who pays. Machine readable, same
+// as every sibling endpoint on this zone. 2026-08-17: added after the gate
+// measured http 404 here while everything else passed.
+const AGENT_CARD = {
+  protocolVersion: "0.3.0",
+  name: "HORIZON SHIELD JIDEC",
+  description: "Read-only MCP interface to JIDEC / NENRIN, a Bitcoin-anchored public verification ledger. Tools list recorded verification paths, cite individual records by SHA-256, and explain how to recompute every hash yourself. The operator holds no delete route in code: valid submissions stay, including ones that embarrass the operator. Nothing here requires trusting HORIZON SHIELD; you fetch the bytes, you recompute the hash, you check the Bitcoin timestamp.",
+  url: "https://jidec.horizonshield.dev",
+  preferredTransport: "JSONRPC",
+  provider: { organization: "The HORIZONs\u682a\u5f0f\u4f1a\u793e", url: "https://shield.the-horizons-innovation.com" },
+  version: VERSION,
+  capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
+  defaultInputModes: ["application/json", "text/plain"],
+  defaultOutputModes: ["application/json", "text/plain"],
+  compensation: {
+    paid_by: "other",
+    paid_by_note: "The operator funds this ledger itself, as the cost of making its own conduct checkable. Reading is free. Witness submission is free. No listed party pays, no reader pays, and there is no paid placement.",
+    referral_fee: false,
+    listing_fee: false,
+    success_fee_pct: 0,
+    disclosure_url: "https://ledger.horizonshield.dev/llms.txt"
+  },
+  skills: [
+    { id: "jidec-list-paths", name: "List verification paths", description: "Enumerate the verification paths recorded on the ledger, newest first, with their anchor status.", tags: ["ledger", "verification", "bitcoin"] },
+    { id: "jidec-cite", name: "Cite a record", description: "Return a citable record with its SHA-256 and Bitcoin anchor, so another agent can quote it without trusting this server.", tags: ["citation", "sha256", "opentimestamps"] },
+    { id: "jidec-replay", name: "Replay a verification", description: "Re-run the recorded verification steps and compare the result against the anchored hash.", tags: ["replay", "recompute"] },
+    { id: "jidec-how-to-verify", name: "How to verify", description: "Step-by-step instructions for recomputing any record hash and checking its Bitcoin timestamp with independent tools.", tags: ["verify", "instructions"] }
+  ]
+};
+
 function wantsSSE(req) {
   return (req.headers.get("Accept") || "").includes("text/event-stream");
 }
@@ -402,6 +434,10 @@ export default {
         ),
         { headers: { "Content-Type": "application/json", ...cors } }
       );
+    }
+
+    if (url.pathname === "/.well-known/agent-card.json") {
+      return new Response(JSON.stringify(AGENT_CARD, null, 2), { headers: { "Content-Type": "application/json", ...cors } });
     }
 
     if (url.pathname === "/mcp") {
