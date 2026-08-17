@@ -108,3 +108,8 @@ token.json
 /_*.md
 /_*.xlsx
 _register-repo.zip
+
+# 顧客データを含む作戦文書。拡張子を問わず公開リポジトリに入れない
+/_*
+!/_config.yml
+!/_redirects
