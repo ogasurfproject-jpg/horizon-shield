@@ -6,7 +6,7 @@ compatibility_date = "2026-06-25"
 #   observability を落とすとログが消え、workers_dev を省くと web.horizonshield.dev の他に
 #   workers.dev のURLが勝手に生える（hs-verify-gate / hs-hearing で実際に起きた）。
 preview_urls = false
-workers_dev = false
+workers_dev = true
 
 # ★2026-07-27 追加の前に読むこと。
 #   wrangler deploy は **このファイルに書かれていないバインディングを消す**。
