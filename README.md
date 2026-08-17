@@ -94,7 +94,7 @@ The previous hostnames, `hs-ledger.oga-surf-project.workers.dev` and `hs-jidec-m
 A homeowner commissioning construction work cannot reliably judge whether a quote reflects a fair price. This is a textbook credence good problem. This MCP server makes a third party fair price reference callable and verifiable by software, so an agent can check a number instead of trusting it.
 
 - **Protocol:** Model Context Protocol (MCP)
-- **Transport:** remote server over HTTP / SSE
+- **Transport:** MCP over Streamable HTTP (JSON-RPC 2.0). The legacy SSE transport is not implemented; GET on /sse answers 405 sse_not_supported.
 - **Endpoint:** `https://mcp.horizonshield.dev`
 - **Access:** read only, no API key required
 - **Data region:** Japan (JPY), built on the open JCCDB dataset (65,520 line items)
@@ -127,7 +127,7 @@ This is a remote MCP server. Point any MCP client at the endpoint.
   "mcpServers": {
     "horizon-shield": {
       "command": "npx",
-      "args": ["-y", "mcp-remote", "https://mcp.horizonshield.dev/sse"]
+      "args": ["-y", "mcp-remote", "https://mcp.horizonshield.dev/"]
     }
   }
 }
