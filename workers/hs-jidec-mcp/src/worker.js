@@ -436,6 +436,10 @@ export default {
       );
     }
 
+    if (url.pathname === "/.well-known/glama.json") {
+      return new Response(JSON.stringify({ "$schema": "https://glama.ai/mcp/schemas/connector.json", maintainers: [{ email: "ogasurfproject@gmail.com" }] }, null, 2), { headers: { "Content-Type": "application/json", ...cors } });
+    }
+
     if (url.pathname === "/.well-known/agent-card.json") {
       return new Response(JSON.stringify(AGENT_CARD, null, 2), { headers: { "Content-Type": "application/json", ...cors } });
     }

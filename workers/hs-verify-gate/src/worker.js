@@ -1390,6 +1390,7 @@ export default {
     if (path === "/health") return json({ ok: true, gate_version: CONFIG.version, gate_commit: gateCommit() });
     if (path === "/spec") return json(spec());
     if (path === "/.well-known/agent-card.json") return json(ownAgentCard(url.origin));
+    if (path === "/.well-known/glama.json") return json({ "$schema": "https://glama.ai/mcp/schemas/connector.json", maintainers: [{ email: "ogasurfproject@gmail.com" }] });
     // A machine that has only the hostname can find the register without being told where
     // to look. Same bytes as /register, plus the statement of what the rows are and are not,
     // shaped so that a crawler which reads nothing else still quotes it correctly.
