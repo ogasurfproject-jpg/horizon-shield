@@ -1,4 +1,4 @@
-import hashlib, json, os, re, urllib.request, datetime
+import ast, hashlib, json, os, re, urllib.request, datetime
 try:
     from feed_emitter import emit_feed
 except Exception:
@@ -164,7 +164,7 @@ def main():
                 def _fmt_deadlines(x):
                     # ["2026-09-30","2026-12-31"] → "2026年9月30日・2026年12月31日"
                     try:
-                        items = x if isinstance(x, list) else eval(x)
+                        items = x if isinstance(x, list) else ast.literal_eval(x)
                     except Exception:
                         items = [x]
                     out = []
