@@ -337,10 +337,12 @@ async function processEvents(events, env) {
       await handleKiraResponse(userMessage, replyToken, userId, env);
     }
     if (event.type === "message" && event.message.type === "image") {
-      await handleImageMessage(event, userId, env);
+      const pfImg = await isPartner(userId, "", env);
+      await handleImageMessage(event, userId, env, pfImg.partner);
     }
     if (event.type === "message" && event.message.type === "file") {
-      await handleFileMessage(event, userId, env);
+      const pfFile = await isPartner(userId, "", env);
+      await handleFileMessage(event, userId, env, pfFile.partner);
     }
   }
 }
@@ -500,7 +502,26 @@ https://shield.the-horizons-innovation.com/presentation.html
   }
 }
 __name(handleKiraResponse, "handleKiraResponse");
-async function handleImageMessage(event, userId, env) {
+
+// 2026-08-17: a member store sending a photo or a PDF used to fall through to
+// the consumer flow, because processEvents only checked partner status on TEXT
+// messages. The reply ended with a paid-report pitch. Quoting a partner a fee
+// for a diagnosis of their own estimate is the opposite of what they joined for.
+// Measured on a real case 2026-08-17; the only reason it did not ship that day
+// is that the PDF happened to be unreadable.
+var PARTNER_TAIL = `\u52A0\u76DF\u5E97\u306E\u7686\u3055\u307E\u306B\u306F\u3001\u3053\u306E\u901F\u5831\u8A3A\u65AD\u306F\u3044\u3064\u3067\u3082\u7121\u6599\u3067\u304A\u4F7F\u3044\u3044\u305F\u3060\u3051\u307E\u3059\u3002
+\u304A\u5BA2\u69D8\u306B\u304A\u51FA\u3057\u3059\u308B\u524D\u306E\u78BA\u8A8D\u306B\u3082\u3001\u4ED6\u793E\u306E\u898B\u7A4D\u3092\u898B\u308B\u3068\u304D\u306B\u3082\u3069\u3046\u305E\u3002
+
+\u6C17\u306B\u306A\u308B\u70B9\u304C\u3042\u308C\u3070\u3001\u3053\u306E\u307E\u307E\u30E1\u30C3\u30BB\u30FC\u30B8\u3092\u304F\u3060\u3055\u3044\u3002\u5927\u8CC0\u304C\u76F4\u63A5\u304A\u7B54\u3048\u3057\u307E\u3059\u3002`;
+function adaptForPartner(msg, isPartnerFlag) {
+  if (!isPartnerFlag || !msg) return msg;
+  const cut = msg.indexOf(`\u3053\u308C\u306F\u901F\u5831\u8A3A\u65AD\u3067\u3059\u3002`);
+  const head = cut > 0 ? msg.slice(0, cut) : msg;
+  return head.replace(/[\s\u2501]+$/, "") + "\n\n" + PARTNER_TAIL;
+}
+__name(adaptForPartner, "adaptForPartner");
+
+async function handleImageMessage(event, userId, env, partnerFlag) {
   const replyToken = event.replyToken;
   const messageId = event.message.id;
   await replyToLine(replyToken, `\u{1F4C4} \u898B\u7A4D\u66F8\u3092\u53D7\u3051\u53D6\u308A\u307E\u3057\u305F\u3002
@@ -611,10 +632,12 @@ https://shield.the-horizons-innovation.com
 \u300C\u7533\u3057\u8FBC\u307F\u307E\u3059\u300D\u3068\u9001\u308C\u3070
 \u632F\u8FBC\u5148\u3092\u3054\u6848\u5185\u3057\u307E\u3059\u{1F4B3}`;
     }
+    replyMsg = adaptForPartner(replyMsg, partnerFlag);
+    const senderLabel = partnerFlag ? (userId + " \u2605\u52A0\u76DF\u5E97") : userId;
     await pushToLine(
       env.LINE_USER_ID,
       `\u{1F4F8}\u3010\u898B\u7A4D\u66F8\u753B\u50CF\u8A3A\u65AD\u3011
-\u30E6\u30FC\u30B6\u30FC: ${userId}
+\u30E6\u30FC\u30B6\u30FC: ${senderLabel}
 \u30EA\u30B9\u30AF: ${result.risk_level || "\u4E0D\u660E"}
 \u8D64\u65D7: ${result.red_flag_count || 0}\u9805\u76EE
 \u524A\u6E1B\u53EF\u80FD: ${result.savings_min || 0}\u301C${result.savings_max || 0}\u4E07\u5186
@@ -890,7 +913,7 @@ function looksLikeEstimate(text) {
   return text.length >= 80 && digits >= 12 && cjk >= 20;
 }
 
-async function handleFileMessage(event, userId, env) {
+async function handleFileMessage(event, userId, env, partnerFlag) {
   const replyToken = event.replyToken;
   const messageId = event.message.id;
   const fileName = (event.message.fileName || "").toLowerCase();
@@ -1039,10 +1062,12 @@ https://shield.the-horizons-innovation.com
 \u300C\u7533\u3057\u8FBC\u307F\u307E\u3059\u300D\u3068\u9001\u308C\u3070
 \u632F\u8FBC\u5148\u3092\u3054\u6848\u5185\u3057\u307E\u3059\u{1F4B3}`;
     }
+    replyMsg = adaptForPartner(replyMsg, partnerFlag);
+    const senderLabel = partnerFlag ? (userId + " \u2605\u52A0\u76DF\u5E97") : userId;
     await pushToLine(
       env.LINE_USER_ID,
       `\u{1F4C4}\u3010\u898B\u7A4D\u66F8PDF\u8A3A\u65AD\u3011
-\u30E6\u30FC\u30B6\u30FC: ${userId}
+\u30E6\u30FC\u30B6\u30FC: ${senderLabel}
 \u30EA\u30B9\u30AF: ${result.risk_level || "\u4E0D\u660E"}
 \u8D64\u65D7: ${result.red_flag_count || 0}\u9805\u76EE
 \u524A\u6E1B\u53EF\u80FD: ${result.savings_min || 0}\u301C${result.savings_max || 0}\u4E07\u5186
