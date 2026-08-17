@@ -157,7 +157,7 @@ const TOOLS = [
   {
     name: "verify_integrity_claim",
     annotations: { title: "整合性クレームの検証(fail closed)", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
-    description: "estimate-integrity-audit が発行した署名付きクレーム(signed_payload と claim_sha256)を、第三者として検証する。発行側 (verify_fair_price はPTKA価格の発行) とは責務が正反対で、デフォルト姿勢は不信・fail closed。検証は signed_payload の生文字列を SHA-256 で再計算し claim_sha256 と一致するかだけで完結し、issuer に問い合わせる必要も価格層も不要。判定は契約 0.1.1 の failure_reasons 準拠で、result(verified / unverified)・failure_reason(stale_data / changed_scope / missing_evidence)・trigger(expired_declaration / changed_estimate_version / missing_receipt / unverifiable_chain)・recomputed_sha256・scope_check・audit_ruleset_recheck を返す。重要: verified は『この宣言が改ざんされていない』ことの証明であって『監査ルールが今も有効』である保証ではない(audit_ruleset_recheck は常に not_performed)。estimate_version を渡すと scope(見積もり内容が発行時から変わっていないか)も照合し、渡さない場合は scope_check:skipped を明示する。 / Verifies a signed integrity claim (signed_payload and claim_sha256) issued by estimate-integrity-audit, as an independent third party. Opposite posture to the issuing side: distrust by default, fail closed. Recomputes SHA-256 over the raw signed_payload string and checks it equals claim_sha256; no issuer contact and no price layer needed. Follows contract 0.1.1 failure_reasons. IMPORTANT: verified means the declaration is untampered, NOT that the audit ruleset is still valid (audit_ruleset_recheck is always not_performed). Pass estimate_version to also check scope (whether the estimate changed since issuance); if omitted, scope_check is skipped and stated explicitly.",
+    description: "estimate-integrity-audit が発行した署名付きクレーム(signed_payload と claim_sha256)を、第三者として検証する。発行側 (verify_fair_price はPTKA価格の発行) とは責務が正反対で、デフォルト姿勢は不信・fail closed。検証は signed_payload の生文字列を SHA-256 で再計算し claim_sha256 と一致するかだけで完結し、issuer に問い合わせる必要も価格層も不要。判定は契約 0.3 の failure_reasons 準拠で、result(verified / partial / unverified)・failure_reason(stale_data / changed_scope / missing_evidence)・trigger(expired_declaration / changed_estimate_version / missing_receipt / unverifiable_chain)・recomputed_sha256・scope_check・audit_ruleset_recheck を返す。重要: verified は『この宣言が改ざんされていない』ことの証明であって『監査ルールが今も有効』である保証ではない(audit_ruleset_recheck は常に not_performed)。estimate_version を渡すと scope(見積もり内容が発行時から変わっていないか)も照合し、渡さない場合は scope_check:skipped を明示する。 / Verifies a signed integrity claim (signed_payload and claim_sha256) issued by estimate-integrity-audit, as an independent third party. Opposite posture to the issuing side: distrust by default, fail closed. Recomputes SHA-256 over the raw signed_payload string and checks it equals claim_sha256; no issuer contact and no price layer needed. Follows contract 0.3 failure_reasons. IMPORTANT: verified means the declaration is untampered, NOT that the audit ruleset is still valid (audit_ruleset_recheck is always not_performed). Pass estimate_version to also check scope (whether the estimate changed since issuance); if omitted, scope_check is skipped and stated explicitly.",
     inputSchema: { type: "object", properties: {
       signed_payload: { type: "string", description: "検証対象の署名付きペイロード(estimate-integrity-audit のレスポンスの signed_payload を生文字列のまま)。改変するとハッシュ不一致で unverified になる。 / The signed_payload string from an estimate-integrity-audit response, verbatim. Any change makes the hash mismatch and the result unverified." },
       claim_sha256: { type: "string", description: "そのレスポンスの claim_sha256 (64桁16進)。 / The claim_sha256 (64-char hex) from the same response." },
@@ -952,10 +952,10 @@ async function checkRateLimit(env, ip, limit = 60, window = 60) {
 }
 
 // === verify-claim (layer2 fail closed) ===
-// 発行と検証は責務が正反対。検証専用コア。契約 0.1.1 の failure_reasons に厳密準拠。
+// 発行と検証は責務が正反対。検証専用コア。契約 0.3 の failure_reasons に厳密準拠。
 // recompute は parse より先(生文字列でハッシュ)。改ざん payload はそこで落ちる。
 // verified は「改ざんなし」であって「監査が今も有効」ではない -> audit_ruleset_recheck は常に not_performed。
-const VC_CONTRACT_VERSION = "0.2";
+const VC_CONTRACT_VERSION = "0.3";
 const VC_CONTRACT_URL = "https://mcp.horizonshield.dev/.well-known/verification-contract.json";
 
 async function verifyIntegrityClaim(args) {
@@ -1074,16 +1074,25 @@ async function verifyIntegrityClaim(args) {
     scope_check = "skipped";
   }
 
-  // 7) 全通過 -> verified
+  // 7) 全通過 -> verified / partial (contract 0.3)
+  //    scope は「呼び出しごとに省略できる検査」。省略されたまま "verified" を返すと、
+  //    result だけを読む消費者が『照合された』に丸める。partial は "verified" と
+  //    前方一致も部分一致もしないので、素朴な文字列比較は fail closed 側に倒れる。
+  //    audit_ruleset は恒久的な非能力であって呼び出しごとの省略ではない。
+  //    これを partial の理由にすると verified が到達不能になるため、理由に含めない。
+  const _scopeSkipped = (scope_check === "skipped");
   return Object.assign({}, base, {
-    result: "verified", failure_reason: null, trigger: null,
+    result: _scopeSkipped ? "partial" : "verified", failure_reason: null, trigger: null,
     recomputed_sha256: recomputed, scope_check, expires_at: expRaw,
+    checks: { tamper: "passed", scope: scope_check, audit_ruleset: "not_performed" },
+    skipped_because_not_requested: _scopeSkipped ? ["scope"] : [],
+    next_step: _scopeSkipped ? "Re-call with estimate_version (first 8 hex of SHA-256 of the current estimate text) to raise this from partial to verified." : null,
     claim_contract: typeof payload.contract === "string" ? payload.contract : "0.1.1",
     ruleset: payload.ruleset && payload.ruleset.id ? { id: String(payload.ruleset.id), version: String(payload.ruleset.version || ""), folded_into_hash: true } : { id: "kira-redflag", version: "1", folded_into_hash: false, legacy_note: "0.1.1 claim: ruleset identity was metadata alongside the hash, not folded into it. vc-contract-0.2" },
     message: (scope_check === "skipped")
-      ? "改ざんは検出されませんでした。ただし estimate_version 未指定のため scope照合はスキップしました(scope_check: skipped)。 / No tampering detected. estimate_version was not supplied, so scope was not checked (scope_check: skipped)."
+      ? "改ざんは検出されませんでした。ただし estimate_version が渡されなかったため scope照合は実行していません。result は partial です。何かが失敗したという意味ではなく、実行できた検査が要求されなかったという意味です。 / No tampering detected. estimate_version was not supplied, so the scope check was not performed. The result is partial: nothing failed, but a check that was available was not requested."
       : "改ざんは検出されず、scope も一致しました。 / No tampering detected and scope matched.",
-    note: "verified は『この宣言が改ざんされていない』ことの証明であって、監査ルールが今も有効である保証ではありません(audit_ruleset_recheck: not_performed)。 / verified means the declaration is untampered, NOT that the audit ruleset is still valid (audit_ruleset_recheck: not_performed)."
+    note: "verified は『この宣言が改ざんされていない』ことの証明であって、監査ルールが今も有効である保証ではありません(audit_ruleset_recheck: not_performed)。contract 0.3 から、呼び出しごとに省略できる検査が実行されなかった場合の result は verified ではなく partial です。 / verified means the declaration is untampered, NOT that the audit ruleset is still valid (audit_ruleset_recheck: not_performed). From contract 0.3, when a per-call check was available but not requested, the result is partial, not verified."
   });
 }
 
@@ -1600,7 +1609,7 @@ export default {
             {
               id: "verify-claim",
               name: "Integrity claim verification (fail closed)",
-              description: "Independently verifies a signed integrity claim issued by estimate-integrity-audit. Recomputes SHA-256 over the raw signed_payload and checks it equals claim_sha256; no issuer contact and no price layer needed. Fail closed under contract 0.1.1 (stale_data / changed_scope / missing_evidence). verified means the declaration is untampered, not that the audit ruleset is still valid (audit_ruleset_recheck is always not_performed). Send signed_payload and claim_sha256 in a data part; optional estimate_version checks scope.",
+              description: "Independently verifies a signed integrity claim issued by estimate-integrity-audit. Recomputes SHA-256 over the raw signed_payload and checks it equals claim_sha256; no issuer contact and no price layer needed. Fail closed under contract 0.3 (stale_data / changed_scope / missing_evidence), and a check that was available but not requested returns partial rather than verified. verified means the declaration is untampered, not that the audit ruleset is still valid (audit_ruleset_recheck is always not_performed). Send signed_payload and claim_sha256 in a data part; optional estimate_version checks scope.",
               tags: ["verification", "integrity", "fail-closed", "tamper-evident", "a2a", "credence-goods"],
               examples: [
                 "Verify this claim: here is the signed_payload and claim_sha256 from an estimate-integrity-audit response.",
@@ -1632,7 +1641,7 @@ export default {
       if (url.pathname === "/.well-known/verification-contract.json") {
         const VERIFICATION_CONTRACT = {
           contract: "horizon-shield-verification-contract",
-          version: "0.2",
+          version: "0.3",
           issuer: {
             organization: "The HORIZ\u97f3s\u682a\u5f0f\u4f1a\u793e",
             service: "HORIZON SHIELD KIRA",
@@ -1672,16 +1681,24 @@ export default {
             }
           },
           failure_model: {
-            policy: "Fail closed. If the claim cannot be recomputed or the chain cannot be verified, the result is unverified. Never a soft pass.",
+            policy: "Fail closed. If the claim cannot be recomputed or the chain cannot be verified, the result is unverified. Never a soft pass. From 0.3, a check that was available for this call but not requested does not round up either: the result is partial.",
             result_on_failure: "unverified",
+            result_when_check_not_requested: "partial",
+            result_values: {
+              verified: "every check available for this call ran and passed",
+              partial: "nothing failed, but at least one check available for this call was not requested (see skipped_because_not_requested)",
+              unverified: "a check failed, or the claim could not be recomputed"
+            },
+            partial_scope_note: "audit_ruleset_recheck is a permanent non-capability of this endpoint, not a per-call abstention, so it never causes partial. It is disclosed separately and always.",
             failure_reasons: {
               stale_data: { user_meaning: "recheck later", triggers: ["expired_declaration"] },
               changed_scope: { user_meaning: "re-audit required", triggers: ["changed_estimate_version"] },
               missing_evidence: { user_meaning: "do not trust", triggers: ["missing_receipt", "unverifiable_chain"] }
             }
           },
-          credits: "Failure-reason taxonomy (stale data / changed scope / missing evidence) proposed by Symon Baikov (@symonbaikov.bsky.social). Folding the ruleset identity into the hashed payload (contract 0.2) prompted by Federico Blanco Sanchez-Llanos.",
+          credits: "Failure-reason taxonomy (stale data / changed scope / missing evidence) proposed by Symon Baikov (@symonbaikov.bsky.social). Folding the ruleset identity into the hashed payload (contract 0.2) prompted by Federico Blanco Sanchez-Llanos. Separating a not-requested check from a passed one (contract 0.3) prompted by Federico Blanco Sanchez-Llanos.",
           changelog: {
+            "0.3": "Verifier-side only: the signed_payload format is unchanged from 0.2, so claims issued today still carry contract 0.2 and still recompute identically. result gains a third value, partial. Previously a call that omitted estimate_version returned result: verified with scope_check: skipped, so a consumer reading only result rounded an unperformed check up into a pass. partial shares no prefix with verified, so naive string comparison now fails closed. Prompted by Federico Blanco Sanchez-Llanos. vc-contract-0.3",
             "0.2": "contract and ruleset {id, version} folded INTO signed_payload (hashed). Prevents silent reinterpretation of old claims under a newer ruleset. Prompted by Federico Blanco Sanchez-Llanos. vc-contract-0.2",
             "0.1.1": "ruleset identity as metadata alongside claim_sha256 (outside the hash)."
           },
