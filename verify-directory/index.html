@@ -201,8 +201,7 @@ a.regname{color:inherit;border-bottom:1px dashed rgba(255,255,255,.35)}
 a.regname:hover{border-bottom-style:solid}
 .regja{color:#9aa4b2;font-size:.8rem}
 </style>
-<script type="application/ld+json">
-{
+<script type="application/ld+json">{
   "@context": "https://schema.org",
   "@graph": [
     {
@@ -263,8 +262,26 @@ a.regname:hover{border-bottom-style:solid}
           "encodingFormat": "text/markdown",
           "contentUrl": "https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/README.md",
           "name": "Daily Markdown table"
+        },
+        {
+          "@type": "DataDownload",
+          "encodingFormat": "application/json",
+          "contentUrl": "https://gate.horizonshield.dev/verified.json",
+          "name": "Live verdicts, regenerated on every sweep"
         }
-      ]
+      ],
+      "version": "gate 0.2.1 (commit af5a9ac9ec11)",
+      "dateModified": "2026-08-18",
+      "citation": "NENRIN v1 specification, anchored as JIDEC ledger entry 19, sha256 9ccba2e325fd2a555fcdb2dec519b8c6bf7a669064674846aea98ecfff824e3d",
+      "includedInDataCatalog": {
+        "@type": "DataCatalog",
+        "name": "JIDEC public verification ledger",
+        "url": "https://ledger.horizonshield.dev/ledger"
+      },
+      "creditText": "HORIZON SHIELD MCP Conduct Register, The HORIZONs Co., Ltd.",
+      "maintainer": {
+        "@id": "https://shield.the-horizons-innovation.com/#org"
+      }
     },
     {
       "@type": "FAQPage",
@@ -319,10 +336,26 @@ a.regname:hover{border-bottom-style:solid}
           }
         }
       ]
+    },
+    {
+      "@type": "WebAPI",
+      "@id": "https://shield.the-horizons-innovation.com/verify-directory/#api",
+      "name": "Yakumo Verification Gate",
+      "description": "Free conformance checker for any MCP server. Four read only tools measure five stated conditions and every verdict names the path that measured it. No API key, no account.",
+      "documentation": "https://shield.the-horizons-innovation.com/verify-directory/",
+      "termsOfService": "https://shield.the-horizons-innovation.com/tos/",
+      "provider": {
+        "@id": "https://shield.the-horizons-innovation.com/#org"
+      },
+      "isAccessibleForFree": true,
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://gate.horizonshield.dev/history?endpoint={endpoint}",
+        "query-input": "required name=endpoint"
+      }
     }
   ]
-}
-</script>
+}</script>
 </head>
 <body>
 
