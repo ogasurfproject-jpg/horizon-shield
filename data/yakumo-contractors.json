@@ -19,8 +19,20 @@
       "name": "リフォーム職人株式会社",
       "rep": null,
       "area": "愛知県長久手市",
-      "areas_served": ["愛知県", "長久手市", "名古屋市", "日進市", "尾張旭市", "瀬戸市", "みよし市"],
-      "works": ["外壁塗装", "屋根", "内装"],
+      "areas_served": [
+        "愛知県",
+        "長久手市",
+        "名古屋市",
+        "日進市",
+        "尾張旭市",
+        "瀬戸市",
+        "みよし市"
+      ],
+      "works": [
+        "外壁塗装",
+        "屋根",
+        "内装"
+      ],
       "license_verified": false,
       "status": "onboarding",
       "verification": "pending",
@@ -62,11 +74,29 @@
     {
       "member_no": "No.002",
       "store_id": "hs-partner-002",
-      "name": "ミネオトーヨー株式会社",
+      "name": "ミネオトーヨー住器株式会社",
       "rep": null,
       "area": "神奈川県平塚市",
-      "areas_served": ["神奈川県", "平塚市", "茅ヶ崎市", "藤沢市"],
-      "works": ["リフォーム"],
+      "areas_served": [
+        "平塚市",
+        "茅ヶ崎市",
+        "藤沢市",
+        "鎌倉市",
+        "秦野市",
+        "伊勢原市",
+        "小田原市",
+        "厚木市",
+        "寒川町",
+        "大磯町",
+        "二宮町",
+        "中井町"
+      ],
+      "works": [
+        "窓の交換",
+        "玄関の交換",
+        "ガラス修理",
+        "網戸張替え"
+      ],
       "license_verified": false,
       "status": "onboarding",
       "verification": "pending",
