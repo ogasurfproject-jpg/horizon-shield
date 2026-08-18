@@ -521,6 +521,136 @@ function badgeSvg(label, status, color) {
 // --- Per endpoint permalink. One citable URL per measured server.
 // /e/{host}{path} reconstructs the endpoint. Unlisted returns 404 on purpose:
 // we do not mint an empty page for an endpoint nobody has measured.
+
+// ---- 機械が依存できるようにするための面 ----
+// ここで足しているのは、この登記簿を「人が英語のページを読んで理解する」以外の
+// 経路で使えるようにするためのものだけだ。判定そのものには一切影響しない。
+// 4行が verified で、その4行が全部こちらのものである、という事実も変わらない。
+
+function openapiDoc(origin) {
+  const ok = { description: "OK" };
+  const g = (summary, description) => ({ get: { summary, description, responses: { "200": ok } } });
+  return {
+    openapi: "3.1.0",
+    info: {
+      title: "MCP conduct register",
+      version: CONFIG.version,
+      description:
+        "A register of measured conduct for MCP endpoints. Five stated conditions are measured on a schedule. " +
+        "A condition that could not be measured is never counted as a pass, including for the operator of this gate. " +
+        "Read only. No account, no key, no fee. Every verdict carries a SHA-256 that a stranger can recompute.",
+      license: { name: "MIT", url: "https://opensource.org/licenses/MIT" },
+      contact: { url: "https://shield.the-horizons-innovation.com/verify-directory/" }
+    },
+    servers: [{ url: origin }],
+    paths: {
+      "/register": g("Every row in the register", "Rows are scheduled measurements, not endorsements. An endpoint that is absent has simply never been measured."),
+      "/verified.json": g("Only the rows that passed every measured condition", "A schema.org Dataset. Returns zero rows when zero rows pass. The bar is not lowered to avoid an empty list."),
+      "/history": g("Past measurements for one endpoint", "Query with ?endpoint=. Records are appended, never edited."),
+      "/changes": g("State changes only", "A change means a condition flipped, not merely that a new verdict was issued."),
+      "/feed.xml": g("The same changes as an Atom feed", "For subscribing rather than polling."),
+      "/sitemap.xml": g("One URL per measured endpoint", "Only endpoints that have actually been measured appear. No page is minted for an endpoint nobody has measured."),
+      "/e/{host}{path}": g("The permanent page for one measured endpoint", "Carries the verdict, the time it was taken, the SHA-256 of the record, and the command to recompute it. 404 when the endpoint has never been measured."),
+      "/badge": g("A badge drawn from the register at request time", "Query with ?endpoint=. Short cache, so a green cannot be kept up after the row stops being green."),
+      "/spec": g("The five conditions, stated in full", "Includes what a pass does not mean."),
+      "/self": g("This gate measured against its own conditions", "It does not currently pass all of them, and the reason is published."),
+      "/health": g("Liveness and the deployed commit", ""),
+      "/sweep/last": g("When the last scheduled re-measurement ran", ""),
+      "/watchlist": g("Endpoints scheduled for re-measurement", ""),
+      "/.well-known/agent-card.json": g("A2A agent card for this gate", ""),
+      "/.well-known/mcp-register.json": g("Machine readable summary of the register", ""),
+      "/check": {
+        post: {
+          summary: "Measure one endpoint now",
+          description:
+            "Measures the stated conditions against the endpoint you name. Determinism stays unmeasured unless the owner has recorded consent, " +
+            "because measuring it requires calling a tool on someone else's server.",
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: { type: "object", required: ["endpoint"], properties: {
+              endpoint: { type: "string", format: "uri", description: "The MCP endpoint to measure." },
+              allow_tool_call: { type: "boolean", description: "Only the owner of the endpoint may set this true." }
+            } } } }
+          },
+          responses: { "200": ok }
+        }
+      },
+      "/mcp": {
+        post: { summary: "The same register over MCP", description: "Streamable HTTP, JSON-RPC 2.0.", responses: { "200": ok } }
+      }
+    }
+  };
+}
+
+function sitemapXml(origin, rows) {
+  const seen = new Set();
+  const urls = [];
+  urls.push({ loc: "https://shield.the-horizons-innovation.com/verify-directory/", pri: "1.0", freq: "daily" });
+  for (const r of rows) {
+    if (!r || !r.endpoint) continue;
+    const loc = encodeURI(origin + "/e/" + String(r.endpoint).replace(/^https?:\/\//, ""));
+    if (seen.has(loc)) continue;
+    seen.add(loc);
+    const at = (r.latest && r.latest.at) ? String(r.latest.at).slice(0, 10) : "";
+    urls.push({ loc: loc, pri: "0.8", freq: "daily", mod: at });
+  }
+  return '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    urls.map((u) =>
+      "  <url><loc>" + esc(u.loc) + "</loc>" +
+      (u.mod ? "<lastmod>" + esc(u.mod) + "</lastmod>" : "") +
+      "<changefreq>" + u.freq + "</changefreq><priority>" + u.pri + "</priority></url>"
+    ).join("\n") +
+    "\n</urlset>\n";
+}
+
+function atomFeed(origin, changes) {
+  const list = changes.slice().reverse().slice(0, 50);
+  const newest = list.length && list[0].at ? String(list[0].at) : "1970-01-01T00:00:00Z";
+  const entries = list.map((c) => {
+    const ep = String(c.endpoint || "unknown");
+    const at = String(c.at || newest);
+    const path = encodeURI(origin + "/e/" + ep.replace(/^https?:\/\//, ""));
+    const id = path + "#" + encodeURIComponent(at);
+    const title = ep + ": " + String(c.status_from || "unmeasured") + " to " + String(c.status_to || "unknown");
+    const body =
+      "Condition changes: " + String(c.summary || "not recorded") + ". " +
+      "Reachable at the time of measurement: " + (c.reachable === false ? "no" : "yes") + ". " +
+      "This entry records that a condition flipped. It is not a statement about the operator.";
+    return "  <entry>\n" +
+      "    <title>" + esc(title) + "</title>\n" +
+      "    <id>" + esc(id) + "</id>\n" +
+      "    <updated>" + esc(at) + "</updated>\n" +
+      '    <link rel="alternate" href="' + esc(path) + '"/>\n' +
+      "    <summary>" + esc(body) + "</summary>\n" +
+      "  </entry>";
+  }).join("\n");
+  return '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<feed xmlns="http://www.w3.org/2005/Atom">\n' +
+    "  <title>MCP conduct register: state changes</title>\n" +
+    "  <subtitle>A change means a condition flipped, not merely that a new verdict was issued.</subtitle>\n" +
+    "  <id>" + esc(origin + "/feed.xml") + "</id>\n" +
+    '  <link rel="self" href="' + esc(origin + "/feed.xml") + '"/>\n' +
+    '  <link rel="alternate" href="https://shield.the-horizons-innovation.com/verify-directory/"/>\n' +
+    "  <updated>" + esc(newest) + "</updated>\n" +
+    (entries ? entries + "\n" : "") +
+    "</feed>\n";
+}
+
+function securityTxt(origin) {
+  return [
+    "Contact: mailto:contact@the-horizons-innovation.com",
+    "Preferred-Languages: en, ja",
+    "Canonical: " + origin + "/.well-known/security.txt",
+    "Policy: https://shield.the-horizons-innovation.com/verify-directory/",
+    "",
+    "# This service publishes verdicts about other people's servers.",
+    "# If a verdict here is wrong, that is a security problem, not a support ticket.",
+    "# Send the endpoint, what you measured, and from where. A report that contradicts",
+    "# our own measurement is the most useful kind, and it will be published either way."
+  ].join("\n") + "\n";
+}
+
 function endpointPage(origin, row) {
   const ep = esc(row.endpoint);
   const st = esc((row.latest && row.latest.status) || "no measurement yet");
@@ -1502,6 +1632,36 @@ export default {
           "Cache-Control": "public, max-age=300, must-revalidate",
           "Access-Control-Allow-Origin": "*"
         }
+      });
+    }
+
+    if (path === "/openapi.json") return json(openapiDoc(url.origin));
+
+    if (path === "/sitemap.xml") {
+      const reg = await publicRegister(env);
+      const rows = Array.isArray(reg.rows) ? reg.rows : [];
+      return new Response(sitemapXml(url.origin, rows), {
+        headers: { "Content-Type": "application/xml; charset=utf-8", "Cache-Control": "public, max-age=3600", ...CORS_HEADERS }
+      });
+    }
+
+    if (path === "/feed.xml") {
+      const ch = await readChanges(env);
+      const list = Array.isArray(ch.changes) ? ch.changes : [];
+      return new Response(atomFeed(url.origin, list), {
+        headers: { "Content-Type": "application/atom+xml; charset=utf-8", "Cache-Control": "public, max-age=300", ...CORS_HEADERS }
+      });
+    }
+
+    if (path === "/.well-known/security.txt" || path === "/security.txt") {
+      return new Response(securityTxt(url.origin), {
+        headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=86400", ...CORS_HEADERS }
+      });
+    }
+
+    if (path === "/robots.txt") {
+      return new Response("User-agent: *\nAllow: /\nSitemap: " + url.origin + "/sitemap.xml\n", {
+        headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=86400" }
       });
     }
 
