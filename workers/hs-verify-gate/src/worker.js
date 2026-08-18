@@ -17,6 +17,7 @@
 //   GET  /spec                                    条件の仕様(機械可読)
 //   GET  /health                                  死活
 
+import { recomputeHandler, verifyEventHandler, RECOMPUTE_USAGE, VERIFY_EVENT_USAGE } from "./recompute.js";
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" };
 
 // 公開・読み取り専用のチェッカーなので、誰でもブラウザから叩けるよう CORS を開く。
@@ -1426,6 +1427,31 @@ export default {
     // CORS プリフライト。ブラウザからの POST /check は content-type で preflight が飛ぶ。
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: CORS_HEADERS });
+    }
+
+    // --- recompute and verify-event. Read only, pure computation, nothing stored. ---
+    // 外から確かめるための2本。tools/list には出していない。
+    if (path === "/recompute") {
+      if (request.method === "GET") return json(RECOMPUTE_USAGE, 200);
+      if (request.method === "POST") {
+        let sent;
+        try { sent = await request.json(); }
+        catch (_e) { return json({ error: "The request body was not JSON.", usage: RECOMPUTE_USAGE }, 400); }
+        const r = await recomputeHandler(sent);
+        return json(r.body, r.status);
+      }
+      return json({ error: "Use GET for usage, or POST to recompute." }, 405);
+    }
+    if (path === "/verify-event") {
+      if (request.method === "GET") return json(VERIFY_EVENT_USAGE, 200);
+      if (request.method === "POST") {
+        let sent;
+        try { sent = await request.json(); }
+        catch (_e) { return json({ error: "The request body was not JSON.", usage: VERIFY_EVENT_USAGE }, 400); }
+        const r = await verifyEventHandler(sent);
+        return json(r.body, r.status);
+      }
+      return json({ error: "Use GET for usage, or POST to verify a signed event." }, 405);
     }
 
     // MCP over Streamable HTTP。扉自身を MCP クライアントから呼べるようにする。
