@@ -424,7 +424,7 @@ function spec() {
       "verified_plus_data": "Paid. Figures traced to a third-party obtainable primary source.",
       "yakumo_partner": "Paid. Dedicated MCP server, operations, audit log."
     },
-    operator: "The HORIZ音s Co., Ltd. / HORIZON SHIELD",
+    operator: "The HORIZONs Co., Ltd. / HORIZON SHIELD",
     self_applied: "This gate is itself subject to these conditions."
   };
 }

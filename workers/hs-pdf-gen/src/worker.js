@@ -20047,7 +20047,7 @@ var worker_default = {
         let inputForVersion;
 
         if (hasYakumoData) {
-          // 八工門経路: 明細から合計をサーバー側で計算
+          // Yakumo経路: 明細から合計をサーバー側で計算
           itemsNorm = params.items.map((it) => {
             const qty = Number(it.qty) || 0;
             const up = Number(it.unit_price) || 0;
@@ -20073,7 +20073,7 @@ var worker_default = {
         const claimObj = hasYakumoData ? {
           type: "yakumo-estimate-claim",
           provider: "The HORIZ音s株式会社",
-          operated_by: "八工門 YAKUMO",
+          operated_by: "Yakumo",
           order_id: orderInfo.orderId,
           cert_no: certNo,
           estimate_version,
@@ -20084,7 +20084,7 @@ var worker_default = {
         } : {
           type: "yakumo-estimate-claim",
           provider: "The HORIZ音s株式会社",
-          operated_by: "八工門 YAKUMO",
+          operated_by: "Yakumo",
           order_id: orderInfo.orderId,
           cert_no: certNo,
           estimate_version,
@@ -20134,7 +20134,7 @@ var worker_default = {
 
         let html;
         if (hasYakumoData) {
-          // ============ 八工門専用テンプレ(サンプル紙面) ============
+          // ============ Yakumo専用テンプレ(サンプル紙面) ============
           const roomsRows = params.rooms.map((r) =>
             '<tr><td>' + _esc(r.name || "") + '</td><td class="num">' + (Number(r.area_m2) || 0).toFixed(1) + '</td><td class="num">' + (Number(r.perimeter_m) || 0).toFixed(1) + '</td><td class="num">' + (Number(r.ceiling_m) || 0).toFixed(2) + '</td></tr>'
           ).join("");
@@ -20170,10 +20170,10 @@ var worker_default = {
             '.src{color:#5A6472;font-size:8px;margin:8px 0;}' +
             '.ft{color:#5A6472;font-size:8px;line-height:1.7;border-top:1px solid #D9DEE6;padding-top:6px;margin-top:8px;}' +
             '</style></head><body><div class="page">' +
-            '<div class="hd"><h1>八工門 AI採寸 見積書</h1><div class="sub">A HORIZON SHIELD MALL<br>検証可能見積 / VERIFIABLE ESTIMATE</div></div>' +
+            '<div class="hd"><h1>Yakumo AI採寸 見積書</h1><div class="sub">A HORIZON SHIELD MALL<br>検証可能見積 / VERIFIABLE ESTIMATE</div></div>' +
             '<div class="rule"></div><div class="rule2"></div>' +
             '<table class="meta"><tr><td class="k">発行日時</td><td>' + issuedJst + '</td><td class="k">見積番号</td><td>' + _esc(orderInfo.orderId) + '</td></tr>' +
-            '<tr><td class="k">estimate_version</td><td class="mono">' + estimate_version + '</td><td class="k">八工門 version</td><td>yakumo-sim</td></tr></table>' +
+            '<tr><td class="k">estimate_version</td><td class="mono">' + estimate_version + '</td><td class="k">Yakumo version</td><td>yakumo-sim</td></tr></table>' +
             '<h2>採寸結果 (360度室内AI採寸)</h2>' +
             '<table><tr><th>部屋名</th><th>床面積 (m2)</th><th>周長 (m)</th><th>天井高 (m)</th></tr>' + roomsRows +
             '<tr class="totrow"><td>合計 床面積</td><td class="num">' + totArea.toFixed(1) + '</td><td></td><td></td></tr></table>' +
@@ -20184,7 +20184,7 @@ var worker_default = {
             '<tr class="grand"><td>合計 (税込)</td><td class="num">' + _yen(total) + '</td></tr></table>' +
             '</div>' + verifyBlock + '<div class="page" style="padding-top:0">' +
             '<div class="src">価格提示: 加盟店' + (params.partner_name ? " " + _esc(params.partner_name) : "") + ' / 署名・時刻証明: HORIZON SHIELD</div>' +
-            '<div class="ft">構築 = The HORIZ音s株式会社 (HORIZON SHIELD) / 運営 = 八工門 YAKUMO / TEL 0463-74-5917<br>この見積書は The HORIZ音s株式会社 (HORIZON SHIELD) の検証基盤で署名され、八工門 YAKUMO が発行しています。</div>' +
+            '<div class="ft">構築 = The HORIZ音s株式会社 (HORIZON SHIELD) / 運営 = Yakumo / TEL 0463-74-5917<br>この見積書は The HORIZ音s株式会社 (HORIZON SHIELD) の検証基盤で署名され、Yakumo が発行しています。</div>' +
             '</div></body></html>';
         } else {
           // ============ 従来経路: 既存テンプレ + 検証ブロック注入(v2互換) ============
