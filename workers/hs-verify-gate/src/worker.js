@@ -601,7 +601,7 @@ function openapiDoc(origin) {
             required: true,
             content: { "application/json": { schema: { type: "object", required: ["event"], properties: {
               event: { type: "object", description: "A complete signed event with id, pubkey, created_at, kind, tags, content and sig." },
-              assert_inside: { type: "array", items: { type: "string" }, description: "Optional field names to locate inside the signed content." }
+              assert_inside: { type: "array", items: { type: "string" }, description: "Optional field names to locate inside the signed bytes. Both content and tags are searched, and the answer says which one carried the field." }
             } } } }
           },
           responses: { "200": ok }

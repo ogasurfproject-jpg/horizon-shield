@@ -406,9 +406,15 @@ export function applyPenaltyPolicy(ap, nowMs) {
   if (!ap.pending || !ap.pending.sent_at) return { action: null, penalty: ap.penalty || 0 };
   const age = days(nowMs - Date.parse(ap.pending.sent_at));
   const nudges = ap.nudges || 0;
+  // 2026-08-19 patch39: 回数の頭打ちをやめ、経過日数の表で駆動する。
+  // 商売の速度に合わせて 3 / 7 / 14 / 21 日。28日で打ち切り。
+  // 「もう nudges が上限だから何もしない」という沈黙を作らないための形。
+  const NUDGE_SCHEDULE_DAYS = [3, 7, 14, 21];
   if (age >= 28 && (ap.penalty || 0) < 5) return { action: "cap", penalty: 5 };
-  if (age >= 14 && nudges < 2) return { action: "nudge2", penalty: 3 };
-  if (age >= 7 && nudges < 1) return { action: "nudge1", penalty: ap.penalty || 0 };
+  if (nudges < NUDGE_SCHEDULE_DAYS.length && age >= NUDGE_SCHEDULE_DAYS[nudges]) {
+    // 3回目以降は放置が長いのでペナルティを付ける。1,2回目は付けない。
+    return { action: nudges >= 2 ? "nudge2" : "nudge1", penalty: nudges >= 2 ? 3 : (ap.penalty || 0) };
+  }
   return { action: null, penalty: ap.penalty || 0 };
 }
 
@@ -442,6 +448,7 @@ export async function runDailyTick(env, deps) {
       const r = await sendQuestions(env, store, nudgeQ, "nudge");
       if (r.ok) {
         ap.nudges = (ap.nudges || 0) + 1;
+        ap.last_send_at = now(); // patch39: nudge経路で記録漏れがあった（両店とも None だった）
         if (pol.action === "nudge2") ap.penalty = pol.penalty;
         log.nudged.push(sid + ":" + pol.action + ":" + r.via);
         if (pol.action === "nudge2") log.penalized.push(sid + ":penalty3");

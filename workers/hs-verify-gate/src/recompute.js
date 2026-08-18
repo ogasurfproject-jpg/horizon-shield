@@ -577,20 +577,50 @@ export async function verifyEventHandler(body) {
   }
   const asked = Array.isArray(body.assert_inside) ? body.assert_inside.slice(0, 24) : [];
   const inside = {};
+  // 2026-08-19 patch40. Reported by Federico Blanco Sanchez-Llanos.
+  // The id preimage is [0,pubkey,created_at,kind,tags,content], so tags sit inside the signed
+  // bytes exactly as much as content does. This used to walk content only and then report the field
+  // as absent from the signed bytes, which is a claim about absence made without having looked.
+  // Now both are walked and the answer says which one carried the field.
+  const findInTags = (tags, name) => {
+    if (!Array.isArray(tags)) return null;
+    for (let i = 0; i < tags.length; i++) {
+      const row = tags[i];
+      if (!Array.isArray(row) || !row.length) continue;
+      if (String(row[0]) === name) {
+        return { path: "tags[" + i + "][0]", value: row.length === 2 ? row[1] : row.slice(1), carrier: "tags" };
+      }
+    }
+    for (let i = 0; i < tags.length; i++) {
+      const r = findKeyPath(tags[i], name, "tags[" + i + "]");
+      if (r) return { path: r.path, value: r.value, carrier: "tags" };
+    }
+    return null;
+  };
   for (const name of asked) {
-    const hit = parsed ? findKeyPath(parsed, String(name), "content") : null;
+    const inContent = parsed ? findKeyPath(parsed, String(name), "content") : null;
+    const hit = inContent
+      ? { path: inContent.path, value: inContent.value, carrier: "content" }
+      : findInTags(e.tags, String(name));
     inside[name] = hit
       ? {
           found_at: hit.path,
-          value: typeof hit.value === "string" ? hit.value : hit.value,
+          carried_by: hit.carrier,
+          value: hit.value,
           inside_signed_bytes:
             idMatch !== null && sig.ok === true
               ? true
               : idMatch !== null
-              ? "the content is inside the id, but the signature was not verified here"
+              ? "the " + hit.carrier + " is inside the id, but the signature was not verified here"
               : "not determined, because the id could not be recomputed",
         }
-      : { found_at: null, inside_signed_bytes: false, means: "not present in the signed content" };
+      : {
+          found_at: null,
+          carried_by: null,
+          inside_signed_bytes: false,
+          means: "not found in content and not found in tags. Both are inside the signed bytes, so it is carried by neither.",
+          searched: ["content", "tags"],
+        };
   }
 
   return {
@@ -644,8 +674,9 @@ export const VERIFY_EVENT_USAGE = {
   send: {
     event: "a complete signed event with id, pubkey, created_at, kind, tags, content and sig",
     assert_inside:
-      "optional list of field names. For each one, the answer says whether it sits inside the signed " +
-      "bytes or beside them.",
+      "optional list of field names. Both content and tags are searched, because both are inside the " +
+      "id preimage [0,pubkey,created_at,kind,tags,content]. For each name the answer says whether it " +
+      "sits inside the signed bytes or beside them, and which of the two carried it.",
   },
   returns:
     "Whether the id recomputes, whether the signature verifies, and for each named field whether it " +

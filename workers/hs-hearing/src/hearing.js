@@ -953,6 +953,8 @@ async function handleLineWebhook(env, bodyText) {
       await notify(env, "[Yakumo] LINE回答を自動構造化->生成トリガー: " + ((store && store.company) || linkedStoreId));
     } else if (res.reason === "missing-required") {
       await lineReply(env, replyToken, "ありがとうございます。もう少しだけ、社名・地域(市区町村)・対応工種が分かるように教えていただけますか？(例: リフォーム職人株式会社 / 長久手市 / 外壁塗装・屋根・内装)");
+      // patch39: ここだけ運営通知が無く、相手が返事をした事実が本人に届いていなかった。
+      await notify(env, "[Yakumo] LINE返事あり(必須項目が不足のため保留): " + ((store && store.company) || linkedStoreId) + " 本文=" + String(text).slice(0, 80));
     } else {
       await lineReply(env, replyToken, "受け取りました。内容を確認して運営からご連絡します。");
       await notify(env, "[Yakumo] LINE回答を受信(自動構造化できず: " + res.reason + ")。手動確認を。store=" + linkedStoreId);
@@ -1670,7 +1672,21 @@ export default {
     ctx.waitUntil((async () => {
       try {
         const log = await AP.runDailyTick(env, { listAllStores, triggerGeneration });
-        await notify(env, "[Yakumo AUTOPILOT] 日次巡回 完了: " + JSON.stringify({ checked: log.checked, sent: log.sent.length, nudged: log.nudged.length, penalized: log.penalized.length }).slice(0, 400));
+        // patch39: 件数だけでは誰を追えばよいか分からない。待っている相手を名前と日数で出す。
+        let waiting = "";
+        try {
+          const stores = await listAllStores(env);
+          const nowMs = Date.now();
+          const lines = [];
+          for (const s of stores) {
+            const ap = s.autopilot || {};
+            if (!ap.pending || !ap.pending.sent_at) continue;
+            const d = Math.floor((nowMs - Date.parse(ap.pending.sent_at)) / 86400000);
+            lines.push("  " + (s.company || s.store_id) + " " + d + "日待ち 催促" + (ap.nudges || 0) + "回 完成度" + (ap.completeness == null ? "?" : ap.completeness));
+          }
+          if (lines.length) waiting = "\n返事待ち:\n" + lines.join("\n");
+        } catch (_e) {}
+        await notify(env, "[Yakumo AUTOPILOT] 日次巡回 完了: " + JSON.stringify({ checked: log.checked, sent: log.sent.length, nudged: log.nudged.length, penalized: log.penalized.length }).slice(0, 400) + waiting);
       } catch (e) {
         await notify(env, "[Yakumo AUTOPILOT] 日次巡回 エラー: " + String(e).slice(0, 200));
       }
