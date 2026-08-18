@@ -499,6 +499,8 @@ const OPERATOR_LABELS = {
 
 const REGISTER_JOIN_MAX = 50;
 
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
 // --- Badge: an operator may display the current verdict on their own site.
 // Deliberate: short cache so a green cannot be pinned, and an unlisted endpoint
 // is not an error. The badge shows what the register says right now, or nothing.
