@@ -40,7 +40,17 @@ const CONFIG = {
 };
 
 function json(obj, status) {
-  return new Response(JSON.stringify(obj, null, 2), { status: status || 200, headers: { ...JSON_HEADERS, ...CORS_HEADERS } });
+  // キャッシュ指示を明示する。書かなければ中間キャッシュの裁量になり、
+  // 「測っていない」と「もう緑ではない」が、どちらも古いまま配られる。
+  //   400番台以上  no-store   /e/ の404は「測ってもらえば動き出す」と書いてある。
+  //                           その約束を守るには、404を誰にも保持させてはいけない。
+  //   それ以外     max-age=60 生きた計器なので、60秒より長く固定させない。
+  const st = status || 200;
+  const cache = st >= 400 ? "no-store" : "public, max-age=60, must-revalidate";
+  return new Response(JSON.stringify(obj, null, 2), {
+    status: st,
+    headers: { ...JSON_HEADERS, "Cache-Control": cache, ...CORS_HEADERS }
+  });
 }
 
 async function sha256hex(s) {
