@@ -493,7 +493,9 @@ const TOOL_CALL_CONSENT = new Set([
   "https://web.horizonshield.dev/mcp",
   "https://hearing.horizonshield.dev/mcp",
   "https://jidec.horizonshield.dev/mcp",
-  "https://gate.horizonshield.dev/mcp"
+  "https://gate.horizonshield.dev/mcp",
+  // p002 ミネオトーヨー住器。所有者同意 2026-08-18 19:51 LINE「測って下さい。」
+  "https://p002.horizonshield.dev/mcp"
 ]);
 
 // 表示名。運営者が付けた名前であって、測定値ではない。registerの応答でもそう明記する。
