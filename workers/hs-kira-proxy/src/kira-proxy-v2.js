@@ -1717,10 +1717,10 @@ async function handleHackerCardAdmin(request, env, origin) {
 }
 
 // ============================================
-// ④ 成約マーカー + 八雲の成約手数料(工事総額の3%)。
+// ④ 成約マーカー + Yakumoの成約手数料(工事総額の3%)。
 //    運営(ADMIN_PASSWORD)が成約を確定して記録する。実課金(PayPal/AP2)はこの先の段。
 //    料率は env.HACHIUN_FEE_RATE(未設定なら0.03)。各成約に料率をスナップショット保存。
-//    A社(検証)/JIDEC(中立)は一切触らない。手数料記録はこの八雲レイヤーのみ。新規KVなし(ORDERSに保存)。
+//    A社(検証)/JIDEC(中立)は一切触らない。手数料記録はこのYakumoレイヤーのみ。新規KVなし(ORDERSに保存)。
 // ============================================
 async function handleHackerDeal(request, env, origin) {
   const url = new URL(request.url);
@@ -1807,7 +1807,7 @@ async function handleHackerDeals(request, env, origin) {
       fee_amount_sum: feeSum,
       fee_rate_default: feeRateDefault,
       currency: 'JPY',
-      note: '八雲の成約手数料合計。地代(八雲→大家)はこの合計とは別の月次固定額。',
+      note: 'Yakumoの成約手数料合計。地代(Yakumo→大家)はこの合計とは別の月次固定額。',
     },
   }, 200, origin);
 }
@@ -3096,7 +3096,7 @@ ${claudeAnswer}
       }
     }
 
-    // ===== /yakumo-estimate（八雲360°採寸→KIRA見積もり / 加盟店向け・2026-06-10追加）=====
+    // ===== /yakumo-estimate（Yakumo360°採寸→KIRA見積もり / 加盟店向け・2026-06-10追加）=====
     if (path === '/yakumo-estimate' && request.method === 'POST') {
       try {
         const yakumoToken = request.headers.get('X-Yakumo-Token') || '';

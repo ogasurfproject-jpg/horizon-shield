@@ -1476,7 +1476,7 @@ async function statsPage(url, env) {
     '<input type="hidden" name="key" value="' + escHtml(given) + '"><input type="hidden" name="days" value="' + days + '">' +
     '<select name="store">' + storeOpts + "</select><button type=\"submit\">表示</button></form></div>" +
     '<div class="grid">' +
-    kpiTile("AI検索での表示", agg.total.agent_view || 0, C.b, "AIの加盟店検索(YakumoMCP)に登場") +
+    kpiTile("AI検索での表示", agg.total.agent_view || 0, C.b, "AIの加盟店検索(八雲MCP)に登場") +
     kpiTile("AIの照会・診断", (agg.total.agent_hit || 0) + (agg.total.tool || 0), C.c, "照会 " + Number(agg.total.agent_hit || 0).toLocaleString() + " ・ 診断 " + Number(agg.total.tool || 0).toLocaleString()) +
     kpiTile("モール店ページ閲覧", agg.total.mall_view || 0, C.a, "一覧表示 " + Number(agg.total.mall_list || 0).toLocaleString() + " ・ 相談 " + Number(agg.total.mall_click || 0).toLocaleString()) +
     kpiTile("自サイト・ウィジェット", agg.total.view || 0, C.d, "起動 " + Number(agg.total.open || 0).toLocaleString() + " ・ EHN " + Number(agg.total.ehn_click || 0).toLocaleString()) +
@@ -1589,7 +1589,7 @@ async function mypagePage(url, env) {
     "<h2>HORIZON SHIELD があなたの店を世に見せた回数</h2>" +
     '<p class="h2s">モール(人が見る面)と、AIエージェント(ChatGPT / Claude 等が見る面)の、両方で数えています。</p>' +
     '<div class="grid">' +
-    kpiTile("AI検索での表示", total.agent_view || 0, C.b, "AIの加盟店検索(YakumoMCP)に登場") +
+    kpiTile("AI検索での表示", total.agent_view || 0, C.b, "AIの加盟店検索(八雲MCP)に登場") +
     kpiTile("AIの照会・診断", (total.agent_hit || 0) + (total.tool || 0), C.c, "照会 " + Number(total.agent_hit || 0).toLocaleString() + " ・ 診断 " + Number(intakeN).toLocaleString()) +
     kpiTile("モール店ページ閲覧", total.mall_view || 0, C.a, "モール一覧に表示 " + Number(total.mall_list || 0).toLocaleString() + " 回") +
     kpiTile("モールからの相談", total.mall_click || 0, C.d, "施主が第三者チェックへ進んだ数") +

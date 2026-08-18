@@ -1,19 +1,17 @@
-// hs-partner-002-mcp
-// Yakumo WebMCP Partner 専用 MCP サーバー (ミネオトーヨー住器株式会社 / No.002)
+// hs-partner-001-mcp
+// Yakumo WebMCP Partner 専用 MCP サーバー (リフォーム職人株式会社 / No.001)
 //
-// 設計の芯(hs-partner-001-mcp と同一):
+// 設計の芯:
 //  - 独立worker。実行時に hs-mcp / gateway を叩かない(共有KVを読むだけ)。
-//  - 加盟店自身のデータを答える(HSのsoubaは積まない)。データ源は HS_HEARING_KV の
+//  - 堤さん自身のデータを答える(HSのsoubaは積まない)。データ源は HS_HEARING_KV の
 //    store:{STORE_ID} と hearing:{STORE_ID}。ヒアリングでKVが育つと、このMCPの答えも育つ。
 //  - 公開面(MCP/A2A)には token / email / 料金プラン等の内部情報は絶対に出さない。
+//    get_partner_profile は安全フィールドのみをホワイトリストで返す。
 //
-// 001 との差(実データ実測 2026-08-08 に基づく):
-//  No.002 のヒアリングデータは profile.extra ではなく profile 直下に入っている
-//  (strengths / trust / faqs / story / cases / areas_served / works)。extra は空。
-//  また store 側の works は ["リフォーム"]・areas は3市のみで、hearing 側の
-//  実データ(窓・玄関の交換/ガラス修理/網戸張替え、12市町)より貧弱。
-//  よって works と areas は hearing を優先し、strengths は直下フィールドから組む。
-//  001 の buildProfile をそのまま使うと空プロフィールが返るため、ここだけ変えている。
+// 口:
+//  POST /mcp                         JSON-RPC 2.0 (initialize / tools/list / tools/call)
+//  GET  /.well-known/agent-card.json A2A エージェントカード
+//  GET  /health                      死活
 
 // ---- JSON-RPC ヘルパ ----
 const jsonHeaders = { "content-type": "application/json; charset=utf-8" };
@@ -30,63 +28,26 @@ function txt(s) {
   return { content: [{ type: "text", text: typeof s === "string" ? s : JSON.stringify(s, null, 2) }] };
 }
 
+// ---- 安全なプロフィール構築(ホワイトリスト) ----
 function tierLabel(tier) {
-  if (tier === "honbu") return "WebMCP Partner";
-  if (tier === "extension") return "加盟店";
+  if (tier === "honbu") return "本部直加盟";
   return "加盟店";
 }
-
-// 出してはいけないキーの判定(001 と同じ基準)。
-const DENY = /mail|token|tel|phone|電話|住所|address|price|料金|原価|卸|formula|contact|plan|webmcp_option/i;
-
-// 全角スペース等で連結された工種文字列を配列に割る。
-function splitWorks(v) {
-  if (Array.isArray(v)) {
-    const out = [];
-    for (const item of v) out.push(...splitWorks(item));
-    return out;
-  }
-  if (typeof v !== "string") return [];
-  return v
-    .split(/[\u3000,、\/・\s]+/)
-    .map((x) => x.trim())
-    .filter((x) => x.length > 0);
-}
-
 function buildProfile(store, hearing, env) {
   const s = store || {};
   const h = (hearing && hearing.profile) || {};
-
-  // 工種・エリアは hearing(実ヒアリング) を優先し、無ければ store にフォールバック。
-  const works = splitWorks(h.works).length ? splitWorks(h.works) : splitWorks(s.works);
-  const areas = (Array.isArray(h.areas_served) && h.areas_served.length)
-    ? h.areas_served
-    : (Array.isArray(s.areas) && s.areas.length ? s.areas : (h.area ? [h.area] : []));
-
-  // 強み。profile 直下の安全フィールドと、旧仕様の extra の両方に対応する。
-  const strengths = {};
-  const direct = { strengths: h.strengths, trust: h.trust, story: h.story, license: h.license, hours: h.hours };
-  for (const [k, v] of Object.entries(direct)) {
-    if (DENY.test(k)) continue;
-    if (v == null || v === "") continue;
-    strengths[k] = v;
-  }
+  const extra = {};
   const src = h.extra && typeof h.extra === "object" ? h.extra : {};
   for (const [k, v] of Object.entries(src)) {
-    if (DENY.test(k)) continue;
+    if (/mail|token|tel|phone|電話|住所|address|price|料金|原価|卸|formula/i.test(k)) continue;
     if (v == null || v === "") continue;
-    strengths[k] = v;
+    extra[k] = v;
   }
-
-  // 施主向けFAQ。文字列/オブジェクトどちらの形でも通す。
-  const faqs = Array.isArray(h.faqs)
-    ? h.faqs.filter((x) => x != null && x !== "").slice(0, 20)
-    : [];
-
+  const areas = s.areas || (h.area ? [h.area] : []) || [];
+  const works = s.works || h.works || [];
   const verified = s.status === "published";
   const completeness = (s.autopilot && typeof s.autopilot.completeness === "number")
     ? s.autopilot.completeness : 0;
-
   return {
     store_id: s.store_id || env.STORE_ID,
     member_no: s.member_no || null,
@@ -99,10 +60,9 @@ function buildProfile(store, hearing, env) {
       ? "Yakumoモールで検証手続きを通過した加盟店。"
       : "検証手続き中。プロフィールは整備の途中(ヒアリング進行中)。",
     profile_completeness_pct: completeness,
-    strengths: strengths,
-    faqs: faqs,
-    yakumo_profile_url: "https://shield.the-horizons-innovation.com/yakumo/no002/",
-    source: "Yakumo (The HORIZONs株式会社 構築 / Yakumo 運営)",
+    strengths: extra,
+    yakumo_profile_url: "https://shield.the-horizons-innovation.com/yakumo/no001/",
+    source: "Yakumo (The HORIZ音s株式会社 構築 / 八雲YAKUMO 運営)",
     note: "金額・料金は含みません。これは加盟店の検証済みプロフィールです。"
   };
 }
@@ -113,18 +73,15 @@ const TOOLS = [
     name: "get_partner_profile",
     title: "加盟店プロフィール取得",
     description:
-      "Yakumoモール加盟店「ミネオトーヨー住器株式会社」(No.002)の検証済みプロフィールを返す。" +
-      "会社名・対応エリア・対応工種(窓や玄関の交換、ガラス修理、網戸張替えなど)・検証状態・" +
-      "強み(加盟しているメーカー系列や取付の基準など、ヒアリングで整備された範囲)・" +
-      "施主からよくある質問への回答・プロフィール充足度を返す。金額や料金は含まない。" +
-      "施主のAIがこの加盟店を参照・紹介する時に使う。Japan only. / Returns the verified profile of the " +
-      "Yakumo mall member contractor \"Mineo Toyo Juki Co., Ltd.\" (No.002): company, areas served, " +
-      "works such as window and entrance door replacement, glass repair and screen re-netting, " +
-      "verification status, strengths, consumer FAQs, and profile completeness. No prices. " +
-      "Use when an AI references or recommends this contractor.",
+      "Yakumoモール加盟店「リフォーム職人株式会社」(No.001)の検証済みプロフィールを返す。" +
+      "会社名・対応エリア・対応工種・検証状態・強み(使う工法や保証など、ヒアリングで整備された範囲)・" +
+      "プロフィール充足度を返す。金額や料金は含まない。施主のAIがこの加盟店を参照・紹介する時に使う。" +
+      "Japan only. / Returns the verified profile of the Yakumo mall member contractor " +
+      "\"Reform Shokunin Co., Ltd.\" (No.001): company, areas served, works, verification status, " +
+      "strengths, and profile completeness. No prices. Use when an AI references or recommends this contractor.",
     inputSchema: { type: "object", properties: {}, additionalProperties: false }
   }
-  // 目的別ツールはヒアリングが進んだ段階で差し込む(空枠)。
+  // 目的別ツールはヒアリング後に差し込む(空枠)。
 ];
 
 // ---- ツール実行 ----
@@ -153,7 +110,7 @@ async function handleRpc(body, env) {
     return rpc(id, {
       protocolVersion: clientVer || "2024-11-05",
       capabilities: { tools: {} },
-      serverInfo: { name: "hs-partner-002-mcp", version: "0.1.0" }
+      serverInfo: { name: "hs-partner-001-mcp", version: "0.1.0" }
     });
   }
   if (method === "notifications/initialized") {
@@ -177,10 +134,10 @@ async function handleRpc(body, env) {
 // ---- A2A エージェントカード ----
 function agentCard(env, origin) {
   return {
-    name: (env.PARTNER_NAME || "Yakumo加盟店") + " (Yakumo No.002)",
+    name: (env.PARTNER_NAME || "Yakumo加盟店") + " (Yakumo No.001)",
     description:
       "Yakumoモール加盟店「" + (env.PARTNER_NAME || "") + "」の検証済みプロフィールを提供するエージェント。" +
-      "対応エリア・対応工種・強み・施主向けFAQ・検証状態を返す。金額は含まない。",
+      "対応エリア・対応工種・強み・検証状態を返す。金額は含まない。",
     url: origin,
     provider: { organization: env.PARTNER_NAME || "Yakumo加盟店" },
     version: "0.1.0",
@@ -202,8 +159,8 @@ function agentCard(env, origin) {
       {
         id: "get_partner_profile",
         name: "加盟店プロフィール取得",
-        description: "この加盟店の検証済みプロフィール(会社・エリア・工種・強み・FAQ・検証状態)を返す。金額なし。",
-        tags: ["reform", "window", "entrance-door", "contractor", "yakumo", "japan"]
+        description: "この加盟店の検証済みプロフィール(会社・エリア・工種・強み・検証状態)を返す。金額なし。",
+        tags: ["reform", "contractor", "yakumo", "japan"]
       }
     ]
   };

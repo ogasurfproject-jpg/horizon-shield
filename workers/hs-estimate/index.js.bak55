@@ -440,7 +440,7 @@ APIキー：${apiKey}
         return json({ ok: true, company: 'TEST', estimate });
       }
 
-      // ---- 管理：手動キー発行（Yakumoモール用・tier指定） ----
+      // ---- 管理：手動キー発行（八雲モール用・tier指定） ----
       if (pathname === '/admin/issue-key' && request.method === 'POST') {
         const adminKey = request.headers.get('X-Admin-Key');
         if (adminKey !== env.ADMIN_SECRET) return json({ error: 'Forbidden' }, 403);

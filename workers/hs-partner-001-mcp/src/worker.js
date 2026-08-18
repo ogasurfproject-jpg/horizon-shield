@@ -62,7 +62,7 @@ function buildProfile(store, hearing, env) {
     profile_completeness_pct: completeness,
     strengths: extra,
     yakumo_profile_url: "https://shield.the-horizons-innovation.com/yakumo/no001/",
-    source: "Yakumo (The HORIZ音s株式会社 構築 / 八雲YAKUMO 運営)",
+    source: "Yakumo (The HORIZONs株式会社 構築 / Yakumo 運営)",
     note: "金額・料金は含みません。これは加盟店の検証済みプロフィールです。"
   };
 }
