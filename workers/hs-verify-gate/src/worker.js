@@ -498,6 +498,9 @@ const TOOL_CALL_CONSENT = new Set([
   "https://p002.horizonshield.dev/mcp"
 ]);
 
+// 2026-08-19 patch41. この計器自身の既知の制限。測ったが直せていないものを、黙って回避しない。
+const KNOWN_UA_LIMITATION = "Known limitation of this instrument, measured 2026-08-18 and unresolved: requests carrying the Python urllib user agent are refused with 403 by a Cloudflare managed rule in front of this Worker, so that one client is turned away before any code here runs. curl, python-requests, node-fetch, undici, axios, okhttp, Go, Java, Postman and an absent user agent were all measured at 200 on the same day. This is stated here rather than worked around silently.";
+
 // 表示名。運営者が付けた名前であって、測定値ではない。registerの応答でもそう明記する。
 // 加盟店の実名は本人の書面同意が取れてから入れる。それまでは掲載準備中。
 const OPERATOR_LABELS = {
@@ -614,6 +617,7 @@ function openapiDoc(origin) {
       "/check": {
         post: {
           summary: "Measure one endpoint now",
+          "x-known-limitation": KNOWN_UA_LIMITATION,
           description:
             "Measures the stated conditions against the endpoint you name. Determinism stays unmeasured unless the owner has recorded consent, " +
             "because measuring it requires calling a tool on someone else's server.",
