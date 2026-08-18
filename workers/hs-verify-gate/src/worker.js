@@ -97,7 +97,7 @@ function relayConfigured() {
 
 function probeVia(endpoint) {
   return (isOwnZone(endpoint) && relayConfigured())
-    ? "relay (hs-verify-relay, a separate worker outside this zone path; the whole probe traverses the public edge, because a Worker invoked over HTTP cannot reach its own zone directly \u2014 measured 2026-08-14/15)"
+    ? "relay (hs-verify-relay, a separate worker outside this zone path; the whole probe traverses the public edge, because a Worker invoked over HTTP cannot reach its own zone directly. Measured 2026-08-14/15)"
     : "direct from the gate worker (" + GATE_CONTEXT + " context)";
 }
 
@@ -1108,7 +1108,7 @@ const MCP_TOOLS = [
       "Look up what this register already holds about an MCP endpoint: whether it is watched, how " +
       "often it is re-measured, how many measurements exist, when the first and latest were taken, " +
       "and the latest verdict with the record_sha256 you can recompute yourself. Reads stored " +
-      "measurements only \u2014 it contacts nothing and measures nothing, so use check_conformance " +
+      "measurements only. It contacts nothing and measures nothing, so use check_conformance " +
       "for a fresh reading. An endpoint that is absent is reported as absent and that is NOT a " +
       "negative verdict: it means nobody has measured it here, not that it failed.",
     inputSchema: {
@@ -1196,7 +1196,7 @@ async function lookupServer(env, endpoint) {
     // ここを混ぜた瞬間に「載っている=合格」という読み方が生まれる。
     standing: entries.length
       ? "measured"
-      : "watched, not yet measured \u2014 being on the watchlist is not a measurement and this gate does not count it as one",
+      : "watched, not yet measured. Being on the watchlist is not a measurement and this gate does not count it as one",
     first_measured_at: entries.length ? entries[0].at : null,
     last_measured_at: latest ? latest.at : null,
     latest: latest,
@@ -1210,7 +1210,7 @@ async function lookupServer(env, endpoint) {
     does_not_mean:
       "Not a certificate, and not a statement that any figure this server returns is correct. This " +
       "measures conduct and disclosure only. A passing row stops passing when the measurement does, " +
-      "and a condition recorded as not measured is never counted as a pass \u2014 including for the " +
+      "and a condition recorded as not measured is never counted as a pass, including for the " +
       "gate itself, whose own verdict currently reads pending."
   };
 }

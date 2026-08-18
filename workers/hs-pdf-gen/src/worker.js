@@ -18973,7 +18973,7 @@ function generatePlanHTML(d2, orderInfo) {
     <div class="cover-stamp-text">SHIELD</div>
     <div style="font-size:8px;color:rgba(201,162,39,0.7);margin-top:2px;">\u8A3A\u65AD\u6E08</div>
   </div>
-  <div class="cover-eyebrow">HORIZON SHIELD \u2014 \u9006\u898B\u7A4D\u3082\u308A\u8A3A\u65AD\u30EC\u30DD\u30FC\u30C8</div>
+  <div class="cover-eyebrow">HORIZON SHIELD \uFF0F \u9006\u898B\u7A4D\u3082\u308A\u8A3A\u65AD\u30EC\u30DD\u30FC\u30C8</div>
   <div class="cover-title">\u5DE5\u4E8B\u524D\u306B\u77E5\u308B<em>\u9069\u6B63\u4E88\u7B97</em></div>
   <div class="cover-sub">\u696D\u8005\u306B\u8A00\u308F\u308C\u308B\u304C\u307E\u307E\u6255\u3046\u524D\u306B\u3002<br>\u5EFA\u8A2D30\u5E74\u306E\u30D7\u30ED\u304C\u7B97\u51FA\u3057\u305F\u300C\u672C\u5F53\u306E\u76F8\u5834\u300D\u3092\u624B\u306B\u5165\u308C\u3066\u304F\u3060\u3055\u3044\u3002</div>
   <div class="cover-case">

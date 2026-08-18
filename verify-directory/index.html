@@ -746,7 +746,7 @@ async function loadRegister(){
       box.appendChild(d);
     });
   }catch(e){
-    note.textContent = "live register unavailable (" + e.message + ") \u2014 the summary above still stands, and the gate answers at /register directly.";
+    note.textContent = "live register unavailable (" + e.message + "). The summary above still stands, and the gate answers at /register directly.";
   }
 }
 document.addEventListener("DOMContentLoaded", function(){
