@@ -1669,6 +1669,21 @@ export default {
       });
     }
 
+    // OpenAI プラグイン申請のドメイン確認。トークンは env で渡す。
+    // 未設定のときに空文字を200で返すと、確認が通ったように見えて通らない。だから404。
+    if (path === "/.well-known/openai-apps-challenge") {
+      const token = (env && env.OPENAI_APPS_CHALLENGE) || "";
+      if (!token) {
+        return json({
+          error: "not configured",
+          note: "This host has no OpenAI apps challenge token set. Nothing is being claimed here."
+        }, 404);
+      }
+      return new Response(token, {
+        headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store", ...CORS_HEADERS }
+      });
+    }
+
     if (path === "/robots.txt") {
       return new Response("User-agent: *\nAllow: /\nSitemap: " + url.origin + "/sitemap.xml\n", {
         headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=86400" }
