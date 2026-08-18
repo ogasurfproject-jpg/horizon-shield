@@ -566,6 +566,45 @@ function openapiDoc(origin) {
       "/spec": g("The five conditions, stated in full", "Includes what a pass does not mean."),
       "/self": g("This gate measured against its own conditions", "It does not currently pass all of them, and the reason is published."),
       "/health": g("Liveness and the deployed commit", ""),
+      "/recompute": {
+        post: {
+          summary: "Work out which canonicalization reproduces a claimed hash",
+          description:
+            "Send a JSON object as it was published, and a SHA-256 somebody claims was taken over it. " +
+            "Returns every recipe that reproduces the value, whether that recipe is RFC 8785 JCS, how many " +
+            "combinations were tried, and the exact space they covered. A hash that could not be reproduced " +
+            "is reported as not reproduced with the number of combinations tried, and never as invalid. " +
+            "Omit the claimed hash to receive canonical forms and their hashes instead, so a reading can be " +
+            "held by someone who does not operate the source. Contacts nothing. Stores nothing.",
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: { type: "object", required: ["object"], properties: {
+              object: { type: "object", description: "The JSON object as published." },
+              claimed: { type: "string", description: "Optional. 64 hex characters. Omit to receive canonical forms." },
+              max_candidates: { type: "integer", description: "Optional upper bound on combinations tried." }
+            } } } }
+          },
+          responses: { "200": ok }
+        }
+      },
+      "/verify-event": {
+        post: {
+          summary: "Recompute a NIP-01 event id and verify its BIP340 signature",
+          description:
+            "Computed here from the curve parameters, with no library and no network call, so neither the " +
+            "issuer's own verification service nor a dependency has to be trusted. For each field name given, " +
+            "the answer states whether it sits inside the signed bytes or beside them. A valid signature shows " +
+            "that the holder of the key signed those bytes. It does not make the bytes true.",
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: { type: "object", required: ["event"], properties: {
+              event: { type: "object", description: "A complete signed event with id, pubkey, created_at, kind, tags, content and sig." },
+              assert_inside: { type: "array", items: { type: "string" }, description: "Optional field names to locate inside the signed content." }
+            } } } }
+          },
+          responses: { "200": ok }
+        }
+      },
       "/sweep/last": g("When the last scheduled re-measurement ran", ""),
       "/watchlist": g("Endpoints scheduled for re-measurement", ""),
       "/.well-known/agent-card.json": g("A2A agent card for this gate", ""),
@@ -597,6 +636,7 @@ function sitemapXml(origin, rows) {
   const seen = new Set();
   const urls = [];
   urls.push({ loc: "https://shield.the-horizons-innovation.com/verify-directory/", pri: "1.0", freq: "daily" });
+  urls.push({ loc: "https://shield.the-horizons-innovation.com/verify-directory/recompute/", pri: "0.9", freq: "weekly" });
   for (const r of rows) {
     if (!r || !r.endpoint) continue;
     const loc = encodeURI(origin + "/e/" + String(r.endpoint).replace(/^https?:\/\//, ""));
