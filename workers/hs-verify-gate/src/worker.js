@@ -499,6 +499,23 @@ const OPERATOR_LABELS = {
 
 const REGISTER_JOIN_MAX = 50;
 
+// --- Badge: an operator may display the current verdict on their own site.
+// Deliberate: short cache so a green cannot be pinned, and an unlisted endpoint
+// is not an error. The badge shows what the register says right now, or nothing.
+function badgeSvg(label, status, color) {
+  const L = String(label), S = String(status);
+  const lw = 8 + L.length * 6.2, sw = 8 + S.length * 6.2, w = lw + sw;
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="' + w.toFixed(0) + '" height="20" role="img" aria-label="' + L + ': ' + S + '">' +
+    '<linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient>' +
+    '<rect width="' + w.toFixed(0) + '" height="20" rx="3" fill="#555"/>' +
+    '<rect x="' + lw.toFixed(0) + '" width="' + sw.toFixed(0) + '" height="20" rx="3" fill="' + color + '"/>' +
+    '<rect x="' + lw.toFixed(0) + '" width="4" height="20" fill="' + color + '"/>' +
+    '<rect width="' + w.toFixed(0) + '" height="20" rx="3" fill="url(#s)"/>' +
+    '<g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">' +
+    '<text x="' + (lw / 2).toFixed(0) + '" y="14">' + L + '</text>' +
+    '<text x="' + (lw + sw / 2).toFixed(0) + '" y="14">' + S + '</text></g></svg>';
+}
+
 async function publicRegister(env) {
   const list = await watchlist(env);
   const rows = [];
@@ -1384,6 +1401,26 @@ export default {
         note: "These endpoints are re-measured on a schedule so a verdict on this site does not silently go stale. No tool on any watched server is ever called by the sweep.",
         history: "/history?endpoint=...",
         changes: "/changes"
+      });
+    }
+
+    if (path === "/badge" && request.method === "GET") {
+      const ep = url.searchParams.get("endpoint") || "";
+      let status = "not listed", color = "#9f9f9f";
+      if (ep) {
+        const reg = await publicRegister(env);
+        const row = (Array.isArray(reg.rows) ? reg.rows : []).find((r) => r.endpoint === ep);
+        if (row && row.latest && row.latest.status) {
+          status = String(row.latest.status);
+          color = status === CONFIG.tier_pass ? "#2f9e44" : "#c9820a";
+        }
+      }
+      return new Response(badgeSvg("MCP conduct", status, color), {
+        headers: {
+          "Content-Type": "image/svg+xml; charset=utf-8",
+          "Cache-Control": "public, max-age=300, must-revalidate",
+          "Access-Control-Allow-Origin": "*"
+        }
       });
     }
 
