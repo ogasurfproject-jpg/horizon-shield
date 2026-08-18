@@ -28,7 +28,7 @@ fi
 
 SHA=$(git rev-parse --short=12 HEAD)
 echo "deploying with GATE_COMMIT=$SHA"
-npx wrangler deploy --var GATE_COMMIT:"$SHA"
+npx wrangler deploy --var GATE_COMMIT:"$SHA" --var OPENAI_APPS_CHALLENGE:"$OPENAI_APPS_CHALLENGE"
 echo ""
 echo "確認:"
 echo "  curl -s https://gate.horizonshield.dev/health"
