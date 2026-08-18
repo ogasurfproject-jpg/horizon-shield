@@ -1314,6 +1314,8 @@ async function isPartner(userId, text, env) {
 __name(isPartner, "isPartner");
 async function handlePartnerMessage(userMessage, replyToken, userId, justJoined, env) {
   // Yakumo自動ヒアリング(hs-hearing)へ橋渡し。失敗時は従来の手動フローに自動フォールバック。
+  // 2026-08-19 patch42: 橋が落ちたら、落ちたと言う。理由も残す。
+  let bridgeFail = env.KIRA_BRIDGE_KEY ? null : "KIRA_BRIDGE_KEY \u304C\u672A\u8A2D\u5B9A";
   if (env.KIRA_BRIDGE_KEY) {
     try {
       const br = await fetch("https://hearing.horizonshield.dev/kira-bridge", {
@@ -1340,8 +1342,10 @@ ${userMessage}
           return;
         }
       }
+      bridgeFail = "hearing \u306E\u5FDC\u7B54\u3092\u4F7F\u3048\u306A\u304B\u3063\u305F (status " + br.status + ")";
       console.error("kira-bridge non-ok:", br.status);
     } catch (e) {
+      bridgeFail = "\u6A4B\u6E21\u3057\u3067\u4F8B\u5916: " + String((e && e.message) || e).slice(0, 80);
       console.error("kira-bridge error:", e.message);
     }
   }
@@ -1362,8 +1366,8 @@ TEL\uFF1A0463-74-5917
   } else {
     await replyToLine(
       replyToken,
-      `\u3054\u9023\u7D61\u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\u3002\u62C5\u5F53\u306E\u5927\u8CC0\u306B\u304A\u7E4B\u304E\u3057\u307E\u3057\u305F\u3002
-\u9806\u6B21\u304A\u8FD4\u4E8B\u3044\u305F\u3057\u307E\u3059\u306E\u3067\u5C11\u3005\u304A\u5F85\u3061\u304F\u3060\u3055\u3044\u3002`,
+      `\u53D7\u3051\u53D6\u308A\u307E\u3057\u305F\u3002\u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\u3002
+\u5185\u5BB9\u306F\u305D\u306E\u307E\u307E\u8A18\u9332\u3057\u307E\u3057\u305F\u3002\u7D9A\u304D\u306F\u3053\u306E\u30C8\u30FC\u30AF\u3067\u304A\u4F3A\u3044\u3057\u307E\u3059\u3002`,
       env.LINE_CHANNEL_TOKEN
     );
   }
@@ -1374,7 +1378,8 @@ TEL\uFF1A0463-74-5917
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${userMessage}
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-\u203B\u3053\u306E\u76F8\u624B\u306FKIRA\u505C\u6B62\u4E2D\u3002\u3042\u306A\u305F\u306ELINE\u304B\u3089\u76F4\u63A5\u3054\u5BFE\u5FDC\u304F\u3060\u3055\u3044\u3002`,
+\u26A0 \u81EA\u52D5\u30D2\u30A2\u30EA\u30F3\u30B0\u306B\u6E21\u305B\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u7406\u7531: ${bridgeFail || "\u4E0D\u660E"}
+\u203B \u4E0A\u306E\u672C\u6587\u306F\u3069\u3053\u306B\u3082\u53D6\u308A\u8FBC\u307E\u308C\u3066\u3044\u307E\u305B\u3093\u3002\u6A4B\u304C\u76F4\u308B\u307E\u3067\u624B\u3067\u62FE\u3063\u3066\u304F\u3060\u3055\u3044\u3002`,
     env.LINE_CHANNEL_TOKEN
   );
 }
