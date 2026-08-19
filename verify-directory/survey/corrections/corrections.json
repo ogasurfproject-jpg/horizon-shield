@@ -1,0 +1,14 @@
+{
+  "schema": "hs-corrections-1",
+  "about": "Every request to re-measure something we published, and what happened to it. Nothing is removed from this file. A correction is appended; the record it corrects keeps its original hash and stays published.",
+  "page": "https://shield.the-horizons-innovation.com/verify-directory/survey/corrections/",
+  "history": "https://github.com/ogasurfproject-jpg/horizon-shield/commits/main/verify-directory/survey/corrections/corrections.json",
+  "policy": {
+    "cost": "free, and it stays free",
+    "who_may_ask": "anyone, including someone we measured without being asked",
+    "deletion": "there is no procedure to delete a record, including a wrong one. a correction is appended.",
+    "response_time": "not promised. we do not run a staffed desk and will not invent a number we cannot keep."
+  },
+  "corrections": [],
+  "note": "corrections is empty on 2026-08-19 because nobody has asked yet, not because nothing has been wrong. Three of our own counts were wrong before the published one; that is written on the report itself."
+}
