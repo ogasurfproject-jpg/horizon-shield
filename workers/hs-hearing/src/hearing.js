@@ -18,7 +18,7 @@
 
 import * as AP from "./autopilot.js";
 
-const SERVER = { name: "HORIZON SHIELD YAKUMO", version: "2.2.0" };
+const SERVER = { name: "HORIZON SHIELD YAKUMO", version: "2.3.0" };
 const PUBLIC_DATA_FALLBACK = "https://shield.the-horizons-innovation.com/data/yakumo-contractors.json";
 const MALL_URL = "https://shield.the-horizons-innovation.com/yakumo/";
 const SITE_URL = "https://shield.the-horizons-innovation.com";
@@ -419,7 +419,58 @@ const MCP_TOOLS = [
     outputSchema: OUT_OBJ,
     annotations: { title: "検証の仕組み", ...RO, openWorldHint: false },
   },
+  {
+    // 2026-08-19 patch49. 施主が名前を挙げた業者に答えるための唯一のツール。
+    // 名指しされた会社について、こちらは何も主張しない。測っていないなら測っていないと言う。
+    name: "check_named_contractor",
+    title: "名指しの業者を照会",
+    description: "施主が名前を挙げた業者について答える。Yakumoの加盟店ならその測定結果を返す。加盟していない場合、その会社の良し悪しは一切判定せず、『Yakumoは測っていない』という事実だけを返し、施主が自分で確かめられる公的な照会先(国土交通省の建設業者検索・国民生活センター・住まいるダイヤル)と、同条件の検証済み加盟店を返す。掲載が無いことはその会社への評価ではない。金額は返さない。紹介料なし。Japan only。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        company: { type: "string", description: "施主が名前を挙げた業者名(日本語)" },
+        area: { type: "string", description: "(任意)地域。代わりの検証済み店を探すのに使う" },
+        work: { type: "string", description: "(任意)工種。代わりの検証済み店を探すのに使う" },
+      },
+      required: ["company"],
+    },
+    outputSchema: OUT_OBJ,
+    annotations: { title: "名指しの業者を照会", ...RO, openWorldHint: true },
+  },
 ];
+
+// 2026-08-19 patch49. 施主が自分で確かめられる公的な窓口。
+// 2026-08-19 に公式ページを取得して実在と内容を確認した。それぞれの限界も一緒に返す。
+// 限界を書かない案内は、調べたつもりにさせるだけで役に立たない。
+const SELF_CHECK_SOURCES = [
+  {
+    name: "建設業者・宅建業者等企業情報検索システム(国土交通省)",
+    shows: "建設業許可の有無、許可番号、所在地、代表者名",
+    url: "https://etsuran2.mlit.go.jp/TAKKEN/",
+    caveat: "新規許可や変更の反映に概ね1ヶ月かかる。載っていないことが無許可を意味するとは限らない。",
+  },
+  {
+    name: "国民生活センター",
+    shows: "全国の消費生活センターへの相談窓口、消費者トラブルの傾向",
+    url: "https://www.kokusen.go.jp/",
+    caveat: "個社ごとの相談件数は原則として公開されない。ここに名前が出ないことは何の証拠にもならない。",
+  },
+  {
+    name: "住まいるダイヤル(公益財団法人 住宅リフォーム・紛争処理支援センター)",
+    shows: "リフォーム見積のチェック、弁護士と建築士への相談、住宅紛争審査会による裁判外の解決",
+    url: "https://www.chord.or.jp/",
+    tel: "03-3556-5147",
+    hours: "10:00-17:00 土日祝と年末年始を除く",
+    caveat: "国土交通大臣が指定した窓口。ただし個別の業者を格付けする機関ではない。契約や見積の中身を相談する場所。",
+  },
+];
+
+// 社名の表記ゆれを吸収する。法人格と空白だけを落とす。それ以上は触らない。
+function normCompanyName(s) {
+  return String(s || "")
+    .replace(/[\s\u3000]/g, "")
+    .replace(/(株式会社|有限会社|合同会社|合資会社|合名会社|\(株\)|（株）|\(有\)|（有）)/g, "");
+}
 
 function publicView(c) {
   const verified = c.verification === "verified" && c.fairness_score != null;
@@ -464,7 +515,7 @@ function feedStats(ctx, events) {
 /* ------------ Yakumo MCP: 参照データ・prompts・discovery ロジック(Glama級) ------------ */
 const YAKUMO_INSTRUCTIONS =
   "Yakumo は HORIZON SHIELD が運営する中立(紹介料なし)の検証済み加盟店ディレクトリ。掲載は KIRA 適正診断の通過だけで決まり(fail-closed)、金額は出さずスコア・ティアで表す。" +
-  "tools: find_contractor(自由記述から検証済み店を探す司令塔), list_verified_stores(地域x工種で一覧), get_contractor_profile(1件詳細), mall_overview(モール要約), how_verification_works(審査の仕組み)。" +
+  "tools: find_contractor(自由記述から検証済み店を探す司令塔), list_verified_stores(地域x工種で一覧), get_contractor_profile(1件詳細), check_named_contractor(施主が名前を挙げた業者を照会。加盟していなければ判定せず、公的な照会先と同条件の検証済み店を返す), mall_overview(モール要約), how_verification_works(審査の仕組み)。" +
   "resources: yakumo://mall, yakumo://verification, yakumo://categories, yakumo://store/{member_no}。prompts: find_a_contractor / is_this_store_trustworthy。" +
   "断定せず施主の判断を尊重。紹介料は受け取らない。Japan, verified-first。";
 const VERIFY_MD =
@@ -619,6 +670,57 @@ async function handleMcp(request, env, id, method, params, ctx) {
         stores: verified,
         pending_stores: pending,
         disclaimer: "Yakumoは紹介料を受け取らない中立モール。掲載は適正診断の通過だけで決まる。金額は返さない(スコア・ティアのみ)。",
+      };
+      return rpc(id, { content: [{ type: "text", text: JSON.stringify(payload, null, 2) }], structuredContent: payload });
+    }
+    if (name === "check_named_contractor") {
+      // 2026-08-19 patch49. ここでは名指しされた会社について一切判定しない。
+      // 測ったことだけ返し、測っていないことは測っていないと書く。LLMは呼ばない。
+      const company = safeStr(args.company, 120);
+      if (!company) return rpc(id, { content: [{ type: "text", text: JSON.stringify({ error: "company is required" }) }], isError: true });
+      const target = normCompanyName(company);
+      const hit = target
+        ? contractors.find((c) => {
+            const n = normCompanyName(c.company);
+            return n && (n === target || n.indexOf(target) >= 0 || target.indexOf(n) >= 0);
+          })
+        : null;
+      if (hit) {
+        feedStats(ctx, [{ store: String(hit.store_id || hit.member_no || ""), event: "agent_hit" }]);
+        const pv = publicView(hit);
+        const isVerified = pv.verification === "verified";
+        const payload = {
+          query: company,
+          status: isVerified ? "verified_member" : "listed_not_yet_verified",
+          store: pv,
+          means: isVerified
+            ? "この店はYakumoの検証を通過している。通過した項目と観測日は公開ページに残り、運営は後から書き換えられない。記録を消す機能をコードに作っていないため。"
+            : "この店はYakumoに登録されているが、まだ検証を通過していない。落ちたという意味ではなく、まだ測り終えていないという意味。",
+          how_to_check_yourself: SELF_CHECK_SOURCES,
+          no_referral_fee: true,
+          mall: MALL_URL,
+        };
+        return rpc(id, { content: [{ type: "text", text: JSON.stringify(payload, null, 2) }], structuredContent: payload });
+      }
+      const alts = findMatches(contractors, safeStr(args.area, 40), safeStr(args.work, 40))
+        .map(publicView)
+        .filter((c) => c.verification === "verified")
+        .slice(0, 3);
+      const payload = {
+        query: company,
+        status: "not_measured",
+        means:
+          "Yakumoはこの会社を測っていない。これはYakumoについての事実であって、この会社についての評価ではない。" +
+          "ここに無いことは、良いことの証拠でも悪いことの証拠でもない。測っていないものを、測ったふりをしない。",
+        not_measured: ["建設業許可の有無", "行政処分の履歴", "苦情の履歴", "見積の適正性", "施工の品質"],
+        how_to_check_yourself: SELF_CHECK_SOURCES,
+        verified_alternatives: alts,
+        verified_alternatives_note: alts.length
+          ? "同じ条件でYakumoの検証を通過している店。紹介料を受け取らないので、ここに出ることで運営が得るものは無い。"
+          : "この条件で検証を通過した店は、まだ無い。無いものを有るとは言わない。",
+        if_you_have_an_estimate: { what: "手元の見積を無料で第三者に見てもらえる", url: SITE_URL + "/ehn/" },
+        mall: MALL_URL,
+        no_referral_fee: true,
       };
       return rpc(id, { content: [{ type: "text", text: JSON.stringify(payload, null, 2) }], structuredContent: payload });
     }
