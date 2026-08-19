@@ -162,8 +162,13 @@ jobs:
               except Exception:
                   pass
 
-          # 8) 弐号の詳細レポート回収(管理キーがある時だけ)
-          if ADMIN:
+          # 8) 弐号の詳細レポート回収
+          # 2026-08-19 patch47: 鍵が無い/違う時に黙って飛ばしていた。
+          # 鍵が古いままでも保全レポートは静かに薄くなるだけで、誰も気づけない。
+          # 通っている時だけ静かにし、落ちている時は必ず本文に出す。
+          if not ADMIN:
+              problems.append("[鍵] HEARING_ADMIN_SECRET が Actions に渡っていない。弐号のレポートを取れていない")
+          else:
               st, body = fetch(W + "/admin/guardian", headers={"X-Admin-Key": ADMIN})
               if st == 200:
                   try:
@@ -174,6 +179,10 @@ jobs:
                           repairs.append("[弐号] " + r)
                   except Exception:
                       pass
+              elif st == 403:
+                  problems.append("[鍵] HEARING_ADMIN_SECRET が食い違っている(403)。Cloudflare側と GitHub secrets を突き合わせること")
+              else:
+                  problems.append("[鍵] /admin/guardian に到達できない(status=%s)" % st)
 
           # ---- 報告(Issue起票/更新/自動クローズ) ----
           TITLE = "🛡 保全レポート: Yakumoモール"
