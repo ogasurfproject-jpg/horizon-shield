@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>繋ぐ前に、相手を測る。AIエージェント接続前の第三者審査 · HORIZON SHIELD</title>
+<meta name="description" content="社内にAIエージェントを入れる前に、繋ぎ先のMCPサーバーを第三者が測ります。誰が運営しているか、金の出所はどこか、同じ答えを返すか。稟議に添付できる形で出します。">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/verify-directory/buyers/">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta property="og:type" content="website">
+<meta property="og:title" content="繋ぐ前に、相手を測る。">
+<meta property="og:description" content="社内にAIエージェントを入れる前に、繋ぎ先のMCPサーバーを第三者が測ります。誰が運営しているか、金の出所はどこか、同じ答えを返すか。稟議に添付できる形で出します。">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/verify-directory/buyers/">
+<meta property="og:site_name" content="HORIZON SHIELD">
+<meta property="og:image" content="https://shield.the-horizons-innovation.com/assets/lighthouse-og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/verify-directory/assets/vd.css">
+</head>
+<body class="jp">
+<header>
+  <div class="wrap bar">
+    <div class="logo"><a href="/verify-directory/">HORIZON SHIELD</a> <span class="sub">/ verify</span></div>
+    <nav class="navlinks">
+      <a href="/verify-directory/survey/">Survey</a>
+      <a href="/verify-directory/register/">Register</a>
+      <a href="/verify-directory/failures/">Failures</a>
+      <a href="/verify-directory/operators/">Operators</a>
+      <a href="/verify-directory/method/">Method</a>
+      <a href="/verify-directory/buyers/" style="color:var(--ink)">日本語</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap"><div class="crumb"><a href="/verify-directory/">verify</a><span class="sep">/</span>日本語 / 繋ぐ側の方へ</div></div>
+
+<main>
+
+<div class="wrap hero">
+  <div class="eyebrow"><span class="pulse"></span>AIエージェント接続前の第三者審査</div>
+  <h1><span class="g">繋ぐ前に、</span>相手を測る。</h1>
+  <p class="lede">社内にAIエージェントを入れるとき、繋ぎ先のMCPサーバーについて、<b>「安全か」「誰が運営しているか」「金の出所はどこか」を、繋ぐ前に確かめる方法が社内にありません。</b>そこを、第三者が読み取り専用で測って、稟議に添付できる形にして返します。</p>
+  <div class="metastrip">
+    <span class="dot">&bull;</span><b>読み取りのみ</b>
+    <span class="dot">&bull;</span><b>相手の同意は不要</b>
+    <span class="dot">&bull;</span><b>ツールは一切呼ばない</b>
+    <span class="dot">&bull;</span><b>結果は自分で再計算できる</b>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="kh">何が問題か</div>
+    <h2>繋ぎ先を審査する仕組みが、まだどこにもありません</h2>
+    <p class="slead">取引先を審査する仕組みは、どの会社にもあります。与信を取り、登記を見て、反社チェックをかける。<b>ところがAIエージェントの繋ぎ先については、同じことをする窓口がありません。</b></p>
+    <div class="kv">
+      <div class="r"><div class="k">誰が運営しているか</div><div class="v">MCPサーバーの多くは、運営者が機械の読める形で名乗っていません。名乗っていないことは、調べれば分かります。</div></div>
+      <div class="r"><div class="k">金の出所はどこか</div><div class="v">そのサーバーが誰から報酬を得ているか（<span class="mono">paid_by</span> / <span class="mono">referral_fee</span> / <span class="mono">listing_fee</span>）。<b>開示があるかどうかだけを見ます。中身の良し悪しは採点しません。</b></div></div>
+      <div class="r"><div class="k">同じ答えを返すか</div><div class="v">同じ入力に同じ出力が返るか。これは相手のツールを実際に動かすことになるので、<b>依頼があったときだけ測ります。</b></div></div>
+      <div class="r"><div class="k">そもそも生きているか</div><div class="v">外から <span class="mono">initialize</span> と <span class="mono">tools/list</span> が通るか。</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kh">出すもの</div>
+    <h2>稟議に添付できる形で返します</h2>
+    <ol class="steps">
+      <li><h4>接続前審査（単発）</h4><p>指定されたMCPサーバーを測り、5つの条件それぞれの結果と、<b>その結果を御社が自分で再計算するための手順とハッシュ</b>を付けて返します。「業者がそう言っている」ではなく、<b>「御社の担当者が手元で同じ結果を出せる」</b>形にします。</p></li>
+      <li><h4>接続前審査（まとめ）</h4><p>社内で使う候補を一括で測って、一覧で返します。どれを繋ぎ、どれを繋がないかの判断材料になります。</p></li>
+      <li><h4>継続監視</h4><p>繋いだあとが本番です。<b>条件は変わります。</b>変わった時点で知らせます。ここは既に動いている仕組みで、価格も公開しています。</p></li>
+    </ol>
+    <div class="kv">
+      <div class="r"><div class="k">継続監視</div><div class="v"><b>月 $15</b>（3本まで。上限を超える分は1本 $5）／ <b>年 $150</b>（2か月分無料）。<a href="/verify-directory/monitoring/">価格ページ</a></div></div>
+      <div class="r"><div class="k">接続前審査</div><div class="v">対象の本数と、依頼される条件（決定性を測るかどうかなど）で工数が変わるため、<b>個別にお見積りします。</b>金額の根拠は工数の内訳ごと出します。</div></div>
+      <div class="r"><div class="k">測定そのもの</div><div class="v"><b>無料です。</b>誰でも、アカウント無しで、いつでも測れます。<a href="/verify-directory/">こちらから</a>。売っているのは測定ではなく、<b>まとめること・稟議の形にすること・変化を知らせること</b>です。</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="confess">
+      <div class="big">なぜこの会社の測定を信じられるのか</div>
+      <p>弊社は自分の検証機を持っていて、<b>自社のサーバーも毎日その機械に測られています。</b>そして通らなかった日は、通らなかったまま公開されています。</p>
+      <p><b>消す機能を作っていません。</b>作らなかったのではなく、作れないように設計してあります。都合の悪い測定結果を消せる会社の測定結果には、意味がないからです。</p>
+      <p>いま緑になっていない行は、自社のぶんも含めて<a href="/verify-directory/failures/">こちらに全部出しています</a>。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kh">やらないこと</div>
+    <h2>審査で分かることには、天井があります</h2>
+    <ul class="nots">
+      <li><span class="x">&#10007;</span><span><b>そのサーバーが出す数字が正しいことの保証にはなりません。</b>測っているのは振る舞いと開示であって、計算の中身ではありません。</span></li>
+      <li><span class="x">&#10007;</span><span><b>開示された内容が真実であることの保証にもなりません。</b>開示が無いことは機械で分かりますが、開示が嘘であることは機械では分かりません。</span></li>
+      <li><span class="x">&#10007;</span><span><b>その事業者が優秀であることの保証にもなりません。</b>エンドポイントからは測れないので、測れるふりをしません。</span></li>
+      <li><span class="x">&#10007;</span><span><b>認定証ではありません。</b>ある時点の測定結果です。測定が変われば、表示も変わります。</span></li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kh">お問い合わせ</div>
+    <h2>測ってほしいエンドポイントを送ってください</h2>
+    <p class="slead">審査の依頼、見積、社内説明用の資料が必要な場合は、<span class="mono">contact@the-horizons-innovation.com</span> 宛に、対象のエンドポイントと、いつまでに判断が要るかをお送りください。</p>
+    <p class="slead" style="margin-top:12px"><b>その前に、まず自分で測ってみてください。</b>無料で、アカウント無しで、10秒です。それで足りるなら、それで足ります。</p>
+    <div class="linkset">
+      <a href="/verify-directory/">いますぐ測る</a>
+      <a href="/verify-directory/method/">5つの条件の定義（英語）</a>
+      <a href="/verify-directory/register/">測定済みの一覧</a>
+      <a href="/verify-directory/failures/">緑になっていない行</a>
+      <a href="/tokusho">特定商取引法に基づく表記</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="honest">
+      <div class="t">運営</div>
+      <p>The HORIZ音s株式会社（法人番号 7021001075279）。統括 大賀俊勝（<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>）。<b>紹介料は受け取っていません。</b>判定・掲載順は販売していません。</p>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer>
+  <div class="wrap">
+    <div class="top">Corrections are welcome and are treated as defects. If a row here is wrong, or a condition measures differently on your side, say so and it is re-measured in public. Write to <span class="mono">contact@the-horizons-innovation.com</span>.</div>
+    Operator: The HORIZONs Co., Ltd. (Corporate Number 7021001075279). Supervised by Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>), 30 years on construction sites.<br>
+    <a href="/verify-directory/">Front door</a> &middot; <a href="/verify-directory/survey/">Survey</a> &middot; <a href="/verify-directory/register/">Register</a> &middot; <a href="/verify-directory/failures/">Failures</a> &middot; <a href="/verify-directory/method/">Method</a> &middot; <a href="/verify-directory/operators/">Operators</a> &middot; <a href="/verify-directory/buyers/">日本語</a> &middot; <a href="/verify-directory/about/">About</a><br>
+    <a href="/verify-directory/badge/">Badge</a> &middot; <a href="/verify-directory/monitoring/">Monitoring</a> &middot; <a href="/verify-directory/recompute/">Recompute a verdict</a> &middot; <a href="https://gate.horizonshield.dev/spec">Verification spec</a> &middot; <a href="https://gate.horizonshield.dev/self">The checker's verdict on itself</a> &middot; <a href="/tokusho">Legal notice</a><br>
+    Zero referral fees. Verdicts, scores and listing order are not for sale. This page describes tamper resistance, not the validity of any ruleset over time.<br><br>
+    &copy; 2026 The HORIZONs Co., Ltd. &middot; HORIZON SHIELD
+  </div>
+</footer>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script>
+</body>
+</html>

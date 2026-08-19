@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>You run an MCP server. Here is what happens. · HORIZON SHIELD</title>
+<meta name="description" content="Free measurement, no account, a badge drawn at request time, and a plain list of what to change when a condition is not met. Measurement is free and always will be.">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/verify-directory/operators/">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta property="og:type" content="website">
+<meta property="og:title" content="You run an MCP server. Measurement is free and always will be.">
+<meta property="og:description" content="Free measurement, no account, a badge drawn at request time, and a plain list of what to change when a condition is not met. Measurement is free and always will be.">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/verify-directory/operators/">
+<meta property="og:site_name" content="HORIZON SHIELD">
+<meta property="og:image" content="https://shield.the-horizons-innovation.com/assets/lighthouse-og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/verify-directory/assets/vd.css">
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <div class="logo"><a href="/verify-directory/">HORIZON SHIELD</a> <span class="sub">/ verify</span></div>
+    <nav class="navlinks">
+      <a href="/verify-directory/survey/">Survey</a>
+      <a href="/verify-directory/register/">Register</a>
+      <a href="/verify-directory/failures/">Failures</a>
+      <a href="/verify-directory/operators/" style="color:var(--ink)">Operators</a>
+      <a href="/verify-directory/method/">Method</a>
+      <a href="/verify-directory/buyers/">日本語</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap"><div class="crumb"><a href="/verify-directory/">verify</a><span class="sep">/</span>operators</div></div>
+
+<main>
+
+<div class="wrap hero">
+  <div class="eyebrow"><span class="pulse"></span>free, read only, no account</div>
+  <h1><span class="g">You run a server.</span> Being measured costs nothing.</h1>
+  <p class="lede">There is no application to review, so there is nobody to persuade and no reason to charge you. <b>Measurement is free and always will be.</b> What you can pay for is being told the moment something changes, and being told exactly what to change when it does.</p>
+  <div class="linkset">
+    <a href="/verify-directory/">Measure a server now</a>
+    <a href="/verify-directory/method/">What the five conditions measure</a>
+    <a href="/verify-directory/badge/">The badge</a>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="kh">Three steps</div>
+    <h2>No account, no fee, no waiting list</h2>
+    <ol class="steps">
+      <li><h4>Put your endpoint in front of the gate</h4><p>It reads <code>initialize</code> and <code>tools/list</code>, and it reads your agent card. <b>It calls none of your tools.</b> Ten seconds, nothing installed, nothing signed.</p></li>
+      <li><h4>Read the verdict, and the hash under it</h4><p>Every verdict carries a <span class="mono">record_sha256</span>. <b>Recompute it before you believe us.</b> A verifier you have to trust is not a verifier.</p></li>
+      <li><h4>Fix what is not met, and be measured again</h4><p>Nothing here is reviewed by a person, so there is no appeal to write. Change the condition and the next sweep says so.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kh">When a condition is not met</div>
+    <h2>What to change, condition by condition</h2>
+    <div class="kv">
+      <div class="r"><div class="k">01 &middot; endpoint</div><div class="v">The gate could not complete <code>initialize</code> and <code>tools/list</code> from the public internet. Common causes: the server only listens locally, the transport is stdio rather than HTTP, or a proxy in front is rejecting an unauthenticated read.</div></div>
+      <div class="r"><div class="k">02 &middot; identity</div><div class="v">Serve <code>/.well-known/agent-card.json</code> with at least a name and a description, as JSON, over HTTPS.</div></div>
+      <div class="r"><div class="k">03 &middot; disclosure</div><div class="v">Declare <code>paid_by</code>, <code>referral_fee</code> and <code>listing_fee</code> on the card. <b>Only silence disqualifies.</b> "referral_fee: none" and "referral_fee: 20 percent" both pass. We are not scoring the answer, only whether it was given.</div></div>
+      <div class="r"><div class="k">04 &middot; determinism</div><div class="v">Not measured unless you ask for it, because it means executing one of your tools. Ask, and name the tool that is safe to call twice.</div></div>
+      <div class="r"><div class="k">05 &middot; recomputable</div><div class="v">This one is on us, not on you. If a hash does not recompute, that is our defect.</div></div>
+    </div>
+    <p class="slead" style="margin-top:20px">If you want this walked through against your actual server, that is the paid part. Write to <span class="mono">contact@the-horizons-innovation.com</span> with the endpoint.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kh">The badge</div>
+    <h2>Drawn when it is asked for, not issued once</h2>
+    <p class="slead">There is no procedure for taking a badge away, because there does not need to be one. <b>The image is drawn from the register at request time, so it stops being green the moment your row does.</b></p>
+    <p class="slead" style="margin-top:12px">A saved file is a different thing: it stays green forever. So the saved version carries <b>the date it was measured and the address where the current row lives</b>. A dated snapshot is not a lie. A green rectangle with no date would be.</p>
+    <div class="linkset">
+      <a href="/verify-directory/badge/">Badge, live and downloadable</a>
+      <a href="/verify-directory/monitoring/">Be told when a condition flips</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="honest">
+      <div class="t">One thing you should know</div>
+      <p><b>Anyone can put a server in front of this gate, including one they do not own.</b> That includes yours, and it includes ours. The check is read only and calls no tool, so there is nothing there to abuse. But it does mean the register can contain a row you did not create. <b>If that row is wrong, ask for a re-measurement and both results stay published.</b></p>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer>
+  <div class="wrap">
+    <div class="top">Corrections are welcome and are treated as defects. If a row here is wrong, or a condition measures differently on your side, say so and it is re-measured in public. Write to <span class="mono">contact@the-horizons-innovation.com</span>.</div>
+    Operator: The HORIZONs Co., Ltd. (Corporate Number 7021001075279). Supervised by Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>), 30 years on construction sites.<br>
+    <a href="/verify-directory/">Front door</a> &middot; <a href="/verify-directory/survey/">Survey</a> &middot; <a href="/verify-directory/register/">Register</a> &middot; <a href="/verify-directory/failures/">Failures</a> &middot; <a href="/verify-directory/method/">Method</a> &middot; <a href="/verify-directory/operators/">Operators</a> &middot; <a href="/verify-directory/buyers/">日本語</a> &middot; <a href="/verify-directory/about/">About</a><br>
+    <a href="/verify-directory/badge/">Badge</a> &middot; <a href="/verify-directory/monitoring/">Monitoring</a> &middot; <a href="/verify-directory/recompute/">Recompute a verdict</a> &middot; <a href="https://gate.horizonshield.dev/spec">Verification spec</a> &middot; <a href="https://gate.horizonshield.dev/self">The checker's verdict on itself</a> &middot; <a href="/tokusho">Legal notice</a><br>
+    Zero referral fees. Verdicts, scores and listing order are not for sale. This page describes tamper resistance, not the validity of any ruleset over time.<br><br>
+    &copy; 2026 The HORIZONs Co., Ltd. &middot; HORIZON SHIELD
+  </div>
+</footer>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script>
+</body>
+</html>

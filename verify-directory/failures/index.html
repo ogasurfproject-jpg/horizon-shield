@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rows that are not green, including ours · HORIZON SHIELD</title>
+<meta name="description" content="Every row on the register that is not currently verified, drawn live, with our own servers in the same table. Held means we could not measure it. Pending means we measured it and a condition was not met.">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/verify-directory/failures/">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta property="og:type" content="website">
+<meta property="og:title" content="The rows that are not green. Ours are in here too.">
+<meta property="og:description" content="Every row on the register that is not currently verified, drawn live, with our own servers in the same table. Held means we could not measure it. Pending means we measured it and a condition was not met.">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/verify-directory/failures/">
+<meta property="og:site_name" content="HORIZON SHIELD">
+<meta property="og:image" content="https://shield.the-horizons-innovation.com/assets/lighthouse-og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/verify-directory/assets/vd.css">
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <div class="logo"><a href="/verify-directory/">HORIZON SHIELD</a> <span class="sub">/ verify</span></div>
+    <nav class="navlinks">
+      <a href="/verify-directory/survey/">Survey</a>
+      <a href="/verify-directory/register/">Register</a>
+      <a href="/verify-directory/failures/" style="color:var(--ink)">Failures</a>
+      <a href="/verify-directory/operators/">Operators</a>
+      <a href="/verify-directory/method/">Method</a>
+      <a href="/verify-directory/buyers/">日本語</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap"><div class="crumb"><a href="/verify-directory/">verify</a><span class="sep">/</span>failures</div></div>
+
+<main>
+
+<div class="wrap hero">
+  <div class="eyebrow"><span class="pulse"></span>drawn live from the register</div>
+  <h1><span class="g">The rows that are not green.</span> Ours are in here too.</h1>
+  <p class="lede">A register that only shows passes is an advertisement. This page shows the other rows, from the same source, on the same load. <b>There is no procedure for hiding one, because we did not build one.</b></p>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="kh">Two words that are not the same word</div>
+    <h2>Held is not failed</h2>
+    <div class="kv">
+      <div class="r"><div class="k">verified</div><div class="v">Measured, and every condition that was measured was met.</div></div>
+      <div class="r"><div class="k">pending</div><div class="v"><b>We measured it and a condition was not met.</b> This is a statement about the server.</div></div>
+      <div class="r"><div class="k">held</div><div class="v"><b>We could not measure it.</b> This is a statement about our instrument, not about the server. On 2026-08-19 our own gate spent a stretch of days in this state because of a fault entirely on our side, and it was labelled held the whole time rather than being labelled unreachable.</div></div>
+    </div>
+    <p class="slead" style="margin-top:20px">If a row here is <span class="mono">held</span>, the honest reading is <b>"unknown"</b>, and it would be wrong to tell anyone otherwise.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kh">Right now</div>
+    <h2>Every row that is not verified</h2>
+    <p class="slead" id="failnote">Loading the register&hellip;</p>
+    <div class="failwrap" id="failrows"></div>
+    <div class="failnote">Read from <span class="mono">gate.horizonshield.dev/register</span> on page load. If this list is empty, that is the state of the register at this moment, not a claim that nothing ever fails.</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kh">If one of these is yours</div>
+    <h2>The way out is not a conversation</h2>
+    <p class="slead">Nothing here is reviewed by a person, so there is nobody to persuade. Fix the condition, and the next measurement says so. <b>If you think the measurement itself is wrong, say so and it is measured again in public, with both results kept.</b></p>
+    <div class="linkset">
+      <a href="/verify-directory/method/">What each condition measures</a>
+      <a href="/verify-directory/operators/">How to fix each one</a>
+      <a href="/verify-directory/recompute/">Recompute the verdict yourself</a>
+      <a href="mailto:contact@the-horizons-innovation.com">Ask for a re-measurement</a>
+    </div>
+  </div>
+</section>
+
+</main>
+<script>
+const GATE = "https://gate.horizonshield.dev";
+function regCard(r, showSeal){
+  const d = document.createElement("div"); d.className = "regcard";
+  const top = document.createElement("div"); top.className = "regtop";
+  const lb = r.operator_label || {};
+  const nm = document.createElement("a"); nm.className = "regname";
+  nm.href = "https://gate.horizonshield.dev" + (r.page_url ? r.page_url : "/e/" + String(r.endpoint).replace(/^https?:\/\//, ""));
+  nm.textContent = lb.en ? lb.en : (lb.ja ? lb.ja : r.endpoint);
+  top.appendChild(nm);
+  const stat = (r.latest && r.latest.status) ? r.latest.status : "not yet measured";
+  const st = document.createElement("span");
+  st.className = "regbadge " + (stat === "verified" ? "b-pass" : stat === "pending" ? "b-pend" : stat === "held" ? "b-none" : "b-none");
+  st.textContent = stat + ((r.latest && r.latest.at) ? " \u00b7 " + String(r.latest.at).slice(0, 10) : "");
+  top.appendChild(st);
+  d.appendChild(top);
+  if (lb.ja){ const ja = document.createElement("div"); ja.className = "regdesc"; ja.textContent = lb.ja; d.appendChild(ja); }
+  const meta = document.createElement("div"); meta.className = "regmeta";
+  const ep = document.createElement("span"); ep.className = "mono"; ep.textContent = r.endpoint; meta.appendChild(ep);
+  if (typeof r.measurements === "number"){
+    const m = document.createElement("span"); m.className = "mono";
+    m.textContent = r.measurements + (r.measurements === 1 ? " measurement" : " measurements");
+    meta.appendChild(m);
+  }
+  if (r.history_url){ const h = document.createElement("a"); h.href = r.history_url; h.textContent = "history"; meta.appendChild(h); }
+  const dl = document.createElement("a");
+  dl.href = GATE + "/badge/seal?download=1&endpoint=" + encodeURIComponent(r.endpoint);
+  dl.textContent = "save badge"; dl.setAttribute("download", ""); meta.appendChild(dl);
+  d.appendChild(meta);
+  if (showSeal){
+    const seal = document.createElement("img");
+    seal.src = GATE + "/badge/seal?endpoint=" + encodeURIComponent(r.endpoint);
+    seal.alt = "MCP conduct " + stat + " for " + (lb.en || r.endpoint);
+    seal.loading = "lazy"; seal.className = "regseal";
+    d.appendChild(seal);
+  }
+  return d;
+}
+async function loadRegister(boxId, noteId, filter, showSeal, phrase){
+  const box = document.getElementById(boxId), note = document.getElementById(noteId);
+  if (!box || !note) return;
+  try{
+    const res = await fetch(GATE + "/register");
+    const data = await res.json();
+    const all = Array.isArray(data.rows) ? data.rows : [];
+    const rows = filter ? all.filter(filter) : all;
+    box.textContent = "";
+    note.textContent = phrase(rows.length, all.length);
+    rows.forEach(function(r){ box.appendChild(regCard(r, showSeal)); });
+  }catch(e){
+    note.textContent = "live register unavailable (" + e.message + "). The gate answers at /register directly, so this page being down says nothing about the rows.";
+  }
+}
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  loadRegister("failrows", "failnote",
+    function(r){ return !(r.latest && r.latest.status === "verified"); },
+    false,
+    function(n, total){
+      if (!n) return "Every one of the " + total + " rows on the register is verified at this moment. That is today's state, not a permanent claim.";
+      return n + " of " + total + " rows are not verified right now.";
+    });
+});
+</script>
+<footer>
+  <div class="wrap">
+    <div class="top">Corrections are welcome and are treated as defects. If a row here is wrong, or a condition measures differently on your side, say so and it is re-measured in public. Write to <span class="mono">contact@the-horizons-innovation.com</span>.</div>
+    Operator: The HORIZONs Co., Ltd. (Corporate Number 7021001075279). Supervised by Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>), 30 years on construction sites.<br>
+    <a href="/verify-directory/">Front door</a> &middot; <a href="/verify-directory/survey/">Survey</a> &middot; <a href="/verify-directory/register/">Register</a> &middot; <a href="/verify-directory/failures/">Failures</a> &middot; <a href="/verify-directory/method/">Method</a> &middot; <a href="/verify-directory/operators/">Operators</a> &middot; <a href="/verify-directory/buyers/">日本語</a> &middot; <a href="/verify-directory/about/">About</a><br>
+    <a href="/verify-directory/badge/">Badge</a> &middot; <a href="/verify-directory/monitoring/">Monitoring</a> &middot; <a href="/verify-directory/recompute/">Recompute a verdict</a> &middot; <a href="https://gate.horizonshield.dev/spec">Verification spec</a> &middot; <a href="https://gate.horizonshield.dev/self">The checker's verdict on itself</a> &middot; <a href="/tokusho">Legal notice</a><br>
+    Zero referral fees. Verdicts, scores and listing order are not for sale. This page describes tamper resistance, not the validity of any ruleset over time.<br><br>
+    &copy; 2026 The HORIZONs Co., Ltd. &middot; HORIZON SHIELD
+  </div>
+</footer>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script>
+</body>
+</html>

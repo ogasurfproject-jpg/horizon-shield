@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recompute a published hash, and verify a signed event</title>
+<meta name="description" content="Work out which canonicalization reproduces a hash somebody published, without asking them. Recompute a NIP-01 event id and verify its BIP340 signature in your own browser. Read only, nothing stored.">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/verify-directory/recompute/">
+<meta property="og:title" content="Recompute a published hash">
+<meta property="og:description" content="A hash without a recipe cannot be checked by a stranger. This works the recipe out from outside.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/verify-directory/recompute/">
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --line:#30363d; --txt:#e6edf3; --dim:#8b949e;
+    --ok:#3fb950; --warn:#d29922; --key:#2dd4bf; --link:#58a6ff; --bad:#f85149;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    font-size:16px;line-height:1.6}
+  code,pre,input,textarea,.mono{font-family:"SF Mono",Menlo,Consolas,monospace}
+  a{color:var(--link)}
+  header{padding:34px 26px 22px;border-bottom:1px solid var(--line);max-width:1080px;margin:0 auto}
+  header h1{margin:0 0 10px;font-size:27px;font-weight:600;line-height:1.3}
+  header p{margin:0 0 8px;color:var(--dim);max-width:74ch}
+  header .crumb{font-size:14px;color:var(--dim);margin:0 0 14px}
+  main{max-width:1080px;margin:0 auto;padding:0 26px 90px}
+  .tabs{display:flex;gap:8px;margin:26px 0 0;flex-wrap:wrap}
+  .tabs button{font:inherit;font-size:15px;padding:10px 18px;border-radius:8px 8px 0 0;
+    border:1px solid var(--line);border-bottom:none;background:#0f1319;color:var(--dim);cursor:pointer}
+  .tabs button.on{background:var(--panel);color:var(--txt)}
+  .pane{border:1px solid var(--line);border-radius:0 10px 10px 10px;background:var(--panel);
+    padding:22px;display:none}
+  .pane.on{display:block}
+  .pane h2{margin:0 0 6px;font-size:19px;font-weight:600}
+  .pane .lead{margin:0 0 18px;color:var(--dim);max-width:76ch}
+  label{display:block;font-size:14px;color:var(--dim);margin:16px 0 6px}
+  textarea,input[type=text]{width:100%;background:#0b0f14;color:var(--txt);
+    border:1px solid var(--line);border-radius:8px;padding:12px;font-size:14px}
+  textarea{min-height:160px;resize:vertical}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center}
+  button.act{font:inherit;font-size:15px;padding:11px 22px;border-radius:8px;
+    border:1px solid #2ea043;background:#238636;color:#fff;cursor:pointer}
+  button.act:hover{background:#2ea043}
+  button.sec{font:inherit;font-size:15px;padding:11px 18px;border-radius:8px;
+    border:1px solid var(--line);background:#21262d;color:var(--txt);cursor:pointer}
+  button.sec:hover{background:#30363d}
+  button:disabled{opacity:.45;cursor:default}
+  .status{color:var(--warn);font-size:14px}
+  .out{margin-top:22px}
+  .verdict{border-radius:10px;padding:16px 18px;border:1px solid var(--line);margin-bottom:16px}
+  .verdict.yes{border-color:#2ea043;background:#0f1c12}
+  .verdict.no{border-color:var(--warn);background:#1d1a10}
+  .verdict h3{margin:0 0 6px;font-size:18px}
+  .verdict.yes h3{color:#7ee787}
+  .verdict.no h3{color:#ffd97a}
+  .verdict p{margin:6px 0 0;font-size:15px}
+  .recipe{border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:10px 0;background:#0b0f14}
+  .recipe .expr{font-size:15px;margin:0 0 8px}
+  .recipe pre{margin:8px 0 0;padding:12px;background:#0d1117;border:1px solid var(--line);
+    border-radius:6px;overflow-x:auto;font-size:13px;white-space:pre-wrap;word-break:break-word}
+  .badge{display:inline-block;font-size:12px;padding:3px 9px;border-radius:999px;
+    border:1px solid var(--line);margin-right:8px}
+  .badge.jcs{border-color:#2ea043;color:#7ee787}
+  .badge.nojcs{border-color:var(--warn);color:#ffd97a}
+  .badge.pair{border-color:var(--key);color:var(--key)}
+  details{margin-top:14px;border:1px solid var(--line);border-radius:8px;background:#0b0f14}
+  details summary{cursor:pointer;padding:12px 16px;font-size:14px;color:var(--dim)}
+  details pre{margin:0;padding:0 16px 16px;font-size:13px;white-space:pre-wrap;
+    word-break:break-word;color:var(--dim)}
+  ul.limits{margin:12px 0 0;padding-left:20px;color:var(--dim);font-size:14px}
+  ul.limits li{margin:6px 0}
+  .kv{display:grid;grid-template-columns:220px 1fr;gap:6px 14px;font-size:14px;margin-top:12px}
+  .kv div:nth-child(odd){color:var(--dim)}
+  .relaylog{font-size:13px;color:var(--dim);margin-top:10px}
+  .relaylog span{display:block}
+  footer{border-top:1px solid var(--line);max-width:1080px;margin:0 auto;padding:26px;
+    color:var(--dim);font-size:14px}
+  footer h3{color:var(--txt);font-size:16px;margin:0 0 8px}
+  .err{color:var(--bad)}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="crumb"><a href="/verify-directory/">MCP Conduct Register</a> / recompute</p>
+  <h1>Recompute a published hash, and verify a signed event</h1>
+  <p>A published hash without a published recipe cannot be checked by a stranger. They have to
+  take the issuer's word for it. This works the recipe out from the outside, by trying the
+  canonicalizations that real systems use and reporting which one reproduces the value.</p>
+  <p>Read only. Nothing is stored. Nothing you paste is retained after the response.</p>
+</header>
+
+<main>
+  <div class="tabs">
+    <button id="t1" class="on" onclick="tab(1)">Recompute a hash</button>
+    <button id="t2" onclick="tab(2)">Verify a signed event</button>
+  </div>
+
+  <!-- ------------------------------------------------------------ pane 1 -->
+  <section id="p1" class="pane on">
+    <h2>Which canonicalization reproduces this hash</h2>
+    <p class="lead">Paste the JSON object as it was published, and the hash somebody claims was
+    taken over it. If a recipe reproduces the value, you get the exact expression, and whether
+    that recipe is RFC 8785 JCS. A hash that cannot be reproduced is reported as not reproduced,
+    with the number of combinations tried. That is never a finding that the hash is wrong.</p>
+
+    <label for="obj">The JSON object, as published</label>
+    <textarea id="obj" spellcheck="false" placeholder='{"a": 1, "b": "text"}'></textarea>
+
+    <label for="claim">The claimed SHA-256, 64 hex characters. Leave empty to get canonical forms instead.</label>
+    <input type="text" id="claim" spellcheck="false" autocomplete="off" placeholder="optional">
+
+    <div class="row">
+      <button class="act" id="go1" onclick="recompute()">Recompute</button>
+      <button class="sec" onclick="loadExample()">Load an example</button>
+      <button class="sec" onclick="clearPane(1)">Clear</button>
+      <span class="status" id="s1"></span>
+    </div>
+
+    <div class="out" id="o1"></div>
+  </section>
+
+  <!-- ------------------------------------------------------------ pane 2 -->
+  <section id="p2" class="pane">
+    <h2>Recompute the id, verify the signature, and see what is inside it</h2>
+    <p class="lead">Give an event id and this page asks public relays for the signed event over a
+    WebSocket opened by your browser. The issuer's own servers are not involved in getting it.
+    The id is then recomputed and the BIP340 signature verified. For any field name you list, the
+    answer says whether it sits inside the signed bytes or beside them.</p>
+
+    <label for="eid">Event id, 64 hex characters</label>
+    <input type="text" id="eid" spellcheck="false" autocomplete="off" placeholder="the id of a signed event">
+
+    <div class="row">
+      <button class="sec" id="gofetch" onclick="fetchEvent()">Fetch from public relays</button>
+      <span class="status" id="s2f"></span>
+    </div>
+    <div class="relaylog" id="rlog"></div>
+
+    <label for="ev">The signed event. Filled in by the fetch above, or paste one yourself.</label>
+    <textarea id="ev" spellcheck="false" placeholder='{"id":"...","pubkey":"...","created_at":0,"kind":1,"tags":[],"content":"...","sig":"..."}'></textarea>
+
+    <label for="inside">Field names to locate, separated by commas. Optional.</label>
+    <input type="text" id="inside" spellcheck="false" autocomplete="off" placeholder="review_model_hash, policy_version">
+
+    <div class="row">
+      <button class="act" id="go2" onclick="verifyEvent()">Verify</button>
+      <button class="sec" onclick="clearPane(2)">Clear</button>
+      <span class="status" id="s2"></span>
+    </div>
+
+    <div class="out" id="o2"></div>
+  </section>
+</main>
+
+<footer>
+  <h3>What this does not do</h3>
+  <p>It does not rank anything. It does not recommend one service over another. It does not tell
+  you whether a record is true. A hash that reproduces shows only that the bytes you hold are the
+  bytes that were hashed. A signature that verifies shows only that the holder of the key signed
+  those bytes.</p>
+  <p>The search space is bounded and is listed with every answer. A hash it cannot reproduce may
+  still be correct: the serialization may be outside that space, the hashed input may include
+  something that was never published, or the construction may be keyed.</p>
+  <p>Numbers are compared after JSON parsing, so a value published as 1.0 is reproduced as 1.
+  A hash taken over text that distinguishes those two will not be found here.</p>
+  <p><a href="/verify-directory/">Back to the register</a>
+     &nbsp;<a href="https://gate.horizonshield.dev/recompute">Endpoint usage</a>
+     &nbsp;<a href="https://gate.horizonshield.dev/verify-event">Event endpoint usage</a></p>
+</footer>
+
+<script>
+const GATE = "https://gate.horizonshield.dev";
+const RELAYS = ["wss://nos.lol", "wss://relay.primal.net", "wss://relay.damus.io", "wss://relay.nostr.band"];
+
+function tab(n){
+  for (const i of [1,2]) {
+    document.getElementById("t"+i).classList.toggle("on", i===n);
+    document.getElementById("p"+i).classList.toggle("on", i===n);
+  }
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function el(id){return document.getElementById(id);}
+
+function clearPane(n){
+  if (n===1){ el("obj").value=""; el("claim").value=""; el("o1").innerHTML=""; el("s1").textContent=""; }
+  else { el("eid").value=""; el("ev").value=""; el("inside").value=""; el("o2").innerHTML=""; el("s2").textContent=""; el("rlog").innerHTML=""; }
+}
+
+function loadExample(){
+  const obj = { entry: 1, note: "two hashes over one object", title: "ハッシュの作り方", items: [1,2,3] };
+  el("obj").value = JSON.stringify(obj, null, 2);
+  el("claim").value = "";
+  el("o1").innerHTML = "<p class='status'>No claimed hash was entered, so pressing Recompute " +
+    "returns the canonical forms and their hashes. Copy one of those into the field above and " +
+    "press Recompute again to see the recipe come back out.</p>";
+}
+
+async function post(path, body){
+  const r = await fetch(GATE + path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+  const d = await r.json();
+  return { status: r.status, body: d };
+}
+
+// ---------------------------------------------------------------- pane 1
+
+async function recompute(){
+  const out = el("o1"), st = el("s1"), btn = el("go1");
+  out.innerHTML = ""; st.textContent = "working";
+  btn.disabled = true;
+  let obj;
+  try { obj = JSON.parse(el("obj").value); }
+  catch (e) { st.textContent = ""; btn.disabled = false;
+    out.innerHTML = "<p class='err'>That is not valid JSON. " + esc(e.message) + "</p>"; return; }
+
+  const claimed = el("claim").value.trim().toLowerCase();
+  const body = { object: obj };
+  if (claimed) body.claimed = claimed;
+
+  let r;
+  try { r = await post("/recompute", body); }
+  catch (e) { st.textContent = ""; btn.disabled = false;
+    out.innerHTML = "<p class='err'>The request did not complete. " + esc(e.message) + "</p>"; return; }
+  st.textContent = ""; btn.disabled = false;
+  const d = r.body;
+
+  if (r.status !== 200) {
+    out.innerHTML = "<p class='err'>" + esc(d.error || "The request was rejected.") + "</p>";
+    return;
+  }
+
+  if (d.mode === "canonicalize") {
+    let h = "<div class='verdict'><h3>Canonical forms</h3><p>" + esc(d.purpose) + "</p></div>";
+    h += "<div class='kv'>";
+    for (const [k, v] of Object.entries(d.forms)) {
+      h += "<div>" + esc(k) + "</div><div class='mono'>" + esc(v.sha256) +
+           "<br><span style='color:var(--dim)'>" + v.bytes + " bytes" +
+           (v.note ? ". " + esc(v.note) : "") + "</span></div>";
+    }
+    h += "</div>";
+    h += limitsBlock(d.limits);
+    out.innerHTML = h;
+    return;
+  }
+
+  let h = "";
+  if (d.reproduced) {
+    h += "<div class='verdict yes'><h3>Reproduced</h3><p>" + d.candidates_tried +
+         " combinations were tried. " + d.recipes.length +
+         (d.recipes.length === 1 ? " recipe reproduces this hash." : " recipes reproduce this hash.") +
+         "</p>" + (d.canonicalization_note ? "<p>" + esc(d.canonicalization_note) + "</p>" : "") + "</div>";
+    for (const rc of d.recipes) {
+      const b = rc.matches_rfc8785_jcs === true ? "<span class='badge jcs'>RFC 8785 JCS</span>"
+             : rc.matches_rfc8785_jcs === false ? "<span class='badge nojcs'>not JCS</span>"
+             : "<span class='badge pair'>joined hex values</span>";
+      h += "<div class='recipe'>" + b +
+           (rc.subject ? "<span class='badge'>subject: " + esc(rc.subject) + "</span>" : "") +
+           "<p class='expr'>" + esc(rc.expression) + "</p>" +
+           (rc.python ? "<pre>" + esc(rc.python) + "</pre>" : "") + "</div>";
+    }
+  } else {
+    h += "<div class='verdict no'><h3>Not reproduced</h3><p>" + esc(d.what_this_is_not) + "</p>";
+    h += "<p>Any of these would explain it.</p><ul class='limits'>";
+    for (const m of d.not_reproduced_means) h += "<li>" + esc(m) + "</li>";
+    h += "</ul></div>";
+  }
+  h += "<details><summary>The space that was searched</summary><pre>" +
+       esc(JSON.stringify(d.space_searched, null, 2)) + "</pre></details>";
+  h += limitsBlock(d.limits);
+  out.innerHTML = h;
+}
+
+function limitsBlock(list){
+  if (!list || !list.length) return "";
+  let h = "<details><summary>What this answer does not settle</summary><pre>";
+  h += list.map(x => "- " + x).join("\n\n");
+  return h + "</pre></details>";
+}
+
+// ---------------------------------------------------------------- pane 2
+
+function relayAsk(url, id, ms){
+  return new Promise((resolve) => {
+    let done = false, ws;
+    const finish = (v) => { if (done) return; done = true; try { ws && ws.close(); } catch(e){} resolve(v); };
+    const timer = setTimeout(() => finish(null), ms);
+    try { ws = new WebSocket(url); } catch (e) { clearTimeout(timer); return finish(null); }
+    ws.onopen = () => { try { ws.send(JSON.stringify(["REQ", "vd", { ids: [id] }])); } catch(e){ finish(null); } };
+    ws.onmessage = (m) => {
+      let a; try { a = JSON.parse(m.data); } catch(e){ return; }
+      if (!Array.isArray(a)) return;
+      if (a[0] === "EVENT" && a[2] && a[2].id === id) { clearTimeout(timer); finish(a[2]); }
+      else if (a[0] === "EOSE") { clearTimeout(timer); finish(null); }
+    };
+    ws.onerror = () => { clearTimeout(timer); finish(null); };
+    ws.onclose = () => { clearTimeout(timer); finish(null); };
+  });
+}
+
+async function fetchEvent(){
+  const id = el("eid").value.trim().toLowerCase();
+  const log = el("rlog"), st = el("s2f"), btn = el("gofetch");
+  log.innerHTML = ""; st.textContent = "";
+  if (!/^[0-9a-f]{64}$/.test(id)) { log.innerHTML = "<span class='err'>An event id is 64 hex characters.</span>"; return; }
+  btn.disabled = true; st.textContent = "asking relays";
+  let got = null;
+  const results = await Promise.all(RELAYS.map(async (u) => {
+    const e = await relayAsk(u, id, 9000);
+    return [u, e];
+  }));
+  for (const [u, e] of results) {
+    log.innerHTML += "<span>" + esc(u) + "  " + (e ? "returned the event" : "did not return it") + "</span>";
+    if (e && !got) got = e;
+  }
+  btn.disabled = false; st.textContent = "";
+  if (got) {
+    el("ev").value = JSON.stringify(got, null, 2);
+    log.innerHTML += "<span>The event was fetched by your browser from a relay. " +
+      "The issuer's servers were not involved.</span>";
+  } else {
+    log.innerHTML += "<span class='err'>No relay that answered had this event. That does not mean " +
+      "it was never published. It means the relays reached from here did not have it.</span>";
+  }
+}
+
+async function verifyEvent(){
+  const out = el("o2"), st = el("s2"), btn = el("go2");
+  out.innerHTML = ""; st.textContent = "working"; btn.disabled = true;
+  let ev;
+  try { ev = JSON.parse(el("ev").value); }
+  catch (e) { st.textContent=""; btn.disabled=false;
+    out.innerHTML = "<p class='err'>That is not valid JSON. " + esc(e.message) + "</p>"; return; }
+
+  const names = el("inside").value.split(",").map(s => s.trim()).filter(Boolean);
+  let r;
+  try { r = await post("/verify-event", { event: ev, assert_inside: names }); }
+  catch (e) { st.textContent=""; btn.disabled=false;
+    out.innerHTML = "<p class='err'>The request did not complete. " + esc(e.message) + "</p>"; return; }
+  st.textContent = ""; btn.disabled = false;
+  const d = r.body;
+
+  if (r.status !== 200) {
+    let h = "<p class='err'>" + esc(d.error || "The request was rejected.") + "</p>";
+    if (d.missing) h += "<p>Missing: <span class='mono'>" + esc(d.missing.join(", ")) + "</span></p>";
+    if (d.note) h += "<p>" + esc(d.note) + "</p>";
+    out.innerHTML = h;
+    return;
+  }
+
+  const good = d.id_recomputed && d.signature_valid === true;
+  let h = "<div class='verdict " + (good ? "yes" : "no") + "'><h3>" +
+    (good ? "The id recomputes and the signature verifies"
+          : "Not confirmed here") + "</h3><p>" +
+    (good ? "Computed on the register's endpoint from the curve parameters, with no library. " +
+            "The issuer's own verification service was not called."
+          : "See the fields below for which step did not pass.") + "</p></div>";
+
+  h += "<div class='kv'>";
+  const rows = [
+    ["event id", d.event_id],
+    ["public key", d.pubkey],
+    ["kind", d.kind],
+    ["created at", d.created_at],
+    ["id recomputed", d.id_recomputed ? "yes, serialized with " + d.id_serialization : "no"],
+    ["signature", d.signature_valid === true ? "valid" : d.signature_valid === false ? "not valid" : "not computed"],
+    ["signature note", d.signature_note]
+  ];
+  for (const [k, v] of rows) h += "<div>" + esc(k) + "</div><div class='mono'>" + esc(v) + "</div>";
+  h += "</div>";
+
+  if (d.fields_inside_signed_bytes) {
+    h += "<h3 style='margin:22px 0 4px;font-size:17px'>Inside the signature, or beside it</h3>";
+    for (const [k, v] of Object.entries(d.fields_inside_signed_bytes)) {
+      const inside = v.inside_signed_bytes === true;
+      h += "<div class='recipe'>" +
+        (inside ? "<span class='badge jcs'>inside the signed bytes</span>"
+                : "<span class='badge nojcs'>" + esc(String(v.inside_signed_bytes)) + "</span>") +
+        "<p class='expr'><span class='mono'>" + esc(k) + "</span>" +
+        (v.found_at ? " at <span class='mono'>" + esc(v.found_at) + "</span>" : " was not found in the signed content") +
+        "</p>" +
+        (v.value !== undefined && typeof v.value === "string"
+          ? "<pre>" + esc(v.value) + "</pre>" : "") +
+        "</div>";
+    }
+  }
+
+  if (d.content_keys) {
+    h += "<details><summary>Keys inside the signed content (" + d.content_keys.length + ")</summary><pre>" +
+      esc(d.content_keys.join("\n")) + "</pre></details>";
+  }
+  h += "<details><summary>How to repeat this without this page</summary><pre>" +
+    esc(d.how_to_repeat) + "</pre></details>";
+  h += limitsBlock(d.what_this_does_not_prove);
+  out.innerHTML = h;
+}
+</script>
+</body>
+</html>

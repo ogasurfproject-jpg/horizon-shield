@@ -202,6 +202,9 @@ a.regname{color:inherit;border-bottom:1px dashed rgba(255,255,255,.35)}
 a.regname:hover{border-bottom-style:solid}
 .regja{color:#9aa4b2;font-size:.8rem}
 </style>
+<!-- 2026-08-19 patch59. 面を分けたので、見た目を1箇所に集めた共通スタイルも読む。
+     上の <style> はそのまま残してある。壊さずに増やす。 -->
+<link rel="stylesheet" href="/verify-directory/assets/vd.css">
 <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@graph": [
@@ -370,12 +373,13 @@ a.regname:hover{border-bottom-style:solid}
   <div class="wrap bar">
     <div class="logo">HORIZON SHIELD <span class="sub">/ verify</span></div>
     <nav class="navlinks">
-      <a href="#check">Check a server</a>
-      <a href="#conditions">What it checks</a>
-      <a href="#registry">The list</a>
-      <a href="/verify-directory/members/">Members</a>
-      <a href="#listed">Get listed</a>
+      <a href="#check">Check</a>
+      <a href="/verify-directory/survey/">Survey</a>
+      <a href="/verify-directory/register/">Register</a>
+      <a href="/verify-directory/failures/">Failures</a>
+      <a href="/verify-directory/operators/">Operators</a>
       <a href="/verify-directory/monitoring/">Pricing</a>
+      <a href="/verify-directory/buyers/">日本語</a>
     </nav>
   </div>
 </header>
@@ -426,6 +430,41 @@ a.regname:hover{border-bottom-style:solid}
   -d '{"endpoint":"https://your-server/mcp"}'</pre>
   </div>
 </div>
+
+<section>
+  <div class="wrap">
+    <div class="kh">Three ways to be here</div>
+    <h2>The same measurement, read from three different sides</h2>
+    <p class="slead">One machine, one register, one set of five conditions. <b>What you want from it depends entirely on which side of the connection you are standing on.</b></p>
+    <div class="doors">
+      <a class="door" href="/verify-directory/operators/">
+        <div class="n">you run one</div>
+        <h4>Your server gets measured, free, forever</h4>
+        <p>No account, no application, nobody to persuade. A badge that is drawn when it is asked for, so it stops being green the moment your row does. And a plain list of what to change when a condition is not met.</p>
+        <div class="go">Operators &rarr;</div>
+      </a>
+      <a class="door" href="/verify-directory/buyers/">
+        <div class="n">繋ぐ側の方へ &middot; 日本語</div>
+        <h4>繋ぐ前に、相手を測る</h4>
+        <p>社内にAIエージェントを入れる前に、繋ぎ先を第三者が読み取り専用で測ります。誰が運営しているか、金の出所はどこか。<b>稟議に添付できる形で返します。</b></p>
+        <div class="go">接続前の第三者審査 &rarr;</div>
+      </a>
+      <a class="door" href="/verify-directory/survey/">
+        <div class="n">nobody asked us to</div>
+        <h4>We are going to measure servers that did not volunteer</h4>
+        <p>The check is read only, so it works on a server we do not own. We only ever pointed it at volunteers, and that was the mistake. <b>The method is published. There is no number yet.</b></p>
+        <div class="go">The survey &rarr;</div>
+      </a>
+    </div>
+    <div class="linkset">
+      <a href="/verify-directory/register/">Every row, live</a>
+      <a href="/verify-directory/failures/">The rows that are not green</a>
+      <a href="/verify-directory/method/">What the five conditions measure</a>
+      <a href="/verify-directory/about/">Who is running this</a>
+      <a href="/verify-directory/recompute/">Recompute a verdict</a>
+    </div>
+  </div>
+</section>
 
 <section>
   <div class="wrap">

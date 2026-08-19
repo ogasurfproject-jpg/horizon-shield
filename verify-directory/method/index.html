@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What the machine actually measures · HORIZON SHIELD</title>
+<meta name="description" content="The five conditions, in plain words on the left and exactly how they are measured on the right, so you can dispute them. Plus what a green row does not mean.">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/verify-directory/method/">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Five questions, asked by a machine, answered the same way every time">
+<meta property="og:description" content="The five conditions, in plain words on the left and exactly how they are measured on the right, so you can dispute them. Plus what a green row does not mean.">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/verify-directory/method/">
+<meta property="og:site_name" content="HORIZON SHIELD">
+<meta property="og:image" content="https://shield.the-horizons-innovation.com/assets/lighthouse-og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/verify-directory/assets/vd.css">
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <div class="logo"><a href="/verify-directory/">HORIZON SHIELD</a> <span class="sub">/ verify</span></div>
+    <nav class="navlinks">
+      <a href="/verify-directory/survey/">Survey</a>
+      <a href="/verify-directory/register/">Register</a>
+      <a href="/verify-directory/failures/">Failures</a>
+      <a href="/verify-directory/operators/">Operators</a>
+      <a href="/verify-directory/method/" style="color:var(--ink)">Method</a>
+      <a href="/verify-directory/buyers/">日本語</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap"><div class="crumb"><a href="/verify-directory/">verify</a><span class="sep">/</span>method</div></div>
+
+<main>
+
+<div class="wrap hero">
+  <div class="eyebrow"><span class="pulse"></span>the whole ruleset, on one page</div>
+  <h1><span class="g">Five questions,</span> asked by a machine.</h1>
+  <p class="lede">No human reviews an application, so there is no one to persuade, no queue to jump, and no reason to charge you. What is on the left is the question in plain words. <b>What is on the right is exactly how it is measured, so you can dispute it.</b></p>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="plain"><b>If those two words are new:</b> <b>MCP</b> is the plug that lets an AI assistant use somebody else's software. <b>A2A</b> is the little card that software hands over to say what it is and who runs it. Neither has a referee. That is the gap this fills.</div>
+
+    <table class="cond5">
+      <tr><td class="n">01</td>
+        <td class="q">Is it actually there, and does it do anything?</td>
+        <td class="h">Responds to <code>initialize</code> and <code>tools/list</code> with at least one tool.</td></tr>
+      <tr><td class="n">02</td>
+        <td class="q">Does it say who it is, in a place a machine can read?</td>
+        <td class="h"><code>/.well-known/agent-card.json</code> returns JSON with a name and a description.</td></tr>
+      <tr><td class="n">03</td>
+        <td class="q">Does it say who is paying it?</td>
+        <td class="h">The card declares <code>paid_by</code>, <code>referral_fee</code>, <code>listing_fee</code>. Only silence disqualifies. We do not judge whether the answer is flattering.</td></tr>
+      <tr><td class="n">04</td>
+        <td class="q">Does it answer the same way twice?</td>
+        <td class="h">Identical input returns identical output. <b>Not measured unless you ask</b>, because it means executing one of your tools, and the first tool a server lists may well be destructive.</td></tr>
+      <tr><td class="n">05</td>
+        <td class="q">Can you check our answer without trusting us?</td>
+        <td class="h">Every verdict carries a <code>record_sha256</code>. Drop that field, stringify the rest in key order, hash it. It must match.</td></tr>
+    </table>
+    <div class="linkset">
+      <a href="/verify-directory/recompute/">Recompute a verdict yourself</a>
+      <a href="https://gate.horizonshield.dev/spec">The spec, as served by the gate</a>
+      <a href="https://gate.horizonshield.dev/self">The checker's verdict on itself</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kh">Limits</div>
+    <h2>What a green row does not mean</h2>
+    <p class="slead">A badge that quietly means more than it measured is worse than no badge. So here is the ceiling, stated at the same size as the claim.</p>
+    <ul class="nots">
+      <li><span class="x">&#10007;</span><span><b>Not that any number it gives you is correct.</b> This checks conduct and disclosure, not arithmetic. Checking the figures is a separate, paid layer.</span></li>
+      <li><span class="x">&#10007;</span><span><b>Not that the disclosure is true.</b> Missing disclosure disqualifies. A disclosure later shown to be false is grounds for removal, not something the machine can detect.</span></li>
+      <li><span class="x">&#10007;</span><span><b>Not that the business behind it is any good.</b> Competence is not measurable from an endpoint and we will not pretend otherwise.</span></li>
+      <li><span class="x">&#10007;</span><span><b>Not a certificate.</b> A row reflects a measurement taken at a time. It stops being green when the measurement does.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kh">Three words the machine uses</div>
+    <h2>Held, pending, verified</h2>
+    <div class="kv">
+      <div class="r"><div class="k">verified</div><div class="v">Measured, and every condition that was measured was met.</div></div>
+      <div class="r"><div class="k">pending</div><div class="v">Measured, and a condition was not met. <b>A statement about the server.</b></div></div>
+      <div class="r"><div class="k">held</div><div class="v">Not measured. <b>A statement about our instrument.</b> An instrument failure is not a statement about the thing it failed to measure, so it is never reported as one.</div></div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer>
+  <div class="wrap">
+    <div class="top">Corrections are welcome and are treated as defects. If a row here is wrong, or a condition measures differently on your side, say so and it is re-measured in public. Write to <span class="mono">contact@the-horizons-innovation.com</span>.</div>
+    Operator: The HORIZONs Co., Ltd. (Corporate Number 7021001075279). Supervised by Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>), 30 years on construction sites.<br>
+    <a href="/verify-directory/">Front door</a> &middot; <a href="/verify-directory/survey/">Survey</a> &middot; <a href="/verify-directory/register/">Register</a> &middot; <a href="/verify-directory/failures/">Failures</a> &middot; <a href="/verify-directory/method/">Method</a> &middot; <a href="/verify-directory/operators/">Operators</a> &middot; <a href="/verify-directory/buyers/">日本語</a> &middot; <a href="/verify-directory/about/">About</a><br>
+    <a href="/verify-directory/badge/">Badge</a> &middot; <a href="/verify-directory/monitoring/">Monitoring</a> &middot; <a href="/verify-directory/recompute/">Recompute a verdict</a> &middot; <a href="https://gate.horizonshield.dev/spec">Verification spec</a> &middot; <a href="https://gate.horizonshield.dev/self">The checker's verdict on itself</a> &middot; <a href="/tokusho">Legal notice</a><br>
+    Zero referral fees. Verdicts, scores and listing order are not for sale. This page describes tamper resistance, not the validity of any ruleset over time.<br><br>
+    &copy; 2026 The HORIZONs Co., Ltd. &middot; HORIZON SHIELD
+  </div>
+</footer>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script>
+</body>
+</html>
