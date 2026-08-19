@@ -4,48 +4,257 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>特定商取引法に基づく表記 | HORIZON SHIELD</title>
-<meta name="description" content="The HORIZONs株式会社(HORIZON SHIELD / Yakumo)の特定商取引法に基づく表記。事業者情報、販売価格(見積もり診断5,500円税込、Yakumo加盟月額29,800円税抜ほか)、支払方法、提供時期、返品・キャンセルの条件。サービスの前提条件と利用時の取り扱いを明記しています。">
-<meta name="robots" content="index,follow">
-<meta name="author" content="大賀俊勝 | HORIZON SHIELD">
+  <meta name="description" content="特定商取引法に基づく表記を建設実務30年のプロがsouba-dbの実測データで解説します。見積書のチェックポイント、過剰請求の見分け方、業者に確認すべき点まで具体的にまとめました。相場より高い見積もりの特徴と、値引き交渉で使える根拠を実例つきで解説しています。サービスの前提条件と利用時の取り扱いを明記しています。">
+  <meta property="og:description" content="特定商取引法に基づく表記を建設実務30年のプロがsouba-dbの実測データで解説します。見積書のチェックポイント、過剰請求の見分け方、業者に確認すべき点まで具体的にまとめました。相場より高い見積もりの特徴と、値引き交渉で使える根拠を実例つきで解説しています。サービスの前提条件と利用時の取り扱いを明記しています。">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/tokusho.html">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Organization","name":"HORIZON SHIELD","alternateName":"The HORIZONs株式会社","url":"https://shield.the-horizons-innovation.com","telephone":"0463-74-5917"}
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {"@type":"WebSite","@id":"https://shield.the-horizons-innovation.com/#website","url":"https://shield.the-horizons-innovation.com/","name":"HORIZON SHIELD","inLanguage":"ja","publisher":{"@id":"https://shield.the-horizons-innovation.com/#org"}},
+    {"@type":"Organization","@id":"https://shield.the-horizons-innovation.com/#org","name":"The HORIZ音s株式会社","url":"https://shield.the-horizons-innovation.com/","telephone":"0463-74-5917","areaServed":"JP","founder":{"@id":"https://shield.the-horizons-innovation.com/#toshi"},"sameAs":["https://github.com/ogasurfproject-jpg","https://huggingface.co/ogasurfproject"]},
+    {"@type":"Person","@id":"https://shield.the-horizons-innovation.com/#toshi","name":"大賀俊勝","alternateName":"TOshi Oga","jobTitle":"代表取締役 / 元大工(現場歴30年)","worksFor":{"@id":"https://shield.the-horizons-innovation.com/#org"},"knowsAbout":["建設費","リフォーム見積もり","信用財(credence goods)","建設費の情報非対称性","適正価格診断"],"identifier":"https://orcid.org/0009-0000-9180-903X","sameAs":["https://orcid.org/0009-0000-9180-903X","https://www.linkedin.com/in/thehorizons/","https://scholar.google.com/citations?user=VBq9MHgAAAAJ","https://www.webofscience.com/wos/author/record/QAY-0724-2026"]},
+    {"@type":"Dataset","@id":"https://shield.the-horizons-innovation.com/#jccdb","name":"Japan Construction Cost Database (JCCDB)","description":"日本の建設費・リフォーム工事の品目を構造化したオープンデータベース。65,520品目・402カテゴリ。価格情報は含まない。","license":"https://creativecommons.org/licenses/by/4.0/","creator":{"@id":"https://shield.the-horizons-innovation.com/#toshi"},"isAccessibleForFree":true,"identifier":"https://doi.org/10.5281/zenodo.21898745","citation":["https://doi.org/10.5281/zenodo.20019572","https://doi.org/10.31224/7007"],"sameAs":["https://github.com/ogasurfproject-jpg/japan-construction-cost-database","https://huggingface.co/datasets/ogasurfproject/jccdb"]},
+    {"@type":"Service","@id":"https://shield.the-horizons-innovation.com/#service","name":"HORIZON SHIELD AI建設費診断","serviceType":"建設費・リフォーム見積もりのAI査定","provider":{"@id":"https://shield.the-horizons-innovation.com/#org"},"areaServed":"JP","description":"受け取った見積書を、建設費特化AI「KIRA」と現場経験で査定し、相場との乖離を示すサービス。"}
+  ]
+}
 </script>
-<link rel="canonical" href="https://shield.the-horizons-innovation.com/tokusho/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#030508;--surface:#0a0e14;--border:#1a2030;
+  --accent:#00e5ff;--danger:#ff3d3d;--text:#e8edf5;--muted:#5a6a7a;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;padding:0 0 80px}
+
+header{
+  background:rgba(3,5,8,0.95);border-bottom:1px solid var(--border);
+  padding:16px 20px;display:flex;align-items:center;justify-content:space-between;
+}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--accent);text-decoration:none}
+.logo span{color:var(--danger)}
+.back{font-size:12px;color:var(--muted);text-decoration:none}
+.back:hover{color:var(--text)}
+
+.container{max-width:800px;margin:0 auto;padding:48px 20px}
+
+.page-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;margin-bottom:12px}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:40px;margin-bottom:40px}
+.page-title em{color:var(--accent);font-style:normal}
+
+table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.9}
+tr{border-bottom:1px solid var(--border)}
+td{padding:16px 12px 16px 0;vertical-align:top}
+td:first-child{color:var(--muted);width:180px;white-space:nowrap;padding-right:24px}
+td:last-child{color:var(--text)}
+
+.section-block{
+  margin-top:48px;padding-top:32px;border-top:1px solid var(--border);
+}
+.section-block h2{
+  font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);
+  letter-spacing:3px;margin-bottom:20px;
+}
+.section-block p{font-size:13px;color:var(--muted);line-height:1.9;margin-bottom:12px}
+.section-block p strong{color:var(--text)}
+
+.policy-box{
+  background:var(--surface);border:1px solid var(--border);
+  border-left:3px solid var(--accent);border-radius:4px;
+  padding:20px;margin-top:12px;font-size:13px;line-height:2;
+}
+.policy-box li{margin-left:16px;color:var(--muted)}
+.policy-box li strong{color:var(--text)}
+
+footer-note{
+  margin-top:48px;font-size:11px;color:var(--muted);
+  border-top:1px solid var(--border);padding-top:24px;
+}
+</style>
 <link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
-<style>:root{--navy:#1a2744;--gold:#c9a227;--white:#fff;--light:#f8f7f4;--text:#2c2c2c}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Hiragino Sans','Yu Gothic',sans-serif;color:var(--text);background:var(--light);line-height:1.9}header{background:var(--navy);padding:16px 24px}.logo{color:var(--gold);font-size:18px;letter-spacing:.15em;font-weight:500}.hero{background:var(--navy);padding:40px 24px;text-align:center;border-bottom:4px solid var(--gold)}.hero h1{color:var(--white);font-size:clamp(20px,4vw,30px);font-weight:500;line-height:1.5}.container{max-width:800px;margin:0 auto;padding:0 24px 40px}.section{padding:28px 0 4px}h2{font-size:18px;font-weight:600;color:var(--navy);margin:26px 0 12px;padding-left:14px;border-left:4px solid var(--gold)}p,li{font-size:14.5px;color:#3a3a3a}ul,ol{padding-left:22px;margin:10px 0}dl{margin:10px 0}dt{font-weight:600;color:var(--navy);margin-top:14px}dd{margin-left:0;font-size:14.5px}footer{background:var(--navy);padding:24px;text-align:center;color:rgba(255,255,255,.6);font-size:13px}footer a{color:rgba(255,255,255,.6)}.upd{color:#8a8578;font-size:12.5px;margin-top:18px}</style>
+<link rel="mcp-server" href="https://mcp.horizonshield.dev">
 </head>
 <body>
-<nav id="hs-gnav" aria-label="サイト内ナビ" style="position:sticky;top:0;z-index:99999;display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:11px 20px;background:#1a2744;border-bottom:1px solid rgba(201,162,39,.35);font-family:'Plus Jakarta Sans','Noto Sans JP','Hiragino Sans',sans-serif"><a href="https://shield.the-horizons-innovation.com/yakumo/" style="font-family:'Instrument Serif',serif;color:#c9a227;font-size:22px;text-decoration:none;letter-spacing:.02em;margin-right:10px">Yakumo</a><a href="https://shield.the-horizons-innovation.com/" style="color:#d7dee8;text-decoration:none;font-size:13px;font-weight:500;padding:6px 10px;border-radius:6px">HORIZON SHIELD</a><a href="https://shield.the-horizons-innovation.com/souba/" style="color:#d7dee8;text-decoration:none;font-size:13px;font-weight:500;padding:6px 10px;border-radius:6px">相場を調べる</a><a href="https://shield.the-horizons-innovation.com/yakumo/" style="color:#d7dee8;text-decoration:none;font-size:13px;font-weight:500;padding:6px 10px;border-radius:6px">モール</a><a href="https://shield.the-horizons-innovation.com/ehn/" style="color:#d7dee8;text-decoration:none;font-size:13px;font-weight:500;padding:6px 10px;border-radius:6px">実例ボード(EHN)</a><span style="flex:1 1 auto"></span><a href="https://shield.the-horizons-innovation.com/hacker/submit/" style="background:#C24E1A;color:#fff;font-weight:700;text-decoration:none;font-size:13px;padding:9px 16px;border-radius:8px;white-space:nowrap">見積もりを無料診断</a></nav>
-<header><span class="logo">HORIZON SHIELD</span></header>
-<div class="hero"><h1>特定商取引法に基づく表記</h1></div>
+
+<header>
+  <a href="/" class="logo">HORIZON<span>SHIELD</span></a>
+  <a href="/" class="back">← トップに戻る</a>
+</header>
+
 <div class="container">
-<div class="section">
-<dl>
-<dt>販売業者</dt><dd>The HORIZONs株式会社(HORIZON SHIELD / Yakumo 運営)</dd>
-<dt>運営責任者</dt><dd>大賀俊勝</dd>
-<dt>所在地</dt><dd>神奈川県。詳細な所在地はご請求をいただければ遅滞なく開示します。</dd>
-<dt>電話番号</dt><dd>0463-74-5917(受付時間: 平日9時〜18時。営業のお電話はご遠慮ください)</dd>
-<dt>メールアドレス</dt><dd>contact@the-horizons-innovation.com</dd>
-<dt>販売価格</dt><dd>
-・見積もり診断(署名付き逆見積書PDFの発行): 5,500円(税込)<br>
-・Yakumo 加盟(基本): 月額29,800円(税抜)<br>
-・WebMCPオプション: 月額12,000円(税抜)<br>
-・EHN(見積もり実例ボード)への匿名投稿と第三者チェック: 無料
-</dd>
-<dt>販売価格以外の必要料金</dt><dd>インターネット接続に係る通信費(お客様負担)。銀行振込の場合の振込手数料。</dd>
-<dt>支払方法</dt><dd>クレジットカード等の電子決済、または銀行振込</dd>
-<dt>支払時期</dt><dd>診断は申込時。月額サービスは各契約に定める支払日。</dd>
-<dt>提供時期</dt><dd>診断(逆見積書PDF)は入金確認後、原則即日〜3営業日以内に電子交付。加盟は所定の手続き(ヒアリング・適正診断)完了後に掲載。</dd>
-<dt>返品・キャンセル</dt><dd>
-・診断はデジタル商品の性質上、提供開始後の返金はできません。提供前のキャンセルは全額返金します。<br>
-・月額サービスは次回更新日の前日までのお申し出により、次回以降の更新を停止できます(日割り返金はありません)。<br>
-・Yakumo の掲載は適正診断の通過が条件です。診断を通過しない場合、掲載は行われず、以後の月額は発生しません。
-</dd>
-<dt>動作環境</dt><dd>PDF閲覧環境、および一般的なウェブブラウザ</dd>
-</dl>
+
+  <div class="page-label">// LEGAL</div>
+  <h1 class="page-title">特定商取引法に<em>基づく</em>表記</h1>
+
+  <table>
+    <tbody>
+      <tr>
+        <td>販売事業者名</td>
+        <td>The HORIZ音s株式会社</td>
+      </tr>
+      <tr>
+        <td>運営責任者</td>
+        <td>大賀 俊勝</td>
+      </tr>
+      <tr>
+        <td>所在地</td>
+        <td>〒254-0018 神奈川県平塚市東真土1-1-47 GH湘南2</td>
+      </tr>
+      <tr>
+        <td>電話番号</td>
+        <td>0463-74-5917</td>
+      </tr>
+      <tr>
+        <td>メールアドレス</td>
+        <td>contact@the-horizons-innovation.com</td>
+      </tr>
+      <tr>
+        <td>販売価格</td>
+        <td>
+          検証済み見積もり（発行1件）：¥3,300（税込）　初回1件は無料<br>
+          検証済み見積もり　前払【10件分】：¥33,000（税込）<br>
+          検証済み見積もり　定額プラン：月額¥21,780（税込・月50件まで）<br>
+          交渉用・逆見積書PDF：¥5,500（税込）<br>
+          建設費診断：¥55,000（税込）<br>
+          変更工事査定：¥33,000（税込）<br>
+          完成検査立会い：¥88,000（税込）＋交通費実費<br><br>
+          ■ Yakumo 加盟・AI可視化 運用プラン（月額サブスクリプション／最低契約期間なし）<br>
+          ・ライト：月額10,780円（税込）／初期費用54,780円（税込）<br>
+          ・スタンダード：月額43,780円（税込）／初期費用162,800円（税込）<br>
+          ・プレミアム：月額107,800円（税込）〜／初期費用327,800円（税込）〜<br>
+          <br>
+          ■ MCP導入（積み上げ式）<span style="opacity:.85">※この節のみ税別表示。括弧内が税込</span><br>
+          ・土台：MCP構築（出店なし・必須）：初期600,000円（税込660,000円）／月額14,800円（税込16,280円）<br>
+          ・＋モール出店（共有・検証済み）：初期200,000円（税込220,000円）／月額15,000円（税込16,500円）<br>
+          ・＋自社サーバー（専用・出店の代替）：初期400,000円（税込440,000円）／月額25,000円（税込27,500円）<br>
+          ・＋WebMCP（サイト連携）：初期450,000円〜（税込495,000円〜）／月額15,000円（税込16,500円）<br>
+          ・＋内向きMCP（社内効率化）：初期250,000円〜（税込275,000円〜）／月額25,000円（税込27,500円）<br>
+          <span style="opacity:.85">出店は「モール出店」か「自社サーバー」のいずれか一方を選択します。土台は必須です。</span><br>
+          <br>
+          お申し込みの単位（セット）<br>
+          ・セット1 土台のみ：初期600,000円（税込660,000円）／月額14,800円（税込16,280円）<br>
+          ・セット2 土台＋モール出店：初期800,000円（税込880,000円）／月額29,800円（税込32,780円）<br>
+          ・セット3 土台＋自社サーバー：初期1,000,000円（税込1,100,000円）／月額39,800円（税込43,780円）<br>
+          ・セット4 土台＋モール出店＋WebMCP：初期1,250,000円〜（税込1,375,000円〜）／月額44,800円（税込49,280円）<br>
+          ・セット5 土台＋自社サーバー＋WebMCP：初期1,450,000円〜（税込1,595,000円〜）／月額54,800円（税込60,280円）<br>
+          ・早期パートナー特価（セット5のみ・時期および台数限定）：初期1,350,000円（税込1,485,000円）／月額51,800円（税込56,980円）<br>
+          <span style="opacity:.85">セットの金額は、上のモジュール料金をそのまま足したものです。掛け算や割引は入っていません。内向きMCPは、いずれのセットにも積み増しできます。早期パートナー特価の対象期間および台数は、お申し込み前に個別にご案内します。</span><br>
+          <br>
+          ■ MCP／A2A サーバーの第三者検証（2026-08-19 追加・税込）<br>
+          ・接続前審査（1本）：66,000円（工数3.0時間）<br>
+          ・接続前審査（5本まで）：132,000円（工数6.0時間）<br>
+          ・接続前審査（20本まで）：330,000円（工数15.0時間）<br>
+          ・接続前審査（21本目以降）：1本につき11,000円（工数0.5時間）<br>
+          ・条件04（決定性）の測定を含める場合：1本につき11,000円（工数0.5時間）を加算。<strong>対象サーバーの運営者から書面でのご同意が得られた場合にのみ実施します。</strong><br>
+          ・不適合の原因調査レポート（1エンドポイント）：44,000円（工数2.0時間）。同一ホスト上の2本目以降は1本につき22,000円（工数1.0時間）。日本国外のお客様は 290 米ドル（追加1本につき 145 米ドル）<br>
+          ・継続監視：月額 15 米ドル（3エンドポイントまで、超過1本につき 5 米ドル）／年額 150 米ドル<br>
+          ・継続監視の日本語月次レポートおよび窓口：月額11,000円（工数0.5時間）<br>
+          ・<strong>エンドポイントの測定、登記簿への掲載、バッジ、条件ごとの一般的な直し方の案内、再測定のご依頼：無料</strong><br>
+          <span style="opacity:.85">単価は22,000円／時（税込）です。工数の内訳は <a href="/verify-directory/buyers/audit/">接続前審査</a> および <a href="/verify-directory/operators/fix/">原因調査レポート</a> の各ページに公開しています。米ドル建ての金額は日本国外のお客様向けで、日本の消費税は不課税です。為替による日々の換算は行わず、それぞれ独立した金額として定めています。</span>
+        </td>
+      </tr>
+      <tr>
+        <td>お支払い方法</td>
+        <td>PayPay・銀行振込（静岡銀行 平塚支店 普通 0479810）<br>Yakumo運用プランおよび検証済み見積もり定額プラン（月額）：クレジットカード（PayPalによる定期課金）。初期費用は銀行振込にてご案内します。<br>MCP導入（積み上げ式）：初期費用は銀行振込。月額はクレジットカード（PayPalによる定期課金）または銀行振込。<br>接続前審査・原因調査レポート（日本のお客様）：銀行振込（上記口座）。請求書を発行します。<br>原因調査レポート（日本国外のお客様）：PayPalによるお支払い。<br>継続監視：クレジットカード（PayPalによる定期課金）。</td>
+      </tr>
+      <tr>
+        <td>支払い時期</td>
+        <td>お申し込み時にお支払いが確定します<br>Yakumo運用プラン（月額サブスク）：お申込時に初回課金、以降は毎月の請求サイクル開始時に自動課金します。初期費用はお申込後に別途ご請求します。<br>MCP導入（積み上げ式）：初期費用はお申込後にご請求し、ご入金の確認をもって着手します。月額は公開（出店）の完了月から起算し、以降は毎月の請求サイクル開始時にご請求します。<br>接続前審査：作業内容と工数のお見積りにご同意いただいた後、着手時にご請求します。<br><strong>不適合の原因調査レポート：まず無償で対象を確認し、無料で公開している情報で解決できる場合はその旨をお伝えします（この確認に費用は発生しません）。</strong>有償の作業が必要な場合のみお見積りを提示し、日本国外のお客様は前払い、日本のお客様は納品後のご請求とします。<br>継続監視：お申込時に初回課金、以降は毎月または毎年の請求サイクル開始時に自動課金します。</td>
+      </tr>
+      <tr>
+        <td>サービス提供時期</td>
+        <td>
+          検証済み見積もり：決済確認後24時間以内に発行し、検証URLとPDFをメールで納品<br>
+          交渉用・逆見積書PDF：決済完了後2営業日以内にメールでPDF納品<br>
+          建設費診断：決済完了後2営業日以内にメールでPDF納品<br>
+          変更工事査定：決済完了後24時間以内にメールでPDF納品<br>
+          完成検査立会い：決済完了後、別途日程を調整のうえ実施<br>
+          Yakumo運用プラン：入金確認後、順次オンボーディングを開始し、契約期間中は継続的に運用します。<br>
+          MCP導入（積み上げ式）：ヒアリングに約1〜3日、DB構築および検証に約3〜4週間、公開および窓口の開通に約2〜3日を要します。置き方Aの場合、おおむね2〜3週間で公開できます。WebMCP・内向きMCPの積み増しは随時承ります。<br>
+          接続前審査：ご発注の確認後、対象1本につき原則3営業日以内にレポートを電子交付します。<br>
+          不適合の原因調査レポート：着手後、原則3営業日以内に電子交付します。お客様が修正されたあとの再測定まで含みます。<br>
+          継続監視：お申込確認後、翌日の測定から開始します。
+        </td>
+      </tr>
+      <tr>
+        <td>サービス内容</td>
+        <td>建設・リフォーム工事費に関するコンサルティングサービス。工事の請負・仲介は行いません。<br>あわせて、AIが読み取れる形での情報整備およびMCPサーバーの構築・公開・運用（積み上げ式）を提供します。<br>また、MCP／A2A サーバーの公開情報を読み取り専用で測定し、その結果を第三者としてお伝えする検証サービスを提供します。測定は読み取りのみで行い、相手方のツールの実行は行いません（条件04の測定を除き、その場合は運営者の書面によるご同意を得ます）。<strong>判定、掲載順、掲載の削除は販売しません。お支払いによって判定が変わる仕組みはありません。</strong></td>
+      </tr>
+      <tr>
+        <td>前払式チケット（受領課金）に関する表示</td>
+        <td>
+          当社の一部サービスは、あらかじめ購入した「チケット」（1枚100円）を消費してご利用いただく方式です。<br>
+          ・名称：HORIZON SHIELD チケット<br>
+          ・発行者：The HORIZ音s株式会社<br>
+          ・支払可能金額等：1枚100円（購入時に枚数を指定。利用時にサービスごとの所定枚数を消費します）<br>
+          ・有効期限：なし（無期限。発行後の失効はありません）<br>
+          ・未使用残高の確認方法：加盟店管理画面、または contact@the-horizons-innovation.com へご照会ください<br>
+          ・苦情・相談窓口：contact@the-horizons-innovation.com ／ 0463-74-5917<br>
+          チケットは当社の役務提供の対価としてのみ使用でき、換金・第三者への譲渡はできません。
+        </td>
+      </tr>
+      <tr>
+        <td>動作環境</td>
+        <td>最新版のChrome・Safari・Firefox・Edge（スマートフォン対応）</td>
+      </tr>
+      <tr>
+        <td>準拠法・管轄</td>
+        <td>本規約は日本法に準拠し、横浜地方裁判所を第一審の専属的合意管轄裁判所とします。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 2026-08-19 site68: 統合の記録。取りやめた記載と廃止した商品も書く -->
+  <div class="section-block">
+    <h2>// NOTICE — この表記について</h2>
+    <p><strong>2026-08-19、この表記を1枚に統合しました。</strong>それまで <span style="font-family:monospace">/tokusho/</span> と <span style="font-family:monospace">/tokusho.html</span> の2枚が同時に公開されており、記載内容が食い違っていました。</p>
+    <p style="margin-top:10px"><strong>改定したもの。</strong>WebMCP（サイト連携）の月額を、旧記載の12,000円（税抜）から、現行の15,000円（税別・税込16,500円）に改めました。初期費用は450,000円〜（税別・税込495,000円〜）です。</p>
+    <p style="margin-top:10px"><strong>追加したもの。</strong>MCP導入（積み上げ式）の全モジュールと組み合わせ例、および MCP／A2A サーバーの第三者検証に関する料金を、新たに記載しました。これらは販売しておりながら、この表記に記載がありませんでした。</p>
+    <p style="margin-top:10px"><strong>提供を終了したもの。</strong>HORIZON ESTIMATE for Business（月額49,800円／98,000円）は、2026-08-19 をもって新規のお申し込み受付を終了しました。<strong>ご契約中のお客様はいらっしゃいません。</strong>お申し込みの導線は取り外し、<a href="/estimate-biz/">終了の告知</a>のみを残しています。</p>
+    <p style="margin-top:10px">取りやめた記載および終了した商品は、この一文とともに公開の記録に残ります。以前の版は当社の公開リポジトリの履歴でご確認いただけます。<a href="https://github.com/ogasurfproject-jpg/horizon-shield/commits/main/tokusho/index.html">/tokusho/ の履歴</a> ／ <a href="https://github.com/ogasurfproject-jpg/horizon-shield/commits/main/tokusho.html">/tokusho.html の履歴</a></p>
+  </div>
+
+  <!-- キャンセルポリシー -->
+  <div class="section-block">
+    <h2>// CANCELLATION POLICY — キャンセル・返金ポリシー</h2>
+    <div class="policy-box">
+      <ul>
+        <li><strong>レポート納品前のキャンセル：</strong>全額返金いたします。返金はご連絡いただいた日から7営業日以内に処理します。</li>
+        <li style="margin-top:8px"><strong>レポート納品後のキャンセル：</strong>役務の性質上、納品完了後のキャンセル・返金はお受けできません。</li>
+        <li style="margin-top:8px"><strong>完成検査立会い（当日キャンセル）：</strong>前日17時までのキャンセルは全額返金。当日キャンセルは交通費実費を申し受けます。</li>
+        <li style="margin-top:8px"><strong>Yakumo運用プラン（月額サブスク）：</strong>最低契約期間はありません。お客様の操作またはご連絡でいつでも解約でき、解約後は次回以降の課金は発生しません。役務（継続的な運用）の性質上、提供済み期間分の月額および初期費用の返金はいたしかねます。</li>
+        <li style="margin-top:8px"><strong>検証済み見積もり：</strong>発行前のキャンセルは全額返金します。レシートは発行と同時に公開台帳に記録され取り消しができないため、発行後の返金はお受けできません。未使用の前払式チケットに有効期限はありません。定額プランは最低契約期間なしで、いつでも解約できます。提供済み期間分の返金はいたしかねます。</li>
+        <li style="margin-top:8px"><strong>MCP導入（積み上げ式）：</strong>着手前のキャンセルは全額返金します。着手後は、実施済みの工程分を申し受け、残額を返金します。月額は最低契約期間がなく、いつでも解約できます。役務の性質上、提供済み期間分および初期費用の返金はいたしかねます。</li>
+        <li style="margin-top:8px"><strong>接続前審査・原因調査レポート：</strong>着手前のキャンセルは全額返金します。着手後は、実施済みの工数分を申し受け、残額を返金します。<strong>原因調査レポートについて、無料で公開している情報以上のものが無かったとご申告いただいた場合は、全額返金します。</strong></li>
+        <li style="margin-top:8px"><strong>継続監視：</strong>最低契約期間はありません。いつでも解約でき、解約後は次回以降の課金は発生しません。役務の性質上、提供済み期間分の返金はいたしかねます。</li>
+        <li style="margin-top:8px"><strong>キャンセル方法：</strong>contact@the-horizons-innovation.com までメールにてご連絡ください。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 個人情報の取り扱い -->
+  <div class="section-block">
+    <h2>// PRIVACY — 個人情報の取り扱い</h2>
+    <p>お客様からいただいた見積書・個人情報は、サービス提供目的のみに使用します。第三者への提供は一切行いません。診断完了後、アップロードされた見積書データは速やかに削除します。</p>
+    <p style="margin-top:12px"><strong>2026-08-19 追記。上の一文だけでは誤解を招くため、明記します。</strong>「第三者への提供は一切行いません」は、個人情報の保護に関する法律にいう第三者提供を行わないという意味です。<strong>一方で、お送りいただいた画像や見積書の解析には、外部事業者のAPIを利用しています。これは同法にいう委託にあたります。</strong>委託先は解析のためにのみ用い、当社の指示の範囲を超える利用はさせません。<br><strong>この記載が以前は無かったことを、元の一文を消さずにこのまま残します。</strong>訂正のご要望は <a href="/verify-directory/survey/corrections/">訂正の窓口</a> または contact@the-horizons-innovation.com へ。</p>
+  </div>
+
+  <!-- 免責事項 -->
+  <div class="section-block">
+    <h2>// DISCLAIMER — 免責事項</h2>
+    <p>当社のレポートは専門家による意見であり、法的効力を持つものではありません。最終的な判断はお客様自身が行うものとします。当社は、レポートの内容に基づいてお客様が行った行為の結果について責任を負いません。</p>
+  </div>
+
+  <p style="margin-top:48px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);padding-top:24px">
+    The HORIZ音s株式会社　©2026 All Rights Reserved.
+  </p>
+
 </div>
-<p class="upd">制定日: 2026年7月19日 ・ 運営: The HORIZONs株式会社(HORIZON SHIELD / Yakumo)</p>
-</div>
-<footer><p>© 2026 The HORIZONs株式会社 | <a href="https://shield.the-horizons-innovation.com/">HORIZON SHIELD</a> ・ <a href="https://shield.the-horizons-innovation.com/yakumo/">Yakumo モール</a><br><a href="https://shield.the-horizons-innovation.com/privacy/">プライバシーポリシー</a> ・ <a href="https://shield.the-horizons-innovation.com/tokusho/">特定商取引法に基づく表記</a> ・ <a href="https://shield.the-horizons-innovation.com/tos/">利用規約</a></p></footer>
+
+<div style="max-width:860px;margin:24px auto 0;padding:14px 18px;background:#fbfaf8;font-size:.82rem;line-height:1.6;color:#5b6b78;border-top:1px solid #e6e2db;text-align:center;">HORIZON SHIELD（運営 The HORIZ音s株式会社）は、施工業者から紹介手数料や送客の報酬を受け取らない独立した第三者です。相場の検証設計は<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6964439" style="color:#1E6B43;">配布論文SSRN 6964439</a>で公開。監修 <a href="https://orcid.org/0009-0000-9180-903X" style="color:#1E6B43;">大賀俊勝（ORCID 0009-0000-9180-903X）</a>。</div>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script><!-- End Cloudflare Web Analytics -->
-</body></html>
+</body>
+</html>
