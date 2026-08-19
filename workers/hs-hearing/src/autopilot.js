@@ -197,7 +197,12 @@ export async function classifyFocus(env, store, profile) {
       for (const model of (env.LLM_MODEL ? [env.LLM_MODEL] : AI_MODEL_CHAIN)) {
         try {
           const r = await env.AI.run(model, { messages: msgs, max_tokens: 8 });
-          raw = (r && (r.response || r.result)) || "";
+          // 2026-08-20 patch52: patch43 と同じ鋳型。モデルは文字列を返すとは限らない。
+          // ここは落ちない代わりに S() が "[object Object]" に変え、判定が静かに空振りする。
+          // 落ちて止まるより悪い。同じ扱いは hs-ehn-verify/src/verify.js に既に正しく書かれていた。
+          // 一度直した癖が、他のどこに住んでいるかを探していなかった。
+          const rr = r && (r.response !== undefined ? r.response : r.result);
+          raw = rr == null ? "" : (typeof rr === "object" ? JSON.stringify(rr) : String(rr));
           if (raw) break;
         } catch (_e) { /* 次のモデルへ。ここは補助判定なので落ちても本流は止めない */ }
       }
