@@ -43,7 +43,7 @@
 <main>
 
 <div class="wrap hero">
-  <div class="eyebrow"><span class="pulse"></span>survey &middot; method published, no results yet</div>
+  <div class="eyebrow"><span class="pulse"></span>survey &middot; report 0 published 2026-08-19</div>
   <h1><span class="g">We are going to measure servers</span> that nobody asked us to measure.</h1>
   <p class="lede">The check is read only. It reads an endpoint, reads a card, and hashes what it saw. <b>You can point it at a server you do not own, and so can we.</b> Until now we have only ever pointed it at servers that volunteered. That was the mistake.</p>
   <div class="metastrip">
@@ -56,11 +56,18 @@
 
 <section>
   <div class="wrap">
-    <div class="notyet">
-      <div class="big">There is no number on this page yet.</div>
-      <p>A survey that publishes its method after its results can choose the method that produced the results. So the method is here first, in public, with nothing measured. <b>When the first report lands, you will be able to check it against what is written above it today.</b></p>
-      <p>If the numbers turn out to be boring, they get published boring. If they make us look bad, they get published anyway. Our own servers are in the same population and are measured by the same machine on the same day.</p>
-      <div class="stamp">written 2026-08-19 &middot; no measurement has been taken for this survey</div>
+    <div class="confess">
+      <div class="big">Report 0 is out. 22,636 registered, and 12,077 of them declare an address you can reach.</div>
+      <p>Measured 2026-08-19, one full walk of the official registry, 229 pages, stopping because the cursor ran out rather than because I ran out of patience. <b>Raw JSON, the full endpoint list and the record hash are on the report.</b></p>
+      <p><b>Not one of those endpoints was contacted.</b> This is a count of declarations. Whether they answer is a separate measurement and it is not in report 0.</p>
+      <p style="margin-top:16px"><a href="/verify-directory/survey/0/" style="color:var(--emerald-ink);border-bottom:1px solid rgba(52,211,153,.45)">Read report 0</a></p>
+    </div>
+
+    <div class="notyet" style="margin-top:22px">
+      <div class="big">What this box said before the count was run</div>
+      <p><b>It is left here on purpose.</b> The claim this whole page rests on is that the method was published before the result existed. <b>That claim is only checkable if the earlier text is still visible</b>, so it is not edited and it is not deleted.</p>
+      <p style="border-left:2px solid var(--line-2);padding-left:18px;margin-top:18px"><b>There is no number on this page yet.</b> A survey that publishes its method after its results can choose the method that produced the results. So the method is here first, in public, with nothing measured. If the numbers turn out to be boring, they get published boring. If they make us look bad, they get published anyway. Our own servers are in the same population and are measured by the same machine on the same day.</p>
+      <div class="stamp">written 2026-08-19 before any measurement &middot; superseded the same day by report 0 &middot; kept</div>
     </div>
   </div>
 </section>
@@ -108,12 +115,13 @@ User-agent: *
     <div class="kv">
       <div class="r"><div class="k">count 1</div><div class="v">How many entries are on the registry.</div></div>
       <div class="r"><div class="k">count 2</div><div class="v">How many of those declare an address you can reach from outside.</div></div>
-      <div class="r"><div class="k">count 3</div><div class="v">How many of those actually answered.</div></div>
+      <div class="r"><div class="k">count 3</div><div class="v">How many of those actually answered. <b>This is not in report 0.</b> It means sending 12,429 requests to other people's servers, and that is not something to rush because a page said it would happen.</div></div>
       <div class="r"><div class="k">then</div><div class="v">For each of the five conditions, how many met it and how many did not, with the list. <b>Our own rows are in the same table.</b></div></div>
       <div class="r"><div class="k">and</div><div class="v">The exact procedure, so you can run it yourself and get the same three counts.</div></div>
     </div>
     <p class="slead" style="margin-top:22px"><b>The interesting part is probably count 2.</b> Most people talking about the size of this ecosystem are quoting a number that includes tens of thousands of servers that cannot be reached from anywhere. We do not know the gap yet. Nobody has published it.</p>
     <div class="linkset">
+      <a href="/verify-directory/survey/0/">Report 0, measured 2026-08-19</a>
       <a href="/verify-directory/method/">The five conditions</a>
       <a href="/verify-directory/failures/">Rows not currently verified</a>
       <a href="https://gate.horizonshield.dev/spec">Verification spec</a>

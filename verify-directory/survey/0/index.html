@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Report 0: 22,636 MCP servers are registered. 12,077 of them declare an address you can reach. · HORIZON SHIELD</title>
+<meta name="description" content="A full walk of the official MCP registry on 2026-08-19. 22,636 active registrations, of which 12,077 declare an https endpoint reachable from outside. Two thirds of the registry was published in the last 90 days. Method, raw data and hash included. Liveness is not measured here.">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/verify-directory/survey/0/">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="22,636 MCP servers are registered. Fewer than 13,000 declare an address you can reach.">
+<meta property="og:description" content="A full walk of the official MCP registry on 2026-08-19. Method published before the count was run. Raw data and hash included.">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/verify-directory/survey/0/">
+<meta property="og:site_name" content="HORIZON SHIELD">
+<meta property="og:image" content="https://shield.the-horizons-innovation.com/assets/lighthouse-og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="alternate" hreflang="ja" href="https://shield.the-horizons-innovation.com/verify-directory/buyers/">
+<link rel="alternate" hreflang="en" href="https://shield.the-horizons-innovation.com/verify-directory/">
+<link rel="stylesheet" href="/verify-directory/assets/vd.css">
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <div class="logo"><a href="/verify-directory/">HORIZON SHIELD</a> <span class="sub">/ verify</span></div>
+    <nav class="navlinks">
+      <a href="/verify-directory/survey/" style="color:var(--ink)">Survey</a>
+      <a href="/verify-directory/register/">Register</a>
+      <a href="/verify-directory/failures/">Failures</a>
+      <a href="/verify-directory/operators/">Operators</a>
+      <a href="/verify-directory/method/">Method</a>
+    </nav>
+    <a class="langsw" href="/verify-directory/buyers/">日本語</a>
+  </div>
+</header>
+<div class="wrap"><div class="crumb"><a href="/verify-directory/">verify</a><span class="sep">/</span><a href="/verify-directory/survey/">survey</a><span class="sep">/</span>report 0</div></div>
+<main>
+
+<div class="wrap hero">
+  <div class="eyebrow"><span class="pulse"></span>report 0 &middot; measured 2026-08-19 &middot; full walk</div>
+  <h1><span class="g">22,636 MCP servers are registered.</span> 12,077 declare an address you can reach.</h1>
+  <p class="lede">Before measuring servers, I measured the population, because I could not find anyone who had published the gap between <b>servers that exist</b> and <b>servers you can actually reach from outside</b>. This is one full walk of the official registry, ending when the cursor ran out rather than when I ran out of patience.</p>
+  <div class="metastrip">
+    <span class="dot">&bull;</span><b>229 pages</b>
+    <span class="dot">&bull;</span><b>cursor exhausted</b>
+    <span class="dot">&bull;</span><b>read only</b>
+    <span class="dot">&bull;</span><b>no tool was called on any server</b>
+  </div>
+  <div class="linkset">
+    <a href="/verify-directory/survey/data/survey0_v4_2026-08-19.json">Raw result, as JSON</a>
+    <a href="/verify-directory/survey/data/survey0_v4_endpoints_active_2026-08-19.txt">All 12,429 endpoints, as text</a>
+    <a href="/verify-directory/survey/">The method, published before this ran</a>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="kh">The counts</div>
+    <h2>What the registry said on 2026-08-19</h2>
+    <div class="kv">
+      <div class="r"><div class="k">registrations</div><div class="v"><b>22,888</b> latest-version entries, all statuses</div></div>
+      <div class="r"><div class="k">status active</div><div class="v"><b>22,636</b></div></div>
+      <div class="r"><div class="k">status deprecated</div><div class="v"><b>252</b>, which is 1.1 percent. <b>Almost nothing is ever withdrawn.</b></div></div>
+      <div class="r"><div class="k">reachable address declared</div><div class="v"><b>12,077</b> of the 22,636 active entries, which is <b>53.4 percent</b></div></div>
+      <div class="r"><div class="k">no reachable address</div><div class="v"><b>10,559</b>. These run locally over stdio. <b>They are not failures and they are not counted as failures.</b> They simply cannot be measured from outside by anyone, including their own users.</div></div>
+      <div class="r"><div class="k">https endpoints</div><div class="v"><b>12,429</b> distinct URLs</div></div>
+      <div class="r"><div class="k">transport declared</div><div class="v">streamable-http <b>11,352</b> &middot; sse <b>1,009</b></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kh">Three things I did not expect</div>
+    <h2>Read these before quoting the headline</h2>
+    <div class="why">
+      <div class="card"><div class="n">01 &middot; concentration</div><h4>9,109 hosts, not 12,429</h4>
+        <p><b>418 hosts carry 3,738 of the endpoints.</b> That is 30 percent of everything reachable sitting behind a few hundred names. A count of servers is not a count of independent operators, and anyone building a trust model on "how many servers support this" should look at that number first.</p></div>
+      <div class="card"><div class="n">02 &middot; age</div><h4>Two thirds of it is younger than 90 days</h4>
+        <p><b>15,277 of the 22,636 active entries were published in the last 90 days. 7,738 in the last 30.</b> Whatever this ecosystem looked like three months ago, most of it did not exist. Any claim about MCP that is a quarter old is describing a smaller thing.</p></div>
+      <div class="card"><div class="n">03 &middot; nothing leaves</div><h4>252 deprecated, out of 22,888</h4>
+        <p>The registry is a record of what was published, not a record of what is running. <b>An entry stays after the server behind it stops answering.</b> That is a reasonable design for a registry and a bad assumption for anyone consuming it as a directory of live services.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="notyet">
+      <div class="big">What this report does not say</div>
+      <p><b>Not one of these 12,429 endpoints has been contacted.</b> This is a count of declarations. A server that declares an address and stopped answering six months ago is in the 12,077.</p>
+      <p>The plan said report 0 would carry three counts, and the third was "how many actually answered". <b>That count is not here.</b> Getting it means firing 12,429 requests at other people's servers, and I am not going to do that quickly just because a page said I would. It will run slowly, read only, and the rate will be published with the result.</p>
+      <p>It also says nothing about whether any of these servers behave well. <b>The five conditions are a separate measurement</b> and this report does not apply them to anybody.</p>
+      <div class="stamp">the missing count is count three. it will appear as report 1, or not at all, and either way this page will say which.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kh">Method</div>
+    <h2>Reproduce it, and tell me where I am wrong</h2>
+    <div class="kv">
+      <div class="r"><div class="k">source</div><div class="v"><span class="mono">registry.modelcontextprotocol.io/v0/servers?limit=100&amp;version=latest</span></div></div>
+      <div class="r"><div class="k">walk</div><div class="v">Cursor pagination until <span class="mono">nextCursor</span> was absent. 229 pages. Stop reason recorded as <span class="mono">cursor exhausted</span>. <b>A run that stops for any other reason does not get published.</b></div></div>
+      <div class="r"><div class="k">counting</div><div class="v">By <span class="mono">name</span>, not by returned row. <b>The cursor is name:version</b>, so an unfiltered walk counts versions rather than servers.</div></div>
+      <div class="r"><div class="k">active</div><div class="v">The registry's own <span class="mono">_meta["io.modelcontextprotocol.registry/official"].status</span> field. Not my judgement.</div></div>
+      <div class="r"><div class="k">reachable</div><div class="v">The entry declares at least one <span class="mono">remotes[]</span> entry with an https URL. <b>The operator states the address. I do not scan for them and I do not guess.</b></div></div>
+      <div class="r"><div class="k">rate</div><div class="v">0.15 seconds between pages, one client, read only.</div></div>
+      <div class="r"><div class="k">record hash</div><div class="v"><span class="mono">beb0145d29e3bddc98937aa596bc5955980a16900301d8fc646757c74aef92b6</span><br>sha256 of the raw JSON linked at the top of this page.</div></div>
+    </div>
+
+    <div class="honest">
+      <div class="t">Three wrong counts came first</div>
+      <p>The first attempt hit a page cap I had set by guessing and stopped at 500 pages. <b>The only reason I noticed is that the tool refused to print a number when it had not reached the end.</b> The second attempt added a stop rule I had also invented, "give up if five pages add no new names", and it stopped after eight pages, because entries arrive grouped by name and one server with many versions looks exactly like a stall. The third attempt worked but counted deprecated entries as active.</p>
+      <p><b>Each time, I had written a rule about the API instead of asking the API.</b> The published number is from the fourth run, after reading what the endpoint actually returns. The three earlier runs are on disk and their stop reasons are recorded.</p>
+    </div>
+
+    <p class="slead" style="margin-top:24px"><b>If you get a different number, I would like to know.</b> Write to <span class="mono">contact@the-horizons-innovation.com</span> with your count and your stop reason, and if you are right this page gets corrected with both numbers left visible.</p>
+    <div class="linkset">
+      <a href="/verify-directory/survey/">The method, as published before this ran</a>
+      <a href="/verify-directory/method/">The five conditions</a>
+      <a href="/verify-directory/failures/">Rows that are not green, mine included</a>
+      <a href="/verify-directory/">Measure a server yourself</a>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer>
+  <div class="wrap">
+    <div class="top">Corrections are welcome and are treated as defects. If a row here is wrong, or a condition measures differently on your side, say so and it is re-measured in public. Write to <span class="mono">contact@the-horizons-innovation.com</span>.</div>
+    Operator: The HORIZONs Co., Ltd. (Corporate Number 7021001075279). Supervised by Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>), 30 years on construction sites.<br>
+    <a href="/verify-directory/">Front door</a> &middot; <a href="/verify-directory/survey/">Survey</a> &middot; <a href="/verify-directory/register/">Register</a> &middot; <a href="/verify-directory/failures/">Failures</a> &middot; <a href="/verify-directory/method/">Method</a> &middot; <a href="/verify-directory/operators/">Operators</a> &middot; <a href="/verify-directory/buyers/">日本語</a> &middot; <a href="/verify-directory/about/">About</a><br>
+    Zero referral fees. Verdicts, scores and listing order are not for sale.<br><br>
+    &copy; 2026 The HORIZONs Co., Ltd. &middot; HORIZON SHIELD
+  </div>
+</footer>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script>
+</body>
+</html>
