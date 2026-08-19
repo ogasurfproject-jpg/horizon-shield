@@ -513,13 +513,23 @@ export async function selfCheck(env, stores) {
 
   // E2 取り込みが起きているか。どこか1店でも14日以内に回答が settle されていること。
   //    橋が落ちていた期間は、ここが必ず落ちる。
+  // 2026-08-19 patch46: 全体の最大で判定していたため、動いている1店が
+  // 止まっている店を隠していた。実測で、当日取り込めた店が28日沈黙している店を覆った。
+  // 店ごとに測る。待ちを抱えたまま14日以上なにも取り込めていない店を名指しする。
+  const silent = [];
   let lastAnswer = null;
   for (const s of stores) {
-    const a = (s.autopilot || {}).last_answer_at;
+    const ap = s.autopilot || {};
+    const a = ap.last_answer_at || null;
     if (a && (lastAnswer === null || a > lastAnswer)) lastAnswer = a;
+    const openPending = !!(ap.pending && ap.pending.sent_at);
+    const quiet = a ? days(nowMs - Date.parse(a)) : Infinity;
+    if (openPending && quiet >= 14) {
+      silent.push(s.store_id + ":" + (a ? Math.floor(quiet) + "日沈黙" : "取り込み履歴なし"));
+    }
   }
-  add("ingest_alive", lastAnswer !== null && days(nowMs - Date.parse(lastAnswer)) < 14,
-      "最新の取り込み=" + (lastAnswer || "一度もなし"));
+  add("ingest_alive", silent.length === 0,
+      (silent.length ? silent.join(" ") + " / " : "") + "全体最新=" + (lastAnswer || "一度もなし"));
 
   // E3 質問が到達可能か。上限まで聞いてなお埋まらない qid は「打ち切り」であって、
   //    放置してよい状態ではない。人が判断すべきものとして必ず名前を出す。
@@ -558,7 +568,13 @@ export async function selfCheck(env, stores) {
     // 動いた店だけ基準日を更新する。動いていない店は据え置いて経過を積ませる。
     next[s.store_id] = (p && p.c === cur) ? p : { c: cur, at: now() };
   }
-  add("completeness_moving", frozen.length === 0, frozen.length ? frozen.join(" ") : "不動なし");
+  // 2026-08-19 patch46: 基準が無い店は「不動なし」ではなく「まだ測れない」。
+  // 通ったのか測れていないのかを、見た人が区別できるようにする。
+  let noBase = 0;
+  for (const s of stores) if (!prev[s.store_id]) noBase++;
+  add("completeness_moving", frozen.length === 0,
+      (frozen.length ? frozen.join(" ") : "不動なし") +
+      (noBase ? "（ただし " + noBase + "店は基準未設定。次回から測れる）" : ""));
   await env.HS_HEARING_KV.put(SNAP, JSON.stringify(next));
 
   const failed = checks.filter((x) => !x.ok);
