@@ -96,6 +96,14 @@ const OWN_ZONE = "horizonshield.dev";
 const GATE_HOST = "gate.horizonshield.dev"; // patch52: 自己参照かどうかの判定に使う
 let GATE_ENV = null;       // 入口で env を差す。値は毎回同一なので競合しない
 let GATE_CONTEXT = "none"; // "http" | "cron"。patch52: 中継の要否は文脈だけでなく「相手が自分か」で決まる
+// 2026-08-19 patch53. patch52 がこの行から消してしまった実測を書き戻す。
+//   旧: 「★中継は http 文脈のみ。cron→workers.dev は塞がっている(実測)」
+// 消したのは誤りだった。79行目の古い記述は残して訂正を積んだのに、ここだけ消していた。
+// しかもこの1行が、cron から中継に届かない可能性を示す唯一の手がかりだった。
+// RELAY_URL は現在 workers.dev なので、この実測が今も生きているなら cron からは届かない。
+// そのときの正解は「届かない」ではなく「測っていない」。patch53 の try/catch がそれを保証する。
+// 中継に custom domain を張れば cron からも届く可能性はある。cron から自ゾーンの別ワーカーへは
+// 2026-08-18T18:00Z の巡回で5本とも到達を実測済みだからだ。ただしこれは未測定。推測で動かさない。
 
 function isOwnZone(u) {
   try {
@@ -153,16 +161,28 @@ async function probeFetch(url, init) {
     }
     return await fetch(url, opts);
   }
-  const res = await fetch(GATE_ENV.RELAY_URL, {
-    method: "POST",
-    headers: { "content-type": "application/json", "x-relay-token": GATE_ENV.RELAY_TOKEN },
-    body: JSON.stringify({
-      url: url,
-      method: opts.method === "POST" ? "POST" : "GET",
-      headers: opts.headers,
-      body: typeof opts.body === "string" ? opts.body : null
-    })
-  });
+  // 2026-08-19 patch53. ここは patch52 の取りこぼし。
+  // 中継が「返した」場合しか見ていなかった。fetch that throws は素通りして、
+  // 呼び出し元では transport 扱いになり、また reachable:false が公開される。
+  // Cloudflare が同一アカウントの workers.dev 間呼び出しを塞ぐときは、
+  // ステータスではなく例外で来る（1104 / 1042 / fetch failed。checkMcp の hint が同じ形を名指ししている）。
+  // RELAY_URL は現在 workers.dev なので、cron からはこの形で落ちる可能性が高い。
+  // 中継に届かないのはこちらの故障であって、相手についての事実ではない。例外にもそう言わせる。
+  let res;
+  try {
+    res = await fetch(GATE_ENV.RELAY_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-relay-token": GATE_ENV.RELAY_TOKEN },
+      body: JSON.stringify({
+        url: url,
+        method: opts.method === "POST" ? "POST" : "GET",
+        headers: opts.headers,
+        body: typeof opts.body === "string" ? opts.body : null
+      })
+    });
+  } catch (e) {
+    throw new Error("relay unreachable (" + String((e && e.message) || e) + "): gate-side failure, not a statement about the target");
+  }
   let wrapped = null;
   try { wrapped = await res.json(); } catch (_e) { wrapped = null; }
   if (res.status === 502 && wrapped && wrapped.error === "target_fetch_failed") {
