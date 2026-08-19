@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Payment / HORIZON SHIELD Verification Directory</title>
+<meta name="description" content="Nothing here is a cold purchase. The check is free, the free fix instructions come first, and we only quote when paid work is actually needed. This page is where a quoted amount gets paid.">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/verify-directory/pay/">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/verify-directory/pay/">
+<meta property="og:site_name" content="HORIZON SHIELD">
+<meta property="og:title" content="Payment &middot; HORIZON SHIELD Verification Directory">
+<meta property="og:description" content="The check is free. This page exists only for work we have already quoted, after telling you whether the free pages would have solved it.">
+<meta property="og:image" content="https://shield.the-horizons-innovation.com/assets/lighthouse-og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root{
+    --bg:#08080a;--surface:#121216;--surface-2:#17171c;
+    --line:rgba(255,255,255,.07);--line-2:rgba(255,255,255,.12);
+    --ink:#f4f4f5;--ink-2:#a9a9b3;--ink-3:#6f6f7a;
+    --emerald:#34d399;--emerald-ink:#6ee7b7;
+    --amber:#fbbf24;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:'Inter','Noto Sans JP',system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;letter-spacing:-.006em;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(800px 420px at 85% -10%,rgba(52,211,153,.09),transparent 60%);background-attachment:fixed}
+  a{color:inherit}
+  .wrap{max-width:900px;margin:0 auto;padding:0 22px}
+  header{border-bottom:1px solid var(--line);background:rgba(8,8,10,.72);backdrop-filter:blur(14px);position:sticky;top:0;z-index:9}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;font-size:13px}
+  header .brand{font-weight:700;letter-spacing:-.02em}
+  header .brand span{color:var(--ink-3);font-family:var(--mono);font-weight:400}
+  header nav a{color:var(--ink-2);margin-left:18px;text-decoration:none}
+  header nav a:hover{color:var(--ink)}
+  .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--emerald-ink);text-transform:uppercase}
+  h1{font-size:clamp(28px,5vw,44px);line-height:1.07;font-weight:800;letter-spacing:-.035em;margin:14px 0 16px}
+  .lead{font-size:16.5px;color:var(--ink-2);max-width:700px}
+  .lead b{color:var(--ink)}
+  section{padding:44px 0;border-top:1px solid var(--line)}
+  section:first-of-type{border-top:none;padding-top:52px}
+  h2{font-size:clamp(20px,3.2vw,27px);font-weight:700;letter-spacing:-.03em;margin-bottom:8px}
+  .slead{color:var(--ink-2);font-size:14.5px;margin-bottom:20px;max-width:720px}
+  ol.seq{list-style:none;counter-reset:s;margin-top:6px}
+  ol.seq li{counter-increment:s;position:relative;padding:12px 0 12px 42px;border-bottom:1px solid var(--line);font-size:14.5px;color:var(--ink-2)}
+  ol.seq li:last-child{border-bottom:none}
+  ol.seq li::before{content:counter(s);position:absolute;left:0;top:12px;width:26px;height:26px;border-radius:50%;
+    border:1px solid var(--line-2);color:var(--ink-3);font-family:var(--mono);font-size:12px;display:flex;align-items:center;justify-content:center}
+  ol.seq li b{color:var(--ink)}
+  .box{background:var(--surface);border:1px solid var(--line-2);border-radius:14px;padding:24px;margin-top:18px}
+  .box.pay{border-color:rgba(52,211,153,.35);background:linear-gradient(180deg,rgba(52,211,153,.06),transparent 60%),var(--surface)}
+  .nm{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase}
+  .fld{margin-top:16px}
+  .fld label{display:block;font-size:12.5px;color:var(--ink-2);margin-bottom:6px}
+  .fld input,.fld select{width:100%;background:var(--surface-2);color:var(--ink);border:1px solid var(--line-2);border-radius:9px;
+    padding:11px 13px;font-family:var(--mono);font-size:14px}
+  .fld input:focus,.fld select:focus{outline:none;border-color:rgba(52,211,153,.5)}
+  .total{display:flex;align-items:baseline;justify-content:space-between;margin-top:20px;padding-top:16px;border-top:1px solid var(--line-2)}
+  .total .t1{font-size:13px;color:var(--ink-2)}
+  .total .t2{font-size:34px;font-weight:800;letter-spacing:-.03em}
+  .total .t2 small{font-size:14px;font-weight:500;color:var(--ink-3);letter-spacing:0}
+  .buy{margin-top:18px;min-height:44px}
+  .pending{border:1px dashed var(--line-2);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--ink-2);margin-top:16px}
+  .pending b{color:var(--amber)}
+  .done{display:none;border:1px solid rgba(52,211,153,.45);border-radius:10px;padding:16px;margin-top:16px;font-size:13.5px;color:var(--ink)}
+  .done .id{font-family:var(--mono);font-size:15px;color:var(--emerald-ink);word-break:break-all;display:block;margin-top:6px}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:12px}
+  th,td{border:1px solid var(--line-2);padding:11px 13px;text-align:left;vertical-align:top}
+  thead th{background:var(--surface-2);font-weight:600;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+  td.p{color:var(--emerald-ink);font-family:var(--mono);white-space:nowrap}
+  .mono{font-family:var(--mono);font-size:12.8px}
+  .no{list-style:none;margin-top:10px}
+  .no li{font-size:13.8px;color:var(--ink-2);padding:8px 0 8px 26px;position:relative;border-bottom:1px solid var(--line)}
+  .no li:last-child{border-bottom:none}
+  .no li::before{content:"x";position:absolute;left:4px;color:#f87171;font-weight:800;font-family:var(--mono)}
+  .no li b{color:var(--ink)}
+  .jpbox{background:var(--surface);border:1px solid var(--line-2);border-radius:14px;padding:22px 24px;margin-top:20px}
+  .jpbox .t{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase;margin-bottom:10px}
+  .jpbox p{font-size:13.8px;color:var(--ink-2);line-height:1.95}
+  .jpbox p + p{margin-top:10px}
+  .jpbox b{color:var(--ink)}
+  .linkset{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+  .linkset a{font-size:13px;color:var(--ink-2);border:1px solid var(--line-2);border-radius:999px;padding:8px 14px;text-decoration:none}
+  .linkset a:hover{color:var(--ink);border-color:var(--ink-3)}
+  footer{border-top:1px solid var(--line);padding:34px 0 70px;font-size:12.5px;color:var(--ink-3);line-height:1.9}
+  footer a{color:var(--ink-2)}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <div class="brand">HORIZON SHIELD <span>/ payment</span></div>
+  <nav>
+    <a href="/verify-directory/">Directory</a>
+    <a href="/verify-directory/pricing/">Pricing</a>
+    <a href="/tokusho/">Legal notice</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+
+<section>
+  <div class="kicker">Nothing here is a cold purchase</div>
+  <h1>This page is for an amount<br>we have already quoted you.</h1>
+  <p class="lead">The verdict is free. The history is free. The fix instructions for all five conditions are free and public. <b>We only quote paid work after telling you whether the free pages would have solved it</b>, and if they would have, we say so and there is nothing to pay. This page exists so that a quoted amount can be paid by card, from outside Japan, without waiting on a bank.</p>
+</section>
+
+<section>
+  <h2>The order this happens in</h2>
+  <p class="slead">Read this before the button. If you have arrived here without step 3, you are early, and paying now would put money in front of work nobody has agreed to yet.</p>
+  <ol class="seq">
+    <li><b>You send the endpoint.</b> No account, no charge. <span class="mono">contact@the-horizons-innovation.com</span></li>
+    <li><b>We look, at no charge.</b> If the free pages solve it, we tell you that and stop. This is the step that most often ends it.</li>
+    <li><b>We quote.</b> Hours times a printed rate, with the number of endpoints named. Nothing is charged until you agree to that quote.</li>
+    <li><b>You pay here.</b> Outside Japan, the quoted amount is paid before the work starts. In Japan it is invoiced after delivery, by bank transfer.</li>
+    <li><b>We deliver, then re-measure.</b> The re-measurement is included. If our instructions do not work, we do the whole thing again once at no charge.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Cause report, outside Japan</h2>
+  <p class="slead">One endpoint is 2.0 hours. Each further endpoint on the same host is 1.0 hour. These figures are set in their own currency and are not converted at a daily rate, so the price does not move when the currency does. Japanese consumption tax is out of scope for a service supplied to a customer outside Japan.</p>
+
+  <table>
+    <thead><tr><th>What</th><th>Outside Japan</th><th>In Japan</th></tr></thead>
+    <tbody>
+      <tr><td>Cause report, one endpoint (2.0 h)</td><td class="p">USD 290</td><td class="p">44,000 JPY</td></tr>
+      <tr><td>Each further endpoint, same host (1.0 h)</td><td class="p">USD 145</td><td class="p">22,000 JPY</td></tr>
+      <tr><td>Re-measurement after your change</td><td class="p">included</td><td class="p">included</td></tr>
+      <tr><td>Second attempt if our instructions fail</td><td class="p">no charge</td><td class="p">no charge</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box pay">
+    <div class="nm">Pay a quoted amount</div>
+    <div class="fld">
+      <label for="ep">The endpoint or host this is for. It goes on the payment so we can match it to your case.</label>
+      <input id="ep" type="text" maxlength="80" placeholder="example.com/mcp" autocomplete="off">
+    </div>
+    <div class="fld">
+      <label for="n">Endpoints, as quoted</label>
+      <select id="n">
+        <option value="1">1 endpoint &middot; USD 290</option>
+        <option value="2">2 endpoints &middot; USD 435</option>
+        <option value="3">3 endpoints &middot; USD 580</option>
+        <option value="4">4 endpoints &middot; USD 725</option>
+        <option value="5">5 endpoints &middot; USD 870</option>
+      </select>
+    </div>
+    <div class="total">
+      <div class="t1">Total, paid once. No subscription is created.</div>
+      <div class="t2" id="amt">$290<small> USD</small></div>
+    </div>
+    <div class="buy" id="pp-once"></div>
+    <div class="pending" id="pp-pending">
+      <b>If no card button appears above</b>, write to <span class="mono">contact@the-horizons-innovation.com</span> and we will send a PayPal invoice for the quoted amount, payable by card without a PayPal account.
+    </div>
+    <div class="done" id="pp-done">
+      Payment received. <b>Keep this number.</b> It is the PayPal transaction, and quoting it identifies your case.
+      <span class="id" id="pp-id"></span>
+      We reply to the address on the payment. If you have not heard from us within one business day, write to <span class="mono">contact@the-horizons-innovation.com</span> with this number.
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>The other things that cost money</h2>
+  <p class="slead">Everything paid on this site, in one place, with the ones that are not paid here marked as such.</p>
+  <table>
+    <thead><tr><th>Service</th><th>Price</th><th>Paid how</th></tr></thead>
+    <tbody>
+      <tr><td>Continuous monitoring, up to 3 endpoints</td><td class="p">USD 15 / month</td><td>Card, on the <a href="/verify-directory/monitoring/">monitoring page</a></td></tr>
+      <tr><td>Continuous monitoring, yearly</td><td class="p">USD 150 / year</td><td>Card, on the <a href="/verify-directory/monitoring/">monitoring page</a></td></tr>
+      <tr><td>Cause report, outside Japan</td><td class="p">USD 290</td><td>Card, above, after a quote</td></tr>
+      <tr><td>Cause report, in Japan</td><td class="p">44,000 JPY</td><td>Bank transfer, invoiced after delivery</td></tr>
+      <tr><td>Pre-connection audit, in Japan</td><td class="p">66,000 JPY</td><td>Bank transfer, invoiced at start</td></tr>
+      <tr><td>Monthly report in Japanese</td><td class="p">11,000 JPY / month</td><td>Bank transfer</td></tr>
+    </tbody>
+  </table>
+  <p class="slead" style="margin-top:16px">The pre-connection audit does not have a figure set in US dollars yet. <b>Rather than convert one at today's rate and print it as if it were a decided price, it is left out.</b> If you are outside Japan and want that audit, write and we will set the figure with you before any work starts.</p>
+</section>
+
+<section>
+  <h2>What paying does not buy</h2>
+  <ul class="no">
+    <li><b>Not a passing verdict.</b> The check is deterministic and there is no path in the code from a payment to a status.</li>
+    <li><b>Not a listing or a position.</b> Listing is free and nobody pays for order.</li>
+    <li><b>Not silence.</b> Your row says what it says whether you pay or not.</li>
+    <li><b>Not a certificate.</b> A verdict is a statement about one measurement at one time.</li>
+  </ul>
+  <div class="linkset">
+    <a href="/verify-directory/operators/fix/">What the cause report contains</a>
+    <a href="/verify-directory/monitoring/">Monitoring, and its subscriptions</a>
+    <a href="/verify-directory/pricing/">Everything that costs money here</a>
+    <a href="/tokusho/">Legal notice, in Japanese</a>
+    <a href="mailto:contact@the-horizons-innovation.com?subject=Quote%20request">contact@the-horizons-innovation.com</a>
+  </div>
+</section>
+
+<section>
+  <div class="jpbox">
+    <div class="t">日本語</div>
+    <p><b>このページは、すでにお見積りをお出しした金額をお支払いいただくためのものです。</b>いきなり買う場所ではありません。まず無償で対象を確認し、無料で公開している情報で解決できる場合はその旨をお伝えします。有償の作業が必要な場合のみお見積りを提示します。</p>
+    <p><b>日本国外のお客様は前払い、日本のお客様は納品後のご請求です。</b>日本のお客様のお支払いは銀行振込（静岡銀行 平塚支店 普通 0479810）で、このページのカード決済は使いません。米ドル建ての金額は日本国外のお客様向けで、日本の消費税は不課税です。為替による日々の換算は行わず、それぞれ独立した金額として定めています。</p>
+    <p><b>接続前審査の米ドル建て価格は、まだ決めていません。</b>今日のレートで換算した数字を、決まった価格のように印刷することはしません。ご希望の場合は、着手前に金額を決めてからお受けします。</p>
+    <p>取引条件の全文は<a href="/tokusho/">特定商取引法に基づく表記</a>に記載しています。</p>
+  </div>
+</section>
+
+<footer><div class="wrap">
+  Operator: The HORIZONs Co., Ltd. (Corporate Number 7021001075279). Supervised by Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>).<br>
+  Listing is free, the verdict is free, and neither is for sale. <a href="/verify-directory/">Verification Directory</a> &middot; <a href="/spec/">Verification spec</a> &middot; <a href="/tokusho/">Legal notice</a><br>
+  &copy; 2026 The HORIZONs Co., Ltd. &middot; HORIZON SHIELD
+</div></footer>
+
+</div>
+
+<script>
+  var BASE = 290, EXTRA = 145;
+  function amount(){
+    var n = parseInt(document.getElementById('n').value, 10) || 1;
+    return BASE + EXTRA * (n - 1);
+  }
+  function paint(){
+    document.getElementById('amt').innerHTML = '$' + amount() + '<small> USD</small>';
+  }
+  document.getElementById('n').addEventListener('change', paint);
+  paint();
+</script>
+<script src="https://www.paypal.com/sdk/js?client-id=AVePXfDeP_YDUgmcFEJNjFHuYkbXZ-VQcLEecJs5Li2la9qDbtZJamy-iXzTxWlPdUODt6KNV3nqUKHP&currency=USD&intent=capture"></script>
+<script>
+  (function(){
+    if(!window.paypal || !paypal.Buttons){ return; }
+    paypal.Buttons({
+      style:{shape:'pill', color:'blue', layout:'vertical', label:'pay'},
+      createOrder:function(data, actions){
+        var ep = (document.getElementById('ep').value || '').slice(0,80);
+        var n  = parseInt(document.getElementById('n').value, 10) || 1;
+        var desc = 'HORIZON SHIELD cause report, ' + n + ' endpoint(s)' + (ep ? ' for ' + ep : '');
+        return actions.order.create({
+          purchase_units:[{
+            description: desc.slice(0,127),
+            custom_id: (ep || 'unspecified').slice(0,127),
+            amount:{ currency_code:'USD', value: amount().toFixed(2) }
+          }]
+        });
+      },
+      onApprove:function(data, actions){
+        return actions.order.capture().then(function(details){
+          var id = (details && details.id) ? details.id : (data && data.orderID) || '';
+          document.getElementById('pp-id').textContent = id;
+          document.getElementById('pp-done').style.display = 'block';
+          var b = document.getElementById('pp-once'); if(b) b.style.display = 'none';
+          var p = document.getElementById('pp-pending'); if(p) p.style.display = 'none';
+        });
+      }
+    }).render('#pp-once');
+    var p = document.getElementById('pp-pending');
+    if(p){ p.style.display = 'none'; }
+  })();
+</script>
+
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script>
+</body>
+</html>

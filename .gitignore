@@ -113,3 +113,10 @@ _register-repo.zip
 /_*
 !/_config.yml
 !/_redirects
+
+# --- 2026-08-19 purge72: 公開リポジトリに入れないもの ---
+# .bak54 のような連番つきバックアップ。*.bak_* に当たらず素通りしていた
+*.bak[0-9]*
+**/*.bak[0-9]*
+# 調査の作業中間物。公開版は verify-directory/survey/data/ にある
+/survey/survey0_*
