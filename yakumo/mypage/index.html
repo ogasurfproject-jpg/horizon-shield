@@ -144,8 +144,8 @@
       <div class="sect-t">01 ／ AI・検索から見つけてもらえる状態</div>
       <p class="sect-d">あなたの店は Yakumo の「生きたMCPサーバー」に載っています。MCPに対応したAI(エージェント)が施主の相談に答えるとき、あなたを検証済みの候補として取り出せます。金額は一切出さず、適正度スコアと検証だけを渡します。</p>
       <div class="box">
-        <div class="row"><span class="k">MCPエンドポイント</span><span class="v mono" style="font-size:11.5px;">/mcp</span></div>
-        <div class="row"><span class="k">エージェントカード(A2A)</span><span class="v"><a href="https://hearing.horizonshield.dev/.well-known/agent-card.json" target="_blank" style="font-size:12px;">公開中 ↗</a></span></div>
+        <div class="row"><span class="k">MCPエンドポイント</span><span class="v mono" id="mEndpoint" style="font-size:11.5px;">/mcp</span></div>
+        <div class="row"><span class="k">エージェントカード(A2A)</span><span class="v"><a id="mAgentCard" href="https://hearing.horizonshield.dev/.well-known/agent-card.json" target="_blank" style="font-size:12px;">公開中 ↗</a></span></div>
         <div class="row"><span class="k">あなたの照会キー</span><span class="v mono" id="mMember" style="font-size:12.5px;">—</span></div>
         <div class="toggle" id="mToggle">▸ AIが実際に受け取るデータを見る(ライブ照会)</div>
         <div id="mResultWrap" style="display:none;">
@@ -383,6 +383,17 @@ function renderProfile(info){
   $("pArea").textContent = info.area || (info.areas&&info.areas[0]) || "—";
   $("pAreas").textContent = (info.areas||[]).join("、") || "—";
   $("pWorks").innerHTML = (info.works||[]).map(w=>'<span class="chip">'+esc(w)+'</span>').join("") || '<span class="muted">未登録</span>';
+  // 2026-08-19 patch65: MCPエンドポイントの欄が文字列 "/mcp" のベタ書きで、
+  //   エージェントカードのリンクも Yakumo 共通のものを指していた。
+  //   WebMCPオプションを入れている店は自分専用のMCPサーバーを持っている。
+  //   12,000円払っている本人のページが、そのアドレスを一箇所も指していなかった。
+  const mnd = String(info.member_no || "").replace(/[^0-9]/g, "");
+  const own = (info.webmcp_option === true && mnd && mnd.length <= 3)
+    ? ("https://p" + mnd.padStart(3, "0") + ".horizonshield.dev") : null;
+  const epEl = document.getElementById("mEndpoint");
+  if(epEl) epEl.textContent = (own || "https://hearing.horizonshield.dev") + "/mcp";
+  const acEl = document.getElementById("mAgentCard");
+  if(acEl) acEl.href = (own || "https://hearing.horizonshield.dev") + "/.well-known/agent-card.json";
 }
 
 // 運用状態(AUTOPILOT)+紹介プログラム

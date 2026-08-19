@@ -109,6 +109,9 @@
   .rank{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:30px;padding:0 10px;border-radius:8px;border:1.5px solid;font-family:"Space Grotesk",system-ui,sans-serif;font-weight:800;font-size:16px;line-height:1;}
   .row .vd{width:7px;height:7px;border-radius:50%;background:var(--verify);flex:none;animation:pulse 2.8s infinite;}
   .row.pending{opacity:.62;cursor:default;}
+  /* 2026-08-19 patch65: 専用ページがある審査中の店はカードから飛べるようにした */
+  .row.pending.linked{cursor:pointer;}
+  .row.pending.linked:hover{border-color:var(--verify-deep);}
   .row.webmcp{position:relative;margin-top:8px;opacity:1;border:1.5px solid var(--bronze);background:linear-gradient(135deg,rgba(201,168,106,0.12),var(--glass));box-shadow:0 0 0 1px rgba(201,168,106,.14),0 10px 30px rgba(201,168,106,.06);}
   .row.webmcp:hover{border-color:var(--warn);}
   .row.webmcp .tier{border-color:var(--bronze);background:rgba(201,168,106,0.08);color:var(--warn);}
@@ -323,13 +326,20 @@
       const gate = c.status === 'onboarding'
         ? '加盟確定 ・ 初回ヒアリングと適正診断(KIRA)を実施中。通過後にスコアを表示します。'
         : 'KIRAの適正診断を通過するまでスコアは表示されません。';
-      html += '<div class="row pending'+(c.webmcp_option?' webmcp':'')+'">'
+      // 2026-08-19 patch65: 審査中のカードだけ <div> で作られていて、リンクになっていなかった。
+      //   専用ページ(/yakumo/noNNN/)を持っている店でも、カードから自分のページに辿り着けない。
+      //   検証済み側と同じように、ページがある店は <a> にする。無い店は今までどおり <div>。
+      const purl2 = (c.profile_url && c.profile_url !== '/yakumo/') ? c.profile_url : null;
+      const closeTag2 = purl2 ? '</a>' : '</div>';
+      html += (purl2
+        ? '<a class="row pending linked'+(c.webmcp_option?' webmcp':'')+'" href="https://shield.the-horizons-innovation.com'+esc(purl2)+'" aria-label="'+esc(c.name)+'">'
+        : '<div class="row pending'+(c.webmcp_option?' webmcp':'')+'">')
         + (c.webmcp_option?'<span class="wmcp-badge">🔌 WebMCP Partner</span>':'')
         + '<div class="tier">'+esc((c.member_no||'?').replace('No.',''))+'</div>'
         + '<div class="mid"><div class="nm">'+esc(c.name)+'</div>'
         + '<div class="gate">'+esc(gate)+'</div>'
         + '<div>'+tags+'</div></div>'
-        + '<div class="sc"><div class="l">検証手続き中</div></div></div>';
+        + '<div class="sc"><div class="l">検証手続き中</div></div>' + closeTag2;
     }
     html += '<a class="row open" href="https://shield.the-horizons-innovation.com/yakumo/apply/"><span class="pl">+</span>加盟店募集中 ・ 通すのは適正診断だけ</a>';
     list.innerHTML = html;
