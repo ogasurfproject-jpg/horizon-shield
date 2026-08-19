@@ -2,7 +2,7 @@
  * Yakumo AUTOPILOT : 加盟店 自動運用エージェント
  *
  * 役割(設計書 tools/yakumo/AUTOPILOT_DESIGN.md):
- *  - 厳格・満遍ないヒアリング: 完成度を計算し、足りない所だけを自動で追撃質問(同じ質問は二度としない)
+ *  - 厳格・満遍ないヒアリング: 完成度を計算し、足りない所だけを自動で追撃質問(同じ質問は上限3回・間隔 3日)
  *  - フォーカス判定: 各店が求めるもの(人材確保/案件獲得/施主集客/加盟店募集/認知)を見極め生成に渡す
  *  - 注意喚起とペナルティ: 放置には質問で喚起→改善なければ表示ランクを一時降下(KIRAスコア自体は不改変)
  *  - 重複ゼロ: 公開コンテンツの指紋台帳(simhash)で近似重複も拒否
@@ -113,11 +113,21 @@ export function computeCompleteness(profile, autopilot) {
 
 /* ------------------------------ 次の質問を選ぶ(重複ゼロ) ------------------------------ */
 export function nextQuestions(profile, autopilot, maxN = 2) {
-  const asked = new Set(((autopilot && autopilot.asked) || []).map((a) => a.qid));
+  // 2026-08-19 patch44: 恒久除外をやめる。
+  // 無関係な返事1通で、一番重い質問(強み・見積もり例・実績)が永久に失われていた。
+  // 代わりに上限3回、間隔3日。3回聞いて埋まらなければ打ち切る。
+  const ASK_MAX = 3, ASK_COOL_MS = 3 * 86400000, nowMs = Date.now();
+  const askedCount = {}, lastAskAt = {};
+  for (const a of ((autopilot && autopilot.asked) || [])) {
+    askedCount[a.qid] = (askedCount[a.qid] || 0) + 1;
+    if (!lastAskAt[a.qid] || String(a.at) > String(lastAskAt[a.qid])) lastAskAt[a.qid] = a.at;
+  }
   const { missing } = computeCompleteness(profile, autopilot);
   const flat = [];
   for (const m of missing) {
-    if (asked.has(m.qid)) continue; // 同じ質問は二度としない
+    const askedN = askedCount[m.qid] || 0;
+    if (askedN >= ASK_MAX) continue;
+    if (askedN > 0 && lastAskAt[m.qid] && (nowMs - Date.parse(lastAskAt[m.qid])) < ASK_COOL_MS) continue;
     const q = QUESTION_BANK[m.qid] || (autopilot && autopilot.focus_primary && QUESTION_BANK[autopilot.focus_primary] && QUESTION_BANK[autopilot.focus_primary][m.qid]);
     if (!q) continue;
     flat.push({ qid: m.qid, w: m.w, text: q.text });
@@ -546,7 +556,10 @@ export function settlePendingOnAnswer(store, rawText) {
   if (ap.pending && ap.pending.qids) {
     const extraPatch = {};
     for (const qid of ap.pending.qids) extraPatch[qid] = { text: S(rawText, 3000), at: now() };
-    ap.asked = (ap.asked || []).map((a) => (ap.pending.qids.includes(a.qid) ? { ...a, answered: true } : a));
+    // 2026-08-19 patch44: 返事が来たことと、その質問が埋まったことは別の事実。
+    // 中身を確かめずに埋まった印を立てない。埋まったかは computeCompleteness が決める。
+    // 返事が来た事実は消さずに残す。
+    ap.asked = (ap.asked || []).map((a) => (ap.pending.qids.includes(a.qid) ? { ...a, replied_at: now() } : a));
     ap.pending = null;
     ap.nudges = 0;
     ap.penalty = 0; // 回答が来たら即回復(誠実設計)
