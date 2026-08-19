@@ -226,14 +226,30 @@ async function saveHistory(userId, history, env) {
 __name(saveHistory, "saveHistory");
 async function logConsent(userId, channel, env) {
   try {
+    // 2026-08-19 line63: 得ていない同意を true と書かない。
+    //   inspect.html:857 は同じ形式を使っているが、あちらは本人がチェックを入れた値を入れている。
+    //   同じ形で書くと、台帳を見ても「押された同意」と「こちらが書いた同意」の区別がつかない。
+    //   だから、どうやって得たのかを記録に入れる。
+    //
+    //   根拠: 友だち追加時（handleFollow）に利用目的の説明と /consent/ へのリンクを出し、
+    //         「このまま診断をご利用いただくと、上記にご同意いただいたものとして進めます」と書いている。
+    //         → みなし同意。本人が押した同意ではない。explicit は false。
+    //
+    //   ★第三者提供について: 上の説明文に、その記載は一言も無い。
+    //     画像は解析のため外部の API に送られる。求めていない同意を true にはしない。
+    //     記載が無いという事実を、無いと書く。
     const record = {
+      schema: "line63",
       line_user_id: userId,
-      consent_version: "2026-06-05_v1",
-      consent_at: (/* @__PURE__ */ new Date()).toISOString(),
-      pi_consent: true,
-      thirdparty_consent: true,
+      recorded_at: (/* @__PURE__ */ new Date()).toISOString(),
+      channel,
+      basis: "implied_by_continued_use_after_notice",
+      explicit: false,
+      notice_location: "handleFollow greeting, and https://shield.the-horizons-innovation.com/consent/",
+      pi_use_notified: true,
       publish_consent: false,
-      channel
+      external_processing: "anthropic_api",
+      external_processing_disclosed_in_notice: false
     };
     await env.SEEN_STORE.put(`consent:${userId}:${Date.now()}`, JSON.stringify(record), { expirationTtl: 60 * 60 * 24 * 365 });
   } catch (e) {
@@ -685,7 +701,7 @@ https://shield.the-horizons-innovation.com
 \u2192 KIRA\u306F\u5224\u5B9A\u3057\u305F\u3060\u3051\u3002\u4E2D\u8EAB\u306E\u78BA\u8A8D\u3068\u8FD4\u4FE1\u304C\u5FC5\u8981\u3067\u3059\u3002`,
         env.LINE_CHANNEL_TOKEN
       );
-    } else
+    } else {
     await pushToLine(
       env.LINE_USER_ID,
       `\u{1F4F8}\u3010\u898B\u7A4D\u66F8\u753B\u50CF\u8A3A\u65AD\u3011
@@ -697,6 +713,7 @@ https://shield.the-horizons-innovation.com
 \u2192 \u30D5\u30A9\u30ED\u30FC\u30A2\u30C3\u30D7\u30C1\u30E3\u30F3\u30B9\uFF01`,
       env.LINE_CHANNEL_TOKEN
     );
+    }
     await pushToLine(userId, replyMsg, env.LINE_CHANNEL_TOKEN);
   } catch (e) {
     console.error("\u753B\u50CF\u8A3A\u65AD\u30A8\u30E9\u30FC:", e.message);

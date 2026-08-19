@@ -792,7 +792,10 @@ export default {
         || request.headers.get('X-Control-Token') || '';
       let authorized = !!env.CONTROL_TOKEN && (await ctEqual(provided, env.CONTROL_TOKEN));
       // 2026-08-19 patch41: /update-db だけ、LINEに送った1回限りのワンタイム鍵も受け付ける。
-      //   他の制御ルートには一切効かない。使った時点で鍵を消すので、スクショの使い回しは通らない。
+      //   他の制御ルートには一切効かない。使った時点で鍵を消す。
+      //   2026-08-19 line63: ただし KV は結果整合なので、削除が全拠点に伝わるまでの短い間、
+      //   同じ鍵がもう一度通る可能性がある。「使い回しは通らない」ではなく
+      //   「通常は通らないが、削除の伝播中は通りうる」が正確。/update-db は冪等なので実害は小さい。
       if (!authorized && url.pathname === '/update-db') {
         const otp = url.searchParams.get('otp') || '';
         if (/^[0-9a-fA-F-]{36}$/.test(otp)) {

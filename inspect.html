@@ -855,6 +855,9 @@ function toB64(file){
         message:'【施工チェック依頼】\n名前：'+name+'\nメール：'+email+'\n種類：'+(type||'未選択')+'\n備考：'+(note||'なし')+'\nファイル数：'+files.length+'件\n同意：個人情報='+piConsent+' / 第三者書類='+tpConsent+' / 公開='+pubConsent+'（'+CONSENT_VERSION+'）\n\n--- KIRA診断 ---\n'+kiraText,
         name:name, email:email, type:type||'', result:kiraText, risk:'',
         consent_version:CONSENT_VERSION, consent_at:consentAt,
+        /* 2026-08-19 line63: LINE 側の台帳と同じ形式なので、こちらが「本人がチェックを入れた同意」
+           であることを記録に残す。残さないと、保存された記録からは区別がつかない。 */
+        consent_schema:'line63', consent_basis:'explicit_form', consent_explicit:true,
         pi_consent:piConsent, thirdparty_consent:tpConsent, publish_consent:pubConsent
       })});
   }catch(e){}
