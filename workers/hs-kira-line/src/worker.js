@@ -531,17 +531,28 @@ __name(adaptForPartner, "adaptForPartner");
 async function handleImageMessage(event, userId, env, partnerFlag) {
   const replyToken = event.replyToken;
   const messageId = event.message.id;
-  await replyToLine(replyToken, `\u{1F4C4} \u898B\u7A4D\u66F8\u3092\u53D7\u3051\u53D6\u308A\u307E\u3057\u305F\u3002
-KIRA\u304C\u4ECA\u3059\u3050\u5206\u6790\u3057\u307E\u3059...
-\u5C11\u3005\u304A\u5F85\u3061\u304F\u3060\u3055\u3044\u{1F50D}
+  // 2026-08-19 patch54: 中身を見る前に「見積書」と名乗らない。同意を擬制しない。
+  //   旧実装は画像を1バイトも読む前に「見積書を受け取りました」と返し、
+  //   「診断のために取り扱うことに同意のうえ送付いただいたものとして進めます」と書いていた。
+  //   2026-08-19に加盟店(p002)が建設業の許可票を送ったとき、これが発火した。
+  //   他人の書類の使い道を、中身を知る前にこちらが決めていた。
+  // 2026-08-19 patch62: 加盟店向けだけ取扱いの一文を落としていたのに、
+  //   logConsent は両方とも thirdparty_consent:true を記録していた。
+  //   見せていない文面への同意を台帳に残すことになる。
+  //   この一文は「見積書だった場合は」という条件付きで、中身を見る前に書類を名乗っていない。
+  //   patch54 の目的は壊れない。全員に同じものを見せる。
+  const firstReply = `\u5199\u771F\u3092\u53D7\u3051\u53D6\u308A\u307E\u3057\u305F\u3002\u4E2D\u8EAB\u3092\u78BA\u8A8D\u3057\u307E\u3059\u3002\u5C11\u3005\u304A\u5F85\u3061\u304F\u3060\u3055\u3044\u3002
 
-\u203B\u3053\u306E\u898B\u7A4D\u66F8\u3092\u5EFA\u8A2D\u8CBB\u8A3A\u65AD\u306E\u305F\u3081\u306B\u5F53\u793E\u3067\u53D6\u308A\u6271\u3046\u3053\u3068\u306B\u540C\u610F\u306E\u3046\u3048\u9001\u4ED8\u3044\u305F\u3060\u3044\u305F\u3082\u306E\u3068\u3057\u3066\u9032\u3081\u307E\u3059\u3002\u4E8B\u696D\u8005\u540D\u30FB\u91D1\u984D\u306E\u5185\u8A33\u306F\u516C\u958B\u3057\u307E\u305B\u3093\u3002`, env.LINE_CHANNEL_TOKEN);
-  await logConsent(userId, "line_image", env);
+\u898B\u7A4D\u66F8\u3060\u3063\u305F\u5834\u5408\u306F\u3001\u5EFA\u8A2D\u8CBB\u8A3A\u65AD\u306E\u305F\u3081\u306B\u5F53\u793E\u3067\u53D6\u308A\u6271\u3044\u307E\u3059\u3002\u4E8B\u696D\u8005\u540D\u30FB\u91D1\u984D\u306E\u5185\u8A33\u306F\u516C\u958B\u3057\u307E\u305B\u3093\u3002`;
+  await replyToLine(replyToken, firstReply, env.LINE_CHANNEL_TOKEN);
     await touchDiagnosis(userId, env, partnerFlag);
   try {
     const imageRes = await fetch(`https://api-data.line.me/v2/bot/message/${messageId}/content`, {
       headers: { Authorization: `Bearer ${env.LINE_CHANNEL_TOKEN}` }
     });
+    // 2026-08-19 patch62: imageRes.ok を見ていなかった。LINEのコンテンツは保存期間が短く、
+    //   期限切れは410で返る。その本文をそのままbase64にしてJPEGとしてAPIに送っていた。
+    if (!imageRes.ok) throw new Error("line_content_" + imageRes.status);
     const imageBuffer = await imageRes.arrayBuffer();
     const bytes = new Uint8Array(imageBuffer);
     let binary = "";
@@ -599,6 +610,16 @@ KIRA\u304C\u4ECA\u3059\u3050\u5206\u6790\u3057\u307E\u3059...
         }]
       })
     });
+    // 2026-08-19 patch62: response.ok を見ていなかった。課金停止・429・500 のとき、
+    //   エラー本文がJSONで返って data.content が無いので raw が "{}" になり、
+    //   「見積書ではありません」と全く同じ経路に落ちていた。本物の見積書を送った人に
+    //   「読み取れませんでした。送り直してください」と返し、失敗は運営にも届かない。
+    //   こちらの障害と、分類の結果を、同じ顔にしない。
+    if (!response.ok) {
+      let detail = "";
+      try { detail = (await response.text()).slice(0, 300); } catch (_e) {}
+      throw new Error("anthropic_" + response.status + " " + detail);
+    }
     const data = await response.json();
     const raw = data.content?.[0]?.text || "{}";
     let result;
@@ -607,13 +628,24 @@ KIRA\u304C\u4ECA\u3059\u3050\u5206\u6790\u3057\u307E\u3059...
     } catch {
       result = { is_estimate: false };
     }
+    // 2026-08-19 patch62: 赤旗ゼロの綺麗な見積書でモデルが red_flags を省くと、
+    //   下の slice で TypeError になり、診断は成功しているのに「エラーが発生しました」と返していた。
+    //   しかも同意は既に記録済み。一番良い見積書を出した人が一番ひどい返事を受け取る形だった。
+    if (!Array.isArray(result.red_flags)) result.red_flags = [];
+    if (!Number.isFinite(Number(result.red_flag_count))) result.red_flag_count = result.red_flags.length;
     let replyMsg = "";
     if (!result.is_estimate) {
-      replyMsg = `\u5199\u771F\u3092\u78BA\u8A8D\u3057\u307E\u3057\u305F\u304C\u3001\u898B\u7A4D\u66F8\u3068\u3057\u3066\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093\u3067\u3057\u305F\u{1F4CB}
+      // 2026-08-19 patch54: 加盟店に「見積書として読み取れません」と返さない。
+      //   こちらが許可証や会社の書類をお願いしておいて、届いたものを別物扱いして読めないと返すのは順番が逆だ。
+      replyMsg = partnerFlag
+        ? `\u53D7\u3051\u53D6\u308A\u307E\u3057\u305F\u3002\u898B\u7A4D\u66F8\u3067\u306F\u306A\u3044\u66F8\u985E\u3068\u3057\u3066\u3001\u62C5\u5F53\u306E\u5927\u8CC0\u306B\u5C4A\u3044\u3066\u3044\u307E\u3059\u3002
+\u3053\u3061\u3089\u3067\u4E2D\u8EAB\u3092\u78BA\u8A8D\u3057\u3066\u304A\u8FD4\u4E8B\u3057\u307E\u3059\u3002\u540C\u3058\u3082\u306E\u3092\u3082\u3046\u4E00\u5EA6\u9001\u3063\u3066\u3044\u305F\u3060\u304F\u5FC5\u8981\u306F\u3042\u308A\u307E\u305B\u3093\u3002`
+        : `\u5199\u771F\u3092\u53D7\u3051\u53D6\u308A\u307E\u3057\u305F\u304C\u3001\u898B\u7A4D\u66F8\u3068\u3057\u3066\u306F\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093\u3067\u3057\u305F\u3002
 
-\u898B\u7A4D\u66F8\u306E\u5199\u771F\u3092\u3082\u3046\u4E00\u5EA6\u304A\u9001\u308A\u3044\u305F\u3060\u304F\u304B\u3001
-\u91D1\u984D\u30FB\u5DE5\u4E8B\u5185\u5BB9\u3092\u30C6\u30AD\u30B9\u30C8\u3067\u6559\u3048\u3066\u304F\u3060\u3055\u3044\u3002`;
+\u898B\u7A4D\u66F8\u306E\u5199\u771F\u3092\u3082\u3046\u4E00\u5EA6\u304A\u9001\u308A\u3044\u305F\u3060\u304F\u304B\u3001\u91D1\u984D\u30FB\u5DE5\u4E8B\u5185\u5BB9\u3092\u30C6\u30AD\u30B9\u30C8\u3067\u6559\u3048\u3066\u304F\u3060\u3055\u3044\u3002`;
     } else {
+      // 見積書だと分かってから同意を記録する。知る前に記録しない。
+      await logConsent(userId, "line_image", env);
       const riskEmoji = result.risk_level === "\u9AD8" ? "\u{1F6A8}" : result.risk_level === "\u4E2D" ? "\u26A0\uFE0F" : "\u2705";
       replyMsg = `\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501
 \u3010KIRA\u901F\u5831\u8A3A\u65AD\u3011${riskEmoji}
@@ -642,6 +674,18 @@ https://shield.the-horizons-innovation.com
     }
     replyMsg = adaptForPartner(replyMsg, partnerFlag);
     const senderLabel = partnerFlag ? (userId + " \u2605\u52A0\u76DF\u5E97") : userId;
+    // 2026-08-19 patch54b: 見積書でない画像を「見積書画像診断」として通知しない。
+    //   旧実装は is_estimate に関係なく同じ見出しで送り、リスク不明・赤旗0・削減0〜0という
+    //   意味のない行を並べていた。既存の通知文は1文字も書き換えず、else 側に回す。
+    if (!result.is_estimate) {
+      await pushToLine(
+        env.LINE_USER_ID,
+        `\u{1F4F8}\u3010\u753B\u50CF\u3092\u53D7\u4FE1\u30FB\u898B\u7A4D\u66F8\u3067\u306F\u3042\u308A\u307E\u305B\u3093\u3011
+\u30E6\u30FC\u30B6\u30FC: ${senderLabel}
+\u2192 KIRA\u306F\u5224\u5B9A\u3057\u305F\u3060\u3051\u3002\u4E2D\u8EAB\u306E\u78BA\u8A8D\u3068\u8FD4\u4FE1\u304C\u5FC5\u8981\u3067\u3059\u3002`,
+        env.LINE_CHANNEL_TOKEN
+      );
+    } else
     await pushToLine(
       env.LINE_USER_ID,
       `\u{1F4F8}\u3010\u898B\u7A4D\u66F8\u753B\u50CF\u8A3A\u65AD\u3011
@@ -656,6 +700,13 @@ https://shield.the-horizons-innovation.com
     await pushToLine(userId, replyMsg, env.LINE_CHANNEL_TOKEN);
   } catch (e) {
     console.error("\u753B\u50CF\u8A3A\u65AD\u30A8\u30E9\u30FC:", e.message);
+    // 2026-08-19 patch62: 失敗が運営に一切届いていなかった。相手にだけ謝って終わっていた。
+    try {
+      await pushToLine(env.LINE_USER_ID, `\u26A0\uFE0F\u3010KIRA\u8A3A\u65AD\u304C\u5931\u6557\u3057\u307E\u3057\u305F\u3011
+\u30E6\u30FC\u30B6\u30FC: ${userId}
+\u7406\u7531: ${String((e && e.message) || e).slice(0, 200)}
+\u2192 \u76F8\u624B\u306B\u306F\u300C\u30C6\u30AD\u30B9\u30C8\u3067\u6559\u3048\u3066\u304F\u3060\u3055\u3044\u300D\u3068\u8FD4\u3057\u3066\u3044\u307E\u3059\u3002\u4E2D\u8EAB\u306F\u5C4A\u3044\u3066\u3044\u307E\u305B\u3093\u3002`, env.LINE_CHANNEL_TOKEN);
+    } catch (_e2) {}
     await pushToLine(
       userId,
       `\u8A3A\u65AD\u4E2D\u306B\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F\u3002
@@ -999,6 +1050,16 @@ KIRA\u304C\u4ECA\u3059\u3050\u5206\u6790\u3057\u307E\u3059...
         }]
       })
     });
+    // 2026-08-19 patch62: response.ok を見ていなかった。課金停止・429・500 のとき、
+    //   エラー本文がJSONで返って data.content が無いので raw が "{}" になり、
+    //   「見積書ではありません」と全く同じ経路に落ちていた。本物の見積書を送った人に
+    //   「読み取れませんでした。送り直してください」と返し、失敗は運営にも届かない。
+    //   こちらの障害と、分類の結果を、同じ顔にしない。
+    if (!response.ok) {
+      let detail = "";
+      try { detail = (await response.text()).slice(0, 300); } catch (_e) {}
+      throw new Error("anthropic_" + response.status + " " + detail);
+    }
     const data = await response.json();
     const raw = data.content?.[0]?.text || "{}";
     let result;
@@ -1007,6 +1068,11 @@ KIRA\u304C\u4ECA\u3059\u3050\u5206\u6790\u3057\u307E\u3059...
     } catch {
       result = { is_estimate: false };
     }
+    // 2026-08-19 patch62: 赤旗ゼロの綺麗な見積書でモデルが red_flags を省くと、
+    //   下の slice で TypeError になり、診断は成功しているのに「エラーが発生しました」と返していた。
+    //   しかも同意は既に記録済み。一番良い見積書を出した人が一番ひどい返事を受け取る形だった。
+    if (!Array.isArray(result.red_flags)) result.red_flags = [];
+    if (!Number.isFinite(Number(result.red_flag_count))) result.red_flag_count = result.red_flags.length;
     let replyMsg = "";
     if (!result.is_estimate) {
       // 2026-08-17: before giving up, read the bytes ourselves.

@@ -377,7 +377,14 @@ async function fetchAndSaveMaterialNews(env) {
     );
     console.log('資材ニュースKV保存完了:', headlines.length + '件');
     // ワンクリックDB更新リンクをLINE送信
-    const updateUrl = 'https://hs-monitor.oga-surf-project.workers.dev/update-db';
+    // 2026-08-19 patch41: 制御ルートは 2026-07-19 から CONTROL_TOKEN 必須になったが、
+    //   ここは素のURLを送り続けていたので、押すと必ず 401 だった。修正はしたが、
+    //   CONTROL_TOKEN をURLに載せる案は採らない。それは /scan /test /prospects /reset-seen
+    //   まで開く鍵で、LINEのトーク履歴・バックアップ・スクリーンショットに恒久的に残る。
+    //   代わりに1回限り・25時間で失効するワンタイム鍵を発行する。使った瞬間に消える。
+    const otp = crypto.randomUUID();
+    await env.SEEN_STORE.put('otp:update-db:' + otp, payload.updatedAt, { expirationTtl: 60 * 60 * 25 });
+    const updateUrl = 'https://hs-monitor.oga-surf-project.workers.dev/update-db?otp=' + otp;
     const lineMsg =
       `📦【資材価格ニュース更新】\n━━━━━━━━━━\n・${headlines.slice(0,5).join('\n・')}\n━━━━━━━━━━\n👇 ワンクリックでDB反映\n${updateUrl}`;
     await fetch('https://api.line.me/v2/bot/message/push', {
@@ -783,7 +790,22 @@ export default {
       const provided = url.searchParams.get('token')
         || (request.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '')
         || request.headers.get('X-Control-Token') || '';
-      if (!env.CONTROL_TOKEN || !(await ctEqual(provided, env.CONTROL_TOKEN))) {
+      let authorized = !!env.CONTROL_TOKEN && (await ctEqual(provided, env.CONTROL_TOKEN));
+      // 2026-08-19 patch41: /update-db だけ、LINEに送った1回限りのワンタイム鍵も受け付ける。
+      //   他の制御ルートには一切効かない。使った時点で鍵を消すので、スクショの使い回しは通らない。
+      if (!authorized && url.pathname === '/update-db') {
+        const otp = url.searchParams.get('otp') || '';
+        if (/^[0-9a-fA-F-]{36}$/.test(otp)) {
+          const otpKey = 'otp:update-db:' + otp;
+          const hit = await env.SEEN_STORE.get(otpKey);
+          if (hit) {
+            await env.SEEN_STORE.delete(otpKey);
+            authorized = true;
+            console.log('update-db: ワンタイム鍵で認証。発行時刻 ' + hit);
+          }
+        }
+      }
+      if (!authorized) {
         return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
       }
     }
