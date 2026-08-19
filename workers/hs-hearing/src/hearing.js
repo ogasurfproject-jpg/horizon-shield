@@ -494,10 +494,23 @@ function publicView(c) {
   };
 }
 // MCPはKVライブを一次ソースに(静的シードはフォールバック)。AIが常に最新の検証状態を引ける。
+// 2026-08-19 patch57: 店ごとに hearing: を1本読んで、表に出す工種・エリアを厚い方に揃える。
+async function contractorsFromStores(env, stores) {
+  const out = [];
+  for (const s of stores) {
+    let profile = null;
+    try {
+      const h = await env.HS_HEARING_KV.get("hearing:" + s.store_id, "json");
+      profile = (h && h.profile) || null;
+    } catch (_e) {}
+    out.push(storeToContractor(s, profile));
+  }
+  return out;
+}
 async function liveContractors(env) {
   try {
     const stores = await listAllStores(env);
-    if (stores.length) return stores.map(storeToContractor);
+    if (stores.length) return await contractorsFromStores(env, stores);
   } catch (_e) {}
   const pub = await fetchPublished(env);
   return pub.contractors || [];
@@ -1126,9 +1139,36 @@ async function handleKiraBridge(env, userId, text) {
     let followup = "";
     try {
       const h = await env.HS_HEARING_KV.get("hearing:" + storeId, "json");
-      const s2 = await env.HS_HEARING_KV.get("store:" + storeId, "json");
-      const qs = AP.nextQuestions((h && h.profile) || {}, (s2 && s2.autopilot) || {}, 2);
-      if (qs && qs.length) followup = "\n\n続けて、差し支えなければ:\n" + qs.map((q) => "・" + q.text).join("\n\n");
+      // 2026-08-19 patch61: ここで store: を読み直していた。直前に ingestHearingAnswer が
+      //   同じキーへ書いており、Workers KV は結果整合なので、この読み直しは書く前の値を
+      //   返しうる。それを下で書き戻すと、ingest が入れた status="hearing_done" /
+      //   hearing_done_at / autopilot.completeness / focus_primary、および
+      //   settlePendingOnAnswer が消した pending・戻した penalty と nudges が、
+      //   まとめて巻き戻る。ingest は渡した store オブジェクトをその場で書き換えているので、
+      //   読み直さずにそれを使う。store が無い店では ingest も書いていないので従来どおり。
+      const s2 = store;
+      // 2026-08-19 patch55: この経路は出した質問を asked に記録していなかった。
+      //   patch44 で入れた「上限3回・間隔3日」が、KIRA経由の返信だけ素通りしていた。
+      //   2026-08-19 19:07 と 19:08、加盟店(p002)に同じ質問が2通続けて出た。直接の原因はこれ。
+      //   あわせて、直前6時間に質問を出していれば今回は追撃しない。
+      const ap2 = (s2 && s2.autopilot) || {};
+      const sinceAsk = ap2.last_send_at ? (Date.now() - Date.parse(ap2.last_send_at)) : Infinity;
+      const qs = sinceAsk < 6 * 3600 * 1000 ? [] : AP.nextQuestions((h && h.profile) || {}, ap2, 2);
+      if (qs && qs.length) {
+        followup = "\n\n続けて、差し支えなければ:\n" + qs.map((q) => "・" + q.text).join("\n\n");
+        const askedAt = new Date().toISOString();
+        ap2.asked = [...(ap2.asked || []), ...qs.map((q) => ({ qid: q.qid, at: askedAt, answered: false, via: "kira-bridge" }))].slice(-50);
+        ap2.last_send_at = askedAt;
+        // 2026-08-19 patch63: pending を立てていなかったので、この経路で出した質問への答えが
+        //   settlePendingOnAnswer に拾われず、profile.extra[qid] に一度も入らなかった。
+        //   完成度が上がらない原因の一つ。soft を立てて紐づけだけ効かせ、
+        //   催促とペナルティの対象からは外す(applyPenaltyPolicy 側で見ている)。
+        //   既に本筋の pending があるときは上書きしない。
+        if (!ap2.pending || ap2.pending.soft) {
+          ap2.pending = { qids: qs.map((q) => q.qid), text: qs.map((q) => q.text).join("\n"), sent_at: askedAt, via: "kira-bridge", soft: true };
+        }
+        if (s2) { s2.autopilot = ap2; await env.HS_HEARING_KV.put("store:" + storeId, JSON.stringify(s2)); }
+      }
     } catch (_e) {}
     await notify(env, "[Yakumo] KIRA経由の回答を自動構造化->反映: " + (((store || {}).company) || storeId));
     return { ok: true, reply: "受け取りました。ありがとうございます。内容は自動で掲載準備に反映しました。" + followup + "\n\n追記はいつでもこのトークにどうぞ。" };
@@ -1155,17 +1195,27 @@ async function listAllStores(env) {
   return out;
 }
 // KVの店レコード -> モール/一覧の表示形。金額は出さない(スコア・ティアのみ)。
-function storeToContractor(s) {
-  const areas = Array.isArray(s.areas) ? s.areas : [];
+function storeToContractor(s, profile) {
+  // 2026-08-19 patch57: 厚い中身は hearing: レコードにあり、store: レコードは薄いままだった。
+  //   No.002 は store: 側が works=["リフォーム"]・エリア3市で、モールのカードがその薄い方を出していた。
+  //   hearing: の profile を渡されたら、工種とエリアはそちらを優先する。渡されなければ従来どおり。
+  const p = profile || {};
+  const pAreas = Array.isArray(p.areas_served) ? p.areas_served : [];
+  const pWorks = Array.isArray(p.works) ? p.works : [];
+  const areas = pAreas.length ? pAreas : (Array.isArray(s.areas) ? s.areas : []);
+  const works = pWorks.length ? pWorks : (Array.isArray(s.works) ? s.works : []);
   const verified = s.verification === "verified" && s.fairness_score != null;
   const penalty = (s.autopilot && Number(s.autopilot.penalty)) || 0;
+  // 2026-08-19 patch61: 加盟番号からだけ導く。store_id は見ない。
+  const mnDigits = String(s.member_no || "").replace(/[^0-9]/g, "");
+  const derivedProfileUrl = (mnDigits && mnDigits.length <= 3) ? ("/yakumo/no" + mnDigits.padStart(3, "0") + "/") : "/yakumo/";
   return {
     member_no: s.member_no || null,
     store_id: s.store_id,
     name: s.company || "",
     area: s.area || areas[0] || "",
     areas_served: areas,
-    works: Array.isArray(s.works) ? s.works : [],
+    works,
     verification: verified ? "verified" : "pending",
     // fairness_score は KIRA純正のまま(不改変)。表示ランクは rank_score(運用状態込み)から。
     fairness_score: verified ? s.fairness_score : null,
@@ -1175,8 +1225,21 @@ function storeToContractor(s) {
     red_flags_detected: verified ? (s.red_flags_detected != null ? s.red_flags_detected : null) : null,
     claim_sha256: verified ? (s.claim_sha256 || null) : null,
     audit_evidence: verified ? (s.audit_evidence || null) : null, // patch51: スコアの分母
-    profile_url: s.profile_url || (s.store_id === "hs-partner-001" ? "/yakumo/no001/" : "/yakumo/"),
+    // 2026-08-19 patch57: 001だけベタ書きだったので、002のカードは自分のページに飛べず
+    //   汎用ページに落ちていた。加盟番号から素直に導く。新しい店を出すときは /yakumo/noNNN/ を先に作ること。
+    // 2026-08-19 patch61: patch57 は store_id からも数字を拾っていた。KIRA経由で作られる店の
+    //   store_id は "kira-" + 英数字8桁で、その英数字に数字が混ざる。"kira-3xk9m2ab" なら
+    //   "/yakumo/no3921/" という存在しないページを施主とAIに配ることになる。
+    //   加盟番号(member_no)だけを見て、3桁に収まらないものは汎用ページに落とす。
+    profile_url: s.profile_url || derivedProfileUrl,
     mcp_url: "https://hearing.horizonshield.dev/mcp",
+    // 2026-08-19 patch60: モールのカードは c.webmcp_option を見て、ブロンズの枠と
+    //   「WebMCP Partner」の札を出す作りになっている。ところがここが返していなかったので
+    //   常に undefined で、あの枠は誰にも付かない死んだ分岐だった。検証済みの店にも付かない。
+    //   CSS の .row.webmcp は opacity:1 なので、審査中でも枠は付く。有料オプションの札であって
+    //   検証の合否ではない。だから店レコードの値をそのまま出す。無い店には付かない。
+    //   これで /admin/stores にも出るので、KVに入っているかを目で確認できる。
+    webmcp_option: s.webmcp_option === true,
     status: s.status || "onboarding",
   };
 }
@@ -1284,13 +1347,39 @@ export default {
 
     // 公開: モールが読む加盟店データ(KVライブ)。金額なし。静的 /data/yakumo-contractors.json のライブ版。
     if (path === "/contractors.json") {
-      const stores = await listAllStores(env);
-      const contractors = stores.map(storeToContractor);
+      // 2026-08-19 patch63: patch57 で店ごとに hearing: を1本読むようにしたので、
+      //   listAllStores と合わせて 1リクエスト 2N+1 回のKV操作になった。Workers の
+      //   サブリクエスト上限に当たると、この公開エンドポイントごと落ちる。
+      //   上限を決めて、超えた分は store: の登録内容だけで出し、何本落としたかを本文に書く。
+      //   黙って切らない。KVが読めないときは公開済みの静的データに落ちる。
+      let contractors = [];
+      let srcLabel = "hs-hearing KV (live)";
+      let thick_limited = false;
+      let thick_note = null;
+      try {
+        const stores = await listAllStores(env);
+        const MAX_THICK = 20;
+        const head = await contractorsFromStores(env, stores.slice(0, MAX_THICK));
+        const tail = stores.slice(MAX_THICK).map((s) => storeToContractor(s));
+        contractors = head.concat(tail);
+        if (tail.length) {
+          thick_limited = true;
+          thick_note = "hearing: の詳細を読んだのは先頭 " + MAX_THICK + " 店。残り " + tail.length + " 店は store: の登録内容のみ。";
+        }
+      } catch (_e) {
+        const pub = await fetchPublished(env);
+        contractors = (pub && pub.contractors) || [];
+        srcLabel = "published fallback (KV unavailable)";
+        thick_limited = true;
+        thick_note = "KVを読めなかったため公開済みの静的データで応答した。";
+      }
       return json({
         schema: "yakumo-contractors/v1",
         generated_at: new Date().toISOString(),
-        source: "hs-hearing KV (live)",
+        source: srcLabel,
         contractors,
+        thick_limited,
+        thick_note,
         // 照会/検証の回数はここに置かない(実測でない数字を配らない)。実カウンタは hs-mcp /.well-known/usage-stats.json。
         stats: { source_count: 8, jccdb_items: 65520, as_of: "2026-06-30" },
       }, 200, { "Cache-Control": "public, max-age=60" });
@@ -1317,16 +1406,24 @@ export default {
       const hearing = await env.HS_HEARING_KV.get("hearing:" + store.store_id, "json");
       const ap = store.autopilot || {};
       const refs = await AP.refCount(env, store.member_no);
+      // 2026-08-19 patch58: 本人のマイページ(?code=トークン)もここを読む。薄い方を本人に見せていた。
+      //   hearing は1行上で既に読んでいるので、その profile を優先するだけでいい。
+      const riHp = (hearing && hearing.profile) || null;
+      const riAreas = (riHp && Array.isArray(riHp.areas_served) && riHp.areas_served.length) ? riHp.areas_served : (store.areas || []);
+      const riWorks = (riHp && Array.isArray(riHp.works) && riHp.works.length) ? riHp.works : (store.works || []);
       return json({
         exists: true,
         member_no: store.member_no || null,
         company: store.company || "",
-        area: (store.areas && store.areas[0]) || "",
-        areas: store.areas || [],
-        works: store.works || [],
+        // 2026-08-19 patch63: モールのカードと出所を揃える。
+        area: store.area || riAreas[0] || "",
+        areas: riAreas,
+        works: riWorks,
         tier: store.tier || "honbu",
         status: store.status || "onboarding",
         already_answered: !!(hearing && hearing.completed),
+        // 2026-08-19 patch64: 本人用マイページ(?code=トークン)でも同じものを出す。
+        webmcp_option: store.webmcp_option === true,
         // AUTOPILOT: マイページ用の運用状態(本人向け・公開安全)
         focus_primary: ap.focus_primary || null,
         completeness: ap.completeness != null ? ap.completeness : null,
@@ -1345,15 +1442,37 @@ export default {
       if (!sid) return json({ exists: false }, 404);
       const store = await env.HS_HEARING_KV.get("store:" + sid, "json");
       if (!store) return json({ exists: false }, 404);
+      // 2026-08-19 patch58: ここも store: の薄い方を返していた。加盟店のマイページが、
+      //   本人に「工種はリフォーム1つ、エリアは3市」の店として見えていた。
+      //   厚い方(hearing: の profile)があればそちらを出す。patch57 と同じ直し方。
+      let hp = null, hDone = false;
+      try {
+        const hrec = await env.HS_HEARING_KV.get("hearing:" + sid, "json");
+        hp = (hrec && hrec.profile) || null;
+        // 2026-08-19 patch59: マイページの公開ビューは already_answered だけを見て
+        //   「ヒアリング待ち・まずはヒアリングにご回答ください」を出す。この口がその値を
+        //   返していなかったので undefined -> false になり、2026-08-19に4回答えた加盟店(p002)に
+        //   「まずは答えてください」と表示していた。status は既に hearing_done を返しており、
+        //   ここで新しく公開する情報は無い。
+        hDone = !!(hrec && hrec.completed);
+      } catch (_e) {}
+      const ppAreas = (hp && Array.isArray(hp.areas_served) && hp.areas_served.length) ? hp.areas_served : (store.areas || []);
+      const ppWorks = (hp && Array.isArray(hp.works) && hp.works.length) ? hp.works : (store.works || []);
       return json({
         exists: true,
         store_id: store.store_id || sid,
         member_no: store.member_no || null,
         company: store.company || "",
-        area: (store.areas && store.areas[0]) || "",
-        areas: store.areas || [],
-        works: store.works || [],
+        // 2026-08-19 patch63: モールのカードは s.area を優先しているのに、ここだけ
+        //   profile の1件目を出していた。同じ店が画面によって別の所在地に見える。揃える。
+        area: store.area || ppAreas[0] || "",
+        areas: ppAreas,
+        works: ppWorks,
         status: store.status || "onboarding",
+        already_answered: hDone,
+        // 2026-08-19 patch64: マイページが「自分のMCPエンドポイント」を出すために要る。
+        //   有料オプションを入れている店だけが自分専用のMCPを持っている。
+        webmcp_option: store.webmcp_option === true,
       });
     }
 
@@ -1659,6 +1778,33 @@ export default {
         return json({ ok: true, record: rec });
       }
 
+      // 2026-08-19 patch58: profile の文字列項目を1つだけ直す口。
+      //   これが無かったので、峰尾さんの代表者名を入れる正規の手段が存在しなかった。
+      //   /admin/provision は store レコードを丸ごと上書きしてトークンとLINE紐付けとasked履歴を壊す。
+      //   /admin/verify はスコアしか触らない。だから狭い口をここに作る。
+      //   配列(工種・エリア・FAQ・見積もり例)には触らせない。誰がいつ何を直したかを profile.edits に残す。
+      if (path === "/admin/profile-patch" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const sid = safeStr(b.store_id, 40);
+        const rec = await env.HS_HEARING_KV.get("hearing:" + sid, "json");
+        if (!rec || !rec.profile) return json({ error: "not_found" }, 404);
+        const ALLOW = ["rep", "license", "contact", "hours", "ng", "story", "strengths", "trust"];
+        const fields = (b.fields && typeof b.fields === "object") ? b.fields : {};
+        const applied = {};
+        for (const k of ALLOW) {
+          if (!Object.prototype.hasOwnProperty.call(fields, k)) continue;
+          const to = safeStr(fields[k], 2000);
+          applied[k] = { from: safeStr(rec.profile[k], 2000), to };
+          rec.profile[k] = to;
+        }
+        if (!Object.keys(applied).length) return json({ error: "no_allowed_field", allow: ALLOW }, 400);
+        rec.profile.edits = [...(rec.profile.edits || []),
+          { at: new Date().toISOString(), by: "admin", fields: Object.keys(applied) }].slice(-20);
+        await env.HS_HEARING_KV.put("hearing:" + sid, JSON.stringify(rec));
+        await notify(env, "[Yakumo] profile-patch: " + sid + " " + Object.keys(applied).join(","));
+        return json({ ok: true, store_id: sid, applied });
+      }
+
       /* ---------- AUTOPILOT admin ---------- */
       // 追撃質問を今すぐ送る(自動選定・重複質問ゼロ)
       if (path === "/admin/followup" && request.method === "POST") {
@@ -1709,8 +1855,15 @@ export default {
         const hearing = await env.HS_HEARING_KV.get("hearing:" + sid, "json");
         const ap = store.autopilot || {};
         const qs = AP.nextQuestions((hearing && hearing.profile) || {}, ap, 1);
-        const r = await AP.sendQuestions(env, store, qs.length ? qs : [{ qid: "q_trust", text: AP.QUESTION_BANK.q_trust.text }], "nudge");
+        const sentQs = qs.length ? qs : [{ qid: "q_trust", text: AP.QUESTION_BANK.q_trust.text }];
+        const r = await AP.sendQuestions(env, store, sentQs, "nudge");
         if (!r.ok) return json({ ok: false, reason: r.reason }, 502);
+        // 2026-08-19 patch55: nudge で実際に送った質問も asked に記録する。
+        // 2026-08-19 patch63: ただし q_trust のフォールバックは数えない。数えると
+        //   ASK_MAX=3 を食い潰して、その項目を恒久的に聞けなくする。
+        const nudgeAt = new Date().toISOString();
+        if (qs.length) ap.asked = [...(ap.asked || []), ...qs.map((q) => ({ qid: q.qid, at: nudgeAt, answered: false, via: "nudge" }))].slice(-50);
+        ap.last_send_at = nudgeAt;
         ap.nudges = (ap.nudges || 0) + 1;
         store.autopilot = ap;
         await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));

@@ -89,15 +89,27 @@ export function computeCompleteness(profile, autopilot) {
   const p = profile || {};
   const extra = p.extra || {};
   const focus = autopilot && autopilot.focus_primary;
-  const missing = [];
+  const missing = [], askable = [];
   let score = 0;
-  const add = (ok, w, qid) => { if (ok) score += w; else missing.push({ qid, w }); };
+  // 2026-08-19 patch56: 「点が足りない」と「まだ聞いていない」を分ける。
+  //   q_strengths は120字、q_trust は30字という長さの関門で判定していた。
+  //   2026-08-19、加盟店(p002)の回答は実測85字と27字。きちんと答えているのに
+  //   「未回答」として質問対象に残り続け、同じ質問が何度も出た。3文字足りないという理由で。
+  //   点数(score)は今までどおり長さで決める。薄さの指標として要る。
+  //   変えるのは質問を選ぶ側だけ。一度でも答えが入っている欄は、自動では二度と聞かない。
+  //   件数の関門(FAQ3件・見積3件・エリア3市)は別。足りない分をもう一度お願いするのは
+  //   正当な追加依頼なので、そこは触らない。
+  const add = (ok, w, qid, answered) => {
+    if (ok) { score += w; return; }
+    missing.push({ qid, w });
+    if (!answered) askable.push({ qid, w });
+  };
 
   add((p.areas_served || []).length >= 3, 10, "q_areas");
-  add(S(p.strengths, 2000).length >= 120, 15, "q_strengths");
+  add(S(p.strengths, 2000).length >= 120, 15, "q_strengths", !!S(p.strengths, 2000).trim());
   add((p.faqs || []).length >= 3, 15, "q_faqs");
   add((p.estimates_for_audit || []).length >= MIN_AUDIT_ESTIMATES, 10, "q_estimates"); // patch51
-  add(S(p.trust, 2000).length >= 30, 10, "q_trust");
+  add(S(p.trust, 2000).length >= 30, 10, "q_trust", !!S(p.trust, 2000).trim());
   add(!!S(p.contact), 5, "q_contact");
   add(!!S(p.license), 5, "q_license");
   add(!!S(p.story) || !!extra.q_story, 5, "q_story");
@@ -108,13 +120,15 @@ export function computeCompleteness(profile, autopilot) {
     const qids = Object.keys(QUESTION_BANK[focus]);
     const answered = qids.filter((q) => !!extra[q]).length;
     score += Math.round((answered / qids.length) * 10);
-    for (const q of qids) if (!extra[q]) missing.push({ qid: q, w: QUESTION_BANK[focus][q].w });
+    // 2026-08-19 patch56: フォーカス個別は extra[q] の有無で見ているので、
+    //   答えがあれば埋まる。missing と askable は同じでよい。
+    for (const q of qids) if (!extra[q]) { missing.push({ qid: q, w: QUESTION_BANK[focus][q].w }); askable.push({ qid: q, w: QUESTION_BANK[focus][q].w }); }
   } else {
     // フォーカス不明のうちは配点保留(q_focusが最優先で立つ)
   }
   // 契約時点で埋まる基本項目ぶんの底上げ(社名/所在地/工種は必須通過済み)
   score += 5;
-  return { score: Math.min(100, score), missing };
+  return { score: Math.min(100, score), missing, askable };
 }
 
 /* ------------------------------ 次の質問を選ぶ(重複ゼロ) ------------------------------ */
@@ -128,7 +142,10 @@ export function nextQuestions(profile, autopilot, maxN = 2) {
     askedCount[a.qid] = (askedCount[a.qid] || 0) + 1;
     if (!lastAskAt[a.qid] || String(a.at) > String(lastAskAt[a.qid])) lastAskAt[a.qid] = a.at;
   }
-  const { missing } = computeCompleteness(profile, autopilot);
+  // 2026-08-19 patch56: 質問を選ぶのは askable。missing は点数の話で、
+  //   「答えてもらったが長さが足りない」欄も入っている。そこを聞き直さない。
+  const comp = computeCompleteness(profile, autopilot);
+  const missing = comp.askable || comp.missing;
   const flat = [];
   for (const m of missing) {
     const askedN = askedCount[m.qid] || 0;
@@ -420,6 +437,10 @@ export function snsDrafts(events) {
 export function applyPenaltyPolicy(ap, nowMs) {
   // 返り値: {action: null|"nudge1"|"nudge2"|"cap", penalty}
   if (!ap.pending || !ap.pending.sent_at) return { action: null, penalty: ap.penalty || 0 };
+  // 2026-08-19 patch63: kira-bridge が返信に添える任意質問は soft pending。
+  //   「差し支えなければ」と書いて出したものに、催促もペナルティも付けない。
+  //   答えが来たときに紐づけるためだけに置いている。
+  if (ap.pending.soft) return { action: null, penalty: ap.penalty || 0 };
   const age = days(nowMs - Date.parse(ap.pending.sent_at));
   const nudges = ap.nudges || 0;
   // 2026-08-19 patch39: 回数の頭打ちをやめ、経過日数の表で駆動する。
@@ -447,6 +468,10 @@ export async function runDailyTick(env, deps) {
     const hearing = await env.HS_HEARING_KV.get("hearing:" + sid, "json");
     const profile = (hearing && hearing.profile) || null;
     const ap = store.autopilot || {};
+    // 2026-08-19 patch63: soft pending は7日で失効させる。放置すると pending が立っている
+    //   というだけで、追撃質問の経路(comp.score < 85 && !ap.pending)が永久に塞がる。
+    if (ap.pending && ap.pending.soft && ap.pending.sent_at &&
+        (nowMs - Date.parse(ap.pending.sent_at)) >= 7 * 86400000) ap.pending = null;
 
     // フォーカス未判定なら判定を試みる(回答が既にあれば)
     if (!ap.focus_primary && profile) {
@@ -465,6 +490,11 @@ export async function runDailyTick(env, deps) {
       if (r.ok) {
         ap.nudges = (ap.nudges || 0) + 1;
         ap.last_send_at = now(); // patch39: nudge経路で記録漏れがあった（両店とも None だった）
+        // 2026-08-19 patch55: cron の nudge も、送った質問を asked に記録していなかった。
+        // 2026-08-19 patch63: ただし q_trust のフォールバックは数えない。フォールバックが出るのは
+        //   nextQuestions が空を返したとき、つまりその質問が既に上限か冷却中のとき。
+        //   数えると ASK_MAX=3 を食い潰して、その項目を恒久的に聞けなくする。
+        if (qs.length) ap.asked = [...(ap.asked || []), ...qs.map((q) => ({ qid: q.qid, at: now(), answered: false, via: "nudge" }))].slice(-50);
         if (pol.action === "nudge2") ap.penalty = pol.penalty;
         log.nudged.push(sid + ":" + pol.action + ":" + r.via);
         if (pol.action === "nudge2") log.penalized.push(sid + ":penalty3");
