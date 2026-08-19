@@ -24,14 +24,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#030508;--surface:#0a0e14;--border:#1a2030;
-  --accent:#00e5ff;--danger:#ff3d3d;--text:#e8edf5;--muted:#5a6a7a;
+  /* 2026-08-19 site69: トップページ / と同じ配色にする。変数名は据え置き、中身だけ入れ替え */
+  --bg:#F8F8F5;--surface:#FEFEFE;--border:rgba(28,21,16,.11);
+  --accent:#C24E1A;--danger:#8B1A1A;--text:#1C1510;--muted:#4A3F32;
+  --t3:#8A7868;--ink:#1A3A54;--warm:#F3EBD8;--forest:#1E6B43;
+  --l1:rgba(28,21,16,.065);
+  --sh1:0 2px 16px rgba(28,21,16,.055);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;padding:0 0 80px}
+body{background-color:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;padding:0 0 80px;
+  line-height:1.9;-webkit-font-smoothing:antialiased;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23f)' opacity='0.03'/%3E%3C/svg%3E");
+  background-attachment:fixed}
 
 header{
-  background:rgba(3,5,8,0.95);border-bottom:1px solid var(--border);
+  background:rgba(254,254,254,0.92);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;
   padding:16px 20px;display:flex;align-items:center;justify-content:space-between;
 }
 .logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--accent);text-decoration:none}
@@ -63,7 +71,8 @@ td:last-child{color:var(--text)}
 
 .policy-box{
   background:var(--surface);border:1px solid var(--border);
-  border-left:3px solid var(--accent);border-radius:4px;
+  border-left:3px solid var(--accent);border-radius:10px;
+  box-shadow:var(--sh1);
   padding:20px;margin-top:12px;font-size:13px;line-height:2;
 }
 .policy-box li{margin-left:16px;color:var(--muted)}
