@@ -778,8 +778,14 @@ async function llmStructure(env, text, store) {
       return { ok: false, reason: "llm-not-configured" };
     }
   } catch (e) { return { ok: false, reason: "llm-error:" + String(e).slice(0, 60) }; }
+  // 2026-08-19 patch43: モデルが文字列ではなくオブジェクトを返すことがある。
+  // 正規表現を当てる段で TypeError になり、ヒアリング取り込みが丸ごと500で落ちていた（実測）。
+  // 「無い」ではなく「形が違う」だけなので、当てる直前に形を揃える。
+  const outType = typeof out;
+  if (out && outType === "object") out = JSON.stringify(out);
+  else if (outType !== "string") out = out == null ? "" : String(out);
   const m = out.match(/\{[\s\S]*\}/);
-  if (!m) return { ok: false, reason: "no-json" };
+  if (!m) return { ok: false, reason: "no-json(returned " + outType + ", " + String(out).slice(0, 80) + ")" };
   try { return { ok: true, raw: JSON.parse(m[0]) }; } catch (_e) { return { ok: false, reason: "json-parse-fail" }; }
 }
 async function notify(env, text) {
