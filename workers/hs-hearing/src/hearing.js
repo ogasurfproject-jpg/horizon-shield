@@ -679,9 +679,12 @@ async function handleMcp(request, env, id, method, params, ctx) {
       const company = safeStr(args.company, 120);
       if (!company) return rpc(id, { content: [{ type: "text", text: JSON.stringify({ error: "company is required" }) }], isError: true });
       const target = normCompanyName(company);
+      // 2026-08-19 patch50: ここは c.company ではなく c.name。
+      // storeToContractor と publicView は社名を name で出す。company というフィールドは無い。
+      // KV側の store が company を使っているので同じだろうと決めつけて外した。
       const hit = target
         ? contractors.find((c) => {
-            const n = normCompanyName(c.company);
+            const n = normCompanyName(c.name);
             return n && (n === target || n.indexOf(target) >= 0 || target.indexOf(n) >= 0);
           })
         : null;
@@ -692,6 +695,7 @@ async function handleMcp(request, env, id, method, params, ctx) {
         const payload = {
           query: company,
           status: isVerified ? "verified_member" : "listed_not_yet_verified",
+          matched_on: { field: "name", value: pv.name },
           store: pv,
           means: isVerified
             ? "この店はYakumoの検証を通過している。通過した項目と観測日は公開ページに残り、運営は後から書き換えられない。記録を消す機能をコードに作っていないため。"
