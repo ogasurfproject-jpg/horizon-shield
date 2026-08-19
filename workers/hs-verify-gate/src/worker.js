@@ -80,10 +80,22 @@ function withTimeout(p, ms) {
 // cron起動なら通る。外部ゾーンへは通る。最初に外から見つけたのは Federico。
 // 対象が自ゾーンのときだけ、別ゾーンの hs-verify-relay を経由して公開エッジで測る。
 // service binding は使わない。公開経路を測らない私道になるからだ。
+//
+// ---- 訂正 (2026-08-19 patch52。上の行は消さない。訂正は積む) ----
+// 上の「cron起動なら通る」は、半分が実測で、半分が外れていた。
+// 2026-08-18T18:00:27Z の巡回の記録では、同じ cron が7本を測り、
+// mcp / hearing / web / jidec / p001 はすべて reachable:true を返している。
+// cron から自ゾーンの「別ワーカー」へは通る。そこは正しかった。
+// 同じ巡回で gate だけが http 522 を返した（/history 18:00:38Z）。
+// 塞がっていたのはゾーンではなく、同じワーカーが自分自身を叩く経路だった。
+// 条件式がゾーンで書かれていたため、cron のときだけ自己測定が直接経路に落ち、
+// 毎日 03:00 JST に自分を held にして、それを「相手に届かない」として公開していた。
+// 登記簿の中で唯一、自分についてだけ、測定器の故障を対象の欠陥として記録していた。
 const PROBE_UA = "HORIZON-SHIELD-verify-gate/0.2 (+https://gate.horizonshield.dev/spec; conformance probe; read-only)";
 const OWN_ZONE = "horizonshield.dev";
+const GATE_HOST = "gate.horizonshield.dev"; // patch52: 自己参照かどうかの判定に使う
 let GATE_ENV = null;       // 入口で env を差す。値は毎回同一なので競合しない
-let GATE_CONTEXT = "none"; // "http" | "cron"。★中継は http 文脈のみ。cron→workers.dev は塞がっている(実測)
+let GATE_CONTEXT = "none"; // "http" | "cron"。patch52: 中継の要否は文脈だけでなく「相手が自分か」で決まる
 
 function isOwnZone(u) {
   try {
@@ -92,12 +104,27 @@ function isOwnZone(u) {
   } catch (_e) { return false; }
 }
 
+function isSelf(u) {
+  try { return new URL(u).hostname === GATE_HOST; } catch (_e) { return false; }
+}
+
 function relayConfigured() {
-  return GATE_CONTEXT === "http" && !!(GATE_ENV && GATE_ENV.RELAY_URL && GATE_ENV.RELAY_TOKEN);
+  return !!(GATE_ENV && GATE_ENV.RELAY_URL && GATE_ENV.RELAY_TOKEN);
+}
+
+// 2026-08-19 patch52. 中継を通すかどうか。
+// http 文脈: 自ゾーンは全部 522 になる(2026-08-14/15 実測)。中継が要る。
+// cron 文脈: 自ゾーンの別ワーカーへは直接届く(2026-08-18T18:00Z の巡回で5本を実測)。
+//            届かないのは自分自身への subrequest だけ(同じ巡回で gate だけ http 522)。
+// だから条件は「自ゾーンか」ではなく「自分自身か」で分ける。
+function useRelay(u) {
+  if (!relayConfigured()) return false;
+  if (!isOwnZone(u)) return false;
+  return GATE_CONTEXT === "http" || isSelf(u);
 }
 
 function probeVia(endpoint) {
-  return (isOwnZone(endpoint) && relayConfigured())
+  return useRelay(endpoint)
     ? "relay (hs-verify-relay, a separate worker outside this zone path; the whole probe traverses the public edge, because a Worker invoked over HTTP cannot reach its own zone directly. Measured 2026-08-14/15)"
     : "direct from the gate worker (" + GATE_CONTEXT + " context)";
 }
@@ -115,7 +142,15 @@ function gateCommit() {
 async function probeFetch(url, init) {
   const opts = init ? { ...init } : {};
   opts.headers = { ...(opts.headers || {}), "user-agent": PROBE_UA };
-  if (!(isOwnZone(url) && relayConfigured())) {
+  if (!useRelay(url)) {
+    // 2026-08-19 patch52. 中継が無い状態で自分自身を直接叩くと必ず http 522 になる。
+    // 522 は gatewayish なので transport 扱いになり、公開の記録に reachable:false が載る。
+    // それは相手についての主張であり、ここでの相手は自分自身で、
+    // 公開インターネットからは到達できている。**書いてよい事実ではない。**
+    // 測定を成立させずに gate-side として落とす。既存の検出がこれを拾う。
+    if (isSelf(url)) {
+      throw new Error("relay unavailable (self-probe has no relay path): gate-side failure, not a statement about the target");
+    }
     return await fetch(url, opts);
   }
   const res = await fetch(GATE_ENV.RELAY_URL, {
@@ -350,7 +385,12 @@ async function runCheck(endpoint, allowToolCall) {
 
   const firstTool = results.mcp_endpoint.detail && results.mcp_endpoint.detail.tools
     ? results.mcp_endpoint.detail.tools[0] : null;
-  results.determinism = await checkDeterminism(endpoint, firstTool, allowToolCall === true);
+  // 2026-08-19 patch52. MCPが測れていないなら、ツールが無いのではなく見ていない。
+  // "no tool available to test" は、探した上で無かったときの文言。
+  // 探していないのに無いと書くのは、8/19 に verify-event の tags で直したのと同じ形。
+  results.determinism = results.mcp_endpoint.gate_side === true
+    ? { pass: false, gate_side: true, measured: false, reason: "not measured: the tool list could not be read because the gate's relay path was unavailable, so there was nothing to test determinism against" }
+    : await checkDeterminism(endpoint, firstTool, allowToolCall === true);
 
   const passed = Object.values(results).every((r) => r.pass);
   // gate-side = こちらの測定装置の故障。unreachable(相手に届かない)と混ぜない。
