@@ -594,6 +594,51 @@ function badgeSvg(label, status, color) {
     '<text x="' + (lw + sw / 2).toFixed(0) + '" y="14">' + S + '</text></g></svg>';
 }
 
+// 2026-08-19 patch54. 渡せるバッジ。
+// 20px のシールズ風はサイトに貼る用で、名刺やチラシには小さすぎる。
+// こちらは印刷にも耐える大きさで、事業者名とエンドポイントと測定日を入れる。
+//
+// ★日付を必ず焼き込む理由。
+// 公開している約束は「バッジを取り上げる手続きは無い。条件を満たさなくなったら、
+// 次のリクエストで緑が描かれないだけ」。ダウンロードされた静止画は、落ちても緑のまま残る。
+// それは約束と矛盾する。だから measured の日付と、いまの状態を確かめる URL を焼き込む。
+// 「この日はこうだった」なら嘘にならない。
+function xmlEsc(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+}
+
+function sealSvg(opts) {
+  const name = xmlEsc(opts.name || opts.endpoint || "unmeasured endpoint");
+  const sub = xmlEsc(opts.sub || "");
+  const ep = xmlEsc(opts.endpoint || "");
+  const status = String(opts.status || "not listed");
+  const when = xmlEsc(opts.when || "");
+  const verifyUrl = xmlEsc(opts.verifyUrl || "");
+  const green = status === CONFIG.tier_pass;
+  const accent = green ? "#34d399" : (status === CONFIG.tier_held ? "#9aa4b2" : "#fbbf24");
+  const W = 460, H = 168;
+  const clip = (s, n) => (s.length > n ? s.slice(0, n - 1) + "\u2026" : s);
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" ' +
+    'aria-label="MCP conduct ' + xmlEsc(status) + ' for ' + name + ', measured ' + when + '">' +
+    '<rect width="' + W + '" height="' + H + '" rx="14" fill="#0b0b0e"/>' +
+    '<rect x="0.5" y="0.5" width="' + (W - 1) + '" height="' + (H - 1) + '" rx="13.5" fill="none" stroke="rgba(255,255,255,.10)"/>' +
+    '<rect x="0" y="0" width="6" height="' + H + '" rx="3" fill="' + accent + '"/>' +
+    '<g font-family="Inter,Helvetica,Arial,sans-serif">' +
+    '<text x="28" y="34" fill="#6f6f7a" font-size="11" letter-spacing="2.4">HORIZON SHIELD</text>' +
+    '<text x="28" y="64" fill="' + accent + '" font-size="21" font-weight="700">MCP conduct ' + xmlEsc(status) + '</text>' +
+    '<text x="28" y="92" fill="#f4f4f5" font-size="15" font-weight="600">' + clip(name, 44) + '</text>' +
+    (sub ? '<text x="28" y="110" fill="#a9a9b3" font-size="11">' + clip(sub, 52) + '</text>' : "") +
+    '<text x="28" y="' + (sub ? 130 : 116) + '" fill="#6f6f7a" font-size="10.5" font-family="ui-monospace,Menlo,monospace">' + clip(ep, 56) + '</text>' +
+    '<text x="28" y="' + (sub ? 148 : 136) + '" fill="#6f6f7a" font-size="10.5">measured ' + when + '  ·  verify at ' + clip(verifyUrl, 44) + '</text>' +
+    '</g>' +
+    '<g transform="translate(' + (W - 62) + ',26)">' +
+    '<circle cx="18" cy="18" r="17" fill="none" stroke="' + accent + '" stroke-width="2" opacity="' + (green ? "1" : ".45") + '"/>' +
+    (green ? '<path d="M10 18.5 L16 24 L26 12" fill="none" stroke="' + accent + '" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>' : '') +
+    '</g></svg>';
+}
+
 // --- Per endpoint permalink. One citable URL per measured server.
 // /e/{host}{path} reconstructs the endpoint. Unlisted returns 404 on purpose:
 // we do not mint an empty page for an endpoint nobody has measured.
@@ -628,6 +673,7 @@ function openapiDoc(origin) {
       "/sitemap.xml": g("One URL per measured endpoint", "Only endpoints that have actually been measured appear. No page is minted for an endpoint nobody has measured."),
       "/e/{host}{path}": g("The permanent page for one measured endpoint", "Carries the verdict, the time it was taken, the SHA-256 of the record, and the command to recompute it. 404 when the endpoint has never been measured."),
       "/badge": g("A badge drawn from the register at request time", "Query with ?endpoint=. Short cache, so a green cannot be kept up after the row stops being green."),
+      "/badge/seal": g("A larger badge, sized for print and for other people's sites", "Query with ?endpoint=. Carries the operator label, the endpoint, the measurement date and the verify URL. Add download=1 to receive it as a file. A downloaded file is a snapshot: the date is drawn into the image for exactly that reason, and the live row remains the only current statement."),
       "/spec": g("The five conditions, stated in full", "Includes what a pass does not mean."),
       "/self": g("This gate measured against its own conditions", "It does not currently pass all of them, and the reason is published."),
       "/health": g("Liveness and the deployed commit", ""),
@@ -1732,6 +1778,32 @@ export default {
         history: "/history?endpoint=...",
         changes: "/changes"
       });
+    }
+
+    if (path === "/badge/seal" && request.method === "GET") {
+      const ep = url.searchParams.get("endpoint") || "";
+      const reg = await publicRegister(env);
+      const row = (Array.isArray(reg.rows) ? reg.rows : []).find((r) => r.endpoint === ep);
+      const lb = (row && row.operator_label) || {};
+      const status = (row && row.latest && row.latest.status) ? String(row.latest.status) : "not listed";
+      const when = (row && row.latest && row.latest.at) ? String(row.latest.at).slice(0, 10) : new Date().toISOString().slice(0, 10);
+      const svg = sealSvg({
+        name: lb.en || lb.ja || ep || "not listed",
+        sub: (lb.en && lb.ja) ? lb.ja : "",
+        endpoint: ep,
+        status: status,
+        when: when,
+        verifyUrl: "shield.the-horizons-innovation.com/verify-directory/"
+      });
+      const dl = url.searchParams.get("download") === "1";
+      const host = (() => { try { return new URL(ep).hostname.replace(/[^a-z0-9.-]/gi, ""); } catch (_e) { return "badge"; } })();
+      const headers = {
+        "Content-Type": "image/svg+xml; charset=utf-8",
+        "Cache-Control": "public, max-age=300, must-revalidate",
+        "Access-Control-Allow-Origin": "*"
+      };
+      if (dl) headers["Content-Disposition"] = 'attachment; filename="mcp-conduct-' + host + '-' + when + '.svg"';
+      return new Response(svg, { headers });
     }
 
     if (path === "/badge" && request.method === "GET") {
