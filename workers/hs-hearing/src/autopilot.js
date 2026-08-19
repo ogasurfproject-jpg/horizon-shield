@@ -17,6 +17,12 @@ const S = (v, max = 400) => (v == null ? "" : String(v)).slice(0, max);
 const now = () => new Date().toISOString();
 const days = (ms) => ms / 86400000;
 
+// 2026-08-19 patch51. 「検証済み」と言うために、実際に監査する見積の最低本数。
+// 1本は業者を測ったことにならない。1本の書類を測っただけになる。
+// 分母の無いスコアは出さない。この本数は公開ページとMCPの応答にも必ず出る。
+// 変えるならこの1行。
+export const MIN_AUDIT_ESTIMATES = 3;
+
 /* ------------------------------ 質問バンク ------------------------------ */
 // qid は恒久固定。同じ qid は二度と送らない(asked台帳)。
 export const QUESTION_BANK = {
@@ -25,7 +31,7 @@ export const QUESTION_BANK = {
   q_areas:      { w: 10, text: "対応エリアを市区町村名で、思いつく限り挙げてください(例: 長久手市, 名古屋市名東区, 日進市 ...)。施主はこの地名で探します。" },
   q_strengths:  { w: 15, text: "工種ごとの強み・こだわりを具体的に教えてください。使う塗料や工法、標準の保証年数、施工の手順で必ず守っていることなど(例: 外壁は無機塗料が標準。3回塗り徹底、10年保証)。" },
   q_faqs:       { w: 15, text: "施主さんからよく聞かれる質問と、その答えを3つほど教えてください(例: Q 外壁塗装に適した季節は？ A ...)。そのままFAQページの素材になります。" },
-  q_estimates:  { w: 10, text: "実際の見積もり例をあと1〜2件お願いします(工種・概算金額・内訳の要点)。適正診断(KIRA)にだけ使い、金額は一切公開しません。" },
+  q_estimates:  { w: 10, text: "実際の見積もり例をあと3件以上お願いします(工種・概算金額・内訳の要点)。適正診断(KIRA)にだけ使い、金額は一切公開しません。公開するのは『見積を何本見て検証したか』という本数だけです。1本では御社の値付けを測ったことにならないため、本数を確保してから検証に進みます。" },
   q_trust:      { w: 10, text: "信頼の裏づけになる実績を教えてください。施工実績数、資格(技能士など)、受賞歴、加盟団体、創業年数、アフター点検の体制など。" },
   q_contact:    { w: 5,  text: "施主対応の連絡先(電話かメール)と、対応時間・定休日を教えてください。" },
   q_license:    { w: 5,  text: "建設業許可番号(お持ちであれば)を教えてください。掲載すると信頼度が上がります。" },
@@ -90,7 +96,7 @@ export function computeCompleteness(profile, autopilot) {
   add((p.areas_served || []).length >= 3, 10, "q_areas");
   add(S(p.strengths, 2000).length >= 120, 15, "q_strengths");
   add((p.faqs || []).length >= 3, 15, "q_faqs");
-  add((p.estimates_for_audit || []).length >= 2, 10, "q_estimates");
+  add((p.estimates_for_audit || []).length >= MIN_AUDIT_ESTIMATES, 10, "q_estimates"); // patch51
   add(S(p.trust, 2000).length >= 30, 10, "q_trust");
   add(!!S(p.contact), 5, "q_contact");
   add(!!S(p.license), 5, "q_license");

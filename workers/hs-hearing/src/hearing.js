@@ -487,7 +487,10 @@ function publicView(c) {
     integrity_tier: verified ? (c.integrity_tier || null) : null,
     red_flags_detected: verified ? (c.red_flags_detected != null ? c.red_flags_detected : null) : null,
     profile_url: c.profile_url ? ("https://shield.the-horizons-innovation.com" + c.profile_url) : MALL_URL,
-    note: verified ? "検証済み(KIRA適正診断 通過)" : "検証手続き中。通過するまでスコアは出しません(fail-closed)。",
+    audit_evidence: verified ? (c.audit_evidence || null) : null, // patch51: スコアの分母
+    note: verified
+      ? ("検証済み(KIRA適正診断 通過。実際の見積 " + Number((c.audit_evidence || {}).estimates || 0) + " 本を監査した結果)")
+      : "検証手続き中。通過するまでスコアは出しません(fail-closed)。",
   };
 }
 // MCPはKVライブを一次ソースに(静的シードはフォールバック)。AIが常に最新の検証状態を引ける。
@@ -1171,6 +1174,7 @@ function storeToContractor(s) {
     integrity_tier: verified ? (s.integrity_tier || null) : null,
     red_flags_detected: verified ? (s.red_flags_detected != null ? s.red_flags_detected : null) : null,
     claim_sha256: verified ? (s.claim_sha256 || null) : null,
+    audit_evidence: verified ? (s.audit_evidence || null) : null, // patch51: スコアの分母
     profile_url: s.profile_url || (s.store_id === "hs-partner-001" ? "/yakumo/no001/" : "/yakumo/"),
     mcp_url: "https://hearing.horizonshield.dev/mcp",
     status: s.status || "onboarding",
@@ -1609,6 +1613,24 @@ export default {
         if (!s) return json({ error: "not_found" }, 404);
         const score = Number(b.fairness_score);
         if (!(score >= 0 && score <= 100)) return json({ error: "fairness_score は 0-100" }, 400);
+        // 2026-08-19 patch51: 運営自身にも fail-closed。
+        // 実物の見積が規定本数に届いていなければ、スコアを受け付けない。
+        // 他人のMCPに課している条件を、一番内側にも通す。近道の経路を残さない。
+        const hrec = await env.HS_HEARING_KV.get("hearing:" + sid, "json");
+        const ests = (hrec && hrec.profile && hrec.profile.estimates_for_audit) || [];
+        if (ests.length < AP.MIN_AUDIT_ESTIMATES) {
+          return json({
+            error: "insufficient_evidence",
+            need: AP.MIN_AUDIT_ESTIMATES,
+            have: ests.length,
+            means: "監査した見積の実物が規定本数に届いていない。分母の無いスコアは出さない。これは店への評価ではなく、こちらの手続きが終わっていないという意味。",
+          }, 409);
+        }
+        s.audit_evidence = {
+          estimates: ests.length,
+          works: Array.from(new Set(ests.map((e) => String((e && e.work) || "")).filter(Boolean))).slice(0, 8),
+          recorded_at: new Date().toISOString(),
+        };
         s.verification = "verified";
         s.fairness_score = score;
         s.integrity_tier = safeStr(b.integrity_tier, 4) || "A";
