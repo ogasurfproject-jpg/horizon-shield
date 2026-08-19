@@ -196,6 +196,7 @@ footer .top{color:var(--ink-2);font-size:13.5px;margin-bottom:14px}
 .b-none{color:#9aa4b2;border-color:#3a4250}
 .regdesc{color:#9aa4b2;font-size:.85rem;margin-top:4px}
 .regmeta{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:.8rem;align-items:baseline}
+.regseal{display:block;margin-top:12px;height:92px;width:auto;max-width:100%;border-radius:8px}
 .regmeta .mono{opacity:.75}
 a.regname{color:inherit;border-bottom:1px dashed rgba(255,255,255,.35)}
 a.regname:hover{border-bottom-style:solid}
@@ -719,7 +720,10 @@ async function loadRegister(){
       }
       const stat = (r.latest && r.latest.status) ? r.latest.status : "not yet measured";
       const st = document.createElement("span");
-      st.className = "regbadge " + (stat === "pass" ? "b-pass" : (stat === "pending" || stat === "held") ? "b-pend" : "b-none");
+      // 2026-08-19 patch55: ゲートが返すのは "verified"。"pass" と比べていたので
+      // 通った行に一度も緑が付かなかった。CONFIG.tier_pass の実値に合わせる。
+      // held は「測れなかった」であって未通過とは別なので、色も分ける。
+      st.className = "regbadge " + (stat === "verified" ? "b-pass" : stat === "pending" ? "b-pend" : stat === "held" ? "b-none" : "b-none");
       st.textContent = stat + ((r.latest && r.latest.at) ? " \u00b7 " + String(r.latest.at).slice(0, 10) : "");
       top.appendChild(st);
       d.appendChild(top);
@@ -734,6 +738,13 @@ async function loadRegister(){
         meta.appendChild(m);
       }
       const h = document.createElement("a"); h.href = r.history_url; h.textContent = "history"; meta.appendChild(h);
+      // 2026-08-19 patch55: 通った人が持ち出せるように、バッジそのものを出す。
+      // 画像はリクエスト時に描かれるので、行が緑でなくなればここも緑ではなくなる。
+      const dl = document.createElement("a");
+      dl.href = GATE + "/badge/seal?download=1&endpoint=" + encodeURIComponent(r.endpoint);
+      dl.textContent = "save badge";
+      dl.setAttribute("download", "");
+      meta.appendChild(dl);
       const b = document.createElement("a"); b.href = "#"; b.textContent = "measure now";
       b.addEventListener("click", function(ev){
         ev.preventDefault();
@@ -743,6 +754,12 @@ async function loadRegister(){
       });
       meta.appendChild(b);
       d.appendChild(meta);
+      const seal = document.createElement("img");
+      seal.src = GATE + "/badge/seal?endpoint=" + encodeURIComponent(r.endpoint);
+      seal.alt = "MCP conduct " + stat + " for " + (lb0.en || r.endpoint);
+      seal.loading = "lazy";
+      seal.className = "regseal";
+      d.appendChild(seal);
       box.appendChild(d);
     });
   }catch(e){
