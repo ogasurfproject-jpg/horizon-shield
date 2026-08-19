@@ -1644,6 +1644,15 @@ export default {
         const report = await AP.selfHeal(env, await listAllStores(env));
         return json({ ok: true, report });
       }
+      // 2026-08-19 patch45: 証拠監査の結果。いつでも読める。
+      if (path === "/admin/selfcheck" && request.method === "GET") {
+        const stores = await listAllStores(env);
+        return json(await AP.selfCheck(env, stores));
+      }
+      if (path === "/admin/selfcheck/last" && request.method === "GET") {
+        return json({ ok: true, report: (await env.HS_HEARING_KV.get("selfcheck:last", "json")) || null });
+      }
+
       // 壱号が読む詳細レポート(修復済み一覧と未解決課題)
       if (path === "/admin/guardian" && request.method === "GET") {
         const g = (await env.HS_HEARING_KV.get("guardian:last", "json")) || null;
@@ -1692,7 +1701,16 @@ export default {
           }
           if (lines.length) waiting = "\n返事待ち:\n" + lines.join("\n");
         } catch (_e) {}
-        await notify(env, "[Yakumo AUTOPILOT] 日次巡回 完了: " + JSON.stringify({ checked: log.checked, sent: log.sent.length, nudged: log.nudged.length, penalized: log.penalized.length }).slice(0, 400) + waiting);
+        // 2026-08-19 patch45: 証拠監査で落ちた項目があれば必ず載せる。全部通っていれば静か。
+        let alarms = "";
+        try {
+          const sc = log.selfcheck;
+          if (sc && !sc.pass) {
+            alarms = "\n\n証拠監査で落ちた項目:\n" +
+              sc.checks.filter((c) => !c.ok).map((c) => "  " + c.id + " : " + c.detail).join("\n");
+          }
+        } catch (_e) {}
+        await notify(env, "[Yakumo AUTOPILOT] 日次巡回 完了: " + JSON.stringify({ checked: log.checked, sent: log.sent.length, nudged: log.nudged.length, penalized: log.penalized.length }).slice(0, 400) + waiting + alarms);
       } catch (e) {
         await notify(env, "[Yakumo AUTOPILOT] 日次巡回 エラー: " + String(e).slice(0, 200));
       }

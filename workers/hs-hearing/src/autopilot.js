@@ -488,9 +488,83 @@ export async function runDailyTick(env, deps) {
   }
   // 保全エージェント弐号(ウチ回り): 内臓検診と自己修復。結果は guardian:last に記録され、壱号(Actions)が読む。
   log.guardian = await selfHeal(env, stores);
+  // 2026-08-19 patch45: last_tick を更新する前に測る。後だと E1 が必ず通ってしまう。
+  log.selfcheck = await selfCheck(env, stores);
   await env.HS_HEARING_KV.put("autopilot:last_tick", now());
   await activityAdd(env, { type: "tick", text: "自動運用エージェントが巡回しました(対象 " + log.checked + "店)" });
   return log;
+}
+
+/* ------------------------------ 証拠監査(静かな壊れ方の検出) ------------------------------ */
+// 2026-08-19 patch45.
+// 死活監視は「生きているか」しか見ない。今回の4つの穴は、生きたまま中身だけが止まった。
+// だからここでは「動いた証拠が残っているか」を測る。
+// 各項目は、何が出れば異常なのかを先に書いてある。落ちた項目だけが通知に載る。
+export async function selfCheck(env, stores) {
+  const nowMs = Date.now();
+  const checks = [];
+  const add = (id, ok, detail) => checks.push({ id, ok, detail });
+
+  // E1 巡回そのものが走っているか。last_tick を更新する前に測る。
+  //    後で測ると必ず通ってしまい、検査として成立しない。
+  const lastTick = await env.HS_HEARING_KV.get("autopilot:last_tick", "text");
+  add("tick_alive", !!lastTick && days(nowMs - Date.parse(lastTick)) < 1.1,
+      "last_tick=" + (lastTick || "記録なし"));
+
+  // E2 取り込みが起きているか。どこか1店でも14日以内に回答が settle されていること。
+  //    橋が落ちていた期間は、ここが必ず落ちる。
+  let lastAnswer = null;
+  for (const s of stores) {
+    const a = (s.autopilot || {}).last_answer_at;
+    if (a && (lastAnswer === null || a > lastAnswer)) lastAnswer = a;
+  }
+  add("ingest_alive", lastAnswer !== null && days(nowMs - Date.parse(lastAnswer)) < 14,
+      "最新の取り込み=" + (lastAnswer || "一度もなし"));
+
+  // E3 質問が到達可能か。上限まで聞いてなお埋まらない qid は「打ち切り」であって、
+  //    放置してよい状態ではない。人が判断すべきものとして必ず名前を出す。
+  const retired = [];
+  for (const s of stores) {
+    const ap = s.autopilot || {};
+    const cnt = {};
+    for (const a of (ap.asked || [])) cnt[a.qid] = (cnt[a.qid] || 0) + 1;
+    const h = await env.HS_HEARING_KV.get("hearing:" + s.store_id, "json");
+    const comp = computeCompleteness((h && h.profile) || {}, ap);
+    for (const m of comp.missing) if ((cnt[m.qid] || 0) >= 3) retired.push(s.store_id + ":" + m.qid);
+  }
+  add("questions_reachable", retired.length === 0, retired.length ? retired.join(" ") : "打ち切りなし");
+
+  // E4 待ちが放置されていないか。28日はペナルティの打ち切り点。それを超えたら人へ回す。
+  const stale = [];
+  for (const s of stores) {
+    const p = (s.autopilot || {}).pending;
+    if (p && p.sent_at && days(nowMs - Date.parse(p.sent_at)) > 28) stale.push(s.store_id);
+  }
+  add("no_stale_pending", stale.length === 0, stale.length ? stale.join(" ") : "放置なし");
+
+  // E5 完成度が動いているか。前回の基準と同じままで14日たった店は、
+  //    生きて見えても前に進んでいない。
+  const SNAP = "selfcheck:snapshot";
+  const prev = (await env.HS_HEARING_KV.get(SNAP, "json")) || {};
+  const frozen = [];
+  const next = {};
+  for (const s of stores) {
+    const c = (s.autopilot || {}).completeness;
+    const cur = (c === undefined ? null : c);
+    const p = prev[s.store_id];
+    if (p && p.c !== null && p.c === cur && days(nowMs - Date.parse(p.at)) >= 14) {
+      frozen.push(s.store_id + ":" + cur);
+    }
+    // 動いた店だけ基準日を更新する。動いていない店は据え置いて経過を積ませる。
+    next[s.store_id] = (p && p.c === cur) ? p : { c: cur, at: now() };
+  }
+  add("completeness_moving", frozen.length === 0, frozen.length ? frozen.join(" ") : "不動なし");
+  await env.HS_HEARING_KV.put(SNAP, JSON.stringify(next));
+
+  const failed = checks.filter((x) => !x.ok);
+  const report = { checked_at: now(), pass: failed.length === 0, failed: failed.map((f) => f.id), checks };
+  await env.HS_HEARING_KV.put("selfcheck:last", JSON.stringify(report));
+  return report;
 }
 
 /* ------------------------------ 保全エージェント弐号(ウチ回り・自己修復) ------------------------------ */
