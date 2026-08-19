@@ -121,8 +121,12 @@ jobs:
               for wd in MOAT:
                   if wd in body:
                       problems.append("モールに堀語が漏れている: " + wd)
-              if "hs-hearing.oga-surf-project.workers.dev" not in body:
-                  problems.append("モールがライブデータ源を参照していない")
+              # 2026-08-19 patch48: workers.dev だけを探していた。
+              # モールはカスタムドメイン hearing.horizonshield.dev を参照するように変わっており、
+              # この検査は数日ぶん「異常1件」を出し続けていた。鳴りっぱなしの警報は警報ではない。
+              LIVE_HOSTS = ("hearing.horizonshield.dev", "hs-hearing.oga-surf-project.workers.dev")
+              if not any(h in body for h in LIVE_HOSTS):
+                  problems.append("モールがライブデータ源を参照していない(探した先: %s)" % " / ".join(LIVE_HOSTS))
 
           # 6) 公開済みページの生存(台帳から最大20枚) -> 404はPages再デプロイで自動修復を試みる
           dead = []
