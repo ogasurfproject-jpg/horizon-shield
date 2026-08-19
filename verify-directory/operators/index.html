@@ -17,6 +17,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="alternate" hreflang="ja" href="https://shield.the-horizons-innovation.com/verify-directory/buyers/">
+<link rel="alternate" hreflang="en" href="https://shield.the-horizons-innovation.com/verify-directory/">
 <link rel="stylesheet" href="/verify-directory/assets/vd.css">
 </head>
 <body>
@@ -29,8 +31,10 @@
       <a href="/verify-directory/failures/">Failures</a>
       <a href="/verify-directory/operators/" style="color:var(--ink)">Operators</a>
       <a href="/verify-directory/method/">Method</a>
-      <a href="/verify-directory/buyers/">日本語</a>
     </nav>
+    <!-- 2026-08-19 patch60. 言語の切替はナビの中に置かない。
+         .navlinks は幅700px以下で消える指定なので、中に入れていると携帯で切替が消える。 -->
+    <a class="langsw" href="/verify-directory/buyers/">日本語</a>
   </div>
 </header>
 

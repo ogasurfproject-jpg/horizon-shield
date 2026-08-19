@@ -231,3 +231,16 @@ body.jp .slead{font-size:15px}
 /* 落ちている行の置き場 */
 .failwrap{margin-top:24px}
 .failnote{font-family:var(--mono);font-size:12px;color:var(--slate);margin-top:10px}
+
+
+/* ---- 2026-08-19 patch60. 言語の切替。ナビの外に出す ---- */
+/* .navlinks は幅700px以下で display:none になる。切替をその中に置いていたので、
+   携帯からは言語を変えられなかった。だからここは .navlinks の外に置く。 */
+.langsw{font-family:var(--mono);font-size:11.5px;color:var(--emerald-ink);white-space:nowrap;
+  border:1px solid rgba(52,211,153,.28);background:rgba(52,211,153,.07);
+  border-radius:999px;padding:5px 13px;margin-left:16px;letter-spacing:.02em}
+.langsw:hover{border-color:rgba(52,211,153,.55);color:var(--ink)}
+/* 日本語の見出しから英語のページへ飛ぶところには、飛ぶ前に印を出す。
+   日本語だと思って押したら英語だった、をやらない。 */
+.enmark{font-family:var(--mono);font-size:9.5px;color:var(--ink-3);border:1px solid var(--line-2);
+  border-radius:4px;padding:1px 4px;margin-left:6px;vertical-align:1px;letter-spacing:.06em}

@@ -204,6 +204,8 @@ a.regname:hover{border-bottom-style:solid}
 </style>
 <!-- 2026-08-19 patch59. 面を分けたので、見た目を1箇所に集めた共通スタイルも読む。
      上の <style> はそのまま残してある。壊さずに増やす。 -->
+<link rel="alternate" hreflang="ja" href="https://shield.the-horizons-innovation.com/verify-directory/buyers/">
+<link rel="alternate" hreflang="en" href="https://shield.the-horizons-innovation.com/verify-directory/">
 <link rel="stylesheet" href="/verify-directory/assets/vd.css">
 <script type="application/ld+json">{
   "@context": "https://schema.org",
@@ -379,8 +381,10 @@ a.regname:hover{border-bottom-style:solid}
       <a href="/verify-directory/failures/">Failures</a>
       <a href="/verify-directory/operators/">Operators</a>
       <a href="/verify-directory/monitoring/">Pricing</a>
-      <a href="/verify-directory/buyers/">日本語</a>
     </nav>
+    <!-- 2026-08-19 patch60. 言語の切替はナビの中に置かない。
+         .navlinks は幅700px以下で消える指定なので、中に入れていると携帯で切替が消える。 -->
+    <a class="langsw" href="/verify-directory/buyers/">日本語</a>
   </div>
 </header>
 
