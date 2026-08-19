@@ -618,8 +618,19 @@ function sealSvg(opts) {
   const verifyUrl = xmlEsc(opts.verifyUrl || "");
   const green = status === CONFIG.tier_pass;
   const accent = green ? "#34d399" : (status === CONFIG.tier_held ? "#9aa4b2" : "#fbbf24");
-  const W = 460, H = 168;
+  const W = 560, H = sub ? 190 : 176;
   const clip = (s, n) => (s.length > n ? s.slice(0, n - 1) + "\u2026" : s);
+  // 2026-08-19 patch57. 確認先のURLだけは、絶対に切らない。
+  // 印刷したバッジを持っている人にとって、いまの状態を確かめる手段はこの1行しかない。
+  // 途中で切れたURLは、確かめられないという点で、URLが無いのと同じ。
+  // だから長いときは切るのではなく、字間を詰めて収める。切れることは無い。
+  const epRaw = String(opts.endpoint || "");
+  const verifyRaw = String(opts.verifyUrl || "");
+  const line = (x, y, s, fill, size, maxW, extra) => {
+    const est = String(s).length * size * 0.55;
+    const squeeze = est > maxW ? ' textLength="' + maxW + '" lengthAdjust="spacingAndGlyphs"' : "";
+    return '<text x="' + x + '" y="' + y + '" fill="' + fill + '" font-size="' + size + '"' + (extra || "") + squeeze + '>' + xmlEsc(s) + '</text>';
+  };
   return '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" ' +
     'aria-label="MCP conduct ' + xmlEsc(status) + ' for ' + name + ', measured ' + when + '">' +
     '<rect width="' + W + '" height="' + H + '" rx="14" fill="#0b0b0e"/>' +
@@ -628,10 +639,11 @@ function sealSvg(opts) {
     '<g font-family="Inter,Helvetica,Arial,sans-serif">' +
     '<text x="28" y="34" fill="#6f6f7a" font-size="11" letter-spacing="2.4">HORIZON SHIELD</text>' +
     '<text x="28" y="64" fill="' + accent + '" font-size="21" font-weight="700">MCP conduct ' + xmlEsc(status) + '</text>' +
-    '<text x="28" y="92" fill="#f4f4f5" font-size="15" font-weight="600">' + clip(name, 44) + '</text>' +
-    (sub ? '<text x="28" y="110" fill="#a9a9b3" font-size="11">' + clip(sub, 52) + '</text>' : "") +
-    '<text x="28" y="' + (sub ? 130 : 116) + '" fill="#6f6f7a" font-size="10.5" font-family="ui-monospace,Menlo,monospace">' + clip(ep, 56) + '</text>' +
-    '<text x="28" y="' + (sub ? 148 : 136) + '" fill="#6f6f7a" font-size="10.5">measured ' + when + '  ·  verify at ' + clip(verifyUrl, 44) + '</text>' +
+    line(28, 92, String(opts.name || opts.endpoint || "unmeasured endpoint"), "#f4f4f5", 15, 462, ' font-weight="600"') +
+    (sub ? line(28, 112, String(opts.sub || ""), "#a9a9b3", 11.5, 462) : "") +
+    line(28, (sub ? 136 : 122), epRaw, "#6f6f7a", 10.5, 504, ' font-family="ui-monospace,Menlo,monospace"') +
+    line(28, (sub ? 156 : 142), "measured " + String(opts.when || ""), "#6f6f7a", 10.5, 240) +
+    line(28, (sub ? 174 : 160), "verify at " + verifyRaw, "#8a8a95", 10.5, 504) +
     '</g>' +
     '<g transform="translate(' + (W - 62) + ',26)">' +
     '<circle cx="18" cy="18" r="17" fill="none" stroke="' + accent + '" stroke-width="2" opacity="' + (green ? "1" : ".45") + '"/>' +
@@ -1793,7 +1805,12 @@ export default {
         endpoint: ep,
         status: status,
         when: when,
-        verifyUrl: "shield.the-horizons-innovation.com/verify-directory/"
+        // 2026-08-19 patch57. 入口ではなく、この1本の行に直接届く住所にする。
+        // 印刷物を見た人に「サイトのどこかから探せ」と言わないため。
+        verifyUrl: (function () {
+          try { const u = new URL(ep); return "gate.horizonshield.dev/e/" + u.hostname + u.pathname; }
+          catch (_e) { return "shield.the-horizons-innovation.com/verify-directory/"; }
+        })()
       });
       const dl = url.searchParams.get("download") === "1";
       const host = (() => { try { return new URL(ep).hostname.replace(/[^a-z0-9.-]/gi, ""); } catch (_e) { return "badge"; } })();
