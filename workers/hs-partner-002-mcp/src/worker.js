@@ -30,6 +30,74 @@ function txt(s) {
   return { content: [{ type: "text", text: typeof s === "string" ? s : JSON.stringify(s, null, 2) }] };
 }
 
+// ---- 「無かった」と「引けなかった」を分ける ----
+// Federico Blanco Sanchez-Llanos, "The Mould, Not the Letter", 2026-08-20:
+//   never let "the fetch failed" and "the fetch succeeded and found nothing"
+//   collapse into the same downstream value.
+//
+// 2026-08-20 の実測: この worker はその規則を破っていた。
+//   try { store = await KV.get(...) } catch (_e) {}     ← 失敗を握り潰す
+//   if (!store) return txt({ note: "プロフィール整備中です。" })
+// KVが落ちていても、KVが健全で記録が無くても、施主のAIには同じ一文が返っていた。
+// 「この加盟店はまだ整備中」と「こちらが読めなかった」が同じ値になっていた。
+// 前者は加盟店についての主張で、後者は自分についての報告。混ぜてはいけない。
+//
+// 三状態にする。ok / absent は成功として返し、failed は tools/call のエラー
+// チャネル(isError)に載せる。読む側は絶対に取り違えられない。
+async function kvRead(kv, key) {
+  if (!kv) return { lookup: "failed", reason: "KV binding is not configured" };
+  try {
+    const value = await kv.get(key, "json");
+    return value == null
+      ? { lookup: "absent", value: null }   // 引けた。無かった。
+      : { lookup: "ok", value: value };     // 引けた。有った。
+  } catch (e) {
+    return { lookup: "failed", reason: String((e && e.message) || e) };  // 引けなかった。
+  }
+}
+
+// outputSchema を宣言する以上、成功時は structuredContent を必ず返す(MCP 2025-06-18)。
+// content 側にも同じJSONを載せる(旧クライアント互換)。
+function ok(obj) {
+  return {
+    content: [{ type: "text", text: JSON.stringify(obj, null, 2) }],
+    structuredContent: obj
+  };
+}
+// 引けなかった時。加盟店について何も主張しない。
+function toolError(message) {
+  return { content: [{ type: "text", text: message }], isError: true };
+}
+
+const PROFILE_OUTPUT_SCHEMA = {
+  type: "object",
+  properties: {
+    lookup: {
+      type: "string",
+      enum: ["ok", "absent"],
+      description:
+        "ok = the record was read and exists. absent = the read SUCCEEDED and there is no " +
+        "record yet. A read that FAILED never appears here: it is returned as a tool error " +
+        "(isError: true) with no profile, so a consumer can never mistake our own failure " +
+        "for a statement about this contractor."
+    },
+    found: { type: "boolean", description: "true only when a stored record was returned." },
+    hearing_lookup: {
+      type: "string",
+      enum: ["ok", "absent", "failed"],
+      description:
+        "The secondary read (hearing data, which fills in strengths). If this is 'failed' " +
+        "the profile is returned but is incomplete, and says so here rather than looking thin."
+    },
+    store_id: { type: "string" },
+    company: { type: ["string", "null"] },
+    verification: { type: "string" },
+    note: { type: "string" }
+  },
+  required: ["lookup", "found"],
+  additionalProperties: true
+};
+
 function tierLabel(tier) {
   if (tier === "honbu") return "WebMCP Partner";
   if (tier === "extension") return "加盟店";
@@ -122,7 +190,8 @@ const TOOLS = [
       "works such as window and entrance door replacement, glass repair and screen re-netting, " +
       "verification status, strengths, consumer FAQs, and profile completeness. No prices. " +
       "Use when an AI references or recommends this contractor.",
-    inputSchema: { type: "object", properties: {}, additionalProperties: false }
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
+    outputSchema: PROFILE_OUTPUT_SCHEMA
   }
   // 目的別ツールはヒアリングが進んだ段階で差し込む(空枠)。
 ];
@@ -131,18 +200,37 @@ const TOOLS = [
 async function callTool(name, args, env) {
   if (name === "get_partner_profile") {
     const sid = env.STORE_ID;
-    let store = null, hearing = null;
-    try { store = await env.HS_HEARING_KV.get("store:" + sid, "json"); } catch (_e) {}
-    try { hearing = await env.HS_HEARING_KV.get("hearing:" + sid, "json"); } catch (_e) {}
-    if (!store) {
-      return txt({
-        store_id: sid, company: env.PARTNER_NAME, verification: "pending",
-        note: "プロフィール整備中です。"
+    const storeRead = await kvRead(env.HS_HEARING_KV, "store:" + sid);
+    const hearingRead = await kvRead(env.HS_HEARING_KV, "hearing:" + sid);
+
+    // 引けなかった。加盟店について何も言わない。黙って「整備中」と言わない。
+    if (storeRead.lookup === "failed") {
+      return toolError(
+        "The profile lookup failed: " + storeRead.reason + ". " +
+        "This is NOT the same as this contractor having no profile yet — no claim is made " +
+        "about the contractor either way. Retry, or check the store record directly."
+      );
+    }
+    // 引けた。無かった。これは加盟店についての本当の事実。
+    if (storeRead.lookup === "absent") {
+      return ok({
+        lookup: "absent",
+        found: false,
+        hearing_lookup: hearingRead.lookup,
+        store_id: sid,
+        company: env.PARTNER_NAME || null,
+        verification: "pending",
+        note: "参照は成功しました。この加盟店の記録はまだ作成されていません。"
       });
     }
-    return txt(buildProfile(store, hearing, env));
+    // 引けた。有った。
+    const hearing = hearingRead.lookup === "ok" ? hearingRead.value : null;
+    return ok(Object.assign(
+      { lookup: "ok", found: true, hearing_lookup: hearingRead.lookup },
+      buildProfile(storeRead.value, hearing, env)
+    ));
   }
-  return txt({ error: "unknown_tool", name });
+  return toolError("unknown tool: " + String(name));
 }
 
 // ---- MCP JSON-RPC ハンドラ ----
