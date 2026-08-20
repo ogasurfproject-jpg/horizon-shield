@@ -23,6 +23,11 @@ const days = (ms) => ms / 86400000;
 // 変えるならこの1行。
 export const MIN_AUDIT_ESTIMATES = 3;
 
+// 2026-08-20 reply-resets-cooldown. 追撃質問の門は二つある。
+// 門B(時間)だけを見ていた頃、答えている相手が三日以上止められていた。実測は下の分岐に書いた。
+export const FOLLOWUP_COOLDOWN_H = 72; // 門B: 無反応の相手を急かさないための待ち
+export const REPLY_GATE_FLOOR_H = 6;   // 門A: 返事が来ていても、これより短い間隔では送らない
+
 /* ------------------------------ 質問バンク ------------------------------ */
 // qid は恒久固定。同じ qid は二度と送らない(asked台帳)。
 export const QUESTION_BANK = {
@@ -508,10 +513,27 @@ export async function runDailyTick(env, deps) {
       ap.penalty = pol.penalty;
       log.penalized.push(sid + ":penalty5");
     }
-    // 2) 追撃質問(完成度<85・pendingなし・72h間隔)
+    // 2) 追撃質問。門は二つ。どちらかが開けば送る。
+    //    2026-08-20 reply-resets-cooldown:
+    //      これまで見ていたのは「最後に送った時刻」からの72時間だけだった。
+    //      相手が返事をしたかどうかを、一度も見ていなかった。
+    //      実測(2026-08-20 朝): hs-partner-002 は 8/19 19:08 JST に返事をして pending が消え、
+    //      完成度は50。85に届いていないのに、次の質問が飛ぶのは 8/23。答えた人が三日放置される。
+    //      無反応の相手を急かさないための門が、答えている相手を止めていた。
+    //      これも静かに縮む型。落ちない。例外も出ない。ログにも出ない。ただ会話が止まるだけ。
+    //    門A 返事: 最後の返事が最後の送信より後なら、待つ理由がない。
+    //             ただし直近 REPLY_GATE_FLOOR_H 時間以内は開けない。相手側の自動応答よけ。
+    //    門B 時間: 従来どおり FOLLOWUP_COOLDOWN_H 時間。無反応の相手はこちらで拾う。
+    //    連投にはならない。送れば ap.pending が立ち、この枝は次の返事が来るまで通らない。
+    //    最大でも「返事1通につき送信1回」。門を開けても回数は増えない。
     else if (profile && comp.score < 85 && !ap.pending) {
-      const since = ap.last_send_at ? (nowMs - Date.parse(ap.last_send_at)) : Infinity;
-      if (since >= 72 * 3600 * 1000) {
+      const sinceSend = ap.last_send_at ? (nowMs - Date.parse(ap.last_send_at)) : Infinity;
+      const sinceAnswer = ap.last_answer_at ? (nowMs - Date.parse(ap.last_answer_at)) : Infinity;
+      const answeredAfterSend = !!ap.last_answer_at &&
+        (!ap.last_send_at || Date.parse(ap.last_answer_at) > Date.parse(ap.last_send_at));
+      const gate = (answeredAfterSend && sinceAnswer >= REPLY_GATE_FLOOR_H * 3600 * 1000) ? "reply"
+                 : (sinceSend >= FOLLOWUP_COOLDOWN_H * 3600 * 1000) ? "cooldown" : "";
+      if (gate) {
         const qs = nextQuestions(profile, ap, 2);
         if (qs.length) {
           const r = await sendQuestions(env, store, qs, "followup");
@@ -519,7 +541,7 @@ export async function runDailyTick(env, deps) {
             ap.pending = { qids: qs.map((q) => q.qid), text: qs.map((q) => q.text).join("\n"), sent_at: now(), via: r.via };
             ap.asked = [...(ap.asked || []), ...qs.map((q) => ({ qid: q.qid, at: now(), answered: false }))].slice(-50);
             ap.last_send_at = now();
-            log.sent.push(sid + ":" + qs.map((q) => q.qid).join("+") + ":" + r.via);
+            log.sent.push(sid + ":" + qs.map((q) => q.qid).join("+") + ":" + r.via + ":" + gate);
           } else log.skipped.push(sid + ":followup:" + r.reason);
         }
       }
@@ -617,6 +639,33 @@ export async function selfCheck(env, stores) {
       (frozen.length ? frozen.join(" ") : "不動なし") +
       (noBase ? "（ただし " + noBase + "店は基準未設定。次回から測れる）" : ""));
   await env.HS_HEARING_KV.put(SNAP, JSON.stringify(next));
+
+  // E6 門が開いているのに、出せる質問が無い店。2026-08-20 gate-open-nothing-to-send。
+  //    門を増やしたその日に、門が空振りする形も一緒に測る。
+  //    「開いた」と「出た」を別々に数えないと、巡回は正常・完成度は不動、という状態が
+  //    どこにも表示されないまま続く。E5 が14日たってようやく気づく。それでは遅い。
+  const idle = [];
+  for (const s of stores) {
+    const ap = s.autopilot || {};
+    if (ap.pending) continue;
+    const h = await env.HS_HEARING_KV.get("hearing:" + s.store_id, "json");
+    const prof = (h && h.profile) || null;
+    if (!prof) continue;
+    const comp = computeCompleteness(prof, ap);
+    if (comp.score >= 85) continue;
+    const sinceSend = ap.last_send_at ? (nowMs - Date.parse(ap.last_send_at)) : Infinity;
+    const sinceAnswer = ap.last_answer_at ? (nowMs - Date.parse(ap.last_answer_at)) : Infinity;
+    const answered = !!ap.last_answer_at &&
+      (!ap.last_send_at || Date.parse(ap.last_answer_at) > Date.parse(ap.last_send_at));
+    const open = (answered && sinceAnswer >= REPLY_GATE_FLOOR_H * 3600 * 1000) ||
+                 (sinceSend >= FOLLOWUP_COOLDOWN_H * 3600 * 1000);
+    if (!open) continue;
+    if (nextQuestions(prof, ap, 2).length === 0) {
+      idle.push(s.store_id + ":完成度" + comp.score + ":門は開いているが出せる質問が無い");
+    }
+  }
+  add("gate_has_something_to_send", idle.length === 0,
+      idle.length ? idle.join(" ") : "門が開いた店には出せる質問がある");
 
   const failed = checks.filter((x) => !x.ok);
   const report = { checked_at: now(), pass: failed.length === 0, failed: failed.map((f) => f.id), checks };
