@@ -54,6 +54,35 @@ function json(obj, status) {
   });
 }
 
+// 2026-08-20 mould-ledger. 鋳型記録の使い方。
+// この台帳が測るのは「直したか」ではなく「母型を探したか」。
+const MOULD_USAGE = {
+  route: "GET /mould, GET /mould/{id}, POST /mould",
+  purpose:
+    "A fix repairs one casting. The mould that cast it sits untouched unless somebody goes looking. " +
+    "This ledger records four things about a fix and freezes them: the class of assumption behind it, " +
+    "where the author searched for that same assumption, what they found, and at what volume each " +
+    "casting failed.",
+  fields: {
+    class: "the assumption, written so it can be searched for. Not a description of the symptom.",
+    instance: "where it was first noticed. { where, symptom, volume }",
+    searched: "the space the author says they searched. Naming it is the point.",
+    found: "per location: already_correct, fixed, or absent. With a commit where there is one.",
+    volume: "loud = it threw or returned an error. quiet = it degraded without complaining.",
+  },
+  volume_note:
+    "The same mould does not cast identical failures. It casts the same flaw at different volumes. " +
+    "The instance you notice is the loudest one, not the worst one. A quiet casting survives precisely " +
+    "because it never complains, so a bug driven search always finds the wrong member of the family first.",
+  empty_search_is_published:
+    "A record whose searched list is empty is accepted and published as such. An instance fixed with no " +
+    "class search is exactly what this ledger exists to make visible. It is not hidden and not rejected.",
+  this_ledger_verifies_nothing:
+    "Every record is the author's own account. This gate does not reproduce it. What is frozen here is " +
+    "the claim and its date, not its truth. Each record carries a record_sha256 anyone can recompute.",
+  writing: "POST requires the operator token. Reading requires nothing.",
+};
+
 async function sha256hex(s) {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -728,6 +757,7 @@ function openapiDoc(origin) {
           responses: { "200": ok }
         }
       },
+      "/mould": g("Mould records. What class of assumption a fix came from, where the author searched for it, and what they found. A record with an empty search is published as such.", ""),
       "/sweep/last": g("When the last scheduled re-measurement ran", ""),
       "/watchlist": g("Endpoints scheduled for re-measurement", ""),
       "/.well-known/agent-card.json": g("A2A agent card for this gate", ""),
@@ -1591,6 +1621,85 @@ export default {
     // CORS プリフライト。ブラウザからの POST /check は content-type で preflight が飛ぶ。
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: CORS_HEADERS });
+    }
+
+    // --- mould records. 2026-08-20 mould-ledger. ---
+    // Prompted by Federico Blanco Sanchez-Llanos, "The Mould, Not the Letter".
+    // Nothing here measures anyone. It records what the author searched for, and freezes it.
+    if (path === "/mould" || path.startsWith("/mould/")) {
+      const mid = path.startsWith("/mould/") ? decodeURIComponent(path.slice("/mould/".length)) : "";
+      if (request.method === "GET") {
+        if (mid) {
+          const one = await env.HS_VERIFY_KV.get("mould:" + mid, "json");
+          if (!one) {
+            return json({
+              error: "not_found",
+              id: mid,
+              means: "No record under this id. That is a statement about this ledger, not about any code.",
+            }, 404);
+          }
+          return json(one, 200);
+        }
+        const idx = (await env.HS_VERIFY_KV.get("mould:index", "json")) || [];
+        return json({ ...MOULD_USAGE, count: idx.length, records: idx }, 200);
+      }
+      if (request.method === "POST") {
+        if (!env || !env.SWEEP_TOKEN) return json({ error: "not_configured" }, 503);
+        if (!(await ctEqual(request.headers.get("x-sweep-token") || "", env.SWEEP_TOKEN))) {
+          return json({ error: "forbidden", usage: MOULD_USAGE }, 403);
+        }
+        let b;
+        try { b = await request.json(); }
+        catch (_e) { return json({ error: "The request body was not JSON.", usage: MOULD_USAGE }, 400); }
+        const t = (v, n) => (v == null ? "" : String(v)).slice(0, n);
+        const cls = t(b.class, 400);
+        if (!cls) return json({ error: "class is required", usage: MOULD_USAGE }, 400);
+        const idx = (await env.HS_VERIFY_KV.get("mould:index", "json")) || [];
+        const newId = t(b.id, 60) || ("mould-" + String(idx.length + 1).padStart(4, "0"));
+        if (await env.HS_VERIFY_KV.get("mould:" + newId)) {
+          return json({ error: "already_recorded", id: newId, means: "This ledger is append only. A record is never rewritten." }, 409);
+        }
+        const searched = (Array.isArray(b.searched) ? b.searched : []).map((x) => t(x, 300)).filter(Boolean).slice(0, 40);
+        const found = (Array.isArray(b.found) ? b.found : []).slice(0, 40).map((f) => ({
+          where: t(f && f.where, 200),
+          state: ["already_correct", "fixed", "absent", "live"].includes(t(f && f.state, 20)) ? t(f.state, 20) : "unstated",
+          volume: ["loud", "quiet"].includes(t(f && f.volume, 10)) ? t(f.volume, 10) : null,
+          commit: t(f && f.commit, 40) || null,
+          note: t(f && f.note, 300) || null,
+        })).filter((f) => f.where);
+        const rec = {
+          ledger: "HORIZON SHIELD mould records",
+          id: newId,
+          recorded_at: new Date().toISOString(),
+          gate_commit: gateCommit(),
+          class: cls,
+          class_note: t(b.class_note, 600) || null,
+          instance: {
+            where: t(b.instance && b.instance.where, 200) || null,
+            symptom: t(b.instance && b.instance.symptom, 400) || null,
+            volume: ["loud", "quiet"].includes(t(b.instance && b.instance.volume, 10)) ? t(b.instance.volume, 10) : null,
+          },
+          searched: searched,
+          searched_note: searched.length
+            ? "The space the author says they searched. This ledger does not verify that the search happened."
+            : "The author recorded no search. The instance was fixed and the class was not looked for. This is published, not hidden.",
+          found: found,
+          volume_note: MOULD_USAGE.volume_note,
+          prompted_by: t(b.prompted_by, 300) || null,
+          self_asserted:
+            "Everything above is the author's own account. This gate did not reproduce it. What is frozen " +
+            "here is the claim and its date, not its truth.",
+        };
+        rec.record_sha256 = await sha256hex(JSON.stringify(rec));
+        rec.recompute_note =
+          "Remove the record_sha256 and recompute_note fields, JSON.stringify the remainder in this key " +
+          "order, and take the SHA-256. It must equal record_sha256.";
+        await env.HS_VERIFY_KV.put("mould:" + newId, JSON.stringify(rec));
+        idx.unshift({ id: newId, recorded_at: rec.recorded_at, class: rec.class, searched: searched.length, found: found.length, record_sha256: rec.record_sha256 });
+        await env.HS_VERIFY_KV.put("mould:index", JSON.stringify(idx.slice(0, 500)));
+        return json(rec, 201);
+      }
+      return json({ error: "Use GET to read, POST to record.", usage: MOULD_USAGE }, 405);
     }
 
     // --- recompute and verify-event. Read only, pure computation, nothing stored. ---
