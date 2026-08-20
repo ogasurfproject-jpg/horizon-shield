@@ -475,7 +475,7 @@ a.regname:hover{border-bottom-style:solid}
   <div class="wrap">
     <div class="confess">
       <div class="big">We wrote the five conditions. Then we failed all five.</div>
-      <p>On the first run, our own servers did not meet a single one of the rules we had just published. We fixed what we could and left the rest visible. <b>Not one row on the list today passes.</b> That includes the checker itself. Until 2026-08-15 it could not reach its own hostname at all, refused to count that unmeasured condition as a pass — the same rule it applies to everyone else — and its row sat as <span class="mono">held · http 522</span>. Then an outside runner found the mirror image of that limit: on-demand checks of our own servers were failing with 522 too, while the nightly sweep quietly passed. We mapped the boundary, routed those probes over the public edge through a relay, and every verdict now names the path that measured it in a <span class="mono">probed_via</span> field. The gate has measured itself for the first time — <span class="mono">reachable: true · pending</span> on demand. The nightly sweep cannot use the relay, so the register's own row can still read <span class="mono">held</span> at night while measuring fine on demand. Both records stand; neither is edited to match the other.</p>
+      <p>On the first run, our own servers did not meet a single one of the rules we had just published. We fixed what we could and left the rest visible. <!-- 2026-08-20 frontpage-baked-state: ここには "Not one row on the list today passes." と書いてあった。書いた日は本当だった。今日は登録簿が別のことを言っている。現在形の断定を焼き込んだのが誤り。 -->What the table below says about us today is whatever the register says today. This sentence deliberately does not tell you, because a sentence typed once cannot, and a page that states a verdict in fixed type goes stale while the thing it describes keeps moving. The checker itself is in that table under the same rule. Until 2026-08-15 it could not reach its own hostname at all, refused to count that unmeasured condition as a pass — the same rule it applies to everyone else — and its row sat as <span class="mono">held · http 522</span>. Then an outside runner found the mirror image of that limit: on-demand checks of our own servers were failing with 522 too, while the nightly sweep quietly passed. We mapped the boundary, routed those probes over the public edge through a relay, and every verdict now names the path that measured it in a <span class="mono">probed_via</span> field. The gate has measured itself for the first time — <span class="mono">reachable: true · pending</span> on demand. The nightly sweep cannot use the relay, so the register's own row can still read <span class="mono">held</span> at night while measuring fine on demand. Both records stand; neither is edited to match the other.</p>
       <p>If the people who write the test are the only ones who pass it, the test is decoration. That is the whole reason this thing is worth pointing at your server: <b>it is allowed to come back red, including for us.</b></p>
     </div>
   </div>
@@ -539,7 +539,7 @@ a.regname:hover{border-bottom-style:solid}
   <div class="wrap">
     <div class="kh">The list, today</div>
     <h2>Every row, drawn live from the register. Ours sit in the same table.</h2>
-    <p class="slead">Two are our own servers and two are member firms we brought in ourselves, so <b>no outside name has registered yet</b>. That is not a soft launch we are dressing up — it is the state of the register, and hiding it would make every other row here worthless. Rows are re-measured on a schedule and the history stays public, so a change means a condition actually flipped, not that a fresh verdict was issued. The sweep calls no tool on anyone, us included.</p>
+    <p class="slead">The count and the breakdown are drawn from the register above rather than written here, because a number typed into a page is wrong the moment the register moves. That is not a soft launch we are dressing up — it is the state of the register, and hiding it would make every other row here worthless. Rows are re-measured on a schedule and the history stays public, so a change means a condition actually flipped, not that a fresh verdict was issued. The sweep calls no tool on anyone, us included.</p>
     <div class="why">
       <div class="card"><div class="n">ENTRY 01 · self-applied</div><h4>The checker itself</h4>
         <p>Answers "who verifies the verifier" by going first — and then fails its own test. It now speaks MCP at <span class="mono">/mcp</span>, so the tool that lets you distrust the issuer is <b>provided by the issuer</b>. For a while its endpoint row carried <span class="mono">pass: true</span> on a condition it openly had not measured, which made its own verdict read verified. <b>It was the only server this gate was lenient with, so we removed the leniency</b> and the verdict fell to <span class="mono">pending</span>. On 2026-08-15, after babyblueviper1 reproduced our check from his own network and caught on-demand probes of our own zone failing with 522, those probes were rerouted over the public edge — and the gate measured its own endpoint for the first time: <span class="mono">reachable: true</span>, still <span class="mono">pending</span>, because determinism stays unmeasured without consent, including for us. The row stays visible either way.</p></div>
@@ -753,7 +753,17 @@ async function loadRegister(){
       note.textContent = "The register answered with zero rows. That is the state of the register, not an error.";
       return;
     }
-    note.textContent = rows.length + " rows on the register right now. Absence is not a negative verdict.";
+    // 2026-08-20 frontpage-baked-state: 「社外からの登録が何件か」も生で数える。
+    // 文に焼き込むと、最初の社外登録が入った日にこのページだけが嘘になる。
+    const outsideCount = rows.filter(function(r){
+      try { return !/(^|\.)horizonshield\.dev$/.test(new URL(r.endpoint).hostname); }
+      catch (e) { return false; }
+    }).length;
+    note.textContent = rows.length + " rows on the register right now, " +
+      (outsideCount === 0
+        ? "none of them registered by a name outside this company yet"
+        : outsideCount + " of them registered by a name outside this company") +
+      ". Absence is not a negative verdict.";
     rows.forEach(function(r){
       const d = document.createElement("div"); d.className = "regcard";
       const top = document.createElement("div"); top.className = "regtop";
