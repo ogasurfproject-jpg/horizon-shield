@@ -331,6 +331,11 @@ async function processEvents(events, env) {
     const userId = event.source?.userId;
     if (!userId) continue;
     console.log("USER_ID:", userId);
+    // HS-KIRA-GROUP-SILENT-20260820: グループ/複数人トークでは自動応答しない。
+    //   botは1対1前提の作り。グループで発言ごとに1対1ロジック(ヒアリング/診断)で返すと、
+    //   「変な会話」でグループが埋まる。グループは人(堤さん・スタッフ・大賀)の場にして、
+    //   返信は大賀さんがチャット画面から手で行う。公式アカウントはグループに居るまま黙る。
+    if (event.source && event.source.type && event.source.type !== "user") continue;
     if (event.type === "follow") {
       await handleFollow(userId, env);
       continue;
