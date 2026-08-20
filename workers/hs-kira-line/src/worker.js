@@ -335,7 +335,19 @@ async function processEvents(events, env) {
     //   botは1対1前提の作り。グループで発言ごとに1対1ロジック(ヒアリング/診断)で返すと、
     //   「変な会話」でグループが埋まる。グループは人(堤さん・スタッフ・大賀)の場にして、
     //   返信は大賀さんがチャット画面から手で行う。公式アカウントはグループに居るまま黙る。
-    if (event.source && event.source.type && event.source.type !== "user") continue;
+    if (event.source && event.source.type && event.source.type !== "user") {
+      // グループ/複数人トークでは返信しない（変な会話を出さない）。
+      // ただし、登録済み加盟店のテキストは、答えを取りこぼさないよう「静かに」DBへ取り込む。
+      // isPartner に空文字を渡すのは、既存の加盟店判定だけ行い、グループ発言で新規登録しないため。
+      if (event.type === "message" && event.message.type === "text" && event.message.text) {
+        try {
+          const gt = event.message.text.trim();
+          const gpf = await isPartner(userId, "", env);
+          if (gpf.partner && gt) await ingestPartnerSilently(gt, userId, env);
+        } catch (_e) {}
+      }
+      continue;
+    }
     if (event.type === "follow") {
       await handleFollow(userId, env);
       continue;
@@ -1398,6 +1410,19 @@ async function runFollowups(env) {
   }
 }
 __name(runFollowups, "runFollowups");
+async function ingestPartnerSilently(userMessage, userId, env) {
+  // グループ/複数人トークからの加盟店メッセージを、返信せずにヒアリングDBへ取り込む。
+  //   bridge(handleKiraBridge)がサーバ側で ingestHearingAnswer を実行する。返ってくる返信は捨てる。
+  if (!env.KIRA_BRIDGE_KEY) return;
+  try {
+    await fetch("https://hearing.horizonshield.dev/kira-bridge", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Bridge-Key": env.KIRA_BRIDGE_KEY },
+      body: JSON.stringify({ userId, text: userMessage })
+    });
+  } catch (_e) {}
+}
+__name(ingestPartnerSilently, "ingestPartnerSilently");
 async function isPartner(userId, text, env) {
   if (text && text.replace(/\s/g, "").includes("\u52A0\u76DF\u5E97\u5E0C\u671B")) {
     try {
