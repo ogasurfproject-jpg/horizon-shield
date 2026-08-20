@@ -1480,11 +1480,69 @@ async function runDailySweep(env, opts) {
 // 扉は HTTP チェッカーであると同時に MCP サーバーでもある。
 // MCP クライアントから「このサーバーは適合しているか」を会話中に確かめられる。
 
+// Declared so a consumer can tell, from the contract alone, which answers this
+// gate is able to distinguish. Every field named here already existed in the
+// objects these tools return — nothing about a verdict changes, so a published
+// record_sha256 still recomputes to the same value.
+const GATE_CONDITIONS_SCHEMA = {
+  type: "object",
+  description: "Deterministic. Takes no arguments, returns the same document every time.",
+  properties: { conditions: { type: ["array", "object"] }, not_verified: { type: ["array", "object", "string"] }, tiers: { type: ["array", "object"] } },
+  additionalProperties: true,
+};
+const GATE_CHECK_SCHEMA = {
+  type: "object",
+  properties: {
+    endpoint: { type: "string" },
+    reachable: {
+      description:
+        "Three-valued on purpose (gate58). true = measured and answered. false = measured " +
+        "and did not answer. null = NOT MEASURED. null is never to be read as a failing " +
+        "endpoint; it means this gate has nothing to say.",
+    },
+    pass: { type: ["boolean", "null"] },
+    conditions: { type: ["array", "object"] },
+    record_sha256: { type: "string", description: "Hash of this verdict with record_sha256 and recompute_note removed. Recompute it yourself; verify_verdict does the same arithmetic." },
+    recompute_note: { type: "string" },
+  },
+  additionalProperties: true,
+};
+const GATE_VERIFY_SCHEMA = {
+  type: "object",
+  properties: {
+    verified: { type: ["boolean", "null"], description: "true = the verdict hashes to its own record_sha256, so it was not altered after issue. false = it was altered. This is a finding about the record, not an error." },
+    method: { type: "string" },
+    note: { type: "string" },
+  },
+  additionalProperties: true,
+};
+const GATE_LOOKUP_SCHEMA = {
+  type: "object",
+  properties: {
+    endpoint: { type: "string" },
+    on_register: {
+      type: "boolean",
+      description:
+        "true = this endpoint is on the register. false = the register was READ and this " +
+        "endpoint is not on it. If the register could not be read at all, this field is " +
+        "not returned: the call comes back as a tool error (isError), because absence and " +
+        "not-knowing are different answers.",
+    },
+    register_size: { type: "number" },
+    standing: { type: ["string", "null"] },
+    latest: { type: ["object", "null"] },
+    means: { type: ["string", "object"] },
+    does_not_mean: { type: ["string", "object"] },
+  },
+  additionalProperties: true,
+};
+
 const MCP_TOOLS = [
   {
     // **1本目に置くのは意図的。** 引数を取らず、読み取り専用で、毎回同じ結果を返す。
     // 他所の適合チェッカーが1本目を空引数で叩いても、何も壊れず決定論的に応答する。
     name: "get_conditions",
+    outputSchema: GATE_CONDITIONS_SCHEMA,
     title: "Get the conformance conditions",
     annotations: { title: "Get the conformance conditions", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     description:
@@ -1495,6 +1553,7 @@ const MCP_TOOLS = [
   },
   {
     name: "check_conformance",
+    outputSchema: GATE_CHECK_SCHEMA,
     title: "Check an MCP server for conformance and disclosure",
     annotations: { title: "Check an MCP server for conformance and disclosure", readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: true },
     description:
@@ -1519,6 +1578,7 @@ const MCP_TOOLS = [
   },
   {
     name: "verify_verdict",
+    outputSchema: GATE_VERIFY_SCHEMA,
     title: "Recompute a verdict hash without trusting the issuer",
     annotations: { title: "Recompute a verdict hash without trusting the issuer", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     description:
@@ -1541,6 +1601,7 @@ const MCP_TOOLS = [
     //   「機械が選ぶ時代のための記録」という主張が自分の実装で裏切られる。
     //   新しい保存はしない。既にある watch:registry と hist:* を読むだけ。
     name: "lookup_server",
+    outputSchema: GATE_LOOKUP_SCHEMA,
     title: "Look up an MCP server on this register",
     annotations: { title: "Look up an MCP server on this register", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     description:
@@ -1563,6 +1624,35 @@ const MCP_TOOLS = [
 
 function mcpText(obj) {
   return { content: [{ type: "text", text: typeof obj === "string" ? obj : JSON.stringify(obj, null, 2) }] };
+}
+
+// Federico Blanco Sanchez-Llanos, "The Mould, Not the Letter", 2026-08-20:
+//   never let "the fetch failed" and "the fetch succeeded and found nothing"
+//   collapse into the same downstream value.
+//
+// Measured 2026-08-20. This gate already knew the difference and said it in
+// prose — lookup_server literally answers "It is not reporting absence, because
+// it does not know." But all ten failure payloads rode home in the SUCCESS
+// channel: a JSON-RPC result with no isError, carrying {error: "..."} buried in
+// a text block. A human reader could tell. A machine consumer, which is exactly
+// who this directory is built for, read "the call succeeded".
+// The gate that measures other people could not be measured correctly itself.
+//
+// mcpFail puts a failure where a machine looks for one. mcpOk carries
+// structuredContent so a success is readable without parsing prose.
+// Neither changes any verdict object, so record_sha256 stays recomputable.
+function mcpFail(obj) {
+  return {
+    content: [{ type: "text", text: typeof obj === "string" ? obj : JSON.stringify(obj, null, 2) }],
+    isError: true,
+  };
+}
+function mcpOk(obj) {
+  const structured = obj && typeof obj === "object" && !Array.isArray(obj) ? obj : { value: obj };
+  return {
+    content: [{ type: "text", text: typeof obj === "string" ? obj : JSON.stringify(obj, null, 2) }],
+    structuredContent: structured,
+  };
 }
 
 async function verifyVerdict(record) {
@@ -1677,53 +1767,53 @@ async function handleMcp(body, env) {
     const args = (body.params && body.params.arguments) || {};
 
     if (name === "get_conditions") {
-      return { jsonrpc: "2.0", id, result: mcpText(spec()) };
+      return { jsonrpc: "2.0", id, result: mcpOk(spec()) };
     }
     if (name === "check_conformance") {
       const endpoint = args.endpoint;
       if (!endpoint || typeof endpoint !== "string") {
-        return { jsonrpc: "2.0", id, result: mcpText({ error: "endpoint_required" }) };
+        return { jsonrpc: "2.0", id, result: mcpFail({ error: "endpoint_required" }) };
       }
       let parsed;
       try { parsed = new URL(endpoint); }
-      catch (_e) { return { jsonrpc: "2.0", id, result: mcpText({ error: "invalid_url" }) }; }
+      catch (_e) { return { jsonrpc: "2.0", id, result: mcpFail({ error: "invalid_url" }) }; }
       if (parsed.protocol !== "https:") {
-        return { jsonrpc: "2.0", id, result: mcpText({ error: "https_required" }) };
+        return { jsonrpc: "2.0", id, result: mcpFail({ error: "https_required" }) };
       }
       try {
-        return { jsonrpc: "2.0", id, result: mcpText(await runCheck(endpoint, args.allow_tool_call === true)) };
+        return { jsonrpc: "2.0", id, result: mcpOk(await runCheck(endpoint, args.allow_tool_call === true)) };
       } catch (e) {
-        return { jsonrpc: "2.0", id, result: mcpText({ error: "check_failed", message: String(e && e.message || e) }) };
+        return { jsonrpc: "2.0", id, result: mcpFail({ error: "check_failed", message: String(e && e.message || e) }) };
       }
     }
     if (name === "verify_verdict") {
-      return { jsonrpc: "2.0", id, result: mcpText(await verifyVerdict(args.record)) };
+      return { jsonrpc: "2.0", id, result: mcpOk(await verifyVerdict(args.record)) };
     }
     if (name === "lookup_server") {
       const endpoint = args.endpoint;
       if (!endpoint || typeof endpoint !== "string") {
-        return { jsonrpc: "2.0", id, result: mcpText({ error: "endpoint_required" }) };
+        return { jsonrpc: "2.0", id, result: mcpFail({ error: "endpoint_required" }) };
       }
       let parsedLookup;
       try { parsedLookup = new URL(endpoint); }
-      catch (_e) { return { jsonrpc: "2.0", id, result: mcpText({ error: "invalid_url" }) }; }
+      catch (_e) { return { jsonrpc: "2.0", id, result: mcpFail({ error: "invalid_url" }) }; }
       if (parsedLookup.protocol !== "https:") {
-        return { jsonrpc: "2.0", id, result: mcpText({ error: "https_required" }) };
+        return { jsonrpc: "2.0", id, result: mcpFail({ error: "https_required" }) };
       }
       if (!env || !env.HS_VERIFY_KV) {
-        return { jsonrpc: "2.0", id, result: mcpText({
+        return { jsonrpc: "2.0", id, result: mcpFail({
           endpoint: endpoint,
           error: "storage_unavailable",
           note: "History storage is not bound on this deployment, so this gate cannot say whether the endpoint is on the register. It is not reporting absence, because it does not know."
         }) };
       }
       try {
-        return { jsonrpc: "2.0", id, result: mcpText(await lookupServer(env, endpoint)) };
+        return { jsonrpc: "2.0", id, result: mcpOk(await lookupServer(env, endpoint)) };
       } catch (e) {
-        return { jsonrpc: "2.0", id, result: mcpText({ error: "lookup_failed", message: String(e && e.message || e) }) };
+        return { jsonrpc: "2.0", id, result: mcpFail({ error: "lookup_failed", message: String(e && e.message || e) }) };
       }
     }
-    return { jsonrpc: "2.0", id, result: mcpText({ error: "unknown_tool", name }) };
+    return { jsonrpc: "2.0", id, result: mcpFail({ error: "unknown_tool", name }) };
   }
   return { jsonrpc: "2.0", id, error: { code: -32601, message: "method not found: " + method } };
 }

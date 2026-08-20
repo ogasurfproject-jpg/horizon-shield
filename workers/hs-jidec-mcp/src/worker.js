@@ -236,6 +236,95 @@ async function buildCard(env, n, sha, citation) {
 
 /* ---------------------------------- tools ---------------------------------- */
 
+// Federico Blanco Sanchez-Llanos, "The Mould, Not the Letter", 2026-08-20:
+//   never let "the fetch failed" and "the fetch succeeded and found nothing"
+//   collapse into the same downstream value.
+//
+// Measured 2026-08-20: all four tools here declared no outputSchema, so a consumer
+// received free text and had no declared way to separate the two. Worse, the
+// ledger read in jidec_list_paths returned r.body without looking at r.status:
+// a ledger that answered 500 and a ledger that holds no paths both arrived as a
+// successful result. On a ledger whose entire purpose is verification, that was
+// the weakest spot in the building.
+//
+// Now: a read that FAILS throws, and the rpc layer returns it with isError: true.
+// A read that SUCCEEDS and finds nothing returns lookup:"absent" with a count of 0.
+// The two can never be confused, by contract and not only by prose.
+
+const LOOKUP_FIELD = {
+  type: "string",
+  enum: ["ok", "absent"],
+  description:
+    "ok = the ledger was read and the record exists. absent = the ledger was read " +
+    "and there is no such record. A read that FAILED never appears here: it comes " +
+    "back as a tool error (isError: true), so a consumer can never mistake this " +
+    "server's own failure for a statement about the ledger's contents.",
+};
+
+const CITE_OUTPUT_SCHEMA = {
+  type: "object",
+  properties: {
+    lookup: LOOKUP_FIELD,
+    citation: { type: "string" },
+    resolved_entry: { type: ["number", "string", "null"] },
+    integrity: {
+      type: "object",
+      description: "The whole point: claimed vs recomputed. match:false is an integrity FAILURE, which is a finding, not an error.",
+      properties: {
+        claimed_sha256: { type: "string" },
+        recomputed_sha256: { type: "string" },
+        match: { type: "boolean" },
+      },
+      required: ["match"],
+    },
+    bitcoin: { type: "object", properties: { status: { type: "string" } } },
+    record_kind: { type: "string" },
+    trust_note: { type: "string" },
+    limits: { type: "string" },
+  },
+  required: ["lookup", "integrity"],
+  additionalProperties: true,
+};
+
+const LIST_OUTPUT_SCHEMA = {
+  type: "object",
+  properties: {
+    lookup: LOOKUP_FIELD,
+    count: {
+      type: "number",
+      description:
+        "How many anchored paths the ledger returned. 0 means the ledger answered and " +
+        "holds none. It never means the ledger could not be read — that is an error.",
+    },
+    paths: { type: "array", items: { type: "object" } },
+  },
+  required: ["lookup", "count"],
+  additionalProperties: true,
+};
+
+const REPLAY_OUTPUT_SCHEMA = {
+  type: "object",
+  properties: {
+    lookup: LOOKUP_FIELD,
+    verdict: { type: "string", description: "MATCH or DRIFT. Nodes that could not be re-observed are deferred, never counted as drift." },
+  },
+  required: ["lookup"],
+  additionalProperties: true,
+};
+
+const RECIPE_OUTPUT_SCHEMA = {
+  type: "object",
+  properties: {
+    lookup: LOOKUP_FIELD,
+    citation: { type: "string" },
+    resolved_entry: { type: ["number", "string", "null"] },
+    path_id: { type: "string" },
+    recipe: { type: ["object", "string"] },
+  },
+  required: ["lookup"],
+  additionalProperties: true,
+};
+
 const READ_ONLY = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true };
 
 const TOOLS = [
@@ -249,6 +338,7 @@ const TOOLS = [
       properties: { citation: { type: "string", description: "jidec:path:<sha> | jidec:entry:<n> | 64-hex | ledger URL" } },
       required: ["citation"],
     },
+    outputSchema: CITE_OUTPUT_SCHEMA,
     annotations: { title: "Cite and independently verify a JIDEC record", ...READ_ONLY },
   },
   {
@@ -261,6 +351,7 @@ const TOOLS = [
       properties: { citation: { type: "string", description: "jidec:path:<sha> | jidec:entry:<n> | ledger URL" } },
       required: ["citation"],
     },
+    outputSchema: REPLAY_OUTPUT_SCHEMA,
     annotations: { title: "Re-observe an anchored path and report drift", ...READ_ONLY },
   },
   {
@@ -268,6 +359,7 @@ const TOOLS = [
     title: "List anchored verification paths",
     description: "List the anchored JIDEC verification paths (most recent first), with purpose, verdict and Bitcoin anchoring status.",
     inputSchema: { type: "object", properties: {} },
+    outputSchema: LIST_OUTPUT_SCHEMA,
     annotations: { title: "List anchored verification paths", ...READ_ONLY },
   },
   {
@@ -280,6 +372,7 @@ const TOOLS = [
       properties: { citation: { type: "string", description: "jidec:path:<sha> | jidec:entry:<n> | 64-hex | ledger URL" } },
       required: ["citation"],
     },
+    outputSchema: RECIPE_OUTPUT_SCHEMA,
     annotations: { title: "Get the executable verification recipe", ...READ_ONLY },
   },
 ];
@@ -287,7 +380,25 @@ const TOOLS = [
 async function callTool(name, args, env) {
   if (name === "jidec_list_paths") {
     const r = await ledgerGet(env, "/paths");
-    return r.body;
+    // The read either worked or it did not. Say which. Do not hand back a body
+    // that might be an error page and let it read as a list of zero paths.
+    if (r.status !== 200)
+      throw new Error(
+        "the ledger could not be read: HTTP " + r.status + ". This is NOT a report " +
+        "that there are no anchored paths — this server does not know how many there are."
+      );
+    const paths = Array.isArray(r.body) ? r.body
+                : (r.body && Array.isArray(r.body.paths)) ? r.body.paths
+                : null;
+    if (paths === null)
+      throw new Error("the ledger answered 200 but not with a list of paths; refusing to report a count this server cannot stand behind.");
+    return {
+      lookup: paths.length ? "ok" : "absent",
+      count: paths.length,
+      paths: paths,
+      note: paths.length ? undefined
+        : "The ledger was read successfully and holds no anchored paths. This is a fact about the ledger, not a failure of this server.",
+    };
   }
 
   if (name === "jidec_cite") {
@@ -296,11 +407,11 @@ async function callTool(name, args, env) {
     const r = await ledgerGet(env, `/paths/${sha}`);
     if (r.status === 200 && r.body && typeof r.body === "object") {
       const card = await buildCard(env, n, sha, args.citation);
-      return { ...card, path_card: r.body };
+      return { lookup: "ok", ...card, path_card: r.body };
     }
     // Everything else (jidec-claim-v1, v0 spec entries such as #2 and #5):
     // verify from raw bytes locally. This is why entry #2 / #5 used to 400.
-    return await buildCard(env, n, sha, args.citation);
+    return { lookup: "ok", ...(await buildCard(env, n, sha, args.citation)) };
   }
 
   if (name === "jidec_replay") {
@@ -315,7 +426,7 @@ async function callTool(name, args, env) {
         "Use jidec_cite for hash and anchor verification of this entry."
       );
     if (r.status !== 200) throw new Error("replay error " + r.status);
-    return r.body;
+    return { lookup: "ok", ...(r.body && typeof r.body === "object" ? r.body : { body: r.body }) };
   }
 
   if (name === "jidec_how_to_verify") {
@@ -323,6 +434,7 @@ async function callTool(name, args, env) {
     const r = await ledgerGet(env, `/verify/${n}`);
     if (r.status !== 200) throw new Error("verify recipe unavailable: HTTP " + r.status);
     return {
+      lookup: "ok",
       citation: args.citation,
       resolved_entry: n,
       path_id: sha,
@@ -476,7 +588,16 @@ export default {
       if (method === "tools/call") {
         try {
           const out = await callTool(params?.name, params?.arguments || {}, env);
-          return rpcResult(req, id, { content: [{ type: "text", text: JSON.stringify(out, null, 2) }] }, cors);
+          // Every tool here declares an outputSchema, so a successful result MUST
+          // carry structuredContent (MCP 2025-06-18). The text block stays for
+          // clients that predate structured output.
+          const structured = (out && typeof out === "object" && !Array.isArray(out)) ? out : { value: out };
+          return rpcResult(
+            req,
+            id,
+            { content: [{ type: "text", text: JSON.stringify(out, null, 2) }], structuredContent: structured },
+            cors
+          );
         } catch (e) {
           // Tool-level failures are reported as results with isError, per spec,
           // so the model can see and reason about the failure text.
