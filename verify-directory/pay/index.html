@@ -142,13 +142,21 @@
       <input id="ep" type="text" maxlength="80" placeholder="example.com/mcp" autocomplete="off">
     </div>
     <div class="fld">
-      <label for="n">Endpoints, as quoted</label>
+      <label for="n">The service and amount we quoted you</label>
       <select id="n">
-        <option value="1">1 endpoint &middot; USD 290</option>
-        <option value="2">2 endpoints &middot; USD 435</option>
-        <option value="3">3 endpoints &middot; USD 580</option>
-        <option value="4">4 endpoints &middot; USD 725</option>
-        <option value="5">5 endpoints &middot; USD 870</option>
+        <optgroup label="Contract Report (condition 06)">
+          <option value="49" data-svc="Contract Report, condition 06">Contract Report, 1 server &middot; USD 49</option>
+        </optgroup>
+        <optgroup label="Cause report (why a condition failed)">
+          <option value="290" data-svc="Cause report, 1 endpoint">Cause report, 1 endpoint &middot; USD 290</option>
+          <option value="435" data-svc="Cause report, 2 endpoints">Cause report, 2 endpoints &middot; USD 435</option>
+          <option value="580" data-svc="Cause report, 3 endpoints">Cause report, 3 endpoints &middot; USD 580</option>
+          <option value="725" data-svc="Cause report, 4 endpoints">Cause report, 4 endpoints &middot; USD 725</option>
+          <option value="870" data-svc="Cause report, 5 endpoints">Cause report, 5 endpoints &middot; USD 870</option>
+        </optgroup>
+        <optgroup label="Remediation (condition 06 fix)">
+          <option value="290" data-svc="Remediation, small server up to 10 tools">Remediation, small server up to 10 tools &middot; USD 290</option>
+        </optgroup>
       </select>
     </div>
     <div class="total">
@@ -177,6 +185,9 @@
       <tr><td>Continuous monitoring, yearly</td><td class="p">USD 150 / year</td><td>Card, on the <a href="/verify-directory/monitoring/">monitoring page</a></td></tr>
       <tr><td>Cause report, outside Japan</td><td class="p">USD 290</td><td>Card, above, after a quote</td></tr>
       <tr><td>Cause report, in Japan</td><td class="p">44,000 JPY</td><td>Bank transfer, invoiced after delivery</td></tr>
+      <tr><td>Contract Report, condition 06 (priorities and effort estimate)</td><td class="p">USD 49</td><td>Card, above</td></tr>
+      <tr><td>Remediation, small server up to 10 tools (condition 06 fix)</td><td class="p">USD 290</td><td>Card, above, after a quote</td></tr>
+      <tr><td>Remediation, larger servers</td><td class="p">by quote</td><td>Card, above, after a quote</td></tr>
       <tr><td>Pre-connection audit, in Japan</td><td class="p">66,000 JPY</td><td>Bank transfer, invoiced at start</td></tr>
       <tr><td>Monthly report in Japanese</td><td class="p">11,000 JPY / month</td><td>Bank transfer</td></tr>
     </tbody>
@@ -220,11 +231,9 @@
 </div>
 
 <script>
-  var BASE = 290, EXTRA = 145;
-  function amount(){
-    var n = parseInt(document.getElementById('n').value, 10) || 1;
-    return BASE + EXTRA * (n - 1);
-  }
+  function selOpt(){ var s = document.getElementById('n'); return s.options[s.selectedIndex]; }
+  function amount(){ return parseInt(selOpt().value, 10) || 290; }
+  function svcLabel(){ return selOpt().getAttribute('data-svc') || 'service'; }
   function paint(){
     document.getElementById('amt').innerHTML = '$' + amount() + '<small> USD</small>';
   }
@@ -239,8 +248,7 @@
       style:{shape:'pill', color:'blue', layout:'vertical', label:'pay'},
       createOrder:function(data, actions){
         var ep = (document.getElementById('ep').value || '').slice(0,80);
-        var n  = parseInt(document.getElementById('n').value, 10) || 1;
-        var desc = 'HORIZON SHIELD cause report, ' + n + ' endpoint(s)' + (ep ? ' for ' + ep : '');
+        var desc = 'HORIZON SHIELD ' + svcLabel() + (ep ? ' for ' + ep : '');
         return actions.order.create({
           purchase_units:[{
             description: desc.slice(0,127),
