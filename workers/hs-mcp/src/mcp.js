@@ -191,6 +191,24 @@ const OUTPUT_SCHEMAS = {
 // neighbour. `count: 0` is only ever a fact about the data; a lookup that
 // failed comes back with isError set and makes no count claim at all.
 const LOOKUP_FIELDS = {
+  // A bare count is not enough and we were told so by our own ruler: count 0 does
+  // not prove the source was read, because a careless implementation returns 0 on
+  // failure too. `lookup` is an enum, so the state has somewhere to live that does
+  // not depend on the reader trusting a number.
+  lookup: {
+    type: "string",
+    enum: ["ok", "absent"],
+    description:
+      "ok = the source was read and something matched. absent = the source was read " +
+      "and nothing matched. A source that could NOT be read never appears here: that " +
+      "returns isError: true and makes no claim about what does or does not exist.",
+  },
+  source_read: {
+    type: "boolean",
+    description:
+      "true on every successful result. A failed lookup does not return a result at " +
+      "all, so this is never false — it is declared so a consumer can assert on it.",
+  },
   count: {
     type: "number",
     description:
@@ -1426,6 +1444,17 @@ async function handleRpc(msg, env, ip, authCtx, ctx) {
         let sc;
         try { const p = JSON.parse(t); sc = Array.isArray(p) ? { items: p } : (p && typeof p === "object" ? p : { message: String(p) }); }
         catch (_e) { sc = { message: t }; }
+        // Only successful results reach here (the !r.isError guard above), so the
+        // source WAS read. Say it in the payload, once, centrally — rather than in
+        // fourteen handlers where thirteen would eventually drift from the first.
+        if (sc.source_read === undefined) sc.source_read = true;
+        if (sc.lookup === undefined) {
+          const n = typeof sc.count === "number" ? sc.count
+                  : Array.isArray(sc.matches) ? sc.matches.length
+                  : Array.isArray(sc.items) ? sc.items.length
+                  : null;
+          if (n !== null) sc.lookup = n > 0 ? "ok" : "absent";
+        }
         r.structuredContent = sc;
       }
     } catch (_e) { /* structuredContent はベストエフォート。本文content優先 */ }

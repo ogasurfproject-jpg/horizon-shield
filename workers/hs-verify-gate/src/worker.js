@@ -1486,7 +1486,12 @@ async function runDailySweep(env, opts) {
 // record_sha256 still recomputes to the same value.
 const GATE_CONDITIONS_SCHEMA = {
   type: "object",
-  description: "Deterministic. Takes no arguments, returns the same document every time.",
+  description:
+    "Deterministic. Takes no arguments, looks nothing up, and returns the same document " +
+    "every time. It therefore declares no read-state field, and a structural probe will " +
+    "score it as unable to hold the difference between a failed read and an empty one. " +
+    "That score is correct and is left standing: this tool has no read to fail. Adding a " +
+    "state field it can never use would make the number look better and mean less.",
   properties: { conditions: { type: ["array", "object"] }, not_verified: { type: ["array", "object", "string"] }, tiers: { type: ["array", "object"] } },
   additionalProperties: true,
 };
