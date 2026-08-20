@@ -452,6 +452,74 @@ async function surfaceHashes(tools, initResult, pages, complete) {
   };
 }
 
+// ---- 条件06. 「無かった」と「引けなかった」を区別できる契約か ----
+// Federico Blanco Sanchez-Llanos, "The Mould, Not the Letter", 2026-08-20:
+//   never let "the fetch failed" and "the fetch succeeded and found nothing" collapse
+//   into the same downstream value.
+//
+// Measured from the outputSchema each tool already declares in tools/list. Nothing is
+// executed. This renders NO verdict — it is a disclosed number, like reachable in gate58.
+//
+// The test is STRUCTURAL and name-independent: a boolean, or an enum with 2+ values, is a
+// place a read-succeeded / read-failed / nothing-matched state can live. Field NAMES are
+// not consulted, because this gate scores servers it does not own, and a name list would
+// let an author score well by renaming a field. A bare count is not enough: count 0 does
+// not prove the read worked. The field names that produced each pass are published, so a
+// reader can see the false positives (a job board that declares remote:boolean passes this
+// structural test and is not thereby holding the difference).
+function schemaHoldsState(schema) {
+  const found = [];
+  const walk = (n, d) => {
+    if (!n || typeof n !== "object" || d > 6) return;
+    if (Array.isArray(n)) { for (const v of n) walk(v, d + 1); return; }
+    for (const [k, v] of Object.entries(n)) {
+      if (k === "properties" && v && typeof v === "object" && !Array.isArray(v)) {
+        for (const [pk, pv] of Object.entries(v)) {
+          if (!pv || typeof pv !== "object") continue;
+          const t = pv.type, ts = Array.isArray(t) ? t : (t ? [t] : []);
+          const isBool = ts.includes("boolean");
+          const isEnum = Array.isArray(pv.enum) && pv.enum.length >= 2;
+          if (isBool || isEnum) found.push(pk + ":" + (isEnum ? "enum" : "boolean"));
+        }
+      }
+      walk(v, d + 1);
+    }
+  };
+  walk(schema, 0);
+  return [...new Set(found)];
+}
+
+function measureAbsenceVsFailure(tools) {
+  let opaque = 0, flat = 0, discriminating = 0;
+  const holds = [];
+  for (const t of (tools || [])) {
+    const out = t && t.outputSchema;
+    const hasOut = !!(out && typeof out === "object" && Object.keys(out).length);
+    if (!hasOut) { opaque += 1; continue; }
+    const fields = schemaHoldsState(out);
+    if (fields.length) { discriminating += 1; holds.push({ tool: String(t && t.name), fields: fields }); }
+    else { flat += 1; }
+  }
+  const total = (tools || []).length;
+  const cannot = opaque + flat;
+  return {
+    condition: "06",
+    question: "Can a consumer tell 'the lookup failed' from 'the lookup found nothing'?",
+    source: "Federico Blanco Sanchez-Llanos, \"The Mould, Not the Letter\", 2026-08-20",
+    method: "structural, name-independent: a boolean or an enum with 2+ values in a tool's declared outputSchema. tools/list only; nothing is executed.",
+    verdict: null,
+    verdict_note: "A disclosed measurement, not a pass or fail. Nearly all of the field cannot do this, so a threshold would only condemn; and a schema is a declaration, not behaviour. The gate reports the number and the field names, and judges nobody on it.",
+    tools_measured: total,
+    opaque: opaque,
+    flat: flat,
+    discriminating: discriminating,
+    cannot_distinguish: cannot,
+    cannot_distinguish_pct: total ? Math.round(1000 * cannot / total) / 10 : null,
+    discriminating_fields: holds,
+    caution: "This test cannot read. A field like remote:boolean passes it without being a read-state at all. discriminating_fields is published so you can check each pass yourself."
+  };
+}
+
 // ---- 条件1. 実在する MCP エンドポイント ----
 async function checkMcp(endpoint) {
   const detail = {};
@@ -488,6 +556,7 @@ async function checkMcp(endpoint) {
     detail.tool_count = tools.length;
     detail.tools = tools.map((t) => t.name).slice(0, 50);
     detail.surface = await surfaceHashes(tools, initResult, pages, !cursor);
+    detail.absence_vs_failure = measureAbsenceVsFailure(tools);
     if (!tools.length) return { pass: false, reason: "tools/list returned no tools", detail };
   } catch (e) {
     if (/gate-side failure/.test(String(e && e.message))) {
@@ -662,6 +731,21 @@ async function runCheck(endpoint, allowToolCall) {
     checks: results
   };
 
+  // 条件06 は合否ではなく開示測定。checks の外に置く(passed に触れない)。sha を取る前に
+  // 挿入するので、新しい verdict はこの値ごと自己整合し、verify_verdict でも一致する。
+  const _avf = record.checks.mcp_endpoint && record.checks.mcp_endpoint.detail
+    ? record.checks.mcp_endpoint.detail.absence_vs_failure : null;
+  if (_avf) {
+    delete record.checks.mcp_endpoint.detail.absence_vs_failure;
+    record.absence_vs_failure = _avf;
+  } else {
+    record.absence_vs_failure = {
+      condition: "06",
+      measured: false,
+      reason: "the tool list could not be read, so the contract was not measured. This is NOT a statement that the server cannot distinguish the two — only that the gate did not see."
+    };
+  }
+
   // 条件5. 判定自体が再計算可能であること
   const canonical = JSON.stringify(record);
   record.record_sha256 = await sha256hex(canonical);
@@ -707,6 +791,16 @@ function spec() {
       },
       determinism: "Calling the same tool with the same arguments returns identical content across runs. NOT measured by default: doing so requires executing a tool on the checked server, which this gate will not do without the owner's consent. Send allow_tool_call true to measure it.",
       self_verification: "Every verdict carries a SHA-256 that any third party can recompute"
+    },
+    also_measured_no_verdict: {
+      absence_vs_failure: {
+        condition: "06",
+        question: "Can a consumer tell 'the lookup failed' from 'the lookup found nothing'?",
+        source: "Federico Blanco Sanchez-Llanos, \"The Mould, Not the Letter\", 2026-08-20",
+        method: "Structural, name-independent: does a tool's declared outputSchema contain a boolean, or an enum with 2+ values, where a read-succeeded / read-failed / nothing-matched state could live. Read from tools/list; nothing is executed.",
+        verdict: "none. A disclosed number, not a pass or fail. Nearly all of the field cannot do this, so a threshold would only condemn; and a schema is a declaration, not behaviour. Reported per verdict under the top-level key absence_vs_failure, with the field names that produced each pass so a reader can check the false positives.",
+        self_applied: "This gate's own get_conditions tool fails the test — it takes no arguments and has no read that can fail — and that is left standing rather than papered over."
+      }
     },
     tiers: {
       [CONFIG.tier_pass]: "Free. Conformance and disclosure verified. No price validation.",
@@ -1300,6 +1394,12 @@ function summarise(record) {
     // 表面の指紋。fingerprint には入れない — 表面の変化は条件の flip ではなく、
     // 警報を鳴らさない。MCP 仕様自体が tools/list の変化を正常運用と見なしている。
     surface: (checks.mcp_endpoint && checks.mcp_endpoint.detail && checks.mcp_endpoint.detail.surface) || null,
+    absence_vs_failure: record.absence_vs_failure ? {
+      measured: record.absence_vs_failure.measured === false ? false : true,
+      tools_measured: record.absence_vs_failure.tools_measured != null ? record.absence_vs_failure.tools_measured : null,
+      discriminating: record.absence_vs_failure.discriminating != null ? record.absence_vs_failure.discriminating : null,
+      cannot_distinguish_pct: record.absence_vs_failure.cannot_distinguish_pct != null ? record.absence_vs_failure.cannot_distinguish_pct : null
+    } : null,
     fingerprint: stateFingerprint(record)
   };
 }
