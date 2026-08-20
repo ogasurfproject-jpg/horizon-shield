@@ -294,6 +294,20 @@
 
   let STATE = { contractors: [], cat: 'すべて', q: '' };
 
+  // 2026-08-20 案A: MCPサーバーの「振る舞い」検証の現在値を、生きたバッジで各カードに出す。
+  //   ★これは KIRA の適正価格検証（＝カードの「検証済み」）とは別の主張。
+  //   取り違え防止は、バッジの画像そのものが "MCP conduct" と名乗ることで担保する（gate 側 badgeSvg）。
+  //   エンドポイントは登記簿と同じ pNNN.horizonshield.dev/mcp。緑=verified／黄=それ以外。5分で追従。
+  function mcpBadge(c){
+    const m = String(c && c.member_no || '').match(/(\d{2,})/);
+    if(!m) return '';
+    const ep = 'https://p'+m[1]+'.horizonshield.dev/mcp';
+    const u = 'https://gate.horizonshield.dev/badge?endpoint='+encodeURIComponent(ep);
+    return '<img class="mcpb" src="'+u+'" alt="MCPサーバー検証（振る舞い）の現在値"'
+         + ' title="MCPサーバーの振る舞い検証。価格の検証（KIRA）とは別です"'
+         + ' loading="lazy" style="height:20px;margin-top:8px;display:block">';
+  }
+
   function render(){
     const list = document.getElementById('list');
     const lc = document.getElementById('lc');
@@ -317,7 +331,7 @@
         + '<div class="tier">'+esc((c.member_no||'').replace('No.',''))+'</div>'
         + '<div class="mid"><div class="nm">'+esc(c.name)+'</div>'
         + '<div class="mt">'+esc(c.area||'')+' ・ 加盟 '+esc(c.member_no||'')+'</div>'
-        + '<div>'+tags+'</div></div>'
+        + '<div>'+tags+'</div>'+mcpBadge(c)+'</div>'
         + '<div class="sc">'+rankBadge(c.rank_score != null ? c.rank_score : c.fairness_score)+'<div class="l">適正度 '+esc(c.fairness_score)+'</div></div>'
         + '<span class="vd" title="検証済み"></span></a>';
     }
@@ -338,7 +352,7 @@
         + '<div class="tier">'+esc((c.member_no||'?').replace('No.',''))+'</div>'
         + '<div class="mid"><div class="nm">'+esc(c.name)+'</div>'
         + '<div class="gate">'+esc(gate)+'</div>'
-        + '<div>'+tags+'</div></div>'
+        + '<div>'+tags+'</div>'+mcpBadge(c)+'</div>'
         + '<div class="sc"><div class="l">検証手続き中</div></div>' + closeTag2;
     }
     html += '<a class="row open" href="https://shield.the-horizons-innovation.com/yakumo/apply/"><span class="pl">+</span>加盟店募集中 ・ 通すのは適正診断だけ</a>';
