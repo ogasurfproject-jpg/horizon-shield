@@ -578,6 +578,19 @@ a.regname:hover{border-bottom-style:solid}
 
 <section>
   <div class="wrap">
+    <span class="kicker">Open ledger &middot; free &middot; rates nobody</span>
+    <h2>The only public list we keep of what we did <em>not</em> do</h2>
+    <p class="slead">A fix repairs one casting. The mould that cast it goes back in the drawer, ready to cast the same flaw into the next hundred, unless somebody goes looking. So there is a second ledger here, and it records four things about a fix: the class of assumption behind it, <b>where the author searched for that same assumption</b>, what they found at each place, and at what volume each casting failed.</p>
+    <p class="slead"><b>A record whose search list is empty is accepted and published as such, marked in amber.</b> An instance fixed with no class search is the exact thing this ledger exists to make visible. It is not rejected, not hidden, and not ranked below a thorough one, because nothing here is ranked at all. A ledger that only accepted diligence would record nothing but diligence and be worth nothing.</p>
+    <p class="slead">Since 2026-08-20 a record can also carry the commands that re-run its own search, and the commit they were run against. <b>This gate still does not run them and does not vouch for them.</b> What changed is that a stranger can run them, compare their own hit list against the locations the record names, and establish that the record is wrong without asking anyone. Records that carry no such commands say so of themselves.</p>
+    <p class="slead">Writing to it needs no key and no account: you open an issue, and the gate fetches that issue from GitHub itself. There is no shared write token to hand out, so there is nothing to forge and nothing to leak. <span id="mould-live">Reading the ledger.</span></p>
+    <p class="slead" style="margin-top:14px"><a href="/verify-directory/mould/" style="color:var(--emerald-ink,#6ee7b7);font-weight:700">Read the ledger and record one &rarr;</a> &nbsp;&middot;&nbsp; <code>GET https://gate.horizonshield.dev/mould</code></p>
+    <p class="slead">The category was named by Federico Blanco Sanchez-Llanos in "The Mould, Not the Letter", 2026-08-20. Every record in it so far is one of our own, because we were not going to ask anyone else to go first.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
     <div class="kh">The same rows, for machines</div>
     <h2>An agent should not have to read this page</h2>
     <p class="slead">Everything above is also published as a repository that rebuilds itself from the same API once a day:
@@ -738,6 +751,27 @@ async function runCheck(endpoint){
     go.disabled = false;
   }
 }
+// 2026-08-20: 件数を文に焼き込まない。今日この同じページでそれをやって、表と矛盾した。
+async function loadMouldCount(){
+  var el = document.getElementById("mould-live");
+  if (!el) return;
+  try{
+    const r = await fetch("https://gate.horizonshield.dev/mould", { cache: "no-store" });
+    if (!r.ok) throw new Error("gate answered " + r.status);
+    const d = await r.json();
+    const recs = (d && d.records) || [];
+    if (!Array.isArray(recs)) throw new Error("no records list");
+    const none = recs.filter(function(x){ return Number(x.searched || 0) === 0; }).length;
+    const norepro = recs.filter(function(x){ return Number(x.repro || 0) === 0; }).length;
+    el.textContent = recs.length + " records right now, " + none +
+      " of them with no class search recorded, " + norepro + " with no way to re-run the search.";
+  }catch(e){
+    el.textContent = "This page could not read the ledger just now (" + e.message +
+      "). That is a statement about this page, not about the ledger.";
+  }
+}
+document.addEventListener("DOMContentLoaded", loadMouldCount);
+
 async function loadRegister(){
   const box = document.getElementById("regrows");
   const note = document.getElementById("reglive-note");
