@@ -1132,6 +1132,15 @@ async function handleKiraBridge(env, userId, text) {
     return { ok: true, reply: "ヒアリング進行中です。会社名(屋号)・対応エリア(市区町村)・対応できる工種と強みを、このままご返信ください。" };
   }
 
+  // 2026-08-20 質問は「回答データ」ではない。定型で受領せず、人に渡す。
+  //   堤さん(p001)が運用の質問(スタッフ分担・グループLINE等)を送ったのに、
+  //   「受け取りました…掲載準備に反映しました」と返していた。反映していないのに反映したと言う嘘。
+  //   質問マーク(？/?)か末尾の疑問形を検出したら、ingestせず、要対応として通知し、人が返す前提の短文だけ返す。
+  if (/[?\uff1f]/.test(t) || /(でしょうか|ますでしょうか|できますか|ですか|可能ですか|いただけますか)\s*$/.test(t)) {
+    try { await notify(env, "[Yakumo] 加盟店から質問。要対応(人が返信): store=" + storeId + " / " + t.slice(0, 120)); } catch (_e) {}
+    return { ok: true, reply: "ご質問ありがとうございます。担当の大賀が内容を確認して、こちらから直接お返事します。少々お待ちください。" };
+  }
+
   // 回答として取り込み(構造化->マージ->関所->生成トリガー)
   const store = await env.HS_HEARING_KV.get("store:" + storeId, "json");
   const res = await ingestHearingAnswer(env, storeId, store, t, "line");
