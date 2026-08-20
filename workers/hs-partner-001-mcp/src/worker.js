@@ -233,7 +233,7 @@ function agentCard(env, origin) {
     capabilities: { streaming: false, pushNotifications: false },
     defaultInputModes: ["text"],
     defaultOutputModes: ["text"],
-    // 誰がこのサーバーに金を払っているか。扉(Yakumo Verification Gate)の条件3。
+    // 誰がこのサーバーに金を払っているか。扉(MCP Verification Gate)の条件3。
     // 専用MCPは WebMCP Partner ティアの提供物なので、負担するのは加盟店(売り手)側。
     // 紹介料0円・成果報酬0は Yakumo 全体の中核主張。掲載枠ではないので listing_fee は false。
     compensation: {

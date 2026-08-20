@@ -1624,7 +1624,7 @@ export default {
           capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
           defaultInputModes: ["text/plain", "application/json"],
           defaultOutputModes: ["application/json", "text/plain"],
-          // 誰がこのサーバーに金を払っているか。扉(Yakumo Verification Gate)の条件3。
+          // 誰がこのサーバーに金を払っているか。扉(MCP Verification Gate)の条件3。
           // 説明文に書いてある "accepts no payment from contractors" を、
           // 人間可読の英文だけでなく機械可読の項目としても置く。
           compensation: {

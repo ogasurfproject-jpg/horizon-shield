@@ -460,7 +460,7 @@ const SERVER_INFO = {
 };
 
 
-// The card the Yakumo Verification Gate reads (conditions 2 and 3): the card
+// The card the MCP Verification Gate reads (conditions 2 and 3): the card
 // exists, and the compensation block states who pays. Machine readable, same
 // as every sibling endpoint on this zone. 2026-08-17: added after the gate
 // measured http 404 here while everything else passed.

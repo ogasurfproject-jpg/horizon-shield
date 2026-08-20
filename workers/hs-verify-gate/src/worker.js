@@ -1,5 +1,5 @@
 // hs-verify-gate
-// Yakumo 検証の扉 / Verification Gate  (v0 適合性チェッカー)
+// MCP Verification Gate / 検証の扉  (v0 適合性チェッカー)
 //
 // 目的:
 //   申請された MCP エンドポイントを実測し、5条件への適合を決定論的に判定する。
@@ -708,7 +708,7 @@ async function runCheck(endpoint, allowToolCall) {
   const unreachable = Object.values(results).some((r) => r && r.transport === true);
 
   const record = {
-    gate: "Yakumo Verification Gate",
+    gate: "MCP Verification Gate",
     gate_version: CONFIG.version,
     gate_commit: gateCommit(),
     endpoint: endpoint,
@@ -761,7 +761,7 @@ async function runCheck(endpoint, allowToolCall) {
 // ---- 仕様(機械可読) ----
 function spec() {
   return {
-    gate: "Yakumo Verification Gate",
+    gate: "MCP Verification Gate",
     version: CONFIG.version,
     gate_commit: gateCommit(),
     what_this_verifies: [
@@ -1928,7 +1928,7 @@ async function handleMcp(body, env) {
 // 標準を提案する側が、その標準を満たしていなければ意味がない。
 function ownAgentCard(origin) {
   return {
-    name: "Yakumo Verification Gate",
+    name: "MCP Verification Gate",
     description:
       "Checks whether an MCP server exists, publishes an agent card, discloses who pays it, " +
       "and returns identical output for identical input. Free. Conformance and disclosure only; " +
@@ -2019,7 +2019,7 @@ async function selfCheck(origin) {
 
   const passed = Object.values(checks).every((r) => r.pass);
   const record = {
-    gate: "Yakumo Verification Gate",
+    gate: "MCP Verification Gate",
     gate_version: CONFIG.version,
     gate_commit: gateCommit(),
     subject: "the gate itself",
