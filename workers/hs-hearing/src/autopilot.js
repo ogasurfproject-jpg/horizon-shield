@@ -568,6 +568,27 @@ export async function selfCheck(env, stores) {
   const checks = [];
   const add = (id, ok, detail) => checks.push({ id, ok, detail });
 
+  // 2026-08-20 empty-roster-passes-everything.
+  //   一覧を走査して違反を挙げる形の検査は、一覧が空だと必ず「違反なし」で通る。
+  //   検査は正しい。渡されるものが間違っているだけ。空の部屋を見て「侵入者なし」と報告していた。
+  //   指摘: Federico Blanco Sanchez-Llanos 2026-08-20。
+  //   「ガードが在る」は、それに食わせている値が壊れているとき、真であって役に立たない答えになる。
+  //   だから「違反なし」と「測れていない」を書き分ける。/recompute で
+  //   「再現できなかった」と「無効」を分けたのと同じ規則。
+  const roster = Array.isArray(stores) ? stores : [];
+  const measured = roster.length;
+  const scanned = (id, ok, detail) =>
+    add(id, measured > 0 && ok,
+        measured > 0
+          ? detail + "（走査 " + measured + "店)"
+          : "走査対象が0店。違反なしではなく、測れていない。名簿が届いていない。");
+
+  // E0 名簿そのものが届いているか。ここが0なら、以下の一覧走査はすべて意味を失う。
+  //    KVの接頭辞違い、全件の読み取り失敗、listAllStores の黙った取りこぼし。どれも例外を出さない。
+  add("roster_present", measured > 0,
+      measured > 0 ? measured + "店を走査対象にした"
+                   : "名簿が空。接頭辞違いか全件読み取り失敗。この状態では他の検査は何も保証しない。");
+
   // E1 巡回そのものが走っているか。last_tick を更新する前に測る。
   //    後で測ると必ず通ってしまい、検査として成立しない。
   const lastTick = await env.HS_HEARING_KV.get("autopilot:last_tick", "text");
@@ -581,7 +602,7 @@ export async function selfCheck(env, stores) {
   // 店ごとに測る。待ちを抱えたまま14日以上なにも取り込めていない店を名指しする。
   const silent = [];
   let lastAnswer = null;
-  for (const s of stores) {
+  for (const s of roster) {
     const ap = s.autopilot || {};
     const a = ap.last_answer_at || null;
     if (a && (lastAnswer === null || a > lastAnswer)) lastAnswer = a;
@@ -591,13 +612,13 @@ export async function selfCheck(env, stores) {
       silent.push(s.store_id + ":" + (a ? Math.floor(quiet) + "日沈黙" : "取り込み履歴なし"));
     }
   }
-  add("ingest_alive", silent.length === 0,
+  scanned("ingest_alive", silent.length === 0,
       (silent.length ? silent.join(" ") + " / " : "") + "全体最新=" + (lastAnswer || "一度もなし"));
 
   // E3 質問が到達可能か。上限まで聞いてなお埋まらない qid は「打ち切り」であって、
   //    放置してよい状態ではない。人が判断すべきものとして必ず名前を出す。
   const retired = [];
-  for (const s of stores) {
+  for (const s of roster) {
     const ap = s.autopilot || {};
     const cnt = {};
     for (const a of (ap.asked || [])) cnt[a.qid] = (cnt[a.qid] || 0) + 1;
@@ -605,15 +626,15 @@ export async function selfCheck(env, stores) {
     const comp = computeCompleteness((h && h.profile) || {}, ap);
     for (const m of comp.missing) if ((cnt[m.qid] || 0) >= 3) retired.push(s.store_id + ":" + m.qid);
   }
-  add("questions_reachable", retired.length === 0, retired.length ? retired.join(" ") : "打ち切りなし");
+  scanned("questions_reachable", retired.length === 0, retired.length ? retired.join(" ") : "打ち切りなし");
 
   // E4 待ちが放置されていないか。28日はペナルティの打ち切り点。それを超えたら人へ回す。
   const stale = [];
-  for (const s of stores) {
+  for (const s of roster) {
     const p = (s.autopilot || {}).pending;
     if (p && p.sent_at && days(nowMs - Date.parse(p.sent_at)) > 28) stale.push(s.store_id);
   }
-  add("no_stale_pending", stale.length === 0, stale.length ? stale.join(" ") : "放置なし");
+  scanned("no_stale_pending", stale.length === 0, stale.length ? stale.join(" ") : "放置なし");
 
   // E5 完成度が動いているか。前回の基準と同じままで14日たった店は、
   //    生きて見えても前に進んでいない。
@@ -621,7 +642,7 @@ export async function selfCheck(env, stores) {
   const prev = (await env.HS_HEARING_KV.get(SNAP, "json")) || {};
   const frozen = [];
   const next = {};
-  for (const s of stores) {
+  for (const s of roster) {
     const c = (s.autopilot || {}).completeness;
     const cur = (c === undefined ? null : c);
     const p = prev[s.store_id];
@@ -634,8 +655,8 @@ export async function selfCheck(env, stores) {
   // 2026-08-19 patch46: 基準が無い店は「不動なし」ではなく「まだ測れない」。
   // 通ったのか測れていないのかを、見た人が区別できるようにする。
   let noBase = 0;
-  for (const s of stores) if (!prev[s.store_id]) noBase++;
-  add("completeness_moving", frozen.length === 0,
+  for (const s of roster) if (!prev[s.store_id]) noBase++;
+  scanned("completeness_moving", frozen.length === 0,
       (frozen.length ? frozen.join(" ") : "不動なし") +
       (noBase ? "（ただし " + noBase + "店は基準未設定。次回から測れる）" : ""));
   await env.HS_HEARING_KV.put(SNAP, JSON.stringify(next));
@@ -645,7 +666,7 @@ export async function selfCheck(env, stores) {
   //    「開いた」と「出た」を別々に数えないと、巡回は正常・完成度は不動、という状態が
   //    どこにも表示されないまま続く。E5 が14日たってようやく気づく。それでは遅い。
   const idle = [];
-  for (const s of stores) {
+  for (const s of roster) {
     const ap = s.autopilot || {};
     if (ap.pending) continue;
     const h = await env.HS_HEARING_KV.get("hearing:" + s.store_id, "json");
@@ -664,7 +685,7 @@ export async function selfCheck(env, stores) {
       idle.push(s.store_id + ":完成度" + comp.score + ":門は開いているが出せる質問が無い");
     }
   }
-  add("gate_has_something_to_send", idle.length === 0,
+  scanned("gate_has_something_to_send", idle.length === 0,
       idle.length ? idle.join(" ") : "門が開いた店には出せる質問がある");
 
   const failed = checks.filter((x) => !x.ok);
