@@ -820,7 +820,7 @@ function atomFeed(origin, changes) {
     const title = ep + ": " + String(c.status_from || "unmeasured") + " to " + String(c.status_to || "unknown");
     const body =
       "Condition changes: " + String(c.summary || "not recorded") + ". " +
-      "Reachable at the time of measurement: " + (c.reachable === false ? "no" : "yes") + ". " +
+      "Reachable at the time of measurement: " + (c.reachable === true ? "yes" : (c.reachable === false ? "no" : "not measured")) + ". " +
       "This entry records that a condition flipped. It is not a statement about the operator.";
     return "  <entry>\n" +
       "    <title>" + esc(title) + "</title>\n" +
@@ -1028,6 +1028,15 @@ async function histKey(endpoint) {
 // 状態の指紋。**record_sha256 を使ってはいけない。**
 // あれは checked_at を含むので毎回変わり、毎日「変化した」と誤検知する。
 // 変化として意味があるのは status と各条件の合否だけ。
+function publicReachable(v) {
+  // 2026-08-20 gate58: reachable は三択。true / false / null（測っていない）。
+  //   これまで `v !== false` で外に出していたので、null と undefined が true になっていた。
+  //   門の側で落ちた回（gate_side）は上で null を入れている。そこを潰さない。
+  if (v === true) return true;
+  if (v === false) return false;
+  return null;
+}
+
 function stateFingerprint(record) {
   const checks = record && record.checks ? record.checks : {};
   const parts = Object.keys(checks).sort().map((k) => k + "=" + (checks[k] && checks[k].pass ? "1" : "0"));
@@ -1050,7 +1059,7 @@ function summarise(record) {
   return {
     at: record.checked_at,
     status: record.status,
-    reachable: record.reachable !== false,
+    reachable: publicReachable(record.reachable),
     record_sha256: record.record_sha256,
     conditions: out,
     // 表面の指紋。fingerprint には入れない — 表面の変化は条件の flip ではなく、
@@ -1125,7 +1134,7 @@ async function recordHistory(env, endpoint, record) {
       status_from: last.status,
       status_to: entry.status,
       conditions_changed: flips,
-      reachable: entry.reachable !== false,
+      reachable: publicReachable(entry.reachable),
       unreachable_streak: streak,
       alert_suppressed: suppressed,
       summary: flips.length
@@ -1205,13 +1214,13 @@ async function runDailySweep(env, opts) {
           endpoint: w.endpoint,
           at: r.entry.at,
           status: r.entry.status,
-          reachable: r.entry.reachable !== false,
+          reachable: publicReachable(r.entry.reachable),
           conditions_changed: r.flips || [],
           history: "/history?endpoint=" + encodeURIComponent(w.endpoint),
           note: "The verdict is free and public. What you are paying for is being told, and being measured daily."
         });
       }
-      results.push({ endpoint: w.endpoint, tier: w.tier, status: record.status, reachable: record.reachable !== false, changed, alert_suppressed: changed && !alertable, notified });
+      results.push({ endpoint: w.endpoint, tier: w.tier, status: record.status, reachable: publicReachable(record.reachable), changed, alert_suppressed: changed && !alertable, notified });
     } catch (e) {
       results.push({ endpoint: w.endpoint, tier: w.tier, error: String((e && e.message) || e) });
     }
