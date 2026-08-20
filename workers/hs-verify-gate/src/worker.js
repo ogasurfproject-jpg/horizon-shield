@@ -80,7 +80,17 @@ const MOULD_USAGE = {
   this_ledger_verifies_nothing:
     "Every record is the author's own account. This gate does not reproduce it. What is frozen here is " +
     "the claim and its date, not its truth. Each record carries a record_sha256 anyone can recompute.",
-  writing: "POST requires the operator token. Reading requires nothing.",
+  // 2026-08-20 mould-open-write. 台帳は運営のものではない。誰でも自分の記録を刻める道を一本通す。
+  writing:
+    "Reading requires nothing. Writing goes through GitHub: open the 'Record a mould' issue in " +
+    "github.com/ogasurfproject-jpg/horizon-shield and a workflow validates it and posts it here. " +
+    "The raw POST stays operator only, because a shared write token would let anyone file a record " +
+    "under someone else's name. GitHub does the identity part. This gate does not, and does not claim to.",
+  how_to_record:
+    "https://github.com/ogasurfproject-jpg/horizon-shield/issues/new?template=mould-record.yml",
+  what_a_record_is_not:
+    "Not a certificate, not a score, not a ranking. Nobody is rated here. A record with an empty search " +
+    "list sits in the same list as a thorough one: marked, unhidden, and not placed below it.",
 };
 
 async function sha256hex(s) {
@@ -1722,6 +1732,10 @@ export default {
           commit: t(f && f.commit, 40) || null,
           note: t(f && f.note, 300) || null,
         })).filter((f) => f.where);
+        // 2026-08-20 mould-open-write. 誰が書いたかを記録に残す。検証はしない。
+        const subVia = t(b.submitted_via, 40) || "operator";
+        const subBy = t(b.submitted_by, 100) || null;
+        const subSrc = t(b.source_url, 300) || null;
         const rec = {
           ledger: "HORIZON SHIELD mould records",
           id: newId,
@@ -1741,6 +1755,17 @@ export default {
           found: found,
           volume_note: MOULD_USAGE.volume_note,
           prompted_by: t(b.prompted_by, 300) || null,
+          submission: {
+            via: subVia,
+            by: subBy,
+            source: subSrc,
+            what_this_establishes: subVia === "github"
+              ? "GitHub authenticated the account named in by. A workflow in the horizon-shield repository " +
+                "read that account's issue and posted it here. That chain establishes who wrote this record. " +
+                "It establishes nothing about whether the search it describes actually happened."
+              : "This record was posted with the operator token. It establishes that the operator wrote it, " +
+                "and nothing else.",
+          },
           self_asserted:
             "Everything above is the author's own account. This gate did not reproduce it. What is frozen " +
             "here is the claim and its date, not its truth.",
@@ -1750,7 +1775,7 @@ export default {
           "Remove the record_sha256 and recompute_note fields, JSON.stringify the remainder in this key " +
           "order, and take the SHA-256. It must equal record_sha256.";
         await env.HS_VERIFY_KV.put("mould:" + newId, JSON.stringify(rec));
-        idx.unshift({ id: newId, recorded_at: rec.recorded_at, class: rec.class, searched: searched.length, found: found.length, record_sha256: rec.record_sha256 });
+        idx.unshift({ id: newId, recorded_at: rec.recorded_at, class: rec.class, searched: searched.length, found: found.length, by: rec.submission.by, via: rec.submission.via, record_sha256: rec.record_sha256 });
         await env.HS_VERIFY_KV.put("mould:index", JSON.stringify(idx.slice(0, 500)));
         return json(rec, 201);
       }

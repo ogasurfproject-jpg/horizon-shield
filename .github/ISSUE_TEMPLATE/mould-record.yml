@@ -1,0 +1,146 @@
+name: Record a mould
+description: Record what class of assumption a fix came from, and where you looked for it. Free, open to anyone, and it rates nobody.
+title: "[mould] "
+labels: ["mould-record"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A fix repairs one casting. The mould that cast it sits untouched unless somebody goes
+        looking. This ledger records four things and freezes them: the class of assumption behind
+        a fix, where you searched for that same assumption, what you found at each place, and at
+        what volume each casting failed.
+
+        Three things to know before you write anything.
+
+        **This ledger verifies nothing.** It records your account and the date. It does not
+        reproduce your work, does not check your code, and does not rate you. Every record says
+        so in its own body.
+
+        **An empty search list is published as such.** If you fixed the instance and never looked
+        for the class, say so and submit it. That is the exact thing this ledger exists to make
+        visible. It is not rejected, not hidden, and not ranked below a thorough one.
+
+        **Records are append only.** Once written, a record is never edited or deleted. Closing
+        this issue does not remove it. Write it as something you are willing to leave standing.
+
+        The category was named by Federico Blanco Sanchez-Llanos in "The Mould, Not the Letter",
+        2026-08-20. The first records here are the operator's own, because we were not going to
+        ask anyone else to go first.
+
+  - type: textarea
+    id: class
+    attributes:
+      label: The assumption
+      description: >
+        Written so someone could search a codebase for it. Not a description of the symptom.
+        "A model response is always a string" is a class. "The endpoint returned 500" is not.
+      placeholder: A model response is always a string, so string methods can be called on it directly.
+    validations:
+      required: true
+
+  - type: textarea
+    id: class_note
+    attributes:
+      label: Why it is worth recording
+      description: Optional. What makes this one likely to live in more than one place.
+    validations:
+      required: false
+
+  - type: input
+    id: instance_where
+    attributes:
+      label: Where you first noticed it
+      description: Optional. File and line, or the route, or wherever it surfaced.
+      placeholder: src/hearing.js:886
+    validations:
+      required: false
+
+  - type: textarea
+    id: instance_symptom
+    attributes:
+      label: What it did there
+      description: Optional. What you actually observed.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: instance_volume
+    attributes:
+      label: How loudly did it fail there?
+      description: >
+        The same mould does not cast identical failures. It casts the same flaw at different
+        volumes. The instance you notice is the loudest one, not the worst one.
+      options:
+        - "loud - it threw, errored, or returned a failure"
+        - "quiet - it degraded without complaining"
+        - "not sure"
+    validations:
+      required: false
+
+  - type: textarea
+    id: searched
+    attributes:
+      label: Where you searched for the same assumption
+      description: >
+        One place per line. Name the space, not the result. A directory, a repository, a service,
+        a language boundary. LEAVE THIS EMPTY if you did not search. An empty list is accepted and
+        published as an empty list, and the record is marked so on the public page.
+      placeholder: |
+        every worker in this repository that calls the model
+        the two services that share the same response helper
+    validations:
+      required: false
+
+  - type: textarea
+    id: found
+    attributes:
+      label: What you found at each place
+      description: >
+        One per line, pipe separated: where | state | volume | note.
+        State is one of already_correct, fixed, absent, live. Volume is loud or quiet.
+        Anything else in the state column is recorded as "unstated" rather than guessed at.
+      placeholder: |
+        hs-ehn-verify/verify.js:118 | already_correct | | the correct handling already existed here
+        hs-hearing/hearing.js:886 | fixed | loud | threw a 500
+        hs-hearing/autopilot.js:200 | fixed | quiet | never threw, silently lost 15 points
+    validations:
+      required: false
+
+  - type: input
+    id: prompted_by
+    attributes:
+      label: What prompted the search
+      description: Optional. A post, a review, an incident, a person. Credit where it belongs.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: understood
+    attributes:
+      label: Before you submit
+      options:
+        - label: >
+            I understand this ledger does not verify my account. It freezes the claim and its
+            date, not its truth.
+          required: true
+        - label: >
+            I understand the record is append only. It will not be edited or deleted, including
+            by me, including if I close this issue.
+          required: true
+        - label: >
+            I understand that if I left the search list empty, the record will be published with
+            an empty search list and marked as such on the public page.
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        On submit, a workflow in this repository reads this issue and posts it to the ledger,
+        then replies here with the record id and its SHA-256 so you can recompute it yourself.
+
+        What that establishes: GitHub authenticated your account, and this repository's workflow
+        carried your words across. What it does not establish: that the search you describe
+        actually happened. Nobody checked. The record says so.
+
+        Read the ledger at https://gate.horizonshield.dev/mould

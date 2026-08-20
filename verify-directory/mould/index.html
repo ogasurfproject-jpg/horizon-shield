@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The mould ledger / HORIZON SHIELD Verification Directory</title>
+<meta name="description" content="A fix repairs one casting. The mould that cast it sits untouched unless somebody goes looking. An open, append-only ledger of what class of assumption a fix came from, where the author searched for it, and what they found. Free, open to anyone, and it rates nobody.">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/verify-directory/mould/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/verify-directory/mould/">
+<meta property="og:site_name" content="HORIZON SHIELD">
+<meta property="og:title" content="Record the mould, not the letter">
+<meta property="og:description" content="An open ledger of what class of assumption a fix came from and where the author searched for it. A record with an empty search list is published as such.">
+<meta property="og:image" content="https://shield.the-horizons-innovation.com/assets/lighthouse-og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="An oil painting of a lighthouse at night. Its beam crosses the whole sea, and at its own base there is a circle of absolute darkness the light cannot enter.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Record the mould, not the letter">
+<meta name="twitter:description" content="An open ledger of what class of assumption a fix came from and where the author searched for it. An empty search list is published as such.">
+<meta name="twitter:image" content="https://shield.the-horizons-innovation.com/assets/lighthouse-og.jpg">
+<style>
+  :root{
+    --bg:#08080a;--surface:#121216;--surface-2:#17171c;
+    --line:rgba(255,255,255,.07);--line-2:rgba(255,255,255,.12);
+    --ink:#f4f4f5;--ink-2:#a9a9b3;--ink-3:#6f6f7a;
+    --emerald:#34d399;--emerald-ink:#6ee7b7;--emerald-dim:#0f3b30;
+    --amber:#fbbf24;--amber-dim:#3a2c07;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:'Inter','Noto Sans JP',system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;letter-spacing:-.006em;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(800px 420px at 85% -10%,rgba(52,211,153,.09),transparent 60%);background-attachment:fixed}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:900px;margin:0 auto;padding:0 22px}
+  header{border-bottom:1px solid var(--line);background:rgba(8,8,10,.72);backdrop-filter:blur(14px);position:sticky;top:0;z-index:9}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;font-size:13px}
+  header .brand{font-weight:700;letter-spacing:-.02em}
+  header .brand span{color:var(--ink-3);font-family:var(--mono);font-weight:400}
+  header nav a{color:var(--ink-2);margin-left:18px}
+  header nav a:hover{color:var(--ink)}
+  .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--emerald-ink);text-transform:uppercase}
+  h1{font-size:clamp(30px,5vw,46px);line-height:1.06;font-weight:800;letter-spacing:-.035em;margin:14px 0 16px}
+  .lead{font-size:16.5px;color:var(--ink-2);max-width:680px}
+  .lead b{color:var(--ink)}
+  .lead + .lead{margin-top:14px}
+  section{padding:44px 0;border-top:1px solid var(--line)}
+  section:first-of-type{border-top:none;padding-top:52px}
+  h2{font-size:clamp(21px,3.2vw,28px);font-weight:700;letter-spacing:-.03em;margin-bottom:8px}
+  .slead{color:var(--ink-2);font-size:14.5px;margin-bottom:22px;max-width:720px}
+  .slead b{color:var(--ink)}
+  .jp{display:block;color:var(--ink-3);font-size:12.6px;margin-top:8px;line-height:1.85}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
+  th,td{border:1px solid var(--line-2);padding:12px 14px;text-align:left;vertical-align:top}
+  thead th{background:var(--surface-2);font-weight:600;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+  tbody th{background:var(--surface);font-weight:600;width:26%;color:var(--ink);font-family:var(--mono);font-size:13px}
+  td{color:var(--ink-2)}
+  .panel{background:var(--surface);border:1px solid var(--line-2);border-radius:14px;padding:22px 24px;margin-top:18px}
+  .panel.key{border-color:rgba(52,211,153,.35);background:linear-gradient(180deg,rgba(52,211,153,.06),transparent 60%),var(--surface)}
+  .panel .ph{font-weight:700;font-size:14.5px;margin-bottom:10px}
+  .panel p{font-size:13.8px;color:var(--ink-2)}
+  .panel p + p{margin-top:10px}
+  .no{list-style:none;margin-top:10px}
+  .no li{font-size:13.8px;color:var(--ink-2);padding:8px 0 8px 26px;position:relative;border-bottom:1px solid var(--line)}
+  .no li:last-child{border-bottom:none}
+  .no li::before{content:"x";position:absolute;left:4px;color:#f87171;font-weight:800;font-family:var(--mono)}
+  .no li b{color:var(--ink)}
+  pre{background:var(--surface-2);border:1px solid var(--line-2);border-radius:10px;padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:12.6px;color:var(--ink-2);margin-top:14px;line-height:1.75}
+  code{font-family:var(--mono);font-size:.94em}
+  .cta{display:inline-block;margin-top:20px;background:var(--emerald);color:#04120d;font-weight:700;font-size:14.5px;border-radius:999px;padding:13px 26px;letter-spacing:-.01em}
+  .cta:hover{background:var(--emerald-ink)}
+  .ctanote{font-size:12.8px;color:var(--ink-3);margin-top:12px;max-width:640px;line-height:1.8}
+  .mould-list{margin-top:18px;display:grid;gap:12px}
+  .mrec{background:var(--surface);border:1px solid var(--line-2);border-radius:12px;padding:16px 18px}
+  .mhead{display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+  .mhead a{color:var(--emerald-ink)}
+  .mclass{margin:10px 0 12px;font-size:14.5px;color:var(--ink)}
+  .mmeta{display:flex;flex-wrap:wrap;gap:8px}
+  .mflag{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;color:var(--ink-2);border:1px solid var(--line-2);border-radius:999px;padding:3px 10px}
+  .mflag-none{color:var(--amber);border-color:rgba(251,191,36,.45);background:var(--amber-dim)}
+  .mflag-by{color:var(--emerald-ink);border-color:rgba(52,211,153,.35)}
+  .mhash{margin-top:10px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3);word-break:break-all}
+  footer{border-top:1px solid var(--line);padding:34px 0 70px;font-size:12.5px;color:var(--ink-3);line-height:1.9}
+  footer a{color:var(--ink-2)}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <div class="brand">HORIZON SHIELD <span>/ mould</span></div>
+  <nav>
+    <a href="/verify-directory/">Directory</a>
+    <a href="/verify-directory/monitoring/">Monitoring</a>
+    <a href="https://gate.horizonshield.dev/mould">API</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+
+<section>
+  <div class="kicker">An open ledger &middot; free &middot; rates nobody</div>
+  <h1>Record the mould,<br>not the letter.</h1>
+  <p class="lead">A compositor finds a flaw in one cast letter and files it smooth. The matrix that cast it goes back in the drawer, ready to cast the same flaw into the next hundred. <b>A fix repairs one casting. The mould that cast it sits untouched unless somebody goes looking.</b></p>
+  <p class="lead">This ledger records four things about a fix and freezes them: the class of assumption behind it, where the author searched for that same assumption, what they found at each place, and at what volume each casting failed. Append only. Every record carries a SHA-256 you can recompute yourself.</p>
+  <p class="lead">The category was named by <b>Federico Blanco Sanchez-Llanos</b> in "The Mould, Not the Letter", 2026-08-20. He wrote that it was category formation rather than commentary. We took that literally and built the place to keep it.</p>
+</section>
+
+<section>
+  <h2>What a record holds</h2>
+  <p class="slead">Four fields, and nothing that resembles a score. A record is a description of a search, written by the person who did or did not do it.</p>
+  <table>
+    <tbody>
+      <tr><th>class</th><td>The assumption, written so someone could search a codebase for it. Not a description of the symptom. "A model response is always a string" is a class. "The endpoint returned 500" is not.</td></tr>
+      <tr><th>searched</th><td>The space the author says they searched. Naming it is the whole point. This ledger does not verify that the search happened.</td></tr>
+      <tr><th>found</th><td>Per location: <code>already_correct</code>, <code>fixed</code>, <code>absent</code>, or <code>live</code>. A location where the correct handling already existed is the sharpest kind of finding: the mould had been recut once, in one file, and nobody carried it to the others.</td></tr>
+      <tr><th>volume</th><td><code>loud</code> if it threw or returned an error. <code>quiet</code> if it degraded without complaining.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>The same mould does not cast identical failures</h2>
+  <p class="slead">It casts the same flaw at different volumes. One casting throws a 500 and gets fixed within the hour of being noticed. Another one, from the same mould, never throws: a helper quietly turns an object into <code>[object Object]</code>, a classifier finds no match, and a record silently loses fifteen points. Nothing errors. Nothing logs.</p>
+  <p class="slead"><b>The instance you notice is the loudest one, not the worst one.</b> A quiet casting survives precisely because it never complains, which means a bug-driven search always finds the wrong member of the family first. That is why the volume column exists, and why a record is worth writing even when nothing broke.<span class="jp">同じ母型は、同じ壊れ方を鋳ない。同じ欠陥を違う音量で鋳る。気づく実例はいつも一番うるさいもので、一番悪いものではない。</span></p>
+</section>
+
+<section>
+  <h2>A record with an empty search list is published as such</h2>
+  <div class="panel key">
+    <div class="ph">This is the rule the ledger exists for.</div>
+    <p>If you fixed the instance and never went looking for the class, say so and submit it. The record is accepted, published with an empty search list, and <b>marked on this page in amber</b>. It is not rejected. It is not hidden. It is not ranked below a thorough one, because there is no ranking here at all.</p>
+    <p>A ledger that only accepted diligent entries would record nothing but diligence, and would therefore be worth nothing. The honest shape of this problem is that almost nobody searches for the class. A place that cannot say so is not a record of the problem, it is an advertisement.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Records</h2>
+  <p class="slead">Drawn live from the ledger every time this page opens. Nothing on this page is baked in, because a page with the numbers frozen into it goes stale while the ledger moves and nobody notices.</p>
+  <div id="mould-list" class="mould-list">Reading the ledger.</div>
+</section>
+
+<section>
+  <h2>Record one</h2>
+  <p class="slead">Open an issue. A workflow in the repository reads it, posts it to the ledger, and replies with the record id and its hash so you can recompute it yourself. No account here, no fee, no review queue, and no way to pay for anything.</p>
+  <a class="cta" href="https://github.com/ogasurfproject-jpg/horizon-shield/issues/new?template=mould-record.yml">Record a mould</a>
+  <p class="ctanote"><b>What that establishes:</b> GitHub authenticated your account, and this repository's workflow carried your words to the ledger unchanged. <b>What it does not establish:</b> that the search you describe actually happened. Nobody checked. The record says so in its own body, in the field <code>submission.what_this_establishes</code>.</p>
+  <p class="ctanote">The raw <code>POST /mould</code> stays operator-only. Not to keep anyone out, but because a shared write token would let anyone file a record under someone else's name. GitHub does the identity part. This gate does not, and does not claim to.</p>
+  <p class="ctanote">Records are append only. Once written, a record is never edited or deleted, including by its author, including if the issue is closed. Write it as something you are willing to leave standing.</p>
+</section>
+
+<section>
+  <h2>What this is not</h2>
+  <ul class="no">
+    <li><b>Not a certificate.</b> Nothing here says your code is good, and nothing here can be shown to a customer as proof that it is.</li>
+    <li><b>Not a score.</b> There is no number attached to a person, a repository, or a company. Records are not counted against each other.</li>
+    <li><b>Not a ranking.</b> The list is ordered by date. A thorough record and an empty one sit in the same column.</li>
+    <li><b>Not verified.</b> This ledger reproduces nothing. What is frozen is the claim and its date, not its truth. Every record states that itself.</li>
+    <li><b>Not for sale.</b> There is no paid tier, no priority, and no way to have a record removed by paying for it.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Read it as a machine</h2>
+  <p class="slead">An agent should not have to read this page. Two routes, no key, no account, CORS open.</p>
+  <pre>curl -s https://gate.horizonshield.dev/mould
+curl -s https://gate.horizonshield.dev/mould/mould-0001</pre>
+  <p class="slead" style="margin-top:18px">Every record carries <code>record_sha256</code> and the instructions to reproduce it. Remove the <code>record_sha256</code> and <code>recompute_note</code> fields, serialise the remainder in the order returned, take the SHA-256, and it must match. If it does not, the record has been altered and we would want to know before you do.</p>
+</section>
+
+<footer><div class="wrap">
+  Operator: The HORIZONs Co., Ltd. (Corporate Number 7021001075279). Supervised by Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>).<br>
+  The ledger is free, open to anyone, and rates nobody. <a href="/verify-directory/">Verification Directory</a> &middot; <a href="/verify-directory/monitoring/">Continuous monitoring</a> &middot; <a href="/spec/">Verification spec</a><br>
+  &copy; 2026 The HORIZONs Co., Ltd. &middot; HORIZON SHIELD
+</div></footer>
+
+</div>
+
+<script>
+(function(){
+  var el = document.getElementById('mould-list');
+  if (!el) return;
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  fetch('https://gate.horizonshield.dev/mould', { cache: 'no-store' })
+    .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+    .then(function(d){
+      var recs = (d && d.records) || [];
+      if (!recs.length) { el.textContent = 'The ledger is empty. Nothing has been recorded yet, and that is stated rather than hidden.'; return; }
+      el.innerHTML = recs.map(function(r){
+        var searched = Number(r.searched || 0), found = Number(r.found || 0);
+        var flag = searched === 0
+          ? '<span class="mflag mflag-none">no class search recorded</span>'
+          : '<span class="mflag">' + searched + ' search spaces named</span>';
+        var by = r.by ? '<span class="mflag mflag-by">' + esc(r.by) + '</span>' : '';
+        return '<article class="mrec">'
+          + '<div class="mhead"><a href="https://gate.horizonshield.dev/mould/' + encodeURIComponent(r.id) + '"><code>' + esc(r.id) + '</code></a>'
+          + '<time>' + esc(String(r.recorded_at || '').slice(0, 10)) + '</time></div>'
+          + '<p class="mclass">' + esc(r.class || '') + '</p>'
+          + '<div class="mmeta">' + flag + '<span class="mflag">' + found + ' locations reported</span>' + by + '</div>'
+          + '<div class="mhash">record_sha256 ' + esc(String(r.record_sha256 || '').slice(0, 32)) + '</div>'
+          + '</article>';
+      }).join('');
+    })
+    .catch(function(){
+      el.textContent = 'The ledger could not be reached from this page just now. That is a statement about this page, not about the ledger.';
+    });
+})();
+</script>
+
+</body>
+</html>
