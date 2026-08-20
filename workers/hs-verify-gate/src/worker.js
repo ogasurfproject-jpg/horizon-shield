@@ -1025,9 +1025,6 @@ async function histKey(endpoint) {
   return "hist:" + (await sha256hex(endpoint)).slice(0, 16);
 }
 
-// 状態の指紋。**record_sha256 を使ってはいけない。**
-// あれは checked_at を含むので毎回変わり、毎日「変化した」と誤検知する。
-// 変化として意味があるのは status と各条件の合否だけ。
 function publicReachable(v) {
   // 2026-08-20 gate58: reachable は三択。true / false / null（測っていない）。
   //   これまで `v !== false` で外に出していたので、null と undefined が true になっていた。
@@ -1037,6 +1034,55 @@ function publicReachable(v) {
   return null;
 }
 
+// 2026-08-20 gate59. 過去のエントリは書き換えない。注記を足す。
+//   entry は書いた時点で確定して KV に積まれる（recordHistory が summarise の結果を積む）。
+//   だから gate58 より前に書かれた行は、いまも reachable:true のまま残っている。
+//   実例: gate.horizonshield.dev/mcp の 2026-08-19T18:00:47.502Z。
+//         4条件すべて measured:false（中継に届かなかった）なのに reachable:true。
+//   ★消さない。書き換えない。何が書かれていて、なぜ間違いなのかを両方見せる。
+const GATE58_FIX_DATE = "2026-08-20";
+
+function entryUnmeasured(e) {
+  if (!e || !e.conditions) return false;
+  const cs = Object.keys(e.conditions).map((k) => e.conditions[k]);
+  if (!cs.length) return false;
+  return cs.every((c) => c && c.measured === false);
+}
+
+function annotateEntry(e) {
+  if (!e || e.reachable !== true || !entryUnmeasured(e)) return e;
+  return Object.assign({}, e, {
+    reachable_note:
+      "This entry stores reachable: true, but every condition on this run says measured: false, so " +
+      "reachability was not established on it. Until " + GATE58_FIX_DATE + " the value was written as " +
+      "(v !== false), which turned 'not measured' into true. The stored entry is left exactly as written."
+  });
+}
+
+function annotateEntries(list) {
+  return Array.isArray(list) ? list.map(annotateEntry) : list;
+}
+
+function annotateHistory(v) {
+  if (!v || !Array.isArray(v.entries)) return v;
+  const entries = annotateEntries(v.entries);
+  const n = entries.filter((e) => e && e.reachable_note).length;
+  const out = Object.assign({}, v, { entries: entries });
+  if (n > 0) {
+    out.correction = {
+      at: GATE58_FIX_DATE,
+      what: "Entries written before this date stored reachable as (v !== false), so a run where nothing could be measured was recorded as reachable: true.",
+      fix: "gate58 made reachable three-valued: true, false, or null when it was not measured. Entries written from this date carry null on such runs.",
+      affected_in_this_response: n,
+      entries_are_not_edited: "Past entries keep the bytes they were written with. They carry reachable_note instead, so the record shows both what was written and why it was wrong."
+    };
+  }
+  return out;
+}
+
+// 状態の指紋。**record_sha256 を使ってはいけない。**
+// あれは checked_at を含むので毎回変わり、毎日「変化した」と誤検知する。
+// 変化として意味があるのは status と各条件の合否だけ。
 function stateFingerprint(record) {
   const checks = record && record.checks ? record.checks : {};
   const parts = Object.keys(checks).sort().map((k) => k + "=" + (checks[k] && checks[k].pass ? "1" : "0"));
@@ -1163,7 +1209,7 @@ async function readHistory(env, endpoint) {
   const key = await histKey(endpoint);
   try {
     const v = await env.HS_VERIFY_KV.get(key, "json");
-    if (v) return v;
+    if (v) return annotateHistory(v);
   } catch (_e) {}
   return { endpoint, entries: [], note: "No history recorded for this endpoint yet. It may not be on the watchlist." };
 }
@@ -1403,8 +1449,8 @@ async function lookupServer(env, endpoint) {
       : "watched, not yet measured. Being on the watchlist is not a measurement and this gate does not count it as one",
     first_measured_at: entries.length ? entries[0].at : null,
     last_measured_at: latest ? latest.at : null,
-    latest: latest,
-    history: entries.slice(-LOOKUP_HISTORY_MAX_RETURN),
+    latest: annotateEntry(latest),
+    history: annotateEntries(entries.slice(-LOOKUP_HISTORY_MAX_RETURN)),
     history_truncated: entries.length > LOOKUP_HISTORY_MAX_RETURN,
     full_history_url: historyUrl,
     means:
