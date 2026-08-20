@@ -112,6 +112,7 @@
 </section>
 
 </main>
+<script src="/verify-directory/assets/register-read.js"></script>
 <script>
 const GATE = "https://gate.horizonshield.dev";
 function regCard(r, showSeal){
@@ -154,11 +155,13 @@ async function loadRegister(boxId, noteId, filter, showSeal, phrase){
   const box = document.getElementById(boxId), note = document.getElementById(noteId);
   if (!box || !note) return;
   try{
-    const res = await fetch(GATE + "/register");
-    const data = await res.json();
-    const all = Array.isArray(data.rows) ? data.rows : [];
-    const rows = filter ? all.filter(filter) : all;
+    const reg = await HS_readRegister(GATE);
     box.textContent = "";
+    // 2026-08-20 register-read-shape: 読めなかったときに行数の話をしない。
+    // ここは「落ちている行」を出すページなので、読めないまま黙ると全緑に見える。
+    if (!reg.ok){ note.textContent = HS_registerUnreadable(reg.why); return; }
+    const all = reg.rows;
+    const rows = filter ? all.filter(filter) : all;
     note.textContent = phrase(rows.length, all.length);
     rows.forEach(function(r){ box.appendChild(regCard(r, showSeal)); });
   }catch(e){
@@ -173,6 +176,7 @@ document.addEventListener("DOMContentLoaded", function(){
     function(r){ return !(r.latest && r.latest.status === "verified"); },
     false,
     function(n, total){
+      if (!total) return "The register answered with zero rows, so there is nothing here to be verified or unverified. That is the state of the register, not a clean bill of health.";
       if (!n) return "Every one of the " + total + " rows on the register is verified at this moment. That is today's state, not a permanent claim.";
       return n + " of " + total + " rows are not verified right now.";
     });

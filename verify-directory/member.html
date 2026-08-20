@@ -79,6 +79,7 @@ footer{color:var(--ink-3);font-size:.78rem;padding:30px 0 50px}
   </div>
   <footer class="wrap" style="padding-left:0">Public code: <a class="mono" href="https://github.com/ogasurfproject-jpg/horizon-shield" rel="noopener" style="color:var(--ink-2)">github.com/ogasurfproject-jpg/horizon-shield</a></footer>
 </div></section>
+<script src="/verify-directory/assets/register-read.js"></script>
 <script>
 const GATE = "https://gate.horizonshield.dev";
 const qs = new URLSearchParams(location.search);
@@ -199,8 +200,17 @@ async function main(){
     return;
   }
   try {
-    const reg = await (await fetch(GATE + "/register")).json();
-    const row = (Array.isArray(reg.rows) ? reg.rows : []).find(function(r){ return r.endpoint === ep; });
+    // 2026-08-20 register-read-shape: 読めなかっただけで「この住所はregisterに無い」と
+    // 表示していた。実在する加盟店への、名指しの偽陰性。一番静かで一番悪い鋳造物。
+    const regRead = await HS_readRegister(GATE);
+    if (!regRead.ok){
+      const c0 = el("div", "card");
+      c0.appendChild(el("p", "note", (LANG === "ja" ? HS_registerUnreadableJa : HS_registerUnreadable)(regRead.why)));
+      c0.appendChild(el("p", "eprow mono", ep));
+      box.appendChild(c0);
+      return;
+    }
+    const row = regRead.rows.find(function(r){ return r.endpoint === ep; });
     const card = el("div", "card");
     if (!row){
       card.appendChild(el("h1", null, T.nfH));

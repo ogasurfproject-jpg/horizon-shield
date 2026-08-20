@@ -101,6 +101,7 @@ footer{color:var(--ink-3);font-size:.78rem;padding:26px 0 50px}
   <footer>Public code: <a class="mono" href="https://github.com/ogasurfproject-jpg/horizon-shield" rel="noopener" style="color:var(--ink-2)">github.com/ogasurfproject-jpg/horizon-shield</a></footer>
 </div>
 
+<script src="/verify-directory/assets/register-read.js"></script>
 <script>
 const GATE = "https://gate.horizonshield.dev";
 const qs = new URLSearchParams(location.search);
@@ -181,8 +182,10 @@ async function main(){
   const grid = document.getElementById("grid");
   const count = document.getElementById("count");
   try{
-    const data = await (await fetch(GATE + "/register")).json();
-    const rows = Array.isArray(data.rows) ? data.rows : [];
+    // 2026-08-20 register-read-shape: 読めなかった場合に「0行」と表示していた。
+    const reg = await HS_readRegister(GATE);
+    if (!reg.ok){ count.textContent = (LANG === "ja" ? HS_registerUnreadableJa : HS_registerUnreadable)(reg.why); return; }
+    const rows = reg.rows;
     if (!rows.length){ count.textContent = T.zero; return; }
     count.textContent = T.count(rows.length);
     rows.forEach(function(r){

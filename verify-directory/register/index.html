@@ -74,6 +74,7 @@
 </section>
 
 </main>
+<script src="/verify-directory/assets/register-read.js"></script>
 <script>
 const GATE = "https://gate.horizonshield.dev";
 function regCard(r, showSeal){
@@ -116,11 +117,12 @@ async function loadRegister(boxId, noteId, filter, showSeal, phrase){
   const box = document.getElementById(boxId), note = document.getElementById(noteId);
   if (!box || !note) return;
   try{
-    const res = await fetch(GATE + "/register");
-    const data = await res.json();
-    const all = Array.isArray(data.rows) ? data.rows : [];
-    const rows = filter ? all.filter(filter) : all;
+    const reg = await HS_readRegister(GATE);
     box.textContent = "";
+    // 2026-08-20 register-read-shape: 読めなかったことを、0行と言い換えない。
+    if (!reg.ok){ note.textContent = HS_registerUnreadable(reg.why); return; }
+    const all = reg.rows;
+    const rows = filter ? all.filter(filter) : all;
     note.textContent = phrase(rows.length, all.length);
     rows.forEach(function(r){ box.appendChild(regCard(r, showSeal)); });
   }catch(e){

@@ -653,6 +653,7 @@ a.regname:hover{border-bottom-style:solid}
   </div>
 </footer>
 
+<script src="/verify-directory/assets/register-read.js"></script>
 <script>
 "use strict";
 const GATE = "https://gate.horizonshield.dev";
@@ -742,10 +743,12 @@ async function loadRegister(){
   const note = document.getElementById("reglive-note");
   if (!box || !note) return;
   try{
-    const res = await fetch(GATE + "/register");
-    const data = await res.json();
-    const rows = Array.isArray(data.rows) ? data.rows : [];
+    // 2026-08-20 register-read-shape: このページの0行の扱いは元から正しかった。
+    // 正しくなかったのは「読めなかった」を0行に潰していたこと。res.ok を見ていなかった。
+    const reg = await HS_readRegister(GATE);
     box.textContent = "";
+    if (!reg.ok){ note.textContent = HS_registerUnreadable(reg.why); return; }
+    const rows = reg.rows;
     if (!rows.length){
       note.textContent = "The register answered with zero rows. That is the state of the register, not an error.";
       return;
