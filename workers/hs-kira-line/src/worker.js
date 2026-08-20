@@ -547,6 +547,16 @@ __name(adaptForPartner, "adaptForPartner");
 async function handleImageMessage(event, userId, env, partnerFlag) {
   const replyToken = event.replyToken;
   const messageId = event.message.id;
+
+  // HS-KIRA-PARTNER-MEDIA-20260820: 加盟店が送る画像は「見積書」ではなく、書類やスクショ(グループ設定など)のことが多い。
+  //   見積診断フローに流すと、金額(\u00a55,500)や速報診断の宣伝を加盟店に返し、文脈も外す。
+  //   堤さん(p001)のグループ設定スクショに「見積書だった場合は…」と返した実例あり。
+  //   加盟店の画像は、診断せず・金額を言わず、担当(大賀)に渡して人が返す。
+  if (partnerFlag) {
+    try { await replyToLine(replyToken, "画像を受け取りました。担当の大賀に届いています。中身を確認して、大賀から直接お返事します。", env.LINE_CHANNEL_TOKEN); } catch (_e) {}
+    try { await pushToLine(env.LINE_USER_ID, "\ud83d\udcf8\u3010\u52a0\u76df\u5e97\u304b\u3089画像\u3011\u8981\u5bfe\u5fdc(\u4eba\u304c\u78ba\u8a8d)\u3002\u30e6\u30fc\u30b6\u30fc: " + userId, env.LINE_CHANNEL_TOKEN); } catch (_e) {}
+    return;
+  }
   // 2026-08-19 patch54: 中身を見る前に「見積書」と名乗らない。同意を擬制しない。
   //   旧実装は画像を1バイトも読む前に「見積書を受け取りました」と返し、
   //   「診断のために取り扱うことに同意のうえ送付いただいたものとして進めます」と書いていた。
@@ -992,6 +1002,16 @@ function looksLikeEstimate(text) {
 async function handleFileMessage(event, userId, env, partnerFlag) {
   const replyToken = event.replyToken;
   const messageId = event.message.id;
+
+  // HS-KIRA-PARTNER-MEDIA-20260820: 加盟店が送るファイルは「見積書」ではなく、書類やスクショ(グループ設定など)のことが多い。
+  //   見積診断フローに流すと、金額(\u00a55,500)や速報診断の宣伝を加盟店に返し、文脈も外す。
+  //   堤さん(p001)のグループ設定スクショに「見積書だった場合は…」と返した実例あり。
+  //   加盟店のファイルは、診断せず・金額を言わず、担当(大賀)に渡して人が返す。
+  if (partnerFlag) {
+    try { await replyToLine(replyToken, "ファイルを受け取りました。担当の大賀に届いています。中身を確認して、大賀から直接お返事します。", env.LINE_CHANNEL_TOKEN); } catch (_e) {}
+    try { await pushToLine(env.LINE_USER_ID, "\ud83d\udcf8\u3010\u52a0\u76df\u5e97\u304b\u3089ファイル\u3011\u8981\u5bfe\u5fdc(\u4eba\u304c\u78ba\u8a8d)\u3002\u30e6\u30fc\u30b6\u30fc: " + userId, env.LINE_CHANNEL_TOKEN); } catch (_e) {}
+    return;
+  }
   const fileName = (event.message.fileName || "").toLowerCase();
   if (!fileName.endsWith(".pdf")) {
     await replyToLine(replyToken, `\u30D5\u30A1\u30A4\u30EB\u3092\u53D7\u3051\u53D6\u308A\u307E\u3057\u305F\u304C\u3001PDF\u4EE5\u5916\u306E\u5F62\u5F0F\u306E\u3088\u3046\u3067\u3059\u{1F4C4}
