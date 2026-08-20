@@ -1094,6 +1094,28 @@ async function handleLineWebhook(env, bodyText) {
 /* ------------------------------ KIRA橋渡し (hs-kira-lineからの内部連携) ------------------------------ */
 // KIRA公式LINE(@172piime)のWebhookは hs-kira-line が持つ。加盟店フラグの立った相手のメッセージだけが
 // ここへ転送され、ヒアリングとして取り込み、返信文を返す。登録コード(ht_)不要の自動開始に対応。
+// 2026-08-20 A: 加盟店への「賢い」自動返信。金額は絶対に述べない(入口とAI出力の二重ガード)。
+async function aiPartnerReply(env, text) {
+  const t = String(text || "").slice(0, 800);
+  if (!t) return null;
+  if (!(env && env.AI && typeof env.AI.run === "function")) return null;
+  const sys = "あなたは HORIZON SHIELD / Yakumo の加盟店窓口の担当者です。加盟店(工務店・リフォーム会社)からのLINEに、日本語で短く丁寧に自然に返信します。\n厳守(違反禁止):\n1. 金額・料金・価格・費用・割引などの具体は一切述べない。お金の話には『料金は担当の大賀からご案内します』とだけ返す。\n2. 契約・納期・保証などの約束をしない。\n3. 分からない具体は『担当の大賀が確認してご連絡します』と返す。\n4. 返信は2〜3文以内。記号(*,#)や絵文字は使わない。";
+  let out = "";
+  for (const model of (env.LLM_MODEL ? [env.LLM_MODEL] : AP.AI_MODEL_CHAIN)) {
+    try {
+      const r = await env.AI.run(model, { messages: [{ role: "system", content: sys }, { role: "user", content: t }], max_tokens: 220 });
+      out = (r && (r.response || r.result || r.output_text)) || "";
+      if (out) break;
+    } catch (_e) {}
+  }
+  out = String(out || "").trim();
+  if (!out) return null;
+  if (/[0-9０-９][\s]*(円|万|万円)|[¥$]\s*[0-9０-９]|(料金|価格|費用|お値段|値引|割引)/.test(out)) {
+    return "料金・金額については、担当の大賀からご案内します。少々お待ちください。";
+  }
+  return out;
+}
+
 async function handleKiraBridge(env, userId, text) {
   const t = String(text || "").trim();
   let storeId = await env.HS_HEARING_KV.get("line2store:" + userId, "text");
@@ -1132,61 +1154,21 @@ async function handleKiraBridge(env, userId, text) {
     return { ok: true, reply: "ヒアリング進行中です。会社名(屋号)・対応エリア(市区町村)・対応できる工種と強みを、このままご返信ください。" };
   }
 
-  // 2026-08-20 質問は「回答データ」ではない。定型で受領せず、人に渡す。
-  //   堤さん(p001)が運用の質問(スタッフ分担・グループLINE等)を送ったのに、
-  //   「受け取りました…掲載準備に反映しました」と返していた。反映していないのに反映したと言う嘘。
-  //   質問マーク(？/?)か末尾の疑問形を検出したら、ingestせず、要対応として通知し、人が返す前提の短文だけ返す。
-  if (/[?\uff1f]/.test(t) || /(でしょうか|ますでしょうか|できますか|ですか|可能ですか|いただけますか)\s*$/.test(t)) {
-    try { await notify(env, "[Yakumo] 加盟店から質問。要対応(人が返信): store=" + storeId + " / " + t.slice(0, 120)); } catch (_e) {}
-    return { ok: true, reply: "ご質問ありがとうございます。担当の大賀が内容を確認して、こちらから直接お返事します。少々お待ちください。" };
+  // 2026-08-20 A: 金額のことだけは、ボットに絶対に喋らせない。担当(大賀)に回す。
+  if (/(金額|料金|価格|費用|いくら|お値段|値段|支払|お支払|請求|割引|値引|万円|見積[^。]{0,8}金額|プラン[^。]{0,8}料金)/.test(t)) {
+    try { await notify(env, "[Yakumo] 金額に関する問い合わせ。要対応(大賀が案内): store=" + storeId + " / " + t.slice(0, 120)); } catch (_e) {}
+    return { ok: true, reply: "料金・金額については、担当の大賀からご案内します。少々お待ちください。" };
   }
 
-  // 回答として取り込み(構造化->マージ->関所->生成トリガー)
+  // 2026-08-20 A: 金額以外は、送られた言葉に沿ってAIが自然に返す。
+  //   データとして取り込めるものは取り込み(プロフィールは従来どおり育てる)、返信はAIに任せる。
+  //   これまでの「受け取りました…掲載準備に反映しました」+定型の追撃質問(変な会話)は廃止。
+  //   追撃は autopilot の日次tickが、間隔と上限を守って別に行う。
   const store = await env.HS_HEARING_KV.get("store:" + storeId, "json");
-  const res = await ingestHearingAnswer(env, storeId, store, t, "line");
-  if (res.ok) {
-    let followup = "";
-    try {
-      const h = await env.HS_HEARING_KV.get("hearing:" + storeId, "json");
-      // 2026-08-19 patch61: ここで store: を読み直していた。直前に ingestHearingAnswer が
-      //   同じキーへ書いており、Workers KV は結果整合なので、この読み直しは書く前の値を
-      //   返しうる。それを下で書き戻すと、ingest が入れた status="hearing_done" /
-      //   hearing_done_at / autopilot.completeness / focus_primary、および
-      //   settlePendingOnAnswer が消した pending・戻した penalty と nudges が、
-      //   まとめて巻き戻る。ingest は渡した store オブジェクトをその場で書き換えているので、
-      //   読み直さずにそれを使う。store が無い店では ingest も書いていないので従来どおり。
-      const s2 = store;
-      // 2026-08-19 patch55: この経路は出した質問を asked に記録していなかった。
-      //   patch44 で入れた「上限3回・間隔3日」が、KIRA経由の返信だけ素通りしていた。
-      //   2026-08-19 19:07 と 19:08、加盟店(p002)に同じ質問が2通続けて出た。直接の原因はこれ。
-      //   あわせて、直前6時間に質問を出していれば今回は追撃しない。
-      const ap2 = (s2 && s2.autopilot) || {};
-      const sinceAsk = ap2.last_send_at ? (Date.now() - Date.parse(ap2.last_send_at)) : Infinity;
-      const qs = sinceAsk < 6 * 3600 * 1000 ? [] : AP.nextQuestions((h && h.profile) || {}, ap2, 2);
-      if (qs && qs.length) {
-        followup = "\n\n続けて、差し支えなければ:\n" + qs.map((q) => "・" + q.text).join("\n\n");
-        const askedAt = new Date().toISOString();
-        ap2.asked = [...(ap2.asked || []), ...qs.map((q) => ({ qid: q.qid, at: askedAt, answered: false, via: "kira-bridge" }))].slice(-50);
-        ap2.last_send_at = askedAt;
-        // 2026-08-19 patch63: pending を立てていなかったので、この経路で出した質問への答えが
-        //   settlePendingOnAnswer に拾われず、profile.extra[qid] に一度も入らなかった。
-        //   完成度が上がらない原因の一つ。soft を立てて紐づけだけ効かせ、
-        //   催促とペナルティの対象からは外す(applyPenaltyPolicy 側で見ている)。
-        //   既に本筋の pending があるときは上書きしない。
-        if (!ap2.pending || ap2.pending.soft) {
-          ap2.pending = { qids: qs.map((q) => q.qid), text: qs.map((q) => q.text).join("\n"), sent_at: askedAt, via: "kira-bridge", soft: true };
-        }
-        if (s2) { s2.autopilot = ap2; await env.HS_HEARING_KV.put("store:" + storeId, JSON.stringify(s2)); }
-      }
-    } catch (_e) {}
-    await notify(env, "[Yakumo] KIRA経由の回答を自動構造化->反映: " + (((store || {}).company) || storeId));
-    return { ok: true, reply: "受け取りました。ありがとうございます。内容は自動で掲載準備に反映しました。" + followup + "\n\n追記はいつでもこのトークにどうぞ。" };
-  }
-  if (res.reason === "missing-required") {
-    return { ok: true, reply: "ありがとうございます。もう少しだけ、社名・地域(市区町村)・対応工種が分かるように教えていただけますか？(例: リフォーム職人株式会社 / 長久手市 / 外壁塗装・屋根・内装)" };
-  }
-  await notify(env, "[Yakumo] KIRA経由回答(自動構造化できず: " + res.reason + ")。手動確認を。store=" + storeId);
-  return { ok: true, reply: "受け取りました。内容を確認して運営からご連絡します。" };
+  try { await ingestHearingAnswer(env, storeId, store, t, "line"); } catch (_e) {}
+  const smart = await aiPartnerReply(env, t);
+  try { await notify(env, "[Yakumo] KIRA経由メッセージにAI応答: " + (((store || {}).company) || storeId) + " / " + t.slice(0, 60)); } catch (_e) {}
+  return { ok: true, reply: smart || "受け取りました。ありがとうございます。担当の大賀が確認してご連絡します。" };
 }
 
 /* ------------------------------ 加盟店一覧(KV) + 公開データ ------------------------------ */
