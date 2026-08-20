@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>日本語｜MCP／A2A サーバー検証ディレクトリ｜HORIZON SHIELD</title>
+<meta name="description" content="AIエージェントが繋ぐ相手を、繋ぐ前に第三者が測ります。判定は無料、記録は公開、消す機能はありません。運営自身のサーバーも同じ表に載っています。">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/verify-directory/ja/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/verify-directory/ja/">
+<meta property="og:site_name" content="HORIZON SHIELD">
+<meta property="og:title" content="繋ぐ前に、相手を測る｜MCP／A2A 検証ディレクトリ">
+<meta property="og:description" content="判定は無料。記録は公開。消す機能はありません。運営自身のサーバーも同じ表に載っています。">
+<meta property="og:image" content="https://shield.the-horizons-innovation.com/assets/lighthouse-og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root{
+    --bg:#08080a;--surface:#121216;--surface-2:#17171c;
+    --line:rgba(255,255,255,.07);--line-2:rgba(255,255,255,.12);
+    --ink:#f4f4f5;--ink-2:#a9a9b3;--ink-3:#6f6f7a;
+    --emerald:#34d399;--emerald-ink:#6ee7b7;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:'Inter','Noto Sans JP',system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.9;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(800px 420px at 85% -10%,rgba(52,211,153,.09),transparent 60%);background-attachment:fixed}
+  a{color:inherit}
+  .wrap{max-width:900px;margin:0 auto;padding:0 22px}
+  header{border-bottom:1px solid var(--line);background:rgba(8,8,10,.72);backdrop-filter:blur(14px);position:sticky;top:0;z-index:9}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;font-size:13px}
+  header .brand{font-weight:700;letter-spacing:-.02em}
+  header .brand span{color:var(--ink-3);font-family:var(--mono);font-weight:400}
+  header nav a{color:var(--ink-2);margin-left:16px;text-decoration:none}
+  header nav a:hover{color:var(--ink)}
+  .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--emerald-ink);text-transform:uppercase}
+  h1{font-size:clamp(27px,5vw,42px);line-height:1.25;font-weight:800;letter-spacing:-.02em;margin:14px 0 16px}
+  h1 .g{color:var(--emerald-ink)}
+  .lead{font-size:16.5px;color:var(--ink-2);max-width:720px}
+  .lead b{color:var(--ink)}
+  section{padding:44px 0;border-top:1px solid var(--line)}
+  section:first-of-type{border-top:none;padding-top:52px}
+  h2{font-size:clamp(19px,3.2vw,26px);font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+  .slead{color:var(--ink-2);font-size:14.5px;margin-bottom:20px;max-width:760px}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:12px}
+  th,td{border:1px solid var(--line-2);padding:11px 13px;text-align:left;vertical-align:top}
+  thead th{background:var(--surface-2);font-weight:600;font-size:12.5px;letter-spacing:.04em;color:var(--ink-2)}
+  td.n{font-family:var(--mono);color:var(--emerald-ink);white-space:nowrap}
+  td.p{font-family:var(--mono);white-space:nowrap}
+  ol.cond{list-style:none;counter-reset:c;margin-top:8px}
+  ol.cond li{counter-increment:c;position:relative;padding:14px 0 14px 52px;border-bottom:1px solid var(--line);font-size:14.5px;color:var(--ink-2)}
+  ol.cond li:last-child{border-bottom:none}
+  ol.cond li::before{content:"0" counter(c);position:absolute;left:0;top:14px;font-family:var(--mono);font-size:12px;color:var(--emerald-ink)}
+  ol.cond b{color:var(--ink)}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  @media(max-width:760px){.cards{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--line-2);border-radius:14px;padding:22px}
+  .card h3{font-size:16px;font-weight:700;margin-bottom:6px}
+  .card p{font-size:13.8px;color:var(--ink-2)}
+  .card .go{display:inline-block;margin-top:12px;font-size:13px;color:var(--emerald-ink);border-bottom:1px solid rgba(52,211,153,.45);text-decoration:none}
+  .no{list-style:none;margin-top:10px}
+  .no li{font-size:14px;color:var(--ink-2);padding:9px 0 9px 26px;position:relative;border-bottom:1px solid var(--line)}
+  .no li:last-child{border-bottom:none}
+  .no li::before{content:"x";position:absolute;left:4px;color:#f87171;font-weight:800;font-family:var(--mono)}
+  .no li b{color:var(--ink)}
+  .panel{background:var(--surface);border:1px solid var(--line-2);border-radius:14px;padding:22px 24px;margin-top:18px}
+  .panel p{font-size:14px;color:var(--ink-2)}
+  .panel p + p{margin-top:10px}
+  .panel b{color:var(--ink)}
+  .mono{font-family:var(--mono);font-size:12.8px}
+  .linkset{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+  .linkset a{font-size:13px;color:var(--ink-2);border:1px solid var(--line-2);border-radius:999px;padding:8px 14px;text-decoration:none}
+  .linkset a:hover{color:var(--ink);border-color:var(--ink-3)}
+  footer{border-top:1px solid var(--line);padding:34px 0 70px;font-size:12.5px;color:var(--ink-3);line-height:1.9}
+  footer a{color:var(--ink-2)}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <div class="brand">HORIZON SHIELD <span>/ 検証ディレクトリ</span></div>
+  <nav>
+    <a href="/verify-directory/buyers/">繋ぐ側の方へ</a>
+    <a href="/verify-directory/">English</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+
+<section>
+  <div class="kicker">日本語</div>
+  <h1><span class="g">繋ぐ前に、</span>相手を測る機械です。</h1>
+  <p class="lead"><b>AIアシスタントが他社のソフトを使うための差込口を MCP、そのソフトが「自分は何者か」を機械に渡す名刺を A2A のエージェントカードと呼びます。</b>どちらにも審判がいません。誰が運営しているのか、誰が金を払っているのか、繋ぐ前に確かめる方法が、社内にも社外にもありませんでした。<b>この機械は、公開されている情報だけを読み取って測り、結果をそのまま公開します。</b></p>
+</section>
+
+<section>
+  <h2>3行で</h2>
+  <p class="slead">これ以上のことはしていません。</p>
+  <ol class="cond">
+    <li><b>測るのは無料です。</b>誰のサーバーでも、登録も認証も要りません。有料にすると、調査としての中立性が消えるからです。</li>
+    <li><b>結果は消えません。</b>通らなかった行も公開されたまま残ります。消す機能をコードに作っていません。</li>
+    <li><b>判定は売っていません。</b>合格、掲載順、行の削除。値段が無いのではなく、それを行う仕組みがありません。</li>
+  </ol>
+</section>
+
+<section>
+  <h2>5つの条件</h2>
+  <p class="slead">この5つだけを見ます。増やしていません。定義は<a href="/verify-directory/method/">測り方のページ</a>に英語で全文があります。</p>
+  <ol class="cond">
+    <li><b>そこに在って、動くか。</b>initialize と tools/list に応答し、ツールが1つ以上あること。</li>
+    <li><b>自分が何者かを、機械が読める場所で名乗っているか。</b>/.well-known/agent-card.json が名前と説明を返すこと。</li>
+    <li><b>誰が金を払っているかを言っているか。</b>カードに paid_by / referral_fee / listing_fee が書かれていること。<b>内容の良し悪しは判定しません。黙っていることだけが失格です。</b></li>
+    <li><b>同じ問いに同じ答えを返すか。</b>同じ入力で同じ出力になること。<b>相手のツールを実際に動かすことになるため、運営者の同意がある場合しか測りません。</b></li>
+    <li><b>こちらを信用せずに、答え合わせができるか。</b>すべての判定に record_sha256 が付きます。その欄を外し、残りを鍵順で文字列化して同じ計算をすれば、一致します。</li>
+  </ol>
+</section>
+
+<section>
+  <h2>母数を先に測りました</h2>
+  <p class="slead">サーバーを測る前に、そもそも何本測れるのかを数えました。<b>存在するサーバーの数と、外から到達できるサーバーの数の差を公開している人が見つからなかったからです。</b>公式レジストリを1回ぶん最後まで歩いた結果です（229ページ、カーソルが尽きるまで、読み取りのみ、ツールは1本も実行していません）。</p>
+  <table>
+    <thead><tr><th>2026-08-19 に、公式レジストリが返した内容</th><th>件数</th></tr></thead>
+    <tbody>
+      <tr><td>最新版のエントリ（全ステータス）</td><td class="n">22,888</td></tr>
+      <tr><td>ステータスが active</td><td class="n">22,636</td></tr>
+      <tr><td>ステータスが deprecated</td><td class="n">252（1.1%）</td></tr>
+      <tr><td>到達できるアドレスを宣言している</td><td class="n">12,077（active の 53.4%）</td></tr>
+      <tr><td>アドレスを宣言していない（手元で起動する形式）</td><td class="n">10,559</td></tr>
+      <tr><td>https のエンドポイント（重複を除く）</td><td class="n">12,429</td></tr>
+      <tr><td>そのホスト数</td><td class="n">9,109</td></tr>
+      <tr><td>直近90日に公開されたもの</td><td class="n">15,277</td></tr>
+    </tbody>
+  </table>
+  <p class="slead" style="margin-top:16px"><b>この12,429本には、まだ1本も接触していません。</b>これは「宣言の数」であって「生きている数」ではありません。半年前に応答を止めたサーバーも、この中に入っています。<b>実際に叩いて数える作業は、他社のサーバーに1万2千回の要求を出すことになるので、速度を落として行い、その速度も結果と一緒に公開します。</b>まだやっていないので、数字はありません。</p>
+  <div class="linkset">
+    <a href="/verify-directory/survey/0/">第0報の全文（英語）</a>
+    <a href="/verify-directory/survey/">調査の一覧</a>
+  </div>
+</section>
+
+<section>
+  <h2>入口は2つです</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>繋ぐ側の方へ</h3>
+      <p>社内にAIエージェントを入れる際、繋ぎ先のMCPサーバーを<b>繋ぐ前に第三者として測り、稟議に添付できる形でお返しします。</b>1本 66,000円（税込・3.0時間）から。単価と工数を先に公開しているので、掛け算が合っているかその場で確かめられます。</p>
+      <a class="go" href="/verify-directory/buyers/">接続前審査へ</a>
+    </div>
+    <div class="card">
+      <h3>測られる側の方へ</h3>
+      <p>ご自身のサーバーの測定は<b>無料</b>です。条件を満たさなかった場合の直し方も、条件ごとに無料で公開しています。<b>それでも分からない場合だけ</b>、個別の原因調査レポート（1本 44,000円・税込）があります。</p>
+      <a class="go" href="/verify-directory/operators/">直し方（英語）へ</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>お金を払っても、動かないもの</h2>
+  <ul class="no">
+    <li><b>判定。</b>測定は決定的で、支払いから状態を変える経路がコードの中にありません。</li>
+    <li><b>掲載と、その順序。</b>掲載は無料で、順序を買うことはできません。</li>
+    <li><b>沈黙。</b>条件を満たさなければ、支払いの有無にかかわらず公開の記録にそう出ます。</li>
+    <li><b>証明書ではありません。</b>判定は「ある時点の1回の測定について述べたもの」です。再測定によって期限切れになります。</li>
+  </ul>
+  <table>
+    <thead><tr><th>有料のもの</th><th>価格</th></tr></thead>
+    <tbody>
+      <tr><td>接続前審査 1本（3.0時間）</td><td class="p">66,000円（税込）</td></tr>
+      <tr><td>接続前審査 5本まで（6.0時間）</td><td class="p">132,000円（税込）</td></tr>
+      <tr><td>接続前審査 20本まで（15.0時間）</td><td class="p">330,000円（税込）</td></tr>
+      <tr><td>不適合の原因調査レポート 1本（2.0時間）</td><td class="p">44,000円（税込）</td></tr>
+      <tr><td>継続監視（3エンドポイントまで）</td><td class="p">月 15 米ドル ／ 年 150 米ドル</td></tr>
+      <tr><td>日本語の月次レポートと窓口</td><td class="p">月 11,000円（税込）</td></tr>
+    </tbody>
+  </table>
+  <p class="slead" style="margin-top:14px">取引条件の全文は<a href="/tokusho/">特定商取引法に基づく表記</a>に記載しています。</p>
+</section>
+
+<section>
+  <h2>運営者と、利害</h2>
+  <div class="panel">
+    <p><b>運営は The HORIZONs株式会社（法人番号 7021001075279）、統括は大賀俊勝です。</b>この登記簿には当社自身のサーバーも載っており、同じ機械で、同じ間隔で測られています。</p>
+    <p><b>当社は自分の検証機を持っていて、自社のサーバーも毎日その機械に測られています。通らなかった日は、通らなかったまま公開されています。消す機能を作っていません。</b></p>
+    <p>掲載されている事業者から、掲載の対価を受け取ることはありません。紹介料もありません。<b>それでも利害はあります。</b>当社が連れてきた事業者の行も同じ表にあるからです。利害があること自体は言い訳になりません。できるのは、その利害を当社にとって高くつく形にしておくことだけです。</p>
+  </div>
+  <div class="linkset">
+    <a href="/verify-directory/failures/">通らなかった行（英語）</a>
+    <a href="https://gate.horizonshield.dev/self">検証機が自分を測った結果</a>
+    <a href="/verify-directory/recompute/">判定を自分で再計算する</a>
+    <a href="/verify-directory/survey/corrections/">測り直しの依頼（無料）</a>
+  </div>
+</section>
+
+<section>
+  <h2>測定が違うと思われた場合</h2>
+  <p class="slead"><b>再測定の依頼は無料で、これからも無料です。</b>訂正は苦情ではなく欠陥として扱います。依頼をいただければ測り直し、<b>前の記録も消さずに両方残します。</b>連絡先は <span class="mono">contact@the-horizons-innovation.com</span> です。</p>
+  <div class="linkset">
+    <a href="/verify-directory/">English</a>
+    <a href="/verify-directory/register/">登記簿（英語）</a>
+    <a href="/verify-directory/method/">5つの条件の定義（英語）</a>
+    <a href="/verify-directory/buyers/">繋ぐ側の方へ</a>
+    <a href="/tokusho/">特定商取引法に基づく表記</a>
+  </div>
+</section>
+
+</div>
+
+<footer><div class="wrap">
+  運営：The HORIZONs株式会社（法人番号 7021001075279）／ 統括 大賀俊勝（<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>）<br>
+  掲載は無料、判定も無料で、どちらも販売していません。<a href="/verify-directory/">Verification Directory</a> &middot; <a href="https://gate.horizonshield.dev/spec">検証の仕様</a> &middot; <a href="/tokusho/">特定商取引法に基づく表記</a><br>
+  &copy; 2026 The HORIZONs Co., Ltd. &middot; HORIZON SHIELD
+</div></footer>
+
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script>
+</body>
+</html>
