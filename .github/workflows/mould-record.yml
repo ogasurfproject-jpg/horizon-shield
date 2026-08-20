@@ -1,16 +1,16 @@
 name: mould-record
 
-# 「Record a mould」Issue を読んで、台帳(gate /mould)に刻む。
+# 「Record a mould」Issue を台帳に刻む。
 #
-# 身元の連鎖を、ここに一度だけ書いておく。
-#   GitHub が Issue を開いたアカウントを認証した。
-#   このリポジトリのこのワークフローが、その Issue を読んだ。
-#   運営トークンで gate へ代理POSTした。
-# gate が凍らせるのは「誰が書いたか」まで。書かれた探索が実際に行われたかは誰も確かめていない。
-# 記録自身がそう書く(submission.what_this_establishes)。
+# ここには鍵が一つも要らない。
+#   このワークフローが送るのは Issue 番号だけ。本文は一文字も渡さない。
+#   gate が api.github.com からその Issue を自分で取得し、repo とラベルを自分で確かめ、
+#   GitHub が見せている本文だけを記録する。
+#   だから、このワークフローが乗っ取られても、書ける内容は「GitHub に実在する
+#   mould-record ラベル付き Issue」そのものだけで、偽造の余地が無い。
 #
-# 書き込みトークンを配らないのは、共有の鍵を配ると他人の名前で記録を刻めるから。
-# 身元の担保は GitHub に任せ、こちらはやっていないことをやったと言わない。
+# 共有の書き込み鍵を配らないのは、配れば他人の名前で記録を刻めるから。
+# 置き場所を増やさないのは、同じ値が2箇所にあると、いつか片側だけ回されて黙って無言になるから。
 
 on:
   issues:
@@ -20,7 +20,7 @@ permissions:
   contents: read
   issues: write
 
-# 同じ Issue の実行は直列にする。並走させると二重POSTになり、片方が 409 を踏む。
+# 同じ Issue の実行は直列にする。並走させると二重で叩き、片方が 409 を踏む。
 concurrency:
   group: mould-record-${{ github.event.issue.number }}
   cancel-in-progress: false
@@ -36,25 +36,25 @@ jobs:
         with:
           ref: main
 
-      - name: Read the issue and post it to the ledger
-        id: post
+      - name: Ask the gate to read this issue from GitHub itself
+        id: ask
+        run: |
+          code=$(curl -s --max-time 45 -o resp.json -w '%{http_code}' \
+            -X POST https://gate.horizonshield.dev/mould/from-issue \
+            -H 'content-type: application/json' \
+            -d '{"issue": ${{ github.event.issue.number }}}')
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "gate returned $code"
+          cat resp.json
+
+      - name: Write the reply
+        if: always()
         env:
-          GATE_SWEEP_TOKEN: ${{ secrets.GATE_SWEEP_TOKEN }}
+          GATE_STATUS: ${{ steps.ask.outputs.code }}
         run: python3 .github/scripts/mould_record.py
 
-      - name: Reply in the issue with the record id and its hash
+      - name: Reply in the issue
         if: always() && hashFiles('comment.md') != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh issue comment "${{ github.event.issue.number }}" --body-file comment.md
-
-      # 鍵が無いのに黙って通さない。無いなら無いと本人に見えるところへ書く。
-      - name: Say so if the ledger could not be written
-        if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh issue comment "${{ github.event.issue.number }}" --body \
-          "This did not reach the ledger. The failure is on our side, not in what you wrote. \
-          Nothing was recorded, and nothing was partially recorded. The run is at \
-          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

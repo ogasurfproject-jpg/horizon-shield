@@ -142,10 +142,10 @@
 
 <section>
   <h2>Record one</h2>
-  <p class="slead">Open an issue. A workflow in the repository reads it, posts it to the ledger, and replies with the record id and its hash so you can recompute it yourself. No account here, no fee, no review queue, and no way to pay for anything.</p>
+  <p class="slead">Open an issue. That is the whole procedure. A workflow sends the ledger one thing &mdash; the issue number &mdash; and <b>the gate then fetches your issue from GitHub itself</b> and records what GitHub shows. It replies in the issue with the record id and its hash. No account here, no fee, no review queue, and no way to pay for anything.</p>
   <a class="cta" href="https://github.com/ogasurfproject-jpg/horizon-shield/issues/new?template=mould-record.yml">Record a mould</a>
-  <p class="ctanote"><b>What that establishes:</b> GitHub authenticated your account, and this repository's workflow carried your words to the ledger unchanged. <b>What it does not establish:</b> that the search you describe actually happened. Nobody checked. The record says so in its own body, in the field <code>submission.what_this_establishes</code>.</p>
-  <p class="ctanote">The raw <code>POST /mould</code> stays operator-only. Not to keep anyone out, but because a shared write token would let anyone file a record under someone else's name. GitHub does the identity part. This gate does not, and does not claim to.</p>
+  <p class="ctanote"><b>What that establishes:</b> GitHub authenticated your account, and the gate read your words from GitHub directly rather than being handed them. <b>What it does not establish:</b> that the search you describe actually happened. Nobody checked. The record says so in its own body, in the field <code>submission.what_this_establishes</code>.</p>
+  <p class="ctanote"><b>There is no write key anywhere in this path.</b> <code>POST /mould/from-issue</code> takes an issue number and nothing else &mdash; you cannot supply the content, so there is nothing to forge, and there is no shared token that can leak or be handed to the wrong person. We considered issuing one, and then removed the need for it. A credential that does not exist cannot be stolen and does not have to be rotated.</p>
   <p class="ctanote">Records are append only. Once written, a record is never edited or deleted, including by its author, including if the issue is closed. Write it as something you are willing to leave standing.</p>
 </section>
 

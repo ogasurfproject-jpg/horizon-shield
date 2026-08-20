@@ -82,16 +82,154 @@ const MOULD_USAGE = {
     "the claim and its date, not its truth. Each record carries a record_sha256 anyone can recompute.",
   // 2026-08-20 mould-open-write. 台帳は運営のものではない。誰でも自分の記録を刻める道を一本通す。
   writing:
-    "Reading requires nothing. Writing goes through GitHub: open the 'Record a mould' issue in " +
-    "github.com/ogasurfproject-jpg/horizon-shield and a workflow validates it and posts it here. " +
-    "The raw POST stays operator only, because a shared write token would let anyone file a record " +
-    "under someone else's name. GitHub does the identity part. This gate does not, and does not claim to.",
+    "Reading requires nothing, and writing requires no key either. Open the 'Record a mould' issue in " +
+    "github.com/ogasurfproject-jpg/horizon-shield, then POST {\"issue\": <number>} to /mould/from-issue. " +
+    "This gate fetches that issue from GitHub itself and records what GitHub shows. The caller carries no " +
+    "credential and supplies no content, so there is nothing to forge and no shared token that can leak. " +
+    "GitHub does the identity part. This gate does not, and does not claim to.",
   how_to_record:
     "https://github.com/ogasurfproject-jpg/horizon-shield/issues/new?template=mould-record.yml",
   what_a_record_is_not:
     "Not a certificate, not a score, not a ranking. Nobody is rated here. A record with an empty search " +
     "list sits in the same list as a thorough one: marked, unhidden, and not placed below it.",
 };
+
+// 2026-08-20 mould-no-key. gate が GitHub を自分で読む。呼び出し側は何も主張できない。
+// 見出し文字列は .github/ISSUE_TEMPLATE/mould-record.yml と一字一句そろえる。
+const MOULD_REPO = "ogasurfproject-jpg/horizon-shield";
+const MOULD_LABEL = "mould-record";
+const MOULD_ISSUE_FIELDS = {
+  "The assumption": "class",
+  "Why it is worth recording": "class_note",
+  "Where you first noticed it": "instance_where",
+  "What it did there": "instance_symptom",
+  "How loudly did it fail there?": "instance_volume",
+  "Where you searched for the same assumption": "searched",
+  "What you found at each place": "found",
+  "What prompted the search": "prompted_by",
+};
+
+function mouldParseIssueBody(body) {
+  const out = {};
+  let key = null, buf = [];
+  for (const line of String(body || "").replace(/\r\n/g, "\n").split("\n")) {
+    const m = /^###\s+(.+?)\s*$/.exec(line);
+    if (m) {
+      if (key) out[key] = buf.join("\n").trim();
+      key = MOULD_ISSUE_FIELDS[m[1].trim()] || null;
+      buf = [];
+      continue;
+    }
+    if (key) buf.push(line);
+  }
+  if (key) out[key] = buf.join("\n").trim();
+  // 任意項目が未入力のとき GitHub は _No response_ と描く。空として扱う。
+  for (const k of Object.keys(out)) {
+    const v = out[k].trim().toLowerCase();
+    if (v === "_no response_" || v === "none") out[k] = "";
+  }
+  return out;
+}
+
+function mouldVolume(s) {
+  const t = String(s || "").trim().toLowerCase();
+  if (t.startsWith("loud")) return "loud";
+  if (t.startsWith("quiet")) return "quiet";
+  return null;
+}
+
+function mouldLines(block) {
+  return String(block || "").split("\n").map((l) => l.trim().replace(/^-\s*/, "").trim()).filter(Boolean);
+}
+
+function mouldIssueToBody(issue) {
+  const f = mouldParseIssueBody(issue && issue.body);
+  return {
+    id: "mould-gh-" + issue.number,
+    class: f.class || "",
+    class_note: f.class_note || null,
+    instance: {
+      where: f.instance_where || null,
+      symptom: f.instance_symptom || null,
+      volume: mouldVolume(f.instance_volume),
+    },
+    searched: mouldLines(f.searched),
+    found: mouldLines(f.found).map((line) => {
+      const p = line.split("|").map((x) => x.trim());
+      return { where: p[0] || "", state: p[1] || "", volume: mouldVolume(p[2]), note: p[3] || null };
+    }).filter((x) => x.where),
+    prompted_by: f.prompted_by || null,
+    submitted_via: "github",
+    submitted_by: (issue.user && issue.user.login) || null,
+    source_url: issue.html_url || null,
+  };
+}
+
+// 記録の作成そのもの。運営経路と Issue 経路の両方がここを通る。
+// 二つの入口が別々に記録を組み立てると、いつか片方だけ仕様が変わる。それも鋳型。
+async function mouldWrite(env, b) {
+  const t = (v, n) => (v == null ? "" : String(v)).slice(0, n);
+  const cls = t(b.class, 400);
+  if (!cls) return { status: 400, body: { error: "class is required", usage: MOULD_USAGE } };
+  const idx = (await env.HS_VERIFY_KV.get("mould:index", "json")) || [];
+  const newId = t(b.id, 60) || ("mould-" + String(idx.length + 1).padStart(4, "0"));
+  if (await env.HS_VERIFY_KV.get("mould:" + newId)) {
+    return { status: 409, body: { error: "already_recorded", id: newId, means: "This ledger is append only. A record is never rewritten." } };
+  }
+  const searched = (Array.isArray(b.searched) ? b.searched : []).map((x) => t(x, 300)).filter(Boolean).slice(0, 40);
+  const found = (Array.isArray(b.found) ? b.found : []).slice(0, 40).map((f) => ({
+    where: t(f && f.where, 200),
+    state: ["already_correct", "fixed", "absent", "live"].includes(t(f && f.state, 20)) ? t(f.state, 20) : "unstated",
+    volume: ["loud", "quiet"].includes(t(f && f.volume, 10)) ? t(f.volume, 10) : null,
+    commit: t(f && f.commit, 40) || null,
+    note: t(f && f.note, 300) || null,
+  })).filter((f) => f.where);
+  const subVia = t(b.submitted_via, 40) || "operator";
+  const subBy = t(b.submitted_by, 100) || null;
+  const subSrc = t(b.source_url, 300) || null;
+  const rec = {
+    ledger: "HORIZON SHIELD mould records",
+    id: newId,
+    recorded_at: new Date().toISOString(),
+    gate_commit: gateCommit(),
+    class: cls,
+    class_note: t(b.class_note, 600) || null,
+    instance: {
+      where: t(b.instance && b.instance.where, 200) || null,
+      symptom: t(b.instance && b.instance.symptom, 400) || null,
+      volume: ["loud", "quiet"].includes(t(b.instance && b.instance.volume, 10)) ? t(b.instance.volume, 10) : null,
+    },
+    searched: searched,
+    searched_note: searched.length
+      ? "The space the author says they searched. This ledger does not verify that the search happened."
+      : "The author recorded no search. The instance was fixed and the class was not looked for. This is published, not hidden.",
+    found: found,
+    volume_note: MOULD_USAGE.volume_note,
+    prompted_by: t(b.prompted_by, 300) || null,
+    submission: {
+      via: subVia,
+      by: subBy,
+      source: subSrc,
+      what_this_establishes: subVia === "github"
+        ? "This gate fetched the issue from GitHub itself and recorded what GitHub showed. Nobody handed " +
+          "it these words. That establishes who wrote this record. It establishes nothing about whether " +
+          "the search it describes actually happened."
+        : "This record was posted with the operator token. It establishes that the operator wrote it, " +
+          "and nothing else.",
+    },
+    self_asserted:
+      "Everything above is the author's own account. This gate did not reproduce it. What is frozen " +
+      "here is the claim and its date, not its truth.",
+  };
+  rec.record_sha256 = await sha256hex(JSON.stringify(rec));
+  rec.recompute_note =
+    "Remove the record_sha256 and recompute_note fields, JSON.stringify the remainder in this key " +
+    "order, and take the SHA-256. It must equal record_sha256.";
+  await env.HS_VERIFY_KV.put("mould:" + newId, JSON.stringify(rec));
+  idx.unshift({ id: newId, recorded_at: rec.recorded_at, class: rec.class, searched: searched.length, found: found.length, by: subBy, via: subVia, record_sha256: rec.record_sha256 });
+  await env.HS_VERIFY_KV.put("mould:index", JSON.stringify(idx.slice(0, 500)));
+  return { status: 201, body: rec };
+}
 
 async function sha256hex(s) {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
@@ -1688,18 +1826,63 @@ export default {
       return new Response(null, { status: 204, headers: CORS_HEADERS });
     }
 
-    // --- mould records. 2026-08-20 mould-ledger. ---
+    // --- mould records. 2026-08-20 mould-ledger / mould-no-key. ---
     // Prompted by Federico Blanco Sanchez-Llanos, "The Mould, Not the Letter".
     // Nothing here measures anyone. It records what the author searched for, and freezes it.
     if (path === "/mould" || path.startsWith("/mould/")) {
-      const mid = path.startsWith("/mould/") ? decodeURIComponent(path.slice("/mould/".length)) : "";
+      const seg = path.startsWith("/mould/") ? decodeURIComponent(path.slice("/mould/".length)) : "";
+
+      // 鍵の要らない記録口。呼べる内容は「この repo の、このラベルの付いた Issue N を、そのまま刻め」だけ。
+      // 本文は gate が GitHub から直接取る。呼び出し側は一文字も持ち込めないので、偽造する余地が無い。
+      // 共有の書き込み鍵を配れば、他人の名前で記録を刻める。だから配らない。増やしもしない。
+      if (seg === "from-issue") {
+        if (request.method !== "POST") {
+          return json({ error: "Use POST with a body of {\"issue\": <number>}.", usage: MOULD_USAGE }, 405);
+        }
+        let ib;
+        try { ib = await request.json(); }
+        catch (_e) { return json({ error: "The request body was not JSON.", usage: MOULD_USAGE }, 400); }
+        const num = Number(ib && ib.issue);
+        if (!Number.isInteger(num) || num <= 0) {
+          return json({ error: "issue must be a positive integer", usage: MOULD_USAGE }, 400);
+        }
+        let gh;
+        try {
+          const r = await fetch("https://api.github.com/repos/" + MOULD_REPO + "/issues/" + num, {
+            headers: { "user-agent": PROBE_UA, accept: "application/vnd.github+json" },
+          });
+          if (r.status === 404) {
+            return json({ error: "issue_not_found", issue: num, means: "GitHub does not show this issue. Nothing was recorded." }, 404);
+          }
+          if (r.status === 403 || r.status === 429) {
+            return json({ error: "github_rate_limited", issue: num, means: "This gate reads GitHub without a token, so it shares an anonymous rate limit. Nothing was recorded, and nothing was partially recorded. Retry." }, 503);
+          }
+          if (!r.ok) return json({ error: "github_unavailable", status: r.status, means: "Nothing was recorded." }, 502);
+          gh = await r.json();
+        } catch (_e) {
+          return json({ error: "github_unreachable", means: "Nothing was recorded." }, 502);
+        }
+        const labels = (gh.labels || []).map((l) => (typeof l === "string" ? l : (l && l.name) || ""));
+        if (!labels.includes(MOULD_LABEL)) {
+          return json({
+            error: "not_a_mould_record",
+            issue: num,
+            labels: labels,
+            means: "Only an issue carrying the " + MOULD_LABEL + " label in " + MOULD_REPO + " is recorded. " +
+                   "This gate reads the label from GitHub, not from whoever called it.",
+          }, 422);
+        }
+        const out = await mouldWrite(env, mouldIssueToBody(gh));
+        return json(out.body, out.status);
+      }
+
       if (request.method === "GET") {
-        if (mid) {
-          const one = await env.HS_VERIFY_KV.get("mould:" + mid, "json");
+        if (seg) {
+          const one = await env.HS_VERIFY_KV.get("mould:" + seg, "json");
           if (!one) {
             return json({
               error: "not_found",
-              id: mid,
+              id: seg,
               means: "No record under this id. That is a statement about this ledger, not about any code.",
             }, 404);
           }
@@ -1716,68 +1899,8 @@ export default {
         let b;
         try { b = await request.json(); }
         catch (_e) { return json({ error: "The request body was not JSON.", usage: MOULD_USAGE }, 400); }
-        const t = (v, n) => (v == null ? "" : String(v)).slice(0, n);
-        const cls = t(b.class, 400);
-        if (!cls) return json({ error: "class is required", usage: MOULD_USAGE }, 400);
-        const idx = (await env.HS_VERIFY_KV.get("mould:index", "json")) || [];
-        const newId = t(b.id, 60) || ("mould-" + String(idx.length + 1).padStart(4, "0"));
-        if (await env.HS_VERIFY_KV.get("mould:" + newId)) {
-          return json({ error: "already_recorded", id: newId, means: "This ledger is append only. A record is never rewritten." }, 409);
-        }
-        const searched = (Array.isArray(b.searched) ? b.searched : []).map((x) => t(x, 300)).filter(Boolean).slice(0, 40);
-        const found = (Array.isArray(b.found) ? b.found : []).slice(0, 40).map((f) => ({
-          where: t(f && f.where, 200),
-          state: ["already_correct", "fixed", "absent", "live"].includes(t(f && f.state, 20)) ? t(f.state, 20) : "unstated",
-          volume: ["loud", "quiet"].includes(t(f && f.volume, 10)) ? t(f.volume, 10) : null,
-          commit: t(f && f.commit, 40) || null,
-          note: t(f && f.note, 300) || null,
-        })).filter((f) => f.where);
-        // 2026-08-20 mould-open-write. 誰が書いたかを記録に残す。検証はしない。
-        const subVia = t(b.submitted_via, 40) || "operator";
-        const subBy = t(b.submitted_by, 100) || null;
-        const subSrc = t(b.source_url, 300) || null;
-        const rec = {
-          ledger: "HORIZON SHIELD mould records",
-          id: newId,
-          recorded_at: new Date().toISOString(),
-          gate_commit: gateCommit(),
-          class: cls,
-          class_note: t(b.class_note, 600) || null,
-          instance: {
-            where: t(b.instance && b.instance.where, 200) || null,
-            symptom: t(b.instance && b.instance.symptom, 400) || null,
-            volume: ["loud", "quiet"].includes(t(b.instance && b.instance.volume, 10)) ? t(b.instance.volume, 10) : null,
-          },
-          searched: searched,
-          searched_note: searched.length
-            ? "The space the author says they searched. This ledger does not verify that the search happened."
-            : "The author recorded no search. The instance was fixed and the class was not looked for. This is published, not hidden.",
-          found: found,
-          volume_note: MOULD_USAGE.volume_note,
-          prompted_by: t(b.prompted_by, 300) || null,
-          submission: {
-            via: subVia,
-            by: subBy,
-            source: subSrc,
-            what_this_establishes: subVia === "github"
-              ? "GitHub authenticated the account named in by. A workflow in the horizon-shield repository " +
-                "read that account's issue and posted it here. That chain establishes who wrote this record. " +
-                "It establishes nothing about whether the search it describes actually happened."
-              : "This record was posted with the operator token. It establishes that the operator wrote it, " +
-                "and nothing else.",
-          },
-          self_asserted:
-            "Everything above is the author's own account. This gate did not reproduce it. What is frozen " +
-            "here is the claim and its date, not its truth.",
-        };
-        rec.record_sha256 = await sha256hex(JSON.stringify(rec));
-        rec.recompute_note =
-          "Remove the record_sha256 and recompute_note fields, JSON.stringify the remainder in this key " +
-          "order, and take the SHA-256. It must equal record_sha256.";
-        await env.HS_VERIFY_KV.put("mould:" + newId, JSON.stringify(rec));
-        idx.unshift({ id: newId, recorded_at: rec.recorded_at, class: rec.class, searched: searched.length, found: found.length, by: rec.submission.by, via: rec.submission.via, record_sha256: rec.record_sha256 });
-        await env.HS_VERIFY_KV.put("mould:index", JSON.stringify(idx.slice(0, 500)));
-        return json(rec, 201);
+        const out = await mouldWrite(env, b);
+        return json(out.body, out.status);
       }
       return json({ error: "Use GET to read, POST to record.", usage: MOULD_USAGE }, 405);
     }

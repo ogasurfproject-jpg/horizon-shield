@@ -136,11 +136,16 @@ body:
   - type: markdown
     attributes:
       value: |
-        On submit, a workflow in this repository reads this issue and posts it to the ledger,
-        then replies here with the record id and its SHA-256 so you can recompute it yourself.
+        On submit, a workflow sends the ledger one thing: the number of this issue. The gate then
+        fetches this issue from GitHub itself and records what GitHub shows. It replies here with
+        the record id and its SHA-256 so you can recompute it yourself.
 
-        What that establishes: GitHub authenticated your account, and this repository's workflow
-        carried your words across. What it does not establish: that the search you describe
-        actually happened. Nobody checked. The record says so.
+        No write key exists anywhere in that path. Nothing hands your words to the ledger, so
+        nothing can alter them on the way, and there is no shared token that could be used to file
+        a record under your name.
+
+        What that establishes: GitHub authenticated your account, and the ledger read your words
+        from GitHub directly. What it does not establish: that the search you describe actually
+        happened. Nobody checked. The record says so.
 
         Read the ledger at https://gate.horizonshield.dev/mould
