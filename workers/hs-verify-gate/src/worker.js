@@ -67,6 +67,10 @@ const MOULD_USAGE = {
     class: "the assumption, written so it can be searched for. Not a description of the symptom.",
     instance: "where it was first noticed. { where, symptom, volume }",
     searched: "the space the author says they searched. Naming it is the point.",
+    reproduce:
+      "optional. Commands that re-run that search, with the ref they were run against. This gate " +
+      "does not run them. It records them so a reader can run them and compare their own hit list " +
+      "with the locations above. A record without them is published, and says so.",
     found: "per location: already_correct, fixed, or absent. With a commit where there is one.",
     volume: "loud = it threw or returned an error. quiet = it degraded without complaining.",
   },
@@ -106,6 +110,7 @@ const MOULD_ISSUE_FIELDS = {
   "How loudly did it fail there?": "instance_volume",
   "Where you searched for the same assumption": "searched",
   "What you found at each place": "found",
+  "How someone else could re-run it": "reproduce",
   "What prompted the search": "prompted_by",
 };
 
@@ -142,6 +147,23 @@ function mouldLines(block) {
   return String(block || "").split("\n").map((l) => l.trim().replace(/^-\s*/, "").trim()).filter(Boolean);
 }
 
+// 2026-08-20 search-reproducible.
+// 1行 = command | ref | scope。ref は commit sha / tag / 日付など、著者が指した時点。
+function mouldReproduce(block) {
+  return mouldLines(block).map((line) => {
+    // 2026-08-20: 左から素直に3分割すると、コマンド中の | で壊れる。
+    // 実測で rg -n "|| 0" src/ を含む行が別物になった。走らせるまで気づかない形。
+    // ref と scope はパイプを含まない。コマンドは含む。だから左から2つだけ切る。
+    const p = line.split("|");
+    if (p.length < 3) return { command: line.trim(), ref: null, scope: null };
+    const ref = p.shift().trim();
+    const scope = p.shift().trim();
+    const command = p.join("|").trim();
+    if (!command) return { command: line.trim(), ref: null, scope: null };
+    return { command: command, ref: ref || null, scope: scope || null };
+  }).filter((x) => x.command);
+}
+
 function mouldIssueToBody(issue) {
   const f = mouldParseIssueBody(issue && issue.body);
   return {
@@ -158,6 +180,7 @@ function mouldIssueToBody(issue) {
       const p = line.split("|").map((x) => x.trim());
       return { where: p[0] || "", state: p[1] || "", volume: mouldVolume(p[2]), note: p[3] || null };
     }).filter((x) => x.where),
+    reproduce: mouldReproduce(f.reproduce),
     prompted_by: f.prompted_by || null,
     submitted_via: "github",
     submitted_by: (issue.user && issue.user.login) || null,
@@ -184,6 +207,11 @@ async function mouldWrite(env, b) {
     commit: t(f && f.commit, 40) || null,
     note: t(f && f.note, 300) || null,
   })).filter((f) => f.where);
+  const reproduce = (Array.isArray(b.reproduce) ? b.reproduce : []).slice(0, 20).map((r) => ({
+    command: t(r && r.command, 400),
+    ref: t(r && r.ref, 120) || null,
+    scope: t(r && r.scope, 200) || null,
+  })).filter((r) => r.command);
   const subVia = t(b.submitted_via, 40) || "operator";
   const subBy = t(b.submitted_by, 100) || null;
   const subSrc = t(b.source_url, 300) || null;
@@ -203,6 +231,15 @@ async function mouldWrite(env, b) {
     searched_note: searched.length
       ? "The space the author says they searched. This ledger does not verify that the search happened."
       : "The author recorded no search. The instance was fixed and the class was not looked for. This is published, not hidden.",
+    // 2026-08-20 search-reproducible. 検証はしない。他人が走らせられるようにするだけ。
+    reproduce: reproduce,
+    reproduce_note: reproduce.length
+      ? "The author says these commands re-run the search. This gate did not run them and does not " +
+        "vouch for them. What changed is that you can run them yourself against the ref given, and " +
+        "compare your own hit list with the locations recorded above. If they disagree, the record " +
+        "is wrong and that is now something a stranger can establish without asking anyone."
+      : "No way to re-run the search was given, so the searched field above is an assertion and " +
+        "nothing more. That is published rather than hidden, on the same rule as an empty search.",
     found: found,
     volume_note: MOULD_USAGE.volume_note,
     prompted_by: t(b.prompted_by, 300) || null,
@@ -226,7 +263,7 @@ async function mouldWrite(env, b) {
     "Remove the record_sha256 and recompute_note fields, JSON.stringify the remainder in this key " +
     "order, and take the SHA-256. It must equal record_sha256.";
   await env.HS_VERIFY_KV.put("mould:" + newId, JSON.stringify(rec));
-  idx.unshift({ id: newId, recorded_at: rec.recorded_at, class: rec.class, searched: searched.length, found: found.length, by: subBy, via: subVia, record_sha256: rec.record_sha256 });
+  idx.unshift({ id: newId, recorded_at: rec.recorded_at, class: rec.class, searched: searched.length, found: found.length, repro: reproduce.length, by: subBy, via: subVia, record_sha256: rec.record_sha256 });
   await env.HS_VERIFY_KV.put("mould:index", JSON.stringify(idx.slice(0, 500)));
   return { status: 201, body: rec };
 }

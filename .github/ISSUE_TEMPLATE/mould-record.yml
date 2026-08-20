@@ -107,6 +107,24 @@ body:
     validations:
       required: false
 
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How someone else could re-run it
+      description: >
+        Optional, and the most useful field here. One per line: ref | scope | command.
+        Ref first and command last, because commands contain pipes and refs do not, so everything
+        after the second pipe is kept as part of the command. A line with fewer than two pipes is
+        read as a bare command with no ref.
+        This ledger does not run them and does not vouch for them. It records them so a reader can
+        run them and compare their own hit list against the locations you listed above. Leave it
+        empty and the record says plainly that the search is an assertion and nothing more.
+      placeholder: |
+        f3cda5e8 | public repo, HTML pages only | rg -n "Array.isArray\(data.rows\)" verify-directory
+        main@2026-08-20 | our own front end | rg -n "\|\| 0" src/ | wc -l
+    validations:
+      required: false
+
   - type: input
     id: prompted_by
     attributes:

@@ -135,6 +135,13 @@
 </section>
 
 <section>
+  <h2>The search can now be re-run by a stranger</h2>
+  <p class="slead">Until 2026-08-20 the <code>searched</code> field was an assertion and nothing more. Nobody could check whether the author actually looked, and that was the weakest thing in this ledger. A record may now carry the commands that reproduce that search, and the commit or date they were run against.</p>
+  <p class="slead"><b>This ledger still does not run them, and does not vouch for them.</b> What changed is that you can run them yourself, against the ref given, and compare your own hit list with the locations the record names. If the two disagree, the record is wrong &mdash; and that is now something a stranger can establish without asking anyone, which is the only kind of check worth having here.</p>
+  <p class="slead">A record with no commands is published exactly as before, and states of itself that its search is an assertion. Those are marked in the list below, on the same rule as an empty search.</p>
+</section>
+
+<section>
   <h2>Records</h2>
   <p class="slead">Drawn live from the ledger every time this page opens. Nothing on this page is baked in, because a page with the numbers frozen into it goes stale while the ledger moves and nobody notices.</p>
   <div id="mould-list" class="mould-list">Reading the ledger.</div>
@@ -193,11 +200,15 @@ curl -s https://gate.horizonshield.dev/mould/mould-0001</pre>
           ? '<span class="mflag mflag-none">no class search recorded</span>'
           : '<span class="mflag">' + searched + ' search spaces named</span>';
         var by = r.by ? '<span class="mflag mflag-by">' + esc(r.by) + '</span>' : '';
+        var repro = Number(r.repro || 0);
+        var rflag = repro > 0
+          ? '<span class="mflag mflag-by">' + repro + ' command' + (repro === 1 ? '' : 's') + ' to re-run it</span>'
+          : '<span class="mflag mflag-none">search not re-runnable</span>';
         return '<article class="mrec">'
           + '<div class="mhead"><a href="https://gate.horizonshield.dev/mould/' + encodeURIComponent(r.id) + '"><code>' + esc(r.id) + '</code></a>'
           + '<time>' + esc(String(r.recorded_at || '').slice(0, 10)) + '</time></div>'
           + '<p class="mclass">' + esc(r.class || '') + '</p>'
-          + '<div class="mmeta">' + flag + '<span class="mflag">' + found + ' locations reported</span>' + by + '</div>'
+          + '<div class="mmeta">' + flag + '<span class="mflag">' + found + ' locations reported</span>' + by + rflag + '</div>'
           + '<div class="mhash">record_sha256 ' + esc(String(r.record_sha256 || '').slice(0, 32)) + '</div>'
           + '</article>';
       }).join('');
