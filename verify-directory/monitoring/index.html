@@ -168,6 +168,60 @@
   </div>
 </section>
 
+<!-- mould-panel 2026-08-20 -->
+<section id="mould">
+  <style>
+    .mould-list{margin-top:18px;display:grid;gap:12px}
+    .mrec{background:var(--surface);border:1px solid var(--line-2);border-radius:12px;padding:16px 18px}
+    .mhead{display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+    .mhead a{color:var(--emerald-ink)}
+    .mclass{margin:10px 0 12px;font-size:14.5px;color:var(--ink)}
+    .mmeta{display:flex;flex-wrap:wrap;gap:8px}
+    .mflag{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;color:var(--ink-2);border:1px solid var(--line-2);border-radius:999px;padding:3px 10px}
+    .mflag-none{color:var(--amber);border-color:rgba(251,191,36,.45);background:var(--amber-dim)}
+    .mhash{margin-top:10px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3);word-break:break-all}
+    .mnote{margin-top:18px;font-size:13.5px;color:var(--ink-3)}
+    .mnote a{color:var(--emerald-ink)}
+  </style>
+  <span class="kicker">Mould records</span>
+  <h2>Whether the class was searched, not whether the instance was fixed</h2>
+  <p class="slead">A fix repairs one casting. The mould that cast it sits untouched unless somebody goes looking. This ledger records four things about a fix and freezes them: the class of assumption behind it, where the author searched for that same assumption, what they found at each location, and at what volume each casting failed. Append only. Every record carries a SHA-256 you can recompute yourself.</p>
+  <p class="slead"><b>A record with an empty search list is accepted and published as such.</b> An instance fixed with no class search is the exact thing this ledger exists to make visible. It is not rejected and it is not hidden. Those records are marked below.</p>
+  <p class="slead">This ledger verifies nothing. Each record says so in its own body: it is the author's own account, this gate did not reproduce it, and what is frozen is the claim and its date, not its truth.</p>
+  <div id="mould-list" class="mould-list">Reading the ledger.</div>
+  <p class="mnote">Read it directly at <a href="https://gate.horizonshield.dev/mould"><code>GET /mould</code></a>. The category was named by Federico Blanco Sanchez-Llanos in "The Mould, Not the Letter", 2026-08-20. The first entries here are our own, because we are not going to ask anyone else to go first.</p>
+</section>
+<script>
+(function(){
+  var el = document.getElementById('mould-list');
+  if (!el) return;
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  fetch('https://gate.horizonshield.dev/mould', { cache: 'no-store' })
+    .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+    .then(function(d){
+      var recs = (d && d.records) || [];
+      if (!recs.length) { el.textContent = 'The ledger is empty. Nothing has been recorded yet, and that is stated rather than hidden.'; return; }
+      el.innerHTML = recs.map(function(r){
+        var searched = Number(r.searched || 0), found = Number(r.found || 0);
+        var flag = searched === 0
+          ? '<span class="mflag mflag-none">no class search recorded</span>'
+          : '<span class="mflag">' + searched + ' search spaces named</span>';
+        return '<article class="mrec">'
+          + '<div class="mhead"><a href="https://gate.horizonshield.dev/mould/' + encodeURIComponent(r.id) + '"><code>' + esc(r.id) + '</code></a>'
+          + '<time>' + esc(String(r.recorded_at || '').slice(0, 10)) + '</time></div>'
+          + '<p class="mclass">' + esc(r.class || '') + '</p>'
+          + '<div class="mmeta">' + flag + '<span class="mflag">' + found + ' locations reported</span></div>'
+          + '<div class="mhash">record_sha256 ' + esc(String(r.record_sha256 || '').slice(0, 32)) + '</div>'
+          + '</article>';
+      }).join('');
+    })
+    .catch(function(){
+      el.textContent = 'The ledger could not be reached from this page just now. That is a statement about this page, not about the ledger.';
+    });
+})();
+</script>
+
 <footer><div class="wrap">
   Operator: The HORIZONs Co., Ltd. (Corporate Number 7021001075279). Supervised by Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>).<br>
   Listing is free, the verdict is free, and neither is for sale. <a href="/verify-directory/">Verification Directory</a> &middot; <a href="/spec/">Verification spec</a> &middot; <a href="/tokusho/">Legal notice</a><br>
