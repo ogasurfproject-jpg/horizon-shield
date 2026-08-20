@@ -177,8 +177,12 @@ function mouldIssueToBody(issue) {
     },
     searched: mouldLines(f.searched),
     found: mouldLines(f.found).map((line) => {
+      // 2026-08-20: reproduce を直したとき、隣のこれを置いていた。同じ鋳型。
+      // note は最後の欄なので、note にパイプが入ると p[3] しか拾わず、そこから先が黙って消える。
+      // where / state / volume はパイプを含まない。note は含みうる。だから残り全部を note にする。
       const p = line.split("|").map((x) => x.trim());
-      return { where: p[0] || "", state: p[1] || "", volume: mouldVolume(p[2]), note: p[3] || null };
+      const note = p.slice(3).join(" | ").trim();
+      return { where: p[0] || "", state: p[1] || "", volume: mouldVolume(p[2]), note: note || null };
     }).filter((x) => x.where),
     reproduce: mouldReproduce(f.reproduce),
     prompted_by: f.prompted_by || null,
