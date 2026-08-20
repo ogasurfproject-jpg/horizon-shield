@@ -185,6 +185,23 @@ const OUTPUT_SCHEMAS = {
   verify_integrity_claim: { type: "object", description: "署名済みクレームの第三者検証結果(fail closed)。result(verified/unverified)・failure_reason・recomputed_sha256・scope_check。 / Third-party verification result, fail closed.", properties: { result: { description: "verified / unverified" }, failure_reason: { description: "stale_data / changed_scope / missing_evidence" }, recomputed_sha256: { description: "再計算ハッシュ" } }, additionalProperties: true },
   create_ap2_fairness_attestation: { type: "object", description: "AP2 Cart Mandate に添付できる適正価格証跡。attestation(FairPriceAttestation)・cart_mandate_example・verify_url。 / FairPriceAttestation for an AP2 Cart Mandate with attachment example.", properties: { ap2_bridge: { description: "AP2との関係(認可の検証 x 価値の検証)" }, attestation: { description: "証跡本体(subject, integrity)" }, cart_mandate_example: { description: "添付位置の例示(非規範)" } }, additionalProperties: true }
 };
+// Every schema above describes the happy path. None of them declared how a
+// consumer tells "found nothing" from "could not look". These two fields do,
+// and they are added to all of them at once rather than to one and not its
+// neighbour. `count: 0` is only ever a fact about the data; a lookup that
+// failed comes back with isError set and makes no count claim at all.
+const LOOKUP_FIELDS = {
+  count: {
+    type: "number",
+    description:
+      "How many records matched. 0 means the source was read and nothing matched. " +
+      "It never means the source could not be read — that returns isError: true.",
+  },
+  did_you_mean: { description: "Near matches, when an exact match was not found." },
+};
+Object.values(OUTPUT_SCHEMAS).forEach(sch => {
+  sch.properties = Object.assign({}, LOOKUP_FIELDS, sch.properties || {});
+});
 TOOLS.forEach(t => { if (OUTPUT_SCHEMAS[t.name]) t.outputSchema = OUTPUT_SCHEMAS[t.name]; });
 
 // [PATCH 2026-07-23] 各ツールに英語の表示名(title, MCP 2025-06-18)を付与。name は不変。
@@ -221,6 +238,24 @@ const TOOL_OLD_NAMES = new Set(Object.values(TOOL_NEW_TO_OLD));
 function canonicalToolName(n) { return TOOL_NEW_TO_OLD[n] || n; }
 
 function txt(s) { return { content: [{ type: "text", text: typeof s === "string" ? s : JSON.stringify(s, null, 2) }] }; }
+
+// Federico Blanco Sanchez-Llanos, "The Mould, Not the Letter", 2026-08-20:
+//   never let "the fetch failed" and "the fetch succeeded and found nothing"
+//   collapse into the same downstream value.
+//
+// Measured 2026-08-20. Six sites here caught a souba-db fetch failure and
+// returned txt("価格データの取得に失敗しました。") — a SUCCESSFUL tool result
+// carrying a sentence. The no-match branches also return txt(<sentence>). The
+// generic structuredContent wrapper then packs both into { message: "..." },
+// so "the price database is down" and "there is no price data for this work"
+// reached the consumer in exactly the same shape. A homeowner's agent could not
+// tell that the number it was missing was our outage rather than a fact.
+// failTxt puts a failure where a machine looks for one.
+function failTxt(s) {
+  const r = txt(s);
+  r.isError = true;
+  return r;
+}
 
 // PTKA(取引前知識刻印)の既存の改ざん不能アンカー(サイト公開済み)
 const PTKA = {
@@ -442,7 +477,7 @@ async function callTool(name, args, env, ip, opts) {
       const m = d._meta || {};
       return txt({ version: m.version, updated_at: m.updated_at, updated_by: m.updated_by, sources: m.sources, region_multipliers: m.region_multipliers, next_actions: NEXT_ACTIONS });
     } catch (e) {
-      return txt("相場データ出典の取得に失敗しました。" + SITE + "/souba/ を参照してください。");
+      return failTxt("相場データ出典の取得に失敗しました。" + SITE + "/souba/ を参照してください。");
     }
   }
   if (name === "get_price_range") {
@@ -471,7 +506,7 @@ async function callTool(name, args, env, ip, opts) {
         source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)", detail: SITE + "/souba/"
       });
     } catch (e) {
-      return txt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。");
+      return failTxt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。");
     }
   }
   if (name === "reverse_estimate_preview") {
@@ -527,7 +562,7 @@ async function callTool(name, args, env, ip, opts) {
         next_actions: NEXT_ACTIONS,
         source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)"
       });
-    } catch (e) { return txt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。"); }
+    } catch (e) { return failTxt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。"); }
   }
   if (name === "audit_estimate") {
     const work = String(args.work || "").trim();
@@ -598,7 +633,7 @@ async function callTool(name, args, env, ip, opts) {
           ehn_submit: SITE + "/hacker/submit/"
         } } : {})
       });
-    } catch (e) { return txt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。"); }
+    } catch (e) { return failTxt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。"); }
   }
   if (name === "red_flag_check") {
     const t = String(args.text || "").trim();
@@ -673,7 +708,7 @@ async function callTool(name, args, env, ip, opts) {
         meaning: "エージェントはこの価格を盲信する必要はない。主張・ハッシュ・PTKAの記録で検証できる。これがエージェント経済における信用財の出し方。",
         detail: SITE + "/souba/"
       });
-    } catch (e) { return txt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。"); }
+    } catch (e) { return failTxt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。"); }
   }
   // [PATCH B 2026-07-23] AP2ブリッジ: Cart Mandate に添付できる適正価格証跡。
   // AP2は認可の検証可能性、HORIZON SHIELDは価値の検証可能性。並列レイヤー。
@@ -774,7 +809,7 @@ async function callTool(name, args, env, ip, opts) {
         meaning: "エージェント経済の決済に『承認の証明』と『価値の証明』を同時に載せるための橋。価格の根拠はハッシュと台帳で検証でき、発行者を信用する必要はない。",
         detail: SITE + "/verify/"
       });
-    } catch (e) { return txt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。"); }
+    } catch (e) { return failTxt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。"); }
   }
   if (name === "suggest_ehn") {
     return txt({

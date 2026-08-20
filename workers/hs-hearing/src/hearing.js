@@ -363,7 +363,28 @@ async function triggerGeneration(env, profile, store) {
 
 /* ------------------------------ MCP face ------------------------------ */
 const RO = { readOnlyHint: true, destructiveHint: false, idempotentHint: true };
-const OUT_OBJ = { type: "object", additionalProperties: true };
+// Was: { type: "object", additionalProperties: true } — a schema that declares
+// "an object" and nothing else, shared by all six tools. Honest, and useless: it
+// gave a consumer no declared way to tell "the roster was read and nobody
+// matched" from "the roster could not be read". Both arrived as an object.
+// roster_read / roster_source now carry that difference in the contract.
+const OUT_OBJ = {
+  type: "object",
+  properties: {
+    roster_read: {
+      type: "boolean",
+      description:
+        "true = the contractor roster was read successfully; any counts below are real " +
+        "facts about the roster. false = the roster could NOT be read, and this response " +
+        "makes no claim about how many contractors exist. A count of 0 with roster_read " +
+        "true means nobody matched. There is no case where a failed read reports a count.",
+    },
+    roster_source: { type: "string", enum: ["kv", "published", "none"] },
+    verified_count: { type: "number" },
+    pending_count: { type: "number" },
+  },
+  additionalProperties: true,
+};
 const MCP_TOOLS = [
   {
     name: "list_verified_stores",
@@ -507,13 +528,45 @@ async function contractorsFromStores(env, stores) {
   }
   return out;
 }
+// Federico Blanco Sanchez-Llanos, "The Mould, Not the Letter", 2026-08-20:
+//   never let "the fetch failed" and "the fetch succeeded and found nothing"
+//   collapse into the same downstream value.
+//
+// This function used to swallow a KV failure with catch (_e) {} and then fall
+// through to `pub.contractors || []`, so three different states all left here as
+// an empty array: the KV was down, the published roster could not be fetched, and
+// there genuinely are no contractors. All six MCP tools read this one call, so on
+// an outage list_verified_stores answered verified_count: 0 with full confidence —
+// telling a homeowner's AI that no verified contractor exists, when what had
+// actually happened was that we could not read our own roster.
+//
+// This is the same hole selfCheck closed on 2026-08-20 (af38728e), left standing
+// at the MCP mouth. Fixed there, left beside it here.
+//
+// Now the outcome is named. Callers must decide what to do with `source: "none"`
+// instead of being handed a confident zero.
 async function liveContractors(env) {
+  const failures = [];
   try {
     const stores = await listAllStores(env);
-    if (stores.length) return await contractorsFromStores(env, stores);
-  } catch (_e) {}
-  const pub = await fetchPublished(env);
-  return pub.contractors || [];
+    if (stores.length) {
+      const list = await contractorsFromStores(env, stores);
+      return { contractors: list, source: "kv", read_ok: true, failures: failures };
+    }
+    // KV answered and holds no stores: fall through to the published roster,
+    // which is the other place a contractor can legitimately come from.
+  } catch (e) {
+    failures.push("kv: " + String((e && e.message) || e));
+  }
+  try {
+    const pub = await fetchPublished(env);
+    const list = (pub && pub.contractors) || [];
+    return { contractors: list, source: "published", read_ok: true, failures: failures };
+  } catch (e) {
+    failures.push("published: " + String((e && e.message) || e));
+  }
+  // Nothing could be read. Say so. Do not report zero contractors.
+  return { contractors: [], source: "none", read_ok: false, failures: failures };
 }
 
 // 露出計測フィード(hs-webmcp /beacon へ件数だけ流す)。店に見せる「貢献レポート」の AI 面の実数。
@@ -613,7 +666,8 @@ async function handleMcp(request, env, id, method, params, ctx) {
   if (method === "resources/read") {
     const uri = params && params.uri;
     if (!uri) return rpcErr(id, -32602, "params.uri required");
-    const contractors = await liveContractors(env);
+    const rosterRead = await liveContractors(env);
+    const contractors = rosterRead.contractors;
     if (uri === "yakumo://mall") return rpc(id, { contents: [{ uri, mimeType: "application/json", text: JSON.stringify(mallOverview(contractors), null, 2) }] });
     if (uri === "yakumo://verification") return rpc(id, { contents: [{ uri, mimeType: "text/markdown", text: VERIFY_MD }] });
     if (uri === "yakumo://categories") return rpc(id, { contents: [{ uri, mimeType: "application/json", text: JSON.stringify({ categories: tallyWorks(contractors), areas: tallyAreas(contractors) }, null, 2) }] });
@@ -656,7 +710,8 @@ async function handleMcp(request, env, id, method, params, ctx) {
   if (method === "completion/complete") {
     const argument = params && params.argument;
     if (!argument || !argument.name) return rpcErr(id, -32602, "params.argument required");
-    const contractors = await liveContractors(env);
+    const rosterRead = await liveContractors(env);
+    const contractors = rosterRead.contractors;
     const val = safeStr(argument.value, 40);
     let pool = [];
     if (argument.name === "work") pool = Object.keys(tallyWorks(contractors));
@@ -668,7 +723,25 @@ async function handleMcp(request, env, id, method, params, ctx) {
   if (method === "tools/call") {
     const name = params && params.name;
     const args = (params && params.arguments) || {};
-    const contractors = await liveContractors(env);
+    const rosterRead = await liveContractors(env);
+    const contractors = rosterRead.contractors;
+    // The roster could not be read. Every tool below counts contractors, and a
+    // count we cannot stand behind is worse than no answer: it would tell a
+    // homeowner's AI that no verified contractor exists. Report our own failure
+    // as our own failure.
+    if (!rosterRead.read_ok) {
+      const detail = {
+        error: "roster_unavailable",
+        roster_read: false,
+        roster_source: rosterRead.source,
+        failures: rosterRead.failures,
+        note:
+          "The contractor roster could not be read, so this server is not reporting how " +
+          "many verified contractors there are. This is NOT a statement that there are none. " +
+          "Retry, or read the published roster directly at " + MALL_URL + ".",
+      };
+      return rpc(id, { content: [{ type: "text", text: JSON.stringify(detail, null, 2) }], isError: true });
+    }
     if (name === "list_verified_stores") {
       const area = safeStr(args.area, 40);
       const work = safeStr(args.work, 40);
@@ -681,6 +754,8 @@ async function handleMcp(request, env, id, method, params, ctx) {
       const payload = {
         mall: MALL_URL,
         operator: "The HORIZONs株式会社 / HORIZON SHIELD",
+        roster_read: true,
+        roster_source: rosterRead.source,
         verified_count: verified.length,
         pending_count: pending.length,
         stores: verified,
