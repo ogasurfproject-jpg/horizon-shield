@@ -458,7 +458,7 @@ async function surfaceHashes(tools, initResult, pages, complete) {
 //   into the same downstream value.
 //
 // Measured from the outputSchema each tool already declares in tools/list. Nothing is
-// executed. This renders NO verdict — it is a disclosed number, like reachable in gate58.
+// executed. This renders NO verdict ,  it is a disclosed number, like reachable in gate58.
 //
 // The test is STRUCTURAL and name-independent: a boolean, or an enum with 2+ values, is a
 // place a read-succeeded / read-failed / nothing-matched state can live. Field NAMES are
@@ -468,24 +468,25 @@ async function surfaceHashes(tools, initResult, pages, complete) {
 // reader can see the false positives (a job board that declares remote:boolean passes this
 // structural test and is not thereby holding the difference).
 function schemaHoldsState(schema) {
+  // v2, 2026-08-20, Federico Blanco Sanchez-Llanos's refinement. Only the ENVELOPE:
+  // the top-level properties of the outputSchema, outside whatever wraps the domain
+  // payload (data/result/items). Read-state conventionally lives in the envelope; an
+  // entity flag like a job listing's remote:boolean lives one level down, inside the
+  // object it describes, and is not read-state. Restricting to the top level strips
+  // that entity-nested class without dropping a real read-state (ours all sit at the
+  // envelope). It does NOT separate a top-level metadata boolean (cache_hit) from a
+  // top-level read-state: that residual is semantic, not structural, which is why the
+  // field names stay published so a reader makes the call the machine can't.
+  const props = (schema && schema.properties && typeof schema.properties === "object" && !Array.isArray(schema.properties))
+    ? schema.properties : {};
   const found = [];
-  const walk = (n, d) => {
-    if (!n || typeof n !== "object" || d > 6) return;
-    if (Array.isArray(n)) { for (const v of n) walk(v, d + 1); return; }
-    for (const [k, v] of Object.entries(n)) {
-      if (k === "properties" && v && typeof v === "object" && !Array.isArray(v)) {
-        for (const [pk, pv] of Object.entries(v)) {
-          if (!pv || typeof pv !== "object") continue;
-          const t = pv.type, ts = Array.isArray(t) ? t : (t ? [t] : []);
-          const isBool = ts.includes("boolean");
-          const isEnum = Array.isArray(pv.enum) && pv.enum.length >= 2;
-          if (isBool || isEnum) found.push(pk + ":" + (isEnum ? "enum" : "boolean"));
-        }
-      }
-      walk(v, d + 1);
-    }
-  };
-  walk(schema, 0);
+  for (const [pk, pv] of Object.entries(props)) {
+    if (!pv || typeof pv !== "object") continue;
+    const t = pv.type, ts = Array.isArray(t) ? t : (t ? [t] : []);
+    const isBool = ts.includes("boolean");
+    const isEnum = Array.isArray(pv.enum) && pv.enum.length >= 2;
+    if (isBool || isEnum) found.push(pk + ":" + (isEnum ? "enum" : "boolean"));
+  }
   return [...new Set(found)];
 }
 
@@ -742,7 +743,7 @@ async function runCheck(endpoint, allowToolCall) {
     record.absence_vs_failure = {
       condition: "06",
       measured: false,
-      reason: "the tool list could not be read, so the contract was not measured. This is NOT a statement that the server cannot distinguish the two — only that the gate did not see."
+      reason: "the tool list could not be read, so the contract was not measured. This is NOT a statement that the server cannot distinguish the two ,  only that the gate did not see."
     };
   }
 
@@ -799,7 +800,7 @@ function spec() {
         source: "Federico Blanco Sanchez-Llanos, \"The Mould, Not the Letter\", 2026-08-20",
         method: "Structural, name-independent: does a tool's declared outputSchema contain a boolean, or an enum with 2+ values, where a read-succeeded / read-failed / nothing-matched state could live. Read from tools/list; nothing is executed.",
         verdict: "none. A disclosed number, not a pass or fail. Nearly all of the field cannot do this, so a threshold would only condemn; and a schema is a declaration, not behaviour. Reported per verdict under the top-level key absence_vs_failure, with the field names that produced each pass so a reader can check the false positives.",
-        self_applied: "This gate's own get_conditions tool fails the test — it takes no arguments and has no read that can fail — and that is left standing rather than papered over."
+        self_applied: "This gate's own get_conditions tool fails the test ,  it takes no arguments and has no read that can fail ,  and that is left standing rather than papered over."
       }
     },
     tiers: {
@@ -1391,7 +1392,7 @@ function summarise(record) {
     reachable: publicReachable(record.reachable),
     record_sha256: record.record_sha256,
     conditions: out,
-    // 表面の指紋。fingerprint には入れない — 表面の変化は条件の flip ではなく、
+    // 表面の指紋。fingerprint には入れない ,  表面の変化は条件の flip ではなく、
     // 警報を鳴らさない。MCP 仕様自体が tools/list の変化を正常運用と見なしている。
     surface: (checks.mcp_endpoint && checks.mcp_endpoint.detail && checks.mcp_endpoint.detail.surface) || null,
     absence_vs_failure: record.absence_vs_failure ? {
@@ -1415,7 +1416,7 @@ async function recordHistory(env, endpoint, record) {
 
   // 表面が前回と違えば、日付付きの差分をこのエントリ自身に残す。
   // 指標にしない。回数も割合も作らない。何が増え、何が消え、何の définition が変わったか、だけ。
-  // 両方 complete のときだけ比較する — 部分読みとの比較から「削除」を出さない。
+  // 両方 complete のときだけ比較する ,  部分読みとの比較から「削除」を出さない。
   const prevSurface = last && last.surface ? last.surface : null;
   if (entry.surface && prevSurface && entry.surface.complete === true && prevSurface.complete === true
       && entry.surface.manifest_hash !== prevSurface.manifest_hash) {
@@ -1582,7 +1583,7 @@ async function runDailySweep(env, opts) {
 
 // Declared so a consumer can tell, from the contract alone, which answers this
 // gate is able to distinguish. Every field named here already existed in the
-// objects these tools return — nothing about a verdict changes, so a published
+// objects these tools return ,  nothing about a verdict changes, so a published
 // record_sha256 still recomputes to the same value.
 const GATE_CONDITIONS_SCHEMA = {
   type: "object",
@@ -1736,7 +1737,7 @@ function mcpText(obj) {
 //   collapse into the same downstream value.
 //
 // Measured 2026-08-20. This gate already knew the difference and said it in
-// prose — lookup_server literally answers "It is not reporting absence, because
+// prose ,  lookup_server literally answers "It is not reporting absence, because
 // it does not know." But all ten failure payloads rode home in the SUCCESS
 // channel: a JSON-RPC result with no isError, carrying {error: "..."} buried in
 // a text block. A human reader could tell. A machine consumer, which is exactly
@@ -1778,7 +1779,7 @@ async function verifyVerdict(record) {
     recomputed_sha256: got,
     method: "Remove record_sha256 and recompute_note, JSON.stringify the remainder in key order, SHA-256.",
     note: got === expected
-      ? "record_sha256 matches a recompute of this record. This proves only internal self-consistency (the body hashes to its own stored digest); it is NOT proof of authorship or that this gate issued it — anyone can compute the same hash with the public method above. For issuer authenticity/anchoring, rely on the JIDEC ledger, not this unkeyed checksum."
+      ? "record_sha256 matches a recompute of this record. This proves only internal self-consistency (the body hashes to its own stored digest); it is NOT proof of authorship or that this gate issued it ,  anyone can compute the same hash with the public method above. For issuer authenticity/anchoring, rely on the JIDEC ledger, not this unkeyed checksum."
       : "Mismatch. The verdict was altered after it was issued, or it was not issued by this gate. Reject it."
   };
 }

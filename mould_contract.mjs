@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// mould_contract.mjs — Federico's rule at the CONTRACT layer. READ-ONLY. Never tools/call.
+// mould_contract.mjs ,  Federico's rule at the CONTRACT layer. READ-ONLY. Never tools/call.
 //
 // Rule (Federico Blanco Sanchez-Llanos, "The Mould, Not the Letter", 2026-08-20):
 //   never let "the fetch failed" and "the fetch succeeded and found nothing"
@@ -7,13 +7,13 @@
 //
 // WHY THIS PROBE EXISTS
 //   The first probe measured the PROTOCOL layer (unknown method / resource / prompt).
-//   Everyone passed — the SDK forces it. That layer is thin.
+//   Everyone passed ,  the SDK forces it. That layer is thin.
 //   The layer the rule actually bites is inside a tool: it looked, found nothing,
 //   and had to decide what the consumer receives. Watching that at runtime needs
 //   tools/call, which we will not do to strangers.
 //
 //   But the question "CAN the consumer tell the two apart?" is answered before
-//   runtime — by the CONTRACT. tools/list returns it. tools/list executes nothing.
+//   runtime ,  by the CONTRACT. tools/list returns it. tools/list executes nothing.
 //   So the deep layer IS measurable, read-only, across the whole population.
 //
 // WHAT IS MEASURED (per tool)
@@ -21,10 +21,10 @@
 //               contract, NO programmatic way to separate "failed" from "empty".
 //   FLAT        outputSchema exists, but declares no field that can hold a STATE.
 //   DISCRIMINATING  outputSchema declares at least one boolean, or one enum with
-//               2+ values — a place where "read ok / read failed / nothing matched"
+//               2+ values ,  a place where "read ok / read failed / nothing matched"
 //               can actually live. Field names are NOT consulted (see v0.4 note).
 //
-// HONEST LIMITS — state these wherever the numbers are published:
+// HONEST LIMITS ,  state these wherever the numbers are published:
 //   1. A schema is a declaration, not behaviour. A tool with a good schema can still
 //      collapse at runtime; a tool with no schema may return prose a reader can tell
 //      apart. This measures the contract offered to the consumer, nothing more.
@@ -57,7 +57,7 @@ const CAP = 100;
 if (N > CAP) { console.error(`Refusing N=${N}; capped at ${CAP}. Do not blast the list.`); N = CAP; }
 const FILE = process.argv[3] || "survey/survey0_v4_endpoints_active_2026-08-19.txt";
 
-// Protocol versions to try, newest first — a server that rejects one may accept another.
+// Protocol versions to try, newest first ,  a server that rejects one may accept another.
 const PROTOS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 const PAUSE = 1500;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -108,7 +108,7 @@ function allKeys(node, out = [], depth = 0) {
   return out;
 }
 
-// v0.4 — the classifier was lexical and it under-counted.
+// v0.4 ,  the classifier was lexical and it under-counted.
 //
 // v0.3 matched field NAMES against a list (error|status|found|ok|count|...).
 // Measuring our own fixed endpoints exposed the flaw: hs-verify-gate declares
@@ -116,7 +116,7 @@ function allKeys(node, out = [], depth = 0) {
 // (boolean), and hs-mcp declares failure_reason. All of them genuinely carry the
 // difference. All were scored FLAT, because the list had never heard of those words.
 //
-// The obvious repair — add on_register|verified|roster_read to the list — is the
+// The obvious repair ,  add on_register|verified|roster_read to the list ,  is the
 // one thing that must not be done. That is tuning the ruler to the thing being
 // measured, by an author who owns some of the things being measured. Any score it
 // produced afterwards would be worthless, and worse, would look good.
@@ -127,24 +127,25 @@ function allKeys(node, out = [], depth = 0) {
 // distinction can actually live in, whatever the author chose to call it.
 //
 // A bare count is deliberately NOT enough. count: 0 does not tell a consumer the
-// source was read — a careless implementation returns 0 on failure too. That
+// source was read ,  a careless implementation returns 0 on failure too. That
 // judgement cost us: it means a fix we shipped earlier today (adding count to
 // fourteen hs-mcp schemas) does not pass this bar, and the number below says so.
-function collectTyped(node, out = [], depth = 0) {
-  if (!node || typeof node !== "object" || depth > 6) return out;
-  if (Array.isArray(node)) { for (const v of node) collectTyped(v, out, depth + 1); return out; }
-  for (const [k, v] of Object.entries(node)) {
-    if (k === "properties" && v && typeof v === "object" && !Array.isArray(v)) {
-      for (const [pk, pv] of Object.entries(v)) {
-        if (!pv || typeof pv !== "object") continue;
-        const t = pv.type;
-        const types = Array.isArray(t) ? t : (t ? [t] : []);
-        const isBool = types.includes("boolean");
-        const isEnum = Array.isArray(pv.enum) && pv.enum.length >= 2;
-        if (isBool || isEnum) out.push({ name: pk, kind: isEnum ? "enum" : "boolean" });
-      }
-    }
-    collectTyped(v, out, depth + 1);
+function collectTyped(node, out = []) {
+  // v2, 2026-08-20, Federico's refinement: only the ENVELOPE (top-level properties of
+  // the outputSchema), not fields nested inside the domain payload. Read-state lives in
+  // the envelope; a job's remote:boolean lives inside the job object and is not one.
+  // This strips the entity-nested false-positive class without dropping real read-states
+  // (ours are all top-level). It cannot separate a top-level metadata boolean from a
+  // top-level read-state, so the field names stay published for a human to judge.
+  const props = (node && node.properties && typeof node.properties === "object" && !Array.isArray(node.properties))
+    ? node.properties : {};
+  for (const [pk, pv] of Object.entries(props)) {
+    if (!pv || typeof pv !== "object") continue;
+    const t = pv.type;
+    const types = Array.isArray(t) ? t : (t ? [t] : []);
+    const isBool = types.includes("boolean");
+    const isEnum = Array.isArray(pv.enum) && pv.enum.length >= 2;
+    if (isBool || isEnum) out.push({ name: pk, kind: isEnum ? "enum" : "boolean" });
   }
   return out;
 }
@@ -174,7 +175,7 @@ function classifyTool(tool) {
 async function inspect(url) {
   // initialize, retrying across protocol versions; honour a server's advertised list.
   //
-  // v0.2 FIX — this function broke Federico's own rule.
+  // v0.2 FIX ,  this function broke Federico's own rule.
   //   v0.1 retried all three protocol versions whether the endpoint had REFUSED the
   //   version (a real answer: "not that one") or had simply not answered at all
   //   (a dead host, a timeout). Two different negative outcomes, collapsed into one
@@ -187,7 +188,7 @@ async function inspect(url) {
       params: { protocolVersion: p, capabilities: {},
                 clientInfo: { name: "mould-contract", version: "0.1" } } }, null, p);
     initHttp = i.status; tried.push(p);
-    // "the fetch failed" is NOT "the server said no" — keep them apart.
+    // "the fetch failed" is NOT "the server said no" ,  keep them apart.
     if (i.status === null) { dead = true; break; }
     const o = parseRpc(i.ct, i.raw);
     if (o && o.result) { init = o; sid = i.sid; proto = p; break; }
@@ -213,7 +214,7 @@ async function inspect(url) {
     await post(url, { jsonrpc: "2.0", method: "notifications/initialized", params: {} }, sid, proto); }
   await sleep(PAUSE);
 
-  // tools/list — a listing. Executes nothing.
+  // tools/list ,  a listing. Executes nothing.
   const t = await post(url, { jsonrpc: "2.0", id: 2, method: "tools/list", params: {} }, sid, proto);
   const to = parseRpc(t.ct, t.raw);
   const tools = (to && to.result && Array.isArray(to.result.tools)) ? to.result.tools : [];
@@ -226,7 +227,7 @@ function report(label, results) {
   let O = 0, F = 0, D = 0, servers = 0, opaqueServers = 0;
   for (const r of results) {
     if (!r.ok) {
-      // report the two negatives separately — that is the whole point
+      // report the two negatives separately ,  that is the whole point
       console.log(r.dead
         ? `  [unreachable] ${r.url}  (no HTTP response; not retried)`
         : `  [answered, not MCP here] ${r.url}  (http=${r.initHttp}, tried ${r.tried})`);
@@ -260,7 +261,7 @@ function report(label, results) {
   return { O, F, D, servers, opaqueServers };
 }
 
-// v0.3 — a run that prints nothing until it finishes makes "still working" and
+// v0.3 ,  a run that prints nothing until it finishes makes "still working" and
 // "hung" arrive at the operator as the same value: a blinking cursor. That is the
 // same collapse this probe is about, at the human boundary. So: emit one line per
 // endpoint, as it completes, with a counter.
@@ -279,13 +280,13 @@ function liveLine(i, n, r) {
 (async () => {
   const bar = "=".repeat(72);
   console.log(bar);
-  console.log("MOULD PROBE — CONTRACT layer (READ-ONLY, tools/list only, NO tools/call)");
+  console.log("MOULD PROBE ,  CONTRACT layer (READ-ONLY, tools/list only, NO tools/call)");
   console.log("METHOD (published before results):");
   console.log("  initialize (retrying protocol versions, honouring supportedVersions),");
-  console.log("  then tools/list — a listing, which executes nothing.");
+  console.log("  then tools/list ,  a listing, which executes nothing.");
   console.log("  Each tool is classed by whether its declared contract can carry the");
   console.log("  difference between 'the fetch failed' and 'it found nothing'.");
-  console.log("  TEST USED (structural, name-independent — argue with it):");
+  console.log("  TEST USED (structural, name-independent ,  argue with it):");
   console.log("    a contract can hold the difference if it declares at least one");
   console.log("    boolean field, or an enum with 2+ values. Those are the shapes a");
   console.log("    read-succeeded / read-failed / nothing-matched state can live in.");
@@ -308,7 +309,7 @@ function liveLine(i, n, r) {
     console.log(liveLine(own.length, OWN.length, r));
     await sleep(PAUSE);
   }
-  const ownAgg = report(`OWN ENDPOINTS (${OWN.length}) — we measure ourselves first`, own);
+  const ownAgg = report(`OWN ENDPOINTS (${OWN.length}) ,  we measure ourselves first`, own);
 
   let popAgg = null;
   if (N > 0) {
@@ -337,7 +338,7 @@ function liveLine(i, n, r) {
   console.log(`elapsed ${elapsed.toFixed(0)}s`);
   console.log("JUDGMENT GATE (manual, not automated):");
   console.log("  If the share of tools that cannot hold the difference is large, this");
-  console.log("  DOES separate endpoints — unlike -32601, which everyone passes — and");
+  console.log("  DOES separate endpoints ,  unlike -32601, which everyone passes ,  and");
   console.log("  is a real candidate for directory condition 06, citing Federico as");
   console.log("  its source. If it is near zero, do not make it a condition; publish");
   console.log("  that we measured and found no meaningful difference.");
