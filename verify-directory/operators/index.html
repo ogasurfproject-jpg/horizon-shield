@@ -56,6 +56,25 @@
 
 <section>
   <div class="wrap">
+    <div class="confess">
+      <div class="big">Do not trust us. Measure us first.</div>
+      <p>Before you put your server in front of this gate, put the gate in front of itself. It is on the same register as everyone else, under the same conditions, and <b>it does not pass all of them today</b>. On 2026-08-08 the first run against our own servers scored <b>0.0% on compensation disclosure</b>. Under condition 06, <b>85.7% of our own tools failed before we fixed them to 2.9%</b>. Both numbers are still published, and we did not delete them.</p>
+      <p>So this is not a claim that we are transparent. It is the other way around: <b>point the gate at us, and keep whatever comes back, good or bad.</b></p>
+      <pre><span class="c"># measure this gate itself, right now</span>
+curl -s -X POST https://gate.horizonshield.dev/check \
+  -H 'content-type: application/json' \
+  -d '{"endpoint":"https://gate.horizonshield.dev/mcp"}'</pre>
+      <div class="linkset">
+        <a href="https://gate.horizonshield.dev/self">The checker's verdict on itself</a>
+        <a href="/verify-directory/failures/">Where we failed first, still published</a>
+        <a href="https://gate.horizonshield.dev/spec">Implement the check yourself</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
     <div class="kh">Three steps</div>
     <h2>No account, no fee, no waiting list</h2>
     <ol class="steps">
@@ -76,7 +95,7 @@
       <div class="r"><div class="k">03 &middot; disclosure</div><div class="v">Declare <code>paid_by</code>, <code>referral_fee</code> and <code>listing_fee</code> on the card. <b>Only silence disqualifies.</b> "referral_fee: none" and "referral_fee: 20 percent" both pass. We are not scoring the answer, only whether it was given.</div></div>
       <div class="r"><div class="k">04 &middot; determinism</div><div class="v">Not measured unless you ask for it, because it means executing one of your tools. Ask, and name the tool that is safe to call twice.</div></div>
       <div class="r"><div class="k">05 &middot; recomputable</div><div class="v">This one is on us, not on you. If a hash does not recompute, that is our defect.</div></div>
-      <div class="r"><div class="k">06 &middot; absence vs failure</div><div class="v"><b>A disclosed measurement, not a pass or fail.</b> From <code>tools/list</code> alone, the gate reads whether each tool's declared <code>outputSchema</code> can separate &ldquo;the call failed&rdquo; from &ldquo;the call found nothing&rdquo;, a boolean, or an enum with two or more values, where that state can live. It executes nothing and judges nobody: the verdict field is <code>null</code> on purpose, and the field names behind every score are published so you can see the false positives. Across 12,429 public endpoints, 96.7-99.1% of tools cannot make the distinction; <b>85.7% of ours could not either, before we fixed it to 2.9%</b> (<a href="/verify-directory/failures/">we measured ourselves first</a>). <b>To move your number:</b> declare a real read-state (a boolean, or an enum like <code>lookup: ok | absent</code>) and put failures in the tool-error channel, so an empty result and a failed read never arrive as the same value. Named by Federico Blanco Sanchez-Llanos, &ldquo;The Mould, Not the Letter&rdquo;, 2026-08-20.</div></div>
+      <div class="r"><div class="k">06 &middot; absence vs failure</div><div class="v"><b>A disclosed measurement, not a pass or fail.</b> From <code>tools/list</code> alone, the gate reads whether each tool's declared <code>outputSchema</code> can separate &ldquo;the call failed&rdquo; from &ldquo;the call found nothing&rdquo;, a boolean, or an enum with two or more values, where that state can live. It executes nothing and judges nobody: the verdict field is <code>null</code> on purpose, and the field names behind every score are published so you can see the false positives. Across 12,429 public endpoints, 96.7-99.1% of tools cannot make the distinction; <b>85.7% of ours could not either, before we fixed it to 2.9%</b> (<a href="/verify-directory/failures/">we measured ourselves first</a>). <b>To move your number:</b> declare a real read-state (a boolean, or an enum like <code>lookup: ok | absent</code>) and put failures in the tool-error channel, so an empty result and a failed read never arrive as the same value. <b>That fix is free and complete.</b> If you would rather have it done for you and measured in public, before and after under one ruler, that is the paid remediation, with the conflict of interest named on its <a href="/verify-directory/operators/fix/">own page</a>. The verdict itself is never for sale. Named by Federico Blanco Sanchez-Llanos, &ldquo;The Mould, Not the Letter&rdquo;, 2026-08-20.</div></div>
     </div>
     <p class="slead" style="margin-top:20px">If you want this walked through against your actual server, that is the paid part: <a href="/verify-directory/operators/fix/">2.0 hours, itemised, and the conflict of interest named on the page</a>. <b>Before you go there, the three free things on that page solve most rows</b>, and if we think yours is one of them we will say so rather than take the work.</p>
   </div>
