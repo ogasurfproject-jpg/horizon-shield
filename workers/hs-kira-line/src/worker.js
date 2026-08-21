@@ -339,11 +339,19 @@ async function processEvents(events, env) {
       // グループ/複数人トークでは返信しない（変な会話を出さない）。
       // ただし、登録済み加盟店のテキストは、答えを取りこぼさないよう「静かに」DBへ取り込む。
       // isPartner に空文字を渡すのは、既存の加盟店判定だけ行い、グループ発言で新規登録しないため。
+      // HS-KIRA-GROUP-INGEST-V2: グループのテキストは、送信者が加盟店でなくても取り込みを試みる。
+      //   hs-hearing 側が group2store で「そのグループの店」に束ねる(未確定なら取り込まない)。
+      //   これで、堤さんの会社に属するスタッフ(森下さん)の回答も、堤さんのDBに入る。
+      const gid = (event.source && (event.source.groupId || event.source.roomId)) || null;
       if (event.type === "message" && event.message.type === "text" && event.message.text) {
         try {
           const gt = event.message.text.trim();
-          const gpf = await isPartner(userId, "", env);
-          if (gpf.partner && gt) await ingestPartnerSilently(gt, userId, env);
+          if (gt && gid) await ingestPartnerSilently(gt, userId, gid, env);
+        } catch (_e) {}
+      } else if (event.type === "message" && (event.message.type === "image" || event.message.type === "file")) {
+        // グループに貼られた資料(画像/ファイル)は、勝手に扱わず、大賀さんに要対応で知らせる。
+        try {
+          await pushToLine(env.LINE_USER_ID, "\ud83d\udcce\u3010\u30b0\u30eb\u30fc\u30d7\u306b\u8cc7\u6599\u3011\u8981\u5bfe\u5fdc(\u4eba\u304c\u78ba\u8a8d)\u3002\u30e1\u30f3\u30d0\u30fc\u304c\u753b\u50cf/\u30d5\u30a1\u30a4\u30eb\u3092\u8cbc\u308a\u307e\u3057\u305f\u30021\u5bfe1\u30c8\u30fc\u30af\u3067\u306e\u53d7\u9818\u3092\u3054\u6848\u5185\u304f\u3060\u3055\u3044\u3002", env.LINE_CHANNEL_TOKEN);
         } catch (_e) {}
       }
       continue;
@@ -1410,7 +1418,7 @@ async function runFollowups(env) {
   }
 }
 __name(runFollowups, "runFollowups");
-async function ingestPartnerSilently(userMessage, userId, env) {
+async function ingestPartnerSilently(userMessage, userId, groupId, env) {
   // グループ/複数人トークからの加盟店メッセージを、返信せずにヒアリングDBへ取り込む。
   //   bridge(handleKiraBridge)がサーバ側で ingestHearingAnswer を実行する。返ってくる返信は捨てる。
   if (!env.KIRA_BRIDGE_KEY) return;
@@ -1418,7 +1426,7 @@ async function ingestPartnerSilently(userMessage, userId, env) {
     await fetch("https://hearing.horizonshield.dev/kira-bridge", {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Bridge-Key": env.KIRA_BRIDGE_KEY },
-      body: JSON.stringify({ userId, text: userMessage })
+      body: JSON.stringify({ userId, text: userMessage, groupId: groupId || null })
     });
   } catch (_e) {}
 }

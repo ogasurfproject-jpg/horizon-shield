@@ -1191,9 +1191,27 @@ async function aiPartnerReply(env, text) {
   return out;
 }
 
-async function handleKiraBridge(env, userId, text) {
+async function handleKiraBridge(env, userId, text, groupId) {
   const t = String(text || "").trim();
   let storeId = await env.HS_HEARING_KV.get("line2store:" + userId, "text");
+
+  // 2026-08-21: グループ経由のメンバー紐づけ。グループに登録済み加盟店(例:堤さん)が居れば
+  //   その投稿で group2store が立ち、同じグループの他メンバー(スタッフ=森下さん)を、その店に
+  //   束ねて「同じ会社のデータ」として取り込む。ゴミ店を作らないため、グループでは新規店を
+  //   自動作成しない(group2storeが未確定なら取り込まない)。
+  if (groupId) {
+    if (storeId) {
+      try { await env.HS_HEARING_KV.put("group2store:" + groupId, storeId); } catch (_e) {}
+    } else {
+      const gs = await env.HS_HEARING_KV.get("group2store:" + groupId, "text");
+      if (!gs) return { ok: true, reply: "" };
+      storeId = gs;
+      try {
+        await env.HS_HEARING_KV.put("line2store:" + userId, gs);
+        await env.HS_HEARING_KV.put("member2store:" + userId, gs);
+      } catch (_e) {}
+    }
+  }
 
   // 本文に既知の登録コードがあれば従来どおり紐づけ(招待済み加盟店)
   if (!storeId) {
@@ -1584,7 +1602,8 @@ export default {
       let bb; try { bb = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
       const uid = safeStr(bb.userId, 64);
       if (!/^U[0-9a-f]{32}$/.test(uid)) return json({ error: "bad_user" }, 400);
-      const out = await handleKiraBridge(env, uid, safeStr(bb.text, 6000));
+      const gid = /^[CR][0-9a-f]{32}$/.test(safeStr(bb.groupId || "", 64)) ? safeStr(bb.groupId || "", 64) : null;
+      const out = await handleKiraBridge(env, uid, safeStr(bb.text, 6000), gid);
       return json(out);
     }
 
