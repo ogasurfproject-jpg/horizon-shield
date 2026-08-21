@@ -343,6 +343,22 @@ async function processEvents(events, env) {
       //   hs-hearing 側が group2store で「そのグループの店」に束ねる(未確定なら取り込まない)。
       //   これで、堤さんの会社に属するスタッフ(森下さん)の回答も、堤さんのDBに入る。
       const gid = (event.source && (event.source.groupId || event.source.roomId)) || null;
+      // HS-KIRA-MEMBER-PROMOTE-20260821: グループのメンバーを、その会社に紐づく"加盟店メンバー"として印を付ける。
+      //   本物の加盟店(堤さん)が居るグループを groupPartner で覚え、他メンバー(森下さん)を昇格させる。
+      //   これで森下さんの1対1も加盟店扱いになり、見積画像が施主診断(\u00a55,500)に誤爆しない。
+      //   本人が「加盟店希望」を送る必要はない(送ると別会社になる)。グループ在籍だけで束ねる。
+      if (gid) {
+        try {
+          const _rec = await env.SEEN_STORE.get("partner:" + userId);
+          if (_rec) {
+            let _via = ""; try { _via = (JSON.parse(_rec).via) || ""; } catch (_e) {}
+            if (_via !== "group_member") await env.SEEN_STORE.put("groupPartner:" + gid, "1", { expirationTtl: 60 * 60 * 24 * 365 });
+          } else {
+            const _gp = await env.SEEN_STORE.get("groupPartner:" + gid);
+            if (_gp) await env.SEEN_STORE.put("partner:" + userId, JSON.stringify({ since: Date.now(), via: "group_member", groupId: gid }), { expirationTtl: 60 * 60 * 24 * 365 });
+          }
+        } catch (_e) {}
+      }
       if (event.type === "message" && event.message.type === "text" && event.message.text) {
         try {
           const gt = event.message.text.trim();
@@ -1459,10 +1475,13 @@ async function handlePartnerMessage(userMessage, replyToken, userId, justJoined,
   let bridgeFail = env.KIRA_BRIDGE_KEY ? null : "KIRA_BRIDGE_KEY \u304C\u672A\u8A2D\u5B9A";
   if (env.KIRA_BRIDGE_KEY) {
     try {
+      // ③ グループメンバー(森下さん等)は、所属グループ経由で会社に束ねる。1対1でも groupId を渡す。
+      let memberGid = null;
+      try { const _rec = await env.SEEN_STORE.get("partner:" + userId); if (_rec) { memberGid = (JSON.parse(_rec).groupId) || null; } } catch (_e) {}
       const br = await fetch("https://hearing.horizonshield.dev/kira-bridge", {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Bridge-Key": env.KIRA_BRIDGE_KEY },
-        body: JSON.stringify({ userId, text: userMessage })
+        body: JSON.stringify({ userId, text: userMessage, groupId: memberGid })
       });
       if (br.ok) {
         const data = await br.json();
