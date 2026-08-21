@@ -1,20 +1,26 @@
 {
-  // hs-verify-relay — 扉(hs-verify-gate)の同一ゾーン522を迂回する中継。
+  // hs-verify-relay: 扉(hs-verify-gate)の同一ゾーン522を迂回する中継。
   //
-  // workers.dev に住む理由:
-  //   HTTPで呼ばれた扉は自ゾーン(horizonshield.dev)への subrequest が 522 になる
-  //   (2026-08-14〜15 実測)。HTTP文脈の扉→同一アカウント workers.dev は届くことを
-  //   実測済み (2026-08-15朝)。扉→この中継→horizonshield.dev は公開エッジを通る。
-  //   ★cron文脈の扉→workers.dev は塞がっている(過去実測)。だから扉側は
-  //     HTTP文脈のときだけこの中継を使う。cronは従来どおり直接で通る。
+  // 2026-08-21 恒久対応: workers.dev から別ゾーンのカスタムドメインへ移した。
+  //   問題: gate(horizonshield.dev) -> relay(hs-verify-relay.oga-surf-project.workers.dev)は
+  //   同一アカウントの workers.dev 間 subrequest で、Cloudflare がこれを塞ぐ。cron文脈では
+  //   http 404 になり、2026-08-19 以降 gate 自身の自己測定が "relay unavailable" で pending に
+  //   なっていた(測る側が自分を測れない看板事故)。
+  //   直し: relay を別ゾーン(the-horizons-innovation.com。gate の horizonshield.dev とは別)の
+  //   カスタムドメインに置く。gate -> relay は真のクロスゾーン公開エッジになり、cron/HTTP
+  //   どちらからも届く。relay -> horizonshield.dev も別ゾーンなので届く(522 は同一ゾーンだけ)。
+  //   custom_domain:true で wrangler が DNS レコードごと作る(jidec/ledger と同じ作法)。
   //
   // binding は持たない。KVも持たない。状態ゼロ。
   // secret は RELAY_TOKEN のみ (wrangler secret put RELAY_TOKEN)。
-  // 扉側にも同じ値を RELAY_TOKEN として入れ、扉の RELAY_URL がここを指す。
+  // 扉側にも同じ値を RELAY_TOKEN として入れ、扉の RELAY_URL がここ(custom domain)を指す。
   "name": "hs-verify-relay",
   "main": "src/worker.js",
   "workers_dev": true,
   "preview_urls": false,
   "observability": { "enabled": true, "logs": { "enabled": true } },
-  "compatibility_date": "2024-01-01"
+  "compatibility_date": "2024-01-01",
+  "routes": [
+    { "pattern": "relay.the-horizons-innovation.com", "custom_domain": true }
+  ]
 }

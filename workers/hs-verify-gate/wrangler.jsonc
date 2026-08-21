@@ -27,11 +27,16 @@
     { "binding": "HS_VERIFY_KV", "id": "ab98336fc22d4d0f947501d843d2d228" }
   ],
 
-  // 同一ゾーン522の迂回先 (2026-08-15)。RELAY_TOKEN は secret で入れる:
+  // 同一ゾーン522の迂回先。RELAY_TOKEN は secret で入れる:
   //   npx wrangler secret put RELAY_TOKEN
   // 中継側(hs-verify-relay)にも同じ値を入れる。片方だけだと 403 で
   // 「relay unavailable: gate-side failure」が判定に出る(相手の記録にはならない)。
+  //
+  // 2026-08-21: workers.dev から別ゾーンのカスタムドメインへ変更。
+  //   旧 hs-verify-relay.oga-surf-project.workers.dev は同一アカウント workers.dev 間
+  //   subrequest を Cloudflare に塞がれ、cron の自己測定が http 404 で pending になっていた。
+  //   relay を the-horizons-innovation.com(別ゾーン)に置き、ここをそのまま指す。
   "vars": {
-    "RELAY_URL": "https://hs-verify-relay.oga-surf-project.workers.dev"
+    "RELAY_URL": "https://relay.the-horizons-innovation.com"
   }
 }
