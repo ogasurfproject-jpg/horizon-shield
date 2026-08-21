@@ -829,6 +829,31 @@ async function callTool(name, args, env, ip, opts) {
           },
           spec_note: "現行AP2(ap2-protocol.org)では CartMandate は {contents, merchant_signature, timestamp}。ユーザー承認は別の PaymentMandate.payment_mandate_contents.user_authorization が担う。displayItems/total は W3C Payment Request 準拠の camelCase。この例は貼り位置の非規範な図示で、署名や PaymentMandate の生成には関与しない。"
         },
+        x402_402_example: {
+          note: "x402 の 402 Payment Required 応答に、価値の証跡(参照)を載せる位置の例示(非規範)。現行x402仕様(coinbase/x402 v2)の形。x402は『いくら誰にどの資産で払うか』を検証可能にし、HORIZON SHIELDは『その額の根拠となる価格が適正か』を検証可能にする。決済額(オンチェーン)と適正価格の主張(JPY)は別建てで、拡張の参照で結ぶ。JPYから暗号資産への換算はしない。",
+          note_en: "Non-normative example of where a value attestation reference rides on an x402 402 response. x402 makes the settlement verifiable (how much, to whom, in which asset); HORIZON SHIELD makes the underlying price verifiable. The on-chain amount and the JPY fair-price claim are separate, linked by the extension reference, never converted.",
+          http_status: 402,
+          body: {
+            x402Version: 1,
+            error: "payment required",
+            resource: { url: verify_url, description: claim.work },
+            accepts: [
+              {
+                scheme: "exact",
+                network: "base",
+                amount: "(決済額。資産の最小単位建て。適正価格の主張(JPY)とは別建て)",
+                asset: "(決済資産のID / トークンアドレス)",
+                payTo: "(受取アドレス)",
+                maxTimeoutSeconds: 60,
+                extra: { note: "スキーム固有の追加情報" }
+              }
+            ],
+            extensions: {
+              "com.the-horizons-innovation.shield.fair_price_attestation": { claim_sha256: hash, verify_url, note: "本レスポンスの attestation をここへ埋め込む。x402 の応答レベル extensions は拡張データを許容する。" }
+            }
+          },
+          spec_note: "現行x402(coinbase/x402 v2)の 402応答は {x402Version, error, resource, accepts[], extensions}。accepts[] は {scheme, network, amount, asset, payTo, maxTimeoutSeconds, extra}。amount は資産の最小単位建て。この例は貼り位置の非規範な図示で、決済実行・資産/アドレス指定・オンチェーン処理には関与しない。"
+        },
         meaning: "エージェント経済の決済に『承認の証明』と『価値の証明』を同時に載せるための橋。価格の根拠はハッシュと台帳で検証でき、発行者を信用する必要はない。",
         detail: SITE + "/verify/"
       });
