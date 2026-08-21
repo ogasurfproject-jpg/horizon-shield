@@ -16,23 +16,40 @@
 //   runtime ,  by the CONTRACT. tools/list returns it. tools/list executes nothing.
 //   So the deep layer IS measurable, read-only, across the whole population.
 //
-// WHAT IS MEASURED (per tool)
-//   OPAQUE      no outputSchema. The consumer receives free text and has, by
-//               contract, NO programmatic way to separate "failed" from "empty".
-//   FLAT        outputSchema exists, but declares no field that can hold a STATE.
-//   DISCRIMINATING  outputSchema declares at least one boolean, or one enum with
-//               2+ values ,  a place where "read ok / read failed / nothing matched"
-//               can actually live. Field names are NOT consulted (see v0.4 note).
+// THREE RULERS, ALL REPORTED (2026-08-21). They err in different directions, so the
+// honest artifact is the spread between them plus the field names, never one number:
+//   v1  all-depth structural   a boolean or a 2+ enum ANYWHERE in the schema. The
+//                              original ruler. Reproduces the frozen mould-gh-12
+//                              figure (96.7% cannot, on the 30-sample).
+//   v2  top-level structural   the same test, but ONLY on the envelope's own
+//                              properties, not fields nested inside the domain
+//                              payload. Federico's refinement, 2026-08-20. Strips
+//                              the entity-nested false positive (a job's remote
+//                              boolean) without dropping a real read-state, which
+//                              all sit at the envelope. This is the ruler the live
+//                              gate now uses. Its known blind spot: a schema that
+//                              declares its shape through a root allOf / anyOf with
+//                              no direct properties reads as "cannot" even if a
+//                              discriminator sits inside the composition. Rare, errs
+//                              toward overstating "cannot", none of our own hit it.
+//   lex  field-name lexical    a property NAME (any depth) drawn from a fixed list.
+//                              Misses domain-specific names, so it OVERSTATES the
+//                              problem: an UPPER BOUND, not a measurement (99.1% on
+//                              the 30-sample). Kept only as the top of the band.
+//   The gap between v2 top-level structural and lexical is the residual Federico
+//   named: a top-level metadata boolean (cache_hit) is structurally identical to a
+//   top-level read-state, and only meaning separates them. No shape rule crosses
+//   that line, so the field names are printed for a human to make the call.
 //
 // HONEST LIMITS ,  state these wherever the numbers are published:
 //   1. A schema is a declaration, not behaviour. A tool with a good schema can still
 //      collapse at runtime; a tool with no schema may return prose a reader can tell
 //      apart. This measures the contract offered to the consumer, nothing more.
-//   2. This test replaced a field-NAME list on 2026-08-20 after that list was caught
-//      under-counting our own repaired endpoints. Any number produced by the older
-//      lexical version is an UPPER BOUND on the problem, not a measurement of it.
-//   3. outputSchema arrived in protocol revision 2025-06-18. Part of what a low score
+//   2. outputSchema arrived in protocol revision 2025-06-18. Part of what a low score
 //      measures is when the server was written, not only what its author cared about.
+//   3. Field NAMES are not consulted by the structural rulers on purpose: the author
+//      of this probe owns some of the endpoints it scores, and a name list would let
+//      him score himself well by renaming his own fields.
 //
 // Own endpoints are measured FIRST. Population sample is spread, slow, capped.
 // Run:  node mould_contract.mjs [sample_N] [endpoints_file]
@@ -108,46 +125,60 @@ function allKeys(node, out = [], depth = 0) {
   return out;
 }
 
-// v0.4 ,  the classifier was lexical and it under-counted.
-//
-// v0.3 matched field NAMES against a list (error|status|found|ok|count|...).
-// Measuring our own fixed endpoints exposed the flaw: hs-verify-gate declares
-// on_register (boolean) and verified (boolean), hs-hearing declares roster_read
-// (boolean), and hs-mcp declares failure_reason. All of them genuinely carry the
-// difference. All were scored FLAT, because the list had never heard of those words.
-//
-// The obvious repair ,  add on_register|verified|roster_read to the list ,  is the
-// one thing that must not be done. That is tuning the ruler to the thing being
-// measured, by an author who owns some of the things being measured. Any score it
-// produced afterwards would be worthless, and worse, would look good.
-//
-// So the test is now STRUCTURAL and name-independent: can the declared contract
-// carry a STATE at all? A boolean field has two states. An enum has its listed
-// states. Those are the shapes a "read succeeded / read failed / nothing matched"
-// distinction can actually live in, whatever the author chose to call it.
-//
-// A bare count is deliberately NOT enough. count: 0 does not tell a consumer the
-// source was read ,  a careless implementation returns 0 on failure too. That
-// judgement cost us: it means a fix we shipped earlier today (adding count to
-// fourteen hs-mcp schemas) does not pass this bar, and the number below says so.
-function collectTyped(node, out = []) {
-  // v2, 2026-08-20, Federico's refinement: only the ENVELOPE (top-level properties of
-  // the outputSchema), not fields nested inside the domain payload. Read-state lives in
-  // the envelope; a job's remote:boolean lives inside the job object and is not one.
-  // This strips the entity-nested false-positive class without dropping real read-states
-  // (ours are all top-level). It cannot separate a top-level metadata boolean from a
-  // top-level read-state, so the field names stay published for a human to judge.
+// ---- THREE RULERS ----------------------------------------------------------
+// A property "holds a state" if it declares a boolean, or an enum with 2+ values.
+function isStateProp(pv) {
+  if (!pv || typeof pv !== "object") return null;
+  const t = pv.type;
+  const types = Array.isArray(t) ? t : (t ? [t] : []);
+  const isBool = types.includes("boolean");
+  const isEnum = Array.isArray(pv.enum) && pv.enum.length >= 2;
+  if (isBool || isEnum) return isEnum ? "enum" : "boolean";
+  return null;
+}
+
+// v1: all-depth structural. Any state-holding property ANYWHERE. The original ruler;
+// reproduces the frozen mould-gh-12 figure.
+function collectDeep(node, out = [], depth = 0) {
+  if (!node || typeof node !== "object" || depth > 6) return out;
+  if (Array.isArray(node)) { for (const v of node) collectDeep(v, out, depth + 1); return out; }
+  for (const [k, v] of Object.entries(node)) {
+    if (k === "properties" && v && typeof v === "object" && !Array.isArray(v)) {
+      for (const [pk, pv] of Object.entries(v)) {
+        const kind = isStateProp(pv);
+        if (kind) out.push({ name: pk, kind });
+      }
+    }
+    collectDeep(v, out, depth + 1);
+  }
+  return out;
+}
+
+// v2: top-level structural. Only the envelope's own properties. Federico's refinement.
+function collectTopLevel(node, out = []) {
   const props = (node && node.properties && typeof node.properties === "object" && !Array.isArray(node.properties))
     ? node.properties : {};
   for (const [pk, pv] of Object.entries(props)) {
-    if (!pv || typeof pv !== "object") continue;
-    const t = pv.type;
-    const types = Array.isArray(t) ? t : (t ? [t] : []);
-    const isBool = types.includes("boolean");
-    const isEnum = Array.isArray(pv.enum) && pv.enum.length >= 2;
-    if (isBool || isEnum) out.push({ name: pk, kind: isEnum ? "enum" : "boolean" });
+    const kind = isStateProp(pv);
+    if (kind) out.push({ name: pk, kind });
   }
   return out;
+}
+
+// lexical: any property NAME (any depth) in the fixed list. Upper bound.
+function collectLexical(node) {
+  const seen = new Set(), out = [];
+  for (const k of allKeys(node)) {
+    if (seen.has(k)) continue; seen.add(k);
+    if (DISCRIMINATING_FIELD.test(k)) out.push(k);
+  }
+  return out;
+}
+
+function dedupTyped(arr) {
+  const s = new Set(), o = [];
+  for (const f of arr) { if (s.has(f.name)) continue; s.add(f.name); o.push(f.name + ":" + f.kind); }
+  return o;
 }
 
 function classifyTool(tool) {
@@ -157,19 +188,16 @@ function classifyTool(tool) {
   const descNF = DESC_NOTFOUND.test(desc);
   const descER = DESC_ERROR.test(desc);
   if (!hasOut) {
-    return { cls: "OPAQUE", fields: [], descNF, descER };
+    return { name: tool.name, opaque: true, v1: [], v2: [], lex: [], descNF, descER };
   }
-  // structural: a boolean or an enum can hold a state. Nothing else is counted,
-  // and no field name is privileged.
-  const typed = collectTyped(out);
-  const seen = new Set();
-  const disc = [];
-  for (const f of typed) {
-    if (seen.has(f.name)) continue;
-    seen.add(f.name);
-    disc.push(f.name + ":" + f.kind);
-  }
-  return { cls: disc.length ? "DISCRIMINATING" : "FLAT", fields: disc, descNF, descER };
+  return {
+    name: tool.name,
+    opaque: false,
+    v1: dedupTyped(collectDeep(out)),
+    v2: dedupTyped(collectTopLevel(out)),
+    lex: collectLexical(out),
+    descNF, descER,
+  };
 }
 
 async function inspect(url) {
@@ -218,47 +246,64 @@ async function inspect(url) {
   const t = await post(url, { jsonrpc: "2.0", id: 2, method: "tools/list", params: {} }, sid, proto);
   const to = parseRpc(t.ct, t.raw);
   const tools = (to && to.result && Array.isArray(to.result.tools)) ? to.result.tools : [];
-  return { url, ok: true, initHttp, proto, tools: tools.map((x) => ({ name: x.name, ...classifyTool(x) })) };
+  return { url, ok: true, initHttp, proto, tools: tools.map((x) => classifyTool(x)) };
 }
+
+// a tool "can hold the difference" under a ruler if it is not opaque and that
+// ruler found at least one state-holding field.
+const canV1 = (t) => !t.opaque && t.v1.length > 0;
+const canV2 = (t) => !t.opaque && t.v2.length > 0;
+const canLex = (t) => !t.opaque && t.lex.length > 0;
 
 function report(label, results) {
   const bar = "-".repeat(72);
   console.log(`\n${bar}\n${label}\n${bar}`);
-  let O = 0, F = 0, D = 0, servers = 0, opaqueServers = 0;
+  let servers = 0, tot = 0, opaque = 0;
+  const cannot = { v1: 0, v2: 0, lex: 0 };
+  const canSrv = { v1: new Set(), v2: new Set(), lex: new Set() };
+  const dropped = [];
   for (const r of results) {
     if (!r.ok) {
-      // report the two negatives separately ,  that is the whole point
       console.log(r.dead
         ? `  [unreachable] ${r.url}  (no HTTP response; not retried)`
         : `  [answered, not MCP here] ${r.url}  (http=${r.initHttp}, tried ${r.tried})`);
       continue;
     }
     servers++;
-    const o = r.tools.filter((t) => t.cls === "OPAQUE").length;
-    const f = r.tools.filter((t) => t.cls === "FLAT").length;
-    const d = r.tools.filter((t) => t.cls === "DISCRIMINATING").length;
-    O += o; F += f; D += d;
-    if (r.tools.length && d === 0) opaqueServers++;
-    console.log(`  ${r.url}`);
-    console.log(`      tools=${r.tools.length}  OPAQUE=${o}  FLAT=${f}  DISCRIMINATING=${d}   [proto ${r.proto}]`);
-    for (const t of r.tools.slice(0, 6)) {
-      const extra = t.fields.length ? ` fields:{${t.fields.join(",")}}` : "";
-      const dsc = (t.descNF ? " desc:not-found" : "") + (t.descER ? " desc:error" : "");
-      console.log(`        - ${String(t.name).slice(0, 44).padEnd(44)} ${t.cls}${extra}${dsc}`);
+    console.log(`  ${r.url}   [proto ${r.proto}]  tools=${r.tools.length}`);
+    for (const t of r.tools) {
+      tot++;
+      if (t.opaque) opaque++;
+      if (!canV1(t)) cannot.v1++; else canSrv.v1.add(r.url);
+      if (!canV2(t)) cannot.v2++; else canSrv.v2.add(r.url);
+      if (!canLex(t)) cannot.lex++; else canSrv.lex.add(r.url);
+      if (canV1(t) && !canV2(t)) dropped.push({ url: r.url, name: t.name, had: t.v1 });
     }
-    if (r.tools.length > 6) console.log(`        ... ${r.tools.length - 6} more`);
+    for (const t of r.tools.slice(0, 8)) {
+      const mk = (b) => (b ? "CAN" : " . ");
+      const fld = t.v2.length ? ` {${t.v2.join(",")}}` : (t.v1.length ? ` (v1 only:{${t.v1.join(",")}})` : "");
+      console.log(`        - ${String(t.name).slice(0, 38).padEnd(38)} v1:${mk(canV1(t))} v2:${mk(canV2(t))} lex:${mk(canLex(t))}${fld}`);
+    }
+    if (r.tools.length > 8) console.log(`        ... ${r.tools.length - 8} more`);
   }
-  const tot = O + F + D;
-  console.log(`\n  SERVERS spoke MCP: ${servers}   TOOLS seen: ${tot}`);
+  console.log(`\n  SERVERS spoke MCP: ${servers}   TOOLS seen: ${tot}   (OPAQUE, no outputSchema: ${opaque})`);
   if (tot) {
-    console.log(`    OPAQUE         (no outputSchema at all) : ${O}  (${(100*O/tot).toFixed(1)}%)`);
-    console.log(`    FLAT           (schema, no discriminator): ${F}  (${(100*F/tot).toFixed(1)}%)`);
-    console.log(`    DISCRIMINATING (can hold the difference) : ${D}  (${(100*D/tot).toFixed(1)}%)`);
-    console.log(`    => tools whose CONTRACT gives the consumer no way to separate`);
-    console.log(`       "failed" from "found nothing": ${O + F}  (${(100*(O+F)/tot).toFixed(1)}%)`);
-    console.log(`    servers where NOT ONE tool can hold the difference: ${opaqueServers}/${servers}`);
+    const pct = (n) => `${String(n).padStart(3)}/${tot} (${(100 * n / tot).toFixed(1)}%)`;
+    console.log(`  CANNOT hold "failed" vs "found nothing", by ruler:`);
+    console.log(`    v1 all-depth  structural (frozen ruler, reproduces mould-gh-12) : ${pct(cannot.v1)}`);
+    console.log(`    v2 top-level  structural (Federico refinement, live gate ruler) : ${pct(cannot.v2)}`);
+    console.log(`    lexical field-name       (upper bound, overstates the problem)  : ${pct(cannot.lex)}`);
+    console.log(`  servers where NOT ONE tool can hold the difference:`);
+    console.log(`    v1: ${servers - canSrv.v1.size}/${servers}   v2: ${servers - canSrv.v2.size}/${servers}   lexical: ${servers - canSrv.lex.size}/${servers}`);
+    if (dropped.length) {
+      console.log(`\n  v1 -> v2 DROPPED (${dropped.length}): "can" all-depth, "cannot" top-level.`);
+      console.log(`  Their only discriminator sat BELOW the envelope, so it is not read-state:`);
+      for (const d of dropped) console.log(`    - ${d.url}  ${d.name}  had:{${d.had.join(",")}}`);
+    } else {
+      console.log(`\n  v1 -> v2 DROPPED: none here (top-level and all-depth agree on this set).`);
+    }
   }
-  return { O, F, D, servers, opaqueServers };
+  return { tot, opaque, cannot, servers, canSrv, dropped };
 }
 
 // v0.3 ,  a run that prints nothing until it finishes makes "still working" and
@@ -270,11 +315,9 @@ function liveLine(i, n, r) {
   if (!r.ok) {
     return `${tag} ${r.dead ? "UNREACHABLE      " : "answered-not-MCP "} ${r.url}`;
   }
-  const o = r.tools.filter((t) => t.cls === "OPAQUE").length;
-  const f = r.tools.filter((t) => t.cls === "FLAT").length;
-  const d = r.tools.filter((t) => t.cls === "DISCRIMINATING").length;
-  const verdict = r.tools.length === 0 ? "no tools" : (d === 0 ? "CANNOT hold diff" : `${d} can hold diff`);
-  return `${tag} MCP ok  tools=${String(r.tools.length).padStart(3)}  O=${o} F=${f} D=${d}  ${verdict.padEnd(16)} ${r.url}`;
+  let c2 = 0; for (const t of r.tools) if (canV2(t)) c2++;
+  const verdict = r.tools.length === 0 ? "no tools" : (c2 === 0 ? "CANNOT (v2)" : `${c2} can (v2)`);
+  return `${tag} MCP ok  tools=${String(r.tools.length).padStart(3)}  ${verdict.padEnd(14)} ${r.url}`;
 }
 
 (async () => {
@@ -284,19 +327,21 @@ function liveLine(i, n, r) {
   console.log("METHOD (published before results):");
   console.log("  initialize (retrying protocol versions, honouring supportedVersions),");
   console.log("  then tools/list ,  a listing, which executes nothing.");
-  console.log("  Each tool is classed by whether its declared contract can carry the");
-  console.log("  difference between 'the fetch failed' and 'it found nothing'.");
-  console.log("  TEST USED (structural, name-independent ,  argue with it):");
-  console.log("    a contract can hold the difference if it declares at least one");
-  console.log("    boolean field, or an enum with 2+ values. Those are the shapes a");
-  console.log("    read-succeeded / read-failed / nothing-matched state can live in.");
-  console.log("    Field NAMES are deliberately not consulted: the author of this");
-  console.log("    probe also owns some of the endpoints it scores, and a name list");
-  console.log("    would let him score himself well by renaming his own fields.");
-  console.log("    A bare count does NOT pass: count 0 does not prove the read worked.");
-  console.log("  LIMIT: a schema is a declaration, not behaviour. This measures the");
-  console.log("  contract offered to the consumer. Runtime behaviour needs tools/call,");
-  console.log("  which is only done where consent exists.");
+  console.log("  Each tool's declared outputSchema is scored by THREE rulers, all printed,");
+  console.log("  because they err in different directions and the honest artifact is the");
+  console.log("  spread plus the field names, never one number:");
+  console.log("    v1 all-depth  structural : a boolean or 2+ enum ANYWHERE. Reproduces");
+  console.log("                               the frozen mould-gh-12 figure.");
+  console.log("    v2 top-level  structural : the same, but only on the envelope's own");
+  console.log("                               properties, not fields nested in the payload.");
+  console.log("                               Federico's refinement; the live gate ruler.");
+  console.log("    lexical field-name       : a known field NAME at any depth. Upper bound,");
+  console.log("                               overstates the problem; kept as top of band.");
+  console.log("  Field NAMES are not consulted by the structural rulers: the author owns");
+  console.log("  some scored endpoints, and a name list would let him score himself well.");
+  console.log("  LIMIT: a schema is a declaration, not behaviour. Runtime needs tools/call,");
+  console.log("  which is only done where consent exists. v2 blind spot: a root allOf/anyOf");
+  console.log("  with no direct properties reads as 'cannot'; rare, errs toward overstating.");
   console.log("  Own endpoints measured FIRST. ~1.5s between requests.");
   console.log(bar);
 
@@ -336,12 +381,8 @@ function liveLine(i, n, r) {
   const elapsed = (Date.now() - t0) / 1000;
   console.log("\n" + bar);
   console.log(`elapsed ${elapsed.toFixed(0)}s`);
-  console.log("JUDGMENT GATE (manual, not automated):");
-  console.log("  If the share of tools that cannot hold the difference is large, this");
-  console.log("  DOES separate endpoints ,  unlike -32601, which everyone passes ,  and");
-  console.log("  is a real candidate for directory condition 06, citing Federico as");
-  console.log("  its source. If it is near zero, do not make it a condition; publish");
-  console.log("  that we measured and found no meaningful difference.");
-  console.log("  Either way: measure our own endpoints' number FIRST and publish it,");
-  console.log("  including if ours is the bad one.");
+  console.log("PUBLISH: the three cannot-percentages as a band, the v1->v2 dropped list,");
+  console.log("and the field names. v1 reproduces the frozen record; v2 is the live gate's");
+  console.log("current number; lexical is the upper bound. Own endpoints' band FIRST,");
+  console.log("including if ours is the worse one.");
 })();
