@@ -2254,6 +2254,34 @@ export default {
       });
     }
 
+    // 指定したエンドポイント群を一括参照。register を読むだけで、測定はしない。
+    // 消費側(読む方)の便宜。無料・中立。運営者(測られる方)には一切課金しない。
+    // 新しい判定意味は作らず、既存の中立ロジック lookupServer をそのまま束ねる。
+    if (path === "/feed/batch" && request.method === "POST") {
+      let fb;
+      try { fb = await request.json(); }
+      catch (_e) { return json({ error: "POST JSON body {\"endpoints\":[...]}", note: "Reads the register for the endpoints you name. It does not measure them; measurement is POST /check." }, 400); }
+      const eps = (fb && Array.isArray(fb.endpoints)) ? fb.endpoints : null;
+      if (!eps) return json({ error: "endpoints must be an array of MCP endpoint URLs" }, 400);
+      const CAP = 50;
+      if (eps.length > CAP) return json({ error: "too many endpoints in one call", cap: CAP, given: eps.length, note: "Split into batches of " + CAP + ". This reads the register only; it does not measure." }, 400);
+      const seen = new Set();
+      const results = [];
+      for (const raw of eps) {
+        const ep = String(raw == null ? "" : raw).slice(0, 300).trim();
+        if (!ep || seen.has(ep)) continue;
+        seen.add(ep);
+        results.push(await lookupServer(env, ep));
+      }
+      return json({
+        note: "A read of the public register for the endpoints you named. It does NOT measure them: it returns the latest stored verdict, or that there is none. Absence is not a negative verdict, only the lack of a measurement here. Every result carries a record_sha256 you can recompute without trusting this gate.",
+        not_an_endorsement: "This is measurement, not recommendation. It says nothing about whether a listed server is safe or correct to use. It is not sold, not ranked, and not ordered. Being read here costs the operator nothing.",
+        to_measure_now: "For a fresh reading rather than the stored one, POST /check with a single endpoint.",
+        count: results.length,
+        results
+      }, 200);
+    }
+
     // 監視の登録。誰でも自分のエンドポイントを載せられる。判定は変わらない。
     if (path === "/watch" && request.method === "GET") {
       const reg = await readRegistry(env);
