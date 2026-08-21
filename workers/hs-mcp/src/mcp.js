@@ -207,13 +207,13 @@ const LOOKUP_FIELDS = {
     type: "boolean",
     description:
       "true on every successful result. A failed lookup does not return a result at " +
-      "all, so this is never false — it is declared so a consumer can assert on it.",
+      "all, so this is never false, it is declared so a consumer can assert on it.",
   },
   count: {
     type: "number",
     description:
       "How many records matched. 0 means the source was read and nothing matched. " +
-      "It never means the source could not be read — that returns isError: true.",
+      "It never means the source could not be read, that returns isError: true.",
   },
   did_you_mean: { description: "Near matches, when an exact match was not found." },
 };
@@ -262,7 +262,7 @@ function txt(s) { return { content: [{ type: "text", text: typeof s === "string"
 //   collapse into the same downstream value.
 //
 // Measured 2026-08-20. Six sites here caught a souba-db fetch failure and
-// returned txt("価格データの取得に失敗しました。") — a SUCCESSFUL tool result
+// returned txt("価格データの取得に失敗しました。"), a SUCCESSFUL tool result
 // carrying a sentence. The no-match branches also return txt(<sentence>). The
 // generic structuredContent wrapper then packs both into { message: "..." },
 // so "the price database is down" and "there is no price data for this work"
@@ -806,23 +806,28 @@ async function callTool(name, args, env, ip, opts) {
         },
         attestation,
         cart_mandate_example: {
-          note: "AP2 Cart Mandate へ添付する位置の例示(非規範)。ユーザー署名はユーザー側のウォレット/資格情報プロバイダの役割で、HORIZON SHIELDは関与しない。",
+          note: "AP2 CartMandate へ添付する位置の例示(非規範)。現行AP2仕様(ap2-protocol.org)の形に合わせてある。署名はマーチャント/ユーザー各当事者の役割で、HORIZON SHIELDは関与しない。",
           cart_mandate: {
             contents: {
               id: "cart_hs_demo_" + hash.slice(0, 12),
-              merchant_name: merchant || "(施工業者名)",
+              user_signature_required: true,
               payment_request: {
+                method_data: [{ supported_methods: "CARD" }],
                 details: {
-                  display_items: [{ label: claim.work, amount: { currency: "JPY", value: hasQuote ? qp : claim.fair_avg } }],
-                  total: { amount: { currency: "JPY", value: hasQuote ? qp : claim.fair_avg } }
+                  id: "order_hs_demo_" + hash.slice(0, 12),
+                  displayItems: [{ label: claim.work, amount: { currency: "JPY", value: hasQuote ? qp : claim.fair_avg } }],
+                  total: { label: claim.work, amount: { currency: "JPY", value: hasQuote ? qp : claim.fair_avg } }
                 }
               },
+              merchant_name: merchant || "(施工業者名)",
               extensions: {
-                "com.the-horizons-innovation.shield.fair_price_attestation": { claim_sha256: hash, verify_url, note: "本レスポンスの attestation をここへ埋め込む" }
+                "com.the-horizons-innovation.shield.fair_price_attestation": { claim_sha256: hash, verify_url, note: "本レスポンスの attestation をここへ埋め込む。AP2は取引固有データを開放的な拡張として許容する。" }
               }
             },
-            user_authorization: "(ユーザーの署名がここに入る)"
-          }
+            merchant_signature: "(マーチャントの署名がここに入る)",
+            timestamp: issued_at
+          },
+          spec_note: "現行AP2(ap2-protocol.org)では CartMandate は {contents, merchant_signature, timestamp}。ユーザー承認は別の PaymentMandate.payment_mandate_contents.user_authorization が担う。displayItems/total は W3C Payment Request 準拠の camelCase。この例は貼り位置の非規範な図示で、署名や PaymentMandate の生成には関与しない。"
         },
         meaning: "エージェント経済の決済に『承認の証明』と『価値の証明』を同時に載せるための橋。価格の根拠はハッシュと台帳で検証でき、発行者を信用する必要はない。",
         detail: SITE + "/verify/"
@@ -1445,7 +1450,7 @@ async function handleRpc(msg, env, ip, authCtx, ctx) {
         try { const p = JSON.parse(t); sc = Array.isArray(p) ? { items: p } : (p && typeof p === "object" ? p : { message: String(p) }); }
         catch (_e) { sc = { message: t }; }
         // Only successful results reach here (the !r.isError guard above), so the
-        // source WAS read. Say it in the payload, once, centrally — rather than in
+        // source WAS read. Say it in the payload, once, centrally, rather than in
         // fourteen handlers where thirteen would eventually drift from the first.
         if (sc.source_read === undefined) sc.source_read = true;
         if (sc.lookup === undefined) {
@@ -1516,7 +1521,7 @@ export default {
     }
 
     // アイコン。GET と HEAD の両方に答える (審査側が HEAD で見に来ても
-    // 404 にしない)。リダイレクトはしない — 直リンクであることが要件。
+    // 404 にしない)。リダイレクトはしない, 直リンクであることが要件。
     {
       const _iu = new URL(request.url);
       if (_iu.pathname === "/icon.png" && (request.method === "GET" || request.method === "HEAD")) {
