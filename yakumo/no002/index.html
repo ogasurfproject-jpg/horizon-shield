@@ -122,7 +122,7 @@
 <div class="mcp-box">
 <div><span class="k">MCP</span> https://p002.horizonshield.dev/mcp</div>
 <div><span class="k">tool</span> get_partner_profile</div>
-<div><span class="k">検証</span> verified（KIRA適正診断を通過 ・ 適正度98 ・ A+）</div>
+<div id="mcpVerify"><span class="k">検証</span> verified（KIRA適正診断を通過 ・ 適正度98 ・ A+）</div>
 <div><span class="k">充足度</span> 35%（プロフィール文面は整備の途中。検証は実見積5件で通過済み）</div>
 </div>
 </div>
@@ -140,5 +140,43 @@
 </footer>
 </div>
 <img src="https://web.horizonshield.dev/px.gif?store=hs-partner-002&event=mall_view" width="1" height="1" alt="" style="position:absolute;left:-9999px">
+<script>
+/* 自己更新: 検証状態を KVライブ(/contractors.json, 金額なし・CORS)から取り、この店の表示を最新に合わせる。
+   取得できない時は、下に焼き込んだ値のまま(オフライン安全)。二度と古い pending で固まらない。 */
+(function(){
+  var MN="No.002";
+  function rank(s){ s=Number(s); if(s>=95)return"A+"; if(s>=90)return"A"; if(s>=85)return"B+"; if(s>=80)return"B"; if(s>=75)return"C+"; return"C"; }
+  function set(id,t){ var e=document.getElementById(id); if(e) e.textContent=t; }
+  try{
+    fetch("https://hearing.horizonshield.dev/contractors.json",{cache:"no-store"})
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){
+        if(!d) return;
+        var rows=(d.contractors)||(Array.isArray(d)?d:[]);
+        var me=null; for(var i=0;i<rows.length;i++){ if(rows[i]&&rows[i].member_no===MN){ me=rows[i]; break; } }
+        if(!me) return;
+        var box=document.getElementById("statusBox");
+        var scoreN=document.getElementById("scoreN");
+        var mv=document.getElementById("mcpVerify");
+        var verified=(me.verification==="verified" && me.fairness_score!=null);
+        if(verified){
+          var g=rank(me.fairness_score), rf=(me.red_flags_detected!=null?me.red_flags_detected:0);
+          if(box) box.className="status ok";
+          set("statusText","検証済み（KIRA適正診断を通過）");
+          if(scoreN){ scoreN.className="n"; scoreN.textContent=g+" "+me.fairness_score; }
+          set("scoreL","適正度スコア "+me.fairness_score+" ・ 誠実度ティア "+g+" ・ 過剰請求"+rf+"件。KIRA適正診断を通過。");
+          if(mv) mv.innerHTML='<span class="k">検証</span> verified（KIRA適正診断を通過 ・ 適正度'+me.fairness_score+' ・ '+g+'）';
+        } else {
+          if(box) box.className="status";
+          set("statusText","検証手続き中（KIRA適正診断を実施中）");
+          if(scoreN){ scoreN.className="n pending"; scoreN.textContent="未表示"; }
+          set("scoreL","検証を通過するまでスコアは出しません。通らなかった場合も結果はそのまま公開します。");
+          if(mv) mv.innerHTML='<span class="k">検証</span> pending（手続き中）';
+        }
+      })
+      .catch(function(){});
+  }catch(_e){}
+})();
+</script>
 </body>
 </html>
