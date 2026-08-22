@@ -98,11 +98,11 @@
         "網戸張替え"
       ],
       "license_verified": false,
-      "status": "onboarding",
-      "verification": "pending",
-      "fairness_score": null,
-      "integrity_tier": null,
-      "red_flags_detected": null,
+      "status": "published",
+      "verification": "verified",
+      "fairness_score": 98,
+      "integrity_tier": "A+",
+      "red_flags_detected": 0,
       "claim_sha256": null,
       "ptka_block": null,
       "profile_url": "/yakumo/no002/",
@@ -125,7 +125,7 @@
         "last_answer_at": null
       },
       "joined_at": null,
-      "verified_at": null,
+      "verified_at": "2026-08-22T00:00:00Z",
       "webmcp": {
         "enabled": true,
         "requires_option": true,
