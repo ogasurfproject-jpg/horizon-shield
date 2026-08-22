@@ -1899,13 +1899,14 @@ async function classifyEstimate(resultText, typeHint, env) {
   "genre": "トイレ｜浴室｜外壁・屋根｜キッチン｜内装・改装｜給湯器｜その他 のいずれか1つ",
   "title": "工事内容を表す短い匿名タイトル(12字程度。業者名・施主名・地名は含めない。例:ユニットバス交換)",
   "amount": "施主が業者から受け取った見積書の合計金額(総額)を数値の文字列で。例:798000。判断できなければ空文字",
-  "traits": ["診断結果に実際に書かれている過剰・不透明な点だけを15字前後で挙げる。無ければ空配列[]。診断結果に無い点を作らない。3つに揃えようとせず実際の数だけ(0〜5個)。金額・数字・倍率は書かない"],
-  "red_flags": traitsの要素数と必ず一致する整数(水増ししない),
+  "traits": ["赤旗(本当の警告)だけを15字前後で。相場超過の疑い/諸経費が過大/『今日だけ』『特別価格』/火災保険で無料と煽る/着手金が過大/保証の記載なし 等の警告のみ。無ければ空配列[]。単なる『内訳が不明確・根拠が示されていない・確認したい』は赤旗に入れず下のchecksへ。0〜5個。金額・数字・倍率は書かない"],
+  "checks": ["内訳をもっと出してもらうべき中立の確認点を15字前後で(例:一式の内訳が不明確、諸経費の根拠が不明)。警告ではない。無ければ空配列[]。0〜6個。金額・数字・倍率は書かない"],
+  "red_flags": traits(赤旗)の要素数と必ず一致する整数(水増ししない。checksは数えない),
   "verdict": "一言の総評(例:内訳の確認を強く推奨)"
 }
 amountは「施主が実際に請求・提示された総額」だけを入れる。KIRAが算出する適正額・過剰額・削減可能額・本来価格は絶対に出力しない(これらはどのフィールドにも書かない)。
 禁止:業者名・施主名・電話番号・住所をどのフィールドにも出力しない。traits/verdictには金額・数字・倍率を書かない。
-懸念点は診断結果に根拠があるものだけ挙げ、無理に3つ埋めない。過剰・不透明の指摘が無ければ traits=[] / red_flags=0 とし、verdict は「特筆すべき懸念点なし」等にする。`;
+赤旗(traits)は"警告"だけ。内訳が不明確・根拠が示されていない程度の点は checks に入れ、赤旗には数えない。まっとうな見積は赤旗0(白旗)でよい。無理に赤旗を作らない。verdict は、赤旗0なら「明確な警告なし」、赤旗ありなら要点を一言。`;
   const userText = `工事種別ヒント:${typeHint || '不明'}\n\n診断結果:\n${(resultText || '').slice(0, 4000)}`;
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1940,7 +1941,7 @@ async function savePendingCard(cls, poster, env) {
     region:   cls.region || '',
     initial:  cls.initial || '',
     phase:    cls.phase || 'archive',
-    traits:   Array.isArray(cls.traits) ? cls.traits.slice(0, 5) : [],
+    traits:   Array.isArray(cls.traits) ? cls.traits.slice(0, 5) : [], checks: Array.isArray(cls.checks) ? cls.checks.slice(0, 6) : [],
     red_flags: (Array.isArray(cls.traits) ? cls.traits.slice(0, 5).length : 0),
     verdict:  cls.verdict || '',
     poster_name:    poster.name || '',
@@ -1998,7 +1999,7 @@ async function handleHackerAnalyze(request, env, origin) {
     genre: cls.genre || 'その他',
     title: cls.title || '見積もり',
     amount: (cls.amount != null ? String(cls.amount) : '').replace(/[^0-9]/g, ''),
-    traits: Array.isArray(cls.traits) ? cls.traits.slice(0, 5) : [],
+    traits: Array.isArray(cls.traits) ? cls.traits.slice(0, 5) : [], checks: Array.isArray(cls.checks) ? cls.checks.slice(0, 6) : [],
     red_flags: (Array.isArray(cls.traits) ? cls.traits.slice(0, 5).length : 0),
     verdict: cls.verdict || '',
   };
@@ -2038,7 +2039,7 @@ async function ehnAutoPublish(cls, poster, env) {
     region:   cls.region || '',
     building: cls.building || '',
     title:    cls.title || '見積もり',
-    traits:   Array.isArray(cls.traits) ? cls.traits.slice(0, 5) : [],
+    traits:   Array.isArray(cls.traits) ? cls.traits.slice(0, 5) : [], checks: Array.isArray(cls.checks) ? cls.checks.slice(0, 6) : [],
     red_flags: (Array.isArray(cls.traits) ? cls.traits.slice(0, 5).length : 0),
     verdict:  cls.verdict || '',
     amount:   (cls.amount != null ? String(cls.amount) : '').replace(/[^0-9]/g, ''),

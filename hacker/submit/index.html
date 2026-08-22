@@ -459,24 +459,31 @@ function renderPreview(){
   const amtHtml=yen(c.amount)
     ?`<div class="pv-amt"><span class="pv-amt-k">RECEIVED / 受領見積額</span><span class="pv-amt-v">${yen(c.amount)}</span></div>`
     :`<div class="pv-amt-none">AMOUNT / 金額 — 読み取り対象外</div>`;
+  const flagN=parseInt(c.red_flags,10)||0;
   const traits=(c.traits||[]).map((t,i)=>`<div class="pv-trait"><span class="tno">${pad(i+1)}</span><input value="${esc(t)}" maxlength="30" data-ti="${i}" oninput="editTrait(${i},this.value)"></div>`).join('')
-    ||'<div style="font-family:var(--mono);font-size:12px;color:var(--mut2);padding:12px 0">// 懸念点は検出されませんでした</div>';
+    ||'<div style="font-family:var(--mono);font-size:12px;color:var(--mut2);padding:12px 0">// 明確な警告(赤旗)は見つかりませんでした</div>';
+  const checksArr=(c.checks||[]);
+  const checksHtml=checksArr.map((t,i)=>`<div class="pv-trait"><span class="tno" style="color:#8a94a6">${pad(i+1)}</span><input value="${esc(t)}" maxlength="30" data-ci="${i}" oninput="editCheck(${i},this.value)"></div>`).join('');
+  const checksSec=checksArr.length?`<div class="pv-sec"><span>内訳の確認をおすすめする点</span><span>${pad(checksArr.length)} / 編集可</span></div>${checksHtml}`:'';
+  const flagLine=flagN>=1?`<div class="pv-flags">赤旗 ${pad(flagN)}</div>`:`<div class="pv-flags" style="color:#3f6b4a">白旗 — 明確な警告なし</div>`;
   document.getElementById('pvCard').innerHTML=`
     <div class="pv-head"><span class="pv-genre">${esc(c.genre||'その他')}</span><span class="pv-tag">KIRA DRAFT</span></div>
     <div class="pv-body">
       <div class="pv-title">${esc(c.title||'見積もり')}</div>
       ${amtHtml}
-      <div class="pv-sec"><span>検出された懸念点</span><span>${pad((c.traits||[]).length)} / 編集可</span></div>
+      <div class="pv-sec"><span>検出された赤旗（警告）</span><span>${pad((c.traits||[]).length)} / 編集可</span></div>
       ${traits}
+      ${checksSec}
       <div class="edit-tip">// 各行をタップすると編集できます。金額・倍率・業者名は書かないでください。</div>
       ${c.verdict?`<div class="pv-verdict">${esc(c.verdict)}</div>`:''}
-      <div class="pv-flags">赤旗 ${pad(c.red_flags||0)}</div>
+      ${flagLine}
     </div>`;
   // プレビュー再表示のたびに同意チェックをリセット
   ['ck1','ck2','ck3'].forEach(id=>{const e=document.getElementById(id);if(e)e.checked=false;});
   updateConsent();
 }
 function editTrait(i,v){if(CARD&&CARD.traits)CARD.traits[i]=v;}
+function editCheck(i,v){if(CARD&&CARD.checks)CARD.checks[i]=v;}
 function updateConsent(){
   const all=['ck1','ck2','ck3'].every(id=>{const e=document.getElementById(id);return e&&e.checked;});
   const btn=document.getElementById('submitBtn');
