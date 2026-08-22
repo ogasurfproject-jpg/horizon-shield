@@ -491,7 +491,7 @@ ${market.summary}
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
+        model: "claude-haiku-4-5-20251001", temperature: 0,
         max_tokens: 500,
         system: KIRA_SYSTEM + `
 
@@ -585,6 +585,58 @@ function adaptForPartner(msg, isPartnerFlag) {
 }
 __name(adaptForPartner, "adaptForPartner");
 
+async function partnerMediaHandoff(event, userId, env, kind) {
+  const label = kind === "pdf" ? "ファイル" : "写真";
+  try { await replyToLine(event.replyToken, label + "を受け取りました。見積書ではない書類として、担当の大賀に届いています。中身を確認してお返事します。", env.LINE_CHANNEL_TOKEN); } catch (_e) {}
+  try { await pushToLine(env.LINE_USER_ID, "【加盟店から" + label + "(見積書ではない)】要対応(人が確認)。ユーザー: " + userId, env.LINE_CHANNEL_TOKEN); } catch (_e) {}
+}
+__name(partnerMediaHandoff, "partnerMediaHandoff");
+
+async function handlePartnerEstimateMedia(event, userId, env, kind) {
+  const NL = String.fromCharCode(10);
+  const messageId = event.message.id;
+  let bytes;
+  try {
+    const res = await fetch("https://api-data.line.me/v2/bot/message/" + messageId + "/content", { headers: { Authorization: "Bearer " + env.LINE_CHANNEL_TOKEN } });
+    if (!res.ok) throw new Error("line_content_" + res.status);
+    bytes = new Uint8Array(await res.arrayBuffer());
+  } catch (_e) { await partnerMediaHandoff(event, userId, env, kind); return; }
+  let binary = ""; const cs = 8192;
+  for (let i = 0; i < bytes.length; i += cs) binary += String.fromCharCode.apply(null, bytes.subarray(i, i + cs));
+  const b64 = btoa(binary);
+  const sys = `あなたは HORIZON SHIELD / Yakumo の加盟店審査アシスタント KIRA です。加盟店が掲載審査(適正診断)のために送ってきた見積書を読み、次のJSONだけを返してください(前置きやコードフェンスは禁止)。
+{"is_estimate": true または false, "estimates": [{"work":"工種(例 外壁塗装)","amount":"金額(円。総額または主要項目)","detail":"内訳の要点(任意)"}], "summary":"この見積が何か(工種や地域が分かれば入れる)を1文で。金額や価格は絶対に書かない。"}
+見積書でなければ is_estimate を false に。金額は summary に入れず、estimates の amount にだけ入れてください。`;
+  const media = kind === "pdf"
+    ? { type: "document", source: { type: "base64", media_type: "application/pdf", data: b64 } }
+    : { type: "image", source: { type: "base64", media_type: "image/jpeg", data: b64 } };
+  let result = { is_estimate: false, estimates: [] };
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" }, body: JSON.stringify({ model: "claude-haiku-4-5-20251001", temperature: 0, max_tokens: 900, system: sys, messages: [{ role: "user", content: [media, { type: "text", text: "この見積を審査用に読み取ってください。" }] }] }) });
+    if (r.ok) { const d = await r.json(); const raw = (d.content && d.content[0] && d.content[0].text) || "{}"; try { result = JSON.parse(raw.replace(/```json|```/g, "").trim()); } catch (_e) { result = { is_estimate: false, estimates: [] }; } }
+  } catch (_e) { result = { is_estimate: false, estimates: [] }; }
+  if (!Array.isArray(result.estimates)) result.estimates = [];
+  if (!result.is_estimate) { await partnerMediaHandoff(event, userId, env, kind); return; }
+  let summary = String(result.summary || "").replace(/[0-9０-９]+[ 　]*(万円|万|円)/g, "").replace(/[¥￥$][ 　]*[0-9０-９]+/g, "").trim();
+  if (!summary) summary = "見積を審査用にお送りします。";
+  let memberGid = null;
+  try { const _rec = await env.SEEN_STORE.get("partner:" + userId); if (_rec) memberGid = (JSON.parse(_rec).groupId) || null; } catch (_e) {}
+  let liveReply = "";
+  if (env.KIRA_BRIDGE_KEY) {
+    try {
+      const br = await fetch("https://hearing.horizonshield.dev/kira-bridge", { method: "POST", headers: { "Content-Type": "application/json", "X-Bridge-Key": env.KIRA_BRIDGE_KEY }, body: JSON.stringify({ userId, text: summary, groupId: memberGid, estimates: result.estimates }) });
+      if (br.ok) { const data = await br.json(); if (data && data.ok) liveReply = data.reply || ""; }
+    } catch (_e) {}
+  }
+  try {
+    const estLines = result.estimates.slice(0, 5).map(function (e) { return "・" + ((e && e.work) || "") + " " + ((e && e.amount) || "") + " " + ((e && e.detail) || ""); }).join(NL);
+    await pushToLine(env.LINE_USER_ID, "【加盟店 審査用の見積を受領】" + NL + "ユーザー: " + userId + " ★加盟店" + NL + estLines + NL + "→ estimates_for_audit に反映(KIRA適正診断の材料)。", env.LINE_CHANNEL_TOKEN);
+  } catch (_e) {}
+  if (liveReply) { await pushToLine(userId, liveReply, env.LINE_CHANNEL_TOKEN); }
+  else { await pushToLine(userId, "見積を受け取りました。担当の大賀が確認してご連絡します。", env.LINE_CHANNEL_TOKEN); }
+}
+__name(handlePartnerEstimateMedia, "handlePartnerEstimateMedia");
+
 async function handleImageMessage(event, userId, env, partnerFlag) {
   const replyToken = event.replyToken;
   const messageId = event.message.id;
@@ -593,11 +645,7 @@ async function handleImageMessage(event, userId, env, partnerFlag) {
   //   見積診断フローに流すと、金額(\u00a55,500)や速報診断の宣伝を加盟店に返し、文脈も外す。
   //   堤さん(p001)のグループ設定スクショに「見積書だった場合は…」と返した実例あり。
   //   加盟店の画像は、診断せず・金額を言わず、担当(大賀)に渡して人が返す。
-  if (partnerFlag) {
-    try { await replyToLine(replyToken, "画像を受け取りました。担当の大賀に届いています。中身を確認して、大賀から直接お返事します。", env.LINE_CHANNEL_TOKEN); } catch (_e) {}
-    try { await pushToLine(env.LINE_USER_ID, "\ud83d\udcf8\u3010\u52a0\u76df\u5e97\u304b\u3089画像\u3011\u8981\u5bfe\u5fdc(\u4eba\u304c\u78ba\u8a8d)\u3002\u30e6\u30fc\u30b6\u30fc: " + userId, env.LINE_CHANNEL_TOKEN); } catch (_e) {}
-    return;
-  }
+  if (partnerFlag) { await handlePartnerEstimateMedia(event, userId, env, "image"); return; }
   // 2026-08-19 patch54: 中身を見る前に「見積書」と名乗らない。同意を擬制しない。
   //   旧実装は画像を1バイトも読む前に「見積書を受け取りました」と返し、
   //   「診断のために取り扱うことに同意のうえ送付いただいたものとして進めます」と書いていた。
@@ -637,7 +685,7 @@ async function handleImageMessage(event, userId, env, partnerFlag) {
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
+        model: "claude-haiku-4-5-20251001", temperature: 0,
         max_tokens: 800,
         system: `\u3042\u306A\u305F\u306FHORIZON SHIELD\u306E\u5EFA\u8A2D\u8CBB\u8A3A\u65ADAI\u300CKIRA\u300D\u3067\u3059\u3002
 \u898B\u7A4D\u66F8\u306E\u753B\u50CF\u3092\u5206\u6790\u3057\u3001\u4EE5\u4E0B\u306EJSON\u306E\u307F\u8FD4\u3057\u3066\u304F\u3060\u3055\u3044\uFF1A
@@ -650,7 +698,7 @@ async function handleImageMessage(event, userId, env, partnerFlag) {
   "top_issue": "\u6700\u3082\u554F\u984C\u306A\u9805\u76EE\u3092\u4E00\u8A00\u3067",
   "is_estimate": true/false
 }
-\u3010\u8D64\u65D7\u30C1\u30A7\u30C3\u30AF\u9805\u76EE\u3011
+\u3010厳格ルール(必ず守る)\u3011\n・各赤旗は、見積の該当記述を逐語で引用できるものだけ挙げる。引用できない項目は絶対に挙げない。\n・迷ったら挙げない(過少申告側に倒す)。憶測・一般論で項目を作らない。実際に見積に書かれた事実だけ。\n・各 red_flags 要素の末尾に、必ず見積からの逐語引用を「(見積: 該当文字列)」の形で入れる。引用を入れられないなら、その項目は出さない。\n・ savings_min/savings_max は、引用で示せる過剰項目に紐づくときだけ数値を出す。示せない/総額の妥当性が読めないときは両方 0。\n・不確かな時は red_flags を空配列にしてよい。数を水増ししない。\n\u3010赤旗チェック項目(該当する見積記述を逐語で引用できる場合のみ挙げる)\u3011
 \u30FB\u300C\u4E00\u5F0F\u300D\u8868\u8A18\u304C3\u7B87\u6240\u4EE5\u4E0A
 \u30FB\u5857\u6599\u540D\u30FB\u578B\u756A\u306A\u3057
 \u30FB\u8AF8\u7D4C\u8CBB15%\u8D85
@@ -699,7 +747,8 @@ async function handleImageMessage(event, userId, env, partnerFlag) {
     //   下の slice で TypeError になり、診断は成功しているのに「エラーが発生しました」と返していた。
     //   しかも同意は既に記録済み。一番良い見積書を出した人が一番ひどい返事を受け取る形だった。
     if (!Array.isArray(result.red_flags)) result.red_flags = [];
-    if (!Number.isFinite(Number(result.red_flag_count))) result.red_flag_count = result.red_flags.length;
+    result.red_flag_count = Array.isArray(result.red_flags) ? result.red_flags.length : 0;
+    if (!result.red_flag_count) { result.savings_min = 0; result.savings_max = 0; }
     let replyMsg = "";
     if (!result.is_estimate) {
       // 2026-08-19 patch54: 加盟店に「見積書として読み取れません」と返さない。
@@ -795,7 +844,7 @@ var KIRA_PDF_SYSTEM = `\u3042\u306A\u305F\u306FHORIZON SHIELD\u306E\u5EFA\u8A2D\
   "top_issue": "\u6700\u3082\u554F\u984C\u306A\u9805\u76EE\u3092\u4E00\u8A00\u3067",
   "is_estimate": true/false
 }
-\u3010\u8D64\u65D7\u30C1\u30A7\u30C3\u30AF\u9805\u76EE\u3011
+\u3010厳格ルール(必ず守る)\u3011\n・各赤旗は、見積の該当記述を逐語で引用できるものだけ挙げる。引用できない項目は絶対に挙げない。\n・迷ったら挙げない(過少申告側に倒す)。憶測・一般論で項目を作らない。実際に見積に書かれた事実だけ。\n・各 red_flags 要素の末尾に、必ず見積からの逐語引用を「(見積: 該当文字列)」の形で入れる。引用を入れられないなら、その項目は出さない。\n・ savings_min/savings_max は、引用で示せる過剰項目に紐づくときだけ数値を出す。示せない/総額の妥当性が読めないときは両方 0。\n・不確かな時は red_flags を空配列にしてよい。数を水増ししない。\n\u3010赤旗チェック項目(該当する見積記述を逐語で引用できる場合のみ挙げる)\u3011
 \u30FB\u300C\u4E00\u5F0F\u300D\u8868\u8A18\u304C3\u7B87\u6240\u4EE5\u4E0A
 \u30FB\u5857\u6599\u540D\u30FB\u578B\u756A\u306A\u3057
 \u30FB\u8AF8\u7D4C\u8CBB15%\u8D85
@@ -1049,8 +1098,9 @@ async function handleFileMessage(event, userId, env, partnerFlag) {
   //   堤さん(p001)のグループ設定スクショに「見積書だった場合は…」と返した実例あり。
   //   加盟店のファイルは、診断せず・金額を言わず、担当(大賀)に渡して人が返す。
   if (partnerFlag) {
-    try { await replyToLine(replyToken, "ファイルを受け取りました。担当の大賀に届いています。中身を確認して、大賀から直接お返事します。", env.LINE_CHANNEL_TOKEN); } catch (_e) {}
-    try { await pushToLine(env.LINE_USER_ID, "\ud83d\udcf8\u3010\u52a0\u76df\u5e97\u304b\u3089ファイル\u3011\u8981\u5bfe\u5fdc(\u4eba\u304c\u78ba\u8a8d)\u3002\u30e6\u30fc\u30b6\u30fc: " + userId, env.LINE_CHANNEL_TOKEN); } catch (_e) {}
+    const _fn = (event.message.fileName || "").toLowerCase();
+    if (!_fn.endsWith(".pdf")) { await partnerMediaHandoff(event, userId, env, "pdf"); return; }
+    await handlePartnerEstimateMedia(event, userId, env, "pdf");
     return;
   }
   const fileName = (event.message.fileName || "").toLowerCase();
@@ -1088,7 +1138,7 @@ KIRA\u304C\u4ECA\u3059\u3050\u5206\u6790\u3057\u307E\u3059...
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
+        model: "claude-haiku-4-5-20251001", temperature: 0,
         max_tokens: 800,
         system: `\u3042\u306A\u305F\u306FHORIZON SHIELD\u306E\u5EFA\u8A2D\u8CBB\u8A3A\u65ADAI\u300CKIRA\u300D\u3067\u3059\u3002
 \u898B\u7A4D\u66F8\u306EPDF\u3092\u5206\u6790\u3057\u3001\u4EE5\u4E0B\u306EJSON\u306E\u307F\u8FD4\u3057\u3066\u304F\u3060\u3055\u3044\uFF1A
@@ -1101,7 +1151,7 @@ KIRA\u304C\u4ECA\u3059\u3050\u5206\u6790\u3057\u307E\u3059...
   "top_issue": "\u6700\u3082\u554F\u984C\u306A\u9805\u76EE\u3092\u4E00\u8A00\u3067",
   "is_estimate": true/false
 }
-\u3010\u8D64\u65D7\u30C1\u30A7\u30C3\u30AF\u9805\u76EE\u3011
+\u3010厳格ルール(必ず守る)\u3011\n・各赤旗は、見積の該当記述を逐語で引用できるものだけ挙げる。引用できない項目は絶対に挙げない。\n・迷ったら挙げない(過少申告側に倒す)。憶測・一般論で項目を作らない。実際に見積に書かれた事実だけ。\n・各 red_flags 要素の末尾に、必ず見積からの逐語引用を「(見積: 該当文字列)」の形で入れる。引用を入れられないなら、その項目は出さない。\n・ savings_min/savings_max は、引用で示せる過剰項目に紐づくときだけ数値を出す。示せない/総額の妥当性が読めないときは両方 0。\n・不確かな時は red_flags を空配列にしてよい。数を水増ししない。\n\u3010赤旗チェック項目(該当する見積記述を逐語で引用できる場合のみ挙げる)\u3011
 \u30FB\u300C\u4E00\u5F0F\u300D\u8868\u8A18\u304C3\u7B87\u6240\u4EE5\u4E0A
 \u30FB\u5857\u6599\u540D\u30FB\u578B\u756A\u306A\u3057
 \u30FB\u8AF8\u7D4C\u8CBB15%\u8D85
@@ -1150,7 +1200,8 @@ KIRA\u304C\u4ECA\u3059\u3050\u5206\u6790\u3057\u307E\u3059...
     //   下の slice で TypeError になり、診断は成功しているのに「エラーが発生しました」と返していた。
     //   しかも同意は既に記録済み。一番良い見積書を出した人が一番ひどい返事を受け取る形だった。
     if (!Array.isArray(result.red_flags)) result.red_flags = [];
-    if (!Number.isFinite(Number(result.red_flag_count))) result.red_flag_count = result.red_flags.length;
+    result.red_flag_count = Array.isArray(result.red_flags) ? result.red_flags.length : 0;
+    if (!result.red_flag_count) { result.savings_min = 0; result.savings_max = 0; }
     let replyMsg = "";
     if (!result.is_estimate) {
       // 2026-08-17: before giving up, read the bytes ourselves.
@@ -1166,7 +1217,7 @@ KIRA\u304C\u4ECA\u3059\u3050\u5206\u6790\u3057\u307E\u3059...
               "anthropic-version": "2023-06-01"
             },
             body: JSON.stringify({
-              model: "claude-haiku-4-5-20251001",
+              model: "claude-haiku-4-5-20251001", temperature: 0,
               max_tokens: 800,
               system: KIRA_PDF_SYSTEM,
               messages: [{ role: "user", content: [{ type: "text", text: KIRA_PDF_TEXT_PREFIX + extracted }] }]
