@@ -107,7 +107,8 @@ def parse_bank(src):
     body = src[i:j]
     out = []
     for m in re.finditer(
-            r"^\s*(q_nv_[a-z0-9_]+):\s*\{\s*\n\s*w:\s*(\d+),\s*\n\s*text:\s*(.*?),?\n\s*\},",
+            r"^\s*(q_nv_[a-z0-9_]+):\s*\{\s*\n\s*w:\s*(\d+),"
+            r"(?:\s*\n\s*purpose:\s*\"[a-z]+\",)?\s*\n\s*text:\s*(.*?),?\n\s*\},",
             body, re.S | re.M):
         qid, w, raw = m.group(1), int(m.group(2)), m.group(3)
         # 文字列連結("..." + "...")をつなぐ。

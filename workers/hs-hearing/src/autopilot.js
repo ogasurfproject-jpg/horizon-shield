@@ -183,7 +183,24 @@ export function nextQuestions(profile, autopilot, maxN = 2) {
   }
   // フォーカス未判明なら q_focus を最優先に押し上げ
   flat.sort((a, b) => (a.qid === "q_focus" ? -1 : b.qid === "q_focus" ? 1 : b.w - a.w));
-  return flat.slice(0, maxN);
+  const picked = flat.slice(0, maxN);
+  // 2026-08-23: 毎回1枠を、算定要件データベースを厚くする設問に空けておく。
+  //   重みだけで並べると、集客の設問(w15)と実績の設問(w10)が前に立ち続け、
+  //   実地指導・加算・医療保険・保険者差といった、データベースの穴を埋める設問は
+  //   2週間後ろに並んでいた。置いてあることと、届くことは別である。
+  //   集客の設問を消すのではなく、2問のうち1問を必ずこちらに回す。
+  //   残っていなければ、これまでどおり重みの順のまま。
+  if (maxN >= 2 && picked.length >= 2) {
+    const dbq = IND.dbBuildingQids((profile || {}).industry) || [];
+    if (dbq.length) {
+      const set = new Set(dbq);
+      if (!picked.some((f) => set.has(f.qid))) {
+        const cand = flat.find((f) => set.has(f.qid));
+        if (cand) picked[picked.length - 1] = cand;
+      }
+    }
+  }
+  return picked;
 }
 
 /* ------------------------------ フォーカス判定 ------------------------------ */

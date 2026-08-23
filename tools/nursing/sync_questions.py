@@ -114,6 +114,7 @@ def render(qs, asks, pad):
             a("  /* 埋めようとしている穴: %s */" % q.get("fills_gap", "?"))
         a("  %s: {" % q["id"])
         a("    w: %d," % int(q["w"]))
+        a("    purpose: %s," % js_string(p))
         a("    text: %s," % js_string(q["text"]))
         a("  },")
     a("}")   # カンマを付けない。bank_span は } の直後で止まるので、
