@@ -44,7 +44,7 @@
 <main>
 
 <div class="wrap hero">
-  <div class="eyebrow"><span class="pulse"></span>survey &middot; report 0 published 2026-08-19</div>
+  <div class="eyebrow"><span class="pulse"></span>survey &middot; report 0 published 2026-08-19 &middot; report 1 published 2026-08-23</div>
   <h1><span class="g">We are going to measure servers</span> that nobody asked us to measure.</h1>
   <p class="lede">The check is read only. It reads an endpoint, reads a card, and hashes what it saw. <b>You can point it at a server you do not own, and so can we.</b> Until now we have only ever pointed it at servers that volunteered. That was the mistake.</p>
   <div class="metastrip">
@@ -159,7 +159,7 @@ User-agent: *
       <p><b>Nothing external caught this.</b> No operator complained, because nothing had been published yet. It was caught because the counters in the log had frozen in a shape that did not match the pilot runs, and that was worth an hour of checking before it was worth a page. <b>If this survey is ever going to name somebody else&rsquo;s server, this is the standard it has to hold itself to first.</b></p>
     </div>
 
-    <div class="stamp" style="font-family:var(--mono);font-size:11.5px;color:var(--slate);margin-top:18px">written 2026-08-23, while run 2 was still walking &middot; report 1 does not exist yet</div>
+    <div class="stamp" style="font-family:var(--mono);font-size:11.5px;color:var(--slate);margin-top:18px">written 2026-08-23, while run 2 was still walking &middot; report 1 did not exist yet &middot; <a href="/verify-directory/survey/1/" style="color:var(--emerald-ink)">it does now</a></div>
   </div>
 </section>
 
@@ -170,12 +170,13 @@ User-agent: *
     <div class="kv">
       <div class="r"><div class="k">count 1</div><div class="v">How many entries are on the registry.</div></div>
       <div class="r"><div class="k">count 2</div><div class="v">How many of those declare an address you can reach from outside.</div></div>
-      <div class="r"><div class="k">count 3</div><div class="v">How many of those actually answered. <b>This is not in report 0.</b> It means sending 12,429 requests to other people's servers, and that is not something to rush because a page said it would happen.</div></div>
+      <div class="r"><div class="k">count 3</div><div class="v">How many of those actually answered. <b>This is not in report 0.</b> It means sending 12,429 requests to other people's servers, and that is not something to rush because a page said it would happen.<br><b>Answered 2026-08-23 in <a href="/verify-directory/survey/1/">report 1</a>: 5,785 of 12,429 spoke MCP.</b> The first attempt was discarded in full. <b>The sentence above is left exactly as it was written, before the number was known.</b></div></div>
       <div class="r"><div class="k">then</div><div class="v">For each of the five conditions, how many met it and how many did not, with the list. <b>Our own rows are in the same table.</b></div></div>
       <div class="r"><div class="k">and</div><div class="v">The exact procedure, so you can run it yourself and get the same three counts.</div></div>
     </div>
     <p class="slead" style="margin-top:22px"><b>The interesting part is probably count 2.</b> Most people talking about the size of this ecosystem are quoting a number that includes tens of thousands of servers that cannot be reached from anywhere. We do not know the gap yet. Nobody has published it.</p>
     <div class="linkset">
+      <a href="/verify-directory/survey/1/">Report 1, measured 2026-08-23 &mdash; count three</a>
       <a href="/verify-directory/survey/0/">Report 0, measured 2026-08-19</a>
       <a href="/verify-directory/method/">The five conditions</a>
       <a href="/verify-directory/failures/">Rows not currently verified</a>

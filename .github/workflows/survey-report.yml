@@ -1,0 +1,33 @@
+# 報告書の数字が、全部データから来ているかを見る。
+#
+# なぜ要るか (2026-08-24):
+#   survey1_report.py の冒頭には「報告に載せる数字を、ひとつ残らずここで作る。
+#   手で書き写さない」と書いてある。だが、そう書いてあるだけで誰も確かめていなかった。
+#   HTML は手で書く。手で書けば写し間違える。そして間違いは静かである。
+#   実際、最初の版で走行1の説明が記憶で書かれていて、記録と食い違っていた。
+#
+#   道具の限界がページに載っているかも、ここで見る。
+#   以前これは「載せたら true にする」という人の申告制だった。申告は嘘をつける。
+name: survey-report
+
+on:
+  push:
+    paths:
+      - "verify-directory/survey/**"
+      - "tools/survey1_report.py"
+      - "tools/survey1_report_check.py"
+      - "tools/survey1_aggregate.py"
+      - ".github/workflows/survey-report.yml"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  numbers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 報告書1の数字がデータと一致しているか
+        run: |
+          python3 tools/survey1_report_check.py \
+            verify-directory/survey/data/survey1_report_2026-08-23.json \
+            verify-directory/survey/1/index.html

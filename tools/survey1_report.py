@@ -24,25 +24,33 @@ from survey1_aggregate import load, dedupe, tail_check, host_contradictions, TAI
 # 2026-08-23: 道具の限界を書かずに報告書を出させない。
 #   走行1で、こちらの名前解決が死んでいたことを『サーバの事実』として1万件記録した。
 #   限界を知っていて書かないのは、知らずに間違えるより悪い。
-def _limitations_gate():
+#
+# 2026-08-24: 最初これは「report に書いたら stated_in_report を true にする」という
+#   人の申告制にしていた。申告制は嘘をつける。書かずに true にできる。
+#   代わりに、限界を JSON の中身として出す。
+#   そして survey1_report_check.py が、HTML に本当に載っているかを見る。
+#   載っていなければ公開できない。人の記憶にも良心にも頼らない。
+def load_limitations():
     import io as _io, json as _json, os as _os, sys as _sys
     p = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
                       "..", "verify-directory", "survey", "data", "known_limitations.json")
     if not _os.path.exists(p):
-        return []
+        _sys.stderr.write("\n限界の記録が見つかりません: %s\n"
+                          "  限界が『無い』のではなく、書いていないだけの可能性がある。\n"
+                          "  空のファイルでもよいので、意図して置くこと。\n\n" % p)
+        _sys.exit(4)
     d = _json.load(_io.open(p, encoding="utf-8"))
     ls = d.get("limitations", [])
-    unstated = [x for x in ls if not x.get("stated_in_report")]
-    if unstated:
-        _sys.stderr.write("\n報告書に書いていない限界があります:\n")
-        for x in unstated:
-            _sys.stderr.write("  ・%s\n    %s\n" % (x.get("id"), str(x.get("text"))[:120]))
-        _sys.stderr.write("  報告書に書いたら known_limitations.json の stated_in_report を true にしてください。\n\n")
-        _sys.exit(4)
+    for x in ls:
+        for need in ("id", "text", "blast_radius", "next"):
+            if not x.get(need):
+                _sys.stderr.write("\n限界 %s に %s がない。読む人が影響の大きさを測れない。\n\n"
+                                  % (x.get("id"), need))
+                _sys.exit(4)
     return ls
 
 
-_LIMITATIONS = _limitations_gate()
+_LIMITATIONS = load_limitations()
 
 
 # 我々自身の行。同じ母集団に入れ、同じ機械で同じ日に測る、と公開している。
@@ -203,6 +211,35 @@ def main():
         "compensation_field_names": [{"field": k, "n": v} for k, v in collections.Counter(
             f for r in spoke for f in (r.get("compensation_fields") or [])).most_common(20)],
     }
+
+    # 道具の限界を、報告の中身として入れる。付記ではない。
+    # ここに入っているものが HTML に載っているかを survey1_report_check.py が見る。
+    report["limitations"] = _LIMITATIONS
+
+    # 開示していなかった数を、こちらで引き算して出す。
+    # 2026-08-24、ページ側で 5785-152 を手で計算して書いていた。
+    # 手で計算した数は、手で間違える。数はここでしか作らない。
+    sm = report.get("spoke_mcp") or {}
+    if sm:
+        sm["compensation_not_disclosed"] = int(sm.get("n", 0)) - int(sm.get("compensation_disclosed", 0))
+
+    # 捨てた走行1の記録。報告書で触れる以上、数字はここから出す。
+    # 2026-08-24、ページに「11,307 行を出した」と書いた。実際は 12,429 行を出し、
+    # そのうち 11,307 行が resolver が死んだ後のものだった。記憶で書くとこうなる。
+    _r1 = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
+                       "verify-directory", "survey", "data",
+                       "survey1_walk_2026-08-23_run1_instrument_failure.json")
+    if os.path.exists(_r1):
+        with open(_r1, encoding="utf-8") as _f:
+            _d = json.load(_f)
+        report["run1_discarded"] = {
+            "verdict": _d.get("verdict"),
+            "rows_total": _d.get("rows_total"),
+            "rows_after_cutover": _d.get("rows_after_cutover"),
+            "reached_after_cutover": _d.get("reached_after_cutover"),
+            "rows_before_cutover": _d.get("rows_before_cutover"),
+            "first_all_unreachable_minute": _d.get("first_all_unreachable_minute"),
+        }
 
     body = json.dumps({k: report[k] for k in report if k != "record_sha256"},
                       separators=(",", ":"), ensure_ascii=False, sort_keys=True)

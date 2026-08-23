@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Report 1: 12,429 addresses contacted. 5,785 answered. 152 said who pays them. · HORIZON SHIELD</title>
+<meta name="description" content="Count three, promised in report 0 and delivered here. Every declared MCP endpoint in the official registry was contacted once, read only, on 2026-08-23. 5,785 answered. Of those, 152 disclosed compensation, under seven different field names. Raw data, hash, and the instrument's own blind spot included.">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/verify-directory/survey/1/">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="12,429 MCP addresses contacted. 5,785 answered. 152 said who pays them.">
+<meta property="og:description" content="Count three, as promised in report 0. Read only, one request each. The instrument's blind spot is stated with the numbers, not in a footnote.">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/verify-directory/survey/1/">
+<meta property="og:site_name" content="HORIZON SHIELD">
+<meta property="og:image" content="https://shield.the-horizons-innovation.com/assets/lighthouse-og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="alternate" hreflang="ja" href="https://shield.the-horizons-innovation.com/verify-directory/buyers/">
+<link rel="alternate" hreflang="en" href="https://shield.the-horizons-innovation.com/verify-directory/">
+<link rel="stylesheet" href="/verify-directory/assets/vd.css">
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <div class="logo"><a href="/verify-directory/">HORIZON SHIELD</a> <span class="sub">/ verify</span></div>
+    <nav class="navlinks">
+      <a href="/verify-directory/survey/" style="color:var(--ink)">Survey</a>
+      <a href="/verify-directory/register/">Register</a>
+      <a href="/verify-directory/failures/">Failures</a>
+      <a href="/verify-directory/operators/">Operators</a>
+      <a href="/verify-directory/method/">Method</a>
+      <a href="/verify-directory/pricing/">Pricing</a>
+    </nav>
+    <a class="langsw" href="/verify-directory/ja/">日本語</a>
+  </div>
+</header>
+<div class="wrap"><div class="crumb"><a href="/verify-directory/">verify</a><span class="sep">/</span><a href="/verify-directory/survey/">survey</a><span class="sep">/</span>report 1</div></div>
+<main>
+
+<div class="wrap hero">
+  <div class="eyebrow"><span class="pulse"></span>report 1 &middot; measured 2026-08-23 &middot; count three</div>
+  <h1><span class="g">12,429 addresses were contacted once.</span> 5,785 answered. 152 said who pays them.</h1>
+  <p class="lede">Report 0 counted declarations and promised that the third count, <b>how many actually answer</b>, would appear as report 1 or not at all. It is here. Every https endpoint the official registry declared was contacted exactly once, read only. <b>No tool was called on any server.</b> The run took a full day and finished the list rather than finishing when I got bored.</p>
+  <div class="metastrip">
+    <span class="dot">&bull;</span><b>12,429 of 12,429</b>
+    <span class="dot">&bull;</span><b>read only</b>
+    <span class="dot">&bull;</span><b>robots respected</b>
+    <span class="dot">&bull;</span><b>one request per address</b>
+  </div>
+  <div class="linkset">
+    <a href="/verify-directory/survey/data/survey1_report_2026-08-23.json">Every number on this page, as JSON</a>
+    <a href="/verify-directory/survey/0/">Report 0, which promised this count</a>
+    <a href="/verify-directory/survey/">The method, published before this ran</a>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="kh">Count three</div>
+    <h2>What happened when I knocked</h2>
+    <div class="kv">
+      <div class="r"><div class="k">addresses contacted</div><div class="v"><b>12,429</b>, the full list from report 0</div></div>
+      <div class="r"><div class="k">measured</div><div class="v"><b>5,785</b> spoke MCP, which is <b>46.5 percent</b>. Of those, <b>5,618</b> also returned a tool list.</div></div>
+      <div class="r"><div class="k">held</div><div class="v"><b>4,260</b> (<b>34.3 percent</b>) could not be measured. <b>3,076 required authorization</b> and 943 could not be reached at all. <b>These are not failures and are not counted as failures.</b> A server behind a login is doing the correct thing.</div></div>
+      <div class="r"><div class="k">skipped</div><div class="v"><b>1,466</b> (<b>11.8 percent</b>) were disallowed by robots.txt and were not contacted. <b>Their operators said no, and no is an answer.</b></div></div>
+      <div class="r"><div class="k">pending</div><div class="v"><b>918</b> (<b>7.4 percent</b>) were reached and measured, but did not complete an MCP handshake. <b>Read the first card below before using this number.</b></div></div>
+      <div class="r"><div class="k">tools offered</div><div class="v"><b>104,434</b> in total. Median <b>10</b> per server, 90th percentile <b>36</b>, largest <b>647</b>. Three servers answered with zero tools.</div></div>
+    </div>
+    <p class="slead" style="margin-top:20px"><b>Held and pending are kept apart on purpose.</b> "I could not measure this" and "I measured this and the condition was not met" are different sentences, and collapsing them is how a survey turns its own blind spots into other people's failures.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kh">Three things to read first</div>
+    <h2>Read these before quoting the headline</h2>
+    <div class="why">
+      <div class="card"><div class="n">01 &middot; my instrument is a revision behind</div><h4>All 918 pending rows could be my fault</h4>
+        <p>This walk speaks the <b>2025-06-18</b> revision of MCP: <span class="mono">initialize</span>, <span class="mono">notifications/initialized</span>, <span class="mono">Mcp-Session-Id</span>. The current revision, <b>2026-07-28</b>, removed all three; a request now stands alone. <b>A server built only to the current spec falls into my "pending" bucket and looks like it did not answer.</b></p>
+        <p>The arithmetic is uncomfortable and I am publishing it anyway: 74 gave no result to initialize, 638 had no MCP at the declared address, 206 refused initialize. <b>That is 918, which is exactly the pending bucket.</b> I cannot say all 918 are this, and I cannot say none are. <b>The honest statement is that the upper bound is the whole bucket</b>, and it will stay that way until a second walk speaks the current revision.</p></div>
+      <div class="card"><div class="n">02 &middot; there is no agreed word for it</div><h4>152 disclosures, seven different field names</h4>
+        <p>Of the 5,785 that answered, <b>152 disclosed compensation</b> somewhere a machine can read. That is <b>2.6 percent</b>. The seven names in use are <span class="mono">payment</span> (104), <span class="mono">pricing</span> (27), <span class="mono">payments</span> (15), <span class="mono">compensation</span> (5), <span class="mono">capabilities.payment</span> (4), <span class="mono">capabilities.pricing</span> (1), and one A2A payments extension.</p>
+        <p><b>The other 5,633 servers are not accused of anything.</b> There is no agreed place to put this, so silence here is the absence of a convention, not evidence of a hidden hand. <b>What the number measures is that the convention does not exist yet</b> — and that an agent choosing between these servers has nothing to read.</p></div>
+      <div class="card"><div class="n">03 &middot; one host is ten percent of it</div><h4>9,109 hosts, and the largest carries 1,312</h4>
+        <p><b>gateway.pipeworx.io declares 1,312 of the 12,429 addresses, and all 1,312 answered.</b> The top ten hosts carry <b>19.7 percent</b> of everything. Meanwhile <b>8,691 hosts carry exactly one endpoint</b> each.</p>
+        <p>Counting servers is not counting operators. <b>3,755 distinct hosts and 2,852 distinct organisations</b> account for the 5,785 that answered. Anyone building a trust argument on "how many servers support this" is quoting a number that one operator can move by a tenth on their own.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="notyet">
+      <div class="big">What this report does not say</div>
+      <p><b>Answering is not behaving well.</b> This measures whether an address speaks the protocol, nothing else. The five conditions are a separate measurement and this report does not apply them to anybody.</p>
+      <p><b>596 servers published an agent card; 4,762 did not, and 427 could not be read.</b> That last number is mine, not theirs — a fetch that failed on my side is recorded as not read, not as absent. The three are never added together.</p>
+      <p><b>1,108 servers required a session id.</b> That is the old revision's mechanism, so this number will mean something different after a walk on the current one.</p>
+      <p><b>My own five endpoints are in the data and marked as mine.</b> All five answered. They are not excluded from the totals and they are not allowed to be quoted as an independent result.</p>
+      <div class="stamp">the second walk speaks the 2026-07-28 revision. until it runs, the 918 stays an upper bound and this page says so.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kh">Method</div>
+    <h2>Reproduce it, and tell me where I am wrong</h2>
+    <div class="kv">
+      <div class="r"><div class="k">source list</div><div class="v">The 12,429 https endpoints published with report 0. <b>The list was fixed before this walk started.</b></div></div>
+      <div class="r"><div class="k">contact</div><div class="v">One <span class="mono">initialize</span> per address, then <span class="mono">tools/list</span> if it answered. <b>No tool was ever called.</b> Read only.</div></div>
+      <div class="r"><div class="k">robots</div><div class="v">Fetched and obeyed per host. <b>1,466 addresses were never contacted</b> and are recorded as skipped, not as failures.</div></div>
+      <div class="r"><div class="k">health gate</div><div class="v">Two control addresses were re-checked whenever failures clustered. <b>If the control stopped answering, the walk aborted instead of recording the outcome.</b> This exists because of run 1, below.</div></div>
+      <div class="r"><div class="k">held vs pending</div><div class="v"><b>Never collapsed.</b> Auth required, unreachable, gateway error and robots are held or skipped. Only a measured-and-unmet condition is pending.</div></div>
+      <div class="r"><div class="k">rows read</div><div class="v"><b>12,429</b> of 12,429. The run ended because the list ended.</div></div>
+      <div class="r"><div class="k">record hash</div><div class="v"><span class="mono">6a784748c2d3c3f4cfd1ee674a613bb47976bd12ebb9ca96f131790c179c3125</span><br>sha256 of the JSON linked at the top, computed over every field except the hash itself.</div></div>
+    </div>
+
+    <div class="honest">
+      <div class="t">Run 1 was thrown away in full</div>
+      <p>The first walk wrote all <b>12,429</b> rows and none of them were used. Eighteen minutes in, <b>my own name resolution died</b>. From that minute onward <b>11,307 consecutive rows</b> were recorded as not reached, with <b>0</b> successes among them, and the tool wrote each one as a fact about somebody else's server. It looked like a finding. It was a picture of my own laptop.</p>
+      <p><b>Nothing was salvaged.</b> The <b>1,122</b> rows written before the resolver died are probably fine, and they were thrown away too: choosing which rows to keep after seeing the data is exactly the move this survey exists to avoid. Run 2 added a control probe that aborts the walk when the control stops answering, and started again from zero.</p>
+      <p>The same disease showed up a second time, in the regression test for a different system, which spent several hours testing a stale copy of the file it was supposed to be checking and reporting that everything passed. <b>An instrument that measures itself will always say it is fine.</b></p>
+    </div>
+
+    <p class="slead" style="margin-top:24px"><b>If you get a different number, I would like to know.</b> Send your count and your stop reason, and if you are right this page gets corrected with both numbers left visible. <b>The wrong one is not deleted.</b></p>
+    <div class="linkset">
+      <a href="/verify-directory/survey/corrections/">The corrections desk, and every correction ever requested</a>
+      <a href="https://github.com/ogasurfproject-jpg/mcp-registry-survey/issues" rel="noopener">Dispute this count on GitHub</a>
+    </div>
+    <div class="linkset">
+      <a href="/verify-directory/survey/0/">Report 0, the population count</a>
+      <a href="/verify-directory/method/">The five conditions</a>
+      <a href="/verify-directory/failures/">Rows that are not green, mine included</a>
+      <a href="/verify-directory/">Measure a server yourself</a>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer>
+  <div class="wrap">
+    <div class="top">Corrections are welcome and are treated as defects. If a row here is wrong, or a condition measures differently on your side, say so and it is re-measured in public. Write to <span class="mono">contact@the-horizons-innovation.com</span>.</div>
+    Operator: The HORIZONs Co., Ltd. (Corporate Number 7021001075279). Supervised by Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>), 30 years on construction sites.<br>
+    <a href="/verify-directory/">Front door</a> &middot; <a href="/verify-directory/survey/">Survey</a> &middot; <a href="/verify-directory/register/">Register</a> &middot; <a href="/verify-directory/failures/">Failures</a> &middot; <a href="/verify-directory/method/">Method</a> &middot; <a href="/verify-directory/survey/corrections/">Corrections</a> &middot; <a href="/verify-directory/operators/">Operators</a> &middot; <a href="/verify-directory/buyers/">日本語</a> &middot; <a href="/verify-directory/about/">About</a><br>
+    Zero referral fees. Verdicts, scores and listing order are not for sale.<br><br>
+    &copy; 2026 The HORIZONs Co., Ltd. &middot; HORIZON SHIELD
+  </div>
+</footer>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script>
+</body>
+</html>
