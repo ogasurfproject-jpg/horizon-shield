@@ -2126,7 +2126,12 @@ export default {
         const sid = safeStr(b.store_id, 40);
         const rec = await env.HS_HEARING_KV.get("hearing:" + sid, "json");
         if (!rec || !rec.profile) return json({ error: "not_found" }, 404);
-        const ALLOW = ["rep", "license", "contact", "hours", "ng", "story", "strengths", "trust"];
+        // 2026-08-23: 直せる項目が文字列8つしかなく、エリアも業種も直せなかった。
+        // こちらが取り違えたものを、こちらで直せないのは筋が通らない。
+        // 実際に「二宮町要相談」から条件が落ちた件を、この口から戻した。
+        const ALLOW = ["rep", "license", "contact", "hours", "ng", "story", "strengths", "trust",
+                       "company", "area", "industry"];
+        const ALLOW_ARR = ["areas_served", "works", "cases"];
         const fields = (b.fields && typeof b.fields === "object") ? b.fields : {};
         const applied = {};
         for (const k of ALLOW) {
@@ -2135,7 +2140,16 @@ export default {
           applied[k] = { from: safeStr(rec.profile[k], 2000), to };
           rec.profile[k] = to;
         }
-        if (!Object.keys(applied).length) return json({ error: "no_allowed_field", allow: ALLOW }, 400);
+        for (const k of ALLOW_ARR) {
+          if (!Object.prototype.hasOwnProperty.call(fields, k)) continue;
+          if (!Array.isArray(fields[k])) return json({ error: "must_be_array", field: k }, 400);
+          const to = fields[k].map((x) => safeStr(x, 120)).filter(Boolean).slice(0, 40);
+          applied[k] = { from: (rec.profile[k] || []).slice(0, 40), to };
+          rec.profile[k] = to;
+        }
+        if (!Object.keys(applied).length) {
+          return json({ error: "no_allowed_field", allow: ALLOW, allow_array: ALLOW_ARR }, 400);
+        }
         rec.profile.edits = [...(rec.profile.edits || []),
           { at: new Date().toISOString(), by: "admin", fields: Object.keys(applied) }].slice(-20);
         await env.HS_HEARING_KV.put("hearing:" + sid, JSON.stringify(rec));

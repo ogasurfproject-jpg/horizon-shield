@@ -1,0 +1,178 @@
+{
+  "dataset": "訪問看護 算定要件データベース",
+  "purpose": "建設における JCCDB と同じ位置に立つ、外部の物差し。これが無ければ「取りこぼしがある」「減算の危険がある」は我々の感想にすぎない。",
+  "version": "2024-kaitei.seed.1",
+  "revision": "令和6年度(2024年度)介護報酬改定",
+  "built_at": "2026-08-23",
+  "built_for": "内部MCP(業務データベース)および外向きMCPの裏付け",
+
+  "discipline": [
+    "出典の無い数字は1つも入れない。単位数も要件も、必ず source を持つ。",
+    "source_tier で、その数字が一次資料(告示・通知)から来たのか、二次資料(解説記事)から来たのかを必ず区別する。二次資料しか当たれていないものは、そう書く。",
+    "確認できていない項目は空欄にせず、confirmed:false と unconfirmed_reason を書いて残す。空欄と未確認は違う。",
+    "「算定できます」とは言わない。言えるのは『この加算にはA・B・Cの要件があり、御社の回答ではAとBを満たし、Cは未確認』まで。算定の可否を我々が判定すると、返戻になったときに責任の所在が壊れる。",
+    "改定で版を切る。旧版は消さない。過去の判断を後から検証できなくなるため。",
+    "requirements の各項目は、ヒアリングの設問 id と1対1で結ぶ。結べない要件は、聞けていない要件である。"
+  ],
+
+  "known_gaps": [
+    {
+      "gap": "一次資料(厚生労働省の告示・留意事項通知の原文)には、まだ当たれていない。",
+      "consequence": "下の数字はすべて二次資料に基づく。実務判断に使う前に、告示原文との突合が要る。",
+      "next": "厚生労働省の令和6年度介護報酬改定関連通知および指定基準の原文を取得し、item ごとに告示番号・通知番号を埋める。"
+    },
+    {
+      "gap": "医療保険(訪問看護療養費)側は、まだ1項目も入っていない。",
+      "consequence": "医療と介護のどちらで請求するかの判定(ご提案 03「保険の判定」)は、この版では支えられない。",
+      "next": "訪問看護療養費の基本療養費・管理療養費・加算を、同じ様式で追加する。"
+    },
+    {
+      "gap": "加算(算定して増える側)が、まだ1項目も入っていない。この版は減算と指示書だけ。",
+      "consequence": "ご提案 03「加算の取りこぼし探し」は、この版では動かせない。",
+      "next": "訪問看護の加算を、算定要件と体制届出の別つきで追加する。"
+    }
+  ],
+
+  "items": [
+    {
+      "id": "genzan-bcp",
+      "kind": "減算",
+      "insurance": "介護",
+      "name": "業務継続計画未策定減算",
+      "effect": {
+        "type": "率",
+        "value": "所定単位数の100分の1",
+        "confirmed": true,
+        "source_ref": ["ibow-20240529"]
+      },
+      "timeline": {
+        "obligation_from": "2024-04-01",
+        "grace_until": "2025-03-31",
+        "grace_note": "訪問看護事業所は2025年3月31日まで減算の適用なし。同年3月15日までに届出が必要と二次資料に記載。",
+        "in_effect_as_of_2026_08_23": true,
+        "confirmed": true,
+        "source_ref": ["ibow-20240529"]
+      },
+      "requirements": [
+        { "id": "bcp-plan",  "text": "感染症および災害の発生時にサービス提供を継続する計画(業務継続計画)を策定していること", "ask": "q_nv_bcp_plan" },
+        { "id": "bcp-train", "text": "計画に基づく研修および訓練を定期的に実施していること",                                 "ask": "q_nv_bcp_train" },
+        { "id": "bcp-stock", "text": "備蓄品の管理および担当者の位置づけができていること",                                   "ask": "q_nv_bcp_stock", "confirmed": false, "unconfirmed_reason": "ご提案書には記載があるが、今回当たれた二次資料には明記が無い。告示原文で確認する。" }
+      ],
+      "we_do_not_say": "この減算に該当します、とは言わない。要件のどれが未確認かを示すところまで。",
+      "sources": ["ibow-20240529"]
+    },
+
+    {
+      "id": "genzan-gyakutai",
+      "kind": "減算",
+      "insurance": "介護",
+      "name": "高齢者虐待防止措置未実施減算",
+      "effect": {
+        "type": "率",
+        "value": "所定単位数の100分の1",
+        "confirmed": true,
+        "source_ref": ["kaipoke-gyakutai", "ibow-20240529"]
+      },
+      "timeline": {
+        "applies_from": "2024-06-01",
+        "in_effect_as_of_2026_08_23": true,
+        "confirmed": true,
+        "source_ref": ["kaipoke-gyakutai"]
+      },
+      "trigger_logic": "4要件のうち一つでも未実施であれば対象",
+      "requirements": [
+        { "id": "gy-committee", "text": "高齢者虐待の防止のための対策を検討する委員会を定期的に開催していること",       "ask": "q_nv_gy_committee" },
+        { "id": "gy-policy",    "text": "高齢者虐待の防止のための指針を整備していること",                               "ask": "q_nv_gy_policy" },
+        { "id": "gy-training",  "text": "従業者に対する高齢者虐待の防止のための研修を年1回以上実施していること(訪問看護の場合)", "ask": "q_nv_gy_training" },
+        { "id": "gy-officer",   "text": "高齢者虐待防止措置を適正に実施するための担当者を置いていること",               "ask": "q_nv_gy_officer" }
+      ],
+      "we_do_not_say": "該当・非該当の判定はしない。4要件それぞれの状態を並べるところまで。",
+      "sources": ["kaipoke-gyakutai", "ibow-20240529"]
+    },
+
+    {
+      "id": "genzan-rihabi",
+      "kind": "減算",
+      "insurance": "介護",
+      "name": "理学療法士等による訪問看護の評価見直し",
+      "effect": {
+        "type": "単位",
+        "value": "訪問看護費 8単位減算",
+        "value_preventive": "介護予防訪問看護費 8単位減算。利用開始から12月を超える場合はさらに15単位減算",
+        "confirmed": true,
+        "source_ref": ["ibow-20240529"]
+      },
+      "timeline": { "revision": "令和6年度改定で新設", "confirmed": true, "source_ref": ["ibow-20240529"] },
+      "requirements": [
+        { "id": "ri-staff", "text": "理学療法士・作業療法士・言語聴覚士による訪問を行っているか", "ask": "q_nv_staff" }
+      ],
+      "we_do_not_say": "御社の請求額がいくら下がる、とは言わない。該当する訪問があるかどうかを見るところまで。",
+      "sources": ["ibow-20240529"]
+    },
+
+    {
+      "id": "shiji-tokubetsu",
+      "kind": "期限・交付ルール",
+      "insurance": "介護・医療",
+      "name": "特別訪問看護指示書",
+      "rules": [
+        { "id": "tk-freq",   "text": "一人につき原則 月1回まで交付できる",                                                            "confirmed": true,  "source_ref": ["kna-q6"] },
+        { "id": "tk-except", "text": "気管カニューレを使用している状態、または真皮を超える褥瘡の状態にある場合は、月に2回まで交付できる", "confirmed": true,  "source_ref": ["kna-q6"] },
+        { "id": "tk-days",   "text": "有効期間は14日間",                                                                             "confirmed": false, "unconfirmed_reason": "当社のご提案書には14日間と記載しているが、今回当たれた出典には有効期間の記載が無かった。告示原文で確認するまで未確認とする。" }
+      ],
+      "watch": [
+        { "id": "tk-count", "text": "当月の交付回数が上限に達していないか", "ask": "q_nv_shiji" },
+        { "id": "tk-expiry", "text": "交付日からの残日数", "ask": "q_nv_shiji" }
+      ],
+      "we_do_not_say": "算定できる・できないの判定はしない。期限と回数を見て、切れる前に知らせるところまで。",
+      "sources": ["kna-q6"]
+    },
+
+    {
+      "id": "shiji-tsujo",
+      "kind": "期限・交付ルール",
+      "insurance": "介護・医療",
+      "name": "訪問看護指示書",
+      "rules": [
+        { "id": "ts-period", "text": "有効期間は原則6か月。病状が変われば期間内でも更新が要る", "confirmed": false, "unconfirmed_reason": "当社のご提案書に記載しているが、今回の調査では一次資料・二次資料とも取得できていない。確認するまで未確認とする。" }
+      ],
+      "watch": [
+        { "id": "ts-expiry", "text": "利用者ごとの指示書の有効期限", "ask": "q_nv_shiji" }
+      ],
+      "sources": []
+    }
+  ],
+
+  "sources": {
+    "kaipoke-gyakutai": {
+      "title": "訪問看護における高齢者虐待防止措置未実施減算とは？【2024年度改定対応】【介護保険】",
+      "publisher": "カイポケ訪問看護マガジン",
+      "url": "https://houkan.kaipoke.biz/magazine/addition-subtraction/elderly-abuse-prevention.html",
+      "tier": "secondary",
+      "retrieved_at": "2026-08-23",
+      "cites_primary": [
+        "介護保険最新情報 Vol.1285 (令和6年7月2日) 令和6年度介護報酬改定関連通知の正誤等について",
+        "令和6年度介護報酬改定の主な事項について",
+        "令和6年度介護報酬改定に関するQ&A (Vol.1) 令和6年3月15日",
+        "介護保険最新情報 Vol.1345 (令和7年1月20日) 高齢者虐待防止措置未実施減算、身体拘束廃止未実施減算の取扱いに係るQ&A"
+      ],
+      "note": "この記事が挙げている一次資料には、まだ当たれていない。次はここを取りに行く。"
+    },
+    "ibow-20240529": {
+      "title": "2024年度訪問看護の報酬改定 減算項目・体制見直し事項",
+      "publisher": "iBow お役立ち情報ポータルサイト",
+      "url": "https://ewellibow.jp/useful/information20240529/",
+      "tier": "secondary",
+      "retrieved_at": "2026-08-23"
+    },
+    "kna-q6": {
+      "title": "Q6【特別訪問看護指示書の交付要件について】",
+      "publisher": "熊本県看護協会",
+      "url": "https://www.kna.or.jp/c2/q9",
+      "tier": "secondary",
+      "retrieved_at": "2026-08-23",
+      "cites_primary": ["令和6年6月版 訪問看護業務の手引", "基準告示第2の1に規定する疾病等(別表第7、別表第8)"],
+      "note": "告示番号そのものは記載されていない。"
+    }
+  }
+}

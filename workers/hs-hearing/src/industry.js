@@ -87,7 +87,8 @@ export const INDUSTRIES = {
       "license (string, construction licence number), area (string, city level), areas (comma-separated string of service areas), " +
       "works (array of trade strings in Japanese e.g. 外壁塗装), strengths (string), faqs (array of objects with q and a), " +
       "trust (string), contact (string), hours (string). " +
-      "Do NOT invent prices or amounts. Unknown fields: empty string or empty array.",
+      "Do NOT invent prices or amounts. Unknown fields: empty string or empty array." +
+      " CRITICAL: if the provider marks an item as conditional or partial (要相談, 応相談, 要確認, 応談, 一部, 場合により), you MUST keep that qualifier attached to the item itself, for example \"二宮町(要相談)\". Never list a conditional item as if it were unconditional, and never drop a scope word such as 全域 or 一部. Dropping a qualifier turns something the provider did not say into something we publish in their name.",
     /* 建設は現状の QUESTION_BANK をそのまま使う。 */
     bank: null,
   },
@@ -144,7 +145,8 @@ export const INDUSTRIES = {
       "works (array of Japanese strings naming medical procedures they can perform at home, e.g. 在宅酸素, 人工呼吸器, 中心静脈栄養, 褥瘡処置, ターミナルケア, 精神科訪問看護), " +
       "strengths (string), faqs (array of objects with q and a), trust (string), contact (string), hours (string, including whether they run 24-hour on-call). " +
       "This is medical and long-term-care billing. Do NOT invent prices, 単位数, 加算 names, or amounts. " +
-      "Do NOT infer a medical procedure they did not name. Unknown fields: empty string or empty array.",
+      "Do NOT infer a medical procedure they did not name. Unknown fields: empty string or empty array." +
+      " CRITICAL: if the provider marks an item as conditional or partial (要相談, 応相談, 要確認, 応談, 一部, 場合により), you MUST keep that qualifier attached to the item itself, for example \"二宮町(要相談)\". Never list a conditional item as if it were unconditional, and never drop a scope word such as 全域 or 一部. Dropping a qualifier turns something the provider did not say into something we publish in their name.",
 
     /* 既にある共通の設問を、訪問看護の言葉に置き換える。
        ここを空にしておくと「工種ごとの強み(例: 外壁塗装は無機3回塗り)」

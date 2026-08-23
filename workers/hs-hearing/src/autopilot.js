@@ -277,6 +277,12 @@ export function mergeProfiles(base, incoming) {
     out.recruit = rout;
   }
   for (const k of ["member_no", "store_id"]) out[k] = a[k] || b[k] || null;
+  // 2026-08-23: 業種をここで落としていた。
+  // industry が profile から消えると computeCompleteness が建設の規則で走り、
+  // 訪問看護の事業所に「見積もり例をあと3件」を求め、訪問看護の設問は一問も出ない。
+  // これは「情報量の多い方を残す」種類の項目ではない。決まっているものを落とさないだけ。
+  const ind = S(b.industry, 40) || S(a.industry, 40);
+  if (ind) out.industry = ind;
   return out;
 }
 
