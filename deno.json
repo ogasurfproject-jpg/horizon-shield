@@ -1,0 +1,9 @@
+{
+  "deploy": {
+    "install": "echo no npm deps needed",
+    "runtime": {
+      "type": "dynamic",
+      "entrypoint": "./workers/hs-verify-relay/deno_relay.js"
+    }
+  }
+}
