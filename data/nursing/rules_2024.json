@@ -1,15 +1,16 @@
 {
   "dataset": "訪問看護 算定要件データベース",
   "purpose": "建設における JCCDB と同じ位置に立つ、外部の物差し。これが無ければ「取りこぼしがある」「減算の危険がある」は我々の感想にすぎない。",
-  "version": "2024-kaitei.seed.1",
+  "version": "2024-kaitei.seed.2",
   "revision": "令和6年度(2024年度)介護報酬改定",
   "built_at": "2026-08-23",
   "built_for": "内部MCP(業務データベース)および外向きMCPの裏付け",
 
   "discipline": [
     "出典の無い数字は1つも入れない。単位数も要件も、必ず source を持つ。",
-    "source_tier で、その数字が一次資料(告示・通知)から来たのか、二次資料(解説記事)から来たのかを必ず区別する。二次資料しか当たれていないものは、そう書く。",
+    "source の tier を三段階で区別する。statute = 告示・省令・通知の原文。agency = 厚生労働省が出した資料(審議会資料・改定概要など)。secondary = 民間の解説記事。『厚労省の資料』と『告示そのもの』を同じ扱いにしない。",
     "確認できていない項目は空欄にせず、confirmed:false と unconfirmed_reason を書いて残す。空欄と未確認は違う。",
+    "出典どうしが食い違ったら、どちらかを選んで黙らない。conflicts に両方を書き、未解決であることを残す。選んだ瞬間に、選んだ理由が消える。",
     "「算定できます」とは言わない。言えるのは『この加算にはA・B・Cの要件があり、御社の回答ではAとBを満たし、Cは未確認』まで。算定の可否を我々が判定すると、返戻になったときに責任の所在が壊れる。",
     "改定で版を切る。旧版は消さない。過去の判断を後から検証できなくなるため。",
     "requirements の各項目は、ヒアリングの設問 id と1対1で結ぶ。結べない要件は、聞けていない要件である。"
@@ -17,9 +18,9 @@
 
   "known_gaps": [
     {
-      "gap": "一次資料(厚生労働省の告示・留意事項通知の原文)には、まだ当たれていない。",
-      "consequence": "下の数字はすべて二次資料に基づく。実務判断に使う前に、告示原文との突合が要る。",
-      "next": "厚生労働省の令和6年度介護報酬改定関連通知および指定基準の原文を取得し、item ごとに告示番号・通知番号を埋める。"
+      "gap": "告示・省令・通知の原文(tier: statute)には、まだ1件も当たれていない。当たれたのは厚生労働省の審議会資料と算定構造(tier: agency)まで。",
+      "consequence": "条文の正確な文言と、細かい例外規定は、まだ手元にない。",
+      "next": "介護保険最新情報 Vol.1225 / Vol.1263 / Vol.1285 / Vol.1345 と、指定居宅サービス等の事業の人員・設備及び運営に関する基準の該当条を取得する。"
     },
     {
       "gap": "医療保険(訪問看護療養費)側は、まだ1項目も入っていない。",
@@ -27,9 +28,9 @@
       "next": "訪問看護療養費の基本療養費・管理療養費・加算を、同じ様式で追加する。"
     },
     {
-      "gap": "加算(算定して増える側)が、まだ1項目も入っていない。この版は減算と指示書だけ。",
-      "consequence": "ご提案 03「加算の取りこぼし探し」は、この版では動かせない。",
-      "next": "訪問看護の加算を、算定要件と体制届出の別つきで追加する。"
+      "gap": "加算は2項目しか入っていない。取りこぼしを探すには全く足りない。",
+      "consequence": "ご提案 03「加算の取りこぼし探し」は、この版ではまだ動かせない。",
+      "next": "訪問看護費の算定構造にある加算を、算定要件と体制届出の別つきで網羅する。"
     }
   ],
 
@@ -41,25 +42,31 @@
       "name": "業務継続計画未策定減算",
       "effect": {
         "type": "率",
-        "value": "所定単位数の100分の1",
+        "value": "その他のサービス(訪問看護を含む) 所定単位数の100分の1に相当する単位数を減算",
+        "value_facility": "施設・居住系サービス 所定単位数の100分の3に相当する単位数を減算",
+        "note": "サービス類型で減算率が違う。訪問看護は『その他のサービス』側。二次資料だけを見ていたときは、この区別が手元に無かった。",
         "confirmed": true,
-        "source_ref": ["ibow-20240529"]
+        "source_ref": ["mhlw-001195261"]
       },
       "timeline": {
         "obligation_from": "2024-04-01",
-        "grace_until": "2025-03-31",
-        "grace_note": "訪問看護事業所は2025年3月31日まで減算の適用なし。同年3月15日までに届出が必要と二次資料に記載。",
+        "obligation_from_confirmed": false,
+        "grace_until": "令和7年3月31日",
+        "grace_text": "令和7年3月31日までの間、減算を適用しない",
         "in_effect_as_of_2026_08_23": true,
         "confirmed": true,
-        "source_ref": ["ibow-20240529"]
+        "source_ref": ["mhlw-001195261"],
+        "unconfirmed_reason": "経過措置の期限は厚生労働省資料で確認できた。義務化の開始日そのものは、当たれた一次資料に明記が無い。"
       },
+      "trigger_text": "感染症若しくは災害のいずれか又は両方の業務継続計画が策定されていない場合",
       "requirements": [
-        { "id": "bcp-plan",  "text": "感染症および災害の発生時にサービス提供を継続する計画(業務継続計画)を策定していること", "ask": "q_nv_bcp_plan" },
-        { "id": "bcp-train", "text": "計画に基づく研修および訓練を定期的に実施していること",                                 "ask": "q_nv_bcp_train" },
-        { "id": "bcp-stock", "text": "備蓄品の管理および担当者の位置づけができていること",                                   "ask": "q_nv_bcp_stock", "confirmed": false, "unconfirmed_reason": "ご提案書には記載があるが、今回当たれた二次資料には明記が無い。告示原文で確認する。" }
+        { "id": "bcp-plan",  "text": "感染症の業務継続計画を策定していること",                                       "ask": "q_nv_bcp_plan" },
+        { "id": "bcp-plan-d","text": "災害の業務継続計画を策定していること(どちらか一方が欠けても対象になる)",         "ask": "q_nv_bcp_plan" },
+        { "id": "bcp-train", "text": "計画に基づく研修および訓練を定期的に実施していること",                           "ask": "q_nv_bcp_train", "confirmed": false, "unconfirmed_reason": "二次資料には研修・訓練の未実施も対象と書かれているが、当たれた厚労省資料の trigger_text は計画の未策定のみを挙げている。原文で確認するまで未確認とする。" },
+        { "id": "bcp-stock", "text": "備蓄品の管理および担当者の位置づけができていること",                             "ask": "q_nv_bcp_stock", "confirmed": false, "unconfirmed_reason": "当社のご提案書に記載しているが、当たれた資料には明記が無い。原文で確認する。" }
       ],
       "we_do_not_say": "この減算に該当します、とは言わない。要件のどれが未確認かを示すところまで。",
-      "sources": ["ibow-20240529"]
+      "sources": ["mhlw-001195261", "ibow-20240529"]
     },
 
     {
@@ -69,45 +76,116 @@
       "name": "高齢者虐待防止措置未実施減算",
       "effect": {
         "type": "率",
-        "value": "所定単位数の100分の1",
+        "value": "所定単位数の100分の1に相当する単位数を減算",
         "confirmed": true,
-        "source_ref": ["kaipoke-gyakutai", "ibow-20240529"]
+        "source_ref": ["mhlw-001195261", "kaipoke-gyakutai"]
       },
       "timeline": {
         "applies_from": "2024-06-01",
         "in_effect_as_of_2026_08_23": true,
-        "confirmed": true,
-        "source_ref": ["kaipoke-gyakutai"]
+        "confirmed": false,
+        "source_ref": ["kaipoke-gyakutai"],
+        "unconfirmed_reason": "適用開始日は二次資料にのみ記載。当たれた厚生労働省資料には日付の記載が無い。"
       },
-      "trigger_logic": "4要件のうち一つでも未実施であれば対象",
+      "trigger_text": "虐待の発生又はその再発を防止するための措置(虐待の発生又はその再発を防止するための委員会の開催、指針の整備、研修の実施、担当者を定めること)",
+      "trigger_logic": "4つの措置のうち一つでも未実施であれば対象",
+      "trigger_logic_confirmed": false,
+      "trigger_logic_note": "『一つでも欠ければ対象』は二次資料の記述。厚労省資料は措置を列挙しているが、この論理を明示していない。原文で確認する。",
       "requirements": [
-        { "id": "gy-committee", "text": "高齢者虐待の防止のための対策を検討する委員会を定期的に開催していること",       "ask": "q_nv_gy_committee" },
-        { "id": "gy-policy",    "text": "高齢者虐待の防止のための指針を整備していること",                               "ask": "q_nv_gy_policy" },
-        { "id": "gy-training",  "text": "従業者に対する高齢者虐待の防止のための研修を年1回以上実施していること(訪問看護の場合)", "ask": "q_nv_gy_training" },
-        { "id": "gy-officer",   "text": "高齢者虐待防止措置を適正に実施するための担当者を置いていること",               "ask": "q_nv_gy_officer" }
+        { "id": "gy-committee", "text": "虐待の発生又はその再発を防止するための委員会を開催していること", "ask": "q_nv_gy_committee" },
+        { "id": "gy-policy",    "text": "指針を整備していること",                                             "ask": "q_nv_gy_policy" },
+        { "id": "gy-training",  "text": "研修を実施していること",                                             "ask": "q_nv_gy_training" },
+        { "id": "gy-officer",   "text": "担当者を定めていること",                                             "ask": "q_nv_gy_officer" }
       ],
-      "we_do_not_say": "該当・非該当の判定はしない。4要件それぞれの状態を並べるところまで。",
-      "sources": ["kaipoke-gyakutai", "ibow-20240529"]
+      "detail_unconfirmed": [
+        { "text": "訪問看護における研修の頻度(年1回以上)", "confirmed": false, "unconfirmed_reason": "二次資料は『年1回以上』としているが、当たれた厚生労働省資料には頻度の記載が無い。ヒアリングの設問文にこの頻度を書いているので、原文確認を優先する。", "source_ref": ["kaipoke-gyakutai"] },
+        { "text": "委員会の開催頻度", "confirmed": false, "unconfirmed_reason": "『定期的に』とあるが、具体的な頻度は当たれた資料に無い。" }
+      ],
+      "we_do_not_say": "該当・非該当の判定はしない。4つの措置それぞれの状態を並べるところまで。",
+      "sources": ["mhlw-001195261", "kaipoke-gyakutai", "ibow-20240529"]
     },
 
     {
-      "id": "genzan-rihabi",
+      "id": "genzan-junkangoshi",
       "kind": "減算",
       "insurance": "介護",
-      "name": "理学療法士等による訪問看護の評価見直し",
+      "name": "准看護師による指定訪問看護",
+      "effect": {
+        "type": "率",
+        "value": "所定単位数に 98/100 を乗じる",
+        "confirmed": true,
+        "source_ref": ["mhlw-001195509"]
+      },
+      "requirements": [
+        { "id": "jk-staff", "text": "准看護師が訪問しているか", "ask": "q_nv_staff" }
+      ],
+      "we_do_not_say": "請求額がいくら下がるとは言わない。該当する訪問があるかどうかを見るところまで。",
+      "sources": ["mhlw-001195509"]
+    },
+
+    {
+      "id": "pt-ot-st",
+      "kind": "単位数",
+      "insurance": "介護",
+      "name": "理学療法士・作業療法士・言語聴覚士による訪問看護",
       "effect": {
         "type": "単位",
-        "value": "訪問看護費 8単位減算",
-        "value_preventive": "介護予防訪問看護費 8単位減算。利用開始から12月を超える場合はさらに15単位減算",
+        "value": "訪問看護費の算定構造上、－97単位",
         "confirmed": true,
-        "source_ref": ["ibow-20240529"]
+        "source_ref": ["mhlw-001195509"]
       },
-      "timeline": { "revision": "令和6年度改定で新設", "confirmed": true, "source_ref": ["ibow-20240529"] },
-      "requirements": [
-        { "id": "ri-staff", "text": "理学療法士・作業療法士・言語聴覚士による訪問を行っているか", "ask": "q_nv_staff" }
+      "conflicts": [
+        {
+          "about": "令和6年度改定における減算幅",
+          "claim_a": { "text": "算定構造に －97単位 と記載", "source_ref": ["mhlw-001195509"], "tier": "agency" },
+          "claim_b": { "text": "訪問看護費 8単位減算(新設)、介護予防訪問看護費 8単位減算、12月超でさらに15単位減算", "source_ref": ["ibow-20240529"], "tier": "secondary" },
+          "status": "未解決",
+          "note": "この二つは同じものを指していない可能性が高い(－97単位は看護師による訪問との差、8単位減は改定による引き下げ幅)。ただし、どちらがどちらかを我々はまだ確認できていない。片方を選んで書くことはしない。"
+        }
       ],
-      "we_do_not_say": "御社の請求額がいくら下がる、とは言わない。該当する訪問があるかどうかを見るところまで。",
-      "sources": ["ibow-20240529"]
+      "requirements": [
+        { "id": "pt-staff", "text": "理学療法士・作業療法士・言語聴覚士による訪問を行っているか", "ask": "q_nv_staff" }
+      ],
+      "we_do_not_say": "この食い違いが解けるまで、この項目の数字を根拠にした案内は出さない。",
+      "sources": ["mhlw-001195509", "ibow-20240529"]
+    },
+
+    {
+      "id": "kasan-tokubetsu-kanri",
+      "kind": "加算",
+      "insurance": "介護",
+      "name": "特別管理加算",
+      "effect": {
+        "type": "単位",
+        "value": "訪問看護ステーションの場合 1月につき +574単位",
+        "value_clinic": "病院又は診療所の場合 1月につき +315単位",
+        "confirmed": true,
+        "source_ref": ["mhlw-001195509"]
+      },
+      "requirements": [
+        { "id": "tk-target", "text": "特別な管理を必要とする利用者に対して計画的な管理を行っているか(対象となる状態の一覧は未取得)", "ask": "q_nv_kasan", "confirmed": false, "unconfirmed_reason": "算定要件(対象となる状態の一覧)は、当たれた算定構造には載っていない。留意事項通知で確認する。" }
+      ],
+      "we_do_not_say": "算定できます、とは言わない。算定していない場合に、要件を満たしうる利用者がいるかを一緒に見るところまで。",
+      "sources": ["mhlw-001195509"]
+    },
+
+    {
+      "id": "kasan-terminal",
+      "kind": "加算",
+      "insurance": "介護",
+      "name": "ターミナルケア加算",
+      "effect": {
+        "type": "単位",
+        "value": "+2,000単位",
+        "condition_text": "死亡日及び死亡日前14日以内に2日以上ターミナルケアを行った場合",
+        "confirmed": true,
+        "source_ref": ["mhlw-001195509"]
+      },
+      "requirements": [
+        { "id": "tm-record", "text": "死亡日および死亡日前14日以内のターミナルケアの実施日が記録から辿れるか", "ask": "q_nv_kasan" }
+      ],
+      "we_do_not_say": "算定できます、とは言わない。記録から実施日が辿れるかを見るところまで。",
+      "sources": ["mhlw-001195509"]
     },
 
     {
@@ -118,11 +196,11 @@
       "rules": [
         { "id": "tk-freq",   "text": "一人につき原則 月1回まで交付できる",                                                            "confirmed": true,  "source_ref": ["kna-q6"] },
         { "id": "tk-except", "text": "気管カニューレを使用している状態、または真皮を超える褥瘡の状態にある場合は、月に2回まで交付できる", "confirmed": true,  "source_ref": ["kna-q6"] },
-        { "id": "tk-days",   "text": "有効期間は14日間",                                                                             "confirmed": false, "unconfirmed_reason": "当社のご提案書には14日間と記載しているが、今回当たれた出典には有効期間の記載が無かった。告示原文で確認するまで未確認とする。" }
+        { "id": "tk-days",   "text": "有効期間は14日間",                                                                             "confirmed": false, "unconfirmed_reason": "当社のご提案書には14日間と記載しているが、当たれた出典に有効期間の記載が無い。原文で確認するまで未確認とする。" }
       ],
       "watch": [
-        { "id": "tk-count", "text": "当月の交付回数が上限に達していないか", "ask": "q_nv_shiji" },
-        { "id": "tk-expiry", "text": "交付日からの残日数", "ask": "q_nv_shiji" }
+        { "id": "tk-count",  "text": "当月の交付回数が上限に達していないか", "ask": "q_nv_shiji" },
+        { "id": "tk-expiry", "text": "交付日からの残日数",                   "ask": "q_nv_shiji" }
       ],
       "we_do_not_say": "算定できる・できないの判定はしない。期限と回数を見て、切れる前に知らせるところまで。",
       "sources": ["kna-q6"]
@@ -144,6 +222,23 @@
   ],
 
   "sources": {
+    "mhlw-001195261": {
+      "title": "令和６年度介護報酬改定の主な事項について (社会保障審議会 介護給付費分科会 第239回 資料1)",
+      "publisher": "厚生労働省 老健局",
+      "date": "令和6年1月22日",
+      "url": "https://www.mhlw.go.jp/content/12300000/001195261.pdf",
+      "tier": "agency",
+      "retrieved_at": "2026-08-23",
+      "note": "厚生労働省が出した資料だが、告示・省令・通知の原文ではない。改定の内容を説明する審議会資料である。"
+    },
+    "mhlw-001195509": {
+      "title": "指定居宅サービス介護給付費単位数の算定構造 (3 訪問看護費)",
+      "publisher": "厚生労働省",
+      "url": "https://www.mhlw.go.jp/content/12300000/001195509.pdf",
+      "tier": "agency",
+      "retrieved_at": "2026-08-23",
+      "note": "単位数の構造を示す図表。算定要件の本文は含まない。"
+    },
     "kaipoke-gyakutai": {
       "title": "訪問看護における高齢者虐待防止措置未実施減算とは？【2024年度改定対応】【介護保険】",
       "publisher": "カイポケ訪問看護マガジン",
