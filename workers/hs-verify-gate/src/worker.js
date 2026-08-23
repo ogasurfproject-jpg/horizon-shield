@@ -1402,6 +1402,9 @@ function endpointPage(origin, row) {
   const self = origin + "/e/" + row.endpoint.replace(/^https?:\/\//, "");
   const label = row.operator_label ? esc(row.operator_label) : "";
   const why = row.why_not_verified ? esc(row.why_not_verified) : "";
+  const surf = (row.latest && row.latest.surface) || null;
+  const toolCount = surf && surf.tool_hashes ? Object.keys(surf.tool_hashes).length : 0;
+  const lsc = row.last_surface_change || null;
   const ld = {
     "@context": "https://schema.org", "@type": "Dataset",
     "@id": self + "#dataset",
@@ -1426,6 +1429,10 @@ function endpointPage(origin, row) {
     'th,td{border:1px solid #2a2a2a;padding:9px 11px;text-align:left;vertical-align:top}' +
     'th{background:#141414;color:#f97316;width:34%;font-weight:600}' +
     'pre{background:#141414;border:1px solid #2a2a2a;border-radius:9px;padding:13px;overflow-x:auto;font-size:13px}' +
+    '.moved{background:#1a1206;border:1px solid #5a3a12;border-radius:9px;padding:13px 15px;margin:16px 0;font-size:13.5px;color:#f0c98a}' +
+    '.moved b{color:#fbbf24}' +
+    '.own{background:#0d1411;border:1px solid #234034;border-radius:9px;padding:15px 17px;margin:24px 0 8px;font-size:13.5px}' +
+    '.own b{color:#fff}.own ul{margin:10px 0 0;padding-left:18px}.own li{margin:6px 0;color:#c3c3c3}' +
     '.n{color:#8a8a8a;font-size:13px}</style></head><body><div class="w">' +
     '<a href="https://shield.the-horizons-innovation.com/verify-directory/">back to the register</a>' +
     '<h1>' + ep + '</h1>' +
@@ -1439,7 +1446,19 @@ function endpointPage(origin, row) {
     '<tr><th>cadence</th><td>' + esc(row.cadence || '') + '</td></tr>' +
     '<tr><th>tool call consent</th><td>' + (row.tool_call_consent ? 'given by the operator' : 'not given') + '</td></tr>' +
     '<tr><th>record sha256</th><td style="word-break:break-all">' + esc(sha || 'none yet') + '</td></tr>' +
+    (surf ? '<tr><th>declared surface</th><td>' + esc(String(toolCount)) + ' tool' + (toolCount === 1 ? '' : 's') +
+      ', manifest ' + esc(String(surf.manifest_hash || 'withheld')) +
+      (surf.canonicalization === 'refused'
+        ? '<br><span class="n">fingerprint withheld: this surface cannot be canonicalized, so no third party could reproduce a hash over it</span>'
+        : '') + '</td></tr>' : '') +
     '</table>' +
+    (lsc ? '<div class="moved"><b>The declared surface last moved on ' + esc(String(lsc.at || 'an unrecorded date')) + '.</b><br>' +
+      (lsc.added && lsc.added.length ? 'added: ' + esc(lsc.added.join(', ')) + '<br>' : '') +
+      (lsc.removed && lsc.removed.length ? 'removed: ' + esc(lsc.removed.join(', ')) + '<br>' : '') +
+      (lsc.definition_changed && lsc.definition_changed.length ? 'definition changed: ' + esc(lsc.definition_changed.join(', ')) + '<br>' : '') +
+      '<span class="n">A tool can keep its name and change what it accepts. That breaks the code calling it and breaks no badge, ' +
+      'so it is recorded here as a dated fact. The MCP specification treats tool list changes as normal operation. ' +
+      'Nothing here says this change was wrong.</span></div>' : '') +
     (why ? '<p class="n">' + why + '</p>' : '') +
     '<p>Recompute this row yourself. Do not take our word for it.</p>' +
     '<pre>curl -s "' + row.history_url + '"</pre>' +
@@ -1448,6 +1467,19 @@ function endpointPage(origin, row) {
       '<a href="' + origin + '/is-verified?endpoint=' + encodeURIComponent(row.endpoint) + '">one-glance verdict</a> / ' +
       '<a href="https://shield.the-horizons-innovation.com/verify-directory/recompute/">how to recompute a verdict</a> / ' +
       '<a href="' + origin + '/spec">the conditions, in full</a></p>' +
+    '<div class="own"><b>Is this your server?</b>' +
+      '<ul>' +
+      '<li>Appearing here is free and stays free. So is this page, the structured data inside it, and the fact that ' +
+        'search engines and agents can read it. <b>None of that is for sale at any price.</b></li>' +
+      '<li>Free, on request: correct the operator name shown above, ask to be measured now rather than at the next ' +
+        'sweep, or ask not to be measured again. Records already taken stay, because a register that deletes its ' +
+        'own past is not a register.</li>' +
+      '<li>Paid: measured daily instead of weekly, and told by webhook within the hour when a condition flips or ' +
+        'the declared surface moves.</li>' +
+      '<li><b>Never for sale:</b> the verdict, the order of this register, and whether you appear in it. Paying buys ' +
+        'more measurement of you, sooner. It has never bought a better result, and a paid row that fails is ' +
+        'published exactly like a free one that fails.</li>' +
+      '</ul></div>' +
     '<p class="n">A green here means every condition that could be measured was measured and passed. It is not a statement that the server is good, safe or correct. Conditions that were not measured are never counted as passes, including for the operator of this register.</p>' +
     '</div></body></html>';
 }
@@ -1483,8 +1515,16 @@ async function publicRegister(env) {
         row.latest = {
           at: latest.at || null,
           status: latest.status || null,
-          record_sha256: latest.record_sha256 || null
+          record_sha256: latest.record_sha256 || null,
+          surface: latest.surface || null
         };
+      }
+      // 直近の表面移動を、日付付きで一件だけ持ち上げる。統合を壊す変更はここに出る。
+      for (let i = entries.length - 1; i >= 0; i--) {
+        if (entries[i] && entries[i].surface_change) {
+          row.last_surface_change = { at: entries[i].at || null, ...entries[i].surface_change };
+          break;
+        }
       }
     } else {
       row.note = "not joined with history in this response: over REGISTER_JOIN_MAX (" + REGISTER_JOIN_MAX + "). The history_url works regardless.";
@@ -1651,8 +1691,10 @@ function summarise(record) {
     reachable: publicReachable(record.reachable),
     record_sha256: record.record_sha256,
     conditions: out,
-    // 表面の指紋。fingerprint には入れない ,  表面の変化は条件の flip ではなく、
-    // 警報を鳴らさない。MCP 仕様自体が tools/list の変化を正常運用と見なしている。
+    // 表面の指紋。fingerprint には今も入れない ,  表面の移動は条件の flip とは別種の事実だからだ。
+    // ただし 2026-08-23 から、別種であることと黙っていてよいことは違うと考えを改めた。
+    // 表面が動けば changed になり、通知にも /changes にも載る。MCP 仕様が tools/list の変化を
+    // 正常運用と見なしているのはその通りなので、警報ではなく日付付きの事実として出す。
     surface: (checks.mcp_endpoint && checks.mcp_endpoint.detail && checks.mcp_endpoint.detail.surface) || null,
     absence_vs_failure: record.absence_vs_failure ? {
       measured: record.absence_vs_failure.measured === false ? false : true,
@@ -1689,7 +1731,13 @@ async function recordHistory(env, endpoint, record) {
     };
   }
 
-  const changed = !last || last.fingerprint !== entry.fingerprint;
+  // 2026-08-23. ここまで、変化の判定は status と5条件の合否だけを見ていた。
+  // だから「ツール名はそのまま、inputSchema だけ差し替えた」変更は、5条件を全部通したまま
+  // 変化ゼロとして扱われ、通知も出ず /changes にも載らなかった。統合を黙って壊す変更の第一位が、
+  // 計算され、履歴に書き込まれ、そのまま誰にも知らされていなかった。
+  // 測って保存して黙っているのは、測っていないのとほとんど変わらない。表面の移動も変化に数える。
+  const surfaceMoved = !!entry.surface_change;
+  const changed = !last || last.fingerprint !== entry.fingerprint || surfaceMoved;
   let lastFlips = [];
   entries.push(entry);
   while (entries.length > HISTORY_MAX) entries.shift();
@@ -1723,18 +1771,31 @@ async function recordHistory(env, endpoint, record) {
     lastFlips = flips;
     let changes = [];
     try { changes = (await env.HS_VERIFY_KV.get("changes:recent", "json")) || []; } catch (_e) {}
+    // 表面の移動を、条件の反転と同じ重さで書く。読み手にとってはこちらの方が実害が早い。
+    const sc = entry.surface_change || null;
+    const scBits = [];
+    if (sc) {
+      if (sc.added && sc.added.length) scBits.push(sc.added.length + " tool added");
+      if (sc.removed && sc.removed.length) scBits.push(sc.removed.length + " tool removed");
+      if (sc.definition_changed && sc.definition_changed.length) {
+        scBits.push(sc.definition_changed.length + " tool definition changed (" + sc.definition_changed.slice(0, 3).join(", ") + ")");
+      }
+    }
+    const flipBits = flips.map((f) => f.condition + " " + (f.from ? "pass" : "fail") + " to " + (f.to ? "pass" : "fail"));
     changes.push({
       at: entry.at,
       endpoint,
       status_from: last.status,
       status_to: entry.status,
       conditions_changed: flips,
+      surface_changed: sc,
       reachable: publicReachable(entry.reachable),
       unreachable_streak: streak,
       alert_suppressed: suppressed,
-      summary: flips.length
-        ? flips.map((f) => f.condition + " " + (f.from ? "pass" : "fail") + " to " + (f.to ? "pass" : "fail")).join(", ")
-        : "status changed with no condition flip"
+      summary: flipBits.concat(scBits).join(", ") || "status changed with no condition flip",
+      ...(sc && !flips.length ? {
+        note: "The declared surface moved while every condition still passed. A verdict alone would not have shown this, and it is the shape of change that breaks an integration without breaking a badge."
+      } : {})
     });
     while (changes.length > CHANGES_MAX) changes.shift();
     try { await env.HS_VERIFY_KV.put("changes:recent", JSON.stringify(changes)); } catch (_e) {}
@@ -1769,7 +1830,12 @@ async function readChanges(env) {
   }
   try {
     const v = await env.HS_VERIFY_KV.get("changes:recent", "json");
-    return { changes: v || [], note: "State changes recorded by the daily re-measurement. A change means a condition flipped, not merely that a new verdict was issued." };
+    return {
+      changes: v || [],
+      note: "Changes recorded by the scheduled re-measurement. A change means either that a condition flipped, or that the declared tool surface moved. It never means that a fresh verdict was simply issued.",
+      why_surface_matters: "A server can keep every tool name, swap what a tool accepts, and still pass all five conditions. That change breaks the code calling it and breaks no badge, so it is reported here with the same weight as a flip. Entries carry surface_changed with the tools added, removed, or redefined.",
+      not_a_judgement: "The MCP specification treats tool list changes as normal operation. Nothing here says a change was wrong. It says a change happened, and on what date."
+    };
   } catch (_e) {
     return { changes: [], note: "could not read changes" };
   }
@@ -1811,11 +1877,13 @@ async function runDailySweep(env, opts) {
           status: r.entry.status,
           reachable: publicReachable(r.entry.reachable),
           conditions_changed: r.flips || [],
+          surface_changed: (r.entry && r.entry.surface_change) || null,
           history: "/history?endpoint=" + encodeURIComponent(w.endpoint),
-          note: "The verdict is free and public. What you are paying for is being told, and being measured daily."
+          note: "The verdict is free and public. What you are paying for is being told, and being measured daily. " +
+            "surface_changed is present when the declared tool surface moved, which can happen while every condition still passes."
         });
       }
-      results.push({ endpoint: w.endpoint, tier: w.tier, status: record.status, reachable: publicReachable(record.reachable), changed, alert_suppressed: changed && !alertable, notified });
+      results.push({ endpoint: w.endpoint, tier: w.tier, status: record.status, reachable: publicReachable(record.reachable), changed, surface_changed: (r.entry && r.entry.surface_change) || null, alert_suppressed: changed && !alertable, notified });
     } catch (e) {
       results.push({ endpoint: w.endpoint, tier: w.tier, error: String((e && e.message) || e) });
     }
