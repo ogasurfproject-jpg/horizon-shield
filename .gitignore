@@ -177,3 +177,7 @@ HORIZON_SHIELD_鍵マネージャ*.html
 
 # 生成物。hearing_sheet.py から毎回作り直す。
 ヒアリング原簿.html
+
+# CI が走らせる。無視のままだとワークフローがファイル無しで落ちる。
+!tools/visibility/*.py
+!tools/industries/*.py

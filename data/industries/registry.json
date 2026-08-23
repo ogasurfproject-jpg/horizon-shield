@@ -1,0 +1,48 @@
+{
+  "what": "加盟店の業種ごとの定義。業種を足すときは、ここに1つ書き足す。",
+  "why": [
+    "加盟店には、それぞれの思惑と特性と業種がある。だが仕組みは同じである。",
+    "  1) その業種の物差し(要件データベース)",
+    "  2) その物差しを厚くするための、現場への問い",
+    "  3) 業種を問わない可視性の問い(GEO/AEO/LLMO/WebMCP)",
+    "  4) 黄金比にしたがった生成",
+    "この4つが揃うほど、生成物の中身が濃くなる。揃わないうちは、こちらが代わりに書くことになり、",
+    "どの会社でも同じ文面になる。同じ文面のページは、2026-08-23 に実際に重複で弾かれた。"
+  ],
+  "invariant": "物差しの無い業種を、黙って通さない。無いなら『無い』と、理由ごと書くこと。",
+  "industries": {
+    "construction": {
+      "key": "construction",
+      "label": "建設・リフォーム",
+      "mall": "yakumo",
+      "rules_db": {
+        "kind": "mcp",
+        "name": "JCCDB",
+        "server": "HORIZON_SHIELD",
+        "tool": "get_jccdb_dataset_info",
+        "note": "公共工事の積算資料に基づく建設費のオープンデータ。ファイルではなくMCP経由で参照する。"
+      },
+      "field_questions": {
+        "count": 0,
+        "gap": "建設側には、JCCDBの穴を埋めるための現場質問がまだ1問も無い。",
+        "consequence": "訪問看護では実地指導や加算の名前を現場から集めているが、建設では集めていない。物差しが厚くなる経路が片方にしか無い。",
+        "next": "JCCDBで足りない品目・地域差・実勢との開きを、現場に尋ねる問いを作る。"
+      },
+      "golden_ratio": { "geo": 40, "aeo": 30, "llmo": 20, "webmcp": 10 }
+    },
+    "nursing": {
+      "key": "nursing",
+      "label": "訪問看護",
+      "mall": "care",
+      "rules_db": {
+        "kind": "file",
+        "name": "JHNRD",
+        "path": "data/nursing/rules_2024.json",
+        "owner_repo": "https://github.com/ogasurfproject-jpg/jhnrd",
+        "note": "介護報酬の算定要件データベース。本物は公開リポジトリ側。こちらは写し。"
+      },
+      "field_questions": { "count": 8, "gap": null },
+      "golden_ratio": { "geo": 40, "aeo": 30, "llmo": 20, "webmcp": 10 }
+    }
+  }
+}

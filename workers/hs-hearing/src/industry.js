@@ -91,6 +91,18 @@ export const INDUSTRIES = {
       " CRITICAL: if the provider marks an item as conditional or partial (要相談, 応相談, 要確認, 応談, 一部, 場合により), you MUST keep that qualifier attached to the item itself, for example \"二宮町(要相談)\". Never list a conditional item as if it were unconditional, and never drop a scope word such as 全域 or 一部. Dropping a qualifier turns something the provider did not say into something we publish in their name.",
     /* 建設は現状の QUESTION_BANK をそのまま使う。 */
     bank: null,
+
+    /* 物差し。建設における JCCDB。訪問看護の JHNRD と同じ位置に立つ。
+       2026-08-23、ここが書かれていなかった。訪問看護だけが物差しに繋がっていて、
+       建設は繋がっていない状態だった。片方だけ濃くなるので、揃える。
+       ファイルではなく MCP 経由で参照するため、kind を書いてある。 */
+    rules_db: { kind: "mcp", name: "JCCDB", server: "HORIZON_SHIELD",
+                tool: "get_jccdb_dataset_info" },
+
+    /* 生成の配分。全業種で同じ方針。
+       これは方針であって測定結果ではない。根拠が無いことは
+       data/visibility/requirements.json の known_gaps に書いてある。 */
+    golden_ratio: { geo: 40, aeo: 30, llmo: 20, webmcp: 10 },
   },
 
   /* ---------------------------------------------------------------- */

@@ -13,6 +13,11 @@ on:
       - "data/nursing/**"
       - "workers/hs-hearing/src/industry.js"
       - "tools/nursing/**"
+      - "tools/visibility/**"
+      - "tools/industries/**"
+      - "data/visibility/**"
+      - "data/industries/**"
+      - "workers/hs-hearing/src/visibility.js"
       - ".github/workflows/nursing-questions.yml"
   pull_request:
   workflow_dispatch:
@@ -41,3 +46,19 @@ jobs:
       #    このテストの 3) にそのまま入っている。
       - name: 業種ゲートの回帰テスト
         run: node workers/hs-hearing/industry_gate_test.mjs
+
+  visibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      # 可視性の設問が、可視性要件データベースとずれていないか
+      - name: 可視性の設問
+        run: python3 tools/visibility/sync_questions.py --check
+      - name: visibility.js の構文
+        run: node --check workers/hs-hearing/src/visibility.js
+      # 業種ごとの物差しと黄金比が、宣言と一致しているか。
+      # 片方の業種にだけ物差しが繋がっている状態を、黙って通さない。
+      - name: 業種レジストリ
+        run: python3 tools/industries/check.py

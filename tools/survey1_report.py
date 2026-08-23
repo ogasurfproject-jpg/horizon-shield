@@ -21,6 +21,30 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from survey1_aggregate import load, dedupe, tail_check, host_contradictions, TAIL_TRIP  # noqa: E402
 
+# 2026-08-23: 道具の限界を書かずに報告書を出させない。
+#   走行1で、こちらの名前解決が死んでいたことを『サーバの事実』として1万件記録した。
+#   限界を知っていて書かないのは、知らずに間違えるより悪い。
+def _limitations_gate():
+    import io as _io, json as _json, os as _os, sys as _sys
+    p = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                      "..", "verify-directory", "survey", "data", "known_limitations.json")
+    if not _os.path.exists(p):
+        return []
+    d = _json.load(_io.open(p, encoding="utf-8"))
+    ls = d.get("limitations", [])
+    unstated = [x for x in ls if not x.get("stated_in_report")]
+    if unstated:
+        _sys.stderr.write("\n報告書に書いていない限界があります:\n")
+        for x in unstated:
+            _sys.stderr.write("  ・%s\n    %s\n" % (x.get("id"), str(x.get("text"))[:120]))
+        _sys.stderr.write("  報告書に書いたら known_limitations.json の stated_in_report を true にしてください。\n\n")
+        _sys.exit(4)
+    return ls
+
+
+_LIMITATIONS = _limitations_gate()
+
+
 # 我々自身の行。同じ母集団に入れ、同じ機械で同じ日に測る、と公開している。
 OURS = ("horizonshield.dev", "the-horizons-innovation.com", "horizon-shield.ogasurfproject-jpg.deno.net")
 

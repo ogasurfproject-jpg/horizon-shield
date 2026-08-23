@@ -18,6 +18,7 @@ const now = () => new Date().toISOString();
 const days = (ms) => ms / 86400000;
 
 import * as IND from "./industry.js";
+import * as VIS from "./visibility.js";
 
 // 2026-08-19 patch51. 「検証済み」と言うために、実際に監査する見積の最低本数。
 // 1本は業者を測ったことにならない。1本の書類を測っただけになる。
@@ -147,6 +148,21 @@ export function computeCompleteness(profile, autopilot) {
     score += Math.round((ianswered / iqids.length) * 20);
     for (const q of iqids) if (!extra[q]) { missing.push({ qid: q, w: ibank[q].w }); askable.push({ qid: q, w: ibank[q].w }); }
   }
+  // 2026-08-23: 可視性の設問。業種を問わず、全加盟店に同じだけ効く。
+  //   所在をはっきりさせる、よく聞かれる問いに答えの形で答える、20秒の要約を持つ、
+  //   AIが呼べる窓口を決める。建設でも訪問看護でも、要否は変わらない。
+  //   ここが埋まるほど、生成する GEO/AEO/LLMO/WebMCP の中身が濃くなる。
+  //   埋まらないうちは、こちらが代わりに書くしかなくなり、それはどの会社でも
+  //   同じ文面になる。同じ文面のページは、2026-08-23 に実際に重複で弾かれた。
+  const vqids = VIS.visibilityQids();
+  if (vqids.length) {
+    const vanswered = vqids.filter((q) => !!extra[q]).length;
+    score += Math.round((vanswered / vqids.length) * 15);
+    for (const q of vqids) if (!extra[q]) {
+      const w = VIS.visibilityQuestion(q).w;
+      missing.push({ qid: q, w }); askable.push({ qid: q, w });
+    }
+  }
   // 契約時点で埋まる基本項目ぶんの底上げ(社名/所在地/工種は必須通過済み)
   score += 5;
   return { score: Math.min(100, score), missing, askable };
@@ -176,6 +192,7 @@ export function nextQuestions(profile, autopilot, maxN = 2) {
     // これが無いと、訪問看護の事業所に「工種ごとの強み(例: 外壁塗装)」
     // 「施主さんからよく聞かれる質問」が、追撃質問として毎週届く。
     const q = IND.questionFor((profile || {}).industry, m.qid)
+      || VIS.visibilityQuestion(m.qid)
       || QUESTION_BANK[m.qid]
       || (autopilot && autopilot.focus_primary && QUESTION_BANK[autopilot.focus_primary] && QUESTION_BANK[autopilot.focus_primary][m.qid]);
     if (!q) continue;
@@ -191,7 +208,11 @@ export function nextQuestions(profile, autopilot, maxN = 2) {
   //   集客の設問を消すのではなく、2問のうち1問を必ずこちらに回す。
   //   残っていなければ、これまでどおり重みの順のまま。
   if (maxN >= 2 && picked.length >= 2) {
-    const dbq = IND.dbBuildingQids((profile || {}).industry) || [];
+    // 業種のDBを厚くする問いと、可視性のDBを厚くする問い。どちらもここに入れる。
+    // 加盟店にとっては「答えるほど自分のページが濃くなる問い」であり、
+    // 弊社にとっては「物差しが厚くなる問い」である。同じ問いが両方を満たす。
+    const dbq = [].concat(IND.dbBuildingQids((profile || {}).industry) || [],
+                          VIS.visibilityQids() || []);
     if (dbq.length) {
       const set = new Set(dbq);
       if (!picked.some((f) => set.has(f.qid))) {
