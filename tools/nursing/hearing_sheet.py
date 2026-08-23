@@ -20,6 +20,9 @@ from migrate_questions import DB                       # noqa: E402
 E = lambda s: html.escape(str(s or ""))
 
 PURPOSE = {
+    "visibility": ("AIと検索から見つけてもらう", "vis",
+                   "業種を問わず、加盟店の全社に同じだけ届く。所在・問い・要約・窓口。"
+                   "答えが埋まるほど、生成する GEO/AEO/LLMO/WebMCP の中身が濃くなる"),
     "requirement": ("算定要件の確認", "req", "データベースにある要件が、実際に満たされているかを確かめる"),
     "field": ("データベースを厚くする", "field", "こちらがまだ持っていないことを、現場に尋ねる。答えは現場報告に入り、規則の出典にはしない"),
     "ops": ("業務の回り方", "ops", "請求と記録が実際どう回っているか"),
@@ -28,8 +31,21 @@ PURPOSE = {
 }
 
 
+def visibility_questions():
+    """可視性の設問。業種を問わず全社に届くので、この原簿にも載せる。"""
+    p = os.path.join(os.path.dirname(DB.replace("/jhnrd/data", "/JH")), "")  # 未使用
+    vp = os.path.abspath(os.path.join(HERE, "..", "..", "data", "visibility", "requirements.json"))
+    if not os.path.exists(vp):
+        return [], None
+    d = json.load(io.open(vp, encoding="utf-8"))
+    qs = sorted(d.get("questions", []), key=lambda q: int(q.get("order", 9999)))
+    return qs, d
+
+
 def build():
     qs, asks, dup, silent, ver = merged()
+    vqs, vdb = visibility_questions()
+    qs = list(vqs) + list(qs)
     db = json.load(io.open(DB, encoding="utf-8"))
     items = {it["id"]: it for it in db["items"]}
     byid = {q["id"]: q for q in qs}
@@ -40,6 +56,12 @@ def build():
                  for r in it.get(k, []) if r.get("confirmed") is False)
     statute_now = sum(1 for s in db.get("sources", {}).values()
                       if s.get("tier") == "statute" and s.get("current") is not False)
+    # 2026-08-23: 「現行の条文が1件ある」とだけ書くと、訪問看護の条文を持っている
+    #   ように読める。持っているのは訪問介護の章の条文で、訪問看護への準用は未確認である。
+    #   数字の横に素性を書かないのが、いちばん危ない。
+    statute_nursing = sum(1 for s in db.get("sources", {}).values()
+                          if s.get("tier") == "statute" and s.get("current") is not False
+                          and s.get("applies_to_nursing") is True)
     nfield = sum(1 for q in qs if q.get("purpose") == "field")
 
     o = []
@@ -54,12 +76,16 @@ def build():
 
     a('<div class="wrap">')
     a('<header class="head">')
-    a('<p class="eyebrow">HORIZON SHIELD / Yakumo &middot; 訪問看護</p>')
+    a('<p class="eyebrow">HORIZON SHIELD &middot; 加盟店ヒアリング</p>')
     a("<h1>ヒアリング原簿</h1>")
     a('<p class="lede">この一覧は手で書いていません。算定要件データベース '
+      '<span class="mono">%s</span> と、AI可視性の要件データベース '
       '<span class="mono">%s</span> から毎回作り直しています。'
       'DB に要件を足せば設問が増え、消せば設問も消えます。'
-      'ここに出ている数字も、すべて DB から取ったものです。</p>' % E(ver))
+      'ここに出ている数字も、すべて DB から取ったものです。'
+      '上の5問(可視性)は業種を問わず、加盟店の全社に同じだけ届きます。'
+      '下の26問は訪問看護のものです。</p>'
+      % (E(ver), E((vdb or {}).get("version", "-"))))
     a("</header>")
 
     # 現在地
@@ -68,9 +94,13 @@ def build():
         ("設問", len(qs), "実際に届く全数"),
         ("うち DB を厚くする問い", nfield, "現場に尋ねる"),
         ("DB の項目", len(db["items"]), "減算・加算・指示書"),
-        ("出典", len(db.get("sources", {})), "うち現行の条文 %d 件" % statute_now),
+        ("出典", len(db.get("sources", {})),
+         "現行の条文 %d 件 / うち訪問看護への適用を確認できたもの %d 件" % (statute_now, statute_nursing)),
         ("未確認の要件", unconf, "確認できていないと書いてある"),
         ("自分で書いた穴", len(db.get("known_gaps", [])), "埋めに行く先"),
+        ("可視性の項目", len(vdb["items"]) if vdb else 0,
+         "効果まで確認できたもの %d 件" % (sum(1 for it in (vdb or {}).get("items", [])
+                                          if it.get("effect", {}).get("confirmed")))),
     ):
         cls = " warn" if label in ("未確認の要件", "自分で書いた穴") else ""
         a('<div class="cell%s"><span class="num">%s</span>'
@@ -78,8 +108,8 @@ def build():
           % (cls, val, E(label), E(sub)))
     a("</section>")
 
-    if statute_now == 0:
-        a('<p class="alarm">現行の告示・省令・通知の原文は、まだ1件も取れていません。'
+    if statute_nursing == 0:
+        a('<p class="alarm">訪問看護に適用されることを確認できた現行の条文は、まだ1件もありません。'
           'この版の数字は、実務の判断に使う前に原文との突合が要ります。'
           'ヒアリングの設問文に要件の中身を書くのは、DB で確認済みのものだけにしています。</p>')
 
@@ -123,6 +153,14 @@ def build():
                 it = items.get(iid, {})
                 names.append("%s <span class='rid'>%s</span>" % (E(it.get("name", iid)), E(rid)))
             a('<p class="meta"><span class="mk">確かめる要件</span>%s</p>' % "、".join(names))
+        if p == "visibility":
+            ax = q.get("axis", "")
+            it = next((x for x in (vdb or {}).get("items", []) if x.get("axis") == ax), None)
+            a('<p class="meta"><span class="mk">面</span>%s%s</p>'
+              % (E(ax), ("　" + E(it["name"])) if it else ""))
+            if it:
+                a('<p class="meta"><span class="mk gap">効果は未確認</span>%s</p>'
+                  % E(str(it.get("effect", {}).get("unconfirmed_reason", ""))[:150]))
         if p == "field":
             a('<p class="meta"><span class="mk gap">埋めようとしている穴</span>%s</p>' % E(q.get("fills_gap")))
             a('<p class="meta"><span class="mk">得られるもの</span>%s</p>' % E(q.get("gives")))
@@ -230,11 +268,13 @@ h2{font-family:"Zen Old Mincho",serif;font-size:24px;font-weight:600;
 .chip.req{background:var(--navy-soft);color:var(--navy)}
 .chip.ops,.chip.gen{background:var(--rule);color:var(--ink-3)}
 .chip.out,.chip.rec{background:var(--amber-soft);color:var(--amber)}
+.chip.vis{background:var(--seal-soft);color:var(--seal)}
 
 .ph{font-family:"Zen Old Mincho",serif;font-size:18px;font-weight:600;
   margin:38px 0 6px;letter-spacing:.05em;display:flex;align-items:baseline;gap:12px}
 .ph.field{color:var(--moss)} .ph.req{color:var(--navy)}
 .ph.out,.ph.rec{color:var(--amber)} .ph.ops{color:var(--ink-2)}
+.ph.vis{color:var(--seal)}
 .phn{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);
   font-weight:400;letter-spacing:0}
 
@@ -243,6 +283,7 @@ h2{font-family:"Zen Old Mincho",serif;font-size:24px;font-weight:600;
 .q.field{border-left-color:var(--moss)}
 .q.req{border-left-color:var(--navy)}
 .q.out,.q.rec{border-left-color:var(--amber)}
+.q.vis{border-left-color:var(--seal)}
 .qh{display:flex;justify-content:space-between;align-items:baseline;gap:12px;
   margin-bottom:7px;flex-wrap:wrap}
 .qh code{color:var(--ink-3)}
