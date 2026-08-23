@@ -1042,7 +1042,9 @@ const TOOL_CALL_CONSENT = new Set([
   "https://jidec.horizonshield.dev/mcp",
   "https://gate.horizonshield.dev/mcp",
   // p002 ミネオトーヨー住器。所有者同意 2026-08-18 19:51 LINE「測って下さい。」
-  "https://p002.horizonshield.dev/mcp"
+  "https://p002.horizonshield.dev/mcp",
+  // 自前の試験標的。所有者は我々自身なので同意は自明。
+  "https://gate.horizonshield.dev/testbed/i-json/mcp"
 ]);
 
 // 2026-08-19 patch41. この計器自身の既知の制限。測ったが直せていないものを、黙って回避しない。
@@ -2384,6 +2386,84 @@ export default {
     // CORS プリフライト。ブラウザからの POST /check は content-type で preflight が飛ぶ。
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: CORS_HEADERS });
+    }
+
+    // --- 正規化の試験標的 (condition 07 の陽性側) ---
+    // 2026-08-23。この日の朝、我々は「2^53超の整数は JavaScript では検出できない」と公開し、
+    // 昼に撤回して検出を実装した。撤回だけでは足りない。陰性(clean)しか本番で見せられないなら、
+    // 検出が本当に働くかは我々の自己申告になる。だから、わざと違反する標的を本番に置く。
+    //
+    // 本文は文字列として組む。JSON.stringify に通すと 9007199254740993 が ...992 に丸まり、
+    // この試験の主役そのものが消える。ここだけは手で組まねばならない。
+    //
+    // 誰でも自分の正規化をここに当てられる。合否も課金も記録も無い。
+    if (path === "/testbed/i-json" || path === "/testbed/i-json/mcp") {
+      const H = { ...JSON_HEADERS, "Cache-Control": "no-store", ...CORS_HEADERS };
+
+      if (request.method === "GET") {
+        return json({
+          service: "wedjat-testbed-i-json",
+          purpose:
+            "A deliberate torture test for JSON canonicalization, kept running in production so that the " +
+            "positive case can be reproduced by anyone, including against us. The tool manifest served here " +
+            "carries the integer literal 9007199254740993, which no IEEE-754 double can hold. A canonicalizer " +
+            "that reads it with JSON.parse and never looks at the source text will silently see " +
+            "9007199254740992 and publish a hash over a value that never arrived. RFC 7493, the profile RFC " +
+            "8785 builds on, excludes such integers for exactly this reason.",
+          why_it_exists:
+            "On the morning of 2026-08-23 this gate published that the case was undetectable in JavaScript. " +
+            "That was wrong and was retracted the same day. A retraction that cannot be tested is just a " +
+            "second claim, so the test target is public.",
+          how_to_use: {
+            through_this_gate:
+              "POST /check {\"endpoint\":\"https://gate.horizonshield.dev/testbed/i-json/mcp\",\"allow_tool_call\":true} " +
+              "and read canonicalization.unsafe_integer_scan",
+            against_your_own:
+              "POST here with a JSON-RPC body of {\"method\":\"tools/list\"} and canonicalize the bytes you " +
+              "receive, not the number your parser hands you"
+          },
+          expected_result: {
+            unsafe_integer_scan: "found",
+            manifest_hash: null,
+            note: "Every hash over the manifest is withheld, and the verdict still does not fail. Condition 07 never turns a row red."
+          },
+          conformance: CONFORMANCE_URL
+        });
+      }
+      if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+
+      let rb = null;
+      try { rb = await request.json(); } catch (_e) { rb = null; }
+      const rid = rb && rb.id != null ? JSON.stringify(rb.id) : "1";
+      const m = rb && rb.method;
+
+      if (m === "initialize") {
+        return new Response(
+          '{"jsonrpc":"2.0","id":' + rid + ',"result":{"protocolVersion":"2024-11-05",' +
+          '"capabilities":{"tools":{}},"serverInfo":{"name":"wedjat-testbed-i-json","version":"1.0.0"}}}',
+          { headers: H });
+      }
+      if (m === "tools/list") {
+        return new Response(
+          '{"jsonrpc":"2.0","id":' + rid + ',"result":{"tools":[{' +
+          '"name":"declare_unsafe_integer",' +
+          '"description":"Declares an integer literal outside the IEEE-754 safe range, on purpose, so that a canonicalizer can be caught rounding it in silence.",' +
+          '"inputSchema":{"type":"object","properties":{' +
+          '"found":{"type":"boolean","description":"whether the lookup matched anything"},' +
+          '"lookup":{"type":"string","enum":["ok","failed","not_found"],"description":"read state, so failure and emptiness stay distinguishable"}},' +
+          '"x_unsafe_integer_literal":9007199254740993}}]}}',
+          { headers: H });
+      }
+      if (m === "tools/call") {
+        return new Response(
+          '{"jsonrpc":"2.0","id":' + rid + ',"result":{"content":[{"type":"text",' +
+          '"text":"This testbed is deterministic. It returns this same sentence every time, so that determinism stays measurable while canonicalization deliberately does not."}],' +
+          '"isError":false}}',
+          { headers: H });
+      }
+      return new Response(
+        '{"jsonrpc":"2.0","id":' + rid + ',"error":{"code":-32601,"message":"method not found on this testbed. It answers initialize, tools/list and tools/call."}}',
+        { headers: H });
     }
 
     // --- mould records. 2026-08-20 mould-ledger / mould-no-key. ---

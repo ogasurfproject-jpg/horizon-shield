@@ -219,6 +219,18 @@ footer a{color:var(--ink-2)}
   <pre><span class="c"># no dependencies, exits non-zero on any divergence</span>
 curl -sO https://shield.the-horizons-innovation.com/verify-directory/conformance/jcs_vectors.json
 node jcs_conformance.mjs</pre>
+
+  <h3>A live target that is wrong on purpose</h3>
+  <p>Vectors test a library. They do not test the path your code actually takes over the wire, which is where our own failure lived. So there is a permanent endpoint in production whose tool manifest violates RFC 7493 deliberately: it declares the integer <code>9007199254740993</code>, which no IEEE-754 double can hold. Python reads it exactly. JavaScript reads <code>9007199254740992</code>. Any hash taken over it disagrees across languages, which is precisely why a fingerprint must be withheld rather than published.</p>
+  <pre><span class="c"># point our gate at it and watch it refuse to publish a hash</span>
+curl -s -X POST https://gate.horizonshield.dev/check \
+  -H 'content-type: application/json' \
+  -d '{"endpoint":"https://gate.horizonshield.dev/testbed/i-json/mcp","allow_tool_call":true}'
+
+<span class="c"># or point your own canonicalizer at it, and canonicalize the bytes, not the number</span>
+curl -s -X POST https://gate.horizonshield.dev/testbed/i-json/mcp \
+  -H 'content-type: application/json' -d '{"method":"tools/list"}'</pre>
+  <p>It is free, stores nothing, and is happy to be used against us. A retraction nobody can test is just a second claim.</p>
 </section>
 
 <section>
