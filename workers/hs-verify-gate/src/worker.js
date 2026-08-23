@@ -49,6 +49,85 @@ const CONFIG = {
 // 条件07 の適合ベクタと自己測定の公開先。判定JSONから直接たどれるようにする。
 const CONFORMANCE_URL = "https://shield.the-horizons-innovation.com/verify-directory/conformance/";
 
+// ---- 使用量 ----
+// 2026-08-23。「これでインフラになったのか」と問われて、答えられなかった。作った物の数は言えても、
+// 使われた回数を一度も数えていなかったからだ。インフラかどうかを決めるのは作った側の主張ではなく
+// 他人の使用であり、測っていない以上その言葉は使えない。それがこの扉の存在理由そのものなので、
+// 自分にも同じ規則を当てる。数えていないなら「使われている」と書かない。数えるならこう数える。
+//
+// 数えるのは、公開URLのホスト名と回数だけ。IPも User-Agent も本文も保存しない。
+// KV は読んで書き戻すので、同時アクセスは取りこぼす。だから出す数字は常に下限であり、そう明記する。
+const USAGE_TTL_DAYS = 400;
+
+function isOwnZone(hostname) {
+  const h = String(hostname || "").toLowerCase();
+  return h === OWN_ZONE || h.endsWith("." + OWN_ZONE);
+}
+
+function usageKey(day) {
+  return "usage:" + (day || new Date().toISOString().slice(0, 10));
+}
+
+function bumpUsage(env, ctx, field, host) {
+  if (!env || !env.HS_VERIFY_KV) return;
+  const run = async () => {
+    try {
+      const k = usageKey();
+      const cur = (await env.HS_VERIFY_KV.get(k, "json")) ||
+        { external_checks: 0, own_checks: 0, testbed_hits: 0, spec_hits: 0, external_hosts: [] };
+      cur[field] = (Number(cur[field]) || 0) + 1;
+      if (host && cur.external_hosts.indexOf(host) < 0 && cur.external_hosts.length < 200) {
+        cur.external_hosts.push(host);
+      }
+      await env.HS_VERIFY_KV.put(k, JSON.stringify(cur), { expirationTtl: 60 * 60 * 24 * USAGE_TTL_DAYS });
+    } catch (_e) { /* 計数の失敗で測定本体を止めない */ }
+  };
+  if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(run());
+  else run();
+}
+
+async function usageReport(env, days) {
+  const n = Math.min(Math.max(Number(days) || 30, 1), 90);
+  const today = new Date();
+  const out = [];
+  const totals = { external_checks: 0, own_checks: 0, testbed_hits: 0, spec_hits: 0 };
+  const hosts = [];
+  for (let i = 0; i < n; i++) {
+    const d = new Date(today.getTime() - i * 86400000).toISOString().slice(0, 10);
+    let row = null;
+    try { row = await env.HS_VERIFY_KV.get(usageKey(d), "json"); } catch (_e) { row = null; }
+    if (!row) continue;
+    for (const f of Object.keys(totals)) totals[f] += Number(row[f]) || 0;
+    for (const h of (row.external_hosts || [])) if (hosts.indexOf(h) < 0) hosts.push(h);
+    out.push({ day: d, external_checks: row.external_checks || 0, own_checks: row.own_checks || 0, testbed_hits: row.testbed_hits || 0 });
+  }
+  return {
+    window_days: n,
+    counting_since: "2026-08-23",
+    totals: totals,
+    distinct_external_hosts_checked: hosts.length,
+    external_hosts: hosts.slice(0, 100),
+    by_day: out,
+    what_this_is:
+      "Counts of requests, published so that the question 'is this actually used by anyone' has an answer " +
+      "made of numbers instead of an adjective. external_checks counts verdicts requested for endpoints " +
+      "outside our own zone, which is the only figure here that means someone other than us found this " +
+      "useful. own_checks counts us measuring ourselves and is separated for exactly that reason.",
+    what_this_is_not:
+      "Not people. Not sessions. Bots, crawlers and repeated calls from one operator are all in here and " +
+      "are not distinguishable. No IP address, no user agent and no request body is stored, so they cannot " +
+      "be separated later either.",
+    accuracy:
+      "A lower bound. Counters are read and written back, so simultaneous requests overwrite each other and " +
+      "the loss is silently absorbed. A number here is never higher than the truth, and we would rather " +
+      "under-report our own usage than publish a figure we cannot defend.",
+    honest_status:
+      totals.external_checks > 0
+        ? "Someone outside this operator has used it. That is a fact about usage, not about usefulness."
+        : "Nobody outside this operator has used it yet. Calling it infrastructure today would be a claim with no measurement behind it, so we do not."
+  };
+}
+
 const RECOMPUTE_NOTE =
   "Remove the record_sha256 and recompute_note fields, then serialize what is left as UTF-8 JSON " +
   "with no insignificant whitespace, with the keys left in the order printed here, and with " +
@@ -2432,6 +2511,7 @@ export default {
       }
       if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
 
+      bumpUsage(env, ctx, "testbed_hits", null);
       let rb = null;
       try { rb = await request.json(); } catch (_e) { rb = null; }
       const rid = rb && rb.id != null ? JSON.stringify(rb.id) : "1";
@@ -2902,7 +2982,8 @@ export default {
     }
 
     if (path === "/health") return json({ ok: true, gate_version: CONFIG.version, gate_commit: gateCommit() });
-    if (path === "/spec") return json(spec());
+    if (path === "/usage") return json(await usageReport(env, url.searchParams.get("days")));
+    if (path === "/spec") { bumpUsage(env, ctx, "spec_hits", null); return json(spec()); }
     if (path === "/.well-known/agent-card.json") return json(ownAgentCard(url.origin));
     if (path === "/.well-known/glama.json") return json({ "$schema": "https://glama.ai/mcp/schemas/connector.json", maintainers: [{ email: "ogasurfproject@gmail.com" }] });
     // A machine that has only the hostname can find the register without being told where
@@ -2958,6 +3039,8 @@ export default {
       if (parsed.protocol !== "https:") {
         return json({ error: "https_required" }, 400);
       }
+      bumpUsage(env, ctx, isOwnZone(parsed.hostname) ? "own_checks" : "external_checks",
+                isOwnZone(parsed.hostname) ? null : parsed.hostname);
       try {
         return json(await runCheck(endpoint, body && body.allow_tool_call === true));
       } catch (e) {

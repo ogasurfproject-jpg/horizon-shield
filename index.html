@@ -291,7 +291,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;background:rgba(250,247,242,
 .voice-note{font-size:.62rem;color:var(--t4);margin-top:2rem;text-align:center;}
 
 /* ═══════════════════════════════════════
-   PDF SECTION — ¥5,500でこれが手に入る
+   PDF SECTION / ¥5,500でこれが手に入る
 ═══════════════════════════════════════ */
 .pdf-sec{background:var(--ink);padding:5rem 2.5rem;}
 .pdf-sec .ey{color:rgba(255,255,255,.38);}
@@ -753,7 +753,7 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
     /* canvas off */
     var cv = document.getElementById('mc');
     if(cv) cv.style.display = 'none';
-    /* reveal要素 — hiddenクラスを除去（スマホは最初からhiddenにならない設計） */
+    /* reveal要素: hiddenクラスを除去（スマホは最初からhiddenにならない設計） */
     document.querySelectorAll('.rv').forEach(function(el){
       el.classList.remove('hidden');
       el.style.opacity='1';
@@ -855,7 +855,7 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
           施主の会（コミュニティ）
         </a>
       </div>
-      <div class="v-row rv"><div class="v-n" id="v-n">—</div><div class="v-l">名がこのページを訪問しました</div></div>
+      <div class="v-row rv"><div class="v-n" id="v-n">…</div><div class="v-l">名がこのページを訪問しました</div></div>
 
       <!-- 心理ブースター -->
       <div class="rv" style="margin-top:1.4rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;">
@@ -973,7 +973,7 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
   </div>
 </div>
 
-<!-- ═══ PDF — ¥5,500でこれが手に入る ═══ -->
+<!-- ═══ PDF / ¥5,500でこれが手に入る ═══ -->
 <div class="sec pdf-sec">
   <div class="sec-i">
     <div class="ey"><span class="eline" style="background:rgba(255,255,255,.22)"></span><span style="color:rgba(255,255,255,.35)">WHAT YOU GET</span></div>
@@ -1112,7 +1112,7 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
 
     <!-- KIRA HERO ROW -->
     <div style="display:grid;grid-template-columns:auto 1fr;gap:2.5rem;align-items:center;margin-bottom:2.5rem;" class="rv">
-      <!-- KIRAアイコン — 黄金惑星 SVGネイティブアニメーション -->
+      <!-- KIRAアイコン: 黄金惑星 SVGネイティブアニメーション -->
       <div style="position:relative;width:160px;height:160px;flex-shrink:0;">
         <svg width="160" height="160" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;">
           <defs>
@@ -1137,7 +1137,7 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
             <animate attributeName="opacity" values="0.5;1;0.5" dur="4s" repeatCount="indefinite"/>
             <animate attributeName="ry" values="18;25;18" dur="4s" repeatCount="indefinite"/>
           </ellipse>
-          <!-- orbital rings — stroke-dashoffset流れる -->
+          <!-- orbital rings: stroke-dashoffset流れる -->
           <g filter="url(#ki-rf)">
             <ellipse cx="100" cy="109" rx="88" ry="21" fill="none" stroke="rgba(160,100,0,0.14)" stroke-width="0.8" stroke-dasharray="9 13">
               <animate attributeName="stroke-dashoffset" from="0" to="-560" dur="30s" repeatCount="indefinite"/>
@@ -1507,7 +1507,7 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
     <div class="rv" style="background:linear-gradient(135deg,rgba(201,162,39,0.15),rgba(201,162,39,0.05));border:1px solid rgba(201,162,39,0.4);border-radius:10px;padding:14px 20px;margin-bottom:1.2rem;display:flex;align-items:center;gap:14px;">
       <div style="font-size:1.4rem;line-height:1;">🎓</div>
       <div>
-        <div style="font-size:.65rem;letter-spacing:.15em;color:#c9a227;margin-bottom:3px;">NEW — 学術論文 SSRN / Elsevier 掲載</div>
+        <div style="font-size:.65rem;letter-spacing:.15em;color:#c9a227;margin-bottom:3px;">NEW · 学術論文 SSRN / Elsevier 掲載</div>
         <div style="font-size:.85rem;color:rgba(255,255,255,.85);line-height:1.5;">Japan Construction Cost Database (JCCDB) v2.0が<strong style="color:#fff;">SSRN（Elsevier）</strong>に正式掲載。65,520品目・402カテゴリの建設部材スキーマを<a href="https://github.com/ogasurfproject-jpg/japan-construction-cost-database" style="color:#f0c040;" target="_blank">GitHub公開</a>中。さらに2026年5月、リフォーム情報非対称性を信用財・レモン市場の経済学として体系化した<strong style="color:#fff;">VRQ Framework 論文</strong>を<a href="https://doi.org/10.5281/zenodo.20372953" style="color:#f0c040;" target="_blank">Zenodo</a>・SSRNに公開。30年の現場経験×AI診断の研究基盤が国際的に認められました。</div>
         <div style="margin-top:6px;font-size:.7rem;color:rgba(255,255,255,.4);">JCCDB 解説論文: 10.31224/7007 (engrXiv) ／ 10.5281/zenodo.20019572 ／ VRQ: 10.5281/zenodo.20372953 (Zenodo) ／ ORCID: 0009-0000-9180-903X</div>
       </div>
@@ -1817,16 +1817,16 @@ document.querySelectorAll('#navlinks a').forEach(a=>a.addEventListener('click',(
 
 /* ── TICKER ── */
 const tmsgs=[
-  'ChatGPT建設費診断カテゴリ — 国内検索 No.1 獲得',
+  'ChatGPT建設費診断カテゴリ · 国内検索 No.1 獲得',
   '日銀CGPI連動 · 相場係数を毎月自動更新',
-  'engrXiv学術論文 #7007 — 建設費透明化の方法論を確立',
-  '65,520品目 · 402カテゴリ · 88不正検知パターン — JCCDB v2.0公開中',
+  'engrXiv学術論文 #7007 · 建設費透明化の方法論を確立',
+  '65,520品目 · 402カテゴリ · 88不正検知パターン · JCCDB v2.0公開中',
   'SHA-256ハッシュで改ざん不可能な診断書を発行',
-  '逆見積もり — 業者が価格を出す前に、施主が価格を持つ',
+  '逆見積もり · 業者が価格を出す前に、施主が価格を持つ',
   '2028年、建設費の透明化が業界標準になる',
   '¥5,500の診断で平均¥79.7万の差額を可視化（試算例）',
-  'AI × 大工30年の知識 — 施主の情報格差を解消する',
-  'engrXiv · Zenodo · Hugging Face · GitHub — 全データを公開中',
+  'AI × 大工30年の知識 · 施主の情報格差を解消する',
+  'engrXiv · Zenodo · Hugging Face · GitHub · 全データを公開中',
 ];
 const tkr=document.getElementById('tk-r');
 tkr.innerHTML=[...tmsgs,...tmsgs].map((m,i)=>{
