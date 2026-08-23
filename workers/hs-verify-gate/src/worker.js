@@ -430,6 +430,43 @@ async function probeFetch(url, init) {
   return new Response(wrapped.body || "", { status: wrapped.status, headers: wrapped.headers || {} });
 }
 
+// 2^53 を超える整数リテラルは JSON.parse が黙って丸める。丸めた後の数からは復元できない。
+// 2026-08-23 の午前、我々はこれを「JavaScriptでは検出不能な限界」として公開した。誤りだった。
+// V8 の source-access reviver は各リテラルの元の文字列を渡してくれる。元が読めるなら、丸めが
+// 起きた事実は検出できる。検出できるものを「限界」と呼んで放置するのは、ただの怠慢だった。
+//
+// なぜ拒む必要があるか: RFC 8785 の土台である RFC 7493 (I-JSON) は整数を
+// [-(2^53)+1, (2^53)-1] に限っている。範囲外の整数を含む表面は、Python のように多倍長整数を
+// 持つ言語では別の値として読まれる。つまり我々のハッシュを相手は再現できない。
+// 再現できないものに「誰でも再計算できる」と書いた指紋を付けてはいけない。
+//
+// この機能が無い実行環境では detectable:false を返し、「検出できなかった」と正直に言う。
+// 検出できないことと、起きていないことは、別の事実である。
+const PARSE_INFO = Symbol("hs_parse_info");
+
+function parseJsonTracked(text) {
+  const lost = [];
+  let detectable = false;
+  const value = JSON.parse(text, function (k, v, ctx) {
+    if (ctx && typeof ctx.source === "string") {
+      detectable = true;
+      if (typeof v === "number" && /^-?\d+$/.test(ctx.source)) {
+        try { if (BigInt(ctx.source) !== BigInt(v)) lost.push(ctx.source); } catch (_e) { /* Infinity 等は canonicalJson 側で拒む */ }
+      }
+    }
+    return v;
+  });
+  const info = { detectable: detectable, lost: lost };
+  if (value && typeof value === "object") {
+    try { Object.defineProperty(value, PARSE_INFO, { value: info, enumerable: false }); } catch (_e) {}
+  }
+  return value;
+}
+
+function parseInfoOf(v) {
+  return (v && typeof v === "object" && v[PARSE_INFO]) || { detectable: false, lost: [] };
+}
+
 async function rpcCall(endpoint, method, params) {
   const res = await withTimeout(probeFetch(endpoint, {
     method: "POST",
@@ -437,7 +474,7 @@ async function rpcCall(endpoint, method, params) {
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params: params || {} })
   }), CONFIG.timeout_ms);
   if (!res.ok) throw new Error("http " + res.status);
-  return await res.json();
+  return parseJsonTracked(await res.text());
 }
 
 // ---- 表面(surface)のハッシュ ----
@@ -473,15 +510,24 @@ function canonicalJson(v) {
 // ハッシュは16hex(64bit)に切る。変更検出用の指紋であって、暗号学的な同一性証明ではない。
 // 名前ハッシュだけでは「名前を残して inputSchema を書き換える」変更(統合破壊の第1位)が見えない。
 // だからマニフェスト全体と、ツール1本ごとの指紋を持つ。
-async function surfaceHashes(tools, initResult, pages, complete) {
+async function surfaceHashes(tools, initResult, pages, complete, parseNotes) {
   const sorted = tools.slice().sort((a, b) => (String(a.name) < String(b.name) ? -1 : 1));
   const strip = (t) => ({ name: t.name, description: t.description || "", inputSchema: t.inputSchema || null });
+  const pn = parseNotes || { detectable: false, lost: [] };
 
   // 正規化を拒んだ場合、それは相手が壊れているのではなく、こちらが「その形は正規化できない」と
   // 言っているだけ。到達性の失敗(transport)に混ぜると、こちらの都合が相手の記録になる。
   // だから握りつぶしも例外の素通しもせず、ハッシュを null にして理由をそのまま開示する。
   let refused = null;
+  // 丸められた整数リテラルを見ていたら、その時点で指紋は他言語と一致しない。ハッシュを出さない。
+  if (pn.lost.length) {
+    refused = "canonicalization refused: the response carried " + pn.lost.length +
+      " integer literal(s) outside the IEEE-754 safe range (" + pn.lost.slice(0, 3).join(", ") +
+      (pn.lost.length > 3 ? ", ..." : "") + "), which JSON.parse rounded before this gate saw them. " +
+      "RFC 7493, the profile RFC 8785 builds on, excludes them for this reason";
+  }
   const hash = async (v) => {
+    if (refused) return null;
     try {
       return (await sha256hex(canonicalJson(v))).slice(0, 16);
     } catch (e) {
@@ -503,6 +549,9 @@ async function surfaceHashes(tools, initResult, pages, complete) {
     tool_hashes: perTool
   };
   out.canonicalization = refused ? "refused" : "rfc8785-jcs";
+  // 検出できたか / 検出した結果どうだったか、を分けて書く。
+  // "clean" は「無かった」。"unavailable" は「見られなかった」。同じ扱いにしてはいけない。
+  out.unsafe_integer_scan = pn.detectable ? (pn.lost.length ? "found" : "clean") : "unavailable in this runtime";
   if (refused) {
     out.canonicalization_note =
       "A hash is withheld here rather than published. " + refused + ". This is a statement about what " +
@@ -586,8 +635,16 @@ function measureAbsenceVsFailure(tools) {
 async function checkMcp(endpoint) {
   const detail = {};
   let initResult = null;
+  // 応答テキストの段階で、丸められた整数リテラルを見たかどうかを集める。
+  const parseNotes = { detectable: false, lost: [] };
+  const noteParse = (v) => {
+    const i = parseInfoOf(v);
+    if (i.detectable) parseNotes.detectable = true;
+    for (const s of i.lost) if (parseNotes.lost.indexOf(s) < 0) parseNotes.lost.push(s);
+  };
   try {
     const init = await rpcCall(endpoint, "initialize", { protocolVersion: "2024-11-05" });
+    noteParse(init);
     detail.initialize = !!(init && init.result);
     detail.server_name = (init && init.result && init.result.serverInfo && init.result.serverInfo.name) || null;
     initResult = init && init.result ? { serverInfo: init.result.serverInfo || null, capabilities: init.result.capabilities || null } : null;
@@ -610,6 +667,7 @@ async function checkMcp(endpoint) {
     let pages = 0;
     do {
       const list = await rpcCall(endpoint, "tools/list", cursor ? { cursor: cursor } : {});
+      noteParse(list);
       const batch = (list && list.result && list.result.tools) || [];
       tools = tools.concat(batch);
       cursor = (list && list.result && list.result.nextCursor) || null;
@@ -617,7 +675,7 @@ async function checkMcp(endpoint) {
     } while (cursor && pages < 3);
     detail.tool_count = tools.length;
     detail.tools = tools.map((t) => t.name).slice(0, 50);
-    detail.surface = await surfaceHashes(tools, initResult, pages, !cursor);
+    detail.surface = await surfaceHashes(tools, initResult, pages, !cursor, parseNotes);
     detail.absence_vs_failure = measureAbsenceVsFailure(tools);
     if (!tools.length) return { pass: false, reason: "tools/list returned no tools", detail };
   } catch (e) {
@@ -823,6 +881,7 @@ async function runCheck(endpoint, allowToolCall) {
       measured: true,
       canonicalizable: !refused,
       scheme: _surf.canonicalization || null,
+      unsafe_integer_scan: _surf.unsafe_integer_scan || null,
       verdict: null,
       verdict_note:
         "A disclosed measurement, not a pass or fail. It never turns a row red. This gate published that " +
@@ -835,10 +894,13 @@ async function runCheck(endpoint, allowToolCall) {
         first_result: "11 of 12 before the fix. The vector we failed produced a hash over a value we had silently altered.",
         published: CONFORMANCE_URL
       },
-      known_limitation:
-        "In JavaScript an integer past 2^53 is rounded inside JSON.parse before this gate sees it, so a " +
-        "surface carrying one is reported as canonicalizable where a runtime with arbitrary-precision " +
-        "integers would refuse. The limit is published rather than hidden."
+      retracted_limitation:
+        "On the morning of 2026-08-23 this gate published, here and on its own site, that an integer past " +
+        "2^53 is rounded inside JSON.parse before the gate can see it and that the case was therefore " +
+        "undetectable in JavaScript. That was wrong, and it was wrong in the comfortable direction: it " +
+        "excused us. The source text is available to a JSON.parse reviver, so the rounding is detectable " +
+        "after all. It is now detected, and a surface carrying such a literal has its fingerprint withheld " +
+        "rather than published. The false claim is left on the record instead of being deleted."
     };
     if (refused) record.canonicalization.refusal_note = _surf.canonicalization_note || null;
   } else {
@@ -910,7 +972,8 @@ function spec() {
         method: "RFC 8785 (JCS) over the tool manifest from tools/list. Nothing is executed and no content is judged. A surface that cannot be canonicalized has no fingerprint a third party can reproduce, so a silent change to it can only be caught by whoever made it.",
         verdict: "none. A disclosed measurement, not a pass or fail, and it never turns a row red. That promise was published on 2026-08-23, before this condition was implemented.",
         self_applied: "Measured before it was applied to anyone else. This gate's own canonicalizer matched 11 of 12 vectors against an independent RFC 8785 implementation on first measurement; the vector it failed produced a hash over a value it had silently altered. Fixed, and 13 vectors are now pinned as a permanent regression test.",
-        known_limitation: "In JavaScript an integer past 2^53 is rounded inside JSON.parse before this gate sees it. A surface carrying one is reported as canonicalizable where a runtime with arbitrary-precision integers would refuse. Published rather than hidden.",
+        unsafe_integers: "Integer literals outside the IEEE-754 safe range are detected from the response source text, not from the parsed number, and a surface carrying one has its fingerprint withheld. RFC 7493, the profile RFC 8785 builds on, excludes them, and a runtime with arbitrary-precision integers would read them as different values, so no cross-language hash over them is reproducible.",
+        retracted_limitation: "On the morning of 2026-08-23 this gate published that the case was undetectable in JavaScript. That was wrong, and wrong in the direction that excused us. JSON.parse exposes the source text of each literal to a reviver. Detection was implemented the same day. The false claim is kept on the record rather than deleted.",
         vectors: CONFORMANCE_URL
       }
     },

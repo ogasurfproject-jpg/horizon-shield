@@ -170,12 +170,40 @@ footer a{color:var(--ink-2)}
 </section>
 
 <section>
-  <h2>The one we still cannot fix</h2>
-  <div class="doctrine">
-    <div class="q">In JavaScript, an integer past 2^53 is already rounded before our code ever sees it.</div>
-    <div class="a">A source text carrying <code>9007199254740993</code> becomes <code>9007199254740992</code> inside <code>JSON.parse</code>, and nothing downstream can tell that it happened. An implementation in a language with arbitrary-precision integers should refuse rather than round silently. Ours cannot detect the case at all. We publish the limit rather than the impression of completeness.</div>
+  <h2>The one we said we could not fix, and then fixed</h2>
+
+  <div class="card fail">
+    <div class="n">PUBLISHED 2026-08-23, MORNING · RETRACTED THE SAME DAY</div>
+    <p style="margin-top:0"><b>What this page said:</b> that in JavaScript an integer past 2^53 is rounded inside <code>JSON.parse</code> before our code can see it, that nothing downstream can tell it happened, and that the case was therefore undetectable for us. We wrote it into this page, into the gate's machine-readable spec, and into a comment we were about to publish. We called it the missing sixty-fourth.</p>
+    <p><b>It was wrong.</b> Someone read it and asked the obvious question: is it really impossible, or does it just look that way? It looks that way. <code>JSON.parse</code> hands the original source text of every literal to a reviver, so the rounding is visible after all. The value is lost; the evidence that it was lost is not.</p>
+    <pre>JSON.parse(text, function (k, v, ctx) {
+  <span class="c">// ctx.source is the literal exactly as it arrived</span>
+  if (typeof v === "number" &amp;&amp; /^-?\d+$/.test(ctx.source)) {
+    if (<b>BigInt(ctx.source) !== BigInt(v)</b>) <span class="bad">/* it was rounded */</span>
+  }
+  return v;
+});</pre>
+    <p>Note which direction the error ran. It did not make us look worse. It excused us from work, and it did it in the vocabulary of humility, which is the hardest kind of false claim to catch, because it sounds like the opposite of a boast.</p>
   </div>
-  <p style="margin-top:18px">This is why the register is called WEDJAT. In ancient Egypt the parts of the Eye of Horus were the fractions used for measuring, and they sum to 63/64. One sixty-fourth is always missing. We keep that seat for what the instrument could not see, and we write down what is sitting in it.</p>
+
+  <div class="card win">
+    <div class="n">NOW IN THE GATE</div>
+    <p style="margin-top:0">Responses are read as text and parsed with a source-aware reviver. An integer literal outside the IEEE-754 safe range is detected from what arrived on the wire rather than from the rounded number, and the surface carrying it has its fingerprint <b>withheld</b> instead of published. RFC 7493, the profile RFC 8785 builds on, excludes such integers for exactly this reason: a runtime with arbitrary-precision integers reads them as a different value, so no hash over them is reproducible across languages.</p>
+    <p>Every verdict now reports <code>unsafe_integer_scan</code> as one of three things, and the third is not the same as the second:</p>
+    <table>
+      <thead><tr><th>value</th><th>meaning</th></tr></thead>
+      <tbody>
+        <tr><td class="p"><code>clean</code></td><td>we looked, and there were none</td></tr>
+        <tr><td class="f"><code>found</code></td><td>we looked, found one, and withheld the fingerprint</td></tr>
+        <tr><td><code>unavailable in this runtime</code></td><td>we could not look. Not the same as none, and never reported as none.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="doctrine">
+    <div class="q">The seat is still there. What was sitting in it was us.</div>
+    <div class="a">This is why the register is called WEDJAT. The parts of the Eye of Horus were the fractions used for measuring, and they sum to 63/64: one sixty-fourth is always missing. We keep that seat for what the instrument could not see. On the first day we filled it with something the instrument could see perfectly well and we had not tried hard enough to look at. The seat is for the limits of the instrument, not for the limits of our patience, and the difference between those two is only ever found by someone asking whether the wall is really a wall.</div>
+  </div>
 </section>
 
 <section>
