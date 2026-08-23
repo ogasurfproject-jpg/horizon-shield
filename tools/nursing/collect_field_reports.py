@@ -80,17 +80,37 @@ def harvest(stores, fq):
             continue
         extra = p.get("extra") or {}
         for qid, q in fq.items():
-            text = str(extra.get(qid) or "").strip()
+            raw = extra.get(qid)
+            # extra[qid] は {text, at, attributed, with, asked} の形で入る。
+            # 2026-08-23、ここを str() で潰して辞書ごと本文にしていた。
+            # 気づかなければ、辞書の中身がそのまま公開データベースに載っていた。
+            if isinstance(raw, dict):
+                text = str(raw.get("text") or "").strip()
+                attributed = raw.get("attributed") or "unknown"
+                asked = str(raw.get("asked") or "")
+                with_q = raw.get("with") or []
+                at = raw.get("at")
+            else:
+                text = str(raw or "").strip()
+                attributed, asked, with_q, at = "unknown", "", [], None
             if not text:
                 continue
             e = {
                 "asked_via": qid,
+                "asked_text": asked,
                 "fills_gap": q.get("fills_gap"),
                 "item_id": q.get("item_id"),          # 特定の項目についての話ならその id
                 "store_id": st.get("id"),
                 "reported_by": p.get("company") or st.get("id"),
-                "reported_at": st.get("answered_at") or p.get("updated_at"),
+                "reported_at": at or st.get("answered_at") or p.get("updated_at"),
                 "text": text,
+                # この答えが、本当にこの質問への答えかどうか。
+                #   numbered  番号で切り分けられた
+                #   sole      その質問だけを送って返ってきた
+                #   ambiguous 複数送って1通返り、切り分けられなかった -> 人が確かめる
+                "attributed": attributed,
+                "asked_with": with_q,
+                "needs_attribution": (attributed == "ambiguous"),
                 # 公開の可否。人が決めるまで null のまま。
                 "consent": None,
                 "publish_as": None,
@@ -125,8 +145,17 @@ def main():
     rows = harvest(stores, fq)
     nursing = [s for s in stores if (s.get("profile") or {}).get("industry") == "nursing"]
     print("訪問看護の店: %d 件 / 回答のあった現場質問: %d 件" % (len(nursing), len(rows)))
+    MARK = {"numbered": "  ", "sole": "  ", "ambiguous": "※ ", "unknown": "? "}
     for e in rows:
-        print("  ・%-20s %s: %s" % (e["asked_via"], e["reported_by"], e["text"][:44]))
+        print("  %s%-20s %s: %s" % (MARK.get(e["attributed"], "? "),
+                                    e["asked_via"], e["reported_by"], e["text"][:40]))
+    amb = [e for e in rows if e["needs_attribution"]]
+    if amb:
+        print("\n※ 2問まとめて送って1通返ってきたため、どちらへの答えか切り分けられなかったもの: %d 件"
+              % len(amb))
+        print("   本文は両方に同じものが入っています。公開の前に、人が確かめてください。")
+        for e in amb:
+            print("   ・%s (同時に送ったのは %s)" % (e["asked_via"], "、".join(e["asked_with"]) or "-"))
 
     unanswered = sorted(set(fq) - {e["asked_via"] for e in rows})
     if nursing and unanswered:
@@ -145,6 +174,9 @@ def main():
             # 人が付けた同意の判断は、取り直しても消さない。
             e["consent"] = old[k].get("consent")
             e["publish_as"] = old[k].get("publish_as")
+            if old[k].get("attribution_confirmed"):
+                e["attribution_confirmed"] = old[k]["attribution_confirmed"]
+                e["needs_attribution"] = False
             kept += 1
 
     io.open(PENDING, "w", encoding="utf-8").write(json.dumps({

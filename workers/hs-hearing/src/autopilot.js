@@ -582,7 +582,11 @@ export async function runDailyTick(env, deps) {
         if (qs.length) {
           const r = await sendQuestions(env, store, qs, "followup");
           if (r.ok) {
-            ap.pending = { qids: qs.map((q) => q.qid), text: qs.map((q) => q.text).join("\n"), sent_at: now(), via: r.via };
+            ap.pending = { qids: qs.map((q) => q.qid), text: qs.map((q) => q.text).join("\n"),
+                           // 何を訊いたかを qid ごとに残す。答えだけ残っても、
+                           // あとから「何への答えか」が分からなければ使えない。
+                           asked_texts: Object.fromEntries(qs.map((q) => [q.qid, q.text])),
+                           sent_at: now(), via: r.via };
             ap.asked = [...(ap.asked || []), ...qs.map((q) => ({ qid: q.qid, at: now(), answered: false }))].slice(-50);
             ap.last_send_at = now();
             log.sent.push(sid + ":" + qs.map((q) => q.qid).join("+") + ":" + r.via + ":" + gate);
@@ -796,11 +800,66 @@ export async function guardianStatus(env) {
 }
 
 /* ------------------------------ 回答取り込み時の消込 ------------------------------ */
+/* 2026-08-23: 番号つきの返事を、番号ごとに切り分ける。
+   質問は sendQuestions が "1) …" "2) …" と番号を振って送っている。
+   返事も番号で返ってくることが多い。そのときは、どの答えがどの質問のものか分かる。
+
+   なぜ要るか。これまでは、2問送って1通返ってくると、
+   その本文を2つの質問の両方に同じまま入れていた。
+   片方にしか答えていなくても、もう片方も「答えが入った」ことになる。
+   落ちない。例外も出ない。ただ、聞いていない質問に、
+   別の質問の答えが入ったまま残る。
+   この状態で算定要件データベースに取り込めば、
+   実地指導について尋ねた欄に、集客の話が入る。
+   データベースが厚くなるほど、この取り違えは見つけにくくなる。
+
+   切り分けられなかったときは、切り分けられなかったと書く。
+   推測で割り当てない。attributed:"ambiguous" は、
+   取り込み側(collect_field_reports.py)で人の確認に回る。 */
+export function splitNumberedReply(rawText, n) {
+  const t = String(rawText || "");
+  if (n < 2) return null;
+  const marks = [];
+  for (let i = 1; i <= n; i++) {
+    const circ = "①②③④⑤⑥⑦⑧⑨".charAt(i - 1);
+    const re = new RegExp("(?:^|\\n)[ \u3000]*(?:\\(" + i + "\\)|" + i +
+                          "[)）.．、,:：]|" + circ + ")[ \u3000]*", "m");
+    const m = re.exec(t);
+    if (!m) return null;
+    marks.push({ start: m.index + (m[0].startsWith("\n") ? 1 : 0), end: m.index + m[0].length });
+  }
+  // 番号が本文の中で昇順に並んでいなければ、番号ではなく別の数字である。
+  for (let i = 1; i < marks.length; i++) if (marks[i].start <= marks[i - 1].start) return null;
+  const parts = [];
+  for (let i = 0; i < marks.length; i++) {
+    const to = (i + 1 < marks.length) ? marks[i + 1].start : t.length;
+    parts.push(t.slice(marks[i].end, to).trim());
+  }
+  // どれか一つでも空なら、切り分けは成立していない。
+  if (parts.some((x) => !x)) return null;
+  return parts;
+}
+
 export function settlePendingOnAnswer(store, rawText) {
   const ap = store.autopilot || {};
   if (ap.pending && ap.pending.qids) {
+    const qids = ap.pending.qids;
+    const parts = splitNumberedReply(rawText, qids.length);
+    const asked = ap.pending.asked_texts || {};
     const extraPatch = {};
-    for (const qid of ap.pending.qids) extraPatch[qid] = { text: S(rawText, 3000), at: now() };
+    qids.forEach((qid, i) => {
+      extraPatch[qid] = {
+        text: S(parts ? parts[i] : rawText, 3000),
+        at: now(),
+        // どうやってこの答えに辿り着いたかを残す。
+        //   sole      … その質問だけを送って返ってきた
+        //   numbered  … 番号で切り分けられた
+        //   ambiguous … 複数送って1通返り、切り分けられなかった
+        attributed: parts ? "numbered" : (qids.length > 1 ? "ambiguous" : "sole"),
+        with: qids.filter((x) => x !== qid),
+        asked: S(asked[qid] || "", 600),
+      };
+    });
     // 2026-08-19 patch44: 返事が来たことと、その質問が埋まったことは別の事実。
     // 中身を確かめずに埋まった印を立てない。埋まったかは computeCompleteness が決める。
     // 返事が来た事実は消さずに残す。
