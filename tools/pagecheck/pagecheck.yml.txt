@@ -1,0 +1,43 @@
+name: pagecheck
+
+# 手元のフックは --no-verify で外せる。こちらは外せない。
+# 2026-08-23、出典のない金額を含む2ページが門を通らずに公開されていたため。
+#
+# 見るのは、その push で変わった yakumo/ と care/ のページだけ。
+# 全ページを毎回見ると、既知の問題(souba の3ページが互いに 76〜81% 一致)で
+# 毎回赤になり、誰も見なくなる。
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "yakumo/**/*.html"
+      - "care/**/*.html"
+  pull_request:
+    paths:
+      - "yakumo/**/*.html"
+      - "care/**/*.html"
+  workflow_dispatch:
+
+jobs:
+  pagecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 変わったページだけを門に通す
+        run: |
+          CHANGED=$(git diff --name-only --diff-filter=ACM HEAD^ HEAD \
+                    | grep -E '^(yakumo|care)/.*\.html$' || true)
+          if [ -z "$CHANGED" ]; then
+            echo "対象のページはありません。"
+            exit 0
+          fi
+          echo "$CHANGED"
+          python3 tools/pagecheck/validate.py --paths $CHANGED

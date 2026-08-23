@@ -115,6 +115,7 @@ blog/*.bak-*
 !tools/care/patch_generate_failclosed.py
 !tools/pagecheck/validate.py
 !tools/move_gate.py
+!tools/install_gate_hook.py
 !tools/pagecheck/fingerprint.py
 !tools/extract_fingerprint.py
 !tools/yakumo/fix_unsourced_money.py
