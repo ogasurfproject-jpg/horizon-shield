@@ -186,3 +186,8 @@ HORIZON_SHIELD_鍵マネージャ*.html
 !tools/survey1_report_check.py
 !tools/survey1_report.py
 !tools/survey1_aggregate.py
+
+# 2026-08-24 当て直しの走行。CI と再現のために載せる。
+# 追記の判定に grep -q "!tools/survey" を使ったら、既存の !tools/survey1_walk.py に
+# 当たって何も足されなかった。部分一致で「もうある」と判断しない。
+!tools/survey2_recheck.py
