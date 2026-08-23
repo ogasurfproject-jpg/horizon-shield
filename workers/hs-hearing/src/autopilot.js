@@ -357,8 +357,16 @@ export async function sendQuestions(env, store, questions, kind) {
   //   ・Yakumo は建設のモールである。訪問看護の方に出す看板ではない。
   //   ・社名が空のとき「加盟店」で埋めていた。お金をいただいている相手を
   //     一般名詞で呼ぶことになる。知らないなら、知らないなりの呼びかけをする。
-  const company = S(store.company, 120);
-  const who = IND.senderName((store.profile || {}).industry || store.industry);
+  // 2026-08-24: 社名と業種が2箇所にある。
+  //   store:<id>          … 契約時に作る薄いレコード
+  //   hearing:<id>.profile … ヒアリングで厚くなるレコード
+  //   呼びかけは store 側だけを見ていた。だが /admin/profile-patch が書くのは profile 側である。
+  //   つまり社名を直しても、呼びかけは「加盟店 さま」のままだった。
+  //   どちらに入っていても拾う。片方だけを見るのをやめる。
+  const hrec = await env.HS_HEARING_KV.get("hearing:" + store.store_id, "json");
+  const prof = (hrec && hrec.profile) || store.profile || {};
+  const company = S(store.company, 120) || S(prof.company, 120);
+  const who = IND.senderName(prof.industry || store.industry);
   const hail = company ? (company + " さま、" + who + "です。")
                        : ("いつもお世話になっております。" + who + "です。");
   const lineUid = await env.HS_HEARING_KV.get("store2line:" + store.store_id, "text");

@@ -61,13 +61,45 @@ jobs:
       - name: 業種ゲート
         run: node workers/hs-hearing/industry_gate_test.mjs
 
-      # 4. ここまで通ってから配る。
+      # 4. 鍵があるかを見る。無ければ配らない。
+      #    2026-08-24: 鍵を入れる前にこれを足したので、push のたびに落ちて
+      #    そのたびにメールが飛んでいた。落ちるべきは検査であって、
+      #    「まだ設定していない」ことではない。
+      - name: Cloudflare の鍵があるか
+        id: creds
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$TOKEN" ] && [ -n "$ACCOUNT" ]; then
+            echo "has=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "has=no" >> "$GITHUB_OUTPUT"
+          fi
+
+      # 5. ここまで通ってから配る。
       - name: deploy
+        if: steps.creds.outputs.has == 'yes'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: workers/hs-hearing
+
+      - name: 鍵が無いので配っていない
+        if: steps.creds.outputs.has != 'yes'
+        run: |
+          {
+            echo "## 配っていません"
+            echo ""
+            echo "検査はすべて通りましたが、Cloudflare の鍵が設定されていないため deploy は行っていません。"
+            echo "手元での \`npx wrangler deploy\` が引き続き必要です。"
+            echo ""
+            echo "自動で配るには、Settings > Secrets and variables > Actions に次の2つを登録してください。"
+            echo "- CLOUDFLARE_API_TOKEN (権限: Workers Scripts > Edit)"
+            echo "- CLOUDFLARE_ACCOUNT_ID"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "鍵が無いので配っていません。検査は通っています。"
 
       - name: 配った版を残す
         run: |

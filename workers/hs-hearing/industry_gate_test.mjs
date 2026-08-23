@@ -1,13 +1,35 @@
 /* 業種ゲートを、実物の handleKiraBridge を呼んで確かめる。
    KV は模擬。ネットワークには出ない。 */
 import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import * as IND from "./src/industry.js";
 
-const SRC = "/tmp/hstry/src/hearing.mjs";
-let src = fs.readFileSync(SRC, "utf8");
-if (!src.includes("export { handleKiraBridge }")) {
-  fs.writeFileSync(SRC, src + "\nexport { handleKiraBridge };\n");
+/* 2026-08-24: ここは /tmp/hstry/src/hearing.mjs という、手元に作った複製を読んでいた。
+   その複製は 8/23 13:19 で止まっており、以降の修正が一度も試されていなかった。
+   「業種ゲート すべて通過」と出ていたのは、古い写しについての話だった。
+   そして CI にはその複製が無いので、CI では毎回落ちて、そのたびにメールが飛んでいた。
+
+   道具が、世界ではなく自分の写しを測っていた。走行1と同じ形である。
+
+   毎回、本物の src から作り直す。置き場所は OS の一時領域にして、
+   どの機械でも、CI でも同じように動くようにする。 */
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const SRCDIR = path.join(HERE, "src");
+const TMP = fs.mkdtempSync(path.join(os.tmpdir(), "hsgate-"));
+for (const f of fs.readdirSync(SRCDIR)) {
+  if (!f.endsWith(".js")) continue;            // .bak_* は拾わない
+  let body = fs.readFileSync(path.join(SRCDIR, f), "utf8");
+  body = body.replace(/from "\.\/([a-z0-9_]+)\.js"/g, 'from "./$1.mjs"');
+  if (f === "hearing.js" && !body.includes("export { handleKiraBridge }")) {
+    body += "\nexport { handleKiraBridge };\n";
+  }
+  fs.writeFileSync(path.join(TMP, f.replace(/\.js$/, ".mjs")), body);
 }
+const SRC = path.join(TMP, "hearing.mjs");
+console.log("試す対象: " + path.join(SRCDIR, "hearing.js") +
+            " (" + fs.readFileSync(path.join(SRCDIR, "hearing.js"), "utf8").split("\n").length + " 行)");
 const H = await import(SRC + "?v=" + Math.random());
 
 globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => ({}), text: async () => "" });

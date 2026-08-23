@@ -82,31 +82,51 @@ def main():
     stores = r.get("stores") or r.get("items") or []
     print("\n店: %d 件" % len(stores))
 
+    # 2026-08-24: /admin/stores の行は storeToContractor が作っており、
+    #   社名は company ではなく name に入る。industry は入らない。
+    #   最初この道具は company だけを見て、全部「空」と出していた。
+    #   厚い方(hearing:<id>.profile)は /admin/export/<id> にある。両方見る。
     rows = []
     for s in stores:
-        p = s.get("profile") or {}
-        co = (s.get("company") or p.get("company") or "").strip()
-        rows.append((s.get("store_id") or s.get("id"), p.get("industry") or "-", co))
-    empty = [x for x in rows if not x[2]]
+        sid = s.get("store_id") or s.get("id")
+        thin = (s.get("name") or s.get("company") or "").strip()
+        ex = call("/admin/export/" + sid, key) if sid else {}
+        pr = (ex or {}).get("profile") or {}
+        thick = str(pr.get("company") or "").strip()
+        rows.append({
+            "id": sid,
+            "industry": pr.get("industry") or "-",
+            "thin": thin,          # store: 側
+            "thick": thick,        # hearing:<id>.profile 側
+            "line": s.get("line_linked"),
+            "answered": (ex or {}).get("answered_at") or s.get("answered_at") or "",
+            "area": pr.get("area") or s.get("area") or "",
+        })
+    empty = [r for r in rows if not (r["thin"] or r["thick"])]
 
-    print("\n%-26s %-14s %s" % ("店ID", "業種", "社名"))
-    for i, ind, co in rows:
-        mark = "  ← 空" if not co else ""
-        print("%-26s %-14s %s%s" % (i, ind, co or "(空)", mark))
+    print("\n%-18s %-13s %-26s %-26s %s" % ("店ID", "業種", "社名(store側)", "社名(profile側)", "最終回答"))
+    for r in rows:
+        mark = "  ← 両方とも空" if not (r["thin"] or r["thick"]) else ""
+        print("%-18s %-13s %-26s %-26s %s%s"
+              % (r["id"], r["industry"], r["thin"] or "(空)", r["thick"] or "(空)",
+                 str(r["answered"])[:19], mark))
+        if r["area"]:
+            print("%-18s   エリア: %s" % ("", r["area"]))
 
     if not sid:
         print("\n社名が空の店: %d 件" % len(empty))
         if empty:
-            print("埋めるには:")
-            for i, ind, _ in empty:
-                print('  python3 tools/nursing/fix_company.py --id %s --name "社名" --apply' % i)
+            print("\nそのまま貼れる形にしてあります。社名だけ、実際のものに書き換えてください:")
+            for r in empty:
+                print('  python3 tools/nursing/fix_company.py --id %s --name "ここに社名" --apply' % r["id"])
         return
 
     if not name:
         sys.exit("--name が要ります")
-    cur = next((c for i, _, c in rows if i == sid), None)
-    if cur is None:
+    row = next((r for r in rows if r["id"] == sid), None)
+    if row is None:
         sys.exit("その店IDが見つかりません: " + sid)
+    cur = row["thin"] or row["thick"]
     print("\n店ID   : %s" % sid)
     print("いまの社名: %s" % (cur or "(空)"))
     print("入れる社名: %s" % name)
@@ -118,13 +138,15 @@ def main():
     if not apply:
         print("\n(--apply が無いので、まだ書いていません)")
         return
-    out = call("/admin/profile-patch", key, {"store_id": sid, "company": name})
+    # 2026-08-24: 送る形は {store_id, fields:{company:...}} である。
+    #   平らに {store_id, company:...} と送ると no_allowed_field が返る。
+    #   最初この道具はその形で送ろうとしていた。
+    out = call("/admin/profile-patch", key, {"store_id": sid, "fields": {"company": name}})
     print("\n応答: %s" % json.dumps(out, ensure_ascii=False)[:300])
-    chk = call("/admin/stores", key)
-    for s in (chk.get("stores") or chk.get("items") or []):
-        if (s.get("store_id") or s.get("id")) == sid:
-            p = s.get("profile") or {}
-            print("確認: 社名 = %s" % (s.get("company") or p.get("company") or "(まだ空)"))
+    ex = call("/admin/export/" + sid, key)
+    pr = (ex or {}).get("profile") or {}
+    print("確認: profile 側の社名 = %s" % (pr.get("company") or "(まだ空)"))
+    print("  呼びかけは store 側と profile 側の両方を見るので、これで名前で呼ばれます。")
 
 
 if __name__ == "__main__":
