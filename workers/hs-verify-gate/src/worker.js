@@ -46,6 +46,9 @@ const CONFIG = {
 // 素直な json.dumps も、区切りだけ詰めた版も、キーを並べ替えた版も、全て違うハッシュを出した。
 // 再現したのは「区切りを詰める」かつ「非ASCIIをエスケープしない」の1通りだけだった。
 // 誰でも再計算できると書く以上、その1通りを名指しする義務がこちらにある。
+// 条件07 の適合ベクタと自己測定の公開先。判定JSONから直接たどれるようにする。
+const CONFORMANCE_URL = "https://shield.the-horizons-innovation.com/verify-directory/conformance/";
+
 const RECOMPUTE_NOTE =
   "Remove the record_sha256 and recompute_note fields, then serialize what is left as UTF-8 JSON " +
   "with no insignificant whitespace, with the keys left in the order printed here, and with " +
@@ -805,6 +808,49 @@ async function runCheck(endpoint, allowToolCall) {
     };
   }
 
+  // 条件07 正規化適合。これも合否ではなく開示測定で、checks の外に置く(passed に触れない)。
+  // 2026-08-23、実装より先に「この条件で行が赤くなることはない」と公開した。約束が先にあるので守る。
+  // 測っているのは相手の行儀ではなく、我々以外の誰かがこの表面を検算できるかどうか。
+  // 正規化できない表面には第三者が再現できる指紋が無く、黙って書き換えられても作った本人以外は気づけない。
+  const _surf = record.checks.mcp_endpoint && record.checks.mcp_endpoint.detail
+    ? record.checks.mcp_endpoint.detail.surface : null;
+  if (_surf) {
+    const refused = _surf.canonicalization === "refused";
+    record.canonicalization = {
+      condition: "07",
+      question: "Can an independent party recompute the fingerprint of this server's declared surface, byte for byte, without us?",
+      method: "RFC 8785 (JCS). The tool manifest from tools/list is canonicalized and hashed. Nothing is executed, and nothing about the content is judged.",
+      measured: true,
+      canonicalizable: !refused,
+      scheme: _surf.canonicalization || null,
+      verdict: null,
+      verdict_note:
+        "A disclosed measurement, not a pass or fail. It never turns a row red. This gate published that " +
+        "promise on 2026-08-23, before the condition was implemented, and is keeping it.",
+      gate_self_conformance: {
+        vectors: 13,
+        passing: 13,
+        measured_at: "2026-08-23",
+        measured_against: "npm canonicalize@2.0.0, an independent RFC 8785 implementation",
+        first_result: "11 of 12 before the fix. The vector we failed produced a hash over a value we had silently altered.",
+        published: CONFORMANCE_URL
+      },
+      known_limitation:
+        "In JavaScript an integer past 2^53 is rounded inside JSON.parse before this gate sees it, so a " +
+        "surface carrying one is reported as canonicalizable where a runtime with arbitrary-precision " +
+        "integers would refuse. The limit is published rather than hidden."
+    };
+    if (refused) record.canonicalization.refusal_note = _surf.canonicalization_note || null;
+  } else {
+    record.canonicalization = {
+      condition: "07",
+      measured: false,
+      reason:
+        "the tool list could not be read, so there was no declared surface to canonicalize. This is NOT a " +
+        "statement that the surface cannot be canonicalized, only that the gate did not see it."
+    };
+  }
+
   // 条件5. 判定自体が再計算可能であること
   const canonical = JSON.stringify(record);
   record.record_sha256 = await sha256hex(canonical);
@@ -857,6 +903,15 @@ function spec() {
         method: "Structural, name-independent: does a tool's declared outputSchema contain a boolean, or an enum with 2+ values, where a read-succeeded / read-failed / nothing-matched state could live. Read from tools/list; nothing is executed.",
         verdict: "none. A disclosed number, not a pass or fail. Nearly all of the field cannot do this, so a threshold would only condemn; and a schema is a declaration, not behaviour. Reported per verdict under the top-level key absence_vs_failure, with the field names that produced each pass so a reader can check the false positives.",
         self_applied: "This gate's own get_conditions tool fails the test ,  it takes no arguments and has no read that can fail ,  and that is left standing rather than papered over."
+      },
+      canonicalization: {
+        condition: "07",
+        question: "Can an independent party recompute the fingerprint of this server's declared surface, byte for byte, without us?",
+        method: "RFC 8785 (JCS) over the tool manifest from tools/list. Nothing is executed and no content is judged. A surface that cannot be canonicalized has no fingerprint a third party can reproduce, so a silent change to it can only be caught by whoever made it.",
+        verdict: "none. A disclosed measurement, not a pass or fail, and it never turns a row red. That promise was published on 2026-08-23, before this condition was implemented.",
+        self_applied: "Measured before it was applied to anyone else. This gate's own canonicalizer matched 11 of 12 vectors against an independent RFC 8785 implementation on first measurement; the vector it failed produced a hash over a value it had silently altered. Fixed, and 13 vectors are now pinned as a permanent regression test.",
+        known_limitation: "In JavaScript an integer past 2^53 is rounded inside JSON.parse before this gate sees it. A surface carrying one is reported as canonicalizable where a runtime with arbitrary-precision integers would refuse. Published rather than hidden.",
+        vectors: CONFORMANCE_URL
       }
     },
     tiers: {

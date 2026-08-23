@@ -195,8 +195,19 @@ node jcs_conformance.mjs</pre>
 
 <section>
   <h2>What this changes for anyone listed here</h2>
-  <p>Canonicalization conformance is being prepared as <b>condition 07</b>. When it lands it will be measured and disclosed the same way the others are, and like condition 06 it will most likely be reported as a number rather than a pass or a fail, because almost nothing in the field does this correctly today and a threshold would only condemn. Nobody's row will turn red because of it without warning.</p>
-  <p>The register measured itself first, published the failure before the fix, and kept the part it cannot fix in writing. That is the only order that means anything.</p>
+  <p><b>Condition 07 is live.</b> Every verdict now carries a top-level <code>canonicalization</code> block saying whether the surface that server declares can be canonicalized at all, which is the same as asking whether anyone other than us could ever catch a silent change to it.</p>
+  <p>It is a disclosed measurement, not a pass or a fail, and <b>it never turns a row red</b>. We published that promise on this page before the condition existed, and the implementation keeps it: the value is computed after the verdict is decided and cannot reach it. Almost nothing in the field does this correctly today, so a threshold would only condemn.</p>
+  <pre><span class="c">// in every verdict, alongside the checks</span>
+"canonicalization": {
+  "condition": "07",
+  "measured": true,
+  "canonicalizable": true,
+  "scheme": "rfc8785-jcs",
+  <b>"verdict": null</b>,
+  "gate_self_conformance": { "vectors": 13, "passing": 13, <span class="c">...</span> },
+  "known_limitation": <span class="c">"integers past 2^53 are rounded inside JSON.parse before we see them"</span>
+}</pre>
+  <p>The register measured itself first, published the failure before the fix, promised the condition would not punish anyone, and then implemented it that way. Kept in that order, it means something. In any other order it is marketing.</p>
 </section>
 
 <footer><div>
