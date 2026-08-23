@@ -59,10 +59,9 @@ const CONFORMANCE_URL = "https://shield.the-horizons-innovation.com/verify-direc
 // KV は読んで書き戻すので、同時アクセスは取りこぼす。だから出す数字は常に下限であり、そう明記する。
 const USAGE_TTL_DAYS = 400;
 
-function isOwnZone(hostname) {
-  const h = String(hostname || "").toLowerCase();
-  return h === OWN_ZONE || h.endsWith("." + OWN_ZONE);
-}
+// 自ゾーン判定は既存の isOwnZone(url文字列) を使う。ここで同名の関数をもう一つ作ったのが
+// 2026-08-23 のデプロイを止めた原因だった。node --check はスクリプト扱いで重複宣言を通し、
+// esbuild はモジュール扱いで弾く。検査が本番より緩ければ、検査は仕事をしていない。
 
 function usageKey(day) {
   return "usage:" + (day || new Date().toISOString().slice(0, 10));
@@ -3039,8 +3038,8 @@ export default {
       if (parsed.protocol !== "https:") {
         return json({ error: "https_required" }, 400);
       }
-      bumpUsage(env, ctx, isOwnZone(parsed.hostname) ? "own_checks" : "external_checks",
-                isOwnZone(parsed.hostname) ? null : parsed.hostname);
+      const own = isOwnZone(endpoint);
+      bumpUsage(env, ctx, own ? "own_checks" : "external_checks", own ? null : parsed.hostname);
       try {
         return json(await runCheck(endpoint, body && body.allow_tool_call === true));
       } catch (e) {
