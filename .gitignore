@@ -158,3 +158,19 @@ _register-repo.zip
 **/*.bak[0-9]*
 # 調査の作業中間物。公開版は verify-directory/survey/data/ にある
 /survey/survey0_*
+
+# 2026-08-23 現場質問への回答の控え。
+# 事業所の実地指導の指摘、返戻の理由、迷った請求が入る。
+# このリポジトリが公開かどうかを確かめるまで、git に載せない。
+# 公開してよいと確認できたら、この2行を消してよい(このリポジトリは非公開の想定)。
+data/nursing/field_reports_pending.json
+
+# 2026-08-23 tools/nursing/ も同じ轍。nursing-questions.yml がこれを走らせる。
+# 無視されたままだと、ワークフローは起動してファイルが無くて落ちる。
+!tools/nursing/*.py
+
+# 2026-08-23 管理鍵と鍵マネージャ。リポジトリの根に未追跡で置かれていた。
+# 中身は本番の HEARING_ADMIN_SECRET である。git add -A 一回で載る位置にあったので、
+# 明示的に外す。(実際にこの日、一度 staged になった。commit はしていない)
+HORIZON_SHIELD_鍵一覧*.md
+HORIZON_SHIELD_鍵マネージャ*.html

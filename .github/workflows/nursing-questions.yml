@@ -1,0 +1,43 @@
+# 訪問看護のヒアリング設問が、算定要件データベースとずれていないかを見る。
+#
+# なぜ要るか (2026-08-23):
+#   設問文をデータベース側に移し、industry.js の bank はそこから生成するようにした。
+#   生成物は、手で触れば黙ってずれる。落ちない。例外も出ない。
+#   ただ「その要件について、誰にも尋ねていない」状態が静かに残る。
+#   静かに残るものは、検査で止めるしかない。
+name: nursing-questions
+
+on:
+  push:
+    paths:
+      - "data/nursing/**"
+      - "workers/hs-hearing/src/industry.js"
+      - "tools/nursing/**"
+      - ".github/workflows/nursing-questions.yml"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+
+      # 1. 生成物が、データベースと一致しているか。
+      #    ask を出している要件に設問文が無ければ、ここで落ちる。
+      - name: 設問がデータベースとずれていないか
+        run: python3 tools/nursing/sync_questions.py --check
+
+      # 2. 生成した JavaScript が、JavaScript として通るか。
+      #    2026-08-23、Python の読み直しは通り node で落ちる状態を実際に作った。
+      #    生成物は、出した言語の目で見なければ確かめたことにならない。
+      - name: industry.js の構文
+        run: node --check workers/hs-hearing/src/industry.js
+
+      # 3. 業種の振り分けが、以前と同じに動くか。
+      #    平田様が「加盟店希望」だけを送って建設の質問を受け取った件が、
+      #    このテストの 3) にそのまま入っている。
+      - name: 業種ゲートの回帰テスト
+        run: node workers/hs-hearing/industry_gate_test.mjs
