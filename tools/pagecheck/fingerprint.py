@@ -43,7 +43,13 @@ NS_BOILERPLATE = {
     "yakumo": [
         re.compile(r'<header>.*?</header>', re.S),
         re.compile(r'<!-- EHN_RECIRC_START.*?EHN_RECIRC_END:[^>]*-->', re.S),
-        re.compile(r'<div class="section"><h2>出典・データソース</h2>.*?</div></div>', re.S),
+            # 2026-08-23。この1行は 0 箇所にしか当たっていなかった。
+        # 実際の HTML は <div class="section"> に包まれていない。
+        # 剥がれないまま、全ページ共通の 173 字が「中身」として数えられ、
+        # souba の2ページを重複に見せていた。実物に合わせて書き直す。
+        re.compile(r'<h2>出典・データソース</h2><div class="source-block">.*?</div>', re.S),
+        # 全ページ共通の枠なのに、剥がす指定が無かった(101 字)。
+        re.compile(r'<h2>Yakumoの検証で確認すること</h2><ul class="tip-list">.*?</ul>', re.S),
         re.compile(r'<div class="cta-section">.*$', re.S),
     ],
     # 訪問看護。tools/care/generate_care.py が出す枠。

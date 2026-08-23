@@ -4,19 +4,19 @@
   {
    "slug": "yakumo/souba/gaiheki-tosou-nagakute",
    "tsha": "0725fc0d",
-   "simhash": "1ceb82c86328d2ec",
+   "simhash": "96b12c86368c2e4",
    "m": "no001"
   },
   {
    "slug": "yakumo/souba/yane-nagakute",
    "tsha": "5c7c96c7",
-   "simhash": "87b02c97bb848e0",
+   "simhash": "17b32c8633cc6e1",
    "m": "no001"
   },
   {
    "slug": "yakumo/souba/naiso-nagakute",
    "tsha": "051f1cee",
-   "simhash": "20eb12c9737852e8",
+   "simhash": "206f12c9237846e8",
    "m": "no001"
   },
   {
@@ -52,9 +52,11 @@
   {
    "slug": "yakumo/webmcp/yakumo-verified-stores-mcp",
    "tsha": "7f058a5f",
-   "simhash": "c279b41965f6afbf",
+   "simhash": "8279a41925f639df",
    "m": "no001"
   }
  ],
- "updated_at": "2026-07-10T13:13:52Z"
+ "updated_at": "2026-07-10T13:13:52Z",
+ "rebuilt_at": "2026-08-23",
+ "rebuilt_why": "指紋から剥がす共通枠のパターンを直したため、計算結果が変わった。全エントリを一斉に入れ替えて整合を保った。古い台帳は yakumo-content-manifest.json.bak_prerebuild20260823 に残してある。"
 }
