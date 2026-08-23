@@ -957,7 +957,55 @@ def recruit_pages(profile, rec):
 
 # ---------------- planner ----------------
 
+# ---------------------------------------------------------------------------
+# 業種の安全弁 (2026-08-23)
+#
+# この生成器は建設・リフォーム専用である。工種、相場、JCCDB、建設業許可、
+# 「先輩職人が」という言い回し、モール(/yakumo/)への必須バックリンク。
+# どれも建設の前提の上に立っている。
+#
+# hs-hearing は industry を dispatch に載せてくるが、ここは長らくそれを
+# 読んでいなかった。訪問看護の事業所が基準に達すれば、この生成器は
+# 医療処置について「工種の相場ページ」を作り、建設費データベースを出典に貼り、
+# 建設会社への固定リンクを付けたページを、他社の名前で作ることになる。
+#
+# 分からない業種のページを作るくらいなら、作らない方がよい。
+# 知っている業種以外は、理由を書いて止める。
+# 新しい業種の生成器ができたら、その業種をここに足す。ここを空にはしない。
+# ---------------------------------------------------------------------------
+KNOWN_INDUSTRIES = ("construction",)
+DEFAULT_INDUSTRY = "construction"
+
+
+def industry_of(profile, autopilot):
+    """業種を決める。どこにも書かれていなければ建設として扱う(既存レコードの後方互換)。"""
+    ap = autopilot or {}
+    return (ap.get("industry")
+            or (profile or {}).get("industry")
+            or DEFAULT_INDUSTRY)
+
+
+def assert_industry_supported(profile, autopilot):
+    ind = industry_of(profile, autopilot)
+    if ind in KNOWN_INDUSTRIES:
+        return ind
+    name = (profile or {}).get("company") or "(社名なし)"
+    sys.stderr.write(
+        "\n生成を中止しました。\n"
+        "  業種       : %s\n"
+        "  事業所     : %s\n"
+        "  理由       : この生成器は建設・リフォーム専用です。工種・相場・JCCDB・\n"
+        "               建設業許可・モールへのバックリンクが、すべて建設の前提の上に\n"
+        "               立っています。この業種のページをこの生成器で作ると、\n"
+        "               他社の事業所について建設業として書かれたページができます。\n"
+        "  やること   : この業種の生成器を用意し、KNOWN_INDUSTRIES に足してください。\n"
+        "               業種を取り違えているだけの場合は、hs-hearing 側の\n"
+        "               store.industry を直してください。\n\n" % (ind, name))
+    sys.exit(4)
+
+
 def plan_pages(profile, autopilot=None):
+    assert_industry_supported(profile, autopilot)
     works = [w for w in (profile.get("works") or []) if w][:6] or ["リフォーム全般"]
     # 地域はスラッグで重複排除(都道府県接頭辞つきと市名の二重生成を防ぐ)
     raw_areas = [profile.get("area")] + [a for a in (profile.get("areas_served") or []) if a]
