@@ -1,0 +1,74 @@
+# hs-hearing を、push で配る。
+#
+# なぜ要るか (2026-08-23):
+#   これまで deploy は手元での wrangler 実行だけだった。
+#   その結果、コードは直っているのに、動いているのは古い版という時間が生まれる。
+#   2026-08-23 の時点で、業種ゲートと訪問看護の設問は直っていたが、
+#   稼働中の worker は 15:09 UTC の版で、あとから足した6問は入っていなかった。
+#   「直した」と「届いている」は別である。その差を人の記憶で埋めない。
+#
+# 動かす前に一度だけ要るもの:
+#   リポジトリの Settings > Secrets and variables > Actions に
+#   CLOUDFLARE_API_TOKEN を登録する。
+#   権限は Account > Workers Scripts > Edit(と、KVを触るなら Workers KV Storage > Edit)。
+#   Cloudflare ダッシュボードの My Profile > API Tokens から
+#   "Edit Cloudflare Workers" テンプレートで作れる。
+#   CLOUDFLARE_ACCOUNT_ID も同じ場所に登録する。
+#
+#   secret(HEARING_ADMIN_SECRET など)は wrangler.jsonc には入っておらず、
+#   Cloudflare 側に保存済みなので、この配布では触らない。上書きもしない。
+#
+# 配る前に検査を通す。壊れたものを配らない。
+name: deploy-hs-hearing
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "workers/hs-hearing/**"
+      - ".github/workflows/deploy-hs-hearing.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-hs-hearing
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+
+      # 1. 構文。生成物を含むので、出した言語の目で見る。
+      - name: 構文
+        run: |
+          for f in industry autopilot hearing visibility; do
+            node --check "workers/hs-hearing/src/$f.js"
+          done
+
+      # 2. 設問が、それぞれのデータベースとずれていないか。
+      #    ずれたまま配ると「その要件について誰にも尋ねていない」状態が本番に出る。
+      - name: 設問とデータベースの一致
+        run: |
+          python3 tools/nursing/sync_questions.py --check
+          python3 tools/visibility/sync_questions.py --check
+          python3 tools/industries/check.py
+
+      # 3. 業種の振り分けの回帰テスト。
+      #    平田様が「加盟店希望」だけを送って建設の質問を受け取った件が、このテストに入っている。
+      - name: 業種ゲート
+        run: node workers/hs-hearing/industry_gate_test.mjs
+
+      # 4. ここまで通ってから配る。
+      - name: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: workers/hs-hearing
+
+      - name: 配った版を残す
+        run: |
+          echo "deployed $(git rev-parse --short HEAD) at $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_STEP_SUMMARY
