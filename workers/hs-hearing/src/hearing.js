@@ -17,6 +17,7 @@
  */
 
 import * as AP from "./autopilot.js";
+import * as IND from "./industry.js";
 
 const SERVER = { name: "HORIZON SHIELD YAKUMO", version: "2.3.0" };
 const PUBLIC_DATA_FALLBACK = "https://shield.the-horizons-innovation.com/data/yakumo-contractors.json";
@@ -310,6 +311,9 @@ function normalizeProfile(store, raw) {
   const out = {
     member_no: (store && store.member_no) || null,
     store_id: (store && store.store_id) || null,
+    // 業種。生成側(GitHub Action)が型を選ぶのに要る。
+    // 業種の無い既存レコードは建設として扱う(後方互換)。
+    industry: (store && store.industry) || IND.DEFAULT_INDUSTRY,
     company: safeStr(raw.company, 120) || (store && store.company) || "",
     rep: safeStr(raw.rep, 60),
     license: safeStr(raw.license, 60),
@@ -343,7 +347,19 @@ async function triggerGeneration(env, profile, store) {
   // AUTOPILOT: フォーカスと完成度、ニュースダイジェストを同梱(生成側がページ構成を変える)
   const ap = (store && store.autopilot) || {};
   const news = await AP.newsDigest(env).catch(() => ({ items: [] }));
-  const autopilot = { focus_primary: ap.focus_primary || null, completeness: ap.completeness || 0, news: (news.items || []).slice(0, 5) };
+  const indKey = (store && store.industry) || (profile && profile.industry) || IND.DEFAULT_INDUSTRY;
+  const indDef = IND.industryOf(indKey);
+  const autopilot = {
+    focus_primary: ap.focus_primary || null,
+    completeness: ap.completeness || 0,
+    news: (news.items || []).slice(0, 5),
+    // 業種と、生成の配分。受け手(GitHub Action)はこれを見て型を選ぶ。
+    // 業種を渡さなければ、受け手には建設と訪問看護の区別がつかない。
+    industry: indKey,
+    industry_label: indDef ? indDef.label : "",
+    mall: indDef ? indDef.mall : null,
+    golden_ratio: (indDef && indDef.golden_ratio) || null,
+  };
   try {
     const r = await fetch("https://api.github.com/repos/" + env.GH_DISPATCH_REPO + "/dispatches", {
       method: "POST",
@@ -363,7 +379,7 @@ async function triggerGeneration(env, profile, store) {
 
 /* ------------------------------ MCP face ------------------------------ */
 const RO = { readOnlyHint: true, destructiveHint: false, idempotentHint: true };
-// Was: { type: "object", additionalProperties: true } — a schema that declares
+// Was: { type: "object", additionalProperties: true }, a schema that declares
 // "an object" and nothing else, shared by all six tools. Honest, and useless: it
 // gave a consumer no declared way to tell "the roster was read and nobody
 // matched" from "the roster could not be read". Both arrived as an object.
@@ -536,7 +552,7 @@ async function contractorsFromStores(env, stores) {
 // through to `pub.contractors || []`, so three different states all left here as
 // an empty array: the KV was down, the published roster could not be fetched, and
 // there genuinely are no contractors. All six MCP tools read this one call, so on
-// an outage list_verified_stores answered verified_count: 0 with full confidence —
+// an outage list_verified_stores answered verified_count: 0 with full confidence,
 // telling a homeowner's AI that no verified contractor exists, when what had
 // actually happened was that we could not read our own roster.
 //
@@ -948,7 +964,9 @@ async function resolveStoreFromEmail(env, message) {
   return null;
 }
 async function llmStructure(env, text, store) {
-  const sys = "You extract structured data from a Japanese renovation/construction contractor's email reply. Output ONLY a JSON object (no prose, no code fences) with keys: company (string), rep (string), license (string), area (string, city level), areas (comma-separated string of service areas), works (array of trade strings in Japanese e.g. 外壁塗装), strengths (string), faqs (array of objects with q and a), trust (string), contact (string), hours (string). Do NOT invent prices or amounts. Unknown fields: empty string or empty array.";
+  // 業種ごとに抽出の指示を変える。訪問看護の返信から「工種」を取り出そうとすれば、
+  // 取れないか、取れてはいけないものが取れる。
+  const sys = IND.llmSystemPrompt((store && store.industry) || IND.DEFAULT_INDUSTRY);
   const usr = "既知の会社名: " + ((store && store.company) || "") + "\n--- 返信本文 ---\n" + text;
   let out = "";
   try {
@@ -1191,7 +1209,7 @@ async function aiPartnerReply(env, text) {
   return out;
 }
 
-async function handleKiraBridge(env, userId, text, groupId) {
+async function handleKiraBridge(env, userId, text, groupId, estimates) {
   const t = String(text || "").trim();
   let storeId = await env.HS_HEARING_KV.get("line2store:" + userId, "text");
 
@@ -1226,20 +1244,125 @@ async function handleKiraBridge(env, userId, text, groupId) {
     }
   }
 
-  // 初回: 店レコードを自動作成して即ヒアリング開始(コード不要)
-  if (!storeId) {
-    const rand = (n) => { const a = "abcdefghjkmnpqrstuvwxyz23456789"; const u = crypto.getRandomValues(new Uint8Array(n)); let s = ""; for (const b of u) s += a[b % a.length]; return s; };
-    storeId = "kira-" + rand(8);
-    const token = "ht_" + rand(12);
-    const nowIso = new Date().toISOString();
-    const store = { store_id: storeId, company: "", areas: [], works: [], tier: "honbu", status: "onboarding", source: "kira-line", token, created_at: nowIso, autopilot: {} };
-    await env.HS_HEARING_KV.put("store:" + storeId, JSON.stringify(store));
-    await env.HS_HEARING_KV.put("htok:" + token, JSON.stringify({ store_id: storeId, company: "", issued_at: nowIso, via: "kira-bridge" }));
-    await env.HS_HEARING_KV.put("line2store:" + userId, storeId);
-    await env.HS_HEARING_KV.put("store2line:" + storeId, userId);
-    await AP.activityAdd(env, { type: "onboard", text: "KIRA経由で新しい加盟店ヒアリングが始まりました" });
-    await notify(env, "[Yakumo] KIRA経由で加盟店ヒアリング開始。store=" + storeId + " line=" + userId);
-    return { ok: true, reply: "加盟店へのご関心、ありがとうございます。\nこちらは HORIZON SHIELD / Yakumo の加盟店窓口です。ここからは自動ヒアリングで進めます(担当の大賀も内容をすべて確認します)。\n\nまず、次の3つをこのままご返信ください。まとめて1通で大丈夫です。\n1) 会社名(屋号)\n2) 対応エリア(市区町村)\n3) 対応できる工種と強み(例: 外壁塗装、無機3回塗り10年保証)\n\nフォームでの入力をご希望の場合はこちら:\nhttps://shield.the-horizons-innovation.com/yakumo/register/?code=" + token };
+  /* --------------------------------------------------------------
+     2026-08-23 業種の分岐。
+
+     合同会社あっぷす様(訪問看護)が「加盟店希望」と打たれたところ、
+     この下にあった処理が無条件に Yakumo の店を作り、「対応できる工種と強み
+     (例: 外壁塗装、無機3回塗り10年保証)」を尋ねてしまった。
+     訪問看護に工種は無い。打たれた言葉は正しく、壊れていたのはこちらの構造である。
+
+     合言葉を業種ごとに増やす道は採らなかった。お客様に我々の商品分類を
+     先に覚えていただく設計になるうえ、増やすたびに「間違った先へ送る口」が
+     1つ増えるからである。入口は1つのまま、分岐を1問だけ後ろにずらす。
+
+     判らないときは推測しない。二度読めなければ人に回す。
+     業種を間違えたヒアリングは、相手の時間を奪った上で、
+     こちらが話を聞いていないことの証拠になる。
+     -------------------------------------------------------------- */
+  {
+    const intakeKey = "intake:" + userId;
+    const INTAKE_TTL = 259200; // 72時間
+    let intake = null;
+    try { intake = await env.HS_HEARING_KV.get(intakeKey, "json"); } catch (_e) { intake = null; }
+
+    const putIntake = async (o) => {
+      try { await env.HS_HEARING_KV.put(intakeKey, JSON.stringify(o), { expirationTtl: INTAKE_TTL }); } catch (_e) {}
+    };
+
+    // 見積書が添えられていれば、業種を尋ねるまでもない。建設である。
+    const looksConstruction = Array.isArray(estimates) && estimates.length > 0;
+
+    // 業種が決まったところで店を用意する(既存があればそれに業種を書く)。
+    const startWithIndustry = async (indKey, existingId) => {
+      const ind = IND.industryOf(indKey);
+      const nowIso2 = new Date().toISOString();
+      let sid = existingId || null;
+      let store = null;
+      if (sid) {
+        try { store = await env.HS_HEARING_KV.get("store:" + sid, "json"); } catch (_e) { store = null; }
+      }
+      // 既に店があったということは、業種を決める前に別の業種のヒアリングを
+      // 送ってしまっている。次の文で、それを取り消す必要がある。
+      const afterWrong = !!store;
+      if (!store) {
+        const rand2 = (n) => { const a = "abcdefghjkmnpqrstuvwxyz23456789"; const u = crypto.getRandomValues(new Uint8Array(n)); let s = ""; for (const b of u) s += a[b % a.length]; return s; };
+        sid = "kira-" + rand2(8);
+        const tok = "ht_" + rand2(12);
+        store = { store_id: sid, company: "", areas: [], works: [], tier: "honbu", status: "onboarding", source: "kira-line", token: tok, created_at: nowIso2, autopilot: {} };
+        await env.HS_HEARING_KV.put("htok:" + tok, JSON.stringify({ store_id: sid, company: "", issued_at: nowIso2, via: "kira-bridge" }));
+      }
+      store.industry = indKey;
+      store.industry_decided_at = nowIso2;
+      await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));
+      await env.HS_HEARING_KV.put("line2store:" + userId, sid);
+      await env.HS_HEARING_KV.put("store2line:" + sid, userId);
+      try { await env.HS_HEARING_KV.delete(intakeKey); } catch (_e) {}
+      await AP.activityAdd(env, { type: "onboard", text: (ind ? ind.label : indKey) + " のヒアリングが始まりました" });
+      await notify(env, "[intake] 業種=" + indKey + " で開始。store=" + sid + " line=" + userId);
+      if (Array.isArray(estimates) && estimates.length) { try { await appendEstimatesForAudit(env, sid, estimates); } catch (_e) {} }
+      return { ok: true, reply: IND.openingText(indKey, afterWrong) };
+    };
+
+    // 既にある店だが、まだ一度も中身を聞けておらず、業種も無い。
+    // 今日の平田様(合同会社あっぷす)がこれに当たる。次の一言を工種として
+    // 取り込む前に、業種から聞き直す。
+    if (storeId && !intake) {
+      let s0 = null;
+      try { s0 = await env.HS_HEARING_KV.get("store:" + storeId, "json"); } catch (_e) { s0 = null; }
+      const untouched = s0 && !s0.industry && !safeStr(s0.company, 120) &&
+                        !(Array.isArray(s0.works) && s0.works.length) &&
+                        !(Array.isArray(s0.areas) && s0.areas.length);
+      if (untouched) {
+        if (looksConstruction) return await startWithIndustry("construction", storeId);
+        const guess = IND.classifyIndustry(t);
+        if (guess && guess.key !== IND.UNKNOWN_INDUSTRY && !guess.ambiguous) {
+          return await startWithIndustry(guess.key, storeId);
+        }
+        await putIntake({ state: "awaiting_industry", store_id: storeId, asked_at: new Date().toISOString(), retries: 0 });
+        await notify(env, "[intake] 業種が未確定のため業種を尋ねました。store=" + storeId + " line=" + userId);
+        return { ok: true, reply: IND.askIndustryText() };
+      }
+    }
+
+    // 業種を尋ねた相手からの返事。
+    if (intake && intake.state === "awaiting_industry") {
+      const cls = IND.classifyIndustry(t);
+      if (cls && cls.key !== IND.UNKNOWN_INDUSTRY && !cls.ambiguous) {
+        return await startWithIndustry(cls.key, intake.store_id || storeId);
+      }
+      const retries = Number(intake.retries || 0) + 1;
+      if (!cls && retries < 2) {
+        await putIntake(Object.assign({}, intake, { retries }));
+        return { ok: true, reply: "うまく読み取れませんでした。もう一度だけ、ご業種を短くお願いします。\n1) 建設・リフォーム  2) 訪問看護・介護  3) それ以外" };
+      }
+      // 「それ以外」か、二度読めなかった。ここで型を当てはめない。
+      await putIntake(Object.assign({}, intake, { state: "handoff", retries, last_text: String(t).slice(0, 300) }));
+      await notify(env, "[intake] 業種を決めずに人へ回しました。line=" + userId + " / " + String(t).slice(0, 160));
+      return { ok: true, reply: "承知しました。ご業種は、こちらで型を決めずに担当の大賀がお伺いします。\nご業種と、いま困っていることを一言だけ書いておいていただけると、話が早くなります。" };
+    }
+
+    // 人へ回したあとは、自動で型に嵌めない。届いた言葉は大賀に流す。
+    if (intake && intake.state === "handoff") {
+      const cls = IND.classifyIndustry(t);
+      if (cls && cls.key !== IND.UNKNOWN_INDUSTRY && !cls.ambiguous) {
+        return await startWithIndustry(cls.key, intake.store_id || storeId);
+      }
+      await notify(env, "[intake] 人待ちの相手から追加の言葉。line=" + userId + " / " + String(t).slice(0, 200));
+      return { ok: true, reply: "" };
+    }
+
+    // まったくの初回。ここで店を作らない。業種が決まってから作る。
+    if (!storeId) {
+      if (looksConstruction) return await startWithIndustry("construction", null);
+      const guess = IND.classifyIndustry(t);
+      if (guess && guess.key !== IND.UNKNOWN_INDUSTRY && !guess.ambiguous) {
+        return await startWithIndustry(guess.key, null);
+      }
+      await putIntake({ state: "awaiting_industry", store_id: null, asked_at: new Date().toISOString(), retries: 0 });
+      await notify(env, "[intake] 新規のご連絡。業種を尋ねました。line=" + userId);
+      return { ok: true, reply: IND.askIndustryText() };
+    }
   }
 
   // 登録済み: トリガー語だけの短文は案内を返す(回答としては取り込まない)
@@ -1257,11 +1380,88 @@ async function handleKiraBridge(env, userId, text, groupId) {
   //   データとして取り込めるものは取り込み(プロフィールは従来どおり育てる)、返信はAIに任せる。
   //   これまでの「受け取りました…掲載準備に反映しました」+定型の追撃質問(変な会話)は廃止。
   //   追撃は autopilot の日次tickが、間隔と上限を守って別に行う。
+  if (Array.isArray(estimates) && estimates.length) { try { await appendEstimatesForAudit(env, storeId, estimates); } catch (_e) {} }
   const store = await env.HS_HEARING_KV.get("store:" + storeId, "json");
   try { await ingestHearingAnswer(env, storeId, store, t, "line"); } catch (_e) {}
   const smart = await aiPartnerReply(env, t);
   try { await notify(env, "[Yakumo] KIRA経由メッセージにAI応答: " + (((store || {}).company) || storeId) + " / " + t.slice(0, 60)); } catch (_e) {}
-  return { ok: true, reply: smart || "受け取りました。ありがとうございます。担当の大賀が確認してご連絡します。" };
+  return { ok: true, reply: smart || "受け取りました。ありがとうございます。内容は運営事務局で確認します。お急ぎのご用件でしたら、その旨をお書きください。" };
+}
+
+async function appendEstimatesForAudit(env, storeId, estimates) {
+  if (!storeId) return { ok: false, reason: "no-store" };
+  // 2026-08-22 auto-score. work/amount/detail に加え、決定的な採点に使う誠実度フィールドも保存する。
+  //   抽出側(kira-line)が付けてこなければ従来どおり work/amount/detail だけ入る(捏造しない)。
+  const numOrNull = (v) => { const x = Number(v); return Number.isFinite(x) ? x : null; };
+  const norm = (Array.isArray(estimates) ? estimates : []).slice(0, 10).map((e) => {
+    const o = {
+      work: safeStr(e && e.work, 80),
+      amount: parseJpYen(safeStr(e && e.amount, 20)),
+      detail: safeStr(e && e.detail, 200),
+    };
+    const _sh = numOrNull(e && e.shokei); if (_sh != null) o.shokei = _sh;
+    if (e && e.lump_lines != null) o.lump_lines = Number(e.lump_lines) || 0;
+    if (e && typeof e.has_spec === "boolean") o.has_spec = e.has_spec;
+    if (e && typeof e.has_warranty === "boolean") o.has_warranty = e.has_warranty;
+    if (e && typeof e.urgency === "boolean") o.urgency = e.urgency;
+    if (e && typeof e.insurance_bait === "boolean") o.insurance_bait = e.insurance_bait;
+    if (e && typeof e.upfront_over_half === "boolean") o.upfront_over_half = e.upfront_over_half;
+    if (e && e.qty != null) o.qty = Number(e.qty) || 1;
+    if (Array.isArray(e && e.lines)) o.lines = e.lines.slice(0, 30).map((ln) => ({
+      name: safeStr(ln && ln.name, 80),
+      qty: Number(ln && ln.qty) || 1,
+      unit_price: parseJpYen(safeStr(ln && ln.unit_price, 20)),
+    }));
+    return o;
+  }).filter((e) => e.work || e.amount);
+  if (!norm.length) return { ok: false, reason: "empty" };
+  const rec = await env.HS_HEARING_KV.get("hearing:" + storeId, "json");
+  const profile = (rec && rec.profile) || { store_id: storeId };
+  const eKey = (e) => safeStr(e.work, 80) + "|" + safeStr(e.amount, 20);
+  const ests = Array.isArray(profile.estimates_for_audit) ? profile.estimates_for_audit.slice() : [];
+  const seen = new Set(ests.map(eKey));
+  let added = 0;
+  for (const e of norm) { const k = eKey(e); if (!seen.has(k)) { seen.add(k); ests.push(e); added++; } }
+  profile.estimates_for_audit = ests.slice(0, 12);
+  const now = new Date().toISOString();
+  await env.HS_HEARING_KV.put("hearing:" + storeId, JSON.stringify({ ...(rec || {}), store_id: storeId, profile, estimate_updated_at: now }));
+  const store = await env.HS_HEARING_KV.get("store:" + storeId, "json");
+  try { await AP.activityAdd(env, { type: "estimate", member_no: store && store.member_no, text: ((store && store.company) || "\u52A0\u76DF\u5E97") + " \u304C\u5BE9\u67FB\u7528\u306E\u898B\u7A4D\u3092\u9001\u4ED8(\u84C4\u7A4D " + profile.estimates_for_audit.length + "\u4EF6)" }); } catch (_e) {}
+  try { await notify(env, "[Yakumo] \u52A0\u76DF\u5E97\u304B\u3089\u5BE9\u67FB\u7528\u306E\u898B\u7A4D\u3092\u53D7\u9818\u3002store=" + storeId + " \u4F1A\u793E=" + ((store && store.company) || "") + " \u8FFD\u52A0" + added + "\u4EF6/\u8A08" + profile.estimates_for_audit.length + "\u4EF6\u3002KIRA\u9069\u6B63\u8A3A\u65AD\u306E\u6750\u6599\u3002"); } catch (_e) {}
+
+  // 2026-08-22 auto-score. \u5B9F\u898B\u7A4D\u304C MIN_AUDIT_ESTIMATES \u672C\u306B\u9054\u3057\u305F\u3089\u3001\u4EBA\u624B\u3092\u4ECB\u3055\u305A\u81EA\u52D5\u63A1\u70B9\u3057\u3066\u63B2\u8F09\u5224\u5B9A\u3059\u308B\u3002
+  //   \u901A\u3059\u6761\u4EF6: \u8A3C\u62E0\u5341\u5206\u30FB\u30CF\u30FC\u30C9\u8D64\u65D7\u306A\u3057\u30FB\u30B9\u30B3\u30A2\u304C\u4E0B\u9650\u4EE5\u4E0A\u3002\u30CF\u30FC\u30C9\u8D64\u65D7\u304C\u3042\u308C\u3070\u63B2\u8F09\u305B\u305A\u5927\u8CC0\u306B\u56DE\u3059(fail-closed)\u3002
+  //   \u30B9\u30B3\u30A2\u306F KIRA\u7D14\u6B63\u3068\u3057\u3066 fairness_score \u306B\u5165\u308C\u308B(/admin/verify \u3068\u540C\u3058\u9805\u76EE)\u3002\u65E2\u306B verified \u306E\u5E97\u306F\u89E6\u3089\u306A\u3044\u3002
+  let auto = null;
+  try {
+    if (store && store.verification !== "verified" && profile.estimates_for_audit.length >= AP.MIN_AUDIT_ESTIMATES) {
+      const sc = AP.scoreEstimates(profile);
+      auto = sc;
+      if (sc.auto_verify) {
+        store.audit_evidence = {
+          estimates: sc.evidence_count,
+          works: Array.from(new Set((profile.estimates_for_audit || []).map((e) => String((e && e.work) || "")).filter(Boolean))).slice(0, 8),
+          recorded_at: new Date().toISOString(),
+          method: "auto-kira",
+        };
+        store.verification = "verified";
+        store.fairness_score = sc.fairness_score;
+        store.integrity_tier = sc.integrity_tier;
+        store.red_flags_detected = sc.red_flags_detected;
+        store.status = "published";
+        store.verified_at = new Date().toISOString();
+        store.auto_scored = { at: store.verified_at, score: sc.fairness_score, tier: sc.integrity_tier, confirm_notes: sc.confirm_notes, reason: sc.reason };
+        await env.HS_HEARING_KV.put("store:" + storeId, JSON.stringify(store));
+        try { await AP.activityAdd(env, { type: "verified", member_no: store.member_no, text: (store.company || "\u52A0\u76DF\u5E97") + " \u304C\u9069\u6B63\u4FA1\u683C\u306E\u7B2C\u4E09\u8005\u691C\u8A3C(KIRA\u81EA\u52D5)\u3092\u901A\u904E\u3057\u307E\u3057\u305F" }); } catch (_e) {}
+        try { await notify(env, "[Yakumo] \u81EA\u52D5\u691C\u8A3C: " + (store.company || storeId) + " \u3092KIRA\u81EA\u52D5\u63A1\u70B9\u3067 verified \u5316\u3002\u30B9\u30B3\u30A2" + sc.fairness_score + "/\u30C6\u30A3\u30A2" + sc.integrity_tier + "/\u8D64\u65D7" + sc.red_flags_detected + "\u3002" + sc.reason); } catch (_e) {}
+      } else if (sc.hard_alert) {
+        try { await notify(env, "[Yakumo] \u81EA\u52D5\u63A1\u70B9\u3067\u4FDD\u7559(fail-closed): " + (store.company || storeId) + "\u3002" + sc.reason); } catch (_e) {}
+      } else {
+        try { await notify(env, "[Yakumo] \u81EA\u52D5\u63A1\u70B9: " + (store.company || storeId) + " \u306F\u30B9\u30B3\u30A2" + sc.fairness_score + "\u3067\u81EA\u52D5\u63B2\u8F09\u306E\u4E0B\u9650\u672A\u6E80\u3002\u4EBA\u306E\u78BA\u8A8D\u3078\u3002"); } catch (_e) {}
+      }
+    }
+  } catch (_e) {}
+  return { ok: true, added, total: profile.estimates_for_audit.length, auto: auto ? { verified: !!auto.auto_verify, score: auto.fairness_score, tier: auto.integrity_tier, hard_alert: auto.hard_alert } : null };
 }
 
 /* ------------------------------ 加盟店一覧(KV) + 公開データ ------------------------------ */
@@ -1603,9 +1803,33 @@ export default {
       const uid = safeStr(bb.userId, 64);
       if (!/^U[0-9a-f]{32}$/.test(uid)) return json({ error: "bad_user" }, 400);
       const gid = /^[CR][0-9a-f]{32}$/.test(safeStr(bb.groupId || "", 64)) ? safeStr(bb.groupId || "", 64) : null;
-      const out = await handleKiraBridge(env, uid, safeStr(bb.text, 6000), gid);
+      const out = await handleKiraBridge(env, uid, safeStr(bb.text, 6000), gid, Array.isArray(bb.estimates) ? bb.estimates : []);
       return json(out);
     }
+    // KIRA(hs-kira-line)から: 加盟店が送った見積を審査材料(estimates_for_audit)に積む。共有鍵必須。
+    if (path === "/kira-estimate") {
+      if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+      // 2026-08-22: 認証は共有鍵(X-Bridge-Key=KIRA_BRIDGE_KEY)か管理鍵(X-Admin-Key)のどちらかで通す。
+      //   どちらか現行の方が通ればよい。両方外れたら forbidden。
+      const bkey = request.headers.get("X-Bridge-Key") || "";
+      const bridgeOk = !!(env.KIRA_BRIDGE_KEY && (await ctEqual(bkey, env.KIRA_BRIDGE_KEY)));
+      if (!bridgeOk && !adminOk(request, env)) return json({ error: "forbidden" }, 403);
+      let bb; try { bb = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+      // 2026-08-22: store_id 直指定に対応(過去見積の再送なし投入用)。無ければ従来どおり LINE userId から解決。
+      let sid = safeStr(bb.store_id, 40);
+      if (sid) {
+        const s0 = await env.HS_HEARING_KV.get("store:" + sid, "json");
+        if (!s0) return json({ error: "not_found" }, 404);
+      } else {
+        const uid = safeStr(bb.userId, 64);
+        if (!/^U[0-9a-f]{32}$/.test(uid)) return json({ error: "bad_user" }, 400);
+        sid = await env.HS_HEARING_KV.get("line2store:" + uid, "text");
+        if (!sid) sid = await env.HS_HEARING_KV.get("member2store:" + uid, "text");
+      }
+      const out = await appendEstimatesForAudit(env, sid, Array.isArray(bb.estimates) ? bb.estimates : []);
+      return json(out);
+    }
+
 
     // LINE Webhook: 加盟店ヒアリングのLINE版(登録->回答->自動構造化->生成)
     if (path === "/line/webhook") {
@@ -1771,6 +1995,19 @@ export default {
         await env.HS_HEARING_KV.put("line2store:" + uid, sid);
         await env.HS_HEARING_KV.put("store2line:" + sid, uid);
         return json({ ok: true, store_id: sid, line_user_id: uid });
+      }
+
+      // 2026-08-22: 既存店に審査用の実見積を store_id 直指定で積む(LINE紐付けに一切依存しない)。
+      //   峰尾さんのように、過去の見積が人手対応に流れて未保存の店を、再送なしで採点キューに載せるための口。
+      //   appendEstimatesForAudit がそのまま自動採点 + fail-closed 自動掲載まで回す。store2line は触らない。
+      if (path === "/admin/append-estimates" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const sid = safeStr(b.store_id, 40);
+        if (!sid) return json({ error: "store_id が必要" }, 400);
+        const s = await env.HS_HEARING_KV.get("store:" + sid, "json");
+        if (!s) return json({ error: "not_found" }, 404);
+        const out = await appendEstimatesForAudit(env, sid, Array.isArray(b.estimates) ? b.estimates : []);
+        return json(out);
       }
 
       // 管理ダッシュボード用: 全加盟店＋ヒアリング状況

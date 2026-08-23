@@ -17,6 +17,8 @@ const S = (v, max = 400) => (v == null ? "" : String(v)).slice(0, max);
 const now = () => new Date().toISOString();
 const days = (ms) => ms / 86400000;
 
+import * as IND from "./industry.js";
+
 // 2026-08-19 patch51. 「検証済み」と言うために、実際に監査する見積の最低本数。
 // 1本は業者を測ったことにならない。1本の書類を測っただけになる。
 // 分母の無いスコアは出さない。この本数は公開ページとMCPの応答にも必ず出る。
@@ -113,7 +115,11 @@ export function computeCompleteness(profile, autopilot) {
   add((p.areas_served || []).length >= 3, 10, "q_areas");
   add(S(p.strengths, 2000).length >= 120, 15, "q_strengths", !!S(p.strengths, 2000).trim());
   add((p.faqs || []).length >= 3, 15, "q_faqs");
-  add((p.estimates_for_audit || []).length >= MIN_AUDIT_ESTIMATES, 10, "q_estimates"); // patch51
+  // 2026-08-23: 見積もり例は建設の話である。訪問看護に見積書は無い。
+  // 業種を見ずにこの10点を課すと、訪問看護は永久に完成度が上がらず、
+  // 生成が始まらない。業種ぶんの配点は下の業種バンクで持つ。
+  const usesEstimates = !p.industry || p.industry === "construction";
+  if (usesEstimates) add((p.estimates_for_audit || []).length >= MIN_AUDIT_ESTIMATES, 10, "q_estimates"); // patch51
   add(S(p.trust, 2000).length >= 30, 10, "q_trust", !!S(p.trust, 2000).trim());
   add(!!S(p.contact), 5, "q_contact");
   add(!!S(p.license), 5, "q_license");
@@ -130,6 +136,16 @@ export function computeCompleteness(profile, autopilot) {
     for (const q of qids) if (!extra[q]) { missing.push({ qid: q, w: QUESTION_BANK[focus][q].w }); askable.push({ qid: q, w: QUESTION_BANK[focus][q].w }); }
   } else {
     // フォーカス不明のうちは配点保留(q_focusが最優先で立つ)
+  }
+  // 2026-08-23: 業種ぶんの設問。業種ごとに聞くべきことが違う。
+  // 訪問看護なら、指示書の期限、加算、減算の要件、返戻、オンコールの実態。
+  // 答えは extra[qid] に入る(フォーカス個別と同じ仕組み)。
+  const ibank = IND.industryBank(p.industry);
+  if (ibank) {
+    const iqids = Object.keys(ibank);
+    const ianswered = iqids.filter((q) => !!extra[q]).length;
+    score += Math.round((ianswered / iqids.length) * 20);
+    for (const q of iqids) if (!extra[q]) { missing.push({ qid: q, w: ibank[q].w }); askable.push({ qid: q, w: ibank[q].w }); }
   }
   // 契約時点で埋まる基本項目ぶんの底上げ(社名/所在地/工種は必須通過済み)
   score += 5;
@@ -156,7 +172,12 @@ export function nextQuestions(profile, autopilot, maxN = 2) {
     const askedN = askedCount[m.qid] || 0;
     if (askedN >= ASK_MAX) continue;
     if (askedN > 0 && lastAskAt[m.qid] && (nowMs - Date.parse(lastAskAt[m.qid])) < ASK_COOL_MS) continue;
-    const q = QUESTION_BANK[m.qid] || (autopilot && autopilot.focus_primary && QUESTION_BANK[autopilot.focus_primary] && QUESTION_BANK[autopilot.focus_primary][m.qid]);
+    // 2026-08-23: 業種の文面を先に見る。無ければ従来どおり。
+    // これが無いと、訪問看護の事業所に「工種ごとの強み(例: 外壁塗装)」
+    // 「施主さんからよく聞かれる質問」が、追撃質問として毎週届く。
+    const q = IND.questionFor((profile || {}).industry, m.qid)
+      || QUESTION_BANK[m.qid]
+      || (autopilot && autopilot.focus_primary && QUESTION_BANK[autopilot.focus_primary] && QUESTION_BANK[autopilot.focus_primary][m.qid]);
     if (!q) continue;
     flat.push({ qid: m.qid, w: m.w, text: q.text });
   }
@@ -773,4 +794,171 @@ export function settlePendingOnAnswer(store, rawText) {
   ap.nudges = 0;
   store.autopilot = ap;
   return {};
+}
+
+/* ------------------------------ KIRA 自動採点(相場表内蔵・決定的) ------------------------------ */
+// 2026-08-22 auto-score. スコアとティアは、これまで /admin/verify に人が手入力していた。
+//   ここに決定的な採点を置き、実見積が MIN_AUDIT_ESTIMATES 本に達したら自動で verified 化できるようにする。
+//   価格レンジは souba-db の写しをコード内に内蔵。同じ品目・金額を入れれば誰でも同じ判定が再現できる。
+//   誠実度チェック(諸経費率・一式隠蔽・型番/仕様・保証・営業文言・支払条件)は全て決定的。
+//   価格が alert(危険水準)か、ハードな誠実度違反があれば auto_verify=false。fail-closed。近道は作らない。
+//
+//   採点の材料は estimates_for_audit の各要素。抽出側(kira-line)が入れる想定フィールド:
+//     work(工種), amount(その見積の総額,円), detail,
+//     shokei(諸経費の額,円|null), lump_lines(内訳の無い「一式」行の数,集計行は除く),
+//     has_spec(型番/塗料名/寸法が有るか), has_warranty(施工保証年数の記載が有るか),
+//     urgency(今日だけ/特別価格 等), insurance_bait(火災保険で実質0円 等), upfront_over_half(着手金が過半),
+//     lines(任意): [{ name, qty, unit_price }]  価格レンジ判定に使う。無ければ誠実度のみで採点。
+//   足りないフィールドは「不明」として安全側に倒す(捏造しない)。
+
+// souba-db の写し。min/avg/max は「製品込み・工事込み・1単位あたり(円)」。
+export const KIRA_BANDS = {
+  mado_inner_large: { label: "内窓設置 掃き出し窓(大) 1箇所", min: 100000, avg: 150000, max: 200000 },
+  mado_inner_small: { label: "内窓設置 腰窓・小窓 1箇所",     min: 40000,  avg: 70000,  max: 100000 },
+  mado_insulation:  { label: "窓断熱 内窓設置 1箇所",         min: 30000,  avg: 60000,  max: 80000 },
+  door_cover_std:   { label: "玄関ドア カバー工法 片開き標準", min: 200000, avg: 300000, max: 380000 },
+  door_cover_mid:   { label: "玄関ドア カバー工法 中級",       min: 300000, avg: 400000, max: 500000 },
+  glass_special:    { label: "真空/特殊(防犯含む)ガラス交換", min: 100000, avg: 150000, max: 200000 },
+  glass_bath:       { label: "浴室強化ガラス交換",             min: 35000,  avg: 55000,  max: 80000 },
+};
+// 適正 max のこの倍を超えたら alert(危険水準)。KIRA本診断の danger 相当。
+export const KIRA_DANGER_MULT = 1.6;
+// 自動掲載を許す最低スコア。これ未満(ただしハード違反は無い)は、自動掲載せず人の目に回す。
+export const AUTO_VERIFY_MIN_SCORE = 70;
+
+const _has = (t, arr) => { const s = String(t || ""); return arr.some((k) => s.indexOf(k) >= 0); };
+
+// 工種名/行名を相場表のキーに寄せる。分からなければ null(価格レンジ判定はスキップ)。
+export function classifyWork(text) {
+  const t = String(text || "");
+  if (_has(t, ["内窓", "二重窓", "リプラス", "インプラス", "プラマード"])) {
+    if (_has(t, ["掃き出し", "掃出", "テラス", "大"])) return "mado_inner_large";
+    if (_has(t, ["腰窓", "小窓", "小"])) return "mado_inner_small";
+    return "mado_insulation";
+  }
+  if (_has(t, ["玄関ドア", "玄関扉", "リシェント", "ドアリモ", "カバー工法"]) && _has(t, ["玄関", "ドア", "扉", "リシェント", "ドアリモ"])) {
+    if (_has(t, ["断熱", "採風", "採光", "親子", "中級", "高級"])) return "door_cover_mid";
+    return "door_cover_std";
+  }
+  if (_has(t, ["浴室"]) && _has(t, ["ガラス"])) return "glass_bath";
+  if (_has(t, ["防犯ガラス", "真空ガラス", "合わせガラス", "複層ガラス", "ガラス交換", "ガラス"])) return "glass_special";
+  return null;
+}
+
+// 1つの見積の価格レンジ判定。lines があれば行ごと、無ければ工種+総額で1回だけ試す。
+function _priceLevels(est) {
+  const out = [];
+  const lines = Array.isArray(est && est.lines) ? est.lines : [];
+  const check = (name, unit) => {
+    const key = classifyWork(name);
+    if (!key || !(unit > 0)) return;
+    const b = KIRA_BANDS[key];
+    let level = "ok", vs = unit / b.avg;
+    if (unit > b.max * KIRA_DANGER_MULT) level = "alert";
+    else if (unit > b.max) level = "watch";
+    out.push({ band: key, label: b.label, unit, level, vs_avg_pct: Math.round((vs - 1) * 100) });
+  };
+  if (lines.length) {
+    for (const ln of lines.slice(0, 30)) {
+      const q = Number(ln && ln.qty) || 1;
+      const up = Number(ln && ln.unit_price) || 0;
+      check((ln && ln.name) || est.work, up || (q ? Number(ln && ln.amount) / q : 0));
+    }
+  }
+  // lines が無く、総額が単一工種っぽい(数量1)ときだけ総額で1回試す。多工種の総額は判定しない。
+  if (!out.length && Number(est && est.amount) > 0 && Number(est && est.qty || 1) === 1) {
+    check(est.work, Number(est.amount));
+  }
+  return out;
+}
+
+// profile.estimates_for_audit から適正度スコア/誠実度ティア/赤旗を決定的に出す。
+export function scoreEstimates(profile) {
+  const ests = Array.isArray(profile && profile.estimates_for_audit) ? profile.estimates_for_audit : [];
+  const n = ests.length;
+  let score = 100;
+  const hard = [];   // 過剰請求・欺瞞のハード赤旗(alert)
+  const soft = [];   // 確認推奨(watch)
+  const priceLevels = [];
+  let priceChecked = 0;
+  let warrantyAny = false;
+  let signalCount = 0; // 採点に使える実データ(諸経費 or 明細 or 誠実度フラグ)を持つ見積の数
+
+  for (const e of ests) {
+    const amount = Number(e && e.amount) || 0;
+    const shokei = (e && e.shokei != null) ? Number(e.shokei) : null;
+    const work = (e && e.work) || "";
+    // この見積が採点材料を持っているか。諸経費の額(0も可)か、単価の分かる明細が要る。
+    //   誠実度フラグ(型番/保証等)だけでは自動掲載の根拠にしない。諸経費が読めない見積は人の目に回す。
+    const hasSignal = (shokei != null) || (Array.isArray(e && e.lines) && e.lines.length > 0);
+    if (hasSignal) signalCount++;
+
+    // 諸経費率(決定的)。20%超はハード、16-20%は watch。
+    if (shokei != null && amount > 0) {
+      const r = shokei / amount;
+      if (r > 0.20) { hard.push("諸経費が総額の20%超(" + Math.round(r * 100) + "%): " + work); score -= 25; }
+      else if (r > 0.16) { soft.push("諸経費が16-20%(" + Math.round(r * 100) + "%): " + work); score -= 5; }
+    }
+    // 一式隠蔽(決定的)。内訳の無い一式行が3つ以上はハード、1-2は watch。
+    const lump = Number(e && e.lump_lines) || 0;
+    if (lump >= 3) { hard.push("内訳の無い「一式」が" + lump + "行: " + work); score -= 20; }
+    else if (lump >= 1) { soft.push("内訳の無い「一式」が" + lump + "行: " + work); score -= 5; }
+    // 型番/仕様(決定的)。明示が無ければ watch。
+    if (e && e.has_spec === false) { soft.push("型番/塗料名/寸法の記載が薄い: " + work); score -= 5; }
+    // 営業圧(決定的・ハード)
+    if (e && e.urgency === true) { hard.push("今日だけ/特別価格などの緊急煽り: " + work); score -= 15; }
+    if (e && e.insurance_bait === true) { hard.push("火災保険で実質0円などの誘導: " + work); score -= 20; }
+    if (e && e.upfront_over_half === true) { soft.push("着手金が過半: " + work); score -= 8; }
+    if (e && e.has_warranty === true) warrantyAny = true;
+
+    // 価格レンジ(内蔵表・決定的)
+    for (const pl of _priceLevels(e)) {
+      priceChecked++;
+      priceLevels.push(pl);
+      if (pl.level === "alert") { hard.push("価格が危険水準(" + pl.label + " " + (pl.vs_avg_pct >= 0 ? "+" : "") + pl.vs_avg_pct + "%): " + work); score -= 15; }
+      else if (pl.level === "watch") { soft.push("適正上限超だが危険未満(" + pl.label + " +" + pl.vs_avg_pct + "%): " + work); }
+    }
+  }
+  // 価格 watch は本数に依らず合計マイナス6を上限(honest な店を過度に削らない)
+  const priceWatch = priceLevels.filter((p) => p.level === "watch").length;
+  if (priceWatch) score -= Math.min(6, priceWatch * 3);
+  // 保証年数がどの見積にも無い(書式上の欠落・ソフト)
+  if (n > 0 && !warrantyAny) { soft.push("施工保証の年数が見積書に無い(全件共通)"); score -= 2; }
+
+  if (score < 0) score = 0;
+  if (score > 100) score = 100;
+
+  const hardAlert = hard.length > 0;
+  let tier = "F";
+  if (score >= 90) tier = "A";
+  else if (score >= 80) tier = "B";
+  else if (score >= 70) tier = "C";
+  else if (score >= 60) tier = "D";
+  else if (score >= 50) tier = "E";
+
+  const enoughEvidence = n >= MIN_AUDIT_ESTIMATES;
+  // 採点材料を持つ見積が規定本数に届いていなければ「測っていない」。薄い取り込みだけで自動掲載しない。
+  const enoughSignal = signalCount >= MIN_AUDIT_ESTIMATES;
+  const autoVerify = enoughEvidence && enoughSignal && !hardAlert && score >= AUTO_VERIFY_MIN_SCORE;
+  let reason;
+  if (!enoughEvidence) reason = "証拠不足(実見積 " + n + "/" + MIN_AUDIT_ESTIMATES + " 本)。分母の無いスコアは出さない。";
+  else if (!enoughSignal) reason = "抽出データが採点に足りない(諸経費/明細を持つ見積 " + signalCount + "/" + MIN_AUDIT_ESTIMATES + " 本)。自動掲載せず人の確認へ。";
+  else if (hardAlert) reason = "ハードな赤旗を検知したため自動掲載せず、人の確認に回す(fail-closed): " + hard.slice(0, 3).join(" / ");
+  else if (score < AUTO_VERIFY_MIN_SCORE) reason = "スコア " + score + " が自動掲載の下限(" + AUTO_VERIFY_MIN_SCORE + ")未満。人の確認に回す。";
+  else reason = "自動掲載の条件を満たす(証拠十分・ハード赤旗なし・スコア" + score + ")。";
+
+  return {
+    evidence_count: n,
+    signal_count: signalCount,
+    fairness_score: score,
+    integrity_tier: tier,
+    red_flags_detected: hard.length,
+    red_flags: hard.slice(0, 8),
+    confirm_notes: soft.slice(0, 8),
+    price_levels: priceLevels.slice(0, 20),
+    price_checked: priceChecked,
+    hard_alert: hardAlert,
+    auto_verify: autoVerify,
+    reason,
+  };
 }
