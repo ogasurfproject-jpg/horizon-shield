@@ -113,6 +113,8 @@ blog/*.bak-*
 !tools/nursing/validate_rules.py
 !tools/nursing/patch_nursing_questions.py
 !tools/care/patch_generate_failclosed.py
+!tools/pagecheck/validate.py
+!tools/move_gate.py
 !tools/yakumo/fix_unsourced_money.py
 !tools/care/patch_validate_industry.py
 !tools/care/generate_care.py
