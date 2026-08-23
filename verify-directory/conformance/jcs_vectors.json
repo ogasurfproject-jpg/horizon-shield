@@ -1,0 +1,74 @@
+{
+ "spec": "RFC 8785 JSON Canonicalization Scheme (JCS)",
+ "purpose": "Conformance vectors pinned by HORIZON SHIELD / WEDJAT so that the canonicalization used to produce publicly recomputable hashes cannot quietly regress. Each vector is an input value and the exact byte string a conforming implementation must produce, or a refusal where no JSON form exists.",
+ "measured_at": "2026-08-23",
+ "measured_against": "npm canonicalize@2.0.0, an independent JCS implementation",
+ "note": "V02 and V11 are the vectors that catch the most common divergence: RFC 8785 orders object keys by UTF-16 code unit, not by Unicode code point. An implementation that sorts by code point places U+FB33 before U+1F600 and fails these two while passing every other vector.",
+ "vectors": [
+  {
+   "id": "V01 numbers precision and exponent",
+   "expected": "{\"numbers\":[333333333.3333333,1e+30,4.5,0.002,1e-27]}",
+   "must_refuse": false
+  },
+  {
+   "id": "V02 key order UTF-16 vs codepoint",
+   "expected": "{\"\\r\":\"CR\",\"1\":\"One\",\"\":\"Control\",\"ö\":\"odia\",\"€\":\"Euro\",\"😀\":\"Emoji\",\"דּ\":\"Hebrew\"}",
+   "must_refuse": false
+  },
+  {
+   "id": "V03 string escapes",
+   "expected": "{\"string\":\"€$\\nA'B\\\"\\\\/\"}",
+   "must_refuse": false
+  },
+  {
+   "id": "V04 literals",
+   "expected": "{\"literals\":[null,true,false]}",
+   "must_refuse": false
+  },
+  {
+   "id": "V05 nesting",
+   "expected": "{\"a\":[[1,2],[3,[4,5]]],\"b\":{\"a\":2,\"z\":1}}",
+   "must_refuse": false
+  },
+  {
+   "id": "V06 empty containers",
+   "expected": "{\"arr\":[],\"e\":{},\"s\":\"\"}",
+   "must_refuse": false
+  },
+  {
+   "id": "V07 negative zero",
+   "expected": "{\"nz\":0,\"z\":0}",
+   "must_refuse": false
+  },
+  {
+   "id": "V08 exponent boundaries",
+   "expected": "{\"a\":1e+21,\"b\":1e-7,\"c\":100000000000000000000,\"d\":0.000001}",
+   "must_refuse": false
+  },
+  {
+   "id": "V09 BMP keys",
+   "expected": "{\" \":4,\"e\":2,\"É\":3,\"é\":1}",
+   "must_refuse": false
+  },
+  {
+   "id": "V10 unsafe integer",
+   "expected": "{\"big\":9007199254740992}",
+   "must_refuse": false
+  },
+  {
+   "id": "V11 non-BMP keys",
+   "expected": "{\"𐐷\":3,\"😀\":1,\"דּ\":2}",
+   "must_refuse": false
+  },
+  {
+   "id": "V12 control-char keys",
+   "expected": "{\"\\u0001\":1,\"\\t\":3,\"\":2}",
+   "must_refuse": false
+  },
+  {
+   "id": "V13 non-finite",
+   "expected": null,
+   "must_refuse": true
+  }
+ ]
+}

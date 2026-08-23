@@ -3,7 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Check any MCP server in 10 seconds · HORIZON SHIELD</title>
+<title>WEDJAT · Check any MCP server in 10 seconds</title>
+<link rel="icon" href="/verify-directory/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/verify-directory/assets/wedjat-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/verify-directory/assets/wedjat-192.png">
+<link rel="apple-touch-icon" href="/verify-directory/assets/wedjat-180.png">
 <meta name="description" content="A free, read-only checker for MCP and A2A servers. Five deterministic conditions, a verdict you recompute yourself, and a public record that only gets more valuable with age. We ran it on our own servers first and failed all five.">
 <link rel="canonical" href="https://shield.the-horizons-innovation.com/verify-directory/">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
@@ -11,15 +15,15 @@
 <meta property="og:title" content="Anyone can claim their AI agent is honest. This is the machine that checks.">
 <meta property="og:description" content="Free, read-only, ten seconds, no account. We wrote the five conditions, ran them on our own servers, and failed every one on the first try. Two of our entries still fail, in public.">
 <meta property="og:url" content="https://shield.the-horizons-innovation.com/verify-directory/">
-<meta property="og:site_name" content="HORIZON SHIELD">
-<meta property="og:image" content="https://shield.the-horizons-innovation.com/assets/lighthouse-og.jpg">
+<meta property="og:site_name" content="WEDJAT">
+<meta property="og:image" content="https://shield.the-horizons-innovation.com/verify-directory/assets/wedjat-og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="An oil painting of a lighthouse at night. Its beam crosses the whole sea, and at its own base there is a circle of absolute darkness the light cannot enter.">
+<meta property="og:image:alt" content="The WEDJAT mark: the Eye of Horus inside a shield. In ancient Egypt the parts of this eye were the fractions used for measuring, and they only add up to 63/64. The missing sixty-fourth is the seat this register keeps for what it could not measure.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Anyone can claim their AI agent is honest. This is the machine that checks.">
 <meta name="twitter:description" content="Free, read-only, ten seconds, no account. We wrote the conditions, ran them on ourselves, and failed all five on the first run.">
-<meta name="twitter:image" content="https://shield.the-horizons-innovation.com/assets/lighthouse-og.jpg">
+<meta name="twitter:image" content="https://shield.the-horizons-innovation.com/verify-directory/assets/wedjat-og.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -373,7 +377,10 @@ a.regname:hover{border-bottom-style:solid}
 
 <header>
   <div class="wrap bar">
-    <div class="logo">HORIZON SHIELD <span class="sub">/ verify</span></div>
+    <a class="logo" href="/verify-directory/" style="text-decoration:none;color:inherit">
+      <img src="/verify-directory/assets/wedjat-64.png" alt="" width="30" height="30" style="display:block;flex:0 0 auto">
+      <span>WEDJAT <span class="sub">/ HORIZON SHIELD</span></span>
+    </a>
     <nav class="navlinks">
       <a href="#check">Check</a>
       <a href="/verify-directory/survey/">Survey</a>
@@ -393,17 +400,17 @@ a.regname:hover{border-bottom-style:solid}
   <div class="eyebrow"><span class="pulse"></span> FREE · NO ACCOUNT · NO API KEY · ~10 SECONDS</div>
   <h1><span class="g">Anyone can say their AI agent is honest.</span> This is the machine that checks.</h1>
 
-  <p class="lede">AI assistants now hand real work to software written by strangers — look up a price, book a slot, move money. Usually the only thing telling you that software is what it claims to be is <b>that software</b>. So we built a checker that measures it instead, publishes what it found, and gives you the arithmetic to redo the answer without us. Point it at any server. It needs nothing from you but a URL.</p>
+  <p class="lede">AI assistants now hand real work to software written by strangers: look up a price, book a slot, move money. Usually the only thing telling you that software is what it claims to be is <b>that software</b>. So we built a checker that measures it instead, publishes what it found, and gives you the arithmetic to redo the answer without us. Point it at any server. It needs nothing from you but a URL.</p>
 
   <div class="metastrip">
-    <span><span class="dot">●</span> <b>read-only</b> — it calls no tools on the server you point it at</span>
+    <span><span class="dot">●</span> <b>read-only</b>, it calls no tools on the server you point it at</span>
     <span><span class="dot">●</span> <b>free forever</b>, listing included</span>
     <span><span class="dot">●</span> the checker is <b>on its own list</b>, and does not pass its own test</span>
   </div>
 
   <div class="tool">
     <h3>Run it now, on anything</h3>
-    <p class="sub">Paste the URL of any MCP server — yours, ours, or one you have never met. The verdict comes back with a SHA-256 that this page recomputes <em>in your browser</em> and compares. If the two do not match, we altered the verdict and you just caught us.</p>
+    <p class="sub">Paste the URL of any MCP server: yours, ours, or one you have never met. The verdict comes back with a SHA-256 that this page recomputes <em>in your browser</em> and compares. If the two do not match, we altered the verdict and you just caught us.</p>
 
     <div class="inrow">
       <input id="epin" type="text" spellcheck="false" placeholder="https://your-server.example/mcp" value="">
@@ -416,7 +423,7 @@ a.regname:hover{border-bottom-style:solid}
     <div class="livechip" id="cstatus"><span class="d"></span>idle</div>
 
     <div class="cresult" id="cresult">
-      <div class="rverd" id="rverd">—</div>
+      <div class="rverd" id="rverd">not run yet</div>
       <div class="mono" style="font-size:11.5px;color:var(--ink-3);margin-top:9px" id="rendpoint"></div>
       <div class="rchecks" id="rchecks"></div>
       <div style="font-size:11.5px;color:var(--ink-3);margin-top:10px;line-height:1.7">
@@ -475,7 +482,7 @@ a.regname:hover{border-bottom-style:solid}
   <div class="wrap">
     <div class="confess">
       <div class="big">We wrote the five conditions. Then we failed all five.</div>
-      <p>On the first run, our own servers did not meet a single one of the rules we had just published. We fixed what we could and left the rest visible. <!-- 2026-08-20 frontpage-baked-state: ここには "Not one row on the list today passes." と書いてあった。書いた日は本当だった。今日は登録簿が別のことを言っている。現在形の断定を焼き込んだのが誤り。 -->What the table below says about us today is whatever the register says today. This sentence deliberately does not tell you, because a sentence typed once cannot, and a page that states a verdict in fixed type goes stale while the thing it describes keeps moving. The checker itself is in that table under the same rule. Until 2026-08-15 it could not reach its own hostname at all, refused to count that unmeasured condition as a pass — the same rule it applies to everyone else — and its row sat as <span class="mono">held · http 522</span>. Then an outside runner found the mirror image of that limit: on-demand checks of our own servers were failing with 522 too, while the nightly sweep quietly passed. We mapped the boundary, routed those probes over the public edge through a relay, and every verdict now names the path that measured it in a <span class="mono">probed_via</span> field. The gate has measured itself for the first time — <span class="mono">reachable: true · pending</span> on demand. The nightly sweep cannot use the relay, so the register's own row can still read <span class="mono">held</span> at night while measuring fine on demand. Both records stand; neither is edited to match the other.</p>
+      <p>On the first run, our own servers did not meet a single one of the rules we had just published. We fixed what we could and left the rest visible. <!-- 2026-08-20 frontpage-baked-state: ここには "Not one row on the list today passes." と書いてあった。書いた日は本当だった。今日は登録簿が別のことを言っている。現在形の断定を焼き込んだのが誤り。 -->What the table below says about us today is whatever the register says today. This sentence deliberately does not tell you, because a sentence typed once cannot, and a page that states a verdict in fixed type goes stale while the thing it describes keeps moving. The checker itself is in that table under the same rule. Until 2026-08-15 it could not reach its own hostname at all, refused to count that unmeasured condition as a pass (the same rule it applies to everyone else), and its row sat as <span class="mono">held · http 522</span>. Then an outside runner found the mirror image of that limit: on-demand checks of our own servers were failing with 522 too, while the nightly sweep quietly passed. We mapped the boundary, routed those probes over the public edge through a relay, and every verdict now names the path that measured it in a <span class="mono">probed_via</span> field. The gate has measured itself for the first time: <span class="mono">reachable: true · pending</span> on demand. The nightly sweep cannot use the relay, so the register's own row can still read <span class="mono">held</span> at night while measuring fine on demand. Both records stand; neither is edited to match the other.</p>
       <p>If the people who write the test are the only ones who pass it, the test is decoration. That is the whole reason this thing is worth pointing at your server: <b>it is allowed to come back red, including for us.</b></p>
     </div>
   </div>
@@ -510,7 +517,7 @@ a.regname:hover{border-bottom-style:solid}
         <td class="h"><code>/.well-known/agent-card.json</code> returns JSON with a name and a description.</td></tr>
       <tr><td class="n">03</td>
         <td class="q">Does it say who is paying it?</td>
-        <td class="h">The card declares <code>paid_by</code>, <code>referral_fee</code>, <code>listing_fee</code>. Only silence disqualifies — we do not judge whether the answer is flattering.</td></tr>
+        <td class="h">The card declares <code>paid_by</code>, <code>referral_fee</code>, <code>listing_fee</code>. Only silence disqualifies. We do not judge whether the answer is flattering.</td></tr>
       <tr><td class="n">04</td>
         <td class="q">Does it answer the same way twice?</td>
         <td class="h">Identical input returns identical output. <b>Not measured unless you ask</b>: it means executing one of your tools, and the first tool a server lists may well be destructive.</td></tr>
@@ -539,14 +546,14 @@ a.regname:hover{border-bottom-style:solid}
   <div class="wrap">
     <div class="kh">The list, today</div>
     <h2>Every row, drawn live from the register. Ours sit in the same table.</h2>
-    <p class="slead">The count and the breakdown are drawn from the register above rather than written here, because a number typed into a page is wrong the moment the register moves. That is not a soft launch we are dressing up — it is the state of the register, and hiding it would make every other row here worthless. Rows are re-measured on a schedule and the history stays public, so a change means a condition actually flipped, not that a fresh verdict was issued. The sweep calls no tool on anyone, us included.</p>
+    <p class="slead">The count and the breakdown are drawn from the register above rather than written here, because a number typed into a page is wrong the moment the register moves. That is not a soft launch we are dressing up. It is the state of the register, and hiding it would make every other row here worthless. Rows are re-measured on a schedule and the history stays public, so a change means a condition actually flipped, not that a fresh verdict was issued. The sweep calls no tool on anyone, us included.</p>
     <div class="why">
       <div class="card"><div class="n">ENTRY 01 · self-applied</div><h4>The checker itself</h4>
-        <p>Answers "who verifies the verifier" by going first — and then fails its own test. It now speaks MCP at <span class="mono">/mcp</span>, so the tool that lets you distrust the issuer is <b>provided by the issuer</b>. For a while its endpoint row carried <span class="mono">pass: true</span> on a condition it openly had not measured, which made its own verdict read verified. <b>It was the only server this gate was lenient with, so we removed the leniency</b> and the verdict fell to <span class="mono">pending</span>. On 2026-08-15, after babyblueviper1 reproduced our check from his own network and caught on-demand probes of our own zone failing with 522, those probes were rerouted over the public edge — and the gate measured its own endpoint for the first time: <span class="mono">reachable: true</span>, still <span class="mono">pending</span>, because determinism stays unmeasured without consent, including for us. The row stays visible either way.</p></div>
+        <p>Answers "who verifies the verifier" by going first, and then fails its own test. It now speaks MCP at <span class="mono">/mcp</span>, so the tool that lets you distrust the issuer is <b>provided by the issuer</b>. For a while its endpoint row carried <span class="mono">pass: true</span> on a condition it openly had not measured, which made its own verdict read verified. <b>It was the only server this gate was lenient with, so we removed the leniency</b> and the verdict fell to <span class="mono">pending</span>. On 2026-08-15, after babyblueviper1 reproduced our check from his own network and caught on-demand probes of our own zone failing with 522, those probes were rerouted over the public edge, and the gate measured its own endpoint for the first time: <span class="mono">reachable: true</span>, still <span class="mono">pending</span>, because determinism stays unmeasured without consent, including for us. The row stays visible either way.</p></div>
       <div class="card"><div class="n">ENTRY 02 · our audit server</div><h4>hs-mcp</h4>
         <p>Endpoint, card and disclosure all pass, measured. Determinism stays <b>not measured</b>, because the sweep calls no tool on any server and that includes ours. So it reads <b>in process</b>, not verified. <b>We did not relax the rule for ourselves.</b></p></div>
-      <div class="card"><div class="n">ENTRIES 03–04 · members</div><h4>Two member firms</h4>
-        <p>Both in progress. No listed party may call itself verified before it passes — in-process entries are marked pending and turn green only on passing. That is the core of the design and it is not relaxed for anybody.</p></div>
+      <div class="card"><div class="n">ENTRIES 03 to 04 · members</div><h4>Two member firms</h4>
+        <p>Both in progress. No listed party may call itself verified before it passes. In-process entries are marked pending and turn green only on passing. That is the core of the design and it is not relaxed for anybody.</p></div>
     </div>
     <div class="kh" style="margin-top:28px">The rows, live</div>
     <p class="slead">This table is read from the gate's public register at <span class="mono">/register</span> every time this page loads. A member that joins appears here on the next load, with its latest verdict and full public history. <span id="reglive-note">Loading the register…</span></p>
@@ -562,16 +569,16 @@ a.regname:hover{border-bottom-style:solid}
     <p class="slead">You are not applying for approval. You are <b>starting a clock</b>, and it only runs forward.</p>
     <div class="why">
       <div class="card"><div class="n">01</div><h4>You will probably fail something</h4>
-        <p>We did — every condition, first run. Ten seconds tells you which one and why. Finding out here is free and private until you choose otherwise. <b>Finding out because a customer found it first is neither.</b></p></div>
+        <p>We did, on every condition, first run. Ten seconds tells you which one and why. Finding out here is free and private until you choose otherwise. <b>Finding out because a customer found it first is neither.</b></p></div>
       <div class="card"><div class="n">02</div><h4>Right now you would be first</h4>
         <p>Every row on this list today is ours or a member firm we brought in. The first outside name on a register is remembered in a way the fiftieth is not, and <b>it is the same one command either way</b>. The cost of being early here is zero.</p></div>
       <div class="card"><div class="n">03</div><h4>Days cannot be bought later</h4>
-        <p>Six months from now a stranger opens a URL you do not control and reads every measurement of your server since the day you registered. Dated. Recomputable. <b>Including the week you broke something and fixed it — which is the part that convinces them.</b> You did nothing that day. It was already there.</p></div>
+        <p>Six months from now a stranger opens a URL you do not control and reads every measurement of your server since the day you registered. Dated. Recomputable. <b>Including the week you broke something and fixed it, which is the part that convinces them.</b> You did nothing that day. It was already there.</p></div>
     </div>
 
     <div class="honest">
       <div class="t">And what we cannot give you</div>
-      <p><b>Traffic.</b> Our own listing on another MCP directory produced 93,983 impressions, 24 clicks, 421 profile views and zero tool calls <b>in the thirty days to 2026-08-14</b> — real numbers off our dashboard, not a guess, and dated because a number without a date quietly stops being true. That is ninety-four thousand chances to be chosen, and not one of them ended in a tool call. Until 2026-08-14 this line read 54,911 impressions as of 2026-08-09; that was a running total and this is the dashboard&rsquo;s rolling thirty days, so the two are not a growth rate and we are not going to let them read like one. A directory is not a distribution channel, and anyone telling you otherwise has not measured it. What this gives you is a record. A record is worth something precisely because it takes time to make, <b>which is the same reason it cannot be bought later.</b></p>
+      <p><b>Traffic.</b> Our own listing on another MCP directory produced 93,983 impressions, 24 clicks, 421 profile views and zero tool calls <b>in the thirty days to 2026-08-14</b>, real numbers off our dashboard, not a guess, and dated because a number without a date quietly stops being true. That is ninety-four thousand chances to be chosen, and not one of them ended in a tool call. Until 2026-08-14 this line read 54,911 impressions as of 2026-08-09; that was a running total and this is the dashboard&rsquo;s rolling thirty days, so the two are not a growth rate and we are not going to let them read like one. A directory is not a distribution channel, and anyone telling you otherwise has not measured it. What this gives you is a record. A record is worth something precisely because it takes time to make, <b>which is the same reason it cannot be bought later.</b></p>
     </div>
   </div>
 </section>
@@ -624,11 +631,11 @@ a.regname:hover{border-bottom-style:solid}
       <li><h4>Measure yourself first, privately</h4>
         <p>One command, no key, no signup. The verdict names the condition that failed and why, so you can fix it before anyone else looks. No tool on your server is called unless you add <span class="mono">allow_tool_call: true</span>.</p></li>
       <li><h4>Open an issue on GitHub</h4>
-        <p>Public, with a template. Submissions are visible to everyone, <b>including the ones that failed</b>. There is no private queue and no fast lane. You may open one even if you failed — ask why, and the answer is free.</p></li>
+        <p>Public, with a template. Submissions are visible to everyone, <b>including the ones that failed</b>. There is no private queue and no fast lane. You may open one even if you failed. Ask why, and the answer is free.</p></li>
       <li><h4>We re-measure in public and reply with the hash</h4>
-        <p>We do not take your word for the result, and you should not take ours. We run it ourselves, read-only, and post the verdict with its <span class="mono">record_sha256</span> in the same issue so you can recompute it. If it passes, the row goes up. If it does not, the reply says what to change — <b>and that costs nothing either.</b></p></li>
+        <p>We do not take your word for the result, and you should not take ours. We run it ourselves, read-only, and post the verdict with its <span class="mono">record_sha256</span> in the same issue so you can recompute it. If it passes, the row goes up. If it does not, the reply says what to change, <b>and that costs nothing either.</b></p></li>
     </ol>
-    <div class="plain" style="margin-top:26px"><b>Leaving:</b> ask, and we stop measuring you the same day, no reason required. What was already measured stays public — a record that can be deleted on request is not a record, and would make every other row here worthless. You are agreeing to that when you register, and we would rather say it in this size type than in a footer.</div>
+    <div class="plain" style="margin-top:26px"><b>Leaving:</b> ask, and we stop measuring you the same day, no reason required. What was already measured stays public, because a record that can be deleted on request is not a record, and would make every other row here worthless. You are agreeing to that when you register, and we would rather say it in this size type than in a footer.</div>
   </div>
 </section>
 
@@ -643,14 +650,14 @@ a.regname:hover{border-bottom-style:solid}
       <tr><td>Listing in the directory</td><td class="f">free</td><td class="p">free</td></tr>
       <tr><td>Public, recomputable history</td><td class="f">yes</td><td class="p">yes</td></tr>
       <tr class="hi"><td>Re-measured</td><td class="f">once a week</td><td class="p">every day</td></tr>
-      <tr class="hi"><td>Told when a condition flips</td><td class="f">no — you go and look</td><td class="p">webhook, within the hour</td></tr>
+      <tr class="hi"><td>Told when a condition flips</td><td class="f">no, you go and look</td><td class="p">webhook, within the hour</td></tr>
       <tr><td>Endpoints covered</td><td class="f">every endpoint we watch</td><td class="p">up to 3 on one subscription</td></tr>
     </table>
-    <p class="slead" style="margin-top:18px">The alert does not fire on a single unreachable check — a monitor that cries wolf once is never trusted again. It takes three consecutive unreachable measurements, and the message says which condition flipped and why. No setup fee, no minimum term, cancel any time. <a href="/verify-directory/monitoring/" style="color:var(--emerald-ink)">Full terms →</a></p>
+    <p class="slead" style="margin-top:18px">The alert does not fire on a single unreachable check. A monitor that cries wolf once is never trusted again. It takes three consecutive unreachable measurements, and the message says which condition flipped and why. No setup fee, no minimum term, cancel any time. <a href="/verify-directory/monitoring/" style="color:var(--emerald-ink)">Full terms →</a></p>
 
     <div class="honest" style="margin-top:26px">
       <div class="t">One more limit, stated rather than hidden</div>
-      <p>Our other paid layer — tracing every figure a server returns back to a primary source — <b>exists today for Japanese construction only</b>, because that is where the dataset, the thirty years on site, and the licensing sit. If you arrived here as an MCP developer outside that field, the honest answer is that there is currently nothing here to sell you beyond the $15 monitor, and <b>the check itself is genuinely all you will be charged for, which is nothing.</b></p>
+      <p>Our other paid layer, tracing every figure a server returns back to a primary source, <b>exists today for Japanese construction only</b>, because that is where the dataset, the thirty years on site, and the licensing sit. If you arrived here as an MCP developer outside that field, the honest answer is that there is currently nothing here to sell you beyond the $15 monitor, and <b>the check itself is genuinely all you will be charged for, which is nothing.</b></p>
     </div>
   </div>
 </section>
@@ -659,7 +666,7 @@ a.regname:hover{border-bottom-style:solid}
   <div class="wrap">
     <div class="top">Corrections are welcome and are treated as defects. If a row here is wrong, or a condition measures differently on your side, say so and it is re-measured in public.</div>
     Operator: The HORIZONs Co., Ltd. (Corporate Number 7021001075279). Supervised by Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>), 30 years on construction sites.<br>
-    Underlying dataset: <a href="https://doi.org/10.5281/zenodo.21898745">JCCDB v3.1 — 10.5281/zenodo.21898745, CC BY 4.0</a> · accompanying paper: <a href="https://doi.org/10.5281/zenodo.20019573">10.5281/zenodo.20019573</a><br>
+    Underlying dataset: <a href="https://doi.org/10.5281/zenodo.21898745">JCCDB v3.1, 10.5281/zenodo.21898745, CC BY 4.0</a> · accompanying paper: <a href="https://doi.org/10.5281/zenodo.20019573">10.5281/zenodo.20019573</a><br>
     <a href="/verify-directory/badge/">Badge</a> · <a href="https://gate.horizonshield.dev/spec">Verification spec</a> · <a href="https://gate.horizonshield.dev/self">The checker's verdict on itself</a> · <a href="/tokusho">Legal notice</a><br>
     Zero referral fees. Verdicts, scores and listing order are not for sale. This page describes tamper-resistance, not the validity of any ruleset over time.<br><br>
     © 2026 The HORIZONs Co., Ltd. · HORIZON SHIELD
@@ -746,7 +753,7 @@ async function runCheck(endpoint){
     await renderResult(record, endpoint);
     chip(st, record.status === "verified" ? "ok" : "off", record.status === "verified" ? "verified · recomputed on your side" : "verdict returned · recomputed on your side");
   }catch(e){
-    chip(st, "off", "browser check unavailable (" + esc(e.message) + ") — the curl below works regardless");
+    chip(st, "off", "browser check unavailable (" + esc(e.message) + "), the curl below works regardless");
   }finally{
     go.disabled = false;
   }

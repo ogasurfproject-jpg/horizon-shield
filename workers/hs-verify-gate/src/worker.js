@@ -40,6 +40,21 @@ const CONFIG = {
   determinism_runs: 2           // 決定論性の確認に何回叩くか
 };
 
+// 再計算の手順書。2026-08-23 に実測して書き直した。
+// 旧文は "JSON.stringify the remainder in this key order" とだけ書いてあった。これは JavaScript の
+// 言い回しであって、手順ではない。本番の記録1件で、第三者が自然に試す4通りを実際に走らせたところ、
+// 素直な json.dumps も、区切りだけ詰めた版も、キーを並べ替えた版も、全て違うハッシュを出した。
+// 再現したのは「区切りを詰める」かつ「非ASCIIをエスケープしない」の1通りだけだった。
+// 誰でも再計算できると書く以上、その1通りを名指しする義務がこちらにある。
+const RECOMPUTE_NOTE =
+  "Remove the record_sha256 and recompute_note fields, then serialize what is left as UTF-8 JSON " +
+  "with no insignificant whitespace, with the keys left in the order printed here, and with " +
+  "non-ASCII characters left as themselves rather than escaped to \\u sequences. The SHA-256 of " +
+  "those bytes must equal record_sha256. In JavaScript that is JSON.stringify(record). In Python " +
+  "it is json.dumps(record, separators=(',',':'), ensure_ascii=False). Measured 2026-08-23: of the " +
+  "four ways a reader naturally reaches for this, only that one reproduces the value, so both are " +
+  "named here rather than left implied by a JavaScript idiom.";
+
 function json(obj, status) {
   // キャッシュ指示を明示する。書かなければ中間キャッシュの裁量になり、
   // 「測っていない」と「もう緑ではない」が、どちらも古いまま配られる。
@@ -263,9 +278,7 @@ async function mouldWrite(env, b) {
       "here is the claim and its date, not its truth.",
   };
   rec.record_sha256 = await sha256hex(JSON.stringify(rec));
-  rec.recompute_note =
-    "Remove the record_sha256 and recompute_note fields, JSON.stringify the remainder in this key " +
-    "order, and take the SHA-256. It must equal record_sha256.";
+  rec.recompute_note = RECOMPUTE_NOTE;
   await env.HS_VERIFY_KV.put("mould:" + newId, JSON.stringify(rec));
   idx.unshift({ id: newId, recorded_at: rec.recorded_at, class: rec.class, searched: searched.length, found: found.length, repro: reproduce.length, by: subBy, via: subVia, record_sha256: rec.record_sha256 });
   await env.HS_VERIFY_KV.put("mould:index", JSON.stringify(idx.slice(0, 500)));
@@ -425,8 +438,30 @@ async function rpcCall(endpoint, method, params) {
 }
 
 // ---- 表面(surface)のハッシュ ----
-// JCS風の安定直列化。キーを再帰的にソートするだけの決定論的 stringify。
+// RFC 8785 (JCS) の正規化。2026-08-23、本物のJCS実装(npm canonicalize)と適合ベクタで突き合わせた。
+//
+// 実測: 12本中11本がバイト一致。JSで書いてあることが効いていて、キー順序(RFC 8785 は UTF-16
+// コード単位順。JSの既定 sort がまさにそれ)と数値表記(ES6 Number::toString がそのまま仕様)は
+// 素通しで合っていた。同じ処理を Python で手書きすると、コードポイント順と指数表記の2点で外れる。
+//
+// 唯一外れた1本が非有限数だった。1e400 は JSON.parse で Infinity になり、旧実装はそれを
+// JSON.stringify 経由で null に変え、ハッシュだけは平然と返していた。本物のJCSはここで例外を出す。
+// 黙って値が変わる正規化は、第三者の再計算を黙って壊す。計器が黙って壊れるのが一番たちが悪い。
+// だから出せないものは出さない(fail-closed)。適合ベクタは tools/jcs_conformance.mjs に固定した。
+//
+// この計器の既知の限界(2026-08-23 実測、未解決):
+//   JavaScript では 2^53 を超える整数リテラルは JSON.parse の時点で既に丸められている。
+//   9007199254740993 は、この関数が値を見る前に ...992 になっており、こちらからは区別できない。
+//   Python のような多倍長整数を持つ言語の実装は、ここで黙って丸めず例外を出すべきであり、
+//   この実装はそれができない。できないことを、できるふりで隠さずここに書いておく。
+//   (この一点だけは、我々が測れない 1/64 にあたる。)
+//
+// 出典: Federico Blanco Sanchez-Llanos が自身の署名経路で同じ分類の乖離を公表(2026-08-23)。
+// 指摘は借りた。数字は自分で測った。
 function canonicalJson(v) {
+  if (typeof v === "number" && !Number.isFinite(v)) {
+    throw new Error("canonicalization refused: a non-finite number (Infinity or NaN) has no JSON form, so no reproducible hash exists over it");
+  }
   if (v === null || typeof v !== "object") return JSON.stringify(v === undefined ? null : v);
   if (Array.isArray(v)) return "[" + v.map(canonicalJson).join(",") + "]";
   return "{" + Object.keys(v).sort().map((k) => JSON.stringify(k) + ":" + canonicalJson(v[k])).join(",") + "}";
@@ -438,18 +473,41 @@ function canonicalJson(v) {
 async function surfaceHashes(tools, initResult, pages, complete) {
   const sorted = tools.slice().sort((a, b) => (String(a.name) < String(b.name) ? -1 : 1));
   const strip = (t) => ({ name: t.name, description: t.description || "", inputSchema: t.inputSchema || null });
+
+  // 正規化を拒んだ場合、それは相手が壊れているのではなく、こちらが「その形は正規化できない」と
+  // 言っているだけ。到達性の失敗(transport)に混ぜると、こちらの都合が相手の記録になる。
+  // だから握りつぶしも例外の素通しもせず、ハッシュを null にして理由をそのまま開示する。
+  let refused = null;
+  const hash = async (v) => {
+    try {
+      return (await sha256hex(canonicalJson(v))).slice(0, 16);
+    } catch (e) {
+      if (!refused) refused = String((e && e.message) || e);
+      return null;
+    }
+  };
+
   const perTool = {};
   for (const t of sorted) {
-    perTool[String(t.name)] = (await sha256hex(canonicalJson(strip(t)))).slice(0, 16);
+    perTool[String(t.name)] = await hash(strip(t));
   }
-  return {
+  const out = {
     complete: complete,
     pages_followed: pages,
     names_hash: (await sha256hex(JSON.stringify(sorted.map((t) => String(t.name))))).slice(0, 16),
-    manifest_hash: (await sha256hex(canonicalJson(sorted.map(strip)))).slice(0, 16),
-    server_info_hash: initResult ? (await sha256hex(canonicalJson(initResult))).slice(0, 16) : null,
+    manifest_hash: await hash(sorted.map(strip)),
+    server_info_hash: initResult ? await hash(initResult) : null,
     tool_hashes: perTool
   };
+  out.canonicalization = refused ? "refused" : "rfc8785-jcs";
+  if (refused) {
+    out.canonicalization_note =
+      "A hash is withheld here rather than published. " + refused + ". This is a statement about what " +
+      "this gate will canonicalize, NOT a fault found in the measured server: a value of this shape " +
+      "cannot be re-serialized byte-for-byte by an independent party, so any hash over it would be a " +
+      "number nobody else could reproduce. Publishing it would look like proof and act like noise.";
+  }
+  return out;
 }
 
 // ---- 条件06. 「無かった」と「引けなかった」を区別できる契約か ----
@@ -750,10 +808,8 @@ async function runCheck(endpoint, allowToolCall) {
   // 条件5. 判定自体が再計算可能であること
   const canonical = JSON.stringify(record);
   record.record_sha256 = await sha256hex(canonical);
-  record.recompute_note =
-    "Remove the record_sha256 and recompute_note fields, JSON.stringify the remainder in this key " +
-    "order, and take the SHA-256. It must equal record_sha256. This gate holds itself to the same " +
-    "standard it applies to applicants.";
+  record.recompute_note = RECOMPUTE_NOTE +
+    " This gate holds itself to the same standard it applies to applicants.";
 
   return record;
 }
@@ -1189,6 +1245,11 @@ function endpointPage(origin, row) {
     (why ? '<p class="n">' + why + '</p>' : '') +
     '<p>Recompute this row yourself. Do not take our word for it.</p>' +
     '<pre>curl -s "' + row.history_url + '"</pre>' +
+    '<p class="n" style="margin-top:16px">More on this endpoint: ' +
+      '<a href="' + row.history_url + '">every measurement, as JSON</a> / ' +
+      '<a href="' + origin + '/is-verified?endpoint=' + encodeURIComponent(row.endpoint) + '">one-glance verdict</a> / ' +
+      '<a href="https://shield.the-horizons-innovation.com/verify-directory/recompute/">how to recompute a verdict</a> / ' +
+      '<a href="' + origin + '/spec">the conditions, in full</a></p>' +
     '<p class="n">A green here means every condition that could be measured was measured and passed. It is not a statement that the server is good, safe or correct. Conditions that were not measured are never counted as passes, including for the operator of this register.</p>' +
     '</div></body></html>';
 }
@@ -1642,6 +1703,30 @@ const GATE_LOOKUP_SCHEMA = {
   },
   additionalProperties: true,
 };
+// チャッピ提案①/設計図§3(b): エージェントが「接続前に一目で」読むための crisp な判定形の outputSchema。
+// この扉の最新ツールなので、条件06のお手本にする: state の enum が「verified/pending/held/watched/absent」を
+// 区別し、照会そのものの失敗は isError(tool error)へ落とす。空(absent)と失敗と合格が同じ値に潰れない。
+const GATE_ISVERIFIED_SCHEMA = {
+  type: "object",
+  description:
+    "A one-glance answer for an agent deciding whether to trust an MCP endpoint BEFORE connecting. " +
+    "Reads the register only; measures nothing. verified is true ONLY when the latest scheduled " +
+    "measurement passed every measured condition; it is null in every other case (pending, held, " +
+    "watched, absent), and never false, because this gate calls nothing a failure. The state enum " +
+    "says which case it is, so a consumer can tell 'not verified here' apart from 'the lookup failed' " +
+    "(that returns as a tool error, isError) and from 'measured and passing'.",
+  properties: {
+    endpoint: { type: "string" },
+    verified: { type: ["boolean", "null"], description: "true = latest measurement passed all measured conditions. null = not established here (see state). Never false: unmeasured or not-yet-passing is not a failure." },
+    state: { type: "string", enum: ["verified", "pending", "held", "watched", "absent"], description: "verified = passed all measured conditions. pending = measured but not passing every one (often only because determinism needs the owner's consent). held = could not be reached. watched = on the list, not yet measured. absent = no row here at all." },
+    on_register: { type: "boolean" },
+    measured_at: { type: ["string", "null"] },
+    record_sha256: { type: ["string", "null"], description: "Hash of the latest verdict. Recompute it via recompute_url; no trust in this gate required." },
+    recompute_url: { type: "string" },
+    conditions: { type: ["object", "null"] },
+  },
+  additionalProperties: true,
+};
 
 const MCP_TOOLS = [
   {
@@ -1717,6 +1802,33 @@ const MCP_TOOLS = [
       "measurements only. It contacts nothing and measures nothing, so use check_conformance " +
       "for a fresh reading. An endpoint that is absent is reported as absent and that is NOT a " +
       "negative verdict: it means nobody has measured it here, not that it failed.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        endpoint: { type: "string", description: "https URL of the MCP endpoint to look up, exactly as it appears on the register" }
+      },
+      required: ["endpoint"],
+      additionalProperties: false
+    }
+  },
+  {
+    // ★2026-08-21 追加(チャッピ提案①/設計図§3(b)・§4)。
+    //   既存 lookup_server は情報量が多い。エージェントが「接続前に一目で」判断するための
+    //   crisp な形が要る、というのが提案の核。lookup_server を投影するだけ。新しい測定も保存もしない。
+    //   verified は tier_pass のときだけ true、それ以外は null(pending も held も absent も)。
+    //   「載っている=合格」「測っていない=不合格」を絶対に作らない fail-closed。判定は売り物ではない。
+    name: "is_verified",
+    outputSchema: GATE_ISVERIFIED_SCHEMA,
+    title: "One glance: is this MCP server verified, with proof",
+    annotations: { title: "One glance: is this MCP server verified, with proof", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    description:
+      "A single machine-first answer for an agent deciding whether to trust an MCP endpoint BEFORE it " +
+      "connects. Returns verified (true only when the latest scheduled measurement passed every measured " +
+      "condition; null otherwise, never false), a state enum saying which case it is, measured_at, and a " +
+      "record_sha256 with a recompute_url so you can check the verdict without trusting this gate. Reads " +
+      "the stored register only: it contacts nothing and measures nothing. Absent and pending are reported " +
+      "honestly and are NOT negative verdicts. For a fresh measurement rather than the stored one, use " +
+      "check_conformance.",
     inputSchema: {
       type: "object",
       properties: {
@@ -1850,6 +1962,76 @@ async function lookupServer(env, endpoint) {
   };
 }
 
+// crisp な判定形。lookupServer を投影するだけ。測らない・保存しない・課金しない。
+// verified は tier_pass のときだけ true。それ以外は必ず null(never false)。
+// pending は「測ったが全条件は通っていない」で、多くは determinism が同意なしで未測定なだけ。
+// これを false にすると「載っている大半が失敗」に見えてしまい中立が死ぬので、null にする。
+async function isVerified(env, endpoint) {
+  const lu = await lookupServer(env, endpoint);
+  const recompute_url = "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(endpoint);
+  const base = {
+    endpoint: endpoint,
+    gate: "MCP Verification Gate",
+    gate_commit: gateCommit(),
+    recompute_url: recompute_url,
+    verified_meaning:
+      "true only when the latest scheduled measurement passed every measured condition. In every other " +
+      "case verified is null, not false: this gate never labels a server a failure. Read state for which " +
+      "case it is, and record_sha256 to recompute the verdict without trusting this gate.",
+    not_an_endorsement:
+      "A measurement of conduct and disclosure, not a recommendation. verified: true does not mean the " +
+      "figures the server returns are correct, that it is safe, or that the business behind it is " +
+      "competent. It is not sold, not ranked, and reading it costs the operator nothing."
+  };
+  if (!lu.on_register) {
+    return Object.assign(base, {
+      on_register: false, state: "absent", verified: null,
+      measured_at: null, record_sha256: null, conditions: null,
+      reason: "No measurement exists here for this endpoint. Absence is not a negative verdict.",
+      how_to_appear: lu.how_to_appear || null
+    });
+  }
+  const latest = lu.latest || null;
+  if (!latest || !lu.measurements) {
+    return Object.assign(base, {
+      on_register: true, state: "watched", verified: null,
+      measured_at: null, record_sha256: null, conditions: null,
+      reason: "On the watchlist but not yet measured. Being watched is not a measurement."
+    });
+  }
+  const status = latest.status;
+  let state, verified;
+  if (status === CONFIG.tier_pass) { state = "verified"; verified = true; }
+  else if (status === CONFIG.tier_held) { state = "held"; verified = null; }
+  else { state = "pending"; verified = null; }
+  let conditions = null;
+  if (latest.conditions && typeof latest.conditions === "object") {
+    conditions = latest.conditions;
+  } else if (latest.checks && typeof latest.checks === "object") {
+    conditions = {};
+    for (const k of Object.keys(latest.checks)) {
+      const c = latest.checks[k];
+      conditions[k] = (c && typeof c === "object") ? (c.measured === false ? null : !!c.pass) : null;
+    }
+  }
+  return Object.assign(base, {
+    on_register: true,
+    state: state,
+    verified: verified,
+    measured_at: latest.at || latest.checked_at || null,
+    record_sha256: latest.record_sha256 || null,
+    conditions: conditions,
+    absence_vs_failure: latest.absence_vs_failure || null,
+    measurements: lu.measurements,
+    history_url: lu.full_history_url || recompute_url,
+    reason: state === "verified"
+      ? "The latest scheduled measurement passed every measured condition."
+      : (state === "held"
+          ? "The latest attempt could not reach the endpoint, so nothing was established. Not a failure of the server."
+          : "Measured, but not currently passing every condition. This is often only because determinism is unmeasured without the owner's consent, which is not a failure. See conditions.")
+  });
+}
+
 async function handleMcp(body, env) {
   const id = body && body.id;
   const method = body && body.method;
@@ -1915,6 +2097,29 @@ async function handleMcp(body, env) {
       }
       try {
         return { jsonrpc: "2.0", id, result: mcpOk(await lookupServer(env, endpoint)) };
+      } catch (e) {
+        return { jsonrpc: "2.0", id, result: mcpFail({ error: "lookup_failed", message: String(e && e.message || e) }) };
+      }
+    }
+    if (name === "is_verified") {
+      const endpoint = args.endpoint;
+      if (!endpoint || typeof endpoint !== "string") {
+        return { jsonrpc: "2.0", id, result: mcpFail({ error: "endpoint_required" }) };
+      }
+      let parsedIv;
+      try { parsedIv = new URL(endpoint); }
+      catch (_e) { return { jsonrpc: "2.0", id, result: mcpFail({ error: "invalid_url" }) }; }
+      if (parsedIv.protocol !== "https:") {
+        return { jsonrpc: "2.0", id, result: mcpFail({ error: "https_required" }) };
+      }
+      if (!env || !env.HS_VERIFY_KV) {
+        return { jsonrpc: "2.0", id, result: mcpFail({
+          endpoint: endpoint, error: "storage_unavailable",
+          note: "The register storage is not bound on this deployment, so this gate cannot say whether the endpoint is verified. It is NOT reporting 'not verified', because it does not know."
+        }) };
+      }
+      try {
+        return { jsonrpc: "2.0", id, result: mcpOk(await isVerified(env, endpoint)) };
       } catch (e) {
         return { jsonrpc: "2.0", id, result: mcpFail({ error: "lookup_failed", message: String(e && e.message || e) }) };
       }
@@ -2013,7 +2218,7 @@ async function selfCheck(origin) {
       applicable: true,
       self_measured: false,
       mcp_endpoint: origin + "/mcp",
-      http_endpoints: ["/check", "/spec", "/self", "/health"]
+      http_endpoints: ["/check", "/is-verified", "/spec", "/self", "/health"]
     }
   };
 
@@ -2280,6 +2485,16 @@ export default {
         count: results.length,
         results
       }, 200);
+    }
+
+    // 単発の crisp 判定。エージェントが接続前に GET 一発で読む。register を読むだけ・無料・中立。
+    // MCP を話せない相手(ブラウザ・素の HTTP クライアント)にも同じ答えを返す。
+    if (path === "/is-verified" && request.method === "GET") {
+      const ep = url.searchParams.get("endpoint");
+      if (!ep) return json({ error: "endpoint_required", usage: "/is-verified?endpoint=https://your-server/mcp", note: "Reads the register. verified is true only for a full pass, null otherwise (never false). It does not measure; a fresh reading is POST /check." }, 400);
+      if (!env || !env.HS_VERIFY_KV) return json({ endpoint: ep, error: "storage_unavailable", note: "Register storage is not bound here, so the gate cannot say. This is NOT 'not verified'." }, 503);
+      try { return json(await isVerified(env, ep)); }
+      catch (e) { return json({ endpoint: ep, error: "lookup_failed", message: String(e && e.message || e) }, 500); }
     }
 
     // 監視の登録。誰でも自分のエンドポイントを載せられる。判定は変わらない。
@@ -2561,6 +2776,6 @@ export default {
       });
     }
 
-    return json({ error: "not_found", path, endpoints: ["/mcp", "/check", "/spec", "/self", "/history", "/changes", "/watchlist", "/watch", "/sweep", "/sweep/last", "/health"] }, 404);
+    return json({ error: "not_found", path, endpoints: ["/mcp", "/check", "/is-verified", "/spec", "/self", "/history", "/changes", "/watchlist", "/watch", "/sweep", "/sweep/last", "/health"] }, 404);
   }
 };

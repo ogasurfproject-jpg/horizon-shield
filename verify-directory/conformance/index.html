@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WEDJAT · Canonicalization conformance</title>
+<meta name="description" content="WEDJAT publishes hashes and says anyone can recompute them. That promise rests entirely on canonicalization being byte-for-byte correct. So we measured our own against RFC 8785 with an independent implementation, published the vector we failed, and pinned all thirteen so it cannot quietly regress.">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/verify-directory/conformance/">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="author" content="Toshikatsu Oga | HORIZON SHIELD">
+<link rel="icon" href="/verify-directory/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/verify-directory/assets/wedjat-32.png">
+<link rel="apple-touch-icon" href="/verify-directory/assets/wedjat-180.png">
+<meta property="og:type" content="article">
+<meta property="og:title" content="We told everyone our hashes were recomputable. Then we checked.">
+<meta property="og:description" content="An independent RFC 8785 implementation says our canonicalization matched 11 of 12 vectors. The one it failed produced a hash over a value it had silently altered. Here is the failure, the fix, and all thirteen vectors, pinned.">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/verify-directory/conformance/">
+<meta property="og:site_name" content="WEDJAT">
+<meta property="og:image" content="https://shield.the-horizons-innovation.com/verify-directory/assets/wedjat-og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The WEDJAT mark: the Eye of Horus inside a shield.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="We told everyone our hashes were recomputable. Then we checked.">
+<meta name="twitter:image" content="https://shield.the-horizons-innovation.com/verify-directory/assets/wedjat-og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08080a; --bg-2:#0d0d10; --surface:#121216; --surface-2:#17171c;
+  --line:rgba(255,255,255,.07); --line-2:rgba(255,255,255,.12);
+  --ink:#f4f4f5; --ink-2:#a9a9b3; --ink-3:#6f6f7a;
+  --emerald:#34d399; --emerald-ink:#6ee7b7;
+  --amber:#fbbf24; --clay:#fb923c;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'Inter',system-ui,-apple-system,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.65;
+  -webkit-font-smoothing:antialiased;letter-spacing:-.006em;
+  background-image:radial-gradient(900px 500px at 82% -8%,rgba(52,211,153,.10),transparent 60%);
+  background-attachment:fixed}
+.wrap{max-width:900px;margin:0 auto;padding:0 26px}
+a{color:var(--emerald-ink)}
+.mono{font-family:var(--mono)}
+header{position:sticky;top:0;z-index:20;background:rgba(8,8,10,.78);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;height:58px}
+.logo{font-weight:700;font-size:15px;display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none}
+.logo .sub{color:var(--ink-3);font-weight:500;font-size:11px;font-family:var(--mono)}
+.navlinks{display:flex;gap:22px;font-size:13.5px;color:var(--ink-2)}
+.navlinks a{color:var(--ink-2);text-decoration:none}
+.navlinks a:hover{color:var(--ink)}
+@media(max-width:700px){.navlinks{display:none}}
+.hero{padding:64px 0 8px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11.5px;
+  color:var(--emerald-ink);background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.22);
+  border-radius:999px;padding:5px 13px;margin-bottom:22px}
+h1{font-size:clamp(30px,5vw,49px);line-height:1.06;font-weight:800;letter-spacing:-.035em;max-width:17ch}
+h1 .g{background:linear-gradient(180deg,#fff,#9ca3af);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{margin-top:22px;font-size:clamp(15.5px,2vw,18px);color:var(--ink-2);max-width:66ch}
+.lede b{color:var(--ink);font-weight:600}
+section{margin-top:52px}
+h2{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:14px}
+h3{font-size:15.5px;font-weight:600;margin:22px 0 8px}
+p{color:var(--ink-2);max-width:70ch}
+p+p{margin-top:12px}
+.card{background:linear-gradient(180deg,var(--surface),var(--bg-2));border:1px solid var(--line);
+  border-radius:16px;padding:22px;margin-top:16px}
+.card.win{border-color:rgba(52,211,153,.30)}
+.card.fail{border-color:rgba(251,146,60,.32)}
+.n{font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.04em;margin-bottom:7px}
+pre{background:#0a0a0d;border:1px solid var(--line);border-radius:12px;padding:15px 16px;overflow-x:auto;
+  font-family:var(--mono);font-size:12.3px;color:var(--ink-2);line-height:1.7;margin-top:11px}
+pre b{color:var(--emerald-ink);font-weight:500}
+pre .c{color:var(--ink-3)}
+pre .bad{color:var(--clay)}
+code{font-family:var(--mono);font-size:.92em;color:var(--emerald-ink)}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.4px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--ink-3);font-weight:500;font-family:var(--mono);font-size:11px;letter-spacing:.04em}
+td.p{color:var(--emerald-ink)} td.f{color:var(--clay)}
+.vt td:first-child{font-family:var(--mono);font-size:12px;color:var(--ink-2);white-space:nowrap}
+.vt td:last-child{font-family:var(--mono);font-size:11.6px;color:var(--ink-3);word-break:break-all}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;padding:11px 18px;
+  border-radius:11px;border:1px solid var(--line-2);text-decoration:none;color:var(--ink);background:var(--surface-2)}
+.btn.pri{background:var(--emerald);color:#04231a;border-color:transparent}
+.doctrine{margin-top:20px;border-left:2px solid rgba(52,211,153,.4);padding:4px 0 4px 18px}
+.doctrine .q{font-size:17px;color:var(--ink);font-weight:600;letter-spacing:-.01em}
+.doctrine .a{margin-top:8px;color:var(--ink-3);font-size:13.6px}
+footer{margin-top:70px;padding:26px 0 60px;border-top:1px solid var(--line);color:var(--ink-3);font-size:12.6px}
+footer a{color:var(--ink-2)}
+</style>
+</head>
+<body>
+
+<header><div class="wrap bar">
+  <a class="logo" href="/verify-directory/">
+    <img src="/verify-directory/assets/wedjat-64.png" alt="" width="30" height="30" style="display:block;flex:0 0 auto">
+    <span>WEDJAT <span class="sub">/ HORIZON SHIELD</span></span>
+  </a>
+  <nav class="navlinks">
+    <a href="/verify-directory/#check">Check</a>
+    <a href="/verify-directory/register/">Register</a>
+    <a href="/verify-directory/failures/">Failures</a>
+    <a href="/verify-directory/method/">Method</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+
+<div class="hero">
+  <div class="eyebrow"><span>CONDITION 07 · CANONICALIZATION</span></div>
+  <h1><span class="g">We told everyone our hashes were recomputable.</span> Then we checked.</h1>
+  <p class="lede">Every verdict this register publishes carries a SHA-256 and an invitation to recompute it without us. That invitation rests on one thing almost nobody tests: that the bytes we hash are the bytes <b>you</b> would produce from the same value. If canonicalization drifts, nothing crashes. The verdict simply becomes a number no one else can reach, and it keeps looking like proof. On 2026-08-23 we measured our own, against an independent implementation, and we did not pass.</p>
+</div>
+
+<section>
+  <h2>Where this came from</h2>
+  <p>We did not find this on our own. <a href="https://www.linkedin.com/in/federico-blanco-sanchez-llanos/">Federico Blanco Sanchez-Llanos</a> published that his own signing path claimed RFC 8785 JCS and matched only 6 of 10 vectors from a real conformance suite, with Python's exponent formatting and code-point key ordering both diverging on edge cases. He swapped in a real JCS library and pinned the vectors as a permanent regression test.</p>
+  <p>A register that measures other people's conduct does not get to read that and move on. We run the same class of code, for a stronger claim, on a public promise. So we borrowed the question and measured ourselves. The finding below is ours, not his.</p>
+</section>
+
+<section>
+  <h2>What we found</h2>
+
+  <div class="card fail">
+    <div class="n">FIRST MEASUREMENT · 2026-08-23 · ORIGINAL CODE</div>
+    <h3 style="margin-top:0">11 of 12 vectors byte-identical to an independent implementation</h3>
+    <p>Being written in JavaScript did most of the work for us, and that is luck, not virtue. RFC 8785 orders object keys by <b>UTF-16 code unit</b>, which is exactly what JavaScript's default sort already does, and it specifies ES6 number formatting, which is exactly what <code>JSON.stringify</code> already does. The same routine hand-written in Python misses on both. That is the divergence Federico hit, and we were never exposed to it.</p>
+    <p>The vector we failed was the one where luck runs out.</p>
+    <pre><span class="c">input   </span> {"huge": 1e400}
+<span class="c">ours    </span> <span class="bad">{"huge":null}</span>   <span class="c">and it returned a hash over that, without comment</span>
+<span class="c">RFC 8785</span> <span class="b">refuses</span>         <span class="c">no JSON form exists for a non-finite number</span></pre>
+    <p><code>1e400</code> parses to <code>Infinity</code>. Our canonicalizer handed it to <code>JSON.stringify</code>, which turned it into <code>null</code>, and then we hashed the altered value and published the result as something you could reproduce. You could not. Two different inputs could reach that same hash, and an independent verifier doing it correctly would refuse where we produced a confident number.</p>
+    <p><b>Nothing failed loudly.</b> That is the whole problem. A measuring instrument that breaks silently is worse than one that breaks.</p>
+  </div>
+
+  <div class="card win">
+    <div class="n">AFTER THE FIX · SUITE EXPANDED TO 13</div>
+    <h3 style="margin-top:0">13 of 13, and it refuses instead of guessing</h3>
+    <p>The canonicalizer now declines a non-finite number rather than coercing it, and the refusal is reported as a statement about <b>us</b>, not about the server being measured. A withheld hash appears as <code>canonicalization: "refused"</code> with the reason attached. We do not blame a server for a shape we chose not to canonicalize.</p>
+    <pre><span class="c">$ node tools/jcs_conformance.mjs</span>
+  pass  V01 numbers precision and exponent
+  pass  V02 key order UTF-16 vs codepoint
+  pass  V03 string escapes
+  <span class="c">...</span>
+  pass  V13 non-finite
+
+<b>=== 13/13 conformant ===</b></pre>
+  </div>
+</section>
+
+<section>
+  <h2>The second finding, which was worse</h2>
+  <p>Every record ends with a note telling you how to recompute its hash. It used to say: <em>JSON.stringify the remainder in this key order.</em> That is a JavaScript idiom, not an instruction. So we took one real production record and tried the four ways a competent stranger would actually reach for it.</p>
+  <table>
+    <thead><tr><th>attempt</th><th>result</th></tr></thead>
+    <tbody>
+      <tr><td><code>json.dumps(obj)</code>, straight</td><td class="f">different hash</td></tr>
+      <tr><td>compact separators only</td><td class="f">different hash</td></tr>
+      <tr><td>compact separators and <code>ensure_ascii=False</code></td><td class="p">reproduces</td></tr>
+      <tr><td>the above plus <code>sort_keys=True</code></td><td class="f">different hash</td></tr>
+    </tbody>
+  </table>
+  <p>One in four. The hash was always honest; the instructions were not sufficient to reach it. Anyone outside JavaScript who tried, failed, and reasonably concluded we were bluffing. The note now names the exact serialization in both languages, because a promise of reproducibility that only one runtime can act on is not a promise.</p>
+  <pre><span class="c">JavaScript</span>  JSON.stringify(record)
+<span class="c">Python    </span>  json.dumps(record, separators=(',',':'), ensure_ascii=False)</pre>
+</section>
+
+<section>
+  <h2>The one we still cannot fix</h2>
+  <div class="doctrine">
+    <div class="q">In JavaScript, an integer past 2^53 is already rounded before our code ever sees it.</div>
+    <div class="a">A source text carrying <code>9007199254740993</code> becomes <code>9007199254740992</code> inside <code>JSON.parse</code>, and nothing downstream can tell that it happened. An implementation in a language with arbitrary-precision integers should refuse rather than round silently. Ours cannot detect the case at all. We publish the limit rather than the impression of completeness.</div>
+  </div>
+  <p style="margin-top:18px">This is why the register is called WEDJAT. In ancient Egypt the parts of the Eye of Horus were the fractions used for measuring, and they sum to 63/64. One sixty-fourth is always missing. We keep that seat for what the instrument could not see, and we write down what is sitting in it.</p>
+</section>
+
+<section>
+  <h2>Take the vectors</h2>
+  <p>Thirteen vectors, each an input and the exact bytes a conforming implementation must produce, or a refusal where no JSON form exists. Two of them (<code>V02</code> and <code>V11</code>) are the ones that catch code-point key ordering while every other vector still passes. If you publish hashes over JSON, these are worth ten minutes of your time, whatever you think of us.</p>
+  <p>Public domain, no attribution required, no signup, no tracking on this page.</p>
+  <div class="btnrow">
+    <a class="btn pri" href="/verify-directory/conformance/jcs_vectors.json">Download jcs_vectors.json</a>
+    <a class="btn" href="https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/tools/jcs_conformance.mjs">The runner (MIT)</a>
+    <a class="btn" href="https://www.rfc-editor.org/rfc/rfc8785">RFC 8785</a>
+  </div>
+  <h3>Run it against your own</h3>
+  <pre><span class="c"># no dependencies, exits non-zero on any divergence</span>
+curl -sO https://shield.the-horizons-innovation.com/verify-directory/conformance/jcs_vectors.json
+node jcs_conformance.mjs</pre>
+</section>
+
+<section>
+  <h2>What this changes for anyone listed here</h2>
+  <p>Canonicalization conformance is being prepared as <b>condition 07</b>. When it lands it will be measured and disclosed the same way the others are, and like condition 06 it will most likely be reported as a number rather than a pass or a fail, because almost nothing in the field does this correctly today and a threshold would only condemn. Nobody's row will turn red because of it without warning.</p>
+  <p>The register measured itself first, published the failure before the fix, and kept the part it cannot fix in writing. That is the only order that means anything.</p>
+</section>
+
+<footer><div>
+  <p>WEDJAT is the public register of measured agent conduct, operated by The HORIZONs Co., Ltd. Rows are measurements, not endorsements. Absence from the register is not a negative verdict.</p>
+  <p style="margin-top:9px">Measured 2026-08-23 against npm <code>canonicalize@2.0.0</code>, an independent RFC 8785 implementation. Question borrowed, with thanks, from Federico Blanco Sanchez-Llanos. Numbers our own. <a href="/verify-directory/">Back to the register</a></p>
+</div></footer>
+
+</div>
+</body>
+</html>
