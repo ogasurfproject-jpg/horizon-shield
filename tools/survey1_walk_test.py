@@ -401,3 +401,96 @@ assert "errno 61" in r["reason"] and "attempts:" in r["reason"]
 
 print()
 print("20/21 も通過  ―― 全21本")
+
+# --- 22. カードを取れなかったことを「カードが無い」と書かない ---
+reset(); health_reset(trip=99, wait=1)
+CONTROL["up"] = True
+SCENARIOS["shield.the-horizons-innovation.com"] = control_route
+SCENARIOS["www.cloudflare.com"] = control_route
+def mcp_ok_card_broken(req, url):
+    if url.endswith("/robots.txt"): raise urllib.error.URLError("none")
+    if url.endswith("agent-card.json"):
+        raise urllib.error.URLError(OSError(60, "Operation timed out"))
+    body = json.loads(req.data.decode())
+    if body.get("method") == "initialize":
+        return Resp(json.dumps({"jsonrpc":"2.0","id":1,"result":{"serverInfo":{"name":"x"}}}),
+                    headers={"content-type":"application/json"})
+    if body.get("method") == "tools/list":
+        return Resp(json.dumps({"jsonrpc":"2.0","id":2,"result":{"tools":[{"name":"t"}]}}),
+                    headers={"content-type":"application/json"})
+    return Resp(b"", status=202)
+SCENARIOS["cardto.test"] = mcp_ok_card_broken
+r = W.measure("https://cardto.test/mcp")
+print()
+print("22) カードの取得が時間切れになった相手")
+show("結果", r, ["agent_card", "agent_card_note", "compensation_disclosed"])
+assert r["agent_card"] is None, "取れなかったことを『カードが無い』(False) と書いてはいけない"
+assert r["compensation_disclosed"] is None, "カードを読めていない以上、開示の有無は測っていない"
+assert "errno 60" in r["agent_card_note"]
+
+# --- 23. 404 のときだけ「無い」と書いてよい ---
+reset(); health_reset(trip=99, wait=1)
+def card404(req, url):
+    if url.endswith("/robots.txt"): raise urllib.error.URLError("none")
+    if url.endswith("agent-card.json"):
+        raise urllib.error.HTTPError(url, 404, "nf", {}, None)
+    body = json.loads(req.data.decode())
+    if body.get("method") == "initialize":
+        return Resp(json.dumps({"jsonrpc":"2.0","id":1,"result":{"serverInfo":{"name":"x"}}}),
+                    headers={"content-type":"application/json"})
+    if body.get("method") == "tools/list":
+        return Resp(json.dumps({"jsonrpc":"2.0","id":2,"result":{"tools":[]}}),
+                    headers={"content-type":"application/json"})
+    return Resp(b"", status=202)
+SCENARIOS["card404.test"] = card404
+r = W.measure("https://card404.test/mcp")
+print("23) カードが 404 の相手")
+show("結果", r, ["agent_card", "agent_card_note", "compensation_disclosed"])
+assert r["agent_card"] is False, "404 は『無い』と書いてよい唯一の場合"
+assert r["compensation_disclosed"] is None, "カードが無い以上、開示の有無は測っていない"
+
+# --- 24. 開示は我々の語彙以外でも拾う ---
+reset(); health_reset(trip=99, wait=1)
+def card_pricing(req, url):
+    if url.endswith("/robots.txt"): raise urllib.error.URLError("none")
+    if url.endswith("agent-card.json"):
+        return Resp(json.dumps({"name": "P", "pricing": {"per_call_usd": 0.01}}))
+    body = json.loads(req.data.decode())
+    if body.get("method") == "initialize":
+        return Resp(json.dumps({"jsonrpc":"2.0","id":1,"result":{"serverInfo":{"name":"x"}}}),
+                    headers={"content-type":"application/json"})
+    if body.get("method") == "tools/list":
+        return Resp(json.dumps({"jsonrpc":"2.0","id":2,"result":{"tools":[]}}),
+                    headers={"content-type":"application/json"})
+    return Resp(b"", status=202)
+SCENARIOS["pricing.test"] = card_pricing
+r = W.measure("https://pricing.test/mcp")
+print("24) 我々の 'compensation' ではなく 'pricing' で開示している相手")
+show("結果", r, ["agent_card", "compensation_disclosed", "compensation_fields"])
+assert r["compensation_disclosed"] is True
+assert r["compensation_fields"] == ["pricing"], \
+    "我々の語彙だけを探して『開示が無い』と数えるのは、相手ではなく我々についての観測"
+
+# --- 25. 空のカードで開示ありと数えない ---
+reset(); health_reset(trip=99, wait=1)
+def card_bare(req, url):
+    if url.endswith("/robots.txt"): raise urllib.error.URLError("none")
+    if url.endswith("agent-card.json"):
+        return Resp(json.dumps({"name": "B", "pricing": {}, "compensation": ""}))
+    body = json.loads(req.data.decode())
+    if body.get("method") == "initialize":
+        return Resp(json.dumps({"jsonrpc":"2.0","id":1,"result":{"serverInfo":{"name":"x"}}}),
+                    headers={"content-type":"application/json"})
+    if body.get("method") == "tools/list":
+        return Resp(json.dumps({"jsonrpc":"2.0","id":2,"result":{"tools":[]}}),
+                    headers={"content-type":"application/json"})
+    return Resp(b"", status=202)
+SCENARIOS["bare.test"] = card_bare
+r = W.measure("https://bare.test/mcp")
+print("25) 名前だけあって中身が空の開示欄")
+show("結果", r, ["agent_card", "compensation_disclosed", "compensation_fields"])
+assert r["agent_card"] is True and r["compensation_disclosed"] is False
+assert r["compensation_fields"] == []
+
+print()
+print("22/23/24/25 も通過  ―― 全25本")

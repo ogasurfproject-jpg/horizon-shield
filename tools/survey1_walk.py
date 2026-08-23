@@ -337,13 +337,52 @@ def rpc(url, payload, session_id=None, notify=False):
         return status, sid, None
 
 
+# 報酬・課金の開示が、agent card のどこに置かれているか。
+#
+# 2026-08 時点で、agent card に報酬開示を置く標準の場所は無い。我々は
+# "compensation" を使っているが、それは我々の決めごとであって規格ではない。
+# 我々の名前だけを探して「開示が無い」と数えれば、それは相手についての観測ではなく、
+# 我々の語彙が普及していないという観測を、相手の落ち度として publish することになる。
+# よって、他所で使われていそうな名前も見て、どの名前で見つかったかを記録する。
+# 見つからない件数が多いはずで、report ではその意味を、上のとおりに書くこと。
+COMPENSATION_KEYS = ("compensation", "pricing", "payment", "payments", "monetization",
+                     "billing", "fees", "cost", "price", "x-compensation")
+
+
+def compensation_fields(card):
+    """開示らしきものが、どの名前で置かれていたかを返す。無ければ空リスト。"""
+    found = []
+    for k in COMPENSATION_KEYS:
+        v = card.get(k)
+        if isinstance(v, (dict, list)) and len(v) > 0:
+            found.append(k)
+        elif isinstance(v, str) and v.strip():
+            found.append(k)
+        elif isinstance(v, (int, float)) and not isinstance(v, bool):
+            found.append(k)
+    caps = card.get("capabilities")
+    if isinstance(caps, dict):
+        for k in COMPENSATION_KEYS:
+            if caps.get(k):
+                found.append("capabilities." + k)
+    ext = card.get("extensions")
+    if isinstance(ext, list):
+        for e in ext:
+            if isinstance(e, dict):
+                u = str(e.get("uri") or e.get("name") or "").lower()
+                if any(w in u for w in ("compensation", "pricing", "payment", "monet", "billing")):
+                    found.append("extensions:" + u[:60])
+    return sorted(set(found))
+
+
 def measure(url):
     """1エンドポイント。read only。tools/call は呼ばない。"""
     out = {
         "endpoint": url, "measured_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "answered": None, "initialize_ok": None, "tools_listed": None,
         "speaks_mcp": None, "tool_count": None,
-        "agent_card": None, "compensation_disclosed": None,
+        "agent_card": None, "agent_card_note": None,
+        "compensation_disclosed": None, "compensation_fields": None,
         "state": None, "outcome": None, "reason": None, "server_name": None,
         "http_status": None, "session_required": None, "redirected_to": None,
     }
@@ -432,11 +471,24 @@ def measure(url):
         else:
             out["tools_listed"] = False
             out["reason"] = "initialize answered but tools/list returned no tool array"
-    except Exception as e:
+    except urllib.error.HTTPError as e:
+        # 相手が答えた上での失敗。これは相手についての観測にしてよい。
         out["tools_listed"] = False
-        out["reason"] = "initialize answered but tools/list failed: " + type(e).__name__
+        out["reason"] = "initialize answered but tools/list was refused with HTTP %d" % e.code
+    except Exception as e:
+        # こちらが読み切れなかった。「一覧を出さない相手だ」とは書かない。
+        out["tools_listed"] = None
+        out["reason"] = "initialize answered but tools/list did not complete: " + describe_exc(e)
 
     # 4. agent card。読むだけ。
+    #
+    # ここも規則1が効く。カードを取りに行って失敗したことは、
+    # 「この相手にはカードが無い」ではない。404 だけが「無い」であって、
+    # 時間切れも 500 も証明書の失敗も、こちらが読めなかったという話である。
+    out["agent_card"] = None
+    out["agent_card_note"] = None
+    out["compensation_disclosed"] = None
+    out["compensation_fields"] = None
     try:
         host_gate(thost)
         tp = urllib.parse.urlparse(target)
@@ -444,12 +496,23 @@ def measure(url):
         req = urllib.request.Request(card_url, headers={"User-Agent": UA, "accept": "application/json"})
         with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
             card = json.loads(r.read(200000).decode("utf-8", "replace"))
-        out["agent_card"] = bool(card.get("name"))
-        comp = card.get("compensation")
-        out["compensation_disclosed"] = isinstance(comp, dict) and len(comp) > 0
-    except Exception:
-        out["agent_card"] = False
-        out["compensation_disclosed"] = False
+        if isinstance(card, dict):
+            out["agent_card"] = bool(card.get("name"))
+            out["agent_card_note"] = "read"
+            found = compensation_fields(card)
+            out["compensation_fields"] = found
+            out["compensation_disclosed"] = bool(found)
+        else:
+            out["agent_card"] = False
+            out["agent_card_note"] = "the document at that address is not a JSON object"
+    except urllib.error.HTTPError as e:
+        if e.code in (404, 410):
+            out["agent_card"] = False
+            out["agent_card_note"] = "no card at /.well-known/agent-card.json (HTTP %d)" % e.code
+        else:
+            out["agent_card_note"] = "card not read (HTTP %d)" % e.code
+    except Exception as e:
+        out["agent_card_note"] = "card not read: " + describe_exc(e)
 
     if out["state"] is None:
         out["state"] = "measured"
@@ -462,8 +525,8 @@ def instrument_down_row(url):
     return {
         "endpoint": url, "measured_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "answered": None, "initialize_ok": None, "tools_listed": None,
-        "speaks_mcp": None, "tool_count": None, "agent_card": None,
-        "compensation_disclosed": None, "robots": None,
+        "speaks_mcp": None, "tool_count": None, "agent_card": None, "agent_card_note": None,
+        "compensation_disclosed": None, "compensation_fields": None, "robots": None,
         "state": "held", "outcome": "instrument_down",
         "reason": ("not measured: our own instrument could not reach a known-good control address, "
                    "so this row is a statement about our network, not about this server."),
