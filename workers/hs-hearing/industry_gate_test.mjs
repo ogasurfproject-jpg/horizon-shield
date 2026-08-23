@@ -154,3 +154,39 @@ console.log("8) すでに中身を答えている建設の店(既存の相手に
 console.log("");
 console.log(fail ? fail + " 件 失敗" : "業種ゲート すべて通過");
 process.exit(fail ? 1 : 0);
+
+/* --- 9. 業種を決めた文が、すでに答えだった場合 -----------------------
+   2026-08-23 22:30、平田様が実際に送ってこられた文そのもの。
+   このとき仕組みは、業種だけ読み取って中身を捨て、同じ3問を送り返した。 */
+console.log("9) 業種を決めた文が、そのまま答えだった(本日22:30の実物)");
+{
+  const env = makeEnv();
+  const sid = "kira-wbbk99p9";
+  env._kv.set("store:" + sid, JSON.stringify({
+    store_id: sid, company: "", areas: [], works: [], tier: "honbu",
+    status: "onboarding", source: "kira-line", token: "ht_zzzzzzzzzzzz",
+    created_at: "2026-08-23T09:50:13.290Z", autopilot: {},
+  }));
+  env._kv.set("line2store:" + U, sid);
+  const real =
+    "1、合同会社アップス\n" +
+    "　さざなみ訪問看護ステーション\n" +
+    "2、さざなみ訪問看護ステーション→平塚市全域、大磯町、二宮町要相談、秦野市要相談、伊勢原市要相談\n" +
+    "さざなみ訪問看護ステーションサテライト→鎌倉市全域、横浜市栄区\n" +
+    "さざなみ訪問看護ステーションさてらいと→小田原市、大井町、開成町\n" +
+    "3、医療処置、酸素管理、カテーテル管理、難病、精神、認知症看護、リハビリテーション、緊急時対応";
+  const r = await H.handleKiraBridge(env, U, real, null, []);
+  console.log("     返信: " + line(r.reply));
+  check("業種が nursing になった", JSON.parse(env._kv.get("store:" + sid)).industry === "nursing");
+  check("同じ3問を送り返していない", !r.reply.includes("次の3つをこのままご返信"),
+        r.reply.includes("次の3つをこのままご返信") ? "← これが 22:30 の事故" : "");
+  check("受け取ったと言っている", r.reply.includes("そのまま受け取りました"));
+  check("もう訊かないと言っている", r.reply.includes("もうお尋ねしません"));
+  check("取り違えを認めている", r.reply.includes("取り違えた"));
+  check("ヒアリング記録が作られた", [...env._kv.keys()].some((k) => k.startsWith("hearing:")),
+        "keys=" + [...env._kv.keys()].filter(k=>k.startsWith("hearing")).join(","));
+}
+
+console.log("");
+console.log(fail ? fail + " 件 失敗" : "9場面すべて通過");
+process.exit(fail ? 1 : 0);

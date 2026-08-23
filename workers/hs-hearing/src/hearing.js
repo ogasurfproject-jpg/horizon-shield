@@ -1301,6 +1301,22 @@ async function handleKiraBridge(env, userId, text, groupId, estimates) {
       await AP.activityAdd(env, { type: "onboard", text: (ind ? ind.label : indKey) + " のヒアリングが始まりました" });
       await notify(env, "[intake] 業種=" + indKey + " で開始。store=" + sid + " line=" + userId);
       if (Array.isArray(estimates) && estimates.length) { try { await appendEstimatesForAudit(env, sid, estimates); } catch (_e) {} }
+
+      /* 2026-08-23 22:30 の事故への対処。
+         業種を決めるきっかけになった文が、そのまま答えであることがある。
+         平田様は訊いた3つ(事業所名・エリア・医療処置)に全部お答えくださったのに、
+         こちらは業種を読み取っただけで満足し、同じ3つをもう一度お送りした。
+         答えた直後に同じことを訊かれれば、読んでいないと受け取られる。
+
+         短い合図(「2」「訪問看護です」)なら、それは業種の返事なので質問へ進む。
+         それ以上の中身があるなら、それは答えである。取り込んでから受領だけ返す。 */
+      const bare2 = String(t || "").replace(/[\s\u3000]/g, "");
+      const isJustSignal = bare2.length <= 12;
+      if (!isJustSignal) {
+        try { await ingestHearingAnswer(env, sid, store, t, "line"); } catch (_e) {}
+        await notify(env, "[intake] 業種=" + indKey + " を決めた文が答えを含んでいたので取り込みました。store=" + sid);
+        return { ok: true, reply: IND.ackText(indKey, afterWrong) };
+      }
       return { ok: true, reply: IND.openingText(indKey, afterWrong) };
     };
 

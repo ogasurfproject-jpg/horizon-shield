@@ -356,6 +356,28 @@ export function classifyIndustry(text) {
   取り消しを言わずに次の質問へ移ると、相手は前の質問に答えようとして、
   答えられずに止まる。止まった理由はこちらにあるのに、相手が悪いように見える。
 */
+/*
+  業種を決めた文が、すでに答えだったときに返す文。
+
+  ここで同じ質問をくり返してはいけない。答えた直後に同じことを訊かれると、
+  相手からは、こちらが読んでいないように見える。実際 2026-08-23 22:30 に
+  そうなった。受け取ったことだけを言い、足りないぶんは後から少しずつ訊く。
+*/
+export function ackText(key, afterWrong) {
+  const i = INDUSTRIES[key];
+  const label = i ? i.label : "";
+  const head = afterWrong
+    ? ((label ? label + "でしたら、こちらの窓口でお受けします。" : "") +
+       "先にお送りした3つの質問は業種を取り違えたものでした。失礼しました。\n\n")
+    : ((label ? label + "の窓口としてお受けします。ありがとうございます。\n\n" : ""));
+  return (
+    head +
+    "いただいた内容は、そのまま受け取りました。同じことは、もうお尋ねしません。\n" +
+    "足りないところがあれば、こちらから少しずつお伺いします。まとめて答えていただく必要はありません。\n\n" +
+    "写真や音声でも構いません。文字にするのはこちらの仕事です。"
+  );
+}
+
 export function openingText(key, afterWrong) {
   const i = INDUSTRIES[key];
   if (!i) return askIndustryText();
