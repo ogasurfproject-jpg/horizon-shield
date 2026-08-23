@@ -100,6 +100,12 @@ blog/*.bak-*
 !tools/yakumo/deploy_all.sh
 .anthropic_key
 !tools/yakumo/provision_store.py
+
+# survey tools: 歩行器・集計器・テストは手法そのものなので追跡する。
+# 「手順とハッシュを添える」規則は、測る道具が読めることを前提にしている。
+!tools/survey1_walk.py
+!tools/survey1_walk_test.py
+!tools/survey1_aggregate.py
 visibility-runs/
 visibility-summary.json
 main,

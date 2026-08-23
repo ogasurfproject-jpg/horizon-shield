@@ -1,0 +1,39 @@
+{
+  "run": "survey1 walk, run 1 (2026-08-23)",
+  "verdict": "discarded in full; not used for any published number",
+  "why": "18 minutes into the run our own name resolution stopped working. From 06:35Z onward, 11,307 consecutive rows were recorded as not reached, with not one success among them over 1 hour 40 minutes. Published rule 2 says held means we could not measure it, and that an instrument failure is never a statement about the thing it failed to measure. This run violated that rule against itself: it recorded our broken resolver as a fact about 11,307 servers.",
+  "rows_total": 12429,
+  "first_all_unreachable_minute": "2026-08-23T06:35Z",
+  "rows_before_cutover": 1122,
+  "not_reached_before_cutover": 121,
+  "rows_after_cutover": 11307,
+  "reached_after_cutover": 0,
+  "decisive_case": {
+    "host": "api.m2mcent.com",
+    "answered_with_http_before": 113,
+    "not_reached_after": 163,
+    "note": "A host that answered 113 HTTP requests does not disappear. The failure was ours."
+  },
+  "why_it_was_not_diagnosable_from_the_rows": "The walker recorded only type(e).__name__, so 11,422 rows carried the identical reason \"not reached: URLError\" and could not be told apart from a genuinely absent server. The reason field now carries errno and the underlying cause.",
+  "outcome_counts": {
+    "robots_disallowed": 96,
+    "no_mcp_at_declared_address": 34,
+    "authorization_required": 337,
+    "gateway_error": 19,
+    "speaks_mcp_no_tool_list": 21,
+    "speaks_mcp_and_lists_tools": 446,
+    "method_not_allowed": 10,
+    "not_reached": 11428,
+    "initialize_rejected": 29,
+    "no_result_in_initialize": 9
+  },
+  "fixes": [
+    "reason now records errno and the underlying cause (describe_exc)",
+    "a control address is probed after 25 consecutive unreachable results; if the control is also unreachable the run pauses",
+    "results measured while the instrument was down are discarded and re-measured after recovery",
+    "if the control does not come back within 900s the run aborts rather than filling in rows",
+    "one retry with a pause before any unreachable result is written",
+    "--resume re-measures unreachable rows by default",
+    "survey1_aggregate.py refuses to aggregate a file showing this shape"
+  ]
+}
