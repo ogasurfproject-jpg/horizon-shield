@@ -106,6 +106,15 @@ blog/*.bak-*
 !tools/survey1_walk.py
 !tools/survey1_walk_test.py
 !tools/survey1_aggregate.py
+
+# 2026-08-23 事故対応の道具。直し方そのものが残るので追跡する。
+!tools/survey1_report.py
+!tools/patch_industry.py
+!tools/patch_signature.py
+!tools/patch_ingest.py
+!tools/set_industry.py
+!tools/replay_answer.py
+!tools/patch_survey_index.py
 visibility-runs/
 visibility-summary.json
 main,
