@@ -1011,7 +1011,19 @@ async function notify(env, text) {
   if (env.NTFY_TOPIC_URL) jobs.push(fetch(env.NTFY_TOPIC_URL, { method: "POST", body: text.slice(0, 1900) }).catch(() => {}));
   await Promise.all(jobs);
 }
-async function sendHearingEmail(env, { to, token, company, memberNo, origin }) {
+/* 2026-08-23: この文面は全文が建設向けである。
+   「Yakumoへのご加盟」「信頼できる職人仲間のご紹介」「工務店・リフォーム店」
+   「実際の見積もり例を1から3件」。訪問看護の事業所に送れば、全部外れる。
+
+   訪問看護向けの文面はまだ書いていない。書いていないものを、
+   建設の文面で代用して送らない。送れば、こちらが相手の業界を見ていないことが
+   その一通で伝わる。送らずに理由を返す。 */
+async function sendHearingEmail(env, { to, token, company, memberNo, origin, industry }) {
+  if (industry && industry !== "construction") {
+    return { ok: false, status: 0,
+             reason: "industry_email_not_written:" + industry,
+             note: "この業種の加盟御礼メールの文面がまだ無い。建設の文面で代用しない。" };
+  }
   if (!env.RESEND_API_KEY) return { ok: false, reason: "RESEND_API_KEY 未設定" };
   const from = env.HEARING_FROM || "Yakumo <hearing@the-horizons-innovation.com>";
   const replyTo = env.HEARING_REPLY_TO || "contact@the-horizons-innovation.com";
@@ -1966,7 +1978,9 @@ export default {
         if (!tok || !to) return json({ error: "token と to が必要" }, 400);
         const tokRec = await env.HS_HEARING_KV.get("htok:" + tok, "json");
         if (!tokRec) return json({ error: "unknown_token" }, 404);
-        const res = await sendHearingEmail(env, { to, token: tok, company: tokRec.company, memberNo: tokRec.member_no, origin: url.origin });
+        const res = await sendHearingEmail(env, { to, token: tok, company: tokRec.company, memberNo: tokRec.member_no, origin: url.origin,
+          // 業種を渡す。建設以外なら、この文面は送らずに理由を返す。
+          industry: (tokRec.profile && tokRec.profile.industry) || tokRec.industry || null });
         return json(res, res.ok ? 200 : 502);
       }
 

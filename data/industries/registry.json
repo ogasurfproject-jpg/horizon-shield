@@ -9,7 +9,11 @@
     "この4つが揃うほど、生成物の中身が濃くなる。揃わないうちは、こちらが代わりに書くことになり、",
     "どの会社でも同じ文面になる。同じ文面のページは、2026-08-23 に実際に重複で弾かれた。"
   ],
-  "invariant": "物差しの無い業種を、黙って通さない。無いなら『無い』と、理由ごと書くこと。",
+  "invariant": [
+    "物差しの無い業種を、黙って通さない。無いなら『無い』と、理由ごと書くこと。",
+    "名乗りの無い業種を、黙って通さない。名乗らなければ、全業種に建設の看板(Yakumo)が出る。",
+    "2026-08-23、訪問看護の平田様に「加盟店 さま、Yakumo運営です。」が届いた。"
+  ],
   "industries": {
     "construction": {
       "key": "construction",
@@ -28,7 +32,13 @@
         "consequence": "訪問看護では実地指導や加算の名前を現場から集めているが、建設では集めていない。物差しが厚くなる経路が片方にしか無い。",
         "next": "JCCDBで足りない品目・地域差・実勢との開きを、現場に尋ねる問いを作る。"
       },
-      "golden_ratio": { "geo": 40, "aeo": 30, "llmo": 20, "webmcp": 10 }
+      "golden_ratio": {
+        "geo": 40,
+        "aeo": 30,
+        "llmo": 20,
+        "webmcp": 10
+      },
+      "sender": "Yakumo運営"
     },
     "nursing": {
       "key": "nursing",
@@ -41,8 +51,17 @@
         "owner_repo": "https://github.com/ogasurfproject-jpg/jhnrd",
         "note": "介護報酬の算定要件データベース。本物は公開リポジトリ側。こちらは写し。"
       },
-      "field_questions": { "count": 8, "gap": null },
-      "golden_ratio": { "geo": 40, "aeo": 30, "llmo": 20, "webmcp": 10 }
+      "field_questions": {
+        "count": 8,
+        "gap": null
+      },
+      "golden_ratio": {
+        "geo": 40,
+        "aeo": 30,
+        "llmo": 20,
+        "webmcp": 10
+      },
+      "sender": "HORIZON SHIELD 訪問看護窓口"
     }
   }
 }

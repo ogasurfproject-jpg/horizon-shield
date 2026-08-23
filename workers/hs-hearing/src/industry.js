@@ -96,6 +96,12 @@ export const INDUSTRIES = {
        2026-08-23、ここが書かれていなかった。訪問看護だけが物差しに繋がっていて、
        建設は繋がっていない状態だった。片方だけ濃くなるので、揃える。
        ファイルではなく MCP 経由で参照するため、kind を書いてある。 */
+    /* 名乗り。この業種の方に、こちらが何と名乗るか。
+       2026-08-23、ここが無かったので全業種に「Yakumo運営です」と送っていた。
+       Yakumo は建設のモールである。訪問看護の平田様に「Yakumo運営」と名乗るのは、
+       相手の業界ではない看板を出していることになる。 */
+    sender: "Yakumo運営",
+
     rules_db: { kind: "mcp", name: "JCCDB", server: "HORIZON_SHIELD",
                 tool: "get_jccdb_dataset_info" },
 
@@ -113,7 +119,11 @@ export const INDUSTRIES = {
     product: "AI事務員",
     /* Yakumo のモールは建設業向け。訪問看護は対象外なので、
        専用の窓口を独自ドメインに建てる(ご提案 06 のとおり)。 */
-    mall: null,
+    /* 2026-08-23: null のままだった。レジストリには "care" と書いてあり、
+       ページ側の検査(tools/pagecheck/validate.py)も /care/ で分岐している。
+       ここだけ null で、検査は mall を比べていなかったので気づかなかった。
+       比べていない項目は、書いてあっても効いていない。 */
+    mall: "care",
     keywords: [
       "訪問看護ステーション", "訪問看護", "居宅介護支援", "訪問介護", "訪問リハビリ",
       "看護小規模多機能", "小規模多機能", "デイサービス", "通所介護", "地域包括",
@@ -432,6 +442,9 @@ export const INDUSTRIES = {
        これが無ければ「取りこぼしがある」「減算の危険がある」は我々の感想にすぎない。
        上の q_nv_* は、このデータベースの requirements[].ask と1対1で結ぶ。
        結べない設問は、集めても突き合わせられない。 */
+    /* 名乗り。訪問看護の窓口として名乗る。Yakumo(建設のモール)とは名乗らない。 */
+    sender: "HORIZON SHIELD 訪問看護窓口",
+
     rules_db: "data/nursing/rules_2024.json",
 
     /* 生成の配分。ご指示の黄金比。 */
@@ -586,6 +599,13 @@ export function dbBuildingQids(key) {
   const i = INDUSTRIES[key];
   if (!i || !i.bank) return [];
   return Object.keys(i.bank).filter((q) => i.bank[q].purpose === "field");
+}
+
+/* こちらが何と名乗るか。業種が分からないときは、業界の看板を出さない。
+   分からないまま「Yakumo運営」と名乗れば、建設以外の方には嘘になる。 */
+export function senderName(key) {
+  const i = INDUSTRIES[key];
+  return (i && i.sender) || "HORIZON SHIELD 運営事務局";
 }
 
 export function questionFor(key, qid) {

@@ -352,18 +352,27 @@ async function sendLinePush(env, userId, text) {
 export async function sendQuestions(env, store, questions, kind) {
   // kind: "followup" | "nudge"
   const qText = questions.map((q, i) => (questions.length > 1 ? (i + 1) + ") " : "") + q.text).join("\n\n");
-  const company = S(store.company, 120) || "加盟店";
+  // 2026-08-23: 名乗りと呼びかけを直した。実際に平田様(訪問看護)に届いた文面が
+  //   「加盟店 さま、Yakumo運営です。」だった。二重に間違っている。
+  //   ・Yakumo は建設のモールである。訪問看護の方に出す看板ではない。
+  //   ・社名が空のとき「加盟店」で埋めていた。お金をいただいている相手を
+  //     一般名詞で呼ぶことになる。知らないなら、知らないなりの呼びかけをする。
+  const company = S(store.company, 120);
+  const who = IND.senderName((store.profile || {}).industry || store.industry);
+  const hail = company ? (company + " さま、" + who + "です。")
+                       : ("いつもお世話になっております。" + who + "です。");
   const lineUid = await env.HS_HEARING_KV.get("store2line:" + store.store_id, "text");
   const intro = kind === "nudge"
-    ? company + " さま、Yakumo運営です。その後いかがでしょうか。掲載の質を上げるため、下記だけ教えていただけると助かります。\n\n"
-    : company + " さま、Yakumo運営です。掲載ページをさらに強くするため、下記を教えてください。このまま返信いただければ自動で反映されます。\n\n";
+    ? hail + "その後いかがでしょうか。掲載の質を上げるため、下記だけ教えていただけると助かります。\n\n"
+    : hail + "掲載ページをさらに強くするため、下記を教えてください。このまま返信いただければ自動で反映されます。\n\n";
   if (lineUid) {
     const r = await sendLinePush(env, lineUid, intro + qText);
     if (r.ok) return { ok: true, via: "line" };
   }
   if (store.email) {
     const refTag = store.token ? " / ref:" + store.token : "";
-    const subject = (kind === "nudge" ? "【Yakumo ご様子うかがい" : "【Yakumo 追加ヒアリング") + refTag + "】" + company;
+    const subject = (kind === "nudge" ? "【" + who + " ご様子うかがい" : "【" + who + " 追加ヒアリング")
+      + refTag + "】" + (company || "");
     const formLink = store.token
       ? '<p style="font-size:13px;"><a href="https://shield.the-horizons-innovation.com/yakumo/register/?code=' + store.token + '">フォームから追記する場合はこちら</a>(前回の続きから入力できます)</p>'
       : "";

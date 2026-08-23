@@ -1,6 +1,7 @@
 /* 業種ゲートを、実物の handleKiraBridge を呼んで確かめる。
    KV は模擬。ネットワークには出ない。 */
 import fs from "node:fs";
+import * as IND from "./src/industry.js";
 
 const SRC = "/tmp/hstry/src/hearing.mjs";
 let src = fs.readFileSync(SRC, "utf8");
@@ -149,6 +150,32 @@ console.log("8) すでに中身を答えている建設の店(既存の相手に
   env._kv.set("line2store:" + U, sid);
   const r = await H.handleKiraBridge(env, U, "屋根の防水もできます", null, []);
   check("業種を尋ね直していない", !r.reply.includes("ご業種"), line(r.reply));
+}
+
+/* 9) 名乗り。2026-08-23、平田様(訪問看護)に「加盟店 さま、Yakumo運営です。」が届いた。
+      Yakumo は建設のモールである。相手の業界でない看板を出していた。
+      加えて、社名が空のとき「加盟店」で埋めていた。
+      お金をいただいている相手を一般名詞で呼んでいたことになる。 */
+{
+  console.log("\n9) 業種ごとの名乗り");
+  const cases = [
+    ["nursing",      "訪問看護",      false],
+    ["construction", "Yakumo",       true ],
+    [undefined,      "運営事務局",     false],
+  ];
+  for (const [ind, must, yakumoOk] of cases) {
+    const who = IND.senderName(ind);
+    check("業種 " + String(ind) + " の名乗りに「" + must + "」が入る", who.includes(must), who);
+    if (!yakumoOk) check("業種 " + String(ind) + " に Yakumo と名乗らない", !who.includes("Yakumo"));
+  }
+  const hail = (co, ind) => {
+    const who = IND.senderName(ind);
+    return co ? (co + " さま、" + who + "です。") : ("いつもお世話になっております。" + who + "です。");
+  };
+  check("社名が空でも「加盟店 さま」とは呼ばない",
+        !hail("", "nursing").includes("加盟店 さま"), hail("", "nursing"));
+  check("社名があれば社名で呼ぶ",
+        hail("合同会社アップス", "nursing").startsWith("合同会社アップス さま"));
 }
 
 console.log("");
