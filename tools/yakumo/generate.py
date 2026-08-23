@@ -270,12 +270,63 @@ def cta_and_footer():
 '<footer><div class="container">\n'
 '<p>© 2026 The HORIZONs株式会社 | HORIZON SHIELD | Yakumo</p>\n'
 '<p style="margin-top:8px;">検証を通った加盟店だけが並ぶ、中立の建設モール ・ TEL 0463-74-5917</p>\n'
-'</div></footer>\n</body></html>\n'
-) % BASE
+'</div></footer>\n'
+) % BASE + VERIFY_SELFHEAL_JS + '</body></html>\n'
+
+# 生成ページ共通の自己修復。個別マイページ(no002)と同方式。
+# 検証状態は KVライブ(/contractors.json, 金額なし・CORS)が真実。焼き込みは初期値にすぎない。
+# 取得できない時は焼き込んだ値のまま(オフライン安全)。二度と古い pending で固まらない。
+VERIFY_SELFHEAL_JS = (
+'<script>\n'
+'(function(){\n'
+'  var els=document.querySelectorAll(".yakumo-verify-state");\n'
+'  if(!els.length) return;\n'
+'  var MN=els[0].getAttribute("data-yakumo-mn")||"";\n'
+'  if(!MN) return;\n'
+'  function rank(s){ s=Number(s); if(s>=95)return"A+"; if(s>=90)return"A"; if(s>=85)return"B+"; if(s>=80)return"B"; if(s>=75)return"C+"; return"C"; }\n'
+'  function num(m){ return String(m||"").replace("No.",""); }\n'
+'  try{\n'
+'    fetch("https://hearing.horizonshield.dev/contractors.json",{cache:"no-store"})\n'
+'      .then(function(r){ return r.ok ? r.json() : null; })\n'
+'      .then(function(d){\n'
+'        if(!d) return;\n'
+'        var rows=(d.contractors)||(Array.isArray(d)?d:[]);\n'
+'        var me=null; for(var i=0;i<rows.length;i++){ if(rows[i]&&rows[i].member_no===MN){ me=rows[i]; break; } }\n'
+'        if(!me) return;\n'
+'        var verified=(me.verification==="verified" && me.fairness_score!=null);\n'
+'        for(var j=0;j<els.length;j++){\n'
+'          var el=els[j];\n'
+'          if(verified){\n'
+'            var g=me.integrity_tier||rank(me.fairness_score);\n'
+'            el.className="yakumo-verify-state verified";\n'
+'            el.innerHTML=\'<span class="d" style="background:#27ae60"></span>加盟No.\'+num(MN)+\' ・ 検証済み(KIRA適正診断を通過 ・ 適正度\'+me.fairness_score+\' ・ \'+g+\')\';\n'
+'          } else {\n'
+'            el.className="yakumo-verify-state pending";\n'
+'            el.innerHTML=\'<span class="d" style="background:#e67e22"></span>加盟No.\'+num(MN)+\' ・ 検証手続き中(KIRA適正診断を実施中)\';\n'
+'          }\n'
+'        }\n'
+'      })\n'
+'      .catch(function(){});\n'
+'  }catch(_e){}\n'
+'})();\n'
+'</script>\n'
+)
 
 def verify_state_html(profile):
-    return ('<span class="pending"><span class="d" style="background:#e67e22"></span>加盟No.%s ・ 検証手続き中(KIRA適正診断を実施中)</span>'
-            % esc((profile.get("member_no") or "").replace("No.", "")))
+    mn_full = esc(profile.get("member_no") or "")
+    mn_num = esc((profile.get("member_no") or "").replace("No.", ""))
+    ver = str(profile.get("verification") or "").lower()
+    score = profile.get("fairness_score")
+    tier = esc(str(profile.get("integrity_tier") or ""))
+    if ver == "verified" and score is not None:
+        inner = ('<span class="d" style="background:#27ae60"></span>加盟No.' + mn_num
+                 + ' ・ 検証済み(KIRA適正診断を通過 ・ 適正度' + esc(str(score)) + ' ・ ' + tier + ')')
+        cls = "verified"
+    else:
+        inner = ('<span class="d" style="background:#e67e22"></span>加盟No.' + mn_num
+                 + ' ・ 検証手続き中(KIRA適正診断を実施中)')
+        cls = "pending"
+    return '<span class="yakumo-verify-state ' + cls + '" data-yakumo-mn="' + mn_full + '">' + inner + '</span>'
 
 # ---------------- 工種別の実務知識(建設実務30年監修の一般知識。金額なし・地域固有の創作なし) ----------------
 TRADE_TIPS = {
