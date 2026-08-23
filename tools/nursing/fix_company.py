@@ -73,7 +73,14 @@ def call(path, key, body=None):
 
 def main():
     argv = sys.argv[1:]
-    sid = argv[argv.index("--id") + 1] if "--id" in argv else None
+    # 2026-08-24: ここは sid という名前で持っていた。
+    #   そして下の一覧を作るループでも sid を使い回していた。
+    #   ループが終わったとき sid は「最後に見た店」になっていて、
+    #   --id kira-wbbk99p9 と打っても hs-partner-002 を書き換えようとした。
+    #   ミネオトーヨー住器さまの社名が、別の会社の名前で潰れるところだった。
+    #   止めたのは「既に社名が入っている」という別の門である。偶然に近い。
+    #   引数は want_id という別の名前で持ち、途中で書き換わらないようにする。
+    want_id = argv[argv.index("--id") + 1] if "--id" in argv else None
     name = argv[argv.index("--name") + 1] if "--name" in argv else None
     apply = "--apply" in argv
 
@@ -88,13 +95,13 @@ def main():
     #   厚い方(hearing:<id>.profile)は /admin/export/<id> にある。両方見る。
     rows = []
     for s in stores:
-        sid = s.get("store_id") or s.get("id")
+        row_id = s.get("store_id") or s.get("id")
         thin = (s.get("name") or s.get("company") or "").strip()
-        ex = call("/admin/export/" + sid, key) if sid else {}
+        ex = call("/admin/export/" + row_id, key) if row_id else {}
         pr = (ex or {}).get("profile") or {}
         thick = str(pr.get("company") or "").strip()
         rows.append({
-            "id": sid,
+            "id": row_id,
             "industry": pr.get("industry") or "-",
             "thin": thin,          # store: 側
             "thick": thick,        # hearing:<id>.profile 側
@@ -113,7 +120,7 @@ def main():
         if r["area"]:
             print("%-18s   エリア: %s" % ("", r["area"]))
 
-    if not sid:
+    if not want_id:
         print("\n社名が空の店: %d 件" % len(empty))
         if empty:
             print("\nそのまま貼れる形にしてあります。社名だけ、実際のものに書き換えてください:")
@@ -123,11 +130,11 @@ def main():
 
     if not name:
         sys.exit("--name が要ります")
-    row = next((r for r in rows if r["id"] == sid), None)
+    row = next((r for r in rows if r["id"] == want_id), None)
     if row is None:
-        sys.exit("その店IDが見つかりません: " + sid)
+        sys.exit("その店IDが見つかりません: " + want_id)
     cur = row["thin"] or row["thick"]
-    print("\n店ID   : %s" % sid)
+    print("\n店ID   : %s" % row["id"])
     print("いまの社名: %s" % (cur or "(空)"))
     print("入れる社名: %s" % name)
     if cur and cur != name:
@@ -141,9 +148,15 @@ def main():
     # 2026-08-24: 送る形は {store_id, fields:{company:...}} である。
     #   平らに {store_id, company:...} と送ると no_allowed_field が返る。
     #   最初この道具はその形で送ろうとしていた。
-    out = call("/admin/profile-patch", key, {"store_id": sid, "fields": {"company": name}})
+    # 書く直前に、もう一度だけ突き合わせる。
+    # 変数の取り違えは、動く道具の中では見えない。書く瞬間に確かめる。
+    if row["id"] != want_id:
+        sys.exit("指示された店と、書こうとしている店が違います: 指示=%s / 対象=%s"
+                 % (want_id, row["id"]))
+    print("\n対象の突き合わせ: 指示=%s / 対象=%s  一致" % (want_id, row["id"]))
+    out = call("/admin/profile-patch", key, {"store_id": row["id"], "fields": {"company": name}})
     print("\n応答: %s" % json.dumps(out, ensure_ascii=False)[:300])
-    ex = call("/admin/export/" + sid, key)
+    ex = call("/admin/export/" + row["id"], key)
     pr = (ex or {}).get("profile") or {}
     print("確認: profile 側の社名 = %s" % (pr.get("company") or "(まだ空)"))
     print("  呼びかけは store 側と profile 側の両方を見るので、これで名前で呼ばれます。")
