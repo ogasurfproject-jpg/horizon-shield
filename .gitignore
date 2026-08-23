@@ -112,6 +112,7 @@ blog/*.bak-*
 !tools/gitignore_tools.py
 !tools/nursing/validate_rules.py
 !tools/nursing/patch_nursing_questions.py
+!tools/care/patch_generate_failclosed.py
 
 # 2026-08-23 事故対応の道具。直し方そのものが残るので追跡する。
 !tools/survey1_report.py
