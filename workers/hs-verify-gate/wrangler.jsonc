@@ -37,6 +37,6 @@
   //   subrequest を Cloudflare に塞がれ、cron の自己測定が http 404 で pending になっていた。
   //   relay を the-horizons-innovation.com(別ゾーン)に置き、ここをそのまま指す。
   "vars": {
-    "RELAY_URL": "https://relay.the-horizons-innovation.com"
+    "RELAY_URL": "https://horizon-shield.ogasurfproject-jpg.deno.net"
   }
 }
