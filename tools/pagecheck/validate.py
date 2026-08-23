@@ -183,11 +183,16 @@ def check_duplicates(paths):
     #
     #   台帳を共有していること自体は正しい。建設のページと訪問看護のページが
     #   互いに重複していたら、それは見つけるべきものである。
-    _yak = os.path.join(REPO_ROOT, "tools", "yakumo")
-    if _yak not in sys.path:
-        sys.path.insert(0, _yak)
+    # 指紋は業種に属さない場所から直接読む(2026-08-23)。
+    #   ここが最後の結合だった。訪問看護のページを公開してよいかどうかが、
+    #   建設の生成器を import できるかに依存していた。
+    #   台帳を共有していること自体は正しい。建設のページと訪問看護のページが
+    #   互いに重複していたら、それは見つけるべきものである。
+    _fp = os.path.dirname(os.path.abspath(__file__))
+    if _fp not in sys.path:
+        sys.path.insert(0, _fp)
     try:
-        import generate as G
+        import fingerprint as G
     except Exception as e:
         return ["DEDUP_MODULE_LOAD_FAIL: " + str(e)[:80]]
     errs = []

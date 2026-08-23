@@ -37,6 +37,17 @@ AREA_SLUG = {
     "春日井市": "kasugai", "岡崎市": "okazaki",
 }
 
+# 指紋と台帳は tools/pagecheck/fingerprint.py へ移した(2026-08-23)。
+# 業種に属さないものなので、Yakumo の下に置いておく理由が無かった。
+# ソースは打ち直さず切り出して移してあり、指紋は移動前と同一である。
+sys.path.insert(0, os.path.join(REPO_ROOT, "tools", "pagecheck"))
+from fingerprint import (norm_text, fnv1a64, simhash64, hamming64,  # noqa: E402
+                         visible_body, content_core, fingerprint,
+                         ledger_load, ledger_save, answer_sha, duplicate_of,
+                         CONTENT_LEDGER, NORM_DROP_RE, TITLE_RE_G,
+                         SCRIPT_STYLE_RE_G, TAG_RE_G,
+                         NS_BOILERPLATE, namespace_of)
+
 def slugify(text, kind):
     table = TRADE_SLUG if kind == "trade" else AREA_SLUG
     key = (text or "").strip()
@@ -68,103 +79,6 @@ def safe_pub(s):
     return MONEY_SUB_RE.sub("(金額 非公開)", clean_dashes(s or ""))
 
 # ---------------- 重複ゼロ台帳(simhash指紋。workers/hs-hearing/src/autopilot.js と同一アルゴリズム) ----------------
-CONTENT_LEDGER = os.path.join(REPO_ROOT, "data", "yakumo-content-manifest.json")
-NORM_DROP_RE = re.compile(r"[、。・,.:;!?'\"()\[\]{}<>|/\\\-\s　]")
-TITLE_RE_G = re.compile(r"<title>(.*?)</title>", re.S)
-SCRIPT_STYLE_RE_G = re.compile(r'<(script|style)\b[^>]*>.*?</\1>', re.S)
-TAG_RE_G = re.compile(r'<[^>]+>')
-
-def norm_text(s):
-    s = (s or "")[:20000].lower()
-    s = TAG_RE_G.sub(" ", s)
-    return NORM_DROP_RE.sub("", s)
-
-def fnv1a64(s):
-    h = 0xcbf29ce484222325
-    for ch in s:
-        h ^= ord(ch)
-        h = (h * 0x100000001b3) & 0xFFFFFFFFFFFFFFFF
-    return h
-
-def simhash64(text):
-    t = norm_text(text)
-    if len(t) < 3:
-        return "0"
-    acc = [0] * 64
-    for i in range(len(t) - 2):
-        h = fnv1a64(t[i:i + 3])
-        for b in range(64):
-            acc[b] += 1 if (h >> b) & 1 else -1
-    out = 0
-    for b in range(64):
-        if acc[b] > 0:
-            out |= 1 << b
-    return format(out, "x")
-
-def hamming64(a, b):
-    return bin(int(a or "0", 16) ^ int(b or "0", 16)).count("1")
-
-def visible_body(html):
-    return TAG_RE_G.sub(" ", SCRIPT_STYLE_RE_G.sub(" ", html))
-
-# 指紋は「そのページ固有の本文」から取る。全ページ共通のボイラープレート(ヘッダー/出典/CTA/還流網/フッター)を
-# 除いてから simhash する。共通枠で距離が縮んで別内容のページ同士が誤検知されるのを防ぎ、
-# 本文が同じなのに枠だけ違うダブりは今まで通り検出する。
-BOILER_RES = [
-    re.compile(r'<header>.*?</header>', re.S),
-    re.compile(r'<!-- EHN_RECIRC_START.*?EHN_RECIRC_END:[^>]*-->', re.S),
-    re.compile(r'<div class="section"><h2>出典・データソース</h2>.*?</div></div>', re.S),
-    re.compile(r'<div class="cta-section">.*$', re.S),
-]
-def content_core(html):
-    t = SCRIPT_STYLE_RE_G.sub(" ", html)
-    for r in BOILER_RES:
-        t = r.sub(" ", t)
-    return TAG_RE_G.sub(" ", t)
-
-def fingerprint(canonical, html, member=None):
-    slug = canonical.replace(BASE + "/", "").strip("/")
-    m = TITLE_RE_G.search(html)
-    tsha = hashlib.sha256(norm_text(m.group(1) if m else "").encode("utf-8")).hexdigest()[:8]
-    fp = {"slug": slug, "tsha": tsha, "simhash": simhash64(content_core(html))}
-    if member:
-        fp["m"] = member  # ページの持ち主(加盟店)。他店による同slug上書きを防ぐ
-    return fp
-
-def ledger_load():
-    if os.path.exists(CONTENT_LEDGER):
-        try:
-            return json.load(open(CONTENT_LEDGER, encoding="utf-8"))
-        except Exception:
-            pass
-    return {"schema": "yakumo-content-ledger/v1", "entries": []}
-
-def ledger_save(led):
-    os.makedirs(os.path.dirname(CONTENT_LEDGER), exist_ok=True)
-    json.dump(led, open(CONTENT_LEDGER, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-
-def answer_sha(profile):
-    """店の回答本文の指紋。別の店が同じ回答(丸コピー)を出してきたら店単位で検出する。"""
-    parts = [profile.get("strengths") or "", profile.get("trust") or ""]
-    for f in (profile.get("faqs") or []):
-        parts.append((f.get("q") or "") + (f.get("a") or ""))
-    for v in (profile.get("extra") or {}).values():
-        if isinstance(v, dict):
-            parts.append(v.get("text") or "")
-    t = norm_text("".join(parts))
-    if len(t) < 60:
-        return None  # 素材が薄いうちは判定しない(誤検知防止)
-    return hashlib.sha256(t.encode("utf-8")).hexdigest()[:12]
-
-def duplicate_of(fp, entries):
-    for e in entries:
-        if e.get("slug") == fp["slug"]:
-            return ("slug:" + e["slug"], e)
-        if e.get("tsha") and e["tsha"] == fp["tsha"]:
-            return ("title:" + e["slug"], e)
-        if e.get("simhash") and fp["simhash"] != "0" and hamming64(fp["simhash"], e["simhash"]) <= 6:
-            return ("near-dup:" + e["slug"], e)
-    return (None, None)
 
 STYLE = """
 :root{--navy:#1a2744;--gold:#c9a227;--white:#fff;--light:#f8f7f4;--text:#2c2c2c;--muted:#666;--danger:#c0392b;--ok:#27ae60;--warn:#e67e22;--verify:#15847a}
