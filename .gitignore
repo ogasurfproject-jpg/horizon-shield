@@ -108,6 +108,12 @@ blog/*.bak-*
 !tools/survey1_aggregate.py
 
 # 2026-08-23 事故対応の道具。直し方そのものが残るので追跡する。
+!tools/patch_qualifier.py
+!tools/gitignore_tools.py
+!tools/nursing/validate_rules.py
+!tools/nursing/patch_nursing_questions.py
+
+# 2026-08-23 事故対応の道具。直し方そのものが残るので追跡する。
 !tools/survey1_report.py
 !tools/patch_industry.py
 !tools/patch_signature.py

@@ -103,6 +103,12 @@ def main():
         req = urllib.request.Request(url, data=body, method="POST", headers={
             "content-type": "application/json",
             "X-Admin-Key": key,
+            # Cloudflare の error 1010 対策。
+            # 既定の "Python-urllib/3.9" は Bot Fight Mode に名乗りで弾かれる。
+            # 同じ鍵・同じ宛先でも curl は通り、Python だけが 403 になっていた
+            # (2026-08-23)。鍵の問題に見えるが、鍵は正しい。
+            "user-agent": "HORIZON-SHIELD-tools/1.0 (replay_answer; contact@the-horizons-innovation.com)",
+            "accept": "application/json",
         })
         try:
             with urllib.request.urlopen(req, timeout=60) as r:
