@@ -17,6 +17,8 @@ on:
       - "tools/survey1_report.py"
       - "tools/survey1_report_check.py"
       - "tools/survey1_aggregate.py"
+      - "tools/survey2_recheck.py"
+      - "tools/survey2_recheck_test.py"
       - ".github/workflows/survey-report.yml"
   pull_request:
   workflow_dispatch:
@@ -26,6 +28,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # 当て直しの判定が、仕様どおりでない返事で落ちないこと。
+      # 2026-08-24、error を文字列で返すサーバに当たって1件目で止まり、
+      # 918件が全部消えた。模擬は仕様どおりの形しか作っていなかった。
+      - name: 当て直しの判定(壊れた返事を含む)
+        run: python3 tools/survey2_recheck_test.py
+
       - name: 報告書1の数字がデータと一致しているか
         run: |
           python3 tools/survey1_report_check.py \

@@ -109,15 +109,35 @@ def parse_jsonrpc(text):
 
 
 def judge(code, text, err):
-    """仕様の後方互換の節どおりに分ける。こちらで足した規則は無い。"""
+    """仕様の後方互換の節どおりに分ける。こちらで足した規則は無い。
+
+    2026-08-24: 実際に当てたら、1件目で落ちた。
+      あるサーバが {"error": "..."} と、error を文字列で返した。
+      JSON-RPC では error はオブジェクトだが、そう返さないサーバが現に居る。
+      こちらは e.get("code") と書いていたので AttributeError で止まった。
+
+      模擬サーバは仕様どおりの形しか作っていなかった。
+      仕様どおりに答えるサーバだけを想定した道具は、
+      仕様どおりでない相手に当たった瞬間に止まる。
+      測りに行く先は、仕様を守っているとは限らない場所である。
+
+      どの欄も、期待した型で来るとは限らないものとして読む。
+    """
     if code is None:
         return "held", "not reached: " + str(err), {}
     doc = parse_jsonrpc(text)
-    res = (doc or {}).get("result")
-    e = (doc or {}).get("error") or {}
+    if not isinstance(doc, dict):
+        doc = None
+    res = doc.get("result") if doc else None
+    if not isinstance(res, dict):
+        res = None
+    raw_err = doc.get("error") if doc else None
+    e = raw_err if isinstance(raw_err, dict) else {}
     ecode = e.get("code")
+    if not isinstance(ecode, int):
+        ecode = None
 
-    if code == 200 and isinstance(res, dict) and "supportedVersions" in res:
+    if code == 200 and res is not None and "supportedVersions" in res:
         info = ((res.get("_meta") or {}).get("io.modelcontextprotocol/serverInfo") or {})
         return "modern_answered", "server/discover answered", {
             "supported_versions": res.get("supportedVersions"),
@@ -134,7 +154,12 @@ def judge(code, text, err):
         # server/discover は MUST。無いなら現行の版ではない。
         return "not_modern", "method not found (-32601): server/discover is MUST in 2026-07-28", {}
     if doc is not None and ("result" in doc or "error" in doc):
-        return "not_modern", "JSON-RPC reply but not a discover result (code=%s)" % ecode, {}
+        # error が文字列など、JSON-RPC の形をしていない返事。
+        # 仕様の後方互換の節は「recognized modern JSON-RPC error でなければ旧来側」と言う。
+        # だから not_modern だが、形が変だったことは記録に残す。黙って丸めない。
+        shape = ("error is %s" % type(raw_err).__name__) if raw_err is not None else "no error field"
+        return "not_modern", "JSON-RPC-ish reply, not a discover result (code=%s, %s)" % (ecode, shape), \
+               {"malformed_error_shape": None if isinstance(raw_err, dict) else type(raw_err).__name__}
     return "not_modern", "HTTP %s, body is not a JSON-RPC message" % code, {}
 
 
@@ -170,12 +195,22 @@ def main():
 
     counts, unreached_run, out = {}, 0, io.open(a.out, "w", encoding="utf-8")
     for i, t in enumerate(targets, 1):
-        if not W.robots_allows(t["url"]):
-            verdict, note, extra = "skipped", "robots disallowed at recheck time", {}
-        else:
-            code, text, err = discover(t["url"])
-            verdict, note, extra = judge(code, text, err)
-            extra["http"] = code
+        # 2026-08-24: ここは守っていなかった。1件で例外が出ると 918 件が全部消えた。
+        #   実際、1件目の想定外の返事で止まり、何も残らなかった。
+        #   測りに行く先は、こちらの想定どおりに答えるとは限らない。
+        #   1件の異常は1件として記録し、走行は続ける。
+        try:
+            if not W.robots_allows(t["url"]):
+                verdict, note, extra = "skipped", "robots disallowed at recheck time", {}
+            else:
+                code, text, err = discover(t["url"])
+                verdict, note, extra = judge(code, text, err)
+                extra["http"] = code
+        except Exception as ex:
+            # これは相手についての観測ではない。こちらが読めなかったという記録である。
+            verdict = "probe_error"
+            note = "our probe raised: %s: %s" % (type(ex).__name__, str(ex)[:160])
+            extra = {}
 
         if verdict == "held":
             unreached_run += 1
@@ -205,6 +240,9 @@ def main():
     print("\n結果:")
     for k in sorted(counts):
         print("  %-20s %5d" % (k, counts[k]))
+    if counts.get("probe_error"):
+        print("\n※ %d 件は、こちらが読めなかった(probe_error)。"
+              "相手についての観測ではない。数に入れない。" % counts["probe_error"])
     mod = counts.get("modern_answered", 0)
     print("\n報告書1は pending 918 件の上限しか言えなかった。")
     print("このうち %d 件は、現行の作法では答えた。走行2の判定は我々の作法違いだった。" % mod)
