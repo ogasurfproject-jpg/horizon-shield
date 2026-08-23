@@ -113,6 +113,10 @@ blog/*.bak-*
 !tools/nursing/validate_rules.py
 !tools/nursing/patch_nursing_questions.py
 !tools/care/patch_generate_failclosed.py
+!tools/yakumo/fix_unsourced_money.py
+!tools/care/patch_validate_industry.py
+!tools/care/generate_care.py
+!tools/nursing/patch_practice_questions.py
 
 # 2026-08-23 事故対応の道具。直し方そのものが残るので追跡する。
 !tools/survey1_report.py
