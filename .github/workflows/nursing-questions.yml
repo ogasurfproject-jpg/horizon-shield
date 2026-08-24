@@ -97,6 +97,29 @@ jobs:
       # 内部MCP が読む算定要件は生成物である。
       # 手で書き換えると、公開データベース(JHNRD)と内部MCPが別のことを言い始める。
       # そのずれは落ちない。例外も出ない。ただ違う数字が出続ける。だからここで見る。
+      # 写しが、持ち主(JHNRD)と同じ版か。
+      # 2026-08-24: この日2回、JHNRD を直したのに写しと内部MCPが古いまま残った。
+      #   1回目は seed.13、2回目は seed.15。どちらも本番が誤った数字を配れる状態だった。
+      #   写しと生成物が「揃って古い」とき、ここまでの検査は全部緑になる。
+      #   揃っていることしか見ていないからである。持ち主と突き合わせるのは、ここだけ。
+      - name: 算定要件データベースの写しが、持ち主(JHNRD)と同じ版か
+        run: |
+          python3 - <<'PY'
+          import json, urllib.request
+          mine = json.load(open("data/nursing/rules_2024.json", encoding="utf-8"))["version"]
+          url = "https://raw.githubusercontent.com/ogasurfproject-jpg/jhnrd/main/status.json"
+          req = urllib.request.Request(url, headers={"user-agent": "HORIZON-SHIELD-ci/1.0"})
+          theirs = json.load(urllib.request.urlopen(req, timeout=30))["version"]
+          print("写し: %s / 持ち主: %s" % (mine, theirs))
+          if mine != theirs:
+              raise SystemExit(
+                  "写しが持ち主(JHNRD)とずれています。次を走らせてください:\n"
+                  "  JHNRD_REPO=~/Desktop/jhnrd python3 tools/nursing/sync_db.py --pull\n"
+                  "  python3 tools/nursing/sync_questions.py --write\n"
+                  "  python3 tools/nursing/build_mcp_rules.py --write\n"
+                  "そのあと workers/hs-nursing-mcp を配り直すこと(CI は配りません)。")
+          PY
+
       - name: 内部MCPの算定要件が、データベースとずれていないか
         run: python3 tools/nursing/build_mcp_rules.py --check
 
