@@ -13,6 +13,7 @@ on:
       - "data/nursing/**"
       - "workers/hs-hearing/src/industry.js"
       - "tools/**"
+      - "workers/hs-hearing/**"
       - "tools/visibility/**"
       - "tools/industries/**"
       - "data/visibility/**"
@@ -58,6 +59,12 @@ jobs:
       # いつも緑かいつも赤のどちらかになる。
       - name: 公開直前の門(両側から)
         run: python3 tools/publish_guard_test.py
+
+      # 何日目に何が届くかを、走らせて確かめる。
+      # 2026-08-24、返事待ちの間はデータベースを厚くする8問が最長28日ゼロになると
+      # 分かったのは、頭で数えたからではなく、実物に値を入れて回したからである。
+      - name: ヒアリングの間隔と、返事の当て方
+        run: node workers/hs-hearing/cadence_test.mjs
 
   visibility:
     runs-on: ubuntu-latest

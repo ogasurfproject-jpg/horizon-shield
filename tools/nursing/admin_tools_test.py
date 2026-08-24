@@ -50,6 +50,7 @@ EXPORTS = {
         "company": "", "industry": "nursing", "area": "秦野市", "extra": {}}},
 }
 PATCHED = []
+MODE_WRITES = []
 AUTOPILOT = {
     # 平田さんの形: 共通の設問は送ってあるが、DBを厚くする現場質問は一度も送っていない
     # 実際に平田様の記録で見つけた形: 返事待ちは立っているのに asked が空。
@@ -104,6 +105,18 @@ class H(BaseHTTPRequestHandler):
             sid = b.get("store_id")
             EXPORTS[sid]["profile"].update(b["fields"])
             return self._send(200, {"ok": True, "store_id": sid, "applied": b["fields"]})
+        if self.path == "/admin/hearing-mode":
+            sid = b.get("store_id")
+            mode = b.get("mode")
+            if mode not in ("prospect", "onboarding"):
+                return self._send(400, {"error": "mode は prospect か onboarding", "got": mode})
+            row = [r for r in STORES if r["store_id"] == sid]
+            if not row:
+                return self._send(404, {"error": "not_found"})
+            frm = row[0].get("hearing_mode") or "prospect"
+            row[0]["hearing_mode"] = mode
+            MODE_WRITES.append(b)
+            return self._send(200, {"ok": True, "store_id": sid, "from": frm, "to": mode})
         self._send(404, {"error": "no"})
 
 
@@ -116,6 +129,20 @@ def run(tool, *args):
     r = subprocess.run([sys.executable, os.path.join(HERE, tool)] + list(args),
                        capture_output=True, text=True, cwd=HS, env=env)
     return r
+
+
+FAILS = []
+
+
+def must(label, cond, r=None, extra=""):
+    """通ったか落ちたかを1行で言う。落ちたときだけ、道具の出力を出す。"""
+    print(("  ok  " if cond else "  ★NG ") + label + (("  " + extra) if extra else ""))
+    if not cond:
+        FAILS.append(label)
+        if r is not None:
+            for line in (r.stdout + r.stderr).strip().splitlines()[-12:]:
+                print("        " + line)
+    return cond
 
 
 def main():
@@ -178,6 +205,24 @@ def main():
     else:
         print("  ok  止まった: " + (r.stderr.strip().splitlines() or [""])[0][:60])
 
+    print("\n=== 7) 立場の切り替えが、指した店にだけ効くか ===")
+    # 既定では何も書かない
+    r = run("set_hearing_mode.py", "--id", "kira-test01", "--mode", "onboarding")
+    must("--write を付けなければ書かない",
+         (not MODE_WRITES) and "何も書いていません" in r.stdout, r)
+    must("何がどう変わるかを先に出す",
+         "48時間おき" in r.stdout and "needs_human" in r.stdout, r)
+    # 実際に書く
+    r = run("set_hearing_mode.py", "--id", "kira-test01", "--mode", "onboarding", "--write")
+    must("--write で書く", len(MODE_WRITES) == 1 and MODE_WRITES[0]["store_id"] == "kira-test01",
+         r, "書いた先=%s" % [w.get("store_id") for w in MODE_WRITES])
+    must("書いた結果を言う", "prospect -> onboarding" in r.stdout, r)
+    # 一覧に無い店IDは拒む
+    r = run("set_hearing_mode.py", "--id", "kira-nonexistent99", "--mode", "onboarding", "--write")
+    must("一覧に無い店には書かない",
+         len(MODE_WRITES) == 1 and r.returncode == 1, r,
+         "書いた先=%s" % [w.get("store_id") for w in MODE_WRITES])
+
     print("\n=== 6) 口が業種を返さないとき、「無い」と言わないか ===")
     # 2026-08-24: /admin/stores は industry を返していなかった。
     #   道具は1行ずつ見て undefined を得て、「業種が無い」と報告し続けた。
@@ -198,6 +243,7 @@ def main():
     else:
         print("  ok  「この口からは見えません」と言い、「無い」とは言わない")
 
+    bad += len(FAILS)
     print()
     if bad:
         print("★ %d 件ずれています。" % bad); sys.exit(1)

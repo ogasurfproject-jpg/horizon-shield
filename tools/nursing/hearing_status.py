@@ -20,6 +20,7 @@
   ・社名がどちらにも無い(「加盟店 さま」と呼ぶことになる)
   ・返事待ちが7日を超えている
   ・その業種の生成器が繋がっていない(答えが溜まっても出口が無い)
+  ・機械が手を引いた店(needs_human)。人が電話をかける番である
 
   python3 tools/nursing/hearing_status.py
 """
@@ -93,6 +94,27 @@ def main():
         print("  業種   : profile側=%s / store側=%s   完成度: %s"
               % (prof.get("industry") or "(無し)", store_ind or "(無し)", comp))
 
+        # 2026-08-24 ヒアリングの立場。届き方が変わるので、必ず出す。
+        mode_visible = exposed("hearing_mode")
+        mode = row.get("hearing_mode") if mode_visible else None
+        if mode_visible:
+            label = {"onboarding": "契約済み・DB構築中(48時間おき/3回無返答で人に回す)",
+                     "prospect": "見込み(従来どおり。返事待ちの間は送らない)"}.get(mode, mode)
+            print("  立場   : %s" % label)
+        else:
+            print("  立場   : (この口からは見えない。deploy すれば見えます)")
+
+        # 機械が手を引いたか
+        nh = ap.get("needs_human")
+        streak = ap.get("unanswered_sends")
+        if nh:
+            print("  ★ 機械は手を引きました: %s (%s から)"
+                  % (nh.get("why") or "理由なし", str(nh.get("since"))[:16]))
+            problems.append((sid, "機械が手を引いています。人が連絡する番です: %s"
+                             % (nh.get("why") or "理由なし")))
+        elif streak:
+            print("  連続無返答: %s 回" % streak)
+
         if ind_visible and not row.get("industry"):
             problems.append((sid, "store: 側に業種が無い。名乗りと生成の振り分けが厚い方頼みになる"))
         if not thin_co and not prof.get("company"):
@@ -105,6 +127,13 @@ def main():
             print("  返事待ち: %s  (%s に %s で送信, %.1f 日前)"
                   % ("、".join(pend.get("qids") or []), str(pend.get("sent_at"))[:16],
                      pend.get("via"), d if d is not None else -1))
+            # 2026-08-24: 返事待ちは「波」で持つ。どの群がいつ出たのかを出す。
+            #   1通の返事を全部の設問に当てないための区切りが、ここに見えていないと確かめられない。
+            for w in (ap.get("pending") or {}).get("waves") or []:
+                wd = age_days(w.get("sent_at"))
+                print("      波 %-8s %s  (%s, %.1f 日前)"
+                      % (w.get("kind") or "-", "、".join(w.get("qids") or []),
+                         str(w.get("sent_at"))[:16], wd if wd is not None else -1))
             if d is not None and d > 7:
                 problems.append((sid, "返事待ちが %.0f 日。放置になっている" % d))
         else:

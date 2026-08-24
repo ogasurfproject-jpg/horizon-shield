@@ -85,10 +85,15 @@ def harvest(stores, fq):
                 # この答えが、本当にこの質問への答えかどうか。
                 #   numbered  番号で切り分けられた
                 #   sole      その質問だけを送って返ってきた
-                #   ambiguous 複数送って1通返り、切り分けられなかった -> 人が確かめる
+                #   ambiguous   複数送って1通返り、切り分けられなかった -> 人が確かめる
+                #   recent_wave 直近に送った1問への返事とみなした(推定) -> 人が確かめる
+                #     2026-08-24: 返事待ちを波で持つようにしたときに増えた種類。
+                #     催促で1問足したあとに番号無しの返事が来ると、その1通は
+                #     いちばん新しい問いへの返事とみるのが自然だが、古い問いへの
+                #     返事である可能性は消えない。自然な方を選んだ、という事実まで残す。
                 "attributed": attributed,
                 "asked_with": with_q,
-                "needs_attribution": (attributed == "ambiguous"),
+                "needs_attribution": (attributed in ("ambiguous", "recent_wave", "unknown")),
                 # 公開の可否。人が決めるまで null のまま。
                 "consent": None,
                 "publish_as": None,
@@ -124,7 +129,7 @@ def main():
     rows = harvest(stores, fq)
     nursing = [s for s in stores if (s.get("profile") or {}).get("industry") == "nursing"]
     print("訪問看護の店: %d 件 / 回答のあった現場質問: %d 件" % (len(nursing), len(rows)))
-    MARK = {"numbered": "  ", "sole": "  ", "ambiguous": "※ ", "unknown": "? "}
+    MARK = {"numbered": "  ", "sole": "  ", "ambiguous": "※ ", "recent_wave": "※ ", "unknown": "? "}
     for e in rows:
         print("  %s%-20s %s: %s" % (MARK.get(e["attributed"], "? "),
                                     e["asked_via"], e["reported_by"], e["text"][:40]))

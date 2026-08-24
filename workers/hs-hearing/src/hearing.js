@@ -2057,6 +2057,11 @@ export default {
             //   見えない欄について「無い」とは言えない。だから見えるようにする。
             industry: s.industry || null,
             industry_decided_at: s.industry_decided_at || null,
+            // 2026-08-24: ヒアリングの立場と、機械が手を引いた印。
+            //   立場("onboarding")で配信の間隔が変わる。外から見えなければ、
+            //   「なぜこの店にだけ多く届いているのか」を確かめる手段が無い。
+            //   needs_human は、人が電話をかけるべき店の名簿である。
+            hearing_mode: s.hearing_mode || "prospect",
             tier: s.tier || null,
             plan: s.plan || null,
             email: s.email || "",
@@ -2075,6 +2080,11 @@ export default {
               nudges: ap.nudges || 0,
               penalty: ap.penalty || 0,
               last_answer_at: ap.last_answer_at || null,
+              unanswered_sends: ap.unanswered_sends || 0,
+              needs_human: ap.needs_human || null,
+              waves: ap.pending && ap.pending.waves
+                ? ap.pending.waves.map((w) => ({ qids: w.qids, sent_at: w.sent_at, kind: w.kind }))
+                : null,
             },
             referral_count: await AP.refCount(env, s.member_no),
           });
@@ -2191,9 +2201,15 @@ export default {
         if (!qs.length) return json({ ok: false, reason: "質問なし(完成度が十分か、全て送信済み)" });
         const r = await AP.sendQuestions(env, store, qs, "followup");
         if (!r.ok) return json({ ok: false, reason: r.reason }, 502);
-        ap.pending = { qids: qs.map((q) => q.qid), text: qs.map((q) => q.text).join("\n"), sent_at: new Date().toISOString(), via: r.via };
-        ap.asked = [...(ap.asked || []), ...qs.map((q) => ({ qid: q.qid, at: new Date().toISOString(), answered: false }))].slice(-50);
-        ap.last_send_at = new Date().toISOString();
+        // 2026-08-24: 返事待ちの作り方が、ここと runDailyTick の二箇所にあった。
+        //   二箇所にある同じ処理は、いつか片方だけ直る。実際、波(waves)を入れたとき
+        //   この口だけ古い形のままで、ここから送った問いは消込の対象から外れていた。
+        //   作るのは AP.pushWave 一箇所に寄せる。
+        const atIso = new Date().toISOString();
+        AP.pushWave(ap, qs, "followup", atIso);
+        ap.asked = [...(ap.asked || []), ...qs.map((q) => ({ qid: q.qid, at: atIso, answered: false }))].slice(-50);
+        ap.last_send_at = atIso;
+        ap.unanswered_sends = (ap.unanswered_sends || 0) + 1;
         store.autopilot = ap;
         await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));
         return json({ ok: true, sent: qs.map((q) => q.qid), via: r.via });
@@ -2236,11 +2252,42 @@ export default {
         //   ASK_MAX=3 を食い潰して、その項目を恒久的に聞けなくする。
         const nudgeAt = new Date().toISOString();
         if (qs.length) ap.asked = [...(ap.asked || []), ...qs.map((q) => ({ qid: q.qid, at: nudgeAt, answered: false, via: "nudge" }))].slice(-50);
+        // 2026-08-24: 催促で送った問いも返事待ちに積む(巡回側と同じ形にする)。
+        if (qs.length) AP.pushWave(ap, qs, "nudge", nudgeAt);
         ap.last_send_at = nudgeAt;
         ap.nudges = (ap.nudges || 0) + 1;
+        ap.unanswered_sends = (ap.unanswered_sends || 0) + 1;
         store.autopilot = ap;
         await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));
         return json({ ok: true, via: r.via, nudges: ap.nudges });
+      }
+
+      // ヒアリングの立場を切り替える。
+      // 2026-08-24: 契約済みでデータベース構築の期間中の相手は "onboarding"。
+      //   返事待ちでも48時間おきに次を送り、3回続けて返事が無ければ人に回す。
+      //   見込みの相手("prospect")は従来どおり。既定は prospect であり、
+      //   ここを明示的に叩かないかぎり、誰の届き方も変わらない。
+      if (path === "/admin/hearing-mode" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const sid = safeStr(b.store_id, 40);
+        const mode = safeStr(b.mode, 20);
+        if (mode !== "prospect" && mode !== "onboarding") {
+          return json({ error: "mode は prospect か onboarding", got: mode }, 400);
+        }
+        const store = await env.HS_HEARING_KV.get("store:" + sid, "json");
+        if (!store) return json({ error: "not_found" }, 404);
+        const from = store.hearing_mode || "prospect";
+        store.hearing_mode = mode;
+        store.hearing_mode_at = new Date().toISOString();
+        // 立場を変えたら、止まっていた印は外す。
+        // 止めた理由は「その立場での回数」だったので、立場が変われば数え直す。
+        const ap = store.autopilot || {};
+        if (ap.needs_human) delete ap.needs_human;
+        ap.unanswered_sends = 0;
+        store.autopilot = ap;
+        await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));
+        await notify(env, "[Yakumo] hearing-mode: " + sid + " " + from + " -> " + mode);
+        return json({ ok: true, store_id: sid, from, to: mode });
       }
 
       // 運用状態の全容

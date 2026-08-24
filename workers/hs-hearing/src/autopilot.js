@@ -31,6 +31,57 @@ export const MIN_AUDIT_ESTIMATES = 3;
 export const FOLLOWUP_COOLDOWN_H = 72; // 門B: 無反応の相手を急かさないための待ち
 export const REPLY_GATE_FLOOR_H = 6;   // 門A: 返事が来ていても、これより短い間隔では送らない
 
+/* 2026-08-24 ヒアリングの立場。加盟店ごとに違う。
+   "prospect"   … 見込みの相手。返事が無いのに問いを重ねない。従来どおり。
+   "onboarding" … 契約済みで、データベース構築の期間中。
+                  ヒアリングそのものが納品物なので、返事待ちでも問いを止めない。
+
+   なぜ分けるか (2026-08-24、稼働中のコードに実際の値を入れて回した結果):
+     訪問看護のあっぷす様は 8/23 21:17 に2問送って返事待ちである。
+     追撃の枝は !ap.pending を要求するので通らない。
+     催促は 3・7・14・21日目に1問ずつ、そのあと打ち切り。
+     つまり「算定要件データベースを厚くする8問」は、返事が1通も来なければ
+     最長28日ゼロのままになる。運用開始は10月1日である。
+
+     この上限は、見込みの相手を急かさないために置いた。そこは正しい。
+     だがあっぷす様は契約済みで、このヒアリング自体が売った物である。
+     同じ数字を両方に当てれば、どちらかが必ず間違う。
+
+     代わりに、送り続ければよいわけでもない。3回続けて返事が無ければ、
+     機械は下がって人に回す。答えない相手に機械が同じ調子で送り続けるのは、
+     熱心なのではなく、聞こえていないだけである。 */
+export const ONBOARDING_GAP_H = 48;         // 返事待ちのまま次を送るまでの最短間隔
+export const ONBOARDING_MAX_UNANSWERED = 3; // 続けてこれだけ返事が無ければ、送信をやめて人に回す
+export function hearingMode(store) {
+  return (store && store.hearing_mode === "onboarding") ? "onboarding" : "prospect";
+}
+
+/* 2026-08-24 送った一群(波)を、返事待ちに積む。
+   これまで返事待ちは1群しか持てなかった。催促で送った1問は ap.asked には残るが
+   返事待ちには載らず、その答えが誰のものかは、どこにも書かれていなかった。
+   人は、いま届いた文面に番号で答える。だから群のまま持つ。
+   いちばん古い送信時刻は動かさない。催促の時計はそこから数えている。 */
+export function pushWave(ap, qs, kind, at) {
+  const wave = { qids: qs.map((q) => q.qid),
+                 texts: Object.fromEntries(qs.map((q) => [q.qid, q.text])),
+                 sent_at: at, kind: kind };
+  const p = ap.pending;
+  if (!p) {
+    ap.pending = { qids: [...wave.qids], text: qs.map((q) => q.text).join("\n"),
+                   asked_texts: { ...wave.texts }, sent_at: at, via: kind,
+                   waves: [wave] };
+    return ap.pending;
+  }
+  const before = (p.waves && p.waves.length) ? p.waves
+    : [{ qids: [...(p.qids || [])], texts: { ...(p.asked_texts || {}) },
+         sent_at: p.sent_at, kind: p.via || "followup" }];
+  p.waves = [...before, wave];
+  p.qids = [...new Set([...(p.qids || []), ...wave.qids])];
+  p.asked_texts = { ...(p.asked_texts || {}), ...wave.texts };
+  p.text = Object.values(p.asked_texts).join("\n");
+  return p;
+}
+
 /* ------------------------------ 質問バンク ------------------------------ */
 // qid は恒久固定。同じ qid は二度と送らない(asked台帳)。
 export const QUESTION_BANK = {
@@ -593,9 +644,26 @@ export async function runDailyTick(env, deps) {
     const comp = profile ? computeCompleteness(profile, ap) : { score: 0, missing: [] };
     ap.completeness = comp.score;
 
+    // 0) 手を引くかどうかを、送る枝より前で一度だけ決める。
+    //    2026-08-24: 最初は追撃の枝にだけ「3回無返答で止める」を入れた。走らせたら、
+    //    催促の枝が素通りして 3・7・14・21日目に送り続けた。止めたつもりで止まっていない。
+    //    止めるなら、送る道が何本あっても同じ場所で止める。
+    //
+    //    止めたあとは、人が出る。あっぷす様は契約済みのお客様である。
+    //    3通送って一度も返事が無いなら、機械が4通目を書く場面ではない。
+    const mode = hearingMode(store);
+    const handOff = (mode === "onboarding") &&
+                    ((ap.unanswered_sends || 0) >= ONBOARDING_MAX_UNANSWERED);
+    if (handOff && !ap.needs_human) {
+      ap.needs_human = { since: now(),
+                         why: (ap.unanswered_sends || 0) + "回続けて送って、返事が一度も無い" };
+    }
+
     // 1) pending放置 -> 注意喚起 / ペナルティ
     const pol = applyPenaltyPolicy(ap, nowMs);
-    if (pol.action === "nudge1" || pol.action === "nudge2") {
+    if (handOff) {
+      log.skipped.push(sid + ":onboarding:人に回す(" + (ap.unanswered_sends || 0) + "回無返答)");
+    } else if (pol.action === "nudge1" || pol.action === "nudge2") {
       const qs = nextQuestions(profile || {}, ap, 1);
       const nudgeQ = qs.length ? qs : [{ qid: "q_trust", text: QUESTION_BANK.q_trust.text }];
       const r = await sendQuestions(env, store, nudgeQ, "nudge");
@@ -607,6 +675,11 @@ export async function runDailyTick(env, deps) {
         //   nextQuestions が空を返したとき、つまりその質問が既に上限か冷却中のとき。
         //   数えると ASK_MAX=3 を食い潰して、その項目を恒久的に聞けなくする。
         if (qs.length) ap.asked = [...(ap.asked || []), ...qs.map((q) => ({ qid: q.qid, at: now(), answered: false, via: "nudge" }))].slice(-50);
+        // 2026-08-24: 催促で送った問いも返事待ちに積む。
+        //   これまで asked にだけ残していたので、その答えが返ってきても
+        //   「何への答えか」を決める材料が消込側に無かった。
+        if (qs.length) pushWave(ap, qs, "nudge", now());
+        ap.unanswered_sends = (ap.unanswered_sends || 0) + 1;
         if (pol.action === "nudge2") ap.penalty = pol.penalty;
         log.nudged.push(sid + ":" + pol.action + ":" + r.via);
         if (pol.action === "nudge2") log.penalized.push(sid + ":penalty3");
@@ -628,27 +701,43 @@ export async function runDailyTick(env, deps) {
     //    門B 時間: 従来どおり FOLLOWUP_COOLDOWN_H 時間。無反応の相手はこちらで拾う。
     //    連投にはならない。送れば ap.pending が立ち、この枝は次の返事が来るまで通らない。
     //    最大でも「返事1通につき送信1回」。門を開けても回数は増えない。
-    else if (profile && comp.score < 85 && !ap.pending) {
+    //    2026-08-24 立場で門を変える:
+    //      返事待ちが開いている間、この枝は一度も通らなかった。見込みの相手には正しい。
+    //      契約済みでデータベース構築の期間中の相手(hearing_mode="onboarding")には、
+    //      ヒアリングを止めることが、そのまま納品を止めることになる。
+    //      だから返事待ちでも、48時間おきに次を送る。ただし3回続けて返事が無ければ止め、
+    //      人に回す(ap.needs_human)。機械が同じ調子で送り続けるのは熱心なのではない。
+    else if (profile && comp.score < 85) {
       const sinceSend = ap.last_send_at ? (nowMs - Date.parse(ap.last_send_at)) : Infinity;
       const sinceAnswer = ap.last_answer_at ? (nowMs - Date.parse(ap.last_answer_at)) : Infinity;
       const answeredAfterSend = !!ap.last_answer_at &&
         (!ap.last_send_at || Date.parse(ap.last_answer_at) > Date.parse(ap.last_send_at));
-      const gate = (answeredAfterSend && sinceAnswer >= REPLY_GATE_FLOOR_H * 3600 * 1000) ? "reply"
-                 : (sinceSend >= FOLLOWUP_COOLDOWN_H * 3600 * 1000) ? "cooldown" : "";
+      let gate = "";
+      if (!ap.pending) {
+        gate = (answeredAfterSend && sinceAnswer >= REPLY_GATE_FLOOR_H * 3600 * 1000) ? "reply"
+             : (sinceSend >= FOLLOWUP_COOLDOWN_H * 3600 * 1000) ? "cooldown" : "";
+      } else if (mode === "onboarding") {
+        // 返事待ちが開いていても、契約済みの相手には次を送る。
+        // 止める判断は上の handOff で済んでいる。ここは間隔だけを見る。
+        const pendAge = ap.pending.sent_at ? (nowMs - Date.parse(ap.pending.sent_at)) : 0;
+        if (Math.min(pendAge, sinceSend) >= ONBOARDING_GAP_H * 3600 * 1000) gate = "onboarding";
+      }
       if (gate) {
         const qs = nextQuestions(profile, ap, 2);
         if (qs.length) {
           const r = await sendQuestions(env, store, qs, "followup");
           if (r.ok) {
-            ap.pending = { qids: qs.map((q) => q.qid), text: qs.map((q) => q.text).join("\n"),
-                           // 何を訊いたかを qid ごとに残す。答えだけ残っても、
-                           // あとから「何への答えか」が分からなければ使えない。
-                           asked_texts: Object.fromEntries(qs.map((q) => [q.qid, q.text])),
-                           sent_at: now(), via: r.via };
+            // 何を訊いたかを qid ごとに残す。答えだけ残っても、
+            // あとから「何への答えか」が分からなければ使えない。
+            pushWave(ap, qs, "followup", now());
             ap.asked = [...(ap.asked || []), ...qs.map((q) => ({ qid: q.qid, at: now(), answered: false }))].slice(-50);
             ap.last_send_at = now();
+            ap.unanswered_sends = (ap.unanswered_sends || 0) + 1;
             log.sent.push(sid + ":" + qs.map((q) => q.qid).join("+") + ":" + r.via + ":" + gate);
           } else log.skipped.push(sid + ":followup:" + r.reason);
+        } else if (gate === "onboarding") {
+          // 門は開いたが出せる問いが無い。黙って通り過ぎない。
+          log.skipped.push(sid + ":onboarding:送れる設問が残っていない");
         }
       }
     }
@@ -794,6 +883,21 @@ export async function selfCheck(env, stores) {
   scanned("gate_has_something_to_send", idle.length === 0,
       idle.length ? idle.join(" ") : "門が開いた店には出せる質問がある");
 
+  // E7 機械が手を引いた店。2026-08-24。
+  //    契約済みの相手に3回続けて送って返事が無ければ、送信を止めて人に回す。
+  //    止めたことを、どこにも出さずに止めると、それはただの沈黙になる。
+  //    沈黙は「うまくいっている」と見分けがつかない。必ず名前で出す。
+  const handoff = [];
+  for (const s2 of roster) {
+    const ap = s2.autopilot || {};
+    if (ap.needs_human) {
+      handoff.push(s2.store_id + ":" + (ap.needs_human.why || "理由なし") +
+                   ":" + (ap.needs_human.since || "?"));
+    }
+  }
+  scanned("no_handoff_waiting", handoff.length === 0,
+      handoff.length ? handoff.join(" ") + " ← 人からの連絡が要る" : "人待ちなし");
+
   const failed = checks.filter((x) => !x.ok);
   const report = { checked_at: now(), pass: failed.length === 0, failed: failed.map((f) => f.id), checks };
   await env.HS_HEARING_KV.put("selfcheck:last", JSON.stringify(report));
@@ -903,38 +1007,95 @@ export function splitNumberedReply(rawText, n) {
 
 export function settlePendingOnAnswer(store, rawText) {
   const ap = store.autopilot || {};
-  if (ap.pending && ap.pending.qids) {
-    const qids = ap.pending.qids;
-    const parts = splitNumberedReply(rawText, qids.length);
-    const asked = ap.pending.asked_texts || {};
+  // 返事が来たという事実だけは、どの道でも同じように残す。
+  const recover = () => {
+    ap.nudges = 0;
+    ap.penalty = 0;                 // 回答が来たら即回復(誠実設計)
+    ap.unanswered_sends = 0;
+    if (ap.needs_human) delete ap.needs_human;
+    ap.last_answer_at = now();
+  };
+  const p = ap.pending;
+  if (p && p.qids && p.qids.length) {
+    // 2026-08-24: 返事待ちを「波」で持つようにした。
+    //   これまでは1通の返事を、返事待ちに載っている全部の設問に当てていた。
+    //   催促で1問足したあとに返事が来ると、その1通が2問にも3問にも入る。
+    //   人は、いま届いた文面に番号で答える。だから、いちばん新しい波に先に当てる。
+    //   古い波は返事待ちのまま残す。当てられないものを当てたことにしない。
+    const waves = (p.waves && p.waves.length) ? p.waves
+      : [{ qids: [...p.qids], texts: { ...(p.asked_texts || {}) },
+           sent_at: p.sent_at, kind: p.via || "followup" }];
+    const last = waves[waves.length - 1];
+    const lastParts = splitNumberedReply(rawText, last.qids.length);
+    const hasNumber = /(?:^|\n)[ \u3000]*(?:\(\d\)|\d[)）.．、,:：]|[①②③④⑤⑥⑦⑧⑨])/m.test(String(rawText || ""));
+
+    let qids, texts, parts, how, waveMatched;
+    if (waves.length === 1) {
+      // 波が一つ。これまでと同じ。
+      qids = [...p.qids]; texts = { ...(p.asked_texts || {}) };
+      parts = splitNumberedReply(rawText, qids.length);
+      how = parts ? "numbered" : (qids.length > 1 ? "ambiguous" : "sole");
+      waveMatched = true;
+    } else if (lastParts) {
+      // 新しい波の番号と、返事の番号が揃った。切り分けられている。
+      qids = [...last.qids]; texts = { ...last.texts };
+      parts = lastParts; how = "numbered"; waveMatched = true;
+    } else if (last.qids.length === 1 && !hasNumber) {
+      // 新しい波は1問で、返事に番号は無い。いちばん最後に届いた1問への返事とみるのが自然だが、
+      // 古い波への返事である可能性は消えない。だから決めつけず、名前を変えて人に回す。
+      qids = [...last.qids]; texts = { ...last.texts };
+      parts = null; how = "recent_wave"; waveMatched = true;
+    } else {
+      // どの波にも当てられない。返事待ち全体を、切り分け不能として閉じる。
+      qids = [...p.qids]; texts = { ...(p.asked_texts || {}) };
+      parts = splitNumberedReply(rawText, qids.length);
+      how = parts ? "numbered" : (qids.length > 1 ? "ambiguous" : "sole");
+      waveMatched = false;
+    }
+
     const extraPatch = {};
     qids.forEach((qid, i) => {
       extraPatch[qid] = {
         text: S(parts ? parts[i] : rawText, 3000),
         at: now(),
         // どうやってこの答えに辿り着いたかを残す。
-        //   sole      … その質問だけを送って返ってきた
-        //   numbered  … 番号で切り分けられた
-        //   ambiguous … 複数送って1通返り、切り分けられなかった
-        attributed: parts ? "numbered" : (qids.length > 1 ? "ambiguous" : "sole"),
+        //   sole        … その質問だけを送って返ってきた
+        //   numbered    … 番号で切り分けられた
+        //   recent_wave … 直近に送った1問への返事とみなした(推定。人が確かめる)
+        //   ambiguous   … 複数送って1通返り、切り分けられなかった
+        attributed: how,
         with: qids.filter((x) => x !== qid),
-        asked: S(asked[qid] || "", 600),
+        asked: S(texts[qid] || (p.asked_texts || {})[qid] || "", 600),
       };
     });
     // 2026-08-19 patch44: 返事が来たことと、その質問が埋まったことは別の事実。
     // 中身を確かめずに埋まった印を立てない。埋まったかは computeCompleteness が決める。
     // 返事が来た事実は消さずに残す。
-    ap.asked = (ap.asked || []).map((a) => (ap.pending.qids.includes(a.qid) ? { ...a, replied_at: now() } : a));
-    ap.pending = null;
-    ap.nudges = 0;
-    ap.penalty = 0; // 回答が来たら即回復(誠実設計)
-    ap.last_answer_at = now();
+    const settled = new Set(qids);
+    ap.asked = (ap.asked || []).map((a) => (settled.has(a.qid) ? { ...a, replied_at: now() } : a));
+
+    const remain = waveMatched
+      ? waves.slice(0, -1).map((w) => ({ ...w, qids: w.qids.filter((q) => !settled.has(q)) }))
+                          .filter((w) => w.qids.length)
+      : [];
+    if (remain.length) {
+      const at = {};
+      for (const w of remain) Object.assign(at, w.texts);
+      p.waves = remain;
+      p.qids = [...new Set(remain.flatMap((w) => w.qids))];
+      p.asked_texts = at;
+      p.text = Object.values(at).join("\n");
+      // 会話は動いた。催促の時計は、ここから数え直す。
+      p.sent_at = now();
+      ap.pending = p;
+    } else {
+      ap.pending = null;
+    }
+    recover();
     store.autopilot = ap;
     return extraPatch;
   }
-  ap.last_answer_at = now();
-  ap.penalty = 0;
-  ap.nudges = 0;
+  recover();
   store.autopilot = ap;
   return {};
 }
