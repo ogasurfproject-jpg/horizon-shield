@@ -98,48 +98,50 @@ def main():
         if untouched:
             cands.append((k, s))
 
-    if not cands:
-        print("候補はありません。業種の無い店は、すべて既に何かを答えています。")
-        print()
-        # 2026-08-24: ここで終わっていた。だが既に答えている店にも業種は要る。
-        #   名乗りを業種別にした結果、業種の無い店は
-        #   「Yakumo運営」ではなく「HORIZON SHIELD 運営事務局」になった。
-        #   既存の建設加盟店にとっては、これは退化である。
-        #
-        #   ただし推測で業種を入れない。入れてよいのは、
-        #   コードが既にそう振る舞っている値だけである。
-        #   computeCompleteness も generate.py も、業種が無ければ construction として
-        #   扱っている。つまり construction と書くことは、
-        #   隠れていた既定値を、見えるところに書き出すだけであって、挙動を変えない。
-        #   変わるのは名乗りだけで、それは元の正しい名乗りに戻る。
-        print("業種が無く、既に答えている店:")
-        answered = []
-        for k in keys:
-            s2 = kv_get(k)
-            if not s2 or s2.get("industry"):
-                continue
+    # 2026-08-24: ここに足した一覧を "if not cands:" の中に置いていた。
+    #   候補が1件でもあると出ない。つまり、いちばん見たい状況で出なかった。
+    #   分岐の中に置くか外に置くかで、見えるものが変わる。外に出す。
+    #
+    #   業種の無い店は、答えているかどうかに関わらず全部並べる。
+    #   答えていない店は推測せずに尋ねられる。
+    #   答えている店は、工種を見てから決める。どちらも見せないと決められない。
+    answered, untouched = [], []
+    for k in keys:
+        s2 = kv_get(k)
+        if not s2 or s2.get("industry"):
+            continue
+        if (not s2.get("company")) and (not s2.get("works")) and (not s2.get("areas")):
+            untouched.append((k, s2))
+        else:
             answered.append((k, s2))
-        if not answered:
-            print("  ありません。")
-            return
+
+    if not untouched and not answered:
+        print("業種の無い店はありません。")
+        return
+
+    if answered:
+        print("業種が無く、既に答えている店: %d 件" % len(answered))
         for k, s2 in answered:
             sid = k.split(":", 1)[1]
             print("  %-20s %s" % (sid, s2.get("company") or "(社名なし)"))
             print("      工種  : %s" % (", ".join(s2.get("works") or []) or "(なし)"))
             print("      エリア: %s" % (", ".join(s2.get("areas") or []) or "(なし)"))
         print()
-        print("これらは、コードが既に construction として扱っています。")
+        print("  これらは、コードが既に construction として扱っています。")
         print("  computeCompleteness も generate.py も、業種が無ければ建設として動きます。")
-        print("  construction と書くのは、隠れていた既定値を見えるところに出すだけです。")
-        print("  挙動は変わりません。変わるのは名乗りだけで、")
+        print("  construction と書くのは、隠れていた既定値を見えるところに出すだけで、")
+        print("  挙動は変えません。変わるのは名乗りだけで、")
         print("  「HORIZON SHIELD 運営事務局」から「Yakumo運営」に戻ります。")
         print()
-        print("書き出すには(1店ずつ、工種を見て建設だと確かめてから):")
+        print("  工種を見て建設だと確かめてから、1店ずつ:")
         for k, s2 in answered:
             sid = k.split(":", 1)[1]
-            print("  python3 tools/set_industry.py --store %s --industry construction" % sid)
-        return
+            print("    python3 tools/set_industry.py --store %s --industry construction" % sid)
+        print()
 
+    if not untouched:
+        return
+    cands = untouched
     print("候補 %d 件:" % len(cands))
     for k, s in sorted(cands, key=lambda x: x[1].get("created_at", "")):
         sid = k.split(":", 1)[1]
