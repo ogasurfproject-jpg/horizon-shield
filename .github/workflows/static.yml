@@ -49,6 +49,12 @@ jobs:
           echo "----- published top-level after prune -----"
           ls -1 _public
 
+      # 束を作ったら、出す前に一度見る。
+      # rsync はリポジトリ全体を複製するので、削り漏れがあればそのまま世界に出る。
+      # ここで落ちたときは計器の故障ではない。測っているものが本当に危ない。
+      - name: 公開直前の門(鍵の値・お客様の書類が束に入っていないか)
+        run: python3 tools/publish_guard.py _public
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

@@ -197,3 +197,10 @@ HORIZON_SHIELD_鍵マネージャ*.html
 !tools/nursing/admin_tools_test.py
 !tools/nursing/hearing_status.py
 _tmp_noind_test.py.bak_delete_me
+
+# 2026-08-24 押す前に CI と同じ検査を通す道具と、公開直前の門。
+# CI がこれを走らせる。無視のままだとファイル無しで落ちる = また赤いメールが飛ぶ。
+!tools/ci_local.py
+!tools/install_ci_hook.sh
+!tools/publish_guard.py
+!tools/publish_guard_test.py

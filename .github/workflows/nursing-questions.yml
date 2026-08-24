@@ -12,7 +12,7 @@ on:
     paths:
       - "data/nursing/**"
       - "workers/hs-hearing/src/industry.js"
-      - "tools/nursing/**"
+      - "tools/**"
       - "tools/visibility/**"
       - "tools/industries/**"
       - "data/visibility/**"
@@ -52,6 +52,12 @@ jobs:
 
       - name: 業種ゲートの回帰テスト
         run: node workers/hs-hearing/industry_gate_test.mjs
+
+      # 公開直前の門が、止めるべきものを止め、通すべきものを通すか。
+      # 門は作った日には必ず正しく見える。両側から確かめないと、
+      # いつも緑かいつも赤のどちらかになる。
+      - name: 公開直前の門(両側から)
+        run: python3 tools/publish_guard_test.py
 
   visibility:
     runs-on: ubuntu-latest
