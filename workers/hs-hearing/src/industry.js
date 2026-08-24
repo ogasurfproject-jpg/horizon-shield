@@ -296,7 +296,7 @@ export const INDUSTRIES = {
       },
     
       /* --- 算定要件を確かめる (JHNRD) --- */
-      /* shiji-tokubetsu/tk-count、shiji-tokubetsu/tk-expiry、shiji-tsujo/ts-expiry */
+      /* shiji-tokubetsu/tk-count、shiji-tokubetsu/tk-expiry、shiji-tsujo/ts-expiry、kaigo-genzan-iryo-shiji-nissuu/iryo-shiji-kikan */
       q_nv_shiji: {
         w: 10,
         purpose: "requirement",
@@ -311,7 +311,7 @@ export const INDUSTRIES = {
       },
     
       /* --- 算定要件を確かめる (JHNRD) --- */
-      /* kasan-tokubetsu-kanri/tk-target、kasan-terminal/tm-record、iryo-kasan-tokubetsu-kanri/tk-taisho、iryo-kasan-nyuyoji/nyuyoji-taisho、iryo-terminal/tc-yoken、iryo-terminal/tc-kubun */
+      /* kasan-tokubetsu-kanri/tk-target、kasan-terminal/tm-record、iryo-kasan-tokubetsu-kanri/tk-taisho、iryo-kasan-nyuyoji/nyuyoji-taisho、iryo-terminal/tc-yoken、iryo-terminal/tc-kubun、kaigo-kasan-renkei-kyoka/renkei-youken */
       q_nv_kasan: {
         w: 10,
         purpose: "requirement",
