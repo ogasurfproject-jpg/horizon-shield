@@ -1,0 +1,110 @@
+# 月に一度、レジストリを数え直して、前回との差を出す。
+#
+# なぜ月1で「数える」だけなのか (2026-08-24):
+#   走行(12,429件に当てる)は、他人のサーバーへの通信である。
+#   毎月それをやるのは、こちらの都合で他人に負荷をかけることになる。
+#   報告書には「contacted exactly once」「robots を尊重した」「no は答えである」と書いた。
+#   その姿勢と、毎月の全件走行は噛み合わない。
+#
+#   数え(survey0)は、公開APIを自分で読むだけである。1本も叩かない。
+#   だから月1で回してよい。母集団の動きは、これで見える。
+#
+#   全件の走行は四半期に一度、手で起動する(workflow_dispatch)。
+#   走らせるときは、走らせると決めた人がいる。
+#
+# 落ちたときの扱い:
+#   レジストリに届かなかったのは、こちらの計器の話であって、
+#   レジストリについての発見ではない。だから赤にしない。記録して緑で終わる。
+#   記録は verify-directory/survey/data/ に残るので、次に見た人が気づく。
+#   道具そのものが壊れている(python が落ちる)ときだけ赤にする。
+name: survey-observatory
+
+on:
+  schedule:
+    - cron: "23 3 1 * *"      # 毎月1日 03:23 UTC (= 12:23 JST)
+  workflow_dispatch:
+    inputs:
+      also_diff_against:
+        description: "比べる相手の数え(ファイル名)。空なら data/ の中でいちばん新しいもの"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: survey-observatory
+  cancel-in-progress: false
+
+jobs:
+  count:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 前回の数えを覚えておく
+        id: prev
+        run: |
+          prev=$(ls -1 verify-directory/survey/data/survey0_v4_*.json 2>/dev/null | sort | tail -1)
+          echo "file=$prev" >> "$GITHUB_OUTPUT"
+          echo "前回: ${prev:-無し}"
+
+      - name: レジストリを数える(1本も叩かない)
+        id: count
+        continue-on-error: true
+        env:
+          SURVEY_OUT: verify-directory/survey/data
+        run: python3 tools/survey/count_registry.py
+
+      # 届かなかったのは、こちらの計器の話である。レジストリについての発見ではない。
+      # 赤にしない。何が起きたかを記録して、緑で終わる。
+      - name: 届かなかったときは、そう書いて終わる
+        if: steps.count.outcome != 'success'
+        run: |
+          python3 - <<'PY'
+          import json, io, datetime, os
+          p = "verify-directory/survey/data/survey0_attempt_%s.json" % datetime.date.today().isoformat()
+          io.open(p, "w", encoding="utf-8").write(json.dumps({
+            "attempted_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "result": "the count did not complete",
+            "what_this_is": "This is a statement about our run, not about the registry. "
+                            "held is not a finding. The previous count remains the current one.",
+            "run": os.environ.get("GITHUB_RUN_ID"),
+          }, ensure_ascii=False, indent=2))
+          print("記録しました:", p)
+          PY
+          echo "### 数えは完了しませんでした" >> "$GITHUB_STEP_SUMMARY"
+          echo "これはこちらの走行についての記述であって、レジストリについての発見ではありません。" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 前回との差を出す
+        if: steps.count.outcome == 'success' && steps.prev.outputs.file != ''
+        run: |
+          new=$(ls -1 verify-directory/survey/data/survey0_v4_*.json | sort | tail -1)
+          old="${{ github.event.inputs.also_diff_against || steps.prev.outputs.file }}"
+          if [ "$old" = "$new" ]; then
+            echo "前回と同じファイルです。差は出しません。" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "### 母集団の動き" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          python3 tools/survey/survey_diff.py --count "$old" "$new" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 索引を作り直す
+        if: steps.count.outcome == 'success'
+        run: python3 tools/survey/build_dataset_index.py --write
+
+      - name: 記録を残す
+        run: |
+          git config user.name "horizon-shield-observatory"
+          git config user.email "contact@the-horizons-innovation.com"
+          git add verify-directory/survey/data/ || true
+          if git diff --cached --quiet; then
+            echo "変わったものはありません。" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git commit -m "observatory: $(date -u +%Y-%m-%d) の数え"
+          git push

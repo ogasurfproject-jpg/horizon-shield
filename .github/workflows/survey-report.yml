@@ -38,6 +38,12 @@ jobs:
 
       # 照会口が読むデータは生成物である。手で数字を書けば、
       # 公開している報告書と照会口が別のことを言い始める。そのずれは落ちない。
+      # 公開しているデータの索引。ファイル名・大きさ・sha256。
+      # 索引が黙ってファイルを落とすと、「都合の悪いものを外した」と
+      # 後から見分けがつかなくなる。捨てた走行も索引に載せる。
+      - name: データの索引が、実際のファイルと合っているか
+        run: python3 tools/survey/build_dataset_index.py --check
+
       - name: 照会口のデータが、走行の生ファイルとずれていないか
         run: python3 tools/survey/build_observatory_data.py --check
 

@@ -1,0 +1,119 @@
+{
+  "dataset": "HORIZON SHIELD verify-directory - MCP registry survey",
+  "license": "CC BY 4.0",
+  "measured": {
+    "population_counted_on": "2026-08-19",
+    "walk_on": "2026-08-23",
+    "corrected_on": "2026-08-24"
+  },
+  "what_this_is": "One registry's declared https endpoints, contacted once each, read only. It is not a scan of the MCP ecosystem.",
+  "read_first": "https://shield.the-horizons-innovation.com/verify-directory/survey/1/",
+  "lookup_one_address": "https://hs-mcp-observatory.oga-surf-project.workers.dev/lookup?address=<your endpoint>",
+  "mcp_endpoint": "https://hs-mcp-observatory.oga-surf-project.workers.dev/mcp",
+  "how_to_reproduce": [
+    "python3 tools/survey/count_registry.py   # the population, contacts nothing",
+    "python3 tools/survey1_walk.py            # the walk, one contact per address",
+    "python3 tools/survey1_report.py          # every published number, from the walk",
+    "python3 tools/survey/survey_diff.py --walk <old.jsonl> <new.jsonl>"
+  ],
+  "rules_we_hold_ourselves_to": [
+    "held and pending are never added together.",
+    "State the measurement, not a character judgement.",
+    "Ship the recipe and the hash with every claim.",
+    "A claim about somebody else that cannot be reproduced by the person it is about should not be published."
+  ],
+  "files": [
+    {
+      "file": "known_limitations.json",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/known_limitations.json",
+      "bytes": 4963,
+      "sha256": "1a4c78017d45ee1a4b969bb69877c0e796cfffd511e748ae273b624b78213bb9",
+      "what": "What this measurement cannot tell you, kept beside the data rather than in prose. Includes the corrections, with the superseded claim retained.",
+      "role": "limits"
+    },
+    {
+      "file": "survey0_v4_2026-08-19.json",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey0_v4_2026-08-19.json",
+      "bytes": 2988,
+      "sha256": "beb0145d29e3bddc98937aa596bc5955980a16900301d8fc646757c74aef92b6",
+      "what": "The registry count. How many servers were registered, how many active, how many declared an https endpoint. Nothing was contacted.",
+      "made_by": "tools/survey/count_registry.py",
+      "role": "population"
+    },
+    {
+      "file": "survey0_v4_endpoints_active_2026-08-19.txt",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey0_v4_endpoints_active_2026-08-19.txt",
+      "bytes": 464573,
+      "sha256": "dfb668a66cb8a674d2a9840d66932155997eac2277b02f781347eeeae3417644",
+      "what": "The 12,429 https endpoints the registry declared as active, one per line. This is the list the walk went through.",
+      "made_by": "tools/survey/count_registry.py",
+      "role": "population"
+    },
+    {
+      "file": "survey1_report_2026-08-23.json",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey1_report_2026-08-23.json",
+      "bytes": 14124,
+      "sha256": "8e79695ac577764f3f7189caf4a628e406cb1ffd56cf793baaa893d63d20ee4c",
+      "what": "Every number that appears on the report page, generated from the walk. No figure on the page is typed by hand; CI fails the build if a number appears on the page that is not in this file.",
+      "made_by": "tools/survey1_report.py",
+      "role": "report"
+    },
+    {
+      "file": "survey1_walk_2026-08-23_run1_discarded.jsonl",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey1_walk_2026-08-23_run1_discarded.jsonl",
+      "bytes": 6654168,
+      "sha256": "60453935c5e9eb92c723240d4fcf8a96fc745a6bad6a3a8e56648fd267fe089d",
+      "lines": 12429,
+      "what": "The first full walk. DISCARDED IN FULL. From 2026-08-23T06:35Z onward every address came back unreachable; 11,307 rows after that cutover reached 0. The world did not go down. Our instrument did. No number from this file was published.",
+      "made_by": "tools/survey1_walk.py",
+      "role": "discarded",
+      "do_not_use": true
+    },
+    {
+      "file": "survey1_walk_2026-08-23_run1_instrument_failure.json",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey1_walk_2026-08-23_run1_instrument_failure.json",
+      "bytes": 2251,
+      "sha256": "a09b055ca494c1beafa6ff2d2ff3afceb4146065c324fcfd70b111183fec0897",
+      "what": "Why the first walk was discarded, with the minute it broke.",
+      "role": "discarded"
+    },
+    {
+      "file": "survey1_walk_2026-08-23_run2.jsonl",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey1_walk_2026-08-23_run2.jsonl",
+      "bytes": 9820663,
+      "sha256": "752cd10e909c62959f5cf37fccbc82ac59ba0b8f63c7b8dba8e043b98507fa84",
+      "lines": 12429,
+      "what": "The walk every published number comes from. One JSON object per address. Each address contacted exactly once, read only. No tool was called on any server.",
+      "made_by": "tools/survey1_walk.py",
+      "role": "primary"
+    },
+    {
+      "file": "survey1_walk_2026-08-23_run2.jsonl.health.json",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey1_walk_2026-08-23_run2.jsonl.health.json",
+      "bytes": 3062,
+      "sha256": "9eaef604e5f254fda74243f370ddec2b3e668dd0c4e55de6e6cc520cc5dd29d1",
+      "what": "The control probe and dead-man readings taken while the second walk ran.",
+      "role": "primary"
+    },
+    {
+      "file": "survey2_recheck_2026-08-24.jsonl",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey2_recheck_2026-08-24.jsonl",
+      "bytes": 427197,
+      "sha256": "9daabe48d8199c3b5dd694c22a0741c4dd38e518877f941b3289b1263614e1c3",
+      "lines": 918,
+      "what": "All 918 unresolved rows contacted again under the current 2026-07-28 revision. 33 answered. This is where we found our own version announcement was wrong.",
+      "made_by": "tools/survey2_recheck.py",
+      "role": "correction"
+    },
+    {
+      "file": "survey3_ladder_2026-08-24.jsonl",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey3_ladder_2026-08-24.jsonl",
+      "bytes": 373165,
+      "sha256": "29bd520920e6ecd703605c8818611dc72463efe09166a69fe09ef6b580f0227f",
+      "lines": 882,
+      "what": "The 882 rows that still did not answer, tried against four protocol versions in turn. 62 more answered at 2025-11-25. None needed anything older.",
+      "made_by": "tools/survey3_version_ladder.py",
+      "role": "correction"
+    }
+  ]
+}
