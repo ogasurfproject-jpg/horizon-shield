@@ -1135,7 +1135,7 @@ async function ingestHearingAnswer(env, store_id, store, text, source) {
     }
     ap.completeness = AP.computeCompleteness(profile, ap).score;
     store.autopilot = ap;
-    await env.HS_HEARING_KV.put("store:" + store_id, JSON.stringify(store));
+    await AP.putStore(env, store, "ingestHearingAnswer");
     await AP.activityAdd(env, { type: "answered", member_no: store.member_no, text: (store.company || "加盟店") + " がヒアリングに回答しました(完成度 " + ap.completeness + "%)" });
   }
   // 薄いページを構造的に作らない: 完成度が基準未満なら生成を保留し、追撃質問で厚みを取りにいく
@@ -1306,7 +1306,7 @@ async function handleKiraBridge(env, userId, text, groupId, estimates) {
       }
       store.industry = indKey;
       store.industry_decided_at = nowIso2;
-      await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));
+      await AP.putStore(env, store, "kira-bridge:業種決定");
       await env.HS_HEARING_KV.put("line2store:" + userId, sid);
       await env.HS_HEARING_KV.put("store2line:" + sid, userId);
       try { await env.HS_HEARING_KV.delete(intakeKey); } catch (_e) {}
@@ -1479,7 +1479,7 @@ async function appendEstimatesForAudit(env, storeId, estimates) {
         store.status = "published";
         store.verified_at = new Date().toISOString();
         store.auto_scored = { at: store.verified_at, score: sc.fairness_score, tier: sc.integrity_tier, confirm_notes: sc.confirm_notes, reason: sc.reason };
-        await env.HS_HEARING_KV.put("store:" + storeId, JSON.stringify(store));
+        await AP.putStore(env, store, "auto-kira:検証済み化");
         try { await AP.activityAdd(env, { type: "verified", member_no: store.member_no, text: (store.company || "\u52A0\u76DF\u5E97") + " \u304C\u9069\u6B63\u4FA1\u683C\u306E\u7B2C\u4E09\u8005\u691C\u8A3C(KIRA\u81EA\u52D5)\u3092\u901A\u904E\u3057\u307E\u3057\u305F" }); } catch (_e) {}
         try { await notify(env, "[Yakumo] \u81EA\u52D5\u691C\u8A3C: " + (store.company || storeId) + " \u3092KIRA\u81EA\u52D5\u63A1\u70B9\u3067 verified \u5316\u3002\u30B9\u30B3\u30A2" + sc.fairness_score + "/\u30C6\u30A3\u30A2" + sc.integrity_tier + "/\u8D64\u65D7" + sc.red_flags_detected + "\u3002" + sc.reason); } catch (_e) {}
       } else if (sc.hard_alert) {
@@ -1905,7 +1905,7 @@ export default {
           }
           ap2.completeness = AP.computeCompleteness(profile, ap2).score;
           store.autopilot = ap2;
-          await env.HS_HEARING_KV.put("store:" + tokRec.store_id, JSON.stringify(store));
+          await AP.putStore(env, store, "form:回答取り込み");
           await AP.activityAdd(env, { type: "answered", member_no: store.member_no, text: (store.company || "加盟店") + " がヒアリングに回答しました(完成度 " + ap2.completeness + "%)" });
         }
         // 薄いページを構造的に作らない: 完成度が基準未満なら生成を保留し、追撃質問で厚みを取りにいく
@@ -1962,7 +1962,7 @@ export default {
           status: "onboarding",
           created_at: new Date().toISOString(),
         };
-        await env.HS_HEARING_KV.put("store:" + store_id, JSON.stringify(store));
+        await AP.putStore(env, store, "admin/provision");
         await env.HS_HEARING_KV.put("htok:" + token, JSON.stringify({ store_id, member_no: store.member_no, company: store.company, created_at: store.created_at }));
         // メール返信を送信元アドレスで店に紐づけるための逆引き(email監視の照合用)
         if (store.email) await env.HS_HEARING_KV.put("email2store:" + store.email.toLowerCase(), store_id);
@@ -2082,6 +2082,10 @@ export default {
               last_answer_at: ap.last_answer_at || null,
               unanswered_sends: ap.unanswered_sends || 0,
               needs_human: ap.needs_human || null,
+              // 2026-08-24: 誰が最後に店を書いたか。asked が消えた件の経路を追うため。
+              writes: (ap._writes || []).slice(-6),
+              pending_overwritten: (ap._pending_overwritten || []).slice(-3),
+              asked_recovered: (ap._asked_recovered || []).slice(-3),
               waves: ap.pending && ap.pending.waves
                 ? ap.pending.waves.map((w) => ({ qids: w.qids, sent_at: w.sent_at, kind: w.kind }))
                 : null,
@@ -2126,7 +2130,7 @@ export default {
         if (b.claim_sha256) s.claim_sha256 = safeStr(b.claim_sha256, 80);
         s.status = "published";
         s.verified_at = new Date().toISOString();
-        await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(s));
+        await AP.putStore(env, s, "admin/verify");
         await AP.activityAdd(env, { type: "verified", member_no: s.member_no, text: (s.company || "加盟店") + " が適正価格の第三者検証(KIRA)を通過しました" });
         return json({ ok: true, store: storeToContractor(s) });
       }
@@ -2211,7 +2215,7 @@ export default {
         ap.last_send_at = atIso;
         ap.unanswered_sends = (ap.unanswered_sends || 0) + 1;
         store.autopilot = ap;
-        await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));
+        await AP.putStore(env, store, "admin/followup");
         return json({ ok: true, sent: qs.map((q) => q.qid), via: r.via });
       }
 
@@ -2231,7 +2235,7 @@ export default {
         }
         ap.completeness = AP.computeCompleteness((hearing && hearing.profile) || {}, ap).score;
         store.autopilot = ap;
-        await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));
+        await AP.putStore(env, store, "admin/classify");
         return json({ ok: true, focus_primary: ap.focus_primary, via: ap.focus_via, completeness: ap.completeness });
       }
 
@@ -2258,7 +2262,7 @@ export default {
         ap.nudges = (ap.nudges || 0) + 1;
         ap.unanswered_sends = (ap.unanswered_sends || 0) + 1;
         store.autopilot = ap;
-        await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));
+        await AP.putStore(env, store, "admin/nudge");
         return json({ ok: true, via: r.via, nudges: ap.nudges });
       }
 
@@ -2285,7 +2289,7 @@ export default {
         if (ap.needs_human) delete ap.needs_human;
         ap.unanswered_sends = 0;
         store.autopilot = ap;
-        await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));
+        await AP.putStore(env, store, "admin/hearing-mode");
         await notify(env, "[Yakumo] hearing-mode: " + sid + " " + from + " -> " + mode);
         return json({ ok: true, store_id: sid, from, to: mode });
       }
@@ -2368,7 +2372,7 @@ export default {
         const store = await env.HS_HEARING_KV.get("store:" + sid, "json");
         if (!store || !tok) return json({ error: "not_found_or_bad_token" }, 404);
         store.token = tok;
-        await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));
+        await AP.putStore(env, store, "admin/link-token");
         const existing = await env.HS_HEARING_KV.get("htok:" + tok, "json");
         if (!existing) await env.HS_HEARING_KV.put("htok:" + tok, JSON.stringify({ store_id: sid, member_no: store.member_no, company: store.company, created_at: new Date().toISOString() }));
         return json({ ok: true, store_id: sid, token: tok });

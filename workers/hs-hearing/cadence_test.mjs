@@ -242,6 +242,70 @@ console.log("\n7) 古い形の記録(waves が無い)");
   check("返事待ちは閉じる", s.autopilot.pending === null);
 }
 
+/* =====================================================================
+   8) 店の書き込み。送信履歴(asked)は台帳であり、減らない。
+   ===================================================================== */
+console.log("\n8) 店の書き込み(競り勝っても asked を消さない)");
+{
+  const env = makeEnv();
+  setNow("2026-08-23T21:17:00Z");
+
+  // 巡回が2問送って、pending と asked を書いた状態を作る。
+  const sent = {
+    store_id: "kira-wbbk99p9",
+    autopilot: {
+      pending: { qids: ["q_focus", "q_strengths"], sent_at: "2026-08-23T21:17:00Z", via: "line" },
+      asked: [{ qid: "q_focus", at: "2026-08-23T21:17:00Z", answered: false },
+              { qid: "q_strengths", at: "2026-08-23T21:17:00Z", answered: false }],
+    },
+  };
+  await AP.putStore(env, sent, "巡回");
+
+  // 別の経路が、送信より前に読んだ古い写しを持ったまま書きに来る。
+  // これが今日の実測(送った事実は pending に残り、送信履歴だけ消えた)と同じ形である。
+  const stale = {
+    store_id: "kira-wbbk99p9",
+    industry: "nursing",
+    autopilot: { pending: null, asked: [] },
+  };
+  await AP.putStore(env, stale, "kira-bridge:業種決定");
+
+  const after = JSON.parse(env._kv.get("store:kira-wbbk99p9"));
+  const ap = after.autopilot;
+  check("古い写しで上書きしても asked は消えない", (ap.asked || []).length === 2,
+        "asked=" + (ap.asked || []).length);
+  check("消えなかったことを記録に残す", !!(ap._asked_recovered || []).length,
+        JSON.stringify(ap._asked_recovered));
+  check("誰が書いたかを残す",
+        (ap._writes || []).map((w) => w.by).join(",") === "巡回,kira-bridge:業種決定",
+        JSON.stringify((ap._writes || []).map((w) => w.by)));
+  check("新しい返事待ちを踏み消したことを名前で残す",
+        !!(ap._pending_overwritten || []).length,
+        JSON.stringify(ap._pending_overwritten));
+  check("踏み消した中身を残す",
+        ((ap._pending_overwritten || [])[0] || {}).lost_qids.join("+") === "q_focus+q_strengths",
+        JSON.stringify((ap._pending_overwritten || [])[0]));
+  check("踏み消しは勝手に直さない(pending は書いたとおり)",
+        ap.pending === null, JSON.stringify(ap.pending));
+
+  // 同じ (qid, 時刻) は二重に積まない。
+  const again = {
+    store_id: "kira-wbbk99p9",
+    autopilot: { asked: [{ qid: "q_focus", at: "2026-08-23T21:17:00Z", answered: false, replied_at: "2026-08-24T01:00:00Z" }] },
+  };
+  await AP.putStore(env, again, "form:回答取り込み");
+  const ap2 = JSON.parse(env._kv.get("store:kira-wbbk99p9")).autopilot;
+  check("同じ設問・同じ時刻は二重にならない", (ap2.asked || []).length === 2,
+        "asked=" + (ap2.asked || []).length);
+  check("返事の印がついたほうを残す",
+        !!(ap2.asked.find((a) => a.qid === "q_focus") || {}).replied_at,
+        JSON.stringify(ap2.asked.find((a) => a.qid === "q_focus")));
+
+  let threw = false;
+  try { await AP.putStore(env, { autopilot: {} }, "名無し"); } catch (_e) { threw = true; }
+  check("店IDの無いものは書かない", threw);
+}
+
 console.log("");
 if (fail) { console.log(fail + " 件おかしい。"); process.exit(1); }
 console.log("間隔と消込 すべて通過");

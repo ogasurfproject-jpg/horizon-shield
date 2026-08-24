@@ -82,6 +82,98 @@ export function pushWave(ap, qs, kind, at) {
   return p;
 }
 
+/* ------------------------------ 店の書き込み ------------------------------ */
+/* 2026-08-24 asked が消えた件への手当て。
+
+   実測: あっぷす様(kira-wbbk99p9)の記録に、8/23 21:17 に2問送った返事待ちが
+   立っているのに、送信履歴(asked)が0件、という状態を見つけた。
+   送った事実は pending に残り、送った履歴は消えていた。
+
+   どの経路で消えたかは、まだ特定できていない。
+   店のレコードは、読んでから書くまでの間に AI の呼び出しを挟む経路が複数ある。
+   その間に巡回が同じ店を書けば、あとから書いたほうが丸ごと勝つ。
+   KV に取引は無いので、読み書きの competition はいつでも起こりうる。
+
+   分からないまま二つのことをする。
+
+   1) asked は台帳である。台帳は増えるだけで、減らない。
+      書き込みの直前に保存側を読み、asked を合併する。
+      これで、どの経路が競り勝っても asked は消えない。
+      原因を特定していなくても、結果は防げる。
+
+   2) 誰が最後に書いたかを残す。_writes に (いつ・どこから) を積む。
+      さらに、保存側により新しい返事待ちが立っているのに、こちらが
+      それを持たないまま書こうとしたら、その事実を _pending_overwritten に残す。
+      直さない。直すと、消込(返事が来て pending を消す)まで巻き戻してしまう。
+      名前を残せば、次に起きたときに経路が分かる。
+      分からないものを、分かったふりで直さない。 */
+function askedKey(a) {
+  return String((a && a.qid) || "") + "|" + String((a && a.at) || "");
+}
+
+export function mergeAsked(saved, incoming) {
+  const out = new Map();
+  for (const a of (saved || [])) if (a && a.qid) out.set(askedKey(a), a);
+  for (const a of (incoming || [])) {
+    if (!a || !a.qid) continue;
+    const k = askedKey(a);
+    const prev = out.get(k);
+    // 同じ (qid, 送った時刻) なら、情報の多いほう(返事の印がついているほう)を残す。
+    if (!prev || (a.replied_at && !prev.replied_at)) out.set(k, { ...(prev || {}), ...a });
+  }
+  const rows = [...out.values()];
+  rows.sort((x, y) => String(x.at || "").localeCompare(String(y.at || "")));
+  return rows.slice(-50);
+}
+
+export async function putStore(env, store, by) {
+  const sid = store && store.store_id;
+  if (!sid) throw new Error("putStore: store_id がありません");
+  const ap = (store.autopilot = store.autopilot || {});
+  let saved = null;
+  try { saved = await env.HS_HEARING_KV.get("store:" + sid, "json"); } catch (_e) { saved = null; }
+  const sap = (saved && saved.autopilot) || null;
+  if (sap) {
+    // 台帳は、書きに来た写しが持っていなくても引き継ぐ。
+    // 2026-08-24: ここを引き継がずに書いたら、「誰が書いたか」の履歴が
+    // 書くたびに1件に戻った。履歴を持たない写しが書きに来るのが、まさにこの問題だからである。
+    // 消えないようにした当のものと同じ扱いをしないと、記録のほうが先に消える。
+    for (const k of ["_writes", "_asked_recovered", "_pending_overwritten"]) {
+      const merged = [...(sap[k] || []), ...(ap[k] || [])];
+      // 同じ (時刻, 書き手) は二重に積まない。
+      const seen = new Set(), out = [];
+      for (const e of merged) {
+        const key = String(e && e.at) + "|" + String(e && e.by) + "|" + JSON.stringify(e || {});
+        if (seen.has(key)) continue;
+        seen.add(key); out.push(e);
+      }
+      if (out.length) ap[k] = out.slice(-20);
+    }
+    const before = (ap.asked || []).length;
+    ap.asked = mergeAsked(sap.asked, ap.asked);
+    const kept = ap.asked.length - before;
+    if (kept > 0) {
+      ap._asked_recovered = [...(ap._asked_recovered || []),
+                             { at: now(), by: String(by || "?"), kept }].slice(-10);
+    }
+    // 保存側の返事待ちのほうが新しいのに、こちらがそれを持っていない。
+    // 直さない。起きたことを名前で残す。
+    const mine = ap.pending && ap.pending.sent_at ? String(ap.pending.sent_at) : "";
+    const theirs = sap.pending && sap.pending.sent_at ? String(sap.pending.sent_at) : "";
+    if (theirs && theirs > mine) {
+      ap._pending_overwritten = [...(ap._pending_overwritten || []), {
+        at: now(), by: String(by || "?"),
+        lost_qids: (sap.pending.qids || []).slice(0, 8),
+        lost_sent_at: theirs,
+        mine_sent_at: mine || null,
+      }].slice(-10);
+    }
+  }
+  ap._writes = [...(ap._writes || []), { at: now(), by: String(by || "?") }].slice(-20);
+  await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));
+  return store;
+}
+
 /* ------------------------------ 質問バンク ------------------------------ */
 // qid は恒久固定。同じ qid は二度と送らない(asked台帳)。
 export const QUESTION_BANK = {
@@ -742,7 +834,7 @@ export async function runDailyTick(env, deps) {
       }
     }
     store.autopilot = ap;
-    await env.HS_HEARING_KV.put("store:" + sid, JSON.stringify(store));
+    await putStore(env, store, "runDailyTick");
   }
   // 保全エージェント弐号(ウチ回り): 内臓検診と自己修復。結果は guardian:last に記録され、壱号(Actions)が読む。
   log.guardian = await selfHeal(env, stores);
@@ -939,7 +1031,7 @@ export async function selfHeal(env, stores) {
         issues.push("検証済みなのにスコア欠損(fail-closed違反): " + s.store_id);
       }
       // 5) autopilot枠の初期化漏れ -> 自動修復
-      if (!s.autopilot) { s.autopilot = {}; await env.HS_HEARING_KV.put("store:" + s.store_id, JSON.stringify(s)); repaired.push("autopilot初期化:" + s.store_id); }
+      if (!s.autopilot) { s.autopilot = {}; await putStore(env, s, "selfHeal:autopilot初期化"); repaired.push("autopilot初期化:" + s.store_id); }
       // 6) hearingレコードの破損検知
       const hRaw = await env.HS_HEARING_KV.get("hearing:" + s.store_id, "text");
       if (hRaw) { try { JSON.parse(hRaw); } catch (_e) { issues.push("hearing破損(JSON不正): " + s.store_id); } }

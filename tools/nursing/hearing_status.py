@@ -143,6 +143,26 @@ def main():
         else:
             print("  返事待ち: なし")
 
+        # 2026-08-24: 誰が最後にこの店を書いたか。
+        #   送信履歴(asked)が消えた件は、どの経路で消えたかが分からないままである。
+        #   分からないものを分かったふりで直さず、名前だけ残すようにした。
+        #   ここはその名前を読む場所である。
+        writes = ap.get("_writes") or row.get("autopilot", {}).get("writes") or []
+        if writes:
+            print("  書き手  : %s" % " -> ".join(
+                "%s(%s)" % (w.get("by"), str(w.get("at"))[11:16]) for w in writes[-5:]))
+        over = ap.get("_pending_overwritten") or row.get("autopilot", {}).get("pending_overwritten") or []
+        if over:
+            for o in over[-3:]:
+                print("  ★ 新しい返事待ちを踏み消した書き込みがあります: %s が %s を消しました(%s)"
+                      % (o.get("by"), "、".join(o.get("lost_qids") or []), str(o.get("lost_sent_at"))[:16]))
+            problems.append((sid, "返事待ちを踏み消した書き込みがある(%s)"
+                             % "、".join(sorted({o.get("by") for o in over}))))
+        rec = ap.get("_asked_recovered") or row.get("autopilot", {}).get("asked_recovered") or []
+        if rec:
+            print("  拾い直し: 送信履歴を %d 回ぶん拾い直しました(%s)"
+                  % (len(rec), "、".join(sorted({r.get("by") for r in rec}))))
+
         # 送った履歴
         asked = ap.get("asked") or []
         hist = {}
