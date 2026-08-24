@@ -94,6 +94,11 @@ jobs:
       - name: 内部MCPの算定要件が、データベースとずれていないか
         run: python3 tools/nursing/build_mcp_rules.py --check
 
+      # 生成物が「どこで走らせたか」で変わるなら、それは検査にならない。
+      # 2026-08-24、まさにそれで CI だけが赤くなった(手元は本体、CI は写しを読む)。
+      - name: 生成物が、どこで走らせても同じになるか
+        run: python3 tools/nursing/build_mcp_rules_test.py
+
       - name: 内部MCPの構文
         run: node --check workers/hs-nursing-mcp/src/worker.js
 

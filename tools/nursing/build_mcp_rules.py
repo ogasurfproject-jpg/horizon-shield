@@ -111,13 +111,29 @@ def trim(db):
     }
 
 
+def payload_sha(payload):
+    """中身そのものの sha256。読んだファイルの sha ではない。
+
+    2026-08-24: 最初は「読んだファイルの sha256」を書いていた。
+      手元では JHNRD 本体を読み、CI ではリポジトリ内の写しを読む。
+      写しには sync_db.py が『写しである』印(_copy_of)を足しているので、
+      同じ版でもバイト列が違う。だから --check が CI でだけ落ちた。
+      実際に落ちた(5c977d78 の nursing-questions / visibility)。
+
+      生成物が「どこで走らせたか」で変わるなら、それは検査にならない。
+      比べるのは中身であって、どのファイルから読んだかではない。
+    """
+    canon = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canon.encode("utf-8")).hexdigest()
+
+
 def render(payload, sha):
     body = json.dumps(payload, ensure_ascii=False, indent=2)
     head = (
         "/* このファイルは生成物である。手で書き換えないこと。\n"
         "   元         : JHNRD data/rules_2024.json\n"
         "   元の版     : " + str(payload.get("version")) + "\n"
-        "   元の sha256: " + sha + "\n"
+        "   中身の sha256: " + sha + "\n"
         "   作り直す   : python3 tools/nursing/build_mcp_rules.py --write\n"
         "\n"
         "   ここに数字を手で足さないこと。足しても JHNRD には戻らないので、\n"
@@ -137,9 +153,9 @@ def main():
     a = ap.parse_args()
 
     raw = io.open(DB, "rb").read()
-    sha = hashlib.sha256(raw).hexdigest()
     db = json.loads(raw.decode("utf-8"))
     payload = trim(db)
+    sha = payload_sha(payload)
     want = render(payload, sha)
 
     print("元       : %s" % DB)

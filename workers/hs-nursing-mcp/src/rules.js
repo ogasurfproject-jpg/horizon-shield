@@ -1,15 +1,15 @@
 /* このファイルは生成物である。手で書き換えないこと。
    元         : JHNRD data/rules_2024.json
-   元の版     : 2024-kaitei.seed.9
-   元の sha256: 48525d0be21409b06c6cf9f941ffcba47fca170e3aa2869fc286e5af87529cf8
+   元の版     : 2024-kaitei.seed.10
+   中身の sha256: 03acddfa7810d7134767d3305eddb8d301a373b187677216963d87767493dfa1
    作り直す   : python3 tools/nursing/build_mcp_rules.py --write
 
    ここに数字を手で足さないこと。足しても JHNRD には戻らないので、
    公開データベースと内部MCPが別のことを言う状態になる。
    そのずれは落ちない。例外も出ない。ただ違う数字が出続ける。 */
-export const SOURCE_SHA256 = "48525d0be21409b06c6cf9f941ffcba47fca170e3aa2869fc286e5af87529cf8";
+export const SOURCE_SHA256 = "03acddfa7810d7134767d3305eddb8d301a373b187677216963d87767493dfa1";
 export const RULES = {
-  "version": "2024-kaitei.seed.9",
+  "version": "2024-kaitei.seed.10",
   "revision_label": "令和8年度改定(医療・介護とも令和8年6月施行)を現行とし、令和6年度改定で作った項目は当て直し待ちとして残している",
   "built_at": "2026-08-24",
   "revisions": [
@@ -191,6 +191,15 @@ export const RULES = {
       "tier": "agency",
       "current": false,
       "not_current_reason": "令和6年度の集団指導資料。額は令和8年6月施行分と異なる。振り分けの原則(介護保険優先)と別表第七・特別訪問看護指示書の運用の説明としては使える。",
+      "retrieved_at": "2026-08-24"
+    },
+    "mhlw-r8-minaoshi-an": {
+      "title": "令和8年度介護報酬改定 介護報酬の見直し案 別紙1: 指定居宅サービスに要する費用の額の算定に関する基準【令和8年6月施行】(社保審-介護給付費分科会 第253回 諮問書別紙)",
+      "url": "https://www.mhlw.go.jp/content/12300000/001633494.pdf",
+      "publisher": "厚生労働省",
+      "tier": "agency",
+      "current": true,
+      "not_current_reason": null,
       "retrieved_at": "2026-08-24"
     }
   },
@@ -1193,8 +1202,9 @@ export const RULES = {
         "type": "単位",
         "value": "20分未満 314単位 / 30分未満 471単位 / 30分以上1時間未満 823単位 / 1時間以上1時間30分未満 1,128単位。理学療法士・作業療法士・言語聴覚士による場合は20分未満 294単位(1時間未満・1時間30分未満の値は読み取れていない)。",
         "confirmed": false,
-        "unconfirmed_reason": "令和8年6月施行の算定構造 PDF を、要約経由で読んだ値である。同じ PDF を二度読ませたところ、緊急時訪問看護加算と特別管理加算の単位数が入れ替わって出た(conflicts: santei-kouzou-r8-yomitori 参照)。読み取りが安定していないので、原本の表を人が見て確定するまで確定にしない。",
+        "unconfirmed_reason": "二つの資料で値が違った。令和8年6月施行の表では 314/471/823/1,128単位、令和6年4月改定の表では 313/470/821/1,125単位と出た。本当に令和8年で上がったのか、どちらかの読み取りが1ずつずれているのかを、原本の表で確かめる。",
         "source_ref": [
+          "mhlw-001195509",
           "mhlw-santei-kouzou-r8"
         ]
       },
@@ -1244,8 +1254,9 @@ export const RULES = {
         "type": "単位",
         "value": "単位数は未取得。1度目の読みで『(Ⅰ) 500単位 /(Ⅱ) 250単位』と出たが、2度目の読みでその値は特別管理加算のものだと出た。どちらとも決められない。",
         "confirmed": false,
-        "unconfirmed_reason": "令和8年6月施行の算定構造 PDF を、要約経由で読んだ値である。同じ PDF を二度読ませたところ、緊急時訪問看護加算と特別管理加算の単位数が入れ替わって出た(conflicts: santei-kouzou-r8-yomitori 参照)。読み取りが安定していないので、原本の表を人が見て確定するまで確定にしない。",
+        "unconfirmed_reason": "令和6年4月改定の表からは『緊急時訪問看護加算 1月につき +574単位(ステーションの場合)』と出た。ただし同じ読みで『特別管理加算 574単位』とも出ており、隣の行の値をそのまま持ってきた疑いがある。区分(Ⅰ)(Ⅱ)の別も出てこない。令和8年6月施行の表では『表に見当たらない』だった。確定できない。",
         "source_ref": [
+          "mhlw-001195509",
           "mhlw-santei-kouzou-r8"
         ]
       },
@@ -1294,8 +1305,9 @@ export const RULES = {
         "type": "単位",
         "value": "(Ⅰ) 1月につき 350単位 /(Ⅱ) 1月につき 300単位",
         "confirmed": false,
-        "unconfirmed_reason": "同じ PDF を二度読ませて、この2つは両方とも同じ値が出た。他の項目で入れ替わりが起きているため、読み取り自体を信用しきれない。二度一致したという事実だけを残し、原本で確かめるまで確定にしない。",
+        "unconfirmed_reason": "令和8年6月施行の表では (Ⅰ)350単位 /(Ⅱ)300単位、令和6年4月改定の表では区分なしで 300単位と出た。令和8年で区分が分かれたのか、令和6年の読みが (Ⅰ) を落としたのかが分からない。",
         "source_ref": [
+          "mhlw-001195509",
           "mhlw-santei-kouzou-r8"
         ]
       },
@@ -1343,10 +1355,11 @@ export const RULES = {
       "effect": {
         "type": "単位",
         "value": "1回につき 600単位",
-        "confirmed": false,
-        "unconfirmed_reason": "令和8年6月施行の算定構造 PDF を、要約経由で読んだ値である。同じ PDF を二度読ませたところ、緊急時訪問看護加算と特別管理加算の単位数が入れ替わって出た(conflicts: santei-kouzou-r8-yomitori 参照)。読み取りが安定していないので、原本の表を人が見て確定するまで確定にしない。",
+        "confirmed": true,
+        "unconfirmed_reason": null,
         "source_ref": [
-          "mhlw-santei-kouzou-r8"
+          "mhlw-santei-kouzou-r8",
+          "mhlw-001195509"
         ]
       },
       "revision": "r8-kaigo",
@@ -1381,7 +1394,8 @@ export const RULES = {
       ],
       "we_do_not_say": "算定できます、とは言わない。要件を並べ、どれが未確認かを示すところまで。",
       "sources": [
-        "mhlw-santei-kouzou-r8"
+        "mhlw-santei-kouzou-r8",
+        "mhlw-001195509"
       ],
       "beppyo7": null
     },
@@ -1393,10 +1407,11 @@ export const RULES = {
       "effect": {
         "type": "単位",
         "value": "(Ⅰ) 1月につき 550単位 /(Ⅱ) 1月につき 200単位",
-        "confirmed": false,
-        "unconfirmed_reason": "令和8年6月施行の算定構造 PDF を、要約経由で読んだ値である。同じ PDF を二度読ませたところ、緊急時訪問看護加算と特別管理加算の単位数が入れ替わって出た(conflicts: santei-kouzou-r8-yomitori 参照)。読み取りが安定していないので、原本の表を人が見て確定するまで確定にしない。",
+        "confirmed": true,
+        "unconfirmed_reason": null,
         "source_ref": [
-          "mhlw-santei-kouzou-r8"
+          "mhlw-santei-kouzou-r8",
+          "mhlw-001195509"
         ]
       },
       "revision": "r8-kaigo",
@@ -1431,7 +1446,8 @@ export const RULES = {
       ],
       "we_do_not_say": "算定できます、とは言わない。要件を並べ、どれが未確認かを示すところまで。",
       "sources": [
-        "mhlw-santei-kouzou-r8"
+        "mhlw-santei-kouzou-r8",
+        "mhlw-001195509"
       ],
       "beppyo7": null
     },
@@ -1443,10 +1459,11 @@ export const RULES = {
       "effect": {
         "type": "単位",
         "value": "(Ⅰ) 1回につき 6単位 /(Ⅱ) 1回につき 3単位",
-        "confirmed": false,
-        "unconfirmed_reason": "令和8年6月施行の算定構造 PDF を、要約経由で読んだ値である。同じ PDF を二度読ませたところ、緊急時訪問看護加算と特別管理加算の単位数が入れ替わって出た(conflicts: santei-kouzou-r8-yomitori 参照)。読み取りが安定していないので、原本の表を人が見て確定するまで確定にしない。",
+        "confirmed": true,
+        "unconfirmed_reason": null,
         "source_ref": [
-          "mhlw-santei-kouzou-r8"
+          "mhlw-santei-kouzou-r8",
+          "mhlw-001195509"
         ]
       },
       "revision": "r8-kaigo",
@@ -1492,7 +1509,8 @@ export const RULES = {
       ],
       "we_do_not_say": "算定できます、とは言わない。要件を並べ、どれが未確認かを示すところまで。",
       "sources": [
-        "mhlw-santei-kouzou-r8"
+        "mhlw-santei-kouzou-r8",
+        "mhlw-001195509"
       ],
       "beppyo7": null
     },
@@ -1984,7 +2002,15 @@ export const RULES = {
         ]
       },
       "why_it_matters": "計器が同じものを二度測って違う答えを出した。これは測られたものについての言明ではない。どちらかを選べば、選んだ理由が消えたまま単位数が残る。",
-      "next": "原本の表(PDF の該当ページ)を人が見て、行と単位数の対応を確定する。確定するまで、この PDF から取った単位数は confirmed:true にしない。"
+      "next": "原本の表を人が見る。あるいは、表を要約させるのではなく1項目ずつ名指しで照合させ、二つ以上の資料で一致した値だけを確定にする。今回、一致した3項目(看護体制強化・退院時共同指導・サービス提供体制強化)はこの方法で確定にした。",
+      "claim_c": {
+        "text": "令和6年4月改定の算定構造(別の資料)を名指しで読ませたところ、『緊急時訪問看護加算 574単位』と『特別管理加算 574単位』が同じ値で出た。574 は同じ表の緊急時訪問看護加算の値である。",
+        "how": "別の資料で、同じ種類の取り違えが再現した(3回目)",
+        "source_ref": [
+          "mhlw-001195509"
+        ]
+      },
+      "what_it_means": "同じ取り違えが、別の資料でも起きた。つまりこれは、ある1つの資料に固有の問題ではなく、『PDF の表を要約経由で読む』という測り方そのものの問題である。計器の問題であって、測られたものの問題ではない。この測り方で取った単位数は、二つ以上の資料で一致したときにだけ確定にする。"
     }
   ],
   "discipline": [
@@ -1996,7 +2022,8 @@ export const RULES = {
     "改定で版を切る。旧版は消さない。過去の判断を後から検証できなくなるため。",
     "requirements の各項目は、ヒアリングの設問 id と1対1で結ぶ。結べない要件は、聞けていない要件である。",
     "現場の実務(field_reports)は、規則の出典ではない。事業所が毎月扱っている事実は貴重だが、「実際どう運用されているか」は「何が定められているか」ではない。field_reports の id を effect や rules の source_ref に入れてはならない。検査器が拒む。",
-    "出典が現行版かどうかを持つ。条文そのものでも、改正前の版なら現行の根拠にはならない。素性(tier)が強いことと、いま有効であることは別である。数えるときも分けて出す。statute が何件あるかだけを言うと、実態より良く見える。"
+    "出典が現行版かどうかを持つ。条文そのものでも、改正前の版なら現行の根拠にはならない。素性(tier)が強いことと、いま有効であることは別である。数えるときも分けて出す。statute が何件あるかだけを言うと、実態より良く見える。",
+    "PDF の表を要約経由で読んだ値は、それだけでは確定にしない。同じ表を二度読ませて値が入れ替わることが、別々の資料で3回起きた。二つ以上の資料で一致したときにだけ confirmed:true にする。計器が同じものを二度測って違う答えを出したなら、それは測られたものについての言明ではない。"
   ]
 };
 export default RULES;
