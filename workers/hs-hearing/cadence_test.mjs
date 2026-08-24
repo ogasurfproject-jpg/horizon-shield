@@ -87,9 +87,10 @@ async function tick(env, stores) {
   return { log, sent: SENT.slice() };
 }
 
-let fail = 0;
+let fail = 0, ran = 0;
 function check(label, cond, detail) {
   console.log((cond ? "  ok   " : "  NG   ") + label + (detail ? "  " + detail : ""));
+  ran++;
   if (!cond) fail++;
 }
 const qcount = (html) => (html.match(/(?:^|>)\s*\d\)\s/g) || []).length || (html ? 1 : 0);
@@ -307,5 +308,17 @@ console.log("\n8) 店の書き込み(競り勝っても asked を消さない)")
 }
 
 console.log("");
+// 2026-08-24: 走らなかった試験は、通った試験と見分けがつかない。
+//   industry_gate_test.mjs では、途中の process.exit で9場面目が一度も走らず、
+//   それでも「すべて通過」と出ていた。同じ穴が、この試験にはまだ残っていた。
+//   おかしかった数は数えていたが、確かめた数を数えていなかった。
+//   確認や場面を足したら EXPECT も直すこと。数が合わないこと自体を赤にする。
+const EXPECT = 38;
+console.log("確かめた数: " + ran + " 件 (場面 8)");
+if (ran !== EXPECT) {
+  console.log("確かめた数が " + EXPECT + " と合わない。"
+              + "途中で終わったか、確認を足して EXPECT を直していない。");
+  process.exit(1);
+}
 if (fail) { console.log(fail + " 件おかしい。"); process.exit(1); }
-console.log("間隔と消込 すべて通過");
+console.log("間隔と消込 すべて通過 (" + ran + " 件)");
