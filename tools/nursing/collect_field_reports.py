@@ -110,14 +110,15 @@ def main():
         print("\n(控えのデータで動かしています。通信していません)")
     else:
         key = admin_secret()
-        r = hs_admin.call("/admin/stores", key)
-        ids = [s.get("id") for s in (r.get("stores") or r.get("items") or [])]
         stores = []
-        for sid in ids:
-            e = hs_admin.call("/admin/export/" + sid, key)
+        for row in hs_admin.stores(key):
+            sid = row["_id"]
+            e = hs_admin.export(sid, key)
             if e.get("ok"):
                 stores.append({"id": sid, "profile": e.get("profile"),
                                "answered_at": e.get("answered_at")})
+            else:
+                print("  ★ %s の profile を取れませんでした: %s" % (sid, e))
         print("\n店: %d 件" % len(stores))
 
     rows = harvest(stores, fq)

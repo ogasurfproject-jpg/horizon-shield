@@ -47,8 +47,7 @@ def main():
     apply = "--apply" in argv
 
     key = admin_secret()
-    r = hs_admin.call("/admin/stores", key)
-    stores = r.get("stores") or r.get("items") or []
+    stores = hs_admin.stores(key)
     print("\n店: %d 件" % len(stores))
 
     # 2026-08-24: /admin/stores の行は storeToContractor が作っており、
@@ -57,9 +56,9 @@ def main():
     #   厚い方(hearing:<id>.profile)は /admin/export/<id> にある。両方見る。
     rows = []
     for s in stores:
-        row_id = s.get("store_id") or s.get("id")
-        thin = (s.get("name") or s.get("company") or "").strip()
-        ex = hs_admin.call("/admin/export/" + row_id, key) if row_id else {}
+        row_id = hs_admin.row_id(s)
+        thin = hs_admin.row_company(s)
+        ex = hs_admin.export(row_id, key) if row_id else {}
         pr = (ex or {}).get("profile") or {}
         thick = str(pr.get("company") or "").strip()
         rows.append({

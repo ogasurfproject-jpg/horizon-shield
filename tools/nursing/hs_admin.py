@@ -29,6 +29,10 @@ KEYFILES = [
 
 HOSTS = ["https://hs-hearing.oga-surf-project.workers.dev",
          "https://hearing.horizonshield.dev"]
+# 試験のときだけ宛先を差し替える。既定は本番のまま。
+# 環境変数が無ければ何も変わらないので、本番の経路に影響しない。
+if os.environ.get("HS_ADMIN_HOSTS"):
+    HOSTS = [h for h in os.environ["HS_ADMIN_HOSTS"].split(",") if h.strip()]
 
 # Cloudflare の Bot Fight Mode 対策。既定の Python-urllib は名乗りで弾かれ 403 を返す。
 # 鍵の問題に見えるが鍵は正しい(2026-08-23 に一度これで誤った)。
@@ -84,3 +88,42 @@ def call(path, key, body=None, timeout=45):
             last = "%s %s" % (type(e).__name__, h)
             print("  " + last)
     sys.exit("届きませんでした: " + str(last))
+
+
+# --- 欄名の解釈も、ここ1箇所に置く -----------------------------------------
+# 2026-08-24: /admin/stores の行は storeToContractor が作っており、
+#   店IDは store_id、社名は name である。company でも id でもない。
+#   collect_field_reports.py は s.get("id") と書いていて、全部 None になり、
+#   "/admin/export/" + None で落ちた。fix_company.py には正しく書いてあった。
+#   欄名を各所で解釈すれば、解釈は必ずずれる。ここでだけ解釈する。
+
+def row_id(row):
+    return row.get("store_id") or row.get("id")
+
+
+def row_company(row):
+    """薄い方(store:)の社名。厚い方は profile にある。"""
+    return (row.get("name") or row.get("company") or "").strip()
+
+
+def stores(key):
+    """加盟店の一覧。id を正規化して返す。"""
+    r = call("/admin/stores", key)
+    rows = r.get("stores") or r.get("items") or []
+    out = []
+    for row in rows:
+        i = row_id(row)
+        if not i:
+            # 黙って捨てない。捨てた店は、居なかったことになる。
+            print("  ★ 店IDの読めない行があります: %s" % sorted(row.keys())[:8])
+            continue
+        row = dict(row); row["_id"] = i
+        out.append(row)
+    return out
+
+
+def export(sid, key):
+    """厚い方(hearing:<id>)。profile と answered_at を返す。"""
+    if not sid:
+        raise ValueError("店IDが空です")
+    return call("/admin/export/" + sid, key)
