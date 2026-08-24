@@ -3,12 +3,13 @@ name = "hs-audit-app"
 # 2026-08-24: 引退。main を墓標に向けた。
 # 稼働していた実装は src/index.js / src/provenance.js / src/ui.js に残してある。
 # 復活させる場合は main を src/index.js に戻し、下の [[services]] と [vars] を
-# コメント解除して実測値を入れること。
+# コメント解除するだけでよい（値は実測済み・推測ではない）。
 main = "src/tombstone.js"
 # main = "src/index.js"   # 引退前の実装
 
-compatibility_date = "2026-07-31"   # TODO: 未確認 — Worker のデプロイ日を置いただけ
-# TODO: 未確認 — compatibility_flags / account_id / workers_dev / routes は未確認
+# 以下2つは 2026-08-24 に引退前バージョン 4302056b から回収した実測値。
+compatibility_date = "2026-07-31"
+compatibility_flags = ["nodejs_compat"]
 
 # ---------------------------------------------------------------------------
 # 引退時点の実設定（2026-08-24 実測）
@@ -19,41 +20,47 @@ compatibility_date = "2026-07-31"   # TODO: 未確認 — Worker のデプロイ
 #   npx wrangler secret list --name hs-audit-app
 #     -> []   (シークレットは1件も無い)
 #
+#   npx wrangler versions view 4302056b-d5db-434d-9889-6524c86442ea \
+#       --name hs-audit-app --json
+#     -> bindings:
+#          { name: "HS_MCP",     service: "hs-mcp", environment: "production", type: "service" }
+#          { name: "HS_MCP_URL", text: "https://hs-mcp.oga-surf-project.workers.dev/mcp",
+#            type: "plain_text" }
+#        script_runtime: compatibility_date 2026-07-31 /
+#                        compatibility_flags ["nodejs_compat"] / usage_model "standard"
+#        script etag: e4072f85f9af8dbce83016dcc8910b75fd5ccc6f50543cb665d85b1cc1bd3d62
+#
 # 分かったこと:
-#   - サービスバインディング HS_MCP は設定済みで生きていた(fetch が function)。
+#   - サービスバインディング HS_MCP のバインド先は Worker "hs-mcp"(production)。
 #     コード上 binding は URL より先に判定されるので、実際に動いていたのは
-#     binding 経路。src/index.js L33 のハードコードURL(旧ドメイン)は
-#     宛先に影響していなかった。
-#   - HS_MCP_URL は var として設定済みだった。ただしフォールバックなので未使用。
+#     binding 経路。
+#   - フォールバックの HS_MCP_URL も旧ドメインを向いていた。つまり旧ドメインは
+#     ソース3箇所(L10/L11/L297)だけでなく、環境変数まで含めて4箇所が
+#     取り残されていた。binding が先に効いていたため実害が出ていなかっただけ。
 #   - HS_MCP_KEY は存在しなかった。したがって上流への
 #     `authorization: Bearer ...` は一度も付いていない。
 #     「自社キーを貸し出す無認証プロキシ」という指摘は誤りだった。訂正する。
+#   - KV / D1 / R2 / Queues / Durable Objects は1つも設定されていなかった。
+#     bindings 配列に上記2件しか無いことで確認済み(コードからの推測ではない)。
 #
-# まだ分からないこと:
-#   - HS_MCP のバインド先 Worker 名
-#   - HS_MCP_URL の値
-#   /debug は真偽しか返さない。確認するなら Cloudflare ダッシュボードか
-#   GET /accounts/{account_id}/workers/scripts/hs-audit-app/settings
+# まだ確認していないこと:
+#   - account_id / workers_dev / routes / custom domain
+#     (versions view は script とバインディングしか返さない)
 # ---------------------------------------------------------------------------
 
 # 墓標はバインディングを一切必要としない(src/tombstone.js は env を参照しない)。
-# このままデプロイすると、上記の HS_MCP バインディングと HS_MCP_URL は
-# Worker の設定から外れる。意図した挙動である。
+# 2026-08-24 のデプロイで、下記2件は Worker の設定から外れた。意図した挙動。
+# dry-run が "No bindings found" と報告したとおり。
 
 # [[services]]
 # binding = "HS_MCP"
-# service = "???"        # TODO: 未確認 — バインド先 Worker 名。推測で書かないこと
-# environment = "???"    # TODO: 未確認
+# service = "hs-mcp"
+# environment = "production"
 
 # [vars]
-# HS_MCP_URL = "???"     # TODO: 未確認 — 値は取得していない
+# HS_MCP_URL = "https://hs-mcp.oga-surf-project.workers.dev/mcp"
+# ↑ 復活させるなら、この値のまま戻さないこと。現行は https://mcp.horizonshield.dev/mcp
 
-# HS_MCP_KEY は 2026-08-24 時点で未設定。復活させる場合も、必要かどうかから
+# HS_MCP_KEY は 2026-08-24 時点で未設定だった。復活させる場合も、必要かどうかから
 # 判断すること。投入するなら:
 #   npx wrangler secret put HS_MCP_KEY --name hs-audit-app
-
-# ---------------------------------------------------------------------------
-# TODO: 未確認 — KV / D1 / R2 / Queues / Durable Objects は src/*.js から
-#   一切参照されていない。ただし「デプロイ済み Worker に存在しない」ことの
-#   証明にはならない。実設定の確認が必要。
-# ---------------------------------------------------------------------------
