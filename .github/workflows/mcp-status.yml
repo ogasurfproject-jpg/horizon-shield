@@ -1,0 +1,177 @@
+name: MCP registry status
+
+# 公式MCPレジストリ(registry.modelcontextprotocol.io)に載っているサーバーの
+# status(active / deprecated / deleted)と statusMessage を変える。
+#
+# 認証はGitHub OIDC。トークンの保管も持ち出しも無い。mcp-publish.yml と同じ原則。
+# io.github.ogasurfproject-jpg/* の名前空間はこのリポジトリのオーナー権限で通る。
+#
+# なぜ手元スクリプトではなくここでやるか:
+#   誰がいつ何を変えたかが Actions のログに残る。台帳を売っている以上、
+#   自分のレジストリ更新の経路が「手元のcurl」と「CI」に割れているのは筋が悪い。
+#   手元から回したい場合は run_hs-audit-app_deprecate.sh を使うこと。
+#
+# 使い方: Actions -> MCP registry status -> Run workflow
+#
+# 注意: statusMessage は500文字上限。超えるとレジストリに弾かれる。
+#       下の Preflight で先に落とすようにしてある。
+#
+# 2026-08-24 追記: このワークフローはまだ実戦投入していない。初回は
+#   dry_run: true で回して、権限が通ることを確認してから本番に使うこと。
+#   (status 変更に OIDC の名前空間権限が足りるかは未検証。publish は通っている。)
+
+on:
+  workflow_dispatch:
+    inputs:
+      server_name:
+        description: "サーバー名。例: io.github.ogasurfproject-jpg/hs-audit-app"
+        required: true
+      version:
+        description: "対象バージョン。例: 0.1.0（全版に当てるなら空にして all_versions を true）"
+        required: false
+        default: ""
+      status:
+        description: "新しい status"
+        required: true
+        type: choice
+        options: [active, deprecated, deleted]
+      message:
+        description: "理由(statusMessage)。500文字以内。status=active のときは空にすること"
+        required: false
+        default: ""
+      all_versions:
+        description: "全バージョンに当てる"
+        required: false
+        type: boolean
+        default: false
+      dry_run:
+        description: "反映せず、現状と入力の検査だけ行う"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: mcp-status
+  cancel-in-progress: false
+
+jobs:
+  set-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preflight — 入力の検査（反映前に落とす）
+        env:
+          MSG: ${{ github.event.inputs.message }}
+          ST: ${{ github.event.inputs.status }}
+          VER: ${{ github.event.inputs.version }}
+          ALLV: ${{ github.event.inputs.all_versions }}
+        run: |
+          set -euo pipefail
+          LEN=$(python3 -c 'import os;print(len(os.environ["MSG"]))')
+          echo "statusMessage の長さ: $LEN / 500"
+          if [ "$LEN" -gt 500 ]; then
+            echo "::error::statusMessage が500文字を超えている ($LEN)。レジストリに弾かれる。"
+            exit 1
+          fi
+          if [ "$ST" = "active" ] && [ "$LEN" -gt 0 ]; then
+            echo "::error::status=active のとき statusMessage は指定できない。"
+            exit 1
+          fi
+          if [ -z "$VER" ] && [ "$ALLV" != "true" ]; then
+            echo "::error::version が空。単一版を指定するか all_versions を true にすること。"
+            exit 1
+          fi
+          if [ -n "$VER" ] && [ "$ALLV" = "true" ]; then
+            echo "::error::version と all_versions は同時に指定できない。"
+            exit 1
+          fi
+          echo "入力の検査を通過。"
+
+      - name: 変更前のレジストリ掲載内容を記録
+        env:
+          NAME: ${{ github.event.inputs.server_name }}
+        run: |
+          set -euo pipefail
+          SHORT="${NAME##*/}"
+          curl -s "https://registry.modelcontextprotocol.io/v0/servers?search=${SHORT}&version=latest" \
+            > before.json
+          NAME="$NAME" python3 - <<'PY'
+          import json, os
+          want = os.environ["NAME"]
+          d = json.load(open("before.json"))
+          for s in (d.get("servers") or d.get("data") or []):
+              m = s.get("server", s)
+              if m.get("name") != want: continue
+              o = (s.get("_meta", {}) or {}).get("io.modelcontextprotocol.registry/official", {}) or {}
+              print("BEFORE version:", m.get("version"))
+              print("BEFORE status :", o.get("status"))
+              print("BEFORE updated:", o.get("updatedAt"))
+              print("BEFORE message:", o.get("statusMessage"))
+              break
+          else:
+              print("該当エントリがレジストリに見つからない:", want)
+          PY
+
+      - name: Download mcp-publisher 1.8.1 (sha256 pinned)
+        run: |
+          set -euo pipefail
+          curl -sL -o pub.tar.gz "https://github.com/modelcontextprotocol/registry/releases/download/v1.8.1/mcp-publisher_linux_amd64.tar.gz"
+          echo "a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc  pub.tar.gz" | sha256sum -c -
+          tar xzf pub.tar.gz mcp-publisher
+
+      - name: Login with GitHub OIDC
+        run: ./mcp-publisher login github-oidc
+
+      - name: Update status
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        env:
+          NAME: ${{ github.event.inputs.server_name }}
+          VER: ${{ github.event.inputs.version }}
+          ST: ${{ github.event.inputs.status }}
+          MSG: ${{ github.event.inputs.message }}
+          ALLV: ${{ github.event.inputs.all_versions }}
+        run: |
+          set -euo pipefail
+          ARGS=(status --status "$ST")
+          [ -n "$MSG" ] && ARGS+=(--message "$MSG")
+          [ "$ALLV" = "true" ] && ARGS+=(--all-versions)
+          ARGS+=("$NAME")
+          [ -n "$VER" ] && ARGS+=("$VER")
+          ./mcp-publisher "${ARGS[@]}"
+
+      - name: Dry run — 反映していない
+        if: ${{ github.event.inputs.dry_run == 'true' }}
+        run: echo "dry_run=true のため反映していない。入力の検査と現状の記録のみ。"
+
+      - name: 反映後の実物を読み直す
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        env:
+          NAME: ${{ github.event.inputs.server_name }}
+        run: |
+          set -euo pipefail
+          sleep 3
+          SHORT="${NAME##*/}"
+          curl -s "https://registry.modelcontextprotocol.io/v0/servers?search=${SHORT}&version=latest" \
+            > after.json
+          NAME="$NAME" python3 - <<'PY'
+          import json, os
+          want = os.environ["NAME"]
+          d = json.load(open("after.json"))
+          for s in (d.get("servers") or d.get("data") or []):
+              m = s.get("server", s)
+              if m.get("name") != want: continue
+              o = (s.get("_meta", {}) or {}).get("io.modelcontextprotocol.registry/official", {}) or {}
+              print("AFTER status :", o.get("status"))
+              print("AFTER updated:", o.get("updatedAt"))
+              print("AFTER message:", o.get("statusMessage"))
+              break
+          else:
+              print("該当エントリがレジストリに見つからない:", want)
+          PY
+
+      - name: Logout
+        if: always()
+        run: ./mcp-publisher logout || true
