@@ -1,16 +1,16 @@
 /* このファイルは生成物である。手で書き換えないこと。
    元         : JHNRD data/rules_2024.json
-   元の版     : 2024-kaitei.seed.13
-   中身の sha256: f73b2c55a2ab7562a7ecd7308934f234c5d826443212f6101c45ef4cd3066e01
+   元の版     : 2024-kaitei.seed.15
+   中身の sha256: fcefe42e25518217c502d5315429b44b5ed12c98d8430e1a3bdce7f41d4e5bbd
    作り直す   : python3 tools/nursing/build_mcp_rules.py --write
 
    ここに数字を手で足さないこと。足しても JHNRD には戻らないので、
    公開データベースと内部MCPが別のことを言う状態になる。
    そのずれは落ちない。例外も出ない。ただ違う数字が出続ける。 */
-export const SOURCE_SHA256 = "f73b2c55a2ab7562a7ecd7308934f234c5d826443212f6101c45ef4cd3066e01";
+export const SOURCE_SHA256 = "fcefe42e25518217c502d5315429b44b5ed12c98d8430e1a3bdce7f41d4e5bbd";
 export const RULES = {
-  "version": "2024-kaitei.seed.13",
-  "revision_label": "令和8年度改定(医療・介護とも令和8年6月施行)を現行とする。令和6年度改定で作った介護の6項目(業務継続計画未策定減算・高齢者虐待防止措置未実施減算・准看護師・PT/OT/ST・特別管理加算・ターミナルケア加算)を令和8へ当て直した(令和8は処遇改善のみの臨時改定につき据え置きを確認: mhlw-r8-minaoshi-an)。特別管理加算(旧+574→(Ⅰ)500/(Ⅱ)250)とターミナルケア加算(旧+2,000→2,500)の取り違えを訂正し、緊急時訪問看護加算に(Ⅰ)600/(Ⅱ)574の候補を入れた。訂正値の出典は二次資料3件で一致・告示原本照合は残課題として confirmed:false のまま残す。 seed.12(2026-08-24): 訪問看護への準用の条番号が 指定居宅サービス等基準 第七十四条 であることを告示第95号(statute)で確認した。緊急時訪問看護加算(Ⅰ)(Ⅱ)の分かれ目も告示の文言で確定した(単位数は依然 confirmed:false)。 seed.13(2026-08-24): 朝の時点で『現行の第七十四条が同じ範囲を定めているか未確認』としていた findings を、告示第95号で解決済みにした。同じ事実が三箇所にあるので、相互に名指しさせてある。",
+  "version": "2024-kaitei.seed.15",
+  "revision_label": "令和8年度改定(医療・介護とも令和8年6月施行)を現行とする。令和6年度改定で作った介護の6項目(業務継続計画未策定減算・高齢者虐待防止措置未実施減算・准看護師・PT/OT/ST・特別管理加算・ターミナルケア加算)を令和8へ当て直した(令和8は処遇改善のみの臨時改定につき据え置きを確認: mhlw-r8-minaoshi-an)。特別管理加算(旧+574→(Ⅰ)500/(Ⅱ)250)とターミナルケア加算(旧+2,000→2,500)の取り違えを訂正し、緊急時訪問看護加算に(Ⅰ)600/(Ⅱ)574の候補を入れた。訂正値の出典は二次資料3件で一致・告示原本照合は残課題として confirmed:false のまま残す。 seed.12(2026-08-24): 訪問看護への準用の条番号が 指定居宅サービス等基準 第七十四条 であることを告示第95号(statute)で確認した。緊急時訪問看護加算(Ⅰ)(Ⅱ)の分かれ目も告示の文言で確定した(単位数は依然 confirmed:false)。 seed.13(2026-08-24): 朝の時点で『現行の第七十四条が同じ範囲を定めているか未確認』としていた findings を、告示第95号で解決済みにした。同じ事実が三箇所にあるので、相互に名指しさせてある。 seed.14(2026-08-24): 令和8年6月施行の算定構造に1項目ずつ名指しして当たり、特別管理加算(Ⅰ)500/(Ⅱ)250・緊急時訪問看護加算600/574(病院診療所325/315)・ターミナルケア加算2,500単位を、外部の二次資料4件との一致をもって確定にした。特別管理加算の対象状態は告示第94号から、加算する日の運用は老企第36号から取った。読み取りの食い違いは解決。 seed.15(2026-08-24): 最後に残っていた食い違い(理学療法士等の減算幅)を解決した。『−97単位』は同じ表の訪問介護費の初回加算97単位の混入だった。正しくは1回294単位、条件つきで1回につき−8単位。294は名指し読み1件のみなので confirmed:false のまま残す。",
   "built_at": "2026-08-24",
   "revisions": [
     {
@@ -246,6 +246,33 @@ export const RULES = {
       "current": true,
       "not_current_reason": null,
       "retrieved_at": "2026-08-24"
+    },
+    "mhlw-kokuji94-jotai": {
+      "title": "厚生労働大臣が定める基準に適合する利用者等(平成27年3月23日厚生労働省告示第94号)",
+      "url": "https://www.mhlw.go.jp/web/t_doc?dataId=82ab4583&dataType=0&pageNo=1",
+      "publisher": "厚生労働省(法令等データベース)",
+      "tier": "statute",
+      "current": true,
+      "not_current_reason": null,
+      "retrieved_at": "2026-08-24"
+    },
+    "mhlw-roki36": {
+      "title": "指定居宅サービスに要する費用の額の算定に関する基準(訪問通所サービス及び居宅療養管理指導に係る部分)等の制定に伴う実施上の留意事項について(平成12年3月1日 老企第36号)",
+      "url": "https://www.mhlw.go.jp/web/t_doc?dataId=00ta4378&dataType=1&pageNo=1",
+      "publisher": "厚生労働省",
+      "tier": "statute",
+      "current": true,
+      "not_current_reason": null,
+      "retrieved_at": "2026-08-24"
+    },
+    "mhlw-r8-iryo-shinkyu": {
+      "title": "別紙2 訪問看護療養費に係る指定訪問看護の費用の額の算定方法(傍線部分は改正部分) 改正後・改正前",
+      "url": "https://www.mhlw.go.jp/content/10808000/001655181.pdf",
+      "publisher": "厚生労働省",
+      "tier": "statute",
+      "current": true,
+      "not_current_reason": null,
+      "retrieved_at": "2026-08-24"
     }
   },
   "items": [
@@ -445,12 +472,14 @@ export const RULES = {
       "name": "理学療法士・作業療法士・言語聴覚士による訪問看護",
       "effect": {
         "type": "単位",
-        "value": "訪問看護費の算定構造上、－97単位",
-        "confirmed": true,
-        "unconfirmed_reason": null,
+        "value": "理学療法士・作業療法士・言語聴覚士による訪問看護 1回につき 294単位。理学療法士等の訪問回数が看護職員の訪問回数を超えている場合、または特定の加算を算定していない場合は、1回につき −8単位。",
+        "confirmed": false,
+        "unconfirmed_reason": "旧値『−97単位』は誤り。令和8年6月施行の算定構造に1項目ずつ名指しして当たったところ、この表の中の『97単位』は訪問介護費の初回加算の値であって、訪問看護費のものではなかった。隣の行どころか、別の費目から拾っていた。いまの値のうち、−8単位は算定構造(名指し読み)と二次資料 ibow-20240529 の二つで一致している。しかし 294単位 は算定構造の名指し読み1件しかない。二つ以上で一致していない値を含むので、この塊は確定にしない。",
         "source_ref": [
           "mhlw-001195509",
-          "mhlw-r8-minaoshi-an"
+          "mhlw-r8-minaoshi-an",
+          "mhlw-santei-kouzou-r8",
+          "ibow-20240529"
         ]
       },
       "revision": "r8-kaigo",
@@ -485,13 +514,15 @@ export const RULES = {
       "effect": {
         "type": "単位",
         "value": "指定訪問看護ステーションの場合 (Ⅰ) 1月につき +500単位 /(Ⅱ) 1月につき +250単位",
-        "confirmed": false,
-        "unconfirmed_reason": "旧値『ステーション +574単位』は、緊急時訪問看護加算(Ⅱ)の574単位を隣の行から取り違えたもの(conflicts: santei-kouzou-r8-yomitori)。正しくは特別管理加算(Ⅰ)500単位/(Ⅱ)250単位。本DB内の名指し読み(同conflict claim_b)と、外部の二次資料3件(ptotst-r6-houkan・arukunpo-2026-kaigo・kango-repo-kasan-2026)がいずれも 500/250 で一致。ただし出典は agency の算定構造(要約読み)と二次資料であり、告示原本の名指し照合が済むまで confirmed にしない。",
+        "confirmed": true,
+        "unconfirmed_reason": null,
         "source_ref": [
+          "mhlw-santei-kouzou-r8",
           "mhlw-001195509",
           "ptotst-r6-houkan",
           "arukunpo-2026-kaigo",
-          "kango-repo-kasan-2026"
+          "kango-repo-kasan-2026",
+          "caretasukeru-kinkyuji"
         ]
       },
       "revision": "r8-kaigo",
@@ -504,11 +535,13 @@ export const RULES = {
         {
           "kind": "requirements",
           "id": "tk-target",
-          "text": "特別な管理を必要とする利用者に対して計画的な管理を行っているか(対象となる状態の一覧は未取得)",
+          "text": "特別な管理を必要とする状態に当たるか。告示第94号『単位数表の訪問看護費の注7の厚生労働大臣が定める状態』は イ 在宅麻薬等注射指導管理・在宅腫瘍化学療法注射指導管理・在宅強心剤持続投与指導管理・在宅気管切開患者指導管理を受けている状態、又は気管カニューレ若しくは留置カテーテルを使用している状態 / ロ 在宅自己腹膜灌流指導管理・在宅血液透析指導管理・在宅酸素療法指導管理等を受けている状態 / ハ 人工肛門又は人工膀胱を設置している状態 / ニ 真皮を越える褥瘡の状態 / ホ 点滴注射を週三日以上行う必要があると認められる状態。",
           "ask": "q_nv_kasan",
-          "confirmed": false,
-          "unconfirmed_reason": "算定要件(対象となる状態の一覧)は、当たれた算定構造には載っていない。留意事項通知で確認する。",
-          "source_ref": []
+          "confirmed": true,
+          "unconfirmed_reason": null,
+          "source_ref": [
+            "mhlw-kokuji94-jotai"
+          ]
         }
       ],
       "we_do_not_say": "算定できます、とは言わない。算定していない場合に、要件を満たしうる利用者がいるかを一緒に見るところまで。",
@@ -525,13 +558,15 @@ export const RULES = {
       "effect": {
         "type": "単位",
         "value": "+2,500単位",
-        "confirmed": false,
-        "unconfirmed_reason": "旧値『+2,000単位』(令和6構造の要約読み)および令和8構造の要約読み『+800単位』は、いずれも誤り。介護保険の訪問看護ターミナルケア加算は 2,500単位(死亡月)。外部の二次資料3件(ptotst-r6-houkan・arukunpo-2026-kaigo・kango-repo-kasan-2026)が 2,500単位で一致。告示原本の名指し照合が済むまで confirmed にしない。",
+        "confirmed": true,
+        "unconfirmed_reason": null,
         "source_ref": [
+          "mhlw-santei-kouzou-r8",
           "mhlw-001195509",
           "ptotst-r6-houkan",
           "arukunpo-2026-kaigo",
-          "kango-repo-kasan-2026"
+          "kango-repo-kasan-2026",
+          "caretasukeru-kinkyuji"
         ]
       },
       "revision": "r8-kaigo",
@@ -1011,7 +1046,8 @@ export const RULES = {
         "unconfirmed_reason": null,
         "source_ref": [
           "mhlw-santei-houhou-genko",
-          "mhlw-r8-houkan-st"
+          "mhlw-r8-houkan-st",
+          "mhlw-r8-iryo-shinkyu"
         ]
       },
       "revision": "r8-iryo",
@@ -1309,12 +1345,12 @@ export const RULES = {
       "name": "緊急時訪問看護加算(Ⅰ)(Ⅱ)",
       "effect": {
         "type": "単位",
-        "value": "指定訪問看護ステーションの場合 (Ⅰ) 1月につき +600単位 /(Ⅱ) 1月につき +574単位",
-        "confirmed": false,
-        "unconfirmed_reason": "外部の二次資料3件(ptotst-r6-houkan・arukunpo-2026-kaigo・kango-repo-kasan-2026)がいずれも 緊急時訪問看護加算(Ⅰ)600単位/(Ⅱ)574単位 で一致。旧来の要約読みで『特別管理加算と入れ替わった』のは、574 が緊急時(Ⅱ)の値であることの裏返し(conflicts: santei-kouzou-r8-yomitori)。告示原本の名指し照合が済むまで confirmed にしない。 2026-08-24 追記: 四つ目の二次資料(caretasukeru-kinkyuji)も (Ⅰ)600/(Ⅱ)574 で一致し、病院又は診療所の場合は (Ⅰ)325/(Ⅱ)315 とあった。単位数の出典は依然すべて要約読みか二次資料であり、告示・通知の原文に当たれていないので確定にしない。",
+        "value": "指定訪問看護ステーションの場合 (Ⅰ) 1月につき +600単位 /(Ⅱ) 1月につき +574単位。病院又は診療所の場合 (Ⅰ) 1月につき +325単位 /(Ⅱ) 1月につき +315単位",
+        "confirmed": true,
+        "unconfirmed_reason": null,
         "source_ref": [
-          "mhlw-001195509",
           "mhlw-santei-kouzou-r8",
+          "mhlw-001195509",
           "ptotst-r6-houkan",
           "arukunpo-2026-kaigo",
           "kango-repo-kasan-2026",
@@ -2047,7 +2083,7 @@ export const RULES = {
   "conflicts": [
     {
       "about": "santei-kouzou-r8-yomitori",
-      "status": "方向は外部照合で確定・原本照合は残課題",
+      "status": "解決",
       "what": "同じ PDF(令和8年6月施行の算定構造)を二度読ませたところ、緊急時訪問看護加算と特別管理加算の単位数が入れ替わって出た。",
       "claim_a": {
         "text": "緊急時訪問看護加算(Ⅰ) 500単位 /(Ⅱ) 250単位。特別管理加算は区分なしで 600単位。",
@@ -2080,6 +2116,19 @@ export const RULES = {
           "ptotst-r6-houkan",
           "arukunpo-2026-kaigo",
           "kango-repo-kasan-2026"
+        ]
+      },
+      "resolution2": {
+        "at": "2026-08-24",
+        "text": "原本に当たって決着した。令和8年6月施行の算定構造に、1項目だけ名指しして短く引用させる読み方で当たったところ、特別管理加算(Ⅰ)500/(Ⅱ)250、緊急時訪問看護加算 ステーション(Ⅰ)600/(Ⅱ)574・病院又は診療所(Ⅰ)325/(Ⅱ)315、ターミナルケア加算2,500単位 と出て、外部の二次資料4件と完全に一致した。",
+        "what_the_instrument_was": "同じ資料に同じ道具で当たっても、訊き方で答えが変わった。『表を丸ごと要約して』と頼むと隣の行の値が混ざり、『この一語を含む行だけ短く引用して』と頼むと正しく出る。さらに、令和6年4月改定の算定構造は、1項目だけ名指ししても『特別管理加算 +574単位』を返し続けた。574は同じ表の緊急時訪問看護加算の値である。つまり原因は二つあった。こちらの訊き方と、あの資料の版そのものの読み取りにくさである。",
+        "source_ref": [
+          "mhlw-santei-kouzou-r8",
+          "mhlw-001195509",
+          "ptotst-r6-houkan",
+          "arukunpo-2026-kaigo",
+          "kango-repo-kasan-2026",
+          "caretasukeru-kinkyuji"
         ]
       }
     }
