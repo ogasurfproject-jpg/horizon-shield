@@ -26,9 +26,10 @@ const W = (await import(path.join(TMP, "worker.mjs") + "?v=" + Math.random())).d
 const KEY = "test-key-not-a-real-secret";
 const ENV = { NURSING_MCP_KEY: KEY };
 
-let fail = 0;
+let fail = 0, ran = 0;
 function check(label, cond, detail) {
   console.log((cond ? "  ok   " : "  NG   ") + label + (detail ? "  " + String(detail).slice(0, 160) : ""));
+  ran++;
   if (!cond) fail++;
 }
 
@@ -100,8 +101,19 @@ console.log("\n3) データベースの状態");
   check("版を言う", !!out.version, out.version);
   check("項目が30件以上ある", out.items >= 30, "items=" + out.items);
   check("医療保険側の項目がある", out.by_insurance["医療"] > 0, JSON.stringify(out.by_insurance));
-  check("上書きされた版の項目を名指しする", (out.superseded_items || []).length > 0,
-        "superseded=" + (out.superseded_items || []).length);
+  /* 2026-08-24: ここは「上書きされた版の項目が1件以上あること」を求めていた。
+     つまり、データベースが古いままであることを、試験が仕様として抱えていた。
+     seed.11 で旧8項目を令和8へ当て直してゼロになった日に、直したせいで赤くなった。
+     確かめるべきは、数がゼロでないことではなく、名指しした数が一覧の差と合うこと。
+     ゼロならゼロと言えばよい。 */
+  const allItems = await call("nursing_rules_list", {});
+  const curItems = await call("nursing_rules_list", { only_current_revision: true });
+  check("上書きされた版の項目は、いつでも配列で返る", Array.isArray(out.superseded_items),
+        typeof out.superseded_items);
+  check("名指しした数が、一覧の差と合う",
+        (out.superseded_items || []).length === allItems.out.count - curItems.out.count,
+        "superseded=" + (out.superseded_items || []).length
+        + " / 全" + allItems.out.count + " - 現行" + curItems.out.count);
   check("未確認の要件を数える", out.requirements.unconfirmed > 0,
         JSON.stringify(out.requirements));
   check("未解決の食い違いを出す", (out.open_conflicts || []).length > 0,
@@ -231,5 +243,16 @@ console.log("\n7) 一覧・1件・出典");
 }
 
 console.log("");
+/* 2026-08-24: 走らなかった試験は、通った試験と見分けがつかない。
+   industry_gate_test.mjs では途中の process.exit で場面が丸ごと走らず、
+   それでも「すべて通過」と出ていた。cadence_test.mjs にも同じ穴があり、塞いだ。
+   ここにも残っていたので塞ぐ。確認を足したら EXPECT も直すこと。 */
+const EXPECT = 62;
+console.log("確かめた数: " + ran + " 件");
+if (ran !== EXPECT) {
+  console.log("確かめた数が " + EXPECT + " と合わない。"
+              + "途中で終わったか、確認を足して EXPECT を直していない。");
+  process.exit(1);
+}
 if (fail) { console.log(fail + " 件おかしい。"); process.exit(1); }
-console.log("訪問看護の内部MCP すべて通過");
+console.log("訪問看護の内部MCP すべて通過 (" + ran + " 件)");
