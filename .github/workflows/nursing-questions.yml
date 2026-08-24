@@ -12,6 +12,7 @@ on:
     paths:
       - "data/nursing/**"
       - "workers/hs-hearing/src/industry.js"
+      - "workers/hs-nursing-mcp/**"
       - "tools/**"
       - "workers/hs-hearing/**"
       - "tools/visibility/**"

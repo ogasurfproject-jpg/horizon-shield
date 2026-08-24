@@ -1,0 +1,14 @@
+#!/bin/sh
+# 押す前に、CI と同じ検査を通す。
+#
+# 2026-08-24: これは .git/hooks/pre-push に置かれていた。
+#   だがこのリポジトリは core.hooksPath=.githooks を使っており、
+#   git は .git/hooks を見ない。置いた日から一度も呼ばれていなかった。
+#   落ちない。例外も出ない。ただ、止まらない。
+#   だから、履歴に入る場所へ移した。
+#
+# 一回だけ通したいときは git push --no-verify。
+# 外せること自体は残す。外せない門は、いずれ別の抜け道を作られる。
+set -e
+root=$(git rev-parse --show-toplevel)
+exec python3 "$root/tools/ci_local.py" --quiet-on-pass
