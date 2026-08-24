@@ -20,12 +20,47 @@ import io, json, os, re, sys, urllib.error, urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 HS = os.path.abspath(os.path.join(HERE, "..", ".."))
 
+def _main_worktree():
+    """git の本体(最初のチェックアウト)の場所。
+
+    2026-08-24: 鍵マネージャは(正しく)git に入っていない。
+      そのため worktree で作業すると、そこには存在しない。
+      実際に /tmp/hs-deploy(worktree)から道具を走らせて
+      「現行の HEARING_ADMIN_SECRET を読めませんでした」で止まった。
+      鍵が無いのではなく、鍵を探す場所が worktree だっただけである。
+
+      本体は .git/worktrees/<名前> の2つ上にある。そこも探す。
+    """
+    try:
+        import subprocess
+        common = subprocess.run(["git", "rev-parse", "--path-format=absolute",
+                                 "--git-common-dir"],
+                                cwd=HS, capture_output=True, text=True).stdout.strip()
+        if common.endswith("/.git"):
+            return os.path.dirname(common)
+    except Exception:
+        pass
+    return None
+
+
 # 探す順。現行の鍵は鍵マネージャ(.html)にある。
-KEYFILES = [
-    os.path.join(HS, "HORIZON_SHIELD_鍵マネージャ.html"),
-    os.path.join(HS, "HORIZON_SHIELD_鍵一覧_20260822.md"),
-    os.path.join(os.path.expanduser("~"), "HORIZON_SHIELD_鍵マネージャ.html"),
-]
+KEYFILES = []
+if os.environ.get("HS_ADMIN_KEYFILE"):
+    KEYFILES.append(os.environ["HS_ADMIN_KEYFILE"])
+for _root in [HS, _main_worktree(), os.path.expanduser("~"),
+              os.path.join(os.path.expanduser("~"), "Desktop", "hs-docfix")]:
+    if not _root:
+        continue
+    KEYFILES.append(os.path.join(_root, "HORIZON_SHIELD_鍵マネージャ.html"))
+    KEYFILES.append(os.path.join(_root, "HORIZON_SHIELD_鍵一覧_20260822.md"))
+# 同じ場所を二度探さない(見つからなかったときの一覧が読みにくくなる)
+_seen, _uniq = set(), []
+for _f in KEYFILES:
+    if _f in _seen:
+        continue
+    _seen.add(_f)
+    _uniq.append(_f)
+KEYFILES = _uniq
 
 HOSTS = ["https://hs-hearing.oga-surf-project.workers.dev",
          "https://hearing.horizonshield.dev"]

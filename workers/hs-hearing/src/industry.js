@@ -90,7 +90,65 @@ export const INDUSTRIES = {
       "Do NOT invent prices or amounts. Unknown fields: empty string or empty array." +
       " CRITICAL: if the provider marks an item as conditional or partial (要相談, 応相談, 要確認, 応談, 一部, 場合により), you MUST keep that qualifier attached to the item itself, for example \"二宮町(要相談)\". Never list a conditional item as if it were unconditional, and never drop a scope word such as 全域 or 一部. Dropping a qualifier turns something the provider did not say into something we publish in their name.",
     /* 建設は現状の QUESTION_BANK をそのまま使う。 */
-    bank: null,
+    /* 建設だけの現場質問。JCCDB(建設費のデータベース)の穴を埋めるための問い。
+       ここへの答えは相場そのものではない。加盟店が現に扱っている事実である。
+       JCCDB に入れるのは、複数店の答えが揃い、出所を書けるようになってから。
+       1店の答えを相場として出した瞬間に、その店の値付けが『相場』になる。 */
+    bank: {
+      /* CONSTRUCTION_BANK_BEGIN 生成物。手で編集しないこと。 */
+      /*   元       : data/construction/field_questions.json
+           作り直し : python3 tools/construction/sync_questions.py --write
+           検査     : python3 tools/construction/sync_questions.py --check */
+      q_cn_souba_nai: {
+        w: 8,
+        purpose: "field",
+        fills_gap: "JCCDB に品目そのものが無い箇所",
+        gives: "相場表に足すべき工種・単位の候補",
+        text:
+          "直近の見積で、こちらの相場表に載っていない工種や単位はありましたか。「載っていない」と思ったものを、名前だけで構いませんので挙げてください。無ければ「無い」で構いません。",
+      },
+      q_cn_zairyo_ugoki: {
+        w: 8,
+        purpose: "field",
+        fills_gap: "JCCDB の価格が、いつの時点のものかが分からない箇所",
+        gives: "見直しが要る品目と、その向き",
+        text:
+          "この1年で、仕入れ値が目に見えて動いた材料はありますか。材料名と、上がったか下がったか、感覚で構いません。",
+      },
+      q_cn_chiiki_sa: {
+        w: 7,
+        purpose: "field",
+        fills_gap: "JCCDB が地域差を持っていない箇所",
+        gives: "地域係数を置くべき項目",
+        text:
+          "この地域だけ他と違う、と感じる単価や慣習はありますか。運搬費、駐車場、近隣対応、どんなことでも構いません。",
+      },
+      q_cn_takai_iwareta: {
+        w: 7,
+        purpose: "field",
+        fills_gap: "JCCDB の上限が、実際の説明と噛み合っていない箇所",
+        gives: "説明が要る項目と、通じる説明の言い方",
+        text:
+          "施主さまから「他社と比べて高い」と言われたことのある項目はありますか。項目名と、そのときどう説明されたかを教えてください。",
+      },
+      q_cn_shokei: {
+        w: 6,
+        purpose: "field",
+        fills_gap: "諸経費率の判定が、根拠なく一律になっている箇所",
+        gives: "諸経費に何が入っているかの実際",
+        text:
+          "諸経費は、どういう考え方で乗せていますか。何パーセントか、何を含めているか。決めていなければ「決めていない」で構いません。",
+      },
+      q_cn_isshiki: {
+        w: 6,
+        purpose: "field",
+        fills_gap: "「一式」を一律に減点している判定の根拠",
+        gives: "内訳を出せない正当な場面と、出せるはずの場面の別",
+        text:
+          "見積で「一式」と書くのは、どういう場面ですか。内訳を出しにくいものがあれば、その理由も教えてください。",
+      },
+      /* CONSTRUCTION_BANK_END */
+    },
 
     /* 物差し。建設における JCCDB。訪問看護の JHNRD と同じ位置に立つ。
        2026-08-23、ここが書かれていなかった。訪問看護だけが物差しに繋がっていて、

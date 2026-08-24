@@ -27,11 +27,12 @@
         "note": "公共工事の積算資料に基づく建設費のオープンデータ。ファイルではなくMCP経由で参照する。"
       },
       "field_questions": {
-        "count": 0,
-        "gap": "建設側には、JCCDBの穴を埋めるための現場質問がまだ1問も無い。",
-        "consequence": "訪問看護では実地指導や加算の名前を現場から集めているが、建設では集めていない。物差しが厚くなる経路が片方にしか無い。",
-        "next": "JCCDBで足りない品目・地域差・実勢との開きを、現場に尋ねる問いを作る。",
-        "severity": "加盟店の物差しが厚くならない。建設側だけ現場からの入力が無い。"
+        "count": 6,
+        "source": "data/construction/field_questions.json",
+        "generator": "tools/construction/sync_questions.py",
+        "wired_at": "2026-08-24",
+        "gap": null,
+        "note": "JCCDB の穴を埋めるための現場質問。ここへの答えは相場そのものではない。複数店の答えが揃い、出所を書けるようになるまで JCCDB には入れない。1店の答えを相場として出した瞬間に、その店の値付けが『相場』になる。"
       },
       "golden_ratio": {
         "geo": 40,

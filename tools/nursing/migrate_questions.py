@@ -129,18 +129,35 @@ PURPOSE_LOCAL = {
 
 
 def bank_span(src):
-    """bank: { ... } の範囲を、波括弧を数えて求める。設問の中にも波括弧がある。"""
-    m = re.search(r"\n(\s*)bank:\s*\{", src)
+    """訪問看護の bank: { ... } の範囲を、波括弧を数えて求める。設問の中にも波括弧がある。
+
+    2026-08-24: ここは「最初に見つかった bank: {」を取っていた。
+      建設側の bank が null だった間は、最初の bank: { は必ず訪問看護のものだった。
+      その日、建設にも現場質問を入れて bank: { を作ったところ、
+      この関数が建設の bank を訪問看護のものとして読み、
+      「DB にあって bank に無い設問が45問」と報告した。
+
+      「最初のもの」で当てていたのは、たまたま1つしか無かったからである。
+      2つ目ができた日に壊れる。業種の名前で当てる。
+    """
+    key = re.search(r"\n(\s*)nursing:\s*\{", src)
+    if not key:
+        sys.stderr.write("industry.js に nursing: が見つかりません。\n"); sys.exit(2)
+    off = key.start()
+    m = re.search(r"\n(\s*)bank:\s*\{", src[off:])
     if not m:
-        sys.stderr.write("bank: が見つかりません。\n"); sys.exit(2)
-    i = src.index("{", m.start())
+        sys.stderr.write("訪問看護の bank: が見つかりません。\n"); sys.exit(2)
+    pad = m.group(1)
+    head = off + m.start()          # 改行の位置
+    i = src.index("{", head)        # bank の { の位置
     depth, j = 0, i
     while j < len(src):
-        if src[j] == "{": depth += 1
+        if src[j] == "{":
+            depth += 1
         elif src[j] == "}":
             depth -= 1
             if depth == 0:
-                return m.start() + 1, i, j + 1, m.group(1)
+                return head + 1, i, j + 1, pad
         j += 1
     sys.stderr.write("bank: の閉じ括弧が見つかりません。\n"); sys.exit(2)
 

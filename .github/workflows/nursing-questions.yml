@@ -79,6 +79,11 @@ jobs:
         run: node --check workers/hs-hearing/src/visibility.js
       # 業種ごとの物差しと黄金比が、宣言と一致しているか。
       # 片方の業種にだけ物差しが繋がっている状態を、黙って通さない。
+      # 建設の現場質問も、データと industry.js がずれていないかを見る。
+      # 訪問看護だけ検査があって建設に無いなら、それは「どの業種でも同じ仕組み」ではない。
+      - name: 建設の現場質問
+        run: python3 tools/construction/sync_questions.py --check
+
       - name: 業種レジストリ
         run: python3 tools/industries/check.py
 

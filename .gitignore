@@ -204,3 +204,6 @@ _tmp_noind_test.py.bak_delete_me
 !tools/install_ci_hook.sh
 !tools/publish_guard.py
 !tools/publish_guard_test.py
+
+# 2026-08-24 建設の現場質問。CI がこれを走らせる。
+!tools/construction/*.py
