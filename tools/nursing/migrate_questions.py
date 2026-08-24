@@ -56,7 +56,51 @@ JHNRD = os.environ.get("JHNRD_REPO") or os.path.join(os.path.dirname(HS), "jhnrd
 # 分からなくなるので、必ずどちらを見たかを表示する。
 DB_OWNER = os.path.join(JHNRD, "data", "rules_2024.json")
 DB_COPY = os.path.join(HS, "data", "nursing", "rules_2024.json")
-DB = DB_OWNER if os.path.exists(DB_OWNER) else DB_COPY
+
+
+def _seed(path):
+    """版の末尾の数(seed.N)を返す。読めなければ None。"""
+    try:
+        import json as _json
+        v = str(_json.load(io.open(path, encoding="utf-8")).get("version") or "")
+    except Exception:
+        return None
+    tail = v.rsplit(".", 1)[-1]
+    return int(tail) if tail.isdigit() else None
+
+
+# 2026-08-24: ここは「持ち主のファイルが在れば持ち主を見る」だった。
+#   在ることと、新しいことは別である。
+#   実測: このコンテナの隣に seed.6(設問0問)の古い JHNRD が置いてあり、
+#   リポジトリ内の写しは seed.8(設問18問)だった。道具は黙って seed.6 を読み、
+#   模擬サーバの試験が「q_nv_shido が出力に無い」で落ちた。
+#   コードは正しく、読んでいた世界が古かった。走行1と、古い .mjs の写しと、同じ型である。
+#
+#   だから、どちらが新しいかを見る。持ち主が写しより古ければ、黙って選ばない。
+#   どちらを見るべきかは人が決めることなので、止めて名前を出す。
+DB_FORCED = os.environ.get("HS_NURSING_DB")
+DB_PICK_NOTE = ""
+if DB_FORCED:
+    DB = DB_FORCED
+    DB_PICK_NOTE = "HS_NURSING_DB で指定されたものを見ています"
+elif not os.path.exists(DB_OWNER):
+    DB = DB_COPY
+    DB_PICK_NOTE = "JHNRD が手元に無いので、リポジトリ内の写しを見ています"
+else:
+    so, sc = _seed(DB_OWNER), _seed(DB_COPY)
+    if so is not None and sc is not None and so < sc:
+        sys.stderr.write(
+            "\n持ち主のデータベースが、写しより古いです。どちらを見るべきかを決められません。\n"
+            "  持ち主 %s  版 seed.%d\n"
+            "  写し   %s  版 seed.%d\n\n"
+            "  どちらかが取り残されています。次のどれかをしてください。\n"
+            "    ・持ち主を更新する: cd %s && git pull\n"
+            "    ・写しを持ち主に合わせる: python3 tools/nursing/sync_db.py --pull\n"
+            "    ・今回だけどちらかを指定する: HS_NURSING_DB=<パス> で実行する\n\n"
+            % (DB_OWNER, so, DB_COPY, sc, JHNRD))
+        sys.exit(2)
+    DB = DB_OWNER
+    DB_PICK_NOTE = "JHNRD 本体を見ています"
 DB_IS_COPY = (DB == DB_COPY)
 LOCAL = os.path.join(HS, "data", "nursing", "questions_local.json")
 IND = os.path.join(HS, "workers", "hs-hearing", "src", "industry.js")

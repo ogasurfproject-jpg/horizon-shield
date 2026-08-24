@@ -126,6 +126,11 @@ def run(tool, *args):
     # 試験は本物の鍵を要らない。模擬のサーバは値を見ない。
     # 鍵マネージャはリポジトリに入っていないので、CI ではこれが無いと必ず落ちる。
     env["HS_ADMIN_KEY"] = "test-key-not-a-real-secret"
+    # 2026-08-24: 試験は、リポジトリの隣に何が置いてあっても同じ結果になること。
+    #   コンテナの隣に seed.6 の古い JHNRD が置いてあり、道具が黙ってそれを読んで、
+    #   この試験が落ちた。落ちた原因はコードではなく、読んでいた世界だった。
+    #   試験が測るのはコードなので、見る先を固定する。
+    env["HS_NURSING_DB"] = os.path.join(HS, "data", "nursing", "rules_2024.json")
     r = subprocess.run([sys.executable, os.path.join(HERE, tool)] + list(args),
                        capture_output=True, text=True, cwd=HS, env=env)
     return r
