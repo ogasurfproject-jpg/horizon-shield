@@ -105,19 +105,46 @@ jobs:
       - name: 算定要件データベースの写しが、持ち主(JHNRD)と同じ版か
         run: |
           python3 - <<'PY'
-          import json, urllib.request
+          import json, os, re, urllib.request
+          # 2026-08-24: 最初この門は「写しと持ち主が同じ版か」を見ていた。
+          #   だが raw.githubusercontent は場所ごとに配信の写しを持つ。
+          #   JHNRD を押した直後は、手元では新しい status.json が見えても、
+          #   CI のいる場所ではまだ古いものが見えることがある。
+          #   実際、手元の検査は25件緑なのに、同じコミットで CI だけが赤くなった。
+          #   点滅する門は、いずれ外される。外された門は無いのと同じである。
+          #
+          #   そこで「同じか」ではなく「写しが古くないか」を見ることにした。
+          #   持ち主が古く見えるとき(配信の写しが古い)は通す。
+          #   写しが古いとき(本当に危ないほう)だけ赤にする。
+          def seedno(v):
+              m = re.search(r"seed\.(\d+)", str(v))
+              return int(m.group(1)) if m else None
           mine = json.load(open("data/nursing/rules_2024.json", encoding="utf-8"))["version"]
-          url = "https://raw.githubusercontent.com/ogasurfproject-jpg/jhnrd/main/status.json"
-          req = urllib.request.Request(url, headers={"user-agent": "HORIZON-SHIELD-ci/1.0"})
+          url = ("https://raw.githubusercontent.com/ogasurfproject-jpg/jhnrd/main/status.json"
+                 "?cb=" + (os.environ.get("GITHUB_SHA") or "local"))
+          req = urllib.request.Request(url, headers={
+              "user-agent": "HORIZON-SHIELD-ci/1.0",
+              "cache-control": "no-cache", "pragma": "no-cache"})
           theirs = json.load(urllib.request.urlopen(req, timeout=30))["version"]
+          a, b = seedno(mine), seedno(theirs)
           print("写し: %s / 持ち主: %s" % (mine, theirs))
-          if mine != theirs:
+          if a is None or b is None:
+              if mine != theirs:
+                  raise SystemExit("版の書き方が読めず、しかも一致しません。手で確かめてください。")
+              print("→ 一致。")
+          elif a < b:
               raise SystemExit(
-                  "写しが持ち主(JHNRD)とずれています。次を走らせてください:\n"
+                  "写しが持ち主(JHNRD)より古いです(seed.%d < seed.%d)。次を走らせてください:\n"
                   "  JHNRD_REPO=~/Desktop/jhnrd python3 tools/nursing/sync_db.py --pull\n"
                   "  python3 tools/nursing/sync_questions.py --write\n"
                   "  python3 tools/nursing/build_mcp_rules.py --write\n"
-                  "そのあと workers/hs-nursing-mcp を配り直すこと(CI は配りません)。")
+                  "そのあと workers/hs-nursing-mcp を配り直すこと(CI は配りません)。" % (a, b))
+          elif a > b:
+              print("→ 写しのほうが新しく見えます(seed.%d > seed.%d)。" % (a, b))
+              print("   JHNRD をまだ押していないか、配信の写しが古いかのどちらかです。")
+              print("   写しが古い側ではないので、ここでは止めません。")
+          else:
+              print("→ 一致。")
           PY
 
       - name: 内部MCPの算定要件が、データベースとずれていないか
