@@ -197,3 +197,8 @@ HORIZON_SHIELD_鍵マネージャ*.html
 !tools/nursing/admin_tools_test.py
 !tools/nursing/hearing_status.py
 _tmp_noind_test.py.bak_delete_me
+
+# 運用スクリプトは版管理する。*.sh の一括除外から外す。
+# 2026-08-24: レジストリを deprecated にする台本が .gitignore の中にあり、
+# 生存確認を GET で叩く欠陥が誰の目にも触れないまま本番判断に使われていた。
+!tools/**/*.sh
