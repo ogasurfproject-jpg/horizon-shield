@@ -20,6 +20,13 @@
 <link rel="alternate" hreflang="ja" href="https://shield.the-horizons-innovation.com/verify-directory/buyers/">
 <link rel="alternate" hreflang="en" href="https://shield.the-horizons-innovation.com/verify-directory/">
 <link rel="stylesheet" href="/verify-directory/assets/vd.css">
+<style>
+/* 訂正の印。消した訂正は訂正ではないので、古い記述を残すための枠も用意する。 */
+.corrected{background:rgba(245,158,11,.10);border-left:3px solid #f59e0b;
+  padding:8px 12px;margin:0 0 12px;font-size:13.5px;border-radius:0 4px 4px 0}
+.wasclaimed{margin-top:14px;padding:12px 14px;border:1px dashed rgba(148,163,184,.45);
+  border-radius:6px;font-size:12.5px;opacity:.78;line-height:1.75}
+</style>
 </head>
 <body>
 <header>
@@ -53,6 +60,8 @@
     <a href="/verify-directory/survey/data/survey1_report_2026-08-23.json">Every number on this page, as JSON</a>
     <a href="/verify-directory/survey/data/survey1_walk_2026-08-23_run2.jsonl">The raw walk, one line per address</a>
     <a href="/verify-directory/survey/data/survey1_walk_2026-08-23_run1_discarded.jsonl">The discarded first walk, kept</a>
+    <a href="/verify-directory/survey/data/survey2_recheck_2026-08-24.jsonl">The re-check under the current revision</a>
+    <a href="/verify-directory/survey/data/survey3_ladder_2026-08-24.jsonl">The version ladder</a>
     <a href="/verify-directory/survey/0/">Report 0, which promised this count</a>
     <a href="/verify-directory/survey/">The method, published before this ran</a>
   </div>
@@ -79,9 +88,12 @@
     <div class="kh">Three things to read first</div>
     <h2>Read these before quoting the headline</h2>
     <div class="why">
-      <div class="card"><div class="n">01 &middot; my instrument is a revision behind</div><h4>All 918 pending rows could be my fault</h4>
-        <p>This walk speaks the <b>2025-06-18</b> revision of MCP: <span class="mono">initialize</span>, <span class="mono">notifications/initialized</span>, <span class="mono">Mcp-Session-Id</span>. The current revision, <b>2026-07-28</b>, removed all three; a request now stands alone. <b>A server built only to the current spec falls into my "pending" bucket and looks like it did not answer.</b></p>
-        <p>The arithmetic is uncomfortable and I am publishing it anyway: 74 gave no result to initialize, 638 had no MCP at the declared address, 206 refused initialize. <b>That is 918, which is exactly the pending bucket.</b> I cannot say all 918 are this, and I cannot say none are. <b>The honest statement is that the upper bound is the whole bucket</b>, and it will stay that way until a second walk speaks the current revision.</p></div>
+      <div class="card"><div class="n">01 &middot; my instrument was behind</div><h4>95 of the 918 pending rows were my fault</h4>
+        <p class="corrected"><b>Corrected 2026-08-24.</b> What this card said first is kept at the bottom, because it was wrong in a way worth showing.</p>
+        <p>Every one of the 918 was contacted again. <b>33 answered <span class="mono">server/discover</span> under the current 2026-07-28 revision.</b> <b>62 more answered <span class="mono">initialize</span> once I announced 2025-11-25 instead.</b> That is <b>95</b>, or <b>10.3 percent</b> of the bucket. The remaining <b>820</b> spoke no MCP at any of the four versions tried, and <b>0</b> were unreachable.</p>
+        <p><b>The real defect was worse than the one I published.</b> This walk did not merely speak an older revision &mdash; it announced protocol version <b>2024-11-05</b>, which most of the registry has dropped. <b>137 of the 206 initialize refusals were HTTP 400</b>, the response the spec prescribes for a version a server does not support. <b>I counted a correct refusal as "did not speak MCP".</b> All 62 were recovered at 2025-11-25; not one needed a version older than that.</p>
+        <p><b>So the headline moves.</b> Measured goes from 5,785 to <b>5,880</b> &mdash; 46.5 percent to <b>47.3</b> &mdash; and pending drops from 918 to <b>823</b>.</p>
+        <div class="wasclaimed"><b>What this card said on 2026-08-23:</b> "This walk speaks the 2025-06-18 revision of MCP&hellip; 74 gave no result to initialize, 638 had no MCP at the declared address, 206 refused initialize. That is 918, which is exactly the pending bucket. I cannot say all 918 are this, and I cannot say none are." <b>The upper bound was right. The reason given for it was not.</b></div></div>
       <div class="card"><div class="n">02 &middot; there is no agreed word for it</div><h4>152 disclosures, seven different field names</h4>
         <p>Of the 5,785 that answered, <b>152 disclosed compensation</b> somewhere a machine can read. That is <b>2.6 percent</b>. The seven names in use are <span class="mono">payment</span> (104), <span class="mono">pricing</span> (27), <span class="mono">payments</span> (15), <span class="mono">compensation</span> (5), <span class="mono">capabilities.payment</span> (4), <span class="mono">capabilities.pricing</span> (1), and one A2A payments extension.</p>
         <p><b>The other 5,633 servers are not accused of anything.</b> There is no agreed place to put this, so silence here is the absence of a convention, not evidence of a hidden hand. <b>What the number measures is that the convention does not exist yet</b> — and that an agent choosing between these servers has nothing to read.</p></div>
@@ -100,7 +112,7 @@
       <p><b>596 servers published an agent card; 4,762 did not, and 427 could not be read.</b> That last number is mine, not theirs — a fetch that failed on my side is recorded as not read, not as absent. The three are never added together.</p>
       <p><b>1,108 servers required a session id.</b> That is the old revision's mechanism, so this number will mean something different after a walk on the current one.</p>
       <p><b>My own five endpoints are in the data and marked as mine.</b> All five answered. They are not excluded from the totals and they are not allowed to be quoted as an independent result.</p>
-      <div class="stamp">the second walk speaks the 2026-07-28 revision. until it runs, the 918 stays an upper bound and this page says so.</div>
+      <div class="stamp">it ran. 95 of the 918 were mine, 820 were not, 0 were unreachable. the upper bound is now a number.</div>
     </div>
   </div>
 </section>
@@ -116,7 +128,7 @@
       <div class="r"><div class="k">health gate</div><div class="v">Two control addresses were re-checked whenever failures clustered. <b>If the control stopped answering, the walk aborted instead of recording the outcome.</b> This exists because of run 1, below.</div></div>
       <div class="r"><div class="k">held vs pending</div><div class="v"><b>Never collapsed.</b> Auth required, unreachable, gateway error and robots are held or skipped. Only a measured-and-unmet condition is pending.</div></div>
       <div class="r"><div class="k">rows read</div><div class="v"><b>12,429</b> of 12,429. The run ended because the list ended.</div></div>
-      <div class="r"><div class="k">record hash</div><div class="v"><span class="mono">6a784748c2d3c3f4cfd1ee674a613bb47976bd12ebb9ca96f131790c179c3125</span><br>sha256 of the JSON linked at the top, computed over every field except the hash itself.</div></div>
+      <div class="r"><div class="k">record hash</div><div class="v"><span class="mono">61fdbff057c1dfd619b28ac06fb9ea48bf8693b4951caeb08a9ffe3d7b4e1881</span><br>sha256 of the JSON linked at the top, computed over every field except the hash itself.</div></div>
     </div>
 
     <div class="honest">
