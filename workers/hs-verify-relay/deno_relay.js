@@ -17,11 +17,74 @@
 //
 // 秘密は RELAY_TOKEN のみ(Deno Deploy の環境変数に設定)。扉側にも同じ値を入れる。
 // 状態は持たない(KVもDBも無い)。
+//
+// 2026-08-25 追記: 1リクエストにつき1行だけ、素性を標準出力に書く。
+//   きっかけは、1日 289 リクエストという値が出たのに、
+//   こちらが把握しているのは 1日1回の cron だけだった、ということである。
+//   残り 288 が何なのか、誰にも言えなかった。
+//   通信量は入口に門を付けて止めたが、「誰が叩いているか」は別の問いで、
+//   止めても分からない。分からないままにしておくと、
+//   増えたときにも減ったときにも、理由を言えない。
+//
+//   記録するもの: 時刻・メソッド・path・User-Agent・Referer・
+//     鍵の有無・結果・(POSTなら)取得先のホスト・受け取ったバイト数・所要ミリ秒。
+//   記録しないもの: 本文(要求も応答も)・鍵の値・生のIPアドレス。
+//   同じ相手が何度も来たことは数えたいので、IP は起動ごとの塩を混ぜて
+//   ハッシュにし、先頭12桁だけを書く。再起動すると別の値になる。
+//   つまり「今この瞬間、同じ相手か」は分かるが、後から個人には戻らない。
 
 const ALLOWED_ZONE = "horizonshield.dev";
 const TIMEOUT_MS = 10000;
 const MAX_BODY = 262144;
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" };
+
+// 起動ごとに変わる塩。IP を数えられる形にはするが、後から戻せる形にはしない。
+const BOOT_SALT = crypto.randomUUID();
+
+function clip(s, n) {
+  s = String(s == null ? "" : s);
+  return s.length > n ? s.slice(0, n) + "…" : s;
+}
+
+async function ipTag(info) {
+  try {
+    const a = info && info.remoteAddr;
+    const ip = (a && (a.hostname || a.address)) || "";
+    if (!ip) return "";
+    return (await sha256hex(BOOT_SALT + "|" + ip)).slice(0, 12);
+  } catch (_e) {
+    return "";
+  }
+}
+
+// 1リクエストにつき1行。Deno Deploy の Logs で grep できるよう、頭に印を付ける。
+async function logRequest(request, info, res, ctx, started) {
+  let path = "", query = "";
+  try {
+    const u = new URL(request.url);
+    path = u.pathname;
+    query = u.search;
+  } catch (_e) {}
+  const h = request.headers;
+  console.log("hs-relay-req " + JSON.stringify({
+    at: new Date().toISOString(),
+    method: request.method,
+    path: path,
+    query: clip(query, 120),
+    status: res ? res.status : 0,
+    token: h.get("x-relay-token") ? "present" : "absent",
+    ua: clip(h.get("user-agent"), 160),
+    referer: clip(h.get("referer"), 160),
+    origin: clip(h.get("origin"), 120),
+    country: h.get("cf-ipcountry") || h.get("x-country") || "",
+    ip_tag: ctx.ip_tag || "",
+    target_host: ctx.target_host || "",
+    bytes_read: ctx.bytes_read == null ? "" : ctx.bytes_read,
+    truncated: ctx.truncated == null ? "" : ctx.truncated,
+    threw: ctx.threw || "",
+    ms: Date.now() - started,
+  }));
+}
 
 function json(obj, status = 200) {
   return new Response(JSON.stringify(obj, null, 2), { status, headers: JSON_HEADERS });
@@ -47,7 +110,7 @@ function withTimeout(p, ms) {
   ]);
 }
 
-async function handle(request) {
+async function handle(request, ctx) {
   const RELAY_TOKEN = Deno.env.get("RELAY_TOKEN");
 
   if (request.method === "GET") {
@@ -94,6 +157,8 @@ async function handle(request) {
     }, 403);
   }
 
+  ctx.target_host = h;
+
   const method = body.method === "POST" ? "POST" : "GET";
   const headers = (body.headers && typeof body.headers === "object") ? body.headers : {};
   const init = { method: method, headers: headers };
@@ -110,6 +175,8 @@ async function handle(request) {
   }
 
   const capped = await readCapped(res, MAX_BODY);
+  ctx.bytes_read = capped.bytes_read;
+  ctx.truncated = capped.truncated;
 
   return json({
     relayed: true,
@@ -169,4 +236,20 @@ async function readCapped(res, max) {
            declared_length: declared, bytes_read: total };
 }
 
-Deno.serve(handle);
+// 記録は応答の邪魔をしない。記録に失敗しても、返すものは返す。
+// 逆に、handle が投げても記録は残す。落ちた回だけ記録が消えるのでは、
+// 一番知りたい回が見えない。
+Deno.serve(async (request, info) => {
+  const started = Date.now();
+  const ctx = {};
+  try { ctx.ip_tag = await ipTag(info); } catch (_e) {}
+  let res;
+  try {
+    res = await handle(request, ctx);
+  } catch (e) {
+    ctx.threw = String((e && e.message) || e);
+    res = json({ error: "relay_internal_error" }, 500);
+  }
+  try { await logRequest(request, info, res, ctx, started); } catch (_e) {}
+  return res;
+});
