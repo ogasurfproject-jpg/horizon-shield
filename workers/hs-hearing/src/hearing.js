@@ -2050,6 +2050,13 @@ export default {
           const ap = s.autopilot || {};
           rows.push({
             ...storeToContractor(s),
+            // 2026-08-24: 業種をここに出していなかった。
+            //   store: 側に業種が入っているかを、外から見る手段が無かった。
+            //   道具が row.get("industry") を見て、常に undefined を得て、
+            //   「業種が無い」と報告し続けた。書き込みは成功していたのに。
+            //   見えない欄について「無い」とは言えない。だから見えるようにする。
+            industry: s.industry || null,
+            industry_decided_at: s.industry_decided_at || null,
             tier: s.tier || null,
             plan: s.plan || null,
             email: s.email || "",

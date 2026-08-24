@@ -60,6 +60,21 @@ def main():
     print("\n加盟店: %d 件\n" % len(rows))
     problems = []
 
+    # 2026-08-24: 「その欄がどの行にも無い」と「その口がその欄を返さない」は別である。
+    #   industry を1行ずつ見て undefined だったので「業種が無い」と報告し続けた。
+    #   実際は /admin/stores が industry を返していなかっただけで、
+    #   書き込みは成功していた。見えない欄について「無い」とは言えない。
+    #   どの行にも1つも無い欄は、返っていないものとして扱う。
+    def exposed(field):
+        return any(field in r for r in rows)
+
+    ind_visible = exposed("industry")
+    if not ind_visible:
+        print("※ /admin/stores が industry を返していません。")
+        print("  store: 側の業種は、この口からは見えません。")
+        print("  見えないものについて「無い」とは言いません。")
+        print("  (worker を deploy すれば見えるようになります)\n")
+
     for row in rows:
         sid = row["_id"]
         thin_co = hs_admin.row_company(row)
@@ -74,9 +89,11 @@ def main():
         print("%s" % sid)
         print("  社名   : store側=%s / profile側=%s"
               % (thin_co or "(空)", prof.get("company") or "(空)"))
-        print("  業種   : %s   完成度: %s" % (ind or "(入っていない)", comp))
+        store_ind = row.get("industry") if ind_visible else "(この口からは見えない)"
+        print("  業種   : profile側=%s / store側=%s   完成度: %s"
+              % (prof.get("industry") or "(無し)", store_ind or "(無し)", comp))
 
-        if not row.get("industry"):
+        if ind_visible and not row.get("industry"):
             problems.append((sid, "store: 側に業種が無い。名乗りと生成の振り分けが厚い方頼みになる"))
         if not thin_co and not prof.get("company"):
             problems.append((sid, "社名がどちらにも無い。「加盟店 さま」と呼ぶことになる"))

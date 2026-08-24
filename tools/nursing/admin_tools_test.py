@@ -24,10 +24,12 @@ PORT = 8907
 
 # 実物と同じ形。storeToContractor が作る行は store_id と name を持つ。
 STORES = [
-    {"store_id": "kira-test01", "name": "", "member_no": None, "area": "平塚市"},
-    {"store_id": "hs-partner-001", "name": "リフォーム職人株式会社", "area": "愛知県"},
+    {"store_id": "kira-test01", "name": "", "member_no": None, "area": "平塚市",
+     "industry": "nursing"},
+    {"store_id": "hs-partner-001", "name": "リフォーム職人株式会社", "area": "愛知県",
+     "industry": "construction"},
     # 社名がどちらにも無い店。書き込みの宛先が正しいかを、この店で見る。
-    {"store_id": "kira-empty02", "name": "", "area": "小田原市"},
+    {"store_id": "kira-empty02", "name": "", "area": "小田原市", "industry": None},
     # どの試験も書き換えない店。「社名が無い」の検出は、これで見る。
     # 2026-08-24: 最初これを用意せず、試験3が書き込んだ社名を試験5が見ていた。
     #   試験どうしが状態を共有すると、順番を変えただけで結果が変わる。
@@ -161,7 +163,8 @@ def main():
     else:
         want = ["まだ一度も送っていない", "生成器が missing", "返事待ちが",
                 "store: 側に業種が無い", "社名がどちらにも無い",
-                "送信履歴が失われている"]
+                "送信履歴が失われている",
+                "store: 側に業種が無い"]
         for w in want:
             if w not in r.stdout:
                 print("  ★出力に「%s」がありません" % w); bad += 1
@@ -174,6 +177,26 @@ def main():
         print("  ★上書きを許した"); bad += 1
     else:
         print("  ok  止まった: " + (r.stderr.strip().splitlines() or [""])[0][:60])
+
+    print("\n=== 6) 口が業種を返さないとき、「無い」と言わないか ===")
+    # 2026-08-24: /admin/stores は industry を返していなかった。
+    #   道具は1行ずつ見て undefined を得て、「業種が無い」と報告し続けた。
+    #   書き込みは成功していたのに、3社とも不備として名指しし続けた。
+    #   「その欄がどの行にも無い」と「その口がその欄を返さない」は別である。
+    global STORES
+    saved = [dict(x) for x in STORES]
+    for x in STORES:
+        x.pop("industry", None)
+    r = run("hearing_status.py")
+    STORES[:] = saved
+    if r.returncode != 0:
+        print((r.stdout + r.stderr)[-500:]); print("  ★落ちた"); bad += 1
+    elif "store: 側に業種が無い" in r.stdout:
+        print("  ★ 見えない欄について「無い」と言っている"); bad += 1
+    elif "見えません" not in r.stdout:
+        print("  ★ 見えないことを言っていない"); bad += 1
+    else:
+        print("  ok  「この口からは見えません」と言い、「無い」とは言わない")
 
     print()
     if bad:
