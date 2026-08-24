@@ -1,99 +1,165 @@
 #!/bin/bash
-# hs-audit-app を deprecated にする — 一気通貫スクリプト (2026-08-14)
+# レジストリのサーバー状態を変える — 汎用スクリプト
 #
-# 現状(実測): io.github.ogasurfproject-jpg/hs-audit-app 0.1.0 が公開レジストリに
-#             active で載っていて、エンドポイントは 404。正本に server.json は無い。
+# ─────────────────────────────────────────────────────────────────────────────
+# 2026-08-24 全面改訂。旧版には2つの欠陥があった。消さずに書いておく。
 #
-# deleted ではなく deprecated を選ぶ理由:
-#   §1.3「取り下げたように見えて実際は取り消せていない状態は、この事業の原則と噛み合わない」
-#   verify-directory「a record that can be deleted on request is not a record」
-#   自分の死んだ看板だけ黙って消すのは、その原則と噛み合わない。残して理由を書く。
+# 【欠陥1】生存確認が GET だった。致命的。
+#   旧版 STEP 0 はこう書いていた:
+#     curl -s -o /dev/null -w "%{http_code}" https://.../mcp
+#     echo "↑ 404 なら取り下げてよい。200 が返るなら止めて、ルート設定を直す話になる。"
+#   ガードの考え方は正しい。「200なら止めろ」と書いてある。
+#   だが -X POST が無い。MCPエンドポイントは POST 専用なので、GET は catch-all の
+#   404 に落ちる。つまり構造上 200 が返りようがなく、安全弁は常に空振りしていた。
+#   結果、2026-08-14 に hs-audit-app を「404だから死んでいる」と誤診して deprecated
+#   にした。実際には生きており、POST tools/list は 200 を返していた。
+#   その誤った理由が公開レジストリの statusMessage に10日間載り続けた。
+#   → 本版は POST で叩く。さらに 404/200 の二択をやめ、410 も区別する。
 #
-# 使い方: bash run_hs-audit-app_deprecate.sh
+# 【欠陥2】mcp-publisher status の存在に気づかず curl を手組みしていた。
+#   旧版は login 後に find でトークンファイルを探し回り、見つからなければ画面に
+#   手打ちさせていた。秘密を画面に出す必要はどこにも無かった。
+#   mcp-publisher には status サブコマンドがある。トークンは道具の中で完結する。
+#   → 本版は mcp-publisher status を使う。トークンは一度も変数に入らない。
+#
+# なお CI から回すなら .github/workflows/mcp-status.yml を使うこと。
+# GitHub OIDC なのでトークンの保管も持ち出しも無い。手元認証はこの台本の役目。
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# 使い方:
+#   bash run_hs-audit-app_deprecate.sh                       # 既定値で確認だけ
+#   bash run_hs-audit-app_deprecate.sh <server-name> <version> <status> <message>
+#
+# 例:
+#   bash run_hs-audit-app_deprecate.sh \
+#     io.github.ogasurfproject-jpg/hs-audit-app 0.1.0 deprecated "理由をここに"
 
-set -u
-NAME="io.github.ogasurfproject-jpg%2Fhs-audit-app"
+set -uo pipefail
+
+SERVER="${1:-io.github.ogasurfproject-jpg/hs-audit-app}"
+VERSION="${2:-0.1.0}"
+NEW_STATUS="${3:-}"
+MESSAGE="${4:-}"
 REG="https://registry.modelcontextprotocol.io"
-MSG='Retired. The endpoint hs-audit-app.oga-surf-project.workers.dev/mcp returns 404 and this entry is no longer maintained. Current servers: io.github.ogasurfproject-jpg/horizon-shield (mcp.horizonshield.dev) and io.github.ogasurfproject-jpg/hs-verify-gate (gate.horizonshield.dev/mcp). Left visible rather than deleted, because a record that can be erased on request is not a record.'
 
-echo "=== 0. その Worker が本当に無いか ==="
-curl -s -o /dev/null -w "  hs-audit-app endpoint: %{http_code}\n" --max-time 15 \
-  https://hs-audit-app.oga-surf-project.workers.dev/mcp
-echo "  ↑ 404 なら取り下げてよい。200 が返るなら止めて、ルート設定を直す話になる。"
+# 対象サーバーのエンドポイントを引数から機械的に決められないので、既知分だけ表を持つ。
+# 表に無ければ生存確認は飛ばす。推測でURLを組み立てない。
+case "$SERVER" in
+  *hs-audit-app)   EP="https://hs-audit-app.oga-surf-project.workers.dev/mcp" ;;
+  *horizon-shield) EP="https://mcp.horizonshield.dev/mcp" ;;
+  *hs-verify-gate) EP="https://gate.horizonshield.dev/mcp" ;;
+  *hs-hearing)     EP="https://hearing.horizonshield.dev/mcp" ;;
+  *jidec)          EP="https://jidec.horizonshield.dev/mcp" ;;
+  *webmcp)         EP="https://web.horizonshield.dev/mcp" ;;
+  *)               EP="" ;;
+esac
+
+echo "対象   : $SERVER  $VERSION"
+echo "変更先 : ${NEW_STATUS:-(未指定 — 確認のみ)}"
 echo
 
-echo "=== 1. レジストリへログイン (デバイスコード方式・ブラウザで承認) ==="
-echo "  アカウントは ogasurfproject-jpg でなければ io.github.ogasurfproject-jpg/* は通らない。"
-BEFORE=$(mktemp)
-find "$HOME" -maxdepth 4 -type f -newermt '-1 second' 2>/dev/null > "$BEFORE" || true
-mcp-publisher login github || { echo "★ ログイン失敗。中止。"; exit 1; }
-echo
-
-echo "=== 2. トークンの保存先を特定（推測せず、更新されたファイルで探す）==="
-CAND=""
-for f in "$HOME/.mcp_publisher_token" "$HOME/.mcpregistry_token" \
-         "$HOME/.config/mcp-publisher/token" "$HOME/.mcp-publisher/token"; do
-  [ -f "$f" ] && CAND="$f" && break
-done
-if [ -z "$CAND" ]; then
-  echo "  既知の候補に無い。直近2分で更新されたファイルを探す:"
-  find "$HOME" -maxdepth 4 -type f -newermt '-2 minutes' 2>/dev/null \
-    | grep -iv -e '/Library/' -e '/\.Trash' -e '/Downloads' -e '/\.git/' -e '/\.npm/' | head -20
-  printf '  上の一覧からトークンファイルのパスを入力 (空Enterで手入力に切替): '
-  read -r CAND
-fi
-
-T=""
-if [ -n "$CAND" ] && [ -f "$CAND" ]; then
-  echo "  使うファイル: $CAND"
-  # JSON なら token フィールド、素のテキストならそのまま
-  T=$(python3 - "$CAND" <<'PY'
-import sys,json,io
-p=sys.argv[1]; s=io.open(p,encoding='utf-8',errors='replace').read().strip()
-try:
-    d=json.loads(s)
-    for k in ("token","access_token","jwt","registry_token"):
-        if isinstance(d,dict) and d.get(k): print(d[k]); break
-    else: print("")
-except Exception:
-    print(s if len(s)<4096 else "")
-PY
-)
-fi
-
-if [ -z "$T" ]; then
-  stty -echo; printf '  registry token を貼り付け: '; read -r T; stty echo; echo
-fi
-[ -n "$T" ] || { echo "★ トークンが空。中止。"; exit 1; }
-
-echo
-echo "=== 3. deprecated にする ==="
-for V in v0.1 v0; do
-  echo "--- $REG/$V/servers/$NAME/status"
-  CODE=$(curl -s -o /tmp/_dep.out -w "%{http_code}" -X PATCH \
-    "$REG/$V/servers/$NAME/status" \
-    -H "Authorization: Bearer $T" \
+# ─── 0. 生存確認（POSTで叩く。ここが旧版の壊れていた場所）────────────────────
+if [ -n "$EP" ]; then
+  echo "=== 0. エンドポイントは生きているか（POST tools/list）==="
+  echo "  $EP"
+  BODY=$(mktemp)
+  CODE=$(curl -s -o "$BODY" -w "%{http_code}" --max-time 20 -X POST "$EP" \
     -H 'content-type: application/json' \
-    -d "$(python3 -c 'import json,sys;print(json.dumps({"status":"deprecated","statusMessage":sys.argv[1]}))' "$MSG")")
-  echo "    HTTP $CODE"
-  head -c 400 /tmp/_dep.out; echo
-  [ "$CODE" = "200" ] || [ "$CODE" = "204" ] && { echo "    → 成功"; break; }
-  echo "    → この版では通らなかった。次を試す。"
-done
-unset T
-rm -f /tmp/_dep.out "$BEFORE"
+    -H 'accept: application/json, text/event-stream' \
+    -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}')
+  GETCODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "$EP")
+  echo "  POST tools/list -> $CODE"
+  echo "  GET             -> $GETCODE  （POST専用なら404や405が正常。死亡の証拠にはならない）"
+  case "$CODE" in
+    200)
+      echo "  ★ 生きている。ツールを返している。"
+      echo "    引退させるなら『落ちているから』ではない理由が要る。"
+      echo "    理由を statusMessage に書けないなら、ここで止めること。"
+      ;;
+    410)
+      echo "  → 既に墓標になっている（410 Gone）。引退処理は済んでいる可能性が高い。"
+      ;;
+    404|000)
+      echo "  → POSTでも届かない。ルート未設定か本当に消えている。"
+      ;;
+    *)
+      echo "  → 想定外の応答。中身を見てから判断すること:"
+      head -c 300 "$BODY"; echo
+      ;;
+  esac
+  rm -f "$BODY"
+  echo
+fi
 
+# ─── 1. 現在のレジストリ掲載内容 ─────────────────────────────────────────────
+echo "=== 1. レジストリの現状 ==="
+curl -s "$REG/v0/servers?search=$(basename "$SERVER")&version=latest" \
+| SERVER="$SERVER" python3 -c '
+import sys, json, os
+want = os.environ["SERVER"]
+d = json.load(sys.stdin)
+for s in (d.get("servers") or d.get("data") or []):
+    m = s.get("server", s)
+    if m.get("name") != want: continue
+    o = (s.get("_meta", {}) or {}).get("io.modelcontextprotocol.registry/official", {}) or {}
+    print("  version :", m.get("version"))
+    print("  status  :", o.get("status"))
+    print("  updated :", o.get("updatedAt"))
+    print("  remote  :", (m.get("remotes") or [{}])[0].get("url"))
+    msg = o.get("statusMessage")
+    if msg:
+        print("  statusMessage:")
+        for line in [msg[i:i+92] for i in range(0, len(msg), 92)]:
+            print("   ", line)
+'
 echo
-echo "=== 4. 確認 ==="
-curl -s "$REG/v0/servers?search=ogasurfproject-jpg&version=latest" \
-| python3 -c "
-import sys,json
-d=json.load(sys.stdin); srv=d.get('servers') or d.get('data') or []
-print('total:',len(srv))
-for s in srv:
-    m=s.get('server',s)
-    st=s.get('status') or m.get('status') or (s.get('_meta',{}) or {}).get('status') or '-'
-    print(f\"  {m.get('name','?'):55} {str(m.get('version','?')):8} {st}\")
-"
+
+[ -n "$NEW_STATUS" ] || { echo "status 未指定のため確認のみで終了。"; exit 0; }
+
+# ─── 2. statusMessage は500文字上限 ─────────────────────────────────────────
+if [ -n "$MESSAGE" ]; then
+  LEN=$(MESSAGE="$MESSAGE" python3 -c 'import os;print(len(os.environ["MESSAGE"]))')
+  echo "=== 2. statusMessage の長さ: $LEN / 500 ==="
+  if [ "$LEN" -gt 500 ]; then
+    echo "  ★ 上限超過。レジストリに弾かれる。短くしてから出直すこと。中止。"
+    exit 1
+  fi
+  echo
+fi
+
+# ─── 3. 反映（トークンは mcp-publisher の中で完結する）──────────────────────
+echo "=== 3. 反映 ==="
+command -v mcp-publisher >/dev/null || { echo "★ mcp-publisher が無い。中止。"; exit 1; }
+echo "  ログインしていなければ先に: mcp-publisher login github"
+echo "  （承認するアカウントは ogasurfproject-jpg。別アカウントでは名前空間が通らない）"
 echo
-echo "hs-audit-app が deprecated になっていれば完了。"
+
+if [ -n "$MESSAGE" ]; then
+  mcp-publisher status --status "$NEW_STATUS" --message "$MESSAGE" "$SERVER" "$VERSION" || exit 1
+else
+  mcp-publisher status --status "$NEW_STATUS" "$SERVER" "$VERSION" || exit 1
+fi
+echo
+
+# ─── 4. 確認（レジストリの実物を読み直す）───────────────────────────────────
+echo "=== 4. 反映後の実物 ==="
+sleep 2
+curl -s "$REG/v0/servers?search=$(basename "$SERVER")&version=latest" \
+| SERVER="$SERVER" python3 -c '
+import sys, json, os
+want = os.environ["SERVER"]
+d = json.load(sys.stdin)
+for s in (d.get("servers") or d.get("data") or []):
+    m = s.get("server", s)
+    if m.get("name") != want: continue
+    o = (s.get("_meta", {}) or {}).get("io.modelcontextprotocol.registry/official", {}) or {}
+    print("  status  :", o.get("status"))
+    print("  updated :", o.get("updatedAt"))
+    print("  statusMessage:")
+    msg = o.get("statusMessage") or ""
+    for line in [msg[i:i+92] for i in range(0, len(msg), 92)]:
+        print("   ", line)
+'
+echo
+echo "updated が今日になっていれば反映済み。"
+echo "終わったら手元にトークンを残さないこと: mcp-publisher logout"
