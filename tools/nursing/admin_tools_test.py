@@ -28,6 +28,10 @@ STORES = [
     {"store_id": "hs-partner-001", "name": "リフォーム職人株式会社", "area": "愛知県"},
     # 社名がどちらにも無い店。書き込みの宛先が正しいかを、この店で見る。
     {"store_id": "kira-empty02", "name": "", "area": "小田原市"},
+    # どの試験も書き換えない店。「社名が無い」の検出は、これで見る。
+    # 2026-08-24: 最初これを用意せず、試験3が書き込んだ社名を試験5が見ていた。
+    #   試験どうしが状態を共有すると、順番を変えただけで結果が変わる。
+    {"store_id": "kira-noname04", "name": "", "area": "秦野市"},
 ]
 EXPORTS = {
     "kira-test01": {"ok": True, "answered_at": "2026-08-24T00:30:00Z", "profile": {
@@ -40,8 +44,22 @@ EXPORTS = {
         "company": "リフォーム職人株式会社", "industry": None, "area": "愛知県", "extra": {}}},
     "kira-empty02": {"ok": True, "answered_at": "2026-08-24T01:00:00Z", "profile": {
         "company": "", "industry": "nursing", "area": "小田原市", "extra": {}}},
+    "kira-noname04": {"ok": True, "answered_at": None, "profile": {
+        "company": "", "industry": "nursing", "area": "秦野市", "extra": {}}},
 }
 PATCHED = []
+AUTOPILOT = {
+    # 平田さんの形: 共通の設問は送ってあるが、DBを厚くする現場質問は一度も送っていない
+    "kira-test01": {"asked": [{"qid": "q_focus", "at": "2026-08-23T21:17:00Z"},
+                              {"qid": "q_strengths", "at": "2026-08-23T21:17:00Z"}],
+                    "pending": {"qids": ["q_focus", "q_strengths"],
+                                "sent_at": "2026-08-23T21:17:00Z", "via": "line"}},
+    "hs-partner-001": {"asked": [{"qid": "q_areas", "at": "2026-08-01T21:17:00Z"}] * 3,
+                       "pending": {"qids": ["q_areas"], "sent_at": "2026-08-01T21:17:00Z",
+                                   "via": "email"}},
+    "kira-empty02": {"asked": [], "pending": None},
+    "kira-noname04": {"asked": [], "pending": None},
+}
 
 
 class H(BaseHTTPRequestHandler):
@@ -61,6 +79,12 @@ class H(BaseHTTPRequestHandler):
         if not self._auth(): return
         if self.path == "/admin/stores":
             return self._send(200, {"ok": True, "stores": STORES})
+        if self.path.startswith("/admin/autopilot/"):
+            sid = self.path[len("/admin/autopilot/"):]
+            if sid not in EXPORTS:
+                return self._send(404, {"error": "not_found"})
+            return self._send(200, {"ok": True, "completeness": 42,
+                "autopilot": AUTOPILOT.get(sid, {"asked": [], "pending": None})})
         if self.path.startswith("/admin/export/"):
             sid = self.path[len("/admin/export/"):]
             if sid in EXPORTS: return self._send(200, EXPORTS[sid])
@@ -101,7 +125,7 @@ def main():
     print(r.stdout.strip()[-700:] if ok else (r.stdout + r.stderr)[-900:])
     if not ok: print("  ★落ちた (終了コード %d)" % r.returncode); bad += 1
     else:
-        need = ["訪問看護の店: 2 件", "q_nv_shido"]
+        need = ["訪問看護の店: 3 件", "q_nv_shido"]
         for w in need:
             if w not in r.stdout: print("  ★出力に %s がありません" % w); bad += 1
 
@@ -112,7 +136,7 @@ def main():
     else:
         for w in ["kira-test01", "hs-partner-001", "合同会社アップス"]:
             if w not in r.stdout: print("  ★出力に %s がありません" % w); bad += 1
-        print("  ok  3店とも一覧に出た。厚い方の社名も読めている。")
+        print("  ok  4店とも一覧に出た。厚い方の社名も読めている。")
 
     print("\n=== 3) 指した店と別の店を書き換えないか ===")
     r = run("fix_company.py", "--id", "kira-empty02", "--name", "テスト社名", "--apply")
@@ -126,6 +150,19 @@ def main():
         print("  ★送る形が違う(fields で包んでいない)"); bad += 1
     else:
         print("  ok  kira-empty02 に fields で包んで送っている(一覧の最後の店ではない)")
+
+    print("\n=== 5) hearing_status.py が不備を名指しするか ===")
+    r = run("hearing_status.py")
+    if r.returncode != 0:
+        print((r.stdout + r.stderr)[-700:]); print("  ★落ちた"); bad += 1
+    else:
+        want = ["まだ一度も送っていない", "生成器が missing", "返事待ちが",
+                "store: 側に業種が無い", "社名がどちらにも無い"]
+        for w in want:
+            if w not in r.stdout:
+                print("  ★出力に「%s」がありません" % w); bad += 1
+        if all(w in r.stdout for w in want):
+            print("  ok  送っていない設問・出口なし・放置・業種なし・社名なしを全部名指しした")
 
     print("\n=== 4) 既に社名が入っている店を、黙って上書きしないか ===")
     r = run("fix_company.py", "--id", "hs-partner-001", "--name", "別の会社", "--apply")

@@ -195,3 +195,4 @@ HORIZON_SHIELD_鍵マネージャ*.html
 !tools/survey3_version_ladder.py
 !tools/nursing/hs_admin.py
 !tools/nursing/admin_tools_test.py
+!tools/nursing/hearing_status.py
