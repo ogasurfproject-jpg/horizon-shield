@@ -109,16 +109,64 @@ async function handle(request) {
     return json({ relayed: false, error: "target_fetch_failed", message: String((e && e.message) || e) }, 502);
   }
 
-  let text = "";
-  try { text = await res.text(); } catch (_e) { text = ""; }
-  if (text.length > MAX_BODY) text = text.slice(0, MAX_BODY);
+  const capped = await readCapped(res, MAX_BODY);
 
   return json({
     relayed: true,
     status: res.status,
     headers: { "content-type": res.headers.get("content-type") || "" },
-    body: text,
+    body: capped.text,
+    body_cap: MAX_BODY,
+    body_bytes_read: capped.bytes_read,
+    body_truncated: capped.truncated,
+    body_declared_length: capped.declared_length,
   });
+}
+
+// 2026-08-24: ここは res.text() で全部受け取ってから 256KB に切っていた。
+//   返す量は減るが、受け取る量は1バイトも減らない。
+//   このファイルの冒頭には「応答本文は 256KB で打ち切り」と書いてあった。
+//   嘘ではない。ただ、守っていたのは出口だけで、入口には門が無かった。
+//   1日 289 リクエストに対して受信 2.6GiB という値が出て、初めて見えた。
+//   落ちない。例外も出ない。ただ、通信量だけが増え続ける。
+//
+//   本文は読みながら数え、上限に達したら読むのをやめて相手との接続を切る。
+//   何バイト受け取ったか、相手が何バイトと名乗っていたか、打ち切ったかどうかを、
+//   返事に書く。測ったことと、測れなかったことを分けるためである。
+async function readCapped(res, max) {
+  const declared = Number(res.headers.get("content-length") || 0) || null;
+  if (!res.body) {
+    let t = "";
+    try { t = await res.text(); } catch (_e) { t = ""; }
+    const cut = t.length > max;
+    return { text: cut ? t.slice(0, max) : t, truncated: cut,
+             declared_length: declared, bytes_read: t.length };
+  }
+  const reader = res.body.getReader();
+  const chunks = [];
+  let total = 0, truncated = false;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (total + value.byteLength > max) {
+        chunks.push(value.subarray(0, max - total));
+        total = max;
+        truncated = true;
+        try { await reader.cancel(); } catch (_e) {}
+        break;
+      }
+      chunks.push(value);
+      total += value.byteLength;
+    }
+  } catch (_e) {
+    // 途中で切れた。受け取れたところまでを返し、打ち切りとは区別しない。
+  }
+  const buf = new Uint8Array(total);
+  let off = 0;
+  for (const c of chunks) { buf.set(c, off); off += c.byteLength; }
+  return { text: new TextDecoder().decode(buf), truncated,
+           declared_length: declared, bytes_read: total };
 }
 
 Deno.serve(handle);
