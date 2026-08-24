@@ -179,6 +179,26 @@ export function nextQuestions(profile, autopilot, maxN = 2) {
     askedCount[a.qid] = (askedCount[a.qid] || 0) + 1;
     if (!lastAskAt[a.qid] || String(a.at) > String(lastAskAt[a.qid])) lastAskAt[a.qid] = a.at;
   }
+  // 2026-08-24: いま返事待ちの設問も、送った1回として数える。
+  //
+  //   平田様の記録に、送信履歴が空なのに返事待ちが立っている状態を見つけた。
+  //   0.2日前に2問送ってあるのに asked が 0 件である。
+  //   どの経路で失われたのかは、まだ特定できていない。
+  //
+  //   だが、失われると何が起きるかははっきりしている。
+  //   打ち切り(3回)も冷却(3日)も asked からしか数えていないので、
+  //   asked が消えれば同じ設問を何度でも送り直す。
+  //   平田様には既に一度、答えた直後の設問をもう一度送ってしまっている。
+  //
+  //   原因が分かるまで、送った証拠を1つに頼らない。
+  //   返事待ちに載っている設問は、送った事実がそこにある。
+  const pend = (autopilot && autopilot.pending) || null;
+  for (const q of ((pend && pend.qids) || [])) {
+    if (!askedCount[q]) {
+      askedCount[q] = 1;
+      lastAskAt[q] = pend.sent_at || lastAskAt[q];
+    }
+  }
   // 2026-08-19 patch56: 質問を選ぶのは askable。missing は点数の話で、
   //   「答えてもらったが長さが足りない」欄も入っている。そこを聞き直さない。
   const comp = computeCompleteness(profile, autopilot);
@@ -805,8 +825,11 @@ export async function selfHeal(env, stores) {
         }
       }
       // 3) 必須フィールド欠損の検知(自動では直さない=報告)
-      if (!s.member_no) issues.push("member_no欠損: " + s.store_id);
-      if (!s.company) issues.push("company欠損: " + s.store_id);
+      // 2026-08-24: pending(進行中の申込者)は member_no/社名が未確定=正常なので鳴らさない
+      if (s.verification !== "pending") {
+        if (!s.member_no) issues.push("member_no欠損: " + s.store_id);
+        if (!s.company) issues.push("company欠損: " + s.store_id);
+      }
       // 4) 検証済みなのにスコア欠損(fail-closed違反状態) -> 報告
       if (s.verification === "verified" && (s.fairness_score == null || isNaN(Number(s.fairness_score)))) {
         issues.push("検証済みなのにスコア欠損(fail-closed違反): " + s.store_id);

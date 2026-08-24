@@ -50,8 +50,8 @@ EXPORTS = {
 PATCHED = []
 AUTOPILOT = {
     # 平田さんの形: 共通の設問は送ってあるが、DBを厚くする現場質問は一度も送っていない
-    "kira-test01": {"asked": [{"qid": "q_focus", "at": "2026-08-23T21:17:00Z"},
-                              {"qid": "q_strengths", "at": "2026-08-23T21:17:00Z"}],
+    # 実際に平田様の記録で見つけた形: 返事待ちは立っているのに asked が空。
+    "kira-test01": {"asked": [],
                     "pending": {"qids": ["q_focus", "q_strengths"],
                                 "sent_at": "2026-08-23T21:17:00Z", "via": "line"}},
     "hs-partner-001": {"asked": [{"qid": "q_areas", "at": "2026-08-01T21:17:00Z"}] * 3,
@@ -157,7 +157,8 @@ def main():
         print((r.stdout + r.stderr)[-700:]); print("  ★落ちた"); bad += 1
     else:
         want = ["まだ一度も送っていない", "生成器が missing", "返事待ちが",
-                "store: 側に業種が無い", "社名がどちらにも無い"]
+                "store: 側に業種が無い", "社名がどちらにも無い",
+                "送信履歴が失われている"]
         for w in want:
             if w not in r.stdout:
                 print("  ★出力に「%s」がありません" % w); bad += 1

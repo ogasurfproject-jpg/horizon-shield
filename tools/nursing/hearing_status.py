@@ -100,6 +100,18 @@ def main():
             q = a.get("qid")
             hist.setdefault(q, []).append(a.get("at"))
         print("  送った設問: %d 種 / のべ %d 回" % (len(hist), len(asked)))
+
+        # 2026-08-24: 返事待ちに載っているのに、送信履歴に無い設問。
+        #   平田様の記録で見つけた。0.2日前に2問送ってあるのに asked が空だった。
+        #   記録が食い違っているときは、こちらの結論(「まだ送っていない」)も
+        #   その記録に乗っているので、同じだけ疑わしい。黙って数えない。
+        lost = [q for q in ((pend or {}).get("qids") or []) if q not in hist]
+        if lost:
+            print("  ★ 送信履歴に無いのに返事待ちになっている設問: %s" % "、".join(lost))
+            print("     記録が食い違っています。下の「まだ送っていない」も、")
+            print("     この記録に乗っているので、同じだけ疑ってください。")
+            problems.append((sid, "送信履歴が失われている(返事待ち %s が asked に無い)"
+                             % "、".join(lost)))
         maxed = [q for q, ts in hist.items() if len(ts) >= 3]
         if maxed:
             print("    打ち切りに達したもの(3回): %s" % "、".join(maxed))
