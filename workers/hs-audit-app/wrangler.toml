@@ -1,0 +1,41 @@
+name = "hs-audit-app"
+main = "src/index.js"
+compatibility_date = "2026-07-31"
+
+# TODO: 未確認 — compatibility_flags は元のデプロイ設定を確認していない。
+# TODO: 未確認 — account_id / workers_dev / routes / custom domain は不明。
+
+# ---------------------------------------------------------------------------
+# Service binding: env.HS_MCP
+#   src/index.js の callUpstreamAudit() が env.HS_MCP.fetch(...) を呼ぶ。
+#   コードから分かるのは「binding 名が HS_MCP であること」だけ。
+# ---------------------------------------------------------------------------
+[[services]]
+binding = "HS_MCP"
+# TODO: 未確認 — バインド先の Worker 名が不明。実際のデプロイ設定を確認すること。
+# service = "???"
+# TODO: 未確認 — environment / entrypoint を使っているかどうかも不明。
+# environment = "???"
+
+# ---------------------------------------------------------------------------
+# Vars / Secrets
+#   env.HS_MCP_URL — service binding が無い場合のフォールバック先 URL。
+#   env.HS_MCP_KEY — 存在する場合のみ `authorization: Bearer <key>` を付与。
+#
+#   どちらも値は未確認。HS_MCP_KEY は秘匿情報なので [vars] ではなく
+#   `wrangler secret put HS_MCP_KEY` で投入するのが妥当だが、
+#   実際にどちらで設定されているかは確認できていない。
+# ---------------------------------------------------------------------------
+[vars]
+# TODO: 未確認 — 実際の上流 MCP エンドポイント URL が不明。値を推測しないこと。
+# HS_MCP_URL = "???"
+
+# TODO: 未確認 — HS_MCP_KEY は secret として設定されている想定だが未確認。
+#   確認方法: `wrangler secret list --name hs-audit-app`
+#   投入方法: `wrangler secret put HS_MCP_KEY --name hs-audit-app`
+
+# ---------------------------------------------------------------------------
+# TODO: 未確認 — 上記以外の binding(KV / D1 / R2 / Queues / Durable Objects)は
+#   src/*.js からは一切参照されていない。ただし「デプロイ済み Worker に
+#   存在しない」ことの証明にはならない。実設定の確認が必要。
+# ---------------------------------------------------------------------------
