@@ -54,7 +54,7 @@ console.log("1) 誰でも引けること");
   check("鍵なしで tools/list が通る", r.status === 200, "status=" + r.status);
   const b = await r.json();
   const names = b.result.tools.map((t) => t.name);
-  check("道具が5つ", names.length === 5, names.join(","));
+  check("道具が6つ", names.length === 6, names.join(","));
   check("一覧を返す道具が無い",
         !names.some((n) => /list|all|roster|dump|search/.test(n.replace("observatory_", ""))),
         names.join(","));
@@ -266,8 +266,120 @@ console.log("\n9) MCP の層");
   check("MCP を話さない相手にも /lookup を開けてある", lk.status === 200);
 }
 
-/* --- 10. 走らなかった場面を、通った場面と見分けられること ------------ */
-const EXPECTED = 53;
+/* --- 10. いま測る。他人のサーバーを叩く口なので、門を先に確かめる ---- */
+console.log("\n10) いま測る(公開の記録は動かさない)");
+{
+  const real = globalThis.fetch;
+  let hits = [];
+  const stub = (routes) => async (u, init) => {
+    const url = String(u);
+    hits.push(url);
+    for (const [pat, res] of routes) {
+      if (url.includes(pat)) return res(init);
+    }
+    return new Response("nope", { status: 404 });
+  };
+  const ok = (obj) => () => new Response(JSON.stringify(obj), { status: 200 });
+  const txt = (t, st) => () => new Response(t, { status: st || 200 });
+
+  // 名前だけで断れるものは、1本も外に出さずに断る
+  for (const [addr, why] of [
+    ["http://example.com/mcp", "https only"],
+    ["https://127.0.0.1/mcp", "bare IP"],
+    ["https://localhost/mcp", "inside a network"],
+    ["https://box.internal/mcp", "inside a network"],
+    ["https://user:pw@example.com/mcp", "credentials"],
+    ["https://example.com:8443/mcp", "443 only"],
+    ["not a url", "not a URL"],
+  ]) {
+    hits = []; globalThis.fetch = stub([]);
+    const g = await call("mcp_observatory_measure_now", { address: addr });
+    check("断る: " + addr.slice(0, 34), !!g.error && hits.length === 0,
+          (g.why || JSON.stringify(g)).slice(0, 70));
+  }
+
+  // robots が禁じていれば当てない
+  hits = [];
+  globalThis.fetch = stub([["/robots.txt", txt("User-agent: *\nDisallow: /mcp")]]);
+  {
+    const g = await call("mcp_observatory_measure_now", { address: "https://example.com/mcp" });
+    check("robots が禁じていれば当てない", g.outcome === "robots_disallowed", g.outcome);
+    check("『no は答えである』と言う", /no is an answer/.test(g.robots || ""), g.robots);
+    check("robots しか読んでいない", hits.length === 1, hits.join(","));
+  }
+
+  // robots が読めなければ当てない(fail-closed)
+  hits = [];
+  globalThis.fetch = stub([["/robots.txt", txt("nope", 500)]]);
+  {
+    const g = await call("mcp_observatory_measure_now", { address: "https://example.com/mcp" });
+    check("robots が読めなければ当てない", g.outcome === "robots_disallowed", g.outcome);
+    check("読めなかったことを理由に書く", /cannot read it/.test(g.robots || ""), g.robots);
+  }
+
+  // 名乗っているサーバー
+  hits = [];
+  globalThis.fetch = stub([
+    ["/robots.txt", txt("nope", 404)],
+    ["/.well-known/agent-card.json", ok({ name: "x", compensation: { model: "subscription" } })],
+    ["/mcp", ok({ jsonrpc: "2.0", id: 1, result: { protocolVersion: "2025-11-25", serverInfo: { name: "demo" } } })],
+  ]);
+  {
+    const g = await call("mcp_observatory_measure_now", { address: "https://example.com/mcp" });
+    check("MCP を話すと分かる", g.outcome === "speaks_mcp", g.outcome);
+    check("サーバー名を拾う", g.server_name === "demo", g.server_name);
+    check("カードを読む", g.agent_card === "present", g.agent_card);
+    check("金の出所の欄を見つける", g.compensation_disclosure === "present",
+          JSON.stringify(g.compensation_fields));
+    check("道具を1つも呼んでいないと言う", g.no_tool_was_called === true);
+    check("公開の記録ではないと言う", g.not_the_published_record === true);
+    check("報告書の数字は動かないと言う", /changes no number/.test(g.what_this_is || ""), g.what_this_is);
+    check("外に出たのは3本まで", hits.length <= 3, hits.length + " 本: " + hits.join(" "));
+    check("相手は1ホストだけ",
+          new Set(hits.map((h) => new URL(h).host)).size === 1, hits.join(" "));
+  }
+
+  // カードが無いサーバー。隠しているとは言わない
+  globalThis.fetch = stub([
+    ["/robots.txt", txt("nope", 404)],
+    ["/mcp", ok({ jsonrpc: "2.0", id: 1, result: { protocolVersion: "2025-11-25", serverInfo: { name: "d2" } } })],
+  ]);
+  {
+    const g = await call("mcp_observatory_measure_now", { address: "https://example.com/mcp" });
+    check("カードが無ければ absent", g.agent_card === "absent", g.agent_card);
+    check("『隠している』とは言わない", !/hiding|conceal(?!ment)/i.test(JSON.stringify(g)));
+    check("『隠したのではない』と明示する",
+          /not a finding of concealment/.test(g.note_card || ""), g.note_card);
+  }
+
+  // 断られたとき。正しい断りかもしれないと言う
+  globalThis.fetch = stub([
+    ["/robots.txt", txt("nope", 404)],
+    ["/mcp", ok({ jsonrpc: "2.0", id: 1, error: { code: -32602, message: "unsupported protocol version" } })],
+  ]);
+  {
+    const g = await call("mcp_observatory_measure_now", { address: "https://example.com/mcp" });
+    check("断りは pending として扱う", g.state === "pending", g.state);
+    check("正しい断りかもしれないと言う", /correct behaviour/.test(g.note || ""), g.note);
+    check("2026-08-23 に自分がやった間違いを引き合いに出す", /137/.test(g.note || ""), g.note);
+  }
+
+  // 届かないとき。相手の話にしない
+  globalThis.fetch = async (u) => {
+    if (String(u).includes("/robots.txt")) return new Response("nope", { status: 404 });
+    throw new Error("connect ECONNREFUSED");
+  };
+  {
+    const g = await call("mcp_observatory_measure_now", { address: "https://example.com/mcp" });
+    check("届かなければ held", g.state === "held", g.state);
+    check("こちらの試みの話だと言う", /not about the server/.test(g.note || ""), g.note);
+  }
+
+  globalThis.fetch = real;
+}
+
+/* --- 10b. 走らなかった場面を、通った場面と見分けられること ----------- */
+const EXPECTED = 78;
 console.log("");
 console.log("確かめた数: " + checks + " (最低 " + EXPECTED + ")");
 if (checks < EXPECTED) {

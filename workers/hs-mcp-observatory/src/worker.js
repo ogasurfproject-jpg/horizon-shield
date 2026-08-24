@@ -134,6 +134,207 @@ function describe(row) {
   return out;
 }
 
+/* ------------------------------ いま測る ------------------------------ */
+/* 2026-08-24: 公開されている記録は 2026-08-23 の1回きりである。
+   名乗りを足した事業者が「直したのに、まだ名乗っていないと書いてある」と
+   四半期待つのは、記録として正しくても、道具として役に立たない。
+   だから「いま当ててみる」を1件だけ開ける。
+
+   ただし、これは公開の記録を書き換えない。書き換えられる記録は記録ではない。
+   返すのは「いまこう見えた」であって、報告書の数字は動かない。
+   次の全件走行で入る。
+
+   公開の口を、他人のサーバーを叩く道具として使わせないための門:
+     ・https だけ。平文は受けない
+     ・IPアドレス直書き、localhost、内部向けの名前は受けない
+     ・robots.txt を先に読む。禁じられていれば当てない(no は答えである)
+     ・1回の呼び出しで、外に出るのは最大3本。相手は1ホストだけ
+     ・道具は1つも呼ばない。読むだけ
+     ・短い間隔で連続して呼ばれたら断る */
+
+const MEASURE_UA = "HorizonShieldObservatory/0.1 (+https://shield.the-horizons-innovation.com/verify-directory/survey/)";
+const MEASURE_TIMEOUT_MS = 8000;
+const MEASURE_WINDOW_MS = 60000;
+const MEASURE_MAX_PER_WINDOW = 20;
+
+let _measureHits = [];
+
+function measureBudgetOk() {
+  const now = Date.now();
+  _measureHits = _measureHits.filter((t) => now - t < MEASURE_WINDOW_MS);
+  if (_measureHits.length >= MEASURE_MAX_PER_WINDOW) return false;
+  _measureHits.push(now);
+  return true;
+}
+
+// 名前だけで弾ける危ないものを弾く。DNS はここでは引けないので、
+// 「引けないから安全」とは言わない。名前で分かるものだけを断る、と言う。
+function addressObjection(u) {
+  let url;
+  try { url = new URL(u); } catch (_e) { return "That is not a URL."; }
+  if (url.protocol !== "https:") return "https only. We do not contact plaintext endpoints.";
+  if (url.username || url.password) return "We do not accept credentials in a URL.";
+  const h = url.hostname.toLowerCase();
+  if (/^\[|^\d+\.\d+\.\d+\.\d+$/.test(h)) return "We do not contact bare IP addresses.";
+  if (h === "localhost" || h.endsWith(".localhost") || h.endsWith(".local")
+      || h.endsWith(".internal") || h.endsWith(".home.arpa")) {
+    return "We do not contact names that resolve inside a network.";
+  }
+  if (h.indexOf(".") < 0) return "We do not contact single-label hostnames.";
+  if (url.port && url.port !== "443") return "We contact 443 only.";
+  return null;
+}
+
+async function fetchWithTimeout(url, init) {
+  const c = new AbortController();
+  const t = setTimeout(() => c.abort(), MEASURE_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...(init || {}), signal: c.signal,
+      headers: { "user-agent": MEASURE_UA, ...((init || {}).headers || {}) } });
+  } finally { clearTimeout(t); }
+}
+
+// robots.txt を先に読む。読めなければ当てない(fail-closed)。
+// 「読めなかったから、たぶん許されている」は、こちらの都合である。
+async function robotsVerdict(origin, path) {
+  let text = "";
+  try {
+    const r = await fetchWithTimeout(origin + "/robots.txt");
+    if (r.status === 404) return { allow: true, why: "robots.txt is 404. Nothing forbids this path." };
+    if (!r.ok) return { allow: false, why: "robots.txt returned HTTP " + r.status + ". We do not contact when we cannot read it." };
+    text = await r.text();
+  } catch (e) {
+    return { allow: false, why: "robots.txt could not be read (" + String(e).slice(0, 60) + "). We do not contact when we cannot read it." };
+  }
+  // * のグループだけを見る。厳しい側に倒す。
+  let inStar = false;
+  const dis = [];
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.split("#")[0].trim();
+    if (!line) continue;
+    const m = line.match(/^([A-Za-z-]+)\s*:\s*(.*)$/);
+    if (!m) continue;
+    const k = m[1].toLowerCase(), v = m[2].trim();
+    if (k === "user-agent") { inStar = (v === "*"); continue; }
+    if (inStar && k === "disallow" && v) dis.push(v);
+  }
+  for (const d of dis) {
+    if (d === "/" || path.startsWith(d)) {
+      return { allow: false, why: "robots.txt disallows " + d + ". Their operator said no, and no is an answer." };
+    }
+  }
+  return { allow: true, why: "robots.txt does not disallow this path for *." };
+}
+
+async function measureNow(address) {
+  if (!measureBudgetOk()) {
+    return {
+      error: "too many measurements just now",
+      note: "This endpoint contacts somebody else's server on your behalf. It is rate limited on purpose. Try again in a minute.",
+    };
+  }
+  const objection = addressObjection(String(address || ""));
+  if (objection) return { error: "we will not contact that", why: objection };
+
+  const url = new URL(address);
+  const origin = url.origin;
+  const rob = await robotsVerdict(origin, url.pathname || "/");
+  if (!rob.allow) {
+    return {
+      address, measured_at: new Date().toISOString(),
+      state: "skipped", outcome: "robots_disallowed", robots: rob.why,
+      not_the_published_record: true,
+    };
+  }
+
+  const out = {
+    address,
+    measured_at: new Date().toISOString(),
+    robots: rob.why,
+    not_the_published_record: true,
+    what_this_is:
+      "What we saw just now, on request. It is not part of the published record and it changes no number "
+      + "on the report. The next full walk is what enters the record.",
+    no_tool_was_called: true,
+  };
+
+  // 1) MCP に声をかける。道具は一つも呼ばない。
+  try {
+    const r = await fetchWithTimeout(address, {
+      method: "POST",
+      headers: { "content-type": "application/json", "accept": "application/json, text/event-stream" },
+      body: JSON.stringify({
+        jsonrpc: "2.0", id: 1, method: "initialize",
+        params: { protocolVersion: "2025-11-25", capabilities: {},
+                  clientInfo: { name: "hs-mcp-observatory", version: SERVER_VERSION } },
+      }),
+    });
+    out.http_status = r.status;
+    const body = (await r.text()).slice(0, 20000);
+    let j = null;
+    try { j = JSON.parse(body); } catch (_e) {
+      const m = body.match(/^data:\s*(\{.*\})\s*$/m);
+      if (m) { try { j = JSON.parse(m[1]); } catch (_e2) {} }
+    }
+    if (j && j.result) {
+      out.state = "measured";
+      out.outcome = "speaks_mcp";
+      out.server_name = (j.result.serverInfo && j.result.serverInfo.name) || null;
+      out.protocol_version = j.result.protocolVersion || null;
+    } else if (j && j.error) {
+      out.state = "pending";
+      out.outcome = "initialize_rejected";
+      out.their_error = { code: j.error.code, message: String(j.error.message || "").slice(0, 200) };
+      out.note = "A refusal can be correct behaviour. On 2026-08-23 we announced a version most of the "
+               + "registry had dropped, and counted 137 correct HTTP 400s as failures.";
+    } else {
+      out.state = "pending";
+      out.outcome = "no_mcp_at_declared_address";
+      out.note = "HTTP " + r.status + ", and the body was not a JSON-RPC message.";
+    }
+  } catch (e) {
+    // 届かなかったのは、こちらの話かもしれない。相手についての発見にしない。
+    out.state = "held";
+    out.outcome = "not_reached";
+    out.why = String(e).slice(0, 120);
+    out.note = "held means we could not measure it. This is a statement about our attempt, not about the server.";
+    return out;
+  }
+
+  // 2) エージェントカードを読む。金の出所の欄があるかを見る。
+  const cards = ["/.well-known/agent-card.json", "/.well-known/agent.json"];
+  out.agent_card = "absent";
+  for (const p of cards) {
+    try {
+      const r = await fetchWithTimeout(origin + p);
+      if (!r.ok) continue;
+      const card = JSON.parse((await r.text()).slice(0, 200000));
+      out.agent_card = "present";
+      out.agent_card_at = origin + p;
+      const found = [];
+      const scan = (o, prefix) => {
+        if (!o || typeof o !== "object") return;
+        for (const k of Object.keys(o)) {
+          const key = prefix ? prefix + "." + k : k;
+          if (/^(payment|payments|pricing|compensation)$/i.test(k)) found.push(key);
+          if (o[k] && typeof o[k] === "object" && key.split(".").length < 3) scan(o[k], key);
+        }
+      };
+      scan(card, "");
+      out.compensation_disclosure = found.length ? "present" : "not present";
+      if (found.length) out.compensation_fields = found;
+      break;
+    } catch (_e) { /* 次の場所を見る */ }
+  }
+  if (out.agent_card === "absent") {
+    out.compensation_disclosure = "not present";
+    out.note_card = "No agent card was found at the two well-known paths. There was no field in which to "
+                  + "state who compensates the operator. This is not a finding of concealment.";
+  }
+  out.how_to_disclose = "mcp_observatory_disclosure_guide lists the field names actually observed in the wild.";
+  return out;
+}
+
 /* ------------------------------ 道具 ------------------------------ */
 
 const TOOLS = [
@@ -171,6 +372,19 @@ const TOOLS = [
       "How the 152 servers that stated who compensates their operator actually did it - the field names "
       + "observed in the wild, with counts. Not a specification we invented.",
     inputSchema: { type: "object", properties: {} },
+  },
+  {
+    name: "mcp_observatory_measure_now",
+    description:
+      "Contact one https address now and report what we see: whether it speaks MCP, whether it carries an "
+      + "agent card, and whether that card names who compensates the operator. Read only; no tool is called. "
+      + "robots.txt is read first and honoured. This does NOT change the published record - the next full "
+      + "walk does that. Rate limited, because it contacts somebody else's server on your behalf.",
+    inputSchema: {
+      type: "object",
+      properties: { address: { type: "string", description: "https endpoint, e.g. https://example.com/mcp" } },
+      required: ["address"],
+    },
   },
   {
     name: "mcp_observatory_method",
@@ -384,6 +598,7 @@ async function callTool(name, args) {
     case "mcp_observatory_summary": return toolSummary();
     case "mcp_observatory_lookup": return toolLookup(args || {});
     case "mcp_observatory_disclosure_guide": return toolDisclosureGuide();
+    case "mcp_observatory_measure_now": return await measureNow((args || {}).address);
     case "mcp_observatory_method": return toolMethod();
     default: return { error: "unknown tool", name, available: TOOLS.map((t) => t.name) };
   }

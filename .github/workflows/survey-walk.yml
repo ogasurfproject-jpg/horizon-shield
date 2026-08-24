@@ -1,0 +1,180 @@
+# 四半期に一度、全件を走る。宣言された住所に1回ずつ、読み取り専用で当てる。
+#
+# なぜ四半期なのか (2026-08-24):
+#   これは他人のサーバーへの通信である。毎月やるのは、こちらの都合で他人に負荷をかけること。
+#   報告書には「contacted exactly once」「robots を尊重した」「no は答えである」と書いた。
+#   その姿勢と、毎月の全件走行は噛み合わない。
+#   母集団の動きは月1の数え(survey-observatory.yml)で見える。あれは1本も叩かない。
+#
+# なぜ分けて走らせるのか:
+#   全件は一日かかる。Actions のジョブは6時間で切られる。
+#
+#   分け方は「住所を等分」ではなく「ホストで割る」。
+#   survey1_walk.py は同じホストに2秒あけて叩く約束(PER_HOST_INTERVAL)を守っているが、
+#   その約束は1つのプロセスの中でしか効かない。住所を等分すると同じホストが複数の
+#   シャードに散り、別々のプロセスが同時に叩いて、2秒の約束が黙って破れる。
+#   相手からは、こちらが約束を破ったようにしか見えない。
+#
+# なぜ計器そのものに --shard を足さないのか:
+#   survey1_walk.py は公開している数字を出した道具である。
+#   触れば、公開した数字を出した道具と、これから走らせる道具が別のものになる。
+#   再現できると書いてある以上、計器は1バイトも変えない。割るのは入力の一覧のほう。
+#
+# 落ちたときの扱い:
+#   走行そのものが計器の故障で止まることがある(実際に2026-08-23 に起きた)。
+#   survey1_walk.py は対照先を叩いて自分を疑い、回復しなければ中止する。
+#   中止した走行の結果は、公開の数字には使わない。ここでも上書きしない。
+#   新しい走行は日付つきの新しいファイルとして置く。前の走行は消さない。
+name: survey-walk
+
+on:
+  schedule:
+    - cron: "41 2 1 2,5,8,11 *"    # 2月・5月・8月・11月の1日 02:41 UTC
+  workflow_dispatch:
+    inputs:
+      shards:
+        description: "いくつに分けて走るか"
+        required: false
+        default: "12"
+      sample:
+        description: "予行。この件数だけ無作為に測る(0なら全件)"
+        required: false
+        default: "0"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: survey-walk
+  cancel-in-progress: false
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    outputs:
+      shards: ${{ steps.plan.outputs.shards }}
+      matrix: ${{ steps.plan.outputs.matrix }}
+      list: ${{ steps.plan.outputs.list }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: 走る一覧を決めて、ホストで割る
+        id: plan
+        run: |
+          n="${{ github.event.inputs.shards || '12' }}"
+          list=$(ls -1 verify-directory/survey/data/survey0_v4_endpoints_active_*.txt | sort | tail -1)
+          echo "使う一覧: $list"
+          python3 tools/survey/shard_endpoints.py --input "$list" --shards "$n" --out-dir shards
+          echo "shards=$n" >> "$GITHUB_OUTPUT"
+          echo "list=$list" >> "$GITHUB_OUTPUT"
+          python3 - "$n" >> "$GITHUB_OUTPUT" <<'PY'
+          import json, sys
+          print("matrix=" + json.dumps([{"i": "%02d" % i} for i in range(int(sys.argv[1]))]))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with: { name: shards, path: shards/, retention-days: 7 }
+
+  walk:
+    needs: split
+    runs-on: ubuntu-latest
+    timeout-minutes: 330          # 6時間の上限より前に、こちらで止める
+    strategy:
+      fail-fast: false            # 1つのシャードが止まっても、他は最後まで走らせる
+      max-parallel: 6             # 一度に全部は走らせない。相手側から見た同時本数を抑える
+      matrix:
+        shard: ${{ fromJSON(needs.split.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - uses: actions/download-artifact@v4
+        with: { name: shards, path: shards }
+
+      - name: シャード ${{ matrix.shard.i }} を走る
+        run: |
+          s="${{ github.event.inputs.sample || '0' }}"
+          extra=""
+          if [ "$s" != "0" ]; then extra="--sample $s"; fi
+          python3 tools/survey1_walk.py \
+            --input "shards/shard_${{ matrix.shard.i }}.txt" \
+            --out   "walk_${{ matrix.shard.i }}.jsonl" $extra
+
+      - uses: actions/upload-artifact@v4
+        if: always()              # 途中で止まっても、書けた行までは残す
+        with:
+          name: walk-${{ matrix.shard.i }}
+          path: |
+            walk_${{ matrix.shard.i }}.jsonl
+            walk_${{ matrix.shard.i }}.jsonl.health.json
+          retention-days: 7
+          if-no-files-found: warn
+
+  merge:
+    needs: [split, walk]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - uses: actions/download-artifact@v4
+        with: { pattern: walk-*, path: parts, merge-multiple: true }
+
+      - name: 束ねて、前の走行と比べる
+        run: |
+          set -e
+          stamp=$(date -u +%Y-%m-%d)
+          out="verify-directory/survey/data/survey1_walk_${stamp}.jsonl"
+          cat parts/walk_*.jsonl > "$out" 2>/dev/null || true
+          lines=$(wc -l < "$out" | tr -d ' ')
+          want=$(wc -l < "${{ needs.split.outputs.list }}" | tr -d ' ')
+          echo "束ねた行 $lines / 一覧 $want" | tee -a "$GITHUB_STEP_SUMMARY"
+
+          # 全部そろっていないなら、公開の数字には使わない。行が無い方がましである。
+          if [ "$lines" -lt "$want" ]; then
+            miss=$((want - lines))
+            mv "$out" "verify-directory/survey/data/survey1_walk_${stamp}_incomplete.jsonl"
+            {
+              echo "### 全件ではありません"
+              echo "$miss 行が足りません。このファイルは _incomplete として置き、報告の数字には使いません。"
+              echo "止まったシャードの記録は、この実行の artifact に残っています。"
+              echo "これはこちらの走行についての記述であって、測った相手についての発見ではありません。"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          prev=$(ls -1 verify-directory/survey/data/survey1_walk_*_run2.jsonl \
+                       verify-directory/survey/data/survey1_walk_2*.jsonl 2>/dev/null \
+                 | grep -v discarded | grep -v incomplete | grep -v "$stamp" | sort | tail -1)
+          if [ -n "$prev" ]; then
+            echo "### 前の走行との差" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            python3 tools/survey/survey_diff.py --walk "$prev" "$out" \
+              --json "verify-directory/survey/data/survey_diff_${stamp}.json" \
+              | tee -a "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          python3 tools/survey/build_dataset_index.py --write
+
+      - name: 記録を残す
+        run: |
+          git config user.name "horizon-shield-observatory"
+          git config user.email "contact@the-horizons-innovation.com"
+          git add verify-directory/survey/data/ || true
+          if git diff --cached --quiet; then
+            echo "変わったものはありません。" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git commit -m "observatory: $(date -u +%Y-%m-%d) の走行"
+          git push
+          {
+            echo ""
+            echo "照会口(hs-mcp-observatory)のデータは、まだこの走行に追従していません。"
+            echo "追従させるには、走行を確かめたうえで:"
+            echo '  python3 tools/survey/build_observatory_data.py --write'
+            echo "自動では差し替えません。新しい走行を公開の記録にするかどうかは、人が決めます。"
+          } >> "$GITHUB_STEP_SUMMARY"
