@@ -1,0 +1,29 @@
+// hs-nursing-mcp — 訪問看護の内部MCP。
+//
+// ご説明資料でお約束した3つのうち、①内部(請求前チェック・加算の取りこぼし・
+// 指示書の期限管理)に当たる口である。運用開始は2026年10月1日。
+//
+// 独立した worker にしてある理由:
+//   hs-internal-mcp は建設の口である。工種、原価、業者チェック、見積のPDF。
+//   すべて建設の前提の上に立っており、hs-pdf-gen / hs-estimate / hs-gyosha-check /
+//   hs-genka-ingest への service binding を持っている。
+//   訪問看護1件のためにそこへ足すと、建設の加盟店が現に使っている口が不安定になる。
+//   受け継ぐのは規律であって、コードでも worker でもない。
+//
+// 配る前に一度だけ要るもの:
+//   wrangler secret put NURSING_MCP_KEY --name hs-nursing-mcp
+//
+//   鍵が設定されていないと、この worker は /mcp で何も答えない(403)。
+//   設定漏れで全部開くほうが、設定漏れで閉じるより悪い。設定漏れは必ず起きる。
+//
+// 中身(src/rules.js)は生成物である。元は JHNRD。
+//   python3 tools/nursing/build_mcp_rules.py --write
+//   手で書き換えると、公開データベースと内部MCPが別のことを言い始める。
+{
+  "name": "hs-nursing-mcp",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-05-18",
+  "account_id": "c15ff64aba400e541853dec1fbe5e76a",
+  "workers_dev": true,
+  "observability": { "enabled": true }
+}

@@ -87,3 +87,18 @@ jobs:
       # 別々に確かめる。片方しか試さないと、いつか全部が0か全部が非ゼロになる。
       - name: 生成の振り分け(枝ごと)
         run: python3 tools/industries/route_test.py
+
+      # 内部MCP が読む算定要件は生成物である。
+      # 手で書き換えると、公開データベース(JHNRD)と内部MCPが別のことを言い始める。
+      # そのずれは落ちない。例外も出ない。ただ違う数字が出続ける。だからここで見る。
+      - name: 内部MCPの算定要件が、データベースとずれていないか
+        run: python3 tools/nursing/build_mcp_rules.py --check
+
+      - name: 内部MCPの構文
+        run: node --check workers/hs-nursing-mcp/src/worker.js
+
+      # 10月1日から、この口は請求の前に見られる。
+      # 間違った数字を出しても落ちない。受け取った側はそれを根拠に請求する。
+      # 「言ってはいけないことを言わないか」「分からないものを分からないと言うか」を走らせる。
+      - name: 訪問看護の内部MCP(端から端まで)
+        run: node workers/hs-nursing-mcp/mcp_test.mjs
