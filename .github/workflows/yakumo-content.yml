@@ -87,14 +87,26 @@ jobs:
         id: commit
         run: |
           set -e
+          # 2026-08-25: ここは値を裸で書いていた。
+          #   PATHS は空白区切りの複数パスなので、route.env の行がこうなる:
+          #     PATHS=yakumo/ tools/yakumo/last_manifest.json sitemap.xml ...
+          #   これを . で読み込むと、シェルは「PATHS に yakumo/ を入れ、
+          #   そのあと tools/yakumo/last_manifest.json というコマンドを実行しろ」と読む。
+          #   JSON は実行できないので Permission denied、exit 126 で job が死ぬ。
+          #   値が1語のうちは動き、パスが2つ以上になった瞬間に死ぬ。
+          #   2026-08-25 8:09、加盟店のヒアリング回答で実際に起きた。
+          #   shlex.quote で括る。PATHS は括ったまま代入され、
+          #   使うときの $PATHS(引用符なし)で意図どおり語に分かれる。
           python3 - > /tmp/route.env <<'PY'
-          import json
+          import json, shlex
           r = json.load(open("tools/industries/last_route.json"))
-          print("STATUS=%s" % (r.get("status") or ""))
-          print("PUBLISHED=%s" % ("true" if r.get("published") else "false"))
-          print("INDUSTRY=%s" % (r.get("industry") or ""))
-          print("COUNT=%s" % (r.get("count") or 0))
-          print("PATHS=%s" % " ".join(p for p in (r.get("commit_paths") or []) if p))
+          def emit(k, v):
+              print("%s=%s" % (k, shlex.quote(str(v))))
+          emit("STATUS", r.get("status") or "")
+          emit("PUBLISHED", "true" if r.get("published") else "false")
+          emit("INDUSTRY", r.get("industry") or "")
+          emit("COUNT", r.get("count") or 0)
+          emit("PATHS", " ".join(p for p in (r.get("commit_paths") or []) if p))
           PY
           . /tmp/route.env
           echo "業種=$INDUSTRY 状態=$STATUS 公開=$PUBLISHED 枚数=$COUNT"
