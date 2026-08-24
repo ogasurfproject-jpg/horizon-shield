@@ -25,6 +25,10 @@ for (const f of fs.readdirSync(SRCDIR)) {
   if (f === "hearing.js" && !body.includes("export { handleKiraBridge }")) {
     body += "\nexport { handleKiraBridge };\n";
   }
+  // 2026-08-24: 生成の起動も試す。業種が無いときに建設として起動していたため。
+  if (f === "hearing.js" && !body.includes("export { triggerGeneration }")) {
+    body += "\nexport { triggerGeneration };\n";
+  }
   fs.writeFileSync(path.join(TMP, f.replace(/\.js$/, ".mjs")), body);
 }
 const SRC = path.join(TMP, "hearing.mjs");
@@ -34,10 +38,14 @@ const H = await import(SRC + "?v=" + Math.random());
 
 globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => ({}), text: async () => "" });
 
-function makeEnv() {
+function makeEnv(ai) {
   const kv = new Map();
   return {
     _kv: kv,
+    // 2026-08-24: 取り込みの経路は LLM を通る。模擬を置かないと llm-not-configured で
+    //   静かに戻り、「ヒアリング記録が作られていない」という結果だけが残る。
+    //   何も設定していないことと、取り込みに失敗したことは違う。
+    AI: ai ? { run: async () => ({ response: JSON.stringify(ai) }) } : undefined,
     HS_HEARING_KV: {
       get: async (k, type) => {
         if (!kv.has(k)) return null;
@@ -54,7 +62,9 @@ function makeEnv() {
 const U = "U" + "0".repeat(32);
 const line = (s) => String(s || "").split("\n")[0].slice(0, 62);
 let fail = 0;
+let checks = 0;
 function check(label, cond, detail) {
+  checks++;
   console.log((cond ? "  ok   " : "  NG   ") + label + (detail ? "  " + detail : ""));
   if (!cond) fail++;
 }
@@ -200,16 +210,23 @@ console.log("8) すでに中身を答えている建設の店(既存の相手に
         hail("合同会社アップス", "nursing").startsWith("合同会社アップス さま"));
 }
 
-console.log("");
-console.log(fail ? fail + " 件 失敗" : "業種ゲート すべて通過");
-process.exit(fail ? 1 : 0);
+/* 2026-08-24: ここに console.log と process.exit があった。
+   つまり 9場面目(平田様の 22:30 の実物)と 10場面目は、一度も走っていなかった。
+   それでも「業種ゲート すべて通過」と出ていた。
+   走らなかった試験は、通った試験と見分けがつかない。
+   だから末尾で「いくつ確かめたか」を数えて、減っていたら落とす。 */
 
 /* --- 9. 業種を決めた文が、すでに答えだった場合 -----------------------
    2026-08-23 22:30、平田様が実際に送ってこられた文そのもの。
    このとき仕組みは、業種だけ読み取って中身を捨て、同じ3問を送り返した。 */
 console.log("9) 業種を決めた文が、そのまま答えだった(本日22:30の実物)");
 {
-  const env = makeEnv();
+  const env = makeEnv({
+    company: "合同会社アップス",
+    area: "平塚市および周辺",
+    works: ["点滴・注射の管理", "服薬管理", "褥瘡の処置"],
+    areas_served: ["平塚市", "茅ヶ崎市"],
+  });
   const sid = "kira-wbbk99p9";
   env._kv.set("store:" + sid, JSON.stringify({
     store_id: sid, company: "", areas: [], works: [], tier: "honbu",
@@ -236,6 +253,55 @@ console.log("9) 業種を決めた文が、そのまま答えだった(本日22:
         "keys=" + [...env._kv.keys()].filter(k=>k.startsWith("hearing")).join(","));
 }
 
+/* --- 10. 生成の起動。業種が無いなら、型を当てはめない ------------------ */
+console.log("\n10) 生成の起動に載る業種");
+{
+  const env = makeEnv();
+  env.GH_DISPATCH_TOKEN = "t";
+  env.GH_DISPATCH_REPO = "owner/repo";
+  let sent = null;
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init) => {
+    if (String(url).includes("/dispatches")) {
+      try { sent = JSON.parse(init.body); } catch (_e) { sent = null; }
+    }
+    return { ok: true, status: 200, json: async () => ({}), text: async () => "" };
+  };
+
+  const prof = { company: "テスト", area: "平塚市", works: ["点滴の管理"] };
+
+  sent = null;
+  await H.triggerGeneration(env, prof, { store_id: "s1", industry: "nursing", autopilot: {} });
+  check("店に業種があれば、その業種で起動する",
+        !!sent && sent.client_payload.autopilot.industry === "nursing",
+        sent && sent.client_payload.autopilot.industry);
+
+  sent = null;
+  await H.triggerGeneration(env, { ...prof, industry: "nursing" }, { store_id: "s2", autopilot: {} });
+  check("店に無くても profile にあれば、それを使う",
+        !!sent && sent.client_payload.autopilot.industry === "nursing",
+        sent && sent.client_payload.autopilot.industry);
+
+  sent = null;
+  await H.triggerGeneration(env, prof, { store_id: "s3", autopilot: {} });
+  check("どちらにも無ければ、業種を空で渡す(建設にしない)",
+        !!sent && sent.client_payload.autopilot.industry === null,
+        JSON.stringify(sent && sent.client_payload.autopilot.industry));
+  check("空である理由を書く",
+        !!(sent && sent.client_payload.autopilot.industry_missing_reason),
+        sent && sent.client_payload.autopilot.industry_missing_reason);
+  globalThis.fetch = realFetch;
+}
+
+/* 走らなかった試験は、通った試験と見分けがつかない。
+   2026-08-24、途中の process.exit で 9場面目以降が一度も走っていなかった。
+   それでも緑と出ていた。数を数えれば、丸ごと消えたときに気づける。 */
+const EXPECTED_CHECKS = 44;
 console.log("");
-console.log(fail ? fail + " 件 失敗" : "9場面すべて通過");
+console.log("確かめた数: " + checks + " (最低 " + EXPECTED_CHECKS + ")");
+if (checks < EXPECTED_CHECKS) {
+  console.log("  NG   試験がまるごと走っていません。途中で止まっていないか見てください。");
+  fail++;
+}
+console.log(fail ? fail + " 件 失敗" : "10場面すべて通過");
 process.exit(fail ? 1 : 0);

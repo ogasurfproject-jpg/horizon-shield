@@ -347,8 +347,14 @@ async function triggerGeneration(env, profile, store) {
   // AUTOPILOT: フォーカスと完成度、ニュースダイジェストを同梱(生成側がページ構成を変える)
   const ap = (store && store.autopilot) || {};
   const news = await AP.newsDigest(env).catch(() => ({ items: [] }));
-  const indKey = (store && store.industry) || (profile && profile.industry) || IND.DEFAULT_INDUSTRY;
-  const indDef = IND.industryOf(indKey);
+  // 2026-08-24: ここは業種が無いとき DEFAULT_INDUSTRY(建設)に落としていた。
+  //   業種が決まっていない相手の答えが閾値に達したとき、その人は建設として生成される。
+  //   決まっていないことと、建設であることは違う。
+  //   受け手(route_generate.py)は業種が空なら止まる。止まったほうがよい。
+  //   ここで型を当てはめると、他社の名前で違う業種のページが出る。
+  //   それは静かに起きて、公開されるまで誰も気づかない。
+  const indKey = (store && store.industry) || (profile && profile.industry) || null;
+  const indDef = indKey ? IND.industryOf(indKey) : null;
   const autopilot = {
     focus_primary: ap.focus_primary || null,
     completeness: ap.completeness || 0,
@@ -357,6 +363,8 @@ async function triggerGeneration(env, profile, store) {
     // 業種を渡さなければ、受け手には建設と訪問看護の区別がつかない。
     industry: indKey,
     industry_label: indDef ? indDef.label : "",
+    industry_missing_reason: indKey ? undefined
+      : "store: 側にも profile 側にも業種がありません。ここで型を当てはめません。",
     mall: indDef ? indDef.mall : null,
     golden_ratio: (indDef && indDef.golden_ratio) || null,
   };
