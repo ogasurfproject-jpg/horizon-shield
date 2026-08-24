@@ -1,0 +1,21 @@
+// hs-mcp-observatory — 公式MCPレジストリの実測を、誰でも引ける口。
+//
+// 鍵は無い。これは公開の記録である。
+// 内部MCP(hs-nursing-mcp)とは逆で、閉じる理由が無い。
+// 数えた結果を配るほど、基準点は強くなる。
+//
+// 中身(src/data.js)は生成物。元は verify-directory/survey/data/ の走行。
+//   python3 tools/survey/build_observatory_data.py --write
+//
+// 大きさ: data.js が約2.2MB(gzip 約720KB)。Workers の上限内。
+// 1行ごとの record_sha256 を落とせば小さくなるが、落とさない。
+// 「他人についての言明を、その本人が再計算できない形で出さない」は
+// 報告書に自分で書いた規則である。容量のために静かに折らない。
+{
+  "name": "hs-mcp-observatory",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-05-18",
+  "account_id": "c15ff64aba400e541853dec1fbe5e76a",
+  "workers_dev": true,
+  "observability": { "enabled": true }
+}

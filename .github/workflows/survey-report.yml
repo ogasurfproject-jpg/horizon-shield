@@ -19,6 +19,8 @@ on:
       - "tools/survey1_aggregate.py"
       - "tools/survey2_recheck.py"
       - "tools/survey2_recheck_test.py"
+      - "tools/survey/**"
+      - "workers/hs-mcp-observatory/**"
       - ".github/workflows/survey-report.yml"
   pull_request:
   workflow_dispatch:
@@ -33,6 +35,19 @@ jobs:
       # 918件が全部消えた。模擬は仕様どおりの形しか作っていなかった。
       - name: 当て直しの判定(壊れた返事を含む)
         run: python3 tools/survey2_recheck_test.py
+
+      # 照会口が読むデータは生成物である。手で数字を書けば、
+      # 公開している報告書と照会口が別のことを言い始める。そのずれは落ちない。
+      - name: 照会口のデータが、走行の生ファイルとずれていないか
+        run: python3 tools/survey/build_observatory_data.py --check
+
+      - name: 照会口の構文
+        run: node --check workers/hs-mcp-observatory/src/worker.js
+
+      # 数字が合っているかだけでなく、報告書に自分で書いた4つの規則を
+      # この口が守っているかを見る。規則は書いた日には必ず守れているように見える。
+      - name: 照会口(端から端まで・規則を含む)
+        run: node workers/hs-mcp-observatory/observatory_test.mjs
 
       - name: 報告書1の数字がデータと一致しているか
         run: |
