@@ -42,7 +42,19 @@ _PAT = re.compile(r'"(HEARING_ADMIN_SECRET[^"]*)","value":"([0-9a-f]{32,})","sta
 
 
 def admin_secret(quiet=False):
-    """現行の管理キーを読む。旧・失効のものは採らない。値は表示しない。"""
+    """現行の管理キーを読む。旧・失効のものは採らない。値は表示しない。
+
+    2026-08-24: 鍵マネージャは(正しく)リポジトリに入っていない。
+      そのため CI では必ずここで落ち、失敗の通知が飛び続けた。
+      試験は本物の鍵を要らない。模擬のサーバに当てるだけである。
+      環境変数があればそれを使う。無ければ従来どおり鍵マネージャを読む。
+      本番の経路は変わらない。
+    """
+    env_key = os.environ.get("HS_ADMIN_KEY")
+    if env_key:
+        if not quiet:
+            print("管理キー: 環境変数から読みました(値は表示しません)")
+        return env_key
     looked = []
     for f in KEYFILES:
         looked.append(f)

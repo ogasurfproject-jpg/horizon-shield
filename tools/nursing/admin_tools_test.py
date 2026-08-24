@@ -108,6 +108,9 @@ class H(BaseHTTPRequestHandler):
 def run(tool, *args):
     env = dict(os.environ)
     env["HS_ADMIN_HOSTS"] = "http://127.0.0.1:%d" % PORT
+    # 試験は本物の鍵を要らない。模擬のサーバは値を見ない。
+    # 鍵マネージャはリポジトリに入っていないので、CI ではこれが無いと必ず落ちる。
+    env["HS_ADMIN_KEY"] = "test-key-not-a-real-secret"
     r = subprocess.run([sys.executable, os.path.join(HERE, tool)] + list(args),
                        capture_output=True, text=True, cwd=HS, env=env)
     return r
