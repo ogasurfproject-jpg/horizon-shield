@@ -67,25 +67,67 @@ jobs:
             fs.writeFileSync('/tmp/dispatch.json', JSON.stringify({ client_payload: { profile: p, autopilot: p.autopilot || {} } }));
             core.info('manual dispatch written');
 
-      - name: Generate pages (GEO/AEO/LLMO/WebMCP + focus, dedup gate A)
-        run: python3 tools/yakumo/generate.py --dispatch /tmp/dispatch.json
+      # 2026-08-24: ここは tools/yakumo/generate.py を直に呼んでいた。
+      #   建設の生成器である。訪問看護の dispatch が来ると、その安全弁(exit 4)で止まる。
+      #   他社の名前で建設のページが作られることはない。しかし、止まるだけである。
+      #   止まればワークフローが失敗し、失敗通知が飛ぶ。
+      #   平田様のヒアリングが進むほど、出口の無さが通知の雨として出てくる。
+      #
+      #   業種で振り分ける層を通す。どの生成器を呼ぶかは
+      #   data/industries/registry.json だけが決める。ここに業種名を書かない。
+      #   書けば二重管理になり、いつか片方だけ直る。
+      #
+      #   振り分け層は、次を別のものとして扱う。
+      #     ・その業種に出口が無い  -> 0 で終わる(失敗にしない)。だが「無い」と記録して言う。
+      #     ・生成器か門が落ちた    -> 非ゼロで終わる。公開しない(fail-closed)。
+      - name: 生成と門(業種で振り分ける)
+        run: python3 tools/industries/route_generate.py --dispatch /tmp/dispatch.json
 
-      - name: Validate pages (fail-closed gate)
-        run: python3 tools/yakumo/validate.py --manifest tools/yakumo/last_manifest.json
-
-      - name: Commit and push (only if validation passed)
+      - name: Commit and push (門を通ったときだけ)
         id: commit
         run: |
-          if [ -z "$(git status --porcelain yakumo/ tools/yakumo/last_manifest.json sitemap.xml data/yakumo-content-manifest.json)" ]; then
+          set -e
+          python3 - > /tmp/route.env <<'PY'
+          import json
+          r = json.load(open("tools/industries/last_route.json"))
+          print("STATUS=%s" % (r.get("status") or ""))
+          print("PUBLISHED=%s" % ("true" if r.get("published") else "false"))
+          print("INDUSTRY=%s" % (r.get("industry") or ""))
+          print("COUNT=%s" % (r.get("count") or 0))
+          print("PATHS=%s" % " ".join(p for p in (r.get("commit_paths") or []) if p))
+          PY
+          . /tmp/route.env
+          echo "業種=$INDUSTRY 状態=$STATUS 公開=$PUBLISHED 枚数=$COUNT"
+          {
+            echo "### 生成の振り分け"
+            echo ""
+            echo "| 項目 | 値 |"
+            echo "| --- | --- |"
+            echo "| 業種 | $INDUSTRY |"
+            echo "| 状態 | $STATUS |"
+            echo "| 枚数 | $COUNT |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$PUBLISHED" != "true" ]; then
+            if [ "$STATUS" = "no_exit" ]; then
+              {
+                echo ""
+                echo "この業種には、まだ出口(生成器)が繋がっていません。"
+                echo "ヒアリングの答えは失われていません。溜まっています。"
+                echo "出口が繋がった時点で、同じ答えからページを作れます。"
+              } >> "$GITHUB_STEP_SUMMARY"
+            fi
+            echo "published=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -z "$(git status --porcelain $PATHS)" ]; then
             echo "変更なし。公開スキップ。"
             echo "published=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git config user.name  "yakumo-bot"
           git config user.email "yakumo-bot@users.noreply.github.com"
-          git add yakumo/ tools/yakumo/last_manifest.json sitemap.xml data/yakumo-content-manifest.json
-          COUNT=$(python3 -c "import json;print(json.load(open('tools/yakumo/last_manifest.json'))['count'])")
-          git commit -m "yakumo: auto-publish ${COUNT} verified-partner pages (GEO/AEO/LLMO/WebMCP)"
+          git add $PATHS tools/industries/last_route.json
+          git commit -m "$INDUSTRY: auto-publish ${COUNT} verified pages (門を通過)"
           for i in 1 2 3 4; do
             if git push origin main; then break; fi
             echo "push retry $i"; sleep $((2**i))
@@ -116,7 +158,8 @@ jobs:
             echo "INDEXNOW_KEY 未設定。送信スキップ(fail-safe)。Secrets に追加すれば次回から自動送信。"
             exit 0
           fi
-          URLS=$(python3 -c "import json;print(','.join(json.load(open('tools/yakumo/last_manifest.json'))['urls']))")
+          # 2026-08-24: 建設の manifest を決め打ちで読んでいた。業種で分かれる場所である。
+          URLS=$(python3 -c "import json;print(','.join(json.load(open('tools/industries/last_route.json')).get('urls') or []))")
           echo "submit: $URLS"
           # /yakumo/ 配下は souba還流マーカー必須を外す(--no-marker)。3関所(200/MOAT)は内部で実施。
           python3 indexnow_submit.py --urls "$URLS" --no-marker --send
@@ -128,8 +171,8 @@ jobs:
         run: |
           if [ -z "$HEARING_ADMIN_SECRET" ]; then echo "HEARING_ADMIN_SECRET 未設定。コールバック省略(fail-open)。"; exit 0; fi
           W="https://hs-hearing.oga-surf-project.workers.dev"
-          COUNT=$(python3 -c "import json;print(json.load(open('tools/yakumo/last_manifest.json'))['count'])")
-          MEMBER=$(python3 -c "import json;print(json.load(open('tools/yakumo/last_manifest.json')).get('member_no') or '')")
+          COUNT=$(python3 -c "import json;print(json.load(open('tools/industries/last_route.json')).get('count') or 0)")
+          MEMBER=$(python3 -c "import json,os;p='tools/yakumo/last_manifest.json';print((json.load(open(p)).get('member_no') or '') if os.path.exists(p) else '')")
           curl -s -X POST "$W/admin/activity" -H "X-Admin-Key: $HEARING_ADMIN_SECRET" -H "Content-Type: application/json" \
             -d "{\"type\":\"published\",\"member_no\":\"$MEMBER\",\"text\":\"加盟店の紹介ページを${COUNT}枚 検証通過のうえ公開しました\"}" || true
           python3 - <<'PY' || true

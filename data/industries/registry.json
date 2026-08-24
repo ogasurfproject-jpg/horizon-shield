@@ -44,7 +44,13 @@
         "status": "wired",
         "tool": "tools/yakumo/generate.py",
         "workflow": ".github/workflows/yakumo-content.yml",
-        "publishes_to": "yakumo/"
+        "publishes_to": "yakumo/",
+        "manifest": "tools/yakumo/last_manifest.json",
+        "also_commit": [
+          "sitemap.xml",
+          "data/yakumo-content-manifest.json"
+        ],
+        "router": "tools/industries/route_generate.py"
       }
     },
     "nursing": {
@@ -70,14 +76,15 @@
       },
       "sender": "HORIZON SHIELD 訪問看護窓口",
       "generator": {
-        "status": "missing",
+        "status": "wired",
         "tool": "tools/care/generate_care.py",
-        "workflow": null,
+        "manifest": "tools/care/last_manifest.json",
         "publishes_to": "care/",
-        "gap": "生成器のファイルはあるが、どのワークフローからも呼ばれていない。hs-hearing は完成度が閾値に達すると repository_dispatch を投げるが、受け手の yakumo-content.yml は建設の生成器しか走らせない。",
-        "what_happens_now": "建設の生成器には業種の安全弁があり、nursing なら exit 4 で止まる。だから他社の名前で建設のページが作られることはない。しかし、止まるだけである。訪問看護のページは1枚も作られない。",
-        "consequence": "平田様は AI事務員 の対価をお支払いいただいている。ヒアリングの答えは溜まるが、出口が無い。閾値に達した時点でワークフローが失敗し、失敗の通知だけが飛ぶ。",
-        "next": "tools/care/generate_care.py を呼ぶワークフローを作り、yakumo-content.yml 側で industry を見て振り分ける。"
+        "workflow": ".github/workflows/yakumo-content.yml",
+        "router": "tools/industries/route_generate.py",
+        "gate": "tools/pagecheck/validate.py",
+        "wired_at": "2026-08-24",
+        "wired_note": "業種で振り分ける層(route_generate.py)を入れて繋いだ。それまでは、受け手のワークフローが建設の生成器だけを走らせており、訪問看護の dispatch は建設側の安全弁(exit 4)で止まっていた。止まるとワークフローが失敗し、出口が無いことが失敗通知という形でしか表に出なかった。配線と同時に、生成器の manifest の形を門(pages[].path)に合わせた。形が違うままだと、繋いでも門が『検証対象なし』で終了コード2を返して落ちる。"
       }
     }
   }

@@ -601,13 +601,31 @@ def main():
         written.append(rel)
 
     if not a.dry_run:
+        # 2026-08-24: ここは {"paths": [...]} を書いていた。
+        #   門(tools/pagecheck/validate.py)が読むのは man["pages"] の [{"path": ...}] である。
+        #   形が違うので、門は「検証対象なし」で終了コード2を返す。
+        #   つまり配線しても、その場でワークフローが落ちていた。
+        #   落ちる場所が生成器ではなく門なので、「生成に失敗した」と読める失敗が出る。
+        #   門と生成器が別々の形を持っていたのが原因である。門の形に合わせる。
+        pages_man = []
+        for (kind, canonical, html) in pages:
+            rel = canonical_to_path(canonical)
+            pages_man.append({"type": kind, "url": canonical, "path": rel})
         man = os.path.join(a.out_root, "tools", "care", "last_manifest.json")
         os.makedirs(os.path.dirname(man), exist_ok=True)
         with open(man, "w", encoding="utf-8") as f:
-            json.dump({"industry": "nursing", "company": profile.get("company"),
-                       "paths": written, "ratio": n}, f, ensure_ascii=False, indent=2)
+            json.dump({"industry": "nursing",
+                       "company": profile.get("company"),
+                       "count": len(pages_man),
+                       "ratio": n,
+                       "urls": [x["url"] for x in pages_man],
+                       "pages": pages_man,
+                       # 旧い形も残す。これを読んでいるものが他に無いことを確かめていないため。
+                       "paths": written},
+                      f, ensure_ascii=False, indent=2)
         print("\n書いた: %d 枚 / manifest: tools/care/last_manifest.json" % len(written))
-        print("公開の前に validate.py を通してください。通らなければ公開しません。")
+        print("公開の前に門を通してください。通らなければ公開しません。")
+        print("  python3 tools/pagecheck/validate.py --manifest tools/care/last_manifest.json")
 
 
 if __name__ == "__main__":

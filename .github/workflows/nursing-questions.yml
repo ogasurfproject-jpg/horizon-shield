@@ -81,3 +81,9 @@ jobs:
       # 片方の業種にだけ物差しが繋がっている状態を、黙って通さない。
       - name: 業種レジストリ
         run: python3 tools/industries/check.py
+
+      # 業種の振り分けを、枝ごとに走らせる。
+      # 「出口が無いのは失敗ではない」「生成器か門が落ちたのは失敗である」を
+      # 別々に確かめる。片方しか試さないと、いつか全部が0か全部が非ゼロになる。
+      - name: 生成の振り分け(枝ごと)
+        run: python3 tools/industries/route_test.py

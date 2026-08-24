@@ -32,7 +32,11 @@ sys.path.insert(0, HERE)
 import hs_admin  # noqa: E402
 
 HS = hs_admin.HS
-REG = os.path.join(HS, "data", "industries", "registry.json")
+# 2026-08-24: 見るレジストリを外から差し替えられるようにした。
+#   「生成器が繋がっていない店を名指しするか」を試すには、繋がっていない
+#   レジストリが要る。本物を一時的に壊して試すと、戻し忘れがそのまま出荷される。
+REG = os.environ.get("HS_INDUSTRY_REGISTRY") or os.path.join(
+    HS, "data", "industries", "registry.json")
 
 
 def age_days(ts):

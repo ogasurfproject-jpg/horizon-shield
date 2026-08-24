@@ -120,8 +120,10 @@ class H(BaseHTTPRequestHandler):
         self._send(404, {"error": "no"})
 
 
-def run(tool, *args):
+def run(tool, *args, _env=None):
     env = dict(os.environ)
+    if _env:
+        env.update(_env)
     env["HS_ADMIN_HOSTS"] = "http://127.0.0.1:%d" % PORT
     # 試験は本物の鍵を要らない。模擬のサーバは値を見ない。
     # 鍵マネージャはリポジトリに入っていないので、CI ではこれが無いと必ず落ちる。
@@ -193,15 +195,40 @@ def main():
     if r.returncode != 0:
         print((r.stdout + r.stderr)[-700:]); print("  ★落ちた"); bad += 1
     else:
-        want = ["まだ一度も送っていない", "生成器が missing", "返事待ちが",
+        want = ["まだ一度も送っていない", "返事待ちが",
                 "store: 側に業種が無い", "社名がどちらにも無い",
                 "送信履歴が失われている",
-                "store: 側に業種が無い"]
+                "生成器 :"]
         for w in want:
             if w not in r.stdout:
                 print("  ★出力に「%s」がありません" % w); bad += 1
         if all(w in r.stdout for w in want):
-            print("  ok  送っていない設問・出口なし・放置・業種なし・社名なしを全部名指しした")
+            print("  ok  送っていない設問・生成器の状態・放置・業種なし・社名なしを全部出した")
+
+    # 2026-08-24: ここは「生成器が missing」という文字列を待っていた。
+    #   訪問看護の生成器を繋いだ日に、この試験が落ちた。
+    #   落ちた理由は、直したはずの不備が出なくなったからである。
+    #   試験が「いまある不備の一覧」を暗記していると、直すたびに落ちる。
+    #   試験が見るべきは「不備があれば名指しするか」であって、
+    #   「いまその不備があるか」ではない。だから、繋がっていないレジストリを
+    #   その場で作って渡し、そのときだけ名指しするかを見る。
+    print("\n=== 5b) 生成器が繋がっていない業種を名指しするか ===")
+    import tempfile as _tf
+    _reg = json.load(open(os.path.join(HS, "data", "industries", "registry.json"),
+                          encoding="utf-8"))
+    _reg["industries"]["nursing"]["generator"]["status"] = "missing"
+    _d = _tf.mkdtemp(prefix="reg_")
+    _p = os.path.join(_d, "registry.json")
+    with open(_p, "w", encoding="utf-8") as _f:
+        json.dump(_reg, _f, ensure_ascii=False)
+    _env_extra = {"HS_INDUSTRY_REGISTRY": _p}
+    r = run("hearing_status.py", _env=_env_extra)
+    if r.returncode != 0:
+        print((r.stdout + r.stderr)[-500:]); print("  ★落ちた"); bad += 1
+    elif "生成器が missing" not in r.stdout:
+        print("  ★ 繋がっていないのに名指ししていない"); bad += 1
+    else:
+        print("  ok  繋がっていない業種を「生成器が missing」と名指しした")
 
     print("\n=== 4) 既に社名が入っている店を、黙って上書きしないか ===")
     r = run("fix_company.py", "--id", "hs-partner-001", "--name", "別の会社", "--apply")

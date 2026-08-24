@@ -36,6 +36,21 @@
 import argparse, json, sys, os, re
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+# 2026-08-24: 門が見る根を、外から変えられるようにした。
+#   これまでは自分のファイル位置から決めた1箇所だけを見ていた。
+#   そのため、リポジトリの外に書き出した束を門に通すことができず、
+#   「生成 -> 門」の配線を、本物のリポジトリを汚さずに試す方法が無かった。
+#   実際に試したとき、ファイルは在るのに5枚とも FILE_MISSING と出た。
+#   在るものを「無い」と言ったのは、見る場所が違っていたからである。
+#   計器の指す先を変えられないと、計器そのものを試せない。
+def _set_root(path):
+    global REPO_ROOT
+    REPO_ROOT = os.path.abspath(path)
+
+
+if os.environ.get("PAGECHECK_ROOT"):
+    _set_root(os.environ["PAGECHECK_ROOT"])
 BASE = "https://shield.the-horizons-innovation.com"
 MOAT_FORBIDDEN = [s[::-1] for s in ["5.23", "dlohserht_regnad", "CPW"]]  # 逆順表記(公開repoのgrep封印。機能は同一)
 FORBIDDEN_DASH = {"—": "EM", "–": "EN", "―": "BAR"}
@@ -228,7 +243,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--manifest")
     ap.add_argument("--paths", nargs="*")
+    ap.add_argument("--root", help="ページを探す根。既定はこのリポジトリの根。"
+                                   "リポジトリの外に書き出した束を試すときに使う。")
     a = ap.parse_args()
+    if a.root:
+        _set_root(a.root)
+    print("見る根: %s" % REPO_ROOT)
 
     paths = []
     if a.manifest:
