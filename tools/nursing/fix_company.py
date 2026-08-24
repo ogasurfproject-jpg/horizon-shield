@@ -19,6 +19,10 @@
 import io, json, os, re, sys, urllib.request, urllib.error
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+# 鍵の読み方と呼び方は hs_admin に1箇所だけ置く。写しを作らない。
+import hs_admin  # noqa: E402
+admin_secret = hs_admin.admin_secret
 HS = os.path.abspath(os.path.join(HERE, "..", ".."))
 KEYFILES = [os.path.join(HS, "HORIZON_SHIELD_鍵マネージャ.html"),
             os.path.join(HS, "HORIZON_SHIELD_鍵一覧_20260822.md")]
@@ -27,48 +31,6 @@ HOSTS = ["https://hs-hearing.oga-surf-project.workers.dev",
 # Cloudflare の Bot Fight Mode 対策。既定の Python-urllib は名乗りで弾かれ、
 # 403 が返る。鍵の問題に見えるが鍵は正しい(2026-08-23 に一度これで誤った)。
 UA = "HORIZON-SHIELD-tools/1.0 (fix_company; contact@the-horizons-innovation.com)"
-
-
-def admin_secret():
-    for f in KEYFILES:
-        if not os.path.exists(f):
-            continue
-        src = io.open(f, encoding="utf-8").read()
-        for m in re.finditer(r'"(HEARING_ADMIN_SECRET[^"]*)","value":"([0-9a-f]{32,})","status":"([^"]*)"', src):
-            name, val, status = m.group(1), m.group(2), m.group(3)
-            if "旧" in status or "失効" in name or "旧" in name:
-                continue
-            print("管理キー: %s から読みました(値は表示しません)" % os.path.basename(f))
-            return val
-    sys.stderr.write("\n現行の HEARING_ADMIN_SECRET を読めませんでした。\n"
-                     "探した場所:\n  " + "\n  ".join(KEYFILES) + "\n\n")
-    sys.exit(2)
-
-
-def call(path, key, body=None):
-    last = None
-    for h in HOSTS:
-        req = urllib.request.Request(
-            h + path,
-            data=(json.dumps(body, ensure_ascii=False).encode("utf-8") if body else None),
-            method=("POST" if body else "GET"),
-            headers={"X-Admin-Key": key, "user-agent": UA, "accept": "application/json",
-                     **({"content-type": "application/json"} if body else {})})
-        try:
-            with urllib.request.urlopen(req, timeout=45) as r:
-                return json.loads(r.read().decode("utf-8"))
-        except urllib.error.HTTPError as e:
-            detail = ""
-            try:
-                detail = e.read().decode("utf-8")[:200]
-            except Exception:
-                pass
-            last = "HTTP %d %s  %s" % (e.code, h, detail)
-            print("  " + last)
-        except Exception as e:
-            last = "%s %s" % (type(e).__name__, h)
-            print("  " + last)
-    sys.exit("届きませんでした: " + str(last))
 
 
 def main():
@@ -85,7 +47,7 @@ def main():
     apply = "--apply" in argv
 
     key = admin_secret()
-    r = call("/admin/stores", key)
+    r = hs_admin.call("/admin/stores", key)
     stores = r.get("stores") or r.get("items") or []
     print("\n店: %d 件" % len(stores))
 
@@ -97,7 +59,7 @@ def main():
     for s in stores:
         row_id = s.get("store_id") or s.get("id")
         thin = (s.get("name") or s.get("company") or "").strip()
-        ex = call("/admin/export/" + row_id, key) if row_id else {}
+        ex = hs_admin.call("/admin/export/" + row_id, key) if row_id else {}
         pr = (ex or {}).get("profile") or {}
         thick = str(pr.get("company") or "").strip()
         rows.append({
@@ -154,9 +116,9 @@ def main():
         sys.exit("指示された店と、書こうとしている店が違います: 指示=%s / 対象=%s"
                  % (want_id, row["id"]))
     print("\n対象の突き合わせ: 指示=%s / 対象=%s  一致" % (want_id, row["id"]))
-    out = call("/admin/profile-patch", key, {"store_id": row["id"], "fields": {"company": name}})
+    out = hs_admin.call("/admin/profile-patch", key, {"store_id": row["id"], "fields": {"company": name}})
     print("\n応答: %s" % json.dumps(out, ensure_ascii=False)[:300])
-    ex = call("/admin/export/" + row["id"], key)
+    ex = hs_admin.call("/admin/export/" + row["id"], key)
     pr = (ex or {}).get("profile") or {}
     print("確認: profile 側の社名 = %s" % (pr.get("company") or "(まだ空)"))
     print("  呼びかけは store 側と profile 側の両方を見るので、これで名前で呼ばれます。")

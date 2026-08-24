@@ -30,6 +30,10 @@ import io, json, os, re, sys, urllib.request, urllib.error
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+# 鍵の読み方と呼び方は hs_admin に1箇所だけ置く。写しを作らない。
+import hs_admin  # noqa: E402
+admin_secret = hs_admin.admin_secret
+sys.path.insert(0, HERE)
 from migrate_questions import HS, DB  # noqa: E402
 
 PENDING = os.path.join(HS, "data", "nursing", "field_reports_pending.json")
@@ -43,32 +47,6 @@ UA = ("HORIZON-SHIELD-tools/1.0 (collect_field_reports; "
 def field_questions():
     db = json.load(io.open(DB, encoding="utf-8"))
     return {q["id"]: q for q in db.get("questions", []) if q.get("purpose") == "field"}
-
-
-def admin_secret():
-    for cand in (KEYFILE, os.path.join(os.path.expanduser("~"), "HORIZON_SHIELD_鍵一覧_20260822.md")):
-        if not os.path.exists(cand):
-            continue
-        src = io.open(cand, encoding="utf-8").read()
-        for m in re.finditer(r'"(HEARING_ADMIN_SECRET[^"]*)","value":"([0-9a-f]{32,})","status":"([^"]*)"', src):
-            name, val, status = m.group(1), m.group(2), m.group(3)
-            if "旧" in status or "失効" in name or "旧" in name:
-                continue
-            return val
-    raise SystemExit("現行の HEARING_ADMIN_SECRET を読めませんでした。")
-
-
-def get(path, key):
-    last = None
-    for host in HOSTS:
-        req = urllib.request.Request(host + path, headers={
-            "X-Admin-Key": key, "user-agent": UA, "accept": "application/json"})
-        try:
-            with urllib.request.urlopen(req, timeout=45) as r:
-                return json.loads(r.read().decode("utf-8"))
-        except Exception as e:
-            last = e
-    raise SystemExit("取得できませんでした %s: %s" % (path, last))
 
 
 def harvest(stores, fq):
@@ -132,11 +110,11 @@ def main():
         print("\n(控えのデータで動かしています。通信していません)")
     else:
         key = admin_secret()
-        r = get("/admin/stores", key)
+        r = hs_admin.call("/admin/stores", key)
         ids = [s.get("id") for s in (r.get("stores") or r.get("items") or [])]
         stores = []
         for sid in ids:
-            e = get("/admin/export/" + sid, key)
+            e = hs_admin.call("/admin/export/" + sid, key)
             if e.get("ok"):
                 stores.append({"id": sid, "profile": e.get("profile"),
                                "answered_at": e.get("answered_at")})
