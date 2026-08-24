@@ -1,41 +1,59 @@
 name = "hs-audit-app"
-main = "src/index.js"
-compatibility_date = "2026-07-31"
 
-# TODO: 未確認 — compatibility_flags は元のデプロイ設定を確認していない。
-# TODO: 未確認 — account_id / workers_dev / routes / custom domain は不明。
+# 2026-08-24: 引退。main を墓標に向けた。
+# 稼働していた実装は src/index.js / src/provenance.js / src/ui.js に残してある。
+# 復活させる場合は main を src/index.js に戻し、下の [[services]] と [vars] を
+# コメント解除して実測値を入れること。
+main = "src/tombstone.js"
+# main = "src/index.js"   # 引退前の実装
 
-# ---------------------------------------------------------------------------
-# Service binding: env.HS_MCP
-#   src/index.js の callUpstreamAudit() が env.HS_MCP.fetch(...) を呼ぶ。
-#   コードから分かるのは「binding 名が HS_MCP であること」だけ。
-# ---------------------------------------------------------------------------
-[[services]]
-binding = "HS_MCP"
-# TODO: 未確認 — バインド先の Worker 名が不明。実際のデプロイ設定を確認すること。
-# service = "???"
-# TODO: 未確認 — environment / entrypoint を使っているかどうかも不明。
-# environment = "???"
+compatibility_date = "2026-07-31"   # TODO: 未確認 — Worker のデプロイ日を置いただけ
+# TODO: 未確認 — compatibility_flags / account_id / workers_dev / routes は未確認
 
 # ---------------------------------------------------------------------------
-# Vars / Secrets
-#   env.HS_MCP_URL — service binding が無い場合のフォールバック先 URL。
-#   env.HS_MCP_KEY — 存在する場合のみ `authorization: Bearer <key>` を付与。
+# 引退時点の実設定（2026-08-24 実測）
 #
-#   どちらも値は未確認。HS_MCP_KEY は秘匿情報なので [vars] ではなく
-#   `wrangler secret put HS_MCP_KEY` で投入するのが妥当だが、
-#   実際にどちらで設定されているかは確認できていない。
+#   GET https://hs-audit-app.oga-surf-project.workers.dev/debug
+#     -> {"hasBinding":true,"bindingFetchType":"function","hasUrl":true}
+#
+#   npx wrangler secret list --name hs-audit-app
+#     -> []   (シークレットは1件も無い)
+#
+# 分かったこと:
+#   - サービスバインディング HS_MCP は設定済みで生きていた(fetch が function)。
+#     コード上 binding は URL より先に判定されるので、実際に動いていたのは
+#     binding 経路。src/index.js L33 のハードコードURL(旧ドメイン)は
+#     宛先に影響していなかった。
+#   - HS_MCP_URL は var として設定済みだった。ただしフォールバックなので未使用。
+#   - HS_MCP_KEY は存在しなかった。したがって上流への
+#     `authorization: Bearer ...` は一度も付いていない。
+#     「自社キーを貸し出す無認証プロキシ」という指摘は誤りだった。訂正する。
+#
+# まだ分からないこと:
+#   - HS_MCP のバインド先 Worker 名
+#   - HS_MCP_URL の値
+#   /debug は真偽しか返さない。確認するなら Cloudflare ダッシュボードか
+#   GET /accounts/{account_id}/workers/scripts/hs-audit-app/settings
 # ---------------------------------------------------------------------------
-[vars]
-# TODO: 未確認 — 実際の上流 MCP エンドポイント URL が不明。値を推測しないこと。
-# HS_MCP_URL = "???"
 
-# TODO: 未確認 — HS_MCP_KEY は secret として設定されている想定だが未確認。
-#   確認方法: `wrangler secret list --name hs-audit-app`
-#   投入方法: `wrangler secret put HS_MCP_KEY --name hs-audit-app`
+# 墓標はバインディングを一切必要としない(src/tombstone.js は env を参照しない)。
+# このままデプロイすると、上記の HS_MCP バインディングと HS_MCP_URL は
+# Worker の設定から外れる。意図した挙動である。
+
+# [[services]]
+# binding = "HS_MCP"
+# service = "???"        # TODO: 未確認 — バインド先 Worker 名。推測で書かないこと
+# environment = "???"    # TODO: 未確認
+
+# [vars]
+# HS_MCP_URL = "???"     # TODO: 未確認 — 値は取得していない
+
+# HS_MCP_KEY は 2026-08-24 時点で未設定。復活させる場合も、必要かどうかから
+# 判断すること。投入するなら:
+#   npx wrangler secret put HS_MCP_KEY --name hs-audit-app
 
 # ---------------------------------------------------------------------------
-# TODO: 未確認 — 上記以外の binding(KV / D1 / R2 / Queues / Durable Objects)は
-#   src/*.js からは一切参照されていない。ただし「デプロイ済み Worker に
-#   存在しない」ことの証明にはならない。実設定の確認が必要。
+# TODO: 未確認 — KV / D1 / R2 / Queues / Durable Objects は src/*.js から
+#   一切参照されていない。ただし「デプロイ済み Worker に存在しない」ことの
+#   証明にはならない。実設定の確認が必要。
 # ---------------------------------------------------------------------------
