@@ -84,14 +84,31 @@ def main():
                          % (k, (db or {}).get("name")))
         if not j.get("golden_ratio"):
             warns.append("%s は industry.js 側に golden_ratio が無い" % k)
+        # 2026-08-24: 生成器が繋がっているかを見る。
+        #   ヒアリングだけ整えても、出口が無ければ加盟店には何も届かない。
+        #   訪問看護は生成器のファイルはあるが、どのワークフローからも呼ばれていない。
+        #   建設の生成器には安全弁があるので、他社の名前で建設ページが作られることは無い。
+        #   だが「止まる」だけで、その業種のページは1枚も作られない。
+        #   繋がっていないなら、繋がっていないと書いてあること。黙って通さない。
+        g = r.get("generator") or {}
+        if not g.get("status"):
+            errs.append("%s が生成器の状態(generator.status)を宣言していない" % k)
+        elif g["status"] != "wired":
+            if not g.get("gap") or not g.get("next"):
+                errs.append("%s の生成器が %s なのに、gap か next が書かれていない"
+                            % (k, g["status"]))
+            else:
+                warns.append("%s の生成器は %s。%s" % (k, g["status"], str(g.get("gap"))[:70]))
+
         fq = (r.get("field_questions") or {})
         gapnote = ""
         if not j.get("field"):
             gapnote = "   ← 物差しを厚くする問いが 0 問"
             if not fq.get("gap"):
                 errs.append("%s は現場質問が0問なのに、理由(field_questions.gap)が無い" % k)
-        print("  %-13s %-12s 物差し=%-7s 名乗り=%-22s 設問=%-3d 現場質問=%d%s"
+        print("  %-13s %-12s 物差し=%-7s 生成器=%-8s 名乗り=%-22s 設問=%-3d 現場質問=%d%s"
               % (k, r.get("label"), (db or {}).get("name", "無"),
+                 (r.get("generator") or {}).get("status", "?"),
                  j.get("sender") or "無", j.get("bank", 0), j.get("field", 0), gapnote))
         if fq.get("gap"):
             print("       穴: %s" % fq["gap"])

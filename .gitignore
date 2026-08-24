@@ -192,3 +192,4 @@ HORIZON_SHIELD_鍵マネージャ*.html
 # 当たって何も足されなかった。部分一致で「もうある」と判断しない。
 !tools/survey2_recheck.py
 !tools/survey2_recheck_test.py
+!tools/survey3_version_ladder.py

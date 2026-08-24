@@ -30,7 +30,8 @@
         "count": 0,
         "gap": "建設側には、JCCDBの穴を埋めるための現場質問がまだ1問も無い。",
         "consequence": "訪問看護では実地指導や加算の名前を現場から集めているが、建設では集めていない。物差しが厚くなる経路が片方にしか無い。",
-        "next": "JCCDBで足りない品目・地域差・実勢との開きを、現場に尋ねる問いを作る。"
+        "next": "JCCDBで足りない品目・地域差・実勢との開きを、現場に尋ねる問いを作る。",
+        "severity": "加盟店の物差しが厚くならない。建設側だけ現場からの入力が無い。"
       },
       "golden_ratio": {
         "geo": 40,
@@ -38,7 +39,13 @@
         "llmo": 20,
         "webmcp": 10
       },
-      "sender": "Yakumo運営"
+      "sender": "Yakumo運営",
+      "generator": {
+        "status": "wired",
+        "tool": "tools/yakumo/generate.py",
+        "workflow": ".github/workflows/yakumo-content.yml",
+        "publishes_to": "yakumo/"
+      }
     },
     "nursing": {
       "key": "nursing",
@@ -61,7 +68,17 @@
         "llmo": 20,
         "webmcp": 10
       },
-      "sender": "HORIZON SHIELD 訪問看護窓口"
+      "sender": "HORIZON SHIELD 訪問看護窓口",
+      "generator": {
+        "status": "missing",
+        "tool": "tools/care/generate_care.py",
+        "workflow": null,
+        "publishes_to": "care/",
+        "gap": "生成器のファイルはあるが、どのワークフローからも呼ばれていない。hs-hearing は完成度が閾値に達すると repository_dispatch を投げるが、受け手の yakumo-content.yml は建設の生成器しか走らせない。",
+        "what_happens_now": "建設の生成器には業種の安全弁があり、nursing なら exit 4 で止まる。だから他社の名前で建設のページが作られることはない。しかし、止まるだけである。訪問看護のページは1枚も作られない。",
+        "consequence": "平田様は AI事務員 の対価をお支払いいただいている。ヒアリングの答えは溜まるが、出口が無い。閾値に達した時点でワークフローが失敗し、失敗の通知だけが飛ぶ。",
+        "next": "tools/care/generate_care.py を呼ぶワークフローを作り、yakumo-content.yml 側で industry を見て振り分ける。"
+      }
     }
   }
 }
