@@ -117,6 +117,13 @@ async function handle(request, ctx) {
     return json({
       service: "hs-verify-relay",
       host: "deno-deploy",
+      // 2026-08-25: 自分がどの版かを、外から見えるところに書く。
+      //   記録(hs-relay-req)がログに出ないとき、
+      //   「コードが古い」のか「ログの仕組みが止まっている」のかを、
+      //   コンソールを読まずに切り分けるため。
+      //   版を上げたら、ここも上げる。
+      build: "2026-08-25.reqlog.1",
+      request_log: "hs-relay-req",
       purpose:
         "Cross-provider probe relay for the HORIZON SHIELD verification gate. The gate, a " +
         "Cloudflare Worker, cannot make subrequests to its own zone over HTTP (they fail with 522), " +
