@@ -2495,8 +2495,51 @@ export default {
           applied[k] = { from: (rec.profile[k] || []).slice(0, 40), to };
           rec.profile[k] = to;
         }
+        // 2026-08-25: extra(設問への答え)も、ここから直せるようにした。
+        //   峰尾様の記録で、5件のうち3件が別の設問の答えを保持していた。
+        //     q_story  … 中身は建築業許可番号
+        //     q_trust  … 中身は連絡先と営業時間
+        //     q_estimates … 中身は施工事例
+        //   2問まとめて送って1通で返ってきたものを、両方の答えとして同じまま入れた結果である。
+        //   波の仕組み(8/24)より前の記録なので、attributed の印すら無い。
+        //
+        //   これが効くのは採点である。computeCompleteness は extra[qid] が
+        //   「在る」だけで答え済みと数えるので、在るかぎり機械は二度と聞かない。
+        //   つまり許可番号が、創業の経緯の代わりに永久に居座る。
+        //
+        //   直せないまま残すのは筋が通らない。この口の上の但し書きと同じ理由である。
+        //   空文字を渡せばその qid を消す。知らない qid は受け取らない。
+        const extraIn = (b.extra && typeof b.extra === "object" && !Array.isArray(b.extra)) ? b.extra : null;
+        if (extraIn) {
+          rec.profile.extra = rec.profile.extra || {};
+          const known = new Set();
+          for (const k of Object.keys(AP.QUESTION_BANK)) {
+            const v = AP.QUESTION_BANK[k];
+            if (v && typeof v === "object" && !v.text) for (const q of Object.keys(v)) known.add(q);
+            else known.add(k);
+          }
+          for (const q of Object.keys(IND.industryBank(rec.profile.industry) || {})) known.add(q);
+          for (const q of VIS.visibilityQids()) known.add(q);
+          const bad = Object.keys(extraIn).filter((q) => !known.has(q));
+          if (bad.length) return json({ error: "unknown_qid", unknown: bad }, 400);
+          const ea = {};
+          for (const q of Object.keys(extraIn)) {
+            const before = rec.profile.extra[q];
+            const to = safeStr(extraIn[q], 3000).trim();
+            if (!to) {
+              delete rec.profile.extra[q];
+              ea[q] = { from: before || null, to: null, note: "消した" };
+            } else {
+              rec.profile.extra[q] = { text: to, at: new Date().toISOString(),
+                                       attributed: "admin", with: [] };
+              ea[q] = { from: before || null, to: rec.profile.extra[q] };
+            }
+          }
+          applied.extra = ea;
+        }
         if (!Object.keys(applied).length) {
-          return json({ error: "no_allowed_field", allow: ALLOW, allow_array: ALLOW_ARR }, 400);
+          return json({ error: "no_allowed_field", allow: ALLOW, allow_array: ALLOW_ARR,
+                        allow_extra: "b.extra に {qid: 文字列} を渡す。空文字でその qid を消す。" }, 400);
         }
         rec.profile.edits = [...(rec.profile.edits || []),
           { at: new Date().toISOString(), by: "admin", fields: Object.keys(applied) }].slice(-20);
@@ -2514,7 +2557,30 @@ export default {
         if (!store) return json({ error: "not_found" }, 404);
         const hearing = await env.HS_HEARING_KV.get("hearing:" + sid, "json");
         const ap = store.autopilot || {};
-        const qs = AP.nextQuestions((hearing && hearing.profile) || {}, ap, Number(b.max) || 2);
+        // 2026-08-25: 設問を名指しできるようにした。
+        //   nextQuestions は重みの順に選ぶ。可視性の設問が w=9,9,8,8,7 で、
+        //   目的別(協力店募集)は w=4,3,3 なので、当分順番が回ってこない。
+        //   ところがページに載るのは目的別の答えのほうで、無いあいだ
+        //   「現在この項目のヒアリングに回答中です」という仮の文が公開され続ける。
+        //   実際、峰尾様の協力店募集のページは、開設以来この文のままである。
+        //   重みは平均には正しいが、個別の詰まりを人が外せない道具は不便である。
+        //   名指ししても、上限3回と冷却3日の門はそのまま通す。そこは緩めない。
+        let qs;
+        if (Array.isArray(b.qids) && b.qids.length) {
+          const want = b.qids.map((x) => safeStr(x, 60)).filter(Boolean);
+          const pool = AP.nextQuestions((hearing && hearing.profile) || {}, ap, 99);
+          const byId = new Map(pool.map((q) => [q.qid, q]));
+          qs = want.map((q) => byId.get(q)).filter(Boolean);
+          const refused = want.filter((q) => !byId.has(q));
+          if (!qs.length) {
+            return json({ ok: false, reason: "名指しした設問は、いま送れない(上限3回・冷却3日・回答済みのいずれか)",
+                          refused, askable_now: pool.map((q) => q.qid) });
+          }
+          if (refused.length) qs = qs.concat([]); // 送れるものだけ送る。断った分は下で返す。
+          qs.refused = refused;
+        } else {
+          qs = AP.nextQuestions((hearing && hearing.profile) || {}, ap, Number(b.max) || 2);
+        }
         if (!qs.length) return json({ ok: false, reason: "質問なし(完成度が十分か、全て送信済み)" });
         const r = await AP.sendQuestions(env, store, qs, "followup");
         if (!r.ok) return json({ ok: false, reason: r.reason }, 502);
@@ -2529,7 +2595,8 @@ export default {
         ap.unanswered_sends = (ap.unanswered_sends || 0) + 1;
         store.autopilot = ap;
         await AP.putStore(env, store, "admin/followup");
-        return json({ ok: true, sent: qs.map((q) => q.qid), via: r.via });
+        return json({ ok: true, sent: qs.map((q) => q.qid), via: r.via,
+                      refused: qs.refused && qs.refused.length ? qs.refused : undefined });
       }
 
       // フォーカス再判定

@@ -320,7 +320,53 @@ ok(!evil2.includes('"><script>x'), "埋める値の中の script は出さない
 ok(evil2.includes("&quot;&gt;&lt;script&gt;"), "埋める値は逃がして出す");
 
 /* ------------------------------------------------------------------ */
-const EXPECT_MIN = 220;
+console.log("\n10) 切り分けられていない答えを、答えと数えないこと");
+
+/* 峰尾様の記録で、施工事例の一覧が q_cases と q_estimates の両方に入っていた。
+   2問まとめて送って1通で返ってきたものを、両方の答えとして同じまま入れた結果である。
+   settlePendingOnAnswer は attributed:"ambiguous" という印を付けていたが、
+   採点はその印を見ていなかった。見るようにした。 */
+
+const ambProf = {
+  company: "ミネオトーヨー住器", industry: "construction",
+  extra: {
+    q_cases: { text: "平塚市 窓カバー7本", attributed: "ambiguous", with: ["q_estimates"] },
+    q_story: { text: "建築業許可番号 第33529号" },          // 印の無い古い記録
+    q_recruit_roles: { text: "塗装工2名", attributed: "sole" },
+    q_recruit_terms: { text: "社保完備", attributed: "numbered" },
+  },
+};
+const ambComp = AP.computeCompleteness(ambProf, { focus_primary: "recruit" });
+const ambAsk = new Set(ambComp.askable.map((m) => m.qid));
+
+ok(ambAsk.has("q_cases"), "ambiguous な答えは、もう一度聞ける");
+ok(!ambAsk.has("q_story"), "印の無い古い記録は触らない(聞き直して二度手間にしない)");
+ok(!ambAsk.has("q_recruit_roles"), "sole で入った答えは答えのまま");
+ok(!ambAsk.has("q_recruit_terms"), "numbered で切り分けた答えは答えのまま");
+
+const cleanProf = { company: "x", industry: "construction",
+  extra: { q_cases: { text: "事例", attributed: "sole" } } };
+const cleanComp = AP.computeCompleteness(cleanProf, { focus_primary: "recruit" });
+ok(!new Set(cleanComp.askable.map((m) => m.qid)).has("q_cases"),
+   "ambiguous でなければ、これまでと同じ");
+// 2026-08-25: ここは最初、別々の profile を比べていた。答えの数が違うので
+//   点が違って当然で、印の効きを何も測っていなかった。同じ中身で印だけを変えて比べる。
+const sameSole = { company: "x", industry: "construction",
+  extra: { q_cases: { text: "事例", attributed: "sole" } } };
+const sameAmb = { company: "x", industry: "construction",
+  extra: { q_cases: { text: "事例", attributed: "ambiguous" } } };
+const sSole = AP.computeCompleteness(sameSole, {}).score;
+const sAmb = AP.computeCompleteness(sameAmb, {}).score;
+ok(sSole > sAmb, "同じ中身でも、切り分けられた答えのほうが点が高い (" + sSole + " > " + sAmb + ")");
+ok(sSole - sAmb === 5, "差は q_cases の配点ぶん(5点)だけ (実測 " + (sSole - sAmb) + ")");
+
+// 文字列で入っている古い形も壊さない
+const strProf = { company: "x", industry: "construction", extra: { q_cases: "事例" } };
+ok(!new Set(AP.computeCompleteness(strProf, {}).askable.map((m) => m.qid)).has("q_cases"),
+   "文字列で入っている古い形も、答えとして扱う");
+
+/* ------------------------------------------------------------------ */
+const EXPECT_MIN = 227;
 console.log("\n実行 " + ran + " 件 / 失敗 " + bad + " 件");
 if (ran < EXPECT_MIN) {
   console.log("検査の数が " + ran + " 件しかない (最低 " + EXPECT_MIN + " 件のはず)。検査が抜け落ちている。");

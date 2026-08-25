@@ -236,9 +236,34 @@ const FOCUS_KEYWORDS = {
 };
 
 /* ------------------------------ 完成度(計算しながら聞く) ------------------------------ */
+/* 2026-08-25: 切り分けられていない答えは、答えとして数えない。
+   settlePendingOnAnswer は、複数の設問をまとめて送って1通で返ってきたとき、
+   その1通を全部の設問に同じまま入れ、attributed:"ambiguous" という印を付ける。
+   印は付いているのに、採点はそれを見ていなかった。
+
+   峰尾様の記録では、施工事例の一覧が q_cases と q_estimates の両方に入っていた。
+   採点はどちらも答え済みと数え、以後どちらも聞かれない。
+   同じファイルの下に「中身を確かめずに埋まった印を立てない」と書いてあるのに、
+   採点だけがその約束を守っていなかった。
+
+   印の無い古い記録(8/24より前)は、ここでは触らない。
+   一律に無効化すると、正しく答えてもらったものを聞き直すことになる。
+   それは、こちらの都合で相手に二度手間をかける側の間違いである。 */
+function answered(extra, qid) {
+  const v = extra[qid];
+  if (!v) return false;
+  if (typeof v === "object" && v.attributed === "ambiguous") return false;
+  return true;
+}
+
 export function computeCompleteness(profile, autopilot) {
   const p = profile || {};
-  const extra = p.extra || {};
+  const extraRaw = p.extra || {};
+  // 以下、extra[qid] の有無を見ている箇所は answered() を通す。
+  const extra = new Proxy(extraRaw, {
+    get(t, k) { return (typeof k === "string" && !answered(t, k)) ? undefined : t[k]; },
+    has(t, k) { return typeof k === "string" ? answered(t, k) : (k in t); },
+  });
   const focus = autopilot && autopilot.focus_primary;
   const missing = [], askable = [];
   let score = 0;
