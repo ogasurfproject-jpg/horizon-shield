@@ -422,7 +422,7 @@ export const INDUSTRIES = {
       },
     
       /* --- 算定要件を確かめる (JHNRD) --- */
-      /* genzan-junkangoshi/jk-staff、pt-ot-st/pt-staff、kaigo-kihon-st/kihon-junkangoshi、kaigo-kasan-kango-taisei/kt-kango-wariai、kaigo-kasan-service-taisei/st-kinzoku */
+      /* genzan-junkangoshi/jk-staff、pt-ot-st/pt-staff、kaigo-kihon-st/kihon-junkangoshi、kaigo-kasan-kango-taisei/kt-kango-wariai、kaigo-kasan-kango-taisei/kt-1-kangoshoku、kaigo-kasan-service-taisei/st-kinzoku */
       q_nv_staff: {
         w: 8,
         purpose: "requirement",
@@ -569,7 +569,7 @@ export const INDUSTRIES = {
         purpose: "requirement",
         text: "同じ建物(集合住宅やサービス付き高齢者向け住宅など)に住む利用者さんは、いちばん多い建物で何人いらっしゃいますか。また、1日に同じ建物へ何人訪問することがありますか。人数がそのまま減算と単価に効きます。",
       },
-      /* kaigo-kasan-kango-taisei/kt-jisseki、kaigo-kasan-enkaku-shibo/es-terminal */
+      /* kaigo-kasan-kango-taisei/kt-jisseki、kaigo-kasan-kango-taisei/kt-1-kinkyuji、kaigo-kasan-kango-taisei/kt-1-tokubetsu、kaigo-kasan-kango-taisei/kt-1-terminal、kaigo-kasan-kango-taisei/kt-2-kinkyuji、kaigo-kasan-kango-taisei/kt-2-terminal、kaigo-kasan-enkaku-shibo/es-terminal */
       q_nv_kango_taisei: {
         w: 7,
         purpose: "requirement",
