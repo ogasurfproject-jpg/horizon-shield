@@ -18,6 +18,7 @@
 
 import * as AP from "./autopilot.js";
 import * as IND from "./industry.js";
+import * as VIS from "./visibility.js";
 
 const SERVER = { name: "HORIZON SHIELD YAKUMO", version: "2.3.0" };
 const PUBLIC_DATA_FALLBACK = "https://shield.the-horizons-innovation.com/data/yakumo-contractors.json";
@@ -84,14 +85,179 @@ async function fetchPublished(env) {
 }
 
 /* ------------------------------ hearing form ------------------------------ */
+/*
+  業種でフォームの言葉を差し替える。
+
+  なぜ要るか (2026-08-25):
+    このフォームは建設専用だった。「工種」「建設業許可番号」「施主」「見積もり例」。
+    訪問看護の事業所に同じ紙を渡すと、必須欄の「工種」で止まる。止まった人は送れない。
+    送れなければ完成度は上がらず、完成度が上がらなければ専用窓口は生成されない。
+    2026-08-25 時点で、合同会社あっぷす様の完成度は15%、運用開始は10月1日である。
+
+    LINE の追撃は3日に2問である。訪問看護の設問は45問ある。全部埋まるのに67日かかる。
+    間に合わない。だから1枚で全部聞ける紙を作る。
+
+  作り方の約束:
+    ・言葉は industry.js の words 層から取る。ここで新しい語彙を発明しない。
+      発明すると、抽出プロンプト(llm_sys)と設問の言葉がずれる。
+    ・建設の必須欄・選択肢・送信する項目名は変えない。峰尾様は既にこの紙で答えている。
+      足すのは任意の欄だけである。
+    ・見積もり例は建設だけに出す。訪問看護に見積書は無い(computeCompleteness も同じ判断をする)。
+*/
+
+/* 業種ごとの、フォームの言葉。無い業種は建設に落とす(後方互換)。 */
+const FORM_PACK = {
+  construction: {
+    brand: "Yakumo",
+    title: "加盟店ヒアリング ｜ Yakumo",
+    heading: "加盟店ヒアリング",
+    lead: "ご回答いただいた内容から、あなたの店を施主・AI・検索の三方から見つけてもらうためのページ(GEO / AEO / LLMO / WebMCP)を自動で作成し、運営代行します。金額は施主向けに公開しません(スコアと検証だけ)。所要 約5分。",
+    whoLabel: "対象",
+    fallbackName: "加盟店",
+    companyLabel: "正式な社名",
+    repLabel: "代表者名",
+    licenseLabel: "建設業許可番号",
+    areaLabel: "所在地(市区町村まで)",
+    areaPh: "例：愛知県長久手市",
+    areasLabel: "対応エリア",
+    areasHint: "(施主が探す地名。カンマ区切り)",
+    areasPh: "例：長久手市, 名古屋市, 日進市, 尾張旭市, 瀬戸市",
+    worksLabel: "対応できる工種",
+    worksHint: "当てはまるものをタップ。その他は自由入力へ。",
+    works: ["外壁塗装", "屋根", "内装", "クロス", "床・フローリング", "浴室", "キッチン", "トイレ", "洗面", "水道", "外構", "防水", "リノベーション全般"],
+    worksOtherPh: "その他の工種(自由入力)",
+    strengthsLabel: "各工種の強み・こだわり",
+    strengthsHint: "(使う塗料・工法・保証年数など。LLMO/解説ページの素材)",
+    strengthsPh: "例：外壁は無機塗料が標準。3回塗りを徹底し、施工後10年保証。屋根はカバー工法とはつりの両対応で、下地の状態を写真で説明します。",
+    estimates: true,
+    faqLabel: "施主からよく聞かれる質問と答え",
+    faqHint: "(FAQ/AEOページの素材。3件ほど)",
+    faqQPh: "質問(例:外壁塗装の適した時期は?)",
+    trustHint: "(受賞歴・加盟団体・アフター保証・施工実績数など)",
+    trustPh: "例：地域密着20年、施工実績1,200件。塗装技能士在籍。工事後も年1回の無料点検。",
+    contactLabel: "施主対応の連絡先",
+    hoursPh: "例：9-18時 / 日曜定休",
+    ngPh: "例：担当者の個人携帯は載せないでほしい",
+    recruitHeading: "採用(社員募集)",
+    recruitLead: "職人・スタッフの募集がある場合だけご記入ください。入力すると、給与や待遇を載せた採用ページ(求人検索やAIに見つかる JobPosting 付き)を作成します。空欄なら採用ページは作りません。",
+    recruitRoles: ["塗装工", "屋根工", "防水工", "大工", "内装工", "左官", "板金工", "現場監督", "施工管理", "営業", "事務"],
+    recruitWorkplacePh: "例：神奈川県平塚市とその周辺",
+    recruitQualPh: "例：要普通自動車免許、歓迎：塗装技能士",
+    storyPh: "例：父の代からの塗装店を継ぎました。下地をきちんと見せることが、この地域で長く続けてこられた理由だと思っています。",
+    casesPh: "例：長久手市 築20年戸建て 外壁+屋根塗装\n例：名古屋市名東区 マンション共用部 防水改修",
+    bankHeading: "現場のこと",
+    bankLead: "建設費のデータベース(JCCDB)の穴を、現に扱っている事実で埋めるための問いです。分かるところだけで結構です。",
+    submitNote: "送信内容は The HORIZONs株式会社(HORIZON SHIELD)が加盟店運営のために使用します。金額は施主向けに公開しません。",
+    okLead: "回答を受け取りました。適正診断(KIRA)とページ作成の準備に入ります。結果は運営からご連絡します。",
+    reqAlert: "社名・所在地・工種は必須です。",
+  },
+  nursing: {
+    brand: "HORIZON SHIELD",
+    title: "事業所ヒアリング ｜ HORIZON SHIELD",
+    heading: "訪問看護 事業所ヒアリング",
+    lead: "ご回答いただいた内容から、ケアマネさん・ご家族・AI・検索の四方から見つけてもらうための専用窓口(GEO / AEO / LLMO / WebMCP)を自動で作成し、運営代行します。ご記入いただいた運用の実態は、加算や様式の抜けを探すためだけに使い、公開しません。所要 約10分。",
+    whoLabel: "対象",
+    fallbackName: "事業所",
+    companyLabel: "正式な事業所名(法人名)",
+    repLabel: "管理者名",
+    licenseLabel: "事業所番号(指定訪問看護事業所番号)",
+    areaLabel: "所在地(市区町村まで)",
+    areaPh: "例：神奈川県平塚市",
+    areasLabel: "訪問できるエリア",
+    areasHint: "(ケアマネさんが探す地名。カンマ区切り)",
+    areasPh: "例：平塚市, 大磯町, 二宮町, 茅ヶ崎市, 伊勢原市",
+    worksLabel: "対応できる医療処置",
+    worksHint: "当てはまるものをタップ。その他は自由入力へ。",
+    works: ["在宅酸素", "人工呼吸器", "気管カニューレ", "中心静脈栄養", "経管栄養(胃ろう・腸ろう)", "褥瘡処置", "ストーマ管理", "喀痰吸引", "膀胱留置カテーテル", "インスリン注射", "点滴・注射", "疼痛管理", "ターミナルケア", "精神科訪問看護", "リハビリ(PT/OT/ST)", "小児"],
+    worksOtherPh: "その他の医療処置(自由入力)",
+    strengthsLabel: "対応できる医療処置ごとの強み",
+    strengthsHint: "(体制・経験・24時間対応の実態など。専用窓口の素材)",
+    strengthsPh: "例：在宅酸素と人工呼吸器は開設時から対応。ターミナルは年間20件ほど。オンコールは看護師3名で回し、夜間の呼び出しから到着まで平均30分。精神科訪問看護は指示書を受けて対応しています。",
+    estimates: false,
+    faqLabel: "ケアマネさん・ご家族からよく聞かれる質問と答え",
+    faqHint: "(FAQ/AEOページの素材。3件ほど)",
+    faqQPh: "質問(例:夜間や休日も来てもらえますか?)",
+    trustHint: "(開設年数・資格・機能強化型の区分・実地指導の受診歴など)",
+    trustPh: "例：開設8年、利用者60名。緩和ケア認定看護師が在籍。機能強化型2の届出済み。実地指導は2024年に受け、指摘はありませんでした。",
+    contactLabel: "ケアマネさん・ご家族の連絡先",
+    hoursPh: "例：平日9-17時 / 24時間オンコール対応",
+    ngPh: "例：看護師の個人携帯は載せないでほしい",
+    recruitHeading: "採用(職員募集)",
+    recruitLead: "看護師・リハビリ職・事務の募集がある場合だけご記入ください。入力すると、給与や待遇を載せた採用ページ(求人検索やAIに見つかる JobPosting 付き)を作成します。空欄なら採用ページは作りません。",
+    recruitRoles: ["看護師", "准看護師", "保健師", "理学療法士", "作業療法士", "言語聴覚士", "ケアマネジャー", "管理者", "事務"],
+    recruitWorkplacePh: "例：神奈川県平塚市とその周辺",
+    recruitQualPh: "例：要普通自動車免許、看護師免許は必須。歓迎：認定看護師、訪問看護の経験",
+    storyPh: "例：病院で看取りに関わるうち、家に帰りたいと言う方が家に帰れない現実を見て、独立しました。",
+    casesPh: "例：退院直後の人工呼吸器の方を、家族が扱えるようになるまで毎日訪問した\n例：末期の方を、ご本人の希望どおり自宅でお看取りした",
+    bankHeading: "制度と運用のこと",
+    bankLead: "算定できていない加算、様式の抜け、返戻の原因を探すための問いです。分かるところだけで結構です。空欄のまま送っていただいても構いません。",
+    submitNote: "送信内容は The HORIZONs株式会社(HORIZON SHIELD)が事業所の運営代行のために使用します。運用の実態は公開しません。",
+    okLead: "回答を受け取りました。専用窓口とページの作成に入ります。結果は運営からご連絡します。",
+    reqAlert: "事業所名・所在地・対応できる医療処置は必須です。",
+  },
+};
+
+function formPack(industryKey) {
+  return FORM_PACK[industryKey] || FORM_PACK[IND.DEFAULT_INDUSTRY];
+}
+
+/* 実在する設問の id を全部集める。フォームから返ってきた extra の受け入れ判定に使う。
+   ここに無い id は捨てる。捨てないと、profile に任意のキーを書き込む口になる。 */
+function knownQids(industryKey) {
+  const out = new Set();
+  for (const k of Object.keys(AP.QUESTION_BANK)) {
+    const v = AP.QUESTION_BANK[k];
+    if (v && typeof v === "object" && !v.text) {
+      // フォーカス別の入れ子(recruit / leads / ...)
+      for (const q of Object.keys(v)) out.add(q);
+    } else {
+      out.add(k);
+    }
+  }
+  const ib = IND.industryBank(industryKey) || {};
+  for (const q of Object.keys(ib)) out.add(q);
+  for (const q of VIS.visibilityQids()) out.add(q);
+  return out;
+}
+
+/* 設問1問ぶんの入力欄。id が qid そのものなので、送信側は data-q を拾うだけでよい。 */
+function qField(qid, text) {
+  return '<div class="qq"><label for="' + escHtml(qid) + '">' + escHtml(text) + '</label>' +
+    '<textarea id="' + escHtml(qid) + '" data-q></textarea></div>';
+}
+
 function hearingForm(token, store) {
-  const company = escHtml(safeStr(store && store.company, 120) || "加盟店");
+  const industry = (store && store.industry) || IND.DEFAULT_INDUSTRY;
+  const W = formPack(industry);
+  const company = escHtml(safeStr(store && store.company, 120) || W.fallbackName);
   const memberNo = escHtml(safeStr(store && store.member_no, 20) || "");
+
+  // 業種ごとの設問(45問前後)。重い順に出す。閉じた状態で置く。
+  const ibank = IND.industryBank(industry) || {};
+  const ibankIds = Object.keys(ibank).sort((a, b) => (ibank[b].w || 0) - (ibank[a].w || 0));
+  const ibankHtml = ibankIds.map((q) => qField(q, ibank[q].text)).join("");
+
+  // 可視性の設問。業種を問わず全員に同じだけ効く。
+  const visHtml = VIS.visibilityQids().map((q) => qField(q, VIS.visibilityQuestion(q).text)).join("");
+
+  // 目的別の設問。選ばれた目的の組だけを表示する(切り替えは下の script)。
+  const focusOpts = AP.FOCUS_KEYS
+    .map((k) => '<option value="' + k + '">' +
+      escHtml(IND.focusLabelFor(industry, k) || AP.FOCUS_LABEL[k] || k) + '</option>').join("");
+  const focusGroups = AP.FOCUS_KEYS.map(function (k) {
+    const bank = AP.QUESTION_BANK[k] || {};
+    return '<div class="fg" data-f="' + k + '" style="display:none;">' +
+      Object.keys(bank).map(function (q) {
+        const ov = IND.focusQuestion(industry, k, q);
+        return qField(q, (ov && ov.text) || bank[q].text);
+      }).join("") + '</div>';
+  }).join("");
+
   // インラインJSはバッククォートを使わない(ワーカー側テンプレートリテラルとの衝突回避)
   return '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8">' +
 '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
 '<meta name="robots" content="noindex,nofollow">' +
-'<title>加盟店ヒアリング ｜ Yakumo</title>' +
+'<title>' + escHtml(W.title) + '</title>' +
 '<style>' +
 'body{margin:0;background:#080B11;color:#EAF0F8;font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;line-height:1.8;}' +
 '.wrap{max-width:640px;margin:0 auto;padding:22px 18px 60px;}' +
@@ -110,70 +276,103 @@ function hearingForm(token, store) {
 'button.submit{width:100%;margin-top:26px;background:#3FE0CE;color:#06241F;border:0;border-radius:11px;padding:15px;font-weight:800;font-size:16px;cursor:pointer;}' +
 '.note{color:#4A5568;font-size:12px;margin-top:14px;text-align:center;}' +
 '.ok{display:none;text-align:center;padding:40px 10px;}.ok h2{color:#3FE0CE;}' +
+'details{border:1px solid #1A2230;border-radius:12px;padding:10px 14px;margin:12px 0;background:rgba(16,22,33,.35);}' +
+'summary{cursor:pointer;font-weight:700;font-size:14px;color:#EAF0F8;list-style:none;}summary::-webkit-details-marker{display:none;}' +
+'summary:before{content:"＋ ";color:#3FE0CE;}details[open] summary:before{content:"− ";}' +
+'.qq label{font-weight:400;font-size:13px;color:#B9C4D4;line-height:1.7;}' +
+'.qq textarea{min-height:60px;}' +
+'.sec{margin-top:34px;border-top:1px solid #1A2230;padding-top:16px;}' +
 '</style></head><body><div class="wrap">' +
-'<div class="brand">Yakumo</div>' +
-'<h1>加盟店ヒアリング</h1>' +
-'<p class="lead">ご回答いただいた内容から、あなたの店を施主・AI・検索の三方から見つけてもらうためのページ(GEO / AEO / LLMO / WebMCP)を自動で作成し、運営代行します。金額は施主向けに公開しません(スコアと検証だけ)。所要 約5分。</p>' +
-'<div class="who">対象: <b>' + company + '</b>' + (memberNo ? ' ・ 加盟 <b>' + memberNo + '</b>' : '') + '</div>' +
+'<div class="brand">' + escHtml(W.brand) + '</div>' +
+'<h1>' + escHtml(W.heading) + '</h1>' +
+'<p class="lead">' + escHtml(W.lead) + '</p>' +
+'<div class="who">' + escHtml(W.whoLabel) + ': <b>' + company + '</b>' + (memberNo ? ' ・ 加盟 <b>' + memberNo + '</b>' : '') + '</div>' +
 '<form id="f">' +
 
-'<label>正式な社名 <span class="req">必須</span></label>' +
+'<label>' + escHtml(W.companyLabel) + ' <span class="req">必須</span></label>' +
 '<input type="text" id="company" value="' + company + '" required>' +
 
-'<div class="row2"><div><label>代表者名 <span class="opt">任意</span></label><input type="text" id="rep"></div>' +
-'<div><label>建設業許可番号 <span class="opt">任意</span></label><input type="text" id="license"></div></div>' +
+'<div class="row2"><div><label>' + escHtml(W.repLabel) + ' <span class="opt">任意</span></label><input type="text" id="rep"></div>' +
+'<div><label>' + escHtml(W.licenseLabel) + ' <span class="opt">任意</span></label><input type="text" id="license"></div></div>' +
 
-'<label>所在地(市区町村まで) <span class="req">必須</span></label>' +
-'<input type="text" id="area" placeholder="例：愛知県長久手市" required>' +
+'<label>' + escHtml(W.areaLabel) + ' <span class="req">必須</span></label>' +
+'<input type="text" id="area" placeholder="' + escHtml(W.areaPh) + '" required>' +
 
-'<label>対応エリア <span class="hint">(施主が探す地名。カンマ区切り)</span></label>' +
-'<input type="text" id="areas" placeholder="例：長久手市, 名古屋市, 日進市, 尾張旭市, 瀬戸市">' +
+'<label>' + escHtml(W.areasLabel) + ' <span class="hint">' + escHtml(W.areasHint) + '</span></label>' +
+'<input type="text" id="areas" placeholder="' + escHtml(W.areasPh) + '">' +
 
-'<label>対応できる工種 <span class="req">必須</span></label>' +
-'<p class="hint">当てはまるものをタップ。その他は自由入力へ。</p>' +
+'<label>' + escHtml(W.worksLabel) + ' <span class="req">必須</span></label>' +
+'<p class="hint">' + escHtml(W.worksHint) + '</p>' +
 '<div class="chips" id="works">' +
-['外壁塗装','屋根','内装','クロス','床・フローリング','浴室','キッチン','トイレ','洗面','水道','外構','防水','リノベーション全般']
-  .map(function(w){return '<span class="chip" data-w="'+w+'">'+w+'</span>';}).join('') +
+W.works.map(function(w){return '<span class="chip" data-w="'+escHtml(w)+'">'+escHtml(w)+'</span>';}).join('') +
 '</div>' +
-'<input type="text" id="worksOther" placeholder="その他の工種(自由入力)" style="margin-top:10px;">' +
+'<input type="text" id="worksOther" placeholder="' + escHtml(W.worksOtherPh) + '" style="margin-top:10px;">' +
 
-'<label>各工種の強み・こだわり <span class="hint">(使う塗料・工法・保証年数など。LLMO/解説ページの素材)</span></label>' +
-'<textarea id="strengths" placeholder="例：外壁は無機塗料が標準。3回塗りを徹底し、施工後10年保証。屋根はカバー工法とはつりの両対応で、下地の状態を写真で説明します。"></textarea>' +
+'<label>' + escHtml(W.strengthsLabel) + ' <span class="hint">' + escHtml(W.strengthsHint) + '</span></label>' +
+'<textarea id="strengths" placeholder="' + escHtml(W.strengthsPh) + '"></textarea>' +
 
+(W.estimates ?
 '<label>実際の見積もり例 <span class="hint">(適正診断=KIRA監査に使います。金額は公開しません。1〜3件)</span></label>' +
 '<div id="estimates">' +
 '<div class="card est"><div class="row2"><div><input type="text" class="e-work" placeholder="工種(例:外壁塗装 30坪)"></div><div><input type="text" class="e-amount" placeholder="概算金額(例:900000)"></div></div><input type="text" class="e-detail" placeholder="内訳の要点(任意)" style="margin-top:8px;"></div>' +
-'</div><button type="button" class="add" id="addEst">＋ 見積もり例を追加</button>' +
+'</div><button type="button" class="add" id="addEst">＋ 見積もり例を追加</button>'
+: '') +
 
-'<label>施主からよく聞かれる質問と答え <span class="hint">(FAQ/AEOページの素材。3件ほど)</span></label>' +
+'<label>' + escHtml(W.faqLabel) + ' <span class="hint">' + escHtml(W.faqHint) + '</span></label>' +
 '<div id="faqs">' +
-'<div class="card faq"><input type="text" class="q" placeholder="質問(例:外壁塗装の適した時期は?)"><textarea class="a" placeholder="答え" style="margin-top:8px;"></textarea></div>' +
+'<div class="card faq"><input type="text" class="q" placeholder="' + escHtml(W.faqQPh) + '"><textarea class="a" placeholder="答え" style="margin-top:8px;"></textarea></div>' +
 '<div class="card faq"><input type="text" class="q" placeholder="質問"><textarea class="a" placeholder="答え" style="margin-top:8px;"></textarea></div>' +
 '</div><button type="button" class="add" id="addFaq">＋ 質問を追加</button>' +
 
-'<label>信頼の裏づけ <span class="opt">任意</span> <span class="hint">(受賞歴・加盟団体・アフター保証・施工実績数など)</span></label>' +
-'<textarea id="trust" placeholder="例：地域密着20年、施工実績1,200件。塗装技能士在籍。工事後も年1回の無料点検。"></textarea>' +
+'<label>信頼の裏づけ <span class="opt">任意</span> <span class="hint">' + escHtml(W.trustHint) + '</span></label>' +
+'<textarea id="trust" placeholder="' + escHtml(W.trustPh) + '"></textarea>' +
 
-'<div class="row2"><div><label>施主対応の連絡先 <span class="opt">任意</span></label><input type="text" id="contact" placeholder="電話 または メール"></div>' +
-'<div><label>対応時間・定休日 <span class="opt">任意</span></label><input type="text" id="hours" placeholder="例：9-18時 / 日曜定休"></div></div>' +
+'<div class="row2"><div><label>' + escHtml(W.contactLabel) + ' <span class="opt">任意</span></label><input type="text" id="contact" placeholder="電話 または メール"></div>' +
+'<div><label>対応時間・定休日 <span class="opt">任意</span></label><input type="text" id="hours" placeholder="' + escHtml(W.hoursPh) + '"></div></div>' +
 
 '<label>公開してほしくない情報 <span class="opt">任意</span></label>' +
-'<input type="text" id="ng" placeholder="例：担当者の個人携帯は載せないでほしい">' +
+'<input type="text" id="ng" placeholder="' + escHtml(W.ngPh) + '">' +
+
+// ---- ここから下は全て任意。ただしここが埋まるほど、生成されるページの中身が濃くなる。
+//      2026-08-25: これまでこの層は LINE の追撃でしか聞けなかった。3日に2問。
+//      訪問看護は設問が45問あるので、追撃だけでは埋まりきる前に運用開始日が来る。
+'<div class="sec"></div>' +
+'<h1 style="font-size:18px;">もう少しだけ <span class="opt" style="font-size:12px;">すべて任意</span></h1>' +
+'<p class="lead">ここから下は空欄のまま送っていただいても構いません。埋まっているほど、こちらで代わりに書く部分が減ります。代わりに書いた文章は、どの会社でも似た文章になります。</p>' +
+
+'<label>いちばん叶えたいこと <span class="opt">任意</span></label>' +
+'<select id="focus"><option value="">選んでください</option>' + focusOpts + '</select>' +
+'<div id="focusGroups">' + focusGroups + '</div>' +
+
+'<label>始めたきっかけ・大切にしていること <span class="opt">任意</span></label>' +
+'<textarea id="story" placeholder="' + escHtml(W.storyPh) + '"></textarea>' +
+
+'<label>代表的な事例 <span class="opt">任意</span> <span class="hint">(1行に1件。金額は要りません)</span></label>' +
+'<textarea id="cases" placeholder="' + escHtml(W.casesPh) + '"></textarea>' +
+
+'<details><summary>AIと検索から見つけてもらうために (' + VIS.visibilityQids().length + '問)</summary>' +
+'<p class="hint">所在をはっきりさせ、よく聞かれる問いに答えの形で答えておく。ここは業種を問わず同じだけ効きます。</p>' +
+visHtml + '</details>' +
+
+(ibankIds.length ?
+'<details><summary>' + escHtml(W.bankHeading) + ' (' + ibankIds.length + '問)</summary>' +
+'<p class="hint">' + escHtml(W.bankLead) + '</p>' +
+ibankHtml + '</details>'
+: '') +
 
 // ---- 採用(社員募集) 任意セクション。集客だけの店は全て空欄でOK(採用ページは作られない) ----
-'<div style="margin-top:34px;border-top:1px solid #1A2230;padding-top:16px;"></div>' +
-'<h1 style="font-size:18px;">採用(社員募集) <span class="opt" style="font-size:12px;">任意</span></h1>' +
-'<p class="lead">職人・スタッフの募集がある場合だけご記入ください。入力すると、給与や待遇を載せた採用ページ(求人検索やAIに見つかる JobPosting 付き)を作成します。空欄なら採用ページは作りません。</p>' +
+'<div class="sec"></div>' +
+'<h1 style="font-size:18px;">' + escHtml(W.recruitHeading) + ' <span class="opt" style="font-size:12px;">任意</span></h1>' +
+'<p class="lead">' + escHtml(W.recruitLead) + '</p>' +
 
 '<label>募集職種 <span class="opt">任意</span> <span class="hint">(当てはまるものをタップ。その他は自由入力へ)</span></label>' +
 '<div class="chips" id="rroles">' +
-['塗装工','屋根工','防水工','大工','内装工','左官','板金工','現場監督','施工管理','営業','事務']
-  .map(function(w){return '<span class="chip" data-w="'+w+'">'+w+'</span>';}).join('') +
+W.recruitRoles.map(function(w){return '<span class="chip" data-w="'+escHtml(w)+'">'+escHtml(w)+'</span>';}).join('') +
 '</div>' +
 '<input type="text" id="rrolesOther" placeholder="その他の職種(カンマ区切りで自由入力)" style="margin-top:10px;">' +
 
 '<div class="row2"><div><label>雇用形態 <span class="opt">任意</span></label><input type="text" id="rEmployment" placeholder="例：正社員 / 契約社員 / パート"></div>' +
-'<div><label>勤務地 <span class="opt">任意</span></label><input type="text" id="rWorkplace" placeholder="例：神奈川県平塚市とその周辺"></div></div>' +
+'<div><label>勤務地 <span class="opt">任意</span></label><input type="text" id="rWorkplace" placeholder="' + escHtml(W.recruitWorkplacePh) + '"></div></div>' +
 
 '<label>給与レンジ <span class="opt">任意</span> <span class="hint">(下限・上限。採用ページにだけ表示します)</span></label>' +
 '<div class="row2"><div><select id="rSalaryUnit"><option value="月給">月給</option><option value="時給">時給</option><option value="日給">日給</option><option value="年収">年収</option></select></div><div></div></div>' +
@@ -187,7 +386,7 @@ function hearingForm(token, store) {
 '<input type="text" id="rInsurance" placeholder="例：社会保険完備、週休2日、年間休日110日">' +
 
 '<label>必要・歓迎する資格 <span class="opt">任意</span></label>' +
-'<input type="text" id="rQualifications" placeholder="例：要普通自動車免許、歓迎：塗装技能士">' +
+'<input type="text" id="rQualifications" placeholder="' + escHtml(W.recruitQualPh) + '">' +
 
 '<label>未経験の可否 <span class="opt">任意</span></label>' +
 '<input type="text" id="rInexperienced" placeholder="例：未経験歓迎 / 経験者優遇">' +
@@ -205,16 +404,21 @@ function hearingForm(token, store) {
 '<div><label>応募の連絡先 <span class="opt">任意</span></label><input type="text" id="rApplyContact" placeholder="電話 / メール / LINE ID"></div></div>' +
 
 '<button type="submit" class="submit">回答を送信する</button>' +
-'<p class="note">送信内容は The HORIZONs株式会社(HORIZON SHIELD)が加盟店運営のために使用します。金額は施主向けに公開しません。</p>' +
+'<p class="note">' + escHtml(W.submitNote) + '</p>' +
 '</form>' +
-'<div class="ok" id="ok"><h2>ありがとうございます</h2><p style="color:#7E8CA2;">回答を受け取りました。適正診断(KIRA)とページ作成の準備に入ります。結果は運営からご連絡します。</p></div>' +
+'<div class="ok" id="ok"><h2>ありがとうございます</h2><p style="color:#7E8CA2;">' + escHtml(W.okLead) + '</p></div>' +
 
 '<script>' +
 'var TOKEN=' + JSON.stringify(token) + ';' +
 'document.querySelectorAll("#works .chip").forEach(function(c){c.addEventListener("click",function(){c.classList.toggle("on");});});' +
 'document.querySelectorAll("#rroles .chip").forEach(function(c){c.addEventListener("click",function(){c.classList.toggle("on");});});' +
-'document.getElementById("addEst").addEventListener("click",function(){var d=document.createElement("div");d.className="card est";d.innerHTML=\'<div class="row2"><div><input type="text" class="e-work" placeholder="工種"></div><div><input type="text" class="e-amount" placeholder="概算金額"></div></div><input type="text" class="e-detail" placeholder="内訳の要点(任意)" style="margin-top:8px;">\';document.getElementById("estimates").appendChild(d);});' +
+(W.estimates ?
+'var addEstBtn=document.getElementById("addEst");' +
+'if(addEstBtn)addEstBtn.addEventListener("click",function(){var d=document.createElement("div");d.className="card est";d.innerHTML=\'<div class="row2"><div><input type="text" class="e-work" placeholder="工種"></div><div><input type="text" class="e-amount" placeholder="概算金額"></div></div><input type="text" class="e-detail" placeholder="内訳の要点(任意)" style="margin-top:8px;">\';document.getElementById("estimates").appendChild(d);});'
+: '') +
 'document.getElementById("addFaq").addEventListener("click",function(){var d=document.createElement("div");d.className="card faq";d.innerHTML=\'<input type="text" class="q" placeholder="質問"><textarea class="a" placeholder="答え" style="margin-top:8px;"></textarea>\';document.getElementById("faqs").appendChild(d);});' +
+'var focusSel=document.getElementById("focus");' +
+'if(focusSel)focusSel.addEventListener("change",function(){var v=focusSel.value;document.querySelectorAll(".fg").forEach(function(g){g.style.display=(g.getAttribute("data-f")===v)?"block":"none";});});' +
 'function val(id){var e=document.getElementById(id);return e?e.value.trim():"";}' +
 'document.getElementById("f").addEventListener("submit",function(ev){ev.preventDefault();' +
 'var works=[];document.querySelectorAll("#works .chip.on").forEach(function(c){works.push(c.getAttribute("data-w"));});' +
@@ -225,9 +429,12 @@ function hearingForm(token, store) {
 'var rro=val("rrolesOther");if(rro){rro.split(",").forEach(function(x){x=x.trim();if(x)rroles.push(x);});}' +
 'var recruit={roles:rroles,employment_type:val("rEmployment"),salary_min:val("rSalaryMin"),salary_max:val("rSalaryMax"),salary_unit:val("rSalaryUnit"),bonus_allowance:val("rBonus"),insurance_holidays:val("rInsurance"),ideal_person:val("rIdeal"),qualifications:val("rQualifications"),inexperienced_ok:val("rInexperienced"),training:val("rTraining"),workplace:val("rWorkplace"),culture:val("rCulture"),apply_method:val("rApplyMethod"),apply_contact:val("rApplyContact")};' +
 'var hasR=rroles.length||recruit.employment_type||recruit.salary_min||recruit.salary_max||recruit.bonus_allowance||recruit.insurance_holidays||recruit.ideal_person||recruit.qualifications||recruit.inexperienced_ok||recruit.training||recruit.workplace||recruit.culture||recruit.apply_method||recruit.apply_contact;' +
-'var payload={company:val("company"),rep:val("rep"),license:val("license"),area:val("area"),areas:val("areas"),works:works,strengths:val("strengths"),estimates:estimates,faqs:faqs,trust:val("trust"),contact:val("contact"),hours:val("hours"),ng:val("ng")};' +
+'var extra={};document.querySelectorAll("[data-q]").forEach(function(t){var v=t.value.trim();if(v)extra[t.id]=v;});' +
+'var cases=val("cases").split("\\n").map(function(x){return x.trim();}).filter(Boolean);' +
+'var payload={company:val("company"),rep:val("rep"),license:val("license"),area:val("area"),areas:val("areas"),works:works,strengths:val("strengths"),estimates:estimates,faqs:faqs,trust:val("trust"),contact:val("contact"),hours:val("hours"),ng:val("ng"),story:val("story"),cases:cases,focus:val("focus")};' +
+'if(Object.keys(extra).length)payload.extra=extra;' +
 'if(hasR)payload.recruit=recruit;' +
-'if(!payload.company||!payload.area||works.length===0){alert("社名・所在地・工種は必須です。");return;}' +
+'if(!payload.company||!payload.area||works.length===0){alert(' + JSON.stringify(W.reqAlert) + ');return;}' +
 'fetch("/h/"+TOKEN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).then(function(r){return r.json();}).then(function(res){if(res&&res.ok){document.getElementById("f").style.display="none";document.getElementById("ok").style.display="block";window.scrollTo(0,0);}else{alert((res&&res.error)||"送信に失敗しました。時間をおいて再度お試しください。");}}).catch(function(){alert("通信エラー。時間をおいて再度お試しください。");});' +
 '});' +
 '</script>' +
@@ -308,6 +515,23 @@ function normalizeProfile(store, raw) {
     ? raw.faqs.slice(0, 8).map((f) => ({ q: safeStr(f.q, 120), a: safeStr(f.a, 600) })).filter((f) => f.q && f.a)
     : [];
   const recruit = normalizeRecruit(raw.recruit);  // 採用: 未入力なら null(集客のみの店は影響なし)
+  // 2026-08-25: 設問バンクへの答え(extra)を、フォームからも受け取れるようにした。
+  //   これまで extra に入る道は LINE の追撃だけだった。3日に2問である。
+  //   訪問看護の設問は45問あり、可視性が5問、目的別が3問ある。追撃だけでは
+  //   合同会社あっぷす様の運用開始日(2026-10-01)までに埋まりきらない。
+  //   受け取る qid は、実際に存在する設問だけに限る。知らない id は捨てる。
+  //   捨てないと、フォームに細工をした人が profile に任意のキーを書き込めてしまう。
+  const cases = Array.isArray(raw.cases)
+    ? raw.cases.slice(0, 10).map((c) => safeStr(c, 200)).filter(Boolean)
+    : (safeStr(raw.cases, 2000) ? safeStr(raw.cases, 2000).split(/\n/).map((c) => c.trim()).filter(Boolean).slice(0, 10) : []);
+  const extraIn = (raw.extra && typeof raw.extra === "object" && !Array.isArray(raw.extra)) ? raw.extra : {};
+  const allowed = knownQids((store && store.industry) || IND.DEFAULT_INDUSTRY);
+  const extraOut = {};
+  for (const k of Object.keys(extraIn)) {
+    if (!allowed.has(k)) continue;
+    const v = safeStr(extraIn[k], 2000).trim();
+    if (v) extraOut[k] = v;
+  }
   const out = {
     member_no: (store && store.member_no) || null,
     store_id: (store && store.store_id) || null,
@@ -326,6 +550,8 @@ function normalizeProfile(store, raw) {
     contact: safeStr(raw.contact, 120),
     hours: safeStr(raw.hours, 120),
     ng: safeStr(raw.ng, 200),
+    story: safeStr(raw.story, 1200),
+    cases,
     // 見積もり例は監査用。生成ページには金額を出さない。
     estimates_for_audit: estimates,
   };
@@ -333,6 +559,8 @@ function normalizeProfile(store, raw) {
     out.recruit = recruit;                       // 構造化: generate.py の採用トラック(JobPosting・給与表示)が読む
     out.extra = recruitToExtra(recruit);         // 既存 qid 供給の仕組みにも同じデータを渡す(focus頁/完成度)
   }
+  // 採用から起こした extra を、フォームで直接答えた分で上書きしない(和集合を取る)。
+  if (Object.keys(extraOut).length) out.extra = { ...(out.extra || {}), ...extraOut };
   return out;
 }
 
@@ -1931,8 +2159,9 @@ export default {
       if (request.method === "POST") {
         let raw;
         try { raw = await request.json(); } catch (_e) { return json({ ok: false, error: "bad_json" }, 400); }
+        // 必須欄のことわりも業種の言葉で返す。訪問看護の事業所に「工種」と言わない。
         if (!safeStr(raw.company) || !safeStr(raw.area) || !safeArr(raw.works).length) {
-          return json({ ok: false, error: "社名・所在地・工種は必須です。" }, 400);
+          return json({ ok: false, error: formPack((store && store.industry) || (tokRec && tokRec.industry) || IND.DEFAULT_INDUSTRY).reqAlert }, 400);
         }
         const incoming = normalizeProfile(store || tokRec, raw);
         const prev = await env.HS_HEARING_KV.get("hearing:" + tokRec.store_id, "json");
@@ -1945,6 +2174,15 @@ export default {
           store.status = store.status === "published" ? "published" : "hearing_done";
           store.hearing_done_at = now;
           const ap2 = store.autopilot || {};
+          // 2026-08-25: フォームで本人が選んだ目的を最優先で採る。
+          //   これまでは推定(classifyFocus)しか道が無く、外れると目的別の設問が
+          //   ずっと的外れなまま出続けた。本人が選んだものを推定で上書きしない。
+          const pickedFocus = safeStr(raw.focus, 40);
+          if (pickedFocus && AP.FOCUS_KEYS.indexOf(pickedFocus) >= 0) {
+            ap2.focus_primary = pickedFocus;
+            ap2.focus_all = [pickedFocus];
+            ap2.focus_via = "form:本人選択";
+          }
           if (!ap2.focus_primary) {
             const f = await AP.classifyFocus(env, store, profile);
             if (f.primary) { ap2.focus_primary = f.primary; ap2.focus_all = f.all; ap2.focus_via = f.via; }

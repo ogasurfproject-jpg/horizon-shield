@@ -226,7 +226,7 @@ export const AI_MODEL_CHAIN = [
 ];
 
 export const FOCUS_KEYS = ["recruit", "leads", "homeowners", "franchise", "brand"];
-const FOCUS_LABEL = { recruit: "人材確保", leads: "案件・元請け獲得", homeowners: "施主集客", franchise: "協力店・加盟店募集", brand: "認知度アップ" };
+export const FOCUS_LABEL = { recruit: "人材確保", leads: "案件・元請け獲得", homeowners: "施主集客", franchise: "協力店・加盟店募集", brand: "認知度アップ" };
 const FOCUS_KEYWORDS = {
   recruit:    ["求人", "採用", "職人募集", "人手", "人材", "スタッフ募集"],
   leads:      ["元請", "案件", "下請", "協力業者", "仕事が欲しい", "受注"],
@@ -354,10 +354,16 @@ export function nextQuestions(profile, autopilot, maxN = 2) {
     // 2026-08-23: 業種の文面を先に見る。無ければ従来どおり。
     // これが無いと、訪問看護の事業所に「工種ごとの強み(例: 外壁塗装)」
     // 「施主さんからよく聞かれる質問」が、追撃質問として毎週届く。
+    // 2026-08-25: 目的別(focus)の設問も業種で言い換える。
+    //   ここが抜けていたので、訪問看護の管理者に「塗装職人2名、現場管理1名」
+    //   「外壁塗装 30〜60坪」という例文が追撃質問として届いていた。
+    //   基本の設問だけ業種で言い換えて、目的別を言い換えていなかった。
+    const focusNow = autopilot && autopilot.focus_primary;
     const q = IND.questionFor((profile || {}).industry, m.qid)
+      || (focusNow && IND.focusQuestion((profile || {}).industry, focusNow, m.qid))
       || VIS.visibilityQuestion(m.qid)
       || QUESTION_BANK[m.qid]
-      || (autopilot && autopilot.focus_primary && QUESTION_BANK[autopilot.focus_primary] && QUESTION_BANK[autopilot.focus_primary][m.qid]);
+      || (focusNow && QUESTION_BANK[focusNow] && QUESTION_BANK[focusNow][m.qid]);
     if (!q) continue;
     flat.push({ qid: m.qid, w: m.w, text: q.text });
   }
