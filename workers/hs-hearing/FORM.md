@@ -62,4 +62,5 @@ LINE の追撃は3日に2問である（`nextQuestions` の `ASK_MAX=3` / `ASK_C
 node workers/hs-hearing/hearing_form_test.mjs
 ```
 
-235件。`deploy-hs-hearing.yml` の門に入っているので、通らなければ配られない。
+258件。`deploy-hs-hearing.yml` の門に入っているので、通らなければ配られない。
+(235件で書き始め、催促の用紙リンクと、答えの事前入力の検査を足して258件になった)
