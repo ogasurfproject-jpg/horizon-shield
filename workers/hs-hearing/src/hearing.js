@@ -19,6 +19,7 @@
 import * as AP from "./autopilot.js";
 import * as IND from "./industry.js";
 import * as VIS from "./visibility.js";
+import * as CONCIERGE from "./concierge.js";
 
 const SERVER = { name: "HORIZON SHIELD YAKUMO", version: "2.3.0" };
 const PUBLIC_DATA_FALLBACK = "https://shield.the-horizons-innovation.com/data/yakumo-contractors.json";
@@ -1471,10 +1472,13 @@ async function aiPartnerReply(env, text, ctx) {
   const c = ctx || {};
   const asked = String(c.asked || "").replace(/\s+/g, " ").slice(0, 300);
   const company = String(c.company || "").slice(0, 80);
-  let sys = "あなたは HORIZON SHIELD / Yakumo の加盟店窓口の担当者です。加盟店(工務店・リフォーム会社)からのLINEに、日本語で短く丁寧に自然に返信します。\n";
+  // 2026-08-25: 人格を業種中立にした。「Yakumo」は建設のモールの名で、
+  //   訪問看護の事業所に出す看板ではない。窓口は KIRA(価格の審査)とも別の役割で、
+  //   加盟店に伴走する運営事務局(担当: 大賀)である。
+  let sys = "あなたは HORIZON SHIELD 運営事務局の窓口担当(担当: 大賀)です。登録済みの加盟店・事業所からのLINEに、日本語で短く、丁寧に、人として自然に返信します。価格を審査する KIRA とは別の役割で、掲載と運営のために加盟店に伴走します。\n";
   sys += company
-    ? ("相手は登録済みの加盟店「" + company + "」さまです。工事を依頼したお客様ではありません。\n")
-    : "相手は登録済みの加盟店です。工事を依頼したお客様ではありません。\n";
+    ? ("相手は登録済みの加盟店・事業所「" + company + "」さまです。サービスを依頼したお客様ではありません。\n")
+    : "相手は登録済みの加盟店・事業所です。サービスを依頼したお客様ではありません。\n";
   sys += "厳守(違反禁止):\n"
     + "1. 金額・料金・価格・費用・割引などの具体は一切述べない。お金の話には『料金は担当の大賀からご案内します』とだけ返す。\n"
     + "2. 契約・納期・保証などの約束をしない。\n"
@@ -1504,6 +1508,46 @@ async function aiPartnerReply(env, text, ctx) {
     return asked
       ? "ご回答ありがとうございます。いただいた内容は、掲載に反映いたします。\n不足があれば、こちらから改めてお伺いします。"
       : "ありがとうございます。いただいた内容は、掲載に向けて確認いたします。\n不足があれば、こちらから改めてお伺いします。";
+  }
+  return out;
+}
+
+/* 加盟店からの「質問」に答える。台帳(FACT_SHEET)の範囲だけで答え、
+   決まった問いは機械で(conciergeFAQ)、それ以外は LLM に台帳を渡して言い換えさせる。
+   台帳で答えられないものは、担当の大賀に回す(ESCALATE)。作り話をしない。 */
+async function conciergeAnswer(env, text, ctx) {
+  const t = String(text || "").slice(0, 800);
+  if (!t) return CONCIERGE.ESCALATE;
+
+  // 1) 決まった問いは、決まった答え(確実・LLM不要)。
+  const faq = CONCIERGE.conciergeFAQ(t);
+  if (faq) return faq;
+
+  // 2) それ以外は、台帳を渡して LLM に言い換えさせる。AI が無ければ大賀に回す。
+  if (!(env && env.AI && typeof env.AI.run === "function")) return CONCIERGE.ESCALATE;
+  const company = String((ctx && ctx.company) || "").slice(0, 80);
+  const sys =
+    "あなたは HORIZON SHIELD 運営事務局の窓口担当(担当: 大賀)です。" +
+    (company ? ("登録済みの加盟店・事業所「" + company + "」さまから質問が来ました。") :
+               "登録済みの加盟店・事業所から質問が来ました。") + "\n" +
+    "次の『答えてよい事実』の範囲だけで、日本語で2〜3文、丁寧に、人として自然に答えてください。\n" +
+    "答えてよい事実:\n" + CONCIERGE.FACT_SHEET.join("\n") + "\n" +
+    "厳守: 事実に無いことは答えない。分からない具体・料金・制度の具体・契約や納期や保証の約束は、" +
+    "『担当の大賀が確認してご連絡します』とだけ返す。数字の金額は一切述べない。記号や絵文字は使わない。" +
+    "推測で断定しない。";
+  let out = "";
+  for (const model of (env.LLM_MODEL ? [env.LLM_MODEL] : AP.AI_MODEL_CHAIN)) {
+    try {
+      const r = await env.AI.run(model, { messages: [{ role: "system", content: sys }, { role: "user", content: t }], max_tokens: 220 });
+      out = (r && (r.response !== undefined ? r.response : (r.result !== undefined ? r.result : r.output_text))) || "";
+      if (out) break;
+    } catch (_e) {}
+  }
+  out = String(out || "").trim();
+  if (!out) return CONCIERGE.ESCALATE;
+  // 金額を言ってしまったら止める(プロンプトだけに頼らない。金額と同じ守り方)。
+  if (/[0-9０-９][\s]*(円|万|万円)|[¥$]\s*[0-9０-９]|(料金|価格|費用|お値段|値引|割引)/.test(out)) {
+    return "料金・金額については、担当の大賀からご案内します。少々お待ちください。";
   }
   return out;
 }
@@ -1701,6 +1745,25 @@ async function handleKiraBridge(env, userId, text, groupId, estimates) {
   const _apNow = (store && store.autopilot) || {};
   const _askedText = (_apNow.pending && _apNow.pending.text) || "";
   const _companyNow = (store && store.company) || "";
+
+  // 2026-08-25: まず意図を見る。入ってくる文は「回答」だけではない。
+  //   平田様は用紙を書きながら「途中で止めたらダメになりますか？」と尋ねてこられた。
+  //   これは回答ではなく質問である。質問を回答として取り込むと、
+  //   問いを無視して「掲載します」と答えたことになる。
+  //   質問は取り込まない。生文だけ残し、答えてよい事実の範囲で答える。
+  //   誤って回答を質問と見ても、生文は残るので実害は小さい。逆は大きい。
+  const _intent = CONCIERGE.partnerIntent(t);
+  if (_intent === "question") {
+    try {
+      await env.HS_HEARING_KV.put("linequestion:" + storeId + ":" + Date.now(),
+        JSON.stringify({ text: t.slice(0, 2000), at: new Date().toISOString(), company: _companyNow }));
+    } catch (_e) {}
+    const ans = await conciergeAnswer(env, t, { company: _companyNow });
+    try { await notify(env, "[Yakumo] 加盟店から質問。窓口が自動で回答(要確認): "
+      + (_companyNow || storeId) + " / " + t.slice(0, 100)); } catch (_e) {}
+    return { ok: true, reply: ans };
+  }
+
   try { await ingestHearingAnswer(env, storeId, store, t, "line"); } catch (_e) {}
   // 2026-08-25: 切り分けられなかったときは、AI に返事を書かせない。
   //
