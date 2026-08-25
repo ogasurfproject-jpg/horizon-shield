@@ -1432,20 +1432,13 @@ async function handleLineWebhook(env, bodyText) {
       continue;
     }
 
-    // 登録済み: これはヒアリング回答。取り込んで自動構造化->関所->生成。
+    // 登録済み: 入口共通の窓口(handlePartnerInbound)に通す。
+    //   2026-08-25: これまでこの直の LINE 経路は、意図を見ずに素通しで
+    //   ingestHearingAnswer に流していた。KIRA橋渡しと同じ体制に寄せ、
+    //   質問なら取り込まず窓口が答え、回答なら取り込む。金額は大賀へ回す。
     const store = await env.HS_HEARING_KV.get("store:" + linkedStoreId, "json");
-    const res = await ingestHearingAnswer(env, linkedStoreId, store, text, "line");
-    if (res.ok) {
-      await lineReply(env, replyToken, "受け取りました。ありがとうございます。検証とページ作成の準備に入ります。追記があれば、いつでもこのトークに送ってください。");
-      await notify(env, "[Yakumo] LINE回答を自動構造化->生成トリガー: " + ((store && store.company) || linkedStoreId));
-    } else if (res.reason === "missing-required") {
-      await lineReply(env, replyToken, "ありがとうございます。もう少しだけ、社名・地域(市区町村)・対応工種が分かるように教えていただけますか？(例: リフォーム職人株式会社 / 長久手市 / 外壁塗装・屋根・内装)");
-      // patch39: ここだけ運営通知が無く、相手が返事をした事実が本人に届いていなかった。
-      await notify(env, "[Yakumo] LINE返事あり(必須項目が不足のため保留): " + ((store && store.company) || linkedStoreId) + " 本文=" + String(text).slice(0, 80));
-    } else {
-      await lineReply(env, replyToken, "受け取りました。内容を確認して運営からご連絡します。");
-      await notify(env, "[Yakumo] LINE回答を受信(自動構造化できず: " + res.reason + ")。手動確認を。store=" + linkedStoreId);
-    }
+    const outcome = await handlePartnerInbound(env, linkedStoreId, store, text, "line");
+    await lineReply(env, replyToken, outcome.reply);
   }
 }
 
@@ -1550,6 +1543,99 @@ async function conciergeAnswer(env, text, ctx) {
     return "料金・金額については、担当の大賀からご案内します。少々お待ちください。";
   }
   return out;
+}
+
+/* ------------------------------------------------------------------------
+   加盟店から届いた1通を、入口に依らず、同じ体制で捌く1箇所。
+
+   なぜ要る (2026-08-25):
+     「意図を見て捌く」層(質問は取り込まず窓口で答える／engaged を残す／金額は
+     大賀に回す)は、これまで KIRA橋渡し(handleKiraBridge)にしか無かった。
+     同じ加盟店が LINE直(handleLineWebhook)やメール(/admin/email-ingest,
+     Email Routing)から入ってくると、その層を通らず ingestHearingAnswer に
+     素通しされ、質問まで「回答」として取り込まれていた。平田様の
+       「途中で止めたらダメになっちゃいますか？」
+     を回答として処理してしまったのと同じ穴が、他の3つの入口に残っていた。
+
+     加盟店のヒアリングは、どの入口でも、必ずこの1箇所を通す。
+     TOshi 指示「加盟店さんへのヒアリングするAIは全部この体制にしてくれ」。
+
+   返す: { kind, reply, res }
+     kind : "money" | "question" | "answer-uncertain" | "answer-missing" | "answer"
+     reply: 相手に返す文。返信路のある入口(LINE)はこれを送る。
+            返信路の無い入口(メール)は、この文を「大賀への提案」として通知に添え、
+            自動では送らない(メール送信は人が判断する)。
+     res  : ingestHearingAnswer の結果。金額・質問のときは取り込まないので null。
+
+   store は呼ぶ側が読んで渡す。取り込み後に読み直す必要がある処理
+   (last_attributed の切り分け判定)は、この中で読み直す。 */
+async function handlePartnerInbound(env, storeId, store, text, source) {
+  const t = String(text || "").trim();
+  const company = (store && store.company) || "";
+  const src = source || "line";
+
+  // 0) 金額は、どの入口でも、機械に喋らせない。担当(大賀)に回す。
+  if (/(金額|料金|価格|費用|いくら|お値段|値段|支払|お支払|請求|割引|値引|万円|見積[^。]{0,8}金額|プラン[^。]{0,8}料金)/.test(t)) {
+    try { await notify(env, "[Yakumo] 金額に関する問い合わせ。要対応(大賀が案内): store=" + storeId + " src=" + src + " / " + t.slice(0, 120)); } catch (_e) {}
+    return { kind: "money", res: null, reply: "料金・金額については、担当の大賀からご案内します。少々お待ちください。" };
+  }
+
+  // 取り込みの前に、直前に尋ねていた設問を控える(取り込みで pending が消えるため)。
+  const _apNow = (store && store.autopilot) || {};
+  const _askedText = (_apNow.pending && _apNow.pending.text) || "";
+
+  // 1) まず意図を見る。入ってくる文は「回答」だけではない。質問は取り込まない。
+  //    質問を回答として取り込むと、問いを無視して「掲載します」と答えたことになる。
+  //    誤って回答を質問と見ても、生文は残るので実害は小さい。逆は大きい(非対称)。
+  const intent = CONCIERGE.partnerIntent(t);
+  if (intent === "question") {
+    try {
+      await env.HS_HEARING_KV.put("partnerq:" + storeId + ":" + Date.now(),
+        JSON.stringify({ text: t.slice(0, 2000), at: new Date().toISOString(), company, src }));
+    } catch (_e) {}
+    // 質問は回答ではないが engaged(応答)。督促の罰点を解き、活動を残す。
+    // 返事待ちの設問(pending)は消さない — まだ答えていないので、追撃の巡回はそのまま続く。
+    if (store) {
+      AP.noteEngagement(store);
+      try { await AP.putStore(env, store, src + ":質問(engaged)"); } catch (_e) {}
+    }
+    const ans = await conciergeAnswer(env, t, { company });
+    try { await notify(env, "[Yakumo] 加盟店から質問。窓口が自動で回答(要確認): "
+      + (company || storeId) + " src=" + src + " / 問=" + t.slice(0, 90) + " / 答=" + String(ans).slice(0, 90)); } catch (_e) {}
+    return { kind: "question", res: null, reply: ans };
+  }
+
+  // 2) 回答として取り込む(取り込みが投げても落ちない)。
+  let res;
+  try {
+    res = await ingestHearingAnswer(env, storeId, store, t, src);
+  } catch (e) {
+    res = { ok: false, reason: "ingest-threw:" + String(e).slice(0, 60) };
+  }
+
+  // 3) 取り込み後、どの設問への答えか切り分けられたかを見る。
+  //    切り分けられなかったとき(ambiguous)は、AI に中身を語らせない。判らない時の文を機械が出す。
+  const _apAfter = await env.HS_HEARING_KV.get("store:" + storeId, "json");
+  const _attrib = ((_apAfter && _apAfter.autopilot) || {}).last_attributed || "";
+  if (_attrib === "ambiguous" || _attrib === "ambiguous_waves") {
+    try { await notify(env, "[Yakumo] 切り分け不能(" + _attrib + ")のため定型で返信。人が当て直すこと: "
+      + (company || storeId) + " src=" + src + " / " + t.slice(0, 80)); } catch (_e) {}
+    return { kind: "answer-uncertain", res, reply: "ご返信ありがとうございます。いただいた内容は担当の大賀が確認し、"
+      + "掲載に必要なところをこちらで整えます。どの質問へのご回答か、こちらで取り違えている"
+      + "可能性がありますので、行き違いがありましたらお知らせください。" };
+  }
+
+  // 必須項目が足りず保留のとき。分かるところだけで良い旨を、正直に返す。
+  if (!res.ok && res.reason === "missing-required") {
+    try { await notify(env, "[Yakumo] 回答あり(必須項目が不足のため保留): "
+      + (company || storeId) + " src=" + src + " 本文=" + t.slice(0, 80)); } catch (_e) {}
+    return { kind: "answer-missing", res, reply: "ありがとうございます。もう少しだけ、社名・地域(市区町村)・"
+      + "対応の内容が分かるように教えていただけますか。分かるところだけで結構です。" };
+  }
+
+  const smart = await aiPartnerReply(env, t, { company, asked: _askedText });
+  try { await notify(env, "[Yakumo] " + src + "の回答にAI応答: " + (company || storeId) + " / " + t.slice(0, 60)); } catch (_e) {}
+  return { kind: "answer", res, reply: smart || "受け取りました。ありがとうございます。内容は運営事務局で確認します。お急ぎのご用件でしたら、その旨をお書きください。" };
 }
 
 async function handleKiraBridge(env, userId, text, groupId, estimates) {
@@ -1729,77 +1815,14 @@ async function handleKiraBridge(env, userId, text, groupId, estimates) {
     return { ok: true, reply: "ヒアリング進行中です。会社名(屋号)・対応エリア(市区町村)・対応できる工種と強みを、このままご返信ください。" };
   }
 
-  // 2026-08-20 A: 金額のことだけは、ボットに絶対に喋らせない。担当(大賀)に回す。
-  if (/(金額|料金|価格|費用|いくら|お値段|値段|支払|お支払|請求|割引|値引|万円|見積[^。]{0,8}金額|プラン[^。]{0,8}料金)/.test(t)) {
-    try { await notify(env, "[Yakumo] 金額に関する問い合わせ。要対応(大賀が案内): store=" + storeId + " / " + t.slice(0, 120)); } catch (_e) {}
-    return { ok: true, reply: "料金・金額については、担当の大賀からご案内します。少々お待ちください。" };
-  }
-
-  // 2026-08-20 A: 金額以外は、送られた言葉に沿ってAIが自然に返す。
-  //   データとして取り込めるものは取り込み(プロフィールは従来どおり育てる)、返信はAIに任せる。
-  //   これまでの「受け取りました…掲載準備に反映しました」+定型の追撃質問(変な会話)は廃止。
-  //   追撃は autopilot の日次tickが、間隔と上限を守って別に行う。
+  // 2026-08-25: 金額の門・意図の層・engaged・切り分け・AI応答は、入口に依らず
+  //   共通の handlePartnerInbound に集約した(TOshi 指示「加盟店さんへのヒアリング
+  //   するAIは全部この体制にしてくれ」)。KIRA橋渡しも、その1箇所を通す。
+  //   見積書は監査キューへ(業種決定の入口と同じく、ここでも積む)。
   if (Array.isArray(estimates) && estimates.length) { try { await appendEstimatesForAudit(env, storeId, estimates); } catch (_e) {} }
   const store = await env.HS_HEARING_KV.get("store:" + storeId, "json");
-  // 尋ねた設問は、取り込みの前に控える(取り込みで pending が消えるため)。
-  const _apNow = (store && store.autopilot) || {};
-  const _askedText = (_apNow.pending && _apNow.pending.text) || "";
-  const _companyNow = (store && store.company) || "";
-
-  // 2026-08-25: まず意図を見る。入ってくる文は「回答」だけではない。
-  //   平田様は用紙を書きながら「途中で止めたらダメになりますか？」と尋ねてこられた。
-  //   これは回答ではなく質問である。質問を回答として取り込むと、
-  //   問いを無視して「掲載します」と答えたことになる。
-  //   質問は取り込まない。生文だけ残し、答えてよい事実の範囲で答える。
-  //   誤って回答を質問と見ても、生文は残るので実害は小さい。逆は大きい。
-  const _intent = CONCIERGE.partnerIntent(t);
-  if (_intent === "question") {
-    try {
-      await env.HS_HEARING_KV.put("linequestion:" + storeId + ":" + Date.now(),
-        JSON.stringify({ text: t.slice(0, 2000), at: new Date().toISOString(), company: _companyNow }));
-    } catch (_e) {}
-    // 2026-08-25: 質問は回答ではないが、engaged(応答)である。督促の罰点を解き、
-    //   活動があったことを残す。返事待ちの設問は消さない(まだ答えていないので、
-    //   追撃の巡回はそのまま続く)。engaged な相手を黙っている相手として督促しない。
-    if (store) {
-      AP.noteEngagement(store);
-      try { await AP.putStore(env, store, "line:質問(engaged)"); } catch (_e) {}
-    }
-    const ans = await conciergeAnswer(env, t, { company: _companyNow });
-    try { await notify(env, "[Yakumo] 加盟店から質問。窓口が自動で回答(要確認): "
-      + (_companyNow || storeId) + " / " + t.slice(0, 100)); } catch (_e) {}
-    return { ok: true, reply: ans };
-  }
-
-  try { await ingestHearingAnswer(env, storeId, store, t, "line"); } catch (_e) {}
-  // 2026-08-25: 切り分けられなかったときは、AI に返事を書かせない。
-  //
-  //   合同会社アップス様に「よく聞かれる質問と、社名・住所・電話番号を掲載します」と返した。
-  //   どちらも一言もいただいていない。昨日の2問への答えが、今日の2問への答えとして
-  //   記録され、返信はこちらが尋ねたことをそのまま読み上げた。
-  //
-  //   原因は aiPartnerReply に渡していた一文である。
-  //     「直前にこちらから次のことを尋ねている: 『…』届いた文は、その回答である。」
-  //   これは今朝、峰尾様の『工事の依頼と誤読した』件を直したときに私が書いた。
-  //   誤読は消えたが、代わりに『いつでも答えとして受け取る』を作った。
-  //
-  //   何を受け取ったか判らないときに、受け取った中身を述べさせない。
-  //   言い方の問題ではないので、プロンプトでは直さない。
-  //   判らない時は、判らない時の文を、機械が出す。
-  const _apAfter = await env.HS_HEARING_KV.get("store:" + storeId, "json");
-  const _attrib = ((_apAfter && _apAfter.autopilot) || {}).last_attributed || "";
-  const _uncertain = _attrib === "ambiguous" || _attrib === "ambiguous_waves";
-  const smart = _uncertain ? null
-    : await aiPartnerReply(env, t, { company: _companyNow, asked: _askedText });
-  if (_uncertain) {
-    try { await notify(env, "[Yakumo] 切り分け不能(" + _attrib + ")のため定型で返信。人が当て直すこと: "
-      + (((store || {}).company) || storeId) + " / " + t.slice(0, 80)); } catch (_e) {}
-    return { ok: true, reply: "ご返信ありがとうございます。いただいた内容は担当の大賀が確認し、"
-      + "掲載に必要なところをこちらで整えます。どの質問へのご回答か、こちらで取り違えている"
-      + "可能性がありますので、行き違いがありましたらお知らせください。" };
-  }
-  try { await notify(env, "[Yakumo] KIRA経由メッセージにAI応答: " + (((store || {}).company) || storeId) + " / " + t.slice(0, 60)); } catch (_e) {}
-  return { ok: true, reply: smart || "受け取りました。ありがとうございます。内容は運営事務局で確認します。お急ぎのご用件でしたら、その旨をお書きください。" };
+  const outcome = await handlePartnerInbound(env, storeId, store, t, "line");
+  return { ok: true, reply: outcome.reply };
 }
 
 async function appendEstimatesForAudit(env, storeId, estimates) {
@@ -2404,8 +2427,11 @@ export default {
         }
         if (!sid) return json({ ok: false, reason: "unresolved(tokenもfromも店に紐づかず)" }, 404);
         const store = await env.HS_HEARING_KV.get("store:" + sid, "json");
-        const res = await ingestHearingAnswer(env, sid, store, text, "email");
-        return json({ ok: res.ok, store_id: sid, result: res });
+        // 2026-08-25: メールも入口共通の窓口(handlePartnerInbound)に通す。
+        //   質問を回答として取り込まない。ただしメールには即時の返信路が無いので、
+        //   自動返信はしない。suggested_reply は大賀への提案として返すだけ(送るかは人が決める)。
+        const outcome = await handlePartnerInbound(env, sid, store, text, "email");
+        return json({ ok: outcome.res ? outcome.res.ok : true, store_id: sid, kind: outcome.kind, suggested_reply: outcome.reply, result: outcome.res });
       }
 
       // 初回あいさつメール(TOshi方針: 初回はあいさつ、本格ヒアリングは翌週 send-hearing で)
@@ -2914,17 +2940,14 @@ export default {
       // 生返信は必ず保存(監査・手動フォールバック用)。時刻はDate.now()で一意化。
       await env.HS_HEARING_KV.put("emailreply:" + resolved.store_id + ":" + Date.now(), JSON.stringify({ from: message.from, subject, text, at: new Date().toISOString(), via: resolved.via }));
 
-      // AUTOPILOT共通取り込み: 構造化->マージ->pending消込->関所->生成トリガー(fail-closed)
-      const res = await ingestHearingAnswer(env, resolved.store_id, store, text, "email");
-      if (!res.ok && res.reason === "missing-required") {
-        await notify(env, "[Yakumo] メール返信を構造化したが必須項目が不足。自動公開せず通知。store=" + resolved.store_id + " from=" + message.from);
-        return;
+      // 2026-08-25: メール(Email Routing)も入口共通の窓口(handlePartnerInbound)に通す。
+      //   質問を回答として取り込まない。金額は大賀へ。切り分け不能・必須不足・質問の
+      //   通知は窓口の中で出る。メールに即時の返信路は無いので、自動返信はしない
+      //   (堤さんの安全網はそのまま。返すべき返信があれば通知を見て人が返す)。
+      const outcome = await handlePartnerInbound(env, resolved.store_id, store, text, "email");
+      if (outcome.kind === "answer" && outcome.res && outcome.res.ok) {
+        await notify(env, "[Yakumo] メール返信を自動構造化→生成トリガー: " + ((store && store.company) || resolved.store_id) + " via " + resolved.via + " / dispatch=" + JSON.stringify(outcome.res.gen));
       }
-      if (!res.ok) {
-        await notify(env, "[Yakumo] メール返信を受信(自動構造化できず: " + res.reason + ")。手動確認を。store=" + resolved.store_id + " from=" + message.from);
-        return;
-      }
-      await notify(env, "[Yakumo] メール返信を自動構造化→生成トリガー: " + ((store && store.company) || resolved.store_id) + " via " + resolved.via + " / dispatch=" + JSON.stringify(res.gen));
     } catch (e) {
       await notify(env, "[Yakumo] email handler error: " + String(e).slice(0, 120));
     }
