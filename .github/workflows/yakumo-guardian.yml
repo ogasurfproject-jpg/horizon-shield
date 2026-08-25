@@ -220,7 +220,25 @@ jobs:
                   except Exception:
                       pass
                   # 台帳は建設の公開ページの台帳。他の業種はここでは判定しない(出口が別)。
-                  if str(prof.get("industry") or "") != "construction":
+                  # 2026-08-25: ここは黙って飛ばしていた。飛ばす理由が2つあり、
+                  #   片方は正しく、片方は事故である。
+                  #     ・業種が訪問看護 → 出口が別なので、この台帳では判定できない。正しい。
+                  #     ・業種が空       → どの出口にも乗らない。事故である。
+                  #   hs-partner-001 は業種が未設定のまま、この行で毎回落ちていた。
+                  #   落ちていること自体が報告されないので、6時間ごとに静かに見逃していた。
+                  #   比べていない項目は効かない、と同じ形で、飛ばした理由を言わない見張りは
+                  #   飛ばしたことを隠す。理由を言う。
+                  ind = str(prof.get("industry") or "")
+                  if not ind:
+                      problems.append(
+                          "[業種] 業種が未設定の店がある: %s (%s)。"
+                          "業種が無いと生成側(route_generate.py)が型を選べず、"
+                          "公開の台帳にも載らないので、この見張りからも外れる。"
+                          "admin で業種を入れること。" % (str(prof.get("company") or sid), sid))
+                      continue
+                  if ind != "construction":
+                      notes.append("[再投入] %s は %s なので、建設の台帳では判定しない (%s)"
+                                   % (str(prof.get("company") or sid), ind, sid))
                       continue
                   no = re.sub(r"\D", "", str(prof.get("member_no") or ""))
                   no = (no.lstrip("0") or "0") if no else ""
