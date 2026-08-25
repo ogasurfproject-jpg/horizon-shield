@@ -1758,6 +1758,13 @@ async function handleKiraBridge(env, userId, text, groupId, estimates) {
       await env.HS_HEARING_KV.put("linequestion:" + storeId + ":" + Date.now(),
         JSON.stringify({ text: t.slice(0, 2000), at: new Date().toISOString(), company: _companyNow }));
     } catch (_e) {}
+    // 2026-08-25: 質問は回答ではないが、engaged(応答)である。督促の罰点を解き、
+    //   活動があったことを残す。返事待ちの設問は消さない(まだ答えていないので、
+    //   追撃の巡回はそのまま続く)。engaged な相手を黙っている相手として督促しない。
+    if (store) {
+      AP.noteEngagement(store);
+      try { await AP.putStore(env, store, "line:質問(engaged)"); } catch (_e) {}
+    }
     const ans = await conciergeAnswer(env, t, { company: _companyNow });
     try { await notify(env, "[Yakumo] 加盟店から質問。窓口が自動で回答(要確認): "
       + (_companyNow || storeId) + " / " + t.slice(0, 100)); } catch (_e) {}

@@ -1161,6 +1161,22 @@ export function splitNumberedReply(rawText, n) {
   return parts;
 }
 
+/* 2026-08-25: 加盟店が「質問」してきたとき等、回答ではないが engaged な事実を残す。
+   返事待ち(pending)は消さない。答えていないので、追撃の巡回はそのまま続く。
+   だが督促の罰点(penalty)と人送りの印(needs_human)は解く。
+   engaged な相手を、黙っている相手として督促し続けない。
+   nudges と pending.sent_at は触らない(未回答の設問の時計は止めない)。 */
+export function noteEngagement(store) {
+  if (!store) return null;
+  const ap = store.autopilot || (store.autopilot = {});
+  ap.penalty = 0;
+  ap.unanswered_sends = 0;
+  if (ap.needs_human) delete ap.needs_human;
+  ap.last_answer_at = now();
+  store.autopilot = ap;
+  return ap;
+}
+
 export function settlePendingOnAnswer(store, rawText) {
   const ap = store.autopilot || {};
   // 返事が来たという事実だけは、どの道でも同じように残す。

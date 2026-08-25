@@ -318,14 +318,36 @@ console.log("\n8) 店の書き込み(競り勝っても asked を消さない)")
   check("店IDの無いものは書かない", threw);
 }
 
+console.log("\n9) 質問は engaged だが、返事待ちは消さない(督促の穴)");
+{
+  setNow("2026-08-25T08:00:00Z");
+  // 8日待たせて罰点3、人送りの印つき、返事待ちの設問が2つ開いている店。
+  const s = { store_id: "kira-q", autopilot: {
+    penalty: 3, needs_human: true, unanswered_sends: 4, nudges: 2,
+    pending: { qids: ["q_faqs", "q_ai_place"], sent_at: "2026-08-17T08:00:00Z" },
+  } };
+  const before = JSON.parse(JSON.stringify(s.autopilot.pending));
+  AP.noteEngagement(s);
+  const ap = s.autopilot;
+  check("督促の罰点が解ける", ap.penalty === 0, ap.penalty);
+  check("人送りの印が外れる", !ap.needs_human);
+  check("活動があったと残る(last_answer_at)", !!ap.last_answer_at);
+  check("返事待ちの設問は消さない", JSON.stringify(ap.pending) === JSON.stringify(before));
+  check("返事待ちの時計(sent_at)は動かさない", ap.pending.sent_at === "2026-08-17T08:00:00Z");
+  check("nudges は動かさない(未回答の追撃はそのまま続く)", ap.nudges === 2);
+  // 罰点が解けたので、次の巡回は cap(罰点5)にしない
+  const pol = AP.nudgePolicy ? null : null; // nudgePolicy はローカル関数のため直接は呼ばない
+  check("engaged 後は penalty が0から始まる", ap.penalty === 0);
+}
+
 console.log("");
 // 2026-08-24: 走らなかった試験は、通った試験と見分けがつかない。
 //   industry_gate_test.mjs では、途中の process.exit で9場面目が一度も走らず、
 //   それでも「すべて通過」と出ていた。同じ穴が、この試験にはまだ残っていた。
 //   おかしかった数は数えていたが、確かめた数を数えていなかった。
 //   確認や場面を足したら EXPECT も直すこと。数が合わないこと自体を赤にする。
-const EXPECT = 38;
-console.log("確かめた数: " + ran + " 件 (場面 8)");
+const EXPECT = 45;
+console.log("確かめた数: " + ran + " 件 (場面 9)");
 if (ran !== EXPECT) {
   console.log("確かめた数が " + EXPECT + " と合わない。"
               + "途中で終わったか、確認を足して EXPECT を直していない。");
