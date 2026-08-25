@@ -224,7 +224,68 @@ ok(H.hearingForm('"><script>x</script>', nStore).includes('var TOKEN="\\"><scrip
    "トークンは JSON で埋める");
 
 /* ------------------------------------------------------------------ */
-const EXPECT_MIN = 200;
+console.log("\n8) 催促そのものに、まとめて書ける用紙の場所が載ること");
+
+/* なぜ見るか (2026-08-25):
+     LINE の催促には、用紙への案内が一行も無かった。質問だけである。
+     メールには案内があったが、宛先が建設のモールの登録ページだった。
+     訪問看護の方には、まとめて書く道が一度も届いていなかった。
+     3日に2問で45問を埋めようとしていた理由がこれである。 */
+
+function fakeEnv(lineUid) {
+  return {
+    LINE_CHANNEL_ACCESS_TOKEN: "dummy",
+    HS_HEARING_KV: {
+      async get(k) {
+        if (k.startsWith("store2line:")) return lineUid;
+        return null;
+      },
+    },
+  };
+}
+async function pushedText(store, questions) {
+  let sent = null;
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (_url, opt) => {
+    try { sent = JSON.parse(opt.body).messages[0].text; } catch (_e) { sent = null; }
+    return { ok: true, status: 200 };
+  };
+  try { await AP.sendQuestions(fakeEnv("U_test"), store, questions, "nudge"); }
+  finally { globalThis.fetch = realFetch; }
+  return sent || "";
+}
+
+const nStoreTok = { store_id: "hs-partner-003", company: "合同会社あっぷす", industry: "nursing", token: "ht_abc123" };
+const cStoreTok = { store_id: "hs-partner-002", company: "ミネオトーヨー住器", industry: "construction", token: "ht_def456" };
+const shortQ = [{ qid: "q_trust", text: "信頼の裏づけを教えてください。" }];
+
+const nBody = await pushedText(nStoreTok, shortQ);
+ok(nBody.includes("https://hearing.horizonshield.dev/h/ht_abc123"),
+   "訪問看護のLINEに、業種対応フォームのURLが載る");
+ok(!nBody.includes("/yakumo/register/"), "訪問看護に建設モールの登録ページを出さない");
+ok(nBody.includes("1枚にまとめた用紙"), "用紙があることを言葉でも伝える");
+ok(nBody.includes("HORIZON SHIELD"), "訪問看護には HORIZON SHIELD として名乗る");
+ok(!nBody.includes("Yakumo"), "訪問看護に Yakumo と名乗らない");
+
+const cBody = await pushedText(cStoreTok, shortQ);
+ok(cBody.includes("https://shield.the-horizons-innovation.com/yakumo/register/?code=ht_def456"),
+   "建設のLINEは、これまでどおりモールの登録ページ");
+ok(!cBody.includes("hearing.horizonshield.dev/h/"), "建設の導線を勝手に付け替えない");
+
+const noTok = await pushedText({ store_id: "x", company: "トークン無し", industry: "nursing" }, shortQ);
+ok(noTok.length > 0, "トークンが無くても催促自体は送れる");
+ok(!noTok.includes("/h/"), "トークンが無いのに用紙のURLを作らない");
+
+// LINE は 1900 字で切られる。切られて困るのは用紙の在り処である。
+const longQ = [{ qid: "q1", text: "あ".repeat(1200) }, { qid: "q2", text: "い".repeat(1200) }];
+const cut = await pushedText(nStoreTok, longQ);
+ok(cut.length <= 1900, "1900字を超えない (実測 " + cut.length + ")");
+ok(cut.includes("https://hearing.horizonshield.dev/h/ht_abc123"),
+   "質問が長くても、用紙のURLは切り落とされない");
+ok(cut.includes("…"), "削ったことが分かる印を残す");
+
+/* ------------------------------------------------------------------ */
+const EXPECT_MIN = 210;
 console.log("\n実行 " + ran + " 件 / 失敗 " + bad + " 件");
 if (ran < EXPECT_MIN) {
   console.log("検査の数が " + ran + " 件しかない (最低 " + EXPECT_MIN + " 件のはず)。検査が抜け落ちている。");

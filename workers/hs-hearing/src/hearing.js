@@ -2350,7 +2350,14 @@ export default {
             plan: s.plan || null,
             email: s.email || "",
             token: s.token || null,
-            hearing_url: s.token ? ("https://shield.the-horizons-innovation.com/yakumo/register/?code=" + s.token) : null,
+            // 2026-08-25: 用紙の場所も業種で分ける。建設はモールの登録ページ、
+            // それ以外はワーカー側の業種対応フォーム。ここが建設固定だと、
+            // 道具がこの欄を信じて、訪問看護の方に建設の紙を渡す。
+            hearing_url: s.token
+              ? ((s.industry && s.industry !== IND.DEFAULT_INDUSTRY)
+                  ? ((safeStr(env.HEARING_PUBLIC_ORIGIN, 200) || "https://hearing.horizonshield.dev") + "/h/" + s.token)
+                  : ("https://shield.the-horizons-innovation.com/yakumo/register/?code=" + s.token))
+              : null,
             created_at: s.created_at || null,
             hearing_completed: !!(h && h.completed),
             hearing_source: (h && h.source) || null,

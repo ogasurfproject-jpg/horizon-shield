@@ -542,16 +542,48 @@ export async function sendQuestions(env, store, questions, kind) {
   const intro = kind === "nudge"
     ? hail + "その後いかがでしょうか。掲載の質を上げるため、下記だけ教えていただけると助かります。\n\n"
     : hail + "掲載ページをさらに強くするため、下記を教えてください。このまま返信いただければ自動で反映されます。\n\n";
+
+  // 2026-08-25: まとめて書ける用紙の場所を、催促そのものに載せる。
+  //
+  //   これまで LINE の催促には、用紙への案内が一行も無かった。質問だけである。
+  //   メールには案内があったが、宛先が /yakumo/register/ で、これは建設のモールの
+  //   登録ページである。工種・塗装・施主が並んでいる。訪問看護の方が開くと、
+  //   自分に宛てた紙ではないと判断して閉じる。
+  //
+  //   間隔は3日に2問である。訪問看護の設問は45問、可視性が5問、目的別が3問。
+  //   質問だけで埋めようとすると67日かかる。合同会社あっぷす様の運用開始は
+  //   2026-10-01 で、間に合わない。用紙は1枚で完成度60を超える。
+  //   持っているのに、その場所を相手に伝えていなかった。
+  //
+  //   建設の方には、これまでどおりモールの登録ページを出す(マイページに続く導線が
+  //   そちらにあるため)。それ以外の業種には、業種で言葉が変わるワーカー側の用紙を出す。
+  const industryNow = S(prof.industry, 40) || S(store.industry, 40) || "";
+  const hearingOrigin = S(env.HEARING_PUBLIC_ORIGIN, 200) || "https://hearing.horizonshield.dev";
+  const formUrl = !store.token ? ""
+    : (industryNow && industryNow !== IND.DEFAULT_INDUSTRY)
+      ? (hearingOrigin + "/h/" + store.token)
+      : ("https://shield.the-horizons-innovation.com/yakumo/register/?code=" + store.token);
+  const formNote = "1枚にまとめた用紙からも書けます(分かるところだけで結構です。途中まででも送れます)。";
+
   if (lineUid) {
-    const r = await sendLinePush(env, lineUid, intro + qText);
+    const tail = formUrl ? ("\n\n――\n" + formNote + "\n" + formUrl) : "";
+    // LINE は 1900 字で切られる。切られて困るのは用紙の在り処である。
+    // 質問は次の便でまた出せるが、用紙の場所が切れると、
+    // まとめて書く道がその人に一度も届かない。あふれるときは質問のほうを削る。
+    let body = intro + qText + tail;
+    if (body.length > 1850) {
+      const room = 1850 - intro.length - tail.length;
+      body = intro + (room > 40 ? (qText.slice(0, room - 1) + "…") : "") + tail;
+    }
+    const r = await sendLinePush(env, lineUid, body);
     if (r.ok) return { ok: true, via: "line" };
   }
   if (store.email) {
     const refTag = store.token ? " / ref:" + store.token : "";
     const subject = (kind === "nudge" ? "【" + who + " ご様子うかがい" : "【" + who + " 追加ヒアリング")
       + refTag + "】" + (company || "");
-    const formLink = store.token
-      ? '<p style="font-size:13px;"><a href="https://shield.the-horizons-innovation.com/yakumo/register/?code=' + store.token + '">フォームから追記する場合はこちら</a>(前回の続きから入力できます)</p>'
+    const formLink = formUrl
+      ? '<p style="font-size:13px;"><a href="' + formUrl + '">' + formNote + '</a></p>'
       : "";
     const lineInvite = '<p style="font-size:13px;">やり取りはLINEでも可能です。HORIZON SHIELD公式LINE(ID: @172piime)の友だち追加はこちら: <a href="https://line.me/R/ti/p/@172piime">https://line.me/R/ti/p/@172piime</a></p>';
     const html = '<div style="font-family:sans-serif;line-height:1.9;color:#222;"><p>' +
