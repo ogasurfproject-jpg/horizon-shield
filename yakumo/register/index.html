@@ -168,6 +168,9 @@ async function loadInfo(code){
   $("area").value = info.area || (info.areas && info.areas[0]) || "";
   $("areas").value = (info.areas || []).join(", ");
   renderChips(info.works || []);
+  const _set=(id,v)=>{const e=$(id); if(e) e.value=(v==null?"":v);};
+  _set("rep",info.rep); _set("license",info.license); _set("strengths",info.strengths);
+  _set("trust",info.trust); _set("contact",info.contact); _set("hours",info.hours); _set("ng",info.ng);
   $("codeGate").style.display = "none";
   $("formWrap").style.display = "block";
 }

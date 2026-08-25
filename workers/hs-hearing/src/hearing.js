@@ -2143,6 +2143,15 @@ export default {
         tier: store.tier || "honbu",
         status: store.status || "onboarding",
         already_answered: !!(hearing && hearing.completed),
+        // 2026-08-25 fix: register form re-asked rep(代表者名)/license(建設業許可) that were already saved.
+        // Return the stored profile so the form can prefill them.
+        rep: (riHp && riHp.rep) || store.rep || "",
+        license: (riHp && riHp.license) || store.license || "",
+        strengths: (riHp && riHp.strengths) || store.strengths || "",
+        trust: (riHp && riHp.trust) || store.trust || "",
+        contact: (riHp && riHp.contact) || store.contact || "",
+        hours: (riHp && riHp.hours) || store.hours || "",
+        ng: (riHp && riHp.ng) || store.ng || "",
         // 2026-08-19 patch64: 本人用マイページ(?code=トークン)でも同じものを出す。
         webmcp_option: store.webmcp_option === true,
         // AUTOPILOT: マイページ用の運用状態(本人向け・公開安全)
