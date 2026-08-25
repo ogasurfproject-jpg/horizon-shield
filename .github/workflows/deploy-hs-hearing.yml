@@ -92,13 +92,28 @@ jobs:
           fi
 
       # 5. ここまで通ってから配る。
+      #    2026-08-25: cloudflare/wrangler-action をやめて、npx wrangler@4 を直接打つ。
+      #    理由は2つ。
+      #      ・jhnrd の release.yml は npx wrangler@4 で緑、こちらは action 経由で赤だった。
+      #        同じトークン(手元で実測: verify=active、deploy成功)でこの差が出るなら、
+      #        疑うべきは鍵ではなく仕組みの違いである。動いている形に揃える。
+      #      ・action はエラー本文をログにしか出さない。ログの実体は外部ストレージにあり、
+      #        こちらの環境からは全経路で読めなかった。今日それで4往復した。
+      #        落ちたら最後の400字を ::error:: に載せる。annotation は API で読める。
+      #        読めない失敗は、直せない失敗である。
       - name: deploy
         if: steps.creds.outputs.has == 'yes'
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: workers/hs-hearing
+        working-directory: workers/hs-hearing
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -o pipefail
+          if ! npx --yes wrangler@4 deploy 2>&1 | tee /tmp/wrangler.log; then
+            tail -c 400 /tmp/wrangler.log | tr '\n' ' ' | sed 's/^/::error title=wrangler::/'
+            echo ""
+            exit 1
+          fi
 
       - name: 鍵が無いので配っていない
         if: steps.creds.outputs.has != 'yes'
