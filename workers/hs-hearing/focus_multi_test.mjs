@@ -27,8 +27,9 @@ const AP = await import(path.join(TMP, "autopilot.mjs") + "?v=" + Math.random())
 let checks = 0, fails = 0;
 const ok = (cond, label) => { checks += 1; if (!cond) { fails += 1; console.log("  NG:", label); } };
 
-const HOME_QIDS = ["q_home_cases", "q_home_warranty", "q_home_policy"];
-const RECRUIT_QIDS = ["q_recruit_roles", "q_recruit_terms", "q_recruit_culture"];
+// バンクの qid はコードから引く。設問を足しても検査が古びない。
+const HOME_QIDS = Object.keys(AP.QUESTION_BANK.homeowners);
+const RECRUIT_QIDS = Object.keys(AP.QUESTION_BANK.recruit);
 
 // 望みが二つある店の型。峰尾様に相当。フォーカス個別は未回答。
 const profile = {
@@ -91,7 +92,7 @@ for (const q of [...HOME_QIDS, ...RECRUIT_QIDS]) ok(askDirty.has(q), "無効キ�
 ok(!askDirty.has("bogus"), "無効キー bogus は設問に化けない");
 
 console.log("");
-const EXPECT = 37;
+const EXPECT = 5 * (HOME_QIDS.length + RECRUIT_QIDS.length) + 7;
 console.log("確かめた数:", checks, "/ 失敗", fails, "件  (EXPECT " + EXPECT + ")");
 if (fails > 0) { console.log("複数フォーカスの検査 失敗あり"); process.exit(1); }
 if (checks !== EXPECT) { console.log("EXPECT と実数が違う。走った数=" + checks); process.exit(1); }
