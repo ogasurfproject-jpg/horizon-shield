@@ -2152,6 +2152,7 @@ export default {
         contact: (riHp && riHp.contact) || store.contact || "",
         hours: (riHp && riHp.hours) || store.hours || "",
         ng: (riHp && riHp.ng) || store.ng || "",
+        faqs: (riHp && Array.isArray(riHp.faqs)) ? riHp.faqs : (store.faqs || []),
         // 2026-08-19 patch64: 本人用マイページ(?code=トークン)でも同じものを出す。
         webmcp_option: store.webmcp_option === true,
         // AUTOPILOT: マイページ用の運用状態(本人向け・公開安全)

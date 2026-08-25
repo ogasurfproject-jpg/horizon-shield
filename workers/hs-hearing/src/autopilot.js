@@ -325,9 +325,18 @@ export function computeCompleteness(profile, autopilot) {
   //   同じ文面になる。同じ文面のページは、2026-08-23 に実際に重複で弾かれた。
   const vqids = VIS.visibilityQids();
   if (vqids.length) {
-    const vanswered = vqids.filter((q) => !!extra[q]).length;
+    // 2026-08-25: 基本プロフィールに同じ答えがある可視性設問は回答済みとみなす。
+    //   q_ai_place(社名/住所/電話/営業時間/地域)は company/areas/contact/hours で満たす。
+    //   q_ai_questions(よく聞かれること)は FAQ で満たす。別枠で聞き直さない。
+    const visAnswered = (q) => {
+      if (extra[q]) return true;
+      if (q === "q_ai_place") return !!(S(p.company) && (p.areas_served || []).length && S(p.contact) && S(p.hours));
+      if (q === "q_ai_questions") return (p.faqs || []).length >= 1;
+      return false;
+    };
+    const vanswered = vqids.filter(visAnswered).length;
     score += Math.round((vanswered / vqids.length) * 15);
-    for (const q of vqids) if (!extra[q]) {
+    for (const q of vqids) if (!visAnswered(q)) {
       const w = VIS.visibilityQuestion(q).w;
       missing.push({ qid: q, w }); askable.push({ qid: q, w });
     }

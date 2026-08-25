@@ -171,6 +171,13 @@ async function loadInfo(code){
   const _set=(id,v)=>{const e=$(id); if(e) e.value=(v==null?"":v);};
   _set("rep",info.rep); _set("license",info.license); _set("strengths",info.strengths);
   _set("trust",info.trust); _set("contact",info.contact); _set("hours",info.hours); _set("ng",info.ng);
+  if(Array.isArray(info.faqs) && info.faqs.length){
+    const fb=$("faqs"); if(fb){ fb.innerHTML="";
+      info.faqs.forEach(x=>{ const d=document.createElement("div"); d.className="sub faq";
+        d.innerHTML='<input type="text" class="q" placeholder="質問"><textarea class="a" placeholder="答え" style="margin-top:8px;"></textarea>';
+        fb.appendChild(d); d.querySelector(".q").value=(x&&x.q)||""; d.querySelector(".a").value=(x&&x.a)||""; });
+    }
+  }
   $("codeGate").style.display = "none";
   $("formWrap").style.display = "block";
 }
