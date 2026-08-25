@@ -44,7 +44,7 @@ jobs:
       # 1. 構文。生成物を含むので、出した言語の目で見る。
       - name: 構文
         run: |
-          for f in industry autopilot hearing visibility; do
+          for f in industry autopilot hearing visibility concierge; do
             node --check "workers/hs-hearing/src/$f.js"
           done
 
@@ -74,6 +74,12 @@ jobs:
       # 3c. 追撃の間隔と消込。
       - name: 間隔と消込
         run: node workers/hs-hearing/cadence_test.mjs
+
+      # 3d. 加盟店窓口の「意図を見る層」。
+      #     質問を回答として取り込まないこと、決まった問いに台帳の範囲で答えることを見る。
+      #     平田様の実文『途中で止めたらダメになっちゃいますか？』がこの検査に入っている。
+      - name: 窓口(意図と台帳)
+        run: node workers/hs-hearing/concierge_test.mjs
 
       # 4. 鍵があるかを見る。無ければ配らない。
       #    2026-08-24: 鍵を入れる前にこれを足したので、push のたびに落ちて
