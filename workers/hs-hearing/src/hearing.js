@@ -1208,11 +1208,39 @@ async function handleLineWebhook(env, bodyText) {
 // KIRA公式LINE(@172piime)のWebhookは hs-kira-line が持つ。加盟店フラグの立った相手のメッセージだけが
 // ここへ転送され、ヒアリングとして取り込み、返信文を返す。登録コード(ht_)不要の自動開始に対応。
 // 2026-08-20 A: 加盟店への「賢い」自動返信。金額は絶対に述べない(入口とAI出力の二重ガード)。
-async function aiPartnerReply(env, text) {
+async function aiPartnerReply(env, text, ctx) {
   const t = String(text || "").slice(0, 800);
   if (!t) return null;
   if (!(env && env.AI && typeof env.AI.run === "function")) return null;
-  const sys = "あなたは HORIZON SHIELD / Yakumo の加盟店窓口の担当者です。加盟店(工務店・リフォーム会社)からのLINEに、日本語で短く丁寧に自然に返信します。\n厳守(違反禁止):\n1. 金額・料金・価格・費用・割引などの具体は一切述べない。お金の話には『料金は担当の大賀からご案内します』とだけ返す。\n2. 契約・納期・保証などの約束をしない。\n3. 分からない具体は『担当の大賀が確認してご連絡します』と返す。\n4. 返信は2〜3文以内。記号(*,#)や絵文字は使わない。";
+  // 2026-08-25: ここには本文しか渡していなかった。
+  //   加盟店(ミネオトーヨー住器さま)が、こちらの設問「代表的な施工事例を2〜3件、
+  //   題名だけでも教えてください」への回答として
+  //     平塚市 窓カバー7本 内窓2本 / 藤沢市 バルコニー新設 / 町田市 内窓29本
+  //   と送ってこられた。モデルはその一覧しか見ていないので、工事の依頼だと読み、
+  //   「ご依頼いただいた工事内容を確認しました。大体の流れをご連絡します」と返した。
+  //   相手は依頼者ではない。掲載のために、こちらの問いに答えてくださった加盟店である。
+  //
+  //   役割(加盟店窓口)は前から書いてあった。足りなかったのは「いま何の話か」だった。
+  //   尋ねた設問を渡す。そして、施主向けの言い回しが出たら機械で差し替える
+  //   (金額を止めている仕掛けと同じ形。プロンプトだけに頼らない)。
+  const c = ctx || {};
+  const asked = String(c.asked || "").replace(/\s+/g, " ").slice(0, 300);
+  const company = String(c.company || "").slice(0, 80);
+  let sys = "あなたは HORIZON SHIELD / Yakumo の加盟店窓口の担当者です。加盟店(工務店・リフォーム会社)からのLINEに、日本語で短く丁寧に自然に返信します。\n";
+  sys += company
+    ? ("相手は登録済みの加盟店「" + company + "」さまです。工事を依頼したお客様ではありません。\n")
+    : "相手は登録済みの加盟店です。工事を依頼したお客様ではありません。\n";
+  sys += "厳守(違反禁止):\n"
+    + "1. 金額・料金・価格・費用・割引などの具体は一切述べない。お金の話には『料金は担当の大賀からご案内します』とだけ返す。\n"
+    + "2. 契約・納期・保証などの約束をしない。\n"
+    + "3. 分からない具体は『担当の大賀が確認してご連絡します』と返す。\n"
+    + "4. 返信は2〜3文以内。記号(*,#)や絵文字は使わない。\n"
+    + "5. 届いた文を、工事の依頼・見積の受付として扱わない。"
+    + "『ご依頼いただいた』『ご依頼内容』『工事の流れ』『大体の流れ』のような、施主に向けた言い回しを使わない。\n";
+  sys += asked
+    ? ("6. 直前にこちらから次のことを尋ねている: 「" + asked + "」\n"
+       + "   届いた文は、その回答である。回答として受け取ったことを述べ、掲載に反映する旨を短く添える。\n")
+    : "6. 届いた文は、掲載のための情報として受け取る。受け取ったことを述べ、掲載に反映する旨を短く添える。\n";
   let out = "";
   for (const model of (env.LLM_MODEL ? [env.LLM_MODEL] : AP.AI_MODEL_CHAIN)) {
     try {
@@ -1225,6 +1253,12 @@ async function aiPartnerReply(env, text) {
   if (!out) return null;
   if (/[0-9０-９][\s]*(円|万|万円)|[¥$]\s*[0-9０-９]|(料金|価格|費用|お値段|値引|割引)/.test(out)) {
     return "料金・金額については、担当の大賀からご案内します。少々お待ちください。";
+  }
+  // 施主向けの言い回しが出たら、そのまま送らない。加盟店に依頼者として返すのは失礼にあたる。
+  if (/(ご依頼いただ|ご依頼内容|ご依頼の件|工事の流れ|大体の流れ|工事内容を確認)/.test(out)) {
+    return asked
+      ? "ご回答ありがとうございます。いただいた内容は、掲載に反映いたします。\n不足があれば、こちらから改めてお伺いします。"
+      : "ありがとうございます。いただいた内容は、掲載に向けて確認いたします。\n不足があれば、こちらから改めてお伺いします。";
   }
   return out;
 }
@@ -1418,8 +1452,12 @@ async function handleKiraBridge(env, userId, text, groupId, estimates) {
   //   追撃は autopilot の日次tickが、間隔と上限を守って別に行う。
   if (Array.isArray(estimates) && estimates.length) { try { await appendEstimatesForAudit(env, storeId, estimates); } catch (_e) {} }
   const store = await env.HS_HEARING_KV.get("store:" + storeId, "json");
+  // 尋ねた設問は、取り込みの前に控える(取り込みで pending が消えるため)。
+  const _apNow = (store && store.autopilot) || {};
+  const _askedText = (_apNow.pending && _apNow.pending.text) || "";
+  const _companyNow = (store && store.company) || "";
   try { await ingestHearingAnswer(env, storeId, store, t, "line"); } catch (_e) {}
-  const smart = await aiPartnerReply(env, t);
+  const smart = await aiPartnerReply(env, t, { company: _companyNow, asked: _askedText });
   try { await notify(env, "[Yakumo] KIRA経由メッセージにAI応答: " + (((store || {}).company) || storeId) + " / " + t.slice(0, 60)); } catch (_e) {}
   return { ok: true, reply: smart || "受け取りました。ありがとうございます。内容は運営事務局で確認します。お急ぎのご用件でしたら、その旨をお書きください。" };
 }
