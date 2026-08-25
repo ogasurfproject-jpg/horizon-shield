@@ -81,6 +81,13 @@ jobs:
       - name: 窓口(意図と台帳)
         run: node workers/hs-hearing/concierge_test.mjs
 
+      # 3e. 入口の統一。加盟店ヒアリングの入口(LINE橋渡し・LINE直・メール×2)を、
+      #     入口共通の handlePartnerInbound に寄せた。実物の関数を呼んで、
+      #     どの入口でも「質問は取り込まない／engaged は残す/金額は大賀へ」を確かめる。
+      #     handleLineWebhook を丸ごと通す配線の検査も入っている。
+      - name: 入口の統一
+        run: node workers/hs-hearing/inbound_test.mjs
+
       # 4. 鍵があるかを見る。無ければ配らない。
       #    2026-08-24: 鍵を入れる前にこれを足したので、push のたびに落ちて
       #    そのたびにメールが飛んでいた。落ちるべきは検査であって、
