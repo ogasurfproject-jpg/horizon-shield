@@ -285,7 +285,42 @@ ok(cut.includes("https://hearing.horizonshield.dev/h/ht_abc123"),
 ok(cut.includes("…"), "削ったことが分かる印を残す");
 
 /* ------------------------------------------------------------------ */
-const EXPECT_MIN = 210;
+console.log("\n9) 既にもらった答えが、最初から埋まっていること");
+
+/* 平田様は事業所名・エリア・医療処置を LINE で既に答えている。
+   空の紙を渡せば、同じことをもう一度打たせる。
+   「同じことは、もうお尋ねしません」と送った以上、紙も同じ約束を守る。 */
+
+const hirataProf = {
+  company: "合同会社アップス",
+  area: "平塚市",
+  areas_served: ["平塚市全域", "大磯町", "二宮町(要相談)"],
+  works: ["在宅酸素", "酸素管理", "カテーテル管理"],
+  contact: "", strengths: "", trust: "",
+};
+const bareStore = { store_id: "kira-wbbk99p9", industry: "nursing" }; // store: 側に社名が無い(実際そうだった)
+const pn = H.hearingForm("ht_pre", bareStore, hirataProf);
+
+ok(pn.includes("対象: <b>合同会社アップス</b>"), "store に社名が無くても profile から拾う");
+ok(pn.includes('id="company" value="合同会社アップス"'), "社名が埋まっている");
+ok(pn.includes('id="area" placeholder') && pn.includes('value="平塚市" required'), "所在地が埋まっている");
+ok(pn.includes('value="平塚市全域, 大磯町, 二宮町(要相談)"'), "エリアが埋まっている");
+ok(pn.includes('class="chip on" data-w="在宅酸素"'), "答えてもらった処置のチップが押されている");
+ok(pn.includes('id="worksOther"') && pn.includes('value="酸素管理, カテーテル管理"'),
+   "チップに無い処置は自由入力欄に入る");
+
+const pcEmpty = H.hearingForm("ht_pre2", cStore);           // profile 無し
+const pcEmpty2 = H.hearingForm("ht_pre2", cStore, {});      // 空の profile
+ok(pcEmpty === pcEmpty2, "何ももらっていなければ、紙は1バイトも変わらない");
+ok(!pcEmpty.includes('class="chip on"'), "空のときチップは押されていない");
+ok(!pcEmpty.includes('id="area" placeholder="例：愛知県長久手市" value='), "空のとき value を書かない");
+
+const evil2 = H.hearingForm("ht_pre3", bareStore, { area: '"><script>x</script>' });
+ok(!evil2.includes('"><script>x'), "埋める値の中の script は出さない");
+ok(evil2.includes("&quot;&gt;&lt;script&gt;"), "埋める値は逃がして出す");
+
+/* ------------------------------------------------------------------ */
+const EXPECT_MIN = 220;
 console.log("\n実行 " + ran + " 件 / 失敗 " + bad + " 件");
 if (ran < EXPECT_MIN) {
   console.log("検査の数が " + ran + " 件しかない (最低 " + EXPECT_MIN + " 件のはず)。検査が抜け落ちている。");

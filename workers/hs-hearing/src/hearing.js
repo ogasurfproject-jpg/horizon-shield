@@ -226,11 +226,28 @@ function qField(qid, text) {
     '<textarea id="' + escHtml(qid) + '" data-q></textarea></div>';
 }
 
-function hearingForm(token, store) {
+function hearingForm(token, store, profile) {
   const industry = (store && store.industry) || IND.DEFAULT_INDUSTRY;
   const W = formPack(industry);
-  const company = escHtml(safeStr(store && store.company, 120) || W.fallbackName);
+  /* 2026-08-25: 既にもらった答えを、最初から埋めて出す。
+     平田様は事業所名・エリア・医療処置を LINE で既に答えている。
+     空の紙を渡せば、同じことをもう一度打たせることになる。
+     「同じことは、もうお尋ねしません」と昨日送った。紙も同じ約束を守る。
+     何ももらっていない相手には、これまでと1バイトも変わらない紙が出る。 */
+  const pf = profile || {};
+  const company = escHtml(safeStr((store && store.company) || pf.company, 120) || W.fallbackName);
   const memberNo = escHtml(safeStr(store && store.member_no, 20) || "");
+  const pfArea = escHtml(safeStr(pf.area, 80));
+  const pfAreas = escHtml((Array.isArray(pf.areas_served) ? pf.areas_served : []).join(", ").slice(0, 400));
+  const pfWorkSet = new Set((Array.isArray(pf.works) ? pf.works : []).map((w) => safeStr(w, 40)));
+  const chipSet = new Set(W.works);
+  const pfWorksOther = escHtml([...pfWorkSet].filter((w) => !chipSet.has(w)).join(", ").slice(0, 200));
+  const pfStrengths = escHtml(safeStr(pf.strengths, 1200));
+  const pfTrust = escHtml(safeStr(pf.trust, 800));
+  const pfContact = escHtml(safeStr(pf.contact, 120));
+  const pfHours = escHtml(safeStr(pf.hours, 120));
+  const pfRep = escHtml(safeStr(pf.rep, 60));
+  const pfLicense = escHtml(safeStr(pf.license, 60));
 
   // 業種ごとの設問(45問前後)。重い順に出す。閉じた状態で置く。
   const ibank = IND.industryBank(industry) || {};
@@ -292,24 +309,24 @@ function hearingForm(token, store) {
 '<label>' + escHtml(W.companyLabel) + ' <span class="req">必須</span></label>' +
 '<input type="text" id="company" value="' + company + '" required>' +
 
-'<div class="row2"><div><label>' + escHtml(W.repLabel) + ' <span class="opt">任意</span></label><input type="text" id="rep"></div>' +
-'<div><label>' + escHtml(W.licenseLabel) + ' <span class="opt">任意</span></label><input type="text" id="license"></div></div>' +
+'<div class="row2"><div><label>' + escHtml(W.repLabel) + ' <span class="opt">任意</span></label><input type="text" id="rep"' + (pfRep ? ' value="' + pfRep + '"' : '') + '></div>' +
+'<div><label>' + escHtml(W.licenseLabel) + ' <span class="opt">任意</span></label><input type="text" id="license"' + (pfLicense ? ' value="' + pfLicense + '"' : '') + '></div></div>' +
 
 '<label>' + escHtml(W.areaLabel) + ' <span class="req">必須</span></label>' +
-'<input type="text" id="area" placeholder="' + escHtml(W.areaPh) + '" required>' +
+'<input type="text" id="area" placeholder="' + escHtml(W.areaPh) + '"' + (pfArea ? ' value="' + pfArea + '"' : '') + ' required>' +
 
 '<label>' + escHtml(W.areasLabel) + ' <span class="hint">' + escHtml(W.areasHint) + '</span></label>' +
-'<input type="text" id="areas" placeholder="' + escHtml(W.areasPh) + '">' +
+'<input type="text" id="areas" placeholder="' + escHtml(W.areasPh) + '"' + (pfAreas ? ' value="' + pfAreas + '"' : '') + '>' +
 
 '<label>' + escHtml(W.worksLabel) + ' <span class="req">必須</span></label>' +
 '<p class="hint">' + escHtml(W.worksHint) + '</p>' +
 '<div class="chips" id="works">' +
-W.works.map(function(w){return '<span class="chip" data-w="'+escHtml(w)+'">'+escHtml(w)+'</span>';}).join('') +
+W.works.map(function(w){return '<span class="chip'+(pfWorkSet.has(w)?' on':'')+'" data-w="'+escHtml(w)+'">'+escHtml(w)+'</span>';}).join('') +
 '</div>' +
-'<input type="text" id="worksOther" placeholder="' + escHtml(W.worksOtherPh) + '" style="margin-top:10px;">' +
+'<input type="text" id="worksOther" placeholder="' + escHtml(W.worksOtherPh) + '"' + (pfWorksOther ? ' value="' + pfWorksOther + '"' : '') + ' style="margin-top:10px;">' +
 
 '<label>' + escHtml(W.strengthsLabel) + ' <span class="hint">' + escHtml(W.strengthsHint) + '</span></label>' +
-'<textarea id="strengths" placeholder="' + escHtml(W.strengthsPh) + '"></textarea>' +
+'<textarea id="strengths" placeholder="' + escHtml(W.strengthsPh) + '">' + pfStrengths + '</textarea>' +
 
 (W.estimates ?
 '<label>実際の見積もり例 <span class="hint">(適正診断=KIRA監査に使います。金額は公開しません。1〜3件)</span></label>' +
@@ -325,10 +342,10 @@ W.works.map(function(w){return '<span class="chip" data-w="'+escHtml(w)+'">'+esc
 '</div><button type="button" class="add" id="addFaq">＋ 質問を追加</button>' +
 
 '<label>信頼の裏づけ <span class="opt">任意</span> <span class="hint">' + escHtml(W.trustHint) + '</span></label>' +
-'<textarea id="trust" placeholder="' + escHtml(W.trustPh) + '"></textarea>' +
+'<textarea id="trust" placeholder="' + escHtml(W.trustPh) + '">' + pfTrust + '</textarea>' +
 
-'<div class="row2"><div><label>' + escHtml(W.contactLabel) + ' <span class="opt">任意</span></label><input type="text" id="contact" placeholder="電話 または メール"></div>' +
-'<div><label>対応時間・定休日 <span class="opt">任意</span></label><input type="text" id="hours" placeholder="' + escHtml(W.hoursPh) + '"></div></div>' +
+'<div class="row2"><div><label>' + escHtml(W.contactLabel) + ' <span class="opt">任意</span></label><input type="text" id="contact" placeholder="電話 または メール"' + (pfContact ? ' value="' + pfContact + '"' : '') + '></div>' +
+'<div><label>対応時間・定休日 <span class="opt">任意</span></label><input type="text" id="hours" placeholder="' + escHtml(W.hoursPh) + '"' + (pfHours ? ' value="' + pfHours + '"' : '') + '></div></div>' +
 
 '<label>公開してほしくない情報 <span class="opt">任意</span></label>' +
 '<input type="text" id="ng" placeholder="' + escHtml(W.ngPh) + '">' +
@@ -2154,7 +2171,12 @@ export default {
       if (!tokRec) return html("<h1>このヒアリングリンクは無効か、期限切れです</h1><p>運営(HORIZON SHIELD)にお問い合わせください。</p>", 404);
       const store = await env.HS_HEARING_KV.get("store:" + tokRec.store_id, "json");
 
-      if (request.method === "GET") return html(hearingForm(token, store || tokRec));
+      if (request.method === "GET") {
+        // 既にもらった答えを埋めて出す。store: 側に社名が無い店(平田様がそうだった)でも、
+        // hearing: 側の profile から社名と答えを拾う。
+        const hrecForm = await env.HS_HEARING_KV.get("hearing:" + tokRec.store_id, "json");
+        return html(hearingForm(token, store || tokRec, (hrecForm && hrecForm.profile) || null));
+      }
 
       if (request.method === "POST") {
         let raw;
