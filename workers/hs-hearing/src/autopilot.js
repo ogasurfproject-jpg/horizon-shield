@@ -257,6 +257,19 @@ function answered(extra, qid) {
   return true;
 }
 
+/* 2026-08-25: フォーカスは複数持てる(q_focus は「複数可」)。
+   focus_all を主軸から順に、重複と無効キーを除いて返す。
+   focus_all が無い/単一の古い記録は [focus_primary] に落ちる(従来と同じ挙動)。 */
+function focusKeys(autopilot) {
+  const ap = autopilot || {};
+  const all = Array.isArray(ap.focus_all) ? ap.focus_all : [];
+  const out = [], seen = new Set();
+  for (const k of [ap.focus_primary, ...all]) {
+    if (k && QUESTION_BANK[k] && !seen.has(k)) { seen.add(k); out.push(k); }
+  }
+  return out;
+}
+
 export function computeCompleteness(profile, autopilot) {
   const p = profile || {};
   const extraRaw = p.extra || {};
@@ -296,16 +309,24 @@ export function computeCompleteness(profile, autopilot) {
   add(!!S(p.story) || !!extra.q_story, 5, "q_story");
   add((p.cases || []).length > 0 || !!extra.q_cases, 5, "q_cases");
   add(!!focus, 5, "q_focus");
-  // フォーカス個別(3問で10点)
-  if (focus && QUESTION_BANK[focus]) {
-    const qids = Object.keys(QUESTION_BANK[focus]);
-    const answered = qids.filter((q) => !!extra[q]).length;
-    score += Math.round((answered / qids.length) * 10);
-    // 2026-08-19 patch56: フォーカス個別は extra[q] の有無で見ているので、
-    //   答えがあれば埋まる。missing と askable は同じでよい。
-    for (const q of qids) if (!extra[q]) { missing.push({ qid: q, w: QUESTION_BANK[focus][q].w }); askable.push({ qid: q, w: QUESTION_BANK[focus][q].w }); }
-  } else {
-    // フォーカス不明のうちは配点保留(q_focusが最優先で立つ)
+  // フォーカス個別(バンクごとに3問。配点10点は全体で頭打ち)
+  // 2026-08-25: 望みが二つある店(例: 新規顧客確保=homeowners と 従業員募集=recruit)は
+  //   両方のバンクを聞く・数える。focus_all が単一/空の店は従来と同じ(バンク1つ、3問で10点)。
+  //   フォーカス不明のうちは配点保留(q_focusが最優先で立つ)。
+  const focusList = focusKeys(autopilot);
+  if (focusList.length) {
+    const seenQ = new Set();
+    let fTotal = 0, fAnswered = 0;
+    for (const fk of focusList) {
+      const bank = QUESTION_BANK[fk];
+      for (const q of Object.keys(bank)) {
+        if (seenQ.has(q)) continue;
+        seenQ.add(q); fTotal += 1;
+        if (extra[q]) { fAnswered += 1; }
+        else { missing.push({ qid: q, w: bank[q].w }); askable.push({ qid: q, w: bank[q].w }); }
+      }
+    }
+    if (fTotal) score += Math.round((fAnswered / fTotal) * 10);
   }
   // 2026-08-23: 業種ぶんの設問。業種ごとに聞くべきことが違う。
   // 訪問看護なら、指示書の期限、加算、減算の要件、返戻、オンコールの実態。
@@ -381,6 +402,7 @@ export function nextQuestions(profile, autopilot, maxN = 2) {
   //   「答えてもらったが長さが足りない」欄も入っている。そこを聞き直さない。
   const comp = computeCompleteness(profile, autopilot);
   const missing = comp.askable || comp.missing;
+  const focusList = focusKeys(autopilot);
   const flat = [];
   for (const m of missing) {
     const askedN = askedCount[m.qid] || 0;
@@ -393,12 +415,15 @@ export function nextQuestions(profile, autopilot, maxN = 2) {
     //   ここが抜けていたので、訪問看護の管理者に「塗装職人2名、現場管理1名」
     //   「外壁塗装 30〜60坪」という例文が追撃質問として届いていた。
     //   基本の設問だけ業種で言い換えて、目的別を言い換えていなかった。
-    const focusNow = autopilot && autopilot.focus_primary;
+    // 2026-08-25: 設問がどのフォーカスのバンクに属すかで、言い換えとテキストを引く。
+    //   focus_primary だけを見ると、二つ目の望み(例: recruit)の設問はテキストが引けず落ちていた。
+    const ownerFocus = focusList.find((fk) => QUESTION_BANK[fk] && QUESTION_BANK[fk][m.qid])
+      || (autopilot && autopilot.focus_primary);
     const q = IND.questionFor((profile || {}).industry, m.qid)
-      || (focusNow && IND.focusQuestion((profile || {}).industry, focusNow, m.qid))
+      || (ownerFocus && IND.focusQuestion((profile || {}).industry, ownerFocus, m.qid))
       || VIS.visibilityQuestion(m.qid)
       || QUESTION_BANK[m.qid]
-      || (focusNow && QUESTION_BANK[focusNow] && QUESTION_BANK[focusNow][m.qid]);
+      || (ownerFocus && QUESTION_BANK[ownerFocus] && QUESTION_BANK[ownerFocus][m.qid]);
     if (!q) continue;
     flat.push({ qid: m.qid, w: m.w, text: q.text });
   }

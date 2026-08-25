@@ -2738,8 +2738,13 @@ export default {
         if (!store) return json({ error: "not_found" }, 404);
         const hearing = await env.HS_HEARING_KV.get("hearing:" + sid, "json");
         const ap = store.autopilot || {};
-        if (b.focus && ["recruit","leads","homeowners","franchise","brand"].includes(b.focus)) {
-          ap.focus_primary = b.focus; ap.focus_all = [b.focus]; ap.focus_via = "manual";
+        // 2026-08-25: focus は文字列でも配列でも受ける(望みが複数ある店のため。q_focus は「複数可」)。
+        //   配列の先頭が主軸。無効キーと重複は落とす。1個だけ渡せば従来と同じ。
+        const reqFocus = Array.isArray(b.focus) ? b.focus : (b.focus ? [b.focus] : []);
+        const cleanFocus = [];
+        for (const fk of reqFocus) if (AP.FOCUS_KEYS.includes(fk) && !cleanFocus.includes(fk)) cleanFocus.push(fk);
+        if (cleanFocus.length) {
+          ap.focus_primary = cleanFocus[0]; ap.focus_all = cleanFocus; ap.focus_via = "manual";
         } else {
           const f = await AP.classifyFocus(env, store, (hearing && hearing.profile) || null);
           ap.focus_primary = f.primary; ap.focus_all = f.all; ap.focus_via = f.via;
@@ -2747,7 +2752,7 @@ export default {
         ap.completeness = AP.computeCompleteness((hearing && hearing.profile) || {}, ap).score;
         store.autopilot = ap;
         await AP.putStore(env, store, "admin/classify");
-        return json({ ok: true, focus_primary: ap.focus_primary, via: ap.focus_via, completeness: ap.completeness });
+        return json({ ok: true, focus_primary: ap.focus_primary, focus_all: ap.focus_all, via: ap.focus_via, completeness: ap.completeness });
       }
 
       // 注意喚起を今すぐ送る(こんなことはありますか？)
