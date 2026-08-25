@@ -1,128 +1,91 @@
 {
-  "generated_at": "2026-07-10T13:13:52Z",
-  "member_no": "No.001",
-  "company": "リフォーム職人株式会社",
+  "generated_at": "2026-08-25T00:18:23Z",
+  "member_no": "No.002",
+  "company": "ミネオトーヨー住器株式会社",
   "focus": null,
-  "count": 9,
+  "count": 5,
   "ratio": {
-    "geo": 3,
-    "aeo": 3,
-    "llmo": 2,
-    "webmcp": 1
+    "geo": 4,
+    "aeo": 1
   },
   "urls": [
-    "https://shield.the-horizons-innovation.com/yakumo/souba/gaiheki-tosou-nagakute/",
-    "https://shield.the-horizons-innovation.com/yakumo/souba/yane-nagakute/",
-    "https://shield.the-horizons-innovation.com/yakumo/souba/naiso-nagakute/",
-    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-nagakute-faq-gaiheki-tosou/",
-    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-nagakute-faq-yane/",
-    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-nagakute-faq-naiso/",
-    "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-kensho-zumi-kameiten-toha/",
-    "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi/",
-    "https://shield.the-horizons-innovation.com/yakumo/webmcp/yakumo-verified-stores-mcp/"
+    "https://shield.the-horizons-innovation.com/yakumo/souba/work-9b40da-area-5ed64c/",
+    "https://shield.the-horizons-innovation.com/yakumo/souba/work-82846d-area-5ed64c/",
+    "https://shield.the-horizons-innovation.com/yakumo/souba/work-4b28d8-area-5ed64c/",
+    "https://shield.the-horizons-innovation.com/yakumo/souba/work-d99e1b-area-5ed64c/",
+    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-area-5ed64c-faq-1/"
   ],
   "pages": [
     {
       "type": "geo",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/gaiheki-tosou-nagakute/",
-      "path": "yakumo/souba/gaiheki-tosou-nagakute/index.html"
+      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/work-9b40da-area-5ed64c/",
+      "path": "yakumo/souba/work-9b40da-area-5ed64c/index.html"
     },
     {
       "type": "geo",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/yane-nagakute/",
-      "path": "yakumo/souba/yane-nagakute/index.html"
+      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/work-82846d-area-5ed64c/",
+      "path": "yakumo/souba/work-82846d-area-5ed64c/index.html"
     },
     {
       "type": "geo",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/naiso-nagakute/",
-      "path": "yakumo/souba/naiso-nagakute/index.html"
+      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/work-4b28d8-area-5ed64c/",
+      "path": "yakumo/souba/work-4b28d8-area-5ed64c/index.html"
+    },
+    {
+      "type": "geo",
+      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/work-d99e1b-area-5ed64c/",
+      "path": "yakumo/souba/work-d99e1b-area-5ed64c/index.html"
     },
     {
       "type": "aeo",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-nagakute-faq-gaiheki-tosou/",
-      "path": "yakumo/faq/yakumo-nagakute-faq-gaiheki-tosou/index.html"
-    },
-    {
-      "type": "aeo",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-nagakute-faq-yane/",
-      "path": "yakumo/faq/yakumo-nagakute-faq-yane/index.html"
-    },
-    {
-      "type": "aeo",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-nagakute-faq-naiso/",
-      "path": "yakumo/faq/yakumo-nagakute-faq-naiso/index.html"
-    },
-    {
-      "type": "llmo",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-kensho-zumi-kameiten-toha/",
-      "path": "yakumo/llmo/yakumo-kensho-zumi-kameiten-toha/index.html"
-    },
-    {
-      "type": "llmo",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi/",
-      "path": "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi/index.html"
-    },
-    {
-      "type": "webmcp",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/webmcp/yakumo-verified-stores-mcp/",
-      "path": "yakumo/webmcp/yakumo-verified-stores-mcp/index.html"
+      "url": "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-area-5ed64c-faq-1/",
+      "path": "yakumo/faq/yakumo-area-5ed64c-faq-1/index.html"
     }
   ],
-  "dup_skipped": [],
+  "dup_skipped": [
+    {
+      "url": "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-kensho-zumi-kameiten-toha/",
+      "why": "slug:yakumo/llmo/yakumo-kensho-zumi-kameiten-toha"
+    },
+    {
+      "url": "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi/",
+      "why": "slug:yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi"
+    },
+    {
+      "url": "https://shield.the-horizons-innovation.com/yakumo/webmcp/yakumo-verified-stores-mcp/",
+      "why": "slug:yakumo/webmcp/yakumo-verified-stores-mcp"
+    }
+  ],
   "new_fingerprints": [
     {
-      "slug": "yakumo/souba/gaiheki-tosou-nagakute",
-      "tsha": "0725fc0d",
-      "simhash": "1ceb82c86328d2ec",
-      "m": "no001"
+      "slug": "yakumo/souba/work-9b40da-area-5ed64c",
+      "tsha": "fe8191c5",
+      "simhash": "a868b2c979e81bf8",
+      "m": "no002"
     },
     {
-      "slug": "yakumo/souba/yane-nagakute",
-      "tsha": "5c7c96c7",
-      "simhash": "87b02c97bb848e0",
-      "m": "no001"
+      "slug": "yakumo/souba/work-82846d-area-5ed64c",
+      "tsha": "726e4e54",
+      "simhash": "a878a0c97bc89bfc",
+      "m": "no002"
     },
     {
-      "slug": "yakumo/souba/naiso-nagakute",
-      "tsha": "051f1cee",
-      "simhash": "20eb12c9737852e8",
-      "m": "no001"
+      "slug": "yakumo/souba/work-4b28d8-area-5ed64c",
+      "tsha": "bea65ab7",
+      "simhash": "aceaa0c96fec9fe8",
+      "m": "no002"
     },
     {
-      "slug": "yakumo/faq/yakumo-nagakute-faq-gaiheki-tosou",
-      "tsha": "6492fa9f",
-      "simhash": "b6db96c81134596a",
-      "m": "no001"
+      "slug": "yakumo/souba/work-d99e1b-area-5ed64c",
+      "tsha": "3a21b749",
+      "simhash": "a8e9a6c978e89be8",
+      "m": "no002"
     },
     {
-      "slug": "yakumo/faq/yakumo-nagakute-faq-yane",
-      "tsha": "f768472f",
-      "simhash": "aa6834c83f1c31e6",
-      "m": "no001"
-    },
-    {
-      "slug": "yakumo/faq/yakumo-nagakute-faq-naiso",
-      "tsha": "8aa07d41",
-      "simhash": "646d32c91da6096a",
-      "m": "no001"
-    },
-    {
-      "slug": "yakumo/llmo/yakumo-kensho-zumi-kameiten-toha",
-      "tsha": "fafd01aa",
-      "simhash": "a02d22c977acb2e0",
-      "m": "no001"
-    },
-    {
-      "slug": "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi",
-      "tsha": "40d4a273",
-      "simhash": "a16bb2c935bcd6c8",
-      "m": "no001"
-    },
-    {
-      "slug": "yakumo/webmcp/yakumo-verified-stores-mcp",
-      "tsha": "7f058a5f",
-      "simhash": "c279b41965f6afbf",
-      "m": "no001"
+      "slug": "yakumo/faq/yakumo-area-5ed64c-faq-1",
+      "tsha": "a9a15253",
+      "simhash": "3a6036c9321c1bec",
+      "m": "no002"
     }
   ]
 }

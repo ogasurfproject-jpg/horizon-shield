@@ -1,0 +1,29 @@
+{
+  "status": "ok",
+  "industry": "construction",
+  "company": "ミネオトーヨー住器株式会社",
+  "generator": "tools/yakumo/generate.py",
+  "manifest": "tools/yakumo/last_manifest.json",
+  "count": 5,
+  "pages": [
+    "yakumo/faq/yakumo-area-5ed64c-faq-1/index.html",
+    "yakumo/souba/work-4b28d8-area-5ed64c/index.html",
+    "yakumo/souba/work-82846d-area-5ed64c/index.html",
+    "yakumo/souba/work-9b40da-area-5ed64c/index.html",
+    "yakumo/souba/work-d99e1b-area-5ed64c/index.html"
+  ],
+  "urls": [
+    "https://shield.the-horizons-innovation.com/yakumo/souba/work-9b40da-area-5ed64c/",
+    "https://shield.the-horizons-innovation.com/yakumo/souba/work-82846d-area-5ed64c/",
+    "https://shield.the-horizons-innovation.com/yakumo/souba/work-4b28d8-area-5ed64c/",
+    "https://shield.the-horizons-innovation.com/yakumo/souba/work-d99e1b-area-5ed64c/",
+    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-area-5ed64c-faq-1/"
+  ],
+  "commit_paths": [
+    "yakumo/",
+    "tools/yakumo/last_manifest.json",
+    "sitemap.xml",
+    "data/yakumo-content-manifest.json"
+  ],
+  "published": true
+}

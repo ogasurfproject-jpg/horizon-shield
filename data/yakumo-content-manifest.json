@@ -54,9 +54,42 @@
    "tsha": "7f058a5f",
    "simhash": "8279a41925f639df",
    "m": "no001"
+  },
+  {
+   "slug": "yakumo/souba/work-9b40da-area-5ed64c",
+   "tsha": "fe8191c5",
+   "simhash": "a868b2c979e81bf8",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/souba/work-82846d-area-5ed64c",
+   "tsha": "726e4e54",
+   "simhash": "a878a0c97bc89bfc",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/souba/work-4b28d8-area-5ed64c",
+   "tsha": "bea65ab7",
+   "simhash": "aceaa0c96fec9fe8",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/souba/work-d99e1b-area-5ed64c",
+   "tsha": "3a21b749",
+   "simhash": "a8e9a6c978e89be8",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/faq/yakumo-area-5ed64c-faq-1",
+   "tsha": "a9a15253",
+   "simhash": "3a6036c9321c1bec",
+   "m": "no002"
   }
  ],
- "updated_at": "2026-07-10T13:13:52Z",
+ "updated_at": "2026-08-25T00:18:23Z",
  "rebuilt_at": "2026-08-23",
- "rebuilt_why": "指紋から剥がす共通枠のパターンを直したため、計算結果が変わった。全エントリを一斉に入れ替えて整合を保った。古い台帳は yakumo-content-manifest.json.bak_prerebuild20260823 に残してある。"
+ "rebuilt_why": "指紋から剥がす共通枠のパターンを直したため、計算結果が変わった。全エントリを一斉に入れ替えて整合を保った。古い台帳は yakumo-content-manifest.json.bak_prerebuild20260823 に残してある。",
+ "stores": {
+  "no002": "cbf070c7ab5b"
+ }
 }
