@@ -1702,7 +1702,32 @@ async function handleKiraBridge(env, userId, text, groupId, estimates) {
   const _askedText = (_apNow.pending && _apNow.pending.text) || "";
   const _companyNow = (store && store.company) || "";
   try { await ingestHearingAnswer(env, storeId, store, t, "line"); } catch (_e) {}
-  const smart = await aiPartnerReply(env, t, { company: _companyNow, asked: _askedText });
+  // 2026-08-25: 切り分けられなかったときは、AI に返事を書かせない。
+  //
+  //   合同会社アップス様に「よく聞かれる質問と、社名・住所・電話番号を掲載します」と返した。
+  //   どちらも一言もいただいていない。昨日の2問への答えが、今日の2問への答えとして
+  //   記録され、返信はこちらが尋ねたことをそのまま読み上げた。
+  //
+  //   原因は aiPartnerReply に渡していた一文である。
+  //     「直前にこちらから次のことを尋ねている: 『…』届いた文は、その回答である。」
+  //   これは今朝、峰尾様の『工事の依頼と誤読した』件を直したときに私が書いた。
+  //   誤読は消えたが、代わりに『いつでも答えとして受け取る』を作った。
+  //
+  //   何を受け取ったか判らないときに、受け取った中身を述べさせない。
+  //   言い方の問題ではないので、プロンプトでは直さない。
+  //   判らない時は、判らない時の文を、機械が出す。
+  const _apAfter = await env.HS_HEARING_KV.get("store:" + storeId, "json");
+  const _attrib = ((_apAfter && _apAfter.autopilot) || {}).last_attributed || "";
+  const _uncertain = _attrib === "ambiguous" || _attrib === "ambiguous_waves";
+  const smart = _uncertain ? null
+    : await aiPartnerReply(env, t, { company: _companyNow, asked: _askedText });
+  if (_uncertain) {
+    try { await notify(env, "[Yakumo] 切り分け不能(" + _attrib + ")のため定型で返信。人が当て直すこと: "
+      + (((store || {}).company) || storeId) + " / " + t.slice(0, 80)); } catch (_e) {}
+    return { ok: true, reply: "ご返信ありがとうございます。いただいた内容は担当の大賀が確認し、"
+      + "掲載に必要なところをこちらで整えます。どの質問へのご回答か、こちらで取り違えている"
+      + "可能性がありますので、行き違いがありましたらお知らせください。" };
+  }
   try { await notify(env, "[Yakumo] KIRA経由メッセージにAI応答: " + (((store || {}).company) || storeId) + " / " + t.slice(0, 60)); } catch (_e) {}
   return { ok: true, reply: smart || "受け取りました。ありがとうございます。内容は運営事務局で確認します。お急ぎのご用件でしたら、その旨をお書きください。" };
 }

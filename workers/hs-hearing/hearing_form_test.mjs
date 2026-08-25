@@ -366,7 +366,59 @@ ok(!new Set(AP.computeCompleteness(strProf, {}).askable.map((m) => m.qid)).has("
    "文字列で入っている古い形も、答えとして扱う");
 
 /* ------------------------------------------------------------------ */
-const EXPECT_MIN = 227;
+console.log("\n11) 返事待ちが二つあるとき、番号を信じないこと");
+
+/* 合同会社アップス様は、昨日送った2問に 1) 2) で答えられた。
+   その返事が届く前に、こちらが別の2問を送っていた。個数がどちらも2で、
+   番号の見た目が一致しただけで、今日の設問への答えとして numbered で記録した。
+     q_faqs     ← 「２」          (実際は昨日の『1 利用者を増やす / 2 看護師の採用』への答え)
+     q_ai_place ← 事業所の特色の文 (実際は昨日の『他と違うところ』への答え)
+   splitNumberedReply は、番号が昇順かと、各部分が空でないかしか見ていない。
+   その番号がどの便のものかは判らない。判らないものを、一番自信のある印で記録しない。 */
+
+function makeStore(waves) {
+  return { store_id: "kira-test", autopilot: { pending: {
+    qids: waves.flatMap((w) => w.qids), waves,
+    asked_texts: Object.fromEntries(waves.flatMap((w) => w.qids.map((q) => [q, q]))),
+    sent_at: waves[waves.length - 1].sent_at, via: "followup",
+  } } };
+}
+
+// 波が二つ。番号つきの返事。当てられるが、どの便のものかは判らない。
+const twoWaves = makeStore([
+  { qids: ["q_focus", "q_strengths"], texts: {}, sent_at: "2026-08-24T21:17:00Z", kind: "nudge" },
+  { qids: ["q_faqs", "q_ai_place"], texts: {}, sent_at: "2026-08-25T04:44:00Z", kind: "followup" },
+]);
+const patch2 = AP.settlePendingOnAnswer(twoWaves, "1) 2\n2) 神奈川県平塚市で平成31年3月から訪問看護を行なっています。");
+ok(patch2.q_faqs && patch2.q_faqs.attributed === "ambiguous_waves",
+   "波が二つなら numbered と名乗らない (実測 " + (patch2.q_faqs || {}).attributed + ")");
+ok(patch2.q_ai_place && patch2.q_ai_place.attributed === "ambiguous_waves",
+   "もう一方も同じ印");
+ok(twoWaves.autopilot.last_attributed === "ambiguous_waves",
+   "どう当てたかが店に残る(返信を書く側が見る)");
+
+// 波が一つ。番号つき。これはこれまでどおり numbered でよい。
+const oneWave = makeStore([
+  { qids: ["q_faqs", "q_ai_place"], texts: {}, sent_at: "2026-08-25T04:44:00Z", kind: "followup" },
+]);
+const patch1 = AP.settlePendingOnAnswer(oneWave, "1) あいうえお\n2) かきくけこ");
+ok(patch1.q_faqs && patch1.q_faqs.attributed === "numbered",
+   "波が一つなら、これまでどおり numbered (実測 " + (patch1.q_faqs || {}).attributed + ")");
+ok(oneWave.autopilot.last_attributed === "numbered", "一つの波の印も店に残る");
+
+// ambiguous_waves は、答えとして数えない
+const wavesProf = { company: "x", industry: "nursing",
+  extra: { q_ai_place: { text: "理念の文", attributed: "ambiguous_waves" } } };
+ok(new Set(AP.computeCompleteness(wavesProf, {}).askable.map((m) => m.qid)).has("q_ai_place"),
+   "ambiguous_waves の答えは、もう一度聞ける");
+
+// 1問だけの波なら、これまでどおり
+const solo = makeStore([{ qids: ["q_trust"], texts: {}, sent_at: "2026-08-25T04:44:00Z", kind: "followup" }]);
+const patchS = AP.settlePendingOnAnswer(solo, "うちは創業70年です");
+ok(patchS.q_trust && patchS.q_trust.attributed === "sole", "1問だけ送った返事は sole のまま");
+
+/* ------------------------------------------------------------------ */
+const EXPECT_MIN = 234;
 console.log("\n実行 " + ran + " 件 / 失敗 " + bad + " 件");
 if (ran < EXPECT_MIN) {
   console.log("検査の数が " + ran + " 件しかない (最低 " + EXPECT_MIN + " 件のはず)。検査が抜け落ちている。");

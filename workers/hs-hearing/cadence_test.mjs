@@ -201,7 +201,18 @@ console.log("\n5) 番号つきの返事");
   const patch = AP.settlePendingOnAnswer(s, "1) 常勤4名です\n2) 加算は2つ取っています");
   check("直近の2問に分かれて入る", Object.keys(patch).sort().join("+") === "q_1+q_2",
         Object.keys(patch).join("+"));
-  check("番号で切り分けたと記録する", patch.q_1.attributed === "numbered");
+  // 2026-08-25: ここは numbered を期待していた。その期待が本番で崩れた。
+  //   合同会社アップス様は、昨日送った2問に 1) 2) で答えられた。
+  //   その返事が届く前に、こちらが別の2問を送っていた。個数がどちらも2で、
+  //   番号の見た目が一致しただけで、今日の設問への答えとして numbered で記録した。
+  //   住所も電話番号も、以後は答え済み扱いで二度と聞かれなくなった。
+  //
+  //   この場面(古い波が開いたまま、新しい波に番号つきで返る)は、
+  //   まさにその形である。当てる先は直近の波でよいが、
+  //   「番号で切り分けた」と名乗ってよい場面ではない。
+  //   検査が間違った期待を固定していた。期待のほうを直す。
+  check("波が二つあるので、番号を名乗らない", patch.q_1.attributed === "ambiguous_waves",
+        patch.q_1.attributed);
   check("1問目の中身が正しい", patch.q_1.text === "常勤4名です", patch.q_1.text);
   check("2問目の中身が正しい", patch.q_2.text === "加算は2つ取っています", patch.q_2.text);
   check("古い問いは残る", s.autopilot.pending.qids.join("+") === "q_old");

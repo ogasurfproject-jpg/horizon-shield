@@ -252,7 +252,8 @@ const FOCUS_KEYWORDS = {
 function answered(extra, qid) {
   const v = extra[qid];
   if (!v) return false;
-  if (typeof v === "object" && v.attributed === "ambiguous") return false;
+  if (typeof v === "object" &&
+      (v.attributed === "ambiguous" || v.attributed === "ambiguous_waves")) return false;
   return true;
 }
 
@@ -1192,9 +1193,20 @@ export function settlePendingOnAnswer(store, rawText) {
       how = parts ? "numbered" : (qids.length > 1 ? "ambiguous" : "sole");
       waveMatched = true;
     } else if (lastParts) {
-      // 新しい波の番号と、返事の番号が揃った。切り分けられている。
+      // 2026-08-25: ここは「新しい波の番号と揃ったから切り分けられている」と読んでいた。
+      //   本番で崩れた。合同会社アップス様は、昨日送った2問に 1) 2) で答えられた。
+      //   その返事が届く前に、こちらが別の2問を送っていた。個数がどちらも2で、
+      //   番号の見た目が一致しただけで、今日の設問への答えとして numbered で記録した。
+      //     q_faqs     ← 「２」          (実際は昨日の『1 利用者を増やす / 2 看護師の採用』への答え)
+      //     q_ai_place ← 事業所の特色の文 (実際は昨日の『他と違うところ』への答え)
+      //   住所も電話番号も、以後は答え済み扱いで二度と聞かれない。
+      //
+      //   splitNumberedReply が見ているのは、番号が昇順に並んでいることと、
+      //   各部分が空でないことだけである。その番号がどの便のものかは判らない。
+      //   波が二つ以上開いている時点で、番号は一意ではない。
+      //   一意でないものを、一番自信のある印で記録してはいけない。
       qids = [...last.qids]; texts = { ...last.texts };
-      parts = lastParts; how = "numbered"; waveMatched = true;
+      parts = lastParts; how = "ambiguous_waves"; waveMatched = true;
     } else if (last.qids.length === 1 && !hasNumber) {
       // 新しい波は1問で、返事に番号は無い。いちばん最後に届いた1問への返事とみるのが自然だが、
       // 古い波への返事である可能性は消えない。だから決めつけず、名前を変えて人に回す。
@@ -1218,6 +1230,7 @@ export function settlePendingOnAnswer(store, rawText) {
         //   numbered    … 番号で切り分けられた
         //   recent_wave … 直近に送った1問への返事とみなした(推定。人が確かめる)
         //   ambiguous   … 複数送って1通返り、切り分けられなかった
+        //   ambiguous_waves … 返事待ちの便が二つ以上あり、番号がどの便のものか決められない
         attributed: how,
         with: qids.filter((x) => x !== qid),
         asked: S(texts[qid] || (p.asked_texts || {})[qid] || "", 600),
@@ -1226,6 +1239,10 @@ export function settlePendingOnAnswer(store, rawText) {
     // 2026-08-19 patch44: 返事が来たことと、その質問が埋まったことは別の事実。
     // 中身を確かめずに埋まった印を立てない。埋まったかは computeCompleteness が決める。
     // 返事が来た事実は消さずに残す。
+    // 2026-08-25: どう当てたかを店にも残す。返信を書く側が、これを見て口を選ぶ。
+    //   判らないまま「受け取りました、掲載します」と言わせないために要る。
+    ap.last_attributed = how;
+    ap.last_attributed_at = now();
     const settled = new Set(qids);
     ap.asked = (ap.asked || []).map((a) => (settled.has(a.qid) ? { ...a, replied_at: now() } : a));
 
