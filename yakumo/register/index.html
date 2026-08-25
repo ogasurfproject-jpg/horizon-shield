@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
 <title>Yakumo 加盟店 登録</title>
+<meta name="description" content="Yakumo 加盟店の登録・確認フォーム。コードをお持ちの加盟店様が掲載情報を確認して追記できます。">
+<meta name="author" content="The HORIZONs株式会社">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/yakumo/register/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Yakumo 加盟店 登録","isPartOf":{"@type":"WebSite","name":"HORIZON SHIELD","url":"https://shield.the-horizons-innovation.com/"},"publisher":{"@type":"Organization","name":"The HORIZONs株式会社","url":"https://shield.the-horizons-innovation.com/"}}</script>
 <style>
   :root{--void:#080B11;--void-2:#0A0E16;--ink:#EAF0F8;--dim:#7E8CA2;--faint:#4A5568;
     --verify:#3FE0CE;--verify-deep:#15847A;--bronze:#C9A86A;--alert:#F0634A;
@@ -128,7 +132,7 @@
     <a class="primary" id="doneMypage" href="#" style="display:inline-block;width:auto;padding:13px 26px;text-decoration:none;margin-top:20px;">マイページを開く</a>
   </div>
 
-  <div class="foot">Yakumo ・ The HORIZONs株式会社 / HORIZON SHIELD ・ TEL 0463-74-5917</div>
+  <div class="foot"><a href="https://shield.the-horizons-innovation.com/yakumo/">Yakumo モール</a> ・ <a href="https://shield.the-horizons-innovation.com/">HORIZON SHIELD</a> ・ The HORIZONs株式会社 ・ TEL 0463-74-5917</div>
 </div>
 
 <script>
@@ -222,7 +226,7 @@ $("f")?.addEventListener("submit",ev=>{
   if(!payload.company||!payload.area||works.length===0){ alert("社名・所在地・工種は必須です。"); return; }
   fetch(WORKER + "/h/" + CODE,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
     .then(r=>r.json()).then(res=>{
-      if(res&&res.ok){ $("doneMypage").href="/yakumo/mypage/?code="+encodeURIComponent(CODE); $("formWrap").style.display="none"; $("done").style.display="block"; window.scrollTo(0,0); }
+      if(res&&res.ok){ $("doneMypage").href="https://shield.the-horizons-innovation.com/yakumo/mypage/?code="+encodeURIComponent(CODE); $("formWrap").style.display="none"; $("done").style.display="block"; window.scrollTo(0,0); }
       else alert((res&&res.error)||"送信に失敗しました。時間をおいて再度お試しください。");
     }).catch(()=>alert("通信エラー。時間をおいて再度お試しください。"));
 });
