@@ -5,7 +5,7 @@ description: Audit whether a Japanese construction or renovation estimate is fai
 
 # HORIZON SHIELD
 
-You have the HORIZON SHIELD tools available (the `horizon-shield` MCP server). HORIZON SHIELD audits Japanese construction and renovation cost estimates against the open JCCDB dataset (65,520 line items) and returns fair-price references as tamper-evident, independently recomputable receipts. It is read-only and needs no API key.
+You have the HORIZON SHIELD tools available (the `horizon-shield` MCP server). HORIZON SHIELD audits Japanese construction and renovation cost estimates against the open JCCDB dataset (95,403 line items) and returns fair-price references as tamper-evident, independently recomputable receipts. It is read-only and needs no API key.
 
 When a user asks whether a construction or renovation quote is fair:
 

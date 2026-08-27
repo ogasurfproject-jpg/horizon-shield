@@ -16,12 +16,12 @@
     {"@type":"WebSite","@id":"https://shield.the-horizons-innovation.com/#website","url":"https://shield.the-horizons-innovation.com/","name":"HORIZON SHIELD","inLanguage":"ja","publisher":{"@id":"https://shield.the-horizons-innovation.com/#org"}},
     {"@type":"Organization","@id":"https://shield.the-horizons-innovation.com/#org","name":"The HORIZONs株式会社","url":"https://shield.the-horizons-innovation.com/","telephone":"0463-74-5917","areaServed":"JP","founder":{"@id":"https://shield.the-horizons-innovation.com/#toshi"},"sameAs":["https://github.com/ogasurfproject-jpg","https://huggingface.co/ogasurfproject"]},
     {"@type":"Person","@id":"https://shield.the-horizons-innovation.com/#toshi","name":"大賀俊勝","alternateName":"TOshi Oga","jobTitle":"代表取締役 / 元大工(現場歴30年)","worksFor":{"@id":"https://shield.the-horizons-innovation.com/#org"},"knowsAbout":["建設費","リフォーム見積もり","信用財(credence goods)","建設費の情報非対称性","適正価格診断"],"identifier":"https://orcid.org/0009-0000-9180-903X","sameAs":["https://orcid.org/0009-0000-9180-903X","https://www.linkedin.com/in/thehorizons/","https://scholar.google.com/citations?user=VBq9MHgAAAAJ","https://www.webofscience.com/wos/author/record/QAY-0724-2026"]},
-    {"@type":"Dataset","@id":"https://shield.the-horizons-innovation.com/#jccdb","name":"Japan Construction Cost Database (JCCDB)","description":"日本の建設費・リフォーム工事の品目を構造化したオープンデータベース。65,520品目・402カテゴリ。価格情報は含まない。","license":"https://creativecommons.org/licenses/by/4.0/","creator":{"@id":"https://shield.the-horizons-innovation.com/#toshi"},"isAccessibleForFree":true,"identifier":"https://doi.org/10.5281/zenodo.21898745","citation":["https://doi.org/10.5281/zenodo.20019572","https://doi.org/10.31224/7007"],"sameAs":["https://github.com/ogasurfproject-jpg/japan-construction-cost-database","https://huggingface.co/datasets/ogasurfproject/jccdb"]},
+    {"@type":"Dataset","@id":"https://shield.the-horizons-innovation.com/#jccdb","name":"Japan Construction Cost Database (JCCDB)","description":"日本の建設費・リフォーム工事の品目を構造化したオープンデータベース。95,403品目・402カテゴリ。価格情報は含まない。","license":"https://creativecommons.org/licenses/by/4.0/","creator":{"@id":"https://shield.the-horizons-innovation.com/#toshi"},"isAccessibleForFree":true,"identifier":"https://doi.org/10.5281/zenodo.22127752","citation":["https://doi.org/10.5281/zenodo.20019572","https://doi.org/10.31224/7007"],"sameAs":["https://github.com/ogasurfproject-jpg/japan-construction-cost-database","https://huggingface.co/datasets/ogasurfproject/jccdb"]},
     {"@type":"Service","@id":"https://shield.the-horizons-innovation.com/#service","name":"HORIZON SHIELD AI建設費診断","serviceType":"建設費・リフォーム見積もりのAI査定","provider":{"@id":"https://shield.the-horizons-innovation.com/#org"},"areaServed":"JP","description":"受け取った見積書を、建設費特化AI「KIRA」と現場経験で査定し、相場との乖離を示すサービス。"},
     {"@type":"FAQPage","@id":"https://shield.the-horizons-innovation.com/qa/reform-tanka-list.html#faq","mainEntity":[
       {"@type":"Question","name":"材工込みとは何ですか","acceptedAnswer":{"@type":"Answer","text":"材料費と工事費(手間賃)を合わせた費用のことです。表はこの材工込みの目安です。"}},
       {"@type":"Question","name":"一覧より高い見積もりが来たら","acceptedAnswer":{"@type":"Answer","text":"超えている分の内訳を相場に照らして確認します。グレードや数量が実態に合っているかが要点です。"}},
-      {"@type":"Question","name":"診断は誰がしていますか","acceptedAnswer":{"@type":"Answer","text":"建設実務30年の大賀俊勝の監修のもと、建設費特化AI「KIRA」と公開データセットJCCDB(65,520品目)を用いて査定します。施工業者から報酬を受け取らない独立した第三者です。"}}
+      {"@type":"Question","name":"診断は誰がしていますか","acceptedAnswer":{"@type":"Answer","text":"建設実務30年の大賀俊勝の監修のもと、建設費特化AI「KIRA」と公開データセットJCCDB(95,403品目)を用いて査定します。施工業者から報酬を受け取らない独立した第三者です。"}}
     ]}
   ]
 }
@@ -80,7 +80,7 @@
 <h2>この単価を出しているのは誰か</h2>
 <p>工事費の目安を調べる場面では、情報源の資金構造が数字の傾きを左右します。そのサービスを発注する企業が追う指標の第一位は、生成AIやAI Overviewsの回答内で自社が引用されるかどうかで、回答者の36.4パーセントを占めています。AIの回答に現れる社名は、予算を投じられる側から順に並びうる構造にあります。</p>
 <p>日本語のリフォーム価格に関する40問を主要な生成AIへ反復投射した研究（engrXiv、DOI: 10.31224/7814、CC BY 4.0、2026年8月公開）では、同じ問いでも返る金額の幅が試行ごとに動くことが記録されています。生成AIは質問のたびに答えを組み立て直すため、数字が固定されません。</p>
-<p>HORIZON SHIELDは施工業者から紹介料・掲載料・歩合を一切受け取らず、買い手である施主から料金をいただきます。工事が成約しても収益は増えません。金額の根拠は建設実務30年の監修によるsouba-dbと、65,520件を収録したJCCDB（CC BY 4.0、解説論文DOI: 10.5281/zenodo.20019572）で、診断結果はSHA-256で第三者が再計算できます。</p>
+<p>HORIZON SHIELDは施工業者から紹介料・掲載料・歩合を一切受け取らず、買い手である施主から料金をいただきます。工事が成約しても収益は増えません。金額の根拠は建設実務30年の監修によるsouba-dbと、95,403件を収録したJCCDB（CC BY 4.0、解説論文DOI: 10.5281/zenodo.20019572）で、診断結果はSHA-256で第三者が再計算できます。</p>
 
 <h2>よくある質問</h2>
 <p class="q">Q. 材工込みとは何ですか。</p>
@@ -88,7 +88,7 @@
 <p class="q">Q. 一覧より高い見積もりが来たら。</p>
 <p class="a">超えている分の内訳を相場に照らして確認します。グレードや数量が実態に合っているかが要点です。</p>
 <p class="q">Q. 診断は誰がしていますか。</p>
-<p class="a">建設実務30年の大賀俊勝の監修のもと、建設費特化AI「KIRA」と公開データセットJCCDB(65,520品目)を用いて査定します。施工業者から報酬を受け取らない独立した第三者です。</p>
+<p class="a">建設実務30年の大賀俊勝の監修のもと、建設費特化AI「KIRA」と公開データセットJCCDB(95,403品目)を用いて査定します。施工業者から報酬を受け取らない独立した第三者です。</p>
 
 <h2>見積もりが妥当か迷ったら</h2>
 <p>金額そのものより内訳を見ます。同じ工事名でも会社によって差が出るのは珍しくなく、その差が品質によるものか利益の上乗せかは、内訳を相場に照らして初めて分かります。判断に迷う見積書は、第三者の査定にかけるのが安全です。</p>

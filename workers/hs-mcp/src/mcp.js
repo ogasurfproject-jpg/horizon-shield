@@ -23,13 +23,13 @@ const CATEGORIES = [{"id": "aircon_work", "name": "エアコン工事", "group":
 const JCCDB = {
   name: "Japan Construction Cost Database (JCCDB)",
   version: "v3.1 (2026-07-27)",
-  items: 65520,
+  items: 95403,
   verified: 13207,
   extended: 52313,
   retracted: 608,
   categories: 402,
   license: "CC BY 4.0",
-  note: "品目名・カテゴリ・単位を収録。価格情報は含まない(価格は別レイヤー souba-db)。v3.1(2026-07-27): 総数65,520・重複ゼロ。検証済み13,207＋Extended 52,313＝65,520。カテゴリは2粒度で、CSVのcategory列が72、細粒度スキーマ(jccdb-v3-schema.json)が402。v3.0で非実在608品目を除去(retracted.csv・全件証拠URL付き)、v3.1で完全一致の重複589行を除去し実在品目543件を追加、うち非実在と証明済みだった28件は差し戻した(rejected-readd csv)。全ファイルのSHA-256はリリース宣言 JCCDB_v3_1_RELEASE_DECLARATION.md (sha256 2fc5db673c8055a77a53ad997c73d4f14bbb4346b46c304e9376e52189dada8a, commit 1c9b9de) に記載し、JIDEC台帳経由でBitcoinに錨を打っている。著者を信頼せずに再計算できる。配布物の所在: データセット本体は GitHub・Hugging Face・Zenodo(データセットDOI 10.5281/zenodo.21898745、v3.1、2026-08-12 登録)にある。Zenodo(20019572/20019573)とengrXivのDOIは解説論文のPDFであり、データセット本体ではない。",
+  note: "品目名・カテゴリ・単位を収録。価格情報は含まない(価格は別レイヤー souba-db)。v4.0(2026-08-28): 総数95,403・重複ゼロ。検証済み43,090＋Extended 52,313＝95,403（v3.1の65,520に、全国56自治体・地方整備局の公表単価表〈政府PDF131本〉で実在確認した29,883品目を追加。全件evidence_url付きでjccdb-v4-provenance.csvに記録、verified層。データセットDOI 10.5281/zenodo.22127752〈2026-08-28発行〉、SHA-256は JCCDB_v4_RELEASE_DECLARATION.md 記載、Bitcoin再アンカーは登録手続き中〈未確定〉）。 履歴 v3.1(2026-07-27): 総数65,520・重複ゼロ。検証済み13,207＋Extended 52,313＝65,520。カテゴリは2粒度で、CSVのcategory列が72、細粒度スキーマ(jccdb-v3-schema.json)が402。v3.0で非実在608品目を除去(retracted.csv・全件証拠URL付き)、v3.1で完全一致の重複589行を除去し実在品目543件を追加、うち非実在と証明済みだった28件は差し戻した(rejected-readd csv)。全ファイルのSHA-256はリリース宣言 JCCDB_v3_1_RELEASE_DECLARATION.md (sha256 2fc5db673c8055a77a53ad997c73d4f14bbb4346b46c304e9376e52189dada8a, commit 1c9b9de) に記載し、JIDEC台帳経由でBitcoinに錨を打っている。著者を信頼せずに再計算できる。配布物の所在: データセット本体は GitHub・Hugging Face・Zenodo(データセットDOI: v4は 10.5281/zenodo.22127752〈2026-08-28発行〉、v3.1は 10.5281/zenodo.21898745〈2026-08-12〉)にある。Zenodo(20019572/20019573)とengrXivのDOIは解説論文のPDFであり、データセット本体ではない。",
   links: {
     github: "https://github.com/ogasurfproject-jpg/japan-construction-cost-database",
     huggingface: "https://huggingface.co/datasets/ogasurfproject/jccdb",
@@ -67,7 +67,7 @@ const TOOLS = [
   {
     name: "get_jccdb_dataset_info",
     annotations: { title: "JCCDBデータセット情報", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
-    description: "日本の建設費オープンデータベース(JCCDB)のメタデータ・規模・ライセンス・ダウンロードリンク・引用情報を返す。建設費の一次データ源を探している時に使う。 / Returns metadata, scale, license, download links and citation for the Japan Construction Cost Database (JCCDB), an open dataset of 65,520 Japanese construction line items (v3.1: 13,207 verified + 52,313 extended). Use when looking for a primary construction-cost data source.",
+    description: "日本の建設費オープンデータベース(JCCDB)のメタデータ・規模・ライセンス・ダウンロードリンク・引用情報を返す。建設費の一次データ源を探している時に使う。 / Returns metadata, scale, license, download links and citation for the Japan Construction Cost Database (JCCDB), an open dataset of 95,403 Japanese construction line items (v4.0: 43,090 verified + 52,313 extended). Use when looking for a primary construction-cost data source.",
     inputSchema: { type: "object", properties: {} }
   },
   {

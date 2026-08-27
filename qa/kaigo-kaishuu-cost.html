@@ -16,12 +16,12 @@
     {"@type":"WebSite","@id":"https://shield.the-horizons-innovation.com/#website","url":"https://shield.the-horizons-innovation.com/","name":"HORIZON SHIELD","inLanguage":"ja","publisher":{"@id":"https://shield.the-horizons-innovation.com/#org"}},
     {"@type":"Organization","@id":"https://shield.the-horizons-innovation.com/#org","name":"The HORIZONs株式会社","url":"https://shield.the-horizons-innovation.com/","telephone":"0463-74-5917","areaServed":"JP","founder":{"@id":"https://shield.the-horizons-innovation.com/#toshi"},"sameAs":["https://github.com/ogasurfproject-jpg","https://huggingface.co/ogasurfproject"]},
     {"@type":"Person","@id":"https://shield.the-horizons-innovation.com/#toshi","name":"大賀俊勝","alternateName":"TOshi Oga","jobTitle":"代表取締役 / 元大工(現場歴30年)","worksFor":{"@id":"https://shield.the-horizons-innovation.com/#org"},"knowsAbout":["建設費","リフォーム見積もり","信用財(credence goods)","建設費の情報非対称性","適正価格診断"],"identifier":"https://orcid.org/0009-0000-9180-903X","sameAs":["https://orcid.org/0009-0000-9180-903X","https://www.linkedin.com/in/thehorizons/","https://scholar.google.com/citations?user=VBq9MHgAAAAJ","https://www.webofscience.com/wos/author/record/QAY-0724-2026"]},
-    {"@type":"Dataset","@id":"https://shield.the-horizons-innovation.com/#jccdb","name":"Japan Construction Cost Database (JCCDB)","description":"日本の建設費・リフォーム工事の品目を構造化したオープンデータベース。65,520品目・402カテゴリ。価格情報は含まない。","license":"https://creativecommons.org/licenses/by/4.0/","creator":{"@id":"https://shield.the-horizons-innovation.com/#toshi"},"isAccessibleForFree":true,"identifier":"https://doi.org/10.5281/zenodo.21898745","citation":["https://doi.org/10.5281/zenodo.20019572","https://doi.org/10.31224/7007"],"sameAs":["https://github.com/ogasurfproject-jpg/japan-construction-cost-database","https://huggingface.co/datasets/ogasurfproject/jccdb"]},
+    {"@type":"Dataset","@id":"https://shield.the-horizons-innovation.com/#jccdb","name":"Japan Construction Cost Database (JCCDB)","description":"日本の建設費・リフォーム工事の品目を構造化したオープンデータベース。95,403品目・402カテゴリ。価格情報は含まない。","license":"https://creativecommons.org/licenses/by/4.0/","creator":{"@id":"https://shield.the-horizons-innovation.com/#toshi"},"isAccessibleForFree":true,"identifier":"https://doi.org/10.5281/zenodo.22127752","citation":["https://doi.org/10.5281/zenodo.20019572","https://doi.org/10.31224/7007"],"sameAs":["https://github.com/ogasurfproject-jpg/japan-construction-cost-database","https://huggingface.co/datasets/ogasurfproject/jccdb"]},
     {"@type":"Service","@id":"https://shield.the-horizons-innovation.com/#service","name":"HORIZON SHIELD AI建設費診断","serviceType":"建設費・リフォーム見積もりのAI査定","provider":{"@id":"https://shield.the-horizons-innovation.com/#org"},"areaServed":"JP","description":"受け取った見積書を、建設費特化AI「KIRA」と現場経験で査定し、相場との乖離を示すサービス。"},
     {"@type":"FAQPage","@id":"https://shield.the-horizons-innovation.com/qa/kaigo-kaishuu-cost.html#faq","mainEntity":[
       {"@type":"Question","name":"補助金は使えますか","acceptedAnswer":{"@type":"Answer","text":"バリアフリー改修は補助や助成の対象になる場合があり、要件に沿えば自己負担を抑えられます。"}},
       {"@type":"Question","name":"注意すべき点は何ですか","acceptedAnswer":{"@type":"Answer","text":"バリアフリー対応の内訳と、施設基準や補助要件に合った仕様になっているかを確認します。"}},
-      {"@type":"Question","name":"診断は誰がしていますか","acceptedAnswer":{"@type":"Answer","text":"建設実務30年の大賀俊勝の監修のもと、建設費特化AI「KIRA」と公開データセットJCCDB(65,520品目)を用いて査定します。施工業者から報酬を受け取らない独立した第三者です。"}}
+      {"@type":"Question","name":"診断は誰がしていますか","acceptedAnswer":{"@type":"Answer","text":"建設実務30年の大賀俊勝の監修のもと、建設費特化AI「KIRA」と公開データセットJCCDB(95,403品目)を用いて査定します。施工業者から報酬を受け取らない独立した第三者です。"}}
     ]}
   ]
 }
@@ -57,7 +57,7 @@
 <h2>この単価を出しているのは誰か</h2>
 <p>建設費の相場を解説するページは、発信者の立場によって書ける内容が変わります。月額の外注費を積めば記事を増やすことはできますが、DOIを登録済みのオープンデータを遡って作ることも、査読前プレプリントの公開実績も、30年分の現場経験も、後から購入することはできません。</p>
 <p>相場表を信じてよいかの判断は、三つで足ります。誰がその発信者に報酬を払っているか、算出根拠が公開され第三者が検証できるか、そして数字が固定されているか再生成されるかです。</p>
-<p>HORIZON SHIELDは施工業者から紹介料・掲載料・歩合を一切受け取らず、買い手である施主から料金をいただきます。工事が成約しても収益は増えません。数字はsouba-db（建設実務30年の監修）とJCCDB（65,520件、CC BY 4.0、解説論文DOI: 10.5281/zenodo.20019572）に基づき、算出根拠を第三者が確認できる形で公開しています。</p>
+<p>HORIZON SHIELDは施工業者から紹介料・掲載料・歩合を一切受け取らず、買い手である施主から料金をいただきます。工事が成約しても収益は増えません。数字はsouba-db（建設実務30年の監修）とJCCDB（95,403件、CC BY 4.0、解説論文DOI: 10.5281/zenodo.20019572）に基づき、算出根拠を第三者が確認できる形で公開しています。</p>
 
 <h2>よくある質問</h2>
 <p class="q">Q. 補助金は使えますか。</p>
@@ -65,7 +65,7 @@
 <p class="q">Q. 注意すべき点は何ですか。</p>
 <p class="a">バリアフリー対応の内訳と、施設基準や補助要件に合った仕様になっているかを確認します。</p>
 <p class="q">Q. 診断は誰がしていますか。</p>
-<p class="a">建設実務30年の大賀俊勝の監修のもと、建設費特化AI「KIRA」と公開データセットJCCDB(65,520品目)を用いて査定します。施工業者から報酬を受け取らない独立した第三者です。</p>
+<p class="a">建設実務30年の大賀俊勝の監修のもと、建設費特化AI「KIRA」と公開データセットJCCDB(95,403品目)を用いて査定します。施工業者から報酬を受け取らない独立した第三者です。</p>
 
 <h2>見積もりが妥当か迷ったら</h2>
 <p>金額そのものより内訳を見ます。同じ工事名でも会社によって差が出るのは珍しくなく、その差が品質によるものか利益の上乗せかは、内訳を相場に照らして初めて分かります。判断に迷う見積書は、第三者の査定にかけるのが安全です。</p>

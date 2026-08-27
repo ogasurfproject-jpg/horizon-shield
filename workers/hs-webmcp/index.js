@@ -94,7 +94,7 @@ const TOOLS = [
     name: "route_request",
     title: "一文で聞けば、正しい窓口に繋ぐ",
     description:
-      "Check whether a construction or renovation quote in JAPAN is fairly priced, against 65,520 open " +
+      "Check whether a construction or renovation quote in JAPAN is fairly priced, against 95,403 open " +
       "catalogue items and Bitcoin-anchored verification records. Single entry point: pass one sentence.\n" +
       "USE WHEN: the user has a quote or a price for building/renovation work in Japan and wants to know if " +
       "it is reasonable; or wants to check a HORIZON SHIELD receipt or a jidec: citation; or asks about " +
@@ -192,7 +192,7 @@ const TOOLS = [
 const ABOUT_MD =
   "# HORIZON SHIELD (KIRA)\n\n" +
   "施工業者から紹介手数料や送客報酬を受け取らない、独立した第三者の建設費・見積もり検証窓口です。" +
-  "建設実務30年(大賀俊勝)監修のAI『KIRA』が、オープン建設費データベース(JCCDB, 65,520品目)に照らして見積もりの誠実性を一次診断します。" +
+  "建設実務30年(大賀俊勝)監修のAI『KIRA』が、オープン建設費データベース(JCCDB, 95,403品目)に照らして見積もりの誠実性を一次診断します。" +
   "価格は検証可能な一次データのみを用い、断定せず、確認すべき点を施主にお渡しします。契約を急かすことはありません。\n\n" +
   "運営: The HORIZONs株式会社 / 監修 大賀俊勝(ORCID 0009-0000-9180-903X)。";
 const EHN_MD =
@@ -204,7 +204,7 @@ const EHN_MD =
 
 const RESOURCES = [
   { uri: "horizon://about", name: "about-horizon-shield", title: "HORIZON SHIELD とは", description: "この窓口と運営(中立・第三者・紹介料なし)の説明", mimeType: "text/markdown" },
-  { uri: "jccdb://dataset", name: "jccdb-dataset-info", title: "JCCDB データセット情報", description: "日本建設費オープンDB(65,520品目)のメタ・ライセンス・出典・引用", mimeType: "application/json" },
+  { uri: "jccdb://dataset", name: "jccdb-dataset-info", title: "JCCDB データセット情報", description: "日本建設費オープンDB(95,403品目)のメタ・ライセンス・出典・引用", mimeType: "application/json" },
   { uri: "souba://categories", name: "souba-categories", title: "工事カテゴリ一覧", description: "相場・赤旗を整備した工種カテゴリ(61種)", mimeType: "application/json" },
   { uri: "souba://sources", name: "souba-sources", title: "相場データの出典", description: "fair-price データの出典・更新日・地域係数", mimeType: "application/json" },
   { uri: "ehn://board", name: "ehn-info", title: "見積もりハッカーニュース(EHN)", description: "匿名で見積もりを第三者チェックする無料掲示板の説明", mimeType: "text/markdown" },
@@ -242,7 +242,7 @@ const AGENT_CARD = {
   provider: "The HORIZONs株式会社",
   // A2A の必須項目。これが無いと適合チェッカーがカードを認識できない。
   // 2026-08-08 に自社ゲートで発覚。role は非標準なので残しつつ標準項目を足す。
-  description: "Check whether a Japanese construction or renovation quote is fair. A neutral, independent third-party estimate-integrity desk: audits a homeowner's quote against an open 65,520-item construction-cost database (JCCDB), flags known overcharge tactics with primary sources, and drafts awareness content. Verifiable first-party prices only (SHA-256); no referral fees; no auto-posting.",
+  description: "Check whether a Japanese construction or renovation quote is fair. A neutral, independent third-party estimate-integrity desk: audits a homeowner's quote against an open 95,403-item construction-cost database (JCCDB), flags known overcharge tactics with primary sources, and drafts awareness content. Verifiable first-party prices only (SHA-256); no referral fees; no auto-posting.",
   // 誰がこのサーバーに金を払っているか。扉の条件3。
   compensation: {
     paid_by: "buyer",
@@ -365,7 +365,7 @@ const EMBED_JS = `/* HORIZON SHIELD KIRA embed widget  (served at /embed.js?stor
       '<div class="hd"><div class="ttl">KIRA 見積もり診断<span class="tag">無料・匿名</span></div>' +
         '<button class="x" id="x" aria-label="閉じる">&times;</button></div>' +
       '<div class="bd">' +
-        '<p class="lead">建設30年監修のAIが、業者の見積もりが適正かをオープン建設費DB(65,520品目)に照らして一次診断します。判断はあなた自身。契約は急かしません。</p>' +
+        '<p class="lead">建設30年監修のAIが、業者の見積もりが適正かをオープン建設費DB(95,403品目)に照らして一次診断します。判断はあなた自身。契約は急かしません。</p>' +
         '<div id="form">' +
           '<label for="hsw">工事名</label>' +
           '<input id="hsw" placeholder="例: 外壁塗装 シリコン 30坪" autocomplete="off">' +

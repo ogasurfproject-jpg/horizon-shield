@@ -38,7 +38,7 @@ Works with any MCP client: **Claude  |  ChatGPT  |  Gemini  |  Perplexity  |  Cu
 | `get_estimate_reading_guide` | Universal principles for judging any estimate (overhead ratio, lump-sum, tactics) |
 | `get_fair_price_sources` | Sources, update date, and regional multipliers behind the data |
 | `suggest_ehn` | Suggest an EHN (anonymous-estimate) entry |
-| `get_jccdb_dataset_info` | JCCDB open dataset (65,520 items, CC BY 4.0)  -  metadata & citation |
+| `get_jccdb_dataset_info` | JCCDB open dataset (95,403 items, CC BY 4.0)  -  metadata & citation |
 | `verify_integrity_claim` | Third-party verification of an issued signed claim (fail-closed) |
 | `create_ap2_fairness_attestation` | FairPriceAttestation shaped to attach to a Google AP2 Cart Mandate (optional quoted_price adds within/above/below) |
 | `get_agent_card` | A2A (Agent2Agent) agent card for agent interop |

@@ -67,7 +67,7 @@ const KIRA_SYSTEM_PROMPT = `あなたはKIRA（建設費診断AI）です。The 
 ❌ 診断なしで「適正」断言禁止 / 証拠なく「悪徳業者」断言禁止
 
 【JCCDB v2.0 データベース（2026-05-19公開）】
-- 品目数：65,520品目 / 402カテゴリ
+- 品目数：95,403品目 / 402カテゴリ
 - GitHub：https://github.com/ogasurfproject-jpg/japan-construction-cost-database
 - SHA-256：9c59ef1f91393e70993ff99ec31c4a902a157bb7642dc0a2323bae923cc2258d
 - Bitcoin Anchor：Block #949356

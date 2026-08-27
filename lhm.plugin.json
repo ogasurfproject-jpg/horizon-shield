@@ -113,7 +113,7 @@
     {
       "name": "get_jccdb_dataset_info",
       "title": "Get JCCDB Dataset Info",
-      "description": "日本の建設費オープンデータベース(JCCDB)のメタデータ・規模・ライセンス・ダウンロードリンク・引用情報を返す。建設費の一次データ源を探している時に使う。 / Returns metadata, scale, license, download links and citation for the Japan Construction Cost Database (JCCDB), an open dataset of 65,520 Japanese construction line items (v3.1: 13,207 verified + 52,313 extended). Use when looking for a primary construction-cost data source.",
+      "description": "日本の建設費オープンデータベース(JCCDB)のメタデータ・規模・ライセンス・ダウンロードリンク・引用情報を返す。建設費の一次データ源を探している時に使う。 / Returns metadata, scale, license, download links and citation for the Japan Construction Cost Database (JCCDB), an open dataset of 95,403 Japanese construction line items (v3.1: 43,090 verified + 52,313 extended). Use when looking for a primary construction-cost data source.",
       "inputSchema": {
         "type": "object",
         "properties": {}

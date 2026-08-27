@@ -86,7 +86,7 @@ KIRAが無料で提供するのは「一般的な価格の目安」と「業者�
 ❌「無料で判断します」「すぐ判断できます」と、実物の精査を無料で約束してはいけない。状況を聞いた後は「内訳書が出たら、それが適正かを判定書でお出しします＝変更工事査定¥33,000」と必ず有料判定へ着地させること。
 
 【JCCDB v2.0 データベース（2026-05-19公開）】
-- 品目数：65,520品目 / 402カテゴリ
+- 品目数：95,403品目 / 402カテゴリ
 - GitHub：https://github.com/ogasurfproject-jpg/japan-construction-cost-database
 - SHA-256：9c59ef1f91393e70993ff99ec31c4a902a157bb7642dc0a2323bae923cc2258d
 - Bitcoin Anchor：Block #949356
@@ -554,7 +554,7 @@ function mergeSoubaOverlay(baseDb, overlay) {
   return out;
 }
 
-// ★ BOM v2.0 サマリー動的参照（65,520品目・2026-05-19追加）
+// ★ BOM v2.0 サマリー動的参照（95,403品目・2026-05-19追加）
 // ============================================
 let _BOM_SUMMARY_CACHE = null;
 let _BOM_SUMMARY_CACHE_AT = 0;
@@ -675,7 +675,7 @@ async function enrichSystemPromptWithSoubaData(env, originalSystem, messages) {
                       (c.sample_items||[]).some(n => userText.includes(n.slice(0,8))))
           .slice(0, 5);
         if (bomMatched.length > 0) {
-          bomLines = '\n【★JCCDB v2.0 品番レベル積算データ（65,520品目）】\n' +
+          bomLines = '\n【★JCCDB v2.0 品番レベル積算データ（95,403品目）】\n' +
             bomMatched.map(c =>
               `・${c.cat}（${c.count}品目）：¥${(c.price_min/10000).toFixed(1)}万〜¥${(c.price_max/10000).toFixed(1)}万円 平均¥${(c.price_avg).toLocaleString()}円/${(c.units||['式'])[0]}`
             ).join('\n');
