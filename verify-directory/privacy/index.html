@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy | WEDJAT (MCP Conduct Register) | HORIZON SHIELD</title>
+<style>
+:root{--bg:#0B0E13;--card:#121722;--ink:#EAF0F8;--soft:#9AA7B8;--line:#1E2734;--teal:#3FE0CE;--accent:#5B8DEF}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Helvetica Neue","Noto Sans JP",Arial,sans-serif;line-height:1.7}
+.wrap{max-width:820px;margin:0 auto;padding:48px 22px 90px}
+.brand{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--soft)}
+h1{font-size:30px;margin:10px 0 4px;line-height:1.2}
+.sub{color:var(--soft);font-size:15px;margin-bottom:8px}
+.meta{color:var(--soft);font-size:13px;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:8px}
+h2{font-size:19px;margin:34px 0 8px;color:var(--teal)}
+h3{font-size:15px;margin:20px 0 4px}
+p,li{color:var(--ink);font-size:15px}
+.soft{color:var(--soft)}
+ul{padding-left:20px}
+li{margin:4px 0}
+.langbar{display:flex;gap:8px;margin:22px 0 6px}
+.langbar button{background:var(--card);border:1px solid var(--line);color:var(--ink);padding:7px 14px;border-radius:8px;font-size:13px;cursor:pointer}
+.langbar button.on{border-color:var(--teal);color:var(--teal)}
+section.lang{display:none}
+section.lang.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0}
+code{background:#0d1420;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:13px}
+footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);color:var(--soft);font-size:13px}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">HORIZON SHIELD</div>
+  <h1>Privacy Policy</h1>
+  <div class="sub">WEDJAT (also submitted as MCP Conduct Register) · a read only MCP and A2A conduct checker</div>
+  <div class="meta">Effective date: 2026-08-29 · Version 1.0 · Operator: The HORIZONs Co., Ltd. (The HORIZ音s株式会社), supervised by Toshikatsu Oga</div>
+
+  <div class="langbar">
+    <button id="btn-en" class="on" onclick="setLang('en')">English</button>
+    <button id="btn-ja" onclick="setLang('ja')">日本語</button>
+  </div>
+
+  <!-- ================= ENGLISH ================= -->
+  <section id="en" class="lang on">
+    <div class="card">
+      <strong>In one line:</strong> WEDJAT is a free, read only checker for MCP and A2A servers. It holds no user accounts, requires no API keys, charges no fees, and stores no personal or health data about the people who use it. What it records is measurements of the public server endpoints it checks, published so that anyone can recompute them.
+    </div>
+
+    <h2>1. What data we collect</h2>
+    <p>WEDJAT is designed to collect as little as possible. We do not ask for, and do not store, personal profiles, contact details, health information, or any special category personal data.</p>
+    <h3>a. What you submit</h3>
+    <ul>
+      <li><strong>A target endpoint to check.</strong> When you ask WEDJAT to verify a server, you provide the public URL or endpoint of that MCP or A2A server (for example <code>https://example.com/mcp</code>). This is a public machine address, not information about you.</li>
+      <li><strong>An optional consent flag</strong> for whether WEDJAT may issue a live tool call to the target endpoint during measurement.</li>
+    </ul>
+    <h3>b. What is generated automatically</h3>
+    <ul>
+      <li><strong>Standard request logs.</strong> Like any web service, our infrastructure (Cloudflare) processes the requesting IP address, timestamp, and user agent for the limited purposes of security, abuse prevention, and rate limiting.</li>
+      <li><strong>Measurement records.</strong> The result of a check (the verdict, the conditions measured, and a SHA-256 hash of the canonical record) is written to a public ledger so that the result can be independently recomputed. These records describe the checked server, not the person who requested the check.</li>
+    </ul>
+    <p class="soft">We do not collect health data, we do not run diagnosis, we do not build profiles of users, and we do not accept any personal symptom or medical input.</p>
+
+    <h2>2. How we use data</h2>
+    <ul>
+      <li>To perform the verification you request: measuring an MCP or A2A endpoint against a fixed set of deterministic conditions (genuineness, disclosure of who funds it, jurisdiction, and consistency of responses).</li>
+      <li>To produce a reproducible, publicly verifiable record of that measurement (SHA-256 hashed) so results are not a black box.</li>
+      <li>To keep the service available and safe (rate limiting and abuse prevention from standard request logs).</li>
+    </ul>
+    <p>We do not use data for advertising, profiling, or resale, and we receive no referral or listing fees from the servers we check.</p>
+
+    <h2>3. Who we share data with</h2>
+    <ul>
+      <li><strong>No sale, no referral fees, no advertising partners.</strong> We do not sell or rent data and we take no compensation from the servers we measure.</li>
+      <li><strong>Infrastructure processor:</strong> the service runs on Cloudflare, which processes requests on our behalf as a hosting and network provider.</li>
+      <li><strong>Public ledger:</strong> measurement records about checked servers are, by design, public so anyone can verify them. They contain endpoint and verdict data about servers, not personal data about users.</li>
+      <li>We disclose data only where required by applicable law.</li>
+    </ul>
+
+    <h2>4. Retention</h2>
+    <ul>
+      <li><strong>Measurement records</strong> are retained for as long as the public verification ledger exists, because their purpose is long term reproducibility of a verdict.</li>
+      <li><strong>Standard request logs</strong> are retained only for the short period needed for security and rate limiting, per our infrastructure provider's defaults, and are not linked to a user identity.</li>
+      <li>We hold no personal data set that accumulates over time about an individual user.</li>
+    </ul>
+
+    <h2>5. Your controls and rights</h2>
+    <ul>
+      <li>WEDJAT has no login and no user account, so there is no stored personal profile to access, correct, export, or delete.</li>
+      <li>If you believe a public measurement record is inaccurate or out of date, you can request a re-measurement, or a correction with evidence, and a corrected or retracted record will be published with its evidence.</li>
+      <li>For any question about this policy or a specific record, contact us using the details below.</li>
+    </ul>
+
+    <h2>6. What the tools actually do (current inputs and outputs)</h2>
+    <p>This policy reflects the live behaviour of the service:</p>
+    <ul>
+      <li><strong>Input:</strong> a public server endpoint to check, and an optional consent flag for a live tool call.</li>
+      <li><strong>Processing:</strong> the endpoint is measured against fixed, deterministic conditions.</li>
+      <li><strong>Output:</strong> a verdict, the conditions checked, and a SHA-256 hash of the canonical record, plus a public ledger entry for that server.</li>
+      <li><strong>Never:</strong> no medical or truth judgment, no product recommendation, no personal or health input accepted, no personal data stored.</li>
+    </ul>
+
+    <h2>7. Children</h2>
+    <p>WEDJAT is a technical tool for verifying software servers and is not directed to children.</p>
+
+    <h2>8. Changes to this policy</h2>
+    <p>If this policy changes, we will update the version and effective date at the top of this page.</p>
+
+    <h2>9. Contact</h2>
+    <div class="card">
+      The HORIZONs Co., Ltd. (The HORIZ音s株式会社)<br>
+      Supervisor: Toshikatsu Oga<br>
+      Tel: 0463-74-5917<br>
+      Contact: by the phone number above, or via the contact point on the HORIZON SHIELD site.
+    </div>
+  </section>
+
+  <!-- ================= 日本語 ================= -->
+  <section id="ja" class="lang">
+    <div class="card">
+      <strong>一言で:</strong> WEDJAT は MCP／A2A サーバーを検証する、無料・読み取り専用のチェッカーです。利用者のアカウントを持たず、APIキーを要求せず、料金を取らず、利用する人の個人情報や健康情報を一切保存しません。記録するのは「検証した公開サーバーのエンドポイントの測定結果」だけで、誰でも再計算できる形で公開します。
+    </div>
+
+    <h2>1. 収集するデータ</h2>
+    <p>WEDJAT は収集を最小限に設計しています。個人プロフィール・連絡先・健康情報・要配慮個人情報の類は、求めることも保存することもありません。</p>
+    <h3>a. 利用者が入力するもの</h3>
+    <ul>
+      <li><strong>検証対象のエンドポイント。</strong> サーバー検証を依頼するとき、対象となる MCP／A2A サーバーの公開URL（例 <code>https://example.com/mcp</code>）を入力します。これは公開された機械のアドレスであり、利用者個人の情報ではありません。</li>
+      <li><strong>任意の同意フラグ。</strong> 測定時に対象エンドポイントへ実際のツール呼び出しを行ってよいかどうかの可否。</li>
+    </ul>
+    <h3>b. 自動的に生成されるもの</h3>
+    <ul>
+      <li><strong>通常のリクエストログ。</strong> 一般的なWebサービスと同様、基盤（Cloudflare）がセキュリティ・不正防止・レート制限という限定目的で、送信元IPアドレス・時刻・ユーザーエージェントを処理します。</li>
+      <li><strong>測定記録。</strong> チェック結果（判定・測定した条件・正規化レコードの SHA-256 ハッシュ）を、第三者が独立して再計算できるよう公開台帳に記録します。この記録は「検証されたサーバー」を記述するもので、依頼した人物を記述するものではありません。</li>
+    </ul>
+    <p class="soft">健康データは収集せず、診断も行わず、利用者のプロフィールも作らず、個人の症状や医療入力を受け付けません。</p>
+
+    <h2>2. データの利用目的</h2>
+    <ul>
+      <li>依頼された検証を行うため。MCP／A2A エンドポイントを、固定された決定論的な条件（実在性・誰が資金を出しているかの開示・管轄・応答の一貫性）に照らして測定します。</li>
+      <li>その測定を、再現可能で公開検証可能な記録（SHA-256 ハッシュ付き）として残し、結果をブラックボックスにしないため。</li>
+      <li>サービスを安全に維持するため（通常のリクエストログによるレート制限・不正防止）。</li>
+    </ul>
+    <p>広告・プロファイリング・データの転売には利用しません。検証対象のサーバーから紹介料・掲載料の類は一切受け取りません。</p>
+
+    <h2>3. 第三者提供</h2>
+    <ul>
+      <li><strong>売却なし・送客料なし・広告提携なし。</strong> データの売却・貸与はせず、測定対象のサーバーから対価を受け取りません。</li>
+      <li><strong>基盤処理者:</strong> 本サービスは Cloudflare 上で稼働し、ホスティング／ネットワーク提供者として当社に代わってリクエストを処理します。</li>
+      <li><strong>公開台帳:</strong> 検証したサーバーに関する測定記録は、誰でも検証できるよう設計上公開されます。ここに含まれるのはサーバーのエンドポイントと判定であり、利用者個人のデータではありません。</li>
+      <li>適用法令で求められる場合に限り開示します。</li>
+    </ul>
+
+    <h2>4. 保持期間</h2>
+    <ul>
+      <li><strong>測定記録:</strong> 判定の長期的な再現性がその目的であるため、公開検証台帳が存在する限り保持します。</li>
+      <li><strong>通常のリクエストログ:</strong> セキュリティとレート制限に必要な短期間のみ、基盤提供者の既定に従って保持し、利用者の身元とは紐づけません。</li>
+      <li>個々の利用者について時系列で蓄積する個人データの集合は保持しません。</li>
+    </ul>
+
+    <h2>5. 利用者の管理手段・権利</h2>
+    <ul>
+      <li>WEDJAT にはログインも利用者アカウントもないため、アクセス・訂正・エクスポート・削除の対象となる保存済み個人プロフィールが存在しません。</li>
+      <li>公開されている測定記録が不正確、または古いと考える場合、再測定の依頼、または証拠付きの訂正を求められます。訂正または撤回された記録は、その証拠とともに公開されます。</li>
+      <li>本ポリシーや特定の記録に関する問い合わせは、下記の連絡先へ。</li>
+    </ul>
+
+    <h2>6. ツールの実挙動（現在の入出力）</h2>
+    <p>本ポリシーはサービスの実挙動に一致しています:</p>
+    <ul>
+      <li><strong>入力:</strong> 検証する公開サーバーのエンドポイント、および実ツール呼び出しの可否を示す任意の同意フラグ。</li>
+      <li><strong>処理:</strong> そのエンドポイントを固定された決定論的条件に照らして測定。</li>
+      <li><strong>出力:</strong> 判定・測定条件・正規化レコードの SHA-256 ハッシュ、および当該サーバーの公開台帳エントリ。</li>
+      <li><strong>行わないこと:</strong> 医学的真偽の判定なし・製品推奨なし・個人／健康入力の受付なし・個人データの保存なし。</li>
+    </ul>
+
+    <h2>7. 子どもについて</h2>
+    <p>WEDJAT はソフトウェアのサーバーを検証する技術ツールであり、子どもを対象としていません。</p>
+
+    <h2>8. 本ポリシーの変更</h2>
+    <p>本ポリシーを変更する場合、本ページ上部のバージョンと発効日を更新します。</p>
+
+    <h2>9. 連絡先</h2>
+    <div class="card">
+      The HORIZ音s株式会社（The HORIZONs Co., Ltd.）<br>
+      監修: 大賀 俊勝<br>
+      電話: 0463-74-5917<br>
+      連絡: 上記の電話番号、または HORIZON SHIELD サイトのお問い合わせ窓口から。
+    </div>
+  </section>
+
+  <footer>
+    The HORIZ音s株式会社 · HORIZON SHIELD · No diagnosis. No referral fees. Verify it yourself.
+  </footer>
+</div>
+
+<script>
+function setLang(l){
+  document.getElementById('en').classList.toggle('on', l==='en');
+  document.getElementById('ja').classList.toggle('on', l==='ja');
+  document.getElementById('btn-en').classList.toggle('on', l==='en');
+  document.getElementById('btn-ja').classList.toggle('on', l==='ja');
+  document.documentElement.lang = l;
+}
+</script>
+</body>
+</html>
