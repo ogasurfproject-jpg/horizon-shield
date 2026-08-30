@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yakumo | The list you can see through | HORIZON SHIELD</title>
+<meta name="description" content="Yakumo is a contractor mall that lists only shops that passed a fairness check. The contractor side of HORIZON SHIELD. Fail closed. Verify it yourself.">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/yakumo/through-list/">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="HORIZON SHIELD">
+<meta property="og:title" content="Yakumo. A contractor mall that lists only shops that passed a fairness check.">
+<meta property="og:description" content="Yakumo is the contractor side of HORIZON SHIELD. A shop applies. KIRA checks a real sample estimate against open cost data. If it holds up, the shop is listed. If it does not, it is not. Fail closed.">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/yakumo/through-list/">
+<meta property="og:image" content="https://shield.the-horizons-innovation.com/yakumo/through-list/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Yakumo through-list: a printed contractor registry where failed entries are struck through and passing entries are marked verified.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Yakumo. A contractor mall that lists only shops that passed a fairness check.">
+<meta name="twitter:description" content="The contractor side of HORIZON SHIELD. Fail closed. Verify it yourself.">
+<meta name="twitter:image" content="https://shield.the-horizons-innovation.com/yakumo/through-list/og.jpg">
+
+<style>
+:root{
+  --ground:#0C0C0E; --panel:#141317; --paper:#F3EEE3; --ink:#1E1B16; --papersoft:#6E675B;
+  --cream:#EAE3D6; --creamsoft:#9C948440; --line:#26242B; --verify:#3F7A54; --verifybg:#E7EEE4;
+  --gold:#B98A3E; --hair:#D8CFBE;
+  --serif:Georgia,"Times New Roman","Noto Serif CJK JP",serif;
+  --mono:"SFMono-Regular",Menlo,Consolas,"DejaVu Sans Mono",monospace;
+  --sans:-apple-system,"Helvetica Neue","Noto Sans CJK JP",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--cream);font-family:var(--sans);line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding:40px 22px 80px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:30px}
+.brand{font-family:var(--mono);font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#9a9aa5}
+.brand b{color:var(--cream)}
+.langbtns{display:flex;gap:6px}
+.langbtns button{background:var(--panel);border:1px solid var(--line);color:var(--cream);padding:6px 12px;border-radius:7px;font-size:12px;cursor:pointer;font-family:var(--mono);letter-spacing:1px}
+.langbtns button.on{border-color:var(--gold);color:var(--gold)}
+
+.hero-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(34px,6vw,58px);line-height:1.04;letter-spacing:-.5px;margin:0 0 18px;color:#F6F1E6}
+.lead{font-size:clamp(17px,2.4vw,21px);color:#CFC8BA;max-width:640px;margin:0 0 30px}
+.lead b{color:#F6F1E6;font-weight:600}
+
+figure{margin:0 0 12px;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+figure img{display:block;width:100%;height:auto}
+figcaption{font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--papersoft);color:#8b8478;margin:0 0 46px;padding-top:10px}
+
+.chiprow{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 44px}
+.chip{font-family:var(--mono);font-size:12px;letter-spacing:1px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);color:#b9b2a4}
+.chip.v{border-color:#31533c;color:#8fc99f;background:rgba(63,122,84,.12)}
+
+h2{font-family:var(--serif);font-size:clamp(23px,3.4vw,30px);font-weight:700;color:#F6F1E6;margin:0 0 6px}
+.sec{padding-top:38px;border-top:1px solid var(--line);margin-top:38px}
+.sec p{color:#CFC8BA;max-width:680px}
+
+.steps{list-style:none;padding:0;margin:22px 0 0;counter-reset:s}
+.steps li{counter-increment:s;position:relative;padding:16px 0 16px 56px;border-bottom:1px solid var(--line)}
+.steps li:last-child{border-bottom:0}
+.steps li::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:14px;font-family:var(--mono);font-size:13px;color:var(--gold);border:1px solid var(--line);border-radius:8px;width:38px;height:38px;display:flex;align-items:center;justify-content:center}
+.steps b{color:#F6F1E6}
+.failclosed{margin-top:22px;font-family:var(--mono);font-size:13px;letter-spacing:1px;color:#e0b877;border:1px solid #3a3320;background:rgba(185,138,62,.08);border-radius:10px;padding:12px 14px}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+@media(max-width:620px){.grid{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:12px;padding:18px 18px;background:var(--panel)}
+.card h3{margin:0 0 6px;font-size:15px;color:#F6F1E6;font-family:var(--sans)}
+.card p{font-size:14px;color:#b7b0a3;margin:0}
+
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.cta a{text-decoration:none;font-family:var(--mono);font-size:13px;letter-spacing:1px;padding:13px 20px;border-radius:10px;border:1px solid var(--line);color:var(--cream)}
+.cta a.primary{background:var(--cream);color:#17150f;border-color:var(--cream)}
+
+footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);font-family:var(--mono);font-size:12px;letter-spacing:1px;color:#8b8478;line-height:1.8}
+
+[data-ja]{display:none}
+:root[lang="ja"] [data-en]{display:none}
+:root[lang="ja"] [data-ja]{display:revert}
+:root[lang="ja"] h1,:root[lang="ja"] h2{font-family:"Hiragino Mincho ProN","Noto Serif CJK JP",var(--serif)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand"><b>HORIZON SHIELD</b> &nbsp;·&nbsp; YAKUMO</div>
+    <div class="langbtns">
+      <button id="b-en" class="on" onclick="setLang('en')">EN</button>
+      <button id="b-ja" onclick="setLang('ja')">日本語</button>
+    </div>
+  </div>
+
+  <div class="hero-eyebrow">THE THROUGH-LIST</div>
+  <h1><span data-en>The list you can see through.</span><span data-ja>透けて見えるリスト。</span></h1>
+  <p class="lead">
+    <span data-en>Yakumo is a contractor mall that lists <b>only shops that passed a fairness check</b>. It is the contractor side of HORIZON SHIELD. Nobody buys their way onto it, and nobody pays us a referral fee to be there.</span>
+    <span data-ja>Yakumo は、<b>公正さのチェックを通った工事店だけ</b>を載せる工務店モールです。HORIZON SHIELD の施工者側の入口。掲載枠はお金で買えず、送客料も一切いただきません。</span>
+  </p>
+
+  <figure>
+    <img src="through-list.jpg" alt="The Yakumo through-list: a printed contractor registry where failed entries are struck through and passing entries are marked verified.">
+  </figure>
+  <figcaption>
+    <span data-en>YAKUMO THROUGH-LIST · struck entries did not pass · green marks passed · fail closed</span>
+    <span data-ja>YAKUMO THROUGH-LIST ／ 取り消し線＝不合格 ／ 緑＝合格 ／ フェイルクローズド</span>
+  </figcaption>
+
+  <div class="chiprow">
+    <span class="chip v">VERIFIED ONLY</span>
+    <span class="chip">NO REFERRAL FEES</span>
+    <span class="chip">FAIL CLOSED</span>
+    <span class="chip">RECOMPUTABLE</span>
+  </div>
+
+  <section class="sec">
+    <h2><span data-en>How a shop gets on the list</span><span data-ja>工事店がリストに載るまで</span></h2>
+    <p>
+      <span data-en>One gate, and it is not about who you know.</span>
+      <span data-ja>入口はひとつ。誰の知り合いか、ではありません。</span>
+    </p>
+    <ol class="steps">
+      <li>
+        <b><span data-en>A shop applies.</span><span data-ja>工事店が申し込む。</span></b>
+        <span data-en> It brings a real, recent estimate, not a brochure.</span>
+        <span data-ja> パンフレットではなく、実際に出した見積もりを1枚持って。</span>
+      </li>
+      <li>
+        <b><span data-en>KIRA checks it against open cost data.</span><span data-ja>KIRA がオープンな原価データに照らす。</span></b>
+        <span data-en> Each line is measured against JCCDB, the open construction cost database. The math has to hold.</span>
+        <span data-ja> 各明細を、オープンな建設原価データベース JCCDB に当てて検算する。数字が合うことが条件。</span>
+      </li>
+      <li>
+        <b><span data-en>If it holds up, the shop is listed as verified.</span><span data-ja>通れば、検証済みとして掲載。</span></b>
+        <span data-en> If it does not, the shop is simply not listed. No exceptions bought.</span>
+        <span data-ja> 通らなければ、載らない。それだけ。例外は売っていません。</span>
+      </li>
+    </ol>
+    <div class="failclosed">
+      <span data-en>FAIL CLOSED &nbsp;·&nbsp; when the check cannot pass, the answer defaults to <b>not listed</b>, never to a benefit of the doubt.</span>
+      <span data-ja>フェイルクローズド ／ チェックが通せないときは、初期値が<b>「載せない」</b>。疑わしきは通さない。</span>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2><span data-en>Why the list looks like that</span><span data-ja>なぜこんなリストなのか</span></h2>
+    <p>
+      <span data-en>It is called a through-list because you can see through it. Entries that did not pass are struck out and left on the page, not quietly deleted. The checker holds itself to the same measure it applies to others, and its own row is published unchanged.</span>
+      <span data-ja>透けて見えるから「スルーリスト」。不合格になった名前は、こっそり消さずに取り消し線を引いてページに残します。物差しは全員に同じ。チェックする側にも同じ物差しを当て、自分の行もそのまま公開します。</span>
+    </p>
+    <div class="grid">
+      <div class="card">
+        <h3><span data-en>No pay to appear</span><span data-ja>掲載はお金で買えない</span></h3>
+        <p><span data-en>Listing is earned by passing the check, not by a fee or a referral kickback.</span><span data-ja>掲載はチェック通過で得るもの。掲載料や送客料では得られません。</span></p>
+      </div>
+      <div class="card">
+        <h3><span data-en>Anyone can recompute it</span><span data-ja>誰でも検算できる</span></h3>
+        <p><span data-en>Verdicts rest on open data and a fixed method, so a third party can redo the math.</span><span data-ja>判定はオープンデータと固定の手順に基づくので、第三者が同じ計算を再現できます。</span></p>
+      </div>
+      <div class="card">
+        <h3><span data-en>Failures stay visible</span><span data-ja>不合格も見える</span></h3>
+        <p><span data-en>Struck rows are part of the record. Transparency is the product, not the marketing.</span><span data-ja>取り消し線の行も記録の一部。透明性そのものが商品です。</span></p>
+      </div>
+      <div class="card">
+        <h3><span data-en>Buyer first</span><span data-ja>買い手のための入口</span></h3>
+        <p><span data-en>Yakumo answers to the person paying for the work, not to the person selling it.</span><span data-ja>Yakumo が向くのは、工事代金を払う人。工事を売る人ではありません。</span></p>
+      </div>
+    </div>
+  </section>
+
+  <div class="cta">
+    <a class="primary" href="https://shield.the-horizons-innovation.com/yakumo/"><span data-en>See Yakumo</span><span data-ja>Yakumo を見る</span></a>
+    <a href="https://shield.the-horizons-innovation.com/"><span data-en>About HORIZON SHIELD</span><span data-ja>HORIZON SHIELD について</span></a>
+  </div>
+
+  <footer>
+    The HORIZ音s株式会社 &nbsp;·&nbsp; HORIZON SHIELD &nbsp;·&nbsp; YAKUMO<br>
+    <span data-en>A contractor mall that lists only shops that passed a fairness check. No diagnosis of people, only a measure of numbers. Verify it yourself.</span>
+    <span data-ja>公正さのチェックを通った工事店だけを載せる工務店モール。人を裁かず、数字を測るだけ。自分で検算できます。</span>
+  </footer>
+
+</div>
+
+<script>
+function setLang(l){
+  document.documentElement.setAttribute("lang", l);
+  document.getElementById("b-en").classList.toggle("on", l==="en");
+  document.getElementById("b-ja").classList.toggle("on", l==="ja");
+}
+</script>
+</body>
+</html>
