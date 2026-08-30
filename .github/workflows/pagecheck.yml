@@ -27,15 +27,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          # 2026-08-30: 複数コミットをまとめて push しても、その push で変わった全ページを見るため全履歴。
+          #   旧: fetch-depth 2 + HEAD^..HEAD は「最後の1コミット」しか見ず、先のコミットのページが素通りした。
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: 変わったページだけを門に通す
+        env:
+          EV_NAME: ${{ github.event_name }}
+          EV_BEFORE: ${{ github.event.before }}
+          EV_SHA: ${{ github.sha }}
+          EV_BASE: ${{ github.base_ref }}
         run: |
-          CHANGED=$(git diff --name-only --diff-filter=ACM HEAD^ HEAD \
+          if [ "$EV_NAME" = "pull_request" ]; then
+            git fetch --no-tags origin "$EV_BASE" >/dev/null 2>&1 || true
+            RANGE="origin/$EV_BASE...HEAD"
+          elif [ -n "$EV_BEFORE" ] && [ "$EV_BEFORE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$EV_BEFORE" 2>/dev/null; then
+            RANGE="$EV_BEFORE..$EV_SHA"
+          else
+            RANGE="HEAD^..HEAD"
+          fi
+          echo "見る範囲: $RANGE"
+          CHANGED=$(git diff --name-only --diff-filter=ACM $RANGE \
                     | grep -E '^(yakumo|care)/.*\.html$' || true)
           if [ -z "$CHANGED" ]; then
             echo "対象のページはありません。"

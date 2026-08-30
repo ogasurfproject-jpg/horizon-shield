@@ -31,13 +31,14 @@ const CORS_HEADERS = {
 
 // 仕様確定までの暫定値。名称や閾値はここだけ直せば全体に効く。
 const CONFIG = {
-  version: "0.2.1",
+  version: "0.2.2",
   tier_pass: "verified",        // 通過時の称号(暫定)
   tier_fail: "pending",         // 未通過(不合格とは呼ばない)
   tier_held: "held",            // 到達できず測れなかった。不適合とは別の状態
   unreachable_streak: 3,        // 連続これだけ到達不能が続くまで通知しない
   timeout_ms: 10000,
-  determinism_runs: 2           // 決定論性の確認に何回叩くか
+  determinism_runs: 2,          // 決定論性の確認に何回叩くか
+  determinism_tool_tries: 3     // 0.2.2: 空引数に error で答えるツールは測定にならない。別のツールを最大何本まで試すか
 };
 
 // 再計算の手順書。2026-08-23 に実測して書き直した。
@@ -424,6 +425,19 @@ function isOwnZone(u) {
   } catch (_e) { return false; }
 }
 
+// 0.2.2. 公開の測定器が測ってよいのは公開の名前だけ。IP リテラル / localhost / 内部っぽい名前 / userinfo 付きは
+// 入口で断る(redteam: endpoint_ip_literal / endpoint_localhost / endpoint_userinfo)。
+function endpointHostProblem(parsed) {
+  const h = String(parsed.hostname || "").toLowerCase();
+  if (parsed.username || parsed.password) return "userinfo in URL is not accepted";
+  if (!h) return "hostname required";
+  if (h === "localhost" || h.endsWith(".localhost") || h.endsWith(".local") || h.endsWith(".internal")) return "not a public hostname: " + h;
+  if (/^\[?[0-9a-f:]+\]?$/i.test(h) && h.indexOf(":") >= 0) return "IP literal is not accepted: " + h;
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(h)) return "IP literal is not accepted: " + h;
+  if (h.indexOf(".") < 0) return "not a public hostname: " + h;
+  return null;
+}
+
 function isSelf(u) {
   try { return new URL(u).hostname === GATE_HOST; } catch (_e) { return false; }
 }
@@ -459,6 +473,34 @@ function gateCommit() {
     : "unpinned: this deployment did not inject a commit (deploy_gate.sh not used)";
 }
 
+// 0.2.2. リダイレクトを黙って辿ると、他所のサーバーや他所のカードを「この endpoint のもの」として測ってしまう
+// (redteam: card_redirect_cross_origin / mcp_redirect_cross_origin)。同一オリジンの中だけ最大3回辿り、
+// オリジンを跨ぐ 3xx は「述べられた URL では測っていない」として answered(届いた上で不適合)に落とす。
+// 中継経路(自ゾーン)は中継側が辿るので、この縛りは直叩き経路にだけ効く。そのことは隠さない。
+async function fetchSameOriginOnly(url, opts) {
+  let cur = url;
+  for (let hop = 0; hop < 4; hop++) {
+    const res = await fetch(cur, { ...opts, redirect: "manual" });
+    if (res.status < 300 || res.status >= 400) return res;
+    const loc = res.headers.get("location");
+    if (!loc) return res;
+    let next;
+    try { next = new URL(loc, cur).toString(); } catch (_e) { return res; }
+    if (new URL(next).origin !== new URL(url).origin) {
+      const e = new Error("redirected off-origin to " + new URL(next).host + " (http " + res.status + "): the stated URL answered with a redirect to another origin, so nothing was measured at the stated URL");
+      e.answered = true;
+      throw e;
+    }
+    if (hop === 3) {
+      const e = new Error("too many redirects at the stated URL"); e.answered = true; throw e;
+    }
+    cur = next;
+    // 307/308 はメソッドと本文を保つ。それ以外は GET に落ちる(fetch の既定と同じ)
+    if (!(res.status === 307 || res.status === 308)) opts = { ...opts, method: "GET", body: undefined };
+  }
+  return await fetch(cur, opts);
+}
+
 async function probeFetch(url, init) {
   const opts = init ? { ...init } : {};
   opts.headers = { ...(opts.headers || {}), "user-agent": PROBE_UA };
@@ -471,7 +513,7 @@ async function probeFetch(url, init) {
     if (isSelf(url)) {
       throw new Error("relay unavailable (self-probe has no relay path): gate-side failure, not a statement about the target");
     }
-    return await fetch(url, opts);
+    return await fetchSameOriginOnly(url, opts);
   }
   // 2026-08-19 patch53. ここは patch52 の取りこぼし。
   // 中継が「返した」場合しか見ていなかった。fetch that throws は素通りして、
@@ -551,8 +593,24 @@ async function rpcCall(endpoint, method, params) {
     headers: JSON_HEADERS,
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params: params || {} })
   }), CONFIG.timeout_ms);
-  if (!res.ok) throw new Error("http " + res.status);
-  return parseJsonTracked(await res.text());
+  if (!res.ok) {
+    // 0.2.2. HTTP のステータスは相手からの「答え」である(checkAgentCard の 404 と同じ理屈)。
+    // gateway 系(502-504, 52x)だけが「相手の origin は答えていない」。それ以外の 4xx/5xx は
+    // 届いた上での不適合であり、reachable:false と公開してはいけない(redteam: mcp_http_404 / 401)。
+    const gatewayish = (res.status >= 502 && res.status <= 504) || (res.status >= 520 && res.status <= 530);
+    const e = new Error("http " + res.status + (gatewayish ? "" : " (the server answered, but not with JSON-RPC)"));
+    e.answered = !gatewayish;
+    throw e;
+  }
+  const text = await res.text();
+  try {
+    return parseJsonTracked(text);
+  } catch (pe) {
+    // 0.2.2. 200 で HTML を返す相手は「届いたが MCP ではない」。到達不能ではない(redteam: mcp_http_200_html)。
+    const e = new Error("response is not JSON (" + String((pe && pe.message) || pe).slice(0, 60) + "): the server answered, but not with JSON-RPC");
+    e.answered = true;
+    throw e;
+  }
 }
 
 // ---- 表面(surface)のハッシュ ----
@@ -726,10 +784,22 @@ async function checkMcp(endpoint) {
     detail.initialize = !!(init && init.result);
     detail.server_name = (init && init.result && init.result.serverInfo && init.result.serverInfo.name) || null;
     initResult = init && init.result ? { serverInfo: init.result.serverInfo || null, capabilities: init.result.capabilities || null } : null;
+    // 0.2.2. initialize が JSON-RPC error や result 無しで答えたのに、tools/list だけで通していた
+    // (redteam: initialize_jsonrpc_error / initialize_result_null)。条件1は「initialize と tools/list に答える」。
+    if (init && init.error) {
+      return { pass: false, reason: "initialize returned a JSON-RPC error: " + String((init.error && init.error.message) || JSON.stringify(init.error)).slice(0, 80), detail };
+    }
+    if (!init || !init.result || typeof init.result !== "object") {
+      return { pass: false, reason: "initialize returned no result object", detail };
+    }
   } catch (e) {
     if (/gate-side failure/.test(String(e && e.message))) {
       // 中継の故障。対象のことは何も分かっていない。boolean にもそう言わせる。
       return { pass: false, gate_side: true, measured: false, reason: "not measured: " + e.message, detail };
+    }
+    if (e && e.answered === true) {
+      // 0.2.2. 届いた上での不適合。transport(到達不能)と混ぜない。
+      return { pass: false, reason: "initialize failed: " + e.message, detail };
     }
     const hint = /1104|1042|Failed to fetch|fetch failed/i.test(String(e.message))
       ? " (the gate could not reach this host. Cloudflare blocks Worker-to-Worker calls within the " +
@@ -746,19 +816,42 @@ async function checkMcp(endpoint) {
     do {
       const list = await rpcCall(endpoint, "tools/list", cursor ? { cursor: cursor } : {});
       noteParse(list);
-      const batch = (list && list.result && list.result.tools) || [];
+      const batchRaw = (list && list.result && list.result.tools);
+      // 0.2.2. tools が配列でなければ、それは MCP の tools/list ではない(redteam: tools_is_object_not_array。
+      // 旧実装は concat でオブジェクトを1本のツールとして数え、verified を出していた)。
+      if (batchRaw !== undefined && batchRaw !== null && !Array.isArray(batchRaw)) {
+        return { pass: false, reason: "tools/list returned tools that is not an array", detail };
+      }
+      const batch = batchRaw || [];
       tools = tools.concat(batch);
       cursor = (list && list.result && list.result.nextCursor) || null;
       pages += 1;
     } while (cursor && pages < 3);
     detail.tool_count = tools.length;
-    detail.tools = tools.map((t) => t.name).slice(0, 50);
+    detail.tools = tools.map((t) => (t && t.name)).slice(0, 50);
     detail.surface = await surfaceHashes(tools, initResult, pages, !cursor, parseNotes);
     detail.absence_vs_failure = measureAbsenceVsFailure(tools);
     if (!tools.length) return { pass: false, reason: "tools/list returned no tools", detail };
+    // 0.2.2. 中身の無いツールは数えない。MCP のツールは「空でない文字列の name」と「inputSchema オブジェクト」を持つ。
+    // 名前だけの殻(redteam: hollow_tool_no_inputSchema / tool_empty_name / tool_name_not_string)で条件1を通し、
+    // その殻に決定論性まで測らせて verified を出していた。重複名(duplicate_tool_names)も1面として認めない。
+    const callable = tools.filter((t) => t && typeof t.name === "string" && t.name.trim().length > 0 &&
+      t.inputSchema && typeof t.inputSchema === "object" && !Array.isArray(t.inputSchema));
+    detail.callable_tools = callable.map((t) => t.name).slice(0, 50);
+    detail.hollow_tools = tools.length - callable.length;
+    if (!callable.length) {
+      return { pass: false, reason: "tools/list returned no well-formed tool (a tool needs a non-empty string name and an inputSchema object)", detail };
+    }
+    const _names = callable.map((t) => t.name);
+    if (new Set(_names).size !== _names.length) {
+      return { pass: false, reason: "tools/list carries duplicate tool names; a surface that names the same tool twice cannot be addressed unambiguously", detail };
+    }
   } catch (e) {
     if (/gate-side failure/.test(String(e && e.message))) {
       return { pass: false, gate_side: true, measured: false, reason: "not measured: " + e.message, detail };
+    }
+    if (e && e.answered === true) {
+      return { pass: false, reason: "tools/list failed: " + e.message, detail };
     }
     return { pass: false, transport: true, reason: "tools/list failed: " + e.message, detail };
   }
@@ -781,10 +874,20 @@ async function checkAgentCard(endpoint) {
       if (gatewayish) return { pass: false, transport: true, reason: "agent-card not reachable (http " + res.status + ")", detail: { url } };
       return { pass: false, reason: "agent-card not published (http " + res.status + ": the server answered; no card lives at this path)", detail: { url } };
     }
-    const card = await res.json();
-    const missing = ["name", "description"].filter((k) => !card[k]);
+    let card;
+    try { card = await res.json(); }
+    catch (_e) {
+      // 0.2.2. 200 で JSON でないものは「届いたがカードではない」。到達不能ではない(redteam: card_is_html)。
+      return { pass: false, reason: "agent-card is not JSON (the server answered; what lives at this path is not a card)", detail: { url } };
+    }
+    // 0.2.2. カードは JSON オブジェクトで、name / description は空でない文字列(redteam: card_is_array /
+    // card_name_whitespace / card_name_boolean / card_description_object)。真偽値や空白で条件2を通していた。
+    if (!card || typeof card !== "object" || Array.isArray(card)) {
+      return { pass: false, reason: "agent-card is not a JSON object", detail: { url } };
+    }
+    const missing = ["name", "description"].filter((k) => typeof card[k] !== "string" || !card[k].trim());
     if (missing.length) {
-      return { pass: false, reason: "agent-card missing fields: " + missing.join(", "), detail: { url } };
+      return { pass: false, reason: "agent-card missing or empty (must be non-empty strings): " + missing.join(", "), detail: { url } };
     }
     return {
       pass: true,
@@ -795,6 +898,9 @@ async function checkAgentCard(endpoint) {
   } catch (e) {
     if (/gate-side failure/.test(String(e && e.message))) {
       return { pass: false, gate_side: true, measured: false, reason: "not measured: " + e.message, detail: { url } };
+    }
+    if (e && e.answered === true) {
+      return { pass: false, reason: "agent-card not usable: " + e.message, detail: { url } };
     }
     return { pass: false, transport: true, reason: "agent-card fetch failed: " + e.message, detail: { url } };
   }
@@ -820,22 +926,39 @@ function checkCompensation(card) {
   if (typeof c.referral_fee !== "boolean" || typeof c.listing_fee !== "boolean") {
     return { pass: false, reason: "compensation.referral_fee and listing_fee must be boolean", detail: {} };
   }
+  // 0.2.2. 宣言するなら機械可読な型で。旧実装は success_fee_pct:"see website" を黙って null にして通し、
+  // 開示していないのと同じ記録を verified に載せていた(redteam: comp_success_fee_string / _nan / _out_of_range /
+  // comp_disclosure_url_object)。内容は審査しない。形だけを見る。
+  if (c.success_fee_pct !== undefined && (typeof c.success_fee_pct !== "number" || !Number.isFinite(c.success_fee_pct) || c.success_fee_pct < 0 || c.success_fee_pct > 100)) {
+    return { pass: false, reason: "compensation.success_fee_pct, when declared, must be a number between 0 and 100", detail: { got: c.success_fee_pct === undefined ? null : c.success_fee_pct } };
+  }
+  if (c.disclosure_url !== undefined && c.disclosure_url !== null && typeof c.disclosure_url !== "string") {
+    return { pass: false, reason: "compensation.disclosure_url, when declared, must be a string", detail: {} };
+  }
+  const detail = {
+    paid_by: c.paid_by,
+    referral_fee: c.referral_fee,
+    listing_fee: c.listing_fee,
+    success_fee_pct: typeof c.success_fee_pct === "number" ? c.success_fee_pct : null,
+    disclosure_url: c.disclosure_url || null
+  };
+  // 自己矛盾は合否を変えない(内容は審査しないという約束)。ただし読者に見えるように書く。
+  if (c.paid_by === "referral" && c.referral_fee === false) {
+    detail.consistency_note = "paid_by is referral while referral_fee is false: the declaration contradicts itself. Not judged here; published so a reader can see it.";
+  }
   return {
     pass: true,
     reason: "compensation structure declared",
-    detail: {
-      paid_by: c.paid_by,
-      referral_fee: c.referral_fee,
-      listing_fee: c.listing_fee,
-      success_fee_pct: typeof c.success_fee_pct === "number" ? c.success_fee_pct : null,
-      disclosure_url: c.disclosure_url || null
-    }
+    detail: detail
   };
 }
 
 // ---- 条件4. 数値主張の再計算可能性(決定論性) ----
 // 同じ入力を複数回投げ、返る内容が一致するかを実測する。
-async function checkDeterminism(endpoint, toolName, allowToolCall) {
+async function checkDeterminism(endpoint, toolNames, allowToolCall) {
+  // 0.2.2. 引数は「呼べるツール名の配列」。旧実装は先頭1本の名前だった。
+  const names = Array.isArray(toolNames) ? toolNames.filter((n) => typeof n === "string" && n) : (toolNames ? [toolNames] : []);
+  const toolName = names[0] || null;
   // 既定ではツールを呼ばない。決定論性を測るには相手のツールを実行する必要があり、
   // 先頭のツールが破壊的な操作である可能性がある。所有者の明示的な同意なしには触らない。
   if (!allowToolCall) {
@@ -855,28 +978,50 @@ async function checkDeterminism(endpoint, toolName, allowToolCall) {
     };
   }
   if (!toolName) return { pass: false, reason: "no tool available to test", detail: {} };
-  const outs = [];
-  for (let i = 0; i < CONFIG.determinism_runs; i++) {
-    try {
-      const r = await rpcCall(endpoint, "tools/call", { name: toolName, arguments: {} });
-      const txt = JSON.stringify((r && r.result && r.result.content) || r);
-      outs.push(txt);
-    } catch (e) {
-      return { pass: false, reason: "tools/call failed: " + e.message, detail: { tool: toolName } };
+  // 0.2.2. error 応答(JSON-RPC error / result.isError:true)を2回受け取って「同一」と数えていた
+  // (redteam: determinism_error_echo / determinism_isError_echo)。引数不足のエラーを2回返すだけの相手が
+  // verified になる。error は出力ではない。測定にならない。別のツールを最大 determinism_tool_tries 本まで試し、
+  // どれも error なら「測れなかった」と書く(pending)。測ったのが N本中1本であることと選び方も開示する。
+  const tried = [];
+  const candidates = names.slice(0, CONFIG.determinism_tool_tries);
+  const selection = "first well-formed tool (in the server's own tools/list order) that answers empty arguments without an error; up to " +
+    CONFIG.determinism_tool_tries + " tools are tried. The server chooses its own order, so this measures one tool the server put first, not the whole surface.";
+  for (const name of candidates) {
+    const outs = [];
+    let errored = null;
+    for (let i = 0; i < CONFIG.determinism_runs; i++) {
+      let r;
+      try {
+        r = await rpcCall(endpoint, "tools/call", { name: name, arguments: {} });
+      } catch (e) {
+        return { pass: false, reason: "tools/call failed: " + e.message, detail: { tool: name, tried: tried } };
+      }
+      if (r && r.error) { errored = "JSON-RPC error: " + String((r.error && r.error.message) || JSON.stringify(r.error)).slice(0, 60); break; }
+      if (r && r.result && r.result.isError === true) { errored = "result.isError true"; break; }
+      outs.push(JSON.stringify((r && r.result && r.result.content) || r));
     }
+    if (errored) { tried.push({ tool: name, outcome: "error response, not a measurement (" + errored + ")" }); continue; }
+    const same = outs.every((o) => o === outs[0]);
+    tried.push({ tool: name, outcome: same ? "identical across " + CONFIG.determinism_runs + " runs" : "output changed between runs" });
+    return {
+      pass: same,
+      reason: same
+        ? "identical input returned identical output across " + CONFIG.determinism_runs + " runs"
+        : "output changed between identical runs (not usable as a fixed reference)",
+      detail: { tool: name, runs: CONFIG.determinism_runs, identical: same, tried: tried,
+        tools_measured: 1, tools_unmeasured: Math.max(0, names.length - 1), selection: selection }
+    };
   }
-  const same = outs.every((o) => o === outs[0]);
   return {
-    pass: same,
-    reason: same
-      ? "identical input returned identical output across " + CONFIG.determinism_runs + " runs"
-      : "output changed between identical runs (not usable as a fixed reference)",
-    detail: { tool: toolName, runs: CONFIG.determinism_runs, identical: same }
+    pass: false,
+    measured: false,
+    reason: "not measured: every tool tried (" + tried.length + " of " + names.length + ") answered empty arguments with an error, so there was no output to compare. An error echo is not a measurement of determinism.",
+    detail: { tried: tried, tools_measured: 0, tools_unmeasured: names.length, selection: selection }
   };
 }
 
 // ---- 判定の組み立て ----
-async function runCheck(endpoint, allowToolCall) {
+async function runCheck(endpoint, allowToolCall, consentBasis) {
   const started = new Date().toISOString();
   const results = {};
 
@@ -888,8 +1033,10 @@ async function runCheck(endpoint, allowToolCall) {
     ? { pass: false, gate_side: true, measured: false, reason: "not measured: the agent card could not be fetched because the gate's relay path was unavailable, so whether compensation is disclosed is unknown" }
     : checkCompensation(cardRes.card);
 
-  const firstTool = results.mcp_endpoint.detail && results.mcp_endpoint.detail.tools
-    ? results.mcp_endpoint.detail.tools[0] : null;
+  // 0.2.2. 決定論性は「呼べるツール」の列から測る(殻のツールは除外済み)。
+  const firstTool = results.mcp_endpoint.detail && Array.isArray(results.mcp_endpoint.detail.callable_tools)
+    ? results.mcp_endpoint.detail.callable_tools
+    : (results.mcp_endpoint.detail && results.mcp_endpoint.detail.tools ? results.mcp_endpoint.detail.tools.slice(0, 1) : null);
   // 2026-08-19 patch52. MCPが測れていないなら、ツールが無いのではなく見ていない。
   // "no tool available to test" は、探した上で無かったときの文言。
   // 探していないのに無いと書くのは、8/19 に verify-event の tags で直したのと同じ形。
@@ -919,6 +1066,10 @@ async function runCheck(endpoint, allowToolCall) {
       "tools on the server being checked, so determinism is reported as not measured rather than " +
       "guessed. Send allow_tool_call true to have it measured on a server you control.",
     tools_called: allowToolCall === true ? "one tool, twice, with empty arguments, by consent" : "none",
+    // 0.2.2. 同意の根拠を判定に載せる。/check の allow_tool_call は要求者の申告であって、所有者の証明ではない。
+    consent_basis: allowToolCall === true
+      ? (consentBasis || "asserted by the requester via allow_tool_call; not proven to be the owner")
+      : "no consent given; no tool was called",
     probed_via: probeVia(endpoint),
     ...(gateSide ? {
       measurement_note:
@@ -1019,22 +1170,25 @@ function spec() {
       "Quality, competence, or fitness of the underlying business"
     ],
     conditions: {
-      mcp_endpoint: "POST /mcp responds to initialize and tools/list with at least one tool",
-      agent_card: "GET /.well-known/agent-card.json returns JSON with name and description",
+      mcp_endpoint: "POST /mcp responds to initialize (with a result, not an error) and tools/list with at least one well-formed tool: a non-empty string name and an inputSchema object. Hollow tools are not counted, duplicate names fail, and a tools value that is not an array fails (0.2.2).",
+      agent_card: "GET /.well-known/agent-card.json returns a JSON object whose name and description are non-empty strings. Redirects are followed only within the same origin; a redirect to another origin is not a card at this origin (0.2.2).",
       compensation_disclosure: {
         location: "agent-card, top-level key 'compensation'",
         shape: {
           paid_by: PAID_BY,
           referral_fee: "boolean, required",
           listing_fee: "boolean, required",
-          success_fee_pct: "number, optional",
-          disclosure_url: "string, optional"
+          success_fee_pct: "number between 0 and 100, optional; declared with any other type or range, the condition fails (0.2.2)",
+          disclosure_url: "string, optional; declared with any other type, the condition fails (0.2.2)"
         },
-        note: "Content is not judged. Only the absence of disclosure disqualifies."
+        note: "Content is not judged. Only the absence of disclosure disqualifies. A self-contradicting declaration (paid_by referral with referral_fee false) still passes and is published with a consistency_note (0.2.2)."
       },
-      determinism: "Calling the same tool with the same arguments returns identical content across runs. NOT measured by default: doing so requires executing a tool on the checked server, which this gate will not do without the owner's consent. Send allow_tool_call true to measure it.",
+      determinism: "Calling the same tool with the same arguments returns identical content across runs. NOT measured by default: doing so requires executing a tool on the checked server, which this gate will not do without the owner's consent. Send allow_tool_call true to measure it. An error response (JSON-RPC error or result.isError) is not a measurement: up to " + CONFIG.determinism_tool_tries + " tools are tried in the server's own order, and the verdict discloses which tool was measured, which were tried, and how many were not measured (0.2.2).",
       self_verification: "Every verdict carries a SHA-256 that any third party can recompute"
     },
+    reachability: "Any HTTP status, or a non-JSON body, is an answer from the server: reachable stays true and the row goes pending, not held. Only gateway-shaped statuses (502-504, 52x) and transport failures mean held. Redirects to another origin are treated as answered, not followed (0.2.2).",
+    consent: "allow_tool_call on /check is asserted by the requester and is not proof of ownership; every verdict states its consent_basis. Rows in the public register are measured with tool calls only for endpoints on the operator's published consent list (0.2.2).",
+    red_team: "test/redteam_gate.mjs in the public repository attacks this gate with adversarial mock servers (hollow tools, error echoes, cross-origin redirects, malformed cards and disclosures, misclassified reachability). Fail-closed and deterministic. v0.2.1 scored 17 of 48; v0.2.2 scores 48 of 48. Known residual: determinism is measured on one tool the server lists first, which the verdict discloses rather than hides.",
     also_measured_no_verdict: {
       absence_vs_failure: {
         condition: "06",
@@ -1121,6 +1275,8 @@ const TOOL_CALL_CONSENT = new Set([
   "https://gate.horizonshield.dev/mcp",
   // p002 ミネオトーヨー住器。所有者同意 2026-08-18 19:51 LINE「測って下さい。」
   "https://p002.horizonshield.dev/mcp",
+  // femtech.horizonshield.dev フェム情報源レジストリ。所有者は我々自身なので同意は自明。
+  "https://femtech.horizonshield.dev/mcp",
   // 自前の試験標的。所有者は我々自身なので同意は自明。
   "https://gate.horizonshield.dev/testbed/i-json/mcp"
 ]);
@@ -1137,7 +1293,8 @@ const OPERATOR_LABELS = {
   "https://gate.horizonshield.dev/mcp":    { ja: "\u691c\u8a3c\u30b2\u30fc\u30c8\uff08\u3053\u306e\u691c\u67fb\u6a5f\u81ea\u8eab\uff09", en: "The verification gate, measuring itself", url: "https://shield.the-horizons-innovation.com/verify-directory/" },
   "https://jidec.horizonshield.dev/mcp":   { ja: "JIDEC \u516c\u958b\u691c\u8a3c\u53f0\u5e33", en: "JIDEC, the Bitcoin anchored public ledger", url: "https://ledger.horizonshield.dev/llms.txt" },
   "https://p001.horizonshield.dev/mcp":    { ja: "\u30ea\u30d5\u30a9\u30fc\u30e0\u8077\u4eba\u682a\u5f0f\u4f1a\u793e\uff08\u52a0\u76dfNo.001\uff09", en: "Reform Shokunin Co., Ltd. (member No.001, Aichi)", url: "https://shield.the-horizons-innovation.com/yakumo/no001/" },
-  "https://p002.horizonshield.dev/mcp":    { ja: "\u30df\u30cd\u30aa\u30c8\u30fc\u30e8\u30fc\u4f4f\u5668\u682a\u5f0f\u4f1a\u793e\uff08\u52a0\u76dfNo.002\uff09", en: "Mineo Toyo Juki Co., Ltd. (member No.002)" }
+  "https://p002.horizonshield.dev/mcp":    { ja: "\u30df\u30cd\u30aa\u30c8\u30fc\u30e8\u30fc\u4f4f\u5668\u682a\u5f0f\u4f1a\u793e\uff08\u52a0\u76dfNo.002\uff09", en: "Mineo Toyo Juki Co., Ltd. (member No.002)" },
+  "https://femtech.horizonshield.dev/mcp": { ja: "フェム情報源レジストリ", en: "Femtech source registry (verify sources, never diagnose)", url: "https://femtech.horizonshield.dev/" }
 };
 
 const REGISTER_JOIN_MAX = 50;
@@ -1576,7 +1733,8 @@ const DEFAULT_WATCHLIST = [
   "https://jidec.horizonshield.dev/mcp",
   "https://p001.horizonshield.dev/mcp",
   "https://p002.horizonshield.dev/mcp",
-  "https://gate.horizonshield.dev/mcp"
+  "https://gate.horizonshield.dev/mcp",
+  "https://femtech.horizonshield.dev/mcp"
 ];
 
 // 既定の自社分、旧来の watch:endpoints、新しい watch:registry を束ねて返す。
@@ -1864,7 +2022,7 @@ async function runDailySweep(env, opts) {
   const results = [];
   for (const w of run) {
     try {
-      const record = await runCheck(w.endpoint, TOOL_CALL_CONSENT.has(w.endpoint));
+      const record = await runCheck(w.endpoint, TOOL_CALL_CONSENT.has(w.endpoint), "operator consent list (TOOL_CALL_CONSENT in the gate's source, published)");
       const r = await recordHistory(env, w.endpoint, record);
       const changed = !!(r && r.changed);
       const alertable = !!(r && r.alertable);
@@ -2334,6 +2492,8 @@ async function handleMcp(body, env) {
       if (parsed.protocol !== "https:") {
         return { jsonrpc: "2.0", id, result: mcpFail({ error: "https_required" }) };
       }
+      const _hostErr = endpointHostProblem(parsed);
+      if (_hostErr) return { jsonrpc: "2.0", id, result: mcpFail({ error: "endpoint_host_rejected", reason: _hostErr }) };
       try {
         return { jsonrpc: "2.0", id, result: mcpOk(await runCheck(endpoint, args.allow_tool_call === true)) };
       } catch (e) {
@@ -3106,6 +3266,8 @@ export default {
       if (parsed.protocol !== "https:") {
         return json({ error: "https_required" }, 400);
       }
+      const _hostErr = endpointHostProblem(parsed);
+      if (_hostErr) return json({ error: "endpoint_host_rejected", reason: _hostErr }, 400);
       const own = isOwnZone(endpoint);
       bumpUsage(env, ctx, own ? "own_checks" : "external_checks", own ? null : parsed.hostname);
       try {
