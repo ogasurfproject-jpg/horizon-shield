@@ -53,7 +53,7 @@ if os.environ.get("PAGECHECK_ROOT"):
     _set_root(os.environ["PAGECHECK_ROOT"])
 BASE = "https://shield.the-horizons-innovation.com"
 MOAT_FORBIDDEN = [s[::-1] for s in ["5.23", "dlohserht_regnad", "CPW"]]  # 逆順表記(公開repoのgrep封印。機能は同一)
-FORBIDDEN_DASH = {"—": "EM", "–": "EN", "―": "BAR"}
+FORBIDDEN_DASH = {"—": "EM", "–": "EN", "―": "BAR", "－": "FW_HYPHEN_MINUS", "‒": "FIGURE", "−": "MINUS", "⸺": "TWO_EM", "⸻": "THREE_EM", "﹘": "SMALL_EM", "﹣": "SMALL_FW_MINUS", "⁓": "SWUNG"}
 LD_RE = re.compile(r'<script type="application/ld\+json">(.*?)</script>', re.S)
 CANON_RE = re.compile(r'<link rel="canonical" href="([^"]+)"')
 TITLE_RE = re.compile(r"<title>(.*?)</title>", re.S)
@@ -62,6 +62,7 @@ ROBOTS_RE = re.compile(r'<meta name="robots" content="([^"]*)"')
 AUTHOR_RE = re.compile(r'<meta name="author" content="([^"]*)"')
 # 金額: ¥123 / 123円 / 12万円 / 1,234,567 円 など(数字を伴う通貨表現)
 MONEY_RE = re.compile(r'(¥\s*\d|\d[\d,]*\s*円|\d+\s*万円)')
+KANJI_MONEY_RE = re.compile(r'[〇一二三四五六七八九十百千]+\s*[万千]?\s*円')  # 漢数字金額の難読化を潰す
 # 本文(タグ除去)で禁止語・金額を見るため簡易にscript/styleを剥がす
 SCRIPT_STYLE_RE = re.compile(r'<(script|style)\b[^>]*>.*?</\1>', re.S)
 TAG_RE = re.compile(r'<[^>]+>')
@@ -78,6 +79,15 @@ def is_recruit_path(relpath):
     # 採用(求人)ページは給与表示が必要なため、金額チェックを免除する名前空間。
     # 施主向け(souba / faq 等)は従来どおり金額非表示のまま(このヘルパで区別する)。
     return "/recruit/" in ("/" + relpath.replace("\\", "/"))
+
+# 2026-08-30: noindex には2種類ある。
+#   管理/取引/フォーム面(admin/mypage/register/store 等)を noindex にするのは正当(honest scope)。
+#   施主向けの公開コンテンツ面を noindex にするのは事故(公開したいものが消える)。
+#   前者だけ免除する。開示が主張を"限定"するのか"矛盾"させるのかを、置き場所で分ける。
+NOINDEX_OK = ("/admin/", "/mypage/", "/register/", "/store/", "/api/", "/auth/", "/login/")
+def is_noindex_ok_path(relpath):
+    r = "/" + relpath.replace("\\", "/")
+    return any(seg in r for seg in NOINDEX_OK)
 
 def visible_text(html):
     t = SCRIPT_STYLE_RE.sub(' ', html)
@@ -128,16 +138,26 @@ def check_page(relpath):
     # 必須メタ
     if not DESC_RE.search(html):
         errs.append("NO_DESCRIPTION")
-    rb = ROBOTS_RE.search(html)
-    if not rb or "index" not in rb.group(1) or "follow" not in rb.group(1):
-        errs.append("ROBOTS_NOT_INDEXABLE")
+    robots_vals = ROBOTS_RE.findall(html)
+    if len(robots_vals) != 1:
+        errs.append("ROBOTS_TAG_COUNT: %d" % len(robots_vals))
+    else:
+        _rv = robots_vals[0].lower()
+        _noindex = re.search(r"noindex|nofollow|\bnone\b", _rv)
+        if _noindex and not is_noindex_ok_path(relpath):
+            errs.append("ROBOTS_NOINDEX_OR_NOFOLLOW: " + robots_vals[0])
+        elif not _noindex and ("index" not in _rv or "follow" not in _rv):
+            errs.append("ROBOTS_NOT_INDEXABLE")
     if not AUTHOR_RE.search(html):
         errs.append("NO_AUTHOR")
 
     # 禁止語(MOAT)は全文で
+    _compact = re.sub(r"\s+", "", html.lower())
     for w in MOAT_FORBIDDEN:
         if w in html:
             errs.append("MOAT_LEAK: " + w)
+        elif w.lower() in _compact:
+            errs.append("MOAT_LEAK_CI: " + w)
 
     # 禁止ダッシュ
     for ch, name in FORBIDDEN_DASH.items():
@@ -148,7 +168,9 @@ def check_page(relpath):
 
     # 金額(可視テキスト): 施主向けは非表示。ただし採用(/recruit/)は求人給与の表示が必要なため免除。
     if not is_recruit_path(relpath):
-        mm = MONEY_RE.search(vis)
+        _alts = " ".join(re.findall(r'<img[^>]*\balt="([^"]*)"', html))
+        _scope = vis + " " + _alts
+        mm = MONEY_RE.search(_scope) or KANJI_MONEY_RE.search(_scope)
         if mm:
             errs.append("MONEY_ON_PAGE: " + mm.group(0).strip())
 

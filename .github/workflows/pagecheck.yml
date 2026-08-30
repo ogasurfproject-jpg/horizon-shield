@@ -13,10 +13,12 @@ on:
     paths:
       - "yakumo/**/*.html"
       - "care/**/*.html"
+      - "tools/pagecheck/**"
   pull_request:
     paths:
       - "yakumo/**/*.html"
       - "care/**/*.html"
+      - "tools/pagecheck/**"
   workflow_dispatch:
 
 jobs:
@@ -41,3 +43,6 @@ jobs:
           fi
           echo "$CHANGED"
           python3 tools/pagecheck/validate.py --paths $CHANGED
+
+      - name: 門を敵として攻める(レッドチーム)
+        run: python3 tools/pagecheck/redteam.py
