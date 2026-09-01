@@ -1,0 +1,190 @@
+{
+  "active": 25810,
+  "active_published_last_30_days": 9409,
+  "active_published_last_90_days": 17614,
+  "active_with_https_remote": 14455,
+  "by_status": {
+    "active": 25810,
+    "deprecated": 294
+  },
+  "complete": true,
+  "endpoints_on_shared_hosts": 4822,
+  "entries_returned": 26104,
+  "hosts_with_more_than_one_endpoint": 484,
+  "https_endpoints_active": 14855,
+  "measured_at": "2026-09-01T08:45:34.267780+00:00",
+  "note": "declared endpoints only. liveness not measured here. active means the registry's own status field.",
+  "pages": 262,
+  "registrations_latest_all_statuses": 26104,
+  "source": "https://registry.modelcontextprotocol.io/v0/servers?version=latest",
+  "stop_reason": "cursor exhausted",
+  "tool": "survey0_count_v4",
+  "top_hosts": [
+    [
+      "gateway.pipeworx.io",
+      1313
+    ],
+    [
+      "api.mcp.ai",
+      1103
+    ],
+    [
+      "api.m2mcent.com",
+      276
+    ],
+    [
+      "server.smithery.ai",
+      216
+    ],
+    [
+      "mcp.apify.com",
+      100
+    ],
+    [
+      "openings-vote-drilling-initially.trycloudflare.com",
+      90
+    ],
+    [
+      "tooloracle.io",
+      57
+    ],
+    [
+      "api.lazy-mac.com",
+      54
+    ],
+    [
+      "mcp.jojapi.com",
+      49
+    ],
+    [
+      "api.meok.ai",
+      39
+    ],
+    [
+      "mcp.olyport.com",
+      38
+    ],
+    [
+      "nexgendata-mcp-proxy.steve-corbeil.workers.dev",
+      33
+    ],
+    [
+      "mcp.viridisconservation.com",
+      30
+    ],
+    [
+      "antibody-package-occasional-floppy.trycloudflare.com",
+      30
+    ],
+    [
+      "waystation.ai",
+      24
+    ],
+    [
+      "lab.flashalpha.com",
+      20
+    ],
+    [
+      "hive-mcp-gateway.onrender.com",
+      19
+    ],
+    [
+      "{host}",
+      19
+    ],
+    [
+      "mcp.moltlinestudio.com",
+      19
+    ],
+    [
+      "mcp.boykaf.com",
+      18
+    ],
+    [
+      "mcp.infobip.com",
+      18
+    ],
+    [
+      "mcp.mcpbundles.com",
+      17
+    ],
+    [
+      "app.daedalmap.com",
+      17
+    ],
+    [
+      "roxyapi.com",
+      15
+    ],
+    [
+      "doc2mcp.site",
+      15
+    ],
+    [
+      "ainetcafe.com",
+      13
+    ],
+    [
+      "mcp.hasdata.com",
+      13
+    ],
+    [
+      "api.timzinin.com",
+      12
+    ],
+    [
+      "mcp.ansvar.eu",
+      12
+    ],
+    [
+      "gateway.ansvar.eu",
+      11
+    ],
+    [
+      "checkmycontractorquote.com",
+      11
+    ],
+    [
+      "stagenth.com",
+      11
+    ],
+    [
+      "whensport.com",
+      11
+    ],
+    [
+      "mcp.socialdatax.com",
+      10
+    ],
+    [
+      "apick.app",
+      9
+    ],
+    [
+      "ads.getlulu.dev",
+      9
+    ],
+    [
+      "noon-ai.dyndns-server.com",
+      9
+    ],
+    [
+      "apished.com",
+      9
+    ],
+    [
+      "feedoracle.io",
+      8
+    ],
+    [
+      "agent365.svc.cloud.microsoft",
+      8
+    ]
+  ],
+  "transport_types_active": {
+    "sse": 1037,
+    "streamable-http": 13722
+  },
+  "unique_hosts_active": 10517,
+  "user_agent": "HorizonShieldSurvey/0.4 (+https://shield.the-horizons-innovation.com/verify-directory/survey/)"
+}

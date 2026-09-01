@@ -41,6 +41,15 @@
       "role": "population"
     },
     {
+      "file": "survey0_v4_2026-09-01.json",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey0_v4_2026-09-01.json",
+      "bytes": 3015,
+      "sha256": "780e28b0b78dbcf2d192d896a1f89266686dcf761f1074293622c0230eb6be29",
+      "what": null,
+      "role": "undescribed",
+      "note": "This file has no description in tools/survey/build_dataset_index.py. It is listed anyway. A dataset index that quietly omits files is not an index."
+    },
+    {
       "file": "survey0_v4_endpoints_active_2026-08-19.txt",
       "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey0_v4_endpoints_active_2026-08-19.txt",
       "bytes": 464573,
@@ -48,6 +57,25 @@
       "what": "The 12,429 https endpoints the registry declared as active, one per line. This is the list the walk went through.",
       "made_by": "tools/survey/count_registry.py",
       "role": "population"
+    },
+    {
+      "file": "survey0_v4_endpoints_active_2026-09-01.txt",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey0_v4_endpoints_active_2026-09-01.txt",
+      "bytes": 558360,
+      "sha256": "6a3a1518ad6e1bcc4444d1853bf920a89aef4975b0dac03db8d8c3b1d5774d72",
+      "what": null,
+      "role": "undescribed",
+      "note": "This file has no description in tools/survey/build_dataset_index.py. It is listed anyway. A dataset index that quietly omits files is not an index."
+    },
+    {
+      "file": "survey0_v4_progress_2026-09-01.jsonl",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey0_v4_progress_2026-09-01.jsonl",
+      "bytes": 16594,
+      "sha256": "7a5ac37e1893214e4da309d0d7e1b34991386b9bec9a2d62fece9cf7a6dbc3b6",
+      "lines": 262,
+      "what": null,
+      "role": "undescribed",
+      "note": "This file has no description in tools/survey/build_dataset_index.py. It is listed anyway. A dataset index that quietly omits files is not an index."
     },
     {
       "file": "survey1_report_2026-08-23.json",
