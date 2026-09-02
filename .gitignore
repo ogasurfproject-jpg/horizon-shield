@@ -211,3 +211,12 @@ _tmp_noind_test.py.bak_delete_me
 
 # 2026-08-24 実測の照会口。CI がこれを走らせる。
 !tools/survey/*.py
+
+# auto backups & local-only artifacts (2026-09-01)
+*.baksb-*
+*.bakqa-*
+*.OLD
+*.WRONG-vision-proxy
+BACKUP_*.tar.gz
+gsc_*.txt
+gsc_*.csv
