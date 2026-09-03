@@ -108,6 +108,50 @@ Residual, named: with only one reachable tip, "beyond every reachable tip" rests
 source, so a stale lone source can cause a false refusal of a real far-ahead block.
 Recoverable, exposed when the others return. Same class as the v3.1 residual.
 
+## Seam 3, the tip itself under quorum (v3.3, pre-anchor)
+
+Prompted by the witness's reviewer probing the v3.2 fix itself, not the honest case, and
+finding that a compromised sibling can suppress a legitimate reject. Reproduced on the v3.2
+bytes before any change: a ghost height far beyond the chain, all sources honest, refused;
+one source inflating its reported tip, unverifiable, not refused.
+
+Superseded bytes, kept on record (git commit 94651217 holds them):
+
+    6ba29b273011e736dece2d9fe4eb2102c18f3355284b30daaf23eba5e895fabb  freshness_v3.py (v3.2, superseded)
+    9e59daa94e668aa69108a001e88d36929cecf68c081ea29f879b6596add2842f  freshness_v3_redteam.py (v3.2, superseded)
+
+The residual on the highest tip. Comparing against the highest reachable tip closed the
+liveness hole and opened this one: a compromised or MITM'd source inflates its own tip to
+cover a ghost height, and the honest sources' structural reject downgrades to unverifiable.
+The liar cannot reach authentic, because quorum still needs the real hash at two sources and
+a wrong hash loses to any mismatch. But refusing a fabricated height is the point of the
+veto, and one liar could switch it off.
+
+Why three sources change the shape. At two sources there is no third value between the
+highest and lowest tip, so one chooses which single fault to tolerate: the highest tip and a
+liar can suppress a reject, the lowest and a stale source can veto a real block. That is the
+witness's irreducible two-source residual, and he named it rather than engineering it away,
+correctly. At three sources the choice dissolves. The reference tip is the QUORUM-th highest
+reachable tip, the highest height that at least a quorum of sources vouch for. A single liar
+inflating its tip becomes the highest and is ignored. A single stale source becomes the
+lowest and is ignored. One fault of either kind cannot move it. The same one rule, applied
+to the tip: a tip reported by one source is one source.
+
+Degraded mode, named. With exactly a quorum of sources reachable there is no slack, so the
+reference tip falls back to the highest and the two-source residual returns for that call,
+disclosed as tip_basis max_degraded with the residual on the record. With more than one
+fault the single-fault model is out of scope: two stale sources of three cause a recoverable
+false refusal of a fresh block, two liars can reach authentic. Neither is claimed closed;
+both are pinned so the limit is visible. Four cases: liar_tip_refused_at_three (refused,
+fails on the v3.2 bytes), liar_tip_at_two_named (unverifiable, residual disclosed, never
+authentic), liar_match_never_authentic (one match is below quorum; against a real block the
+fake hash is forged), two_stale_named (the documented false refusal).
+
+Not changed on purpose: any mismatch still fails closed. Two honest matches could outvote one
+wrong hash under the same quorum logic, but a contradiction between sources is evidence in
+itself, and refusing exposes the liar where averaging would hide it. Held open for the
+witness rather than decided alone.
+
 These corrections are applied in place because v3 was pushed but not yet anchored. Once
 anchored, any further correction is a new file that cites this one.
 
@@ -117,14 +161,16 @@ In fixed order, each with its SHA-256. Clone the repository, take the SHA-256 of
 compare it here, and check the time this addendum entered a Bitcoin block. No trust in the
 operator is required: fetch the bytes, recompute the hash, check the anchor.
 
-    6ba29b273011e736dece2d9fe4eb2102c18f3355284b30daaf23eba5e895fabb  freshness_v3.py
-        time v3.2 implementation: multi-source quorum beacon, forged vs unverifiable split, backdating
-        check decoupled from quorum, veto derived from the highest reachable tip plus a six-block margin,
-        near-tip residual bounded by chain convergence, real Ed25519
-    9e59daa94e668aa69108a001e88d36929cecf68c081ea29f879b6596add2842f  freshness_v3_redteam.py
-        the adversary: eighteen checks. one honest witness refuses, a stale source cannot veto, the margin
-        boundary is exact, a fabricated near-tip height waits then flips to forged, an honest fresh block
-        waits then flips to authentic, honest outage not punished. offline, deterministic.
+    276bc047838ee944bc078f519988d3688d58131318d4da916dad038622e22512  freshness_v3.py
+        time v3.3 implementation: multi-source quorum beacon, forged vs unverifiable split, backdating
+        check decoupled from quorum, veto derived from the quorum tip plus a six-block margin so neither a
+        stale source nor an inflated tip can move it, near-tip residual bounded by chain convergence,
+        degraded mode disclosed, real Ed25519
+    1876bff826b598faa03ae8646a0eb8b9c5f010494f0d6322eea288757ac55e0a  freshness_v3_redteam.py
+        the adversary: twenty-two checks. one honest witness refuses, a stale source cannot veto, one
+        inflated tip cannot suppress a reject, a liar buys unknown at most and never authentic, the
+        margin boundary is exact, near-tip claims converge with the chain, the two-source and two-fault
+        limits are pinned, honest outage not punished. offline, deterministic.
 
 Run offline and deterministically:
 
@@ -133,5 +179,5 @@ Run offline and deterministically:
 Once this addendum is anchored, the byte sequence of both files above is fixed at that Bitcoin
 block height. A later correction is a new addendum that cites this one, never an edit. v3 gets
 its own anchor and its own adversarial review before it is treated as current, the same rule
-turned on the operator. The witness's review has already run twice and found one defect and
-one residual; both records stay here.
+turned on the operator. The witness's review has already run three times and found one
+defect and two residuals; all three records stay here.

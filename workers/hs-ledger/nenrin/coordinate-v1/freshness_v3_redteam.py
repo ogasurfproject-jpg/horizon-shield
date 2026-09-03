@@ -31,6 +31,20 @@ Attacks:
                                       empties toward refusal.
  13  honest_fresh_converges  (v3.2)   an honest unindexed block: unverifiable before, authentic after.
                                       the same waiting room empties toward affirmation.
+ 14  liar_tip_refused_at_three (v3.3) one source inflates its tip to cover a ghost height while two
+                                      honest sources say lag -> still REFUSED. the quorum tip ignores
+                                      the single highest. on the v3.2 bytes this passed as unverifiable:
+                                      the residual the witness's reviewer found.
+ 15  liar_tip_at_two_named   (v3.3)   the same liar with only two sources reachable -> unverifiable,
+                                      never authentic, tip_basis max_degraded and the residual disclosed.
+                                      the two-source shape, named not hidden.
+ 16  liar_match_never_authentic (v3.3) a liar claims ok_match at a ghost height with a fake hash ->
+                                      one match is below quorum, unverifiable; and where an honest
+                                      source holds the real block, the fake hash is a mismatch, forged.
+                                      a single liar buys unknown at most, never authentic.
+ 17  two_stale_named         (v3.3)   two of three sources ten behind, one fresh confirms -> refused.
+                                      a false refusal, outside the single-fault model, pinned so the
+                                      limit is visible rather than discovered.
 
 Controls (must PASS):
   c1  honest_all_up                   quorum met, in window, fresh -> valid and current.
@@ -185,6 +199,48 @@ def run():
        and a13["checks"]["beacon_verdict"] == "authentic" and a13["valid_as_issued"] is True and a13["current_now"] is True,
        "an honest fresh block was refused early, or did not become authentic once indexed")
 
+    # 14 (v3.3) liar inflates its tip to cover a ghost height, three reachable -> quorum tip, refused
+    ghost = {"source": "bitcoin", "height": TIP + 100, "value": "deadbeefgh", "time": anchor + 60000}
+    evg = F.make_event(SEED, ghost["time"] + 50, "v", ghost)
+    ga = ghost["time"] + 3600
+    srcs14 = with_source("blockstream", tip=TIP + 150)
+    v14 = F.verify_freshness(evg, trusted, ga, ga + 1000, sources=srcs14)
+    ok("liar_tip_refused_at_three",
+       v14["checks"]["beacon_verdict"] == "bad_coordinate" and v14["refused"] is True
+       and v14["disclosures"]["tip_basis"] == "quorum" and v14["disclosures"]["reference_tip"] == TIP,
+       "one inflated tip suppressed the structural reject of a ghost height (the v3.2 residual)")
+
+    # 15 (v3.3) same liar, only two reachable -> degraded, unverifiable, residual disclosed, never authentic
+    v15 = F.verify_freshness(evg, trusted, ga, ga + 1000, sources=srcs14, down=frozenset(["localheaders"]))
+    ok("liar_tip_at_two_named",
+       v15["checks"]["beacon_verdict"] == "unverifiable_now" and v15["valid_as_issued"] is False
+       and v15["disclosures"]["tip_basis"] == "max_degraded" and "tip_residual" in v15["disclosures"],
+       "at two reachable sources the liar residual was either not named or reached authentic")
+
+    # 16 (v3.3) a liar's ok_match at a ghost height never reaches authentic; against a real block it is forged
+    near = {"source": "bitcoin", "height": TIP + 2, "value": "fakefake02", "time": anchor + 1200}
+    evn = F.make_event(SEED, near["time"] + 50, "v", near)
+    na = near["time"] + 3600
+    srcs16a = with_source("blockstream", tip=TIP + 2, set={TIP + 2: {"value": "fakefake02", "time": anchor + 1200}})
+    v16a = F.verify_freshness(evn, trusted, na, na + 1000, sources=srcs16a)
+    srcs16b = F.advance_chain(srcs16a, TIP + 2, "0000real02", anchor + 1200)   # honest sources index the real block
+    srcs16b["blockstream"]["blocks"][TIP + 2] = {"value": "fakefake02", "time": anchor + 1200}   # liar keeps lying
+    v16b = F.verify_freshness(evn, trusted, na, na + 1000, sources=srcs16b)
+    ok("liar_match_never_authentic",
+       v16a["checks"]["beacon_verdict"] == "unverifiable_now" and v16a["valid_as_issued"] is False
+       and v16b["checks"]["beacon_verdict"] == "forged" and v16b["refused"] is True,
+       "a single liar's match reached authentic, or its fake hash survived an honest mismatch")
+
+    # 17 (v3.3) two stale sources: the quorum tip drops, a fresh honest block is refused. named, pinned.
+    srcs17 = with_source("blockstream", tip=TIP - 10, drop=[TIP])
+    srcs17["localheaders"]["tip"] = TIP - 10; srcs17["localheaders"]["blocks"].pop(TIP, None)
+    ev17 = F.make_event(SEED, tipb["time"] + 50, "v", tipb)
+    v17 = F.verify_freshness(ev17, trusted, anchor + 3600, anchor + 4600, sources=srcs17)
+    ok("two_stale_named",
+       v17["checks"]["beacon_verdict"] == "bad_coordinate" and v17["refused"] is True
+       and v17["disclosures"]["tip_basis"] == "quorum" and v17["disclosures"]["reference_tip"] == TIP - 10,
+       "two stale sources did not produce the documented false refusal (the model changed silently)")
+
     # c1 honest all up
     ev = F.make_event(SEED, good["time"] + 50, "v", good)
     c1 = F.verify_freshness(ev, trusted, anchor, now, cadence_s=86400, last_remeasure_time=now - 100)
@@ -225,8 +281,9 @@ def run():
             print("  - " + f)
         return 1
     print("quorum closes the single source, forged split from unverifiable, one honest witness refuses (v3.1), "
-          "veto derived from the highest reachable tip so a stale source cannot veto (v3.2), near-tip residual shown "
-          "and bounded by convergence, honest outage not punished, provable lies fail closed. clear.")
+          "veto derived from the tip so a stale source cannot veto (v3.2), near-tip residual shown and bounded by "
+          "convergence, the tip itself under quorum so one liar cannot suppress a reject (v3.3), degraded and "
+          "two-fault limits named and pinned, honest outage not punished, provable lies fail closed. clear.")
     return 0
 
 if __name__ == "__main__":

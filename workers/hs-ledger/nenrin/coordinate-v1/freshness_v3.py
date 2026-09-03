@@ -65,6 +65,39 @@ asking whether v3 carries the near-tip residual):
   source; a stale lone source can cause a false refusal of a real far-ahead block. Recoverable,
   exposed when the others return. Same class as the v3.1 residual.
 
+v3.3, the tip itself gets a quorum (prompted by the witness's reviewer probing the v3.2 fix
+and finding that a compromised sibling can suppress a legitimate reject):
+
+  The residual on the highest tip. Comparing against the highest reachable tip closed the
+  liveness hole, and opened this one: a compromised or MITM'd source can inflate its own
+  reported tip to cover a ghost height, and the honest sources' structural reject downgrades
+  to unverifiable. The liar cannot reach authentic, because quorum still needs the real hash
+  at two sources and a wrong hash loses to any mismatch. But refusing a fabricated height is
+  the point of the veto, and one liar could switch it off. Reproduced on the v3.2 bytes.
+
+  Why three sources change the shape. At two sources there is no third value between the
+  highest and lowest tip, so you choose which single fault to tolerate: compare against the
+  highest tip and a liar can suppress a reject; compare against the lowest and a stale source
+  can veto a real block. That is the witness's irreducible two-source residual, and he named
+  it rather than engineering it away, correctly. At three sources the choice dissolves. The
+  reference tip is the QUORUM-th highest reachable tip, the highest height that at least a
+  quorum of sources vouch for. A single liar inflating its tip becomes the highest and is
+  ignored. A single stale source becomes the lowest and is ignored. One fault of either kind
+  cannot move it. It is the same one rule applied to the tip itself: the coordinate must come
+  from a quorum the prover does not own, and a tip reported by one source is one source.
+
+  Degraded mode, named. With exactly QUORUM sources reachable there is no slack, so the
+  reference tip falls back to the highest and the two-source residual returns for that call:
+  a liar can suppress a reject, a stale source cannot veto. Disclosed as tip_basis. With more
+  than one fault (two stale sources of three, or two liars) the single-fault model is out of
+  scope; two stale sources can cause a recoverable false refusal of a fresh block, two liars
+  can reach authentic, and neither is claimed closed.
+
+  Not changed on purpose: any mismatch still fails closed. Two honest matches could outvote
+  one wrong hash under the same quorum logic, but a contradiction between sources is evidence
+  in itself, and refusing exposes the liar where averaging would hide it. That is a design
+  choice, held open for the witness rather than decided alone.
+
 Fail closed on the adversary, fail open on the outage, refuse on one honest witness, vouch
 only on corroboration, and let the chain settle what no source can. Real Ed25519,
 deterministic, offline. A live version reads two or more block explorers (mempool.space and
@@ -130,16 +163,30 @@ def classify_beacon(claimed, sources, down=frozenset(), quorum=QUORUM, margin=MA
         if src.get("chain") != chain:
             per[name] = "unreachable"; continue
         tips.append(src["tip"])
-    base = {"per": per, "confirmed_time": None, "ok_match": 0, "max_tip": (max(tips) if tips else None),
+    tips_desc = sorted(tips, reverse=True)
+    # v3.3: the reference tip is the QUORUM-th highest reachable tip, the highest height a
+    # quorum of sources vouch for. One liar (inflated, becomes the highest) or one stale source
+    # (lowest) cannot move it. With no slack (reachable == quorum) fall back to the highest and
+    # say so: in that degraded call a liar can suppress a reject, a stale source cannot veto.
+    if len(tips_desc) >= quorum + 1:
+        ref_tip, tip_basis = tips_desc[quorum - 1], "quorum"
+    elif tips_desc:
+        ref_tip, tip_basis = tips_desc[0], "max_degraded"
+    else:
+        ref_tip, tip_basis = None, "none"
+    base = {"per": per, "confirmed_time": None, "ok_match": 0,
+            "max_tip": (tips_desc[0] if tips_desc else None), "reference_tip": ref_tip,
+            "tip_basis": tip_basis, "reachable_tips": tips_desc,
             "margin": margin, "structural_reason": None}
 
     if isinstance(h, bool) or not isinstance(h, int) or h < 0:
         base["structural_reason"] = "malformed height"
         return dict(base, verdict="bad_coordinate")
-    if not tips:
+    if not tips_desc:
         return dict(base, verdict="unverifiable_now")        # nothing reachable: cannot judge structure
-    if h > base["max_tip"] + margin:
-        base["structural_reason"] = "beyond the highest reachable tip plus margin"
+    if h > ref_tip + margin:
+        base["structural_reason"] = ("beyond the quorum tip plus margin" if tip_basis == "quorum"
+                                     else "beyond the highest reachable tip plus margin (degraded, no slack)")
         return dict(base, verdict="bad_coordinate")
 
     ok_match = 0; ok_mismatch = 0; confirmed_time = None
@@ -199,7 +246,15 @@ def verify_freshness(ev, trusted_pubkey, anchor_block_time, now, sources=None, d
     out["disclosures"]["quorum_required"] = quorum
     out["disclosures"]["sources_agreeing"] = cls["ok_match"]
     out["disclosures"]["highest_reachable_tip"] = cls["max_tip"]
+    out["disclosures"]["reference_tip"] = cls["reference_tip"]
+    out["disclosures"]["tip_basis"] = cls["tip_basis"]
+    out["disclosures"]["reachable_tips"] = cls["reachable_tips"]
     out["disclosures"]["margin_blocks"] = cls["margin"]
+    if cls["tip_basis"] == "max_degraded":
+        out["disclosures"]["tip_residual"] = (
+            "only a quorum of sources reachable, no slack: the reference tip is the highest reported, so in "
+            "this call one lying source could suppress a structural reject (downgrade to unverifiable), and "
+            "one stale source cannot veto. named, not closed. a third reachable source removes it.")
 
     if verdict == "authentic":
         out["checks"]["beacon_authentic"] = True
@@ -228,7 +283,7 @@ def verify_freshness(ev, trusted_pubkey, anchor_block_time, now, sources=None, d
                 "exposed when other sources return.")
         else:
             out["checks"]["not_backdated"] = None
-            h = b.get("height"); mt = cls["max_tip"]
+            h = b.get("height"); mt = cls["reference_tip"]
             if isinstance(h, int) and mt is not None and h > mt:
                 out["disclosures"]["beacon"] = (
                     "unverifiable_now, near tip: no source has indexed this height yet and it is within the "
@@ -314,6 +369,15 @@ def self_test():
                              sources=advance_chain(SOURCES, 800203, "0000c0ffee", 1_779_121_800))
     assert after["checks"]["beacon_verdict"] == "forged" and after["refused"] is True, after
 
+    # v3.3 quorum tip: one liar inflating its tip cannot suppress the structural reject of a ghost height
+    ghost = {"source": "bitcoin", "height": 800300, "value": "deadbeefgh", "time": anchor + 60000}
+    evg = make_event(SEED, ghost["time"] + 50, "agent_reported", ghost)
+    ga = ghost["time"] + 3600
+    liar = copy.deepcopy(SOURCES); liar["blockstream"]["tip"] = 800350
+    vl = verify_freshness(evg, trusted, ga, ga + 1000, sources=liar)
+    assert vl["checks"]["beacon_verdict"] == "bad_coordinate" and vl["refused"] is True, vl
+    assert vl["disclosures"]["tip_basis"] == "quorum" and vl["disclosures"]["reference_tip"] == 800200, vl
+
     print("freshness_v3 self_test: PASS")
     print("  honest all-up:", v["valid_as_issued"], "current", v["current_now"])
     print("  one source down (quorum met):", v1down["checks"]["beacon_verdict"], v1down["valid_as_issued"])
@@ -322,6 +386,8 @@ def self_test():
     print("  malformed during outage:", vbad["checks"]["beacon_verdict"], "refused", vbad["refused"])
     print("  fabricated near tip (v3.2): before", before["checks"]["beacon_verdict"], "refused", before["refused"],
           "| after chain advances", after["checks"]["beacon_verdict"], "refused", after["refused"])
+    print("  liar inflates tip, ghost height (v3.3):", vl["checks"]["beacon_verdict"], "refused", vl["refused"],
+          "| tip_basis", vl["disclosures"]["tip_basis"], "reference_tip", vl["disclosures"]["reference_tip"])
     return 0
 
 if __name__ == "__main__":
