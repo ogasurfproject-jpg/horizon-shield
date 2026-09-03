@@ -97,6 +97,19 @@ h1 .g{background:linear-gradient(180deg,#fff,#9ca3af);-webkit-background-clip:te
 .livechip .d{width:7px;height:7px;border-radius:50%;background:var(--ink-3)}
 .livechip.busy .d{background:var(--amber)} .livechip.ok .d{background:var(--emerald)} .livechip.off .d{background:var(--clay)}
 .orline{margin-top:20px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-3)}
+/* 2026-09-03 share-verdict + inside-your-assistant */
+.sharebar{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sharebar .sl{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-right:4px}
+.sharebar a.preset{text-decoration:none}
+.connect{margin-top:26px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.connect .c{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.connect .c h4{font-size:14.5px;font-weight:700;letter-spacing:-.01em}
+.connect .c p{font-size:13px;color:var(--ink-2);line-height:1.6}
+.connect .c pre{margin:0;white-space:pre-wrap;word-break:break-all;background:#141414;border:1px solid #2a2a2a;border-radius:10px;padding:11px 13px;font-size:12px;line-height:1.6;font-family:var(--mono)}
+.connect .c .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:auto}
+.connect .c a.preset{text-decoration:none}
+.prompt{margin-top:18px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.prompt pre{margin:10px 0 0;white-space:pre-wrap;word-break:break-word;background:#141414;border:1px solid #2a2a2a;border-radius:10px;padding:12px 14px;font-size:12.5px;line-height:1.65;font-family:var(--mono)}
 pre{background:#0a0a0d;border:1px solid var(--line);border-radius:12px;padding:15px 16px;overflow-x:auto;
   font-family:var(--mono);font-size:12.4px;color:var(--ink-2);line-height:1.7;margin-top:11px}
 pre b{color:var(--emerald-ink);font-weight:500}
@@ -434,6 +447,17 @@ a.regname:hover{border-bottom-style:solid}
         Green only after measurement, including for us.
       </div>
       <div class="livehash" id="rrecompute"></div>
+      <!-- 2026-09-03 share-verdict: 判定を本人の画面で終わらせない。リンクと文面を1クリックで外に出す。
+           このページの ?endpoint= を開くと同じ check が自動で走るので、リンクを受け取った側も自分の browser で再計算できる。 -->
+      <div class="sharebar" id="sharebar">
+        <span class="sl">this verdict, elsewhere</span>
+        <button class="preset" id="sh-link" type="button">copy link to this check</button>
+        <button class="preset" id="sh-text" type="button">copy verdict as text</button>
+        <a class="preset" id="sh-li" href="#" target="_blank" rel="noopener">share on LinkedIn</a>
+        <a class="preset" id="sh-x" href="#" target="_blank" rel="noopener">post on X</a>
+        <a class="preset" id="sh-bs" href="#" target="_blank" rel="noopener">post on Bluesky</a>
+        <span class="livechip off" id="sh-status" style="display:none"><span class="d"></span></span>
+      </div>
       <details class="raw"><summary>raw verdict</summary><pre id="rraw"></pre></details>
     </div>
 
@@ -615,6 +639,86 @@ a.regname:hover{border-bottom-style:solid}
   </div>
 </section>
 
+<!-- 2026-09-03 inside-your-assistant: gate は /mcp を持っているのに、このページのどこにも「繋ぎ方」が無かった。
+     繋ぎ先は1つ、ツールは5つ、全部読み取り専用。deeplink は config を URL に埋めているだけで、鍵も口座も要らない。 -->
+<section id="assistant">
+  <div class="wrap">
+    <div class="kh">Inside your assistant</div>
+    <h2>Ask your own AI to run the check</h2>
+    <p class="slead">The checker speaks MCP itself, at <span class="mono">https://gate.horizonshield.dev/mcp</span>. Five tools, all read-only, no key: <span class="mono">get_conditions</span>, <span class="mono">check_conformance</span>, <span class="mono">verify_verdict</span>, <span class="mono">lookup_server</span>, <span class="mono">is_verified</span>. Connect it once, then ask in plain words. Nothing on this path differs from the curl above: same gate, same record, same hash, and your assistant can recompute it too.</p>
+
+    <div class="connect">
+      <div class="c">
+        <h4>Claude Code</h4>
+        <p>One line in the terminal. Then ask Claude to check a server.</p>
+        <pre id="cc-claude">claude mcp add --transport http wedjat https://gate.horizonshield.dev/mcp</pre>
+        <div class="row"><button class="preset copybtn" type="button" data-copy="cc-claude">copy</button></div>
+      </div>
+      <div class="c">
+        <h4>Claude Desktop and claude.ai</h4>
+        <p>Settings, Connectors, Add custom connector. Name it anything. The URL is the only field that matters.</p>
+        <pre id="cc-desktop">https://gate.horizonshield.dev/mcp</pre>
+        <div class="row"><button class="preset copybtn" type="button" data-copy="cc-desktop">copy URL</button></div>
+      </div>
+      <div class="c">
+        <h4>Cursor</h4>
+        <p>One click installs it. The link carries the config in the URL itself, nothing else.</p>
+        <pre id="cc-cursor">{"mcpServers":{"wedjat":{"url":"https://gate.horizonshield.dev/mcp"}}}</pre>
+        <div class="row">
+          <a class="preset" href="cursor://anysphere.cursor-deeplink/mcp/install?name=wedjat&amp;config=eyJ1cmwiOiJodHRwczovL2dhdGUuaG9yaXpvbnNoaWVsZC5kZXYvbWNwIn0=">add to Cursor</a>
+          <button class="preset copybtn" type="button" data-copy="cc-cursor">copy JSON</button>
+        </div>
+      </div>
+      <div class="c">
+        <h4>VS Code</h4>
+        <p>One click, or paste the block into <span class="mono">.vscode/mcp.json</span>.</p>
+        <pre id="cc-vscode">{"servers":{"wedjat":{"type":"http","url":"https://gate.horizonshield.dev/mcp"}}}</pre>
+        <div class="row">
+          <a class="preset" href="vscode:mcp/install?%7B%22name%22%3A%22wedjat%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fgate.horizonshield.dev%2Fmcp%22%7D">add to VS Code</a>
+          <button class="preset copybtn" type="button" data-copy="cc-vscode">copy JSON</button>
+        </div>
+      </div>
+      <div class="c">
+        <h4>ChatGPT</h4>
+        <p>Settings, Connectors, Advanced, Developer mode, Create. Paste the URL. The reviewed app, <b>MCP Conduct Register</b>, is in OpenAI's queue; until it lands, developer mode is the path, and it is the same server.</p>
+        <pre id="cc-chatgpt">https://gate.horizonshield.dev/mcp</pre>
+        <div class="row"><button class="preset copybtn" type="button" data-copy="cc-chatgpt">copy URL</button></div>
+      </div>
+      <div class="c">
+        <h4>GitHub Actions, on every push</h4>
+        <p>Not an assistant, but the same loop where your server is built. Measures the endpoint, recomputes the hash inside your job, fails the build on a measured failure. Unmeasured stays unmeasured.</p>
+        <pre id="cc-gha">- uses: ogasurfproject-jpg/wedjat-check-action@v1
+  with:
+    endpoint: https://your-server/mcp</pre>
+        <div class="row">
+          <a class="preset" href="https://github.com/ogasurfproject-jpg/wedjat-check-action" rel="noopener">the action</a>
+          <button class="preset copybtn" type="button" data-copy="cc-gha">copy YAML</button>
+        </div>
+      </div>
+      <div class="c">
+        <h4>Any other client</h4>
+        <p>Plain JSON-RPC over HTTPS POST. No auth, no session state to keep, no SSE required. If your client can call <span class="mono">initialize</span> and <span class="mono">tools/list</span>, it can call this.</p>
+        <pre id="cc-any">curl -s -X POST https://gate.horizonshield.dev/mcp \
+  -H 'content-type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'</pre>
+        <div class="row"><button class="preset copybtn" type="button" data-copy="cc-any">copy</button></div>
+      </div>
+    </div>
+
+    <div class="prompt">
+      <div class="kh" style="margin-bottom:6px">Then say this, replacing the URL</div>
+      <p class="slead" style="margin:0">A prompt that makes the assistant do the whole loop: measure, name the failed condition, quote the hash, and recompute it without trusting the gate.</p>
+      <pre id="cc-prompt">Using the wedjat tools: run check_conformance on https://YOUR-SERVER/mcp with allow_tool_call set to false. Tell me which of the five conditions passed, failed, or were not measured, and why, in plain words. Quote the record_sha256. Then pass the full returned record to verify_verdict and tell me whether the recomputed hash matched. Do not take the gate's word for anything it did not measure.</pre>
+      <div class="row" style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="preset copybtn" type="button" data-copy="cc-prompt">copy prompt</button></div>
+    </div>
+
+    <div class="honest" style="margin-top:22px">
+      <div class="t">What connecting it does not do</div>
+      <p>It does not give the gate any access to your assistant, your files, or your other servers. The gate only ever reads the endpoint you name in the prompt, and it calls no tool there unless you set <span class="mono">allow_tool_call</span> yourself, for a server you own. Disconnecting is one click on the same settings page.</p>
+    </div>
+  </div>
+</section>
+
 <section>
   <div class="wrap">
     <h2>A badge you cannot pin</h2>
@@ -754,6 +858,7 @@ async function runCheck(endpoint){
     const text = await res.text();
     let record; try { record = JSON.parse(text); } catch(_e){ throw new Error("non-JSON response"); }
     await renderResult(record, endpoint);
+    await updateShareBar(record, endpoint);
     chip(st, record.status === "verified" ? "ok" : "off", record.status === "verified" ? "verified · recomputed on your side" : "verdict returned · recomputed on your side");
   }catch(e){
     chip(st, "off", "browser check unavailable (" + esc(e.message) + "), the curl below works regardless");
@@ -867,13 +972,99 @@ async function loadRegister(){
     note.textContent = "live register unavailable (" + e.message + "). The summary above still stands, and the gate answers at /register directly.";
   }
 }
+// 2026-09-03 share-verdict: 判定をリンクと文面にする。
+// ルール: 文面に書くのは record が言っていることだけ。NOT MEASURED は NOT MEASURED のまま出す。
+const SHARE_BASE = "https://shield.the-horizons-innovation.com/verify-directory/";
+let LAST = { record: null, endpoint: null };
+function shareURL(endpoint){ return SHARE_BASE + "?endpoint=" + encodeURIComponent(endpoint); }
+function condWord(c){
+  if (c && c.detail && c.detail.applicable === false) return "n/a";
+  if (c && (c.measured === false || (c.detail && c.detail.self_measured === false))) return "not measured";
+  if (c && c.pass === true) return "pass";
+  return "fail";
+}
+function verdictText(record, endpoint, short){
+  const status = String(record.status || "unknown").toUpperCase();
+  const checks = record.checks || {};
+  const keys = Object.keys(checks);
+  const n = keys.filter(function(k){ return condWord(checks[k]) === "pass"; }).length;
+  const sha = record.record_sha256 ? String(record.record_sha256) : "";
+  const lines = [];
+  lines.push(status + " · " + endpoint);
+  if (keys.length) lines.push(n + " of " + keys.length + " conditions pass" + (short ? "" : ":"));
+  if (!short) keys.forEach(function(k){ lines.push("  " + (LABELS[k] || k) + ": " + condWord(checks[k])); });
+  if (sha) {
+    const rc = LAST.rc;
+    const how = rc === null || rc === undefined ? "" : (rc.match ? ", recomputed in my own browser, it matches" : ", recomputed in my own browser, it does NOT match");
+    lines.push("record_sha256 " + (short ? sha.slice(0, 12) + "…" : sha) + how);
+  }
+  lines.push("Read-only check, free, no account. Redo it yourself: " + shareURL(endpoint));
+  return lines.join("\n");
+}
+async function copyToClipboard(text){
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch(_e){
+    try { const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select(); const ok = document.execCommand("copy"); ta.remove(); return ok; }
+    catch(_e2){ return false; }
+  }
+}
+function flashShare(msg){
+  const s = document.getElementById("sh-status"); if (!s) return;
+  s.style.display = ""; chip(s, "ok", msg);
+  setTimeout(function(){ s.style.display = "none"; }, 2200);
+}
+async function updateShareBar(record, endpoint){
+  LAST = { record: record, endpoint: endpoint, rc: null };
+  const bar = document.getElementById("sharebar"); if (!bar) return;
+  if (!record || record.error){ bar.style.display = "none"; return; }
+  // 共有文面に「再計算した」と書くなら、本当に再計算した結果を書く。合わなければ合わないと書く。
+  if (record.record_sha256) { try { LAST.rc = await recompute(record); } catch(_e){ LAST.rc = null; } }
+  bar.style.display = "";
+  const url = shareURL(endpoint);
+  const short = verdictText(record, endpoint, true);
+  document.getElementById("sh-li").href = "https://www.linkedin.com/sharing/share-offsite/?url=" + encodeURIComponent(url);
+  document.getElementById("sh-x").href = "https://x.com/intent/post?text=" + encodeURIComponent(short);
+  document.getElementById("sh-bs").href = "https://bsky.app/intent/compose?text=" + encodeURIComponent(short);
+  // 住所欄も同じリンクにしておく。コピーせずにそのまま送っても同じ判定が再現する。
+  try { history.replaceState(null, "", "?endpoint=" + encodeURIComponent(endpoint) + "#check"); } catch(_e){}
+}
 document.addEventListener("DOMContentLoaded", function(){
   loadRegister();
-  document.querySelectorAll(".preset").forEach(function(b){
+  document.querySelectorAll(".preset[data-ep]").forEach(function(b){
     b.addEventListener("click", function(){ document.getElementById("epin").value = b.getAttribute("data-ep"); runCheck(b.getAttribute("data-ep")); });
   });
   document.getElementById("rungo").addEventListener("click", function(){ runCheck(document.getElementById("epin").value.trim()); });
   document.getElementById("epin").addEventListener("keydown", function(e){ if(e.key === "Enter") runCheck(e.target.value.trim()); });
+
+  document.getElementById("sh-link").addEventListener("click", async function(){
+    if (!LAST.endpoint) return;
+    flashShare((await copyToClipboard(shareURL(LAST.endpoint))) ? "link copied" : "copy blocked by the browser, the address bar holds the same link");
+  });
+  document.getElementById("sh-text").addEventListener("click", async function(){
+    if (!LAST.record) return;
+    flashShare((await copyToClipboard(verdictText(LAST.record, LAST.endpoint, false))) ? "verdict copied as text" : "copy blocked by the browser");
+  });
+  document.querySelectorAll(".copybtn[data-copy]").forEach(function(b){
+    b.addEventListener("click", async function(){
+      const src = document.getElementById(b.getAttribute("data-copy")); if (!src) return;
+      const ok = await copyToClipboard(src.textContent);
+      const was = b.textContent; b.textContent = ok ? "copied" : "select and copy by hand";
+      setTimeout(function(){ b.textContent = was; }, 1800);
+    });
+  });
+
+  // ?endpoint=… で開かれたら、その check を自動で走らせる。受け取った側が同じ判定を自分の browser で再計算するため。
+  try {
+    const q = new URLSearchParams(location.search).get("endpoint");
+    if (q) {
+      const u = new URL(q);
+      if (u.protocol === "https:" || u.protocol === "http:") {
+        document.getElementById("epin").value = q;
+        runCheck(q);
+        const el = document.getElementById("check"); if (el && el.scrollIntoView) el.scrollIntoView({ block: "start" });
+      }
+    }
+  } catch(_e) { /* a malformed ?endpoint= is ignored, the box stays idle */ }
 });
 </script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script>
