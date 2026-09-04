@@ -5,15 +5,19 @@
 宛先: FeedOracle Technologies(Herford, Germany)、創業者 Murat Keskin。口は GitHub(github.com/ToolOracle の Discussions か Issue)か LinkedIn の DM。
 根拠: observatory の 8/23 の走行で tooloracle.io の 54 本が「誰が払うか」を名乗っとった(欄は payment、x402 の従量課金)。彼らは 89 サーバー・1,096 ツールを agent に振り分ける router で、trust scoring を自前でやっとる = 外の測定を横に置く動機がある。
 
-    Subject: 54 of your endpoints already pass the hard condition. one check each, a badge if they pass, and a signal you can route on
+    Subject: 54 of your endpoints already say who pays. three keys more and a badge, plus a signal you can route on
 
     Murat,
 
     On 2026-08-23 I contacted every https endpoint declared in the official MCP registry once, read only, 12,429 addresses. 152 of them stated who compensates the operator. 54 of those 152 are yours, under tooloracle.io. Most of the field did not state it at all.
 
-    That disclosure is the one condition that cannot be met mechanically. The other four (initialize, tools/list, a canonical manifest, determinism on repeat) are mechanical, and a free gate measures them: POST https://gate.horizonshield.dev/check {"endpoint":"https://tooloracle.io/ampel/mcp/","allow_tool_call":true}. No account, no fee. A server that passes all five may show a badge that is revoked by measurement, not by me; my own eight servers sit on the same public register and can fail on it.
+    A free gate measures five conditions on a server. Four are mechanical: initialize, tools/list, an agent card, the same answer twice. The fifth is that disclosure, and the gate reads it in one exact shape, a top level block in the agent card: {"compensation":{"paid_by":"buyer","referral_fee":false,"listing_fee":false}}. Your cards carry a payment field, which says a caller pays per call, but not whether anyone else pays you for referrals or listings, which is what the block states. Three keys, filled truthfully, and the condition passes; the content is not judged, only its absence.
+
+    Then one call: POST https://gate.horizonshield.dev/check {"endpoint":"https://tooloracle.io/ampel/mcp/","allow_tool_call":true}. No account, no fee. A server that passes all five may show a badge that is revoked by measurement, not by me; my own servers sit on the same public register and can fail on it. To have the badge measured weekly with determinism included, put {"allow_tool_call": true} at https://tooloracle.io/.well-known/mcp-conduct.json; only the owner of the origin can place that file, so the gate takes it as consent and records where it read it.
 
     Two things you can do with it, both free. Run it on your 54 endpoints and take the badges. And read GET https://gate.horizonshield.dev/is-verified?endpoint=<url> next to your routing: it returns verified true only on a full pass, null otherwise, never false, with a record sha256 and a recompute URL, so you are not asked to trust the gate.
+
+    If your servers deploy from GitHub, one step in the workflow does the same check on every push and recomputes the verdict hash on the runner, so the gate is never trusted: uses: ogasurfproject-jpg/mcp-conduct-action@main (https://github.com/ogasurfproject-jpg/mcp-conduct-action)
 
     Your rows from the walk, with the hash of each record: https://observatory.horizonshield.dev/lookup?host=tooloracle.io
     What the badge does and does not claim: https://shield.the-horizons-innovation.com/verify-directory/badge/
@@ -43,10 +47,14 @@
 
     If a field next to a listing is too much, a link from the listing to the row is enough to start: https://gate.horizonshield.dev/e/mcp.horizonshield.dev/mcp
 
+    For operators who deploy from GitHub there is a one step Action that runs the same check in their CI, so a listing can point its operators at it instead of at us: https://github.com/ogasurfproject-jpg/mcp-conduct-action
+
     Toshikatsu Oga, The HORIZONs Co., Ltd.
 
 ## 送る前に TOshi が確かめること
 
+- github.com/ogasurfproject-jpg/mcp-conduct-action は公開済み(2dc0774)。扉 0.2.4(well-known 同意)が本番に載っとるか: `curl -s https://gate.horizonshield.dev/spec | grep -o well_known_consent` で出ること。出んなら文面の well-known の 1 文を消して送る
+- 番人の訂正(09-04 22:45): 観測所の「開示済み 152 本」は card に payment / pricing 等の欄があった意味で、扉の条件 3 が読む compensation ブロックとは別物。相手が /check を叩けば条件 3 は落ちる。文面は「3 つの鍵を足せば通る」に直した。旧文の「already pass the hard condition」は誇張やった
 - observatory の lookup は host 指定で動くか: https://observatory.horizonshield.dev/lookup?host=tooloracle.io を一度ブラウザで開く(番人の VM からは届かん)
 - /e/ の行の URL が生きとるか: https://gate.horizonshield.dev/e/mcp.horizonshield.dev/mcp
 - 会社名の英語表記は TOshi の LinkedIn と同じ形にする(The HORIZONs Co., Ltd.)。日本語では The HORIZ音s株式会社

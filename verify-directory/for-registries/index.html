@@ -207,7 +207,7 @@ POST <b>https://gate.horizonshield.dev/feed/batch</b>
     <li>It does not rank, order, or score for placement. There is no paid tier that moves a condition.</li>
     <li>It does not verify that any price, figure, or answer a server returns is correct.</li>
     <li>It does not judge whether a declared compensation structure is honest. Only the absence of disclosure counts against a server.</li>
-    <li>It does not call tools on a server without the owner's recorded consent, so determinism comes back as not measured rather than guessed.</li>
+    <li>It does not call tools on a server without the owner's recorded consent, so determinism comes back as not measured rather than guessed. Consent is recorded by a file only the owner of the origin can place, <code>/.well-known/mcp-conduct.json</code> with <code>{"allow_tool_call": true}</code>; the gate reads it, executes nothing from it, and writes into each verdict where it read it (gate 0.2.4).</li>
     <li>It does not treat an unmeasured server as a failing one, anywhere in the API or the register.</li>
   </ul>
 </section>
