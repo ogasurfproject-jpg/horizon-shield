@@ -146,7 +146,7 @@ def check(name, cond, note=""):
 def run_client(peers, manifest, out_prefix, extra=()):
     """Run the real client in process. Returns (exit_code_or_None, SystemExit message or None, stdout)."""
     import contextlib
-    args = ["--from-manifest", manifest, "--magic", TEST_MAGIC.hex(), "--params", "test", "--now", str(NOW),
+    args = (["--from-manifest", manifest] if manifest else []) + ["--magic", TEST_MAGIC.hex(), "--params", "test", "--now", str(NOW),
             "--out-prefix", out_prefix, "--timeout", "2", "--peers", str(len(peers))]
     for p in peers: args += ["--peer", p.addr()]
     args += list(extra)
@@ -269,6 +269,15 @@ def main():
     rc, msg, log = with_peers([p1, p2], lambda: run_client([p1, p2], man, out, ["--compare", cmpf]))
     m = json.load(open(out + ".manifest.json")) if rc == 0 else {}
     check("c13_compare_records_byte_identical", rc == 0 and m.get("compare", {}).get("byte_identical") is True and m["compare"]["common_headers"] == 32, json.dumps(m.get("compare")))
+
+    # c14 from genesis: no manifest, the locator is the zero hash, every boundary verified from inside
+    out = os.path.join(d, "c14")
+    p1, p2 = FakePeer(hdrs), FakePeer(hdrs)
+    rc, msg, log = with_peers([p1, p2], lambda: run_client([p1, p2], None, out, ["--from-genesis", "--check-against", man_cp]))
+    m = json.load(open(out + ".manifest.json")) if rc == 0 else {}
+    check("c14_from_genesis_all_boundaries_verified_checkpoint_matched",
+          rc == 0 and open(out + ".bin", "rb").read() == raw and m.get("retarget_boundaries_verified") == 3
+          and m.get("mode", "").startswith("whole chain") and "20" in m.get("checkpoints", {}) and m["tip_height"] == 31, (msg or "") + json.dumps({k: m.get(k) for k in ("retarget_boundaries_verified", "mode", "tip_height")}))
 
     n_ok = sum(1 for _, ok, _ in RESULTS if ok)
     print("\n=== %d / %d ===" % (n_ok, len(RESULTS)))

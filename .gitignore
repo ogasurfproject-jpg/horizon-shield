@@ -220,3 +220,6 @@ _tmp_noind_test.py.bak_delete_me
 BACKUP_*.tar.gz
 gsc_*.txt
 gsc_*.csv
+
+# NENRIN localheaders v3: the whole header chain, 77MB, public chain, pinned by sha in entry 29 addendum, never committed
+workers/hs-ledger/nenrin/coordinate-v1/localheaders_full.bin

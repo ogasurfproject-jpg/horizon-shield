@@ -1,0 +1,58 @@
+{
+ "schema": "nenrin-localheaders-manifest-1",
+ "chain": "bitcoin",
+ "courier": "bitcoin p2p getheaders",
+ "mode": "whole chain from genesis",
+ "peers": {
+  "136.51.20.119:8333": {
+   "tip_height": 965454,
+   "headers": 965455
+  },
+  "24.126.175.8:8333": {
+   "tip_height": 965456,
+   "headers": 965457
+  },
+  "87.166.205.38:8333": {
+   "tip_height": 965455,
+   "headers": 965456
+  }
+ },
+ "peers_failed": {
+  "34.65.20.183:8333": "timed out",
+  "73.208.251.19:8333": "timed out"
+ },
+ "min_peers": 2,
+ "synced_at": 1788514331,
+ "start_height": 0,
+ "count": 965457,
+ "tip_height": 965456,
+ "tip_hash": "00000000000000000001696cecabd47bef0ff322c80a3ae5bb0c9747f902ee57",
+ "tip_time": 1788514729,
+ "chainwork_hex": "144b6257e7f6258de9bd94ff7",
+ "sha256": "d91d6482cee0763a5200a669852827b65b80ebbb0148dd0fb665631d48eb3fec",
+ "start_prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+ "start_bits": null,
+ "prior_times": [],
+ "checkpoints": {
+  "961632": "00000000000000000000d1e01392faa65ceeaed307f0a3159144b84146ff24ba",
+  "963648": "00000000000000000001769d9a327f5b455aa8a2dd407b1b63040d2a9f832d32",
+  "965451": "00000000000000000000e9f3195446ee74b371312941d73e8fdddab86499b499",
+  "965456": "00000000000000000001696cecabd47bef0ff322c80a3ae5bb0c9747f902ee57"
+ },
+ "retarget_boundaries_verified": 478,
+ "retarget_verified_at": [
+  2016,
+  "...",
+  963648
+ ],
+ "unverified": [
+  {
+   "height": 0,
+   "check": "bits_continuity",
+   "why": "no previous bits supplied"
+  }
+ ],
+ "future_check": "done",
+ "compare": null,
+ "note": "no HTTP explorer in the path. headers came from full nodes over the peer to peer protocol, were validated by consensus rules, and had to agree byte for byte across peers before anything was written."
+}

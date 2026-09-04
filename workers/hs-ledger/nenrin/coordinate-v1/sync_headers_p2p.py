@@ -35,15 +35,26 @@ peers could all be sybils serving the same forged chain, which proof of work bou
 hashpower and the operator's checkpoints refuse; DNS seeds are a third party for discovery
 only, never for data, and --peer bypasses them entirely.
 
+v2 (supersedes the bytes entry 28 pinned; that sha stays on record in the next addendum):
+validation is now streaming through localheaders_stream.ChainValidator, one pass, constant
+memory, proven equivalent to validate_chain by stream_redteam.py, so a whole chain can be
+pulled in one run. --from-genesis asks for everything after the genesis block, which the
+adapter already knows from bytes, and verifies every difficulty boundary from height 2016 to
+the tip from inside the file. No checkpoint is needed then except the genesis hash itself.
+--check-against reads an earlier window's manifest and requires its checkpoints to sit on
+the full chain at the same hashes.
+
 Standard library only. Run from the coordinate-v1 directory:
 
     python3 sync_headers_p2p.py --from-manifest localheaders_mainnet.manifest.json
+    python3 sync_headers_p2p.py --from-genesis --check-against localheaders_mainnet.manifest.json --out-prefix localheaders_full
     python3 sync_headers_p2p.py --from-manifest localheaders_mainnet.manifest.json --peer 203.0.113.5:8333 --peer 198.51.100.7:8333
 """
 import socket, struct, hashlib, time, json, io, os, sys, argparse, random
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import localheaders as LH
+import localheaders_stream as LS
 
 MAINNET_MAGIC = bytes.fromhex("f9beb4d9")
 PROTOCOL_VERSION = 70016
@@ -192,30 +203,44 @@ class Peer:
             pass
 
 
-def sync_window_from_peer(peer, manifest, params, checkpoints, now, max_headers=None, log=print):
-    """Pull the window the manifest describes from one peer, validating cumulatively.
-    Returns (raw_bytes, report). Raises PeerError on any refusal, with the reason."""
-    start = int(manifest["start_height"]); prev = manifest["start_prev_hash"]
-    raw = b""; last_display = prev
+def sync_from_peer(peer, start_height, start_prev, seed_raw, params, checkpoints, now, start_bits, prior_times,
+                   reference=None, log=print, every=25):
+    """Pull headers after start_prev from one peer, validating as they arrive (one pass, constant
+    memory). seed_raw is any header bytes the caller already holds at start_height (the genesis
+    header in from-genesis mode), fed first. If reference bytes are given, every batch is
+    compared byte for byte at the same offset and a mismatch is a refusal naming the height.
+    Returns (raw_bytes, report). Raises PeerError on any refusal."""
+    v = LS.ChainValidator(params, start_height=start_height, start_prev_hash=start_prev, checkpoints=checkpoints,
+                          now=now, start_bits=start_bits, prior_times=prior_times)
+    raw = b""
+    if seed_raw:
+        v.feed(seed_raw); raw += seed_raw
+    last_display = v.tip_hash if v.count else start_prev
+    msgs = 0
     while True:
         batch = peer.get_headers([last_display])
         if not batch:
             break
-        raw += b"".join(batch)
+        chunk = b"".join(batch)
         try:
-            rep = LH.validate_chain(raw, params, start_height=start, start_prev_hash=prev, checkpoints=checkpoints,
-                                    now=now, start_bits=manifest.get("start_bits"), prior_times=manifest.get("prior_times"))
+            v.feed(chunk)
         except LH.Refused as e:
             raise PeerError("served a header that fails validation at height %s: %s" % (e.height, e.reason))
-        last_display = rep["tip_hash"]
-        log("  %s: %d headers so far, tip %d" % (peer.name(), rep["count"], rep["tip_height"]))
+        if reference is not None:
+            off = len(raw); ref = reference[off:off + len(chunk)]
+            if ref and ref != chunk[:len(ref)]:
+                bad = next(i for i in range(len(ref)) if ref[i] != chunk[i]) // 80
+                raise PeerError("disagrees with the reference run at height %d" % (start_height + off // 80 + bad))
+        raw += chunk
+        last_display = v.tip_hash
+        msgs += 1
+        if msgs % every == 0 or len(batch) < MAX_HEADERS_PER_MSG:
+            log("  %s: %d headers, tip %d, %d retargets verified" % (peer.name(), v.count, v.height - 1, len(v.retarget_checked)))
         if len(batch) < MAX_HEADERS_PER_MSG:
             break
-        if max_headers and rep["count"] >= max_headers:
-            break
-    if not raw:
+    if v.count == 0:
         raise PeerError("peer returned no headers for the locator")
-    return raw, rep
+    return raw, v.report()
 
 
 def discover(seeds, want, port=8333, log=print):
@@ -237,7 +262,9 @@ def discover(seeds, want, port=8333, log=print):
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--from-manifest", required=True, help="manifest of the explorer built window; supplies start, prev hash, prior bits and times, checkpoints")
+    ap.add_argument("--from-manifest", default=None, help="manifest of an earlier window; supplies start, prev hash, prior bits and times, checkpoints")
+    ap.add_argument("--from-genesis", action="store_true", help="pull the whole chain after the genesis block the adapter knows from bytes")
+    ap.add_argument("--check-against", default=None, help="manifest whose checkpoints must sit on the chain at the same hashes (from-genesis mode)")
     ap.add_argument("--peer", action="append", default=[], help="host:port, repeatable. bypasses DNS seeds")
     ap.add_argument("--peers", type=int, default=3, help="how many peers must finish and agree")
     ap.add_argument("--min-peers", type=int, default=2, help="refuse to write below this many agreeing peers")
@@ -249,16 +276,32 @@ def main(argv=None):
     ap.add_argument("--compare", default=None, help="a .bin to compare bytes against over the common window")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args(argv)
+    if bool(a.from_manifest) == bool(a.from_genesis):
+        raise SystemExit("give exactly one of --from-manifest or --from-genesis")
 
-    with io.open(a.from_manifest, encoding="utf-8") as f:
-        manifest = json.load(f)
     params = LH.MAINNET if a.params == "mainnet" else LH.ChainParams("test", 0x1F040000, 8, 8 * 600, 2 * 3600)
     magic = bytes.fromhex(a.magic)
-    checkpoints = manifest.get("checkpoints") or {}
     now = a.now if a.now is not None else int(time.time())
+    if a.from_manifest:
+        with io.open(a.from_manifest, encoding="utf-8") as f:
+            manifest = json.load(f)
+        start_height = int(manifest["start_height"]); start_prev = manifest["start_prev_hash"]
+        start_bits = manifest.get("start_bits"); prior_times = manifest.get("prior_times")
+        checkpoints = manifest.get("checkpoints") or {}; seed_raw = b""
+        mode = "window from manifest"
+    else:
+        start_height = 0; start_prev = LH.ZERO_HASH; start_bits = None; prior_times = []
+        seed_raw = bytes.fromhex(LH.GENESIS_HEADER_HEX) if params is LH.MAINNET else b""
+        checkpoints = {}
+        if a.check_against:
+            with io.open(a.check_against, encoding="utf-8") as f:
+                checkpoints = json.load(f).get("checkpoints") or {}
+        manifest = {"start_prev_hash": start_prev, "start_bits": start_bits, "prior_times": prior_times}
+        mode = "whole chain from genesis"
+    print("mode: %s | params %s | peers wanted %d, minimum %d | checkpoints %d" % (mode, params.name, a.peers, a.min_peers, len(checkpoints)))
 
     candidates = [(h, int(p)) for h, p in (x.rsplit(":", 1) for x in a.peer)] if a.peer else discover(DNS_SEEDS, a.peers)
-    results = {}; failures = {}
+    results = {}; failures = {}; reference = None
     for host, port in candidates:
         if len(results) >= a.peers:
             break
@@ -266,9 +309,17 @@ def main(argv=None):
         try:
             peer.connect(); peer.handshake()
             print("  %s: %s" % (peer.name(), peer.log[-1]))
-            raw, rep = sync_window_from_peer(peer, manifest, params, checkpoints, now)
+            raw, rep = sync_from_peer(peer, start_height, start_prev, seed_raw, params, checkpoints, now, start_bits, prior_times,
+                                      reference=reference)
             results[peer.name()] = (raw, rep)
-        except (PeerError, OSError, socket.timeout) as e:
+            if reference is None or len(raw) > len(reference):
+                reference = raw
+        except PeerError as e:
+            if "disagrees with the reference run" in str(e):
+                raise SystemExit("peers disagree over the common window: %s vs %s: %s. nothing written." % (sorted(results)[0], peer.name(), e))
+            failures[peer.name()] = str(e)
+            print("  %s: dropped: %s" % (peer.name(), e))
+        except (OSError, socket.timeout) as e:
             failures[peer.name()] = str(e)
             print("  %s: dropped: %s" % (peer.name(), e))
         finally:
@@ -303,25 +354,33 @@ def main(argv=None):
         print("dry run. nothing written."); return 0
 
     out_manifest = {
-        "schema": "nenrin-localheaders-manifest-1", "chain": params.name, "courier": "bitcoin p2p getheaders",
+        "schema": "nenrin-localheaders-manifest-1", "chain": params.name, "courier": "bitcoin p2p getheaders", "mode": mode,
         "peers": {n: {"tip_height": results[n][1]["tip_height"], "headers": results[n][1]["count"]} for n in names},
         "peers_failed": failures, "min_peers": a.min_peers, "synced_at": now,
         "start_height": rep["start_height"], "count": rep["count"], "tip_height": rep["tip_height"], "tip_hash": rep["tip_hash"],
         "tip_time": rep["tip_time"], "chainwork_hex": rep["chainwork_hex"], "sha256": sha,
         "start_prev_hash": manifest["start_prev_hash"], "start_bits": manifest.get("start_bits"), "prior_times": manifest.get("prior_times"),
         "checkpoints": dict(checkpoints, **{str(rep["tip_height"]): rep["tip_hash"]}),
-        "retarget_verified_at": rep["retarget_verified_at"], "unverified": rep["unverified"], "future_check": rep["future_check"],
+        "retarget_boundaries_verified": len(rep["retarget_verified_at"]),
+        "retarget_verified_at": (rep["retarget_verified_at"] if len(rep["retarget_verified_at"]) <= 8 else [rep["retarget_verified_at"][0], "...", rep["retarget_verified_at"][-1]]),
+        "unverified": rep["unverified"], "future_check": rep["future_check"],
         "compare": cmp_note,
         "note": "no HTTP explorer in the path. headers came from full nodes over the peer to peer protocol, were validated by consensus rules, and had to agree byte for byte across peers before anything was written.",
     }
     bp = a.out_prefix + ".bin"; mp = a.out_prefix + ".manifest.json"
     io.open(bp, "wb").write(raw)
     io.open(mp, "w", encoding="utf-8").write(json.dumps(out_manifest, ensure_ascii=False, indent=1))
-    src, rep2 = LH.load_source(bp, mp, params, now=now)
-    if src is None:
+    try:
+        back = LS.validate_file_streaming(bp, params, start_height=start_height, start_prev_hash=start_prev, checkpoints=out_manifest["checkpoints"],
+                                          now=now, start_bits=start_bits, prior_times=prior_times)
+    except LH.Refused as e:
         os.remove(bp); os.remove(mp)
-        raise SystemExit("read back failed: %s. files removed." % rep2)
-    print("wrote %s (%d bytes) and %s | read back tip %d, %d blocks" % (bp, len(raw), mp, src["tip"], len(src["blocks"])))
+        raise SystemExit("read back failed: %s at %s. files removed." % (e.reason, e.height))
+    if back["sha256"] != sha:
+        os.remove(bp); os.remove(mp)
+        raise SystemExit("read back sha mismatch. files removed.")
+    print("wrote %s (%d bytes) and %s | read back tip %d, %d headers, %d retarget boundaries verified, checkpoints matched %s"
+          % (bp, len(raw), mp, back["tip_height"], back["count"], len(back["retarget_verified_at"]), back["checkpoints_matched"]))
     return 0
 
 
