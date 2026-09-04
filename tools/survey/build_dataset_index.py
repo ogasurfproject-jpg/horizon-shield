@@ -40,6 +40,30 @@ WHAT = {
         "made_by": "tools/survey/count_registry.py",
         "role": "population",
     },
+    "survey0_v4_2026-09-01.json": {
+        "what": "The registry count taken again on 2026-09-01 by the monthly workflow. Same method as 2026-08-19; "
+                "the diff between the two is the movement of the population. Nothing was contacted.",
+        "made_by": "tools/survey/count_registry.py",
+        "role": "population",
+    },
+    "survey0_v4_endpoints_active_2026-09-01.txt": {
+        "what": "The https endpoints the registry declared as active on 2026-09-01, one per line. "
+                "Not walked; the published walk is 2026-08-23.",
+        "made_by": "tools/survey/count_registry.py",
+        "role": "population",
+    },
+    "survey0_v4_progress_2026-09-01.jsonl": {
+        "what": "Page by page progress of the 2026-09-01 count, so a partial count can be told from a full one.",
+        "made_by": "tools/survey/count_registry.py",
+        "role": "population",
+    },
+    "build_lookup_index.py": {
+        "what": "A script, not data. Builds lookup_index.json and lookup_details.json for a per address lookup page "
+                "(/verify-directory/lookup/) that is not published yet (2026-09-03). Every row it writes restates a line "
+                "already in this directory with its record_sha256; it measures nothing. Its outputs are not committed.",
+        "made_by": "hand",
+        "role": "tool",
+    },
     "survey0_v4_endpoints_active_2026-08-19.txt": {
         "what": "The 12,429 https endpoints the registry declared as active, one per line. "
                 "This is the list the walk went through.",

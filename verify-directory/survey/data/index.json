@@ -24,6 +24,15 @@
   ],
   "files": [
     {
+      "file": "build_lookup_index.py",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/build_lookup_index.py",
+      "bytes": 7068,
+      "sha256": "fadd8e3ca0474a3b927e048c7b9a56ce492277da1abdca1749fdafed23c0f29f",
+      "what": "A script, not data. Builds lookup_index.json and lookup_details.json for a per address lookup page (/verify-directory/lookup/) that is not published yet (2026-09-03). Every row it writes restates a line already in this directory with its record_sha256; it measures nothing. Its outputs are not committed.",
+      "made_by": "hand",
+      "role": "tool"
+    },
+    {
       "file": "known_limitations.json",
       "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/known_limitations.json",
       "bytes": 4963,
@@ -45,9 +54,9 @@
       "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey0_v4_2026-09-01.json",
       "bytes": 3015,
       "sha256": "780e28b0b78dbcf2d192d896a1f89266686dcf761f1074293622c0230eb6be29",
-      "what": null,
-      "role": "undescribed",
-      "note": "This file has no description in tools/survey/build_dataset_index.py. It is listed anyway. A dataset index that quietly omits files is not an index."
+      "what": "The registry count taken again on 2026-09-01 by the monthly workflow. Same method as 2026-08-19; the diff between the two is the movement of the population. Nothing was contacted.",
+      "made_by": "tools/survey/count_registry.py",
+      "role": "population"
     },
     {
       "file": "survey0_v4_endpoints_active_2026-08-19.txt",
@@ -63,9 +72,9 @@
       "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey0_v4_endpoints_active_2026-09-01.txt",
       "bytes": 558360,
       "sha256": "6a3a1518ad6e1bcc4444d1853bf920a89aef4975b0dac03db8d8c3b1d5774d72",
-      "what": null,
-      "role": "undescribed",
-      "note": "This file has no description in tools/survey/build_dataset_index.py. It is listed anyway. A dataset index that quietly omits files is not an index."
+      "what": "The https endpoints the registry declared as active on 2026-09-01, one per line. Not walked; the published walk is 2026-08-23.",
+      "made_by": "tools/survey/count_registry.py",
+      "role": "population"
     },
     {
       "file": "survey0_v4_progress_2026-09-01.jsonl",
@@ -73,9 +82,9 @@
       "bytes": 16594,
       "sha256": "7a5ac37e1893214e4da309d0d7e1b34991386b9bec9a2d62fece9cf7a6dbc3b6",
       "lines": 262,
-      "what": null,
-      "role": "undescribed",
-      "note": "This file has no description in tools/survey/build_dataset_index.py. It is listed anyway. A dataset index that quietly omits files is not an index."
+      "what": "Page by page progress of the 2026-09-01 count, so a partial count can be told from a full one.",
+      "made_by": "tools/survey/count_registry.py",
+      "role": "population"
     },
     {
       "file": "survey1_report_2026-08-23.json",
