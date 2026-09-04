@@ -1399,12 +1399,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://shield.the-horizons-innovation.com/qa/mokuzai-tanka-2026.html</loc>
-    <lastmod>2026-07-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://shield.the-horizons-innovation.com/qa/music-studio-bouon-cost.html</loc>
     <lastmod>2026-07-13</lastmod>
     <changefreq>weekly</changefreq>
@@ -2321,4 +2315,22 @@
   <url><loc>https://shield.the-horizons-innovation.com/yakumo/souba/work-4b28d8-area-5ed64c/</loc><lastmod>2026-08-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://shield.the-horizons-innovation.com/yakumo/souba/work-d99e1b-area-5ed64c/</loc><lastmod>2026-08-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-area-5ed64c-faq-1/</loc><lastmod>2026-08-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url>
+    <loc>https://shield.the-horizons-innovation.com/faq/mitsumori-isshiki-uchiwake-nai/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://shield.the-horizons-innovation.com/faq/houmon-hanbai-gaiheki-kotowaru/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://shield.the-horizons-innovation.com/faq/chintai-taikyo-hiyou-takasugiru/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
