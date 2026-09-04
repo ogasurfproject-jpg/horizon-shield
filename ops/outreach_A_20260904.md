@@ -13,6 +13,8 @@
 
     A free gate measures five conditions on a server. Four are mechanical: initialize, tools/list, an agent card, the same answer twice. The fifth is that disclosure, and the gate reads it in one exact shape, a top level block in the agent card: {"compensation":{"paid_by":"buyer","referral_fee":false,"listing_fee":false}}. Your cards carry a payment field, which says a caller pays per call, but not whether anyone else pays you for referrals or listings, which is what the block states. Three keys, filled truthfully, and the condition passes; the content is not judged, only its absence.
 
+    I ran that check once already, read only, on 2026-09-04 13:30 UTC, against https://tooloracle.io/ampel/mcp/: conditions 1 and 2 pass, 3 fails only because the block is absent, 4 was not measured because the gate calls no tool without the owner's consent. record_sha256 a8671fdec93251e03d1ffe3ee0b4c12d7224873d777a2298cb6c7950e17c46ea, recomputed on my side from the verdict body.
+
     Then one call: POST https://gate.horizonshield.dev/check {"endpoint":"https://tooloracle.io/ampel/mcp/","allow_tool_call":true}. No account, no fee. A server that passes all five may show a badge that is revoked by measurement, not by me; my own servers sit on the same public register and can fail on it. To have the badge measured weekly with determinism included, put {"allow_tool_call": true} at https://tooloracle.io/.well-known/mcp-conduct.json; only the owner of the origin can place that file, so the gate takes it as consent and records where it read it.
 
     Two things you can do with it, both free. Run it on your 54 endpoints and take the badges. And read GET https://gate.horizonshield.dev/is-verified?endpoint=<url> next to your routing: it returns verified true only on a full pass, null otherwise, never false, with a record sha256 and a recompute URL, so you are not asked to trust the gate.
@@ -54,6 +56,7 @@
 ## 送る前に TOshi が確かめること
 
 - github.com/ogasurfproject-jpg/mcp-conduct-action は公開済み(2dc0774)。扉 0.2.4(well-known 同意)が本番に載っとるか: `curl -s https://gate.horizonshield.dev/spec | grep -o well_known_consent` で出ること。出んなら文面の well-known の 1 文を消して送る
+- 09-04 23:30 の実測(TOshi の Terminal、read only): tooloracle.io/ampel/mcp/ は 01 pass / 02 pass / 03 「compensation block not declared in agent-card」/ 04 not measured、record a8671fde…。文面の主張どおり。判定に consent_lookup(404 と置き方)が載った = 0.2.4 の well-known 経路が本番で動いとる最初の記録
 - 番人の訂正(09-04 22:45): 観測所の「開示済み 152 本」は card に payment / pricing 等の欄があった意味で、扉の条件 3 が読む compensation ブロックとは別物。相手が /check を叩けば条件 3 は落ちる。文面は「3 つの鍵を足せば通る」に直した。旧文の「already pass the hard condition」は誇張やった
 - observatory の lookup は host 指定で動くか: https://observatory.horizonshield.dev/lookup?host=tooloracle.io を一度ブラウザで開く(番人の VM からは届かん)
 - /e/ の行の URL が生きとるか: https://gate.horizonshield.dev/e/mcp.horizonshield.dev/mcp

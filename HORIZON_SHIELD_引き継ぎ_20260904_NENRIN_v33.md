@@ -632,3 +632,24 @@ GitHub API で直近 40 走行を引いた。20:03 JST の MCP registry publish 
 - mcp-conduct-action(TOshi がフォルダを番人に開けた): README の「予定」を実物に(well-known の置き方、endpoints の絞り方、consent_source、consent_lookup)、report.py が consent_source と置き方を出力(模擬の扉で回帰 4 通り OK)、.gitignore(__pycache__/)。commit / push / tag v1 は TOshi
 - verify-directory/for-registries/index.html 210 行目: 同意の 1 文に置き方を追加(code タグ、pagecheck report で新規の赤なし)。引き継ぎ §17.5 追記
 - 番人の VM は gate.horizonshield.dev と registry.modelcontextprotocol.io に届かん(egress 拒否)。api.github.com と raw.githubusercontent.com は届く。扉の実測は全部 TOshi の Terminal 経由
+
+### 17.7 23:00〜23:20 JST: push 済み、Mac の網が一瞬落ちて、番人のバグが 1 つ出た
+
+- TOshi: horizon-shield 90257c60(outreach 訂正、batch 20、for-registries、upload-artifact v7、引き継ぎ)、mcp-conduct-action f529daf + tag v1
+- 23:0x JST に Mac の網が落ちた(番人との bridge も同時に切断)。その瞬間の tooloracle 実測は `curl: (6) Could not resolve host` = こちら側。扉は無事
+- **その失敗が check.sh のバグを炙った**: 要求失敗時に `$VERDICT`(固定名 /tmp/mcp-conduct-verdict.json)に残っとった前回(mcp.horizonshield.dev、verified)の中身を「body:」として表示した。古い測定を今回の結果に見せる嘘。直し: 要求前に `rm -f`、file 名を endpoint の sha256 先頭 12 桁つきに、HTTP 000 は「DNS / 網 / timeout、こちら側」と明記。模擬で「古い file がある + 接続不能」を再現 → 古い body は出ん、正常系 OK。~/mcp-conduct-action/scripts/check.sh(sha256 19bf585f3a2eb25a…)。TOshi の commit + `git tag -f v1` 待ち
+- README(mcp-conduct-action)に残余を 1 段落: 同意は origin 単位(card と同じ)。path で多数の運営者を載せる platform では platform が tenant の代わりに同意することになり、tenant 単独では同意できん。endpoints の絞りは狭めるだけ。/spec にはまだ無い(次の扉の版で well_known_consent に scope の 1 文を足す)
+- フェデリコ DM(最初の外部の行になってくれ)を ops/outreach_A_batch_20260905.md の 12 番に。endpoint https://api.babyblueviper.com/mcp、同意ファイルは api. の origin。bytes first(gate_commit、63/63、patch の場所)→ 頼み(3 鍵 + ファイル)→ 残余を先に自分で名指し
+
+### 17.8 23:20〜23:50 JST: 実測が文面を裏づけ、20 社の口を埋めた
+
+- TOshi の Terminal で tooloracle.io/ampel/mcp/ を read only で実測(扉 0.2.4): 01 pass / 02 pass / 03 did not pass「compensation block not declared in agent-card」/ 04 not measured、consent_lookup に 404 と置き方、record a8671fdec93251e03d1ffe3ee0b4c12d7224873d777a2298cb6c7950e17c46ea、再計算一致。番人の訂正どおり。ToolOracle の文面にこの実測を 1 段落足した(相手の server を触った事実も含めて)
+- mcp-conduct-action a2ea2d1(check.sh の古い body 表示バグ修正 + README の origin 単位の残余)、tag v1 を forced で更新
+- ops/outreach_A_batch_20260905.md の「口:」20 件を番人が埋めた(各サイトのトップを WebFetch で 1 ページずつ。伏せ字メールはブラウザで読める)。連絡先が無い 5 社(558686.xyz / aicomglobal / x402-endpoints / fingersai / agentservices.to)は後回し。**見る側候補が 2 社混じっとる**: TWZRD(twzrd.xyz、x402 の pre-spend trust gate、署名付き receipt = 扉と同種の門)と fingers(fingersai.co、merchant trust ranking)。A-1 の「乗れ」やなく A-2 の「並べろ」で話す方が筋。SaSame(srl-sasame.com、MCP-native の実行 + review what happened)も行儀の記録に関心のある相手
+- 明日の順(§5 の週の順番は変えん): 朝 GSC 6 本 + ゴミ削除 → ToolOracle(GitHub Discussions か LinkedIn)→ Smithery → フェデリコ DM(12 番)→ 20 社のうち口のある 15 社を tool_count 順。horizon-shield の未 commit: ops/outreach_A_20260904.md、ops/outreach_A_batch_20260905.md、引き継ぎ
+
+### 17.9 23:50〜24:10 JST: TOshi「全部やる」→ 明日の実行票と見る側 3 通
+
+- ops/outreach_miru_20260905.md: 見る側 3 通(TWZRD = 「spend の門と conduct の門、2 つの hash を並べろ」、fingers = 「trust ranking の横に conduct の signal」、SaSame = 「review what happened の前に what was declared」)。3 社とも自分の server が 152 本に入っとるから最後の 1 段落で「自分の行も取れる(3 鍵 + 同意ファイル)」
+- ops/asu_20260905.md: 明日の実行票。0 朝の commit → 1 GSC 6 本(URL を canonical から確定: faq/mitsumori-yukokigen-neage、souba/yane-check、souba/yane-fukikae-slate-hiyou、aeo/リフォーム-相見積もり-コツ.html、aeo/火災保険-リフォーム詐欺.html、faq/tenken-shoho-kimari-monku)+ ゴミ sitemap 削除(正は sitemap.xml 1 本、robots.txt 28 行目)→ 2 ToolOracle → 3 Smithery → 4 フェデリコ → 5 見る側 3 通 → 6 乗る側 11 社(口の無い 4 社と重複を除いた数)→ 7 物差し → 8 番人の仕事
+- 扉の cron は 0 18 * * * UTC = 03:00 JST(deploy 出力より)。登録簿に他社の行が乗ったら、consent_source が well_known で読めとるかを最初に見る
