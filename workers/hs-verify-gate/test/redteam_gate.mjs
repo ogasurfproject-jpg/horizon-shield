@@ -173,6 +173,38 @@ atk("verify_verdict_tampered_detected", "control", {}, { pred: [["tampered -> ve
   const v = await mcpCall("verify_verdict", { record: t }); return v && v.verified === false;
 }], ["untouched -> verified:true", async (r) => { const v = await mcpCall("verify_verdict", { record: r }); return v && v.verified === true; }]] });
 
+// ---- 0.2.4: 同意の機械的な証明(origin の /.well-known/mcp-conduct.json) ----
+// 申告(allow_tool_call)無しで /check を叩く。同意ファイルが本物の形なら determinism まで測って verified、
+// それ以外は一切 tool を呼ばず pending(measured:false)。ファイルは所有者しか置けん場所にあるから証明になる。
+const WK = "/.well-known/mcp-conduct.json";
+const wkRoute = (obj) => ({ [WK]: () => jres(obj) });
+const notMeasured = { status: "pending", reachable: true, fail: ["determinism"],
+  pred: [["determinism measured:false", (r) => r.checks.determinism.measured === false],
+         ["consent_source none", (r) => r.consent_source === "none"],
+         ["how_to_consent named", (r) => r.consent_lookup && /mcp-conduct\.json/.test(String(r.consent_lookup.how_to_consent))]] };
+atk("ok_well_known_consent_no_assertion", "control", { extraRoutes: wkRoute({ allow_tool_call: true }) },
+  { status: "verified", pass: ["determinism"], pred: [["consent_source well_known", (r) => r.consent_source === "well_known"], ["basis names the file", (r) => /mcp-conduct\.json/.test(r.consent_basis) && /owner of the origin/.test(r.consent_basis)]] }, { min: "0.2.4" });
+atk("ok_well_known_endpoints_list_match", "control", { extraRoutes: wkRoute({ allow_tool_call: true, endpoints: ["https://ok-well-known-endpoints-list-match.redteam.invalid/mcp"] }) },
+  { status: "verified", pred: [["consent_source well_known", (r) => r.consent_source === "well_known"]] }, { min: "0.2.4" });
+atk("ok_well_known_beats_assertion", "control", { extraRoutes: wkRoute({ allow_tool_call: true }) },
+  { status: "verified", pred: [["proof outranks assertion", (r) => r.consent_source === "well_known" && !/requester/.test(r.consent_basis)]] }, { consent: true, min: "0.2.4" });
+atk("ok_assertion_without_file_stays_requester", "control", {},
+  { status: "verified", pred: [["consent_source requester", (r) => r.consent_source === "requester"], ["lookup disclosed", (r) => r.consent_lookup && /http 404/.test(String(r.consent_lookup.result))]] }, { consent: true, min: "0.2.4" });
+atk("well_known_allow_false", "attack", { extraRoutes: wkRoute({ allow_tool_call: false }) }, notMeasured, { min: "0.2.4" });
+atk("well_known_allow_string_true", "attack", { extraRoutes: wkRoute({ allow_tool_call: "true" }) }, notMeasured, { min: "0.2.4" });
+atk("well_known_allow_number_one", "attack", { extraRoutes: wkRoute({ allow_tool_call: 1 }) }, notMeasured, { min: "0.2.4" });
+atk("well_known_is_array", "attack", { extraRoutes: wkRoute([{ allow_tool_call: true }]) }, notMeasured, { min: "0.2.4" });
+atk("well_known_is_html", "attack", { extraRoutes: { [WK]: () => tres("<html>ok</html>") } }, notMeasured, { min: "0.2.4" });
+atk("well_known_endpoints_exclude_this_one", "attack", { extraRoutes: wkRoute({ allow_tool_call: true, endpoints: ["https://well-known-endpoints-exclude-this-one.redteam.invalid/other"] }) }, notMeasured, { min: "0.2.4" });
+atk("well_known_endpoints_not_strings", "attack", { extraRoutes: wkRoute({ allow_tool_call: true, endpoints: [{ url: "x" }] }) }, notMeasured, { min: "0.2.4" });
+atk("well_known_redirect_cross_origin", "attack", { extraRoutes: { [WK]: () => new Response("", { status: 302, headers: { location: HOST("honest-target") + WK } }) } }, notMeasured, { min: "0.2.4", honest: "honest-target" });
+atk("well_known_http_500", "attack", { extraRoutes: { [WK]: () => tres("boom", 500) } }, notMeasured, { min: "0.2.4" });
+// 同意ファイルは同意だけを証明する。5 条件の中身は一切甘くならん。
+atk("well_known_consent_does_not_excuse_random_output", "attack", { extraRoutes: wkRoute({ allow_tool_call: true }), tools: [TOOL("alpha")], call: (n, a, nth) => ({ content: [{ type: "text", text: "run " + nth }] }) },
+  { not_verified: true, fail: ["determinism"], pred: [["measured with well_known consent", (r) => r.consent_source === "well_known" && r.checks.determinism.measured !== false]] }, { min: "0.2.4" });
+atk("well_known_consent_does_not_excuse_missing_disclosure", "attack", { extraRoutes: wkRoute({ allow_tool_call: true }), card: CARD({ compensation: undefined }) },
+  { not_verified: true, fail: ["compensation_disclosure"] }, { min: "0.2.4" });
+
 // ---------------------------------------------------------------------------
 async function sha256hex(s) {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));

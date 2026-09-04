@@ -31,7 +31,7 @@ const CORS_HEADERS = {
 
 // 仕様確定までの暫定値。名称や閾値はここだけ直せば全体に効く。
 const CONFIG = {
-  version: "0.2.3",
+  version: "0.2.4",
   tier_pass: "verified",        // 通過時の称号(暫定)
   tier_fail: "pending",         // 未通過(不合格とは呼ばない)
   tier_held: "held",            // 到達できず測れなかった。不適合とは別の状態
@@ -1021,7 +1021,7 @@ async function checkDeterminism(endpoint, toolNames, allowToolCall) {
 }
 
 // ---- 判定の組み立て ----
-async function runCheck(endpoint, allowToolCall, consentBasis) {
+async function runCheck(endpoint, allowToolCall, consentBasis, consentSource, consentLookup) {
   const started = new Date().toISOString();
   const results = {};
 
@@ -1070,6 +1070,17 @@ async function runCheck(endpoint, allowToolCall, consentBasis) {
     consent_basis: allowToolCall === true
       ? (consentBasis || "asserted by the requester via allow_tool_call; not proven to be the owner")
       : "no consent given; no tool was called",
+    // 0.2.4. 同意の出どころ。operator_list(扉のソース、公開)/ well_known(origin のファイル、所有の証明)/
+    // requester(申告、証明ではない)/ none。掃引に使えるのは前の 2 つだけ。
+    consent_source: allowToolCall === true ? (consentSource || "requester") : "none",
+    ...(consentLookup && consentLookup.consent !== true ? {
+      consent_lookup: {
+        well_known: consentLookup.url || null,
+        result: consentLookup.reason || null,
+        how_to_consent: "Publish " + CONSENT_WELL_KNOWN_PATH + " on the origin with {\"allow_tool_call\": true} (optionally \"endpoints\": [exact endpoint URLs]). " +
+          "Only the owner of the origin can place a file there, so the gate treats it as consent, measures determinism on the register with it, and records where it read it."
+      }
+    } : {}),
     probed_via: probeVia(endpoint),
     ...(gateSide ? {
       measurement_note:
@@ -1187,7 +1198,14 @@ function spec() {
       self_verification: "Every verdict carries a SHA-256 that any third party can recompute"
     },
     reachability: "Any HTTP status, or a non-JSON body, is an answer from the server: reachable stays true and the row goes pending, not held. Only gateway-shaped statuses (502-504, 52x) and transport failures mean held. Redirects to another origin are treated as answered, not followed (0.2.2).",
-    consent: "allow_tool_call on /check is asserted by the requester and is not proof of ownership; every verdict states its consent_basis. Rows in the public register are measured with tool calls only for endpoints on the operator's published consent list (0.2.2).",
+    consent: "allow_tool_call on /check is asserted by the requester and is not proof of ownership; every verdict states its consent_basis and consent_source. Rows in the public register are measured with tool calls only with proven consent: the operator's published consent list (0.2.2) or a consent file on the endpoint's own origin (0.2.4).",
+    well_known_consent: {
+      since: "0.2.4",
+      path: CONSENT_WELL_KNOWN_PATH,
+      shape: { allow_tool_call: "boolean true, required; nothing else counts", endpoints: "optional array of exact endpoint URLs; when present, only those endpoints are consented" },
+      why: "Only the owner of an origin can place a file under its /.well-known/. So the file is proof of consent, where a request field is only an assertion. The gate reads it with the same same-origin rules as the agent card, executes nothing from it, and records in the verdict where and when it read it.",
+      effect: "Determinism is measured on /check without asserting allow_tool_call, and on every scheduled measurement of the public register. The verdict of a check without consent names this path under consent_lookup.how_to_consent."
+    },
     red_team: "test/redteam_gate.mjs in the public repository attacks this gate with adversarial mock servers (hollow tools, error echoes, cross-origin redirects, malformed cards and disclosures, misclassified reachability). Fail-closed and deterministic. v0.2.1 scored 17 of 48; v0.2.2 scores 48 of 48. Known residual: determinism is measured on one tool the server lists first, which the verdict discloses rather than hides.",
     also_measured_no_verdict: {
       absence_vs_failure: {
@@ -1280,6 +1298,57 @@ const TOOL_CALL_CONSENT = new Set([
   // 自前の試験標的。所有者は我々自身なので同意は自明。
   "https://gate.horizonshield.dev/testbed/i-json/mcp"
 ]);
+
+// 0.2.4. 同意の機械的な証明。上の Set は「所有者からの依頼を待って手で足す」道で、外の運営者には遠すぎた。
+// 2026-09-04、GitHub Action(mcp-conduct-action)を作って分かった: 外の行は /check で verified を取っても、
+// 登録簿の掃引が tool を呼ばんから pending 止まりで、バッジは緑にならん。申告(allow_tool_call)は所有の証明
+// ではないので掃引には使えん。所有の証明になる場所が 1 つある: origin の /.well-known/ 配下。そこに
+// {"allow_tool_call": true} を置けるのは origin の所有者だけ。置けた事実が同意であり、申告ではない。
+// 読むだけで何も実行しない。取れなければ同意無し(fail-closed)。取れなかった理由は判定に刻む。
+const CONSENT_WELL_KNOWN_PATH = "/.well-known/mcp-conduct.json";
+
+async function wellKnownConsent(endpoint) {
+  const url = new URL(endpoint).origin + CONSENT_WELL_KNOWN_PATH;
+  try {
+    const res = await withTimeout(probeFetch(url), CONFIG.timeout_ms);
+    if (!res.ok) return { consent: false, url, reason: "no consent file at " + CONSENT_WELL_KNOWN_PATH + " (http " + res.status + ")" };
+    let body;
+    try { body = await res.json(); } catch (_e) { return { consent: false, url, reason: "consent file is not JSON" }; }
+    if (!body || typeof body !== "object" || Array.isArray(body)) return { consent: false, url, reason: "consent file is not a JSON object" };
+    if (body.allow_tool_call !== true) return { consent: false, url, reason: "consent file does not set allow_tool_call to the boolean true (nothing else counts)" };
+    if (body.endpoints !== undefined) {
+      if (!Array.isArray(body.endpoints) || !body.endpoints.every((e) => typeof e === "string")) {
+        return { consent: false, url, reason: "consent file has an endpoints field that is not an array of strings" };
+      }
+      if (!body.endpoints.includes(endpoint)) return { consent: false, url, reason: "consent file lists endpoints and this endpoint is not among them (exact string match)" };
+    }
+    return { consent: true, url, fetched_at: new Date().toISOString() };
+  } catch (e) {
+    const gateSide = /gate-side failure/.test(String(e && e.message));
+    return { consent: false, url, gate_side: gateSide, reason: (gateSide ? "consent file not read (gate side): " : "consent file not read: ") + String((e && e.message) || e) };
+  }
+}
+
+// 同意の解決。順に: 扉のソースの同意リスト(公開)→ origin の well-known ファイル → 無し。
+// 要求者の申告はここに入れない。申告は所有の証明ではないので、別の根拠(requester)として刻む。
+async function resolveConsent(endpoint) {
+  if (TOOL_CALL_CONSENT.has(endpoint)) {
+    return { consent: true, source: "operator_list", basis: "operator consent list (TOOL_CALL_CONSENT in the gate's source, published)" };
+  }
+  const wk = await wellKnownConsent(endpoint);
+  if (wk.consent) {
+    return { consent: true, source: "well_known", basis: "consent file on the origin (" + wk.url + ") sets allow_tool_call true, read at " + wk.fetched_at + "; only the owner of the origin can place a file there" };
+  }
+  return { consent: false, source: "none", basis: null, reason: wk.reason, url: wk.url, gate_side: wk.gate_side === true };
+}
+
+// /check と MCP の check ツールの共通入口。証明された同意が申告に勝つ。どちらも無ければ tool は呼ばん。
+async function checkWithConsent(endpoint, asserted) {
+  const c = await resolveConsent(endpoint);
+  if (c.consent) return await runCheck(endpoint, true, c.basis, c.source);
+  if (asserted === true) return await runCheck(endpoint, true, null, "requester", c);
+  return await runCheck(endpoint, false, null, "none", c);
+}
 
 // 2026-08-19 patch41. この計器自身の既知の制限。測ったが直せていないものを、黙って回避しない。
 const KNOWN_UA_LIMITATION = "Known limitation of this instrument, measured 2026-08-18 and unresolved: requests carrying the Python urllib user agent are refused with 403 by a Cloudflare managed rule in front of this Worker, so that one client is turned away before any code here runs. curl, python-requests, node-fetch, undici, axios, okhttp, Go, Java, Postman and an absent user agent were all measured at 200 on the same day. This is stated here rather than worked around silently.";
@@ -1658,9 +1727,6 @@ async function publicRegister(env) {
     const lbl = OPERATOR_LABELS[w.endpoint];
     if (lbl) row.operator_label = lbl;
     row.tool_call_consent = TOOL_CALL_CONSENT.has(w.endpoint);
-    if (!row.tool_call_consent) {
-      row.why_not_verified = "The owner has not asked for tool calls, so determinism is not measured and this row cannot reach verified. That is not a failure, it is an unmeasured condition.";
-    }
     if (joined < REGISTER_JOIN_MAX) {
       joined++;
       const hist = await readHistory(env, w.endpoint);
@@ -1673,8 +1739,11 @@ async function publicRegister(env) {
           at: latest.at || null,
           status: latest.status || null,
           record_sha256: latest.record_sha256 || null,
+          consent_source: latest.consent_source || null,
           surface: latest.surface || null
         };
+        // 0.2.4. 直近の掃引が origin の well-known ファイルで同意を読めたなら、その行の同意は真。
+        if (latest.consent_source === "well_known") row.tool_call_consent = true;
       }
       // 直近の表面移動を、日付付きで一件だけ持ち上げる。統合を壊す変更はここに出る。
       for (let i = entries.length - 1; i >= 0; i--) {
@@ -1685,6 +1754,10 @@ async function publicRegister(env) {
       }
     } else {
       row.note = "not joined with history in this response: over REGISTER_JOIN_MAX (" + REGISTER_JOIN_MAX + "). The history_url works regardless.";
+    }
+    if (!row.tool_call_consent) {
+      row.why_not_verified = "No owner consent for tool calls is on record, so determinism is not measured and this row cannot reach verified. That is not a failure, it is an unmeasured condition. " +
+        "To consent, publish " + CONSENT_WELL_KNOWN_PATH + " on the origin with {\"allow_tool_call\": true}; the next scheduled measurement reads it and records where it read it (0.2.4).";
     }
     rows.push(row);
   }
@@ -1848,6 +1921,7 @@ function summarise(record) {
     status: record.status,
     reachable: publicReachable(record.reachable),
     record_sha256: record.record_sha256,
+    consent_source: record.consent_source || null,
     conditions: out,
     // 表面の指紋。fingerprint には今も入れない ,  表面の移動は条件の flip とは別種の事実だからだ。
     // ただし 2026-08-23 から、別種であることと黙っていてよいことは違うと考えを改めた。
@@ -2022,7 +2096,9 @@ async function runDailySweep(env, opts) {
   const results = [];
   for (const w of run) {
     try {
-      const record = await runCheck(w.endpoint, TOOL_CALL_CONSENT.has(w.endpoint), "operator consent list (TOOL_CALL_CONSENT in the gate's source, published)");
+      // 0.2.4. 手書きの Set か、origin の well-known ファイル。申告は掃引では決して使わん。
+      const consent = await resolveConsent(w.endpoint);
+      const record = await runCheck(w.endpoint, consent.consent, consent.basis, consent.source, consent);
       const r = await recordHistory(env, w.endpoint, record);
       const changed = !!(r && r.changed);
       const alertable = !!(r && r.alertable);
@@ -2495,7 +2571,7 @@ async function handleMcp(body, env) {
       const _hostErr = endpointHostProblem(parsed);
       if (_hostErr) return { jsonrpc: "2.0", id, result: mcpFail({ error: "endpoint_host_rejected", reason: _hostErr }) };
       try {
-        return { jsonrpc: "2.0", id, result: mcpOk(await runCheck(endpoint, args.allow_tool_call === true)) };
+        return { jsonrpc: "2.0", id, result: mcpOk(await checkWithConsent(endpoint, args.allow_tool_call === true)) };
       } catch (e) {
         return { jsonrpc: "2.0", id, result: mcpFail({ error: "check_failed", message: String(e && e.message || e) }) };
       }
@@ -3271,7 +3347,7 @@ export default {
       const own = isOwnZone(endpoint);
       bumpUsage(env, ctx, own ? "own_checks" : "external_checks", own ? null : parsed.hostname);
       try {
-        return json(await runCheck(endpoint, body && body.allow_tool_call === true));
+        return json(await checkWithConsent(endpoint, body && body.allow_tool_call === true));
       } catch (e) {
         return json({ error: "check_failed", message: String(e && e.message || e) }, 500);
       }
