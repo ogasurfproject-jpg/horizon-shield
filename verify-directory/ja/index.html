@@ -73,6 +73,13 @@
   .linkset{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
   .linkset a{font-size:13px;color:var(--ink-2);border:1px solid var(--line-2);border-radius:999px;padding:8px 14px;text-decoration:none}
   .linkset a:hover{color:var(--ink);border-color:var(--ink-3)}
+  #assistant{scroll-margin-top:72px}
+  pre.cmd{background:var(--surface-2);border:1px solid var(--line-2);border-radius:10px;padding:12px 14px;margin-top:10px;font-family:var(--mono);font-size:12.4px;line-height:1.75;color:var(--ink);white-space:pre-wrap;word-break:break-all;overflow-x:auto}
+  .copybtn{font-size:12.5px;color:var(--ink-2);background:transparent;border:1px solid var(--line-2);border-radius:999px;padding:7px 13px;cursor:pointer;font-family:var(--sans)}
+  .copybtn:hover{color:var(--ink);border-color:var(--ink-3)}
+  .cardrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+  .cardrow a.go{margin-top:0}
+  .card pre.cmd{font-size:11.8px}
   footer{border-top:1px solid var(--line);padding:34px 0 70px;font-size:12.5px;color:var(--ink-3);line-height:1.9}
   footer a{color:var(--ink-2)}
 </style>
@@ -83,6 +90,7 @@
   <div class="brand">HORIZON SHIELD <span>/ 検証ディレクトリ</span></div>
   <nav>
     <a href="/verify-directory/buyers/">繋ぐ側の方へ</a>
+    <a href="#assistant">アシスタントに繋ぐ</a>
     <a href="/verify-directory/">English</a>
   </nav>
 </div></header>
@@ -156,6 +164,84 @@
   </div>
 </section>
 
+<section id="assistant">
+  <h2>あなたのAIに、検査そのものをやらせる</h2>
+  <p class="slead">この検証機は、それ自体が MCP サーバーです。窓口は <span class="mono">https://gate.horizonshield.dev/mcp</span>。道具は5つ、<b>すべて読み取り専用で、鍵も登録も要りません</b>。<span class="mono">get_conditions</span> ／ <span class="mono">check_conformance</span> ／ <span class="mono">verify_verdict</span> ／ <span class="mono">lookup_server</span> ／ <span class="mono">is_verified</span>。一度繋げば、あとは普通の言葉で頼めます。<b>この経路でも、同じ検証機、同じ記録、同じハッシュです。</b>あなたのAI自身が、判定を再計算できます。</p>
+
+  <div class="cards">
+    <div class="card">
+      <h3>Claude Code</h3>
+      <p>端末に1行。そのあとClaudeに「このサーバーを測って」と頼むだけです。</p>
+      <pre class="cmd" id="ja-cc">claude mcp add --transport http wedjat https://gate.horizonshield.dev/mcp</pre>
+      <div class="cardrow"><button class="copybtn" type="button" data-copy="ja-cc">コピー</button></div>
+    </div>
+
+    <div class="card">
+      <h3>Claude デスクトップ／claude.ai</h3>
+      <p>設定、コネクタ、カスタムコネクタを追加。名前は何でも構いません。<b>意味があるのはURLだけです。</b></p>
+      <pre class="cmd" id="ja-desk">https://gate.horizonshield.dev/mcp</pre>
+      <div class="cardrow"><button class="copybtn" type="button" data-copy="ja-desk">URLをコピー</button></div>
+    </div>
+
+    <div class="card">
+      <h3>Cursor</h3>
+      <p>ワンクリックで入ります。リンクの中に設定そのものが入っていて、それ以外は何も送りません。</p>
+      <pre class="cmd" id="ja-cursor">{"mcpServers":{"wedjat":{"url":"https://gate.horizonshield.dev/mcp"}}}</pre>
+      <div class="cardrow">
+        <a class="go" href="cursor://anysphere.cursor-deeplink/mcp/install?name=wedjat&amp;config=eyJ1cmwiOiJodHRwczovL2dhdGUuaG9yaXpvbnNoaWVsZC5kZXYvbWNwIn0=">Cursorに追加</a>
+        <button class="copybtn" type="button" data-copy="ja-cursor">JSONをコピー</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>VS Code</h3>
+      <p>ワンクリック、または <span class="mono">.vscode/mcp.json</span> にそのまま貼り付けてください。</p>
+      <pre class="cmd" id="ja-vscode">{"servers":{"wedjat":{"type":"http","url":"https://gate.horizonshield.dev/mcp"}}}</pre>
+      <div class="cardrow">
+        <a class="go" href="vscode:mcp/install?%7B%22name%22%3A%22wedjat%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fgate.horizonshield.dev%2Fmcp%22%7D">VS Codeに追加</a>
+        <button class="copybtn" type="button" data-copy="ja-vscode">JSONをコピー</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>ChatGPT</h3>
+      <p>設定、コネクタ、詳細設定、開発者モード、作成。URLを貼るだけです。審査に出しているアプリ（<b>MCP Conduct Register</b>）はOpenAIの列に並んでいます。<b>掲載されるまでは開発者モードが入口で、繋がる先は同じサーバーです。</b></p>
+      <pre class="cmd" id="ja-gpt">https://gate.horizonshield.dev/mcp</pre>
+      <div class="cardrow"><button class="copybtn" type="button" data-copy="ja-gpt">URLをコピー</button></div>
+    </div>
+
+    <div class="card">
+      <h3>GitHub Actions（pushのたびに）</h3>
+      <p>アシスタントではありませんが、サーバーが作られる場所そのものです。窓口を測り、<b>ハッシュをあなたのジョブの中で計算し直し</b>、測って落ちたらビルドを止めます。測れなかったものは、測れなかったままにします。</p>
+      <pre class="cmd" id="ja-gha">- uses: ogasurfproject-jpg/wedjat-check-action@v1
+  with:
+    endpoint: https://your-server/mcp</pre>
+      <div class="cardrow">
+        <a class="go" href="https://github.com/ogasurfproject-jpg/wedjat-check-action" rel="noopener">アクション本体</a>
+        <button class="copybtn" type="button" data-copy="ja-gha">YAMLをコピー</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>その他のクライアント</h3>
+      <p>HTTPS の POST に JSON-RPC を載せるだけです。認証も、保持するセッションも、SSE も要りません。<b><span class="mono">initialize</span> と <span class="mono">tools/list</span> が呼べるクライアントなら、これも呼べます。</b></p>
+      <pre class="cmd" id="ja-any">curl -s -X POST https://gate.horizonshield.dev/mcp -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'</pre>
+      <div class="cardrow"><button class="copybtn" type="button" data-copy="ja-any">コピー</button></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <p><b>繋いだあと、こう頼んでください。</b>URLだけ自分のものに差し替えてください。測って、落ちた条件を名指しさせて、ハッシュを引用させて、<b>検証機を信用せずに自分で計算し直させる</b>ところまでを一度に頼む文です。</p>
+    <pre class="cmd" id="ja-prompt">wedjat の道具を使って、https://あなたのサーバー/mcp を check_conformance で測ってください。allow_tool_call は false のままにしてください。5つの条件のうち、どれが通り、どれが落ち、どれが測れなかったのかを、理由つきで普通の言葉で説明してください。record_sha256 をそのまま引用してください。そのあと、返ってきた記録の全体を verify_verdict に渡して、再計算したハッシュが一致したかどうかを教えてください。検証機が測っていないことについては、検証機の言い分を信用しないでください。</pre>
+    <div class="cardrow"><button class="copybtn" type="button" data-copy="ja-prompt">プロンプトをコピー</button></div>
+  </div>
+
+  <div class="panel">
+    <p><b>繋いでも、起きないこと。</b></p>
+    <p>繋いだからといって、この検証機があなたのアシスタントや、手元のファイルや、あなたの他のサーバーに触れることはありません。<b>読むのは、あなたがその場で名指しした窓口だけです。</b>相手の道具を実際に呼ぶのは、あなたが自分の持ち物に対して <span class="mono">allow_tool_call</span> を自分で立てたときだけです。切るのは、繋いだのと同じ設定画面でワンクリックです。</p>
+  </div>
+</section>
+
 <section>
   <h2>お金を払っても、動かないもの</h2>
   <ul class="no">
@@ -214,5 +300,16 @@
 </div></footer>
 
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script>
+<script>
+document.querySelectorAll(".copybtn").forEach(function(b){
+  b.addEventListener("click",function(){
+    var el=document.getElementById(b.getAttribute("data-copy"));
+    if(!el||!navigator.clipboard)return;
+    navigator.clipboard.writeText(el.textContent).then(function(){
+      var t=b.textContent;b.textContent="コピーしました";setTimeout(function(){b.textContent=t;},1400);
+    });
+  });
+});
+</script>
 </body>
 </html>
