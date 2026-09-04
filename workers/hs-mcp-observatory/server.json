@@ -1,8 +1,8 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ogasurfproject-jpg/hs-mcp-observatory",
-  "title": "MCP Observatory: what answered when every https endpoint in the official registry was contacted once",
-  "description": "Public record of one read-only walk over the official MCP registry (2026-08-23): who answered, how many tools, who names their payer. Record hashes, recompute procedure.",
+  "title": "MCP Observatory: one read only walk over every https endpoint in the official registry",
+  "description": "Public record of one read only walk over the official MCP registry: who answered, tools, who pays.",
   "version": "0.1.0",
   "websiteUrl": "https://shield.the-horizons-innovation.com/verify-directory/survey/1/",
   "icons": [
