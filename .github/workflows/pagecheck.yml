@@ -12,6 +12,11 @@ name: pagecheck
 #   report:   qa/aeo 全ページを毎回 --mode report で走らせ、落とさずに内訳を出す。
 #             初回計測(2026-09-04)で残ったのは近似重複 14 組(22 ページ、うち 21 が Google 未登録)。
 #             文章の書き直しでしか消えないので、消えるまで毎回ここに出る。隠さない。
+# 2026-09-04 v1.3.1: faq/ blog/ souba/ も content。「門の外に名前空間を残さない」。
+#   v1.3.0 で qa/aeo だけ入れたのは、また 1 ケースの直しやった(外部の検証者の指摘と同じ型)。
+#   blocking: 変わった faq ページも(35/35 が通る)。blog/souba は実欠陥(ダッシュ 31 / 出典なし金額 2 / 雛形の重複)が
+#             消えるまで report。上げるときはこの grep に足すだけ。
+#   report:   content 5 名前空間 714 ページを毎回。移転スタブ(refresh + noindex)は毒検査と移転先の検査だけ。
 
 on:
   push:
@@ -21,6 +26,9 @@ on:
       - "care/**/*.html"
       - "qa/**/*.html"
       - "aeo/**/*.html"
+      - "faq/**/*.html"
+      - "blog/**/*.html"
+      - "souba/**/*.html"
       - "tools/pagecheck/**"
   pull_request:
     paths:
@@ -28,6 +36,9 @@ on:
       - "care/**/*.html"
       - "qa/**/*.html"
       - "aeo/**/*.html"
+      - "faq/**/*.html"
+      - "blog/**/*.html"
+      - "souba/**/*.html"
       - "tools/pagecheck/**"
   workflow_dispatch:
 
@@ -62,7 +73,7 @@ jobs:
           fi
           echo "見る範囲: $RANGE"
           CHANGED=$(git diff --name-only --diff-filter=ACM $RANGE \
-                    | grep -E '^(yakumo|care|qa|aeo)/.*\.html$' || true)
+                    | grep -E '^(yakumo|care|qa|aeo|faq)/.*\.html$' || true)
           if [ -z "$CHANGED" ]; then
             echo "対象のページはありません。"
             exit 0
@@ -70,10 +81,10 @@ jobs:
           echo "$CHANGED"
           python3 tools/pagecheck/validate.py --paths $CHANGED
 
-      - name: 記事の面(qa/ aeo/)を全ページ report で見る(落とさない)
+      - name: 記事の面(qa/ aeo/ faq/ blog/ souba/)を全ページ report で見る(落とさない)
         if: always()
         run: |
-          python3 tools/pagecheck/validate.py --mode report --paths $(ls qa/*.html aeo/*.html)
+          python3 tools/pagecheck/validate.py --mode report --paths $(find qa aeo faq blog souba -name '*.html' | sort)
 
       - name: 門を敵として攻める(レッドチーム)
         run: python3 tools/pagecheck/redteam.py

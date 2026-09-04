@@ -69,11 +69,27 @@ BASE = "https://shield.the-horizons-innovation.com"
 MOAT_FORBIDDEN = [s[::-1] for s in ["5.23", "dlohserht_regnad", "CPW"]]  # 逆順表記(公開repoのgrep封印。機能は同一)
 FORBIDDEN_DASH = {"—": "EM", "–": "EN", "―": "BAR", "－": "FW_HYPHEN_MINUS", "‒": "FIGURE", "−": "MINUS", "⸺": "TWO_EM", "⸻": "THREE_EM", "﹘": "SMALL_EM", "﹣": "SMALL_FW_MINUS", "⁓": "SWUNG"}
 
-GATE_VERSION = "1.3.0"
+GATE_VERSION = "1.3.1"
 
 # v1.3.0: 名前空間の種類。member は加盟店の面(金額非表示)、content は記事の面(金額は出典つきで可)。
 #   ここに無い名前空間は UNKNOWN_NAMESPACE のまま(置き場所の取り違えは今までどおり弾く)。
-NAMESPACE_KIND = {"yakumo": "member", "care": "member", "qa": "content", "aeo": "content"}
+# v1.3.1: faq / blog / souba も content。「門の外に名前空間を残さない」が規則。
+#   v1.3.0 で qa/aeo だけ入れたのは、また 1 ケースの直しやった(同日に気づいた)。
+NAMESPACE_KIND = {"yakumo": "member", "care": "member",
+                  "qa": "content", "aeo": "content", "faq": "content", "blog": "content", "souba": "content"}
+
+# v1.3.1: 移転スタブ。content 名前空間の中で、meta refresh + robots noindex + canonical が移転先、の三つ揃い。
+#   加盟店の面(member)では meta refresh は「表示先を差し替える道具」として今までどおり禁止。
+#   記事の面では URL を動かした跡として正当。スタブに求めるのは:
+#     移転先が内部で実在する(REDIRECT_TARGET_BROKEN) / canonical が移転先と同じ(REDIRECT_CANONICAL_MISMATCH) /
+#     自分自身へ飛ばない(REDIRECT_TO_SELF) / 毒が無い(不可視文字・MOAT・ダッシュ・base・実行時資源・リンクの体裁)。
+#   求めないのは、記事としての体裁(description / author / JSON-LD / 逆リンク / 金額 / 索引可否 / 重複)。
+#   移転スタブ同士は本文がほぼ同じで当然なので、重複関所からも外す。
+REFRESH_URL_RE = re.compile(r'^\s*\d+\s*;\s*url\s*=\s*["\']?([^"\'\s;]+)', re.I)
+STUB_KEEP_PREFIXES = ("INVISIBLE_CHARS", "BIDI_CONTROL", "CONTROL_CHARS", "BASE_TAG_FORBIDDEN", "MOAT_", "FORBIDDEN_DASH",
+                      "ENCODING_NOT_UTF8", "FILE_MISSING", "NO_HTML_STRUCTURE", "RUNTIME_SRC_", "SUSPECT_RELATIVE_LINK",
+                      "INTERNAL_LINK_BROKEN", "JSONLD_PARSE_FAIL", "JSONLD_TAG_OBFUSCATED", "ROBOTS_TAG_OBFUSCATED",
+                      "REDIRECT_")
 
 # content の金額に要る「出典」。href の宛先で見る(本文に「出典」と書くだけでは満たせない)。
 #   souba(相場DB) / JIDEC 台帳 / JCCDB の公開リポジトリと DOI / SSRN。root 相対でも絶対でも可。
@@ -86,6 +102,39 @@ SOURCE_HREF_RE = re.compile(
 def namespace_kind(relpath):
     parts = _segments(relpath)
     return NAMESPACE_KIND.get(parts[0]) if parts else None
+
+
+def redirect_stub_target(relpath, html):
+    """v1.3.1: content 名前空間の移転スタブなら移転先(href そのまま)を返す。そうでなければ None。
+    meta refresh と robots noindex の両方があるページをスタブと見なす。片方だけでは見なさない:
+    refresh だけなら禁止された道具、noindex だけなら事故、として今までどおり弾かれる。
+    canonical はスタブの条件でなく要件(無ければ REDIRECT_NO_CANONICAL、違えば REDIRECT_CANONICAL_MISMATCH)。
+    実測(2026-09-04)で souba/ の移転スタブ 170 本に canonical が無く、条件にすると普通のページとして
+    8 件ずつ落ちて、直す側に「何が足りんか」が見えんかった。"""
+    if namespace_kind(relpath) != "content":
+        return None
+    src_nc = COMMENT_RE.sub(" ", html)
+    tags = list(iter_tags(SCRIPT_STYLE_RE.sub(" ", src_nc)))
+    refresh = None; noindex = False
+    for n, a, _ in tags:
+        if n == "meta" and a.get("http-equiv", "").strip().lower() == "refresh":
+            m = REFRESH_URL_RE.match(a.get("content", ""))
+            if m:
+                refresh = _html.unescape(m.group(1)).strip()
+        if n == "meta" and a.get("name", "").strip().lower() == "robots" and "noindex" in normalize_text(a.get("content", "")).lower():
+            noindex = True
+    return refresh if (refresh and noindex) else None
+
+
+def is_redirect_stub(relpath):
+    abspath = os.path.join(REPO_ROOT, relpath)
+    if not os.path.exists(abspath):
+        return False
+    try:
+        html = open(abspath, encoding="utf-8").read()
+    except UnicodeDecodeError:
+        return False
+    return redirect_stub_target(relpath, html) is not None
 
 # 2026-08-30 v1.2.0: 個別の文字でなく「クラス」で弾く。
 #   Unicode の Pd(ダッシュ句読点)カテゴリは、許可した数文字を除いて全て禁止。
@@ -321,6 +370,43 @@ def _json_strings(obj, path=""):
     return out, keys
 
 def check_page(relpath):
+    """v1.3.1: \u79fb\u8ee2\u30b9\u30bf\u30d6\u306f\u6bd2\u691c\u67fb\u3068\u79fb\u8ee2\u5148\u306e\u691c\u67fb\u3060\u3051\u3002\u305d\u308c\u4ee5\u5916\u306e\u30da\u30fc\u30b8\u306f\u4eca\u307e\u3067\u3069\u304a\u308a\u5168\u691c\u67fb\u3002"""
+    errs = _check_page_full(relpath)
+    abspath = os.path.join(REPO_ROOT, relpath)
+    if not os.path.exists(abspath):
+        return errs
+    try:
+        html = open(abspath, encoding="utf-8").read()
+    except UnicodeDecodeError:
+        return errs
+    target = redirect_stub_target(relpath, html)
+    if target is None:
+        return errs
+    kept = [e for e in errs if e.startswith(STUB_KEEP_PREFIXES)]
+    # \u79fb\u8ee2\u5148: \u5185\u90e8\u3067\u5b9f\u5728\u3059\u308b\u3053\u3068\u3002\u5916\u90e8\u3078\u306e\u79fb\u8ee2\u306f\u3053\u3053\u3067\u306f\u6271\u308f\u306a\u3044(\u8a18\u4e8b\u306e\u9762\u306e\u79fb\u8ee2\u306f\u540c\u3058\u30b5\u30a4\u30c8\u306e\u4e2d\u3068\u6c7a\u3081\u308b)\u3002
+    ok = resolve_internal(target)
+    if ok is None:
+        kept.append("REDIRECT_TARGET_NOT_INTERNAL: " + target[:80])
+    elif ok is False:
+        kept.append("REDIRECT_TARGET_BROKEN: " + target[:80])
+    # \u81ea\u5206\u81ea\u8eab\u3078\u98db\u3070\u306a\u3044
+    own = path_to_canonical(relpath)
+    abs_target = target if target.startswith("http") else (BASE + target)
+    if abs_target.rstrip("/") == own.rstrip("/"):
+        kept.append("REDIRECT_TO_SELF: " + target[:80])
+    # canonical \u306f\u5fc5\u9808\u3067\u3001\u79fb\u8ee2\u5148\u3068\u540c\u3058
+    _canons = [a.get("href", "") for n, a, _ in iter_tags(SCRIPT_STYLE_RE.sub(" ", COMMENT_RE.sub(" ", html)))
+               if n == "link" and "canonical" in a.get("rel", "").lower().split()]
+    if not _canons:
+        kept.append("REDIRECT_NO_CANONICAL: add <link rel=\"canonical\" href=\"%s\">" % abs_target[:80])
+    elif len(_canons) > 1:
+        kept.append("CANONICAL_TAG_COUNT: %d" % len(_canons))
+    elif _canons[0].rstrip("/") != abs_target.rstrip("/"):
+        kept.append("REDIRECT_CANONICAL_MISMATCH: canonical %s target %s" % (_canons[0][:60], abs_target[:60]))
+    return kept
+
+
+def _check_page_full(relpath):
     errs = []
     abspath = os.path.join(REPO_ROOT, relpath)
     if not os.path.exists(abspath):
@@ -631,8 +717,11 @@ def check_page(relpath):
 
     # 内部リンクの体裁(相対の壊れリンクを弾く: href="souba/..." のような裸相対は不可)
     # v1.3.0 content: root 相対(/souba/ 等)と絶対URLの内部リンクは、宛先がこのリポジトリに実在することを求める。
+    # v1.3.1 content: リンクは script/style を剥いだ版で見る(インライン JS の文字列連結 '+X+' を href と取り違えない)。
+    #   裸相対(claim.txt / ../ 等)は、ページのディレクトリから実在すれば可(領収ページと証拠ファイルは一緒に動く)。無ければ従来どおり不可。
     _seen_links = set()
-    for href in re.findall(r'href="([^"]+)"', html):
+    _link_src = src_tags if _kind == "content" else html
+    for href in re.findall(r'href="([^"]+)"', _link_src):
         if href.startswith("#") or href.startswith("mailto:") or href.startswith("tel:"):
             continue
         if _kind == "content" and (href.startswith("/") and not href.startswith("//") or href.startswith(BASE)):
@@ -643,6 +732,17 @@ def check_page(relpath):
                 errs.append("INTERNAL_LINK_BROKEN: " + href)
             continue
         if href.startswith("http"):
+            continue
+        if _kind == "content" and not href.startswith("//"):
+            if href in _seen_links:
+                continue
+            _seen_links.add(href)
+            _rel = _html.unescape(href.split("#", 1)[0].split("?", 1)[0])
+            _base_dir = os.path.dirname(os.path.join(REPO_ROOT, relpath))
+            _p = os.path.normpath(os.path.join(_base_dir, _rel)) if _rel else None
+            _ok = bool(_p) and _p.startswith(REPO_ROOT) and (os.path.isfile(_p) or (os.path.isdir(_p) and os.path.isfile(os.path.join(_p, "index.html"))))
+            if not _ok:
+                errs.append("SUSPECT_RELATIVE_LINK: " + href)
             continue
         errs.append("SUSPECT_RELATIVE_LINK: " + href)
 
@@ -673,11 +773,15 @@ def check_duplicates(paths):
     errs = []
     ledger = G.ledger_load().get("entries", [])
     fps = []
+    skipped_stubs = 0
     for p in paths:
         abspath = os.path.join(REPO_ROOT, p)
         if not os.path.exists(abspath):
             continue
         html = open(abspath, encoding="utf-8").read()
+        if redirect_stub_target(p, html) is not None:
+            skipped_stubs += 1   # v1.3.1: 移転スタブ同士は同文で当然。重複関所の対象外(スタブ自体の検査は check_page で)
+            continue
         canonical = path_to_canonical(p)
         fps.append((p, G.fingerprint(canonical, html)))
     # バッチ内 相互

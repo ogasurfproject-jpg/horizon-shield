@@ -333,21 +333,31 @@ def build_html(name, robots, body, head_extra, slug, ns, robots_tag):
 #   (c) それ以外の毒(MOAT / ダッシュ / robots / 不可視 / 名前空間)は content にも同じ強さで効くこと、を攻める。
 #   content のページは tmp/<ns>/<slug>.html に置く(ファイルが URL)。
 CONTENT_LINKS = '<a href="/">home</a> <a href="/souba/">相場DB</a>'
-CONTENT_FILES = [("index.html", "<html><title>root</title></html>"), ("souba/index.html", "<html><title>souba</title></html>")]
+CONTENT_FILES = [("index.html", "<html><title>root</title></html>"), ("souba/index.html", "<html><title>souba</title></html>"),
+                 ("qa/rt-claim.txt", "claim bytes")]
 
 def content_page(slug, ns="qa", body="", head_extra="", robots='<meta name="robots" content="index,follow">\n', canonical=None, links=CONTENT_LINKS):
-    canon = canonical or "%s/%s/%s.html" % (B, ns, slug)
+    canon = "%s/%s/%s.html" % (B, ns, slug) if canonical is None else canonical
+    canon_line = ('<link rel="canonical" href="%s">\n' % canon) if canon else ""   # canonical="" で canonical 無しのページ
     return (
         '<!doctype html><html lang="ja"><head>\n'
         '<meta charset="utf-8"><title>redteam content %s | HORIZON SHIELD</title>\n'
         '<meta name="description" content="redteam content probe">\n'
         '%s'
         '<meta name="author" content="大賀俊勝">\n'
-        '<link rel="canonical" href="%s">\n'
+        '%s'
         '<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","name":"rt"}</script>\n'
         '%s'
         '</head><body>\n<h1>redteam content</h1>\n<p>%s</p>\n%s\n</body></html>'
-    ) % (slug, robots, canon, head_extra, body, links)
+    ) % (slug, robots, canon_line, head_extra, body, links)
+
+def _STUB(target, canonical=None, body="移転しました。", extra="", noindex=True, refresh=True):
+    """v1.3.1: 移転スタブの部品。三つ揃い(refresh + noindex + canonical=移転先)が既定。片方を欠かすと普通のページとして裁かれる。"""
+    abs_t = target if target.startswith("http") else (B + target)
+    head = ('<meta http-equiv="refresh" content="0;url=%s">\n' % target if refresh else "") + extra
+    return dict(body=body, head_extra=head,
+                robots=('<meta name="robots" content="noindex">\n' if noindex else '<meta name="robots" content="index,follow">\n'),
+                canonical=(abs_t if canonical is None else canonical), links="")
 
 # (name, expect_block, codes, builder kwargs). ns は kwargs の ns、既定 qa。
 CONTENT_CASES = [
@@ -363,6 +373,9 @@ CONTENT_CASES = [
     ("content_broken_root_relative_link",    True, ("INTERNAL_LINK_BROKEN",), dict(body="本文。", links=CONTENT_LINKS + ' <a href="/nope/">x</a>')),
     ("content_broken_absolute_internal",     True, ("INTERNAL_LINK_BROKEN",), dict(body="本文。", links=CONTENT_LINKS + ' <a href="%s/qa/missing.html">x</a>' % B)),
     ("content_bare_relative_link",           True, ("SUSPECT_RELATIVE_LINK",), dict(body="本文。", links=CONTENT_LINKS + ' <a href="other.html">x</a>')),
+    ("content_ok_bare_relative_existing",    False, None, dict(body="領収。", links=CONTENT_LINKS + ' <a href="rt-claim.txt">claim</a> <a href="../">up</a>')),
+    ("content_ok_js_href_concat_not_a_link", False, None, dict(body="本文。", head_extra="<script>var a='<a href=\"'+REVERSE+'\">x</a>';</script>\n")),
+    ("content_bare_relative_escapes_repo",   True, ("SUSPECT_RELATIVE_LINK",), dict(body="本文。", links=CONTENT_LINKS + ' <a href="../../etc/passwd">x</a>')),
     ("content_canonical_dir_form",           True, ("CANONICAL_MISMATCH",), dict(body="本文。", canonical="%s/qa/rt-cc.html/" % B, slug="rt-cc")),
     ("content_no_root_backlink",             True, ("NO_HS_ROOT_BACKLINK",), dict(body="本文。", links='<a href="/souba/">相場DB</a>')),
     ("content_no_robots",                    True, ("ROBOTS_TAG_COUNT",), dict(body="本文。", robots="")),
@@ -370,8 +383,28 @@ CONTENT_CASES = [
     ("content_moat_word",                    True, ("MOAT",), dict(body="本文 " + validate.MOAT_FORBIDDEN[0] + " 。")),
     ("content_em_dash",                      True, ("FORBIDDEN_DASH",), dict(body="本文\u2014本文。")),
     ("content_zero_width",                   True, ("INVISIBLE",), dict(body="本\u200b文。")),
-    ("content_unknown_namespace_blog",       True, ("UNKNOWN_NAMESPACE",), dict(ns="blog", body="本文。")),
+    ("content_unknown_namespace_zzz",        True, ("UNKNOWN_NAMESPACE",), dict(ns="zzz", body="本文。")),
     ("member_money_with_souba_source_still_blocked", True, ("MONEY_ON_PAGE",), None),
+    # v1.3.1: faq / blog / souba も content
+    ("content_ok_faq_namespace",             False, None, dict(ns="faq", body="よくある質問。")),
+    ("content_ok_blog_namespace",            False, None, dict(ns="blog", body="記事本文。")),
+    ("content_ok_souba_namespace",           False, None, dict(ns="souba", body="相場の解説。")),
+    # v1.3.1: 移転スタブ(meta refresh + noindex + canonical が移転先)は記事の面でだけ正当
+    ("stub_ok_blog_to_existing",             False, None, dict(ns="blog", **_STUB("/souba/"))),
+    ("stub_ok_souba_to_existing",            False, None, dict(ns="souba", **_STUB("/souba/"))),
+    ("stub_ok_absolute_target",              False, None, dict(ns="blog", **_STUB(B + "/souba/"))),
+    ("stub_target_broken",                   True, ("REDIRECT_TARGET_BROKEN",), dict(ns="blog", **_STUB("/gone/"))),
+    ("stub_target_external",                 True, ("REDIRECT_TARGET_NOT_INTERNAL",), dict(ns="blog", **_STUB("https://example.com/"))),
+    ("stub_canonical_mismatch",              True, ("REDIRECT_CANONICAL_MISMATCH",), dict(ns="blog", **_STUB("/souba/", canonical=B + "/qa/other.html"))),
+    ("stub_to_self",                         True, ("REDIRECT_TO_SELF",), dict(ns="blog", slug="rt-self", **_STUB("/blog/rt-self.html", canonical=B + "/blog/rt-self.html"))),
+    ("stub_with_moat",                       True, ("MOAT",), dict(ns="blog", **_STUB("/souba/", body="移転 " + validate.MOAT_FORBIDDEN[0]))),
+    ("stub_with_em_dash",                    True, ("FORBIDDEN_DASH",), dict(ns="blog", **_STUB("/souba/", body="移転—先へ"))),
+    ("stub_with_base_tag",                   True, ("BASE_TAG_FORBIDDEN",), dict(ns="blog", **_STUB("/souba/", extra='<base href="https://evil.example/">\n'))),
+    ("stub_no_canonical",                    True, ("REDIRECT_NO_CANONICAL",), dict(ns="souba", **_STUB("/souba/", canonical=""))),
+    ("stub_two_canonicals",                  True, ("CANONICAL_TAG_COUNT",), dict(ns="blog", **_STUB("/souba/", extra='<link rel="canonical" href="%s/souba/">\n' % B))),
+    ("stub_refresh_without_noindex",         True, ("META_REFRESH_FORBIDDEN",), dict(ns="blog", **_STUB("/souba/", noindex=False))),
+    ("stub_noindex_without_refresh",         True, ("ROBOTS",), dict(ns="blog", **_STUB("/souba/", refresh=False))),
+    ("member_redirect_stub_still_forbidden", True, ("META_REFRESH_FORBIDDEN",), "member_stub"),
 ]
 
 def all_attacks():
@@ -391,6 +424,16 @@ def write_content_case(tmp, name, kw):
         slug = "rt-member-source-leak"
         html = page(slug, body="相場は15,000円。", ns="yakumo")
         html = html.replace("</body>", '<a href="/souba/">相場DB</a>\n</body>')
+        d = os.path.join(tmp, "yakumo", slug); os.makedirs(d, exist_ok=True)
+        with open(os.path.join(d, "index.html"), "w", encoding="utf-8") as f:
+            f.write(html)
+        return "yakumo/%s/index.html" % slug
+    if kw == "member_stub":
+        # 加盟店の面に三つ揃いの移転スタブを置いても、meta refresh は今までどおり禁止(content の緩さが漏れていない)
+        slug = "rt-member-stub"
+        html = page(slug, robots="noindex", body="移転しました。", ns="yakumo",
+                    head_extra='<meta http-equiv="refresh" content="0;url=%s/yakumo/">\n' % B)
+        html = html.replace('<link rel="canonical" href="%s/yakumo/%s/">' % (B, slug), '<link rel="canonical" href="%s/yakumo/">' % B)
         d = os.path.join(tmp, "yakumo", slug); os.makedirs(d, exist_ok=True)
         with open(os.path.join(d, "index.html"), "w", encoding="utf-8") as f:
             f.write(html)

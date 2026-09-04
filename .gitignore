@@ -14,12 +14,13 @@ node_modules/
 **/kira-proxy-v2.js.bak*
 **/wrangler.jsonc.bak*
 **/.wrangler/
-*.py
-*.sh
-# 2026-08-20 上の *.py は、手元の使い捨てパッチ用の規則。
-# だが .github/scripts/ は本番で走る。無視されたままだと、ワークフローは存在して起動して
-# ファイルが無くて落ちる。落ちるまで誰も気づかない。ここだけ明示的に戻す。
-!.github/scripts/*.py
+# 2026-08-20 に *.py と *.sh を丸ごと無視にした(手元の使い捨てパッチ用)。.github/scripts/ だけ例外にして
+# 「ここだけ明示的に戻す」と書いた。それが 1 ケースの直しで、兄弟(tools/ workers/ ops/)には広がっとらんかった。
+# 結果: 本物の .py 118 本が -f で入り、ops/llm_visibility_monitor.py と workers/hs-ledger/append_witness.sh が
+# untracked のまま隠れとった。2026-09-04: 規則を「リポジトリ root 直下の .py / .sh だけ」に狭める。
+# 使い捨てパッチは root に置く(patch_*.py / add_*.py / fix_*.py / gen_*.py)。ディレクトリの中の .py は本物として見える。
+/*.py
+/*.sh
 **/__pycache__/
 add_bulk_delete.py
 add_geo_47.py

@@ -133,3 +133,33 @@ blocking にした最初の push 自身が、aeo の重複 1 組 (断熱工事 �
 
 修正は validate.py v1.3.0 / redteam.py (content 21 手) / POLICY.md v1.3.0 / pagecheck.yml (qa/aeo を blocking + report)。
 再現: `python3 tools/pagecheck/redteam.py` (1,496 / 1,496)、`python3 tools/pagecheck/validate.py --mode report --paths $(ls qa/*.html aeo/*.html)`。
+
+## 第4回 (2026-09-04 夜) ・ 門の外に名前空間を残さない (v1.3.1)
+
+### きっかけ
+第3回で qa/aeo だけを content にした。同じ日に外部の検証者から、別の系統 (JIDEC の拒否記録) について
+「1 ケースのために作った直しが兄弟のケースへ一般化されずに残っていた」という指摘を受けた。同じ型を自分の門に当てたら、
+faq/ blog/ souba/ (576 ページ) がまだ門の外だった。
+
+### 実測 (v1.3.0 のまま content 扱いにして)
+faq 35/35 通る (近似重複 8 組)。blog 36/86、souba 52/455。落ちた大半は取り違え 3 種:
+移転スタブ (meta refresh + noindex) を「表示先を差し替える道具」として 8 件ずつ弾いていた (blog 25 / souba 170)。
+souba の領収ページが証拠ファイルへ裸相対で繋ぐのを弾いていた (80 本)。インライン JS の文字列連結 '+REVERSE+' を href と取っていた (57 本)。
+
+### やったこと
+redirect を content の中の種類として認める (refresh + noindex の両方。片方なら普通のページ)。スタブには毒検査と移転先の検査だけ。
+裸相対はページのディレクトリから実在すれば可。content のリンクは script/style を剥いで見る。member は一字も変えない。
+21 手を足して 1,517 / 1,517。member に三つ揃いのスタブを置いても refresh は禁止のまま (漏れ検査)。
+
+### 取り違えを消した後に残った実欠陥と、同日の修正
+souba: スタブ 170 に canonical が無い / 「全国版へ」の薄い県別 65 (noindex だが refresh 無し、386 字) / robots 無し 116 / author 無し 32 / </html> 無し 5
+  → 382 ファイルに差した行だけ (canonical 235 / refresh 65 / robots 116 / author 32 / </html> 5)、削除 0。72 → 423 / 455
+blog: author 無し 25 / robots 無し 21 → 25 ファイル。36 → 83 / 86
+
+### 門が見つけて門では直せないもの (report に出続ける)
+souba: em ダッシュ 31 ページ / 「32.5」が MOAT 語と同じ 1 ページ (公表統計かどうかは代表の判断) / 雛形の近似重複 74 組
+blog: 出典なし金額 2 本 (150万円 / 980万円) / index の JSON-LD 無し / 近似重複 1 組。faq: 近似重複 8 組
+
+### 教訓
+「守備範囲を広げる」は 1 回で終わらせる。名前空間を足した瞬間に「門の外に残っている名前空間は何か」を数え、ゼロにしてから閉じる。
+再現: `python3 tools/pagecheck/redteam.py` (1,517 / 1,517)、`python3 tools/pagecheck/validate.py --mode report --paths $(find qa aeo faq blog souba -name '*.html' | sort)`。

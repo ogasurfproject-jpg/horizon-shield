@@ -11,10 +11,11 @@ fail-closed。1枚でも落ちればバッチ全体を公開しない。
 
 ---
 
-## 現行版: v1.3.0 (2026-09-04)
+## 現行版: v1.3.1 (2026-09-04)
 
-対象: yakumo/**/*.html ・ care/**/*.html ・ qa/**/*.html ・ aeo/**/*.html (push で変わったページ)
-      加えて qa/ aeo/ は全ページを毎回 report で見る(落とさず内訳を出す)
+対象: yakumo/**/*.html ・ care/**/*.html ・ qa/**/*.html ・ aeo/**/*.html ・ faq/**/*.html (push で変わったページ、blocking)
+      加えて content の 5 名前空間 (qa/ aeo/ faq/ blog/ souba/、714 ページ) を全ページ毎回 report で見る(落とさず内訳を出す)。
+      blog/ souba/ は実欠陥が消えたら blocking に上げる(CI の grep に足すだけ)
 
 ### 名前空間の種類 (v1.3.0)
 門は置き場所で「何の面か」を決め、面の種類で読み方を変える。読み方が変わるのは4点だけで、それ以外は同じ強さ。
@@ -28,7 +29,15 @@ fail-closed。1枚でも落ちればバッチ全体を公開しない。
         9.  モール / 窓口への逆リンクは求めない。HORIZON SHIELD ルートへの逆リンクは必須で、content は href="/" でも可
         10. root 相対(/souba/ 等)と絶対URLの内部リンクは、宛先がこのリポジトリに実在すること(無ければ INTERNAL_LINK_BROKEN)。
             裸相対(souba/.. や x.html)は従来どおり不可
-    それ以外(blog/ 等) = UNKNOWN_NAMESPACE のまま。置き場所の取り違えは今までどおり弾く
+    v1.3.1: content = qa/ aeo/ faq/ blog/ souba/。「門の外に名前空間を残さない」が規則。それ以外 = UNKNOWN_NAMESPACE のまま
+        content の裸相対リンクは、ページのディレクトリから実在すれば可(領収ページと証拠ファイル claim.txt / proof.ots は一緒に動く)。
+        content のリンクは script/style を剥いだ版で見る(インライン JS の文字列連結を href と取り違えない)。member は従来どおり生の HTML
+
+    redirect = content の中の移転スタブ。meta refresh と robots noindex の両方があるページ。片方だけなら普通のページとして裁く
+        (refresh だけ = 禁止された道具、noindex だけ = 事故)。加盟店の面 (member) では meta refresh は今までどおり禁止。
+        スタブに求めるもの: 移転先が内部で実在 (REDIRECT_TARGET_BROKEN / REDIRECT_TARGET_NOT_INTERNAL) / canonical があって移転先と同じ
+        (REDIRECT_NO_CANONICAL / REDIRECT_CANONICAL_MISMATCH) / 自分へ飛ばない (REDIRECT_TO_SELF) / 毒が無い (6・7・12・13・14 と内部リンク)。
+        求めないもの: 記事としての体裁 (2・4・8・9・11)。スタブ同士は同文で当然なので重複関所の対象外
 
 --mode report: 判定は block と同一、exit だけ 0。内訳を1行で出す。CI は qa/aeo 全ページをこれで毎回見る。
 
@@ -139,3 +148,19 @@ qa/ と aeo/ の 148 ページが門の外にあり、Google に索引されな�
   壊れた root 相対と絶対内部リンク、裸相対、ディレクトリ形 canonical、ルート逆リンク無し、robots 無し、noindex、MOAT、ダッシュ、
   ゼロ幅、未知の名前空間を弾く。**member のページに /souba/ への href を置いても金額は弾かれる** (content の緩さが member に漏れていない証明)。1,496 / 1,496
 - 実欠陥 194 件を同日に修正 (meta 90 ページ、一覧の裸相対 18 本)。近似重複 14 組は残し、report で見え続ける
+
+### v1.3.1 (2026-09-04) ・ 門の外に名前空間を残さない
+v1.3.0 で qa/aeo だけを入れたのは、また 1 ケースの直しだった。外部の検証者が同日に指摘した失敗の型
+(1 ケースのために作った直しが兄弟へ一般化されず残る) を、自分の門に当てて見つけた。
+- faq/ blog/ souba/ も content。faq は 35/35 が通り blocking へ。blog 86 / souba 455 は report
+- 移転スタブ (redirect) を content の中の種類として認める。blog 25 本 / souba 170 本が「表示先を差し替える道具」として
+  8 件ずつ落ちていたのは取り違え。スタブには毒検査と移転先の検査だけを当てる
+- content の裸相対は実在すれば可。souba の領収ページ 20 本が claim.txt / proof.ots へ裸相対で繋いでいたのは正当
+- content のリンクは script/style を剥いで見る。souba の 57 本の '+REVERSE+' は JS の文字列で、href ではなかった
+- redteam.py に 21 手: faq/blog/souba を通す、スタブ 3 手を通す、壊れた移転先 / 外部への移転 / canonical 無し・二重・不一致 /
+  自分への移転 / MOAT / ダッシュ / base / refresh だけ / noindex だけ を弾く、**member に三つ揃いのスタブを置いても refresh は禁止のまま**、
+  実在する裸相対と ../ を通す、JS の '+X+' を href と取らない、リポジトリの外へ抜ける ../../ を弾く。1,517 / 1,517
+- 実測と同日修正: souba 72 → 423 / 455 (スタブ 170 に canonical、「全国版へ」の薄い県別 65 を正式な移転スタブに、robots 116、author 32、</html> 5)、
+  blog 36 → 83 / 86 (author 25、robots 21)。差分はすべて差した行だけ、削除 0
+- 門が見つけて門では直せないもの: souba の em ダッシュ 31 ページ / MOAT 語と同じ数字 1 ページ (公表統計かどうかは代表の判断) /
+  雛形の近似重複 74 組、blog の出典なし金額 2 本 / JSON-LD 無し 1 / 重複 1 組、faq の近似重複 8 組
