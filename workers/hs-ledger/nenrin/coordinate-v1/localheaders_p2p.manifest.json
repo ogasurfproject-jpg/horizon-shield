@@ -1,0 +1,69 @@
+{
+ "schema": "nenrin-localheaders-manifest-1",
+ "chain": "bitcoin",
+ "courier": "bitcoin p2p getheaders",
+ "peers": {
+  "104.1.125.109:8333": {
+   "tip_height": 965453,
+   "headers": 3822
+  },
+  "24.105.161.11:8333": {
+   "tip_height": 965454,
+   "headers": 3823
+  },
+  "45.190.208.56:8333": {
+   "tip_height": 965454,
+   "headers": 3823
+  }
+ },
+ "peers_failed": {},
+ "min_peers": 2,
+ "synced_at": 1788513093,
+ "start_height": 961632,
+ "count": 3823,
+ "tip_height": 965454,
+ "tip_hash": "0000000000000000000189026da7d21f973d0cc81df1a4d920d68cbe10d127fa",
+ "tip_time": 1788513056,
+ "chainwork_hex": "6b8b8d0cb2c334155428389",
+ "sha256": "888151bb1b8b7566132a4e5d9385e34ee3db06651263ce77d6872a2a7fa9f194",
+ "start_prev_hash": "00000000000000000000807f9dc917442a67910426d79ebb2f8aa2149327ce8a",
+ "start_bits": 386022100,
+ "prior_times": [
+  1786215123,
+  1786215153,
+  1786215408,
+  1786216475,
+  1786216537,
+  1786216594,
+  1786216717,
+  1786217145,
+  1786217271,
+  1786217311,
+  1786217628
+ ],
+ "checkpoints": {
+  "961632": "00000000000000000000d1e01392faa65ceeaed307f0a3159144b84146ff24ba",
+  "963648": "00000000000000000001769d9a327f5b455aa8a2dd407b1b63040d2a9f832d32",
+  "965451": "00000000000000000000e9f3195446ee74b371312941d73e8fdddab86499b499",
+  "965454": "0000000000000000000189026da7d21f973d0cc81df1a4d920d68cbe10d127fa"
+ },
+ "retarget_verified_at": [
+  963648
+ ],
+ "unverified": [
+  {
+   "height": 961632,
+   "check": "retarget",
+   "why": "first block of the previous period (height 959616) is not in the file"
+  }
+ ],
+ "future_check": "done",
+ "compare": {
+  "file": "localheaders_mainnet.bin",
+  "common_headers": 3820,
+  "byte_identical": true,
+  "sha256_common_from_p2p": "b7c8ddefff198c865f3e27ec86d6d02d26ff4778158e4380f66d2c97ebaed367",
+  "sha256_common_from_file": "b7c8ddefff198c865f3e27ec86d6d02d26ff4778158e4380f66d2c97ebaed367"
+ },
+ "note": "no HTTP explorer in the path. headers came from full nodes over the peer to peer protocol, were validated by consensus rules, and had to agree byte for byte across peers before anything was written."
+}
