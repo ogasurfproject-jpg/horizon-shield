@@ -82,8 +82,9 @@ judged, only its absence) and `POST /watch` once. A row can then reach `verified
 
 **For your CI.** One step measures the server on every push and recomputes the verdict hash on the runner,
 so the gate is never trusted:
-[mcp-conduct-action](https://github.com/ogasurfproject-jpg/mcp-conduct-action)
-(`uses: ogasurfproject-jpg/mcp-conduct-action@v1`).
+[wedjat-check-action](https://github.com/ogasurfproject-jpg/wedjat-check-action)
+(`uses: ogasurfproject-jpg/wedjat-check-action@v1`). It fails the job on a measured failure and leaves
+unmeasured conditions unmeasured; `require` and `must_pass` decide how strict that is.
 
 **For the agent that connects.** [`mcp-conduct`](https://www.npmjs.com/package/mcp-conduct) on npm
 (zero dependencies) reads `/is-verified` before an MCP client connects and applies a policy you choose:

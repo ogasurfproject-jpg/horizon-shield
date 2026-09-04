@@ -1,0 +1,2 @@
+.gitignore
+workers/hs-ledger/seed_entry_witness_state_0001.json

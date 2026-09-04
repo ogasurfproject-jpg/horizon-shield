@@ -669,3 +669,29 @@ GitHub API で直近 40 走行を引いた。20:03 JST の MCP registry publish 
 - `npm warn publish "repository.url" was normalized` → package.json の repository.url を `git+https://…/mcp-conduct.git` に直して 0.1.1 にするのは後日(publish のたびに TOshi の 2FA 承認が要る)
 - ops/posts_20260905.md: LinkedIn(英語、レストランの検査シールの例え、npm と CI と well-known の 3 つの扉、「今は自社だけ」を明記)、X(日本語、長い版 + 140 字版)、Bluesky(296 字)。送るのは TOshi
 - README.md に「Three ways in, none of which need us」節(well-known / mcp-conduct-action@v1 / npm mcp-conduct、最後に「今は自社だけ」)。commit は TOshi
+
+## 18. 番人の二重作りと、その始末(2026-09-05 08:30 JST)
+
+TOshi「verify-directory を Anthropic にも出したい」→ 番人がページを読んで、**自分の落ち度を 2 つ見つけた**。
+
+- **落ち度 1**: verify-directory には既に「Claude で使う」の節(#assistant)が在った(Claude Code の 1 行 / Desktop / Cursor / VS Code / ChatGPT / GitHub Actions / 生の curl、09-03 に作った物)。番人は見んまま「無いから作ろう」と言うた
+- **落ち度 2、こっちが重い**: GitHub Action も既に在った。`ogasurfproject-jpg/wedjat-check-action`(09-03 push、v1 タグ、check.mjs)。番人は 09-04 の夜、それを知らんまま `mcp-conduct-action` を作り、TOshi に repo 作成と npm の 2FA まで踏ませた。**先に repo を見んかった番人の落ち度**。TOshi の時間を 1 回無駄にした
+- 機能は先に在った方が上: `require` が 3 段階(measured-pass 既定 / verified / none)、`must_pass` で条件を名指し、`unmeasured_conditions` を独立の output に。番人の方は fail の可否 1 つだけ
+
+### 18.1 始末(TOshi「お前の推奨でいく」)
+
+- **正本は wedjat-check-action@v1**。理由: 先に在った、機能が上、verify-directory の EN/JA が既にそっちを指しとる
+- `mcp-conduct-action` は **消さん**(09-04 夜に ToolOracle/ampeloracle#1 と arcadeai-labs/smithery-cli#810 で URL を外に出した。死んだリンクは誰の得にもならん)。README を統合の告知に差し替え、archive する。中身は git 履歴に残る
+- npm の `mcp-conduct` は **重複やない**(繋ぐ側のライブラリ、Action とは別物)。そのまま残す
+- 番人が直した: horizon-shield README.md の CI 節、ops の文面 32 か所(outreach_A_batch 20 / outreach_A 4 / issue 2 本 / posts / doujin / asu / WELLKNOWN 草案)。既に送った 2 通の issue の URL は直せんが、統合告知がその先で受ける
+
+### 18.2 ついでに埋めた、本当に足りとらんかった 2 つ
+
+- verify-directory(EN/JA)の #assistant に **npm `mcp-conduct` のカード**(依存ゼロ、繋ぐ前に登録簿を読む、policy 4 つ、verified は true か null で false 無し)
+- #listed の手順に **`/.well-known/mcp-conduct.json` の同意ファイル**(扉 0.2.4)を 1 段追加。「申告では tool を呼ばん、origin に置けるのは所有者だけ、置かんでも determinism が未測定になるだけで落第やない」
+- footer の古い表記 `JCCDB v3.1, 10.5281/zenodo.21898745` → `JCCDB v4.0, 95,403 items, ...`(G空間の掲載と一致)
+
+### 18.3 Anthropic に扉(gate)を出す件
+
+- 出すのはページやなく MCP サーバー: endpoint `https://gate.horizonshield.dev/mcp` 、ツール 5 本(get_conditions / check_conformance / verify_verdict / lookup_server / is_verified、全部 read only)、website `/verify-directory/` 、privacy `/verify-directory/privacy/` 、icon は workers/hs-verify-gate/icon.png の raw URL
+- **順番**: HORIZON SHIELD の self-serve 管理権が付いてから、その画面で 2 件目として出す。今 2 件目を投げると先方の中で混ざる。09-08(火)まで折り返しが無ければ、現行ポータルから 2 件並べて出し直す

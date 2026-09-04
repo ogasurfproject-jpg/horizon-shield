@@ -1,0 +1,3 @@
+workers/hs-mcp-observatory/server.json
+workers/hs-mcp-observatory/README.md
+workers/hs-mcp-observatory/wrangler.jsonc

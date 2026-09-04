@@ -1,0 +1,14 @@
+workers/hs-ledger/nenrin/coordinate-v1/NENRIN_COORDINATE_v1_ADDENDUM_localheaders_v1.md
+workers/hs-ledger/seed_entry_coordinate_v1_addendum_localheaders_v1.json
+workers/hs-ledger/make_coordinate_localheaders_seed.py
+workers/hs-ledger/nenrin/coordinate-v1/localheaders.py
+workers/hs-ledger/nenrin/coordinate-v1/localheaders_redteam.py
+workers/hs-ledger/nenrin/coordinate-v1/sync_headers.py
+workers/hs-ledger/nenrin/coordinate-v1/sources_live.py
+workers/hs-ledger/nenrin/coordinate-v1/freshness_live.py
+workers/hs-ledger/nenrin/coordinate-v1/localheaders_mainnet.bin
+workers/hs-ledger/nenrin/coordinate-v1/localheaders_mainnet.manifest.json
+workers/hs-ledger/nenrin/coordinate-v1/localheaders_mainnet_mempool.bin
+workers/hs-ledger/nenrin/coordinate-v1/localheaders_mainnet_mempool.manifest.json
+workers/hs-ledger/nenrin/coordinate-v1/explorer_blockstream_snapshot.json
+workers/hs-ledger/nenrin/coordinate-v1/explorer_mempool_snapshot.json

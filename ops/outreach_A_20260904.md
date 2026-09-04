@@ -19,7 +19,7 @@
 
     Two things you can do with it, both free. Run it on your 54 endpoints and take the badges. And read GET https://gate.horizonshield.dev/is-verified?endpoint=<url> next to your routing: it returns verified true only on a full pass, null otherwise, never false, with a record sha256 and a recompute URL, so you are not asked to trust the gate.
 
-    If your servers deploy from GitHub, one step in the workflow does the same check on every push and recomputes the verdict hash on the runner, so the gate is never trusted: uses: ogasurfproject-jpg/mcp-conduct-action@main (https://github.com/ogasurfproject-jpg/mcp-conduct-action)
+    If your servers deploy from GitHub, one step in the workflow does the same check on every push and recomputes the verdict hash on the runner, so the gate is never trusted: uses: ogasurfproject-jpg/wedjat-check-action@v1 (https://github.com/ogasurfproject-jpg/wedjat-check-action)
 
     Your rows from the walk, with the hash of each record: https://observatory.horizonshield.dev/lookup?host=tooloracle.io
     What the badge does and does not claim: https://shield.the-horizons-innovation.com/verify-directory/badge/
@@ -49,13 +49,13 @@
 
     If a field next to a listing is too much, a link from the listing to the row is enough to start: https://gate.horizonshield.dev/e/mcp.horizonshield.dev/mcp
 
-    For operators who deploy from GitHub there is a one step Action that runs the same check in their CI, so a listing can point its operators at it instead of at us: https://github.com/ogasurfproject-jpg/mcp-conduct-action
+    For operators who deploy from GitHub there is a one step Action that runs the same check in their CI, so a listing can point its operators at it instead of at us: https://github.com/ogasurfproject-jpg/wedjat-check-action
 
     Toshikatsu Oga, The HORIZONs Co., Ltd.
 
 ## 送る前に TOshi が確かめること
 
-- github.com/ogasurfproject-jpg/mcp-conduct-action は公開済み(2dc0774)。扉 0.2.4(well-known 同意)が本番に載っとるか: `curl -s https://gate.horizonshield.dev/spec | grep -o well_known_consent` で出ること。出んなら文面の well-known の 1 文を消して送る
+- github.com/ogasurfproject-jpg/wedjat-check-action は公開済み(2dc0774)。扉 0.2.4(well-known 同意)が本番に載っとるか: `curl -s https://gate.horizonshield.dev/spec | grep -o well_known_consent` で出ること。出んなら文面の well-known の 1 文を消して送る
 - 09-04 23:30 の実測(TOshi の Terminal、read only): tooloracle.io/ampel/mcp/ は 01 pass / 02 pass / 03 「compensation block not declared in agent-card」/ 04 not measured、record a8671fde…。文面の主張どおり。判定に consent_lookup(404 と置き方)が載った = 0.2.4 の well-known 経路が本番で動いとる最初の記録
 - 番人の訂正(09-04 22:45): 観測所の「開示済み 152 本」は card に payment / pricing 等の欄があった意味で、扉の条件 3 が読む compensation ブロックとは別物。相手が /check を叩けば条件 3 は落ちる。文面は「3 つの鍵を足せば通る」に直した。旧文の「already pass the hard condition」は誇張やった
 - observatory の lookup は host 指定で動くか: https://observatory.horizonshield.dev/lookup?host=tooloracle.io を一度ブラウザで開く(番人の VM からは届かん)

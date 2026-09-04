@@ -1,0 +1,10 @@
+workers/hs-ledger/nenrin/coordinate-v1/NENRIN_COORDINATE_v1_ADDENDUM_localheaders_v3.md
+workers/hs-ledger/nenrin/coordinate-v1/localheaders_stream.py
+workers/hs-ledger/nenrin/coordinate-v1/stream_redteam.py
+workers/hs-ledger/nenrin/coordinate-v1/sync_headers_p2p.py
+workers/hs-ledger/nenrin/coordinate-v1/p2p_redteam.py
+workers/hs-ledger/nenrin/coordinate-v1/genesis_window_check.py
+workers/hs-ledger/nenrin/coordinate-v1/localheaders_full.manifest.json
+workers/hs-ledger/make_coordinate_localheaders_v3_seed.py
+workers/hs-ledger/seed_entry_coordinate_v1_addendum_localheaders_v3.json
+.gitignore

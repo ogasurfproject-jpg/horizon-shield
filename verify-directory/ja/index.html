@@ -211,6 +211,16 @@
     </div>
 
     <div class="card">
+      <h3>自分のエージェントの中で、繋ぐ前に</h3>
+      <p>依存ゼロのnpmパッケージ。MCPクライアントが接続を開く前に登録簿を読み、あなたが選んだ方針で判断します（<span class="mono">warn</span> / <span class="mono">measured</span> / <span class="mono">verified-only</span> / <span class="mono">off</span>）。<span class="mono">verified</span> は true か null だけで、false にはなりません。測っていないものが「落第」に見えることは絶対にありません。</p>
+      <pre class="cmd" id="ja-npm">npm i mcp-conduct</pre>
+      <div class="cardrow">
+        <a class="go" href="https://www.npmjs.com/package/mcp-conduct" rel="noopener">npmで見る</a>
+        <button class="copybtn" type="button" data-copy="ja-npm">コピー</button>
+      </div>
+    </div>
+
+    <div class="card">
       <h3>GitHub Actions（pushのたびに）</h3>
       <p>アシスタントではありませんが、サーバーが作られる場所そのものです。窓口を測り、<b>ハッシュをあなたのジョブの中で計算し直し</b>、測って落ちたらビルドを止めます。測れなかったものは、測れなかったままにします。</p>
       <pre class="cmd" id="ja-gha">- uses: ogasurfproject-jpg/wedjat-check-action@v1

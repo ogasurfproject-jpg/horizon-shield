@@ -696,6 +696,15 @@ a.regname:hover{border-bottom-style:solid}
         </div>
       </div>
       <div class="c">
+        <h4>Inside your own agent, before it connects</h4>
+        <p>A zero dependency npm package that reads the register before an MCP client opens a connection, and applies a policy you choose: <span class="mono">warn</span>, <span class="mono">measured</span>, <span class="mono">verified-only</span> or <span class="mono">off</span>. <span class="mono">verified</span> is true or null, never false, so unmeasured never reads as failed.</p>
+        <pre id="cc-npm">npm i mcp-conduct</pre>
+        <div class="row">
+          <a class="preset" href="https://www.npmjs.com/package/mcp-conduct" rel="noopener">on npm</a>
+          <button class="preset copybtn" type="button" data-copy="cc-npm">copy</button>
+        </div>
+      </div>
+      <div class="c">
         <h4>Any other client</h4>
         <p>Plain JSON-RPC over HTTPS POST. No auth, no session state to keep, no SSE required. If your client can call <span class="mono">initialize</span> and <span class="mono">tools/list</span>, it can call this.</p>
         <pre id="cc-any">curl -s -X POST https://gate.horizonshield.dev/mcp \
@@ -737,6 +746,8 @@ a.regname:hover{border-bottom-style:solid}
     <ol class="steps">
       <li><h4>Measure yourself first, privately</h4>
         <p>One command, no key, no signup. The verdict names the condition that failed and why, so you can fix it before anyone else looks. No tool on your server is called unless you add <span class="mono">allow_tool_call: true</span>.</p></li>
+      <li><h4>Let the gate measure everything, from your own origin</h4>
+        <p>Determinism is the one condition that needs a tool call, and the gate will not make one on an assertion: anyone can claim to own a server. Publish <span class="mono">/.well-known/mcp-conduct.json</span> on the origin with <span class="mono">{"allow_tool_call": true}</span> and the gate takes that as consent, because only the owner of an origin can place a file there. Every verdict then records where and when it read the file (<span class="mono">consent_source: well_known</span>). Optional, and skipping it only means determinism stays unmeasured, never failed. Since gate 0.2.4.</p></li>
       <li><h4>Open an issue on GitHub</h4>
         <p>Public, with a template. Submissions are visible to everyone, <b>including the ones that failed</b>. There is no private queue and no fast lane. You may open one even if you failed. Ask why, and the answer is free.</p></li>
       <li><h4>We re-measure in public and reply with the hash</h4>
@@ -773,7 +784,7 @@ a.regname:hover{border-bottom-style:solid}
   <div class="wrap">
     <div class="top">Corrections are welcome and are treated as defects. If a row here is wrong, or a condition measures differently on your side, say so and it is re-measured in public.</div>
     Operator: The HORIZONs Co., Ltd. (Corporate Number 7021001075279). Supervised by Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>), 30 years on construction sites.<br>
-    Underlying dataset: <a href="https://doi.org/10.5281/zenodo.21898745">JCCDB v3.1, 10.5281/zenodo.21898745, CC BY 4.0</a> · accompanying paper: <a href="https://doi.org/10.5281/zenodo.20019573">10.5281/zenodo.20019573</a><br>
+    Underlying dataset: <a href="https://doi.org/10.5281/zenodo.21898745">JCCDB v4.0, 95,403 items, 10.5281/zenodo.21898745, CC BY 4.0</a> · accompanying paper: <a href="https://doi.org/10.5281/zenodo.20019573">10.5281/zenodo.20019573</a><br>
     <a href="/verify-directory/badge/">Badge</a> · <a href="https://gate.horizonshield.dev/spec">Verification spec</a> · <a href="https://gate.horizonshield.dev/self">The checker's verdict on itself</a> · <a href="/tokusho">Legal notice</a><br>
     Zero referral fees. Verdicts, scores and listing order are not for sale. This page describes tamper-resistance, not the validity of any ruleset over time.<br><br>
     © 2026 The HORIZONs Co., Ltd. · HORIZON SHIELD

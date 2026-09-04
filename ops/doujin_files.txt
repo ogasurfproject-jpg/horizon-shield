@@ -1,0 +1,2 @@
+ops/doujin_20260904.md
+ops/badge_cohort_disclosers_20260904.tsv

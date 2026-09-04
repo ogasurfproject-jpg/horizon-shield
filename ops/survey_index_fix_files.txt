@@ -1,0 +1,2 @@
+tools/survey/build_dataset_index.py
+verify-directory/survey/data/index.json

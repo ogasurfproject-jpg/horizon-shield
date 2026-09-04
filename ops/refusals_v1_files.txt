@@ -1,0 +1,8 @@
+workers/hs-ledger/nenrin/coordinate-v1/NENRIN_COORDINATE_v1_ADDENDUM_refusals_v1.md
+workers/hs-ledger/nenrin/coordinate-v1/sync_headers_p2p.py
+workers/hs-ledger/nenrin/coordinate-v1/p2p_redteam.py
+workers/hs-ledger/nenrin/coordinate-v1/make_refusal_seed.py
+workers/hs-ledger/nenrin/coordinate-v1/refusal_record_redteam_c07.json
+workers/hs-ledger/make_coordinate_refusals_v1_seed.py
+workers/hs-ledger/seed_entry_refusal_redteam_c07.json
+workers/hs-ledger/seed_entry_coordinate_v1_addendum_refusals_v1.json
