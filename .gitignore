@@ -229,3 +229,4 @@ workers/hs-ledger/nenrin/coordinate-v1/localheaders_full.bin
 workers/hs-ledger/claim_*.txt
 workers/hs-ledger/claim_*.txt.ots
 workers/hs-ledger/claim_*.txt.ots.bak
+ops/*.tgz
