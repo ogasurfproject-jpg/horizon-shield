@@ -1,4 +1,4 @@
-// hs-mcp-observatory — 公式MCPレジストリの実測を、誰でも引ける口。
+// hs-mcp-observatory: 公式MCPレジストリの実測を、誰でも引ける口。
 //
 // 鍵は無い。これは公開の記録である。
 // 内部MCP(hs-nursing-mcp)とは逆で、閉じる理由が無い。
@@ -17,5 +17,7 @@
   "compatibility_date": "2026-05-18",
   "account_id": "c15ff64aba400e541853dec1fbe5e76a",
   "workers_dev": true,
+  // 2026-09-04: レジストリ掲載用の固定ドメイン。deploy で有効になる(dashboard 操作は不要)。
+  "routes": [ { "pattern": "observatory.horizonshield.dev", "custom_domain": true } ],
   "observability": { "enabled": true }
 }

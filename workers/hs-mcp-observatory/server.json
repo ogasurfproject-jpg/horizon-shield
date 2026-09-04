@@ -1,0 +1,28 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ogasurfproject-jpg/hs-mcp-observatory",
+  "title": "MCP Observatory: what answered when every https endpoint in the official registry was contacted once",
+  "description": "Public record of one read-only walk over the official MCP registry (2026-08-23): who answered, how many tools, who names their payer. Record hashes, recompute procedure.",
+  "version": "0.1.0",
+  "websiteUrl": "https://shield.the-horizons-innovation.com/verify-directory/survey/1/",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/icon.png",
+      "mimeType": "image/png",
+      "sizes": [
+        "512x512"
+      ]
+    }
+  ],
+  "repository": {
+    "url": "https://github.com/ogasurfproject-jpg/horizon-shield",
+    "source": "github",
+    "subfolder": "workers/hs-mcp-observatory"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://observatory.horizonshield.dev/mcp"
+    }
+  ]
+}
