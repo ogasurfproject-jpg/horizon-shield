@@ -70,6 +70,30 @@ so the register can be cited the way a dataset is cited, and an
 [`llms.txt`](https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/llms.txt)
 that states in plain words what the register is and, more importantly, what it is not.
 
+## Three ways in, none of which need us
+
+Since 2026-09-04 the gate can be used without asking anyone at HORIZON SHIELD.
+
+**For the server you operate.** Put `{"allow_tool_call": true}` at `/.well-known/mcp-conduct.json` on your
+origin. Only the owner of an origin can place a file there, so the gate takes it as consent, measures
+determinism on the public register with it, and writes into every verdict where it read it (gate 0.2.4).
+Add a `compensation` block to your agent card (`paid_by`, `referral_fee`, `listing_fee`; the content is not
+judged, only its absence) and `POST /watch` once. A row can then reach `verified` with no hand of ours involved.
+
+**For your CI.** One step measures the server on every push and recomputes the verdict hash on the runner,
+so the gate is never trusted:
+[mcp-conduct-action](https://github.com/ogasurfproject-jpg/mcp-conduct-action)
+(`uses: ogasurfproject-jpg/mcp-conduct-action@v1`).
+
+**For the agent that connects.** [`mcp-conduct`](https://www.npmjs.com/package/mcp-conduct) on npm
+(zero dependencies) reads `/is-verified` before an MCP client connects and applies a policy you choose:
+`warn`, `measured` (block only what was measured and did not pass), `verified-only`, or `off`.
+`verified` is `true` or `null`, never `false`; not measured is never failed. Source:
+[mcp-conduct](https://github.com/ogasurfproject-jpg/mcp-conduct).
+
+Stated plainly: as of 2026-09-05 the register holds our own servers and nobody else's. The doors are open;
+the first outside row has not walked through yet.
+
 ## JIDEC: verify this project without trusting it
 
 The verification process behind HORIZON SHIELD's results is published as a Bitcoin anchored, append only public ledger. You do not have to trust us: fetch the anchored bytes, hash them yourself, and check the timestamp.

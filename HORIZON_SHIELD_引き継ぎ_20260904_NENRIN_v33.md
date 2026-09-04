@@ -653,3 +653,19 @@ GitHub API で直近 40 走行を引いた。20:03 JST の MCP registry publish 
 - ops/outreach_miru_20260905.md: 見る側 3 通(TWZRD = 「spend の門と conduct の門、2 つの hash を並べろ」、fingers = 「trust ranking の横に conduct の signal」、SaSame = 「review what happened の前に what was declared」)。3 社とも自分の server が 152 本に入っとるから最後の 1 段落で「自分の行も取れる(3 鍵 + 同意ファイル)」
 - ops/asu_20260905.md: 明日の実行票。0 朝の commit → 1 GSC 6 本(URL を canonical から確定: faq/mitsumori-yukokigen-neage、souba/yane-check、souba/yane-fukikae-slate-hiyou、aeo/リフォーム-相見積もり-コツ.html、aeo/火災保険-リフォーム詐欺.html、faq/tenken-shoho-kimari-monku)+ ゴミ sitemap 削除(正は sitemap.xml 1 本、robots.txt 28 行目)→ 2 ToolOracle → 3 Smithery → 4 フェデリコ → 5 見る側 3 通 → 6 乗る側 11 社(口の無い 4 社と重複を除いた数)→ 7 物差し → 8 番人の仕事
 - 扉の cron は 0 18 * * * UTC = 03:00 JST(deploy 出力より)。登録簿に他社の行が乗ったら、consent_source が well_known で読めとるかを最初に見る
+
+### 17.10 00:10〜01:00 JST(09-05): 「今日から客を募れ、必ず通るインフラを作れ」
+
+- 番人の答え(TOshi に送った): 「必ず」は力では作れん。通らん方が損になる場所に扉を置くだけ。場所は 3 つ = 繋ぐ側(クライアント)、一覧(レジストリ)、払う瞬間(x402 / AP2)。加えて形を標準にする(誰が測っても形はうちの形)
+- 投稿: Chrome 拡張 offline、内蔵ブラウザは github.com を高リスクで 1 動作ごと承認 + 初回読み込み拒否 → TOshi の Terminal から `gh issue create`。番人が相手の repo を調べた: ToolOracle は個人アカウント 92 repo で Discussions 無し → 測った endpoint の repo `ToolOracle/ampeloracle`。Smithery の cli は `arcadeai-labs/smithery-cli`(833 星)へ移転。本文は ops/issue_tooloracle_ampeloracle.md / ops/issue_smithery_cli.md(+ .title)。**立った: ToolOracle/ampeloracle#1、arcadeai-labs/smithery-cli#810**(API で open 確認、投稿者 ogasurfproject-jpg)。TWZRD は Gmail に下書き(hello@twzrd.xyz)→ TOshi「送信したぞ」
+- **mcp-conduct**(npm、依存ゼロ、Node 18+、試験 17/17、ops/mcp-conduct_20260905.tgz sha256 e03f9ba39ce18a2b…): 繋ぐ直前に /is-verified を読み、policy(warn 既定 / measured / verified-only / off)で止めるか決める。verified は true か null だけ。扉が読めん時は unavailable(サーバーの判定やない)。`guard(client)` で MCP SDK の connect を包む(transport の _url から endpoint)。`checkFresh()` は POST /check + 判定 hash の再計算(同意は申告せん)。`checkMany()` は /feed/batch 50 本ずつ。名前 mcp-conduct は npm で空き(404 確認)。TOshi の手: tar 展開 → npm test → git init → gh repo create ogasurfproject-jpg/mcp-conduct → npm whoami → npm publish
+- **標準の提案書の下書き** ops/MCP_CONDUCT_WELLKNOWN_v1_draft.md: /.well-known/mcp-conduct.json v1 = version / allow_tool_call / endpoints / compensation(card と同じ形)/ contact。所有者だけが置ける場所に「同意」と「誰が払うか」を置く。card との不一致は報告して選ばん(提案、未実装と明記)。origin 単位の限界を明記。公開質問 3 つ。出す先は MCP の Discussion / SEP と A2A。TOshi が読んでから
+- 正直な位置: 繋ぐ側の部品は「入れた人だけ」に効く。必ずにするには SDK の例、LangChain / OpenAI Agents の MCP 接続部、Claude Desktop の設定に既定で入ること。提案書はそのための紙
+
+### 17.11 23:20〜23:40 JST: npm 公開、投稿 3 本、README
+
+- **mcp-conduct 0.1.0 が npm に公開**(14:26:30 UTC、maintainer horizonshield、shasum 8f8a92f898a9947f932c20dad656be5c832e5132、registry で確認)。TOshi が npm アカウント horizonshield を作成(メール contact@、2FA = security key、GitHub 連携 ogasurfproject-jpg、Full Name The HORIZONs Co., Ltd.)。番人はアカウント作成・パスワード・2FA・recovery codes に一切触れとらん(掟)。途中の躓き: npm login の「Press ENTER」で文字を打って旧方式に落ちた → Enter だけで通る。publish の 403 は 2FA 未設定 → 設定後にブラウザ承認で通った
+- mcp-conduct のリポ: c259cf3 → 6bf56d2(Node 18 修正)。CI は次の走行で 3 本緑のはず
+- `npm warn publish "repository.url" was normalized` → package.json の repository.url を `git+https://…/mcp-conduct.git` に直して 0.1.1 にするのは後日(publish のたびに TOshi の 2FA 承認が要る)
+- ops/posts_20260905.md: LinkedIn(英語、レストランの検査シールの例え、npm と CI と well-known の 3 つの扉、「今は自社だけ」を明記)、X(日本語、長い版 + 140 字版)、Bluesky(296 字)。送るのは TOshi
+- README.md に「Three ways in, none of which need us」節(well-known / mcp-conduct-action@v1 / npm mcp-conduct、最後に「今は自社だけ」)。commit は TOshi
