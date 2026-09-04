@@ -1,0 +1,31 @@
+# Our own servers through the same door as everyone else. Report mode: a red row is a fact to publish, not a build to hide.
+name: MCP conduct (own servers)
+on:
+  schedule:
+    - cron: "30 3 * * 1"
+  workflow_dispatch:
+jobs:
+  conduct:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        endpoint:
+          - https://mcp.horizonshield.dev/mcp
+          - https://web.horizonshield.dev/mcp
+          - https://hearing.horizonshield.dev/mcp
+          - https://jidec.horizonshield.dev/mcp
+          - https://gate.horizonshield.dev/mcp
+          - https://femtech.horizonshield.dev/mcp
+    steps:
+      - uses: ogasurfproject-jpg/mcp-conduct-action@main
+        id: conduct
+        with:
+          endpoint: ${{ matrix.endpoint }}
+          allow_tool_call: "true"
+          fail_on_not_verified: "false"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verdict-${{ strategy.job-index }}
+          path: ${{ steps.conduct.outputs.verdict_path }}
+          retention-days: 30
