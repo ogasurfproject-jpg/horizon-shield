@@ -1,0 +1,46 @@
+{
+ "schema": "nenrin-localheaders-manifest-1",
+ "chain": "bitcoin",
+ "explorer": "mempool",
+ "explorer_base": "https://mempool.space/api",
+ "synced_at": 1788511928,
+ "start_height": 961632,
+ "count": 3821,
+ "tip_height": 965452,
+ "tip_hash": "00000000000000000001906f4769930973ed17a5a6916427533f9199cc5705a0",
+ "tip_time": 1788511673,
+ "chainwork_hex": "6b7d3f86a1c9d36a4f342fb",
+ "sha256": "b8803f63305640daefeae5f9eda14a7bd10873af023526791cff0662db39e56b",
+ "start_prev_hash": "00000000000000000000807f9dc917442a67910426d79ebb2f8aa2149327ce8a",
+ "start_bits": 386022100,
+ "prior_times": [
+  1786215123,
+  1786215153,
+  1786215408,
+  1786216475,
+  1786216537,
+  1786216594,
+  1786216717,
+  1786217145,
+  1786217271,
+  1786217311,
+  1786217628
+ ],
+ "checkpoints": {
+  "961632": "00000000000000000000d1e01392faa65ceeaed307f0a3159144b84146ff24ba",
+  "963648": "00000000000000000001769d9a327f5b455aa8a2dd407b1b63040d2a9f832d32",
+  "965452": "00000000000000000001906f4769930973ed17a5a6916427533f9199cc5705a0"
+ },
+ "retarget_verified_at": [
+  963648
+ ],
+ "unverified": [
+  {
+   "height": 961632,
+   "check": "retarget",
+   "why": "first block of the previous period (height 959616) is not in the file"
+  }
+ ],
+ "future_check": "done",
+ "note": "value is the block hash in display order, time is the header nTime. the explorer was a courier, not a source of truth: every header was rebuilt from fields, hashed, linked, proven and retargeted locally."
+}

@@ -1,0 +1,46 @@
+{
+ "schema": "nenrin-localheaders-manifest-1",
+ "chain": "bitcoin",
+ "explorer": "blockstream",
+ "explorer_base": "https://blockstream.info/api",
+ "synced_at": 1788511471,
+ "start_height": 961632,
+ "count": 3820,
+ "tip_height": 965451,
+ "tip_hash": "00000000000000000000e9f3195446ee74b371312941d73e8fdddab86499b499",
+ "tip_time": 1788510662,
+ "chainwork_hex": "6b7618c3994d2314ccba2b4",
+ "sha256": "b7c8ddefff198c865f3e27ec86d6d02d26ff4778158e4380f66d2c97ebaed367",
+ "start_prev_hash": "00000000000000000000807f9dc917442a67910426d79ebb2f8aa2149327ce8a",
+ "start_bits": 386022100,
+ "prior_times": [
+  1786215123,
+  1786215153,
+  1786215408,
+  1786216475,
+  1786216537,
+  1786216594,
+  1786216717,
+  1786217145,
+  1786217271,
+  1786217311,
+  1786217628
+ ],
+ "checkpoints": {
+  "961632": "00000000000000000000d1e01392faa65ceeaed307f0a3159144b84146ff24ba",
+  "963648": "00000000000000000001769d9a327f5b455aa8a2dd407b1b63040d2a9f832d32",
+  "965451": "00000000000000000000e9f3195446ee74b371312941d73e8fdddab86499b499"
+ },
+ "retarget_verified_at": [
+  963648
+ ],
+ "unverified": [
+  {
+   "height": 961632,
+   "check": "retarget",
+   "why": "first block of the previous period (height 959616) is not in the file"
+  }
+ ],
+ "future_check": "done",
+ "note": "value is the block hash in display order, time is the header nTime. the explorer was a courier, not a source of truth: every header was rebuilt from fields, hashed, linked, proven and retargeted locally."
+}
