@@ -6,6 +6,12 @@ name: pagecheck
 # 見るのは、その push で変わった yakumo/ と care/ のページだけ。
 # 全ページを毎回見ると、既知の問題(souba の3ページが互いに 76〜81% 一致)で
 # 毎回赤になり、誰も見なくなる。
+#
+# 2026-09-04 v1.3.0: qa/ と aeo/(記事の面)も門の守備範囲に入れた。
+#   blocking: その push で変わった qa/aeo ページ(yakumo/care と同じ扱い)。
+#   report:   qa/aeo 全ページを毎回 --mode report で走らせ、落とさずに内訳を出す。
+#             初回計測(2026-09-04)で残ったのは近似重複 14 組(22 ページ、うち 21 が Google 未登録)。
+#             文章の書き直しでしか消えないので、消えるまで毎回ここに出る。隠さない。
 
 on:
   push:
@@ -13,11 +19,15 @@ on:
     paths:
       - "yakumo/**/*.html"
       - "care/**/*.html"
+      - "qa/**/*.html"
+      - "aeo/**/*.html"
       - "tools/pagecheck/**"
   pull_request:
     paths:
       - "yakumo/**/*.html"
       - "care/**/*.html"
+      - "qa/**/*.html"
+      - "aeo/**/*.html"
       - "tools/pagecheck/**"
   workflow_dispatch:
 
@@ -52,13 +62,18 @@ jobs:
           fi
           echo "見る範囲: $RANGE"
           CHANGED=$(git diff --name-only --diff-filter=ACM $RANGE \
-                    | grep -E '^(yakumo|care)/.*\.html$' || true)
+                    | grep -E '^(yakumo|care|qa|aeo)/.*\.html$' || true)
           if [ -z "$CHANGED" ]; then
             echo "対象のページはありません。"
             exit 0
           fi
           echo "$CHANGED"
           python3 tools/pagecheck/validate.py --paths $CHANGED
+
+      - name: 記事の面(qa/ aeo/)を全ページ report で見る(落とさない)
+        if: always()
+        run: |
+          python3 tools/pagecheck/validate.py --mode report --paths $(ls qa/*.html aeo/*.html)
 
       - name: 門を敵として攻める(レッドチーム)
         run: python3 tools/pagecheck/redteam.py

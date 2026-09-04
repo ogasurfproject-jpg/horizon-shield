@@ -29,9 +29,21 @@
       いずれも HORIZON SHIELD ルートへのバックリンクは必須。
   - 内部リンクが絶対URL(https://shield.the-horizons-innovation.com/...)で壊れていない形
 
+v1.3.0 (2026-09-04): 名前空間に「種類」を入れた。
+  member  = yakumo/ care/  加盟店の面。上の条件をそのまま(金額非表示、モール/窓口への逆リンク)。一字も弱めていない。
+  content = qa/ aeo/       記事の面。金額と出典が中身そのもの。同じ規約を当てると取り違え(1,317件)になるので、
+                           取り違えの4点だけ content 用に読み替え、それ以外(MOAT / ダッシュ / robots / 不可視文字 /
+                           base・refresh / 実行時資源 / 重複)は member と同じ強さで当てる:
+      canonical は ファイルURL(.../qa/x.html。index.html だけ .../qa/)
+      金額は 出典への href があれば可。無ければ MONEY_WITHOUT_SOURCE(門を置いた理由そのもの: 出典のない金額)
+      root 相対リンク(/souba/ 等)は 実在すれば可。無ければ INTERNAL_LINK_BROKEN。裸相対(souba/..)は従来どおり不可
+      HS ルートへの逆リンクは href="/" でも可
+  --mode report で 落とさず findings だけ出す(exit 0)。既定は block。
+
 使い方:
-  python3 tools/yakumo/validate.py --manifest tools/yakumo/last_manifest.json
-  python3 tools/yakumo/validate.py --paths yakumo/souba/xxx/index.html ...
+  python3 tools/pagecheck/validate.py --manifest tools/yakumo/last_manifest.json
+  python3 tools/pagecheck/validate.py --paths yakumo/souba/xxx/index.html ...
+  python3 tools/pagecheck/validate.py --mode report --paths qa/*.html aeo/*.html
 """
 import argparse, json, sys, os, re
 import html as _html
@@ -57,7 +69,23 @@ BASE = "https://shield.the-horizons-innovation.com"
 MOAT_FORBIDDEN = [s[::-1] for s in ["5.23", "dlohserht_regnad", "CPW"]]  # 逆順表記(公開repoのgrep封印。機能は同一)
 FORBIDDEN_DASH = {"—": "EM", "–": "EN", "―": "BAR", "－": "FW_HYPHEN_MINUS", "‒": "FIGURE", "−": "MINUS", "⸺": "TWO_EM", "⸻": "THREE_EM", "﹘": "SMALL_EM", "﹣": "SMALL_FW_MINUS", "⁓": "SWUNG"}
 
-GATE_VERSION = "1.2.0"
+GATE_VERSION = "1.3.0"
+
+# v1.3.0: 名前空間の種類。member は加盟店の面(金額非表示)、content は記事の面(金額は出典つきで可)。
+#   ここに無い名前空間は UNKNOWN_NAMESPACE のまま(置き場所の取り違えは今までどおり弾く)。
+NAMESPACE_KIND = {"yakumo": "member", "care": "member", "qa": "content", "aeo": "content"}
+
+# content の金額に要る「出典」。href の宛先で見る(本文に「出典」と書くだけでは満たせない)。
+#   souba(相場DB) / JIDEC 台帳 / JCCDB の公開リポジトリと DOI / SSRN。root 相対でも絶対でも可。
+SOURCE_HREF_RE = re.compile(
+    r'href\s*=\s*["\'](?:' + re.escape(BASE) + r')?/souba/[^"\']*["\']'
+    r'|href\s*=\s*["\']https://ledger\.horizonshield\.dev/[^"\']*["\']'
+    r'|href\s*=\s*["\']https://github\.com/ogasurfproject-jpg/[^"\']*["\']'
+    r'|href\s*=\s*["\']https://(?:doi\.org|papers\.ssrn\.com|zenodo\.org)/[^"\']*["\']', re.I)
+
+def namespace_kind(relpath):
+    parts = _segments(relpath)
+    return NAMESPACE_KIND.get(parts[0]) if parts else None
 
 # 2026-08-30 v1.2.0: 個別の文字でなく「クラス」で弾く。
 #   Unicode の Pd(ダッシュ句読点)カテゴリは、許可した数文字を除いて全て禁止。
@@ -122,11 +150,44 @@ TAG_RE = re.compile(r'<[^>]+>')
 
 def path_to_canonical(relpath):
     # yakumo/souba/xxx/index.html -> https://.../yakumo/souba/xxx/
+    # v1.3.0 content: qa/x.html -> https://.../qa/x.html (ファイルがそのまま URL。index.html だけ .../qa/)
     rel = relpath.replace("\\", "/")
     rel = re.sub(r'/index\.html$', '/', rel)
+    if namespace_kind(rel) == "content" and rel.endswith(".html"):
+        return BASE + "/" + rel
     if not rel.endswith('/'):
         rel += '/'
     return BASE + "/" + rel
+
+
+def resolve_internal(href):
+    """v1.3.0: 内部リンクの宛先が、このリポジトリに実在するかを見る。True / False / None(内部でない)。"""
+    h = href
+    if h.startswith(BASE + "/"):
+        h = h[len(BASE):]
+    elif h.startswith(BASE) and len(h) == len(BASE):
+        h = "/"
+    if not h.startswith("/") or h.startswith("//"):
+        return None
+    h = h.split("#", 1)[0].split("?", 1)[0]
+    if not h:
+        return True
+    h = _html.unescape(h)
+    try:
+        from urllib.parse import unquote
+        h = unquote(h)
+    except Exception:
+        pass
+    p = os.path.normpath(os.path.join(REPO_ROOT, h.lstrip("/")))
+    if not p.startswith(REPO_ROOT):
+        return False
+    if h.endswith("/"):
+        return os.path.isfile(os.path.join(p, "index.html"))
+    if os.path.isfile(p):
+        return True
+    if os.path.isdir(p) and os.path.isfile(os.path.join(p, "index.html")):
+        return True
+    return False
 
 def _segments(relpath):
     return [p for p in relpath.replace("\\", "/").split("/") if p]
@@ -479,6 +540,9 @@ def check_page(relpath):
     vis = visible_text(html)
 
     # 金額(可視テキスト): 施主向けは非表示。ただし採用(/recruit/)は求人給与の表示が必要なため免除。
+    # v1.3.0 content: 同じ検出を全部走らせた上で、出典への href があれば金額は可。無ければ MONEY_WITHOUT_SOURCE 1件に畳む。
+    _kind = namespace_kind(relpath)
+    _money_start = len(errs)
     if not is_recruit_path(relpath):
         _alts = " ".join(re.findall(r'<img[^>]*\balt="([^"]*)"', html))
         _scope = vis + " " + _alts
@@ -522,6 +586,11 @@ def check_page(relpath):
             _m6 = find_money(normalize_text(js_unescape(_js)))
             if _m6:
                 errs.append("MONEY_IN_SCRIPT: " + _m6); break
+    if _kind == "content":
+        _money_found = errs[_money_start:]
+        del errs[_money_start:]
+        if _money_found and not SOURCE_HREF_RE.search(src_nc):
+            errs.append("MONEY_WITHOUT_SOURCE: %s (no href to /souba/, ledger, JCCDB repo, DOI or SSRN)" % _money_found[0])
 
     # バックリンク(認知度導線)
     #
@@ -546,18 +615,34 @@ def check_page(relpath):
             window = BASE + "/care/" + parts[1] + "/"
             if window not in html:
                 errs.append("NO_MEMBER_WINDOW_BACKLINK: " + window)
+    elif _kind == "content":
+        # v1.3.0: 記事の面。モールや窓口への逆リンクは求めない(HS ルートへの逆リンクは下で求める)。
+        pass
     else:
         # どの名前空間にも属していない。置き場所を取り違えている。
         errs.append("UNKNOWN_NAMESPACE: " + relpath)
 
-    if ('href="' + BASE + '/"') not in html and ('href="' + BASE + '"') not in html:
+    # HS ルートへの逆リンク。member は絶対URL。content は同じサイトの記事なので href="/" も可(v1.3.0)。
+    _root_hrefs = ['href="' + BASE + '/"', 'href="' + BASE + '"'] + (['href="/"'] if _kind == "content" else [])
+    if not any(h in html for h in _root_hrefs):
         errs.append("NO_HS_ROOT_BACKLINK")
-    elif ('href="' + BASE + '/"') not in src_nc and ('href="' + BASE + '"') not in src_nc:
+    elif not any(h in src_nc for h in _root_hrefs):
         errs.append("NO_HS_ROOT_BACKLINK_HREF")
 
     # 内部リンクの体裁(相対の壊れリンクを弾く: href="souba/..." のような裸相対は不可)
+    # v1.3.0 content: root 相対(/souba/ 等)と絶対URLの内部リンクは、宛先がこのリポジトリに実在することを求める。
+    _seen_links = set()
     for href in re.findall(r'href="([^"]+)"', html):
-        if href.startswith("#") or href.startswith("http") or href.startswith("mailto:") or href.startswith("tel:"):
+        if href.startswith("#") or href.startswith("mailto:") or href.startswith("tel:"):
+            continue
+        if _kind == "content" and (href.startswith("/") and not href.startswith("//") or href.startswith(BASE)):
+            if href in _seen_links:
+                continue
+            _seen_links.add(href)
+            if resolve_internal(href) is False:
+                errs.append("INTERNAL_LINK_BROKEN: " + href)
+            continue
+        if href.startswith("http"):
             continue
         errs.append("SUSPECT_RELATIVE_LINK: " + href)
 
@@ -620,10 +705,14 @@ def main():
     ap.add_argument("--paths", nargs="*")
     ap.add_argument("--root", help="ページを探す根。既定はこのリポジトリの根。"
                                    "リポジトリの外に書き出した束を試すときに使う。")
+    ap.add_argument("--mode", choices=["block", "report"], default="block",
+                    help="block(既定): 1枚でも落ちれば exit 1。report: 同じ判定を出して exit 0(v1.3.0、content 名前空間の実欠陥を数えるため)")
     a = ap.parse_args()
     if a.root:
         _set_root(a.root)
     print("見る根: %s" % REPO_ROOT)
+    if a.mode == "report":
+        print("mode: report(落とさない。判定は block と同一、exit だけ 0)")
 
     paths = []
     if a.manifest:
@@ -635,6 +724,7 @@ def main():
         print("検証対象なし(--manifest か --paths を指定)"); sys.exit(2)
 
     total_err = 0
+    _all_codes = []
     print("=== 八雲 生成コンテンツ プリフライト検証(fail-closed) 門 v%s ===" % GATE_VERSION)
     for p in paths:
         errs = check_page(p)
@@ -643,6 +733,7 @@ def main():
             print("  NG   " + p)
             for e in errs:
                 print("        - " + e)
+                _all_codes.append(re.split(r"[:(\[ ]", e, 1)[0])
         else:
             print("  PASS " + p)
 
@@ -653,10 +744,18 @@ def main():
         print("  NG   [DEDUP GATE]")
         for e in dup_errs:
             print("        - " + e)
+            _all_codes.append(re.split(r"[:(\[ ]", e, 1)[0])
     else:
         print("  PASS [DEDUP GATE] 重複なし")
     print("\n=== 検証結果: %d ページ / エラー %d 件 ===" % (len(paths), total_err))
     if total_err:
+        if a.mode == "report":
+            _codes = {}
+            for line in _all_codes:
+                _codes[line] = _codes.get(line, 0) + 1
+            print("report: 内訳 " + ", ".join("%s %d" % (k, v) for k, v in sorted(_codes.items(), key=lambda kv: -kv[1])))
+            print("report: 落とさない(exit 0)。同じ判定を block にすれば不適格になる。")
+            sys.exit(0)
         print("不適格。1枚でも落ちたらバッチ全体を公開しない(fail-closed)。")
         sys.exit(1)
     print("全ページ適格。公開可。")

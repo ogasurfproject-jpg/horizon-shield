@@ -99,3 +99,37 @@ alt 属性内の > による切断、unavailable_after、http-equiv X-Robots-Tag
 再現: `python3 tools/pagecheck/redteam.py` (1,475 / 1,475 が正常。約3秒、決定論的)。
 
 次にやること: conduct register (5条件、gate.horizonshield.dev) 側にも同じ「毒 x 置き場所 x 符号化」の敵を用意する。
+
+---
+
+## 第3回 2026-09-04 ・ 記事の面 (qa/ aeo/) を守備範囲に入れる (v1.3.0)
+
+### きっかけ
+souba.html の内部リンク修正 (2026-09-04) で qa/aeo 102 ページを門に当てたら 1,317 件で不適格。
+内訳が UNKNOWN_NAMESPACE 102 / MONEY_ON_PAGE 102 / CANONICAL_MISMATCH 98 / SUSPECT_RELATIVE_LINK 760 で、
+門が「加盟店の面」の規約を「記事の面」に当てて取り違えていた。同時に、Google に索引されない qa 53 / aeo 41 と
+「門が知らない名前空間」が同じ集合だった。代表の決裁: 報告で広げ、実欠陥を潰し、blocking に上げる。
+
+### やったこと
+名前空間の種類 (member / content) を入れ、content は 4 点だけ読み替え (canonical 形 / 出典つき金額 /
+逆リンクの宛先 / 実在する内部リンク)。member の判定は一字も変えない: 第2回の 1,475 手は全て同じ結果。
+content 用の 21 手を足した。うち 1 手は member への漏れ検査: yakumo のページに /souba/ への href を置いても
+金額は弾かれる。1,496 / 1,496。
+
+### 実測 (148 ページ、取り違えを読み替えた後)
+208 件、全部が実欠陥。NO_AUTHOR 90 / ROBOTS_TAG_COUNT 86 / SUSPECT_RELATIVE_LINK 18 / DUPLICATE_IN_BATCH 14。
+aeo 91 ページのうち 86 に robots meta が無く 89 に author が無かった。同日に 90 ページへ差し、一覧ページの
+裸相対 18 本を /aeo/ 付きにした (バックアップ tar と差分検証つき、変更行は差した meta と href だけ)。
+壊れた内部リンク 0、出典のない金額 0。
+
+### 門が見つけたが門では直せないもの
+近似重複 14 組 = 22 ページ。可視本文 1,700〜1,850 字、対で 63〜73% 同文。
+**22 ページ中 21 ページが Google の「クロール済み・未登録」に入っている。** 薄い雛形の焼き直しが索引されない理由で、
+これは文章を書き直す仕事。CI は qa/aeo 全ページを毎回 report で走らせ、消えるまで 14 組を出し続ける。
+
+### 正直に書く副産物
+blocking にした最初の push 自身が、aeo の重複 1 組 (断熱工事 ⇔ 雨漏り修理) を両方含むため赤になる。
+門が正しく働いた結果であり、その 2 ページを今回の push から外すか、赤を1回受けるかは代表の判断。
+
+修正は validate.py v1.3.0 / redteam.py (content 21 手) / POLICY.md v1.3.0 / pagecheck.yml (qa/aeo を blocking + report)。
+再現: `python3 tools/pagecheck/redteam.py` (1,496 / 1,496)、`python3 tools/pagecheck/validate.py --mode report --paths $(ls qa/*.html aeo/*.html)`。

@@ -223,3 +223,8 @@ gsc_*.csv
 
 # NENRIN localheaders v3: the whole header chain, 77MB, public chain, pinned by sha in entry 29 addendum, never committed
 workers/hs-ledger/nenrin/coordinate-v1/localheaders_full.bin
+
+# JIDEC: claim_N.txt is the record_canonical of entry N and its .ots is the proof; the ledger (ledger.horizonshield.dev/ledger/N and /ots) is the source, local copies are working files. seeds stay tracked.
+workers/hs-ledger/claim_*.txt
+workers/hs-ledger/claim_*.txt.ots
+workers/hs-ledger/claim_*.txt.ots.bak

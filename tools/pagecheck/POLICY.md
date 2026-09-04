@@ -11,9 +11,33 @@ fail-closed。1枚でも落ちればバッチ全体を公開しない。
 
 ---
 
-## 現行版: v1.2.0 (2026-08-30)
+## 現行版: v1.3.0 (2026-09-04)
 
-対象: yakumo/**/*.html ・ care/**/*.html (push で変わったページ)
+対象: yakumo/**/*.html ・ care/**/*.html ・ qa/**/*.html ・ aeo/**/*.html (push で変わったページ)
+      加えて qa/ aeo/ は全ページを毎回 report で見る(落とさず内訳を出す)
+
+### 名前空間の種類 (v1.3.0)
+門は置き場所で「何の面か」を決め、面の種類で読み方を変える。読み方が変わるのは4点だけで、それ以外は同じ強さ。
+
+    member  = yakumo/ care/   加盟店の面。施主向けに金額を出さない。下の条件 1〜14 をそのまま。v1.2.0 から一字も変えていない
+    content = qa/ aeo/        記事の面。金額と出典が中身そのもの。次の4点を content 用に読み替える:
+        3.  canonical は ファイルURL(.../qa/x.html)。index.html だけディレクトリ形(.../qa/)
+        8.  金額は 出典への href があれば可。無ければ MONEY_WITHOUT_SOURCE。
+            出典と認める宛先: /souba/(相場DB) / ledger.horizonshield.dev(JIDEC) / github.com/ogasurfproject-jpg(JCCDB) / doi.org / papers.ssrn.com / zenodo.org
+            本文に「出典」と書くだけ、コメントの中の href、は出典にならない。門を置いた理由は「出典のない金額」であり、content ではそれをそのまま検査する
+        9.  モール / 窓口への逆リンクは求めない。HORIZON SHIELD ルートへの逆リンクは必須で、content は href="/" でも可
+        10. root 相対(/souba/ 等)と絶対URLの内部リンクは、宛先がこのリポジトリに実在すること(無ければ INTERNAL_LINK_BROKEN)。
+            裸相対(souba/.. や x.html)は従来どおり不可
+    それ以外(blog/ 等) = UNKNOWN_NAMESPACE のまま。置き場所の取り違えは今までどおり弾く
+
+--mode report: 判定は block と同一、exit だけ 0。内訳を1行で出す。CI は qa/aeo 全ページをこれで毎回見る。
+
+### 初回計測 (2026-09-04、qa 57 + aeo 91 = 148 ページ)
+v1.2.0 の門をそのまま当てると 1,317 件。取り違え(canonical 形 / 金額 / root 相対 / 名前空間)を読み替えたら 208 件、全部が実欠陥:
+  NO_AUTHOR 90 / ROBOTS_TAG_COUNT 86 (aeo の 91 ページ中 86 に robots meta が無かった) / SUSPECT_RELATIVE_LINK 18 (一覧ページ 1 枚) / DUPLICATE_IN_BATCH 14
+前三つは同日に直した(90 ページに meta を差し、一覧の 18 本を /aeo/ 付きに。ops/content_meta_fix_20260904_files.txt)。
+残る近似重複 14 組は 22 ページ、可視本文 1,700〜1,850 字、対で 63〜73% 同文。**うち 21 ページが Google の「クロール済み・未登録」に入っている。**
+これは文章の問題で、書き直すまで report に毎回出る。隠さない。
 
 ### 判定の前提 (v1.2.0)
 門は「書かれた文字」でなく「読み手に届く文字」を見る。判定の前に正規化する:
@@ -105,3 +129,13 @@ CSS・JS のエスケープ復号 / インライン要素で割られた文字�
 - redteam.py v2: 1,475手 (第1回の13手を回帰として保持) + 健全・免除の対照 20手。決定論的、約3秒
 
 既存の公開ページ 26枚で回帰なし (通っていた 18枚は全て通る。落ちていた 8枚は理由が増えただけ)。
+
+### v1.3.0 (2026-09-04) ・ 記事の面を守備範囲に
+qa/ と aeo/ の 148 ページが門の外にあり、Google に索引されない qa 53 / aeo 41 と「門が知らない名前空間」が同じ集合だったため。
+- 名前空間の種類 (member / content) を導入。member の判定は v1.2.0 から一字も変えていない (redteam の 1,475 手は全て同じ結果)
+- content の読み替え 4 点 (canonical 形 / 出典つき金額 / 逆リンクの宛先 / 実在する内部リンク)。それ以外の 10 条件は同じ強さ
+- --mode report を追加。CI は変わった qa/aeo ページを blocking、全ページを report
+- redteam.py に content の 21 手: 出典つき金額は通す (souba / ledger / DOI)、出典なし・「出典」の文字だけ・コメント内の href は弾く、
+  壊れた root 相対と絶対内部リンク、裸相対、ディレクトリ形 canonical、ルート逆リンク無し、robots 無し、noindex、MOAT、ダッシュ、
+  ゼロ幅、未知の名前空間を弾く。**member のページに /souba/ への href を置いても金額は弾かれる** (content の緩さが member に漏れていない証明)。1,496 / 1,496
+- 実欠陥 194 件を同日に修正 (meta 90 ページ、一覧の裸相対 18 本)。近似重複 14 組は残し、report で見え続ける

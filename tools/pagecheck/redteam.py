@@ -327,9 +327,82 @@ def build_html(name, robots, body, head_extra, slug, ns, robots_tag):
         html = html.replace("<h1>redteam</h1>", '<h1>redteam</h1><div data-blob="%s">b</div>' % b64)
     return html
 
+# v1.3.0 (2026-09-04): content 名前空間(qa/ aeo/)の手。記事の面は金額と出典が中身なので、
+#   門は「出典のない金額」「壊れた内部リンク」「canonical の形」の3点だけ読み替える。
+#   ここでは (a) 読み替えが正しく効くこと、(b) 読み替えが member(yakumo/care)に漏れていないこと、
+#   (c) それ以外の毒(MOAT / ダッシュ / robots / 不可視 / 名前空間)は content にも同じ強さで効くこと、を攻める。
+#   content のページは tmp/<ns>/<slug>.html に置く(ファイルが URL)。
+CONTENT_LINKS = '<a href="/">home</a> <a href="/souba/">相場DB</a>'
+CONTENT_FILES = [("index.html", "<html><title>root</title></html>"), ("souba/index.html", "<html><title>souba</title></html>")]
+
+def content_page(slug, ns="qa", body="", head_extra="", robots='<meta name="robots" content="index,follow">\n', canonical=None, links=CONTENT_LINKS):
+    canon = canonical or "%s/%s/%s.html" % (B, ns, slug)
+    return (
+        '<!doctype html><html lang="ja"><head>\n'
+        '<meta charset="utf-8"><title>redteam content %s | HORIZON SHIELD</title>\n'
+        '<meta name="description" content="redteam content probe">\n'
+        '%s'
+        '<meta name="author" content="大賀俊勝">\n'
+        '<link rel="canonical" href="%s">\n'
+        '<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","name":"rt"}</script>\n'
+        '%s'
+        '</head><body>\n<h1>redteam content</h1>\n<p>%s</p>\n%s\n</body></html>'
+    ) % (slug, robots, canon, head_extra, body, links)
+
+# (name, expect_block, codes, builder kwargs). ns は kwargs の ns、既定 qa。
+CONTENT_CASES = [
+    ("content_ok_money_with_souba_source",   False, None, dict(body="標準取付は1台あたり15,000〜30,000円が相場。")),
+    ("content_ok_money_with_ledger_source",  False, None, dict(body="単価 8,500円/㎡。", links='<a href="/">home</a> <a href="https://ledger.horizonshield.dev/ledger/24">JIDEC</a>')),
+    ("content_ok_money_with_doi_source",     False, None, dict(body="相場は120万円。", links='<a href="/">home</a> <a href="https://doi.org/10.5281/zenodo.1">JCCDB</a>')),
+    ("content_ok_absolute_root_backlink",    False, None, dict(body="本文。", links='<a href="%s/">home</a> <a href="/souba/">相場DB</a>' % B)),
+    ("content_ok_aeo_namespace",             False, None, dict(ns="aeo", body="適正価格は 5〜8万円。")),
+    ("content_ok_index_html_dir_canonical",  False, None, dict(slug="index", canonical="%s/qa/" % B, body="一覧。")),
+    ("content_money_without_source",         True, ("MONEY_WITHOUT_SOURCE",), dict(body="標準取付は1台あたり15,000〜30,000円が相場。", links='<a href="/">home</a>')),
+    ("content_source_word_is_not_a_source",  True, ("MONEY_WITHOUT_SOURCE",), dict(body="出典: 当社調べ。相場は15,000円。", links='<a href="/">home</a>')),
+    ("content_source_only_in_comment",       True, ("MONEY_WITHOUT_SOURCE",), dict(body="相場は15,000円。<!-- <a href=\"/souba/\">x</a> -->", links='<a href="/">home</a>')),
+    ("content_broken_root_relative_link",    True, ("INTERNAL_LINK_BROKEN",), dict(body="本文。", links=CONTENT_LINKS + ' <a href="/nope/">x</a>')),
+    ("content_broken_absolute_internal",     True, ("INTERNAL_LINK_BROKEN",), dict(body="本文。", links=CONTENT_LINKS + ' <a href="%s/qa/missing.html">x</a>' % B)),
+    ("content_bare_relative_link",           True, ("SUSPECT_RELATIVE_LINK",), dict(body="本文。", links=CONTENT_LINKS + ' <a href="other.html">x</a>')),
+    ("content_canonical_dir_form",           True, ("CANONICAL_MISMATCH",), dict(body="本文。", canonical="%s/qa/rt-cc.html/" % B, slug="rt-cc")),
+    ("content_no_root_backlink",             True, ("NO_HS_ROOT_BACKLINK",), dict(body="本文。", links='<a href="/souba/">相場DB</a>')),
+    ("content_no_robots",                    True, ("ROBOTS_TAG_COUNT",), dict(body="本文。", robots="")),
+    ("content_noindex",                      True, ("ROBOTS",), dict(body="本文。", robots='<meta name="robots" content="noindex">\n')),
+    ("content_moat_word",                    True, ("MOAT",), dict(body="本文 " + validate.MOAT_FORBIDDEN[0] + " 。")),
+    ("content_em_dash",                      True, ("FORBIDDEN_DASH",), dict(body="本文\u2014本文。")),
+    ("content_zero_width",                   True, ("INVISIBLE",), dict(body="本\u200b文。")),
+    ("content_unknown_namespace_blog",       True, ("UNKNOWN_NAMESPACE",), dict(ns="blog", body="本文。")),
+    ("member_money_with_souba_source_still_blocked", True, ("MONEY_ON_PAGE",), None),
+]
+
 def all_attacks():
     allatk = [(n, b, ((c,) if c else (None,)), r, body, "", s, "yakumo", None) for (n, b, c, r, body, s) in ATTACKS_V1]
-    return allatk + gen_matrix() + STRUCT + CONTROLS
+    content = [(n, b, (c if c else (None,)), None, None, None, None, "__content__", kw) for (n, b, c, kw) in CONTENT_CASES]
+    return allatk + gen_matrix() + STRUCT + CONTROLS + content
+
+
+def write_content_case(tmp, name, kw):
+    """content の手をディスクに置き、門に渡す相対パスを返す。member の漏れ検査(kw None)は yakumo に置く。"""
+    for _rp, _content in CONTENT_FILES:
+        _ap = os.path.join(tmp, _rp)
+        os.makedirs(os.path.dirname(_ap), exist_ok=True)
+        with open(_ap, "w", encoding="utf-8") as f:
+            f.write(_content)
+    if kw is None:
+        slug = "rt-member-source-leak"
+        html = page(slug, body="相場は15,000円。", ns="yakumo")
+        html = html.replace("</body>", '<a href="/souba/">相場DB</a>\n</body>')
+        d = os.path.join(tmp, "yakumo", slug); os.makedirs(d, exist_ok=True)
+        with open(os.path.join(d, "index.html"), "w", encoding="utf-8") as f:
+            f.write(html)
+        return "yakumo/%s/index.html" % slug
+    kw = dict(kw)
+    ns = kw.pop("ns", "qa")
+    slug = kw.pop("slug", "rt-" + name.replace("_", "-"))
+    html = content_page(slug, ns=ns, **kw)
+    d = os.path.join(tmp, ns); os.makedirs(d, exist_ok=True)
+    with open(os.path.join(d, slug + ".html"), "w", encoding="utf-8") as f:
+        f.write(html)
+    return "%s/%s.html" % (ns, slug)
 
 def run(only=None, list_only=False):
     allatk = all_attacks()
@@ -348,22 +421,25 @@ def run(only=None, list_only=False):
         by_class = {}
         print("=== pagecheck レッドチーム v2 (門を敵として攻める: 毒 x 置き場所 x 符号化) ===")
         for name, expect_block, codes, robots, body, head_extra, slug, ns, robots_tag in allatk:
-            d = os.path.join(tmp, ns, slug)
-            os.makedirs(d, exist_ok=True)
-            fpath = os.path.join(d, "index.html")
-            html = build_html(name, robots, body, head_extra, slug, ns, robots_tag)
-            for _rp, _content in EXTRA_FILES.get(name, []):
-                _ap = os.path.join(tmp, _rp)
-                os.makedirs(os.path.dirname(_ap), exist_ok=True)
-                with open(_ap, "w", encoding="utf-8") as f:
-                    f.write(_content)
-            if name == "non_utf8_bytes":
-                with open(fpath, "wb") as f:
-                    f.write(html.encode("utf-8").replace("redteam".encode("utf-8"), b"redte\xff\xfeam", 1))
+            if ns == "__content__":
+                relp = write_content_case(tmp, name, robots_tag)
             else:
-                with open(fpath, "w", encoding="utf-8") as f:
-                    f.write(html)
-            relp = "%s/%s/index.html" % (ns, slug)
+                d = os.path.join(tmp, ns, slug)
+                os.makedirs(d, exist_ok=True)
+                fpath = os.path.join(d, "index.html")
+                html = build_html(name, robots, body, head_extra, slug, ns, robots_tag)
+                for _rp, _content in EXTRA_FILES.get(name, []):
+                    _ap = os.path.join(tmp, _rp)
+                    os.makedirs(os.path.dirname(_ap), exist_ok=True)
+                    with open(_ap, "w", encoding="utf-8") as f:
+                        f.write(_content)
+                if name == "non_utf8_bytes":
+                    with open(fpath, "wb") as f:
+                        f.write(html.encode("utf-8").replace("redteam".encode("utf-8"), b"redte\xff\xfeam", 1))
+                else:
+                    with open(fpath, "w", encoding="utf-8") as f:
+                        f.write(html)
+                relp = "%s/%s/index.html" % (ns, slug)
             try:
                 errs = validate.check_page(relp)
             except Exception as _ex:
@@ -372,7 +448,7 @@ def run(only=None, list_only=False):
             if "[" in name:
                 cls = name.split("[")[0]
             else:
-                cls = "struct" if expect_block else "control"
+                cls = "content" if ns == "__content__" else ("struct" if expect_block else "control")
             by_class.setdefault(cls, [0, 0])
             by_class[cls][1] += 1
             if expect_block:
