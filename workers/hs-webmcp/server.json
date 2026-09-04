@@ -3,8 +3,17 @@
   "name": "io.github.ogasurfproject-jpg/horizon-shield-webmcp",
   "title": "HORIZON SHIELD: Construction Estimate Auditor for Japan (KIRA)",
   "description": "Agent intake desk for property renovation. Read only, CORS open, fail closed, receipts recompute.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "websiteUrl": "https://shield.the-horizons-innovation.com",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-webmcp/icon.png",
+      "mimeType": "image/png",
+      "sizes": [
+        "512x512"
+      ]
+    }
+  ],
   "repository": {
     "url": "https://github.com/ogasurfproject-jpg/horizon-shield",
     "source": "github",

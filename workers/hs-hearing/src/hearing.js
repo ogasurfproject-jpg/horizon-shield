@@ -21,7 +21,7 @@ import * as IND from "./industry.js";
 import * as VIS from "./visibility.js";
 import * as CONCIERGE from "./concierge.js";
 
-const SERVER = { name: "HORIZON SHIELD YAKUMO", version: "2.3.0" };
+const SERVER = { name: "HORIZON SHIELD YAKUMO", version: "2.3.1" };
 const PUBLIC_DATA_FALLBACK = "https://shield.the-horizons-innovation.com/data/yakumo-contractors.json";
 const MALL_URL = "https://shield.the-horizons-innovation.com/yakumo/";
 const SITE_URL = "https://shield.the-horizons-innovation.com";

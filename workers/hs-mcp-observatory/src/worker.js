@@ -29,7 +29,7 @@ import { META, SUMMARY, DISCLOSURE_FIELDS, ROWS, HOST_COUNT, RECOVERED_COUNT, TE
 
 const PROTOCOL_VERSION = "2025-11-25";
 const SERVER_NAME = "hs-mcp-observatory";
-const SERVER_VERSION = "0.1.0";
+const SERVER_VERSION = "0.1.1";
 
 /* ------------------------------ 索引 ------------------------------ */
 /* 12,429行を毎回なめない。住所とホストで引けるようにする。 */

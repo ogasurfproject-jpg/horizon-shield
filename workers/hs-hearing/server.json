@@ -3,8 +3,17 @@
   "name": "io.github.ogasurfproject-jpg/hs-hearing",
   "title": "HORIZON SHIELD YAKUMO (verified contractor directory)",
   "description": "Neutral, verification-gated MCP directory of Japan construction contractors (KIRA-audited).",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "websiteUrl": "https://shield.the-horizons-innovation.com/yakumo/",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-hearing/icon.png",
+      "mimeType": "image/png",
+      "sizes": [
+        "512x512"
+      ]
+    }
+  ],
   "repository": {
     "url": "https://github.com/ogasurfproject-jpg/horizon-shield",
     "source": "github",

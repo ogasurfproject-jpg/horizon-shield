@@ -3,11 +3,11 @@
   "name": "io.github.ogasurfproject-jpg/jidec",
   "title": "JIDEC: Bitcoin-anchored public verification ledger (NENRIN)",
   "description": "Cite and independently verify Bitcoin-anchored construction-estimate audit records.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "websiteUrl": "https://ledger.horizonshield.dev/llms.txt",
   "icons": [
     {
-      "src": "https://mcp.horizonshield.dev/icon.png",
+      "src": "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-jidec-mcp/icon.png",
       "mimeType": "image/png",
       "sizes": [
         "512x512"

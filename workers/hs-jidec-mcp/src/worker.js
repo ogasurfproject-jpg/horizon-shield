@@ -53,7 +53,7 @@
 // under the old hostname still re-observe correctly when reached through this.
 const LEDGER_ORIGIN = "https://ledger.horizonshield.dev";
 const HEX64 = /^[0-9a-f]{64}$/i;
-const VERSION = "1.2.0";
+const VERSION = "1.2.1";
 const PROTOCOL_VERSION = "2025-11-25";
 
 /* ------------------------------ origin policy ------------------------------ */

@@ -3,11 +3,11 @@
   "name": "io.github.ogasurfproject-jpg/hs-verify-gate",
   "title": "MCP Verification Gate: conformance and disclosure checker for MCP servers",
   "description": "Conformance checker for MCP servers. Free, no key, verdicts recomputable and re-measured daily.",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "websiteUrl": "https://shield.the-horizons-innovation.com/verify-directory/",
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/icon.png",
+      "src": "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-verify-gate/icon.png",
       "mimeType": "image/png",
       "sizes": [
         "512x512"

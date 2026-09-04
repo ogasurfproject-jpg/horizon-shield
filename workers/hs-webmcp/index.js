@@ -18,7 +18,7 @@ const SITE = "https://shield.the-horizons-innovation.com";
 const SELF = "https://web.horizonshield.dev";
 const LEDGER = "https://hs-ledger.oga-surf-project.workers.dev";
 
-const SERVER = { name: "hs-webmcp", title: "HORIZON SHIELD WebMCP (KIRA)", version: "1.0.3" };
+const SERVER = { name: "hs-webmcp", title: "HORIZON SHIELD WebMCP (KIRA)", version: "1.0.4" };
 const SUPPORTED_VERSIONS = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"];
 const DEFAULT_VERSION = "2025-06-18";
 
