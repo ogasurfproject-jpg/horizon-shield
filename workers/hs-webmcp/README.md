@@ -64,6 +64,26 @@ This is a remote MCP server — point any MCP client at the endpoint:
 - **Open data.** Built on the public **JCCDB** dataset (95,403 line items) plus 61 curated categories with maintained price ranges and red flags.
 - **No pressure, no auto-posting.** It returns what to ask, points to primary sources, and never publishes on its own.
 
+## Version numbering, and a correction
+
+The version in `server.json`, which is what the MCP registry publishes, and the `version` this
+server reports in `serverInfo` were two different numbers for most of this server's life.
+
+    2026-08-03   serverInfo 0.5.0
+    2026-08-09   serverInfo 0.5.0, server.json 0.4.1
+    2026-08-09   server.json published to the registry as 1.0.2
+    2026-09-04   serverInfo 0.6.0, server.json and the registry still 1.0.2
+
+Measured on 2026-09-04 against the live endpoint: `serverInfo.version` came back `0.6.0` while
+the registry said `1.0.2`. The other four servers in this repository keep the two numbers equal,
+so this one was the exception rather than the rule, and the exception was written down nowhere.
+
+Registry versions cannot go backwards, so `0.6.0` could not be published to correct it. Both
+numbers were moved forward to `1.0.3` instead, and the period during which they disagreed is
+recorded here rather than removed. Found by a full sweep of every server in this repository,
+prompted by the same class of drift on `hs-verify-gate` (PR #17) and `hs-hearing` (PR #18),
+where the code was ahead of the registry rather than behind it.
+
 ## Links
 
 - Website: https://shield.the-horizons-innovation.com

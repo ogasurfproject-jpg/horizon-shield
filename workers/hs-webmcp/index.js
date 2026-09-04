@@ -18,7 +18,7 @@ const SITE = "https://shield.the-horizons-innovation.com";
 const SELF = "https://web.horizonshield.dev";
 const LEDGER = "https://hs-ledger.oga-surf-project.workers.dev";
 
-const SERVER = { name: "hs-webmcp", title: "HORIZON SHIELD WebMCP (KIRA)", version: "0.6.0" };
+const SERVER = { name: "hs-webmcp", title: "HORIZON SHIELD WebMCP (KIRA)", version: "1.0.3" };
 const SUPPORTED_VERSIONS = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"];
 const DEFAULT_VERSION = "2025-06-18";
 
@@ -30,7 +30,7 @@ const CORS = {
 
 const INSTRUCTIONS =
   "HORIZON SHIELD の中立な建設費・見積もり窓口(KIRA)。施主の見積もりが適正かを、独立第三者の立場で一次診断する。" +
-  "tools: intake_estimate(工種+金額で適正診断→EHN導線), scan_tactics(過剰請求の手口+一次ソース), draft_broadcast(注意喚起の発信下書き), orchestrate(一括)。" +
+  "tools: route_request(一文で聞けば正しい窓口に決定的に振り分ける単一入口。旧名 ask も受ける), run_full_audit(診断+手口+発信下書きを一括。旧名 orchestrate も受ける), intake_estimate(工種+金額で適正診断→EHN導線), scan_tactics(過剰請求の手口+一次ソース), draft_broadcast(注意喚起の発信下書き)。" +
   "resources: souba(工種カテゴリ/価格レンジ)・JCCDB(オープン建設費DB)・EHN(無料の第三者チェック)を参照データとして公開。" +
   "prompts: diagnose_my_estimate / how_to_read_an_estimate。価格は検証可能な一次データのみ、断定せず確認を促す、契約は急かさない、自動投稿しない。Japan, JPY。";
 
