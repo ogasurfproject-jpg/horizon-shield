@@ -44,6 +44,15 @@ the tip from inside the file. No checkpoint is needed then except the genesis ha
 --check-against reads an earlier window's manifest and requires its checkpoints to sit on
 the full chain at the same hashes.
 
+v3 (supersedes the bytes entry 29 pinned; that sha stays on record in the next addendum):
+a refusal now leaves a record. "Nothing is written on a refusal" was meant for header bytes
+and had swallowed the record too, so a sync that refused left nothing a downstream consumer
+could query; the failure mode was legible only in the red team's output and in prose. Now
+every refusal writes <out-prefix>.refusal.<time>.json: the reason code, the height, the two
+peers and the two hashes when peers disagree, every peer that finished or was dropped, and
+bytes_written false. Header bytes are still never written on a refusal. The record is a
+ledger seed's worth of evidence: make_refusal_seed.py turns it into a JIDEC entry of its own.
+
 Standard library only. Run from the coordinate-v1 directory:
 
     python3 sync_headers_p2p.py --from-manifest localheaders_mainnet.manifest.json
@@ -68,6 +77,40 @@ MAX_PAYLOAD = 4 * 1024 * 1024
 
 class PeerError(Exception):
     pass
+
+
+class Disagreement(PeerError):
+    """Two peers served different valid headers at the same height. Carries the evidence."""
+
+    def __init__(self, height, ref_peer, ref_hash, peer, peer_hash, common_headers):
+        self.height, self.ref_peer, self.ref_hash, self.peer, self.peer_hash, self.common_headers = \
+            height, ref_peer, ref_hash, peer, peer_hash, common_headers
+        super().__init__("disagrees with the reference run (%s) at height %d: %s.. vs %s.."
+                         % (ref_peer, height, ref_hash[:16], peer_hash[:16]))
+
+
+REFUSAL_SCHEMA = "nenrin-localheaders-refusal-1"
+
+
+def write_refusal(out_prefix, now, params, magic, mode, reason_code, reason, results, failures, wanted, min_peers,
+                  start_height, checkpoints, height=None, disagreement=None):
+    """A refusal is evidence. Header bytes are not written; this record is. Returns the path."""
+    mainnet = (params is LH.MAINNET and magic == MAINNET_MAGIC)
+    rec = {
+        "schema": REFUSAL_SCHEMA, "chain": params.name, "courier": "bitcoin p2p getheaders", "mode": mode,
+        "network": ("bitcoin mainnet" if mainnet else "test network (magic %s, params %s): not the real chain" % (magic.hex(), params.name)),
+        "refused_at": now, "reason_code": reason_code, "reason": reason, "height": height,
+        "disagreement": disagreement,
+        "peers_finished": {n: {"tip_height": results[n][1]["tip_height"], "headers": results[n][1]["count"]} for n in sorted(results)},
+        "peers_failed": dict(failures), "peers_wanted": wanted, "min_peers": min_peers,
+        "start_height": start_height, "checkpoints": {str(k): v for k, v in sorted((int(k), v) for k, v in (checkpoints or {}).items())},
+        "bytes_written": False,
+        "note": "a refusal is evidence. no header bytes were written; this record was. a contradiction between sources is "
+                "exposed here by name and height so that anyone can query it, not only read about it.",
+    }
+    path = "%s.refusal.%d.json" % (out_prefix, now)
+    io.open(path, "w", encoding="utf-8").write(json.dumps(rec, ensure_ascii=False, indent=1, sort_keys=True))
+    return path
 
 
 def varint(n):
@@ -204,7 +247,7 @@ class Peer:
 
 
 def sync_from_peer(peer, start_height, start_prev, seed_raw, params, checkpoints, now, start_bits, prior_times,
-                   reference=None, log=print, every=25):
+                   reference=None, reference_peer=None, log=print, every=25):
     """Pull headers after start_prev from one peer, validating as they arrive (one pass, constant
     memory). seed_raw is any header bytes the caller already holds at start_height (the genesis
     header in from-genesis mode), fed first. If reference bytes are given, every batch is
@@ -230,7 +273,10 @@ def sync_from_peer(peer, start_height, start_prev, seed_raw, params, checkpoints
             off = len(raw); ref = reference[off:off + len(chunk)]
             if ref and ref != chunk[:len(ref)]:
                 bad = next(i for i in range(len(ref)) if ref[i] != chunk[i]) // 80
-                raise PeerError("disagrees with the reference run at height %d" % (start_height + off // 80 + bad))
+                h = start_height + off // 80 + bad
+                ref_hash = LH.parse_header(ref[bad * 80:(bad + 1) * 80])["hash"]
+                peer_hash = LH.parse_header(chunk[bad * 80:(bad + 1) * 80])["hash"]
+                raise Disagreement(h, reference_peer or "reference", ref_hash, peer.name(), peer_hash, off // 80 + bad)
         raw += chunk
         last_display = v.tip_hash
         msgs += 1
@@ -301,7 +347,13 @@ def main(argv=None):
     print("mode: %s | params %s | peers wanted %d, minimum %d | checkpoints %d" % (mode, params.name, a.peers, a.min_peers, len(checkpoints)))
 
     candidates = [(h, int(p)) for h, p in (x.rsplit(":", 1) for x in a.peer)] if a.peer else discover(DNS_SEEDS, a.peers)
-    results = {}; failures = {}; reference = None
+    results = {}; failures = {}; reference = None; reference_peer = None
+
+    def refuse(code, reason, height=None, disagreement=None):
+        path = write_refusal(a.out_prefix, now, params, magic, mode, code, reason, results, failures, a.peers, a.min_peers,
+                             start_height, checkpoints, height=height, disagreement=disagreement)
+        raise SystemExit("%s no header bytes written. refusal record: %s" % (reason, path))
+
     for host, port in candidates:
         if len(results) >= a.peers:
             break
@@ -310,13 +362,16 @@ def main(argv=None):
             peer.connect(); peer.handshake()
             print("  %s: %s" % (peer.name(), peer.log[-1]))
             raw, rep = sync_from_peer(peer, start_height, start_prev, seed_raw, params, checkpoints, now, start_bits, prior_times,
-                                      reference=reference)
+                                      reference=reference, reference_peer=reference_peer)
             results[peer.name()] = (raw, rep)
             if reference is None or len(raw) > len(reference):
-                reference = raw
+                reference = raw; reference_peer = peer.name()
+        except Disagreement as e:
+            peer.close()
+            refuse("peers_disagree", "peers disagree over the common window: %s vs %s at height %d." % (e.ref_peer, e.peer, e.height),
+                   height=e.height, disagreement={"peer_a": e.ref_peer, "hash_a": e.ref_hash, "peer_b": e.peer, "hash_b": e.peer_hash,
+                                                  "height": e.height, "common_headers_before": e.common_headers})
         except PeerError as e:
-            if "disagrees with the reference run" in str(e):
-                raise SystemExit("peers disagree over the common window: %s vs %s: %s. nothing written." % (sorted(results)[0], peer.name(), e))
             failures[peer.name()] = str(e)
             print("  %s: dropped: %s" % (peer.name(), e))
         except (OSError, socket.timeout) as e:
@@ -326,15 +381,22 @@ def main(argv=None):
             peer.close()
 
     if len(results) < a.min_peers:
-        raise SystemExit("only %d peer(s) finished, need %d. nothing written. failures: %s" % (len(results), a.min_peers, json.dumps(failures)))
+        refuse("below_min_peers", "only %d peer(s) finished, need %d." % (len(results), a.min_peers))
 
-    # agreement over the common window: every finished peer must be byte identical up to the shortest
+    # agreement over the common window: every finished peer must be byte identical up to the shortest.
+    # the streaming comparison above already refused any mismatch; this is the belt to that brace.
     names = sorted(results); shortest = min(len(results[n][0]) for n in names)
     common = {n: results[n][0][:shortest] for n in names}
     ref = common[names[0]]
     disagree = [n for n in names if common[n] != ref]
     if disagree:
-        raise SystemExit("peers disagree over the common window: %s vs %s. nothing written." % (names[0], disagree))
+        other = common[disagree[0]]
+        bad = next(i for i in range(shortest) if ref[i] != other[i]) // 80
+        h = start_height + bad
+        refuse("peers_disagree", "peers disagree over the common window: %s vs %s at height %d." % (names[0], disagree[0], h),
+               height=h, disagreement={"peer_a": names[0], "hash_a": LH.parse_header(ref[bad * 80:(bad + 1) * 80])["hash"],
+                                       "peer_b": disagree[0], "hash_b": LH.parse_header(other[bad * 80:(bad + 1) * 80])["hash"],
+                                       "height": h, "common_headers_before": bad})
     longest = max(names, key=lambda n: len(results[n][0]))
     raw, rep = results[longest]
     tips = {n: results[n][1]["tip_height"] for n in names}
@@ -375,10 +437,10 @@ def main(argv=None):
                                           now=now, start_bits=start_bits, prior_times=prior_times)
     except LH.Refused as e:
         os.remove(bp); os.remove(mp)
-        raise SystemExit("read back failed: %s at %s. files removed." % (e.reason, e.height))
+        refuse("readback_refused", "read back failed: %s at %s. files removed." % (e.reason, e.height), height=e.height)
     if back["sha256"] != sha:
         os.remove(bp); os.remove(mp)
-        raise SystemExit("read back sha mismatch. files removed.")
+        refuse("readback_sha_mismatch", "read back sha mismatch. files removed.")
     print("wrote %s (%d bytes) and %s | read back tip %d, %d headers, %d retarget boundaries verified, checkpoints matched %s"
           % (bp, len(raw), mp, back["tip_height"], back["count"], len(back["retarget_verified_at"]), back["checkpoints_matched"]))
     return 0

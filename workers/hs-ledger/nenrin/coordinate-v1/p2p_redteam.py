@@ -17,7 +17,15 @@ Cases:
   checkpoint separates make the client refuse and name them, because a contradiction between
   sources is evidence and refusing exposes it; a stale peer is lag, its lower tip recorded and
   the longer agreeing chain written; a ping in the middle of getheaders is answered; a peer
-  that does not know the locator returns nothing and is dropped.
+  that does not know the locator returns nothing and is dropped; the compare flag records
+  byte identity; from genesis every boundary is verified and the checkpoint matched; and,
+  from v3, every refusal leaves a record: the two chains case names both peers, the height
+  and both hashes in a file whose bytes are reproducible (fixed ports, fixed clock), the
+  below minimum case names the dropped peer and why, and make_refusal_seed turns the record
+  into a ledger seed and refuses a record that lies about itself.
+
+    python3 p2p_redteam.py
+    python3 p2p_redteam.py --emit-refusal refusal_record_redteam_c07.json
 """
 import socket, struct, threading, json, os, sys, io, tempfile, hashlib, time
 
@@ -29,20 +37,32 @@ import sync_headers_p2p as P2P
 TEST_MAGIC = bytes.fromhex("0b11fa09")
 TEST = RT.TEST
 NOW = RT.T0 + 100_000
+C07_PORTS = (28901, 28902)     # fixed so the c07 refusal record is byte reproducible
+
+
+def refusal_path(out_prefix):
+    import glob
+    hits = sorted(glob.glob(out_prefix + ".refusal.*.json"))
+    return hits[0] if hits else None
+
+
+def refusal_record(out_prefix):
+    p = refusal_path(out_prefix)
+    return json.load(io.open(p, encoding="utf-8")) if p else None
 
 
 class FakePeer(threading.Thread):
     """Serves one chain over loopback. Behaviour flags make it misbehave on purpose."""
 
     def __init__(self, headers, magic=TEST_MAGIC, corrupt_at=None, bad_checksum=False, stall=False,
-                 oversize=False, txn_nonzero=False, serve_upto=None, ping_first=False, unknown_locator=False):
+                 oversize=False, txn_nonzero=False, serve_upto=None, ping_first=False, unknown_locator=False, port=0):
         super().__init__(daemon=True)
         self.headers = list(headers); self.magic = magic
         self.corrupt_at, self.bad_checksum, self.stall, self.oversize = corrupt_at, bad_checksum, stall, oversize
         self.txn_nonzero, self.serve_upto, self.ping_first, self.unknown_locator = txn_nonzero, serve_upto, ping_first, unknown_locator
         self.srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.srv.bind(("127.0.0.1", 0)); self.srv.listen(4); self.srv.settimeout(0.5)
+        self.srv.bind(("127.0.0.1", port)); self.srv.listen(4); self.srv.settimeout(0.5)
         self.port = self.srv.getsockname()[1]; self.alive = True
         self.got_pong = False; self.hash_index = {}
         for i, h in enumerate(self.headers):
@@ -147,7 +167,7 @@ def run_client(peers, manifest, out_prefix, extra=()):
     """Run the real client in process. Returns (exit_code_or_None, SystemExit message or None, stdout)."""
     import contextlib
     args = (["--from-manifest", manifest] if manifest else []) + ["--magic", TEST_MAGIC.hex(), "--params", "test", "--now", str(NOW),
-            "--out-prefix", out_prefix, "--timeout", "2", "--peers", str(len(peers))]
+            "--out-prefix", out_prefix, "--timeout", "3", "--peers", str(len(peers))]
     for p in peers: args += ["--peer", p.addr()]
     args += list(extra)
     buf = io.StringIO()
@@ -188,11 +208,17 @@ def main():
     written = os.path.exists(out + ".bin") and open(out + ".bin", "rb").read() == raw
     check("c01_two_honest_peers_bytes_equal_chain", rc == 0 and written, msg or log[-300:])
 
-    # c02 one peer serves a header failing proof of work: dropped; below the minimum nothing is written
+    # c02 one peer serves a header failing proof of work: dropped; below the minimum no bytes are written,
+    # and the refusal leaves its record naming the dropped peer and the reason
     out = os.path.join(d, "c02")
     p1, p2 = FakePeer(hdrs, corrupt_at=20), FakePeer(hdrs)
     rc, msg, log = with_peers([p1, p2], lambda: run_client([p1, p2], man, out))
-    check("c02_bad_pow_peer_dropped_nothing_written", rc == 1 and not os.path.exists(out + ".bin") and "fails validation" in log and "need 2" in (msg or ""), (msg or "")[:160])
+    r = refusal_record(out)
+    check("c02_bad_pow_peer_dropped_no_bytes_refusal_recorded",
+          rc == 1 and not os.path.exists(out + ".bin") and "fails validation" in log and "need 2" in (msg or "")
+          and r is not None and r["reason_code"] == "below_min_peers" and r["bytes_written"] is False
+          and p1.addr() in r["peers_failed"] and "fails validation" in r["peers_failed"][p1.addr()] and p2.addr() in r["peers_finished"],
+          (msg or "")[:160] + json.dumps(r and {k: r.get(k) for k in ("reason_code", "peers_failed")}))
     out = os.path.join(d, "c02b")
     p1, p2 = FakePeer(hdrs, corrupt_at=20), FakePeer(hdrs)
     rc, msg, log = with_peers([p1, p2], lambda: run_client([p1, p2], man, out, ["--min-peers", "1"]))
@@ -224,11 +250,23 @@ def main():
     rc, msg, log = with_peers([p1], lambda: run_client([p1], man, out, ["--min-peers", "1"]))
     check("c06_stalled_peer_times_out", rc == 1 and ("timeout" in log or "timed out" in log) and not os.path.exists(out + ".bin") and time.time() - t0 < 15, log[-200:])
 
-    # c07 two valid chains, no checkpoint separates them: refuse and name
+    # c07 two valid chains, no checkpoint separates them: refuse, name both peers, and leave a record
+    # that carries the height and both hashes. fixed ports, fixed clock, mined chains: the record is
+    # byte reproducible, so its sha can be pinned and the record itself appended to the ledger.
     out = os.path.join(d, "c07")
-    p1, p2 = FakePeer(hdrs), FakePeer(alt_hdrs)
+    p1, p2 = FakePeer(hdrs, port=C07_PORTS[0]), FakePeer(alt_hdrs, port=C07_PORTS[1])
     rc, msg, log = with_peers([p1, p2], lambda: run_client([p1, p2], man, out))
-    check("c07_two_valid_chains_disagree_refused_named", rc == 1 and "peers disagree" in (msg or "") and "127.0.0.1" in (msg or "") and not os.path.exists(out + ".bin"), (msg or "")[:160])
+    r = refusal_record(out); dg = (r or {}).get("disagreement") or {}
+    alt12 = LH.parse_header(alt_hdrs[12])["hash"]
+    check("c07_two_valid_chains_disagree_refused_named_recorded",
+          rc == 1 and "peers disagree" in (msg or "") and p1.addr() in (msg or "") and p2.addr() in (msg or "") and not os.path.exists(out + ".bin")
+          and r is not None and r["reason_code"] == "peers_disagree" and r["height"] == 12 and r["bytes_written"] is False
+          and dg.get("peer_a") == p1.addr() and dg.get("hash_a") == H(12) and dg.get("peer_b") == p2.addr() and dg.get("hash_b") == alt12
+          and dg.get("common_headers_before") == 12 and r["network"].startswith("test network") and r["refused_at"] == NOW,
+          (msg or "")[:200] + json.dumps(dg))
+    c07_record_path = refusal_path(out); c07_peers = (p1.addr(), p2.addr())
+    c07_sha = hashlib.sha256(open(c07_record_path, "rb").read()).hexdigest() if c07_record_path else None
+    print("         c07 refusal record sha256 %s" % c07_sha)
 
     # c08 oversized length
     out = os.path.join(d, "c08")
@@ -248,7 +286,8 @@ def main():
     rc, msg, log = with_peers([p1, p2], lambda: run_client([p1, p2], man, out))
     m = json.load(open(out + ".manifest.json")) if rc == 0 else {}
     tips = sorted(v["tip_height"] for v in m.get("peers", {}).values())
-    check("c10_stale_peer_is_lag_longest_written", rc == 0 and tips == [19, 31] and open(out + ".bin", "rb").read() == raw and m["tip_height"] == 31, json.dumps(tips))
+    check("c10_stale_peer_is_lag_longest_written", rc == 0 and tips == [19, 31] and open(out + ".bin", "rb").read() == raw and m["tip_height"] == 31,
+          json.dumps(tips) + " " + (msg or "") + " " + log[-300:])
 
     # c11 ping during getheaders is answered
     out = os.path.join(d, "c11")
@@ -279,13 +318,56 @@ def main():
           rc == 0 and open(out + ".bin", "rb").read() == raw and m.get("retarget_boundaries_verified") == 3
           and m.get("mode", "").startswith("whole chain") and "20" in m.get("checkpoints", {}) and m["tip_height"] == 31, (msg or "") + json.dumps({k: m.get(k) for k in ("retarget_boundaries_verified", "mode", "tip_height")}))
 
+    # c15 the refusal record is a ledger entry's worth of evidence: the seed maker accepts the c07
+    # record, the claim is the sha of its exact bytes, and a record that claims bytes were written,
+    # or names one peer twice, or one hash twice, is refused as a seed
+    import make_refusal_seed as MRS
+    seed_path = os.path.join(d, "seed_c07.json")
+    ok15 = False; note15 = ""
+    if c07_record_path:
+        try:
+            sha, work = MRS.make_seed(c07_record_path, seed_path)
+            seed = json.load(io.open(seed_path, encoding="utf-8"))
+            rec_text = io.open(c07_record_path, encoding="utf-8").read()
+            ok15 = (sha == c07_sha and seed["record_canonical"] == rec_text and json.loads(seed["record_canonical"])["reason_code"] == "peers_disagree"
+                    and work.startswith("NENRIN localheaders refusal: peers_disagree at height 12") and c07_peers[0] in work and c07_peers[1] in work)
+            note15 = work[:120]
+            # tampered variants must be refused
+            rec = json.loads(rec_text)
+            bad_variants = {"bytes_written_true": dict(rec, bytes_written=True),
+                            "same_peer_twice": dict(rec, disagreement=dict(rec["disagreement"], peer_b=rec["disagreement"]["peer_a"])),
+                            "same_hash_twice": dict(rec, disagreement=dict(rec["disagreement"], hash_b=rec["disagreement"]["hash_a"])),
+                            "unknown_code": dict(rec, reason_code="whatever"),
+                            "wrong_schema": dict(rec, schema="nenrin-localheaders-manifest-1")}
+            refused = []
+            for name, v in bad_variants.items():
+                bp = os.path.join(d, "bad_%s.json" % name); sp = os.path.join(d, "bad_%s.seed.json" % name)
+                io.open(bp, "w", encoding="utf-8").write(json.dumps(v, ensure_ascii=False, indent=1, sort_keys=True))
+                try:
+                    MRS.make_seed(bp, sp); refused.append((name, False))
+                except MRS.Bad:
+                    refused.append((name, not os.path.exists(sp)))
+            ok15 = ok15 and all(r for _, r in refused)
+            note15 += " " + json.dumps(refused)
+        except MRS.Bad as e:
+            note15 = "seed refused: %s" % e
+    check("c15_refusal_record_is_a_ledger_seed_fail_closed", ok15, note15)
+    if EMIT_REFUSAL and c07_record_path:
+        import shutil
+        shutil.copyfile(c07_record_path, EMIT_REFUSAL)
+        print("         c07 refusal record copied to %s (sha256 %s)" % (EMIT_REFUSAL, hashlib.sha256(open(EMIT_REFUSAL, "rb").read()).hexdigest()))
+
     n_ok = sum(1 for _, ok, _ in RESULTS if ok)
     print("\n=== %d / %d ===" % (n_ok, len(RESULTS)))
     print("a courier with no website in it: real wire framing, checksum and magic enforced, one bad header drops the peer by name, "
           "peers must agree byte for byte or the sync refuses and says who disagreed, a stale peer is lag, a fork dies at the checkpoint, "
-          "and nothing is ever written on a refusal.")
+          "no header byte is ever written on a refusal, and every refusal leaves a record that can be appended to the ledger as its own entry.")
     return 0 if n_ok == len(RESULTS) else 1
 
 
+EMIT_REFUSAL = None
+
 if __name__ == "__main__":
+    if "--emit-refusal" in sys.argv:
+        EMIT_REFUSAL = sys.argv[sys.argv.index("--emit-refusal") + 1]
     sys.exit(main())
