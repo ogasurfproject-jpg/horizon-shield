@@ -1276,7 +1276,10 @@ const CHANGES_MAX = 50;   // 変化ログの保持件数
 // 判定そのものを売った時点で中立性が死ぬので、そこには決して値段を付けない。
 const REGISTRY_KEY = "watch:registry";
 const REGISTRY_MAX = 500;
-const MAX_PER_SWEEP = 9;         // 1本あたり最悪 1(init)+3(tools/listページ)+1(card)=5。9×5=45 ≤ 50(Free枠)
+const MAX_PER_SWEEP = 8;         // 1本あたり最悪 1(init)+3(tools/listページ)+1(card)=5。8×5=40 ≤ 50(Free枠)
+// 0.3.0 で 9 から 8 に下げた。窓の初回だけ beacon の取得が +4 乗る(tip 2 源 + block 2 源)。
+// 9 のままやと 45+4=49 で余白 1 になり、endpoint が 1 つ余計に redirect しただけで掃引が死ぬ。
+// 溢れた分は skipped に "over MAX_PER_SWEEP" として必ず記録される。黙って切らん。
 const FREE_INTERVAL_DAYS = 7;    // 無料層は週1回
 const NOTIFY_TIMEOUT_MS = 5000;
 
