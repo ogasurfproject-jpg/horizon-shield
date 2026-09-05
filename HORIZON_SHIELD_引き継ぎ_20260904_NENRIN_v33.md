@@ -972,3 +972,8 @@ mcp 26/26 verified 23 pending 3、hearing 26/26 verified 23 pending 3、web 26/2
 - /spec red_team の「determinism は server が先頭に置いた tool で測る」は 0.3.0 で古くなっとった。座標で選ぶ、legacy 時のみ先頭、判定に coordinate_derivation で明記、に書き換え。
 - 試験: `test/watch_decline.mjs` 20/20(offline、飢餓 2 本含む)。redteam_gate 63/63、redteam_instant 26/26 は無傷。
 - **claim register**(監査 13 番): `ops/claim_register.py`。公言 14 行(扉 version / 履歴保持 / 赤軍 63 / 26+17 / ring 25 / witness の cron 時刻 / pending 48h / OTS 7 日 / anchor 済 bytes の不変と seed の append 漏れ / 登録簿の日次生成 / snapshot 行 = live 行 / 月の輪 / archive 日次 / 飢餓 14 日)。各行に検算。`--offline` で手元だけ。TOshi の端末から週 1(device_bash は扉に届かん)。報告は `ops/claim_register_report.md`。
+
+### 24.7 claim register 初回実走と、DELETE /watch(14:50〜15:10 JST)
+- 初回 14 行中 8 FAIL。読み: C01/C02 = 扉 0.3.1 未配備、C06/C07 = hs-ledger 未配備、C12/C13 = 登録簿リポ未 push、C14 = TWZRD 未測定(due 日待ち。飢餓の直しで次の due 日には測られる)。**本物の発見は C09**: seed_entry_3/4/5 の anchor 済 bytes が「手元に無い」と出た。実際は entry 5 が `workers/hs-ledger/path/JIDEC_PATH_SPEC_v1.md`、3 と 4 は文書やなくコード(verify_finding_v0.py と hs-pdf-gen の worker.js)で、bytes は `~/jidec/claim_N.txt` に在った。探索範囲の穴で、文書の穴やない。C09 の探索を `workers/hs-ledger/**/*.md` + `claim_*.txt`(hs-ledger と ~/jidec)に広げた。
+- **DELETE /watch(扉 0.3.1 同梱)。** TWZRD への手紙で「言うてくれたら同日に外す」と書いたが、外す経路が無かった(KV を手で触るしかない = 見えん編集)。運営 token + 理由 8 字以上必須、自前の行は外せん、外した事実は `/watchlist.removed` と `/register.removed_rows` に墓標(endpoint, removed_at, reason, requested_by, added_at)。履歴は消さん。二度目は 404。`rows_are_selected_by` に明記。試験 29/29(watch_decline.mjs)。
+- Federico の LinkedIn(13:14): 自分の tracker も書き換えず追記する、二つの独立した記録が同じ交換を持つ、と。返信 `ops/fed_reply_anchored_20260905.txt`(entry 33 で e228dfd8 は anchor 済、entry 32 = Ring 001、依頼は今日メールで別便)。push 後に送る(本文が「committed in two repositories」と言う)。

@@ -1,0 +1,11 @@
+Federico, the sequence is now closed on my side too, and with numbers.
+
+e228dfd8 is anchored: JIDEC entry 33, appended 2026-09-05T04:21:38Z, OpenTimestamps pending. From this moment that file is never edited; any further correction is a new file that cites it by hash, which is the rule I told you I was following before I actually was.
+
+One more entry landed three minutes earlier and matters more. Entry 32 is Ring 001: the first monthly ring of NENRIN's third layer, August 2026, eight endpoints, one file each, built from the gate's history export by a script anyone can rerun, and the ring numbers are not kind to me (one partner endpoint is 26 pending of 26; the gate measuring itself is 9 held of 26). While building it I found that the gate had been keeping only 30 records per endpoint and dropping the oldest, so the August export was one sweep away from becoming unmakeable. Fixed in the source and deploying today, and the export itself is committed in two repositories.
+
+Your tracker appending the correction rather than rewriting the line is exactly right, and your phrasing of the bigger point is better than mine: the discipline applied to us instead of to other people's systems. I will keep that sentence.
+
+I have one request for you that is bigger than a message here, and I will send it by email today once one more piece is deployed. It concerns the sentence every ring currently carries: one witness only, so no discrepancy could have been recorded.
+
+Toshikatsu

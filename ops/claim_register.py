@@ -133,8 +133,12 @@ def c_anchored_bytes():
     """Every markdown/sha256 seed we ever appended must still exist locally byte-identical, and be in the ledger."""
     ledger = {e["claim_sha256"]: e["n"] for e in get(LEDGER + "/ledger").get("entries") or []}
     local = {}
-    for pat in ("workers/hs-ledger/nenrin/**/*.md", "workers/hs-ledger/nenrin/**/*.sha256", "workers/hs-ledger/*.md"):
-        for f in glob.glob(os.path.join(ROOT, pat), recursive=True):
+    # Anchored documents live under workers/hs-ledger (nenrin/, path/, the root .md files); the bytes of every
+    # appended record are also kept as claim_N.txt beside their .ots, in workers/hs-ledger and ~/jidec.
+    pats = [os.path.join(ROOT, p) for p in ("workers/hs-ledger/**/*.md", "workers/hs-ledger/**/*.sha256", "workers/hs-ledger/claim_*.txt")]
+    pats.append(os.path.join(os.path.expanduser("~/jidec"), "claim_*.txt"))
+    for pat in pats:
+        for f in glob.glob(pat, recursive=True):
             local[sha_file(f)] = os.path.relpath(f, ROOT)
     bad, n = [], 0
     for sf in sorted(glob.glob(os.path.join(ROOT, "workers/hs-ledger/seed_entry_*.json"))):
