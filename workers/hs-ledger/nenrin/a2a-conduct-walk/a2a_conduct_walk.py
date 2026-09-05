@@ -35,6 +35,9 @@ EXT_URI = "https://gate.horizonshield.dev/ext/conduct/v1"
 PAID_BY = ["buyer", "seller", "referral", "advertising", "subscription", "public", "other"]
 WALKER = {"tool": "a2a_conduct_walk.py", "version": "1"}
 TIMEOUT = 20
+# Cloudflare fronts many agents and refuses Python's default User-Agent with 403 before the
+# origin sees the request. A named client passes; so does curl. Both are offered below.
+USER_AGENT = "a2a-conduct-walk/1 (+" + EXT_URI + ")"
 
 
 def canonical(obj):
@@ -53,8 +56,10 @@ def headers_sha256(headers):
 
 
 def http_fetch(method, url, headers=None, body=None):
-    """Real transport. Returns (status, headers_dict, body_bytes). Never raises on HTTP status."""
-    req = urllib.request.Request(url, data=body, method=method, headers=headers or {})
+    """Real transport (urllib). Returns (status, headers_dict, body_bytes). Never raises on HTTP status."""
+    h = {"User-Agent": USER_AGENT}
+    h.update(headers or {})
+    req = urllib.request.Request(url, data=body, method=method, headers=h)
     try:
         with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
             return r.status, dict(r.headers.items()), r.read()
@@ -62,6 +67,45 @@ def http_fetch(method, url, headers=None, body=None):
         return e.code, dict(e.headers.items()), e.read()
     except Exception as e:  # transport failure: no status, named in the node
         return 0, {"x-transport-error": str(e)}, b""
+
+
+def curl_fetch(method, url, headers=None, body=None):
+    """Real transport (curl subprocess), for hosts whose edge refuses urllib. Same return shape."""
+    import subprocess
+    import tempfile
+    h = {"User-Agent": USER_AGENT}
+    h.update(headers or {})
+    with tempfile.TemporaryDirectory() as d:
+        hdr = d + "/h"
+        out = d + "/b"
+        cmd = ["curl", "-sS", "--max-time", str(TIMEOUT), "-X", method, "-D", hdr, "-o", out, "-w", "%{http_code}", url]
+        for k, v in h.items():
+            cmd += ["-H", "%s: %s" % (k, v)]
+        if body is not None:
+            cmd += ["--data-binary", "@-"]
+        try:
+            r = subprocess.run(cmd, input=body if body is not None else b"", capture_output=True, timeout=TIMEOUT + 5)
+        except Exception as e:
+            return 0, {"x-transport-error": str(e)}, b""
+        try:
+            status = int(r.stdout.decode("ascii", "replace").strip()[-3:])
+        except Exception:
+            status = 0
+        rh = {}
+        try:
+            for line in io.open(hdr, encoding="latin-1").read().split("\n"):
+                if ":" in line and not line.startswith("HTTP/"):
+                    k, v = line.split(":", 1)
+                    rh[k.strip()] = v.strip()
+        except Exception:
+            pass
+        try:
+            rb = open(out, "rb").read()
+        except Exception:
+            rb = b""
+        if status == 0 and r.stderr:
+            rh["x-transport-error"] = r.stderr.decode("utf-8", "replace").strip()[:200]
+        return status, rh, rb
 
 
 def fetch_node(n, fetch, method, url, headers=None, body=None):
@@ -254,9 +298,11 @@ def main(argv=None):
     ap.add_argument("--out", default=None, help="write the canonical bytes here (default: walk_<sha12>.json)")
     ap.add_argument("--submit", action="store_true", help="POST the record to the witness intake named in the card")
     ap.add_argument("--intake", default=None, help="override the witness intake URL (default: params.witness_intake from the card)")
+    ap.add_argument("--transport", choices=["urllib", "curl"], default="urllib", help="urllib (default) or curl; use curl when the edge answers 403 to urllib")
     a = ap.parse_args(argv)
 
-    rec = walk(a.origin, a.endpoint, a.mode, a.witness_name, a.vantage)
+    fetch = curl_fetch if a.transport == "curl" else http_fetch
+    rec = walk(a.origin, a.endpoint, a.mode, a.witness_name, a.vantage, fetch=fetch)
     rc = canonical(rec)
     sha = sha256_hex(rc)
     out = a.out or ("walk_" + sha[:12] + ".json")
@@ -265,12 +311,23 @@ def main(argv=None):
     print("walk %s  %s %d/%d  sha256 %s  -> %s" % (rec["purpose"], v["outcome"], v["n_pass"], v["n_total"], sha, out))
     for x in rec["assertions"]:
         print("  %s  %s" % ({True: "pass", False: "FAIL", None: "n/a "}[x["result"]], x["claim"][:110]))
+    for nd in rec["nodes"]:
+        if nd.get("kind") == "fetch":
+            st = nd["response"]["status"]
+            err = ""
+            if st == 0:
+                err = "  transport error"
+            elif st == 403:
+                err = "  (403 at the edge: rerun with --transport curl)"
+            print("  n%d %s %s -> http %s  body sha %s%s" % (nd["n"], nd["request"]["method"], nd["request"]["url"], st, nd["response"]["body_sha256"][:12], err))
+        else:
+            print("  n%d compute: %s" % (nd["n"], nd.get("output_preview", "")[:120]))
     if a.submit:
         intake = a.intake or rec["conduct_ext"].get("witness_intake")
         if not intake:
             print("no witness_intake in the card and no --intake given; not submitted")
             return 2
-        st, j = submit(intake, rc)
+        st, j = submit(intake, rc, fetch=fetch)
         print("submitted to %s: http %d %s" % (intake, st, json.dumps(j, ensure_ascii=False)[:300]))
         return 0 if st in (200, 201) else 1
     return 0 if v["ok"] else 1
