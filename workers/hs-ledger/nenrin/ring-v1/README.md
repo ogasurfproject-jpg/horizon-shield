@@ -38,6 +38,10 @@ It does not measure quality. A shim that answers every instant and an honest ser
 
 Development home: this directory. Published record: `mcp-conduct-register` (`history/`, `rings/`, and a copy of `make_ring.py` under `scripts/`), which is the public dataset with the DOI and the daily archive job.
 
+## Record
+
+Ring 001: 2026-08, eight endpoints, made 2026-09-05 from the export taken the same day (the gate then kept 30 records per endpoint; six endpoints were at exactly 30). `rings/2026-08.sha256` (sha256 f3e589ef...) is JIDEC entry 32, https://ledger.horizonshield.dev/ledger/32, appended 2026-09-05T04:18:49Z, OpenTimestamps pending at the time of writing. Eight rings, one witness each. p001 carries 26 pending of 26; the gate carries 9 held of 26 measuring itself. The first ring is not flattering, and that is what a ring is for.
+
 ## Red team
 
     python3 ring_redteam.py

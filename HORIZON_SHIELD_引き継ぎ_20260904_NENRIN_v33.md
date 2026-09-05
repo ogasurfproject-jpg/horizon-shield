@@ -936,3 +936,25 @@ sitemap を正規表現で組み直して **589 件を 322 件にした**。元�
 
 - `souba.html` と `souba/index.html` の関係(統合するか、片方を canonical にするか)
 - blog の抜け殻 25 枚: 301 リダイレクトにするか noindex を付けるか(今は素の 56 字ページ)
+
+## 24. Ring 001 と /history の 30 件天井(2026-09-05 13:00〜13:30 JST)
+
+### 24.1 見つけた穴
+- `worker.js` `HISTORY_MAX = 30`、`entries.shift()`。1 endpoint 30 件を超えた古い記録は KV から捨てられとった。「追記のみ、編集せん」は本当やが「捨てん」とは書いてなかった。31 日の月を 1 か月分も持てん。
+- 09-04 時点で自前 6 台が 30 件ちょうど(天井)。今夜 18:00Z の巡回で 08-14 が消える寸前やった。登録簿リポの日次 export は表だけで履歴を持たん。
+- 監査 10 番は「未確認」やなく穴。実物で確認。
+
+### 24.2 やった事(全部 commit 済、push と配備は TOshi)
+- `workers/hs-ledger/nenrin/ring-v1/`: `make_ring.py`(nenrin-ring-v1 生成/検証/鎖)、`ring_redteam.py` 21/21(Mac で確認)、`endpoints.txt`、`fetch_history.sh`、`make_month.sh`、README。鎖の hash は「前の輪のファイル sha256」。最初の版は compact JSON の sha で台帳の sha と食い違う欠陥やった。整形し直した前の輪は `--prev` で拒否。
+- export 実施(8 endpoint、30/30/30/28/30/30/30/9 件)。**Ring 001 = 2026-08 × 8 枚**、8/8 --verify MATCH。`rings/2026-08.sha256`(sha f3e589ef...)を **JIDEC entry 32** に append(04:18:49Z、OTS pending)。seed は `workers/hs-ledger/seed_entry_nenrin_ring_2026-08.json`。
+- 扉 0.3.1(commit f3a2b189、**未配備**): HISTORY_MAX 400、`/history` に `retention {kept_max, note}`、/spec の説明も同じ事実。判定規則は 0.3.0 のまま。
+- 登録簿リポ `mcp-conduct-register`(Mac に clone、commit b2424fb、**未 push**): `scripts/archive_history.py`(全 endpoint の /history を `history/<slug>.json` に append-only 合流、record_sha256 で重複排除、fetch 失敗時は現状維持)、`scripts/make_ring.py`、`.github/workflows/build.yml` に archive step、`history/` と `rings/` の初期値。
+- 追補(instants、sha e228dfd8)の seed も作った: `seed_entry_coordinate_v1_addendum_instants.json`。**append はまだ**。
+
+### 24.3 Ring 001 の中身(数だけ)
+mcp 26/26 verified 23 pending 3、hearing 26/26 verified 23 pending 3、web 26/26 verified 23 pending 3、gate 26 中 reached 18 verified 17 held 9、jidec 24 中 22 verified 22 held 2、p001 26/26 **pending 26**、p002 26/26 verified 18 pending 8、femtech 5/5 verified 5。witness は全部 1(扉のみ)。
+
+### 24.4 残り
+- 追補 seed の append、push 2 リポ、扉 0.3.1 配備、登録簿 Actions を 1 回手動起動。
+- hs-outreach の admin token がチャットに実値で貼られた(13:10 JST 頃)。漏れた扱いで回す。追跡ファイルに実値は無い(git grep 確認)。
+- 監査の次: 3($5)、4/5(Federico に witness 依頼)、8(/watch requested_by)、13(claim register)。

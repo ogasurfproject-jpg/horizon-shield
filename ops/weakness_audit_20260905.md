@@ -115,3 +115,5 @@ Federico は今日 4 往復した。全部 TOshi が起きとる時間やった�
 - `ring-v1/fetch_history.sh` + `make_month.sh`: 今日の export と 8 月の輪(Ring 001 × 8 endpoint)を 2 コマンドに。
 
 **2 番の訂正**: 8 月の履歴が在るので、Ring 001 は 10-01 やなく今日作れる。ただし今日中。
+
+**2 番、閉じた(13:20 JST)。** Ring 001 = 2026-08 × 8 endpoint、`rings/2026-08.sha256` を JIDEC entry 32 に append(04:18:49Z、OTS pending)。duration credential の duration が 0 から 1 か月になった。10 番の archive は登録簿リポに commit 済(push 待ち)。
