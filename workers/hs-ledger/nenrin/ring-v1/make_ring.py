@@ -66,6 +66,60 @@ def dedupe(entries):
     return out
 
 
+def normalise_witness(w):
+    """Accept two shapes. (a) the plain form {at, witness:{name,vantage}, endpoint?, discrepancy_sha256?}.
+    (b) the ledger's stored form from GET /witness/{sha} or a nenrin-witness-batch entry:
+    {sha, witness_name, vantage, submitted_at, record_canonical} where record_canonical is a
+    jidec-path-v1 walk carrying walked_at, base, nodes[].request.url, verdict and witness{name,vantage}.
+    Returns the plain form, or None if the record names no witness."""
+    if not isinstance(w, dict):
+        return None
+    if isinstance(w.get("witness"), dict) and w.get("at"):
+        return w
+    walk = w.get("record_canonical")
+    if isinstance(walk, str):
+        try:
+            walk = json.loads(walk)
+        except ValueError:
+            walk = None
+    walk = walk if isinstance(walk, dict) else {}
+    ident = walk.get("witness") if isinstance(walk.get("witness"), dict) else None
+    if not ident:
+        if not w.get("witness_name"):
+            return None
+        ident = {"name": w.get("witness_name"), "vantage": w.get("vantage") or ""}
+    urls = [walk.get("base") or ""]
+    for nd in walk.get("nodes") or []:
+        req = nd.get("request") if isinstance(nd, dict) and isinstance(nd.get("request"), dict) else None
+        if req and req.get("url"):
+            urls.append(req["url"])
+    out = {
+        "at": walk.get("walked_at") or w.get("submitted_at") or w.get("at"),
+        "witness": {"name": ident.get("name"), "vantage": ident.get("vantage") or ""},
+        "urls": [u for u in urls if u],
+        "sha": w.get("sha"),
+    }
+    if w.get("discrepancy_sha256"):
+        out["discrepancy_sha256"] = w["discrepancy_sha256"]
+    else:
+        v = walk.get("verdict") if isinstance(walk.get("verdict"), dict) else {}
+        if v.get("ok") is False or v.get("result") is False:
+            out["discrepancy_sha256"] = w.get("sha") or sha256_hex(canonical(walk).encode("utf-8"))
+    return out
+
+
+def witness_covers(w, endpoint):
+    """A walk counts for an endpoint only if it touched that endpoint (base or any fetched url),
+    or the plain form names it. A walk of somebody else's service is not a witness of this one."""
+    if w.get("endpoint"):
+        return w["endpoint"] == endpoint
+    urls = w.get("urls")
+    if not urls:
+        return True   # plain form with no endpoint stated: the caller chose the file for this ring
+    origin = endpoint.split("/mcp")[0]
+    return any(u == endpoint or u.startswith(endpoint) or u.rstrip("/") == origin for u in urls)
+
+
 def build_ring(endpoint, month, entries, prev_ring=None, witness_records=None):
     ents = [e for e in entries if in_month(e.get("at"), month)]
     ents = dedupe(ents)
@@ -98,7 +152,10 @@ def build_ring(endpoint, month, entries, prev_ring=None, witness_records=None):
     wit = [GATE_WITNESS]
     disc = []
     for w in (witness_records or []):
-        if not in_month(w.get("at"), month):
+        w = normalise_witness(w)
+        if not w or not in_month(w.get("at"), month):
+            continue
+        if not witness_covers(w, endpoint):
             continue
         ident = w.get("witness") if isinstance(w.get("witness"), dict) else None
         if not ident or not ident.get("name"):

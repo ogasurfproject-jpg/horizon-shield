@@ -949,12 +949,18 @@ sitemap を正規表現で組み直して **589 件を 322 件にした**。元�
 - export 実施(8 endpoint、30/30/30/28/30/30/30/9 件)。**Ring 001 = 2026-08 × 8 枚**、8/8 --verify MATCH。`rings/2026-08.sha256`(sha f3e589ef...)を **JIDEC entry 32** に append(04:18:49Z、OTS pending)。seed は `workers/hs-ledger/seed_entry_nenrin_ring_2026-08.json`。
 - 扉 0.3.1(commit f3a2b189、**未配備**): HISTORY_MAX 400、`/history` に `retention {kept_max, note}`、/spec の説明も同じ事実。判定規則は 0.3.0 のまま。
 - 登録簿リポ `mcp-conduct-register`(Mac に clone、commit b2424fb、**未 push**): `scripts/archive_history.py`(全 endpoint の /history を `history/<slug>.json` に append-only 合流、record_sha256 で重複排除、fetch 失敗時は現状維持)、`scripts/make_ring.py`、`.github/workflows/build.yml` に archive step、`history/` と `rings/` の初期値。
-- 追補(instants、sha e228dfd8)の seed も作った: `seed_entry_coordinate_v1_addendum_instants.json`。**append はまだ**。
+- 追補(instants、sha e228dfd8)は **JIDEC entry 33**(04:21:38Z、OTS pending)。これ以降、この追補ファイルは編集せん。直すなら新しいファイルで旧 sha を引く。
 
 ### 24.3 Ring 001 の中身(数だけ)
 mcp 26/26 verified 23 pending 3、hearing 26/26 verified 23 pending 3、web 26/26 verified 23 pending 3、gate 26 中 reached 18 verified 17 held 9、jidec 24 中 22 verified 22 held 2、p001 26/26 **pending 26**、p002 26/26 verified 18 pending 8、femtech 5/5 verified 5。witness は全部 1(扉のみ)。
 
 ### 24.4 残り
-- 追補 seed の append、push 2 リポ、扉 0.3.1 配備、登録簿 Actions を 1 回手動起動。
+- push 2 リポ(horizon-shield ahead 5、登録簿 2 commit)、扉 0.3.1 配備、登録簿 Actions を 1 回手動起動。
 - hs-outreach の admin token がチャットに実値で貼られた(13:10 JST 頃)。漏れた扱いで回す。追跡ファイルに実値は無い(git grep 確認)。
 - 監査の次: 3($5)、4/5(Federico に witness 依頼)、8(/watch requested_by)、13(claim register)。
+
+### 24.5 追加で出た穴と直し(13:45〜14:10 JST)
+- **証人プールが 18 日間 pending。** `/witness` の自己記述は「daily batches で anchor」やが、束ねる口は `POST /witness/anchor`(運営者の手動、鍵要)だけで cron が無かった。08-18 の 2 件(Federico の walk、TOshi の walk)が 09-05 まで放置。監査 9 番の実物。
+  直し(hs-ledger、commit 前 / 未配備): `anchorWitnessPool(env, origin, trigger)` に切り出し、`scheduled()` から日次 00:30 UTC(wrangler.jsonc `triggers.crons`)で呼ぶ。entry に `anchored_by: schedule|operator`(canonical の外、hash 不変)。自己記述 3 か所を「00:30 UTC に schedule で束ねる。09-05 までは手動で 2 件が 18 日待った」に書き換え。Bitcoin stamp は Mac の launchd(毎時 run_stamp.sh)が `ots_status != confirmed` を拾う。テスト: `test/ledger.test.mjs` の「routes still 9」は 08-18 から落ち続けとった(12 が正)、12 に直して、束ねの 6 assertion を追加。ALL PASS。
+- **ring-v1 に台帳の証人記録アダプタ。** `--witness` に `GET /witness/{sha}` の JSON(jidec-path-v1 walk 入り)をそのまま渡せる。walked_at で月、base か nodes の url で endpoint 一致、verdict.ok false は discrepancies に sha で載る。赤軍 25/25。**anchor 済の Ring 001 8 枚は新ツールでも 8/8 MATCH**(bytes 不変)。
+- `ops/fed_witness_request_20260905.txt`: Federico 宛の witness 依頼(貼るだけ)。**hs-ledger 配備後に送る**(本文が「直した」と言うとる)。18 日放置を先に自分から言う形。

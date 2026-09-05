@@ -1,0 +1,17 @@
+Federico, one request, and one thing I owe you first.
+
+The thing I owe you. Your witness walk from 18 August has been sitting in the ledger's pending pool ever since. The intake text says submissions are anchored in daily batches. There was no schedule behind that sentence. The only way a batch got made was a manual call I never made, so your record and my own from the same night waited eighteen days. I found it today while building the ring, and fixed it: the ledger now bundles the pool into a nenrin-witness-batch entry once a day at 00:30 UTC on its own, the Bitcoin stamp follows on the hourly stamping run, and the intake text now says exactly that, including the eighteen days. Your record goes into the first batch. I am telling you before you find it, because you would have.
+
+Now the request.
+
+NENRIN's third layer exists as of today. Ring 001 covers August for eight endpoints, one file each, built from the gate's history export by a script anyone can rerun, and the sha256 list is JIDEC entry 32 (https://ledger.horizonshield.dev/ledger/32). The rings are honest about things I would rather they were not: the partner endpoint p001 is 26 pending of 26, and the gate measuring itself is 9 held of 26 because it cannot reach its own door. Every ring also carries this sentence in its limits: one witness only, so no discrepancy could have been recorded this month; a single witness can be wrong and nobody was positioned to say so.
+
+That sentence is the request. It disappears from a ring only when a second, independent party measures the same endpoint in the same month and submits the walk. You are the only person who has already done this once, for your own service, in the exact format the ledger takes.
+
+What it would take, concretely: once a month, from your infrastructure, POST initialize and tools/list to https://mcp.horizonshield.dev/mcp, record what came back as a jidec-path-v1 walk (purpose, walked_at, base, the fetch nodes with status and body sha256, your assertions, a verdict, and witness with your name and vantage), and submit it to POST https://ledger.horizonshield.dev/witness. GET on that URL describes the intake. The ring builder takes the record exactly as the ledger returns it, counts you as witness 2 by walked_at, and if your verdict is not ok, lists the record's sha under discrepancies. That would be the first discrepancy between independent parties in the whole record, and I would rather it be found by you than not be found.
+
+If you have the appetite, the endpoint I most want measured from outside is https://gate.horizonshield.dev/mcp, the instrument itself, which no one outside has measured yet. One walk is enough to start. There is no deadline and no obligation, and if the answer is that your month does not have room for it, the sentence stays in the rings and stays true.
+
+One more, smaller, only if it interests you: the ring builder is under 300 lines of Python, and the claim that anyone can recompute a ring has so far been tested by exactly one person, me. If you ever rebuild one ring in your own language from the same history file and get different bytes, that is a finding, and I want it.
+
+Toshikatsu

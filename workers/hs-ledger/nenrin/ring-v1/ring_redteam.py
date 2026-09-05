@@ -86,6 +86,28 @@ wold = dict(w); wold["at"] = "2026-07-10T00:00:00Z"
 case("attack", "a witness record from another month does not count this month",
      build_ring(EP, "2026-08", H, witness_records=[wold])["witnesses"] == 1)
 
+# ledger-shaped records (what GET /witness/{sha} and a nenrin-witness-batch entry actually hold)
+def walk(base, ok=True, name="peer.example", at="2026-08-12T00:00:00Z"):
+    return {"schema": "jidec-path-v1", "purpose": "monthly walk", "walked_at": at, "base": base,
+            "nodes": [{"kind": "fetch", "n": 0, "request": {"method": "POST", "url": base + "/mcp"}, "response": {"status": 200}}],
+            "assertions": [{"claim": "tools/list answers", "result": ok}], "verdict": {"ok": ok},
+            "witness": {"name": name, "vantage": "eu-west"}}
+def stored(wk, sha="s1"):
+    return {"sha": sha, "witness_name": wk["witness"]["name"], "vantage": "eu-west", "signed": False,
+            "submitted_at": "2026-08-12T00:05:00Z", "record_canonical": json.dumps(wk)}
+r4 = build_ring(EP, "2026-08", H, witness_records=[stored(walk("https://target.test"))])
+case("control", "a ledger-shaped witness record (jidec-path-v1 walk) is counted, by walked_at and witness.name",
+     r4["witnesses"] == 2 and r4["discrepancies"] == [], json.dumps(r4["witness_identities"]))
+r5 = build_ring(EP, "2026-08", H, witness_records=[stored(walk("https://somebody-else.test"))])
+case("attack", "a walk of somebody else's service does not count as a witness of this endpoint",
+     r5["witnesses"] == 1, "")
+r6 = build_ring(EP, "2026-08", H, witness_records=[stored(walk("https://target.test", ok=False), sha="d9")])
+case("control", "a walk whose verdict is not ok is a discrepancy, listed by the record's sha",
+     r6["witnesses"] == 2 and r6["discrepancies"] == ["d9"], json.dumps(r6["discrepancies"]))
+r7 = build_ring(EP, "2026-08", H, witness_records=[stored(walk("https://target.test", at="2026-07-30T00:00:00Z"))])
+case("attack", "walked_at decides the month, not submitted_at; a July walk submitted in August stays in July",
+     r7["witnesses"] == 1, "")
+
 # --- misclass -----------------------------------------------------------------
 empty = build_ring(EP, "2026-08", [])
 case("misclass", "a month with nothing measured still produces a ring, and says it is a gap",

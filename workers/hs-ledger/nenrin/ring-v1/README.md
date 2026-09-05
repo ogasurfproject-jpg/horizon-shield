@@ -28,7 +28,7 @@ MATCH means the ring is exactly what this history produces. MISMATCH names the f
 
 ## Witnesses
 
-The gate is witness 1. Third-party walks submitted to `POST /witness` on the ledger are passed with `--witness file.json` (repeatable) and counted by distinct `witness.name`. With one witness the ring states in `limits` that no discrepancy could have been recorded. That sentence disappears only when a second, independent witness measures the same endpoint in the same month.
+The gate is witness 1. Third-party walks submitted to `POST /witness` on the ledger are passed with `--witness file.json` (repeatable), in either the plain form `{at, witness:{name,vantage}, endpoint, discrepancy_sha256?}` or exactly as `GET /witness/{sha}` returns them (a `jidec-path-v1` walk inside `record_canonical`). A walk counts only for an endpoint it actually fetched, in the month of its `walked_at`, and is counted by distinct `witness.name`; a walk whose verdict is not ok is listed under `discrepancies` by its sha. With one witness the ring states in `limits` that no discrepancy could have been recorded. That sentence disappears only when a second, independent witness measures the same endpoint in the same month.
 
 ## What a ring does not do
 
@@ -46,4 +46,4 @@ Ring 001: 2026-08, eight endpoints, made 2026-09-05 from the export taken the sa
 
     python3 ring_redteam.py
 
-21 vectors: 10 attack (double counting, month padding, null reachability, smuggled hashes, folded unmeasured, score creep, chain forgery, reformatted predecessor, nameless witness, wrong-month witness), 8 control, 1 misclassification, 2 residual.
+25 vectors: 12 attack (double counting, month padding, null reachability, smuggled hashes, folded unmeasured, score creep, chain forgery, reformatted predecessor, nameless witness, wrong-month witness, foreign-service walk, month by walked_at), 10 control, 1 misclassification, 2 residual.
