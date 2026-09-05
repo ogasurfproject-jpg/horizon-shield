@@ -741,3 +741,42 @@ TOshi「verify-directory を Anthropic にも出したい」→ 番人がペー�
 ### 19.6 Federico の訂正(09:22)
 
 「GitHub username を選択肢に出したのは自分の勇み足やった。Merlini に確認したら、招待は link を踏む形で、onboarding は email で走る」。**email だけでええ**: contact@the-horizons-innovation.com。返信で GitHub username は出さん(彼が取り消した物をこっちが押し返す形になる)
+
+## 20. 09-05 の一日(古い記述の掃除と、MCP 本体への第 1 手)
+
+### 20.1 公開しとる嘘を 4 つ潰した
+
+今日やった仕事の大半は新機能やない。**自分が過去に公開した、もう本当やない記述を消す**作業やった。4 件とも、外から読める場所にあった。
+
+1. **npm `mcp-conduct@0.1.0` の README** が「`join_register` を CI の step に置け」と書いとった。**`join_register` という入力はどの Action にも一度も存在せん。** 番人が書いた時点で嘘。行き先も archive 済リポ。0.1.1 で撤去(実物の `POST /watch` の curl + wedjat-check-action)。registry で確認済み、latest=0.1.1、shasum a6549d78
+2. **CI が archive した Action をまだ呼んどった。** `.github/workflows/mcp-conduct.yml` が `mcp-conduct-action@main`。文書だけ一本化して、動く物を直しとらんかった。wedjat-check-action@v1 に付け替え(入力名が違うから機械置換不可)。**`allow_tool_call` は落とした**(0.2.4 以降、依頼者の申告は根拠にならん。CI に自己申告を残したら「申告でも通る」と外に読まれる)。手動実行で 6/6、artifact 6 本各 3KB = 配管の証明
+3. **扉の `/spec` に 0.2.3 の文言が 2 か所。** `conditions.determinism` が「allow_tool_call に true を送れ」のまま(廃れた道を本線として教えとった)、`red_team` が「48 of 48」のまま(**今は 63/63**、自分の成績を 1 版半ぶん過少申告)。本番 `ccff81d15afc` で修正、3 文字列を実測確認
+4. **TWZRD 2 通目に嘘 2 つと死にリンク 1 つ。送る直前に発見。** (a)「毎日測る、1 日以内に初回判定」= 嘘。`isDueToday()` で **free 層は 7 日に 1 回**、endpoint の sha256 先頭 4 桁 mod 7 で日を分散。intel.twzrd.xyz/mcp は bucket 5 = **09-08 18:00 UTC** が初回 (b) `/e/intel.twzrd.xyz/mcp` は **今日 404**(publicRegister に行が在る時だけ発行。watched だけの endpoint には無い = 意図した 404)。**URL を開いてから送れという自分の掟に違反しとった** (c) sample_call の段落が古い。訂正版は日付を名指しし、**検算の式まで書いた**(相手に番人を信じさせず自分で確かめさせる)
+
+**共通の根**: 09-04 の重複 Action と同じ。**「直した」と言う前に、動いとる物と公開されとる物を grep する。**
+
+### 20.2 MCP 本体への第 1 手(投稿完了)
+
+出す前に墓場を数えた。trust / verification / attestation の提案 **17 件中 13 件が closed**。生存 3 本(SEP-3140 署名付き宣言、SEP-2787 呼び出し証明、SEP-1913 信頼注記)。**3 本とも「server が自分について宣言する」形**で、外から測る生産者は 1 人もおらん。
+
+- **SEP-3140 には出さん**: 著者が「sponsor が付くまで反応せん」と自分で書いとる
+- **`/.well-known/mcp-conduct.json` を単独 SEP で出すのも筋が悪い**: SEP-2127(server card、著者 dsp-ant、sponsor tadasant)が同じ場所を定義中で、別の well-known を出した SEP-1960 は closed。うちの 2 項目は card の `_meta` に vendor prefix(`dev.horizonshield/` は逆 DNS 規則で合法)で入れるのが正しい形
+- **SEP-1913 に出した**: このスレッドは 5 か月かけて `evidenceRef` に辿り着き、**二実装の壁**(片方の参照が、もう片方で再計算だけで解決できること)を基準として合意し、いま **adoption evidence を集めとる**。扉の `record_sha256` がまさにそれ
+
+**最重要**: CONTRIBUTING.md に「AI 支援を使ったら PR か issue で開示しろ」とある。**SEP-2668(4,584 台を追跡する実装持ち)が closed になった唯一の理由がこの違反**(@localden: "AI-generated without disclosure and engagement is being automated")。開示行を先頭に置いた。
+
+投稿: 2026-09-05T01:08:03Z、`#issuecomment-5548298612`。43 件目の会話に 44 件目として入った。
+
+**現実的な目標は「SEP を通す」やない。** sponsor が付かんと動かんし、3140 も 2787 も sponsor 無しで止まっとる。目標は maintainer 1 人に登録簿の実在を知らせること。落ちても `dormant` であって `rejected` やない(最長 6 か月)。
+
+### 20.3 作業樹の古い落とし物を 3 件片付けた
+
+1. **aeo の 2 枚が未 commit**。`robots` と `author` の meta。**91 枚中 91 枚が既に持っとる**ので、終わっとる仕事の尻尾。安全に commit
+2. **`workers/hs-ledger/nenrin/coordinate-v1/NENRIN_WITNESS_STATE_0001.md` が未追跡**。同ディレクトリの他は全部追跡済み。**Federico の証人陳述を一字も変えず記録した台帳文書**が 09-04 から git の外に置かれとった。sha256 `950edfee4e57835f7bdf7f22e07c54392fad692ad88f5c89aacfee5cdf8a64b4`。MANIFEST_coordinate_v1.md は harness コードだけを pin しとるからマニフェスト破損は無い。**anchor(OTS / 台帳追記)は TOshi の手**
+3. **`workers/hs-hearing/src/oauth.js` が未追跡**。同日に書かれた `visibility.js` は追跡済み。誰も import しとらん(配線前)。鍵は全部 `env.*` から、直書きゼロ = 公開リポに出して安全。**ただし fail-open が 3 か所**: `env.SESSION_SECRET || ""` が署名と検証の両方、`env.MYPAGE_SALT || ""` が 1 か所。**空文字は世界中が知っとる鍵**やから、未設定のまま配線した日に誰でも任意の store_id の cookie を偽造できた。3 か所とも fail-closed に(署名は throw、検証は null、mypageK は throw)。同ファイル 80 行目の GOOGLE_CLIENT_ID が既に正しい形やったので、それに合わせた
+
+### 20.4 番人の落ち度(今日ぶん)
+
+- `git status` を device 側で打って `.git/index.lock` を残した。TOshi に `rm -f` を踏ませた。**以後 `git --no-optional-locks` を使う**(実測でロックを残さん)
+- deploy と commit の順序を逆に言うた。`deploy_gate.sh` はコミット済みを要求する(SHA がデプロイしたコードを指すため)。TOshi の歯止めが正しく効いて止まった
+- pbcopy の後にターミナルからコピーさせる導線を作った。**TOshi の Mac のホスト名とユーザー名を MCP の公開リポに投稿する寸前**やった。送信前に画像で気づいて止めた。以後、貼る物は TextEdit のような清潔な窓を経由させる
