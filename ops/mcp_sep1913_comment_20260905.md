@@ -21,6 +21,8 @@ CONTRIBUTING.md: 「If you are using any kind of AI assistance to contribute to 
 
 npm と Action はブラウザで 1 回ずつ開く。1 本でも開かんかったら、その行を文面から外す。
 
+**2026-09-05 09:5x 実施済み**: 3 本とも 200 を目視。そのとき /spec に 0.2.3 の古い記述が 2 か所残っとるのを発見した(determinism が「allow_tool_call を送れ」のまま、red_team が 48/48 のまま)。**投稿より先に扉を deploy して直す。** 直さんまま maintainer に /spec を指させたら、こっちが今朝 npm で潰したのと同じ「古い公開記述」を自分でやることになる。
+
 ---
 
 ## 投稿する本文(ここから下をそのまま貼る)
@@ -42,6 +44,8 @@ The published method is: remove `record_sha256` and `recompute_note`, serialize 
 **On `canonicalization`.** This producer serializes with `JSON.stringify` in key order, not RFC 8785. That is the weaker choice, and the register discloses it as a named condition rather than hiding it. I offer it as a live counter-example rather than a hypothetical: the moment `canonicalization` becomes optional, or is assumed to be JCS, this reference stops resolving, and so does every reference from any producer that predates the field. `{digest, canonicalization, schema}` is the right shape, and producers like this one are the reason the middle field cannot be dropped.
 
 **On the false-sense-of-security worry** raised earlier in this thread. The response above carries two fields, `verified_meaning` and `not_an_endorsement`, that state what the verdict does not mean, in the same payload as the verdict. `verified` is `true` or `null`, never `false`, because absence of a measurement is not a negative finding. If an evidence layer ever ships a boolean that a client renders as a badge, the shape of the disclaimer matters as much as the shape of the digest.
+
+**The instrument sits on its own register and currently fails it.** `https://gate.horizonshield.dev/self` returns `pending`, not `verified`, because one of the conditions it applies to everyone else is one it cannot measure about itself: it cannot reach its own MCP endpoint over the network from inside its own account, and it does not count an unmeasured condition as a pass. The response states what would settle it, which is for another checker to point at it from outside, at which point the claim is either confirmed or destroyed. I raise it because the failure this thread keeps circling is an evidence producer that grades itself generously, and the cheapest structural defence against that is a producer who is measurable by someone else and publishes its own red rows.
 
 **Limits, stated plainly.** The register is small. Most rows on it are my own servers, and my own servers can and do fail on it. The measurement is narrow: whether a server speaks MCP, publishes an agent card, declares who compensates its operator, and answers one tool call identically twice, plus whether the verdict itself recomputes. It measures conduct and disclosure at a stated time. It does not measure safety, correctness, or competence, and the next measurement can revoke it.
 
