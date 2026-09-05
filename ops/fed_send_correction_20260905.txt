@@ -4,4 +4,6 @@ I wrote that the addendum was anchored material and the change would go in as a 
 
 The no-rewrite rule applies to anchored bytes. These were not yet anchored, so the rule was not in play. What I got wrong was describing the procedure before checking which case I was in. The rule held. My account of what I was about to do did not, and you praised the account, so it needs saying.
 
+On your record: that is the part I did not expect and it is the part that matters most. Two ledgers, run by two operators who do not share infrastructure, each recording the same exchange from its own side. If they ever disagree about what was said, that disagreement is itself a record, and neither of us can quietly fix it. That is the whole design, and it just happened to us instead of to a server we were measuring. I would rather have that than any amount of agreement.
+
 Toshikatsu
