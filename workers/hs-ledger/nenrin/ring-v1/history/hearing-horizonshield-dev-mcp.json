@@ -1,0 +1,1568 @@
+{
+  "endpoint": "https://hearing.horizonshield.dev/mcp",
+  "entries": [
+    {
+      "at": "2026-08-14T18:00:39.400Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "878fd8a8b53e6d4eb7bfe152fa7a9e11bbef33f18d45690a6c9b50733841c36e",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_"
+        }
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-15T18:00:03.207Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "fe1b82a7d175635fd6bcdf19b0ee6c918e3822a268f249aec1b20c84810c4ef5",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d09672dab9400f19",
+        "manifest_hash": "a8bba94beaab8ac5",
+        "server_info_hash": "e936245f674e43ca",
+        "tool_hashes": {
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        }
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-16T18:00:06.732Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "d9e4329cf848ab628a0fe1f75e643a623ecc5f52bc1894d8fc240e59d0f30660",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d09672dab9400f19",
+        "manifest_hash": "a8bba94beaab8ac5",
+        "server_info_hash": "e936245f674e43ca",
+        "tool_hashes": {
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        }
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-16T23:57:14.358Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "147daa238a9ec527e408b28e03d6fbcfdb4a2e3898d18cf15d773840c0626652",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d09672dab9400f19",
+        "manifest_hash": "a8bba94beaab8ac5",
+        "server_info_hash": "e936245f674e43ca",
+        "tool_hashes": {
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        }
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-17T04:31:52.164Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "e6e858ceb764eb222b42b96c0efff242c6ad12717e9aa91469fee91fc73d9146",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d09672dab9400f19",
+        "manifest_hash": "a8bba94beaab8ac5",
+        "server_info_hash": "e936245f674e43ca",
+        "tool_hashes": {
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        }
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-17T18:00:52.997Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "299d07c76a096a4266b5c53f05c77d60ea340b6947732d139183cef567ebcb2c",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d09672dab9400f19",
+        "manifest_hash": "a8bba94beaab8ac5",
+        "server_info_hash": "e936245f674e43ca",
+        "tool_hashes": {
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        }
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-18T17:08:18.669Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "fb85def5ce1f7eee5e5bb69ffe6729e0b43ca45fdd7f2739dacf61866c20cd45",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d09672dab9400f19",
+        "manifest_hash": "a8bba94beaab8ac5",
+        "server_info_hash": "e936245f674e43ca",
+        "tool_hashes": {
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        }
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-18T17:18:02.550Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "facf2f8b3d85758b1ece0a9f72aae8d6ef54a24ea140cafef21d487afdf6c34e",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d09672dab9400f19",
+        "manifest_hash": "a8bba94beaab8ac5",
+        "server_info_hash": "e936245f674e43ca",
+        "tool_hashes": {
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        }
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-18T17:40:56.980Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "de33cf0693019468f624a545d5cdd303770871de77de8a19248327642155214c",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d09672dab9400f19",
+        "manifest_hash": "a8bba94beaab8ac5",
+        "server_info_hash": "e936245f674e43ca",
+        "tool_hashes": {
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        }
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-18T18:00:31.094Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "648badcabf35a207d754251db777f459e64a735e5bae5b8ebb1fcea7ee3dace0",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d09672dab9400f19",
+        "manifest_hash": "a8bba94beaab8ac5",
+        "server_info_hash": "e936245f674e43ca",
+        "tool_hashes": {
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        }
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-19T04:04:39.229Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "3dce98ff35b5e9daff92c3256f7f6f92b49283f7d860e8a43ea8f3d8b811ea0b",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        }
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1",
+      "surface_change": {
+        "added": [
+          "check_named_contractor"
+        ],
+        "removed": [],
+        "definition_changed": [],
+        "note": "The tool surface changed between measurements. This is a dated fact, not a defect: the MCP specification treats tool-list changes as normal operation (notifications/tools/list_changed). Recorded for anyone; judged by no one."
+      }
+    },
+    {
+      "at": "2026-08-19T18:00:41.144Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "20b8c46ae5d53675020ba52fa1bff0739cbd481abfacb6afd491c185d1a5115a",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        }
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-20T18:00:59.649Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "56c9e233e1df89c2480ac78247908cdfdc7c7a08332d8466f13e92bf7c6a15a3",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        }
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-21T18:00:43.339Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "b589d27caa859b08cd48ba06784f4b752b62361b33505aee70f6c66c301942be",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        }
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-22T18:00:20.033Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "4de67c94a6724323bc4fdd49737b39c49743e42640fd348b2632d8e40d75c41b",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        }
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-23T03:34:20.097Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "9e011c63e68749ae86fd53cf6cdfeb50e70eb95c6af29346e37e108a2c54b17e",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-23T18:00:06.098Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "85d57cad34f6fdb8408e690a29a3be574ad1e036adccf54f4829e0874dffc41c",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-24T18:00:37.318Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "fa94ac971905ae31aa9529db4a0ae45499f340201ee11999882e26ee6b708101",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-25T18:00:57.739Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "7d0b7b900c39846f0537814a0b11c741243bf012a38adea1e255e4eb4d6fdd35",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-26T18:00:58.984Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "45eb3b125cf83f0fba419306c492a496c52523da9cd3013dce0dc2088ab39d9e",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-27T18:00:57.753Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "314a2e7e8da9912b33019d191c15d8342a3891d7d6542338ccc120ac930f1400",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-28T01:15:45.245Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "7f06db2972e98d4931cf48fc5dd5838b6a1f13fd20668de2f8ef66005775dc3f",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-28T18:00:55.796Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "e67f16a8b678e59fafdc2bf6acb8a935db7d9a6a94e9b2a315c41c489178495d",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-29T18:00:55.265Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "e4243f1b4931f9cbac953bd87b151c388e76912096b1d793e578d34b86a92435",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-30T18:00:07.984Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "3a97d17aceb071e020ce3b2a035a52d419f3a42a40ee66af7bdc82da3bd4a39d",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-31T18:00:08.608Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "b6951a1ea07e6844d9c2bba17202fb1e46bf64ec0a53cc4489e68aab6fb160f1",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-09-01T18:00:08.243Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "24ac3346dd6d5b54c814e106d2494068b566374ee0a49c819360e1046bb13b6b",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-09-02T18:00:34.445Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "e6921ab1b834ae3f6e12a79481e11ce1d1d1a2cd83ef92fa14e4ea40b83cdd6d",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-09-03T18:01:24.265Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "14d1ad786054acd1abf24cd474bcb64b23c619fffbb23c8b27b152521ae52dd4",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "5aeca12a4a888e20",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-09-04T18:00:40.814Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "e410dc8ad0fd811f1e0afd784735b86af6c7c23dcc6f8ba91b29f51414ecf992",
+      "consent_source": "operator_list",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "91f8a223fae08805",
+        "manifest_hash": "4a47d5dff4c20071",
+        "server_info_hash": "b521eac4d75dacf4",
+        "tool_hashes": {
+          "check_named_contractor": "25246da8616c13bd",
+          "find_contractor": "068a011c09503669",
+          "get_contractor_profile": "062a6a0896ca0b92",
+          "how_verification_works": "ca10b5ae959f41f9",
+          "list_verified_stores": "73672ebc6f24b136",
+          "mall_overview": "2d466ede70c03787"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 6,
+        "discriminating": 6,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    }
+  ]
+}

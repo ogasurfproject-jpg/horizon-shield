@@ -1,0 +1,34 @@
+{
+  "discrepancies": [],
+  "endpoint": "https://jidec.horizonshield.dev/mcp",
+  "first_instant": "2026-08-16T18:00:08.697Z",
+  "instants_by_consent_source": {
+    "none": 24
+  },
+  "instants_by_status": {
+    "held": 2,
+    "verified": 22
+  },
+  "instants_reached": 22,
+  "instants_sampled": 24,
+  "last_instant": "2026-08-31T18:00:11.385Z",
+  "limits": "one witness only, so no discrepancy could have been recorded this month; a single witness can be wrong and nobody was positioned to say so; determinism was not measured on 1 of 24 instants (no owner consent to call a tool); unmeasured is not failed; counts only; the ring never states a rate, a score or a rank, and any reader who computes one has left the record",
+  "manifest_hashes_observed": [
+    "50c80d994fdb32dc"
+  ],
+  "prev_ring": null,
+  "prev_ring_sha256": null,
+  "recompute": "python3 make_ring.py --verify <this file> --history <the /history export> [--prev <previous ring>]. Same bytes in, same sha256 out. Anyone can.",
+  "record_sha256_first": "013b29416f8baea21e7f0e27f10d5c70097e53f9341f2bff26934b5bd21bb561",
+  "record_sha256_last": "cad3988cc8af130225c0a28e481af7649260fd698aea7787e18b49eb40ff7d28",
+  "ring": "2026-08",
+  "schema": "nenrin-ring-v1",
+  "surface_changes": [],
+  "witness_identities": [
+    {
+      "name": "gate.horizonshield.dev",
+      "vantage": "cloudflare-worker"
+    }
+  ],
+  "witnesses": 1
+}

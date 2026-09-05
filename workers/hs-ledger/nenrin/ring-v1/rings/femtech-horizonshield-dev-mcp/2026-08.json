@@ -1,0 +1,40 @@
+{
+  "discrepancies": [],
+  "endpoint": "https://femtech.horizonshield.dev/mcp",
+  "first_instant": "2026-08-28T01:15:59.063Z",
+  "instants_by_consent_source": {
+    "none": 5
+  },
+  "instants_by_status": {
+    "verified": 5
+  },
+  "instants_reached": 5,
+  "instants_sampled": 5,
+  "last_instant": "2026-08-31T18:00:19.690Z",
+  "limits": "one witness only, so no discrepancy could have been recorded this month; a single witness can be wrong and nobody was positioned to say so; counts only; the ring never states a rate, a score or a rank, and any reader who computes one has left the record",
+  "manifest_hashes_observed": [
+    "c1b5dcccba6a231e",
+    "b8e701c911a49492"
+  ],
+  "prev_ring": null,
+  "prev_ring_sha256": null,
+  "recompute": "python3 make_ring.py --verify <this file> --history <the /history export> [--prev <previous ring>]. Same bytes in, same sha256 out. Anyone can.",
+  "record_sha256_first": "f0fcb56a8a271372b7fed6335d65cd9c0222ee0c5f5c6a8cad1fc28432634ad2",
+  "record_sha256_last": "51d1f661b782aaa882de4c185946d628cf31fdcddec094a5b2bd3accdf4a0a09",
+  "ring": "2026-08",
+  "schema": "nenrin-ring-v1",
+  "surface_changes": [
+    {
+      "at": "2026-08-28T18:01:02.663Z",
+      "from": "c1b5dcccba6a231e",
+      "to": "b8e701c911a49492"
+    }
+  ],
+  "witness_identities": [
+    {
+      "name": "gate.horizonshield.dev",
+      "vantage": "cloudflare-worker"
+    }
+  ],
+  "witnesses": 1
+}

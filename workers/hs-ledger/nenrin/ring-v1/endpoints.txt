@@ -1,0 +1,10 @@
+# One endpoint per line. Every endpoint on the register that has measurements. Lines starting with # are ignored.
+https://mcp.horizonshield.dev/mcp
+https://hearing.horizonshield.dev/mcp
+https://web.horizonshield.dev/mcp
+https://jidec.horizonshield.dev/mcp
+https://p001.horizonshield.dev/mcp
+https://p002.horizonshield.dev/mcp
+https://gate.horizonshield.dev/mcp
+https://femtech.horizonshield.dev/mcp
+# https://intel.twzrd.xyz/mcp  (on the register, no measurements yet, consent declined 2026-09-04; add when the operator decides)

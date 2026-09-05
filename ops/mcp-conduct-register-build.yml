@@ -1,0 +1,38 @@
+name: Rebuild register
+
+# 2026-09-05: added the history archive step. The gate keeps a bounded number of records per
+# endpoint and drops the oldest; this repository is the durable copy. history/ is append-only.
+# Place at .github/workflows/build.yml in mcp-conduct-register (replaces the previous file).
+
+on:
+  schedule:
+    - cron: "40 18 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rebuild-register
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Generate the table from the public API
+        run: python3 scripts/build_register.py
+      - name: Archive every endpoint's history (append-only)
+        run: python3 scripts/archive_history.py
+      - name: Commit if the register or the archive changed
+        run: |
+          git config user.name "register bot"
+          git config user.email "register-bot@users.noreply.github.com"
+          git add README.md register.json feed.xml
+          test -d history && git add history
+          git diff --staged --quiet || git commit -m "register: rebuild from the public API; history: archive"
+          git push

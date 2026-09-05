@@ -1,0 +1,47 @@
+{
+  "discrepancies": [],
+  "endpoint": "https://gate.horizonshield.dev/mcp",
+  "first_instant": "2026-08-14T18:00:43.527Z",
+  "instants_by_consent_source": {
+    "none": 26
+  },
+  "instants_by_status": {
+    "held": 9,
+    "verified": 17
+  },
+  "instants_reached": 18,
+  "instants_sampled": 26,
+  "last_instant": "2026-08-31T18:00:17.927Z",
+  "limits": "one witness only, so no discrepancy could have been recorded this month; a single witness can be wrong and nobody was positioned to say so; determinism was not measured on 7 of 26 instants (no owner consent to call a tool); unmeasured is not failed; counts only; the ring never states a rate, a score or a rank, and any reader who computes one has left the record",
+  "manifest_hashes_observed": [
+    "52bac6293318fd40",
+    "ac9a2115de4a175a",
+    "591dbbf12456b7fa"
+  ],
+  "prev_ring": null,
+  "prev_ring_sha256": null,
+  "recompute": "python3 make_ring.py --verify <this file> --history <the /history export> [--prev <previous ring>]. Same bytes in, same sha256 out. Anyone can.",
+  "record_sha256_first": "23575278ce5df80dcf4dd1886312104bcfbbb4120cfb79107037519dbd52832f",
+  "record_sha256_last": "d7e0ae2b84074679064eecbf447d8e8034bbc85c21ce047569d5b5548e622aca",
+  "ring": "2026-08",
+  "schema": "nenrin-ring-v1",
+  "surface_changes": [
+    {
+      "at": "2026-08-18T17:08:25.851Z",
+      "from": "52bac6293318fd40",
+      "to": "ac9a2115de4a175a"
+    },
+    {
+      "at": "2026-08-23T03:34:30.281Z",
+      "from": "ac9a2115de4a175a",
+      "to": "591dbbf12456b7fa"
+    }
+  ],
+  "witness_identities": [
+    {
+      "name": "gate.horizonshield.dev",
+      "vantage": "cloudflare-worker"
+    }
+  ],
+  "witnesses": 1
+}

@@ -1,0 +1,1424 @@
+{
+  "endpoint": "https://p001.horizonshield.dev/mcp",
+  "entries": [
+    {
+      "at": "2026-08-14T18:00:41.607Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "774c39c9eca12b59e6339e81ddb74e69b35d696ff1b5d755d8ea9c2551f6b953",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_"
+        }
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-15T18:00:04.124Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "bed9dbf15fd784c7cfba3665b5873b9a1050f23b68908ed7eaeece3ae4823bf4",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        }
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-16T18:00:09.661Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "452710dd01e0c02166bfd857366e82c364c2cc97496583b55ad02a4d36b9f005",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        }
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-16T23:57:20.924Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "c8871be3df1ac3edd1fadeb6d3e3b3c1dc48d7fee78911b95587f0e67812abe9",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        }
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-17T04:31:57.978Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "5aba21b77c7b54811d6d22c6d5a4e0a4ecac929debc5f3bdff6bad1dbb922587",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        }
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-17T18:00:56.879Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "3d4641ab2c6ea702ff4608f84d135c344af0118bfe10a2c097e104504826dc1b",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        }
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-18T17:08:23.534Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "3c5f0b5ba8804fff363275bf5f1cf8fc52266f7770b2b86d2534f66c1c21263d",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        }
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-18T17:18:07.040Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "35cf04412786dcb59abdcd318f8d147dd57889627b50ce4662652b8977e841dc",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        }
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-18T17:41:01.385Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "2e3e46a8b6fee663bb24bc70d9b3239180e615eb5d192dcc0dd76c97a3349932",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        }
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-18T18:00:36.087Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "c9eece0aaf58fa8b22e5245ab58ec03671e57b888d0538a7f95b56384617db97",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        }
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-19T04:04:43.944Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "b2113ba74d4e8a4c217eeb529c9c39087c0b20839f5799c571f1bba7c674d03e",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        }
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-19T18:00:45.322Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "c06e9c116d93e248e468aa89fd9d6d0ce4a38d21a4cf8ba9559cf58c2a90a0cc",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        }
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-20T18:01:03.640Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "449c4c9d38f8665a410214d48a88590eb4defe716ee3a5db8801f81756f8d603",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        }
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-21T18:00:46.549Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "18ba4e23ebad3e6d7587f47a035f4cee481810a60d95d98940322b109a1010f4",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        }
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-22T18:00:24.190Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "9f806bbcff29ae7c6a8bc7851c2e11674bba88f8c1a1547af180d9d8827bd3cf",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        }
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-23T03:34:26.609Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "b22100b781b64ae1e5c479605c9ecea3a8ecd5704405806b16855a52d22ce4f1",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-23T18:00:11.533Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "6e01b796d8ae76008a6f9dd470b747ab230c2f7ea61f7c5b1e285a9a422a48c9",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-24T18:00:40.938Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "c5711fb78670f7753bab1ef5c7cd91f8feb0d0a19661224313dc79d17f8385a4",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-25T18:01:02.004Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "5bf8c20276e61da65cc9429b01763c3d324fde7ac664fd67347b441d874070d1",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-26T18:01:03.232Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "116f2e7ec26e4087a9d5198f63c3158a0f32e594351f6d15a3a54e91c06b33f7",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-27T18:01:02.236Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "db2f719b1bbd0479815271a8da4bf66e1ca00aa1f26565c7e0c933d0d90f5af0",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-28T01:15:52.780Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "37175c4eca492e0dee8790acaddcdf52e20c671a0e85ddda24d782fcd9240fae",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-28T18:00:59.087Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "eacfe0777339fc85274330ebecac4eacffa0746cdb0fd68774d5a71913b43487",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-29T18:00:58.201Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "ddb44db0e219dfc5a47491fec3af247063b4addf72f84d45e9f50124989586f8",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-30T18:00:15.068Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "035f9181aa70876d1d313f8a5f08032c76d4bb9b8949e64a4567a222ea1591e8",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-31T18:00:15.957Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "f1253ada43f29584f8a4ab9ebde689ddc52436c01bc740c82397bf4e172070bd",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-09-01T18:00:15.449Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "dee79eece290dec34cfd5541937dc0641f50c1bdf7f4b877e65f9a0380a92b13",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-09-02T18:00:41.309Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "b9e3efb362c0378b39e7afb11a285ce6b7d99b7eec166de465cd72792af9f5b9",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-09-03T18:01:31.587Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "35fa6e1a71f40c2b960d3f340ddd755a1a616e53b881395238b62ab9df6dc155",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-09-04T18:01:02.909Z",
+      "status": "pending",
+      "reachable": true,
+      "record_sha256": "0cf8f973651afefcc5d21bf9c99adae044d8478664d9d54470142270f8fda1b0",
+      "consent_source": "none",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "5adf698aad3181b3",
+        "manifest_hash": "de01a4414810d273",
+        "server_info_hash": "390bdb3ca822185c",
+        "tool_hashes": {
+          "get_partner_profile": "8f87b2be38dbf636"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 1,
+        "discriminating": 1,
+        "cannot_distinguish_pct": 0
+      },
+      "fingerprint": "pending|agent_card=1,compensation_disclosure=1,determinism=0,mcp_endpoint=1"
+    }
+  ]
+}

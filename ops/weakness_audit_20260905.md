@@ -102,3 +102,16 @@ Federico は今日 4 往復した。全部 TOshi が起きとる時間やった�
 **今月やるべき順**: 2(Ring 生成)→ 3($5)→ 4/5(Federico に witness を頼む)→ 8(/watch の requested_by)→ 13(claim register)。この 5 つで、致命 3 件のうち 2 件と、構造 4 件のうち 3 件が動く。
 
 1 番(2 人目)は番人には解けん。**TOshi が決めることや。**
+
+---
+
+## 追記 13:40 JST(Ring 実装の途中で出た実物)
+
+**10 番は「未確認」やなく「穴」やった。** `worker.js` の `HISTORY_MAX = 30`、`while (entries.length > HISTORY_MAX) entries.shift()`。1 endpoint あたり 30 件を超えた分は古い順に捨てる。mcp.horizonshield.dev は 09-04 時点で 30 件(登録簿の `measurements: 30`)。**今夜 18:00Z の巡回で 31 件目が入り、8 月 14 日の記録が消える。** 登録簿リポの日次 export は現在表だけで、履歴は持っとらん。つまり 8 月の輪の原料は、今日 export せんと二度と揃わん。31 日の月を 30 件では 1 か月分も持てん設計やった。「記録は追記のみ、編集せん」は本当やが、「捨てん」とは書いてなかった。
+
+直した物(番人、未 commit / 未 deploy):
+- 扉 0.3.1: `HISTORY_MAX` 30 → 400(日次で 1 年強)。`/history` 応答に `retention { kept_max, note }` を刻み、捨てる事実を機械可読に。`/spec` の /history 説明も同じ事実に。
+- `ops/mcp-conduct-register-archive_history.py` + `ops/mcp-conduct-register-build.yml`: 登録簿リポの日次 job に「全 endpoint の /history を `history/<slug>.json` へ append-only で合流」を足す。KV が消えても git に残る。
+- `ring-v1/fetch_history.sh` + `make_month.sh`: 今日の export と 8 月の輪(Ring 001 × 8 endpoint)を 2 コマンドに。
+
+**2 番の訂正**: 8 月の履歴が在るので、Ring 001 は 10-01 やなく今日作れる。ただし今日中。

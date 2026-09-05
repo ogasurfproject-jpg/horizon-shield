@@ -1,0 +1,1438 @@
+{
+  "endpoint": "https://gate.horizonshield.dev/mcp",
+  "entries": [
+    {
+      "at": "2026-08-14T18:00:43.527Z",
+      "status": "held",
+      "reachable": false,
+      "record_sha256": "23575278ce5df80dcf4dd1886312104bcfbbb4120cfb79107037519dbd52832f",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": false,
+          "measured": true,
+          "transport": true,
+          "reason": "initialize failed: http 522"
+        },
+        "agent_card": {
+          "pass": false,
+          "measured": true,
+          "transport": true,
+          "reason": "agent-card not reachable (http 522)"
+        },
+        "compensation_disclosure": {
+          "pass": false,
+          "measured": true,
+          "transport": false,
+          "reason": "no agent-card, cannot read compensation"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_"
+        }
+      },
+      "fingerprint": "held|agent_card=0,compensation_disclosure=0,determinism=0,mcp_endpoint=0"
+    },
+    {
+      "at": "2026-08-15T18:00:05.206Z",
+      "status": "held",
+      "reachable": false,
+      "record_sha256": "93135f3847854b1b304441b7563ba1f5f5cc2590d00c22ec7fbe2ac28e38fd58",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": false,
+          "measured": true,
+          "transport": true,
+          "reason": "initialize failed: http 522"
+        },
+        "agent_card": {
+          "pass": false,
+          "measured": true,
+          "transport": true,
+          "reason": "agent-card not reachable (http 522)"
+        },
+        "compensation_disclosure": {
+          "pass": false,
+          "measured": true,
+          "transport": false,
+          "reason": "no agent-card, cannot read compensation"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": null,
+      "fingerprint": "held|agent_card=0,compensation_disclosure=0,determinism=0,mcp_endpoint=0"
+    },
+    {
+      "at": "2026-08-16T18:00:11.786Z",
+      "status": "held",
+      "reachable": false,
+      "record_sha256": "499907119ed647ba74ebac7ba7f878ece86d4cfe4cbf16b0613054bdcd6ae1f8",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": false,
+          "measured": true,
+          "transport": true,
+          "reason": "initialize failed: http 522"
+        },
+        "agent_card": {
+          "pass": false,
+          "measured": true,
+          "transport": true,
+          "reason": "agent-card not reachable (http 522)"
+        },
+        "compensation_disclosure": {
+          "pass": false,
+          "measured": true,
+          "transport": false,
+          "reason": "no agent-card, cannot read compensation"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: measuring determinism requires calling one of your tools, and this gate does not call tools on a server without the owner's consent. The first tool listed may be destructive. To have this condition measured, re-run with allow_tool_call set to true from a request you control."
+        }
+      },
+      "surface": null,
+      "fingerprint": "held|agent_card=0,compensation_disclosure=0,determinism=0,mcp_endpoint=0"
+    },
+    {
+      "at": "2026-08-16T23:57:23.653Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "093d83bd668407bf510245f43bb8cd4b060f720f4b6c3c9ea4ee6e3b78966ec9",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "8d3ddb111940f52d",
+        "manifest_hash": "52bac6293318fd40",
+        "server_info_hash": "358245049ceabd7b",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "lookup_server": "31da486d4acae8ed",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        }
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-17T04:32:00.524Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "eca2140520fc2b64ee65793afe2ad170a18232c16302b43667ed0b90e7ce68d3",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "8d3ddb111940f52d",
+        "manifest_hash": "52bac6293318fd40",
+        "server_info_hash": "358245049ceabd7b",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "lookup_server": "31da486d4acae8ed",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        }
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-17T18:00:58.980Z",
+      "status": "held",
+      "reachable": false,
+      "record_sha256": "bdf705ddc4c1922fae51919f63f742f9bda6a924813c33c55415ecd519174cfd",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": false,
+          "measured": true,
+          "transport": true,
+          "reason": "initialize failed: http 522"
+        },
+        "agent_card": {
+          "pass": false,
+          "measured": true,
+          "transport": true,
+          "reason": "agent-card not reachable (http 522)"
+        },
+        "compensation_disclosure": {
+          "pass": false,
+          "measured": true,
+          "transport": false,
+          "reason": "no agent-card, cannot read compensation"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": true,
+          "transport": false,
+          "reason": "no tool available to test"
+        }
+      },
+      "surface": null,
+      "fingerprint": "held|agent_card=0,compensation_disclosure=0,determinism=0,mcp_endpoint=0"
+    },
+    {
+      "at": "2026-08-18T17:08:25.851Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "2dcd624e4c9bb5293f9b8053c67fb136dc1f5ca9770f89e7a2b36a429fa4e509",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "8d3ddb111940f52d",
+        "manifest_hash": "ac9a2115de4a175a",
+        "server_info_hash": "49ba1d01f7899445",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        }
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-18T17:18:09.623Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "f622dc9eb43fc028eaf964e522eb06c3fa327ca90289d98dbf529bdbc5baddb4",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "8d3ddb111940f52d",
+        "manifest_hash": "ac9a2115de4a175a",
+        "server_info_hash": "49ba1d01f7899445",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        }
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-18T17:41:05.135Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "8cf02a6109b3103c2795711e38d6d7acd72ce7299a505697d839b7f63eb0b52b",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "8d3ddb111940f52d",
+        "manifest_hash": "ac9a2115de4a175a",
+        "server_info_hash": "49ba1d01f7899445",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        }
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-18T18:00:38.941Z",
+      "status": "held",
+      "reachable": false,
+      "record_sha256": "b495f78bbb7745e63815ddc0538092b168b38e8849cccf9adc05c522d822f250",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": false,
+          "measured": true,
+          "transport": true,
+          "reason": "initialize failed: http 522"
+        },
+        "agent_card": {
+          "pass": false,
+          "measured": true,
+          "transport": true,
+          "reason": "agent-card not reachable (http 522)"
+        },
+        "compensation_disclosure": {
+          "pass": false,
+          "measured": true,
+          "transport": false,
+          "reason": "no agent-card, cannot read compensation"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": true,
+          "transport": false,
+          "reason": "no tool available to test"
+        }
+      },
+      "surface": null,
+      "fingerprint": "held|agent_card=0,compensation_disclosure=0,determinism=0,mcp_endpoint=0"
+    },
+    {
+      "at": "2026-08-19T04:04:46.691Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "f4a591856a3a50d365b05b3e4df2403bda0b84eb18da53edaf5b8cb23e476b1a",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "8d3ddb111940f52d",
+        "manifest_hash": "ac9a2115de4a175a",
+        "server_info_hash": "49ba1d01f7899445",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        }
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-19T18:00:47.502Z",
+      "status": "held",
+      "reachable": true,
+      "record_sha256": "54aa8bf5ac6d17f4248c5399c2dfe2b8a6550fc042082fe6cf7c42e3496ac344",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: relay unavailable (http 404): gate-side failure, not a statement about the target"
+        },
+        "agent_card": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: relay unavailable (http 404): gate-side failure, not a statement about the target"
+        },
+        "compensation_disclosure": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: the agent card could not be fetched because the gate's relay path was unavailable, so whether compensation is disclosed is unknown"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: the tool list could not be read because the gate's relay path was unavailable, so there was nothing to test determinism against"
+        }
+      },
+      "surface": null,
+      "fingerprint": "held|agent_card=0,compensation_disclosure=0,determinism=0,mcp_endpoint=0",
+      "reachable_note": "This entry stores reachable: true, but every condition on this run says measured: false, so reachability was not established on it. Until 2026-08-20 the value was written as (v !== false), which turned 'not measured' into true. The stored entry is left exactly as written."
+    },
+    {
+      "at": "2026-08-20T18:01:05.546Z",
+      "status": "held",
+      "reachable": null,
+      "record_sha256": "495a973990187101513c02bda1d194596a7f3b4f2de12e6e82390924fd4f46d9",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: relay unavailable (http 404): gate-side failure, not a statement about the target"
+        },
+        "agent_card": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: relay unavailable (http 404): gate-side failure, not a statement about the target"
+        },
+        "compensation_disclosure": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: the agent card could not be fetched because the gate's relay path was unavailable, so whether compensation is disclosed is unknown"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: the tool list could not be read because the gate's relay path was unavailable, so there was nothing to test determinism against"
+        }
+      },
+      "surface": null,
+      "absence_vs_failure": {
+        "measured": false,
+        "tools_measured": null,
+        "discriminating": null,
+        "cannot_distinguish_pct": null
+      },
+      "fingerprint": "held|agent_card=0,compensation_disclosure=0,determinism=0,mcp_endpoint=0"
+    },
+    {
+      "at": "2026-08-21T18:00:48.250Z",
+      "status": "held",
+      "reachable": null,
+      "record_sha256": "8d184e3a930481720e46fabd5a45fb12928d697bf7356dbe16de874541bfa15d",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: relay unavailable (http 530): gate-side failure, not a statement about the target"
+        },
+        "agent_card": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: relay unavailable (http 530): gate-side failure, not a statement about the target"
+        },
+        "compensation_disclosure": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: the agent card could not be fetched because the gate's relay path was unavailable, so whether compensation is disclosed is unknown"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: the tool list could not be read because the gate's relay path was unavailable, so there was nothing to test determinism against"
+        }
+      },
+      "surface": null,
+      "absence_vs_failure": {
+        "measured": false,
+        "tools_measured": null,
+        "discriminating": null,
+        "cannot_distinguish_pct": null
+      },
+      "fingerprint": "held|agent_card=0,compensation_disclosure=0,determinism=0,mcp_endpoint=0"
+    },
+    {
+      "at": "2026-08-22T18:00:26.190Z",
+      "status": "held",
+      "reachable": null,
+      "record_sha256": "eaf789cc9c13f6cdc77e2dc98d3a3230779956b4262093effe8fba9ed149cf9f",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: relay unavailable (http 530): gate-side failure, not a statement about the target"
+        },
+        "agent_card": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: relay unavailable (http 530): gate-side failure, not a statement about the target"
+        },
+        "compensation_disclosure": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: the agent card could not be fetched because the gate's relay path was unavailable, so whether compensation is disclosed is unknown"
+        },
+        "determinism": {
+          "pass": false,
+          "measured": false,
+          "transport": false,
+          "reason": "not measured: the tool list could not be read because the gate's relay path was unavailable, so there was nothing to test determinism against"
+        }
+      },
+      "surface": null,
+      "absence_vs_failure": {
+        "measured": false,
+        "tools_measured": null,
+        "discriminating": null,
+        "cannot_distinguish_pct": null
+      },
+      "fingerprint": "held|agent_card=0,compensation_disclosure=0,determinism=0,mcp_endpoint=0"
+    },
+    {
+      "at": "2026-08-23T03:34:30.281Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "bffcba2020d127cff07717a362693a139ea59e6267178949b9a66e46ed570e8d",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d64176a7f5c5ac43",
+        "manifest_hash": "591dbbf12456b7fa",
+        "server_info_hash": "49ba1d01f7899445",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "is_verified": "d08b2eaeddb69207",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 5,
+        "discriminating": 4,
+        "cannot_distinguish_pct": 20
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-23T18:00:14.016Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "c2f2cf942c52fc86d6565eefd3d8f591ad93cf2f99eac2b693a8277360a89e49",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d64176a7f5c5ac43",
+        "manifest_hash": "591dbbf12456b7fa",
+        "server_info_hash": "49ba1d01f7899445",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "is_verified": "d08b2eaeddb69207",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 5,
+        "discriminating": 4,
+        "cannot_distinguish_pct": 20
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-24T18:00:42.615Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "5eab9818c4b784f5d9064e190a091285a8dc373a3f2ee98d4c10d1783fe7b250",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d64176a7f5c5ac43",
+        "manifest_hash": "591dbbf12456b7fa",
+        "server_info_hash": "49ba1d01f7899445",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "is_verified": "d08b2eaeddb69207",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 5,
+        "discriminating": 4,
+        "cannot_distinguish_pct": 20
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-25T18:01:03.975Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "477393ae9a3aef860f18f835e3e3dd6015e464f15003e031f7efcad27f37231d",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d64176a7f5c5ac43",
+        "manifest_hash": "591dbbf12456b7fa",
+        "server_info_hash": "49ba1d01f7899445",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "is_verified": "d08b2eaeddb69207",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 5,
+        "discriminating": 4,
+        "cannot_distinguish_pct": 20
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-26T18:01:05.233Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "c4baac8dfa7cb1253a8e6a923a684bac42265b6803d0115e0fb201737a65acad",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d64176a7f5c5ac43",
+        "manifest_hash": "591dbbf12456b7fa",
+        "server_info_hash": "49ba1d01f7899445",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "is_verified": "d08b2eaeddb69207",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 5,
+        "discriminating": 4,
+        "cannot_distinguish_pct": 20
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-27T18:01:04.203Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "dce24c853469edbb27a21d72cce0d9b05d6d36fc50ecbda754ddb5ed3e2fbf54",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d64176a7f5c5ac43",
+        "manifest_hash": "591dbbf12456b7fa",
+        "server_info_hash": "49ba1d01f7899445",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "is_verified": "d08b2eaeddb69207",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 5,
+        "discriminating": 4,
+        "cannot_distinguish_pct": 20
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-28T01:15:56.693Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "623788f0fc1dd7daaa816734e5d62bdbbbcc5852c7b7491778f81b35dcdc4d49",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d64176a7f5c5ac43",
+        "manifest_hash": "591dbbf12456b7fa",
+        "server_info_hash": "49ba1d01f7899445",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "is_verified": "d08b2eaeddb69207",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 5,
+        "discriminating": 4,
+        "cannot_distinguish_pct": 20
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-28T18:01:00.756Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "083eba63195ee303aa518ffe7e963ceaa1ce246ead33d0dfb672f15fd6e0af6a",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d64176a7f5c5ac43",
+        "manifest_hash": "591dbbf12456b7fa",
+        "server_info_hash": "49ba1d01f7899445",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "is_verified": "d08b2eaeddb69207",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 5,
+        "discriminating": 4,
+        "cannot_distinguish_pct": 20
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-29T18:00:59.891Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "e9a5ec91bad42f2b2151081a6f76742f66ae91a618aef527a6f476877cb00c20",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d64176a7f5c5ac43",
+        "manifest_hash": "591dbbf12456b7fa",
+        "server_info_hash": "49ba1d01f7899445",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "is_verified": "d08b2eaeddb69207",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 5,
+        "discriminating": 4,
+        "cannot_distinguish_pct": 20
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-30T18:00:16.633Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "0bd58e3b795daa02bea005d566efd5d2470489fd17c2f5837f1aeaa353a1df9e",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d64176a7f5c5ac43",
+        "manifest_hash": "591dbbf12456b7fa",
+        "server_info_hash": "aeeaca9227973f48",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "is_verified": "d08b2eaeddb69207",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 5,
+        "discriminating": 4,
+        "cannot_distinguish_pct": 20
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-31T18:00:17.927Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "d7e0ae2b84074679064eecbf447d8e8034bbc85c21ce047569d5b5548e622aca",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d64176a7f5c5ac43",
+        "manifest_hash": "591dbbf12456b7fa",
+        "server_info_hash": "aeeaca9227973f48",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "is_verified": "d08b2eaeddb69207",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 5,
+        "discriminating": 4,
+        "cannot_distinguish_pct": 20
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-09-01T18:00:17.400Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "e9c60f355f34130131717322ac32a9abc3891746be5637880b0714ed08260d9b",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d64176a7f5c5ac43",
+        "manifest_hash": "591dbbf12456b7fa",
+        "server_info_hash": "aeeaca9227973f48",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "is_verified": "d08b2eaeddb69207",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 5,
+        "discriminating": 4,
+        "cannot_distinguish_pct": 20
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-09-02T18:00:43.457Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "c4e2b73e9eddaae4ddd9757564b49b9299fb9d122efbd0a2795b7fe7a8fda686",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d64176a7f5c5ac43",
+        "manifest_hash": "591dbbf12456b7fa",
+        "server_info_hash": "aeeaca9227973f48",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "is_verified": "d08b2eaeddb69207",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 5,
+        "discriminating": 4,
+        "cannot_distinguish_pct": 20
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-09-03T18:01:33.510Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "57acf582a14c99f2ff8f74d4310a3c4f9fa30b24483954e15ddf820d67830187",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d64176a7f5c5ac43",
+        "manifest_hash": "591dbbf12456b7fa",
+        "server_info_hash": "aeeaca9227973f48",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "is_verified": "d08b2eaeddb69207",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 5,
+        "discriminating": 4,
+        "cannot_distinguish_pct": 20
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-09-04T18:01:07.877Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "fb83deaf49a0adc9d46e72098af267095de63a040ed4e61904f15634b2cd6622",
+      "consent_source": "operator_list",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "d64176a7f5c5ac43",
+        "manifest_hash": "591dbbf12456b7fa",
+        "server_info_hash": "b9ebc38a706b8de6",
+        "tool_hashes": {
+          "check_conformance": "6c9242efbeb8a568",
+          "get_conditions": "2cfe77b5fd14eb53",
+          "is_verified": "d08b2eaeddb69207",
+          "lookup_server": "bfb59d75392759f4",
+          "verify_verdict": "c022a23b3d8ce7b3"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 5,
+        "discriminating": 4,
+        "cannot_distinguish_pct": 20
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    }
+  ],
+  "correction": {
+    "at": "2026-08-20",
+    "what": "Entries written before this date stored reachable as (v !== false), so a run where nothing could be measured was recorded as reachable: true.",
+    "fix": "gate58 made reachable three-valued: true, false, or null when it was not measured. Entries written from this date carry null on such runs.",
+    "affected_in_this_response": 1,
+    "entries_are_not_edited": "Past entries keep the bytes they were written with. They carry reachable_note instead, so the record shows both what was written and why it was wrong."
+  }
+}

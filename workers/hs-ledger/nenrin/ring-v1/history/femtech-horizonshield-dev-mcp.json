@@ -1,0 +1,544 @@
+{
+  "endpoint": "https://femtech.horizonshield.dev/mcp",
+  "entries": [
+    {
+      "at": "2026-08-28T01:15:59.063Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "f0fcb56a8a271372b7fed6335d65cd9c0222ee0c5f5c6a8cad1fc28432634ad2",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "03110f63417bbca2",
+        "manifest_hash": "c1b5dcccba6a231e",
+        "server_info_hash": "c354f78e08398f5f",
+        "tool_hashes": {
+          "explain_product_category": "3761cd830badbb07",
+          "get_agent_card": "5d03cb35f5f14f9e",
+          "get_femtech_topic": "8b66c0c4cb4bddb7",
+          "get_registry_entry": "72ca4c1eda694e47",
+          "how_to_verify": "06cb66ccd7406d4d",
+          "list_registry": "9a337714a7a1fd1f",
+          "register_source": "e12f2dbd2e1d56cc",
+          "verify_source": "6a268c7071c96fc7"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 8,
+        "discriminating": 0,
+        "cannot_distinguish_pct": 100
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-28T18:01:02.663Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "13a6a1c69d223434c6c25517b11988399c5d3582b2d3a97b64a0e0f010bf62a7",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "7c364e3c7e77956f",
+        "manifest_hash": "b8e701c911a49492",
+        "server_info_hash": "7046562df33fe338",
+        "tool_hashes": {
+          "check_source": "175c6d433ef0d6a6",
+          "explain_product_category": "3761cd830badbb07",
+          "get_agent_card": "5d03cb35f5f14f9e",
+          "get_femtech_topic": "8b66c0c4cb4bddb7",
+          "get_registry_entry": "72ca4c1eda694e47",
+          "how_to_verify": "06cb66ccd7406d4d",
+          "list_registry": "9a337714a7a1fd1f",
+          "register_source": "e12f2dbd2e1d56cc",
+          "verify_source": "6a268c7071c96fc7"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 9,
+        "discriminating": 0,
+        "cannot_distinguish_pct": 100
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1",
+      "surface_change": {
+        "added": [
+          "check_source"
+        ],
+        "removed": [],
+        "definition_changed": [],
+        "note": "The tool surface changed between measurements. This is a dated fact, not a defect: the MCP specification treats tool-list changes as normal operation (notifications/tools/list_changed). Recorded for anyone; judged by no one."
+      }
+    },
+    {
+      "at": "2026-08-29T18:01:01.271Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "3cf474294a479037b5d10c49598f52ec7ea4525f149a2d8e2ad86cf188de89de",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "7c364e3c7e77956f",
+        "manifest_hash": "b8e701c911a49492",
+        "server_info_hash": "7046562df33fe338",
+        "tool_hashes": {
+          "check_source": "175c6d433ef0d6a6",
+          "explain_product_category": "3761cd830badbb07",
+          "get_agent_card": "5d03cb35f5f14f9e",
+          "get_femtech_topic": "8b66c0c4cb4bddb7",
+          "get_registry_entry": "72ca4c1eda694e47",
+          "how_to_verify": "06cb66ccd7406d4d",
+          "list_registry": "9a337714a7a1fd1f",
+          "register_source": "e12f2dbd2e1d56cc",
+          "verify_source": "6a268c7071c96fc7"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 9,
+        "discriminating": 0,
+        "cannot_distinguish_pct": 100
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-30T18:00:18.236Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "a57a94f26461284cfa9976b4645f79962352790b6966264f841b0b3d3065c61f",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "7c364e3c7e77956f",
+        "manifest_hash": "b8e701c911a49492",
+        "server_info_hash": "7046562df33fe338",
+        "tool_hashes": {
+          "check_source": "175c6d433ef0d6a6",
+          "explain_product_category": "3761cd830badbb07",
+          "get_agent_card": "5d03cb35f5f14f9e",
+          "get_femtech_topic": "8b66c0c4cb4bddb7",
+          "get_registry_entry": "72ca4c1eda694e47",
+          "how_to_verify": "06cb66ccd7406d4d",
+          "list_registry": "9a337714a7a1fd1f",
+          "register_source": "e12f2dbd2e1d56cc",
+          "verify_source": "6a268c7071c96fc7"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 9,
+        "discriminating": 0,
+        "cannot_distinguish_pct": 100
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-08-31T18:00:19.690Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "51d1f661b782aaa882de4c185946d628cf31fdcddec094a5b2bd3accdf4a0a09",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "7c364e3c7e77956f",
+        "manifest_hash": "b8e701c911a49492",
+        "server_info_hash": "7046562df33fe338",
+        "tool_hashes": {
+          "check_source": "175c6d433ef0d6a6",
+          "explain_product_category": "3761cd830badbb07",
+          "get_agent_card": "5d03cb35f5f14f9e",
+          "get_femtech_topic": "8b66c0c4cb4bddb7",
+          "get_registry_entry": "72ca4c1eda694e47",
+          "how_to_verify": "06cb66ccd7406d4d",
+          "list_registry": "9a337714a7a1fd1f",
+          "register_source": "e12f2dbd2e1d56cc",
+          "verify_source": "6a268c7071c96fc7"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 9,
+        "discriminating": 0,
+        "cannot_distinguish_pct": 100
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-09-01T18:00:19.474Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "47d5de86e4c1ac9014f904dcb6795c42809d4c63b23b46ab12cb7f55f0542bbd",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "7c364e3c7e77956f",
+        "manifest_hash": "b8e701c911a49492",
+        "server_info_hash": "7046562df33fe338",
+        "tool_hashes": {
+          "check_source": "175c6d433ef0d6a6",
+          "explain_product_category": "3761cd830badbb07",
+          "get_agent_card": "5d03cb35f5f14f9e",
+          "get_femtech_topic": "8b66c0c4cb4bddb7",
+          "get_registry_entry": "72ca4c1eda694e47",
+          "how_to_verify": "06cb66ccd7406d4d",
+          "list_registry": "9a337714a7a1fd1f",
+          "register_source": "e12f2dbd2e1d56cc",
+          "verify_source": "6a268c7071c96fc7"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 9,
+        "discriminating": 0,
+        "cannot_distinguish_pct": 100
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-09-02T18:00:46.305Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "2d39d9b1908aa21d64934a254b942baeddd36f9f6a9d9336f4ed5a07a23351e0",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "7c364e3c7e77956f",
+        "manifest_hash": "b8e701c911a49492",
+        "server_info_hash": "7046562df33fe338",
+        "tool_hashes": {
+          "check_source": "175c6d433ef0d6a6",
+          "explain_product_category": "3761cd830badbb07",
+          "get_agent_card": "5d03cb35f5f14f9e",
+          "get_femtech_topic": "8b66c0c4cb4bddb7",
+          "get_registry_entry": "72ca4c1eda694e47",
+          "how_to_verify": "06cb66ccd7406d4d",
+          "list_registry": "9a337714a7a1fd1f",
+          "register_source": "e12f2dbd2e1d56cc",
+          "verify_source": "6a268c7071c96fc7"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 9,
+        "discriminating": 0,
+        "cannot_distinguish_pct": 100
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-09-03T18:01:36.125Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "d0f0a8fecdace7f235a862d8f5039f86923c3b380eb57d0667c0b98cfc90b027",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "7c364e3c7e77956f",
+        "manifest_hash": "b8e701c911a49492",
+        "server_info_hash": "7046562df33fe338",
+        "tool_hashes": {
+          "check_source": "175c6d433ef0d6a6",
+          "explain_product_category": "3761cd830badbb07",
+          "get_agent_card": "5d03cb35f5f14f9e",
+          "get_femtech_topic": "8b66c0c4cb4bddb7",
+          "get_registry_entry": "72ca4c1eda694e47",
+          "how_to_verify": "06cb66ccd7406d4d",
+          "list_registry": "9a337714a7a1fd1f",
+          "register_source": "e12f2dbd2e1d56cc",
+          "verify_source": "6a268c7071c96fc7"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 9,
+        "discriminating": 0,
+        "cannot_distinguish_pct": 100
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    },
+    {
+      "at": "2026-09-04T18:01:11.574Z",
+      "status": "verified",
+      "reachable": true,
+      "record_sha256": "46571f98c3dce77ac6ad2c15a3603612c1563f9e386f01d0bf106d275940629a",
+      "consent_source": "operator_list",
+      "conditions": {
+        "mcp_endpoint": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "MCP endpoint responds to initialize and tools/list"
+        },
+        "agent_card": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "agent-card published and well-formed"
+        },
+        "compensation_disclosure": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "compensation structure declared"
+        },
+        "determinism": {
+          "pass": true,
+          "measured": true,
+          "transport": false,
+          "reason": "identical input returned identical output across 2 runs"
+        }
+      },
+      "surface": {
+        "complete": true,
+        "pages_followed": 1,
+        "names_hash": "7c364e3c7e77956f",
+        "manifest_hash": "b8e701c911a49492",
+        "server_info_hash": "7046562df33fe338",
+        "tool_hashes": {
+          "check_source": "175c6d433ef0d6a6",
+          "explain_product_category": "3761cd830badbb07",
+          "get_agent_card": "5d03cb35f5f14f9e",
+          "get_femtech_topic": "8b66c0c4cb4bddb7",
+          "get_registry_entry": "72ca4c1eda694e47",
+          "how_to_verify": "06cb66ccd7406d4d",
+          "list_registry": "9a337714a7a1fd1f",
+          "register_source": "e12f2dbd2e1d56cc",
+          "verify_source": "6a268c7071c96fc7"
+        },
+        "canonicalization": "rfc8785-jcs",
+        "unsafe_integer_scan": "clean"
+      },
+      "absence_vs_failure": {
+        "measured": true,
+        "tools_measured": 9,
+        "discriminating": 0,
+        "cannot_distinguish_pct": 100
+      },
+      "fingerprint": "verified|agent_card=1,compensation_disclosure=1,determinism=1,mcp_endpoint=1"
+    }
+  ]
+}
