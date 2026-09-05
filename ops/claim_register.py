@@ -223,6 +223,23 @@ def c_beacons():
     return ok, "%s%s" % (last, ("; %d beacon(s) beyond the local tip, sync headers" % beyond) if beyond else "")
 
 
+def c_registry_version():
+    """Three places state the gate's version: the source (CONFIG.version), server.json (what gets published), and the
+    official MCP registry (what the world reads). On 2026-09-05 they read 0.3.1 / 0.2.4 / 0.2.2. Publishing is a
+    manual workflow_dispatch, so this row is the reminder."""
+    src = re.search(r'version:\s*"([\d.]+)"', rd("workers/hs-verify-gate/src/worker.js")).group(1)
+    sj = json.loads(rd("workers/hs-verify-gate/server.json")).get("version")
+    reg = get("https://registry.modelcontextprotocol.io/v0/servers?search=ogasurfproject-jpg/hs-verify-gate&version=latest")
+    items = reg.get("servers") or reg.get("items") or []
+    live = None
+    for it in items:
+        srv = it.get("server") or it
+        if (srv.get("name") or "") == "io.github.ogasurfproject-jpg/hs-verify-gate":
+            live = srv.get("version")
+    ok = src == sj == live
+    return ok, "source %s, server.json %s, registry %s%s" % (src, sj, live, "" if ok else " (publish: Actions, MCP registry publish, server_dir workers/hs-verify-gate)")
+
+
 claim("C01", "gate /spec version", "the deployed gate is the committed source", c_gate_version)
 claim("C02", "gate /history retention", "the gate keeps HISTORY_MAX records per endpoint and says so", c_history_cap)
 claim("C03", "gate /spec red_team", "red team scores N of N, and N is what the test file holds", c_gate_redteam)
@@ -237,6 +254,7 @@ claim("C11", "mcp-conduct-register register.json", "every snapshot row is a live
 claim("C12", "ring-v1 README, register README", "one ring per endpoint per month, made by the 5th, published", c_ring_month)
 claim("C13", "mcp-conduct-register history/", "archived daily, append-only", c_archive_fresh)
 claim("C14", "gate /register, /watchlist", "every watched row is measured on its cadence; nothing starves behind the self rows", c_no_starvation)
+claim("C16", "MCP registry, server.json, source", "the published version of the gate is the deployed version", c_registry_version)
 claim("C15", "gate /spec instant_coordinate, every derived verdict", "the recorded beacon is the chain's block at that height and the salt predates it", c_beacons, network=False)
 
 # ---------------------------------------------------------------- report

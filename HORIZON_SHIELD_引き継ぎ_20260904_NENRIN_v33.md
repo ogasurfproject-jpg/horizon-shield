@@ -983,3 +983,12 @@ mcp 26/26 verified 23 pending 3、hearing 26/26 verified 23 pending 3、web 26/2
 - **12**: RECOMPUTE_NOTE に「検証したのは JS と Python の 2 言語のみ。他言語では key の順と数値の表記をそのまま。並べ替える encoder では再現せん。応答は人間向けに indent されとって hash した bytes やない」を追記(扉 0.3.1 同梱)。
 - **14**: `ops/keys_inventory.py` → `ops/keys_inventory.md`。workers/*/src の `env.NAME` から生成、**54 個の秘密名 × 25 Worker、回転日不明 52**。値は読まん。既知: LEDGER_ADMIN_TOKEN(3 Worker 共有、09-04 回転)、SWEEP_TOKEN(手元ファイルと不一致)、hs-outreach ADMIN_TOKEN(今日チャットに実値、要回転)。規則 4 つ(露出即日回転 / 四半期 / 手で打たん / 封筒の索引)。
 - **17**: trigger `trig_01C6xX…`(09-07 自動送信)に手順 1b を足した: thread の最新が自分の送信で 09-05T06:00Z 以降なら送らん、`to:directory@… in:sent after:2026/09/05` に別便があれば送らん。本文は不変。
+
+### 24.9 配備完了と、その後(15:40〜16:20 JST)
+- **扉 0.3.1 配備済**(gate_commit bde5f7e442ff、Version a0689328)。外から確認: /history に retention 400、/register 全行に requested_by(自前 8 = operator、TWZRD = unrecorded と正直に)、removed_rows []。**hs-ledger 配備済**(schedule 30 0 * * *)。/witness/pending の note が「00:30 UTC に schedule で束ねる」に変わった。明朝 09:30 JST に entry 34(証人 2 件の束)が自動で立つ。
+- push 済: horizon-shield c959ad48..bde5f7e4(11 commit)、mcp-conduct-register 28e48c2..f2826fa。
+- claim register 2 回目: **15 行中 3 FAIL**(C07 = 明朝の束ねまで、C13 = 登録簿 Actions の初回まで、C14 = TWZRD)。C09 は探索範囲を直して PASS(17 seed 全部、手元にも台帳にも在る)。
+- Federico: LinkedIn 返信を 13:46 に送信済(**「メールで送る」と書いた版**。メールの糸は無い)。witness 依頼は頭に訂正 1 行を足して LinkedIn で送る形に(TOshi が貼る、送信の確認はこの時点で未)。
+- **もう 1 つずれ**: 扉の version が三つ巴。source 0.3.1 / server.json 0.2.4 / 公式レジストリ 0.2.4。server.json を 0.3.1 に上げた(commit 待ち)。publish は TOshi の workflow_dispatch(MCP registry publish、server_dir を workers/hs-verify-gate に打ち替える)。claim register に **C16** として組み込み(16 行)。
+- claim register の週次化: `ops/run_claim_register.sh` + `ops/com.horizonshield.claimregister.plist`(月曜 08:30 JST、出力は ops/claim-register-runs/、両方 gitignore)。install は TOshi(cp → launchctl bootstrap → kickstart)。週次巡回 trigger(trig_01Dh94…)に「報告を読んで FAIL だけ伝える、自分で走らせん、Ring は月初に本人」を追記済。
+- 今夜 18:15Z の見張り trigger、09-07 の自動送信 trigger も更新済(24.6、24.8 参照)。

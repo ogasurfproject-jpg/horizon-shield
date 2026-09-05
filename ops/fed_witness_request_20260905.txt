@@ -1,4 +1,6 @@
-Federico, one request, and one thing I owe you first.
+Federico, I wrote that the request would come by email. We have no email thread and I am not going to open one for this, so it comes here, and the piece I said had to be deployed first is deployed.
+
+One request, and one thing I owe you first.
 
 The thing I owe you. Your witness walk from 18 August has been sitting in the ledger's pending pool ever since. The intake text says submissions are anchored in daily batches. There was no schedule behind that sentence. The only way a batch got made was a manual call I never made, so your record and my own from the same night waited eighteen days. I found it today while building the ring, and fixed it: the ledger now bundles the pool into a nenrin-witness-batch entry once a day at 00:30 UTC on its own, the Bitcoin stamp follows on the hourly stamping run, and the intake text now says exactly that, including the eighteen days. Your record goes into the first batch. I am telling you before you find it, because you would have.
 

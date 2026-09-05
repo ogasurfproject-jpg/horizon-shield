@@ -234,3 +234,5 @@ ops/*.tgz
 # 2026-09-05: secrets inventory output stays local (names and file locations); the generator is committed
 ops/keys_inventory.md
 ops/claim_register_report.md
+ops/claim-register-runs/
+ops/claim_register_last_run.txt
