@@ -1280,6 +1280,7 @@ const CHANGES_MAX = 50;   // 変化ログの保持件数
 // 判定は無料と有料で完全に同一。値段が付くのは「測る頻度」と「変化を知らされるか」だけ。
 // 判定そのものを売った時点で中立性が死ぬので、そこには決して値段を付けない。
 const REGISTRY_KEY = "watch:registry";
+const REMOVED_KEY = "watch:removed";   // 0.3.1. 外した行の墓標。外した事実は公開する。
 const REGISTRY_MAX = 500;
 const MAX_PER_SWEEP = 8;         // 1本あたり最悪 1(init)+3(tools/listページ)+1(card)=5。8×5=40 ≤ 50(Free枠)
 // 0.3.0 で 9 から 8 に下げた。窓の初回だけ beacon の取得が +4 乗る(tip 2 源 + block 2 源)。
@@ -1304,6 +1305,11 @@ async function markDeclined(env, endpoint, declined) {
   if (declined) row.owner_declined_at = new Date().toISOString();
   else { row.owner_declined_withdrawn_at = new Date().toISOString(); delete row.owner_declined_at; }
   await writeRegistry(env, reg);
+}
+
+async function readRemoved(env) {
+  if (!env || !env.HS_VERIFY_KV) return [];
+  try { return (await env.HS_VERIFY_KV.get(REMOVED_KEY, "json")) || []; } catch (_e) { return []; }
 }
 
 async function writeRegistry(env, reg) {
@@ -1812,7 +1818,9 @@ async function publicRegister(env) {
     }
     rows.push(row);
   }
+  const removed = await readRemoved(env);
   return {
+    removed_rows: removed,
     count: rows.length,
     max: REGISTRY_MAX,
     gate_commit: gateCommit(),
@@ -3244,6 +3252,31 @@ export default {
       });
     }
 
+    // 0.3.1. 行を外す。運営のみ、理由必須、墓標は公開(/watchlist と /register の removed)。
+    // 2026-09-05 に TWZRD へ「言うてくれたら同日に外す」と書いた。約束は KV を手で触る形やなく、経路と記録で守る。
+    // 履歴(/history)は消さん。記録は消さん、行だけ外れる。自前の行(source の DEFAULT_WATCHLIST)は外せん。
+    if (path === "/watch" && request.method === "DELETE") {
+      if (!env || !env.SWEEP_TOKEN) return json({ error: "sweep_token_not_configured" }, 503);
+      if (!(await ctEqual(request.headers.get("x-sweep-token") || "", env.SWEEP_TOKEN))) return json({ error: "forbidden" }, 403);
+      let body;
+      try { body = await request.json(); } catch (_e) { return json({ error: "invalid_json" }, 400); }
+      const ep = body && body.endpoint;
+      const reason = body && body.reason;
+      if (typeof ep !== "string" || !ep) return json({ error: "endpoint_required" }, 400);
+      if (typeof reason !== "string" || reason.trim().length < 8) return json({ error: "reason_required", note: "a removal without a stated reason is a silent edit; state it, it is published" }, 400);
+      const reg = await readRegistry(env);
+      const row = reg[ep];
+      if (!row) return json({ error: "not_a_removable_row", note: "either not on the register, or a self row fixed in the gate's source" }, 404);
+      delete reg[ep];
+      const ok = await writeRegistry(env, reg);
+      let removed = [];
+      try { removed = (await env.HS_VERIFY_KV.get(REMOVED_KEY, "json")) || []; } catch (_e) { removed = []; }
+      const stone = { endpoint: ep, removed_at: new Date().toISOString(), reason: reason.trim(), requested_by: row.requested_by || "unrecorded", added_at: row.added_at || null, owner_file_at_request: row.owner_file_at_request || null, history_kept: true };
+      removed.push(stone);
+      try { await env.HS_VERIFY_KV.put(REMOVED_KEY, JSON.stringify(removed)); } catch (_e) {}
+      return json({ ok: ok, removed: stone, note: "The row is gone from the schedule. Its history stays readable at /history, and this removal is listed publicly under removed on /watchlist and /register." });
+    }
+
     // 掃引の手動実行。cron を待たずに測れるようにする。運営のみ。
     if (path === "/sweep" && request.method === "POST") {
       if (!env || !env.SWEEP_TOKEN) {
@@ -3267,6 +3300,7 @@ export default {
           requested_by: w.requested_by || "unrecorded (row added before 0.3.1)",
           owner_declined: !!w.owner_declined_at
         })),
+        removed: await readRemoved(env),
         cadence: "daily for self and paid, weekly for free",
         verdict_is_identical_for_every_tier: true,
         note: "These endpoints are re-measured on a schedule so a verdict on this site does not silently go stale. No tool on any watched server is ever called by the sweep.",
@@ -3424,7 +3458,7 @@ export default {
           { "@type": "DataDownload", encodingFormat: "application/json", contentUrl: "https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/register.json" },
           { "@type": "application/atom+xml", encodingFormat: "application/atom+xml", contentUrl: "https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/feed.xml" }
         ],
-        rows_are_selected_by: "nobody, the schedule decides what is measured and the code copies the result; since 0.3.1 every row records who asked for it (operator or anonymous) and an origin can decline measurement with listing: decline in " + CONSENT_WELL_KNOWN_PATH + ", after which the row says declined instead of carrying a verdict",
+        rows_are_selected_by: "nobody, the schedule decides what is measured and the code copies the result; since 0.3.1 every row records who asked for it (operator or anonymous), an origin can decline measurement with listing: decline in " + CONSENT_WELL_KNOWN_PATH + " (the row then says declined instead of carrying a verdict), and the operator can remove a row only through DELETE /watch, which requires a stated reason and leaves a public tombstone under removed_rows; history is never deleted",
         what_this_does_not_claim: "That a listed server returns correct numbers, that the business behind it is competent, or that it is safe to use.",
         disputes: {
           how: "Measure any listed endpoint yourself and submit the observation to the public ledger under your own name and vantage.",

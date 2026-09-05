@@ -1,4 +1,5 @@
-// 0.3.1: /watch records who asked; an origin's well-known listing: "decline" stops measurement.
+// 0.3.1: /watch records who asked; an origin's well-known listing: "decline" stops measurement;
+// the sweep is ordered least recently measured first; DELETE /watch removes a row with a public tombstone.
 // Offline. globalThis.fetch is replaced; *.redteam.invalid never resolves for real (RFC 2606).
 // Run: node test/watch_decline.mjs   (in workers/hs-verify-gate)
 import worker from "../src/worker.js";
@@ -102,6 +103,26 @@ const row2 = (reg2.rows || []).find((r) => r.endpoint === "https://declined.redt
 t("control", "the register row no longer says declined", !(row2 && row2.owner_declined), JSON.stringify(row2 && row2.owner_declined));
 const spec = await (await call("/spec")).json();
 t("control", "/spec states the listing: decline rule", /decline/.test(JSON.stringify(spec.well_known_consent || {})), "");
+
+// --- removal at the owner's request: operator only, reason required, public tombstone, history kept ---
+const del = (body, headers) => call("/watch", { method: "DELETE", headers: { "content-type": "application/json", ...(headers || {}) }, body: JSON.stringify(body) });
+const d1 = await del({ endpoint: "https://open.redteam.invalid/mcp", reason: "owner asked by email 2026-09-05" });
+t("attack", "DELETE /watch without the operator token is refused", d1.status === 403, String(d1.status));
+const d2 = await del({ endpoint: "https://open.redteam.invalid/mcp", reason: "x" }, { "x-sweep-token": "redteam-sweep-token" });
+t("attack", "DELETE /watch without a real reason is refused (a removal without a reason is a silent edit)", d2.status === 400, String(d2.status));
+const d3 = await del({ endpoint: "https://mcp.horizonshield.dev/mcp", reason: "trying to remove a self row" }, { "x-sweep-token": "redteam-sweep-token" });
+t("attack", "the operator cannot remove its own self rows (they live in the source)", d3.status === 404, String(d3.status));
+const d4 = await (await del({ endpoint: "https://open.redteam.invalid/mcp", reason: "owner asked by email 2026-09-05" }, { "x-sweep-token": "redteam-sweep-token" })).json();
+t("control", "a removal with the token and a reason succeeds and returns the tombstone", d4.ok === true && d4.removed && d4.removed.reason === "owner asked by email 2026-09-05" && d4.removed.requested_by === "anonymous", JSON.stringify(d4).slice(0, 200));
+const reg3 = await (await call("/register")).json();
+t("control", "the removed row is gone from the register rows", !(reg3.rows || []).some((r) => r.endpoint === "https://open.redteam.invalid/mcp"), "");
+t("control", "the register lists the removal publicly with endpoint, date and reason", (reg3.removed_rows || []).some((x) => x.endpoint === "https://open.redteam.invalid/mcp" && x.removed_at && x.reason), JSON.stringify(reg3.removed_rows));
+const wl2 = await (await call("/watchlist")).json();
+t("control", "the watchlist lists the removal too", (wl2.removed || []).some((x) => x.endpoint === "https://open.redteam.invalid/mcp"), "");
+const h2 = await (await call("/history?endpoint=" + encodeURIComponent("https://open.redteam.invalid/mcp"))).json();
+t("control", "history of a removed row is still readable (records are never deleted)", (h2.entries || []).length >= 1, String((h2.entries || []).length));
+const d5 = await del({ endpoint: "https://open.redteam.invalid/mcp", reason: "owner asked by email 2026-09-05" }, { "x-sweep-token": "redteam-sweep-token" });
+t("control", "removing it twice is a 404, not a second tombstone", d5.status === 404, String(d5.status));
 
 // --- report ---
 const k = {};
