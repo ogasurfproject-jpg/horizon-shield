@@ -29,12 +29,14 @@ const CORS_HEADERS = {
   "access-control-max-age": "86400"
 };
 
-// 0.3.0. 時刻座標。追補 NENRIN_COORDINATE_v1_ADDENDUM_instants_v1.md (sha256 c4929b29...) の実装。
+// 0.3.0. 時刻座標。追補 NENRIN_COORDINATE_v1_ADDENDUM_instants_v1.md の実装。
+// 追補は anchor 前の 2026-09-05 に §6 を書き直した(Federico の freshness_beacon を先行技術として明記)。
+// 0.3.0 配備時の sha256 は c4929b29...、書き直し後(anchor 対象)は e228dfd8...。規則本体は同じ。
 import * as nenrin from "./nenrin_instant.js";
 
 // 仕様確定までの暫定値。名称や閾値はここだけ直せば全体に効く。
 const CONFIG = {
-  version: "0.3.0",
+  version: "0.3.1",  // 2026-09-05. /history の保持 30 → 400、retention を応答に明記。判定の規則は 0.3.0 のまま。
   tier_pass: "verified",        // 通過時の称号(暫定)
   tier_fail: "pending",         // 未通過(不合格とは呼ばない)
   tier_held: "held",            // 到達できず測れなかった。不適合とは別の状態
@@ -1268,7 +1270,10 @@ function spec() {
 // ここがその実装。記録するのは公開判定のみで、申請者の秘密も顧客データも持たない。
 
 // KV が無い環境でも動く。履歴が無効になるだけで、判定機能そのものは影響を受けない。
-const HISTORY_MAX = 30;   // 1エンドポイントあたりの保持件数
+// 2026-09-05. 30 では 31 日の月を 1 か月分も持てん。年輪(nenrin-ring-v1)の原料は /history で、
+// 原料が 30 件で押し出されるなら、8 月の輪は 9 月 8 日以降に二度と作れんかった。400 は日次で 1 年強。
+// KV は耐久記録やない。耐久記録は mcp-conduct-register に日次で archive する history/ の方。
+const HISTORY_MAX = 400;  // 1エンドポイントあたりの保持件数(2026-09-05 まで 30)
 const CHANGES_MAX = 50;   // 変化ログの保持件数
 
 // ---- 監視レジストリと通知 ----
@@ -1501,7 +1506,7 @@ function openapiDoc(origin) {
     paths: {
       "/register": g("Every row in the register", "Rows are scheduled measurements, not endorsements. An endpoint that is absent has simply never been measured."),
       "/verified.json": g("Only the rows that passed every measured condition", "A schema.org Dataset. Returns zero rows when zero rows pass. The bar is not lowered to avoid an empty list."),
-      "/history": g("Past measurements for one endpoint", "Query with ?endpoint=. Records are appended, never edited."),
+      "/history": g("Past measurements for one endpoint", "Query with ?endpoint=. Records are appended, never edited. The gate keeps the most recent " + HISTORY_MAX + " per endpoint (30 until 2026-09-05); older records leave this response, so archive the export."),
       "/changes": g("State changes only", "A change means a condition flipped, not merely that a new verdict was issued."),
       "/feed.xml": g("The same changes as an Atom feed", "For subscribing rather than polling."),
       "/sitemap.xml": g("One URL per measured endpoint", "Only endpoints that have actually been measured appear. No page is minted for an endpoint nobody has measured."),
@@ -3022,7 +3027,9 @@ export default {
     if (path === "/history") {
       const ep = url.searchParams.get("endpoint");
       if (!ep) return json({ error: "endpoint_required", usage: "/history?endpoint=https://your-server/mcp" }, 400);
-      return json(await readHistory(env, ep));
+      const hist = await readHistory(env, ep);
+      if (hist && typeof hist === "object") hist.retention = { kept_max: HISTORY_MAX, note: "The gate keeps the most recent " + HISTORY_MAX + " records per endpoint and drops the oldest beyond that (30 until 2026-09-05). Entries are never edited, but they do leave this response. A monthly ring (nenrin-ring-v1) needs the full month, so export before it is gone." };
+      return json(hist);
     }
     if (path === "/changes") return json(await readChanges(env));
     if (path === "/sweep/last") return json(await readSweepLast(env));
