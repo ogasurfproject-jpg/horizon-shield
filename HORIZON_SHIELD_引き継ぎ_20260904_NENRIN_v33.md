@@ -833,3 +833,72 @@ anchored 仕様は 5 点の組み合わせを新規性として主張しとる�
 **測る時刻と測る対象を、対象も測る側も選べん。**
 
 CT も Rekor も in-toto も SLSA も、**提出する側が選んだ物を受け取る**。それは彼らの目的には正しい設計や。**時間を通した conduct には間違った設計や。conduct とは、誰も見られることを選ばんかった時に起きる物やから。**
+
+## 22. 09-05 の後半(0.3.0 の実装、離小島、掠奪誌、貼る物の設計)
+
+### 22.1 扉 0.3.0 を本番に載せた
+
+追補 nenrin-instant-v1 を、書いた当日に実装した。
+
+- `workers/hs-verify-gate/src/nenrin_instant.js` を新設(worker.js への埋め込みやなく独立 module。巨大ファイルへの編集を最小にでき、単体で試験できる)
+- worker.js 側は 4 か所だけ: import と version、`isDueToday` に coord を通す、`checkDeterminism` の候補順を導出順に、`runCheck` の record に `coordinate_derivation` を足す。`runDailySweep` の頭で座標を 1 回組んで下へ通す(`env` が runCheck に届いてないから、上から渡す形にした)
+- `MAX_PER_SWEEP` を 9 から 8 に。**窓の初回だけ beacon の取得が部分要求 +4 乗る。9 やと 45+4=49 で Free 枠 50 に余白 1**、endpoint が 1 つ余計に redirect しただけで掃引が死ぬ
+- 本番 `db730dd95ff1`、`/spec` に `instant_coordinate` 節を公開
+- 赤組: 新 `test/redteam_instant.mjs` 26/26、既存 `redteam_gate.mjs` 63/63、Python 側 17/17
+
+**設計上の決定を 2 つ記録しとく。**
+
+1. **扉に管理用の書き込み口を新設せんかった。** worker.js に `Authorization` の処理も admin token も 1 つも無い。offline で beacon を作って KV に流し込む案は、**買えず steer できんことが値打ちの計器に新しい攻撃面を開ける**。代わりに Worker 自身に block hash を取らせ、**height と hash を判定に刻んだ**。手元に p2p 同期済みヘッダを持つ側がいつでも反証できる。**計器を信用できる物にするんやなく、計器の主張を反証可能にする**
+2. **beacon は 2 源(mempool.space / blockstream.info)が height と hash で一致した時だけ採る。** 1 源しか答えん日は beacon 無しとして旧規則に落ち、落ちたことを判定と掃引の記録に書く
+
+**未証明**: 導出が本番で 1 回も `derived: true` を出しとらん。手で掃引しようとしたが `SWEEP_TOKEN` が食い違って 403(ファイルは 8/9 付 48 文字で存在、Worker 側の secret は設定済み = どっちかが回された)。**09-05 18:00 UTC の自動掃引が初の実走。見張る予約 trig_017PVhPWMsF4ouqYMceejY8o を入れた**
+
+### 22.2 番人の取得経路が古い答えを返しとった
+
+WebFetch で `gate.horizonshield.dev/health` を素で読んだら **0.2.3 / 033e63eaa27c** が返った。本番は 0.3.0 / db730dd95ff1。**クエリを 1 つ足したら正しい値が返った。** URL 単位で溜め込んどる。
+
+**今朝から 3 回目の同じ形**(古い npm README、古い /spec、古い読み取り)。予約 2 本(TWZRD 09-08、今夜の掃引)に**キャッシュ回避の指示と、gate_commit を報告に必ず書く指示**を入れた。
+
+**09-08 の TWZRD 予約に、もう 1 つ重い訂正を入れた。** 手紙で名指しした「09-08」は**旧規則の日付**や。0.3.0 で beacon が取れとったら日がずれる。ずれても失敗やないが、**手紙と食い違ったらその食い違いこそ報告すべき事実**やと書いた
+
+### 22.3 /yakumo/through-list/ が離小島やった
+
+- リポジトリ全体で**このページに張るリンクが 0 本**、sitemap 588 件にも無し、8/30 から誰も辿り着けん
+- 中身は「掲載は金で買えん・誰でも検算できる・不合格も見える・買い手のための入口」= **Yakumo の公正さの表玄関**
+- 直した: sitemap に追加(589 件)、`/yakumo/` の一覧の**検証の仕組みを説明しとる llmo 2 本の直後**に配置
+
+### 22.4 掠奪的学術誌が受信箱に入っとる
+
+**5 組織以上、2 週間で 8 通。preprint を 1 本出したら住所が業者間で売り回されとる。**
+
+受信箱(要処理): `researchersnexus.org`(**言語学習誌**が建設費論文に)、`premiersciencenetwork.com`(**測量誌**が原価DB論文に、2 通)、`theresearchconsortium.com`、`elivapress.com`(本の営業)
+迷惑: Opast(掠奪的出版社の調査対象)、Vivian Cole、Jasmin、JDAEDM
+
+**返信は 1 通もするな。返信は「この住所は生きとる」信号。** 危ないのは金やなく**記録**。ORCID / Zenodo DOI / engrXiv preprint がある所に掠奪誌の掲載が 1 本混ざったら JCCDB の権威づけが薄まる
+
+**本物を潰すな。同じ箱に入っとる**: MDPI `Intelligent Infrastructure and Construction` 原稿 ID `iic-4476502`(担当編集 Lionel Zheng、**進行中の本物**)、**全 邦釘 先生**(東大、「上流のハッシュを下流にコピーしとるだけでは」と指摘してきた相手)、engrXiv / arXiv / OSF / Anthropic ディレクトリ
+
+**見分け方**: 本物は褒めてこん。全先生は欠陥を 3 つ指摘した。掠奪誌は全員が "perfectly aligned" と書く
+
+`prgunone.com` は配信業者の飛び込み営業(番人の当初の推測 = EIN Presswire 関係は外れ)。迷惑で正しい
+
+### 22.5 Federico とのやり取り
+
+彼の貢献 2 つを草案に入れた(commit 0afc71ee)。
+
+1. **replay one の理由**: determinism は "same input twice" であって "different inputs once each" やない。全部 replay しても determinism の読みは良うならん、買えるのは tool の網羅率で別の問い。**番人の草案は結論だけで理由が無かった**
+2. **coverage ratio**: 「33 本中 3 本が owner-published」を出せば、tool 単位の cherry-picking が沈黙やなく**見える数字**になる
+
+**番人が一段上の穴を足した: 分母も測られる側が選ぶ。**「33 本中 3 本」と「4 本中 3 本(29 本は最初から申告しとらん)」を比率は区別できん。**辞書順 tool 集合の digest を添える**案を出した。完全性は外から証明できんが、分母が縮んどることは測定間で見える
+
+**Telegram は渡さんかった。TOshi は持っとらん。** Merlini の招待は email で来ると彼自身が書いとる。持っとらんアカウントを DM 1 通のために作る理由が無い。「必要になったら作って handle を送る」と返した
+
+### 22.6 番人の落ち度、今日 3 回とも同じ根
+
+1. 朝: pbcopy の後にターミナルからコピーさせて、**Mac のホスト名を公開リポに投稿しかけた**(送信前に画像で止めた)
+2. 昼: `</parameter>` がコマンド末尾に紛れて zsh が落ちた
+3. 午前: **貼る本文の中に `TELEGRAM_PARAGRAPH` という差し替え印を置いた。TOshi がそのまま送信した**(削除 → 冒頭 1 行で経緯を書いた完成版を再送、11:20)
+
+**根は 1 つ: 渡す物の中に、渡してはあかん物を混ぜた。**
+
+**掟にする: 貼る物は貼る形そのままで渡す。選択肢も注記も印も本文の外。** 手本は `ops/fed_send_now_20260905.txt`。開いて全選択して貼ったら、それで完成しとる形
