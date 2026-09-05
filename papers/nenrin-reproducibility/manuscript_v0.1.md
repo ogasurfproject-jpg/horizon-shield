@@ -1,10 +1,12 @@
 # Same File In, Same Bytes Out: Reproducible Conduct Records for Agent-Facing Services, Tested by an Independent Reimplementation
 
-**Working paper, draft v0.1, 2026-09-05. Not yet posted.**
+**Working paper, draft v0.2, 2026-09-05 (co-authorship confirmed 23:34 JST). Not yet posted.**
 
 Toshikatsu Oga, The HORIZ音s株式会社 (HORIZON SHIELD), Hiratsuka, Japan. ORCID 0009-0000-9180-903X.
 
-[Author line to be finalized before posting. The independent implementation reported in Sections 4 to 6 was performed by Federico Blanco Sánchez-Llanos, who is named in the anchored record (JIDEC entry 34). Whether he appears as co-author, as named independent verifier, or only through the cited record is his decision and is pending.]
+Federico Blanco Sánchez-Llanos, Viper Labs (builds invinoveritas, a verification layer for autonomous agents).
+
+[Division of work, stated for the record: T.O. designed and operates NENRIN, wrote the reference implementation, and drafted this paper. F.B.S.L. wrote the independent Node.js implementation and performed the blind runs; Sections 4.2 and 6 are his to write and the current text there is a placeholder drafted from the anchored record for him to replace. Both authors approve the final text before posting.]
 
 ## Abstract
 
@@ -66,6 +68,8 @@ The reference builder exposes this as a verify mode: given a ring file and the h
 
 ### 4.2 Independent reimplementation
 
+[Placeholder drafted by T.O. from JIDEC entry 34. To be rewritten by F.B.S.L., who performed the work.]
+
 The stronger test adds four conditions. The second implementer (a) has not seen the reference source; (b) reads the specification and confirms by SHA-256 that it is the document the reference cites; (c) implements in a different language, so that runtime defaults cannot be inherited by accident; (d) runs blind against the published inputs and reports per-ring match or mismatch before seeing the reference outputs.
 
 Condition (a) is a statement by the implementer and cannot be proven; it is recorded as such in the anchored record ("implementation_2_source_seen: none of implementation_1 (implementer's statement)"). Condition (b) is checkable and was checked: the specification's SHA-256, 9ccba2e325fd2a555fcdb2dec519b8c6bf7a669064674846aea98ecfff824e3d, matches the value cited at the head of the reference builder.
@@ -109,6 +113,8 @@ Table 2 lists every artifact whose hash appears in entry 34.
 The result: eight of eight rings byte-identical across the two implementations, from the same committed history, with the second implementer's run performed blind.
 
 ## 6. The seam
+
+[Placeholder drafted by T.O. To be rewritten or corrected by F.B.S.L., who found the seam. Table 3 in particular should be checked against what the Node.js implementation actually does.]
 
 The reimplementation succeeded, and the reason it did is the most useful thing in this paper: the implementer checked one thing that a port would have assumed.
 
@@ -169,7 +175,7 @@ Compare the printed SHA-256 with the corresponding line of rings/2026-08.sha256,
 
 ## Acknowledgements and disclosure
 
-The author operates every endpoint measured in this paper and the ledger that anchors the records; that is Layer 4 of the design, and it is also a conflict of interest, stated here. The independent implementation was performed by Federico Blanco Sánchez-Llanos, named in JIDEC entry 34; he received no compensation. No party paid for any measurement or record cited.
+The author operates every endpoint measured in this paper and the ledger that anchors the records; that is Layer 4 of the design, and it is also a conflict of interest, stated here. Neither author received compensation for any part of this work. No party paid for any measurement or record cited.
 
 ## References
 

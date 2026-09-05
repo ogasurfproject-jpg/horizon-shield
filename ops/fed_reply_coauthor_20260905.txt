@@ -1,0 +1,19 @@
+Good. Two authors, then. Affiliation line taken as you wrote it: Viper Labs (builds invinoveritas, a verification layer for autonomous agents).
+
+The draft is in the open repository, not in an attachment, so what you read is what is committed:
+
+github.com/ogasurfproject-jpg/horizon-shield
+papers/nenrin-reproducibility/manuscript_v0.1.md
+commit COMMIT_SHA
+
+What is yours: Section 4.2 (the independent reimplementation protocol) and Section 6 (the seam), including Table 3, where I listed the latent seams of that class and guessed which ones the August rings exercise. The text there now is my placeholder written from entry 34; replace it with what you actually did, and if my Table 3 guesses are wrong about your implementation, that is exactly what the section is for. Everything else is open to your red pen too, and Section 7, the limits, most of all. If you think the paper claims more than the bytes support, say where.
+
+What is still mine to finish: the reference list, Appendix B (entry 34 verbatim, with the Bitcoin block once the stamp lands), and the abstract's last pass once your sections are in.
+
+Send changes however you like: a commit on a branch or fork, a diff, or the two sections as text. I will merge and push, and every version stays in the history.
+
+One practical thing for SSRN: they register co-authors by email address and send a consent notice. When you are ready, send me the address you want on the paper, here, not in the repository.
+
+No date on any of it. September's rings come first, and they are built from the same history file either way.
+
+Toshikatsu
