@@ -58,7 +58,11 @@
   //     新ドメインは「追加」であって「移行」ではない。
   "routes": [
     { "pattern": "ledger.horizonshield.dev", "custom_domain": true }
-  ]
+  ],
+  // ★2026-09-05 追加：証人プールの日次束ね(src/worker.js の scheduled)。
+  //   08-18 に入った 2 件が 09-05 まで pending やった。「daily batches」と公言して cron が無かった。
+  //   00:30 UTC = 09:30 JST。プールが空なら何もせん。
+  "triggers": { "crons": ["30 0 * * *"] }
   // PENDING_STALE_HOURS は任意。未設定なら STALE_HOURS_DEFAULT=6 が効く。
   // ダッシュボードで設定していた場合、vars を宣言しない deploy で消える点に注意
   // （消えても既定値6に戻るだけで、壊れはしない）。

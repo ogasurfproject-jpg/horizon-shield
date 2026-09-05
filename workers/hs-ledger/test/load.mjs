@@ -58,7 +58,13 @@ export function mockKV(entries) {
       put: async (k, v) => {
         store.set(k, v);
       },
-      list: async () => ({ keys: [...store.keys()].map((name) => ({ name })), list_complete: true }),
+      list: async (opt) => {
+        const pre = (opt && opt.prefix) || "";
+        return { keys: [...store.keys()].filter((k) => k.startsWith(pre)).map((name) => ({ name })), list_complete: true };
+      },
+      delete: async (k) => {
+        store.delete(k);
+      },
     },
   };
 }

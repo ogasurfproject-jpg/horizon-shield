@@ -69,8 +69,10 @@ function witnessSelfDescription(origin) {
     spec: "NENRIN v1, anchored as ledger entry #19",
     what_this_is:
       "Any party may submit a verification walk (jidec-path-v1 with a witness field) it took of any " +
-      "public endpoint. Accepted submissions sit in a public pending pool and are anchored in daily " +
-      "batches as nenrin-witness-batch-v1 ledger entries. Acceptance is mechanical: schema, size, " +
+      "public endpoint. Accepted submissions sit in a public pending pool and are bundled into a " +
+      "nenrin-witness-batch-v1 ledger entry once a day at 00:30 UTC by the ledger's own schedule when " +
+      "the pool is not empty (until 2026-09-05 this was a manual step; two records waited 18 days). " +
+      "The Bitcoin stamp follows on the operator's stamping run. Acceptance is mechanical: schema, size, " +
       "rate, duplicate, and signature validity if a signature is present. There is no editorial " +
       "review and no route by which the operator declines a schema-valid submission.",
     limits_stated_not_hidden: {
@@ -882,7 +884,7 @@ async function handle(request, env) {
       await env.LEDGER.put(ipKey, String(gi + 1), { expirationTtl: 90000 });
       return json({
         sha, status: "pending", signed, url: `${origin}/witness/${sha}`,
-        anchor_policy: "pending submissions are bundled into a nenrin-witness-batch-v1 ledger entry in daily batches; the batch anchor fixes the existence time of every record in it"
+        anchor_policy: "pending submissions are bundled into a nenrin-witness-batch-v1 ledger entry daily at 00:30 UTC by the ledger's schedule when the pool is not empty; the batch anchor fixes the existence time of every record in it; the Bitcoin stamp follows on the operator's stamping run"
       }, 201);
     }
 
@@ -895,7 +897,7 @@ async function handle(request, env) {
         const s = JSON.parse(raw);
         out.push({ sha: s.sha, purpose: s.purpose, witness_name: s.witness_name, vantage: s.vantage, signed: s.signed, submitted_at: s.submitted_at });
       }
-      return json({ count: out.length, pending: out, note: "public pool; anchored in daily batches" });
+      return json({ count: out.length, pending: out, note: "public pool; bundled into a ledger entry daily at 00:30 UTC by schedule when not empty; the Bitcoin stamp follows on the operator's stamping run" });
     }
 
     const wm = p.match(/^\/witness\/([0-9a-f]{64})$/i);
@@ -911,35 +913,8 @@ async function handle(request, env) {
 
     if (p === "/witness/anchor" && request.method === "POST") {
       if (!(await auth(request, env))) return json({ error: "unauthorized" }, 401);
-      const listed = await env.LEDGER.list({ prefix: "wit:pending:" });
-      const keys = listed.keys.slice(0, WITNESS_BATCH_MAX);
-      if (!keys.length) return json({ ok: true, anchored: 0, note: "pool is empty" });
-      const items = [];
-      for (const k of keys) {
-        const raw = await env.LEDGER.get(k.name);
-        if (raw) items.push(JSON.parse(raw));
-      }
-      items.sort((a, b2) => (a.sha < b2.sha ? -1 : 1));
-      const batch = {
-        schema: "nenrin-witness-batch-v1",
-        anchored_at: new Date().toISOString(),
-        count: items.length,
-        records: items.map((s) => ({ sha: s.sha, purpose: s.purpose, witness_name: s.witness_name, vantage: s.vantage, signed: s.signed }))
-      };
-      const canonical = JSON.stringify(batch);
-      const h = (await sha256hex(canonical)).toLowerCase();
-      const dup = await env.LEDGER.get(`hash:${h}`);
-      if (dup) return json({ n: Number(dup), url: `${origin}/ledger/${dup}`, dedup: true });
-      const n = Number((await env.LEDGER.get("seq")) || 0) + 1;
-      const entry = { n, work: `NENRIN witness batch (${items.length} records)`, claim_sha256: h, record_canonical: canonical, schema: "v0-plain", created_at: new Date().toISOString(), ots_status: "unstamped", bitcoin_block: null, block_time: null, stamped_at: null };
-      await env.LEDGER.put(`entry:${n}`, JSON.stringify(entry));
-      await env.LEDGER.put(`hash:${h}`, String(n));
-      await env.LEDGER.put("seq", String(n));
-      for (const s of items) {
-        await env.LEDGER.put(`wit:anchored:${s.sha}`, JSON.stringify({ n, stored: s }));
-        await env.LEDGER.delete(`wit:pending:${s.sha}`);
-      }
-      return json({ n, url: `${origin}/ledger/${n}`, anchored: items.length, note: "stamp the ledger as usual; the batch anchor covers every record listed in it" }, 201);
+      const r = await anchorWitnessPool(env, origin, "operator");
+      return json(r.body, r.status);
     }
 
     if (p === "/ledger" && request.method === "GET") {
@@ -1244,6 +1219,43 @@ async function handle(request, env) {
     return json({ error: "not found", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots"] }, 404);
 }
 
+// 2026-09-05. 証人プールの束ね。08-18 に 2 件入って 09-05 まで 18 日間 pending のままやった。
+// 「daily batches」と公言しながら、束ねる口は運営者の手動 POST だけで、cron が無かった。
+// 同じ処理を scheduled からも呼ぶ。台帳への追記は Worker 自身が KV に書くので鍵は要らん。
+// Bitcoin への stamp は Mac の stamping run が pending を拾う(そこは今まで通り)。
+async function anchorWitnessPool(env, origin, trigger) {
+  const listed = await env.LEDGER.list({ prefix: "wit:pending:" });
+  const keys = listed.keys.slice(0, WITNESS_BATCH_MAX);
+  if (!keys.length) return { status: 200, body: { ok: true, anchored: 0, note: "pool is empty" } };
+  const items = [];
+  for (const k of keys) {
+    const raw = await env.LEDGER.get(k.name);
+    if (raw) items.push(JSON.parse(raw));
+  }
+  items.sort((a, b2) => (a.sha < b2.sha ? -1 : 1));
+  const batch = {
+    schema: "nenrin-witness-batch-v1",
+    anchored_at: new Date().toISOString(),
+    count: items.length,
+    records: items.map((s) => ({ sha: s.sha, purpose: s.purpose, witness_name: s.witness_name, vantage: s.vantage, signed: s.signed }))
+  };
+  const canonical = JSON.stringify(batch);
+  const h = (await sha256hex(canonical)).toLowerCase();
+  const dup = await env.LEDGER.get(`hash:${h}`);
+  if (dup) return { status: 200, body: { n: Number(dup), url: `${origin}/ledger/${dup}`, dedup: true } };
+  const n = Number((await env.LEDGER.get("seq")) || 0) + 1;
+  const entry = { n, work: `NENRIN witness batch (${items.length} records)`, claim_sha256: h, record_canonical: canonical, schema: "v0-plain", created_at: new Date().toISOString(), ots_status: "unstamped", bitcoin_block: null, block_time: null, stamped_at: null };
+  entry.anchored_by = trigger; // "schedule" (daily cron) or "operator" (manual POST). Outside record_canonical, so the hash is unaffected.
+  await env.LEDGER.put(`entry:${n}`, JSON.stringify(entry));
+  await env.LEDGER.put(`hash:${h}`, String(n));
+  await env.LEDGER.put("seq", String(n));
+  for (const s of items) {
+    await env.LEDGER.put(`wit:anchored:${s.sha}`, JSON.stringify({ n, stored: s }));
+    await env.LEDGER.delete(`wit:pending:${s.sha}`);
+  }
+  return { status: 201, body: { n, url: `${origin}/ledger/${n}`, anchored: items.length, trigger, note: "the batch anchor covers every record listed in it; the Bitcoin stamp follows on the operator's stamping run" } };
+}
+
 export default {
   async fetch(request, env) {
     const res = await handle(request, env);
@@ -1251,5 +1263,14 @@ export default {
     // 遅延は増えない。noteHit の中は全部 try で囲ってあり、ここは throw しない。
     noteHit(env, request, res && res.status);
     return res;
+  },
+  // 2026-09-05. 日次 00:30 UTC(wrangler.jsonc の triggers.crons)。プールが空なら何もせん。投げん。
+  async scheduled(_event, env, _ctx) {
+    try {
+      const r = await anchorWitnessPool(env, "https://ledger.horizonshield.dev", "schedule");
+      console.log("witness batch:", JSON.stringify(r.body));
+    } catch (e) {
+      console.log("witness batch failed:", String(e && e.message || e));
+    }
   },
 };

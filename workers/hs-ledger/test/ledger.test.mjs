@@ -55,7 +55,9 @@ const chk = checker("hs-ledger");
 // ── 既存の約束 ───────────────────────────────────────────────
 let r = await go("/health");
 const hj = JSON.parse(r.t);
-chk("/health routes still 9", hj.routes.length === 9, String(hj.routes.length));
+// 2026-08-18 で /witness, /witness/pending, /witness/{sha} の 3 本が足された(entry #19、NENRIN phase 2)。
+// 9 のままやったこの行は 08-18 から落ち続けとった。12 に直したのは 2026-09-05。
+chk("/health routes still 12 (9 + 3 witness routes since 2026-08-18)", hj.routes.length === 12, String(hj.routes.length));
 chk("/health has discovery", !!hj.discovery && hj.discovery.api_catalog === "/.well-known/api-catalog");
 chk("/health transparency admits non-conformance", /NOT a conformant/.test(hj.transparency.conformance));
 
@@ -212,5 +214,26 @@ chk("AE: preflight is not counted", points.length === 0, JSON.stringify(points))
 // /health が計測していることを自分で公言していること。
 chk("/health declares what it measures", !!hj.privacy && hj.privacy.access_measurement === "enabled");
 chk("/health declares that it does not record IPs", !!hj.privacy && hj.privacy.not_recorded.includes("IP address"));
+
+// 2026-09-05. 証人プールの日次束ね。scheduled が空プールで何もせず、2 件で 1 entry を作り、pending を消すこと。
+{
+  const kv2 = mockKV([["seq", "40"]]);
+  const env2 = { LEDGER: kv2.binding };
+  await worker.scheduled({}, env2, {});
+  chk("witness batch: empty pool leaves seq untouched", kv2.store.get("seq") === "40", kv2.store.get("seq"));
+  const rec = (sha, name) => JSON.stringify({ sha, purpose: "test walk", witness_name: name, vantage: "v", signed: false, submitted_at: "2026-08-18T00:00:00Z" });
+  kv2.store.set("wit:pending:aaaa", rec("aaaa", "A"));
+  kv2.store.set("wit:pending:bbbb", rec("bbbb", "B"));
+  await worker.scheduled({}, env2, {});
+  const e41 = JSON.parse(kv2.store.get("entry:41") || "null");
+  chk("witness batch: two pending records become one ledger entry", !!e41 && e41.work === "NENRIN witness batch (2 records)", JSON.stringify(e41 && e41.work));
+  chk("witness batch: the entry hashes its own canonical", !!e41 && e41.claim_sha256 === await sha256Hex(e41.record_canonical));
+  chk("witness batch: pending keys are gone, anchored keys exist",
+      !kv2.store.has("wit:pending:aaaa") && !kv2.store.has("wit:pending:bbbb") && kv2.store.has("wit:anchored:aaaa") && kv2.store.has("wit:anchored:bbbb"));
+  await worker.scheduled({}, env2, {});
+  chk("witness batch: a second run on an empty pool adds nothing", kv2.store.get("seq") === "41", kv2.store.get("seq"));
+  const pend = await (await worker.fetch(new Request("https://ledger.horizonshield.dev/witness/pending"), env2)).json();
+  chk("witness/pending states the schedule instead of promising daily batches", /00:30 UTC/.test(pend.note), pend.note);
+}
 
 process.exit(chk.done() ? 1 : 0);
