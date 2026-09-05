@@ -1006,3 +1006,7 @@ mcp 26/26 verified 23 pending 3、hearing 26/26 verified 23 pending 3、web 26/2
 - 今夜 00:30Z の entry 34 に 08-18 の 2 件とこの 1 件、計 3 件が束なる。C07 が消える。
 - Federico は ring builder の独立再実装(recompute)をやると言うた(監査 11 番が動く)。
 - 返信 `ops/fed_reply_witness_20260905.txt`(貼るだけ)。10 月の輪の時に `curl -s https://ledger.horizonshield.dev/witness/321e74b9f0e111d922025bfed5d6737b8a2e77d24b91f63307d3d9f316ee27f5 > witness/gate-2026-09-federico.json` を ring-v1 で取り、`make_ring.py --month 2026-09 --history history/gate-horizonshield-dev-mcp.json --prev rings/gate-horizonshield-dev-mcp/2026-08.json --witness witness/gate-2026-09-federico.json` で作る。make_month.sh は witness/ を自動では拾わん(要追加、10 月まで)。
+
+### 24.12 token 回転と登録簿 archive 初回(14:38〜14:45 JST)
+- **hs-outreach ADMIN_TOKEN 回転済**(TOshi の手)。新値は `~/jidec/hs_outreach_token`(chmod 600、64 hex、改行なし)、`npx wrangler secret put ADMIN_TOKEN < file` で投入、/status が新値で応答(paused False, dry_run False, sent_today 1)。旧値(チャットに 1 回、brain v4 trigger の文面に 1 回)は死亡。brain v4 trigger(trig_015aAk…)は `$(cat "$HOME/mnt/jidec/hs_outreach_token")` で読む形に更新済(値はプロンプトに無い)。**月曜朝の run が "token file missing" と言うたら、その trigger に jidec フォルダが繋がっとらんだけ。** keys_inventory.py の KNOWN も更新。
+- 登録簿 Actions 初回(#26)成功。ただし archive_history.py は「新記録が無ければ書かん」設計やったので、手で置いた 8 本には archive 印が付かず C13 は FAIL のまま。twzrd は新規に 0 件のファイルが出来た(register.json に 9 行目として載っとる)。直し: archive 印が無いファイルは 1 回だけ印を付けて書く(`ops/mcp-conduct-register-archive_history.py` 更新、登録簿リポへの cp と push は TOshi)。今夜 18:40Z の run で今日の掃引分が入るから、直さんでも明日には C13 は消えるが、印の一貫性のために直す。

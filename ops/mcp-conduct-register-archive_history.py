@@ -58,7 +58,9 @@ def main():
             old = {"endpoint": ep, "entries": []}
         seen = set(key(e) for e in old["entries"])
         added = [e for e in (live.get("entries") or []) if key(e) not in seen]
-        if not added and os.path.exists(path):
+        # A file copied in by hand (the first eight, 2026-09-05) has no archive block yet. Stamp it once,
+        # so the block exists and the count is stated; after that, rewrite only when records are added.
+        if not added and os.path.exists(path) and isinstance(old.get("archive"), dict):
             print("%s: no new records (%d archived)" % (slug(ep), len(old["entries"])))
             continue
         entries = old["entries"] + added
@@ -77,7 +79,7 @@ def main():
         }
         io.open(path, "w", encoding="utf-8").write(json.dumps(doc, ensure_ascii=False, indent=2) + "\n")
         changed += 1
-        print("%s: +%d, %d archived" % (slug(ep), len(added), len(entries)))
+        print("%s: +%d, %d archived%s" % (slug(ep), len(added), len(entries), "" if added else " (archive block added)"))
     print("archive: %d file(s) changed, %d endpoint(s) not fetched" % (changed, failed))
     return 0
 
