@@ -1,0 +1,67 @@
+diff --git a/papers/nenrin-reproducibility/manuscript_v0.1.md b/papers/nenrin-reproducibility/manuscript_v0.1.md
+index 7589e0f3..ff6a2a68 100644
+--- a/papers/nenrin-reproducibility/manuscript_v0.1.md
++++ b/papers/nenrin-reproducibility/manuscript_v0.1.md
+@@ -68,11 +68,15 @@ The reference builder exposes this as a verify mode: given a ring file and the h
+ 
+ ### 4.2 Independent reimplementation
+ 
+-[Placeholder drafted by T.O. from JIDEC entry 34. To be rewritten by F.B.S.L., who performed the work.]
+-
+ The stronger test adds four conditions. The second implementer (a) has not seen the reference source; (b) reads the specification and confirms by SHA-256 that it is the document the reference cites; (c) implements in a different language, so that runtime defaults cannot be inherited by accident; (d) runs blind against the published inputs and reports per-ring match or mismatch before seeing the reference outputs.
+ 
+-Condition (a) is a statement by the implementer and cannot be proven; it is recorded as such in the anchored record ("implementation_2_source_seen: none of implementation_1 (implementer's statement)"). Condition (b) is checkable and was checked: the specification's SHA-256, 9ccba2e325fd2a555fcdb2dec519b8c6bf7a669064674846aea98ecfff824e3d, matches the value cited at the head of the reference builder.
++Condition (a) is a statement by the implementer and cannot be proven; it is recorded as such in the anchored record ("implementation_2_source_seen: none of implementation_1 (implementer's statement)"). In practice this means: workers/hs-ledger/nenrin/ring-v1/make_ring.py was never opened, fetched, or consulted in any form, before, during, or after the reimplementation; its path and name were learned only from the anchored record afterward. The build started from NENRIN_SPEC_v1.md's Layer 3 section and this paper's own Section 3 description of the fields, the inputs, and the canonicalization rule — nothing else.
++
++Condition (b) is checkable and was checked: the specification's SHA-256, 9ccba2e325fd2a555fcdb2dec519b8c6bf7a669064674846aea98ecfff824e3d, matches the value cited at the head of the reference builder. It was computed by fetching NENRIN_SPEC_v1.md fresh and hashing the response before a line of the reimplementation was written, so that a stale or substituted copy of the specification could not silently pass against the wrong document.
++
++Condition (c) holds structurally, not just nominally: the reference is Python, the reimplementation is Node.js, and the two share no runtime, no standard library, and no default serialization behaviour. This is what exposed the seam reported in Section 6 — a shared runtime could have inherited the reference's key-ordering behaviour without either implementer noticing that the specification had never stated it.
++
++Condition (d) was met by pulling all nine committed history exports and all eight published ring files fresh from github.com/ogasurfproject-jpg/mcp-conduct-register at the moment of the run, not from any copy already on disk, and running the builder's own verify mode, which rebuilds each ring from its history export and compares the result byte for byte against the claimed file, printing the first differing field on any mismatch, before either implementer's account of the other's result was read.
+ 
+ ### 4.3 Recording the result
+ 
+@@ -114,28 +118,26 @@ The result: eight of eight rings byte-identical across the two implementations,
+ 
+ ## 6. The seam
+ 
+-[Placeholder drafted by T.O. To be rewritten or corrected by F.B.S.L., who found the seam. Table 3 in particular should be checked against what the Node.js implementation actually does.]
+-
+-The reimplementation succeeded, and the reason it did is the most useful thing in this paper: the implementer checked one thing that a port would have assumed.
++The reimplementation succeeded, and the reason it did is the more useful result: one behaviour was checked rather than assumed, and the check is what closed the gap.
+ 
+-Python's json.dumps(sort_keys=True) sorts dictionary keys at every level of nesting. JavaScript's JSON.stringify sorts nothing; it emits keys in insertion order. A port that reproduced the ring-building logic exactly and serialized with JSON.stringify(obj, null, 2) would produce output that looks like a ring, parses as a ring, carries the same counts, and hashes to a different value. Neither implementation alone could detect this: each is self-consistent. Only the comparison of bytes across the two exposes it. The second implementer did not fall into it. He checked the reference behaviour rather than assuming it, and added an explicit recursive key sort (objects sorted, arrays left in order) before serialization. A naive port would have looked plausible and been wrong in a way that neither implementation alone could have caught; that is why the seam, and not the byte match, is the finding.
++Python's `json.dumps(sort_keys=True)` sorts dictionary keys at every level of nesting. JavaScript's `JSON.stringify` sorts nothing; it emits object keys in insertion order. A port that reproduced the ring-building logic exactly and serialized with `JSON.stringify(obj, null, 2)` directly would have produced output that looks like a ring, parses as a ring, carries the same counts, and hashes to a different value on any object whose insertion order differs from sorted order — which, for this schema, is most of them. Neither implementation alone can detect this: each is internally self-consistent, and a single implementer re-running their own code will get their own answer back every time. Only a second, independent implementation exposes it, and only if that implementation is compared byte for byte rather than field for field. The reimplementation adds an explicit recursive key sort — every plain object's keys sorted, every array's own order left untouched — immediately before serialization, applied once at the top of the ring object so it reaches every nested level the way Python's single flag does in one pass. That one function is the entire fix; everything else in the builder can be wrong in some unrelated way and this would not catch it, which is a limit of the check as much as a description of it.
+ 
+-The seam is real and it is the specification's fault, not the implementer's. The specification defines the canonical form by reference to a language runtime ("Python's json.dumps with these options") rather than by stating the rules. It was reproducible in practice; it was under-specified in principle. RFC 8785 exists precisely to remove this class of seam, and a future revision of the specification should either adopt it or state the serialization rules language-neutrally: key ordering by Unicode code point, string escaping, number formatting, whitespace, and the trailing newline.
++The seam belongs to the specification, not to either implementer. Section 3.3 defines the canonical form by naming a language and a function call ("Python's `json.dumps` with these options") rather than by stating the rules the call happens to enforce. That definition was reproducible in practice, because both implementers happened to land on the same effective ruleset, but it was under-specified in principle, because nothing prevented a second implementer from landing on a different, equally reasonable one and never finding out. RFC 8785 exists for exactly this: to state key ordering, string escaping, number formatting, and whitespace independently of any runtime's defaults, so that "canonical" describes the bytes rather than a call site.
+ 
+-Table 3 lists the latent seams of this class, and whether the August rings exercise them.
++Table 3 lists the latent seams of this class and reports, from the reimplementation's own code, which are exercised by the August rings and which are not.
+ 
+-| Seam | Python reference behaviour | Exercised by August rings? | Risk |
+-|---|---|---|---|
+-| Nested key order | sorted at every level | yes, every ring | found and closed by the reimplementer |
+-| Key sort collation | by Unicode code point | no (all keys ASCII) | latent; JavaScript default sort is by UTF-16 code unit, which differs only for astral characters |
+-| String escaping of control characters | \uXXXX lowercase | no (no control characters in ring values) | latent |
+-| Non-ASCII characters | emitted raw (ensure_ascii=False) | no (all August ring values are ASCII) | latent; both runtimes emit raw UTF-8, so a match is expected but has not been exercised |
+-| Number formatting | integers only | yes | none while all numbers are counts; a float would open it |
+-| Indentation and separators | two spaces, ", " and ": " | yes, every ring | matched |
+-| Trailing newline | one | yes, every ring | matched |
+-| Chain hash input | previous ring file bytes | not yet (first ring, prev null) | first exercised by the September rings |
++| Seam | Python reference behaviour | Node.js reimplementation behaviour | Exercised by August rings? | Risk |
++|---|---|---|---|---|
++| Nested key order | sorted at every level | explicit recursive sort of every object's keys, applied once at the ring's root before serialization | yes, every ring | found and closed |
++| Key sort collation | by Unicode code point | `Array.prototype.sort()` with no comparator, i.e. by UTF-16 code unit | no — every fixed schema field name is ASCII, and the only *data-derived* keys in the schema (`instants_by_status`, `instants_by_consent_source`, keyed by each entry's own status/consent_source string) were ASCII in every August entry | latent, and narrower than it first looks: the risk lives specifically in those two data-derived key sets, not in the schema's own field names, which are fixed and known ahead of time. A non-ASCII status or consent-source label would be the first thing to exercise it, not an exotic input |
++| String escaping of control characters | `\uXXXX` lowercase | `JSON.stringify`'s built-in escaping, not independently implemented | no (no control characters in ring values) | latent; not independently verified against the Python reference's exact escaping, since none of the eight rings' values contain a control character to force the comparison |
++| Non-ASCII characters | emitted raw (`ensure_ascii=False`) | emitted raw — `JSON.stringify` has no ASCII-escaping mode to opt out of, and the output is written via `Buffer.from(..., "utf-8")` | no (all August ring values are ASCII) | latent; both runtimes emit raw UTF-8 by construction here, so a match is expected but has not been forced by real data |
++| Number formatting | integers only | plain JavaScript numbers, all integer-valued in this schema (counts and lengths only) | yes | none while every number is a count; a float anywhere in the schema would open this row for real |
++| Indentation and separators | two spaces, `,\n` and `: ` | `JSON.stringify(obj, null, 2)`, empirically identical formatting to Python's `indent=2` for the value types this schema uses | yes, every ring | matched |
++| Trailing newline | one | one, appended explicitly outside `JSON.stringify` | yes, every ring | matched |
++| Chain hash input | previous ring file bytes, not any re-serialized form | `prev_ring_sha256` computed by hashing the reimplementation's own canonical bytes of the previous ring object, mirroring the same rule | not yet — August 2026 is the first ring, `prev_ring` is null, so this path in the reimplementation has never actually run against real data | the code path exists and was written to the same rule as the reference, but "written correctly" and "exercised" are different claims; this row is unverified, not verified-and-latent, until a real chain hash is computed and compared |
+ 
+-Two rows in Table 3 are marked as not yet exercised. The chain hash and the witness path (Section 7) are exactly the parts the September rings will test for the first time.
++Two rows deserve a sharper statement than "not yet exercised." The chain-hash row is not a risk the reimplementation carries and the August test simply didn't need to run — it is a piece of the reimplementation that has never been run against real data at all, in either language, and the two implementers' code could disagree there in a way neither of the eight matches reported in Table 1 would have caught. The witness path (Section 7) is the same kind of gap for a different reason: the schema has a place for more than one witness, and nothing about producing a single-witness ring correctly demonstrates that a multi-witness ring is built the same way twice. Both are exactly what the September rings, pre-registered in Section 8, exist to test.
+ 
+ ## 7. Limits
+ 
