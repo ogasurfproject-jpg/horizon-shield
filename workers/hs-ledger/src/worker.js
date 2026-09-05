@@ -1125,9 +1125,15 @@ async function handle(request, env) {
     // List every entry whose record is a verification path.
     if (p === "/paths" && request.method === "GET") {
       const seq = Number((await env.LEDGER.get("seq")) || 0);
+      // 2026-09-06. 直列の KV get が seq 本(35)で扉の 10 秒に届き、jidec_list_paths の determinism
+      // 計測が timeout で落ちて、登録簿の jidec 行が pending に落ちとった(09-04 から)。
+      // 読む範囲(新しい方から、path が 100 本見つかるまで)は同じ。読み方だけ並列にする。天井 400 本。
+      const ns = [];
+      for (let n = seq; n >= 1 && ns.length < 400; n--) ns.push(n);
+      const entries = await Promise.all(ns.map((n) => getEntry(env, n).then((e) => [n, e])));
       const out = [];
-      for (let n = seq; n >= 1 && out.length < 100; n--) {
-        const e = await getEntry(env, n);
+      for (const [n, e] of entries) {
+        if (out.length >= 100) break;
         if (!e) continue;
         const obj = asPathV1(e.record_canonical);
         if (obj) out.push({ n, path_id: e.claim_sha256, purpose: obj.purpose, verdict: obj.verdict, ots_status: e.ots_status, bitcoin_block: e.bitcoin_block, url: `${origin}/paths/${e.claim_sha256}` });
