@@ -33,7 +33,7 @@ fi
 
 CODE=$(curl -s -o /dev/null -w "%{http_code}" "$HOST/kantei/?cb=$TS" || echo 000)
 if [ "$CODE" != "200" ]; then
-  echo "本番の /kantei/ が $CODE。先に push して 200 になってから --apply せえ"; exit 1
+  echo "本番の /kantei/ が HTTP ${CODE} (200 でない)。先に push して反映を待ってから --apply せえ"; exit 1
 fi
 
 tar czf "ops/BACKUP_kantei_redirects_$TS.tar.gz" mitsumori-ai-shindan.html negotiate/index.html gemini-shindan/index.html reverse-estimate/index.html index.html llms.txt
