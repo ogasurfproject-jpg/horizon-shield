@@ -36,7 +36,7 @@ import * as nenrin from "./nenrin_instant.js";
 
 // 仕様確定までの暫定値。名称や閾値はここだけ直せば全体に効く。
 const CONFIG = {
-  version: "0.3.1",  // 2026-09-05. /history の保持 30 → 400、retention を応答に明記。判定の規則は 0.3.0 のまま。
+  version: "0.3.1",  // 2026-09-05. /history の保持 30 → 400、retention を応答に明記。/watch に requested_by、well-known の listing: decline。判定の規則は 0.3.0 のまま。
   tier_pass: "verified",        // 通過時の称号(暫定)
   tier_fail: "pending",         // 未通過(不合格とは呼ばない)
   tier_held: "held",            // 到達できず測れなかった。不適合とは別の状態
@@ -1230,11 +1230,11 @@ function spec() {
     well_known_consent: {
       since: "0.2.4",
       path: CONSENT_WELL_KNOWN_PATH,
-      shape: { allow_tool_call: "boolean true, required; nothing else counts", endpoints: "optional array of exact endpoint URLs; when present, only those endpoints are consented" },
+      shape: { allow_tool_call: "boolean true, required; nothing else counts", endpoints: "optional array of exact endpoint URLs; when present, only those endpoints are consented", listing: "optional string, since 0.3.1; the exact value \"decline\" means the owner declines measurement: the scheduled sweep skips the endpoint, the register row records owner_declined with a date, and no verdict is produced while the file says so. Removing the value resumes measurement at the next sweep. Anyone can still add a row; only the origin can decline it." },
       why: "Only the owner of an origin can place a file under its /.well-known/. So the file is proof of consent, where a request field is only an assertion. The gate reads it with the same same-origin rules as the agent card, executes nothing from it, and records in the verdict where and when it read it.",
       effect: "Determinism is measured on /check without asserting allow_tool_call, and on every scheduled measurement of the public register. The verdict of a check without consent names this path under consent_lookup.how_to_consent."
     },
-    red_team: "test/redteam_gate.mjs in the public repository attacks this gate with adversarial mock servers (hollow tools, error echoes, cross-origin redirects, malformed cards and disclosures, misclassified reachability). Fail-closed and deterministic. v0.2.1 scored 17 of 48; v0.2.2 scored 48 of 48; v0.2.4 scores 63 of 63, the added cases being attacks on the well-known consent file (absent, wrong type, HTML, http 500, off-origin redirect, an endpoints list that excludes the endpoint) and two proving that consent never excuses a failed condition. Run it yourself: node test/redteam_gate.mjs. Known residual: determinism is measured on one tool the server lists first, which the verdict discloses rather than hides.",
+    red_team: "test/redteam_gate.mjs in the public repository attacks this gate with adversarial mock servers (hollow tools, error echoes, cross-origin redirects, malformed cards and disclosures, misclassified reachability). Fail-closed and deterministic. v0.2.1 scored 17 of 48; v0.2.2 scored 48 of 48; v0.2.4 scores 63 of 63, the added cases being attacks on the well-known consent file (absent, wrong type, HTML, http 500, off-origin redirect, an endpoints list that excludes the endpoint) and two proving that consent never excuses a failed condition. Run it yourself: node test/redteam_gate.mjs. Known residual: determinism is measured on one tool per instant. Since 0.3.0 that tool is chosen by the instant coordinate over the sorted tool-name set whenever the beacon is available, and is the first tool listed only in the legacy fallback; the verdict names which of the two applied (coordinate_derivation), so the choice is disclosed rather than hidden.",
     also_measured_no_verdict: {
       absence_vs_failure: {
         condition: "06",
@@ -1294,6 +1294,18 @@ async function readRegistry(env) {
   catch (_e) { return {}; }
 }
 
+// 0.3.1. 断った/撤回した事実を登録簿の行に書く。変わった時だけ書く(KV の書き込みは掃引ごとに 8 回で足りる)。
+async function markDeclined(env, endpoint, declined) {
+  const reg = await readRegistry(env);
+  const row = reg[endpoint];
+  if (!row) return;
+  const was = !!row.owner_declined_at;
+  if (declined === was) return;
+  if (declined) row.owner_declined_at = new Date().toISOString();
+  else { row.owner_declined_withdrawn_at = new Date().toISOString(); delete row.owner_declined_at; }
+  await writeRegistry(env, reg);
+}
+
 async function writeRegistry(env, reg) {
   if (!env || !env.HS_VERIFY_KV) return false;
   try { await env.HS_VERIFY_KV.put(REGISTRY_KEY, JSON.stringify(reg)); return true; }
@@ -1345,21 +1357,24 @@ async function wellKnownConsent(endpoint) {
   const url = new URL(endpoint).origin + CONSENT_WELL_KNOWN_PATH;
   try {
     const res = await withTimeout(probeFetch(url), CONFIG.timeout_ms);
-    if (!res.ok) return { consent: false, url, reason: "no consent file at " + CONSENT_WELL_KNOWN_PATH + " (http " + res.status + ")" };
+    if (!res.ok) return { consent: false, url, file_present: false, declined: false, reason: "no consent file at " + CONSENT_WELL_KNOWN_PATH + " (http " + res.status + ")" };
     let body;
-    try { body = await res.json(); } catch (_e) { return { consent: false, url, reason: "consent file is not JSON" }; }
-    if (!body || typeof body !== "object" || Array.isArray(body)) return { consent: false, url, reason: "consent file is not a JSON object" };
-    if (body.allow_tool_call !== true) return { consent: false, url, reason: "consent file does not set allow_tool_call to the boolean true (nothing else counts)" };
+    try { body = await res.json(); } catch (_e) { return { consent: false, url, file_present: true, declined: false, reason: "consent file is not JSON" }; }
+    if (!body || typeof body !== "object" || Array.isArray(body)) return { consent: false, url, file_present: true, declined: false, reason: "consent file is not a JSON object" };
+    // 0.3.1. listing: "decline" は所有者の「測るな」。origin にしか置けん物やから、申告やなく証明として扱う。
+    // 同意(allow_tool_call)とは独立。断った行は登録簿に残り、「断った」と書かれる。判定は作らん。
+    const declined = body.listing === "decline";
+    if (body.allow_tool_call !== true) return { consent: false, url, file_present: true, declined, reason: "consent file does not set allow_tool_call to the boolean true (nothing else counts)" };
     if (body.endpoints !== undefined) {
       if (!Array.isArray(body.endpoints) || !body.endpoints.every((e) => typeof e === "string")) {
         return { consent: false, url, reason: "consent file has an endpoints field that is not an array of strings" };
       }
-      if (!body.endpoints.includes(endpoint)) return { consent: false, url, reason: "consent file lists endpoints and this endpoint is not among them (exact string match)" };
+      if (!body.endpoints.includes(endpoint)) return { consent: false, url, file_present: true, declined, reason: "consent file lists endpoints and this endpoint is not among them (exact string match)" };
     }
-    return { consent: true, url, fetched_at: new Date().toISOString() };
+    return { consent: true, url, file_present: true, declined, fetched_at: new Date().toISOString() };
   } catch (e) {
     const gateSide = /gate-side failure/.test(String(e && e.message));
-    return { consent: false, url, gate_side: gateSide, reason: (gateSide ? "consent file not read (gate side): " : "consent file not read: ") + String((e && e.message) || e) };
+    return { consent: false, url, file_present: null, declined: false, gate_side: gateSide, reason: (gateSide ? "consent file not read (gate side): " : "consent file not read: ") + String((e && e.message) || e) };
   }
 }
 
@@ -1367,13 +1382,13 @@ async function wellKnownConsent(endpoint) {
 // 要求者の申告はここに入れない。申告は所有の証明ではないので、別の根拠(requester)として刻む。
 async function resolveConsent(endpoint) {
   if (TOOL_CALL_CONSENT.has(endpoint)) {
-    return { consent: true, source: "operator_list", basis: "operator consent list (TOOL_CALL_CONSENT in the gate's source, published)" };
+    return { consent: true, source: "operator_list", declined_listing: false, basis: "operator consent list (TOOL_CALL_CONSENT in the gate's source, published)" };
   }
   const wk = await wellKnownConsent(endpoint);
   if (wk.consent) {
-    return { consent: true, source: "well_known", basis: "consent file on the origin (" + wk.url + ") sets allow_tool_call true, read at " + wk.fetched_at + "; only the owner of the origin can place a file there" };
+    return { consent: true, source: "well_known", declined_listing: wk.declined === true, basis: "consent file on the origin (" + wk.url + ") sets allow_tool_call true, read at " + wk.fetched_at + "; only the owner of the origin can place a file there" };
   }
-  return { consent: false, source: "none", basis: null, reason: wk.reason, url: wk.url, gate_side: wk.gate_side === true };
+  return { consent: false, source: "none", declined_listing: wk.declined === true, basis: null, reason: wk.reason, url: wk.url, gate_side: wk.gate_side === true };
 }
 
 // /check と MCP の check ツールの共通入口。証明された同意が申告に勝つ。どちらも無ければ tool は呼ばん。
@@ -1760,6 +1775,8 @@ async function publicRegister(env) {
     };
     const lbl = OPERATOR_LABELS[w.endpoint];
     if (lbl) row.operator_label = lbl;
+    row.requested_by = w.requested_by || "unrecorded (row added before 0.3.1)";
+    if (w.owner_declined_at) row.owner_declined = { since: w.owner_declined_at, how: CONSENT_WELL_KNOWN_PATH + " on the origin sets listing to decline", effect: "not measured while the file says so; no verdict exists for this row" };
     row.tool_call_consent = TOOL_CALL_CONSENT.has(w.endpoint);
     if (joined < REGISTER_JOIN_MAX) {
       joined++;
@@ -1854,22 +1871,25 @@ const DEFAULT_WATCHLIST = [
 async function watchlist(env) {
   const out = [];
   const seen = new Set();
-  const push = (ep, tier, webhook) => {
+  const push = (ep, tier, webhook, extra) => {
     if (typeof ep !== "string" || seen.has(ep)) return;
     seen.add(ep);
-    out.push({ endpoint: ep, tier: tier, webhook: webhook || null });
+    out.push({ endpoint: ep, tier: tier, webhook: webhook || null, ...(extra || {}) });
   };
-  for (const ep of DEFAULT_WATCHLIST) push(ep, "self", null);
+  for (const ep of DEFAULT_WATCHLIST) push(ep, "self", null, { requested_by: "operator" });
   if (env && env.HS_VERIFY_KV) {
     try {
       const legacy = await env.HS_VERIFY_KV.get("watch:endpoints", "json");
-      if (Array.isArray(legacy)) for (const ep of legacy) push(ep, "self", null);
+      if (Array.isArray(legacy)) for (const ep of legacy) push(ep, "self", null, { requested_by: "operator" });
     } catch (_e) { /* KV が読めなければ既定値で続ける */ }
   }
   const reg = await readRegistry(env);
   for (const ep of Object.keys(reg)) {
     const r = reg[ep] || {};
-    push(ep, r.tier === "paid" ? "paid" : "free", r.webhook || null);
+    push(ep, r.tier === "paid" ? "paid" : "free", r.webhook || null, {
+      requested_by: r.requested_by || "unrecorded (row added before 0.3.1)",
+      owner_declined_at: r.owner_declined_at || null
+    });
   }
   return out;
 }
@@ -2134,9 +2154,26 @@ async function runDailySweep(env, opts) {
     if (force || (await isDueToday(w.endpoint, w.tier, now, coord))) due.push(w);
     else skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: cadenceNote });
   }
-  // 上限で落ちた分は必ず記録する。黙って切ると「全部測った」ように読める。
+  // 0.3.1. 順番は「一番長く測っとらん物から」。それまでは登録簿の並び順で、自前 8 台(日次)が
+  // MAX_PER_SWEEP=8 を毎日使い切り、外部の行は順番が来ても「over MAX_PER_SWEEP」で永久に落ちる形やった。
+  // 0.3.0 で 9 → 8 に下げた日に、無料層の唯一の席が消えとった。測ったことが無い行が最初、次に古い順。
+  // 同点は登録簿の並び順。溢れた分は必ず記録する。黙って切ると「全部測った」ように読める。
+  const lastAt = new Map();
+  for (const w of due) {
+    let at = "";
+    try {
+      const h = await readHistory(env, w.endpoint);
+      const es = (h && Array.isArray(h.entries)) ? h.entries : [];
+      at = es.length ? String(es[es.length - 1].at || "") : "";
+    } catch (_e) { at = ""; }
+    lastAt.set(w.endpoint, at);
+  }
+  due.sort((a, b) => {
+    const x = lastAt.get(a.endpoint) || "", y = lastAt.get(b.endpoint) || "";
+    return x < y ? -1 : (x > y ? 1 : 0);
+  });
   for (const w of due.slice(MAX_PER_SWEEP)) {
-    skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "over MAX_PER_SWEEP for this run" });
+    skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "over MAX_PER_SWEEP for this run (order is least recently measured first; this endpoint was last measured " + (lastAt.get(w.endpoint) || "never") + ", so it goes first next time)" });
   }
   const run = due.slice(0, MAX_PER_SWEEP);
 
@@ -2145,6 +2182,13 @@ async function runDailySweep(env, opts) {
     try {
       // 0.2.4. 手書きの Set か、origin の well-known ファイル。申告は掃引では決して使わん。
       const consent = await resolveConsent(w.endpoint);
+      // 0.3.1. 所有者が origin の well-known で listing: decline を出しとる行は測らん。断った事実だけ残す。
+      if (consent.declined_listing) {
+        skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "owner declined measurement: " + CONSENT_WELL_KNOWN_PATH + " on the origin sets listing to decline. The row stays on the register and says so; nothing was measured and no verdict exists." });
+        await markDeclined(env, w.endpoint, true);
+        continue;
+      }
+      await markDeclined(env, w.endpoint, false);
       const record = await runCheck(w.endpoint, consent.consent, consent.basis, consent.source, consent, coord);
       const r = await recordHistory(env, w.endpoint, record);
       const changed = !!(r && r.changed);
@@ -3168,11 +3212,21 @@ export default {
       }
       const admin = !!(env.SWEEP_TOKEN && await ctEqual(request.headers.get("x-sweep-token") || "", env.SWEEP_TOKEN));
       const tier = admin && body.tier === "paid" ? "paid" : ((prev && prev.tier === "paid") ? "paid" : "free");
+      // 0.3.1. 誰が乗せたかを刻む。依頼者の申告は所有の証明にならんので、operator か anonymous の二値。
+      // 乗せた時点の origin の well-known の状態も刻む(consent / decline / present / absent)。
+      // 2026-09-04 に同意を断った翌日、その扉が匿名の依頼で列に入った。設計の芯(誰でも乗せられる)は残し、
+      // 所有者には listing: decline という機械的な出口を与える。
+      const wk = await wellKnownConsent(ep);
+      const ownerFile = wk.file_present === false ? "absent" : (wk.file_present === null ? "unread" : (wk.declined ? "decline" : (wk.consent ? "consent" : "present")));
       reg[ep] = {
         tier: tier,
         webhook: hook === undefined ? ((prev && prev.webhook) || null) : (hook || null),
-        added_at: (prev && prev.added_at) || new Date().toISOString()
+        added_at: (prev && prev.added_at) || new Date().toISOString(),
+        requested_by: (prev && prev.requested_by) || (admin ? "operator" : "anonymous"),
+        owner_file_at_request: (prev && prev.owner_file_at_request) || ownerFile
       };
+      if (prev && prev.owner_declined_at) reg[ep].owner_declined_at = prev.owner_declined_at;
+      if (wk.declined) reg[ep].owner_declined_at = reg[ep].owner_declined_at || new Date().toISOString();
       const ok = await writeRegistry(env, reg);
       return json({
         ok: ok,
@@ -3180,8 +3234,13 @@ export default {
         tier: tier,
         cadence: tier === "paid" ? "daily" : "weekly",
         notified: !!reg[ep].webhook,
+        requested_by: reg[ep].requested_by,
+        owner_file_at_request: reg[ep].owner_file_at_request,
+        owner_declined: !!reg[ep].owner_declined_at,
         history: "/history?endpoint=" + encodeURIComponent(ep),
-        note: "The verdict is identical for every tier and free to read for anyone. Paying changes the cadence and the alert, never the result."
+        note: wk.declined
+          ? "The owner of this origin declines measurement (" + CONSENT_WELL_KNOWN_PATH + " sets listing to decline). The row stays on the register and says declined; no verdict will be produced while the file says so."
+          : "The verdict is identical for every tier and free to read for anyone. Paying changes the cadence and the alert, never the result. The owner of the origin can decline measurement at any time by publishing listing: decline in " + CONSENT_WELL_KNOWN_PATH + "."
       });
     }
 
@@ -3204,7 +3263,9 @@ export default {
           endpoint: w.endpoint,
           tier: w.tier,
           cadence: w.tier === "free" ? "weekly" : "daily",
-          notified: !!w.webhook
+          notified: !!w.webhook,
+          requested_by: w.requested_by || "unrecorded (row added before 0.3.1)",
+          owner_declined: !!w.owner_declined_at
         })),
         cadence: "daily for self and paid, weekly for free",
         verdict_is_identical_for_every_tier: true,
@@ -3363,7 +3424,7 @@ export default {
           { "@type": "DataDownload", encodingFormat: "application/json", contentUrl: "https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/register.json" },
           { "@type": "application/atom+xml", encodingFormat: "application/atom+xml", contentUrl: "https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/feed.xml" }
         ],
-        rows_are_selected_by: "nobody, the schedule decides what is measured and the code copies the result",
+        rows_are_selected_by: "nobody, the schedule decides what is measured and the code copies the result; since 0.3.1 every row records who asked for it (operator or anonymous) and an origin can decline measurement with listing: decline in " + CONSENT_WELL_KNOWN_PATH + ", after which the row says declined instead of carrying a verdict",
         what_this_does_not_claim: "That a listed server returns correct numbers, that the business behind it is competent, or that it is safe to use.",
         disputes: {
           how: "Measure any listed endpoint yourself and submit the observation to the public ledger under your own name and vantage.",
