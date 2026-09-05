@@ -1,0 +1,7 @@
+Federico, one correction to what I told you, because you just built on it.
+
+I wrote that the addendum was anchored material and the change would go in as a new entry citing the old bytes. When I went to do that, I found the addendum had not been anchored yet: no ledger entry, no timestamp, only a git commit. So it was still a draft, and I edited it in place. The corrected version is what will be anchored, sha256 e228dfd8e5353525fb11cc245be48cff7ef6d01433b27f472f5fc8bb6de39c7d.
+
+The no-rewrite rule applies to anchored bytes. These were not yet anchored, so the rule was not in play. What I got wrong was describing the procedure before checking which case I was in. The rule held. My account of what I was about to do did not, and you praised the account, so it needs saying.
+
+Toshikatsu
