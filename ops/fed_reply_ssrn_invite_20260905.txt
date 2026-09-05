@@ -1,0 +1,13 @@
+Sánchez. Noted, and corrected tonight everywhere that is not already anchored: the LinkedIn post before it goes up, the register README, and the draft below. Entry 34 stays as it is, as you say.
+
+Federico, the loop is closed in both directions then. You pulled ledger/34 raw and hashed it, and pulled make_ring.js from GitHub at the commit rather than from your own disk. That is the same move I made this afternoon before I wrote a word about your result, and it is the only reason either of us can say "match" without the word "trust" in the sentence. I will use the record's phrasing verbatim, as you say. Nothing to add is the right answer.
+
+I agree the seam is the finding. A naive port would have looked right and been wrong in a way neither implementation could have detected alone. That sentence is going to carry more weight than the eight hashes, so I want it somewhere with a longer shelf life than a ledger entry and a LinkedIn post.
+
+Here is the proposal. I am going to write this up as a short working paper for SSRN, twelve to fifteen pages, and I would like you to be on it. Working title: reproducible conduct records for agent facing services, one specification, two independent implementations, one seam. The claim is narrow on purpose: rings built from measured history are byte reproducible by a stranger from the spec alone, demonstrated with two implementations in two languages by two people, anchored as entries 32 and 34. The limits go in the abstract, not a footnote: this proves the ring layer is deterministic, not that the measurements are true; it is n=2; the August rings have one witness. Your September blind rerun, including the witness path your own walk will exercise, is the second data point, and if it disagrees, the paper reports the disagreement.
+
+Three ways this can go, and any of them is fine with me. You co-author, and we write the reimplementation section together because you are the only one who can write it truthfully. Or you stay the independent verifier, named, with your statement quoted, and you review the draft before it goes up. Or neither, and I cite the record. If co-author, tell me the affiliation line you want under your name.
+
+I will send you a draft, not a request for one. Bytes first, then prose.
+
+Toshikatsu

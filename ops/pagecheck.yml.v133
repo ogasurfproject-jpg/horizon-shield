@@ -1,0 +1,104 @@
+name: pagecheck
+
+# 手元のフックは --no-verify で外せる。こちらは外せない。
+# 2026-08-23、出典のない金額を含む2ページが門を通らずに公開されていたため。
+#
+# 見るのは、その push で変わった yakumo/ と care/ のページだけ。
+# 全ページを毎回見ると、既知の問題(souba の3ページが互いに 76〜81% 一致)で
+# 毎回赤になり、誰も見なくなる。
+#
+# 2026-09-04 v1.3.0: qa/ と aeo/(記事の面)も門の守備範囲に入れた。
+#   blocking: その push で変わった qa/aeo ページ(yakumo/care と同じ扱い)。
+#   report:   qa/aeo 全ページを毎回 --mode report で走らせ、落とさずに内訳を出す。
+#             初回計測(2026-09-04)で残ったのは近似重複 14 組(22 ページ、うち 21 が Google 未登録)。
+#             文章の書き直しでしか消えないので、消えるまで毎回ここに出る。隠さない。
+# 2026-09-04 v1.3.1: faq/ blog/ souba/ も content。「門の外に名前空間を残さない」。
+#   v1.3.0 で qa/aeo だけ入れたのは、また 1 ケースの直しやった(外部の検証者の指摘と同じ型)。
+#   blocking: 変わった faq ページも(35/35 が通る)。blog/souba は実欠陥(ダッシュ 31 / 出典なし金額 2 / 雛形の重複)が
+#             消えるまで report。上げるときはこの grep に足すだけ。
+#   report:   content 5 名前空間 714 ページを毎回。移転スタブ(refresh + noindex)は毒検査と移転先の検査だけ。
+# 2026-09-05 v1.3.2: blocking の重複関所に --before(push 前の commit)を渡す。題名と本文が一字も変わっていない
+#   ページ同士の重複は、その push が作ったものではないので数えない(新規・文面が変わったページは今までどおり弾く)。
+#   きっかけ: フッターの href 書き換え 101 ページの push が、qa の既知の近似重複 13 組で赤になった。
+#   report 段は --before 無しのままなので、既知の 13 組は毎回そこに出続ける。隠さない。
+#   検査: tools/pagecheck/test_dedup_before.py (4 手) を redteam の後に回す。
+# 2026-09-05 v1.3.3: git diff に core.quotepath=false。日本語ファイル名 (aeo/ の 87 本) が blocking から漏れていた穴を閉じる。
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "yakumo/**/*.html"
+      - "care/**/*.html"
+      - "qa/**/*.html"
+      - "aeo/**/*.html"
+      - "faq/**/*.html"
+      - "blog/**/*.html"
+      - "souba/**/*.html"
+      - "tools/pagecheck/**"
+  pull_request:
+    paths:
+      - "yakumo/**/*.html"
+      - "care/**/*.html"
+      - "qa/**/*.html"
+      - "aeo/**/*.html"
+      - "faq/**/*.html"
+      - "blog/**/*.html"
+      - "souba/**/*.html"
+      - "tools/pagecheck/**"
+  workflow_dispatch:
+
+jobs:
+  pagecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # 2026-08-30: 複数コミットをまとめて push しても、その push で変わった全ページを見るため全履歴。
+          #   旧: fetch-depth 2 + HEAD^..HEAD は「最後の1コミット」しか見ず、先のコミットのページが素通りした。
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 変わったページだけを門に通す
+        env:
+          EV_NAME: ${{ github.event_name }}
+          EV_BEFORE: ${{ github.event.before }}
+          EV_SHA: ${{ github.sha }}
+          EV_BASE: ${{ github.base_ref }}
+        run: |
+          if [ "$EV_NAME" = "pull_request" ]; then
+            git fetch --no-tags origin "$EV_BASE" >/dev/null 2>&1 || true
+            RANGE="origin/$EV_BASE...HEAD"
+            BEFORE="origin/$EV_BASE"
+          elif [ -n "$EV_BEFORE" ] && [ "$EV_BEFORE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$EV_BEFORE" 2>/dev/null; then
+            RANGE="$EV_BEFORE..$EV_SHA"
+            BEFORE="$EV_BEFORE"
+          else
+            RANGE="HEAD^..HEAD"
+            BEFORE="HEAD^"
+          fi
+          echo "見る範囲: $RANGE (文面不変の基準: $BEFORE)"
+          # 2026-09-05 v1.3.3: core.quotepath=false。既定では日本語ファイル名が "aeo/\343..." と引用符付きで出て
+          #   下の grep(^aeo など)に掛からず、aeo の 87 ページが v1.3.0 から一度も blocking を受けていなかった。
+          CHANGED=$(git -c core.quotepath=false diff --name-only --diff-filter=ACM $RANGE \
+                    | grep -E '^(yakumo|care|qa|aeo|faq)/.*\.html$' || true)
+          if [ -z "$CHANGED" ]; then
+            echo "対象のページはありません。"
+            exit 0
+          fi
+          echo "$CHANGED"
+          python3 tools/pagecheck/validate.py --before "$BEFORE" --paths $CHANGED
+
+      - name: 記事の面(qa/ aeo/ faq/ blog/ souba/)を全ページ report で見る(落とさない)
+        if: always()
+        run: |
+          python3 tools/pagecheck/validate.py --mode report --paths $(find qa aeo faq blog souba -name '*.html' | sort)
+
+      - name: 門を敵として攻める(レッドチーム)
+        run: python3 tools/pagecheck/redteam.py
+
+      - name: 重複関所 --before の 4 手(v1.3.2)
+        run: python3 tools/pagecheck/test_dedup_before.py

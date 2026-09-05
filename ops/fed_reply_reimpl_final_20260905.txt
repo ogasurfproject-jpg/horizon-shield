@@ -1,0 +1,17 @@
+Federico, this is the test, and you passed it the hard way. A Node reimplementation from the spec alone, 8 of 8 byte for byte, from someone who never saw my source. Until tonight the claim that anyone can recompute a ring had been tested by exactly one person. It is not that anymore.
+
+Bytes first, as always. It is on the ledger:
+
+Entry 34, https://ledger.horizonshield.dev/ledger/34
+claim sha256 fad6d00a25281102711573b151b321bc13b28c625fe65807c5eb3a12a04e393c
+The record cites your make_ring.js at commit 917dd97ff8e30107810d9a059e9091077f5171d0 (file sha256 5167188aeefb4852ca941a96856724f8831abd46be331cd9544898ba038e82a8, 7955 bytes), the spec at 9ccba2e3, my make_ring.py, the sha256 of each of the nine history exports as committed, and the eight ring hashes from entry 32. Every hash in it was computed on the spot, none copied from your message. Bitcoin stamp is pending, the hourly run will carry it. The register README also carries it as of a6a709e.
+
+One correction to what I told you earlier: I said tonight's witness batch would be entry 34. Your result took 34. The batch at 00:30 UTC will be 35.
+
+The detail you flagged is the one that matters, and it is the one I would use to tell a real recompute from a claimed one. json.dumps(sort_keys=True) sorts at every level of nesting; JSON.stringify sorts nothing. If you had guessed instead of checked, the ring logic could have been perfect and the bytes would never have matched. You found the exact seam the spec depends on. And you checked the spec's own sha256 before trusting it, which is the same discipline pointed the other way: verify the ruler before measuring with it.
+
+I would have taken a discrepancy from you as gladly as a match, and you know that, which is why the match means something. The record also says what this does not prove: it validates the determinism of Layer 3, not the truth of the measurements inside history; it is two implementations, not a community; the August rings still carry one witness; and the witness path, the one your own walk will exercise, is first tested by the September rings. If your Node version disagrees with mine there, that byte will be the most useful thing anyone hands me this year.
+
+If you want the citation phrased a particular way in anything I publish beyond the ledger, tell me.
+
+Toshikatsu

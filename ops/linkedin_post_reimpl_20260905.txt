@@ -1,0 +1,15 @@
+Tonight someone who has never seen my source code reproduced all eight of my monthly conduct records, byte for byte, in a language I did not use.
+
+Since August I publish a "ring" for every agent-facing service I operate: one file per endpoint per month, built only from measured history. How many times it was sampled, how many times it answered, how many times its tool surface changed, how many independent witnesses measured it. Counts, never scores. The eight August rings are anchored to Bitcoin as JIDEC entry 32, and the spec says anyone holding the same history can rebuild them.
+
+Until today that sentence had been tested by exactly one person. Me.
+
+Federico Blanco Sánchez-Llanos read the spec, checked its hash against what my builder cites, and wrote a from scratch implementation in Node.js. Not a port. He ran it against the published history exports. Eight of eight matched. He also found the one seam a careless port would have missed: Python sorts JSON keys at every level of nesting, JavaScript sorts none, so the bytes never match unless you sort recursively yourself. He checked instead of guessing.
+
+The match is now JIDEC entry 34, with his commit hash, the file hash, every input hash, and the limits stated in the record itself: this proves the ring layer is deterministic. It does not prove the measurements inside are true. It is two implementations, not a community. The August rings still carry a single witness.
+
+Same file in, same bytes out, from a stranger. That is what verifiable was supposed to mean.
+
+Spec, builder, history and rings: github.com/ogasurfproject-jpg/mcp-conduct-register
+His implementation: github.com/babyblueviper1/invinoveritas
+The record: ledger.horizonshield.dev/ledger/34
