@@ -1,0 +1,13 @@
+Late to this thread, but the split it converged on (attestation surface vs scoring policy) is exactly the line we drew, so here is a running implementation of the surface half only, for anyone who wants to kick it.
+
+Extension URI: https://gate.horizonshield.dev/ext/conduct/v1 (the spec is served at the URI; Accept: text/markdown for the text, sha256 910d47019f36fa4c08584e448fa6f2b2867b1f832923586cab56ccd2535d7741). Data only, never required.
+
+What the params carry: who pays the agent (a fixed shape: paid_by, referral_fee, listing_fee, success_fee_pct, disclosure_url), which endpoint is measured, a URL to a conduct record written by a party other than the agent, and a URL where any client can file its own walk of the agent. No score, no rating, no weighting. A verifier that reads it judges only whether the disclosure exists and is well formed, never its content; if a card carries the disclosure in two places and they disagree, the card fails.
+
+The witness path is the part I think matters for this thread: a client reads the card, fetches it twice, pokes the measured endpoint with A2A-Extensions set, and posts a content-addressed record to a public append-only ledger that gets a Bitcoin timestamp. Monthly rings count those walks per endpoint as counts with denominators, and a second implementation of the ring builder (Node.js, written from the spec by someone else) reproduced all eight August rings byte for byte. Two witnesses on the same endpoint in the same month is what turns the ring from one party's word into a record.
+
+Live cards carrying it: https://mcp.horizonshield.dev/.well-known/agent-card.json and https://gate.horizonshield.dev/.well-known/agent-card.json. Reference walk client in the repo (stdlib Python). Prior art including this proposal is named in section 9 of the spec.
+
+Where it is weakest, so nobody has to find it: it does not verify that the compensation declaration is true, only that it exists; one witness per endpoint is still the normal case; and the canonical form is inherited from a language runtime until the next spec version adopts RFC 8785. If you want to break the two-declarations rule or the echo, the spec says what a break looks like.
+
+Toshikatsu Oga, HORIZON SHIELD

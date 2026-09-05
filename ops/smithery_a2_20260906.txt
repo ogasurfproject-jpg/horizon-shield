@@ -1,0 +1,16 @@
+Subject: an outside conduct signal next to a listing, free, no key, one field
+
+You list MCP servers, including ours (HORIZON SHIELD KIRA). Sooner or later someone asks which servers can be trusted, and answering that yourselves makes a registry a referee.
+
+We publish an outside measurement you can show next to a listing without taking a position on it. Two ways, pick either.
+
+1. Ask the gate. GET https://gate.horizonshield.dev/is-verified?endpoint=<url> returns verified true only on a full pass and null otherwise, never false, with a record sha256 and a recompute URL. Absent and pending are reported as absent and pending, not as negative verdicts.
+
+2. Read the card. Since 2026-09-06 a server can declare the A2A Conduct Extension in its agent card (capabilities.extensions, uri https://gate.horizonshield.dev/ext/conduct/v1). The params carry a link called conduct_record that points to the server's measured record, written by the gate, not by the server. If a card declares it, render that one link. Nothing else changes on your side and you never store a verdict.
+
+What the record is: five conditions (real MCP endpoint, agent card published, who pays the server declared, identical input gives identical output, verdict recomputable by anyone), measured on a schedule, with every verdict carrying a sha256 you can recompute. The measurement code and the register are public. Placement cannot be bought; there is no route in the code to remove a row.
+
+Terms and details: https://shield.the-horizons-innovation.com/verify-directory/for-registries/
+Where it stands: our own 8 servers on the register, 12,429 registry endpoints walked once on 2026-08-23, one outside party has reproduced the monthly records byte for byte. We would rather you check us than believe us.
+
+Toshikatsu Oga, HORIZON SHIELD, The HORIZONs Co., Ltd.

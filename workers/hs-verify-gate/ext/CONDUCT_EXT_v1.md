@@ -1,7 +1,7 @@
 # A2A Conduct Extension v1 (`conduct-v1`)
 
 **Extension URI (the identifier, compared as an exact string):** `https://gate.horizonshield.dev/ext/conduct/v1`
-**Status:** v1, 2026-09-06. Reference implementations: MCP Verification Gate 0.3.2 (reads it, serves this document at the URI), HORIZON SHIELD KIRA and JIDEC agent cards (declare and echo it), `a2a_conduct_walk.py` (client-side witness walk).
+**Status:** v1, 2026-09-06 (section 9 added the same day, before any anchoring). Reference implementations: MCP Verification Gate 0.3.2 (reads it, serves this document at the URI), HORIZON SHIELD KIRA and JIDEC agent cards (declare and echo it), `a2a_conduct_walk.py` (client-side witness walk).
 **Type:** data-only A2A extension on the Agent Card, plus an optional request-level echo. It MUST NOT be declared `required: true` (A2A guidance: data-only extensions are never required).
 **Language:** RFC 2119 keywords. Field names are exact.
 
@@ -99,3 +99,16 @@ The URI ends in `/v1`. A breaking change to fields, keys, or the walk MUST use a
 ## 8. Source
 
 Development home: `workers/hs-verify-gate/ext/CONDUCT_EXT_v1.md` in `github.com/ogasurfproject-jpg/horizon-shield`. The gate serves the same text. The sha256 of this file is recorded in the gate's `/ext/conduct/v1` JSON as `spec_markdown_sha256` so a reader can tell whether the served copy and the repository copy are the same bytes.
+
+
+## 9. Prior art, named before anyone else has to
+
+This extension claims no new primitive. The closest published work, and what differs:
+
+- **ERC-8004 Trustless Agents** (Draft ERC; De Rossi, Crapis, Ellis, Reppel; created 2025-08-13). On-chain Identity, Reputation and Validation registries: the Reputation Registry stores client feedback as value scores and tags, the Validation Registry stores validator responses, and a registration file can point at an A2A agent card. Difference: conduct-v1 carries no score and no feedback channel; the record it points to is a measurement written by a gate that does not take the agent's word; the evidence lives as bytes anyone re-hashes; and the timestamp is a Bitcoin attestation of a ring file, not contract state. The two are not exclusive: an ERC-8004 registration file can point at a card that carries this extension.
+- **A2A discussion #1631, "Reputation-Aware Agent Discovery"** (makito20256, 2026-03-14; prototype arp-trust-substrate published 2026-04-29; URI `https://agent-reputation-protocol.dev/extensions/reputation/v0.1`). Puts success_rate, accuracy, speed and honesty scores in the card, weighted by the evaluator's own reputation. Difference: the opposite direction. That discussion converged on separating attestation surfaces from scoring policies; conduct-v1 is an attestation surface and stops there by design, and it carries the one field none of the above carry, who pays the agent.
+- **Sigstore-signed Agent Cards** (Hinds, 2025-07-31). Keyless signatures over the card, recorded in a transparency log; answers who published this card and from which commit. Complementary: a signed card can carry this extension; this extension signs nothing.
+- **Agent Certificates** (Zhou, arXiv 2603.14332). A certificate chain and a skills manifest hash in the card's extensions field, for capability integrity. A different question (did the tools change) from this one (how did the agent behave when measured, and who pays it).
+- The transparency and provenance primitives named in section 6 (Certificate Transparency, Rekor, in-toto, SCITT, OpenTimestamps, RFC 8785) are prior art for every mechanism used here.
+
+What is not claimed: that any component is new. What is stated: the combination (compensation disclosure as a structural condition, a pointer to a third-party measurement with counts and no scores, a client-side witness path into a Bitcoin-anchored append-only ledger, and a ring builder reproduced byte for byte by a second implementation) was not found by the author in the sources above on 2026-09-06. A prior instance of the full combination is a finding, and this section is where it will be named.
