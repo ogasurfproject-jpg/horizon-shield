@@ -1138,6 +1138,44 @@ async function handleMcp(request, env, id, method, params, ctx) {
   return rpcErr(id, -32601, "method not found: " + method);
 }
 
+
+// --- A2A Conduct Extension v1 (2026-09-06) ---
+// 誰が払うか、行儀の記録(第三者が書いた物)がどこか、繋いだ相手が自分の観測をどこに出せるか。
+// card の capabilities.extensions[] に置く(A2A 1.0 の正規の場所)。top-level の compensation は旧読者のために残す。
+// 扉 0.3.2 は両方読んで 5 鍵の一致を要求する。仕様は URI そのもの。点数も判定も無い。
+const CONDUCT_EXT_URI = "https://gate.horizonshield.dev/ext/conduct/v1";
+function conductExtension(measuredEndpoint, compensation) {
+  return {
+    uri: CONDUCT_EXT_URI,
+    description: "Who pays this agent, where its measured conduct record lives, and where to file a witness walk. The specification is served at the URI.",
+    required: false,
+    params: {
+      compensation,
+      measured_endpoints: [measuredEndpoint],
+      conduct_record: "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(measuredEndpoint),
+      verdict_recipe: "https://gate.horizonshield.dev/spec",
+      witness_intake: "https://ledger.horizonshield.dev/witness",
+      register: "https://gate.horizonshield.dev/register",
+      rings: {
+        spec: "https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/NENRIN_SPEC_v1.md",
+        spec_sha256: "9ccba2e325fd2a555fcdb2dec519b8c6bf7a669064674846aea98ecfff824e3d",
+        base: "https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/rings/",
+        path: "<slug>/<YYYY-MM>.json",
+        slug: "endpoint URL without https://, lower case, every run of characters outside [a-z0-9] replaced by one hyphen, hyphens trimmed at both ends",
+        ledger: "https://ledger.horizonshield.dev/ledger"
+      }
+    }
+  };
+}
+// 扉の条件 3 と同じ 5 鍵。top-level と extension の両方に同じ物を置く。
+const HEARING_COMPENSATION = {
+  paid_by: "seller",
+  referral_fee: false,
+  listing_fee: true,
+  success_fee_pct: 0,
+  disclosure_url: "https://shield.the-horizons-innovation.com/verify-directory/"
+};
+
 /* ------------------------------ agent card (A2A) ------------------------------ */
 function agentCard(origin) {
   return {
@@ -1147,7 +1185,7 @@ function agentCard(origin) {
     provider: { organization: "The HORIZONs株式会社", url: "https://shield.the-horizons-innovation.com/yakumo/" },
     url: origin + "/mcp",
     preferredTransport: "JSONRPC",
-    capabilities: { streaming: false },
+    capabilities: { streaming: false, extensions: [conductExtension(origin + "/mcp", HEARING_COMPENSATION)] },
     defaultInputModes: ["application/json"],
     defaultOutputModes: ["application/json"],
     // 誰がこのサーバーに金を払っているか。扉の条件3。
@@ -1155,13 +1193,7 @@ function agentCard(origin) {
     // listing_fee は 2026-08-08 時点で true。月額3プランすべてにモール掲載が
     // 含まれ、支払い無しで掲載される道が無いため。無料掲載層を作った日に
     // false へ変える。宣言を先に変えることはしない。
-    compensation: {
-      paid_by: "seller",
-      referral_fee: false,
-      listing_fee: true,
-      success_fee_pct: 0,
-      disclosure_url: "https://shield.the-horizons-innovation.com/verify-directory/"
-    },
+    compensation: HEARING_COMPENSATION,
     skills: [
       {
         id: "list-verified-contractors",

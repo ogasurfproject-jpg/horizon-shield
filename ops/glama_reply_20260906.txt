@@ -1,0 +1,1 @@
+Thanks Frank, confirmed healthy on our side too. The worker logs now show the prober's POST arriving after glama.json, which is exactly what was missing. Appreciate the fix.

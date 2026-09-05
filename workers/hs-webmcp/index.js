@@ -235,22 +235,54 @@ const PROMPTS = [
   },
 ];
 
+
+// --- A2A Conduct Extension v1 (2026-09-06) ---
+// 誰が払うか、行儀の記録(第三者が書いた物)がどこか、繋いだ相手が自分の観測をどこに出せるか。
+// card の capabilities.extensions[] に置く(A2A 1.0 の正規の場所)。top-level の compensation は旧読者のために残す。
+// 扉 0.3.2 は両方読んで 5 鍵の一致を要求する。仕様は URI そのもの。点数も判定も無い。
+const CONDUCT_EXT_URI = "https://gate.horizonshield.dev/ext/conduct/v1";
+function conductExtension(measuredEndpoint, compensation) {
+  return {
+    uri: CONDUCT_EXT_URI,
+    description: "Who pays this agent, where its measured conduct record lives, and where to file a witness walk. The specification is served at the URI.",
+    required: false,
+    params: {
+      compensation,
+      measured_endpoints: [measuredEndpoint],
+      conduct_record: "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(measuredEndpoint),
+      verdict_recipe: "https://gate.horizonshield.dev/spec",
+      witness_intake: "https://ledger.horizonshield.dev/witness",
+      register: "https://gate.horizonshield.dev/register",
+      rings: {
+        spec: "https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/NENRIN_SPEC_v1.md",
+        spec_sha256: "9ccba2e325fd2a555fcdb2dec519b8c6bf7a669064674846aea98ecfff824e3d",
+        base: "https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/rings/",
+        path: "<slug>/<YYYY-MM>.json",
+        slug: "endpoint URL without https://, lower case, every run of characters outside [a-z0-9] replaced by one hyphen, hyphens trimmed at both ends",
+        ledger: "https://ledger.horizonshield.dev/ledger"
+      }
+    }
+  };
+}
+const WEBMCP_COMPENSATION = {
+  paid_by: "buyer",
+  referral_fee: false,
+  listing_fee: false,
+  success_fee_pct: 0,
+  disclosure_url: "https://shield.the-horizons-innovation.com/verify-directory/"
+};
+
 // ---------------- A2A エージェントカード(別プロトコル・発見の補助) ----------------
 const AGENT_CARD = {
+  capabilities: { streaming: false, pushNotifications: false, extensions: [conductExtension("https://web.horizonshield.dev/mcp", WEBMCP_COMPENSATION)] },
   protocol: "A2A (Agent2Agent)",
   name: "HORIZON SHIELD: Construction Estimate Auditor for Japan (KIRA)",
   provider: "The HORIZONs株式会社",
   // A2A の必須項目。これが無いと適合チェッカーがカードを認識できない。
   // 2026-08-08 に自社ゲートで発覚。role は非標準なので残しつつ標準項目を足す。
   description: "Check whether a Japanese construction or renovation quote is fair. A neutral, independent third-party estimate-integrity desk: audits a homeowner's quote against an open 95,403-item construction-cost database (JCCDB), flags known overcharge tactics with primary sources, and drafts awareness content. Verifiable first-party prices only (SHA-256); no referral fees; no auto-posting.",
-  // 誰がこのサーバーに金を払っているか。扉の条件3。
-  compensation: {
-    paid_by: "buyer",
-    referral_fee: false,
-    listing_fee: false,
-    success_fee_pct: 0,
-    disclosure_url: "https://shield.the-horizons-innovation.com/verify-directory/"
-  },
+  // 誰がこのサーバーに金を払っているか。扉の条件3。extension の params.compensation と同じ物。
+  compensation: WEBMCP_COMPENSATION,
   version: SERVER.version,
   role: "集客窓口(外部エージェント/LLM向けの入口)。受けた見積もり相談を内部KIRA(hs-mcp)の適正診断へ橋渡しする。",
   skills: [

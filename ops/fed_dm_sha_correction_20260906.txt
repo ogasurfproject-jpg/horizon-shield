@@ -1,0 +1,1 @@
+One correction on bytes: the spec at the URI gained a section 9 (prior art: ERC-8004, A2A #1631, Sigstore cards) about an hour after my message, so the served sha is now 910d47019f36fa4c08584e448fa6f2b2867b1f832923586cab56ccd2535d7741. The 687c56e3 bytes are the file at commit b810dbdc, unchanged.
