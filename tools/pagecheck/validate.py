@@ -45,7 +45,7 @@ v1.3.0 (2026-09-04): 名前空間に「種類」を入れた。
   python3 tools/pagecheck/validate.py --paths yakumo/souba/xxx/index.html ...
   python3 tools/pagecheck/validate.py --mode report --paths qa/*.html aeo/*.html
 """
-import argparse, json, sys, os, re
+import argparse, json, sys, os, re, subprocess
 import html as _html
 import unicodedata
 
@@ -69,7 +69,16 @@ BASE = "https://shield.the-horizons-innovation.com"
 MOAT_FORBIDDEN = [s[::-1] for s in ["5.23", "dlohserht_regnad", "CPW"]]  # 逆順表記(公開repoのgrep封印。機能は同一)
 FORBIDDEN_DASH = {"—": "EM", "–": "EN", "―": "BAR", "－": "FW_HYPHEN_MINUS", "‒": "FIGURE", "−": "MINUS", "⸺": "TWO_EM", "⸻": "THREE_EM", "﹘": "SMALL_EM", "﹣": "SMALL_FW_MINUS", "⁓": "SWUNG"}
 
-GATE_VERSION = "1.3.1"
+GATE_VERSION = "1.3.2"
+# v1.3.2 (2026-09-05): 重複関所の「変わったページ」の定義を、git の差分から、題名と本文の指紋の差分に改めた。
+#   きっかけ: フッターの href を 101 ページで書き換えた push が、qa/ の既知の近似重複 13 組(9/4 に計上済み、
+#   文面の書き直しでしか消えない)を同じ束に入れて赤にした。文面が一字も変わっていないページ同士の重複は、
+#   その push が作ったものではない。
+#   規則: --before <ref> を渡すと、その時点と題名の指紋が同じで本文(枠を剥いだ可視文)が一字も違わないページは「文面不変」。
+#     ・文面不変のページ同士の組は数えない(push の前からあった重複。report 段には毎回出続ける)。
+#     ・文面が変わったページ、新規ページは、文面不変のページとも比べる(新しい重複は今までどおり弾く)。
+#     ・毒検査(check_page)は文面不変でも受ける(href の書き換えで毒が入ることはある)。
+#   --before を渡さなければ v1.3.1 と同じ判定。
 
 # v1.3.0: 名前空間の種類。member は加盟店の面(金額非表示)、content は記事の面(金額は出典つきで可)。
 #   ここに無い名前空間は UNKNOWN_NAMESPACE のまま(置き場所の取り違えは今までどおり弾く)。
@@ -748,8 +757,22 @@ def _check_page_full(relpath):
 
     return errs
 
-def check_duplicates(paths):
-    """重複ゼロ関所B: バッチ内の相互重複 + 台帳(自slug以外)との衝突を検査。generate.py と同一指紋。"""
+def before_lookup_git(ref):
+    """--before <ref>: その ref 時点のページ本文を返す関数。無ければ None(新規ページ、または ref が引けない)。"""
+    def look(p):
+        try:
+            out = subprocess.run(["git", "-C", REPO_ROOT, "show", "%s:%s" % (ref, p)],
+                                 capture_output=True, timeout=30)
+        except Exception:
+            return None
+        if out.returncode != 0:
+            return None
+        return out.stdout.decode("utf-8", "replace")
+    return look
+
+def check_duplicates(paths, before_lookup=None):
+    """重複ゼロ関所B: バッチ内の相互重複 + 台帳(自slug以外)との衝突を検査。generate.py と同一指紋。
+    before_lookup(path) -> 前の本文 or None。渡すと文面不変のページ同士の組を数えない(v1.3.2、冒頭の規則)。"""
     # 残っている結合(2026-08-23):
     #   指紋の計算(fingerprint / simhash / ledger)は tools/yakumo/generate.py にある。
     #   これも本来は業種に属さないので、いずれここへ来るべきである。
@@ -783,17 +806,40 @@ def check_duplicates(paths):
             skipped_stubs += 1   # v1.3.1: 移転スタブ同士は同文で当然。重複関所の対象外(スタブ自体の検査は check_page で)
             continue
         canonical = path_to_canonical(p)
-        fps.append((p, G.fingerprint(canonical, html)))
+        fp = G.fingerprint(canonical, html)
+        changed = True
+        if before_lookup is not None:
+            old_html = before_lookup(p)
+            if old_html is not None:
+                # 「文面不変」は題名の指紋が同じで、かつ本文(枠を剥いだ可視文)が一字も違わないこと。
+                # simhash の一致では足りない(一文足しても同じ値になる。それが simhash の性質)。
+                ofp = G.fingerprint(canonical, old_html)
+                _ns = G.namespace_of(canonical)
+                changed = not (ofp["tsha"] == fp["tsha"] and G.content_core(old_html, _ns) == G.content_core(html, _ns))
+        fps.append((p, fp, changed))
+    if before_lookup is not None:
+        n_unchanged = sum(1 for _p, _f, c in fps if not c)
+        print("  dedup: 文面不変 %d / 文面が変わった・新規 %d (文面不変同士の組は数えない)" % (n_unchanged, len(fps) - n_unchanged))
     # バッチ内 相互
+    skipped_pairs = 0
     for i in range(len(fps)):
         for j in range(i + 1, len(fps)):
             a, b = fps[i][1], fps[j][1]
+            if not fps[i][2] and not fps[j][2]:
+                # 両方とも文面不変: この push が作った重複ではない。数えない(report 段には出る)。
+                if a["tsha"] == b["tsha"] or (a["simhash"] != "0" and G.hamming64(a["simhash"], b["simhash"]) <= 6):
+                    skipped_pairs += 1
+                continue
             if a["tsha"] == b["tsha"]:
                 errs.append("DUPLICATE_IN_BATCH(title): %s == %s" % (fps[i][0], fps[j][0]))
             elif a["simhash"] != "0" and G.hamming64(a["simhash"], b["simhash"]) <= 6:
                 errs.append("DUPLICATE_IN_BATCH(near): %s ~= %s" % (fps[i][0], fps[j][0]))
-    # 台帳(自分のslug以外)との衝突
-    for (p, fp) in fps:
+    if skipped_pairs:
+        print("  dedup: push 前からある重複の組 %d (文面不変同士。数えない。書き直しでしか消えない)" % skipped_pairs)
+    # 台帳(自分のslug以外)との衝突。文面不変のページは台帳と比べない(前回通ったときと同じ文面)。
+    for (p, fp, changed) in fps:
+        if not changed:
+            continue
         for e in ledger:
             if e.get("slug") == fp["slug"]:
                 continue  # 自分自身(更新)は許可
@@ -809,6 +855,8 @@ def main():
     ap.add_argument("--paths", nargs="*")
     ap.add_argument("--root", help="ページを探す根。既定はこのリポジトリの根。"
                                    "リポジトリの外に書き出した束を試すときに使う。")
+    ap.add_argument("--before", help="git の ref(push 前の commit)。渡すと、その時点と題名・本文の指紋が同じページ同士の重複は"
+                                     "数えない(v1.3.2)。毒検査は全ページ受ける。渡さなければ v1.3.1 と同じ判定。")
     ap.add_argument("--mode", choices=["block", "report"], default="block",
                     help="block(既定): 1枚でも落ちれば exit 1。report: 同じ判定を出して exit 0(v1.3.0、content 名前空間の実欠陥を数えるため)")
     a = ap.parse_args()
@@ -842,7 +890,11 @@ def main():
             print("  PASS " + p)
 
     # 重複ゼロ関所B(同じダブりは絶対に出さない)
-    dup_errs = check_duplicates(paths)
+    before_lookup = None
+    if a.before:
+        before_lookup = before_lookup_git(a.before)
+        print("dedup: --before %s (文面不変同士の組は数えない)" % a.before)
+    dup_errs = check_duplicates(paths, before_lookup)
     if dup_errs:
         total_err += len(dup_errs)
         print("  NG   [DEDUP GATE]")

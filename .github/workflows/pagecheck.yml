@@ -17,6 +17,11 @@ name: pagecheck
 #   blocking: 変わった faq ページも(35/35 が通る)。blog/souba は実欠陥(ダッシュ 31 / 出典なし金額 2 / 雛形の重複)が
 #             消えるまで report。上げるときはこの grep に足すだけ。
 #   report:   content 5 名前空間 714 ページを毎回。移転スタブ(refresh + noindex)は毒検査と移転先の検査だけ。
+# 2026-09-05 v1.3.2: blocking の重複関所に --before(push 前の commit)を渡す。題名と本文が一字も変わっていない
+#   ページ同士の重複は、その push が作ったものではないので数えない(新規・文面が変わったページは今までどおり弾く)。
+#   きっかけ: フッターの href 書き換え 101 ページの push が、qa の既知の近似重複 13 組で赤になった。
+#   report 段は --before 無しのままなので、既知の 13 組は毎回そこに出続ける。隠さない。
+#   検査: tools/pagecheck/test_dedup_before.py (4 手) を redteam の後に回す。
 
 on:
   push:
@@ -66,12 +71,15 @@ jobs:
           if [ "$EV_NAME" = "pull_request" ]; then
             git fetch --no-tags origin "$EV_BASE" >/dev/null 2>&1 || true
             RANGE="origin/$EV_BASE...HEAD"
+            BEFORE="origin/$EV_BASE"
           elif [ -n "$EV_BEFORE" ] && [ "$EV_BEFORE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$EV_BEFORE" 2>/dev/null; then
             RANGE="$EV_BEFORE..$EV_SHA"
+            BEFORE="$EV_BEFORE"
           else
             RANGE="HEAD^..HEAD"
+            BEFORE="HEAD^"
           fi
-          echo "見る範囲: $RANGE"
+          echo "見る範囲: $RANGE (文面不変の基準: $BEFORE)"
           CHANGED=$(git diff --name-only --diff-filter=ACM $RANGE \
                     | grep -E '^(yakumo|care|qa|aeo|faq)/.*\.html$' || true)
           if [ -z "$CHANGED" ]; then
@@ -79,7 +87,7 @@ jobs:
             exit 0
           fi
           echo "$CHANGED"
-          python3 tools/pagecheck/validate.py --paths $CHANGED
+          python3 tools/pagecheck/validate.py --before "$BEFORE" --paths $CHANGED
 
       - name: 記事の面(qa/ aeo/ faq/ blog/ souba/)を全ページ report で見る(落とさない)
         if: always()
@@ -88,3 +96,6 @@ jobs:
 
       - name: 門を敵として攻める(レッドチーム)
         run: python3 tools/pagecheck/redteam.py
+
+      - name: 重複関所 --before の 4 手(v1.3.2)
+        run: python3 tools/pagecheck/test_dedup_before.py
