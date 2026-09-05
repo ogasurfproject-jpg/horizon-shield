@@ -1,4 +1,7 @@
 # Our own servers through the same door as everyone else. Report mode: a red row is a fact to publish, not a build to hide.
+# 2026-09-05: repointed from the duplicate action (mcp-conduct-action, now archived) to the canonical one.
+# Consent for the determinism probe is not asserted here. It is resolved by the gate from the operator list
+# or from /.well-known/mcp-conduct.json on the origin, which is the only basis the scheduled sweep accepts.
 name: MCP conduct (own servers)
 on:
   schedule:
@@ -18,14 +21,19 @@ jobs:
           - https://gate.horizonshield.dev/mcp
           - https://femtech.horizonshield.dev/mcp
     steps:
-      - uses: ogasurfproject-jpg/mcp-conduct-action@main
+      - uses: ogasurfproject-jpg/wedjat-check-action@v1
         id: conduct
         with:
           endpoint: ${{ matrix.endpoint }}
-          allow_tool_call: "true"
-          fail_on_not_verified: "false"
+          require: none
+      - name: Write the verdict out for keeping
+        if: always()
+        env:
+          RECORD: ${{ steps.conduct.outputs.record }}
+        run: printf '%s' "$RECORD" > verdict.json
       - uses: actions/upload-artifact@v7
+        if: always()
         with:
           name: verdict-${{ strategy.job-index }}
-          path: ${{ steps.conduct.outputs.verdict_path }}
+          path: verdict.json
           retention-days: 30

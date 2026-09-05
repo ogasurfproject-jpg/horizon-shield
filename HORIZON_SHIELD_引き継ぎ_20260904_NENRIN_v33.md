@@ -695,3 +695,49 @@ TOshi「verify-directory を Anthropic にも出したい」→ 番人がペー�
 
 - 出すのはページやなく MCP サーバー: endpoint `https://gate.horizonshield.dev/mcp` 、ツール 5 本(get_conditions / check_conformance / verify_verdict / lookup_server / is_verified、全部 read only)、website `/verify-directory/` 、privacy `/verify-directory/privacy/` 、icon は workers/hs-verify-gate/icon.png の raw URL
 - **順番**: HORIZON SHIELD の self-serve 管理権が付いてから、その画面で 2 件目として出す。今 2 件目を投げると先方の中で混ざる。09-08(火)まで折り返しが無ければ、現行ポータルから 2 件並べて出し直す
+
+## 19. well-known 同意が外部で初めて通った(2026-09-05 09:23 JST)
+
+### 19.1 経緯(3 時間)
+
+1. 06:47 頃 Federico が資金入りの試験アカウントを提案(空の引数やなく本物の引数で determinism を測らせるため)。鍵を LinkedIn の DM で送ってきた
+2. 番人が断る文を書いた。理由は 2 つ、規律やなく構造: (a) 鍵が第三者の保管庫に平文で入ったから、使う使わんに関係無く回すべき (b) **測る側が測られる側の鍵を持ったら、登録簿は他人の資格情報の山になり、破られた日に載っとる全員が破られる**。「緑を金で買った検査器は緑を買っただけ」
+3. 断るだけで止めん。代わりの道を同じ段落で出した: **引数は所有者が出す、置き場は well-known の同意ファイル**。草案の公開質問 2 がまさにこれ。コードより先に草案を改訂して送ると約束し、実行した(ops/MCP_CONDUCT_WELLKNOWN_v1_draft.md に sample_call の節、commit 386262f8)
+4. Federico の返信(09:19): 鍵をアカウントごと削除して回転、401 で死亡確認。**そして api.babyblueviper.com/.well-known/mcp-conduct.json に本物の sample_calls を公開**。reason / decision / review の 3 本、**MCP の tool 名**と本物の input_schema(REST の path やない = 番人の指摘どおり直っとる)、各エントリに auth_note で「bearer key が要る、鍵無しの経路は今日は無い、せやから determinism は正直に未測定であって失敗やない」と明記
+5. 09:23 TOshi が扉で実測:
+
+        status: pending
+        consent_source: well_known
+        consent_basis: consent file on the origin (https://api.babyblueviper.com/.well-known/mcp-conduct.json) sets allow_tool_call true, read at 2026-09-05T00:23:11.034Z; only the owner of the origin can place a file there
+        determinism: not measured: every tool tried (3 of 33) answered empty arguments with an error, so there was no output to compare. An error echo is not a measurement of determinism.
+
+### 19.2 これが意味すること
+
+- **扉 0.2.4 の well-known 同意が、外部の origin で初めて通った**(2026-09-05T00:23:11Z)。昨夜作った道を、他人が最初に歩いた
+- 扉は error 応答を determinism の失敗と数えんかった(0.2.2 の直し)。33 本のうち 3 本試して全部 error、せやから「未測定」。**Federico の auth_note が予告した結果と完全に一致**
+- 仕様の**外部第 1 号実装**。しかも公開質問 2 を議論やなく実装で答えた: 番人の草案は sample_call(単数)、彼の実装は sample_calls(配列)。**配列が正しい**(tool を複数持つ運営者に代表を 1 つ選ばせる理由が無い)。草案を配列に直し、出どころを明記(ops/MCP_CONDUCT_WELLKNOWN_v1_draft.md)
+- 草案に残余を明記: **引数を指名するのは所有者やから、所有者は行儀のええ呼び出しだけを選べる**。測る側は選び直せん(選び直す = 引数を作る = 禁止事項)。できるのは「何を replay したか公開する」だけ。解決やなく命名した
+
+### 19.3 未実装(意図的)
+
+扉は sample_calls をまだ読まん。「設計を先に外へ出し、Merlini の集団に実装やなく設計を撃たせる」と約束したから。今日の determinism は空の引数のまま = 彼の server は未測定のまま。それが正しい状態
+
+### 19.4 同じ朝の他の動き
+
+- 登録簿に **intel.twzrd.xyz/mcp**(TWZRD)が乗った。TOshi も番人も /watch を叩いた覚えが無い = 誰が入れたか分からん。登録簿は依頼者を記録せん設計。2 通目(ops/twzrd_followup_20260905.md)はその「分からん」を書いた
+- jidec の 09-04 18:00 の赤(determinism timeout)は 28 回中 1 回。手動 /check で verified に戻った = 一時的、0.2.4 のせいやない
+- Anthropic: 承認済み、org ID(UUID)返信済み、self-serve 管理権の折り返し待ち。09-08 が期限、来んかったら現行ポータルから 2 件(HORIZON SHIELD + 検証の扉)並べて再提出。掲載に入れる中身は ops/anthropic_directory_fixes_20260905.md
+- Federico が Merlini への引き渡しのため email と GitHub username を 2 回聞いてきた → contact@the-horizons-innovation.com / ogasurfproject-jpg
+
+### 19.5 一本化の取りこぼし 2 件(2026-09-05 09:30 JST に発見、番人の落ち度の続き)
+
+09-05 の朝、Action を wedjat-check-action@v1 に一本化した「つもり」やった。実際には文書だけ直して、**動く物が 2 つ残っとった**。
+
+1. **CI が古い方をまだ呼んどった**。`.github/workflows/mcp-conduct.yml:21` が `ogasurfproject-jpg/mcp-conduct-action@main`。archive したリポを、tag も付けずに `@main` で。毎週月曜 03:30 UTC に回る自社 6 本の測定が、統合告知だけになったリポを引いとった。直し: `ops/mcp-conduct-own.yml` を書き直して TOshi が cp。入力名が違うから機械的な置換では済まん(旧: `allow_tool_call` + `fail_on_not_verified` + 出力 `verdict_path` / 新: `require` + 出力 `record`)。**`allow_tool_call` は落とした**。0.2.4 以降、依頼者の申告は sweep の根拠にならん。自社 6 本の同意は operator_list か well-known から解決される。CI が「自分で自分に許可を出す」形を残しといたら、外に「申告でも通る」と読まれる
+2. **npm の README が存在せん入力を宣伝しとった**。`mcp-conduct@0.1.0` の README 末尾に「`join_register` を CI の step に置け」。**`join_register` という入力はどの Action にも一度も存在せん**。番人が書いた時点で嘘。しかも行き先が archive 済のリポ。登録簿に載る道は `POST /watch` 1 本だけ。直して 0.1.1(README の実物の curl 1 行 + wedjat-check-action への差し替え、User-Agent も 0.1.1)。test 17/17 pass、Node 22。publish は TOshi(2FA)
+
+教訓は 09-04 の重複と同じ根: **「直した」と言う前に、動いとる物を grep する**。`git grep mcp-conduct-action` を最初に打っとったら 3 分で済んだ。今回も TOshi の手を余計に 2 回踏ませた
+
+### 19.6 Federico の訂正(09:22)
+
+「GitHub username を選択肢に出したのは自分の勇み足やった。Merlini に確認したら、招待は link を踏む形で、onboarding は email で走る」。**email だけでええ**: contact@the-horizons-innovation.com。返信で GitHub username は出さん(彼が取り消した物をこっちが押し返す形になる)

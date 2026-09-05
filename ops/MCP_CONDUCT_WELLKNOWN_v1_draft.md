@@ -1,6 +1,6 @@
 # /.well-known/mcp-conduct.json, version 1 (draft for public proposal)
 
-Status: draft written 2026-09-05, amended the same day with `sample_call`, by The HORIZONs Co., Ltd. (Hiratsuka, Japan) as the operator of the MCP Verification Gate. Not yet submitted anywhere. Intended for the Model Context Protocol community (discussion or SEP) and for the A2A community, since it touches both.
+Status: draft written 2026-09-05, amended the same day with `sample_calls` after the first outside implementation, by The HORIZONs Co., Ltd. (Hiratsuka, Japan) as the operator of the MCP Verification Gate. Not yet submitted anywhere. Intended for the Model Context Protocol community (discussion or SEP) and for the A2A community, since it touches both.
 
 ## One sentence
 
@@ -24,10 +24,13 @@ Content-Type: application/json
   "version": 1,
   "allow_tool_call": true,
   "endpoints": ["https://example.com/mcp"],
-  "sample_call": {
-    "tool": "get_quote",
-    "arguments": {"symbol": "BTC", "context": "pre trade check"}
-  },
+  "sample_calls": [
+    {
+      "tool": "get_quote",
+      "arguments": {"symbol": "BTC", "context": "pre trade check"},
+      "auth_required": false
+    }
+  ],
   "compensation": {
     "paid_by": "buyer",
     "referral_fee": false,
@@ -45,16 +48,16 @@ Content-Type: application/json
 | `allow_tool_call` | no | boolean. `true` is consent for a measurer to call tools on the listed endpoints for the purpose of measurement (for example, one tool twice with empty arguments to measure determinism). Anything but the boolean `true` is no consent. |
 | `endpoints` | no | array of exact endpoint URLs on this origin that the file speaks for. Absent means every MCP endpoint on the origin. A measurer matches by exact string. |
 | `compensation` | no | who compensates the operator, in the shape the gate already reads from agent cards: `paid_by` one of `buyer`, `seller`, `referral`, `advertising`, `subscription`, `public`, `other`; `referral_fee` and `listing_fee` booleans; `success_fee_pct` number 0 to 100, optional; `disclosure_url` string, optional. |
-| `sample_call` | no | One call the owner nominates for the determinism measurement: `tool`, a name that appears in this server's own `tools/list`, and `arguments`, the object that tool takes. A measurer replays it twice and compares; it never composes arguments of its own and never varies them. Absent means the measurer falls back to empty arguments, which many servers reject by validation, in which case determinism stays unmeasured. |
+| `sample_calls` | no | Calls the owner nominates for the determinism measurement. Each entry: `tool`, a name that appears in this server's own `tools/list`; `arguments`, the object that tool takes; optionally `auth_required` and `auth_note`, stating plainly whether a measurer can replay it without a credential. A measurer replays one entry twice and compares; it never composes arguments of its own and never varies them, and it discloses which entry it replayed. Absent means the measurer falls back to empty arguments, which many servers reject by validation, in which case determinism stays unmeasured. Every entry requiring a credential the measurer does not have leaves determinism unmeasured, which is never a failure. |
 | `contact` | no | URL or mailto for the operator. |
 
 Rules a measurer follows, all of them the same as for the agent card: fetch with redirects followed only within the same origin; a redirect to another origin is not a file at this origin; any HTTP status other than 2xx, a non JSON body, or a JSON value that is not an object means the file is absent; nothing in the file is executed; the measurer records in its verdict where and when it read the file.
 
-## The sample call, and what a measurer must never accept
+## The sample calls, and what a measurer must never accept
 
 Determinism is the one condition that cannot be measured by reading. Something has to be called twice. Two rules follow, and they are the whole design.
 
-**The measurer never invents arguments.** It cannot know which of your tools reads and which one moves money or deletes a row, so it calls with empty arguments or not at all. Many servers reject an empty call by validation. That rejection is not a determinism failure and must not be scored as one: an error response is not a measurement. Without a `sample_call`, the honest outcome for such a server is that determinism stays unmeasured, and unmeasured is never failed.
+**The measurer never invents arguments.** It cannot know which of your tools reads and which one moves money or deletes a row, so it calls with empty arguments or not at all. Many servers reject an empty call by validation. That rejection is not a determinism failure and must not be scored as one: an error response is not a measurement. Without `sample_calls`, the honest outcome for such a server is that determinism stays unmeasured, and unmeasured is never failed.
 
 **The measurer never holds the operator's credentials.** If a tool needs authorization, the credential stays on the operator's side: the tool authorizes by origin, or the nominated sample call is one that works without a secret. A measurer that accumulates bearer tokens for the servers it measures turns its own register into a store of other people's credentials, and the day it is breached, every listed operator is breached with it. No funding, no test account, no key. A checker that spends an operator's balance to produce a green light has bought the result.
 
@@ -81,5 +84,7 @@ The gate's implementation is `wellKnownConsent()` and `resolveConsent()` in `wor
 ## Open questions for the community
 
 1. Should `compensation` live only here, only in the agent card, or in both with a disagreement rule? This draft says both, with the disagreement reported.
-2. `sample_call` names one call. Should it be a list, so an operator can nominate several and a measurer picks or replays all of them? A list measures more, and it also gives an operator more room to nominate only the calls that behave. This draft keeps it at one and expects the measurer to disclose which tool it replayed, as it already does today. Raised by Federico Blanco Sanchez-Llanos on 2026-09-05, who offered a funded test account so that real arguments could be sent; the account was declined for the reason in the section above, and the arguments it was meant to carry are what this field publishes instead.
+2. Settled by implementation rather than by argument, which is the better way. Raised by Federico Blanco Sanchez-Llanos on 2026-09-05, who first offered a funded test account so that real arguments could be sent. The account was declined for the reason in the section above. Within the hour he published the arguments instead, at `https://api.babyblueviper.com/.well-known/mcp-conduct.json`, as a `sample_calls` array of three, named by their MCP tool names with their real input schemas, each carrying an `auth_note` that states plainly that no keyless replay path exists yet and that determinism against them is therefore honestly unmeasured rather than failed. This draft was singular; his file is a list; the list is right, because an operator with several tools should not have to choose which single one represents the server. The remaining question is narrower: when several are published, should a measurer replay one, or all of them? Replaying all measures more and costs the operator more. This draft says one, disclosed by name, and invites the opposite argument.
+
+   The residual that list does not remove: an operator nominates the calls, so an operator can nominate only the calls that behave. A measurer cannot fix that by choosing differently, because choosing differently means composing arguments, which is the thing it must not do. What it can do is publish what it replayed so a reader can see the sample was narrow. Stated here rather than solved.
 3. Should the file carry a list of measurers the operator acknowledges? This draft says no: a measurer's verdict is checkable by its hash, not by the operator's blessing, and an acknowledged list would turn measurement into endorsement.
