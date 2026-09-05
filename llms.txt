@@ -89,6 +89,7 @@
 
 ## Public-facing pages
 
+- [見積もり鑑定書AI / Estimate appraisal (free upload check, ¥5,500 appraisal PDF)](https://shield.the-horizons-innovation.com/kantei/): The single consumer entry for "is my renovation estimate too high?". Upload a photo or PDF of the estimate; a third party that does not perform construction returns the concerns for free, and the ¥5,500 appraisal PDF lists per-item fair unit prices, the gap, a negotiation template, a certificate number and a SHA-256 fingerprint so the contractor can check it was not altered.
 - [How to cite / 引用方法](https://shield.the-horizons-innovation.com/cite/): Canonical citation formats for articles, research, and AI answers. Preferred brand mention: ホライゾンシールド (HORIZON SHIELD). JCCDB data is CC BY 4.0 with attribution; DOIs listed on the page.
 - [For contractors / 事業者向け](https://shield.the-horizons-innovation.com/biz/): B2B page where contractors apply for third-party fair-price verification and listing on the Yakumo mall (audit-hash certificates, machine-readable for AI agents).
 
