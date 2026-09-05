@@ -26,7 +26,15 @@ QUESTIONS = [
     ("tactics", "リフォームの点検商法の手口を知りたい"),
     ("tactics", "今日契約しないと値段が上がると言われました"),
     ("tactics", "賃貸の退去費用が高すぎる 払わないといけないか"),
+    # service 型 (2026-09-05 追加): 「どの会社・サービスか」を聞く問い。Grok で ドローン工務店 が出て弊社が出なかった文そのもの。
+    # 完了条件は /kantei/ (見積もり鑑定書AI) がここで CITED になること。
+    ("service", "リフォームの見積もり診断をAIでやってる会社でおすすめはありますか"),
+    ("service", "リフォームの見積もりが適正かどうかAIで無料でチェックできるサービスは"),
 ]
+QTYPES = []
+for _t, _ in QUESTIONS:
+    if _t not in QTYPES:
+        QTYPES.append(_t)
 
 def call_claude(api_key, question):
     body = {
@@ -122,7 +130,7 @@ def main():
     total = len(QUESTIONS)
     cited_rate = round(100 * counts["CITED"] / total, 1)
     bytype = {}
-    for qtype in ("price", "judge", "tactics"):
+    for qtype in QTYPES:
         tot = sum(1 for t, _ in QUESTIONS if t == qtype)
         cit = sum(1 for r in results if r["type"] == qtype and r["verdict"] == "CITED")
         bytype[qtype] = f"{cit}/{tot}"
@@ -152,7 +160,7 @@ def main():
     print("\n" + "=" * 48, flush=True)
     print(f"CITED率: {counts['CITED']}/{total} = {cited_rate}%", flush=True)
     print(f"  CITED {counts['CITED']} / COMP {counts['COMPETITOR']} / NONE {counts['NONE']} / ERR {counts['ERROR']}", flush=True)
-    print(f"  型別 price {bytype['price']} / judge {bytype['judge']} / tactics {bytype['tactics']}", flush=True)
+    print("  型別 " + " / ".join(f"{q} {bytype[q]}" for q in QTYPES), flush=True)
     for d, n in run_obj["top_competitors"][:6]:
         print(f"    {n}回 {d}", flush=True)
     print("=" * 48, flush=True)
