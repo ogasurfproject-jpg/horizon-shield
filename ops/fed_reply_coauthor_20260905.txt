@@ -4,7 +4,7 @@ The draft is in the open repository, not in an attachment, so what you read is w
 
 github.com/ogasurfproject-jpg/horizon-shield
 papers/nenrin-reproducibility/manuscript_v0.1.md
-commit COMMIT_SHA
+commit 8e2c061a
 
 What is yours: Section 4.2 (the independent reimplementation protocol) and Section 6 (the seam), including Table 3, where I listed the latent seams of that class and guessed which ones the August rings exercise. The text there now is my placeholder written from entry 34; replace it with what you actually did, and if my Table 3 guesses are wrong about your implementation, that is exactly what the section is for. Everything else is open to your red pen too, and Section 7, the limits, most of all. If you think the paper claims more than the bytes support, say where.
 

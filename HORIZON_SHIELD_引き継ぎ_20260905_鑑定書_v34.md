@@ -265,3 +265,13 @@ pagecheck のメール(642464c1、39c06320)が緑か確認。赤なら本文を�
 7. 10 月頭: Ring 002(fetch_history.sh → make_month.sh 2026-09、Federico の witness 記録を witness/ に置く)。Federico が blind で make_ring.js を再実行 → 一致でも不一致でも記録(論文 8 節の事前登録)。
 
 **引き継ぎに書いてない過去の経緯が要るようになったら、推測で埋めずに TOshi に聞くこと。**
+
+---
+
+## 17. 追記(2026-09-05 23:34〜23:50 JST、v34 作成の直後)
+
+- **Federico が共著を受けた**(23:34)。所属の書き方は本人の文言「Viper Labs (builds invinoveritas, a verification layer for autonomous agents)」。再実装の節は自分で書く、草稿は用意でき次第、9 月の blind 再実行は合意どおり。
+- 論文を **v0.2** に(commit 8e2c061a、push 済): 著者 2 名、著者欄の下に分担(T.O. = 設計・運用・参照実装・草稿、F.B.S.L. = Node 実装と blind 実行、4.2 節と 6 節は彼が書く、最終稿は二人で承諾)、4.2 節と 6 節の頭に「entry 34 から書いた仮置き、彼が置き換える」の印、謝辞は「両著者とも報酬なし」。ファイル名は manuscript_v0.1.md のまま(リンクを安定させるため。中の版表記で管理)。
+- 返信 `ops/fed_reply_coauthor_20260905.txt`(265 語、commit 8e2c061a と path を渡す形。**TOshi が貼る、送信未確認**): 彼の担当 4.2・6・Table 3、7 節にも赤を、変更は branch / diff / 本文どれでも、**SSRN の共著者登録に彼のメールアドレスが要るので DM で(リポジトリには書かない)**。
+- 引き継ぎ v34 本体・論文 v0.1・ops/ の草稿類は 26f8176a で commit 済(push 済)。
+- 9.1 の流れは「共著」の枝に確定。彼の 4.2・6 節が来たら merge して v0.3、参考文献と付録 B を番人が仕上げ、二人の承諾 → SSRN。
