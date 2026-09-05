@@ -992,3 +992,9 @@ mcp 26/26 verified 23 pending 3、hearing 26/26 verified 23 pending 3、web 26/2
 - **もう 1 つずれ**: 扉の version が三つ巴。source 0.3.1 / server.json 0.2.4 / 公式レジストリ 0.2.4。server.json を 0.3.1 に上げた(commit 待ち)。publish は TOshi の workflow_dispatch(MCP registry publish、server_dir を workers/hs-verify-gate に打ち替える)。claim register に **C16** として組み込み(16 行)。
 - claim register の週次化: `ops/run_claim_register.sh` + `ops/com.horizonshield.claimregister.plist`(月曜 08:30 JST、出力は ops/claim-register-runs/、両方 gitignore)。install は TOshi(cp → launchctl bootstrap → kickstart)。週次巡回 trigger(trig_01Dh94…)に「報告を読んで FAIL だけ伝える、自分で走らせん、Ring は月初に本人」を追記済。
 - 今夜 18:15Z の見張り trigger、09-07 の自動送信 trigger も更新済(24.6、24.8 参照)。
+
+### 24.10 レジストリ publish と巡回メモの更新(16:15〜16:30 JST)
+- MCP registry publish #13 は server_dir を default(jidec)のまま走らせて jidec 1.2.1 の duplicate で 400(無害、変化なし)。#14 で `workers/hs-verify-gate` を指定して成功、**レジストリ hs-verify-gate 0.3.1**(05:19Z)。C16 閉じた。
+- レジストリの現在値は 8 本(09-04 午後に webmcp 1.0.4 / hs-hearing 2.3.1 / observatory 0.1.1 / jidec 1.2.1 が本人の手で publish されとった。番人の記録に無い)。週次巡回 trigger(trig_01Dh94…)の「前回確定値」表を 8 本に更新、claim register の節を 16 行に。
+- launchd com.horizonshield.claimregister 初回 05:13:46Z rc=1(FAIL 4 = C07/C13/C14/C16、全部読める)。以後は月曜 08:30 JST。
+- 残り(TOshi): 登録簿 Actions「Rebuild register」1 回(C13)、hs-outreach token 回転、Federico への witness 依頼 DM の送信確認(16:30 時点で未確認)。
