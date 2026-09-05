@@ -211,6 +211,18 @@ def c_no_starvation():
     return not late, "rows unmeasured for 14 days or never (declined rows excluded): %s" % (", ".join(late) or "none")
 
 
+def c_beacons():
+    """Every beacon the gate wrote into a derived verdict must match the locally validated headers, and the salt must
+    predate the block. BEYOND_TIP is a stale local file, not a finding: sync headers (sync_headers.py) and rerun."""
+    out = run(["python3", "verify_beacons.py", "--history", os.path.join(ROOT, "workers/hs-ledger/nenrin/ring-v1/history/*.json")],
+              "workers/hs-ledger/nenrin/coordinate-v1")
+    last = [l for l in out.strip().splitlines() if l.strip()][-1] if out.strip() else "no output"
+    falsified = re.search(r"(\d+) falsified", out)
+    beyond = out.count("BEYOND_TIP")
+    ok = (falsified is None or falsified.group(1) == "0") and "REFUSED" not in out
+    return ok, "%s%s" % (last, ("; %d beacon(s) beyond the local tip, sync headers" % beyond) if beyond else "")
+
+
 claim("C01", "gate /spec version", "the deployed gate is the committed source", c_gate_version)
 claim("C02", "gate /history retention", "the gate keeps HISTORY_MAX records per endpoint and says so", c_history_cap)
 claim("C03", "gate /spec red_team", "red team scores N of N, and N is what the test file holds", c_gate_redteam)
@@ -225,6 +237,7 @@ claim("C11", "mcp-conduct-register register.json", "every snapshot row is a live
 claim("C12", "ring-v1 README, register README", "one ring per endpoint per month, made by the 5th, published", c_ring_month)
 claim("C13", "mcp-conduct-register history/", "archived daily, append-only", c_archive_fresh)
 claim("C14", "gate /register, /watchlist", "every watched row is measured on its cadence; nothing starves behind the self rows", c_no_starvation)
+claim("C15", "gate /spec instant_coordinate, every derived verdict", "the recorded beacon is the chain's block at that height and the salt predates it", c_beacons, network=False)
 
 # ---------------------------------------------------------------- report
 lines = ["# claim register report %s" % now().strftime("%Y-%m-%d %H:%M UTC"), ""]

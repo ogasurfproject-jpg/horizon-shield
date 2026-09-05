@@ -140,7 +140,11 @@ const RECOMPUTE_NOTE =
   "those bytes must equal record_sha256. In JavaScript that is JSON.stringify(record). In Python " +
   "it is json.dumps(record, separators=(',',':'), ensure_ascii=False). Measured 2026-08-23: of the " +
   "four ways a reader naturally reaches for this, only that one reproduces the value, so both are " +
-  "named here rather than left implied by a JavaScript idiom.";
+  "named here rather than left implied by a JavaScript idiom. Verified in those two languages only " +
+  "(2026-09-05): in any other, the two things to get right are key order exactly as printed and numbers " +
+  "exactly as printed; if your encoder reorders keys or rewrites numbers it will not reproduce this value, " +
+  "so use an order-preserving parse followed by a compact serialize. The response you are reading is " +
+  "indented for humans and is not the hashed bytes.";
 
 function json(obj, status) {
   // キャッシュ指示を明示する。書かなければ中間キャッシュの裁量になり、
