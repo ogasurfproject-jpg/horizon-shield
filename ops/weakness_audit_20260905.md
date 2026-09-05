@@ -117,3 +117,5 @@ Federico は今日 4 往復した。全部 TOshi が起きとる時間やった�
 **2 番の訂正**: 8 月の履歴が在るので、Ring 001 は 10-01 やなく今日作れる。ただし今日中。
 
 **2 番、閉じた(13:20 JST)。** Ring 001 = 2026-08 × 8 endpoint、`rings/2026-08.sha256` を JIDEC entry 32 に append(04:18:49Z、OTS pending)。duration credential の duration が 0 から 1 か月になった。10 番の archive は登録簿リポに commit 済(push 待ち)。
+
+**8 番と 13 番、閉じた(14:50 JST)。** 8: /watch に requested_by、well-known listing: decline、掃引の飢餓(自前 8 台が毎日 8 席)も同時に見つけて直した。13: `ops/claim_register.py` 14 行。9 番は hs-ledger の日次束ね(00:30 UTC)で半分閉じた(OTS は毎時の launchd)。残りは 1/19(2 人目)、3($5)、4/5(Federico 宛の依頼文は書いた)、6(今夜の初実走)、7、11、12、14〜18。

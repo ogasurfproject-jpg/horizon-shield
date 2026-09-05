@@ -964,3 +964,11 @@ mcp 26/26 verified 23 pending 3、hearing 26/26 verified 23 pending 3、web 26/2
   直し(hs-ledger、commit 前 / 未配備): `anchorWitnessPool(env, origin, trigger)` に切り出し、`scheduled()` から日次 00:30 UTC(wrangler.jsonc `triggers.crons`)で呼ぶ。entry に `anchored_by: schedule|operator`(canonical の外、hash 不変)。自己記述 3 か所を「00:30 UTC に schedule で束ねる。09-05 までは手動で 2 件が 18 日待った」に書き換え。Bitcoin stamp は Mac の launchd(毎時 run_stamp.sh)が `ots_status != confirmed` を拾う。テスト: `test/ledger.test.mjs` の「routes still 9」は 08-18 から落ち続けとった(12 が正)、12 に直して、束ねの 6 assertion を追加。ALL PASS。
 - **ring-v1 に台帳の証人記録アダプタ。** `--witness` に `GET /witness/{sha}` の JSON(jidec-path-v1 walk 入り)をそのまま渡せる。walked_at で月、base か nodes の url で endpoint 一致、verdict.ok false は discrepancies に sha で載る。赤軍 25/25。**anchor 済の Ring 001 8 枚は新ツールでも 8/8 MATCH**(bytes 不変)。
 - `ops/fed_witness_request_20260905.txt`: Federico 宛の witness 依頼(貼るだけ)。**hs-ledger 配備後に送る**(本文が「直した」と言うとる)。18 日放置を先に自分から言う形。
+
+### 24.6 扉 0.3.1 の追加分と、もう 1 つの穴(14:10〜14:50 JST)
+- **掃引の飢餓。** `due.slice(0, MAX_PER_SWEEP)` は登録簿の並び順で、自前 8 台(日次)が毎日 8 席を使い切る。外部の行は順番が来ても「over MAX_PER_SWEEP」で永久に落ちる。**0.3.0 で 9 → 8 に下げた日に、無料層の唯一の席が消えとった**(TWZRD は 09-04 の巡回後に列に入ったので、まだ実害は出とらんが、次の due 日に必ず出た)。直し: 測ったことが無い行が最初、次に古い順(least recently measured first)。溢れた行の reason に最終測定時刻を書く。自前の 1 台が週 1 で 1 日ずれる代わりに、外部が測られる。
+- **/watch に `requested_by`(operator | anonymous)と `owner_file_at_request`(consent | decline | present | absent | unread)。** 最初の依頼者は上書きせん。
+- **well-known `listing: "decline"`(値は完全一致のみ)。** origin の所有者だけが置ける「測るな」。掃引は測らず、skipped に理由、登録簿の行に `owner_declined {since, how, effect}`、/watchlist に `owner_declined`。判定は作らん、履歴も増えん。値を消せば次の掃引で再開。/spec の well_known_consent.shape と /register の rows_are_selected_by に明記。**誰でも乗せられる(操作者の拒否権は無し)+ 断れるのは origin だけ、が設計。** TWZRD に「外す」と言うた件は、この機構で本人が機械的に外せる形になった。
+- /spec red_team の「determinism は server が先頭に置いた tool で測る」は 0.3.0 で古くなっとった。座標で選ぶ、legacy 時のみ先頭、判定に coordinate_derivation で明記、に書き換え。
+- 試験: `test/watch_decline.mjs` 20/20(offline、飢餓 2 本含む)。redteam_gate 63/63、redteam_instant 26/26 は無傷。
+- **claim register**(監査 13 番): `ops/claim_register.py`。公言 14 行(扉 version / 履歴保持 / 赤軍 63 / 26+17 / ring 25 / witness の cron 時刻 / pending 48h / OTS 7 日 / anchor 済 bytes の不変と seed の append 漏れ / 登録簿の日次生成 / snapshot 行 = live 行 / 月の輪 / archive 日次 / 飢餓 14 日)。各行に検算。`--offline` で手元だけ。TOshi の端末から週 1(device_bash は扉に届かん)。報告は `ops/claim_register_report.md`。
