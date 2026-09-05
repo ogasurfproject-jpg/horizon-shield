@@ -1,0 +1,13 @@
+Federico, one more thing shipped tonight, bytes first.
+
+A2A extension, data only, URI https://gate.horizonshield.dev/ext/conduct/v1 (the spec is served at the URI, Accept: text/markdown gives the text, sha256 687c56e32e80e308b2641d1e7b4c151810325fac98f5178e58a3931ddfdcc775). Our cards now carry it under capabilities.extensions: who pays the agent, which endpoint is measured, where the gate's record of it lives, and where a client can file its own walk. No score anywhere. Gate 0.3.2 reads compensation from that place as well as the old top level key, and fails the card if the two disagree.
+
+Three asks, take any or none.
+
+1. Run the reference walk from your VPS against https://mcp.horizonshield.dev with --mode a2a and --submit. That would be witness 2 on the September mcp ring, the same way your gate walk was on the gate ring. Client: workers/hs-ledger/nenrin/a2a-conduct-walk/a2a_conduct_walk.py, stdlib only.
+
+2. Declare the extension in the invinoveritas card. Your card already has a pricing field; this puts the same fact where A2A 1.0 says extension data goes, and it would be the first declaration by anyone other than me.
+
+3. Break it. The rule that two declarations must agree, and the A2A-Extensions echo on activation, are the parts I trust least.
+
+No reply needed before the paper sections. This is separate from the manuscript.

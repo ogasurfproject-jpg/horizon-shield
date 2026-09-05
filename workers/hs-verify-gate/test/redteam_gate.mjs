@@ -151,6 +151,34 @@ atk("comp_disclosure_url_object", "attack", { card: CARD({ compensation: { paid_
 atk("comp_referral_contradiction_disclosed", "control", { card: CARD({ compensation: { paid_by: "referral", referral_fee: false, listing_fee: false, success_fee_pct: 0 } }) },
   { status: "verified", pred: [["consistency_note published", (r) => typeof r.checks.compensation_disclosure.detail.consistency_note === "string"]] }, { consent: true, min: "0.2.2" });
 
+// ---- 0.3.2: 条件3 の置き場所が二つ(A2A Conduct Extension v1、capabilities.extensions[].params.compensation) ----
+// 拡張だけの宣言は通る。両方あれば 5 鍵一致。食い違い・別 URI・params が物でない・省略と 0 の不一致は落ちる。
+const EXT = "https://gate.horizonshield.dev/ext/conduct/v1";
+const COMP_OK = { paid_by: "buyer", referral_fee: false, listing_fee: false, success_fee_pct: 0, disclosure_url: "https://example.invalid/disclosure" };
+const extCard = (comp, extra) => CARD({ compensation: undefined, capabilities: { streaming: false, extensions: [{ uri: EXT, description: "conduct", required: false, params: { compensation: comp, measured_endpoints: ["https://x.redteam.invalid/mcp"], conduct_record: "https://gate.horizonshield.dev/history?endpoint=x", witness_intake: "https://ledger.horizonshield.dev/witness" } }] }, ...(extra || {}) });
+atk("ok_comp_in_extension_only", "control", { card: extCard(COMP_OK) },
+  { status: "verified", pass: ["compensation_disclosure"], pred: [["location extension", (r) => r.checks.compensation_disclosure.detail.location === "extension"]] }, { consent: true, min: "0.3.2" });
+atk("ok_comp_both_equal", "control", { card: extCard(COMP_OK, { compensation: { ...COMP_OK } }) },
+  { status: "verified", pass: ["compensation_disclosure"], pred: [["location both", (r) => r.checks.compensation_disclosure.detail.location === "both"]] }, { consent: true, min: "0.3.2" });
+atk("ok_comp_duplicate_ext_equal", "control", { card: CARD({ compensation: undefined, capabilities: { extensions: [{ uri: EXT, params: { compensation: COMP_OK } }, { uri: EXT, params: { compensation: { ...COMP_OK } } }] } }) },
+  { status: "verified", pass: ["compensation_disclosure"] }, { consent: true, min: "0.3.2" });
+atk("ok_comp_extensions_not_array_top_level_ok", "control", { card: CARD({ capabilities: { extensions: { uri: EXT } } }) },
+  { status: "verified", pass: ["compensation_disclosure"], pred: [["location top_level", (r) => r.checks.compensation_disclosure.detail.location === "top_level"]] }, { consent: true, min: "0.3.2" });
+atk("comp_ext_disagrees_with_top_level", "attack", { card: extCard({ ...COMP_OK, paid_by: "referral", referral_fee: true }, { compensation: { ...COMP_OK } }) },
+  { not_verified: true, fail: ["compensation_disclosure"], pred: [["reason names disagreement", (r) => /disagree/.test(r.checks.compensation_disclosure.reason)]] }, { consent: true, min: "0.3.2" });
+atk("comp_ext_other_uri_only", "attack", { card: CARD({ compensation: undefined, capabilities: { extensions: [{ uri: EXT + "-draft", params: { compensation: COMP_OK } }] } }) },
+  { not_verified: true, fail: ["compensation_disclosure"] }, { consent: true, min: "0.3.2" });
+atk("comp_ext_params_string", "attack", { card: CARD({ compensation: undefined, capabilities: { extensions: [{ uri: EXT, params: "buyer pays" }] } }) },
+  { not_verified: true, fail: ["compensation_disclosure"] }, { consent: true, min: "0.3.2" });
+atk("comp_ext_malformed_beside_valid_top_level", "attack", { card: extCard({ ...COMP_OK, paid_by: "Buyer" }, { compensation: { ...COMP_OK } }) },
+  { not_verified: true, fail: ["compensation_disclosure"] }, { consent: true, min: "0.3.2" });
+atk("comp_ext_omits_success_fee_top_level_zero", "attack", { card: extCard({ paid_by: "buyer", referral_fee: false, listing_fee: false, disclosure_url: "https://example.invalid/disclosure" }, { compensation: { ...COMP_OK } }) },
+  { not_verified: true, fail: ["compensation_disclosure"] }, { consent: true, min: "0.3.2" });
+atk("comp_top_level_string_beside_valid_ext", "attack", { card: extCard(COMP_OK, { compensation: "buyer pays" }) },
+  { not_verified: true, fail: ["compensation_disclosure"] }, { consent: true, min: "0.3.2" });
+atk("comp_ext_valid_but_random_output_still_pending", "attack", { card: extCard(COMP_OK), tools: [TOOL("alpha")], call: (n, a, nth) => ({ content: [{ type: "text", text: "run " + nth }] }) },
+  { not_verified: true, fail: ["determinism"], pass: ["compensation_disclosure"] }, { consent: true, min: "0.3.2" });
+
 // ---- 条件4: 決定論性 ----
 atk("determinism_error_echo", "attack", { tools: [TOOL("alpha")], call: () => ({ __error: { code: -32602, message: "argument required" } }) }, { not_verified: true, fail: ["determinism"] }, { consent: true, min: "0.2.2" });
 atk("determinism_isError_echo", "attack", { tools: [TOOL("alpha")], call: () => ({ content: [{ type: "text", text: "missing argument" }], isError: true }) }, { not_verified: true, fail: ["determinism"] }, { consent: true, min: "0.2.2" });

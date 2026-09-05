@@ -151,4 +151,13 @@ r = await mcp.fetch(new Request(B + "/health"), env);
 const h = JSON.parse(await r.text());
 chk("/health advertises protocol + stateless + discovery", h.mcp.protocol_version === "2025-11-25" && h.mcp.stateless === true && !!h.discovery);
 
+// A2A Conduct Extension v1 (2026-09-06): the card the gate reads declares it, and the two compensation copies agree
+r = await mcp.fetch(new Request(B + "/.well-known/agent-card.json"), env);
+const jc = JSON.parse(await r.text());
+const EXT = "https://gate.horizonshield.dev/ext/conduct/v1";
+const jext = (jc.capabilities && jc.capabilities.extensions || []).find((e) => e.uri === EXT);
+chk("jidec-mcp agent-card declares conduct ext", !!jext && jext.required === false && Array.isArray(jext.params.measured_endpoints), JSON.stringify(jc.capabilities));
+const K = ["paid_by", "referral_fee", "listing_fee", "success_fee_pct", "disclosure_url"];
+chk("top-level compensation equals extension params.compensation on the five keys", !!jext && K.every((k) => JSON.stringify(jc.compensation[k] === undefined ? null : jc.compensation[k]) === JSON.stringify(jext.params.compensation[k] === undefined ? null : jext.params.compensation[k])));
+
 process.exit(chk.done() ? 1 : 0);

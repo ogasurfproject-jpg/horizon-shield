@@ -46,6 +46,7 @@ async function go(path, init) {
     s: r.status,
     ct: r.headers.get("content-type"),
     vary: r.headers.get("vary"),
+    ext: r.headers.get("a2a-extensions"),
     t: await r.text(),
   };
 }
@@ -136,6 +137,28 @@ r = await go("/a2a", {
   body: JSON.stringify({ jsonrpc: "2.0", id: 8, method: "tasks/get" }),
 });
 chk("a2a unknown method -> -32601", JSON.parse(r.t).error.code === -32601);
+
+// A2A Conduct Extension v1 (2026-09-06): declaration, echo, metadata
+const EXT = "https://gate.horizonshield.dev/ext/conduct/v1";
+chk("agent-card declares conduct ext under capabilities.extensions", Array.isArray(ac.capabilities.extensions) && ac.capabilities.extensions.some((e) => e.uri === EXT && e.params && e.params.compensation && e.params.witness_intake), JSON.stringify(ac.capabilities));
+chk("conduct ext is not marked required", ac.capabilities.extensions.every((e) => e.uri !== EXT || e.required === false));
+r = await go("/a2a", {
+  method: "POST",
+  headers: { "content-type": "application/json", "a2a-extensions": EXT + ", https://example.invalid/ext/other/v1" },
+  body: JSON.stringify({ jsonrpc: "2.0", id: 9, method: "SendMessage", params: { message: { role: "user", kind: "message", messageId: "m2", parts: [{ kind: "text", text: "jidec:entry:2" }] } } }),
+});
+const ax = JSON.parse(r.t);
+chk("SendMessage (A2A 1.0 name) is accepted", ax.result && ax.result.kind === "message", r.t.slice(0, 200));
+chk("activated ext is echoed in A2A-Extensions header, only the implemented one", r.ext === EXT, String(r.ext));
+chk("metadata carries endpoint / conduct_record / witness_intake under the ext URI", ax.result.metadata && [EXT + "/endpoint", EXT + "/conduct_record", EXT + "/witness_intake"].every((k) => typeof ax.result.metadata[k] === "string" && ax.result.metadata[k].startsWith("https://")), JSON.stringify(ax.result.metadata));
+chk("metadata carries nothing else (no timestamp, no score)", Object.keys(ax.result.metadata).length === 3);
+r = await go("/a2a", {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({ jsonrpc: "2.0", id: 10, method: "message/send", params: { message: { role: "user", kind: "message", messageId: "m3", parts: [{ kind: "text", text: "jidec:entry:2" }] } } }),
+});
+const an = JSON.parse(r.t);
+chk("without activation: no echo header and no metadata", r.ext === null && an.result && an.result.metadata === undefined, String(r.ext) + " " + JSON.stringify(an.result && an.result.metadata));
 
 // ── 既存ルートが無傷であること ────────────────────────────────
 r = await go("/ledger/2");

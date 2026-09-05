@@ -464,6 +464,47 @@ const SERVER_INFO = {
 // exists, and the compensation block states who pays. Machine readable, same
 // as every sibling endpoint on this zone. 2026-08-17: added after the gate
 // measured http 404 here while everything else passed.
+
+// --- A2A Conduct Extension v1 (2026-09-06) ---
+// 誰が払うか、行儀の記録(第三者が書いた物)がどこか、繋いだ相手が自分の観測をどこに出せるか。
+// card の capabilities.extensions[] に置く(A2A 1.0 の正規の場所)。仕様は URI そのもの。点数も判定も無い。
+const CONDUCT_EXT_URI = "https://gate.horizonshield.dev/ext/conduct/v1";
+const CONDUCT_MEASURED_ENDPOINT = "https://jidec.horizonshield.dev/mcp";
+const CONDUCT_WITNESS_INTAKE = "https://ledger.horizonshield.dev/witness";
+const CONDUCT_RECORD_URL = "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(CONDUCT_MEASURED_ENDPOINT);
+// hs-jidec-mcp の card の top-level compensation と同じ 5 鍵(扉 0.3.2 は両方読んで一致を要求する)。
+const CONDUCT_COMPENSATION = {
+  paid_by: "other",
+  paid_by_note: "The operator funds this ledger itself, as the cost of making its own conduct checkable. Reading is free. Witness submission is free. No listed party pays, no reader pays, and there is no paid placement.",
+  referral_fee: false,
+  listing_fee: false,
+  success_fee_pct: 0,
+  disclosure_url: "https://ledger.horizonshield.dev/llms.txt"
+};
+function conductExtension() {
+  return {
+    uri: CONDUCT_EXT_URI,
+    description: "Who pays this agent, where its measured conduct record lives, and where to file a witness walk. The specification is served at the URI.",
+    required: false,
+    params: {
+      compensation: CONDUCT_COMPENSATION,
+      measured_endpoints: [CONDUCT_MEASURED_ENDPOINT],
+      conduct_record: CONDUCT_RECORD_URL,
+      verdict_recipe: "https://gate.horizonshield.dev/spec",
+      witness_intake: CONDUCT_WITNESS_INTAKE,
+      register: "https://gate.horizonshield.dev/register",
+      rings: {
+        spec: "https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/NENRIN_SPEC_v1.md",
+        spec_sha256: "9ccba2e325fd2a555fcdb2dec519b8c6bf7a669064674846aea98ecfff824e3d",
+        base: "https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/rings/",
+        path: "<slug>/<YYYY-MM>.json",
+        slug: "endpoint URL without https://, lower case, every run of characters outside [a-z0-9] replaced by one hyphen, hyphens trimmed at both ends",
+        ledger: "https://ledger.horizonshield.dev/ledger"
+      }
+    }
+  };
+}
+
 const AGENT_CARD = {
   protocolVersion: "0.3.0",
   name: "HORIZON SHIELD JIDEC",
@@ -472,17 +513,11 @@ const AGENT_CARD = {
   preferredTransport: "JSONRPC",
   provider: { organization: "The HORIZONs\u682a\u5f0f\u4f1a\u793e", url: "https://shield.the-horizons-innovation.com" },
   version: VERSION,
-  capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
+  capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false, extensions: [conductExtension()] },
   defaultInputModes: ["application/json", "text/plain"],
   defaultOutputModes: ["application/json", "text/plain"],
-  compensation: {
-    paid_by: "other",
-    paid_by_note: "The operator funds this ledger itself, as the cost of making its own conduct checkable. Reading is free. Witness submission is free. No listed party pays, no reader pays, and there is no paid placement.",
-    referral_fee: false,
-    listing_fee: false,
-    success_fee_pct: 0,
-    disclosure_url: "https://ledger.horizonshield.dev/llms.txt"
-  },
+  // top-level は旧読者のため。extension の params.compensation と同じ物(扉 0.3.2 は一致を要求する)。
+  compensation: CONDUCT_COMPENSATION,
   skills: [
     { id: "jidec-list-paths", name: "List verification paths", description: "Enumerate the verification paths recorded on the ledger, newest first, with their anchor status.", tags: ["ledger", "verification", "bitcoin"] },
     { id: "jidec-cite", name: "Cite a record", description: "Return a citable record with its SHA-256 and Bitcoin anchor, so another agent can quote it without trusting this server.", tags: ["citation", "sha256", "opentimestamps"] },

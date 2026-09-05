@@ -6,8 +6,59 @@
 
 const enc = new TextEncoder();
 
-const CORS = { "access-control-allow-origin": "*", "access-control-allow-methods": "GET,POST,OPTIONS", "access-control-allow-headers": "content-type,x-ledger-key" };
-const json = (o, status = 200) => new Response(JSON.stringify(o, null, 2), { status, headers: { "content-type": "application/json; charset=utf-8", ...CORS } });
+const CORS = { "access-control-allow-origin": "*", "access-control-allow-methods": "GET,POST,OPTIONS", "access-control-allow-headers": "content-type,x-ledger-key,a2a-extensions", "access-control-expose-headers": "a2a-extensions" };
+const json = (o, status = 200, extra) => new Response(JSON.stringify(o, null, 2), { status, headers: { "content-type": "application/json; charset=utf-8", ...CORS, ...(extra || {}) } });
+// --- A2A Conduct Extension v1 (2026-09-06) ---
+// 誰が払うか、行儀の記録(第三者が書いた物)がどこか、繋いだ相手が自分の観測をどこに出せるか。
+// card の capabilities.extensions[] に置く(A2A 1.0 の正規の場所)。仕様は URI そのもの。点数も判定も無い。
+const CONDUCT_EXT_URI = "https://gate.horizonshield.dev/ext/conduct/v1";
+const CONDUCT_MEASURED_ENDPOINT = "https://jidec.horizonshield.dev/mcp";
+const CONDUCT_WITNESS_INTAKE = "https://ledger.horizonshield.dev/witness";
+const CONDUCT_RECORD_URL = "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(CONDUCT_MEASURED_ENDPOINT);
+// hs-jidec-mcp の card の top-level compensation と同じ 5 鍵(扉 0.3.2 は両方読んで一致を要求する)。
+const CONDUCT_COMPENSATION = {
+  paid_by: "other",
+  paid_by_note: "The operator funds this ledger itself, as the cost of making its own conduct checkable. Reading is free. Witness submission is free. No listed party pays, no reader pays, and there is no paid placement.",
+  referral_fee: false,
+  listing_fee: false,
+  success_fee_pct: 0,
+  disclosure_url: "https://ledger.horizonshield.dev/llms.txt"
+};
+function conductExtension() {
+  return {
+    uri: CONDUCT_EXT_URI,
+    description: "Who pays this agent, where its measured conduct record lives, and where to file a witness walk. The specification is served at the URI.",
+    required: false,
+    params: {
+      compensation: CONDUCT_COMPENSATION,
+      measured_endpoints: [CONDUCT_MEASURED_ENDPOINT],
+      conduct_record: CONDUCT_RECORD_URL,
+      verdict_recipe: "https://gate.horizonshield.dev/spec",
+      witness_intake: CONDUCT_WITNESS_INTAKE,
+      register: "https://gate.horizonshield.dev/register",
+      rings: {
+        spec: "https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/NENRIN_SPEC_v1.md",
+        spec_sha256: "9ccba2e325fd2a555fcdb2dec519b8c6bf7a669064674846aea98ecfff824e3d",
+        base: "https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/rings/",
+        path: "<slug>/<YYYY-MM>.json",
+        slug: "endpoint URL without https://, lower case, every run of characters outside [a-z0-9] replaced by one hyphen, hyphens trimmed at both ends",
+        ledger: "https://ledger.horizonshield.dev/ledger"
+      }
+    }
+  };
+}
+// 要求ヘッダ A2A-Extensions のうち、この agent が実装しとる物だけ。
+function a2aActivatedExtensions(request) {
+  const h = request.headers.get("A2A-Extensions") || "";
+  return h.split(",").map((x) => x.trim()).filter((u) => u === CONDUCT_EXT_URI);
+}
+function conductMetadata() {
+  const m = {};
+  m[CONDUCT_EXT_URI + "/endpoint"] = CONDUCT_MEASURED_ENDPOINT;
+  m[CONDUCT_EXT_URI + "/conduct_record"] = CONDUCT_RECORD_URL;
+  m[CONDUCT_EXT_URI + "/witness_intake"] = CONDUCT_WITNESS_INTAKE;
+  return m;
+}
 
 async function ctEq(a, b) {
   if (typeof a !== "string" || typeof b !== "string" || !a || !b) return false;
@@ -461,7 +512,7 @@ const agentCard = (origin) => ({
   version: "1.1.0",
   documentationUrl: origin + "/llms.txt",
   iconUrl: null,
-  capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
+  capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false, extensions: [conductExtension()] },
   supportedInterfaces: [{ url: origin + "/a2a", transport: "JSONRPC", protocolVersion: "1.0.1" }],
   defaultInputModes: ["text/plain"],
   defaultOutputModes: ["application/json", "text/plain"],
@@ -820,16 +871,22 @@ async function handle(request, env) {
     if (p === "/a2a" && request.method === "POST") {
       const b = await request.json().catch(() => null);
       const rid = b && b.id !== undefined ? b.id : null;
-      const rpcErr = (code, message) => json({ jsonrpc: "2.0", id: rid, error: { code, message } });
+      // A2A Conduct Extension v1: 要求で有効化されとれば応答ヘッダで echo し、Message の metadata に指し先を載せる。
+      const a2aExt = a2aActivatedExtensions(request);
+      const extHeaders = a2aExt.length ? { "a2a-extensions": a2aExt.join(",") } : {};
+      const rpcErr = (code, message) => json({ jsonrpc: "2.0", id: rid, error: { code, message } }, 200, extHeaders);
       if (!b || b.jsonrpc !== "2.0") return rpcErr(-32600, "invalid request: jsonrpc 2.0 envelope required");
-      if (b.method !== "message/send")
-        return rpcErr(-32601, `method not found: ${b.method}. This agent implements message/send only; send the citation as a text part.`);
+      // A2A 0.3 の message/send と A2A 1.0 の SendMessage は同じ入口。
+      if (b.method !== "message/send" && b.method !== "SendMessage")
+        return rpcErr(-32601, `method not found: ${b.method}. This agent implements message/send (SendMessage) only; send the citation as a text part.`);
       const parts = (b.params && b.params.message && b.params.message.parts) || [];
       const text = parts.filter((x) => x && x.kind === "text" && typeof x.text === "string").map((x) => x.text).join(" ").trim();
       if (!text) return rpcErr(-32602, "invalid params: expected params.message.parts[] containing a text part with a JIDEC citation");
       try {
         const card = await citationCard(env, origin, text.match(/jidec:[a-z]*:?[0-9a-f]+|[0-9a-f]{64}|\d+/i)?.[0] || text);
-        return json({ jsonrpc: "2.0", id: rid, result: { kind: "message", role: "agent", messageId: crypto.randomUUID(), parts: [{ kind: "text", text: card.trust_note }, { kind: "data", data: card }] } });
+        const result = { kind: "message", role: "agent", messageId: crypto.randomUUID(), parts: [{ kind: "text", text: card.trust_note }, { kind: "data", data: card }] };
+        if (a2aExt.includes(CONDUCT_EXT_URI)) result.metadata = conductMetadata();
+        return json({ jsonrpc: "2.0", id: rid, result }, 200, extHeaders);
       } catch (err) {
         return rpcErr(-32000, String((err && err.message) || err));
       }

@@ -36,7 +36,7 @@ import * as nenrin from "./nenrin_instant.js";
 
 // 仕様確定までの暫定値。名称や閾値はここだけ直せば全体に効く。
 const CONFIG = {
-  version: "0.3.1",  // 2026-09-05. /history の保持 30 → 400、retention を応答に明記。/watch に requested_by、well-known の listing: decline。判定の規則は 0.3.0 のまま。
+  version: "0.3.2",  // 2026-09-06. A2A Conduct Extension v1: 条件3 を capabilities.extensions[].params.compensation からも読む(両方あれば一致必須)。/ext/conduct/v1 で仕様を配る。それ以外の判定規則は 0.3.0 のまま。
   tier_pass: "verified",        // 通過時の称号(暫定)
   tier_fail: "pending",         // 未通過(不合格とは呼ばない)
   tier_held: "held",            // 到達できず測れなかった。不適合とは別の状態
@@ -54,6 +54,107 @@ const CONFIG = {
 // 誰でも再計算できると書く以上、その1通りを名指しする義務がこちらにある。
 // 条件07 の適合ベクタと自己測定の公開先。判定JSONから直接たどれるようにする。
 const CONFORMANCE_URL = "https://shield.the-horizons-innovation.com/verify-directory/conformance/";
+
+// ---- 0.3.2. A2A Conduct Extension v1 ----
+// 条件3(報酬構造の開示)の置き場所を、A2A 1.0 が拡張データに定めた正規の場所
+// capabilities.extensions[{uri}].params にも広げる。top-level の compensation(0.2.0 以来)も読み続ける。
+// 両方あれば 5 鍵が一致せねばならん。二つの申告が食い違う開示は開示ではない。
+// URI は識別子。同じ URI で仕様本文(ext/CONDUCT_EXT_v1.md と同じ文)を配る。
+const CONDUCT_EXT_URI = "https://gate.horizonshield.dev/ext/conduct/v1";
+const CONDUCT_EXT_SOURCE = "https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-verify-gate/ext/CONDUCT_EXT_v1.md";
+const CONDUCT_EXT_MD = "# A2A Conduct Extension v1 (`conduct-v1`)\n\n**Extension URI (the identifier, compared as an exact string):** `https://gate.horizonshield.dev/ext/conduct/v1`\n**Status:** v1, 2026-09-06. Reference implementations: MCP Verification Gate 0.3.2 (reads it, serves this document at the URI), HORIZON SHIELD KIRA and JIDEC agent cards (declare and echo it), `a2a_conduct_walk.py` (client-side witness walk).\n**Type:** data-only A2A extension on the Agent Card, plus an optional request-level echo. It MUST NOT be declared `required: true` (A2A guidance: data-only extensions are never required).\n**Language:** RFC 2119 keywords. Field names are exact.\n\n## 1. What this is for\n\nAn agent about to hand work to another agent can read three things before the first message: who pays the other agent, where a record of that agent's measured conduct lives that the agent itself did not write, and where to file its own observation of that agent. The extension carries one declaration and a set of pointers. It carries no score, no rank, and no verdict of its own. Declaring it proves nothing; the third-party record at `conduct_record` is the evidence, and only if the client fetched it.\n\n## 2. Declaration in the Agent Card\n\nThe agent lists the extension under `capabilities.extensions[]` (A2A 1.0, `AgentExtension`: `uri`, `description`, `required`, `params`).\n\n```json\n{\n  \"uri\": \"https://gate.horizonshield.dev/ext/conduct/v1\",\n  \"description\": \"Who pays this agent, where its measured conduct record lives, and where to file a witness walk.\",\n  \"required\": false,\n  \"params\": {\n    \"compensation\": { \"paid_by\": \"buyer\", \"referral_fee\": false, \"listing_fee\": false, \"success_fee_pct\": 0, \"disclosure_url\": \"https://...\" },\n    \"measured_endpoints\": [\"https://mcp.horizonshield.dev/mcp\"],\n    \"conduct_record\": \"https://gate.horizonshield.dev/history?endpoint=https%3A%2F%2Fmcp.horizonshield.dev%2Fmcp\",\n    \"verdict_recipe\": \"https://gate.horizonshield.dev/spec\",\n    \"witness_intake\": \"https://ledger.horizonshield.dev/witness\",\n    \"consent\": \"https://mcp.horizonshield.dev/.well-known/mcp-conduct.json\",\n    \"register\": \"https://gate.horizonshield.dev/register\",\n    \"rings\": {\n      \"spec\": \"https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/NENRIN_SPEC_v1.md\",\n      \"spec_sha256\": \"9ccba2e325fd2a555fcdb2dec519b8c6bf7a669064674846aea98ecfff824e3d\",\n      \"base\": \"https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/rings/\",\n      \"path\": \"<slug>/<YYYY-MM>.json\",\n      \"slug\": \"endpoint URL without https://, lower case, every run of characters outside [a-z0-9] replaced by one hyphen, hyphens trimmed at both ends\",\n      \"ledger\": \"https://ledger.horizonshield.dev/ledger\"\n    }\n  }\n}\n```\n\n`params` fields:\n\n| field | type | requirement | meaning |\n|---|---|---|---|\n| `compensation` | object | REQUIRED | Who pays the agent. `paid_by` MUST be one of `buyer`, `seller`, `referral`, `advertising`, `subscription`, `public`, `other`. `referral_fee` and `listing_fee` MUST be booleans. `success_fee_pct`, when present, MUST be a number from 0 to 100. `disclosure_url`, when present, MUST be a string. Content is not judged by anyone reading this field; only the absence or malformation of the declaration is a failure. This is the same shape the gate's condition 3 has read at the card's top-level `compensation` key since 0.2.0. |\n| `measured_endpoints` | string[] | REQUIRED, at least one | The exact URL(s) whose conduct is recorded, as they appear on the register. |\n| `conduct_record` | string (https URL) | REQUIRED | A live record of measurements of the agent, written by a party other than the agent. For gate-measured endpoints this is `https://gate.horizonshield.dev/history?endpoint=<url-encoded endpoint>`. Every record there carries a `record_sha256` that the reader recomputes. |\n| `witness_intake` | string (https URL) | REQUIRED | Where a client files its own walk of the agent (section 4). |\n| `verdict_recipe` | string (https URL) | OPTIONAL | How to recompute the hashes in `conduct_record`. |\n| `consent` | string (https URL) | OPTIONAL | The origin's `/.well-known/mcp-conduct.json`, the owner's proof of consent to tool calls during measurement. |\n| `register` | string (https URL) | OPTIONAL | The public register the endpoint sits on. |\n| `rings` | object | OPTIONAL | Where monthly conduct rings (NENRIN Layer 3) are published, with the spec they follow and its sha256. |\n\nA card MAY keep the top-level `compensation` key for readers that predate this extension. When both are present they MUST be equal on the five keys above; two declarations that disagree are a failed disclosure, not a choice for the reader to make. When the extension is listed more than once with this URI, every listing MUST carry an equal `compensation`.\n\n## 3. Request-level echo (optional)\n\nA client activates the extension by sending the A2A service parameter `A2A-Extensions` containing this URI (an HTTP header in the HTTP bindings). An agent that declares the extension MUST then include this URI in the `A2A-Extensions` header of its response and MUST place these keys in the `metadata` of the returned `Message` or `Task`:\n\n| metadata key | value |\n|---|---|\n| `https://gate.horizonshield.dev/ext/conduct/v1/endpoint` | the entry of `measured_endpoints` that served this request |\n| `https://gate.horizonshield.dev/ext/conduct/v1/conduct_record` | same value as `params.conduct_record` |\n| `https://gate.horizonshield.dev/ext/conduct/v1/witness_intake` | same value as `params.witness_intake` |\n\nNothing else. No timestamp (a time an issuer chooses is a coordinate the issuer controls), no score. An agent that declares the extension and does not echo on activation is non-conforming; a client SHOULD record that as a discrepancy (section 4, `verdict.ok = false`). An agent that does not declare the extension is free to ignore the header, as A2A allows.\n\n## 4. Witness walk: `a2a-conduct-walk-v1`\n\nThis is how every connecting client becomes a witness. A walk is a `jidec-path-v1` record (JIDEC_PATH_SPEC_v1.md, ledger entry 5) with a `witness` field, submitted as `POST <witness_intake>` with body `{\"record_canonical\": \"<exact bytes>\"}`. Canonical bytes are UTF-8 of the record with keys sorted at every nesting level, separators `,` and `:` with no spaces, non-ASCII unescaped (Python `json.dumps(obj, sort_keys=True, separators=(\",\",\":\"), ensure_ascii=False)`; a JavaScript implementation MUST sort keys recursively before `JSON.stringify`, the seam recorded in ledger entry 34).\n\nFields:\n\n- `schema`: `\"jidec-path-v1\"`. `purpose`: `\"a2a-conduct-walk-v1: <measured endpoint>\"`. `walked_at`: ISO-8601 UTC. `base`: the card origin (`https://host`). `witness`: `{ \"name\": \"<who>\", \"vantage\": \"<network or tool the walk was taken from>\" }`; `name` MAY be `anonymous`.\n- `nodes`: n0 `fetch` GET `<origin>/.well-known/agent-card.json`; n1 the same GET again; n2 `compute` \"locate the extension by URI in n1 and validate `params`\"; n3 `fetch` POST to the measured endpoint with header `A2A-Extensions: <this URI>` and a JSON-RPC body (MCP `initialize`, or A2A `SendMessage` / `message/send` when the endpoint is the A2A interface). Each `fetch` node records `request.url`, `request.method`, `response.status`, `response.body_sha256` over the exact bytes received. A walk MUST touch at least one `measured_endpoints` entry or the origin, or the ring builder will not count it for that endpoint.\n- `assertions` (each with `claim`, `op`, `result`, `evidence_nodes`): `card_bytes_stable` (n0 body sha equals n1 body sha), `conduct_ext_declared` (n1 carries this URI under `capabilities.extensions[]`), `compensation_well_formed` (section 2 shape), `measured_endpoint_answered` (n3 status 200 and a JSON-RPC `result`), `extension_echoed` (n3 response header `A2A-Extensions` contains this URI; only asserted when n3 was an A2A message, otherwise recorded with `result: null` and `note: \"not applicable\"`).\n- `verdict`: `{ \"ok\": <all applicable assertions true>, \"outcome\": \"PASS\" | \"FAIL\", \"n_pass\": <int>, \"n_total\": <int> }`. Both `ok` and `outcome` are carried because the ring builder (`make_ring.py`) reads `ok` while JIDEC_PATH_SPEC_v1 names `outcome`; a record carrying only one of them is read differently by the two.\n\nThe ledger accepts a schema-valid record inside its stated caps with no editorial step, pools it at `/witness/pending`, bundles the pool into a `nenrin-witness-batch-v1` entry once a day, and stamps it to Bitcoin. The monthly ring for the endpoint counts the walk under `witnesses` by distinct `witness.name`, and lists it under `discrepancies` when `ok` is false. With one witness a ring says so in `limits`; the second independent witness is what removes that sentence.\n\n## 5. What this does not do\n\nIt does not measure quality. It does not verify that `compensation` is truthful; a false declaration is published and recorded, and is grounds for revocation on the register, but no reader of this extension can tell truth from shape. It does not make the agent trustworthy; it makes the agent's conduct record findable and the reader's own observation filable. A client MUST NOT treat the presence of this extension as a pass.\n\n## 6. Interoperability, stated so this is not an island\n\nThe unit of record is a ring file: a JSON file whose identity is `sha256(file bytes)` and whose monthly list is anchored to Bitcoin through OpenTimestamps as a JIDEC ledger entry. Two independent implementations (Python and Node.js) reproduce the August 2026 rings byte for byte (ledger entry 34). That file, not this extension, is what other transparency systems can carry:\n\n- **in-toto Statement v1** (planned mapping, not yet emitted): `subject = [{ \"name\": \"rings/<slug>/<YYYY-MM>.json\", \"digest\": { \"sha256\": \"<ring sha>\" } }]`, `predicateType = <this URI>`, predicate = the ring's counts.\n- **IETF SCITT** (planned mapping, not yet emitted): the ring file is the Statement payload; the JIDEC entry with its Bitcoin attestation plays the part of the Receipt; JIDEC is the transparency service. A future version MAY emit a COSE_Sign1 Signed Statement over the same bytes.\n- **Canonical form:** NENRIN v1 defines its canonical form by reference to a language runtime (the seam above). The next NENRIN spec version is expected to adopt RFC 8785 (JCS) or a language-neutral statement. This extension defines no canonical form of its own and inherits that seam.\n\nThese mappings are direction, not delivery. Nothing in sections 2 to 4 depends on them.\n\n## 7. Versioning\n\nThe URI ends in `/v1`. A breaking change to fields, keys, or the walk MUST use a new URI. This document is served at the URI (`GET https://gate.horizonshield.dev/ext/conduct/v1`, JSON with `Accept: application/json`, this text with `Accept: text/markdown`). A permanent identifier (for example under w3id.org) MAY later redirect here; it would be a convenience, not a second identifier. Implementations compare the string at the top of this document and nothing else.\n\n## 8. Source\n\nDevelopment home: `workers/hs-verify-gate/ext/CONDUCT_EXT_v1.md` in `github.com/ogasurfproject-jpg/horizon-shield`. The gate serves the same text. The sha256 of this file is recorded in the gate's `/ext/conduct/v1` JSON as `spec_markdown_sha256` so a reader can tell whether the served copy and the repository copy are the same bytes.\n";
+const COMPENSATION_KEYS = ["paid_by", "referral_fee", "listing_fee", "success_fee_pct", "disclosure_url"];
+
+// 扉が申請者に要求するのと同じ形式で、扉自身の報酬構造を宣言する(card の top-level と extension の両方に同じ物を置く)。
+const GATE_COMPENSATION = {
+  paid_by: "buyer",
+  referral_fee: false,
+  listing_fee: false,
+  success_fee_pct: 0,
+  disclosure_url: "https://shield.the-horizons-innovation.com/yakumo/plans/"
+};
+
+// card の capabilities.extensions[] のうち、この URI の宣言を全部返す。配列でなければ無し。
+function conductExtDeclarations(card) {
+  const caps = card && card.capabilities && typeof card.capabilities === "object" && !Array.isArray(card.capabilities) ? card.capabilities : null;
+  const exts = caps && Array.isArray(caps.extensions) ? caps.extensions : [];
+  return exts.filter((e) => e && typeof e === "object" && !Array.isArray(e) && e.uri === CONDUCT_EXT_URI);
+}
+// 5 鍵の完全一致。省略した鍵は null と読む(省略と 0 は一致しない)。
+function compensationEqual(a, b) {
+  const norm = (v) => JSON.stringify(v === undefined ? null : v);
+  return COMPENSATION_KEYS.every((k) => norm(a[k]) === norm(b[k]));
+}
+// 拡張の宣言 1 本を組む。各 worker が自分の card に置く形。
+function conductExtension(params) {
+  return {
+    uri: CONDUCT_EXT_URI,
+    description: "Who pays this agent, where its measured conduct record lives, and where to file a witness walk. The specification is served at the URI.",
+    required: false,
+    params
+  };
+}
+function conductExtensionSpec(origin, mdSha) {
+  const u = CONDUCT_EXT_URI;
+  return {
+    uri: u,
+    name: "A2A Conduct Extension",
+    version: "v1",
+    since_gate: "0.3.2",
+    type: "data-only extension on the A2A Agent Card, plus an optional request-level echo",
+    required: false,
+    declaration: {
+      where: "capabilities.extensions[] with uri equal to this URI",
+      params: {
+        compensation: { requirement: "REQUIRED", shape: { paid_by: PAID_BY, referral_fee: "boolean", listing_fee: "boolean", success_fee_pct: "number 0..100, optional", disclosure_url: "string, optional" }, note: "Same shape as the top-level compensation key (0.2.0). When both are present they must be equal on the five keys; an omitted optional key equals only an omitted key." },
+        measured_endpoints: { requirement: "REQUIRED, at least one", type: "string[]", meaning: "exact endpoint URL(s) whose conduct is recorded, as on the register" },
+        conduct_record: { requirement: "REQUIRED", type: "https URL", meaning: "live record of measurements written by a party other than the agent; for gate-measured endpoints " + origin + "/history?endpoint=<url-encoded endpoint>" },
+        witness_intake: { requirement: "REQUIRED", type: "https URL", meaning: "where a client files its own walk; https://ledger.horizonshield.dev/witness" },
+        verdict_recipe: { requirement: "OPTIONAL", type: "https URL", meaning: "how to recompute the record hashes; " + origin + "/spec" },
+        consent: { requirement: "OPTIONAL", type: "https URL", meaning: "the origin's " + CONSENT_WELL_KNOWN_PATH },
+        register: { requirement: "OPTIONAL", type: "https URL", meaning: "the public register the endpoint sits on" },
+        rings: { requirement: "OPTIONAL", type: "object", meaning: "where monthly NENRIN Layer 3 rings are published: spec, spec_sha256, base, path, slug, ledger" }
+      }
+    },
+    echo: {
+      activate: "send the A2A service parameter A2A-Extensions containing this URI (an HTTP header in the HTTP bindings)",
+      response_header: "A2A-Extensions must contain this URI",
+      metadata_keys: [u + "/endpoint", u + "/conduct_record", u + "/witness_intake"],
+      nothing_else: "no timestamp, no score"
+    },
+    walk: {
+      schema: "jidec-path-v1",
+      purpose_prefix: "a2a-conduct-walk-v1: ",
+      nodes: ["n0 GET <origin>/.well-known/agent-card.json", "n1 the same GET again", "n2 compute: locate this URI in n1 and validate params", "n3 POST the measured endpoint with A2A-Extensions: <this URI> (MCP initialize, or A2A SendMessage / message/send)"],
+      assertions: ["card_bytes_stable", "conduct_ext_declared", "compensation_well_formed", "measured_endpoint_answered", "extension_echoed (null and not applicable when n3 was not an A2A message)"],
+      verdict: "{ ok, outcome, n_pass, n_total }; both ok and outcome are carried because make_ring.py reads ok while JIDEC_PATH_SPEC_v1 names outcome",
+      canonical: "UTF-8, keys sorted at every nesting level, separators , and : without spaces, non-ASCII unescaped (Python json.dumps sort_keys separators ensure_ascii=False; JavaScript must sort keys recursively before JSON.stringify: the seam of ledger entry 34)",
+      submit: "POST <witness_intake> with {\"record_canonical\": \"<exact bytes>\"}",
+      counted: "the monthly ring for the endpoint counts the walk under witnesses by distinct witness.name and under discrepancies when ok is false",
+      reference_client: "workers/hs-ledger/nenrin/a2a-conduct-walk/a2a_conduct_walk.py"
+    },
+    how_this_gate_reads_it: "condition 3 (compensation_disclosure) reads the top-level compensation key and every capabilities.extensions[] entry carrying this URI; one well-formed declaration passes, two that disagree fail, none fails. Nothing else in the params is judged by this gate.",
+    what_it_does_not_do: ["measure quality", "verify that compensation is truthful", "make the agent trustworthy", "count as a pass by being present"],
+    interop: {
+      in_toto_statement_v1: "planned mapping, not yet emitted: subject = the ring file by sha256, predicateType = this URI",
+      scitt: "planned mapping, not yet emitted: the ring file is the Statement payload, the JIDEC entry with its Bitcoin attestation plays the Receipt",
+      canonical_form: "inherits the NENRIN v1 seam (canonical form defined by reference to a language runtime); RFC 8785 or a language-neutral statement expected in the next NENRIN version"
+    },
+    versioning: "the URI ends in /v1; a breaking change uses a new URI; a w3id.org redirect may later point here and would not be a second identifier",
+    spec_markdown: "GET " + u + " with Accept: text/markdown",
+    spec_markdown_sha256: mdSha,
+    source: CONDUCT_EXT_SOURCE,
+    gate_version: CONFIG.version
+  };
+}
+async function conductExtResponse(request, origin) {
+  const accept = request.headers.get("Accept") || "";
+  if (/text\/markdown/i.test(accept)) {
+    return new Response(CONDUCT_EXT_MD, { headers: { "Content-Type": "text/markdown; charset=utf-8", "Cache-Control": "public, max-age=3600", ...CORS_HEADERS } });
+  }
+  const mdSha = await sha256hex(CONDUCT_EXT_MD);
+  return json(conductExtensionSpec(origin, mdSha));
+}
 
 // ---- 使用量 ----
 // 2026-08-23。「これでインフラになったのか」と問われて、答えられなかった。作った物の数は言えても、
@@ -921,14 +1022,35 @@ const PAID_BY = ["buyer", "seller", "referral", "advertising", "subscription", "
 
 function checkCompensation(card) {
   if (!card) return { pass: false, reason: "no agent-card, cannot read compensation", detail: {} };
-  const c = card.compensation;
-  if (!c || typeof c !== "object") {
+  // 0.3.2. 置き場所は二つ: top-level の compensation と、capabilities.extensions[uri = CONDUCT_EXT_URI].params.compensation。
+  // どちらか一つが整っていれば通す。両方あれば 5 鍵が一致せねばならん。無ければ落ちる(0.2.0 以来変わらず)。
+  const expected_shape = { paid_by: PAID_BY, referral_fee: "boolean", listing_fee: "boolean", success_fee_pct: "number", disclosure_url: "string" };
+  const locations = ["compensation", "capabilities.extensions[uri=" + CONDUCT_EXT_URI + "].params.compensation"];
+  const decls = [];
+  if (card.compensation !== undefined) decls.push({ where: "top_level", c: card.compensation });
+  for (const e of conductExtDeclarations(card)) {
+    const p = e.params && typeof e.params === "object" && !Array.isArray(e.params) ? e.params : null;
+    decls.push({ where: "extension", c: p ? p.compensation : undefined });
+  }
+  if (!decls.length) {
     return {
       pass: false,
-      reason: "compensation block not declared in agent-card",
-      detail: { expected_shape: { paid_by: PAID_BY, referral_fee: "boolean", listing_fee: "boolean", success_fee_pct: "number", disclosure_url: "string" } }
+      reason: "compensation block not declared in agent-card (neither location)",
+      detail: { expected_shape, locations }
     };
   }
+  for (const d of decls) {
+    if (!d.c || typeof d.c !== "object" || Array.isArray(d.c)) {
+      return { pass: false, reason: "compensation block at " + d.where + " is not an object", detail: { expected_shape, locations, location: d.where } };
+    }
+  }
+  const c = decls[0].c;
+  for (const d of decls.slice(1)) {
+    if (!compensationEqual(c, d.c)) {
+      return { pass: false, reason: "two compensation declarations disagree (" + decls[0].where + " vs " + d.where + "): a disclosure that says two things is not a disclosure", detail: { locations, declared_at: decls.map((x) => x.where) } };
+    }
+  }
+  const location = decls.every((d) => d.where === decls[0].where) ? decls[0].where : "both";
   if (!PAID_BY.includes(c.paid_by)) {
     return { pass: false, reason: "compensation.paid_by must be one of: " + PAID_BY.join(", "), detail: { got: c.paid_by } };
   }
@@ -955,6 +1077,7 @@ function checkCompensation(card) {
   if (c.paid_by === "referral" && c.referral_fee === false) {
     detail.consistency_note = "paid_by is referral while referral_fee is false: the declaration contradicts itself. Not judged here; published so a reader can see it.";
   }
+  detail.location = location;
   return {
     pass: true,
     reason: "compensation structure declared",
@@ -1205,7 +1328,7 @@ function spec() {
       mcp_endpoint: "POST /mcp responds to initialize (with a result, not an error) and tools/list with at least one well-formed tool: a non-empty string name and an inputSchema object. Hollow tools are not counted, duplicate names fail, and a tools value that is not an array fails (0.2.2).",
       agent_card: "GET /.well-known/agent-card.json returns a JSON object whose name and description are non-empty strings. Redirects are followed only within the same origin; a redirect to another origin is not a card at this origin (0.2.2).",
       compensation_disclosure: {
-        location: "agent-card, top-level key 'compensation'",
+        location: "agent-card, top-level key 'compensation', or (0.3.2) the capabilities.extensions[] entry whose uri is " + CONDUCT_EXT_URI + ", key params.compensation. One well-formed declaration passes. When both are present they must be equal on the five keys, or the condition fails.",
         shape: {
           paid_by: PAID_BY,
           referral_fee: "boolean, required",
@@ -1539,6 +1662,7 @@ function openapiDoc(origin) {
       "/badge": g("A badge drawn from the register at request time", "Query with ?endpoint=. Short cache, so a green cannot be kept up after the row stops being green."),
       "/badge/seal": g("A larger badge, sized for print and for other people's sites", "Query with ?endpoint=. Carries the operator label, the endpoint, the measurement date and the verify URL. Add download=1 to receive it as a file. A downloaded file is a snapshot: the date is drawn into the image for exactly that reason, and the live row remains the only current statement."),
       "/spec": g("The five conditions, stated in full", "Includes what a pass does not mean."),
+      "/ext/conduct/v1": g("A2A Conduct Extension v1 (the URI is the identifier)", "JSON by default. Accept: text/markdown returns the specification text. Declared by agent cards under capabilities.extensions[]."),
       "/self": g("This gate measured against its own conditions", "It does not currently pass all of them, and the reason is published."),
       "/health": g("Liveness and the deployed commit", ""),
       "/recompute": {
@@ -2747,17 +2871,27 @@ function ownAgentCard(origin) {
     provider: { organization: "The HORIZ\u97f3s Co., Ltd." },
     version: CONFIG.version,
     protocolVersion: "0.2.0",
-    capabilities: { streaming: false, pushNotifications: false },
+    // 0.3.2. 扉自身が A2A Conduct Extension v1 を宣言する。top-level の compensation と同じ物を params にも置く(一致必須は自分にも効く)。
+    capabilities: { streaming: false, pushNotifications: false, extensions: [conductExtension({
+      compensation: GATE_COMPENSATION,
+      measured_endpoints: [origin + "/mcp"],
+      conduct_record: origin + "/history?endpoint=" + encodeURIComponent(origin + "/mcp"),
+      verdict_recipe: origin + "/spec",
+      witness_intake: "https://ledger.horizonshield.dev/witness",
+      register: origin + "/register",
+      rings: {
+        spec: "https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/NENRIN_SPEC_v1.md",
+        spec_sha256: "9ccba2e325fd2a555fcdb2dec519b8c6bf7a669064674846aea98ecfff824e3d",
+        base: "https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/rings/",
+        path: "<slug>/<YYYY-MM>.json",
+        slug: "endpoint URL without https://, lower case, every run of characters outside [a-z0-9] replaced by one hyphen, hyphens trimmed at both ends",
+        ledger: "https://ledger.horizonshield.dev/ledger"
+      }
+    })] },
     defaultInputModes: ["text"],
     defaultOutputModes: ["text"],
     // 扉が申請者に要求するのと同じ形式で、扉自身の報酬構造を宣言する。
-    compensation: {
-      paid_by: "buyer",
-      referral_fee: false,
-      listing_fee: false,
-      success_fee_pct: 0,
-      disclosure_url: "https://shield.the-horizons-innovation.com/yakumo/plans/"
-    },
+    compensation: GATE_COMPENSATION,
     preferredTransport: "JSONRPC",
     skills: [
       {
@@ -3435,6 +3569,7 @@ export default {
     if (path === "/health") return json({ ok: true, gate_version: CONFIG.version, gate_commit: gateCommit() });
     if (path === "/usage") return json(await usageReport(env, url.searchParams.get("days")));
     if (path === "/spec") { bumpUsage(env, ctx, "spec_hits", null); return json(spec()); }
+    if (path === "/ext/conduct/v1" || path === "/ext/conduct/v1/") return await conductExtResponse(request, url.origin);
     if (path === "/.well-known/agent-card.json") return json(ownAgentCard(url.origin));
     if (path === "/.well-known/glama.json") return json({ "$schema": "https://glama.ai/mcp/schemas/connector.json", maintainers: [{ email: "ogasurfproject@gmail.com" }] });
     // A machine that has only the hostname can find the register without being told where
@@ -3510,6 +3645,6 @@ export default {
       });
     }
 
-    return json({ error: "not_found", path, endpoints: ["/mcp", "/check", "/is-verified", "/spec", "/self", "/history", "/changes", "/watchlist", "/watch", "/sweep", "/sweep/last", "/health"] }, 404);
+    return json({ error: "not_found", path, endpoints: ["/mcp", "/check", "/is-verified", "/spec", "/ext/conduct/v1", "/self", "/history", "/changes", "/watchlist", "/watch", "/sweep", "/sweep/last", "/health"] }, 404);
   }
 };

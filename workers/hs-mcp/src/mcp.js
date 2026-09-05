@@ -903,6 +903,60 @@ function rpcErr(id, code, message) { return { jsonrpc: "2.0", id, error: { code,
 const A2A_OPEN_SKILL = "estimate-integrity-audit";
 const A2A_CLOSED_SKILLS = ["fair-price-attestation", "japan-construction-price-check"];
 
+// --- A2A Conduct Extension v1 (2026-09-06) ---
+// 誰がこのサーバーに金を払うか、このサーバーの行儀の記録(第三者が書いた物)がどこにあるか、
+// 繋いだ相手が自分の観測をどこに出せるか。card の capabilities.extensions[] に置く(A2A 1.0 の正規の場所)。
+// top-level の compensation は旧読者のために残す。扉 0.3.2 は両方読んで一致を要求する。
+// 仕様は URI そのもの(GET で返る)。ここには点数も判定も無い。あるのは申告 1 つと指し先だけ。
+const CONDUCT_EXT_URI = "https://gate.horizonshield.dev/ext/conduct/v1";
+const CONDUCT_MEASURED_ENDPOINT = "https://mcp.horizonshield.dev/mcp";
+const CONDUCT_WITNESS_INTAKE = "https://ledger.horizonshield.dev/witness";
+const CONDUCT_RECORD_URL = "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(CONDUCT_MEASURED_ENDPOINT);
+const CONDUCT_COMPENSATION = {
+  paid_by: "buyer",
+  referral_fee: false,
+  listing_fee: false,
+  success_fee_pct: 0,
+  disclosure_url: "https://shield.the-horizons-innovation.com/verify-directory/"
+};
+function conductExtension() {
+  return {
+    uri: CONDUCT_EXT_URI,
+    description: "Who pays this agent, where its measured conduct record lives, and where to file a witness walk. The specification is served at the URI.",
+    required: false,
+    params: {
+      compensation: CONDUCT_COMPENSATION,
+      measured_endpoints: [CONDUCT_MEASURED_ENDPOINT],
+      conduct_record: CONDUCT_RECORD_URL,
+      verdict_recipe: "https://gate.horizonshield.dev/spec",
+      witness_intake: CONDUCT_WITNESS_INTAKE,
+      register: "https://gate.horizonshield.dev/register",
+      rings: {
+        spec: "https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/NENRIN_SPEC_v1.md",
+        spec_sha256: "9ccba2e325fd2a555fcdb2dec519b8c6bf7a669064674846aea98ecfff824e3d",
+        base: "https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/rings/",
+        path: "<slug>/<YYYY-MM>.json",
+        slug: "endpoint URL without https://, lower case, every run of characters outside [a-z0-9] replaced by one hyphen, hyphens trimmed at both ends",
+        ledger: "https://ledger.horizonshield.dev/ledger"
+      }
+    }
+  };
+}
+// 要求ヘッダ A2A-Extensions(コンマ区切りの URI)のうち、このサーバーが実装しとる物だけを返す。
+function a2aActivatedExtensions(request) {
+  const h = request.headers.get("A2A-Extensions") || "";
+  const asked = h.split(",").map((x) => x.trim()).filter(Boolean);
+  return asked.filter((u) => u === CONDUCT_EXT_URI);
+}
+// 拡張が有効な応答に載せる metadata。時刻も点数も入れない(発行者が選べる座標は入れない)。
+function conductMetadata() {
+  const m = {};
+  m[CONDUCT_EXT_URI + "/endpoint"] = CONDUCT_MEASURED_ENDPOINT;
+  m[CONDUCT_EXT_URI + "/conduct_record"] = CONDUCT_RECORD_URL;
+  m[CONDUCT_EXT_URI + "/witness_intake"] = CONDUCT_WITNESS_INTAKE;
+  return m;
+}
+
 // ===== 層3 段1: API キー認証の土台 (additive・既存パス非接触) =====
 // resolveAuthContext は段2のゲートで使う。段1では未呼び出し = 既存挙動に影響しない。
 async function resolveAuthContext(request, env) {
@@ -1448,7 +1502,7 @@ function promptText(name, a) {
   return null;
 }
 
-async function handleRpc(msg, env, ip, authCtx, ctx) {
+async function handleRpc(msg, env, ip, authCtx, ctx, a2aExt) {
   const { id, method, params } = msg;
   if (method === "initialize") {
     const pv = (params && params.protocolVersion) || "2025-06-18";
@@ -1491,8 +1545,13 @@ async function handleRpc(msg, env, ip, authCtx, ctx) {
     return rpc(id, r);
   }
   if (method === "ping") return rpc(id, {});
-  if (method === "message/send") {
+  // A2A 0.3 の message/send と A2A 1.0 の SendMessage は同じ入口。
+  if (method === "message/send" || method === "SendMessage") {
     const r = await handleA2A(params, env, ip, authCtx, ctx);
+    // A2A Conduct Extension v1 が有効なら、Message / Task の metadata に指し先を載せる(仕様 3 節)。
+    if (Array.isArray(a2aExt) && a2aExt.includes(CONDUCT_EXT_URI) && r && typeof r === "object") {
+      r.metadata = Object.assign({}, r.metadata || {}, conductMetadata());
+    }
     return rpc(id, r);
   }
   return rpcErr(id, -32601, "Method not found: " + method);
@@ -1501,7 +1560,7 @@ async function handleRpc(msg, env, ip, authCtx, ctx) {
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, mcp-session-id, mcp-protocol-version, authorization",
+  "Access-Control-Allow-Headers": "Content-Type, mcp-session-id, mcp-protocol-version, authorization, A2A-Extensions",
   "Access-Control-Expose-Headers": "mcp-session-id"
 };
 
@@ -1651,7 +1710,7 @@ export default {
           preferredTransport: "JSONRPC",
           provider: { organization: "The HORIZ\u97f3s\u682a\u5f0f\u4f1a\u793e", url: SITE },
           version: "1.0.0",
-          capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
+          capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false, extensions: [conductExtension()] },
           defaultInputModes: ["text/plain", "application/json"],
           defaultOutputModes: ["application/json", "text/plain"],
           // 誰がこのサーバーに金を払っているか。扉(MCP Verification Gate)の条件3。
@@ -1883,13 +1942,16 @@ export default {
     const isNotification = (m) => m && m.id === undefined && typeof m.method === "string";
     const clientIp = request.headers.get("CF-Connecting-IP") || "unknown";
     const authCtx = await resolveAuthContext(request, env);
+    // A2A 1.0: 有効化された拡張を応答ヘッダ A2A-Extensions で返す(要求に無ければ何も足さない)。
+    const a2aExt = a2aActivatedExtensions(request);
+    const extHeaders = a2aExt.length ? { "A2A-Extensions": a2aExt.join(","), "Access-Control-Expose-Headers": CORS["Access-Control-Expose-Headers"] + ", A2A-Extensions" } : {};
     if (Array.isArray(body)) {
       const out = [];
-      for (const m of body) { if (!isNotification(m)) out.push(await handleRpc(m, env, clientIp, authCtx, ctx)); }
-      return new Response(out.length ? JSON.stringify(out) : "", { status: out.length ? 200 : 202, headers: { "Content-Type": "application/json; charset=utf-8", ...CORS } });
+      for (const m of body) { if (!isNotification(m)) out.push(await handleRpc(m, env, clientIp, authCtx, ctx, a2aExt)); }
+      return new Response(out.length ? JSON.stringify(out) : "", { status: out.length ? 200 : 202, headers: { "Content-Type": "application/json; charset=utf-8", ...CORS, ...extHeaders } });
     }
     if (isNotification(body)) return new Response("", { status: 202, headers: CORS });
-    const res = await handleRpc(body, env, clientIp, authCtx, ctx);
-    return new Response(JSON.stringify(res), { headers: { "Content-Type": "application/json; charset=utf-8", ...CORS } });
+    const res = await handleRpc(body, env, clientIp, authCtx, ctx, a2aExt);
+    return new Response(JSON.stringify(res), { headers: { "Content-Type": "application/json; charset=utf-8", ...CORS, ...extHeaders } });
   }
 };
