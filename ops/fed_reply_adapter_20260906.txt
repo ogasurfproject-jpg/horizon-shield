@@ -2,7 +2,7 @@ Email received, and it goes to SSRN and nowhere else. Not in the repository, and
 
 Read the semantic-abi README. Yes to the slot, and not as a favour. Your first protected relation is a thing I already enforce and had no name for: the gate returns held when it could not measure and pending when it measured and the endpoint did not pass, and the ring's limits sentence exists to keep "unmeasured" from being read as "failed". That is reject/insufficient_evidence versus reject/evidence_against. And the field you call does_not_establish is what every JIDEC entry says about itself in prose: these bytes existed at or before this time, and nothing about whether the estimate inside was fair. So the manifest for horizon-shield is mostly a translation of sentences that are already anchored. I will write the manifest first and the adapter second, from /schema and from how your invinoveritas adapter is shaped, and I will not import a line of shared checker code. If I find that my evidence classes do not fit your authority classes, that mismatch is the finding and I will file it rather than bend the manifest to fit.
 
-Sections 4.2 and 6: I saw the branch. I am pulling it now and will merge it as your commits, not as text I retyped, so the history shows who wrote what. House style on my side is no dashes of any kind in published text; if I have to replace any in your sections I will do it in a separate commit after the merge and tell you, and you tell me if a replacement changed your meaning.
+Sections 4.2 and 6: the branch is merged on main as your commit, not as text I retyped, so the history shows who wrote what. My notes on the two sections follow in the next message.
 
 Telegram: I am on it now, same name as here.
 
