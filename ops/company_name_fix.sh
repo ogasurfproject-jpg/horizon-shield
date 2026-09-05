@@ -44,7 +44,7 @@ fi
 tar czf "ops/BACKUP_company_name_${PHASE}_$TS.tar.gz" -T "$LIST"
 echo "backup: ops/BACKUP_company_name_${PHASE}_$TS.tar.gz"
 
-LIST="$LIST" python3 - <<'PY'
+LIST="$LIST" PHASE="$PHASE" python3 - <<'PY'
 import io, os
 OLD = "The HORIZONs株式会社"; NEW = "The HORIZ音s株式会社"
 changed, occ = [], 0
@@ -58,7 +58,8 @@ for f in io.open(os.environ["LIST"], encoding="utf-8").read().splitlines():
         continue
     io.open(f, "w", encoding="utf-8").write(t.replace(OLD, NEW))
     changed.append(f); occ += n
-io.open("ops/company_name_changed_files.txt", "w", encoding="utf-8").write("\n".join(changed) + "\n")
-print("changed files:", len(changed), " occurrences replaced:", occ, " (一覧 ops/company_name_changed_files.txt)")
+out_list = "ops/company_name_changed_%s.txt" % os.environ.get("PHASE", "phase")
+io.open(out_list, "w", encoding="utf-8").write("\n".join(changed) + "\n")
+print("changed files:", len(changed), " occurrences replaced:", occ, " (一覧 %s)" % out_list)
 PY
-echo "次: git add \$(cat ops/company_name_changed_files.txt)"
+echo "次: git add \$(cat ops/company_name_changed_$PHASE.txt)"

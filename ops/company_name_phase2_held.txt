@@ -1,0 +1,4 @@
+yakumo/apply/index.html
+yakumo/no002/index.html
+yakumo/plans/index.html
+yakumo/store/index.html
