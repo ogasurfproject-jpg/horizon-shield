@@ -22,6 +22,7 @@ name: pagecheck
 #   きっかけ: フッターの href 書き換え 101 ページの push が、qa の既知の近似重複 13 組で赤になった。
 #   report 段は --before 無しのままなので、既知の 13 組は毎回そこに出続ける。隠さない。
 #   検査: tools/pagecheck/test_dedup_before.py (4 手) を redteam の後に回す。
+# 2026-09-05 v1.3.3: git diff に core.quotepath=false。日本語ファイル名 (aeo/ の 87 本) が blocking から漏れていた穴を閉じる。
 
 on:
   push:
@@ -80,7 +81,9 @@ jobs:
             BEFORE="HEAD^"
           fi
           echo "見る範囲: $RANGE (文面不変の基準: $BEFORE)"
-          CHANGED=$(git diff --name-only --diff-filter=ACM $RANGE \
+          # 2026-09-05 v1.3.3: core.quotepath=false。既定では日本語ファイル名が "aeo/\343..." と引用符付きで出て
+          #   下の grep(^aeo など)に掛からず、aeo の 87 ページが v1.3.0 から一度も blocking を受けていなかった。
+          CHANGED=$(git -c core.quotepath=false diff --name-only --diff-filter=ACM $RANGE \
                     | grep -E '^(yakumo|care|qa|aeo|faq)/.*\.html$' || true)
           if [ -z "$CHANGED" ]; then
             echo "対象のページはありません。"
