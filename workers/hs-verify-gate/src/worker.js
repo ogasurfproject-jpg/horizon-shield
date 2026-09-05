@@ -29,9 +29,12 @@ const CORS_HEADERS = {
   "access-control-max-age": "86400"
 };
 
+// 0.3.0. 時刻座標。追補 NENRIN_COORDINATE_v1_ADDENDUM_instants_v1.md (sha256 c4929b29...) の実装。
+import * as nenrin from "./nenrin_instant.js";
+
 // 仕様確定までの暫定値。名称や閾値はここだけ直せば全体に効く。
 const CONFIG = {
-  version: "0.2.4",
+  version: "0.3.0",
   tier_pass: "verified",        // 通過時の称号(暫定)
   tier_fail: "pending",         // 未通過(不合格とは呼ばない)
   tier_held: "held",            // 到達できず測れなかった。不適合とは別の状態
@@ -955,7 +958,7 @@ function checkCompensation(card) {
 
 // ---- 条件4. 数値主張の再計算可能性(決定論性) ----
 // 同じ入力を複数回投げ、返る内容が一致するかを実測する。
-async function checkDeterminism(endpoint, toolNames, allowToolCall) {
+async function checkDeterminism(endpoint, toolNames, allowToolCall, coord) {
   // 0.2.2. 引数は「呼べるツール名の配列」。旧実装は先頭1本の名前だった。
   const names = Array.isArray(toolNames) ? toolNames.filter((n) => typeof n === "string" && n) : (toolNames ? [toolNames] : []);
   const toolName = names[0] || null;
@@ -983,9 +986,18 @@ async function checkDeterminism(endpoint, toolNames, allowToolCall) {
   // verified になる。error は出力ではない。測定にならない。別のツールを最大 determinism_tool_tries 本まで試し、
   // どれも error なら「測れなかった」と書く(pending)。測ったのが N本中1本であることと選び方も開示する。
   const tried = [];
-  const candidates = names.slice(0, CONFIG.determinism_tool_tries);
-  const selection = "first well-formed tool (in the server's own tools/list order) that answers empty arguments without an error; up to " +
-    CONFIG.determinism_tool_tries + " tools are tried. The server chooses its own order, so this measures one tool the server put first, not the whole surface.";
+  // 0.3.0. 順番を決めるのが server やった間、server は自分の一番ええ tool を先頭に置けた。
+  // 導出できる窓では、辞書順に並べた集合から扉が導いた順に測る。並べ替えでは steer できん。
+  let order = names, selection;
+  if (coord && coord.derived) {
+    try { order = await nenrin.toolOrder(coord.seed, endpoint, coord.window_id, names); } catch (e) { order = names; }
+    selection = "derived: the tool order is HMAC-SHA256 derived over the lexicographically sorted tool names, keyed by a salt the gate committed to before this window and bound to a Bitcoin block. The server cannot steer the pick by reordering its own tools/list. Up to " +
+      CONFIG.determinism_tool_tries + " tools are tried in that derived order.";
+  } else {
+    selection = "first well-formed tool (in the server's own tools/list order) that answers empty arguments without an error; up to " +
+      CONFIG.determinism_tool_tries + " tools are tried. The server chooses its own order, so this measures one tool the server put first, not the whole surface.";
+  }
+  const candidates = order.slice(0, CONFIG.determinism_tool_tries);
   for (const name of candidates) {
     const outs = [];
     let errored = null;
@@ -1021,7 +1033,7 @@ async function checkDeterminism(endpoint, toolNames, allowToolCall) {
 }
 
 // ---- 判定の組み立て ----
-async function runCheck(endpoint, allowToolCall, consentBasis, consentSource, consentLookup) {
+async function runCheck(endpoint, allowToolCall, consentBasis, consentSource, consentLookup, coord) {
   const started = new Date().toISOString();
   const results = {};
 
@@ -1042,7 +1054,7 @@ async function runCheck(endpoint, allowToolCall, consentBasis, consentSource, co
   // 探していないのに無いと書くのは、8/19 に verify-event の tags で直したのと同じ形。
   results.determinism = results.mcp_endpoint.gate_side === true
     ? { pass: false, gate_side: true, measured: false, reason: "not measured: the tool list could not be read because the gate's relay path was unavailable, so there was nothing to test determinism against" }
-    : await checkDeterminism(endpoint, firstTool, allowToolCall === true);
+    : await checkDeterminism(endpoint, firstTool, allowToolCall === true, coord);
 
   const passed = Object.values(results).every((r) => r.pass);
   // gate-side = こちらの測定装置の故障。unreachable(相手に届かない)と混ぜない。
@@ -1066,6 +1078,9 @@ async function runCheck(endpoint, allowToolCall, consentBasis, consentSource, co
       "tools on the server being checked, so determinism is reported as not measured rather than " +
       "guessed. Send allow_tool_call true to have it measured on a server you control.",
     tools_called: allowToolCall === true ? "one tool, twice, with empty arguments, by consent" : "none",
+    // 0.3.0. 測る日と測る tool をどう決めたか。全部が扉の導いた出力で、対象が渡した入力は 1 つも無い。
+    // 導出できんかった窓は derived:false と、旧規則に落ちたことを書く。黙って落ちん。
+    coordinate_derivation: await nenrin.derivationBlock(coord, endpoint, firstTool || []),
     // 0.2.2. 同意の根拠を判定に載せる。/check の allow_tool_call は要求者の申告であって、所有者の証明ではない。
     consent_basis: allowToolCall === true
       ? (consentBasis || "asserted by the requester via allow_tool_call; not proven to be the owner")
@@ -1194,11 +1209,22 @@ function spec() {
         },
         note: "Content is not judged. Only the absence of disclosure disqualifies. A self-contradicting declaration (paid_by referral with referral_fee false) still passes and is published with a consistency_note (0.2.2)."
       },
-      determinism: "Calling the same tool with the same arguments returns identical content across runs. NOT measured by default: doing so requires executing a tool on the checked server, which this gate will not do without the owner's consent. Consent comes from the owner: a file at /.well-known/mcp-conduct.json on the server's own origin (see well_known_consent below), which is the only basis the scheduled sweep accepts. A requester may assert allow_tool_call on a one-off /check, but an assertion is not proof and never becomes the basis for a row on the public register (0.2.4). An error response (JSON-RPC error or result.isError) is not a measurement: up to " + CONFIG.determinism_tool_tries + " tools are tried in the server's own order, and the verdict discloses which tool was measured, which were tried, and how many were not measured (0.2.2).",
+      determinism: "Calling the same tool with the same arguments returns identical content across runs. NOT measured by default: doing so requires executing a tool on the checked server, which this gate will not do without the owner's consent. Consent comes from the owner: a file at /.well-known/mcp-conduct.json on the server's own origin (see well_known_consent below), which is the only basis the scheduled sweep accepts. A requester may assert allow_tool_call on a one-off /check, but an assertion is not proof and never becomes the basis for a row on the public register (0.2.4). An error response (JSON-RPC error or result.isError) is not a measurement: up to " + CONFIG.determinism_tool_tries + " tools are tried in an order this gate derives (see instant_coordinate below), not the server's own, and the verdict discloses which tool was measured, which were tried, and how many were not measured (0.2.2).",
       self_verification: "Every verdict carries a SHA-256 that any third party can recompute"
     },
     reachability: "Any HTTP status, or a non-JSON body, is an answer from the server: reachable stays true and the row goes pending, not held. Only gateway-shaped statuses (502-504, 52x) and transport failures mean held. Redirects to another origin are treated as answered, not followed (0.2.2).",
     consent: "allow_tool_call on /check is asserted by the requester and is not proof of ownership; every verdict states its consent_basis and consent_source. Rows in the public register are measured with tool calls only with proven consent: the operator's published consent list (0.2.2) or a consent file on the endpoint's own origin (0.2.4).",
+    instant_coordinate: {
+      since: "0.3.0",
+      schema: "nenrin-instant-v1",
+      defect: "Time is a coordinate. Until 0.2.4 the free tier's measurement day was sha256(endpoint) mod 7, every input public, so the subject could compute the day it would be measured and a shim answering one day in seven earned a full record at one seventh of the cost. The same defect had a second face: determinism measured the first tool in the server's own tools/list order, and the server chose that order.",
+      fix: "The measurement day and the tool order are HMAC-SHA256 derived from a salt this gate commits to at the start of each 7 day window, bound to a Bitcoin block mined after that salt existed. The subject cannot predict them. The gate cannot choose them after the fact, because the commitment is published before the block exists. The tool is chosen over the lexicographically sorted name set, so reordering tools/list steers nothing and renaming moves tool_set_sha256.",
+      beacon: "Two independent block sources must agree on height and hash, or there is no beacon and the legacy computable schedule is used and said so in the verdict. This gate cannot sync headers peer to peer, so it records the height and hash it used: anyone holding the chain can falsify a wrong beacon, permanently.",
+      in_every_verdict: "coordinate_derivation",
+      addendum: "workers/hs-ledger/nenrin/coordinate-v1/NENRIN_COORDINATE_v1_ADDENDUM_instants_v1.md, sha256 c4929b29b6e9f8f2877cc58e3c2e225542a7fe9a1bf805a02374b96750cf4c9f. The defect was published before the fix was written.",
+      red_team: "test/redteam_instant.mjs, 26 vectors, and instant_redteam.py, 17 vectors, against two independent implementations of the same rule.",
+      limits: "Derivation is fair only inside the surface the subject declared. A tool never listed is never picked: that set is unknown, not absent. A salt is single use per window. This measures conduct, not quality."
+    },
     well_known_consent: {
       since: "0.2.4",
       path: CONSENT_WELL_KNOWN_PATH,
@@ -1772,8 +1798,13 @@ async function publicRegister(env) {
 }
 
 // 無料層は週1回。エンドポイントごとに測る日をずらし、1日に固まらないようにする。
-async function isDueToday(endpoint, tier, now) {
+async function isDueToday(endpoint, tier, now, coord) {
   if (tier !== "free") return true;
+  // 0.3.0. 導出できる窓は導出で決める。対象は自分の番を先に計算できん。
+  if (coord && coord.derived) {
+    return (await nenrin.dueOffset(coord.seed, endpoint, coord.window_id)) === nenrin.dayInWindow(now);
+  }
+  // beacon が 2 源で一致せんかった窓は旧規則に落ちる。落ちたことは掃引の記録に書く。黙って落ちん。
   const h = await sha256hex(endpoint);
   const bucket = parseInt(h.slice(0, 4), 16) % FREE_INTERVAL_DAYS;
   return Math.floor(now / 86400000) % FREE_INTERVAL_DAYS === bucket;
@@ -2081,11 +2112,19 @@ async function runDailySweep(env, opts) {
   const force = !!(opts && opts.force);
   const list = await watchlist(env);
 
+  // 0.3.0. 窓の座標をここで 1 回だけ組む。以後これを下へ通す。
+  // 取れんかったら旧規則に落ちるが、落ちたことは掃引の記録に残す。
+  let coord = null;
+  try { coord = await nenrin.coordinate(env.HS_VERIFY_KV, now); } catch (e) { coord = null; }
+  const cadenceNote = (coord && coord.derived)
+    ? "not due today (derived: the day is HMAC-derived from a committed salt bound to a Bitcoin block, so the subject cannot predict it)"
+    : "not due today (legacy computable schedule: the subject can predict this, disclosed rather than hidden)";
+
   const due = [];
   const skipped = [];
   for (const w of list) {
-    if (force || (await isDueToday(w.endpoint, w.tier, now))) due.push(w);
-    else skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "not due today (weekly cadence)" });
+    if (force || (await isDueToday(w.endpoint, w.tier, now, coord))) due.push(w);
+    else skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: cadenceNote });
   }
   // 上限で落ちた分は必ず記録する。黙って切ると「全部測った」ように読める。
   for (const w of due.slice(MAX_PER_SWEEP)) {
@@ -2098,7 +2137,7 @@ async function runDailySweep(env, opts) {
     try {
       // 0.2.4. 手書きの Set か、origin の well-known ファイル。申告は掃引では決して使わん。
       const consent = await resolveConsent(w.endpoint);
-      const record = await runCheck(w.endpoint, consent.consent, consent.basis, consent.source, consent);
+      const record = await runCheck(w.endpoint, consent.consent, consent.basis, consent.source, consent, coord);
       const r = await recordHistory(env, w.endpoint, record);
       const changed = !!(r && r.changed);
       const alertable = !!(r && r.alertable);
