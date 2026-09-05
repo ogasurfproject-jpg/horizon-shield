@@ -1,0 +1,11 @@
+Federico, that walk is the first measurement of the instrument from outside, and it is now in the record it was missing from.
+
+I pulled your submission straight off the ledger and ran it through the ring builder unchanged: it parses as a witness of https://gate.horizonshield.dev/mcp by walked_at 2026-09-05T05:16:26Z and base, and for that endpoint alone. So the September ring for the gate, when it is built in the first days of October from the same history file, will be the first ring with witnesses: 2 and without the sentence about one witness only. The other seven rings keep the sentence, which is correct, because you did not measure them.
+
+Your "no discrepancy" is the finding I could not produce myself. The gate holds itself 9 times of 26 in August because it cannot reach its own door, so surface determinism on the instrument was exactly the thing nobody had measured. Two byte-identical tools/list responses from your vantage is that measurement. It goes into the ring as a count, not a compliment.
+
+Your 18 August record and this one are bundled together at 00:30 UTC tonight, entry 34, stamped within the hour after.
+
+For the recompute: everything is in one public repository, github.com/ogasurfproject-jpg/mcp-conduct-register. scripts/make_ring.py is the builder, history/ holds the exports it was built from, rings/ holds the eight August rings and rings/2026-08.sha256, which is what entry 32 anchors. The August ring for the gate is 26 sampled, 18 reached, 3 manifest hashes, 2 surface changes. Same file in, same bytes out, or you have found something.
+
+Toshikatsu

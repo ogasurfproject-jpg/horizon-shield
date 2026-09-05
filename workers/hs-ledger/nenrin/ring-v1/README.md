@@ -12,7 +12,7 @@ The gate keeps a bounded number of records per endpoint (30 until 2026-09-05, 40
 
        sh fetch_history.sh
 
-2. Make the ring for the month that just closed, chained to the previous one when it exists, and write the sha256 list:
+2. Save every third-party witness record for the month under `witness/<slug>/<month>/<sha>.json`, exactly as `GET /witness/{sha}` returns it (the first one: Federico's walk of the gate, sha 321e74b9..., September 2026). Then make the ring for the month that just closed, chained to the previous one when it exists, with those witnesses, and write the sha256 list:
 
        sh make_month.sh 2026-08
 

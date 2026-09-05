@@ -998,3 +998,11 @@ mcp 26/26 verified 23 pending 3、hearing 26/26 verified 23 pending 3、web 26/2
 - レジストリの現在値は 8 本(09-04 午後に webmcp 1.0.4 / hs-hearing 2.3.1 / observatory 0.1.1 / jidec 1.2.1 が本人の手で publish されとった。番人の記録に無い)。週次巡回 trigger(trig_01Dh94…)の「前回確定値」表を 8 本に更新、claim register の節を 16 行に。
 - launchd com.horizonshield.claimregister 初回 05:13:46Z rc=1(FAIL 4 = C07/C13/C14/C16、全部読める)。以後は月曜 08:30 JST。
 - 残り(TOshi): 登録簿 Actions「Rebuild register」1 回(C13)、hs-outreach token 回転、Federico への witness 依頼 DM の送信確認(16:30 時点で未確認)。
+
+### 24.11 Federico が扉を外から測った(14:24 JST)
+- witness 依頼の DM は TOshi が送信済(番人が 3 回聞いたのは番人の落ち度。返事が来たことが証拠)。
+- Federico が **gate.horizonshield.dev/mcp を外から walk**: initialize + tools/list × 2(byte-identical)、5 tools、不一致なし。`POST /witness` に投げた: sha 321e74b9…、submitted 05:16:37Z、walked_at 05:16:26Z、base https://gate.horizonshield.dev、nodes 3、assertions 3(全 true)、witness{name,vantage}、unsigned。**扉を外から測った最初の記録。**
+- 番人が台帳から記録を読んで ring-v1 の adapter に通した: gate endpoint で witnesses 2、discrepancies []、他 7 台は 1 のまま。**2026-09 の gate の輪が、初めて「one witness only」の文を持たん輪になる**(10 月初旬に作る)。
+- 今夜 00:30Z の entry 34 に 08-18 の 2 件とこの 1 件、計 3 件が束なる。C07 が消える。
+- Federico は ring builder の独立再実装(recompute)をやると言うた(監査 11 番が動く)。
+- 返信 `ops/fed_reply_witness_20260905.txt`(貼るだけ)。10 月の輪の時に `curl -s https://ledger.horizonshield.dev/witness/321e74b9f0e111d922025bfed5d6737b8a2e77d24b91f63307d3d9f316ee27f5 > witness/gate-2026-09-federico.json` を ring-v1 で取り、`make_ring.py --month 2026-09 --history history/gate-horizonshield-dev-mcp.json --prev rings/gate-horizonshield-dev-mcp/2026-08.json --witness witness/gate-2026-09-federico.json` で作る。make_month.sh は witness/ を自動では拾わん(要追加、10 月まで)。
