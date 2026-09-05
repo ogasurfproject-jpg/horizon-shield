@@ -780,3 +780,56 @@ TOshi「verify-directory を Anthropic にも出したい」→ 番人がペー�
 - `git status` を device 側で打って `.git/index.lock` を残した。TOshi に `rm -f` を踏ませた。**以後 `git --no-optional-locks` を使う**(実測でロックを残さん)
 - deploy と commit の順序を逆に言うた。`deploy_gate.sh` はコミット済みを要求する(SHA がデプロイしたコードを指すため)。TOshi の歯止めが正しく効いて止まった
 - pbcopy の後にターミナルからコピーさせる導線を作った。**TOshi の Mac のホスト名とユーザー名を MCP の公開リポに投稿する寸前**やった。送信前に画像で気づいて止めた。以後、貼る物は TextEdit のような清潔な窓を経由させる
+
+## 21. NENRIN の穴を、自分で見つけて自分で公開した(2026-09-05)
+
+### 21.1 見つけた物
+
+チャッピ(ChatGPT)の NENRIN 評価を TOshi が持ってきた。事実関係は 3 つとも実在を確認した(mcp-conduct-register リポジトリ、NENRIN_SPEC_v1.md と DISCREPANCY_0001、README の「0 calls」撤回文)。**捏造やない、本物を読んどる。**
+
+ただしチャッピが挙げた最大の弱点(witness の独立性)は外れ。それは anchored 仕様が既に想定して答えを書いとる。**本当の穴は、coordinate-v1 が病名を付けとるのに NENRIN_SPEC_v1 の gaming analysis に入っとらん物やった。**
+
+**時刻は座標や。** Ring は `instants_sampled` を数える。誰が instant を選ぶかが、Ring の中身を決める。今の扉は `bucket = sha256(endpoint)[:4] mod 7` で測る日を決めとる。**入力が全部公開されとるから、対象が自分の番を計算できる。** anchored 仕様の shim farm への反論は「shim が常時起きとる」前提やが、実際は 7 日に 1 回起きればええ。**18 か月の年輪が 1/7 の値段で買える。**
+
+同じ穴の第 2 の顔: determinism は「server 自身の tools/list の順で最初の 1 本」を測る。**順番を決めるのは server**。扉は residual として開示しとるが、開示は閉鎖やない。
+
+**しかもこの穴は、今朝 TOshi が TWZRD 宛の手紙に bucket の計算式をそのまま書いて渡しとる。** 透明性としては正しく、同時に攻略手順書。両方本当や。手紙は撤回せん(元から公開ソースから導ける)。直す方を書いた。
+
+### 21.2 やったこと(anchored ファイルは 1 バイトも触っとらん)
+
+**まず anchor 状態を確認した。** `NENRIN_SPEC_v1.md` の sha256 は `9ccba2e3...` で `seed_entry_nenrin_spec.json` の `claim_sha256` と完全一致。`NENRIN_COORDINATE_SPEC_v1.md` は `5be2b22e...` で MANIFEST の引用と一致。**両方 anchor 済みで未編集。** 仕様の最終行は「After anchoring, this specification cannot be altered」。せやから訂正は本文編集やなく、古い sha を引用する新ファイルにした。**番人も例外やない、が実際に効いた場面。**
+
+新規 3 本(`workers/hs-ledger/nenrin/coordinate-v1/`):
+
+    c4929b29b6e9f8f2877cc58e3c2e225542a7fe9a1bf805a02374b96750cf4c9f  NENRIN_COORDINATE_v1_ADDENDUM_instants_v1.md
+    d18359d3a13c12ebc9ad17604ddae1d42c4141b1a796e3e5f94032d74274b7f8  instant_coordinate.py
+    dea9647e78977aa812950bdbcd3a462e19faf7d30f53ec439791089107ff6e54  instant_redteam.py
+
+**規則**: 測る時刻と測る対象を、どちらの当事者も選べん所から導き、導いた座標を判定に出力として埋める。材料は 2 つ、どちらか片方では足りん。
+
+1. **測る側が窓の前に commit して後で reveal する salt**。無いと対象が予測する(他の入力は全部公開)。赤組の control 「salt を持てば予測が的中する」が、salt の秘匿がこの防御の全部やと証明しとる
+2. **窓の境界の Bitcoin block height**。無いと測る側が事後に salt を作って好きな instant を主張できる。commitment は窓が開く height より下に anchor されてなあかん
+
+tool は **辞書順に並べた集合**に対して同じ salt で選ぶ。並べ替えでは steer できず、改名すると `tool_set_sha256` が変わって Ring の surface change に出る。
+
+赤組 17/17(attack 11、control 3、misclass 1、residual 2)、offline、決定的。
+
+### 21.3 残余(名前を付けただけで解いてない)
+
+- **salt は窓ごとに 1 回きり**。赤組の「reveal 済みの salt を次の窓で再利用したら完全に予測できる」は、通す試験やなく**失敗を証明するための vector**
+- **導出が公平なのは、対象が申告した surface の中だけ**。申告されてない tool は永遠に選ばれん。**その集合は absent やなく unknown**。census が母集団規模で名前を付けた境界と同じで、創設外部証人が最初に指摘した物と同じ
+- **品質は測っとらん**。予測できん時刻に予測できん tool で正直に答える server が、でたらめを返すことはある
+
+### 21.4 まだ実装しとらん(意図的)
+
+扉は今も bucket と server の tool 順で選んどる。**コードより先に穴を公開する**のが NENRIN の作法やから、この順にした。閉じたときに、この追補を引用する次の記録を書く。
+
+**実装上の制約を先に明記しとく**: Cloudflare Worker は raw socket を持てんから `sync_headers_p2p.py` を Worker 内で回せん。**salt の commitment と beacon の束縛は offline 側(localheaders が在る所)で作って KV に置き、Worker は消費するだけ**にする。そうすれば「explorer を信用せん」性質は保たれる(ヘッダ検証は p2p 同期済みの手元のヘッダに対して offline で済んどる)。
+
+### 21.5 新規性の主張に足す 6 点目
+
+anchored 仕様は 5 点の組み合わせを新規性として主張しとる。この追補は 6 点目を提案する。
+
+**測る時刻と測る対象を、対象も測る側も選べん。**
+
+CT も Rekor も in-toto も SLSA も、**提出する側が選んだ物を受け取る**。それは彼らの目的には正しい設計や。**時間を通した conduct には間違った設計や。conduct とは、誰も見られることを選ばんかった時に起きる物やから。**
