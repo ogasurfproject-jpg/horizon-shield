@@ -1,0 +1,832 @@
+--- a/workers/hs-verify-gate/src/worker.js
++++ b/workers/hs-verify-gate/src/worker.js
+@@ -37,7 +37,7 @@
+ 
+ // 仕様確定までの暫定値。名称や閾値はここだけ直せば全体に効く。
+ const CONFIG = {
+-  version: "0.3.4",  // 2026-09-06. 0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
++  version: "0.3.5",  // 2026-09-06. 0.3.5: 時刻座標の本番と設計のズレを直す(履歴に coordinate_derivation を残す、次の窓の salt を先に作り beacon は salt より後の block に限る、基準高さは quorum 番目の tip - 6 で hash の一致だけを要求、窓ごとに規則を固定、GET /nenrin/window で commitment を公開。判定規則は 0.3.0 のまま)。0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
+   tier_pass: "verified",        // 通過時の称号(暫定)
+   tier_fail: "pending",         // 未通過(不合格とは呼ばない)
+   tier_held: "held",            // 到達できず測れなかった。不適合とは別の状態
+@@ -1620,12 +1620,14 @@
+     instant_coordinate: {
+       since: "0.3.0",
+       schema: "nenrin-instant-v1",
++      production_departures_found_2026_09_06: "Three departures between this text and the deployed code were found on 2026-09-06 by reading worker.js, nenrin_instant.js, verify_beacons.py and /sweep/last: (1) the derivation block was written into every verdict but dropped from every /history entry, so exports were structurally silent on it; (2) beacon agreement was demanded on a height each source computed from its own tip (tip minus 6), so two honest explorers one block apart never agreed, and the first sweep after 0.3.0 (2026-09-05T18:00Z) fell back to the legacy schedule; (3) the salt was created at the sweep and bound to a block mined about an hour earlier, so the salt did not precede the block. All three are fixed in 0.3.5; entries written before 0.3.5 carry no derivation block and the sweeps of 2026-09-05 ran on the legacy rule. Recorded here rather than removed, in the same spirit as the addendum: the operator is a subject of its own rule.",
+       defect: "Time is a coordinate. Until 0.2.4 the free tier's measurement day was sha256(endpoint) mod 7, every input public, so the subject could compute the day it would be measured and a shim answering one day in seven earned a full record at one seventh of the cost. The same defect had a second face: determinism measured the first tool in the server's own tools/list order, and the server chose that order.",
+-      fix: "The measurement day and the tool order are HMAC-SHA256 derived from a salt this gate commits to at the start of each 7 day window, bound to a Bitcoin block mined after that salt existed. The subject cannot predict them. The gate cannot choose them after the fact, because the commitment is published before the block exists. The tool is chosen over the lexicographically sorted name set, so reordering tools/list steers nothing and renaming moves tool_set_sha256.",
+-      beacon: "Two independent block sources must agree on height and hash, or there is no beacon and the legacy computable schedule is used and said so in the verdict. This gate cannot sync headers peer to peer, so it records the height and hash it used: anyone holding the chain can falsify a wrong beacon, permanently.",
+-      in_every_verdict: "coordinate_derivation",
++      fix: "The measurement day and the tool order are HMAC-SHA256 derived from a salt this gate creates before each 7 day window opens (0.3.5: at the latest during the previous window's first sweep), bound to a Bitcoin block whose header time is at or after the salt's creation. The subject cannot predict them. The gate cannot choose them after the fact, because the commitment is published at /nenrin/window before the block exists. The tool is chosen over the lexicographically sorted name set, so reordering tools/list steers nothing and renaming moves tool_set_sha256.",
++      beacon: "One reference height for every source: the second highest tip among the sources that answered, minus 6 (freshness v3.3's quorum tip; with two sources that is min(tip) minus 6), across the block sources that answered (mempool.space, blockstream.info and, since 0.3.5, mempool.emzy.de; the two mempool instances share a codebase, which is a named residual) (0.3.5; until 0.3.4 each source's own tip minus 6 was compared, which failed whenever the explorers were one block apart). The hash at that height must agree between at least two sources and the block's header time must be at or after salt_created_at, or there is no beacon and the legacy computable schedule is used and said so in the verdict, in the sweep record and at /nenrin/window. The first sweep of a window decides derived or legacy for the whole window, so no row is measured twice or skipped by a mid-window switch. This gate cannot sync headers peer to peer, so it records the height and hash it used: anyone holding the chain can falsify a wrong beacon, permanently.",
++      in_every_verdict: "coordinate_derivation, and since 0.3.5 in every /history entry (derived, window_id, salt_commitment, salt_created_at, beacon height, hash and header time, day_in_window, tool_set_sha256, or the fallback with its reason_code)",
++      window: "/nenrin/window (current, next and previous window: commitment at creation, pinned rule, beacon, salt revealed once the window has closed); /nenrin/window/{window_id} for one window",
+       addendum: "workers/hs-ledger/nenrin/coordinate-v1/NENRIN_COORDINATE_v1_ADDENDUM_instants_v1.md, sha256 c4929b29b6e9f8f2877cc58e3c2e225542a7fe9a1bf805a02374b96750cf4c9f. The defect was published before the fix was written.",
+-      red_team: "test/redteam_instant.mjs, 26 vectors, and instant_redteam.py, 17 vectors, against two independent implementations of the same rule.",
++      red_team: "test/redteam_instant.mjs, 40 vectors, and instant_redteam.py, 17 vectors, against two independent implementations of the same rule; test/sweep_coordinate.test.mjs drives a whole sweep against mock explorers and reads the derivation back from /history, /sweep/last and /nenrin/window.",
+       limits: "Derivation is fair only inside the surface the subject declared. A tool never listed is never picked: that set is unknown, not absent. A salt is single use per window. This measures conduct, not quality."
+     },
+     well_known_consent: {
+@@ -1979,7 +1981,8 @@
+         }
+       },
+       "/mould": g("Mould records. What class of assumption a fix came from, where the author searched for it, and what they found. A record with an empty search is published as such.", ""),
+-      "/sweep/last": g("When the last scheduled re-measurement ran", ""),
++      "/sweep/last": g("When the last scheduled re-measurement ran, under which coordinate rule, and why", ""),
++      "/nenrin/window": g("The instant coordinate's public window: salt commitment at creation, pinned rule, beacon, salt revealed after the window closes (0.3.5)", ""),
+       "/watchlist": g("Endpoints scheduled for re-measurement", ""),
+       "/.well-known/agent-card.json": g("A2A agent card for this gate", ""),
+       "/.well-known/mcp-register.json": g("Machine readable summary of the register", ""),
+@@ -2403,7 +2406,29 @@
+       discriminating: record.absence_vs_failure.discriminating != null ? record.absence_vs_failure.discriminating : null,
+       cannot_distinguish_pct: record.absence_vs_failure.cannot_distinguish_pct != null ? record.absence_vs_failure.cannot_distinguish_pct : null
+     } : null,
+-    fingerprint: stateFingerprint(record)
++    fingerprint: stateFingerprint(record),
++    // 0.3.5. 判定に載せとった座標の導出が、履歴には 1 バイトも残っとらんかった(発見 2026-09-06、論文チャット)。
++    // /history export は輪の原料で、verify_beacons.py と claim register C15 の入力でもある。残さんと、
++    // 「導出したか、旧規則に落ちたか」を公開記録から誰も復元できん。過去の entry は触らん(entries are never edited)。
++    coordinate_derivation: summariseCoordinate(record.coordinate_derivation)
++  };
++}
++
++function summariseCoordinate(cd) {
++  if (!cd || typeof cd !== "object") return null;
++  const b = cd.beacon && typeof cd.beacon === "object" ? cd.beacon : null;
++  return {
++    derived: cd.derived === true,
++    window_id: cd.window_id || null,
++    salt_commitment: cd.salt_commitment || null,
++    salt_created_at: cd.salt_created_at || null,
++    beacon: b && b.block_hash ? { height: b.height, block_hash: b.block_hash, block_time: b.block_time || null } : null,
++    day_in_window: cd.day_in_window != null ? cd.day_in_window : null,
++    tool_set_sha256: cd.tool_set_sha256 || null,
++    tool_count: cd.tool_count != null ? cd.tool_count : null,
++    fallback: cd.derived === true ? null : (cd.fallback || null),
++    reason_code: cd.derived === true ? null : (cd.reason_code || null),
++    why: cd.derived === true ? null : (typeof cd.why === "string" ? cd.why.slice(0, 400) : null)
+   };
+ }
+ 
+@@ -2630,6 +2655,21 @@
+     at: new Date(now).toISOString(),
+     watched_total: list.length,
+     measured: results.length,
++    // 0.3.5. この掃引がどの規則で走ったか、なぜ落ちたか、次の窓の commitment。skipped の文だけに頼らん。
++    coordinate: coord ? {
++      derived: coord.derived === true,
++      window_id: coord.window_id || null,
++      rule: coord.rule ? { rule: coord.rule.rule, pinned_at: coord.rule.pinned_at, reason: coord.rule.reason || null, reason_code: coord.rule.reason_code || null } : null,
++      commitment: coord.commitment || null,
++      salt_created_at: coord.salt_created_at || null,
++      beacon: coord.beacon && coord.beacon.block_hash ? { height: coord.beacon.height, block_hash: coord.beacon.block_hash, block_time: coord.beacon.block_time || null, reference: coord.beacon.reference || null } : null,
++      reason_code: coord.derived === true ? null : (coord.reason_code || null),
++      why: coord.derived === true ? null : (coord.why || null),
++      sources: coord.beacon && Array.isArray(coord.beacon.sources) ? coord.beacon.sources : null,
++      next_window: coord.next_window || null,
++      salts_created_now: coord.salts_created_now || [],
++      window: "/nenrin/window"
++    } : { derived: false, why: "coordinate() failed before the sweep; legacy schedule; see /nenrin/window" },
+     results,
+     skipped
+   };
+@@ -3510,6 +3550,34 @@
+     if (path === "/changes") return json(await readChanges(env));
+     if (path === "/sweep/last") return json(await readSweepLast(env));
+ 
++    // 0.3.5. 窓の公開面。commitment は作った瞬間から、salt は窓が閉じてから、固定した規則と beacon はいつでも。
++    if (path === "/nenrin/window" || /^\/nenrin\/window\/w\d+$/.test(path)) {
++      if (!env || !env.HS_VERIFY_KV) return json({ error: "storage_unavailable", note: "no KV bound; the window state lives in KV" }, 500);
++      const nowMs = Date.now();
++      const m = /^\/nenrin\/window\/(w\d+)$/.exec(path);
++      if (m) {
++        const one = await nenrin.publicWindow(env.HS_VERIFY_KV, m[1], nowMs);
++        return one ? json(one) : json({ error: "not_found", window_id: m[1], note: "no salt was created for this window (before 0.3.0, or more than 120 days ago)" }, 404);
++      }
++      const cur = nenrin.windowId(nowMs), nxt = nenrin.nextWindowId(nowMs), prev = "w" + (nenrin.windowIndex(cur) - 1);
++      return json({
++        schema: nenrin.NENRIN_INSTANT_SCHEMA, gate_version: CONFIG.version, now: new Date(nowMs).toISOString(),
++        current: await nenrin.publicWindow(env.HS_VERIFY_KV, cur, nowMs),
++        next: await nenrin.publicWindow(env.HS_VERIFY_KV, nxt, nowMs),
++        previous: await nenrin.publicWindow(env.HS_VERIFY_KV, prev, nowMs),
++        rules: {
++          window: "seven days, opening Thursday 00:00 UTC (epoch day divided by 7); window_id = 'w' + that quotient",
++          salt: "created no later than the first sweep of the previous window (0.3.5), so the commitment is public here before the window opens and before any block it will be bound to exists",
++          commitment: "sha256('nenrin-instant-salt-v1:' + salt); published at creation, never edited",
++          beacon: "one reference height for every source: the second highest tip among the sources that answered, minus 6 (with two sources, min(tip) minus 6); the hash at that height must agree between at least two sources; the block's header time must be at or after salt_created_at, or there is no beacon; decided once per window at its first sweep and cached",
++          rule: "the first sweep of a window decides derived or legacy and the whole window keeps that rule, so every row is measured exactly once under one rule; the reason is recorded here",
++          reveal: "salt is served once the window has closed; recompute the commitment, the seed (HMAC-SHA256 keyed by the salt over 'nenrin-instant-v1 seed <window_id> <block_hash>') and every row's day from it",
++          anchoring: "the commitment is published here at creation. Anchoring it to the JIDEC ledger before the window opens (addendum instants v1, anchor.commit_height) is the next step and is not yet done; until then, this page and the sweep record are the only proof of when the commitment existed",
++          history: "since 0.3.5 every /history entry carries coordinate_derivation (derived, window_id, salt_commitment, beacon, day_in_window, or the fallback and its reason)"
++        }
++      });
++    }
++
+     // 公開の登録簿。加盟者の行を、人間もエージェントも一覧で読める。
+     if (path === "/register" && request.method === "GET") {
+       return json(await publicRegister(env));
+@@ -3702,6 +3770,23 @@
+     }
+ 
+     // 掃引の手動実行。cron を待たずに測れるようにする。運営のみ。
++    // 0.3.5. beacon の試し引き。KV に書かん、窓の規則も固定せん、cache もせん。配備直後に explorer が Worker に答えるかを、
++    // 夜の掃引を待たずに見るための運営者の口。sweep と同じ token。
++    if (path === "/nenrin/probe" && request.method === "GET") {
++      if (!env || !env.SWEEP_TOKEN) return json({ error: "sweep_token_not_configured" }, 503);
++      if (!(await ctEqual(request.headers.get("x-sweep-token") || "", env.SWEEP_TOKEN))) return json({ error: "forbidden" }, 403);
++      const nowMs = Date.now();
++      let st = null;
++      try { st = env.HS_VERIFY_KV ? await env.HS_VERIFY_KV.get("nenrin:window:" + nenrin.windowId(nowMs), "json") : null; } catch (_e) { st = null; }
++      const saltAt = st && st.salt_created_at ? st.salt_created_at : new Date(nowMs).toISOString();
++      const scratch = { get: async () => null, put: async () => {} };
++      const bc = await nenrin.beacon(scratch, nenrin.windowId(nowMs), saltAt, fetch);
++      return json({
++        probe: true, wrote_nothing: true, window_id: nenrin.windowId(nowMs), salt_created_at: saltAt, salt_source: st ? "kv" : "none yet (now used as the bound)",
++        would_derive: !!bc.block_hash, reason_code: bc.reason_code || null, reason: bc.reason || null,
++        height: bc.height, block_hash: bc.block_hash, block_time: bc.block_time || null, reference: bc.reference || null, sources: bc.sources || []
++      });
++    }
+     if (path === "/sweep" && request.method === "POST") {
+       if (!env || !env.SWEEP_TOKEN) {
+         return json({ error: "sweep_token_not_configured" }, 503);
+@@ -3932,6 +4017,6 @@
+       });
+     }
+ 
+-    return json({ error: "not_found", path, endpoints: ["/mcp", "/a2a", "/.well-known/agent-card.json", "/.well-known/jwks.json", "/check", "/is-verified", "/spec", "/ext/conduct/v1", "/self", "/history", "/changes", "/watchlist", "/watch", "/sweep", "/sweep/last", "/health"] }, 404);
++    return json({ error: "not_found", path, endpoints: ["/mcp", "/a2a", "/.well-known/agent-card.json", "/.well-known/jwks.json", "/check", "/is-verified", "/spec", "/ext/conduct/v1", "/self", "/history", "/changes", "/watchlist", "/watch", "/sweep", "/sweep/last", "/nenrin/window", "/health"] }, 404);
+   }
+ };
+--- a/workers/hs-verify-gate/src/nenrin_instant.js
++++ b/workers/hs-verify-gate/src/nenrin_instant.js
+@@ -15,14 +15,32 @@
+ // 扉は p2p でヘッダを同期できん(Worker に raw socket が無い)。せやから block hash は取得し、
+ // height と hash を判定に刻む。手元にヘッダを持つ者が後からいつでも反証できる。
+ // 計器を信用できる物にするんやなく、計器の主張を反証可能にする。
++//
++// 0.3.5 (2026-09-06)。本番と設計のズレ 3 つ + 1 つを直した。発見は論文チャットの番人(ops/gate_history_coordinate_20260906.md)。
++//   A. 判定の coordinate_derivation が履歴に残っとらんかった → worker.js の summarise() が残す(このファイルの外)。
++//   B. 一致判定が「源ごとの tip - 6」やった → 基準高さは min(tip) - 6 の 1 つ。同じ高さの hash の一致だけを要求する。
++//      2 つの explorer の tip が 1 本ずれとる瞬間は平常で、それで落ちとった。
++//   C. salt が block の後やった(掃引の頭で salt を作り、その瞬間の tip - 6 = 約 1 時間前の block に束縛)→
++//      次の窓の salt は今の窓の掃引で先に作る(ensureWindowStates)。beacon の block は header の time が
++//      salt_created_at 以上でなければ採らん(block time が取れんときも採らん、fail closed)。commitment は
++//      GET /nenrin/window で作った瞬間から公開。台帳への錨打ちは次段(未実装、と同じ経路で明記する)。
++//   D. 窓の途中で legacy から derived に切り替わると、同じ窓で 2 回測られる行と 1 回も測られん行が出た →
++//      窓の最初の掃引で決めた規則をその窓に固定する(windowRule)。固定した事実と理由は公開する。
+ 
+ export const NENRIN_INSTANT_SCHEMA = "nenrin-instant-v1";
+ export const NENRIN_WINDOW_DAYS = 7;
+-const BEACON_LAG = 6;   // tip は再編成する。6 本下げて読む。
+-const BEACON_SOURCES = [
+-  { name: "mempool.space", tip: "https://mempool.space/api/blocks/tip/height", at: (h) => "https://mempool.space/api/block-height/" + h },
+-  { name: "blockstream.info", tip: "https://blockstream.info/api/blocks/tip/height", at: (h) => "https://blockstream.info/api/block-height/" + h }
++export const BEACON_LAG = 6;   // tip は再編成する。6 本下げて読む。
++export const BEACON_QUORUM = 2;   // 一致に要る源の数。基準 tip も quorum 番目に高い tip(freshness v3.3)。
++export const BEACON_SOURCES = [
++  { name: "mempool.space", tip: "https://mempool.space/api/blocks/tip/height", at: (h) => "https://mempool.space/api/block-height/" + h, block: (hash) => "https://mempool.space/api/block/" + hash },
++  { name: "blockstream.info", tip: "https://blockstream.info/api/blocks/tip/height", at: (h) => "https://blockstream.info/api/block-height/" + h, block: (hash) => "https://blockstream.info/api/block/" + hash },
++  // 0.3.5: 3 源目。運営者は別(emzy)やが mempool.space と同じ mempool codebase なので、そこは残る軸(Federico の verifier が名指しした residual と同じ)。
++  // 一致は「2 源以上」のまま。源が増えるのは可用性のためで、規則は変えん。
++  { name: "mempool.emzy.de", tip: "https://mempool.emzy.de/api/blocks/tip/height", at: (h) => "https://mempool.emzy.de/api/block-height/" + h, block: (hash) => "https://mempool.emzy.de/api/block/" + hash }
+ ];
++const UA = { headers: { "user-agent": "hs-verify-gate/nenrin-instant-v1" } };
++const KV_TTL = 60 * 60 * 24 * 120;
++const DAY_MS = 86400000;
+ 
+ const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+ 
+@@ -49,11 +67,25 @@
+   return await sha256Hex("nenrin-instant-salt-v1:" + saltHex);
+ }
+ 
++// 窓は epoch 日を 7 で割った商。epoch 日 0 は木曜なので、窓は木曜 00:00 UTC に開く。
+ export function windowId(nowMs) {
+-  return "w" + Math.floor(Math.floor(nowMs / 86400000) / NENRIN_WINDOW_DAYS);
++  return "w" + Math.floor(Math.floor(nowMs / DAY_MS) / NENRIN_WINDOW_DAYS);
++}
++export function windowIndex(wid) {
++  const m = /^w(\d+)$/.exec(String(wid || ""));
++  return m ? parseInt(m[1], 10) : null;
++}
++export function nextWindowId(nowMs) {
++  return "w" + (windowIndex(windowId(nowMs)) + 1);
++}
++export function windowBounds(wid) {
++  const i = windowIndex(wid);
++  if (i === null) return null;
++  const open = i * NENRIN_WINDOW_DAYS * DAY_MS;
++  return { opens_at: new Date(open).toISOString(), closes_at: new Date(open + NENRIN_WINDOW_DAYS * DAY_MS).toISOString() };
+ }
+ export function dayInWindow(nowMs) {
+-  const d = Math.floor(nowMs / 86400000);
++  const d = Math.floor(nowMs / DAY_MS);
+   return d - Math.floor(d / NENRIN_WINDOW_DAYS) * NENRIN_WINDOW_DAYS;
+ }
+ 
+@@ -77,98 +109,205 @@
+   return sorted.length ? await sha256Hex(sorted.join(" ")) : null;
+ }
+ 
+-// 窓ごとの salt。作った時刻を残す。beacon はそれより後の block でなければならん。
+-export async function windowState(kv, nowMs) {
+-  const wid = windowId(nowMs);
++// ---- 窓ごとの salt ----------------------------------------------------------------
++// 作った時刻を残す。beacon はそれより後の block でなければならん。
++async function readJson(kv, k) {
++  try { return JSON.parse((await kv.get(k)) || "null"); } catch (e) { return null; }
++}
++async function putJson(kv, k, v) {
++  try { await kv.put(k, JSON.stringify(v), { expirationTtl: KV_TTL }); } catch (e) {}
++}
++export async function windowStateFor(kv, wid, nowMs) {
+   const k = "nenrin:window:" + wid;
+-  let st = null;
+-  try { st = JSON.parse((await kv.get(k)) || "null"); } catch (e) { st = null; }
++  let st = await readJson(kv, k);
+   if (st && st.salt && st.commitment) return st;
+   const salt = randomSaltHex();
+   st = { window_id: wid, salt, commitment: await saltCommitment(salt), salt_created_at: new Date(nowMs).toISOString() };
+-  try { await kv.put(k, JSON.stringify(st), { expirationTtl: 60 * 60 * 24 * 120 }); } catch (e) {}
++  await putJson(kv, k, st);
+   return st;
+ }
++export async function windowState(kv, nowMs) {
++  return await windowStateFor(kv, windowId(nowMs), nowMs);
++}
++// 0.3.5. 今の窓と次の窓の salt を揃える。次の窓の salt は、その窓が開く前(遅くとも前の窓の最初の掃引)に
++// できるので、commitment は block より先に公開される。作った物の一覧を返す(掃引の記録に書く)。
++export async function ensureWindowStates(kv, nowMs) {
++  const cur = windowId(nowMs), nxt = nextWindowId(nowMs);
++  const created = [];
++  const hadCur = !!(await readJson(kv, "nenrin:window:" + cur));
++  const current = await windowStateFor(kv, cur, nowMs);
++  if (!hadCur) created.push(cur);
++  const hadNxt = !!(await readJson(kv, "nenrin:window:" + nxt));
++  const next = await windowStateFor(kv, nxt, nowMs);
++  if (!hadNxt) created.push(nxt);
++  return { current, next, created };
++}
+ 
+-// beacon を 2 源から取り、height と hash が一致した時だけ採る。窓につき 1 回だけ引いて固定する。
+-// 1 源しか答えん日は beacon 無しとして扱う。単独の explorer は根拠にならん。
++// ---- beacon -----------------------------------------------------------------------
++// 0.3.5. 基準高さは 1 つ: min(tip) - BEACON_LAG。全源からその高さの hash を取り、2 源以上の一致を要求する。
++// 一致した block の header time が salt_created_at 以上でなければ採らん(block time が読めん時も採らん)。
++// 窓につき 1 回だけ引いて固定する。1 源しか答えん日は beacon 無しとして扱う。単独の explorer は根拠にならん。
++async function fetchText(f, url) {
++  const r = await f(url, UA);
++  if (!r.ok) return { error: "http " + r.status };
++  return { text: (await r.text()).trim() };
++}
+ export async function beacon(kv, wid, saltCreatedAt, fetchImpl) {
+   const f = fetchImpl || fetch;
+   const k = "nenrin:beacon:" + wid;
+-  try {
+-    const cached = JSON.parse((await kv.get(k)) || "null");
+-    if (cached && cached.block_hash) return cached;
+-  } catch (e) {}
++  const cached = await readJson(kv, k);
++  if (cached && cached.block_hash) return cached;
+   const seen = [];
++  const fail = (reason_code, reason) => ({ height: null, block_hash: null, block_time: null, sources: seen, reason_code, reason });
++  // 1. tip を全源から
++  for (const src of BEACON_SOURCES) {
++    const row = { source: src.name };
++    seen.push(row);
++    try {
++      const t = await fetchText(f, src.tip);
++      if (t.error) { row.error = t.error + " (tip)"; continue; }
++      const tip = parseInt(t.text, 10);
++      if (!Number.isFinite(tip)) { row.error = "tip is not a number"; continue; }
++      row.tip = tip;
++    } catch (e) { row.error = String((e && e.message) || e).slice(0, 80); }
++  }
++  const tips = seen.filter((x) => Number.isFinite(x.tip)).map((x) => x.tip);
++  if (tips.length < BEACON_QUORUM) return fail("tips_unavailable", "fewer than " + BEACON_QUORUM + " independent sources answered a tip height");
++  // 2. 基準高さは 1 つ。freshness v3.3 と同じ「quorum 番目に高い tip」(quorum 2)。2 源なら min(tip)、3 源なら 1 本だけ
++  //    遅れとる源に引きずられん(遅れた源は拒否権を持たん、が、1 源だけ進んどる tip も採らん)。
++  const sortedTips = [...tips].sort((a, b) => b - a);
++  const height = sortedTips[BEACON_QUORUM - 1] - BEACON_LAG;
+   for (const src of BEACON_SOURCES) {
++    const row = seen.find((x) => x.source === src.name);
++    if (!row || !Number.isFinite(row.tip)) continue;
+     try {
+-      const t = await f(src.tip, { headers: { "user-agent": "hs-verify-gate/nenrin-instant-v1" } });
+-      if (!t.ok) { seen.push({ source: src.name, error: "http " + t.status }); continue; }
+-      const tip = parseInt((await t.text()).trim(), 10);
+-      if (!Number.isFinite(tip)) { seen.push({ source: src.name, error: "tip is not a number" }); continue; }
+-      const h = tip - BEACON_LAG;
+-      const b = await f(src.at(h), { headers: { "user-agent": "hs-verify-gate/nenrin-instant-v1" } });
+-      if (!b.ok) { seen.push({ source: src.name, error: "http " + b.status + " at height " + h }); continue; }
+-      const bh = (await b.text()).trim();
+-      if (!/^[0-9a-f]{64}$/.test(bh)) { seen.push({ source: src.name, error: "hash is not 64 hex" }); continue; }
+-      seen.push({ source: src.name, height: h, block_hash: bh });
+-    } catch (e) {
+-      seen.push({ source: src.name, error: String((e && e.message) || e).slice(0, 80) });
+-    }
++      const b = await fetchText(f, src.at(height));
++      if (b.error) { row.error = b.error + " at height " + height; continue; }
++      if (!/^[0-9a-f]{64}$/.test(b.text)) { row.error = "hash is not 64 hex"; continue; }
++      row.height = height;
++      row.block_hash = b.text;
++    } catch (e) { row.error = String((e && e.message) || e).slice(0, 80); }
+   }
+   const good = seen.filter((x) => x.block_hash);
+-  const agreed = good.length >= 2 && good.every((x) => x.height === good[0].height && x.block_hash === good[0].block_hash) ? good[0] : null;
+-  if (!agreed) {
+-    return { height: null, block_hash: null, sources: seen, reason: "no two independent sources agreed on a block" };
++  if (good.length < BEACON_QUORUM) return fail("hash_unavailable", "fewer than two sources returned a block hash at height " + height);
++  const counts = {};
++  for (const g of good) counts[g.block_hash] = (counts[g.block_hash] || 0) + 1;
++  const agreedHash = Object.keys(counts).find((h) => counts[h] >= BEACON_QUORUM) || null;
++  if (!agreedHash) return fail("hash_disagreement", "no two independent sources agreed on the block hash at height " + height);
++  // 3. block の header time。salt より後に採掘された block でなければ束縛の意味が無い。
++  let blockTime = null, blockTimeSource = null;
++  for (const src of BEACON_SOURCES) {
++    try {
++      const r = await f(src.block(agreedHash), UA);
++      if (!r.ok) continue;
++      const j = JSON.parse(await r.text());
++      const ts = j && Number.isFinite(Number(j.timestamp)) ? Number(j.timestamp) : null;
++      if (ts !== null) { blockTime = ts; blockTimeSource = src.name; break; }
++    } catch (e) { /* 次の源 */ }
++  }
++  if (saltCreatedAt) {
++    const saltUnix = Math.floor(Date.parse(saltCreatedAt) / 1000);
++    if (blockTime === null) return fail("block_time_unavailable", "no source returned the header time of block " + agreedHash.slice(0, 12) + ", so it cannot be shown to postdate the salt; not used");
++    if (!(blockTime >= saltUnix)) return fail("block_before_salt", "block " + agreedHash.slice(0, 12) + " at height " + height + " carries header time " + new Date(blockTime * 1000).toISOString() + ", before the salt was created (" + saltCreatedAt + "); a block mined after the salt is not yet " + BEACON_LAG + " deep, so this sweep runs on the legacy rule");
+   }
+   const rec = {
+-    height: agreed.height, block_hash: agreed.block_hash,
+-    sources: seen.map((x) => x.source), read_at: new Date().toISOString(), salt_created_at: saltCreatedAt || null,
+-    falsifiable: "Anyone holding the chain can check that this hash is the block at this height. A wrong beacon here is permanently detectable."
++    height, block_hash: agreedHash, block_time: blockTime === null ? null : new Date(blockTime * 1000).toISOString(),
++    block_time_source: blockTimeSource,
++    reference: { rule: "tip ranked " + BEACON_QUORUM + " of " + tips.length + " (highest first) minus " + BEACON_LAG + "; with two sources that is min(tip) - " + BEACON_LAG, quorum: BEACON_QUORUM, tips: Object.fromEntries(seen.filter((x) => Number.isFinite(x.tip)).map((x) => [x.source, x.tip])) },
++    sources: seen.map((x) => x.source), agreed_by: good.filter((g) => g.block_hash === agreedHash).map((g) => g.source),
++    read_at: new Date().toISOString(), salt_created_at: saltCreatedAt || null,
++    falsifiable: "Anyone holding the chain can check that this hash is the block at this height and that its header time is what is recorded here. A wrong beacon here is permanently detectable."
+   };
+-  try { await kv.put(k, JSON.stringify(rec), { expirationTtl: 60 * 60 * 24 * 120 }); } catch (e) {}
++  await putJson(kv, k, rec);
++  return rec;
++}
++
++// ---- 窓の規則の固定 (0.3.5 D) ----------------------------------------------------
++export async function windowRule(kv, wid) {
++  return await readJson(kv, "nenrin:rule:" + wid);
++}
++async function pinWindowRule(kv, wid, rule, extra) {
++  const rec = Object.assign({ window_id: wid, rule, pinned_at: new Date().toISOString(),
++    why: "one rule per window: the first sweep of the window decides derived or legacy, so every row is measured exactly once under one rule" }, extra || {});
++  await putJson(kv, "nenrin:rule:" + wid, rec);
+   return rec;
+ }
+ 
+ // 掃引の頭で 1 回だけ組む。以後これを下へ通す。
+ export async function coordinate(kv, nowMs, fetchImpl) {
+   const wid = windowId(nowMs);
+-  let st = null, bc = null;
+-  try { st = await windowState(kv, nowMs); } catch (e) { st = null; }
+-  if (st) { try { bc = await beacon(kv, wid, st.salt_created_at, fetchImpl); } catch (e) { bc = null; } }
+-  if (!st || !bc || !bc.block_hash) {
+-    return {
+-      derived: false, window_id: wid, commitment: st ? st.commitment : null, beacon: bc || null,
+-      why: "no two independent sources agreed on a beacon block for this window, so the legacy computable schedule is in use and the subject can predict it. Disclosed, not hidden."
+-    };
++  let st = null, nxt = null, created = [];
++  try { const ws = await ensureWindowStates(kv, nowMs); st = ws.current; nxt = ws.next; created = ws.created; } catch (e) { st = null; }
++  const base = { window_id: wid, commitment: st ? st.commitment : null, salt_created_at: st ? st.salt_created_at : null,
++    next_window: nxt ? { window_id: nxt.window_id, commitment: nxt.commitment, salt_created_at: nxt.salt_created_at } : null,
++    salts_created_now: created };
++  const legacy = (why, reason_code, bc, rule) => Object.assign({}, base, { derived: false, beacon: bc || null, why, reason_code: reason_code || null, rule: rule || null });
++  if (!st) return legacy("window state unavailable (KV), so the legacy computable schedule is in use and the subject can predict it. Disclosed, not hidden.", "window_state_unavailable", null, null);
++  let rule = null;
++  try { rule = await windowRule(kv, wid); } catch (e) { rule = null; }
++  if (rule && rule.rule === "legacy") {
++    return legacy("pinned legacy for this window: the first sweep of the window could not derive (" + (rule.reason || "reason not recorded") + "); one rule per window so every row is measured exactly once. The subject can predict this schedule. Disclosed, not hidden.", "pinned_legacy", rule.beacon || null, rule);
++  }
++  let bc = null;
++  try { bc = await beacon(kv, wid, st.salt_created_at, fetchImpl); } catch (e) { bc = { height: null, block_hash: null, reason_code: "beacon_error", reason: String((e && e.message) || e).slice(0, 120), sources: [] }; }
++  if (!bc || !bc.block_hash) {
++    if (!rule) { try { rule = await pinWindowRule(kv, wid, "legacy", { reason: bc ? bc.reason : "no beacon", reason_code: bc ? bc.reason_code : null, beacon: bc || null }); } catch (e) { rule = null; } }
++    return legacy("no beacon for this window (" + (bc && bc.reason ? bc.reason : "no reason recorded") + "), so the legacy computable schedule is in use and the subject can predict it. Disclosed, not hidden.", bc ? bc.reason_code : "no_beacon", bc || null, rule);
+   }
++  if (!rule) { try { rule = await pinWindowRule(kv, wid, "derived", { beacon_height: bc.height, block_hash: bc.block_hash }); } catch (e) { rule = null; } }
+   // salt を作った後に採掘された block に束縛する。扉が有利な salt を引き直すことができんようになる。
+   const seed = await prfHex(st.salt, [NENRIN_INSTANT_SCHEMA, "seed", wid, bc.block_hash]);
+-  return { derived: true, window_id: wid, seed, commitment: st.commitment, salt_created_at: st.salt_created_at, beacon: bc };
++  return Object.assign({}, base, { derived: true, seed, beacon: bc, rule });
+ }
+ 
+ // 判定に埋める塊。全部が扉の導いた出力で、対象が渡した入力は 1 つも無い。
+ export async function derivationBlock(coord, endpoint, names) {
+   if (!coord || !coord.derived) {
++    const bc = coord && coord.beacon ? coord.beacon : null;
+     return {
+       schema: NENRIN_INSTANT_SCHEMA, derived: false,
+       window_id: coord ? coord.window_id : null,
+       salt_commitment: coord ? coord.commitment : null,
+-      beacon: coord && coord.beacon ? { height: coord.beacon.height, block_hash: coord.beacon.block_hash } : null,
++      salt_created_at: coord ? coord.salt_created_at || null : null,
++      beacon: bc ? { height: bc.height, block_hash: bc.block_hash } : null,
+       fallback: "legacy computable schedule (sha256(endpoint) mod " + NENRIN_WINDOW_DAYS + "): the subject can predict when it is measured",
+-      why: coord ? coord.why : "no coordinate context for this check; a one-off /check is not a row on the register"
++      reason_code: coord ? coord.reason_code || null : "no_coordinate_context",
++      why: coord ? coord.why : "no coordinate context for this check; a one-off /check is not a row on the register",
++      sources: bc && Array.isArray(bc.sources) ? bc.sources : null
+     };
+   }
+   const list = [...(names || [])].filter((n) => typeof n === "string" && n);
+   return {
+     schema: NENRIN_INSTANT_SCHEMA, derived: true, window_id: coord.window_id,
+     salt_commitment: coord.commitment, salt_created_at: coord.salt_created_at,
+-    beacon: { height: coord.beacon.height, block_hash: coord.beacon.block_hash, sources: coord.beacon.sources, read_at: coord.beacon.read_at },
++    beacon: { height: coord.beacon.height, block_hash: coord.beacon.block_hash, block_time: coord.beacon.block_time || null, sources: coord.beacon.sources, agreed_by: coord.beacon.agreed_by || null, reference: coord.beacon.reference || null, read_at: coord.beacon.read_at },
+     day_in_window: await dueOffset(coord.seed, endpoint, coord.window_id),
+     window_days: NENRIN_WINDOW_DAYS,
+     tool_set_sha256: list.length ? await toolSetSha256(list) : null,
+     tool_count: list.length,
+-    rule: "the measurement day and the tool order are HMAC-SHA256 derived from a salt the gate committed to at the start of the window, bound to a Bitcoin block mined after that salt existed. The subject cannot predict them; the gate cannot choose them after the fact. The salt is published when the window closes, and anyone can recompute all of this.",
++    rule: "the measurement day and the tool order are HMAC-SHA256 derived from a salt the gate committed to before the window opened, bound to a Bitcoin block whose header time is at or after the salt's creation. The subject cannot predict them; the gate cannot choose them after the fact. The salt is served at /nenrin/window/{window_id} when the window closes, and anyone can recompute all of this.",
+     limits: "Derivation is fair only inside the surface the subject declared. A tool never listed is never picked. That set is unknown, not absent. This measures conduct, not quality."
+   };
+ }
++
++// ---- 公開の窓 (0.3.5 C) ------------------------------------------------------------
++// commitment は作った瞬間から見える。salt は窓が閉じてから見える。固定した規則と beacon もここ。
++export async function publicWindow(kv, wid, nowMs) {
++  const idx = windowIndex(wid);
++  if (idx === null) return null;
++  const cur = windowIndex(windowId(nowMs));
++  const st = await readJson(kv, "nenrin:window:" + wid);
++  if (!st) return null;
++  const status = idx < cur ? "closed" : idx === cur ? "current" : "next";
++  const bc = await readJson(kv, "nenrin:beacon:" + wid);
++  const rule = await readJson(kv, "nenrin:rule:" + wid);
++  const bounds = windowBounds(wid);
++  return {
++    window_id: wid, status, opens_at: bounds.opens_at, closes_at: bounds.closes_at,
++    commitment: st.commitment, salt_created_at: st.salt_created_at,
++    salt: status === "closed" ? st.salt : null,
++    salt_note: status === "closed" ? "revealed: recompute sha256('nenrin-instant-salt-v1:' + salt) and compare with commitment; seed = HMAC-SHA256(salt, 'nenrin-instant-v1 seed <window_id> <block_hash>'); each row's day = parseInt(HMAC(seed, 'nenrin-instant-v1 day <endpoint> <window_id>')[0:8], 16) mod 7" : "withheld until the window closes",
++    rule: rule ? { rule: rule.rule, pinned_at: rule.pinned_at, reason: rule.reason || null, reason_code: rule.reason_code || null } : null,
++    beacon: bc && bc.block_hash ? { height: bc.height, block_hash: bc.block_hash, block_time: bc.block_time || null, reference: bc.reference || null, agreed_by: bc.agreed_by || null, read_at: bc.read_at } : null
++  };
++}
+--- a/workers/hs-verify-gate/test/redteam_instant.mjs
++++ b/workers/hs-verify-gate/test/redteam_instant.mjs
+@@ -30,12 +30,21 @@
+     return { ok: hit.ok !== false, status: hit.status || 200, text: async () => hit.body };
+   };
+ }
+-const bothAgree = (h, hash) => [
+-  { match: "mempool.space/api/blocks/tip/height", body: String(h + 6) },
++const NOW = Date.UTC(2026, 8, 5);                 // 掃引の瞬間(salt はこの時刻に作られる)
++const T_AFTER = Math.floor(NOW / 1000) + 3600;      // salt の 1 時間後に採掘された block の header time
++const T_BEFORE = Math.floor(NOW / 1000) - 3600;     // salt の 1 時間前(0.3.4 までの本番の形)
++const blockJson = (h, hash, ts) => JSON.stringify({ id: hash, height: h, timestamp: ts });
++// 0.3.5: 両源が同じ tip を返し、基準高さ h の hash が一致し、block の header time が salt より後。
++const bothAgree = (h, hash, ts = T_AFTER, tipA = h + 6, tipB = h + 6) => [
++  { match: "mempool.space/api/blocks/tip/height", body: String(tipA) },
+   { match: "mempool.space/api/block-height/", body: hash },
+-  { match: "blockstream.info/api/blocks/tip/height", body: String(h + 6) },
+-  { match: "blockstream.info/api/block-height/", body: hash }
++  { match: "mempool.space/api/block/", body: blockJson(h, hash, ts) },
++  { match: "blockstream.info/api/blocks/tip/height", body: String(tipB) },
++  { match: "blockstream.info/api/block-height/", body: hash },
++  { match: "blockstream.info/api/block/", body: blockJson(h, hash, ts) }
+ ];
++// fetch を数える(窓につき 1 回だけ引く、の証拠に使う)
++function countingFetch(plan) { const f = mockFetch(plan); const c = { n: 0 }; const g = async (u) => { c.n++; return f(u); }; g.count = c; return g; }
+ 
+ // ---- 導出の芯 ----------------------------------------------------------------
+ const seedA = await n.prfHex(SALT, ["nenrin-instant-v1", "seed", WID, BLOCK_A]);
+@@ -118,15 +127,15 @@
+ 
+ // ---- 窓の座標 ----------------------------------------------------------------
+ const kv = mockKv();
+-const c1 = await n.coordinate(kv, Date.UTC(2026, 8, 5), mockFetch(bothAgree(900000, BLOCK_A)));
++const c1 = await n.coordinate(kv, NOW, mockFetch(bothAgree(900000, BLOCK_A)));
+ t("control", "beacon が採れたら derived:true で種が立つ", c1.derived === true && /^[0-9a-f]{64}$/.test(c1.seed || ""));
+ 
+-const c2 = await n.coordinate(mockKv(), Date.UTC(2026, 8, 5), mockFetch(disagree));
++const c2 = await n.coordinate(mockKv(), NOW, mockFetch(disagree));
+ t("misclass", "beacon が無い窓は derived:false、旧規則に落ちたと明記する",
+   c2.derived === false && /predict/.test(c2.why || ""), (c2.why || "").slice(0, 60));
+ 
+-const kvJunk = mockKv({ ["nenrin:window:" + n.windowId(Date.UTC(2026, 8, 5))]: "{{{ not json" });
+-const c3 = await n.coordinate(kvJunk, Date.UTC(2026, 8, 5), mockFetch(bothAgree(900000, BLOCK_A)));
++const kvJunk = mockKv({ ["nenrin:window:" + n.windowId(NOW)]: "{{{ not json" });
++const c3 = await n.coordinate(kvJunk, NOW, mockFetch(bothAgree(900000, BLOCK_A)));
+ t("attack", "KV が壊れた値を返しても落ちん(作り直す)", c3.derived === true);
+ 
+ // ---- 判定に埋める塊 ----------------------------------------------------------
+@@ -151,6 +160,88 @@
+   (await n.dueOffset(seedA, EP, WID)) === (await n.dueOffset(seedA, EP, WID)),
+   "この vector は通す試験やなく、使い回しが破れる証明や。");
+ 
++// ---- 0.3.5: 一致判定、順序、次の窓、固定、公開 ------------------------------------
++// B. tip が 1 本ずれとる瞬間は平常。基準高さは min(tip) - 6 の 1 つ。同じ高さの hash が一致すれば採る。
++const bSkew = await n.beacon(mockKv(), WID, null, mockFetch(bothAgree(900000, BLOCK_A, T_AFTER, 900006, 900007)));
++t("attack", "0.3.5: 2 源の tip が 1 本ずれとっても、基準高さ min(tip) - 6 の hash が一致すれば beacon を採る(0.3.4 までは落ちとった)",
++  bSkew.block_hash === BLOCK_A && bSkew.height === 900000 && bSkew.reference && bSkew.reference.tips["blockstream.info"] === 900007,
++  JSON.stringify(bSkew.reference || bSkew.reason));
++const bSkewBad = [
++  { match: "mempool.space/api/blocks/tip/height", body: "900006" },
++  { match: "mempool.space/api/block-height/", body: BLOCK_A },
++  { match: "blockstream.info/api/blocks/tip/height", body: "900009" },
++  { match: "blockstream.info/api/block-height/", body: BLOCK_B }
++];
++const b5 = await n.beacon(mockKv(), WID, null, mockFetch(bSkewBad));
++t("attack", "0.3.5: 基準高さが 1 つでも、その高さの hash が食い違えば採らん(reason_code hash_disagreement)",
++  b5.block_hash === null && b5.reason_code === "hash_disagreement", b5.reason || "");
++
++// C. salt の後に採掘された block でなければ束縛の意味が無い。
++const bBefore = await n.beacon(mockKv(), WID, new Date(NOW).toISOString(), mockFetch(bothAgree(900000, BLOCK_A, T_BEFORE)));
++t("attack", "0.3.5: block の header time が salt より前なら採らん(0.3.4 までの本番はこの形で束縛しとった)",
++  bBefore.block_hash === null && bBefore.reason_code === "block_before_salt", (bBefore.reason || "").slice(0, 90));
++const noBlockTime = bothAgree(900000, BLOCK_A).filter((p) => !/api\/block\//.test(p.match));
++const bNoTime = await n.beacon(mockKv(), WID, new Date(NOW).toISOString(), mockFetch(noBlockTime));
++t("attack", "0.3.5: block の header time が読めん時も採らん(salt より後と示せん物は使わん、fail closed)",
++  bNoTime.block_hash === null && bNoTime.reason_code === "block_time_unavailable", bNoTime.reason || "");
++const bAfter = await n.beacon(mockKv(), WID, new Date(NOW).toISOString(), mockFetch(bothAgree(900000, BLOCK_A, T_AFTER)));
++t("control", "0.3.5: salt より後の block なら採り、header time と基準の tips を記録に残す",
++  bAfter.block_hash === BLOCK_A && bAfter.block_time === new Date(T_AFTER * 1000).toISOString() && bAfter.agreed_by.length === 2, JSON.stringify(bAfter.agreed_by));
++
++// C. 次の窓の salt は今の窓の掃引で先に作る。commitment は block より先に公開される。
++const kvW = mockKv();
++const ws1 = await n.ensureWindowStates(kvW, NOW);
++const ws2 = await n.ensureWindowStates(kvW, NOW + 86400000);
++t("control", "0.3.5: 掃引は今の窓と次の窓の salt を揃え、2 回目は何も作らん(冪等)",
++  ws1.created.length === 2 && ws1.next.window_id === n.nextWindowId(NOW) && ws1.current.commitment !== ws1.next.commitment && ws2.created.length === 0,
++  JSON.stringify(ws1.created));
++t("control", "0.3.5: 次の窓の salt_created_at は次の窓が開く前", Date.parse(ws1.next.salt_created_at) < Date.parse(n.windowBounds(ws1.next.window_id).opens_at),
++  ws1.next.salt_created_at + " < " + n.windowBounds(ws1.next.window_id).opens_at);
++const pubCur = await n.publicWindow(kvW, n.windowId(NOW), NOW);
++const pubNext = await n.publicWindow(kvW, n.nextWindowId(NOW), NOW);
++const pubClosed = await n.publicWindow(kvW, n.windowId(NOW), NOW + 8 * 86400000);
++t("attack", "0.3.5: 公開の窓は commitment を出し、salt は窓が閉じるまで出さん(current も next も null)",
++  pubCur.salt === null && pubNext.salt === null && pubCur.commitment === ws1.current.commitment && pubNext.status === "next", JSON.stringify([pubCur.status, pubNext.status]));
++t("control", "0.3.5: 閉じた窓は salt を reveal し、commitment が再計算で一致する",
++  pubClosed.status === "closed" && pubClosed.salt === ws1.current.salt && (await n.saltCommitment(pubClosed.salt)) === pubClosed.commitment);
++
++// D. 窓の最初の掃引で決めた規則をその窓に固定する。
++const kvPin = mockKv();
++const p1 = await n.coordinate(kvPin, NOW, mockFetch(disagree));
++const p2 = await n.coordinate(kvPin, NOW + 86400000, mockFetch(bothAgree(900000, BLOCK_A)));
++t("attack", "0.3.5: 最初の掃引が legacy に落ちた窓は、翌日 beacon が取れても legacy のまま(窓につき規則は 1 つ、理由を書く)",
++  p1.derived === false && p1.rule && p1.rule.rule === "legacy" && p2.derived === false && p2.reason_code === "pinned_legacy" && /first sweep/.test(p2.why),
++  (p2.why || "").slice(0, 80));
++const kvPin2 = mockKv();
++const cf = countingFetch(bothAgree(900000, BLOCK_A));
++const q1 = await n.coordinate(kvPin2, NOW, cf);
++const fetchesAfterFirst = cf.count.n;
++const q2 = await n.coordinate(kvPin2, NOW + 86400000, cf);
++t("control", "0.3.5: 最初の掃引で導出できた窓は derived に固定され、beacon は窓につき 1 回しか引かん(翌日は網に出ん)",
++  q1.derived === true && q1.rule && q1.rule.rule === "derived" && q2.derived === true && q2.seed === q1.seed && cf.count.n === fetchesAfterFirst, "fetch calls: " + fetchesAfterFirst + " then " + cf.count.n);
++const dSrc = await n.derivationBlock(p2, EP, TOOLS);
++t("misclass", "0.3.5: 落ちた判定は reason_code と源ごとの結果を載せる(なぜ落ちたかが履歴から読める)",
++  dSrc.derived === false && dSrc.reason_code === "pinned_legacy" && typeof dSrc.why === "string", JSON.stringify(dSrc.reason_code));
++
++// 3 源目(mempool.emzy.de)。1 本だけ遅れとる源は基準を下げん。1 本だけ進んどる源も基準を上げん。
++const threeSrc = (tipA, tipB, tipC, h, hash) => [
++  { match: "mempool.space/api/blocks/tip/height", body: String(tipA) },
++  { match: "mempool.space/api/block-height/", body: hash },
++  { match: "mempool.space/api/block/", body: blockJson(h, hash, T_AFTER) },
++  { match: "blockstream.info/api/blocks/tip/height", body: String(tipB) },
++  { match: "blockstream.info/api/block-height/", body: hash },
++  { match: "blockstream.info/api/block/", body: blockJson(h, hash, T_AFTER) },
++  { match: "mempool.emzy.de/api/blocks/tip/height", body: String(tipC) },
++  { match: "mempool.emzy.de/api/block-height/", body: hash },
++  { match: "mempool.emzy.de/api/block/", body: blockJson(h, hash, T_AFTER) }
++];
++const b3a = await n.beacon(mockKv(), WID, null, mockFetch(threeSrc(900006, 900006, 899990, 900000, BLOCK_A)));
++t("attack", "0.3.5: 3 源のうち 1 本が 16 本遅れとっても、基準は 2 番目に高い tip - 6(遅れた源に拒否権は無い)",
++  b3a.block_hash === BLOCK_A && b3a.height === 900000, JSON.stringify(b3a.reference || b3a.reason));
++const b3b = await n.beacon(mockKv(), WID, null, mockFetch(threeSrc(900020, 900006, 900006, 900000, BLOCK_A)));
++t("attack", "0.3.5: 1 本だけ進んどる tip も基準を上げん(2 番目に高い tip を採る)",
++  b3b.block_hash === BLOCK_A && b3b.height === 900000 && b3b.reference.tips["mempool.space"] === 900020, JSON.stringify(b3b.reference || b3b.reason));
++
+ // ---- 報告 --------------------------------------------------------------------
+ const kinds = {};
+ for (const r of R) { const k = kinds[r.kind] || [0, 0]; kinds[r.kind] = [k[0] + (r.ok ? 1 : 0), k[1] + 1]; }
+@@ -159,6 +250,6 @@
+ console.log();
+ for (const r of R) if (!r.ok) console.log("  NG  [" + r.kind + "] " + r.name + "\n      " + r.detail);
+ const passed = R.filter((r) => r.ok).length;
+-console.log("=== " + passed + " / " + R.length + " 合格 (nenrin-instant-v1、扉 0.3.0) ===");
++console.log("=== " + passed + " / " + R.length + " 合格 (nenrin-instant-v1、扉 0.3.5) ===");
+ if (passed === R.length) console.log("測る日も測る tool も、測られる側が選べず、測る側も後から選べん。");
+ process.exit(passed === R.length ? 0 : 1);
+--- a/workers/hs-verify-gate/server.json
++++ b/workers/hs-verify-gate/server.json
+@@ -3,7 +3,7 @@
+   "name": "io.github.ogasurfproject-jpg/hs-verify-gate",
+   "title": "MCP Verification Gate: conformance and disclosure checker for MCP servers",
+   "description": "Conformance checker for MCP servers. Free, no key, verdicts recomputable and re-measured daily.",
+-  "version": "0.3.4",
++  "version": "0.3.5",
+   "websiteUrl": "https://shield.the-horizons-innovation.com/verify-directory/",
+   "icons": [
+     {
+--- /dev/null
++++ b/workers/hs-verify-gate/test/sweep_coordinate.test.mjs
+@@ -0,0 +1,195 @@
++// 0.3.5: 掃引を丸ごと回して、時刻座標の導出が「判定の中」だけやなく「履歴、掃引の記録、公開の窓」に残ることを確かめる。
++// 発見(2026-09-06、論文チャット): 0.3.0〜0.3.4 は judgement に coordinate_derivation を載せながら summarise() が落としとった。
++// Offline。globalThis.fetch を差し替える。*.redteam.invalid は実在せん(RFC 2606)。explorer 2 源は偽物。
++// 走らせ方: node test/sweep_coordinate.test.mjs   (workers/hs-verify-gate で)   1 つでも落ちたら exit 1。
++import worker from "../src/worker.js";
++import * as nenrin from "../src/nenrin_instant.js";
++
++const CTX = { waitUntil(p) { if (p && p.catch) p.catch(() => {}); } };
++const jres = (obj, status) => new Response(JSON.stringify(obj), { status: status || 200, headers: { "content-type": "application/json" } });
++const CARD = { name: "Redteam Agent", description: "an adversarial mock", url: "",
++  compensation: { paid_by: "public", referral_fee: false, listing_fee: false, success_fee_pct: 0, disclosure_url: "https://example.invalid/disclosure" } };
++const TOOLS = [
++  { name: "alpha", description: "redteam tool alpha", inputSchema: { type: "object", properties: {} } },
++  { name: "beta", description: "redteam tool beta", inputSchema: { type: "object", properties: {} } }
++];
++function kv() {
++  const store = new Map();
++  return {
++    store,
++    get: async (k, type) => { const v = store.has(k) ? store.get(k) : null; return (type === "json" && v !== null) ? JSON.parse(v) : v; },
++    put: async (k, v) => { store.set(k, typeof v === "string" ? v : JSON.stringify(v)); },
++    delete: async (k) => { store.delete(k); },
++    list: async (o) => ({ keys: [...store.keys()].filter((k) => k.startsWith((o && o.prefix) || "")).map((name) => ({ name })), list_complete: true }),
++  };
++}
++
++// 偽の explorer。tips と、基準高さの hash と、block の header time を差し替えられる。
++const HASH_A = "aa".repeat(32), HASH_B = "bb".repeat(32);
++const EXPLORER = { tips: { "mempool.space": 900006, "blockstream.info": 900007 }, hashAt: { 900000: { "mempool.space": HASH_A, "blockstream.info": HASH_A } }, blockTime: {}, calls: 0 };
++function explorerAnswer(u) {
++  EXPLORER.calls++;
++  const src = u.hostname;
++  if (u.pathname === "/api/blocks/tip/height") { const t = EXPLORER.tips[src]; return t == null ? new Response("down", { status: 503 }) : new Response(String(t)); }
++  let m = /^\/api\/block-height\/(\d+)$/.exec(u.pathname);
++  if (m) { const h = EXPLORER.hashAt[m[1]] && EXPLORER.hashAt[m[1]][src]; return h ? new Response(h) : new Response("", { status: 404 }); }
++  m = /^\/api\/block\/([0-9a-f]{64})$/.exec(u.pathname);
++  if (m) { const ts = EXPLORER.blockTime[m[1]]; return ts == null ? new Response("", { status: 404 }) : jres({ id: m[1], height: 900000, timestamp: ts }); }
++  return new Response("", { status: 404 });
++}
++globalThis.fetch = async (url, init) => {
++  const u = new URL(url);
++  if (u.hostname === "mempool.space" || u.hostname === "blockstream.info") return explorerAnswer(u);
++  if (!/\.redteam\.invalid$/.test(u.hostname)) return new Response("no", { status: 500 });
++  if (u.pathname === "/.well-known/mcp-conduct.json") return jres({ allow_tool_call: true });
++  if (u.pathname === "/.well-known/agent-card.json") return jres(CARD);
++  if (u.pathname === "/mcp" && (init && init.method) === "POST") {
++    const body = JSON.parse(init.body); const id = body.id;
++    if (body.method === "initialize") return jres({ jsonrpc: "2.0", id, result: { protocolVersion: "2024-11-05", serverInfo: { name: "rt", version: "0" }, capabilities: { tools: {} } } });
++    if (body.method === "tools/list") return jres({ jsonrpc: "2.0", id, result: { tools: TOOLS } });
++    if (body.method === "tools/call") return jres({ jsonrpc: "2.0", id, result: { content: [{ type: "text", text: "constant answer" }] } });
++    return jres({ jsonrpc: "2.0", id, error: { code: -32601, message: "nope" } });
++  }
++  return new Response("not found", { status: 404 });
++};
++
++const R = [];
++const t = (kind, name, ok, detail = "") => R.push({ kind, name, ok: !!ok, detail: String(detail) });
++const EP = "https://open.redteam.invalid/mcp";
++
++async function freshEnv() {
++  const env = { HS_VERIFY_KV: kv(), SWEEP_TOKEN: "redteam-sweep-token", GATE_COMMIT: "redteam-local" };
++  const call = (path, init) => worker.fetch(new Request("https://gate.horizonshield.dev" + path, init), env, CTX);
++  const post = (path, body, headers) => call(path, { method: "POST", headers: { "content-type": "application/json", ...(headers || {}) }, body: JSON.stringify(body) });
++  await post("/watch", { endpoint: EP });
++  // 最初の掃引は自前 8 行で MAX_PER_SWEEP を使い切り、新入りの行は溢れる(0.3.1 の順序規則)。2 回目で測られる。
++  // その最初の掃引が「窓の最初の掃引」なので、規則の固定と salt の作成はここで起きる。
++  const first = await post("/sweep", { force: true }, { "x-sweep-token": "redteam-sweep-token" }).then((r) => r.json());
++  return { env, call, post, first };
++}
++const sweep = (post) => post("/sweep", { force: true }, { "x-sweep-token": "redteam-sweep-token" }).then((r) => r.json());
++const hist = (call) => call("/history?endpoint=" + encodeURIComponent(EP)).then((r) => r.json());
++
++// ---- 1. explorer が答え、block が salt より後: derived が履歴に残る ------------------------------
++// salt は掃引の頭で作られる(初回)。block time はその後でなければ採られん。掃引時刻より 1 時間後の time を返す偽 block。
++EXPLORER.blockTime[HASH_A] = Math.floor(Date.now() / 1000) + 3600;
++{
++  const { env, call, post, first } = await freshEnv();
++  const sw = await sweep(post);
++  t("control", "sweep record carries coordinate.derived true, the pinned rule and the beacon (0.3.5)",
++    sw.coordinate && sw.coordinate.derived === true && sw.coordinate.rule && sw.coordinate.rule.rule === "derived" && sw.coordinate.beacon && sw.coordinate.beacon.block_hash === HASH_A && sw.coordinate.beacon.height === 900000,
++    JSON.stringify(sw.coordinate).slice(0, 200));
++  t("attack", "tips one block apart (900006 vs 900007) still derive: one reference height min(tip) - 6 (until 0.3.4 this fell back)",
++    sw.coordinate && sw.coordinate.beacon && sw.coordinate.beacon.reference && sw.coordinate.beacon.reference.tips["blockstream.info"] === 900007 && sw.coordinate.derived === true,
++    JSON.stringify(sw.coordinate && sw.coordinate.beacon && sw.coordinate.beacon.reference));
++  t("control", "the sweep created the salt for the next window too, so its commitment exists before that window opens",
++    sw.coordinate && sw.coordinate.next_window && /^w\d+$/.test(sw.coordinate.next_window.window_id) && /^[0-9a-f]{64}$/.test(sw.coordinate.next_window.commitment) && first.coordinate.salts_created_now.length === 2 && sw.coordinate.salts_created_now.length === 0,
++    JSON.stringify([first.coordinate && first.coordinate.salts_created_now, sw.coordinate && sw.coordinate.salts_created_now]));
++  const h = await hist(call);
++  const e = h.entries && h.entries[h.entries.length - 1];
++  t("attack", "the /history entry carries coordinate_derivation with derived true, beacon height as an integer and the hash (0.3.0 to 0.3.4 dropped it)",
++    e && e.coordinate_derivation && e.coordinate_derivation.derived === true && Number.isInteger(e.coordinate_derivation.beacon.height) && e.coordinate_derivation.beacon.block_hash === HASH_A && /^[0-9a-f]{64}$/.test(e.coordinate_derivation.salt_commitment) && Number.isInteger(e.coordinate_derivation.day_in_window),
++    JSON.stringify(e && e.coordinate_derivation).slice(0, 220));
++  t("control", "the history entry names the tool set the derivation ran over (tool_set_sha256, tool_count 2)",
++    e && e.coordinate_derivation && e.coordinate_derivation.tool_count === 2 && /^[0-9a-f]{64}$/.test(e.coordinate_derivation.tool_set_sha256),
++    JSON.stringify(e && e.coordinate_derivation && [e.coordinate_derivation.tool_count, e.coordinate_derivation.tool_set_sha256]));
++  t("control", "the history entry does not carry the seed or the salt (only the commitment and the block)",
++    e && !("seed" in e.coordinate_derivation) && !("salt" in e.coordinate_derivation));
++  const win = await (await call("/nenrin/window")).json();
++  t("control", "/nenrin/window shows the current window with its commitment, pinned rule derived, the beacon, and no salt",
++    win.current && win.current.status === "current" && win.current.commitment === sw.coordinate.commitment && win.current.rule && win.current.rule.rule === "derived" && win.current.beacon && win.current.beacon.block_hash === HASH_A && win.current.salt === null,
++    JSON.stringify(win.current).slice(0, 200));
++  t("control", "/nenrin/window shows the next window's commitment already (created at this sweep) and withholds its salt",
++    win.next && win.next.status === "next" && win.next.commitment === sw.coordinate.next_window.commitment && win.next.salt === null && win.next.beacon === null,
++    JSON.stringify(win.next).slice(0, 160));
++  const one = await (await call("/nenrin/window/" + win.current.window_id)).json();
++  t("control", "/nenrin/window/{window_id} returns the same window", one.window_id === win.current.window_id && one.commitment === win.current.commitment);
++  const none = await call("/nenrin/window/w1");
++  t("misclass", "an unknown window is 404, not an invented commitment", none.status === 404);
++  const calls0 = EXPLORER.calls;
++  await sweep(post);
++  t("control", "a second sweep in the same window does not touch the explorers again (beacon cached per window)", EXPLORER.calls === calls0, "calls " + calls0 + " then " + EXPLORER.calls);
++  const last = await (await call("/sweep/last")).json();
++  t("control", "/sweep/last carries the coordinate block", last.coordinate && last.coordinate.derived === true && last.coordinate.window === "/nenrin/window");
++}
++
++// ---- 2. block が salt より前: 落ちる、理由が残る、窓は legacy に固定される -------------------------
++EXPLORER.blockTime[HASH_A] = Math.floor(Date.now() / 1000) - 3600;
++{
++  const { env, call, post, first } = await freshEnv();
++  t("attack", "a beacon block whose header time precedes the salt is refused: legacy, reason_code block_before_salt (this was production's shape until 0.3.4)",
++    first.coordinate && first.coordinate.derived === false && first.coordinate.reason_code === "block_before_salt", JSON.stringify(first.coordinate && [first.coordinate.reason_code, (first.coordinate.why || "").slice(0, 80)]));
++  const sw = await sweep(post);
++  const h = await hist(call);
++  const e = h.entries && h.entries[h.entries.length - 1];
++  t("attack", "the /history entry says derived false with the fallback text and the reason_code (why the sweep fell back is now readable from the export)",
++    e && e.coordinate_derivation && e.coordinate_derivation.derived === false && /legacy computable schedule/.test(e.coordinate_derivation.fallback) && e.coordinate_derivation.reason_code === "pinned_legacy" && /block_before_salt|header time/.test(e.coordinate_derivation.why || "") && e.coordinate_derivation.beacon === null,
++    JSON.stringify(e && e.coordinate_derivation).slice(0, 220));
++  // 翌日、block が salt より後になっても、この窓は legacy のまま(窓につき規則は 1 つ)
++  EXPLORER.blockTime[HASH_A] = Math.floor(Date.now() / 1000) + 3600;
++  const sw2 = await sweep(post);
++  t("attack", "the next sweep of the same window stays legacy even though a valid beacon is now available (one rule per window, pinned at the first sweep)",
++    sw2.coordinate && sw2.coordinate.derived === false && sw2.coordinate.reason_code === "pinned_legacy" && sw2.coordinate.rule && sw2.coordinate.rule.rule === "legacy" && sw2.coordinate.rule.reason_code === "block_before_salt",
++    JSON.stringify(sw2.coordinate && [sw2.coordinate.reason_code, sw2.coordinate.rule]).slice(0, 200));
++  const win = await (await call("/nenrin/window")).json();
++  t("control", "/nenrin/window shows the pinned legacy rule with the original reason, and still no salt",
++    win.current && win.current.rule && win.current.rule.rule === "legacy" && win.current.rule.reason_code === "block_before_salt" && win.current.salt === null && win.current.beacon === null,
++    JSON.stringify(win.current && win.current.rule));
++}
++
++// ---- 3. explorer が 1 源しか答えん: 落ちる、源ごとの結果が残る ----------------------------------------
++EXPLORER.tips = { "mempool.space": 900006 };
++{
++  const { call, post, first } = await freshEnv();
++  t("attack", "only one source answers a tip: no beacon, reason_code tips_unavailable, every source named with its failure",
++    first.coordinate && first.coordinate.derived === false && first.coordinate.reason_code === "tips_unavailable" && Array.isArray(first.coordinate.sources) && first.coordinate.sources.length === 3 && first.coordinate.sources.some((s) => /503/.test(s.error || "")),
++    JSON.stringify(first.coordinate && first.coordinate.sources));
++  await sweep(post);
++  const h = await hist(call);
++  const e = h.entries && h.entries[h.entries.length - 1];
++  t("control", "the history entry keeps the reason_code but not the per-source dump (bounded entry)", e && e.coordinate_derivation && e.coordinate_derivation.reason_code === "pinned_legacy" && !("sources" in e.coordinate_derivation) && /tips_unavailable|fewer than/.test(e.coordinate_derivation.why || ""), JSON.stringify(e && e.coordinate_derivation && e.coordinate_derivation.why).slice(0, 160));
++}
++
++// ---- 4. 座標が無い一回きりの /check は、無いと書く ----------------------------------------------------
++{
++  const { post } = await freshEnv();
++  const one = await (await post("/check", { endpoint: EP })).json();
++  t("misclass", "a one-off /check still says derived false with the one-off reason (a /check is not a row on the register)",
++    one.coordinate_derivation && one.coordinate_derivation.derived === false && one.coordinate_derivation.reason_code === "no_coordinate_context" && /one-off/.test(one.coordinate_derivation.why || ""),
++    JSON.stringify(one.coordinate_derivation).slice(0, 160));
++}
++
++// ---- 4b. /nenrin/probe は書かん、固定せん ------------------------------------------------------------
++EXPLORER.tips = { "mempool.space": 900006, "blockstream.info": 900007 };
++EXPLORER.blockTime[HASH_A] = Math.floor(Date.now() / 1000) + 3600;
++{
++  const env = { HS_VERIFY_KV: kv(), SWEEP_TOKEN: "redteam-sweep-token", GATE_COMMIT: "redteam-local" };
++  const call = (path, init) => worker.fetch(new Request("https://gate.horizonshield.dev" + path, init), env, CTX);
++  const noTok = await call("/nenrin/probe");
++  t("attack", "/nenrin/probe without the sweep token is 403 (it makes the gate hit the explorers)", noTok.status === 403);
++  const pr = await (await call("/nenrin/probe", { headers: { "x-sweep-token": "redteam-sweep-token" } })).json();
++  t("control", "/nenrin/probe reports would_derive with the sources' answers and writes nothing (no window, no pin, no beacon cache)",
++    pr.would_derive === true && pr.wrote_nothing === true && pr.block_hash === HASH_A && env.HS_VERIFY_KV.store.size === 0, JSON.stringify(pr).slice(0, 160));
++}
++
++// ---- 5. /spec は数と経路を言う ---------------------------------------------------------------------
++{
++  const { call } = await freshEnv();
++  const spec = await (await call("/spec")).json();
++  const ic = spec.instant_coordinate || {};
++  t("control", "/spec names /nenrin/window, says the history carries the block since 0.3.5, and records the three departures found 2026-09-06",
++    /\/nenrin\/window/.test(ic.window || "") && /history entry/.test(ic.in_every_verdict || "") && /2026-09-05T18:00Z/.test(ic.production_departures_found_2026_09_06 || "") && spec.version === "0.3.5",
++    spec.version);
++}
++
++// ---- 報告 ----------------------------------------------------------------------------------------------
++const kinds = {};
++for (const r of R) { const k = kinds[r.kind] || [0, 0]; kinds[r.kind] = [k[0] + (r.ok ? 1 : 0), k[1] + 1]; }
++console.log("--- 種別 ---");
++for (const k of ["attack", "control", "misclass"]) if (kinds[k]) console.log("  " + k.padEnd(10) + " " + kinds[k][0] + " / " + kinds[k][1]);
++console.log();
++for (const r of R) if (!r.ok) console.log("  NG  [" + r.kind + "] " + r.name + "\n      " + r.detail);
++const passed = R.filter((r) => r.ok).length;
++console.log("=== " + passed + " / " + R.length + " 合格 (sweep coordinate、扉 0.3.5) ===");
++if (passed === R.length) console.log("導出は判定の中だけやなく、履歴と掃引の記録と公開の窓に残る。落ちた理由も残る。");
++process.exit(passed === R.length ? 0 : 1);

@@ -37,7 +37,7 @@ import * as nenrin from "./nenrin_instant.js";
 
 // 仕様確定までの暫定値。名称や閾値はここだけ直せば全体に効く。
 const CONFIG = {
-  version: "0.3.4",  // 2026-09-06. 0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
+  version: "0.3.5",  // 2026-09-06. 0.3.5: 時刻座標の本番と設計のズレを直す(履歴に coordinate_derivation を残す、次の窓の salt を先に作り beacon は salt より後の block に限る、基準高さは quorum 番目の tip - 6 で hash の一致だけを要求、窓ごとに規則を固定、GET /nenrin/window で commitment を公開。判定規則は 0.3.0 のまま)。0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
   tier_pass: "verified",        // 通過時の称号(暫定)
   tier_fail: "pending",         // 未通過(不合格とは呼ばない)
   tier_held: "held",            // 到達できず測れなかった。不適合とは別の状態
@@ -74,7 +74,7 @@ const CARD_SIGNATURE = {
   "jku": "https://gate.horizonshield.dev/.well-known/jwks.json",
   "alg": "ES256",
   "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJocy0yMDI2LTA5Iiwiamt1IjoiaHR0cHM6Ly9nYXRlLmhvcml6b25zaGllbGQuZGV2Ly53ZWxsLWtub3duL2p3a3MuanNvbiJ9",
-  "signature": "WP9pl14BKRaEJN5L53LeAhJGIy3cszUlHAqqnWc1uxG4yitvHAz2qc7PTjq0aAA9Aqm3UKexoOGqN2_-gXcBWA",
+  "signature": "KBR6QyQ34T74x6YHxjlg0phs10KSUZjzncoOvMz9mOu_4kwPOPP23YHVaGFp_1782c3eW2pZ-vVF4dhAvRcJuw",
   "jwk": {
     "kty": "EC",
     "x": "CytwnuXFtXi7PFCcF-TCbvW5OgOg4KuWRLeRvdfHWLs",
@@ -84,7 +84,7 @@ const CARD_SIGNATURE = {
     "alg": "ES256",
     "use": "sig"
   },
-  "canonical_sha256": "ebae77e225733e0177b8bf2d74a2c08334a40e4d0696ad364d421f453151cbcd"
+  "canonical_sha256": "bb47442e611fe9e8c51fb706cfb963fb19981c569fa3fe332dfa18e38b0a2d51"
 };
 /* @@CARD_SIGNATURE_END */
 const CARD_CANONICAL_ORIGIN = "https://gate.horizonshield.dev";
@@ -1620,12 +1620,14 @@ function spec() {
     instant_coordinate: {
       since: "0.3.0",
       schema: "nenrin-instant-v1",
+      production_departures_found_2026_09_06: "Three departures between this text and the deployed code were found on 2026-09-06 by reading worker.js, nenrin_instant.js, verify_beacons.py and /sweep/last: (1) the derivation block was written into every verdict but dropped from every /history entry, so exports were structurally silent on it; (2) beacon agreement was demanded on a height each source computed from its own tip (tip minus 6), so two honest explorers one block apart never agreed, and the first sweep after 0.3.0 (2026-09-05T18:00Z) fell back to the legacy schedule; (3) the salt was created at the sweep and bound to a block mined about an hour earlier, so the salt did not precede the block. All three are fixed in 0.3.5; entries written before 0.3.5 carry no derivation block and the sweeps of 2026-09-05 ran on the legacy rule. Recorded here rather than removed, in the same spirit as the addendum: the operator is a subject of its own rule.",
       defect: "Time is a coordinate. Until 0.2.4 the free tier's measurement day was sha256(endpoint) mod 7, every input public, so the subject could compute the day it would be measured and a shim answering one day in seven earned a full record at one seventh of the cost. The same defect had a second face: determinism measured the first tool in the server's own tools/list order, and the server chose that order.",
-      fix: "The measurement day and the tool order are HMAC-SHA256 derived from a salt this gate commits to at the start of each 7 day window, bound to a Bitcoin block mined after that salt existed. The subject cannot predict them. The gate cannot choose them after the fact, because the commitment is published before the block exists. The tool is chosen over the lexicographically sorted name set, so reordering tools/list steers nothing and renaming moves tool_set_sha256.",
-      beacon: "Two independent block sources must agree on height and hash, or there is no beacon and the legacy computable schedule is used and said so in the verdict. This gate cannot sync headers peer to peer, so it records the height and hash it used: anyone holding the chain can falsify a wrong beacon, permanently.",
-      in_every_verdict: "coordinate_derivation",
+      fix: "The measurement day and the tool order are HMAC-SHA256 derived from a salt this gate creates before each 7 day window opens (0.3.5: at the latest during the previous window's first sweep), bound to a Bitcoin block whose header time is at or after the salt's creation. The subject cannot predict them. The gate cannot choose them after the fact, because the commitment is published at /nenrin/window before the block exists. The tool is chosen over the lexicographically sorted name set, so reordering tools/list steers nothing and renaming moves tool_set_sha256.",
+      beacon: "One reference height for every source: the second highest tip among the sources that answered, minus 6 (freshness v3.3's quorum tip; with two sources that is min(tip) minus 6), across the block sources that answered (mempool.space, blockstream.info and, since 0.3.5, mempool.emzy.de; the two mempool instances share a codebase, which is a named residual) (0.3.5; until 0.3.4 each source's own tip minus 6 was compared, which failed whenever the explorers were one block apart). The hash at that height must agree between at least two sources and the block's header time must be at or after salt_created_at, or there is no beacon and the legacy computable schedule is used and said so in the verdict, in the sweep record and at /nenrin/window. The first sweep of a window decides derived or legacy for the whole window, so no row is measured twice or skipped by a mid-window switch. This gate cannot sync headers peer to peer, so it records the height and hash it used: anyone holding the chain can falsify a wrong beacon, permanently.",
+      in_every_verdict: "coordinate_derivation, and since 0.3.5 in every /history entry (derived, window_id, salt_commitment, salt_created_at, beacon height, hash and header time, day_in_window, tool_set_sha256, or the fallback with its reason_code)",
+      window: "/nenrin/window (current, next and previous window: commitment at creation, pinned rule, beacon, salt revealed once the window has closed); /nenrin/window/{window_id} for one window",
       addendum: "workers/hs-ledger/nenrin/coordinate-v1/NENRIN_COORDINATE_v1_ADDENDUM_instants_v1.md, sha256 c4929b29b6e9f8f2877cc58e3c2e225542a7fe9a1bf805a02374b96750cf4c9f. The defect was published before the fix was written.",
-      red_team: "test/redteam_instant.mjs, 26 vectors, and instant_redteam.py, 17 vectors, against two independent implementations of the same rule.",
+      red_team: "test/redteam_instant.mjs, 40 vectors, and instant_redteam.py, 17 vectors, against two independent implementations of the same rule; test/sweep_coordinate.test.mjs drives a whole sweep against mock explorers and reads the derivation back from /history, /sweep/last and /nenrin/window.",
       limits: "Derivation is fair only inside the surface the subject declared. A tool never listed is never picked: that set is unknown, not absent. A salt is single use per window. This measures conduct, not quality."
     },
     well_known_consent: {
@@ -1979,7 +1981,8 @@ function openapiDoc(origin) {
         }
       },
       "/mould": g("Mould records. What class of assumption a fix came from, where the author searched for it, and what they found. A record with an empty search is published as such.", ""),
-      "/sweep/last": g("When the last scheduled re-measurement ran", ""),
+      "/sweep/last": g("When the last scheduled re-measurement ran, under which coordinate rule, and why", ""),
+      "/nenrin/window": g("The instant coordinate's public window: salt commitment at creation, pinned rule, beacon, salt revealed after the window closes (0.3.5)", ""),
       "/watchlist": g("Endpoints scheduled for re-measurement", ""),
       "/.well-known/agent-card.json": g("A2A agent card for this gate", ""),
       "/.well-known/mcp-register.json": g("Machine readable summary of the register", ""),
@@ -2403,7 +2406,29 @@ function summarise(record) {
       discriminating: record.absence_vs_failure.discriminating != null ? record.absence_vs_failure.discriminating : null,
       cannot_distinguish_pct: record.absence_vs_failure.cannot_distinguish_pct != null ? record.absence_vs_failure.cannot_distinguish_pct : null
     } : null,
-    fingerprint: stateFingerprint(record)
+    fingerprint: stateFingerprint(record),
+    // 0.3.5. 判定に載せとった座標の導出が、履歴には 1 バイトも残っとらんかった(発見 2026-09-06、論文チャット)。
+    // /history export は輪の原料で、verify_beacons.py と claim register C15 の入力でもある。残さんと、
+    // 「導出したか、旧規則に落ちたか」を公開記録から誰も復元できん。過去の entry は触らん(entries are never edited)。
+    coordinate_derivation: summariseCoordinate(record.coordinate_derivation)
+  };
+}
+
+function summariseCoordinate(cd) {
+  if (!cd || typeof cd !== "object") return null;
+  const b = cd.beacon && typeof cd.beacon === "object" ? cd.beacon : null;
+  return {
+    derived: cd.derived === true,
+    window_id: cd.window_id || null,
+    salt_commitment: cd.salt_commitment || null,
+    salt_created_at: cd.salt_created_at || null,
+    beacon: b && b.block_hash ? { height: b.height, block_hash: b.block_hash, block_time: b.block_time || null } : null,
+    day_in_window: cd.day_in_window != null ? cd.day_in_window : null,
+    tool_set_sha256: cd.tool_set_sha256 || null,
+    tool_count: cd.tool_count != null ? cd.tool_count : null,
+    fallback: cd.derived === true ? null : (cd.fallback || null),
+    reason_code: cd.derived === true ? null : (cd.reason_code || null),
+    why: cd.derived === true ? null : (typeof cd.why === "string" ? cd.why.slice(0, 400) : null)
   };
 }
 
@@ -2630,6 +2655,21 @@ async function runDailySweep(env, opts) {
     at: new Date(now).toISOString(),
     watched_total: list.length,
     measured: results.length,
+    // 0.3.5. この掃引がどの規則で走ったか、なぜ落ちたか、次の窓の commitment。skipped の文だけに頼らん。
+    coordinate: coord ? {
+      derived: coord.derived === true,
+      window_id: coord.window_id || null,
+      rule: coord.rule ? { rule: coord.rule.rule, pinned_at: coord.rule.pinned_at, reason: coord.rule.reason || null, reason_code: coord.rule.reason_code || null } : null,
+      commitment: coord.commitment || null,
+      salt_created_at: coord.salt_created_at || null,
+      beacon: coord.beacon && coord.beacon.block_hash ? { height: coord.beacon.height, block_hash: coord.beacon.block_hash, block_time: coord.beacon.block_time || null, reference: coord.beacon.reference || null } : null,
+      reason_code: coord.derived === true ? null : (coord.reason_code || null),
+      why: coord.derived === true ? null : (coord.why || null),
+      sources: coord.beacon && Array.isArray(coord.beacon.sources) ? coord.beacon.sources : null,
+      next_window: coord.next_window || null,
+      salts_created_now: coord.salts_created_now || [],
+      window: "/nenrin/window"
+    } : { derived: false, why: "coordinate() failed before the sweep; legacy schedule; see /nenrin/window" },
     results,
     skipped
   };
@@ -3510,6 +3550,34 @@ export default {
     if (path === "/changes") return json(await readChanges(env));
     if (path === "/sweep/last") return json(await readSweepLast(env));
 
+    // 0.3.5. 窓の公開面。commitment は作った瞬間から、salt は窓が閉じてから、固定した規則と beacon はいつでも。
+    if (path === "/nenrin/window" || /^\/nenrin\/window\/w\d+$/.test(path)) {
+      if (!env || !env.HS_VERIFY_KV) return json({ error: "storage_unavailable", note: "no KV bound; the window state lives in KV" }, 500);
+      const nowMs = Date.now();
+      const m = /^\/nenrin\/window\/(w\d+)$/.exec(path);
+      if (m) {
+        const one = await nenrin.publicWindow(env.HS_VERIFY_KV, m[1], nowMs);
+        return one ? json(one) : json({ error: "not_found", window_id: m[1], note: "no salt was created for this window (before 0.3.0, or more than 120 days ago)" }, 404);
+      }
+      const cur = nenrin.windowId(nowMs), nxt = nenrin.nextWindowId(nowMs), prev = "w" + (nenrin.windowIndex(cur) - 1);
+      return json({
+        schema: nenrin.NENRIN_INSTANT_SCHEMA, gate_version: CONFIG.version, now: new Date(nowMs).toISOString(),
+        current: await nenrin.publicWindow(env.HS_VERIFY_KV, cur, nowMs),
+        next: await nenrin.publicWindow(env.HS_VERIFY_KV, nxt, nowMs),
+        previous: await nenrin.publicWindow(env.HS_VERIFY_KV, prev, nowMs),
+        rules: {
+          window: "seven days, opening Thursday 00:00 UTC (epoch day divided by 7); window_id = 'w' + that quotient",
+          salt: "created no later than the first sweep of the previous window (0.3.5), so the commitment is public here before the window opens and before any block it will be bound to exists",
+          commitment: "sha256('nenrin-instant-salt-v1:' + salt); published at creation, never edited",
+          beacon: "one reference height for every source: the second highest tip among the sources that answered, minus 6 (with two sources, min(tip) minus 6); the hash at that height must agree between at least two sources; the block's header time must be at or after salt_created_at, or there is no beacon; decided once per window at its first sweep and cached",
+          rule: "the first sweep of a window decides derived or legacy and the whole window keeps that rule, so every row is measured exactly once under one rule; the reason is recorded here",
+          reveal: "salt is served once the window has closed; recompute the commitment, the seed (HMAC-SHA256 keyed by the salt over 'nenrin-instant-v1 seed <window_id> <block_hash>') and every row's day from it",
+          anchoring: "the commitment is published here at creation. Anchoring it to the JIDEC ledger before the window opens (addendum instants v1, anchor.commit_height) is the next step and is not yet done; until then, this page and the sweep record are the only proof of when the commitment existed",
+          history: "since 0.3.5 every /history entry carries coordinate_derivation (derived, window_id, salt_commitment, beacon, day_in_window, or the fallback and its reason)"
+        }
+      });
+    }
+
     // 公開の登録簿。加盟者の行を、人間もエージェントも一覧で読める。
     if (path === "/register" && request.method === "GET") {
       return json(await publicRegister(env));
@@ -3702,6 +3770,23 @@ export default {
     }
 
     // 掃引の手動実行。cron を待たずに測れるようにする。運営のみ。
+    // 0.3.5. beacon の試し引き。KV に書かん、窓の規則も固定せん、cache もせん。配備直後に explorer が Worker に答えるかを、
+    // 夜の掃引を待たずに見るための運営者の口。sweep と同じ token。
+    if (path === "/nenrin/probe" && request.method === "GET") {
+      if (!env || !env.SWEEP_TOKEN) return json({ error: "sweep_token_not_configured" }, 503);
+      if (!(await ctEqual(request.headers.get("x-sweep-token") || "", env.SWEEP_TOKEN))) return json({ error: "forbidden" }, 403);
+      const nowMs = Date.now();
+      let st = null;
+      try { st = env.HS_VERIFY_KV ? await env.HS_VERIFY_KV.get("nenrin:window:" + nenrin.windowId(nowMs), "json") : null; } catch (_e) { st = null; }
+      const saltAt = st && st.salt_created_at ? st.salt_created_at : new Date(nowMs).toISOString();
+      const scratch = { get: async () => null, put: async () => {} };
+      const bc = await nenrin.beacon(scratch, nenrin.windowId(nowMs), saltAt, fetch);
+      return json({
+        probe: true, wrote_nothing: true, window_id: nenrin.windowId(nowMs), salt_created_at: saltAt, salt_source: st ? "kv" : "none yet (now used as the bound)",
+        would_derive: !!bc.block_hash, reason_code: bc.reason_code || null, reason: bc.reason || null,
+        height: bc.height, block_hash: bc.block_hash, block_time: bc.block_time || null, reference: bc.reference || null, sources: bc.sources || []
+      });
+    }
     if (path === "/sweep" && request.method === "POST") {
       if (!env || !env.SWEEP_TOKEN) {
         return json({ error: "sweep_token_not_configured" }, 503);
@@ -3932,6 +4017,6 @@ export default {
       });
     }
 
-    return json({ error: "not_found", path, endpoints: ["/mcp", "/a2a", "/.well-known/agent-card.json", "/.well-known/jwks.json", "/check", "/is-verified", "/spec", "/ext/conduct/v1", "/self", "/history", "/changes", "/watchlist", "/watch", "/sweep", "/sweep/last", "/health"] }, 404);
+    return json({ error: "not_found", path, endpoints: ["/mcp", "/a2a", "/.well-known/agent-card.json", "/.well-known/jwks.json", "/check", "/is-verified", "/spec", "/ext/conduct/v1", "/self", "/history", "/changes", "/watchlist", "/watch", "/sweep", "/sweep/last", "/nenrin/window", "/health"] }, 404);
   }
 };
