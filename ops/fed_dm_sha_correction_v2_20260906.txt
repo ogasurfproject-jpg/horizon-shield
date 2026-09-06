@@ -1,7 +1,9 @@
-One correction and one addition, both small, nothing about the manuscript.
+Different topic again, small, nothing about the manuscript.
 
-The sha I sent for the conduct spec (687c56e3) was the file before two edits the same night: a prior-art section (9) and, tonight, a license section (10) plus wire notes. Current: 3aa5a50d8ac323c63951bdf4b73d6fa1de6a45aa0d0a41dced4792d5f6dfafd8. Same URI, GET with Accept: text/markdown returns those bytes.
+Ignore any sha I gave you for the conduct spec before this message (687c56e3 in the first DM, and 910d4701 if a second note reached you). The file changed twice the same night, before anchoring: a prior-art section (9), then a license section (10, Apache 2.0) plus notes on the wire. Current: 3aa5a50d8ac323c63951bdf4b73d6fa1de6a45aa0d0a41dced4792d5f6dfafd8. Same URI, GET with Accept: text/markdown returns those bytes.
 
-The addition: I ran the official A2A SDKs (Python 1.1.2, JS 1.1.0) against our servers and found that the JS one could not build a client from our 0.3-shaped card at all, and its 0.3 path sends X-A2A-Extensions, which we were not reading. Fixed on all four cards tonight: supportedInterfaces with 1.0 first, both header spellings read and echoed, 1.0 response shapes. So if you run the walk, add --wire 1.0 (default) or --wire 0.3; both should PASS 5/5 against https://mcp.horizonshield.dev, and either is a valid witness 2 with --submit.
+The reason for the wire notes: I ran the official A2A SDKs (Python 1.1.2, JS 1.1.0) against our servers and found the JS one could not build a client from our 0.3-shaped card at all, and its 0.3 path sends X-A2A-Extensions, which we were not reading. So our own echo was invisible to half the clients. Fixed on all four cards today: supportedInterfaces with 1.0 first, both header spellings read and echoed, 1.0 response shapes. The harness that found it is in the repo (workers/hs-mcp/test/sdk_js_interop.mjs, sdk_py_interop.py), no network, if you want to point it at anything of yours.
+
+For the walk: add --wire 1.0 (default) or --wire 0.3; both PASS 5/5 against https://mcp.horizonshield.dev here, and either is a valid witness 2 with --submit.
 
 Sections first.

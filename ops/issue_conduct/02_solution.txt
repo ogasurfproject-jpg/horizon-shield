@@ -1,0 +1,13 @@
+A data-only extension on the Agent Card (never `required: true`), plus an optional request-level echo, with a specification that is already written, licensed Apache 2.0, and served at its own URI:
+
+- URI: https://gate.horizonshield.dev/ext/conduct/v1 (GET returns the spec as JSON; `Accept: text/markdown` returns the text; sha256 of the markdown is published beside it)
+- `params` carry: a compensation declaration in a fixed shape (paid_by, referral_fee, listing_fee, success_fee_pct, disclosure_url), the measured endpoint(s), a URL to a conduct record written by a party other than the agent, and a URL where any client can file its own walk of the agent. Nothing else. A reader judges only whether the declaration exists and is well formed; if a card carries the declaration in two places and they disagree, the card fails.
+- Echo: on activation via `A2A-Extensions` (the 0.3 spelling `X-A2A-Extensions` is read as well and echoed back in the spelling received), the agent returns the URI in the header, three URLs under `metadata`, and lists the URI in `Message.extensions`. No timestamp, no score.
+- Witness walk: a client reads the card twice, sends one message with the extension activated, and posts a content-addressed record of what it saw to a public append-only ledger that receives a Bitcoin timestamp. Monthly rings count those walks per endpoint as counts with denominators. A second implementation of the ring builder (Node.js, written from the spec by someone else) reproduced all eight August 2026 rings byte for byte.
+
+Reference implementations, all live and Apache 2.0:
+- Server side: three agent cards declare and echo it on both wire versions (https://mcp.horizonshield.dev/.well-known/agent-card.json, https://gate.horizonshield.dev/.well-known/agent-card.json, https://ledger.horizonshield.dev/.well-known/agent-card.json).
+- Reader side: MCP Verification Gate 0.3.3 reads the declaration as one of its five conditions and serves the spec.
+- Client side: a stdlib Python walk client, and an interoperability harness that drives the real server code with the official `a2a-sdk` (Python 1.1.x) and `@a2a-js/sdk` (1.1.x) clients on both the 1.0 and the 0.3 wire, no network. Repository: https://github.com/ogasurfproject-jpg/horizon-shield (workers/hs-verify-gate/ext for the spec, workers/hs-mcp/test for the harness).
+
+What I am asking for: a maintainer willing to sponsor this as `experimental-ext-conduct` under the governance process, or a clear no with the reason, which is also useful. If sponsored, the URI above stays valid for v1 as published and the a2a-protocol.org URI would be a new identifier for the next version, not an alias.

@@ -1,0 +1,4 @@
+- Putting scores in the card (#1631, ERC-8004 Reputation Registry): rejected for this extension because a score is a policy, and the surface should carry facts a reader can re-check. The two are complementary; an ERC-8004 registration file can point at a card that carries this extension.
+- Signing the card (Sigstore-signed cards, AgentCardSignature in 1.0): answers who published the card, not how the agent behaved or who pays it. Complementary; a signed card can carry this extension.
+- A core protocol change: not needed. Everything here fits `capabilities.extensions[]` and `metadata` as A2A 1.0 already defines them, which is why it is proposed as an extension and not as a spec change.
+- Doing nothing: registries then answer "which agent can be trusted" themselves, which makes each registry a referee. The point of this extension is that the record is outside both the agent and the registry.

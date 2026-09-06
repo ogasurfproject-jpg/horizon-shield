@@ -1,0 +1,5 @@
+Update to my comment above, so the numbers there are not stale.
+
+The spec at the URI changed twice before anchoring: a prior-art section (9) and a license section (10, Apache 2.0). Current sha256 of the markdown: 3aa5a50d8ac323c63951bdf4b73d6fa1de6a45aa0d0a41dced4792d5f6dfafd8. A third live card carries it now: https://ledger.horizonshield.dev/.well-known/agent-card.json.
+
+One finding that may matter to anyone implementing an extension on the 0.3 compatibility path: I drove the real servers with the official a2a-sdk (Python 1.1.2) and @a2a-js/sdk (1.1.0) clients on both wires, and a server that reads only A2A-Extensions silently drops activation from the JS SDK's 0.3 path, which emits X-A2A-Extensions alone. Reading both spellings and echoing in the spelling received fixed it; the harness is in the repo (workers/hs-mcp/test). Formal proposal, per the governance process, is issue #2211.

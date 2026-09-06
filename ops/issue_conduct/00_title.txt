@@ -1,0 +1,1 @@
+[Feat]: Extension proposal: Conduct (conduct-v1), a data-only disclosure and client-as-witness extension
