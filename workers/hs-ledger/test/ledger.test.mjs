@@ -47,6 +47,7 @@ async function go(path, init) {
     ct: r.headers.get("content-type"),
     vary: r.headers.get("vary"),
     ext: r.headers.get("a2a-extensions"),
+    extLegacy: r.headers.get("x-a2a-extensions"),
     t: await r.text(),
   };
 }
@@ -80,11 +81,12 @@ const req8 = [
   "skills",
 ];
 chk("agent-card has all 8 A2A v1.0 required fields", req8.every((k) => k in ac), req8.filter((k) => !(k in ac)).join(","));
-// A2A v1.0 で protocolVersion はルートから各 AgentInterface に移った。
-// ルートに残っていたら v0.3 系の古い理解のまま書いたということ。
+// A2A v1.0 で protocolVersion はルートから各 AgentInterface に移った。1.0 の読者は supportedInterfaces を読む。
+// 2026-09-06 第二波: ルートの protocolVersion "0.3.0" は 0.3 だけの読者のために「同居」させとる(1.0 の SDK は
+// supportedInterfaces があればルートを無視する: 実測 @a2a-js/sdk 1.1.0 / a2a-sdk 1.1.2)。1.0 の interface が先頭に居ることを見る。
 chk(
-  "agent-card protocolVersion is per-interface, not root",
-  !("protocolVersion" in ac) && ac.supportedInterfaces[0].protocolVersion === "1.0.1"
+  "agent-card: 1.0 protocolVersion lives in supportedInterfaces[0]; root protocolVersion is the 0.3 legacy marker",
+  ac.supportedInterfaces[0].protocolVersion === "1.0" && ac.protocolVersion === "0.3.0"
 );
 chk("AgentSkill has id/name/description/tags", ["id", "name", "description", "tags"].every((k) => k in ac.skills[0]));
 
@@ -142,23 +144,40 @@ chk("a2a unknown method -> -32601", JSON.parse(r.t).error.code === -32601);
 const EXT = "https://gate.horizonshield.dev/ext/conduct/v1";
 chk("agent-card declares conduct ext under capabilities.extensions", Array.isArray(ac.capabilities.extensions) && ac.capabilities.extensions.some((e) => e.uri === EXT && e.params && e.params.compensation && e.params.witness_intake), JSON.stringify(ac.capabilities));
 chk("conduct ext is not marked required", ac.capabilities.extensions.every((e) => e.uri !== EXT || e.required === false));
+// 2026-09-06 第二波: SendMessage(1.0)は 1.0 形 {message:{role:"ROLE_AGENT", parts:[{text}|{data}], extensions:[uri], metadata}} で返す。
+// 要求の part も 1.0 形(kind 無し)で通る。message/send(0.3)は従来の 0.3 形のまま。
 r = await go("/a2a", {
   method: "POST",
-  headers: { "content-type": "application/json", "a2a-extensions": EXT + ", https://example.invalid/ext/other/v1" },
-  body: JSON.stringify({ jsonrpc: "2.0", id: 9, method: "SendMessage", params: { message: { role: "user", kind: "message", messageId: "m2", parts: [{ kind: "text", text: "jidec:entry:2" }] } } }),
+  headers: { "content-type": "application/json", "a2a-extensions": EXT + ", https://example.invalid/ext/other/v1", "a2a-version": "1.0" },
+  body: JSON.stringify({ jsonrpc: "2.0", id: 9, method: "SendMessage", params: { message: { role: "ROLE_USER", messageId: "m2", parts: [{ text: "jidec:entry:2" }] } } }),
 });
 const ax = JSON.parse(r.t);
-chk("SendMessage (A2A 1.0 name) is accepted", ax.result && ax.result.kind === "message", r.t.slice(0, 200));
+const axm = ax.result && ax.result.message;
+chk("SendMessage (A2A 1.0) returns the 1.0 shape {message}", !!axm && ax.result.kind === undefined, r.t.slice(0, 200));
+chk("1.0 message: role is ROLE_AGENT and parts carry no kind", axm && axm.role === "ROLE_AGENT" && Array.isArray(axm.parts) && axm.parts.every((p) => p.kind === undefined) && axm.parts.some((p) => typeof p.text === "string") && axm.parts.some((p) => p.data && p.data.integrity), JSON.stringify(axm && axm.parts.map((p) => Object.keys(p))));
+chk("1.0 message: Message.extensions carries the activated URI", axm && Array.isArray(axm.extensions) && axm.extensions.includes(EXT), JSON.stringify(axm && axm.extensions));
 chk("activated ext is echoed in A2A-Extensions header, only the implemented one", r.ext === EXT, String(r.ext));
-chk("metadata carries endpoint / conduct_record / witness_intake under the ext URI", ax.result.metadata && [EXT + "/endpoint", EXT + "/conduct_record", EXT + "/witness_intake"].every((k) => typeof ax.result.metadata[k] === "string" && ax.result.metadata[k].startsWith("https://")), JSON.stringify(ax.result.metadata));
-chk("metadata carries nothing else (no timestamp, no score)", Object.keys(ax.result.metadata).length === 3);
+chk("metadata carries endpoint / conduct_record / witness_intake under the ext URI", axm && axm.metadata && [EXT + "/endpoint", EXT + "/conduct_record", EXT + "/witness_intake"].every((k) => typeof axm.metadata[k] === "string" && axm.metadata[k].startsWith("https://")), JSON.stringify(axm && axm.metadata));
+chk("metadata carries nothing else (no timestamp, no score)", axm && axm.metadata && Object.keys(axm.metadata).length === 3);
+// 0.3 の綴り X-A2A-Extensions だけで有効化(公式 SDK の 0.3 互換路の実測): 0.3 形で返り、echo は両綴り
+r = await go("/a2a", {
+  method: "POST",
+  headers: { "content-type": "application/json", "x-a2a-extensions": EXT },
+  body: JSON.stringify({ jsonrpc: "2.0", id: 11, method: "message/send", params: { message: { role: "user", kind: "message", messageId: "m4", parts: [{ kind: "text", text: "jidec:entry:2" }] } } }),
+});
+const al = JSON.parse(r.t);
+chk("message/send (0.3) keeps the 0.3 shape (kind: message, role: agent)", al.result && al.result.kind === "message" && al.result.role === "agent", r.t.slice(0, 200));
+chk("X-A2A-Extensions alone activates the extension (metadata + extensions on the 0.3 message)", al.result.metadata && typeof al.result.metadata[EXT + "/endpoint"] === "string" && Array.isArray(al.result.extensions) && al.result.extensions.includes(EXT), JSON.stringify([al.result.metadata, al.result.extensions]));
+chk("echo comes back in both spellings when the request used X-A2A-Extensions", r.ext === EXT && r.extLegacy === EXT, String(r.ext) + " / " + String(r.extLegacy));
 r = await go("/a2a", {
   method: "POST",
   headers: { "content-type": "application/json" },
   body: JSON.stringify({ jsonrpc: "2.0", id: 10, method: "message/send", params: { message: { role: "user", kind: "message", messageId: "m3", parts: [{ kind: "text", text: "jidec:entry:2" }] } } }),
 });
 const an = JSON.parse(r.t);
-chk("without activation: no echo header and no metadata", r.ext === null && an.result && an.result.metadata === undefined, String(r.ext) + " " + JSON.stringify(an.result && an.result.metadata));
+chk("without activation: no echo header and no metadata", r.ext === null && r.extLegacy === null && an.result && an.result.metadata === undefined && an.result.extensions === undefined, String(r.ext) + " " + JSON.stringify(an.result && an.result.metadata));
+chk("agent-card: supportedInterfaces uses protocolBinding (not transport) and lists 1.0 first, 0.3 second", Array.isArray(ac.supportedInterfaces) && ac.supportedInterfaces.length === 2 && ac.supportedInterfaces[0].protocolBinding === "JSONRPC" && ac.supportedInterfaces[0].protocolVersion === "1.0" && ac.supportedInterfaces[1].protocolVersion === "0.3" && ac.supportedInterfaces.every((i) => i.transport === undefined && i.url.endsWith("/a2a")), JSON.stringify(ac.supportedInterfaces));
+chk("agent-card: 0.3 readers still find url / preferredTransport / protocolVersion", ac.url && ac.url.endsWith("/a2a") && ac.preferredTransport === "JSONRPC" && ac.protocolVersion === "0.3.0");
 
 // ── 既存ルートが無傷であること ────────────────────────────────
 r = await go("/ledger/2");

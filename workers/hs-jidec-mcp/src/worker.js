@@ -79,7 +79,8 @@ function corsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": origin || "*",
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, MCP-Protocol-Version",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, MCP-Protocol-Version, A2A-Extensions, X-A2A-Extensions, A2A-Version",
+    "Access-Control-Expose-Headers": "A2A-Extensions, X-A2A-Extensions",
     "Access-Control-Max-Age": "86400",
     Vary: "Origin",
   };
@@ -505,11 +506,117 @@ function conductExtension() {
   };
 }
 
+// --- A2A 線の上の互換 (2026-09-06 第二波) ---
+// この server は今まで MCP だけ喋り、card の url は A2A を喋らん場所を指しとった(看板が嘘)。/a2a を足して看板と口を揃える。
+// 公式 SDK の実測: 0.3 互換路は X-A2A-Extensions を送る。1.0 の綴りは A2A-Extensions。読むのは両方、echo は A2A-Extensions + 要求の綴り。
+const A2A_EXT_HEADER = "A2A-Extensions";
+const A2A_EXT_HEADER_LEGACY = "X-A2A-Extensions";
+const A2A_VERSION_HEADER = "A2A-Version";
+function a2aRequestedExtensionUris(request) {
+  const out = [];
+  for (const name of [A2A_EXT_HEADER, A2A_EXT_HEADER_LEGACY]) {
+    const h = request.headers.get(name) || "";
+    for (const u of h.split(",")) { const t = u.trim(); if (t && !out.includes(t)) out.push(t); }
+  }
+  return out;
+}
+function a2aActivatedExtensions(request) { return a2aRequestedExtensionUris(request).filter((u) => u === CONDUCT_EXT_URI); }
+function a2aEchoHeaders(request, activated) {
+  if (!activated.length) return {};
+  const h = {}; h[A2A_EXT_HEADER] = activated.join(",");
+  if (request.headers.get(A2A_EXT_HEADER_LEGACY)) h[A2A_EXT_HEADER_LEGACY] = activated.join(",");
+  return h;
+}
+function a2aWire(method, request) {
+  if (method === "SendMessage") return "1.0";
+  if (method === "message/send") return "0.3";
+  const v = ((request && request.headers.get(A2A_VERSION_HEADER)) || "").trim();
+  return v.startsWith("1.") ? "1.0" : "0.3";
+}
+function a2aPartText(p) { return p && typeof p === "object" && typeof p.text === "string" && (p.kind === undefined || p.kind === "text") ? p.text : null; }
+function a2aPart10(p) {
+  if (!p || typeof p !== "object") return p;
+  const o = {};
+  if (p.kind === "text" || typeof p.text === "string") o.text = String(p.text === undefined ? "" : p.text);
+  else if (p.kind === "data" || p.data !== undefined) o.data = p.data;
+  else { for (const k of Object.keys(p)) if (k !== "kind") o[k] = p[k]; }
+  if (p.metadata && typeof p.metadata === "object") o.metadata = p.metadata;
+  return o;
+}
+function a2aMessage10(m) {
+  const o = {};
+  for (const k of Object.keys(m)) { if (k === "kind" || k === "role" || k === "parts") continue; o[k] = m[k]; }
+  o.role = m.role === "user" ? "ROLE_USER" : m.role === "agent" ? "ROLE_AGENT" : "ROLE_UNSPECIFIED";
+  o.parts = Array.isArray(m.parts) ? m.parts.map(a2aPart10) : [];
+  return o;
+}
+function a2aSendMessageResult(result, wire) {
+  if (wire !== "1.0" || !result || typeof result !== "object") return result;
+  if (result.kind === "message") return { message: a2aMessage10(result) };
+  return result;
+}
+function conductMetadata() {
+  const m = {};
+  m[CONDUCT_EXT_URI + "/endpoint"] = CONDUCT_MEASURED_ENDPOINT;
+  m[CONDUCT_EXT_URI + "/conduct_record"] = CONDUCT_RECORD_URL;
+  m[CONDUCT_EXT_URI + "/witness_intake"] = CONDUCT_WITNESS_INTAKE;
+  return m;
+}
+function a2aAttachConduct(result) {
+  result.metadata = Object.assign({}, result.metadata || {}, conductMetadata());
+  const ex = Array.isArray(result.extensions) ? result.extensions.slice() : [];
+  if (!ex.includes(CONDUCT_EXT_URI)) ex.push(CONDUCT_EXT_URI);
+  result.extensions = ex;
+  return result;
+}
+const A2A_URL = "https://jidec.horizonshield.dev/a2a";
+// A2A の口: text part の引用(jidec:entry:<n> / jidec:path:<sha> / 64-hex / 数字)を jidec_cite に渡し、Message で返す。
+// 引用が無ければ使い方を返す(エラーにせん: 相手は人でなく agent、次の一手が要る)。
+async function handleA2A(req, env, cors) {
+  let b; try { b = await req.json(); } catch { b = null; }
+  const rid = b && b.id !== undefined ? b.id : null;
+  const activated = a2aActivatedExtensions(req);
+  const echo = a2aEchoHeaders(req, activated);
+  const send = (payload, status) => new Response(JSON.stringify({ jsonrpc: "2.0", id: rid, ...payload }), { status: status || 200, headers: { "Content-Type": "application/json", ...cors, ...echo } });
+  if (!b || b.jsonrpc !== "2.0") return send({ error: { code: -32600, message: "invalid request: jsonrpc 2.0 envelope required" } });
+  if (b.method !== "message/send" && b.method !== "SendMessage")
+    return send({ error: { code: -32601, message: "method not found: " + String(b.method) + ". This agent implements SendMessage (1.0) and message/send (0.3); send a JIDEC citation as a text part." } });
+  const wire = a2aWire(b.method, req);
+  const parts = (b.params && b.params.message && Array.isArray(b.params.message.parts)) ? b.params.message.parts : [];
+  const text = parts.map(a2aPartText).filter((x) => typeof x === "string").join(" ").trim();
+  const cite = text.match(/jidec:[a-z]*:?[0-9a-f]+|[0-9a-f]{64}|\b\d+\b/i);
+  let result;
+  if (!cite) {
+    result = { kind: "message", role: "agent", messageId: crypto.randomUUID(), parts: [
+      { kind: "text", text: "Send a JIDEC citation as a text part: jidec:entry:<n>, jidec:path:<sha256>, a bare 64-hex id, or an entry number. This agent resolves it, recomputes the SHA-256, and reports the Bitcoin anchoring status. Tools over MCP: " + CONDUCT_MEASURED_ENDPOINT },
+      { kind: "data", data: { skills: AGENT_CARD.skills.map((s) => s.id), mcp: CONDUCT_MEASURED_ENDPOINT, ledger: LEDGER_ORIGIN } }
+    ] };
+  } else {
+    try {
+      const out = await callTool("jidec_cite", { citation: cite[0] }, env);
+      result = { kind: "message", role: "agent", messageId: crypto.randomUUID(), parts: [
+        { kind: "text", text: typeof out.trust_note === "string" ? out.trust_note : ("Resolved " + cite[0] + ". Recompute the SHA-256 yourself; the data part carries the bytes location and the anchor status.") },
+        { kind: "data", data: out }
+      ] };
+    } catch (e) {
+      return send({ error: { code: -32000, message: String((e && e.message) || e) } });
+    }
+  }
+  if (activated.includes(CONDUCT_EXT_URI)) result = a2aAttachConduct(result);
+  return send({ result: a2aSendMessageResult(result, wire) });
+}
+
 const AGENT_CARD = {
+  // 2026-09-06 第二波: 1.0 の supportedInterfaces と 0.3 の url/preferredTransport/protocolVersion を同居させる。
+  // url は A2A を喋る /a2a を指す(以前は MCP しか無い root を指しとって、A2A client には -32601 か 404 が返っとった)。
+  supportedInterfaces: [
+    { url: A2A_URL, protocolBinding: "JSONRPC", protocolVersion: "1.0" },
+    { url: A2A_URL, protocolBinding: "JSONRPC", protocolVersion: "0.3" }
+  ],
   protocolVersion: "0.3.0",
   name: "HORIZON SHIELD JIDEC",
   description: "Read-only MCP interface to JIDEC / NENRIN, a Bitcoin-anchored public verification ledger. Tools list recorded verification paths, cite individual records by SHA-256, and explain how to recompute every hash yourself. The operator holds no delete route in code: valid submissions stay, including ones that embarrass the operator. Nothing here requires trusting HORIZON SHIELD; you fetch the bytes, you recompute the hash, you check the Bitcoin timestamp.",
-  url: "https://jidec.horizonshield.dev",
+  url: A2A_URL,
   preferredTransport: "JSONRPC",
   provider: { organization: "The HORIZONs\u682a\u5f0f\u4f1a\u793e", url: "https://shield.the-horizons-innovation.com" },
   version: VERSION,
@@ -571,6 +678,7 @@ export default {
             service: "hs-jidec-mcp",
             version: VERSION,
             mcp: { endpoint: "/mcp", transport: "streamable-http", protocol_version: PROTOCOL_VERSION, stateless: true },
+            a2a: { endpoint: "/a2a", methods: ["SendMessage", "message/send"], agent_card: "/.well-known/agent-card.json" },
             tools: TOOLS.map((t) => t.name),
             read_only: true,
             ledger: LEDGER_ORIGIN,
@@ -589,6 +697,17 @@ export default {
 
     if (url.pathname === "/.well-known/agent-card.json") {
       return new Response(JSON.stringify(AGENT_CARD, null, 2), { headers: { "Content-Type": "application/json", ...cors } });
+    }
+
+    // A2A JSON-RPC (2026-09-06 第二波)。card の supportedInterfaces / url がここを指す。
+    if (url.pathname === "/a2a") {
+      if (req.method === "GET") {
+        return new Response(JSON.stringify({ ok: true, transport: "A2A JSON-RPC (POST)", methods: ["SendMessage", "message/send"], agent_card: "/.well-known/agent-card.json", extensions: [CONDUCT_EXT_URI] }), { headers: { "Content-Type": "application/json", ...cors } });
+      }
+      if (req.method !== "POST") {
+        return new Response(JSON.stringify({ ok: false, error: "method_not_allowed" }), { status: 405, headers: { "Content-Type": "application/json", Allow: "POST, GET, OPTIONS", ...cors } });
+      }
+      return await handleA2A(req, env, cors);
     }
 
     if (url.pathname === "/mcp") {
@@ -648,7 +767,7 @@ export default {
     }
 
     return new Response(
-      JSON.stringify({ ok: false, error: "not_found", try: "/mcp (POST) or /health" }),
+      JSON.stringify({ ok: false, error: "not_found", try: "/mcp (POST), /a2a (POST) or /health" }),
       { status: 404, headers: { "Content-Type": "application/json", ...cors } }
     );
   },

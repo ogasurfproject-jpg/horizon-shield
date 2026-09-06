@@ -6,7 +6,7 @@
 
 const enc = new TextEncoder();
 
-const CORS = { "access-control-allow-origin": "*", "access-control-allow-methods": "GET,POST,OPTIONS", "access-control-allow-headers": "content-type,x-ledger-key,a2a-extensions", "access-control-expose-headers": "a2a-extensions" };
+const CORS = { "access-control-allow-origin": "*", "access-control-allow-methods": "GET,POST,OPTIONS", "access-control-allow-headers": "content-type,x-ledger-key,a2a-extensions,x-a2a-extensions,a2a-version", "access-control-expose-headers": "a2a-extensions,x-a2a-extensions" };
 const json = (o, status = 200, extra) => new Response(JSON.stringify(o, null, 2), { status, headers: { "content-type": "application/json; charset=utf-8", ...CORS, ...(extra || {}) } });
 // --- A2A Conduct Extension v1 (2026-09-06) ---
 // 誰が払うか、行儀の記録(第三者が書いた物)がどこか、繋いだ相手が自分の観測をどこに出せるか。
@@ -47,10 +47,68 @@ function conductExtension() {
     }
   };
 }
-// 要求ヘッダ A2A-Extensions のうち、この agent が実装しとる物だけ。
+// --- A2A 線の上の互換 (2026-09-06 第二波) ---
+// 公式 SDK の実測: a2a-sdk(Python) 0.3.x と @a2a-js/sdk 1.1.0 の 0.3 互換路は X-A2A-Extensions を送る。1.0 の綴りは A2A-Extensions。
+// 読むのは両方、echo は常に A2A-Extensions、要求が X- 綴りやったらその綴りでも返す。
+const A2A_EXT_HEADER = "A2A-Extensions";
+const A2A_EXT_HEADER_LEGACY = "X-A2A-Extensions";
+const A2A_VERSION_HEADER = "A2A-Version";
+function a2aRequestedExtensionUris(request) {
+  const out = [];
+  for (const name of [A2A_EXT_HEADER, A2A_EXT_HEADER_LEGACY]) {
+    const h = request.headers.get(name) || "";
+    for (const u of h.split(",")) { const t = u.trim(); if (t && !out.includes(t)) out.push(t); }
+  }
+  return out;
+}
+// 要求ヘッダ(両綴り)の URI のうち、この agent が実装しとる物だけ。
 function a2aActivatedExtensions(request) {
-  const h = request.headers.get("A2A-Extensions") || "";
-  return h.split(",").map((x) => x.trim()).filter((u) => u === CONDUCT_EXT_URI);
+  return a2aRequestedExtensionUris(request).filter((u) => u === CONDUCT_EXT_URI);
+}
+function a2aEchoHeaders(request, activated) {
+  if (!activated.length) return {};
+  const h = {}; h[A2A_EXT_HEADER] = activated.join(",");
+  if (request.headers.get(A2A_EXT_HEADER_LEGACY)) h[A2A_EXT_HEADER_LEGACY] = activated.join(",");
+  return h;
+}
+// 線の版: method 名が決める(SendMessage = 1.0、message/send = 0.3)。決まらんときは A2A-Version、それも無ければ 0.3。
+function a2aWire(method, request) {
+  if (method === "SendMessage") return "1.0";
+  if (method === "message/send") return "0.3";
+  const v = ((request && request.headers.get(A2A_VERSION_HEADER)) || "").trim();
+  return v.startsWith("1.") ? "1.0" : "0.3";
+}
+// part の本文: 0.3 は {kind:"text",text}、1.0 は {text}。両方読む。
+function a2aPartText(p) { return p && typeof p === "object" && typeof p.text === "string" && (p.kind === undefined || p.kind === "text") ? p.text : null; }
+// 0.3 形(kind 判別)から 1.0 形(鍵名判別、enum は大文字名)への写し。
+function a2aPart10(p) {
+  if (!p || typeof p !== "object") return p;
+  const o = {};
+  if (p.kind === "text" || typeof p.text === "string") o.text = String(p.text === undefined ? "" : p.text);
+  else if (p.kind === "data" || p.data !== undefined) o.data = p.data;
+  else if (p.kind === "file" || (p.file && typeof p.file === "object")) {
+    const f = p.file || {};
+    if (typeof f.uri === "string") o.url = f.uri; else if (typeof f.bytes === "string") o.raw = f.bytes;
+    if (typeof f.mimeType === "string") o.mediaType = f.mimeType;
+    if (typeof f.name === "string") o.filename = f.name;
+  } else { for (const k of Object.keys(p)) if (k !== "kind") o[k] = p[k]; }
+  if (p.metadata && typeof p.metadata === "object") o.metadata = p.metadata;
+  return o;
+}
+function a2aMessage10(m) {
+  if (!m || typeof m !== "object") return m;
+  const o = {};
+  for (const k of Object.keys(m)) { if (k === "kind" || k === "role" || k === "parts") continue; o[k] = m[k]; }
+  o.role = m.role === "user" ? "ROLE_USER" : m.role === "agent" ? "ROLE_AGENT" : (typeof m.role === "string" && m.role.startsWith("ROLE_") ? m.role : "ROLE_UNSPECIFIED");
+  o.parts = Array.isArray(m.parts) ? m.parts.map(a2aPart10) : [];
+  return o;
+}
+// SendMessage の result: 1.0 は {message} に包む(この agent は Message しか返さん)。0.3 はそのまま。
+function a2aSendMessageResult(result, wire) {
+  if (wire !== "1.0" || !result || typeof result !== "object") return result;
+  if (result.task || result.message) return result;
+  if (result.kind === "message") return { message: a2aMessage10(result) };
+  return result;
 }
 function conductMetadata() {
   const m = {};
@@ -58,6 +116,15 @@ function conductMetadata() {
   m[CONDUCT_EXT_URI + "/conduct_record"] = CONDUCT_RECORD_URL;
   m[CONDUCT_EXT_URI + "/witness_intake"] = CONDUCT_WITNESS_INTAKE;
   return m;
+}
+// 拡張が有効な応答に指し先を付ける(仕様 3 節): metadata に 3 鍵、Message.extensions に URI。
+function a2aAttachConduct(result) {
+  if (!result || typeof result !== "object") return result;
+  result.metadata = Object.assign({}, result.metadata || {}, conductMetadata());
+  const ex = Array.isArray(result.extensions) ? result.extensions.slice() : [];
+  if (!ex.includes(CONDUCT_EXT_URI)) ex.push(CONDUCT_EXT_URI);
+  result.extensions = ex;
+  return result;
 }
 
 async function ctEq(a, b) {
@@ -494,7 +561,7 @@ const apiCatalog = (origin) => ({
         { href: origin + "/verify/{n}", title: "executable verification recipe for a v1 claim", type: "application/json" },
         { href: origin + "/reference/{sha}", title: "content-addressed pinned reference bundle", type: "application/json" },
         { href: origin + "/.well-known/agent-card.json", title: "A2A agent card", type: "application/json" },
-        { href: origin + "/a2a", title: "A2A JSON-RPC endpoint (message/send)", type: "application/json" },
+        { href: origin + "/a2a", title: "A2A JSON-RPC endpoint (SendMessage, 1.0; message/send, 0.3)", type: "application/json" },
         { href: MCP_ORIGIN + "/mcp", title: "Model Context Protocol endpoint", type: "application/json" },
         { href: origin + "/llms.txt", title: "orientation for agents sent here to verify", type: "text/markdown" },
       ],
@@ -513,7 +580,16 @@ const agentCard = (origin) => ({
   documentationUrl: origin + "/llms.txt",
   iconUrl: null,
   capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false, extensions: [conductExtension()] },
-  supportedInterfaces: [{ url: origin + "/a2a", transport: "JSONRPC", protocolVersion: "1.0.1" }],
+  // 2026-09-06 第二波: 1.0 の AgentInterface は url / protocolBinding / protocolVersion(旧 "transport" 鍵は公式 SDK が読まん:
+  // @a2a-js/sdk 1.1.0 は protocolBinding で interface を選ぶので、"transport" では "No compatible transport found" で止まる)。
+  // 1.0 を先、0.3 を後(SDK は 1.0 を優先)。0.3 だけの読者のために url / preferredTransport / protocolVersion も置く。
+  supportedInterfaces: [
+    { url: origin + "/a2a", protocolBinding: "JSONRPC", protocolVersion: "1.0" },
+    { url: origin + "/a2a", protocolBinding: "JSONRPC", protocolVersion: "0.3" }
+  ],
+  url: origin + "/a2a",
+  preferredTransport: "JSONRPC",
+  protocolVersion: "0.3.0",
   defaultInputModes: ["text/plain"],
   defaultOutputModes: ["application/json", "text/plain"],
   skills: [
@@ -873,20 +949,21 @@ async function handle(request, env) {
       const rid = b && b.id !== undefined ? b.id : null;
       // A2A Conduct Extension v1: 要求で有効化されとれば応答ヘッダで echo し、Message の metadata に指し先を載せる。
       const a2aExt = a2aActivatedExtensions(request);
-      const extHeaders = a2aExt.length ? { "a2a-extensions": a2aExt.join(",") } : {};
+      const extHeaders = a2aEchoHeaders(request, a2aExt);
       const rpcErr = (code, message) => json({ jsonrpc: "2.0", id: rid, error: { code, message } }, 200, extHeaders);
       if (!b || b.jsonrpc !== "2.0") return rpcErr(-32600, "invalid request: jsonrpc 2.0 envelope required");
-      // A2A 0.3 の message/send と A2A 1.0 の SendMessage は同じ入口。
+      // A2A 0.3 の message/send と A2A 1.0 の SendMessage は同じ入口。中身は 0.3 形で組み、線の版に合わせて出口で写す。
       if (b.method !== "message/send" && b.method !== "SendMessage")
         return rpcErr(-32601, `method not found: ${b.method}. This agent implements message/send (SendMessage) only; send the citation as a text part.`);
-      const parts = (b.params && b.params.message && b.params.message.parts) || [];
-      const text = parts.filter((x) => x && x.kind === "text" && typeof x.text === "string").map((x) => x.text).join(" ").trim();
+      const wire = a2aWire(b.method, request);
+      const parts = (b.params && b.params.message && Array.isArray(b.params.message.parts)) ? b.params.message.parts : [];
+      const text = parts.map(a2aPartText).filter((x) => typeof x === "string").join(" ").trim();
       if (!text) return rpcErr(-32602, "invalid params: expected params.message.parts[] containing a text part with a JIDEC citation");
       try {
         const card = await citationCard(env, origin, text.match(/jidec:[a-z]*:?[0-9a-f]+|[0-9a-f]{64}|\d+/i)?.[0] || text);
-        const result = { kind: "message", role: "agent", messageId: crypto.randomUUID(), parts: [{ kind: "text", text: card.trust_note }, { kind: "data", data: card }] };
-        if (a2aExt.includes(CONDUCT_EXT_URI)) result.metadata = conductMetadata();
-        return json({ jsonrpc: "2.0", id: rid, result }, 200, extHeaders);
+        let result = { kind: "message", role: "agent", messageId: crypto.randomUUID(), parts: [{ kind: "text", text: card.trust_note }, { kind: "data", data: card }] };
+        if (a2aExt.includes(CONDUCT_EXT_URI)) result = a2aAttachConduct(result);
+        return json({ jsonrpc: "2.0", id: rid, result: a2aSendMessageResult(result, wire) }, 200, extHeaders);
       } catch (err) {
         return rpcErr(-32000, String((err && err.message) || err));
       }

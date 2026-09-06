@@ -882,7 +882,7 @@ async function callTool(name, args, env, ip, opts) {
         { id: "estimate-integrity-audit", note: "\u898b\u7a4d\u3082\u308a\u306e\u8aa0\u5b9f\u6027\u76e3\u67fb(\u56fd\u5883\u306a\u3057) / borderless estimate integrity audit" },        { id: "japan-property-reform-intake", note: "\u65e5\u672c\u306e\u4e2d\u53e4\u7269\u4ef6\u53d6\u5f97\uff0b\u30ea\u30d5\u30a9\u30fc\u30e0\u306e\u76f8\u8ac7\u7a93\u53e3\u3002\u58f2\u8cb7\u306f\u5b85\u5730\u5efa\u7269\u53d6\u5f15\u58eb\u304c\u5bfe\u5fdc / Japan property acquisition plus renovation intake; sale handled by a licensed real-estate agent" },
         { id: "verify-claim", note: "\u767a\u884c\u6e08\u307f\u30af\u30ec\u30fc\u30e0(signed_payload + claim_sha256)\u306e\u7b2c\u4e09\u8005\u691c\u8a3c\u3002fail closed\u3002verified \u306f\u6539\u3056\u3093\u306a\u3057\u306e\u8a3c\u660e\u3067\u76e3\u67fb\u306e\u518d\u691c\u8a3c\u3067\u306f\u306a\u3044 / Third-party verification of a signed claim (signed_payload + claim_sha256). Fail closed. verified means untampered, not a re-audit" }
       ],
-      how_to_connect: "A2A\u5bfe\u5fdc\u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u4e0a\u8a18 agent_card_url \u3092\u53d6\u5f97\u3057\u3001message/send \u3067\u4f9d\u983c\u3092\u9001\u308b\u3002\u73fe\u5728A2A\u3067\u958b\u653e\u3057\u3066\u3044\u308b\u306e\u306f estimate-integrity-audit \u3068 japan-property-reform-intake(\u76f8\u8ac7\u53d7\u4ed8)\u3002 / A2A agents fetch the agent_card_url and send tasks via message/send.",
+      how_to_connect: "A2A\u5bfe\u5fdc\u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u4e0a\u8a18 agent_card_url \u3092\u53d6\u5f97\u3057\u3001message/send \u3067\u4f9d\u983c\u3092\u9001\u308b\u3002\u73fe\u5728A2A\u3067\u958b\u653e\u3057\u3066\u3044\u308b\u306e\u306f estimate-integrity-audit \u3068 japan-property-reform-intake(\u76f8\u8ac7\u53d7\u4ed8)\u3002 / A2A agents fetch the agent_card_url and send tasks via SendMessage (A2A 1.0) or message/send (0.3).",
       site: SITE
     });
   }
@@ -942,11 +942,92 @@ function conductExtension() {
     }
   };
 }
-// 要求ヘッダ A2A-Extensions(コンマ区切りの URI)のうち、このサーバーが実装しとる物だけを返す。
+// --- A2A 線の上の互換 (2026-09-06 第二波) ---
+// 公式 SDK の実測: a2a-sdk(Python) 0.3.x と @a2a-js/sdk 1.1.0 の 0.3 互換路は X-A2A-Extensions を送る。
+// A2A 1.0 の綴りは A2A-Extensions。片方しか読まん server は、半分の client の有効化を黙って落とす。
+// 読むのは両方、echo は常に A2A-Extensions、要求が X- 綴りやったらその綴りでも返す(綴りを変えて返すと旧 client は見つけられん)。
+const A2A_EXT_HEADER = "A2A-Extensions";
+const A2A_EXT_HEADER_LEGACY = "X-A2A-Extensions";
+const A2A_VERSION_HEADER = "A2A-Version";
+function a2aRequestedExtensionUris(request) {
+  const out = [];
+  for (const name of [A2A_EXT_HEADER, A2A_EXT_HEADER_LEGACY]) {
+    const h = request.headers.get(name) || "";
+    for (const u of h.split(",")) { const t = u.trim(); if (t && !out.includes(t)) out.push(t); }
+  }
+  return out;
+}
+// 要求ヘッダ(両綴り)の URI のうち、このサーバーが実装しとる物だけを返す。
 function a2aActivatedExtensions(request) {
-  const h = request.headers.get("A2A-Extensions") || "";
-  const asked = h.split(",").map((x) => x.trim()).filter(Boolean);
-  return asked.filter((u) => u === CONDUCT_EXT_URI);
+  return a2aRequestedExtensionUris(request).filter((u) => u === CONDUCT_EXT_URI);
+}
+function a2aEchoHeaders(request, activated) {
+  if (!activated.length) return {};
+  const h = {}; h[A2A_EXT_HEADER] = activated.join(",");
+  if (request.headers.get(A2A_EXT_HEADER_LEGACY)) h[A2A_EXT_HEADER_LEGACY] = activated.join(",");
+  return h;
+}
+// 線の版: method 名が決める(SendMessage = 1.0、message/send = 0.3)。決まらんときは A2A-Version ヘッダ、それも無ければ 0.3(旧読者を壊さん側に倒す)。
+function a2aWire(method, request) {
+  if (method === "SendMessage") return "1.0";
+  if (method === "message/send") return "0.3";
+  const v = ((request && request.headers.get(A2A_VERSION_HEADER)) || "").trim();
+  return v.startsWith("1.") ? "1.0" : "0.3";
+}
+// 0.3 形(kind で判別)から 1.0 形(JSON の鍵名で判別、enum は大文字名)への写し。1.0 形が来たらそのまま返す。
+const A2A_STATE_10 = { submitted: "TASK_STATE_SUBMITTED", working: "TASK_STATE_WORKING", completed: "TASK_STATE_COMPLETED", failed: "TASK_STATE_FAILED", canceled: "TASK_STATE_CANCELED", "input-required": "TASK_STATE_INPUT_REQUIRED", rejected: "TASK_STATE_REJECTED", "auth-required": "TASK_STATE_AUTH_REQUIRED", unknown: "TASK_STATE_UNSPECIFIED" };
+function a2aPart10(p) {
+  if (!p || typeof p !== "object") return p;
+  const o = {};
+  if (p.kind === "text" || typeof p.text === "string") o.text = String(p.text === undefined ? "" : p.text);
+  else if (p.kind === "data" || p.data !== undefined) o.data = p.data;
+  else if (p.kind === "file" || (p.file && typeof p.file === "object")) {
+    const f = p.file || {};
+    if (typeof f.uri === "string") o.url = f.uri; else if (typeof f.bytes === "string") o.raw = f.bytes;
+    if (typeof f.mimeType === "string") o.mediaType = f.mimeType;
+    if (typeof f.name === "string") o.filename = f.name;
+  } else { for (const k of Object.keys(p)) if (k !== "kind") o[k] = p[k]; }
+  if (p.metadata && typeof p.metadata === "object") o.metadata = p.metadata;
+  return o;
+}
+function a2aMessage10(m) {
+  if (!m || typeof m !== "object") return m;
+  const o = {};
+  for (const k of Object.keys(m)) { if (k === "kind" || k === "role" || k === "parts") continue; o[k] = m[k]; }
+  o.role = m.role === "user" ? "ROLE_USER" : m.role === "agent" ? "ROLE_AGENT" : (typeof m.role === "string" && m.role.startsWith("ROLE_") ? m.role : "ROLE_UNSPECIFIED");
+  o.parts = Array.isArray(m.parts) ? m.parts.map(a2aPart10) : [];
+  return o;
+}
+function a2aTask10(t) {
+  const o = {};
+  for (const k of Object.keys(t)) { if (k === "kind" || k === "status" || k === "artifacts" || k === "history") continue; o[k] = t[k]; }
+  const s = (t.status && typeof t.status === "object") ? t.status : {};
+  const st = typeof s.state === "string" && s.state.startsWith("TASK_STATE_") ? s.state : (A2A_STATE_10[s.state] || "TASK_STATE_UNSPECIFIED");
+  o.status = Object.assign({}, s, { state: st });
+  if (s.message) o.status.message = a2aMessage10(s.message);
+  if (Array.isArray(t.artifacts)) o.artifacts = t.artifacts.map((a) => Object.assign({}, a, { parts: Array.isArray(a.parts) ? a.parts.map(a2aPart10) : [] }));
+  if (Array.isArray(t.history)) o.history = t.history.map(a2aMessage10);
+  return o;
+}
+// SendMessage の result: 1.0 は {task} か {message} に包む。0.3 は Message / Task をそのまま。
+function a2aSendMessageResult(result, wire) {
+  if (wire !== "1.0" || !result || typeof result !== "object") return result;
+  if (result.task || result.message) return result;
+  if (result.kind === "task") return { task: a2aTask10(result) };
+  if (result.kind === "message") return { message: a2aMessage10(result) };
+  return result;
+}
+// 拡張が有効な応答に指し先を付ける(仕様 3 節)。metadata に 3 鍵、Message.extensions に URI(A2A 本体の「この応答に寄与した拡張」の欄)。
+function a2aAttachConduct(result) {
+  if (!result || typeof result !== "object") return result;
+  result.metadata = Object.assign({}, result.metadata || {}, conductMetadata());
+  const msg = result.kind === "task" ? (result.status && result.status.message) : result;
+  if (msg && typeof msg === "object") {
+    const ex = Array.isArray(msg.extensions) ? msg.extensions.slice() : [];
+    if (!ex.includes(CONDUCT_EXT_URI)) ex.push(CONDUCT_EXT_URI);
+    msg.extensions = ex;
+  }
+  return result;
 }
 // 拡張が有効な応答に載せる metadata。時刻も点数も入れない(発行者が選べる座標は入れない)。
 function conductMetadata() {
@@ -1502,7 +1583,7 @@ function promptText(name, a) {
   return null;
 }
 
-async function handleRpc(msg, env, ip, authCtx, ctx, a2aExt) {
+async function handleRpc(msg, env, ip, authCtx, ctx, a2aExt, request) {
   const { id, method, params } = msg;
   if (method === "initialize") {
     const pv = (params && params.protocolVersion) || "2025-06-18";
@@ -1545,14 +1626,17 @@ async function handleRpc(msg, env, ip, authCtx, ctx, a2aExt) {
     return rpc(id, r);
   }
   if (method === "ping") return rpc(id, {});
-  // A2A 0.3 の message/send と A2A 1.0 の SendMessage は同じ入口。
+  // A2A 0.3 の message/send と A2A 1.0 の SendMessage は同じ入口。中身は 0.3 形で組み、線の版に合わせて出口で写す。
+  // 1.0 の result は {task}|{message} に包まれ、enum は TASK_STATE_* / ROLE_*、part は kind 無しで鍵名判別。
+  // 公式 SDK 1.x はこの形しか読まん(0.3 形を返すと "Invalid SendMessageResponse" で落ちる)。
   if (method === "message/send" || method === "SendMessage") {
-    const r = await handleA2A(params, env, ip, authCtx, ctx);
+    const wire = a2aWire(method, request);
+    let r = await handleA2A(params, env, ip, authCtx, ctx);
     // A2A Conduct Extension v1 が有効なら、Message / Task の metadata に指し先を載せる(仕様 3 節)。
     if (Array.isArray(a2aExt) && a2aExt.includes(CONDUCT_EXT_URI) && r && typeof r === "object") {
-      r.metadata = Object.assign({}, r.metadata || {}, conductMetadata());
+      r = a2aAttachConduct(r);
     }
-    return rpc(id, r);
+    return rpc(id, a2aSendMessageResult(r, wire));
   }
   return rpcErr(id, -32601, "Method not found: " + method);
 }
@@ -1560,7 +1644,7 @@ async function handleRpc(msg, env, ip, authCtx, ctx, a2aExt) {
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, mcp-session-id, mcp-protocol-version, authorization, A2A-Extensions",
+  "Access-Control-Allow-Headers": "Content-Type, mcp-session-id, mcp-protocol-version, authorization, A2A-Extensions, X-A2A-Extensions, A2A-Version",
   "Access-Control-Expose-Headers": "mcp-session-id"
 };
 
@@ -1703,6 +1787,13 @@ export default {
       }
       if (url.pathname === "/.well-known/agent-card.json") {
         const AGENT_CARD = {
+          // 2026-09-06 第二波: 1.0 の supportedInterfaces と 0.3 の url/preferredTransport/protocolVersion を同居させる。
+          // 公式 SDK 1.x は supportedInterfaces があれば 1.0 の card として読み(1.0 の interface を優先)、
+          // 0.3 の SDK は url を読む。片方だけ置くと、もう片方の client は「繋げる transport が無い」で止まる(実測: @a2a-js/sdk 1.1.0 の既定設定)。
+          supportedInterfaces: [
+            { url: "https://mcp.horizonshield.dev", protocolBinding: "JSONRPC", protocolVersion: "1.0" },
+            { url: "https://mcp.horizonshield.dev", protocolBinding: "JSONRPC", protocolVersion: "0.3" }
+          ],
           protocolVersion: "0.3.0",
           name: "HORIZON SHIELD KIRA",
           description: "An independent, pre-transaction auditor for construction and renovation estimates. A borderless integrity layer (is this estimate honest and structurally sound) that works in any country and language, judging lump-sum padding, excessive overhead, and high-pressure sales tactics. Built on 30 years of field experience by a Japanese master carpenter. Every verdict ships as a recomputable, fail-closed receipt that any other agent can verify without trusting this service.",
@@ -1942,16 +2033,17 @@ export default {
     const isNotification = (m) => m && m.id === undefined && typeof m.method === "string";
     const clientIp = request.headers.get("CF-Connecting-IP") || "unknown";
     const authCtx = await resolveAuthContext(request, env);
-    // A2A 1.0: 有効化された拡張を応答ヘッダ A2A-Extensions で返す(要求に無ければ何も足さない)。
+    // A2A: 有効化された拡張を応答ヘッダで返す(要求に無ければ何も足さない)。両綴りを読み、echo は A2A-Extensions 必須 + 要求の綴り。
     const a2aExt = a2aActivatedExtensions(request);
-    const extHeaders = a2aExt.length ? { "A2A-Extensions": a2aExt.join(","), "Access-Control-Expose-Headers": CORS["Access-Control-Expose-Headers"] + ", A2A-Extensions" } : {};
+    const echo = a2aEchoHeaders(request, a2aExt);
+    const extHeaders = a2aExt.length ? { ...echo, "Access-Control-Expose-Headers": CORS["Access-Control-Expose-Headers"] + ", " + Object.keys(echo).join(", ") } : {};
     if (Array.isArray(body)) {
       const out = [];
-      for (const m of body) { if (!isNotification(m)) out.push(await handleRpc(m, env, clientIp, authCtx, ctx, a2aExt)); }
+      for (const m of body) { if (!isNotification(m)) out.push(await handleRpc(m, env, clientIp, authCtx, ctx, a2aExt, request)); }
       return new Response(out.length ? JSON.stringify(out) : "", { status: out.length ? 200 : 202, headers: { "Content-Type": "application/json; charset=utf-8", ...CORS, ...extHeaders } });
     }
     if (isNotification(body)) return new Response("", { status: 202, headers: CORS });
-    const res = await handleRpc(body, env, clientIp, authCtx, ctx, a2aExt);
+    const res = await handleRpc(body, env, clientIp, authCtx, ctx, a2aExt, request);
     return new Response(JSON.stringify(res), { headers: { "Content-Type": "application/json; charset=utf-8", ...CORS, ...extHeaders } });
   }
 };

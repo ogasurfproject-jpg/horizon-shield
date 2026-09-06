@@ -44,8 +44,16 @@ def card(comp=COMP, ext=True, top=None, required=False, measured=None, extra=Non
     return c
 
 
-def mock(cards, ep_status=200, ep_result=True, echo=True, submit_status=200):
-    """cards: list of card objects returned in order for successive GETs (last one repeats)."""
+def mock(cards, ep_status=200, ep_result=True, echo=True, submit_status=200, echo_spelling="mirror", answer_shape="wire"):
+    """cards: list of card objects returned in order for successive GETs (last one repeats).
+
+    echo_spelling: "mirror" (honest: A2A-Extensions always, plus X-A2A-Extensions when the request used it),
+                   "new_only" (a server that only knows the 1.0 spelling: a 0.3 client never sees the echo),
+                   "old_only" (a 0.3-era server that only echoes X-A2A-Extensions).
+    answer_shape:  "wire" (honest: 1.0 shape to SendMessage, 0.3 shape to message/send),
+                   "0.3" (always the kind-shaped result, even to SendMessage: what our own servers did before 2026-09-06),
+                   "1.0" (always the wrapped result, even to message/send).
+    """
     state = {"i": 0, "posts": []}
 
     def fetch(method, url, headers=None, body=None):
@@ -56,11 +64,28 @@ def mock(cards, ep_status=200, ep_result=True, echo=True, submit_status=200):
         if method == "POST" and url == EP:
             state["posts"].append((headers, body))
             h = {"content-type": "application/json"}
-            if echo and headers and headers.get("A2A-Extensions"):
-                h["A2A-Extensions"] = headers["A2A-Extensions"]
+            hdrs = {str(k).lower(): v for k, v in (headers or {}).items()}
+            asked = hdrs.get("a2a-extensions") or hdrs.get("x-a2a-extensions")
+            if echo and asked:
+                if echo_spelling in ("mirror", "new_only"):
+                    h["A2A-Extensions"] = asked
+                if echo_spelling == "old_only" or (echo_spelling == "mirror" and "x-a2a-extensions" in hdrs):
+                    h["X-A2A-Extensions"] = asked
             if ep_status != 200:
                 return ep_status, h, b"<html>nope</html>"
-            j = {"jsonrpc": "2.0", "id": 1, "result": {"protocolVersion": "2025-06-18", "serverInfo": {"name": "mock"}}} if ep_result else {"jsonrpc": "2.0", "id": 1, "error": {"code": -32601, "message": "no"}}
+            try:
+                method_name = json.loads(body.decode("utf-8")).get("method")
+            except Exception:
+                method_name = None
+            if not ep_result:
+                j = {"jsonrpc": "2.0", "id": 1, "error": {"code": -32601, "message": "no"}}
+            elif method_name in ("SendMessage", "message/send"):
+                shape = answer_shape if answer_shape in ("0.3", "1.0") else ("1.0" if method_name == "SendMessage" else "0.3")
+                msg03 = {"kind": "message", "role": "agent", "messageId": "m", "parts": [{"kind": "text", "text": "ok"}]}
+                msg10 = {"message": {"role": "ROLE_AGENT", "messageId": "m", "parts": [{"text": "ok"}]}}
+                j = {"jsonrpc": "2.0", "id": 1, "result": msg10 if shape == "1.0" else msg03}
+            else:
+                j = {"jsonrpc": "2.0", "id": 1, "result": {"protocolVersion": "2025-06-18", "serverInfo": {"name": "mock"}}}
             return 200, h, json.dumps(j).encode("utf-8")
         if method == "POST" and url.endswith("/witness"):
             state["posts"].append((headers, body))
@@ -95,8 +120,8 @@ def ledger_shape_ok(rc):
 V = []
 
 
-def vec(name, kind, fetch, mode, expect_ok, expect_results, endpoint=None):
-    V.append((name, kind, fetch, mode, expect_ok, expect_results, endpoint))
+def vec(name, kind, fetch, mode, expect_ok, expect_results, endpoint=None, wire="1.0"):
+    V.append((name, kind, fetch, mode, expect_ok, expect_results, endpoint, wire))
 
 
 vec("honest_mcp", "control", mock([card()]), "mcp", True, {"card_bytes_stable": True, "conduct_ext_declared": True, "compensation_well_formed": True, "measured_endpoint_answered": True, "extension_echoed": None})
@@ -114,14 +139,26 @@ vec("endpoint_http_500", "attack", mock([card()], ep_status=500), "mcp", False, 
 vec("endpoint_jsonrpc_error", "attack", mock([card()], ep_result=False), "mcp", False, {"measured_endpoint_answered": False})
 vec("a2a_declared_but_not_echoed", "attack", mock([card()], echo=False), "a2a", False, {"extension_echoed": False})
 vec("mcp_mode_no_echo_is_not_applicable", "control", mock([card()], echo=False), "mcp", True, {"extension_echoed": None})
+# 2026-09-06 second wave: two spellings of the header, two versions of the wire
+vec("honest_a2a_wire03", "control", mock([card()]), "a2a", True, {"measured_endpoint_answered": True, "extension_echoed": True}, wire="0.3")
+vec("a2a_wire03_server_echoes_new_spelling_only", "attack", mock([card()], echo_spelling="new_only"), "a2a", False, {"extension_echoed": False}, wire="0.3")
+vec("a2a_wire10_server_echoes_old_spelling_only", "attack", mock([card()], echo_spelling="old_only"), "a2a", False, {"extension_echoed": False}, wire="1.0")
+vec("a2a_wire10_server_answers_03_shape", "attack", mock([card()], answer_shape="0.3"), "a2a", False, {"measured_endpoint_answered": False, "extension_echoed": True}, wire="1.0")
+vec("a2a_wire03_server_answers_10_shape", "attack", mock([card()], answer_shape="1.0"), "a2a", False, {"measured_endpoint_answered": False}, wire="0.3")
 
 
 def main():
     bad = []
     n = 0
-    for name, kind, fetch, mode, expect_ok, expect_results, endpoint in V:
+    for name, kind, fetch, mode, expect_ok, expect_results, endpoint, wire in V:
         n += 1
-        rec = W.walk(ORIGIN, endpoint, mode, "selftest", "offline-mock", fetch=fetch, walked_at="2026-09-06T00:00:00Z")
+        rec = W.walk(ORIGIN, endpoint, mode, "selftest", "offline-mock", fetch=fetch, walked_at="2026-09-06T00:00:00Z", wire=wire)
+        if mode == "a2a":
+            sent = {str(k).lower() for k, _b in fetch.state["posts"][:1] for k in (k or {})}
+            want = "a2a-extensions" if wire == "1.0" else "x-a2a-extensions"
+            other = "x-a2a-extensions" if wire == "1.0" else "a2a-extensions"
+            if not (want in sent and other not in sent):
+                bad.append((name, "walk sent the wrong header spelling for wire " + wire + ": " + str(sorted(sent))))
         res = results(rec)
         problems = []
         if rec["verdict"]["ok"] is not expect_ok:
@@ -138,10 +175,11 @@ def main():
         if not ledger_shape_ok(rc):
             problems.append("record would be refused by the ledger's witness intake rules")
         # request to the endpoint carried the activation header
-        posts = [h for h, b in fetch.state["posts"] if h and h.get("A2A-Extensions") == EXT]
+        want_hdr = "X-A2A-Extensions" if (mode == "a2a" and wire == "0.3") else "A2A-Extensions"
+        posts = [h for h, b in fetch.state["posts"] if h and h.get(want_hdr) == EXT]
         has_n3 = any(nd.get("n") == 3 for nd in rec["nodes"])
         if has_n3 and not posts:
-            problems.append("node 3 did not send A2A-Extensions")
+            problems.append("node 3 did not send " + want_hdr)
         if not has_n3 and expect_results.get("measured_endpoint_answered") is True:
             problems.append("no node 3 although an answer was expected")
         if problems:

@@ -7,14 +7,17 @@ the agent's own card points to. Standard library only, Python 3.8 or later.
 
     python3 a2a_conduct_walk.py --origin https://mcp.horizonshield.dev \\
         --witness-name "your name or anonymous" --vantage "your network or tool" \\
-        [--endpoint https://mcp.horizonshield.dev/mcp] [--mode mcp|a2a] [--out walk.json] [--submit]
+        [--endpoint https://mcp.horizonshield.dev/mcp] [--mode mcp|a2a] [--wire 1.0|0.3] [--out walk.json] [--submit]
 
 What it asserts (each one pinned by sha256 of the bytes it turned on):
     card_bytes_stable           two fetches of the agent card, seconds apart, are the same bytes
     conduct_ext_declared        the card lists the extension URI under capabilities.extensions[]
     compensation_well_formed    params.compensation has the shape section 2 requires
-    measured_endpoint_answered  the measured endpoint answered a JSON-RPC request with a result
-    extension_echoed            (a2a mode only) the response header A2A-Extensions carries the URI
+    measured_endpoint_answered  the measured endpoint answered a JSON-RPC request with a result of the
+                                shape the wire version requires (1.0: {task}|{message}; 0.3: kind)
+    extension_echoed            (a2a mode only) the response header A2A-Extensions carries the URI, or
+                                X-A2A-Extensions when the walk used the 0.3 wire (that is the spelling
+                                a 0.3 client sends and reads: the official SDKs' compatibility paths)
 
 What it does not do: it does not judge quality, it does not read the conduct record for you,
 and a PASS is not a verdict about the agent. It is one observation, filed where anyone can
@@ -32,6 +35,9 @@ import urllib.request
 from datetime import datetime, timezone
 
 EXT_URI = "https://gate.horizonshield.dev/ext/conduct/v1"
+# A2A 1.0 spells the service parameter A2A-Extensions; 0.3 spelled it X-A2A-Extensions.
+# A 1.0 walk sends the 1.0 spelling; a 0.3 walk sends only the 0.3 spelling, like a 0.3 client does.
+EXT_HEADER = {"1.0": "A2A-Extensions", "0.3": "X-A2A-Extensions"}
 PAID_BY = ["buyer", "seller", "referral", "advertising", "subscription", "public", "other"]
 WALKER = {"tool": "a2a_conduct_walk.py", "version": "1"}
 TIMEOUT = 20
@@ -119,10 +125,14 @@ def fetch_node(n, fetch, method, url, headers=None, body=None):
         "duration_ms": int((time.time() - t0) * 1000),
     }
     echo = None
+    echo_legacy = None
     for k, v in (rh or {}).items():
         if str(k).lower() == "a2a-extensions":
             echo = str(v)
+        elif str(k).lower() == "x-a2a-extensions":
+            echo_legacy = str(v)
     node["response"]["a2a_extensions"] = echo
+    node["response"]["x_a2a_extensions"] = echo_legacy
     return node, status, rb
 
 
@@ -183,12 +193,19 @@ def locate_extension(card):
     return ext, problems
 
 
-def rpc_body(mode, request_id=1):
+def rpc_body(mode, request_id=1, wire="1.0"):
+    text = "a2a-conduct-walk-v1: reading the conduct pointers of this agent"
+    if mode == "a2a" and wire == "0.3":
+        return json.dumps({
+            "jsonrpc": "2.0", "id": request_id, "method": "message/send",
+            "params": {"message": {"messageId": "conduct-walk-" + str(request_id), "role": "user", "kind": "message",
+                                    "parts": [{"kind": "text", "text": text}]}},
+        }, ensure_ascii=False).encode("utf-8")
     if mode == "a2a":
         return json.dumps({
             "jsonrpc": "2.0", "id": request_id, "method": "SendMessage",
-            "params": {"message": {"messageId": "conduct-walk-" + str(request_id), "role": "user", "kind": "message",
-                                    "parts": [{"kind": "text", "text": "a2a-conduct-walk-v1: reading the conduct pointers of this agent"}]}},
+            "params": {"message": {"messageId": "conduct-walk-" + str(request_id), "role": "ROLE_USER",
+                                    "parts": [{"text": text}]}},
         }, ensure_ascii=False).encode("utf-8")
     return json.dumps({
         "jsonrpc": "2.0", "id": request_id, "method": "initialize",
@@ -196,8 +213,21 @@ def rpc_body(mode, request_id=1):
     }).encode("utf-8")
 
 
-def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked_at=None):
+def result_shape_ok(j, mode, wire):
+    """A JSON-RPC result is present and, on the A2A path, has the shape the wire version requires."""
+    if not (isinstance(j, dict) and "result" in j and j.get("result") is not None):
+        return False
+    r = j["result"]
+    if mode != "a2a" or not isinstance(r, dict):
+        return mode != "a2a"
+    if wire == "0.3":
+        return r.get("kind") in ("message", "task")
+    return ("message" in r or "task" in r) and "kind" not in r
+
+
+def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked_at=None, wire="1.0"):
     origin = origin.rstrip("/")
+    wire = "0.3" if wire == "0.3" else "1.0"
     walked_at = walked_at or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     card_url = origin + "/.well-known/agent-card.json"
     nodes = []
@@ -226,16 +256,19 @@ def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked
     answered = False
     echoed = None
     if target:
-        body = rpc_body(mode)
-        n3, s3, b3 = fetch_node(3, fetch, "POST", target, {"Content-Type": "application/json", "Accept": "application/json", "A2A-Extensions": EXT_URI}, body)
+        body = rpc_body(mode, wire=wire)
+        hdrs = {"Content-Type": "application/json", "Accept": "application/json", EXT_HEADER[wire]: EXT_URI}
+        if mode == "a2a":
+            hdrs["A2A-Version"] = wire
+        n3, s3, b3 = fetch_node(3, fetch, "POST", target, hdrs, body)
         nodes.append(n3)
         try:
             j = json.loads(b3.decode("utf-8")) if s3 == 200 else None
-            answered = isinstance(j, dict) and "result" in j and j.get("result") is not None
+            answered = result_shape_ok(j, mode, wire)
         except Exception:
             answered = False
         if mode == "a2a":
-            e = n3["response"].get("a2a_extensions") or ""
+            e = n3["response"].get("a2a_extensions" if wire == "1.0" else "x_a2a_extensions") or ""
             echoed = EXT_URI in [x.strip() for x in e.split(",")]
 
     def A(claim, result, nodes_, observed, note=None):
@@ -248,10 +281,10 @@ def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked
         A("card_bytes_stable: node0.body_sha256 == node1.body_sha256", s0 == 200 and s1 == 200 and n0["response"]["body_sha256"] == n1["response"]["body_sha256"], [0, 1], n0["response"]["body_sha256"] + n1["response"]["body_sha256"]),
         A("conduct_ext_declared: card lists " + EXT_URI + " under capabilities.extensions[]", ext is not None, [1, 2], canonical(ext) if ext is not None else "absent"),
         A("compensation_well_formed: params.compensation has the section 2 shape and agrees with any top-level copy", ext is not None and not problems, [1, 2], canonical(problems)),
-        A("measured_endpoint_answered: POST " + (target or "(no target)") + " returned http 200 with a JSON-RPC result", bool(target) and answered, [3] if n3 else [2], (n3["response"]["body_sha256"] if n3 else "no-node") + ":" + str(answered)),
+        A("measured_endpoint_answered: POST " + (target or "(no target)") + " returned http 200 with a JSON-RPC result" + (" of the A2A " + wire + " shape" if mode == "a2a" else ""), bool(target) and answered, [3] if n3 else [2], (n3["response"]["body_sha256"] if n3 else "no-node") + ":" + str(answered)),
     ]
     if mode == "a2a":
-        assertions.append(A("extension_echoed: response header A2A-Extensions contains " + EXT_URI, bool(echoed), [3] if n3 else [2], str(n3["response"].get("a2a_extensions") if n3 else None)))
+        assertions.append(A("extension_echoed: response header " + EXT_HEADER[wire] + " contains " + EXT_URI, bool(echoed), [3] if n3 else [2], str((n3["response"].get("a2a_extensions"), n3["response"].get("x_a2a_extensions")) if n3 else None)))
     else:
         assertions.append(A("extension_echoed", None, [3] if n3 else [2], "not applicable", note="not applicable: node 3 was an MCP initialize, not an A2A message; the echo is only required on A2A requests"))
 
@@ -273,7 +306,7 @@ def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked
             "mismatch_means": "the live agent now differs from the anchored observation; a changed card is a finding, not an error in the walk",
         },
         "witness": {"name": witness_name, "vantage": vantage},
-        "conduct_ext": {"uri": EXT_URI, "mode": mode, "conduct_record": params.get("conduct_record"), "witness_intake": params.get("witness_intake")},
+        "conduct_ext": {"uri": EXT_URI, "mode": mode, "wire": wire if mode == "a2a" else None, "conduct_record": params.get("conduct_record"), "witness_intake": params.get("witness_intake")},
         "prev_path_refs": [],
     }
     return record
@@ -292,7 +325,8 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--origin", required=True, help="agent origin, e.g. https://mcp.horizonshield.dev")
     ap.add_argument("--endpoint", help="measured endpoint to POST; default: first params.measured_endpoints entry from the card")
-    ap.add_argument("--mode", choices=["mcp", "a2a"], default="mcp", help="node 3 body: MCP initialize (default) or A2A SendMessage")
+    ap.add_argument("--mode", choices=["mcp", "a2a"], default="mcp", help="node 3 body: MCP initialize (default) or an A2A message")
+    ap.add_argument("--wire", choices=["1.0", "0.3"], default="1.0", help="a2a mode only: 1.0 sends SendMessage with A2A-Extensions (default); 0.3 sends message/send with X-A2A-Extensions only, as a 0.3 client does")
     ap.add_argument("--witness-name", required=True, help="who you are, or anonymous")
     ap.add_argument("--vantage", required=True, help="network or tool the walk is taken from")
     ap.add_argument("--out", default=None, help="write the canonical bytes here (default: walk_<sha12>.json)")
@@ -302,7 +336,7 @@ def main(argv=None):
     a = ap.parse_args(argv)
 
     fetch = curl_fetch if a.transport == "curl" else http_fetch
-    rec = walk(a.origin, a.endpoint, a.mode, a.witness_name, a.vantage, fetch=fetch)
+    rec = walk(a.origin, a.endpoint, a.mode, a.witness_name, a.vantage, fetch=fetch, wire=a.wire)
     rc = canonical(rec)
     sha = sha256_hex(rc)
     out = a.out or ("walk_" + sha[:12] + ".json")

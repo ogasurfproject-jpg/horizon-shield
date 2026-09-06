@@ -1,0 +1,7 @@
+One correction and one addition, both small, nothing about the manuscript.
+
+The sha I sent for the conduct spec (687c56e3) was the file before two edits the same night: a prior-art section (9) and, tonight, a license section (10) plus wire notes. Current: 3aa5a50d8ac323c63951bdf4b73d6fa1de6a45aa0d0a41dced4792d5f6dfafd8. Same URI, GET with Accept: text/markdown returns those bytes.
+
+The addition: I ran the official A2A SDKs (Python 1.1.2, JS 1.1.0) against our servers and found that the JS one could not build a client from our 0.3-shaped card at all, and its 0.3 path sends X-A2A-Extensions, which we were not reading. Fixed on all four cards tonight: supportedInterfaces with 1.0 first, both header spellings read and echoed, 1.0 response shapes. So if you run the walk, add --wire 1.0 (default) or --wire 0.3; both should PASS 5/5 against https://mcp.horizonshield.dev, and either is a valid witness 2 with --submit.
+
+Sections first.
