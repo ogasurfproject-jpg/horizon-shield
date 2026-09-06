@@ -37,7 +37,7 @@ import * as nenrin from "./nenrin_instant.js";
 
 // 仕様確定までの暫定値。名称や閾値はここだけ直せば全体に効く。
 const CONFIG = {
-  version: "0.3.5",  // 2026-09-06. 0.3.5: 時刻座標の本番と設計のズレを直す(履歴に coordinate_derivation を残す、次の窓の salt を先に作り beacon は salt より後の block に限る、基準高さは quorum 番目の tip - 6 で hash の一致だけを要求、窓ごとに規則を固定、GET /nenrin/window で commitment を公開。判定規則は 0.3.0 のまま)。0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
+  version: "0.4.0",  // 2026-09-07. 0.4.0 (conduct-v1.1): 判定と /self に establishes / does_not_establish を入れて hash に含める(Federico の 2026-09-07 の指摘: 「正しさは判定しとらん」の断りが落とせて conformance は通っとった)。塩の commitment を掃引ごとに台帳の witness intake へ commitment 型記録で錨打ち(窓ごとに 1 回、/nenrin/window に commitment_filed)。GET /register/lookup(verified/pending/declined/unknown + 先月の輪の数 + 証明せん物、24h cache)。well-known の notify / identity / witness_policy を読む(掃引後に notify へ POST、1 時間 1 回、/check からは飛ばさん)。判定規則は 0.3.0 のまま。0.3.5 (2026-09-06): 時刻座標の本番と設計のズレを直す(履歴に coordinate_derivation を残す、次の窓の salt を先に作り beacon は salt より後の block に限る、基準高さは quorum 番目の tip - 6 で hash の一致だけを要求、窓ごとに規則を固定、GET /nenrin/window で commitment を公開。判定規則は 0.3.0 のまま)。0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
   tier_pass: "verified",        // 通過時の称号(暫定)
   tier_fail: "pending",         // 未通過(不合格とは呼ばない)
   tier_held: "held",            // 到達できず測れなかった。不適合とは別の状態
@@ -74,7 +74,7 @@ const CARD_SIGNATURE = {
   "jku": "https://gate.horizonshield.dev/.well-known/jwks.json",
   "alg": "ES256",
   "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJocy0yMDI2LTA5Iiwiamt1IjoiaHR0cHM6Ly9nYXRlLmhvcml6b25zaGllbGQuZGV2Ly53ZWxsLWtub3duL2p3a3MuanNvbiJ9",
-  "signature": "KBR6QyQ34T74x6YHxjlg0phs10KSUZjzncoOvMz9mOu_4kwPOPP23YHVaGFp_1782c3eW2pZ-vVF4dhAvRcJuw",
+  "signature": "4SdksJq8dLxqZJ0FTjNdKldDBRTxcZQyN7m6Lvss3i2_SGeQNussG7uOGCBfKzVRJsgSyLwwE20QeQARFhSWBQ",
   "jwk": {
     "kty": "EC",
     "x": "CytwnuXFtXi7PFCcF-TCbvW5OgOg4KuWRLeRvdfHWLs",
@@ -84,7 +84,7 @@ const CARD_SIGNATURE = {
     "alg": "ES256",
     "use": "sig"
   },
-  "canonical_sha256": "bb47442e611fe9e8c51fb706cfb963fb19981c569fa3fe332dfa18e38b0a2d51"
+  "canonical_sha256": "112a6d2b2dac5ab065a6f0e1f097dedaa71065e4f96ecedc9e8a7a84d80d8ea2"
 };
 /* @@CARD_SIGNATURE_END */
 const CARD_CANONICAL_ORIGIN = "https://gate.horizonshield.dev";
@@ -97,7 +97,7 @@ function jwksDocument() {
   return { keys: CARD_SIGNATURE && CARD_SIGNATURE.jwk ? [CARD_SIGNATURE.jwk] : [] };
 }
 const CONDUCT_EXT_SOURCE = "https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-verify-gate/ext/CONDUCT_EXT_v1.md";
-const CONDUCT_EXT_MD = "# A2A Conduct Extension v1 (`conduct-v1`)\n\n**Extension URI (the identifier, compared as an exact string):** `https://gate.horizonshield.dev/ext/conduct/v1`\n**Status:** v1, 2026-09-06 (sections 9 and 10 and the wire notes in sections 3 and 4 added the same day, before any anchoring). Reference implementations: MCP Verification Gate 0.3.3 (reads it, serves this document at the URI, answers `SendMessage` at `/a2a`), HORIZON SHIELD KIRA and JIDEC agent cards (declare and echo it on both A2A wire versions), `a2a_conduct_walk.py` (client-side witness walk). Interoperability with the official A2A SDKs (`a2a-sdk` 1.1.x for Python, `@a2a-js/sdk` 1.1.x) is exercised by `workers/hs-mcp/test/sdk_js_interop.mjs` and `sdk_py_interop.py` against the real server code, both wire versions, no network.\n**Type:** data-only A2A extension on the Agent Card, plus an optional request-level echo. It MUST NOT be declared `required: true` (A2A guidance: data-only extensions are never required).\n**Language:** RFC 2119 keywords. Field names are exact.\n\n## 1. What this is for\n\nAn agent about to hand work to another agent can read three things before the first message: who pays the other agent, where a record of that agent's measured conduct lives that the agent itself did not write, and where to file its own observation of that agent. The extension carries one declaration and a set of pointers. It carries no score, no rank, and no verdict of its own. Declaring it proves nothing; the third-party record at `conduct_record` is the evidence, and only if the client fetched it.\n\n## 2. Declaration in the Agent Card\n\nThe agent lists the extension under `capabilities.extensions[]` (A2A 1.0, `AgentExtension`: `uri`, `description`, `required`, `params`).\n\n```json\n{\n  \"uri\": \"https://gate.horizonshield.dev/ext/conduct/v1\",\n  \"description\": \"Who pays this agent, where its measured conduct record lives, and where to file a witness walk.\",\n  \"required\": false,\n  \"params\": {\n    \"compensation\": { \"paid_by\": \"buyer\", \"referral_fee\": false, \"listing_fee\": false, \"success_fee_pct\": 0, \"disclosure_url\": \"https://...\" },\n    \"measured_endpoints\": [\"https://mcp.horizonshield.dev/mcp\"],\n    \"conduct_record\": \"https://gate.horizonshield.dev/history?endpoint=https%3A%2F%2Fmcp.horizonshield.dev%2Fmcp\",\n    \"verdict_recipe\": \"https://gate.horizonshield.dev/spec\",\n    \"witness_intake\": \"https://ledger.horizonshield.dev/witness\",\n    \"consent\": \"https://mcp.horizonshield.dev/.well-known/mcp-conduct.json\",\n    \"register\": \"https://gate.horizonshield.dev/register\",\n    \"rings\": {\n      \"spec\": \"https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/NENRIN_SPEC_v1.md\",\n      \"spec_sha256\": \"9ccba2e325fd2a555fcdb2dec519b8c6bf7a669064674846aea98ecfff824e3d\",\n      \"base\": \"https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/rings/\",\n      \"path\": \"<slug>/<YYYY-MM>.json\",\n      \"slug\": \"endpoint URL without https://, lower case, every run of characters outside [a-z0-9] replaced by one hyphen, hyphens trimmed at both ends\",\n      \"ledger\": \"https://ledger.horizonshield.dev/ledger\"\n    }\n  }\n}\n```\n\n`params` fields:\n\n| field | type | requirement | meaning |\n|---|---|---|---|\n| `compensation` | object | REQUIRED | Who pays the agent. `paid_by` MUST be one of `buyer`, `seller`, `referral`, `advertising`, `subscription`, `public`, `other`. `referral_fee` and `listing_fee` MUST be booleans. `success_fee_pct`, when present, MUST be a number from 0 to 100. `disclosure_url`, when present, MUST be a string. Content is not judged by anyone reading this field; only the absence or malformation of the declaration is a failure. This is the same shape the gate's condition 3 has read at the card's top-level `compensation` key since 0.2.0. |\n| `measured_endpoints` | string[] | REQUIRED, at least one | The exact URL(s) whose conduct is recorded, as they appear on the register. |\n| `conduct_record` | string (https URL) | REQUIRED | A live record of measurements of the agent, written by a party other than the agent. For gate-measured endpoints this is `https://gate.horizonshield.dev/history?endpoint=<url-encoded endpoint>`. Every record there carries a `record_sha256` that the reader recomputes. |\n| `witness_intake` | string (https URL) | REQUIRED | Where a client files its own walk of the agent (section 4). |\n| `verdict_recipe` | string (https URL) | OPTIONAL | How to recompute the hashes in `conduct_record`. |\n| `consent` | string (https URL) | OPTIONAL | The origin's `/.well-known/mcp-conduct.json`, the owner's proof of consent to tool calls during measurement. |\n| `register` | string (https URL) | OPTIONAL | The public register the endpoint sits on. |\n| `rings` | object | OPTIONAL | Where monthly conduct rings (NENRIN Layer 3) are published, with the spec they follow and its sha256. |\n\nA card MAY keep the top-level `compensation` key for readers that predate this extension. When both are present they MUST be equal on the five keys above; two declarations that disagree are a failed disclosure, not a choice for the reader to make. When the extension is listed more than once with this URI, every listing MUST carry an equal `compensation`.\n\n## 3. Request-level echo (optional)\n\nA client activates the extension by sending the A2A service parameter `A2A-Extensions` containing this URI (an HTTP header in the HTTP bindings). An agent that declares the extension MUST then include this URI in the `A2A-Extensions` header of its response and MUST place these keys in the `metadata` of the returned `Message` or `Task`:\n\n| metadata key | value |\n|---|---|\n| `https://gate.horizonshield.dev/ext/conduct/v1/endpoint` | the entry of `measured_endpoints` that served this request |\n| `https://gate.horizonshield.dev/ext/conduct/v1/conduct_record` | same value as `params.conduct_record` |\n| `https://gate.horizonshield.dev/ext/conduct/v1/witness_intake` | same value as `params.witness_intake` |\n\nNothing else. No timestamp (a time an issuer chooses is a coordinate the issuer controls), no score. An agent that declares the extension and does not echo on activation is non-conforming; a client SHOULD record that as a discrepancy (section 4, `verdict.ok = false`). An agent that does not declare the extension is free to ignore the header, as A2A allows.\n\n**Two spellings of the header, two versions of the wire.** A2A 0.3 named the service parameter `X-A2A-Extensions`; A2A 1.0 names it `A2A-Extensions`. The 0.3 compatibility paths of the official SDKs still emit the old spelling (`@a2a-js/sdk` 1.1.0 emits only `X-A2A-Extensions` on the 0.3 wire; `a2a-sdk` 1.1.x for Python emits both). An agent MUST read the URI from either header, MUST echo it under `A2A-Extensions`, and MUST also echo it under `X-A2A-Extensions` when the request carried that spelling (a 0.3 client reads only the spelling it sent). The wire version is decided by the method name (`SendMessage` is 1.0, `message/send` is 0.3) and, failing that, by the `A2A-Version` header; the response takes the shape of that wire (1.0: `{\"task\": ...}` or `{\"message\": ...}` with `TASK_STATE_*` and `ROLE_*` enum names and parts discriminated by member name; 0.3: a `Message` or `Task` with `kind`). The `metadata` keys above are the same on both wires. The agent SHOULD also list this URI in the `extensions` field of the returned `Message` (or of `status.message` on a `Task`), the field A2A provides for \"extensions that contributed to this message\". A card that carries the extension SHOULD publish `supportedInterfaces[]` with a `protocolVersion: \"1.0\"` entry first, and MAY keep the 0.3 `url` / `preferredTransport` / `protocolVersion` keys beside it for 0.3-only readers; both official SDKs read such a card as 1.0 and ignore the 0.3 keys.\n\n## 4. Witness walk: `a2a-conduct-walk-v1`\n\nThis is how every connecting client becomes a witness. A walk is a `jidec-path-v1` record (JIDEC_PATH_SPEC_v1.md, ledger entry 5) with a `witness` field, submitted as `POST <witness_intake>` with body `{\"record_canonical\": \"<exact bytes>\"}`. Canonical bytes are UTF-8 of the record with keys sorted at every nesting level, separators `,` and `:` with no spaces, non-ASCII unescaped (Python `json.dumps(obj, sort_keys=True, separators=(\",\",\":\"), ensure_ascii=False)`; a JavaScript implementation MUST sort keys recursively before `JSON.stringify`, the seam recorded in ledger entry 34).\n\nFields:\n\n- `schema`: `\"jidec-path-v1\"`. `purpose`: `\"a2a-conduct-walk-v1: <measured endpoint>\"`. `walked_at`: ISO-8601 UTC. `base`: the card origin (`https://host`). `witness`: `{ \"name\": \"<who>\", \"vantage\": \"<network or tool the walk was taken from>\" }`; `name` MAY be `anonymous`.\n- `nodes`: n0 `fetch` GET `<origin>/.well-known/agent-card.json`; n1 the same GET again; n2 `compute` \"locate the extension by URI in n1 and validate `params`\"; n3 `fetch` POST to the measured endpoint with header `A2A-Extensions: <this URI>` and a JSON-RPC body (MCP `initialize`, or A2A `SendMessage` / `message/send` when the endpoint is the A2A interface). Each `fetch` node records `request.url`, `request.method`, `response.status`, `response.body_sha256` over the exact bytes received. A walk MUST touch at least one `measured_endpoints` entry or the origin, or the ring builder will not count it for that endpoint.\n- `assertions` (each with `claim`, `op`, `result`, `evidence_nodes`): `card_bytes_stable` (n0 body sha equals n1 body sha), `conduct_ext_declared` (n1 carries this URI under `capabilities.extensions[]`), `compensation_well_formed` (section 2 shape), `measured_endpoint_answered` (n3 status 200 and a JSON-RPC `result` of the shape the wire version requires), `extension_echoed` (the n3 response carries this URI under `A2A-Extensions`, or under `X-A2A-Extensions` when the walk sent that spelling; only asserted when n3 was an A2A message, otherwise recorded with `result: null` and `note: \"not applicable\"`). A walk in A2A mode records which wire it used (`conduct_ext.wire`, `\"1.0\"` or `\"0.3\"`); a 0.3 walk sends `message/send` with the header spelled `X-A2A-Extensions` only, which is what a 0.3 client does.\n- `verdict`: `{ \"ok\": <all applicable assertions true>, \"outcome\": \"PASS\" | \"FAIL\", \"n_pass\": <int>, \"n_total\": <int> }`. Both `ok` and `outcome` are carried because the ring builder (`make_ring.py`) reads `ok` while JIDEC_PATH_SPEC_v1 names `outcome`; a record carrying only one of them is read differently by the two.\n\nThe ledger accepts a schema-valid record inside its stated caps with no editorial step, pools it at `/witness/pending`, bundles the pool into a `nenrin-witness-batch-v1` entry once a day, and stamps it to Bitcoin. The monthly ring for the endpoint counts the walk under `witnesses` by distinct `witness.name`, and lists it under `discrepancies` when `ok` is false. With one witness a ring says so in `limits`; the second independent witness is what removes that sentence.\n\n## 5. What this does not do\n\nIt does not measure quality. It does not verify that `compensation` is truthful; a false declaration is published and recorded, and is grounds for revocation on the register, but no reader of this extension can tell truth from shape. It does not make the agent trustworthy; it makes the agent's conduct record findable and the reader's own observation filable. A client MUST NOT treat the presence of this extension as a pass.\n\n## 6. Interoperability, stated so this is not an island\n\nThe unit of record is a ring file: a JSON file whose identity is `sha256(file bytes)` and whose monthly list is anchored to Bitcoin through OpenTimestamps as a JIDEC ledger entry. Two independent implementations (Python and Node.js) reproduce the August 2026 rings byte for byte (ledger entry 34). That file, not this extension, is what other transparency systems can carry:\n\n- **in-toto Statement v1** (planned mapping, not yet emitted): `subject = [{ \"name\": \"rings/<slug>/<YYYY-MM>.json\", \"digest\": { \"sha256\": \"<ring sha>\" } }]`, `predicateType = <this URI>`, predicate = the ring's counts.\n- **IETF SCITT** (planned mapping, not yet emitted): the ring file is the Statement payload; the JIDEC entry with its Bitcoin attestation plays the part of the Receipt; JIDEC is the transparency service. A future version MAY emit a COSE_Sign1 Signed Statement over the same bytes.\n- **Canonical form:** NENRIN v1 defines its canonical form by reference to a language runtime (the seam above). The next NENRIN spec version is expected to adopt RFC 8785 (JCS) or a language-neutral statement. This extension defines no canonical form of its own and inherits that seam.\n\nThese mappings are direction, not delivery. Nothing in sections 2 to 4 depends on them.\n\n## 7. Versioning\n\nThe URI ends in `/v1`. A breaking change to fields, keys, or the walk MUST use a new URI. This document is served at the URI (`GET https://gate.horizonshield.dev/ext/conduct/v1`, JSON with `Accept: application/json`, this text with `Accept: text/markdown`). A permanent identifier (for example under w3id.org) MAY later redirect here; it would be a convenience, not a second identifier. Implementations compare the string at the top of this document and nothing else.\n\n## 8. Source\n\nDevelopment home: `workers/hs-verify-gate/ext/CONDUCT_EXT_v1.md` in `github.com/ogasurfproject-jpg/horizon-shield`. The gate serves the same text. The sha256 of this file is recorded in the gate's `/ext/conduct/v1` JSON as `spec_markdown_sha256` so a reader can tell whether the served copy and the repository copy are the same bytes.\n\n\n## 9. Prior art, named before anyone else has to\n\nThis extension claims no new primitive. The closest published work, and what differs:\n\n- **ERC-8004 Trustless Agents** (Draft ERC; De Rossi, Crapis, Ellis, Reppel; created 2025-08-13). On-chain Identity, Reputation and Validation registries: the Reputation Registry stores client feedback as value scores and tags, the Validation Registry stores validator responses, and a registration file can point at an A2A agent card. Difference: conduct-v1 carries no score and no feedback channel; the record it points to is a measurement written by a gate that does not take the agent's word; the evidence lives as bytes anyone re-hashes; and the timestamp is a Bitcoin attestation of a ring file, not contract state. The two are not exclusive: an ERC-8004 registration file can point at a card that carries this extension.\n- **A2A discussion #1631, \"Reputation-Aware Agent Discovery\"** (makito20256, 2026-03-14; prototype arp-trust-substrate published 2026-04-29; URI `https://agent-reputation-protocol.dev/extensions/reputation/v0.1`). Puts success_rate, accuracy, speed and honesty scores in the card, weighted by the evaluator's own reputation. Difference: the opposite direction. That discussion converged on separating attestation surfaces from scoring policies; conduct-v1 is an attestation surface and stops there by design, and it carries the one field none of the above carry, who pays the agent.\n- **Sigstore-signed Agent Cards** (Hinds, 2025-07-31). Keyless signatures over the card, recorded in a transparency log; answers who published this card and from which commit. Complementary: a signed card can carry this extension; this extension signs nothing.\n- **Agent Certificates** (Zhou, arXiv 2603.14332). A certificate chain and a skills manifest hash in the card's extensions field, for capability integrity. A different question (did the tools change) from this one (how did the agent behave when measured, and who pays it).\n- The transparency and provenance primitives named in section 6 (Certificate Transparency, Rekor, in-toto, SCITT, OpenTimestamps, RFC 8785) are prior art for every mechanism used here.\n\nWhat is not claimed: that any component is new. What is stated: the combination (compensation disclosure as a structural condition, a pointer to a third-party measurement with counts and no scores, a client-side witness path into a Bitcoin-anchored append-only ledger, and a ring builder reproduced byte for byte by a second implementation) was not found by the author in the sources above on 2026-09-06. A prior instance of the full combination is a finding, and this section is where it will be named.\n\n## 10. License and governance\n\nThis specification and the reference implementations named above are licensed under the Apache License, Version 2.0 (`LICENSE` beside this file in the repository). Anyone MAY implement it, fork it, or propose it elsewhere without asking. The A2A project's governance for community extensions (proposal issue in `a2aproject/A2A`, maintainer sponsorship, an `experimental-ext-` repository, graduation by TSC vote) is the intended path if there is interest; should the extension move under the `a2aproject` organization, the URI at the top of this document stays valid for v1 as published, and any URI under `https://a2a-protocol.org/extensions/` would be a new identifier for a new version, not an alias of this one.\n";
+const CONDUCT_EXT_MD = "# A2A Conduct Extension v1 (`conduct-v1`)\n\n**Extension URI (the identifier, compared as an exact string):** `https://gate.horizonshield.dev/ext/conduct/v1`\n**Status:** v1, 2026-09-06 (sections 9 and 10 and the wire notes in sections 3 and 4 added the same day, before any anchoring). Revision v1.1, 2026-09-07: section 11, additive, same URI, every added field OPTIONAL; served from gate 0.4.0 with a new `spec_markdown_sha256`. Reference implementations: MCP Verification Gate 0.3.3 (reads it, serves this document at the URI, answers `SendMessage` at `/a2a`), HORIZON SHIELD KIRA and JIDEC agent cards (declare and echo it on both A2A wire versions), `a2a_conduct_walk.py` (client-side witness walk). Interoperability with the official A2A SDKs (`a2a-sdk` 1.1.x for Python, `@a2a-js/sdk` 1.1.x) is exercised by `workers/hs-mcp/test/sdk_js_interop.mjs` and `sdk_py_interop.py` against the real server code, both wire versions, no network.\n**Type:** data-only A2A extension on the Agent Card, plus an optional request-level echo. It MUST NOT be declared `required: true` (A2A guidance: data-only extensions are never required).\n**Language:** RFC 2119 keywords. Field names are exact.\n\n## 1. What this is for\n\nAn agent about to hand work to another agent can read three things before the first message: who pays the other agent, where a record of that agent's measured conduct lives that the agent itself did not write, and where to file its own observation of that agent. The extension carries one declaration and a set of pointers. It carries no score, no rank, and no verdict of its own. Declaring it proves nothing; the third-party record at `conduct_record` is the evidence, and only if the client fetched it.\n\n## 2. Declaration in the Agent Card\n\nThe agent lists the extension under `capabilities.extensions[]` (A2A 1.0, `AgentExtension`: `uri`, `description`, `required`, `params`).\n\n```json\n{\n  \"uri\": \"https://gate.horizonshield.dev/ext/conduct/v1\",\n  \"description\": \"Who pays this agent, where its measured conduct record lives, and where to file a witness walk.\",\n  \"required\": false,\n  \"params\": {\n    \"compensation\": { \"paid_by\": \"buyer\", \"referral_fee\": false, \"listing_fee\": false, \"success_fee_pct\": 0, \"disclosure_url\": \"https://...\" },\n    \"measured_endpoints\": [\"https://mcp.horizonshield.dev/mcp\"],\n    \"conduct_record\": \"https://gate.horizonshield.dev/history?endpoint=https%3A%2F%2Fmcp.horizonshield.dev%2Fmcp\",\n    \"verdict_recipe\": \"https://gate.horizonshield.dev/spec\",\n    \"witness_intake\": \"https://ledger.horizonshield.dev/witness\",\n    \"consent\": \"https://mcp.horizonshield.dev/.well-known/mcp-conduct.json\",\n    \"register\": \"https://gate.horizonshield.dev/register\",\n    \"rings\": {\n      \"spec\": \"https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/NENRIN_SPEC_v1.md\",\n      \"spec_sha256\": \"9ccba2e325fd2a555fcdb2dec519b8c6bf7a669064674846aea98ecfff824e3d\",\n      \"base\": \"https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/rings/\",\n      \"path\": \"<slug>/<YYYY-MM>.json\",\n      \"slug\": \"endpoint URL without https://, lower case, every run of characters outside [a-z0-9] replaced by one hyphen, hyphens trimmed at both ends\",\n      \"ledger\": \"https://ledger.horizonshield.dev/ledger\"\n    }\n  }\n}\n```\n\n`params` fields:\n\n| field | type | requirement | meaning |\n|---|---|---|---|\n| `compensation` | object | REQUIRED | Who pays the agent. `paid_by` MUST be one of `buyer`, `seller`, `referral`, `advertising`, `subscription`, `public`, `other`. `referral_fee` and `listing_fee` MUST be booleans. `success_fee_pct`, when present, MUST be a number from 0 to 100. `disclosure_url`, when present, MUST be a string. Content is not judged by anyone reading this field; only the absence or malformation of the declaration is a failure. This is the same shape the gate's condition 3 has read at the card's top-level `compensation` key since 0.2.0. |\n| `measured_endpoints` | string[] | REQUIRED, at least one | The exact URL(s) whose conduct is recorded, as they appear on the register. |\n| `conduct_record` | string (https URL) | REQUIRED | A live record of measurements of the agent, written by a party other than the agent. For gate-measured endpoints this is `https://gate.horizonshield.dev/history?endpoint=<url-encoded endpoint>`. Every record there carries a `record_sha256` that the reader recomputes. |\n| `witness_intake` | string (https URL) | REQUIRED | Where a client files its own walk of the agent (section 4). |\n| `verdict_recipe` | string (https URL) | OPTIONAL | How to recompute the hashes in `conduct_record`. |\n| `consent` | string (https URL) | OPTIONAL | The origin's `/.well-known/mcp-conduct.json`, the owner's proof of consent to tool calls during measurement. |\n| `register` | string (https URL) | OPTIONAL | The public register the endpoint sits on. |\n| `rings` | object | OPTIONAL | Where monthly conduct rings (NENRIN Layer 3) are published, with the spec they follow and its sha256. |\n\nA card MAY keep the top-level `compensation` key for readers that predate this extension. When both are present they MUST be equal on the five keys above; two declarations that disagree are a failed disclosure, not a choice for the reader to make. When the extension is listed more than once with this URI, every listing MUST carry an equal `compensation`.\n\n## 3. Request-level echo (optional)\n\nA client activates the extension by sending the A2A service parameter `A2A-Extensions` containing this URI (an HTTP header in the HTTP bindings). An agent that declares the extension MUST then include this URI in the `A2A-Extensions` header of its response and MUST place these keys in the `metadata` of the returned `Message` or `Task`:\n\n| metadata key | value |\n|---|---|\n| `https://gate.horizonshield.dev/ext/conduct/v1/endpoint` | the entry of `measured_endpoints` that served this request |\n| `https://gate.horizonshield.dev/ext/conduct/v1/conduct_record` | same value as `params.conduct_record` |\n| `https://gate.horizonshield.dev/ext/conduct/v1/witness_intake` | same value as `params.witness_intake` |\n\nNothing else. No timestamp (a time an issuer chooses is a coordinate the issuer controls), no score. An agent that declares the extension and does not echo on activation is non-conforming; a client SHOULD record that as a discrepancy (section 4, `verdict.ok = false`). An agent that does not declare the extension is free to ignore the header, as A2A allows.\n\n**Two spellings of the header, two versions of the wire.** A2A 0.3 named the service parameter `X-A2A-Extensions`; A2A 1.0 names it `A2A-Extensions`. The 0.3 compatibility paths of the official SDKs still emit the old spelling (`@a2a-js/sdk` 1.1.0 emits only `X-A2A-Extensions` on the 0.3 wire; `a2a-sdk` 1.1.x for Python emits both). An agent MUST read the URI from either header, MUST echo it under `A2A-Extensions`, and MUST also echo it under `X-A2A-Extensions` when the request carried that spelling (a 0.3 client reads only the spelling it sent). The wire version is decided by the method name (`SendMessage` is 1.0, `message/send` is 0.3) and, failing that, by the `A2A-Version` header; the response takes the shape of that wire (1.0: `{\"task\": ...}` or `{\"message\": ...}` with `TASK_STATE_*` and `ROLE_*` enum names and parts discriminated by member name; 0.3: a `Message` or `Task` with `kind`). The `metadata` keys above are the same on both wires. The agent SHOULD also list this URI in the `extensions` field of the returned `Message` (or of `status.message` on a `Task`), the field A2A provides for \"extensions that contributed to this message\". A card that carries the extension SHOULD publish `supportedInterfaces[]` with a `protocolVersion: \"1.0\"` entry first, and MAY keep the 0.3 `url` / `preferredTransport` / `protocolVersion` keys beside it for 0.3-only readers; both official SDKs read such a card as 1.0 and ignore the 0.3 keys.\n\n## 4. Witness walk: `a2a-conduct-walk-v1`\n\nThis is how every connecting client becomes a witness. A walk is a `jidec-path-v1` record (JIDEC_PATH_SPEC_v1.md, ledger entry 5) with a `witness` field, submitted as `POST <witness_intake>` with body `{\"record_canonical\": \"<exact bytes>\"}`. Canonical bytes are UTF-8 of the record with keys sorted at every nesting level, separators `,` and `:` with no spaces, non-ASCII unescaped (Python `json.dumps(obj, sort_keys=True, separators=(\",\",\":\"), ensure_ascii=False)`; a JavaScript implementation MUST sort keys recursively before `JSON.stringify`, the seam recorded in ledger entry 34).\n\nFields:\n\n- `schema`: `\"jidec-path-v1\"`. `purpose`: `\"a2a-conduct-walk-v1: <measured endpoint>\"`. `walked_at`: ISO-8601 UTC. `base`: the card origin (`https://host`). `witness`: `{ \"name\": \"<who>\", \"vantage\": \"<network or tool the walk was taken from>\" }`; `name` MAY be `anonymous`.\n- `nodes`: n0 `fetch` GET `<origin>/.well-known/agent-card.json`; n1 the same GET again; n2 `compute` \"locate the extension by URI in n1 and validate `params`\"; n3 `fetch` POST to the measured endpoint with header `A2A-Extensions: <this URI>` and a JSON-RPC body (MCP `initialize`, or A2A `SendMessage` / `message/send` when the endpoint is the A2A interface). Each `fetch` node records `request.url`, `request.method`, `response.status`, `response.body_sha256` over the exact bytes received. A walk MUST touch at least one `measured_endpoints` entry or the origin, or the ring builder will not count it for that endpoint.\n- `assertions` (each with `claim`, `op`, `result`, `evidence_nodes`): `card_bytes_stable` (n0 body sha equals n1 body sha), `conduct_ext_declared` (n1 carries this URI under `capabilities.extensions[]`), `compensation_well_formed` (section 2 shape), `measured_endpoint_answered` (n3 status 200 and a JSON-RPC `result` of the shape the wire version requires), `extension_echoed` (the n3 response carries this URI under `A2A-Extensions`, or under `X-A2A-Extensions` when the walk sent that spelling; only asserted when n3 was an A2A message, otherwise recorded with `result: null` and `note: \"not applicable\"`). A walk in A2A mode records which wire it used (`conduct_ext.wire`, `\"1.0\"` or `\"0.3\"`); a 0.3 walk sends `message/send` with the header spelled `X-A2A-Extensions` only, which is what a 0.3 client does.\n- `verdict`: `{ \"ok\": <all applicable assertions true>, \"outcome\": \"PASS\" | \"FAIL\", \"n_pass\": <int>, \"n_total\": <int> }`. Both `ok` and `outcome` are carried because the ring builder (`make_ring.py`) reads `ok` while JIDEC_PATH_SPEC_v1 names `outcome`; a record carrying only one of them is read differently by the two.\n\nThe ledger accepts a schema-valid record inside its stated caps with no editorial step, pools it at `/witness/pending`, bundles the pool into a `nenrin-witness-batch-v1` entry once a day, and stamps it to Bitcoin. The monthly ring for the endpoint counts the walk under `witnesses` by distinct `witness.name`, and lists it under `discrepancies` when `ok` is false. With one witness a ring says so in `limits`; the second independent witness is what removes that sentence.\n\n## 5. What this does not do\n\nIt does not measure quality. It does not verify that `compensation` is truthful; a false declaration is published and recorded, and is grounds for revocation on the register, but no reader of this extension can tell truth from shape. It does not make the agent trustworthy; it makes the agent's conduct record findable and the reader's own observation filable. A client MUST NOT treat the presence of this extension as a pass.\n\n## 6. Interoperability, stated so this is not an island\n\nThe unit of record is a ring file: a JSON file whose identity is `sha256(file bytes)` and whose monthly list is anchored to Bitcoin through OpenTimestamps as a JIDEC ledger entry. Two independent implementations (Python and Node.js) reproduce the August 2026 rings byte for byte (ledger entry 34). That file, not this extension, is what other transparency systems can carry:\n\n- **in-toto Statement v1** (planned mapping, not yet emitted): `subject = [{ \"name\": \"rings/<slug>/<YYYY-MM>.json\", \"digest\": { \"sha256\": \"<ring sha>\" } }]`, `predicateType = <this URI>`, predicate = the ring's counts.\n- **IETF SCITT** (planned mapping, not yet emitted): the ring file is the Statement payload; the JIDEC entry with its Bitcoin attestation plays the part of the Receipt; JIDEC is the transparency service. A future version MAY emit a COSE_Sign1 Signed Statement over the same bytes.\n- **Canonical form:** NENRIN v1 defines its canonical form by reference to a language runtime (the seam above). The next NENRIN spec version is expected to adopt RFC 8785 (JCS) or a language-neutral statement. This extension defines no canonical form of its own and inherits that seam.\n\nThese mappings are direction, not delivery. Nothing in sections 2 to 4 depends on them.\n\n## 7. Versioning\n\nThe URI ends in `/v1`. A breaking change to fields, keys, or the walk MUST use a new URI. This document is served at the URI (`GET https://gate.horizonshield.dev/ext/conduct/v1`, JSON with `Accept: application/json`, this text with `Accept: text/markdown`). A permanent identifier (for example under w3id.org) MAY later redirect here; it would be a convenience, not a second identifier. Implementations compare the string at the top of this document and nothing else.\n\n## 8. Source\n\nDevelopment home: `workers/hs-verify-gate/ext/CONDUCT_EXT_v1.md` in `github.com/ogasurfproject-jpg/horizon-shield`. The gate serves the same text. The sha256 of this file is recorded in the gate's `/ext/conduct/v1` JSON as `spec_markdown_sha256` so a reader can tell whether the served copy and the repository copy are the same bytes.\n\n\n## 9. Prior art, named before anyone else has to\n\nThis extension claims no new primitive. The closest published work, and what differs:\n\n- **ERC-8004 Trustless Agents** (Draft ERC; De Rossi, Crapis, Ellis, Reppel; created 2025-08-13). On-chain Identity, Reputation and Validation registries: the Reputation Registry stores client feedback as value scores and tags, the Validation Registry stores validator responses, and a registration file can point at an A2A agent card. Difference: conduct-v1 carries no score and no feedback channel; the record it points to is a measurement written by a gate that does not take the agent's word; the evidence lives as bytes anyone re-hashes; and the timestamp is a Bitcoin attestation of a ring file, not contract state. The two are not exclusive: an ERC-8004 registration file can point at a card that carries this extension.\n- **A2A discussion #1631, \"Reputation-Aware Agent Discovery\"** (makito20256, 2026-03-14; prototype arp-trust-substrate published 2026-04-29; URI `https://agent-reputation-protocol.dev/extensions/reputation/v0.1`). Puts success_rate, accuracy, speed and honesty scores in the card, weighted by the evaluator's own reputation. Difference: the opposite direction. That discussion converged on separating attestation surfaces from scoring policies; conduct-v1 is an attestation surface and stops there by design, and it carries the one field none of the above carry, who pays the agent.\n- **Sigstore-signed Agent Cards** (Hinds, 2025-07-31). Keyless signatures over the card, recorded in a transparency log; answers who published this card and from which commit. Complementary: a signed card can carry this extension; this extension signs nothing.\n- **Agent Certificates** (Zhou, arXiv 2603.14332). A certificate chain and a skills manifest hash in the card's extensions field, for capability integrity. A different question (did the tools change) from this one (how did the agent behave when measured, and who pays it).\n- The transparency and provenance primitives named in section 6 (Certificate Transparency, Rekor, in-toto, SCITT, OpenTimestamps, RFC 8785) are prior art for every mechanism used here.\n\nWhat is not claimed: that any component is new. What is stated: the combination (compensation disclosure as a structural condition, a pointer to a third-party measurement with counts and no scores, a client-side witness path into a Bitcoin-anchored append-only ledger, and a ring builder reproduced byte for byte by a second implementation) was not found by the author in the sources above on 2026-09-06. A prior instance of the full combination is a finding, and this section is where it will be named.\n\n## 10. License and governance\n\nThis specification and the reference implementations named above are licensed under the Apache License, Version 2.0 (`LICENSE` beside this file in the repository). Anyone MAY implement it, fork it, or propose it elsewhere without asking. The A2A project's governance for community extensions (proposal issue in `a2aproject/A2A`, maintainer sponsorship, an `experimental-ext-` repository, graduation by TSC vote) is the intended path if there is interest; should the extension move under the `a2aproject` organization, the URI at the top of this document stays valid for v1 as published, and any URI under `https://a2a-protocol.org/extensions/` would be a new identifier for a new version, not an alias of this one.\n\n## 11. Revision v1.1 (2026-09-07): additive, same URI\n\n**Status:** served at the URI from gate 0.4.0. Every field in this section is OPTIONAL for the declaring agent and for the walking client; a v1 reader that ignores them reads a v1.1 card and a v1.1 walk correctly, and v1 as published (JIDEC entry 37) stays valid unchanged. Section 7 permits this: only a breaking change needs a new URI. The served JSON reports `spec_markdown_sha256`, so a reader can always tell which text it has. Reference implementations: gate 0.4.0 (lookup, notify, verdict disclaimers, commitment anchoring), ledger intake (lanes, domain binding, counting rule), `a2a_conduct_walk.py` (modes, signing), `make_ring.py` (v1.1 columns).\n\n**Why a revision.** Three holes named in the operator's own review on 2026-09-06: a witness chooses its own identity, so a flood of self-named witnesses can bury the disagreement column (11.4); a walk record can leak what a caller asked whom (11.3); filing costs the caller effort, so nobody files (11.5 to 11.7). Plus one field forced by a public finding (11.9): a record that does not say what it does not establish is read as more than it is.\n\n**Rollout.** Rings for months from 2026-09 onward carry the columns of 11.8 when built with a builder that implements them; the v1 fields keep their v1 meaning and their bytes are unaffected in months before 2026-09, so the August 2026 reproducibility result (entry 34) is untouched. A month is published under v1.1 columns only after the second ring implementation agrees byte for byte on a shared fixture; until then that month is published under v1 columns and says so.\n\n### 11.1 What a record claims: `establishes` and `does_not_establish`\n\nAny record that carries `mode` (11.2) is a v1.1 record and MUST carry two non-empty arrays of strings: `establishes`, naming exactly what the record proves, and `does_not_establish`, naming what it does not. `does_not_establish` MUST contain at least: correctness or quality of any response; truth of the compensation declaration; and, when the record is unsigned, the identity of the witness beyond the name given. The intake refuses a v1.1 record missing either array or carrying it empty (`reason_code: disclaimer_missing`). A v1 record (no `mode`) is accepted as before and stored with `disclaimer_present: false`.\n\nThe same discipline applies to the measurer. From gate 0.4.0 every verdict and the gate's own `/self` record carry `establishes` and `does_not_establish`, and both arrays are inside the bytes that `record_sha256` hashes: a quotation of the verdict with the arrays removed no longer recomputes.\n\n### 11.2 Record modes\n\n`mode` is `\"full\"` (v1 behaviour), `\"hash-only\"` or `\"commitment\"`. A record without `mode` is read as `\"full\"`. `vantage_limitation` (OPTIONAL, string) states what the witness could not see from where it stood: a proxy, a cache, a rate limit hit, a region.\n\n### 11.3 `hash-only` and `commitment` (what a caller asked whom stays private)\n\n`hash-only`: every `fetch` node carries only `response.status` and `response.body_sha256`; `request.url` is the origin (`https://host`, no path, no query) and `request.method` is `\"REDACTED\"`. `purpose` keeps `\"a2a-conduct-walk-v1: <measured endpoint>\"` so the ring builder can attribute the walk. `establishes` says that a response with the given sha256 was received from the origin at `walked_at` and nothing more; `does_not_establish` adds \"which tool or method was called\". The intake refuses a hash-only node whose `request.url` carries a path, a query or a fragment (`reason_code: path_leaks_tool`), and a `request.method` other than `REDACTED`.\n\n`commitment`: the record carries `schema`, `purpose`, `walked_at`, `base`, `witness`, `mode: \"commitment\"`, `commitment` (64 hex characters), the two arrays of 11.1, and SHOULD carry `commitment_recipe` (a string saying how `commitment` was formed). For a witness walk the recipe is `sha256(canonical full record || salt)`; the witness keeps the full record and the salt, and MAY reveal later by filing the full record. Other purposes MAY use commitment mode with their own recipe, stated in the record: the gate files its instant coordinate salt commitment this way (purpose `nenrin-instant-commitment-v1: <window_id>`, recipe `sha256('nenrin-instant-salt-v1:' + salt)`, `base` the window's page on the gate), which anchors the salt's creation time to a Bitcoin block through the ledger without any new ledger code. The ring counts a walk commitment under `commitments_unrevealed`, with `verdict.ok = null`, under neither PASS nor discrepancies. Nothing in a commitment identifies a tool, a method or a response.\n\nA record never carries a request or response body in any mode. A client MAY keep a local allow list and deny list of endpoints it will file about; a denied endpoint is simply not walked, and the client MUST NOT file a record that pretends otherwise.\n\n### 11.4 Witness identity: domain-bound signing, lanes, counting\n\nSigning is the existing intake mechanism: Ed25519 over the exact canonical bytes, presented as `signature_ed25519_b64` and `public_key_ed25519_b64` beside `record_canonical`. v1.1 adds `witness.key_url` (OPTIONAL, https URL): the same public key MUST be served at that URL as `{\"public_key_ed25519_b64\": \"<key>\"}`. The host of `key_url` is then the witness's identity (`signed_domain`); the string in `witness.name` is a label. The intake refuses: `key_url` without a signature (`bad_key_url`); a `key_url` host equal to the walked agent's origin host or measured endpoint host, or to the ledger's own host (`self_witness`: an agent cannot witness itself under a key it serves); a key served at `key_url` that is not the signing key (`key_url_mismatch`); and answers 503 `key_url_unreachable` when the key cannot be fetched, so the caller can retry or file unsigned. Keys are cached 24 hours per URL.\n\nLanes: unsigned and address-signed records share a per-address lane of 5 stored records per UTC day; domain-signed records have a per-domain lane of 50; the intake stores at most 500 records per UTC day in total. Beyond a lane the intake answers 429 and stores nothing. The caps are stated at `GET <witness_intake>`.\n\nCounting, not storage, is the unit: the first record per identity (`domain:<host>` when domain-signed, otherwise `name:<witness.name>`) × walked endpoint × UTC day is stored with `counted: true`; later records that day are stored with `counted: false` and the reason. Two records with identical canonical bytes are stored once. `/witness/pending` and the daily `nenrin-witness-batch-v1` entry carry every stored record, counted or not, so nothing is hidden by a cap; only the ring's counts respect it. None of this scores a witness. It separates two columns and stops one address from filling a column alone.\n\n### 11.5 Consent file additions: `notify`, `identity`, `witness_policy`\n\nThe owner's consent file (`/.well-known/mcp-conduct.json` on the origin, v1 section 2 `consent`) MAY carry three more keys. Only the owner of the origin can place them, which is why they live there rather than in a request.\n\n`notify` (https URL): after each scheduled measurement of an endpoint on that origin, the measurer POSTs a JSON summary there: `event: \"measured\"`, `endpoint`, `at`, `status`, `record_sha256`, what changed, `establishes`, `does_not_establish`, and links to the conduct record and the lookup. At most once per hour per endpoint, a bounded number per sweep (the rest are recorded as deferred), never from an on-demand check (which anyone can call), never to an IP literal, a local name, or the measurer's own hosts, no retry. The sweep record carries `notify_status` per row. Declaring the field is consent to receive the POST; removing it stops the POSTs. The notification changes nothing about the verdict.\n\n`identity`: an https URL, or `{ \"kind\": \"did\" | \"jwks\" | \"vc\" | \"url\", \"ref\": \"<DID or https URL>\" }`, pointing at an identity the agent holds elsewhere. The measurer does not resolve it and asserts nothing about it; readings copy it as declared. This is the receiving slot for identity layers when they go live.\n\n`witness_policy`: `{ \"reciprocal\": true | false }` (default false). `reciprocal: true` is the owner's statement that it walks back callers as in 11.6. A declaration; the ring's `walked_as_witness` column is the fact. A card MAY repeat `identity` and `witness_policy` under this extension's `params`; when both are present the consent file is what the measurer reads.\n\n### 11.6 Reciprocal walk\n\nAn agent that declares `witness_policy.reciprocal: true` states this behaviour: when it receives an A2A message whose `metadata` carries `https://gate.horizonshield.dev/ext/conduct/v1/caller_card` (an https URL, sent by the caller voluntarily), it walks that card within 24 hours, honours `listing: \"decline\"` at that origin, files the walk under its own name and, if it has one, its domain key, to the intake named in the caller's card (or its own intake when the caller declares none), and answers with the `metadata` key `https://gate.horizonshield.dev/ext/conduct/v1/reciprocal` set to `\"scheduled\"` or `\"declined\"`. The caller thus receives one record it did not write, without filing anything. A reciprocal walk is a walk like any other: same schema, same intake rules, counted under the walking agent's identity, carrying the arrays of 11.1. Reference implementation: pending; the field is defined so that cards can declare it now.\n\n### 11.7 Register lookup: one URL before connecting\n\n`GET https://gate.horizonshield.dev/register/lookup?endpoint=<url-encoded endpoint>` answers with no score: `status` (`verified`, `pending`, `declined`, `unknown`), `status_meaning`, `last_measured` (`at`, `status`, `record_sha256`, coordinate window), `measurements`, `last_ring` (the last published ring's counts copied as counts, or `present: false` with the URLs tried), `conduct_record`, `witness_intake`, `rings` (base, slug, path), `establishes`, `does_not_establish`. `unknown` means the register has no row; it never means a finding. The response is cacheable for 24 hours (`Cache-Control: public, max-age=86400`) and says so.\n\n### 11.8 Ring columns (NENRIN, months from 2026-09)\n\nBeside v1's `witnesses` and `discrepancies` (unchanged, every witness counted by distinct name): `witnesses_signed`, `witnesses_unsigned`, `discrepancies_signed`, `discrepancies_unsigned` (deduplicated per identity and day), `commitments_unrevealed`, `walked_as_witness` (walks this endpoint's operator filed about other endpoints that month, by count, attributed by `signed_domain` equal to the endpoint host and `counted: true`), `instants_derived`, `instants_legacy`, `instants_no_coordinate_block`; and `limits` gains \"unsigned witnesses are counted by the name they gave\" whenever `witnesses_unsigned > 0`. Counts only, never a rate.\n\n### 11.9 Red team and prior art added in this revision\n\nVectors, each a refusal or a separation and never a pass: disclaimer dropped from a v1.1 record (still schema-valid, refused); disclaimer emptied; bad mode; `key_url` without signature; `key_url` under the walked agent's own domain; key at `key_url` not the signing key; `key_url` unreachable (503, not 422); same identity twice in a day (stored, counted once); one address over its lane (429, nothing stored); hash-only node with a path (refused); commitment without a 64 hex commitment (refused); the gate's verdict quoted without its arrays (does not recompute); commitment filed once per window and reported honestly when the ledger is unreachable; notify to an IP literal (never sent); notify twice within an hour (second not sent); notify from an on-demand check (never sent). Suites: `workers/hs-ledger/test/witness_v11.test.mjs`, `workers/hs-ledger/nenrin/a2a-conduct-walk/walk_selftest.py`, `workers/hs-ledger/nenrin/ring-v1/ring_redteam.py`, `workers/hs-verify-gate/test/conduct_v11_gate.test.mjs`.\n\nPrior art: the `establishes` / `does_not_establish` pair follows a public finding by Federico Blanco Sánchez-Llanos (LinkedIn, 2026-09-07) about a TEE attestation conformance specification in `trustless-ai/recompute-kit`: a record that could silently drop its \"not judged correct\" disclaimer and still pass conformance, repaired the same day by a one-line fix and a new conformance vector, and mirrored by the `vantage_limitation` his review verdicts carry. This revision adopts the same discipline on both the witness side and the measurer side. Domain-bound witness keys follow the transparency-log witness model (Sigsum witnesses, Certificate Transparency gossip), applied to the conduct of a counterparty instead of the consistency of a log. Nothing else in this revision claims a new primitive.\n\n### 11.10 What this revision does not do\n\nIt does not make a witness trustworthy; it makes a signed witness attributable to a domain and an unsigned one countable apart. It does not detect lies; a signed liar fills the signed column, and any hidden judgement of who is lying would be a coordinate the operator controls, which is what this extension exists to remove. It does not prove that a hash-only or commitment record refers to a real exchange; it proves only that a stated hash was filed at a stated time. It does not oblige any framework to file records by default; reference hooks default to writing the record locally and sending nothing. It does not change coordinate derivation, the sweep's conditions, or any field of `coordinate_derivation`.\n";
 const COMPENSATION_KEYS = ["paid_by", "referral_fee", "listing_fee", "success_fee_pct", "disclosure_url"];
 
 // 扉が申請者に要求するのと同じ形式で、扉自身の報酬構造を宣言する(card の top-level と extension の両方に同じ物を置く)。
@@ -177,7 +177,20 @@ function conductExtensionSpec(origin, mdSha) {
       scitt: "planned mapping, not yet emitted: the ring file is the Statement payload, the JIDEC entry with its Bitcoin attestation plays the Receipt",
       canonical_form: "inherits the NENRIN v1 seam (canonical form defined by reference to a language runtime); RFC 8785 or a language-neutral statement expected in the next NENRIN version"
     },
-    versioning: "the URI ends in /v1; a breaking change uses a new URI; a w3id.org redirect may later point here and would not be a second identifier",
+    // 0.4.0 (2026-09-07). conduct-v1.1: 同じ URI、足す欄は全部 OPTIONAL。markdown の section 11 が規範、ここはその目次。
+    v1_1: {
+      since: "2026-09-07 (gate 0.4.0); section 11 of the markdown is normative, this block is its index",
+      additive: "same URI; every added field is OPTIONAL; a v1 reader reads a v1.1 card and walk correctly; v1 as anchored (JIDEC entry 37) stays valid",
+      record_fields: { mode: "full | hash-only | commitment (absent means full)", establishes: "required on a v1.1 record: non-empty string list of what it proves", does_not_establish: "required on a v1.1 record: non-empty string list of what it does not prove; the intake refuses its absence (disclaimer_missing)", vantage_limitation: "optional string", commitment: "64 hex, commitment mode only; commitment_recipe should state how it was formed", "witness.key_url": "optional https URL under the witness's own domain serving {public_key_ed25519_b64}; the host becomes signed_domain" },
+      intake: { signing: "Ed25519 over the canonical bytes (signature_ed25519_b64 + public_key_ed25519_b64 beside record_canonical, as in v1)", refusals: ["disclaimer_missing", "bad_mode", "bad_commitment", "path_leaks_tool", "bad_key_url", "self_witness", "key_url_mismatch", "key_url_unreachable (503)"], lanes: "5 stored per address per UTC day (unsigned or address-signed), 50 per domain per day (domain-signed), 500 per day in total; stated at GET " + "https://ledger.horizonshield.dev/witness", counting: "first record per identity (domain:<host> or name:<witness.name>) x endpoint x UTC day is counted: true; later ones stored with counted: false; identical bytes stored once" },
+      consent_file_fields: { notify: "https URL; the measurer POSTs a summary after each scheduled measurement, at most once per hour per endpoint, never from an on-demand check, never to an IP literal or a local name; notify_status in the sweep record", identity: "https URL or {kind, ref}; declared, never resolved by the measurer", witness_policy: "{reciprocal: boolean}; a declaration, the ring's walked_as_witness column is the fact" },
+      measurer: { verdict_disclaimers: "every verdict and /self carry establishes and does_not_establish inside the hashed bytes", lookup: origin + "/register/lookup?endpoint=<url-encoded endpoint> (verified | pending | declined | unknown, last ring counts, 24 hour cache, no score)", commitment_anchoring: "each sweep files the instant coordinate salt commitment of the next window to the witness intake as a commitment record (purpose nenrin-instant-commitment-v1: <window_id>); /nenrin/window shows commitment_filed" },
+      rings: "months from 2026-09, once two builders agree byte for byte: witnesses_signed, witnesses_unsigned, discrepancies_signed, discrepancies_unsigned, commitments_unrevealed, walked_as_witness, instants_derived, instants_legacy, instants_no_coordinate_block",
+      reciprocal_walk: "defined (11.6: metadata keys caller_card and reciprocal); reference implementation pending",
+      red_team: ["workers/hs-ledger/test/witness_v11.test.mjs", "workers/hs-ledger/nenrin/a2a-conduct-walk/walk_selftest.py", "workers/hs-ledger/nenrin/ring-v1/ring_redteam.py", "workers/hs-verify-gate/test/conduct_v11_gate.test.mjs"],
+      does_not: "detect lies, make a witness trustworthy, prove a hash-only or commitment record refers to a real exchange, change coordinate derivation or the sweep's conditions"
+    },
+    versioning: "the URI ends in /v1; a breaking change uses a new URI; a w3id.org redirect may later point here and would not be a second identifier; v1.1 (section 11) is an additive revision under the same URI",
     license: "Apache-2.0 (LICENSE beside the markdown in the repository)",
     a2a_endpoint: origin + "/a2a (SendMessage or message/send; a text part carrying an MCP endpoint URL returns this gate's register reading for it)",
     spec_markdown: "GET " + u + " with Accept: text/markdown",
@@ -386,17 +399,19 @@ const RECOMPUTE_NOTE =
   "so use an order-preserving parse followed by a compact serialize. The response you are reading is " +
   "indented for humans and is not the hashed bytes.";
 
-function json(obj, status) {
+function json(obj, status, extraHeaders) {
   // キャッシュ指示を明示する。書かなければ中間キャッシュの裁量になり、
   // 「測っていない」と「もう緑ではない」が、どちらも古いまま配られる。
   //   400番台以上  no-store   /e/ の404は「測ってもらえば動き出す」と書いてある。
   //                           その約束を守るには、404を誰にも保持させてはいけない。
   //   それ以外     max-age=60 生きた計器なので、60秒より長く固定させない。
+  // 0.4.0. 第 3 引数で header を足せる(/register/lookup の 24 時間 cache だけが使う。2xx の時だけ効く)。
   const st = status || 200;
   const cache = st >= 400 ? "no-store" : "public, max-age=60, must-revalidate";
+  const extra = (st < 400 && extraHeaders && typeof extraHeaders === "object") ? extraHeaders : {};
   return new Response(JSON.stringify(obj, null, 2), {
     status: st,
-    headers: { ...JSON_HEADERS, "Cache-Control": cache, ...CORS_HEADERS }
+    headers: { ...JSON_HEADERS, "Cache-Control": cache, ...CORS_HEADERS, ...extra }
   });
 }
 
@@ -1571,6 +1586,11 @@ async function runCheck(endpoint, allowToolCall, consentBasis, consentSource, co
     };
   }
 
+  // 0.4.0 (2026-09-07). 判定が「何を証明して、何を証明しとらんか」を、散文やなく欄で持つ。
+  // 証人記録(conduct-v1.1)に同じ欄を必須にした日に、運営者の判定にも同じ欄を入れる。運営者は例外やなく被験者。
+  // sha を取る前に入れるので、この 2 欄は再計算の対象であって、後から書き換えられん。
+  Object.assign(record, gateDisclaimers(record));
+
   // 条件5. 判定自体が再計算可能であること
   const canonical = JSON.stringify(record);
   record.record_sha256 = await sha256hex(canonical);
@@ -1578,6 +1598,37 @@ async function runCheck(endpoint, allowToolCall, consentBasis, consentSource, co
     " This gate holds itself to the same standard it applies to applicants.";
 
   return record;
+}
+
+// 0.4.0. 判定の establishes / does_not_establish。記録そのものから組む(申告は 1 つも使わん)。
+// 文は固定の語彙で、同じ記録からは同じ配列が出る。輪と台帳と証人記録に同じ欄がある。
+function gateDisclaimers(record) {
+  const checks = (record && record.checks) || {};
+  const names = Object.keys(checks).sort();
+  const passed = names.filter((k) => checks[k] && checks[k].pass === true);
+  const failed = names.filter((k) => checks[k] && checks[k].pass !== true && checks[k].measured !== false && checks[k].transport !== true);
+  const unmeasured = names.filter((k) => checks[k] && checks[k].measured === false);
+  const transport = names.filter((k) => checks[k] && checks[k].transport === true);
+  const est = [
+    "at " + record.checked_at + " this gate (commit " + record.gate_commit + ", version " + record.gate_version + ") measured " + record.endpoint + " and recorded status " + record.status,
+    "conditions passed: " + (passed.length ? passed.join(", ") : "none") + "; conditions failed: " + (failed.length ? failed.join(", ") : "none"),
+    "every hash in this record recomputes from the bytes it names, and record_sha256 recomputes from this record with record_sha256 and recompute_note removed"
+  ];
+  if (record.coordinate_derivation && record.coordinate_derivation.derived === true) {
+    est.push("the measurement instant and the tool measured were derived from a committed salt and a Bitcoin block the subject did not choose (coordinate_derivation)");
+  }
+  const dne = [
+    "correctness of any price, figure or answer the server returns",
+    "truth of the compensation declaration; only its presence and shape are measured",
+    "quality, competence or fitness of the operator or the service",
+    "behaviour at instants not measured or from vantages this gate did not use"
+  ];
+  if (unmeasured.length) dne.push("conditions not measured on this instant: " + unmeasured.join(", ") + " (unmeasured is not failed)");
+  if (transport.length) dne.push("anything about the target for conditions the gate's own transport failed on: " + transport.join(", "));
+  if (!(record.coordinate_derivation && record.coordinate_derivation.derived === true)) {
+    dne.push("that the measurement instant was unpredictable to the subject (coordinate not derived on this instant; the legacy computable schedule applied and is disclosed)");
+  }
+  return { establishes: est, does_not_establish: dne };
 }
 
 // ---- 仕様(機械可読) ----
@@ -1617,6 +1668,18 @@ function spec() {
     },
     reachability: "Any HTTP status, or a non-JSON body, is an answer from the server: reachable stays true and the row goes pending, not held. Only gateway-shaped statuses (502-504, 52x) and transport failures mean held. Redirects to another origin are treated as answered, not followed (0.2.2).",
     consent: "allow_tool_call on /check is asserted by the requester and is not proof of ownership; every verdict states its consent_basis and consent_source. Rows in the public register are measured with tool calls only with proven consent: the operator's published consent list (0.2.2) or a consent file on the endpoint's own origin (0.2.4).",
+    establishes_and_does_not_establish: {
+      since: "0.4.0",
+      what: "Every verdict (and this gate's own /self record) carries two arrays, establishes and does_not_establish, generated from the measurement itself and included in the bytes that record_sha256 hashes. establishes names what was measured: the instant, the commit, the conditions that passed and failed, the hash recipe and the coordinate. does_not_establish names what a passing verdict never means: that answers are correct, that a compensation declaration is true, quality, safety, other instants, other vantages, conditions not measured on this run.",
+      why: "A verdict that only lists what passed can be quoted with its caveats dropped; the quote still verifies against the hash. Found in public on 2026-09-07 by a reader of the A2A extension: the 'not judged correct' disclaimer could be removed from a card and conformance still passed. With the two arrays inside the hashed record, a quote without them no longer recomputes.",
+      not_a_rule: "The arrays are text and are not conditions. Nothing passes or fails on them. They are the record refusing to be quoted as more than it is."
+    },
+    lookup: {
+      since: "0.4.0",
+      route: "GET /register/lookup?endpoint=<https MCP endpoint>",
+      what: "One read before connecting: status (verified / pending / declined / unknown), the latest stored verdict's sha, the last published ring's counts (witnesses signed and unsigned, discrepancies, commitments, walked_as_witness, instants by derivation), where the record and the witness intake are, and what the answer does not establish. Cached 24 hours. No score, no rank.",
+      unknown: "means no row here. It is never a finding about the endpoint."
+    },
     instant_coordinate: {
       since: "0.3.0",
       schema: "nenrin-instant-v1",
@@ -1626,6 +1689,7 @@ function spec() {
       beacon: "One reference height for every source: the second highest tip among the sources that answered, minus 6 (freshness v3.3's quorum tip; with two sources that is min(tip) minus 6), across the block sources that answered (mempool.space, blockstream.info and, since 0.3.5, mempool.emzy.de; the two mempool instances share a codebase, which is a named residual) (0.3.5; until 0.3.4 each source's own tip minus 6 was compared, which failed whenever the explorers were one block apart). The hash at that height must agree between at least two sources and the block's header time must be at or after salt_created_at, or there is no beacon and the legacy computable schedule is used and said so in the verdict, in the sweep record and at /nenrin/window. The first sweep of a window decides derived or legacy for the whole window, so no row is measured twice or skipped by a mid-window switch. This gate cannot sync headers peer to peer, so it records the height and hash it used: anyone holding the chain can falsify a wrong beacon, permanently.",
       in_every_verdict: "coordinate_derivation, and since 0.3.5 in every /history entry (derived, window_id, salt_commitment, salt_created_at, beacon height, hash and header time, day_in_window, tool_set_sha256, or the fallback with its reason_code)",
       window: "/nenrin/window (current, next and previous window: commitment at creation, pinned rule, beacon, salt revealed once the window has closed); /nenrin/window/{window_id} for one window",
+      anchoring: "Since 0.4.0 every sweep files the commitment of the next window (and of the current one, if not yet filed) to the JIDEC witness intake as a conduct-v1.1 commitment record (purpose nenrin-instant-commitment-v1: <window_id>, base = the window's page here, so the ring builder does not count it as a witness of any endpoint). The ledger bundles it into the next daily batch and stamps the batch to Bitcoin, so the block height of that batch bounds the salt's creation from above with no trust in this gate. /nenrin/window shows commitment_filed per window: record sha, ledger URL, and whether it was filed before the window opened. Until 0.3.5 the commitment was only published on this gate's own page, which proved nothing to anyone who does not trust this gate; that gap was written in the addendum as future work and is closed here.",
       addendum: "workers/hs-ledger/nenrin/coordinate-v1/NENRIN_COORDINATE_v1_ADDENDUM_instants_v1.md, sha256 c4929b29b6e9f8f2877cc58e3c2e225542a7fe9a1bf805a02374b96750cf4c9f. The defect was published before the fix was written.",
       red_team: "test/redteam_instant.mjs, 40 vectors, and instant_redteam.py, 17 vectors, against two independent implementations of the same rule; test/sweep_coordinate.test.mjs drives a whole sweep against mock explorers and reads the derivation back from /history, /sweep/last and /nenrin/window.",
       limits: "Derivation is fair only inside the surface the subject declared. A tool never listed is never picked: that set is unknown, not absent. A salt is single use per window. This measures conduct, not quality."
@@ -1633,7 +1697,7 @@ function spec() {
     well_known_consent: {
       since: "0.2.4",
       path: CONSENT_WELL_KNOWN_PATH,
-      shape: { allow_tool_call: "boolean true, required; nothing else counts", endpoints: "optional array of exact endpoint URLs; when present, only those endpoints are consented", listing: "optional string, since 0.3.1; the exact value \"decline\" means the owner declines measurement: the scheduled sweep skips the endpoint, the register row records owner_declined with a date, and no verdict is produced while the file says so. Removing the value resumes measurement at the next sweep. Anyone can still add a row; only the origin can decline it." },
+      shape: { allow_tool_call: "boolean true, required; nothing else counts", endpoints: "optional array of exact endpoint URLs; when present, only those endpoints are consented", listing: "optional string, since 0.3.1; the exact value \"decline\" means the owner declines measurement: the scheduled sweep skips the endpoint, the register row records owner_declined with a date, and no verdict is produced while the file says so. Removing the value resumes measurement at the next sweep. Anyone can still add a row; only the origin can decline it.", notify: "optional https URL, since 0.4.0 (conduct-v1.1): after every scheduled measurement the gate POSTs a summary there (event measured, status, record_sha256, what changed, establishes, does_not_establish, links). At most once per hour per endpoint, at most " + NOTIFY_MAX_PER_SWEEP + " per sweep (the rest are recorded as deferred), never from an on-demand /check, never to an IP literal, a local name, or this gate's own hosts. The sweep record carries notify_status per row. Notification changes nothing about the verdict.", identity: "optional https URL, since 0.4.0: where the owner says who they are. Copied into readings as declared; never verified by this gate.", witness_policy: "optional object, since 0.4.0: reciprocal true declares that the owner walks back whoever walks them. A declaration; the ring's walked_as_witness column is the fact." },
       why: "Only the owner of an origin can place a file under its /.well-known/. So the file is proof of consent, where a request field is only an assertion. The gate reads it with the same same-origin rules as the agent card, executes nothing from it, and records in the verdict where and when it read it.",
       effect: "Determinism is measured on /check without asserting allow_tool_call, and on every scheduled measurement of the public register. The verdict of a check without consent names this path under consent_lookup.how_to_consent."
     },
@@ -1689,8 +1753,11 @@ const MAX_PER_SWEEP = 8;         // 1本あたり最悪 1(init)+3(tools/listペ�
 // 0.3.0 で 9 から 8 に下げた。窓の初回だけ beacon の取得が +4 乗る(tip 2 源 + block 2 源)。
 // 9 のままやと 45+4=49 で余白 1 になり、endpoint が 1 つ余計に redirect しただけで掃引が死ぬ。
 // 溢れた分は skipped に "over MAX_PER_SWEEP" として必ず記録される。黙って切らん。
+// 0.4.0 の足し算: 窓の初回に commitment の filing +2(beacon と同じ日)。外部の行は well-known +1 で 6。
+// notify は 1 掃引 NOTIFY_MAX_PER_SWEEP 本まで(溢れた行は notify_status に deferred と書く)。
 const FREE_INTERVAL_DAYS = 7;    // 無料層は週1回
 const NOTIFY_TIMEOUT_MS = 5000;
+const NOTIFY_MAX_PER_SWEEP = 3;
 
 async function readRegistry(env) {
   if (!env || !env.HS_VERIFY_KV) return {};
@@ -1707,6 +1774,24 @@ async function markDeclined(env, endpoint, declined) {
   if (declined === was) return;
   if (declined) row.owner_declined_at = new Date().toISOString();
   else { row.owner_declined_withdrawn_at = new Date().toISOString(); delete row.owner_declined_at; }
+  await writeRegistry(env, reg);
+}
+
+// 0.4.0. 所有者が consent file に書いた identity / witness_policy を登録簿の行に写す(宣言であって判定やない)。
+// 変わった時だけ書く。notify の URL は写さん(他人の webhook を公開する理由が無い。置いてある事実だけ)。
+async function markDeclared(env, endpoint, declared) {
+  const reg = await readRegistry(env);
+  const row = reg[endpoint];
+  if (!row) return;
+  const next = declared ? {
+    identity: declared.identity && declared.identity.ref ? { kind: declared.identity.kind, ref: declared.identity.ref } : null,
+    witness_policy: declared.witness_policy && declared.witness_policy.reciprocal != null ? { reciprocal: declared.witness_policy.reciprocal } : null,
+    notify_present: !!(declared.notify && declared.notify.url)
+  } : null;
+  const cur = row.declared || null;
+  if (JSON.stringify(cur) === JSON.stringify(next)) return;
+  if (next) { row.declared = next; row.declared_read_at = new Date().toISOString(); }
+  else { delete row.declared; delete row.declared_read_at; }
   await writeRegistry(env, reg);
 }
 
@@ -1773,31 +1858,102 @@ async function wellKnownConsent(endpoint) {
     // 0.3.1. listing: "decline" は所有者の「測るな」。origin にしか置けん物やから、申告やなく証明として扱う。
     // 同意(allow_tool_call)とは独立。断った行は登録簿に残り、「断った」と書かれる。判定は作らん。
     const declined = body.listing === "decline";
-    if (body.allow_tool_call !== true) return { consent: false, url, file_present: true, declined, reason: "consent file does not set allow_tool_call to the boolean true (nothing else counts)" };
+    // 0.4.0 (conduct-v1.1). 同じファイルに所有者が置ける任意の欄。読むだけで、判定には一切入れん。
+    //   notify: 掃引で測った後に扉が POST する https の URL(1 時間に 1 回まで。/check では飛ばさん)。
+    //   identity: 所有者が「私はこれ」と指す URL(証明はせん。lookup にそのまま declared として出す)。
+    //   witness_policy.reciprocal: true なら「歩かれたら歩き返す」宣言(宣言であって、輪の walked_as_witness が事実)。
+    const declared = wellKnownDeclared(body);
+    if (body.allow_tool_call !== true) return { consent: false, url, file_present: true, declined, declared, reason: "consent file does not set allow_tool_call to the boolean true (nothing else counts)" };
     if (body.endpoints !== undefined) {
       if (!Array.isArray(body.endpoints) || !body.endpoints.every((e) => typeof e === "string")) {
-        return { consent: false, url, reason: "consent file has an endpoints field that is not an array of strings" };
+        return { consent: false, url, declared, reason: "consent file has an endpoints field that is not an array of strings" };
       }
-      if (!body.endpoints.includes(endpoint)) return { consent: false, url, file_present: true, declined, reason: "consent file lists endpoints and this endpoint is not among them (exact string match)" };
+      if (!body.endpoints.includes(endpoint)) return { consent: false, url, file_present: true, declined, declared, reason: "consent file lists endpoints and this endpoint is not among them (exact string match)" };
     }
-    return { consent: true, url, file_present: true, declined, fetched_at: new Date().toISOString() };
+    return { consent: true, url, file_present: true, declined, declared, fetched_at: new Date().toISOString() };
   } catch (e) {
     const gateSide = /gate-side failure/.test(String(e && e.message));
     return { consent: false, url, file_present: null, declined: false, gate_side: gateSide, reason: (gateSide ? "consent file not read (gate side): " : "consent file not read: ") + String((e && e.message) || e) };
   }
 }
 
+// 0.4.0. well-known の任意欄を取り出す。形が違えば黙って落とすのやなく、その欄に why を書いて返す。
+// notify の宛先は https で、扉自身のホスト・IP 直書き・localhost は受けん(扉が誰かの内側を叩く道具にならんように)。
+const NOTIFY_MIN_INTERVAL_S = 3600;
+function notifyTargetProblem(u) {
+  if (typeof u !== "string") return "notify is not a string";
+  let p;
+  try { p = new URL(u); } catch (_e) { return "notify is not a URL"; }
+  if (p.protocol !== "https:") return "notify must be https";
+  const h = p.hostname.toLowerCase();
+  if (h === "localhost" || h.endsWith(".localhost") || h.endsWith(".local") || h.endsWith(".internal")) return "notify must not point at a local name";
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(h) || h.startsWith("[")) return "notify must be a hostname, not an IP literal";
+  if (h === "gate.horizonshield.dev" || h === "ledger.horizonshield.dev") return "notify must not point at the gate or the ledger";
+  if (p.username || p.password) return "notify must not carry credentials";
+  return null;
+}
+function wellKnownDeclared(body) {
+  const out = {};
+  if (body.notify !== undefined) {
+    const why = notifyTargetProblem(body.notify);
+    out.notify = why ? { url: null, why } : { url: body.notify, why: null };
+  }
+  if (body.identity !== undefined) {
+    // 11.5: https URL か {kind, ref}。解決はせん、写すだけ。
+    const id = body.identity;
+    if (typeof id === "string" && /^https:\/\//i.test(id)) out.identity = { kind: "url", ref: id, why: null };
+    else if (id && typeof id === "object" && !Array.isArray(id) && ["did", "jwks", "vc", "url"].includes(id.kind) && typeof id.ref === "string" && id.ref.length > 0 && id.ref.length <= 512)
+      out.identity = { kind: id.kind, ref: id.ref, why: null };
+    else out.identity = { kind: null, ref: null, why: "identity must be an https URL or {kind: did|jwks|vc|url, ref: string}" };
+  }
+  if (body.witness_policy !== undefined) {
+    const wp = body.witness_policy;
+    out.witness_policy = (wp && typeof wp === "object" && !Array.isArray(wp))
+      ? { reciprocal: wp.reciprocal === true, why: null }
+      : { reciprocal: null, why: "witness_policy must be an object" };
+  }
+  return Object.keys(out).length ? out : null;
+}
+
 // 同意の解決。順に: 扉のソースの同意リスト(公開)→ origin の well-known ファイル → 無し。
 // 要求者の申告はここに入れない。申告は所有の証明ではないので、別の根拠(requester)として刻む。
 async function resolveConsent(endpoint) {
   if (TOOL_CALL_CONSENT.has(endpoint)) {
-    return { consent: true, source: "operator_list", declined_listing: false, basis: "operator consent list (TOOL_CALL_CONSENT in the gate's source, published)" };
+    // 0.4.0. 自前の行は well-known を読まん(掃引の subrequest 枠 50 を守る。自前の行に notify は要らん)。
+    return { consent: true, source: "operator_list", declined_listing: false, declared: null, basis: "operator consent list (TOOL_CALL_CONSENT in the gate's source, published)" };
   }
   const wk = await wellKnownConsent(endpoint);
   if (wk.consent) {
-    return { consent: true, source: "well_known", declined_listing: wk.declined === true, basis: "consent file on the origin (" + wk.url + ") sets allow_tool_call true, read at " + wk.fetched_at + "; only the owner of the origin can place a file there" };
+    return { consent: true, source: "well_known", declined_listing: wk.declined === true, declared: wk.declared || null, basis: "consent file on the origin (" + wk.url + ") sets allow_tool_call true, read at " + wk.fetched_at + "; only the owner of the origin can place a file there" };
   }
-  return { consent: false, source: "none", declined_listing: wk.declined === true, basis: null, reason: wk.reason, url: wk.url, gate_side: wk.gate_side === true };
+  return { consent: false, source: "none", declined_listing: wk.declined === true, declared: wk.declared || null, basis: null, reason: wk.reason, url: wk.url, gate_side: wk.gate_side === true };
+}
+
+// 0.4.0 (conduct-v1.1 notify). 掃引で測った後、所有者が well-known に書いた notify へ結果の要約を POST する。
+// 変化した時だけやない、測るたびに飛ばす(「測られた」こと自体を知らせる)。ただし endpoint ごとに 1 時間に 1 回まで、
+// 掃引からだけ(/check からは飛ばさん。誰でも叩ける口から他人の URL に POST させんため)。結果は掃引の記録に notify_status で残す。
+async function notifyMeasured(env, endpoint, target, payload, nowMs, fetchImpl) {
+  const why = notifyTargetProblem(target);
+  if (why) return { sent: false, reason: why };
+  const key = "notify:sent:" + (await sha256hex(endpoint)).slice(0, 16);
+  if (env && env.HS_VERIFY_KV) {
+    try {
+      const last = await env.HS_VERIFY_KV.get(key);
+      if (last && (nowMs - Number(last)) < NOTIFY_MIN_INTERVAL_S * 1000) return { sent: false, reason: "rate limited: one notify per endpoint per " + NOTIFY_MIN_INTERVAL_S + "s (last at " + new Date(Number(last)).toISOString() + ")" };
+    } catch (_e) {}
+  }
+  let out;
+  try {
+    const f = fetchImpl || fetch;
+    const res = await withTimeout(f(target, { method: "POST", headers: { ...JSON_HEADERS, "user-agent": "hs-verify-gate/" + CONFIG.version + " (+https://gate.horizonshield.dev/spec)" }, body: JSON.stringify(payload), redirect: "manual" }), NOTIFY_TIMEOUT_MS);
+    out = { sent: true, status: res.status, at: new Date(nowMs).toISOString() };
+  } catch (e) {
+    out = { sent: false, reason: String((e && e.message) || e).slice(0, 200), at: new Date(nowMs).toISOString() };
+  }
+  if (env && env.HS_VERIFY_KV) {
+    try { await env.HS_VERIFY_KV.put(key, String(nowMs), { expirationTtl: NOTIFY_MIN_INTERVAL_S }); } catch (_e) {}
+  }
+  return out;
 }
 
 // /check と MCP の check ツールの共通入口。証明された同意が申告に勝つ。どちらも無ければ tool は呼ばん。
@@ -1982,7 +2138,8 @@ function openapiDoc(origin) {
       },
       "/mould": g("Mould records. What class of assumption a fix came from, where the author searched for it, and what they found. A record with an empty search is published as such.", ""),
       "/sweep/last": g("When the last scheduled re-measurement ran, under which coordinate rule, and why", ""),
-      "/nenrin/window": g("The instant coordinate's public window: salt commitment at creation, pinned rule, beacon, salt revealed after the window closes (0.3.5)", ""),
+      "/nenrin/window": g("The instant coordinate's public window: salt commitment at creation, pinned rule, beacon, salt revealed after the window closes (0.3.5), and since 0.4.0 whether the commitment was filed to the ledger witness intake before the window opened", ""),
+      "/register/lookup": g("One read before connecting (conduct-v1.1 section 7): status verified / pending / declined / unknown, the last published ring's counts, where the record lives, and what the answer does not establish. Query endpoint=<https MCP endpoint>. Cached 24 hours. No score.", ""),
       "/watchlist": g("Endpoints scheduled for re-measurement", ""),
       "/.well-known/agent-card.json": g("A2A agent card for this gate", ""),
       "/.well-known/mcp-register.json": g("Machine readable summary of the register", ""),
@@ -2410,7 +2567,10 @@ function summarise(record) {
     // 0.3.5. 判定に載せとった座標の導出が、履歴には 1 バイトも残っとらんかった(発見 2026-09-06、論文チャット)。
     // /history export は輪の原料で、verify_beacons.py と claim register C15 の入力でもある。残さんと、
     // 「導出したか、旧規則に落ちたか」を公開記録から誰も復元できん。過去の entry は触らん(entries are never edited)。
-    coordinate_derivation: summariseCoordinate(record.coordinate_derivation)
+    coordinate_derivation: summariseCoordinate(record.coordinate_derivation),
+    // 0.4.0. 判定の免責 2 欄を履歴にも残す(輪の原料、verify_beacons の入力)。
+    establishes: Array.isArray(record.establishes) ? record.establishes : null,
+    does_not_establish: Array.isArray(record.does_not_establish) ? record.does_not_establish : null
   };
 }
 
@@ -2570,6 +2730,65 @@ async function readChanges(env) {
 // 毎日の再測定。**同意のないエンドポイントには allow_tool_call を決して渡さない。**
 // 同意済み (TOOL_CALL_CONSENT) だけ determinism まで測る。同意の有無は判定に影響するので、
 // 各行の応答に tool_call_consent として開示する。隠れた優遇に見えないようにするためだ。
+// 0.4.0 (2026-09-07). 塩の commitment を台帳に錨打ちする。0.3.5 までは /nenrin/window に載せるだけで
+// 「錨は次の仕事」と自分で書いとった。addendum instants v1 の言うとおり、commitment は窓が開く前に
+// 錨が要る(後から塩を選び直せんことの証明は、窓より前の block にしか無い)。
+// 新しい server code は要らん: 台帳の witness intake に、conduct-v1.1 の commitment 型の記録を 1 本出すだけ
+// (census と同じ手)。翌 00:30Z の束ねが Bitcoin に刻む。窓ごとに 1 回、結果は KV に残して /nenrin/window に出す。
+// base に窓のページを書く(origin だけにすると、輪の builder が扉自身の endpoint の証人として数える)。
+const COMMITMENT_INTAKE = "https://ledger.horizonshield.dev/witness";
+async function fileInstantCommitment(env, wid, st, nowMs, fetchImpl) {
+  if (!env || !env.HS_VERIFY_KV || !wid || !st || !st.commitment) return null;
+  const key = "nenrin:commitfiled:" + wid;
+  let prev = null;
+  try { prev = await env.HS_VERIFY_KV.get(key, "json"); } catch (_e) { prev = null; }
+  if (prev && prev.sha) return prev;
+  const bounds = nenrin.windowBounds(wid);
+  const filedAt = new Date(nowMs).toISOString();
+  const beforeOpen = filedAt < bounds.opens_at;
+  const record = {
+    schema: "jidec-path-v1",
+    purpose: "nenrin-instant-commitment-v1: " + wid,
+    walked_at: st.salt_created_at,
+    walker: { tool: "hs-verify-gate", version: CONFIG.version },
+    base: "https://gate.horizonshield.dev/nenrin/window/" + wid,
+    witness: { name: "gate.horizonshield.dev", vantage: "cloudflare-worker" },
+    mode: "commitment",
+    commitment: st.commitment,
+    commitment_recipe: "sha256('nenrin-instant-salt-v1:' + salt); the salt is served at base once the window has closed",
+    window: { window_id: wid, opens_at: bounds.opens_at, closes_at: bounds.closes_at },
+    filed_at: filedAt,
+    establishes: [
+      "salt commitment " + st.commitment + " for window " + wid + " existed at " + st.salt_created_at + " and was filed at " + filedAt + (beforeOpen ? ", before the window opens at " : ", after the window opened at ") + bounds.opens_at,
+      "once the ledger batch that holds this record is confirmed in a Bitcoin block, the block height bounds the commitment from above: the salt could not have been chosen after that block"
+    ],
+    does_not_establish: [
+      "the salt itself until the window closes and the gate reveals it at base",
+      "that any measurement in the window was taken; each verdict carries its own coordinate_derivation",
+      beforeOpen ? "anything about blocks mined before the ledger batch is confirmed" : "that the commitment preceded the window: this one was filed after the window opened and says so"
+    ]
+  };
+  const body = canonicalJson(record);
+  let res = null, j = null;
+  try {
+    const f = fetchImpl || fetch;
+    const r = await f(COMMITMENT_INTAKE, { method: "POST", headers: { "content-type": "application/json", accept: "application/json" }, body: JSON.stringify({ record_canonical: body }) });
+    res = r.status;
+    j = await r.json().catch(() => null);
+  } catch (e) {
+    res = 0; j = { error: String((e && e.message) || e).slice(0, 200) };
+  }
+  const out = { window_id: wid, commitment: st.commitment, filed_at: filedAt, before_open: beforeOpen, http: res,
+    sha: j && j.sha ? j.sha : null, url: j && j.url ? j.url : null, counted: j && j.counted != null ? j.counted : null,
+    error: (res === 200 || res === 201) ? null : (j && (j.error || j.reason_code) ? String(j.error || j.reason_code) : "intake unreachable") };
+  try { await env.HS_VERIFY_KV.put(key, JSON.stringify(out)); } catch (_e) {}
+  return out;
+}
+async function commitmentFiled(env, wid) {
+  if (!env || !env.HS_VERIFY_KV || !wid) return null;
+  try { return await env.HS_VERIFY_KV.get("nenrin:commitfiled:" + wid, "json"); } catch (_e) { return null; }
+}
+
 async function runDailySweep(env, opts) {
   const now = Date.now();
   const force = !!(opts && opts.force);
@@ -2579,6 +2798,14 @@ async function runDailySweep(env, opts) {
   // 取れんかったら旧規則に落ちるが、落ちたことは掃引の記録に残す。
   let coord = null;
   try { coord = await nenrin.coordinate(env.HS_VERIFY_KV, now); } catch (e) { coord = null; }
+  // 0.4.0. 次の窓(と、まだ出しとらんなら今の窓)の commitment を台帳に出す。失敗しても掃引は止めん、結果は記録に残す。
+  const commitments = [];
+  if (coord) {
+    for (const w of [coord.next_window, { window_id: coord.window_id, commitment: coord.commitment, salt_created_at: coord.salt_created_at }]) {
+      if (!w || !w.window_id || !w.commitment) continue;
+      try { const r = await fileInstantCommitment(env, w.window_id, w, now); if (r) commitments.push(r); } catch (_e) {}
+    }
+  }
   const cadenceNote = (coord && coord.derived)
     ? "not due today (derived: the day is HMAC-derived from a committed salt bound to a Bitcoin block, so the subject cannot predict it)"
     : "not due today (legacy computable schedule: the subject can predict this, disclosed rather than hidden)";
@@ -2613,6 +2840,7 @@ async function runDailySweep(env, opts) {
   const run = due.slice(0, MAX_PER_SWEEP);
 
   const results = [];
+  let notifiesSent = 0;
   for (const w of run) {
     try {
       // 0.2.4. 手書きの Set か、origin の well-known ファイル。申告は掃引では決して使わん。
@@ -2624,6 +2852,7 @@ async function runDailySweep(env, opts) {
         continue;
       }
       await markDeclined(env, w.endpoint, false);
+      await markDeclared(env, w.endpoint, consent.declared || null);
       const record = await runCheck(w.endpoint, consent.consent, consent.basis, consent.source, consent, coord);
       const r = await recordHistory(env, w.endpoint, record);
       const changed = !!(r && r.changed);
@@ -2643,7 +2872,34 @@ async function runDailySweep(env, opts) {
             "surface_changed is present when the declared tool surface moved, which can happen while every condition still passes."
         });
       }
-      results.push({ endpoint: w.endpoint, tier: w.tier, status: record.status, reachable: publicReachable(record.reachable), changed, surface_changed: (r.entry && r.entry.surface_change) || null, alert_suppressed: changed && !alertable, notified });
+      // 0.4.0 (conduct-v1.1 notify). 所有者が well-known に notify を置いとる行には、測るたびに要約を飛ばす。
+      // 判定は変わらん。飛ばした事実と結果(status か、飛ばさんかった理由)を notify_status に残す。
+      let notifyStatus = null;
+      const decl = consent && consent.declared && consent.declared.notify;
+      if (decl) {
+        if (!decl.url) notifyStatus = { sent: false, reason: decl.why };
+        else if (notifiesSent >= NOTIFY_MAX_PER_SWEEP) notifyStatus = { sent: false, reason: "deferred: over NOTIFY_MAX_PER_SWEEP (" + NOTIFY_MAX_PER_SWEEP + ") for this run" };
+        else {
+          notifiesSent += 1;
+          notifyStatus = await notifyMeasured(env, w.endpoint, decl.url, {
+            event: "measured",
+            endpoint: w.endpoint,
+            at: r && r.entry ? r.entry.at : record.checked_at,
+            status: record.status,
+            reachable: publicReachable(record.reachable),
+            record_sha256: record.record_sha256 || null,
+            changed,
+            conditions_changed: (r && r.flips) || [],
+            surface_changed: (r && r.entry && r.entry.surface_change) || null,
+            establishes: record.establishes || null,
+            does_not_establish: record.does_not_establish || null,
+            history: "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(w.endpoint),
+            lookup: "https://gate.horizonshield.dev/register/lookup?endpoint=" + encodeURIComponent(w.endpoint),
+            note: "Sent because " + CONSENT_WELL_KNOWN_PATH + " on your origin names this URL as notify (conduct-v1.1). Sent after every scheduled measurement, at most once per hour per endpoint, never from an on-demand /check. Remove the field to stop. The verdict is public either way."
+          }, now);
+        }
+      }
+      results.push({ endpoint: w.endpoint, tier: w.tier, status: record.status, reachable: publicReachable(record.reachable), changed, surface_changed: (r.entry && r.entry.surface_change) || null, alert_suppressed: changed && !alertable, notified, notify_status: notifyStatus });
     } catch (e) {
       results.push({ endpoint: w.endpoint, tier: w.tier, error: String((e && e.message) || e) });
     }
@@ -2668,6 +2924,8 @@ async function runDailySweep(env, opts) {
       sources: coord.beacon && Array.isArray(coord.beacon.sources) ? coord.beacon.sources : null,
       next_window: coord.next_window || null,
       salts_created_now: coord.salts_created_now || [],
+      // 0.4.0. この掃引で台帳に出した(か、既に出しとった)commitment の記録。
+      commitments_filed: commitments,
       window: "/nenrin/window"
     } : { derived: false, why: "coordinate() failed before the sweep; legacy schedule; see /nenrin/window" },
     results,
@@ -3073,6 +3331,134 @@ async function isVerified(env, endpoint) {
   });
 }
 
+// ---- 0.4.0 (conduct-v1.1 section 7): GET /register/lookup ----
+// 繋ぐ前に 1 本で読める口。/is-verified が「今の判定」なら、これは「判定 + 先月の輪の数 + 記録の場所 + 証明せん物」。
+// 点数は無い。数は輪(mcp-conduct-register の rings/<slug>/<YYYY-MM>.json)からそのまま写す。
+// 輪は KV に置かん(Free 枠の KV 書き込みは 1 日 1000 で、lookup を叩かれるたびに書いとったら掃引の履歴の書き込みが
+// 黙って落ちる)。fetch の cf.cacheTtlByStatus で edge に 24 時間置く。行の無い endpoint は輪も引かん(輪は登録簿の履歴から作る物)。
+const RINGS_RAW_BASE = "https://raw.githubusercontent.com/ogasurfproject-jpg/mcp-conduct-register/main/rings/";
+const RING_CACHE_S = 86400;
+const RING_FETCH_CF = { cacheEverything: true, cacheTtlByStatus: { "200-299": RING_CACHE_S, "404": 3600, "500-599": 60 } };
+function ringSlug(endpoint) {
+  return String(endpoint).replace(/^https:\/\//i, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+function monthsBack(nowMs, n) {
+  const d = new Date(nowMs);
+  const y = d.getUTCFullYear(), m = d.getUTCMonth() - n;
+  const dd = new Date(Date.UTC(y, m, 1));
+  return dd.getUTCFullYear() + "-" + String(dd.getUTCMonth() + 1).padStart(2, "0");
+}
+// 先月、無ければ先々月。それより前は探さん(輪は月が閉じてから作るので、先月が無いのは「まだ」か「輪が無い」のどちらか)。
+async function fetchLastRing(env, endpoint, nowMs, fetchImpl) {
+  const slug = ringSlug(endpoint);
+  const f = fetchImpl || fetch;
+  const tried = [];
+  let found = null;
+  for (const n of [1, 2]) {
+    const month = monthsBack(nowMs, n);
+    const url = RINGS_RAW_BASE + slug + "/" + month + ".json";
+    let st = 0, ring = null;
+    try {
+      const r = await withTimeout(f(url, { headers: { accept: "application/json" }, cf: RING_FETCH_CF }), CONFIG.timeout_ms);
+      st = r.status;
+      if (r.ok) ring = await r.json().catch(() => null);
+    } catch (_e) { st = 0; }
+    tried.push({ month, url, http: st });
+    if (ring && ring.schema === "nenrin-ring-v1" && ring.endpoint === endpoint) {
+      found = {
+        month: ring.ring, url,
+        witnesses: ring.witnesses != null ? ring.witnesses : null,
+        witnesses_signed: ring.witnesses_signed != null ? ring.witnesses_signed : null,
+        witnesses_unsigned: ring.witnesses_unsigned != null ? ring.witnesses_unsigned : null,
+        discrepancies: Array.isArray(ring.discrepancies) ? ring.discrepancies.length : null,
+        discrepancies_signed: Array.isArray(ring.discrepancies_signed) ? ring.discrepancies_signed.length : null,
+        commitments_unrevealed: ring.commitments_unrevealed != null ? ring.commitments_unrevealed : null,
+        walked_as_witness: ring.walked_as_witness != null ? ring.walked_as_witness : null,
+        instants_sampled: ring.instants_sampled != null ? ring.instants_sampled : null,
+        instants_reached: ring.instants_reached != null ? ring.instants_reached : null,
+        instants_derived: ring.instants_derived != null ? ring.instants_derived : null,
+        surface_changes: Array.isArray(ring.surface_changes) ? ring.surface_changes.length : null,
+        record_sha256_last: ring.record_sha256_last || null,
+        prev_ring_sha256: ring.prev_ring_sha256 || null,
+        columns: ring.witnesses_signed != null ? "v1.1 (signed and unsigned split, commitments, walked_as_witness, instants by derivation)" : "v1 (counts only)"
+      };
+      break;
+    }
+    if (st === 200 && ring && ring.endpoint !== endpoint) { tried[tried.length - 1].why = "ring file is for a different endpoint (slug collision); ignored"; }
+  }
+  return found
+    ? { present: true, ...found, tried, fetched_at: new Date(nowMs).toISOString() }
+    : { present: false, slug, tried, why: "no ring published for the last two months at " + RINGS_RAW_BASE + slug + "/. Rings are built after a month closes from the archived /history; an endpoint measured for the first time this month has no ring yet, and an endpoint with no measurements never gets one", fetched_at: new Date(nowMs).toISOString() };
+}
+
+async function registerLookup(env, endpoint, nowMs, fetchImpl) {
+  const now = nowMs || Date.now();
+  const lu = await lookupServer(env, endpoint);
+  const reg = await readRegistry(env);
+  const row = reg[endpoint] || null;
+  const latest = lu.on_register ? (lu.latest || null) : null;
+  let status, meaning;
+  if (row && row.owner_declined_at) {
+    status = "declined";
+    meaning = "The owner placed listing: decline in " + CONSENT_WELL_KNOWN_PATH + " on the origin. The row stays and says so; nothing has been measured since " + row.owner_declined_at + ". Declining is a right, not a finding.";
+  } else if (!lu.on_register) {
+    status = "unknown";
+    meaning = "No row on this register. unknown means nobody has measured this endpoint here, never that it was measured and failed.";
+  } else if (!latest || !lu.measurements) {
+    status = "pending";
+    meaning = "On the watchlist, not yet measured. Being watched is not a measurement.";
+  } else if (latest.status === CONFIG.tier_pass) {
+    status = "verified";
+    meaning = "The latest scheduled measurement passed every measured condition, from this gate's vantage, on that date.";
+  } else if (latest.status === CONFIG.tier_held) {
+    status = "pending";
+    meaning = "The latest attempt could not reach the endpoint, so nothing was established. Not a failure of the server.";
+  } else {
+    status = "pending";
+    meaning = "Measured, not currently passing every condition. Often only because determinism is unmeasured without the owner's consent, which is not a failure. Read the record.";
+  }
+  // 行が無ければ輪も引かん(輪はこの登録簿の履歴から作る。無い行に輪は無い。誰でも叩ける口から他所へ 2 本ずつ fetch させん)。
+  const ring = lu.on_register
+    ? await fetchLastRing(env, endpoint, now, fetchImpl)
+    : { present: false, slug: ringSlug(endpoint), tried: [], why: "no row on this register, so no ring can exist for it: rings are built from this register's archived /history. Nothing was fetched." };
+  const historyUrl = "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(endpoint);
+  return {
+    endpoint,
+    status,
+    status_meaning: meaning,
+    status_vocabulary: { verified: "latest scheduled measurement passed every measured condition", pending: "on the register but not currently a full pass (unmeasured, unreachable, or a condition short)", declined: "owner declined measurement on the origin", unknown: "no row here" },
+    last_measured: latest ? {
+      at: latest.at || latest.checked_at || null,
+      status: latest.status || null,
+      record_sha256: latest.record_sha256 || null,
+      coordinate: latest.coordinate_derivation ? { derived: latest.coordinate_derivation.derived === true, window_id: latest.coordinate_derivation.window_id || null } : null
+    } : null,
+    measurements: lu.on_register ? (lu.measurements || 0) : 0,
+    first_measured_at: lu.on_register ? (lu.first_measured_at || null) : null,
+    owner_declined_at: row && row.owner_declined_at ? row.owner_declined_at : null,
+    declared: row && row.declared ? Object.assign({}, row.declared, { read_at: row.declared_read_at || null, note: "copied from the owner's consent file at the last sweep; declared, not verified" }) : null,
+    last_ring: ring,
+    conduct_record: historyUrl,
+    witness_intake: "https://ledger.horizonshield.dev/witness",
+    rings: { base: RINGS_RAW_BASE, slug: ringSlug(endpoint), path: "<slug>/<YYYY-MM>.json" },
+    register: "https://gate.horizonshield.dev/register",
+    fresh_reading: "POST https://gate.horizonshield.dev/check with {\"endpoint\":\"" + endpoint + "\"}",
+    how_to_appear: lu.on_register ? null : (lu.how_to_appear || null),
+    establishes: [
+      "what this register held for the endpoint at the time of this reading: the status vocabulary above, the latest stored verdict's sha (recomputable from " + historyUrl + "), and the counts copied from the last published ring, if one exists",
+      "counts, never rates: a witness count of 3 means three distinct identities filed records that month, and says nothing about how many should have"
+    ],
+    does_not_establish: [
+      "that the endpoint is safe, correct, honest, or fit for any purpose; this gate measures conduct and disclosure only",
+      "anything about an endpoint with status unknown: absence of a row is not a finding",
+      "that a ring's witness count is complete or representative; anyone can file, nobody is obliged to, and unsigned witnesses are counted separately since 2026-09 because they are cheap to fabricate",
+      "a reading fresher than this cache: served with a 24 hour cache, so a change since then is in " + historyUrl + " and not here"
+    ],
+    cache: "public, max-age=86400",
+    conduct_ext: CONDUCT_EXT_URI + " (conduct-v1.1 fields are optional and additive; this lookup is its section 7)"
+  };
+}
+
 async function handleMcp(body, env) {
   const id = body && body.id;
   const method = body && body.method;
@@ -3295,6 +3681,7 @@ async function selfCheck(origin) {
       "stated explicitly rather than skipped silently.",
     checks: checks
   };
+  Object.assign(record, gateDisclaimers(record));
   const canonical = JSON.stringify(record);
   record.record_sha256 = await sha256hex(canonical);
   record.recompute_note =
@@ -3555,16 +3942,23 @@ export default {
       if (!env || !env.HS_VERIFY_KV) return json({ error: "storage_unavailable", note: "no KV bound; the window state lives in KV" }, 500);
       const nowMs = Date.now();
       const m = /^\/nenrin\/window\/(w\d+)$/.exec(path);
+      // 0.4.0. 窓ごとに、台帳に出した commitment の記録(sha、台帳の URL、窓が開く前か後か)を添える。
+      const withFiled = async (wid) => {
+        const w = await nenrin.publicWindow(env.HS_VERIFY_KV, wid, nowMs);
+        if (!w) return null;
+        w.commitment_filed = await commitmentFiled(env, wid);
+        return w;
+      };
       if (m) {
-        const one = await nenrin.publicWindow(env.HS_VERIFY_KV, m[1], nowMs);
+        const one = await withFiled(m[1]);
         return one ? json(one) : json({ error: "not_found", window_id: m[1], note: "no salt was created for this window (before 0.3.0, or more than 120 days ago)" }, 404);
       }
       const cur = nenrin.windowId(nowMs), nxt = nenrin.nextWindowId(nowMs), prev = "w" + (nenrin.windowIndex(cur) - 1);
       return json({
         schema: nenrin.NENRIN_INSTANT_SCHEMA, gate_version: CONFIG.version, now: new Date(nowMs).toISOString(),
-        current: await nenrin.publicWindow(env.HS_VERIFY_KV, cur, nowMs),
-        next: await nenrin.publicWindow(env.HS_VERIFY_KV, nxt, nowMs),
-        previous: await nenrin.publicWindow(env.HS_VERIFY_KV, prev, nowMs),
+        current: await withFiled(cur),
+        next: await withFiled(nxt),
+        previous: await withFiled(prev),
         rules: {
           window: "seven days, opening Thursday 00:00 UTC (epoch day divided by 7); window_id = 'w' + that quotient",
           salt: "created no later than the first sweep of the previous window (0.3.5), so the commitment is public here before the window opens and before any block it will be bound to exists",
@@ -3572,10 +3966,20 @@ export default {
           beacon: "one reference height for every source: the second highest tip among the sources that answered, minus 6 (with two sources, min(tip) minus 6); the hash at that height must agree between at least two sources; the block's header time must be at or after salt_created_at, or there is no beacon; decided once per window at its first sweep and cached",
           rule: "the first sweep of a window decides derived or legacy and the whole window keeps that rule, so every row is measured exactly once under one rule; the reason is recorded here",
           reveal: "salt is served once the window has closed; recompute the commitment, the seed (HMAC-SHA256 keyed by the salt over 'nenrin-instant-v1 seed <window_id> <block_hash>') and every row's day from it",
-          anchoring: "the commitment is published here at creation. Anchoring it to the JIDEC ledger before the window opens (addendum instants v1, anchor.commit_height) is the next step and is not yet done; until then, this page and the sweep record are the only proof of when the commitment existed",
+          anchoring: "the commitment is published here at creation and, since 0.4.0, filed by each sweep to the JIDEC witness intake as a conduct-v1.1 commitment record (nenrin-instant-commitment-v1), once per window; the ledger bundles it into the next daily batch and stamps the batch to Bitcoin. commitment_filed on each window above carries the record sha, the ledger URL and whether it was filed before the window opened. A window whose commitment_filed is null or carries an error was not anchored, and this page and the sweep record are then the only proof of when the commitment existed",
           history: "since 0.3.5 every /history entry carries coordinate_derivation (derived, window_id, salt_commitment, beacon, day_in_window, or the fallback and its reason)"
         }
       });
+    }
+
+    // 0.4.0 (2026-09-07). 繋ぐ前に 1 本で聞ける口。点数は無い。verified / pending / declined / unknown と、
+    // 先月の輪の数(証人、食い違い)、記録の場所、そしてこの答えが証明せん物。unknown は「無い」やなく「登録簿に行が無い」。
+    // conduct-v1.1 section 7。24 時間 cache 可。輪は登録簿 repo の raw から読み、KV に 24 時間置く。
+    if (path === "/register/lookup" && request.method === "GET") {
+      const ep = url.searchParams.get("endpoint") || "";
+      if (!/^https:\/\/[^\s]+$/.test(ep)) return json({ error: "endpoint (https URL) required", example: "/register/lookup?endpoint=" + encodeURIComponent("https://mcp.horizonshield.dev/mcp") }, 400);
+      try { return json(await registerLookup(env, ep), 200, { "Cache-Control": "public, max-age=86400" }); }
+      catch (e) { return json({ endpoint: ep, error: "lookup_failed", message: String((e && e.message) || e) }, 500); }
     }
 
     // 公開の登録簿。加盟者の行を、人間もエージェントも一覧で読める。
@@ -4017,6 +4421,6 @@ export default {
       });
     }
 
-    return json({ error: "not_found", path, endpoints: ["/mcp", "/a2a", "/.well-known/agent-card.json", "/.well-known/jwks.json", "/check", "/is-verified", "/spec", "/ext/conduct/v1", "/self", "/history", "/changes", "/watchlist", "/watch", "/sweep", "/sweep/last", "/nenrin/window", "/health"] }, 404);
+    return json({ error: "not_found", path, endpoints: ["/mcp", "/a2a", "/.well-known/agent-card.json", "/.well-known/jwks.json", "/check", "/is-verified", "/register/lookup", "/spec", "/ext/conduct/v1", "/self", "/history", "/changes", "/watchlist", "/watch", "/sweep", "/sweep/last", "/nenrin/window", "/health"] }, 404);
   }
 };

@@ -117,6 +117,42 @@ def ledger_shape_ok(rc):
     return isinstance(w, dict) and isinstance(w.get("name"), str) and w["name"] and isinstance(w.get("vantage"), str) and w["vantage"]
 
 
+def ledger_v11_reason(rc):
+    """Mirror of the conduct-v1.1 branches of witnessValidate (worker.js, 2026-09-07). Returns the
+    reason_code the intake would answer, or None when the record passes those branches."""
+    r = json.loads(rc)
+    if "mode" not in r:
+        return None
+    if r["mode"] not in ("full", "hash-only", "commitment"):
+        return "bad_mode"
+    ok_list = lambda x: isinstance(x, list) and x and all(isinstance(s, str) and s.strip() for s in x)
+    if not ok_list(r.get("establishes")) or not ok_list(r.get("does_not_establish")):
+        return "disclaimer_missing"
+    if r["mode"] == "commitment":
+        c = r.get("commitment")
+        if not (isinstance(c, str) and len(c) == 64 and all(ch in "0123456789abcdef" for ch in c)):
+            return "bad_commitment"
+    else:
+        if not r.get("nodes") or not r.get("assertions") or not isinstance(r.get("verdict"), dict):
+            return "schema"
+    if r["mode"] == "hash-only":
+        from urllib.parse import urlsplit
+        for nd in r["nodes"]:
+            req = nd.get("request") if isinstance(nd, dict) else None
+            if not isinstance(req, dict):
+                continue
+            if "url" in req:
+                s = urlsplit(req["url"])
+                if (s.path and s.path != "/") or s.query or s.fragment:
+                    return "path_leaks_tool"
+            if "method" in req and req["method"] != "REDACTED":
+                return "path_leaks_tool"
+    ku = r["witness"].get("key_url")
+    if ku is not None and not (isinstance(ku, str) and ku.startswith("https://")):
+        return "bad_key_url"
+    return None
+
+
 V = []
 
 
@@ -225,6 +261,70 @@ def main():
             bad.append("make_ring_counts_the_walk: " + " / ".join(probs)); print("  RED    WRONG  make_ring_counts_the_walk << " + " / ".join(probs))
         else:
             print("  green  PASS   %-40s (counted for %s, discrepancy only when ok is false, not counted elsewhere)" % ("make_ring_counts_the_walk", EP))
+
+    # conduct-v1.1 (2026-09-07): mode, disclaimers, hash-only redaction, commitment, signing.
+    def v11(name, cond, detail=""):
+        nonlocal n
+        n += 1
+        if cond:
+            print("  green  PASS   %-40s %s" % (name, detail))
+        else:
+            bad.append(name + (": " + detail if detail else "")); print("  RED    WRONG  %-40s << %s" % (name, detail))
+
+    full = W.walk(ORIGIN, None, "a2a", "selftest", "offline-mock", fetch=mock([card()]), walked_at="2026-09-07T00:00:00Z")
+    v11("v11_full_record_carries_mode_and_disclaimers",
+        full.get("mode") == "full" and isinstance(full.get("establishes"), list) and len(full["establishes"]) == 3
+        and W.DOES_NOT_ESTABLISH_UNSIGNED in full["does_not_establish"] and all(s in full["does_not_establish"] for s in W.DOES_NOT_ESTABLISH_ALWAYS),
+        "mode=%s establishes=%d dne=%d" % (full.get("mode"), len(full.get("establishes") or []), len(full.get("does_not_establish") or [])))
+    v11("v11_full_record_passes_intake_v11_rules", ledger_v11_reason(W.canonical(full)) is None, str(ledger_v11_reason(W.canonical(full))))
+    dropped = json.loads(W.canonical(full)); dropped.pop("does_not_establish")
+    v11("v11_disclaimer_dropped_is_refused", ledger_v11_reason(W.canonical(dropped)) == "disclaimer_missing" and ledger_shape_ok(W.canonical(dropped)),
+        "still v1 shape-valid, refused by the v1.1 branch")
+
+    ho = W.walk(ORIGIN, None, "a2a", "selftest", "offline-mock", fetch=mock([card()]), walked_at="2026-09-07T00:00:00Z", privacy="hash-only")
+    leaks = [nd["request"].get("url") for nd in ho["nodes"] if nd.get("kind") == "fetch" and nd["request"].get("url") != ORIGIN + "/"]
+    meth = [nd["request"].get("method") for nd in ho["nodes"] if nd.get("kind") == "fetch" and nd["request"].get("method") != "REDACTED"]
+    hashes = [k for nd in ho["nodes"] if nd.get("kind") == "fetch" for k in ("headers_sha256", "body_sha256") if k in nd["request"]]
+    claims_leak = [a["claim"] for a in ho["assertions"] if "/mcp" in a["claim"]]
+    v11("v11_hash_only_names_no_tool", not leaks and not meth and not hashes and not claims_leak and ho["mode"] == "hash-only"
+        and W.DOES_NOT_ESTABLISH_HASH_ONLY in ho["does_not_establish"] and ho["purpose"].endswith(EP),
+        "urls=%s methods=%s reqhashes=%s claims=%s" % (leaks, meth, hashes, len(claims_leak)))
+    v11("v11_hash_only_passes_intake_v11_rules", ledger_v11_reason(W.canonical(ho)) is None, str(ledger_v11_reason(W.canonical(ho))))
+    v11("v11_hash_only_keeps_response_hashes_and_verdict",
+        all(nd["response"].get("body_sha256") for nd in ho["nodes"] if nd.get("kind") == "fetch") and ho["verdict"]["ok"] is True and ho["verdict"]["n_total"] == 5)
+    leaky = json.loads(W.canonical(ho)); leaky["nodes"][3]["request"]["url"] = EP
+    v11("v11_hash_only_with_a_path_is_refused", ledger_v11_reason(W.canonical(leaky)) == "path_leaks_tool")
+
+    salt = "ab" * 32
+    cm = W.commitment_record(full, salt)
+    recomputed = W.sha256_hex(W.canonical(full).encode("utf-8") + bytes.fromhex(salt))
+    v11("v11_commitment_record_shape", cm["mode"] == "commitment" and cm["commitment"] == recomputed and "nodes" not in cm
+        and W.DOES_NOT_ESTABLISH_COMMITMENT in cm["does_not_establish"] and cm["purpose"] == full["purpose"] and ledger_v11_reason(W.canonical(cm)) is None,
+        "commitment " + cm["commitment"][:16])
+    v11("v11_commitment_reveals_nothing", all(k not in W.canonical(cm) for k in ("body_sha256", "assertions", "card_bytes", "headers_sha256", "\"nodes\"")),
+        "no node, no assertion, no response hash in the filed bytes (the purpose keeps the endpoint so the ring can attribute it)")
+
+    try:
+        import base64
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+        import tempfile
+        k = Ed25519PrivateKey.generate()
+        pem = k.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption())
+        with tempfile.NamedTemporaryFile("wb", suffix=".pem", delete=False) as f:
+            f.write(pem); kp = f.name
+        key, pub = W.load_signing_key(kp)
+        signed = W.walk(ORIGIN, None, "a2a", "selftest", "offline-mock", fetch=mock([card()]), walked_at="2026-09-07T00:00:00Z",
+                        key_url="https://witness.selftest.invalid/.well-known/nenrin-witness-key.json")
+        sc = W.canonical(signed)
+        sig = W.sign_canonical(key, sc)
+        k.public_key().verify(base64.b64decode(sig), sc.encode("utf-8"))
+        v11("v11_signed_record_binds_key_url_and_drops_identity_disclaimer",
+            signed["witness"]["key_url"].startswith("https://witness.selftest.invalid/") and W.DOES_NOT_ESTABLISH_UNSIGNED not in signed["does_not_establish"]
+            and len(base64.b64decode(pub)) == 32 and ledger_v11_reason(sc) is None, "signature verifies with the served public key")
+        os.unlink(kp)
+    except ImportError:
+        print("  skip   ----   v11_signed_record (cryptography not installed; signing is optional)")
 
     total = n
     print("\n=== %d / %d 合格 (a2a_conduct_walk.py) ===" % (total - len(bad), total))

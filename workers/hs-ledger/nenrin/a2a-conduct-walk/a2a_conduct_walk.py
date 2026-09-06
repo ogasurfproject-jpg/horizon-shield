@@ -23,6 +23,19 @@ What it does not do: it does not judge quality, it does not read the conduct rec
 and a PASS is not a verdict about the agent. It is one observation, filed where anyone can
 read it and count it. Canonical bytes: keys sorted at every level, separators , and : with no
 spaces, non-ASCII unescaped. sha256 of those bytes is the record's identity.
+
+conduct-v1.1 (2026-09-07, ops/conduct_v1_1_draft_20260907.md). Every record this client writes now
+carries `mode`, `establishes` and `does_not_establish`; the last one is the field that keeps a reader
+from taking a PASS for a verdict, and the intake refuses a v1.1 record without it.
+    --privacy full        (default) urls, methods and body hashes of every node, as before
+    --privacy hash-only   node urls are reduced to the origin, methods to REDACTED, request hashes dropped;
+                          the record says which tool was called nowhere
+    --privacy commitment  only sha256(canonical full record || salt) is filed; the full record and the salt
+                          stay on your disk (walk_<sha12>.json, walk_<sha12>.salt) until you choose to reveal
+    --key FILE --key-url URL   sign the record (Ed25519, needs the `cryptography` package) with a key you also
+                          serve at URL as {"public_key_ed25519_b64": ...}; the ledger then records the domain
+                          of URL as your identity (signed_domain). --print-public-key FILE prints that JSON.
+    --vantage-limitation "text"   what you could not see from where you stood (a proxy, a cache, a region)
 """
 import argparse
 import hashlib
@@ -35,6 +48,16 @@ import urllib.request
 from datetime import datetime, timezone
 
 EXT_URI = "https://gate.horizonshield.dev/ext/conduct/v1"
+PRIVACY_MODES = ("full", "hash-only", "commitment")
+# conduct-v1.1 section 2: what a walk never establishes, whatever it observed. Stated in the record.
+DOES_NOT_ESTABLISH_ALWAYS = [
+    "correctness or quality of any response",
+    "truth of the compensation declaration",
+    "that the agent behaves the same at other instants or from other vantages",
+]
+DOES_NOT_ESTABLISH_UNSIGNED = "identity of the witness beyond the name given"
+DOES_NOT_ESTABLISH_HASH_ONLY = "which tool or method was called"
+DOES_NOT_ESTABLISH_COMMITMENT = "anything about the walked agent until the committed record is revealed"
 # A2A 1.0 spells the service parameter A2A-Extensions; 0.3 spelled it X-A2A-Extensions.
 # A 1.0 walk sends the 1.0 spelling; a 0.3 walk sends only the 0.3 spelling, like a 0.3 client does.
 EXT_HEADER = {"1.0": "A2A-Extensions", "0.3": "X-A2A-Extensions"}
@@ -225,9 +248,119 @@ def result_shape_ok(j, mode, wire):
     return ("message" in r or "task" in r) and "kind" not in r
 
 
-def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked_at=None, wire="1.0"):
+def origin_only(u):
+    """https://host[:port] of a URL; the part that names a service and not a tool."""
+    try:
+        from urllib.parse import urlsplit
+        s = urlsplit(u)
+        if s.scheme and s.netloc:
+            return s.scheme + "://" + s.netloc + "/"
+    except Exception:
+        pass
+    return u
+
+
+def redact_hash_only(record):
+    """conduct-v1.1 section 3. Every node keeps only what a reader needs to check that an answer of a
+    given sha256 came from a given origin: url reduced to the origin, method to REDACTED, request
+    hashes dropped. Assertion claims that name the measured path are reduced the same way. The
+    purpose keeps the measured endpoint so the ring can attribute the walk; an endpoint names a
+    service, not a tool."""
+    for nd in record.get("nodes", []):
+        req = nd.get("request") if isinstance(nd, dict) else None
+        if isinstance(req, dict):
+            if req.get("url"):
+                req["url"] = origin_only(req["url"])
+            if "method" in req:
+                req["method"] = "REDACTED"
+            req.pop("headers_sha256", None)
+            req.pop("body_sha256", None)
+    target = record.get("conduct_ext", {}).get("target")
+    for a in record.get("assertions", []):
+        if target and target in a.get("claim", ""):
+            a["claim"] = a["claim"].replace(target, origin_only(target) + "(redacted path)")
+    record["mode"] = "hash-only"
+    return record
+
+
+def disclaimers(record, privacy, signed, target):
+    """conduct-v1.1 section 2: establishes and does_not_establish, computed from the record itself."""
+    nodes = {nd.get("n"): nd for nd in record.get("nodes", []) if isinstance(nd, dict)}
+    est = []
+    if privacy == "commitment":
+        est.append("a record with the stated commitment existed at " + record["walked_at"])
+    else:
+        n0, n1 = nodes.get(0), nodes.get(1)
+        if n0 and n1:
+            est.append("agent card at %s fetched twice at %s; body sha256 %s and %s" % (
+                record["base"], record["walked_at"], n0["response"]["body_sha256"], n1["response"]["body_sha256"]))
+        n2 = nodes.get(2)
+        if n2:
+            est.append("extension declaration checked against CONDUCT_EXT_v1 section 2: " + str(n2.get("output_preview", ""))[:160])
+        n3 = nodes.get(3)
+        if n3:
+            where = origin_only(target) if privacy == "hash-only" else target
+            est.append("one request answered by %s with http %s and body sha256 %s" % (
+                where, n3["response"]["status"], n3["response"]["body_sha256"]))
+    dne = list(DOES_NOT_ESTABLISH_ALWAYS)
+    if privacy == "hash-only":
+        dne.append(DOES_NOT_ESTABLISH_HASH_ONLY)
+    if privacy == "commitment":
+        dne.insert(0, DOES_NOT_ESTABLISH_COMMITMENT)
+    if not signed:
+        dne.append(DOES_NOT_ESTABLISH_UNSIGNED)
+    return est, dne
+
+
+def commitment_record(full_record, salt_hex):
+    """conduct-v1.1 section 3, the stricter form: file only the commitment. The full record and the
+    salt stay with the witness. Revealing later means POSTing the full record whose
+    sha256(canonical || salt) equals this commitment."""
+    full_c = canonical(full_record)
+    commitment = sha256_hex(full_c.encode("utf-8") + bytes.fromhex(salt_hex))
+    rec = {
+        "schema": "jidec-path-v1",
+        "purpose": full_record["purpose"],
+        "walked_at": full_record["walked_at"],
+        "walker": full_record.get("walker", WALKER),
+        "base": full_record["base"],
+        "witness": dict(full_record["witness"]),
+        "mode": "commitment",
+        "commitment": commitment,
+        "commitment_recipe": "sha256(canonical(full record) || salt); salt is 32 bytes, kept by the witness",
+    }
+    est, dne = disclaimers(rec, "commitment", bool(rec["witness"].get("key_url")), None)
+    rec["establishes"], rec["does_not_establish"] = est, dne
+    return rec
+
+
+def load_signing_key(path):
+    """Ed25519 private key (PEM, PKCS8) via the cryptography package. Returns (private_key, public_raw_b64)."""
+    import base64
+    try:
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+    except Exception:
+        raise SystemExit("signing needs the cryptography package: pip install cryptography (or omit --key to file unsigned)")
+    with open(path, "rb") as f:
+        key = serialization.load_pem_private_key(f.read(), password=None)
+    if not isinstance(key, Ed25519PrivateKey):
+        raise SystemExit("--key must be an Ed25519 private key (openssl genpkey -algorithm ed25519 -out witness.pem)")
+    pub = key.public_key().public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw)
+    return key, base64.b64encode(pub).decode("ascii")
+
+
+def sign_canonical(key, record_canonical):
+    import base64
+    return base64.b64encode(key.sign(record_canonical.encode("utf-8"))).decode("ascii")
+
+
+def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked_at=None, wire="1.0",
+         privacy="full", key_url=None, vantage_limitation=None):
     origin = origin.rstrip("/")
     wire = "0.3" if wire == "0.3" else "1.0"
+    if privacy not in PRIVACY_MODES:
+        raise ValueError("privacy must be one of " + ", ".join(PRIVACY_MODES))
     walked_at = walked_at or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     card_url = origin + "/.well-known/agent-card.json"
     nodes = []
@@ -306,14 +439,29 @@ def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked
             "mismatch_means": "the live agent now differs from the anchored observation; a changed card is a finding, not an error in the walk",
         },
         "witness": {"name": witness_name, "vantage": vantage},
-        "conduct_ext": {"uri": EXT_URI, "mode": mode, "wire": wire if mode == "a2a" else None, "conduct_record": params.get("conduct_record"), "witness_intake": params.get("witness_intake")},
+        "conduct_ext": {"uri": EXT_URI, "mode": mode, "wire": wire if mode == "a2a" else None, "conduct_record": params.get("conduct_record"), "witness_intake": params.get("witness_intake"), "target": target},
         "prev_path_refs": [],
     }
+    # conduct-v1.1: the record says its mode and what it does and does not establish. A key_url on the
+    # witness means the record will be signed with the key served there; it is part of the signed bytes.
+    if key_url:
+        record["witness"]["key_url"] = key_url
+    if vantage_limitation:
+        record["vantage_limitation"] = vantage_limitation
+    record["mode"] = "full"
+    if privacy == "hash-only":
+        redact_hash_only(record)
+    est, dne = disclaimers(record, privacy, bool(key_url), target)
+    record["establishes"], record["does_not_establish"] = est, dne
     return record
 
 
-def submit(intake, record_canonical, fetch=http_fetch):
-    body = json.dumps({"record_canonical": record_canonical}, ensure_ascii=False).encode("utf-8")
+def submit(intake, record_canonical, fetch=http_fetch, signature_b64=None, public_key_b64=None):
+    payload = {"record_canonical": record_canonical}
+    if signature_b64 and public_key_b64:
+        payload["signature_ed25519_b64"] = signature_b64
+        payload["public_key_ed25519_b64"] = public_key_b64
+    body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     status, rh, rb = fetch("POST", intake, {"Content-Type": "application/json", "Accept": "application/json"}, body)
     try:
         return status, json.loads(rb.decode("utf-8"))
@@ -333,10 +481,28 @@ def main(argv=None):
     ap.add_argument("--submit", action="store_true", help="POST the record to the witness intake named in the card")
     ap.add_argument("--intake", default=None, help="override the witness intake URL (default: params.witness_intake from the card)")
     ap.add_argument("--transport", choices=["urllib", "curl"], default="urllib", help="urllib (default) or curl; use curl when the edge answers 403 to urllib")
+    ap.add_argument("--privacy", choices=list(PRIVACY_MODES), default="full", help="conduct-v1.1 record mode: full (default), hash-only, or commitment")
+    ap.add_argument("--key", default=None, help="Ed25519 private key PEM to sign the record (needs the cryptography package)")
+    ap.add_argument("--key-url", default=None, help="https URL under your own domain that serves {\"public_key_ed25519_b64\": ...}; required with --key")
+    ap.add_argument("--print-public-key", default=None, metavar="KEYFILE", help="print the JSON to serve at --key-url for this key, then exit")
+    ap.add_argument("--vantage-limitation", default=None, help="what you could not see from where you stood")
+    ap.add_argument("--salt-file", default=None, help="commitment mode: read the 32 byte salt (hex) from here instead of generating one")
     a = ap.parse_args(argv)
 
+    if a.print_public_key:
+        _k, pub = load_signing_key(a.print_public_key)
+        print(json.dumps({"public_key_ed25519_b64": pub}))
+        return 0
+    if bool(a.key) != bool(a.key_url):
+        print("--key and --key-url go together: the ledger binds your signature to the domain that serves the key")
+        return 2
+    key = pub = None
+    if a.key:
+        key, pub = load_signing_key(a.key)
+
     fetch = curl_fetch if a.transport == "curl" else http_fetch
-    rec = walk(a.origin, a.endpoint, a.mode, a.witness_name, a.vantage, fetch=fetch, wire=a.wire)
+    rec = walk(a.origin, a.endpoint, a.mode, a.witness_name, a.vantage, fetch=fetch, wire=a.wire,
+               privacy=a.privacy, key_url=a.key_url, vantage_limitation=a.vantage_limitation)
     rc = canonical(rec)
     sha = sha256_hex(rc)
     out = a.out or ("walk_" + sha[:12] + ".json")
@@ -356,12 +522,29 @@ def main(argv=None):
             print("  n%d %s %s -> http %s  body sha %s%s" % (nd["n"], nd["request"]["method"], nd["request"]["url"], st, nd["response"]["body_sha256"][:12], err))
         else:
             print("  n%d compute: %s" % (nd["n"], nd.get("output_preview", "")[:120]))
+    print("  mode %s; does_not_establish: %s" % (rec["mode"], "; ".join(rec["does_not_establish"])))
+
+    # What gets filed: the record itself, or, in commitment mode, only its commitment.
+    to_file, to_file_c = rec, rc
+    if a.privacy == "commitment":
+        import os
+        salt_hex = io.open(a.salt_file, encoding="utf-8").read().strip() if a.salt_file else os.urandom(32).hex()
+        if len(salt_hex) != 64 or any(c not in "0123456789abcdef" for c in salt_hex):
+            print("salt must be 32 bytes as 64 lower-case hex characters")
+            return 2
+        salt_path = out[:-5] + ".salt" if out.endswith(".json") else out + ".salt"
+        io.open(salt_path, "w", encoding="utf-8").write(salt_hex + "\n")
+        to_file = commitment_record(rec, salt_hex)
+        to_file_c = canonical(to_file)
+        print("commitment %s  (full record %s, salt %s; reveal later by POSTing the full record)" % (to_file["commitment"], out, salt_path))
+
     if a.submit:
         intake = a.intake or rec["conduct_ext"].get("witness_intake")
         if not intake:
             print("no witness_intake in the card and no --intake given; not submitted")
             return 2
-        st, j = submit(intake, rc, fetch=fetch)
+        sig = sign_canonical(key, to_file_c) if key else None
+        st, j = submit(intake, to_file_c, fetch=fetch, signature_b64=sig, public_key_b64=pub)
         print("submitted to %s: http %d %s" % (intake, st, json.dumps(j, ensure_ascii=False)[:300]))
         return 0 if st in (200, 201) else 1
     return 0 if v["ok"] else 1

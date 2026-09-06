@@ -28,6 +28,14 @@ import argparse, hashlib, io, json, os, re, sys
 
 SCHEMA = "nenrin-ring-v1"
 GATE_WITNESS = {"name": "gate.horizonshield.dev", "vantage": "cloudflare-worker"}
+# conduct-v1.1 (2026-09-07): rings from this month on carry the two-column witness counts, the
+# commitment count, walked_as_witness, and the instant coordinate counts. Every v1 field keeps its
+# v1 meaning. Rings before this month are built exactly as before, so an anchored August ring still
+# verifies byte for byte with this file. The second implementation (Node.js) applies the same month rule.
+V11_FROM = "2026-09"
+V11_LIMIT_UNSIGNED = "unsigned witnesses are counted by the name they gave"
+V11_LIMIT_COLUMNS = ("witnesses_signed and witnesses_unsigned count third parties only; the gate is the measurer, "
+                     "counted once under witnesses as before")
 
 
 def canonical(obj):
@@ -98,6 +106,10 @@ def normalise_witness(w):
         "witness": {"name": ident.get("name"), "vantage": ident.get("vantage") or ""},
         "urls": [u for u in urls if u],
         "sha": w.get("sha"),
+        # v1.1 columns; absent on v1 records, which is what the month rule expects.
+        "signed_domain": w.get("signed_domain") or None,
+        "mode": w.get("mode") or walk.get("mode") or "full",
+        "counted": w.get("counted") is not False,
     }
     if w.get("discrepancy_sha256"):
         out["discrepancy_sha256"] = w["discrepancy_sha256"]
@@ -151,10 +163,26 @@ def build_ring(endpoint, month, entries, prev_ring=None, witness_records=None):
     # endpoint in this month. With one witness there can be no discrepancy, and the ring says so.
     wit = [GATE_WITNESS]
     disc = []
-    for w in (witness_records or []):
-        w = normalise_witness(w)
+    v11 = month >= V11_FROM
+    # v1.1 columns. Identities: the serving domain for a domain-signed record, else the given name.
+    signed_ids, unsigned_ids = [], []
+    disc_signed, disc_unsigned = [], []
+    disc_seen = set()          # (identity, UTC day): one counted discrepancy per witness per day
+    commitments = 0
+    walked_as_witness = 0
+    this_host = None
+    try:
+        from urllib.parse import urlsplit
+        this_host = urlsplit(endpoint).hostname
+    except Exception:
+        pass
+    for raw in (witness_records or []):
+        w = normalise_witness(raw)
         if not w or not in_month(w.get("at"), month):
             continue
+        # walked_as_witness counts this endpoint's operator as a witness of anything, covered or not.
+        if v11 and this_host and w.get("signed_domain") == this_host and w.get("counted"):
+            walked_as_witness += 1
         if not witness_covers(w, endpoint):
             continue
         ident = w.get("witness") if isinstance(w.get("witness"), dict) else None
@@ -164,11 +192,30 @@ def build_ring(endpoint, month, entries, prev_ring=None, witness_records=None):
             wit.append(ident)
         if w.get("discrepancy_sha256"):
             disc.append(w["discrepancy_sha256"])
+        if not v11 or not w.get("counted"):
+            continue
+        if w.get("mode") == "commitment":
+            commitments += 1
+            continue
+        dom = w.get("signed_domain")
+        identity = ("domain:" + dom) if dom else ("name:" + ident["name"])
+        bucket = signed_ids if dom else unsigned_ids
+        if identity not in bucket:
+            bucket.append(identity)
+        if w.get("discrepancy_sha256"):
+            key = (identity, (w.get("at") or "")[:10])
+            if key not in disc_seen:
+                disc_seen.add(key)
+                (disc_signed if dom else disc_unsigned).append(w["discrepancy_sha256"])
 
     limits = []
     if len(wit) == 1:
         limits.append("one witness only, so no discrepancy could have been recorded this month; "
                       "a single witness can be wrong and nobody was positioned to say so")
+    if v11:
+        limits.append(V11_LIMIT_COLUMNS)
+        if unsigned_ids:
+            limits.append(V11_LIMIT_UNSIGNED)
     if not ents:
         limits.append("no measurement this month; a ring with zero instants is a recorded gap, not an absence of a ring")
     unmeasured_det = sum(1 for e in ents if (e.get("conditions") or {}).get("determinism", {}).get("measured") is False)
@@ -201,6 +248,27 @@ def build_ring(endpoint, month, entries, prev_ring=None, witness_records=None):
         "recompute": ("python3 make_ring.py --verify <this file> --history <the /history export> "
                       "[--prev <previous ring>]. Same bytes in, same sha256 out. Anyone can."),
     }
+    if v11:
+        derived = legacy = noblock = 0
+        for e in ents:
+            cd = e.get("coordinate_derivation")
+            if isinstance(cd, dict) and cd.get("derived") is True:
+                derived += 1
+            elif isinstance(cd, dict) and cd.get("derived") is False:
+                legacy += 1
+            else:
+                noblock += 1
+        ring.update({
+            "witnesses_signed": len(signed_ids),
+            "witnesses_unsigned": len(unsigned_ids),
+            "discrepancies_signed": sorted(set(disc_signed)),
+            "discrepancies_unsigned": sorted(set(disc_unsigned)),
+            "commitments_unrevealed": commitments,
+            "walked_as_witness": walked_as_witness,
+            "instants_derived": derived,
+            "instants_legacy": legacy,
+            "instants_no_coordinate_block": noblock,
+        })
     return ring
 
 

@@ -27,7 +27,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import a2a_conduct_walk as W  # noqa: E402
 
-SERVER = {"name": "conduct-witness", "version": "1.1.0"}
+SERVER = {"name": "conduct-witness", "version": "1.2.0"}
 PROTOCOL_DEFAULT = "2024-11-05"
 
 TOOL = {
@@ -37,8 +37,11 @@ TOOL = {
         "observation under your name at the witness intake the agent's own card names. Fetches the agent card twice, "
         "validates the extension declaration, sends one JSON-RPC message to the measured endpoint with the "
         "A2A-Extensions header, records every response body's sha256, and returns the record's sha256 plus the "
-        "intake's answer. One observation, no score, no judgement of quality. Do not call this on an agent whose "
-        "owner has asked not to be measured."
+        "intake's answer. One observation, no score, no judgement of quality. Every record states what it does and "
+        "does not establish (conduct-v1.1). Signing: set HS_WITNESS_KEY (Ed25519 PEM path) and HS_WITNESS_KEY_URL "
+        "(https URL under your domain serving the public key) in this server's environment and the record is signed "
+        "and bound to that domain; otherwise it is filed unsigned. Do not call this on an agent whose owner has asked "
+        "not to be measured."
     ),
     "inputSchema": {
         "type": "object",
@@ -51,6 +54,8 @@ TOOL = {
             "endpoint": {"type": "string", "description": "measured endpoint to POST; default: the card's first params.measured_endpoints entry"},
             "submit": {"type": "boolean", "default": True, "description": "file the record at the card's witness_intake (default true). false = walk only, nothing leaves this machine"},
             "transport": {"type": "string", "enum": ["urllib", "curl"], "default": "urllib", "description": "use curl when an edge answers 403 to Python's urllib"},
+            "privacy": {"type": "string", "enum": ["full", "hash-only", "commitment"], "default": "full", "description": "conduct-v1.1 record mode. full: every node url, method and hash. hash-only: urls reduced to the origin, methods redacted; the record never names the tool called. commitment: only sha256(record || salt) is filed; the record and the salt stay on this machine"},
+            "vantage_limitation": {"type": "string", "description": "what this vantage could not see (a proxy, a cache, a region). Optional; goes into the record verbatim"},
         },
         "required": ["origin", "witness_name", "vantage"],
     },
@@ -72,9 +77,37 @@ def run_witness_walk(args):
     mode = "mcp" if args.get("mode") == "mcp" else "a2a"
     wire = "0.3" if str(args.get("wire") or "1.0") == "0.3" else "1.0"
     fetch = W.curl_fetch if args.get("transport") == "curl" else W.http_fetch
-    rec = W.walk(origin, args.get("endpoint") or None, mode, name, vantage, fetch=fetch, wire=wire)
+    privacy = str(args.get("privacy") or "full")
+    if privacy not in W.PRIVACY_MODES:
+        return {"isError": True, **_text("privacy must be one of " + ", ".join(W.PRIVACY_MODES))}
+    key_path = os.environ.get("HS_WITNESS_KEY") or None
+    key_url = os.environ.get("HS_WITNESS_KEY_URL") or None
+    if bool(key_path) != bool(key_url):
+        return {"isError": True, **_text("HS_WITNESS_KEY and HS_WITNESS_KEY_URL go together")}
+    key = pub = None
+    if key_path:
+        try:
+            key, pub = W.load_signing_key(key_path)
+        except SystemExit as e:
+            return {"isError": True, **_text(str(e))}
+    rec = W.walk(origin, args.get("endpoint") or None, mode, name, vantage, fetch=fetch, wire=wire,
+                 privacy=privacy, key_url=key_url, vantage_limitation=(str(args.get("vantage_limitation")).strip() or None) if args.get("vantage_limitation") else None)
     rc = W.canonical(rec)
     sha = W.sha256_hex(rc)
+    filed, filed_c = rec, rc
+    commitment = None
+    if privacy == "commitment":
+        salt_hex = os.urandom(32).hex()
+        filed = W.commitment_record(rec, salt_hex)
+        filed_c = W.canonical(filed)
+        commitment = {"commitment": filed["commitment"], "full_record_file": "walk_" + sha[:12] + ".json", "salt_file": "walk_" + sha[:12] + ".salt"}
+        try:
+            with open(commitment["full_record_file"], "w", encoding="utf-8") as f:
+                f.write(rc)
+            with open(commitment["salt_file"], "w", encoding="utf-8") as f:
+                f.write(salt_hex + "\n")
+        except Exception as e:
+            return {"isError": True, **_text("could not keep the full record and salt on disk: " + str(e))}
     out = {
         "sha256": sha,
         "purpose": rec["purpose"],
@@ -86,6 +119,11 @@ def run_witness_walk(args):
         "witness": rec["witness"],
         "wire": rec["conduct_ext"].get("wire"),
         "conduct_record": rec["conduct_ext"].get("conduct_record"),
+        "mode": filed.get("mode"),
+        "establishes": filed.get("establishes"),
+        "does_not_establish": filed.get("does_not_establish"),
+        "signed_with_key_url": key_url,
+        "commitment": commitment,
         "submitted": None,
     }
     if args.get("submit", True):
@@ -93,9 +131,10 @@ def run_witness_walk(args):
         if not intake:
             out["submitted"] = {"ok": False, "reason": "the card names no witness_intake; nothing was sent"}
         else:
-            st, j = W.submit(intake, rc, fetch=fetch)
+            sig = W.sign_canonical(key, filed_c) if key else None
+            st, j = W.submit(intake, filed_c, fetch=fetch, signature_b64=sig, public_key_b64=pub)
             out["submitted"] = {"ok": st in (200, 201), "http": st, "intake": intake, "response": j}
-    out["record_canonical"] = rc
+    out["record_canonical"] = filed_c
     summary = "witness walk %s: %s %d/%d, sha256 %s" % (rec["purpose"], out["outcome"], out["n_pass"], out["n_total"], sha)
     if out["submitted"]:
         summary += "; submitted http %s to %s" % (out["submitted"].get("http"), out["submitted"].get("intake")) if out["submitted"].get("intake") else "; not submitted: " + out["submitted"].get("reason", "")

@@ -108,6 +108,63 @@ r7 = build_ring(EP, "2026-08", H, witness_records=[stored(walk("https://target.t
 case("attack", "walked_at decides the month, not submitted_at; a July walk submitted in August stays in July",
      r7["witnesses"] == 1, "")
 
+# --- conduct-v1.1 columns (2026-09-07): September on; August bytes untouched -----
+def ent9(day, derived=None, **kw):
+    e = ent(day, **kw); e["at"] = "2026-09-%02dT18:00:00.000Z" % day
+    if derived is not None:
+        e["coordinate_derivation"] = {"derived": derived, "reason_code": None if derived else "tips_unavailable"}
+    return e
+H9 = [ent9(1, derived=False), ent9(2, derived=True), ent9(3, derived=True), ent9(4)]
+def walk9(base, ok=True, name="peer.example", at="2026-09-12T00:00:00Z", mode=None):
+    w = walk(base, ok=ok, name=name, at=at)
+    if mode:
+        w["mode"] = mode; w["establishes"] = ["x"]; w["does_not_establish"] = ["y"]
+        if mode == "commitment":
+            w.pop("nodes"); w.pop("assertions"); w.pop("verdict"); w["commitment"] = "c" * 64
+    return w
+def stored9(wk, sha, signed_domain=None, counted=True, mode=None):
+    s = stored(wk, sha=sha); s["submitted_at"] = wk["walked_at"]
+    if signed_domain: s["signed_domain"] = signed_domain; s["signed"] = True
+    if mode: s["mode"] = mode
+    if not counted: s["counted"] = False
+    return s
+aug = build_ring(EP, "2026-08", H, witness_records=[stored(walk("https://target.test"))])
+case("control", "an August ring carries no v1.1 key: anchored rings still verify byte for byte",
+     all(k not in aug for k in ("witnesses_signed", "witnesses_unsigned", "instants_derived", "walked_as_witness")), json.dumps(sorted(aug.keys()))[:80])
+sep = build_ring(EP, "2026-09", H9, witness_records=[
+    stored9(walk9("https://target.test", name="Signed Peer"), "s1", signed_domain="peer.example"),
+    stored9(walk9("https://target.test", name="Unsigned Peer"), "u1"),
+])
+case("control", "a September ring has the two witness columns and the coordinate counts",
+     sep["witnesses"] == 3 and sep["witnesses_signed"] == 1 and sep["witnesses_unsigned"] == 1
+     and sep["instants_derived"] == 2 and sep["instants_legacy"] == 1 and sep["instants_no_coordinate_block"] == 1,
+     json.dumps({k: sep[k] for k in ("witnesses", "witnesses_signed", "witnesses_unsigned", "instants_derived", "instants_legacy", "instants_no_coordinate_block")}))
+case("control", "the September ring says the columns count third parties and that unsigned witnesses are counted by name",
+     "third parties only" in sep["limits"] and "counted by the name they gave" in sep["limits"], sep["limits"][-120:])
+flood = [stored9(walk9("https://target.test", ok=False, name="Sock " + str(i), at="2026-09-12T00:00:%02dZ" % i), "f%d" % i) for i in range(20)]
+fl = build_ring(EP, "2026-09", H9, witness_records=flood)
+case("attack", "twenty unsigned sock names on one day: v1 discrepancies keep every sha, the unsigned column stays unsigned, the signed column stays empty",
+     len(fl["discrepancies"]) == 20 and fl["witnesses_unsigned"] == 20 and fl["witnesses_signed"] == 0 and fl["discrepancies_signed"] == [] and len(fl["discrepancies_unsigned"]) == 20,
+     json.dumps({"disc": len(fl["discrepancies"]), "unsigned": fl["witnesses_unsigned"], "signed": fl["witnesses_signed"]}))
+same = [stored9(walk9("https://target.test", ok=False, name="One Name", at="2026-09-12T00:00:%02dZ" % i), "o%d" % i, counted=(i == 0)) for i in range(20)]
+sm = build_ring(EP, "2026-09", H9, witness_records=same)
+case("attack", "twenty FAIL records from one name on one day: one witness, one counted discrepancy in the column, all twenty shas kept under v1 discrepancies",
+     sm["witnesses_unsigned"] == 1 and len(sm["discrepancies_unsigned"]) == 1 and len(sm["discrepancies"]) == 20,
+     json.dumps({"unsigned": sm["witnesses_unsigned"], "disc_unsigned": len(sm["discrepancies_unsigned"]), "disc_v1": len(sm["discrepancies"])}))
+cmt = build_ring(EP, "2026-09", H9, witness_records=[stored9(walk9("https://target.test", mode="commitment"), "k1", mode="commitment")])
+case("control", "a commitment record is counted as unrevealed and in neither witness column",
+     cmt["commitments_unrevealed"] == 1 and cmt["witnesses_signed"] == 0 and cmt["witnesses_unsigned"] == 0 and cmt["witnesses"] == 2,
+     json.dumps({"c": cmt["commitments_unrevealed"], "w": cmt["witnesses"]}))
+waw = build_ring(EP, "2026-09", H9, witness_records=[
+    stored9(walk9("https://somebody-else.test", name="target operator"), "w1", signed_domain="target.test"),
+    stored9(walk9("https://another.test", name="target operator"), "w2", signed_domain="target.test"),
+    stored9(walk9("https://third.test", name="target operator"), "w3", signed_domain="target.test", counted=False),
+])
+case("control", "walked_as_witness counts the counted walks this endpoint's domain filed about others, and none of them as witnesses of itself",
+     waw["walked_as_witness"] == 2 and waw["witnesses"] == 1, json.dumps({"waw": waw["walked_as_witness"], "w": waw["witnesses"]}))
+case("control", "same September inputs in any order give byte-identical bytes",
+     ring_bytes(build_ring(EP, "2026-09", list(reversed(H9)), witness_records=list(reversed(flood)))) == ring_bytes(fl), "")
+
 # --- misclass -----------------------------------------------------------------
 empty = build_ring(EP, "2026-08", [])
 case("misclass", "a month with nothing measured still produces a ring, and says it is a gap",

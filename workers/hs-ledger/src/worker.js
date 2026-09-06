@@ -186,9 +186,28 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 // ---- NENRIN Phase 2: witness intake (entry #19 の実装) ----
 // 受理の規則は機械的のみ。ここに「運営者の判断」という分岐は存在しない。
 const WITNESS_MAX_BYTES = 65536;
-const WITNESS_DAILY_GLOBAL = 50;
+// 2026-09-07 conduct-v1.1 (ops/conduct_v1_1_draft_20260907.md, section 4). Two lanes. Unsigned records
+// are capped per source address as before. Records signed with a key that the witness also serves from
+// its own domain (witness.key_url) are capped per that domain instead, so a witness who signs is not
+// starved by the address cap and a witness who does not sign cannot fill the pool from one address.
+// The global cap moves from 50 to 500 because the operator's own automated records (instant
+// commitments, reciprocal walks) now ride the same intake. Every cap is stated at GET /witness.
+const WITNESS_DAILY_GLOBAL = 500;
 const WITNESS_DAILY_PER_IP = 5;
+const WITNESS_DAILY_PER_DOMAIN = 50;
 const WITNESS_BATCH_MAX = 200;
+const WITNESS_MODES = ["full", "hash-only", "commitment"];
+const WITNESS_KEY_FETCH_MS = 5000;
+
+function witnessHost(u) {
+  try { const x = new URL(u); return x.protocol === "https:" ? x.hostname.toLowerCase() : null; } catch (_e) { return null; }
+}
+
+function witnessEndpointOf(r) {
+  // "a2a-conduct-walk-v1: <endpoint>" names the measured endpoint; other purposes fall back to base.
+  const m = /^a2a-conduct-walk-v1:\s*(\S+)/.exec(r.purpose || "");
+  return (m && m[1]) || r.base;
+}
 
 function witnessValidate(recordCanonical) {
   let r;
@@ -198,14 +217,69 @@ function witnessValidate(recordCanonical) {
   for (const k of ["purpose", "walked_at", "base"]) {
     if (typeof r[k] !== "string" || !r[k]) return { ok: false, why: "missing string field: " + k };
   }
-  if (!Array.isArray(r.nodes) || r.nodes.length < 1) return { ok: false, why: "nodes must be a non-empty array" };
-  if (!Array.isArray(r.assertions) || r.assertions.length < 1) return { ok: false, why: "assertions must be a non-empty array" };
-  if (!r.verdict || typeof r.verdict !== "object") return { ok: false, why: "verdict object required" };
   const w = r.witness;
   if (!w || typeof w !== "object") return { ok: false, why: "witness object required (NENRIN extension): { name, vantage }. name may be 'anonymous'." };
   if (typeof w.name !== "string" || !w.name) return { ok: false, why: "witness.name required ('anonymous' is allowed)" };
   if (typeof w.vantage !== "string" || !w.vantage) return { ok: false, why: "witness.vantage required (network/tool the walk was taken from)" };
-  return { ok: true, purpose: r.purpose, witness_name: w.name, vantage: w.vantage };
+
+  // conduct-v1.1: a record that carries `mode` is a v1.1 record and must say what it does and does not establish.
+  const v11 = r.mode !== undefined;
+  const mode = v11 ? r.mode : "full";
+  if (v11 && !WITNESS_MODES.includes(mode)) return { ok: false, reason_code: "bad_mode", why: "mode must be one of " + WITNESS_MODES.join(", ") };
+  const strList = (x) => Array.isArray(x) && x.length > 0 && x.every((s) => typeof s === "string" && s.trim().length > 0);
+  if (v11) {
+    if (!strList(r.establishes)) return { ok: false, reason_code: "disclaimer_missing", why: "a v1.1 record must carry establishes: a non-empty list of strings naming what it proves" };
+    if (!strList(r.does_not_establish)) return { ok: false, reason_code: "disclaimer_missing", why: "a v1.1 record must carry does_not_establish: a non-empty list of strings naming what it does not prove; a record without it is read as more than it is" };
+  }
+  if (mode === "commitment") {
+    if (!isHex64(r.commitment)) return { ok: false, reason_code: "bad_commitment", why: "mode commitment requires commitment: sha256 hex of (canonical full record || salt)" };
+  } else {
+    if (!Array.isArray(r.nodes) || r.nodes.length < 1) return { ok: false, why: "nodes must be a non-empty array" };
+    if (!Array.isArray(r.assertions) || r.assertions.length < 1) return { ok: false, why: "assertions must be a non-empty array" };
+    if (!r.verdict || typeof r.verdict !== "object") return { ok: false, why: "verdict object required" };
+  }
+  if (mode === "hash-only") {
+    for (const nd of r.nodes) {
+      const req = nd && typeof nd === "object" && nd.request && typeof nd.request === "object" ? nd.request : null;
+      if (!req) continue;
+      if (req.url !== undefined) {
+        let u; try { u = new URL(req.url); } catch (_e) { return { ok: false, reason_code: "path_leaks_tool", why: "hash-only node urls must be an https origin" }; }
+        if ((u.pathname && u.pathname !== "/") || u.search || u.hash) return { ok: false, reason_code: "path_leaks_tool", why: "hash-only mode: request.url must be the origin only; a path names the tool" };
+      }
+      if (req.method !== undefined && req.method !== "REDACTED") return { ok: false, reason_code: "path_leaks_tool", why: "hash-only mode: request.method must be REDACTED" };
+    }
+  }
+  let keyUrl = null, keyHost = null;
+  if (w.key_url !== undefined) {
+    keyHost = witnessHost(w.key_url);
+    if (!keyHost) return { ok: false, reason_code: "bad_key_url", why: "witness.key_url must be an https URL under the witness's own domain" };
+    keyUrl = w.key_url;
+  }
+  const endpoint = witnessEndpointOf(r);
+  return { ok: true, purpose: r.purpose, witness_name: w.name, vantage: w.vantage, mode, v11, key_url: keyUrl, key_host: keyHost,
+           endpoint, base: r.base, disclaimer_present: v11 };
+}
+
+// v1.1: the key a signed record presents must also be served from the witness's own domain. That domain,
+// not the string in witness.name, is the witness's identity. Cached 24 hours per key_url.
+async function witnessFetchDomainKey(env, keyUrl) {
+  const ck = `wit:key:${(await sha256hex(keyUrl)).slice(0, 32)}`;
+  const cached = await env.LEDGER.get(ck);
+  if (cached) return { ok: true, key: cached, cached: true };
+  try {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), WITNESS_KEY_FETCH_MS);
+    const res = await fetch(keyUrl, { signal: ctl.signal, headers: { accept: "application/json" }, redirect: "error" });
+    clearTimeout(t);
+    if (!res.ok) return { ok: false, why: "key_url answered " + res.status };
+    const j = await res.json().catch(() => null);
+    const k = j && typeof j.public_key_ed25519_b64 === "string" ? j.public_key_ed25519_b64 : null;
+    if (!k) return { ok: false, why: "key_url did not serve {public_key_ed25519_b64}" };
+    await env.LEDGER.put(ck, k, { expirationTtl: 86400 });
+    return { ok: true, key: k, cached: false };
+  } catch (e) {
+    return { ok: false, why: "key_url unreachable: " + String(e && e.message || e) };
+  }
 }
 
 async function witnessVerifySig(recordCanonical, sigB64, pubB64) {
@@ -231,11 +305,26 @@ function witnessSelfDescription(origin) {
       max_bytes: WITNESS_MAX_BYTES,
       daily_global: WITNESS_DAILY_GLOBAL,
       daily_per_ip: WITNESS_DAILY_PER_IP,
+      daily_per_domain: WITNESS_DAILY_PER_DOMAIN,
       batch_max: WITNESS_BATCH_MAX,
       note: "These caps exist because the pool is free to submit to and the chain is append-only. " +
-            "A schema-valid submission inside the caps cannot be refused."
+            "A schema-valid submission inside the caps cannot be refused. Since 2026-09-07 (conduct-v1.1) " +
+            "the per-address cap applies to unsigned records and the per-domain cap to records signed with " +
+            "a key the witness also serves from its own domain (witness.key_url)."
     },
-    signature: "Optional Ed25519 over the exact record_canonical bytes (signature_ed25519_b64 + public_key_ed25519_b64). Present and invalid: rejected. Absent: accepted and recorded as signed: false.",
+    signature: "Optional Ed25519 over the exact record_canonical bytes (signature_ed25519_b64 + public_key_ed25519_b64). Present and invalid: rejected. Absent: accepted and recorded as signed: false. " +
+               "v1.1: when the record carries witness.key_url (https, under the witness's domain), the same public key must be served there as {public_key_ed25519_b64}; " +
+               "the domain then becomes the witness's identity (signed_domain). A key_url under the walked agent's own domain is refused as self_witness.",
+    conduct_v1_1: {
+      spec: "ops/conduct_v1_1_draft_20260907.md (draft; same URI as conduct-v1, every field optional)",
+      record_fields: "mode (full | hash-only | commitment), establishes[], does_not_establish[] (both required when mode is present), " +
+                     "witness.key_url (optional), commitment (required in commitment mode), vantage_limitation (optional)",
+      refusals: ["disclaimer_missing", "bad_mode", "bad_commitment", "path_leaks_tool", "bad_key_url", "key_url_mismatch", "key_url_unreachable", "self_witness", "signature_invalid"],
+      counting: "every accepted record is stored; per (witness identity, walked endpoint, UTC day) only the first is counted: true. " +
+                "The identity is signed_domain when the record is domain-signed, else name:<witness.name>. The pool and the batch carry counted for every record; " +
+                "nothing is hidden by the cap, only the ring's counts respect it.",
+      not_established: "acceptance here proves that a record of this shape was filed at this time; it does not prove that the walk happened, that the endpoint answered as described, or who the witness is beyond signed_domain when present"
+    },
     privacy: "No IP addresses are stored. Rate counters use a 16-hex prefix of sha256(ip) and expire within 25 hours.",
     how_to_submit: 'POST /witness with {"record_canonical":"<exact bytes of your jidec-path-v1 walk, including a witness:{name,vantage} field>"}',
     pool: origin + "/witness/pending"
@@ -1018,42 +1107,76 @@ async function handle(request, env) {
       if (b.record_canonical.length > WITNESS_MAX_BYTES)
         return json({ error: "too_large", max_bytes: WITNESS_MAX_BYTES }, 413);
       const v = witnessValidate(b.record_canonical);
-      if (!v.ok) return json({ error: "invalid_witness_record", why: v.why, help: origin + "/witness" }, 422);
+      if (!v.ok) return json({ error: "invalid_witness_record", reason_code: v.reason_code || "schema", why: v.why, help: origin + "/witness" }, 422);
 
       const day = new Date().toISOString().slice(0, 10);
       const g = Number((await env.LEDGER.get(`wit:count:${day}`)) || 0);
       if (g >= WITNESS_DAILY_GLOBAL)
         return json({ error: "daily_global_cap_reached", cap: WITNESS_DAILY_GLOBAL, note: "stated at GET /witness; try tomorrow" }, 429);
-      const ip = request.headers.get("cf-connecting-ip") || "unknown";
-      const ipKey = `wit:ip:${day}:${(await sha256hex(ip)).slice(0, 16)}`;
-      const gi = Number((await env.LEDGER.get(ipKey)) || 0);
-      if (gi >= WITNESS_DAILY_PER_IP)
-        return json({ error: "daily_per_ip_cap_reached", cap: WITNESS_DAILY_PER_IP, note: "stated at GET /witness; try tomorrow" }, 429);
 
+      // Signature first, so that the lane (address or domain) is known before any cap is read.
       let signed = false;
       if (b.signature_ed25519_b64 || b.public_key_ed25519_b64) {
         if (!b.signature_ed25519_b64 || !b.public_key_ed25519_b64)
           return json({ error: "signature_and_public_key_must_come_together" }, 422);
         signed = await witnessVerifySig(b.record_canonical, b.signature_ed25519_b64, b.public_key_ed25519_b64);
-        if (!signed) return json({ error: "signature_invalid", note: "a present signature must verify; omit it to submit unsigned" }, 422);
+        if (!signed) return json({ error: "signature_invalid", reason_code: "signature_invalid", note: "a present signature must verify; omit it to submit unsigned" }, 422);
       }
+      // v1.1 domain binding. A key_url without a signature binds nothing and is refused as such.
+      let signedDomain = null;
+      if (v.key_url) {
+        if (!signed) return json({ error: "key_url_without_signature", reason_code: "bad_key_url", note: "witness.key_url only means something on a signed record" }, 422);
+        const walkedHosts = [witnessHost(v.base), witnessHost(v.endpoint)].filter(Boolean);
+        if (walkedHosts.includes(v.key_host))
+          return json({ error: "self_witness", reason_code: "self_witness", note: "a key served from the walked agent's own domain cannot witness that agent" }, 422);
+        if (v.key_host === witnessHost(origin))
+          return json({ error: "self_witness", reason_code: "self_witness", note: "the ledger's own domain is not a witness domain" }, 422);
+        const dk = await witnessFetchDomainKey(env, v.key_url);
+        if (!dk.ok) return json({ error: "key_url_unreachable", reason_code: "key_url_unreachable", why: dk.why, note: "retry later, or omit key_url to file as an address-lane record" }, 503);
+        if (dk.key !== b.public_key_ed25519_b64)
+          return json({ error: "key_url_mismatch", reason_code: "key_url_mismatch", note: "the key served at witness.key_url is not the key that signed this record" }, 422);
+        signedDomain = v.key_host;
+      }
+
+      // Lane cap: per domain for domain-signed records, per address for everything else.
+      let laneKey, laneCap, laneErr;
+      if (signedDomain) {
+        laneKey = `wit:dom:${day}:${signedDomain}`; laneCap = WITNESS_DAILY_PER_DOMAIN; laneErr = "daily_per_domain_cap_reached";
+      } else {
+        const ip = request.headers.get("cf-connecting-ip") || "unknown";
+        laneKey = `wit:ip:${day}:${(await sha256hex(ip)).slice(0, 16)}`; laneCap = WITNESS_DAILY_PER_IP; laneErr = "daily_per_ip_cap_reached";
+      }
+      const gl = Number((await env.LEDGER.get(laneKey)) || 0);
+      if (gl >= laneCap)
+        return json({ error: laneErr, cap: laneCap, note: "stated at GET /witness; try tomorrow" }, 429);
 
       const sha = (await sha256hex(b.record_canonical)).toLowerCase();
       const dupP = await env.LEDGER.get(`wit:pending:${sha}`);
       const dupA = await env.LEDGER.get(`wit:anchored:${sha}`);
       if (dupP || dupA) return json({ sha, status: dupA ? "anchored" : "pending", dedup: true, url: `${origin}/witness/${sha}` });
 
+      // Counting, not storage, is capped: first record per (identity, endpoint, day) is counted.
+      const identity = signedDomain ? `domain:${signedDomain}` : `name:${v.witness_name}`;
+      const cntKey = `wit:cnt:${day}:${(await sha256hex(identity + "|" + v.endpoint)).slice(0, 32)}`;
+      const already = await env.LEDGER.get(cntKey);
+      const counted = !already;
+      const countReason = counted ? null : "same witness, same endpoint, same day; stored, not counted";
+      if (counted) await env.LEDGER.put(cntKey, sha, { expirationTtl: 90000 });
+
       const stored = {
         sha, record_canonical: b.record_canonical, signed,
         public_key_ed25519_b64: signed ? b.public_key_ed25519_b64 : null,
+        signed_domain: signedDomain, key_url: v.key_url || null,
+        mode: v.mode, v11: v.v11, disclaimer_present: v.disclaimer_present,
+        endpoint: v.endpoint, counted, count_reason: countReason,
         purpose: v.purpose, witness_name: v.witness_name, vantage: v.vantage,
         submitted_at: new Date().toISOString()
       };
       await env.LEDGER.put(`wit:pending:${sha}`, JSON.stringify(stored));
       await env.LEDGER.put(`wit:count:${day}`, String(g + 1), { expirationTtl: 90000 });
-      await env.LEDGER.put(ipKey, String(gi + 1), { expirationTtl: 90000 });
+      await env.LEDGER.put(laneKey, String(gl + 1), { expirationTtl: 90000 });
       return json({
-        sha, status: "pending", signed, url: `${origin}/witness/${sha}`,
+        sha, status: "pending", signed, signed_domain: signedDomain, mode: v.mode, counted, count_reason: countReason, url: `${origin}/witness/${sha}`,
         anchor_policy: "pending submissions are bundled into a nenrin-witness-batch-v1 ledger entry daily at 00:30 UTC by the ledger's schedule when the pool is not empty; the batch anchor fixes the existence time of every record in it; the Bitcoin stamp follows on the operator's stamping run"
       }, 201);
     }
@@ -1065,9 +1188,14 @@ async function handle(request, env) {
         const raw = await env.LEDGER.get(k.name);
         if (!raw) continue;
         const s = JSON.parse(raw);
-        out.push({ sha: s.sha, purpose: s.purpose, witness_name: s.witness_name, vantage: s.vantage, signed: s.signed, submitted_at: s.submitted_at });
+        out.push({ sha: s.sha, purpose: s.purpose, witness_name: s.witness_name, vantage: s.vantage, signed: s.signed,
+                   signed_domain: s.signed_domain || null, mode: s.mode || "full", counted: s.counted !== false, submitted_at: s.submitted_at });
       }
-      return json({ count: out.length, pending: out, note: "public pool; bundled into a ledger entry daily at 00:30 UTC by schedule when not empty; the Bitcoin stamp follows on the operator's stamping run" });
+      const counted = out.filter((x) => x.counted).length;
+      return json({ count: out.length, counted, stored_not_counted: out.length - counted, pending: out,
+                    caps: { daily_global: WITNESS_DAILY_GLOBAL, daily_per_ip: WITNESS_DAILY_PER_IP, daily_per_domain: WITNESS_DAILY_PER_DOMAIN },
+                    note: "public pool; bundled into a ledger entry daily at 00:30 UTC by schedule when not empty; the Bitcoin stamp follows on the operator's stamping run; " +
+                          "counted false means a second record from the same witness for the same endpoint on the same day: stored, anchored, not counted by the ring" });
     }
 
     const wm = p.match(/^\/witness\/([0-9a-f]{64})$/i);
@@ -1413,7 +1541,15 @@ async function anchorWitnessPool(env, origin, trigger) {
     schema: "nenrin-witness-batch-v1",
     anchored_at: new Date().toISOString(),
     count: items.length,
-    records: items.map((s) => ({ sha: s.sha, purpose: s.purpose, witness_name: s.witness_name, vantage: s.vantage, signed: s.signed }))
+    records: items.map((s) => {
+      const rec = { sha: s.sha, purpose: s.purpose, witness_name: s.witness_name, vantage: s.vantage, signed: s.signed };
+      // v1.1 fields ride the batch only when the stored record carries them, so a batch of v1 records
+      // is byte identical to what the v1 code produced.
+      if (s.signed_domain) rec.signed_domain = s.signed_domain;
+      if (s.mode && s.mode !== "full") rec.mode = s.mode;
+      if (s.counted === false) rec.counted = false;
+      return rec;
+    })
   };
   const canonical = JSON.stringify(batch);
   const h = (await sha256hex(canonical)).toLowerCase();

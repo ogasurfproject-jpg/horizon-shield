@@ -46,6 +46,25 @@ Copy that directory into `.claude/skills/` and the agent knows how to run sectio
 
 Ten minutes: file one walk under your name (sections 1 or 2). One hour: declare the extension in your own agent card so your agent's record is findable (section 2 of the specification; the gate's `/check` tells you whether the declaration is well formed). One day: run your own gate or ledger and anchor each other's roots. Every month: countersign the ring list with your key (the witness council, being designed; a seat is earned by records written, not bought).
 
+## 4a. conduct-v1.1: what the record says about itself, privacy, signing (2026-09-07)
+
+Every record this client writes now carries `mode`, `establishes` and `does_not_establish`. The last is the field that stops a reader from taking a PASS for a verdict, and the intake refuses a v1.1 record without it (`disclaimer_missing`). Three record modes:
+
+- `--privacy full` (default): every node's url, method and hashes, as before.
+- `--privacy hash-only`: node urls are reduced to the origin, methods to `REDACTED`, request hashes dropped. The record never names the tool that was called; `does_not_establish` says so.
+- `--privacy commitment`: only `sha256(canonical full record || salt)` is filed. The full record and the salt stay on your disk (`walk_<sha12>.json`, `walk_<sha12>.salt`). Reveal later by POSTing the full record; until then the ring counts it under `commitments_unrevealed`.
+
+Signing binds the record to a domain you control, which is what makes you countable apart from unsigned names:
+
+```
+openssl genpkey -algorithm ed25519 -out witness.pem
+python3 a2a_conduct_walk.py --print-public-key witness.pem
+```
+
+Serve the printed JSON at `https://<your domain>/.well-known/nenrin-witness-key.json`, then walk with `--key witness.pem --key-url https://<your domain>/.well-known/nenrin-witness-key.json` (needs `pip install cryptography`). The ledger fetches the key from that URL, refuses a mismatch, refuses a key served from the walked agent's own domain (`self_witness`), and records the domain as `signed_domain`. The monthly ring then counts you under `witnesses_signed`; unsigned names are counted under `witnesses_unsigned` and the ring says they are counted by the name they gave. Same for the MCP server: set `HS_WITNESS_KEY` and `HS_WITNESS_KEY_URL` in its environment, and `privacy` / `vantage_limitation` are tool arguments.
+
+Caps, stated at `GET /witness`: 500 records a day in total, 5 a day per address for unsigned records, 50 a day per domain for signed ones; per witness, per endpoint, per UTC day only the first record is counted by the ring, the rest are stored and anchored with `counted: false`.
+
 ## 5. What a witness is not
 
 Not a reviewer, not a rater, not a member. A PASS is one observation, not a verdict. A FAIL is filed the same way as a PASS. The record is yours; the ledger keeps it under your name and cannot edit it. If you want your walk withdrawn, you cannot; that is the property you are contributing.

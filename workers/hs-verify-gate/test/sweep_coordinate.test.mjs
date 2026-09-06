@@ -177,8 +177,8 @@ EXPLORER.blockTime[HASH_A] = Math.floor(Date.now() / 1000) + 3600;
   const { call } = await freshEnv();
   const spec = await (await call("/spec")).json();
   const ic = spec.instant_coordinate || {};
-  t("control", "/spec names /nenrin/window, says the history carries the block since 0.3.5, and records the three departures found 2026-09-06",
-    /\/nenrin\/window/.test(ic.window || "") && /history entry/.test(ic.in_every_verdict || "") && /2026-09-05T18:00Z/.test(ic.production_departures_found_2026_09_06 || "") && spec.version === "0.3.5",
+  t("control", "/spec names /nenrin/window, says the history carries the block since 0.3.5, and records the three departures found 2026-09-06 (version 0.3.5 or a later 0.4.x)",
+    /\/nenrin\/window/.test(ic.window || "") && /history entry/.test(ic.in_every_verdict || "") && /2026-09-05T18:00Z/.test(ic.production_departures_found_2026_09_06 || "") && /^0\.(3\.5|4\.\d+)$/.test(spec.version),
     spec.version);
 }
 
