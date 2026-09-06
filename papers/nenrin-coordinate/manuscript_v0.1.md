@@ -1,10 +1,12 @@
 # The Prover Does Not Choose the Coordinate: One Rule at Four Scales for Anchored Conduct Records
 
-**Working paper, draft v0.1, 2026-09-06. Not yet posted.**
+**Working paper, draft v0.2, 2026-09-06 (co-authorship confirmed 12:10 JST). Not yet posted.**
 
 Toshikatsu Oga, The HORIZ音s株式会社 (HORIZON SHIELD), Hiratsuka, Japan. ORCID 0009-0000-9180-903X.
 
-[Draft note. Co-authorship is to be offered to Federico Blanco Sánchez-Llanos, the founding external witness named in the anchored records this paper reports, once the first paper (SSRN 7419998) is posted. Section 6 and the witness half of Section 4.3 are drafted here from the anchored records only and are his to rewrite or correct if he accepts. No private message is quoted anywhere in this paper. Both authors approve the final text before posting.]
+Federico Blanco Sánchez-Llanos, Viper Labs (builds invinoveritas, a verification layer for autonomous agents).
+
+[Division of work, stated for the record: T.O. designed and operates the four instances, wrote the harnesses, the anchored specification and its addenda, and drafted this paper. F.B.S.L. is the founding external witness named in those records: his verifier is the counterpart state anchored as entry 25, his review produced the corrections to the time axis, his independent checks of entries 26 to 28 and his question about refusals are in the record. Section 6 and the witness half of Section 4.3 are his to write, and the current text there is a placeholder drafted from the anchored records for him to replace. No private message is quoted anywhere in this paper. Both authors approve the final text before posting.]
 
 ## Abstract
 
@@ -114,7 +116,7 @@ The harnesses are offline and deterministic, and the anchored documents state th
 
 ## 6. The witness's side
 
-[Drafted from the anchored records only. To be rewritten or corrected by F.B.S.L. if he accepts co-authorship; nothing here is his private correspondence.]
+[Placeholder drafted from the anchored records only, for F.B.S.L. to rewrite or correct from the entries themselves; nothing here is private correspondence.]
 
 The independent side of this work is not a review of the operator's documents. It is a second verifier, built apart, that reached corresponding states and cross-checked on bytes. The witness state record anchored beside the time addendum names the commit id the witness gave as his verifier's state at that point, described in the record as: every source fetches its own numeric tip on every call, the quorum tip is the second highest reading, a height-proven fallback lifts a sibling's veto but never counts toward a match, authenticity requires every source to match, full unanimity, plus a shared-codebase disclosure written next to his source list. Both sides read the same count over the operator's harness: three reviews, one defect, two residuals. The record proves that this commit id was named as the corresponding state at or before its anchoring; it does not prove the commit's contents, which live in the witness's repository, and it says so.
 
@@ -225,7 +227,7 @@ The refusal record of entry 30 is reproduced verbatim, because it is the one mac
 
 ## Acknowledgements and disclosure
 
-The author operates every endpoint, harness and ledger cited in this paper; that is the self-application the specification requires, and it is also a conflict of interest, stated here. The founding external witness named in the anchored records operates a separate verification service and is named in this paper only from those records. The two are collaborating on a separate open project, an adapter for the semantic-abi type system, and no payment has passed between them in either direction. No party paid for any measurement, harness run, or record cited.
+The first author operates every endpoint, harness and ledger cited in this paper; that is the self-application the specification requires, and it is also a conflict of interest, stated here. The second author operates a separate verification service, invinoveritas, whose state is anchored as entry 25, and is the founding external witness named in the anchored records; where this paper reports his findings it cites those records. The two authors are collaborating on a separate open project, an adapter for the semantic-abi type system, and no payment has passed between them in either direction. No party paid for any measurement, harness run, or record cited.
 
 ## References
 

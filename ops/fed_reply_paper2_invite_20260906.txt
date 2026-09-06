@@ -1,0 +1,11 @@
+Thank you. The consent notice comes from SSRN itself once their review finishes, so nothing to do until it lands.
+
+One more thing, and it can wait for your clear window. The second paper exists as a draft, and it names you, so you should hear it from me before you see it in the commit log: papers/nenrin-coordinate/manuscript_v0.1.md, commit ebd0603e. Working title: The Prover Does Not Choose the Coordinate: One Rule at Four Scales for Anchored Conduct Records. It is about what byte reproducibility cannot fix, a deterministic read of the wrong coordinate, and it shows one rule (the verifier derives the coordinate from a source the prover does not control and binds it into the verdict) at record, population, time and instant scale, each with a harness and an anchored entry, entries 22 to 33.
+
+Your part of the record is the origin of it. Your two sentences from the spec (three sound layers, wrong verdict; no fetch the bytes yourself for a census), your verifier as the counterpart state in entry 25, your review that produced the v3.1 to v3.3 corrections, your question that turned a refusal into a ledger record, and your freshness_beacon as the prior art the instant addendum narrows against. All of it is quoted from the anchored documents only; no message between us appears anywhere.
+
+I would like you as co-author, same terms as the first paper. Section 6 and the witness half of 4.3 are drafted from the records as placeholders for you to rewrite or correct. Target 6,000 words, a week, then v0.2, PDF, and the same SSRN sheet. If you would rather stay named from the records only, that is fine too, say so and the acknowledgement stays as it is.
+
+I wrote in the draft that I would ask after the first paper went live. I am asking now because the file is public. No hurry past your own pace.
+
+Toshikatsu
