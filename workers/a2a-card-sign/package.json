@@ -1,0 +1,10 @@
+{
+  "name": "a2a-card-sign",
+  "private": true,
+  "type": "module",
+  "description": "Signs HORIZON SHIELD agent cards offline (A2A 1.0 section 8.4, JWS ES256 over the RFC 8785 canonical card) with the official @a2a-js/sdk generator, and verifies live cards with the official verifier. The Workers never hold the key.",
+  "dependencies": {
+    "@a2a-js/sdk": "1.1.0",
+    "jose": "^6.2.3"
+  }
+}

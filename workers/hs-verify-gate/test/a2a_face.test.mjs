@@ -57,6 +57,12 @@ const r2 = await worker.fetch(new Request(O + "/a2a", { method: "POST", headers:
 const j2 = await r2.json();
 chk("no KV bound: -32000 storage_unavailable, and it says this is not 'not verified'", j2.error && j2.error.code === -32000 && /NOT 'not verified'/.test(j2.error.message));
 
+// card signature plumbing (0.3.4): unsigned build serves an empty JWKS and a card without signatures
+const jw = await worker.fetch(new Request(O + "/.well-known/jwks.json"), ENV, CTX);
+const jwj = await jw.json();
+chk("/.well-known/jwks.json answers 200 with a keys array", jw.status === 200 && Array.isArray(jwj.keys));
+chk("unsigned build: card carries no signatures field", card.signatures === undefined);
+
 // the served spec still matches the file beside it
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";

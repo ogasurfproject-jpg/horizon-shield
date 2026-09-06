@@ -473,6 +473,40 @@ const CONDUCT_EXT_URI = "https://gate.horizonshield.dev/ext/conduct/v1";
 const CONDUCT_MEASURED_ENDPOINT = "https://jidec.horizonshield.dev/mcp";
 const CONDUCT_WITNESS_INTAKE = "https://ledger.horizonshield.dev/witness";
 const CONDUCT_RECORD_URL = "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(CONDUCT_MEASURED_ENDPOINT);
+
+// ---- Agent Card 署名 (A2A 1.0 §8.4: JWS ES256 over RFC 8785 of the proto-shaped card, signatures 欄は除く) ----
+// 署名は Worker の中では作らん。鍵を持つ Mac の上で workers/a2a-card-sign/sign.mjs が公式 SDK(@a2a-js/sdk)の generator で計算し、
+// 下の定数を書き換える(配備前、commit 対象)。Worker は鍵を持たず、公開鍵だけを /.well-known/jwks.json で配る。
+// card の中身が変わったら署名は必ず作り直す。作り直さんと検証で落ちる = 改ざんと同じ顔になる。それが正しい。
+// 署名は正規の origin(CARD_CANONICAL_ORIGIN)で配る card にだけ付ける。workers.dev の別名で開いた card は signatures 無し。
+/* @@CARD_SIGNATURE_BEGIN */
+const CARD_SIGNATURE = {
+  "kid": "hs-2026-09",
+  "jku": "https://jidec.horizonshield.dev/.well-known/jwks.json",
+  "alg": "ES256",
+  "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJocy0yMDI2LTA5Iiwiamt1IjoiaHR0cHM6Ly9qaWRlYy5ob3Jpem9uc2hpZWxkLmRldi8ud2VsbC1rbm93bi9qd2tzLmpzb24ifQ",
+  "signature": "lqSQRXp74eVp0OUW9-vJB-3FvXK4mYYo-1DbK3rSJYAqF1ehfjI3r19M0dW7XxwmuU0y_UkbUxV5VXsSrMKisg",
+  "jwk": {
+    "kty": "EC",
+    "x": "CytwnuXFtXi7PFCcF-TCbvW5OgOg4KuWRLeRvdfHWLs",
+    "y": "Zha3FI2QplMaGveXjrIg8PxrZ6dTjHmESoGs88uAIiA",
+    "crv": "P-256",
+    "kid": "hs-2026-09",
+    "alg": "ES256",
+    "use": "sig"
+  },
+  "canonical_sha256": "783af2deb16ac0176700df9429f884cee7da8ca2024347968c9d5106ee5c67d1"
+};
+/* @@CARD_SIGNATURE_END */
+const CARD_CANONICAL_ORIGIN = "https://jidec.horizonshield.dev";
+function withCardSignature(card, origin) {
+  if (!CARD_SIGNATURE || !CARD_SIGNATURE.protected || !CARD_SIGNATURE.signature) return card;
+  if (String(origin || "").replace(/\/+$/, "") !== CARD_CANONICAL_ORIGIN) return card;
+  return Object.assign({}, card, { signatures: [{ protected: CARD_SIGNATURE.protected, signature: CARD_SIGNATURE.signature }] });
+}
+function jwksDocument() {
+  return { keys: CARD_SIGNATURE && CARD_SIGNATURE.jwk ? [CARD_SIGNATURE.jwk] : [] };
+}
 // hs-jidec-mcp の card の top-level compensation と同じ 5 鍵(扉 0.3.2 は両方読んで一致を要求する)。
 const CONDUCT_COMPENSATION = {
   paid_by: "other",
@@ -678,7 +712,7 @@ export default {
             service: "hs-jidec-mcp",
             version: VERSION,
             mcp: { endpoint: "/mcp", transport: "streamable-http", protocol_version: PROTOCOL_VERSION, stateless: true },
-            a2a: { endpoint: "/a2a", methods: ["SendMessage", "message/send"], agent_card: "/.well-known/agent-card.json" },
+            a2a: { endpoint: "/a2a", methods: ["SendMessage", "message/send"], agent_card: "/.well-known/agent-card.json", jwks: "/.well-known/jwks.json" },
             tools: TOOLS.map((t) => t.name),
             read_only: true,
             ledger: LEDGER_ORIGIN,
@@ -696,7 +730,10 @@ export default {
     }
 
     if (url.pathname === "/.well-known/agent-card.json") {
-      return new Response(JSON.stringify(AGENT_CARD, null, 2), { headers: { "Content-Type": "application/json", ...cors } });
+      return new Response(JSON.stringify(withCardSignature(AGENT_CARD, url.origin), null, 2), { headers: { "Content-Type": "application/json", ...cors } });
+    }
+    if (url.pathname === "/.well-known/jwks.json") {
+      return new Response(JSON.stringify(jwksDocument(), null, 2), { headers: { "Content-Type": "application/json", "Cache-Control": "public, max-age=3600", ...cors } });
     }
 
     // A2A JSON-RPC (2026-09-06 第二波)。card の supportedInterfaces / url がここを指す。

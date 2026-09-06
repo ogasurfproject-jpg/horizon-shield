@@ -15,6 +15,40 @@ const CONDUCT_EXT_URI = "https://gate.horizonshield.dev/ext/conduct/v1";
 const CONDUCT_MEASURED_ENDPOINT = "https://jidec.horizonshield.dev/mcp";
 const CONDUCT_WITNESS_INTAKE = "https://ledger.horizonshield.dev/witness";
 const CONDUCT_RECORD_URL = "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(CONDUCT_MEASURED_ENDPOINT);
+
+// ---- Agent Card 署名 (A2A 1.0 §8.4: JWS ES256 over RFC 8785 of the proto-shaped card, signatures 欄は除く) ----
+// 署名は Worker の中では作らん。鍵を持つ Mac の上で workers/a2a-card-sign/sign.mjs が公式 SDK(@a2a-js/sdk)の generator で計算し、
+// 下の定数を書き換える(配備前、commit 対象)。Worker は鍵を持たず、公開鍵だけを /.well-known/jwks.json で配る。
+// card の中身が変わったら署名は必ず作り直す。作り直さんと検証で落ちる = 改ざんと同じ顔になる。それが正しい。
+// 署名は正規の origin(CARD_CANONICAL_ORIGIN)で配る card にだけ付ける。workers.dev の別名で開いた card は signatures 無し。
+/* @@CARD_SIGNATURE_BEGIN */
+const CARD_SIGNATURE = {
+  "kid": "hs-2026-09",
+  "jku": "https://ledger.horizonshield.dev/.well-known/jwks.json",
+  "alg": "ES256",
+  "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJocy0yMDI2LTA5Iiwiamt1IjoiaHR0cHM6Ly9sZWRnZXIuaG9yaXpvbnNoaWVsZC5kZXYvLndlbGwta25vd24vandrcy5qc29uIn0",
+  "signature": "pX0h9P6z9BoKWoYzDtjhJqL0cH6hTkbD5Pp7_QBPSjdg2G738HhD66j1cHqpXavaKXp2xcJaPY1f1fIFwu_7UQ",
+  "jwk": {
+    "kty": "EC",
+    "x": "CytwnuXFtXi7PFCcF-TCbvW5OgOg4KuWRLeRvdfHWLs",
+    "y": "Zha3FI2QplMaGveXjrIg8PxrZ6dTjHmESoGs88uAIiA",
+    "crv": "P-256",
+    "kid": "hs-2026-09",
+    "alg": "ES256",
+    "use": "sig"
+  },
+  "canonical_sha256": "d9cf967d3b33c4b4c6935c2600c5bccb13dad1999d3c02842939b3cd47ea083a"
+};
+/* @@CARD_SIGNATURE_END */
+const CARD_CANONICAL_ORIGIN = "https://ledger.horizonshield.dev";
+function withCardSignature(card, origin) {
+  if (!CARD_SIGNATURE || !CARD_SIGNATURE.protected || !CARD_SIGNATURE.signature) return card;
+  if (String(origin || "").replace(/\/+$/, "") !== CARD_CANONICAL_ORIGIN) return card;
+  return Object.assign({}, card, { signatures: [{ protected: CARD_SIGNATURE.protected, signature: CARD_SIGNATURE.signature }] });
+}
+function jwksDocument() {
+  return { keys: CARD_SIGNATURE && CARD_SIGNATURE.jwk ? [CARD_SIGNATURE.jwk] : [] };
+}
 // hs-jidec-mcp の card の top-level compensation と同じ 5 鍵(扉 0.3.2 は両方読んで一致を要求する)。
 const CONDUCT_COMPENSATION = {
   paid_by: "other",
@@ -892,7 +926,7 @@ async function handle(request, env) {
     if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
 
     if (p === "/" || p === "/health")
-      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query", "/witness", "/witness/pending", "/witness/{sha}"], discovery: { api_catalog: "/.well-known/api-catalog", agent_card: "/.well-known/agent-card.json", security_txt: "/.well-known/security.txt", llms_txt: "/llms.txt", a2a: "/a2a", cite: "/cite/{citation}", mcp: MCP_ORIGIN + "/mcp" }, transparency: TRANSPARENCY, privacy: PRIVACY });
+      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query", "/witness", "/witness/pending", "/witness/{sha}"], discovery: { api_catalog: "/.well-known/api-catalog", agent_card: "/.well-known/agent-card.json", jwks: "/.well-known/jwks.json", security_txt: "/.well-known/security.txt", llms_txt: "/llms.txt", a2a: "/a2a", cite: "/cite/{citation}", mcp: MCP_ORIGIN + "/mcp" }, transparency: TRANSPARENCY, privacy: PRIVACY });
 
     /* ---------------------- 看板 routes (additive, read-only) ---------------------- */
 
@@ -918,7 +952,9 @@ async function handle(request, env) {
     }
 
     if (p === "/.well-known/agent-card.json" && request.method === "GET")
-      return json(agentCard(origin));
+      return json(withCardSignature(agentCard(origin), origin));
+    if (p === "/.well-known/jwks.json" && request.method === "GET")
+      return json(jwksDocument(), 200, { "cache-control": "public, max-age=3600" });
 
     if (p === "/.well-known/security.txt" && request.method === "GET")
       return new Response(securityTxt(origin), { headers: { "content-type": "text/plain; charset=utf-8", ...CORS } });

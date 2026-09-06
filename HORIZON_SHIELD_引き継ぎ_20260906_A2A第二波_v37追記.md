@@ -66,3 +66,15 @@ red team 74/74(0.3.3)、redteam_instant 26/26、watch_decline 29/29、a2a_face 2
 ## 今日の教訓(1 行)
 
 「実装した」と「相手の道具から見える」は別。第一波は前者、第二波で後者。次に何かを「載せた」と言う前に、相手側の公式 client を本物のコードに当てる harness をまず書く。
+
+# 第三波(同日 12:00〜13:00 JST、番人が作業木に書き込み済、鍵・commit・deploy はお前の手。手順 ops/a2a_wave3_20260906.md)
+
+- **card 署名(A2A 1.0 §8.4)**: 5 worker(mcp / gate / ledger / jidec / femtech)に `CARD_SIGNATURE` の定数枠と `/.well-known/jwks.json`。署名は Mac で `workers/a2a-card-sign/sign.mjs`(公式 @a2a-js/sdk の generator、公式 verifier で確認してから書く)。Worker は鍵を持たん。正規 origin の card だけに signatures。署名は `capabilities.extensions[].params`(報酬開示)を覆う。selftest 31 本(使い捨て鍵)緑。
+- **扉 0.3.4**: 相手の card の署名を読み `detail.signature`(verified true/false/null、kid、jku、jku_same_host、canonical_sha256)。判定不変。扉の正規形 == 公式 SDK の canonicalizeAgentCard を 27 例で証明(canon_equiv.test.mjs)。red team 74 → 82。
+- **femtech**: card を 1.0 の形に(provider object、skills 完全、supportedInterfaces、url /a2a)、`/a2a` 追加。harness 34 green、SDK 両線 ALL PASS。
+- **in-toto**: `ring_to_intoto.py`(Statement v1 + DSSE ES256 + verify)。6 節の写像を納品に。
+- **w3id**: PR の中身 `ops/w3id/README.md`。
+- **仕様の錨**: `make_conduct_ext_seed.py` → seed(claim 3aa5a50d)。append は TOshi の決裁(番人の線: 今打つ)。
+- **claim register C03/C16**(別チャット報告): /spec red_team を "v0.3.4 scores 82 of 82" に、server.json を 0.3.4 に。publish は Actions。
+- **別チャットからの事実**: Federico が A2A walk を両線で PASS 5/5、`--wire 1.0 --submit` で witness 提出(sha da9289a1…、witness "Baby Blue Viper (invinoveritas)"、2026-09-06T03:06:31Z、/witness/pending count 1)。mcp.horizonshield.dev の A2A モード外部測定の初例 = 9 月 mcp 輪の証人 2。返信は別チャットが送った(f2c39f4e)。こっちからは DM せん。main には論文チャットの 4 commit(1b556e10 / ebd0603e / f2c39f4e / linkedin)。push 前に `git pull --rebase --autostash origin main`。papers/ と ops/fed_reply_* と ops/linkedin_post_* は触らん。
+- VM の掟(今日分かった): device bridge の VM は削除権限が無い。git を VM で回すと `.git/index.lock` が残る、selftest の一時コピーも残る。番人は VM で git を回さん、消す物は TOshi に `rm` を頼む。

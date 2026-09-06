@@ -19,7 +19,7 @@
 //          node test/redteam_gate.mjs --list
 //          node test/redteam_gate.mjs --only NAME
 //          node test/redteam_gate.mjs --all      (版の下限を無視して全手を当てる。旧版の穴の数を測るとき)
-import worker from "../src/worker.js";
+import worker, { cardSignatureCanonical } from "../src/worker.js";
 
 const HOST = (n) => "https://" + n + ".redteam.invalid";
 const ENV = { RELAY_URL: "https://relay.redteam.invalid", GATE_COMMIT: "redteam-local" }; // RELAY_TOKEN 無し = 中継不使用(直叩き)
@@ -179,6 +179,42 @@ atk("comp_top_level_string_beside_valid_ext", "attack", { card: extCard(COMP_OK,
 atk("comp_ext_valid_but_random_output_still_pending", "attack", { card: extCard(COMP_OK), tools: [TOOL("alpha")], call: (n, a, nth) => ({ content: [{ type: "text", text: "run " + nth }] }) },
   { not_verified: true, fail: ["determinism"], pass: ["compensation_disclosure"] }, { consent: true, min: "0.3.2" });
 
+// ---- 条件2 の detail: card の署名 (0.3.4、判定不変) ----
+// 扉は card の signatures を読み、detail.signature に verified true / false / null(読めん)を書く。判定は変えん。
+// ここでの署名は WebCrypto ES256 + 扉自身の正規化(cardSignatureCanonical)。その正規化が公式 SDK と同じ bytes を出すことは
+// workers/a2a-card-sign/canon_equiv.test.mjs が別に確かめる。
+const b64u = (bytes) => { let b = ""; for (const x of bytes) b += String.fromCharCode(x); return btoa(b).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
+const b64uStr = (str) => b64u(new TextEncoder().encode(str));
+const SIG_KEY = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+const SIG_JWK = Object.assign(await crypto.subtle.exportKey("jwk", SIG_KEY.publicKey), { kid: "rt-key-1", alg: "ES256", use: "sig" });
+delete SIG_JWK.key_ops; delete SIG_JWK.ext;
+async function signCard(card, hdr) {
+  const protectedB64 = b64uStr(JSON.stringify(Object.assign({ alg: "ES256", typ: "JOSE", kid: "rt-key-1" }, hdr || {})));
+  const payload = b64uStr(cardSignatureCanonical(card).canonical);
+  const sig = new Uint8Array(await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, SIG_KEY.privateKey, new TextEncoder().encode(protectedB64 + "." + payload)));
+  return Object.assign({}, card, { signatures: [{ protected: protectedB64, signature: b64u(sig) }] });
+}
+const jwksRoute = (keys) => ({ "/.well-known/jwks.json": () => jres({ keys: keys === undefined ? [SIG_JWK] : keys }) });
+const SIGNED_CARD = await signCard(extCard(COMP_OK));
+const TAMPERED_CARD = Object.assign({}, SIGNED_CARD, { description: SIGNED_CARD.description + " (edited after signing)" });
+const sigOf = (r) => r.checks.agent_card.detail.signature || {};
+atk("ok_card_unsigned_present_0", "control", { card: extCard(COMP_OK) },
+  { status: "verified", pred: [["signature.present 0, verified null", (r) => sigOf(r).present === 0 && sigOf(r).verified === null]] }, { consent: true, min: "0.3.4" });
+atk("ok_card_signed_verifies", "control", { card: SIGNED_CARD, extraRoutes: jwksRoute() },
+  { status: "verified", pred: [["signature verified true", (r) => sigOf(r).verified === true], ["kid read", (r) => sigOf(r).signatures[0].kid === "rt-key-1"], ["jku same host", (r) => sigOf(r).signatures[0].jku_same_host === true], ["canonical sha present", (r) => /^[0-9a-f]{64}$/.test(sigOf(r).canonical_sha256)]] }, { consent: true, min: "0.3.4" });
+atk("card_signed_then_edited_is_disclosed_not_judged", "control", { card: TAMPERED_CARD, extraRoutes: jwksRoute() },
+  { status: "verified", pred: [["signature verified false", (r) => sigOf(r).verified === false], ["reason names the edit", (r) => /changed after signing/.test(sigOf(r).signatures[0].reason)], ["condition 2 still passes (rule unchanged in 0.3.4)", (r) => r.checks.agent_card.pass === true]] }, { consent: true, min: "0.3.4" });
+atk("card_signed_jwks_404_is_unverifiable", "control", { card: SIGNED_CARD },
+  { status: "verified", pred: [["verified null", (r) => sigOf(r).verified === null], ["reason says jwks not readable", (r) => /jwks not readable/.test(sigOf(r).signatures[0].reason)]] }, { consent: true, min: "0.3.4" });
+atk("card_signed_kid_unknown", "control", { card: SIGNED_CARD, extraRoutes: jwksRoute([Object.assign({}, SIG_JWK, { kid: "other" })]) },
+  { status: "verified", pred: [["verified false", (r) => sigOf(r).verified === false], ["reason kid not found", (r) => /kid not found/.test(sigOf(r).signatures[0].reason)]] }, { consent: true, min: "0.3.4" });
+atk("card_signed_alg_unsupported_is_unverifiable", "control", { card: await signCard(extCard(COMP_OK), { alg: "RS256" }), extraRoutes: jwksRoute() },
+  { status: "verified", pred: [["verified null", (r) => sigOf(r).verified === null], ["reason names alg", (r) => /RS256/.test(sigOf(r).signatures[0].reason)]] }, { consent: true, min: "0.3.4" });
+atk("card_signed_jku_other_host_disclosed", "control", { card: await signCard(extCard(COMP_OK), { jku: HOST("honest-target") + "/.well-known/jwks.json" }) },
+  { status: "verified", pred: [["verified true via foreign jku", (r) => sigOf(r).verified === true], ["jku_same_host false disclosed", (r) => sigOf(r).signatures[0].jku_same_host === false]] }, { consent: true, min: "0.3.4", honest: "honest-target", honestRoutes: jwksRoute() });
+atk("card_signature_not_an_object", "control", { card: Object.assign({}, extCard(COMP_OK), { signatures: ["garbage"] }) },
+  { status: "verified", pred: [["verified false", (r) => sigOf(r).verified === false]] }, { consent: true, min: "0.3.4" });
+
 // ---- 条件4: 決定論性 ----
 atk("determinism_error_echo", "attack", { tools: [TOOL("alpha")], call: () => ({ __error: { code: -32602, message: "argument required" } }) }, { not_verified: true, fail: ["determinism"] }, { consent: true, min: "0.2.2" });
 atk("determinism_isError_echo", "attack", { tools: [TOOL("alpha")], call: () => ({ content: [{ type: "text", text: "missing argument" }], isError: true }) }, { not_verified: true, fail: ["determinism"] }, { consent: true, min: "0.2.2" });
@@ -294,7 +330,14 @@ async function run(only, listOnly) {
         return srv(url, init);
       });
     }
-    if (a.opts.honest) ROUTES.set(a.opts.honest + ".redteam.invalid", mkServer({ tools: [TOOL("honest_tool")] }));
+    if (a.opts.honest) {
+      const hsrv = mkServer({ tools: [TOOL("honest_tool")] });
+      ROUTES.set(a.opts.honest + ".redteam.invalid", async (url, init) => {
+        const p = new URL(url).pathname;
+        if (a.opts.honestRoutes && a.opts.honestRoutes[p]) return a.opts.honestRoutes[p](url, init);
+        return hsrv(url, init);
+      });
+    }
     const endpoint = a.opts.endpoint || ("https://" + host + "/mcp");
     const req = new Request("https://gate.horizonshield.dev/check", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ endpoint, allow_tool_call: !!a.opts.consent }) });
     let res, record = null;

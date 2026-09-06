@@ -912,6 +912,40 @@ const CONDUCT_EXT_URI = "https://gate.horizonshield.dev/ext/conduct/v1";
 const CONDUCT_MEASURED_ENDPOINT = "https://mcp.horizonshield.dev/mcp";
 const CONDUCT_WITNESS_INTAKE = "https://ledger.horizonshield.dev/witness";
 const CONDUCT_RECORD_URL = "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(CONDUCT_MEASURED_ENDPOINT);
+
+// ---- Agent Card 署名 (A2A 1.0 §8.4: JWS ES256 over RFC 8785 of the proto-shaped card, signatures 欄は除く) ----
+// 署名は Worker の中では作らん。鍵を持つ Mac の上で workers/a2a-card-sign/sign.mjs が公式 SDK(@a2a-js/sdk)の generator で計算し、
+// 下の定数を書き換える(配備前、commit 対象)。Worker は鍵を持たず、公開鍵だけを /.well-known/jwks.json で配る。
+// card の中身が変わったら署名は必ず作り直す。作り直さんと検証で落ちる = 改ざんと同じ顔になる。それが正しい。
+// 署名は正規の origin(CARD_CANONICAL_ORIGIN)で配る card にだけ付ける。workers.dev の別名で開いた card は signatures 無し。
+/* @@CARD_SIGNATURE_BEGIN */
+const CARD_SIGNATURE = {
+  "kid": "hs-2026-09",
+  "jku": "https://mcp.horizonshield.dev/.well-known/jwks.json",
+  "alg": "ES256",
+  "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJocy0yMDI2LTA5Iiwiamt1IjoiaHR0cHM6Ly9tY3AuaG9yaXpvbnNoaWVsZC5kZXYvLndlbGwta25vd24vandrcy5qc29uIn0",
+  "signature": "qsPzFhlbo-ExzTlPKFXp2dYnIKvs0w7jzZKkudtR4C6TUBPor4EXQveKsD0aPaDLoDQwupAR972WDn02GDwH5g",
+  "jwk": {
+    "kty": "EC",
+    "x": "CytwnuXFtXi7PFCcF-TCbvW5OgOg4KuWRLeRvdfHWLs",
+    "y": "Zha3FI2QplMaGveXjrIg8PxrZ6dTjHmESoGs88uAIiA",
+    "crv": "P-256",
+    "kid": "hs-2026-09",
+    "alg": "ES256",
+    "use": "sig"
+  },
+  "canonical_sha256": "311cb0a929f1947889e2f1e444375a094897cdbe2df9799706fccd6f2b70a97a"
+};
+/* @@CARD_SIGNATURE_END */
+const CARD_CANONICAL_ORIGIN = "https://mcp.horizonshield.dev";
+function withCardSignature(card, origin) {
+  if (!CARD_SIGNATURE || !CARD_SIGNATURE.protected || !CARD_SIGNATURE.signature) return card;
+  if (String(origin || "").replace(/\/+$/, "") !== CARD_CANONICAL_ORIGIN) return card;
+  return Object.assign({}, card, { signatures: [{ protected: CARD_SIGNATURE.protected, signature: CARD_SIGNATURE.signature }] });
+}
+function jwksDocument() {
+  return { keys: CARD_SIGNATURE && CARD_SIGNATURE.jwk ? [CARD_SIGNATURE.jwk] : [] };
+}
 const CONDUCT_COMPENSATION = {
   paid_by: "buyer",
   referral_fee: false,
@@ -1877,10 +1911,13 @@ export default {
             paper_doi: "https://doi.org/10.5281/zenodo.20019572"
           }
         };
-        return new Response(JSON.stringify(AGENT_CARD, null, 2), {
+        return new Response(JSON.stringify(withCardSignature(AGENT_CARD, url.origin), null, 2), {
           status: 200,
           headers: { "Content-Type": "application/json; charset=utf-8", ...CORS }
         });
+      }
+      if (url.pathname === "/.well-known/jwks.json") {
+        return new Response(JSON.stringify(jwksDocument(), null, 2), { status: 200, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=3600", ...CORS } });
       }
       if (url.pathname === "/.well-known/verification-contract.json") {
         const VERIFICATION_CONTRACT = {
@@ -1998,7 +2035,7 @@ export default {
           transport: "MCP over Streamable HTTP (JSON-RPC 2.0)",
           known_paths: ["/", "/health", "/icon.png", "/ledger/<claim_sha256>",
                         "/.well-known/agent-card.json", "/.well-known/verification-contract.json",
-                        "/.well-known/glama.json", "/.well-known/usage-stats.json"]
+                        "/.well-known/glama.json", "/.well-known/jwks.json", "/.well-known/usage-stats.json"]
         }, null, 2), {
           status: _sse ? 405 : 404,
           headers: { "Content-Type": "application/json; charset=utf-8", ...(_sse ? { "Allow": "POST" } : {}), ...CORS }
