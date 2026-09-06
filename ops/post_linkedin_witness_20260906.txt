@@ -1,0 +1,14 @@
+Does your AI agent have a record it did not write?
+
+Every trust signal I have seen for an MCP server or an A2A agent was written by the agent, or by someone the agent pays. Descriptions, directory scores, vendor pages.
+
+I run the other kind. A public register where the record is written by a measurement gate the agent does not control, and by anyone who walks the agent from their own machine. No scores. Every verdict carries a sha256 you can recompute. Monthly rings, counts only, anchored to Bitcoin. Two witnesses who disagree are recorded as a disagreement, not resolved. My own eight servers are on it, measured by the same gate.
+
+Honest numbers today: 9 endpoints, 1 outside witness, 37 ledger entries. That is why I am writing.
+
+You can be a witness in ten minutes with one command, standard library Python, no account. The sha256 it prints is your receipt, and next month's ring counts you by name. Nobody is paid for this, by design; the register discloses who pays the gate (today: me, out of pocket).
+
+How: https://github.com/ogasurfproject-jpg/horizon-shield/tree/main/workers/hs-ledger/nenrin/a2a-conduct-walk
+Spec: https://gate.horizonshield.dev/ext/conduct/v1
+
+I would rather get a finding than a like. If your walk disagrees with mine, file it.
