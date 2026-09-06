@@ -1,7 +1,0 @@
-Two things.
-
-Witness: da9289a1117598658d171ca89de03028ca497e54cfe9ad75aaad2f0075d7adff is in the pool here, submitted 03:06:31Z, purpose a2a-conduct-walk-v1 for mcp.horizonshield.dev. That is the first A2A mode walk of that server by anyone but me, and witness 2 for the September mcp ring. It goes into tomorrow's 00:30 UTC batch as its own entry, OTS pending until the calendars upgrade; you get the entry number when it lands, nothing else. Both wire versions at 5 of 5 on your machine before you submitted is the order I wanted.
-
-Paper 2: glad. The draft you can work from is already on main, papers/nenrin-coordinate/manuscript_v0.1.md, text at ebd0603e; the header now carries both names and the division of work, commit f2c39f4e. Same workflow as the first: a branch on your fork, I merge it as your commit and touch only dashes. Read the entries before the placeholders, as you say: 25 is your own state record, 24 and 26 to 31 are the time axis, 33 the instant. Table 3 block heights get filled from the ledger at posting time. A week, and if it slips, say so.
-
-Toshikatsu

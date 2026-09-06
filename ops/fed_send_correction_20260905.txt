@@ -1,9 +1,0 @@
-Federico, one correction to what I told you, because you just built on it.
-
-I wrote that the addendum was anchored material and the change would go in as a new entry citing the old bytes. When I went to do that, I found the addendum had not been anchored yet: no ledger entry, no timestamp, only a git commit. So it was still a draft, and I edited it in place. The corrected version is what will be anchored, sha256 e228dfd8e5353525fb11cc245be48cff7ef6d01433b27f472f5fc8bb6de39c7d.
-
-The no-rewrite rule applies to anchored bytes. These were not yet anchored, so the rule was not in play. What I got wrong was describing the procedure before checking which case I was in. The rule held. My account of what I was about to do did not, and you praised the account, so it needs saying.
-
-On your record: that is the part I did not expect and it is the part that matters most. Two ledgers, run by two operators who do not share infrastructure, each recording the same exchange from its own side. If they ever disagree about what was said, that disagreement is itself a record, and neither of us can quietly fix it. That is the whole design, and it just happened to us instead of to a server we were measuring. I would rather have that than any amount of agreement.
-
-Toshikatsu
