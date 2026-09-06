@@ -1,0 +1,13 @@
+v0.3 is on main as 686a7182, 5,995 words. Read it as the final; everything you asked for is in, and four things from my side are new since your commits, so read those first.
+
+1. My half of the narrowing: the abstract, 3.3, 7 and the conclusion now say what your 4.2 says. "No access to the reference source" and "from the specification alone" are gone everywhere, including the last line of the paper.
+
+2. Entry 36. An anchored record is not edited, so this morning I appended a correction record to the ledger that cites entry 34, narrows the same two phrases in the same words as your 4.2, names your commit 7dc5bff8, and changes no hash and no result. Claim 69158463e659d3b3d158d8068a0506ccc9101beeca6ab2acc5b87aec493edc9c, OTS pending. Appendix B now reproduces both records verbatim, 34 and 36. The register README carries the same correction as a dated line under the 2026-09-05 update. Check 36 the way you checked 34 if you like: ledger.horizonshield.dev/ledger/36?format=raw.
+
+3. A new limit in Section 7, found while writing the adapter: my status label collapses two distinctions the records keep (instrument failure vs target unreachable, both "held"; determinism unmeasured vs failed, both "pending"), and the ring's instants_by_status inherits it. Table 1's p001 row, pending 26, is that collapse in the data. The fix is counted fields in ring v2. Your two failing vectors in PR #2 are the same finding from the other side.
+
+4. References are done, Table 2 has a row for entry 36, and 3.4 and 4.3 carry the Bitcoin blocks (32 at 965566, 34 at 965627). Acknowledgements name both of us, invinoveritas, and the semantic-abi collaboration, and state that no money moves either way.
+
+The PDF I will upload is built from 686a7182, 9 pages, sha256 0cedbb9ac9aa61447495b9b3dc48c931930c1e402507a8ea70ff74ff1bb1d6c4. If you say yes, I post it to SSRN today with your address as co-author; SSRN sends you a consent notice by email. If anything is wrong, say where and it moves before posting, not after. No hurry past today.
+
+Toshikatsu

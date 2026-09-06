@@ -1,6 +1,6 @@
 # Same File In, Same Bytes Out: Reproducible Conduct Records for Agent-Facing Services, Tested by an Independent Reimplementation
 
-**Working paper, v0.3, 2026-09-06. Not yet posted.**
+**Working paper, v0.3, 2026-09-06. Submitted to SSRN on 2026-09-06 as abstract 7419998 (https://ssrn.com/abstract=7419998), under SSRN review at the time of this commit. License CC BY 4.0.**
 
 Toshikatsu Oga, The HORIZ音s株式会社 (HORIZON SHIELD), Hiratsuka, Japan. ORCID 0009-0000-9180-903X.
 
