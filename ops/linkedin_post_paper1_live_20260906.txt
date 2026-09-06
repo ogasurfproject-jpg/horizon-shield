@@ -1,0 +1,18 @@
+Someone rebuilt all eight of my monthly conduct records, byte for byte, in a language I do not use, without porting my code. It is now a paper on SSRN, with its limits in the abstract.
+
+Since August I publish a ring for every agent-facing service I operate: one file per endpoint per month, built only from measured history. How many times it was sampled, how many times it answered, how many times its tool surface changed, how many independent witnesses measured it. Counts, never scores. The eight August rings are anchored to Bitcoin as JIDEC entry 32, and the spec says anyone holding the same history can rebuild them.
+
+Until last week that sentence had been tested by one person. Me.
+
+Federico Blanco Sánchez-Llanos wrote a builder from scratch in Node.js. He ran my Python builder once, as a black box, to check that the repository agreed with itself, and took the shape of the output from the published ring files. Then he built his own and compared bytes. Eight of eight matched. He also named the seam a careless port would miss: Python sorts JSON keys at every level of nesting, JavaScript sorts none, so nothing matches unless you sort recursively yourself.
+
+The finding that matters is the one that went against me. My specification never states the canonical form. The rule lived in the reference builder, and a second implementer could only reach it through the published bytes. The paper says so in its own words, the ledger carries the correction as entry 36, and the fix is a specification that states its bytes.
+
+The match is JIDEC entry 34: his commit, the file hash, every input hash, and the limits inside the record. It proves the ring layer is deterministic. It does not prove the measurements inside are true. Two implementations are not a community. The August rings carry a single witness.
+
+Same file in, same bytes out. Now with a second author who checked instead of trusting.
+
+Paper (CC BY): ssrn.com/abstract=7419998
+Spec, builder, history and rings: github.com/ogasurfproject-jpg/mcp-conduct-register
+His implementation: github.com/babyblueviper1/invinoveritas
+The records: ledger.horizonshield.dev/ledger/34 and ledger.horizonshield.dev/ledger/36
