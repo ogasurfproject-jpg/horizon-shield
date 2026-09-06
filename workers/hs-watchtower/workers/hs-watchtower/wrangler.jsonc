@@ -1,0 +1,28 @@
+{
+  // hs-watchtower — external-vantage billboard self-probe -> D1
+  // Deploy from TOshi's Mac (wrangler). This session cannot deploy (Cloudflare MCP is read-only).
+  "name": "hs-watchtower",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-09-01",
+  "observability": { "enabled": true },
+
+  // Runs on Cloudflare's edge: a GET to the public billboards from here is NOT gated by
+  // PROVENANCE and NOT blocked by the cloud proxy. Every 30 min.
+  "triggers": {
+    "crons": ["*/30 * * * *"]
+  },
+
+  // D1 binding. Replace database_id with the id printed by `wrangler d1 create hs-watchtower`.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "hs-watchtower",
+      "database_id": "0472749d-fbfe-4b01-a239-77c2163c22ca"
+    }
+  ]
+
+  // Secrets (set with `wrangler secret put`, NEVER put in this file):
+  //   OUTREACH_ADMIN_TOKEN  — enables the outreach /status probe (point 8). Optional.
+  //                           Only non-secret numbers (sentTotal, dry_run, paused ...) are stored.
+  //   RUN_NOW_TOKEN         — optional; gates the manual /run-now test route.
+}
