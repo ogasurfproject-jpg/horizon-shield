@@ -1,32 +1,14 @@
 /**
  * hs-watchtower — external-vantage self-probe for the HORIZON SHIELD / JIDEC billboards.
- *
- * WHY THIS EXISTS
- *   The daily 番人 (guardian) runs in an unattended cloud session where WebFetch is
- *   gated (PROVENANCE_REQUIRED), cloud-side curl to *.workers.dev is 403'd, and no Mac
- *   bridge is attached. That left points 8/10/14/16 permanently "未確認 (unconfirmed)".
- *   This worker moves the measurement onto Cloudflare's own edge — where a GET to the
- *   public billboards just works — on a Cron Trigger, and persists the result to D1.
- *   The guardian then reads the latest verdict with the Cloudflare MCP `d1_database_query`,
- *   a channel that is alive in scheduled sessions even when WebFetch and Apify are not.
- *
- * LAWS IT KEEPS (番人 constitution)
- *   T0/read-only: every probe is a GET; the worker only ever writes its own D1.
- *   No secret leaves the worker: OUTREACH_ADMIN_TOKEN is a Worker secret, used only to
- *     call /status; only the non-secret numbers (paused, dry_run, sentTotal, sent_today,
- *     cap_today) are stored. Every public body is scanned to assert the token never
- *     appears in it (掟: 看板に秘密が出たら事故).
- *   Honest instrument (第二の掟): each probe records the raw http_status and the exact
- *     facts checked, plus measured_at, so the reader re-derives the verdict and can reject
- *     stale data. An unreachable target is recorded UNREACHABLE, never silently green.
- *   Cache-busted (第三の掟): internal fetches use no-store + cf.cacheTtl:0 + a cb param so
- *     a CDN/edge cache cannot hand back an old body.
+ * Probes run on Cloudflare's edge (cron) and persist a verdict to D1, which the guardian
+ * reads via d1_database_query even when WebFetch/Apify are down.
+ * pdf_canary and outreach are reached through service bindings (PDF_GEN / OUTREACH) because
+ * a Worker calling another Worker over its *.workers.dev hostname does not route (404).
+ * No secret leaves the worker; every probe records raw http_status + facts (honest instrument).
  */
 
 const CANARY_HASH = "C025E288675EE898";
-const SECURITY_TXT_EXPIRES_ISO = "2027-07-26T00:00:00.000Z";
 
-// Public billboards (GET-only). Custom domains are primary; workers.dev also lives.
 const TARGETS = [
   { name: "ledger_health", url: "https://ledger.horizonshield.dev/health", core: true },
   { name: "api_catalog", url: "https://ledger.horizonshield.dev/.well-known/api-catalog?format=json", core: true },
@@ -35,23 +17,24 @@ const TARGETS = [
   { name: "llms_txt", url: "https://ledger.horizonshield.dev/llms.txt", core: true },
   { name: "verify_7", url: "https://ledger.horizonshield.dev/verify/7", core: true },
   { name: "verify_19", url: "https://ledger.horizonshield.dev/verify/19", core: true },
-  { name: "pdf_canary", url: "https://hs-pdf-gen.oga-surf-project.workers.dev/canary", core: true },
+  { name: "pdf_canary", url: "https://pdf-gen.internal/canary", core: true, binding: "PDF_GEN" },
 ];
 
-const OUTREACH_STATUS_URL = "https://hs-outreach.oga-surf-project.workers.dev/status";
+const OUTREACH_STATUS_PATH = "https://outreach.internal/status";
 
-async function fetchNoCache(url, extraHeaders) {
+async function fetchNoCache(url, extraHeaders, fetcher) {
   const cb = Date.now().toString();
   const u = url + (url.includes("?") ? "&" : "?") + "cb=" + cb;
-  const res = await fetch(u, {
+  const opts = {
     method: "GET",
     headers: Object.assign(
       { "user-agent": "hs-watchtower/1.0 (+billboard self-probe)" },
       extraHeaders || {}
     ),
-    cf: { cacheTtl: 0, cacheEverything: false },
     redirect: "follow",
-  });
+  };
+  if (!fetcher) opts.cf = { cacheTtl: 0, cacheEverything: false };
+  const res = await (fetcher ? fetcher.fetch(u, opts) : fetch(u, opts));
   const body = await res.text();
   return { status: res.status, body };
 }
@@ -60,7 +43,6 @@ function tryJson(body) {
   try { return JSON.parse(body); } catch { return null; }
 }
 
-// Each checker returns { ok, detail } from { status, body }.
 const CHECKERS = {
   ledger_health({ status, body }) {
     const j = tryJson(body);
@@ -112,12 +94,12 @@ const CHECKERS = {
   },
 };
 
-async function probeTarget(t, adminToken) {
+async function probeTarget(t, env, adminToken) {
   try {
-    const r = await fetchNoCache(t.url);
+    const fetcher = t.binding && env[t.binding] ? env[t.binding] : null;
+    const r = await fetchNoCache(t.url, null, fetcher);
     const checker = CHECKERS[t.name];
     const { ok, detail } = checker ? checker(r) : { ok: r.status === 200, detail: { status: r.status } };
-    // Secret-leak guard: no public body may contain the admin token.
     if (adminToken && r.body.includes(adminToken)) {
       return { ok: false, http_status: r.status, detail: Object.assign({}, detail, { SECRET_LEAK: true }) };
     }
@@ -127,18 +109,16 @@ async function probeTarget(t, adminToken) {
   }
 }
 
-async function probeOutreach(adminToken) {
+async function probeOutreach(env, adminToken) {
   if (!adminToken) {
     return { ok: null, http_status: null, detail: { skipped: "OUTREACH_ADMIN_TOKEN not configured on hs-watchtower" } };
   }
   try {
-    // token passed as a query param to /status (never stored, never echoed).
-    const r = await fetchNoCache(OUTREACH_STATUS_URL + "?token=" + encodeURIComponent(adminToken));
+    const r = await fetchNoCache(OUTREACH_STATUS_PATH + "?token=" + encodeURIComponent(adminToken), null, env.OUTREACH || null);
     const j = tryJson(r.body);
     if (r.status !== 200 || !j) {
       return { ok: false, http_status: r.status, detail: { status: r.status, note: "status not 200 or not JSON" } };
     }
-    // Store ONLY non-secret operational numbers.
     const detail = {
       status: r.status,
       paused: j.paused === true,
@@ -148,7 +128,6 @@ async function probeOutreach(adminToken) {
       cap_today: typeof j.cap_today === "number" ? j.cap_today : null,
       bounces: typeof j.bounces === "number" ? j.bounces : null,
     };
-    // Health = /status answered. go-live (dry_run=false) is TOshi's call, not a fault.
     return { ok: true, http_status: r.status, detail };
   } catch (e) {
     return { ok: false, http_status: 0, detail: { error: String(e && e.message || e), verdict: "UNREACHABLE" } };
@@ -163,13 +142,12 @@ async function runProbes(env) {
 
   const rows = [];
   for (const t of TARGETS) {
-    const res = await probeTarget(t, adminToken);
+    const res = await probeTarget(t, env, adminToken);
     rows.push({ target: t.name, url: t.url, core: t.core, ...res });
   }
-  const outreach = await probeOutreach(adminToken);
-  rows.push({ target: "outreach_status", url: OUTREACH_STATUS_URL, core: false, ...outreach });
+  const outreach = await probeOutreach(env, adminToken);
+  rows.push({ target: "outreach_status", url: OUTREACH_STATUS_PATH, core: false, ...outreach });
 
-  // Overall verdict: over core targets only. Non-core (outreach) recorded but not fatal.
   const core = rows.filter((r) => r.core);
   const nPass = core.filter((r) => r.ok === true).length;
   const nTotal = core.length;
@@ -184,7 +162,6 @@ async function runProbes(env) {
     outreach: outreach.detail,
   };
 
-  // Persist. Writes are the only mutation and touch only this worker's D1.
   const stmts = [];
   for (const r of rows) {
     stmts.push(
@@ -200,7 +177,6 @@ async function runProbes(env) {
   );
   await env.DB.batch(stmts);
 
-  // Retention: keep last ~30 days of probe rows to bound the DB.
   try {
     const cutoff = now - 30 * 24 * 60 * 60 * 1000;
     await env.DB.prepare("DELETE FROM probes WHERE measured_at < ?").bind(cutoff).run();
@@ -221,7 +197,7 @@ async function latest(env) {
     run_id: run.run_id,
     measured_iso: run.measured_iso,
     age_minutes: Math.round(ageMs / 60000),
-    stale: ageMs > 90 * 60 * 1000, // guardian should distrust a run older than 90 min
+    stale: ageMs > 90 * 60 * 1000,
     overall: run.overall,
     n_pass: run.n_pass,
     n_total: run.n_total,
@@ -241,7 +217,6 @@ export default {
     });
     if (url.pathname === "/latest") return json(await latest(env));
     if (url.pathname === "/run-now") {
-      // Manual trigger for testing. GET-only side effect is writing this worker's own D1.
       if (env.RUN_NOW_TOKEN && url.searchParams.get("token") !== env.RUN_NOW_TOKEN) {
         return json({ ok: false, note: "run-now requires ?token=" }, 403);
       }
