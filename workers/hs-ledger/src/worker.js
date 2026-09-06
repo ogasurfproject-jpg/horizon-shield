@@ -316,7 +316,7 @@ function witnessSelfDescription(origin) {
                "v1.1: when the record carries witness.key_url (https, under the witness's domain), the same public key must be served there as {public_key_ed25519_b64}; " +
                "the domain then becomes the witness's identity (signed_domain). A key_url under the walked agent's own domain is refused as self_witness.",
     conduct_v1_1: {
-      spec: "ops/conduct_v1_1_draft_20260907.md (draft; same URI as conduct-v1, every field optional)",
+      spec: "section 11 of https://gate.horizonshield.dev/ext/conduct/v1 (served since gate 0.4.0, 2026-09-07; same URI as conduct-v1, every added field optional; the JSON at that URI carries spec_markdown_sha256)",
       record_fields: "mode (full | hash-only | commitment), establishes[], does_not_establish[] (both required when mode is present), " +
                      "witness.key_url (optional), commitment (required in commitment mode), vantage_limitation (optional)",
       refusals: ["disclaimer_missing", "bad_mode", "bad_commitment", "path_leaks_tool", "bad_key_url", "key_url_mismatch", "key_url_unreachable", "self_witness", "signature_invalid"],

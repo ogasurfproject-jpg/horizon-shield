@@ -244,3 +244,6 @@ ops/claim_register_last_run.txt
 ops/*_dm_*
 ops/outreach_*
 ops/twzrd_*
+
+# Cowork の出力置き場(手順書、鍵マネージャの html)。公開 repo に載せん
+/Claude outputs/
