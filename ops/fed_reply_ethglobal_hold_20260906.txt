@@ -1,0 +1,7 @@
+Thank Pascal for the plain wording; a rule you can quote beats a guess. I would rather not leave even a draft PR from a non-member sitting open on the repo while judges look at it, so unless you say otherwise I close #2 today with one line saying it is parked until the judging window shuts, and reopen it the day after. The branch and the six files do not move. Merlini's plan is fine by me: the rename rebase first, then the real merge.
+
+Meanwhile I build on my side: a live mode for the same relation against gate.horizonshield.dev/history, and the ring v2 counted fields that my two failing vectors are asking for. Nothing needed from you until the window closes.
+
+The URI check is noted, and the 687c56e3 side is mine to make checkable, not yours to take on faith; that comes with the conduct-v1 answers, no hurry.
+
+Toshikatsu

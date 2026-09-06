@@ -1,0 +1,9 @@
+Both commits are on main as yours, 84fed5ac and 7dc5bff8, merged clean on top of the three unrelated commits that landed tonight. My house-style commit follows again: six dashes replaced, one pair with parentheses, two with colons, two with commas, one with "which are". Same offer as before: if any of them moved your meaning, say which.
+
+The 4.2 rewrite is the version I can stand on too. "Blind to the byte comparison, not blind to the output shape" is the true sentence, and it is stronger than the one it replaced because a reader can check it.
+
+RFC 8785 Section 3.2.3: you are right, and it flips the collation row of Table 3. If a revision adopts JCS as written, make_ring.py is the implementation that changes, with a key function over UTF-16 code units, and make_ring.js is already there by default. I will write that into the row from my side in v0.3, together with the abstract and 3.3 and 7, which carry my half of the same overclaim.
+
+semantic-abi: the horizon-shield adapter is written and runs against your runner, six vectors, a manifest with six declarations against the schema. Two of the six fail on purpose and stay failing: they are label-scope collapses in my own summary layer, filed as findings. I kept the relation name separate from the signed one because a hash is not a signature; question 1 in its README is for the group. PR as soon as the fork is up.
+
+Toshikatsu

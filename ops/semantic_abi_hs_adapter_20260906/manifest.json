@@ -1,0 +1,72 @@
+{
+  "component": "horizon-shield",
+  "author": "Toshikatsu Oga (The HORIZONs Co., Ltd.), authored independently; no shared checker with other adapters",
+  "declarations": [
+    {
+      "endpoint": "gate.horizonshield.dev /check on a third-party endpoint",
+      "consumes": "an MCP endpoint URL, the origin's /.well-known/mcp-conduct.json (owner consent), and the gate-derived coordinate (day and tool, derived from sources the target does not control)",
+      "establishes": {
+        "authority_class": "INDEPENDENT_JUDGMENT",
+        "claim_type": "conformance verdict over the gate's conditions (verified / pending / held), with reachable true, false or null",
+        "scope": "one endpoint, one checked_at, one vantage (probed_via); the judge is not the endpoint's operator"
+      },
+      "does_not_establish": ["SEMANTIC_VERIFICATION", "INDEPENDENT_RECOMPUTATION", "NOT_BACKDATED", "ECONOMIC_SETTLEMENT"],
+      "issued_at": "checked_at (the record's own field). The record's scope_note says in prose what the disclaimers say here: the gate verifies conformance and disclosure only, and does NOT verify that any price or figure returned by the server is correct."
+    },
+    {
+      "endpoint": "gate.horizonshield.dev /check on the operator's own endpoints (NENRIN Layer 4, self-application)",
+      "consumes": "the same inputs as above, for an endpoint operated by the gate's operator",
+      "establishes": {
+        "authority_class": "INFRASTRUCTURE_ATTESTATION",
+        "claim_type": "conformance verdict over the gate's conditions (verified / pending / held), with reachable true, false or null",
+        "scope": "one endpoint, one checked_at, one vantage; the judge and the target share an operator"
+      },
+      "does_not_establish": ["INDEPENDENT_JUDGMENT", "SEMANTIC_VERIFICATION", "INDEPENDENT_RECOMPUTATION", "NOT_BACKDATED", "ECONOMIC_SETTLEMENT"],
+      "issued_at": "checked_at. Self-measurement is the operator's statement about its own endpoint, measured with the same instrument under the same rules. It is exactly why the witness path exists: only a second party's walk can establish INDEPENDENT_JUDGMENT about these rows."
+    },
+    {
+      "endpoint": "gate.horizonshield.dev verify_verdict / recompute_url",
+      "consumes": "a stored verdict record",
+      "establishes": {
+        "authority_class": "CRYPTOGRAPHIC_VERIFICATION",
+        "claim_type": "the record's bytes, with record_sha256 and recompute_note removed and serialised in the record's key order, hash to its record_sha256, so it was not altered after issue",
+        "scope": "one record"
+      },
+      "does_not_establish": ["INDEPENDENT_JUDGMENT", "SEMANTIC_VERIFICATION", "INDEPENDENT_RECOMPUTATION"],
+      "verification_time": "when this recompute ran, distinct from the verdict's checked_at. The tool's own text: verified true means the verdict hashes to its own record_sha256; this is a finding about the record, not about whether the verdict was right."
+    },
+    {
+      "endpoint": "ledger.horizonshield.dev POST /witness (NENRIN Layer 1, a2a-conduct-walk-v1 / jidec-path-v1 with a witness field)",
+      "consumes": "an endpoint, walked by a second party from that party's own vantage, with per-node response body hashes",
+      "establishes": {
+        "authority_class": "INDEPENDENT_JUDGMENT",
+        "claim_type": "walk verdict (ok / not ok) over the walk's assertions, with per-node body sha256",
+        "scope": "one endpoint, one walked_at, one witness name and vantage"
+      },
+      "does_not_establish": ["NOT_BACKDATED", "SEMANTIC_VERIFICATION", "INDEPENDENT_RECOMPUTATION"],
+      "issued_at": "walked_at. The ledger accepts a schema-valid record with no editorial step; a walk becomes NOT_BACKDATED only once its daily batch is stamped (see the ledger declaration)."
+    },
+    {
+      "endpoint": "NENRIN ring verify mode (make_ring.py --verify; make_ring.js, the independent Node.js reimplementation)",
+      "consumes": "a ring file, the endpoint's committed /history export for the month, and the previous ring",
+      "establishes": {
+        "authority_class": "INDEPENDENT_RECOMPUTATION",
+        "claim_type": "the ring file is byte for byte the deterministic function of this history export and the previous ring (sha256 of file bytes equal)",
+        "scope": "one endpoint, one calendar month, one ring file"
+      },
+      "does_not_establish": ["INDEPENDENT_JUDGMENT", "SEMANTIC_VERIFICATION", "NOT_BACKDATED"],
+      "verification_time": "when the verify ran. The ring's own limits sentence is the disclaimer in prose: one witness only, so no discrepancy could have been recorded; a single witness can be wrong and nobody was positioned to say so; unmeasured is not failed; counts only, never a rate, a score or a rank. Byte reproducibility proves the ring layer is deterministic, not that the measurements inside it are true."
+    },
+    {
+      "endpoint": "ledger.horizonshield.dev JIDEC entry with OpenTimestamps proof",
+      "consumes": "claim bytes: the sha256 of a verdict record, a monthly ring list, a specification, or a witness batch",
+      "establishes": {
+        "authority_class": "NOT_BACKDATED",
+        "claim_type": "these exact bytes existed no later than the Bitcoin block that attests the entry",
+        "scope": "one ledger entry"
+      },
+      "does_not_establish": ["INDEPENDENT_JUDGMENT", "SEMANTIC_VERIFICATION", "CRYPTOGRAPHIC_VERIFICATION", "INDEPENDENT_RECOMPUTATION", "ECONOMIC_SETTLEMENT"],
+      "issued_at": "the anchor block time (pending calendar attestations until the block lands). The ledger's own sentence: it proves the claim and its date, not its truth. Same class and same field as invinoveritas's freshness_beacon; the vocabulary was already aligned before either manifest was written."
+    }
+  ]
+}
