@@ -47,8 +47,10 @@ function explorerAnswer(u) {
 // 本物の台帳。KV は偽物。扉が https://ledger.horizonshield.dev/witness に出した POST はここに届く。
 const LEDGER_ENV = { LEDGER: kv(), LEDGER_ADMIN_TOKEN: "redteam-ledger-admin" };
 const LEDGER_LOG = [];
+// 台帳の address lane は 1 日 5 本(conduct-v1.1)。試験の節ごとに送信元を変える(本番では窓ごとに 2 本なので届かん)。
+let LEDGER_IP = "203.0.113.7";
 async function ledgerAnswer(url, init) {
-  const req = new Request(url, { method: (init && init.method) || "GET", headers: { ...((init && init.headers) || {}), "cf-connecting-ip": "203.0.113.7" }, body: init && init.body });
+  const req = new Request(url, { method: (init && init.method) || "GET", headers: { ...((init && init.headers) || {}), "cf-connecting-ip": LEDGER_IP }, body: init && init.body });
   const res = await ledger.fetch(req, LEDGER_ENV, CTX);
   const body = await res.clone().json().catch(() => null);
   LEDGER_LOG.push({ url: String(url), method: req.method, status: res.status, body, record: init && init.body ? JSON.parse(init.body) : null });
@@ -251,8 +253,34 @@ const strList = (x) => Array.isArray(x) && x.length > 0 && x.every((s) => typeof
     JSON.stringify([spec.version, Object.keys(spec.lookup || {}), Object.keys(spec.well_known_consent && spec.well_known_consent.shape || {})]));
 }
 
+// ---- 3b. subrequest 予算 -------------------------------------------------------------------------------------
+// Free は 1 回の実行で fetch 50 本。窓の初回は beacon 7 + commitment 2 が先に乗る。溢れる行は測らずに理由を書く。
+{
+  LEDGER_IP = "203.0.113.8";
+  const { env, post, sweep } = freshEnv();
+  env.SUBREQUEST_BUDGET = 20;
+  await post("/watch", { endpoint: EP });
+  const s = await sweep();
+  t("attack", "with a budget of 20 the first sweep of a window (beacon 7 + commitments 2 first) stops measuring before the budget can be overrun, records subrequests.used within the budget, and lists every unmeasured row under skipped with the budget reason",
+    s.subrequests && s.subrequests.budget === 20 && s.subrequests.used <= 20 && s.measured === s.results.length && s.measured >= 1 && s.skipped.filter((x) => /subrequest budget/.test(x.reason)).length >= 1 && s.skipped.filter((x) => /subrequest budget/.test(x.reason)).every((x) => /goes first next time/.test(x.reason)),
+    JSON.stringify([s.subrequests, s.measured, s.skipped.length, s.skipped[0] && s.skipped[0].reason.slice(0, 60)]));
+  t("control", "the commitments were still filed on that sweep (they come before the rows, next window first)",
+    s.coordinate.commitments_filed.length === 2 && s.coordinate.commitments_filed[0].before_open === true && s.coordinate.commitments_filed.every((c) => c.http === 201), JSON.stringify(s.coordinate.commitments_filed.map((c) => [c.window_id, c.before_open, c.http])));
+  const s2 = await sweep();
+  t("control", "the next sweep of the same window pays neither the beacon nor the commitments (cached and filed), so it measures more rows on the same budget",
+    s2.subrequests.used <= 20 && s2.measured > s.measured, JSON.stringify([s.measured, s2.measured, s2.subrequests]));
+  const { post: p3, sweep: sw3 } = freshEnv();
+  await p3("/watch", { endpoint: EP });
+  const s3 = await sw3();
+  t("control", "with the default budget (50) the sweep reports subrequests used and budget, and nothing is skipped for budget",
+    s3.subrequests && s3.subrequests.budget === 50 && s3.subrequests.used < 50 && !s3.skipped.some((x) => /subrequest budget/.test(x.reason)), JSON.stringify(s3.subrequests));
+  const one = await (await p3("/check", { endpoint: EP })).json();
+  t("control", "a /check outside a sweep counts nothing (the budget is sweep-scoped) and still measures", one.status && !("subrequests" in one), JSON.stringify(one.status));
+}
+
 // ---- 4. notify --------------------------------------------------------------------------------------------
 {
+  LEDGER_IP = "203.0.113.9";
   const { call, post, sweep } = freshEnv();
   await post("/watch", { endpoint: EP_NOTIFY });
   await post("/watch", { endpoint: EP_BADNOTIFY });

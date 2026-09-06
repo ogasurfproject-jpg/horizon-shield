@@ -46,4 +46,4 @@ Ring 001: 2026-08, eight endpoints, made 2026-09-05 from the export taken the sa
 
     python3 ring_redteam.py
 
-25 vectors: 12 attack (double counting, month padding, null reachability, smuggled hashes, folded unmeasured, score creep, chain forgery, reformatted predecessor, nameless witness, wrong-month witness, foreign-service walk, month by walked_at), 10 control, 1 misclassification, 2 residual.
+33 vectors: 14 attack (double counting, month padding, null reachability, smuggled hashes, folded unmeasured, score creep, chain forgery, reformatted predecessor, nameless witness, wrong-month witness, foreign-service walk, month by walked_at, and since conduct-v1.1 twenty unsigned sock names on one day and twenty FAIL records from one name on one day), 16 control (including: an August ring carries no v1.1 key and still verifies byte for byte; a September ring carries the signed and unsigned witness columns, the commitment count, walked_as_witness and the instants by derivation; same inputs in any order give byte-identical bytes), 1 misclassification, 2 residual.

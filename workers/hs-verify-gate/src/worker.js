@@ -741,10 +741,22 @@ function gateCommit() {
 // (redteam: card_redirect_cross_origin / mcp_redirect_cross_origin)。同一オリジンの中だけ最大3回辿り、
 // オリジンを跨ぐ 3xx は「述べられた URL では測っていない」として answered(届いた上で不適合)に落とす。
 // 中継経路(自ゾーン)は中継側が辿るので、この縛りは直叩き経路にだけ効く。そのことは隠さない。
+// 0.4.0 (2026-09-07). 掃引の subrequest 予算。Workers Free は 1 回の実行(cron も 1 回)で fetch 50 本。51 本目は例外で落ちて、
+// 測定の途中で切れる = 壊れた instant が履歴に載る。0.3.4 の jwks(+1/署名付き card)と 0.3.5 の 3 源 beacon(窓の初回 +7)と
+// 0.4.0 の commitment(+2)で、自前 8 行の日は 44 + 7 + 2 = 53 になっとった(MAX_PER_SWEEP の注記は init+list+card=5 で
+// 数えとって、tools/call ×2 と jwks を落としとった)。数えるのは掃引の間だけ、fetch を 1 回呼んだら 1。
+// 残りが 1 行分(SUBREQUEST_PER_ENDPOINT)を切ったら、その行は測らずに理由を書いて次回に回す(次回は least recently measured で先頭)。
+// 予算は env.SUBREQUEST_BUDGET で変えられる(Paid なら 1000)。既定は Free の 50。
+const SUBREQUEST_BUDGET_DEFAULT = 50;
+const SUBREQUEST_PER_ENDPOINT = 6;   // init + tools/list + card + jwks(署名付き card) + tools/call ×2。pagination や再試行で増える
+let sweepBudget = null;              // 掃引中だけ { used }。掃引外は null で何も数えん
+function countSubrequest() { if (sweepBudget) sweepBudget.used += 1; }
+async function countingFetch(u, init) { countSubrequest(); return fetch(u, init); }
+
 async function fetchSameOriginOnly(url, opts) {
   let cur = url;
   for (let hop = 0; hop < 4; hop++) {
-    const res = await fetch(cur, { ...opts, redirect: "manual" });
+    const res = await countingFetch(cur, { ...opts, redirect: "manual" });
     if (res.status < 300 || res.status >= 400) return res;
     const loc = res.headers.get("location");
     if (!loc) return res;
@@ -762,7 +774,7 @@ async function fetchSameOriginOnly(url, opts) {
     // 307/308 はメソッドと本文を保つ。それ以外は GET に落ちる(fetch の既定と同じ)
     if (!(res.status === 307 || res.status === 308)) opts = { ...opts, method: "GET", body: undefined };
   }
-  return await fetch(cur, opts);
+  return await countingFetch(cur, opts);
 }
 
 async function probeFetch(url, init) {
@@ -788,7 +800,7 @@ async function probeFetch(url, init) {
   // 中継に届かないのはこちらの故障であって、相手についての事実ではない。例外にもそう言わせる。
   let res;
   try {
-    res = await fetch(GATE_ENV.RELAY_URL, {
+    res = await countingFetch(GATE_ENV.RELAY_URL, {
       method: "POST",
       headers: { "content-type": "application/json", "x-relay-token": GATE_ENV.RELAY_TOKEN },
       body: JSON.stringify({
@@ -1749,7 +1761,7 @@ const CHANGES_MAX = 50;   // 変化ログの保持件数
 const REGISTRY_KEY = "watch:registry";
 const REMOVED_KEY = "watch:removed";   // 0.3.1. 外した行の墓標。外した事実は公開する。
 const REGISTRY_MAX = 500;
-const MAX_PER_SWEEP = 8;         // 1本あたり最悪 1(init)+3(tools/listページ)+1(card)=5。8×5=40 ≤ 50(Free枠)
+const MAX_PER_SWEEP = 8;         // 1本あたり 1(init)+1〜3(tools/list)+1(card)+1(jwks、署名付き card)+2(tools/call、同意あり)= 6 が普通。8×6=48。予算の実測は sweepBudget(下)
 // 0.3.0 で 9 から 8 に下げた。窓の初回だけ beacon の取得が +4 乗る(tip 2 源 + block 2 源)。
 // 9 のままやと 45+4=49 で余白 1 になり、endpoint が 1 つ余計に redirect しただけで掃引が死ぬ。
 // 溢れた分は skipped に "over MAX_PER_SWEEP" として必ず記録される。黙って切らん。
@@ -2793,17 +2805,22 @@ async function runDailySweep(env, opts) {
   const now = Date.now();
   const force = !!(opts && opts.force);
   const list = await watchlist(env);
+  // 0.4.0. subrequest の予算。掃引の間だけ数える。
+  const budget = Number(env && env.SUBREQUEST_BUDGET) || SUBREQUEST_BUDGET_DEFAULT;
+  sweepBudget = { used: 0 };
+  try {
 
   // 0.3.0. 窓の座標をここで 1 回だけ組む。以後これを下へ通す。
   // 取れんかったら旧規則に落ちるが、落ちたことは掃引の記録に残す。
   let coord = null;
-  try { coord = await nenrin.coordinate(env.HS_VERIFY_KV, now); } catch (e) { coord = null; }
-  // 0.4.0. 次の窓(と、まだ出しとらんなら今の窓)の commitment を台帳に出す。失敗しても掃引は止めん、結果は記録に残す。
+  try { coord = await nenrin.coordinate(env.HS_VERIFY_KV, now, countingFetch); } catch (e) { coord = null; }
+  // 0.4.0. 次の窓(先。開く前に錨が要るのはこっち)と、まだ出しとらんなら今の窓の commitment を台帳に出す。
+  // 失敗しても掃引は止めん、結果は記録に残す。窓ごとに 1 本なので、予算に乗るのは初回の掃引だけ。
   const commitments = [];
   if (coord) {
     for (const w of [coord.next_window, { window_id: coord.window_id, commitment: coord.commitment, salt_created_at: coord.salt_created_at }]) {
       if (!w || !w.window_id || !w.commitment) continue;
-      try { const r = await fileInstantCommitment(env, w.window_id, w, now); if (r) commitments.push(r); } catch (_e) {}
+      try { const r = await fileInstantCommitment(env, w.window_id, w, now, countingFetch); if (r) commitments.push(r); } catch (_e) {}
     }
   }
   const cadenceNote = (coord && coord.derived)
@@ -2842,6 +2859,12 @@ async function runDailySweep(env, opts) {
   const results = [];
   let notifiesSent = 0;
   for (const w of run) {
+    // 0.4.0. 残りの予算が 1 行分を切ったら測らん。途中で切れた測定を履歴に載せるより、測らんかった事実を書く方が正しい。
+    const remaining = budget - sweepBudget.used;
+    if (remaining < SUBREQUEST_PER_ENDPOINT) {
+      skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "subrequest budget: " + sweepBudget.used + " of " + budget + " used before this row (the window's first sweep fetches the beacon from three sources and files the commitments; each measured row costs about " + SUBREQUEST_PER_ENDPOINT + "). An overrun aborts a measurement half way, so this row was not measured and goes first next time (order is least recently measured first)" });
+      continue;
+    }
     try {
       // 0.2.4. 手書きの Set か、origin の well-known ファイル。申告は掃引では決して使わん。
       const consent = await resolveConsent(w.endpoint);
@@ -2896,7 +2919,7 @@ async function runDailySweep(env, opts) {
             history: "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(w.endpoint),
             lookup: "https://gate.horizonshield.dev/register/lookup?endpoint=" + encodeURIComponent(w.endpoint),
             note: "Sent because " + CONSENT_WELL_KNOWN_PATH + " on your origin names this URL as notify (conduct-v1.1). Sent after every scheduled measurement, at most once per hour per endpoint, never from an on-demand /check. Remove the field to stop. The verdict is public either way."
-          }, now);
+          }, now, countingFetch);
         }
       }
       results.push({ endpoint: w.endpoint, tier: w.tier, status: record.status, reachable: publicReachable(record.reachable), changed, surface_changed: (r.entry && r.entry.surface_change) || null, alert_suppressed: changed && !alertable, notified, notify_status: notifyStatus });
@@ -2928,6 +2951,8 @@ async function runDailySweep(env, opts) {
       commitments_filed: commitments,
       window: "/nenrin/window"
     } : { derived: false, why: "coordinate() failed before the sweep; legacy schedule; see /nenrin/window" },
+    // 0.4.0. この掃引が使った subrequest の数と予算。溢れた行は skipped に "subrequest budget" で載る。
+    subrequests: { used: sweepBudget.used, budget, per_endpoint_reserve: SUBREQUEST_PER_ENDPOINT, note: "Workers Free allows 50 fetches per invocation; an overrun throws mid-measurement. Rows the budget could not cover are in skipped with the reason and go first next time." },
     results,
     skipped
   };
@@ -2935,6 +2960,7 @@ async function runDailySweep(env, opts) {
     try { await env.HS_VERIFY_KV.put("sweep:last", JSON.stringify(out)); } catch (_e) {}
   }
   return out;
+  } finally { sweepBudget = null; }
 }
 
 // ---- MCP インターフェース ----
