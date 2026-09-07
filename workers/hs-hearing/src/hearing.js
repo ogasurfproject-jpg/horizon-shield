@@ -2794,6 +2794,39 @@ export default {
          隣の欄を巻き添えにする事故と一組で来る。だから狭い口をここに作る。
          することは三つだけ。人送りの印を外す。返事待ちを直近の波に絞る。無返答の数を戻す。
          asked(台帳)には手を触れない。答えたことにはしない。落ちた問いは後で聞き直せる。 */
+      /* 2026-09-07 生成をやり直す口。
+         これまで頁の生成が始まる道は「回答が取り込まれたとき」しか無かった。
+         生成器の誤りを直しても、その店が次に返事をするまで、誤った頁が公開されたまま残る。
+         実測: 加盟No.002 の頁に「ミネオトーヨー住器株式会社は加盟No.001」と出ていた。
+         直したのに出し直せない、という状態を作らないための口である。
+         判定はしない。門(GitHub Action 側の検証)は素通しにしない。ここは合図を出すだけ。 */
+      if (path === "/admin/regenerate" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const sid = safeStr(b.store_id, 40);
+        const store = await env.HS_HEARING_KV.get("store:" + sid, "json");
+        if (!store) return json({ error: "not_found" }, 404);
+        const rec = await env.HS_HEARING_KV.get("hearing:" + sid, "json");
+        const profile = (rec && rec.profile) || null;
+        if (!profile) return json({ ok: false, reason: "この店にはヒアリングの中身がありません" }, 409);
+        // 業種が決まっていない相手に型を当てはめない(triggerGeneration と同じ掟)。
+        if (!store.industry && !profile.industry) {
+          return json({ ok: false, reason: "業種が決まっていません。ここで建設として生成しません" }, 409);
+        }
+        const compNow = (store.autopilot && store.autopilot.completeness != null)
+          ? store.autopilot.completeness
+          : AP.computeCompleteness(profile, store.autopilot || {}).score;
+        const genMin = Number(env.GEN_MIN_COMPLETENESS || 60);
+        if (compNow < genMin && !b.force) {
+          return json({ ok: false, reason: "完成度" + compNow + "%が基準" + genMin + "%未満です",
+                        completeness: compNow, min: genMin }, 409);
+        }
+        const gen = await triggerGeneration(env, profile, store);
+        await AP.activityAdd(env, { type: "regenerate",
+          text: "頁の生成をやり直しました(" + sid + " 完成度" + compNow + "%)" });
+        return json({ ok: true, store_id: sid, member_no: store.member_no || null,
+                      completeness: compNow, gen });
+      }
+
       if (path === "/admin/unstick" && request.method === "POST") {
         let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
         const sid = safeStr(b.store_id, 40);

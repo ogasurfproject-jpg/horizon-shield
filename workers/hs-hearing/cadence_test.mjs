@@ -154,7 +154,15 @@ console.log("\n3) 返事が来たあと");
   const s = stores[0];
   check("いったん人に回す印が立っている", !!s.autopilot.needs_human);
   AP.settlePendingOnAnswer(s, "1) こういう体制です\n2) こちらはこうです");
-  check("返事で印が消える", !s.autopilot.needs_human);
+  /* 2026-09-07 契約を分けた。
+     「無返答だから人に回す」印は、返事が来た時点で消える(recover)。
+     ただしその返事がどの設問への答えか切り分けられなかった場合は、
+     「当て直しが要る」という別の理由で印が立ち直る。理由が違えば別の事実である。
+     配信が再開することは下の行が別に確かめている(handOff は unanswered_sends で決まる)。 */
+  check("無返答を理由とする印は消える",
+        !s.autopilot.needs_human ||
+        /当てるか決められない/.test(s.autopilot.needs_human.why || ""),
+        JSON.stringify(s.autopilot.needs_human || null).slice(0, 70));
   check("無返答の数が0に戻る", (s.autopilot.unanswered_sends || 0) === 0,
         "unanswered_sends=" + s.autopilot.unanswered_sends);
   plusDays(3);
@@ -234,9 +242,20 @@ console.log("\n6) 波が1つのとき(これまでと同じ)");
   AP.pushWave(s2.autopilot, [{ qid: "q_1", text: "あ" }, { qid: "q_2", text: "い" }],
               "followup", new Date().toISOString());
   const p2 = AP.settlePendingOnAnswer(s2, "だいたいそんな感じです");
-  check("2問に1通で番号が無ければ ambiguous", p2.q_1.attributed === "ambiguous", p2.q_1.attributed);
-  check("切り分けられなくても、両方に同じ本文が入る事実は残す",
-        p2.q_1.text === p2.q_2.text && p2.q_1.text === "だいたいそんな感じです");
+  // 2026-09-07 変更: 切り分けられない1通を、設問ごとの回答欄に配るのをやめた。
+  //   実測で、他所宛の私信がその日の2問の回答欄へ両方コピーされ、機械が
+  //   「掲載に反映します」と返す事故が起きた。証拠は残すが、置き場所を変える。
+  check("どの設問にも配らない", p2.q_1 === undefined && p2.q_2 === undefined,
+        Object.keys(p2).join(","));
+  check("切り分け不能の1通は _unsorted に1本だけ残す",
+        !!p2._unsorted && p2._unsorted.text === "だいたいそんな感じです",
+        p2._unsorted ? p2._unsorted.attributed : "-");
+  check("どの設問に当たり得たかは残す",
+        !!p2._unsorted && (p2._unsorted.with || []).join("+") === "q_1+q_2",
+        p2._unsorted ? (p2._unsorted.with || []).join("+") : "-");
+  check("人に回す印が立つ", !!s2.autopilot.needs_human,
+        JSON.stringify(s2.autopilot.needs_human || null).slice(0, 60));
+  check("返事待ちは消さない(まだ答えていない)", !!s2.autopilot.pending);
 }
 
 /* =====================================================================
@@ -346,7 +365,7 @@ console.log("");
 //   それでも「すべて通過」と出ていた。同じ穴が、この試験にはまだ残っていた。
 //   おかしかった数は数えていたが、確かめた数を数えていなかった。
 //   確認や場面を足したら EXPECT も直すこと。数が合わないこと自体を赤にする。
-const EXPECT = 45;
+const EXPECT = 48; // 2026-09-07 切り分け不能の扱いを変え、確認を 45 -> 48 に増やした
 console.log("確かめた数: " + ran + " 件 (場面 9)");
 if (ran !== EXPECT) {
   console.log("確かめた数が " + EXPECT + " と合わない。"

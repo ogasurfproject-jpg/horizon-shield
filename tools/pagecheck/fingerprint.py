@@ -18,7 +18,8 @@
   移動前の 20 ページと照合して確かめてある。
 """
 
-import hashlib, json, os, re
+import datetime as _dt
+import hashlib, json, os, re, sys
 
 BASE = "https://shield.the-horizons-innovation.com"
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -123,13 +124,44 @@ def fingerprint(canonical, html, member=None):
         fp["m"] = member  # ページの持ち主(加盟店)。他店による同slug上書きを防ぐ
     return fp
 
-def ledger_load():
+def ledger_prune(led):
+    """実物が消えた頁の指紋を、台帳から落とす。
+
+    2026-09-07 に起きたこと。誤った頁(加盟No.001 と書かれた No.002 の頁)を git rm で
+    消してから作り直したら、新しい URL が「消したはずの頁と中身が同じ」として弾かれた。
+    実物は無いのに指紋だけが残っていたからである。
+    結果、旧も新も無い空白が公開面にできた。
+    台帳は「いま在るもの」の控えであって、墓標ではない。読むたびに実物と突き合わせる。
+    ここで落とすのは指紋だけで、頁を消すことはしない。
+    """
+    ents = led.get("entries") or []
+    alive, dropped = [], []
+    for e in ents:
+        slug = (e or {}).get("slug") or ""
+        if not slug:
+            alive.append(e); continue
+        if os.path.exists(os.path.join(REPO_ROOT, slug, "index.html")):
+            alive.append(e)
+        else:
+            dropped.append(slug)
+    if dropped:
+        led["entries"] = alive
+        led["pruned_at"] = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        led["pruned"] = dropped[-40:]
+        sys.stderr.write("台帳: 実物の無い指紋を %d 件落としました: %s\n"
+                         % (len(dropped), ", ".join(dropped[:8])))
+    return led
+
+def ledger_load(prune=True):
+    led = None
     if os.path.exists(CONTENT_LEDGER):
         try:
-            return json.load(open(CONTENT_LEDGER, encoding="utf-8"))
+            led = json.load(open(CONTENT_LEDGER, encoding="utf-8"))
         except Exception:
-            pass
-    return {"schema": "yakumo-content-ledger/v1", "entries": []}
+            led = None
+    if led is None:
+        led = {"schema": "yakumo-content-ledger/v1", "entries": []}
+    return ledger_prune(led) if prune else led
 
 def ledger_save(led):
     os.makedirs(os.path.dirname(CONTENT_LEDGER), exist_ok=True)
