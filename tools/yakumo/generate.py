@@ -75,8 +75,22 @@ def clean_dashes(s):
 
 # 施主向けページに金額を出さない(加盟店の自由記述に混ざった金額も伏せる)
 MONEY_SUB_RE = re.compile(r'(¥\s*\d[\d,]*|\d[\d,]*\s*円|\d+\s*万円)')
+# 2026-09-07. 門(tools/pagecheck/validate.py)は漢数字の金額(百万円、数十万円)や 圓・億・JPY も金額として落とすのに、
+# ここは算用数字の 3 形しか伏せとらんかった。加盟店が「百万円」と書いた FAQ が MONEY_ON_PAGE で門に落ち、
+# 11 枚が丸ごと公開されんかった(run #9、リフォーム職人株式会社)。伏せる側と落とす側で別の物差しを持つのをやめ、
+# 門の正規表現をそのまま借りる。門が厳しくなれば、ここも同時に厳しくなる。
+try:
+    from validate import (MONEY_RE as _GATE_MONEY_RE, KANJI_MONEY_RE as _GATE_KANJI_RE,  # noqa: E402
+                          MONEY_RE2 as _GATE_MONEY_RE2, KANJI_MONEY_RE2 as _GATE_KANJI_RE2,
+                          MONEY_RE3 as _GATE_MONEY_RE3)
+    MONEY_SUB_PATTERNS = (MONEY_SUB_RE, _GATE_MONEY_RE, _GATE_KANJI_RE, _GATE_MONEY_RE2, _GATE_KANJI_RE2, _GATE_MONEY_RE3)
+except Exception:  # 門が読めん環境でも、少なくとも漢数字の金額は伏せる
+    MONEY_SUB_PATTERNS = (MONEY_SUB_RE, re.compile(r'[〇零一二三四五六七八九十百千壱弐参拾佰仟]+\s*[万億千百萬]?\s*[円圓]'))
 def safe_pub(s):
-    return MONEY_SUB_RE.sub("(金額 非公開)", clean_dashes(s or ""))
+    t = clean_dashes(s or "")
+    for r in MONEY_SUB_PATTERNS:
+        t = r.sub("(金額 非公開)", t)
+    return t
 
 # ---------------- 重複ゼロ台帳(simhash指紋。workers/hs-hearing/src/autopilot.js と同一アルゴリズム) ----------------
 
