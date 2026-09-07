@@ -38,72 +38,6 @@
    "m": "no001"
   },
   {
-   "slug": "yakumo/souba/mado-koukan-hiratsuka",
-   "tsha": "fe8191c5",
-   "simhash": "a86ba2c9fbe81bfc",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/souba/genkan-koukan-hiratsuka",
-   "tsha": "726e4e54",
-   "simhash": "a878b0c97bf89bec",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/souba/glass-shuri-hiratsuka",
-   "tsha": "bea65ab7",
-   "simhash": "a86a80c96f6c9ae8",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/souba/amido-harikae-hiratsuka",
-   "tsha": "3a21b749",
-   "simhash": "d87ba4c960e89ae8",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/faq/yakumo-hiratsuka-faq-1",
-   "tsha": "a9a15253",
-   "simhash": "3a6036c9321c1bec",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/faq/yakumo-hiratsuka-faq-mado-koukan",
-   "tsha": "a0c48248",
-   "simhash": "6829a6c8718c1978",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/faq/yakumo-hiratsuka-faq-genkan-koukan",
-   "tsha": "47466824",
-   "simhash": "2868f6c9f38a19ec",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/llmo/yakumo-kensho-zumi-kameiten-toha-no002",
-   "tsha": "795a3051",
-   "simhash": "aa2d02c953ecb2e8",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no002",
-   "tsha": "aba31c76",
-   "simhash": "a16092c973a88848",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/webmcp/yakumo-verified-stores-mcp-no002",
-   "tsha": "32d9aa80",
-   "simhash": "8278a41925e7a9ff",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/jirei/no002",
-   "tsha": "621dc3f7",
-   "simhash": "aaee50c973f9faec",
-   "m": "no002"
-  },
-  {
    "slug": "yakumo/souba/gaiheki-tosou-aichi",
    "tsha": "68fc0ba9",
    "simhash": "1c7a22c86368d870",
@@ -168,9 +102,75 @@
    "tsha": "6686ec3c",
    "simhash": "286c908915bebb68",
    "m": "no001"
+  },
+  {
+   "slug": "yakumo/souba/mado-koukan-hiratsuka",
+   "tsha": "fe8191c5",
+   "simhash": "a86ba2c9fbe81bfc",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/souba/genkan-koukan-hiratsuka",
+   "tsha": "726e4e54",
+   "simhash": "a878b0c97bf89bec",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/souba/glass-shuri-hiratsuka",
+   "tsha": "bea65ab7",
+   "simhash": "a86a80c96f6c9ae8",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/souba/amido-harikae-hiratsuka",
+   "tsha": "3a21b749",
+   "simhash": "d87ba4c960e89ae8",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/faq/yakumo-hiratsuka-faq-1",
+   "tsha": "a9a15253",
+   "simhash": "3a6036c9321c1bec",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/faq/yakumo-hiratsuka-faq-mado-koukan",
+   "tsha": "a0c48248",
+   "simhash": "6829a6c8718c1978",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/faq/yakumo-hiratsuka-faq-genkan-koukan",
+   "tsha": "47466824",
+   "simhash": "2868f6c9f38a19ec",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/llmo/yakumo-kensho-zumi-kameiten-toha-no002",
+   "tsha": "795a3051",
+   "simhash": "aa2d02c953ecb2e8",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no002",
+   "tsha": "aba31c76",
+   "simhash": "a16092c973a88848",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/webmcp/yakumo-verified-stores-mcp-no002",
+   "tsha": "32d9aa80",
+   "simhash": "8a39a499657da9eb",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/jirei/no002",
+   "tsha": "621dc3f7",
+   "simhash": "aaee50c973f9faec",
+   "m": "no002"
   }
  ],
- "updated_at": "2026-09-07T15:08:30Z",
+ "updated_at": "2026-09-07T15:12:30Z",
  "rebuilt_at": "2026-08-23",
  "rebuilt_why": "指紋から剥がす共通枠のパターンを直したため、計算結果が変わった。全エントリを一斉に入れ替えて整合を保った。古い台帳は yakumo-content-manifest.json.bak_prerebuild20260823 に残してある。",
  "stores": {
