@@ -122,6 +122,26 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -o pipefail
+          # 2026-09-08: 鍵は改行や空白を巻き込んで貼られることがある。
+          #   そのまま header に載せると wrangler は "invalid header value" としか言わず、
+          #   鍵が壊れているのか、失効しているのか、値が正しく貼れていないのか、区別がつかない。
+          #   先に空白を落とし、Cloudflare に「この鍵は生きているか」を聞いてから配る。
+          #   落ちるなら、何が落ちたかが読める形で落ちる。
+          CLOUDFLARE_API_TOKEN="$(printf '%s' "$CLOUDFLARE_API_TOKEN" | tr -d '[:space:]')"
+          CLOUDFLARE_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | tr -d '[:space:]')"
+          export CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID
+          if [ "${#CLOUDFLARE_API_TOKEN}" -lt 20 ]; then
+            echo "::error title=Cloudflare の鍵::CLOUDFLARE_API_TOKEN が短すぎます(${#CLOUDFLARE_API_TOKEN}文字)。GitHub Secrets に貼り直してください。"
+            exit 1
+          fi
+          VERIFY=$(curl -s -o /tmp/verify.json -w '%{http_code}' \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            https://api.cloudflare.com/client/v4/user/tokens/verify || echo 000)
+          STATUS=$(python3 -c "import json;print(json.load(open('/tmp/verify.json')).get('result',{}).get('status',''))" 2>/dev/null || echo "")
+          if [ "$VERIFY" != "200" ] || [ "$STATUS" != "active" ]; then
+            echo "::error title=Cloudflare の鍵::CLOUDFLARE_API_TOKEN が有効ではありません(HTTP $VERIFY, status='$STATUS')。Cloudflare の My Profile > API Tokens で新しい鍵(Edit Cloudflare Workers)を作り、GitHub の Settings > Secrets and variables > Actions の CLOUDFLARE_API_TOKEN を末尾に改行を入れずに貼り直してください。本番は手元の npx wrangler deploy で配れます。"
+            exit 1
+          fi
           if ! npx --yes wrangler@4 deploy 2>&1 | tee /tmp/wrangler.log; then
             tail -c 400 /tmp/wrangler.log | tr '\n' ' ' | sed 's/^/::error title=wrangler::/'
             echo ""

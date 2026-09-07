@@ -2632,6 +2632,36 @@ export default {
       //   /admin/provision は store レコードを丸ごと上書きしてトークンとLINE紐付けとasked履歴を壊す。
       //   /admin/verify はスコアしか触らない。だから狭い口をここに作る。
       //   配列(工種・エリア・FAQ・見積もり例)には触らせない。誰がいつ何を直したかを profile.edits に残す。
+      /* 2026-09-08 store 側の文字列項目を直す口。
+         /admin/profile-patch は hearing:<sid>(回答の中身)を直す。store:<sid>(台帳の側)には
+         口が無く、/admin/provision は丸ごと上書きでトークンと紐付けと asked を壊す。
+         実測: store:hs-partner-002 の company が null で、hearing 側には社名が入っている。
+         生成は hearing を見るので頁は正しいが、管理画面と通知にはたかしの社名が出ない。
+         直せるのは文字列4つだけ。member_no / token / autopilot / plan / tier / industry / hearing_mode には
+         触らせない(それぞれ専用の口か、人が触るべきでない値である)。誰が何を直したかを store.edits に残す。 */
+      if (path === "/admin/store-patch" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const sid = safeStr(b.store_id, 40);
+        const store = await env.HS_HEARING_KV.get("store:" + sid, "json");
+        if (!store) return json({ error: "not_found" }, 404);
+        const ALLOW = ["company", "rep", "area", "email"];
+        const fields = (b.fields && typeof b.fields === "object") ? b.fields : {};
+        const applied = {};
+        for (const k of ALLOW) {
+          if (!Object.prototype.hasOwnProperty.call(fields, k)) continue;
+          const to = safeStr(fields[k], 200);
+          applied[k] = { from: safeStr(store[k], 200), to };
+          store[k] = to;
+        }
+        const unknown = Object.keys(fields).filter((k) => ALLOW.indexOf(k) < 0);
+        if (!Object.keys(applied).length) {
+          return json({ ok: false, reason: "直せる項目がありません", allowed: ALLOW, unknown }, 400);
+        }
+        store.edits = [...(store.edits || []), { at: new Date().toISOString(), via: "admin/store-patch", applied }].slice(-20);
+        await AP.putStore(env, store, "admin/store-patch");
+        return json({ ok: true, store_id: sid, applied, ignored: unknown });
+      }
+
       if (path === "/admin/profile-patch" && request.method === "POST") {
         let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
         const sid = safeStr(b.store_id, 40);
