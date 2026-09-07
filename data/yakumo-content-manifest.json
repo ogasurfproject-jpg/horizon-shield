@@ -38,84 +38,6 @@
    "m": "no001"
   },
   {
-   "slug": "yakumo/souba/work-9b40da-area-5ed64c",
-   "tsha": "fe8191c5",
-   "simhash": "a868b2c979e81bf8",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/souba/work-82846d-area-5ed64c",
-   "tsha": "726e4e54",
-   "simhash": "a878a0c97bc89bfc",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/souba/work-4b28d8-area-5ed64c",
-   "tsha": "bea65ab7",
-   "simhash": "aceaa0c96fec9fe8",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/souba/work-d99e1b-area-5ed64c",
-   "tsha": "3a21b749",
-   "simhash": "a8e9a6c978e89be8",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/faq/yakumo-area-5ed64c-faq-1",
-   "tsha": "a9a15253",
-   "simhash": "3a6036c9321c1bec",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/llmo/yakumo-kensho-zumi-kameiten-toha",
-   "tsha": "fafd01aa",
-   "simhash": "a02d22c977acb2e0",
-   "m": "no001"
-  },
-  {
-   "slug": "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi",
-   "tsha": "40d4a273",
-   "simhash": "a16bb2c935bcd6c8",
-   "m": "no001"
-  },
-  {
-   "slug": "yakumo/webmcp/yakumo-verified-stores-mcp",
-   "tsha": "7f058a5f",
-   "simhash": "8279a41925f639df",
-   "m": "no001"
-  },
-  {
-   "slug": "yakumo/faq/yakumo-hiratsuka-faq-mado-koukan",
-   "tsha": "a0c48248",
-   "simhash": "6829a6c8718c1978",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/faq/yakumo-hiratsuka-faq-genkan-koukan",
-   "tsha": "47466824",
-   "simhash": "2868f6c9f38a19ec",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/llmo/yakumo-kensho-zumi-kameiten-toha-no002",
-   "tsha": "795a3051",
-   "simhash": "aa2d02c953ecb2e8",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no002",
-   "tsha": "aba31c76",
-   "simhash": "a16092c973a88848",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/jirei/no002",
-   "tsha": "621dc3f7",
-   "simhash": "aaee50c973f9faec",
-   "m": "no002"
-  },
-  {
    "slug": "yakumo/souba/gaiheki-tosou-aichi",
    "tsha": "68fc0ba9",
    "simhash": "1c7a22c86368d870",
@@ -174,13 +96,90 @@
    "tsha": "6686ec3c",
    "simhash": "286c908915bebb68",
    "m": "no001"
+  },
+  {
+   "slug": "yakumo/souba/mado-koukan-hiratsuka",
+   "tsha": "fe8191c5",
+   "simhash": "a86ba2c9fbe81bfc",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/souba/genkan-koukan-hiratsuka",
+   "tsha": "726e4e54",
+   "simhash": "a878b0c97bf89bec",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/souba/glass-shuri-hiratsuka",
+   "tsha": "bea65ab7",
+   "simhash": "a86a80c96f6c9ae8",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/souba/amido-harikae-hiratsuka",
+   "tsha": "3a21b749",
+   "simhash": "d87ba4c960e89ae8",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/faq/yakumo-hiratsuka-faq-1",
+   "tsha": "a9a15253",
+   "simhash": "3a6036c9321c1bec",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/faq/yakumo-hiratsuka-faq-mado-koukan",
+   "tsha": "a0c48248",
+   "simhash": "6829a6c8718c1978",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/faq/yakumo-hiratsuka-faq-genkan-koukan",
+   "tsha": "47466824",
+   "simhash": "2868f6c9f38a19ec",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/llmo/yakumo-kensho-zumi-kameiten-toha-no002",
+   "tsha": "795a3051",
+   "simhash": "aa2d02c953ecb2e8",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no002",
+   "tsha": "aba31c76",
+   "simhash": "a16092c973a88848",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/webmcp/yakumo-verified-stores-mcp-no002",
+   "tsha": "32d9aa80",
+   "simhash": "8278a41925e7a9ff",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/jirei/no002",
+   "tsha": "621dc3f7",
+   "simhash": "aaee50c973f9faec",
+   "m": "no002"
   }
  ],
- "updated_at": "2026-09-07T14:54:23Z",
+ "updated_at": "2026-09-07T14:58:32Z",
  "rebuilt_at": "2026-08-23",
  "rebuilt_why": "指紋から剥がす共通枠のパターンを直したため、計算結果が変わった。全エントリを一斉に入れ替えて整合を保った。古い台帳は yakumo-content-manifest.json.bak_prerebuild20260823 に残してある。",
  "stores": {
   "no002": "e8a01705206c",
   "no001": "7e86e8aa3703"
- }
+ },
+ "pruned_at": "2026-09-07T14:58:32Z",
+ "pruned": [
+  "yakumo/souba/work-9b40da-area-5ed64c",
+  "yakumo/souba/work-82846d-area-5ed64c",
+  "yakumo/souba/work-4b28d8-area-5ed64c",
+  "yakumo/souba/work-d99e1b-area-5ed64c",
+  "yakumo/faq/yakumo-area-5ed64c-faq-1",
+  "yakumo/llmo/yakumo-kensho-zumi-kameiten-toha",
+  "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi",
+  "yakumo/webmcp/yakumo-verified-stores-mcp"
+ ]
 }
