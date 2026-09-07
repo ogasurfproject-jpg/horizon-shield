@@ -600,6 +600,27 @@ def webmcp_page(profile):
     body += '<p style="margin-top:14px;">検証を通過した加盟店だけが返ります。金額は返さず、適正度スコアと誠実度ティアのみ。検証手続き中の店は verification:"pending" として区別されます(fail-closed)。</p></div>'
     body += '<div class="section"><h2>いま参照できる加盟店</h2><p>%s ・ %s</p>' % (esc(company), verify_state_html(profile))
     body += '<p><a href="%s/yakumo/%s/">プロフィールを見る →</a></p></div>' % (BASE, member_slug(profile))
+    # この店を引いたとき、AI に返る中身。工種・地域・強み・信頼の根拠・FAQ の見出しを、
+    # 店の回答からそのまま並べる。金額は出さない(safe_pub が通す範囲だけ)。
+    # 定型だけの頁は、店が増えるほど互いに近づく。返る中身を書けば、頁ごとに違う。
+    body += '<div class="section"><h2>この店を引いたとき、AIに返る内容</h2>'
+    if works:
+        body += '<p><b>対応する工種</b></p><div class="tags">' + "".join('<span class="tg">%s</span>' % esc(w) for w in works) + '</div>'
+    if areas:
+        body += '<p style="margin-top:10px;"><b>対応地域</b>　%s</p>' % esc("、".join(areas))
+    if profile.get("strengths"):
+        body += '<p style="margin-top:10px;"><b>強み・こだわり</b><br>%s</p>' % esc(safe_pub(profile["strengths"])[:500])
+    if profile.get("trust"):
+        body += '<p style="margin-top:10px;"><b>信頼の根拠</b><br>%s</p>' % esc(safe_pub(profile["trust"])[:300])
+    _fq = [f for f in (profile.get("faqs") or []) if f and f.get("q")][:5]
+    if _fq:
+        body += '<p style="margin-top:10px;"><b>この店が答えているよくある質問</b></p><ul>'
+        for f in _fq:
+            body += '<li>%s</li>' % esc(safe_pub(f["q"])[:120])
+        body += '</ul>'
+    body += ('<p style="margin-top:12px;font-size:14px;color:#5a6b7d;">上の内容は %s のヒアリング回答から機械が組んだものです。'
+             '金額は含みません。同じ内容が get_contractor_profile から構造化データとして返ります。</p></div>'
+             % esc(company))
     body += source_block()
     body += '</div>'
     body += recirc_and_mesh(slug, profile)
