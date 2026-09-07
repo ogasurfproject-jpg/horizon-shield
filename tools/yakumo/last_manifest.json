@@ -1,145 +1,104 @@
 {
-  "generated_at": "2026-09-07T14:45:16Z",
-  "member_no": "No.001",
-  "company": "リフォーム職人株式会社",
-  "focus": "franchise",
-  "count": 10,
+  "generated_at": "2026-09-07T14:48:35Z",
+  "member_no": "No.002",
+  "company": "ミネオトーヨー住器株式会社",
+  "focus": "homeowners",
+  "count": 5,
   "ratio": {
-    "geo": 4,
-    "aeo": 3,
+    "aeo": 2,
     "llmo": 2,
     "focus": 1
   },
   "urls": [
-    "https://shield.the-horizons-innovation.com/yakumo/souba/gaiheki-tosou-aichi/",
-    "https://shield.the-horizons-innovation.com/yakumo/souba/yane-aichi/",
-    "https://shield.the-horizons-innovation.com/yakumo/souba/naiso-aichi/",
-    "https://shield.the-horizons-innovation.com/yakumo/souba/cloth-aichi/",
-    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-aichi-faq-1/",
-    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-aichi-faq-gaiheki-tosou/",
-    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-aichi-faq-yane/",
-    "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-kensho-zumi-kameiten-toha-no001/",
-    "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no001/",
-    "https://shield.the-horizons-innovation.com/yakumo/network/no001/"
+    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-hiratsuka-faq-mado-koukan/",
+    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-hiratsuka-faq-genkan-koukan/",
+    "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-kensho-zumi-kameiten-toha-no002/",
+    "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no002/",
+    "https://shield.the-horizons-innovation.com/yakumo/jirei/no002/"
   ],
   "pages": [
     {
-      "type": "geo",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/gaiheki-tosou-aichi/",
-      "path": "yakumo/souba/gaiheki-tosou-aichi/index.html"
-    },
-    {
-      "type": "geo",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/yane-aichi/",
-      "path": "yakumo/souba/yane-aichi/index.html"
-    },
-    {
-      "type": "geo",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/naiso-aichi/",
-      "path": "yakumo/souba/naiso-aichi/index.html"
-    },
-    {
-      "type": "geo",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/cloth-aichi/",
-      "path": "yakumo/souba/cloth-aichi/index.html"
+      "type": "aeo",
+      "url": "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-hiratsuka-faq-mado-koukan/",
+      "path": "yakumo/faq/yakumo-hiratsuka-faq-mado-koukan/index.html"
     },
     {
       "type": "aeo",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-aichi-faq-1/",
-      "path": "yakumo/faq/yakumo-aichi-faq-1/index.html"
-    },
-    {
-      "type": "aeo",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-aichi-faq-gaiheki-tosou/",
-      "path": "yakumo/faq/yakumo-aichi-faq-gaiheki-tosou/index.html"
-    },
-    {
-      "type": "aeo",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-aichi-faq-yane/",
-      "path": "yakumo/faq/yakumo-aichi-faq-yane/index.html"
+      "url": "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-hiratsuka-faq-genkan-koukan/",
+      "path": "yakumo/faq/yakumo-hiratsuka-faq-genkan-koukan/index.html"
     },
     {
       "type": "llmo",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-kensho-zumi-kameiten-toha-no001/",
-      "path": "yakumo/llmo/yakumo-kensho-zumi-kameiten-toha-no001/index.html"
+      "url": "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-kensho-zumi-kameiten-toha-no002/",
+      "path": "yakumo/llmo/yakumo-kensho-zumi-kameiten-toha-no002/index.html"
     },
     {
       "type": "llmo",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no001/",
-      "path": "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no001/index.html"
+      "url": "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no002/",
+      "path": "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no002/index.html"
     },
     {
       "type": "focus",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/network/no001/",
-      "path": "yakumo/network/no001/index.html"
+      "url": "https://shield.the-horizons-innovation.com/yakumo/jirei/no002/",
+      "path": "yakumo/jirei/no002/index.html"
     }
   ],
   "dup_skipped": [
     {
-      "url": "https://shield.the-horizons-innovation.com/yakumo/webmcp/yakumo-verified-stores-mcp-no001/",
+      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/mado-koukan-hiratsuka/",
+      "why": "title:yakumo/souba/work-9b40da-area-5ed64c"
+    },
+    {
+      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/genkan-koukan-hiratsuka/",
+      "why": "title:yakumo/souba/work-82846d-area-5ed64c"
+    },
+    {
+      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/glass-shuri-hiratsuka/",
+      "why": "title:yakumo/souba/work-4b28d8-area-5ed64c"
+    },
+    {
+      "url": "https://shield.the-horizons-innovation.com/yakumo/souba/amido-harikae-hiratsuka/",
+      "why": "title:yakumo/souba/work-d99e1b-area-5ed64c"
+    },
+    {
+      "url": "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-hiratsuka-faq-1/",
+      "why": "title:yakumo/faq/yakumo-area-5ed64c-faq-1"
+    },
+    {
+      "url": "https://shield.the-horizons-innovation.com/yakumo/webmcp/yakumo-verified-stores-mcp-no002/",
       "why": "near-dup:yakumo/webmcp/yakumo-verified-stores-mcp"
     }
   ],
   "new_fingerprints": [
     {
-      "slug": "yakumo/souba/gaiheki-tosou-aichi",
-      "tsha": "68fc0ba9",
-      "simhash": "1c7a22c86368d870",
-      "m": "no001"
+      "slug": "yakumo/faq/yakumo-hiratsuka-faq-mado-koukan",
+      "tsha": "a0c48248",
+      "simhash": "6829a6c8718c1978",
+      "m": "no002"
     },
     {
-      "slug": "yakumo/souba/yane-aichi",
-      "tsha": "33f41a50",
-      "simhash": "987a02c87ba8ccf0",
-      "m": "no001"
+      "slug": "yakumo/faq/yakumo-hiratsuka-faq-genkan-koukan",
+      "tsha": "47466824",
+      "simhash": "2868f6c9f38a19ec",
+      "m": "no002"
     },
     {
-      "slug": "yakumo/souba/naiso-aichi",
-      "tsha": "c8078428",
-      "simhash": "707a26c873685070",
-      "m": "no001"
+      "slug": "yakumo/llmo/yakumo-kensho-zumi-kameiten-toha-no002",
+      "tsha": "795a3051",
+      "simhash": "aa2d02c953ecb2e8",
+      "m": "no002"
     },
     {
-      "slug": "yakumo/souba/cloth-aichi",
-      "tsha": "2fc74a77",
-      "simhash": "887b86c9736a9470",
-      "m": "no001"
+      "slug": "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no002",
+      "tsha": "aba31c76",
+      "simhash": "a16092c973a88848",
+      "m": "no002"
     },
     {
-      "slug": "yakumo/faq/yakumo-aichi-faq-1",
-      "tsha": "0c665bf5",
-      "simhash": "e85477cbf0240848",
-      "m": "no001"
-    },
-    {
-      "slug": "yakumo/faq/yakumo-aichi-faq-gaiheki-tosou",
-      "tsha": "aec27cdc",
-      "simhash": "a65ba6c811205972",
-      "m": "no001"
-    },
-    {
-      "slug": "yakumo/faq/yakumo-aichi-faq-yane",
-      "tsha": "85a4b2eb",
-      "simhash": "e27836c83f1834e2",
-      "m": "no001"
-    },
-    {
-      "slug": "yakumo/llmo/yakumo-kensho-zumi-kameiten-toha-no001",
-      "tsha": "f8a1f98f",
-      "simhash": "a86912c953acf0e0",
-      "m": "no001"
-    },
-    {
-      "slug": "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no001",
-      "tsha": "9cf71030",
-      "simhash": "e16192c913b890c8",
-      "m": "no001"
-    },
-    {
-      "slug": "yakumo/network/no001",
-      "tsha": "6686ec3c",
-      "simhash": "286c908915bebb68",
-      "m": "no001"
+      "slug": "yakumo/jirei/no002",
+      "tsha": "621dc3f7",
+      "simhash": "aaee50c973f9faec",
+      "m": "no002"
     }
   ]
 }
