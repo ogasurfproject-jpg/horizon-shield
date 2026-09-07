@@ -98,10 +98,26 @@ jobs:
           TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          if [ -n "$TOKEN" ] && [ -n "$ACCOUNT" ]; then
+          # 2026-09-08: 「有る」だけでは足りなかった。値は有るのに Cloudflare が鍵として
+          #   認めない(HTTP 400)状態が続き、push のたびに赤いメールが飛んだ。
+          #   この workflow の掟は「落ちるべきは検査であって、まだ設定していないことではない」。
+          #   壊れた鍵は、無い鍵と同じ扱いにする。配らず、理由を summary に書き、検査の緑は残す。
+          TOKEN="$(printf '%s' "$TOKEN" | tr -d '[:space:]')"
+          ACCOUNT="$(printf '%s' "$ACCOUNT" | tr -d '[:space:]')"
+          if [ -z "$TOKEN" ] || [ -z "$ACCOUNT" ]; then
+            echo "has=no" >> "$GITHUB_OUTPUT"
+            echo "why=鍵が設定されていません" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          CODE=$(curl -s -o /tmp/verify.json -w '%{http_code}' \
+            -H "Authorization: Bearer $TOKEN" \
+            https://api.cloudflare.com/client/v4/user/tokens/verify || echo 000)
+          STATUS=$(python3 -c "import json;print(json.load(open('/tmp/verify.json')).get('result',{}).get('status',''))" 2>/dev/null || echo "")
+          if [ "$CODE" = "200" ] && [ "$STATUS" = "active" ]; then
             echo "has=yes" >> "$GITHUB_OUTPUT"
           else
             echo "has=no" >> "$GITHUB_OUTPUT"
+            echo "why=鍵が有効ではありません(HTTP $CODE, status='$STATUS')。失効か、回転済みか、別の値が入っています" >> "$GITHUB_OUTPUT"
           fi
 
       # 5. ここまで通ってから配る。
@@ -130,18 +146,6 @@ jobs:
           CLOUDFLARE_API_TOKEN="$(printf '%s' "$CLOUDFLARE_API_TOKEN" | tr -d '[:space:]')"
           CLOUDFLARE_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | tr -d '[:space:]')"
           export CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID
-          if [ "${#CLOUDFLARE_API_TOKEN}" -lt 20 ]; then
-            echo "::error title=Cloudflare の鍵::CLOUDFLARE_API_TOKEN が短すぎます(${#CLOUDFLARE_API_TOKEN}文字)。GitHub Secrets に貼り直してください。"
-            exit 1
-          fi
-          VERIFY=$(curl -s -o /tmp/verify.json -w '%{http_code}' \
-            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-            https://api.cloudflare.com/client/v4/user/tokens/verify || echo 000)
-          STATUS=$(python3 -c "import json;print(json.load(open('/tmp/verify.json')).get('result',{}).get('status',''))" 2>/dev/null || echo "")
-          if [ "$VERIFY" != "200" ] || [ "$STATUS" != "active" ]; then
-            echo "::error title=Cloudflare の鍵::CLOUDFLARE_API_TOKEN が有効ではありません(HTTP $VERIFY, status='$STATUS')。Cloudflare の My Profile > API Tokens で新しい鍵(Edit Cloudflare Workers)を作り、GitHub の Settings > Secrets and variables > Actions の CLOUDFLARE_API_TOKEN を末尾に改行を入れずに貼り直してください。本番は手元の npx wrangler deploy で配れます。"
-            exit 1
-          fi
           if ! npx --yes wrangler@4 deploy 2>&1 | tee /tmp/wrangler.log; then
             tail -c 400 /tmp/wrangler.log | tr '\n' ' ' | sed 's/^/::error title=wrangler::/'
             echo ""
@@ -150,18 +154,25 @@ jobs:
 
       - name: 鍵が無いので配っていない
         if: steps.creds.outputs.has != 'yes'
+        env:
+          WHY: ${{ steps.creds.outputs.why }}
         run: |
           {
             echo "## 配っていません"
             echo ""
-            echo "検査はすべて通りましたが、Cloudflare の鍵が設定されていないため deploy は行っていません。"
+            echo "検査はすべて通りましたが、Cloudflare の鍵が使えないため deploy は行っていません。"
+            echo ""
+            echo "理由: ${WHY:-鍵が設定されていません}"
+            echo ""
+            echo "直し方: Cloudflare の My Profile > API Tokens で「Edit Cloudflare Workers」テンプレから鍵を作り、"
+            echo "GitHub の Settings > Secrets and variables > Actions の CLOUDFLARE_API_TOKEN に、末尾に改行を入れずに貼る。"
             echo "手元での \`npx wrangler deploy\` が引き続き必要です。"
             echo ""
             echo "自動で配るには、Settings > Secrets and variables > Actions に次の2つを登録してください。"
             echo "- CLOUDFLARE_API_TOKEN (権限: Workers Scripts > Edit)"
             echo "- CLOUDFLARE_ACCOUNT_ID"
           } >> "$GITHUB_STEP_SUMMARY"
-          echo "鍵が無いので配っていません。検査は通っています。"
+          echo "::warning title=Cloudflare の鍵::配っていません。${WHY:-鍵が設定されていません}。本番は手元の npx wrangler deploy で配れます。"
 
       - name: 配った版を残す
         run: |
