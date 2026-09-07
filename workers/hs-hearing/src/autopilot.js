@@ -26,6 +26,22 @@ import * as VIS from "./visibility.js";
 // 変えるならこの1行。
 export const MIN_AUDIT_ESTIMATES = 3;
 
+/* 2026-09-07 打ち切ってはいけない問い。
+   nextQuestions は ASK_MAX=3 回で問いを打ち切る。見込みの相手を追い回さないための数で、
+   そこは正しい。だが q_estimates だけは意味が違う。実見積が MIN_AUDIT_ESTIMATES 本
+   揃わなければ KIRA の自動採点も verified 化も永久に始まらない(scoreEstimates の
+   enoughEvidence、hearing.js の auto-score)。つまりこれは「あれば良い情報」ではなく、
+   売った物の分母である。
+   実測 2026-09-07: hs-partner-001 は q_estimates を 3 回聞いて打ち止め、
+   estimates_for_audit は 0 本のまま。機械はもう二度と聞かない状態だった。
+   打ち切らない代わりに、間隔を 3 日から RETRY_COOL_D 日へ延ばし、文面も変える。
+   同じ文を 4 回送るのは熱心ではなく、聞こえていないだけである。 */
+export const NEVER_GIVE_UP = ["q_estimates"];
+export const RETRY_COOL_D = 14;
+export const LAST_RESORT_TEXT = {
+  q_estimates: "検証を進めるために、実際の見積もりが3本必要です。今はまだ0本のため、御社の値付けを測る土台がありません。写真でも、PDFでも、手書きのメモでも構いません。工種と概算金額だけでも助かります。金額は一切公開しません。公開するのは『何本見て検証したか』という本数だけです。",
+};
+
 // 2026-08-20 reply-resets-cooldown. 追撃質問の門は二つある。
 // 門B(時間)だけを見ていた頃、答えている相手が三日以上止められていた。実測は下の分岐に書いた。
 export const FOLLOWUP_COOLDOWN_H = 72; // 門B: 無反応の相手を急かさないための待ち
@@ -52,6 +68,22 @@ export const REPLY_GATE_FLOOR_H = 6;   // 門A: 返事が来ていても、こ�
      熱心なのではなく、聞こえていないだけである。 */
 export const ONBOARDING_GAP_H = 48;         // 返事待ちのまま次を送るまでの最短間隔
 export const ONBOARDING_MAX_UNANSWERED = 3; // 続けてこれだけ返事が無ければ、送信をやめて人に回す
+/* 2026-09-07 波の寿命。soft pending だけ7日で失効させ、通常の波には失効を置かなかった。
+   結果、一度立った返事待ちは相手が答えるまで永久に残り、追撃の門(!ap.pending)を塞ぎ続ける。
+   実測: hs-partner-001 は 8/21 の波を 17 日抱えたまま、巡回は 9/4・9/5・9/6 と走って
+   一通も出せていない。hs-partner-002 は 6 問を抱えて 9/1 から無送信。
+   答えの返らない問いを永久に握るより、落として次を聞くほうが会話は続く。
+   落としても asked(台帳)には残る。答えたことにはしない。 */
+export const WAVE_TTL_D = 10;
+/* 2026-09-07 返事待ちで抱える波の上限。
+   pushWave は波を足すだけで、落とす所が無かった。onboarding は48時間ごとに2問送るので、
+   相手が黙っている間に 2 → 4 → 6 → 8 と積み上がる。
+   実測: hs-partner-002 は 8 問を抱え、届いた1通を8問のどれに当てるか決められず
+   (needs_human "1通の返事をどの設問に当てるか決められない") 止まった。
+   8問を1通で送れば、返事が切り分け不能になるのは当たり前で、これは相手の落ち度ではない。
+   だから聞く側が抱える数を絞る。古い波から落とし、直近 PENDING_MAX_WAVES 群だけを持つ。
+   落とした問いは asked(台帳)に残る。答えたことにはしないので、間隔を置いて聞き直せる。 */
+export const PENDING_MAX_WAVES = 2;
 export function hearingMode(store) {
   return (store && store.hearing_mode === "onboarding") ? "onboarding" : "prospect";
 }
@@ -75,10 +107,22 @@ export function pushWave(ap, qs, kind, at) {
   const before = (p.waves && p.waves.length) ? p.waves
     : [{ qids: [...(p.qids || [])], texts: { ...(p.asked_texts || {}) },
          sent_at: p.sent_at, kind: p.via || "followup" }];
-  p.waves = [...before, wave];
-  p.qids = [...new Set([...(p.qids || []), ...wave.qids])];
-  p.asked_texts = { ...(p.asked_texts || {}), ...wave.texts };
-  p.text = Object.values(p.asked_texts).join("\n");
+  const all = [...before, wave];
+  // 抱えすぎない。古い波から落とす(落とすのは返事待ちの席であって、台帳ではない)。
+  const keep = all.length > PENDING_MAX_WAVES ? all.slice(all.length - PENDING_MAX_WAVES) : all;
+  if (keep.length !== all.length) {
+    const dropped = all.slice(0, all.length - keep.length);
+    ap._waves_dropped = [...(ap._waves_dropped || []),
+      { at: at, qids: dropped.flatMap((w) => w.qids || []), why: "抱えすぎ" }].slice(-20);
+  }
+  const texts = {};
+  for (const w of keep) Object.assign(texts, w.texts || {});
+  p.waves = keep;
+  p.qids = [...new Set(keep.flatMap((w) => w.qids || []))];
+  p.asked_texts = texts;
+  p.text = Object.values(texts).join("\n");
+  // sent_at は動かさない。催促の時計(3/7/14/21日)はここから数えている。
+  // 波を落としたからといって時計を巻き戻すと、催促が永久に遅れ続ける。
   return p;
 }
 
@@ -409,7 +453,14 @@ export function nextQuestions(profile, autopilot, maxN = 2) {
   const flat = [];
   for (const m of missing) {
     const askedN = askedCount[m.qid] || 0;
-    if (askedN >= ASK_MAX) continue;
+    const neverGiveUp = NEVER_GIVE_UP.indexOf(m.qid) >= 0;
+    if (askedN >= ASK_MAX) {
+      // 2026-09-07 打ち切ってよい問いは、これまでどおりここで止める。
+      if (!neverGiveUp) continue;
+      // 打ち切らない問いは、長い冷却を置いてから聞き直す。急かさないが、諦めもしない。
+      if (lastAskAt[m.qid] &&
+          (nowMs - Date.parse(lastAskAt[m.qid])) < RETRY_COOL_D * 86400000) continue;
+    }
     if (askedN > 0 && lastAskAt[m.qid] && (nowMs - Date.parse(lastAskAt[m.qid])) < ASK_COOL_MS) continue;
     // 2026-08-23: 業種の文面を先に見る。無ければ従来どおり。
     // これが無いと、訪問看護の事業所に「工種ごとの強み(例: 外壁塗装)」
@@ -428,7 +479,11 @@ export function nextQuestions(profile, autopilot, maxN = 2) {
       || QUESTION_BANK[m.qid]
       || (ownerFocus && QUESTION_BANK[ownerFocus] && QUESTION_BANK[ownerFocus][m.qid]);
     if (!q) continue;
-    flat.push({ qid: m.qid, w: m.w, text: q.text });
+    // 2026-09-07 打ち切らない問いを上限超えで送るときは、言い方を変える。
+    //   同じ文面の繰り返しは、相手には催促にしか見えない。
+    const text = (neverGiveUp && askedN >= ASK_MAX && LAST_RESORT_TEXT[m.qid])
+      ? LAST_RESORT_TEXT[m.qid] : q.text;
+    flat.push({ qid: m.qid, w: m.w, text: text });
   }
   // フォーカス未判明なら q_focus を最優先に押し上げ
   flat.sort((a, b) => (a.qid === "q_focus" ? -1 : b.qid === "q_focus" ? 1 : b.w - a.w));
@@ -629,7 +684,7 @@ export async function sendQuestions(env, store, questions, kind) {
   const formNote = "1枚にまとめた用紙からも書けます(分かるところだけで結構です。途中まででも送れます)。";
 
   if (lineUid) {
-    const tail = formUrl ? ("\n\n――\n" + formNote + "\n" + formUrl) : "";
+    const tail = formUrl ? ("\n\n--\n" + formNote + "\n" + formUrl) : "";
     // LINE は 1900 字で切られる。切られて困るのは用紙の在り処である。
     // 質問は次の便でまた出せるが、用紙の場所が切れると、
     // まとめて書く道がその人に一度も届かない。あふれるときは質問のほうを削る。
@@ -814,7 +869,7 @@ export function applyPenaltyPolicy(ap, nowMs) {
 /* ------------------------------ 日次tick(エージェント本体) ------------------------------ */
 export async function runDailyTick(env, deps) {
   // deps: { listAllStores, triggerGeneration }
-  const log = { checked: 0, sent: [], nudged: [], penalized: [], skipped: [] };
+  const log = { checked: 0, sent: [], nudged: [], penalized: [], skipped: [], promoted: [] };
   await newsRefresh(env).catch(() => {});
   const stores = await deps.listAllStores(env);
   const nowMs = Date.now();
@@ -828,6 +883,36 @@ export async function runDailyTick(env, deps) {
     //   というだけで、追撃質問の経路(comp.score < 85 && !ap.pending)が永久に塞がる。
     if (ap.pending && ap.pending.soft && ap.pending.sent_at &&
         (nowMs - Date.parse(ap.pending.sent_at)) >= 7 * 86400000) ap.pending = null;
+    // 2026-09-07 通常の波も WAVE_TTL_D 日で落とす。上の soft と同じ理由を、同じ場所で。
+    if (ap.pending && !ap.pending.soft) {
+      const _ws = (ap.pending.waves && ap.pending.waves.length) ? ap.pending.waves
+        : [{ qids: [...(ap.pending.qids || [])], texts: { ...(ap.pending.asked_texts || {}) },
+             sent_at: ap.pending.sent_at, kind: ap.pending.via || "followup" }];
+      // 落とすのは「答えのあった相手が、答えられずに置いていった古い波」だけ。
+      // 一度も返事の無い相手の波は落とさない。そちらは催促の表(3/7/14/21)と
+      // 28日打ち切りが見ている。無反応の相手に機械が送り続ける形にはしない。
+      const _lastAns = ap.last_answer_at ? Date.parse(ap.last_answer_at) : 0;
+      const _alive = _ws.filter((w) => {
+        if (!w.sent_at) return true;
+        const _t = Date.parse(w.sent_at);
+        if (nowMs - _t < WAVE_TTL_D * 86400000) return true;
+        return !(_lastAns > _t);
+      });
+      if (_alive.length !== _ws.length) {
+        const _gone = _ws.filter((w) => _alive.indexOf(w) < 0);
+        ap._waves_expired = [...(ap._waves_expired || []),
+          { at: now(), qids: _gone.flatMap((w) => w.qids || []) }].slice(-20);
+        if (!_alive.length) ap.pending = null;
+        else {
+          const _at = {};
+          for (const w of _alive) Object.assign(_at, w.texts || {});
+          ap.pending = { ...ap.pending, waves: _alive,
+            qids: [...new Set(_alive.flatMap((w) => w.qids || []))],
+            asked_texts: _at, text: Object.values(_at).join("\n"),
+            sent_at: _alive[0].sent_at || ap.pending.sent_at };
+        }
+      }
+    }
 
     // フォーカス未判定なら判定を試みる(回答が既にあれば)
     if (!ap.focus_primary && profile) {
@@ -844,6 +929,41 @@ export async function runDailyTick(env, deps) {
     //
     //    止めたあとは、人が出る。あっぷす様は契約済みのお客様である。
     //    3通送って一度も返事が無いなら、機械が4通目を書く場面ではない。
+    /* 2026-09-07 初回ヒアリングが終わった加盟店は、自動で継続ヒアリング(onboarding)に移す。
+
+       これまで立場を変える道は /admin/hearing-mode を人が叩く一手だけだった。
+       hearing.js のその分岐にも「既定は prospect であり、ここを明示的に叩かない
+       かぎり、誰の届き方も変わらない」と書いてある。書いたとおりに動いていた。
+
+       結果として、加盟して初回ヒアリングまで終えた店が prospect のまま
+       3/7/14/21日の催促と28日打ち切りに落ち、そこで会話が終わっていた。
+       実測 2026-09-07: hs-partner-001 も hs-partner-002 も hearing_mode は未設定。
+       GEO/AEO/LLMO/WebMCP の材料は初回のあとに貯まるものである。そこで止めない。
+
+       触らない相手を決めておく。
+         ・人が明示的に立場を決めた店(hearing_mode_at がある)は、その判断を優先する。
+         ・初回ヒアリングが終わっていない店は、まだ prospect のままでよい。
+         ・member_no の無い見込みの相手には当てない。加盟した店の話である。
+       止める仕掛けは今までどおり onboarding 側にある。3回続けて返事が無ければ
+       送信をやめて人に回す(ONBOARDING_MAX_UNANSWERED)。 */
+    if (!store.hearing_mode && !store.hearing_mode_at &&
+        hearing && hearing.completed && store.member_no) {
+      store.hearing_mode = "onboarding";
+      store.hearing_mode_at = now();
+      store.hearing_mode_by = "auto:初回ヒアリング完了";
+      /* 2026-09-07 立場を変えたら、止まっていた印は外して回数を数え直す。
+         /admin/hearing-mode(人が叩く道)は最初からそうしていたのに、
+         この自動の道だけ写し忘れていた。実測: hs-partner-002 は昇格したのに
+         prospect 時代に積んだ unanswered_sends が残っていて、
+         handOff(3回無返答で人に回す)が昇格したその場で成立し、一通も出せなかった。
+         止めた理由は「その立場での回数」なので、立場が変われば数え直すのが筋。 */
+      ap.unanswered_sends = 0;
+      if (ap.needs_human) delete ap.needs_human;
+      log.promoted.push(sid);
+      await activityAdd(env, { type: "hearing_mode",
+        text: "初回ヒアリングが終わったので、継続ヒアリングに切り替えました(" + sid + ")" });
+    }
+
     const mode = hearingMode(store);
     const handOff = (mode === "onboarding") &&
                     ((ap.unanswered_sends || 0) >= ONBOARDING_MAX_UNANSWERED);
@@ -1274,6 +1394,39 @@ export function settlePendingOnAnswer(store, rawText) {
     }
 
     const extraPatch = {};
+    /* 2026-09-07 当てられないものを、当てたことにしない(実装をコメントに追いつかせる)。
+
+       parts が無く qids が複数のとき、これまでは qids 全部に同じ rawText を配っていた。
+       attributed に "ambiguous" と書けば正直だと考えていたが、実害が出た。
+
+       実測 2026-09-07 01:09Z: 堤さま(hs-partner-001)から届いた
+         「@森下 真也 宜しくです!」
+       は、こちらへの返事ではなく他所へ宛てた私信だった。それが、その朝に送った
+       q_cn_zairyo_ugoki と q_ai_summary の回答欄へ両方コピーされ、機械は
+       「いただいた内容は担当が確認し、掲載に必要なところを整えます」と返した。
+       お客様は誤って送っただけで、その後トークから消えている。
+
+       設問が死ぬわけではない(answered() が ambiguous を弾く)。だが、お客様の
+       回答欄に別人宛の文が残り、それに対して掲載を約束する返事をしたことが害である。
+       証拠は残す。ただし回答欄ではない場所に、1本だけ。判断は人に渡す。 */
+    const copyRisk = !parts && qids.length > 1;
+    if (copyRisk) {
+      extraPatch._unsorted = {
+        text: S(rawText, 3000), at: now(), attributed: how, with: [...qids],
+        asked: qids.map((q) => S(texts[q] || (p.asked_texts || {})[q] || "", 200)).join(" / "),
+      };
+      const _t = new Set(qids);
+      ap.asked = (ap.asked || []).map((a) => (_t.has(a.qid) ? { ...a, replied_at: now() } : a));
+      ap.last_attributed = how;
+      ap.last_attributed_at = now();
+      // recover() は返事が来たことへの回復(督促の罰点と人送りの印を外す)。
+      // 当て直しが要るという別の理由で人に回すので、回復の「後」に立てる。順序が要る。
+      recover();
+      ap.needs_human = { since: now(),
+        why: "1通の返事をどの設問に当てるか決められない(" + qids.join("+") + ")" };
+      store.autopilot = ap;
+      return extraPatch;
+    }
     qids.forEach((qid, i) => {
       extraPatch[qid] = {
         text: S(parts ? parts[i] : rawText, 3000),
@@ -1310,8 +1463,12 @@ export function settlePendingOnAnswer(store, rawText) {
       p.qids = [...new Set(remain.flatMap((w) => w.qids))];
       p.asked_texts = at;
       p.text = Object.values(at).join("\n");
-      // 会話は動いた。催促の時計は、ここから数え直す。
-      p.sent_at = now();
+      // 2026-09-07 ここで p.sent_at = now() としていた。返事が来るたび、まだ答えて
+      //   いない古い波の時計まで巻き戻る。実測: hs-partner-001 は 9/4 の返事で
+      //   返事待ちの時計が 9/3 に戻り、抱えているのは 8/21 と 8/25 の波だった。
+      //   催促の日数表(3/7/14/21)も、波の寿命も、そこから数え直しになる。
+      //   残した波の時計は、その波を送った時刻のままにする。動かせば嘘になる。
+      p.sent_at = remain[0].sent_at || p.sent_at;
       ap.pending = p;
     } else {
       ap.pending = null;

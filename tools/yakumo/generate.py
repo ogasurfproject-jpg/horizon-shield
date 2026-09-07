@@ -30,11 +30,22 @@ TRADE_SLUG = {
     "内装": "naiso", "クロス": "cloth", "床・フローリング": "floor", "床": "floor", "フローリング": "floor",
     "浴室": "bath", "キッチン": "kitchen", "トイレ": "toilet", "洗面": "senmen", "水道": "suidou",
     "外構": "gaikou", "防水": "bousui", "リノベーション全般": "renovation", "リフォーム全般": "renovation",
+    # 2026-09-07 サッシ・ガラス(No.002 ミネオトーヨー住器)。辞書に無い工種は slugify が
+    #   SHA1 のハッシュに落ちる。URLに工種が入らない GEO 頁は、GEO として機能しない。
+    "窓の交換": "mado-koukan", "窓": "mado", "内窓": "uchimado", "二重窓": "uchimado",
+    "サッシ": "sash", "サッシ交換": "sash",
+    "玄関の交換": "genkan-koukan", "玄関ドア": "genkan-door", "玄関": "genkan",
+    "ガラス修理": "glass-shuri", "ガラス交換": "glass-koukan", "ガラス": "glass",
+    "網戸張替え": "amido-harikae", "網戸張替": "amido-harikae", "網戸": "amido",
 }
 AREA_SLUG = {
     "愛知県": "aichi", "長久手市": "nagakute", "名古屋市": "nagoya", "日進市": "nisshin",
     "尾張旭市": "owariasahi", "瀬戸市": "seto", "みよし市": "miyoshi", "豊田市": "toyota",
     "春日井市": "kasugai", "岡崎市": "okazaki",
+    # 2026-09-07 神奈川(No.002 ミネオトーヨー住器の対応12市町)。同上。
+    "神奈川県": "kanagawa", "平塚市": "hiratsuka", "茅ヶ崎市": "chigasaki", "藤沢市": "fujisawa",
+    "鎌倉市": "kamakura", "秦野市": "hadano", "伊勢原市": "isehara", "小田原市": "odawara",
+    "厚木市": "atsugi", "寒川町": "samukawa", "大磯町": "oiso", "二宮町": "ninomiya", "中井町": "nakai",
 }
 
 # 指紋と台帳は tools/pagecheck/fingerprint.py へ移した(2026-08-23)。
@@ -173,20 +184,30 @@ def header_html():
 '<nav><a href="%s/">HORIZON SHIELD</a><a href="%s/yakumo/">モール</a><a href="%s/souba/">相場DB</a></nav>\n</header>\n'
 ) % (BASE, BASE, BASE, BASE)
 
-def recirc_and_mesh(topic):
+def recirc_and_mesh(topic, profile=None):
     # 認知度拡大: EHN還流(マーカー入り) + モール/店/HS/相場へのバックリンク束
+    # 2026-09-07: 店のカードが No.001 固定だった。002の頁からも堤さんの頁だけに送っていた。
+    #   自分の頁から自分に戻れず、隣の店に送られる。生成した当の店を出す。
+    #   profile が無い呼び出し(汎用頁)だけ、従来どおり No.001 を代表として出す。
+    if profile and (profile.get("member_no") or "").strip():
+        store_card = ('<a class="r-card" href="%s/yakumo/%s/">%s %s<span>検証済み加盟店のプロフィール</span></a>\n'
+                      % (BASE, member_slug(profile), esc(member_no_text(profile)),
+                         esc(profile.get("company") or "")))
+    else:
+        store_card = ('<a class="r-card" href="%s/yakumo/no001/">加盟No.001 リフォーム職人株式会社'
+                      '<span>検証済み加盟店のプロフィール</span></a>\n' % BASE)
     return (
 '<!-- EHN_RECIRC_START:%s -->\n'
 '<div class="container"><div class="resonate">\n'
 '<h2>第三者の目で、根拠を確かめる</h2>\n'
 '<div class="r-grid">\n'
 '<a class="r-card" href="%s/yakumo/">Yakumoモードで検証済みの店を探す<span>紹介料を取らない中立モール</span></a>\n'
-'<a class="r-card" href="%s/yakumo/no001/">加盟No.001 リフォーム職人株式会社<span>検証済み加盟店のプロフィール</span></a>\n'
+'%s'
 '<a class="r-card" href="%s/ehn/">EHN 見積もり実例ボード<span>%s →</span></a>\n'
 '<a class="r-card" href="%s/">HORIZON SHIELD で見積もりを診断<span>建設実務30年監修・署名付きPDF</span></a>\n'
 '</div></div></div>\n'
 '<!-- EHN_RECIRC_END:%s -->\n'
-) % (esc(topic), BASE, BASE, BASE, esc(RECIRC_MARKER), BASE, esc(topic))
+) % (esc(topic), BASE, store_card, BASE, esc(RECIRC_MARKER), BASE, esc(topic))
 
 def cta_and_footer():
     return (
@@ -258,6 +279,36 @@ def verify_state_html(profile):
 
 # ---------------- 工種別の実務知識(建設実務30年監修の一般知識。金額なし・地域固有の創作なし) ----------------
 TRADE_TIPS = {
+    # 2026-09-07 追加(サッシ・ガラス)。AEO の2枚目以降はここを引く。
+    #   工種が無いと3枠のうち1枠しか埋まらない。No.002 がその状態だった。
+    "窓の交換": {
+        "tips": ["カバー工法(既存枠を残して新しい窓を被せる)なら壁も外壁も壊しません。住みながら進められます",
+                 "断熱はガラスだけでなく枠で決まります。アルミ枠に高性能ガラスを入れても枠から熱が逃げます。樹脂枠か複合枠かを見積もりで確かめてください",
+                 "内窓(二重窓)は既存窓を残して内側に付ける工法。工期は短く済みますが、掃除と開閉の手間は増えます"],
+        "faq": [("窓の交換は壁を壊しますか？", "カバー工法なら既存の枠を残して新しい窓を被せるので、壁も外壁も壊しません。枠ごと外すはつり工法は壁を触るため外壁補修が別途必要になります。どちらの工法かを見積もりに明記させてください。"),
+                ("内窓と窓の交換はどちらがいいですか？", "断熱と結露対策が目的なら内窓で足りることが多く、工期も短く済みます。サッシが歪んで開閉しにくい、枠が傷んでいるという場合は交換が要ります。目的が断熱なのか建付けなのかで分かれます。")],
+    },
+    "玄関の交換": {
+        "tips": ["玄関ドアもカバー工法が主流です。壁を壊さないため1日で終わる例が多く、その日のうちに施錠できます",
+                 "カバー工法では新しい枠のぶん開口が数センチ小さくなります。仕上がりの有効幅を図面で先に確認してください",
+                 "採風ドア(閉めたまま通風できる)や電気錠は後付けが難しい仕様があります。交換のときにしか選べません"],
+        "faq": [("玄関ドアの交換は何日かかりますか？", "カバー工法なら1日で終わる例が多く、その日のうちに施錠できます。枠ごとのはつり工法や袖部分の造作が絡む場合は数日かかります。工事中に施錠できない時間があるかを先に確認してください。"),
+                ("交換すると玄関が狭くなりますか？", "カバー工法では新しい枠を既存枠の内側に納めるため、開口の有効幅と有効高さがそれぞれ数センチ小さくなります。ベビーカーや車椅子、大型家具の出入りがある家は、仕上がり寸法を図面で確認してから決めてください。")],
+    },
+    "ガラス修理": {
+        "tips": ["まずガラスの種類の見極めです。網入り(ワイヤー)は防火用で、防犯性能はありません",
+                 "網入りガラスは熱割れを起こすことがあります。ぶつけた覚えがないのに割れたときはこれを疑います",
+                 "賃貸や共同住宅はガラスの仕様が管理規約や防火の指定で決まっている場合があり、勝手に変えられません"],
+        "faq": [("網入りガラスは防犯になりますか？", "なりません。網入りガラスのワイヤーは火災時に破片の飛散と延焼を防ぐためのもので、防犯用ではありません。防犯が目的なら中間膜を挟んだ合わせガラスや防犯フィルムが対象になります。"),
+                ("ぶつけていないのにガラスが割れました。原因は？", "熱割れの可能性があります。日射でガラスの中央部だけ温度が上がり、枠に隠れた端部との温度差で応力が生じて割れる現象で、網入りガラスや濃い色のガラスで起きやすいです。原因の切り分けを先に依頼してください。")],
+    },
+    "網戸張替え": {
+        "tips": ["網の目(メッシュ)は数字が大きいほど細かく、小さな虫は入りにくくなりますが、風通しと視界は落ちます",
+                 "ペットのいる家や出入りの多い掃き出し窓は、ポリプロピレンやステンレスの強い網にすると持ちが変わります",
+                 "隙間から虫が入るという相談は、網ではなく戸車の高さやモヘア(すき間をふさぐ起毛)の劣化が原因のことが多いです"],
+        "faq": [("網戸の張り替え時期の目安は？", "たるみ、破れ、触ると粉が付くような劣化が出たら替えどきです。屋外にある以上は紫外線で必ず劣化するので、破れていなくても数年で弾力が落ちます。"),
+                ("虫が入るのは網が破れているからですか？", "網に破れが無いのに虫が入る場合、原因は網ではなく隙間です。網戸の戸車の高さ調整と、召し合わせ部分のモヘアの劣化を先に見てください。網だけ張り替えても直りません。")],
+    },
     "外壁塗装": {
         "tips": ["下地処理(高圧洗浄・ケレン・ひび補修)を省く業者は塗膜が早期に剥がれます。工程写真の提出を求めましょう",
                  "塗料は下塗り・中塗り・上塗りの3回塗りが基本。缶数(使用量)を見積もりに明記させると水増しを防げます",
@@ -364,7 +415,7 @@ def geo_page(profile, trade, area):
     company = profile.get("company") or "検証済み加盟店"
     canonical = "%s/yakumo/souba/%s-%s/" % (BASE, slugify(trade, "trade"), slugify(area, "area"))
     title = "%sの%s｜適正価格を第三者検証で確かめる（Yakumo 検証済み加盟店） | HORIZON SHIELD" % (area, trade)
-    desc = clean_dashes("%sで%sを検討中の方へ。Yakumoは紹介料を取らない中立モール。掲載店は適正価格の検証と過剰請求チェック(KIRA)を通過した店だけ。%sは加盟No.001として検証手続き中です。金額の適正は本体の相場データで確認できます。" % (area, trade, company))
+    desc = clean_dashes("%sで%sを検討中の方へ。Yakumoは紹介料を取らない中立モール。掲載店は適正価格の検証と過剰請求チェック(KIRA)を通過した店だけ。%sは%sとして検証手続き中です。金額の適正は本体の相場データで確認できます。" % (area, trade, company, member_no_text(profile)))
     faq_ld = {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
         {"@type":"Question","name":"%sで%sの業者はどう選べばよいですか？" % (area, trade),
          "acceptedAnswer":{"@type":"Answer","text":"相場との照合と過剰請求チェックを第三者が済ませた店から選ぶのが安全です。Yakumoは、適正価格の検証(KIRA)を通過した加盟店だけを掲載する中立モールです。出典：HORIZON SHIELD建設費相場データベース(大賀俊勝 建設実務経験30年監修)"}},
@@ -382,14 +433,14 @@ def geo_page(profile, trade, area):
     body += '<p>%sの%sは、業者や範囲で金額が大きく動きます。契約の前に、相場との照合と過剰請求チェックを第三者に通しておくと安全です。Yakumoは、その検証を通過した加盟店だけを並べる中立モールです。当サービスは施工業者から報酬を受け取りません。</p>' % (esc(area), esc(trade))
     body += '<p>%sの具体的な適正レンジ(全国ベース)は、本体の相場データで確認できます。' % esc(trade)
     body += '<a href="%s/souba/">工事別の相場一覧を見る →</a></p></div>' % BASE
-    # 検証済み加盟店の紹介(No.001)
+    # 検証済み加盟店の紹介(この頁を生成している当の店。001固定にしない)
     body += '<div class="section"><h2>この地域の検証対象加盟店</h2>'
     body += '<p style="margin-bottom:14px;">%s</p>' % verify_state_html(profile)
     body += '<h3>%s</h3>' % esc(company)
     body += '<div class="tags">' + "".join('<span class="tg">%s</span>' % esc(w) for w in (profile.get("works") or [])[:6]) + '</div>'
     if profile.get("strengths"):
         body += '<p style="margin-top:12px;">%s</p>' % esc(safe_pub(profile["strengths"])[:400])
-    body += '<p style="margin-top:12px;"><a href="%s/yakumo/no001/">加盟No.001 のプロフィールと検証状態を見る →</a></p></div>' % BASE
+    body += '<p style="margin-top:12px;"><a href="%s/yakumo/%s/">%s のプロフィールと検証状態を見る →</a></p></div>' % (BASE, member_slug(profile), esc(member_no_text(profile)))
     # 工種固有の実務知識(ページの独自価値。テンプレ語だけの薄い量産ページにしない)
     tt = trade_tips_for(trade)
     if tt:
@@ -406,7 +457,7 @@ def geo_page(profile, trade, area):
     body += '</ul></div>'
     body += source_block()
     body += '</div>'
-    body += recirc_and_mesh(slugify(trade, "trade") + "-" + slugify(area, "area"))
+    body += recirc_and_mesh(slugify(trade, "trade") + "-" + slugify(area, "area"), profile)
     body += cta_and_footer()
     return canonical, head(title, desc, canonical, [faq_ld, org_person_graph(canonical)]) + body
 
@@ -429,7 +480,7 @@ def aeo_page(profile, faqs, area, idx, topic=None):
     else:
         slug = "yakumo-%s-faq-%d" % (slugify(area, "area"), idx)
         title = "%sのリフォーム 加盟店が答えるよくある質問｜Yakumo | HORIZON SHIELD" % area
-        desc = clean_dashes("%sのリフォーム・工事でよくある質問に、Yakumoの検証済み加盟店の知見と建設実務30年監修の視点でお答えします。%sは加盟No.001。Yakumoは紹介料を取らない中立モールです。" % (area, company))
+        desc = clean_dashes("%sのリフォーム・工事でよくある質問に、Yakumoの検証済み加盟店の知見と建設実務30年監修の視点でお答えします。%sは%s。Yakumoは紹介料を取らない中立モールです。" % (area, company, member_no_text(profile)))
     canonical = "%s/yakumo/faq/%s/" % (BASE, slug)
     ld = {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
         {"@type":"Question","name":safe_pub(f["q"]),"acceptedAnswer":{"@type":"Answer","text":safe_pub(f["a"])[:800]}} for f in faqs]}
@@ -437,7 +488,7 @@ def aeo_page(profile, faqs, area, idx, topic=None):
     h1sub = topic if topic else "リフォーム"
     body += '<div class="hero"><div class="container"><h1><span class="speakable">%sの%s<br>よくある質問</span></h1>' % (esc(area), esc(h1sub))
     body += '<p class="subtitle">Yakumo ・ 検証済み加盟店の知見 + 建設実務30年監修</p>'
-    body += '<span class="badge">%s(加盟No.001)</span></div></div>' % esc(company)
+    body += '<span class="badge">%s(%s)</span></div></div>' % (esc(company), esc(member_no_text(profile)))
     body += '<div class="container"><div class="breadcrumb"><a href="%s/yakumo/">Yakumoモール</a> &gt; FAQ &gt; %s</div>' % (BASE, esc(area))
     body += '<div class="section"><h2>よくある質問</h2>'
     for f in faqs:
@@ -445,25 +496,41 @@ def aeo_page(profile, faqs, area, idx, topic=None):
     body += '</div>'
     body += source_block()
     body += '</div>'
-    body += recirc_and_mesh(slug)
+    body += recirc_and_mesh(slug, profile)
     body += cta_and_footer()
     return canonical, head(title, desc, canonical, [ld, org_person_graph(canonical)]) + body
 
 def llmo_page(profile, kind, idx):
+    # 2026-09-07: slug が店に依らず1本だったため、最後に走った店がその1枚を占めていた。
+    #   店ごとの頁にする。ただし slug を割るだけでは同文が並ぶ(ドアウェイ)ので、
+    #   その店の工種・地域・強みを本文に入れて、頁ごとに中身が違う状態にしてから割る。
     company = profile.get("company") or "検証済み加盟店"
+    ms = member_slug(profile)
+    mno = member_no_text(profile)
+    works = [w for w in (profile.get("works") or []) if w][:6]
+    areas = [a for a in (profile.get("areas_served") or []) if a][:8]
+    if not areas and profile.get("area"):
+        areas = [profile["area"]]
+    works_txt = "、".join(works)
+    areas_txt = "、".join(areas)
     if kind == "verify":
-        slug = "yakumo-kensho-zumi-kameiten-toha"
-        h1 = "Yakumoの検証済み加盟店とは"
+        slug = "yakumo-kensho-zumi-kameiten-toha-%s" % ms
+        h1 = "Yakumoの検証済み加盟店とは(%s %s)" % (mno, company)
         lead = "検証を通った店だけが並ぶ、という設計"
         paras = [
             "Yakumoは、The HORIZONs株式会社(HORIZON SHIELD)が運営する中立の加盟店モールです。掲載される工務店・リフォーム店は、適正価格の検証と過剰請求チェック(KIRA)を通過した店だけです。",
             "一般的な紹介サイトは、紹介料を受け取った店を上位に出す構造の利益相反を抱えます。Yakumoは紹介料を受け取りません。だからこそ、検証を通った店だけを出せます。",
             "各店には適正度スコアと誠実度ティアが付き、結果には誰でも再計算できる署名レシート(SHA-256)が添付されます。施主は、店の信頼を広告費や主観ではなく、再計算できる根拠で確かめられます。",
-            "%sは加盟No.001として、この検証手続きを受けています。" % company,
+            "%sは%sとして、この検証手続きを受けています。" % (company, mno),
         ]
+        if works_txt:
+            paras.append("%sが対応するのは%sです。%s" % (company, works_txt,
+                ("対応地域は%s。" % areas_txt) if areas_txt else ""))
+        if profile.get("strengths"):
+            paras.append(safe_pub(profile["strengths"])[:400])
     else:
-        slug = "yakumo-tekiseika-kensho-no-shikumi"
-        h1 = "適正価格を第三者検証で確かめる仕組み"
+        slug = "yakumo-tekiseika-kensho-no-shikumi-%s" % ms
+        h1 = "%sの見積もりを第三者検証で確かめる仕組み" % company
         lead = "見積もりを、契約の前に検証する"
         paras = [
             "リフォームの見積もりは、同じ工事でも業者や範囲で大きく動きます。施主が相場を知らないまま契約すると、過剰請求に気づけません。",
@@ -471,6 +538,10 @@ def llmo_page(profile, kind, idx):
             "Yakumoは、この検証を通過した加盟店を並べるモールです。施主・AI・検索のどこから来ても、同じ検証済みデータを参照できます。",
             "検証結果は、AIエージェントからもMCP経由で参照できます。人にもAIにも、同じ根拠が開かれています。",
         ]
+        if works_txt:
+            paras.insert(1, "%s(%s)の場合、対象となるのは%sです。%s工種ごとに見るべき点が違うため、"
+                            "相場の照合も工種の単位で行います。" % (company, mno, works_txt,
+                            ("対応地域は%s。" % areas_txt) if areas_txt else ""))
     canonical = "%s/yakumo/llmo/%s/" % (BASE, slug)
     title = "%s｜Yakumo | HORIZON SHIELD" % h1
     desc = clean_dashes(paras[0][:150])
@@ -485,16 +556,26 @@ def llmo_page(profile, kind, idx):
     body += '<p style="margin-top:14px;"><a href="%s/yakumo/">Yakumoモールで検証済みの店を見る →</a></p></div>' % BASE
     body += source_block()
     body += '</div>'
-    body += recirc_and_mesh(slug)
+    body += recirc_and_mesh(slug, profile)
     body += cta_and_footer()
     return canonical, head(title, desc, canonical, [ld, org_person_graph(canonical)]) + body
 
 def webmcp_page(profile):
+    # 2026-09-07: ここも slug が1本だった。店ごとに割り、その店を引く呼び方を本文に書く。
     company = profile.get("company") or "検証済み加盟店"
-    slug = "yakumo-verified-stores-mcp"
+    ms = member_slug(profile)
+    mno = member_no_text(profile)
+    mn_raw = (profile.get("member_no") or "").strip()
+    works = [w for w in (profile.get("works") or []) if w][:6]
+    areas = [a for a in (profile.get("areas_served") or []) if a][:8]
+    if not areas and profile.get("area"):
+        areas = [profile["area"]]
+    slug = "yakumo-verified-stores-mcp-%s" % ms
     canonical = "%s/yakumo/webmcp/%s/" % (BASE, slug)
-    title = "Yakumo 検証済み加盟店をAIから参照する（WebMCP）| HORIZON SHIELD"
-    desc = "Yakumoの検証済み加盟店は、AIエージェントからMCP経由で参照できます。list_verified_stores / get_contractor_profile で、地域と工種から検証済みの工務店を発見。金額は返さず、適正度スコアとティアのみ。"
+    title = "%sをAIから参照する（WebMCP）｜Yakumo | HORIZON SHIELD" % company
+    desc = clean_dashes("%s(%s)は、AIエージェントからMCP経由で参照できます。get_contractor_profile に member_no を渡せばこの店を、"
+                        "list_verified_stores に地域と工種を渡せば条件に合う検証済みの店を返します。金額は返さず、適正度スコアとティアのみ。"
+                        % (company, mno))
     ld = {"@context":"https://schema.org","@type":"WebAPI","name":"YAKUMO Verified Stores MCP","description":desc,
           "provider":{"@type":"Organization","name":"The HORIZONs株式会社","alternateName":"HORIZON SHIELD"},
           "documentation":canonical,"url":"https://hearing.horizonshield.dev/mcp"}
@@ -508,12 +589,20 @@ def webmcp_page(profile):
              '<div><span class="k">tool</span> list_verified_stores { area?, work? }</div>'
              '<div><span class="k">tool</span> get_contractor_profile { member_no }</div>'
              '</div>')
+    if mn_raw:
+        body += ('<p style="margin-top:14px;">この店を名指しで引くときの呼び方です。</p>'
+                 '<div class="mcp-box"><div><span class="k">call</span> '
+                 'get_contractor_profile { "member_no": "%s" }</div></div>' % esc(mn_raw))
+    if works or areas:
+        body += ('<p style="margin-top:14px;">条件で探すときは、%s%sを渡します。</p>'
+                 % (('work に「%s」' % esc(works[0])) if works else "",
+                    ('、area に「%s」' % esc(areas[0])) if areas else ""))
     body += '<p style="margin-top:14px;">検証を通過した加盟店だけが返ります。金額は返さず、適正度スコアと誠実度ティアのみ。検証手続き中の店は verification:"pending" として区別されます(fail-closed)。</p></div>'
     body += '<div class="section"><h2>いま参照できる加盟店</h2><p>%s ・ %s</p>' % (esc(company), verify_state_html(profile))
-    body += '<p><a href="%s/yakumo/no001/">プロフィールを見る →</a></p></div>' % BASE
+    body += '<p><a href="%s/yakumo/%s/">プロフィールを見る →</a></p></div>' % (BASE, member_slug(profile))
     body += source_block()
     body += '</div>'
-    body += recirc_and_mesh(slug)
+    body += recirc_and_mesh(slug, profile)
     body += cta_and_footer()
     return canonical, head(title, desc, canonical, [ld, org_person_graph(canonical)], extra_link='<link rel="mcp-server" href="https://hearing.horizonshield.dev/mcp">') + body
 
@@ -535,6 +624,13 @@ FOCUS_DEF = {
                   "qids": ["q_brand_media", "q_brand_community", "q_brand_message"],
                   "labels": ["メディア・受賞", "地域での活動", "会社からのメッセージ"]},
 }
+
+def member_no_text(profile):
+    """「加盟No.002」のような表記を profile から作る。
+    member_no が無いときに 001 を書かない。番号を知らないことと、001であることは違う。
+    知らないなら番号を名乗らない。"""
+    mn = (profile.get("member_no") or "").strip()
+    return ("加盟" + mn) if mn else "Yakumo加盟店"
 
 def member_slug(profile):
     mn = (profile.get("member_no") or "").lower().replace("no.", "no")
@@ -591,7 +687,7 @@ def focus_page(profile, focus, news):
         verify_state_html(profile), BASE, esc(profile.get("member_no") or ""))
     body += source_block()
     body += '</div>'
-    body += recirc_and_mesh(slug)
+    body += recirc_and_mesh(slug, profile)
     body += cta_and_footer()
     return canonical, head(title, desc, canonical, [ld, org_person_graph(canonical)]) + body
 

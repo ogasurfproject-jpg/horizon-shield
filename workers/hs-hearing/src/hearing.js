@@ -296,7 +296,7 @@ function hearingForm(token, store, profile) {
 '.ok{display:none;text-align:center;padding:40px 10px;}.ok h2{color:#3FE0CE;}' +
 'details{border:1px solid #1A2230;border-radius:12px;padding:10px 14px;margin:12px 0;background:rgba(16,22,33,.35);}' +
 'summary{cursor:pointer;font-weight:700;font-size:14px;color:#EAF0F8;list-style:none;}summary::-webkit-details-marker{display:none;}' +
-'summary:before{content:"＋ ";color:#3FE0CE;}details[open] summary:before{content:"− ";}' +
+'summary:before{content:"＋ ";color:#3FE0CE;}details[open] summary:before{content:"- ";}' +
 '.qq label{font-weight:400;font-size:13px;color:#B9C4D4;line-height:1.7;}' +
 '.qq textarea{min-height:60px;}' +
 '.sec{margin-top:34px;border-top:1px solid #1A2230;padding-top:16px;}' +
@@ -1626,7 +1626,7 @@ async function handlePartnerInbound(env, storeId, store, text, source) {
         JSON.stringify({ text: t.slice(0, 2000), at: new Date().toISOString(), company, src }));
     } catch (_e) {}
     // 質問は回答ではないが engaged(応答)。督促の罰点を解き、活動を残す。
-    // 返事待ちの設問(pending)は消さない — まだ答えていないので、追撃の巡回はそのまま続く。
+    // 返事待ちの設問(pending)は消さない, まだ答えていないので、追撃の巡回はそのまま続く。
     if (store) {
       AP.noteEngagement(store);
       try { await AP.putStore(env, store, src + ":質問(engaged)"); } catch (_e) {}
@@ -2788,6 +2788,56 @@ export default {
       }
 
       // 注意喚起を今すぐ送る(こんなことはありますか？)
+      /* 2026-09-07 詰まった店を1手で戻す口。
+         これまで「返事待ちを抱えすぎて人送りになった店」を戻す手段が、KV を手で書き換える
+         ことしか無かった。今日で二度目である。手で JSON を書き換える作業は、
+         隣の欄を巻き添えにする事故と一組で来る。だから狭い口をここに作る。
+         することは三つだけ。人送りの印を外す。返事待ちを直近の波に絞る。無返答の数を戻す。
+         asked(台帳)には手を触れない。答えたことにはしない。落ちた問いは後で聞き直せる。 */
+      if (path === "/admin/unstick" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const sid = safeStr(b.store_id, 40);
+        const store = await env.HS_HEARING_KV.get("store:" + sid, "json");
+        if (!store) return json({ error: "not_found" }, 404);
+        const keepN = Math.max(1, Math.min(3, Number(b.keep_last_waves || 1)));
+        const ap = store.autopilot || {};
+        const before = {
+          needs_human: ap.needs_human || null,
+          unanswered_sends: ap.unanswered_sends || 0,
+          pending_qids: (ap.pending && ap.pending.qids) || [],
+          waves: (ap.pending && ap.pending.waves) ? ap.pending.waves.length : (ap.pending ? 1 : 0),
+        };
+        if (ap.pending) {
+          const all = (ap.pending.waves && ap.pending.waves.length) ? ap.pending.waves
+            : [{ qids: [...(ap.pending.qids || [])], texts: { ...(ap.pending.asked_texts || {}) },
+                 sent_at: ap.pending.sent_at, kind: ap.pending.via || "followup" }];
+          const keep = all.slice(Math.max(0, all.length - keepN));
+          const dropped = all.slice(0, Math.max(0, all.length - keepN));
+          if (dropped.length) {
+            ap._waves_dropped = [...(ap._waves_dropped || []),
+              { at: new Date().toISOString(), qids: dropped.flatMap((w) => w.qids || []), why: "admin/unstick" }].slice(-20);
+          }
+          const texts = {};
+          for (const w of keep) Object.assign(texts, w.texts || {});
+          ap.pending = { ...ap.pending, waves: keep,
+            qids: [...new Set(keep.flatMap((w) => w.qids || []))],
+            asked_texts: texts, text: Object.values(texts).join("\n"),
+            sent_at: ap.pending.sent_at };
+        }
+        if (ap.needs_human) delete ap.needs_human;
+        ap.unanswered_sends = 0;
+        store.autopilot = ap;
+        await AP.putStore(env, store, "admin/unstick");
+        await AP.activityAdd(env, { type: "unstick",
+          text: "返事待ちの詰まりを解きました(" + sid + " 直近" + keepN + "波を残す)" });
+        return json({ ok: true, store_id: sid, before, after: {
+          needs_human: ap.needs_human || null,
+          unanswered_sends: ap.unanswered_sends,
+          pending_qids: (ap.pending && ap.pending.qids) || [],
+          waves: (ap.pending && ap.pending.waves) ? ap.pending.waves.length : 0,
+        } });
+      }
+
       if (path === "/admin/nudge" && request.method === "POST") {
         let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
         const sid = safeStr(b.store_id, 40);
