@@ -4,7 +4,7 @@
   "company": "リフォーム職人株式会社",
   "generator": "tools/yakumo/generate.py",
   "manifest": "tools/yakumo/last_manifest.json",
-  "count": 10,
+  "count": 11,
   "pages": [
     "yakumo/faq/yakumo-aichi-faq-1/index.html",
     "yakumo/faq/yakumo-aichi-faq-gaiheki-tosou/index.html",
@@ -15,7 +15,8 @@
     "yakumo/souba/cloth-aichi/index.html",
     "yakumo/souba/gaiheki-tosou-aichi/index.html",
     "yakumo/souba/naiso-aichi/index.html",
-    "yakumo/souba/yane-aichi/index.html"
+    "yakumo/souba/yane-aichi/index.html",
+    "yakumo/webmcp/yakumo-verified-stores-mcp-no001/index.html"
   ],
   "urls": [
     "https://shield.the-horizons-innovation.com/yakumo/souba/gaiheki-tosou-aichi/",
@@ -27,6 +28,7 @@
     "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-aichi-faq-yane/",
     "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-kensho-zumi-kameiten-toha-no001/",
     "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no001/",
+    "https://shield.the-horizons-innovation.com/yakumo/webmcp/yakumo-verified-stores-mcp-no001/",
     "https://shield.the-horizons-innovation.com/yakumo/network/no001/"
   ],
   "commit_paths": [

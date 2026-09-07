@@ -158,13 +158,19 @@
    "m": "no001"
   },
   {
+   "slug": "yakumo/webmcp/yakumo-verified-stores-mcp-no001",
+   "tsha": "752431ba",
+   "simhash": "8279949965e4a9cb",
+   "m": "no001"
+  },
+  {
    "slug": "yakumo/network/no001",
    "tsha": "6686ec3c",
    "simhash": "286c908915bebb68",
    "m": "no001"
   }
  ],
- "updated_at": "2026-09-07T15:02:03Z",
+ "updated_at": "2026-09-07T15:08:30Z",
  "rebuilt_at": "2026-08-23",
  "rebuilt_why": "指紋から剥がす共通枠のパターンを直したため、計算結果が変わった。全エントリを一斉に入れ替えて整合を保った。古い台帳は yakumo-content-manifest.json.bak_prerebuild20260823 に残してある。",
  "stores": {

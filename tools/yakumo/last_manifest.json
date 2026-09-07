@@ -1,13 +1,14 @@
 {
-  "generated_at": "2026-09-07T15:02:03Z",
+  "generated_at": "2026-09-07T15:08:30Z",
   "member_no": "No.001",
   "company": "リフォーム職人株式会社",
   "focus": "franchise",
-  "count": 10,
+  "count": 11,
   "ratio": {
     "geo": 4,
     "aeo": 3,
     "llmo": 2,
+    "webmcp": 1,
     "focus": 1
   },
   "urls": [
@@ -20,6 +21,7 @@
     "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-aichi-faq-yane/",
     "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-kensho-zumi-kameiten-toha-no001/",
     "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no001/",
+    "https://shield.the-horizons-innovation.com/yakumo/webmcp/yakumo-verified-stores-mcp-no001/",
     "https://shield.the-horizons-innovation.com/yakumo/network/no001/"
   ],
   "pages": [
@@ -69,17 +71,17 @@
       "path": "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no001/index.html"
     },
     {
+      "type": "webmcp",
+      "url": "https://shield.the-horizons-innovation.com/yakumo/webmcp/yakumo-verified-stores-mcp-no001/",
+      "path": "yakumo/webmcp/yakumo-verified-stores-mcp-no001/index.html"
+    },
+    {
       "type": "focus",
       "url": "https://shield.the-horizons-innovation.com/yakumo/network/no001/",
       "path": "yakumo/network/no001/index.html"
     }
   ],
-  "dup_skipped": [
-    {
-      "url": "https://shield.the-horizons-innovation.com/yakumo/webmcp/yakumo-verified-stores-mcp-no001/",
-      "why": "near-dup:yakumo/webmcp/yakumo-verified-stores-mcp-no002"
-    }
-  ],
+  "dup_skipped": [],
   "new_fingerprints": [
     {
       "slug": "yakumo/souba/gaiheki-tosou-aichi",
@@ -133,6 +135,12 @@
       "slug": "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no001",
       "tsha": "9cf71030",
       "simhash": "e16192c913b890c8",
+      "m": "no001"
+    },
+    {
+      "slug": "yakumo/webmcp/yakumo-verified-stores-mcp-no001",
+      "tsha": "752431ba",
+      "simhash": "8279949965e4a9cb",
       "m": "no001"
     },
     {
