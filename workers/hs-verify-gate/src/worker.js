@@ -2104,6 +2104,7 @@ function openapiDoc(origin) {
       "/sitemap.xml": g("One URL per measured endpoint", "Only endpoints that have actually been measured appear. No page is minted for an endpoint nobody has measured."),
       "/e/{host}{path}": g("The permanent page for one measured endpoint", "Carries the verdict, the time it was taken, the SHA-256 of the record, and the command to recompute it. 404 when the endpoint has never been measured."),
       "/badge": g("A badge drawn from the register at request time", "Query with ?endpoint=. Short cache, so a green cannot be kept up after the row stops being green."),
+      "/embed": g("The verification envelope, ready to paste on your own site", "Query with ?endpoint=. The text twin of the badge: JSON-LD for crawlers and the same statement as visible text for language models that fetch the page. Carries status, the record sha256, the recompute recipe and what it does not establish; never a score. Add format=json for the JSON-LD alone. A copy is a snapshot with its date inside; the /e/ page is the live statement."),
       "/badge/seal": g("A larger badge, sized for print and for other people's sites", "Query with ?endpoint=. Carries the operator label, the endpoint, the measurement date and the verify URL. Add download=1 to receive it as a file. A downloaded file is a snapshot: the date is drawn into the image for exactly that reason, and the live row remains the only current statement."),
       "/spec": g("The five conditions, stated in full", "Includes what a pass does not mean."),
       "/ext/conduct/v1": g("A2A Conduct Extension v1 (the URI is the identifier)", "JSON by default. Accept: text/markdown returns the specification text. Declared by agent cards under capabilities.extensions[]."),
@@ -2249,6 +2250,78 @@ function securityTxt(origin) {
   ].join("\n") + "\n";
 }
 
+// ---- verification envelope: the text twin of the badge (2026-09-07) ----------------------------
+// A badge is a picture. A crawler indexes it as an image and a language model that fetches this
+// page never sees what is inside it. This block says the same thing in words a retrieval layer
+// reads: what was measured, where the record lives, its sha256, how to recompute it, and, never
+// omitted, what it does not establish. It carries no score and no rank: status is a state
+// (verified / pending / declined) and does_not_establish is always present, so a quotation of it
+// cannot turn into a recommendation (the same discipline as the verdict arrays, 0.4.0).
+// It is served twice on purpose: as JSON-LD in <head> for crawlers, and as visible text in <body>
+// for fetchers that strip <script> (measured 2026-09-07: a browsing agent's text view of a page
+// carrying JSON-LD contained none of it). Same values in both. Nothing here is a new claim; every
+// value is copied from the row and its latest history entry.
+const ENVELOPE_DNE_FALLBACK = [
+  "that the endpoint is safe, correct, honest, or fit for any purpose; this gate measures conduct and disclosure only",
+  "that any answer the endpoint gives is correct or of good quality",
+  "that the compensation declaration is true",
+  "conditions not measured on the latest run, other instants, other vantages"
+];
+function envelopeStatus(row) {
+  if (row.owner_declined) return "declined";
+  if (!row.latest || !row.latest.status) return "pending";
+  return row.latest.status === CONFIG.tier_pass ? "verified" : "pending";
+}
+function conductEnvelope(origin, row) {
+  const ep = String(row.endpoint);
+  const latest = row.latest || {};
+  const status = envelopeStatus(row);
+  const dne = (Array.isArray(latest.does_not_establish) && latest.does_not_establish.length) ? latest.does_not_establish : ENVELOPE_DNE_FALLBACK;
+  const est = Array.isArray(latest.establishes) ? latest.establishes : [];
+  const self = origin + "/e/" + ep.replace(/^https?:\/\//, "");
+  const obj = {
+    "@context": ["https://schema.org", { conduct: CONDUCT_EXT_URI + "#" }],
+    "@type": "CreativeWork",
+    "@id": self + "#conduct",
+    additionalType: CONDUCT_EXT_URI,
+    name: "Independent conduct record for " + ep,
+    url: row.history_url,
+    creator: { "@type": "Organization", name: "HORIZON SHIELD MCP Verification Gate", url: origin },
+    about: { "@type": "WebAPI", name: ep, url: ep },
+    "conduct:status": status,
+    "conduct:does_not_establish": dne,
+    "conduct:register_lookup": origin + "/register/lookup?endpoint=" + encodeURIComponent(ep),
+    "conduct:witness_intake": "https://ledger.horizonshield.dev/witness",
+    isBasedOn: origin + "/spec",
+    usageInfo: "Open url, take the latest entry, recompute its record_sha256 by the recipe at isBasedOn, and compare it to identifier.value. This is a state, not a score, and not a recommendation.",
+    disambiguatingDescription: "Independent measurement of conduct, counts not scores. status=" + status + ". Does not establish: " + dne.join("; ") + "."
+  };
+  if (est.length) obj["conduct:establishes"] = est;
+  if (latest.record_sha256) obj.identifier = { "@type": "PropertyValue", propertyID: "sha256", name: "record_sha256", value: latest.record_sha256 };
+  if (latest.at) obj.dateModified = latest.at;
+  return obj;
+}
+function envelopeVisibleHtml(envObj) {
+  const li = (a) => a.map((s) => "<li>" + esc(s) + "</li>").join("");
+  const est = envObj["conduct:establishes"] || [];
+  const dne = envObj["conduct:does_not_establish"] || [];
+  const sha = envObj.identifier ? envObj.identifier.value : "none yet";
+  return '<section class="env" id="verification">' +
+    '<h2>Verification, in words a machine can read</h2>' +
+    '<p class="n">The badge above is a picture. This is the same statement as text, for search engines and for language models that fetch this page. It is a state, not a score, and not a recommendation.</p>' +
+    '<table>' +
+    '<tr><th>status</th><td>' + esc(envObj["conduct:status"]) + '</td></tr>' +
+    '<tr><th>record sha256</th><td style="word-break:break-all">' + esc(sha) + '</td></tr>' +
+    '<tr><th>record</th><td style="word-break:break-all"><a href="' + esc(envObj.url) + '">' + esc(envObj.url) + '</a></td></tr>' +
+    '<tr><th>recompute recipe</th><td><a href="' + esc(envObj.isBasedOn) + '">' + esc(envObj.isBasedOn) + '</a></td></tr>' +
+    '<tr><th>one read before connecting</th><td style="word-break:break-all"><a href="' + esc(envObj["conduct:register_lookup"]) + '">' + esc(envObj["conduct:register_lookup"]) + '</a></td></tr>' +
+    (envObj.dateModified ? '<tr><th>as of</th><td>' + esc(envObj.dateModified) + '</td></tr>' : '') +
+    '</table>' +
+    (est.length ? '<p><b>Establishes</b></p><ul>' + li(est) + '</ul>' : '') +
+    '<p><b>Does not establish</b></p><ul>' + li(dne) + '</ul>' +
+    '</section>';
+}
+
 function endpointPage(origin, row) {
   const ep = esc(row.endpoint);
   const st = esc((row.latest && row.latest.status) || "no measurement yet");
@@ -2260,6 +2333,7 @@ function endpointPage(origin, row) {
   const surf = (row.latest && row.latest.surface) || null;
   const toolCount = surf && surf.tool_hashes ? Object.keys(surf.tool_hashes).length : 0;
   const lsc = row.last_surface_change || null;
+  const envObj = conductEnvelope(origin, row);
   const ld = {
     "@context": "https://schema.org", "@type": "Dataset",
     "@id": self + "#dataset",
@@ -2277,6 +2351,7 @@ function endpointPage(origin, row) {
     '<link rel="canonical" href="' + self + '">' +
     '<meta name="robots" content="index,follow,max-snippet:-1">' +
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>' +
+    '<script type="application/ld+json">' + JSON.stringify(envObj) + '</script>' +
     '<style>body{background:#0a0a0a;color:#ddd;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.8;margin:0}' +
     '.w{max-width:760px;margin:0 auto;padding:40px 20px 60px}a{color:#f97316}' +
     'h1{font-size:19px;color:#fff;word-break:break-all;margin:6px 0 18px}' +
@@ -2288,7 +2363,7 @@ function endpointPage(origin, row) {
     '.moved b{color:#fbbf24}' +
     '.own{background:#0d1411;border:1px solid #234034;border-radius:9px;padding:15px 17px;margin:24px 0 8px;font-size:13.5px}' +
     '.own b{color:#fff}.own ul{margin:10px 0 0;padding-left:18px}.own li{margin:6px 0;color:#c3c3c3}' +
-    '.n{color:#8a8a8a;font-size:13px}</style></head><body><div class="w">' +
+    '.n{color:#8a8a8a;font-size:13px}.env{margin-top:28px}.env h2{font-size:15px;color:#fff;margin:0 0 6px}.env ul{padding-left:18px}.env li{margin:4px 0;color:#c3c3c3}</style></head><body><div class="w">' +
     '<a href="https://shield.the-horizons-innovation.com/verify-directory/">back to the register</a>' +
     '<h1>' + ep + '</h1>' +
     '<img src="' + origin + '/badge?endpoint=' + encodeURIComponent(row.endpoint) + '" alt="MCP conduct: ' + st + '" height="20">' +
@@ -2315,6 +2390,8 @@ function endpointPage(origin, row) {
       'so it is recorded here as a dated fact. The MCP specification treats tool list changes as normal operation. ' +
       'Nothing here says this change was wrong.</span></div>' : '') +
     (why ? '<p class="n">' + why + '</p>' : '') +
+    envelopeVisibleHtml(envObj) +
+    '<p class="n">Put this on your own site: <a href="' + origin + '/embed?endpoint=' + encodeURIComponent(row.endpoint) + '">the same block, ready to paste</a>. A copy is a snapshot with its date inside; this page is the live statement.</p>' +
     '<p>Recompute this row yourself. Do not take our word for it.</p>' +
     '<pre>curl -s "' + row.history_url + '"</pre>' +
     '<p class="n" style="margin-top:16px">More on this endpoint: ' +
@@ -2371,7 +2448,11 @@ async function publicRegister(env) {
           status: latest.status || null,
           record_sha256: latest.record_sha256 || null,
           consent_source: latest.consent_source || null,
-          surface: latest.surface || null
+          surface: latest.surface || null,
+          // 2026-09-07. 0.4.0 wrote the two arrays into every history entry; the register row now carries them too,
+          // so the endpoint page and /embed can state them without a second read.
+          establishes: Array.isArray(latest.establishes) ? latest.establishes : null,
+          does_not_establish: Array.isArray(latest.does_not_establish) ? latest.does_not_establish : null
         };
         // 0.2.4. 直近の掃引が origin の well-known ファイルで同意を読めたなら、その行の同意は真。
         if (latest.consent_source === "well_known") row.tool_call_consent = true;
@@ -4297,6 +4378,28 @@ export default {
           "Access-Control-Allow-Origin": "*"
         }
       });
+    }
+
+    // 2026-09-07. The verification envelope as a paste-ready snippet for an operator's own site.
+    if (path === "/embed" && request.method === "GET") {
+      const ep = url.searchParams.get("endpoint") || "";
+      const reg = await publicRegister(env);
+      const row = (Array.isArray(reg.rows) ? reg.rows : []).find((r) => r.endpoint === ep);
+      if (!row) {
+        return json({ error: "not on the register", endpoint: ep, note: "No envelope is minted for an endpoint nobody has measured. Ask for a measurement and this URL starts working.", register: "https://gate.horizonshield.dev/register" }, 404);
+      }
+      const origin = "https://gate.horizonshield.dev";
+      const envObj = conductEnvelope(origin, row);
+      const headers = { "Cache-Control": "public, max-age=300, must-revalidate", "Access-Control-Allow-Origin": "*" };
+      if ((url.searchParams.get("format") || "") === "json") {
+        return new Response(JSON.stringify(envObj, null, 2), { headers: { ...headers, "Content-Type": "application/ld+json; charset=utf-8" } });
+      }
+      const live = origin + "/e/" + ep.replace(/^https?:\/\//, "");
+      const snippet = "<!-- HORIZON SHIELD verification envelope for " + ep + ", as of " + (envObj.dateModified || "no measurement yet") +
+        ". A copy is a snapshot; the live statement is " + live + " -->\n" +
+        '<script type="application/ld+json">\n' + JSON.stringify(envObj, null, 2) + '\n</script>\n' +
+        envelopeVisibleHtml(envObj) + "\n";
+      return new Response(snippet, { headers: { ...headers, "Content-Type": "text/plain; charset=utf-8" } });
     }
 
     if (path.startsWith("/e/") && request.method === "GET") {
