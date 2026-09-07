@@ -1,6 +1,6 @@
 # The Prover Does Not Choose the Coordinate: One Rule at Four Scales for Anchored Conduct Records
 
-**Working paper, draft v0.5, 2026-09-07 (the three departures of Section 7 repaired in gate 0.3.5; the first derived verdicts confirmed by the operator's verifier). Not yet posted.**
+**Working paper, draft v0.5, 2026-09-07 (the three departures of Section 7 repaired in gate 0.3.5; the first derived verdicts confirmed by the operator's verifier). Submitted to SSRN on 2026-09-07 as abstract 7425458 (https://ssrn.com/abstract=7425458), under SSRN review at the time of this commit. License CC BY 4.0.**
 
 Toshikatsu Oga, The HORIZ音s株式会社 (HORIZON SHIELD), Hiratsuka, Japan. ORCID 0009-0000-9180-903X.
 
