@@ -1,19 +1,21 @@
 {
-  "generated_at": "2026-08-25T00:24:17Z",
+  "generated_at": "2026-09-07T01:55:38Z",
   "member_no": "No.002",
   "company": "ミネオトーヨー住器株式会社",
-  "focus": null,
-  "count": 5,
+  "focus": "homeowners",
+  "count": 6,
   "ratio": {
     "geo": 4,
-    "aeo": 1
+    "aeo": 1,
+    "focus": 1
   },
   "urls": [
     "https://shield.the-horizons-innovation.com/yakumo/souba/work-9b40da-area-5ed64c/",
     "https://shield.the-horizons-innovation.com/yakumo/souba/work-82846d-area-5ed64c/",
     "https://shield.the-horizons-innovation.com/yakumo/souba/work-4b28d8-area-5ed64c/",
     "https://shield.the-horizons-innovation.com/yakumo/souba/work-d99e1b-area-5ed64c/",
-    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-area-5ed64c-faq-1/"
+    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-area-5ed64c-faq-1/",
+    "https://shield.the-horizons-innovation.com/yakumo/jirei/no002/"
   ],
   "pages": [
     {
@@ -40,6 +42,11 @@
       "type": "aeo",
       "url": "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-area-5ed64c-faq-1/",
       "path": "yakumo/faq/yakumo-area-5ed64c-faq-1/index.html"
+    },
+    {
+      "type": "focus",
+      "url": "https://shield.the-horizons-innovation.com/yakumo/jirei/no002/",
+      "path": "yakumo/jirei/no002/index.html"
     }
   ],
   "dup_skipped": [
@@ -85,6 +92,12 @@
       "slug": "yakumo/faq/yakumo-area-5ed64c-faq-1",
       "tsha": "a9a15253",
       "simhash": "3a6036c9321c1bec",
+      "m": "no002"
+    },
+    {
+      "slug": "yakumo/jirei/no002",
+      "tsha": "621dc3f7",
+      "simhash": "aaee50c973f9faec",
       "m": "no002"
     }
   ]

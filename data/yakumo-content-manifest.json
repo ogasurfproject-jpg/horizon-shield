@@ -84,12 +84,18 @@
    "tsha": "a9a15253",
    "simhash": "3a6036c9321c1bec",
    "m": "no002"
+  },
+  {
+   "slug": "yakumo/jirei/no002",
+   "tsha": "621dc3f7",
+   "simhash": "aaee50c973f9faec",
+   "m": "no002"
   }
  ],
- "updated_at": "2026-08-25T00:24:17Z",
+ "updated_at": "2026-09-07T01:55:38Z",
  "rebuilt_at": "2026-08-23",
  "rebuilt_why": "指紋から剥がす共通枠のパターンを直したため、計算結果が変わった。全エントリを一斉に入れ替えて整合を保った。古い台帳は yakumo-content-manifest.json.bak_prerebuild20260823 に残してある。",
  "stores": {
-  "no002": "cbf070c7ab5b"
+  "no002": "e8a01705206c"
  }
 }
