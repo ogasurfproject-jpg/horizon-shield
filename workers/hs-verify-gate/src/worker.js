@@ -37,7 +37,7 @@ import * as nenrin from "./nenrin_instant.js";
 
 // 仕様確定までの暫定値。名称や閾値はここだけ直せば全体に効く。
 const CONFIG = {
-  version: "0.4.0",  // 2026-09-07. 0.4.0 (conduct-v1.1): 判定と /self に establishes / does_not_establish を入れて hash に含める(Federico の 2026-09-07 の指摘: 「正しさは判定しとらん」の断りが落とせて conformance は通っとった)。塩の commitment を掃引ごとに台帳の witness intake へ commitment 型記録で錨打ち(窓ごとに 1 回、/nenrin/window に commitment_filed)。GET /register/lookup(verified/pending/declined/unknown + 先月の輪の数 + 証明せん物、24h cache)。well-known の notify / identity / witness_policy を読む(掃引後に notify へ POST、1 時間 1 回、/check からは飛ばさん)。判定規則は 0.3.0 のまま。0.3.5 (2026-09-06): 時刻座標の本番と設計のズレを直す(履歴に coordinate_derivation を残す、次の窓の salt を先に作り beacon は salt より後の block に限る、基準高さは quorum 番目の tip - 6 で hash の一致だけを要求、窓ごとに規則を固定、GET /nenrin/window で commitment を公開。判定規則は 0.3.0 のまま)。0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
+  version: "0.4.1",  // 2026-09-09. 0.4.1: 掃引の判定は hash 対象のバイトそのものを KV に保存し、GET /record/<record_sha256> でそのまま配る(SEP-1913 で vaaraio が /is-verified の投影を 1024 通り直列化しても再現できんかった件。公開しとった sha のバイトは掃引では保存しとらんかった。recompute_url は /history を指しとった)。判定規則と hash の手順は不変。0.4.0 (conduct-v1.1): 判定と /self に establishes / does_not_establish を入れて hash に含める(Federico の 2026-09-07 の指摘: 「正しさは判定しとらん」の断りが落とせて conformance は通っとった)。塩の commitment を掃引ごとに台帳の witness intake へ commitment 型記録で錨打ち(窓ごとに 1 回、/nenrin/window に commitment_filed)。GET /register/lookup(verified/pending/declined/unknown + 先月の輪の数 + 証明せん物、24h cache)。well-known の notify / identity / witness_policy を読む(掃引後に notify へ POST、1 時間 1 回、/check からは飛ばさん)。判定規則は 0.3.0 のまま。0.3.5 (2026-09-06): 時刻座標の本番と設計のズレを直す(履歴に coordinate_derivation を残す、次の窓の salt を先に作り beacon は salt より後の block に限る、基準高さは quorum 番目の tip - 6 で hash の一致だけを要求、窓ごとに規則を固定、GET /nenrin/window で commitment を公開。判定規則は 0.3.0 のまま)。0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
   tier_pass: "verified",        // 通過時の称号(暫定)
   tier_fail: "pending",         // 未通過(不合格とは呼ばない)
   tier_held: "held",            // 到達できず測れなかった。不適合とは別の状態
@@ -397,7 +397,10 @@ const RECOMPUTE_NOTE =
   "(2026-09-05): in any other, the two things to get right are key order exactly as printed and numbers " +
   "exactly as printed; if your encoder reorders keys or rewrites numbers it will not reproduce this value, " +
   "so use an order-preserving parse followed by a compact serialize. The response you are reading is " +
-  "indented for humans and is not the hashed bytes.";
+  "indented for humans and is not the hashed bytes. Since 0.4.1 (2026-09-09) the hashed bytes of every " +
+  "scheduled verdict are served, byte for byte, at /record/<record_sha256>: SHA-256 of that body equals " +
+  "the path with no serialization step in between. On-demand /check verdicts and verdicts from before that " +
+  "date are not stored; their sha names bytes that only the caller who received them holds.";
 
 function json(obj, status, extraHeaders) {
   // キャッシュ指示を明示する。書かなければ中間キャッシュの裁量になり、
@@ -1608,6 +1611,9 @@ async function runCheck(endpoint, allowToolCall, consentBasis, consentSource, co
   record.record_sha256 = await sha256hex(canonical);
   record.recompute_note = RECOMPUTE_NOTE +
     " This gate holds itself to the same standard it applies to applicants.";
+  // 0.4.1. hash を取ったバイトそのものを、見えん性質(non-enumerable)で持たせる。JSON.stringify には出ん。
+  // 掃引の recordHistory がこれを KV に保存して GET /record/<sha> で配る。再直列化は挟まん。
+  try { Object.defineProperty(record, "__canonical", { value: canonical, enumerable: false, writable: false, configurable: true }); } catch (_e) {}
 
   return record;
 }
@@ -1691,6 +1697,14 @@ function spec() {
       route: "GET /register/lookup?endpoint=<https MCP endpoint>",
       what: "One read before connecting: status (verified / pending / declined / unknown), the latest stored verdict's sha, the last published ring's counts (witnesses signed and unsigned, discrepancies, commitments, walked_as_witness, instants by derivation), where the record and the witness intake are, and what the answer does not establish. Cached 24 hours. No score, no rank.",
       unknown: "means no row here. It is never a finding about the endpoint."
+    },
+    record_bytes: {
+      since: "0.4.1 (" + RECORD_BYTES_SINCE + ")",
+      route: "GET /record/<record_sha256>",
+      what: "The exact bytes that record_sha256 hashes, for every scheduled verdict from that date on: the verdict with record_sha256 and recompute_note removed, stored as the string that was hashed and returned without re-serialization. SHA-256 of the body equals the path. History entries, register rows, /is-verified, /register/lookup and the envelope carry record_url pointing here when the bytes exist.",
+      why: "Before this, the sha was published but the bytes were not: scheduled measurements were summarised into history and the record itself was dropped, and recompute_url pointed at /history, whose entries have a different shape. A second implementer (SEP-1913, 2026-09-09) tried 1024 serializations of the /is-verified projection and correctly reported that none reproduced the sha. The fault was on this side: the published reference did not name published bytes. Now it does.",
+      not_stored: "On-demand POST /check verdicts are returned to the caller and not stored (storing them would let anyone spend this gate's KV write quota). Verdicts before " + RECORD_BYTES_SINCE + " have no stored bytes; their sha stands as issued but names bytes this gate no longer holds, and the gate says so rather than pointing at a summary.",
+      recipe_unchanged: "Remove record_sha256 and recompute_note, JSON.stringify in key order, SHA-256. Unchanged since 0.1. What changed is that the object to apply it to is now published."
     },
     instant_coordinate: {
       since: "0.3.0",
@@ -2285,7 +2299,8 @@ function conductEnvelope(origin, row) {
     "@id": self + "#conduct",
     additionalType: CONDUCT_EXT_URI,
     name: "Independent conduct record for " + ep,
-    url: row.history_url,
+    url: latest.record_url || row.history_url,
+    "conduct:history": row.history_url,
     creator: { "@type": "Organization", name: "HORIZON SHIELD MCP Verification Gate", url: origin },
     about: { "@type": "WebAPI", name: ep, url: ep },
     "conduct:status": status,
@@ -2293,7 +2308,9 @@ function conductEnvelope(origin, row) {
     "conduct:register_lookup": origin + "/register/lookup?endpoint=" + encodeURIComponent(ep),
     "conduct:witness_intake": "https://ledger.horizonshield.dev/witness",
     isBasedOn: origin + "/spec",
-    usageInfo: "Open url, take the latest entry, recompute its record_sha256 by the recipe at isBasedOn, and compare it to identifier.value. This is a state, not a score, and not a recommendation.",
+    usageInfo: latest.record_url
+      ? "Fetch url. The body is the hashed verdict itself (record_sha256 and recompute_note removed); SHA-256 of the body equals identifier.value. conduct:history lists every measurement. This is a state, not a score, and not a recommendation."
+      : "identifier.value is the sha of a verdict measured before this gate began storing the hashed bytes (0.4.1); it cannot be recomputed from any published object. conduct:history lists the measurements; entries there are summaries. The next scheduled measurement carries url pointing at its bytes. This is a state, not a score, and not a recommendation.",
     disambiguatingDescription: "Independent measurement of conduct, counts not scores. status=" + status + ". Does not establish: " + dne.join("; ") + "."
   };
   if (est.length) obj["conduct:establishes"] = est;
@@ -2312,7 +2329,8 @@ function envelopeVisibleHtml(envObj) {
     '<table>' +
     '<tr><th>status</th><td>' + esc(envObj["conduct:status"]) + '</td></tr>' +
     '<tr><th>record sha256</th><td style="word-break:break-all">' + esc(sha) + '</td></tr>' +
-    '<tr><th>record</th><td style="word-break:break-all"><a href="' + esc(envObj.url) + '">' + esc(envObj.url) + '</a></td></tr>' +
+    '<tr><th>record</th><td style="word-break:break-all"><a href="' + esc(envObj.url) + '">' + esc(envObj.url) + '</a>' + (String(envObj.url).indexOf("/record/") >= 0 ? " (the hashed bytes: sha256 of the body equals record sha256)" : " (history; the hashed bytes of this verdict were not stored, see recompute recipe)") + '</td></tr>' +
+    (envObj["conduct:history"] && envObj["conduct:history"] !== envObj.url ? '<tr><th>history</th><td style="word-break:break-all"><a href="' + esc(envObj["conduct:history"]) + '">' + esc(envObj["conduct:history"]) + '</a></td></tr>' : '') +
     '<tr><th>recompute recipe</th><td><a href="' + esc(envObj.isBasedOn) + '">' + esc(envObj.isBasedOn) + '</a></td></tr>' +
     '<tr><th>one read before connecting</th><td style="word-break:break-all"><a href="' + esc(envObj["conduct:register_lookup"]) + '">' + esc(envObj["conduct:register_lookup"]) + '</a></td></tr>' +
     (envObj.dateModified ? '<tr><th>as of</th><td>' + esc(envObj.dateModified) + '</td></tr>' : '') +
@@ -2447,6 +2465,7 @@ async function publicRegister(env) {
           at: latest.at || null,
           status: latest.status || null,
           record_sha256: latest.record_sha256 || null,
+          record_url: latest.record_url || null,
           consent_source: latest.consent_source || null,
           surface: latest.surface || null,
           // 2026-09-07. 0.4.0 wrote the two arrays into every history entry; the register row now carries them too,
@@ -2685,6 +2704,42 @@ function summariseCoordinate(cd) {
   };
 }
 
+// ---- 0.4.1 (2026-09-09): the hashed bytes, published ----
+// record_sha256 は「判定から record_sha256 と recompute_note を抜いて JSON.stringify したバイト」の SHA-256 やが、
+// 掃引ではその判定本体を保存しとらんかった(履歴は summarise() の要約だけ)。公開しとった sha のバイトを第三者が
+// 取れん状態で「再計算できる」と書いとった。SEP-1913 で vaaraio が 1024 通り試して再現できず、正しく指摘した。
+// 直し: hash を取った文字列そのものを rec:<sha> に保存し、GET /record/<sha> でそのまま返す。読む側は body を
+// SHA-256 するだけで path と一致する。散文の解釈が 1 文字も要らん。保存前に sha を再計算して一致を確かめる。
+const RECORD_KEY_PREFIX = "rec:";
+const RECORD_BYTES_SINCE = "2026-09-09";
+function recordBytesUrl(sha) { return "https://gate.horizonshield.dev/record/" + sha; }
+function canonicalOf(record) {
+  if (record && typeof record.__canonical === "string") return record.__canonical;
+  if (!record || typeof record !== "object") return null;
+  const copy = {};
+  for (const k of Object.keys(record)) { if (k === "record_sha256" || k === "recompute_note") continue; copy[k] = record[k]; }
+  return JSON.stringify(copy);
+}
+async function storeRecordBytes(env, record) {
+  const sha = record && typeof record.record_sha256 === "string" ? record.record_sha256 : null;
+  if (!sha) return { stored: false, sha: null, reason: "record has no record_sha256" };
+  if (!env || !env.HS_VERIFY_KV) return { stored: false, sha, reason: "storage not bound" };
+  const canonical = canonicalOf(record);
+  if (typeof canonical !== "string") return { stored: false, sha, reason: "could not serialize the record" };
+  const check = await sha256hex(canonical);
+  if (check !== sha) return { stored: false, sha, reason: "the record no longer hashes to its own record_sha256 (mutated after hashing); bytes not stored rather than stored wrong" };
+  try {
+    await env.HS_VERIFY_KV.put(RECORD_KEY_PREFIX + sha, canonical);
+    return { stored: true, sha, reason: null };
+  } catch (e) {
+    return { stored: false, sha, reason: "KV write failed: " + String(e && e.message || e).slice(0, 120) };
+  }
+}
+async function readRecordBytes(env, sha) {
+  if (!env || !env.HS_VERIFY_KV) return null;
+  try { return await env.HS_VERIFY_KV.get(RECORD_KEY_PREFIX + sha, "text"); } catch (_e) { return null; }
+}
+
 async function recordHistory(env, endpoint, record) {
   if (!env || !env.HS_VERIFY_KV) return null;
   const key = await histKey(endpoint);
@@ -2693,6 +2748,10 @@ async function recordHistory(env, endpoint, record) {
   const entries = (prev && Array.isArray(prev.entries)) ? prev.entries : [];
   const last = entries.length ? entries[entries.length - 1] : null;
   const entry = summarise(record);
+  // 0.4.1. 判定の hash 対象バイトを sha 宛てに保存し、この entry からそこを指す。保存できんかったら理由を残す。
+  const stored = await storeRecordBytes(env, record);
+  entry.record_url = stored.stored ? recordBytesUrl(stored.sha) : null;
+  if (!stored.stored) entry.record_bytes_note = stored.reason;
 
   // 表面が前回と違えば、日付付きの差分をこのエントリ自身に残す。
   // 指標にしない。回数も割合も作らない。何が増え、何が消え、何の définition が変わったか、だけ。
@@ -3374,16 +3433,25 @@ async function lookupServer(env, endpoint) {
 // これを false にすると「載っている大半が失敗」に見えてしまい中立が死ぬので、null にする。
 async function isVerified(env, endpoint) {
   const lu = await lookupServer(env, endpoint);
-  const recompute_url = "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(endpoint);
+  const history_url = "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(endpoint);
+  // 0.4.1. 再計算の先は hash 対象のバイトそのもの(record_url)。無い entry(0.4.1 より前)は履歴を指すが、
+  // 履歴の entry は要約であって hash 対象やない。そのことを recompute_note に書く。
+  const record_url = (lu.latest && typeof lu.latest.record_url === "string") ? lu.latest.record_url : null;
+  const recompute_url = record_url || history_url;
   const base = {
     endpoint: endpoint,
     gate: "MCP Verification Gate",
     gate_commit: gateCommit(),
     recompute_url: recompute_url,
+    record_url: record_url,
+    history_url: history_url,
+    recompute_note: record_url
+      ? "GET record_url. The body is the verdict with record_sha256 and recompute_note removed, exactly as hashed. SHA-256 of that body equals record_sha256. This response is a projection of that record and is not the hashed bytes."
+      : "The latest stored verdict predates " + RECORD_BYTES_SINCE + ", when this gate began storing the hashed bytes; its record_sha256 names bytes no longer held here and cannot be recomputed from any published object. History entries are summaries, not the hashed record. The next scheduled measurement will carry record_url. This response is a projection and is not the hashed bytes.",
     verified_meaning:
       "true only when the latest scheduled measurement passed every measured condition. In every other " +
       "case verified is null, not false: this gate never labels a server a failure. Read state for which " +
-      "case it is, and record_sha256 to recompute the verdict without trusting this gate.",
+      "case it is, and record_url for the bytes that record_sha256 hashes, so the verdict can be checked without trusting this gate.",
     not_an_endorsement:
       "A measurement of conduct and disclosure, not a recommendation. verified: true does not mean the " +
       "figures the server returns are correct, that it is safe, or that the business behind it is " +
@@ -3429,7 +3497,6 @@ async function isVerified(env, endpoint) {
     conditions: conditions,
     absence_vs_failure: latest.absence_vs_failure || null,
     measurements: lu.measurements,
-    history_url: lu.full_history_url || recompute_url,
     reason: state === "verified"
       ? "The latest scheduled measurement passed every measured condition."
       : (state === "held"
@@ -3538,6 +3605,7 @@ async function registerLookup(env, endpoint, nowMs, fetchImpl) {
       at: latest.at || latest.checked_at || null,
       status: latest.status || null,
       record_sha256: latest.record_sha256 || null,
+      record_url: latest.record_url || null,
       coordinate: latest.coordinate_derivation ? { derived: latest.coordinate_derivation.derived === true, window_id: latest.coordinate_derivation.window_id || null } : null
     } : null,
     measurements: lu.on_register ? (lu.measurements || 0) : 0,
@@ -3552,7 +3620,7 @@ async function registerLookup(env, endpoint, nowMs, fetchImpl) {
     fresh_reading: "POST https://gate.horizonshield.dev/check with {\"endpoint\":\"" + endpoint + "\"}",
     how_to_appear: lu.on_register ? null : (lu.how_to_appear || null),
     establishes: [
-      "what this register held for the endpoint at the time of this reading: the status vocabulary above, the latest stored verdict's sha (recomputable from " + historyUrl + "), and the counts copied from the last published ring, if one exists",
+      "what this register held for the endpoint at the time of this reading: the status vocabulary above, the latest stored verdict's sha" + ((latest && latest.record_url) ? " (its hashed bytes are at " + latest.record_url + "; SHA-256 of that body equals the sha)" : " (measured before " + RECORD_BYTES_SINCE + ", so its hashed bytes were not stored and the sha cannot be recomputed from any published object; " + historyUrl + " lists the measurements as summaries)") + ", and the counts copied from the last published ring, if one exists",
       "counts, never rates: a witness count of 3 means three distinct identities filed records that month, and says nothing about how many should have"
     ],
     does_not_establish: [
@@ -3770,7 +3838,7 @@ async function selfCheck(origin) {
       applicable: true,
       self_measured: false,
       mcp_endpoint: origin + "/mcp",
-      http_endpoints: ["/check", "/is-verified", "/spec", "/self", "/health"]
+      http_endpoints: ["/check", "/is-verified", "/record/<record_sha256>", "/spec", "/self", "/health"]
     }
   };
 
@@ -4034,6 +4102,36 @@ export default {
     }
 
     // 公開履歴。誰でも読める。認証も鍵も要らない。
+    // 0.4.1. hash 対象のバイトそのもの。再直列化せず、保存した文字列をそのまま返す。body の SHA-256 = path。
+    if (path.startsWith("/record/") && request.method === "GET") {
+      const sha = path.slice("/record/".length).toLowerCase();
+      if (!/^[0-9a-f]{64}$/.test(sha)) return json({ error: "bad_sha", usage: "/record/<64 hex record_sha256>", note: "The path is the SHA-256 of the body it serves." }, 400);
+      if (!env || !env.HS_VERIFY_KV) return json({ error: "storage_unavailable", sha }, 503);
+      const bytes = await readRecordBytes(env, sha);
+      if (bytes == null) {
+        return json({
+          error: "not_stored", sha,
+          meaning: "No bytes are stored under this sha. This says nothing about whether the sha is genuine.",
+          why: [
+            "verdicts from scheduled measurements before " + RECORD_BYTES_SINCE + " were summarised into history and the record itself was not kept; their sha names bytes this gate no longer holds",
+            "on-demand POST /check verdicts are returned to the caller and not stored; only the caller holds those bytes",
+            "a sha that never came from this gate"
+          ],
+          since: RECORD_BYTES_SINCE + " (gate 0.4.1) every scheduled verdict's hashed bytes are stored and served here",
+          history_hint: "history entries carry record_url when the bytes exist; an entry without it predates storage"
+        }, 404);
+      }
+      return new Response(bytes, {
+        status: 200,
+        headers: {
+          "content-type": "application/json; charset=utf-8",
+          "cache-control": "public, max-age=31536000, immutable",
+          "access-control-allow-origin": "*",
+          "x-record-sha256": sha,
+          "x-recompute": "SHA-256 of this body, byte for byte, equals the path. The body is the verdict with record_sha256 and recompute_note removed, exactly as it was hashed; nothing was re-serialized."
+        }
+      });
+    }
     if (path === "/history") {
       const ep = url.searchParams.get("endpoint");
       if (!ep) return json({ error: "endpoint_required", usage: "/history?endpoint=https://your-server/mcp" }, 400);
@@ -4550,6 +4648,10 @@ export default {
       });
     }
 
-    return json({ error: "not_found", path, endpoints: ["/mcp", "/a2a", "/.well-known/agent-card.json", "/.well-known/jwks.json", "/check", "/is-verified", "/register/lookup", "/spec", "/ext/conduct/v1", "/self", "/history", "/changes", "/watchlist", "/watch", "/sweep", "/sweep/last", "/nenrin/window", "/health"] }, 404);
+    return json({ error: "not_found", path, endpoints: ["/mcp", "/a2a", "/.well-known/agent-card.json", "/.well-known/jwks.json", "/check", "/is-verified", "/record/<record_sha256>", "/register/lookup", "/spec", "/ext/conduct/v1", "/self", "/history", "/changes", "/watchlist", "/watch", "/sweep", "/sweep/last", "/nenrin/window", "/health"] }, 404);
   }
 };
+
+
+// 0.4.1 test hooks (no behaviour). Tests recompute the served bytes and compare to the path.
+export const _recordBytes = { canonicalOf, storeRecordBytes, readRecordBytes, recordBytesUrl, RECORD_KEY_PREFIX, RECORD_BYTES_SINCE };

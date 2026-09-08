@@ -248,8 +248,8 @@ const strList = (x) => Array.isArray(x) && x.length > 0 && x.every((s) => typeof
     RAW_LOG.slice(hitsBefore).length <= 2 && RAW_LOG.slice(hitsBefore).every((x) => x.cf && x.cf.cacheEverything === true && x.cf.cacheTtlByStatus["200-299"] === 86400 && x.cf.cacheTtlByStatus["404"] === 3600), JSON.stringify(RAW_LOG.slice(hitsBefore)).slice(0, 200));
   t("control", "the 404 list names /register/lookup", (await (await call("/nope")).json()).endpoints.includes("/register/lookup"));
   const spec = await (await call("/spec")).json();
-  t("control", "/spec is 0.4.0 and describes lookup, the disclaimers inside the hash, the anchoring of the commitment, and the notify field of the consent file",
-    spec.version === "0.4.0" && spec.lookup && /register\/lookup/.test(spec.lookup.route) && spec.establishes_and_does_not_establish && /record_sha256/.test(spec.establishes_and_does_not_establish.what) && spec.instant_coordinate && /witness intake/.test(spec.instant_coordinate.anchoring || "") && spec.well_known_consent && /once per hour/.test(spec.well_known_consent.shape.notify || ""),
+  t("control", "/spec is 0.4.x and describes lookup, the disclaimers inside the hash, the anchoring of the commitment, and the notify field of the consent file",
+    /^0\.4\.\d+$/.test(spec.version) && spec.lookup && /register\/lookup/.test(spec.lookup.route) && spec.establishes_and_does_not_establish && /record_sha256/.test(spec.establishes_and_does_not_establish.what) && spec.instant_coordinate && /witness intake/.test(spec.instant_coordinate.anchoring || "") && spec.well_known_consent && /once per hour/.test(spec.well_known_consent.shape.notify || ""),
     JSON.stringify([spec.version, Object.keys(spec.lookup || {}), Object.keys(spec.well_known_consent && spec.well_known_consent.shape || {})]));
 }
 

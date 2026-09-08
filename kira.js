@@ -1,5 +1,5 @@
 
-// ── SCROLL REVEAL ──
+// -- SCROLL REVEAL --
 if('IntersectionObserver' in window){
   const style=document.createElement('style');
   style.textContent='.reveal{opacity:0;transform:translateY(24px)}.reveal.visible{opacity:1;transform:translateY(0)}';
@@ -8,7 +8,7 @@ if('IntersectionObserver' in window){
   document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 }
 
-// ── FAQ ──
+// -- FAQ --
 document.querySelectorAll('.faq-item').forEach(item=>{
   item.querySelector('.faq-head').addEventListener('click',()=>{
     const o=item.classList.contains('open');
@@ -17,7 +17,7 @@ document.querySelectorAll('.faq-item').forEach(item=>{
   });
 });
 
-// ── KIRA MODAL ──
+// -- KIRA MODAL --
 function openKira(){
   document.getElementById('kira-overlay').classList.add('open');
   if(!kiraHistory.length) kiraInit();
@@ -26,7 +26,7 @@ function openKira(){
 function closeKira(){document.getElementById('kira-overlay').classList.remove('open')}
 function closeKiraOutside(e){if(e.target===document.getElementById('kira-overlay'))closeKira()}
 
-// ── KIRA AI ──
+// -- KIRA AI --
 const KIRA_SYSTEM = `あなたはHORIZON SHIELDの専属AI営業スペシャリスト「KIRA（きら）」です。
 名前の由来：悪徳業者を「斬る」切れ味と輝き。
 
@@ -114,7 +114,7 @@ async function kiraSendMsg(text){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'claude-sonnet-4-6',
         max_tokens:1000,
         system:KIRA_SYSTEM,
         messages:kiraHistory
@@ -144,7 +144,7 @@ function kirasSend(){
   if(val)kiraSendMsg(val);
 }
 
-// ── DEMO CHAT (KIRA section) ──
+// -- DEMO CHAT (KIRA section) --
 const DEMO_QA={
   'シロアリ':'シロアリ駆除の訪問業者は、相場の<strong style="color:var(--gold2)">3〜5倍</strong>の金額で請求するケースが横行しています。\n契約前に見積書を送ってください。<strong style="color:var(--cyan)">¥55,000</strong>で適正価格かどうか即判定します。',
   '見積書':'見積書をメールで送るだけで、<strong style="color:var(--gold2)">2営業日以内</strong>に「高い項目・交渉目標値・交渉文言」の3点セットをお返しします。<br>料金は<strong style="color:var(--cyan)">¥55,000</strong>（工事費500万以下）です。',
