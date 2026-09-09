@@ -37,7 +37,7 @@ import * as nenrin from "./nenrin_instant.js";
 
 // 仕様確定までの暫定値。名称や閾値はここだけ直せば全体に効く。
 const CONFIG = {
-  version: "0.4.1",  // 2026-09-09. 0.4.1: 掃引の判定は hash 対象のバイトそのものを KV に保存し、GET /record/<record_sha256> でそのまま配る(SEP-1913 で vaaraio が /is-verified の投影を 1024 通り直列化しても再現できんかった件。公開しとった sha のバイトは掃引では保存しとらんかった。recompute_url は /history を指しとった)。判定規則と hash の手順は不変。0.4.0 (conduct-v1.1): 判定と /self に establishes / does_not_establish を入れて hash に含める(Federico の 2026-09-07 の指摘: 「正しさは判定しとらん」の断りが落とせて conformance は通っとった)。塩の commitment を掃引ごとに台帳の witness intake へ commitment 型記録で錨打ち(窓ごとに 1 回、/nenrin/window に commitment_filed)。GET /register/lookup(verified/pending/declined/unknown + 先月の輪の数 + 証明せん物、24h cache)。well-known の notify / identity / witness_policy を読む(掃引後に notify へ POST、1 時間 1 回、/check からは飛ばさん)。判定規則は 0.3.0 のまま。0.3.5 (2026-09-06): 時刻座標の本番と設計のズレを直す(履歴に coordinate_derivation を残す、次の窓の salt を先に作り beacon は salt より後の block に限る、基準高さは quorum 番目の tip - 6 で hash の一致だけを要求、窓ごとに規則を固定、GET /nenrin/window で commitment を公開。判定規則は 0.3.0 のまま)。0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
+  version: "0.4.2",  // 2026-09-09. 0.4.2: 判定に number_safety を入れる(判定自身のバイトの中の数値が全部 RFC 7493 の安全域の整数か。条件07 が測る相手の表面に課しとる規則を、扉自身の出力に課す。Federico Blanco Sanchez-Llanos が 2026-09-09 に payments 側から公開した同じ型: 精度はパースの時点で失われるので散文では間に合わん)。欄は数値を 1 つも持たんので、足しても答えは変わらん。hash の手順は不変。0.4.1: 掃引の判定は hash 対象のバイトそのものを KV に保存し、GET /record/<record_sha256> でそのまま配る(SEP-1913 で vaaraio が /is-verified の投影を 1024 通り直列化しても再現できんかった件。公開しとった sha のバイトは掃引では保存しとらんかった。recompute_url は /history を指しとった)。判定規則と hash の手順は不変。0.4.0 (conduct-v1.1): 判定と /self に establishes / does_not_establish を入れて hash に含める(Federico の 2026-09-07 の指摘: 「正しさは判定しとらん」の断りが落とせて conformance は通っとった)。塩の commitment を掃引ごとに台帳の witness intake へ commitment 型記録で錨打ち(窓ごとに 1 回、/nenrin/window に commitment_filed)。GET /register/lookup(verified/pending/declined/unknown + 先月の輪の数 + 証明せん物、24h cache)。well-known の notify / identity / witness_policy を読む(掃引後に notify へ POST、1 時間 1 回、/check からは飛ばさん)。判定規則は 0.3.0 のまま。0.3.5 (2026-09-06): 時刻座標の本番と設計のズレを直す(履歴に coordinate_derivation を残す、次の窓の salt を先に作り beacon は salt より後の block に限る、基準高さは quorum 番目の tip - 6 で hash の一致だけを要求、窓ごとに規則を固定、GET /nenrin/window で commitment を公開。判定規則は 0.3.0 のまま)。0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
   tier_pass: "verified",        // 通過時の称号(暫定)
   tier_fail: "pending",         // 未通過(不合格とは呼ばない)
   tier_held: "held",            // 到達できず測れなかった。不適合とは別の状態
@@ -400,7 +400,12 @@ const RECOMPUTE_NOTE =
   "indented for humans and is not the hashed bytes. Since 0.4.1 (2026-09-09) the hashed bytes of every " +
   "scheduled verdict are served, byte for byte, at /record/<record_sha256>: SHA-256 of that body equals " +
   "the path with no serialization step in between. On-demand /check verdicts and verdicts from before that " +
-  "date are not stored; their sha names bytes that only the caller who received them holds.";
+  "date are not stored; their sha names bytes that only the caller who received them holds. " +
+  "Since 0.4.2 the record carries number_safety, generated from the record itself and inside these bytes: " +
+  "parse_safe true means no number here was destroyed by JSON.parse before any canonicalization ran, and " +
+  "safe_integers_only true means additionally that a compact re-serialization in key order reproduces these " +
+  "bytes in any language. Whatever is false, the fields that make it false are named, and fetching " +
+  "/record/<record_sha256> and hashing the body is the way to check without re-serializing anything.";
 
 function json(obj, status, extraHeaders) {
   // キャッシュ指示を明示する。書かなければ中間キャッシュの裁量になり、
@@ -841,6 +846,89 @@ async function probeFetch(url, init) {
 //
 // この機能が無い実行環境では detectable:false を返し、「検出できなかった」と正直に言う。
 // 検出できないことと、起きていないことは、別の事実である。
+// ---- 0.4.2 (2026-09-09): 同じ規律を、扉自身の出力に ----
+// 条件07 は測る相手の表面について決めとる: 2^53 の外の整数を含むなら指紋を出さん(RFC 7493 I-JSON)。
+// 理由は「多倍長整数を持つ言語では別の値として読まれる = こっちのハッシュを相手は再現できん」。
+// では、この扉が出す判定そのもののバイトはどうか。誰も測っとらんかった。運営者は例外やなく被験者や。
+//
+// 発端: Federico Blanco Sanchez-Llanos が 2026-09-09 に公開した /review の不具合。
+// 2^53 を超える JSON の数値は、自前の正準化コードが動く前に、パースの時点で double に潰れる。
+// 「こう直列化せよ」と散文で書いても、読み手が parse した瞬間にもう壊れとるから間に合わん。
+//
+// ここで測るのは 1 つだけ: このバイトの中の数値が全部、I-JSON の安全域の整数か。
+//   全部そうなら → JSON を読んで、印字順のまま、詰めて書き直す実装は、言語を問わず同じバイトに着く。
+//   そうでないなら → 着かん実装がある(2^53 の外は丸められ、小数は実行環境ごとに印字が違い得る)。
+// どっちなのかを、散文やなく欄で言う。判定にはせん(条件やない、赤くもならん)。
+//
+// **この欄自身は数値を 1 つも持たん(真偽と文字列だけ)。** だから欄を足す前と後で走査の答えが変わらん。
+// 不動点やから、hash の中に入れられる。入れられるから、引用から外せん。
+const IJSON_MAX_SAFE = 9007199254740991;   // 2^53 - 1、RFC 7493 の整数の上限
+function scanNumbers(value) {
+  const findings = [];
+  (function walk(v, path) {
+    if (v === null || v === undefined) return;
+    if (typeof v === "number") {
+      if (!Number.isFinite(v)) {
+        findings.push({ kind: "not_finite", text: path + ": not a finite number (" + String(v) + "); JSON cannot carry it and JSON.parse never produces it" });
+      } else if (!Number.isInteger(v)) {
+        findings.push({ kind: "non_integer", text: path + ": " + String(v) + " is not an integer; runtimes that print a fixed number of digits instead of the shortest round trip form write different characters here" });
+      } else if (Math.abs(v) > IJSON_MAX_SAFE) {
+        findings.push({ kind: "unsafe_integer", text: path + ": " + String(v) + " is outside the RFC 7493 safe range; JSON.parse rounds it in JavaScript before any canonicalization runs" });
+      }
+      return;
+    }
+    if (Array.isArray(v)) { for (let i = 0; i < v.length; i++) walk(v[i], path + "[" + i + "]"); return; }
+    if (typeof v === "object") { for (const k of Object.keys(v)) walk(v[k], path ? path + "." + k : k); }
+  })(value, "");
+  return findings;
+}
+const NUMBER_SAFETY_MAX_FINDINGS = 20;
+function numberSafety(record) {
+  const all = scanNumbers(record);
+  // 二段に分ける。同じ「再現できん」でも、確実に壊れる物と、実装によっては壊れる物を混ぜたら、
+  // 欄は狼少年になる。条件07 が相手の表面について既に引いとる線と同じ線をここでも引く。
+  const unsafe = all.filter((f) => f.kind !== "non_integer").map((f) => f.text);
+  const nonInteger = all.filter((f) => f.kind === "non_integer").map((f) => f.text);
+  const cap = (list) => list.length > NUMBER_SAFETY_MAX_FINDINGS
+    ? list.slice(0, NUMBER_SAFETY_MAX_FINDINGS).concat(["more were found than are listed here; this list is capped"])
+    : list;
+  return {
+    since: "0.4.2",
+    parse_safe: unsafe.length === 0,
+    safe_integers_only: all.length === 0,
+    unsafe_integers: cap(unsafe),
+    non_integer_numbers: cap(nonInteger),
+    what:
+      "Which numbers in these bytes a second implementer might not reproduce. Two questions, not one, because " +
+      "the two failures are not the same size. parse_safe is the one that matters: true means unsafe_integers is " +
+      "empty, so no value here is destroyed by JSON.parse before any canonicalization code can run, and a reader " +
+      "at least sees what was written. safe_integers_only is stricter: true means both lists are empty, so every " +
+      "number here is an integer inside the RFC 7493 (I-JSON) safe range and a compact re-serialization with the " +
+      "keys in the order printed reproduces these bytes in any language at all. non_integer_numbers lists " +
+      "doubles: every runtime that prints the shortest form that round trips (JavaScript, Python, Go, Java and " +
+      "others) reaches the same characters, but a runtime that prints a fixed number of digits does not. A " +
+      "verdict that measures a surface normally carries one such double, the percentage in absence_vs_failure, " +
+      "so parse_safe true with safe_integers_only false is the ordinary state and is not a warning.",
+    why:
+      "An integer past 2^53 is rounded by JSON.parse before any canonicalization runs, and a double can be " +
+      "printed more than one way. Either silently breaks the recompute recipe for some readers, and prose in " +
+      "the recipe cannot prevent it, because the damage happens before the reader reaches the prose. Found in " +
+      "public on 2026-09-09 by Federico Blanco Sanchez-Llanos, from the payments side, in an idempotency key " +
+      "where two different large amounts collapsed into one fingerprint.",
+    self_applied:
+      "This is condition 07's rule, which this gate applies to every surface it measures and for which it " +
+      "withholds a fingerprint rather than publish one nobody could reproduce, asked of the gate's own verdict. " +
+      "The operator is a subject of the rule, not an exception to it.",
+    not_a_rule:
+      "A disclosed measurement, not a pass or fail. Nothing turns red on it, and a listed number does not make " +
+      "a verdict wrong. It says how to check: fetch the bytes at record_url and hash them, rather than parsing " +
+      "and re-serializing them yourself.",
+    this_block_holds_no_number:
+      "By construction this block contains no numeric value, so adding it to the record cannot change the " +
+      "answer it reports about the record."
+  };
+}
+
 const PARSE_INFO = Symbol("hs_parse_info");
 
 function parseJsonTracked(text) {
@@ -1606,6 +1694,10 @@ async function runCheck(endpoint, allowToolCall, consentBasis, consentSource, co
   // sha を取る前に入れるので、この 2 欄は再計算の対象であって、後から書き換えられん。
   Object.assign(record, gateDisclaimers(record));
 
+  // 0.4.2. 数値の安全性を、hash を取る前に、記録そのものから測って記録に入れる。
+  // 欄は数値を持たんので、入れた後に測り直しても同じ答えになる(不動点)。試験がそれを見張る。
+  record.number_safety = numberSafety(record);
+
   // 条件5. 判定自体が再計算可能であること
   const canonical = JSON.stringify(record);
   record.record_sha256 = await sha256hex(canonical);
@@ -1697,6 +1789,15 @@ function spec() {
       route: "GET /register/lookup?endpoint=<https MCP endpoint>",
       what: "One read before connecting: status (verified / pending / declined / unknown), the latest stored verdict's sha, the last published ring's counts (witnesses signed and unsigned, discrepancies, commitments, walked_as_witness, instants by derivation), where the record and the witness intake are, and what the answer does not establish. Cached 24 hours. No score, no rank.",
       unknown: "means no row here. It is never a finding about the endpoint."
+    },
+    number_safety: {
+      since: "0.4.2 (2026-09-09)",
+      where: "a number_safety block inside every verdict and inside the gate's own /self record, so it is covered by record_sha256 and cannot be dropped from a quote",
+      what: "Two booleans over two lists, generated from the record. parse_safe: no integer here is outside the RFC 7493 (I-JSON) safe range and no value is non-finite, so nothing was destroyed by JSON.parse before any canonicalization code could run. safe_integers_only: stricter, both lists empty, so a compact re-serialization with the keys in the order printed reproduces these bytes in any language at all. unsafe_integers names the values that break parse_safe; non_integer_numbers names the doubles, which runtimes printing the shortest round trip form agree on and runtimes printing a fixed number of digits do not. A verdict that measured a surface normally carries one double, the percentage in absence_vs_failure, so parse_safe true with safe_integers_only false is the ordinary state.",
+      why: "An integer past 2^53 is rounded by JSON.parse before any canonicalization runs, and a non-integer double is printed differently by different runtimes. Prose in a recompute recipe cannot prevent either, because the damage happens before the reader reaches the prose. Found in public on 2026-09-09 by Federico Blanco Sanchez-Llanos from the payments side, in an idempotency key that collapsed two different large amounts into one fingerprint.",
+      self_applied: "Condition 07 already refuses to publish a fingerprint for a measured surface carrying such an integer. 0.4.2 asks the same question of this gate's own output. The operator is a subject of the rule, not an exception to it.",
+      not_a_rule: "A disclosed measurement. Nothing passes or fails on it and no row turns red.",
+      the_block_holds_no_number: "By construction the block contains no numeric value, so adding it to the record cannot change the answer it reports."
     },
     record_bytes: {
       since: "0.4.1 (" + RECORD_BYTES_SINCE + ")",
@@ -3857,6 +3958,7 @@ async function selfCheck(origin) {
     checks: checks
   };
   Object.assign(record, gateDisclaimers(record));
+  record.number_safety = numberSafety(record);
   const canonical = JSON.stringify(record);
   record.record_sha256 = await sha256hex(canonical);
   record.recompute_note =
@@ -4654,4 +4756,5 @@ export default {
 
 
 // 0.4.1 test hooks (no behaviour). Tests recompute the served bytes and compare to the path.
+export const _numberSafety = { scanNumbers, numberSafety, IJSON_MAX_SAFE };
 export const _recordBytes = { canonicalOf, storeRecordBytes, readRecordBytes, recordBytesUrl, RECORD_KEY_PREFIX, RECORD_BYTES_SINCE };

@@ -169,7 +169,7 @@ t("control", "the sweeps stored exactly one record per measured row and nothing 
 
 // ---- 6. 判定規則は不変 ----------------------------------------------------------------------------------
 const health = await (await call("/health")).json();
-t("control", "gate version is 0.4.1", health.gate_version === "0.4.1", health.gate_version);
+t("control", "gate version is at least 0.4.1 (0.4.2 added number_safety; the record bytes contract is unchanged)", /^0\.4\.(?:[1-9]|\d{2,})$/.test(String(health.gate_version)), health.gate_version);
 const spec = await (await call("/spec")).json();
 t("control", "/spec documents record_bytes with the route, why, what is not stored, and that the recipe is unchanged",
   spec.record_bytes && /\/record\//.test(spec.record_bytes.route) && /SEP-1913/.test(spec.record_bytes.why) && /not stored/i.test(spec.record_bytes.not_stored) && /Unchanged/.test(spec.record_bytes.recipe_unchanged));
