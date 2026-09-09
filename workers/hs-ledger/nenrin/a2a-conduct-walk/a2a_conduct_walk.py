@@ -38,12 +38,14 @@ from taking a PASS for a verdict, and the intake refuses a v1.1 record without i
     --vantage-limitation "text"   what you could not see from where you stood (a proxy, a cache, a region)
 """
 import argparse
+import base64
 import hashlib
 import io
 import json
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 
@@ -189,6 +191,64 @@ def is_https(u):
     return isinstance(u, str) and u.startswith("https://")
 
 
+def read_card_signature(card, origin, privacy):
+    """A2A 1.0 section 8.4 の card 署名を、検証せずに読む(第四波 4a-1、2026-09-10)。
+
+    なんで verified を出さんか: 検証には card の正規形(signatures を抜いた proto 形に RFC 8785)を
+    再現せなあかん。扉の JS 実装は公式 SDK の canonicalizeAgentCard と 27 例で一致を証明した上で
+    使うとる。ここで Python の正規化器を書き下ろして規則を 1 つ外したら、**正直な agent に
+    「署名が無効」の濡れ衣**を着せ、それが追記専用の台帳に Bitcoin の錨つきで残る。
+    せやから読んだ物だけ書いて、真偽は null のまま名指しで理由を添える(unmeasured != pass)。
+    verified に真偽を入れてええのは、同じ 27 例で一致を証明した正規化器が入った日だけ。
+    """
+    sigs = card.get("signatures") if isinstance(card, dict) else None
+    if not isinstance(sigs, list) or not sigs:
+        return {
+            "present": False,
+            "count": 0,
+            "verified": None,
+            "verified_reason": "the card carries no signatures field; this extension does not require one, so this is not a finding",
+        }
+    first = sigs[0] if isinstance(sigs[0], dict) else {}
+    hdr = {}
+    prot = first.get("protected")
+    if isinstance(prot, str):
+        try:
+            raw = base64.urlsafe_b64decode(prot + "=" * (-len(prot) % 4))
+            parsed = json.loads(raw.decode("utf-8"))
+            if isinstance(parsed, dict):
+                hdr = parsed
+        except Exception:
+            hdr = {}
+    pick = lambda k: hdr.get(k) if isinstance(hdr.get(k), str) else None
+    jku = pick("jku")
+    same_host = None
+    if jku:
+        try:
+            same_host = urllib.parse.urlsplit(jku).netloc == urllib.parse.urlsplit(origin).netloc
+        except Exception:
+            same_host = None
+    out = {
+        "present": True,
+        "count": len(sigs),
+        "alg": pick("alg"),
+        "kid": pick("kid"),
+        "jku": jku,
+        "jku_same_host": same_host,
+        "protected_readable": bool(hdr),
+        "verified": None,
+        "verified_reason": (
+            "read, not verified: checking an A2A card signature means reproducing the card's canonical form "
+            "(RFC 8785 over the proto shape with signatures removed), which this client does not implement. "
+            "A canonicalizer that is one rule wrong would accuse an honest agent in an append only ledger, "
+            "so this client reports what the header says and verifies nothing."
+        ),
+    }
+    if privacy != "full":
+        out["jku"] = None  # hash-only と commitment では URL を残さん。ホストが同じかどうかの事実だけ残す
+    return out
+
+
 def locate_extension(card):
     """Returns (ext_or_None, problems[])."""
     if not isinstance(card, dict):
@@ -316,6 +376,17 @@ def disclaimers(record, privacy, signed, target):
         dne.insert(0, DOES_NOT_ESTABLISH_COMMITMENT)
     if not signed:
         dne.append(DOES_NOT_ESTABLISH_UNSIGNED)
+    # 0.4.4 / 4a-1 (2026-09-10). 歩いた card の署名の有無は、この歩きの合否を動かさん(assertion にせん)。
+    # 動かすのは「この記録が何を証明するか」。無署名の card についての行は、相手の言葉やなく
+    # この歩き手の観測に帰属するだけで、相手は否認できる。それを名乗る。
+    cs = record.get("card_signature")
+    if isinstance(cs, dict):
+        if cs.get("present") is False:
+            dne.append("that the walked operator published this card: it carried no signature, so these bytes "
+                       "are attributable to this walk alone and the operator can repudiate them")
+        elif cs.get("verified") is None:
+            dne.append("that the walked operator published this card: a signature is present but this client "
+                       "does not verify signatures, so these bytes are attributable to this walk alone")
     return est, dne
 
 
@@ -380,6 +451,7 @@ def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked
     except Exception:
         card = None
     ext, problems = locate_extension(card)
+    card_signature = read_card_signature(card, origin, privacy)
     params = ext.get("params") if isinstance(ext, dict) and isinstance(ext.get("params"), dict) else {}
     measured = params.get("measured_endpoints") if isinstance(params.get("measured_endpoints"), list) else []
     target = endpoint or (measured[0] if measured and is_https(measured[0]) else None)
@@ -446,6 +518,7 @@ def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked
             "mismatch_means": "the live agent now differs from the anchored observation; a changed card is a finding, not an error in the walk",
         },
         "witness": {"name": witness_name, "vantage": vantage},
+        "card_signature": card_signature,
         "conduct_ext": {"uri": EXT_URI, "declared_uri": (ext.get("uri") if isinstance(ext, dict) else None), "mode": mode, "wire": wire if mode == "a2a" else None, "conduct_record": params.get("conduct_record"), "witness_intake": params.get("witness_intake"), "target": target},
         "prev_path_refs": [],
     }

@@ -31,7 +31,7 @@ EP = ORIGIN + "/mcp"
 COMP = {"paid_by": "buyer", "referral_fee": False, "listing_fee": False, "success_fee_pct": 0, "disclosure_url": "https://example.invalid/d"}
 
 
-def card(comp=COMP, ext=True, top=None, required=False, measured=None, extra=None, uri=None):
+def card(comp=COMP, ext=True, top=None, required=False, measured=None, extra=None, uri=None, sigs=None):
     c = {"name": "Selftest Agent", "description": "mock", "url": ORIGIN, "capabilities": {"streaming": False}}
     if ext:
         c["capabilities"]["extensions"] = [{"uri": uri or EXT, "description": "conduct", "required": required, "params": {
@@ -39,9 +39,23 @@ def card(comp=COMP, ext=True, top=None, required=False, measured=None, extra=Non
             "conduct_record": "https://gate.horizonshield.dev/history?endpoint=x", "witness_intake": "https://ledger.horizonshield.dev/witness"}}]
     if top is not None:
         c["compensation"] = top
+    if sigs is not None:
+        c["signatures"] = sigs
     if extra:
         c.update(extra)
     return c
+
+
+def b64u(obj):
+    import base64 as _b
+    return _b.urlsafe_b64encode(json.dumps(obj, separators=(",", ":")).encode("utf-8")).decode("ascii").rstrip("=")
+
+
+def card_sig(kid="sel-2026-09", alg="ES256", jku=ORIGIN + "/.well-known/jwks.json"):
+    hdr = {"alg": alg, "typ": "JOSE", "kid": kid}
+    if jku is not None:
+        hdr["jku"] = jku
+    return [{"protected": b64u(hdr), "signature": "not-checked-by-this-client"}]
 
 
 def mock(cards, ep_status=200, ep_result=True, echo=True, submit_status=200, echo_spelling="mirror", answer_shape="wire"):
@@ -311,6 +325,45 @@ def main():
     v11("v12_walk_never_fetches_the_redirect",
         not any("w3id.org" in str(nd.get("request", {}).get("url") or "") for nd in perma_walk["nodes"]),
         "nodes touch only the walked origin")
+
+    # 第四波 4a-1 (2026-09-10): 歩いた card の署名を読む。真偽は出さん。
+    unsigned = W.walk(ORIGIN, None, "a2a", "selftest", "offline-mock", fetch=mock([card()]), walked_at="2026-09-10T00:00:00Z")
+    signed = W.walk(ORIGIN, None, "a2a", "selftest", "offline-mock", fetch=mock([card(sigs=card_sig())]), walked_at="2026-09-10T00:00:00Z")
+    v11("v13_unsigned_card_is_not_a_finding",
+        unsigned["card_signature"]["present"] is False and unsigned["card_signature"]["verified"] is None
+        and "does not require" in unsigned["card_signature"]["verified_reason"],
+        json.dumps(unsigned["card_signature"], ensure_ascii=False)[:90])
+    cs = signed["card_signature"]
+    v11("v13_signed_card_header_is_read_not_verified",
+        cs["present"] is True and cs["count"] == 1 and cs["alg"] == "ES256" and cs["kid"] == "sel-2026-09"
+        and cs["jku_same_host"] is True and cs["protected_readable"] is True and cs["verified"] is None
+        and "not verified" in cs["verified_reason"],
+        json.dumps(cs, ensure_ascii=False)[:120])
+    v11("v13_signed_card_record_still_passes_intake",
+        ledger_v11_reason(W.canonical(signed)) is None and ledger_shape_ok(W.canonical(signed)),
+        str(ledger_v11_reason(W.canonical(signed))))
+    foreign = W.read_card_signature(card(sigs=card_sig(jku="https://elsewhere.selftest.invalid/jwks.json")), ORIGIN, "full")
+    v11("v13_foreign_jku_is_recorded_as_not_same_host", foreign["jku_same_host"] is False and foreign["verified"] is None)
+    broken = W.read_card_signature({"signatures": [{"protected": "not base64 at all", "signature": "x"}]}, ORIGIN, "full")
+    v11("v13_unreadable_header_does_not_crash_and_claims_nothing",
+        broken["present"] is True and broken["protected_readable"] is False and broken["kid"] is None
+        and broken["alg"] is None and broken["jku_same_host"] is None and broken["verified"] is None,
+        json.dumps(broken, ensure_ascii=False)[:90])
+    ho_sig = W.read_card_signature(card(sigs=card_sig()), ORIGIN, "hash-only")
+    v11("v13_hash_only_drops_the_url_and_keeps_the_host_fact",
+        ho_sig["jku"] is None and ho_sig["jku_same_host"] is True and ho_sig["kid"] == "sel-2026-09")
+    v11("v13_unsigned_card_costs_attribution_not_a_pass",
+        any("can repudiate them" in x for x in unsigned["does_not_establish"])
+        and unsigned["verdict"]["ok"] is True
+        and not any("card_signature" in a["claim"] for a in unsigned["assertions"]),
+        "無署名は assertion にせん。does_not_establish に「この歩きに帰属するだけ」と書くだけ")
+    v11("v13_signed_but_unverified_uses_the_other_wording",
+        any("does not verify signatures" in x for x in signed["does_not_establish"])
+        and not any("carried no signature" in x for x in signed["does_not_establish"]),
+        "署名ありで検証せんかった時と、そもそも署名が無い時は別の事実。文を分ける")
+    v11("v13_client_never_writes_verified_true",
+        all('"verified": true' not in W.canonical(r) and '"verified":true' not in W.canonical(r) for r in (unsigned, signed)),
+        "a client with no canonicalizer must never accuse an honest agent")
 
     salt = "ab" * 32
     cm = W.commitment_record(full, salt)
