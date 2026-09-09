@@ -31,10 +31,10 @@ EP = ORIGIN + "/mcp"
 COMP = {"paid_by": "buyer", "referral_fee": False, "listing_fee": False, "success_fee_pct": 0, "disclosure_url": "https://example.invalid/d"}
 
 
-def card(comp=COMP, ext=True, top=None, required=False, measured=None, extra=None):
+def card(comp=COMP, ext=True, top=None, required=False, measured=None, extra=None, uri=None):
     c = {"name": "Selftest Agent", "description": "mock", "url": ORIGIN, "capabilities": {"streaming": False}}
     if ext:
-        c["capabilities"]["extensions"] = [{"uri": EXT, "description": "conduct", "required": required, "params": {
+        c["capabilities"]["extensions"] = [{"uri": uri or EXT, "description": "conduct", "required": required, "params": {
             "compensation": comp, "measured_endpoints": measured if measured is not None else [EP],
             "conduct_record": "https://gate.horizonshield.dev/history?endpoint=x", "witness_intake": "https://ledger.horizonshield.dev/witness"}}]
     if top is not None:
@@ -166,6 +166,10 @@ vec("honest_a2a_top_level_copy_equal", "control", mock([card(top=dict(COMP))]), 
 vec("card_changes_between_fetches", "attack", mock([card(), card(extra={"description": "mock v2"})]), "mcp", False, {"card_bytes_stable": False})
 vec("no_extension_declared", "attack", mock([card(ext=False, top=dict(COMP))]), "mcp", False, {"conduct_ext_declared": False, "compensation_well_formed": False, "measured_endpoint_answered": True}, endpoint=EP)
 vec("no_extension_no_endpoint_given", "attack", mock([card(ext=False)]), "mcp", False, {"conduct_ext_declared": False, "measured_endpoint_answered": False})
+# spec section 12 (2026-09-09): the w3id.org permanent identifier is the same extension; nothing else is.
+vec("perma_id_declared", "control", mock([card(uri=W.EXT_PERMANENT_ID)]), "a2a", True, {"conduct_ext_declared": True, "compensation_well_formed": True, "extension_echoed": True})
+vec("perma_id_next_version_is_not_this_one", "attack", mock([card(uri="https://w3id.org/horizonshield/conduct/v2")]), "mcp", False, {"conduct_ext_declared": False}, endpoint=EP)
+vec("perma_id_foreign_project", "attack", mock([card(uri="https://w3id.org/someoneelse/conduct/v1")]), "mcp", False, {"conduct_ext_declared": False}, endpoint=EP)
 vec("compensation_paid_by_case", "attack", mock([card(comp=dict(COMP, paid_by="Buyer"))]), "mcp", False, {"compensation_well_formed": False})
 vec("compensation_success_fee_string", "attack", mock([card(comp=dict(COMP, success_fee_pct="see site"))]), "mcp", False, {"compensation_well_formed": False})
 vec("top_level_disagrees", "attack", mock([card(top=dict(COMP, paid_by="referral"))]), "mcp", False, {"compensation_well_formed": False})
@@ -294,6 +298,19 @@ def main():
         all(nd["response"].get("body_sha256") for nd in ho["nodes"] if nd.get("kind") == "fetch") and ho["verdict"]["ok"] is True and ho["verdict"]["n_total"] == 5)
     leaky = json.loads(W.canonical(ho)); leaky["nodes"][3]["request"]["url"] = EP
     v11("v11_hash_only_with_a_path_is_refused", ledger_v11_reason(W.canonical(leaky)) == "path_leaks_tool")
+
+    # v1.2 (2026-09-09): which spelling the card used is written into the record, never silently normalised.
+    canon_walk = W.walk(ORIGIN, None, "a2a", "selftest", "offline-mock", fetch=mock([card()]), walked_at="2026-09-09T00:00:00Z")
+    perma_walk = W.walk(ORIGIN, None, "a2a", "selftest", "offline-mock", fetch=mock([card(uri=W.EXT_PERMANENT_ID)]), walked_at="2026-09-09T00:00:00Z")
+    v11("v12_record_names_the_declared_spelling",
+        canon_walk["conduct_ext"]["declared_uri"] == W.EXT_URI and perma_walk["conduct_ext"]["declared_uri"] == W.EXT_PERMANENT_ID
+        and perma_walk["conduct_ext"]["uri"] == W.EXT_URI and perma_walk["verdict"]["ok"] is True,
+        "identifier stays %s, declared spelling recorded" % W.EXT_URI)
+    v11("v12_perma_id_record_still_passes_intake", ledger_v11_reason(W.canonical(perma_walk)) is None and ledger_shape_ok(W.canonical(perma_walk)),
+        str(ledger_v11_reason(W.canonical(perma_walk))))
+    v11("v12_walk_never_fetches_the_redirect",
+        not any("w3id.org" in str(nd.get("request", {}).get("url") or "") for nd in perma_walk["nodes"]),
+        "nodes touch only the walked origin")
 
     salt = "ab" * 32
     cm = W.commitment_record(full, salt)

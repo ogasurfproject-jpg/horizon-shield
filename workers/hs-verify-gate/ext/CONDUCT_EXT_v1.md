@@ -96,7 +96,7 @@ These mappings are direction, not delivery. Nothing in sections 2 to 4 depends o
 
 ## 7. Versioning
 
-The URI ends in `/v1`. A breaking change to fields, keys, or the walk MUST use a new URI. This document is served at the URI (`GET https://gate.horizonshield.dev/ext/conduct/v1`, JSON with `Accept: application/json`, this text with `Accept: text/markdown`). A permanent identifier (for example under w3id.org) MAY later redirect here; it would be a convenience, not a second identifier. Implementations compare the string at the top of this document and nothing else.
+The URI ends in `/v1`. A breaking change to fields, keys, or the walk MUST use a new URI. This document is served at the URI (`GET https://gate.horizonshield.dev/ext/conduct/v1`, JSON with `Accept: application/json`, this text with `Accept: text/markdown`). A permanent identifier (for example under w3id.org) MAY later redirect here; it would be a convenience, not a second identifier. Implementations compare the string at the top of this document and nothing else. **Revised by section 12 (v1.2, 2026-09-09): the permanent identifier now exists and readers recognise it. The identifier of `v1` is unchanged. The sentence above is kept rather than edited away.**
 
 ## 8. Source
 
@@ -184,3 +184,35 @@ Prior art: the `establishes` / `does_not_establish` pair follows a public findin
 ### 11.10 What this revision does not do
 
 It does not make a witness trustworthy; it makes a signed witness attributable to a domain and an unsigned one countable apart. It does not detect lies; a signed liar fills the signed column, and any hidden judgement of who is lying would be a coordinate the operator controls, which is what this extension exists to remove. It does not prove that a hash-only or commitment record refers to a real exchange; it proves only that a stated hash was filed at a stated time. It does not oblige any framework to file records by default; reference hooks default to writing the record locally and sending nothing. It does not change coordinate derivation, the sweep's conditions, or any field of `coordinate_derivation`.
+## 12. Revision v1.2 (2026-09-09): the permanent identifier
+
+The A2A extension guidance says: "Authors are encouraged to use a permanent identifier service, such as `w3id.org`, for their extension URIs to prevent broken links." On 2026-09-09 `perma-id/w3id.org#6653` was merged and `https://w3id.org/horizonshield/conduct/v1` began answering `302 Found` with `Location: https://gate.horizonshield.dev/ext/conduct/v1`. The redirect is an entry in a community registry, not a host this project controls, so from that date the name of this extension no longer depends on one Cloudflare account.
+
+### 12.1 Identity is unchanged
+
+For `v1` the identifier remains the exact string `https://gate.horizonshield.dev/ext/conduct/v1`. That is what the deployed agent cards declare, what JIDEC entry 37 anchors, and what every published record names. Changing it would rewrite anchored bytes, so it is not changed.
+
+### 12.2 Readers recognise both, and say which
+
+A reader of an agent card MUST treat an entry whose `uri` is either of these two exact strings as this extension:
+
+- `https://gate.horizonshield.dev/ext/conduct/v1` (canonical)
+- `https://w3id.org/horizonshield/conduct/v1` (permanent identifier)
+
+The set is closed and compared as exact strings. No normalisation, no case folding, no tolerance for a trailing slash or for `http`, no other path under `w3id.org`, no other version. A reader MUST record which of the two strings was declared, inside the bytes it publishes, so that recognition is never silent. A reader MUST NOT resolve the redirect while it checks: a network fetch would let a third party's DNS decide what this extension is, and it would spend a request budget on an answer already known.
+
+### 12.3 Writers
+
+A writer SHOULD declare the canonical string while `v1` is current. A writer that declares the permanent identifier is conformant, is read, and its record says which string it used. Declaring both in one card is allowed and is read as one declaration; as in section 2, two declarations that disagree on the five compensation keys fail.
+
+### 12.4 The wire
+
+Activation is accepted under either string. The response echoes the string the caller sent, exactly as it already echoes the header spelling the caller used. The payload always names the canonical string: `metadata` keys and `Message.extensions` do not vary with the caller's spelling. One identity in the data, the caller's own words on the wire.
+
+### 12.5 Succession
+
+If `gate.horizonshield.dev` stops resolving, `https://w3id.org/horizonshield/conduct/v1` is the address of record for this document, and what a reader follows is the registry entry rather than this operator. The next version of this extension MUST be identified by `https://w3id.org/horizonshield/conduct/v2`; from `v2` on, the permanent identifier is the identifier and this host is only where a copy happens to be served. A version is never a fallback for another version (A2A: an agent MUST NOT fall back to a different version), so `v1` and `v2` never stand in for each other.
+
+### 12.6 What this revision does not do
+
+It adds no field, changes no hash recipe, changes no condition, and changes what no record means. A card that declared the canonical string yesterday declares the same thing today, byte for byte. It does not make the redirect trustworthy: a reader that wants to know where the permanent identifier points reads the registry entry in `perma-id/w3id.org`, which is public and versioned in git, and not this document.

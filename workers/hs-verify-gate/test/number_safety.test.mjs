@@ -213,7 +213,7 @@ t("control", "the block names condition 07 as the rule it is applying to itself"
 // ---- 5. 版と仕様 ---------------------------------------------------------------------------------------
 {
   const health = await (await call("/health")).json();
-  t("control", "gate version is 0.4.2", health.gate_version === "0.4.2", health.gate_version);
+  t("control", "gate version is 0.4.x", /^0\.4\./.test(health.gate_version), health.gate_version);  // 0.4.3 で緩めた: この suite は number_safety を測る物で、版そのものを測る物やない
   const spec = await (await call("/spec")).json();
   const ns = spec.number_safety || {};
   t("control", "/spec documents number_safety: where it lives, why, that it is self applied and not a rule",

@@ -1,4 +1,4 @@
-// hs-jidec-mcp — Model Context Protocol server for JIDEC verification paths.
+// hs-jidec-mcp, Model Context Protocol server for JIDEC verification paths.
 //
 // Phase 4 of jidec-path-v1. Lets any MCP-capable agent cite and re-check a
 // Bitcoin-anchored verification path by URI, without trusting HORIZON SHIELD.
@@ -9,13 +9,13 @@
 //   jidec_list_paths()              list anchored verification paths
 //   jidec_how_to_verify(citation)   emit the executable verification recipe
 //
-// This worker is NEW and ISOLATED — it touches no existing service. It reaches
+// This worker is NEW and ISOLATED, it touches no existing service. It reaches
 // the ledger through a service binding (LEDGER_SVC), not the public hostname,
 // so same-account workers.dev subrequests cannot loop back. Reads only; no
 // secrets; open so that "any AI can cite" holds literally.
 //
 // ---------------------------------------------------------------------------
-// v1.1 (2026-07-26) — spec conformance pass, per KANBAN_TO_ANNAININ_v1.md §5.
+// v1.1 (2026-07-26), spec conformance pass, per KANBAN_TO_ANNAININ_v1.md §5.
 //
 //  1. protocolVersion 2024-11-05 -> 2025-11-25 (current spec revision).
 //     The 2026-07-28 revision removes `initialize` / `notifications/initialized`
@@ -58,7 +58,7 @@ const PROTOCOL_VERSION = "2025-11-25";
 
 /* ------------------------------ origin policy ------------------------------ */
 
-// Returns { ok, origin } — origin is the value to echo in ACAO.
+// Returns { ok, origin }, origin is the value to echo in ACAO.
 function checkOrigin(req, env) {
   const o = req.headers.get("Origin");
   if (!o) return { ok: true, origin: "*" }; // non-browser client (curl, MCP host, agent)
@@ -129,7 +129,7 @@ function parseCitation(c) {
 
 // Resolve a citation to { n, sha } using only public reads.
 // A bare hash is resolved by scanning the public /ledger index for a matching
-// claim_sha256 — the same route any third party would take, no privileged access.
+// claim_sha256, the same route any third party would take, no privileged access.
 async function resolve(env, citation) {
   const p = parseCitation(citation);
 
@@ -164,7 +164,7 @@ function classifyRecord(text) {
 
 // Build a citation card from raw bytes. Field-for-field compatible with
 // path/jidec_cite.py so that the CLI and this server can be diffed against
-// each other — two independent implementations agreeing is the point.
+// each other, two independent implementations agreeing is the point.
 async function buildCard(env, n, sha, citation) {
   const raw = await ledgerGetBytes(env, `/ledger/${n}?format=raw`);
   if (raw.status !== 200) throw new Error(`could not fetch raw record for entry ${n}: HTTP ${raw.status}`);
@@ -295,7 +295,7 @@ const LIST_OUTPUT_SCHEMA = {
       type: "number",
       description:
         "How many anchored paths the ledger returned. 0 means the ledger answered and " +
-        "holds none. It never means the ledger could not be read — that is an error.",
+        "holds none. It never means the ledger could not be read, that is an error.",
     },
     paths: { type: "array", items: { type: "object" } },
   },
@@ -386,7 +386,7 @@ async function callTool(name, args, env) {
     if (r.status !== 200)
       throw new Error(
         "the ledger could not be read: HTTP " + r.status + ". This is NOT a report " +
-        "that there are no anchored paths — this server does not know how many there are."
+        "that there are no anchored paths, this server does not know how many there are."
       );
     const paths = Array.isArray(r.body) ? r.body
                 : (r.body && Array.isArray(r.body.paths)) ? r.body.paths
@@ -470,6 +470,12 @@ const SERVER_INFO = {
 // 誰が払うか、行儀の記録(第三者が書いた物)がどこか、繋いだ相手が自分の観測をどこに出せるか。
 // card の capabilities.extensions[] に置く(A2A 1.0 の正規の場所)。仕様は URI そのもの。点数も判定も無い。
 const CONDUCT_EXT_URI = "https://gate.horizonshield.dev/ext/conduct/v1";
+// 0.4.3 (2026-09-09). w3id.org の永続識別子。perma-id/w3id.org#6653 merge、302 で上の URI へ。
+// A2A の拡張ガイダンスが perma-id を推しとるので、その綴りで活性化してくる client は出る。
+// 識別子は 1 本のまま。読むのは閉じた 2 本の一覧、完全一致だけ。redirect は叩かん。
+// echo は要求された綴りをそのまま返し、中身(metadata の鍵と Message.extensions)は常に正規の URI を名乗る。
+const CONDUCT_EXT_PERMANENT_ID = "https://w3id.org/horizonshield/conduct/v1";
+const CONDUCT_EXT_URIS = [CONDUCT_EXT_URI, CONDUCT_EXT_PERMANENT_ID];
 const CONDUCT_MEASURED_ENDPOINT = "https://jidec.horizonshield.dev/mcp";
 const CONDUCT_WITNESS_INTAKE = "https://ledger.horizonshield.dev/witness";
 const CONDUCT_RECORD_URL = "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(CONDUCT_MEASURED_ENDPOINT);
@@ -554,7 +560,7 @@ function a2aRequestedExtensionUris(request) {
   }
   return out;
 }
-function a2aActivatedExtensions(request) { return a2aRequestedExtensionUris(request).filter((u) => u === CONDUCT_EXT_URI); }
+function a2aActivatedExtensions(request) { return a2aRequestedExtensionUris(request).filter((u) => CONDUCT_EXT_URIS.includes(u)); }
 function a2aEchoHeaders(request, activated) {
   if (!activated.length) return {};
   const h = {}; h[A2A_EXT_HEADER] = activated.join(",");
@@ -636,7 +642,7 @@ async function handleA2A(req, env, cors) {
       return send({ error: { code: -32000, message: String((e && e.message) || e) } });
     }
   }
-  if (activated.includes(CONDUCT_EXT_URI)) result = a2aAttachConduct(result);
+  if (activated.length) result = a2aAttachConduct(result);  // 0.4.3: どっちの綴りでも中身は同じ
   return send({ result: a2aSendMessageResult(result, wire) });
 }
 

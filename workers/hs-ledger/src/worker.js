@@ -1,4 +1,4 @@
-// hs-ledger — JIDEC public verification ledger (HORIZON SHIELD)
+// hs-ledger, JIDEC public verification ledger (HORIZON SHIELD)
 // Serves per-audit PTKA claims and their OpenTimestamps (Bitcoin) proofs.
 //   Public reads : GET /ledger, GET /ledger/{n}, GET /ledger/{n}/ots
 //   Authed writes: POST /ledger/append, GET /ledger/pending, POST /ledger/{n}/ots  (header X-Ledger-Key == env.LEDGER_ADMIN_TOKEN)
@@ -12,6 +12,12 @@ const json = (o, status = 200, extra) => new Response(JSON.stringify(o, null, 2)
 // 誰が払うか、行儀の記録(第三者が書いた物)がどこか、繋いだ相手が自分の観測をどこに出せるか。
 // card の capabilities.extensions[] に置く(A2A 1.0 の正規の場所)。仕様は URI そのもの。点数も判定も無い。
 const CONDUCT_EXT_URI = "https://gate.horizonshield.dev/ext/conduct/v1";
+// 0.4.3 (2026-09-09). w3id.org の永続識別子。perma-id/w3id.org#6653 merge、302 で上の URI へ。
+// A2A の拡張ガイダンスが perma-id を推しとるので、その綴りで活性化してくる client は出る。
+// 識別子は 1 本のまま。読むのは閉じた 2 本の一覧、完全一致だけ。redirect は叩かん。
+// echo は要求された綴りをそのまま返し、中身(metadata の鍵と Message.extensions)は常に正規の URI を名乗る。
+const CONDUCT_EXT_PERMANENT_ID = "https://w3id.org/horizonshield/conduct/v1";
+const CONDUCT_EXT_URIS = [CONDUCT_EXT_URI, CONDUCT_EXT_PERMANENT_ID];
 const CONDUCT_MEASURED_ENDPOINT = "https://jidec.horizonshield.dev/mcp";
 const CONDUCT_WITNESS_INTAKE = "https://ledger.horizonshield.dev/witness";
 const CONDUCT_RECORD_URL = "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(CONDUCT_MEASURED_ENDPOINT);
@@ -97,7 +103,7 @@ function a2aRequestedExtensionUris(request) {
 }
 // 要求ヘッダ(両綴り)の URI のうち、この agent が実装しとる物だけ。
 function a2aActivatedExtensions(request) {
-  return a2aRequestedExtensionUris(request).filter((u) => u === CONDUCT_EXT_URI);
+  return a2aRequestedExtensionUris(request).filter((u) => CONDUCT_EXT_URIS.includes(u));
 }
 function a2aEchoHeaders(request, activated) {
   if (!activated.length) return {};
@@ -334,7 +340,7 @@ function witnessSelfDescription(origin) {
 // --- v1 canonical claim schema (per SPEC_HASH_INDEPENDENCE_v1.md, anchored as entry #2).
 // Following Pang-jo Chun's 2026-07-25 critique: the Bitcoin-anchored hash MUST commit to
 // (input, reference bundle content SHA, algorithm commit, thresholds, result, PDF)
-// simultaneously — not just to the estimate JSON or to a concatenation of upstream params.
+// simultaneously, not just to the estimate JSON or to a concatenation of upstream params.
 // v0 records (entries created before the fix) are still readable but flagged as v0.
 const V1_REQUIRED = ["schema","issued_at","work_id","input_sha256","reference_bundle_sha256","reference_bundle_version","algorithm_commit","algorithm_url","thresholds_sha256","result_sha256","pdf_sha256","verifier_recipe_url"];
 function parseClaimSchema(record_canonical) {
@@ -389,7 +395,7 @@ function pathCard(e, obj, origin) {
 // --- Age-based pending status. Per Federico's "Reversal Test": a fresh pending
 // and a stale one are genuinely different facts, and collapsing them into one
 // badge is how a real anchor ends up looking like a stalled one. Purely derived
-// at read time — nothing stored is changed, no write path is touched.
+// at read time, nothing stored is changed, no write path is touched.
 // Threshold is env.PENDING_STALE_HOURS (string) or the default below. ---
 const STALE_HOURS_DEFAULT = 6;
 function pendingView(e, env) {
@@ -405,13 +411,13 @@ function pendingView(e, env) {
 const ageText = (pv) => (pv ? (pv.hours >= 1 ? `${pv.hours}h` : "<1h") : "");
 function statusLabel(e, pv) {
   const s = e.ots_status || "unstamped";
-  if (s === "confirmed") return `Bitcoin-anchored — block ${e.bitcoin_block}${e.block_time ? " (" + e.block_time + ")" : ""}`;
+  if (s === "confirmed") return `Bitcoin-anchored, block ${e.bitcoin_block}${e.block_time ? " (" + e.block_time + ")" : ""}`;
   const age = ageText(pv);
   if (s === "pending")
     return pv && pv.stage === "stale"
-      ? `OpenTimestamps submitted — confirmation delayed, longer than expected (${age})`
-      : `OpenTimestamps submitted — awaiting Bitcoin confirmation (${age}, normal)`;
-  return pv && pv.stage === "stale" ? `recorded — stamping overdue (${age})` : "recorded — awaiting stamping";
+      ? `OpenTimestamps submitted: confirmation delayed, longer than expected (${age})`
+      : `OpenTimestamps submitted, awaiting Bitcoin confirmation (${age}, normal)`;
+  return pv && pv.stage === "stale" ? `recorded, stamping overdue (${age})` : "recorded, awaiting stamping";
 }
 
 function receiptHtml(e, origin, env) {
@@ -428,10 +434,10 @@ function receiptHtml(e, origin, env) {
     ? `<span class="badge v1">schema v1 · independently verifiable</span>`
     : `<span class="badge v0">schema v0 · concept-proof (see SPEC v1)</span>`;
   const verifyLink = sch === "v1"
-    ? `<div class="card"><div class="k">Machine-readable verification recipe</div><div class="v"><a href="${origin}/verify/${e.n}">${origin}/verify/${e.n}</a></div><div class="sub" style="margin-top:.4rem">Lists every artifact a third party must fetch and hash to independently reproduce this audit — no trust in HORIZON SHIELD required.</div></div>`
+    ? `<div class="card"><div class="k">Machine-readable verification recipe</div><div class="v"><a href="${origin}/verify/${e.n}">${origin}/verify/${e.n}</a></div><div class="sub" style="margin-top:.4rem">Lists every artifact a third party must fetch and hash to independently reproduce this audit, no trust in HORIZON SHIELD required.</div></div>`
     : `<div class="card"><div class="k">Schema note</div><div class="sub">This entry uses the v0 schema (only the estimate JSON is hashed). Independent verification per SPEC v1 §3 is available on entries #2 and later. This entry remains a valid timestamp proof for its content at the recorded time.</div></div>`;
   return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>JIDEC Ledger #${e.n} — HORIZON SHIELD</title><style>
+<title>JIDEC Ledger #${e.n}: HORIZON SHIELD</title><style>
 body{font-family:-apple-system,system-ui,sans-serif;background:#0a1628;color:#e8eef5;margin:0;padding:2rem 1.2rem;line-height:1.6}
 .w{max-width:820px;margin:0 auto}h1{color:#c9a84c;font-size:1.25rem;margin:0 0 .2rem}
 .sub{color:#94a3b8;font-size:.85rem;margin-bottom:1.5rem}
@@ -446,16 +452,16 @@ pre{background:#0a1628;border:1px solid #24344d;border-radius:6px;padding:.8rem;
 .v1{background:#16292e;color:#7ecfe0;border:1px solid #2f6a7d;margin-left:.6rem}
 .v0{background:#2a2f3a;color:#94a3b8;border:1px solid #3a4557;margin-left:.6rem}
 a{color:#7ab8e8}</style></head><body><div class="w">
-<h1>JIDEC Verification Ledger — Entry #${e.n}</h1>
+<h1>JIDEC Verification Ledger: Entry #${e.n}</h1>
 <div class="sub">HORIZON SHIELD · Pre-Transaction Knowledge Anchoring (PTKA) · anchored to Bitcoin via OpenTimestamps</div>
 <div class="card"><div class="k">Status</div><div class="v"><span class="badge ${badgeClass}">${label}</span>${schBadge}</div>${staleNote}</div>
 ${verifyLink}
 <div class="card"><div class="k">Claim SHA-256</div><div class="v"><code>${e.claim_sha256}</code></div>
 ${e.work ? `<div class="k" style="margin-top:.8rem">Work</div><div class="v">${esc(e.work)}</div>` : ""}
 <div class="k" style="margin-top:.8rem">Recorded</div><div class="v">${e.created_at}</div></div>
-<div class="card"><div class="k">Signed record — the exact bytes this hash commits to</div><pre>${esc(e.record_canonical || "")}</pre></div>
+<div class="card"><div class="k">Signed record, the exact bytes this hash commits to</div><pre>${esc(e.record_canonical || "")}</pre></div>
 <div class="card"><div class="k">OpenTimestamps proof</div><div class="v"><a href="${ots}">${ots}</a> ${s === "unstamped" ? "(not yet available)" : ""}</div>
-<div class="k" style="margin-top:.8rem">Verify it yourself — independent, no trust in us</div>
+<div class="k" style="margin-top:.8rem">Verify it yourself: independent, no trust in us</div>
 <pre>curl -s "${origin}/ledger/${e.n}?format=raw" > claim_${e.n}.txt
 curl -s "${ots}" > claim_${e.n}.txt.ots
 # no Bitcoin node needed:
@@ -464,12 +470,12 @@ ots info claim_${e.n}.txt.ots            # shows the Bitcoin block this is ancho
 # with a full Bitcoin node:
 ots verify claim_${e.n}.txt.ots
 shasum -a 256 claim_${e.n}.txt           # == ${e.claim_sha256}</pre></div>
-<div class="sub">A signature proves the record is untampered, not that the underlying ruleset is still current. This ledger anchors <em>when</em> the claim existed — to Bitcoin, nothing weaker, no separate chain.</div>
+<div class="sub">A signature proves the record is untampered, not that the underlying ruleset is still current. This ledger anchors <em>when</em> the claim existed, to Bitcoin, nothing weaker, no separate chain.</div>
 </div></body></html>`;
 }
 
 /* ===========================================================================
-   看板 (discovery layer) — added 2026-07-26 per KANBAN_TO_ANNAININ_v1.md.
+   看板 (discovery layer), added 2026-07-26 per KANBAN_TO_ANNAININ_v1.md.
 
    ADDITIVE ONLY. No existing route is modified. /health's `routes` array is
    unchanged and still contains exactly 9 entries (Guardian v4 check ⑩ counts
@@ -496,7 +502,7 @@ const MCP_ORIGIN = "https://jidec.horizonshield.dev";
 //   correct while this worker answered on exactly one hostname. The moment it
 //   also answers on a custom domain, every node anchored under the *other*
 //   hostname stops matching, falls through to `deferred`, and replay quietly
-//   reports INCONCLUSIVE instead of re-observing from KV. No error is raised —
+//   reports INCONCLUSIVE instead of re-observing from KV. No error is raised -
 //   the ledger just stops proving as much as it could. That is the exact
 //   failure mode wrangler.jsonc warns about, so identity is a SET, not the
 //   incoming host.
@@ -736,7 +742,7 @@ const agentCard = (origin) => ({
 
 const securityTxt = (origin) =>
   [
-    "# HORIZON SHIELD / JIDEC — RFC 9116",
+    "# HORIZON SHIELD / JIDEC: RFC 9116",
     "Contact: " + CONTACT,
     "Expires: 2027-07-26T00:00:00.000Z",
     "Preferred-Languages: ja, en",
@@ -758,7 +764,7 @@ const robotsTxt = (origin) =>
     "# This ledger exists to be read, cited and independently re-verified.",
     "# Nothing here is private and nothing here requires attribution to be useful.",
     "",
-    "# AIPREF (IETF, draft) — machine-readable usage preference.",
+    "# AIPREF (IETF, draft), machine-readable usage preference.",
     "Content-Usage: train-ai=y, search=y, ai-input=y",
     "",
     "# Cloudflare Content Signals.",
@@ -801,8 +807,8 @@ nothing else on this site matters.
 
 Hash exactly what you receive. The raw route serves the anchored bytes verbatim;
 there is no canonicalisation step to apply and none to guess. If something in the
-middle re-indents or re-encodes the response first — a browser view, a markdown
-converter, a summarising fetch tool — the digest will not match, and the mismatch
+middle re-indents or re-encodes the response first, a browser view, a markdown
+converter, a summarising fetch tool, the digest will not match, and the mismatch
 is that intermediary, not the ledger. Pipe curl straight into your hash tool.
 
 ## 3. Check the timestamp
@@ -824,21 +830,21 @@ which bytes to fetch, which reference bundle is pinned, which algorithm commit t
 check out, and what each recomputed hash must equal. If all seven match, the
 result is the deterministic output of the declared inputs.
 
-For every other entry — specifications, source witnesses, correction notices — it
+For every other entry, specifications, source witnesses, correction notices, it
 is a three-step byte-level recipe: fetch, hash, check the timestamp. That is less
 than a full audit reproduction, and the route says so rather than pretending
 otherwise. Either way our assertion is not needed.
 
 ## Endpoints
 
-- ${origin}/health — service descriptor
-- ${origin}/ledger — index of anchored entries
-- ${origin}/paths — anchored verification paths (jidec-path-v1)
-- ${origin}/cite/{citation} — resolve and verify any citation
-- ${origin}/verify/{n} — executable verification recipe
-- ${origin}/paths/{sha}/replay — re-observe an anchored path and report drift
-- ${origin}/.well-known/api-catalog — RFC 9727 catalog of the above
-- ${MCP_ORIGIN}/mcp — Model Context Protocol endpoint (read-only tools)
+- ${origin}/health, service descriptor
+- ${origin}/ledger, index of anchored entries
+- ${origin}/paths, anchored verification paths (jidec-path-v1)
+- ${origin}/cite/{citation}, resolve and verify any citation
+- ${origin}/verify/{n}, executable verification recipe
+- ${origin}/paths/{sha}/replay, re-observe an anchored path and report drift
+- ${origin}/.well-known/api-catalog, RFC 9727 catalog of the above
+- ${MCP_ORIGIN}/mcp, Model Context Protocol endpoint (read-only tools)
 
 ## What this proves, and what it does not
 
@@ -924,7 +930,7 @@ async function citationCard(env, origin, citation) {
     ? "Independently verifiable: the stored bytes hash to the cited id" +
       (bitcoin.status === "confirmed" ? `, and that id is confirmed in Bitcoin block ${bitcoin.block}` :
        bitcoin.status === "pending" ? ", and that id is submitted to OpenTimestamps (Bitcoin confirmation pending)" : "") +
-      ". Do not take our word for it — run the command in `reproduce`."
+      ". Do not take our word for it, run the command in `reproduce`."
     : "INTEGRITY FAILURE: the stored bytes do NOT hash to the cited id. Do not rely on this citation.";
 
   card.limits =
@@ -1087,7 +1093,7 @@ async function handle(request, env) {
       try {
         const card = await citationCard(env, origin, text.match(/jidec:[a-z]*:?[0-9a-f]+|[0-9a-f]{64}|\d+/i)?.[0] || text);
         let result = { kind: "message", role: "agent", messageId: crypto.randomUUID(), parts: [{ kind: "text", text: card.trust_note }, { kind: "data", data: card }] };
-        if (a2aExt.includes(CONDUCT_EXT_URI)) result = a2aAttachConduct(result);
+        if (a2aExt.length) result = a2aAttachConduct(result);  // 0.4.3: どっちの綴りでも中身は同じ
         return json({ jsonrpc: "2.0", id: rid, result: a2aSendMessageResult(result, wire) }, 200, extHeaders);
       } catch (err) {
         return rpcErr(-32000, String((err && err.message) || err));
@@ -1311,7 +1317,7 @@ async function handle(request, env) {
       if (sch.schema !== "v1") {
         // 2026-07-26: this used to return 400. That was wrong, and a blank third-party
         // agent found it: llms.txt section 4 and the correction notice anchored as entry #7
-        // both send a reader to this route, and both are right — it was the route that was
+        // both send a reader to this route, and both are right, it was the route that was
         // too narrow. Every entry, whatever its schema, is verifiable at the byte level.
         // A verifier who is told to come here must get a recipe, not an error.
         return json({
@@ -1333,7 +1339,7 @@ async function handle(request, env) {
           one_liner: `curl -s "${origin}/ledger/${n}?format=raw" | shasum -a 256   # must print ${e.claim_sha256}`,
           recipe: [
             { step: 1, action: "fetch the exact anchored bytes", url: `${origin}/ledger/${n}?format=raw`, verify: `shasum -a 256 => ${e.claim_sha256}` },
-            { step: 2, action: "fetch and check the Bitcoin proof", url: `${origin}/ledger/${n}/ots`, verify: e.ots_status === "unstamped" ? "not stamped yet — nothing to check" : "ots verify -f <bytes file> <proof>, or upload both at https://opentimestamps.org" },
+            { step: 2, action: "fetch and check the Bitcoin proof", url: `${origin}/ledger/${n}/ots`, verify: e.ots_status === "unstamped" ? "not stamped yet, nothing to check" : "ots verify -f <bytes file> <proof>, or upload both at https://opentimestamps.org" },
             { step: 3, action: "read what this does and does not prove", url: `${origin}/health`, verify: "see the transparency object; the limits are stated there, not implied" },
           ],
           conclusion:
@@ -1355,7 +1361,7 @@ async function handle(request, env) {
           { step: 6, action: "recompute audit and hash the result", verify: `shasum -a 256 => ${c.result_sha256}` },
           { step: 7, action: "verify PDF fingerprint", verify: `shasum -a 256 <issued.pdf> => ${c.pdf_sha256}` }
         ],
-        note: "If steps 1-7 all match, the audit result is provably the deterministic output of the declared inputs/algorithm — HORIZON SHIELD's assertion is not needed."
+        note: "If steps 1-7 all match, the audit result is provably the deterministic output of the declared inputs/algorithm, HORIZON SHIELD's assertion is not needed."
       };
       if (wantsMarkdown(request)) return md(recipeMarkdown(recipeDoc));
       return jsonV(recipeDoc);
@@ -1435,7 +1441,7 @@ async function handle(request, env) {
         // only THIS ledger's own immutable entries directly from KV (which cannot loop and
         // cannot lie), and defer cross-host nodes (e.g. /canary on hs-pdf-gen) to the
         // client-side replay, which runs outside Cloudflare and re-fetches for real. This
-        // reports only what it can actually verify — it never emits a false DRIFT.
+        // reports only what it can actually verify, it never emits a false DRIFT.
         const selfHost = url.host;
         const hasPdfGen = env.PDF_GEN && typeof env.PDF_GEN.fetch === "function";
         const diffs = [];
@@ -1450,7 +1456,7 @@ async function handle(request, env) {
           const lm = uo && uo.pathname.match(/^\/ledger\/(\d+)$/);
           const isRaw = uo && uo.searchParams.get("format") === "raw";
           if (uo && isSelfLedgerHost(uo.host, selfHost) && lm && isRaw) {
-            // this ledger's own immutable entry — read from KV, no loopback
+            // this ledger's own immutable entry, read from KV, no loopback
             const te = await getEntry(env, Number(lm[1]));
             const freshSha = te ? (await sha256hex(te.record_canonical)).toLowerCase() : null;
             const changed = freshSha !== anchored;
@@ -1469,17 +1475,17 @@ async function handle(request, env) {
             reobserved++;
             diffs.push({ n: nd.n, url: u, source: "service binding PDF_GEN", anchored_body_sha256: anchored, fresh_body_sha256: freshSha, changed, ...(err ? { error: err } : {}) });
           } else {
-            diffs.push({ n: nd.n, url: u, deferred: "cross-host node not bound server-side — re-verify with client-side `jidec_path.py --replay`" });
+            diffs.push({ n: nd.n, url: u, deferred: "cross-host node not bound server-side, re-verify with client-side `jidec_path.py --replay`" });
           }
         }
         const full = reobserved === fetchTotal && fetchTotal > 0;
         const result = reobserved === 0
-          ? "INCONCLUSIVE — no server-re-observable nodes; run client-side replay"
+          ? "INCONCLUSIVE, no server-re-observable nodes; run client-side replay"
           : drift
-            ? "DRIFT — a re-observed node changed (investigate)"
+            ? "DRIFT, a re-observed node changed (investigate)"
             : full
-              ? "MATCH — all fetch nodes re-observed server-side, no drift"
-              : "MATCH (partial) — re-observed nodes unchanged; unbound nodes deferred to client";
+              ? "MATCH, all fetch nodes re-observed server-side, no drift"
+              : "MATCH (partial), re-observed nodes unchanged; unbound nodes deferred to client";
         return json({
           path_id: sha, entry: Number(nRef), anchored_verdict: obj.verdict && obj.verdict.outcome,
           reobserved_nodes: reobserved, fetch_nodes: fetchTotal, coverage: full ? "full" : "partial",

@@ -48,6 +48,13 @@ import urllib.request
 from datetime import datetime, timezone
 
 EXT_URI = "https://gate.horizonshield.dev/ext/conduct/v1"
+# 0.4.3 / spec section 12 (2026-09-09). The w3id.org permanent identifier resolves 302 to EXT_URI
+# (perma-id/w3id.org#6653). A2A guidance encourages a permanent identifier service for extension
+# URIs, so cards declaring this spelling exist. The identifier is still EXT_URI: this is a closed
+# list of exact strings, never normalised, and the redirect is never followed while walking.
+# The walk records which string the card used, so recognition is never silent.
+EXT_PERMANENT_ID = "https://w3id.org/horizonshield/conduct/v1"
+EXT_URIS = (EXT_URI, EXT_PERMANENT_ID)
 PRIVACY_MODES = ("full", "hash-only", "commitment")
 # conduct-v1.1 section 2: what a walk never establishes, whatever it observed. Stated in the record.
 DOES_NOT_ESTABLISH_ALWAYS = [
@@ -190,7 +197,7 @@ def locate_extension(card):
     exts = caps.get("extensions") if isinstance(caps, dict) else None
     if not isinstance(exts, list):
         return None, ["capabilities.extensions is not an array"]
-    found = [e for e in exts if isinstance(e, dict) and e.get("uri") == EXT_URI]
+    found = [e for e in exts if isinstance(e, dict) and e.get("uri") in EXT_URIS]
     if not found:
         return None, ["extension URI not declared"]
     ext = found[0]
@@ -402,7 +409,7 @@ def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked
             answered = False
         if mode == "a2a":
             e = n3["response"].get("a2a_extensions" if wire == "1.0" else "x_a2a_extensions") or ""
-            echoed = EXT_URI in [x.strip() for x in e.split(",")]
+            echoed = any(u in [x.strip() for x in e.split(",")] for u in EXT_URIS)
 
     def A(claim, result, nodes_, observed, note=None):
         a = {"claim": claim, "op": "eq", "result": result, "evidence_nodes": nodes_, "observed_sha256": sha256_hex(observed)}
@@ -439,7 +446,7 @@ def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked
             "mismatch_means": "the live agent now differs from the anchored observation; a changed card is a finding, not an error in the walk",
         },
         "witness": {"name": witness_name, "vantage": vantage},
-        "conduct_ext": {"uri": EXT_URI, "mode": mode, "wire": wire if mode == "a2a" else None, "conduct_record": params.get("conduct_record"), "witness_intake": params.get("witness_intake"), "target": target},
+        "conduct_ext": {"uri": EXT_URI, "declared_uri": (ext.get("uri") if isinstance(ext, dict) else None), "mode": mode, "wire": wire if mode == "a2a" else None, "conduct_record": params.get("conduct_record"), "witness_intake": params.get("witness_intake"), "target": target},
         "prev_path_refs": [],
     }
     # conduct-v1.1: the record says its mode and what it does and does not establish. A key_url on the
