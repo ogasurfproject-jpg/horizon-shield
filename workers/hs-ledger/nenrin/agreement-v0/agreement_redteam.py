@@ -20,6 +20,36 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import agreement_verify as V
 import agreement_sign as S
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+MUTATION_BACKUP = os.path.join(HERE, ".agreement_verify.py.mutation_backup")
+
+
+def mutation_in_progress(backup=MUTATION_BACKUP, env=None):
+    """True when agreement_mutation.py may have a mutant applied to the verifier right now.
+
+    The backup file exists only between the first mutation and the final restore, so its presence
+    means either a run is in flight or one died. Reading the verifier then measures nothing. The
+    mutation tool itself sets AGREEMENT_MUTATION_RUN, because it is supposed to run this file
+    against a mutated verifier; nobody else is.
+
+    Written on 2026-09-10 after the operator ran this suite in the same directory as a mutation
+    run in flight, watched one vector go red, and spent the next minutes hunting a defect that
+    was not there. A red result from a file somebody else is editing is not a result.
+    """
+    e = os.environ if env is None else env
+    if e.get("AGREEMENT_MUTATION_RUN") == "1":
+        return False
+    return os.path.exists(backup)
+
+
+if mutation_in_progress():
+    sys.stderr.write(
+        "REFUSING TO RUN: " + os.path.basename(MUTATION_BACKUP) + " is present, so agreement_verify.py\n"
+        "may have a mutant applied to it right now by agreement_mutation.py, or a run died and left one.\n"
+        "Wait for that run to finish, or run agreement_mutation.py once to recover the file.\n"
+        "Anything this suite printed in that state would be a measurement of somebody else's edit.\n")
+    raise SystemExit(2)
+
 R = []
 
 
@@ -878,6 +908,71 @@ alg["signatures"][0]["alg"] = "ed25519ph"
 case("attack", "an alg field naming a different Ed25519 variant than the one actually verified",
      "bad_signature" in codes(V.verify(bad11(alg))), json.dumps(codes(V.verify(alg))))
 
+# --- 3 回目の狩り。この事業の根っこに vector が 1 本も無かった -----------------------------------
+# canonical() を壊しても敵は気付かんかった。キーの並べ替えを止めても、非 ASCII を escape しても、
+# 区切りに空白を入れても、166 本が全部緑のまま通った。バイト一致で再現できることが看板の仕組みで、
+# その形を固定する vector が 1 本も無い状態やった。形は散文やなくバイトで書く。
+
+case("control", "canonical sorts keys at EVERY level, not just the top, and packs the separators",
+     V.canonical({"b": 1, "a": {"d": 2, "c": 3}}) == '{"a":{"c":3,"d":2},"b":1}',
+     V.canonical({"b": 1, "a": {"d": 2, "c": 3}}))
+case("control", "canonical leaves non ASCII as itself and never escapes it",
+     V.canonical({"k": "\u97f3"}) == '{"k":"\u97f3"}', V.canonical({"k": "\u97f3"}))
+case("control", "canonical inside a list is sorted too, and no space follows a comma or a colon",
+     V.canonical({"x": [{"b": 1, "a": 2}]}) == '{"x":[{"a":2,"b":1}]}', V.canonical({"x": [{"b": 1, "a": 2}]}))
+_d1 = {"a": 1}
+_d1["b"] = 2
+_d2 = {"b": 2}
+_d2["a"] = 1
+case("control", "two dicts built in opposite orders canonicalize to the same string",
+     V.canonical(_d1) == V.canonical(_d2) == '{"a":1,"b":2}', V.canonical(_d2))
+_body = {k: v for k, v in good11().items() if k != "signatures"}
+case("control", "the signed bytes are exactly the context prefix followed by the canonical record without its signatures",
+     V.signing_bytes(good11(), V11) == b"a2a-agreement-v1.1\n" + V.canonical(_body).encode("utf-8"), "")
+case("control", "and under v1 they are the canonical bytes with no prefix at all",
+     V.signing_bytes(good(), "a2a-agreement-v1")
+     == V.canonical({k: v for k, v in good().items() if k != "signatures"}).encode("utf-8"), "")
+
+# --- 3 回目の狩り: 鍵の符号化そのもの ------------------------------------------------------------
+ycurve = good11()
+ycurve["parties"][0]["public_key_ed25519_b64"] = base64.b64encode((V._P25519).to_bytes(32, "little")).decode()
+case("attack", "a public key whose y equals the field prime is a non canonical point encoding, not a key",
+     "bad_public_key" in codes(V.verify(bad11(ycurve))), json.dumps(codes(V.verify(ycurve))))
+offcurve = good11()
+offcurve["parties"][0]["public_key_ed25519_b64"] = base64.b64encode((2).to_bytes(32, "little")).decode()
+case("attack", "and a y that is not on curve25519 at all",
+     "bad_public_key" in codes(V.verify(bad11(offcurve))), json.dumps(codes(V.verify(offcurve))))
+# y = p + 1 は約分すると 1 = 単位元の y や。ところが約分前の値は 1 とちゃうので、
+# 素朴に point == IDENTITY と比べても一致せん。上限検査を外すと **単位元が非正規な符号化で
+# 素位数の鍵として通り抜ける**。19 通りの非正規形のうち、これ 1 つだけがそうなる。
+ident_sneak = good11()
+ident_sneak["parties"][0]["public_key_ed25519_b64"] = base64.b64encode((V._P25519 + 1).to_bytes(32, "little")).decode()
+case("attack", "the identity element wearing a non canonical encoding (y = p + 1): the only one of the nineteen that would slip past a subgroup test alone",
+     "bad_public_key" in codes(V.verify(bad11(ident_sneak))), json.dumps(codes(V.verify(ident_sneak))))
+
+# --- 3 回目の狩り: 有効な署名 3 本 ----------------------------------------------------------------
+# 2 本と数えとる所を 2 本以上に緩めても、この一式には「有効な署名が 3 本ある記録」が 1 つも
+# 無かったので誰も気付かんかった。
+three_valid = signed(good(), BOTH)
+_msg3 = V.signing_bytes(three_valid, "a2a-agreement-v1")
+three_valid["signatures"].append({"domain": "party-c.example", "alg": "ed25519",
+                                  "signature": base64.b64encode(KC.sign(_msg3)).decode(), "key_url": URL_C})
+_r3v = V.verify(three_valid, keys=KEYS)
+case("attack", "three signatures that ALL verify: refused, and signatures_checked stays false because two is two",
+     "extra_signatures" in codes(_r3v) and _r3v["signatures_checked"] is False
+     and len(_r3v["signatures"]) == 3 and all(e["result"] == "valid" for e in _r3v["signatures"]),
+     json.dumps({"checked": _r3v["signatures_checked"], "n": len(_r3v["signatures"])}))
+
+# --- 3 回目の狩り: 一つの規則を一本の vector が代わりに拾ってしまう ---------------------------------
+badrole = good11()
+badrole["parties"][0]["role"] = "either"
+case("attack", "an invented role is refused as bad_role by name, not left to the pairing rule to catch",
+     "bad_role" in codes(V.verify(bad11(badrole))), json.dumps(codes(V.verify(badrole))))
+over_contract = good11()
+over_contract["establishes"] = ["that the parties formed a contract"]
+case("attack", "establishes claiming a contract is caught by the contract pattern alone, with no other trigger word in the sentence",
+     "establishes_overclaims" in codes(V.verify(bad11(over_contract))), json.dumps(codes(V.verify(over_contract))))
+
 # --- 似せドメイン。under_domain は 4 つの規則を支えとるのに、点の境目を試す vector が無かった -------
 # evilparty-a.example は party-a.example で終わる。点を挟んで比べんかったら「その下」になってまう。
 # 2 回目の狩りで出た。bad_key_url / self_agreement / conduct_subject_wrong / recorder_undisclosed が
@@ -1062,6 +1157,43 @@ for _label, _rec, _k in ([("v1:%d" % i, rec, KEYS) for i, rec in enumerate(alls)
         liars.append(_label + "/accepted-unchecked")
 case("control", "across every record in this file, signatures_checked is true only when the report itself lists two valid signatures, and accepted never appears without it",
      liars == [], ", ".join(liars[:6]))
+
+# --- running this while the mutation tool is working measures nothing --------------------------
+
+import tempfile as _tf
+
+_tmpdir = _tf.mkdtemp()
+_fake = os.path.join(_tmpdir, ".agreement_verify.py.mutation_backup")
+case("control", "with no backup beside the verifier, nothing is in progress and the suite runs",
+     mutation_in_progress(backup=_fake, env={}) is False, "")
+open(_fake, "w").close()
+case("fix", "with a backup present, the suite refuses rather than reporting a verdict about somebody else's edit",
+     mutation_in_progress(backup=_fake, env={}) is True, "")
+case("control", "except for the mutation tool itself, which is supposed to run against a mutated verifier",
+     mutation_in_progress(backup=_fake, env={"AGREEMENT_MUTATION_RUN": "1"}) is False, "")
+
+# --- the quickstart in the README has to be a quickstart ---------------------------------------
+# It was not. It told a reader to print a public key and never told them to put it in the record,
+# so following it produced a template still carrying REPLACE_WITH_PARTY_A_PUBLIC_KEY and the
+# signer refused. A recipe with a step you have to guess is a recipe that fails on the first
+# outside reader, and this file is the only thing that will notice when it happens again.
+
+_README = os.path.join(os.path.dirname(os.path.abspath(__file__)), "README.md")
+if os.path.exists(_README):
+    _md = open(_README, encoding="utf-8").read()
+    _blocks = [b for b in re.findall(r"```\n(.*?)```", _md, re.S) if "agreement_sign.py" in b]
+    _qs = _blocks[0] if _blocks else ""
+    case("control", "the README carries an end to end block that signs a record",
+         bool(_qs), str(len(_blocks)))
+    case("control", "and that block puts the printed public keys INTO the record before signing",
+         "public_key_ed25519_b64" in _qs and "--pubkey" in _qs, "")
+    case("control", "and it builds the key file before it passes one to --keys",
+         ("--keys" not in _qs) or (_qs.index("keys.json\"") < _qs.index("--keys")),
+         "")
+    case("control", "and it writes into a scratch directory, so running the README does not litter the repository",
+         "/tmp/" in _qs, "")
+else:
+    case("control", "the README is beside this file so its quickstart can be checked", False, _README)
 
 # --- the anchored draft must never move --------------------------------------------------------
 

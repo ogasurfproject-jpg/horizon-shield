@@ -2,7 +2,7 @@
 """Mutation test for agreement_redteam.py. It breaks agreement_verify.py one rule at a time and
 checks that the adversary notices. Run: python3 agreement_mutation.py   (about ten minutes)
 
-A suite of 166 vectors that all pass proves nothing on its own: a suite can be green because
+A suite of 178 vectors that all pass proves nothing on its own: a suite can be green because
 the rules hold, or green because the vectors never touch them. This file tells the two apart.
 It was worth writing twice. First it found that the single most important rule in the whole
 program, that a verdict is never "accepted" unless both signatures actually verified, could be
@@ -126,6 +126,26 @@ MUTANTS = [
     ("the surrogate range narrowed to the one code point that was tested", 'if 0xD800 <= ord(ch) <= 0xDFFF:', 'if 0xD800 <= ord(ch) <= 0xD801:', True),
     ("the required disclaimer subjects emptied", 'missing = [name for name, needles in REQUIRED_DNE if not any(n in low for n in needles)]', 'missing = [name for name, needles in [] if not any(n in low for n in needles)]', True),
 
+    # Third hunt, same day, after the second: eighteen more candidates and nine survived.
+    # The heaviest was canonical() itself. Break the key sort, escape non ASCII, or loosen the
+    # separators and all 166 vectors stayed green, in a system whose entire claim is that two
+    # implementations reach the same bytes. The form is pinned as bytes now, not as prose.
+    ('strict is never on, so v1.1 is read with v1 rules', 'strict = schema == SCHEMA_V11', 'strict = False', True),
+    ('key_urls_checked always true', 'urls_checked = bool(url_results) and len(url_results) == 2 and all(url_results)', 'urls_checked = True', True),
+    ('two signatures becomes two or more', 'checked = len(per_sig) == 2 and all(e["result"] == "valid" for e in per_sig)', 'checked = len(per_sig) >= 2 and all(e["result"] == "valid" for e in per_sig)', True),
+    ('canonical stops sorting keys', 'return json.dumps(obj, ensure_ascii=False, sort_keys=True, separators=(",", ":"))', 'return json.dumps(obj, ensure_ascii=False, sort_keys=False, separators=(",", ":"))', True),
+    ('canonical escapes non ASCII', 'return json.dumps(obj, ensure_ascii=False, sort_keys=True, separators=(",", ":"))', 'return json.dumps(obj, ensure_ascii=True, sort_keys=True, separators=(",", ":"))', True),
+    ('canonical uses the default separators', 'separators=(",", ":"))', 'separators=(", ", ": "))', True),
+    ('the signatures stay inside the signed bytes', 'body = {k: v for k, v in record.items() if k != "signatures"}', 'body = {k: v for k, v in record.items()}', True),
+    ('the v1.1 size limit raised to the v1 one', 'MAX_BYTES = {SCHEMA_V1: 65536, SCHEMA_V11: 16384}', 'MAX_BYTES = {SCHEMA_V1: 65536, SCHEMA_V11: 65536}', True),
+    ('roles gains a fourth value', 'ROLES = ("payer", "payee", "peer")', 'ROLES = ("payer", "payee", "peer", "either")', True),
+    ('record_paid_by gains a positional word under v1.1', 'PAID_BY_WORDS = ("both", "neither", "third_party")', 'PAID_BY_WORDS = ("both", "neither", "third_party", "party_a")', True),
+    ('the report stops saying that no key URL was fetched', 'if not urls_checked:', 'if False:', True),
+    ('floats stop being scanned at all', 'elif isinstance(node, float):', 'elif False:', True),
+    ('the overclaim guard loses the contract pattern', '(r"\\bcontract\\b", "formation of a contract"),\n', '', True),
+    ('the non canonical point encoding bound is dropped', 'if y >= _P25519:', 'if False:', True),
+    ('EQUIVALENT: the separator checks in norm_domain (the label pattern rejects every one of them anyway)', 'if not s or "/" in s or "@" in s or ":" in s or " " in s:', 'if not s:', False),
+    ('EQUIVALENT: the on curve check after _xrecover (x is constructed to satisfy the curve equation)', 'if (-x * x + y * y - 1 - _D25519 * x * x * y * y) % _P25519 != 0:', 'if False:', False),
     # Expected to survive: the same refusal is reached by another path, so behaviour is unchanged.
     ("EQUIVALENT: the a == b branch of self_agreement (the subdomain branch below it catches the same case)",
      'if a == b:\n            r.refuse("self_agreement"', 'if False:\n            r.refuse("self_agreement"', False),
@@ -175,7 +195,8 @@ def main():
             with open(TARGET, "w", encoding="utf-8") as f:
                 f.write(orig.replace(old, new))
             clear_pycache()
-            p = subprocess.run([sys.executable, SUITE], cwd=HERE, capture_output=True, text=True)
+            env = dict(os.environ, AGREEMENT_MUTATION_RUN="1")
+            p = subprocess.run([sys.executable, SUITE], cwd=HERE, capture_output=True, text=True, env=env)
             caught = p.returncode != 0
             ng = len([l for l in p.stdout.splitlines() if l.strip().startswith("NG")])
             mark = "ok" if caught == expect else "MISS"
@@ -188,11 +209,18 @@ def main():
         clear_pycache()
         back = open(TARGET, encoding="utf-8").read()
         ok_restore = back == orig
-        print("\nrestored    %s" % ("byte identical" if ok_restore else "*** RESTORE FAILED, recover this file from git ***"))
+        # Remove the backup BEFORE printing anything. A run killed by a timeout has its stdout
+        # pipe closed already, so a print here can raise and abandon the rest of this block,
+        # which is how a finished run once left its backup behind (harmless, but it then makes
+        # the adversary refuse to start until somebody works out why).
         if ok_restore and os.path.exists(BACKUP):
             os.remove(BACKUP)
-        elif not ok_restore:
-            print("            the untouched copy is still at %s" % BACKUP)
+        try:
+            print("\nrestored    %s" % ("byte identical" if ok_restore else "*** RESTORE FAILED, recover this file from git ***"))
+            if not ok_restore:
+                print("            the untouched copy is still at %s" % BACKUP)
+        except Exception:
+            pass
     print()
     if wrong:
         print("=== %d / %d, and these did not behave as expected: %s ===" % (len(MUTANTS) - len(wrong), len(MUTANTS), ", ".join(wrong)))

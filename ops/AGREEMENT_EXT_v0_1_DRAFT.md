@@ -14,8 +14,8 @@ reference verifier reads both, and says which one it read.
 **Author:** The HORIZ音s株式会社 / HORIZON SHIELD. **License:** Apache-2.0, as `conduct-v1`.
 **Language:** RFC 2119 keywords. Field names are exact.
 **Reference implementation:** `workers/hs-ledger/nenrin/agreement-v0/agreement_verify.py`
-(offline, no network), `agreement_sign.py`, `agreement_redteam.py` (166 vectors),
-`agreement_mutation.py` (58 mutants).
+(offline, no network), `agreement_sign.py`, `agreement_redteam.py` (185 vectors),
+`agreement_mutation.py` (74 mutants).
 
 ## 1. What this records
 

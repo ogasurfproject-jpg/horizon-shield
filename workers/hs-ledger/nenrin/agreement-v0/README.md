@@ -9,14 +9,17 @@ Offline reference implementation of the agreement record. Two schemas, one progr
 
 A `conduct-v1` record is one sided: somebody measured somebody. This record is the other half: at
 time T, party A and party B both signed the same bytes describing terms, and each of them pinned,
-by sha256, a conduct record about the other, written by somebody who is neither of them.
+by sha256, a conduct record about the other. Under v1.1 that record must have been written by
+somebody who is neither party, unless the record declares otherwise and pays for it: a self
+measured record is accepted only when it says so, and the sentence about third party measurement
+then disappears from what the record establishes.
 
 | file | what it does |
 | --- | --- |
 | `agreement_verify.py` | reads a record, answers `accepted` / `refused` / `incomplete` with reasons |
 | `agreement_sign.py` | one party adds its own signature, on its own machine |
-| `agreement_redteam.py` | 166 vectors: 107 attacks, 42 controls, 12 misclassifications, 5 residuals. About 20 seconds |
-| `agreement_mutation.py` | breaks the verifier one rule at a time and checks the adversary notices. 58 mutants, about 20 minutes |
+| `agreement_redteam.py` | 185 vectors: 113 attacks, 54 controls, 12 misclassifications, 5 residuals. A few seconds |
+| `agreement_mutation.py` | breaks the verifier one rule at a time and checks the adversary notices. 74 mutants, about five minutes |
 
 There is no intake, no KV, no ring column, no fee, no URI. Those come when a real pair of parties
 has a real agreement to record. A record layer built before it has two parties is an empty
@@ -25,28 +28,37 @@ exchange, and an empty exchange is worse than none.
 ## Run it
 
 ```
-python3 agreement_redteam.py            # 166 / 166, needs cryptography, no network
-python3 agreement_mutation.py           # 58 / 58, only worth running after editing the verifier
+python3 agreement_redteam.py            # 185 / 185, needs cryptography, no network
+python3 agreement_mutation.py           # 74 / 74, only worth running after editing the verifier
 ```
 
-A v1.1 record end to end. The keys go INSIDE the record, which is what lets it verify offline
-forever:
+A v1.1 record end to end, in full, because a quickstart that needs a step you have to guess is
+not a quickstart. The keys go INSIDE the record, which is what lets it verify offline forever.
+Run this from this directory; it works in a scratch directory and writes nothing here:
 
 ```
+V=$PWD
+mkdir -p /tmp/agr && cd /tmp/agr
 openssl genpkey -algorithm ed25519 -out a.pem
 openssl genpkey -algorithm ed25519 -out b.pem
-python3 agreement_verify.py --example > rec.json
-python3 agreement_sign.py --pubkey a.pem        # put this key in parties[0]
-python3 agreement_sign.py --pubkey b.pem        # and this one in parties[1]
-python3 agreement_sign.py rec.json --key a.pem --domain party-a.example --out rec.json
-python3 agreement_sign.py rec.json --key b.pem --domain party-b.example --out rec.json
-python3 agreement_verify.py rec.json                       # accepted, with no key file at all
-python3 agreement_verify.py rec.json --keys keys.json      # and the domain binding as well
+python3 $V/agreement_verify.py --example > rec.json
+python3 $V/agreement_sign.py --pubkey a.pem > pa.json
+python3 $V/agreement_sign.py --pubkey b.pem > pb.json
+python3 -c 'import json; r=json.load(open("rec.json")); r["parties"][0]["public_key_ed25519_b64"]=json.load(open("pa.json"))["public_key_ed25519_b64"]; r["parties"][1]["public_key_ed25519_b64"]=json.load(open("pb.json"))["public_key_ed25519_b64"]; open("rec.json","w").write(json.dumps(r,ensure_ascii=False,sort_keys=True,separators=(",",":")))'
+python3 $V/agreement_sign.py rec.json --key a.pem --domain party-a.example --out rec.json
+python3 $V/agreement_sign.py rec.json --key b.pem --domain party-b.example --out rec.json
+python3 $V/agreement_verify.py rec.json --quiet
+python3 -c 'import json; json.dump({"https://party-a.example/keys/agreement.json": json.load(open("pa.json")), "https://party-b.example/keys/agreement.json": json.load(open("pb.json"))}, open("keys.json","w"))'
+python3 $V/agreement_verify.py rec.json --keys keys.json --quiet
 ```
 
+The first verify prints `accepted ... signatures_checked=True key_urls_checked=False`, from the
+record alone with no key file anywhere. The second adds `key_urls_checked=True`, and only then does
+the report claim the signatures are attributable to those domains.
+
 `--example-v1` prints the v1 template instead; under v1 the keys live only at `key_url`, so
-`--keys` is required before anything can be accepted. `keys.json` maps each `key_url` to the
-public key served there. Exit codes: `0` accepted, `1` refused, `2` incomplete.
+`--keys` is required before anything can be accepted. Exit codes: `0` accepted, `1` refused,
+`2` incomplete.
 
 ## The rule that matters
 
@@ -58,9 +70,9 @@ That flag is derived from the evidence printed in the report, never set beside i
 `agreement_mutation.py` found on 2026-09-10 that replacing it with the constant `true` left the
 whole adversary green. A flag that can disagree with the list it summarises is a flag that will.
 
-## What 58 out of 58 does not mean
+## What 74 out of 74 does not mean
 
-It means the 58 rules somebody wrote a mutant for are tested. It says nothing about the rules
+It means the 74 rules somebody wrote a mutant for are tested. It says nothing about the rules
 nobody wrote one for, and the difference is not small. Before asking an outside reviewer to find a
 mutant this adversary misses, the operator went looking first: eleven candidates outside the list,
 **ten of which survived**. Every rule they broke already existed in the verifier. What was missing
@@ -69,6 +81,15 @@ of those is the one that matters: `under_domain` compares a host against a domai
 the dot from the boundary makes `evilparty-a.example` count as being under `party-a.example`. That
 one function carries `bad_key_url`, `self_agreement`, `conduct_subject_wrong` and
 `recorder_undisclosed`, and not one vector had used a lookalike domain against it.
+
+A third hunt, eighteen more candidates, found the heaviest one of all. **`canonical()` itself had
+no vector.** Stop sorting keys, escape the non-ASCII, loosen the separators to the JSON defaults,
+and all 166 vectors stayed green, in a program whose entire claim is that two implementations
+reach the same bytes. The form is pinned as bytes now, in four vectors that compare exact strings,
+and so are the signed bytes for both schemas. The same hunt found that the non-canonical point
+encoding bound was carrying real weight: `y = p + 1` reduces to the identity element's `y`, but
+compares unequal to it before reduction, so with that bound removed the identity slips through a
+subgroup test as a valid key. One of nineteen possible non-canonical encodings does that.
 
 All of them are closed and all of them are in the mutant list. The lesson is kept here rather than
 tidied away: a green suite is evidence about the vectors, not about the program.
@@ -124,6 +145,14 @@ And two more came from trying to build the first real record with a real counter
 an agreement with no price could not be written at all, and the conduct subject had to match the
 party domain exactly, which rejected the only conduct record that actually exists between those
 two parties. Using a thing is what finds its holes.
+
+Two came from the documentation and the tooling around the code rather than the code. The
+quickstart in this README told a reader to print a public key and never told them to put it into
+the record, so following it literally produced a template still carrying a placeholder and a
+signer that refused. It is written out in full now and a vector checks that it stays that way.
+And running this adversary in the same directory as a mutation run in flight reads a verifier that
+somebody else is editing: one vector went red, and the defect was not there. The suite now refuses
+to run at all when the mutation tool's backup file is present, except for the mutation tool itself.
 
 One more came from the tool itself. `agreement_mutation.py` claimed it restored the file it edits
 "on every exit path, including a crash and a Ctrl-C". That was false for SIGTERM, which python
