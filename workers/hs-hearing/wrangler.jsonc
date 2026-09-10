@@ -21,9 +21,14 @@
       { "name": "DISPATCH_DO", "class_name": "DispatchGateDO" }
     ]
   },
-  // 素の key-value storage の DO やから new_classes。SQLite は要らん。
+  // new_sqlite_classes でないとあかん。2026-09-10、new_classes で出したら
+  // Cloudflare が断った: 「Creating new key-value backed Durable Object namespaces is
+  // no longer supported on this account」(code 10099)。
+  // ワシは「SQL を使わんから key-value 版でええ」で選んだ。兄弟を見とったら分かった。
+  // hs-gateway の TicketLedgerDO は最初から new_sqlite_classes で立っとる。
+  // SQLite 版でも storage.get / put / delete はそのまま使えるから、code は 1 行も変えとらん。
   "migrations": [
-    { "tag": "v1", "new_classes": ["DispatchGateDO"] }
+    { "tag": "v1", "new_sqlite_classes": ["DispatchGateDO"] }
   ],
   // Workers AI: メール返信のプローズをヒアリングschemaに構造化する既定エンジン(外部APIキー不要)
   "ai": { "binding": "AI" },

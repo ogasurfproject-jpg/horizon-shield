@@ -21,7 +21,10 @@ cd "$(dirname "$0")"
 #    扉と違い、ここは判定に commit を刻まない。それでも要る理由は再現性である。
 #    本番で動いているコードが git に無ければ、後から誰も「何が動いていたか」を
 #    言えない。加盟店に送った文面の出どころが分からんということになる。
-DIRTY=$(git status --porcelain -- src/ wrangler.jsonc)
+# この script 自身も見る。deploy を許した規則が git に残っとらんかったら、
+# 「本番で動いた物が git に残る」は半分しか言えとらん。決めた側も残る。
+# (2026-09-10、DO の migration を直した時に、この file だけ未コミットで通れると気付いた。)
+DIRTY=$(git status --porcelain -- src/ wrangler.jsonc "$(basename "$0")")
 if [ -n "$DIRTY" ]; then
   echo "★ 拒否: このワーカーのソースに未コミットの変更がある。"
   echo "$DIRTY"
@@ -50,9 +53,11 @@ echo ""
 echo "関所: wrangler.jsonc の DISPATCH_DO と migrations"
 if ! grep -q '"class_name": *"DispatchGateDO"' wrangler.jsonc \
    || ! grep -q '"name": *"DISPATCH_DO"' wrangler.jsonc \
+   || ! grep -q 'new_sqlite_classes' <<< "$(grep -A3 '"migrations"' wrangler.jsonc)" \
    || ! grep -q 'DispatchGateDO' <<< "$(grep -A3 '"migrations"' wrangler.jsonc)"; then
   echo ""
-  echo "★ 拒否: wrangler.jsonc に DISPATCH_DO の binding か migration が無い。"
+  echo "★ 拒否: wrangler.jsonc に DISPATCH_DO の binding か、new_sqlite_classes の migration が無い。"
+  echo "   new_classes ではこの account に DO を作れん (2026-09-10 に Cloudflare が code 10099 で断った)。"
   echo "   この worker は関所が無いと合図を出さん。出さんまま deploy したら、"
   echo "   生成が静かに止まって、誰も何日か気付かん。"
   exit 1
