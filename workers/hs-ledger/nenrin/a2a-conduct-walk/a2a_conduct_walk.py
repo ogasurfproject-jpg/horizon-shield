@@ -14,7 +14,9 @@ What it asserts (each one pinned by sha256 of the bytes it turned on):
     conduct_ext_declared        the card lists the extension URI under capabilities.extensions[]
     compensation_well_formed    params.compensation has the shape section 2 requires
     measured_endpoint_answered  the measured endpoint answered a JSON-RPC request with a result of the
-                                shape the wire version requires (1.0: {task}|{message}; 0.3: kind)
+                                shape the wire version requires (1.0: {task}|{message}; 0.3: kind).
+                                Recorded n/a, not FAIL, when the endpoint answers 402: see below
+    payment_required_as_declared  an endpoint that answers 402 declares a paid model on its card
     extension_echoed            (a2a mode only) the response header A2A-Extensions carries the URI, or
                                 X-A2A-Extensions when the walk used the 0.3 wire (that is the spelling
                                 a 0.3 client sends and reads: the official SDKs' compatibility paths)
@@ -23,6 +25,20 @@ What it does not do: it does not judge quality, it does not read the conduct rec
 and a PASS is not a verdict about the agent. It is one observation, filed where anyone can
 read it and count it. Canonical bytes: keys sorted at every level, separators , and : with no
 spaces, non-ASCII unescaped. sha256 of those bytes is the record's identity.
+
+conduct-v1.3 draft (2026-09-11, ops/conduct_v1_3_paid_endpoint_20260911.md). Two changes, both found
+by walking a real agent that charges for calls, and both invisible to 47 green vectors because every
+fixture agent was free and every fixture card declared the extension.
+    402 is an answer, not a silence. Before this, every status that was not 200 fell into one bucket,
+    so an agent behaving exactly as its own card says was recorded the same as a broken one.
+    measured_endpoint_answered is now n/a on 402 and payment_required_as_declared says what happened.
+    A walk NEVER pays: a witness that pays the agent it walks has the relationship this layer exists
+    to disclose. That is also why the undeclared case is a FAIL, so 402 cannot become a way to stop
+    being measured.
+    compensation_well_formed no longer answers a question about the extension. With no extension it
+    is asked of the card's top-level compensation key (which the gate's condition 3 has read since
+    0.2.0) and the record says which declaration it read; with no declaration anywhere it is n/a.
+    Whether the extension is declared is conduct_ext_declared's whole job and is not restated.
 
 conduct-v1.1 (2026-09-07, ops/conduct_v1_1_draft_20260907.md). Every record this client writes now
 carries `mode`, `establishes` and `does_not_establish`; the last one is the field that keeps a reader
@@ -67,6 +83,9 @@ DOES_NOT_ESTABLISH_ALWAYS = [
 DOES_NOT_ESTABLISH_UNSIGNED = "identity of the witness beyond the name given"
 DOES_NOT_ESTABLISH_HASH_ONLY = "which tool or method was called"
 DOES_NOT_ESTABLISH_COMMITMENT = "anything about the walked agent until the committed record is revealed"
+# conduct-v1.3 (2026-09-11). A walk never pays. A 402 says the endpoint charges; it says nothing
+# about the amount, and the walk has no way to learn the amount without becoming a customer.
+DOES_NOT_ESTABLISH_PAID = "that the amount charged matches the price the card declares: the walk did not pay"
 # A2A 1.0 spells the service parameter A2A-Extensions; 0.3 spelled it X-A2A-Extensions.
 # A 1.0 walk sends the 1.0 spelling; a 0.3 walk sends only the 0.3 spelling, like a 0.3 client does.
 EXT_HEADER = {"1.0": "A2A-Extensions", "0.3": "X-A2A-Extensions"}
@@ -166,6 +185,28 @@ def fetch_node(n, fetch, method, url, headers=None, body=None):
     node["response"]["a2a_extensions"] = echo
     node["response"]["x_a2a_extensions"] = echo_legacy
     return node, status, rb
+
+
+def paid_model_signals(card):
+    """conduct-v1.3 section 4. Which card keys declare a paid model, as a closed list of exact
+    keys and exact values. Nothing is normalised, nothing is inferred from prose, and the walk
+    records what it saw so recognition is never silent. Returns a sorted list; empty means the
+    card declares no paid model."""
+    if not isinstance(card, dict):
+        return []
+    seen = []
+    comp = card.get("compensation")
+    if isinstance(comp, dict) and comp.get("paid_by") == "buyer":
+        seen.append("compensation.paid_by=buyer")
+    if card.get("x402") is True:
+        seen.append("x402=true")
+    pm = card.get("paymentMethods")
+    if isinstance(pm, list) and pm and all(isinstance(x, str) for x in pm):
+        seen.append("paymentMethods=" + ",".join(sorted(pm)))
+    pr = card.get("pricing")
+    if isinstance(pr, dict) and pr.get("model") == "pay-per-use":
+        seen.append("pricing.model=pay-per-use")
+    return sorted(seen)
 
 
 def compensation_problems(c):
@@ -370,6 +411,9 @@ def disclaimers(record, privacy, signed, target):
             est.append("one request answered by %s with http %s and body sha256 %s" % (
                 where, n3["response"]["status"], n3["response"]["body_sha256"]))
     dne = list(DOES_NOT_ESTABLISH_ALWAYS)
+    n3_dne = nodes.get(3)
+    if n3_dne and n3_dne.get("response", {}).get("status") == 402:
+        dne.append(DOES_NOT_ESTABLISH_PAID)
     if privacy == "hash-only":
         dne.append(DOES_NOT_ESTABLISH_HASH_ONLY)
     if privacy == "commitment":
@@ -451,6 +495,20 @@ def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked
     except Exception:
         card = None
     ext, problems = locate_extension(card)
+    # conduct-v1.3 (2026-09-11). "Is the extension declared" and "is the compensation declaration
+    # well formed" are two questions. Before this they shared one answer: with no extension the
+    # compensation assertion was false whatever the card said, and the evidence filed beside it was
+    # a sentence about capabilities.extensions. A card whose compensation was flawless was recorded
+    # as malformed, with the reason naming a different field. Found on a real card.
+    # The card's top-level compensation key is a real declaration surface: the gate's condition 3
+    # has read it since 0.2.0. So when the extension is absent, the question is asked of whatever
+    # declaration exists, and the record says which one it read. The extension's absence is already
+    # one assertion's whole job, and it keeps it.
+    comp_where, comp_problems = None, None
+    if ext is not None:
+        comp_where, comp_problems = "params.compensation", problems
+    elif isinstance(card, dict) and isinstance(card.get("compensation"), dict):
+        comp_where, comp_problems = "the card's top-level compensation key", compensation_problems(card["compensation"])
     card_signature = read_card_signature(card, origin, privacy)
     params = ext.get("params") if isinstance(ext, dict) and isinstance(ext.get("params"), dict) else {}
     measured = params.get("measured_endpoints") if isinstance(params.get("measured_endpoints"), list) else []
@@ -483,6 +541,12 @@ def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked
             e = n3["response"].get("a2a_extensions" if wire == "1.0" else "x_a2a_extensions") or ""
             echoed = any(u in [x.strip() for x in e.split(",")] for u in EXT_URIS)
 
+    # conduct-v1.3 (2026-09-11). 402 Payment Required is an answer, not a silence. Before this,
+    # every status that was not 200 fell into one bucket, so a paid agent behaving exactly as its
+    # card says was recorded the same as a broken one. Found by walking a real paid agent.
+    paid_signals = paid_model_signals(card)
+    payment_required = bool(n3) and s3 == 402
+
     def A(claim, result, nodes_, observed, note=None):
         a = {"claim": claim, "op": "eq", "result": result, "evidence_nodes": nodes_, "observed_sha256": sha256_hex(observed)}
         if note:
@@ -492,8 +556,36 @@ def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked
     assertions = [
         A("card_bytes_stable: node0.body_sha256 == node1.body_sha256", s0 == 200 and s1 == 200 and n0["response"]["body_sha256"] == n1["response"]["body_sha256"], [0, 1], n0["response"]["body_sha256"] + n1["response"]["body_sha256"]),
         A("conduct_ext_declared: card lists " + EXT_URI + " under capabilities.extensions[]", ext is not None, [1, 2], canonical(ext) if ext is not None else "absent"),
-        A("compensation_well_formed: params.compensation has the section 2 shape and agrees with any top-level copy", ext is not None and not problems, [1, 2], canonical(problems)),
-        A("measured_endpoint_answered: POST " + (target or "(no target)") + " returned http 200 with a JSON-RPC result" + (" of the A2A " + wire + " shape" if mode == "a2a" else ""), bool(target) and answered, [3] if n3 else [2], (n3["response"]["body_sha256"] if n3 else "no-node") + ":" + str(answered)),
+        A("compensation_well_formed: the compensation declaration has the section 2 shape and any two copies of it agree",
+          (not comp_problems) if comp_where else None,
+          [1, 2],
+          canonical(comp_problems if comp_where else "no declaration"),
+          note=(("read from " + comp_where + ": the extension is not declared, so there is no "
+                 "params.compensation. Whether the extension is declared is recorded by "
+                 "conduct_ext_declared and is not restated here.") if comp_where == "the card's top-level compensation key"
+                else ("not applicable: the card carries no compensation declaration in either place. "
+                      "The extension's absence is recorded by conduct_ext_declared." if not comp_where else None))),
+        A("measured_endpoint_answered: POST " + (target or "(no target)") + " returned http 200 with a JSON-RPC result" + (" of the A2A " + wire + " shape" if mode == "a2a" else ""),
+          None if payment_required else (bool(target) and answered),
+          [3] if n3 else [2],
+          (n3["response"]["body_sha256"] if n3 else "no-node") + ":" + str(answered),
+          note=("not applicable: the endpoint required payment (http 402) and this walk does not pay. "
+                "A witness that pays the agent it is walking has a financial relationship with that "
+                "agent, which is the thing this layer exists to disclose. What was observed instead "
+                "is recorded by payment_required_as_declared.") if payment_required else None),
+        A("payment_required_as_declared: an endpoint answering http 402 declares a paid model on its "
+          "card; signals read (closed list, exact keys): " + (", ".join(paid_signals) if paid_signals else "none"),
+          (bool(paid_signals) if payment_required else None),
+          [3] if n3 else [2],
+          canonical(paid_signals) + ":" + str(s3 if n3 else None),
+          note=(None if payment_required and paid_signals else
+                ("the endpoint charged and the card declares no paid model at all; a charge nobody "
+                 "was told about is a failed disclosure, and without this line answering 402 would "
+                 "be a way to never be measured again" if payment_required else
+                 ("not applicable: the card declares no paid model, so there is nothing to enforce"
+                  if not paid_signals else
+                  "not applicable: the card declares a paid model and this request was answered "
+                  "without a charge; from here a free method and a waived charge look the same")))),
     ]
     if mode == "a2a":
         assertions.append(A("extension_echoed: response header " + EXT_HEADER[wire] + " contains " + EXT_URI, bool(echoed), [3] if n3 else [2], str((n3["response"].get("a2a_extensions"), n3["response"].get("x_a2a_extensions")) if n3 else None)))

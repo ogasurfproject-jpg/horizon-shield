@@ -220,3 +220,30 @@ prerequisite 5 begins with a re-sync.
 and prints the values that fill the TODOs above. It must run on the Mac: this session's
 container and the bridge VM both have their egress denied and cannot reach any of these
 hosts, which is why none of these values are filled in here already.
+
+## 9. The walk was run, and the answer to section 8 is "neither yet" (2026-09-11)
+
+`ops/agreement_first_record_prep.sh` ran on the Mac. Card hashes for both sides are in
+`ops/first_record_prep_out/`. The walk of `api.babyblueviper.com` came back **FAIL 1 of 5**,
+sha256 `e43f4fad0bcf124953893618489a6f6e01ff9c18d30c8c9ed4affa5bb8a7ab3b`, and reading it
+showed that **two of those four failures were faults in the walk, not facts about that
+agent**. His endpoint answered `http 402 Payment Required`, which is the correct behaviour
+of an agent whose card declares `x402`, four payment methods and pay-per-use pricing; the
+walk recorded it in the same bucket as a 500. And `compensation_well_formed` failed on a
+declaration this project's own checker calls flawless, because the assertion was gated on
+whether the extension was declared and filed a sentence about `capabilities.extensions` as
+its evidence.
+
+Both are fixed, with vectors, in `ops/conduct_v1_3_paid_endpoint_20260911.md`. Replayed
+against the same card bytes the record is **FAIL 3 of 5**, and the two remaining failures
+are the two that are true: he does not declare the conduct extension, so he does not echo
+it.
+
+So section 8's two options are both premature. The record to pin is the one produced after
+the fix, and the walk has to be re-run on the Mac to produce it against the live endpoint
+rather than against saved bytes. Prerequisite 3 is therefore: re-run the walk, read it,
+then decide whether to show it to him before asking for a signature.
+
+Prerequisite 5 did not complete. The header sync was called with no mode and wrote a
+different window than the reader reads, so the manifest never advanced and the reader said
+STALE, which is the failure behaving correctly. Fixed in the same pass.

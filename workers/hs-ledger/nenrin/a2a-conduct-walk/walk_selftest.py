@@ -178,7 +178,14 @@ vec("honest_mcp", "control", mock([card()]), "mcp", True, {"card_bytes_stable": 
 vec("honest_a2a", "control", mock([card()]), "a2a", True, {"extension_echoed": True})
 vec("honest_a2a_top_level_copy_equal", "control", mock([card(top=dict(COMP))]), "a2a", True, {"compensation_well_formed": True})
 vec("card_changes_between_fetches", "attack", mock([card(), card(extra={"description": "mock v2"})]), "mcp", False, {"card_bytes_stable": False})
-vec("no_extension_declared", "attack", mock([card(ext=False, top=dict(COMP))]), "mcp", False, {"conduct_ext_declared": False, "compensation_well_formed": False, "measured_endpoint_answered": True}, endpoint=EP)
+# conduct-v1.3 (2026-09-11): this vector used to expect compensation_well_formed False, and that
+# expectation was the bug written down. The card's top-level compensation here is flawless; the
+# missing extension is conduct_ext_declared's whole job. A walk that answers a question about
+# field A with the reason for field B is the fault named in the reply about key_urls_checked,
+# one tool over. The record is still FAIL, for the one reason that is true.
+vec("no_extension_declared", "attack", mock([card(ext=False, top=dict(COMP))]), "mcp", False, {"conduct_ext_declared": False, "compensation_well_formed": True, "measured_endpoint_answered": True}, endpoint=EP)
+vec("no_extension_and_top_level_malformed", "attack", mock([card(ext=False, top=dict(COMP, paid_by="Buyer"))]), "mcp", False, {"conduct_ext_declared": False, "compensation_well_formed": False}, endpoint=EP)
+vec("no_compensation_anywhere_is_not_applicable", "attack", mock([card(ext=False)]), "mcp", False, {"conduct_ext_declared": False, "compensation_well_formed": None}, endpoint=EP)
 vec("no_extension_no_endpoint_given", "attack", mock([card(ext=False)]), "mcp", False, {"conduct_ext_declared": False, "measured_endpoint_answered": False})
 # spec section 12 (2026-09-09): the w3id.org permanent identifier is the same extension; nothing else is.
 vec("perma_id_declared", "control", mock([card(uri=W.EXT_PERMANENT_ID)]), "a2a", True, {"conduct_ext_declared": True, "compensation_well_formed": True, "extension_echoed": True})
@@ -199,6 +206,23 @@ vec("a2a_wire03_server_echoes_new_spelling_only", "attack", mock([card()], echo_
 vec("a2a_wire10_server_echoes_old_spelling_only", "attack", mock([card()], echo_spelling="old_only"), "a2a", False, {"extension_echoed": False}, wire="1.0")
 vec("a2a_wire10_server_answers_03_shape", "attack", mock([card()], answer_shape="0.3"), "a2a", False, {"measured_endpoint_answered": False, "extension_echoed": True}, wire="1.0")
 vec("a2a_wire03_server_answers_10_shape", "attack", mock([card()], answer_shape="1.0"), "a2a", False, {"measured_endpoint_answered": False}, wire="0.3")
+# conduct-v1.3 (2026-09-11), 402. Found by walking api.babyblueviper.com, which charges and says
+# so. Every fixture above is free, which is why 47 green vectors saw nothing. A walk never pays:
+# a witness that pays the agent it walks has the relationship this layer exists to disclose.
+vec("paid_endpoint_402_declared", "control", mock([card(extra={"x402": True})], ep_status=402), "mcp", True,
+    {"measured_endpoint_answered": None, "payment_required_as_declared": True})
+vec("paid_endpoint_402_undeclared", "attack", mock([card(comp=dict(COMP, paid_by="public"))], ep_status=402), "mcp", False,
+    {"measured_endpoint_answered": None, "payment_required_as_declared": False})
+vec("free_endpoint_makes_no_payment_claim", "control", mock([card(comp=dict(COMP, paid_by="public"))]), "mcp", True,
+    {"measured_endpoint_answered": True, "payment_required_as_declared": None})
+vec("paid_card_answered_without_charging", "control", mock([card(extra={"x402": True})]), "mcp", True,
+    {"measured_endpoint_answered": True, "payment_required_as_declared": None})
+# 402 must not become a way to stop being measured. Without the undeclared row above, an agent
+# could answer 402 to everything and take n/a on the endpoint assertion for ever.
+vec("402_does_not_hide_a_missing_extension", "attack", mock([card(ext=False, top=dict(COMP))], ep_status=402), "mcp", False,
+    {"conduct_ext_declared": False, "measured_endpoint_answered": None, "payment_required_as_declared": True}, endpoint=EP)
+vec("500_is_still_a_failure_not_a_payment", "attack", mock([card(extra={"x402": True})], ep_status=500), "mcp", False,
+    {"measured_endpoint_answered": False, "payment_required_as_declared": None})
 
 
 def main():
