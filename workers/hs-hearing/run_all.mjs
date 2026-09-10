@@ -53,8 +53,14 @@ for (const name of suites) {
     maxBuffer: 128 * 1024 * 1024,
   });
   const secs = Math.round((Date.now() - t0) / 1000);
+  // 要約は stdout からだけ拾う。2026-09-10: node の "type: module" 警告が stderr の
+  // 最後に来る Mac があり、suite の締めの一行の席に警告が座った。合否は exit code から
+  // 導いとるので判定は正しかったが、読む人には別の話に見える。落ちたときの本文は
+  // 両方まとめて出す。そっちは全部要る。
+  const so = (r.stdout || "").replace(/\s+$/, "");
   const out = ((r.stdout || "") + (r.stderr || "")).replace(/\s+$/, "");
   const lines = out.split("\n").filter((x) => x.trim() !== "");
+  const solines = so.split("\n").filter((x) => x.trim() !== "");
   const timedOut = r.signal === "SIGTERM" || (r.error && r.error.code === "ETIMEDOUT");
 
   let reason = null;
@@ -63,7 +69,9 @@ for (const name of suites) {
   else if (r.status !== 0) reason = "exit " + r.status;
   else if (lines.length === 0) reason = "exit 0 but printed nothing, so it proved nothing";
 
-  const summary = [...lines].reverse().find((x) => /合格|PASS|passed|^ok\s/.test(x)) || (lines.length ? lines[lines.length - 1] : "");
+  const pick = (ls) => [...ls].reverse().find((x) => /合格|通過|PASS|passed|^ok\s/.test(x)) || "";
+  const summary = pick(solines) || pick(lines)
+    || (solines.length ? solines[solines.length - 1] : (lines.length ? lines[lines.length - 1] : ""));
   results.push({ name, secs, out, reason, ok: reason === null, summary });
 
   console.log("  " + name.padEnd(28) + (reason === null ? "合格" : "不合格") + "  " + String(secs).padStart(3) + "s  " + (reason === null ? summary : reason));
