@@ -68,7 +68,15 @@ python3 workers/hs-ledger/nenrin/a2a-conduct-walk/a2a_conduct_walk.py \
 # Bitcoin height and hash for lower_bound. The local headers were last synced 2026-09-06
 # and are about 530 blocks behind, so they are re-synced here from peers before being read.
 say "5. bitcoin lower_bound (re-syncing local headers first)"
-python3 workers/hs-ledger/nenrin/coordinate-v1/sync_headers_p2p.py 2>&1 | tail -5 | sed 's/^/  /'
+# --from-manifest continues the freshest window (localheaders_catchup, tip 965850) and
+# writes back to the same prefix. Bare, this script defaults to --out-prefix
+# localheaders_p2p with no mode, which is not the window we read below. It needs
+# outbound 8333 to reach peers; if that is refused the manifest simply does not advance,
+# and the reader below says STALE rather than letting a four day old block through.
+( cd workers/hs-ledger/nenrin/coordinate-v1 && \
+  python3 sync_headers_p2p.py \
+    --from-manifest localheaders_catchup.manifest.json \
+    --out-prefix localheaders_catchup 2>&1 | tail -6 ) | sed 's/^/  /'
 python3 - <<'PY' 2>&1 | sed 's/^/  /'
 import datetime, glob, io, json, os
 best = None
