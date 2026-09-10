@@ -1,130 +1,116 @@
 # agreement-v0
 
-Offline reference implementation of the agreement record drafted in
-[`ops/AGREEMENT_EXT_v0_DRAFT.md`](../../../../ops/AGREEMENT_EXT_v0_DRAFT.md)
-(schema `a2a-agreement-v1`; the draft's sha256 is anchored as JIDEC entry 39).
+Offline reference implementation of the agreement record. Two schemas, one program, no service.
 
-A `conduct-v1` record is one sided: somebody measured somebody. This record is the other half:
-at time T, party A and party B both signed the same bytes describing terms, and each of them
-pointed at a conduct record, by sha256, written by somebody other than itself.
+| schema | draft | status |
+| --- | --- | --- |
+| `a2a-agreement-v1` | [`ops/AGREEMENT_EXT_v0_DRAFT.md`](../../../../ops/AGREEMENT_EXT_v0_DRAFT.md) | anchored as JIDEC entry 39. Read exactly as written, never corrected |
+| `a2a-agreement-v1.1` | [`ops/AGREEMENT_EXT_v0_1_DRAFT.md`](../../../../ops/AGREEMENT_EXT_v0_1_DRAFT.md) | every hole found in v0 and in the v0 verifier, closed |
 
-Three files, no service:
+A `conduct-v1` record is one sided: somebody measured somebody. This record is the other half: at
+time T, party A and party B both signed the same bytes describing terms, and each of them pinned,
+by sha256, a conduct record about the other, written by somebody who is neither of them.
 
 | file | what it does |
 | --- | --- |
 | `agreement_verify.py` | reads a record, answers `accepted` / `refused` / `incomplete` with reasons |
 | `agreement_sign.py` | one party adds its own signature, on its own machine |
-| `agreement_redteam.py` | 77 vectors: 46 attacks, 18 controls, 8 misclassifications, 5 residuals |
+| `agreement_redteam.py` | 143 vectors: 89 attacks, 37 controls, 12 misclassifications, 5 residuals. About 15 seconds |
+| `agreement_mutation.py` | breaks the verifier one rule at a time and checks the adversary notices. 38 mutants, about 10 minutes |
 
-There is no intake here, no KV, no ring column, no fee, no URI. Those come when a real pair of
-parties has a real agreement to record. A record layer built before it has two parties is an
-empty exchange, and an empty exchange is worse than none.
+There is no intake, no KV, no ring column, no fee, no URI. Those come when a real pair of parties
+has a real agreement to record. A record layer built before it has two parties is an empty
+exchange, and an empty exchange is worse than none.
 
 ## Run it
 
 ```
-python3 agreement_redteam.py            # 77 / 77, needs cryptography, no network
-python3 agreement_verify.py --example > rec.json
-openssl genpkey -algorithm ed25519 -out a.pem
-openssl genpkey -algorithm ed25519 -out b.pem
-python3 agreement_sign.py --pubkey a.pem        # serve this JSON at your key_url
-python3 agreement_sign.py rec.json --key a.pem --domain party-a.example --out rec.json
-python3 agreement_sign.py rec.json --key b.pem --domain party-b.example --out rec.json
-python3 agreement_verify.py rec.json --keys keys.json
+python3 agreement_redteam.py            # 143 / 143, needs cryptography, no network
+python3 agreement_mutation.py           # 38 / 38, only worth running after editing the verifier
 ```
 
-`keys.json` maps each `key_url` to the public key served there. Exit codes: `0` accepted,
-`1` refused, `2` incomplete.
+A v1.1 record end to end. The keys go INSIDE the record, which is what lets it verify offline
+forever:
+
+```
+openssl genpkey -algorithm ed25519 -out a.pem
+openssl genpkey -algorithm ed25519 -out b.pem
+python3 agreement_verify.py --example > rec.json
+python3 agreement_sign.py --pubkey a.pem        # put this key in parties[0]
+python3 agreement_sign.py --pubkey b.pem        # and this one in parties[1]
+python3 agreement_sign.py rec.json --key a.pem --domain party-a.example --out rec.json
+python3 agreement_sign.py rec.json --key b.pem --domain party-b.example --out rec.json
+python3 agreement_verify.py rec.json                       # accepted, with no key file at all
+python3 agreement_verify.py rec.json --keys keys.json      # and the domain binding as well
+```
+
+`--example-v1` prints the v1 template instead; under v1 the keys live only at `key_url`, so
+`--keys` is required before anything can be accepted. `keys.json` maps each `key_url` to the
+public key served there. Exit codes: `0` accepted, `1` refused, `2` incomplete.
 
 ## The rule that matters
 
-**With no keys supplied the verdict is `incomplete`, never `accepted`.** A verifier that says
-accepted without having checked a signature launders a one sided record into a two sided claim,
-which is the exact failure this layer exists to prevent. `signatures_checked` is in every report
-and is `false` until an actual Ed25519 verification ran.
+**The verdict is never `accepted` unless an Ed25519 verification actually ran and passed for both
+parties.** A verifier that says accepted without that launders a one sided record into a two sided
+claim, which is the exact failure this layer exists to prevent.
 
-It is offline on purpose. It does not fetch `key_url`, the conduct records, or a ledger. Two
-people holding the same record and the same key file reach the same answer, and neither of them
-has to be able to reach this operator. Reachability of `key_url` is the intake's problem (503,
-retry), not a verifier's.
+That flag is derived from the evidence printed in the report, never set beside it. It has to be:
+`agreement_mutation.py` found on 2026-09-10 that replacing it with the constant `true` left the
+whole adversary green. A flag that can disagree with the list it summarises is a flag that will.
+
+Everything is offline on purpose. Nothing fetches `key_url`, the agent cards, the conduct records,
+or a ledger. Two people holding the same record reach the same answer, and neither of them has to
+be able to reach this operator. Reachability is the intake's problem (503, retry), not a verifier's.
+
+## What the report separates
+
+`signatures_checked` and `key_urls_checked` are two different questions, and `establishes` changes
+with both. A v1.1 record verifies from its own bytes; adding a key file additionally proves the
+signing key is the one that party serves at its own domain, and only then does the report claim
+attribution to the domain. This is gate 0.4.4's discipline: what a record proves moves with the
+facts, the verdict does not.
+
+`findings` never change the verdict. They are written into the report so a reader sees what the
+verifier saw and could not decide: a recorder that is a party, a conduct record measured by one of
+the parties, two domains under one parent, an agreed_at in the future.
 
 ## Refusals
 
-The draft's section 4 names eight. All eight are implemented:
-
+The v1 draft's section 4 names eight, and all eight are implemented:
 `one_sided`, `signatures_disagree`, `self_agreement`, `bad_key_url`, `key_url_unreachable`,
 `missing_conduct_sha`, `disclaimer_missing`, `fee_tied_to_outcome`.
 
-Every refusal in a report carries `in_draft: true` or `false`, so a reader can tell the draft's
-rules from this implementation's additions without reading the code.
+Every refusal in a report carries `in_draft: true` or `false`, so a reader can tell the v1 draft's
+rules from everything added since without reading any code. The full v1.1 list is section 4 of the
+v0.1 draft, and `agreement_redteam.py` checks that the document and this program name exactly the
+same codes, so the two cannot drift apart quietly.
 
-## What building the verifier found, for v0.1 of the draft
+## What building and then attacking the verifier found
 
-The draft is anchored. It is not rewritten. These go into a v0.1 that will be anchored on its
-own, and each of them is a vector in `agreement_redteam.py` today.
+Nineteen items, all closed in v1.1, all listed with their reasons in section 6 of the v0.1 draft.
+The v0 draft is not rewritten: its sha is anchored, and a dated draft whose text moves afterwards
+is worth nothing. The six that came from attacking the verifier rather than reading the draft:
 
-1. **`signature_not_a_party`.** Section 4 refuses fewer than two signatures. It never requires
-   the two signatures to be the two parties. A and C can sign a record about A and B, and it
-   counts two. Two signatures are not two sides unless they are the two sides.
-2. **`key_url_not_pinned`.** `key_url` appears in `parties` (inside the signed bytes) and again
-   in `signatures` (outside them, because signatures are removed before signing). The draft does
-   not say which one binds. Whoever holds the record can swap the outer one. Here the inner one
-   binds and a disagreement is refused.
-3. **`recorder_fee` is refused but never defined.** Section 4 refuses a fee that varies with
-   `terms.amount`; section 3 defines no field to read it from. Defined here as OPTIONAL
-   `{basis, amount, currency}` with `basis` in `flat`, `per_record`, `subscription`, `none`.
-   An unrecognised basis is refused rather than allowed through for not being a percentage.
-4. **`roles_inconsistent`.** `role` is enumerated but the pair is not constrained. Two payers
-   and no payee is a valid record under the draft and says nothing about who pays whom.
-   Here: payer with payee, or peer with peer.
-5. **`bad_conduct_sha`.** The draft says the conduct record is pinned "by sha" without fixing
-   the encoding. An upper case sha compares unequal to the bytes it names. Here: 64 lower case
-   hex, or refused.
-6. **`unsafe_number`.** Nothing says how `terms.amount` is represented. An integer past 2^53 is
-   rounded by the reader before any canonicalization runs, and money as a double is printed
-   differently by different runtimes. Inside `terms` both are refused; elsewhere in the record a
-   double is disclosed as a finding, which is the line the gate draws on itself since 0.4.2.
-7. **`duplicate_json_key`.** The canonical form fixes key order and separators and says nothing
-   about a key appearing twice. `{"amount":100,"amount":1}` shows one number to a human reading
-   it and canonicalizes to the other. Refused at parse.
-8. **`too_deep`.** Nothing bounds the shape. A record nested five thousand levels deep kills
-   every recursive reader, this one included, with a traceback instead of a refusal. Depth and
-   node limits, checked iteratively, before anything is canonicalized.
-9. **`establishes_overclaims`.** `conduct-v1.1` section 11.1 requires both arrays. Nothing stops
-   `establishes` from claiming that the money moved or the contract was formed, which is exactly
-   what a filed agreement must not be read as. A closed list of claims is refused. The verifier
-   applies the same guard to its own output.
-10. **`record_paid_by` names a position.** `party_a` and `party_b` are indexes into an array.
-    Reorder the array and the record silently reverses who paid. Naming the domain would not
-    have that property. Reported as a finding, since the draft's own vocabulary is positional.
-11. **The operator may be a party, and the draft never says so out loud.** Permitted here, and
-    disclosed as `operator_is_a_party` when `--recorder-domain` is given. A recorder that is
-    also a party has an interest in what it records, and that belongs in the record, not in a
-    policy page.
-12. **`self_agreement` cannot be complete offline.** Equal domains and subdomain relations are
-    refused. Two siblings under one parent (`a.corp.example`, `b.corp.example`) are a finding,
-    not a refusal, because deciding it needs a public suffix list and this verifier has no
-    network. The report says so rather than pretending the check was made.
-13. **Domain separation of the signature.** The signed bytes are the record minus `signatures`,
-    so the only thing separating an agreement signature from any other Ed25519 signature by the
-    same key is the `schema` field happening to be inside those bytes. An explicit context
-    prefix would be stronger. Not changed here, because the draft is anchored and this
-    implementation must match it.
-
-## Findings, which are not refusals
-
-`operator_is_a_party`, `shared_parent_domain`, `same_conduct_record`, `agreed_at_in_future`,
-`not_canonical`, `paid_by_positional`, `upstream_unverified`, `disclaimer_thin`,
-`non_integer_number`. A finding never changes the verdict. It is written into the report so that
-a reader sees what the verifier saw and could not decide.
+1. **A lone surrogate killed the verifier.** `"\ud800"` is valid JSON, survives the parser, and
+   then cannot be encoded as UTF-8. Found by fuzzing. A reader that dies has not refused anything.
+2. **Five thousand levels of nesting killed it too**, along with every other recursive reader.
+   Depth, node count, string length, array length and total size are now bounded, and checked
+   iteratively before anything is canonicalized.
+3. **A `key_url` that was a list, not a string**, raised TypeError. Found by fuzzing.
+4. **The verifier's own `establishes` failed its own overclaim guard.** It said the record
+   discloses "who paid for it", which its own rule reads as a claim that the deal was paid.
+5. **`signatures_checked` could be set to a constant and no vector noticed.** Found by mutation.
+6. **A public key of small order** makes one signature verify under many messages. The subgroup
+   check is now done from first principles in pure python, with no library and no blocklist:
+   a key is refused unless L times the point is the identity and the point is not.
 
 ## What an `accepted` verdict does not establish
 
-That either party performed, or that money moved. That the record is a contract, or that the
-terms are lawful, fair or complete. That either party is solvent, competent or honest. That the
-conduct records named are accurate, only that they are the records that were presented. That the
-key at `key_url` is the one the party serves there, because this verifier is offline and was
-handed the keys. Anything about time, because the upper bound comes from the Bitcoin anchor over
-the batch and this program never sees one.
+That either party performed, or that money moved. That the record is a contract, or that the terms
+are lawful, fair or complete. That either party is solvent, competent or honest. That the conduct
+records named are accurate, only that they are the records that were pinned. That the key each
+party signed with is the key it serves at its `key_url`, unless `key_urls_checked` is true. That
+this record was filed anywhere, or that it is the only one these parties signed. Anything about
+time: the anchor bounds `agreed_at` from above and this program never sees one.
 
 Two keys signing the same bytes is not two humans agreeing. It is two keys.
