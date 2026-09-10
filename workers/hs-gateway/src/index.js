@@ -453,8 +453,12 @@ export default {
         var rheaders = { "Content-Type": "application/json" };
         var rurl = "https://pdfgen.internal" + rcfg.path;
         if ((rservice === "audit" || rservice === "compare") && env.HS_AUDIT_TOKEN) {
+          // 2026-09-10 同じ秘密をヘッダと URL の両方に載せていた。受け手
+          // (hs-pdf-gen の hsHandleEstimateAudit ほか)は X-HS-TOKEN を先に見るので、
+          // query 側は最初から要らんかった。要らんもんが、有料レポートを出すたびに
+          // 生きた鍵を URL 文字列にしていた。ヘッダは読まれて消える。URL は残る。
+          // 呼び手を先に閉める。受け手の query 受け口は、呼び手がゼロになってから。
           rheaders["X-HS-TOKEN"] = env.HS_AUDIT_TOKEN;
-          rurl = rurl + "?token=" + encodeURIComponent(env.HS_AUDIT_TOKEN);
         }
         var pres = await env.PDFGEN_SVC.fetch(rurl, {
           method: "POST",
