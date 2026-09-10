@@ -15,8 +15,8 @@ by sha256, a conduct record about the other, written by somebody who is neither 
 | --- | --- |
 | `agreement_verify.py` | reads a record, answers `accepted` / `refused` / `incomplete` with reasons |
 | `agreement_sign.py` | one party adds its own signature, on its own machine |
-| `agreement_redteam.py` | 149 vectors: 94 attacks, 38 controls, 12 misclassifications, 5 residuals. About 15 seconds |
-| `agreement_mutation.py` | breaks the verifier one rule at a time and checks the adversary notices. 41 mutants, about 10 minutes |
+| `agreement_redteam.py` | 166 vectors: 107 attacks, 42 controls, 12 misclassifications, 5 residuals. About 20 seconds |
+| `agreement_mutation.py` | breaks the verifier one rule at a time and checks the adversary notices. 58 mutants, about 20 minutes |
 
 There is no intake, no KV, no ring column, no fee, no URI. Those come when a real pair of parties
 has a real agreement to record. A record layer built before it has two parties is an empty
@@ -25,8 +25,8 @@ exchange, and an empty exchange is worse than none.
 ## Run it
 
 ```
-python3 agreement_redteam.py            # 149 / 149, needs cryptography, no network
-python3 agreement_mutation.py           # 41 / 41, only worth running after editing the verifier
+python3 agreement_redteam.py            # 166 / 166, needs cryptography, no network
+python3 agreement_mutation.py           # 58 / 58, only worth running after editing the verifier
 ```
 
 A v1.1 record end to end. The keys go INSIDE the record, which is what lets it verify offline
@@ -57,6 +57,21 @@ claim, which is the exact failure this layer exists to prevent.
 That flag is derived from the evidence printed in the report, never set beside it. It has to be:
 `agreement_mutation.py` found on 2026-09-10 that replacing it with the constant `true` left the
 whole adversary green. A flag that can disagree with the list it summarises is a flag that will.
+
+## What 58 out of 58 does not mean
+
+It means the 58 rules somebody wrote a mutant for are tested. It says nothing about the rules
+nobody wrote one for, and the difference is not small. Before asking an outside reviewer to find a
+mutant this adversary misses, the operator went looking first: eleven candidates outside the list,
+**ten of which survived**. Every rule they broke already existed in the verifier. What was missing
+was a vector. A second hunt, twelve more candidates, found two more that were real, and the first
+of those is the one that matters: `under_domain` compares a host against a domain, and dropping
+the dot from the boundary makes `evilparty-a.example` count as being under `party-a.example`. That
+one function carries `bad_key_url`, `self_agreement`, `conduct_subject_wrong` and
+`recorder_undisclosed`, and not one vector had used a lookalike domain against it.
+
+All of them are closed and all of them are in the mutant list. The lesson is kept here rather than
+tidied away: a green suite is evidence about the vectors, not about the program.
 
 Everything is offline on purpose. Nothing fetches `key_url`, the agent cards, the conduct records,
 or a ledger. Two people holding the same record reach the same answer, and neither of them has to
@@ -109,6 +124,14 @@ And two more came from trying to build the first real record with a real counter
 an agreement with no price could not be written at all, and the conduct subject had to match the
 party domain exactly, which rejected the only conduct record that actually exists between those
 two parties. Using a thing is what finds its holes.
+
+One more came from the tool itself. `agreement_mutation.py` claimed it restored the file it edits
+"on every exit path, including a crash and a Ctrl-C". That was false for SIGTERM, which python
+ends the process on without running a finally block. A command timeout sent exactly that signal
+mid-run and left a mutant sitting in `agreement_verify.py`; the next run of the adversary went red
+and the line was found by hashing the file against a copy on another machine. Nothing was
+committed, and it could as easily have been. The tool now writes a backup beside the file before
+the first mutation and recovers from it on the next run, so even a SIGKILL leaves a way back.
 
 ## What an `accepted` verdict does not establish
 

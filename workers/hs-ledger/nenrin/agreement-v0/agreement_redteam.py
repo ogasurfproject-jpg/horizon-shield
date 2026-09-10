@@ -810,6 +810,106 @@ same_but_v1["schema"] = "a2a-agreement-v1"
 case("misclass", "the same bytes under v1, whose limit is looser, are not refused for size; the limit belongs to the schema",
      "too_large" not in codes(V.verify(same_but_v1, keys=KEYS)), "")
 
+# --- 自分の変異一覧の外を狩って出た盲点 10 個 (2026-09-10) ---------------------------------------
+# 41/41 が意味しとったのは「番人が選んだ 41 本の規則は試されとる」だけで、網羅率やない。
+# 一覧の外の変異を 11 個作ったら 10 個が生き残った。規則はどれも実装にあった。無かったのは vector や。
+# 上限を試す vector は定数を読まん。定数を読む vector は、定数を動かすと一緒に動いて何も試さん。
+
+single = good11()
+single["parties"][0]["domain"] = "localhost"
+single["parties"][0]["key_url"] = "https://localhost/keys/agreement.json"
+case("attack", "a single label host is not a domain; nobody can be reached at it and nobody owns it",
+     "bad_domain" in codes(V.verify(bad11(single))), json.dumps(codes(V.verify(single))))
+hyph = good11()
+hyph["parties"][0]["domain"] = "-evil.example"
+hyph["parties"][0]["key_url"] = "https://-evil.example/keys/agreement.json"
+case("attack", "a label may not start with a hyphen",
+     "bad_domain" in codes(V.verify(bad11(hyph))), json.dumps(codes(V.verify(hyph))))
+
+three_p = good11()
+three_p["parties"].append(p11("party-c.example", "peer", PC, "c" * 64, "party-a.example"))
+c3 = codes(V.verify(bad11(three_p)))
+case("attack", "three parties is refused as not_two_parties, and not left to some other rule to catch by accident",
+     "not_two_parties" in c3, json.dumps(c3))
+
+# 上限は実数で試す。定数を読んだら、定数を動かした時に vector も一緒に動いてまう
+big_str = good11()
+big_str["terms"]["what"] = "x" * 4097
+case("attack", "a 4097 character field is over the limit (written as a number, not as MAX_STRING + 1)",
+     "bad_text" in codes(V.verify(bad11(big_str))), "")
+ok_str = good11()
+ok_str["terms"]["what"] = "x" * 4000
+case("control", "and a 4000 character field is not, so the limit is a limit and not a ban",
+     V.verify(signed(ok_str, BOTH))["verdict"] == "accepted", json.dumps(codes(V.verify(signed(ok_str, BOTH)))))
+
+
+def nest(rec, n):
+    rec = copy.deepcopy(rec)
+    cur = rec
+    for _i in range(n):
+        cur["nested"] = {}
+        cur = cur["nested"]
+    return rec
+
+
+case("attack", "forty levels of nesting is over the limit (written as a number)",
+     "too_deep" in codes(V.verify(bad11(nest(good11(), 40)))), json.dumps(codes(V.verify(nest(good11(), 40)))))
+case("control", "and twenty levels is not",
+     "too_deep" not in codes(V.verify(nest(good11(), 20))), json.dumps(codes(V.verify(nest(good11(), 20)))))
+
+# https の要求は 3 箇所ある。どれも規則はあったが、どれも試されとらんかった
+for _field, _setter in (
+    ("parties[0].agent_card", lambda r: r["parties"][0].__setitem__("agent_card", "http://party-a.example/card.json")),
+    ("parties[0].conduct_record.url", lambda r: r["parties"][0]["conduct_record"].__setitem__("url", "http://gate.example/r")),
+    ("terms.disclosure_url", lambda r: r["terms"].__setitem__("disclosure_url", "http://party-b.example/pricing")),
+):
+    _rec = good11()
+    _setter(_rec)
+    case("attack", "%s over plain http is refused; a URL that can be rewritten in flight names nothing" % _field,
+         "missing_field" in codes(V.verify(bad11(_rec))), json.dumps(codes(V.verify(_rec))))
+
+upstr = good11()
+upstr["upstream"] = "x402:0xdead"
+case("attack", "upstream as a bare string instead of {protocol, reference}",
+     "missing_field" in codes(V.verify(bad11(upstr))), json.dumps(codes(V.verify(upstr))))
+
+alg = copy.deepcopy(g11)
+alg["signatures"][0]["alg"] = "ed25519ph"
+case("attack", "an alg field naming a different Ed25519 variant than the one actually verified",
+     "bad_signature" in codes(V.verify(bad11(alg))), json.dumps(codes(V.verify(alg))))
+
+# --- 似せドメイン。under_domain は 4 つの規則を支えとるのに、点の境目を試す vector が無かった -------
+# evilparty-a.example は party-a.example で終わる。点を挟んで比べんかったら「その下」になってまう。
+# 2 回目の狩りで出た。bad_key_url / self_agreement / conduct_subject_wrong / recorder_undisclosed が
+# 全部この 1 本の関数に乗っとる。
+
+lookalike = good11()
+lookalike["parties"][0]["key_url"] = "https://evilparty-a.example/keys/agreement.json"
+c_la = codes(V.verify(bad11(lookalike)))
+case("attack", "a key served at evilparty-a.example is not served under party-a.example, however the string ends",
+     "bad_key_url" in c_la, json.dumps(c_la))
+lasubj = good11()
+lasubj["parties"][0]["conduct_record"]["subject_domain"] = "evilparty-b.example"
+case("attack", "and a conduct record about evilparty-b.example is not about the counterparty",
+     "conduct_subject_wrong" in codes(V.verify(bad11(lasubj))), json.dumps(codes(V.verify(lasubj))))
+larec = good11()
+larec["recorder"]["domain"] = "evilparty-b.example"
+lr = V.verify(signed(larec, BOTH))
+case("control", "a recorder at evilparty-b.example is NOT a party, so declaring is_a_party false is correct and accepted",
+     lr["verdict"] == "accepted" and "operator_is_a_party" not in finds(lr), json.dumps(codes(lr) + finds(lr)))
+neighbour = good11()
+neighbour["parties"][1] = p11("xparty-a.example", "payee", PC, SHA_B, "party-a.example")
+neighbour["parties"][0]["conduct_record"]["subject_domain"] = "xparty-a.example"
+neighbour["terms"]["who_pays_whom"] = {"from": "party-a.example", "to": "xparty-a.example"}
+nb = V.verify(signed(neighbour, [("party-a.example", KA), ("xparty-a.example", KC)]))
+case("control", "and party-a.example with xparty-a.example are two different parties, not one; the boundary must not over refuse either",
+     nb["verdict"] == "accepted", json.dumps(codes(nb)))
+
+lowsur = good11()
+lowsur["terms"]["what"] = "one audit \udc00 of one estimate"
+case("attack", "a LOW surrogate kills UTF-8 exactly like a high one; the rule is the range, not the one code point that was tested",
+     codes(V.verify(bad11(lowsur))) == ["bad_text"], json.dumps(codes(V.verify(lowsur))))
+
 # --- v1.1: key_url cross check --------------------------------------------------------------------
 
 miss11 = V.verify(g11, keys={URL_A: PA})
