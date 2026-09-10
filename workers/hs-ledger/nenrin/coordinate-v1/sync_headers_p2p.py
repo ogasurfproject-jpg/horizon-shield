@@ -332,6 +332,32 @@ def main(argv=None):
         with io.open(a.from_manifest, encoding="utf-8") as f:
             manifest = json.load(f)
         start_height = int(manifest["start_height"]); start_prev = manifest["start_prev_hash"]
+        # 2026-09-11. --from-manifest rebuilds the window this manifest DESCRIBES, from its own
+        # start. It is not "continue from this manifest's tip". Handed a manifest whose start is
+        # the genesis block (start_prev is the zero hash, which is what a --from-genesis run
+        # writes), it asks peers for the whole chain and then dies on the very first header,
+        # because only the --from-genesis path seeds the genesis header itself (seed_raw below)
+        # and this path leaves seed_raw empty. The peer answers with block 1, the validator is
+        # waiting at height 0, and the message reads "linkage broken", which sounds like a peer
+        # serving a bad chain. It is not. It is this flag pointed at the wrong file, and an
+        # operator cannot tell those apart from the output. So it is refused here instead, by
+        # name, before a single connection is opened.
+        # Mainnet only, and this is not fastidiousness. A synthetic chain's peers serve their
+        # own block 0 on request, so a test manifest starting at genesis is a legitimate thing
+        # to rebuild and p2p_redteam.py rebuilds one in fifteen of its sixteen vectors. Real
+        # peers answer getheaders with the blocks AFTER the locator and never with genesis
+        # itself, which is why only mainnet needs the seed this path does not supply. The first
+        # version of this guard said "start_prev is zero" and nothing else, and turned that red
+        # team from 16 of 16 into 1 of 16 in one line.
+        if params is LH.MAINNET and (start_prev == LH.ZERO_HASH or int(start_height) == 0):
+            raise SystemExit(
+                "refusing: %s starts at the genesis block (start_height %s, start_prev all zeros).\n"
+                "--from-manifest rebuilds a manifest's own window from its own start, and this\n"
+                "path does not seed the genesis header, so it would fail on the first header with\n"
+                "a message that looks like a peer fault. Use --from-genesis to rebuild the whole\n"
+                "chain, or pass a windowed manifest (one whose start_prev_hash is a real block\n"
+                "hash) to extend that window to the current tip."
+                % (a.from_manifest, start_height))
         start_bits = manifest.get("start_bits"); prior_times = manifest.get("prior_times")
         checkpoints = manifest.get("checkpoints") or {}; seed_raw = b""
         mode = "window from manifest"

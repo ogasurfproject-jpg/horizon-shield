@@ -352,6 +352,43 @@ def main():
         except MRS.Bad as e:
             note15 = "seed refused: %s" % e
     check("c15_refusal_record_is_a_ledger_seed_fail_closed", ok15, note15)
+
+    # c16 / c17 (2026-09-11). --from-manifest rebuilds the window a manifest DESCRIBES, from
+    # that manifest's own start. Handed a MAINNET manifest whose start is the genesis block,
+    # it asks peers for the whole chain and dies on the first header, because only
+    # --from-genesis seeds the genesis header and real peers answer getheaders with the blocks
+    # AFTER the locator, never with genesis itself. The output said "linkage broken", which
+    # reads like a peer serving a bad chain and is not: it is this flag pointed at the wrong
+    # file, and an operator cannot tell those apart. Now refused by name before any socket is
+    # opened. c17 is the control: a test chain's own peers do serve their block 0, so a test
+    # manifest starting at genesis stays legal. The first version of the guard omitted that
+    # distinction and took this red team from 16 of 16 to 1 of 16 in a single line.
+    man_mainnet_genesis = os.path.join(d, "m_mainnet_genesis.json")
+    json.dump({"start_height": 0, "start_prev_hash": LH.ZERO_HASH, "start_bits": None,
+               "prior_times": [], "checkpoints": {}}, open(man_mainnet_genesis, "w"))
+    try:
+        P2P.main(["--from-manifest", man_mainnet_genesis, "--params", "mainnet",
+                  "--out-prefix", os.path.join(d, "never"), "--timeout", "3"])
+        msg16 = ""
+    except SystemExit as e:
+        msg16 = str(e)
+    check("c16_mainnet_manifest_starting_at_genesis_refused_by_name",
+          "starts at the genesis block" in msg16 and "--from-genesis" in msg16,
+          (msg16 or "no refusal: it would have opened sockets and died at height 0")[:70])
+    check("c16b_refusal_wrote_nothing",
+          not os.path.exists(os.path.join(d, "never.bin"))
+          and not os.path.exists(os.path.join(d, "never.manifest.json")),
+          "a refused run must not leave a file behind")
+    try:
+        P2P.main(["--from-manifest", man, "--params", "test", "--magic", TEST_MAGIC.hex(),
+                  "--out-prefix", os.path.join(d, "c17"), "--timeout", "1", "--peers", "1",
+                  "--peer", "127.0.0.1:1"])
+        msg17 = ""
+    except SystemExit as e:
+        msg17 = str(e)
+    check("c17_test_chain_manifest_starting_at_genesis_still_allowed",
+          "starts at the genesis block" not in msg17,
+          "the guard must be mainnet only: a synthetic chain serves its own block 0")
     if EMIT_REFUSAL and c07_record_path:
         import shutil
         shutil.copyfile(c07_record_path, EMIT_REFUSAL)

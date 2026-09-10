@@ -251,3 +251,9 @@ ops/twzrd_*
 # ops/agreement_first_record_prep.sh の出力。歩いた記録と card の写し。
 # 出す時は中身を見てから明示的に add する。bulk commit に混ぜん。
 ops/first_record_prep_out/
+
+# 全鎖の header (77 MB × 2)。窓の .bin (300 KB 前後) は追跡しとる、こっちはしとらん。
+# その線は意図的やが、ここに書いてなかったから bulk add 一発で 154 MB を push しに行く。
+# GitHub の 1 file 100 MB 上限に当たって、push が途中で死ぬ形の失敗になる。
+workers/hs-ledger/nenrin/coordinate-v1/localheaders_catchup.bin
+workers/hs-ledger/nenrin/coordinate-v1/localheaders_full.bin

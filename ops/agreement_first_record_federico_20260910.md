@@ -86,12 +86,12 @@ to file. No intake, no ledger entry, no anchor yet.
     {
       "domain": "horizonshield.dev",
       "key_url": "https://gate.horizonshield.dev/keys/agreement.json",
-      "public_key_ed25519_b64": "TODO",
+      "public_key_ed25519_b64": "TODO prerequisite 1, generated off this machine",
       "agent_card": "https://mcp.horizonshield.dev/.well-known/agent-card.json",
-      "agent_card_sha256": "TODO",
+      "agent_card_sha256": "f36353620147490a954f39862346d37bf7bbf48868a7b9fb5c69f61e16a90d6d",
       "conduct_record": {
-        "sha256": "TODO the walk of babyblueviper.com",
-        "url": "TODO",
+        "sha256": "9e058efa16789bb1911eb237a160f7c3bcebc520ba3ee4d74f6d469d02648eb8",
+        "url": "TODO once the walk record is filed; filing is a publish and is TOshi's hand",
         "subject_domain": "api.babyblueviper.com",
         "measured_by_domain": "horizonshield.dev",
         "self_measured": true
@@ -101,12 +101,12 @@ to file. No intake, no ledger entry, no anchor yet.
     {
       "domain": "babyblueviper.com",
       "key_url": "https://api.babyblueviper.com/keys/agreement.json",
-      "public_key_ed25519_b64": "TODO from Federico",
+      "public_key_ed25519_b64": "TODO prerequisite 6, from Federico, and see section 8",
       "agent_card": "https://api.babyblueviper.com/.well-known/agent-card.json",
-      "agent_card_sha256": "TODO",
+      "agent_card_sha256": "d8013f58216c5400108365656eaa7c32fad59985bff1a048bd1bd2a89b3e175d",
       "conduct_record": {
         "sha256": "da9289a1117598658d171ca89de03028ca497e54cfe9ad75aaad2f0075d7adff",
-        "url": "TODO the ledger URL for this witness record",
+        "url": "https://ledger.horizonshield.dev/witness/da9289a1117598658d171ca89de03028ca497e54cfe9ad75aaad2f0075d7adff",
         "subject_domain": "mcp.horizonshield.dev",
         "measured_by_domain": "babyblueviper.com",
         "self_measured": true
@@ -247,3 +247,36 @@ then decide whether to show it to him before asking for a signature.
 Prerequisite 5 did not complete. The header sync was called with no mode and wrote a
 different window than the reader reads, so the manifest never advanced and the reader said
 STALE, which is the failure behaving correctly. Fixed in the same pass.
+
+## 10. The live walk, after the fix (2026-09-10T16:54:37Z)
+
+Re-run against the live endpoint rather than saved bytes. It agrees with the replay
+exactly: **FAIL 3 of 5**, sha256
+`9e058efa16789bb1911eb237a160f7c3bcebc520ba3ee4d74f6d469d02648eb8`, 6,145 bytes.
+`compensation_well_formed` passes and names where it read the declaration,
+`measured_endpoint_answered` is `null` with the 402 note, `payment_required_as_declared`
+passes, and `does_not_establish` carries the line about not having paid. The two failures
+left are the two that are true about that agent.
+
+Both agent card hashes came back bit for bit identical to the run thirteen minutes
+earlier, which is not proof of anything but is the small corroboration `card_bytes_stable`
+exists to give: his card did not move under us while we were reading it.
+
+Filled above from this run: both `agent_card_sha256` values and party A's
+`conduct_record.sha256`. Still open, and each is waiting on a person rather than a
+command:
+
+1. **The HORIZON SHIELD agreement key.** `openssl genpkey -algorithm ed25519`, TOshi's
+   hand, private half never named anywhere.
+2. **Party A's `conduct_record.url`.** The walk record exists but is not filed. Filing is
+   a publish, so it is TOshi's hand, and it should follow the decision in section 8 about
+   whether Federico sees the record first.
+3. ~~**Party B's `conduct_record.url`.**~~ Filled 2026-09-11:
+   `https://ledger.horizonshield.dev/witness/<sha>` answers 200 for that record.
+   `/record/<sha>` and `/paths/<sha>` both answer 404, so `witness` is the shape, which
+   is worth writing down rather than guessing again next time.
+4. **`lower_bound`.** The header sync has not completed. The 2026-09-06 attempt refused
+   with `below_min_peers` (0 peers finished, 2 required), and the run on 2026-09-11 wrote
+   neither a manifest nor a refusal, so it did not reach either. Outbound 8333 is the
+   thing to check.
+5. **Federico's key and signature.** His hand, and section 8 first.
