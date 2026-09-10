@@ -1244,6 +1244,32 @@ export async function selfCheck(env, stores) {
   scanned("no_handoff_waiting", handoff.length === 0,
       handoff.length ? handoff.join(" ") + " ← 人からの連絡が要る" : "人待ちなし");
 
+  /* E8 印の無い回答。2026-09-10。
+     answered() は extra[qid] に attributed の印が無ければ「答え済み」と読む。
+     2026-08-24 に印を付け始める前の記録には印が無い。そこに回答でないものが
+     入っていると、その設問は空のまま永久に答え済みになる。
+     実測(hs-partner-001): q_faqs と q_estimates に 8/20 の「スタッフにバトンタッチ
+     できますか」、q_license と q_story に 8/21 の「招待するとグループLINEが組まれます」。
+     どれも回答ではない。見つかったのは、人が偶然その欄を覗いたからである。
+     偶然を待たない。印の無い欄は、正しいかどうかをここでは判定せず、
+     「人が中身を見て決める必要がある欄」として名指しする。
+     新しい記録には必ず印が付くので、この一覧は放っておけば増えない。減るだけである。 */
+  const unmarked = [];
+  for (const s3 of roster) {
+    const h3 = await env.HS_HEARING_KV.get("hearing:" + s3.store_id, "json");
+    const ex = (h3 && h3.profile && h3.profile.extra) || null;
+    if (!ex) continue;
+    for (const q of Object.keys(ex)) {
+      if (q === "_unsorted") continue;
+      const v = ex[q];
+      if (v && typeof v === "object" && !v.attributed) unmarked.push(s3.store_id + ":" + q);
+    }
+  }
+  scanned("answers_are_marked", unmarked.length === 0,
+      unmarked.length
+        ? unmarked.join(" ") + " ← 印が無い。中身が回答か、人が見て決めること(空文字で /admin/profile-patch すれば消える)"
+        : "回答欄はすべて、どう当てたかの印つき");
+
   const failed = checks.filter((x) => !x.ok);
   const report = { checked_at: now(), pass: failed.length === 0, failed: failed.map((f) => f.id), checks };
   await env.HS_HEARING_KV.put("selfcheck:last", JSON.stringify(report));
