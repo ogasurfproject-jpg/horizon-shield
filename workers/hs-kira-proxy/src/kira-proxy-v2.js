@@ -192,13 +192,43 @@ async function ctEqual(a, b) {
   return out === 0;
 }
 
+// admin のブラウザ画面用のセッション cookie (2026-09-11)。
+// login form は location.href='/admin?key='+pw で入る作りやから、URL が認証の仕組みそのものやった。
+// 一発で外したら form が動かんくなるので、?key= は「login の 1 回」だけ残して、通ったら cookie を
+// 立てて query 無しの URL へ 302 で送り返す。以後は cookie で通る。
+// 結果: 鍵が URL に載るのは 1 要求だけになり、アドレス欄にもブラウザ履歴にも残らん。
+// cookie の値はパスワードそのものやない。sha256('hs-admin-cookie-v1:' + ADMIN_PASSWORD) や。
+// cookie を取られても元のパスワードは割れん。HttpOnly なので JS からも読めん。
+let _adminCookieCache = null;
+async function adminCookieValue(env) {
+  if (_adminCookieCache) return _adminCookieCache;
+  const d = await crypto.subtle.digest('SHA-256',
+    new TextEncoder().encode('hs-admin-cookie-v1:' + env.ADMIN_PASSWORD));
+  _adminCookieCache = [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  return _adminCookieCache;
+}
+async function adminCookieOk(request, env) {
+  if (!env.ADMIN_PASSWORD) return false;
+  const m = /(?:^|;\s*)hs_admin=([0-9a-f]{64})/.exec(request.headers.get('Cookie') || '');
+  if (!m) return false;
+  return await ctEqual(m[1], await adminCookieValue(env));
+}
+async function adminCookieRedirect(env, path) {
+  const v = await adminCookieValue(env);
+  return new Response(null, { status: 302, headers: {
+    'Location': path,
+    'Set-Cookie': 'hs_admin=' + v + '; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=43200',
+    'Cache-Control': 'no-store',
+  } });
+}
+
 // 管理ゲート：?key= / Authorization: Bearer / X-Admin-Key を定数時間で照合。
 // ADMIN_PASSWORD 未設定なら拒否（fail-closed）。
 async function kiraAdminOk(request, env) {
   if (!env.ADMIN_PASSWORD) return false;
-  let provided = '';
-  try { provided = new URL(request.url).searchParams.get('key') || ''; } catch (_) {}
-  if (!provided) provided = (request.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
+  // 2026-09-11: ?key= を落とした。URL に載せた資格は Cloudflare の記録にも proxy の log にも
+  // shell の履歴にもブラウザの履歴にも残る。header は残らん。読む順は Bearer -> X-Admin-Key。
+  let provided = (request.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
   if (!provided) provided = request.headers.get('X-Admin-Key') || '';
   if (!provided) return false;
   return await ctEqual(provided, env.ADMIN_PASSWORD);
@@ -1681,10 +1711,7 @@ async function notifyMatchingContractors(card, env) {
 
 async function handleHackerCardAdmin(request, env, origin) {
   const url = new URL(request.url);
-  const key = url.searchParams.get('key') || '';
-  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) {
-    return json({ error: 'unauthorized' }, 401, origin);
-  }
+  if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
   let body;
   try { body = await request.json(); }
   catch { return json({ error: 'invalid json' }, 400, origin); }
@@ -1725,10 +1752,7 @@ async function handleHackerCardAdmin(request, env, origin) {
 // ============================================
 async function handleHackerDeal(request, env, origin) {
   const url = new URL(request.url);
-  const key = url.searchParams.get('key') || '';
-  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) {
-    return json({ error: 'unauthorized' }, 401, origin);
-  }
+  if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
   let body;
   try { body = await request.json(); }
   catch { return json({ error: 'invalid json' }, 400, origin); }
@@ -1779,10 +1803,7 @@ async function handleHackerDeal(request, env, origin) {
 
 async function handleHackerDeals(request, env, origin) {
   const url = new URL(request.url);
-  const key = url.searchParams.get('key') || '';
-  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) {
-    return json({ error: 'unauthorized' }, 401, origin);
-  }
+  if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
   const idxRaw = await env.ORDERS.get('deal_index');
   const ids = idxRaw ? JSON.parse(idxRaw) : [];
   const deals = [];
@@ -1815,10 +1836,7 @@ async function handleHackerDeals(request, env, origin) {
 
 async function handleHackerCommentApprove(request, env, origin) {
   const url = new URL(request.url);
-  const key = url.searchParams.get('key') || '';
-  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) {
-    return json({ error: 'unauthorized' }, 401, origin);
-  }
+  if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
   const ck = url.searchParams.get('comment_key') || '';
   if (!ck) return json({ error: 'missing comment_key' }, 400, origin);
   const raw = await env.ORDERS.get(ck);
@@ -2207,8 +2225,7 @@ async function handleHackerReport(request, env, origin) {
 
 async function handleHackerDelete(request, env, origin) {
   const url = new URL(request.url);
-  const key = url.searchParams.get('key') || '';
-  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) return json({ error: 'unauthorized' }, 401, origin);
+  if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
   let body;
   try { body = await request.json(); }
   catch { return json({ error: 'invalid json' }, 400, origin); }
@@ -2234,8 +2251,7 @@ async function handleHackerDelete(request, env, origin) {
 
 async function handleHackerPending(request, env, origin) {
   const url = new URL(request.url);
-  const key = url.searchParams.get('key') || '';
-  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) return json({ error: 'unauthorized' }, 401, origin);
+  if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
   const list = await env.ORDERS.list({ prefix: 'pending_card:' });
   const items = [];
   for (const k of list.keys) {
@@ -2249,8 +2265,7 @@ async function handleHackerPending(request, env, origin) {
 
 async function handleHackerCommentsPending(request, env, origin) {
   const url = new URL(request.url);
-  const key = url.searchParams.get('key') || '';
-  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) return json({ error: 'unauthorized' }, 401, origin);
+  if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
   const list = await env.ORDERS.list({ prefix: 'comment:' });
   const items = [];
   for (const k of list.keys) {
@@ -2266,8 +2281,7 @@ async function handleHackerCommentsPending(request, env, origin) {
 
 async function handleHackerCommentReject(request, env, origin) {
   const url = new URL(request.url);
-  const key = url.searchParams.get('key') || '';
-  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) return json({ error: 'unauthorized' }, 401, origin);
+  if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
   const ck = url.searchParams.get('comment_key') || '';
   if (!ck) return json({ error: 'missing comment_key' }, 400, origin);
   await env.ORDERS.delete(ck);
@@ -2276,8 +2290,7 @@ async function handleHackerCommentReject(request, env, origin) {
 
 async function handleHackerPublish(request, env, origin) {
   const url = new URL(request.url);
-  const key = url.searchParams.get('key') || '';
-  if (!env.ADMIN_PASSWORD || key !== env.ADMIN_PASSWORD) return json({ error: 'unauthorized' }, 401, origin);
+  if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
   let body;
   try { body = await request.json(); }
   catch { return json({ error: 'invalid json' }, 400, origin); }
@@ -3465,15 +3478,16 @@ ${claudeAnswer}
 
         await env.KIRA_STATS.put(key, JSON.stringify({ ...order, status: 'confirmed', confirmedAt: new Date().toISOString() }));
 
-        const token = crypto.randomUUID().replace(/-/g, '');
-        const inspectUrl = `https://shield.the-horizons-innovation.com/inspect/?token=${token}&type=${order.service}`;
-
-        await env.KIRA_STATS.put('token:' + token, JSON.stringify({
-          orderKey: key,
-          email: order.email,
-          service: order.service,
-          usedAt: null
-        }), { expirationTtl: 60 * 60 * 24 * 7 });
+        // 2026-09-11. ここには token を作って URL に載せ、KV に 7 日置く仕掛けが有った。
+        // 実測: inspect.html は query を一つも読まん (URLSearchParams / location.search /
+        // searchParams が 0 件)。token: を KV から読む worker も全体で 0 件。usedAt は null を
+        // 書く 1 箇所しか無く誰も読まん。ページ自身は /anthropic と /notify へ token 無しで
+        // POST しとる。つまり token は一度も門やなかった。誰が来ても同じページが開き、7 日で
+        // 切れもせん。それでも下のメールは「専用URL(7日間有効)」と書いて客に送っとった。
+        // 消したのは仕掛けやのうて、系がやっとらん事を書いた 2 文の根拠や。動きは変わらん。
+        // 本当に「その客だけ」にするなら、ページも /anthropic も /notify も門を付ける仕事に
+        // なる。それは patch やのうて作る仕事なので、やるときは正面から作る。
+        const inspectUrl = 'https://shield.the-horizons-innovation.com/inspect/';
 
         await fetch('https://api.resend.com/emails', {
           method: 'POST',
@@ -3488,11 +3502,10 @@ ${claudeAnswer}
                 <p style="color:#444;line-height:1.8">この度はHORIZON SHIELDにお申し込みいただきありがとうございます。<br>
                 入金を確認いたしました。下記URLより見積書をお送りください。</p>
                 <div style="background:#fff;border:2px solid #00cc66;border-radius:8px;padding:20px;margin:20px 0;text-align:center">
-                  <p style="color:#666;font-size:12px;margin-bottom:8px">見積書送付専用URL（7日間有効）</p>
+                  <p style="color:#666;font-size:12px;margin-bottom:8px">見積書の送付ページ</p>
                   <a href="${inspectUrl}" style="color:#00cc66;font-weight:700;word-break:break-all">${inspectUrl}</a>
                 </div>
                 <p style="color:#888;font-size:12px;line-height:1.8">
-                  ・このURLは7日間有効です<br>
                   ・JPG・PNG・PDFに対応しています<br>
                   ・ご不明な点はLINE @172piime までご連絡ください
                 </p>
@@ -3720,7 +3733,11 @@ ${claudeAnswer}
         // ===== admin-auth-gate（2026-05-23追加・サーバ側パスワード判定）=====
         const _pw = url.searchParams.get('key') || '';
         const _correct = env.ADMIN_PASSWORD || '';
-        if (!_correct || _pw !== _correct) {
+        // 2026-09-11: cookie が有ればそれで通す。?key= は login の 1 回だけ。
+        const _viaCookie = await adminCookieOk(request, env);
+        // 比較は定数時間で。ここは残った唯一の ?key= 経路やから、長さの違いで漏らさん。
+        const _pwOk = !!_pw && await ctEqual(_pw, _correct);
+        if (!_correct || (!_viaCookie && !_pwOk)) {
           const loginHtml = `<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HS管理 ログイン</title>
 <style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:90vh;background:#f5f5f5}.box{background:#fff;padding:32px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);width:300px;text-align:center}input{width:100%;padding:10px;border:1px solid #bbb;border-radius:8px;font-size:15px;box-sizing:border-box;margin:12px 0}button{width:100%;background:#1a3a5c;color:#fff;border:none;padding:11px;border-radius:8px;font-size:15px;cursor:pointer}</style></head>
 <body><div class="box"><div style="font-weight:700;color:#1a3a5c;font-size:17px">HORIZON SHIELD 管理画面</div>
@@ -3733,6 +3750,7 @@ ${_pw ? "document.getElementById('msg').textContent='パスワードが違いま
 </script></body></html>`;
           return new Response(loginHtml, { status: _pw ? 401 : 200, headers: { 'Content-Type': 'text/html;charset=utf-8' } });
         }
+        if (!_viaCookie) return await adminCookieRedirect(env, '/admin');
         // ===== admin-auth-gate ここまで =====
         const list = await env.KIRA_STATS.list();
         const inquiryKeys = list.keys.filter(k => k.name.startsWith('inquiry:'));
@@ -3810,10 +3828,10 @@ ${_pw ? "document.getElementById('msg').textContent='パスワードが違いま
 <div style="margin:8px 0"><label style="margin-right:12px;cursor:pointer"><input type="checkbox" id="hsChkAll" onclick="hsToggleAll(this)"> 全選択</label><button onclick="hsDelSelected()" style="background:#c0392b;color:#fff;border:none;padding:6px 14px;border-radius:5px;cursor:pointer">選択した行を削除</button></div><table><tr><th>選択</th><th>名前</th><th>メール</th><th>診断結果</th><th>適正額</th><th>操作</th></tr>${rows}</table>
 <script>
 async function confirmPayment(key) {
-  if(!confirm('入金確認済みにして、施主に専用URLをメール送信しますか？')) return;
+  if(!confirm('入金確認済みにして、施主に見積書の送付ページをメール送信しますか？')) return;
   const r = await fetch('/confirm-payment', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});
   const d = await r.json();
-  if(r.ok) { alert('✅ 送信完了！ ' + d.email + ' に専用URLを送りました'); location.reload(); }
+  if(r.ok) { alert('✅ 送信完了！ ' + d.email + ' に送付ページのURLを送りました'); location.reload(); }
   else alert('エラー: ' + d.error);
 }
 function showResult(td){const full=decodeURIComponent(td.getAttribute('data-full'));document.getElementById('resultModalBody').textContent=full;document.getElementById('resultModal').style.display='flex';}
@@ -4230,7 +4248,11 @@ if (path === '/log-contract' && request.method === 'POST') {
       try {
         const _pw = url.searchParams.get('key') || '';
         const _correct = env.ADMIN_PASSWORD || '';
-        if (!_correct || _pw !== _correct) {
+        // 2026-09-11: cookie が有ればそれで通す。?key= は login の 1 回だけ。
+        const _viaCookie = await adminCookieOk(request, env);
+        // 比較は定数時間で。ここは残った唯一の ?key= 経路やから、長さの違いで漏らさん。
+        const _pwOk = !!_pw && await ctEqual(_pw, _correct);
+        if (!_correct || (!_viaCookie && !_pwOk)) {
           const loginHtml = `<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>登録者管理 ログイン</title>
 <style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:90vh;background:#f5f5f5}.box{background:#fff;padding:32px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);width:300px;text-align:center}input{width:100%;padding:10px;border:1px solid #bbb;border-radius:8px;font-size:15px;box-sizing:border-box;margin:12px 0}button{width:100%;background:#1a3a5c;color:#fff;border:none;padding:11px;border-radius:8px;font-size:15px;cursor:pointer}</style></head>
 <body><div class="box"><div style="font-weight:700;color:#1a3a5c;font-size:17px">登録者管理（創設メンバー）</div>
@@ -4243,6 +4265,7 @@ ${_pw ? "document.getElementById('msg').textContent='パスワードが違いま
 <\/script></body></html>`;
           return new Response(loginHtml, { status: _pw ? 401 : 200, headers: { 'Content-Type': 'text/html;charset=utf-8' } });
         }
+        if (!_viaCookie) return await adminCookieRedirect(env, '/admin-subscribers');
         if (!env.SUBSCRIBERS) {
           return new Response('<h2>SUBSCRIBERS KV が未バインドです</h2><p>Cloudflare の hs-kira-proxy → Settings → Bindings で、変数名 SUBSCRIBERS を追加してください（既存バインドには触れないこと）。</p>', { status: 500, headers: { 'Content-Type': 'text/html;charset=utf-8' } });
         }
@@ -4310,9 +4333,7 @@ async function delSub(key,email){
     // 登録者1件削除（POST・JSON {key}）
     if (path === '/admin-subscribers/delete' && request.method === 'POST') {
       try {
-        const _pw = url.searchParams.get('key') || '';
-        const _correct = env.ADMIN_PASSWORD || '';
-        if (!_correct || _pw !== _correct) return json({ error: 'unauthorized' }, 401, origin);
+        if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
         if (!env.SUBSCRIBERS) return json({ error: 'SUBSCRIBERS not bound' }, 500, origin);
         const body = await request.json();
         const key = body && body.key;
