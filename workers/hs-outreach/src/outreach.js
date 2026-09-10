@@ -156,9 +156,23 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const p = url.pathname;
+    /* 2026-09-10 URL の query から管理鍵を受けるのをやめた。
+
+       query は残る場所が多い。Cloudflare の request log、間に入る proxy、人が
+       ブラウザで叩いたときの履歴、そのページから外へ出るときの Referer。
+       ヘッダは、そのどれにも残らん。
+       同じ鍵を「残る所」と「残らん所」の両方から受けとったら、実質の置き場は
+       残る方になる。楽なほうが使われるからや。
+
+       今夜この ADMIN_TOKEN を、露出を理由に回した直後である。回した先を漏れる形で
+       受け続けるなら、回した意味が半分になる。
+       repo の中に ?token= で叩いている物が一つも無いことは確認した(2026-09-10)。
+       それでも手元の bookmark が落ちる可能性はあるので、401 に理由を書く。
+       黙って落とすと、原因を探す時間だけが増える。 */
+    const adminViaQuery = url.searchParams.has("token");
     const admin = async () => {
-      const t = url.searchParams.get("token") || (request.headers.get("authorization") || "").replace("Bearer ", "");
-      return env.ADMIN_TOKEN && await ctEq(t, env.ADMIN_TOKEN);
+      const t = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+      return !!env.ADMIN_TOKEN && await ctEq(t, env.ADMIN_TOKEN);
     };
 
     // 配信停止(公開・トークン検証)
@@ -189,7 +203,9 @@ export default {
     }
 
     // --- 以下 admin ---
-    if (!(await admin())) return j({ error: "unauthorized" }, 401);
+    if (!(await admin())) return j({ error: "unauthorized", note: adminViaQuery
+      ? "the admin token is no longer accepted in the URL query (2026-09-10). Send it as an Authorization: Bearer header. A token in a query string survives in request logs, browser history and referrers; a header does not."
+      : undefined }, 401);
 
     if (p === "/status") {
       const st = await getState(env);
