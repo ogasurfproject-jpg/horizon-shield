@@ -12,7 +12,7 @@
 //
 // 非同期な理由。sha256 も Ed25519 も WebCrypto でやる。Worker には同期の口が無い。
 // 後から同期を非同期に直すのは書き直しやから、最初から非同期にしとく。
-import { canonicalUtf8, num, parseStrict } from "./agreement_canonical.mjs";
+import { canonicalUtf8, cmpCodePoints, num, parseStrict } from "./agreement_canonical.mjs";
 
 export const VERIFIER_VERSION = "0.2.0";
 export const REPORT_SCHEMA = "a2a-agreement-verify-v0";
@@ -118,7 +118,118 @@ export const DRAFT = {
   [SCHEMA_V11]: "ops/AGREEMENT_EXT_v0_1_DRAFT.md",
 };
 
-// 当事者が署名するバイト: signatures を抜いた記録の canonical に、schema の前置きを付けた物。
+export const MAX_DEPTH = 32;
+export const MAX_NODES = 20000;
+export const MAX_STRING = 4096;
+export const MAX_ARRAY = 64;
+export const MAX_BYTES = { [SCHEMA_V1]: 65536, [SCHEMA_V11]: 16384 };
+export const SAFE_INT_MAX = 9007199254740991n;   // 2**53 - 1
+
+const isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+
+// python の list.sort() は要素ごとに符号位置で比べる。tuple の list もそれや。
+// JS の既定の sort は文字列にして UTF-16 単位で比べるから、BMP の外で割れる。
+const cmpTuple = (a, b) => {
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    if (i >= a.length) return -1;
+    if (i >= b.length) return 1;
+    const c = cmpCodePoints(String(a[i]), String(b[i]));
+    if (c !== 0) return c;
+  }
+  return 0;
+};
+
+// python の sorted(keys, reverse=True)
+const keysDesc = (o) => Object.keys(o).sort(cmpCodePoints).reverse();
+
+// 深さ、節の数、自分自身を指しとるか。canonical にする前に測る。
+// 際限の無い形を canonical にしようとするのは、読み手が答える代わりに死ぬ道や。
+export function measure(root) {
+  let depth = 0, nodes = 0;
+  const seen = new Set();
+  const stack = [[root, 1]];
+  while (stack.length) {
+    const [node, d] = stack.pop();
+    nodes += 1;
+    if (d > depth) depth = d;
+    if (isObj(node) || Array.isArray(node)) {
+      if (seen.has(node)) return [depth, nodes, true];
+      seen.add(node);
+      if (d >= MAX_DEPTH || nodes > MAX_NODES) return [depth, nodes, false];
+      const vs = Array.isArray(node) ? node : Object.keys(node).map((k) => node[k]);
+      for (const v of vs) stack.push([v, d + 1]);
+    }
+  }
+  return [depth, nodes, false];
+}
+
+// \x09 (tab) だけがここから外れとる。\x7f は入っとる。python の字をそのまま写す。
+const CONTROL = /[\u0000-\u0008\u000a-\u001f\u007f]/;
+
+// canonical にできん文字列と、端末が言うことを聞いてまう文字列。
+// 対を組まん代理符号は JSON としては正しく、json.loads も通り、UTF-8 に直す所で死ぬ。
+export function scanText(root) {
+  const out = [];
+  const stack = [[root, "$"]];
+  while (stack.length) {
+    const [node, p] = stack.pop();
+    if (typeof node === "string") {
+      for (const ch of node) {                 // 符号位置で回る。python の for ch in s と同じ
+        const cp = ch.codePointAt(0);
+        if (cp >= 0xd800 && cp <= 0xdfff) {
+          out.push([p, "carries a lone surrogate (U+" + cp.toString(16).toUpperCase().padStart(4, "0")
+            + "), which is not encodable as UTF-8"]);
+          break;
+        }
+      }
+      if (CONTROL.test(node)) out.push([p, "carries a control character"]);
+      const n = [...node].length;              // python は符号位置で数える
+      if (n > MAX_STRING) out.push([p, "is " + n + " characters; the limit is " + MAX_STRING]);
+    } else if (isObj(node)) {
+      for (const k of keysDesc(node)) {
+        stack.push([k, p + ".<key>"]);
+        stack.push([node[k], p + "." + k]);
+      }
+    } else if (Array.isArray(node)) {
+      if (node.length > MAX_ARRAY) {
+        out.push([p, "has " + node.length + " entries; the limit is " + MAX_ARRAY]);
+      }
+      for (let i = Math.min(node.length, MAX_ARRAY + 1) - 1; i >= 0; i--) {
+        stack.push([node[i], p + "[" + i + "]"]);
+      }
+    }
+  }
+  out.sort(cmpTuple);
+  return out;
+}
+
+// 2 つ目の実装が同じに読み戻せんかもしれん数。
+export function scanNumbers(root, path = "$") {
+  const out = [];
+  const stack = [[root, path]];
+  while (stack.length) {
+    const [node, p] = stack.pop();
+    if (typeof node === "boolean") continue;
+    if (typeof node === "bigint") {
+      const abs = node < 0n ? -node : node;
+      if (abs > SAFE_INT_MAX) out.push([p, "integer outside the RFC 7493 safe range", node.toString()]);
+    } else if (typeof node === "number") {
+      if (Number.isNaN(node) || node === Infinity || node === -Infinity) {
+        out.push([p, "not a finite number", pyRepr(node)]);
+      } else {
+        out.push([p, "not an integer", pyRepr(node)]);
+      }
+    } else if (isObj(node)) {
+      for (const k of keysDesc(node)) stack.push([node[k], p + "." + k]);
+    } else if (Array.isArray(node)) {
+      for (let i = node.length - 1; i >= 0; i--) stack.push([node[i], p + "[" + i + "]"]);
+    }
+  }
+  out.sort(cmpTuple);
+  return out;
+}
+
+// 当事者が署名するバイト:// 当事者が署名するバイト: signatures を抜いた記録の canonical に、schema の前置きを付けた物。
 export function signingBytes(record, schema) {
   const sc = schema === undefined || schema === null ? (schemaOf(record) || SCHEMA_V1) : schema;
   const body = {};
@@ -227,17 +338,120 @@ export async function buildReport(r, record, schema, checked, urlsChecked, perSi
 
 // 骨。規則はまだ 1 本も無い。計算できる鍵だけ埋めて、あとは空で返す。
 // 空で返すこと自体は嘘やない。嘘になるんは、これを「合格」と呼んだときや。
+
+// python の re.match は、pattern の末尾の $ が「文字列の終わり、または終わりの直前の
+// 改行 1 つ」に当たる。JS の $ は改行を許さん。ここを写さんかったら、末尾に改行の付いた
+// 値で片方だけ通る。scan_text が制御文字を先に断るから今は届かんが、規則の写しは
+// 届く届かんで決めるもんやない。
+export function pyFullMatch(body, s) {
+  if (typeof s !== "string") return false;
+  return new RegExp("^(?:" + body + ")\\n?$").test(s);
+}
+
 export async function verify(record, opts = {}) {
   const { keys = null, recorderDomain = null, now = null, inputText = null } = opts;
   const r = new Report();
-  const schema = schemaOf(record);
-  const can = (() => { try { return canonicalUtf8(record); } catch { return null; } })();
+  const shaIn = async () => (inputText === null || inputText === undefined ? null : await sha256Hex(inputText));
 
-  // 規則はまだ入っとらん。土台 (_report と _early) だけ本物にした。
-  // 骨のままの所は、採点板が件数で教える。
-  if (can === null) {
-    return early(r, inputText === null ? null : await sha256Hex(inputText), [], DNE_BASE.slice());
+  // 1. 形。中身に触る前に。
+  if (!isObj(record)) {
+    r.refuse("bad_json", "the record must be a JSON object");
+    return early(r, await shaIn(),
+      ["that this input was refused before any field was read"],
+      ["anything at all about any party, term or signature"]);
   }
-  void keys; void recorderDomain; void now; void parseStrict;
+
+  const [depth, nodes, cyclic] = measure(record);
+  if (cyclic || depth >= MAX_DEPTH || nodes > MAX_NODES) {
+    const why = cyclic ? "the record refers to itself"
+      : "the record is " + depth + " levels deep and holds " + nodes
+        + " nodes; the limits are " + MAX_DEPTH + " and " + MAX_NODES;
+    r.refuse("too_deep", why + ". Refused without canonicalizing it, because a reader that recurses would die here instead of answering");
+    return early(r, await shaIn(),
+      ["that this record was refused for its shape alone, before any field was read"],
+      ["anything at all about the parties, the terms or the signatures"]);
+  }
+
+  const badText = scanText(record);
+  if (badText.length) {
+    for (const [p, why] of badText.slice(0, 8)) r.refuse("bad_text", p + " " + why);
+    return early(r, await shaIn(),
+      ["that this record was refused for its text alone, before any field was read"],
+      ["anything at all about the parties, the terms or the signatures"]);
+  }
+
+  const schema = schemaOf(record);
+  const strict = schema === SCHEMA_V11;
+  if (schema === null) {
+    r.refuse("bad_schema", "schema must be one of " + SCHEMAS.join(", ")
+      + ", found " + pyRepr(record.schema === undefined ? null : record.schema));
+  }
+  const can = canonicalUtf8(record);
+  const canBytes = enc.encode(can).length;
+  const limit = MAX_BYTES[schema === null ? SCHEMA_V1 : schema];
+  if (canBytes > limit) {
+    r.refuse("too_large", "the canonical record is " + canBytes + " bytes; the limit for "
+      + (schema === null ? "an unknown schema" : schema) + " is " + limit);
+    return early(r, await shaIn(),
+      ["that this record was refused for its size alone"],
+      ["anything at all about the parties, the terms or the signatures"]);
+  }
+
+  // 2. 数。読み込む所で壊れた値は、後の検査を全部無意味にする。
+  for (const [pth, why, shown] of scanNumbers(record)) {
+    const inTerms = pth.startsWith("$.terms") || pth.startsWith("$.recorder");
+    if (why === "not an integer" && !inTerms) {
+      r.find("non_integer_number", pth + " is " + why + " (" + shown
+        + "); a reader that prints a fixed number of digits will not reproduce these bytes");
+    } else {
+      r.refuse("unsafe_number", pth + " is " + why + " (" + shown + ")");
+    }
+  }
+
+  // 3. canonical の形
+  if (inputText !== null && inputText !== undefined && inputText.trim() !== can) {
+    if (strict) {
+      r.refuse("not_canonical", "the bytes handed to this verifier are not the canonical bytes; under v1.1 a record travels in canonical form so that the sha an anchor carries is the sha you hold");
+    } else {
+      r.find("not_canonical", "the bytes handed to this verifier are not the canonical bytes; canonical_sha256 is what an anchor would carry, input_sha256 is what you have");
+    }
+  }
+
+  // 4. この合意の識別 (v1.1)
+  if (strict) {
+    const aid = record.agreement_id;
+    if (!(typeof aid === "string" && pyFullMatch("[0-9a-f]{32}", aid))) {
+      r.refuse("bad_agreement_id", "agreement_id must be 32 lowercase hex characters chosen at random by the parties, found "
+        + pyRepr(aid === undefined ? null : aid)
+        + "; without it two honest agreements with identical terms in the same second are one record");
+    }
+  }
+
+  // 5. agreed_at
+  const at = record.agreed_at;
+  const pattern = strict
+    ? "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"
+    : "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z";
+  if (typeof at !== "string" || !pyFullMatch(pattern, at)) {
+    r.refuse("bad_agreed_at", "agreed_at must be an ISO-8601 UTC instant"
+      + (strict ? " of the form YYYY-MM-DDTHH:MM:SSZ" : " ending in Z")
+      + ", found " + pyRepr(at === undefined ? null : at));
+  } else if (now && at > now) {
+    r.find("agreed_at_in_future", "agreed_at (" + at + ") is later than the time given to this verifier ("
+      + now + "); it is a claim by the parties, and the anchor is what bounds it from above");
+  }
+
+  const lb = record.lower_bound;
+  if (lb !== null && lb !== undefined) {
+    const okLb = isObj(lb) && lb.kind === "bitcoin_block"
+      && typeof lb.height === "bigint"
+      && typeof lb.hash === "string" && pyFullMatch("[0-9a-f]{64}", lb.hash);
+    if (!okLb) {
+      r.refuse("bad_lower_bound", "lower_bound, when present, must be {kind: bitcoin_block, height: integer, hash: 64 lowercase hex}");
+    }
+  }
+
+  // ここから先の規則はまだ入っとらん。採点板が件数で教える。
+  void keys; void recorderDomain; void parseStrict;
   return buildReport(r, record, schema, false, false, [], inputText, can);
 }
