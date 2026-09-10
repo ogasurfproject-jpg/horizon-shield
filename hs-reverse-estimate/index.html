@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>逆見積もり診断 | HORIZON SHIELD — KIRAが3プラン算出</title>
+<title>逆見積もり診断 | HORIZON SHIELD: KIRAが3プラン算出</title>
 <link rel="canonical" href="https://shield.the-horizons-innovation.com/hs-reverse-estimate/">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
 <script type="application/ld+json">
@@ -69,7 +69,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
 .submit-btn{width:100%;background:transparent;border:1px solid var(--border2);color:var(--navy);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;padding:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .25s;text-decoration:none}
 .submit-btn:hover{background:rgba(15,30,74,.06);border-color:var(--navy)}
 
-/* ── KIRA CHAT UI ── */
+/* -- KIRA CHAT UI -- */
 .kc-wrap{display:flex;flex-direction:column}
 .kc-header{background:var(--navy);padding:18px 20px 14px;display:flex;align-items:center;gap:14px}
 .kc-name{font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:3px;color:#faf9f5}
@@ -110,7 +110,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
 .kc-err{background:rgba(139,26,26,.06);border:1px solid rgba(139,26,26,.2);padding:12px 16px;font-size:12px;color:var(--crimson);display:none}
 .kc-err.show{display:block}
 
-/* ── RESULTS（Phase 2B） ── */
+/* -- RESULTS（Phase 2B） -- */
 #results{display:none}
 .extracted-items{padding:16px 20px;border-bottom:1px solid var(--border)}
 .ei-title{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--navy);letter-spacing:3px;margin-bottom:10px}
@@ -309,7 +309,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:52px;d
           </svg>
           <div>
             <div class="kc-name">KIRA</div>
-            <div class="kc-sub">建設費診断AI — HORIZON SHIELD</div>
+            <div class="kc-sub">建設費診断AI, HORIZON SHIELD</div>
           </div>
         </div>
         <div class="kc-messages" id="kc-messages"></div>
@@ -794,7 +794,7 @@ function getRedFlags(kojiText) {
   return RED_FLAG_MAP['default'];
 }
 
-/* ── ray injection ── */
+/* -- ray injection -- */
 function injectRays(gId, cx, cy, len, total) {
   const g = document.getElementById(gId);
   if (!g) return;
@@ -832,8 +832,18 @@ function stripMd(text) {
     .replace(/_{1,2}(.+?)_{1,2}/g, '$1')
     .replace(/\n{3,}/g, '\n\n')
     .replace(/LINE[^\n]*@[0-9a-z]+[^\n]*/g, '')
-    .replace(/0\d{1,4}[-−]\d{1,4}[-−]\d{4}/g, '')
-    .replace(/080[-−]\d{4}[-−]\d{4}/g, '')
+    // 2026-09-10 区切りは「字」やなく「符号」で書く。
+    // ここは元々、ハイフンと U+2212(マイナス記号)の 2 文字を受ける class やった。
+    // site 全体のダッシュ掃きが、その 2 文字目を潰して [--] にした。
+    // JavaScript は [--] を「ハイフン 1 文字」と読む。構文エラーにはならん。
+    // 結果、0463(U+2212)21(U+2212)1234 の形で書かれた番号が、伏せられずに素通りする。
+    // ここは連絡先を落とす所であって、飾りの所やない。
+    // 実測(2026-09-10、node): 掃く前は伏せた。掃いた後は伏せんかった。
+    // 直しは字を書き戻すことやない。字を書かんことや。\u 表記なら中身は全部 ASCII で、
+    // 次に誰がこの site のダッシュを掃いても、この 2 行は掃きようがない。
+    // 受ける区切り: ASCII ハイフン / U+2010 / U+2011 / U+2212 / U+30FC 長音 / U+FF0D 全角
+    .replace(/0\d{1,4}[-\u2010\u2011\u2212\u30fc\uff0d]\d{1,4}[-\u2010\u2011\u2212\u30fc\uff0d]\d{4}/g, '')
+    .replace(/080[-\u2010\u2011\u2212\u30fc\uff0d]\d{4}[-\u2010\u2011\u2212\u30fc\uff0d]\d{4}/g, '')
     .replace(/¥[0-9,]+.*?\n/g, '')
     .replace(/[当社|弊社|HORIZON SHIELD].*?サービス[^\n]*/g, '')
     .trim();
@@ -999,7 +1009,7 @@ async function requestFinalPlan() {
   } catch(e) { hideThinking(); }
 }
 
-/* ── Phase 2B: parsePlan ── */
+/* -- Phase 2B: parsePlan -- */
 function parsePlan(text) {
   const planMatch = text.match(/===PLAN===([\s\S]*?)===END===/);
   if (!planMatch) { addBubble('kira', text); return; }
@@ -1113,7 +1123,7 @@ function parsePlan(text) {
   }, 80);
 }
 
-/* ── 監査ハッシュ コピー機能（Step 3-D 追加） ── */
+/* -- 監査ハッシュ コピー機能（Step 3-D 追加） -- */
 function copyAuditHash() {
   var hashEl = document.getElementById('audit-hash-value');
   var btn = document.getElementById('audit-hash-copy');
@@ -1159,7 +1169,7 @@ function fallbackCopy(text, btn, label) {
   }
   document.body.removeChild(ta);
 }
-  /* ── payment ── */
+  /* -- payment -- */
 function openPaymentModal() {
   if (!lastParsedResult) { alert('先にヒアリングを完了してください'); return; }
   document.getElementById('payment-modal').style.display = 'flex';
@@ -1263,7 +1273,7 @@ function proceedToPayment() {
   else openPaymentModal();
 }
 
-/* ── init ── */
+/* -- init -- */
 document.addEventListener('DOMContentLoaded', function() {
   injectRays('hzRays', 60, 34, 26, 28);
   fetch('https://hs-real-cases-proxy.oga-surf-project.workers.dev/cases/summary').then(function(r){return r.json();}).then(function(d){if(d.ok&&d.summary){realCasesData='\n【TOshi30年実案件データ('+d.summary.total_cases+'件)】平均:¥'+d.summary.price_avg_jpy.toLocaleString()+'　最大:¥'+d.summary.price_max_jpy.toLocaleString();d.summary.koji_type_breakdown&&(realCasesData+='　工事種別:'+Object.keys(d.summary.koji_type_breakdown).join('/'));}}).catch(function(){});
