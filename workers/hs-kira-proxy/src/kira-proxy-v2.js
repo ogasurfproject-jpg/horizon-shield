@@ -111,7 +111,7 @@ KIRAが無料で提供するのは「一般的な価格の目安」と「業者�
 
 【学術的根拠】
 SSRN承認論文（2026-05-18）DOI: 10.31224/7007
-「JCCDB v1.2 — Cryptographic Audit Hash and Macroeconomic Price Correction」
+「JCCDB v1.2, Cryptographic Audit Hash and Macroeconomic Price Correction」
 ORCID: 0009-0000-9180-903X / 著者：大賀俊勝
 
 【建材 材料定価→材工込み実勢単価 補正係数（2026年版）】
@@ -333,10 +333,11 @@ async function callGemini(env, question) {
 回答は200文字以内で要点のみ。`;
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${env.GEMINI_API_KEY}`,
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
     {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      // 2026-09-11: 鍵は URL やのうて header で送る (ai-council と同じ直し)。
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: { maxOutputTokens: 300, temperature: 0.3 }
@@ -3646,13 +3647,13 @@ ${claudeAnswer}
 
 【自動集計行】出典行の後に空行1つ空け、最後に次の1行のみを装飾なしで出力：
 【自動集計】見積総額:（半角数字・円・税込総額） / 削減見込額:（半角数字・円） / 推奨適正額:（半角数字・円） / 判定:白|グレー|黒
-・削減見込額は上記ルールの積み上げ合計と一致。推奨適正額=見積総額−削減見込額の整数1個（レンジ不可）。比較モードでは最新版／妥当な社の税込総額を見積総額に用いる。確定不能時のみ 推奨適正額:要手動。・【判定の値は厳守】自動集計行の「判定:」に書く値は必ず 白／グレー／黒 の3語のいずれか1つだけにする。本文では白寄りグレー・中間グレー・黒寄りグレー等の5段階を使ってよいが、自動集計行では白寄り/黒寄り等の細分を書いてはならず、白寄りグレー・中間グレー・黒寄りグレーはすべて自動集計行では「グレー」と表記する（管理画面の集計が3択前提のため）。
+・削減見込額は上記ルールの積み上げ合計と一致。推奨適正額=見積総額-削減見込額の整数1個（レンジ不可）。比較モードでは最新版／妥当な社の税込総額を見積総額に用いる。確定不能時のみ 推奨適正額:要手動。・【判定の値は厳守】自動集計行の「判定:」に書く値は必ず 白／グレー／黒 の3語のいずれか1つだけにする。本文では白寄りグレー・中間グレー・黒寄りグレー等の5段階を使ってよいが、自動集計行では白寄り/黒寄り等の細分を書いてはならず、白寄りグレー・中間グレー・黒寄りグレーはすべて自動集計行では「グレー」と表記する（管理画面の集計が3択前提のため）。
 【★絶対ルール・相場算出の基本（実コスト整合＋再現性厳守）】施主が坪数・規模を示した工事は、必ず次の優先順で総額を算出する。推測で安易に㎡単価だけ掛けて総額にしてはならない。
 (1)souba-dbに坪数別・規模別の一式データ（例：外壁塗装30坪一式=70万〜115万、足場込み・3回塗り・付帯込み）があれば、それを正解の総額レンジとして最優先で使う。坪数が中間なら近い2つの一式データから線形に補間する。
 (2)坪数別一式が無い工種に限り、基本データを工種分解して積み上げる：塗装等の材工(㎡単価×面積) ＋ 足場(souba-dbの足場一式/㎡) ＋ 高圧洗浄(souba-dbの洗浄㎡) ＋ コーキング(souba-dbのm単価×延長) ＋ 付帯塗装。各項目は必ずsouba-dbの該当データを用い、無い項目だけ一般目安で補い注記する。
 (3)【最重要・過小評価の禁止】souba-dbの塗装㎡単価（例：シリコン2,300〜3,500円/㎡）は塗装材工のみの単価であり、足場・高圧洗浄・付帯・諸経費は含まない。㎡単価×面積だけを総額として提示することを固く禁ずる（実コストのおよそ半額になり重大な誤り）。必ず足場等を別途加算するか、(1)の一式データを使う。
 (4)積み上げで出した総額は、対応する坪数別一式データのレンジ内に収まるか必ず検算する。一式レンジから大きく外れたら積み直す（外れたまま提示しない）。
-(5)レンジは該当souba-dbのmin〜maxを基準にし、松＝avg〜max帯、竹＝min〜avg帯、梅＝min近辺で構成する。松竹梅のCV(変動係数)は 松=基準CV×0.6／竹=基準CV×0.85／梅=基準CV×1.2 で差別化し、レンジを必要以上に広げない。基準CVはsouba-dbの (max−min)/(2×avg) を用いる。
+(5)レンジは該当souba-dbのmin〜maxを基準にし、松＝avg〜max帯、竹＝min〜avg帯、梅＝min近辺で構成する。松竹梅のCV(変動係数)は 松=基準CV×0.6／竹=基準CV×0.85／梅=基準CV×1.2 で差別化し、レンジを必要以上に広げない。基準CVはsouba-dbの (max-min)/(2×avg) を用いる。
 (6)同一の質問には毎回ほぼ同一の総額レンジを返すこと（再現性厳守）。本文に算出根拠（使った一式データ名、または積み上げ各項目と金額）を必ず明記し、読み手が同じ手順で再計算できるようにする。ぶれは重大な不具合とみなす。`;
         let systemPrompt = baseSystem;
         try {
@@ -3742,7 +3743,7 @@ ${_pw ? "document.getElementById('msg').textContent='パスワードが違いま
             return { key: k.name, ...(val || {}) };
           })
         );
-        const rows = items.map(i => `<tr><td style="text-align:center"><input type="checkbox" class="hsDelChk" value="${i.key}"></td><td>${i.name||''}</td><td>${i.email||''}</td><td onclick="showResult(this)" data-full="${encodeURIComponent(i.result||'')}" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:#1a3a5c">${i.result||''}</td><td style="text-align:right">${i.actual_fair_price ? ('¥'+Number(i.actual_fair_price).toLocaleString()) : '<span style="color:#bbb">—</span>'}</td><td><button onclick="label('${i.key}')" style="background:#1a3a5c;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;margin-right:4px">適正額</button><button onclick="del('${i.key}')">削除</button></td></tr>`).join('');
+        const rows = items.map(i => `<tr><td style="text-align:center"><input type="checkbox" class="hsDelChk" value="${i.key}"></td><td>${i.name||''}</td><td>${i.email||''}</td><td onclick="showResult(this)" data-full="${encodeURIComponent(i.result||'')}" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:#1a3a5c">${i.result||''}</td><td style="text-align:right">${i.actual_fair_price ? ('¥'+Number(i.actual_fair_price).toLocaleString()) : '<span style="color:#bbb">-</span>'}</td><td><button onclick="label('${i.key}')" style="background:#1a3a5c;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;margin-right:4px">適正額</button><button onclick="del('${i.key}')">削除</button></td></tr>`).join('');
         const bankKeys = list.keys.filter(k => k.name.startsWith('bank:'));
         const bankItems = await Promise.all(bankKeys.map(async (k) => {
           const val = await env.KIRA_STATS.get(k.name, { type: 'json' });
@@ -3765,7 +3766,7 @@ ${_pw ? "document.getElementById('msg').textContent='パスワードが違いま
             const stColor = (st === "delivered_email" || st === "delivered") ? "#00aa55" : (st === "generated_manual_forward_needed" ? "#dd8800" : (st === "paid" ? "#cc3333" : "#888"));
             const amt = o.amount ? ("¥" + Number(o.amount).toLocaleString()) : "";
             const when = String(o.paidAt || o.paid_at || "");
-            const pdf = o.pdfUrl ? ('<a href="' + o.pdfUrl + '" target="_blank" rel="noopener">PDF</a>') : '<span style="color:#bbb">—</span>';
+            const pdf = o.pdfUrl ? ('<a href="' + o.pdfUrl + '" target="_blank" rel="noopener">PDF</a>') : '<span style="color:#bbb">-</span>';
             return '<tr><td>' + (o.orderId || o.key) + '</td><td>' + (o.customerName || o.customer_name || "") + '</td><td>' + (o.customerEmail || o.customer_email || o.email || "") + '</td><td style="text-align:right">' + amt + '</td><td>' + (o.serviceType || o.koji_type || "") + '</td><td><span style="color:' + stColor + ';font-weight:700">' + st + '</span></td><td>' + pdf + '</td><td>' + when + '</td></tr>';
           }).join("");
         } catch (ordErr) {
@@ -3842,7 +3843,7 @@ function hsAutoFillFairPrices(){
     if(!n)continue;
     var priceTd=resultTd.nextElementSibling;
     if(!priceTd)continue;
-    if(priceTd.textContent.trim()!=='—')continue;
+    if(priceTd.textContent.trim()!=='-')continue;
     var key='';var btns=tr.querySelectorAll('button');
     for(var j=0;j<btns.length;j++){var oc=btns[j].getAttribute('onclick')||'';var p=oc.indexOf("label('");if(p>=0){key=oc.slice(p+7,oc.indexOf("'",p+7));break;}}
     if(!key)continue;
@@ -4098,7 +4099,7 @@ if (path === '/checkout/paypay-status' && request.method === 'POST') {
       const tc = rows.reduce((s,r)=>s+r.conv,0);
       const to = rows.reduce((s,r)=>s+r.offer,0);
       const tl = rows.reduce((s,r)=>s+r.link,0);
-      const pct = (n,d) => d ? ((n/d)*100).toFixed(1)+'%' : '—';
+      const pct = (n,d) => d ? ((n/d)*100).toFixed(1)+'%' : '-';
       const html = `<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>HSファネル計測</title>
@@ -4261,11 +4262,11 @@ ${_pw ? "document.getElementById('msg').textContent='パスワードが違いま
           const langLabel = s.lang === 'us' ? '米国(US)' : '日本(JP)';
           const dt = s.updated_at ? _esc(s.updated_at).replace('T', ' ').slice(0, 16) : '';
           return `<tr>
-<td>${_esc(s.name) || '<span style=color:#bbb>—</span>'}</td>
+<td>${_esc(s.name) || '<span style=color:#bbb>-</span>'}</td>
 <td style="font-family:monospace;font-size:12px">${_esc(s.email)}</td>
 <td>${_esc(s.role) || '<span style=color:#bbb>（未入力）</span>'}</td>
 <td style="text-align:center">${langLabel}</td>
-<td style="text-align:center">${_esc(s.country) || '—'}</td>
+<td style="text-align:center">${_esc(s.country) || '-'}</td>
 <td style="font-size:12px;color:#555">${dt}</td>
 <td style="text-align:center"><button onclick="delSub('${_esc(s._key)}','${_esc(s.email)}')" style="background:#c0392b;color:#fff;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:12px">削除</button></td>
 </tr>`;

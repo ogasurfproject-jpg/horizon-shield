@@ -257,10 +257,13 @@ async function callGemini(question, env) {
 最後に必ず改行して「立場: 賛成/反対/中立」を1行で明記してください。`;
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${env.GEMINI_API_KEY}`,
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
     {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      // 2026-09-11: 鍵は URL やのうて header で送る。URL は Cloudflare の外向き記録にも
+      // 上流の log にも、失敗時に URL を含む文字列を吐く所にも残る。header は残らん。
+      // Google の generativelanguage API は x-goog-api-key を ?key= と同じに扱う。
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemPrompt }] },
         contents: [{ role: 'user', parts: [{ text: question }] }],
@@ -396,7 +399,7 @@ function renderAdminUI() {
 <html lang="ja"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Council — HORIZON SHIELD</title>
+<title>AI Council: HORIZON SHIELD</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, sans-serif; background: #0a1628; color: #f5f0e8; padding: 2rem 1.5rem; min-height: 100vh; }
@@ -439,7 +442,7 @@ function renderAdminUI() {
 </head><body>
 <div class="wrap">
 <h1>🛡 AI Council v1.0</h1>
-<p class="sub">Claude × Gemini × Grok — Smart Council Protocol</p>
+<p class="sub">Claude × Gemini × Grok, Smart Council Protocol</p>
 
 <div id="loginBox" class="login">
   <p style="margin-bottom: 0.75rem; color: #c9a84c; font-weight: 700;">🔒 管理者認証</p>

@@ -84,8 +84,11 @@ __name2(mapKakakuItem, "mapKakakuItem");
 async function fetchAndMapDataset(datasetId, env) {
   console.log("DBG datasetId=" + JSON.stringify(datasetId) + " hasToken=" + (env.APIFY_TOKEN ? "yes" : "no"));
   if (!env.APIFY_TOKEN) return [];
-  const url = "https://api.apify.com/v2/datasets/" + datasetId + "/items?clean=true&format=json&token=" + env.APIFY_TOKEN;
-  const res = await fetch(url);
+  // 2026-09-11: token は URL やのうて header で送る。URL は Cloudflare の外向き記録にも
+  // 上流の log にも残るし、この関数は下で失敗時の body を console.log しとる。
+  // Apify の API は Authorization: Bearer を query の token と同じに扱う。
+  const url = "https://api.apify.com/v2/datasets/" + datasetId + "/items?clean=true&format=json";
+  const res = await fetch(url, { headers: { authorization: "Bearer " + env.APIFY_TOKEN } });
   console.log("DBG fetch status=" + res.status);
   if (!res.ok) {
     const body = await res.text();
@@ -356,10 +359,11 @@ var index_default = {
   },
   async scheduled(event, env, ctx) {
     if (!env.APIFY_TOKEN || !env.APIFY_ACTOR_ID) return;
-    const endpoint = "https://api.apify.com/v2/acts/" + env.APIFY_ACTOR_ID + "/runs?token=" + env.APIFY_TOKEN;
+    // 2026-09-11: token は header へ (上と同じ直し)。ACTOR_ID は識別子で secret やないので URL のまま。
+    const endpoint = "https://api.apify.com/v2/acts/" + env.APIFY_ACTOR_ID + "/runs";
     ctx.waitUntil(fetch(endpoint, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", authorization: "Bearer " + env.APIFY_TOKEN },
       body: JSON.stringify({})
     }));
   }
