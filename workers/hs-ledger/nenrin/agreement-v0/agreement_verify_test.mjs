@@ -71,15 +71,20 @@ const t = (name, ok, detail) => {
   t("その裏付けが痩せとらん", ok > 4000, ok + " 件しか無い (python が sha を出しとらんのが " + skipped + " 件)");
 }
 
-const firstDiffKey = (want, got) => {
-  if (typeof want !== "object" || want === null) return "(全体)";
+// 食い違う鍵を「最初の 1 つ」で数えとった。あれは辞書順やから作業順にならん。
+// canonical_sha256 が合うただけで does_not_establish が先頭に立つ。全部数える。
+// (2026-09-10、初回の表を見て気付いた。4645 件が does_not_establish と出とったが、
+//  あれは「それより前の鍵が合うとる」以上のことを言うてへんかった。)
+const diffKeys = (want, got) => {
+  if (typeof want !== "object" || want === null) return ["(全体)"];
   const keys = [...new Set([...Object.keys(want), ...Object.keys(got || {})])].sort();
+  const out = [];
   for (const k of keys) {
     const a = (() => { try { return canonicalAscii(want[k]); } catch { return "?"; } })();
     const b = (() => { try { return canonicalAscii((got || {})[k]); } catch { return "?"; } })();
-    if (a !== b) return k;
+    if (a !== b) out.push(k);
   }
-  return "(同じ)";
+  return out.length ? out : ["(同じ)"];
 };
 
 const byKey = new Map();
@@ -110,7 +115,7 @@ for (let i = 0; i < cases.length; i++) {
     continue;
   }
   if (got === want) { same++; continue; }
-  bump(byKey, firstDiffKey(c.report, gotObj));
+  for (const k of diffKeys(c.report, gotObj)) bump(byKey, k);
   for (const x of c.report.refusals || []) bump(byCode, x.code);
   if (!firstBad) firstBad = { i, want, got };
 }
@@ -133,10 +138,13 @@ console.log("--- 一致 " + same.toLocaleString() + " / " + cases.length.toLocal
 
 if (!all) {
   console.log("");
-  console.log("最初に食い違う鍵 (多い順、ここが次に書く規則):");
+  console.log("食い違う鍵、件数 (1 件が複数の鍵で食い違う。ここが次に書く規則):");
   for (const [k, n] of [...byKey].sort((a, b) => b[1] - a[1]).slice(0, 14)) {
     console.log("  " + String(n).padStart(5) + "  " + k);
   }
+  console.log("  (" + (cases.length - same).toLocaleString() + " 件が不一致。鍵ごとの合致率は "
+    + [...byKey].sort((a, b) => a[1] - b[1]).slice(0, 3)
+        .map(([k, n]) => k + " " + (100 - n / cases.length * 100).toFixed(0) + "%").join("、") + " ...)");
   console.log("");
   console.log("その件が Python 側で出しとる refusal code (多い順):");
   for (const [k, n] of [...byCode].sort((a, b) => b[1] - a[1]).slice(0, 14)) {
