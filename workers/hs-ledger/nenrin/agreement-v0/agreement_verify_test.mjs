@@ -122,6 +122,12 @@ t(cases.length.toLocaleString() + " 件を Python と同じ報告書で返した
     + " 一致 (" + (same / cases.length * 100).toFixed(1) + "%)、投げた " + threw);
 
 console.log("");
+// run_all が拾う行。runner に点を嗅ぎ当てさせたらあかん。名乗る。
+// (2026-09-10、嗅ぎ当てる作りやったとき、runner は最後の "=== 4 / 5 不合格あり ===" を
+//  拾うた。あれは vector の数で件数やない。8 割できとるように読める行が、0 / 5,221 の
+//  場所に座っとった。進捗に見えて別の物を測っとる要約は、無い方がましや。)
+console.log("SCORE: 一致 " + same.toLocaleString() + " / " + cases.length.toLocaleString()
+  + " (" + (same / cases.length * 100).toFixed(1) + "%)、投げた " + threw + "、" + secs + " 秒");
 console.log("--- 一致 " + same.toLocaleString() + " / " + cases.length.toLocaleString()
   + " (" + secs + " 秒) ---");
 

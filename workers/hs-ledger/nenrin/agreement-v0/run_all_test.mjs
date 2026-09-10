@@ -35,8 +35,12 @@ const SILENT = "export const x = 1;\n";
 const TWO = "#!/usr/bin/env python3\n# RUN_ALL: suite --selftest\n# RUN_ALL: suite --check\n"
   + "import sys\nprint('=== ' + (' '.join(sys.argv[1:]) or 'none') + ' 合格 ===')\n";
 const BANANA = "// RUN_ALL: banana\nexport const x = 1;\n";
-const WIPRED = "// RUN_ALL: wip    まだ途中\nconsole.log('--- 一致 3 / 100 ---');\nprocess.exit(1);\n";
-const WIPGREEN = "// RUN_ALL: wip\nconsole.log('--- 一致 100 / 100 ---');\nprocess.exit(0);\n";
+const WIPRED = "// RUN_ALL: wip    まだ途中\n"
+  + "console.log('=== 4 / 5 不合格あり (これは vector の数で、点やない) ===');\n"
+  + "console.log('SCORE: 一致 3 / 100');\n"
+  + "console.log('=== 4 / 5 不合格あり (最後に来る紛らわしい行) ===');\nprocess.exit(1);\n";
+const WIPGREEN = "// RUN_ALL: wip\nconsole.log('SCORE: 一致 100 / 100');\nprocess.exit(0);\n";
+const WIPMUTE = "// RUN_ALL: wip\nconsole.log('--- 一致 3 / 100 ---');\nprocess.exit(1);\n";
 const ARGV = "console.log('=== argv=' + (process.argv.slice(2).join(',') || '(無し)') + ' 合格 ===');\n";
 const ARGSNOTE = "// RUN_ALL: suite --selftest    これは人が読む但し書きで、引数やない\n" + ARGV;
 const NOTEONLY = "// RUN_ALL: suite    長い (百秒ほど)。書き換えて、また戻す\n" + ARGV;
@@ -117,6 +121,15 @@ const run = (files) => {
   const r = run({ "a_test.mjs": GREEN(2), "wip.mjs": WIPRED });
   t("採点中の物が赤くても、全体は緑で終わる", r.status === 0, r.status + " " + r.out.slice(-200));
   t("採点中の物も必ず走らせて点を出す", /wip\.mjs\s+採点中\s+.*3 \/ 100/.test(r.out), r.out.slice(-320));
+  // 見つけ方: 2026-09-10、runner が点を嗅ぎ当てる作りやったとき、採点板の最後の
+  // "=== 4 / 5 不合格あり ===" を点として拾うた。あれは vector の数で、件数は
+  // 0 / 5,221 やった。8 割できとるように読める行が 0% の場所に座っとった。
+  t("紛らわしい行やのうて、名乗った点を読む",
+    !/4 \/ 5/.test((r.out.split("\n").find((l) => /wip\.mjs\s+採点中/.test(l)) || "")),
+    (r.out.split("\n").find((l) => /wip\.mjs\s+採点中/.test(l)) || "").slice(0, 120));
+  t("緑の下の行も、名乗った点を読む",
+    !/4 \/ 5/.test((r.out.split("\n").find((l) => /★ この緑は/.test(l)) || "")),
+    (r.out.split("\n").find((l) => /★ この緑は/.test(l)) || "").slice(0, 120));
   t("緑の行のすぐ後で、何を含んでへんかを言う",
     /★ この緑は wip\.mjs を含んでへん。採点中: .*3 \/ 100/.test(r.out), r.out.slice(-320));
   t("採点中の物は suite の数に入っとらん", /1 \/ 1 合格/.test(r.out), r.out.slice(-260));
@@ -130,6 +143,13 @@ const run = (files) => {
 {
   const r = run({ "wip.mjs": WIPGREEN });
   t("採点中しか無かったら、suite が無いとして断る", r.status === 2, r.status + " " + r.out.slice(-200));
+}
+{
+  // 点を名乗らん wip は、緑の外に隠れとるだけの物になる。断る。
+  const r = run({ "a_test.mjs": GREEN(2), "wip.mjs": WIPMUTE });
+  t("点を名乗らん採点中は断る", r.status === 2, r.status + " " + r.out.slice(-260));
+  t("その file の名前と、何を出すかを言う",
+    /wip\.mjs/.test(r.out) && /SCORE:/.test(r.out), r.out.slice(-320));
 }
 {
   const r = run({ "banana.mjs": BANANA });

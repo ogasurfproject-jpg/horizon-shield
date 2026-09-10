@@ -170,14 +170,29 @@ for (const s of suites) {
 const wipResults = [];
 for (const w of wips) {
   inflight(label(w) + " (採点中)");
+  const t1 = Date.now();
   const r = spawnSync(runner(w.file), [path.join(HERE, w.file), ...w.args], {
     cwd: HERE, timeout: TIMEOUT_MS, encoding: "utf8", maxBuffer: 128 * 1024 * 1024,
   });
+  const secs = Math.round((Date.now() - t1) / 1000);
   const so = (r.stdout || "").split("\n").filter((x) => x.trim() !== "");
-  const score = [...so].reverse().find((x) => /一致|\d+\s*\/\s*\d+/.test(x)) || "(点が読めん)";
+  // 点は嗅ぎ当てん。file が SCORE: の行で名乗った物だけを読む。
+  // 嗅ぎ当てとった頃、最後の "=== 4 / 5 不合格あり ===" を点として拾うた。あれは
+  // vector の数で、件数は 0 / 5,221 やった。8 割できとるように読める行が、
+  // 0% の場所に座る。名乗らせたら、そういう間違いが起きようが無い。
+  const declared = [...so].reverse().find((x) => /^\s*SCORE:/.test(x));
+  if (declared === undefined) {
+    console.error("");
+    console.error("★ 拒否: " + label(w) + " は wip と名乗ったのに、点を出しとらん。");
+    console.error("        wip は「合否に数えん代わりに、点を必ず見せる」物や。点が無い wip は、");
+    console.error("        走っとらんのと変わらん物を、緑の外に隠しとるだけになる。");
+    console.error('        最後に SCORE: で始まる行を 1 本出すこと (例: SCORE: 一致 0 / 5221)。');
+    process.exit(2);
+  }
+  const score = declared.replace(/^\s*SCORE:\s*/, "").trim();
   if (live) process.stdout.write("\r" + " ".repeat(60) + "\r");
-  wipResults.push({ name: label(w), score: score.trim(), note: w.note });
-  console.log("  " + label(w).padEnd(38) + "採点中  " + score.trim().slice(0, 76));
+  wipResults.push({ name: label(w), score, note: w.note });
+  console.log("  " + label(w).padEnd(38) + "採点中  " + String(secs).padStart(3) + "s  " + score.slice(0, 72));
 }
 
 const failed = results.filter((r) => !r.ok);
