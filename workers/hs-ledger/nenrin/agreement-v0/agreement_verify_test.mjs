@@ -24,10 +24,11 @@ import { inflateSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { canonicalAscii, canonicalUtf8, parseStrict } from "./agreement_canonical.mjs";
-import { verify, sha256Hex, VERIFIER_VERSION, REPORT_SCHEMA } from "./agreement_verify.mjs";
+import { verify, sha256Hex, pyRepr, VERIFIER_VERSION, REPORT_SCHEMA } from "./agreement_verify.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURE = process.argv[2] || path.join(HERE, "agreement_vectors_v1.json");
+const PYREPR = path.join(HERE, "agreement_pyrepr_v1.json");
 
 const env = JSON.parse(readFileSync(FIXTURE, "utf8"));
 const payload = inflateSync(Buffer.from(env.payload, "base64")).toString("utf8");
@@ -69,6 +70,22 @@ const t = (name, ok, detail) => {
     + " 件の本物の記録で python と同じ sha を出す", bad === 0,
     bad ? bad + " 件ずれた、最初は " + first : undefined);
   t("その裏付けが痩せとらん", ok > 4000, ok + " 件しか無い (python が sha を出しとらんのが " + skipped + " 件)");
+}
+
+// 断り文は "found %r" で値を差し込む。%r は repr() で、JSON の書き方とは別物や。
+// python に書かせた表 809 件 (契約に出る値 260 種を全部含む) と突き合わせる。
+{
+  const doc = JSON.parse(readFileSync(PYREPR, "utf8"));
+  let ok = 0, bad = 0, first = null;
+  for (const [key, want] of doc.cases) {
+    let got;
+    try { got = pyRepr(parseStrict(key)); } catch (e) { got = "投げた: " + (e && e.message); }
+    if (got === want) ok++;
+    else { bad++; if (!first) first = key + "  python " + want + "  js " + got; }
+  }
+  t("count は数え直した数と合う", doc.count === doc.cases.length, doc.count);
+  t(doc.cases.length + " 種の値を python の repr() と同じ字で書けた", bad === 0,
+    bad ? bad + " 件ずれた、最初は " + first : undefined);
 }
 
 // 食い違う鍵を「最初の 1 つ」で数えとった。あれは辞書順やから作業順にならん。

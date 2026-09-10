@@ -39,6 +39,59 @@ export class Report {
   }
 }
 
+// python の repr()。断り文の %r はこれや。JSON の書き方とは別物で、
+// None / True / 単引用符 / \x00 / 印字できん文字 の扱いが全部違う。
+//
+// 印字できるかどうかは python の Py_UNICODE_ISPRINTABLE と同じ規則で決める:
+// 分類が Cc Cf Cs Co Cn Zl Zp Zs の文字は印字できん扱い。ただし空白 (U+0020) だけは
+// 印字できる扱いや。この規則は当てもんやのうて、agreement_pyrepr_v1.json の
+// 809 件 (契約に出る値 260 種を全部含む) で突き合わせてある。
+const NONPRINTABLE = /[\p{Cc}\p{Cf}\p{Cs}\p{Co}\p{Cn}\p{Zl}\p{Zp}\p{Zs}]/u;
+
+function reprStr(s) {
+  // 引用符の選び方: 既定は単引用符。中に ' が有って " が無いときだけ二重引用符。
+  const q = s.includes("'") && !s.includes('"') ? '"' : "'";
+  let out = q;
+  for (const ch of s) {                 // 符号位置で回す。代理対を 1 文字として見るため
+    const cp = ch.codePointAt(0);
+    if (ch === "\\") out += "\\\\";
+    else if (ch === q) out += "\\" + q;
+    else if (ch === "\n") out += "\\n";
+    else if (ch === "\r") out += "\\r";
+    else if (ch === "\t") out += "\\t";
+    // 空白 (U+0020) は Zs やが、python は印字できる扱いにする。ここだけ例外。
+    // (書いた comment には有ったのに実装に入れ忘れとって、809 件中 29 件がずれた。
+    //  表が無かったら「まあ空白は大丈夫やろ」で通しとった。)
+    else if (ch !== " " && NONPRINTABLE.test(ch)) {
+      if (cp < 0x100) out += "\\x" + cp.toString(16).padStart(2, "0");
+      else if (cp < 0x10000) out += "\\u" + cp.toString(16).padStart(4, "0");
+      else out += "\\U" + cp.toString(16).padStart(8, "0");
+    } else out += ch;
+  }
+  return out + q;
+}
+
+export function pyRepr(v) {
+  if (v === null || v === undefined) return "None";
+  if (v === true) return "True";
+  if (v === false) return "False";
+  if (typeof v === "bigint") return v.toString();
+  if (typeof v === "number") {
+    // repr(float) は json.dumps と違う。無限と NaN が inf / -inf / nan になる。
+    if (Number.isNaN(v)) return "nan";
+    if (v === Infinity) return "inf";
+    if (v === -Infinity) return "-inf";
+    return num(v);
+  }
+  if (typeof v === "string") return reprStr(v);
+  if (Array.isArray(v)) return "[" + v.map(pyRepr).join(", ") + "]";
+  if (typeof v === "object") {
+    // dict は挿入順で出る。並べ替えたらあかん。
+    return "{" + Object.keys(v).map((k) => pyRepr(k) + ": " + pyRepr(v[k])).join(", ") + "}";
+  }
+  throw new TypeError("repr できん型: " + typeof v);
+}
+
 // python の "%s" % v。None は "None"、真偽は "True"/"False"、int は桁、それ以外は str()。
 // establishes に block の高さを差し込む所で要る。ここを JSON の書き方でやったら
 // null や true がそのまま出て、python と 1 文字ずれる。
