@@ -198,7 +198,21 @@ def parent_two(domain):
 
 def measure(root):
     """Max depth, node count and self reference, iteratively. Runs before anything else,
-    because canonicalizing an unbounded shape is how a reader dies instead of answering."""
+    because canonicalizing an unbounded shape is how a reader dies instead of answering.
+
+    Children are walked in sorted key order, the same as scan_text and scan_numbers. That was
+    not true until 2026-09-10, and the difference was not cosmetic. This function returns EARLY
+    when the depth limit is hit, so the node count it reports depends on which subtree it
+    happened to descend first, which depended on dict insertion order. Two readers of the same
+    JSON do not agree on insertion order (JSON does not carry one, and JavaScript reorders
+    integer-like keys whatever the source said), so the refusal message "holds N nodes" was a
+    number no second implementation could reproduce.
+
+    Found by the second implementation: it disagreed on exactly 2 of the 5,221 frozen cases, and
+    the check that settled it was running THIS program against its own frozen fixture, where it
+    also failed those 2. A value the reference implementation cannot reproduce from the recorded
+    input was never a specification. The verdict never depended on this (depth >= MAX_DEPTH
+    refuses either way); only the number in the sentence did."""
     depth = 0
     nodes = 0
     seen = set()
@@ -214,7 +228,9 @@ def measure(root):
             seen.add(id(node))
             if d >= MAX_DEPTH or nodes > MAX_NODES:
                 return depth, nodes, False
-            for v in (node.values() if isinstance(node, dict) else node):
+            kids = ([node[k] for k in sorted(node.keys(), reverse=True)]
+                    if isinstance(node, dict) else list(node))
+            for v in kids:
                 stack.append((v, d + 1))
     return depth, nodes, False
 

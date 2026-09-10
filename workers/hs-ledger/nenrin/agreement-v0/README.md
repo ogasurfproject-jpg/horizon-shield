@@ -18,9 +18,9 @@ then disappears from what the record establishes.
 | --- | --- |
 | `agreement_verify.py` | reads a record, answers `accepted` / `refused` / `incomplete` with reasons |
 | `agreement_sign.py` | one party adds its own signature, on its own machine |
-| `agreement_redteam.py` | 185 vectors: 113 attacks, 54 controls, 12 misclassifications, 5 residuals. A few seconds |
+| `agreement_redteam.py` | 194 vectors: 119 attacks, 57 controls, 12 misclassifications, 6 residuals. A few seconds |
 | `agreement_mutation.py` | breaks the verifier one rule at a time and checks the adversary notices. 74 mutants, two to three minutes. It mutates a copy in a temporary directory and never touches this one |
-| `agreement_fixture.py` | freezes 5,221 inputs and the report the verifier gave for each, as one compressed envelope with a sha over it |
+| `agreement_fixture.py` | freezes 5,283 inputs and the report the verifier gave for each, as one compressed envelope with a sha over it |
 | `agreement_strings.py` | the 419 sentence templates and 46 refusal codes the reports are built from, folded out of the fixture |
 | `agreement_float_repr.py` | 17,759 doubles as raw bits beside what Python's `json.dumps` wrote for each. The float table |
 | `agreement_readback.py` | 173 pieces of JSON text beside what `parse_strict` did with each: the bytes it produced, or the name it refused by |
@@ -28,7 +28,11 @@ then disappears from what the record establishes.
 | `agreement_canonical_test.mjs` | 44 checks: unit vectors, both Python tables, and 20.4 MB of fixture bytes round tripped through two readers |
 | `agreement_canonical_mutation.mjs` | breaks `agreement_canonical.mjs` 27 ways and checks the suite notices. Also works on a copy |
 | `run_all.mjs` | runs every suite in this directory and refuses to report if any file here has not declared what it is |
-| `run_all_test.mjs` | 16 checks on the runner itself, because a runner that skips a suite quietly is worse than no runner |
+| `run_all_test.mjs` | 32 checks on the runner itself, because a runner that skips a suite quietly is worse than no runner |
+| `agreement_verify.mjs` | the verifier's rules, in JavaScript. The second implementation |
+| `agreement_verify_test.mjs` | all 5,283 frozen cases through it, byte for byte against the frozen report |
+| `agreement_verify_mutation.mjs` | breaks a rule in `agreement_verify.mjs` 33 ways and checks the 5,283 notice |
+| `agreement_pyrepr.py` | 818 values beside what Python's `repr` wrote for each. The refusal messages are made of it |
 
 There is no intake, no KV, no ring column, no fee, no URI. Those come when a real pair of parties
 has a real agreement to record. A record layer built before it has two parties is an empty
@@ -37,7 +41,7 @@ exchange, and an empty exchange is worse than none.
 ## Run it
 
 ```
-node run_all.mjs                        # everything, three to four minutes
+node run_all.mjs                        # everything, about six minutes
 ```
 
 `run_all.mjs` holds no list of suites. Every `.py` and `.mjs` file here declares what it is in a
@@ -210,9 +214,33 @@ under the name `unsafe_number`. Two programs that both refuse a record but call 
 things have not agreed. The JavaScript now reads what Python reads and refuses what Python
 refuses, by the same names, and 173 pieces of text hold that in place.
 
-**What a record MEANS.** Not started. Not one rule of the verifier is written twice yet, and until
-it is, nothing here should be read as saying the layer is proved. Byte agreement is the floor, not
-the building.
+**What a record MEANS.** Done, 2026-09-10. Every rule is written twice, and the two agree on all
+5,283 frozen cases, byte for byte across the whole report: verdict, every refusal code and its
+English sentence, every finding, the per signature results, the two shas and the two lists of what
+the record does and does not establish.
+
+Getting there moved the reference implementation once, and that is the part worth keeping. The
+JavaScript disagreed on 2 cases out of 5,221. The check that settled it was running the PYTHON
+against its own frozen fixture, where it failed the same 2. `measure` returns early at the depth
+limit, so the node count it reports depended on which subtree it descended first, which depended on
+dict insertion order, which JSON does not carry. The sentence "holds N nodes" was a number no
+second implementation could reproduce, and the fix was to walk children in sorted key order, the
+same as `scan_text` and `scan_numbers` already did. The verdict never depended on it. A value the
+reference implementation cannot reproduce from the recorded input was never a specification.
+
+Then the mutation battery, because 5,283 out of 5,283 is a statement about the contract as much as
+about the code. 33 deliberate breakages of the JavaScript rules: 26 were caught at once, 1 is
+equivalent and says why, and **6 survived because the contract did not cover the rule they broke**.
+Not one of the 6 was a defect in the JavaScript. They were holes in the 5,221 cases: no record with
+a field over the length limit made of astral characters, none with a tab, none where the order of
+two `bad_text` refusals was observable, none with U+0085 around a hostname, none with an overclaim
+word glued to a non ASCII character on either side. The adversary has vectors for all of them now,
+the fixture is 5,283 cases, and the mutants die.
+
+One survives on purpose. `refuse` and `find` share one seen set, so the same (code, why) cannot
+appear as both. No rule produces that collision today, so separating the sets changes nothing.
+That is not asserted: a residual vector measures it across every record, and the day it goes red
+the mutant stops being equivalent.
 
 ## What an `accepted` verdict does not establish
 

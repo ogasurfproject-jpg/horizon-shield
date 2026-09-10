@@ -26,16 +26,36 @@ export async function sha256Hex(bytes) {
   return [...new Uint8Array(d)].map((x) => x.toString(16).padStart(2, "0")).join("");
 }
 
+// v1 の草案が 4 節で名前を挙げとる code。ここに載っとらん物は、検証器を作る途中で
+// 見つかった追加や。v1.1 はそれを取り込む。どちらかは報告書に必ず書く。
+export const DRAFT_CODES = new Set([
+  "one_sided", "signatures_disagree", "self_agreement", "bad_key_url",
+  "key_url_unreachable", "missing_conduct_sha", "disclaimer_missing", "fee_tied_to_outcome",
+]);
+
 export class Report {
   constructor() {
     this.refusals = [];
     this.findings = [];
+    // 断りと所見が **同じ** 覚え書きを共有しとる。同じ (code, why) は二度出さん。
+    // 分けたら、断った後に同じ文言の所見が出て、python と違う報告書になる。
+    this.seen = new Set();
   }
-  refuse(code, why, inDraft = false) {
-    this.refusals.push({ code, why, in_draft: inDraft });
+  _once(code, why) {
+    const k = JSON.stringify([code, why]);
+    if (this.seen.has(k)) return false;
+    this.seen.add(k);
+    return true;
   }
-  find(code, why, inDraft = false) {
-    this.findings.push({ code, why, in_draft: inDraft });
+  // in_draft は渡す物やのうて、code から導く物や。
+  refuse(code, why) {
+    if (!this._once(code, why)) return;
+    this.refusals.push({ code, why, in_draft: DRAFT_CODES.has(code) });
+  }
+  // 所見に in_draft は付かん。鍵の集合が断りと違う。
+  find(code, why) {
+    if (!this._once(code, why)) return;
+    this.findings.push({ code, why });
   }
 }
 
@@ -117,6 +137,47 @@ export const DRAFT = {
   [SCHEMA_V1]: "ops/AGREEMENT_EXT_v0_DRAFT.md",
   [SCHEMA_V11]: "ops/AGREEMENT_EXT_v0_1_DRAFT.md",
 };
+
+export const PAID_BY_WORDS = ["both", "neither", "third_party"];
+export const PAID_BY_V1 = ["party_a", "party_b"].concat(PAID_BY_WORDS);
+export const FEE_BASES_OK = ["flat", "per_record", "subscription", "none"];
+export const FEE_BASES_BAD = ["percent_of_amount", "percent", "share_of_amount", "success_fee",
+  "commission", "basis_points", "per_mille", "share_of_savings"];
+
+// python の \b は Unicode の語境界 (文字・数字・下線)。JS の \b は ASCII だけや。
+// "\bpaid\b" は "支払paid済" の中で、python は当たらんが JS は当たる。
+// せやから \b を書かずに、Unicode の見回しで同じ境界を作る。
+const WB = "(?<![\\p{L}\\p{N}_])";
+const WE = "(?![\\p{L}\\p{N}_])";
+const w = (body) => new RegExp(WB + "(?:" + body + ")" + WE, "u");
+
+// establishes[] が言うたらあかんこと。この記録が証すのは「2 つの鍵が同じバイトに
+// 署名した」だけで、その後に何が起きたかやない。
+export const OVERCLAIM = [
+  [w("performed"), "performance"],
+  [w("deliver(?:ed|y)"), "delivery"],
+  [w("money (?:moved|was sent)"), "movement of money"],
+  [w("funds? (?:moved|were sent|were transferred)"), "movement of funds"],
+  [new RegExp(WB + "paid" + WE + "(?!\\s+for\\s+(?:this|the)\\s+record)", "u"), "payment"],
+  [w("payment (?:was|has been) (?:made|completed|settled|received)"), "payment"],
+  [w("contract"), "formation of a contract"],
+  [w("binding"), "legal effect"],
+  [new RegExp(WB + "guarantee", "u"), "a guarantee"],
+  [w("escrow"), "custody"],
+  [w("custody"), "custody"],
+  [w("solvent"), "solvency"],
+  [w("lawful"), "lawfulness"],
+  [w("fair"), "fairness"],
+  [w("certified"), "certification"],
+];
+
+// v1.1: does_not_establish が実際に覆わなあかん題目。
+export const REQUIRED_DNE = [
+  ["performance", ["perform"]],
+  ["that this is not a contract", ["contract"]],
+  ["that money moved", ["money", "payment", "paid"]],
+  ["the accuracy of the conduct records", ["conduct record"]],
+];
 
 export const ROLES = ["payer", "payee", "peer"];
 
@@ -233,7 +294,15 @@ export function measure(root) {
       if (seen.has(node)) return [depth, nodes, true];
       seen.add(node);
       if (d >= MAX_DEPTH || nodes > MAX_NODES) return [depth, nodes, false];
-      const vs = Array.isArray(node) ? node : Object.keys(node).map((k) => node[k]);
+      // 子は鍵の並べ替え順で辿る。scan_text や scan_numbers と同じや。
+      // この関数は深さの上限で **早く抜ける** から、報告する節の数は「どの部分木に
+      // 先に降りたか」で変わる。それは dict の挿入順で決まっとった。JSON は挿入順を
+      // 運ばんし、JS は整数に見える鍵を勝手に前へ出す。せやから「holds N nodes」は、
+      // 2 つ目の実装が再現できん数やった。
+      // (2026-09-10、この移植が 5,221 件中 2 件で食い違うた。決め手は python を
+      //  自分の契約に当てたことで、python もその 2 件を再現でけへんかった。
+      //  参照実装が記録から再現でけへん値は、最初から仕様やない。)
+      const vs = Array.isArray(node) ? node : keysDesc(node).map((k) => node[k]);
       for (const v of vs) stack.push([v, d + 1]);
     }
   }
@@ -425,14 +494,133 @@ export function pyFullMatch(body, s) {
   return new RegExp("^(?:" + body + ")\\n?$").test(s);
 }
 
-// python の str(x)。roles_inconsistent の文面で使う。
-const pyStrOf = (v) => (v === null || v === undefined ? "None" : (v === true ? "True" : (v === false ? "False" : String(v))));
+// python の str(x)。文字列はそのまま、それ以外は repr と同じ物が出る。
+// String(v) で代用したら dict が [object Object]、list が "1,2" になる。
+// (2026-09-10、採点板が key_url_not_pinned の文面 30 件で捕まえた。)
+const pyStrOf = (v) => (typeof v === "string" ? v : pyRepr(v));
 
-// ★ まだ移しとらん。Ed25519 の点の復号と部分群の検査で、次の塊や。
-// null を返すのは「問題無し」の意味やから、ここは嘘をついとる。嘘のまま置くんは、
-// 採点板が件数で数えてくれるからで、隠しとるからやない。移した時にこの印を消す。
-export function publicKeyProblem(_raw) {
-  return null;   // NOT PORTED YET
+// python の真偽値。None False 0 0.0 "" [] {} が偽で、それ以外は真。
+// JS では {} も [] も真やから、"x or y" を "x || y" と書いた所が全部ずれる。
+// (2026-09-10、key_url が {} の記録で、python は party の key_url に落ちるのに
+//  JS は {} を掴んで no_key にした。採点板の 9 件がこれ。)
+export function pyTruthy(v) {
+  if (v === null || v === undefined || v === false) return false;
+  if (typeof v === "boolean") return v;
+  if (typeof v === "bigint") return v !== 0n;
+  if (typeof v === "number") return v !== 0;          // NaN は python でも真
+  if (typeof v === "string") return v !== "";
+  if (Array.isArray(v)) return v.length > 0;
+  if (typeof v === "object") return Object.keys(v).length > 0;
+  return true;
+}
+
+// --- Ed25519 の鍵の衛生。library も網も要らんように、素の算術で書く ---------------
+// 小さい位数の公開鍵は、1 つの署名を多くの message で通してまう。断るんは心配性や
+// のうて、「この鍵がこれに署名した」と「どれかの鍵が受け入れた」の差や。
+// python 側と同じ式をそのまま写す。BigInt やから桁は落ちん。
+
+const P25519 = (1n << 255n) - 19n;
+const L25519 = (1n << 252n) + 27742317777372353535851937790883648493n;
+
+function powMod(b, e, m) {
+  let r = 1n;
+  b %= m;
+  if (b < 0n) b += m;
+  while (e > 0n) {
+    if (e & 1n) r = r * b % m;
+    b = b * b % m;
+    e >>= 1n;
+  }
+  return r;
+}
+
+const mod = (a, m) => { const x = a % m; return x < 0n ? x + m : x; };
+
+const D25519 = mod(-121665n * powMod(121666n, P25519 - 2n, P25519), P25519);
+const I25519 = powMod(2n, (P25519 - 1n) / 4n, P25519);
+
+function xrecover(y) {
+  const xx = mod((y * y - 1n) * powMod(D25519 * y * y + 1n, P25519 - 2n, P25519), P25519);
+  let x = powMod(xx, (P25519 + 3n) / 8n, P25519);
+  if (mod(x * x - xx, P25519) !== 0n) x = mod(x * I25519, P25519);
+  if (mod(x * x - xx, P25519) !== 0n) return null;
+  return x;
+}
+
+function decodePoint(raw) {
+  if (raw.length !== 32) return null;
+  let n = 0n;
+  for (let i = 31; i >= 0; i--) n = (n << 8n) | BigInt(raw[i]);   // little endian
+  const sign = n >> 255n;
+  const y = n & ((1n << 255n) - 1n);
+  if (y >= P25519) return null;              // 点の非正準な符号化
+  let x = xrecover(y);
+  if (x === null) return null;
+  if ((x & 1n) !== sign) x = mod(P25519 - x, P25519);
+  if (x === 0n && sign === 1n) return null;  // もう一つの非正準な符号化
+  if (mod(-x * x + y * y - 1n - D25519 * x * x * y * y, P25519) !== 0n) return null;
+  return [x, y];
+}
+
+const ptExt = ([x, y]) => [mod(x, P25519), mod(y, P25519), 1n, mod(x * y, P25519)];
+const EXT_IDENTITY = [0n, 1n, 1n, 0n];
+
+// 拡張座標、a = -1。足すたびに逆元を取ると遅うて、遅い検査は飛ばされる。
+// 飛ばされる検査は検査やない。
+function extAdd(p, q) {
+  const [x1, y1, z1, t1] = p, [x2, y2, z2, t2] = q;
+  const a = mod((y1 - x1) * (y2 - x2), P25519);
+  const b = mod((y1 + x1) * (y2 + x2), P25519);
+  const c = mod(t1 * 2n * D25519 * t2, P25519);
+  const d = mod(z1 * 2n * z2, P25519);
+  const e = b - a, f = d - c, g = d + c, h = b + a;
+  return [mod(e * f, P25519), mod(g * h, P25519), mod(f * g, P25519), mod(e * h, P25519)];
+}
+
+const extIsIdentity = ([x, y, z]) => mod(x, P25519) === 0n && mod(y - z, P25519) === 0n;
+
+function scalarmult(point, e) {
+  let result = EXT_IDENTITY;
+  let addend = ptExt(point);
+  while (e > 0n) {
+    if (e & 1n) result = extAdd(result, addend);
+    addend = extAdd(addend, addend);
+    e >>= 1n;
+  }
+  return result;
+}
+
+const KEY_CACHE = new Map();
+
+// 素な位数 L の点なら null。そうでなければ理由。
+export function publicKeyProblem(raw) {
+  if (!(raw instanceof Uint8Array)) return "is not 32 bytes";
+  const key = [...raw].map((b) => b.toString(16).padStart(2, "0")).join("");
+  if (KEY_CACHE.has(key)) return KEY_CACHE.get(key);
+  const point = decodePoint(raw);
+  let why;
+  if (point === null) why = "is not a canonical encoding of a point on curve25519";
+  else if (point[0] === 0n && point[1] === 1n) why = "is the identity element, under which forged signatures verify";
+  else if (!extIsIdentity(scalarmult(point, L25519))) why = "is not in the prime order subgroup (a small order or mixed order point)";
+  else why = null;
+  if (KEY_CACHE.size < 4096) KEY_CACHE.set(key, why);
+  return why;
+}
+
+// true / false、あるいは鍵か署名がそもそも使えん時は null。
+// WebCrypto を使う。Node でも Worker でも同じ口や。python は cryptography (OpenSSL) を
+// 使うとる。どちらも RFC 8032 やが、同じかどうかは 5,221 件が言う。
+export async function ed25519Verify(pubB64, sigB64, message) {
+  const rawPub = b64Raw(pubB64, 32);
+  const rawSig = b64Raw(sigB64, 64);
+  if (rawPub === null || rawSig === null) return null;
+  if (publicKeyProblem(rawPub) !== null) return null;
+  try {
+    const key = await globalThis.crypto.subtle.importKey("raw", rawPub, { name: "Ed25519" }, false, ["verify"]);
+    return await globalThis.crypto.subtle.verify({ name: "Ed25519" }, key, rawSig, message);
+  } catch {
+    return null;
+  }
 }
 
 export async function verify(record, opts = {}) {
@@ -648,8 +836,349 @@ export async function verify(record, opts = {}) {
     r.refuse("same_public_key", "both parties present the same public key; two domains holding one key is one party wearing two names");
   }
 
-  // ここから先の規則 (6b の conduct の主体、terms、establishes の検査、署名) は
-  // まだ入っとらん。採点板が件数で教える。
-  void keys; void recorderDomain; void parseStrict; void payer; void payee;
-  return buildReport(r, record, schema, false, false, [], inputText, can);
+  // 6b. 誰の conduct が刺さっとるか (v1 が二通りに訊いとった事を v1.1 は一通りで訊く)
+  if (strict && doms.length === 2 && parties.length === 2) {
+    for (let i = 0; i < parties.length; i++) {
+      const pp = parties[i];
+      if (!isObj(pp)) continue;
+      const cr = pp.conduct_record;
+      if (!isObj(cr)) continue;
+      const mine = normDomain(pp.domain);
+      const other = (doms.length === 2 && mine === doms[i]) ? doms[1 - i] : null;
+      const subj = normDomain(cr.subject_domain);
+      const meas = normDomain(cr.measured_by_domain);
+      if (subj && other && !underDomain(subj, other)) {
+        r.refuse("conduct_subject_wrong", "parties[" + i + "] presented a conduct record about " + subj
+          + "; each party pins the COUNTERPARTY's conduct, so the subject must be " + other + " or a host under it");
+      }
+      if (meas && mine && (underDomain(meas, mine) || (other && underDomain(meas, other)))) {
+        if (cr.self_measured === true) {
+          r.find("conduct_self_measured", "parties[" + i + "] pins a conduct record written by " + meas
+            + ", which is one of the two parties; declared, so it is recorded rather than refused, and this record does not establish that the conduct was measured by anybody other than the parties");
+        } else {
+          r.refuse("conduct_self_measured_undeclared", "parties[" + i + "] pins a conduct record written by " + meas
+            + ", which is one of the two parties. A party measuring itself or its counterparty is permitted only when the record says so (conduct_record.self_measured true), because it changes what the record proves");
+        }
+      }
+    }
+    const shas = parties.map((pp) => {
+      const cr = isObj(pp) ? pp.conduct_record : null;
+      return isObj(cr) ? (cr.sha256 === undefined ? null : cr.sha256) : null;
+    });
+    if (shas.length === 2 && shas[0] && shas[0] === shas[1]) {
+      r.find("same_conduct_record", "both parties presented the same conduct record "
+        + [...pyStrOf(shas[0])].slice(0, 12).join("") + "; the point of the field is one record per side");
+    }
+  } else if (!strict && parties.length === 2) {
+    const shas = parties.filter(isObj).map((pp) => (pp.conduct_record_sha256 === undefined ? null : pp.conduct_record_sha256));
+    if (shas.length === 2 && shas[0] && shas[0] === shas[1]) {
+      r.find("same_conduct_record", "both parties presented the same conduct record "
+        + [...pyStrOf(shas[0])].slice(0, 12).join("")
+        + "; the point of the field is the counterparty's conduct as written by somebody other than the party presenting it");
+    }
+  }
+
+  // 7. terms: 有るか、形は合うとるか、だけ。中身はこの層の誰も judge せん。
+  const terms = record.terms;
+  if (!isObj(terms)) {
+    r.refuse("missing_field", "terms must be an object");
+  } else if (strict) {
+    if (typeof terms.what !== "string" || !terms.what) r.refuse("missing_field", "terms.what is required");
+    if (!hostOfHttps(terms.disclosure_url)) r.refuse("missing_field", "terms.disclosure_url must be an https URL");
+    const cons = terms.consideration;
+    if (cons !== "money" && cons !== "none") {
+      r.refuse("bad_consideration", 'terms.consideration must be "money" or "none"; an agreement with no price must say it has none rather than leave the fields out and let a reader guess');
+    }
+    const moneyHere = ["currency", "amount_minor_units", "minor_unit_scale", "fee_basis"]
+      .filter((k) => terms[k] !== null && terms[k] !== undefined);
+    const wpw = terms.who_pays_whom;
+    if (cons === "money") {
+      if (!(payer && payee)) {
+        r.refuse("terms_contradict_roles", "consideration is money, so the two roles must be payer and payee");
+      }
+      const cur = terms.currency;
+      if (!(typeof cur === "string" && pyFullMatch("[A-Z]{3}", cur))) {
+        r.refuse("bad_currency", "terms.currency must be three upper case letters (ISO 4217), found "
+          + pyRepr(cur === undefined ? null : cur));
+      }
+      const amt = terms.amount_minor_units;
+      const scale = terms.minor_unit_scale;
+      if ((amt === null || amt === undefined) && !pyTruthy(terms.fee_basis)) {
+        r.refuse("missing_field", "terms needs amount_minor_units or fee_basis");
+      }
+      if (amt !== null && amt !== undefined) {
+        if (typeof amt !== "bigint" || amt < 0n) {
+          r.refuse("bad_amount", "terms.amount_minor_units must be a non negative integer in the currency's minor units; a price written as a double is a price two runtimes print differently");
+        }
+        if (typeof scale !== "bigint" || !(scale >= 0n && scale <= 4n)) {
+          r.refuse("bad_amount", "terms.minor_unit_scale must be an integer 0 to 4; without it 100 is both one hundred yen and one yen");
+        }
+      }
+      if (!isObj(wpw) || (payer && payee && (normDomain(wpw.from) !== payer || normDomain(wpw.to) !== payee))) {
+        r.refuse("terms_contradict_roles", "terms.who_pays_whom must be {from: " + pyStrOf(payer)
+          + ", to: " + pyStrOf(payee) + "} to match the roles; prose that disagrees with the roles is two records in one");
+      }
+    } else if (cons === "none") {
+      if (!(roles.length === 2 && roles[0] === "peer" && roles[1] === "peer")) {
+        r.refuse("terms_contradict_roles", "consideration is none, so neither party is a payer; both roles must be peer");
+      }
+      if (moneyHere.length) {
+        r.refuse("terms_contradict_roles", "consideration is none, and terms still carries "
+          + moneyHere.join(", ") + ". A record may not say both");
+      }
+      if (wpw !== null && wpw !== undefined) {
+        r.refuse("terms_contradict_roles", "consideration is none names no payer, so terms.who_pays_whom must be absent");
+      }
+    }
+  } else {
+    for (const req of ["what", "who_pays_whom", "currency", "disclosure_url"]) {
+      if (typeof terms[req] !== "string" || !terms[req]) r.refuse("missing_field", "terms." + req + " is required");
+    }
+    if ((terms.amount === null || terms.amount === undefined) && !pyTruthy(terms.fee_basis)) {
+      r.refuse("missing_field", "terms needs amount or fee_basis");
+    }
+  }
+
+  // 8. 記録の代金は誰が払うたか、誰が記録したか
+  let fee = null;
+  if (strict) {
+    const rec = record.recorder;
+    if (!isObj(rec)) {
+      r.refuse("bad_recorder", "recorder is required under v1.1: {domain, is_a_party, fee}. A record whose recorder is unnamed cannot be checked for an interest in what it records");
+    } else {
+      const rdom = normDomain(rec.domain);
+      if (!rdom) r.refuse("bad_recorder", "recorder.domain must be a bare hostname");
+      const isParty = rec.is_a_party;
+      if (typeof isParty !== "boolean") r.refuse("bad_recorder", "recorder.is_a_party must be true or false");
+      const actually = !!rdom && doms.some((d) => underDomain(rdom, d) || underDomain(d, rdom));
+      if (typeof isParty === "boolean" && actually !== isParty) {
+        r.refuse("recorder_undisclosed", "recorder.is_a_party says " + (isParty ? "true" : "false")
+          + ", but recorder.domain " + rdom + " " + (actually ? "is" : "is not")
+          + " one of the parties. A recorder that is also a party has an interest in what it records, and that belongs in the signed bytes");
+      }
+      if (actually && isParty === true) {
+        r.find("operator_is_a_party", "the recorder " + rdom
+          + " is a party to this agreement; declared inside the signed bytes, so a reader sees it without trusting a policy page");
+      }
+      fee = rec.fee === undefined ? null : rec.fee;
+      if (!isObj(fee) || typeof fee.basis !== "string") {
+        r.refuse("bad_recorder", "recorder.fee must be an object with a basis");
+      }
+    }
+  } else {
+    fee = record.recorder_fee === undefined ? null : record.recorder_fee;
+  }
+
+  if (isObj(fee) && typeof fee.basis === "string") {
+    const basis = fee.basis;
+    if (FEE_BASES_BAD.includes(basis)) {
+      r.refuse("fee_tied_to_outcome", "the recorder fee basis " + pyRepr(basis)
+        + " varies with the deal; the recorder must not be paid more when the number is bigger");
+    } else if (!FEE_BASES_OK.includes(basis)) {
+      r.refuse("fee_tied_to_outcome", "the recorder fee basis " + pyRepr(basis)
+        + " is not one of the bases that are independent of the deal (" + FEE_BASES_OK.join(", ") + ")");
+    } else if (basis === "none"
+        && !(fee.amount_minor_units === null || fee.amount_minor_units === undefined || fee.amount_minor_units === 0n)
+        && !(fee.amount === null || fee.amount === undefined || fee.amount === 0n)) {
+      r.refuse("bad_recorder", "a fee basis of none may not carry an amount");
+    }
+  } else if (fee !== null && fee !== undefined && !isObj(fee)) {
+    r.refuse("missing_field", "the recorder fee must be an object with a basis");
+  }
+
+  const paid = record.record_paid_by;
+  if (strict) {
+    if (!(PAID_BY_WORDS.includes(paid) || (typeof paid === "string" && doms.includes(normDomain(paid))))) {
+      r.refuse("bad_record_paid_by", "record_paid_by must name a party's domain or be one of "
+        + PAID_BY_WORDS.join(", ") + ", found " + pyRepr(paid === undefined ? null : paid)
+        + "; v1's party_a and party_b are positions in an array, and reordering the array reverses who paid");
+    }
+  } else {
+    if (!PAID_BY_V1.includes(paid)) {
+      r.refuse("bad_record_paid_by", "record_paid_by must be one of " + PAID_BY_V1.join(", ")
+        + ", found " + pyRepr(paid === undefined ? null : paid));
+    } else if (paid === "party_a" || paid === "party_b") {
+      r.find("paid_by_positional", "record_paid_by names a position in the parties array, so a reader that reorders parties silently reverses who paid; naming the domain would not have that property");
+    }
+  }
+
+  if (record.upstream !== null && record.upstream !== undefined) {
+    const u = record.upstream;
+    if (!isObj(u) || typeof u.protocol !== "string" || typeof u.reference !== "string") {
+      r.refuse("missing_field", "upstream, when present, must be {protocol, reference}");
+    } else {
+      r.find("upstream_unverified", "upstream names " + u.protocol + " " + u.reference
+        + " as declared; nothing in this layer checked it");
+    }
+  }
+
+  // 9. 記録が「これを証す」と言うとる中身
+  const est = record.establishes, dne = record.does_not_establish;
+  const okArr = (x) => Array.isArray(x) && x.length > 0
+    && x.every((v) => typeof v === "string" && pyStrip(v) !== "");
+  if (!okArr(est) || !okArr(dne)) {
+    r.refuse("disclaimer_missing", "establishes and does_not_establish are both required and neither may be empty");
+  } else {
+    const blob = est.join(" ").toLowerCase();
+    for (const [re2, what] of OVERCLAIM) {
+      if (re2.test(blob)) {
+        r.refuse("establishes_overclaims", "establishes claims " + what
+          + "; this record proves that two keys signed the same bytes at a time bounded from above by a Bitcoin block, and nothing more");
+        break;
+      }
+    }
+    const low = dne.join(" ").toLowerCase();
+    if (strict) {
+      const missing = REQUIRED_DNE.filter(([, needles]) => !needles.some((n) => low.includes(n))).map(([name]) => name);
+      if (missing.length) r.refuse("disclaimer_incomplete", "does_not_establish must cover: " + missing.join("; "));
+    } else if (dne.length < 3 || (!low.includes("perform") && !low.includes("contract"))) {
+      r.find("disclaimer_thin", "does_not_establish should say at least that neither party performed and that this is not a contract");
+    }
+  }
+
+  // 10. 署名
+  let sigs = record.signatures;
+  if (!Array.isArray(sigs) || sigs.length < 2) {
+    r.refuse("one_sided", "a record needs two signatures; found "
+      + (Array.isArray(sigs) ? String(sigs.length) : "none")
+      + ". A one sided receipt is not an agreement");
+    sigs = Array.isArray(sigs) ? sigs : [];
+  } else if (sigs.length > 2) {
+    r.refuse("extra_signatures", "signatures must be exactly two, found " + sigs.length);
+  }
+
+  const sigDoms = [];
+  for (let i = 0; i < sigs.length; i++) {
+    const sg = sigs[i];
+    const tag = "signatures[" + i + "]";
+    if (!isObj(sg)) { r.refuse("bad_signature", tag + " is not an object"); continue; }
+    const d = normDomain(sg.domain);
+    if (!d) {
+      r.refuse("bad_domain", tag + ".domain must be a bare hostname, found "
+        + pyRepr(sg.domain === undefined ? null : sg.domain));
+      continue;
+    }
+    sigDoms.push(d);
+    if (sg.alg !== "ed25519") {
+      r.refuse("bad_signature", tag + ".alg must be ed25519, found " + pyRepr(sg.alg === undefined ? null : sg.alg));
+    }
+    if (b64Raw(sg.signature, 64) === null) {
+      r.refuse("bad_signature", tag + ".signature must be 64 bytes of canonical base64");
+    }
+    let party = null;
+    for (const pp of parties) {
+      if (isObj(pp) && normDomain(pp.domain) === d) { party = pp; break; }
+    }
+    if (party === null) {
+      r.refuse("signature_not_a_party", tag + " is signed by " + d
+        + ", which is not one of the two parties; two signatures are not two sides unless they are the two sides");
+      continue;
+    }
+    const ku = sg.key_url;
+    if (strict) {
+      if (ku !== null && ku !== undefined) {
+        r.refuse("signature_key_url_present", tag + " carries a key_url. Signatures are removed before signing, so anything in this block is outside the signed bytes and whoever holds the record can swap it. Under v1.1 the key and its URL live in the party entry");
+      }
+    } else if (ku !== null && ku !== undefined && typeof ku !== "string") {
+      r.refuse("bad_key_url", tag + ".key_url must be a string, found " + pyTypeName(ku));
+    } else if (ku !== null && ku !== undefined && ku !== party.key_url) {
+      r.refuse("key_url_not_pinned", tag + ".key_url (" + pyStrOf(ku)
+        + ") differs from the key_url this party pinned inside the signed bytes ("
+        + pyStrOf(party.key_url === undefined ? null : party.key_url)
+        + "); the signature block is outside the signed bytes and whoever holds the record could swap it");
+    }
+  }
+
+  if (sigDoms.length === 2 && sigDoms[0] === sigDoms[1]) {
+    r.refuse("one_sided", "both signatures are from " + sigDoms[0] + "; one side signing twice is one side");
+  }
+
+  // 11. 実際の暗号
+  let checked = false;
+  let urlsChecked = false;
+  const perSig = [];
+  if (sigs.length && (strict || pyTruthy(keys))) {
+    const msg = signingBytes(record, schema);
+    const results = [];
+    const urlResults = [];
+    for (const sg of sigs) {
+      if (!isObj(sg)) continue;
+      const d = normDomain(sg.domain) || "?";
+      const party = parties.find((pp) => isObj(pp) && normDomain(pp.domain) === d) || null;
+      let pub = null, ku = null;
+      if (strict) {
+        pub = isObj(party) ? (party.public_key_ed25519_b64 === undefined ? null : party.public_key_ed25519_b64) : null;
+        ku = isObj(party) ? (party.key_url === undefined ? null : party.key_url) : null;
+        if (keys !== null && keys !== undefined && typeof ku === "string") {
+          const served = keys[ku] === undefined ? null : keys[ku];
+          if (served === null) {
+            r.refuse("key_url_unreachable", "no public key was supplied for " + pyStrOf(ku)
+              + "; offline this means the key set handed to the verifier does not contain it, and an intake would answer 503 and retry rather than judge");
+            urlResults.push(false);
+          } else if (served !== pub) {
+            r.refuse("key_url_mismatch", "the key served at " + pyStrOf(ku)
+              + " is not the key pinned inside the signed bytes for " + d);
+            urlResults.push(false);
+          } else {
+            urlResults.push(true);
+          }
+        }
+      } else {
+        ku = pyTruthy(sg.key_url) ? sg.key_url
+        : (isObj(party) ? (party.key_url === undefined ? null : party.key_url) : null);
+        if (typeof ku !== "string") ku = null;
+        pub = ku ? (keys[ku] === undefined ? null : keys[ku]) : null;
+        if (pub === null) {
+          r.refuse("key_url_unreachable", "no public key was supplied for " + pyStrOf(ku)
+            + "; offline this means the key set handed to the verifier does not contain it, and an intake would answer 503 and retry rather than judge");
+          results.push(null);
+          perSig.push({ domain: d, key_url: ku, result: "no_key" });
+          continue;
+        }
+        if (isObj(party) && pyTruthy(party.key_url) && ku !== party.key_url) {
+          r.refuse("key_url_mismatch", "the key checked for " + d + " was not the one pinned in the signed bytes");
+        }
+        urlResults.push(true);
+      }
+      if (typeof pub !== "string") {
+        results.push(null);
+        perSig.push({ domain: d, key_url: typeof ku === "string" ? ku : null, result: "no_key" });
+        continue;
+      }
+      const ok = await ed25519Verify(pub, pyTruthy(sg.signature) ? sg.signature : "", msg);
+      results.push(ok);
+      perSig.push({ domain: d, key_url: typeof ku === "string" ? ku : null,
+        result: ok === true ? "valid" : (ok === false ? "invalid" : "unusable") });
+    }
+    const decided = results.filter((x) => x !== null);
+    // checked は報告書に記された証拠から**導く**。横に置いたら、いつか一覧と食い違う。
+    checked = perSig.length === 2 && perSig.every((e) => e.result === "valid");
+    if (decided.length) {
+      if (decided.some((x) => x === true) && decided.some((x) => x === false)) {
+        r.refuse("signatures_disagree", "one signature covers these bytes and the other does not; the two parties did not sign the same record");
+      } else if (decided.every((x) => x === false)) {
+        r.refuse("signature_invalid", "no signature on this record covers these bytes");
+      } else if (decided.length < 2) {
+        r.refuse("one_sided", "only one signature could be checked");
+      }
+    }
+    if (results.some((x) => x === null)) {
+      r.refuse("bad_signature", "a signature or public key could not be used");
+    }
+    urlsChecked = urlResults.length > 0 && urlResults.length === 2 && urlResults.every(Boolean);
+  }
+
+  if (pyTruthy(recorderDomain) && !strict) {
+    const rd = normDomain(recorderDomain);
+    for (const d of doms) {
+      if (rd && underDomain(d, rd)) {
+        r.find("operator_is_a_party", "the recorder's own domain " + rd
+          + " is a party to this agreement; permitted, and disclosed here, because a recorder that is also a party has an interest in what it records");
+        break;
+      }
+    }
+  }
+
+  void parseStrict;
+  return buildReport(r, record, schema, checked, urlsChecked, perSig, inputText, can);
 }

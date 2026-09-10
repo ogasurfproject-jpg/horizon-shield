@@ -116,6 +116,8 @@ console.log("agreement-v0: " + suites.length + " suite"
   + " (" + libraries.length + " library)、"
   + "1 本あたりの制限時間 " + Math.round(TIMEOUT_MS / 1000) + "s");
 
+// 全部で 6 分ほどかかる。mutation を 3 本抱えとるからで、短うするには変異を減らす
+// しかない。減らした分だけ、緑の意味が薄うなる。
 // 長い suite があることを、走り出す前に言う。この一覧は持っとらん。file 自身が
 // RUN_ALL の行に書いた但し書きを、そのまま出しとるだけや。
 const noted = suites.filter((s) => s.note);

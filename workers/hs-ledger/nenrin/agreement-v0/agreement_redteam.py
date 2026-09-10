@@ -831,6 +831,77 @@ manyarr["does_not_establish"] = ["that either party performed", "that this recor
                                  "that money moved", "that the conduct record is accurate"] + ["x"] * 100
 case("attack", "an array with more entries than the limit",
      "bad_text" in codes(V.verify(bad11(manyarr))), "")
+
+# --- 2026-09-10: 2 つ目の実装への変異試験が、この 5 本を素通りした。規則は verifier に
+# 有るのに、それを踏む入力が 5,221 件の契約に 1 つも無かった。無いものは測れん。
+# (見つけ方: agreement_verify_mutation.mjs の 32 本のうち 5 本が生き残った。生き残った
+#  変異は JS の欠陥やのうて、契約の穴を指しとった。)
+
+astral = good11()
+astral["terms"]["what"] = "\U0001F600" * (V.MAX_STRING + 1)
+_why_astral = [x["why"] for x in V.verify(bad11(astral))["refusals"] if x["code"] == "bad_text"]
+case("attack", "a field over the limit made of astral characters: the count is code points, not UTF-16 units",
+     any("is %d characters" % (V.MAX_STRING + 1) in w for w in _why_astral), json.dumps(_why_astral)[:120])
+
+tabbed = good11()
+tabbed["terms"]["what"] = "one\taudit of one estimate"
+case("control", "a tab is not one of the control characters this refuses; a tab in prose is prose",
+     "bad_text" not in codes(V.verify(bad11(tabbed))), json.dumps(codes(V.verify(tabbed))))
+
+two_bad = good11()
+two_bad["terms"]["what"] = "one audit\x01of one estimate"
+two_bad["record_paid_by"] = "party-a.example\ud800"
+_tb = [x["why"] for x in V.verify(bad11(two_bad))["refusals"] if x["code"] == "bad_text"]
+case("attack", "two bad_text refusals come out in sorted path order, not in whatever order the walk found them",
+     len(_tb) == 2 and _tb == sorted(_tb), json.dumps(_tb)[:160])
+
+nel = good11()
+nel["parties"][0]["domain"] = "party-a.example\x85"
+case("control", "NEL (U+0085) around a hostname is stripped, because this verifier strips what python calls space",
+     "bad_domain" not in codes(V.verify(bad11(nel))), json.dumps(codes(V.verify(nel))))
+
+bom = good11()
+bom["parties"][0]["domain"] = "party-a.example\ufeff"
+case("attack", "a byte order mark around a hostname is NOT stripped, and the hostname is refused",
+     "bad_domain" in codes(V.verify(bad11(bom))), json.dumps(codes(V.verify(bom))))
+
+# 語境界は前と後ろの二つある。片方だけ ascii にした実装が有り得るから、片方ずつ踏む。
+glued_head = good11()
+glued_head["establishes"] = ["that both parties signed these bytes",
+                             "\u652fpaid was made, and that is a japanese word with latin letters in it"]
+case("control", "an overclaim word with non ASCII glued in FRONT is not that word (leading boundary is unicode)",
+     "establishes_overclaims" not in codes(V.verify(bad11(glued_head))), json.dumps(codes(V.verify(glued_head))))
+
+glued_tail = good11()
+glued_tail["establishes"] = ["that both parties signed these bytes",
+                             "the buyer paid\u6e08 nothing, and that is a japanese word with latin letters in it"]
+case("control", "an overclaim word with non ASCII glued BEHIND is not that word (trailing boundary is unicode)",
+     "establishes_overclaims" not in codes(V.verify(bad11(glued_tail))), json.dumps(codes(V.verify(glued_tail))))
+
+# scan_text は結果を並べ替えてから返す。並べ替えを外しても気付かん入力が多いから、
+# 「歩いた順」と「並べ替えた順」がはっきり違う形を作る: 添字 2 と 10 の並びは逆になる。
+sortme = good11()
+sortme["does_not_establish"] = ["that either party performed", "that this is not a contract",
+                                "that money moved", "that the conduct record is accurate"] \
+    + ["entry %d \x01 with a control character" % i for i in range(11)]
+_sm = [x["why"] for x in V.verify(bad11(sortme))["refusals"] if x["code"] == "bad_text"]
+case("attack", "bad_text paths come out sorted, which is not the order the walk found them (index 10 before 2)",
+     len(_sm) == 8 and _sm == sorted(_sm), json.dumps(_sm)[:200])
+
+# Report.refuse と Report.find は **同じ** 覚え書き (seen) を共有しとる。せやから同じ
+# (code, why) は、断りに出たら所見には出んし、逆も同じや。今の規則ではその衝突が
+# 1 度も起きん。起きんなら共有は見えん、見えんなら 2 つ目の実装が分けて書いても
+# 気付かん。「見た限り無い」やのうて、契約の全件で「無い」を測る。ここが赤くなったら、
+# 共有の意味が生まれたということで、その時は変異が本物の穴になる。
+_shared = []
+for _rec in alls + ATTACKS_11:
+    _rep = V.verify(_rec, keys=KEYS)
+    _rf = {(x["code"], x["why"]) for x in _rep["refusals"]}
+    _fd = {(x["code"], x["why"]) for x in _rep["findings"]}
+    if _rf & _fd:
+        _shared.append(sorted(_rf & _fd)[0])
+case("residual", "no rule yet produces the same (code, why) as both a refusal and a finding, so the shared seen set is not observable",
+     not _shared, json.dumps(_shared[:2], ensure_ascii=False)[:160])
 biggy = good11()
 biggy["establishes"] = ["that both parties signed these bytes"] + ["y" * 4000 for _ in range(6)]
 c_big = codes(V.verify(bad11(biggy)))
