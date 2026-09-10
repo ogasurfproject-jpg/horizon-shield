@@ -28,11 +28,20 @@ const b64uStr = (s) => b64u(new TextEncoder().encode(s));
 const KEY = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
 const JWK = Object.assign(await crypto.subtle.exportKey("jwk", KEY.publicKey), { kid: "attr-key-1", alg: "ES256", use: "sig" });
 delete JWK.key_ops; delete JWK.ext;
-async function sign(card, hdr) {
-  const protectedB64 = b64uStr(JSON.stringify(Object.assign({ alg: "ES256", typ: "JOSE", kid: "attr-key-1", jku: JWKS }, hdr || {})));
+// 0.4.5. 二本目の鍵。「自ドメインの署名が落ちとる card を、他所の鍵の署名で帰属させてまう」を突くのに要る。
+const KEY2 = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+const JWK2 = Object.assign(await crypto.subtle.exportKey("jwk", KEY2.publicKey), { kid: "someone-elses-key", alg: "ES256", use: "sig" });
+delete JWK2.key_ops; delete JWK2.ext;
+async function entry(card, hdr, opts) {
+  const o = opts || {};
+  const k = o.key2 ? KEY2 : KEY;
+  const protectedB64 = b64uStr(JSON.stringify(Object.assign({ alg: "ES256", typ: "JOSE", kid: o.key2 ? "someone-elses-key" : "attr-key-1", jku: JWKS }, hdr || {})));
   const payload = b64uStr(cardSignatureCanonical(card).canonical);
-  const s = new Uint8Array(await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, KEY.privateKey, new TextEncoder().encode(protectedB64 + "." + payload)));
-  return Object.assign({}, card, { signatures: [{ protected: protectedB64, signature: b64u(s) }] });
+  const s = new Uint8Array(await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, k.privateKey, new TextEncoder().encode(protectedB64 + "." + payload)));
+  return { protected: protectedB64, signature: o.corrupt ? b64u(new Uint8Array(64)) : b64u(s) };
+}
+async function sign(card, hdr) {
+  return Object.assign({}, card, { signatures: [await entry(card, hdr)] });
 }
 
 const COMP = { paid_by: "buyer", referral_fee: false, listing_fee: false, success_fee_pct: 0, disclosure_url: "https://example.invalid/d" };
@@ -46,9 +55,14 @@ function install(card, opts) {
     // 所有者の同意ファイル。これが無いと determinism を測らんので status は pending のままになる(0.2.4 の規則)。
     // ここで測りたいのは「署名が合否を動かさんこと」やから、同意を置いて verified まで行かせる。
     if (u.pathname === "/.well-known/mcp-conduct.json") return new Response(JSON.stringify({ allow_tool_call: true }), { headers: { "content-type": "application/json" } });
-    if (u.href === JWKS || u.href === FOREIGN_JWKS) {
+    if (u.href === JWKS) {
       if (o.jwks === "404") return new Response("no", { status: 404 });
+      if (o.ownRedirect) return new Response("", { status: 302, headers: { location: FOREIGN_JWKS } });
       return new Response(JSON.stringify({ keys: o.jwks === "otherkid" ? [Object.assign({}, JWK, { kid: "someone-else" })] : [JWK] }), { headers: { "content-type": "application/json" } });
+    }
+    if (u.href === FOREIGN_JWKS) {
+      if (o.jwks === "404") return new Response("no", { status: 404 });
+      return new Response(JSON.stringify({ keys: o.foreignKey2 ? [JWK2] : [JWK] }), { headers: { "content-type": "application/json" } });
     }
     if (u.pathname === "/mcp") {
       const b = JSON.parse(init.body);
@@ -66,6 +80,9 @@ async function check(card, opts) {
 const REPUDIATE = /carried no signature/;
 const ATTRIB = /attributable to the operator/;
 const UNCONFIRMED = /could not confirm it/;
+// 0.4.5 で増えた 2 状態
+const OFFDOMAIN = /the signature verifies, but against a key served at/;
+const OWNFAIL = /a signature whose key is served under the agent's own domain/;
 const has = (arr, re) => Array.isArray(arr) && arr.some((x) => re.test(x));
 
 // ---------------------------------------------------------------- 無署名
@@ -96,40 +113,66 @@ t("fix", "signed and verifying: the claim is inside the hashed bytes", (() => {
 // ---------------------------------------------------------------- 署名あり、確認できん 3 通り
 const EDITED = Object.assign({}, SIGNED, { description: SIGNED.description + " (edited after signing)" });
 v = await check(EDITED);
-t("attack", "edited after signing: no attributability claim, and the record says why", !has(v.establishes, ATTRIB) && has(v.does_not_establish, UNCONFIRMED) && /changed after signing/.test(v.does_not_establish.join(" ")), JSON.stringify(v.does_not_establish.slice(-1)));
+// 0.4.5: 自ドメインの鍵で「確かめたら落ちた」は、「確かめられんかった」より強い事実や。別の行にする。
+t("attack", "edited after signing: no attributability claim, and the record says why", !has(v.establishes, ATTRIB) && has(v.does_not_establish, OWNFAIL) && /changed after signing/.test(v.does_not_establish.join(" ")), JSON.stringify(v.does_not_establish.slice(-1)));
+t("fix", "edited after signing: the record separates a signature that failed from one that could not be checked", has(v.does_not_establish, OWNFAIL) && !has(v.does_not_establish, UNCONFIRMED), JSON.stringify(v.does_not_establish.slice(-1)));
 t("control", "edited after signing: still verified (0.3.4 rule unchanged, disclosed not judged)", v.status === "verified" && v.checks.agent_card.pass === true, v.status);
 
 v = await check(SIGNED, { jwks: "404" });
 t("attack", "jwks unreadable: no attributability claim, reason named", !has(v.establishes, ATTRIB) && has(v.does_not_establish, UNCONFIRMED) && /jwks not readable/.test(v.does_not_establish.join(" ")), JSON.stringify(v.does_not_establish.slice(-1)));
 
 v = await check(SIGNED, { jwks: "otherkid" });
-t("attack", "kid not in the jwks: no attributability claim, reason named", !has(v.establishes, ATTRIB) && has(v.does_not_establish, UNCONFIRMED) && /kid not found/.test(v.does_not_establish.join(" ")), JSON.stringify(v.does_not_establish.slice(-1)));
+t("attack", "kid not in the jwks: no attributability claim, reason named", !has(v.establishes, ATTRIB) && has(v.does_not_establish, OWNFAIL) && /kid not found/.test(v.does_not_establish.join(" ")), JSON.stringify(v.does_not_establish.slice(-1)));
 
 v = await check(Object.assign({}, CARD, { signatures: ["garbage"] }));
 t("attack", "a signatures array of garbage claims nothing and does not crash", !has(v.establishes, ATTRIB) && has(v.does_not_establish, UNCONFIRMED) && v.status === "verified", JSON.stringify(v.does_not_establish.slice(-1)));
 
-// ---------------------------------------------------------------- 鍵が別ホストでも、検証できたなら帰属する
+// ---------------------------------------------------------------- 0.4.5. 鍵が相手のドメインの下に無いなら帰属せん
+// 0.4.4 はここを control(正しい振る舞い)として固定しとった。穴を穴と気付かんまま緑にしとった。
+// 帰属の行の存在理由は「持ち出しに耐える著者性」やのに、鍵が第三者のサーバにあったらその性質が立たん。
+// その第三者が鍵を消せば帰属は消えるし、運営者はいつでも「あれは俺の鍵サーバやない」と言える。
 const FOREIGN = await sign(CARD, { jku: FOREIGN_JWKS });
 v = await check(FOREIGN);
-t("control", "a key on another host that verifies still attributes, and the line names that host", has(v.establishes, ATTRIB) && v.establishes.join(" ").includes(FOREIGN_JWKS), JSON.stringify(v.establishes.slice(-1)));
+t("attack", "a key served on another host does NOT attribute, however well the signature verifies", !has(v.establishes, ATTRIB), JSON.stringify(v.establishes.slice(-1)));
+t("fix", "and the record names that host and says why attribution would rest on somebody else's key server", has(v.does_not_establish, OFFDOMAIN) && /keys\.redteam\.invalid/.test(v.does_not_establish.join(" ")), JSON.stringify(v.does_not_establish.slice(-1)));
+t("control", "an off-domain key is still not a failure: the row stays verified and the signature itself is recorded as verified", v.status === "verified" && v.checks.agent_card.detail.signature.verified === true, v.status);
 t("control", "and the verdict still discloses that the key was not on the same host", v.checks.agent_card.detail.signature.signatures[0].jku_same_host === false, JSON.stringify(v.checks.agent_card.detail.signature.signatures[0]));
+
+// 一番効く形: 自ドメインの署名が壊れとって、他所の鍵の署名だけが verify する card
+const MIXED = Object.assign({}, CARD, { signatures: [
+  await entry(CARD, { jku: JWKS }, { corrupt: true }),
+  await entry(CARD, { jku: FOREIGN_JWKS }, { key2: true }),
+] });
+v = await check(MIXED, { foreignKey2: true });
+t("attack", "own-domain signature broken, off-domain signature valid: 0.4.4 attributed this to the operator", !has(v.establishes, ATTRIB), JSON.stringify(v.establishes.slice(-1)));
+t("fix", "and the record leads with the failure on the operator's own domain, not with the one that passed", has(v.does_not_establish, OWNFAIL), JSON.stringify(v.does_not_establish.slice(-1)));
+t("fix", "and it still names the off-domain key that did verify, so nothing is hidden", /not under the agent's own domain/.test(v.does_not_establish.join(" ")), JSON.stringify(v.does_not_establish.slice(-1)));
+
+// 自ドメインの jku が他所へ 302 で逃げる。0.4.4 でも塞がっとったが、vector が無かった
+v = await check(SIGNED, { ownRedirect: true });
+t("attack", "a same-host jku that redirects off-origin claims nothing, and the reason names the host it tried to reach", !has(v.establishes, ATTRIB) && has(v.does_not_establish, UNCONFIRMED) && /redirected off-origin/.test(v.does_not_establish.join(" ")), JSON.stringify(v.does_not_establish.slice(-1)));
+
+// 0.4.5. 早い段階で落ちた行にも、鍵の場所が自ドメインかどうかは記録される
+const BADALG = Object.assign({}, CARD, { signatures: [await entry(CARD, { alg: "RS256" })] });
+v = await check(BADALG);
+t("fix", "an entry rejected for its alg still records whether its key location was on the agent's own domain", v.checks.agent_card.detail.signature.signatures[0].jku_same_host === true, JSON.stringify(v.checks.agent_card.detail.signature.signatures[0]));
 
 // ---------------------------------------------------------------- 0.4.0 の行は動かしとらん
 v = await check(CARD);
 t("control", "the 0.4.0 lines are untouched: measurement, conditions, recompute, and the four disclaimers", v.establishes.length >= 3 && /this gate \(commit /.test(v.establishes[0]) && /conditions passed:/.test(v.establishes[1]) && has(v.does_not_establish, /correctness of any price/) && has(v.does_not_establish, /truth of the compensation declaration/), JSON.stringify(v.establishes.length) + " / " + JSON.stringify(v.does_not_establish.length));
 t("control", "exactly one attributability line is added, never both", (() => {
-  const n = v.does_not_establish.filter((x) => REPUDIATE.test(x) || UNCONFIRMED.test(x)).length + v.establishes.filter((x) => ATTRIB.test(x)).length;
+  const n = v.does_not_establish.filter((x) => REPUDIATE.test(x) || UNCONFIRMED.test(x) || OFFDOMAIN.test(x) || OWNFAIL.test(x)).length + v.establishes.filter((x) => ATTRIB.test(x)).length;
   return n === 1;
 })(), JSON.stringify(v.does_not_establish));
 
 const spec = await (await worker.fetch(new Request(O + "/spec"), ENV, CTX)).json();
-t("control", "/health and /spec report 0.4.4", spec.version === "0.4.4" || (await (await worker.fetch(new Request(O + "/health"), ENV, CTX)).json()).gate_version === "0.4.4", JSON.stringify(spec.version));
+t("control", "/health and /spec report 0.4.5", spec.version === "0.4.5" && (await (await worker.fetch(new Request(O + "/health"), ENV, CTX)).json()).gate_version === "0.4.5", JSON.stringify(spec.version));
 
 const passed = R.filter((r) => r.ok).length;
 const by = (k) => R.filter((r) => r.kind === k);
 console.log("");
 for (const k of ["attack", "fix", "control"]) console.log("  " + k.padEnd(9) + by(k).filter((r) => r.ok).length + " / " + by(k).length);
 console.log("");
-console.log("=== " + passed + " / " + R.length + " 合格 (attributability、扉 0.4.4) ===");
+console.log("=== " + passed + " / " + R.length + " 合格 (attributability、扉 0.4.5) ===");
 console.log("署名は合否やない。署名の無い行は「うちの言葉」、署名の有る行は「相手の言葉」。記録がそれを名乗る。");
 if (passed !== R.length) process.exit(1);
