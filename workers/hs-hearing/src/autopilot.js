@@ -84,6 +84,16 @@ export const WAVE_TTL_D = 10;
    だから聞く側が抱える数を絞る。古い波から落とし、直近 PENDING_MAX_WAVES 群だけを持つ。
    落とした問いは asked(台帳)に残る。答えたことにはしないので、間隔を置いて聞き直せる。 */
 export const PENDING_MAX_WAVES = 2;
+/* 2026-09-10 一度に訊く数。
+   9/7 に波の数を 2 に絞った。それでも 2問x2波 = 4問が開き、届いた1通は
+   どの設問への答えか決められず、また人送りになった(hs-partner-001、9/10 07:49)。
+   切り分けの仕組みには、番号無しの散文でも当てられる道が一つだけある。
+   いちばん新しい波が1問のときだけ通る道(recent_wave)である。
+   2問ずつ送るかぎり、その道は永久に閉じている。
+   人は、まとめて訊かれたことに、まとめて一言で答える。それが普通である。
+   ならば訊く側が一問ずつにする。1回に1問、開いている波は最大2問。
+   進みは遅くなるが、2問ずつ送って一つも当てられないより速い。 */
+export const ASK_PER_SEND = 1;
 export function hearingMode(store) {
   return (store && store.hearing_mode === "onboarding") ? "onboarding" : "prospect";
 }
@@ -420,6 +430,15 @@ export function nextQuestions(profile, autopilot, maxN = 2) {
   // 無関係な返事1通で、一番重い質問(強み・見積もり例・実績)が永久に失われていた。
   // 代わりに上限3回、間隔3日。3回聞いて埋まらなければ打ち切る。
   const ASK_MAX = 3, ASK_COOL_MS = 3 * 86400000, nowMs = Date.now();
+  /* 2026-09-10 いま返事を待っている設問は、もう一度訊かない。
+     実測(deadlock_test の A): 8/21 に q_focus を送り、間隔(3日)が明けた 8/24 に
+     同じ q_focus をもう一度送っていた。返事待ちに同じ設問が二つの波で載る。
+     そこへ返事が1通来ると、新しい波を消したつもりが古い波の同じ設問まで消え、
+     返事待ちが空になる。待っている本人にも「さっき答えたのに、また同じことを訊かれる」。
+     間隔(ASK_COOL_MS)は「答えが来なかった設問を、また訊いてよいか」の物差しであって、
+     「いま返事を待っている設問を、二重に訊いてよいか」の物差しではない。
+     待っている間は出さない。落ちた波の設問は pending から外れるので、そこで再び出る。 */
+  const outstanding = new Set(((autopilot && autopilot.pending && autopilot.pending.qids) || []));
   const askedCount = {}, lastAskAt = {};
   for (const a of ((autopilot && autopilot.asked) || [])) {
     askedCount[a.qid] = (askedCount[a.qid] || 0) + 1;
@@ -452,6 +471,7 @@ export function nextQuestions(profile, autopilot, maxN = 2) {
   const focusList = focusKeys(autopilot);
   const flat = [];
   for (const m of missing) {
+    if (outstanding.has(m.qid)) continue;   // 返事待ちの設問は二重に出さない
     const askedN = askedCount[m.qid] || 0;
     const neverGiveUp = NEVER_GIVE_UP.indexOf(m.qid) >= 0;
     if (askedN >= ASK_MAX) {
@@ -1036,7 +1056,7 @@ export async function runDailyTick(env, deps) {
         if (Math.min(pendAge, sinceSend) >= ONBOARDING_GAP_H * 3600 * 1000) gate = "onboarding";
       }
       if (gate) {
-        const qs = nextQuestions(profile, ap, 2);
+        const qs = nextQuestions(profile, ap, ASK_PER_SEND);
         if (qs.length) {
           const r = await sendQuestions(env, store, qs, "followup");
           if (r.ok) {
@@ -1189,7 +1209,7 @@ export async function selfCheck(env, stores) {
     const open = (answered && sinceAnswer >= REPLY_GATE_FLOOR_H * 3600 * 1000) ||
                  (sinceSend >= FOLLOWUP_COOLDOWN_H * 3600 * 1000);
     if (!open) continue;
-    if (nextQuestions(prof, ap, 2).length === 0) {
+    if (nextQuestions(prof, ap, ASK_PER_SEND).length === 0) {
       idle.push(s.store_id + ":完成度" + comp.score + ":門は開いているが出せる質問が無い");
     }
   }

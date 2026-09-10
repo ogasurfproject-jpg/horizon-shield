@@ -136,10 +136,13 @@ console.log("A) 答えている相手: 古い波を抱えたまま追撃が再�
   // 明け渡したかどうかである。落ちたことが台帳のどちらかに記録されていることも見る。
   {
     const _ap = stores[0].autopilot;
-    const _live = new Set((_ap.pending && _ap.pending.qids) || []);
-    const _stillHeld = w1qids.filter((q) => _live.has(q));
-    check("最初の波は返事待ちの席を明け渡した", _stillHeld.length === 0,
-          "まだ抱えている: " + (_stillHeld.join("+") || "なし"));
+    // 見るのは「その波が席を明け渡したか」であって、「その設問が二度と出ないか」ではない。
+    // 2026-09-10: 設問は席が空けば正当に再送される(間隔と上限3回の範囲で)。
+    //   再送された設問が返事待ちに居ることは、古い波が居座っていることとは別の事実である。
+    //   波そのもの(送った時刻で見分ける)が消えたかを見る。
+    const _liveWaves = ((_ap.pending && _ap.pending.waves) || []).map((w) => w.sent_at);
+    check("最初の波は返事待ちの席を明け渡した", _liveWaves.indexOf(w1at) < 0,
+          "生きている波の送信時刻: " + (_liveWaves.join(", ") || "なし") + " / 最初の波: " + w1at);
     const _logged = [...(_ap._waves_expired || []), ...(_ap._waves_dropped || [])];
     check("落としたことが台帳に残る", _logged.length > 0, JSON.stringify(_logged));
     check("落としても asked からは消さない",
