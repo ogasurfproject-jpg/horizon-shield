@@ -19,6 +19,15 @@ import path from "node:path";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SRC = readFileSync(path.join(HERE, "..", "src", "worker.js"), "utf8");
 
+// 形だけの偽鍵。本物の鍵はこの tree のどこにも無いし、置いたらあかん。
+// 2026-09-11: 最初この 44 字の base64 を literal で書いて、gitleaks が赤を出した。
+// 見立ては正しい。走査器から見たら、高エントロピーの base64 が試験用かどうかは
+// 区別が付かん。「これは偽物や」と註釈を足して黙らせるのは、次に本物を置いた時に
+// 同じ註釈で黙る仕掛けを作ることになる。せやから註釈やのうて、字そのものを消す。
+// 読める 32 バイトから作るから、file の中には高エントロピーの字が一つも残らん。
+// Ed25519 の公開鍵と同じ 32 バイト、同じ 44 字の base64 で、形は本物と揃う。
+const FAKE_KEY = Buffer.from("agreement-key-route-test-fixture").toString("base64");
+
 let pass = 0, fail = 0;
 const t = (name, ok, detail) => {
   if (ok) { pass++; console.log("ok   " + name); }
@@ -59,7 +68,7 @@ const run = async (env) => {
   t("なぜ空を返さんかを本文に書いとる", typeof b.why === "string" && b.why.length > 40);
 }
 {
-  const KEY = "0EqyMnQrtKs6E2i9RhXk5tAiSrcaAWuvhSCjMsl3hzc=";
+  const KEY = FAKE_KEY;
   const r = await run({ AGREEMENT_PUBKEY_B64: KEY });
   t("鍵が設定されとったら 200", r.status === 200, r.status);
   const b = await r.json();
@@ -79,7 +88,7 @@ const run = async (env) => {
   t("空白だけの鍵は未設定と同じ扱い", r.status === 404, r.status);
 }
 {
-  const KEY = " 0EqyMnQrtKs6E2i9RhXk5tAiSrcaAWuvhSCjMsl3hzc= ";
+  const KEY = " " + FAKE_KEY + " ";
   const b = await (await run({ AGREEMENT_PUBKEY_B64: KEY })).json();
   // 前後の空白は落とす。落とさんかったら、記録の中の鍵と字が合わんで帰属が立たん。
   t("前後の空白は落とす", b.public_key_ed25519_b64 === KEY.trim(), JSON.stringify(b.public_key_ed25519_b64));
