@@ -55,7 +55,9 @@ card_sha "$B_CARD" "babyblueviper"   || true
 # not a verdict, and the walk writes the record either way. Read the FAILs before you
 # decide whether this is the record to pin on a first agreement.
 say "3. conduct walk of api.babyblueviper.com (no --submit: nothing is filed)"
-python3 workers/hs-ledger/nenrin/a2a-conduct-walk/a2a_conduct_walk.py \
+# -u throughout: python block-buffers when stdout is a pipe, so `| sed` holds every line
+# until the process exits. Same fault as the one removed from step 5 below, one step over.
+python3 -u workers/hs-ledger/nenrin/a2a-conduct-walk/a2a_conduct_walk.py \
   --origin "$B_ORIGIN" \
   --endpoint "$B_ENDPOINT" \
   --mode a2a --wire 0.3 \
@@ -73,11 +75,19 @@ say "5. bitcoin lower_bound (re-syncing local headers first)"
 # localheaders_p2p with no mode, which is not the window we read below. It needs
 # outbound 8333 to reach peers; if that is refused the manifest simply does not advance,
 # and the reader below says STALE rather than letting a four day old block through.
+# No pipe here, on purpose. The first version sent this through `tail -6`, which holds
+# every line until the process exits, so a peer catchup that was working looked frozen
+# for minutes. A tool whose progress you cannot see is a tool you cannot tell from a
+# dead one, which is the same fault as putting 402 and 500 in one bucket. It prints as
+# it goes now. Ctrl+C is safe: the sync is fail-closed and writes nothing until it has
+# enough agreeing peers, so an interrupted run leaves the manifest untouched.
+echo "  (this talks to Bitcoin peers on port 8333 and can take minutes. Output is live."
+echo "   Ctrl+C is safe: nothing is written until enough peers agree.)"
 ( cd workers/hs-ledger/nenrin/coordinate-v1 && \
   python3 sync_headers_p2p.py \
     --from-manifest localheaders_catchup.manifest.json \
-    --out-prefix localheaders_catchup 2>&1 | tail -6 ) | sed 's/^/  /'
-python3 - <<'PY' 2>&1 | sed 's/^/  /'
+    --out-prefix localheaders_catchup 2>&1 )
+python3 -u - <<'PY' 2>&1 | sed 's/^/  /'
 import datetime, glob, io, json, os
 best = None
 for f in glob.glob("workers/hs-ledger/nenrin/coordinate-v1/localheaders_*.manifest.json"):
