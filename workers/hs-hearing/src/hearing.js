@@ -2779,18 +2779,39 @@ export default {
           for (const q of VIS.visibilityQids()) known.add(q);
           const bad = Object.keys(extraIn).filter((q) => !known.has(q));
           if (bad.length) return json({ error: "unknown_qid", unknown: bad }, 400);
+          /* 2026-09-10 いつ答えたかを、印を押すときに潰さないこと。
+             印の無い古い記録(2026-08-24 より前)を人が見て「これは本物の回答だ」と
+             確かめたとき、これまでは同じ本文を入れ直すしか手が無かった。
+             すると at が今の時刻で上書きされる。実際に潰した:
+               hs-partner-001 q_fr_support 「進めて下さい」 8/20 01:39 → 9/10 10:56
+               hs-partner-002 q_license    建築業許可番号   8/19 10:00 → 9/10 10:56
+             中身が同じでも「いつ答えたか」は別の事実である。検査を緑にするために
+             事実を潰したら、検査は緑を作る道具になる。
+             だから値に {text, at} を渡せるようにする。at を渡したときは、
+             人が中身を確かめた古い記録として legacy_confirmed の印にする。
+             admin(今この場で人が書いた) と legacy_confirmed(昔の回答を人が確認した)は
+             別の事実なので、印も分ける。 */
           const ea = {};
           for (const q of Object.keys(extraIn)) {
             const before = rec.profile.extra[q];
-            const to = safeStr(extraIn[q], 3000).trim();
+            const raw = extraIn[q];
+            const isObj = raw && typeof raw === "object" && !Array.isArray(raw);
+            const to = safeStr(isObj ? raw.text : raw, 3000).trim();
             if (!to) {
               delete rec.profile.extra[q];
               ea[q] = { from: before || null, to: null, note: "消した" };
-            } else {
-              rec.profile.extra[q] = { text: to, at: new Date().toISOString(),
-                                       attributed: "admin", with: [] };
-              ea[q] = { from: before || null, to: rec.profile.extra[q] };
+              continue;
             }
+            let at = new Date().toISOString(), mark = "admin";
+            if (isObj && raw.at) {
+              const t = Date.parse(raw.at);
+              if (!Number.isFinite(t)) return json({ error: "bad_at", qid: q, at: raw.at }, 400);
+              if (t > Date.now() + 60000) return json({ error: "at_in_future", qid: q, at: raw.at }, 400);
+              at = new Date(t).toISOString();
+              mark = "legacy_confirmed";
+            }
+            rec.profile.extra[q] = { text: to, at, attributed: mark, with: [] };
+            ea[q] = { from: before || null, to: rec.profile.extra[q] };
           }
           applied.extra = ea;
         }
