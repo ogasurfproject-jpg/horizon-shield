@@ -677,9 +677,15 @@ export async function sendQuestions(env, store, questions, kind) {
   const hail = company ? (company + " さま、" + who + "です。")
                        : ("いつもお世話になっております。" + who + "です。");
   const lineUid = await env.HS_HEARING_KV.get("store2line:" + store.store_id, "text");
+  /* 2026-09-10 「このまま返信いただければ自動で反映されます」は、そのトークを
+     開いている人にしか意味が通らない。実際に起きたこと(hs-partner-001):
+     代表がこの文面を社内のご担当へ転送され、受け取った方から
+     「どこにご回答すればよいでしょうか」と、別のグループで尋ねられた。
+     こちらの案内が、転送された先で行き先を失っている。
+     文面は転送されるものとして書く。返す先を、文面の中で名指しする。 */
   const intro = kind === "nudge"
     ? hail + "その後いかがでしょうか。掲載の質を上げるため、下記だけ教えていただけると助かります。\n\n"
-    : hail + "掲載ページをさらに強くするため、下記を教えてください。このまま返信いただければ自動で反映されます。\n\n";
+    : hail + "掲載ページをさらに強くするため、下記を教えてください。\n\n";
 
   // 2026-08-25: まとめて書ける用紙の場所を、催促そのものに載せる。
   //
@@ -702,9 +708,16 @@ export async function sendQuestions(env, store, questions, kind) {
       ? (hearingOrigin + "/h/" + store.token)
       : ("https://shield.the-horizons-innovation.com/yakumo/register/?code=" + store.token);
   const formNote = "1枚にまとめた用紙からも書けます(分かるところだけで結構です。途中まででも送れます)。";
+  // 返す先の案内。転送された方にも読めるように、経路の名前を書く。
+  const replyHereLine = "このトークにそのままご返信いただければ、自動で反映されます。";
+  const forwardedLine = "この文面が転送されたものでしたら、1枚にまとめた用紙からご回答ください。ご担当の方からでも受け付けます。";
 
   if (lineUid) {
-    const tail = formUrl ? ("\n\n--\n" + formNote + "\n" + formUrl) : "";
+    // LINE では用紙の話を二度書かない(forwardedLine が既に用紙へ誘導している)。
+    const tail = formUrl
+      ? ("\n\n--\n" + replyHereLine + "\n" + forwardedLine
+         + "分かるところだけで結構です。途中まででも送れます。\n" + formUrl)
+      : ("\n\n--\n" + replyHereLine);
     // LINE は 1900 字で切られる。切られて困るのは用紙の在り処である。
     // 質問は次の便でまた出せるが、用紙の場所が切れると、
     // まとめて書く道がその人に一度も届かない。あふれるときは質問のほうを削る。
@@ -721,12 +734,12 @@ export async function sendQuestions(env, store, questions, kind) {
     const subject = (kind === "nudge" ? "【" + who + " ご様子うかがい" : "【" + who + " 追加ヒアリング")
       + refTag + "】" + (company || "");
     const formLink = formUrl
-      ? '<p style="font-size:13px;"><a href="' + formUrl + '">' + formNote + '</a></p>'
+      ? ('<p style="font-size:13px;">' + forwardedLine + '<br><a href="' + formUrl + '">' + formNote + '</a></p>')
       : "";
     const lineInvite = '<p style="font-size:13px;">やり取りはLINEでも可能です。HORIZON SHIELD公式LINE(ID: @172piime)の友だち追加はこちら: <a href="https://line.me/R/ti/p/@172piime">https://line.me/R/ti/p/@172piime</a></p>';
     const html = '<div style="font-family:sans-serif;line-height:1.9;color:#222;"><p>' +
       intro.replace(/\n/g, "<br>") + "</p><p>" + qText.replace(/\n/g, "<br>") + "</p>" + formLink + lineInvite +
-      '<p style="color:#888;font-size:12px;">このメールにそのまま返信してください。The HORIZONs株式会社 / HORIZON SHIELD / Yakumo</p></div>';
+      '<p style="color:#888;font-size:12px;">このメールにそのままご返信いただければ、自動で反映されます。The HORIZONs株式会社 / HORIZON SHIELD / Yakumo</p></div>';
     const r = await sendEmailRaw(env, { to: store.email, subject, html });
     if (r.ok) return { ok: true, via: "email" };
     return { ok: false, reason: r.reason || ("email-status-" + r.status) };
