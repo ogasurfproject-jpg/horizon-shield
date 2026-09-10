@@ -25,14 +25,15 @@ then disappears from what the record establishes.
 | `agreement_float_repr.py` | 17,759 doubles as raw bits beside what Python's `json.dumps` wrote for each. The float table |
 | `agreement_readback.py` | 173 pieces of JSON text beside what `parse_strict` did with each: the bytes it produced, or the name it refused by |
 | `agreement_canonical.mjs` | the canonical byte form and the record reader, in JavaScript. The first piece of the second implementation |
-| `agreement_canonical_test.mjs` | 44 checks: unit vectors, both Python tables, and 20.4 MB of fixture bytes round tripped through two readers |
-| `agreement_canonical_mutation.mjs` | breaks `agreement_canonical.mjs` 27 ways and checks the suite notices. Also works on a copy |
+| `agreement_canonical_test.mjs` | 53 checks: unit vectors, both Python tables, and 20.4 MB of fixture bytes round tripped through two readers |
+| `agreement_canonical_mutation.mjs` | breaks `agreement_canonical.mjs` 33 ways and checks the suite notices. Also works on a copy |
 | `run_all.mjs` | runs every suite in this directory and refuses to report if any file here has not declared what it is |
 | `run_all_test.mjs` | 32 checks on the runner itself, because a runner that skips a suite quietly is worse than no runner |
 | `agreement_verify.mjs` | the verifier's rules, in JavaScript. The second implementation |
 | `agreement_verify_test.mjs` | all 5,283 frozen cases through it, byte for byte against the frozen report |
 | `agreement_verify_mutation.mjs` | breaks a rule in `agreement_verify.mjs` 33 ways and checks the 5,283 notice |
-| `agreement_pyrepr.py` | 818 values beside what Python's `repr` wrote for each. The refusal messages are made of it |
+| `readme_numbers_test.mjs` | every count this table states, derived from the files and the suites, so the table cannot go stale quietly |
+| `agreement_pyrepr.py` | 831 values beside what Python's `repr` wrote for each. The refusal messages are made of it |
 
 There is no intake, no KV, no ring column, no fee, no URI. Those come when a real pair of parties
 has a real agreement to record. A record layer built before it has two parties is an empty
@@ -192,7 +193,7 @@ the first mutation and recovers from it on the next run, so even a SIGKILL leave
 
 The intake stays shut until two implementations of this verifier agree. Not agree in the sense
 that both were written from the same document: agree in the sense that they were run against the
-same 5,221 inputs and gave the same answer, byte for byte, and that somebody broke each of them on
+same 5,283 inputs and gave the same answer, byte for byte, and that somebody broke each of them on
 purpose to check the comparison could tell.
 
 Three layers have to agree, and they are not equally hard.
@@ -205,7 +206,7 @@ JavaScript by UTF-16 code unit, and the two disagree above the BMP), escaping, i
 floats (Python writes `1.0` and `1e+16` and `1e-07` where JavaScript writes `1` and
 `10000000000000000` and `1e-7`). The proof is the fixture's own 20.4 MB of canonical bytes read,
 parsed, written back, and compared byte for byte, plus 17,759 doubles that Python wrote the
-answers for. 27 deliberate breakages, 26 caught, 1 proved equivalent rather than excused.
+answers for. 33 deliberate breakages, 32 caught, 1 proved equivalent rather than excused.
 
 **What a record can be READ as.** Done, 2026-09-10, and it moved a rule. The JavaScript reader was
 written to refuse `NaN` and `Infinity`, which felt obviously right. Run against the real

@@ -19,13 +19,14 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import os from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const TARGET = path.join(HERE, "agreement_verify.mjs");
 const SUITE = path.join(HERE, "agreement_verify_test.mjs");
 const NEED = ["agreement_canonical.mjs", "agreement_vectors_v1.json", "agreement_pyrepr_v1.json"];
 
-const MUTANTS = [
+export const MUTANTS = [
   // 報告書の組み立て
   ["in_draft を code から導かず常に false", "in_draft: DRAFT_CODES.has(code)", "in_draft: false"],
   // 等価。緑のままが正しい。
@@ -80,6 +81,11 @@ const MUTANTS = [
   ["自己合意の検査を外す", "if (a === b) {", "if (false) {"],
   ["conduct の主体の検査を外す", "if (subj && other && !underDomain(subj, other)) {", "if (false) {"],
 ];
+
+// 直に走らせた時だけ回す。import された時は MUTANTS を渡すだけ。
+// (README の数を測る側が、変異試験を走らせずに本数を数えられるようにするため。)
+const IS_MAIN = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (IS_MAIN) {
 
 const src = readFileSync(TARGET, "utf8");
 const work = mkdtempSync(path.join(os.tmpdir(), "agreement-verify-mutation-"));
@@ -151,3 +157,5 @@ if (wrong.length) {
 console.log("=== " + MUTANTS.length + " / " + MUTANTS.length + " 合格 (検証規則の mutation) ===");
 console.log("5,221 / 5,221 の緑が意味を持つんは、規則を 1 本壊したら赤くなるからや。");
 process.exit(0);
+
+}

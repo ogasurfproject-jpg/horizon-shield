@@ -25,6 +25,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import os from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const TARGET = path.join(HERE, "agreement_canonical.mjs");
@@ -35,7 +36,7 @@ const TABLES = [
   "agreement_readback_v1.json",
 ];
 
-const MUTANTS = [
+export const MUTANTS = [
   // 書く側
   ["鍵の並びを既定の sort に戻す", "Object.keys(v).sort(cmpCodePoints)", "Object.keys(v).sort()", "caught"],
   ["cmpCodePoints を長さ比較だけにする", "if (x[i] !== y[i]) return x[i] < y[i] ? -1 : 1;", "", "caught"],
@@ -87,6 +88,11 @@ const MUTANTS = [
   // その範囲では fromCodePoint は fromCharCode と同じ物を返す。対を組まん代理符号
   // でも同じで、fromCodePoint は 0xD800 を放り出さん。2026-09-10 に両方走らせて確認。
 ];
+
+// 直に走らせた時だけ回す。import された時は MUTANTS を渡すだけ。
+// (README の数を測る側が、変異試験を走らせずに本数を数えられるようにするため。)
+const IS_MAIN = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (IS_MAIN) {
 
 const src = readFileSync(TARGET, "utf8");
 const work = mkdtempSync(path.join(os.tmpdir(), "agreement-canonical-mutation-"));
@@ -160,3 +166,5 @@ if (wrong.length) {
 console.log("=== " + MUTANTS.length + " / " + MUTANTS.length + " 合格 (canonical の mutation) ===");
 console.log("緑やから正しいんやない。壊したら赤くなるから正しい。等価と書いた 1 本だけは、なぜ等価かをこの file に書いてある。");
 process.exit(0);
+
+}
