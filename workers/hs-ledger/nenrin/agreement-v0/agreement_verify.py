@@ -39,6 +39,7 @@ Usage
 
 Exit codes: 0 accepted, 1 refused, 2 incomplete (shape passed, signatures not checked).
 """
+# RUN_ALL: library  a2a-agreement-v1 の検証規則そのもの。試験は agreement_redteam.py が回す
 
 import argparse
 import base64

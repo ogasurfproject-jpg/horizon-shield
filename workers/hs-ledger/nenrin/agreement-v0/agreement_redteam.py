@@ -7,6 +7,7 @@ Every vector is a refusal, a separation, or a control that must NOT refuse. Noth
 anybody. A vector that only proves the verifier says yes to a good record is worth as much as one
 that proves it says no to a bad one, so both are counted, in their own columns.
 """
+# RUN_ALL: suite
 
 import copy
 import json

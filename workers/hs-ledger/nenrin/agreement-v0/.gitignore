@@ -1,2 +1,4 @@
 __pycache__/
-.agreement_verify.py.mutation_backup
+# 昔の版の agreement_mutation.py が置いた控え。今の版は作らん (写しで回すから)。
+# 残っとったら中身を agreement_verify.py と見比べて、要らんかったら消すこと。
+.agreement_verify.py.mutation_backup*

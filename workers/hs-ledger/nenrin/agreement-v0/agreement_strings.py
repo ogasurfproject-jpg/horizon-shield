@@ -31,6 +31,8 @@ Usage:
   python3 agreement_strings.py --check    exit 1 if the written table is stale
   python3 agreement_strings.py --selftest run the built in cases
 """
+# RUN_ALL: suite --selftest
+# RUN_ALL: suite --check
 import base64
 import hashlib
 import io

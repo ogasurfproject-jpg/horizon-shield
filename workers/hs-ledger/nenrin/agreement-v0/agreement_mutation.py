@@ -17,52 +17,59 @@ way to learn the difference is to keep writing new ones.
 Two mutants are expected to SURVIVE and are marked so. A mutant that changes no behaviour is not
 a hole in the adversary, and pretending otherwise would train the reader to ignore this output.
 
-Restoring the file it edits is the whole safety story, and the first version of this claim was
-false. It said "restored on every exit path, including a crash and a Ctrl-C", which is true for
-exceptions and for SIGINT and is NOT true for SIGTERM: python's default handler ends the process
-without running a finally block. On 2026-09-10 a two minute command timeout sent exactly that
-signal in the middle of a run, and agreement_verify.py was left with a mutant in it. Nothing was
-committed, because the next run of the adversary went red and the mutated line was found by
-hashing the file against a copy on another machine. It could as easily have been committed.
+Where it does the breaking took three tries to get right, and the story is worth keeping because
+each version failed in a way the previous one could not see.
 
-So the file is now protected by a copy on disk, not only by a finally block: a backup is written
-beside it before the first mutation and removed only after the file is restored and compared byte
-for byte. If this program starts and finds that backup already there, a previous run died: it
-restores from it and says so before doing anything else. SIGTERM and SIGINT are turned into a
-normal exit so the finally still runs; even a SIGKILL, which cannot be caught, leaves the backup
-for the next run to find.
+First version: mutate agreement_verify.py in place, restore in a finally block. The claim was
+"restored on every exit path, including a crash and a Ctrl-C". True for exceptions and for SIGINT,
+false for SIGTERM: python ends the process without running finally. On 2026-09-10 a two minute
+command timeout sent exactly that signal mid run and left a mutant in agreement_verify.py.
+
+Second version: keep mutating in place, but write a backup beside the file first and remove it
+only after a byte for byte restore. A run that dies leaves the backup, and the next run restores
+from it. That held for the case it was built for, and then broke on the case it was not: later the
+same day the backup could not be deleted (the folder allowed reading and writing but not unlink),
+so it survived a successful run, and the NEXT run treated it as evidence of a crash and restored
+a stale copy over a legitimate edit, silently deleting it. A recovery mechanism that fires when
+nothing is wrong is worse than none, because it destroys work while reporting health.
+
+Third version, this one: **do not touch the file at all.** Copy the verifier, the signer and the
+adversary into a temporary directory and mutate the copy. Then SIGTERM, SIGKILL, a full disk and a
+folder that forbids unlink are all the same event: the working tree was never modified, so there
+is nothing to restore and nothing to leave behind. The check at the end is not "did the restore
+work" but "is the real file byte for byte what it was before this program started", which is a
+question that can be answered without trusting anything this program did.
+
+If a backup from the second version is still lying around, this program says so and stops. It does
+NOT restore from it. Deciding what a leftover file means is a person's job; the failure above is
+what happens when a program decides that for itself.
 """
+# RUN_ALL: suite    長い (百秒ほど)。agreement_verify.py を書き換えて、また戻す
 
 import hashlib
 import os
-import signal
+import shutil
 import subprocess
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TARGET = os.path.join(HERE, "agreement_verify.py")
 SUITE = os.path.join(HERE, "agreement_redteam.py")
-BACKUP = os.path.join(HERE, ".agreement_verify.py.mutation_backup")
+SIGNER = os.path.join(HERE, "agreement_sign.py")
+OLD_BACKUP = os.path.join(HERE, ".agreement_verify.py.mutation_backup")
 
 
-def _bye(signum, _frame):
-    raise SystemExit("interrupted by signal %d" % signum)
-
-
-def recover_if_needed():
-    """A previous run died with a mutant applied. The backup on disk is the real one."""
-    if not os.path.exists(BACKUP):
+def refuse_if_old_backup():
+    """A file left by the in place version of this tool. Say so; decide nothing."""
+    if not os.path.exists(OLD_BACKUP):
         return
-    with open(BACKUP, encoding="utf-8") as f:
-        saved = f.read()
-    with open(TARGET, encoding="utf-8") as f:
-        now = f.read()
-    if saved != now:
-        with open(TARGET, "w", encoding="utf-8") as f:
-            f.write(saved)
-        print("RECOVERED %s from a backup left by a run that did not finish." % os.path.basename(TARGET))
-        print("          the file on disk was NOT the real one; it is now.\n")
-    os.remove(BACKUP)
+    print("★ 拒否: %s がまだ置いてある。" % os.path.basename(OLD_BACKUP))
+    print("        今の版はこの file を作らん。有るということは、昔の版の run が死んだか、")
+    print("        消せんまま残ったかのどちらかや。中身と agreement_verify.py を見比べて、")
+    print("        どっちが本物か決めるのは人の仕事。ここでは戻さん。")
+    print("        (2026-09-10: ここで勝手に戻す作りやったせいで、正しい編集が黙って消えた)")
+    sys.exit(2)
 
 # (name, exact text to replace, replacement, expect_caught)
 MUTANTS = [
@@ -160,8 +167,11 @@ MUTANTS = [
 ]
 
 
-def clear_pycache():
-    pc = os.path.join(HERE, "__pycache__")
+def clear_pycache(pc=None):
+    """作業場の __pycache__ を落とす。写した verifier を差し替えても、古い .pyc が
+    残っとったら python はそっちを読む。mtime が同じ秒に収まると実際に起きる。"""
+    if pc is None:
+        pc = os.path.join(HERE, "__pycache__")
     if os.path.isdir(pc):
         for f in os.listdir(pc):
             try:
@@ -170,57 +180,100 @@ def clear_pycache():
                 pass
 
 
+def build_workspace():
+    """敵が読む物が全部揃った作業場を作る。返すのは (作業場, agreement-v0 の場所)。
+
+    敵は自分の隣の README.md も、4 つ上の ops/ の草案も、2 つ上の seed も読む。
+    せやから平たい tmp folder では足りん。repo と同じ深さの骨組みを立てて、
+    agreement_verify.py だけを本物の写しにし、他は元を指す link にする。link やから
+    書き換わる心配は無いし、写し忘れも起きん。
+
+    ここに何を並べるかは手で書いてある。手で書いた一覧はいつかずれる。ずれたら
+    どうなるかというと、変異を入れる前の敵が赤くなって、この program は測るのを
+    やめる。せやから、この一覧が古いまま緑が出ることはない。"""
+    work = tempfile.mkdtemp(prefix="agreement-mutation-")
+    repo = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
+    here2 = os.path.join(work, "workers", "hs-ledger", "nenrin", "agreement-v0")
+    os.makedirs(here2)
+
+    def link(src, dst):
+        if os.path.exists(src) and not os.path.exists(dst):
+            os.symlink(src, dst)
+
+    link(os.path.join(repo, "ops"), os.path.join(work, "ops"))
+    link(os.path.join(repo, "workers", "hs-ledger", "seed_entry_agreement_v0.json"),
+         os.path.join(work, "workers", "hs-ledger", "seed_entry_agreement_v0.json"))
+
+    skip = {os.path.basename(TARGET), "__pycache__"}
+    for name in os.listdir(HERE):
+        if name in skip or name.startswith(".agreement_verify.py.mutation_backup"):
+            continue
+        link(os.path.join(HERE, name), os.path.join(here2, name))
+    return work, here2
+
+
 def main():
-    for _s in (signal.SIGTERM, signal.SIGINT):
-        try:
-            signal.signal(_s, _bye)
-        except Exception:
-            pass
-    recover_if_needed()
+    refuse_if_old_backup()
     with open(TARGET, encoding="utf-8") as f:
         orig = f.read()
-    with open(BACKUP, "w", encoding="utf-8") as f:
-        f.write(orig)
+    before = hashlib.sha256(orig.encode("utf-8")).hexdigest()
+
+    work, here2 = build_workspace()
+    copy_target = os.path.join(here2, os.path.basename(TARGET))
+    copy_suite = os.path.join(here2, os.path.basename(SUITE))
+
     print("target      %s" % os.path.basename(TARGET))
-    print("base sha256 %s" % hashlib.sha256(orig.encode("utf-8")).hexdigest())
+    print("base sha256 %s" % before)
+    print("作業場      %s  (元の file には触らん)" % work)
     print("mutants     %d (%d expected caught, %d equivalent)\n"
           % (len(MUTANTS), sum(1 for m in MUTANTS if m[3]), sum(1 for m in MUTANTS if not m[3])))
+
+    def run_suite():
+        env = dict(os.environ, AGREEMENT_MUTATION_RUN="1")
+        clear_pycache(os.path.join(here2, "__pycache__"))
+        p = subprocess.run([sys.executable, copy_suite], cwd=here2,
+                           capture_output=True, text=True, env=env)
+        ng = len([l for l in p.stdout.splitlines() if l.strip().startswith("NG")])
+        return p.returncode != 0, ng, p
+
+    # 変異を入れる前に、写した敵が緑で走ることを見る。ここが赤かったら、
+    # この先の "caught" は全部、変異のせいやのうて写し損ないのせいかもしれん。
+    with open(copy_target, "w", encoding="utf-8") as f:
+        f.write(orig)
+    base_caught, _base_ng, base_p = run_suite()
+    if base_caught:
+        print("★ 拒否: 変異を入れる前から敵が赤い。ここから先は何も測れん。")
+        print(base_p.stdout[-1500:])
+        print(base_p.stderr[-800:])
+        return 2
+    print("  %-56s %-8s %s" % ("(変異なし)", "green", "ここが緑やから、以下の caught に意味がある"))
+
     wrong = []
-    try:
-        for name, old, new, expect in MUTANTS:
-            if orig.count(old) != 1:
-                print("  %-56s ANCHOR MATCHES %d TIMES" % (name[:56], orig.count(old)))
-                wrong.append(name + " (anchor)")
-                continue
-            with open(TARGET, "w", encoding="utf-8") as f:
-                f.write(orig.replace(old, new))
-            clear_pycache()
-            env = dict(os.environ, AGREEMENT_MUTATION_RUN="1")
-            p = subprocess.run([sys.executable, SUITE], cwd=HERE, capture_output=True, text=True, env=env)
-            caught = p.returncode != 0
-            ng = len([l for l in p.stdout.splitlines() if l.strip().startswith("NG")])
-            mark = "ok" if caught == expect else "MISS"
-            print("  %-56s %-8s NG=%-2d %s" % (name[:56], "caught" if caught else "survived", ng, mark))
-            if caught != expect:
-                wrong.append(name)
-    finally:
-        with open(TARGET, "w", encoding="utf-8") as f:
-            f.write(orig)
-        clear_pycache()
-        back = open(TARGET, encoding="utf-8").read()
-        ok_restore = back == orig
-        # Remove the backup BEFORE printing anything. A run killed by a timeout has its stdout
-        # pipe closed already, so a print here can raise and abandon the rest of this block,
-        # which is how a finished run once left its backup behind (harmless, but it then makes
-        # the adversary refuse to start until somebody works out why).
-        if ok_restore and os.path.exists(BACKUP):
-            os.remove(BACKUP)
-        try:
-            print("\nrestored    %s" % ("byte identical" if ok_restore else "*** RESTORE FAILED, recover this file from git ***"))
-            if not ok_restore:
-                print("            the untouched copy is still at %s" % BACKUP)
-        except Exception:
-            pass
+    for name, old, new, expect in MUTANTS:
+        if orig.count(old) != 1:
+            print("  %-56s ANCHOR MATCHES %d TIMES" % (name[:56], orig.count(old)))
+            wrong.append(name + " (anchor)")
+            continue
+        with open(copy_target, "w", encoding="utf-8") as f:
+            f.write(orig.replace(old, new))
+        caught, ng, _p = run_suite()
+        mark = "ok" if caught == expect else "MISS"
+        print("  %-56s %-8s NG=%-2d %s" % (name[:56], "caught" if caught else "survived", ng, mark))
+        if caught != expect:
+            wrong.append(name)
+
+    # 「戻せたか」やのうて「そもそも変わっとらんか」を聞く。この問いは、この
+    # program が何をしたかを信用せんでも答えられる。
+    with open(TARGET, encoding="utf-8") as f:
+        after = hashlib.sha256(f.read().encode("utf-8")).hexdigest()
+    print()
+    if after == before:
+        print("元の file   1 バイトも触っとらん (%s)" % before[:16])
+    else:
+        print("*** 元の file が変わっとる。%s -> %s。git で見比べること ***" % (before[:16], after[:16]))
+        wrong.append("元の file が変わった")
+    shutil.rmtree(work, ignore_errors=True)
+
     print()
     if wrong:
         print("=== %d / %d, and these did not behave as expected: %s ===" % (len(MUTANTS) - len(wrong), len(MUTANTS), ", ".join(wrong)))

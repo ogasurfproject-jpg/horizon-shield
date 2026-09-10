@@ -15,6 +15,7 @@ public key pinned for you inside the record is the key you are signing with.
 The key_url is never passed here. It is read from the party's own entry in the record, which is
 inside the signed bytes, so a signer cannot point at a key the other party never saw.
 """
+# RUN_ALL: library  記録に署名する道具。振舞いは agreement_redteam.py の中で覆われとる
 
 import argparse
 import base64

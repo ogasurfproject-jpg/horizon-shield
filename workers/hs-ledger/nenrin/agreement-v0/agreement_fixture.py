@@ -40,6 +40,7 @@ Usage:
   python3 agreement_fixture.py --out other.json   write somewhere else
   python3 agreement_fixture.py --selftest         run the built in cases
 """
+# RUN_ALL: suite --selftest
 import base64
 import copy
 import hashlib
