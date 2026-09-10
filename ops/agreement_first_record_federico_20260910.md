@@ -81,7 +81,7 @@ to file. No intake, no ledger entry, no anchor yet.
   "schema": "a2a-agreement-v1.1",
   "agreement_id": "TODO 32 lowercase hex, chosen at random",
   "agreed_at": "TODO YYYY-MM-DDTHH:MM:SSZ",
-  "lower_bound": {"kind": "bitcoin_block", "height": 0, "hash": "TODO 64 hex"},
+  "lower_bound": {"kind": "bitcoin_block", "height": 966384, "hash": "0000000000000000000134aa3ff6b306f9726aae0aa658d8b4a56838c7f8fcc0"},
   "parties": [
     {
       "domain": "horizonshield.dev",
@@ -275,8 +275,10 @@ command:
    `https://ledger.horizonshield.dev/witness/<sha>` answers 200 for that record.
    `/record/<sha>` and `/paths/<sha>` both answer 404, so `witness` is the shape, which
    is worth writing down rather than guessing again next time.
-4. **`lower_bound`.** The header sync has not completed. The 2026-09-06 attempt refused
-   with `below_min_peers` (0 peers finished, 2 required), and the run on 2026-09-11 wrote
-   neither a manifest nor a refusal, so it did not reach either. Outbound 8333 is the
-   thing to check.
+4. ~~**`lower_bound`.**~~ Filled 2026-09-11: **block 966384**, hash
+   `0000000000000000000134aa3ff6b306f9726aae0aa658d8b4a56838c7f8fcc0`, block time
+   17:04:31Z. Three peers agreed byte for byte over 4,753 headers from 961632, through
+   `localheaders_p2p`. The two runs against `localheaders_catchup` before it failed for
+   the reason in the commit, not because 8333 was blocked: it was never blocked, and the
+   peers were answering the whole time.
 5. **Federico's key and signature.** His hand, and section 8 first.

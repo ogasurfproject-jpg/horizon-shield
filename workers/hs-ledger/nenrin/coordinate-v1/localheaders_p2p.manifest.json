@@ -2,30 +2,35 @@
  "schema": "nenrin-localheaders-manifest-1",
  "chain": "bitcoin",
  "courier": "bitcoin p2p getheaders",
+ "mode": "window from manifest",
  "peers": {
-  "104.1.125.109:8333": {
-   "tip_height": 965453,
-   "headers": 3822
+  "125.26.248.32:8333": {
+   "tip_height": 966384,
+   "headers": 4753
   },
-  "24.105.161.11:8333": {
-   "tip_height": 965454,
-   "headers": 3823
+  "79.100.237.181:8333": {
+   "tip_height": 966384,
+   "headers": 4753
   },
-  "45.190.208.56:8333": {
-   "tip_height": 965454,
-   "headers": 3823
+  "99.172.29.3:8333": {
+   "tip_height": 966384,
+   "headers": 4753
   }
  },
- "peers_failed": {},
+ "peers_failed": {
+  "73.227.239.221:8333": "[Errno 61] Connection refused",
+  "46.142.130.60:8333": "timed out",
+  "35.244.117.249:8333": "timed out"
+ },
  "min_peers": 2,
- "synced_at": 1788513093,
+ "synced_at": 1789060106,
  "start_height": 961632,
- "count": 3823,
- "tip_height": 965454,
- "tip_hash": "0000000000000000000189026da7d21f973d0cc81df1a4d920d68cbe10d127fa",
- "tip_time": 1788513056,
- "chainwork_hex": "6b8b8d0cb2c334155428389",
- "sha256": "888151bb1b8b7566132a4e5d9385e34ee3db06651263ce77d6872a2a7fa9f194",
+ "count": 4753,
+ "tip_height": 966384,
+ "tip_hash": "0000000000000000000134aa3ff6b306f9726aae0aa658d8b4a56838c7f8fcc0",
+ "tip_time": 1789059871,
+ "chainwork_hex": "85c9bb8e7c230af29bacb7e",
+ "sha256": "527ea133bbe56df65bcab907a8b5ef613224f2b9aedfe2dcfb81bc87b4cb0312",
  "start_prev_hash": "00000000000000000000807f9dc917442a67910426d79ebb2f8aa2149327ce8a",
  "start_bits": 386022100,
  "prior_times": [
@@ -45,10 +50,13 @@
   "961632": "00000000000000000000d1e01392faa65ceeaed307f0a3159144b84146ff24ba",
   "963648": "00000000000000000001769d9a327f5b455aa8a2dd407b1b63040d2a9f832d32",
   "965451": "00000000000000000000e9f3195446ee74b371312941d73e8fdddab86499b499",
-  "965454": "0000000000000000000189026da7d21f973d0cc81df1a4d920d68cbe10d127fa"
+  "965454": "0000000000000000000189026da7d21f973d0cc81df1a4d920d68cbe10d127fa",
+  "966384": "0000000000000000000134aa3ff6b306f9726aae0aa658d8b4a56838c7f8fcc0"
  },
+ "retarget_boundaries_verified": 2,
  "retarget_verified_at": [
-  963648
+  963648,
+  965664
  ],
  "unverified": [
   {
@@ -58,12 +66,6 @@
   }
  ],
  "future_check": "done",
- "compare": {
-  "file": "localheaders_mainnet.bin",
-  "common_headers": 3820,
-  "byte_identical": true,
-  "sha256_common_from_p2p": "b7c8ddefff198c865f3e27ec86d6d02d26ff4778158e4380f66d2c97ebaed367",
-  "sha256_common_from_file": "b7c8ddefff198c865f3e27ec86d6d02d26ff4778158e4380f66d2c97ebaed367"
- },
+ "compare": null,
  "note": "no HTTP explorer in the path. headers came from full nodes over the peer to peer protocol, were validated by consensus rules, and had to agree byte for byte across peers before anything was written."
 }
