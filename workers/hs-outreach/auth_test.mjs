@@ -40,8 +40,14 @@ const ctEq = make(enc);
 const makeAdmin = new Function("url", "request", "env", "ctEq",
   adminSrc.replace(/^\s*const admin = /, "return ") .replace(/;\s*$/, ";"));
 
-const TOKEN = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
-const WRONG = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+// 2026-09-10 ここは最初 64 桁の hex を 2 本置いていた。偽の値やけど、
+// 「TOKEN という名前に 64 桁 hex」は走査器が一番拾う形で、gitleaks が赤を出した。
+// 値の中身は試験に関係ない。ctEq は両側を SHA-256 に通して比べるだけで、
+// 長さも文字種も見とらん。要るのは「違う 2 本」だけや。
+// 除外リストを足して走査器を黙らせる道は採らん。黙らせる方に慣れたら、
+// いつか本物を見逃す。的にならん字面を使うほうが正しい。
+const TOKEN = "example-not-a-secret-correct-value";
+const WRONG = "example-not-a-secret-wrong-value";
 
 function build(opts) {
   const u = new URL("https://hs-outreach.example.invalid/status");
