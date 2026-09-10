@@ -43,6 +43,31 @@ jobs:
           # server-side code, tooling, CI, internal engine sources, docs
           rm -rf _public/tools _public/workers _public/.github
           rm -f  _public/kira.js _public/kira-v4.js
+          # 2026-09-10 ここに 5 つ足した。どれもサーバ側の台本と内部の作業ファイルで、
+          # ブラウザから読まれる物やないのに、rsync がリポジトリ全体を写すせいで出ていた。
+          # 消す前に確かめたこと(次に読む人が調べ直さんでええように):
+          #   公開 html からの参照   ops 0 件 / line-broadcast 0 / note-post 0 /
+          #                          paint-monitor 0 / yahoo-monitor 0
+          #   sitemap.xml への掲載   5 つとも 0 件
+          # ops だけで追跡されとる 57 ファイルが出ていた。LinkedIn の下書き、
+          # Search Console の書き出し、内部の .sh、patch。値は入っとらんので
+          # 公開直前の門は通る。門が測っとらん物が出ていた、という話である。
+          # papers/ は残す。論文 PDF 2 本は公開する物や。
+          rm -rf _public/ops _public/line-broadcast _public/note-post
+          rm -rf _public/paint-monitor _public/yahoo-monitor
+          # 2026-09-10 Worker のソースが 1 本、workers/ の外に居た。
+          # 上の rm は「場所」で削る。場所の外に置かれた写しは素通りする。
+          # このファイルは env.ANTHROPIC_API_KEY を参照する 11KB の Worker 本体で、
+          # 公開ページの中に置かれとるのに html からの参照は 0 件やった。
+          # 値は入っとらんので公開直前の門は止めん。門が測っとるのは値であって、
+          # 「これは本来サーバ側の物か」やないからである。
+          # 追跡されとる js を全部走査して、workers/ の外で env.<秘密> を参照しとるのは
+          # 2026-09-10 時点でこの 1 本だけ。導出で消す形にはせん。いつか正当な
+          # ファイルが黙って消えて、誰も気づかんようになるからである。
+          # 本筋の直しは、このファイルを repo から消すか workers/ の下へ移すこと。
+          rm -f  _public/hs-reverse-estimate/hs-kira-proxy-reverse-estimate.js
+          # .DS_Store は中身が要らんうえ、そのフォルダに何があるかを外に語る。
+          find _public -type f -name '.DS_Store' -delete
           # all Python (generators, patch scripts, tests) and internal markdown docs
           find _public -type f -name '*.py' -delete
           find _public -type f -name '*.md' -delete
