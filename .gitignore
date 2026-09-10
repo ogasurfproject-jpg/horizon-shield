@@ -247,3 +247,7 @@ ops/twzrd_*
 
 # Cowork の出力置き場(手順書、鍵マネージャの html)。公開 repo に載せん
 /Claude outputs/
+
+# ops/agreement_first_record_prep.sh の出力。歩いた記録と card の写し。
+# 出す時は中身を見てから明示的に add する。bulk commit に混ぜん。
+ops/first_record_prep_out/

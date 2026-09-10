@@ -36,7 +36,8 @@ Two holes, neither of which any fixture would have revealed. Both are closed, bo
 ## 3. The shape, verified
 
 The record below was built with dummy keys and dummy hashes and run through the verifier:
-`accepted`, `signatures_checked: true`, no refusals, 2,835 canonical bytes. What matters is the
+`accepted`, `signatures_checked: true`, no refusals, 2,845 canonical bytes (2,835 before the
+host corrections in section 8; re-run after them, same verdict). What matters is the
 three findings it carries, which the verifier writes and nobody can suppress:
 
 - `conduct_self_measured` twice. Federico measured the HORIZON SHIELD endpoint himself. HORIZON
@@ -61,7 +62,7 @@ Every one of these is TOshi's hand.
 2. **A key route on the gate.** `https://gate.horizonshield.dev/keys/agreement.json` serving
    `{"public_key_ed25519_b64": "..."}`. Host is under `horizonshield.dev`, which is the party
    domain, so the binding holds. This is a Worker change and a deploy.
-3. **A conduct record about `babyblueviper.com`**, walked with
+3. **A conduct record about `api.babyblueviper.com`**, walked with
    `nenrin/a2a-conduct-walk/a2a_conduct_walk.py`. It does not exist yet. Its sha256 and URL fill
    party A's `conduct_record`, and `measured_by_domain` is `horizonshield.dev` with
    `self_measured: true`.
@@ -91,7 +92,7 @@ to file. No intake, no ledger entry, no anchor yet.
       "conduct_record": {
         "sha256": "TODO the walk of babyblueviper.com",
         "url": "TODO",
-        "subject_domain": "babyblueviper.com",
+        "subject_domain": "api.babyblueviper.com",
         "measured_by_domain": "horizonshield.dev",
         "self_measured": true
       },
@@ -99,9 +100,9 @@ to file. No intake, no ledger entry, no anchor yet.
     },
     {
       "domain": "babyblueviper.com",
-      "key_url": "https://babyblueviper.com/keys/agreement.json",
+      "key_url": "https://api.babyblueviper.com/keys/agreement.json",
       "public_key_ed25519_b64": "TODO from Federico",
-      "agent_card": "https://babyblueviper.com/.well-known/agent-card.json",
+      "agent_card": "https://api.babyblueviper.com/.well-known/agent-card.json",
       "agent_card_sha256": "TODO",
       "conduct_record": {
         "sha256": "da9289a1117598658d171ca89de03028ca497e54cfe9ad75aaad2f0075d7adff",
@@ -157,3 +158,65 @@ These go in the DM, not decided here.
 It is not a contract, not a payment, and not an exchange. Nothing is matched, held, or settled.
 When it exists it will be two keys over the same bytes, pointing at an anchored fact and at two
 conduct records that both sides admit they wrote themselves.
+
+## 8. What checking the prerequisites found (2026-09-11)
+
+Section 4 was written from the design, not from the network. Four of its six items were
+then checked against what the hosts actually serve, and three of the assumptions were
+wrong. They are corrected above; what they were is recorded here, because a plan that is
+quietly fixed teaches nobody anything.
+
+**`babyblueviper.com` is a Substack publication.** The apex serves a subscription landing
+page for "Baby Blue Viper: Enforcement Infrastructure for Capital & Compute". It has no
+agent card, and Substack does not let its author serve an arbitrary path, so
+`https://babyblueviper.com/keys/agreement.json` cannot exist. Prerequisites 2, 3, 4 and 6
+were all written against a host that will never answer them.
+
+**The agent is at `api.babyblueviper.com`.** It was in this repository the whole time,
+in `verify-directory/survey/data/lookup_index.json` row 622, from the survey. The card is
+served, and declares `invinoveritas-reasoning-agent`, A2A `protocolVersion` 0.3.0,
+endpoint `https://api.babyblueviper.com/a2a`, transport JSONRPC.
+
+This is the part worth telling Federico. `api.babyblueviper.com` is a host **under**
+`babyblueviper.com`, so the party may still be `babyblueviper.com` while its key URL, its
+card and the conduct record's subject all sit on the api host. Yesterday that combination
+was three separate refusals. It holds today only because of the two rules his own review
+produced: the subject may be the counterparty's domain or any host under it, and a key URL
+under the party domain binds without being an exact match. The first record cannot be
+built without the fix he asked for. That is not a compliment arranged after the fact; it
+is the reason the record has a shape at all.
+
+**His card declares no `capabilities.extensions[]`.** So the walk in prerequisite 3 will
+record `conduct_ext_declared` FAIL, `compensation_well_formed` FAIL, and
+`extension_echoed` FAIL. Three of five. The card does carry a top-level `compensation`
+key, and prose about a 5% platform share settled over Lightning, but not in the
+`params.compensation` place section 2 of the conduct extension reads, so the walk cannot
+see it and will not pretend to.
+
+That is a fact about the world, and the walk's own doctrine says a FAIL is one observation
+and not a verdict. But a mostly-FAIL record about his agent, pinned by sha256 inside the
+first agreement he is being asked to co-sign, is a different object socially than it is
+technically, and this document will not decide that quietly on his behalf. Two honest
+options, and the choice is TOshi's and then his:
+
+- **Walk it and show him the record before asking for a signature.** The FAILs say his
+  agent does not implement an extension almost nobody implements. Pinning it says only
+  what it says, and `does_not_establish` already carries "that the conduct record each
+  side pinned is accurate".
+- **Ask him first whether he wants to declare the extension.** It is a few lines in his
+  card. Then the walk is run afterwards and the record pins an agent that passes. This
+  costs a round trip and risks reading as a condition of the agreement, which it is not.
+
+**Federico has never served a key.** Both of his witness records in this ledger are
+unsigned: they carry `witness_name` and `vantage`, and no `signed_domain`. Prerequisite 6
+is therefore a genuinely new step for him and not a repeat of something he has already
+done. The DM should say so plainly rather than implying it is routine.
+
+**The local Bitcoin headers are stale.** Tip 965850 at 2026-09-06T23:38:48Z, about 530
+blocks behind. `lower_bound` on a record signed today must not name that block, so
+prerequisite 5 begins with a re-sync.
+
+`ops/agreement_first_record_prep.sh` does prerequisites 3, 4 and 5 in one read-only pass
+and prints the values that fill the TODOs above. It must run on the Mac: this session's
+container and the bridge VM both have their egress denied and cannot reach any of these
+hosts, which is why none of these values are filled in here already.
