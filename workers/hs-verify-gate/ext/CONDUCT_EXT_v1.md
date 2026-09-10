@@ -75,7 +75,7 @@ Fields:
 
 - `schema`: `"jidec-path-v1"`. `purpose`: `"a2a-conduct-walk-v1: <measured endpoint>"`. `walked_at`: ISO-8601 UTC. `base`: the card origin (`https://host`). `witness`: `{ "name": "<who>", "vantage": "<network or tool the walk was taken from>" }`; `name` MAY be `anonymous`.
 - `nodes`: n0 `fetch` GET `<origin>/.well-known/agent-card.json`; n1 the same GET again; n2 `compute` "locate the extension by URI in n1 and validate `params`"; n3 `fetch` POST to the measured endpoint with header `A2A-Extensions: <this URI>` and a JSON-RPC body (MCP `initialize`, or A2A `SendMessage` / `message/send` when the endpoint is the A2A interface). Each `fetch` node records `request.url`, `request.method`, `response.status`, `response.body_sha256` over the exact bytes received. A walk MUST touch at least one `measured_endpoints` entry or the origin, or the ring builder will not count it for that endpoint.
-- `assertions` (each with `claim`, `op`, `result`, `evidence_nodes`): `card_bytes_stable` (n0 body sha equals n1 body sha), `conduct_ext_declared` (n1 carries this URI under `capabilities.extensions[]`), `compensation_well_formed` (section 2 shape), `measured_endpoint_answered` (n3 status 200 and a JSON-RPC `result` of the shape the wire version requires), `extension_echoed` (the n3 response carries this URI under `A2A-Extensions`, or under `X-A2A-Extensions` when the walk sent that spelling; only asserted when n3 was an A2A message, otherwise recorded with `result: null` and `note: "not applicable"`). A walk in A2A mode records which wire it used (`conduct_ext.wire`, `"1.0"` or `"0.3"`); a 0.3 walk sends `message/send` with the header spelled `X-A2A-Extensions` only, which is what a 0.3 client does.
+- `assertions` (each with `claim`, `op`, `result`, `evidence_nodes`): `card_bytes_stable` (n0 body sha equals n1 body sha), `conduct_ext_declared` (n1 carries this URI under `capabilities.extensions[]`), `compensation_well_formed` (section 2 shape), `measured_endpoint_answered` (n3 status 200 and a JSON-RPC `result` of the shape the wire version requires; recorded `result: null` with a note naming the status when n3 answered 402, because an endpoint that charges has answered and a walk never pays, see section 13), `payment_required_as_declared` (an endpoint answering 402 declares a paid model on its card, section 13), `extension_echoed` (the n3 response carries this URI under `A2A-Extensions`, or under `X-A2A-Extensions` when the walk sent that spelling; only asserted when n3 was an A2A message, otherwise recorded with `result: null` and `note: "not applicable"`). A walk in A2A mode records which wire it used (`conduct_ext.wire`, `"1.0"` or `"0.3"`); a 0.3 walk sends `message/send` with the header spelled `X-A2A-Extensions` only, which is what a 0.3 client does.
 - `card_signature` (added 2026-09-10, informational, OPTIONAL): what the walked card's A2A section 8.4 signature block says, read without being checked: `present`, `count`, `alg`, `kid`, `jku`, `jku_same_host`, `protected_readable`, and `verified` with `verified_reason`. The reference client sets `verified` to `null` always, because verifying requires reproducing the card's canonical form and a canonicalizer that is one rule wrong would accuse an honest agent in an append only ledger. A client that has proved its canonical form against the same vectors as the measurer MAY set `verified` to a boolean; a client that has not MUST NOT. An unsigned card is not a finding: this extension does not require a signed card. Under `hash-only` and `commitment` the `jku` is dropped and `jku_same_host` is kept.
 - `verdict`: `{ "ok": <all applicable assertions true>, "outcome": "PASS" | "FAIL", "n_pass": <int>, "n_total": <int> }`. Both `ok` and `outcome` are carried because the ring builder (`make_ring.py`) reads `ok` while JIDEC_PATH_SPEC_v1 names `outcome`; a record carrying only one of them is read differently by the two.
 
@@ -219,3 +219,107 @@ If `gate.horizonshield.dev` stops resolving, `https://w3id.org/horizonshield/con
 ### 12.6 What this revision does not do
 
 It adds no field, changes no hash recipe, changes no condition, and changes what no record means. A card that declared the canonical string yesterday declares the same thing today, byte for byte. It does not make the redirect trustworthy: a reader that wants to know where the permanent identifier points reads the registry entry in `perma-id/w3id.org`, which is public and versioned in git, and not this document.
+
+## 13. Revision v1.3 (2026-09-11): an endpoint that charges is not an endpoint that failed
+
+**Status:** additive, same URI, and found by walking a real agent rather than a fixture. Every
+fixture in `walk_selftest.py` was a free agent whose card declared the extension, so 47 green
+vectors could not see either fault in this section. The agent that showed them is
+`api.babyblueviper.com`, and the walk that showed them is sha256
+`9e058efa16789bb1911eb237a160f7c3bcebc520ba3ee4d74f6d469d02648eb8`.
+
+### 13.1 402 is an answer
+
+Section 4 defined `measured_endpoint_answered` by status 200 alone, so every other status fell
+into one result. A paid endpoint answering `402 Payment Required` exactly as its own card
+declares was recorded identically to one that was broken, timed out, or served garbage. The
+first is a design decision and the second is a fault, and a conduct record that cannot separate
+them states something false with evidence attached.
+
+A walk MUST NOT pay. A witness that pays the agent it is walking has a financial relationship
+with that agent, which is the relationship this extension exists to disclose. It follows that
+the walk has to be able to record that it did not pay, rather than record a failure it caused
+by declining to become a customer.
+
+So: when n3 answers `402`, `measured_endpoint_answered` is recorded `result: null` with a note
+naming the status. A `null` assertion is already excluded from `n_total`, so a paid agent is
+measured on what could be measured.
+
+### 13.2 `payment_required_as_declared`
+
+A new assertion, in both modes:
+
+| card declares a paid model | n3 status | `result` |
+|---|---|---|
+| no | not 402 | `null`, nothing to enforce |
+| yes | not 402 | `null`, this method answered without a charge, and a free method and a waived charge are indistinguishable from outside |
+| yes | 402 | `true` |
+| no | 402 | `false` |
+
+The last row is load bearing. Without it, answering 402 to everything becomes a way never to be
+measured again: the endpoint assertion goes `null` and nothing takes its place. With it, the
+dodge costs an assertion unless the card admits the charging. A rule that makes an inconvenient
+answer free is a rule agents will learn to give.
+
+"Declares a paid model" is read from a closed list of exact card keys and exact values:
+`compensation.paid_by` equal to `"buyer"`, `x402` equal to `true`, a non-empty `paymentMethods`
+array of strings, or `pricing.model` equal to `"pay-per-use"`. Nothing is normalised, nothing is
+inferred from prose, and the walk records which signals it saw inside the bytes it publishes, so
+recognition is never silent. A record whose n3 answered 402 MUST also carry, in
+`does_not_establish`: that the amount charged matches the price the card declares, because the
+walk did not pay.
+
+This is the first thing a walk can observe about a compensation declaration. Since v1 every
+record has carried "truth of the compensation declaration" in `does_not_establish` permanently,
+because nothing in a walk could test it. A 402 does not make the declaration true, and the line
+stays. It establishes one narrower fact: the card said it charges, and then it charged.
+
+### 13.3 `compensation_well_formed` stops answering a question about the extension
+
+The same walk reported that agent's compensation declaration as malformed while its own checker
+returned no problems for it, because the assertion was gated on whether the extension was
+declared and filed a sentence about `capabilities.extensions` as its evidence. Two independent
+questions with one answer, and the reason for one attached to the conclusion of the other.
+
+`conduct_ext_declared` keeps its own job. `compensation_well_formed` is asked of whichever
+declaration exists, and the record says which one it read: `params.compensation` when the
+extension is declared, the card's top-level `compensation` when it is not, and `result: null`
+when the card carries neither. The top-level key is a real declaration surface, named in section
+2 and read by the gate's condition 3 since 0.2.0. No agent gains anything by dropping the
+extension, because that already costs `conduct_ext_declared` and, in A2A mode, `extension_echoed`.
+
+### 13.4 Why this is additive rather than a new URI
+
+Section 7 requires a new URI for a breaking change to the walk. Every agent that passed 5 of 5
+before this revision passes 5 of 5 after it: the new assertion is `null` for any agent that does
+not answer 402, and the moved result only moves on 402, which no passing agent returned. The
+ledger's witness intake does not validate the assertion list at all; its own test files a record
+carrying one assertion. Records already filed do not move, and their bytes are their bytes.
+
+### 13.5 Red team
+
+`walk_selftest.py` goes from 47 vectors to 58. Eight are the behaviour above: a paid endpoint
+that declares and charges, one that charges without declaring, a free endpoint making no payment
+claim, a paid card that answered without charging, a 500 that stays a failure rather than
+becoming a payment, a 402 that does not hide a missing extension, a card with no extension and a
+malformed top-level declaration, and a card with no compensation declaration anywhere.
+
+One existing vector was changed rather than added. `no_extension_declared` expected
+`compensation_well_formed` to be false for a card whose top-level declaration is flawless. The
+expectation was the fault, written down and passing green.
+
+Three more are a drift guard, and they exist because this revision was written after the client
+had already changed. The assertion list lives in three places: the client, section 4 above, and
+the gate's published JSON. Nothing compared them, so the client grew an assertion and the other
+two silently did not. `d01` and `d02` compare the names a real walk emits against both
+documents. `d03` compares the *definition*, because the fault this section repairs was a
+definition mismatch and a guard that only compared names would have stayed green through all of
+it.
+
+### 13.6 What this revision does not do
+
+It does not judge a price, and it does not read one. It does not establish that any amount
+charged matches any amount declared; the walk did not pay and says so. It does not make charging
+a failure or make being free a pass. It changes no hash recipe, no canonical form, no ring
+column, and no condition on the register. It does not handle `401`: authentication required is a
+different fact from payment required and deserves its own reasoning rather than a widened branch.

@@ -12,6 +12,7 @@ its verdict is not ok). Exit 1 on any miss.
 import io
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -419,6 +420,46 @@ def main():
         os.unlink(kp)
     except ImportError:
         print("  skip   ----   v11_signed_record (cryptography not installed; signing is optional)")
+
+    # conduct-v1.3 (2026-09-11). The assertion list lives in three places: this client,
+    # section 4 of CONDUCT_EXT_v1.md, and the gate's published JSON. Nothing compared them,
+    # so when this client grew payment_required_as_declared the other two silently did not.
+    # d01 and d02 are the easy half. d03 is the half that matters: today's real fault was a
+    # DEFINITION mismatch, the spec saying "status 200" while the client had learned that a
+    # 402 is an answer, and a guard that only compared names would have stayed green through
+    # the whole thing.
+    def _probe(method, url, headers=None, body=None):
+        if method == "GET":
+            return 200, {}, json.dumps({"name": "x", "url": "https://a.invalid",
+                                        "capabilities": {}}).encode("utf-8")
+        return 200, {}, b'{"jsonrpc":"2.0","id":1,"result":{"message":{"role":"ROLE_AGENT","content":[]}}}'
+    emitted = [x["claim"].split(":")[0].strip() for x in
+               W.walk("https://a.invalid", "https://a.invalid/a2a", "a2a", "n", "v",
+                      fetch=_probe)["assertions"]]
+    gate = os.path.join(HERE, "..", "..", "..", "hs-verify-gate")
+    spec_path = os.path.join(gate, "ext", "CONDUCT_EXT_v1.md")
+    worker_path = os.path.join(gate, "src", "worker.js")
+    if not (os.path.exists(spec_path) and os.path.exists(worker_path)):
+        v11("d00_spec_and_gate_are_where_this_guard_expects_them", False,
+            "expects the horizon-shield layout; drop d00 to d03 if vendoring this client alone")
+    else:
+        spec_text = io.open(spec_path, encoding="utf-8").read()
+        worker_text = io.open(worker_path, encoding="utf-8").read()
+        m = re.search(r"- `assertions`.*?(?=\n- `|\n\n)", spec_text, re.S)
+        in_spec = set(re.findall(r"`([a-z][a-z_]{5,})`", m.group(0))) if m else set()
+        miss_s = [x for x in emitted if x not in in_spec]
+        v11("d01_every_assertion_emitted_is_named_in_the_spec", not miss_s,
+            "section 4 does not name: " + ", ".join(miss_s) if miss_s else "section 4 names all %d" % len(emitted))
+        m2 = re.search(r"assertions: \[(.*?)\]", worker_text, re.S)
+        in_gate = set(x.strip().strip('"').split(" ")[0] for x in m2.group(1).split(",")) if m2 else set()
+        miss_g = [x for x in emitted if x not in in_gate]
+        v11("d02_every_assertion_emitted_is_named_by_the_gate", not miss_g,
+            "the gate's published list does not name: " + ", ".join(miss_g) if miss_g else "the gate names all %d" % len(emitted))
+        m3 = re.search(r"`measured_endpoint_answered` \(([^)]*)\)", spec_text)
+        d = m3.group(1) if m3 else ""
+        v11("d03_the_spec_definition_of_measured_endpoint_answered_knows_402", "402" in d,
+            "the spec still defines it by status 200 alone, so an endpoint that charges reads as "
+            "non-conforming for charging" if "402" not in d else "the definition covers the paid case")
 
     total = n
     print("\n=== %d / %d 合格 (a2a_conduct_walk.py) ===" % (total - len(bad), total))
