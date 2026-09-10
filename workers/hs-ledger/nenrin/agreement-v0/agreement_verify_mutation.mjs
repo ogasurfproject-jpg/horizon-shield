@@ -29,6 +29,10 @@ const NEED = ["agreement_canonical.mjs", "agreement_vectors_v1.json", "agreement
 export const MUTANTS = [
   // 報告書の組み立て
   ["in_draft を code から導かず常に false", "in_draft: DRAFT_CODES.has(code)", "in_draft: false"],
+  // 2026-09-11。他所ドメインの key_url を所見に落とした規則 (草案 6.9)。
+  ["v1.1 でも他所ドメインを断りに戻す", 'if (strict) {\n        r.find("key_url_off_domain"', 'if (false) {\n        r.find("key_url_off_domain"'],
+  ["他所のホストの鍵にも帰属を立てる", "urlResults.push(!r.off_domain.some((x) => x[0] === d));", "urlResults.push(true);"],
+  ["誰の鍵サーバやったかを書かん", "    for (const [d2, h2] of pairs) {", "    for (const [d2, h2] of []) {"],
   // 等価。緑のままが正しい。
   // python の refuse と find は同じ覚え書き (seen) を共有しとる。同じ (code, why) が
   // 断りに出たら所見には出ん。分けたらそこで差が出る **はず** やが、今の規則では

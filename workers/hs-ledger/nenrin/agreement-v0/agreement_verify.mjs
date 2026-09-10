@@ -40,6 +40,9 @@ export class Report {
     // 断りと所見が **同じ** 覚え書きを共有しとる。同じ (code, why) は二度出さん。
     // 分けたら、断った後に同じ文言の所見が出て、python と違う報告書になる。
     this.seen = new Set();
+    // v1.1 で key_url が自分のドメインの下に無かった当事者。[domain, host] の組。
+    // 断りやのうて所見に落とす代わりに、帰属を確かに落とすために要る。2026-09-11。
+    this.off_domain = [];
   }
   _once(code, why) {
     const k = JSON.stringify([code, why]);
@@ -425,6 +428,23 @@ export async function buildReport(r, record, schema, checked, urlsChecked, perSi
   if (selfMeasured) {
     dne.push("that the conduct pinned here was measured by anybody other than the two parties: at least one side declared self_measured");
   }
+  // 扉 (hs-verify-gate 0.4.5) が帰属を落とした時にホストを名指しするのと同じ形。
+  // python は sorted(set(...)) で並べる。tuple の set やから、重複を消してから符号点順や。
+  {
+    const seen2 = new Set();
+    const pairs = [];
+    for (const [d2, h2] of r.off_domain) {
+      const k = JSON.stringify([d2, h2]);
+      if (seen2.has(k)) continue;
+      seen2.add(k);
+      pairs.push([d2, h2]);
+    }
+    pairs.sort((a, b) => cmpCodePoints(a[0], b[0]) || cmpCodePoints(a[1], b[1]));
+    for (const [d2, h2] of pairs) {
+      dne.push("that " + d2 + "'s signature is attributable to " + d2 + ": its key_url points at "
+        + h2 + ", a host it does not control, so attribution would rest on somebody else's key server");
+    }
+  }
   const out = {
     schema: REPORT_SCHEMA,
     verifier_version: VERIFIER_VERSION,
@@ -755,7 +775,17 @@ export async function verify(record, opts = {}) {
     if (!kh) {
       r.refuse("bad_key_url", tag + ".key_url must be an https URL, found " + pyRepr(ku === undefined ? null : ku));
     } else if (d && !underDomain(kh, d)) {
-      r.refuse("bad_key_url", tag + ".key_url host " + kh + " is not under that party's own domain " + d);
+      // 2026-09-11。v1 と v1.1 で答えが違う。フェデリコが見つけた不揃いの直し。詳しくは
+      // ops/AGREEMENT_EXT_v0_1_DRAFT.md の 6.9、と python 側の同じ場所の注釈。
+      if (strict) {
+        r.find("key_url_off_domain", tag + ".key_url host " + kh
+          + " is not under that party's own domain " + d
+          + "; under v1.1 the signing key is inside the signed bytes, so this does not stop the signature from verifying. It stops the record from claiming the signature is attributable to "
+          + d + ", because attribution would rest on a key server somebody else runs");
+        r.off_domain.push([d, kh]);
+      } else {
+        r.refuse("bad_key_url", tag + ".key_url host " + kh + " is not under that party's own domain " + d);
+      }
     }
     if (typeof pp.agent_card !== "string" || !hostOfHttps(pp.agent_card)) {
       r.refuse("missing_field", tag + ".agent_card must be an https URL (the card this party presented)");
@@ -1120,7 +1150,9 @@ export async function verify(record, opts = {}) {
               + " is not the key pinned inside the signed bytes for " + d);
             urlResults.push(false);
           } else {
-            urlResults.push(true);
+            // 鍵が一致しても、その鍵が他所のホストにあるなら帰属は立たん。
+            // ここを true のままにしとったら、他所の鍵サーバに帰属を立ててまう。
+            urlResults.push(!r.off_domain.some((x) => x[0] === d));
           }
         }
       } else {

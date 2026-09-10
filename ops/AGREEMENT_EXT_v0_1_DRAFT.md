@@ -91,7 +91,8 @@ control character, an over long string, an over long array), `too_large` (canoni
 
 Content: `not_two_parties`, `bad_party`, `one_sided`, `extra_signatures`, `signature_not_a_party`, `signatures_disagree`,
 `signature_invalid`, `bad_signature`, `signature_key_url_present`, `self_agreement`,
-`bad_domain`, `bad_key_url`, `key_url_unreachable`, `key_url_mismatch`, `bad_public_key`,
+`bad_domain`, `bad_key_url` (under v1.1 this covers a URL that is not https; a URL that is https
+but points at another host is a finding instead, see section 6.9), `key_url_unreachable`, `key_url_mismatch`, `bad_public_key`,
 `same_public_key`, `bad_agreement_id`, `bad_agreed_at`, `bad_lower_bound`, `missing_conduct_sha`,
 `bad_conduct_sha`, `bad_card_sha`, `conduct_subject_wrong`, `conduct_self_measured_undeclared`,
 `bad_role`, `roles_inconsistent`, `terms_contradict_roles`, `bad_consideration`, `bad_currency`, `bad_amount`,
@@ -105,12 +106,18 @@ One code belongs to v1 alone and never appears under v1.1: `key_url_not_pinned`,
 because v1 carries the key URL in two places, one signed and one not. v1.1 refuses the unsigned
 place outright (`signature_key_url_present`), so the disagreement it names cannot arise.
 
+One rule is narrower under v1.1 than under v1: a cross domain key URL. Section 6.9 says why.
+
 ## 5. What is recorded but not refused
 
 `operator_is_a_party`, `conduct_self_measured`, `shared_parent_domain`, `same_conduct_record`,
-`agreed_at_in_future`, `upstream_unverified`, `punycode_domain`, `non_integer_number`. Three more
+`agreed_at_in_future`, `upstream_unverified`, `punycode_domain`, `non_integer_number`,
+`key_url_off_domain`. Three more
 belong to v1 alone, where the rule they name is advice rather than a requirement:
 `disclaimer_thin`, `paid_by_positional`, and `not_canonical`, which under v1.1 is a refusal.
+One of these findings must do more than be recorded: a cross domain key URL must also stop the
+record from claiming attribution. Section 6.9 says why and what that means for the report.
+
 A finding never changes the verdict. It changes what the record establishes, which is a different question
 and is the discipline gate 0.4.4 adopted for unsigned agent cards: presence or absence of a fact
 moves what a record proves, not whether it passed.
@@ -174,6 +181,41 @@ Each of these was found by building the v1 verifier, then fuzzing it, then break
     `horizonshield.dev`, so the rule as written rejected the one real record in the world. The
     subject may now be the counterparty's domain or any host under it. Found the same way, and it
     could not have been found any other way: no fixture would have looked wrong.
+
+### 6.9 A cross domain key URL is a finding, not a refusal
+
+Under v1 the signing key is not in the record. It comes from the party's key URL, so a key URL on
+a host the party does not control removes the only basis there is for saying which domain signed,
+and it is refused. The anchored v0 draft names that refusal in its section 4, and an anchored
+document does not move.
+
+Under v1.1 the key is inside the signed bytes. The signature verifies with no network and no key
+server at all. The key URL feeds exactly one thing: the claim that the signature is attributable
+to the domain rather than only to whoever holds the key. Refusing the whole record for a field
+that only ever supports a bonus claim is stricter than the evidence requires, and it makes a
+legitimate arrangement impossible: a party delegating to a shared key server cannot produce an
+accepted v1.1 record at all, in a schema whose whole premise is verifying offline from the signed
+bytes forever.
+
+So under v1.1 it is a finding. The record keeps its verdict. It loses its attribution claim, and
+the report says whose host the key was on, in does_not_establish, naming the party and the host.
+
+The finding is not enough on its own, and this is the part that is easy to get wrong. The
+attribution claim is made when a key set was supplied and the key served at each key URL matched
+the key in the signed bytes. A cross domain key URL can satisfy exactly that: somebody supplies a
+key set containing the foreign URL, and the key served there is the right one. Recording a finding
+while still asserting attribution would produce a report that names the problem in one field and
+asserts the opposite in another. So the flag that carries the attribution claim MUST be false for
+a record with a cross domain key URL, whatever the key set says. The reference implementation does
+that by forcing that party's URL check to fail rather than by leaving it to the comparison.
+
+This is the discipline `hs-verify-gate` 0.4.5 already used for agent cards: a key served on
+another host leaves the row verified, withholds the attribution line, and names the host in
+does_not_establish. Two components of one operator answering the same question two different ways
+is the finding. The fix is not new machinery; it is the same rule applied twice.
+
+Found by Federico Blanco Sánchez-Llanos on 2026-09-10, reviewing the 0.4.5 attribution change and
+then reading this layer beside it.
 
 ## 7. What v1.1 still does not do
 

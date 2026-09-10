@@ -1050,11 +1050,42 @@ case("attack", "establishes claiming a contract is caught by the contract patter
 # 2 回目の狩りで出た。bad_key_url / self_agreement / conduct_subject_wrong / recorder_undisclosed が
 # 全部この 1 本の関数に乗っとる。
 
+# 2026-09-11. ここは v1 と v1.1 で答えが違う。フェデリコが見つけた不揃いの直しや。
+# v1 は鍵が記録の中に無いから、他所のホストに置かれたら根拠が丸ごと消える -> 断る。
+# v1.1 は鍵が署名バイトの中にあるから署名は立つ -> 帰属だけ落とす。詳しくは草案 6.9。
+lookalike_v1 = good()
+lookalike_v1["parties"][0]["key_url"] = "https://evilparty-a.example/keys/agreement.json"
+c_la1 = codes(V.verify(lookalike_v1, keys=KEYS))
+case("attack", "v1: a key served at evilparty-a.example is not served under party-a.example, however the string ends",
+     "bad_key_url" in c_la1, json.dumps(c_la1))
+
 lookalike = good11()
 lookalike["parties"][0]["key_url"] = "https://evilparty-a.example/keys/agreement.json"
-c_la = codes(V.verify(bad11(lookalike)))
-case("attack", "a key served at evilparty-a.example is not served under party-a.example, however the string ends",
-     "bad_key_url" in c_la, json.dumps(c_la))
+_rep_la = V.verify(bad11(lookalike))
+case("attack", "v1.1: the same lookalike host is a finding, and it is named key_url_off_domain",
+     "key_url_off_domain" in finds(_rep_la), json.dumps(finds(_rep_la)))
+case("fix", "v1.1: and it does NOT refuse the record for it; the key is inside the signed bytes",
+     "bad_key_url" not in codes(_rep_la), json.dumps(codes(_rep_la)))
+case("fix", "v1.1: and the report names the host, so a reader can go look at whose key server it was",
+     any("evilparty-a.example" in x for x in _rep_la["does_not_establish"]),
+     json.dumps(_rep_la["does_not_establish"][-1:]))
+
+# 一番効く形。鍵を渡して、しかも一致させる。所見に落とすだけでは、ここで帰属が立ってまう。
+# 落とすんやのうて、能動的に落とさなあかん。扉 0.4.4 が踏んだのと同じ穴や。
+la_signed = signed(lookalike, BOTH)
+KEYS_FOREIGN = dict(KEYS)
+KEYS_FOREIGN["https://evilparty-a.example/keys/agreement.json"] = PA
+_rep_lf = V.verify(la_signed, keys=KEYS_FOREIGN)
+ATTRIB_LINE = "attributable to the domain"
+case("attack", "v1.1: even with a key set that supplies the foreign URL and serves the RIGHT key, attribution is not claimed",
+     not any(ATTRIB_LINE in x for x in _rep_lf["establishes"]),
+     json.dumps(_rep_lf["establishes"][-1:]))
+case("attack", "v1.1: and key_urls_checked is false, so the flag agrees with the sentence",
+     _rep_lf["key_urls_checked"] is False, json.dumps(_rep_lf["key_urls_checked"]))
+case("control", "v1.1: the record itself is still accepted; both signatures still cover the same bytes",
+     _rep_lf["verdict"] == "accepted" and _rep_lf["signatures_checked"] is True, json.dumps(codes(_rep_lf)))
+case("control", "and a record whose key_url IS under its own domain still gets the attribution line",
+     any(ATTRIB_LINE in x for x in V.verify(signed(good11(), BOTH), keys=KEYS)["establishes"]), "")
 lasubj = good11()
 lasubj["parties"][0]["conduct_record"]["subject_domain"] = "evilparty-b.example"
 case("attack", "and a conduct record about evilparty-b.example is not about the counterparty",

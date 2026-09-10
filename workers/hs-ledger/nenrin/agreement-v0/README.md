@@ -18,10 +18,10 @@ then disappears from what the record establishes.
 | --- | --- |
 | `agreement_verify.py` | reads a record, answers `accepted` / `refused` / `incomplete` with reasons |
 | `agreement_sign.py` | one party adds its own signature, on its own machine |
-| `agreement_redteam.py` | 194 vectors: 119 attacks, 57 controls, 12 misclassifications, 6 residuals. A few seconds |
-| `agreement_mutation.py` | breaks the verifier one rule at a time and checks the adversary notices. 74 mutants, two to three minutes. It mutates a copy in a temporary directory and never touches this one |
-| `agreement_fixture.py` | freezes 5,283 inputs and the report the verifier gave for each, as one compressed envelope with a sha over it |
-| `agreement_strings.py` | the 419 sentence templates and 46 refusal codes the reports are built from, folded out of the fixture |
+| `agreement_redteam.py` | 201 vectors: 120 attacks, 60 controls, 12 misclassifications, 6 residuals. A few seconds |
+| `agreement_mutation.py` | breaks the verifier one rule at a time and checks the adversary notices. 77 mutants, two to three minutes. It mutates a copy in a temporary directory and never touches this one |
+| `agreement_fixture.py` | freezes 5,286 inputs and the report the verifier gave for each, as one compressed envelope with a sha over it |
+| `agreement_strings.py` | the 426 sentence templates and 46 refusal codes the reports are built from, folded out of the fixture |
 | `agreement_float_repr.py` | 17,759 doubles as raw bits beside what Python's `json.dumps` wrote for each. The float table |
 | `agreement_readback.py` | 173 pieces of JSON text beside what `parse_strict` did with each: the bytes it produced, or the name it refused by |
 | `agreement_canonical.mjs` | the canonical byte form and the record reader, in JavaScript. The first piece of the second implementation |
@@ -30,10 +30,10 @@ then disappears from what the record establishes.
 | `run_all.mjs` | runs every suite in this directory and refuses to report if any file here has not declared what it is |
 | `run_all_test.mjs` | 32 checks on the runner itself, because a runner that skips a suite quietly is worse than no runner |
 | `agreement_verify.mjs` | the verifier's rules, in JavaScript. The second implementation |
-| `agreement_verify_test.mjs` | all 5,283 frozen cases through it, byte for byte against the frozen report |
-| `agreement_verify_mutation.mjs` | breaks a rule in `agreement_verify.mjs` 33 ways and checks the 5,283 notice |
+| `agreement_verify_test.mjs` | all 5,286 frozen cases through it, byte for byte against the frozen report |
+| `agreement_verify_mutation.mjs` | breaks a rule in `agreement_verify.mjs` 36 ways and checks the 5,286 notice |
 | `readme_numbers_test.mjs` | every count this table states, derived from the files and the suites, so the table cannot go stale quietly |
-| `agreement_pyrepr.py` | 831 values beside what Python's `repr` wrote for each. The refusal messages are made of it |
+| `agreement_pyrepr.py` | 833 values beside what Python's `repr` wrote for each. The refusal messages are made of it |
 
 There is no intake, no KV, no ring column, no fee, no URI. Those come when a real pair of parties
 has a real agreement to record. A record layer built before it has two parties is an empty
@@ -189,6 +189,27 @@ and the line was found by hashing the file against a copy on another machine. No
 committed, and it could as easily have been. The tool now writes a backup beside the file before
 the first mutation and recovers from it on the next run, so even a SIGKILL leaves a way back.
 
+## A rule that moved, and who moved it
+
+2026-09-11. A cross domain `key_url` used to refuse the whole record, under both schemas,
+unconditionally. Under v1.1 that was stricter than the evidence: the signing key is inside the
+signed bytes, so `key_url` only ever supports the claim that the signature is attributable to the
+domain. It is a finding now (`key_url_off_domain`), the verdict stands, the attribution claim is
+withheld and the report names whose host the key was on. Under v1 it still refuses, because there
+the key is not in the record and a foreign host removes the only basis there is.
+
+Found by Federico Blanco Sánchez-Llanos, reviewing the 0.4.5 attribution change in
+`hs-verify-gate` and then reading this layer beside it. Two components of one operator were
+answering the same question two different ways: the gate downgraded, this refused. His reading was
+that no new machinery was needed, only the same discipline applied twice, and he was right.
+
+One thing had to be added to his prescription. Withholding the claim cannot be left to the
+existing path: if a key set supplies the foreign URL and the key served there matches the one in
+the signed bytes, the comparison succeeds and attribution would be asserted beside a finding that
+says it should not be. The flag is forced false instead. That is a vector now, and a mutant.
+
+Full reasoning in `ops/AGREEMENT_EXT_v0_1_DRAFT.md` section 6.9.
+
 ## The intake
 
 There is no intake. What it may and may not do is written down first, in
@@ -200,7 +221,7 @@ and the anchoring belong on the other side of that line.
 
 The intake stays shut until two implementations of this verifier agree. Not agree in the sense
 that both were written from the same document: agree in the sense that they were run against the
-same 5,283 inputs and gave the same answer, byte for byte, and that somebody broke each of them on
+same 5,286 inputs and gave the same answer, byte for byte, and that somebody broke each of them on
 purpose to check the comparison could tell.
 
 Three layers have to agree, and they are not equally hard.
@@ -237,13 +258,13 @@ same as `scan_text` and `scan_numbers` already did. The verdict never depended o
 reference implementation cannot reproduce from the recorded input was never a specification.
 
 Then the mutation battery, because 5,283 out of 5,283 is a statement about the contract as much as
-about the code. 33 deliberate breakages of the JavaScript rules: 26 were caught at once, 1 is
+about the code. 36 deliberate breakages of the JavaScript rules: 29 were caught at once, 1 is
 equivalent and says why, and **6 survived because the contract did not cover the rule they broke**.
 Not one of the 6 was a defect in the JavaScript. They were holes in the 5,221 cases: no record with
 a field over the length limit made of astral characters, none with a tab, none where the order of
 two `bad_text` refusals was observable, none with U+0085 around a hostname, none with an overclaim
 word glued to a non ASCII character on either side. The adversary has vectors for all of them now,
-the fixture is 5,283 cases, and the mutants die.
+the fixture is 5,286 cases, and the mutants die.
 
 One survives on purpose. `refuse` and `find` share one seen set, so the same (code, why) cannot
 appear as both. No rule produces that collision today, so separating the sets changes nothing.

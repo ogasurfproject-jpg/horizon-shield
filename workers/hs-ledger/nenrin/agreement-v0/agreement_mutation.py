@@ -73,6 +73,18 @@ def refuse_if_old_backup():
 
 # (name, exact text to replace, replacement, expect_caught)
 MUTANTS = [
+    # 2026-09-11. 他所ドメインの key_url を、断りやのうて所見に落とした規則 (草案 6.9)。
+    # 新しい規則に変異が無かったら、それは試験されとらん規則や。
+    ("bring back the v1.1 refusal for a cross domain key_url",
+     '            if strict:\n                r.find("key_url_off_domain"',
+     '            if False:\n                r.find("key_url_off_domain"', True),
+    ("claim attribution even when the key sits on somebody else's host",
+     "url_results.append(d not in [x[0] for x in r.off_domain])",
+     "url_results.append(True)", True),
+    ("drop the line that names whose key server it was",
+     '    for _d, _h in sorted(set(r.off_domain)):',
+     '    for _d, _h in []:', True),
+
     ("drop the v1.1 context prefix", 'SCHEMA_V11: b"a2a-agreement-v1.1\\n"}', 'SCHEMA_V11: b""}', True),
     ("drop the small order key check", '    elif not _ext_is_identity(_scalarmult(point, _L25519)):', '    elif False:', True),
     ("drop the text scan", '    bad_text = scan_text(record)', '    bad_text = []', True),

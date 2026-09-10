@@ -468,6 +468,9 @@ class Report(object):
         self.refusals = []
         self.findings = []
         self.seen = set()
+        # v1.1 で key_url が自分のドメインの下に無かった当事者。(domain, host) の組。
+        # 断りやのうて所見に落とす代わりに、帰属を確かに落とすために要る。2026-09-11。
+        self.off_domain = []
 
     def refuse(self, code, why):
         if (code, why) in self.seen:
@@ -596,7 +599,25 @@ def verify(record, keys=None, recorder_domain=None, now=None, input_text=None):
         if not kh:
             r.refuse("bad_key_url", "%s.key_url must be an https URL, found %r" % (tag, ku))
         elif d and not under_domain(kh, d):
-            r.refuse("bad_key_url", "%s.key_url host %s is not under that party's own domain %s" % (tag, kh, d))
+            # 2026-09-11. ここは v1 と v1.1 で違う。フェデリコ (Federico Blanco Sánchez-Llanos)
+            # が 2026-09-10 の夜に見つけた: この検査が schema にも --keys にも掛からん無条件で、
+            # v1.1 の記録を丸ごと断っとった。v1.1 は鍵を署名バイトの中に持つから、署名の検証に
+            # key_url は要らん。key_url が効くんは帰属の一行だけや。帰属しか根拠にせん物のために
+            # 記録全体を落とすんは、証拠が求めとるより強い。
+            #
+            # そして同じ運営者の別の部品は、既に正しい作法を持っとった。hs-verify-gate 0.4.5 は
+            # 「鍵が他所のホストにあったら、verified のまま帰属だけ落として、その理由を書く」。
+            # 新しい仕掛けは要らん。自分の所の作法を、こっちにも通すだけや。
+            #
+            # v1 は断る側のまま。v1 は鍵が記録の中に無く、key_url から取ってくるしかない。
+            # 他所のホストに置かれたら「どのドメインが署名したか」の根拠が丸ごと消える。
+            # 加えて v0 の草案 (anchor 済み、JIDEC 39) が 4 節で bad_key_url を名指しとる。
+            # anchor した文書は動かさん。
+            if strict:
+                r.find("key_url_off_domain", "%s.key_url host %s is not under that party's own domain %s; under v1.1 the signing key is inside the signed bytes, so this does not stop the signature from verifying. It stops the record from claiming the signature is attributable to %s, because attribution would rest on a key server somebody else runs" % (tag, kh, d, d))
+                r.off_domain.append((d, kh))
+            else:
+                r.refuse("bad_key_url", "%s.key_url host %s is not under that party's own domain %s" % (tag, kh, d))
         for req, why in (("agent_card", "the card this party presented"),):
             if not isinstance(p.get(req), str) or not host_of_https(p.get(req)):
                 r.refuse("missing_field", "%s.%s must be an https URL (%s)" % (tag, req, why))
@@ -881,7 +902,10 @@ def verify(record, keys=None, recorder_domain=None, now=None, input_text=None):
                         r.refuse("key_url_mismatch", "the key served at %s is not the key pinned inside the signed bytes for %s" % (ku, d))
                         url_results.append(False)
                     else:
-                        url_results.append(True)
+                        # 鍵が一致しても、その鍵が他所のホストにあるなら帰属は立たん。
+                        # ここを url_results.append(True) のままにしとったら、他所の鍵サーバに
+                        # 帰属を立ててまう。所見に落としただけでは足りん。能動的に落とす。
+                        url_results.append(d not in [x[0] for x in r.off_domain])
             else:
                 ku = s.get("key_url") or (party.get("key_url") if isinstance(party, dict) else None)
                 if not isinstance(ku, str):
@@ -944,6 +968,10 @@ def _report(r, record, schema, checked, urls_checked, per_sig, input_text, can):
         dne.append("that the key each party signed with is the key it serves at its key_url: no URL was fetched, because this verifier is offline")
     if self_measured:
         dne.append("that the conduct pinned here was measured by anybody other than the two parties: at least one side declared self_measured")
+    # 扉 (hs-verify-gate 0.4.5) が帰属を落とした時にホストを名指しで書くのと同じ形にする。
+    # 落とした事実だけ書いて、どこの誰の鍵サーバかを書かんかったら、読む人は調べようが無い。
+    for _d, _h in sorted(set(r.off_domain)):
+        dne.append("that %s's signature is attributable to %s: its key_url points at %s, a host it does not control, so attribution would rest on somebody else's key server" % (_d, _d, _h))
     out = {
         "schema": REPORT_SCHEMA,
         "verifier_version": VERIFIER_VERSION,
