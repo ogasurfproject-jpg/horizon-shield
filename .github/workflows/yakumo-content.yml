@@ -107,6 +107,7 @@ jobs:
           emit("INDUSTRY", r.get("industry") or "")
           emit("COUNT", r.get("count") or 0)
           emit("PATHS", " ".join(p for p in (r.get("commit_paths") or []) if p))
+          emit("PAGES", " ".join(p for p in (r.get("pages") or []) if p))
           PY
           . /tmp/route.env
           echo "業種=$INDUSTRY 状態=$STATUS 公開=$PUBLISHED 枚数=$COUNT"
@@ -131,15 +132,38 @@ jobs:
             echo "published=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          if [ -z "$(git status --porcelain $PATHS)" ]; then
-            echo "変更なし。公開スキップ。"
-            echo "published=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
+          # 2026-09-10. ここに在った関所は、書いてあったのに一度も発火せなんだ。
+          # $PATHS(commit_paths)には last_manifest.json と yakumo-content-manifest.json が
+          # 入っとる。両方とも generated_at / updated_at を持っとるから、走るたびに必ず違う。
+          # 関所が、自分を無効にする物を含んだ集合を見とった。
+          # 実測: 9251f540「auto-publish 11 verified pages (門を通過)」の中身は timestamp 2行、
+          # それ以外ゼロ行。1枚も変わっとらんのに11枚公開したと名乗り、同じ11本を IndexNow に
+          # 再送した。直しは「見るファイルを減らす」やなく「何を差分と数えるか」を決めることや。
+          # ファイル名で外したら、いつか .json の中身を公開した日に黙って見逃す。
           git config user.name  "yakumo-bot"
           git config user.email "yakumo-bot@users.noreply.github.com"
           git add $PATHS tools/industries/last_route.json
-          git commit -m "$INDUSTRY: auto-publish ${COUNT} verified pages (門を通過)"
+          SUBSTANTIVE=$(git diff --cached --no-color | python3 tools/industries/substantive_diff.py)
+          echo "実質の差分: $SUBSTANTIVE 行"
+          if [ "$SUBSTANTIVE" -eq 0 ]; then
+            echo "頁は一枚も変わっとらん。commit も IndexNow もせん。"
+            {
+              echo ""
+              echo "**公開なし**: 生成は走りましたが、頁の中身は前回と同じでした。"
+              echo "manifest の timestamp だけが動いた差分では commit しません(2026-09-10)。"
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "published=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # 名乗る枚数を、生成器の言い値($COUNT)やなく、実際に staged になった頁から導く。
+          # 名乗りと、起きたことが、同じ場所から来るようにする。
+          STAGED=" $(git diff --cached --name-only | tr '\n' ' ') "
+          CHANGED_PAGES=0
+          for pg in $PAGES; do
+            case "$STAGED" in *" $pg "*) CHANGED_PAGES=$((CHANGED_PAGES+1));; esac
+          done
+          echo "変わった頁: $CHANGED_PAGES / $COUNT 枚"
+          git commit -m "$INDUSTRY: auto-publish, ${CHANGED_PAGES} of ${COUNT} pages changed (門を通過)"
           for i in 1 2 3 4; do
             if git push origin main; then break; fi
             echo "push retry $i"; sleep $((2**i))

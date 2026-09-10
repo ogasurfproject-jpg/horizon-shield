@@ -583,9 +583,44 @@ function normalizeProfile(store, raw) {
 }
 
 /* ------------------------------ GitHub dispatch (optional, fail-closed) ------------------------------ */
-async function triggerGeneration(env, profile, store) {
+async function triggerGeneration(env, profile, store, opts) {
   if (!env.GH_DISPATCH_TOKEN || !env.GH_DISPATCH_REPO) {
     return { triggered: false, reason: "dispatch-not-configured" };
+  }
+  /* 2026-09-10 同じ店に二度続けて合図を出さない。
+     実測: 07:49:22Z と 07:52:19Z、3分差で同じ店(No.001)の生成が二度走った。
+     一度目は本物で11枚出た。二度目は同じ11本を作り直し、頁は一バイトも変わらず、
+     manifest の generated_at だけが動いた commit が残り、同じ11本の URL が
+     IndexNow に再送された。その commit のメッセージは
+     「auto-publish 11 verified pages (門を通過)」と名乗っている。
+     公開していないものを公開したと名乗る記録が、この事業の台帳に残った。
+
+     合図を出す道は三本ある(回答の取り込み、フォームの受信、/admin/regenerate)。
+     三本それぞれに関所を置くと、四本目が生えた日に一本だけ抜ける。
+     だから合図を出す一箇所、ここに置く。手順を道具の中に入れる。
+
+     force を渡した呼び出しは通す。/admin/regenerate は「生成器を直したから出し直す」
+     ための口であり、直してすぐ叩くのが正しい使い方である。閉めた扉に、
+     見える取っ手を付けておく。
+
+     これが防げないもの: 数秒差で同時に届いた二本。KV の反映は即時ではないので、
+     両方とも印を見ずに通ることがある。防げるのは、人と機械が現実に起こす
+     「分単位の二度押し」であって、競合そのものではない。 */
+  const sid = (store && store.store_id) || null;
+  // 0 を渡したら仕掛けごと切れるようにする。`env.X || 600000` やと 0 が既定値に化けて、
+  // 切ったつもりが切れとらん状態になる。数にならん値は既定に戻す。関所は開ける方に倒さん。
+  // 2026-09-10、この行は自分で書いた直後に自分の試験に落ちた。落ちてよかった。
+  const rawWindow = env.GEN_DEBOUNCE_MS;
+  let windowMs = (rawWindow === undefined || rawWindow === null || rawWindow === "") ? 600000 : Number(rawWindow);
+  if (!Number.isFinite(windowMs) || windowMs < 0) windowMs = 600000;
+  const dkey = sid ? "dispatch:" + sid : null;
+  if (dkey && !(opts && opts.force) && windowMs > 0 && env.HS_HEARING_KV) {
+    const prev = await env.HS_HEARING_KV.get(dkey);
+    const age = prev ? Date.now() - Number(prev) : null;
+    if (age !== null && age >= 0 && age < windowMs) {
+      return { triggered: false, reason: "debounced", since_ms: age, window_ms: windowMs,
+               note: "同じ店に " + Math.round(windowMs / 60000) + " 分以内で二度目の合図。force で通せる。" };
+    }
   }
   // 金額は payload から除外して渡す(生成側は金額を扱わない)
   const clientProfile = { ...profile };
@@ -625,6 +660,11 @@ async function triggerGeneration(env, profile, store) {
       },
       body: JSON.stringify({ event_type: "yakumo-hearing-completed", client_payload: { profile: clientProfile, autopilot } }),
     });
+    // 印は成功したときだけ置く。失敗した合図で次の合図を塞がない。
+    if (r.ok && dkey && env.HS_HEARING_KV) {
+      await env.HS_HEARING_KV.put(dkey, String(Date.now()),
+        { expirationTtl: Math.max(60, Math.ceil(windowMs / 1000)) }).catch(() => {});
+    }
     return { triggered: r.ok, status: r.status };
   } catch (e) {
     return { triggered: false, reason: String(e).slice(0, 80) };
@@ -2850,7 +2890,8 @@ export default {
           return json({ ok: false, reason: "完成度" + compNow + "%が基準" + genMin + "%未満です",
                         completeness: compNow, min: genMin }, 409);
         }
-        const gen = await triggerGeneration(env, profile, store);
+        // 出し直しの口は、二度押し止めを通せる。生成器を直した直後に叩くのが正しい使い方や。
+        const gen = await triggerGeneration(env, profile, store, { force: !!b.force });
         await AP.activityAdd(env, { type: "regenerate",
           text: "頁の生成をやり直しました(" + sid + " 完成度" + compNow + "%)" });
         return json({ ok: true, store_id: sid, member_no: store.member_no || null,
