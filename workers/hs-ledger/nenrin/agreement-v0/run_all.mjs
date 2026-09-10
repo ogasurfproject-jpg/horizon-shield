@@ -60,9 +60,19 @@ for (const f of files) {
   if (marks.length === 0) { silent.push(f); continue; }
   for (const [kind, rest] of marks) {
     if (kind === "suite") {
-      // 引数は最初の空白 2 つより前まで。後ろは人が読む用の但し書き。
-      const args = rest.split(/\s{2,}/)[0].trim();
-      suites.push({ file: f, args: args ? args.split(/\s+/) : [] });
+      // 引数と但し書きの境目。「空白 2 つより前が引数」でやっとったら、引数が無うて
+      // 但し書きだけの行 (# RUN_ALL: suite    長い (百秒ほど)。...) で但し書きが丸ごと
+      // 引数になった。今日それが実際に起きて、agreement_mutation.py は "長い" ほか 3 語を
+      // argv で受け取っとった。あれは argv を見んから無事やっただけで、
+      // agreement_canonical_test.mjs は argv[2] を fixture の path に使う。あれに但し書きを
+      // 一行足したら、無い file を読みに行って壊れとった。
+      // 規則を曖昧やない物にする: **頭から続く「-」で始まる語だけが引数。**
+      // 「-」で始まらん語が出たら、そこから後ろは全部、人が読む用の但し書き。
+      // (但し書きを「-」で始めたらあかん。それだけが約束事や。)
+      const toks = rest.trim().split(/\s+/).filter((x) => x !== "");
+      let n = 0;
+      while (n < toks.length && toks[n].startsWith("-")) n++;
+      suites.push({ file: f, args: toks.slice(0, n), note: toks.slice(n).join(" ") });
     } else if (kind === "library" || kind === "runner") {
       libraries.push(f);
     } else {
@@ -90,12 +100,28 @@ const runner = (f) => (f.endsWith(".py") ? "python3" : process.execPath);
 
 console.log("agreement-v0: " + suites.length + " suite (" + libraries.length + " library)、"
   + "1 本あたりの制限時間 " + Math.round(TIMEOUT_MS / 1000) + "s");
-console.log("mutation を 2 本抱えとるから、全部で 3 分から 4 分かかる。");
-console.log("");
+
+// 長い suite があることを、走り出す前に言う。この一覧は持っとらん。file 自身が
+// RUN_ALL の行に書いた但し書きを、そのまま出しとるだけや。
+const noted = suites.filter((s) => s.note);
+for (const s of noted) console.log("  " + label(s) + " は " + s.note);
+if (noted.length) console.log("");
 
 const results = [];
 const wall0 = Date.now();
+
+// 走らせる前に名前を出す。出さんと、長い suite の間ずっと画面が黙って、止まったよう
+// にしか見えん。2026-09-10、実際に「ターミナル止まってんぞ」と言われた。168 秒黙る
+// 1 本があるんやから、黙ってる方が悪い。
+// 端末に出しとるときだけ、行を書いて \r で頭に戻り、終わったら同じ行を結果で上書き
+// する。file に落としとるときは書かん。両方出て二重になるからや。
+const live = !!process.stdout.isTTY;
+const inflight = (name) => {
+  if (live) process.stdout.write("  " + name.padEnd(38) + "走らせとる...\r");
+};
+
 for (const s of suites) {
+  inflight(label(s));
   const t0 = Date.now();
   const r = spawnSync(runner(s.file), [path.join(HERE, s.file), ...s.args], {
     cwd: HERE, timeout: TIMEOUT_MS, encoding: "utf8", maxBuffer: 128 * 1024 * 1024,
@@ -118,8 +144,11 @@ for (const s of suites) {
     || (solines.length ? solines[solines.length - 1] : (lines.length ? lines[lines.length - 1] : ""));
   results.push({ name: label(s), secs, out, reason, ok: reason === null, summary });
 
-  console.log("  " + label(s).padEnd(38) + (reason === null ? "合格" : "不合格")
-    + "  " + String(secs).padStart(3) + "s  " + (reason === null ? summary.slice(0, 80) : reason));
+  const line = "  " + label(s).padEnd(38) + (reason === null ? "合格" : "不合格")
+    + "  " + String(secs).padStart(3) + "s  " + (reason === null ? summary.slice(0, 80) : reason);
+  // 走らせとる行を消してから結果を書く。消さんと "走らせとる..." の尻尾が残る。
+  if (live) process.stdout.write("\r" + " ".repeat(56) + "\r");
+  console.log(line);
 }
 
 const failed = results.filter((r) => !r.ok);

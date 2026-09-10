@@ -35,8 +35,10 @@ const SILENT = "export const x = 1;\n";
 const TWO = "#!/usr/bin/env python3\n# RUN_ALL: suite --selftest\n# RUN_ALL: suite --check\n"
   + "import sys\nprint('=== ' + (' '.join(sys.argv[1:]) or 'none') + ' 合格 ===')\n";
 const BANANA = "// RUN_ALL: banana\nexport const x = 1;\n";
-const ARGSNOTE = "// RUN_ALL: suite --selftest    これは人が読む但し書きで、引数やない\n"
-  + "console.log('=== argv=' + process.argv.slice(2).join(',') + ' 合格 ===');\n";
+const ARGV = "console.log('=== argv=' + (process.argv.slice(2).join(',') || '(無し)') + ' 合格 ===');\n";
+const ARGSNOTE = "// RUN_ALL: suite --selftest    これは人が読む但し書きで、引数やない\n" + ARGV;
+const NOTEONLY = "// RUN_ALL: suite    長い (百秒ほど)。書き換えて、また戻す\n" + ARGV;
+const TWOFLAGS = "// RUN_ALL: suite --aa --bb   ここから但し書き\n" + ARGV;
 
 const run = (files) => {
   const d = mkdtempSync(path.join(os.tmpdir(), "run-all-test-"));
@@ -77,8 +79,34 @@ const run = (files) => {
 }
 {
   const r = run({ "argsnote.mjs": ARGSNOTE });
-  t("空白 2 つより後ろは但し書きで、引数にせん",
+  t("引数の後ろの但し書きは、引数にせん",
     r.status === 0 && /argv=--selftest 合格/.test(r.out), r.out.slice(-200));
+}
+{
+  // 見つけ方: 2026-09-10、TOshi の画面に
+  //   agreement_mutation.py 長い (百秒ほど)。agreement_verify.py を書き換えて、また戻す合格 168s
+  // と出とった。但し書きが丸ごと引数として渡っとった。あの tool は argv を見んから
+  // 無事やっただけで、agreement_canonical_test.mjs は argv[2] を fixture の path に使う。
+  // 但し書きを一行足したら、無い file を読みに行って壊れとった。
+  const r = run({ "noteonly.mjs": NOTEONLY });
+  t("引数が無うて但し書きだけの行で、但し書きが引数にならん",
+    r.status === 0 && /argv=\(無し\) 合格/.test(r.out), r.out.slice(-260));
+  // これは「但し書きがどこかに出とる」やと弱い。古い runner でも、但し書きが
+  // label にめり込んだまま出とったから通ってまう。見るべきは、結果の行に
+  // 但し書きが混じっとらんことの方や。
+  const resultLine = r.out.split("\n").find((l) => /noteonly\.mjs/.test(l) && /合格|不合格/.test(l)) || "";
+  t("結果の行に但し書きが混じらん", !/長い/.test(resultLine), resultLine.slice(0, 120));
+  const noteLine = r.out.split("\n").find((l) => / は 長い \(百秒ほど\)/.test(l)) || "";
+  t("但し書きは走り出す前に、別の行で出る", noteLine !== "" && !/合格/.test(noteLine), noteLine.slice(0, 120));
+}
+{
+  const r = run({ "twoflags.mjs": TWOFLAGS });
+  t("頭から続く「-」の語は全部引数",
+    r.status === 0 && /argv=--aa,--bb 合格/.test(r.out), r.out.slice(-220));
+}
+{
+  const r = run({ "a_test.mjs": GREEN(1) });
+  t("但し書きが無い suite は但し書きの行も出さん", !/ は /.test(r.out.split("\n")[1] || ""), r.out.slice(0, 160));
 }
 {
   const r = run({ "banana.mjs": BANANA });
