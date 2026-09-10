@@ -606,6 +606,21 @@ async function triggerGeneration(env, profile, store, opts) {
      これが防げないもの: 数秒差で同時に届いた二本。KV の反映は即時ではないので、
      両方とも印を見ずに通ることがある。防げるのは、人と機械が現実に起こす
      「分単位の二度押し」であって、競合そのものではない。 */
+  /* 2026-09-10 追記。印を「店 + 時刻」だけで持つと、二度押しと、中身の違う本物の
+     2 通目が区別できん。10 分以内に新しい回答が来た店が、黙って待たされる。
+     これは同じ日に自分で持ち込んだ後退やから、同じ日に消す。
+     印に回答の指紋を足す。同じ店 x 同じ中身 x 窓の内 だけ止める。中身が違えば通す。
+     指紋は SHA-256 の先頭 8 バイト。鍵の代わりに使う物やないから 64 bit で足りる。
+     旧い形(指紋の無い印)は、窓が閉じるまでは止める側に倒す。10 分で自然に消える。 */
+  const stable = (v) => {
+    if (v === null || typeof v !== "object") return JSON.stringify(v === undefined ? null : v);
+    if (Array.isArray(v)) return "[" + v.map(stable).join(",") + "]";
+    return "{" + Object.keys(v).sort().map((k) => JSON.stringify(k) + ":" + stable(v[k])).join(",") + "}";
+  };
+  const profileFingerprint = async (pf) => {
+    const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(stable(pf)));
+    return Array.from(new Uint8Array(d)).slice(0, 8).map((b) => b.toString(16).padStart(2, "0")).join("");
+  };
   const sid = (store && store.store_id) || null;
   // 0 を渡したら仕掛けごと切れるようにする。`env.X || 600000` やと 0 が既定値に化けて、
   // 切ったつもりが切れとらん状態になる。数にならん値は既定に戻す。関所は開ける方に倒さん。
@@ -616,10 +631,18 @@ async function triggerGeneration(env, profile, store, opts) {
   const dkey = sid ? "dispatch:" + sid : null;
   if (dkey && !(opts && opts.force) && windowMs > 0 && env.HS_HEARING_KV) {
     const prev = await env.HS_HEARING_KV.get(dkey);
-    const age = prev ? Date.now() - Number(prev) : null;
-    if (age !== null && age >= 0 && age < windowMs) {
-      return { triggered: false, reason: "debounced", since_ms: age, window_ms: windowMs,
-               note: "同じ店に " + Math.round(windowMs / 60000) + " 分以内で二度目の合図。force で通せる。" };
+    if (prev) {
+      const bar = String(prev).indexOf("|");
+      const pts = bar < 0 ? String(prev) : String(prev).slice(0, bar);
+      const pfp = bar < 0 ? null : String(prev).slice(bar + 1);
+      const age = Date.now() - Number(pts);
+      if (Number.isFinite(age) && age >= 0 && age < windowMs) {
+        const fpNow = await profileFingerprint(profile);
+        if (!pfp || pfp === fpNow) {
+          return { triggered: false, reason: "debounced", since_ms: age, window_ms: windowMs,
+                   note: "同じ店に同じ中身で " + Math.round(windowMs / 60000) + " 分以内の二度目。force で通せる。" };
+        }
+      }
     }
   }
   // 金額は payload から除外して渡す(生成側は金額を扱わない)
@@ -662,7 +685,8 @@ async function triggerGeneration(env, profile, store, opts) {
     });
     // 印は成功したときだけ置く。失敗した合図で次の合図を塞がない。
     if (r.ok && dkey && env.HS_HEARING_KV) {
-      await env.HS_HEARING_KV.put(dkey, String(Date.now()),
+      const fp = await profileFingerprint(profile);
+      await env.HS_HEARING_KV.put(dkey, String(Date.now()) + "|" + fp,
         { expirationTtl: Math.max(60, Math.ceil(windowMs / 1000)) }).catch(() => {});
     }
     return { triggered: r.ok, status: r.status };

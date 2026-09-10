@@ -100,6 +100,42 @@ env = { ...baseEnv, GEN_DEBOUNCE_MS: "abc", HS_HEARING_KV: makeKV({ "dispatch:s1
 r = await trigger(env, profile, store);
 t("数にならん値は既定に戻る。関所は開く方に倒さん", r.triggered === false && r.reason === "debounced", JSON.stringify(r));
 
+// J
+fetchCalls = 0;
+env = { ...baseEnv, HS_HEARING_KV: makeKV({}) };
+await trigger(env, profile, store);
+r = await trigger(env, profile, store);
+t("同じ中身の二度目は止める(指紋一致)", r.triggered === false && r.reason === "debounced" && fetchCalls === 1, JSON.stringify(r));
+
+// K
+fetchCalls = 0;
+env = { ...baseEnv, HS_HEARING_KV: makeKV({}) };
+await trigger(env, profile, store);
+r = await trigger(env, { ...profile, works: ["w", "外壁塗装"] }, store);
+t("中身の違う本物の2通目は通す(指紋不一致)", r.triggered === true && fetchCalls === 2, JSON.stringify(r));
+
+// L
+fetchCalls = 0;
+env = { ...baseEnv, HS_HEARING_KV: makeKV({}) };
+await trigger(env, profile, store);
+t("印は 時刻|指紋 の形で入る", /^\d+\|[0-9a-f]{16}$/.test(env.HS_HEARING_KV.m.get("dispatch:s1") || ""), JSON.stringify(env.HS_HEARING_KV.m.get("dispatch:s1")));
+
+// M
+fetchCalls = 0;
+env = { ...baseEnv, HS_HEARING_KV: makeKV({ "dispatch:s1": String(Date.now() - 60000) }) };
+r = await trigger(env, { ...profile, works: ["まるで違う"] }, store);
+t("旧い形の印(指紋なし)は、窓が閉じるまで止める側に倒す", r.triggered === false && r.reason === "debounced", JSON.stringify(r));
+
+// N
+fetchCalls = 0;
+env = { ...baseEnv, HS_HEARING_KV: makeKV({}) };
+await trigger(env, profile, store);
+const fp1 = env.HS_HEARING_KV.m.get("dispatch:s1").split("|")[1];
+env = { ...baseEnv, HS_HEARING_KV: makeKV({}) };
+await trigger(env, { works: ["w"], area: "a", company: "c" }, store);
+const fp2 = env.HS_HEARING_KV.m.get("dispatch:s1").split("|")[1];
+t("指紋は鍵の順に依らん(同じ中身なら同じ指紋)", fp1 === fp2, fp1 + " vs " + fp2);
+
 console.log("");
 console.log("=== " + pass + " / " + (pass + fail) + (fail ? " 不合格あり" : " 合格") + " (triggerGeneration debounce) ===");
 process.exit(fail ? 1 : 0);
