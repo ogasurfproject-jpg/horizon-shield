@@ -73,7 +73,7 @@ curl -s -X POST 'https://hs-gateway.oga-surf-project.workers.dev/mcp?store=hs-pa
 
 前払式残高の運営確認(要 ADMIN_KEY):
 ```
-curl -s 'https://hs-gateway.oga-surf-project.workers.dev/admin/prepaid?key=入れたADMIN_KEY'
+curl -s -H 'X-Admin-Key: 入れたADMIN_KEY' 'https://hs-gateway.oga-surf-project.workers.dev/admin/prepaid'
 ```
 
 ## 5. チケットを手で1枚チャージして課金経路を通す(任意・確認用)

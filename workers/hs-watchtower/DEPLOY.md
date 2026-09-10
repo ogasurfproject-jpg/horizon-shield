@@ -52,7 +52,7 @@ npx wrangler secret put RUN_NOW_TOKEN          # optional; gates the /run-now te
 npx wrangler deploy
 
 # 5) seed one run now instead of waiting up to 30 min for cron
-curl -s "https://hs-watchtower.<your-subdomain>.workers.dev/run-now?token=YOUR_RUN_NOW_TOKEN"
+curl -s -H "X-Run-Now-Token: YOUR_RUN_NOW_TOKEN" "https://hs-watchtower.<your-subdomain>.workers.dev/run-now"
 #   (omit ?token if you did not set RUN_NOW_TOKEN)
 
 # 6) confirm

@@ -1,5 +1,5 @@
 /**
- * hs-watchtower — external-vantage self-probe for the HORIZON SHIELD / JIDEC billboards.
+ * hs-watchtower, external-vantage self-probe for the HORIZON SHIELD / JIDEC billboards.
  * Probes run on Cloudflare's edge (cron) and persist a verdict to D1, which the guardian
  * reads via d1_database_query even when WebFetch/Apify are down.
  * pdf_canary and outreach are reached through service bindings (PDF_GEN / OUTREACH) because
@@ -217,8 +217,8 @@ export default {
     });
     if (url.pathname === "/latest") return json(await latest(env));
     if (url.pathname === "/run-now") {
-      if (env.RUN_NOW_TOKEN && url.searchParams.get("token") !== env.RUN_NOW_TOKEN) {
-        return json({ ok: false, note: "run-now requires ?token=" }, 403);
+      if (env.RUN_NOW_TOKEN && (request.headers.get("X-Run-Now-Token") || "") !== env.RUN_NOW_TOKEN) {
+        return json({ ok: false, note: "run-now requires the X-Run-Now-Token header" }, 403);
       }
       return json(await runProbes(env));
     }

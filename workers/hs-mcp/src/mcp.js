@@ -1761,7 +1761,7 @@ export default {
         return new Response(rec, { status: 200, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=300", ...CORS } });
       }
       if (url.pathname === "/ratelimit-selftest") {
-        const _k = url.searchParams.get("key") || request.headers.get("X-Admin-Key") || "";
+        const _k = request.headers.get("X-Admin-Key") || "";
         if (!env.ADMIN_SECRET || !(await ctEqual(_k, env.ADMIN_SECRET))) return new Response("forbidden", { status: 403, headers: CORS });
         try {
           const ip = request.headers.get("CF-Connecting-IP") || "unknown";

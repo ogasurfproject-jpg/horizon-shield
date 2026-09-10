@@ -220,8 +220,7 @@ async function ctEqual(a, b) {
 async function priceAdminOk(request, env) {
   if (!env.PRICE_ADMIN_KEY) return false; // 未設定は全拒否（fail-closed）
   const u = new URL(request.url);
-  let provided = u.searchParams.get('key') || '';
-  if (!provided) provided = (request.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
+  let provided = (request.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
   if (!provided) provided = request.headers.get('X-Admin-Key') || '';
   if (!provided) return false;
   return await ctEqual(provided, env.PRICE_ADMIN_KEY);

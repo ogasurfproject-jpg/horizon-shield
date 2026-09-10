@@ -725,7 +725,7 @@ var worker_default = {
     }
     if (url.pathname === "/admin-gen" && req.method === "POST") {
       // key はヘッダ優先で受ける（URLに秘密を載せない）。比較は定数時間。
-      const _k = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "") || req.headers.get("X-Internal-Key") || url.searchParams.get("key") || "";
+      const _k = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "") || req.headers.get("X-Internal-Key") || "";
       if (!env.INTERNAL_MCP_KEY || !(await ctEqual(_k, env.INTERNAL_MCP_KEY))) {
         return new Response(JSON.stringify({ ok: false, error: "bad key" }), { status: 401, headers: { "Content-Type": "application/json", ...CORS } });
       }

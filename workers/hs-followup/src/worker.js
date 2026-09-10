@@ -1,19 +1,19 @@
 /**
- * hs-followup Worker — Week 1 実装
+ * hs-followup Worker, Week 1 実装
  * 
  * エンドポイント:
- *   POST /create-case       — 診断完了時に case_id 発行・KV保存
- *   GET  /followup/:case_id — フォームページ表示（Week 2）
- *   POST /followup/submit   — 回答保存（Week 2）
- *   POST /scheduled-send    — Cron: 30日経過案件にフォーム送信（Week 2）
- *   GET  /admin/export      — 月次匿名化JSON出力（Week 2）
- *   GET  /health            — 死活確認
+ *   POST /create-case, 診断完了時に case_id 発行・KV保存
+ *   GET  /followup/:case_id, フォームページ表示（Week 2）
+ *   POST /followup/submit, 回答保存（Week 2）
+ *   POST /scheduled-send, Cron: 30日経過案件にフォーム送信（Week 2）
+ *   GET  /admin/export, 月次匿名化JSON出力（Week 2）
+ *   GET  /health, 死活確認
  *
  * KV Binding: FOLLOWUP
  * Secret: ADMIN_KEY（/admin/export 認証用）
  */
 
-// ── ユーティリティ ───────────────────────────────────────────────
+// -- ユーティリティ -----------------------------------------------
 
 function generateCaseId() {
   // UUID v4 相当（crypto.randomUUID が使えない環境用フォールバック付き）
@@ -52,7 +52,7 @@ function errorResponse(message, status = 400) {
   return jsonResponse({ ok: false, error: message }, status);
 }
 
-// ── CORS プリフライト ────────────────────────────────────────────
+// -- CORS プリフライト --------------------------------------------
 
 function handleOptions() {
   return new Response(null, {
@@ -65,7 +65,7 @@ function handleOptions() {
   });
 }
 
-// ── /create-case ─────────────────────────────────────────────────
+// -- /create-case -------------------------------------------------
 /**
  * POST /create-case
  *
@@ -92,7 +92,7 @@ async function handleCreateCase(request, env) {
   // 任意の共有トークン認証: FOLLOWUP_CREATE_TOKEN を設定すると必須になる（未設定なら従来通り開放）。
   // ※呼び出し元がバックエンドなら、この Secret を設定して未認証の KV 書き込みを塞ぐこと。
   if (env.FOLLOWUP_CREATE_TOKEN) {
-    const provided = request.headers.get("X-Followup-Token") || new URL(request.url).searchParams.get("token") || "";
+    const provided = request.headers.get("X-Followup-Token") || "";
     if (provided !== env.FOLLOWUP_CREATE_TOKEN) return errorResponse("unauthorized", 401);
   }
   let body;
@@ -174,7 +174,7 @@ async function handleCreateCase(request, env) {
   });
 }
 
-// ── /health ───────────────────────────────────────────────────────
+// -- /health -------------------------------------------------------
 
 function handleHealth() {
   return jsonResponse({
@@ -185,7 +185,7 @@ function handleHealth() {
   });
 }
 
-// ── スタブ（Week 2 以降に実装） ────────────────────────────────────
+// -- スタブ（Week 2 以降に実装） ------------------------------------
 
 function handleStub(name) {
   return jsonResponse(
@@ -194,7 +194,7 @@ function handleStub(name) {
   );
 }
 
-// ── メインルーター ────────────────────────────────────────────────
+// -- メインルーター ------------------------------------------------
 
 export default {
   async fetch(request, env) {
@@ -214,22 +214,22 @@ export default {
       return handleCreateCase(request, env);
     }
 
-    // /followup/:case_id (GET) — Week 2
+    // /followup/:case_id (GET), Week 2
     if (path.startsWith("/followup/") && !path.endsWith("/submit") && method === "GET") {
       return handleStub("GET /followup/:case_id");
     }
 
-    // /followup/submit (POST) — Week 2
+    // /followup/submit (POST), Week 2
     if (path === "/followup/submit" && method === "POST") {
       return handleStub("POST /followup/submit");
     }
 
-    // /scheduled-send (POST / Cron) — Week 2
+    // /scheduled-send (POST / Cron), Week 2
     if (path === "/scheduled-send" && method === "POST") {
       return handleStub("POST /scheduled-send");
     }
 
-    // /admin/export (GET) — Week 2
+    // /admin/export (GET), Week 2
     if (path === "/admin/export" && method === "GET") {
       return handleStub("GET /admin/export");
     }
@@ -237,7 +237,7 @@ export default {
     return errorResponse("Not Found", 404);
   },
 
-  // Cron トリガー — Week 2 で実装
+  // Cron トリガー, Week 2 で実装
   async scheduled(_event, _env, _ctx) {
     // TODO: 30日経過案件にフォロー LINE Push を送る
     console.log("scheduled: hs-followup cron fired (Week 2 で実装)");

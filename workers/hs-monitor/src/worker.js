@@ -419,7 +419,7 @@ const FOOTER = `
 
 ━━━━━━━━━━━━━━━━
 
-🛡 HORIZON SHIELD — 無料で使える窓口
+🛡 HORIZON SHIELD, 無料で使える窓口
 
 📍 LP：https://shield.the-horizons-innovation.com
 🤖 ChatGPT：https://chatgpt.com/g/g-69e180f9a5048191886069dd58b22572-jian-she-fei-tietuka-by-horizon-shield
@@ -787,8 +787,7 @@ export default {
     // 2026-07-19 H1/H2/M2/M3/M4: 制御ルートは CONTROL_TOKEN 必須（scheduled は別経路なので無影響）
     const CONTROL_PATHS = ['/scan', '/test', '/prospects', '/fetch-material-news', '/reset-seen', '/update-db'];
     if (CONTROL_PATHS.includes(url.pathname)) {
-      const provided = url.searchParams.get('token')
-        || (request.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '')
+      const provided = (request.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '')
         || request.headers.get('X-Control-Token') || '';
       let authorized = !!env.CONTROL_TOKEN && (await ctEqual(provided, env.CONTROL_TOKEN));
       // 2026-08-19 patch41: /update-db だけ、LINEに送った1回限りのワンタイム鍵も受け付ける。

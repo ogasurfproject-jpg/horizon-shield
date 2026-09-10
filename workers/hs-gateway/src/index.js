@@ -303,14 +303,14 @@ export default {
       }
       // 運営用の前払式残高詳細(要 ADMIN_KEY)。基準日前の手当て判断に使う。
       if (path === "/admin/prepaid") {
-        var key = url.searchParams.get("key") || "";
+        var key = request.headers.get("X-Admin-Key") || "";
         if (!env || !env.ADMIN_KEY || key !== env.ADMIN_KEY) {
           return new Response(JSON.stringify({ error: "forbidden" }), { status: 403, headers: { "Content-Type": "application/json", ...CORS } });
         }
         return new Response(JSON.stringify(await prepaidStatus(env), null, 2), { headers: { "Content-Type": "application/json", "Cache-Control": "no-store", ...CORS } });
       }
       if (path === "/admin/token") {
-        var _tk = url.searchParams.get("key") || "";
+        var _tk = request.headers.get("X-Admin-Key") || "";
         if (!env || !env.ADMIN_KEY || _tk !== env.ADMIN_KEY) return new Response(JSON.stringify({ error: "forbidden" }), { status: 403, headers: { "Content-Type": "application/json", ...CORS } });
         var _ts = url.searchParams.get("store") || "";
         if (!_ts) return new Response(JSON.stringify({ error: "need store" }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
@@ -319,7 +319,7 @@ export default {
         return new Response(JSON.stringify({ store: _ts, token: _tok, usage: "?store=" + _ts + "&t=" + _tok }, null, 2), { headers: { "Content-Type": "application/json", "Cache-Control": "no-store", ...CORS } });
       }
       if (path === "/admin/grant") {
-        var gkey = url.searchParams.get("key") || "";
+        var gkey = request.headers.get("X-Admin-Key") || "";
         if (!env || !env.ADMIN_KEY || gkey !== env.ADMIN_KEY) return new Response(JSON.stringify({ error: "forbidden" }), { status: 403, headers: { "Content-Type": "application/json", ...CORS } });
         var gStore = url.searchParams.get("store") || "";
         var gTickets = Math.floor(Number(url.searchParams.get("tickets")) || 0);
