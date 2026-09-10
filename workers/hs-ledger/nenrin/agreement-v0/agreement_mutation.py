@@ -2,7 +2,7 @@
 """Mutation test for agreement_redteam.py. It breaks agreement_verify.py one rule at a time and
 checks that the adversary notices. Run: python3 agreement_mutation.py   (about ten minutes)
 
-A suite of 138 vectors that all pass proves nothing on its own: a suite can be green because
+A suite of 149 vectors that all pass proves nothing on its own: a suite can be green because
 the rules hold, or green because the vectors never touch them. This file tells the two apart.
 It was worth writing: on 2026-09-10 it found that the single most important rule in the whole
 program, that a verdict is never "accepted" unless both signatures actually verified, could be
@@ -30,7 +30,8 @@ MUTANTS = [
     ("drop the v1.1 context prefix", 'SCHEMA_V11: b"a2a-agreement-v1.1\\n"}', 'SCHEMA_V11: b""}', True),
     ("drop the small order key check", '    elif not _ext_is_identity(_scalarmult(point, _L25519)):', '    elif False:', True),
     ("drop the text scan", '    bad_text = scan_text(record)', '    bad_text = []', True),
-    ("drop conduct subject binding", '            if subj and other and subj != other:', '            if False:', True),
+    ("drop conduct subject binding", '            if subj and other and not under_domain(subj, other):', '            if False:', True),
+    ("let the subject be any host at all", 'if subj and other and not under_domain(subj, other):', 'if subj and other and False:', True),
     ("always claim signatures checked", 'checked = len(per_sig) == 2 and all(e["result"] == "valid" for e in per_sig)', 'checked = True', True),
     ("drop the overclaim guard", '        for pat, what in OVERCLAIM:', '        for pat, what in []:', True),
     ("drop duplicate key detection", '            raise ValueError("duplicate key in JSON object: %s" % k)', '            pass', True),
@@ -53,7 +54,9 @@ MUTANTS = [
     ("stop requiring agreement_id", 'if not (isinstance(aid, str) and re.match(r"^[0-9a-f]{32}$", aid)):', 'if False:', True),
     ("stop requiring the card sha", 'if not (isinstance(cs, str) and re.match(r"^[0-9a-f]{64}$", cs)):', 'if False:', True),
     ("stop requiring a currency", 'if not (isinstance(cur, str) and re.match(r"^[A-Z]{3}$", cur)):', 'if False:', True),
-    ("stop checking who_pays_whom vs roles", 'if not isinstance(wpw, dict) or norm_domain(wpw.get("from")) != payer or norm_domain(wpw.get("to")) != payee:', 'if False:', True),
+    ("stop requiring consideration to be stated", 'if cons not in ("money", "none"):', 'if False:', True),
+    ("let a priced agreement claim nothing is owed", 'elif cons == "none":', 'elif False:', True),
+    ("stop checking who_pays_whom vs roles", 'if not isinstance(wpw, dict) or (payer and payee and (norm_domain(wpw.get("from")) != payer or norm_domain(wpw.get("to")) != payee)):', 'if False:', True),
     ("stop requiring a minor unit scale", 'if isinstance(scale, bool) or not isinstance(scale, int) or not 0 <= scale <= 4:', 'if False:', True),
     ("stop refusing undeclared self measurement", 'r.refuse("conduct_self_measured_undeclared"', 'r.find("conduct_self_measured_undeclared"', True),
     ("stop refusing an incomplete disclaimer", 'if missing:\n                r.refuse("disclaimer_incomplete"', 'if False:\n                r.refuse("disclaimer_incomplete"', True),

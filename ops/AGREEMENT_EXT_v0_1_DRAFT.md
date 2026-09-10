@@ -14,7 +14,7 @@ reference verifier reads both, and says which one it read.
 **Author:** The HORIZ音s株式会社 / HORIZON SHIELD. **License:** Apache-2.0, as `conduct-v1`.
 **Language:** RFC 2119 keywords. Field names are exact.
 **Reference implementation:** `workers/hs-ledger/nenrin/agreement-v0/agreement_verify.py`
-(offline, no network), `agreement_sign.py`, `agreement_redteam.py` (143 vectors),
+(offline, no network), `agreement_sign.py`, `agreement_redteam.py` (149 vectors),
 `agreement_mutation.py` (38 mutants).
 
 ## 1. What this records
@@ -49,12 +49,20 @@ sha an anchor carries is the sha the holder has.
   - `conduct_record`: `{ "sha256", "url", "subject_domain", "measured_by_domain",
     "self_measured" (OPTIONAL boolean) }`.
   - `role`: `"payer"`, `"payee"` or `"peer"`. The pair MUST be payer with payee, or peer with peer.
-- `terms`: `{ "what", "who_pays_whom", "currency", "amount_minor_units" or "fee_basis",
-  "minor_unit_scale", "disclosure_url" }`. `currency` is three upper case letters.
-  `amount_minor_units` is a non negative integer in the currency's minor units and REQUIRES
-  `minor_unit_scale` (an integer 0 to 4). `who_pays_whom` is `{ "from", "to" }` naming the payer's
-  and the payee's domains, and MUST be absent when both roles are `peer`. The content of `terms`
-  is NOT judged by anyone in this layer.
+- `terms`: `{ "what", "consideration", "disclosure_url", ... }`. `what` and `disclosure_url` are
+  always REQUIRED. `consideration` is `"money"` or `"none"` and is REQUIRED: not every agreement
+  has a price, and an agreement that has none MUST say so rather than leave the fields out and
+  let a reader infer the absence from missing keys.
+  - `consideration: "money"` REQUIRES the roles to be payer and payee, `currency` (three upper
+    case letters, ISO 4217), `who_pays_whom` as `{ "from", "to" }` naming the payer's and the
+    payee's domains exactly, and either `fee_basis` or `amount_minor_units` (a non negative
+    integer in the currency's minor units) together with `minor_unit_scale` (an integer 0 to 4).
+  - `consideration: "none"` REQUIRES both roles to be `peer`, and FORBIDS `currency`,
+    `amount_minor_units`, `minor_unit_scale`, `fee_basis` and `who_pays_whom`. Two parties
+    agreeing about a fact owe each other nothing, and the record says that rather than implying it.
+
+  The content of `terms` is NOT judged by anyone in this layer. `record_paid_by` and
+  `recorder.fee` are about who paid for the RECORD and are unaffected by `consideration`.
 - `recorder`: REQUIRED. `{ "domain", "is_a_party": true|false, "fee": { "basis", ... } }`.
   `basis` MUST be one of `flat`, `per_record`, `subscription`, `none`.
 - `record_paid_by`: a party's `domain`, or `"both"`, `"neither"`, `"third_party"`.
@@ -86,7 +94,7 @@ Content: `not_two_parties`, `bad_party`, `one_sided`, `extra_signatures`, `signa
 `bad_domain`, `bad_key_url`, `key_url_unreachable`, `key_url_mismatch`, `bad_public_key`,
 `same_public_key`, `bad_agreement_id`, `bad_agreed_at`, `bad_lower_bound`, `missing_conduct_sha`,
 `bad_conduct_sha`, `bad_card_sha`, `conduct_subject_wrong`, `conduct_self_measured_undeclared`,
-`bad_role`, `roles_inconsistent`, `terms_contradict_roles`, `bad_currency`, `bad_amount`,
+`bad_role`, `roles_inconsistent`, `terms_contradict_roles`, `bad_consideration`, `bad_currency`, `bad_amount`,
 `unsafe_number`, `bad_recorder`, `recorder_undisclosed`, `fee_tied_to_outcome`,
 `bad_record_paid_by`, `disclaimer_missing`, `disclaimer_incomplete`, `establishes_overclaims`,
 `missing_field`.
@@ -156,6 +164,16 @@ Each of these was found by building the v1 verifier, then fuzzing it, then break
 17. **Canonical form is required, not merely noted.**
 18. **A `lower_bound`.** The anchor bounds `agreed_at` from above. Nothing bounded it from below.
 19. **Two domains may not present one key.**
+20. **An agreement may have no price, and must say so.** v1's `terms` demands an amount or a fee
+    basis unconditionally. Two parties agreeing about a FACT owe each other nothing, and there was
+    no way to write that: the absence of a price could only be inferred from missing keys. Found on
+    2026-09-10 while designing the first real record, which is exactly such an agreement.
+21. **A conduct record is about an endpoint host, not about a bare domain.** The subject check
+    first required the counterparty's domain exactly. The only conduct record that actually exists
+    between the two parties of that first record names `mcp.horizonshield.dev`, while the party is
+    `horizonshield.dev`, so the rule as written rejected the one real record in the world. The
+    subject may now be the counterparty's domain or any host under it. Found the same way, and it
+    could not have been found any other way: no fixture would have looked wrong.
 
 ## 7. What v1.1 still does not do
 

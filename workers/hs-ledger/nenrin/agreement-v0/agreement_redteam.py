@@ -478,7 +478,7 @@ def good11():
         "agreed_at": "2026-09-10T00:00:00Z",
         "parties": [p11("party-a.example", "payer", PA, SHA_A, "party-b.example"),
                     p11("party-b.example", "payee", PB, SHA_B, "party-a.example")],
-        "terms": {"what": "one audit of one estimate",
+        "terms": {"what": "one audit of one estimate", "consideration": "money",
                   "who_pays_whom": {"from": "party-a.example", "to": "party-b.example"},
                   "amount_minor_units": 10000, "minor_unit_scale": 0, "currency": "JPY",
                   "disclosure_url": "https://party-b.example/pricing"},
@@ -519,12 +519,38 @@ case("control", "v1.1: with a matching key file the domain binding is claimed, a
      r11k["key_urls_checked"] is True and any("attributable to the domain" in s for s in r11k["establishes"]), "")
 case("control", "v1.1: either signing order, same bytes, both accepted",
      V.verify(signed(good11(), list(reversed(BOTH))))["verdict"] == "accepted", "")
-peers11 = good11()
-peers11["parties"][0]["role"] = "peer"
-peers11["parties"][1]["role"] = "peer"
-peers11["terms"].pop("who_pays_whom")
-case("control", "v1.1: peer with peer and no who_pays_whom is a shape v1.1 allows",
-     V.verify(signed(peers11, BOTH))["verdict"] == "accepted", json.dumps(codes(V.verify(signed(peers11, BOTH)))))
+def nomoney11():
+    """The shape the first real record takes: two peers agreeing about a fact, owing nothing."""
+    rec = good11()
+    rec["parties"][0]["role"] = "peer"
+    rec["parties"][1]["role"] = "peer"
+    rec["terms"] = {"what": "that both implementations reproduced the same eight rings byte for byte",
+                    "consideration": "none",
+                    "disclosure_url": "https://party-b.example/method"}
+    return rec
+
+
+peers11 = nomoney11()
+rnm = V.verify(signed(nomoney11(), BOTH))
+case("control", "v1.1: two peers agreeing about a fact, with no price at all, is a shape v1.1 allows and states",
+     rnm["verdict"] == "accepted", json.dumps(codes(rnm)))
+nocons = nomoney11()
+nocons["terms"].pop("consideration")
+case("attack", "v1.1: leaving the price out is not the same as saying there is none; a reader must not have to infer it from missing keys",
+     "bad_consideration" in codes(V.verify(bad11(nocons))), json.dumps(codes(V.verify(nocons))))
+bothways = nomoney11()
+bothways["terms"]["currency"] = "JPY"
+case("attack", "v1.1: consideration none while still carrying a currency says two things at once",
+     "terms_contradict_roles" in codes(V.verify(bad11(bothways))), json.dumps(codes(V.verify(bothways))))
+moneypeers = good11()
+moneypeers["parties"][0]["role"] = "peer"
+moneypeers["parties"][1]["role"] = "peer"
+case("attack", "v1.1: consideration money with nobody named as payer",
+     "terms_contradict_roles" in codes(V.verify(bad11(moneypeers))), json.dumps(codes(V.verify(moneypeers))))
+freepay = good11()
+freepay["terms"]["consideration"] = "none"
+case("attack", "v1.1: a payer and a payee, and terms that claim nothing is owed",
+     "terms_contradict_roles" in codes(V.verify(bad11(freepay))), json.dumps(codes(V.verify(freepay))))
 ex11 = V.verify(copy.deepcopy(V.EXAMPLE_V11))
 case("control", "v1.1: the template refuses exactly for the two things a newcomer must fill in, keys and signatures",
      sorted(set(codes(ex11))) == ["bad_public_key", "one_sided"], json.dumps(sorted(set(codes(ex11)))))
@@ -620,6 +646,17 @@ _ncs["signatures"] = [
 c_ncs = codes(V.verify(bad11(_ncs)))
 case("attack", "v1.1: base64 whose unused trailing bits are not zero decodes to the same key, and even with both signatures valid over it the record is refused; one key must have one spelling or two honest records hash apart",
      "bad_public_key" in c_ncs, json.dumps(c_ncs))
+
+endpoint_subject = nomoney11()
+endpoint_subject["parties"][0]["conduct_record"]["subject_domain"] = "mcp.party-b.example"
+endpoint_subject["parties"][1]["conduct_record"]["subject_domain"] = "gate.party-a.example"
+res_ep = V.verify(signed(endpoint_subject, BOTH))
+case("control", "v1.1: a conduct record is about an ENDPOINT host, normally a subdomain of the counterparty; requiring an exact domain match would reject every real record",
+     res_ep["verdict"] == "accepted", json.dumps(codes(res_ep)))
+stranger = good11()
+stranger["parties"][0]["conduct_record"]["subject_domain"] = "somebody-else.example"
+case("attack", "v1.1: a conduct record about a third domain nobody in this record is",
+     "conduct_subject_wrong" in codes(V.verify(bad11(stranger))), json.dumps(codes(V.verify(stranger))))
 
 upper11 = good11()
 upper11["parties"][0]["conduct_record"]["sha256"] = SHA_A.upper()

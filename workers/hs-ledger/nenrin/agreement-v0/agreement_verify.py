@@ -657,8 +657,8 @@ def verify(record, keys=None, recorder_domain=None, now=None, input_text=None):
             other = doms[1 - i] if len(doms) == 2 and mine == doms[i] else None
             subj = norm_domain(cr.get("subject_domain"))
             meas = norm_domain(cr.get("measured_by_domain"))
-            if subj and other and subj != other:
-                r.refuse("conduct_subject_wrong", "parties[%d] presented a conduct record about %s; each party pins the COUNTERPARTY's conduct, which here is %s" % (i, subj, other))
+            if subj and other and not under_domain(subj, other):
+                r.refuse("conduct_subject_wrong", "parties[%d] presented a conduct record about %s; each party pins the COUNTERPARTY's conduct, so the subject must be %s or a host under it" % (i, subj, other))
             if meas and mine and (under_domain(meas, mine) or (other and under_domain(meas, other))):
                 if cr.get("self_measured") is True:
                     r.find("conduct_self_measured", "parties[%d] pins a conduct record written by %s, which is one of the two parties; declared, so it is recorded rather than refused, and this record does not establish that the conduct was measured by anybody other than the parties" % (i, meas))
@@ -684,24 +684,39 @@ def verify(record, keys=None, recorder_domain=None, now=None, input_text=None):
             r.refuse("missing_field", "terms.what is required")
         if not host_of_https(terms.get("disclosure_url")):
             r.refuse("missing_field", "terms.disclosure_url must be an https URL")
-        cur = terms.get("currency")
-        if not (isinstance(cur, str) and re.match(r"^[A-Z]{3}$", cur)):
-            r.refuse("bad_currency", "terms.currency must be three upper case letters (ISO 4217), found %r" % (cur,))
-        amt = terms.get("amount_minor_units")
-        scale = terms.get("minor_unit_scale")
-        if amt is None and not terms.get("fee_basis"):
-            r.refuse("missing_field", "terms needs amount_minor_units or fee_basis")
-        if amt is not None:
-            if isinstance(amt, bool) or not isinstance(amt, int) or amt < 0:
-                r.refuse("bad_amount", "terms.amount_minor_units must be a non negative integer in the currency's minor units; a price written as a double is a price two runtimes print differently")
-            if isinstance(scale, bool) or not isinstance(scale, int) or not 0 <= scale <= 4:
-                r.refuse("bad_amount", "terms.minor_unit_scale must be an integer 0 to 4; without it 100 is both one hundred yen and one yen")
+        # Not every agreement has a price. Two parties agreeing on a FACT owe each other nothing,
+        # and v1 had no way to say so: the money fields were unconditional, so a reader had to
+        # infer the absence of a price from missing keys. State it.
+        cons = terms.get("consideration")
+        if cons not in ("money", "none"):
+            r.refuse("bad_consideration", 'terms.consideration must be "money" or "none"; an agreement with no price must say it has none rather than leave the fields out and let a reader guess')
+        money_here = [k for k in ("currency", "amount_minor_units", "minor_unit_scale", "fee_basis")
+                      if terms.get(k) is not None]
         wpw = terms.get("who_pays_whom")
-        if payer and payee:
-            if not isinstance(wpw, dict) or norm_domain(wpw.get("from")) != payer or norm_domain(wpw.get("to")) != payee:
+        if cons == "money":
+            if not (payer and payee):
+                r.refuse("terms_contradict_roles", "consideration is money, so the two roles must be payer and payee")
+            cur = terms.get("currency")
+            if not (isinstance(cur, str) and re.match(r"^[A-Z]{3}$", cur)):
+                r.refuse("bad_currency", "terms.currency must be three upper case letters (ISO 4217), found %r" % (cur,))
+            amt = terms.get("amount_minor_units")
+            scale = terms.get("minor_unit_scale")
+            if amt is None and not terms.get("fee_basis"):
+                r.refuse("missing_field", "terms needs amount_minor_units or fee_basis")
+            if amt is not None:
+                if isinstance(amt, bool) or not isinstance(amt, int) or amt < 0:
+                    r.refuse("bad_amount", "terms.amount_minor_units must be a non negative integer in the currency's minor units; a price written as a double is a price two runtimes print differently")
+                if isinstance(scale, bool) or not isinstance(scale, int) or not 0 <= scale <= 4:
+                    r.refuse("bad_amount", "terms.minor_unit_scale must be an integer 0 to 4; without it 100 is both one hundred yen and one yen")
+            if not isinstance(wpw, dict) or (payer and payee and (norm_domain(wpw.get("from")) != payer or norm_domain(wpw.get("to")) != payee)):
                 r.refuse("terms_contradict_roles", "terms.who_pays_whom must be {from: %s, to: %s} to match the roles; prose that disagrees with the roles is two records in one" % (payer, payee))
-        elif roles == ["peer", "peer"] and wpw is not None:
-            r.refuse("terms_contradict_roles", "peer with peer names no payer, so terms.who_pays_whom must be absent")
+        elif cons == "none":
+            if roles != ["peer", "peer"]:
+                r.refuse("terms_contradict_roles", "consideration is none, so neither party is a payer; both roles must be peer")
+            if money_here:
+                r.refuse("terms_contradict_roles", "consideration is none, and terms still carries %s. A record may not say both" % ", ".join(money_here))
+            if wpw is not None:
+                r.refuse("terms_contradict_roles", "consideration is none names no payer, so terms.who_pays_whom must be absent")
     else:
         for req in ("what", "who_pays_whom", "currency", "disclosure_url"):
             if not isinstance(terms.get(req), str) or not terms.get(req):
@@ -1014,7 +1029,7 @@ EXAMPLE_V11 = {
                             "subject_domain": "party-a.example", "measured_by_domain": "gate.example"},
          "role": "payee"},
     ],
-    "terms": {"what": "one audit of one estimate",
+    "terms": {"what": "one audit of one estimate", "consideration": "money",
               "who_pays_whom": {"from": "party-a.example", "to": "party-b.example"},
               "amount_minor_units": 10000, "minor_unit_scale": 0, "currency": "JPY",
               "disclosure_url": "https://party-b.example/pricing"},

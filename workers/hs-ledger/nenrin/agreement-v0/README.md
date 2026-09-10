@@ -15,8 +15,8 @@ by sha256, a conduct record about the other, written by somebody who is neither 
 | --- | --- |
 | `agreement_verify.py` | reads a record, answers `accepted` / `refused` / `incomplete` with reasons |
 | `agreement_sign.py` | one party adds its own signature, on its own machine |
-| `agreement_redteam.py` | 143 vectors: 89 attacks, 37 controls, 12 misclassifications, 5 residuals. About 15 seconds |
-| `agreement_mutation.py` | breaks the verifier one rule at a time and checks the adversary notices. 38 mutants, about 10 minutes |
+| `agreement_redteam.py` | 149 vectors: 94 attacks, 38 controls, 12 misclassifications, 5 residuals. About 15 seconds |
+| `agreement_mutation.py` | breaks the verifier one rule at a time and checks the adversary notices. 41 mutants, about 10 minutes |
 
 There is no intake, no KV, no ring column, no fee, no URI. Those come when a real pair of parties
 has a real agreement to record. A record layer built before it has two parties is an empty
@@ -25,8 +25,8 @@ exchange, and an empty exchange is worse than none.
 ## Run it
 
 ```
-python3 agreement_redteam.py            # 143 / 143, needs cryptography, no network
-python3 agreement_mutation.py           # 38 / 38, only worth running after editing the verifier
+python3 agreement_redteam.py            # 149 / 149, needs cryptography, no network
+python3 agreement_mutation.py           # 41 / 41, only worth running after editing the verifier
 ```
 
 A v1.1 record end to end. The keys go INSIDE the record, which is what lets it verify offline
@@ -87,9 +87,9 @@ same codes, so the two cannot drift apart quietly.
 
 ## What building and then attacking the verifier found
 
-Nineteen items, all closed in v1.1, all listed with their reasons in section 6 of the v0.1 draft.
-The v0 draft is not rewritten: its sha is anchored, and a dated draft whose text moves afterwards
-is worth nothing. The six that came from attacking the verifier rather than reading the draft:
+Twenty one items, all closed in v1.1, all listed with their reasons in section 6 of the v0.1
+draft. The v0 draft is not rewritten: its sha is anchored, and a dated draft whose text moves
+afterwards is worth nothing. Six came from attacking the verifier rather than reading the draft:
 
 1. **A lone surrogate killed the verifier.** `"\ud800"` is valid JSON, survives the parser, and
    then cannot be encoded as UTF-8. Found by fuzzing. A reader that dies has not refused anything.
@@ -103,6 +103,12 @@ is worth nothing. The six that came from attacking the verifier rather than read
 6. **A public key of small order** makes one signature verify under many messages. The subgroup
    check is now done from first principles in pure python, with no library and no blocklist:
    a key is refused unless L times the point is the identity and the point is not.
+
+And two more came from trying to build the first real record with a real counterparty
+(`ops/agreement_first_record_federico_20260910.md`), which no fixture would ever have revealed:
+an agreement with no price could not be written at all, and the conduct subject had to match the
+party domain exactly, which rejected the only conduct record that actually exists between those
+two parties. Using a thing is what finds its holes.
 
 ## What an `accepted` verdict does not establish
 
