@@ -38,10 +38,36 @@ const H = await import(SRC + "?v=" + Math.random());
 
 globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => ({}), text: async () => "" });
 
+// 2026-09-10 夜: 生成の合図の関所が KV から Durable Object に移った。関所が繋がって
+// おらん env では、合図は出んようになった (fail-closed。設定の抜けは黙って穴になるより
+// 止まって見える方がええ)。この試験は業種の載り方を見る物で、関所を見る物やない。
+// せやから偽の関所を置く。関所そのものは dispatch_debounce_test.mjs が測る。
+function fakeDispatchGate() {
+  const marks = new Map();
+  return {
+    idFromName: (n) => n,
+    get: (id) => ({
+      fetch: async (u, init) => {
+        const body = JSON.parse(init.body);
+        const p = new URL(u).pathname;
+        if (p === "/release") { marks.delete(id); return new Response(JSON.stringify({ released: true })); }
+        const prev = marks.get(id);
+        const now = body.now, w = body.window_ms;
+        if (prev && w > 0 && now - prev.ts < w && (prev.fp === null || prev.fp === body.fingerprint)) {
+          return new Response(JSON.stringify({ granted: false, reason: "debounced", since_ms: now - prev.ts, window_ms: w }));
+        }
+        marks.set(id, { ts: now, fp: body.fingerprint });
+        return new Response(JSON.stringify({ granted: true, reason: "first", token: "t" + Math.random() }));
+      },
+    }),
+  };
+}
+
 function makeEnv(ai) {
   const kv = new Map();
   return {
     _kv: kv,
+    DISPATCH_DO: fakeDispatchGate(),
     // 2026-08-24: 取り込みの経路は LLM を通る。模擬を置かないと llm-not-configured で
     //   静かに戻り、「ヒアリング記録が作られていない」という結果だけが残る。
     //   何も設定していないことと、取り込みに失敗したことは違う。

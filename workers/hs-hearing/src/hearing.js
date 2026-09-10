@@ -18,6 +18,7 @@
 
 import * as AP from "./autopilot.js";
 import * as IND from "./industry.js";
+import * as DG from "./dispatch_do.js";
 import * as VIS from "./visibility.js";
 import * as CONCIERGE from "./concierge.js";
 
@@ -603,15 +604,15 @@ async function triggerGeneration(env, profile, store, opts) {
      ための口であり、直してすぐ叩くのが正しい使い方である。閉めた扉に、
      見える取っ手を付けておく。
 
-     これが防げないもの: 数秒差で同時に届いた二本。KV の反映は即時ではないので、
-     両方とも印を見ずに通ることがある。防げるのは、人と機械が現実に起こす
-     「分単位の二度押し」であって、競合そのものではない。 */
-  /* 2026-09-10 追記。印を「店 + 時刻」だけで持つと、二度押しと、中身の違う本物の
-     2 通目が区別できん。10 分以内に新しい回答が来た店が、黙って待たされる。
-     これは同じ日に自分で持ち込んだ後退やから、同じ日に消す。
-     印に回答の指紋を足す。同じ店 x 同じ中身 x 窓の内 だけ止める。中身が違えば通す。
-     指紋は SHA-256 の先頭 8 バイト。鍵の代わりに使う物やないから 64 bit で足りる。
-     旧い形(指紋の無い印)は、窓が閉じるまでは止める側に倒す。10 分で自然に消える。 */
+     2026-09-10 夜。この関所は KV に置いてあった。その時の注釈はこう書いてあった:
+       「これが防げないもの: 数秒差で同時に届いた二本。KV の反映は即時ではないので、
+         両方とも印を見ずに通ることがある。」
+     防げんと知りながら置いてあった。KV は結果整合やから、読んで書く間の窓は
+     code の書き方では縮まらん。Durable Object に移した。DO は id ごとに 1 本しか
+     実行せんし storage は強整合やから、読む・決める・書くが原子的になる。
+     競合そのものが起きん。詳しくは src/dispatch_do.js。
+
+     指紋は前のまま。同じ店 x 同じ中身 x 窓の内 だけ止める。中身が違えば通す。 */
   const stable = (v) => {
     if (v === null || typeof v !== "object") return JSON.stringify(v === undefined ? null : v);
     if (Array.isArray(v)) return "[" + v.map(stable).join(",") + "]";
@@ -622,28 +623,19 @@ async function triggerGeneration(env, profile, store, opts) {
     return Array.from(new Uint8Array(d)).slice(0, 8).map((b) => b.toString(16).padStart(2, "0")).join("");
   };
   const sid = (store && store.store_id) || null;
-  // 0 を渡したら仕掛けごと切れるようにする。`env.X || 600000` やと 0 が既定値に化けて、
-  // 切ったつもりが切れとらん状態になる。数にならん値は既定に戻す。関所は開ける方に倒さん。
-  // 2026-09-10、この行は自分で書いた直後に自分の試験に落ちた。落ちてよかった。
-  const rawWindow = env.GEN_DEBOUNCE_MS;
-  let windowMs = (rawWindow === undefined || rawWindow === null || rawWindow === "") ? 600000 : Number(rawWindow);
-  if (!Number.isFinite(windowMs) || windowMs < 0) windowMs = 600000;
-  const dkey = sid ? "dispatch:" + sid : null;
-  if (dkey && !(opts && opts.force) && windowMs > 0 && env.HS_HEARING_KV) {
-    const prev = await env.HS_HEARING_KV.get(dkey);
-    if (prev) {
-      const bar = String(prev).indexOf("|");
-      const pts = bar < 0 ? String(prev) : String(prev).slice(0, bar);
-      const pfp = bar < 0 ? null : String(prev).slice(bar + 1);
-      const age = Date.now() - Number(pts);
-      if (Number.isFinite(age) && age >= 0 && age < windowMs) {
-        const fpNow = await profileFingerprint(profile);
-        if (!pfp || pfp === fpNow) {
-          return { triggered: false, reason: "debounced", since_ms: age, window_ms: windowMs,
-                   note: "同じ店に同じ中身で " + Math.round(windowMs / 60000) + " 分以内の二度目。force で通せる。" };
-        }
+  const windowMs = DG.windowFrom(env.GEN_DEBOUNCE_MS);
+  let claimToken = null;
+  if (sid && !(opts && opts.force) && windowMs > 0) {
+    const fpNow = await profileFingerprint(profile);
+    const c = await DG.claimDispatch(env, sid, fpNow, windowMs, Date.now());
+    if (!c.granted) {
+      if (c.reason === "dispatch-gate-unbound") {
+        return { triggered: false, reason: "dispatch-gate-unbound", note: c.note };
       }
+      return { triggered: false, reason: "debounced", since_ms: c.since_ms, window_ms: c.window_ms,
+               note: "同じ店に同じ中身で " + Math.round(windowMs / 60000) + " 分以内の二度目。force で通せる。" };
     }
+    claimToken = c.token || null;
   }
   // 金額は payload から除外して渡す(生成側は金額を扱わない)
   const clientProfile = { ...profile };
@@ -683,14 +675,15 @@ async function triggerGeneration(env, profile, store, opts) {
       },
       body: JSON.stringify({ event_type: "yakumo-hearing-completed", client_payload: { profile: clientProfile, autopilot } }),
     });
-    // 印は成功したときだけ置く。失敗した合図で次の合図を塞がない。
-    if (r.ok && dkey && env.HS_HEARING_KV) {
-      const fp = await profileFingerprint(profile);
-      await env.HS_HEARING_KV.put(dkey, String(Date.now()) + "|" + fp,
-        { expirationTtl: Math.max(60, Math.ceil(windowMs / 1000)) }).catch(() => {});
+    // 印は合図の **前** に置いてある。競合を閉じるにはそれしかない。
+    // 合図が通らんかったら、置いた印を取り消す。失敗した合図で次の合図を塞がん、
+    // という KV の版の性質はここで守る。消すんは自分が置いた印だけや。
+    if (!r.ok && sid && claimToken) {
+      await DG.releaseDispatch(env, sid, claimToken).catch(() => {});
     }
     return { triggered: r.ok, status: r.status };
   } catch (e) {
+    if (sid && claimToken) await DG.releaseDispatch(env, sid, claimToken).catch(() => {});
     return { triggered: false, reason: String(e).slice(0, 80) };
   }
 }
@@ -3199,3 +3192,6 @@ export default {
     }
   },
 };
+
+// Durable Object の class は entry から export しとかんと wrangler が見つけられん。
+export { DispatchGateDO } from "./dispatch_do.js";

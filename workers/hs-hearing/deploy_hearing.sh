@@ -42,6 +42,28 @@ if ! node run_all.mjs; then
 fi
 echo ""
 
+# 3) 生成の合図の関所 (Durable Object) が繋がっとるかを見る。
+#    2026-09-10 夜に KV から DO へ移した。関所が繋がっとらん worker は、合図を
+#    出さんようになっとる (fail-closed)。設定の抜けは、穴になるより止まる方がええ。
+#    ただし「止まっとる」は静かや。誰も生成が来んことに何日か気付かん。
+#    せやからここで、出す前に見る。
+echo "関所: wrangler.jsonc の DISPATCH_DO と migrations"
+if ! grep -q '"class_name": *"DispatchGateDO"' wrangler.jsonc \
+   || ! grep -q '"name": *"DISPATCH_DO"' wrangler.jsonc \
+   || ! grep -q 'DispatchGateDO' <<< "$(grep -A3 '"migrations"' wrangler.jsonc)"; then
+  echo ""
+  echo "★ 拒否: wrangler.jsonc に DISPATCH_DO の binding か migration が無い。"
+  echo "   この worker は関所が無いと合図を出さん。出さんまま deploy したら、"
+  echo "   生成が静かに止まって、誰も何日か気付かん。"
+  exit 1
+fi
+if ! grep -q 'export { DispatchGateDO }' src/hearing.js; then
+  echo "★ 拒否: src/hearing.js が DispatchGateDO を export しとらん。wrangler が class を見つけられん。"
+  exit 1
+fi
+echo "  DISPATCH_DO / DispatchGateDO / migrations、三つとも在る。"
+echo ""
+
 SHA=$(git rev-parse --short=12 HEAD)
 echo "deploying hs-hearing at $SHA"
 npx wrangler deploy

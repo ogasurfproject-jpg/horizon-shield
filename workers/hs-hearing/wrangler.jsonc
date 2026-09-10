@@ -13,6 +13,18 @@
       "id": "cae22b3bf47b46bebdfcdfd6a724f8ab"
     }
   ],
+  // 生成の合図の関所。KV(結果整合)では数秒差の二本を閉じられん。DO は id ごとに
+  // 1 本しか実行せんし storage は強整合やから、読む・決める・書くが原子的になる。
+  // hs-gateway の TicketLedgerDO と同じ手。生態系を揃える。
+  "durable_objects": {
+    "bindings": [
+      { "name": "DISPATCH_DO", "class_name": "DispatchGateDO" }
+    ]
+  },
+  // 素の key-value storage の DO やから new_classes。SQLite は要らん。
+  "migrations": [
+    { "tag": "v1", "new_classes": ["DispatchGateDO"] }
+  ],
   // Workers AI: メール返信のプローズをヒアリングschemaに構造化する既定エンジン(外部APIキー不要)
   "ai": { "binding": "AI" },
   // AUTOPILOT: 日次巡回cron(21:17 UTC = 06:17 JST)。追撃質問・注意喚起・ニュース更新を自動実行。

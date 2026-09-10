@@ -189,6 +189,13 @@ and the line was found by hashing the file against a copy on another machine. No
 committed, and it could as easily have been. The tool now writes a backup beside the file before
 the first mutation and recovers from it on the next run, so even a SIGKILL leaves a way back.
 
+## The intake
+
+There is no intake. What it may and may not do is written down first, in
+`ops/AGREEMENT_INTAKE_v0_BOUNDARY.md`, including the five things that are deliberately still
+undecided. The verifier opens no socket; every fetch, every retry, every 503, the deduplication
+and the anchoring belong on the other side of that line.
+
 ## The second implementation, and how far it has got
 
 The intake stays shut until two implementations of this verifier agree. Not agree in the sense
