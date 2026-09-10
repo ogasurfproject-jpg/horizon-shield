@@ -40,7 +40,15 @@ const MUTANTS = [
   ["鍵の並びを既定の sort に戻す", "Object.keys(v).sort(cmpCodePoints)", "Object.keys(v).sort()", "caught"],
   ["cmpCodePoints を長さ比較だけにする", "if (x[i] !== y[i]) return x[i] < y[i] ? -1 : 1;", "", "caught"],
   ["逃がす境目を 0x7e から 0x7f に", "c < 0x20 || c > 0x7e", "c < 0x20 || c > 0x7f", "caught"],
-  ["短い逃がし方をやめて全部 \\u にする", "else if (SHORT[c] !== undefined) out += SHORT[c];", "", "caught"],
+  // 錨は 2 つの関数を跨いで一致してまうから、次の行まで含めて 1 箇所に絞る。
+  // (2026-09-10、strUtf8 を足したら str と同じ行が生まれて、変異器が 2 箇所やと言うて断った。
+  //  断ってくれたから気付いた。黙って片方だけ変えとったら、測っとる物が違うてまう。)
+  ["str が短い逃がし方をやめる",
+   "else if (SHORT[c] !== undefined) out += SHORT[c];\n    else if (c < 0x20 || c > 0x7e)",
+   "else if (c < 0x20 || c > 0x7e)", "caught"],
+  ["strUtf8 が短い逃がし方をやめる",
+   "else if (SHORT[c] !== undefined) out += SHORT[c];\n    else if (c < 0x20) out",
+   "else if (c < 0x20) out", "caught"],
   ["\\u を 4 桁詰めせん", 'n.toString(16).padStart(4, "0")', "n.toString(16)", "caught"],
   ["指数形に変わる所を 16 から 17 に", "decpt <= -4 || decpt > 16", "decpt <= -4 || decpt > 17", "caught"],
   ["小さい側の境目を -4 から -5 に", "decpt <= -4 || decpt > 16", "decpt < -4 || decpt > 16", "caught"],
@@ -64,6 +72,12 @@ const MUTANTS = [
   ["末尾の余り検査を外す", '  if (i !== n) err("bad_json", "末尾に余りがある");', "", "caught"],
   ["先頭の 0 を通す", "    if (c === 0x30) i++;", "    if (c === 0x30) { i++; while (isDigit(text.charCodeAt(i))) i++; }", "caught"],
   ["生の制御文字を文字列に通す", '    if (c < 0x20) err("bad_json", "生の制御文字");', "", "caught"],
+  // 記録層の形 (ensure_ascii=False)
+  ["strUtf8 が非 ASCII も逃がす", "    else if (c < 0x20) out += hex4(c);", "    else if (c < 0x20 || c > 0x7e) out += hex4(c);", "caught"],
+  ["strUtf8 が制御文字を逃がさん", "    else if (c < 0x20) out += hex4(c);", "", "caught"],
+  ["canonicalUtf8 が ASCII に逃がす形を使う", "  return build(v, strUtf8);", "  return build(v, str);", "caught"],
+  ["canonicalAscii が逃がさん形を使う", "  return build(v, str);", "  return build(v, strUtf8);", "caught"],
+  ["build が鍵を既定の sort で並べる", "    const keys = Object.keys(v).sort(cmpCodePoints);", "    const keys = Object.keys(v).sort();", "caught"],
   // 等価。緑のままが正しい。
   ["fromCharCode を fromCodePoint に (等価)",
    "out += String.fromCharCode(parseInt(h, 16));",

@@ -115,24 +115,57 @@ export function num(v) {
   return (neg ? "-" : "") + pyFinite(neg ? -v : v);
 }
 
-export function canonicalAscii(v) {
+// 記録層の canonical は ensure_ascii=False や。json.dumps(ensure_ascii=False) は
+// 逃がす物が 3 つだけになる: 引用符、逆斜線、そして 0x20 未満の制御文字 (うち 5 つは
+// 短い形)。0x7f も、日本語も、絵文字も、そのまま生で出る。
+//
+// 2 つ要る理由: 契約 (fixture の入れ物) は ASCII に逃がした形で、記録そのものは
+// 逃がさん形や。片方だけ持っとったら canonical_sha256 が 576 件ずれる。
+// (見つけ方: 採点板の初回で、ずれとる鍵の 2 番目に canonical_sha256 が出た)
+export function strUtf8(s) {
+  let out = '"';
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    if (c === 0x22) out += '\\"';
+    else if (c === 0x5c) out += "\\\\";
+    else if (SHORT[c] !== undefined) out += SHORT[c];
+    else if (c < 0x20) out += hex4(c);
+    else out += s[i];
+  }
+  return out + '"';
+}
+
+function build(v, q) {
   if (v === null) return "null";
   const t = typeof v;
   if (t === "boolean") return v ? "true" : "false";
   if (t === "number" || t === "bigint") return num(v);
-  if (t === "string") return str(v);
-  if (Array.isArray(v)) return "[" + v.map(canonicalAscii).join(",") + "]";
+  if (t === "string") return q(v);
+  if (Array.isArray(v)) return "[" + v.map((x) => build(x, q)).join(",") + "]";
   if (t === "object") {
     const keys = Object.keys(v).sort(cmpCodePoints);
     let out = "{", first = true;
     for (const k of keys) {
       if (!first) out += ",";
       first = false;
-      out += str(k) + ":" + canonicalAscii(v[k]);
+      out += q(k) + ":" + build(v[k], q);
     }
     return out + "}";
   }
   throw new TypeError("書けん型: " + t);
+}
+
+// 記録層の canonical: UTF-8、鍵は全段で並べ替え、区切りは , と : で空白無し、
+// 非 ASCII は逃がさん。agreement_verify.py の canonical() と同じ物。
+export function canonicalUtf8(v) {
+  return build(v, strUtf8);
+}
+
+// 契約の入れ物の canonical: 上と同じで、非 ASCII を \uXXXX に逃がす形。
+// json.dumps(sort_keys=True, separators=(",",":"), ensure_ascii=True) と同じ物。
+// 中身は build を共有しとる。二本立てにしたら、いつか片方だけ直る。
+export function canonicalAscii(v) {
+  return build(v, str);
 }
 
 // ---------------------------------------------------------------------------

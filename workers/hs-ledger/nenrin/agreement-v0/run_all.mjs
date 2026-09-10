@@ -15,8 +15,15 @@
 // 表が混じっとる。せやから拡張子では決めん。**file 自身に名乗らせる。**
 //
 //     # RUN_ALL: suite --selftest      その引数で回す。1 つの file に何本あってもええ
+//     # RUN_ALL: wip                   採点中。回して点は出すが、合否には数えん
 //     # RUN_ALL: library               suite やない。回さん
 //     # RUN_ALL: runner                この file
+//
+// wip を足した理由 (2026-09-10)。検証器の 2 つ目の実装は 0 / 5,221 から始まる。
+// 完成するまで赤や。赤いまま何日も置いたら、人は赤を見んようになる。かというて
+// 一覧から外したら、走っとらん物が有ることが見えんようになる。せやから第三の道:
+// **必ず走らせて、点を必ず出して、合否には数えん。** そして合格の行の下に、
+// 数えんかった物とその点を毎回書く。緑が「何を含んでへんか」を、緑と同じ場所で言う。
 //
 // そして、.py と .mjs で名乗っとらん file が 1 つでもあったら、**回さずに断る。**
 // 名乗り忘れを黙って飛ばす作りやと、新しい試験を足したのに回っとらん、という
@@ -47,6 +54,7 @@ if (files.length === 0) {
 }
 
 const suites = [];
+const wips = [];
 const libraries = [];
 const silent = [];
 
@@ -73,6 +81,11 @@ for (const f of files) {
       let n = 0;
       while (n < toks.length && toks[n].startsWith("-")) n++;
       suites.push({ file: f, args: toks.slice(0, n), note: toks.slice(n).join(" ") });
+    } else if (kind === "wip") {
+      const toks = rest.trim().split(/\s+/).filter((x) => x !== "");
+      let n = 0;
+      while (n < toks.length && toks[n].startsWith("-")) n++;
+      wips.push({ file: f, args: toks.slice(0, n), note: toks.slice(n).join(" ") });
     } else if (kind === "library" || kind === "runner") {
       libraries.push(f);
     } else {
@@ -98,7 +111,9 @@ if (suites.length === 0) {
 const label = (s) => s.file + (s.args.length ? " " + s.args.join(" ") : "");
 const runner = (f) => (f.endsWith(".py") ? "python3" : process.execPath);
 
-console.log("agreement-v0: " + suites.length + " suite (" + libraries.length + " library)、"
+console.log("agreement-v0: " + suites.length + " suite"
+  + (wips.length ? " と 採点中 " + wips.length + " 本" : "")
+  + " (" + libraries.length + " library)、"
   + "1 本あたりの制限時間 " + Math.round(TIMEOUT_MS / 1000) + "s");
 
 // 長い suite があることを、走り出す前に言う。この一覧は持っとらん。file 自身が
@@ -151,6 +166,20 @@ for (const s of suites) {
   console.log(line);
 }
 
+// 採点中の物。必ず走らせて、点は出す。合否には数えん。
+const wipResults = [];
+for (const w of wips) {
+  inflight(label(w) + " (採点中)");
+  const r = spawnSync(runner(w.file), [path.join(HERE, w.file), ...w.args], {
+    cwd: HERE, timeout: TIMEOUT_MS, encoding: "utf8", maxBuffer: 128 * 1024 * 1024,
+  });
+  const so = (r.stdout || "").split("\n").filter((x) => x.trim() !== "");
+  const score = [...so].reverse().find((x) => /一致|\d+\s*\/\s*\d+/.test(x)) || "(点が読めん)";
+  if (live) process.stdout.write("\r" + " ".repeat(60) + "\r");
+  wipResults.push({ name: label(w), score: score.trim(), note: w.note });
+  console.log("  " + label(w).padEnd(38) + "採点中  " + score.trim().slice(0, 76));
+}
+
 const failed = results.filter((r) => !r.ok);
 
 // 緑は per suite の結果から**導く**。横に置いた旗は、いつか一覧と食い違う。
@@ -168,10 +197,16 @@ if (!green) {
   }
   console.log("=== " + (results.length - failed.length) + " / " + suites.length + " 通過、"
     + failed.length + " 不合格 (agreement-v0、" + wall + "s) ===");
+  for (const w of wipResults) {
+    console.log("★ この数は " + w.name + " を含んでへん。採点中: " + w.score);
+  }
   process.exit(1);
 }
 
 console.log("=== " + suites.length + " / " + suites.length + " 合格 (agreement-v0 全 suite、" + wall + "s) ===");
+for (const w of wipResults) {
+  console.log("★ この緑は " + w.name + " を含んでへん。採点中: " + w.score);
+}
 console.log("この緑が言えるんは、この directory で名乗っとる suite が全部通った、それだけや。");
 console.log("消された suite はここでは見つからん。git status が見つける。");
 process.exit(0);

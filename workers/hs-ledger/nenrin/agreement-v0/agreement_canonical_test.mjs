@@ -43,7 +43,7 @@ import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import {
-  canonicalAscii, cmpCodePoints, str, num,
+  canonicalAscii, canonicalUtf8, strUtf8, cmpCodePoints, str, num,
   parseCanonical, parseStrict, parseLoose, parseNative, parseScan, HAS_JSON_SOURCE,
 } from "./agreement_canonical.mjs";
 
@@ -87,6 +87,23 @@ t("quote and backslash", str('"\\') === '"\\"\\\\"', str('"\\'));
 t("nested keys sort at every level",
   canonicalAscii({ b: 1n, a: { d: 2n, c: 3n } }) === '{"a":{"c":3,"d":2},"b":1}');
 t("separators carry no spaces", canonicalAscii([1n, 2n, { a: 3n }]) === '[1,2,{"a":3}]');
+
+// 記録層の canonical は ensure_ascii=False。逃がすんは 3 つだけ: 引用符、逆斜線、
+// 0x20 未満。0x7f も日本語も絵文字も生で出る。二つの形を両方持っとらんと、
+// 契約の入れ物と記録そのものが混ざる。
+t("非 ASCII は逃がさん", strUtf8("日") === '"日"', strUtf8("日"));
+t("DEL も生で出る", strUtf8("\u007f~") === '"\u007f~"', JSON.stringify(strUtf8("\u007f~")));
+t("0x20 未満は逃がす", strUtf8("\u0001") === '"\\u0001"', JSON.stringify(strUtf8("\u0001")));
+t("短い逃がし方はこっちでも短い", strUtf8("\b\t\n\f\r") === '"\\b\\t\\n\\f\\r"');
+t("引用符と逆斜線は逃がす", strUtf8('"\\') === '"\\"\\\\"', strUtf8('"\\'));
+t("代理符号の対は 1 文字として生で出る", strUtf8("\u{1F600}") === '"\u{1F600}"');
+t("鍵の並びは二つの形で同じ",
+  canonicalUtf8({ "\u{1F600}": 1n, "�": 2n }) === '{"�":2,"\u{1F600}":1}',
+  canonicalUtf8({ "\u{1F600}": 1n, "�": 2n }));
+t("数と真偽と null は二つの形で同じ",
+  canonicalUtf8([1n, 1, true, null]) === canonicalAscii([1n, 1, true, null]));
+t("ASCII だけの記録なら二つの形は一致する",
+  canonicalUtf8({ a: [1n, "x"], b: null }) === canonicalAscii({ a: [1n, "x"], b: null }));
 
 // the model: bigint is a python int, number is a python float. no guessing.
 t("a bigint prints as a python int", num(0n) === "0" && num(-7n) === "-7");
