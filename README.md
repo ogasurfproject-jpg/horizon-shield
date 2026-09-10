@@ -53,9 +53,52 @@ We are the first test subject under our own rules. The ledger keeps the record o
 |------|------------|
 | `workers/hs-verify-gate` | The verification gate: nightly sweeps, on demand checks, `probed_via` route disclosure, `gate_commit` pinning, surface change tracking |
 | `workers/hs-ledger` | The JIDEC append only ledger and the NENRIN witness intake |
+| `workers/hs-ledger/nenrin/agreement-v0` | The agreement record: two agents, two signatures, one set of bytes. Verifier written twice, in Python and JavaScript, and proved to agree |
 | `workers/hs-verify-relay` | The public edge relay born from the 522 incident (documented in the discrepancy record) |
 | `verify-directory` | The public register page: every listed server, our own included, with its live verdict |
 | everything else | The GitHub Pages site for the human facing service at the-horizons-innovation.com |
+
+## The agreement record: the other half of a measurement
+
+A conduct record is one sided. Somebody measured somebody. Nothing in it records the other half of
+commerce: that **two** agents agreed on terms, and that **both** said so.
+
+`a2a-agreement-v1.1` is that record. At time T, party A and party B both signed the same canonical
+bytes describing terms, and each of them pinned, by sha256, a conduct record about the OTHER party
+written by somebody who is neither of them.
+
+What it refuses to be is as load bearing as what it is. **No custody. No matching. No editorial
+step.** The recorder must not hold funds, must not decide whether a deal happens, and must not
+charge a fee that varies with the amount or the outcome. A record whose fee moves with the number
+is refused by name. Refusal is mechanical, and none of the terms are ever judged by anyone in this
+layer.
+
+The claim is not a new primitive. It is the combination: two mandatory signatures, the
+counterparty's measured conduct pinned by sha at the moment of signing, an intake that judges
+nothing, and an external anchor nobody here operates. Prior art is named in the draft rather than
+left for a reader to find: AP2, x402, ACP, MPP, Cedulon, the 1F916 Agent Record, and SCITT.
+
+**The verifier is written twice.** Once in Python, once in JavaScript, by design and not by
+accident: two implementations that disagree are the exact seam this project measures everywhere
+else, and building one into this layer on purpose would be a poor joke. 5,286 frozen cases, and
+the two produce the same report byte for byte, including every refusal code and the English
+sentence attached to it. Proving that moved the Python once, when the JavaScript disagreed on two
+cases and the check that settled it was running the Python against its own frozen fixture, where
+it failed the same two.
+
+Then the rules were broken on purpose, 77 ways in Python and 36 in JavaScript, to find out whether
+the 5,286 cases could tell. Six breakages survived, and not one was a defect in either
+implementation. They were holes in the test set. All six are closed.
+
+- The record: [`ops/AGREEMENT_EXT_v0_1_DRAFT.md`](ops/AGREEMENT_EXT_v0_1_DRAFT.md).
+  v0 is anchored as [JIDEC entry 39](https://ledger.horizonshield.dev/ledger/39) and does not move.
+- The verifiers, the adversary and the contract:
+  [`workers/hs-ledger/nenrin/agreement-v0`](workers/hs-ledger/nenrin/agreement-v0)
+- What an intake may and may not do, written before one exists:
+  [`ops/AGREEMENT_INTAKE_v0_BOUNDARY.md`](ops/AGREEMENT_INTAKE_v0_BOUNDARY.md)
+
+There is no intake yet, and that is deliberate. A record layer built before it has two parties is
+an empty exchange, and an empty exchange is worse than none.
 
 ## The register, as a repository
 
