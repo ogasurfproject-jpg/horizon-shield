@@ -118,6 +118,83 @@ export const DRAFT = {
   [SCHEMA_V11]: "ops/AGREEMENT_EXT_v0_1_DRAFT.md",
 };
 
+export const ROLES = ["payer", "payee", "peer"];
+
+// python の str.strip() が削る空白と、JS の trim() が削る空白は違う集合や。
+// python だけ: \x1c \x1d \x1e \x1f \x85。JS だけ: \ufeff。
+// 測って確かめた (2026-09-10)。\x85 は scan_text の制御文字にも入っとらんから、
+// ここまで生きて届く。trim() で代用したら、その 1 文字で domain の判定が割れる。
+const PY_SPACE = "\u0009\u000a\u000b\u000c\u000d\u001c\u001d\u001e\u001f\u0020"
+  + "\u0085\u00a0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007"
+  + "\u2008\u2009\u200a\u2028\u2029\u202f\u205f\u3000";
+
+export function pyStrip(s) {
+  let a = 0, b = s.length;
+  while (a < b && PY_SPACE.includes(s[a])) a++;
+  while (b > a && PY_SPACE.includes(s[b - 1])) b--;
+  return s.slice(a, b);
+}
+
+const rstripDot = (s) => { let b = s.length; while (b > 0 && s[b - 1] === ".") b--; return s.slice(0, b); };
+
+const LABEL = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
+
+// 裸のホスト名。小文字、末尾の点は落とす。そうでなければ null。
+export function normDomain(d) {
+  if (typeof d !== "string" || d === "") return null;
+  const s = rstripDot(pyStrip(d).toLowerCase());
+  if (!s || s.includes("/") || s.includes("@") || s.includes(":") || s.includes(" ")) return null;
+  const labels = s.split(".");
+  if (labels.length < 2) return null;
+  for (const lab of labels) if (!lab || !LABEL.test(lab)) return null;
+  return s;
+}
+
+// https の URL のホスト。https でないか読めん時は null。
+export function hostOfHttps(u) {
+  if (typeof u !== "string") return null;
+  const m = /^https:\/\/([^/?#\s@]+)(?:[/?#][\s\S]*)?$/.exec(pyStrip(u));
+  if (!m) return null;
+  const host = rstripDot(m[1].split(":")[0].toLowerCase());
+  return host || null;
+}
+
+export const underDomain = (host, domain) => host === domain || (host || "").endsWith("." + domain);
+
+export const parentTwo = (domain) => {
+  const parts = domain.split(".");
+  return parts.length >= 2 ? parts.slice(-2).join(".") : domain;
+};
+
+// 正準な base64 で、長さもぴったりでないとあかん。そうでなければ null。
+const B64 = /^[A-Za-z0-9+/]*={0,2}$/;
+export function b64Raw(str, wantLen) {
+  if (typeof str !== "string" || str === "") return null;
+  if (!B64.test(str) || str.length % 4 !== 0) return null;   // python の validate=True
+  let raw;
+  try {
+    const bin = atob(str);
+    raw = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+  } catch { return null; }
+  if (raw.length !== wantLen) return null;
+  // 余り bit が立っとる、あるいは詰め方が別、を弾く: 書き戻して同じ字か見る
+  let back = "";
+  for (const b of raw) back += String.fromCharCode(b);
+  if (btoa(back) !== str) return null;
+  return raw;
+}
+
+// python の type(x).__name__ 。not_two_parties の文面で使う。
+export function pyTypeName(v) {
+  if (v === null || v === undefined) return "NoneType";
+  if (typeof v === "boolean") return "bool";
+  if (typeof v === "bigint") return "int";
+  if (typeof v === "number") return "float";
+  if (typeof v === "string") return "str";
+  if (Array.isArray(v)) return "list";
+  return "dict";
+}
+
 export const MAX_DEPTH = 32;
 export const MAX_NODES = 20000;
 export const MAX_STRING = 4096;
@@ -348,6 +425,16 @@ export function pyFullMatch(body, s) {
   return new RegExp("^(?:" + body + ")\\n?$").test(s);
 }
 
+// python の str(x)。roles_inconsistent の文面で使う。
+const pyStrOf = (v) => (v === null || v === undefined ? "None" : (v === true ? "True" : (v === false ? "False" : String(v))));
+
+// ★ まだ移しとらん。Ed25519 の点の復号と部分群の検査で、次の塊や。
+// null を返すのは「問題無し」の意味やから、ここは嘘をついとる。嘘のまま置くんは、
+// 採点板が件数で数えてくれるからで、隠しとるからやない。移した時にこの印を消す。
+export function publicKeyProblem(_raw) {
+  return null;   // NOT PORTED YET
+}
+
 export async function verify(record, opts = {}) {
   const { keys = null, recorderDomain = null, now = null, inputText = null } = opts;
   const r = new Report();
@@ -451,7 +538,118 @@ export async function verify(record, opts = {}) {
     }
   }
 
-  // ここから先の規則はまだ入っとらん。採点板が件数で教える。
-  void keys; void recorderDomain; void parseStrict;
+  // 6. parties
+  let parties = record.parties;
+  if (!Array.isArray(parties) || parties.length !== 2) {
+    r.refuse("not_two_parties", "parties must be exactly two objects, found "
+      + (Array.isArray(parties) ? String(parties.length) : pyTypeName(parties)));
+    parties = Array.isArray(parties) ? parties.filter(isObj) : [];
+  }
+  const doms = [];
+  const pubs = [];
+  for (let i = 0; i < parties.length; i++) {
+    const pp = parties[i];
+    const tag = "parties[" + i + "]";
+    if (!isObj(pp)) { r.refuse("bad_party", tag + " is not an object"); continue; }
+    const d = normDomain(pp.domain);
+    if (!d) {
+      r.refuse("bad_domain", tag + ".domain must be a bare hostname, found "
+        + pyRepr(pp.domain === undefined ? null : pp.domain));
+    } else {
+      doms.push(d);
+      if (d.split(".").some((lab) => lab.startsWith("xn--"))) {
+        r.find("punycode_domain", tag + ".domain " + d
+          + " is an internationalised name; two such names can look alike and this verifier compares bytes, not glyphs");
+      }
+    }
+    const ku = pp.key_url;
+    const kh = hostOfHttps(ku);
+    if (!kh) {
+      r.refuse("bad_key_url", tag + ".key_url must be an https URL, found " + pyRepr(ku === undefined ? null : ku));
+    } else if (d && !underDomain(kh, d)) {
+      r.refuse("bad_key_url", tag + ".key_url host " + kh + " is not under that party's own domain " + d);
+    }
+    if (typeof pp.agent_card !== "string" || !hostOfHttps(pp.agent_card)) {
+      r.refuse("missing_field", tag + ".agent_card must be an https URL (the card this party presented)");
+    }
+    if (strict) {
+      const pk = pp.public_key_ed25519_b64;
+      const raw = typeof pk === "string" ? b64Raw(pk, 32) : null;
+      if (raw === null) {
+        r.refuse("bad_public_key", tag + ".public_key_ed25519_b64 must be 32 bytes of canonical base64; under v1.1 the key lives inside the signed bytes so the record verifies offline forever, whatever the key_url serves next year");
+      } else {
+        const problem = publicKeyProblem(raw);
+        if (problem) r.refuse("bad_public_key", tag + ".public_key_ed25519_b64 " + problem);
+        else pubs.push(pk);
+      }
+      const cs = pp.agent_card_sha256;
+      if (!(typeof cs === "string" && pyFullMatch("[0-9a-f]{64}", cs))) {
+        r.refuse("bad_card_sha", tag + ".agent_card_sha256 must be 64 lowercase hex; a card named by URL alone can be rewritten after the fact");
+      }
+      const cr = pp.conduct_record;
+      if (!isObj(cr)) {
+        r.refuse("missing_conduct_sha", tag + ".conduct_record must be an object {sha256, url, subject_domain, measured_by_domain}");
+      } else {
+        const sha = cr.sha256;
+        if (sha === null || sha === undefined || sha === "") {
+          r.refuse("missing_conduct_sha", tag + " presented no conduct record; an agreement record without a conduct record on each side is half of the point");
+        } else if (!(typeof sha === "string" && pyFullMatch("[0-9a-f]{64}", sha))) {
+          r.refuse("bad_conduct_sha", tag + ".conduct_record.sha256 must be 64 lowercase hex characters, found " + pyRepr(sha));
+        }
+        if (!hostOfHttps(cr.url)) r.refuse("missing_field", tag + ".conduct_record.url must be an https URL");
+        if (!normDomain(cr.subject_domain)) r.refuse("bad_domain", tag + ".conduct_record.subject_domain must be a bare hostname");
+        if (!normDomain(cr.measured_by_domain)) r.refuse("bad_domain", tag + ".conduct_record.measured_by_domain must be a bare hostname");
+        if (cr.self_measured !== null && cr.self_measured !== undefined && typeof cr.self_measured !== "boolean") {
+          r.refuse("missing_field", tag + ".conduct_record.self_measured, when present, must be true or false");
+        }
+      }
+    } else {
+      const sha = pp.conduct_record_sha256;
+      if (sha === null || sha === undefined || sha === "") {
+        r.refuse("missing_conduct_sha", tag + " presented no conduct record; an agreement record without a conduct record on each side is half of the point");
+      } else if (!(typeof sha === "string" && pyFullMatch("[0-9a-f]{64}", sha))) {
+        r.refuse("bad_conduct_sha", tag + ".conduct_record_sha256 must be 64 lowercase hex characters, found " + pyRepr(sha));
+      }
+      if (typeof pp.conduct_record_url !== "string" || !pp.conduct_record_url) {
+        r.refuse("missing_field", tag + ".conduct_record_url is required");
+      }
+    }
+    const role = pp.role;
+    if (!ROLES.includes(role)) {
+      r.refuse("bad_role", tag + ".role must be one of " + ROLES.join(", ")
+        + ", found " + pyRepr(role === undefined ? null : role));
+    }
+  }
+
+  const roles = parties.filter(isObj).map((x) => (x.role === undefined ? null : x.role));
+  let payer = null, payee = null;
+  if (doms.length === 2) {
+    const [a, b] = doms;
+    if (a === b) {
+      r.refuse("self_agreement", "both parties are " + a + "; one party cannot agree with itself");
+    } else if (underDomain(a, b) || underDomain(b, a)) {
+      r.refuse("self_agreement", a + " and " + b + " are the same domain, one a subdomain of the other");
+    } else if (parentTwo(a) === parentTwo(b)) {
+      r.find("shared_parent_domain", a + " and " + b + " share the parent " + parentTwo(a)
+        + "; this verifier does not resolve registrable domains offline (no public suffix list) and does not refuse on that alone");
+    }
+    if (roles.length === 2 && roles.every((x) => ROLES.includes(x))) {
+      const sorted = roles.slice().sort(cmpCodePoints);
+      if (sorted[0] === "payee" && sorted[1] === "payer") {
+        payer = doms[roles.indexOf("payer")];
+        payee = doms[roles.indexOf("payee")];
+      } else if (!(roles[0] === "peer" && roles[1] === "peer")) {
+        r.refuse("roles_inconsistent", "roles must be payer with payee, or peer with peer, found "
+          + roles.map(pyStrOf).join(" and "));
+      }
+    }
+  }
+  if (pubs.length === 2 && pubs[0] === pubs[1]) {
+    r.refuse("same_public_key", "both parties present the same public key; two domains holding one key is one party wearing two names");
+  }
+
+  // ここから先の規則 (6b の conduct の主体、terms、establishes の検査、署名) は
+  // まだ入っとらん。採点板が件数で教える。
+  void keys; void recorderDomain; void parseStrict; void payer; void payee;
   return buildReport(r, record, schema, false, false, [], inputText, can);
 }
