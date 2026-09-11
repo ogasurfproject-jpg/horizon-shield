@@ -86,7 +86,7 @@ const CARD_SIGNATURE = {
   "jku": "https://gate.horizonshield.dev/.well-known/jwks.json",
   "alg": "ES256",
   "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJocy0yMDI2LTA5Iiwiamt1IjoiaHR0cHM6Ly9nYXRlLmhvcml6b25zaGllbGQuZGV2Ly53ZWxsLWtub3duL2p3a3MuanNvbiJ9",
-  "signature": "iT1H679FdZVouUebuYcqaNGHmovhSFo5PHSUAOPKXoZX9y9V0M1xHfFelhsX76WU86KgPQiUM-FX2RDE0J7rYQ",
+  "signature": "YdfpE2yp-vrrz0WgabcMIkX6rkHRKFFa2e4RNcrfoAjfqG3O6eSDBwueJhmRu3jffiHanNxZadJBkESgksmRPw",
   "jwk": {
     "kty": "EC",
     "x": "CytwnuXFtXi7PFCcF-TCbvW5OgOg4KuWRLeRvdfHWLs",
@@ -96,7 +96,7 @@ const CARD_SIGNATURE = {
     "alg": "ES256",
     "use": "sig"
   },
-  "canonical_sha256": "1b1c3dcb0c70031ddc646eb661c321ee6eb198a827ebb997bda130cc7d8e09ba"
+  "canonical_sha256": "45419922149ba1763119d746d19867e2e114d20ab067ff26e11b560b1636db51"
 };
 /* @@CARD_SIGNATURE_END */
 const CARD_CANONICAL_ORIGIN = "https://gate.horizonshield.dev";
