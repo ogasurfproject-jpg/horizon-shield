@@ -44,6 +44,14 @@
   button.go{background:var(--verify);color:#06241F;border:0;border-radius:10px;padding:11px 20px;font-weight:700;cursor:pointer;font-family:inherit;}
   .note{color:var(--faint);font-size:12px;margin-top:14px;text-align:center;}
   .err{color:var(--alert);font-size:13px;}
+  .pqbox{border:1px solid var(--verify-deep);border-radius:12px;padding:14px 14px 4px;margin:18px 0 4px;background:rgba(63,224,206,.05);}
+  .pqhd{font-size:13px;letter-spacing:.06em;color:var(--verify);font-weight:700;margin-bottom:4px;}
+  .pqbox .qq{margin-top:12px;}
+  .pqbox .qq label{font-weight:400;font-size:13.5px;color:var(--dim);line-height:1.75;display:block;margin-bottom:6px;white-space:pre-wrap;}
+  .pqbox textarea{min-height:70px;}
+  .estfile{margin-top:12px;}
+  .estfile input[type=file]{padding:9px;font-size:13px;}
+  .estfstat{font-size:12px;color:var(--dim);margin-top:6px;min-height:16px;}
   .done{display:none;text-align:center;padding:44px 12px;}
   .done h2{color:var(--verify);}
   .foot{margin-top:28px;border-top:1px solid var(--line);padding-top:16px;font-size:11.5px;color:var(--faint);text-align:center;}
@@ -73,6 +81,16 @@
     </div>
     <p class="lead">ご登録ありがとうございます。以下にご記入いただくと、貴社を施主・AI・検索の三方から見つけてもらうページ(GEO / AEO / LLMO / WebMCP)を自動で作成し、運営代行します。金額は施主向けに公開しません。所要 約5分。</p>
     <form id="f">
+      <!-- 2026-09-11 いま返事を待っている設問を、ここに出す。
+           森下さま(リフォーム職人株式会社)から「回答欄がなく、フォームで回答すると
+           登録を完了するのループになる」と。こちらが LINE で聞いた問いが、
+           この用紙のどこにも載っていなかった。qid ごと返すので当て推量が起きない。 -->
+      <div class="pqbox" id="pqbox" style="display:none;">
+        <div class="pqhd">いま、おうかがいしていること</div>
+        <p class="hint">分かるところだけで結構です。空のままでも送れます。</p>
+        <div id="pqlist"></div>
+      </div>
+
       <div class="section-t">会社情報</div>
       <label>正式な社名 <span class="req">必須</span></label>
       <input type="text" id="company" required>
@@ -103,6 +121,14 @@
         <div class="sub est"><div class="row2"><input type="text" class="e-work" placeholder="工種(例:外壁塗装 30坪)"><input type="text" class="e-amount" placeholder="概算金額(例:900000)"></div><input type="text" class="e-detail" placeholder="内訳の要点(任意)" style="margin-top:8px;"></div>
       </div>
       <button type="button" class="add" id="addEst">＋ 見積もり例を追加</button>
+      <!-- 設問では「写真でも、PDFでも、手書きのメモでも構いません」と言うている。
+           置く場所が無いまま言うていた。器をここに作る。 -->
+      <div class="estfile">
+        <label>見積書そのものを送る <span class="opt">任意</span>
+          <span class="hint">(写真・PDF。1枚8MBまで、6枚まで。運営が読み取ります。金額は施主向けに公開しません)</span></label>
+        <input type="file" id="estFiles" accept="image/*,application/pdf" multiple>
+        <div class="estfstat" id="estFileStat"></div>
+      </div>
 
       <div class="section-t">よくある質問</div>
       <label>施主からよく聞かれる質問と答え <span class="hint">(FAQページの素材。3件ほど)</span></label>
@@ -150,6 +176,38 @@ function renderChips(selected){
   document.querySelectorAll("#works .chip").forEach(c => c.addEventListener("click",()=>c.classList.toggle("on")));
 }
 
+function esc(t){ return String(t==null?"":t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+
+function renderPending(list){
+  const box=$("pqbox"), wrap=$("pqlist");
+  if(!box||!wrap) return;
+  if(!Array.isArray(list)||!list.length){ box.style.display="none"; wrap.innerHTML=""; return; }
+  wrap.innerHTML = list.map(function(q){
+    return '<div class="qq"><label for="pq_'+esc(q.qid)+'">'+esc(q.text)+'</label>'+
+           '<textarea id="pq_'+esc(q.qid)+'" data-pq="'+esc(q.qid)+'"></textarea></div>';
+  }).join("");
+  box.style.display="block";
+}
+
+/* 見積書は1枚ずつ生のまま上げる。まとめて base64 にすると、電波の悪い現場で
+   1枚こけた時に全部やり直しになる。1枚ずつなら、通ったものは残る。 */
+function uploadEstFiles(base, cb){
+  const inp=$("estFiles"), st=$("estFileStat");
+  if(!inp||!inp.files||!inp.files.length){ cb(null); return; }
+  const files=[].slice.call(inp.files).slice(0,6);
+  let i=0, okc=0; const errs=[];
+  (function next(){
+    if(i>=files.length){ if(st) st.textContent = okc? ("見積書 "+okc+"件を送りました"):""; cb({ok:okc,err:errs}); return; }
+    const f=files[i++];
+    if(st) st.textContent="送信中 "+i+"/"+files.length+" "+f.name;
+    fetch(base+"/file?name="+encodeURIComponent(f.name),{method:"POST",
+      headers:{"Content-Type":f.type||"application/octet-stream"},body:f})
+      .then(r=>r.json())
+      .then(res=>{ if(res&&res.ok) okc++; else errs.push(f.name+": "+((res&&res.error)||"失敗")); next(); })
+      .catch(()=>{ errs.push(f.name+": 通信エラー"); next(); });
+  })();
+}
+
 async function loadInfo(code){
   CODE = code;
   let info;
@@ -168,6 +226,8 @@ async function loadInfo(code){
   if(info.plan && info.plan.total_ex_tax){
     $("wPlan").textContent = "ご契約プラン: " + (info.tier==="honbu"?"本部系列 ":"") + "¥" + Number(info.plan.total_ex_tax).toLocaleString() + " 税抜/月" + (info.plan.webmcp_addon_ex_tax? "(WebMCP運用オプション込み)":"");
   }
+  renderPending(info.pending_questions || []);
+  if(info.estimate_files){ const st=$("estFileStat"); if(st) st.textContent="すでに見積書を "+info.estimate_files+"件 お預かりしています。"; }
   $("company").value = info.company || "";
   $("area").value = info.area || (info.areas && info.areas[0]) || "";
   $("areas").value = (info.areas || []).join(", ");
@@ -222,13 +282,19 @@ $("f")?.addEventListener("submit",ev=>{
     const q=c.querySelector(".q").value.trim(), a=c.querySelector(".a").value.trim();
     if(q&&a) faqs.push({q:q,a:a});
   });
+  const answers=[];
+  document.querySelectorAll("[data-pq]").forEach(t=>{ const v=t.value.trim(); if(v) answers.push({qid:t.getAttribute("data-pq"),text:v}); });
   const payload={company:val("company"),rep:val("rep"),license:val("license"),area:val("area"),areas:val("areas"),works:works,strengths:val("strengths"),estimates:estimates,faqs:faqs,trust:val("trust"),contact:val("contact"),hours:val("hours"),ng:val("ng")};
+  if(answers.length) payload.answers=answers;
   if(!payload.company||!payload.area||works.length===0){ alert("社名・所在地・工種は必須です。"); return; }
-  fetch(WORKER + "/h/" + CODE,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
-    .then(r=>r.json()).then(res=>{
-      if(res&&res.ok){ $("doneMypage").href="https://shield.the-horizons-innovation.com/yakumo/mypage/?code="+encodeURIComponent(CODE); $("formWrap").style.display="none"; $("done").style.display="block"; window.scrollTo(0,0); }
-      else alert((res&&res.error)||"送信に失敗しました。時間をおいて再度お試しください。");
-    }).catch(()=>alert("通信エラー。時間をおいて再度お試しください。"));
+  uploadEstFiles(WORKER + "/h/" + CODE, function(fr){
+    fetch(WORKER + "/h/" + CODE,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
+      .then(r=>r.json()).then(res=>{
+        if(res&&res.ok){ $("doneMypage").href="https://shield.the-horizons-innovation.com/yakumo/mypage/?code="+encodeURIComponent(CODE); $("formWrap").style.display="none"; $("done").style.display="block"; window.scrollTo(0,0);
+          if(fr&&fr.err&&fr.err.length) alert("見積書のうち"+fr.err.length+"件が送れませんでした:\n"+fr.err.join("\n")); }
+        else alert((res&&res.error)||"送信に失敗しました。時間をおいて再度お試しください。");
+      }).catch(()=>alert("通信エラー。時間をおいて再度お試しください。"));
+  });
 });
 
 // 起動: ?code= があれば読み込み、無ければコード入力

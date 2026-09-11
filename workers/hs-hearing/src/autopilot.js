@@ -1254,13 +1254,18 @@ export async function selfCheck(env, stores) {
      偶然を待たない。印の無い欄は、正しいかどうかをここでは判定せず、
      「人が中身を見て決める必要がある欄」として名指しする。
      新しい記録には必ず印が付くので、この一覧は放っておけば増えない。減るだけである。 */
-  const unmarked = [];
+  const unmarked = [], unsorted = [];
   for (const s3 of roster) {
     const h3 = await env.HS_HEARING_KV.get("hearing:" + s3.store_id, "json");
     const ex = (h3 && h3.profile && h3.profile.extra) || null;
     if (!ex) continue;
     for (const q of Object.keys(ex)) {
-      if (q === "_unsorted") continue;
+      if (q === "_unsorted") {
+        const u = ex[q];
+        unsorted.push(s3.store_id + ":" + ((u && u.at) || "時刻不明") +
+                      ":" + ((((u && u.with) || []).join("+")) || "対象不明"));
+        continue;
+      }
       const v = ex[q];
       if (v && typeof v === "object" && !v.attributed) unmarked.push(s3.store_id + ":" + q);
     }
@@ -1269,6 +1274,23 @@ export async function selfCheck(env, stores) {
       unmarked.length
         ? unmarked.join(" ") + " ← 印が無い。中身が回答か、人が見て決めること(空文字で /admin/profile-patch すれば消える)"
         : "回答欄はすべて、どう当てたかの印つき");
+
+  /* E9 当て先の決まっていない返事。2026-09-11。
+
+     切り分け不能(ambiguous)で届いた1通は、回答欄ではなく extra._unsorted に1本だけ置く。
+     置いた事実は notify で一度流れるが、流れたら終わりである。誰も当て直さなければ、
+     お客様の言葉はそこに座ったまま誰の目にも触れない。
+     実測(hs-partner-001): 2026-09-10 11:21 の森下さまの回答
+     「toB営業でアポ無し訪問。紹介が徐々に増えている。AIで見つけたお客様は過去1名」
+     が _unsorted に入り、返信は定型だった。設問は答え済みにならないので、
+     同じことをもう一度お客様に聞くことになる。二度手間はこちら側の落ち度である。
+
+     ここでも中身は判定しない。名指しして、人に回すだけ。
+     当て直せば消える。放っておけば残る。それでよい。 */
+  scanned("no_unsorted_reply", unsorted.length === 0,
+      unsorted.length
+        ? unsorted.join(" ") + " ← 当て先の決まっていない返事がある。中身を見て、/admin/profile-patch の extra で当てること"
+        : "当て先の決まっていない返事は無し");
 
   const failed = checks.filter((x) => !x.ok);
   const report = { checked_at: now(), pass: failed.length === 0, failed: failed.map((f) => f.id), checks };
@@ -1517,7 +1539,13 @@ export function settlePendingOnAnswer(store, rawText) {
       : [];
     if (remain.length) {
       const at = {};
-      for (const w of remain) Object.assign(at, w.texts);
+      // 2026-09-11 締めた設問の問い文が、ここに残り続けていた。
+      //   w.qids は絞り込んであるのに w.texts は送った当時のまま全部入っている。
+      //   p.text は /register-info の pending_question としてそのまま用紙に出るので、
+      //   答え終えた設問が、用紙の上でもう一度お客様に出ることになる。残す分だけ写す。
+      for (const w of remain) for (const q of (w.qids || [])) {
+        const t = (w.texts || {})[q]; if (t) at[q] = t;
+      }
       p.waves = remain;
       p.qids = [...new Set(remain.flatMap((w) => w.qids))];
       p.asked_texts = at;
@@ -1539,6 +1567,75 @@ export function settlePendingOnAnswer(store, rawText) {
   recover();
   store.autopilot = ap;
   return {};
+}
+
+/* 2026-09-11 用紙から、設問ごとに答えが返ってきたときの締め方。
+
+   実測 2026-09-10 11:17 リフォーム職人株式会社(No.001) 森下さまから:
+     「いただいたフォーム内を確認させていただいたのですが、回答欄がなく、
+      "フォームで回答する"と"登録を完了する"のループとなってしまうため」
+   用紙には、こちらが LINE で聞いた設問が一問も載っていなかった。
+   /register-info は pending_question を返していたのに、用紙が一度も読んでいない。
+
+   用紙から返る答えは、どの設問への答えかが最初から判っている。
+   推し量る必要が無い。だから attributed は "form" 一つで足りる。
+   ambiguous も recent_wave も、ここでは起こりようがない。 */
+export function settleByQid(store, answers) {
+  const ap = store.autopilot || {};
+  // 返事が来たという事実だけは、どの道でも同じように残す。
+  ap.nudges = 0;
+  ap.penalty = 0;
+  ap.unanswered_sends = 0;
+  if (ap.needs_human) delete ap.needs_human;
+  ap.last_answer_at = now();
+
+  const list = (Array.isArray(answers) ? answers : [])
+    // 空白だけの欄は「書かれていない」。書かれていないものを答えとして立てない。
+    .map((a) => ({ qid: S(a && a.qid, 60).trim(), text: S(a && a.text, 3000).trim() }))
+    .filter((a) => a.qid && a.text);
+  if (!list.length) { store.autopilot = ap; return {}; }
+
+  const p = ap.pending;
+  const askedTexts = (p && p.asked_texts) || {};
+  const extraPatch = {};
+  for (const a of list) {
+    extraPatch[a.qid] = {
+      text: a.text,
+      at: now(),
+      attributed: "form",   // 用紙の欄に直接書かれた。当て直しは要らない。
+      with: [],
+      asked: S(askedTexts[a.qid] || "", 600),
+    };
+  }
+  const settled = new Set(list.map((a) => a.qid));
+  ap.asked = (ap.asked || []).map((x) => (settled.has(x.qid) ? { ...x, replied_at: now() } : x));
+  ap.last_attributed = "form";
+  ap.last_attributed_at = now();
+
+  if (p && Array.isArray(p.qids) && p.qids.length) {
+    const waves = (p.waves && p.waves.length) ? p.waves
+      : [{ qids: [...p.qids], texts: { ...askedTexts }, sent_at: p.sent_at, kind: p.via || "followup" }];
+    const remain = waves
+      .map((w) => ({ ...w, qids: (w.qids || []).filter((q) => !settled.has(q)) }))
+      .filter((w) => w.qids.length);
+    if (remain.length) {
+      const at = {};
+      for (const w of remain) for (const q of w.qids) {
+        const t = (w.texts || {})[q]; if (t) at[q] = t;
+      }
+      p.waves = remain;
+      p.qids = [...new Set(remain.flatMap((w) => w.qids))];
+      p.asked_texts = at;
+      p.text = Object.values(at).join("\n");
+      // 残した波の時計は動かさない。催促の日数(3/7/14/21)はそこから数えている。
+      p.sent_at = remain[0].sent_at || p.sent_at;
+      ap.pending = p;
+    } else {
+      ap.pending = null;
+    }
+  }
+  store.autopilot = ap;
+  return extraPatch;
 }
 
 /* ------------------------------ KIRA 自動採点(相場表内蔵・決定的) ------------------------------ */

@@ -228,7 +228,89 @@ function qField(qid, text) {
     '<textarea id="' + escHtml(qid) + '" data-q></textarea></div>';
 }
 
-function hearingForm(token, store, profile) {
+/* ------------------------------ 返事待ちの設問 / 見積書の受け口 ------------------------------ */
+
+/* 2026-09-11 いま返事を待っている設問を、1問ずつ取り出す。
+
+   これまで外に出していたのは ap.pending.text という連結済みの1本の文字列だけだった。
+   用紙側はそれを見ても欄を作れない。どこで切れば1問なのかが判らないからである。
+   qid と本文の対で返す。用紙はこれで欄を作り、答えは qid を連れて戻ってくる。 */
+export function pendingQuestionList(store) {
+  const ap = (store && store.autopilot) || {};
+  const p = ap.pending;
+  if (!p || !Array.isArray(p.qids) || !p.qids.length) return [];
+  const t = p.asked_texts || {};
+  const out = [];
+  for (const q of p.qids) {
+    const text = safeStr(t[q] || "", 1200).trim();
+    if (text) out.push({ qid: safeStr(q, 60), text: text });
+  }
+  return out;
+}
+
+/* 2026-09-11 見積書そのものを受け取る口。
+
+   こちらは設問の本文で、こう言うていた:
+     「写真でも、PDFでも、手書きのメモでも構いません。」
+   そして受け口を一つも持っていなかった。用紙の見積もり例は工種・金額・内訳の
+   文字欄だけ。公式LINEに画像を送っても ev.message.type !== "text" で捨てていた。
+   送った側には届いたように見える。これが一番あかん壊れ方である。
+
+   中身は名乗りを信じず、先頭の数バイトで見る。判らんものは預からない。 */
+const ESTFILE_MAX_BYTES = 8 * 1024 * 1024;
+const ESTFILE_KEEP = 24;
+
+export function sniffFileType(buf) {
+  const b = new Uint8Array(buf);
+  if (b.length < 12) return "";
+  const at = (i, arr) => arr.every((v, k) => b[i + k] === v);
+  if (at(0, [0xFF, 0xD8, 0xFF])) return "image/jpeg";
+  if (at(0, [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])) return "image/png";
+  if (at(0, [0x25, 0x50, 0x44, 0x46])) return "application/pdf";                 // %PDF
+  if (at(0, [0x47, 0x49, 0x46, 0x38])) return "image/gif";                       // GIF8
+  if (at(0, [0x52, 0x49, 0x46, 0x46]) && at(8, [0x57, 0x45, 0x42, 0x50])) return "image/webp";
+  if (at(4, [0x66, 0x74, 0x79, 0x70])) {                                         // ....ftyp
+    const brand = String.fromCharCode(b[8], b[9], b[10], b[11]);
+    if (["heic", "heix", "hevc", "heim", "heis", "mif1", "msf1"].indexOf(brand) >= 0) return "image/heic";
+  }
+  return "";
+}
+
+async function estFileSave(env, storeId, buf, name, via) {
+  if (!storeId) return { ok: false, error: "no_store" };
+  const size = buf.byteLength;
+  if (!size) return { ok: false, error: "empty" };
+  if (size > ESTFILE_MAX_BYTES) {
+    return { ok: false, error: "too_large", size: size, max: ESTFILE_MAX_BYTES };
+  }
+  const type = sniffFileType(buf);
+  if (!type) return { ok: false, error: "unreadable_type" };
+  const at = new Date().toISOString();
+  const id = at.replace(/[^0-9]/g, "") + "-" + Math.random().toString(36).slice(2, 8);
+  const meta = { name: safeStr(name, 120), type: type, size: size, at: at, via: safeStr(via, 20) };
+  await env.HS_HEARING_KV.put("estfile:" + storeId + ":" + id, buf, { metadata: meta });
+  const idxKey = "estfiles:" + storeId;
+  const idx = (await env.HS_HEARING_KV.get(idxKey, "json")) || [];
+  idx.push({ id: id, ...meta, read: false });
+  const kept = idx.slice(-ESTFILE_KEEP);
+  await env.HS_HEARING_KV.put(idxKey, JSON.stringify(kept));
+  return { ok: true, id: id, size: size, type: type, count: kept.filter((x) => !x.read).length };
+}
+
+/* 受け取ったことと、読めたことは別。写真の中の金額を機械が読み取ったことにはしない。
+   人が読んで estimates_for_audit に入れるまでは、未読として名指しで残す。 */
+async function estFileHandOff(env, store, unread, via) {
+  if (!store) return;
+  const ap = store.autopilot || {};
+  ap.needs_human = { since: new Date().toISOString(),
+    why: "見積書が" + via + "で届いた(未読" + unread + "件)。読み取って estimates_for_audit に入れること" };
+  store.autopilot = ap;
+  await AP.putStore(env, store, "見積書受領:" + via);
+  await AP.activityAdd(env, { type: "estimate_file", member_no: store.member_no,
+    text: (store.company || "加盟店") + " から見積書が届きました(" + via + " / 未読" + unread + "件)" });
+}
+
+function hearingForm(token, store, profile, pendingQs) {
   const industry = (store && store.industry) || IND.DEFAULT_INDUSTRY;
   const W = formPack(industry);
   /* 2026-08-25: 既にもらった答えを、最初から埋めて出す。
@@ -301,12 +383,32 @@ function hearingForm(token, store, profile) {
 '.qq label{font-weight:400;font-size:13px;color:#B9C4D4;line-height:1.7;}' +
 '.qq textarea{min-height:60px;}' +
 '.sec{margin-top:34px;border-top:1px solid #1A2230;padding-top:16px;}' +
+'.pqbox{border:1px solid #3FE0CE;border-radius:12px;padding:14px 14px 4px;margin:4px 0 22px;background:rgba(63,224,206,.05);}' +
+'.pqhd{font-size:13px;letter-spacing:.08em;color:#3FE0CE;font-weight:700;margin-bottom:6px;}' +
+'.estfile{margin-top:10px;}' +'.estfile input[type=file]{padding:8px;font-size:13px;}' +
+'.estfstat{font-size:12px;color:#B9C4D4;margin-top:6px;min-height:16px;}' +
 '</style></head><body><div class="wrap">' +
 '<div class="brand">' + escHtml(W.brand) + '</div>' +
 '<h1>' + escHtml(W.heading) + '</h1>' +
 '<p class="lead">' + escHtml(W.lead) + '</p>' +
 '<div class="who">' + escHtml(W.whoLabel) + ': <b>' + company + '</b>' + (memberNo ? ' ・ 加盟 <b>' + memberNo + '</b>' : '') + '</div>' +
 '<form id="f">' +
+
+/* 2026-09-11 返事待ちの設問を、用紙の一番上に出す。
+   森下さま(リフォーム職人株式会社)から: 用紙を開いても回答欄が無く、
+   『フォームで回答する』と『登録を完了する』のループになる、と。
+   こちらが LINE で聞いた問いが、用紙のどこにも載っていなかった。
+   ここに出す答えは qid を連れて返るので、当て推量(ambiguous)が起きない。 */
+(Array.isArray(pendingQs) && pendingQs.length
+  ? '<div class="pqbox"><div class="pqhd">いま、おうかがいしていること</div>' +
+    '<p class="hint">分かるところだけで結構です。空のままでも送れます。</p>' +
+    pendingQs.map(function(q){
+      return '<div class="qq"><label for="pq_' + escHtml(q.qid) + '">' + escHtml(q.text) + '</label>' +
+             '<textarea id="pq_' + escHtml(q.qid) + '" data-pq="' + escHtml(q.qid) + '"></textarea></div>';
+    }).join('') +
+    '</div>'
+  : '') +
+
 
 '<label>' + escHtml(W.companyLabel) + ' <span class="req">必須</span></label>' +
 '<input type="text" id="company" value="' + company + '" required>' +
@@ -334,7 +436,12 @@ W.works.map(function(w){return '<span class="chip'+(pfWorkSet.has(w)?' on':'')+'
 '<label>実際の見積もり例 <span class="hint">(適正診断=KIRA監査に使います。金額は公開しません。1〜3件)</span></label>' +
 '<div id="estimates">' +
 '<div class="card est"><div class="row2"><div><input type="text" class="e-work" placeholder="工種(例:外壁塗装 30坪)"></div><div><input type="text" class="e-amount" placeholder="概算金額(例:900000)"></div></div><input type="text" class="e-detail" placeholder="内訳の要点(任意)" style="margin-top:8px;"></div>' +
-'</div><button type="button" class="add" id="addEst">＋ 見積もり例を追加</button>'
+'</div><button type="button" class="add" id="addEst">＋ 見積もり例を追加</button>' +
+/* 2026-09-11 設問の本文では「写真でも、PDFでも、手書きのメモでも構いません」と
+   言うておきながら、置く場所が一つも無かった。器をここに作る。 */
+'<div class="estfile"><label>見積書そのものを送る <span class="opt">任意</span> <span class="hint">(写真・PDF。1枚8MBまで、6枚まで。運営が読み取ります。金額は公開しません)</span></label>' +
+'<input type="file" id="estFiles" accept="image/*,application/pdf" multiple>' +
+'<div class="estfstat" id="estFileStat"></div></div>'
 : '') +
 
 '<label>' + escHtml(W.faqLabel) + ' <span class="hint">' + escHtml(W.faqHint) + '</span></label>' +
@@ -439,6 +546,8 @@ W.recruitRoles.map(function(w){return '<span class="chip" data-w="'+escHtml(w)+'
 'var focusSel=document.getElementById("focus");' +
 'if(focusSel)focusSel.addEventListener("change",function(){var v=focusSel.value;document.querySelectorAll(".fg").forEach(function(g){g.style.display=(g.getAttribute("data-f")===v)?"block":"none";});});' +
 'function val(id){var e=document.getElementById(id);return e?e.value.trim():"";}' +
+/* 見積書は1枚ずつ生のまま上げる。まとめて base64 にすると、電波の悪い現場で 1枚失敗した時に全部やり直しになる。1枚ずつなら、通ったものは残る。 */
+'function uploadEstFiles(base,cb){var inp=document.getElementById("estFiles");if(!inp||!inp.files||!inp.files.length){cb(null);return;}var files=[].slice.call(inp.files).slice(0,6),i=0,okc=0,errs=[];var st=document.getElementById("estFileStat");function next(){if(i>=files.length){if(st)st.textContent=okc?("見積書 "+okc+"件を送りました"):"";cb({ok:okc,err:errs});return;}var f=files[i++];if(st)st.textContent="送信中 "+i+"/"+files.length+" "+f.name;fetch(base+"/file?name="+encodeURIComponent(f.name),{method:"POST",headers:{"Content-Type":f.type||"application/octet-stream"},body:f}).then(function(r){return r.json();}).then(function(res){if(res&&res.ok)okc++;else errs.push(f.name+": "+((res&&res.error)||"失敗"));next();}).catch(function(){errs.push(f.name+": 通信エラー");next();});}next();}' +
 'document.getElementById("f").addEventListener("submit",function(ev){ev.preventDefault();' +
 'var works=[];document.querySelectorAll("#works .chip.on").forEach(function(c){works.push(c.getAttribute("data-w"));});' +
 'var wo=val("worksOther");if(wo){wo.split(",").forEach(function(x){x=x.trim();if(x)works.push(x);});}' +
@@ -448,13 +557,17 @@ W.recruitRoles.map(function(w){return '<span class="chip" data-w="'+escHtml(w)+'
 'var rro=val("rrolesOther");if(rro){rro.split(",").forEach(function(x){x=x.trim();if(x)rroles.push(x);});}' +
 'var recruit={roles:rroles,employment_type:val("rEmployment"),salary_min:val("rSalaryMin"),salary_max:val("rSalaryMax"),salary_unit:val("rSalaryUnit"),bonus_allowance:val("rBonus"),insurance_holidays:val("rInsurance"),ideal_person:val("rIdeal"),qualifications:val("rQualifications"),inexperienced_ok:val("rInexperienced"),training:val("rTraining"),workplace:val("rWorkplace"),culture:val("rCulture"),apply_method:val("rApplyMethod"),apply_contact:val("rApplyContact")};' +
 'var hasR=rroles.length||recruit.employment_type||recruit.salary_min||recruit.salary_max||recruit.bonus_allowance||recruit.insurance_holidays||recruit.ideal_person||recruit.qualifications||recruit.inexperienced_ok||recruit.training||recruit.workplace||recruit.culture||recruit.apply_method||recruit.apply_contact;' +
-'var extra={};document.querySelectorAll("[data-q]").forEach(function(t){var v=t.value.trim();if(v)extra[t.id]=v;});' +
+'var answers=[];var ansSeen={};document.querySelectorAll("[data-pq]").forEach(function(t){var v=t.value.trim();if(v){var qid=t.getAttribute("data-pq");answers.push({qid:qid,text:v});ansSeen[qid]=1;}});' +
+'var extra={};document.querySelectorAll("[data-q]").forEach(function(t){var v=t.value.trim();if(v&&!ansSeen[t.id])extra[t.id]=v;});' +
 'var cases=val("cases").split("\\n").map(function(x){return x.trim();}).filter(Boolean);' +
 'var payload={company:val("company"),rep:val("rep"),license:val("license"),area:val("area"),areas:val("areas"),works:works,strengths:val("strengths"),estimates:estimates,faqs:faqs,trust:val("trust"),contact:val("contact"),hours:val("hours"),ng:val("ng"),story:val("story"),cases:cases,focus:val("focus")};' +
 'if(Object.keys(extra).length)payload.extra=extra;' +
+'if(answers.length)payload.answers=answers;' +
 'if(hasR)payload.recruit=recruit;' +
 'if(!payload.company||!payload.area||works.length===0){alert(' + JSON.stringify(W.reqAlert) + ');return;}' +
-'fetch("/h/"+TOKEN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).then(function(r){return r.json();}).then(function(res){if(res&&res.ok){document.getElementById("f").style.display="none";document.getElementById("ok").style.display="block";window.scrollTo(0,0);}else{alert((res&&res.error)||"送信に失敗しました。時間をおいて再度お試しください。");}}).catch(function(){alert("通信エラー。時間をおいて再度お試しください。");});' +
+'uploadEstFiles("/h/"+TOKEN,function(fr){' +
+'fetch("/h/"+TOKEN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).then(function(r){return r.json();}).then(function(res){if(res&&res.ok){document.getElementById("f").style.display="none";document.getElementById("ok").style.display="block";window.scrollTo(0,0);if(fr&&fr.err&&fr.err.length)alert("見積書のうち"+fr.err.length+"件が送れませんでした:\\n"+fr.err.join("\\n"));}else{alert((res&&res.error)||"送信に失敗しました。時間をおいて再度お試しください。");}}).catch(function(){alert("通信エラー。時間をおいて再度お試しください。");});' +
+'});' +
 '});' +
 '</script>' +
 '</div></body></html>';
@@ -1440,6 +1553,19 @@ async function verifyLineSignature(secret, bodyText, signature) {
     return await ctEqual(b64, signature); // H6: 定数時間比較
   } catch (_e) { return false; }
 }
+/* 2026-09-11 LINE に届いた写真/PDF の実体を取りにいく。
+   content は api-data.line.me 側にある。取れなければ取れなかったと言う。 */
+async function lineFetchContent(env, messageId) {
+  const tok = env.LINE_CHANNEL_ACCESS_TOKEN || env.LINE_CHANNEL_TOKEN;
+  if (!tok || !messageId) return { ok: false, why: "no_token" };
+  try {
+    const r = await fetch("https://api-data.line.me/v2/bot/message/" +
+                          encodeURIComponent(messageId) + "/content",
+                          { headers: { Authorization: "Bearer " + tok } });
+    if (!r.ok) return { ok: false, why: "http_" + r.status };
+    return { ok: true, buf: await r.arrayBuffer() };
+  } catch (e) { return { ok: false, why: String(e).slice(0, 60) }; }
+}
 async function lineReply(env, replyToken, text) {
   if (!env.LINE_CHANNEL_ACCESS_TOKEN || !replyToken) return;
   try {
@@ -1497,11 +1623,67 @@ async function handleLineWebhook(env, bodyText) {
   let body; try { body = JSON.parse(bodyText); } catch (_e) { return; }
   const events = Array.isArray(body.events) ? body.events : [];
   for (const ev of events) {
-    if (ev.type !== "message" || !ev.message || ev.message.type !== "text") continue;
+    if (ev.type !== "message" || !ev.message) continue;
     const userId = ev.source && ev.source.userId;
     const replyToken = ev.replyToken;
-    const text = String(ev.message.text || "");
     if (!userId) continue;
+
+    /* 2026-09-11 ここは ev.message.type !== "text" を無言で continue していた。
+
+       こちらは設問の本文で「写真でも、PDFでも、手書きのメモでも構いません」と
+       言うている。その言葉のとおりに写真を送った人の画像が、返事も記録も残さずに
+       消えていた。送った側には、届いたように見える。黙って落とすのが一番あかん。
+
+       (公式LINE @172piime の webhook は hs-kira-line が持っており、そちらは
+        加盟店の画像を読み取る道を持つ。ただし発火は hs-kira-line 側の
+        partner: 印に依る。ここは、この口に届いた分を確実に受ける。) */
+    if (ev.message.type !== "text") {
+      const sidMedia = await env.HS_HEARING_KV.get("line2store:" + userId, "text");
+      if (!sidMedia) {
+        await lineReply(env, replyToken,
+          "Yakumo 加盟店ヒアリングです。先に、運営からお伝えした登録コード(ht_で始まる文字列)を、このトークにそのまま送ってください。");
+        continue;
+      }
+      const mtype = ev.message.type;
+      if (mtype !== "image" && mtype !== "file") {
+        await lineReply(env, replyToken,
+          "申し訳ありません。こちらで受け取れるのは、文字と、写真・PDFだけです。見積書でしたら、写真かPDFでお送りいただけますか。");
+        continue;
+      }
+      // 複数枚を一度に送ると1枚ずつ届く。返事は最後の1枚にだけ返す(同じ文面を何通も返さない)。
+      const iset = ev.message.imageSet || null;
+      const isLast = !iset || !iset.total || Number(iset.index) >= Number(iset.total);
+      const got = await lineFetchContent(env, ev.message.id);
+      if (!got.ok) {
+        if (isLast) await lineReply(env, replyToken,
+          "受け取りに失敗しました。お手数ですが、もう一度お送りいただけますでしょうか。");
+        continue;
+      }
+      const storeMedia = await env.HS_HEARING_KV.get("store:" + sidMedia, "json");
+      const sr = await estFileSave(env, sidMedia, got.buf,
+                                   safeStr(ev.message.fileName, 120) || "line", "line");
+      if (!sr.ok) {
+        if (isLast) await lineReply(env, replyToken, sr.error === "too_large"
+          ? "画像が大きすぎて受け取れませんでした(1枚8MBまで)。画質を落とすか、PDFでお送りください。"
+          : "中身を読み取れませんでした。写真(JPEG/PNG/HEIC)かPDFでお送りいただけますでしょうか。");
+        continue;
+      }
+      await estFileHandOff(env, storeMedia, sr.count, "LINE");
+      await notify(env, "[Yakumo] 見積書が届いた(LINE): " +
+        ((storeMedia && storeMedia.company) || sidMedia) + " " + sr.type + " " +
+        Math.round(sr.size / 1024) + "KB / 未読" + sr.count + "件。" +
+        "読み取って estimates_for_audit に入れること。");
+      if (isLast) {
+        // 受け取ったことと、読めたことは別。読み取りは人がやると先に言う。
+        await lineReply(env, replyToken,
+          "見積書を受け取りました(いま" + sr.count + "件お預かりしています)。\n" +
+          "内容は運営で確認し、適正診断(KIRA)の材料にします。金額は施主向けに公開しません。\n" +
+          "読み取りは人の手で行いますので、反映まで少しお時間をいただきます。");
+      }
+      continue;
+    }
+
+    const text = String(ev.message.text || "");
 
     const linkedStoreId = await env.HS_HEARING_KV.get("line2store:" + userId, "text");
     if (!linkedStoreId) {
@@ -2248,6 +2430,10 @@ export default {
         focus_primary: ap.focus_primary || null,
         completeness: ap.completeness != null ? ap.completeness : null,
         pending_question: (ap.pending && ap.pending.text) || null,
+        // 2026-09-11 用紙が回答欄を作れるように、設問を1問ずつ qid つきで返す。
+        //   これまで連結した1本の文字列しか返しておらず、用紙は欄を作れなかった。
+        pending_questions: pendingQuestionList(store),
+        estimate_files: ((await env.HS_HEARING_KV.get("estfiles:" + store.store_id, "json")) || []).length,
         referral_count: refs,
         // 紹介導線: この店専用の紹介リンク(他の工務店を誘う口)。member_noが無ければ汎用applyを返す。
         referral_link: store.member_no
@@ -2381,6 +2567,68 @@ export default {
     }
 
     // ヒアリングフォーム(GET) / 回答受信(POST)
+    /* 2026-09-11 見積書(写真/PDF)の受け口。用紙から1枚ずつ上がってくる。
+       /h/<token> の本体より先に見る。先に通すと token に "/file" が混ざる。 */
+    if (request.method === "POST" && /^\/h\/[^/]+\/file$/.test(path)) {
+      const ftok = safeStr(decodeURIComponent(path.split("/")[2]), 80).replace(/[^A-Za-z0-9_-]/g, "");
+      const ftokRec = ftok ? await env.HS_HEARING_KV.get("htok:" + ftok, "json") : null;
+      if (!ftokRec) return json({ ok: false, error: "bad_token" }, 404);
+      const fbuf = await request.arrayBuffer();
+      const fr = await estFileSave(env, ftokRec.store_id, fbuf,
+                                   url.searchParams.get("name") || "", "form");
+      if (!fr.ok) return json(fr, 400);
+      const fstore = await env.HS_HEARING_KV.get("store:" + ftokRec.store_id, "json");
+      await estFileHandOff(env, fstore, fr.count, "用紙");
+      await notify(env, "[Yakumo] 見積書が届いた(用紙): " + ((fstore && fstore.company) || ftokRec.store_id) +
+        " " + fr.type + " " + Math.round(fr.size / 1024) + "KB / 未読" + fr.count + "件。" +
+        "読み取って estimates_for_audit に入れること。");
+      return json({ ok: true, id: fr.id, count: fr.count });
+    }
+
+    /* 届いた見積書を、人が見るための口(管理者のみ)。一覧と実体。 */
+    if (path === "/admin/estimate-files" && request.method === "GET") {
+      if (!adminOk(request, env)) return json({ error: "unauthorized" }, 401);
+      const st = safeStr(url.searchParams.get("store"), 60).replace(/[^A-Za-z0-9_-]/g, "");
+      if (!st) return json({ error: "store_required" }, 400);
+      const idx = (await env.HS_HEARING_KV.get("estfiles:" + st, "json")) || [];
+      return json({ ok: true, store_id: st, count: idx.length,
+                    unread: idx.filter((x) => !x.read).length, files: idx });
+    }
+    if (path === "/admin/estimate-file" && request.method === "GET") {
+      if (!adminOk(request, env)) return json({ error: "unauthorized" }, 401);
+      const st = safeStr(url.searchParams.get("store"), 60).replace(/[^A-Za-z0-9_-]/g, "");
+      const fid = safeStr(url.searchParams.get("id"), 60).replace(/[^A-Za-z0-9_-]/g, "");
+      if (!st || !fid) return json({ error: "store_and_id_required" }, 400);
+      const got = await env.HS_HEARING_KV.getWithMetadata("estfile:" + st + ":" + fid, { type: "arrayBuffer" });
+      if (!got || !got.value) return json({ error: "not_found" }, 404);
+      const m = got.metadata || {};
+      return new Response(got.value, { headers: { ...cors,
+        "Content-Type": safeStr(m.type, 80) || "application/octet-stream",
+        "Content-Disposition": 'inline; filename="' + fid + '"' } });
+    }
+    /* 読み取り済みの印。人が estimates_for_audit に入れたら、ここで未読を落とす。 */
+    if (path === "/admin/estimate-file-read" && request.method === "POST") {
+      if (!adminOk(request, env)) return json({ error: "unauthorized" }, 401);
+      let rb; try { rb = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+      const st = safeStr(rb.store, 60).replace(/[^A-Za-z0-9_-]/g, "");
+      const fid = safeStr(rb.id, 60).replace(/[^A-Za-z0-9_-]/g, "");
+      if (!st) return json({ error: "store_required" }, 400);
+      const idx = (await env.HS_HEARING_KV.get("estfiles:" + st, "json")) || [];
+      let n = 0;
+      for (const f of idx) if (!fid || f.id === fid) { if (!f.read) n++; f.read = true; }
+      await env.HS_HEARING_KV.put("estfiles:" + st, JSON.stringify(idx));
+      const unread = idx.filter((x) => !x.read).length;
+      if (!unread) {
+        const st2 = await env.HS_HEARING_KV.get("store:" + st, "json");
+        if (st2 && st2.autopilot && st2.autopilot.needs_human &&
+            /見積書/.test(st2.autopilot.needs_human.why || "")) {
+          delete st2.autopilot.needs_human;
+          await AP.putStore(env, st2, "見積書:読み取り済み");
+        }
+      }
+      return json({ ok: true, marked: n, unread: unread });
+    }
+
     if (path.startsWith("/h/")) {
       const token = safeStr(decodeURIComponent(path.slice(3)), 80).replace(/[^A-Za-z0-9_-]/g, "");
       if (!token) return html("<h1>無効なリンクです</h1>", 400);
@@ -2392,7 +2640,8 @@ export default {
         // 既にもらった答えを埋めて出す。store: 側に社名が無い店(平田様がそうだった)でも、
         // hearing: 側の profile から社名と答えを拾う。
         const hrecForm = await env.HS_HEARING_KV.get("hearing:" + tokRec.store_id, "json");
-        return html(hearingForm(token, store || tokRec, (hrecForm && hrecForm.profile) || null));
+        return html(hearingForm(token, store || tokRec, (hrecForm && hrecForm.profile) || null,
+                                pendingQuestionList(store)));
       }
 
       if (request.method === "POST") {
@@ -2404,8 +2653,17 @@ export default {
         }
         const incoming = normalizeProfile(store || tokRec, raw);
         const prev = await env.HS_HEARING_KV.get("hearing:" + tokRec.store_id, "json");
-        if (store) AP.settlePendingOnAnswer(store, JSON.stringify(raw).slice(0, 3000)); // フォーム再送=pending消込+ペナルティ回復
+        /* 2026-09-11 用紙が qid つきで答えを返すようになった。
+           どの設問への答えかが判っているものを、判らないもの扱いで丸ごと当てない。
+           answers の無い古い送信は、これまで通り一括で締める(後方互換)。 */
+        const formAnswers = Array.isArray(raw.answers) ? raw.answers : [];
+        let qidPatch = {};
+        if (store) {
+          if (formAnswers.length) qidPatch = AP.settleByQid(store, formAnswers) || {};
+          else AP.settlePendingOnAnswer(store, JSON.stringify(raw).slice(0, 3000)); // フォーム再送=pending消込+ペナルティ回復
+        }
         const profile = AP.mergeProfiles(prev && prev.profile, incoming);
+        if (Object.keys(qidPatch).length) profile.extra = { ...(profile.extra || {}), ...qidPatch };
         const now = new Date().toISOString();
         const record = { token, store_id: tokRec.store_id, profile, answered_at: now, completed: true, source: "form" };
         await env.HS_HEARING_KV.put("hearing:" + tokRec.store_id, JSON.stringify(record));
@@ -2719,6 +2977,39 @@ export default {
         return json({ ok: true, store_id: sid, applied, ignored: unknown });
       }
 
+      /* 2026-09-11 いま何が入っているかを、そのまま読む口(管理者のみ)。
+
+         直す口(/admin/profile-patch)は前からあったのに、読む口が無かった。
+         当て先の決まっていない返事(extra._unsorted)も、どの設問にどの印が付いているかも、
+         外から見る手段が無い。見ずに直すのは、当てずっぽうで人の言葉を動かすことになる。
+         読んでから直す。順番が要る。 */
+      if (path === "/admin/profile" && request.method === "GET") {
+        const sid0 = safeStr(url.searchParams.get("store"), 40).replace(/[^A-Za-z0-9_-]/g, "");
+        if (!sid0) return json({ error: "store_required" }, 400);
+        const rec0 = await env.HS_HEARING_KV.get("hearing:" + sid0, "json");
+        if (!rec0) return json({ error: "not_found", store_id: sid0 }, 404);
+        const st0 = await env.HS_HEARING_KV.get("store:" + sid0, "json");
+        const ap0 = (st0 && st0.autopilot) || {};
+        const ex0 = (rec0.profile && rec0.profile.extra) || {};
+        const marks = {};
+        for (const q of Object.keys(ex0)) {
+          const v = ex0[q];
+          marks[q] = (v && typeof v === "object")
+            ? { attributed: v.attributed || null, at: v.at || null,
+                with: v.with || [], asked: safeStr(v.asked, 200),
+                text: safeStr(v.text, 600) }
+            : { attributed: null, at: null, with: [], asked: "", text: safeStr(v, 600) };
+        }
+        return json({ ok: true, store_id: sid0,
+          company: (st0 && st0.company) || (rec0.profile && rec0.profile.company) || "",
+          completeness: ap0.completeness != null ? ap0.completeness : null,
+          needs_human: ap0.needs_human || null,
+          last_attributed: ap0.last_attributed || null,
+          pending: pendingQuestionList(st0),
+          estimates_for_audit: (rec0.profile && rec0.profile.estimates_for_audit) || [],
+          extra: marks,
+          profile: rec0.profile });
+      }
       if (path === "/admin/profile-patch" && request.method === "POST") {
         let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
         const sid = safeStr(b.store_id, 40);
