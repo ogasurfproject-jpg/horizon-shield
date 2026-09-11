@@ -170,12 +170,12 @@
    "m": "no001"
   }
  ],
- "updated_at": "2026-09-10T21:36:18Z",
+ "updated_at": "2026-09-11T02:21:53Z",
  "rebuilt_at": "2026-08-23",
  "rebuilt_why": "指紋から剥がす共通枠のパターンを直したため、計算結果が変わった。全エントリを一斉に入れ替えて整合を保った。古い台帳は yakumo-content-manifest.json.bak_prerebuild20260823 に残してある。",
  "stores": {
   "no002": "e8a01705206c",
-  "no001": "052de9928e2b"
+  "no001": "e9174080362b"
  },
  "pruned_at": "2026-09-07T14:58:32Z",
  "pruned": [
