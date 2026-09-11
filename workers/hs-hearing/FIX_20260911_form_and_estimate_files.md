@@ -145,3 +145,25 @@ at には _unsorted の at をそのまま渡す(答えた時刻を今の時刻�
 
 検査: admin_unsorted_test.mjs(実物の /admin/profile と /admin/profile-patch を mock KV で叩き、
 時刻の保存・巻き込みなし・手書き _unsorted の拒否・未来日付の拒否を確認)。全 suite 10/10 緑。
+
+---
+
+## 追記 2026-09-11 夜: アプリ内ブラウザ(LINE等)ではPDFが添付できない
+
+森下さま(No.001)が新しい用紙を開き、設問欄は出たが「見積書のPDFが送付できず、提出ができない」と。
+19:15 のスクショで用紙の「ファイルを選択」は本番で出ており、サーバも PDF を受ける
+(sniffFileType("%PDF")="application/pdf" を単体試験で確認済み)。**用紙もサーバも正常。**
+
+原因は開いた場所。森下さまは LINE のアプリ内ブラウザ(WKWebView)で開いていた。
+アプリ内ブラウザの file input は写真ライブラリしか出さないことが多く、PDF(Files の中)を選べない。
+これは環境側の制約で、こちらのコードの穴ではない。
+
+直し(用紙が案内していなかった点):
+- register/index.html と hearing.js の hearingForm の両方に、UA でアプリ内ブラウザ
+  (Line / FBAN / FBAV / Instagram / MicroMessenger / KAKAOTALK / Twitter)を検知し、
+  添付欄の横に「この画面では添付できないことがある。Safari で開いてから添付してください。
+  難しければ LINE のトークにそのまま送ってください」の警告帯を出す。Safari では出さない(UA判定で確認)。
+- accept を image/*,application/pdf に拡張子(.pdf/.jpg/.jpeg/.png/.heic)を足して広げた(念のため)。
+
+即時の回避(森下さまへ案内済み): 同じリンクを Safari で開いて添付、または見積書を LINE のトークに
+そのまま送ってこちらで取り込む(OA マネージャの「ダウンロード」で落として運営側からアップも可)。

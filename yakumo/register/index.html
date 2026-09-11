@@ -51,6 +51,8 @@
   .pqbox textarea{min-height:70px;}
   .estfile{margin-top:12px;}
   .estfile input[type=file]{padding:9px;font-size:13px;}
+  .inapp-warn{display:none;margin:10px 0 0;padding:11px 12px;border:1px solid var(--bronze);border-radius:9px;background:rgba(199,158,90,.08);color:var(--ink);font-size:13px;line-height:1.7;}
+  .inapp-warn b{color:var(--bronze);}
   .estfstat{font-size:12px;color:var(--dim);margin-top:6px;min-height:16px;}
   .done{display:none;text-align:center;padding:44px 12px;}
   .done h2{color:var(--verify);}
@@ -126,8 +128,9 @@
       <div class="estfile">
         <label>見積書そのものを送る <span class="opt">任意</span>
           <span class="hint">(写真・PDF。1枚8MBまで、6枚まで。運営が読み取ります。金額は施主向けに公開しません)</span></label>
-        <input type="file" id="estFiles" accept="image/*,application/pdf" multiple>
+        <input type="file" id="estFiles" accept="image/*,application/pdf,.pdf,.jpg,.jpeg,.png,.heic" multiple>
         <div class="estfstat" id="estFileStat"></div>
+        <div class="inapp-warn" id="estInapp"><b>ご注意:</b> いまアプリ内のブラウザ(LINE など)で開かれています。この画面では写真・PDF の添付ができないことがあります(写真しか選べない仕様のためです)。うまくいかないときは、画面右上のメニューから <b>Safari で開く</b> を選んでから添付してください。それも難しければ、見積書を LINE のトークにそのままお送りいただいても構いません。</div>
       </div>
 
       <div class="section-t">よくある質問</div>
@@ -296,6 +299,15 @@ $("f")?.addEventListener("submit",ev=>{
       }).catch(()=>alert("通信エラー。時間をおいて再度お試しください。"));
   });
 });
+
+// アプリ内ブラウザ(LINE/Facebook/Instagram など)では file input が写真しか出さず、
+// PDF が添付できない。検知して「Safari で開いて」の一言を添付欄に出す。
+// 森下さま(No.001)がこれに当たった: 用紙もサーバも正常だが、開いた場所が弾いていた。
+function inAppBrowser(){
+  var ua = navigator.userAgent || "";
+  return /(Line\/|FBAN|FBAV|Instagram|MicroMessenger|KAKAOTALK|Twitter)/i.test(ua);
+}
+if(inAppBrowser()){ var _w=$("estInapp"); if(_w) _w.style.display="block"; }
 
 // 起動: ?code= があれば読み込み、無ければコード入力
 const initial = getParam("code").replace(/[^A-Za-z0-9_-]/g,"");

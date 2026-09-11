@@ -386,6 +386,8 @@ function hearingForm(token, store, profile, pendingQs) {
 '.pqbox{border:1px solid #3FE0CE;border-radius:12px;padding:14px 14px 4px;margin:4px 0 22px;background:rgba(63,224,206,.05);}' +
 '.pqhd{font-size:13px;letter-spacing:.08em;color:#3FE0CE;font-weight:700;margin-bottom:6px;}' +
 '.estfile{margin-top:10px;}' +'.estfile input[type=file]{padding:8px;font-size:13px;}' +
+'.inapp-warn{display:none;margin:10px 0 0;padding:11px 12px;border:1px solid #C79E5A;border-radius:9px;background:rgba(199,158,90,.08);font-size:13px;line-height:1.7;}' +
+'.inapp-warn b{color:#C79E5A;}' +
 '.estfstat{font-size:12px;color:#B9C4D4;margin-top:6px;min-height:16px;}' +
 '</style></head><body><div class="wrap">' +
 '<div class="brand">' + escHtml(W.brand) + '</div>' +
@@ -440,8 +442,9 @@ W.works.map(function(w){return '<span class="chip'+(pfWorkSet.has(w)?' on':'')+'
 /* 2026-09-11 設問の本文では「写真でも、PDFでも、手書きのメモでも構いません」と
    言うておきながら、置く場所が一つも無かった。器をここに作る。 */
 '<div class="estfile"><label>見積書そのものを送る <span class="opt">任意</span> <span class="hint">(写真・PDF。1枚8MBまで、6枚まで。運営が読み取ります。金額は公開しません)</span></label>' +
-'<input type="file" id="estFiles" accept="image/*,application/pdf" multiple>' +
-'<div class="estfstat" id="estFileStat"></div></div>'
+'<input type="file" id="estFiles" accept="image/*,application/pdf,.pdf,.jpg,.jpeg,.png,.heic" multiple>' +
+'<div class="estfstat" id="estFileStat"></div>' +
+'<div class="inapp-warn" id="estInapp"><b>ご注意:</b> いまアプリ内のブラウザ(LINE など)で開かれています。この画面では写真・PDF の添付ができないことがあります。うまくいかないときは、画面のメニューから Safari で開いてから添付してください。難しければ、LINE のトークにそのままお送りいただいても構いません。</div></div>'
 : '') +
 
 '<label>' + escHtml(W.faqLabel) + ' <span class="hint">' + escHtml(W.faqHint) + '</span></label>' +
@@ -537,6 +540,7 @@ W.recruitRoles.map(function(w){return '<span class="chip" data-w="'+escHtml(w)+'
 '<script>' +
 'var TOKEN=' + JSON.stringify(token) + ';' +
 'document.querySelectorAll("#works .chip").forEach(function(c){c.addEventListener("click",function(){c.classList.toggle("on");});});' +
+'(function(){var ua=navigator.userAgent||"";if(/(Line\\/|FBAN|FBAV|Instagram|MicroMessenger|KAKAOTALK|Twitter)/i.test(ua)){var w=document.getElementById("estInapp");if(w)w.style.display="block";}})();' +
 'document.querySelectorAll("#rroles .chip").forEach(function(c){c.addEventListener("click",function(){c.classList.toggle("on");});});' +
 (W.estimates ?
 'var addEstBtn=document.getElementById("addEst");' +
