@@ -207,7 +207,7 @@ async function callTool(name, args, env) {
     if (storeRead.lookup === "failed") {
       return toolError(
         "The profile lookup failed: " + storeRead.reason + ". " +
-        "This is NOT the same as this contractor having no profile yet — no claim is made " +
+        "This is NOT the same as this contractor having no profile yet, no claim is made " +
         "about the contractor either way. Retry, or check the store record directly."
       );
     }
@@ -300,6 +300,22 @@ const PARTNER_COMPENSATION = {
   disclosure_url: "https://shield.the-horizons-innovation.com/verify-directory/"
 };
 
+
+// 2026-09-11 扉(MCP Verification Gate)の自動計測への同意を、origin 自身が証明する形で置く。
+//   扉の resolveConsent は、ソースの TOOL_CALL_CONSENT に無い endpoint でも、origin の
+//   /.well-known/mcp-conduct.json に allow_tool_call:true があれば determinism まで測って
+//   verified まで通す。このファイルを置けるのは origin の所有者だけ=申告やのうて証明。
+//   これで新しい加盟店MCPは、扉のソースを1行も書き換えずに、自動計測に乗れる。
+//   endpoints は自分の /mcp に絞る(他の口への同意を勝手に広げない)。
+function conductConsent(origin) {
+  return {
+    allow_tool_call: true,
+    endpoints: [origin + "/mcp"],
+    operator: { name: "The HORIZONs Co., Ltd. (HORIZON SHIELD)", for: "Yakumo WebMCP Partner" },
+    note: "The owner of this origin consents to the verification gate's determinism probe on the listed endpoint. Only the origin owner can place this file, so this is proof of consent, not a claim."
+  };
+}
+
 function agentCard(env, origin) {
   return {
     name: (env.PARTNER_NAME || "Yakumo加盟店") + " (Yakumo No.002)",
@@ -338,6 +354,9 @@ export default {
     }
     if (path === "/.well-known/agent-card.json") {
       return json(agentCard(env, url.origin));
+    }
+    if (path === "/.well-known/mcp-conduct.json") {
+      return json(conductConsent(url.origin));
     }
     if (path === "/mcp" && request.method === "POST") {
       let body;

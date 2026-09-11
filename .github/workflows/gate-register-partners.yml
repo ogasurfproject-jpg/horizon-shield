@@ -1,0 +1,72 @@
+# 加盟店MCPを、検証の扉(MCP Verification Gate)の登録簿に自動で載せる。
+#
+# なぜ要るか (2026-09-11):
+#   扉には器が全部そろっている。POST /watch で掃引の列に載り、origin の
+#   /.well-known/mcp-conduct.json(所有者しか置けない=証明)があれば
+#   determinism まで測って verified まで行ける。足りなかったのは配線だけ。
+#   これまでは扉のソースの DEFAULT_WATCHLIST と TOOL_CALL_CONSENT に
+#   店の URL を手でベタ書きし、扉を deploy し直していた。新しい店が来るたび
+#   それをやる = 手動。これをやめる。
+#
+#   この仕事は GitHub の runner から回るので、同一Cloudflareアカウントの
+#   worker 間で起きる 1104(エッジ弾き)を踏まない。扉自身も加盟店MCPも触らない。
+#   公開済みの roster を読み、webmcp の店の endpoint を導いて /watch に流すだけ。
+#   同意は各 origin の well-known ファイルが証明する(このジョブは同意を申告しない)。
+name: Gate register partners
+on:
+  push:
+    paths:
+      - data/yakumo-contractors.json
+  schedule:
+    - cron: "45 3 * * 1"
+  workflow_dispatch:
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Derive webmcp partner endpoints from the published roster
+        id: derive
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > endpoints.txt
+          import json, sys
+          try:
+              d = json.load(open("data/yakumo-contractors.json"))
+          except Exception as e:
+              sys.stderr.write("roster unreadable: %s\n" % e); sys.exit(0)
+          seen = set()
+          for c in (d.get("contractors") or []):
+              if c.get("webmcp_option") is not True:
+                  continue
+              mn = "".join(ch for ch in str(c.get("member_no") or "") if ch.isdigit())
+              if 1 <= len(mn) <= 3:
+                  ep = "https://p%s.horizonshield.dev/mcp" % mn.zfill(3)
+                  if ep not in seen:
+                      seen.add(ep); print(ep)
+          PY
+          echo "derived $(wc -l < endpoints.txt) endpoint(s):"
+          cat endpoints.txt
+      - name: Put each endpoint on the gate register (POST /watch)
+        run: |
+          set -uo pipefail
+          fail=0
+          while IFS= read -r ep; do
+            [ -z "$ep" ] && continue
+            echo "watch: $ep"
+            code=$(curl -sS -o resp.json -w '%{http_code}' \
+              -X POST https://gate.horizonshield.dev/watch \
+              -H 'content-type: application/json' \
+              --data "{\"endpoint\":\"$ep\"}" || echo "000")
+            echo "  http $code"
+            sed -n '1,20p' resp.json || true
+            echo
+            case "$code" in
+              2*) : ;;
+              *) fail=1 ;;
+            esac
+          done < endpoints.txt
+          if [ "$fail" -ne 0 ]; then
+            echo "::warning::one or more endpoints did not register (see log). The gate is the source of truth; a failed row is a fact, not a build break."
+          fi
+        continue-on-error: true
