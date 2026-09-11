@@ -125,3 +125,23 @@ worker が先、用紙があと。
 - 森下さまの 2026-09-10 11:21 の回答が `_unsorted` にある。人が当て直すこと。
   当て直しは `/admin/profile-patch` の `extra` に `{text, at}` を渡す
   (`at` を渡せば答えた時刻が保たれ、印は `legacy_confirmed` になる)。
+
+---
+
+## 追記 2026-09-11 夕: 当て先の決まらない返事を、消せるようにした
+
+穴3(_unsorted が誰の目にも触れない)に、E9(no_unsorted_reply)で名指しする所までは入れた。
+だが当て直したあと _unsorted を消す口が無く、消せないので E9 が永久に鳴った。
+
+- `/admin/profile-patch` の extra が `_unsorted: ""` を受けて消せるようにした。
+  _unsorted は手で書く物ではない(機械しか置かない)ので、**消すことだけ許す**。
+  非空の _unsorted を書こうとすると `unsorted_is_delete_only` で 400。
+- `GET /admin/profile?store=` を先に足してあるので、**読んでから当て直す**順が守れる。
+
+森下さま(hs-partner-001)の 2026-09-10 11:21 の回答(お客様の見つかり方)は q_ai_found への答え。
+手順: /admin/profile で _unsorted の中身を見て、q_ai_found であることを確かめてから、
+profile-patch の extra で `{q_ai_found:{text,at}, _unsorted:""}` を一度に送る。
+at には _unsorted の at をそのまま渡す(答えた時刻を今の時刻で潰さない=legacy_confirmed)。
+
+検査: admin_unsorted_test.mjs(実物の /admin/profile と /admin/profile-patch を mock KV で叩き、
+時刻の保存・巻き込みなし・手書き _unsorted の拒否・未来日付の拒否を確認)。全 suite 10/10 緑。

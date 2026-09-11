@@ -3061,8 +3061,21 @@ export default {
           }
           for (const q of Object.keys(IND.industryBank(rec.profile.industry) || {})) known.add(q);
           for (const q of VIS.visibilityQids()) known.add(q);
+          /* 2026-09-11 _unsorted(当て先の決まっていない返事の置き場)を、消せるようにする。
+             settlePendingOnAnswer は切り分け不能の1通を profile.extra._unsorted に1本だけ置く。
+             人が中身を見て正しい qid に当て直したあと、この置き場は用済みになる。
+             ところがこれまで profile-patch の extra は _unsorted を「知らない qid」として弾いていたので、
+             当て直しても _unsorted が残り、E9(no_unsorted_reply)が永久に鳴り続けた。
+             _unsorted は新しく手で書く物ではない(機械しか置かない)。だから消すことだけ許す。 */
+          known.add("_unsorted");
           const bad = Object.keys(extraIn).filter((q) => !known.has(q));
           if (bad.length) return json({ error: "unknown_qid", unknown: bad }, 400);
+          if (Object.prototype.hasOwnProperty.call(extraIn, "_unsorted")) {
+            const u = extraIn._unsorted;
+            const uStr = safeStr(u && typeof u === "object" ? u.text : u, 3000).trim();
+            if (uStr) return json({ error: "unsorted_is_delete_only",
+              note: "_unsorted は当て先の決まっていない返事の置き場。手で書く物ではない。正しい qid に当て直してから、空文字で消すこと。" }, 400);
+          }
           /* 2026-09-10 いつ答えたかを、印を押すときに潰さないこと。
              印の無い古い記録(2026-08-24 より前)を人が見て「これは本物の回答だ」と
              確かめたとき、これまでは同じ本文を入れ直すしか手が無かった。
