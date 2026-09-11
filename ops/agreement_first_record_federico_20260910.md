@@ -86,12 +86,12 @@ to file. No intake, no ledger entry, no anchor yet.
     {
       "domain": "horizonshield.dev",
       "key_url": "https://gate.horizonshield.dev/keys/agreement.json",
-      "public_key_ed25519_b64": "TODO prerequisite 1, generated off this machine",
+      "public_key_ed25519_b64": "Q8DJu/tXWNNzsrmIkIUm4r2cR4MYaXNf1E2j+oZi+oo=",
       "agent_card": "https://mcp.horizonshield.dev/.well-known/agent-card.json",
       "agent_card_sha256": "f36353620147490a954f39862346d37bf7bbf48868a7b9fb5c69f61e16a90d6d",
       "conduct_record": {
         "sha256": "9e058efa16789bb1911eb237a160f7c3bcebc520ba3ee4d74f6d469d02648eb8",
-        "url": "TODO once the walk record is filed; filing is a publish and is TOshi's hand",
+        "url": "https://ledger.horizonshield.dev/witness/9e058efa16789bb1911eb237a160f7c3bcebc520ba3ee4d74f6d469d02648eb8",
         "subject_domain": "api.babyblueviper.com",
         "measured_by_domain": "horizonshield.dev",
         "self_measured": true
@@ -266,11 +266,16 @@ Filled above from this run: both `agent_card_sha256` values and party A's
 `conduct_record.sha256`. Still open, and each is waiting on a person rather than a
 command:
 
-1. **The HORIZON SHIELD agreement key.** `openssl genpkey -algorithm ed25519`, TOshi's
-   hand, private half never named anywhere.
-2. **Party A's `conduct_record.url`.** The walk record exists but is not filed. Filing is
-   a publish, so it is TOshi's hand, and it should follow the decision in section 8 about
-   whether Federico sees the record first.
+1. ~~**The HORIZON SHIELD agreement key.**~~ Generated 2026-09-11 on the Mac. Public half
+   `Q8DJu/tXWNNzsrmIkIUm4r2cR4MYaXNf1E2j+oZi+oo=`, served by gate 0.4.7 at
+   `/keys/agreement.json` via `AGREEMENT_PUBKEY_B64`. The private half is in
+   `~/.hs_agreement_key.pem` and is named nowhere else.
+2. ~~**Party A's `conduct_record.url`.**~~ Filed 2026-09-11 by TOshi's hand to the witness
+   intake: `status: pending`, `counted: true`, unsigned. It joins the next daily
+   nenrin-witness-batch-v1 at 00:30 UTC and is stamped to Bitcoin on the operator's run.
+   Note the intake refused python's default User-Agent with 403 at the Cloudflare edge; curl
+   passed. The walk client's own comment says the same. Worth remembering before the next
+   filing.
 3. ~~**Party B's `conduct_record.url`.**~~ Filled 2026-09-11:
    `https://ledger.horizonshield.dev/witness/<sha>` answers 200 for that record.
    `/record/<sha>` and `/paths/<sha>` both answer 404, so `witness` is the shape, which
