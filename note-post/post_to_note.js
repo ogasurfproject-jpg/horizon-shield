@@ -447,24 +447,32 @@ function getTodayTheme(postedTitles) {
       return t;
     }
   }
-  // HS-NOTE-RECYCLE-20260901: 在庫が尽きたら、建築史以外の常緑テーマを長いクールダウンで再投稿する。
-  // 記事は毎回生成し直すので焼き直しでなく更新。前回投稿から RECYCLE_COOLDOWN_DAYS 超の中で一番古い1本。
-  // 日付が無いものは十分古いとみなす。全て冷却中なら null(=真のスキップ)。
-  {
+  // HS-NOTE-RECYCLE-20260901 / 重複コンテンツ対策 20260912:
+  // 常緑テーマの「再投稿」は、同じタイトルの記事を新しいURLで出す=重複コンテンツになり、
+  // Bing / GSC で重複判定・インデックス除外の対象になる。よって既定では再投稿しない。
+  // 在庫切れは真のスキップ(null)。どうしても再投稿する場合だけ NOTE_ALLOW_RECYCLE=1 を明示する。
+  // その場合でも、前回投稿日が実際に記録されている(posted_dates.json が永続化されている)テーマのうち、
+  // クールダウンを本当に超えたものだけを選ぶ。日付不明(null)のものは絶対に再投稿しない(重複の元)。
+  if (process.env.NOTE_ALLOW_RECYCLE === '1') {
     const _dates = loadPostedDates();
     let _best = null, _bestMs = Infinity, _bestDays = null;
     for (const _t of THEMES) {
       if (_t.series === 'kenchikushi') continue;
       const _iso = _dates[_t.title] || null;
-      const _ms = _iso ? Date.parse(_iso) : 0;
-      const _age = _iso ? (Date.now() - _ms) / 86400000 : Infinity;
+      if (!_iso) continue;                       // 日付不明は再投稿しない
+      const _ms = Date.parse(_iso);
+      if (isNaN(_ms)) continue;
+      const _age = (Date.now() - _ms) / 86400000;
       if (_age < RECYCLE_COOLDOWN_DAYS) continue;
-      if (_ms < _bestMs) { _best = _t; _bestMs = _ms; _bestDays = (_age === Infinity ? null : Math.round(_age)); }
+      if (_ms < _bestMs) { _best = _t; _bestMs = _ms; _bestDays = Math.round(_age); }
     }
     if (_best) {
       console.log('recycle floor:', _best.title, '(前回から', _bestDays, '日)');
       return Object.assign({}, _best, { _recycled: true, _lastDays: _bestDays });
     }
+    console.log('recycle 有効だが対象なし(日付記録済みで冷却超のテーマが無い)。スキップ。');
+  } else {
+    console.log('recycle 既定オフ(重複防止)。在庫切れのためスキップ。');
   }
   return null;
 }

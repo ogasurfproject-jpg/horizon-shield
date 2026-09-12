@@ -40,6 +40,6 @@ jobs:
         run: |
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
-          git add note-post/posted_titles.json || true
-          git diff --staged --quiet || git commit -m "chore: update posted_titles"
+          git add note-post/posted_titles.json note-post/posted_dates.json || true
+          git diff --staged --quiet || git commit -m "chore: update posted_titles/dates"
           git push || true
