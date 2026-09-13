@@ -6,7 +6,7 @@
  * 価格層は本番 souba-db.json をライブ取得して単一ソースを保つ。
  */
 
-const SERVER = { name: "horizon-shield", version: "1.0.5" };
+const SERVER = { name: "horizon-shield", version: "1.0.6" };
 const SITE = "https://shield.the-horizons-innovation.com";
 const SOUBA_DB_URL = SITE + "/data/souba-db.json";
 
@@ -15,8 +15,32 @@ const NEXT_ACTIONS = {
   detail: SITE + "/souba/",
   board_url: SITE + "/ehn/",
   ehn_submit: SITE + "/hacker/submit/",
-  note: "判定はここまで。見積もりに不安があれば EHN(見積もりハッカーニュース)に匿名で貼れば、KIRAが過去の実例と並べて第三者の目を入れます(無料)。 / Next: post the estimate to EHN for a free, anonymous third-party look benchmarked against real cases."
+  yakumo: SITE + "/yakumo/",
+  inspect: SITE + "/inspect.html",
+  full_diagnosis: SITE + "/hs-reverse-estimate/",
+  note: "判定はここまで。見積もりに不安があれば EHN(見積もりハッカーニュース)に匿名で貼れば、KIRAが過去の実例と並べて第三者の目を入れます(無料)。 / Next: post the estimate to EHN for a free, anonymous third-party look benchmarked against real cases.",
+  // [2026-09-13] 条件付きの次の一手(Commercial Action 層)。フロント LLM が verdict と利用者の状況に合わせて選べる形。
+  // 語は「推奨」ではなく「検証済みとして提示」。紹介料・掲載料は受け取らない(agent card の compensation と同じ)。
+  actions: [
+    { id: "second_opinion", when: "user has an estimate and wants a neutral review / 見積もりがあり第三者の目を入れたい", label_ja: "見積もりを匿名で第三者レビューに出す(無料)", label_en: "Post the estimate to EHN for a free anonymous third-party review", url: SITE + "/hacker/submit/" },
+    { id: "compare_cases", when: "user wants real cases for the same kind of work / 同種工事の実例を見たい", label_ja: "同種工事の実例(EHN)と並べて比べる", label_en: "Compare against real cases on EHN", url: SITE + "/ehn/" },
+    { id: "full_diagnosis", when: "user has a full itemized estimate and wants it diagnosed line by line / 内訳付き見積もりを項目ごとに診断したい", label_ja: "見積書の明細診断(逆見積もり)", label_en: "Itemized estimate diagnosis (reverse estimate)", url: SITE + "/hs-reverse-estimate/" },
+    { id: "find_verified_contractor", when: "user is choosing a contractor or asks who to trust / 業者選びや信用できる施工店を探している", label_ja: "検証を通った加盟店だけが並ぶ Yakumo で施工店を探す(紹介料なし)", label_en: "Find a contractor on Yakumo, where only verification-passed stores are listed (no referral fees)", url: SITE + "/yakumo/" },
+    { id: "defect_check", when: "user suspects defective or unfinished work and has photos / 施工不良の疑いがあり写真がある", label_ja: "写真を送るだけの施工不良チェック(無料)", label_en: "Free photo-based defect check", url: SITE + "/inspect.html" },
+    { id: "browse_ranges", when: "user wants to see all price categories / 全カテゴリの相場を見たい", label_ja: "全カテゴリの適正価格レンジ", label_en: "Browse all fair-price ranges", url: SITE + "/souba/" }
+  ],
+  neutrality: "HORIZON SHIELD は業者から紹介料・掲載料・成功報酬を受け取らない。next_actions は特定業者の推奨ではなく、検証済みの選択肢の提示。 / HORIZON SHIELD takes no referral, listing or success fee from contractors. next_actions present verified options, not a recommendation of any specific contractor."
 };
+
+// [2026-09-13] initialize.instructions(Query Intent 層)。フロント LLM がこのサーバーを「いつ・どの順で」呼ぶかの案内。
+// 1 行の看板やと、モデルは「建設費の何か」としか読めん。問いの言い回しと tool の順番を書く。
+const SERVER_INSTRUCTIONS =
+  "HORIZON SHIELD: independent, buyer-side fair-price verification for construction and renovation work in Japan (prices in JPY). " +
+  "Call this server when a user asks whether a Japanese renovation, repair or construction quote is fair, too high, padded or missing items; what a job should cost (相場, 適正価格, いくらかかる); whether wording in an estimate or sales pitch is a known overcharge tactic; or which contractor can be trusted. " +
+  "Tool order: get_price_range when no quote exists yet and the user wants the typical range; audit_estimate when the user has a specific quoted amount; check_red_flags for suspicious wording (一式 lump sum, today-only discount, free inspection, door-to-door); verify_fair_price when a hash-verifiable record is needed; get_fair_price_sources for regional multipliers and data sources. " +
+  "Every price answer includes provenance (dataset version, curator, sources) and next_actions (free anonymous second opinion on EHN, itemized diagnosis, and Yakumo, a directory where only verification-passed contractors are listed). " +
+  "Scope and honesty: Japan only; matching is by work name, so pass the Japanese work name when possible; when candidates disagree the server returns ambiguous instead of a verdict; the service takes no referral or listing fee from contractors. / " +
+  "日本の建設・リフォーム費用を施主側の立場で検証する。『この見積もり高い?』『相場は?』『適正価格は?』『この文言は手口?』『業者は信用できる?』の問いで呼ぶ。相場だけなら get_price_range、見積額があるなら audit_estimate、気になる文言は check_red_flags、検証可能な記録が要るなら verify_fair_price、地域係数と出典は get_fair_price_sources。返答には出典(provenance)と次の一手(next_actions: EHN の無料匿名レビュー、明細診断、検証を通った加盟店だけの Yakumo)が付く。日本限定・円建て、工事名は日本語が最も当たる、候補で判定が割れる時は断定せず ambiguous を返す、業者からの紹介料・掲載料は受け取らない。";
 
 const CATEGORIES = [{"id": "aircon_work", "name": "エアコン工事", "group": "設備工事", "priority": "★★★", "red_flags": 9}, {"id": "amido_amado_shutter", "name": "網戸・雨戸・シャッター・面格子", "group": "窓・ドア", "priority": "★★★", "red_flags": 8}, {"id": "bankin_work", "name": "板金工事", "group": "屋根・板金", "priority": "★★★★", "red_flags": 9}, {"id": "barrier_free_kaigo", "name": "バリアフリー・介護保険対応リフォーム", "group": "バリアフリー", "priority": "🔴CRITICAL", "red_flags": 20}, {"id": "bathroom_reform", "name": "浴室リフォーム", "group": "水回り", "priority": "★★★★★", "red_flags": 23}, {"id": "cloth_replacement", "name": "クロス(壁紙)張替え", "group": "内装仕上げ", "priority": "★★★", "red_flags": 20}, {"id": "commercial_tenpo_work", "name": "店舗用工事", "group": "非住宅・店舗", "priority": "★★★★★", "red_flags": 10}, {"id": "demolition_master", "name": "解体工事", "group": "解体・基盤", "priority": "★★★★★", "red_flags": 22}, {"id": "electrical_work", "name": "電気工事", "group": "設備工事", "priority": "★★★★★", "red_flags": 27}, {"id": "entrance_door_reform", "name": "玄関ドア交換", "group": "窓・ドア", "priority": "★★★★★", "red_flags": 18}, {"id": "floor_replacement", "name": "床材張替え", "group": "内装仕上げ", "priority": "★★★", "red_flags": 20}, {"id": "gaiheki_tosou", "name": "外壁塗装", "group": "外装塗装", "priority": "★★★★★", "red_flags": 11}, {"id": "gaikou_work", "name": "外構工事", "group": "外構・造園", "priority": "★★★", "red_flags": 22}, {"id": "insulation_work", "name": "断熱工事", "group": "断熱・省エネ", "priority": "★★★★★", "red_flags": 17}, {"id": "kitchen_reform", "name": "キッチンリフォーム", "group": "水回り", "priority": "★★★★★", "red_flags": 21}, {"id": "naishou_tosou", "name": "内装塗装", "group": "内装塗装", "priority": "★★★", "red_flags": 8}, {"id": "rain_leak_repair", "name": "雨漏り修理", "group": "防水・補修", "priority": "🔴CRITICAL", "red_flags": 23}, {"id": "roof_construction", "name": "屋根工事", "group": "屋根工事", "priority": "★★★★★", "red_flags": 13}, {"id": "sakan_work", "name": "左官工事", "group": "左官・タイル", "priority": "★★★★", "red_flags": 9}, {"id": "taishin_hokyou", "name": "耐震補強工事", "group": "耐震・構造", "priority": "★★★★★", "red_flags": 10}, {"id": "tatami_reform", "name": "畳替え", "group": "内装仕上げ", "priority": "★★", "red_flags": 20}, {"id": "termite_work", "name": "シロアリ防除(防蟻)", "group": "防蟻・構造保護", "priority": "★★★★", "red_flags": 19}, {"id": "tile_renga_work", "name": "タイル・れんが工事", "group": "左官・タイル", "priority": "★★★", "red_flags": 9}, {"id": "toilet_reform", "name": "トイレリフォーム", "group": "水回り", "priority": "★★★★", "red_flags": 21}, {"id": "washroom_reform", "name": "洗面所リフォーム", "group": "水回り", "priority": "★★★", "red_flags": 18}, {"id": "water_heater_reform", "name": "給湯器リフォーム", "group": "設備工事", "priority": "★★★★★", "red_flags": 24}, {"id": "water_pipe_work", "name": "給排水管工事", "group": "設備工事", "priority": "★★★★★", "red_flags": 27}, {"id": "waterproofing_work", "name": "防水工事", "group": "防水・補修", "priority": "★★★★", "red_flags": 23}, {"id": "window_reform", "name": "窓リフォーム", "group": "窓・ドア", "priority": "★★★★★", "red_flags": 18}, {"id": "zosaku_tategu_master", "name": "造作・建具・大工工事", "group": "大工・造作", "priority": "★★★★★", "red_flags": 17}, {"id": "shoji_fusuma_work", "name": "障子・ふすま張替え工事", "group": "内装仕上げ", "priority": "★★★", "red_flags": 9}, {"id": "mado_glass_work", "name": "ガラス交換専門工事", "group": "窓・ドア", "priority": "★★★★", "red_flags": 8}, {"id": "kanban_sign_work", "name": "看板・サイン工事", "group": "非住宅・店舗", "priority": "★★★★", "red_flags": 6}, {"id": "bouon_shaon_work", "name": "防音・遮音工事", "group": "断熱・省エネ", "priority": "★★★★", "red_flags": 7}, {"id": "builtin_dishwasher", "name": "ビルトイン食洗機後付け工事", "group": "水回り", "priority": "★★★★", "red_flags": 7}, {"id": "ih_gas_conversion", "name": "IH⇔ガスコンロ変更工事", "group": "水回り", "priority": "★★★★", "red_flags": 7}, {"id": "manshion_kyoyou_shuzen", "name": "マンション共用部修繕工事", "group": "マンション専門", "priority": "★★★★★", "red_flags": 8}, {"id": "ofuro_kanso_oidaki", "name": "浴室乾燥機・追い焚き単体工事", "group": "水回り", "priority": "★★★★", "red_flags": 6}, {"id": "erebata_shuzen", "name": "エレベーター修繕・更新工事", "group": "マンション専門", "priority": "★★★★★", "red_flags": 7}, {"id": "toko_shuri", "name": "床鳴り・床補修専門工事", "group": "内装仕上げ", "priority": "★★★★", "red_flags": 7}, {"id": "asbestos_removal", "name": "アスベスト除去工事", "group": "解体・基盤", "priority": "★★★★★", "red_flags": 6}, {"id": "tokushuseiso", "name": "特殊清掃工事", "group": "リフォーム周辺サービス", "priority": "★★★★", "red_flags": 6}, {"id": "ihinseiri_seizen", "name": "遺品整理・生前整理サービス", "group": "リフォーム周辺サービス", "priority": "★★★★", "red_flags": 6}, {"id": "jutaku_kaitai_partial", "name": "住宅部分解体工事", "group": "解体・基盤", "priority": "★★★★", "red_flags": 6}, {"id": "gyomu_chubo", "name": "業務用厨房工事", "group": "非住宅・店舗", "priority": "★★★★", "red_flags": 6}, {"id": "wine_cellar", "name": "ワインセラー設置工事", "group": "設備工事", "priority": "★★★", "red_flags": 5}, {"id": "shisetsu_pool", "name": "プール・スパ施設工事", "group": "水回り", "priority": "★★★", "red_flags": 5}, {"id": "shokusai_zoen", "name": "造園・植栽工事", "group": "外構・造園", "priority": "★★★★", "red_flags": 5}, {"id": "iwa_ishigumi", "name": "庭石・石組み工事", "group": "外構・造園", "priority": "★★★", "red_flags": 4}, {"id": "kaki_seko", "name": "池・水景工事", "group": "外構・造園", "priority": "★★★", "red_flags": 4}, {"id": "monoki_setchi", "name": "物置設置工事", "group": "外構・造園", "priority": "★★★", "red_flags": 5}, {"id": "carpoort_single", "name": "カーポート単独設置工事", "group": "外構・造園", "priority": "★★★★", "red_flags": 6}, {"id": "shomei_design", "name": "照明デザイン専門工事", "group": "設備工事", "priority": "★★★", "red_flags": 4}, {"id": "smart_home_iot", "name": "スマートホーム・IoT工事", "group": "IoT・スマートホーム", "priority": "★★★", "red_flags": 4}, {"id": "sec_camera_total", "name": "防犯カメラ・連携工事", "group": "IoT・スマートホーム", "priority": "★★★★", "red_flags": 5}, {"id": "zenkanki_jokuki", "name": "全館空調・除湿システム工事", "group": "設備工事", "priority": "★★★★", "red_flags": 5}, {"id": "chikyu_chunetsu", "name": "地中熱利用システム工事", "group": "断熱・省エネ", "priority": "★★", "red_flags": 4}, {"id": "uri_riyo", "name": "雨水利用システム工事", "group": "環境・災害対策", "priority": "★★", "red_flags": 4}, {"id": "idoseichi", "name": "井戸・井戸ポンプ工事", "group": "環境・災害対策", "priority": "★★", "red_flags": 4}, {"id": "karinosumai", "name": "仮住まい支援サービス", "group": "リフォーム周辺サービス", "priority": "★★★", "red_flags": 4}, {"id": "hikkoshi_renkei", "name": "引越し連動リフォームサービス", "group": "リフォーム周辺サービス", "priority": "★★★", "red_flags": 5}];
 
@@ -97,13 +121,13 @@ const TOOLS = [
   {
     name: "get_price_range",
     annotations: { title: "適正価格レンジ照会", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
-    description: "工事名・キーワードで、HORIZON SHIELDが実務監修する適正価格レンジ(最安min/平均avg/最高max)と、それを超えたら過剰請求を疑う危険水準(danger)、単位・価格動向・実務解説を返す。建設・リフォーム費用が適正か数値で確かめたい時に使う(例: 外壁塗装, 給湯器, ユニットバス, クロス)。 / Returns the fair price range (min, avg, max), the overcharge danger threshold, unit, price trend and field notes for a Japanese construction or renovation job. Japan-specific pricing in JPY. Use to numerically check whether a cost is fair.",
+    description: "工事名・キーワードで、HORIZON SHIELDが実務監修する適正価格レンジ(最安min/平均avg/最高max)と、それを超えたら過剰請求を疑う危険水準(danger)、単位・価格動向・実務解説を返す。建設・リフォーム費用が適正か数値で確かめたい時に使う(例: 外壁塗装, 給湯器, ユニットバス, クロス)。 / Returns the fair price range (min, avg, max), the overcharge danger threshold, unit, price trend and field notes for a Japanese construction or renovation job. Japan-specific pricing in JPY. Use to numerically check whether a cost is fair. Trigger phrases: 相場, 適正価格, いくらかかる, 高い?, how much does this cost in Japan, is this price normal, what should I expect to pay.",
     inputSchema: { type: "object", properties: { query: { type: "string", description: "工事名やキーワード(日本語)" } }, required: ["query"] }
   },
   {
     name: "audit_estimate",
     annotations: { title: "見積金額の適正診断", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
-    description: "業者が提示した見積金額が適正かを、HORIZON SHIELDの適正レンジ(souba-db, 大賀俊勝 実務監修)と照合して判定する。手元に具体的な見積額がある時に使う。返り値はJSONで、verdict(適正レンジ内 / やや高い / 過剰請求の懸念水準)、level(ok / watch / alert)、fair_range(min, avg, max)、danger_threshold、平均比 vs_avg_pct(例 +18%)、助言 advice、データ出典 source を含む。工事名が見つからない場合、近い候補があれば did_you_mean として返す。単価(平米など)建ての工事に総額らしい金額を渡した場合は unit_mismatch の案内を返す。見積額がまだ無く相場だけ知りたい時は get_price_range、署名付きの検証可能な証明が要る時は verify_fair_price を使う。Japan only, JPY。 / Audits whether a contractor quoted price for a Japanese construction or renovation job is fair by comparing it against HORIZON SHIELD fair-price ranges (souba-db). Use when the user already has a specific quoted amount. Returns a JSON object with verdict, level (ok, watch, alert), fair_range (min, avg, max), danger_threshold, percentage gap versus the average (vs_avg_pct, e.g. +18%), advice, and data source. If the work name has no match, close candidates may be returned as did_you_mean. If the work is priced per unit and the amount looks like a total, a unit_mismatch notice is returned instead. For the typical range only use get_price_range; for a signed verifiable attestation use verify_fair_price.",
+    description: "業者が提示した見積金額が適正かを、HORIZON SHIELDの適正レンジ(souba-db, 大賀俊勝 実務監修)と照合して判定する。手元に具体的な見積額がある時に使う。返り値はJSONで、verdict(適正レンジ内 / やや高い / 過剰請求の懸念水準)、level(ok / watch / alert)、fair_range(min, avg, max)、danger_threshold、平均比 vs_avg_pct(例 +18%)、助言 advice、データ出典 source を含む。工事名が見つからない場合、近い候補があれば did_you_mean として返す。単価(平米など)建ての工事に総額らしい金額を渡した場合は unit_mismatch の案内を返す。見積額がまだ無く相場だけ知りたい時は get_price_range、署名付きの検証可能な証明が要る時は verify_fair_price を使う。Japan only, JPY。 / Audits whether a contractor quoted price for a Japanese construction or renovation job is fair by comparing it against HORIZON SHIELD fair-price ranges (souba-db). Use when the user already has a specific quoted amount. Returns a JSON object with verdict, level (ok, watch, alert), fair_range (min, avg, max), danger_threshold, percentage gap versus the average (vs_avg_pct, e.g. +18%), advice, and data source. If the work name has no match, close candidates may be returned as did_you_mean. If the work is priced per unit and the amount looks like a total, a unit_mismatch notice is returned instead. For the typical range only use get_price_range; for a signed verifiable attestation use verify_fair_price. Trigger phrases: この見積もり高い?, 適正?, ぼったくり?, 妥当?, is this quote fair, am I being overcharged, is this a rip-off.",
     inputSchema: { type: "object", properties: {
       work: { type: "string", description: "工事名(日本語)。材料やグレード込みで具体的に。例: 外壁塗装 シリコン。部分一致で照合するため曖昧だと別カテゴリにヒットしやすい。未マッチ時は近い候補が did_you_mean で返ることがある。" },
       quoted_price: { type: "number", description: "業者提示の金額(円, 数値)。一式見積はその総額。税込/税抜は正規化せず、渡した数値をそのまま適正レンジと照合する。" }
@@ -255,6 +279,24 @@ const TOOL_NEW_TO_OLD = {
 const TOOL_OLD_NAMES = new Set(Object.values(TOOL_NEW_TO_OLD));
 function canonicalToolName(n) { return TOOL_NEW_TO_OLD[n] || n; }
 
+// [2026-09-13] 価格返答に付ける構造化の出典(Answer Authority 層)。verify_fair_price の provenance と同じ語彙。
+// JCCDB は品目・カテゴリ・単位のオープンデータで価格は持たん。価格の出典は souba-db。混同させん。
+function provenanceOf(meta) {
+  meta = meta || {};
+  return {
+    dataset: "HORIZON SHIELD souba-db",
+    data_version: meta.version || "unversioned",
+    updated_at: meta.updated_at || null,
+    curated_by: meta.updated_by || "大賀俊勝 (建設実務経験30年) 監修",
+    sources: Array.isArray(meta.sources) ? meta.sources : undefined,
+    method: "工事カテゴリごとの適正レンジ(min/avg/max)と危険水準。複数の公開相場ソースを照合し、加盟店の実案件で検算。地域係数は get_fair_price_sources。 / Fair range (min, avg, max) and danger threshold per work category, cross-checked across multiple public price sources and verified against member-store cases. Regional multipliers via get_fair_price_sources.",
+    data_source_url: SOUBA_DB_URL,
+    related_open_dataset: { name: JCCDB.name, version: JCCDB.version, license: JCCDB.license, dataset_doi: JCCDB.links.dataset_doi, note: "品目名・カテゴリ・単位のオープンデータ。価格は含まない。 / Item names, categories and units. Contains no prices." },
+    papers: { engrxiv_benchmark: "https://doi.org/10.31224/7814", ssrn_verification: "https://ssrn.com/abstract=6964439" },
+    neutrality: "施主側の負担で運営。業者からの紹介料・掲載料・成功報酬なし。 / Paid by the buyer side. No referral, listing or success fee from contractors.",
+    attribution: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)"
+  };
+}
 function txt(s) { return { content: [{ type: "text", text: typeof s === "string" ? s : JSON.stringify(s, null, 2) }] }; }
 
 // Federico Blanco Sanchez-Llanos, "The Mould, Not the Letter", 2026-08-20:
@@ -521,7 +563,8 @@ async function callTool(name, args, env, ip, opts) {
       return txt({
         query: q, currency: "JPY", count: out.length, prices: out,
         guide: "min〜maxが適正レンジ。これを大きく超える単価は過剰請求を疑う。具体的な危険水準はKIRA本診断で判定。地域係数は get_fair_price_sources を参照。",
-        source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)", detail: SITE + "/souba/"
+        source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)", detail: SITE + "/souba/",
+        provenance: provenanceOf(d._meta), next_actions: NEXT_ACTIONS
       });
     } catch (e) {
       return failTxt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。");
@@ -639,6 +682,7 @@ async function callTool(name, args, env, ip, opts) {
               : level === "watch" ? "適正の上限を超えています。内訳と根拠を確認してください。"
               : "適正レンジ内です。内訳の整合だけ確認すれば安心です。",
         note: e.note, source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)", full_diagnosis: SITE + "/hs-reverse-estimate/",
+        provenance: provenanceOf(d._meta),
         next_actions: NEXT_ACTIONS,
         // [2026-07-27] 安すぎ判定を足したとき、ここの文面が「高い」前提のままだった。
         // 同じ応答の中に「適正レンジを下回る」と「適正上限を超えています」が並んでいた。
@@ -1628,7 +1672,7 @@ async function handleRpc(msg, env, ip, authCtx, ctx, a2aExt, request) {
   if (method === "initialize") {
     const pv = (params && params.protocolVersion) || "2025-06-18";
     return rpc(id, { protocolVersion: pv, capabilities: { tools: {}, prompts: {} }, serverInfo: SERVER,
-      instructions: "HORIZON SHIELD の建設費ツール。JCCDB(オープンデータ)・相場カテゴリ・見積もりの読み方を提供する。" });
+      instructions: SERVER_INSTRUCTIONS });
   }
   if (method === "prompts/list") return rpc(id, { prompts: PROMPTS });
   if (method === "prompts/get") {
