@@ -32,6 +32,13 @@
     }
   ],
 
+  // ★2026-09-13 patch3。find_verified_contractor が hs-hearing の公開ライブ名簿(/contractors.json)を読む道。
+  //   mcp.horizonshield.dev も hearing.horizonshield.dev も同じ zone の Route なので、Worker から
+  //   公開 hostname 経由の fetch は通らん(本番実測: 静的 JSON に落ちとった)。hs-jidec-mcp -> hs-ledger と同じ形。
+  "services": [
+    { "binding": "HEARING_SVC", "service": "hs-hearing" }
+  ],
+
   // ★2026-08-11 第2段。mcp.horizonshield.dev をリポジトリから再現可能にする。
   //   これも現状を書き写すだけで、稼働中のものは変えない。
   //

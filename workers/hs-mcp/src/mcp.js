@@ -6,7 +6,7 @@
  * 価格層は本番 souba-db.json をライブ取得して単一ソースを保つ。
  */
 
-const SERVER = { name: "horizon-shield", version: "1.0.7" };
+const SERVER = { name: "horizon-shield", version: "1.0.8" };
 const SITE = "https://shield.the-horizons-innovation.com";
 const SOUBA_DB_URL = SITE + "/data/souba-db.json";
 
@@ -1031,10 +1031,20 @@ async function callTool(name, args, env, ip, opts) {
     const work = String(args.work || "").trim();
     const area = String(args.area || "").trim();
     let data = null, srcLabel = null;
+    // [2026-09-13 patch3] 同じ zone の Route 同士は公開 hostname 経由で fetch できん(本番実測で静的に落ちとった)。
+    // Service Binding を一番目に。無い環境(ローカル test など)は公開 fetch、それも駄目なら静的 JSON。
     try {
-      const r = await fetch(YAKUMO_LIVE_URL, { cf: { cacheTtl: 300 } });
-      if (r && r.ok) { data = await r.json(); srcLabel = "hs-hearing contractors.json (live KV)"; }
-    } catch (_e) { /* fall through to static */ }
+      if (env && env.HEARING_SVC && typeof env.HEARING_SVC.fetch === "function") {
+        const r = await env.HEARING_SVC.fetch(new Request(YAKUMO_LIVE_URL));
+        if (r && r.ok) { data = await r.json(); srcLabel = "hs-hearing contractors.json (live KV, service binding)"; }
+      }
+    } catch (_e) { /* fall through to public fetch */ }
+    if (!data) {
+      try {
+        const r = await fetch(YAKUMO_LIVE_URL, { cf: { cacheTtl: 300 } });
+        if (r && r.ok) { data = await r.json(); srcLabel = "hs-hearing contractors.json (live KV)"; }
+      } catch (_e) { /* fall through to static */ }
+    }
     if (!data) {
       try {
         const r = await fetch(YAKUMO_STATIC_URL, { cf: { cacheTtl: 3600 } });

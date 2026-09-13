@@ -37,15 +37,15 @@ const chk = (n, c, x = "") => {
   console.log((c ? "PASS  " : "FAIL  ") + n + (c ? "" : "  <<< " + String(x).slice(0, 240)));
   if (!c) fail++;
 };
-const rpcRaw = async (method, params) => {
+const rpcRaw = async (method, params, env) => {
   const r = await worker.fetch(new Request("https://hs-mcp.test/", {
     method: "POST", headers: { "content-type": "application/json" },
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
-  }), {}, { waitUntil() {} });
+  }), env || {}, { waitUntil() {} });
   return (await r.json()).result;
 };
-const call = async (name, args) => {
-  const res = await rpcRaw("tools/call", { name, arguments: args });
+const call = async (name, args, env) => {
+  const res = await rpcRaw("tools/call", { name, arguments: args }, env);
   const t = res && res.content && res.content[0] && res.content[0].text;
   let o; try { o = JSON.parse(t); } catch (e) { o = { _raw: String(t) }; }
   o._isError = !!(res && res.isError);
@@ -148,6 +148,20 @@ const DASH = new RegExp("[" + String.fromCharCode(0x2012, 0x2013, 0x2014, 0x2015
   const g = await call("find_verified_contractor", { area: "平塚" });
   chk("両方落ちたら isError(0 件とは言わん)", g._isError === true && g.count === undefined, JSON.stringify(g).slice(0, 200));
   liveMode = "ok"; staticMode = "ok";
+
+  // patch3: Service Binding が一番目。有れば公開 fetch は呼ばん。壊れとれば公開 fetch に落ちる。
+  let publicCalls = 0;
+  const origFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => { if (String(url && url.url ? url.url : url).includes("hearing.horizonshield.dev")) publicCalls++; return origFetch(url); };
+  const svcOk = { HEARING_SVC: { fetch: async (req) => new Response(JSON.stringify(FIX_LIVE), { headers: { "content-type": "application/json" } }) } };
+  const sv = await call("find_verified_contractor", { area: "平塚" }, svcOk);
+  chk("HEARING_SVC 有り: source に service binding、verified 1", /service binding/.test(sv.source) && sv.verified_count === 1, sv.source);
+  chk("  公開 fetch は呼ばれてへん", publicCalls === 0, publicCalls);
+  const svcBroken = { HEARING_SVC: { fetch: async () => { throw new Error("binding down"); } } };
+  const sb = await call("find_verified_contractor", { area: "平塚" }, svcBroken);
+  chk("HEARING_SVC が壊れとる: 公開 fetch(live)に落ちる", /live KV\)$/.test(sb.source) && sb.verified_count === 1, sb.source);
+  chk("  公開 fetch が 1 回呼ばれた", publicCalls === 1, publicCalls);
+  globalThis.fetch = origFetch;
 
   chk("next_actions.actions の find_verified_contractor に tool 名", a.next_actions.actions.find(x => x.id === "find_verified_contractor").tool === "find_verified_contractor");
   chk("返答にダッシュ無し", !DASH.test(JSON.stringify(a)));
