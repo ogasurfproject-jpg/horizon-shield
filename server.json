@@ -1,9 +1,9 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ogasurfproject-jpg/horizon-shield",
-  "title": "HORIZON SHIELD — construction & renovation estimate auditor",
-  "description": "Independent pre-transaction audit for construction estimates. Free, and every verdict recomputes.",
-  "version": "1.0.5",
+  "title": "HORIZON SHIELD: construction and renovation estimate auditor",
+  "description": "Fair-price check for Japanese renovation quotes: range, verdict, red flags, verified contractors.",
+  "version": "1.0.9",
   "websiteUrl": "https://shield.the-horizons-innovation.com",
   "icons": [
     {

@@ -42,7 +42,7 @@ const DASH = new RegExp("[" + String.fromCharCode(0x2012, 0x2013, 0x2014, 0x2015
     chk("instructions に " + w, ins.includes(w));
   }
   chk("instructions にダッシュ無し", !DASH.test(ins));
-  chk("serverInfo.version は 1.0.8", r.serverInfo && r.serverInfo.version === "1.0.8", JSON.stringify(r.serverInfo));
+  chk("serverInfo.version は 1.0.9", r.serverInfo && r.serverInfo.version === "1.0.9", JSON.stringify(r.serverInfo));
 }
 
 // ---- 2. tools/list: 主要 2 ツールに利用者の言い回し(trigger) ----
