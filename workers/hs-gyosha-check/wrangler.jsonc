@@ -2,5 +2,7 @@
   // 2026-08-09 live照合済み。デプロイ可。バインディング無し・cron 無し。
   "name": "hs-gyosha-check",
   "main": "src/worker.js",
-  "compatibility_date": "2026-03-30"
+  "compatibility_date": "2026-03-30",
+  // 2026-09-13: /check と /inspect が認証なしで Claude を叩けたので IP 単位の rate limit を追加(hs-gemini-audit と同方式)。
+  "ratelimits": [{ "name": "GYOSHA_RL", "namespace_id": "2001", "simple": { "limit": 8, "period": 60 } }]
 }

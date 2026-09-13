@@ -101,8 +101,10 @@ export default {
       return new Response(null, { headers: CORS_HEADERS });
     }
 
-    // ── Web公開ページ用エンドポイント ──
+    // -- Web公開ページ用エンドポイント --
     if (url.pathname === '/check' && req.method === 'POST') {
+      // 2026-09-13: 無認証で Claude を回せたので IP 単位で絞る(8/分)。CORS は * のままだが濫用は rate limit で止める。
+      if (env.GYOSHA_RL) { const rl = await env.GYOSHA_RL.limit({ key: req.headers.get('cf-connecting-ip') || 'anon' }); if (!rl.success) return new Response(JSON.stringify({ error: '短時間に多すぎます。少し待って再度お試しください。' }), { status: 429, headers: { 'Content-Type': 'application/json', ...CORS_HEADERS } }); }
       try {
         const { company } = await req.json();
         if (!company) {
@@ -134,8 +136,10 @@ export default {
     }
 
 
-    // ── 施工不良AI検出エンドポイント ──
+    // -- 施工不良AI検出エンドポイント --
     if (url.pathname === '/inspect' && req.method === 'POST') {
+      // 2026-09-13: 画像を Claude vision に無認証で投げられたので IP 単位で絞る(8/分)。
+      if (env.GYOSHA_RL) { const rl = await env.GYOSHA_RL.limit({ key: req.headers.get('cf-connecting-ip') || 'anon' }); if (!rl.success) return new Response(JSON.stringify({ error: '短時間に多すぎます。少し待って再度お試しください。' }), { status: 429, headers: { 'Content-Type': 'application/json', ...CORS_HEADERS } }); }
       try {
         const { images, category } = await req.json();
         if (!images || images.length === 0) {
@@ -232,7 +236,7 @@ defectsが空配列の場合はseverityを「低」にしてください。`;
     }
 
 
-    // ── 施工不良診断通知（フォールバック用） ──
+    // -- 施工不良診断通知（フォールバック用） --
     if (url.pathname === '/notify-inspection' && req.method === 'POST') {
       try {
         const { name, email, type, note, imageCount } = await req.json();
@@ -248,7 +252,7 @@ defectsが空配列の場合はseverityを「低」にしてください。`;
       }
     }
 
-    // ── LINE Webhook ──
+    // -- LINE Webhook --
     if (url.pathname === '/webhook' && req.method === 'POST') {
       const body = await req.json();
       ctx.waitUntil((async () => {
@@ -280,7 +284,7 @@ defectsが空配列の場合はseverityを「低」にしてください。`;
       return new Response('OK', { status: 200 });
     }
 
-    // ── テスト ──
+    // -- テスト --
     if (url.pathname === '/test') {
       const result = await checkContractor('テスト工務店株式会社', env.ANTHROPIC_API_KEY);
       return new Response(result, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
