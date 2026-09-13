@@ -4,6 +4,11 @@
 //   Authed writes: POST /ledger/append, GET /ledger/pending, POST /ledger/{n}/ots  (header X-Ledger-Key == env.LEDGER_ADMIN_TOKEN)
 // Storage: KV binding LEDGER. Stamping is done off-Worker by the GitHub Actions ots-CLI runner.
 
+// --- NENRIN Resume v1 (2026-09-13). Read-only assembly of anchored witness-walk records for one endpoint.
+// The core is shared with python (workers/hs-ledger/nenrin/resume-v1, byte-match 21/21); the worker only
+// injects its own Web Crypto hasher. No node imports in the core, so this bundles as is.
+import { assembleResume as assembleResumeV1, Reject as ResumeReject } from "../nenrin/resume-v1/resume_v1.mjs";
+
 const enc = new TextEncoder();
 
 const CORS = { "access-control-allow-origin": "*", "access-control-allow-methods": "GET,POST,OPTIONS", "access-control-allow-headers": "content-type,x-ledger-key,a2a-extensions,x-a2a-extensions,a2a-version", "access-control-expose-headers": "a2a-extensions,x-a2a-extensions" };
@@ -366,6 +371,14 @@ function parseClaimSchema(record_canonical) {
 // view, query, and re-walk paths. All reads are public; replay only re-fetches this
 // project's own workers.dev hosts (allowlist below) so it cannot be turned into an
 // open fetch proxy.
+// NENRIN witness batch (anchorWitnessPool): the batch lists record shas; the bytes live at wit:anchored:<sha>.
+function asWitnessBatch(record_canonical) {
+  try {
+    const j = JSON.parse(record_canonical);
+    if (j && j.schema === "nenrin-witness-batch-v1" && Array.isArray(j.records)) return j;
+  } catch {}
+  return null;
+}
 function asPathV1(record_canonical) {
   try {
     const j = JSON.parse(record_canonical);
@@ -616,6 +629,7 @@ function routeLabel(p, url) {
   if (p === "/ledger") return "ledger-index";
   if (p === "/paths") return "paths-index";
   if (p === "/paths/query") return "paths-query";
+  if (p === "/resume") return "resume";
   if (/^\/paths\/[0-9a-f]{64}\/replay$/i.test(p)) return "path-replay";
   if (/^\/paths\/[0-9a-f]{64}$/i.test(p)) return "path";
   if (/^\/verify\/\d+$/.test(p)) return "verify";
@@ -1014,6 +1028,48 @@ const recipeMarkdown = (r) => {
 // ルーティング本体。export default の fetch はこれを呼んで、返ってきた status を
 // 見てから看板の実測を1点書く。ここを分けたのは、応答コードまで含めて測るためである。
 // 「どの入口が 404 を返しているか」は、看板にとって最も重要な一列である。
+// NENRIN Resume v1, human-readable face. Plain text tables, no badges, no scores.
+function resumeMarkdown(r, origin) {
+  const esc = (v) => String(v === null || v === undefined ? "" : v).replace(/\|/g, "\\|").replace(/\n/g, " ");
+  const L = [];
+  L.push("# NENRIN Resume v1");
+  L.push("");
+  L.push("endpoint       " + r.measured_endpoint);
+  L.push("agent card     " + r.agent_card_url);
+  L.push("evaluated at   " + r.evaluated_at);
+  L.push("resume sha256  " + r.resume_sha256);
+  L.push("");
+  L.push("## counts, never scores");
+  L.push("");
+  L.push("PASS " + r.counts.PASS + "   FAIL " + r.counts.FAIL + "   distinct witnesses " + r.witness_diversity.distinct_names + "   distinct vantages " + r.witness_diversity.distinct_vantages);
+  L.push("last measured " + (r.freshness.last_measured || "none") + "   oldest " + (r.freshness.oldest_measurement || "none") + "   current_now " + r.freshness.current_now + " (period " + r.freshness.period_days + " d, fail-closed)");
+  L.push("");
+  L.push("## measurements, ascending ledger entry");
+  L.push("");
+  L.push("| entry | walked_at | outcome | pass/total | witness | vantage | bitcoin block | record |");
+  L.push("|---|---|---|---|---|---|---|---|");
+  for (const m of r.measurements)
+    L.push("| " + m.source_ledger_n + " | " + m.measured_at + " | " + m.outcome + " | " + esc(m.n_pass === null ? "?" : m.n_pass) + "/" + esc(m.n_total === null ? "?" : m.n_total) + " | " + esc(m.witness.name) + " | " + esc(m.witness.vantage) + " | " + m.anchor.bitcoin_block + " | " + (m.record_url || (origin + "/paths/" + m.record_sha256)) + " |");
+  if (!r.measurements.length) L.push("| (none anchored yet) | | | | | | | |");
+  L.push("");
+  L.push("## discrepancies, never dropped");
+  L.push("");
+  if (!r.discrepancies.length) L.push("none recorded");
+  for (const d of r.discrepancies) L.push("- " + d.record_sha256 + "  " + esc(JSON.stringify(d.disc)));
+  L.push("");
+  L.push("## not counted, shown so nothing is hidden");
+  L.push("");
+  if (!r.not_counted.length) L.push("none");
+  for (const x of r.not_counted) L.push("- entry " + x.n + "  " + x.ots_status + "  " + x.why + "  " + x.url);
+  L.push("");
+  L.push("## recompute");
+  L.push("");
+  L.push(r.recompute.how);
+  L.push("reference implementation: " + r.recompute.reference);
+  L.push("scan: seq " + r.scan.seq + ", read " + r.scan.entries_read + " (ceiling " + r.scan.ceiling + "), out of scope " + r.scan.out_of_scope);
+  return L.join("\n") + "\n";
+}
+
 async function handle(request, env) {
     const url = new URL(request.url);
     const p = url.pathname.replace(/\/+$/, "") || "/";
@@ -1021,7 +1077,7 @@ async function handle(request, env) {
     if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
 
     if (p === "/" || p === "/health")
-      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query", "/witness", "/witness/pending", "/witness/{sha}"], discovery: { api_catalog: "/.well-known/api-catalog", agent_card: "/.well-known/agent-card.json", jwks: "/.well-known/jwks.json", security_txt: "/.well-known/security.txt", llms_txt: "/llms.txt", a2a: "/a2a", cite: "/cite/{citation}", mcp: MCP_ORIGIN + "/mcp" }, transparency: TRANSPARENCY, privacy: PRIVACY });
+      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query", "/witness", "/witness/pending", "/witness/{sha}", "/resume?endpoint={url}"], discovery: { api_catalog: "/.well-known/api-catalog", agent_card: "/.well-known/agent-card.json", jwks: "/.well-known/jwks.json", security_txt: "/.well-known/security.txt", llms_txt: "/llms.txt", a2a: "/a2a", cite: "/cite/{citation}", mcp: MCP_ORIGIN + "/mcp" }, transparency: TRANSPARENCY, privacy: PRIVACY });
 
     /* ---------------------- 看板 routes (additive, read-only) ---------------------- */
 
@@ -1365,6 +1421,112 @@ async function handle(request, env) {
       };
       if (wantsMarkdown(request)) return md(recipeMarkdown(recipeDoc));
       return jsonV(recipeDoc);
+    }
+
+    // --- NENRIN Resume v1 (2026-09-13). GET /resume?endpoint=<https url> [&format=md]
+    // Read-only. Assembles the anchored (ots confirmed, block_time known) witness-walk records that
+    // measured this endpoint into one third-party-recomputable document. No new claim: every line
+    // points at a ledger entry whose bytes hash to its id. Fail-closed: one bad anchored record and
+    // the response is 422 naming the reason, never a resume assembled around it. Counts, never scores.
+    if (p === "/resume" && request.method === "GET") {
+      const ep = url.searchParams.get("endpoint");
+      let epUrl = null;
+      try { epUrl = ep ? new URL(ep) : null; } catch { epUrl = null; }
+      if (!epUrl || epUrl.protocol !== "https:")
+        return json({ error: "endpoint (https URL) required", example: `${origin}/resume?endpoint=${encodeURIComponent("https://mcp.horizonshield.dev/mcp")}` }, 400);
+      const epOrigin = epUrl.origin;
+      const seq = Number((await env.LEDGER.get("seq")) || 0);
+      // same read shape as GET /paths: newest first, parallel, ceiling 400
+      const ns = [];
+      for (let n = seq; n >= 1 && ns.length < 400; n--) ns.push(n);
+      const entries = await Promise.all(ns.map((n) => getEntry(env, n).then((e) => [n, e])));
+      const measurements = [];
+      const not_counted = [];
+      let out_of_scope = 0;
+      const anchoredOf = (e) => Boolean(e.ots_status === "confirmed" && e.bitcoin_block && e.block_time);
+      const anchorWhy = (e) => (e.ots_status === "confirmed" ? "confirmed_without_block_time" : "not_yet_anchored");
+      const inScope = (obj, sEndpoint) => {
+        let sOrigin = null;
+        try { sOrigin = sEndpoint ? new URL(sEndpoint).origin : null; } catch { sOrigin = null; }
+        const base = obj && typeof obj.base === "string" ? obj.base : null;
+        const touches = Boolean(obj && Array.isArray(obj.nodes) && obj.nodes.some((nd) => nd && nd.request && typeof nd.request.url === "string" && nd.request.url.startsWith(epOrigin)));
+        return sOrigin === epOrigin || sEndpoint === ep || base === epOrigin || base === ep || touches;
+      };
+      for (const [n, e] of entries) {
+        if (!e) continue;
+        // (a) a witness batch: unpack it. The batch anchors the shas; each record's bytes are at wit:anchored:<sha>.
+        //     Two-hop authentication: sha256(bytes) == sha (the core checks it) and sha is listed in the batch whose
+        //     bytes hash to the entry's claim (the batch entry is what the OpenTimestamps proof covers).
+        const batch = asWitnessBatch(e.record_canonical);
+        if (batch) {
+          const anchored = anchoredOf(e);
+          const items = await Promise.all(batch.records.map((r, idx) =>
+            (r && typeof r.sha === "string" ? env.LEDGER.get(`wit:anchored:${r.sha.toLowerCase()}`) : Promise.resolve(null))
+              .then((raw) => { let a = null; try { a = raw ? JSON.parse(raw) : null; } catch { a = null; } return [r, idx, a]; })));
+          for (const [r, idx, a] of items) {
+            const sha = r && typeof r.sha === "string" ? r.sha.toLowerCase() : null;
+            const st = a && a.stored;
+            const wurl = sha ? `${origin}/witness/${sha}` : null;
+            if (!sha || !st || typeof st.record_canonical !== "string") {
+              not_counted.push({ n, record_sha256: sha, why: "batch_lists_sha_but_stored_bytes_missing", url: wurl });
+              continue;
+            }
+            let obj = null;
+            try { obj = JSON.parse(st.record_canonical); } catch { obj = null; }
+            if (!inScope(obj, st.endpoint)) { out_of_scope++; continue; }
+            if (st.mode && st.mode !== "full") { not_counted.push({ n, record_sha256: sha, why: "commitment_unrevealed", url: wurl }); continue; }
+            if (st.counted === false) { not_counted.push({ n, record_sha256: sha, why: "stored_not_counted", detail: st.count_reason || null, url: wurl }); continue; }
+            if (!anchored) { not_counted.push({ n, record_sha256: sha, ots_status: e.ots_status || "unstamped", why: anchorWhy(e), url: wurl }); continue; }
+            measurements.push({
+              record_canonical: st.record_canonical, record_sha256: sha, record_url: wurl,
+              anchor: { bitcoin_block: e.bitcoin_block, block_time: e.block_time, ots: `${origin}/ledger/${n}/ots`, batch_sha256: e.claim_sha256 },
+              source_ledger_n: n, _k: [n, idx],
+            });
+          }
+          continue;
+        }
+        // (b) a witness walk anchored as its own entry (per-record path).
+        const obj = asPathV1(e.record_canonical);
+        if (!obj) continue;
+        if (!obj.witness || typeof obj.witness !== "object") { out_of_scope++; continue; } // a path, not a witness walk
+        if (!inScope(obj, null)) { out_of_scope++; continue; }
+        if (!anchoredOf(e)) {
+          not_counted.push({ n, record_sha256: e.claim_sha256, ots_status: e.ots_status || "unstamped", why: anchorWhy(e), url: `${origin}/paths/${e.claim_sha256}` });
+          continue;
+        }
+        measurements.push({
+          record_canonical: e.record_canonical, record_sha256: e.claim_sha256, record_url: `${origin}/paths/${e.claim_sha256}`,
+          anchor: { bitcoin_block: e.bitcoin_block, block_time: e.block_time, ots: `${origin}/ledger/${n}/ots`, batch_sha256: null },
+          source_ledger_n: n, _k: [n, 0],
+        });
+      }
+      // ascending ledger entry, then batch order: an order a third party can reproduce
+      measurements.sort((x, y) => (x._k[0] - y._k[0]) || (x._k[1] - y._k[1]));
+      for (const m of measurements) delete m._k;
+      const evaluated_at = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
+      let resume;
+      try {
+        resume = await assembleResumeV1(epOrigin, ep, `${epOrigin}/.well-known/agent-card.json`, measurements,
+          { sha256Hex: sha256hex, now: evaluated_at, period_days: 30 });
+      } catch (err) {
+        if (err instanceof ResumeReject)
+          return json({ error: "resume_refused", code: err.code, why: err.why, endpoint: ep,
+            note: "an anchored record failed authentication; the resume is fail-closed and names the reason instead of assembling around it" }, 422);
+        throw err;
+      }
+      const envelope = {
+        ...resume,
+        evaluated_at,
+        not_counted,
+        scan: { seq, entries_read: ns.length, ceiling: 400, out_of_scope },
+        recompute: {
+          how: "for each measurements[i]: GET record_url (the stored bytes) and confirm sha256(bytes) == record_sha256; if anchor.batch_sha256 is set, GET " + origin + "/ledger/{source_ledger_n}?format=raw, confirm sha256(batch bytes) == anchor.batch_sha256 and that record_sha256 is listed in records[].sha; GET anchor.ots and run `ots verify`; then canonical(resume without resume_sha256) with sorted keys and no whitespace, sha256 == resume_sha256",
+          reference: "workers/hs-ledger/nenrin/resume-v1/ (python + node, byte-match)",
+          evaluated_at_needed: "freshness.current_now is evaluated at evaluated_at with period_days",
+        },
+      };
+      if (url.searchParams.get("format") === "md" || wantsMarkdown(request)) return md(resumeMarkdown(envelope, origin));
+      return json(envelope);
     }
 
     // --- Paths (Phase 3, jidec-path-v1). Read endpoints are public; replay is host-allowlisted. ---

@@ -1,10 +1,12 @@
 // resume_v1.mjs : JS port of resume_v1.py. Same rules, same rejection codes,
 // byte-identical canonical form (sorted keys, no whitespace, raw UTF-8).
-// This is the logic the ledger worker route will call. M4: two implementations, one sha.
-import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+//
+// No node imports on purpose: the ledger worker bundles this file and passes its
+// own Web Crypto hasher. sha256Hex is injected (may be sync or async), so the
+// whole assembly is async. node users pass createHash (see resume_cli.mjs).
+// M4: two implementations, one sha.
 
-export const ALLOWED_OUTCOME = new Set(["verified", "held", "pending"]);
+export const ALLOWED_OUTCOME = new Set(["PASS", "FAIL"]);
 export const FORBIDDEN_SCORE_KEYS = new Set(["score", "rating", "stars", "points", "rank", "grade", "trust_score"]);
 
 export function canonical(v) {
@@ -15,7 +17,6 @@ export function canonical(v) {
   }
   return JSON.stringify(v);
 }
-export function sha256Hex(s) { return createHash("sha256").update(s, "utf8").digest("hex"); }
 
 export class Reject extends Error {
   constructor(code, why) { super(code + ": " + why); this.code = code; this.why = why; }
@@ -43,29 +44,36 @@ function scanForbidden(obj, path = "$") {
   }
 }
 
-export function checkMeasurement(m) {
+function verdictOf(rec) {
+  const v = rec.verdict;
+  if (v && typeof v === "object" && !Array.isArray(v)) return [g(v, "outcome"), g(v, "ok"), g(v, "n_pass"), g(v, "n_total")];
+  return [g(rec, "outcome"), null, null, null];
+}
+
+export async function checkMeasurement(m, sha256Hex) {
   const rc = m.record_canonical, claimed = m.record_sha256;
   if (typeof rc !== "string" || typeof claimed !== "string") throw new Reject("self_asserted", "measurement carries no record bytes to authenticate");
-  if (sha256Hex(rc) !== claimed) throw new Reject("orphan_record", "record_sha256 does not recompute from record_canonical bytes");
+  if ((await sha256Hex(rc)) !== claimed) throw new Reject("orphan_record", "record_sha256 does not recompute from record_canonical bytes");
   let rec;
   try { rec = JSON.parse(rc); } catch (_e) { throw new Reject("self_asserted", "record_canonical is not JSON"); }
-  if (!rec || typeof rec !== "object" || rec.schema !== "jidec-path-v1") throw new Reject("self_asserted", "record is not a jidec-path-v1 measurement");
+  if (!rec || typeof rec !== "object" || Array.isArray(rec) || rec.schema !== "jidec-path-v1") throw new Reject("self_asserted", "record is not a jidec-path-v1 measurement");
   scanForbidden(rec);
-  const outcome = rec.outcome;
-  if (!ALLOWED_OUTCOME.has(outcome)) throw new Reject("score_injection", "outcome must be a category, got " + JSON.stringify(outcome));
+  const [outcome, ok, nPass, nTotal] = verdictOf(rec);
+  if (!ALLOWED_OUTCOME.has(outcome)) throw new Reject("score_injection", "verdict.outcome must be a category, got " + JSON.stringify(outcome));
+  if (ok !== null && Boolean(ok) !== (outcome === "PASS")) throw new Reject("verdict_inconsistent", "verdict.ok disagrees with verdict.outcome");
   const w = rec.witness;
   if (!w || typeof w !== "object" || Array.isArray(w) || !pyTruthy(w.name) || !pyTruthy(w.vantage)) throw new Reject("self_asserted", "measurement has no witness{name,vantage}");
   const anchor = m.anchor || {};
   const blockTime = g(anchor, "block_time");
-  const measuredAt = pyOr(g(rec, "measured_at"), g(rec, "first_instant"));
+  const measuredAt = pyOr(pyOr(g(rec, "walked_at"), g(rec, "measured_at")), g(rec, "first_instant"));
   if (!pyTruthy(blockTime) || !pyTruthy(measuredAt)) throw new Reject("coordinate_chosen_by_prover", "no anchor block_time to bound the measurement time");
-  if (measuredAt > blockTime) throw new Reject("coordinate_chosen_by_prover", "measured_at is after the anchoring block (postdated)");
-  return [rec, outcome, w, measuredAt];
+  if (measuredAt > blockTime) throw new Reject("coordinate_chosen_by_prover", "walked_at is after the anchoring block (postdated)");
+  return [rec, outcome, w, measuredAt, nPass, nTotal];
 }
 
-function copyRing(r, discrepancies) {
+async function copyRing(r, discrepancies, sha256Hex) {
   const rc = r.record_canonical, claimed = r.record_sha256;
-  if (typeof rc !== "string" || sha256Hex(rc) !== claimed) throw new Reject("orphan_record", "ring record_sha256 does not recompute (M1)");
+  if (typeof rc !== "string" || (await sha256Hex(rc)) !== claimed) throw new Reject("orphan_record", "ring record_sha256 does not recompute (M1)");
   const rr = JSON.parse(rc);
   scanForbidden(rr);
   for (const d of pyOr(g(rr, "discrepancies"), [])) discrepancies.push({ record_sha256: claimed, disc: d });
@@ -82,14 +90,16 @@ function copyRing(r, discrepancies) {
   };
 }
 
-export function assembleResume(permaId, endpoint, agentCardUrl, measurements, opts = {}) {
+export async function assembleResume(permaId, endpoint, agentCardUrl, measurements, opts = {}) {
+  const sha256Hex = opts.sha256Hex;
+  if (typeof sha256Hex !== "function") throw new Error("assembleResume: opts.sha256Hex (string -> hex, sync or async) is required");
   const rings = opts.rings || [], agreements = opts.agreements || [];
   const periodDays = opts.period_days === undefined ? 30 : opts.period_days;
   const now = opts.now === undefined ? null : opts.now;
-  const outMeas = [], discrepancies = [], counts = { verified: 0, held: 0, pending: 0 };
+  const outMeas = [], discrepancies = [], counts = { PASS: 0, FAIL: 0 };
   const names = new Set(), vantages = new Set(), times = [];
   for (const m of measurements) {
-    const [rec, outcome, w, measuredAt] = checkMeasurement(m);
+    const [rec, outcome, w, measuredAt, nPass, nTotal] = await checkMeasurement(m, sha256Hex);
     counts[outcome] += 1; names.add(w.name); vantages.add(w.vantage); times.push(measuredAt);
     for (const d of pyOr(g(rec, "discrepancies"), [])) discrepancies.push({ record_sha256: m.record_sha256, disc: d });
     const anchor = m.anchor || {};
@@ -97,13 +107,18 @@ export function assembleResume(permaId, endpoint, agentCardUrl, measurements, op
       measured_at: measuredAt,
       record_sha256: m.record_sha256,
       outcome,
-      consent_source: g(rec, "consent_source"),
+      n_pass: nPass,
+      n_total: nTotal,
+      base: g(rec, "base"),
+      purpose: g(rec, "purpose"),
       witness: { name: w.name, vantage: w.vantage, key_url: g(w, "key_url") },
-      anchor: { bitcoin_block: g(anchor, "bitcoin_block"), block_time: g(anchor, "block_time"), ots: g(anchor, "ots") },
+      record_url: g(m, "record_url"),
+      anchor: { bitcoin_block: g(anchor, "bitcoin_block"), block_time: g(anchor, "block_time"), ots: g(anchor, "ots"), batch_sha256: g(anchor, "batch_sha256") },
       source_ledger_n: g(m, "source_ledger_n"),
     });
   }
-  const outRings = rings.map((r) => copyRing(r, discrepancies));
+  const outRings = [];
+  for (const r of rings) outRings.push(await copyRing(r, discrepancies, sha256Hex));
   const last = times.length ? times.reduce((a, b) => (a > b ? a : b)) : null;
   const oldest = times.length ? times.reduce((a, b) => (a < b ? a : b)) : null;
   const currentNow = Boolean(last && now && within(last, now, periodDays));
@@ -116,23 +131,6 @@ export function assembleResume(permaId, endpoint, agentCardUrl, measurements, op
     agreements: agreements.map((a) => ({ record_sha256: g(a, "record_sha256"), ledger_n: g(a, "source_ledger_n") })),
     freshness: { last_measured: last, oldest_measurement: oldest, current_now: currentNow, period_days: periodDays },
   };
-  resume.resume_sha256 = sha256Hex(canonical(resume));
+  resume.resume_sha256 = await sha256Hex(canonical(resume));
   return resume;
-}
-
-// CLI for the byte-match harness: node resume_v1.mjs --fixtures cases.json
-if (process.argv[2] === "--fixtures") {
-  const cases = JSON.parse(readFileSync(process.argv[3], "utf8")).cases;
-  const out = [];
-  for (const c of cases) {
-    try {
-      const a = c.args;
-      const r = assembleResume(a.perma_id, a.endpoint, a.agent_card_url, a.measurements,
-        { rings: a.rings, agreements: a.agreements, period_days: a.period_days, now: a.now });
-      out.push({ name: c.name, ok: true, sha: r.resume_sha256 });
-    } catch (e) {
-      out.push({ name: c.name, ok: false, code: e instanceof Reject ? e.code : "ERROR:" + e.message });
-    }
-  }
-  process.stdout.write(JSON.stringify({ results: out }));
 }

@@ -1,19 +1,20 @@
 """resume_v1.py : NENRIN Resume v1 reference assembler (offline, deterministic).
 
-The resume makes no new claim. It assembles existing jidec-path-v1 measurement
-records and ring records under one perma-id and refuses, by construction, any
-line that is not authenticated by its own bytes. Same canonicalization as
-make_ring.py so the bytes match the worker.
+The resume makes no new claim. It assembles existing jidec-path-v1 witness-walk
+records (a2a_conduct_walk.py shape: verdict{ok,outcome,n_pass,n_total}, walked_at,
+base, witness{name,vantage}, nodes[]) under one identity and refuses, by
+construction, any line that is not authenticated by its own bytes. Same
+canonicalization as make_ring.py so the bytes match the worker.
 
 Three laws enforced here:
   1. no self-asserted line  (every line comes from a record whose bytes hash to its sha)
   2. discrepancies are copied verbatim, never dropped
-  3. no score is ever emitted (counts and links only)
+  3. no score is ever emitted (counts and links only; PASS/FAIL and n_pass/n_total are counts)
 """
 import json, hashlib
 from datetime import datetime, timezone
 
-ALLOWED_OUTCOME = {"verified", "held", "pending"}
+ALLOWED_OUTCOME = {"PASS", "FAIL"}  # witness-walk vocabulary (verdict.outcome)
 FORBIDDEN_SCORE_KEYS = {"score", "rating", "stars", "points", "rank", "grade", "trust_score"}
 
 
@@ -51,37 +52,45 @@ def _scan_forbidden(obj, path="$"):
             _scan_forbidden(v, path + "[" + str(i) + "]")
 
 
+def _verdict(rec):
+    """verdict{ok,outcome,n_pass,n_total} (walk shape). Legacy: top-level outcome, no ok."""
+    v = rec.get("verdict")
+    if isinstance(v, dict):
+        return v.get("outcome"), v.get("ok"), v.get("n_pass"), v.get("n_total")
+    return rec.get("outcome"), None, None, None
+
+
 def check_measurement(m):
-    """Authenticate one measurement. Returns (rec, outcome, witness, measured_at) or raises Reject."""
+    """Authenticate one measurement. Returns (rec, outcome, witness, measured_at, n_pass, n_total) or raises Reject."""
     rc = m.get("record_canonical")
     claimed = m.get("record_sha256")
     if not isinstance(rc, str) or not isinstance(claimed, str):
         raise Reject("self_asserted", "measurement carries no record bytes to authenticate")
-    # M1: the sha must recompute from the exact bytes (orphan / doctored record caught here)
     if sha256_hex(rc) != claimed:
         raise Reject("orphan_record", "record_sha256 does not recompute from record_canonical bytes")
     try:
         rec = json.loads(rc)
     except Exception:
         raise Reject("self_asserted", "record_canonical is not JSON")
-    if rec.get("schema") != "jidec-path-v1":
+    if not isinstance(rec, dict) or rec.get("schema") != "jidec-path-v1":
         raise Reject("self_asserted", "record is not a jidec-path-v1 measurement")
     _scan_forbidden(rec)
-    outcome = rec.get("outcome")
+    outcome, ok, n_pass, n_total = _verdict(rec)
     if outcome not in ALLOWED_OUTCOME:
-        raise Reject("score_injection", "outcome must be a category in " + str(sorted(ALLOWED_OUTCOME)) + ", got " + repr(outcome))
+        raise Reject("score_injection", "verdict.outcome must be a category in " + str(sorted(ALLOWED_OUTCOME)) + ", got " + repr(outcome))
+    if ok is not None and bool(ok) != (outcome == "PASS"):
+        raise Reject("verdict_inconsistent", "verdict.ok disagrees with verdict.outcome")
     w = rec.get("witness")
     if not isinstance(w, dict) or not w.get("name") or not w.get("vantage"):
         raise Reject("self_asserted", "measurement has no witness{name,vantage}")
-    # coordinate: measured_at bounded by a prover-non-owned anchor time (postdating refused)
     anchor = m.get("anchor") or {}
     block_time = anchor.get("block_time")
-    measured_at = rec.get("measured_at") or rec.get("first_instant")
+    measured_at = rec.get("walked_at") or rec.get("measured_at") or rec.get("first_instant")
     if not block_time or not measured_at:
         raise Reject("coordinate_chosen_by_prover", "no anchor block_time to bound the measurement time")
     if measured_at > block_time:
-        raise Reject("coordinate_chosen_by_prover", "measured_at is after the anchoring block (postdated)")
-    return rec, outcome, w, measured_at
+        raise Reject("coordinate_chosen_by_prover", "walked_at is after the anchoring block (postdated)")
+    return rec, outcome, w, measured_at, n_pass, n_total
 
 
 def _copy_ring(r, discrepancies):
@@ -110,12 +119,12 @@ def assemble_resume(perma_id, endpoint, agent_card_url, measurements,
     agreements = agreements or []
     out_meas = []
     discrepancies = []
-    counts = {"verified": 0, "held": 0, "pending": 0}
+    counts = {"PASS": 0, "FAIL": 0}
     names = set()
     vantages = set()
     times = []
     for m in measurements:
-        rec, outcome, w, measured_at = check_measurement(m)
+        rec, outcome, w, measured_at, n_pass, n_total = check_measurement(m)
         counts[outcome] += 1
         names.add(w["name"])
         vantages.add(w["vantage"])
@@ -127,9 +136,13 @@ def assemble_resume(perma_id, endpoint, agent_card_url, measurements,
             "measured_at": measured_at,
             "record_sha256": m["record_sha256"],
             "outcome": outcome,
-            "consent_source": rec.get("consent_source"),
+            "n_pass": n_pass,
+            "n_total": n_total,
+            "base": rec.get("base"),
+            "purpose": rec.get("purpose"),
             "witness": {"name": w["name"], "vantage": w["vantage"], "key_url": w.get("key_url")},
-            "anchor": {"bitcoin_block": anchor.get("bitcoin_block"), "block_time": anchor.get("block_time"), "ots": anchor.get("ots")},
+            "record_url": m.get("record_url"),
+            "anchor": {"bitcoin_block": anchor.get("bitcoin_block"), "block_time": anchor.get("block_time"), "ots": anchor.get("ots"), "batch_sha256": anchor.get("batch_sha256")},
             "source_ledger_n": m.get("source_ledger_n"),
         })
     out_rings = [_copy_ring(r, discrepancies) for r in rings]

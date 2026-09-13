@@ -1,79 +1,74 @@
 # NENRIN Résumé v1 〜 可搬・第三者検算可能なエージェント行動履歴
 
-Status: DRAFT (番人設計、TOshi 決裁待ち)。commit/deploy は TOshi の手。
-Anchor target: 決裁後、本ドキュメントの SHA-256 を JIDEC 台帳に刻む。
+Status: 実装済(route + python/node 二実装 + 敵)、配備待ち(TOshi の手)。
+Anchor target: 配備後、本ドキュメントの SHA-256 を JIDEC 台帳に刻む。
 
 ## 0. 一行の定義
 
-履歴書は新しい主張を一切しない。既存の JIDEC 録を 1 つの perma-id の下に集約して「指す」だけの読み取り面である。行の中身は全部、検証者が測って証人が錨打った測定に由来する。エージェントは自分の履歴書に一行も書けない。
+履歴書は新しい主張を一切しない。既存の JIDEC 録を 1 つのエージェント(origin)の下に集約して「指す」だけの読み取り面である。行の中身は全部、証人が測って台帳が錨打った記録に由来する。エージェントは自分の履歴書に一行も書けない。
 
 ## 1. 何を解くか
 
 README の問題設定「Discovery is solved. Choice is not.」への直接の答え。
 「このエージェントは過去どう振る舞ったか」を、可搬・改ざん不能・第三者検算可能な 1 枚にする。判定(ALLOW/BLOCK)は使い捨てだが、履歴書は積み上がる。積み上がりが堀になる。
 
-## 2. キーと口
+## 2. 識別子と口
 
-- キー: perma-id (https://w3id.org/horizonshield/conduct namespace、perma-id/w3id.org#6653) + measured endpoint。
-- 口: GET /resume/<id>。JSON 既定。Accept: text/markdown で人間可読。
-- 検算: GET /resume/<id>/verify は独立検証レシピを返す(JIDEC v1 の verifier recipe と同型)。
-- 実装: 既存の /paths/query と /ledger を endpoint で絞って集約するだけ。新規の信頼計算はゼロ = 薄い worker。
+- identity(perma_id)= エージェントの origin(例 https://mcp.horizonshield.dev)。同じ origin の /mcp と /a2a は同一エージェント。将来 w3id の per-agent 永続識別子に差し替え可。
+- 口: GET /resume?endpoint=<https url> [&format=md]。JSON 既定。Accept: text/markdown か format=md で人間可読(平文の表、バッジ無し、スコア無し)。
+- 実装: 台帳 worker(hs-ledger)の薄い route。既存の entry 読み(GET /paths と同じ、新しい方から並列、天井 400)に乗る。扉(hs-verify-gate)は無改造。
 
-## 3. 中身(既存録の集約のみ)
+## 3. 何を集めるか(台帳の実形)
 
-- identity: perma_id, agent_card_url, measured_endpoint
-- measurements[]: 各 { measured_at, record_sha256, outcome (verified|held|pending), consent_source, tool, witness[]{name, vantage, key_url?}, anchor{ots, bitcoin_block}, source_ledger_n }
-- discrepancies[]: 隠さず全部 { record_sha256, first_instant, disc, signed }
-- rings[]: 月次集約 { month, endpoint, counts (copied not recomputed), determinism, derived, digest, ledger_n }
-- freshness: { last_measured, current_now (fail-closed), period, oldest_measurement }
-- agreements[]: 当事者の合意録 { record_sha256, ledger_n }
-- self_description: 無し。存在しないフィールド。
+証人録は個別 entry ではなく nenrin-witness-batch-v1 の束ね entry に錨打たれ、束ねは各録の sha だけを列挙し、録の元バイトは KV の wit:anchored:<sha> にある。よって 1 行の認証は二段:
+  hop 1  sha256(録の元バイト) == record_sha256(核が検算)
+  hop 2  record_sha256 が束ね bytes の records[].sha に含まれ、sha256(束ね bytes) == entry の claim(= anchor.batch_sha256)、その entry に OpenTimestamps 証明
+録が自分の entry として錨打たれた場合(per-record path)は hop 1 + entry の claim で足りる(anchor.batch_sha256 は null)。
 
-## 4. ソフトに付ける 5 つの堀(不変条件、構造で強制)
+核に渡すのは full mode・counted・錨付き(ots confirmed かつ block_time あり)の録だけ。渡さない録は envelope の not_counted に理由付きで全部出す:
+  not_yet_anchored / confirmed_without_block_time / commitment_unrevealed / stored_not_counted(同一証人・同一 endpoint・同日) / batch_lists_sha_but_stored_bytes_missing
+対象外(他 origin、証人の無い path)は scan.out_of_scope に数える。隠すものは無い。
 
-コードを秘密にする堀は MIT で死ぬ。ここで付ける堀は「出力を自己認証にし、中立を外部から検算可能にする」ことで、同じコードを fork しても錨・証人・敵対検証の実体が無ければ出力が目に見えて弱くなる、という種類の堀である。
+## 4. 出力(核が返す resume と envelope)
 
-M1 自己認証する出力: 各行は record_sha256 + OTS/Bitcoin anchor を内包する。/record/<sha> でバイトを取得し第三者が再計算する。postdating(未来時刻詐称)は prover 非所有の Bitcoin anchor で構造的に refuse。fork はコードを持てても、錨の無い行は信用ゼロで、錨は実時間でしか積めない。
+resume(sha の対象): schema, perma_id, measured_endpoint, agent_card_url, counts{PASS,FAIL}, witness_diversity{distinct_names,distinct_vantages}, measurements[], discrepancies[], rings[], agreements[], freshness{last_measured,oldest_measurement,current_now,period_days}, resume_sha256
+measurements[i]: measured_at(=walked_at), record_sha256, outcome(PASS|FAIL), n_pass, n_total, base, purpose, witness{name,vantage,key_url}, record_url, anchor{bitcoin_block,block_time,ots,batch_sha256}, source_ledger_n
+順序: entry 昇順 → 束ね内順(第三者が再現できる順)。
+envelope(sha の外): evaluated_at(freshness の評価時刻、再計算に必要), not_counted[], scan{seq,entries_read,ceiling,out_of_scope}, recompute{how,reference,evaluated_at_needed}
+resume_sha256 = sha256(canonical(resume から resume_sha256 を除いたもの))、canonical = キー辞書順・空白無し・非 ASCII 生(make_ring と同一)。
 
-M2 中立の外部検算可能性: 座標は prover 非所有の源から導出する(join/census/freshness の規律を継承)。全フィールド名を公開する。閉じた競合は「中立です」を検算可能な形で主張できない。open であること自体が堀になる(field-names-published-on-purpose)。
+## 5. ソフトに付ける 5 つの堀(不変条件、構造で強制)
 
-M3 証人の多様性を露出する: 各行の witness{name, vantage} を表に出し、header に witness-diversity のカウントを出す。自己証人だけの薄い履歴書は「薄い」と一目で分かる。fork はコードを持てても証人ゼロ。
+M1 自己認証する出力: 各行は record_sha256 + Bitcoin anchor を内包。元バイトを取って第三者が再計算する。postdating は prover 非所有の block_time で構造的に refuse。fork はコードを持てても錨の無い行は信用ゼロで、錨は実時間でしか積めない。
+M2 中立の外部検算可能性: 座標は prover 非所有の源から導出。全フィールド名を公開。open であること自体が堀。
+M3 証人の多様性を露出: 各行の witness{name,vantage} と header の distinct カウント。薄い履歴書は薄いと分かる。
+M4 決定論を標準にする: python と node が同じバイト・同じ拒否コード(byte-match)。fork 可能なコードでなく皆が検算する参照標準。
+M5 敵が製品: 公開 red-team。check を緩めた fork は公開ハーネスで落ちる。
 
-M4 決定論を標準にする: 履歴書のバイトは canonical(RFC 8785 形)。独立実装が同じ sha を再計算できる(NENRIN は既に Python + Node でバイト一致の前例あり)。fork 可能なコードではなく、皆が検算する参照標準になる。
+## 6. 3 つの掟(2026-09-13 合意)
 
-M5 敵が製品: 公開 red-team(§7)。check を緩めた fork は公開ハーネスで落ちる。「うちの敵をお前の fork に当てて見てみ」が成立する。
+1. 自己申告の行はゼロ。行は測定由来のみ(M1〜M3 で構造強制)。
+2. Discrepancy は一級市民。必ず載せる。
+3. スコア・星・信用点は出さない。カウントとリンクだけ(PASS/FAIL、n_pass/n_total はカウント)。
 
-## 5. 3 つの掟(2026-09-13 合意)
+## 7. 核の拒否(fail-closed。1 行でも落ちれば route は 422 で理由を名指しし、周りだけで組み立てない)
 
-1. 自己申告の行はゼロ。行は測定由来のみ。構造で不可能にする(M1〜M3)。
-2. Discrepancy は一級市民。522/Witness B のような食い違いも必ず載せる。隠した瞬間に価値ゼロ。
-3. スコア・星・信用点は出さない。カウントとリンクだけ。格付けバッジの履歴書は作らない。
+self_asserted(バイト無し / jidec-path-v1 でない / witness{name,vantage} 無し) / orphan_record(バイトが sha に一致しない) / score_injection(verdict.outcome が PASS|FAIL 以外、または score 系キー) / verdict_inconsistent(verdict.ok と outcome が食い違う) / coordinate_chosen_by_prover(block_time 無し、または walked_at が block_time より後 = postdated)
 
-## 6. route 設計
+## 8. 検証(全部 offline・決定論、この dir で)
 
-- GET /resume/<id>: /paths/query(endpoint 絞り込み)+ /ledger の既存 route を集約。
-- GET /resume/<id>?format=md: 人間可読(スイス組版に寄せる。角丸・影・色付きピル無し、カウントと sha のヘアライン表)。
-- GET /resume/<id>/verify: 検算レシピ。
-- 扉本体(hs-verify-gate)は無改造。履歴書は台帳(hs-ledger)の仕事。扉は「今この瞬間の判定」に専念。
+    python3 resume_redteam.py        控え 4 + 攻撃 8 + 正直 limit 1 + legacy 1 = 14/14
+    python3 resume_bytematch.py      python vs node、21 ケースで sha と拒否コード一致(M4)
+    node --experimental-default-type=module resume_route_selftest.mjs
+                                     実 worker.js を KV モックで叩く。束ね二段認証・仕分け・順序・422・md・400・空台帳 = 19/19
+配備の門(Mac): cd workers/hs-ledger && npx wrangler deploy --dry-run --outdir /tmp/hsl-bundle(核が bundle に入り node import が無いことの確認)→ npx wrangler deploy → 本番 curl。
 
-## 7. red-team 敵(実装する)
+## 9. 未解決(正直に)
 
-- inject_self_asserted_line: 測定由来でない行を注入 → reject
-- hide_discrepancy: discrepancy のある月を無しで出す → reject
-- prover_chosen_coordinate: prover が選んだ measured_at/endpoint を座標に使う → reject (M2)
-- orphan_record: record_sha256 が /record でバイト取得できない → reject
-- score_injection: outcome をスコア化/星化 → 出さない(counts only)
-- backdated_anchor: anchor が測定時刻より後 → postdating は M1 で構造 refuse
+- backdating(現実より古い walked_at)は前方 anchor では捕まらない = 再測定(ring)のみ。freshness は fail-closed(period 外は current_now:false)。
+- 履歴の厚みは format では作れない。今日の本番は自前の証人が大半で薄い。厚みは時間と独立証人でしか積めない。
+- rings[] / agreements[] は核が受けられるが、v1 の route はまだ渡していない(空)。次版で ring entry と合意録を同じ二段認証で載せる。
 
-決定論・fail-closed・クラス生成・欠陥をログに残す、を NENRIN の既存ハーネスと同型で。
+## 10. 堀の正体(まとめ)
 
-## 8. 未解決(正直に)
-
-- backdating(現実より古い measured_at)は前方 anchor では捕まらない = 再測定(ring)のみ。
-- currency(古い有効録が「今」を表すか)は fail-closed 既定(period 外は current_now:false)。
-- census 闇(名乗っていない集合)は判定に効く母集団では空(呼べる = CT 必載)。
-すべて NENRIN の既存 limit と同根。閉じたフリはしない。
-
-## 9. 堀の正体(まとめ)
-
-route 自体は MIT で fork 可。でも fork は空の台帳・証人ゼロ・敵に落ちる。堀は履歴書という機能ではなく、履歴書が指す錨付き実履歴 + 独立証人 + 運用年数で溜まるもの。ソフトの役目は「fork が真似できない物を出力で露出し、fraud と薄さを構造的に可視化する」こと。これがソフトに付けられる唯一の本物の堀である。
+route 自体は MIT で fork 可。でも fork は空の台帳・証人ゼロ・敵に落ちる。堀は履歴書という機能ではなく、履歴書が指す錨付き実履歴 + 独立証人 + 運用年数で溜まるもの。ソフトの役目は「fork が真似できない物を出力で露出し、fraud と薄さを構造的に可視化する」こと。
