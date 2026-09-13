@@ -62,5 +62,30 @@ await env.KIRA_STATS.put('inquiry:x1', JSON.stringify({ name: '<img src=x onerro
 const page = await call('/admin', { method: 'GET', headers: ck });
 const html = (await w.fetch(new Request(base+'/admin', { headers: new Headers(ck) }), env, {})).text ? await (await w.fetch(new Request(base+'/admin', { headers: new Headers(ck) }), env, {})).text() : '';
 results.push(`${html.includes('&lt;img src=x onerror=alert(1)&gt;') && !html.includes('<img src=x onerror=alert(1)>') ? 'PASS' : 'FAIL'} admin page escapes stored name (status ${page.status})`);
+// 7: 2026-09-14 スマホからの導線。funnel-stats を cookie 無しのブラウザで開くと login へ 302、API は 401。next は /admin 配下だけ。cookie は 30 日。
+{
+  const raw = async (path, headers) => w.fetch(new Request(base+path, { method: 'GET', headers: new Headers(headers||{}) }), env, { waitUntil(){} });
+  const r1 = await raw('/admin/funnel-stats', { Accept: 'text/html,application/xhtml+xml' });
+  results.push(`${r1.status===302 && r1.headers.get('Location')==='/admin?next=%2Fadmin%2Ffunnel-stats' ? 'PASS' : 'FAIL'} funnel-stats browser no cookie -> 302 to /admin?next (${r1.status} ${r1.headers.get('Location')})`);
+  const r2 = await raw('/admin/funnel-stats', { Accept: 'application/json' });
+  results.push(`${r2.status===401 ? 'PASS' : 'FAIL'} funnel-stats api no cookie -> 401 (${r2.status})`);
+  const r3 = await raw('/admin/funnel-stats', { Accept: 'text/html', ...ck });
+  results.push(`${r3.status===200 ? 'PASS' : 'FAIL'} funnel-stats browser with cookie -> 200 (${r3.status})`);
+  const r4 = await raw('/admin?key=pw-test-123&next=%2Fadmin%2Ffunnel-stats');
+  const sc = r4.headers.get('Set-Cookie') || '';
+  results.push(`${r4.status===302 && r4.headers.get('Location')==='/admin/funnel-stats' ? 'PASS' : 'FAIL'} login with next -> 302 back to funnel-stats (${r4.status} ${r4.headers.get('Location')})`);
+  results.push(`${/Max-Age=2592000/.test(sc) && /HttpOnly/.test(sc) && /SameSite=Strict/.test(sc) ? 'PASS' : 'FAIL'} cookie Max-Age 30d, HttpOnly, Strict (${sc.slice(0,40)}...)`);
+  const r5 = await raw('/admin?key=pw-test-123&next=https%3A%2F%2Fevil.example%2F');
+  results.push(`${r5.status===302 && r5.headers.get('Location')==='/admin' ? 'PASS' : 'FAIL'} login with external next -> ignored, back to /admin (${r5.headers.get('Location')})`);
+  const r6 = await raw('/admin?key=pw-test-123&next=%2F%2Fevil.example');
+  results.push(`${r6.status===302 && r6.headers.get('Location')==='/admin' ? 'PASS' : 'FAIL'} login with //evil next -> ignored (${r6.headers.get('Location')})`);
+  const r7 = await raw('/admin?next=%2Fadmin%2Ffunnel-stats', ck);
+  results.push(`${r7.status===302 && r7.headers.get('Location')==='/admin/funnel-stats' ? 'PASS' : 'FAIL'} already has cookie + next -> 302 to next (${r7.status} ${r7.headers.get('Location')})`);
+  const r8 = await raw('/admin?next=%2Fadmin%2Ffunnel-stats');
+  const t8 = await r8.text();
+  results.push(`${r8.status===200 && t8.includes("&next=%2Fadmin%2Ffunnel-stats") ? 'PASS' : 'FAIL'} login form carries next into go() (${r8.status})`);
+  const r9 = await raw('/admin?key=wrong&next=%2Fadmin%2Ffunnel-stats');
+  results.push(`${r9.status===401 ? 'PASS' : 'FAIL'} wrong password with next -> 401 login form, no cookie (${r9.status} setcookie=${!!r9.headers.get('Set-Cookie')})`);
+}
 console.log(results.join('\n'));
 console.log('TOTAL FAIL:', results.filter(r=>r.startsWith('FAIL')).length);

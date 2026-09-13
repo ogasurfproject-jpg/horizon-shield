@@ -217,7 +217,7 @@ async function adminCookieRedirect(env, path) {
   const v = await adminCookieValue(env);
   return new Response(null, { status: 302, headers: {
     'Location': path,
-    'Set-Cookie': 'hs_admin=' + v + '; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=43200',
+    'Set-Cookie': 'hs_admin=' + v + '; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=2592000',
     'Cache-Control': 'no-store',
   } });
 }
@@ -3770,6 +3770,9 @@ ${claudeAnswer}
         // ===== admin-auth-gate（2026-05-23追加・サーバ側パスワード判定）=====
         const _pw = url.searchParams.get('key') || '';
         const _correct = env.ADMIN_PASSWORD || '';
+        // 2026-09-14: 戻り先(next)。/admin 配下の path だけ。外の URL や // は捨てる(open redirect 禁止)。
+        const _nextRaw = url.searchParams.get('next') || '';
+        const _next = /^\/admin(?:\/[A-Za-z0-9_-]+)*$/.test(_nextRaw) ? _nextRaw : '';
         // 2026-09-11: cookie が有ればそれで通す。?key= は login の 1 回だけ。
         const _viaCookie = await adminCookieOk(request, env);
         // 比較は定数時間で。ここは残った唯一の ?key= 経路やから、長さの違いで漏らさん。
@@ -3782,12 +3785,13 @@ ${claudeAnswer}
 <button onclick="go()">入る</button>
 <div id="msg" style="color:#c00;font-size:12px;margin-top:8px;min-height:16px"></div></div>
 <script>
-function go(){var p=document.getElementById('pw').value;if(!p){return;}location.href='/admin?key='+encodeURIComponent(p);}
+function go(){var p=document.getElementById('pw').value;if(!p){return;}location.href='/admin?key='+encodeURIComponent(p)${_next ? "+'&next=" + encodeURIComponent(_next) + "'" : ""};}
 ${_pw ? "document.getElementById('msg').textContent='パスワードが違います';" : ""}
 </script></body></html>`;
           return new Response(loginHtml, { status: _pw ? 401 : 200, headers: { 'Content-Type': 'text/html;charset=utf-8' } });
         }
-        if (!_viaCookie) return await adminCookieRedirect(env, '/admin');
+        if (!_viaCookie) return await adminCookieRedirect(env, _next || '/admin');
+        if (_next && _next !== '/admin') return new Response(null, { status: 302, headers: { 'Location': _next, 'Cache-Control': 'no-store' } });
         // ===== admin-auth-gate ここまで =====
         const list = await env.KIRA_STATS.list();
         const inquiryKeys = list.keys.filter(k => k.name.startsWith('inquiry:'));
@@ -4135,7 +4139,12 @@ if (path === '/checkout/paypay-status' && request.method === 'POST') {
 }
 // === /admin/funnel-stats ダッシュボード（2026-05-06追加）===
     if (path === '/admin/funnel-stats') {
-      if (!(await adminGateOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
+      if (!(await adminGateOk(request, env))) {
+        // 2026-09-14: ブラウザで直に開いた(cookie 無し)なら 401 の JSON やなくログイン画面へ回し、入ったらここへ戻す。API は 401 のまま。
+        const _wantsHtml = request.method === 'GET' && /text\/html/.test(request.headers.get('Accept') || '');
+        if (_wantsHtml) return new Response(null, { status: 302, headers: { 'Location': '/admin?next=' + encodeURIComponent('/admin/funnel-stats'), 'Cache-Control': 'no-store' } });
+        return json({ error: 'unauthorized' }, 401, origin);
+      }
       const days = 30;
       const today = new Date();
       const rows = [];
