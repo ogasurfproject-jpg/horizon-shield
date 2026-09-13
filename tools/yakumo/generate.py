@@ -1130,10 +1130,16 @@ def canonical_to_path(canonical):
     return os.path.join(REPO_ROOT, rel, "index.html")
 
 def update_sitemap(urls, today):
-    # 生成した /yakumo/ ページを sitemap.xml に追記(既存locは重複させない)。壊れXMLを避け、</urlset>直前に挿入。
-    sm = os.path.join(REPO_ROOT, "sitemap.xml")
+    # 生成した /yakumo/ ページを sitemap-yakumo.xml に追記(既存locは重複させない)。壊れXMLを避け、</urlset>直前に挿入。
+    # 2026-09-13: 追記先を sitemap.xml から sitemap-yakumo.xml に変えた。
+    #   sitemap.xml は Google に見せるコア(約115本)だけにする。ボットが毎回 sitemap.xml を太らせると、
+    #   Google が「Discovered - currently not indexed」を積み上げて、コアまで巻き添えで却下する(9/13 GSC: 索引22 / 却下386 / 未クロール352)。
+    #   sitemap-yakumo.xml は robots.txt に載せへん。Bing Webmaster に手で出す(Bing の索引が ChatGPT検索・Copilot の入口)。
+    sm = os.path.join(REPO_ROOT, "sitemap-yakumo.xml")
     if not os.path.exists(sm):
-        return 0
+        open(sm, "w", encoding="utf-8").write(
+            "<?xml version='1.0' encoding='utf-8'?>\n"
+            "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n</urlset>\n")
     t = open(sm, encoding="utf-8").read()
     ins = ""
     for u in urls:

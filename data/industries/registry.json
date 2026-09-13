@@ -48,7 +48,7 @@
         "publishes_to": "yakumo/",
         "manifest": "tools/yakumo/last_manifest.json",
         "also_commit": [
-          "sitemap.xml",
+          "sitemap-yakumo.xml",
           "data/yakumo-content-manifest.json"
         ],
         "router": "tools/industries/route_generate.py"
