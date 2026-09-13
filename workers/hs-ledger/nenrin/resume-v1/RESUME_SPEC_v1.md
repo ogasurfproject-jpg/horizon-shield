@@ -59,7 +59,7 @@ self_asserted(バイト無し / jidec-path-v1 でない / witness{name,vantage} 
 
     python3 resume_redteam.py        控え 4 + 攻撃 8 + 正直 limit 1 + legacy 1 = 14/14
     python3 resume_bytematch.py      python vs node、21 ケースで sha と拒否コード一致(M4)
-    node --experimental-default-type=module resume_route_selftest.mjs
+    node resume_route_selftest.mjs
                                      実 worker.js を KV モックで叩く。束ね二段認証・仕分け・順序・422・md・400・空台帳 = 19/19
 配備の門(Mac): cd workers/hs-ledger && npx wrangler deploy --dry-run --outdir /tmp/hsl-bundle(核が bundle に入り node import が無いことの確認)→ npx wrangler deploy → 本番 curl。
 

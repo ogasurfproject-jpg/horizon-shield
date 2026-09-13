@@ -15,7 +15,7 @@
 ## テスト(この dir で)
     python3 resume_redteam.py                                             期待 total 14 pass 14
     python3 resume_bytematch.py                                           期待 cases 21 match 21
-    node --experimental-default-type=module resume_route_selftest.mjs     期待 route selftest all green (19)
+    node resume_route_selftest.mjs     期待 route selftest all green (19)
 
 ## 配備(TOshi の手)
     cd workers/hs-ledger

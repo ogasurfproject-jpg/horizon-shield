@@ -2,7 +2,7 @@
 // shaped like production: witness records anchored as nenrin-witness-batch-v1 entries whose bytes live
 // at wit:anchored:<sha> (two-hop authentication), plus witness walks anchored as their own entries.
 // Run from the resume-v1 directory:
-//   node --experimental-default-type=module resume_route_selftest.mjs
+//   node resume_route_selftest.mjs
 import { createHash } from "node:crypto";
 import { canonical, assembleResume } from "./resume_v1.mjs";
 import worker from "../../src/worker.js";
