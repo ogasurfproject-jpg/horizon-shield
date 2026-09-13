@@ -234,6 +234,21 @@ async function kiraAdminOk(request, env) {
   return await ctEqual(provided, env.ADMIN_PASSWORD);
 }
 
+// 2026-09-13: 管理 API の門を一本化。header(Bearer / X-Admin-Key)か、/admin ログインで立てた HttpOnly cookie の
+// どちらかで通す。管理画面の JS は同一オリジンで fetch するので cookie が自動で付く。header は持たせん(持たせたら
+// パスワードが JS に見える)。9/11 に kiraAdminOk から ?key= を落とした時、画面のボタン(入金確認・削除)が
+// header 無しで叩いて 401 になっとった。cookie を門で受ければ直る。cookie は SameSite=Strict なので他サイトからの
+// POST には付かん(CSRF は成立せん)。
+async function adminGateOk(request, env) {
+  if (await kiraAdminOk(request, env)) return true;
+  return await adminCookieOk(request, env);
+}
+// 管理画面に外部入力(問い合わせの氏名・メール・注文の顧客名など)を出す時の HTML エスケープ。
+// 2026-09-13: 素で流し込んどったので、悪意ある文字列が保存されると管理者の画面で script が走る(Stored XSS)。
+function escHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 // 公開フォーム用の簡易レート制限（KV固定窓）。
 // これは濫用抑止であり、KV障害時はお客様のフォームを止めないよう fail-open（設計判断）。
 async function kiraRateOk(env, route, ip, limit, windowSec) {
@@ -2189,7 +2204,14 @@ async function handleHackerMyCards(request, env, origin) {
 // ============================================
 // EHN DELETE: 管理画面から投稿削除(pending/published両対応・2026-06-05 additive)
 // ============================================
+const HACKER_REPORT_HIDE_THRESHOLD = 3; // 別 IP からの通報がこの数に達したら一覧から外す。1 件では外さん(2026-09-13)
 async function handleHackerReport(request, env, origin) {
+  // 2026-09-13: 無認証・無制限で、card_id を知っとれば 1 回の通報で他人の投稿を消せた。
+  // 通報は誰でもできるまま(施主が匿名で通報する用途を殺さん)。ただし (1) Origin 検査 (2) IP ごとのレート制限
+  // (3) 同じ IP の重複通報は数えん (4) 別 IP から閾値の件数で初めて一覧から外す。それまでは運営に LINE が飛ぶだけ。
+  if (!kiraOriginOk(origin)) return json({ error: 'forbidden origin' }, 403, origin);
+  const ip = request.headers.get('CF-Connecting-IP') || '';
+  if (!(await kiraRateOk(env, 'hacker-report', ip, 5, 3600))) return json({ error: 'rate limited' }, 429, origin);
   let body;
   try { body = await request.json(); }
   catch { return json({ error: 'invalid json' }, 400, origin); }
@@ -2199,15 +2221,25 @@ async function handleHackerReport(request, env, origin) {
   const raw = await env.ORDERS.get(`card:${id}`);
   if (!raw) return json({ error: 'not found' }, 404, origin);
   const card = JSON.parse(raw);
+  // 通報者は IP の SHA-256 の先頭 16 桁だけで数える(IP そのものは保存せん)
+  const ipTag = ip ? String(await generateSHA256Hash('hs-report:' + ip) || '').slice(0, 16) : 'noip';
+  const tags = Array.isArray(card.report_tags) ? card.report_tags : [];
+  if (!tags.includes(ipTag)) tags.push(ipTag);
   card.reported = true;
+  card.report_tags = tags;
+  card.report_count = tags.length;
   card.report_reason = reason;
   card.reported_at = Date.now();
+  const hideNow = card.report_count >= HACKER_REPORT_HIDE_THRESHOLD;
+  if (hideNow) card.hidden_by_reports = true;
   await env.ORDERS.put(`card:${id}`, JSON.stringify(card));
-  // 即時非表示: card_index から外す(KVには残すので後で復元可能)
-  const idxRaw = await env.ORDERS.get('card_index');
-  if (idxRaw) {
-    const ids = JSON.parse(idxRaw).filter(x => x !== id);
-    await env.ORDERS.put('card_index', JSON.stringify(ids));
+  // 閾値に達した時だけ card_index から外す(KV には残すので後で復元可能)
+  if (hideNow) {
+    const idxRaw = await env.ORDERS.get('card_index');
+    if (idxRaw) {
+      const ids = JSON.parse(idxRaw).filter(x => x !== id);
+      await env.ORDERS.put('card_index', JSON.stringify(ids));
+    }
   }
   // 運営へLINE通知(失敗しても通報受付は壊さない)
   try {
@@ -2216,11 +2248,11 @@ async function handleHackerReport(request, env, origin) {
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${env.LINE_CHANNEL_TOKEN}` },
       body: JSON.stringify({
         to: env.LINE_USER_ID,
-        messages: [{ type: 'text', text: `🚩 EHN通報: card ${id} を即時非表示にしました\n理由: ${reason || '(なし)'}\n工事: ${card.genre || ''} / ${card.title || ''}\n管理画面で削除または確認してください。` }],
+        messages: [{ type: 'text', text: `🚩 EHN通報: card ${id} ${hideNow ? 'を一覧から外しました' : '(通報 ' + card.report_count + '/' + HACKER_REPORT_HIDE_THRESHOLD + ' 件、まだ表示中)'}\n理由: ${reason || '(なし)'}\n工事: ${card.genre || ''} / ${card.title || ''}\n管理画面で削除または確認してください。` }],
       }),
     });
   } catch (_e) {}
-  return json({ ok: true, message: '通報を受け付けました。いったん非表示にしました。' }, 200, origin);
+  return json({ ok: true, message: hideNow ? '通報を受け付けました。一覧から外しました。' : '通報を受け付けました。運営が確認します。' }, 200, origin);
 }
 
 async function handleHackerDelete(request, env, origin) {
@@ -3336,7 +3368,7 @@ ${claudeAnswer}
 
     // ===== /inquiries =====
     if (path === '/inquiries') {
-      if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
+      if (!(await adminGateOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
       try {
         const list = await env.KIRA_STATS.list();
         const inquiryKeys = list.keys.filter(k =>
@@ -3356,7 +3388,7 @@ ${claudeAnswer}
 
     // ===== /delete =====
     if (path === '/delete' && request.method === 'POST') {
-      if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
+      if (!(await adminGateOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
       try {
         const body = await request.json();
         if (!body.key) return json({ error: 'key required' }, 400, origin);
@@ -3467,7 +3499,7 @@ ${claudeAnswer}
 
     // ===== /confirm-payment =====
     if (path === '/confirm-payment' && request.method === 'POST') {
-      if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
+      if (!(await adminGateOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
       try {
         const body = await request.json();
         const { key } = body;
@@ -3521,6 +3553,7 @@ ${claudeAnswer}
 
     // ===== /admin-verify（管理者用・無料見積検証 / 2026-05-23追加）=====
     if (path === '/admin-verify' && request.method === 'POST') {
+      if (!(await adminGateOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
       try {
         const body = await request.json();
         const estimateText = (body.estimate || '').toString().trim();
@@ -3604,6 +3637,7 @@ ${claudeAnswer}
     // ===== /admin-special-audit（¥55,000監査・最上級 / 2026-05-23追加）=====
     // admin専用（ADMIN_PASSWORDゲート裏で使う想定）。Sonnet 4 + 4観点 + 複数ファイル + OTSハッシュ刻印。
     if (path === '/admin-special-audit' && request.method === 'POST') {
+      if (!(await adminGateOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
       try {
         const body = await request.json();
         const estimateText = (body.estimate || '').toString().trim();
@@ -3699,7 +3733,10 @@ ${claudeAnswer}
         });
         const data = await res.json();
         let audit = data?.content?.[0]?.text || '監査結果を取得できませんでした。';
-        const auditHash = await generateSHA256Hash(estimateText + '|' + files.length + '|' + new Date().toISOString());
+        // 2026-09-13: 材料にファイル本体を入れる(前は件数だけやった)。これは「入力の指紋」であって改ざん証明やない。
+        // 監査結果そのものは、この hash を本文に刻む都合で材料に入れられん。JIDEC / OTS への錨付けは別の仕事。
+        const fileHashes = await Promise.all(files.map((f) => generateSHA256Hash(String((f && f.data) || ''))));
+        const auditHash = await generateSHA256Hash(estimateText + '|' + files.length + '|' + fileHashes.join(',') + '|' + new Date().toISOString());
         if (auditHash) {
           audit = injectAuditHash(audit, auditHash);
         }
@@ -3761,13 +3798,13 @@ ${_pw ? "document.getElementById('msg').textContent='パスワードが違いま
             return { key: k.name, ...(val || {}) };
           })
         );
-        const rows = items.map(i => `<tr><td style="text-align:center"><input type="checkbox" class="hsDelChk" value="${i.key}"></td><td>${i.name||''}</td><td>${i.email||''}</td><td onclick="showResult(this)" data-full="${encodeURIComponent(i.result||'')}" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:#1a3a5c">${i.result||''}</td><td style="text-align:right">${i.actual_fair_price ? ('¥'+Number(i.actual_fair_price).toLocaleString()) : '<span style="color:#bbb">-</span>'}</td><td><button onclick="label('${i.key}')" style="background:#1a3a5c;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;margin-right:4px">適正額</button><button onclick="del('${i.key}')">削除</button></td></tr>`).join('');
+        const rows = items.map(i => `<tr><td style="text-align:center"><input type="checkbox" class="hsDelChk" value="${escHtml(i.key)}"></td><td>${escHtml(i.name)}</td><td>${escHtml(i.email)}</td><td onclick="showResult(this)" data-full="${encodeURIComponent(i.result||'')}" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:#1a3a5c">${escHtml(i.result)}</td><td style="text-align:right">${i.actual_fair_price ? ('¥'+Number(i.actual_fair_price).toLocaleString()) : '<span style="color:#bbb">-</span>'}</td><td><button onclick="label('${escHtml(i.key)}')" style="background:#1a3a5c;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;margin-right:4px">適正額</button><button onclick="del('${escHtml(i.key)}')">削除</button></td></tr>`).join('');
         const bankKeys = list.keys.filter(k => k.name.startsWith('bank:'));
         const bankItems = await Promise.all(bankKeys.map(async (k) => {
           const val = await env.KIRA_STATS.get(k.name, { type: 'json' });
           return { key: k.name, ...(val || {}) };
         }));
-        const bankRows = bankItems.map(i => `<tr style="background:${i.status==='confirmed'?'#0a2a1a':'#2a1a0a'}"><td>${i.name||''}</td><td>${i.email||''}</td><td>${i.service||''}</td><td>${i.amount||''}</td><td>${i.transferDate||''}</td><td><span style="color:${i.status==='confirmed'?'#00ff88':'#ffaa00'}">${i.status==='confirmed'?'✅確認済':'⏳未確認'}</span></td><td>${i.status!=='confirmed'?`<button onclick="confirmPayment('${i.key}')" style="background:#00ff88;color:#000;border:none;padding:4px 8px;border-radius:4px;cursor:pointer">入金確認</button>`:''}</td></tr>`).join('');
+        const bankRows = bankItems.map(i => `<tr style="background:${i.status==='confirmed'?'#0a2a1a':'#2a1a0a'}"><td>${escHtml(i.name)}</td><td>${escHtml(i.email)}</td><td>${escHtml(i.service)}</td><td>${escHtml(i.amount)}</td><td>${escHtml(i.transferDate)}</td><td><span style="color:${i.status==='confirmed'?'#00ff88':'#ffaa00'}">${i.status==='confirmed'?'✅確認済':'⏳未確認'}</span></td><td>${i.status!=='confirmed'?`<button onclick="confirmPayment('${escHtml(i.key)}')" style="background:#00ff88;color:#000;border:none;padding:4px 8px;border-radius:4px;cursor:pointer">入金確認</button>`:''}</td></tr>`).join('');
         // === HS-ADMIN-ORDERS v1 (2026-07-07) 修理4: 注文(ORDERS)棚の陳列 ===
         let orderRows = "";
         let orderCount = 0;
@@ -3785,7 +3822,7 @@ ${_pw ? "document.getElementById('msg').textContent='パスワードが違いま
             const amt = o.amount ? ("¥" + Number(o.amount).toLocaleString()) : "";
             const when = String(o.paidAt || o.paid_at || "");
             const pdf = o.pdfUrl ? ('<a href="' + o.pdfUrl + '" target="_blank" rel="noopener">PDF</a>') : '<span style="color:#bbb">-</span>';
-            return '<tr><td>' + (o.orderId || o.key) + '</td><td>' + (o.customerName || o.customer_name || "") + '</td><td>' + (o.customerEmail || o.customer_email || o.email || "") + '</td><td style="text-align:right">' + amt + '</td><td>' + (o.serviceType || o.koji_type || "") + '</td><td><span style="color:' + stColor + ';font-weight:700">' + st + '</span></td><td>' + pdf + '</td><td>' + when + '</td></tr>';
+            return '<tr><td>' + escHtml(o.orderId || o.key) + '</td><td>' + escHtml(o.customerName || o.customer_name || "") + '</td><td>' + escHtml(o.customerEmail || o.customer_email || o.email || "") + '</td><td style="text-align:right">' + amt + '</td><td>' + escHtml(o.serviceType || o.koji_type || "") + '</td><td><span style="color:' + stColor + ';font-weight:700">' + escHtml(st) + '</span></td><td>' + pdf + '</td><td>' + when + '</td></tr>';
           }).join("");
         } catch (ordErr) {
           orderRows = '<tr><td colspan="8" style="color:#c00">注文一覧の取得に失敗: ' + String(ordErr && ordErr.message || ordErr) + '</td></tr>';
@@ -3809,7 +3846,7 @@ ${_pw ? "document.getElementById('msg').textContent='パスワードが違いま
 </div>
 <div style="background:#0f1f33;border:2px solid #c9a227;border-radius:12px;padding:18px;margin-bottom:18px;color:#fff">
   <div style="font-weight:700;color:#c9a227;margin-bottom:4px;font-size:15px">⚖️ 最上級監査（¥55,000グレード）</div>
-  <div style="font-size:12px;color:#9fb4cc;margin-bottom:10px">Sonnet 4 × 複数資料突合 × 改ざん防止ハッシュ刻印。図面・契約書・内訳書をまとめて監査。</div>
+  <div style="font-size:12px;color:#9fb4cc;margin-bottom:10px">Sonnet 4 × 複数資料突合 × 監査識別ハッシュ刻印(入力の指紋。改ざん証明ではない)。図面・契約書・内訳書をまとめて監査。</div>
   <textarea id="spIn" placeholder="見積内容をテキストで貼り付け（任意。ファイルだけでも可）" style="width:100%;min-height:100px;padding:10px;border:1px solid #3a5573;border-radius:8px;font-size:13px;box-sizing:border-box;background:#fff;color:#222"></textarea>
   <input id="spMemo" type="text" placeholder="補足メモ（地域・坪数・築年数・既存状況など）" style="width:100%;padding:8px;border:1px solid #3a5573;border-radius:8px;font-size:13px;margin-top:8px;box-sizing:border-box;background:#fff;color:#222">
   <div style="margin-top:10px"><label style="font-size:13px;color:#c9a227;cursor:pointer">📎 複数資料を添付（画像・PDF / 図面・契約書・内訳書）<input id="spFiles" type="file" accept="image/*,.pdf" multiple onchange="spShowFiles()" style="display:block;margin-top:6px;font-size:12px;color:#fff"></label><div id="spFileList" style="font-size:12px;color:#9fb4cc;margin-top:6px"></div></div>
@@ -3916,7 +3953,7 @@ async function runSpecialAudit(){
     const d=await r.json();
     if(r.ok){
       out.textContent=d.audit;out.style.display='block';
-      if(d.audit_hash){hashEl.textContent='監査ハッシュ（改ざん防止）: '+d.audit_hash;hashEl.style.display='block';}
+      if(d.audit_hash){hashEl.textContent='監査ハッシュ（識別用・入力の指紋）: '+d.audit_hash;hashEl.style.display='block';}
       st.textContent='✅ 監査完了。一覧に保存しました。5秒後に再読み込み。';
       setTimeout(()=>location.reload(),5000);
     }else{st.textContent='エラー: '+(d.error||'不明');}
@@ -4098,6 +4135,7 @@ if (path === '/checkout/paypay-status' && request.method === 'POST') {
 }
 // === /admin/funnel-stats ダッシュボード（2026-05-06追加）===
     if (path === '/admin/funnel-stats') {
+      if (!(await adminGateOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
       const days = 30;
       const today = new Date();
       const rows = [];
@@ -4219,10 +4257,13 @@ if (path === '/log-contract' && request.method === 'POST') {
 // === /log-contract ここまで ===
     // === /log-inquiry-price 施工チェック診断の正解ラベル入力（学習Phase1）===
     if (path === '/log-inquiry-price' && request.method === 'POST') {
+      if (!(await adminGateOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
       if (!(await kiraRateOk(env, 'log-inquiry-price', request.headers.get('CF-Connecting-IP') || '', 30, 60))) return json({ error: 'rate limited' }, 429, origin);
       try {
         const body = await request.json();
         const { key, actual_fair_price } = body;
+        // 2026-09-13: 書ける先を問い合わせ(inquiry:*)だけに限る。rl:/history:/cache: 等は触らせん
+        if (typeof key !== 'string' || !key.startsWith('inquiry:')) return json({ error: 'key must start with inquiry:' }, 400, origin);
         if (!key || actual_fair_price === undefined || actual_fair_price === null) {
           return json({ error: 'key and actual_fair_price required' }, 400, origin);
         }
@@ -4316,7 +4357,7 @@ ${subs.length ? `<table><tr><th>名前</th><th>メール</th><th>お立場（な
 async function delSub(key,email){
   if(!confirm('この登録を削除しますか？\\n\\n'+email+'\\n\\n※元に戻せません'))return;
   try{
-    const r=await fetch('/admin-subscribers/delete?key='+encodeURIComponent(${JSON.stringify(_pw)}),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});
+    const r=await fetch('/admin-subscribers/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});
     const d=await r.json();
     if(r.ok&&d.ok){location.reload();}
     else{alert('削除エラー: '+(d.error||'不明'));}
@@ -4333,7 +4374,7 @@ async function delSub(key,email){
     // 登録者1件削除（POST・JSON {key}）
     if (path === '/admin-subscribers/delete' && request.method === 'POST') {
       try {
-        if (!(await kiraAdminOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
+        if (!(await adminGateOk(request, env))) return json({ error: 'unauthorized' }, 401, origin);
         if (!env.SUBSCRIBERS) return json({ error: 'SUBSCRIBERS not bound' }, 500, origin);
         const body = await request.json();
         const key = body && body.key;
