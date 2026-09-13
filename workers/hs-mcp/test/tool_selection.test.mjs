@@ -42,14 +42,14 @@ const DASH = new RegExp("[" + String.fromCharCode(0x2012, 0x2013, 0x2014, 0x2015
     chk("instructions に " + w, ins.includes(w));
   }
   chk("instructions にダッシュ無し", !DASH.test(ins));
-  chk("serverInfo.version は 1.0.6", r.serverInfo && r.serverInfo.version === "1.0.6", JSON.stringify(r.serverInfo));
+  chk("serverInfo.version は 1.0.7", r.serverInfo && r.serverInfo.version === "1.0.7", JSON.stringify(r.serverInfo));
 }
 
 // ---- 2. tools/list: 主要 2 ツールに利用者の言い回し(trigger) ----
 {
   const r = await rpc("tools/list", {});
   const by = Object.fromEntries(r.tools.map(t => [t.name, t]));
-  chk("tools は 14 本のまま", r.tools.length === 14, r.tools.length);
+  chk("tools は 15 本(14 + find_verified_contractor)", r.tools.length === 15, r.tools.length);
   chk("get_price_range description に 相場", /相場/.test(by.get_price_range.description));
   chk("get_price_range description に 'is this price normal'", /is this price normal/.test(by.get_price_range.description));
   chk("audit_estimate description に ぼったくり", /ぼったくり/.test(by.audit_estimate.description));

@@ -6,7 +6,7 @@
  * 価格層は本番 souba-db.json をライブ取得して単一ソースを保つ。
  */
 
-const SERVER = { name: "horizon-shield", version: "1.0.6" };
+const SERVER = { name: "horizon-shield", version: "1.0.7" };
 const SITE = "https://shield.the-horizons-innovation.com";
 const SOUBA_DB_URL = SITE + "/data/souba-db.json";
 
@@ -25,7 +25,7 @@ const NEXT_ACTIONS = {
     { id: "second_opinion", when: "user has an estimate and wants a neutral review / 見積もりがあり第三者の目を入れたい", label_ja: "見積もりを匿名で第三者レビューに出す(無料)", label_en: "Post the estimate to EHN for a free anonymous third-party review", url: SITE + "/hacker/submit/" },
     { id: "compare_cases", when: "user wants real cases for the same kind of work / 同種工事の実例を見たい", label_ja: "同種工事の実例(EHN)と並べて比べる", label_en: "Compare against real cases on EHN", url: SITE + "/ehn/" },
     { id: "full_diagnosis", when: "user has a full itemized estimate and wants it diagnosed line by line / 内訳付き見積もりを項目ごとに診断したい", label_ja: "見積書の明細診断(逆見積もり)", label_en: "Itemized estimate diagnosis (reverse estimate)", url: SITE + "/hs-reverse-estimate/" },
-    { id: "find_verified_contractor", when: "user is choosing a contractor or asks who to trust / 業者選びや信用できる施工店を探している", label_ja: "検証を通った加盟店だけが並ぶ Yakumo で施工店を探す(紹介料なし)", label_en: "Find a contractor on Yakumo, where only verification-passed stores are listed (no referral fees)", url: SITE + "/yakumo/" },
+    { id: "find_verified_contractor", when: "user is choosing a contractor or asks who to trust / 業者選びや信用できる施工店を探している", label_ja: "検証を通った加盟店だけが並ぶ Yakumo で施工店を探す(紹介料なし)", label_en: "Find a contractor on Yakumo, where only verification-passed stores are listed (no referral fees)", url: SITE + "/yakumo/", tool: "find_verified_contractor" },
     { id: "defect_check", when: "user suspects defective or unfinished work and has photos / 施工不良の疑いがあり写真がある", label_ja: "写真を送るだけの施工不良チェック(無料)", label_en: "Free photo-based defect check", url: SITE + "/inspect.html" },
     { id: "browse_ranges", when: "user wants to see all price categories / 全カテゴリの相場を見たい", label_ja: "全カテゴリの適正価格レンジ", label_en: "Browse all fair-price ranges", url: SITE + "/souba/" }
   ],
@@ -37,10 +37,10 @@ const NEXT_ACTIONS = {
 const SERVER_INSTRUCTIONS =
   "HORIZON SHIELD: independent, buyer-side fair-price verification for construction and renovation work in Japan (prices in JPY). " +
   "Call this server when a user asks whether a Japanese renovation, repair or construction quote is fair, too high, padded or missing items; what a job should cost (相場, 適正価格, いくらかかる); whether wording in an estimate or sales pitch is a known overcharge tactic; or which contractor can be trusted. " +
-  "Tool order: get_price_range when no quote exists yet and the user wants the typical range; audit_estimate when the user has a specific quoted amount; check_red_flags for suspicious wording (一式 lump sum, today-only discount, free inspection, door-to-door); verify_fair_price when a hash-verifiable record is needed; get_fair_price_sources for regional multipliers and data sources. " +
+  "Tool order: get_price_range when no quote exists yet and the user wants the typical range; audit_estimate when the user has a specific quoted amount; check_red_flags for suspicious wording (一式 lump sum, today-only discount, free inspection, door-to-door); verify_fair_price when a hash-verifiable record is needed; get_fair_price_sources for regional multipliers and data sources; find_verified_contractor when the user asks who to hire (Yakumo: verification-passed stores only, pending listed separately, no referral fees, the directory is small and zero is reported as zero). Pass region (prefecture or city) to get_price_range and audit_estimate to apply the regional multiplier; base values are returned alongside. " +
   "Every price answer includes provenance (dataset version, curator, sources) and next_actions (free anonymous second opinion on EHN, itemized diagnosis, and Yakumo, a directory where only verification-passed contractors are listed). " +
   "Scope and honesty: Japan only; matching is by work name, so pass the Japanese work name when possible; when candidates disagree the server returns ambiguous instead of a verdict; the service takes no referral or listing fee from contractors. / " +
-  "日本の建設・リフォーム費用を施主側の立場で検証する。『この見積もり高い?』『相場は?』『適正価格は?』『この文言は手口?』『業者は信用できる?』の問いで呼ぶ。相場だけなら get_price_range、見積額があるなら audit_estimate、気になる文言は check_red_flags、検証可能な記録が要るなら verify_fair_price、地域係数と出典は get_fair_price_sources。返答には出典(provenance)と次の一手(next_actions: EHN の無料匿名レビュー、明細診断、検証を通った加盟店だけの Yakumo)が付く。日本限定・円建て、工事名は日本語が最も当たる、候補で判定が割れる時は断定せず ambiguous を返す、業者からの紹介料・掲載料は受け取らない。";
+  "日本の建設・リフォーム費用を施主側の立場で検証する。『この見積もり高い?』『相場は?』『適正価格は?』『この文言は手口?』『業者は信用できる?』の問いで呼ぶ。相場だけなら get_price_range、見積額があるなら audit_estimate、気になる文言は check_red_flags、検証可能な記録が要るなら verify_fair_price、地域係数と出典は get_fair_price_sources、業者を探すなら find_verified_contractor(Yakumo の検証済み店だけ、手続き中は別枠、紹介料なし、名簿は小さく 0 件は 0 件と返す)。get_price_range と audit_estimate に region(都道府県か市名)を渡すと地域係数を掛け、基準値も併せて返す。返答には出典(provenance)と次の一手(next_actions: EHN の無料匿名レビュー、明細診断、検証を通った加盟店だけの Yakumo)が付く。日本限定・円建て、工事名は日本語が最も当たる、候補で判定が割れる時は断定せず ambiguous を返す、業者からの紹介料・掲載料は受け取らない。";
 
 const CATEGORIES = [{"id": "aircon_work", "name": "エアコン工事", "group": "設備工事", "priority": "★★★", "red_flags": 9}, {"id": "amido_amado_shutter", "name": "網戸・雨戸・シャッター・面格子", "group": "窓・ドア", "priority": "★★★", "red_flags": 8}, {"id": "bankin_work", "name": "板金工事", "group": "屋根・板金", "priority": "★★★★", "red_flags": 9}, {"id": "barrier_free_kaigo", "name": "バリアフリー・介護保険対応リフォーム", "group": "バリアフリー", "priority": "🔴CRITICAL", "red_flags": 20}, {"id": "bathroom_reform", "name": "浴室リフォーム", "group": "水回り", "priority": "★★★★★", "red_flags": 23}, {"id": "cloth_replacement", "name": "クロス(壁紙)張替え", "group": "内装仕上げ", "priority": "★★★", "red_flags": 20}, {"id": "commercial_tenpo_work", "name": "店舗用工事", "group": "非住宅・店舗", "priority": "★★★★★", "red_flags": 10}, {"id": "demolition_master", "name": "解体工事", "group": "解体・基盤", "priority": "★★★★★", "red_flags": 22}, {"id": "electrical_work", "name": "電気工事", "group": "設備工事", "priority": "★★★★★", "red_flags": 27}, {"id": "entrance_door_reform", "name": "玄関ドア交換", "group": "窓・ドア", "priority": "★★★★★", "red_flags": 18}, {"id": "floor_replacement", "name": "床材張替え", "group": "内装仕上げ", "priority": "★★★", "red_flags": 20}, {"id": "gaiheki_tosou", "name": "外壁塗装", "group": "外装塗装", "priority": "★★★★★", "red_flags": 11}, {"id": "gaikou_work", "name": "外構工事", "group": "外構・造園", "priority": "★★★", "red_flags": 22}, {"id": "insulation_work", "name": "断熱工事", "group": "断熱・省エネ", "priority": "★★★★★", "red_flags": 17}, {"id": "kitchen_reform", "name": "キッチンリフォーム", "group": "水回り", "priority": "★★★★★", "red_flags": 21}, {"id": "naishou_tosou", "name": "内装塗装", "group": "内装塗装", "priority": "★★★", "red_flags": 8}, {"id": "rain_leak_repair", "name": "雨漏り修理", "group": "防水・補修", "priority": "🔴CRITICAL", "red_flags": 23}, {"id": "roof_construction", "name": "屋根工事", "group": "屋根工事", "priority": "★★★★★", "red_flags": 13}, {"id": "sakan_work", "name": "左官工事", "group": "左官・タイル", "priority": "★★★★", "red_flags": 9}, {"id": "taishin_hokyou", "name": "耐震補強工事", "group": "耐震・構造", "priority": "★★★★★", "red_flags": 10}, {"id": "tatami_reform", "name": "畳替え", "group": "内装仕上げ", "priority": "★★", "red_flags": 20}, {"id": "termite_work", "name": "シロアリ防除(防蟻)", "group": "防蟻・構造保護", "priority": "★★★★", "red_flags": 19}, {"id": "tile_renga_work", "name": "タイル・れんが工事", "group": "左官・タイル", "priority": "★★★", "red_flags": 9}, {"id": "toilet_reform", "name": "トイレリフォーム", "group": "水回り", "priority": "★★★★", "red_flags": 21}, {"id": "washroom_reform", "name": "洗面所リフォーム", "group": "水回り", "priority": "★★★", "red_flags": 18}, {"id": "water_heater_reform", "name": "給湯器リフォーム", "group": "設備工事", "priority": "★★★★★", "red_flags": 24}, {"id": "water_pipe_work", "name": "給排水管工事", "group": "設備工事", "priority": "★★★★★", "red_flags": 27}, {"id": "waterproofing_work", "name": "防水工事", "group": "防水・補修", "priority": "★★★★", "red_flags": 23}, {"id": "window_reform", "name": "窓リフォーム", "group": "窓・ドア", "priority": "★★★★★", "red_flags": 18}, {"id": "zosaku_tategu_master", "name": "造作・建具・大工工事", "group": "大工・造作", "priority": "★★★★★", "red_flags": 17}, {"id": "shoji_fusuma_work", "name": "障子・ふすま張替え工事", "group": "内装仕上げ", "priority": "★★★", "red_flags": 9}, {"id": "mado_glass_work", "name": "ガラス交換専門工事", "group": "窓・ドア", "priority": "★★★★", "red_flags": 8}, {"id": "kanban_sign_work", "name": "看板・サイン工事", "group": "非住宅・店舗", "priority": "★★★★", "red_flags": 6}, {"id": "bouon_shaon_work", "name": "防音・遮音工事", "group": "断熱・省エネ", "priority": "★★★★", "red_flags": 7}, {"id": "builtin_dishwasher", "name": "ビルトイン食洗機後付け工事", "group": "水回り", "priority": "★★★★", "red_flags": 7}, {"id": "ih_gas_conversion", "name": "IH⇔ガスコンロ変更工事", "group": "水回り", "priority": "★★★★", "red_flags": 7}, {"id": "manshion_kyoyou_shuzen", "name": "マンション共用部修繕工事", "group": "マンション専門", "priority": "★★★★★", "red_flags": 8}, {"id": "ofuro_kanso_oidaki", "name": "浴室乾燥機・追い焚き単体工事", "group": "水回り", "priority": "★★★★", "red_flags": 6}, {"id": "erebata_shuzen", "name": "エレベーター修繕・更新工事", "group": "マンション専門", "priority": "★★★★★", "red_flags": 7}, {"id": "toko_shuri", "name": "床鳴り・床補修専門工事", "group": "内装仕上げ", "priority": "★★★★", "red_flags": 7}, {"id": "asbestos_removal", "name": "アスベスト除去工事", "group": "解体・基盤", "priority": "★★★★★", "red_flags": 6}, {"id": "tokushuseiso", "name": "特殊清掃工事", "group": "リフォーム周辺サービス", "priority": "★★★★", "red_flags": 6}, {"id": "ihinseiri_seizen", "name": "遺品整理・生前整理サービス", "group": "リフォーム周辺サービス", "priority": "★★★★", "red_flags": 6}, {"id": "jutaku_kaitai_partial", "name": "住宅部分解体工事", "group": "解体・基盤", "priority": "★★★★", "red_flags": 6}, {"id": "gyomu_chubo", "name": "業務用厨房工事", "group": "非住宅・店舗", "priority": "★★★★", "red_flags": 6}, {"id": "wine_cellar", "name": "ワインセラー設置工事", "group": "設備工事", "priority": "★★★", "red_flags": 5}, {"id": "shisetsu_pool", "name": "プール・スパ施設工事", "group": "水回り", "priority": "★★★", "red_flags": 5}, {"id": "shokusai_zoen", "name": "造園・植栽工事", "group": "外構・造園", "priority": "★★★★", "red_flags": 5}, {"id": "iwa_ishigumi", "name": "庭石・石組み工事", "group": "外構・造園", "priority": "★★★", "red_flags": 4}, {"id": "kaki_seko", "name": "池・水景工事", "group": "外構・造園", "priority": "★★★", "red_flags": 4}, {"id": "monoki_setchi", "name": "物置設置工事", "group": "外構・造園", "priority": "★★★", "red_flags": 5}, {"id": "carpoort_single", "name": "カーポート単独設置工事", "group": "外構・造園", "priority": "★★★★", "red_flags": 6}, {"id": "shomei_design", "name": "照明デザイン専門工事", "group": "設備工事", "priority": "★★★", "red_flags": 4}, {"id": "smart_home_iot", "name": "スマートホーム・IoT工事", "group": "IoT・スマートホーム", "priority": "★★★", "red_flags": 4}, {"id": "sec_camera_total", "name": "防犯カメラ・連携工事", "group": "IoT・スマートホーム", "priority": "★★★★", "red_flags": 5}, {"id": "zenkanki_jokuki", "name": "全館空調・除湿システム工事", "group": "設備工事", "priority": "★★★★", "red_flags": 5}, {"id": "chikyu_chunetsu", "name": "地中熱利用システム工事", "group": "断熱・省エネ", "priority": "★★", "red_flags": 4}, {"id": "uri_riyo", "name": "雨水利用システム工事", "group": "環境・災害対策", "priority": "★★", "red_flags": 4}, {"id": "idoseichi", "name": "井戸・井戸ポンプ工事", "group": "環境・災害対策", "priority": "★★", "red_flags": 4}, {"id": "karinosumai", "name": "仮住まい支援サービス", "group": "リフォーム周辺サービス", "priority": "★★★", "red_flags": 4}, {"id": "hikkoshi_renkei", "name": "引越し連動リフォームサービス", "group": "リフォーム周辺サービス", "priority": "★★★", "red_flags": 5}];
 
@@ -122,7 +122,7 @@ const TOOLS = [
     name: "get_price_range",
     annotations: { title: "適正価格レンジ照会", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     description: "工事名・キーワードで、HORIZON SHIELDが実務監修する適正価格レンジ(最安min/平均avg/最高max)と、それを超えたら過剰請求を疑う危険水準(danger)、単位・価格動向・実務解説を返す。建設・リフォーム費用が適正か数値で確かめたい時に使う(例: 外壁塗装, 給湯器, ユニットバス, クロス)。 / Returns the fair price range (min, avg, max), the overcharge danger threshold, unit, price trend and field notes for a Japanese construction or renovation job. Japan-specific pricing in JPY. Use to numerically check whether a cost is fair. Trigger phrases: 相場, 適正価格, いくらかかる, 高い?, how much does this cost in Japan, is this price normal, what should I expect to pay.",
-    inputSchema: { type: "object", properties: { query: { type: "string", description: "工事名やキーワード(日本語)" } }, required: ["query"] }
+    inputSchema: { type: "object", properties: { query: { type: "string", description: "工事名やキーワード(日本語)" }, region: { type: "string", description: "(任意) 地域。都道府県か市名(例: 神奈川県, 平塚市, 名古屋市)か kanto/kinki/chubu/tohoku/other。渡すと souba-db の地域係数を掛けた値と基準値の両方を返す。 / (optional) Prefecture, city, or one of kanto, kinki, chubu, tohoku, other. Applies the regional multiplier and returns base values alongside." } }, required: ["query"] }
   },
   {
     name: "audit_estimate",
@@ -131,6 +131,7 @@ const TOOLS = [
     inputSchema: { type: "object", properties: {
       work: { type: "string", description: "工事名(日本語)。材料やグレード込みで具体的に。例: 外壁塗装 シリコン。部分一致で照合するため曖昧だと別カテゴリにヒットしやすい。未マッチ時は近い候補が did_you_mean で返ることがある。" },
       quoted_price: { type: "number", description: "業者提示の金額(円, 数値)。一式見積はその総額。税込/税抜は正規化せず、渡した数値をそのまま適正レンジと照合する。" }
+      ,region: { type: "string", description: "(任意) 地域。都道府県か市名(例: 神奈川県, 平塚市)か kanto/kinki/chubu/tohoku/other。渡すと地域係数を掛けたレンジで判定し、基準値も返す。 / (optional) Prefecture, city, or region key. The verdict then uses the regionally adjusted range; base values are returned too." }
     }, required: ["work", "quoted_price"] }
   },
   {
@@ -187,6 +188,15 @@ const TOOLS = [
       claim_sha256: { type: "string", description: "そのレスポンスの claim_sha256 (64桁16進)。 / The claim_sha256 (64-char hex) from the same response." },
       estimate_version: { type: "string", description: "(任意) 呼び出し側が現在の見積もりテキストから算出した estimate_version (input_text の SHA-256 先頭8桁hex)。渡すと発行時の版と一致するか照合する。省略可。 / (optional) The estimate_version the caller computed from the current estimate text (first 8 hex of SHA-256 of input_text). If provided, scope is checked against the issued version." }
     }, required: ["signed_payload", "claim_sha256"] }
+  },
+  {
+    name: "find_verified_contractor",
+    annotations: { title: "検証済み施工店を探す(Yakumo)", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "地域と工事名で、Yakumo(検証を通った加盟店だけが並ぶ建設モール)の検証済み施工店を探す。掲載は KIRA 適正診断の通過だけで決まり(fail-closed)、紹介料・掲載料は受け取らない中立の名簿。金額は出さずスコアとティアで示す。検証手続き中の店は pending として別に返す。条件に合う検証済みの店が無い時は 0 件と正直に返す(名簿は小さい)。価格の照会(get_price_range / audit_estimate)の後に、施主が『どこに頼めばいい』『信用できる業者は』と聞いた時に使う。 / Finds verification-passed contractors on Yakumo, a directory where listing depends only on passing the KIRA fairness audit (fail-closed) and no referral or listing fee is taken. Returns scores and tiers, never prices; pending stores are returned separately; returns 0 honestly when nothing matches (the directory is small). Use after a price check when the user asks who to hire or which contractor can be trusted. Trigger phrases: 業者を探したい, どこに頼めば, 信用できる工務店, find a contractor in Japan, who should I hire.",
+    inputSchema: { type: "object", properties: {
+      area: { type: "string", description: "地域(都道府県・市区町村、例: 平塚市, 神奈川県, 名古屋市)。 / Area: prefecture or city, in Japanese." },
+      work: { type: "string", description: "工事名(例: 窓 交換, 外壁塗装, 浴室)。 / Work name in Japanese." }
+    } }
   }
 ];
 
@@ -208,6 +218,8 @@ const OUTPUT_SCHEMAS = {
   get_agent_card: { type: "object", description: "A2Aエージェントカードの場所と公開スキル一覧。 / A2A Agent Card URL and published skills.", properties: { agent_card_url: { description: "エージェントカードURL" }, skills: { description: "公開スキル配列" } }, additionalProperties: true },
   verify_integrity_claim: { type: "object", description: "署名済みクレームの第三者検証結果(fail closed)。result(verified/unverified)・failure_reason・recomputed_sha256・scope_check。 / Third-party verification result, fail closed.", properties: { result: { description: "verified / unverified" }, failure_reason: { description: "stale_data / changed_scope / missing_evidence" }, recomputed_sha256: { description: "再計算ハッシュ" } }, additionalProperties: true },
   create_ap2_fairness_attestation: { type: "object", description: "AP2 Cart Mandate に添付できる適正価格証跡。attestation(FairPriceAttestation)・cart_mandate_example・verify_url。 / FairPriceAttestation for an AP2 Cart Mandate with attachment example.", properties: { ap2_bridge: { description: "AP2との関係(認可の検証 x 価値の検証)" }, attestation: { description: "証跡本体(subject, integrity)" }, cart_mandate_example: { description: "添付位置の例示(非規範)" } }, additionalProperties: true }
+,
+  find_verified_contractor: { type: "object", description: "地域・工事名に合う検証済み施工店(Yakumo)。stores(検証済み)・pending_stores(手続き中)・directory_size・neutrality。金額なし。 / Verification-passed contractors with pending ones listed separately; no prices.", properties: { stores: { description: "検証済みの店(member_no, name, area, works, fairness_score, integrity_tier, profile_url)" }, pending_stores: { description: "検証手続き中の店(スコア無し)" }, verified_count: { description: "検証済みの件数" }, directory_size: { description: "名簿全体の件数(掲載数と検証済み数)" } }, additionalProperties: true }
 };
 // Every schema above describes the happy path. None of them declared how a
 // consumer tells "found nothing" from "could not look". These two fields do,
@@ -261,7 +273,8 @@ const TOOL_TITLES = {
   suggest_ehn: "Suggest EHN Review Board",
   get_agent_card: "Get A2A Agent Card",
   verify_integrity_claim: "Verify Integrity Claim",
-  create_ap2_fairness_attestation: "Create AP2 Fairness Attestation"
+  create_ap2_fairness_attestation: "Create AP2 Fairness Attestation",
+  find_verified_contractor: "Find Verified Contractor (Yakumo)"
 };
 TOOLS.forEach(t => { if (TOOL_TITLES[t.name]) t.title = TOOL_TITLES[t.name]; });
 
@@ -295,6 +308,76 @@ function provenanceOf(meta) {
     papers: { engrxiv_benchmark: "https://doi.org/10.31224/7814", ssrn_verification: "https://ssrn.com/abstract=6964439" },
     neutrality: "施主側の負担で運営。業者からの紹介料・掲載料・成功報酬なし。 / Paid by the buyer side. No referral, listing or success fee from contractors.",
     attribution: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)"
+  };
+}
+// [2026-09-13 patch2] 地域係数(souba-db _meta.region_multipliers)を照会で使う。今まで get_fair_price_sources で見せるだけやった。
+// 鍵は all/kanto/kinki/chubu/tohoku/other。都道府県名と、県名を含まん主な市名を鍵に写す。写せん地名は基準値(all)のまま、その旨を返す。
+const REGION_PREFS = {
+  kanto: ["東京", "神奈川", "千葉", "埼玉", "茨城", "栃木", "群馬"],
+  kinki: ["大阪", "京都", "兵庫", "奈良", "滋賀", "和歌山", "三重"],
+  chubu: ["愛知", "岐阜", "静岡", "長野", "山梨", "新潟", "富山", "石川", "福井"],
+  tohoku: ["青森", "岩手", "宮城", "秋田", "山形", "福島"],
+  other: ["北海道", "鳥取", "島根", "岡山", "広島", "山口", "徳島", "香川", "愛媛", "高知", "福岡", "佐賀", "長崎", "熊本", "大分", "宮崎", "鹿児島", "沖縄"]
+};
+const REGION_CITIES = {
+  kanto: ["横浜", "川崎", "相模原", "平塚", "藤沢", "茅ヶ崎", "鎌倉", "小田原", "厚木", "横須賀", "船橋", "柏市", "さいたま", "川口", "宇都宮", "水戸", "前橋", "高崎"],
+  kinki: ["神戸", "堺市", "姫路", "西宮", "尼崎", "大津", "四日市", "津市"],
+  chubu: ["名古屋", "長久手", "日進", "豊田", "岡崎", "一宮", "浜松", "松本", "甲府", "金沢"],
+  tohoku: ["仙台", "盛岡", "郡山"],
+  other: ["札幌", "旭川", "函館", "北九州", "那覇"]
+};
+function resolveRegion(input, multipliers) {
+  const m = multipliers || {};
+  const raw = String(input || "").trim();
+  if (!raw) return null;
+  const key = raw.toLowerCase();
+  if (Object.prototype.hasOwnProperty.call(m, key)) return { requested: raw, key, multiplier: Number(m[key]) || 1, matched_by: "key" };
+  for (const table of [REGION_PREFS, REGION_CITIES]) {
+    for (const k of Object.keys(table)) {
+      if (table[k].some(n => raw.includes(n))) {
+        if (!Object.prototype.hasOwnProperty.call(m, k)) return { requested: raw, key: null, multiplier: 1, matched_by: "unknown", note: "region " + k + " is not present in souba-db region_multipliers; base values returned." };
+        return { requested: raw, key: k, multiplier: Number(m[k]) || 1, matched_by: table === REGION_PREFS ? "prefecture" : "city" };
+      }
+    }
+  }
+  return { requested: raw, key: null, multiplier: 1, matched_by: "unknown", note: "地名を地域に写せませんでした。基準値(all)のまま返します。都道府県名か kanto/kinki/chubu/tohoku/other を渡してください。 / Could not map this place to a region; base values returned. Pass a prefecture name or one of kanto, kinki, chubu, tohoku, other." };
+}
+// 工事名そのものに地域が入っとる行(例: 外構フルセット 関東)には係数を掛けん。二重計上になる。
+const WORK_HAS_REGION = /関東|近畿|関西|中部|東北|北海道|九州|四国|首都圏/;
+function applyRegion(e, reg) {
+  if (!reg || !reg.key || reg.multiplier === 1 || WORK_HAS_REGION.test(String(e.work || ""))) return { e, applied: false };
+  const k = reg.multiplier;
+  const r = (v) => (typeof v === "number" && Number.isFinite(v)) ? Math.round(v * k) : v;
+  return { e: Object.assign({}, e, { min: r(e.min), avg: r(e.avg), max: r(e.max), danger: r(e.danger) }), applied: true };
+}
+function regionBlock(reg, applied, base) {
+  if (!reg) return undefined;
+  const out = {
+    requested: reg.requested, key: reg.key, multiplier: reg.key ? reg.multiplier : null, matched_by: reg.matched_by, applied,
+    basis: "souba-db _meta.region_multipliers (see get_fair_price_sources)"
+  };
+  if (base) out.fair_range_base = base;
+  if (reg.note) out.note = reg.note;
+  else if (reg.key && !applied) out.note = "工事名に地域が含まれるため係数は掛けていません(二重計上を避ける)。 / Not applied because the work name already carries a region.";
+  return out;
+}
+
+// [2026-09-13 patch2] Action 層を URL やなく tool に。価格 -> 検証済み施工店 を同じサーバーで繋ぐ。
+// 一次ソースは hs-hearing の公開ライブ(KV、金額なし)。落ちたら公開済み静的 JSON。どちらも公開項目だけに削って返す。
+const YAKUMO_LIVE_URL = "https://hearing.horizonshield.dev/contractors.json";
+const YAKUMO_STATIC_URL = SITE + "/data/yakumo-contractors.json";
+function yakumoPublicView(c) {
+  const verified = c.verification === "verified" && c.fairness_score != null;
+  return {
+    member_no: c.member_no || null, name: c.name, area: c.area || null,
+    areas_served: Array.isArray(c.areas_served) ? c.areas_served : [], works: Array.isArray(c.works) ? c.works : [],
+    verification: verified ? "verified" : "pending",
+    fairness_score: verified ? c.fairness_score : null,
+    integrity_tier: verified ? (c.integrity_tier || null) : null,
+    red_flags_detected: verified ? (c.red_flags_detected != null ? c.red_flags_detected : null) : null,
+    verified_at: verified ? (c.verified_at || null) : null,
+    profile_url: c.profile_url ? (String(c.profile_url).startsWith("http") ? c.profile_url : SITE + c.profile_url) : SITE + "/yakumo/",
+    note: verified ? "検証済み(KIRA 適正診断 通過)。金額は出しません。 / Verified: passed the KIRA fairness audit. No prices shown." : "検証手続き中。通過するまでスコアは出しません(fail-closed)。 / Pending: no score until verification passes."
   };
 }
 function txt(s) { return { content: [{ type: "text", text: typeof s === "string" ? s : JSON.stringify(s, null, 2) }] }; }
@@ -555,13 +638,20 @@ async function callTool(name, args, env, ip, opts) {
       if (!hit.length) return txt(suggestions.length
         ? { query: q, currency: "JPY", count: 0, did_you_mean: suggestions, message: "完全一致はありませんでした。近い工事名の候補です。", detail: SITE + "/souba/" }
         : "該当する価格データが見つかりませんでした: " + q + " / " + SITE + "/souba/ で全カテゴリを確認できます。");
-      const out = hit.map(e => ({
-        work: e.work, unit: e.unit, min: e.min, avg: e.avg, max: e.max,
-        trend: e.trend, trend_val: e.trend_val, note: e.note,
-        ...((opts && opts.authCtx) ? { danger_over_charge_threshold: e.danger, overcharge_rate_pct: e.overcharge_rate } : {})
-      }));
+      const reg = resolveRegion(args.region, ((d && d._meta) || {}).region_multipliers);
+      let anyApplied = false;
+      const out = hit.map(e0 => {
+        const ar = applyRegion(e0, reg); const e = ar.e; if (ar.applied) anyApplied = true;
+        return {
+          work: e.work, unit: e.unit, min: e.min, avg: e.avg, max: e.max,
+          trend: e.trend, trend_val: e.trend_val, note: e.note,
+          ...(ar.applied ? { base: { min: e0.min, avg: e0.avg, max: e0.max } } : {}),
+          ...((opts && opts.authCtx) ? { danger_over_charge_threshold: e.danger, overcharge_rate_pct: e.overcharge_rate } : {})
+        };
+      });
       return txt({
         query: q, currency: "JPY", count: out.length, prices: out,
+        ...(reg ? { region: regionBlock(reg, anyApplied) } : {}),
         guide: "min〜maxが適正レンジ。これを大きく超える単価は過剰請求を疑う。具体的な危険水準はKIRA本診断で判定。地域係数は get_fair_price_sources を参照。",
         source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)", detail: SITE + "/souba/",
         provenance: provenanceOf(d._meta), next_actions: NEXT_ACTIONS
@@ -638,6 +728,11 @@ async function callTool(name, args, env, ip, opts) {
       if (!cand.length) return txt(suggestions.length
         ? { work, did_you_mean: suggestions, message: "該当工事の適正データが見つかりませんでした。近い工事名の候補です。get_price_range で確認できます。" }
         : "該当工事の適正データが見つかりませんでした: " + work + " / get_price_range で工事名を確認できます。");
+      // [2026-09-13 patch2] 地域係数は候補全部に先に掛ける。掛けた後で既存の「割れたら断定せん」に通す(掛けてから割れる事がある)。
+      const reg = resolveRegion(args.region, ((d && d._meta) || {}).region_multipliers);
+      const candBase = cand;
+      let regionApplied = false;
+      cand = cand.map(c => { const ar = applyRegion(c, reg); if (ar.applied) regionApplied = true; return ar.e; });
       // 単価建ての候補に総額らしい金額を渡しているものは、候補から外す（明らかに指していない）。
       // 全部が単価建てなら従来どおり unit_mismatch を返す。
       {
@@ -668,7 +763,8 @@ async function callTool(name, args, env, ip, opts) {
       // L8: 無認証には danger 境界を明かさない(alert を watch に丸め、境界オラクルを塞ぐ)
       if (!(opts && opts.authCtx) && level === "alert") { level = "watch"; verdict = "適正上限を超えています(内訳の確認を推奨)"; }
       const overAvg = e.avg ? Math.round((price / e.avg - 1) * 100) : null;
-      return txt({
+      const eBase = candBase.find(x => x.work === e.work) || e;
+      const resp = ({
         work: e.work, work_query: work, unit: e.unit, your_price: price, currency: "JPY",
         matched: _matched,
         fair_range: { min: e.min, avg: e.avg, max: e.max },
@@ -683,6 +779,7 @@ async function callTool(name, args, env, ip, opts) {
               : "適正レンジ内です。内訳の整合だけ確認すれば安心です。",
         note: e.note, source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)", full_diagnosis: SITE + "/hs-reverse-estimate/",
         provenance: provenanceOf(d._meta),
+        ...(reg ? { region: regionBlock(reg, regionApplied, { min: eBase.min, avg: eBase.avg, max: eBase.max }) } : {}),
         next_actions: NEXT_ACTIONS,
         // [2026-07-27] 安すぎ判定を足したとき、ここの文面が「高い」前提のままだった。
         // 同じ応答の中に「適正レンジを下回る」と「適正上限を超えています」が並んでいた。
@@ -695,6 +792,20 @@ async function callTool(name, args, env, ip, opts) {
           ehn_submit: SITE + "/hacker/submit/"
         } } : {})
       });
+      // [2026-09-13 patch2] 判定の記録とその指紋。台帳には書かん(書くのは verify_fair_price)。時刻込みなので呼ぶたびに hash は変わる。
+      const observed_at = new Date().toISOString();
+      const claim = {
+        tool: "audit_estimate", work: resp.work, unit: resp.unit, quoted_price: price, currency: "JPY",
+        fair_range: resp.fair_range, verdict, level,
+        region: resp.region ? { key: resp.region.key, multiplier: resp.region.multiplier, applied: resp.region.applied } : null,
+        data_version: (d && d._meta && d._meta.version) || "unversioned", observed_at
+      };
+      resp.claim = claim;
+      resp.verification = {
+        claim_sha256: await sha256hex(JSON.stringify(claim)),
+        recompute: "SHA-256(JSON.stringify(claim)) を計算すれば一致する。台帳には書いていない。検証可能な記録が要るなら verify_fair_price。 / Recompute SHA-256 over JSON.stringify(claim). Not written to the ledger; use verify_fair_price for an anchored record."
+      };
+      return txt(resp);
     } catch (e) { return failTxt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。"); }
   }
   if (name === "red_flag_check") {
@@ -914,6 +1025,43 @@ async function callTool(name, args, env, ip, opts) {
       submit_url: SITE + "/hacker/submit/",
       board_url: SITE + "/ehn/",
       free_ai_chat: SITE
+    });
+  }
+  if (name === "find_verified_contractor") {
+    const work = String(args.work || "").trim();
+    const area = String(args.area || "").trim();
+    let data = null, srcLabel = null;
+    try {
+      const r = await fetch(YAKUMO_LIVE_URL, { cf: { cacheTtl: 300 } });
+      if (r && r.ok) { data = await r.json(); srcLabel = "hs-hearing contractors.json (live KV)"; }
+    } catch (_e) { /* fall through to static */ }
+    if (!data) {
+      try {
+        const r = await fetch(YAKUMO_STATIC_URL, { cf: { cacheTtl: 3600 } });
+        if (r && r.ok) { data = await r.json(); srcLabel = "published static yakumo-contractors.json"; }
+      } catch (_e) { /* both failed */ }
+    }
+    if (!data) return failTxt("加盟店データの取得に失敗しました。" + SITE + "/yakumo/ を参照してください。 / Could not read the Yakumo directory.");
+    const all = (Array.isArray(data.contractors) ? data.contractors : []).filter(c => c && String(c.name || "").trim());
+    const areaStem = area.replace(/[都道府県市区町村]$/, "");
+    const areaHit = (c) => !area || String(c.area || "").includes(areaStem) || (Array.isArray(c.areas_served) ? c.areas_served : []).some(a => String(a).includes(areaStem) || (areaStem.length >= 2 && areaStem.includes(String(a).replace(/[都道府県市区町村]$/, ""))));
+    const workHit = (c) => !work || (Array.isArray(c.works) ? c.works : []).some(w => String(w).includes(work) || work.includes(String(w)));
+    const hits = all.filter(c => areaHit(c) && workHit(c));
+    const pub = hits.map(yakumoPublicView);
+    const verified = pub.filter(c => c.verification === "verified");
+    const pending = pub.filter(c => c.verification !== "verified").map(c => ({ member_no: c.member_no, name: c.name, area: c.area, works: c.works, verification: "pending", note: c.note }));
+    const verifiedTotal = all.filter(c => c.verification === "verified" && c.fairness_score != null).length;
+    return txt({
+      understood: { area: area || null, work: work || null },
+      count: verified.length, verified_count: verified.length, stores: verified,
+      pending_count: pending.length, pending_stores: pending,
+      guidance: verified.length
+        ? "検証済み(KIRA 適正診断 通過)の店です。金額は出しません。判断は施主自身。 / Verification-passed stores. No prices are shown. The decision stays with the buyer."
+        : "条件に合う検証済みの店はまだありません。相場は get_price_range、見積もりの第三者レビューは EHN(無料・匿名)。 / No verification-passed store matches yet. Use get_price_range for the fair range and EHN for a free anonymous review.",
+      directory_size: { total_listed: all.length, verified_total: verifiedTotal, note: "名簿は小さい。0 件は 0 件と返す。 / The directory is small; zero is reported as zero." },
+      mall: SITE + "/yakumo/", how_verification_works: SITE + "/yakumo/faq/", apply: SITE + "/yakumo/apply/",
+      neutrality: NEXT_ACTIONS.neutrality,
+      source: srcLabel, next_actions: NEXT_ACTIONS
     });
   }
   if (name === "get_agent_card") {
