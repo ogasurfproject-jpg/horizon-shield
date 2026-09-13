@@ -9,7 +9,7 @@ staged=$(git diff --cached --name-only --diff-filter=ACMR)
 while IFS= read -r f; do
   [ -z "$f" ] && continue
   case "$f" in
-    ops/*_dm_*|ops/outreach_*|ops/twzrd_*|ops/reply_*|ops/discord_*|ops/smithery_*|ops/linkedin_comment_*|ops/fed_*|HANDOFF*|*引き継ぎ*|handoff-*|PRIVATE_*)
+    ops/*_dm_*|ops/outreach_*|ops/twzrd_*|ops/reply_*|ops/discord_*|ops/smithery_*|ops/linkedin_comment_*|ops/fed_*|ops/post_*|ops/note_*|HANDOFF*|*引き継ぎ*|handoff-*|PRIVATE_*)
       echo "REFUSE: private / DM-class draft is staged: $f"
       echo "        this belongs in ~/hs-core-private, not the public repo"
       bad=1 ;;
