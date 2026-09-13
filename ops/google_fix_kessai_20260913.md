@@ -102,9 +102,10 @@ GSC が「ドメイン」型のプロパティなら --site sc-domain:the-horizo
 
 第 4 段: Bing に archive と yakumo を登録(孤立 146 本の命綱。API キーは Bing Webmaster > 設定 > API アクセス で 1 回だけ作る。値はどこにも書かない)
 
-export BING_WMT_KEY=ここに値を貼る
 python3 ops/bing_sitemap_submit.py
 python3 ops/bing_sitemap_submit.py --send
+
+(台本が API キーを画面で聞く。入力は表示されない。キーは Bing Webmaster > 設定(歯車) > API アクセス > API キー で生成した 32 桁の英数字)
 
 期待値: 「登録 OK」2 行、登録後の一覧に sitemap-archive.xml と sitemap-yakumo.xml が出る。
 API キーを作りたくなければ Bing Webmaster の画面 Sitemaps > Submit sitemap に 2 本の URL を貼るだけでも同じ。

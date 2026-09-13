@@ -23,6 +23,9 @@ MOAT_FORBIDDEN = [s[::-1] for s in ["5.23", "dlohserht_regnad", "CPW"]]
 RECIRC_MARKER = "EHN board で他の実例を見る"
 
 def fetch(url):
+    # 2026-09-13: sitemap の <loc> は既に %エンコード済みのものがある。そのまま quote すると % が %25 になり、
+    #   実在ページを 404 と誤判定する(9/13 に aeo 31 本で実際に起きた)。先に unquote してから quote する。
+    url = urllib.parse.unquote(url)
     url = urllib.parse.quote(url, safe=":/?#[]@!$&'()*+,;=~" + "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._")
     req = urllib.request.Request(url, headers={"User-Agent": "HS-IndexNow-Selfcheck"})
     with urllib.request.urlopen(req, timeout=20) as r:

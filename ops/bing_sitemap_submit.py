@@ -46,8 +46,16 @@ def main():
     ap.add_argument("--feeds", help="完全URLカンマ区切り。既定は sitemap-archive.xml と sitemap-yakumo.xml")
     a = ap.parse_args()
     key = os.environ.get("BING_WMT_KEY", "").strip()
+    if key and not (key.isalnum() and len(key) >= 20):
+        print("環境変数 BING_WMT_KEY に鍵でない文字列が入っている(前に貼った仮の文字が残っている)。無視して画面で聞く。")
+        key = ""
     if not key:
-        print("BING_WMT_KEY 未設定。export BING_WMT_KEY=... を先に打つ。何も送っていない。"); sys.exit(1)
+        # 2026-09-13: export の置き場に「ここに値を貼る」を貼ったまま実行される事故があったので、
+        # 環境変数が無ければ画面で聞く(入力は表示されない)。
+        import getpass
+        key = getpass.getpass("Bing Webmaster の API キー(設定 > API アクセス で生成した 32 桁の英数字)を貼って Enter: ").strip()
+    if not key or not key.isalnum() or len(key) < 20:
+        print("キーの形が違う(英数字 32 桁のはず)。何も送っていない。"); sys.exit(1)
     feeds = [u.strip() for u in a.feeds.split(",")] if a.feeds else FEEDS
     print("=== 登録前 ==="); show(key)
     if not a.send:
