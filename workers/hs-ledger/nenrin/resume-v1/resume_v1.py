@@ -11,7 +11,7 @@ Three laws enforced here:
   2. discrepancies are copied verbatim, never dropped
   3. no score is ever emitted (counts and links only; PASS/FAIL and n_pass/n_total are counts)
 """
-import json, hashlib
+import json, hashlib, re
 from datetime import datetime, timezone
 
 ALLOWED_OUTCOME = {"PASS", "FAIL"}  # witness-walk vocabulary (verdict.outcome)
@@ -33,12 +33,28 @@ class Reject(Exception):
         super().__init__(code + ": " + why)
 
 
-def _parse(t):
-    return datetime.strptime(t, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+_ISO = re.compile(r"^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})Z$")
+_LEDGER = re.compile(r"^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})(?::(\d{2}))? UTC$")
+
+
+def to_epoch(t):
+    """UTC seconds for 'YYYY-MM-DDTHH:MM:SSZ' (walk records) or 'YYYY-MM-DD HH:MM[:SS] UTC'
+    (the ledger's block_time, written by the stamping runner). None if neither."""
+    if not isinstance(t, str):
+        return None
+    m = _ISO.match(t) or _LEDGER.match(t)
+    if not m:
+        return None
+    y, mo, d, h, mi, sec = m.groups()
+    try:
+        return int(datetime(int(y), int(mo), int(d), int(h), int(mi), int(sec or 0), tzinfo=timezone.utc).timestamp())
+    except ValueError:
+        return None
 
 
 def _within(t, now, days):
-    return (_parse(now) - _parse(t)).days <= days
+    # floor of whole days, same as JS Math.floor((now - t) / 86400000)
+    return (to_epoch(now) - to_epoch(t)) // 86400 <= days
 
 
 def _scan_forbidden(obj, path="$"):
@@ -88,7 +104,10 @@ def check_measurement(m):
     measured_at = rec.get("walked_at") or rec.get("measured_at") or rec.get("first_instant")
     if not block_time or not measured_at:
         raise Reject("coordinate_chosen_by_prover", "no anchor block_time to bound the measurement time")
-    if measured_at > block_time:
+    t_m, t_b = to_epoch(measured_at), to_epoch(block_time)
+    if t_m is None or t_b is None:
+        raise Reject("coordinate_chosen_by_prover", "measurement or anchor time is not a recognised UTC timestamp")
+    if t_m > t_b:
         raise Reject("coordinate_chosen_by_prover", "walked_at is after the anchoring block (postdated)")
     return rec, outcome, w, measured_at, n_pass, n_total
 
@@ -148,7 +167,7 @@ def assemble_resume(perma_id, endpoint, agent_card_url, measurements,
     out_rings = [_copy_ring(r, discrepancies) for r in rings]
     last = max(times) if times else None
     oldest = min(times) if times else None
-    current_now = bool(last and now and _within(last, now, period_days))
+    current_now = bool(last and now and to_epoch(last) is not None and to_epoch(now) is not None and _within(last, now, period_days))
     resume = {
         "schema": "nenrin-resume-v1",
         "perma_id": perma_id,

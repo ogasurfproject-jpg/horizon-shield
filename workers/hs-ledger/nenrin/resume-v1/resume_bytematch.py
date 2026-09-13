@@ -34,6 +34,11 @@ cases = [
     ("A6_score_key", args([meas(rec(extra={"trust_score": 95}))])),
     ("A7_verdict_inconsistent", args([meas(rec(outcome="PASS", ok=False))])),
     ("A8_no_block_time", args([meas(rec(), block_time=None)])),
+    ("E6_same_day_ledger_block_time_format", args([meas(rec(walked_at="2026-09-07T00:10:00Z"), block_time="2026-09-07 01:08 UTC")])),
+    ("E7_ledger_format_with_seconds", args([meas(rec(walked_at="2026-09-07T00:10:00Z"), block_time="2026-09-07 01:08:30 UTC")])),
+    ("A3b_postdated_ledger_format", args([meas(rec(walked_at="2026-09-07T02:00:00Z"), block_time="2026-09-07 01:08 UTC")])),
+    ("A9_unparseable_block_time", args([meas(rec(), block_time="yesterday")])),
+    ("A10_calendar_overflow", args([meas(rec(), block_time="2026-02-30 01:08 UTC")])),
     ("L1_backdating_stale", args([meas(rec(walked_at="2026-01-01T00:00:00Z"))])),
 ]
 

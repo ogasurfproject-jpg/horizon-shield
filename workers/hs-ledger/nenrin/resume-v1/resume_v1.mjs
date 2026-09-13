@@ -29,9 +29,25 @@ const pyTruthy = (v) => !(v === null || v === undefined || v === false || v === 
   (Array.isArray(v) && v.length === 0) || (typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 0));
 const pyOr = (a, b) => (pyTruthy(a) ? a : b);
 
+const ISO_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})Z$/;
+const LEDGER_RE = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})(?::(\d{2}))? UTC$/;
+// UTC seconds for 'YYYY-MM-DDTHH:MM:SSZ' (walk records) or 'YYYY-MM-DD HH:MM[:SS] UTC'
+// (the ledger's block_time, written by the stamping runner). null if neither.
+export function toEpoch(t) {
+  if (typeof t !== "string") return null;
+  const m = ISO_RE.exec(t) || LEDGER_RE.exec(t);
+  if (!m) return null;
+  const y = +m[1], mo = +m[2], d = +m[3], h = +m[4], mi = +m[5], s = +(m[6] || 0);
+  if (mo < 1 || mo > 12 || d < 1 || d > 31 || h > 23 || mi > 59 || s > 59) return null;
+  const ms = Date.UTC(y, mo - 1, d, h, mi, s);
+  // reject calendar overflow (e.g. Feb 30) the way python's datetime does
+  const chk = new Date(ms);
+  if (chk.getUTCMonth() !== mo - 1 || chk.getUTCDate() !== d) return null;
+  return Math.floor(ms / 1000);
+}
 function within(t, now, days) {
-  // python: (parse(now) - parse(t)).days <= days ; timedelta.days floors
-  return Math.floor((Date.parse(now) - Date.parse(t)) / 86400000) <= days;
+  // python: (to_epoch(now) - to_epoch(t)) // 86400 <= days ; floor division
+  return Math.floor((toEpoch(now) - toEpoch(t)) / 86400) <= days;
 }
 
 function scanForbidden(obj, path = "$") {
@@ -67,7 +83,9 @@ export async function checkMeasurement(m, sha256Hex) {
   const blockTime = g(anchor, "block_time");
   const measuredAt = pyOr(pyOr(g(rec, "walked_at"), g(rec, "measured_at")), g(rec, "first_instant"));
   if (!pyTruthy(blockTime) || !pyTruthy(measuredAt)) throw new Reject("coordinate_chosen_by_prover", "no anchor block_time to bound the measurement time");
-  if (measuredAt > blockTime) throw new Reject("coordinate_chosen_by_prover", "walked_at is after the anchoring block (postdated)");
+  const tM = toEpoch(measuredAt), tB = toEpoch(blockTime);
+  if (tM === null || tB === null) throw new Reject("coordinate_chosen_by_prover", "measurement or anchor time is not a recognised UTC timestamp");
+  if (tM > tB) throw new Reject("coordinate_chosen_by_prover", "walked_at is after the anchoring block (postdated)");
   return [rec, outcome, w, measuredAt, nPass, nTotal];
 }
 
@@ -121,7 +139,7 @@ export async function assembleResume(permaId, endpoint, agentCardUrl, measuremen
   for (const r of rings) outRings.push(await copyRing(r, discrepancies, sha256Hex));
   const last = times.length ? times.reduce((a, b) => (a > b ? a : b)) : null;
   const oldest = times.length ? times.reduce((a, b) => (a < b ? a : b)) : null;
-  const currentNow = Boolean(last && now && within(last, now, periodDays));
+  const currentNow = Boolean(last && now && toEpoch(last) !== null && toEpoch(now) !== null && within(last, now, periodDays));
   const resume = {
     schema: "nenrin-resume-v1",
     perma_id: permaId, measured_endpoint: endpoint, agent_card_url: agentCardUrl,

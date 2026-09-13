@@ -73,6 +73,16 @@ expect_reject("A6_score_key_injected", "score_injection", A(args([meas(rec(extra
 expect_reject("A7_verdict_ok_disagrees_with_outcome", "verdict_inconsistent", A(args([meas(rec(outcome="PASS", ok=False))])))
 expect_reject("A8_no_anchor_block_time", "coordinate_chosen_by_prover", A(args([meas(rec(), block_time=None)])))
 
+def e6():
+    r = A(args([meas(rec(walked_at="2026-09-07T00:10:00Z"), block_time="2026-09-07 01:08 UTC")]))()
+    assert r["counts"]["PASS"] == 1 and r["measurements"][0]["anchor"]["block_time"] == "2026-09-07 01:08 UTC"
+expect_ok("E6_same_day_anchor_in_ledger_block_time_format(prod_bug)", e6)
+expect_ok("E7_ledger_format_with_seconds", A(args([meas(rec(walked_at="2026-09-07T00:10:00Z"), block_time="2026-09-07 01:08:30 UTC")])))
+expect_reject("A3b_postdated_in_ledger_block_time_format", "coordinate_chosen_by_prover",
+              A(args([meas(rec(walked_at="2026-09-07T02:00:00Z"), block_time="2026-09-07 01:08 UTC")])))
+expect_reject("A9_unparseable_block_time", "coordinate_chosen_by_prover", A(args([meas(rec(), block_time="yesterday")])))
+expect_reject("A10_calendar_overflow_block_time", "coordinate_chosen_by_prover", A(args([meas(rec(), block_time="2026-02-30 01:08 UTC")])))
+
 def l1():
     r = A(args([meas(rec(walked_at="2026-01-01T00:00:00Z"), block_time="2026-09-10T06:00:00Z")]))()
     assert r["freshness"]["current_now"] is False

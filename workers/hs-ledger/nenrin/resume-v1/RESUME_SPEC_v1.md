@@ -53,12 +53,12 @@ M5 敵が製品: 公開 red-team。check を緩めた fork は公開ハーネス
 
 ## 7. 核の拒否(fail-closed。1 行でも落ちれば route は 422 で理由を名指しし、周りだけで組み立てない)
 
-self_asserted(バイト無し / jidec-path-v1 でない / witness{name,vantage} 無し) / orphan_record(バイトが sha に一致しない) / score_injection(verdict.outcome が PASS|FAIL 以外、または score 系キー) / verdict_inconsistent(verdict.ok と outcome が食い違う) / coordinate_chosen_by_prover(block_time 無し、または walked_at が block_time より後 = postdated)
+self_asserted(バイト無し / jidec-path-v1 でない / witness{name,vantage} 無し) / orphan_record(バイトが sha に一致しない) / score_injection(verdict.outcome が PASS|FAIL 以外、または score 系キー) / verdict_inconsistent(verdict.ok と outcome が食い違う) / coordinate_chosen_by_prover(block_time 無し / 時刻が読めない / walked_at が block_time より後 = postdated)。時刻は walk の 'YYYY-MM-DDTHH:MM:SSZ' と台帳の 'YYYY-MM-DD HH:MM[:SS] UTC'(stamp 台本の書式)を両方 UTC 秒に正規化して比べる。文字列比較は同日の錨で 'T' と ' ' の差だけで誤拒否する(2026-09-13 本番の block_time で発見)
 
 ## 8. 検証(全部 offline・決定論、この dir で)
 
-    python3 resume_redteam.py        控え 4 + 攻撃 8 + 正直 limit 1 + legacy 1 = 14/14
-    python3 resume_bytematch.py      python vs node、21 ケースで sha と拒否コード一致(M4)
+    python3 resume_redteam.py        控え 4 + 攻撃 11 + 正直 limit 1 + legacy 1 + 時刻書式 2 = 19/19
+    python3 resume_bytematch.py      python vs node、26 ケースで sha と拒否コード一致(M4)
     node resume_route_selftest.mjs
                                      実 worker.js を KV モックで叩く。束ね二段認証・仕分け・順序・422・md・400・空台帳 = 19/19
 配備の門(Mac): cd workers/hs-ledger && npx wrangler deploy --dry-run --outdir /tmp/hsl-bundle(核が bundle に入り node import が無いことの確認)→ npx wrangler deploy → 本番 curl。
