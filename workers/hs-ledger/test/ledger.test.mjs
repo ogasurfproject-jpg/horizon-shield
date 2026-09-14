@@ -59,7 +59,17 @@ let r = await go("/health");
 const hj = JSON.parse(r.t);
 // 2026-08-18 で /witness, /witness/pending, /witness/{sha} の 3 本が足された(entry #19、NENRIN phase 2)。
 // 9 のままやったこの行は 08-18 から落ち続けとった。12 に直したのは 2026-09-05。
-chk("/health routes still 13 (9 + 3 witness + /resume since 2026-09-13)", hj.routes.length === 13, String(hj.routes.length));
+// 2026-09-14: 本数(=== 13)は route を足すたびに手で書き換える魔法数字やった(9 -> 12 -> 13)。
+// 監視側と同じアンチパターン。名前の集合で見る。route を足したら、ここに名前を書き足さんと落ちる。
+const EXPECTED_ROUTES = [
+  "/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}",
+  "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query",
+  "/witness", "/witness/pending", "/witness/{sha}",
+  "/resume?endpoint={url}",
+];
+const routesMatch = Array.isArray(hj.routes)
+  && JSON.stringify([...hj.routes].sort()) === JSON.stringify([...EXPECTED_ROUTES].sort());
+chk("/health routes are exactly the named set (add a route: name it here, not bump a count)", routesMatch, "got " + JSON.stringify(hj.routes));
 chk("/health has discovery", !!hj.discovery && hj.discovery.api_catalog === "/.well-known/api-catalog");
 chk("/health transparency admits non-conformance", /NOT a conformant/.test(hj.transparency.conformance));
 
