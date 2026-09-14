@@ -34,7 +34,7 @@
   "commit_paths": [
     "yakumo/",
     "tools/yakumo/last_manifest.json",
-    "sitemap.xml",
+    "sitemap-yakumo.xml",
     "data/yakumo-content-manifest.json"
   ],
   "published": true
