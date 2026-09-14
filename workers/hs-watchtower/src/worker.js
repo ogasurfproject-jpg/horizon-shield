@@ -43,6 +43,16 @@ function tryJson(body) {
   try { return JSON.parse(body); } catch { return null; }
 }
 
+// Expected /health routes on the ledger. Independent expectation, deliberately NOT synced from the
+// ledger: when a legitimate route is added (e.g. /resume, 2026-09-13) this check goes red on purpose,
+// a human confirms the change was intended, and re-pins the set here by hand.
+const LEDGER_ROUTES_EXPECTED = [
+  "/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}",
+  "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query",
+  "/witness", "/witness/pending", "/witness/{sha}",
+  "/resume?endpoint={url}",
+];
+
 const CHECKERS = {
   ledger_health({ status, body }) {
     const j = tryJson(body);
@@ -51,8 +61,13 @@ const CHECKERS = {
     const transparency = !!(j && j.transparency);
     const privacy = !!(j && j.privacy);
     const scitt = !!(j && j.transparency && String(j.transparency.conformance || "").includes("NOT a conformant SCITT"));
-    const ok = status === 200 && !!routes && routes.length === 12 && discovery && transparency && privacy && scitt;
-    return { ok, detail: { status, routes: routes ? routes.length : null, discovery, transparency, privacy, scitt } };
+    const routesActual = routes ? routes.slice().sort() : null;
+    const routesExpected = LEDGER_ROUTES_EXPECTED.slice().sort();
+    const routesMatch = routesActual !== null && routesActual.length === routesExpected.length && routesActual.every((r, i) => r === routesExpected[i]);
+    const routesUnexpected = routes ? routes.filter((r) => LEDGER_ROUTES_EXPECTED.indexOf(r) === -1) : [];
+    const routesMissing = routes ? LEDGER_ROUTES_EXPECTED.filter((r) => routes.indexOf(r) === -1) : LEDGER_ROUTES_EXPECTED.slice();
+    const ok = status === 200 && routesMatch && discovery && transparency && privacy && scitt;
+    return { ok, detail: { status, routes: routes ? routes.length : null, routes_match: routesMatch, routes_unexpected: routesUnexpected, routes_missing: routesMissing, discovery, transparency, privacy, scitt } };
   },
   api_catalog({ status, body }) {
     const j = tryJson(body);
@@ -114,7 +129,7 @@ async function probeOutreach(env, adminToken) {
     return { ok: null, http_status: null, detail: { skipped: "OUTREACH_ADMIN_TOKEN not configured on hs-watchtower" } };
   }
   try {
-    const r = await fetchNoCache(OUTREACH_STATUS_PATH + "?token=" + encodeURIComponent(adminToken), null, env.OUTREACH || null);
+    const r = await fetchNoCache(OUTREACH_STATUS_PATH, { authorization: "Bearer " + adminToken }, env.OUTREACH || null);
     const j = tryJson(r.body);
     if (r.status !== 200 || !j) {
       return { ok: false, http_status: r.status, detail: { status: r.status, note: "status not 200 or not JSON" } };
