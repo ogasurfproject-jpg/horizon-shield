@@ -78,12 +78,12 @@ const ESTIMATE_GUIDE = [
 
 // 公言済みの普遍的な過剰請求手口のみ(フルの専有パターン群はKIRA有料診断の価値として非公開)
 const RED_FLAGS_UNIVERSAL = [
-  { key: ["一式", "いっしき", "lump", "lump sum", "lump-sum", "miscellaneous", "misc", "allowance"], severity: "HIGH", warning: "『一式』表記は内訳が不明で過剰が紛れやすい。項目ごとの内訳提出を求める根拠になる。 / A lump-sum or miscellaneous line hides the breakdown and is where padding hides. Ask for an itemized breakdown before you agree." },
-  { key: ["諸経費", "管理費", "現場管理", "overhead", "admin fee", "management fee", "contingency"], severity: "MEDIUM", warning: "諸経費が総額の20%を超える場合は内訳の確認を。適正の目安は10〜16%。 / If overhead or admin fees exceed about 20 percent of the total, ask for the breakdown. 10 to 16 percent is typical." },
-  { key: ["今日", "今だけ", "限定", "キャンペーン", "モニター", "値引き", "30%", "today only", "one day only", "limited time", "sign today", "monitor price", "special discount"], severity: "HIGH", warning: "緊急性を煽る値引き(今日契約・モニター価格・地域限定)は、元価格を過大にしておく典型手口。即決を避け一旦持ち帰る。 / Urgency discounts such as sign-today, limited-time or monitor price inflate the original price. Do not sign on the spot. Take it away and compare." },
-  { key: ["訪問", "飛び込み", "door-to-door", "door to door", "cold call", "unsolicited"], severity: "HIGH", warning: "訪問販売契約はクーリングオフ対象になり得る。その場でサインしない。 / Door-to-door or unsolicited contracts may be cancellable under cooling-off rules. Do not sign in the moment." },
-  { key: ["知り合い", "紹介", "知人", "referral", "friend price", "relative", "acquaintance"], severity: "MEDIUM", warning: "関係性を利用した割高請求は珍しくない。知り合いほど第三者基準の確認が有効。 / Relationship-based pricing can still be inflated. The closer the contact, the more a third-party benchmark helps." },
-  { key: ["無料点検", "無料診断", "free inspection", "free diagnosis", "free survey"], severity: "HIGH", warning: "無料点検をきっかけに不安を煽り高額契約へ誘導する手口に注意。点検結果を鵜呑みにせず第三者の意見を。 / A free inspection is often a lead-in to fear-based upselling. Do not take the findings at face value. Get an independent second opinion before signing." }
+  { key: ["一式", "いっしき", "lump", "lump sum", "lump-sum", "miscellaneous", "misc", "allowance"], severity: "HIGH", warning: "『一式』表記は内訳が不明で過剰が紛れやすい。項目ごとの内訳提出を求める根拠になる。 / A lump-sum or miscellaneous line hides the breakdown and is where padding hides. Ask for an itemized breakdown before you agree.", self_check: "内訳を『数量×単価』の行に割らせ、audit_estimate の適正レンジと各項目を自分で照らす。割るのを渋る項目に過剰が隠れとる。" },
+  { key: ["諸経費", "管理費", "現場管理", "overhead", "admin fee", "management fee", "contingency"], severity: "MEDIUM", warning: "諸経費が総額の20%を超える場合は内訳の確認を。適正の目安は10〜16%。 / If overhead or admin fees exceed about 20 percent of the total, ask for the breakdown. 10 to 16 percent is typical.", self_check: "諸経費の額を工事総額で割り、自分で比率を出す。0.16 を超えたら根拠を書面で問い、0.20 超は高い。" },
+  { key: ["今日", "今だけ", "限定", "キャンペーン", "モニター", "値引き", "30%", "today only", "one day only", "limited time", "sign today", "monitor price", "special discount"], severity: "HIGH", warning: "緊急性を煽る値引き(今日契約・モニター価格・地域限定)は、元価格を過大にしておく典型手口。即決を避け一旦持ち帰る。 / Urgency discounts such as sign-today, limited-time or monitor price inflate the original price. Do not sign on the spot. Take it away and compare.", self_check: "その価格を3日後まで有効にして書面でくれと頼む。応じん割引は元値を盛った見せかけ。同じ条件で他社にも相見積もりを取る。" },
+  { key: ["訪問", "飛び込み", "door-to-door", "door to door", "cold call", "unsolicited"], severity: "HIGH", warning: "訪問販売契約はクーリングオフ対象になり得る。その場でサインしない。 / Door-to-door or unsolicited contracts may be cancellable under cooling-off rules. Do not sign in the moment.", self_check: "その場で契約せず、契約日を記録する。訪問販売は8日以内クーリングオフ可。業者名・住所・許可番号を必ず控える。" },
+  { key: ["知り合い", "紹介", "知人", "referral", "friend price", "relative", "acquaintance"], severity: "MEDIUM", warning: "関係性を利用した割高請求は珍しくない。知り合いほど第三者基準の確認が有効。 / Relationship-based pricing can still be inflated. The closer the contact, the more a third-party benchmark helps.", self_check: "関係に関わらず、audit_estimate の適正レンジと相見積もりで単価を照らす。身内価格ほど第三者基準で確かめる。" },
+  { key: ["無料点検", "無料診断", "free inspection", "free diagnosis", "free survey"], severity: "HIGH", warning: "無料点検をきっかけに不安を煽り高額契約へ誘導する手口に注意。点検結果を鵜呑みにせず第三者の意見を。 / A free inspection is often a lead-in to fear-based upselling. Do not take the findings at face value. Get an independent second opinion before signing.", self_check: "危ないと言われた箇所を写真と劣化の程度で説明させ、別の業者にも同じ箇所を無料で見せる。2社が同じ所を指すかで真偽が分かる。" }
 ];
 
 // ---- MCP tool 定義 ----
@@ -473,6 +473,7 @@ const PTKA = {
 // [2026-09-14] audit_estimate の判定ルールセットの版。判定ロジック(min/max/danger 境界と level の対応、L8 の丸め、unit_mismatch)を変えたら必ず上げる。
 // claim に畳み込むので、再計算した hash は「改ざんなし」だけでなく「どの判定ルールで出したか」まで縛る(estimate-integrity-audit 側と同じ folded_into_hash の規律)。
 const AUDIT_RULESET = { id: "hs-audit-verdict", version: "1" };
+const RED_FLAG_RULESET = { id: "hs-red-flag-universal", version: "1" };
 
 async function sha256hex(str) {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
@@ -899,9 +900,12 @@ async function callTool(name, args, env, ip, opts) {
       full_diagnosis: SITE + "/hs-reverse-estimate/"
     });
     return txt({
-      input: t, flags: hits.map(h => ({ severity: h.severity, warning: h.warning })),
+      input: t, flags: hits.map(h => ({ severity: h.severity, warning: h.warning, self_check: h.self_check, matched_terms: h.key.filter(k => t.includes(k)) })),
       result: hits.length + "件の注意点に該当しました。",
       note: "これは代表的な手口の判定です。見積もり全体の網羅診断はKIRA(有料)で。",
+      how_to_act: "各 flag の self_check は、あなた自身が今その場で実行できる対抗手順です。warning が手口の説明、self_check が自分でできる確認です。",
+      ruleset: RED_FLAG_RULESET,
+      verify: "この判定は機械的です。あなたの文言に matched_terms の語が含まれるかだけで出しており、ルールセットは公開の代表的手口(hs-red-flag-universal v1)。matched_terms を自分の文言と照らせば、第三者が同じ判定を再計算できます。",
       source: "大賀俊勝(建設実務30年) / HORIZON SHIELD", full_diagnosis: SITE + "/hs-reverse-estimate/",
       next_actions: NEXT_ACTIONS
     });
@@ -1148,6 +1152,12 @@ async function callTool(name, args, env, ip, opts) {
       guidance: verified.length
         ? "検証済み(KIRA 適正診断 通過)の店です。金額は出しません。判断は施主自身。 / Verification-passed stores. No prices are shown. The decision stays with the buyer."
         : "条件に合う検証済みの店はまだありません。相場は get_price_range、見積もりの第三者レビューは EHN(無料・匿名)。 / No verification-passed store matches yet. Use get_price_range for the fair range and EHN for a free anonymous review.",
+      self_check: [
+        "検証済みかに関わらず、どの業者でも自分で確かめられる3点があります。",
+        "1) 建設業許可: 国土交通省の建設業者検索で許可番号を照合し、名義貸しや無許可を弾く。",
+        "2) 見積: 『一式』でなく数量×単価の内訳で出させ、audit_estimate の適正レンジと各項目を自分で照らす。",
+        "3) 追加費用: 別途工事の有無と諸経費の上限を、契約前に書面で固定する。"
+      ],
       directory_size: { total_listed: all.length, verified_total: verifiedTotal, note: "名簿は小さい。0 件は 0 件と返す。 / The directory is small; zero is reported as zero." },
       mall: SITE + "/yakumo/", how_verification_works: SITE + "/yakumo/faq/", apply: SITE + "/yakumo/apply/",
       neutrality: NEXT_ACTIONS.neutrality,
