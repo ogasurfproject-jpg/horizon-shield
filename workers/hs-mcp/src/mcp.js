@@ -481,7 +481,11 @@ async function sha256hex(str) {
 
 async function fetchSouba() {
   const r = await fetch(SOUBA_DB_URL, { cf: { cacheTtl: 3600 } });
-  return await r.json();
+  const buf = await r.arrayBuffer();
+  const hb = await crypto.subtle.digest("SHA-256", buf);
+  const d = JSON.parse(new TextDecoder().decode(buf));
+  d._dataset_sha256 = [...new Uint8Array(hb)].map(b => b.toString(16).padStart(2, "0")).join("");
+  return d;
 }
 
 // === [PATCH 2026-06-15] 検索フォールバック ===
@@ -867,7 +871,7 @@ async function callTool(name, args, env, ip, opts) {
         tool: "audit_estimate", work: resp.work, unit: resp.unit, quoted_price: price, currency: "JPY",
         fair_range: resp.fair_range, verdict, level,
         region: resp.region ? { key: resp.region.key, multiplier: resp.region.multiplier, applied: resp.region.applied } : null,
-        ruleset: AUDIT_RULESET, data_version: (d && d._meta && d._meta.version) || "unversioned", observed_at
+        ruleset: AUDIT_RULESET, data_version: (d && d._meta && d._meta.version) || "unversioned", dataset_sha256: (d && d._dataset_sha256) || null, observed_at
       };
       if (_nw.from) resp.normalized_from = _nw.from;
       resp.next_calls = [
@@ -878,7 +882,8 @@ async function callTool(name, args, env, ip, opts) {
       resp.claim = claim;
       resp.verification = {
         claim_sha256: await sha256hex(JSON.stringify(claim)),
-        recompute: "SHA-256(JSON.stringify(claim)) を計算すれば一致する。台帳には書いていない。検証可能な記録が要るなら verify_fair_price。 / Recompute SHA-256 over JSON.stringify(claim). Not written to the ledger; use verify_fair_price for an anchored record."
+        recompute: "SHA-256(JSON.stringify(claim)) を計算すれば一致する。台帳には書いていない。検証可能な記録が要るなら verify_fair_price。 / Recompute SHA-256 over JSON.stringify(claim). Not written to the ledger; use verify_fair_price for an anchored record.",
+        dataset_verify: "claim.dataset_sha256 は判定に使った souba-db.json の実バイトの SHA-256。fetch して SHA-256 すれば一致し、その sha を JIDEC で引けば Bitcoin 時刻が付く(発行者は中身も時刻も後から書き換えられない)。 / claim.dataset_sha256 is the SHA-256 of the souba-db.json bytes used for the verdict; fetch and hash to confirm, then look the sha up in JIDEC for a Bitcoin timestamp."
       };
       return txt(resp);
     } catch (e) { return failTxt("価格データの取得に失敗しました。" + SITE + "/souba/ を参照してください。"); }
