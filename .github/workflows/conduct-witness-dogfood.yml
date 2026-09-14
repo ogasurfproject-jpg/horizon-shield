@@ -1,0 +1,17 @@
+name: conduct-witness-dogfood
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 4 * * *"
+jobs:
+  witness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ogasurfproject-jpg/horizon-shield/conduct-witness-action@main
+        with:
+          witness_name: "HORIZON SHIELD self-witness (github runner)"
+          origins: |
+            https://mcp.horizonshield.dev
+            https://gate.horizonshield.dev
+          mode: a2a
+          walker_sha256: 6d770be6abb56da9f49738ee0a7e359f4073d57e5772b4b0084e4a1a6f407ba6
