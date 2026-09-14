@@ -82,7 +82,7 @@ const ATTRIB = /attributable to the operator/;
 const UNCONFIRMED = /could not confirm it/;
 // 0.4.5 で増えた 2 状態
 const OFFDOMAIN = /the signature verifies, but against a key served at/;
-const OWNFAIL = /a signature whose key is served under the agent's own domain/;
+const OWNFAIL = /a signature whose key is served on the agent's own host/;
 const has = (arr, re) => Array.isArray(arr) && arr.some((x) => re.test(x));
 
 // ---------------------------------------------------------------- 無署名
@@ -146,7 +146,7 @@ const MIXED = Object.assign({}, CARD, { signatures: [
 v = await check(MIXED, { foreignKey2: true });
 t("attack", "own-domain signature broken, off-domain signature valid: 0.4.4 attributed this to the operator", !has(v.establishes, ATTRIB), JSON.stringify(v.establishes.slice(-1)));
 t("fix", "and the record leads with the failure on the operator's own domain, not with the one that passed", has(v.does_not_establish, OWNFAIL), JSON.stringify(v.does_not_establish.slice(-1)));
-t("fix", "and it still names the off-domain key that did verify, so nothing is hidden", /not under the agent's own domain/.test(v.does_not_establish.join(" ")), JSON.stringify(v.does_not_establish.slice(-1)));
+t("fix", "and it still names the off-domain key that did verify, so nothing is hidden", /a different host from the card/.test(v.does_not_establish.join(" ")), JSON.stringify(v.does_not_establish.slice(-1)));
 
 // 自ドメインの jku が他所へ 302 で逃げる。0.4.4 でも塞がっとったが、vector が無かった
 v = await check(SIGNED, { ownRedirect: true });
