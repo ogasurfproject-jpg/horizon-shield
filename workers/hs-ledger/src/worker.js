@@ -626,6 +626,7 @@ function routeLabel(p, url) {
   if (p === "/llms.txt") return "llms";
   if (p === "/a2a") return "a2a";
   if (p.startsWith("/cite/")) return "cite";
+  if (p.startsWith("/precedence/")) return "precedence";
   if (p === "/ledger") return "ledger-index";
   if (p === "/paths") return "paths-index";
   if (p === "/paths/query") return "paths-query";
@@ -880,6 +881,117 @@ judged by re-running the recipe, not by reading this file.
 - The public ledger index covers the most recent 100 entries.
 `;
 
+// [2026-09-14] Precedence receipt. Reuses citationCard (no new trust logic). Frames what the
+// confirmed anchor establishes as before/after, so an outside reader can check "did this record
+// exist before event X" without trusting the operator. A signature would not establish this; a
+// clock the operator cannot move (the Bitcoin block time) does.
+const _PREC_ISO = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?Z$/;
+const _PREC_LEDGER = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})(?::(\d{2}))? UTC$/;
+function precedenceEpoch(t) {
+  if (typeof t !== "string") return null;
+  const m = _PREC_ISO.exec(t) || _PREC_LEDGER.exec(t);
+  if (!m) return null;
+  const ms = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0));
+  return Number.isFinite(ms) ? Math.floor(ms / 1000) : null;
+}
+function precedenceView(card, beforeRaw) {
+  const bt = card && card.bitcoin && card.bitcoin.block_time;
+  const confirmed = !!(card && card.bitcoin && card.bitcoin.status === "confirmed" && card.bitcoin.block && bt);
+  const integrityOk = !!(card && card.integrity && card.integrity.match);
+  const pv = {
+    established: false,
+    what_it_means:
+      "A confirmed anchor proves this exact record existed at or before the Bitcoin block time. " +
+      "That time comes from a clock the operator does not control. A signature would not establish it: " +
+      "a signature carries only the time the signer claims to have written.",
+    limits: card ? card.limits : undefined,
+    recompute: card ? card.reproduce : undefined,
+    verify_block_url: card ? card.ots_url : undefined,
+  };
+  if (!integrityOk) {
+    pv.status = "integrity_failure";
+    pv.why = "the stored bytes do not hash to the cited id, so nothing is established";
+    return pv;
+  }
+  if (!confirmed) {
+    pv.status = (card && card.bitcoin && card.bitcoin.status === "pending") ? "anchor_pending" : "not_anchored";
+    pv.why = pv.status === "anchor_pending"
+      ? "submitted to OpenTimestamps; the Bitcoin block time is not confirmed yet, so no independent time bounds this record. Pending is the honest state, not a failure."
+      : "this record is not Bitcoin-anchored, so no independent clock bounds its existence time";
+    return pv;
+  }
+  pv.established = true;
+  pv.status = "confirmed";
+  pv.existed_at_or_before = bt;
+  pv.bitcoin_block = card.bitcoin.block;
+  pv.statement =
+    "This exact record existed at or before Bitcoin block " + card.bitcoin.block + " at " + bt +
+    ", established by a clock the operator cannot move.";
+  if (beforeRaw != null && String(beforeRaw).length) {
+    const tb = precedenceEpoch(bt);
+    const tx = precedenceEpoch(String(beforeRaw).trim());
+    const cmp = { claimed_time: String(beforeRaw).trim() };
+    if (tb == null || tx == null) {
+      cmp.result = "unparseable_time";
+      cmp.note = "give the time as ISO 8601 UTC, e.g. 2026-09-01T00:00:00Z";
+    } else if (tb < tx) {
+      cmp.result = "precedes"; cmp.provable = true; cmp.margin_seconds = tx - tb;
+      cmp.note = "this record provably predates the claimed time: its existence is bounded at or before " +
+        bt + ", which is earlier than " + cmp.claimed_time + ".";
+    } else {
+      cmp.result = "not_provably_before"; cmp.provable = false;
+      cmp.note = "cannot conclude precedence: the anchored time " + bt + " is not earlier than " +
+        cmp.claimed_time + ", so this record is not provably before it.";
+    }
+    pv.compared_to = cmp;
+  }
+  return pv;
+}
+function precedenceMarkdown(card, pv) {
+  const L = [];
+  L.push("# Precedence receipt");
+  L.push("");
+  L.push("Citation: `" + card.citation + "` (ledger entry #" + card.resolved_entry + ").");
+  L.push("");
+  if (!pv.established) {
+    L.push("## Not established");
+    L.push("");
+    L.push("Status: " + pv.status + ". " + (pv.why || ""));
+    L.push("");
+    L.push(pv.what_it_means);
+    if (pv.recompute) { L.push(""); L.push("Recompute the record:"); L.push(""); L.push("```"); L.push(pv.recompute); L.push("```"); }
+    L.push("");
+    return L.join("\n") + "\n";
+  }
+  L.push("## Established");
+  L.push("");
+  L.push(pv.statement);
+  L.push("");
+  L.push(pv.what_it_means);
+  if (pv.compared_to) {
+    L.push("");
+    L.push("## Against the claimed time " + pv.compared_to.claimed_time);
+    L.push("");
+    L.push(pv.compared_to.note);
+  }
+  L.push("");
+  L.push("## Check it yourself");
+  L.push("");
+  L.push("Recompute the record:");
+  L.push("");
+  L.push("```");
+  L.push(pv.recompute);
+  L.push("```");
+  L.push("");
+  L.push("Verify the block: " + pv.verify_block_url);
+  L.push("");
+  L.push("## What this does and does not prove");
+  L.push("");
+  L.push(pv.limits);
+  L.push("");
+  return L.join("\n") + "\n";
+}
+
 // Resolve any citation form to a verified card, using only public state.
 // This is the ledger-side twin of path/jidec_cite.py and hs-jidec-mcp's
 // jidec_cite. Three independent implementations that must agree.
@@ -1077,7 +1189,7 @@ async function handle(request, env) {
     if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
 
     if (p === "/" || p === "/health")
-      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query", "/witness", "/witness/pending", "/witness/{sha}", "/resume?endpoint={url}"], discovery: { api_catalog: "/.well-known/api-catalog", agent_card: "/.well-known/agent-card.json", jwks: "/.well-known/jwks.json", security_txt: "/.well-known/security.txt", llms_txt: "/llms.txt", a2a: "/a2a", cite: "/cite/{citation}", mcp: MCP_ORIGIN + "/mcp" }, transparency: TRANSPARENCY, privacy: PRIVACY });
+      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query", "/witness", "/witness/pending", "/witness/{sha}", "/resume?endpoint={url}"], discovery: { api_catalog: "/.well-known/api-catalog", agent_card: "/.well-known/agent-card.json", jwks: "/.well-known/jwks.json", security_txt: "/.well-known/security.txt", llms_txt: "/llms.txt", a2a: "/a2a", cite: "/cite/{citation}", precedence: "/precedence/{citation}", mcp: MCP_ORIGIN + "/mcp" }, transparency: TRANSPARENCY, privacy: PRIVACY });
 
     /* ---------------------- 看板 routes (additive, read-only) ---------------------- */
 
@@ -1126,6 +1238,22 @@ async function handle(request, env) {
       } catch (err) {
         return jsonV({ error: "unresolved", detail: String((err && err.message) || err), accepted_forms: ["jidec:entry:<n>", "jidec:path:<64hex>", "<64hex>", origin + "/ledger/<n>"], index: origin + "/ledger" }, 404);
       }
+    }
+
+    // Precedence receipt: the same verified card, framed as before/after, so an outside reader can
+    // check whether a record existed before a claimed time without trusting the operator.
+    // GET /precedence/<citation>[?before=<ISO 8601 UTC>]
+    if (p.startsWith("/precedence/") && request.method === "GET") {
+      const citation = decodeURIComponent(p.slice("/precedence/".length));
+      let card;
+      try {
+        card = await citationCard(env, origin, citation);
+      } catch (err) {
+        return jsonV({ error: "unresolved", detail: String((err && err.message) || err), accepted_forms: ["jidec:entry:<n>", "jidec:path:<64hex>", "<64hex>", origin + "/ledger/<n>"], index: origin + "/ledger" }, 404);
+      }
+      const pv = precedenceView(card, url.searchParams.get("before"));
+      if (wantsMarkdown(request)) return md(precedenceMarkdown(card, pv));
+      return jsonV({ citation: card.citation, resolved_entry: card.resolved_entry, integrity: card.integrity, bitcoin: card.bitcoin, precedence: pv }, card.integrity.match ? 200 : 409);
     }
 
     // A2A v1.0.1 JSON-RPC. Exactly one method, matching the single skill

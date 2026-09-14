@@ -3,7 +3,7 @@
 // 実行: node test/ledger.test.mjs
 //
 // このテストが守っているもの:
-//   1. /health の routes 配列が **ちょうど9本** であること。
+//   1. /health の routes 配列が **ちょうど13本**（9 + witness3 + /resume）であること。
 //      引き継ぎ書がこの9本を文字単位で固定し、番人v4 点検⑩ がこれを数えている。
 //      看板の追加でここが動いたら、それは設計の失敗であってテストの失敗ではない。
 //   2. 看板が RFC / 仕様に**本当に**準拠していること（形だけの .well-known を置かない）。
@@ -59,7 +59,7 @@ let r = await go("/health");
 const hj = JSON.parse(r.t);
 // 2026-08-18 で /witness, /witness/pending, /witness/{sha} の 3 本が足された(entry #19、NENRIN phase 2)。
 // 9 のままやったこの行は 08-18 から落ち続けとった。12 に直したのは 2026-09-05。
-chk("/health routes still 12 (9 + 3 witness routes since 2026-08-18)", hj.routes.length === 12, String(hj.routes.length));
+chk("/health routes still 13 (9 + 3 witness + /resume since 2026-09-13)", hj.routes.length === 13, String(hj.routes.length));
 chk("/health has discovery", !!hj.discovery && hj.discovery.api_catalog === "/.well-known/api-catalog");
 chk("/health transparency admits non-conformance", /NOT a conformant/.test(hj.transparency.conformance));
 

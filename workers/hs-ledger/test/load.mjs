@@ -14,11 +14,13 @@
 // 本番側の変更であって、テストのために本番の形を変えるのは順序が逆である。
 // (b) なら本番ファイルには指一本触れずに、**本物のソースそのもの**を読める。
 //
-// 重要：ここでコピーしているのは本物の src/worker.js である。テスト用の写しを
-// 別に持たない。写しを持った瞬間、テストは本番と静かにズレて嘘をつき始める。
+// 2026-09 追記: worker.js が相対 import（../nenrin/resume-v1/resume_v1.mjs）を
+// 持つようになった。/tmp へ写すと、その相対先が /tmp 基準になって壊れる。
+// Node 22.7 以降は package.json 無しの .js でも ESM 構文を自動判定して読むので、
+// 写す必要はもう無い。よって本物の src/worker.js を、その場で直接 import する。
+// 本番ファイルには指一本触れない、という元の約束はそのまま守られている。
 
-import { readFile, writeFile, mkdtemp } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { stat } from "node:fs/promises";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -31,11 +33,9 @@ const ROOT = resolve(HERE, "..");
  * @returns {Promise<object>} Worker の default export（{ fetch } を持つ）
  */
 export async function loadWorker(rel) {
-  const src = await readFile(join(ROOT, rel), "utf8");
-  const dir = await mkdtemp(join(tmpdir(), "jidec-test-"));
-  const f = join(dir, rel.replace(/[/\\]/g, "_") + ".mjs");
-  await writeFile(f, src);
-  const m = await import(pathToFileURL(f).href);
+  const abs = join(ROOT, rel);
+  await stat(abs); // 無ければ ENOENT を投げる（呼び出し側はこの code で「次の候補へ」を判断する）
+  const m = await import(pathToFileURL(abs).href);
   return m.default;
 }
 
