@@ -225,7 +225,7 @@ async function fetchLineFile(messageId, fileName, channelToken) {
     const name = String(fileName || "").toLowerCase();
     const isPdf = ctype.includes("pdf") || name.endsWith(".pdf") || (bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46);
     if (isPdf) {
-      if (buf.byteLength > 12 * 1024 * 1024) return { error: "PDFが大きすぎます(12MB超)。分割して送ってください" };
+      if (buf.byteLength > 18 * 1024 * 1024) return { error: "PDFが大きすぎます(18MB超)。分割するか、画像を圧縮して送ってください" };
       return { kind: "pdf", data: b64(bytes), name: fileName || "document.pdf" };
     }
     const isZip = bytes[0] === 0x50 && bytes[1] === 0x4b;
