@@ -1,0 +1,104 @@
+name: "conduct-witness"
+description: "Turn this repository into a standing witness: walk one or more A2A / MCP agents from your own runner on your own schedule, and file conduct records the agent did not write. Optional Ed25519 signing under your domain. No account, no key required, no payment."
+author: "The HORIZONs Co., Ltd."
+branding:
+  icon: "eye"
+  color: "gray-dark"
+
+inputs:
+  origins:
+    description: "Agent origins to walk, one per line or comma separated, for example https://mcp.horizonshield.dev. The card at <origin>/.well-known/agent-card.json names the endpoint and the intake."
+    required: true
+  witness_name:
+    description: "Who you are, or a project name. Appears on the ring by name. Never invented for you."
+    required: true
+  vantage:
+    description: "Where this walk is taken from. Default names the GitHub hosted runner and this repository; override on a self hosted runner with the real place."
+    required: false
+    default: ""
+  mode:
+    description: "mcp (default) or a2a. What node 3 sends to the measured endpoint."
+    required: false
+    default: "mcp"
+  submit:
+    description: "true (default) files each record to the intake the card names. false walks only and keeps the records as artifacts."
+    required: false
+    default: "true"
+  privacy:
+    description: "conduct-v1.1 record mode: full (default), hash-only, or commitment."
+    required: false
+    default: "full"
+  key_pem:
+    description: "Ed25519 private key in PEM (PKCS8), passed from a repository secret. Optional. With it, every record is signed and counted under your domain. Never printed."
+    required: false
+    default: ""
+  key_url:
+    description: "https URL under your own domain that serves {\"public_key_ed25519_b64\": ...}. Required when key_pem is set. Print the JSON to serve with: python3 a2a_conduct_walk.py --print-public-key witness.pem"
+    required: false
+    default: ""
+  intake:
+    description: "Override the witness intake URL. Leave empty to use the one the agent card names."
+    required: false
+    default: ""
+  transport:
+    description: "urllib (default) or curl. Use curl when an edge answers 403 to Python."
+    required: false
+    default: "urllib"
+  walker_ref:
+    description: "Git ref of ogasurfproject-jpg/horizon-shield to fetch the reference walker from."
+    required: false
+    default: "main"
+  walker_sha256:
+    description: "If set, the downloaded walker must hash to this, or the job stops before walking anything. Pin it for a reproducible witness."
+    required: false
+    default: ""
+  per_origin_pause_s:
+    description: "Seconds to wait between origins. This is traffic to somebody else's server."
+    required: false
+    default: "3"
+
+outputs:
+  records:
+    description: "JSON array of {origin, outcome, n_pass, n_total, record_sha256, submitted_http, file}"
+    value: ${{ steps.walk.outputs.records }}
+  walked:
+    description: "How many origins produced a record"
+    value: ${{ steps.walk.outputs.walked }}
+  submitted:
+    description: "How many records the intake answered with http 200"
+    value: ${{ steps.walk.outputs.submitted }}
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - id: walk
+      shell: bash
+      env:
+        CW_ORIGINS: ${{ inputs.origins }}
+        CW_WITNESS_NAME: ${{ inputs.witness_name }}
+        CW_VANTAGE: ${{ inputs.vantage }}
+        CW_MODE: ${{ inputs.mode }}
+        CW_SUBMIT: ${{ inputs.submit }}
+        CW_PRIVACY: ${{ inputs.privacy }}
+        CW_KEY_PEM: ${{ inputs.key_pem }}
+        CW_KEY_URL: ${{ inputs.key_url }}
+        CW_INTAKE: ${{ inputs.intake }}
+        CW_TRANSPORT: ${{ inputs.transport }}
+        CW_WALKER_REF: ${{ inputs.walker_ref }}
+        CW_WALKER_SHA256: ${{ inputs.walker_sha256 }}
+        CW_PAUSE: ${{ inputs.per_origin_pause_s }}
+        CW_REPO: ${{ github.repository }}
+        CW_RUNNER_OS: ${{ runner.os }}
+      run: bash "${{ github.action_path }}/witness.sh"
+
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: conduct-witness-records-${{ github.run_id }}
+        path: conduct-witness-out/
+        retention-days: 90
+        if-no-files-found: ignore
