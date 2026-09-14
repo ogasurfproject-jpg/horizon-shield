@@ -544,6 +544,9 @@ function _kenchikushiPrompt(theme) {
 
 async function generateArticle(theme) {
   console.log('記事生成中:', theme.title);
+  const _now = new Date();
+  const _nowY = _now.getFullYear();
+  const _nowYM = _nowY + '年' + (_now.getMonth() + 1) + '月';
   let response;
   for (let i = 0; i < 5; i++) {
     response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -555,7 +558,7 @@ async function generateArticle(theme) {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2000,
+        max_tokens: 2500,
         messages: [{
           role: 'user',
           content: (theme.series === 'kenchikushi') ? _kenchikushiPrompt(theme) : `あなたはHORIZON SHIELDのAIライターです。建設費診断の専門家として、施主目線で以下のテーマについて記事を書いてください。
@@ -568,12 +571,16 @@ async function generateArticle(theme) {
 1. あなたの役割は、上記の参考事実を施主向けに分かりやすく解説することです。事実を「創作」する役割ではありません。
 2. 一人称の体験談を一切書かないでください。「私が」「弊社が対応した」「先日の案件で」「某戸建てで」のような実体験の描写は全面禁止です。
 3. 参考事実に書かれていない具体的な数字(金額・パーセント・件数・「3ヶ月早く」等)を新たに作り出してはいけません。数字は参考事実にあるものだけを使ってください。
-4. 現在は2026年6月です。「年内」「来年」等は2026年基準。2025年を未来や現在として書かないでください。
+4. 現在は${_nowYM}です。「年内」「来年」等は${_nowY}年基準。過去の年を未来や現在として書かないでください。
 5. 一般的な注意喚起は「〜の場合があります」「公式サイトで必ず確認してください」と、断定を避けて書いてください。
 
 書き方:
-- 1000〜1400文字
-- 施主が次に取るべき行動を、参考事実に基づいて整理する
+- 1200〜1700文字
+- この工事の費用がどの項目に分かれるかを、項目名を挙げて構造で示す（例: 本体、施工手間、撤去、付帯、諸経費など、工事に応じた区分）
+- 各項目が何で金額が上下するかを一つずつ説明する
+- 施主が自分の見積書で確認し、業者に質問すべき点を具体的に挙げる
+- 具体的な金額が参考事実に無い場合でも、金額を創作せず、内訳の見方と確認の観点で厚みを出す
+- 施主が次に取るべき行動を整理する
 - 段落ごとに改行して読みやすく
 - 記号「*」「**」「#」「##」「_」は使わない
 - 最後にHORIZON SHIELDへの誘導文を1文
@@ -600,10 +607,10 @@ async function generateArticle(theme) {
 
   // 給湯器ガイドリンク（教科書シリーズのみ追加）
   const guideSection = theme.guideLink
-    ? `\n\n━━━━━━━━━━━━━━━━\n\n📖 給湯器交換の適正価格ガイド【2026年最新】\n建設30年プロが価格・詐欺パターン・補助金を完全解説\n${GUIDE_URL}\n`
+    ? `\n\n📖 給湯器交換の適正価格ガイド【2026年最新】\n建設30年プロが価格・詐欺パターン・補助金を完全解説\n${GUIDE_URL}\n`
     : '';
 
-  const footer = `${guideSection}\n\n━━━━━━━━━━━━━━━━\n\n🛡 HORIZON SHIELD・無料で使える3つの窓口\n\n📍 LPで診断する\nhttps://shield.the-horizons-innovation.com\n\n🤖 ChatGPTで無料診断（建設費カテゴリ1位）\nhttps://chatgpt.com/g/g-69e180f9a5048191886069dd58b22572-jian-she-fei-tietuka-by-horizon-shield\n\n♊ Geminiで無料診断\nhttps://gemini.google.com/gem/1_AqLRwNSP1tZWZNWzyNIrsOrBLI1fAjo\n\n💬 LINEで今すぐ相談（KIRA）\nhttps://line.me/R/ti/p/@172piime`;
+  const footer = `${guideSection}\n\n🛡 HORIZON SHIELD・無料で使える3つの窓口\n\n📍 LPで診断する\nhttps://shield.the-horizons-innovation.com\n\n🤖 ChatGPTで無料診断（建設費カテゴリ1位）\nhttps://chatgpt.com/g/g-69e180f9a5048191886069dd58b22572-jian-she-fei-tietuka-by-horizon-shield\n\n♊ Geminiで無料診断\nhttps://gemini.google.com/gem/1_AqLRwNSP1tZWZNWzyNIrsOrBLI1fAjo\n\n💬 LINEで今すぐ相談（KIRA）\nhttps://line.me/R/ti/p/@172piime`;
 
   let _kText = text;
   if (theme.series === 'kenchikushi') {
@@ -614,7 +621,7 @@ async function generateArticle(theme) {
       _kText = _kText.replace("\u3010\u73fe\u5834\u306e\u76ee\u3011", '');
     }
   }
-  const _kSig = "\n\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n\u7b46\u8005\uff1a\u5927\u8cc0\u4fca\u52dd\uff5c\u5efa\u8a2d\u73fe\u583430\u5e74\uff08\u5927\u5de5\u2192\u73fe\u5834\u76e3\u7763\u2192CMR\uff09\uff5cORCID: 0009-0000-9180-903X";
+  const _kSig = "\n\n\u7b46\u8005\uff1a\u5927\u8cc0\u4fca\u52dd\uff5c\u5efa\u8a2d\u73fe\u583430\u5e74\uff08\u5927\u5de5\u2192\u73fe\u5834\u76e3\u7763\u2192CMR\uff09\uff5cORCID: 0009-0000-9180-903X";
   const fullText = (theme.series === 'kenchikushi') ? (_kText + _kSig) : (text + footer);
   console.log('記事生成完了 文字数:', fullText.length);
   return fullText;
@@ -820,7 +827,7 @@ async function broadcastToFollowers(theme, noteUrl) {
     ? `\n📖 給湯器適正価格ガイド\n${GUIDE_URL}\n`
     : '';
 
-  const text = `【今日の建設情報】\n\n${theme.title}\n\n続きを読む\n${noteUrl}\n${guideText}\n━━━━━━━━━━\nコミュニティ参加受付中！\nhttps://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ\n\n見積書の無料AI診断\nhttps://shield.the-horizons-innovation.com`;
+  const text = `【今日の建設情報】\n\n${theme.title}\n\n続きを読む\n${noteUrl}\n${guideText}\n\nコミュニティ参加受付中！\nhttps://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ\n\n見積書の無料AI診断\nhttps://shield.the-horizons-innovation.com`;
 
   try {
     const res = await fetch('https://api.line.me/v2/bot/message/broadcast', {
@@ -963,7 +970,7 @@ async function main() {
     savePostedTitle(theme.title);
     recordPostedDate(theme.title);
     await sendNtfy(`✅ note投稿完了: ${theme.title}`);
-    await sendLine(`✅ note自動投稿完了！\n━━━━━━━━━━\n📝 ${theme.title}\n\n🔗 ${noteUrl}\n\n📣 Xでシェアしてください！\n━━━━━━━━━━`);
+    await sendLine(`✅ note自動投稿完了！\n\n📝 ${theme.title}\n\n🔗 ${noteUrl}\n\n📣 Xでシェアしてください！`);
     await broadcastToFollowers(theme, noteUrl);
     if (HATENA_CROSSPOST) { await postToHatena(theme, articleText, noteUrl); } else { console.log('  [HS-HATENA-PAUSE-2] Hatena cross-post paused'); }
     console.log('=== 完了 ===');
