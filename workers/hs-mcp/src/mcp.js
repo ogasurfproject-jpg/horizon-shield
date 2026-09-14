@@ -470,6 +470,10 @@ const PTKA = {
   roadmap: "個別診断ごとの自動オンチェーン刻印は、稼働中のJIDEC台帳(https://hs-ledger.oga-surf-project.workers.dev)へ順次移行中。"
 };
 
+// [2026-09-14] audit_estimate の判定ルールセットの版。判定ロジック(min/max/danger 境界と level の対応、L8 の丸め、unit_mismatch)を変えたら必ず上げる。
+// claim に畳み込むので、再計算した hash は「改ざんなし」だけでなく「どの判定ルールで出したか」まで縛る(estimate-integrity-audit 側と同じ folded_into_hash の規律)。
+const AUDIT_RULESET = { id: "hs-audit-verdict", version: "1" };
+
 async function sha256hex(str) {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
   return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
@@ -863,7 +867,7 @@ async function callTool(name, args, env, ip, opts) {
         tool: "audit_estimate", work: resp.work, unit: resp.unit, quoted_price: price, currency: "JPY",
         fair_range: resp.fair_range, verdict, level,
         region: resp.region ? { key: resp.region.key, multiplier: resp.region.multiplier, applied: resp.region.applied } : null,
-        data_version: (d && d._meta && d._meta.version) || "unversioned", observed_at
+        ruleset: AUDIT_RULESET, data_version: (d && d._meta && d._meta.version) || "unversioned", observed_at
       };
       if (_nw.from) resp.normalized_from = _nw.from;
       resp.next_calls = [
