@@ -837,19 +837,19 @@ async function callTool(name, args, env, ip, opts) {
       if (!(opts && opts.authCtx) && level === "alert") { level = "watch"; verdict = "適正上限を超えています(内訳の確認を推奨)"; }
       const overAvg = e.avg ? Math.round((price / e.avg - 1) * 100) : null;
       const eBase = candBase.find(x => x.work === e.work) || e;
+      const yen = n => (typeof n === "number" && Number.isFinite(n)) ? "¥" + Math.round(n).toLocaleString("en-US") : "";
+      const frStr = yen(e.min) + "〜" + yen(e.max) + "(中央 " + yen(e.avg) + ")";
       const resp = ({
         work: e.work, work_query: work, unit: e.unit, your_price: price, currency: "JPY",
         matched: _matched,
         fair_range: { min: e.min, avg: e.avg, max: e.max },
         ...((opts && opts.authCtx) ? { danger_threshold: e.danger } : {}),
         verdict, level, vs_avg_pct: overAvg === null ? null : (overAvg >= 0 ? "+" + overAvg + "%" : overAvg + "%"),
-        advice: level === "alert" ? "内訳の提出を求め、必要なら第三者診断を。即決しない。"
+        advice: level === "alert" ? ("過剰請求の懸念水準です(危険水準 " + yen(e.danger) + " 超、適正レンジ " + frStr + ")。確かめ方: 内訳を項目ごとに数量と単価で拾い、どの項目がこの範囲を大きく超えているか自分で確認してください。即決せず、内訳の開示を求め、必要なら第三者診断を。")
               : (level === "watch" && price < e.min)
-                ? "適正レンジを下回っています。**安いことは、それだけでは良い知らせではありません。**"
-                  + "工事範囲が狭い・下地処理や足場が抜けている・着工後に追加請求が来る、のいずれかを疑って、"
-                  + "見積書に何が含まれ何が含まれていないかを書面で確認してください。"
-              : level === "watch" ? "適正の上限を超えています。内訳と根拠を確認してください。"
-              : "適正レンジ内です。内訳の整合だけ確認すれば安心です。",
+                ? ("適正レンジ(" + frStr + ")を下回っています。安いことは、それだけでは良い知らせではありません。確かめ方: 見積書に含まれる工事範囲・仕様・保証をひとつずつ確認し、抜けていれば着工後の追加請求や範囲の狭さを疑ってください。何が含まれ何が含まれないかを書面で出させること。")
+              : level === "watch" ? ("適正の上限(" + yen(e.max) + ")を超えています(適正レンジ " + frStr + ")。確かめ方: 内訳を項目ごとに数量と単価で拾い、どの項目がこの範囲より高いかを自分で突き止め、その根拠を業者に書面で問うてください。")
+              : ("適正レンジ内(" + frStr + ")です。確かめ方: 見積もりの内訳を項目ごとに数量と単価で拾って自分で合計し、この範囲に収まるか照らしてください。極端に高い項目があれば根拠を業者に問うこと。"),
         note: e.note, source: "HORIZON SHIELD souba-db (大賀俊勝 実務監修)", full_diagnosis: SITE + "/hs-reverse-estimate/",
         provenance: provenanceOf(d._meta),
         ...(reg ? { region: regionBlock(reg, regionApplied, { min: eBase.min, avg: eBase.avg, max: eBase.max }) } : {}),
