@@ -574,63 +574,63 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
    RESPONSIVE
 ═══════════════════════════════════════ */
 @media(max-width:900px){
-  /* ── CANVAS OFF ── */
+  /* -- CANVAS OFF -- */
   #mc{display:none !important;}
-  /* ── BODY ── */
+  /* -- BODY -- */
   body{background-image:none !important;background-color:var(--bg) !important;cursor:auto !important;}
   #cur,#cur-r{display:none !important;}
-  /* ── NAV ── */
+  /* -- NAV -- */
   nav{background:rgba(248,248,245,.99) !important;backdrop-filter:none !important;}
   .ticker{background:rgba(250,243,224,.99) !important;backdrop-filter:none !important;}
-  /* ── HERO ── */
+  /* -- HERO -- */
   .hero{background:var(--bg) !important;padding:8rem 1.4rem 4rem !important;}
   .hero-i{grid-template-columns:1fr !important;}
   .g-side,.fc-a,.fc-b{display:none !important;}
-  /* ── SECTIONS ── */
+  /* -- SECTIONS -- */
   .sec{padding:3.5rem 1.4rem !important;}
-  /* ── 全セクション背景を確実に白に ── */
+  /* -- 全セクション背景を確実に白に -- */
   .voices-bg,.sample-sec,.how-bg,.kira-sec,.comm-sec,.research-bg,.free-bg,.faq-bg{
     .free-diag-banner{
   background:linear-gradient(135deg,rgba(194,78,26,.92),rgba(160,64,20,.96)) !important;
 }
      background:var(--white) !important;backdrop-filter:none !important;
   }
-  /* ── カード類 ── */
+  /* -- カード類 -- */
   .gc,.comm-box,.hstep,.svc,.voice-card,.free-card,.rcard,.fq,.kira-btn{
     background:var(--white) !important;backdrop-filter:none !important;
   }
   .h-inp,.pr{background:var(--white) !important;backdrop-filter:none !important;}
-  /* ── テキスト確実表示 ── */
+  /* -- テキスト確実表示 -- */
   *{-webkit-font-smoothing:antialiased;}
   h1,.hero-h1,.sec-h2,.ki-h1{color:var(--ink) !important;}
   .pdf-sec .sec-h2,.pdf-sec .pdf-feat-title,.pdf-sec .ey{color:#ffffff !important;}
   .pdf-sec .sec-p,.pdf-sec .pdf-feat-desc{color:rgba(255,255,255,.72) !important;}
   .hero-body,.sec-p,.step-d,.sd3,.vtext{color:var(--t2) !important;}
-  /* ── GRIDS ── */
+  /* -- GRIDS -- */
   .sample-layout,.comm-layout,.pdf-layout{grid-template-columns:1fr !important;}
   .how-steps,.svc-grid,.voices-grid{grid-template-columns:1fr 1fr !important;}
   .how-steps::before{display:none !important;}
   .kira-grid{grid-template-columns:1fr 1fr !important;}
   .free-grid{grid-template-columns:1fr 1fr !important;}
   .page-grid{grid-template-columns:1fr !important;}
-  /* ── FOUNDER ── */
+  /* -- FOUNDER -- */
   #founder [style*="grid-template-columns:auto"]{grid-template-columns:1fr !important;}
-  /* ── MAP BANNER ── */
+  /* -- MAP BANNER -- */
   .mb-btn{display:none !important;}
-  /* ── IMPACT BAR ── */
+  /* -- IMPACT BAR -- */
   #founder~div [style*="justify-content:space-around"]{gap:.8rem !important;justify-content:flex-start !important;flex-wrap:wrap !important;}
-  /* ── STICKY ── */
+  /* -- STICKY -- */
   .sticky-cta{display:flex !important;}
-  /* ── NAV MOBILE ── */
+  /* -- NAV MOBILE -- */
   .nav-links{position:fixed;top:60px;right:-100%;width:78%;max-width:280px;height:calc(100vh - 60px);background:rgba(248,248,245,.99);backdrop-filter:none;flex-direction:column;padding:1.5rem;gap:.7rem;display:flex !important;transition:right .3s;z-index:499;border-left:1px solid var(--l1);}
   .nav-links.open{right:0;}
   .nav-links a{font-size:.9rem !important;padding:.9rem 1rem !important;width:100%;border:1px solid var(--l1);border-radius:8px;display:block;}
   #hbg{display:block !important;}
 }
-   /* ── FOUNDER スマホ修正 ── */
+   /* -- FOUNDER スマホ修正 -- */
   #founder [style*="grid-template-columns:auto"]{grid-template-columns:1fr !important;gap:1.5rem !important;}
   #founder h2{font-size:1.6rem !important;line-height:1.3 !important;}
-  /* ── PDFセクション サンプルボタン復活 ── */
+  /* -- PDFセクション サンプルボタン復活 -- */
   .pdf-sec a[href*="sample-report.pdf"]{background:var(--clay) !important;color:#fff !important;border:none !important;display:inline-block !important;padding:.75rem 1.4rem !important;border-radius:6px !important;}
 @media(max-width:540px){
   .how-steps,.svc-grid,.voices-grid,.kira-grid,.free-grid{grid-template-columns:1fr !important;}
@@ -642,7 +642,7 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
   .pdf-cta{flex-direction:column !important;text-align:center !important;}
 }
 
-/* ── OPENING SPLASH OVERLAY (同一URL・転送なし・SEO安全) ── */
+/* -- OPENING SPLASH OVERLAY (同一URL・転送なし・SEO安全) -- */
 #hs-splash{position:fixed;inset:0;z-index:99999;background:#FAF8F4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.4rem;font-family:'Plus Jakarta Sans',sans-serif;animation:hs-splash-auto 3.8s ease forwards;}
 #hs-splash::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 3px,rgba(0,0,0,.012) 3px,rgba(0,0,0,.012) 4px),repeating-linear-gradient(0deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 11px,rgba(0,0,0,.008) 11px,rgba(0,0,0,.008) 12px);pointer-events:none;}
 #hs-splash.hs-hide{display:none !important;}
@@ -660,7 +660,7 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
 <link rel="mcp-server" href="https://mcp.horizonshield.dev">
 </head>
 <body>
-<!-- ── OPENING SPLASH (同一URL・転送なし・SEO安全) ── -->
+<!-- -- OPENING SPLASH (同一URL・転送なし・SEO安全) -- -->
 <div id="hs-splash" role="presentation" aria-hidden="true">
   <div class="hs-sp-inner">
     <div class="hs-orb-wrap" style="position:relative;width:180px;height:180px;"><svg width="180" height="180" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;">
@@ -709,7 +709,7 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
 })();
 </script>
 <script>
-/* ── MOBILE INLINE STYLE RESET ── */
+/* -- MOBILE INLINE STYLE RESET -- */
 /* インラインstyleのrgba背景はCSSメディアクエリで上書きできないためJSで強制リセット */
 (function(){
   if(window.innerWidth > 900) return;
@@ -734,14 +734,14 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
       }
     });
     /* body背景 */
-    /* ── FOUNDER グリッド強制1列化 ── */
+    /* -- FOUNDER グリッド強制1列化 -- */
     var founderGrid = document.querySelector('#founder [style*="grid-template-columns"]');
     if(founderGrid){
       founderGrid.style.gridTemplateColumns = '1fr';
       founderGrid.style.gap = '1.5rem';
       founderGrid.style.textAlign = 'center';
     }
-    /* ── サンプルボタン色復活 ── */
+    /* -- サンプルボタン色復活 -- */
     var sampleBtn = document.querySelector('.pdf-sec a[href*="sample-report.pdf"]');
     if(sampleBtn){
       sampleBtn.style.background = '#C24E1A';
@@ -1254,7 +1254,7 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
 <div class="sec how-bg">
   <div class="sec-i">
     <div class="ey rv"><span class="eline"></span>COMMUNITY</div>
-    <h2 class="sec-h2 rv">施主の会 ──<br><em>一人で戦わなくていい。</em></h2>
+    <h2 class="sec-h2 rv">施主の会 --<br><em>一人で戦わなくていい。</em></h2>
     <div class="comm-layout">
       <div class="comm-box rv">
         <div class="cn">参加者募集中</div>
@@ -1271,7 +1271,7 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
         </a>
       </div>
       <div class="rv d1">
-        <div class="feed-hd"><span class="tdot"></span>LIVE ── 今この瞬間</div>
+        <div class="feed-hd"><span class="tdot"></span>LIVE -- 今この瞬間</div>
         <div class="feed-w" id="fw"></div>
       </div>
     </div>
@@ -1325,7 +1325,7 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
     </div>
     <p class="research-note rv">※ 2026年5月6日、engrXiv にて公開（Preprint ID: 7007 / DOI: 10.31224/7007）。engrXiv は Open Engineering Inc.（米国501(c)(3)非営利団体）が運営するエンジニアリング系プレプリントサーバーで、DOIを発行します。データセットはCC-BY 4.0ライセンスで自由に利用・検証できます。</p>
 
-    <!-- ── VRQ 論文カード（2026-05-21 新設）── -->
+    <!-- -- VRQ 論文カード（2026-05-21 新設）-- -->
     <div class="rv" style="margin-top:2.2rem;background:rgba(26,58,84,.03);border:1px solid var(--l1);border-left:3px solid var(--clay);border-radius:8px;overflow:hidden;">
       <div style="padding:1.6rem 1.8rem 1.4rem;">
         <div style="display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin-bottom:.7rem;">
@@ -1336,7 +1336,7 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
           「業者を信じる」のではなく、<em style="font-style:italic;color:var(--clay);">「検証する」</em>。<br>その仕組みを、経済学の理論として証明した。
         </div>
         <p style="font-size:.8rem;color:var(--t2);line-height:2;font-weight:300;margin-bottom:1.2rem;">
-          リフォーム市場は、施主が工事の品質や必要性を「事後にも判断できない」<strong style="color:var(--ink);font-weight:600;">信用財（credence good）市場</strong>です。本来は誠実な業者ほど高く見え、隠れた利益を上乗せした業者が選ばれる──アカロフの<strong style="color:var(--ink);font-weight:600;">レモン市場</strong>そのものです。HORIZON SHIELD の仕組み（170カテゴリ相場層・業者規模別マージンモデル・3段階検証・Bitcoin刻印証明書）を、この情報非対称性への<strong style="color:var(--ink);font-weight:600;">市場設計（market design）介入</strong>として体系化した論文「Verified Renovation Quote (VRQ) Framework」を、Zenodo・SSRN に公開しました。
+          リフォーム市場は、施主が工事の品質や必要性を「事後にも判断できない」<strong style="color:var(--ink);font-weight:600;">信用財（credence good）市場</strong>です。本来は誠実な業者ほど高く見え、隠れた利益を上乗せした業者が選ばれる--アカロフの<strong style="color:var(--ink);font-weight:600;">レモン市場</strong>そのものです。HORIZON SHIELD の仕組み（170カテゴリ相場層・業者規模別マージンモデル・3段階検証・Bitcoin刻印証明書）を、この情報非対称性への<strong style="color:var(--ink);font-weight:600;">市場設計（market design）介入</strong>として体系化した論文「Verified Renovation Quote (VRQ) Framework」を、Zenodo・SSRN に公開しました。
         </p>
 
         <!-- DOI / 識別子 -->
@@ -1376,14 +1376,14 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
         </div>
       </div>
     </div>
-    <!-- ── /VRQ 論文カード ── -->
+    <!-- -- /VRQ 論文カード -- -->
   </div>
 </div>
 <!-- ═══ PTKA PROTOCOL ═══ -->
 <div class="sec" style="background:rgba(255,255,252,.78);backdrop-filter:blur(14px);position:relative;z-index:1;">
   <div class="sec-i">
     <div class="ey rv"><span class="eline"></span>PTKA PROTOCOL</div>
-    <h2 class="sec-h2 rv">Pre-Transaction Knowledge Anchoring ──<br><em>業者が見積もりを出す前に、施主が真実を持つ。</em></h2>
+    <h2 class="sec-h2 rv">Pre-Transaction Knowledge Anchoring --<br><em>業者が見積もりを出す前に、施主が真実を持つ。</em></h2>
     <p class="sec-p rv">2026年5月14日、当社代表 大賀俊勝が独自プロトコル「PTKA」の宣言文を、Bitcoinブロックチェーンへの刻印プロセスに登録しました。改ざん不可能な記録として、世界に類例のない取り組みです。</p>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;margin-top:2.5rem;align-items:start;" class="rv">
@@ -1729,15 +1729,15 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
     <h2 class="sec-h2 rv">よく聞かれる<em>15の質問</em>に、数字で答える</h2>
     <p class="rv" style="max-width:62ch;margin:0 0 1.4rem;color:var(--ink2);line-height:1.8;">検索でよく打たれる言葉そのままに、最初の一行で答えます。金額は公開出典つきの幅で、紹介料も歩合も受け取らない立場から出しています。</p>
     <div class="free-grid">
-      <a href="/souba/gaiheki/" class="free-card rv"><div class="fc-cat">価格</div><div class="fc-t">外壁塗装 30坪 相場 いくら</div><div class="fc-d">30坪2階建てで80〜150万円。シリコン塗料なら80〜120万円が適正の幅です。</div><div class="fc-link">答えを読む →</div></a>
+      <a href="/souba/gaiheki/" class="free-card rv"><div class="fc-cat">価格</div><div class="fc-t">外壁塗装 30坪 相場 いくら</div><div class="fc-d">シリコン塗料の一式で70〜115万円(平均90万円)。塗料の種類で70〜150万円台。㎡単価と坪別の表つき。</div><div class="fc-link">答えを読む →</div></a>
       <a href="/souba/shiroari/" class="free-card rv d1"><div class="fc-cat">価格</div><div class="fc-t">シロアリ駆除 費用 適正価格</div><div class="fc-d">30坪で15〜30万円。㎡1,500〜2,500円が目安で、50万円は根拠を聞く水準です。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/souba/yane-fukikae-slate-hiyou/" class="free-card rv d2"><div class="fc-cat">価格</div><div class="fc-t">屋根 葺き替え 30坪 費用</div><div class="fc-d">スレートで90〜180万円、ガルバリウムで100〜200万円。足場と下地の扱いで差が出ます。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/souba/kyutoki/" class="free-card rv d3"><div class="fc-cat">価格</div><div class="fc-t">給湯器 交換 費用 相場</div><div class="fc-d">20号の標準交換で10〜18万円。深夜の緊急対応で30万円は高すぎます。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/souba/toilet/" class="free-card rv"><div class="fc-cat">価格</div><div class="fc-t">トイレ リフォーム 費用 目安</div><div class="fc-d">便器交換と内装込みで20〜50万円。タンクレスは20〜40万円に水圧の確認が要ります。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/souba/gaiheki-150man/" class="free-card rv d1"><div class="fc-cat">判定</div><div class="fc-t">外壁塗装の見積もりで150万円は高いですか</div><div class="fc-d">塗料次第です。シリコンなら高め、フッ素なら上限、無機なら範囲内。塗料名と塗り回数を先に確認。</div><div class="fc-link">答えを読む →</div></a>
+      <a href="/souba/yane-fukikae-slate-hiyou/" class="free-card rv d2"><div class="fc-cat">価格</div><div class="fc-t">屋根 葺き替え 30坪 費用</div><div class="fc-d">スレートで90〜180万円、ガルバリウムで100〜200万円。野地板・処分費・足場の行で差が出ます。</div><div class="fc-link">答えを読む →</div></a>
+      <a href="/souba/kyutoki/" class="free-card rv d3"><div class="fc-cat">価格</div><div class="fc-t">給湯器 交換 費用 相場</div><div class="fc-d">20号で15〜30万円、16号13〜25万円、24号18〜38万円(本体+工事)。エコジョーズ・エコキュートも表に。</div><div class="fc-link">答えを読む →</div></a>
+      <a href="/souba/toilet/" class="free-card rv"><div class="fc-cat">価格</div><div class="fc-t">トイレ リフォーム 費用 目安</div><div class="fc-d">便器交換だけなら7〜22万円、内装込みで25〜55万円。タンクレスは20〜40万円に水圧の確認が要ります。</div><div class="fc-link">答えを読む →</div></a>
+      <a href="/souba/gaiheki-150man/" class="free-card rv d1"><div class="fc-cat">判定</div><div class="fc-t">外壁塗装の見積もりで150万円は高いですか</div><div class="fc-d">シリコンなら高い(適正70〜115万円)。フッ素・無機への格上げか屋根同時なら妥当。差額の行を特定する3手順。</div><div class="fc-link">答えを読む →</div></a>
       <a href="/faq/mitsumori-isshiki-uchiwake-nai/" class="free-card rv d2"><div class="fc-cat">判定</div><div class="fc-t">リフォームの見積もりが一式ばかりで内訳がなく不安です</div><div class="fc-d">その不安は正しい。数量・単価・金額の3列で内訳を出させ、出さない業者は選ばない。</div><div class="fc-link">答えを読む →</div></a>
       <a href="/souba/yane-check/" class="free-card rv d3"><div class="fc-cat">判定</div><div class="fc-t">この屋根修理の見積もりが適正かどうか知りたい</div><div class="fc-d">塗装・カバー・葺き替えの相場に当てて判定。工法と面積が書かれているかが最初の分かれ目です。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/souba/kyutoki/" class="free-card rv"><div class="fc-cat">判定</div><div class="fc-t">給湯器交換で20万円は高いですか</div><div class="fc-d">20号の標準交換なら10〜18万円が目安で、20万円はやや高め。号数と追加工事の有無で判定します。</div><div class="fc-link">答えを読む →</div></a>
+      <a href="/souba/kyutoki-20man/" class="free-card rv"><div class="fc-cat">判定</div><div class="fc-t">給湯器交換で20万円は高いですか</div><div class="fc-d">20号なら適正(15〜30万円)、16号なら上限寄り、24号やエコジョーズなら安い側。型番で号数を確かめてから判定。</div><div class="fc-link">答えを読む →</div></a>
       <a href="/aeo/リフォーム-相見積もり-コツ.html" class="free-card rv d1"><div class="fc-cat">判定</div><div class="fc-t">外壁塗装で相見積もりを比較する正しい方法は</div><div class="fc-d">同じ仕様書を各社に渡し、㎡数・塗料名・塗り回数・足場単価をそろえてから金額を比べます。</div><div class="fc-link">答えを読む →</div></a>
       <a href="/faq/houmon-hanbai-gaiheki-kotowaru/" class="free-card rv d2"><div class="fc-cat">手口</div><div class="fc-t">訪問販売の外壁塗装を断る方法</div><div class="fc-d">「必要ありません、契約しません」で終わり。断った後の再勧誘は特定商取引法で禁止です。</div><div class="fc-link">答えを読む →</div></a>
       <a href="/aeo/火災保険-リフォーム詐欺.html" class="free-card rv d3"><div class="fc-cat">手口</div><div class="fc-t">火災保険で屋根修理が無料になるというのは詐欺ですか</div><div class="fc-d">その言い方は詐欺の型です。保険金は損害の範囲だけ、申請は自分で、業者に代行させない。</div><div class="fc-link">答えを読む →</div></a>
@@ -1815,7 +1815,7 @@ footer{background:var(--ink2);padding:2.5rem 2.5rem 5rem;}
 </div>
 
 <script>
-/* ── CURSOR ── */
+/* -- CURSOR -- */
 const cur=document.getElementById('cur'),cr=document.getElementById('cur-r');
 let mx=0,my=0,rx=0,ry=0;
 document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
@@ -1825,7 +1825,7 @@ document.querySelectorAll('a,button,.tag,.svc,.hstep,.voice-card,.free-card').fo
   el.addEventListener('mouseleave',()=>document.body.classList.remove('cb'));
 });
 
-/* ── CANVAS ── */
+/* -- CANVAS -- */
 const cv=document.getElementById('mc'),ctx=cv.getContext('2d');
 let W,H;
 function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
@@ -1837,11 +1837,11 @@ function animC(){ctx.clearRect(0,0,W,H);drawB(bPts(W*.78,H*.17,W*.21,12,T,W*.036
 animC();
 window.addEventListener('scroll',()=>{cv.style.transform=`translateY(${window.scrollY*.16}px)`;});
 
-/* ── NAV ── */
+/* -- NAV -- */
 function toggleNav(){const n=document.getElementById('navlinks'),b=document.getElementById('hbg');n.classList.toggle('open');b.classList.toggle('open');}
 document.querySelectorAll('#navlinks a').forEach(a=>a.addEventListener('click',()=>{if(window.innerWidth<=900){document.getElementById('navlinks').classList.remove('open');document.getElementById('hbg').classList.remove('open');}}));
 
-/* ── TICKER ── */
+/* -- TICKER -- */
 const tmsgs=[
   'ChatGPT建設費診断カテゴリ · 国内検索 No.1 獲得',
   '日銀CGPI連動 · 相場係数を毎月自動更新',
@@ -1861,8 +1861,8 @@ tkr.innerHTML=[...tmsgs,...tmsgs].map((m,i)=>{
   return `<span class="ti" style="${col}"><span class="tdot" style="${isData?'background:var(--forest)':''}"></span>${m}</span><span class="ti-sep">·</span>`;
 }).join('');
 
-/* ── VISITOR ── */
-/* ── 訪問者カウンター（実数） ── */
+/* -- VISITOR -- */
+/* -- 訪問者カウンター（実数） -- */
 (async()=>{
   const el=document.getElementById('v-n');
   const WORKER='https://hs-kira-proxy.oga-surf-project.workers.dev';
@@ -1900,7 +1900,7 @@ function animCounter(el,target){
   },18);
 }
 
-/* ── リアルタイムフィード（現実的な間隔） ── */
+/* -- リアルタイムフィード（現実的な間隔） -- */
 /*
   設計思想：
   - 初期表示：直近の4件（過去の記録として自然な時刻）
@@ -1910,7 +1910,7 @@ function animCounter(el,target){
     Workerが EVENTS KVに書き込み → このフィードがポーリングして表示
 */
 
-/* ── DB & GAUGE ── */
+/* -- DB & GAUGE -- */
 const DB=[
   {kw:['外壁','塗装','サイディング'],cat:'外壁塗装工事',risk:85,cMin:600000,cMax:1200000,shield:503800},
   {kw:['屋根','瓦','葺き','ルーフ'],cat:'屋根工事',risk:82,cMin:500000,cMax:1000000,shield:368000},
@@ -1940,7 +1940,7 @@ function setGauge(r,cat){
 }
 function animN(id,val,isR,min){const el=document.getElementById(id);let c=0,step=val/48;const t=setInterval(()=>{c=Math.min(c+step,val);el.textContent=isR?fmtR(Math.round(min*c/val),Math.round(val*c/val)):fmt(c);if(c>=val)clearInterval(t);},17);}
 
-/* ── INPUT ── */
+/* -- INPUT -- */
 const TAGS=['外壁塗装','屋根工事','キッチン','浴室','フルリノベ','新築','シロアリ','断熱'];
 const tr=document.getElementById('tags-r');
 TAGS.forEach(t=>{const s=document.createElement('span');s.className='tag';s.textContent=t;s.onclick=()=>setQ(t);tr.appendChild(s);});
@@ -1960,7 +1960,7 @@ inp.addEventListener('input',()=>{
   },280);
 });
 
-/* ── FEED ── */
+/* -- FEED -- */
 const FD=[
   /* 初期表示用（過去の記録。時刻は自然な間隔で） */
   {t:'w',m:'<strong>千葉県・Sさん</strong>が外壁塗装75㎡の見積書を診断依頼',tm:'約2時間前'},
@@ -2003,10 +2003,10 @@ function scheduleNext(){
 }
 scheduleNext();
 
-/* ── TABLE ANIM ── */
+/* -- TABLE ANIM -- */
 new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){document.getElementById('rtable').classList.add('anim');}});},{threshold:.25}).observe(document.querySelector('.rcard'));
 
-/* ── SCROLL REVEAL ── */
+/* -- SCROLL REVEAL -- */
 /* デスクトップ幅のみアニメーション。スマホは最初から全表示。 */
 if('IntersectionObserver' in window && window.innerWidth > 900){
   const items=document.querySelectorAll('.rv');
@@ -2023,16 +2023,16 @@ if('IntersectionObserver' in window && window.innerWidth > 900){
   items.forEach(el=>ro.observe(el));
 }
 
-/* ── TERMS MODAL ── */
+/* -- TERMS MODAL -- */
 let mTarget='',mUrl=null;
 function openModal(t,url){mTarget=t;mUrl=url||null;document.getElementById('tmodal').style.display='block';document.body.style.overflow='hidden';document.getElementById('agree-chk').checked=false;const btn=document.getElementById('proceed-btn');btn.classList.remove('active');btn.textContent=mUrl?'同意してPayPalで支払う →':'同意して銀行振込で申し込む →';}
 function closeModal(){document.getElementById('tmodal').style.display='none';document.body.style.overflow='';mUrl=null;}
 function onAgreeChange(){const btn=document.getElementById('proceed-btn');if(document.getElementById('agree-chk').checked){btn.classList.add('active');}else{btn.classList.remove('active');}}
 function proceed(){if(!document.getElementById('agree-chk').checked)return;if(mUrl){window.open(mUrl,'_blank','noopener');closeModal();}else{const t=mTarget;closeModal();window.location.href='/bank-transfer.html?type='+t;}}
 
-/* ── TRACK VISIT ── */
+/* -- TRACK VISIT -- */
 try{fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/track-visit',{method:'POST',keepalive:true,mode:'no-cors'}).catch(()=>{});}catch(e){}
-/* ── 日替わりタイトル ── */
+/* -- 日替わりタイトル -- */
 (function(){
   const titles = [
     '業者より先に、<span class="breath">価格を知る。</span>',
