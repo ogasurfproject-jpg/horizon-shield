@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIの引用は検証できる｜HORIZON SHIELD の発見場計測</title>
+<meta name="description" content="人がAIに『この見積もりは適正か』と尋ねると、AIはどの情報源を根拠に選ぶ。その選択は測れる。HORIZON SHIELD は、どの会社がAIの答えに引かれたかを問いごと・モデルごとに記録し、その測定を公開台帳(JIDEC)に錨打つ。第三者が自分の鍵で測り、誰でもバイトから再現できる。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/witness/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AIの引用は検証できる｜HORIZON SHIELD の発見場計測">
+<meta property="og:description" content="どの会社がAIの答えに根拠として引かれたかを問いごとに測り、公開台帳に錨打つ。第三者が自分の鍵で測り、誰でも再現できる。何を証明し、何を証明しないかを記録に明記する。">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/witness/">
+<meta property="og:site_name" content="HORIZON SHIELD">
+<meta property="og:locale" content="ja_JP">
+<meta name="author" content="大賀俊勝 / HORIZON SHIELD">
+<style>
+:root{--ink:#111417;--muted:#5c6469;--line:#dcdfe2;--rule:#111417;--red:#c0202a;--bg:#ffffff}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,"Helvetica Neue","Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif;
+  font-size:17px;line-height:1.75;font-feature-settings:"palt" 1;-webkit-font-smoothing:antialiased}
+a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--ink)}
+a:hover{color:var(--red);border-color:var(--red)}
+.wrap{max-width:720px;margin:0 auto;padding:0 24px}
+header.site{border-bottom:1px solid var(--rule)}
+header.site .wrap{display:flex;align-items:baseline;justify-content:space-between;padding:16px 24px}
+.brand{font-weight:800;letter-spacing:.14em;font-size:14px;border:0}
+.brand span{color:var(--red)}
+.brand small{display:block;font-weight:500;letter-spacing:.02em;font-size:10.5px;color:var(--muted)}
+.kick{font-size:12px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;border:0}
+main{padding:44px 0 0}
+h1{font-size:33px;line-height:1.32;letter-spacing:.005em;font-weight:800;margin:0 0 20px;max-width:22ch}
+.lead{font-size:19px;line-height:1.7;margin:0 0 8px;max-width:60ch}
+.meta{font-size:12.5px;letter-spacing:.03em;color:var(--muted);margin:26px 0 0;padding-top:14px;border-top:1px solid var(--line)}
+section{margin:52px 0;padding-top:26px;border-top:1px solid var(--rule)}
+section:first-of-type{border-top:1px solid var(--rule)}
+h2{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--red);font-weight:700;margin:0 0 16px}
+h3{font-size:20px;font-weight:700;margin:22px 0 6px;letter-spacing:.01em}
+p{margin:0 0 16px;max-width:64ch}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:0 36px;border-top:1px solid var(--line)}
+.two>div{padding:22px 0;border-bottom:1px solid var(--line)}
+.two h3{margin-top:0;font-size:15px;letter-spacing:.02em}
+.two h3 b{color:var(--red);font-weight:700}
+.two p{font-size:15.5px;line-height:1.68;color:#25292d;margin:0}
+.steps{list-style:none;counter-reset:s;margin:8px 0 0;padding:0}
+.steps li{counter-increment:s;padding:16px 0 16px 44px;position:relative;border-bottom:1px solid var(--line);max-width:64ch}
+.steps li:first-child{border-top:1px solid var(--line)}
+.steps li::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:16px;
+  font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;color:var(--red);letter-spacing:.04em}
+.steps b{font-weight:700}
+.note{font-size:14.5px;color:var(--muted);max-width:62ch}
+footer.site{margin-top:64px;border-top:1px solid var(--rule)}
+footer.site .wrap{padding:22px 24px 60px;display:flex;flex-wrap:wrap;gap:8px 24px;font-size:13px;color:var(--muted)}
+footer.site a{color:var(--muted);border-color:var(--line)}
+footer.site .who{width:100%;margin-bottom:10px;color:var(--ink);border:0}
+@media(max-width:620px){h1{font-size:27px}.two{grid-template-columns:1fr}.wrap{padding:0 20px}}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"AIの引用は検証できる｜HORIZON SHIELD の発見場計測","url":"https://shield.the-horizons-innovation.com/witness/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"HORIZON SHIELD","url":"https://shield.the-horizons-innovation.com/"},"about":"AIが買い手の問いに根拠として選ぶ情報源の計測と、その公開台帳への記録","author":{"@type":"Person","name":"大賀俊勝"},"publisher":{"@type":"Organization","name":"HORIZON SHIELD","url":"https://shield.the-horizons-innovation.com/"}}
+</script>
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="/">HORIZ<span>ON</span> SHIELD<small>買い手側 適正価格検証</small></a>
+    <span class="kick">Discovery Witness</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>AIが根拠に選ぶものは、測って公開台帳に残せる。</h1>
+  <p class="lead">人がAIに「このリフォーム見積もりは適正か」と尋ねると、AIはどの情報源を根拠として選ぶかを決める。その選択は観測できる。HORIZON SHIELD は、どの会社がAIの答えに引かれたかを問いごと・モデルごとに測り、その測定を Bitcoin に錨打った公開台帳に記録する。誰でもバイトから再現できる。</p>
+  <p class="meta">方法論ページ。数値の実績ではなく、計測と記録の仕組みを示す。監修 大賀俊勝(建設実務30年)。</p>
+
+  <section>
+    <h2>何を測るか</h2>
+    <p>検索できるAIに、指名を含まない買い手の問い(相場、判定、業者の手口、地域)を投げる。返ってきた答えの中で、どの情報源が引用され、どれが検索に出たか、その順位を記録する。応答のバイトそのものをハッシュに残すので、あとから同じものを引ける。</p>
+    <p>これは「AIから見た散乱場」の計測であって、AIを操作するものではない。会社を入力に切り替えれば、その会社がAIからどう見えているか(公的根拠、機械可読な証拠、地域、独立した引用、名寄せの不足)を同じ物差しで出せる。</p>
+  </section>
+
+  <section>
+    <h2>何を証明し、何を証明しないか</h2>
+    <p class="note">記録の一つ一つに、証明する範囲と証明しない範囲を書き込む。読む側が実際より多くを読み取らないためだ。</p>
+    <div class="two">
+      <div>
+        <h3><b>証明する</b></h3>
+        <p>その日、そのモデル、その問い、その地域で、対象が記録どおりの順位で引用または出現したこと。測定のバイトはハッシュから再計算できること。</p>
+      </div>
+      <div>
+        <h3>証明しない</h3>
+        <p>別の日も同じ答えになること(モデルは移ろう)。他社との優劣。引用が何かの介入で起きたという因果。これはAPIの面であって、消費者が見る面ではない。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>第三者が測って初めて独立になる</h2>
+    <p>自分で自分を測った記録は、独立した証拠にならない。だから台帳は、測る相手のドメインの下で配られた鍵を拒む。独立した測定とは、外部の人が自分の鍵を自分のドメインで配り、自分の網から測って提出したものだけを指す。</p>
+    <p>この一線があるから、記録は「自己申告」ではなく「外部の観測」として残る。HORIZON SHIELD 自身の測定は、独立としては数えない。</p>
+  </section>
+
+  <section>
+    <h2>誰でも確かめられる</h2>
+    <p>測定は公開台帳 JIDEC に入り、日ごとにまとめて Bitcoin に錨打たれる。記録のハッシュを手がかりに、そのバイトを取り出して自分で再計算できる。こちらを信じる必要はない。バイトを確かめればいい。</p>
+    <ul class="steps">
+      <li><b>問いを投げる。</b>指名なしの買い手の問いを、検索できるAIに地域つきで投射する。</li>
+      <li><b>出た会社を記録する。</b>引用・出現・順位と、応答バイトのハッシュを正規化して残す。</li>
+      <li><b>台帳に錨打つ。</b>第三者が署名して提出し、日次でまとめて Bitcoin に固定する。</li>
+      <li><b>再現する。</b>ハッシュからバイトを引き、同じ計算を回して一致を確かめる。</li>
+    </ul>
+    <p class="note">記録は台帳(<a href="https://ledger.horizonshield.dev/witness">ledger.horizonshield.dev</a>)で確かめられる。</p>
+  </section>
+
+  <section>
+    <h2>会社として、AIからどう見えているか</h2>
+    <p>自分の会社がAIの答えにどう出るか、何が足りなくて選ばれないかを知りたい向けに、同じ物差しの診断を用意している。まずは無料の見積もりチェックから試せる。</p>
+    <p><a href="/kantei/">無料・匿名で見積もりを即判定する</a></p>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <span class="who">HORIZON SHIELD  買い手側の適正価格検証。紹介料を受け取らない。数値の出どころは souba-db(2026-08版)。</span>
+    <a href="/">トップ</a>
+    <a href="/kantei/">見積もり判定</a>
+    <a href="/souba/">相場データベース</a>
+    <a href="https://ledger.horizonshield.dev/witness">公開台帳</a>
+  </div>
+</footer>
+</body>
+</html>
