@@ -2828,6 +2828,14 @@ export default {
         return json(out);
       }
 
+      // 2026-09-15: 人の番の名簿を、翌朝の cron を待たずに読む口。読むだけで何も書かない。
+      //   日次通知と同じ humanRoster を通すので、ここで見える物と LINE に届く物は同じ。
+      if (path === "/admin/roster" && request.method === "GET") {
+        const stores = await listAllStores(env);
+        const entries = AP.humanRoster(stores, Date.now());
+        return json({ ok: true, count: entries.length, roster: entries, text: AP.formatRoster(entries) });
+      }
+
       // 管理ダッシュボード用: 全加盟店＋ヒアリング状況
       if (path === "/admin/stores" && request.method === "GET") {
         const stores = await listAllStores(env);
@@ -3463,7 +3471,15 @@ export default {
               sc.checks.filter((c) => !c.ok).map((c) => "  " + c.id + " : " + c.detail).join("\n");
           }
         } catch (_e) {}
-        await notify(env, "[Yakumo AUTOPILOT] 日次巡回 完了: " + JSON.stringify({ checked: log.checked, sent: log.sent.length, nudged: log.nudged.length, penalized: log.penalized.length }).slice(0, 400) + waiting + alarms);
+        // 2026-09-15: 機械が手を引いた店(needs_human)と、返事が 14 日以上止まっている onboarding の店を、
+        //   名前と日数で並べる。「返事待ち」は pending のある店しか出ず、001 のように pending が空で
+        //   needs_human だけ立った店は一行も出なかった。人が電話をかける名簿は、毎日目に入る所に置く。
+        let roster = "";
+        try {
+          const stores2 = await listAllStores(env);
+          roster = AP.formatRoster(AP.humanRoster(stores2, Date.now()));
+        } catch (_e) {}
+        await notify(env, "[Yakumo AUTOPILOT] 日次巡回 完了: " + JSON.stringify({ checked: log.checked, sent: log.sent.length, nudged: log.nudged.length, penalized: log.penalized.length }).slice(0, 400) + waiting + roster + alarms);
       } catch (e) {
         await notify(env, "[Yakumo AUTOPILOT] 日次巡回 エラー: " + String(e).slice(0, 200));
       }

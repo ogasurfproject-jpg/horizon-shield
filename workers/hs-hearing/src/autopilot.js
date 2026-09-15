@@ -1804,3 +1804,71 @@ export function scoreEstimates(profile) {
     reason,
   };
 }
+
+/* 2026-09-15 人の番の名簿(humanRoster)。
+
+   起きたこと。あっぷす様(kira-wbbk99p9)は 8/29 を最後に返事が無く、機械は
+   9/10 と 9/12 に送って 9/13 に needs_human を立てて手を引いた。設計どおりである。
+   ところが手を引いたあとを誰も拾わず、17 日が過ぎた。002 も同じ形で 9/12 から止まっていた。
+   needs_human は「人が電話をかけるべき店の名簿」のはずだったが、名簿として毎日
+   目に入る場所に無かった。日次の通知は「返事待ち」(pending のある店)しか並べず、
+   001 のように pending が空で needs_human だけ立った店は一行も出ない。
+
+   ここでやること。機械が手を引いた店と、返事が長く止まっている店を、名前と日数で
+   並べる。判定はしない。並べるだけ。並んだ店に電話するのは人の仕事で、これは
+   そのための表である。
+
+   並べる条件。
+     (a) needs_human が立っている店。理由と、立ってからの日数。
+     (b) onboarding の店で、最後の返事から STALE_ANSWER_D 日以上。
+         prospect は入れない。prospect は催促の表(3/7/14/21)と 28 日打ち切りが見ている。
+         onboarding は「契約済み、初回ヒアリング済み」の相手で、黙られたら人が出る側。
+   順序は (a) が先、次に沈黙の長い順。 */
+export const STALE_ANSWER_D = 14;
+export function humanRoster(stores, nowMs) {
+  const out = [];
+  const t0 = Number.isFinite(nowMs) ? nowMs : Date.now();
+  const days = (iso) => {
+    const t = iso ? Date.parse(iso) : NaN;
+    return Number.isFinite(t) ? Math.floor((t0 - t) / 86400000) : null;
+  };
+  for (const s of stores || []) {
+    if (!s || !s.store_id) continue;
+    const ap = s.autopilot || {};
+    const nh = ap.needs_human && typeof ap.needs_human === "object" ? ap.needs_human : null;
+    const silentD = days(ap.last_answer_at);
+    const mode = hearingMode(s);
+    const stale = mode === "onboarding" && silentD != null && silentD >= STALE_ANSWER_D;
+    if (!nh && !stale) continue;
+    const pendN = ap.pending && Array.isArray(ap.pending.qids) ? ap.pending.qids.length : 0;
+    out.push({
+      store_id: s.store_id,
+      company: s.company || s.name || s.store_id,
+      member_no: s.member_no || null,
+      kind: nh ? "人送り" : "沈黙",
+      human_since_d: nh ? days(nh.since) : null,
+      why: nh ? String(nh.why || "").slice(0, 60) : "",
+      silent_d: silentD,
+      pending_n: pendN,
+      mode,
+    });
+  }
+  out.sort((a, b) => {
+    if ((a.kind === "人送り") !== (b.kind === "人送り")) return a.kind === "人送り" ? -1 : 1;
+    return (b.silent_d == null ? -1 : b.silent_d) - (a.silent_d == null ? -1 : a.silent_d);
+  });
+  return out;
+}
+export function formatRoster(entries) {
+  if (!entries || !entries.length) return "";
+  const lines = entries.map((e) => {
+    const head = "  " + e.company + (e.member_no ? "(" + e.member_no + ")" : "");
+    const a = e.kind === "人送り"
+      ? " 人送り" + (e.human_since_d == null ? "" : e.human_since_d + "日") + (e.why ? " 理由:" + e.why : "")
+      : " 沈黙";
+    const b = e.silent_d == null ? " 最終回答なし" : " 最終回答" + e.silent_d + "日前";
+    const c = e.pending_n ? " 返事待ち" + e.pending_n + "問" : "";
+    return head + a + b + c;
+  });
+  return "\n人の番(電話する名簿):\n" + lines.join("\n");
+}
