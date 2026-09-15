@@ -30,11 +30,11 @@ jobs:
         with:
           witness_name: "your-project"
           origins: |
-            https://mcp.horizonshield.dev
-            https://gate.horizonshield.dev
+            https://mcp.horizonshield.dev a2a
+            https://gate.horizonshield.dev mcp
 ```
 
-That is the whole file. Each run walks each origin, prints a table in the job summary (origin, outcome, pass count, record sha256, intake answer) and uploads the record files as an artifact.
+That is the whole file. The word after each origin is the mode for that agent (`mcp` or `a2a`); leave it off to use the job wide `mode`. Each run walks each origin, prints a table in the job summary (origin, outcome, pass count, record sha256, intake answer) and uploads the record files as an artifact.
 
 ## Sign your records (optional, one time)
 
@@ -57,10 +57,10 @@ The private key is written to the runner's temp directory with mode 600 for the 
 
 | input | default | what it does |
 |---|---|---|
-| `origins` | required | agent origins to walk, one per line or comma separated |
+| `origins` | required | agent origins to walk, one per line or comma separated. A line may end with its own mode, `https://gate.example mcp`, when the job wide `mode` does not fit that agent |
 | `witness_name` | required | who you are; never invented for you |
 | `vantage` | the hosted runner and this repo | where the walk is taken from; set the real place on a self hosted runner |
-| `mode` | `mcp` | `mcp` or `a2a` for node 3 |
+| `mode` | `mcp` | `mcp` or `a2a` for node 3, for every origin that does not name its own. Walk an MCP endpoint in mcp mode and an A2A endpoint in a2a mode; an A2A message sent to an MCP endpoint records a truthful FAIL that describes your mode, not the agent |
 | `submit` | `true` | `false` walks and keeps records without filing |
 | `privacy` | `full` | `full`, `hash-only`, or `commitment` (conduct-v1.1 record modes) |
 | `key_pem`, `key_url` | empty | Ed25519 signing under your domain; both or neither |

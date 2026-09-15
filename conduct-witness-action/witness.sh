@@ -46,7 +46,10 @@ if [ "${CW_SUBMIT:-true}" = "true" ]; then SUBMIT_ARGS=(--submit); fi
 INTAKE_ARGS=()
 if [ -n "${CW_INTAKE:-}" ]; then INTAKE_ARGS=(--intake "$CW_INTAKE"); fi
 
-# origins: newline or comma separated, trimmed, blank lines dropped
+# origins: newline or comma separated, trimmed, blank lines dropped.
+# A line may carry its own mode after a space ("https://gate.example mcp"); otherwise the job wide mode applies.
+# Walk an MCP endpoint in mcp mode and an A2A endpoint in a2a mode: sending an A2A message to an MCP
+# endpoint records a truthful FAIL (it does not answer A2A), which is a statement about your mode, not the agent.
 mapfile -t ORIGINS < <(printf '%s' "${CW_ORIGINS:-}" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -v '^$')
 if [ "${#ORIGINS[@]}" -eq 0 ]; then echo "::error::no origins given"; exit 3; fi
 
@@ -59,17 +62,20 @@ FIRST=1
   echo ""
   echo "witness: \`$CW_WITNESS_NAME\`  vantage: \`$VANTAGE\`  mode: \`$CW_MODE\`  privacy: \`$CW_PRIVACY\`  submit: \`${CW_SUBMIT:-true}\`"
   echo ""
-  echo "| origin | outcome | pass | record sha256 | intake |"
-  echo "|---|---|---|---|---|"
+  echo "| origin | mode | outcome | pass | record sha256 | intake |"
+  echo "|---|---|---|---|---|---|"
 } >> "$GITHUB_STEP_SUMMARY"
 
 i=0
-for ORIGIN in "${ORIGINS[@]}"; do
+for LINE in "${ORIGINS[@]}"; do
   i=$((i+1))
   if [ "$i" -gt 1 ]; then sleep "${CW_PAUSE:-3}"; fi
-  echo "----- walking $ORIGIN"
+  read -r ORIGIN OMODE _ <<< "$LINE"
+  OMODE="${OMODE:-$CW_MODE}"
+  case "$OMODE" in mcp|a2a) ;; *) echo "::warning::unknown mode '$OMODE' for $ORIGIN; using $CW_MODE"; OMODE="$CW_MODE";; esac
+  echo "----- walking $ORIGIN (mode $OMODE)"
   LOG="$OUT_DIR/walk_$(echo -n "$ORIGIN" | sha256sum | cut -c1-12).log"
-  ( cd "$OUT_DIR" && python3 a2a_conduct_walk.py --origin "$ORIGIN" --mode "$CW_MODE" \
+  ( cd "$OUT_DIR" && python3 a2a_conduct_walk.py --origin "$ORIGIN" --mode "$OMODE" \
       --witness-name "$CW_WITNESS_NAME" --vantage "$VANTAGE" --privacy "$CW_PRIVACY" --transport "$CW_TRANSPORT" \
       ${KEY_ARGS[@]+"${KEY_ARGS[@]}"} ${SUBMIT_ARGS[@]+"${SUBMIT_ARGS[@]}"} ${INTAKE_ARGS[@]+"${INTAKE_ARGS[@]}"} ) > "$LOG" 2>&1
   RC=$?
@@ -85,7 +91,7 @@ for ORIGIN in "${ORIGINS[@]}"; do
   NOSUB=$(grep -E 'not submitted' "$LOG" | tail -1)
   if [ -z "$SHA" ]; then
     echo "::warning::no record produced for $ORIGIN (walker exit $RC); see $LOG"
-    echo "| $ORIGIN | (no record) | | | walker exit $RC |" >> "$GITHUB_STEP_SUMMARY"
+    echo "| $ORIGIN | $OMODE | (no record) | | | walker exit $RC |" >> "$GITHUB_STEP_SUMMARY"
     continue
   fi
   WALKED=$((WALKED+1))
@@ -94,8 +100,8 @@ for ORIGIN in "${ORIGINS[@]}"; do
   if [ -z "${HTTP:-}" ]; then INTAKE_CELL="${NOSUB:-not submitted}"; fi
   if [ "$FIRST" -eq 0 ]; then RECORDS="$RECORDS,"; fi
   FIRST=0
-  RECORDS="$RECORDS{\"origin\":\"$ORIGIN\",\"outcome\":\"$OUTCOME\",\"n_pass\":${NPASS:-0},\"n_total\":${NTOTAL:-0},\"record_sha256\":\"$SHA\",\"submitted_http\":\"${HTTP:-}\",\"file\":\"$FILE\"}"
-  echo "| $ORIGIN | $OUTCOME | ${NPASS:-?}/${NTOTAL:-?} | \`$SHA\` | $INTAKE_CELL |" >> "$GITHUB_STEP_SUMMARY"
+  RECORDS="$RECORDS{\"origin\":\"$ORIGIN\",\"mode\":\"$OMODE\",\"outcome\":\"$OUTCOME\",\"n_pass\":${NPASS:-0},\"n_total\":${NTOTAL:-0},\"record_sha256\":\"$SHA\",\"submitted_http\":\"${HTTP:-}\",\"file\":\"$FILE\"}"
+  echo "| $ORIGIN | $OMODE | $OUTCOME | ${NPASS:-?}/${NTOTAL:-?} | \`$SHA\` | $INTAKE_CELL |" >> "$GITHUB_STEP_SUMMARY"
 done
 RECORDS="$RECORDS]"
 
