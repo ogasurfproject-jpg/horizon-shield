@@ -74,25 +74,28 @@ for ORIGIN in "${ORIGINS[@]}"; do
       ${KEY_ARGS[@]+"${KEY_ARGS[@]}"} ${SUBMIT_ARGS[@]+"${SUBMIT_ARGS[@]}"} ${INTAKE_ARGS[@]+"${INTAKE_ARGS[@]}"} ) > "$LOG" 2>&1
   RC=$?
   cat "$LOG"
-  # walk line: "walk <purpose>  <OUTCOME> n/N  sha256 <sha>  -> <file>"
+  # walk line, exactly as the walker prints it (purpose itself holds a colon, a space and the origin):
+  #   walk a2a-conduct-walk-v1: https://mcp.horizonshield.dev  PASS 5/5  sha256 <64hex>  -> walk_<sha12>.json
   WLINE=$(grep -E '^walk ' "$LOG" | tail -1)
-  OUTCOME=$(echo "$WLINE" | sed -E 's/^walk [^ ]+ +([A-Z_]+) .*/\1/')
-  NPASS=$(echo "$WLINE" | sed -E 's/.* ([0-9]+)\/([0-9]+) .*/\1/')
-  NTOTAL=$(echo "$WLINE" | sed -E 's/.* ([0-9]+)\/([0-9]+) .*/\2/')
-  SHA=$(echo "$WLINE" | sed -E 's/.*sha256 ([0-9a-f]{64}).*/\1/')
-  FILE=$(echo "$WLINE" | sed -E 's/.*-> (.*)$/\1/')
-  HTTP=$(grep -E '^submitted to ' "$LOG" | tail -1 | sed -E 's/.*: http ([0-9]{3}).*/\1/')
-  if [ -z "$SHA" ] || ! echo "$SHA" | grep -qE '^[0-9a-f]{64}$'; then
+  PARSED=$(printf '%s' "$WLINE" | sed -nE 's/^walk .* +([A-Z_]+) ([0-9]+)\/([0-9]+) +sha256 ([0-9a-f]{64}) +-> (.*)$/\1|\2|\3|\4|\5/p')
+  OUTCOME=""; NPASS=""; NTOTAL=""; SHA=""; FILE=""
+  if [ -n "$PARSED" ]; then IFS='|' read -r OUTCOME NPASS NTOTAL SHA FILE <<< "$PARSED"; fi
+  # submit line: "submitted to <intake>: http <status> <json>". The intake answers 201 on a new record; 200 is a dedup.
+  HTTP=$(grep -E '^submitted to ' "$LOG" | tail -1 | sed -nE 's/.*: http ([0-9]{3}).*/\1/p')
+  NOSUB=$(grep -E 'not submitted' "$LOG" | tail -1)
+  if [ -z "$SHA" ]; then
     echo "::warning::no record produced for $ORIGIN (walker exit $RC); see $LOG"
     echo "| $ORIGIN | (no record) | | | walker exit $RC |" >> "$GITHUB_STEP_SUMMARY"
     continue
   fi
   WALKED=$((WALKED+1))
-  if [ "${HTTP:-}" = "200" ]; then SUBMITTED=$((SUBMITTED+1)); fi
+  INTAKE_CELL="${HTTP:-}"
+  if [ "${HTTP:-}" = "200" ] || [ "${HTTP:-}" = "201" ]; then SUBMITTED=$((SUBMITTED+1)); INTAKE_CELL="filed (http $HTTP)"; fi
+  if [ -z "${HTTP:-}" ]; then INTAKE_CELL="${NOSUB:-not submitted}"; fi
   if [ "$FIRST" -eq 0 ]; then RECORDS="$RECORDS,"; fi
   FIRST=0
   RECORDS="$RECORDS{\"origin\":\"$ORIGIN\",\"outcome\":\"$OUTCOME\",\"n_pass\":${NPASS:-0},\"n_total\":${NTOTAL:-0},\"record_sha256\":\"$SHA\",\"submitted_http\":\"${HTTP:-}\",\"file\":\"$FILE\"}"
-  echo "| $ORIGIN | $OUTCOME | ${NPASS:-?}/${NTOTAL:-?} | \`$SHA\` | ${HTTP:-not submitted} |" >> "$GITHUB_STEP_SUMMARY"
+  echo "| $ORIGIN | $OUTCOME | ${NPASS:-?}/${NTOTAL:-?} | \`$SHA\` | $INTAKE_CELL |" >> "$GITHUB_STEP_SUMMARY"
 done
 RECORDS="$RECORDS]"
 
