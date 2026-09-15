@@ -3,7 +3,7 @@
 // 実行: node test/ledger.test.mjs
 //
 // このテストが守っているもの:
-//   1. /health の routes 配列が **ちょうど13本**（9 + witness3 + /resume）であること。
+//   1. /health の routes 配列が **ちょうど14本**（9 + witness3 + /resume + /trust-signal）であること。
 //      引き継ぎ書がこの9本を文字単位で固定し、番人v4 点検⑩ がこれを数えている。
 //      看板の追加でここが動いたら、それは設計の失敗であってテストの失敗ではない。
 //   2. 看板が RFC / 仕様に**本当に**準拠していること（形だけの .well-known を置かない）。
@@ -66,6 +66,7 @@ const EXPECTED_ROUTES = [
   "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query",
   "/witness", "/witness/pending", "/witness/{sha}",
   "/resume?endpoint={url}",
+  "/trust-signal?endpoint={url}",
 ];
 const routesMatch = Array.isArray(hj.routes)
   && JSON.stringify([...hj.routes].sort()) === JSON.stringify([...EXPECTED_ROUTES].sort());
