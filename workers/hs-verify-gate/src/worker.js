@@ -394,6 +394,7 @@ async function usageReport(env, days) {
     distinct_external_hosts_checked: hosts.length,
     external_hosts: hosts.slice(0, 100),
     by_day: out,
+    distinct_requester_networks: await netReport(env, n),
     what_this_is:
       "Counts of requests, published so that the question 'is this actually used by anyone' has an answer " +
       "made of numbers instead of an adjective. external_checks counts verdicts requested for endpoints " +
@@ -411,6 +412,156 @@ async function usageReport(env, days) {
       totals.external_checks > 0
         ? "Someone outside this operator has used it. That is a fact about usage, not about usefulness."
         : "Nobody outside this operator has used it yet. Calling it infrastructure today would be a claim with no measurement behind it, so we do not."
+  };
+}
+
+// 2026-09-15. 「何名が測りに来とるか」と問われて、答えられんかった。上の計数は回数と相手の host しか
+// 持たん。1 人が 100 回叩いても 100 人が 1 回ずつでも同じ数字になる。人数は測れん。測れるんは
+// 「いくつの網から来たか」までや。それをこう数える。
+//
+// 数えるのは、要求元の網の接頭(IPv4 は /24、IPv6 は /48)を、その日限りの乱数 salt と一緒に
+// sha256 した先頭 32 hex。IP そのものは書かん。salt は KV に 48 時間だけ置き、消えたら誰にも
+// (この扉自身にも)hash から接頭は戻せん。残るんは日ごとの「異なりの数」だけ。
+// 数える口は 3 つ: POST /check、POST /a2a、MCP tools/call の check_conformance。/spec や
+// /is-verified のような読むだけの口は数えん(読みに来た回数は spec_hits が既にある)。
+// 人やない。1 人が 2 つの網から来たら 2、事務所 1 つが NAT の裏で 10 人おっても 1。
+// 自分の測定(CI の runner、手元の点検)も混じる。混じった日は自分が知っとるから引ける。
+// 判定規則・status・条件・記録のバイトは 1 つも動かさん。動くのは /usage の中身だけ。
+const NET_COUNTING_SINCE = "2026-09-15";
+const NET_TTL_SECONDS = 60 * 60 * 48;
+const NET_FACES = ["check", "a2a", "mcp"];
+
+function netPrefix(ip) {
+  if (typeof ip !== "string" || !ip) return null;
+  const s = ip.trim();
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(s)) return "v4:" + s.split(".").slice(0, 3).join(".");
+  if (s.indexOf(":") >= 0) {
+    // IPv6。"::" を展開して先頭 3 群(/48)だけ残す。IPv4 混在表記は数えん(null)。
+    const core = s.replace(/^\[|\]$/g, "").split("%")[0].toLowerCase();
+    const halves = core.split("::");
+    if (halves.length > 2) return null;
+    const head = halves[0] ? halves[0].split(":") : [];
+    const tail = halves.length === 2 && halves[1] ? halves[1].split(":") : [];
+    const missing = 8 - head.length - tail.length;
+    if (missing < 0 || (halves.length === 1 && missing !== 0)) return null;
+    const groups = head.concat(new Array(missing).fill("0"), tail);
+    if (groups.length !== 8 || groups.some((g) => !/^[0-9a-f]{1,4}$/.test(g))) return null;
+    return "v6:" + groups.slice(0, 3).map((g) => g.padStart(4, "0")).join(":");
+  }
+  return null;
+}
+
+function netDay(now) { return new Date(now === undefined ? Date.now() : now).toISOString().slice(0, 10); }
+function netSaltKey(day) { return "usage:netsalt:" + day; }
+function netMarkPrefix(day, face) { return "usage:net:" + day + ":" + face + ":"; }
+function netCountKey(day) { return "usage:netcount:" + day; }
+
+async function netSalt(env, day) {
+  const k = netSaltKey(day);
+  let salt = await env.HS_VERIFY_KV.get(k);
+  if (typeof salt === "string" && /^[0-9a-f]{32}$/.test(salt)) return salt;
+  const b = new Uint8Array(16);
+  crypto.getRandomValues(b);
+  salt = Array.from(b).map((x) => x.toString(16).padStart(2, "0")).join("");
+  await env.HS_VERIFY_KV.put(k, salt, { expirationTtl: NET_TTL_SECONDS });
+  // 日の最初の 2 要求が同時に来て salt が 2 つできたら、その網はその日 2 回数えられる。上振れは 1、境界だけ。
+  return salt;
+}
+
+function noteRequesterNetwork(env, ctx, request, face) {
+  if (!env || !env.HS_VERIFY_KV || !request || !request.headers) return;
+  if (NET_FACES.indexOf(face) < 0) return;
+  let prefix = null;
+  try { prefix = netPrefix(request.headers.get("cf-connecting-ip")); } catch (_e) { prefix = null; }
+  if (!prefix) return;  // ヘッダが無い(手元の試験、直叩き)なら数えん。偽って数えるより落とす。
+  const run = async () => {
+    try {
+      const day = netDay();
+      const salt = await netSalt(env, day);
+      const h = (await sha256hex(salt + "|" + prefix)).slice(0, 32);
+      for (const f of ["all", face]) {
+        const k = netMarkPrefix(day, f) + h;
+        if (await env.HS_VERIFY_KV.get(k)) continue;
+        await env.HS_VERIFY_KV.put(k, "1", { expirationTtl: NET_TTL_SECONDS });
+      }
+    } catch (_e) { /* 計数の失敗で測定本体を止めない */ }
+  };
+  if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(run());
+  else run();
+}
+
+async function netCountLive(env, day) {
+  const countPrefix = async (p) => {
+    let n = 0, cursor;
+    for (let guard = 0; guard < 50; guard++) {
+      const r = await env.HS_VERIFY_KV.list({ prefix: p, cursor, limit: 1000 });
+      n += (r && Array.isArray(r.keys)) ? r.keys.length : 0;
+      if (!r || r.list_complete || !r.cursor) break;
+      cursor = r.cursor;
+    }
+    return n;
+  };
+  const out = { networks: await countPrefix(netMarkPrefix(day, "all")), by_face: {} };
+  for (const f of NET_FACES) out.by_face[f] = await countPrefix(netMarkPrefix(day, f));
+  return out;
+}
+
+// 日が終わったら数を固定する。印(hash)は 48 時間で消えるので、消える前に数だけ残す。
+// 掃引(18:00Z)が前日を固定し、/usage を読んだ時に固定されとらん前日があればそこでも固定する。
+async function netFreeze(env, day) {
+  if (!env || !env.HS_VERIFY_KV) return null;
+  const k = netCountKey(day);
+  const cur = await env.HS_VERIFY_KV.get(k, "json");
+  if (cur) return cur;
+  const live = await netCountLive(env, day);
+  const row = { day, networks: live.networks, by_face: live.by_face, frozen_at: new Date().toISOString() };
+  await env.HS_VERIFY_KV.put(k, JSON.stringify(row), { expirationTtl: 60 * 60 * 24 * USAGE_TTL_DAYS });
+  return row;
+}
+
+async function netReport(env, n) {
+  const today = netDay();
+  const by_day = [];
+  let max = 0, days_counted = 0;
+  for (let i = 0; i < n; i++) {
+    const d = netDay(Date.now() - i * 86400000);
+    let row;
+    try {
+      if (d < NET_COUNTING_SINCE) row = { day: d, networks: null, by_face: null, state: "not_counted_yet" };
+      else if (d === today) { const live = await netCountLive(env, d); row = { day: d, networks: live.networks, by_face: live.by_face, state: "so_far" }; }
+      else {
+        let frozen = await env.HS_VERIFY_KV.get(netCountKey(d), "json");
+        if (!frozen && i <= 1) frozen = await netFreeze(env, d);  // 前日の印はまだ消えとらん。ここで固定できる。
+        row = frozen ? { day: d, networks: frozen.networks, by_face: frozen.by_face, state: "frozen" }
+                     : { day: d, networks: null, by_face: null, state: "not_frozen" };
+      }
+    } catch (_e) { row = { day: d, networks: null, by_face: null, state: "unreadable" }; }
+    if (typeof row.networks === "number") { days_counted++; if (row.networks > max) max = row.networks; }
+    by_day.push(row);
+  }
+  return {
+    counting_since: NET_COUNTING_SINCE,
+    faces: { check: "POST /check", a2a: "POST /a2a", mcp: "MCP tools/call check_conformance" },
+    days_counted: days_counted,
+    max_networks_in_a_day: max,
+    by_day: by_day,
+    what_this_is:
+      "How many distinct client networks (IPv4 /24, IPv6 /48) sent a request to the faces above, per UTC day. " +
+      "It answers a narrower question than 'how many people': one operator calling a thousand times is one " +
+      "network, and stays one.",
+    what_this_is_not:
+      "Not people. Not operators. One person on two networks counts twice; an office behind one NAT counts " +
+      "once; a cloud runner that changes address every job counts every job. Our own measurements (CI runners, " +
+      "our own checks) are in here on the days we ran them, and we know which days those are.",
+    privacy:
+      "No IP address is stored. Each network prefix is hashed together with a random salt that exists only " +
+      "for that day and is deleted from storage within 48 hours, so the prefix cannot be recovered from the " +
+      "hash afterwards, by us or by anyone else. What survives is the count.",
+    accuracy:
+      "May over-count by one network at the UTC day boundary when two first requests race for the day's salt. " +
+      "Days before counting_since are null, not zero. A day whose count was never frozen before its hashes " +
+      "expired is null, not zero. Today is a running figure. Requests that reach the worker without the " +
+      "cf-connecting-ip header are not counted."
   };
 }
 
@@ -4042,6 +4193,7 @@ export default {
     GATE_ENV = env;
     GATE_CONTEXT = "cron";
     ctx.waitUntil(runDailySweep(env));
+    ctx.waitUntil(netFreeze(env, netDay(Date.now() - 86400000)).catch(() => {}));
   },
 
   async fetch(request, env, ctx) {
@@ -4280,7 +4432,7 @@ export default {
     }
 
     // A2A JSON-RPC (0.3.3)。card の supportedInterfaces / url がここを指す。
-    if (path === "/a2a" && request.method === "POST") return await handleGateA2A(request, env, url.origin);
+    if (path === "/a2a" && request.method === "POST") { noteRequesterNetwork(env, ctx, request, "a2a"); return await handleGateA2A(request, env, url.origin); }
     if (path === "/a2a" && request.method === "GET") {
       return json({ ok: true, transport: "A2A JSON-RPC (POST)", methods: ["SendMessage", "message/send"], agent_card: url.origin + "/.well-known/agent-card.json", extensions: [CONDUCT_EXT_URI], extensions_accepted: CONDUCT_EXT_URIS, usage: A2A_GATE_USAGE });
     }
@@ -4295,6 +4447,7 @@ export default {
       if (Array.isArray(body)) {
         return json({ jsonrpc: "2.0", id: null, error: { code: -32600, message: "batch not supported" } }, 400);
       }
+      if (body && body.method === "tools/call" && body.params && body.params.name === "check_conformance") noteRequesterNetwork(env, ctx, request, "mcp");
       const res = await handleMcp(body, env);
       if (res === null) return new Response(null, { status: 202, headers: CORS_HEADERS });
       return json(res);
@@ -4839,6 +4992,7 @@ export default {
       if (_hostErr) return json({ error: "endpoint_host_rejected", reason: _hostErr }, 400);
       const own = isOwnZone(endpoint);
       bumpUsage(env, ctx, own ? "own_checks" : "external_checks", own ? null : parsed.hostname);
+      noteRequesterNetwork(env, ctx, request, "check");
       try {
         return json(await checkWithConsent(endpoint, body && body.allow_tool_call === true));
       } catch (e) {
