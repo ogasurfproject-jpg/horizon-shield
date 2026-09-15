@@ -1,0 +1,16 @@
+# gitleaks の設定。既定の規則はそのまま使い、公開が前提の値だけを許す。
+# 2026-09-15: Cloudflare Web Analytics の beacon token(data-cf-beacon の token)は
+# 閲覧者のブラウザに配る公開値で、615 本の index.html に既に載っとる。新しいページを足すたびに
+# generic-api-key で赤になるので、その行だけ許す。ほかの秘密は今までどおり止める。
+title = "horizon-shield gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Cloudflare Web Analytics beacon token is a public client side value embedded in every page"
+regexTarget = "line"
+regexes = [
+  "data-cf-beacon=",
+  "5a6009e4bfe34dc8ae92f6fc93506de4",
+]

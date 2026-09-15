@@ -1,0 +1,3 @@
+# gitleaks の誤検知(Cloudflare Web Analytics の公開 beacon token)。fingerprint = commit:path:rule:line
+5f7743a15b26036a6922d8efbe719225ff7d8e09:souba/kyutoki-20man/index.html:generic-api-key:171
+5f7743a15b26036a6922d8efbe719225ff7d8e09:ops/monitor_pages_20260915/build_pages2.py:generic-api-key:141
