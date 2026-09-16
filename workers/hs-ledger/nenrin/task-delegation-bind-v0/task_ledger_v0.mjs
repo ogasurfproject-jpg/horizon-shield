@@ -8,12 +8,14 @@
 // A2A Task `id` (a2a.task.id, aligned to A2A issues #1769 / #2103), so a verifier can ask "who did what on
 // THIS delegated task, observed by whom" instead of "this agent failed once".
 //
-// Carriage line (conferred-not-acquired): the observation rides as a sibling record keyed by task_id, never
-// inside a party-signed payload. GET is read-only and recomputable by anyone. R4 returns the FULL witness set
-// per hop, so a party cannot present a favorable subset as consensus.
+// Content invariants (always): R1 independence, R2 recompute, R3 chain continuity, R4 non-suppression.
+// Attribution (optional, verified when present): witness_sig (Ed25519 by the witness over canonical(preimage))
+// makes the verdict attributable; edge_sig (Ed25519 by hop.from over canonical({task_id,hop})) makes the
+// delegation edge party-attested. Keys resolve from did:key with no network (self-contained, offline byte-match).
+// A present-but-invalid signature is REJECTED (422); an absent signature is accepted (unsigned, content-only).
 //
 // Routes (additive):
-//   POST /witness/task              body = a WitnessObservation (evidence_id present)
+//   POST /witness/task              body = a WitnessObservation (evidence_id present; witness_sig/edge_sig optional)
 //   GET  /witness/task?task_id=..   [&hop=<seq>]  -> full set + per-hop aggregate (R4) + chain check (R3)
 //
 // KV layout (all under nenrin:task:, disjoint from every existing key):
@@ -27,7 +29,6 @@ export async function sha256hex(s) {
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-// simplified JCS: recursive key sort, no whitespace. Deterministic across implementations (matches bind.mjs).
 export function canonical(v) {
   if (v === null || typeof v !== "object") return JSON.stringify(v);
   if (Array.isArray(v)) return "[" + v.map(canonical).join(",") + "]";
@@ -76,6 +77,53 @@ function aggregateVerdict(observationsForHop) {
   return verdicts[0];
 }
 
+// ---- attribution: did:key (Ed25519) resolution + signature verification, all offline (Web Crypto) ----
+const B58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+function b58decode(s) {
+  let n = 0n;
+  for (const ch of s) {
+    const i = B58.indexOf(ch);
+    if (i < 0) return null;
+    n = n * 58n + BigInt(i);
+  }
+  const bytes = [];
+  while (n > 0n) { bytes.unshift(Number(n & 0xffn)); n >>= 8n; }
+  for (const ch of s) { if (ch === "1") bytes.unshift(0); else break; }
+  return new Uint8Array(bytes);
+}
+function pubFromDidKey(did) {
+  if (typeof did !== "string" || !did.startsWith("did:key:z")) return null;
+  const dec = b58decode(did.slice("did:key:z".length));
+  if (!dec || dec.length !== 34 || dec[0] !== 0xed || dec[1] !== 0x01) return null; // multicodec ed25519-pub
+  return dec.slice(2);
+}
+function b64ToBytes(b64) {
+  const bin = atob(b64);
+  const u = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+  return u;
+}
+async function ed25519Verify(pubRaw, sigB64, msg) {
+  try {
+    const key = await crypto.subtle.importKey("raw", pubRaw, { name: "Ed25519" }, false, ["verify"]);
+    return await crypto.subtle.verify({ name: "Ed25519" }, key, b64ToBytes(sigB64), enc.encode(msg));
+  } catch { return false; }
+}
+// Verify present signatures. Returns {ok} or {ok:false, reason}. Absent signatures are allowed (content-only).
+async function verifySignatures(obs) {
+  if (typeof obs.witness_sig === "string") {
+    const pub = pubFromDidKey(obs.witness_id);
+    if (!pub) return { ok: false, reason: "witness_id_not_did_key" };
+    if (!(await ed25519Verify(pub, obs.witness_sig, canonical(preimage(obs))))) return { ok: false, reason: "witness_sig_invalid" };
+  }
+  if (typeof obs.edge_sig === "string") {
+    const pub = pubFromDidKey(obs.hop.from);
+    if (!pub) return { ok: false, reason: "hop_from_not_did_key" };
+    if (!(await ed25519Verify(pub, obs.edge_sig, canonical({ task_id: obs.task_id, hop: obs.hop })))) return { ok: false, reason: "edge_sig_invalid" };
+  }
+  return { ok: true };
+}
+
 const OBS_KEY = (eid) => "nenrin:task:obs:" + eid;
 const IDX_KEY = (tid, seq, wid) => "nenrin:task:" + tid + ":" + seq + ":" + wid;
 const IDX_PREFIX = (tid) => "nenrin:task:" + tid + ":";
@@ -105,10 +153,15 @@ export async function handleTaskWitnessPost(request, env) {
   if (se) return j({ ok: false, error: se, need: "task_id, hop{seq,from,to}, prev_evidence_id, conduct{verdict}, witness_id, evidence_id" }, 400);
   const v = await verifyObservation(obs); // R1 independence + R2 recompute
   if (!v.ok) return j({ ok: false, error: v.reason }, 422);
+  const s = await verifySignatures(obs); // optional attribution; present-but-invalid is rejected
+  if (!s.ok) return j({ ok: false, error: s.reason }, 422);
   const eid = obs.evidence_id;
   await env.LEDGER.put(OBS_KEY(eid), canonical(obs));
   await env.LEDGER.put(IDX_KEY(obs.task_id, obs.hop.seq, obs.witness_id), eid);
-  return j({ ok: true, stored: true, task_id: obs.task_id, hop_seq: obs.hop.seq, witness_id: obs.witness_id, evidence_id: eid });
+  return j({
+    ok: true, stored: true, task_id: obs.task_id, hop_seq: obs.hop.seq, witness_id: obs.witness_id,
+    evidence_id: eid, witness_sig: typeof obs.witness_sig === "string", edge_sig: typeof obs.edge_sig === "string",
+  });
 }
 
 export async function handleTaskWitnessGet(url, env) {
@@ -137,6 +190,8 @@ export async function handleTaskWitnessGet(url, env) {
     from: byHop[seq][0].hop.from,
     to: byHop[seq][0].hop.to,
     witnesses: byHop[seq].length,
+    signed_witnesses: byHop[seq].filter((o) => typeof o.witness_sig === "string").length,
+    edge_attested: byHop[seq].some((o) => typeof o.edge_sig === "string"),
     verdict: aggregateVerdict(byHop[seq]),
     evidence_ids: byHop[seq].map((o) => o.evidence_id).sort(),
   }));
@@ -153,8 +208,8 @@ export async function handleTaskWitnessGet(url, env) {
     chain_continuous: chain.ok,
     chain_reason: chain.ok ? undefined : chain.reason,
     hops,
-    honest: "verdict per hop aggregates the FULL witness set; disagreement is preserved, never the favorable one. Signatures and digests prove who asserted and linkage, not that the assertion is true.",
-    recompute: "evidence_id = sha256(canonical(observation minus derived fields)). Fetch each and recompute yourself.",
+    honest: "verdict per hop aggregates the FULL witness set; disagreement is preserved, never the favorable one. Signatures prove who asserted and linkage (attributable, non-repudiable), not that the assertion is true.",
+    recompute: "evidence_id = sha256(canonical(observation minus derived fields)). witness_sig is Ed25519 over the same canonical preimage; the key is inside witness_id (did:key). Recompute and verify yourself.",
     aligns_to: "A2A Task id (a2a.task.id); A2A issues #1769, #2103",
   });
 }
@@ -162,7 +217,14 @@ export async function handleTaskWitnessGet(url, env) {
 // Additive dispatcher for the ledger worker. Returns null when the path is not ours (no interference).
 export async function handleTaskWitness(p, request, url, env) {
   if (p !== "/witness/task") return null;
-  if (request.method === "POST") return handleTaskWitnessPost(request, env);
-  if (request.method === "GET") return handleTaskWitnessGet(url, env);
-  return j({ ok: false, error: "method_not_allowed" }, 405);
+  try {
+    if (request.method === "POST") return await handleTaskWitnessPost(request, env);
+    if (request.method === "GET") return await handleTaskWitnessGet(url, env);
+    return j({ ok: false, error: "method_not_allowed" }, 405);
+  } catch (e) {
+    // Additive module must never crash the shared ledger worker: handle() has no outer try/catch, so an
+    // internal throw here would surface as a Cloudflare 1101 (non-JSON). Convert it to a clean JSON 500
+    // that also reports the cause, so a client sees a diagnosable error instead of a dead worker.
+    return j({ ok: false, error: "task_witness_internal", detail: String((e && e.message) || e), stack: String((e && e.stack) || "").slice(0, 600) }, 500);
+  }
 }
