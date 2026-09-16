@@ -654,12 +654,12 @@ def submit(intake, record_canonical, fetch=http_fetch, signature_b64=None, publi
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--origin", required=True, help="agent origin, e.g. https://mcp.horizonshield.dev")
+    ap.add_argument("--origin", required=False, help="agent origin, e.g. https://mcp.horizonshield.dev")
     ap.add_argument("--endpoint", help="measured endpoint to POST; default: first params.measured_endpoints entry from the card")
     ap.add_argument("--mode", choices=["mcp", "a2a"], default="mcp", help="node 3 body: MCP initialize (default) or an A2A message")
     ap.add_argument("--wire", choices=["1.0", "0.3"], default="1.0", help="a2a mode only: 1.0 sends SendMessage with A2A-Extensions (default); 0.3 sends message/send with X-A2A-Extensions only, as a 0.3 client does")
-    ap.add_argument("--witness-name", required=True, help="who you are, or anonymous")
-    ap.add_argument("--vantage", required=True, help="network or tool the walk is taken from")
+    ap.add_argument("--witness-name", required=False, help="who you are, or anonymous")
+    ap.add_argument("--vantage", required=False, help="network or tool the walk is taken from")
     ap.add_argument("--out", default=None, help="write the canonical bytes here (default: walk_<sha12>.json)")
     ap.add_argument("--submit", action="store_true", help="POST the record to the witness intake named in the card")
     ap.add_argument("--intake", default=None, help="override the witness intake URL (default: params.witness_intake from the card)")
@@ -678,6 +678,9 @@ def main(argv=None):
         _k, pub = load_signing_key(a.print_public_key)
         print(json.dumps({"public_key_ed25519_b64": pub}))
         return 0
+    _missing = [n for n, v in (("--origin", a.origin), ("--witness-name", a.witness_name), ("--vantage", a.vantage)) if not v]
+    if _missing:
+        ap.error("the following arguments are required for a walk: " + ", ".join(_missing))
     if bool(a.key) != bool(a.key_url) and not a.bind_task:
         print("--key and --key-url go together: the ledger binds your signature to the domain that serves the key")
         return 2

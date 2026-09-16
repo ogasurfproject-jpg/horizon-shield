@@ -13,13 +13,13 @@ jobs:
           origins: |
             https://mcp.horizonshield.dev a2a
             https://gate.horizonshield.dev mcp
-          walker_sha256: c6120c12f2485b87b69fd0ce1dd5d8d9256a2fb95eef45768bb405511c7a05fc
-          # Task binding: on the a2a origin, also file a signed observation to /witness/task under the real
-          # a2a.task.id. It activates once a witness key is present. To turn it on: create an Ed25519 key,
-          # add it as the HS_WITNESS_KEY repo secret, serve its public key JSON under horizonshield.dev, then add:
-          #   key_pem: ${{ secrets.HS_WITNESS_KEY }}
-          #   key_url: https://.../keys/witness.json
-          # Until a key is present the walk runs unsigned and binding is skipped (a warning, never a failure).
+          walker_sha256: 6ae878f136a881795d601e88abc0bf4460525f8b225ad24091e82487fc3532af
           bind_task: "true"
           task_bind_sha256: 9597f0861414cf8e7bdb7dfc9c3e0b36ced71b1616a3ad0d5bc91c13ba929da6
           producer_sha256: 8dbffa5c60375569021774c5bd74d5ca198506b93dd9452271e1402ef496992e
+          # Signed task emission activates when the HS_WITNESS_KEY secret (an Ed25519 PEM) exists and its
+          # public key JSON is served at key_url, the same way gate.horizonshield.dev/keys/agreement.json is.
+          # Empty secret means an unsigned walk and skipped binding, never a failure. Serve the pubkey before
+          # adding the secret so an endpoint record never claims a domain whose key cannot be fetched yet.
+          key_pem: ${{ secrets.HS_WITNESS_KEY }}
+          key_url: https://gate.horizonshield.dev/keys/witness.json
