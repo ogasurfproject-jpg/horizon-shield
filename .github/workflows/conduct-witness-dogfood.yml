@@ -13,4 +13,13 @@ jobs:
           origins: |
             https://mcp.horizonshield.dev a2a
             https://gate.horizonshield.dev mcp
-          walker_sha256: 6d770be6abb56da9f49738ee0a7e359f4073d57e5772b4b0084e4a1a6f407ba6
+          walker_sha256: c6120c12f2485b87b69fd0ce1dd5d8d9256a2fb95eef45768bb405511c7a05fc
+          # Task binding: on the a2a origin, also file a signed observation to /witness/task under the real
+          # a2a.task.id. It activates once a witness key is present. To turn it on: create an Ed25519 key,
+          # add it as the HS_WITNESS_KEY repo secret, serve its public key JSON under horizonshield.dev, then add:
+          #   key_pem: ${{ secrets.HS_WITNESS_KEY }}
+          #   key_url: https://.../keys/witness.json
+          # Until a key is present the walk runs unsigned and binding is skipped (a warning, never a failure).
+          bind_task: "true"
+          task_bind_sha256: 9597f0861414cf8e7bdb7dfc9c3e0b36ced71b1616a3ad0d5bc91c13ba929da6
+          producer_sha256: 8dbffa5c60375569021774c5bd74d5ca198506b93dd9452271e1402ef496992e

@@ -56,6 +56,18 @@ inputs:
     description: "Seconds to wait between origins. This is traffic to somebody else's server."
     required: false
     default: "3"
+  bind_task:
+    description: "a2a mode: also file a task-bound observation to /witness/task using the real a2a.task.id the agent returns. Needs key_pem (the witness signs the observation via its did:key). Default false."
+    required: false
+    default: "false"
+  task_bind_sha256:
+    description: "If set, task_bind.py must hash to this or task binding is skipped (the endpoint walk still runs). Pin it for a reproducible binder."
+    required: false
+    default: ""
+  producer_sha256:
+    description: "If set, task_witness_emit.py must hash to this or task binding is skipped. Pin it for a reproducible producer."
+    required: false
+    default: ""
 
 outputs:
   records:
@@ -91,6 +103,9 @@ runs:
         CW_WALKER_REF: ${{ inputs.walker_ref }}
         CW_WALKER_SHA256: ${{ inputs.walker_sha256 }}
         CW_PAUSE: ${{ inputs.per_origin_pause_s }}
+        CW_BIND_TASK: ${{ inputs.bind_task }}
+        CW_TASK_BIND_SHA256: ${{ inputs.task_bind_sha256 }}
+        CW_PRODUCER_SHA256: ${{ inputs.producer_sha256 }}
         CW_REPO: ${{ github.repository }}
         CW_RUNNER_OS: ${{ runner.os }}
       run: bash "${{ github.action_path }}/witness.sh"
