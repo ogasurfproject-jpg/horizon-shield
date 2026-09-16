@@ -34,7 +34,54 @@ if [ -n "${CW_KEY_PEM:-}" ]; then
   python3 -m pip install --quiet cryptography >/dev/null 2>&1 || { echo "::error::could not install the cryptography package needed for signing"; exit 3; }
   KEY_FILE="$RUNNER_TEMP/conduct-witness-key.pem"
   umask 077
-  printf '%s\n' "$CW_KEY_PEM" > "$KEY_FILE"
+# --- BEGIN witness-key-normalize (self-healing) ---
+# Normalize the witness signing key before writing $KEY_FILE. Tolerates a PEM whose newline framing was
+# lost in the GitHub secret box (MalformedFraming), a base64-of-PEM blob, or a bare base64 DER PKCS8 body.
+# Validates by loading; never prints the private key. Exits non-zero with a clear message on failure.
+CW_KEY_OUT="$KEY_FILE" python3 <<'PYEOF'
+import os, re, sys, base64
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+raw = os.environ.get("CW_KEY_PEM", "")
+out = os.environ.get("CW_KEY_OUT", "")
+if not raw.strip():
+    sys.stderr.write("witness: HS_WITNESS_KEY is empty; cannot sign\n"); sys.exit(2)
+def framed(body, label="PRIVATE KEY"):
+    b = re.sub(r"\s+", "", body)
+    w = "\n".join(b[i:i+64] for i in range(0, len(b), 64))
+    return "-----BEGIN %s-----\n%s\n-----END %s-----\n" % (label, w, label)
+def cands(raw):
+    yield raw
+    m = re.search(r"-----BEGIN ([A-Z0-9 ]*PRIVATE KEY)-----(.*?)-----END \1-----", raw, re.S)
+    if m: yield framed(m.group(2), m.group(1))
+    try:
+        dec = base64.b64decode(re.sub(r"\s+", "", raw), validate=True).decode("utf-8", "replace")
+        if "PRIVATE KEY" in dec:
+            yield dec
+            m2 = re.search(r"-----BEGIN ([A-Z0-9 ]*PRIVATE KEY)-----(.*?)-----END \1-----", dec, re.S)
+            if m2: yield framed(m2.group(2), m2.group(1))
+    except Exception:
+        pass
+    yield framed(raw)
+last = None
+for c in cands(raw):
+    try:
+        k = serialization.load_pem_private_key(c.encode("utf-8"), password=None)
+    except Exception as e:
+        last = type(e).__name__; continue
+    if not isinstance(k, Ed25519PrivateKey):
+        last = "not-ed25519"; continue
+    with open(out, "w") as f:
+        f.write(c if c.endswith("\n") else c + "\n")
+    os.chmod(out, 0o600)
+    pub = k.public_key().public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw)
+    sys.stderr.write("witness: recovered Ed25519 key, pub_b64=%s\n" % base64.b64encode(pub).decode())
+    sys.exit(0)
+sys.stderr.write("witness: could not recover a valid Ed25519 key from HS_WITNESS_KEY (last error: %s)\n" % last)
+sys.exit(3)
+PYEOF
+if [ ! -s "$KEY_FILE" ]; then echo "witness: key normalization failed (empty $KEY_FILE)"; exit 1; fi
+# --- END witness-key-normalize ---
   KEY_ARGS=(--key "$KEY_FILE" --key-url "$CW_KEY_URL")
   echo "signing: enabled, key_url $CW_KEY_URL"
 else
