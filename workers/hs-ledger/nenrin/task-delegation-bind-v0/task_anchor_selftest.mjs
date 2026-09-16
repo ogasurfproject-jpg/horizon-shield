@@ -1,6 +1,6 @@
 // task_anchor_selftest.mjs : offline test of the daily Bitcoin anchor for task observations.
 // In-memory KV (with delete + seq) + Web Crypto. Mirrors anchorWitnessPool. Run: node task_anchor_selftest.mjs
-import { evidenceId, handleTaskWitness, anchorTaskWitnessPool, sha256hex } from "./task_ledger_v0.mjs";
+import { evidenceId, handleTaskWitness, anchorTaskWitnessPool, sha256hex, handleTaskEvidence } from "./task_ledger_v0.mjs";
 
 function kv() {
   const m = new Map();
@@ -56,6 +56,14 @@ ok("re-post of already-anchored evidence does NOT re-enqueue", (await listLen("n
 const g = await handleTaskWitness("/witness/task", { method: "GET" }, new URL("https://x/witness/task?task_id=atask"), env);
 const gb = JSON.parse(await g.text());
 ok("GET still serves the task + carries the anchoring note", gb.hops_observed === 2 && typeof gb.anchoring === "string" && gb.anchoring.indexOf("nenrin-task-witness-batch-v1") >= 0);
+
+async function ev(eid) { const r = await handleTaskEvidence("/witness/task/evidence/" + eid, { method: "GET" }, new URL("https://x/witness/task/evidence/" + eid), env); return r === null ? { isNull: true } : { status: r.status, body: JSON.parse(await r.text()) }; }
+{ const e = await ev(h0.evidence_id); ok("evidence GET: anchored h0 reports ledger_entry + attribution + recompute_ok", e.status === 200 && e.body.status === "anchored" && e.body.anchored && typeof e.body.anchored.ledger_entry === "number" && e.body.recompute_ok === true && e.body.task_id === "atask" && e.body.verdict === "PASS"); }
+{ const e = await ev("0".repeat(64)); ok("evidence GET: unknown evidence -> 404 not_found (a pin naming no evidence is a claim)", e.status === 404 && e.body.error === "not_found"); }
+{ const e = await ev("nothex"); ok("evidence GET: malformed id -> 400", e.status === 400); }
+const h2 = await obs({ task_id: "btask", seq: 0, witness: "did:key:W3" });
+await post(h2);
+{ const e = await ev(h2.evidence_id); ok("evidence GET: fresh obs -> pending (enqueued, not yet anchored)", e.status === 200 && e.body.status === "pending" && e.body.anchored === null); }
 
 console.log(fails ? ("\n" + fails + " FAILED") : "\nALL PASS (task-witness anchor)");
 process.exit(fails ? 1 : 0);

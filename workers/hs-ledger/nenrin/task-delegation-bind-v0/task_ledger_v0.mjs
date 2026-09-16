@@ -295,6 +295,50 @@ export async function handleTaskTrustSignal(p, request, url, env) {
   });
 }
 
+// GET /witness/task/evidence/<evidence_id> : one task observation with its anchor status, for a consumer
+// (e.g. the agreement intake) that pins a specific evidence_id and must confirm it is real, attributable, and
+// whether it sits in a Bitcoin-anchored batch. Read-only; recompute the evidence_id and the batch hash yourself.
+// 404 when no observation with this id exists (a pin that names no stored evidence is a claim, not evidence).
+export async function handleTaskEvidence(p, request, url, env) {
+  const PFX = "/witness/task/evidence/";
+  if (!p.startsWith(PFX) || request.method !== "GET") return null;
+  const eid = p.slice(PFX.length).toLowerCase();
+  if (!/^[0-9a-f]{64}$/.test(eid)) return j({ ok: false, error: "evidence_id_must_be_64_hex" }, 400);
+  const obsRaw = await env.LEDGER.get(OBS_KEY(eid));
+  const anchRaw = await env.LEDGER.get(ANCHORED_KEY(eid));
+  const pendRaw = await env.LEDGER.get(PENDING_KEY(eid));
+  let obs = null;
+  if (obsRaw) { try { obs = JSON.parse(obsRaw); } catch (e) {} }
+  let anchored = null, bitcoin = null;
+  if (anchRaw) {
+    try { const a = JSON.parse(anchRaw); if (typeof a.n === "number") anchored = { ledger_entry: a.n }; if (!obs && a.obs) obs = a.obs; } catch (e) {}
+    if (anchored) {
+      try {
+        const eRaw = await env.LEDGER.get("entry:" + anchored.ledger_entry);
+        if (eRaw) { const e = JSON.parse(eRaw); bitcoin = { ots_status: e.ots_status || null, block: e.bitcoin_block != null ? e.bitcoin_block : null, block_time: e.block_time || null, batch_sha256: e.claim_sha256 || null }; }
+      } catch (e) {}
+    }
+  }
+  if (!obs) return j({ ok: false, error: "not_found", evidence_id: eid, note: "no task observation with this evidence_id; a pin that names no stored evidence is a claim, not an observation" }, 404);
+  const recomputed = await evidenceId(obs);
+  return j({
+    ok: true,
+    evidence_id: eid,
+    recompute_ok: recomputed === eid,
+    task_id: obs.task_id,
+    hop_seq: obs.hop.seq,
+    hop: obs.hop,
+    witness_id: obs.witness_id,
+    verdict: obs.conduct && obs.conduct.verdict,
+    witness_sig: typeof obs.witness_sig === "string",
+    edge_sig: typeof obs.edge_sig === "string",
+    status: anchored ? "anchored" : (pendRaw ? "pending" : "stored"),
+    anchored,
+    bitcoin,
+    recompute: "evidence_id = sha256(canonical(observation minus derived fields)); witness_sig/edge_sig are Ed25519, the key is inside the did:key. When anchored, GET /ledger/{anchored.ledger_entry} for the batch bytes and OTS proof.",
+  });
+}
+
 // Daily Bitcoin anchor for task observations, mirroring the ledger's anchorWitnessPool. Bundles the pending
 // pool into a nenrin-task-witness-batch-v1 ledger entry whose hash fixes the existence time of every
 // observation listed (the Bitcoin stamp follows on the operator's stamping run), then moves each to

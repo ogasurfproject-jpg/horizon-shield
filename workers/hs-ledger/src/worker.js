@@ -9,7 +9,7 @@
 // injects its own Web Crypto hasher. No node imports in the core, so this bundles as is.
 import { assembleResume as assembleResumeV1, Reject as ResumeReject } from "../nenrin/resume-v1/resume_v1.mjs";
 import { resumeToTrustSignal, toA2ATrustSignal } from "../nenrin/trust-signal-v1/trust_signal_v1.mjs";
-import { handleTaskWitness, handleTaskTrustSignal, anchorTaskWitnessPool } from "../nenrin/task-delegation-bind-v0/task_ledger_v0.mjs";
+import { handleTaskWitness, handleTaskTrustSignal, anchorTaskWitnessPool, handleTaskEvidence } from "../nenrin/task-delegation-bind-v0/task_ledger_v0.mjs";
 // Agreement intake v0 (2026-09-16). Records that two agents both signed the same bytes.
 // The verifier (nenrin/agreement-v0/agreement_verify.mjs) is offline and untouched; this only
 // wires it to the world. Boundary ops/AGREEMENT_INTAKE_v0_BOUNDARY.md, decisions
@@ -1466,6 +1466,7 @@ async function handle(request, env) {
     // task-delegation-bind-v0 : A2A task-bound conduct observations (additive; disjoint KV under nenrin:task:)
     { const _tw = await handleTaskWitness(p, request, url, env); if (_tw) return _tw; }
     { const _tts = await handleTaskTrustSignal(p, request, url, env); if (_tts) return _tts; }
+    { const _te = await handleTaskEvidence(p, request, url, env); if (_te) return _te; }
 
     if (p === "/witness" && request.method === "GET") {
       const d = witnessSelfDescription(origin);
