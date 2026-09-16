@@ -9,7 +9,7 @@
 // injects its own Web Crypto hasher. No node imports in the core, so this bundles as is.
 import { assembleResume as assembleResumeV1, Reject as ResumeReject } from "../nenrin/resume-v1/resume_v1.mjs";
 import { resumeToTrustSignal, toA2ATrustSignal } from "../nenrin/trust-signal-v1/trust_signal_v1.mjs";
-import { handleTaskWitness, handleTaskTrustSignal } from "../nenrin/task-delegation-bind-v0/task_ledger_v0.mjs";
+import { handleTaskWitness, handleTaskTrustSignal, anchorTaskWitnessPool } from "../nenrin/task-delegation-bind-v0/task_ledger_v0.mjs";
 // Agreement intake v0 (2026-09-16). Records that two agents both signed the same bytes.
 // The verifier (nenrin/agreement-v0/agreement_verify.mjs) is offline and untouched; this only
 // wires it to the world. Boundary ops/AGREEMENT_INTAKE_v0_BOUNDARY.md, decisions
@@ -1588,6 +1588,12 @@ async function handle(request, env) {
       return json(r.body, r.status);
     }
 
+    if (p === "/witness/task/anchor" && request.method === "POST") {
+      if (!(await auth(request, env))) return json({ error: "unauthorized" }, 401);
+      const r = await anchorTaskWitnessPool(env, origin, "operator");
+      return json(r.body, r.status);
+    }
+
     // Agreement intake v0. GET describes and states caps; POST records; GET by sha serves bytes.
     if (p === "/agreement" && request.method === "GET") {
       return json(agreementSelfDescription(origin));
@@ -2137,6 +2143,12 @@ export default {
       console.log("witness batch:", JSON.stringify(r.body));
     } catch (e) {
       console.log("witness batch failed:", String(e && e.message || e));
+    }
+    try {
+      const rt = await anchorTaskWitnessPool(env, "https://ledger.horizonshield.dev", "schedule");
+      console.log("task witness batch:", JSON.stringify(rt.body));
+    } catch (e) {
+      console.log("task witness batch failed:", String(e && e.message || e));
     }
     try {
       const ra = await anchorAgreementPool(env, "https://ledger.horizonshield.dev", "schedule");

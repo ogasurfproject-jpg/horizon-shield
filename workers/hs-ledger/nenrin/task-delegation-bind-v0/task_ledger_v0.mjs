@@ -128,6 +128,10 @@ async function verifySignatures(obs) {
 const OBS_KEY = (eid) => "nenrin:task:obs:" + eid;
 const IDX_KEY = (tid, seq, wid) => "nenrin:task:" + tid + ":" + seq + ":" + wid;
 const IDX_PREFIX = (tid) => "nenrin:task:" + tid + ":";
+const PENDING_KEY = (eid) => "nenrin:tw:pending:" + eid;   // daily Bitcoin anchor pool (disjoint from the nenrin:task: index)
+const ANCHORED_KEY = (eid) => "nenrin:tw:anchored:" + eid; // { n, obs } once bundled into an anchored batch
+const PENDING_PREFIX = "nenrin:tw:pending:";
+const TASK_BATCH_MAX = 500;
 
 function j(o, status = 200) {
   return new Response(JSON.stringify(o), {
@@ -159,6 +163,8 @@ export async function handleTaskWitnessPost(request, env) {
   const eid = obs.evidence_id;
   await env.LEDGER.put(OBS_KEY(eid), canonical(obs));
   await env.LEDGER.put(IDX_KEY(obs.task_id, obs.hop.seq, obs.witness_id), eid);
+  // enqueue for the daily Bitcoin anchor batch, unless this evidence is already in an anchored batch
+  if (!(await env.LEDGER.get(ANCHORED_KEY(eid)))) await env.LEDGER.put(PENDING_KEY(eid), canonical(obs));
   return j({
     ok: true, stored: true, task_id: obs.task_id, hop_seq: obs.hop.seq, witness_id: obs.witness_id,
     evidence_id: eid, witness_sig: typeof obs.witness_sig === "string", edge_sig: typeof obs.edge_sig === "string",
@@ -211,6 +217,7 @@ export async function handleTaskWitnessGet(url, env) {
     hops,
     honest: "verdict per hop aggregates the FULL witness set; disagreement is preserved, never the favorable one. Signatures prove who asserted and linkage (attributable, non-repudiable), not that the assertion is true.",
     recompute: "evidence_id = sha256(canonical(observation minus derived fields)). witness_sig is Ed25519 over the same canonical preimage; the key is inside witness_id (did:key). Recompute and verify yourself.",
+    anchoring: "each observation is enqueued on receipt and bundled daily into a nenrin-task-witness-batch-v1 ledger entry anchored to Bitcoin via OpenTimestamps; find the batch listing an evidence_id and GET /ledger/{n} for its bytes and OTS proof.",
     aligns_to: "A2A Task id (a2a.task.id); A2A issues #1769, #2103",
   });
 }
@@ -283,8 +290,50 @@ export async function handleTaskTrustSignal(p, request, url, env) {
     honest: "verdict per hop aggregates the FULL witness set; disagreement is preserved, never the favorable one. Signatures prove who asserted and the delegation edge, not that the assertion is true.",
     recompute: "GET " + issuer + "/witness/task?task_id=" + encodeURIComponent(tid) + " for the full observation set; evidence_id = sha256(canonical(obs minus derived fields)); witness_sig/edge_sig are Ed25519 over the canonical preimage and canonical({task_id,hop}), the key is inside the did:key. Recompute and verify yourself.",
     not_a_score: "counts and verdicts only; this signal never emits a numeric trustworthiness score.",
+    anchoring: "each observation is bundled daily into a nenrin-task-witness-batch-v1 ledger entry anchored to Bitcoin (OpenTimestamps); verify via GET /ledger/{n} for the batch listing the evidence_id.",
     aligns_to: "A2A Task id (a2a.task.id); A2A issues #1769, #2103",
   });
+}
+
+// Daily Bitcoin anchor for task observations, mirroring the ledger's anchorWitnessPool. Bundles the pending
+// pool into a nenrin-task-witness-batch-v1 ledger entry whose hash fixes the existence time of every
+// observation listed (the Bitcoin stamp follows on the operator's stamping run), then moves each to
+// nenrin:tw:anchored:<evidence_id>. The observation bytes stay served by GET /witness/task.
+export async function anchorTaskWitnessPool(env, origin, trigger) {
+  const listed = await env.LEDGER.list({ prefix: PENDING_PREFIX });
+  const keys = (listed.keys || []).slice(0, TASK_BATCH_MAX);
+  if (!keys.length) return { status: 200, body: { ok: true, anchored: 0, note: "task witness pool is empty" } };
+  const items = [];
+  for (const k of keys) {
+    const raw = await env.LEDGER.get(k.name);
+    if (!raw) continue;
+    let o; try { o = JSON.parse(raw); } catch { continue; }
+    if (o && o.evidence_id) items.push(o);
+  }
+  items.sort((a, b) => (a.evidence_id < b.evidence_id ? -1 : 1));
+  const batch = {
+    schema: "nenrin-task-witness-batch-v1",
+    anchored_at: new Date().toISOString(),
+    count: items.length,
+    records: items.map((o) => ({
+      evidence_id: o.evidence_id, task_id: o.task_id, hop_seq: o.hop.seq, witness_id: o.witness_id,
+      verdict: o.conduct.verdict, witness_sig: typeof o.witness_sig === "string", edge_sig: typeof o.edge_sig === "string",
+    })),
+  };
+  const batchCanonical = JSON.stringify(batch);
+  const h = (await sha256hex(batchCanonical)).toLowerCase();
+  const dup = await env.LEDGER.get("hash:" + h);
+  if (dup) return { status: 200, body: { n: Number(dup), url: origin + "/ledger/" + dup, dedup: true } };
+  const n = Number((await env.LEDGER.get("seq")) || 0) + 1;
+  const entry = { n, work: "NENRIN task-witness batch (" + items.length + " records)", claim_sha256: h, record_canonical: batchCanonical, schema: "v0-plain", created_at: new Date().toISOString(), ots_status: "unstamped", bitcoin_block: null, block_time: null, stamped_at: null, anchored_by: trigger };
+  await env.LEDGER.put("entry:" + n, JSON.stringify(entry));
+  await env.LEDGER.put("hash:" + h, String(n));
+  await env.LEDGER.put("seq", String(n));
+  for (const o of items) {
+    await env.LEDGER.put(ANCHORED_KEY(o.evidence_id), JSON.stringify({ n, obs: o }));
+    await env.LEDGER.delete(PENDING_KEY(o.evidence_id));
+  }
+  return { status: 201, body: { n, url: origin + "/ledger/" + n, anchored: items.length, trigger, note: "the batch anchor fixes the existence time of every task observation listed; the Bitcoin stamp follows on the operator stamping run" } };
 }
 
 // Additive dispatcher for the ledger worker. Returns null when the path is not ours (no interference).
