@@ -47,12 +47,34 @@ We are the first test subject under our own rules. The ledger keeps the record o
 
 **If a register that cannot delete criticism of its own operator is infrastructure you want to exist, star this repository.** Stars are how researchers and agent platforms find it. The rings accumulate either way. They accumulate faster with witnesses.
 
+## Task-bound conduct: binding an A2A Task to its evidence
+
+Choice does not end when an agent picks a server. It picks, then it delegates a task. What that delegated task actually did, observed by someone other than the two parties, is the evidence the next agent needs. NENRIN binds it to the A2A Task id itself (`a2a.task.id`, aligned to A2A issues #1769 and #2103), not to "this server failed once".
+
+The conduct walk already talks to a real agent over A2A and receives a real Task with an id. It now files a signed, content-addressed observation bound to that id: who delegated to whom on task T, and how the walked agent behaved. The witness signs the observation (`witness_sig`), the requesting party signs the delegation edge (`edge_sig`), and both keys live inside the `did:key` identifiers, so anyone verifies with no network and no trust in us.
+
+Three reads, each a real record you can fetch now:
+
+```
+curl -s "https://ledger.horizonshield.dev/witness/task?task_id=d1651c71-28b0-422b-8f14-e2dc66c5a145"
+curl -s "https://ledger.horizonshield.dev/trust-signal?task_id=d1651c71-28b0-422b-8f14-e2dc66c5a145"
+curl -s "https://ledger.horizonshield.dev/witness/task/evidence/0bff13042d89ec0bc33f2f5149612774f8a706e67c1f345abfc1f10962e31608"
+```
+
+The first returns the full witness set per delegation hop, with the aggregate verdict computed so a disagreement is preserved and never the favorable one. The second returns the same as a consumable signal that carries counts and verdicts and never a numeric score. The third returns one observation with its anchor status: this evidence sits in NENRIN ledger entry 44, a `nenrin-task-witness-batch-v1` bundle timestamped to Bitcoin like every other ring.
+
+What the signatures prove, stated plainly: who asserted the observation and who attested the delegation edge, not that the assertion is true. The ledger attests that the witness is distinct from both hop parties by key (R1); it does not attest operator independence, so a self-witness satisfies R1 and says so in its own record. A genuine third-party observation is the same walk run by someone with no stake, filed to the same live endpoints.
+
+The loop this closes: an agent discovers a server, reads conduct the server did not write, chooses, delegates a task, the task is witnessed, the evidence accumulates bound to the task id, and the next agent chooses on it. The code is in [`workers/hs-ledger/nenrin/task-delegation-bind-v0`](workers/hs-ledger/nenrin/task-delegation-bind-v0) (the ledger faces and the producer) and [`workers/hs-ledger/nenrin/a2a-conduct-walk`](workers/hs-ledger/nenrin/a2a-conduct-walk) (the walk that binds, with `--bind-task`).
+
 ## Repository map
 
 | Path | What it is |
 |------|------------|
 | `workers/hs-verify-gate` | The verification gate: nightly sweeps, on demand checks, `probed_via` route disclosure, `gate_commit` pinning, surface change tracking |
 | `workers/hs-ledger` | The JIDEC append only ledger and the NENRIN witness intake |
+| `workers/hs-ledger/nenrin/task-delegation-bind-v0` | Task-bound conduct: an A2A Task id bound to a signed, Bitcoin-anchored witness observation; the `/witness/task`, `/trust-signal?task_id` and `/witness/task/evidence` faces |
+| `workers/hs-ledger/nenrin/a2a-conduct-walk` | The conduct walk that measures an agent and, with `--bind-task`, files the observation under the real `a2a.task.id` |
 | `workers/hs-ledger/nenrin/agreement-v0` | The agreement record: two agents, two signatures, one set of bytes. Verifier written twice, in Python and JavaScript, and proved to agree |
 | `workers/hs-verify-relay` | The public edge relay born from the 522 incident (documented in the discrepancy record) |
 | `verify-directory` | The public register page: every listed server, our own included, with its live verdict |
