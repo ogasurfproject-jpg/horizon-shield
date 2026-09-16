@@ -293,8 +293,9 @@ async function witnessFetchDomainKey(env, keyUrl) {
   try {
     const ctl = new AbortController();
     const t = setTimeout(() => ctl.abort(), WITNESS_KEY_FETCH_MS);
-    const res = await fetch(keyUrl, { signal: ctl.signal, headers: { accept: "application/json" }, redirect: "error" });
+    const res = await fetch(keyUrl, { signal: ctl.signal, headers: { accept: "application/json" }, redirect: "manual" });
     clearTimeout(t);
+    if (res.status >= 300 && res.status < 400) return { ok: false, why: "key_url redirected (" + res.status + "); a key_url must serve the key directly under the party's own domain, not via redirect" };
     if (!res.ok) return { ok: false, why: "key_url answered " + res.status };
     const j = await res.json().catch(() => null);
     const k = j && typeof j.public_key_ed25519_b64 === "string" ? j.public_key_ed25519_b64 : null;
