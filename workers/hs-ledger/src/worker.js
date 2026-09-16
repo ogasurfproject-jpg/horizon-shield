@@ -9,6 +9,18 @@
 // injects its own Web Crypto hasher. No node imports in the core, so this bundles as is.
 import { assembleResume as assembleResumeV1, Reject as ResumeReject } from "../nenrin/resume-v1/resume_v1.mjs";
 import { resumeToTrustSignal, toA2ATrustSignal } from "../nenrin/trust-signal-v1/trust_signal_v1.mjs";
+import { handleTaskWitness } from "../nenrin/task-delegation-bind-v0/task_ledger_v0.mjs";
+// Agreement intake v0 (2026-09-16). Records that two agents both signed the same bytes.
+// The verifier (nenrin/agreement-v0/agreement_verify.mjs) is offline and untouched; this only
+// wires it to the world. Boundary ops/AGREEMENT_INTAKE_v0_BOUNDARY.md, decisions
+// ops/AGREEMENT_INTAKE_v0_DECISIONS.md. Dedupe is a strongly consistent Durable Object that
+// fails closed when unbound, so /agreement answers 503 rather than storing on eventually consistent KV.
+import {
+  handleAgreementIntake, handleAgreementGet, agreementSelfDescription, buildAgreementBatch,
+  doStore as agreementStore,
+  DAILY_GLOBAL as AGREEMENT_DAILY_GLOBAL, DAILY_PER_NETWORK as AGREEMENT_DAILY_PER_NETWORK,
+} from "../nenrin/agreement-v0/agreement_intake.mjs";
+export { AgreementDedupeDO } from "../nenrin/agreement-v0/agreement_intake.mjs";
 
 const enc = new TextEncoder();
 
@@ -291,6 +303,28 @@ async function witnessFetchDomainKey(env, keyUrl) {
     return { ok: true, key: k, cached: false };
   } catch (e) {
     return { ok: false, why: "key_url unreachable: " + String(e && e.message || e) };
+  }
+}
+
+// Agreement rate limit. A spam control on the salted per-day network mark, never a fee
+// (decision 4.4). KV counters are fine here; only the dedupe is strongly consistent (boundary 2.3).
+async function agreementRateLimit(env, request) {
+  try {
+    const day = netDay();
+    const g = Number((await env.LEDGER.get("agr:count:" + day)) || 0);
+    if (g >= AGREEMENT_DAILY_GLOBAL) return { ok: false, error: "daily_global_cap_reached", cap: AGREEMENT_DAILY_GLOBAL, scope: "global" };
+    const ip = request.headers.get("cf-connecting-ip") || "unknown";
+    const pre = netPrefix(ip) || ("raw:" + ip);
+    const salt = await netSalt(env, day);
+    const mark = (await sha256hex(salt + "|" + pre)).slice(0, 32);
+    const lk = "agr:net:" + day + ":" + mark;
+    const n = Number((await env.LEDGER.get(lk)) || 0);
+    if (n >= AGREEMENT_DAILY_PER_NETWORK) return { ok: false, error: "daily_per_network_cap_reached", cap: AGREEMENT_DAILY_PER_NETWORK, scope: "network" };
+    await env.LEDGER.put("agr:count:" + day, String(g + 1), { expirationTtl: 90000 });
+    await env.LEDGER.put(lk, String(n + 1), { expirationTtl: 90000 });
+    return { ok: true };
+  } catch (_e) {
+    return { ok: true }; // a spam counter must never take down the intake
   }
 }
 
@@ -1332,7 +1366,7 @@ async function handle(request, env) {
     if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
 
     if (p === "/" || p === "/health")
-      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query", "/witness", "/witness/pending", "/witness/{sha}", "/resume?endpoint={url}", "/trust-signal?endpoint={url}"], discovery: { api_catalog: "/.well-known/api-catalog", agent_card: "/.well-known/agent-card.json", jwks: "/.well-known/jwks.json", security_txt: "/.well-known/security.txt", llms_txt: "/llms.txt", a2a: "/a2a", cite: "/cite/{citation}", precedence: "/precedence/{citation}", mcp: MCP_ORIGIN + "/mcp" }, transparency: TRANSPARENCY, privacy: PRIVACY });
+      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query", "/witness", "/witness/pending", "/witness/{sha}", "/resume?endpoint={url}", "/trust-signal?endpoint={url}", "/agreement", "/agreement/pending", "/agreement/{canonical_sha256}"], discovery: { api_catalog: "/.well-known/api-catalog", agent_card: "/.well-known/agent-card.json", jwks: "/.well-known/jwks.json", security_txt: "/.well-known/security.txt", llms_txt: "/llms.txt", a2a: "/a2a", cite: "/cite/{citation}", precedence: "/precedence/{citation}", mcp: MCP_ORIGIN + "/mcp" }, transparency: TRANSPARENCY, privacy: PRIVACY });
 
     /* ---------------------- 看板 routes (additive, read-only) ---------------------- */
 
@@ -1428,6 +1462,9 @@ async function handle(request, env) {
     }
 
     /* ---------------------- NENRIN witness intake (additive) ---------------------- */
+
+    // task-delegation-bind-v0 : A2A task-bound conduct observations (additive; disjoint KV under nenrin:task:)
+    { const _tw = await handleTaskWitness(p, request, url, env); if (_tw) return _tw; }
 
     if (p === "/witness" && request.method === "GET") {
       const d = witnessSelfDescription(origin);
@@ -1548,6 +1585,43 @@ async function handle(request, env) {
       if (!(await auth(request, env))) return json({ error: "unauthorized" }, 401);
       const r = await anchorWitnessPool(env, origin, "operator");
       return json(r.body, r.status);
+    }
+
+    // Agreement intake v0. GET describes and states caps; POST records; GET by sha serves bytes.
+    if (p === "/agreement" && request.method === "GET") {
+      return json(agreementSelfDescription(origin));
+    }
+    if (p === "/agreement" && request.method === "POST") {
+      const out = await handleAgreementIntake(request, {
+        fetchKey: (u) => witnessFetchDomainKey(env, u),
+        store: agreementStore(env),
+        now: () => new Date().toISOString(),
+        recorderDomain: witnessHost(origin),
+        rateLimit: () => agreementRateLimit(env, request),
+        origin,
+      });
+      return json(out.body, out.status, out.headers);
+    }
+    if (p === "/agreement/pending" && request.method === "GET") {
+      const listed = await env.LEDGER.list({ prefix: "agr:pending:" });
+      const out = [];
+      for (const k of listed.keys) {
+        const raw = await env.LEDGER.get(k.name);
+        if (!raw) continue;
+        const s2 = JSON.parse(raw);
+        out.push({ canonical_sha256: s2.canonical_sha256, record_schema: s2.report && s2.report.record_schema, verdict: s2.report && s2.report.verdict, submitted_at: s2.submitted_at, url: `${origin}/agreement/${s2.canonical_sha256}` });
+      }
+      return json({ count: out.length, pending: out, note: "accepted records queued for the daily batch at 00:30 UTC (boundary 2.4); the batch anchor fixes their existence time and the Bitcoin stamp follows on the operator's stamping run" });
+    }
+    if (p === "/agreement/anchor" && request.method === "POST") {
+      if (!(await auth(request, env))) return json({ error: "unauthorized" }, 401);
+      const r = await anchorAgreementPool(env, origin, "operator");
+      return json(r.body, r.status);
+    }
+    const agrM = p.match(/^\/agreement\/([0-9a-f]{64})$/i);
+    if (agrM && request.method === "GET") {
+      const out = await handleAgreementGet(agrM[1], { store: agreementStore(env), origin });
+      return json(out.body, out.status, out.headers);
     }
 
     if (p === "/ledger" && request.method === "GET") {
@@ -2015,6 +2089,36 @@ async function anchorWitnessPool(env, origin, trigger) {
   return { status: 201, body: { n, url: `${origin}/ledger/${n}`, anchored: items.length, trigger, note: "the batch anchor covers every record listed in it; the Bitcoin stamp follows on the operator's stamping run" } };
 }
 
+// Agreement pool batch and anchor (boundary 2.4), mirroring anchorWitnessPool. Bundles the
+// day's accepted records into one ledger entry and anchors its hash; the Bitcoin stamp follows
+// on the operator's stamping run. The full bytes stay served by GET /agreement/{sha}.
+async function anchorAgreementPool(env, origin, trigger) {
+  const listed = await env.LEDGER.list({ prefix: "agr:pending:" });
+  const keys = listed.keys.slice(0, WITNESS_BATCH_MAX);
+  if (!keys.length) return { status: 200, body: { ok: true, anchored: 0, note: "pool is empty" } };
+  const items = [];
+  for (const k of keys) {
+    const raw = await env.LEDGER.get(k.name);
+    if (raw) items.push(JSON.parse(raw));
+  }
+  const batch = buildAgreementBatch(items, new Date().toISOString());
+  const canonical = JSON.stringify(batch);
+  const h = (await sha256hex(canonical)).toLowerCase();
+  const dup = await env.LEDGER.get(`hash:${h}`);
+  if (dup) return { status: 200, body: { n: Number(dup), url: `${origin}/ledger/${dup}`, dedup: true } };
+  const n = Number((await env.LEDGER.get("seq")) || 0) + 1;
+  const entry = { n, work: `NENRIN agreement batch (${items.length} records)`, claim_sha256: h, record_canonical: canonical, schema: "v0-plain", created_at: new Date().toISOString(), ots_status: "unstamped", bitcoin_block: null, block_time: null, stamped_at: null };
+  entry.anchored_by = trigger;
+  await env.LEDGER.put(`entry:${n}`, JSON.stringify(entry));
+  await env.LEDGER.put(`hash:${h}`, String(n));
+  await env.LEDGER.put("seq", String(n));
+  for (const s of items) {
+    await env.LEDGER.put(`agr:anchored:${s.canonical_sha256}`, JSON.stringify({ n, stored: s }));
+    await env.LEDGER.delete(`agr:pending:${s.canonical_sha256}`);
+  }
+  return { status: 201, body: { n, url: `${origin}/ledger/${n}`, anchored: items.length, trigger, note: "the batch anchor covers every record listed in it; the Bitcoin stamp follows on the operator's stamping run" } };
+}
+
 export default {
   async fetch(request, env, ctx) {
     const res = await handle(request, env);
@@ -2032,6 +2136,12 @@ export default {
       console.log("witness batch:", JSON.stringify(r.body));
     } catch (e) {
       console.log("witness batch failed:", String(e && e.message || e));
+    }
+    try {
+      const ra = await anchorAgreementPool(env, "https://ledger.horizonshield.dev", "schedule");
+      console.log("agreement batch:", JSON.stringify(ra.body));
+    } catch (e) {
+      console.log("agreement batch failed:", String(e && e.message || e));
     }
   },
 };
