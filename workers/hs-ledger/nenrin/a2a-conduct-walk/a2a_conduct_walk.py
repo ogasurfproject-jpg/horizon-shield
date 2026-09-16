@@ -478,7 +478,7 @@ def sign_canonical(key, record_canonical):
 
 
 def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked_at=None, wire="1.0",
-         privacy="full", key_url=None, vantage_limitation=None):
+         privacy="full", key_url=None, vantage_limitation=None, extras=None):
     origin = origin.rstrip("/")
     wire = "0.3" if wire == "0.3" else "1.0"
     if privacy not in PRIVACY_MODES:
@@ -536,7 +536,18 @@ def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked
             j = json.loads(b3.decode("utf-8")) if s3 == 200 else None
             answered = result_shape_ok(j, mode, wire)
         except Exception:
+            j = None
             answered = False
+        # additive: capture the real a2a.task.id the agent returned, for an optional task-bound observation.
+        # Never affects the record (extras is separate), never affects answered. Absent task -> nothing captured.
+        if extras is not None and mode == "a2a" and isinstance(j, dict):
+            try:
+                import task_bind as _tb
+                _tid = _tb.a2a_task_id_from_response(j)
+                if _tid:
+                    extras["a2a_task_id"] = _tid
+            except Exception:
+                pass
         if mode == "a2a":
             e = n3["response"].get("a2a_extensions" if wire == "1.0" else "x_a2a_extensions") or ""
             echoed = any(u in [x.strip() for x in e.split(",")] for u in EXT_URIS)
@@ -658,6 +669,8 @@ def main(argv=None):
     ap.add_argument("--key-url", default=None, help="https URL under your own domain that serves {\"public_key_ed25519_b64\": ...}; required with --key")
     ap.add_argument("--print-public-key", default=None, metavar="KEYFILE", help="print the JSON to serve at --key-url for this key, then exit")
     ap.add_argument("--vantage-limitation", default=None, help="what you could not see from where you stood")
+    ap.add_argument("--bind-task", action="store_true", help="a2a mode: also emit a task-bound observation to /witness/task using the real a2a.task.id the agent returned (needs --key)")
+    ap.add_argument("--task-ledger", default=None, help="override the task-delegation ledger URL (default https://ledger.horizonshield.dev/witness/task)")
     ap.add_argument("--salt-file", default=None, help="commitment mode: read the 32 byte salt (hex) from here instead of generating one")
     a = ap.parse_args(argv)
 
@@ -665,16 +678,20 @@ def main(argv=None):
         _k, pub = load_signing_key(a.print_public_key)
         print(json.dumps({"public_key_ed25519_b64": pub}))
         return 0
-    if bool(a.key) != bool(a.key_url):
+    if bool(a.key) != bool(a.key_url) and not a.bind_task:
         print("--key and --key-url go together: the ledger binds your signature to the domain that serves the key")
+        return 2
+    if a.bind_task and not a.key:
+        print("--bind-task needs --key (an Ed25519 PEM; the witness signs the task observation, and the key is self-contained in the did:key, so --key-url is not needed for binding)")
         return 2
     key = pub = None
     if a.key:
         key, pub = load_signing_key(a.key)
 
     fetch = curl_fetch if a.transport == "curl" else http_fetch
+    extras = {}
     rec = walk(a.origin, a.endpoint, a.mode, a.witness_name, a.vantage, fetch=fetch, wire=a.wire,
-               privacy=a.privacy, key_url=a.key_url, vantage_limitation=a.vantage_limitation)
+               privacy=a.privacy, key_url=a.key_url, vantage_limitation=a.vantage_limitation, extras=extras)
     rc = canonical(rec)
     sha = sha256_hex(rc)
     out = a.out or ("walk_" + sha[:12] + ".json")
@@ -695,6 +712,24 @@ def main(argv=None):
         else:
             print("  n%d compute: %s" % (nd["n"], nd.get("output_preview", "")[:120]))
     print("  mode %s; does_not_establish: %s" % (rec["mode"], "; ".join(rec["does_not_establish"])))
+
+    # additive: bind the walk to the task-delegation ledger. Separate emission to /witness/task; the
+    # endpoint-keyed record above is untouched. The witness key doubles as the did:key witness_id.
+    if a.bind_task:
+        if a.mode != "a2a":
+            print("  --bind-task needs --mode a2a (only an A2A Task carries an a2a.task.id); skipped")
+        elif not key:
+            print("  --bind-task needs --key (the witness signs the task observation); skipped")
+        elif not extras.get("a2a_task_id"):
+            print("  no a2a.task.id in the response (the agent returned a message, not a task); nothing to bind")
+        else:
+            try:
+                import task_bind as _tb
+                _wdid = _tb.did_key_from_privkey(key)
+                _tst, _tj = _tb.emit_task_binding(extras["a2a_task_id"], a.origin, rec["verdict"]["outcome"], key, _wdid, ledger_url=a.task_ledger)
+                print("  task binding %s (%s) -> http %d %s" % (extras["a2a_task_id"], rec["verdict"]["outcome"], _tst, json.dumps(_tj, ensure_ascii=False)[:280]))
+            except Exception as _e:
+                print("  task binding failed: " + repr(_e))
 
     # What gets filed: the record itself, or, in commitment mode, only its commitment.
     to_file, to_file_c = rec, rc

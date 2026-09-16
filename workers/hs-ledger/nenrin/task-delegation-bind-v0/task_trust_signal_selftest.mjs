@@ -43,7 +43,7 @@ console.log("task-conduct-trust-signal-v0 : selftest (Web Crypto)");
   ok("1 both PASS", g.body.delegation[0].verdict === "PASS" && g.body.delegation[1].verdict === "PASS");
   ok("1 no adverse hops", Array.isArray(g.body.adverse_hops) && g.body.adverse_hops.length === 0);
   ok("1 unsigned => attributable false, signed_witnesses 0, edge_attested false", g.body.delegation[0].attributable === false && g.body.delegation[0].signed_witnesses === 0 && g.body.delegation[0].edge_attested === false);
-  ok("1 R1 independent asserted", g.body.delegation[0].independent === true);
+  ok("1 R1 witness_distinct_from_parties asserted (not a third-party claim)", g.body.delegation[0].witness_distinct_from_parties === true && g.body.independence.indexOf("does NOT attest operator-independence") >= 0);
   ok("1 issuer_is_party disclosed false", g.body.issuer_is_party === false);
   ok("1 issuer echoes request origin", g.body.issuer === "https://ledger.horizonshield.dev");
 }

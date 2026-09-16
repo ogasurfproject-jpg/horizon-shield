@@ -1,0 +1,9 @@
+# local witness key and run artifacts: NEVER commit these (a leaked Ed25519 key would let anyone sign as this witness)
+*.pem
+*.salt
+walk_*.json
+__pycache__/
+*.bak.*
+# vendored producer test outputs
+obs.json
+signed.json

@@ -257,7 +257,7 @@ export async function handleTaskTrustSignal(p, request, url, env) {
       signed_witnesses: signed,
       edge_attested: set.some((o) => typeof o.edge_sig === "string"),
       attributable: signed > 0,
-      independent: true,
+      witness_distinct_from_parties: true,
       evidence_ids: set.map((o) => o.evidence_id).sort(),
     };
   });
@@ -279,6 +279,7 @@ export async function handleTaskTrustSignal(p, request, url, env) {
     chain_reason: chain.ok ? undefined : chain.reason,
     delegation,
     adverse_hops,
+    independence: "witness_distinct_from_parties attests R1 by key (witness_id equals neither hop party). It does NOT attest operator-independence: a self-witness, where one operator holds both a hop key and the witness key, still satisfies R1. Whether the witness is a genuine third party is judged from its did:key identity, not from this field.",
     honest: "verdict per hop aggregates the FULL witness set; disagreement is preserved, never the favorable one. Signatures prove who asserted and the delegation edge, not that the assertion is true.",
     recompute: "GET " + issuer + "/witness/task?task_id=" + encodeURIComponent(tid) + " for the full observation set; evidence_id = sha256(canonical(obs minus derived fields)); witness_sig/edge_sig are Ed25519 over the canonical preimage and canonical({task_id,hop}), the key is inside the did:key. Recompute and verify yourself.",
     not_a_score: "counts and verdicts only; this signal never emits a numeric trustworthiness score.",
