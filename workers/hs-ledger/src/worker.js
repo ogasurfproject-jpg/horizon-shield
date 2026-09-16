@@ -291,10 +291,16 @@ async function witnessFetchDomainKey(env, keyUrl) {
   const cached = await env.LEDGER.get(ck);
   if (cached) return { ok: true, key: cached, cached: true };
   try {
-    const ctl = new AbortController();
-    const t = setTimeout(() => ctl.abort(), WITNESS_KEY_FETCH_MS);
-    const res = await fetch(keyUrl, { signal: ctl.signal, headers: { accept: "application/json" }, redirect: "manual" });
-    clearTimeout(t);
+    const host = (() => { try { return new URL(keyUrl).hostname.toLowerCase(); } catch (_e) { return ""; } })();
+    const opts = { headers: { accept: "application/json" }, redirect: "manual" };
+    let res;
+    if (host === "gate.horizonshield.dev" && env.GATE) {
+      res = await env.GATE.fetch(new Request(keyUrl, opts));
+    } else {
+      const ctl = new AbortController();
+      const t = setTimeout(() => ctl.abort(), WITNESS_KEY_FETCH_MS);
+      try { res = await fetch(keyUrl, { signal: ctl.signal, ...opts }); } finally { clearTimeout(t); }
+    }
     if (res.status >= 300 && res.status < 400) return { ok: false, why: "key_url redirected (" + res.status + "); a key_url must serve the key directly under the party's own domain, not via redirect" };
     if (!res.ok) return { ok: false, why: "key_url answered " + res.status };
     const j = await res.json().catch(() => null);
