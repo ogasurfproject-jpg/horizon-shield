@@ -4408,6 +4408,37 @@ export default {
       });
     }
 
+    // 0.4.7: 証人の署名鍵を配る口 /keys/witness.json。agreement.json と同じ規律。判定にもう一切関わらん。
+    // 未設定なら 404(「無い」)、空を 200 で返さん。秘密鍵はこの Worker に無い(署名は手元/runner)。
+    // この鍵で扉のドメイン下の endpoint 記録が帰属し、同じ鍵を did:key にした witness_sig が task 観測に付く。
+    if (path === "/keys/witness.json") {
+      const pub = (env.WITNESS_PUBKEY_B64 || "").trim();
+      if (!pub) {
+        return json({
+          error: "not_configured",
+          what: "no conduct-witness signing key is published for this domain yet",
+          why: "the key is generated off this machine and pinned here as a var; until it is, this route says so rather than serving an empty value that a reader would mistake for a different key",
+        }, 404);
+      }
+      return new Response(JSON.stringify({
+        alg: "ed25519",
+        public_key_ed25519_b64: pub,
+        domain: "horizonshield.dev",
+        schema: "a2a-conduct-walk-v1",
+        what_this_is:
+          "The Ed25519 public key this domain signs conduct-witness records with. The same key, expressed " +
+          "as a did:key, also signs task-bound observations (witness_sig) filed to the NENRIN task ledger, " +
+          "which verify offline without this URL. Fetching it establishes one thing only: that the key is " +
+          "the key this domain serves, so an endpoint-keyed witness record is attributable to this domain.",
+        what_this_is_not:
+          "Proof that any particular record is genuine. It is one public key. Verify records against their own bytes.",
+        spec: "https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/task-delegation-bind-v0/TASK_DELEGATION_BIND_v0.md",
+      }, null, 2), {
+        status: 200,
+        headers: { ...JSON_HEADERS, "Cache-Control": "public, max-age=300", ...CORS_HEADERS },
+      });
+    }
+
     if (path === "/recompute") {
       if (request.method === "GET") return json(RECOMPUTE_USAGE, 200);
       if (request.method === "POST") {

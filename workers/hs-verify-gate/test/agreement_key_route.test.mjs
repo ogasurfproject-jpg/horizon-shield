@@ -38,7 +38,7 @@ const t = (name, ok, detail) => {
 // 切り出して回す。書き写した写しは試さん。試すのは deploy される物と同じバイト列や。
 const start = SRC.indexOf('if (path === "/keys/agreement.json") {');
 t("口が src/worker.js に在る", start >= 0);
-const body = start < 0 ? "" : SRC.slice(start, SRC.indexOf('\n    if (path === "/recompute")', start));
+const body = start < 0 ? "" : SRC.slice(start, SRC.indexOf('\n    if (path === "/keys/witness.json")', start));
 
 t("秘密鍵をこの worker で扱っとらん",
   !/private|secret_key|PRIVKEY|sign\(/i.test(body), body.slice(0, 120));
