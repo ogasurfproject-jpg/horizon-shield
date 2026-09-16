@@ -17,6 +17,7 @@
 // Routes (additive):
 //   POST /witness/task              body = a WitnessObservation (evidence_id present; witness_sig/edge_sig optional)
 //   GET  /witness/task?task_id=..   [&hop=<seq>]  -> full set + per-hop aggregate (R4) + chain check (R3)
+//   GET  /trust-signal?task_id=..   -> consumable task-bound conduct signal (counts and verdicts, never a score)
 //
 // KV layout (all under nenrin:task:, disjoint from every existing key):
 //   nenrin:task:obs:<evidence_id>                 -> canonical bytes of the observation
@@ -210,6 +211,77 @@ export async function handleTaskWitnessGet(url, env) {
     hops,
     honest: "verdict per hop aggregates the FULL witness set; disagreement is preserved, never the favorable one. Signatures prove who asserted and linkage (attributable, non-repudiable), not that the assertion is true.",
     recompute: "evidence_id = sha256(canonical(observation minus derived fields)). witness_sig is Ed25519 over the same canonical preimage; the key is inside witness_id (did:key). Recompute and verify yourself.",
+    aligns_to: "A2A Task id (a2a.task.id); A2A issues #1769, #2103",
+  });
+}
+
+// ---- task-bound trust signal (additive read surface) ----
+// The same content as GET /witness/task, shaped as a consumable signal: counts and verdicts only, never a
+// score; adverse hops are named, never hidden; disclosure (issuer_is_party) and recompute travel with it.
+async function collectTaskObservations(env, tid) {
+  const listed = await env.LEDGER.list({ prefix: IDX_PREFIX(tid) });
+  const seen = new Set();
+  const obs = [];
+  for (const entry of (listed.keys || [])) {
+    const eid = await env.LEDGER.get(entry.name);
+    if (!eid || seen.has(eid)) continue;
+    seen.add(eid);
+    const raw = await env.LEDGER.get(OBS_KEY(eid));
+    if (!raw) continue;
+    let o; try { o = JSON.parse(raw); } catch { continue; }
+    obs.push(o);
+  }
+  return obs;
+}
+
+// GET /trust-signal?task_id=<id> : task-bound conduct signal. Returns null for any other shape so the
+// existing endpoint-keyed /trust-signal handler is reached untouched.
+export async function handleTaskTrustSignal(p, request, url, env) {
+  if (p !== "/trust-signal" || request.method !== "GET") return null;
+  const tid = url.searchParams.get("task_id");
+  if (!tid) return null;
+
+  const obs = await collectTaskObservations(env, tid);
+  const byHop = {};
+  for (const o of obs) (byHop[o.hop.seq] = byHop[o.hop.seq] || []).push(o);
+  const seqs = Object.keys(byHop).map(Number).sort((a, b) => a - b);
+  const delegation = seqs.map((seq) => {
+    const set = byHop[seq];
+    const signed = set.filter((o) => typeof o.witness_sig === "string").length;
+    return {
+      hop_seq: seq,
+      from: set[0].hop.from,
+      to: set[0].hop.to,
+      verdict: aggregateVerdict(set),
+      witnesses: set.length,
+      signed_witnesses: signed,
+      edge_attested: set.some((o) => typeof o.edge_sig === "string"),
+      attributable: signed > 0,
+      independent: true,
+      evidence_ids: set.map((o) => o.evidence_id).sort(),
+    };
+  });
+  const repr = seqs.map((seq) => byHop[seq][0]);
+  const chain = await chainContinuous(repr);
+  const adverse_hops = delegation.filter((h) => h.verdict === "FAIL" || h.verdict === "disagreement").map((h) => h.hop_seq);
+  const as_of = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
+  const issuer = url.origin.replace(/\/$/, "");
+
+  return j({
+    ok: true,
+    signal: "task-conduct-trust-signal-v0",
+    task_id: tid,
+    as_of,
+    issuer,
+    issuer_is_party: false,
+    hops_observed: delegation.length,
+    chain_continuous: chain.ok,
+    chain_reason: chain.ok ? undefined : chain.reason,
+    delegation,
+    adverse_hops,
+    honest: "verdict per hop aggregates the FULL witness set; disagreement is preserved, never the favorable one. Signatures prove who asserted and the delegation edge, not that the assertion is true.",
+    recompute: "GET " + issuer + "/witness/task?task_id=" + encodeURIComponent(tid) + " for the full observation set; evidence_id = sha256(canonical(obs minus derived fields)); witness_sig/edge_sig are Ed25519 over the canonical preimage and canonical({task_id,hop}), the key is inside the did:key. Recompute and verify yourself.",
+    not_a_score: "counts and verdicts only; this signal never emits a numeric trustworthiness score.",
     aligns_to: "A2A Task id (a2a.task.id); A2A issues #1769, #2103",
   });
 }

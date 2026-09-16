@@ -34,6 +34,13 @@ def get_task(task_id):
         return r.status, json.loads(r.read().decode("utf-8"))
 
 
+def get_trust_signal(task_id):
+    url = LEDGER_TASK_URL.replace("/witness/task", "/trust-signal") + "?task_id=" + task_id
+    req = urllib.request.Request(url, headers={"user-agent": PRODUCER_UA})
+    with urllib.request.urlopen(req, timeout=15) as r:
+        return r.status, json.loads(r.read().decode("utf-8"))
+
+
 stamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
 tid = "smoke-sig-" + stamp
 
@@ -70,5 +77,14 @@ ok("live GET signed_witnesses == 1", h.get("signed_witnesses") == 1)
 ok("live GET edge_attested == true", h.get("edge_attested") is True)
 ok("live GET verdict PASS", h.get("verdict") == "PASS")
 
-print(("\n" + str(fails) + " FAILED") if fails else "\nALL PASS (live Ed25519 verify runs on Workers)")
+# 5) task-bound trust signal reflects the signed observation live (counts, never a score).
+stt, t = get_trust_signal(tid)
+d = (t.get("delegation") or [{}])[0]
+ok("live trust-signal name", t.get("signal") == "task-conduct-trust-signal-v0")
+ok("live trust-signal reflects signature (signed_witnesses 1 + edge_attested + attributable)",
+   d.get("signed_witnesses") == 1 and d.get("edge_attested") is True and d.get("attributable") is True)
+ok("live trust-signal verdict PASS, no adverse hop", d.get("verdict") == "PASS" and (t.get("adverse_hops") or []) == [])
+ok("live trust-signal carries no numeric score", '"score":' not in json.dumps(t) and isinstance(t.get("not_a_score"), str))
+
+print(("\n" + str(fails) + " FAILED") if fails else "\nALL PASS (live Ed25519 verify runs on Workers; task trust-signal live)")
 sys.exit(1 if fails else 0)
