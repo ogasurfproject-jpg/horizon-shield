@@ -45,26 +45,23 @@ AEO_MAP = {
 #
 # 読めなければ生成を止める(fail-closed)。古い数字で記事を出すより、記事が出ない
 # ほうがましである。ワークフローはこの例外で落ち、commit は行われない。
-JCCDB_SOURCE = "workers/hs-mcp/src/mcp.js"
+JCCDB_SOURCE = "data/jccdb-manifest.json"
 
 def fetch_jccdb():
     """(件数int, 表示用str, バージョンstr) を返す。読めなければ例外で生成を止める。"""
     try:
-        src = open(JCCDB_SOURCE, encoding="utf-8").read()
-    except OSError as e:
+        with open(JCCDB_SOURCE, encoding="utf-8") as f:
+            d = json.load(f)
+    except (OSError, ValueError) as e:
         raise RuntimeError("JCCDB定数を読めない (%s): %s" % (JCCDB_SOURCE, e))
-    block = re.search(r"const\s+JCCDB\s*=\s*\{(.*?)\n\};", src, re.S)
-    if not block:
-        raise RuntimeError("JCCDB 定数ブロックが見つからない: %s" % JCCDB_SOURCE)
-    body = block.group(1)
-    m = re.search(r"\bitems\s*:\s*(\d+)", body)
-    if not m:
-        raise RuntimeError("JCCDB.items が読めない: %s" % JCCDB_SOURCE)
-    n = int(m.group(1))
-    if n <= 0:
-        raise RuntimeError("JCCDB.items が不正: %d" % n)
-    v = re.search(r"\bversion\s*:\s*\"([^\"]*)\"", body)
-    return n, format(n, ","), (v.group(1) if v else "")
+    n = d.get("items")
+    if not isinstance(n, int) or n <= 0:
+        raise RuntimeError("JCCDB.items が不正 (%s): %r" % (JCCDB_SOURCE, n))
+    v = d.get("version", "")
+    if not isinstance(v, str) or not v:
+        raise RuntimeError("JCCDB.version が読めない: %s" % JCCDB_SOURCE)
+    return n, format(n, ","), v
+
 
 JCCDB_ITEMS, JCCDB_ITEMS_FMT, JCCDB_VERSION = fetch_jccdb()
 
