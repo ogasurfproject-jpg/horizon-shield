@@ -1,0 +1,4 @@
+# generated fixtures and local backups; not part of the source
+*.gen.json
+__pycache__/
+*.bak.*
