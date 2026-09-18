@@ -52,6 +52,13 @@ grant_ref, intent_id, reconciled_receipt_id, observation_evidence_ids. All recom
 - A caller's own gateway: read authorized_before_execution before allowing the action to run, and read the
   posture (postureLine) to decide whether to require a human approval.
 
+## Discovery and ordering interop (candidate_evidence.mjs)
+For reputation-aware discovery (a2aproject/A2A#1631) and an ordering primitive such as ARBITER,
+candidateEvidenceSet(task_id, candidates) returns a per-candidate verified bundle plus a run-record skeleton.
+It decides nothing: permitted and order are left null, so the trust filter fills permitted and the orderer
+fills order, while NENRIN supplies the verifiable material and an anchorable run record. No trust score is
+computed. Runnable demo and checks: node candidate_evidence.test.mjs.
+
 ## Honest scope
 v0 is a draft, not outsider-validated. The wall that no signature can cross is carried in does_not_establish on
 every bundle: no executed action is proven to have occurred in the world, no reconciled outcome is proven to be
