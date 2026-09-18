@@ -1,0 +1,17 @@
+{
+  "name": "nenrin-verify",
+  "version": "0.1.0",
+  "description": "Single-file, zero-dependency, consumer-runnable verifier for a NENRIN provenance bundle. Verify agent task provenance yourself, offline, with no trust in the operator.",
+  "type": "module",
+  "main": "nenrin_verify.mjs",
+  "exports": { ".": "./nenrin_verify.mjs" },
+  "bin": { "nenrin-verify": "nenrin_verify.mjs" },
+  "files": ["nenrin_verify.mjs", "SDK.md", "LICENSE"],
+  "engines": { "node": ">=16" },
+  "keywords": ["a2a", "provenance", "verification", "did-key", "ed25519", "nenrin", "agent", "evidence", "bitcoin", "trust", "horizon-shield"],
+  "repository": { "type": "git", "url": "git+https://github.com/ogasurfproject-jpg/horizon-shield.git", "directory": "workers/hs-ledger/nenrin/sdk" },
+  "homepage": "https://github.com/ogasurfproject-jpg/horizon-shield/tree/main/workers/hs-ledger/nenrin/sdk",
+  "bugs": { "url": "https://github.com/ogasurfproject-jpg/horizon-shield/issues" },
+  "author": "The HORIZONs Co., Ltd.",
+  "license": "MIT"
+}

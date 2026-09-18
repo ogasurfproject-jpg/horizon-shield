@@ -4,6 +4,10 @@ One file, zero dependencies (Node built-ins only). Copy it into your project and
 offline, with no trust in the operator. This is the endpoint of "verify me, do not trust me": you do not take
 HORIZON SHIELD's word for anything, you recompute every hash and signature on your own machine.
 
+## Install (npm) or vendor the one file
+    npm install nenrin-verify        # then: npx nenrin-verify bundle.json
+or copy the single file nenrin_verify.mjs into your project. Zero dependencies either way.
+
 ## Use it
     node nenrin_verify.mjs bundle.json      # prints the provenance report; exit 0 if accepted, 1 if refused
 
