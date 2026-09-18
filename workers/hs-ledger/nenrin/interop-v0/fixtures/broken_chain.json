@@ -1,0 +1,62 @@
+{
+  "task_id": "task_interop_broken_chain",
+  "observations": [
+    {
+      "task_id": "task_interop_broken_chain",
+      "hop": {
+        "seq": 1,
+        "from": "did:key:z6Mko1W7DmvPEktMiKdYMwqPoZC49AEcrip133z7eH4xnYLv",
+        "to": "did:key:z6MktqHGkrbv3V23V6eQKoL6L2znZ99XdAsmzZ6E4vJUUC54"
+      },
+      "prev_evidence_id": "1244885aee3c33700db0ce1fff30775fc795cafe890683f2442e133d5b311ccd",
+      "conduct": {
+        "verdict": "pass",
+        "detail_ref": null
+      },
+      "witness_id": "did:key:z6Mkki1vmoZLgs6m7QBQpC3zH7QGaEmmcMqRL7oKFB8oTzCX",
+      "observed_at": "2026-09-19T00:30:00Z",
+      "evidence_id": "3055075dae4d216e1c5d1afcf4838583605faf063919247a4eeca2dc588a1cab",
+      "witness_sig": "suryNhjT0eW9pKcjQVu/HEK7mHrnTxelpHb80d7UHSdYlNLM7gZA3CsEp2AcGq/jOhM8f+GA1pBIbGfAaM2KCw==",
+      "edge_sig": "/OouEnJfSy+ERJ8uLJkwVCdSJ7uWiyXvgHuCCfywB1X5GHdthpkJuvcXwzh0tmiaL+imR9VdPIN7UuWH+OivCw=="
+    }
+  ],
+  "grant": {
+    "schema": "task-execution-bind-v0/grant",
+    "task_id": "task_interop_broken_chain",
+    "action": {
+      "tool": "a2a.invoke",
+      "target": "/task",
+      "args_sha256": "sha_args_ok"
+    },
+    "caller_id": "did:key:z6MkvfEiD7mX2p8gCbQSRrT34XnZgbPHZBTeW3VsPan9Ep6i",
+    "provider_id": "did:key:z6Mko1W7DmvPEktMiKdYMwqPoZC49AEcrip133z7eH4xnYLv",
+    "nonce": "n1",
+    "not_before": "2026-09-19T00:00:00Z",
+    "not_after": "2026-09-19T01:00:00Z",
+    "grant_ref": "dcf61f5aba15d847071745aeebe86e7b3df10fc767798975eff7c27f89830dbf",
+    "caller_sig": "+H4e5bc/92CSO2XN4q6EzhwFFauPBRk812bmB3pjmiyi+nKOMQ0+pmRFow4y9tieCpk/6zApVnjP0F/SU7WFBA=="
+  },
+  "receipt": {
+    "schema": "task-execution-bind-v0/receipt",
+    "task_id": "task_interop_broken_chain",
+    "grant_ref": "dcf61f5aba15d847071745aeebe86e7b3df10fc767798975eff7c27f89830dbf",
+    "executed_action": {
+      "tool": "a2a.invoke",
+      "target": "/task",
+      "args_sha256": "sha_args_ok"
+    },
+    "outcome": {
+      "status": "completed",
+      "result_sha256": "sha_res_1",
+      "evidence": {
+        "kind": "ledger_record",
+        "ref": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "system": "ledger.horizonshield.dev"
+      }
+    },
+    "provider_id": "did:key:z6Mko1W7DmvPEktMiKdYMwqPoZC49AEcrip133z7eH4xnYLv",
+    "executed_at": "2026-09-19T00:30:00Z",
+    "receipt_id": "39e15effc9404d55d7dd589d26125a002c4981d8ef2e614a1f38f4261b70a680",
+    "provider_sig": "g7LgZx84El2Ui7+gr5HGxIjAGt6LkfPMVmEi4PNrHn+sQ7ivmXF93G9Cnd+l4UjDy8Y1PRvYxI0taSYejdeQBQ=="
+  }
+}

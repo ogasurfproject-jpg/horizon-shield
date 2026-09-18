@@ -1,0 +1,71 @@
+{
+  "schema": "nenrin-interop-expected-v0",
+  "version": "0.1.0",
+  "verifier": "nenrin-provenance-verify-v0 (sdk/nenrin_verify.mjs, npm: nenrin-verify)",
+  "note": "the canonical verdict signature each fixture must reproduce: verdict, sorted refusal codes, sorted finding codes",
+  "cases": {
+    "pass": {
+      "intent": "a clean, fully signed delegation and execution graph, accepted",
+      "task_id": "task_interop_pass",
+      "expect": {
+        "verdict": "accepted",
+        "refusals": [],
+        "findings": [
+          "evidence_bound_unchecked"
+        ]
+      }
+    },
+    "disagreement": {
+      "intent": "two witnesses of one hop disagree; verified true, the disagreement is surfaced not collapsed (R4)",
+      "task_id": "task_interop_disagreement",
+      "expect": {
+        "verdict": "accepted",
+        "refusals": [],
+        "findings": [
+          "evidence_bound_unchecked",
+          "witness_disagreement"
+        ]
+      }
+    },
+    "equivocation": {
+      "intent": "the provider signed two conflicting receipts for one grant; fail-closed refusal",
+      "task_id": "task_interop_equivocation",
+      "expect": {
+        "verdict": "refused",
+        "refusals": [
+          "execution_equivocation"
+        ],
+        "findings": [
+          "evidence_bound_unchecked"
+        ]
+      }
+    },
+    "forged_signature": {
+      "intent": "one observation carries a tampered witness signature; refusal",
+      "task_id": "task_interop_forged_signature",
+      "expect": {
+        "verdict": "refused",
+        "refusals": [
+          "delegation_observation_invalid"
+        ],
+        "findings": [
+          "evidence_bound_unchecked"
+        ]
+      }
+    },
+    "broken_chain": {
+      "intent": "hop continuity does not hold over the presented set (R3); refusal",
+      "task_id": "task_interop_broken_chain",
+      "expect": {
+        "verdict": "refused",
+        "refusals": [
+          "delegation_chain_broken"
+        ],
+        "findings": [
+          "evidence_bound_unchecked",
+          "no_digest_link"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "task_id": "task_interop_disagreement",
+  "observations": [
+    {
+      "task_id": "task_interop_disagreement",
+      "hop": {
+        "seq": 0,
+        "from": "did:key:z6MkowV5sbSbyj3qEgc2jrbVDMCFaUQXZs7Zqr4BFB17AXPQ",
+        "to": "did:key:z6MkmpiXDxj4j4hSxDF7tZyC1oGHDkyseoUUaMb7VP2RCwri"
+      },
+      "prev_evidence_id": null,
+      "conduct": {
+        "verdict": "pass",
+        "detail_ref": "nenrin-exec://10ce059cddeebf0c6cdd0d2bca1373d6e85197117f8237a0987699f31fb98235"
+      },
+      "witness_id": "did:key:z6MkuN6MMJtKfeRiazPat2D1GtBP1zxrniivnCYVbZxTmHqS",
+      "observed_at": "2026-09-19T00:30:00Z",
+      "evidence_id": "1cfd92b68cd6be5590d5e02380b37e18f9c8938c75c8b04aaab65803c7670c23",
+      "witness_sig": "5K+gOe7TVZ1nX2jO+OJoVI4ew32N65jmB6luGub/jO4pW3kcaGaoqyNv5jWKq+0wESMhKlLELtr6RwTA2TeTBQ==",
+      "edge_sig": "0glzcAAoVN/NSag8ozo+89hyghaVti1dxTI9z4Bno5VhZGYLcHnXyJPzfhdHnFrm/yy1RBSlTDy+x3Chw7QXCQ=="
+    },
+    {
+      "task_id": "task_interop_disagreement",
+      "hop": {
+        "seq": 0,
+        "from": "did:key:z6MkowV5sbSbyj3qEgc2jrbVDMCFaUQXZs7Zqr4BFB17AXPQ",
+        "to": "did:key:z6MkmpiXDxj4j4hSxDF7tZyC1oGHDkyseoUUaMb7VP2RCwri"
+      },
+      "prev_evidence_id": null,
+      "conduct": {
+        "verdict": "fail",
+        "detail_ref": "nenrin-exec://10ce059cddeebf0c6cdd0d2bca1373d6e85197117f8237a0987699f31fb98235"
+      },
+      "witness_id": "did:key:z6Mkny1pzXMNdjBSg7LaAdRmJxJHfb44s4Mi9ugc8xoHRjqq",
+      "observed_at": "2026-09-19T00:30:00Z",
+      "evidence_id": "6e8ac1761c58641a03edfe7367a4841b312922c4c9300b5a61153e767b54dd5a",
+      "witness_sig": "Xh008ETNVDG5FDTL+LZgjS9AQEJJvF0zlR8wzAegM+G7qX41apmExK+KBW5yUR9LtTlMM0Zq15094qlgqmJcBg==",
+      "edge_sig": "0glzcAAoVN/NSag8ozo+89hyghaVti1dxTI9z4Bno5VhZGYLcHnXyJPzfhdHnFrm/yy1RBSlTDy+x3Chw7QXCQ=="
+    },
+    {
+      "task_id": "task_interop_disagreement",
+      "hop": {
+        "seq": 1,
+        "from": "did:key:z6MkmpiXDxj4j4hSxDF7tZyC1oGHDkyseoUUaMb7VP2RCwri",
+        "to": "did:key:z6MkoyRj5TJXpveubSuMJTaAXSXoQA3bMrA2yVVWvYFLCaMU"
+      },
+      "prev_evidence_id": "1cfd92b68cd6be5590d5e02380b37e18f9c8938c75c8b04aaab65803c7670c23",
+      "conduct": {
+        "verdict": "pass",
+        "detail_ref": null
+      },
+      "witness_id": "did:key:z6Mkny1pzXMNdjBSg7LaAdRmJxJHfb44s4Mi9ugc8xoHRjqq",
+      "observed_at": "2026-09-19T00:30:00Z",
+      "evidence_id": "545511c728b617acdf457c91fa24db7d99c6fcf3b425ddf10944c34c556bee14",
+      "witness_sig": "JY6bYdhZvYDCpwVJNTZ7ndlqh0tSExlbLPN5mKnOl5pmJoLQCyKJhRMHMMaWlcpsXf14+HG1GN0gdPla0O2WCA==",
+      "edge_sig": "o/6Vm2YXM4DxZrz2TkbUPKWmbRzoO62ShX631zwpGWrTncJzMPBBxQakZOP3xpai4E75xwWvW8bgvQxV9DInAw=="
+    }
+  ],
+  "grant": {
+    "schema": "task-execution-bind-v0/grant",
+    "task_id": "task_interop_disagreement",
+    "action": {
+      "tool": "a2a.invoke",
+      "target": "/task",
+      "args_sha256": "sha_args_ok"
+    },
+    "caller_id": "did:key:z6MkowV5sbSbyj3qEgc2jrbVDMCFaUQXZs7Zqr4BFB17AXPQ",
+    "provider_id": "did:key:z6MkmpiXDxj4j4hSxDF7tZyC1oGHDkyseoUUaMb7VP2RCwri",
+    "nonce": "n1",
+    "not_before": "2026-09-19T00:00:00Z",
+    "not_after": "2026-09-19T01:00:00Z",
+    "grant_ref": "056beec801db20061ee9a1e86e56df1f8d971bd6685515e405684b3c5fd6b245",
+    "caller_sig": "JXX66+DsPG/RVoGhEYgRXq4fg4S0G+RaGHP9ZXAnydKqs4G4mFYkE73Cx61lY07/juUp+0pGDPz2hIClP8HvAA=="
+  },
+  "receipt": {
+    "schema": "task-execution-bind-v0/receipt",
+    "task_id": "task_interop_disagreement",
+    "grant_ref": "056beec801db20061ee9a1e86e56df1f8d971bd6685515e405684b3c5fd6b245",
+    "executed_action": {
+      "tool": "a2a.invoke",
+      "target": "/task",
+      "args_sha256": "sha_args_ok"
+    },
+    "outcome": {
+      "status": "completed",
+      "result_sha256": "sha_res_1",
+      "evidence": {
+        "kind": "ledger_record",
+        "ref": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "system": "ledger.horizonshield.dev"
+      }
+    },
+    "provider_id": "did:key:z6MkmpiXDxj4j4hSxDF7tZyC1oGHDkyseoUUaMb7VP2RCwri",
+    "executed_at": "2026-09-19T00:30:00Z",
+    "receipt_id": "10ce059cddeebf0c6cdd0d2bca1373d6e85197117f8237a0987699f31fb98235",
+    "provider_sig": "/51sc5ycDbuyvmB94hoOhD8ZowyIhxV6pnpOJ3o9uf0TxLMEAK9ZS4KJhFz0dJ1E/c6E/FjPCMjc29YHjqbSCg=="
+  }
+}

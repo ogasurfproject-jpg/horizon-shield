@@ -7,6 +7,7 @@
 # その fixture ファイルだけ許す。秘密鍵は生成時にメモリ内だけで、ディスクには一切書いてへん。
 # 2026-09-18: provenance-v0 の candidate_fixture.json(A2A#1631 / ARBITER interop の多候補公開fixture)も
 # 同種で、公開鍵(did:key)と署名だけ、秘密鍵はディスクに書かへんので同様に許す。
+# 2026-09-19: interop-v0/fixtures/*.json も同種(reference interop test の公開did:key fixture群)なので同様に許す。
 title = "horizon-shield gitleaks config"
 
 [extend]
@@ -23,4 +24,5 @@ regexes = [
 paths = [
   '''workers/hs-ledger/nenrin/task-delegation-bind-v0/t4_fixture\.json''',
   '''workers/hs-ledger/nenrin/provenance-v0/candidate_fixture\.json''',
+  '''workers/hs-ledger/nenrin/interop-v0/fixtures/.*\.json''',
 ]
