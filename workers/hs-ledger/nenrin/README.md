@@ -38,3 +38,6 @@ Python emitters and the JS verifier agree byte for byte on preimages and ids
 (task-execution-bind-v0/exec_cross_lang_test.mjs, task-delegation-bind-v0/cross_lang_test.mjs), and the
 single-file SDK reproduces the verifyProvenance report byte for byte against the original modules
 (sdk/nenrin_verify.test.mjs).
+
+## Free to verify, free to build on
+The verifier, the spec, and every integration path are free and open, and stay that way. Reading a NENRIN bundle, re-verifying it offline, projecting it for a trust engine, and self-registering a server to be measured never require payment or permission from the operator: charging to check the operator's own work would defeat the whole design. HorizonShield sustains the project by operating the ledger, the anchoring, and the measurement services at scale, and none of that is required to use, verify, or build on NENRIN.
