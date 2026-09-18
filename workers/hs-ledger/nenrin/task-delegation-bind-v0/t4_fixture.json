@@ -1,0 +1,24 @@
+{
+  "schema": "task-delegation-bind-v0/fixture",
+  "note": "A frozen, did:key-verifiable signed WitnessObservation, tracked (not gitignored) as an immutable T-4 input for a2aproject/A2A#1769. The WitnessObservation implementation pin remains 4d7c9c270c2846465fafdea9833869c5660c4ae2; this is a concrete example vector at its own commit, not a change to the implementation.",
+  "how_to_verify": "node verify_fixture.mjs  (offline: resolves the did:key witness_id and hop.from to Ed25519 keys with no network, recomputes evidence_id for R2, checks witness independence R1, and verifies witness_sig and edge_sig).",
+  "did_key_note": "witness_id, hop.from and hop.to are did:key identifiers; the Ed25519 public keys are self-encoded in them, so verification needs no network and no key server.",
+  "observation": {
+    "task_id": "task_t4_fixture_1",
+    "hop": {
+      "seq": 0,
+      "from": "did:key:z6MkrczAHo1YHYAv4Bfc24xCkiGxPn9BgVZHxrYAPzb1XZUc",
+      "to": "did:key:z6MkujVMt7MF6gvApTbwyBy7n1mHPbcYFGjxsxR9RmUNa2r2"
+    },
+    "prev_evidence_id": null,
+    "conduct": {
+      "verdict": "pass",
+      "detail_ref": "nenrin://task_t4_fixture_1/0"
+    },
+    "witness_id": "did:key:z6MkehSLzWi19ctw7cNZ6rtSKeFFcmEtqHM3RnWXmwNvsEwU",
+    "observed_at": "2026-09-18T00:00:00Z",
+    "evidence_id": "6aca22179678fcdfe00b9aac4b36d8e24575620e2922e0ee4ea99486b3949011",
+    "witness_sig": "2NcpHv1mV/482VcVhLTZJPKY2pjUnb9NMHr/AFG9Z3o0Lh4bTMv5lpH3CgFsV/Emm1r2l3ZVSPM+QkOz+ViPDg==",
+    "edge_sig": "+/CBiBptsRWzjpqbGZKhOy0CQU4wX5y6tV1pmKy2ky3j77Qs49ucZj8g4siu7doBIAAYM3H3rQnCmMI60GivCQ=="
+  }
+}
