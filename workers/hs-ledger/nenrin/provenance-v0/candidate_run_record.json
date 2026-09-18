@@ -1,0 +1,67 @@
+{
+  "schema": "nenrin-run-record-closed-v0",
+  "version": "0.1.0",
+  "note": "The closed run record for the a2aproject/A2A#1631 discovery interop with ziolndr's ARBITER. It records the order ARBITER returned over the trust-filter permitted set, completing evidence -> permitted -> order -> recorded result. NENRIN records the order unchanged; it did not produce the order or the permitted set and computes no score. ARBITER produced the order; the reference trust filter produced permitted; NENRIN supplied the evidence. The frozen input fixture is left unmodified so the commit the ordering party verified stays the anchor.",
+  "task_id": "task_discovery_1631_1",
+  "frozen_input": {
+    "fixture": "workers/hs-ledger/nenrin/provenance-v0/candidate_fixture.json",
+    "repo": "github.com/ogasurfproject-jpg/horizon-shield",
+    "commit": "62b60205ef0b2094e2f75becba34edfcb99cbb65",
+    "fixture_sha256": "c83af08801f61e7855b13321eb374ef301b293945db5716dcd3dda7cc227e8fc",
+    "raw": "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/62b60205ef0b2094e2f75becba34edfcb99cbb65/workers/hs-ledger/nenrin/provenance-v0/candidate_fixture.json",
+    "nenrin_offline_verification": "PASS, verified by the ordering party against the frozen fixture"
+  },
+  "permitted": [
+    "cand_alpha",
+    "cand_bravo"
+  ],
+  "permitted_by": "reference-trust-filter-v0 (example policy, not NENRIN): a witness disagreement is carried into permitted so the orderer weighs it; a provider equivocation is fail-closed and excluded",
+  "order": [
+    "cand_alpha",
+    "cand_bravo"
+  ],
+  "order_by": {
+    "orderer": "ARBITER",
+    "repo": "github.com/ziolndr/arbiter-agent-routing",
+    "endpoint": "POST https://api.grip.fyi/v1/compare",
+    "returned_order": [
+      "cand_alpha",
+      "cand_bravo"
+    ],
+    "scores_reported_by_arbiter": {
+      "cand_alpha": "0.5492187943968523",
+      "cand_bravo": "0.5288691683323712"
+    },
+    "arbiter_input_sha256": "45c129adb322b5782ed098a772fff2dd11e09857ced22388849973b518179ea7",
+    "arbiter_response_sha256": "efa18ac9fb55cb4f04322c9e15109091ddd0e32ad8445353c29865f96706e363",
+    "note": "cand_bravo reached the orderer with its witness disagreement still present (disagreement_hops = 1); cand_charlie was excluded upstream by the reference trust filter for provider equivocation and never entered the ordering field. Scores are ARBITER output, recorded here verbatim, not computed by NENRIN."
+  },
+  "counterfactual_reported_by_arbiter": {
+    "description": "one-variable ablation by the ordering party on the same frozen fixture and compare path: cand_bravo nenrin_evidence.disagreement_hops changed 1 -> 0, all else held constant",
+    "baseline_scores": {
+      "cand_alpha": "0.5492187943968523",
+      "cand_bravo": "0.5288691683323712"
+    },
+    "counterfactual_scores": {
+      "cand_alpha": "0.5492187943968523",
+      "cand_bravo": "0.5300447801971727"
+    },
+    "order_remained": [
+      "cand_alpha",
+      "cand_bravo"
+    ],
+    "claim": "the orderer is sensitive to the surfaced disagreement_hops field under a one-variable change; this does not establish witness disagreement as a general cause of ranking, and does not move the trust or authorization decision into the orderer",
+    "reproducible_fixture": "github.com/ziolndr/arbiter-nenrin-a2a-fixture"
+  },
+  "boundary": "evidence (NENRIN) -> permitted (reference trust filter, not NENRIN) -> order (ARBITER) -> recorded result (this record). NENRIN computed no permitted, no order and no score. It records the order ARBITER returned, unchanged, and can anchor this record so a third party recomputes each step rather than trusting the operator.",
+  "open_ordering": {
+    "discussion": "a2aproject/A2A#2244",
+    "position_paper": "github.com/ziolndr/arbiter-nenrin-a2a-fixture/blob/main/docs/OPEN_ORDERING.md",
+    "role": "the NENRIN composition is the executable reference example for keeping evidence, permission, and task-specific ordering as separate interoperable boundaries"
+  },
+  "does_not_establish": [
+    "that the returned order is correct or optimal: NENRIN records it, it does not judge it",
+    "any trust score from NENRIN: none is computed here, and the scores shown are ARBITER output recorded verbatim",
+    "that NENRIN produced the order or the permitted set: ARBITER produced the order, the reference trust filter produced permitted, NENRIN supplied the evidence"
+  ]
+}
