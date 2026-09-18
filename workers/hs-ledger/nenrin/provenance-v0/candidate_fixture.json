@@ -1,0 +1,1133 @@
+{
+  "schema": "nenrin-candidate-fixture-v0",
+  "version": "0.1.0",
+  "note": "A frozen, did:key-verifiable multi-candidate discovery state for a2aproject/A2A#1631 and ziolndr's ARBITER (ziolndr/arbiter-agent-routing). Three candidate agents for one task, each with real Ed25519 did:key-signed provenance, covering the two hard cases: a witness disagreement (surfaced, not smoothed) and a provider equivocation (fail-closed). NENRIN supplies evidence only; the reference trust filter produces permitted; order is left null for ARBITER.",
+  "how_to_verify": "node verify_candidate_fixture.mjs  (offline: resolves every did:key with no network, re-runs nenrin-candidate-evidence-v0 from the embedded records, re-applies the reference trust filter, and checks the recorded candidate set and permitted set match).",
+  "did_key_note": "every caller, provider and witness id is a did:key; the Ed25519 public keys are self-encoded in the identifiers, so verification needs no network and no key server.",
+  "boundary": "evidence (NENRIN candidateEvidenceSet) then permitted (trust filter) then order (ARBITER) then recorded result (NENRIN run_record). NENRIN computes no permitted, no order, no score. The reference trust filter is an example policy, not NENRIN. ARBITER, not NENRIN, produces order.",
+  "task": {
+    "task_id": "task_discovery_1631_1",
+    "description": "select an agent to perform the A2A invocation a2a.invoke /task for task_discovery_1631_1; three candidates were discovered, each with its own provenance",
+    "authorized_action": {
+      "tool": "a2a.invoke",
+      "target": "/task"
+    }
+  },
+  "candidate_ids": [
+    "cand_alpha",
+    "cand_bravo",
+    "cand_charlie"
+  ],
+  "candidates": [
+    {
+      "candidate_id": "cand_alpha",
+      "records": {
+        "observations": [
+          {
+            "task_id": "task_discovery_1631_1",
+            "hop": {
+              "seq": 0,
+              "from": "did:key:z6Mkg1chP4kXK3ptrZxvR5RhvexXNtNhE2mmqf7XA72ehjN3",
+              "to": "did:key:z6Mkf68RfQcQkzik3r5QrwvVyPZt5S8LG3VCiaKqPqEiKTWe"
+            },
+            "prev_evidence_id": null,
+            "conduct": {
+              "verdict": "pass",
+              "detail_ref": "nenrin-exec://b5cd9ff3b35ff15199e8bae7b7ac8e6aae3a303e4ae5ac2044b96c9ec9223ef4"
+            },
+            "witness_id": "did:key:z6MkhXJ1WdascbiABgjTSyHrjN4FvGG8SowyobUrzZN7STh9",
+            "observed_at": "2026-09-18T00:30:00Z",
+            "evidence_id": "57023a062eff6c3504807b81818278091c86886d16d60a89dafd43d1d3462df3",
+            "witness_sig": "j7Mj34KCsfz77DeL02+6hmZdrjYNLysd17THLopHFN23i2uhQWvdyhPDzGPgBHNc/BV4qONBJP2BHlG3Lae7Cw==",
+            "edge_sig": "lZBm62u6r+mN3IW+dUPhry8ojQ//7cWbUfuMq2kIUtuGMQC7gP9N0WirvWn4/QErPV6+9i9STYw731VlFoDNCg=="
+          },
+          {
+            "task_id": "task_discovery_1631_1",
+            "hop": {
+              "seq": 1,
+              "from": "did:key:z6Mkf68RfQcQkzik3r5QrwvVyPZt5S8LG3VCiaKqPqEiKTWe",
+              "to": "did:key:z6Mktdo3yrnxZjBSPtM6FMWKE8pNWeXgGYpWeJXSD8xnqcfd"
+            },
+            "prev_evidence_id": "57023a062eff6c3504807b81818278091c86886d16d60a89dafd43d1d3462df3",
+            "conduct": {
+              "verdict": "pass",
+              "detail_ref": null
+            },
+            "witness_id": "did:key:z6MkqrocAxw8efW19YsTAfJgm47Sy7PsQhfxfi9gtZQfoGZT",
+            "observed_at": "2026-09-18T00:30:00Z",
+            "evidence_id": "281b32cfc139680a932e421fcff21afb8fb33c0a794be1e5d36da89dcb069726",
+            "witness_sig": "Q8pCIIImII8Mn5wryr2dgzWfgQvkNtU12sINE0zCGH5zxEp9p4bwlAFhgdK462NM/zfyGBQC5vjtxIRS2AB1CA==",
+            "edge_sig": "UF/mWs99s2GYHbGdy+1AheYpl4OHtPZa2i6orl2Tb3inxO2QXxQCpI7IxNT3BaZPhmBgcpseSUSKWlD+uYTXCQ=="
+          }
+        ],
+        "grant": {
+          "schema": "task-execution-bind-v0/grant",
+          "task_id": "task_discovery_1631_1",
+          "action": {
+            "tool": "a2a.invoke",
+            "target": "/task",
+            "args_sha256": "sha_args_ok"
+          },
+          "caller_id": "did:key:z6Mkg1chP4kXK3ptrZxvR5RhvexXNtNhE2mmqf7XA72ehjN3",
+          "provider_id": "did:key:z6Mkf68RfQcQkzik3r5QrwvVyPZt5S8LG3VCiaKqPqEiKTWe",
+          "nonce": "n1",
+          "not_before": "2026-09-18T00:00:00Z",
+          "not_after": "2026-09-18T01:00:00Z",
+          "grant_ref": "3ff9bca07085ed61e8ade3e59787c512603c8c1683b3d7c1082fa2a635c330b2",
+          "caller_sig": "GT8K9En7A6rKXopWDCgyOFVB71f9nAGScDhyAJC+/dSm8dAAA/lNWU2ynQmto9WR6+OOStQpPAhWIpdRq//MDA=="
+        },
+        "receipt": {
+          "schema": "task-execution-bind-v0/receipt",
+          "task_id": "task_discovery_1631_1",
+          "grant_ref": "3ff9bca07085ed61e8ade3e59787c512603c8c1683b3d7c1082fa2a635c330b2",
+          "executed_action": {
+            "tool": "a2a.invoke",
+            "target": "/task",
+            "args_sha256": "sha_args_ok"
+          },
+          "outcome": {
+            "status": "completed",
+            "result_sha256": "sha_res_1",
+            "evidence": {
+              "kind": "ledger_record",
+              "ref": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+              "system": "ledger.horizonshield.dev"
+            }
+          },
+          "provider_id": "did:key:z6Mkf68RfQcQkzik3r5QrwvVyPZt5S8LG3VCiaKqPqEiKTWe",
+          "executed_at": "2026-09-18T00:30:00Z",
+          "receipt_id": "b5cd9ff3b35ff15199e8bae7b7ac8e6aae3a303e4ae5ac2044b96c9ec9223ef4",
+          "provider_sig": "JaLql4OY3T04/IQasqo2Xxis1LnTZGncCoYKbrWDm9Q8vOlkKXjCjAcudFkWt+qPu7FTMN93r1S8Zpnjjx+KAA=="
+        }
+      }
+    },
+    {
+      "candidate_id": "cand_bravo",
+      "records": {
+        "observations": [
+          {
+            "task_id": "task_discovery_1631_1",
+            "hop": {
+              "seq": 0,
+              "from": "did:key:z6Mkn4ucjvhE8VezqSC6kVxBUx1oADTXR2S21A7aCNtoGGVo",
+              "to": "did:key:z6MktyEDviop79aYEpamQiPKhGz8z69nAQFsBKjhcr54a9Dc"
+            },
+            "prev_evidence_id": null,
+            "conduct": {
+              "verdict": "pass",
+              "detail_ref": "nenrin-exec://bde141339125c22a63bcf47ce46b45aa226f5852f91c07a08f696d62a5bdfa93"
+            },
+            "witness_id": "did:key:z6MkpprxDWEpWB9G5222hArkL98NF24Qnyk6QDrs8oeAdxTq",
+            "observed_at": "2026-09-18T00:30:00Z",
+            "evidence_id": "21b13d620faa594b927d93dcde1e25f08024152fb050cfa2d558fb52ae170953",
+            "witness_sig": "hTCsT0Gn32C6peUQJ6kA3FBPxyaYVrHN9WyRMQsyPlhTrmScgVy7R7pUqHTRtvHwpi7HvKYuV+N3cKpfPfbzBw==",
+            "edge_sig": "ZRWGGw660Nvk7oduQsee65Pymr6MEe670YI8kP+tCIEEdOlvjo0F1rxo8VfMrCVooWqHIeq2PEKkJ8NKlz4vCg=="
+          },
+          {
+            "task_id": "task_discovery_1631_1",
+            "hop": {
+              "seq": 0,
+              "from": "did:key:z6Mkn4ucjvhE8VezqSC6kVxBUx1oADTXR2S21A7aCNtoGGVo",
+              "to": "did:key:z6MktyEDviop79aYEpamQiPKhGz8z69nAQFsBKjhcr54a9Dc"
+            },
+            "prev_evidence_id": null,
+            "conduct": {
+              "verdict": "fail",
+              "detail_ref": "nenrin-exec://bde141339125c22a63bcf47ce46b45aa226f5852f91c07a08f696d62a5bdfa93"
+            },
+            "witness_id": "did:key:z6MkqRPeFnZMQkCSgvg9dEUiGLYjnmYsznCRkVt2SfySevLt",
+            "observed_at": "2026-09-18T00:30:00Z",
+            "evidence_id": "72d95dba41dceb5ab6ec5512b5acba53d6cff0dd725b4248ec7a4e53e5225e52",
+            "witness_sig": "HKiiYXGP81FzTJbcMxaLM4qY+qZUvXG6WZIAYFlORt6A/+5uoLlk1xZJOLDYwcOFDGBaxvXwzqgHjBK9/x1LCA==",
+            "edge_sig": "ZRWGGw660Nvk7oduQsee65Pymr6MEe670YI8kP+tCIEEdOlvjo0F1rxo8VfMrCVooWqHIeq2PEKkJ8NKlz4vCg=="
+          },
+          {
+            "task_id": "task_discovery_1631_1",
+            "hop": {
+              "seq": 1,
+              "from": "did:key:z6MktyEDviop79aYEpamQiPKhGz8z69nAQFsBKjhcr54a9Dc",
+              "to": "did:key:z6Mkm9fzq8NyJYveLdJdbTQFPSMPeqDxL1QQoULhHsNTejTz"
+            },
+            "prev_evidence_id": "21b13d620faa594b927d93dcde1e25f08024152fb050cfa2d558fb52ae170953",
+            "conduct": {
+              "verdict": "pass",
+              "detail_ref": null
+            },
+            "witness_id": "did:key:z6MkqRPeFnZMQkCSgvg9dEUiGLYjnmYsznCRkVt2SfySevLt",
+            "observed_at": "2026-09-18T00:30:00Z",
+            "evidence_id": "cf4a2438582bee389bf3e56319bf3f662fdb3d311a39d82031a75651e7f710ef",
+            "witness_sig": "lH95DTdZkt/qnfIZvL/iucNyhljX4Gcvh4LV3lJnvnZrNH1dFgDbUo1e184NHwbY/ddEnvfTZFfrlLMuuIrUCA==",
+            "edge_sig": "TbuSE8+cF2PSgI/JwKoH1UhC4o0g0pgJJpear0udo0b4384eIMvSR59mNp12gTyk0v/2L9iNkM57GVNRJNaWCA=="
+          }
+        ],
+        "grant": {
+          "schema": "task-execution-bind-v0/grant",
+          "task_id": "task_discovery_1631_1",
+          "action": {
+            "tool": "a2a.invoke",
+            "target": "/task",
+            "args_sha256": "sha_args_ok"
+          },
+          "caller_id": "did:key:z6Mkn4ucjvhE8VezqSC6kVxBUx1oADTXR2S21A7aCNtoGGVo",
+          "provider_id": "did:key:z6MktyEDviop79aYEpamQiPKhGz8z69nAQFsBKjhcr54a9Dc",
+          "nonce": "n1",
+          "not_before": "2026-09-18T00:00:00Z",
+          "not_after": "2026-09-18T01:00:00Z",
+          "grant_ref": "18ea841fce3f03f23b1a48f01214f6ad99d8901663b768662586cbd391b9a9c7",
+          "caller_sig": "lV/SWWPN9ZCMfnMKleyXC5PrGHNVciVSl8+QWCLBnUUpxaJwru7De1phfTJJS6CbeSzTJwwbvZ/hdlz4gquTBQ=="
+        },
+        "receipt": {
+          "schema": "task-execution-bind-v0/receipt",
+          "task_id": "task_discovery_1631_1",
+          "grant_ref": "18ea841fce3f03f23b1a48f01214f6ad99d8901663b768662586cbd391b9a9c7",
+          "executed_action": {
+            "tool": "a2a.invoke",
+            "target": "/task",
+            "args_sha256": "sha_args_ok"
+          },
+          "outcome": {
+            "status": "completed",
+            "result_sha256": "sha_res_1",
+            "evidence": {
+              "kind": "ledger_record",
+              "ref": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+              "system": "ledger.horizonshield.dev"
+            }
+          },
+          "provider_id": "did:key:z6MktyEDviop79aYEpamQiPKhGz8z69nAQFsBKjhcr54a9Dc",
+          "executed_at": "2026-09-18T00:30:00Z",
+          "receipt_id": "bde141339125c22a63bcf47ce46b45aa226f5852f91c07a08f696d62a5bdfa93",
+          "provider_sig": "1F3nrsnY6b4otg2C9lhGNDD6ja+co7BnQi+CkG23k/2yTaV8lVluwOOMAXVSTpOZfqGnLDPrvqUz07Itr4esDA=="
+        }
+      }
+    },
+    {
+      "candidate_id": "cand_charlie",
+      "records": {
+        "observations": [
+          {
+            "task_id": "task_discovery_1631_1",
+            "hop": {
+              "seq": 0,
+              "from": "did:key:z6Mkpq6EWK1KphhNSUCniVaQofKZY73NAgS8G5Dcs4smY5oL",
+              "to": "did:key:z6MktV5Y51jjVVfKnqZvnAkDuZu9YCiumG64ye8P8gBxjXpm"
+            },
+            "prev_evidence_id": null,
+            "conduct": {
+              "verdict": "pass",
+              "detail_ref": "nenrin-exec://01e9d15a0e4c1b2823fe22bdede6b81523f270292c86625c5bb8914a5d0fbd97"
+            },
+            "witness_id": "did:key:z6MkjMDuPpvY22TCYdFQ3NULd3CJjva1pz8PFRNkKRkEcSHH",
+            "observed_at": "2026-09-18T00:30:00Z",
+            "evidence_id": "ce4edd4d1820a949e7c1a83dee5894c6f74461f34a912d98e28a8f0fe3c4ec2a",
+            "witness_sig": "m+mqiuWWW1R7Cat9vz5bM27ZgQD07Fi6uULio7P9DDh2CbjlCF+1ZSaqLoSrtusIUMbyEXb/Th8aowm3PlHDBg==",
+            "edge_sig": "O3LiKIxkZ9TEW0k6CVnXAFBI4nzYBvLTVkFU1eyeAeOnHPfEMeaOeZ/wkYpYxzm3KFC0IazyCPlo/f0acRs3DA=="
+          },
+          {
+            "task_id": "task_discovery_1631_1",
+            "hop": {
+              "seq": 1,
+              "from": "did:key:z6MktV5Y51jjVVfKnqZvnAkDuZu9YCiumG64ye8P8gBxjXpm",
+              "to": "did:key:z6MkgMwpUN47cBqpYB8yKFEMfcwspBh4A91VK8jNzHUwU1s6"
+            },
+            "prev_evidence_id": "ce4edd4d1820a949e7c1a83dee5894c6f74461f34a912d98e28a8f0fe3c4ec2a",
+            "conduct": {
+              "verdict": "pass",
+              "detail_ref": null
+            },
+            "witness_id": "did:key:z6MkqF4FT3LbVF4aKWe46Qqd3gEvMyVpgRNyhGp1CykzVq3u",
+            "observed_at": "2026-09-18T00:30:00Z",
+            "evidence_id": "1b53d77fa18cdac0a4e93e53c8ad93b6912a48685f89cd9ff3b7d14ef43db04e",
+            "witness_sig": "Wif7+ap8lHQEPHRF0/r9vViSepoAXPLd1WVgGJdbYwbEowdqVwUSUE2aRe3+T9GDDFAD0DwFmiwbdJSxI/BMAA==",
+            "edge_sig": "7owj9rxLkBr5/33W86etK1CFeuuh4W3TgvfdpgT3xyVECo7JCICMXB2SSlwu4JjHYayLfOuvCfm2xSjEHhK1CA=="
+          }
+        ],
+        "grant": {
+          "schema": "task-execution-bind-v0/grant",
+          "task_id": "task_discovery_1631_1",
+          "action": {
+            "tool": "a2a.invoke",
+            "target": "/task",
+            "args_sha256": "sha_args_ok"
+          },
+          "caller_id": "did:key:z6Mkpq6EWK1KphhNSUCniVaQofKZY73NAgS8G5Dcs4smY5oL",
+          "provider_id": "did:key:z6MktV5Y51jjVVfKnqZvnAkDuZu9YCiumG64ye8P8gBxjXpm",
+          "nonce": "n1",
+          "not_before": "2026-09-18T00:00:00Z",
+          "not_after": "2026-09-18T01:00:00Z",
+          "grant_ref": "32d586e01255bc394ecebd11f67e027d3d2b0eb6bc1e0c8d2da86dff7000ac06",
+          "caller_sig": "EC4ayfo8T9Cl2AugE5Aru8JJ/Tv1ikXIIjxr88KDt1HyLFIwZ2zUx4wDcKLOTrLqyodBk8bamcZlHlbZNS6/CQ=="
+        },
+        "receipt": {
+          "schema": "task-execution-bind-v0/receipt",
+          "task_id": "task_discovery_1631_1",
+          "grant_ref": "32d586e01255bc394ecebd11f67e027d3d2b0eb6bc1e0c8d2da86dff7000ac06",
+          "executed_action": {
+            "tool": "a2a.invoke",
+            "target": "/task",
+            "args_sha256": "sha_args_ok"
+          },
+          "outcome": {
+            "status": "completed",
+            "result_sha256": "sha_res_1",
+            "evidence": {
+              "kind": "ledger_record",
+              "ref": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+              "system": "ledger.horizonshield.dev"
+            }
+          },
+          "provider_id": "did:key:z6MktV5Y51jjVVfKnqZvnAkDuZu9YCiumG64ye8P8gBxjXpm",
+          "executed_at": "2026-09-18T00:30:00Z",
+          "receipt_id": "01e9d15a0e4c1b2823fe22bdede6b81523f270292c86625c5bb8914a5d0fbd97",
+          "provider_sig": "FN5Ml+ck2Z8TNw73k4DFz34PE0YwaUTyQcOXBzq2+AVyQSTnl3iRgJ2TxgWpclzzlXrABQqSQ3m6pewsJtUPCw=="
+        },
+        "receipts": [
+          {
+            "schema": "task-execution-bind-v0/receipt",
+            "task_id": "task_discovery_1631_1",
+            "grant_ref": "32d586e01255bc394ecebd11f67e027d3d2b0eb6bc1e0c8d2da86dff7000ac06",
+            "executed_action": {
+              "tool": "a2a.invoke",
+              "target": "/task",
+              "args_sha256": "sha_args_ok"
+            },
+            "outcome": {
+              "status": "completed",
+              "result_sha256": "sha_res_1",
+              "evidence": {
+                "kind": "ledger_record",
+                "ref": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+                "system": "ledger.horizonshield.dev"
+              }
+            },
+            "provider_id": "did:key:z6MktV5Y51jjVVfKnqZvnAkDuZu9YCiumG64ye8P8gBxjXpm",
+            "executed_at": "2026-09-18T00:30:00Z",
+            "receipt_id": "01e9d15a0e4c1b2823fe22bdede6b81523f270292c86625c5bb8914a5d0fbd97",
+            "provider_sig": "FN5Ml+ck2Z8TNw73k4DFz34PE0YwaUTyQcOXBzq2+AVyQSTnl3iRgJ2TxgWpclzzlXrABQqSQ3m6pewsJtUPCw=="
+          },
+          {
+            "schema": "task-execution-bind-v0/receipt",
+            "task_id": "task_discovery_1631_1",
+            "grant_ref": "32d586e01255bc394ecebd11f67e027d3d2b0eb6bc1e0c8d2da86dff7000ac06",
+            "executed_action": {
+              "tool": "a2a.invoke",
+              "target": "/task",
+              "args_sha256": "sha_args_ok"
+            },
+            "outcome": {
+              "status": "failed",
+              "result_sha256": "sha_res_2",
+              "evidence": {
+                "kind": "ledger_record",
+                "ref": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+                "system": "ledger.horizonshield.dev"
+              }
+            },
+            "provider_id": "did:key:z6MktV5Y51jjVVfKnqZvnAkDuZu9YCiumG64ye8P8gBxjXpm",
+            "executed_at": "2026-09-18T00:30:00Z",
+            "receipt_id": "94cf4530d14ac8408c4ba557545d7f04a72444e3270238aea27ca8c8eb2f323e",
+            "provider_sig": "BItvsUTsb5SbkEB3wC9SwNcpwG2s6gtfMJmd1hDxx2aJXpJ8HMyeFzBzNw8yZVqHUJoel9PGht528wUR7dS8Dw=="
+          }
+        ]
+      }
+    }
+  ],
+  "candidate_evidence_set": {
+    "schema": "nenrin-candidate-evidence-v0",
+    "version": "0.1.0",
+    "task_id": "task_discovery_1631_1",
+    "candidates": [
+      {
+        "candidate_id": "cand_alpha",
+        "verified": true,
+        "disagreement_hops": 0,
+        "equivocations": 0,
+        "outcome_status": "completed",
+        "evidence_checked_externally": false,
+        "anchors": {
+          "grant_ref": "3ff9bca07085ed61e8ade3e59787c512603c8c1683b3d7c1082fa2a635c330b2",
+          "intent_id": null,
+          "reconciled_receipt_id": "b5cd9ff3b35ff15199e8bae7b7ac8e6aae3a303e4ae5ac2044b96c9ec9223ef4",
+          "observation_evidence_ids": [
+            "57023a062eff6c3504807b81818278091c86886d16d60a89dafd43d1d3462df3",
+            "281b32cfc139680a932e421fcff21afb8fb33c0a794be1e5d36da89dcb069726"
+          ]
+        }
+      },
+      {
+        "candidate_id": "cand_bravo",
+        "verified": true,
+        "disagreement_hops": 1,
+        "equivocations": 0,
+        "outcome_status": "completed",
+        "evidence_checked_externally": false,
+        "anchors": {
+          "grant_ref": "18ea841fce3f03f23b1a48f01214f6ad99d8901663b768662586cbd391b9a9c7",
+          "intent_id": null,
+          "reconciled_receipt_id": "bde141339125c22a63bcf47ce46b45aa226f5852f91c07a08f696d62a5bdfa93",
+          "observation_evidence_ids": [
+            "21b13d620faa594b927d93dcde1e25f08024152fb050cfa2d558fb52ae170953",
+            "72d95dba41dceb5ab6ec5512b5acba53d6cff0dd725b4248ec7a4e53e5225e52",
+            "cf4a2438582bee389bf3e56319bf3f662fdb3d311a39d82031a75651e7f710ef"
+          ]
+        }
+      },
+      {
+        "candidate_id": "cand_charlie",
+        "verified": false,
+        "disagreement_hops": 0,
+        "equivocations": 1,
+        "outcome_status": null,
+        "evidence_checked_externally": false,
+        "anchors": {
+          "grant_ref": "32d586e01255bc394ecebd11f67e027d3d2b0eb6bc1e0c8d2da86dff7000ac06",
+          "intent_id": null,
+          "reconciled_receipt_id": null,
+          "observation_evidence_ids": [
+            "ce4edd4d1820a949e7c1a83dee5894c6f74461f34a912d98e28a8f0fe3c4ec2a",
+            "1b53d77fa18cdac0a4e93e53c8ad93b6912a48685f89cd9ff3b7d14ef43db04e"
+          ]
+        }
+      }
+    ],
+    "contract": "NENRIN supplies verified per-candidate evidence and surfaced conflicts. It does not decide which candidates are permitted, it does not order them, and it computes no trust score. The trust filter decides permitted; the ordering primitive (for example ARBITER) decides order.",
+    "run_record": {
+      "task_id": "task_discovery_1631_1",
+      "evaluated_candidates": [
+        "cand_alpha",
+        "cand_bravo",
+        "cand_charlie"
+      ],
+      "permitted": null,
+      "order": null,
+      "evidence_anchors": [
+        {
+          "candidate_id": "cand_alpha",
+          "anchors": {
+            "grant_ref": "3ff9bca07085ed61e8ade3e59787c512603c8c1683b3d7c1082fa2a635c330b2",
+            "intent_id": null,
+            "reconciled_receipt_id": "b5cd9ff3b35ff15199e8bae7b7ac8e6aae3a303e4ae5ac2044b96c9ec9223ef4",
+            "observation_evidence_ids": [
+              "57023a062eff6c3504807b81818278091c86886d16d60a89dafd43d1d3462df3",
+              "281b32cfc139680a932e421fcff21afb8fb33c0a794be1e5d36da89dcb069726"
+            ]
+          }
+        },
+        {
+          "candidate_id": "cand_bravo",
+          "anchors": {
+            "grant_ref": "18ea841fce3f03f23b1a48f01214f6ad99d8901663b768662586cbd391b9a9c7",
+            "intent_id": null,
+            "reconciled_receipt_id": "bde141339125c22a63bcf47ce46b45aa226f5852f91c07a08f696d62a5bdfa93",
+            "observation_evidence_ids": [
+              "21b13d620faa594b927d93dcde1e25f08024152fb050cfa2d558fb52ae170953",
+              "72d95dba41dceb5ab6ec5512b5acba53d6cff0dd725b4248ec7a4e53e5225e52",
+              "cf4a2438582bee389bf3e56319bf3f662fdb3d311a39d82031a75651e7f710ef"
+            ]
+          }
+        },
+        {
+          "candidate_id": "cand_charlie",
+          "anchors": {
+            "grant_ref": "32d586e01255bc394ecebd11f67e027d3d2b0eb6bc1e0c8d2da86dff7000ac06",
+            "intent_id": null,
+            "reconciled_receipt_id": null,
+            "observation_evidence_ids": [
+              "ce4edd4d1820a949e7c1a83dee5894c6f74461f34a912d98e28a8f0fe3c4ec2a",
+              "1b53d77fa18cdac0a4e93e53c8ad93b6912a48685f89cd9ff3b7d14ef43db04e"
+            ]
+          }
+        }
+      ],
+      "note": "permitted is filled by the trust filter and order by the orderer; NENRIN records them and can anchor this run_record to Bitcoin so a third party recomputes the permitted set and the returned order rather than trusting the operator"
+    },
+    "does_not_establish": [
+      "which candidates are permitted: that is the trust filter's decision, from this evidence and its own policy",
+      "the order of the candidates: that is the orderer's output, for example ARBITER, over the permitted set",
+      "any trust score: none is computed here, and absence of conflict is not evidence of good conduct"
+    ],
+    "bundles": [
+      {
+        "schema": "nenrin-consume-v0",
+        "consume_version": "0.1.0",
+        "task_id": "task_discovery_1631_1",
+        "facts": {
+          "verified": true,
+          "authorized_before_execution": null,
+          "executed_matches_authorization": true,
+          "outcome": {
+            "status": "completed",
+            "reconciled": true
+          },
+          "hops": [
+            {
+              "seq": 0,
+              "verdict": "pass",
+              "disagreement": false
+            },
+            {
+              "seq": 1,
+              "verdict": "pass",
+              "disagreement": false
+            }
+          ],
+          "evidence_pointer": {
+            "bound": true,
+            "checked_externally": false
+          },
+          "digest_links": 1
+        },
+        "conflicts": {
+          "refused": false,
+          "refusal_codes": [],
+          "disagreements": [],
+          "equivocations": []
+        },
+        "anchors": {
+          "grant_ref": "3ff9bca07085ed61e8ade3e59787c512603c8c1683b3d7c1082fa2a635c330b2",
+          "intent_id": null,
+          "reconciled_receipt_id": "b5cd9ff3b35ff15199e8bae7b7ac8e6aae3a303e4ae5ac2044b96c9ec9223ef4",
+          "observation_evidence_ids": [
+            "57023a062eff6c3504807b81818278091c86886d16d60a89dafd43d1d3462df3",
+            "281b32cfc139680a932e421fcff21afb8fb33c0a794be1e5d36da89dcb069726"
+          ]
+        },
+        "does_not_establish": [
+          "that any executed action occurred in the world: E1 compares the provider's signed claim to the caller's signed authorization and has no side-effect oracle",
+          "that the reconciled outcome is the real-world outcome: E2 proves recoverability and surfaces equivocation, it does not prove truth",
+          "that any witness is unaffiliated with the parties: R1 proves structural distinctness, not independence",
+          "that bound evidence exists in its system or says what the provider claims, unless layers.evidence.checked_externally is true, and even then only what the injected lookup reported",
+          "anything about time beyond the record contents: this verifier has no clock and saw no anchor; a Bitcoin anchor, if one exists, bounds the records separately",
+          "that this is the only provenance these parties produced for this task_id"
+        ],
+        "contract": "NENRIN returns verified evidence and its honest limits. It computes no trust score and makes no allow or deny decision. The consuming engine reads facts and conflicts and decides for itself. Absence of conflict is not evidence of good conduct; it may mean no evidence was presented.",
+        "reverify": {
+          "how": "re-run nenrin-provenance-verify-v0 on the same records with your own resolve and lookup; every hash and signature recomputes offline, with no clock and no network",
+          "provenance": {
+            "offline": "this verifier opens no socket and has no clock; run it yourself on the same records and do not take this operator's word",
+            "layers": [
+              "../task-delegation-bind-v0/bind.mjs + sign.mjs (R1..R4, witness_sig, edge_sig)",
+              "../task-execution-bind-v0/bind_exec.mjs + sign_exec.mjs (E1..E3, caller_sig, provider_sig)",
+              "../task-execution-bind-v0/outcome_evidence.mjs (evidence pointer shape and optional lookup)"
+            ],
+            "cross_layer": [
+              "every record must carry the same task_id",
+              "an observation's detail_ref nenrin-exec://<receipt_id> must equal receiptId(reconciled receipt)",
+              "if an intent is present, its proposed_action must equal the grant action (preflight) and the reconciled receipt executed_action (declared equals authorized equals executed)"
+            ]
+          }
+        },
+        "provenance": {
+          "schema": "nenrin-provenance-verify-v0",
+          "verifier_version": "0.1.0",
+          "task_id": "task_discovery_1631_1",
+          "verdict": "accepted",
+          "refusals": [],
+          "findings": [
+            {
+              "code": "evidence_bound_unchecked",
+              "why": "the provider committed to an evidence pointer but no external lookup ran; a reader must check it in the named system"
+            }
+          ],
+          "layers": {
+            "identity": {
+              "records": 4,
+              "mismatched": []
+            },
+            "delegation": {
+              "present": true,
+              "observations": [
+                {
+                  "index": 0,
+                  "seq": 0,
+                  "witness_id": "did:key:z6MkhXJ1WdascbiABgjTSyHrjN4FvGG8SowyobUrzZN7STh9",
+                  "ok": true,
+                  "reason": "ok"
+                },
+                {
+                  "index": 1,
+                  "seq": 1,
+                  "witness_id": "did:key:z6MkqrocAxw8efW19YsTAfJgm47Sy7PsQhfxfi9gtZQfoGZT",
+                  "ok": true,
+                  "reason": "ok"
+                }
+              ],
+              "chain": {
+                "ok": true
+              },
+              "hop_verdicts": [
+                {
+                  "seq": 0,
+                  "verdict": "pass",
+                  "witnesses": [
+                    "did:key:z6MkhXJ1WdascbiABgjTSyHrjN4FvGG8SowyobUrzZN7STh9"
+                  ]
+                },
+                {
+                  "seq": 1,
+                  "verdict": "pass",
+                  "witnesses": [
+                    "did:key:z6MkqrocAxw8efW19YsTAfJgm47Sy7PsQhfxfi9gtZQfoGZT"
+                  ]
+                }
+              ]
+            },
+            "execution": {
+              "present": true,
+              "complete": true,
+              "pair": "action_bound",
+              "reconciliation": "reconciled",
+              "receipt_id": "b5cd9ff3b35ff15199e8bae7b7ac8e6aae3a303e4ae5ac2044b96c9ec9223ef4",
+              "outcome": {
+                "status": "completed",
+                "result_sha256": "sha_res_1",
+                "evidence": {
+                  "kind": "ledger_record",
+                  "ref": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+                  "system": "ledger.horizonshield.dev"
+                }
+              }
+            },
+            "preflight": {
+              "present": false
+            },
+            "evidence": {
+              "bound": true,
+              "checked_externally": false,
+              "result": "evidence_bound_unchecked",
+              "external": null
+            },
+            "linkage": {
+              "links": 1,
+              "mismatched": 0
+            }
+          },
+          "establishes": [
+            "every presented record carries task_id task_discovery_1631_1 (4 records)",
+            "each of 2 observations recomputes (R2) with a witness structurally distinct from both hop parties (R1)",
+            "the hop chain is contiguous from seq 0 and every prev_evidence_id resolves to a presented prior-hop observation (R3)",
+            "per-hop verdicts are aggregated over the full witness set, fail-closed; any disagreement is surfaced in layers.delegation.hop_verdicts, never collapsed (R4)",
+            "each observation carries a valid witness signature and a valid delegator edge signature against the resolved keys",
+            "the provider's signed executed_action equals the caller's signed authorization, byte for byte (E1)",
+            "the receipt hash-references this grant and comes from the executor the grant authorized (E3)",
+            "executed_at is a strict RFC3339 UTC instant inside the grant window",
+            "exactly one authentic outcome reconciles for this grant (E2)",
+            "caller_sig and provider_sig verify against the resolved keys",
+            "the provider committed, under its signature, to evidence pointer ledger_record:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef in ledger.horizonshield.dev; a reader can check it there without the provider",
+            "1 observation(s) name the reconciled receipt by digest and the digest recomputes"
+          ],
+          "does_not_establish": [
+            "that any executed action occurred in the world: E1 compares the provider's signed claim to the caller's signed authorization and has no side-effect oracle",
+            "that the reconciled outcome is the real-world outcome: E2 proves recoverability and surfaces equivocation, it does not prove truth",
+            "that any witness is unaffiliated with the parties: R1 proves structural distinctness, not independence",
+            "that bound evidence exists in its system or says what the provider claims, unless layers.evidence.checked_externally is true, and even then only what the injected lookup reported",
+            "anything about time beyond the record contents: this verifier has no clock and saw no anchor; a Bitcoin anchor, if one exists, bounds the records separately",
+            "that this is the only provenance these parties produced for this task_id"
+          ],
+          "recompute": {
+            "offline": "this verifier opens no socket and has no clock; run it yourself on the same records and do not take this operator's word",
+            "layers": [
+              "../task-delegation-bind-v0/bind.mjs + sign.mjs (R1..R4, witness_sig, edge_sig)",
+              "../task-execution-bind-v0/bind_exec.mjs + sign_exec.mjs (E1..E3, caller_sig, provider_sig)",
+              "../task-execution-bind-v0/outcome_evidence.mjs (evidence pointer shape and optional lookup)"
+            ],
+            "cross_layer": [
+              "every record must carry the same task_id",
+              "an observation's detail_ref nenrin-exec://<receipt_id> must equal receiptId(reconciled receipt)",
+              "if an intent is present, its proposed_action must equal the grant action (preflight) and the reconciled receipt executed_action (declared equals authorized equals executed)"
+            ]
+          }
+        }
+      },
+      {
+        "schema": "nenrin-consume-v0",
+        "consume_version": "0.1.0",
+        "task_id": "task_discovery_1631_1",
+        "facts": {
+          "verified": true,
+          "authorized_before_execution": null,
+          "executed_matches_authorization": true,
+          "outcome": {
+            "status": "completed",
+            "reconciled": true
+          },
+          "hops": [
+            {
+              "seq": 0,
+              "verdict": "disagreement",
+              "disagreement": true
+            },
+            {
+              "seq": 1,
+              "verdict": "pass",
+              "disagreement": false
+            }
+          ],
+          "evidence_pointer": {
+            "bound": true,
+            "checked_externally": false
+          },
+          "digest_links": 2
+        },
+        "conflicts": {
+          "refused": false,
+          "refusal_codes": [],
+          "disagreements": [
+            {
+              "seq": 0,
+              "witnesses": [
+                "did:key:z6MkpprxDWEpWB9G5222hArkL98NF24Qnyk6QDrs8oeAdxTq",
+                "did:key:z6MkqRPeFnZMQkCSgvg9dEUiGLYjnmYsznCRkVt2SfySevLt"
+              ]
+            }
+          ],
+          "equivocations": []
+        },
+        "anchors": {
+          "grant_ref": "18ea841fce3f03f23b1a48f01214f6ad99d8901663b768662586cbd391b9a9c7",
+          "intent_id": null,
+          "reconciled_receipt_id": "bde141339125c22a63bcf47ce46b45aa226f5852f91c07a08f696d62a5bdfa93",
+          "observation_evidence_ids": [
+            "21b13d620faa594b927d93dcde1e25f08024152fb050cfa2d558fb52ae170953",
+            "72d95dba41dceb5ab6ec5512b5acba53d6cff0dd725b4248ec7a4e53e5225e52",
+            "cf4a2438582bee389bf3e56319bf3f662fdb3d311a39d82031a75651e7f710ef"
+          ]
+        },
+        "does_not_establish": [
+          "that any executed action occurred in the world: E1 compares the provider's signed claim to the caller's signed authorization and has no side-effect oracle",
+          "that the reconciled outcome is the real-world outcome: E2 proves recoverability and surfaces equivocation, it does not prove truth",
+          "that any witness is unaffiliated with the parties: R1 proves structural distinctness, not independence",
+          "that bound evidence exists in its system or says what the provider claims, unless layers.evidence.checked_externally is true, and even then only what the injected lookup reported",
+          "anything about time beyond the record contents: this verifier has no clock and saw no anchor; a Bitcoin anchor, if one exists, bounds the records separately",
+          "that this is the only provenance these parties produced for this task_id"
+        ],
+        "contract": "NENRIN returns verified evidence and its honest limits. It computes no trust score and makes no allow or deny decision. The consuming engine reads facts and conflicts and decides for itself. Absence of conflict is not evidence of good conduct; it may mean no evidence was presented.",
+        "reverify": {
+          "how": "re-run nenrin-provenance-verify-v0 on the same records with your own resolve and lookup; every hash and signature recomputes offline, with no clock and no network",
+          "provenance": {
+            "offline": "this verifier opens no socket and has no clock; run it yourself on the same records and do not take this operator's word",
+            "layers": [
+              "../task-delegation-bind-v0/bind.mjs + sign.mjs (R1..R4, witness_sig, edge_sig)",
+              "../task-execution-bind-v0/bind_exec.mjs + sign_exec.mjs (E1..E3, caller_sig, provider_sig)",
+              "../task-execution-bind-v0/outcome_evidence.mjs (evidence pointer shape and optional lookup)"
+            ],
+            "cross_layer": [
+              "every record must carry the same task_id",
+              "an observation's detail_ref nenrin-exec://<receipt_id> must equal receiptId(reconciled receipt)",
+              "if an intent is present, its proposed_action must equal the grant action (preflight) and the reconciled receipt executed_action (declared equals authorized equals executed)"
+            ]
+          }
+        },
+        "provenance": {
+          "schema": "nenrin-provenance-verify-v0",
+          "verifier_version": "0.1.0",
+          "task_id": "task_discovery_1631_1",
+          "verdict": "accepted",
+          "refusals": [],
+          "findings": [
+            {
+              "code": "witness_disagreement",
+              "why": "witnesses of one hop disagree; the aggregate is disagreement, not the favorable verdict (R4)",
+              "seq": 0,
+              "witnesses": [
+                "did:key:z6MkpprxDWEpWB9G5222hArkL98NF24Qnyk6QDrs8oeAdxTq",
+                "did:key:z6MkqRPeFnZMQkCSgvg9dEUiGLYjnmYsznCRkVt2SfySevLt"
+              ]
+            },
+            {
+              "code": "evidence_bound_unchecked",
+              "why": "the provider committed to an evidence pointer but no external lookup ran; a reader must check it in the named system"
+            }
+          ],
+          "layers": {
+            "identity": {
+              "records": 5,
+              "mismatched": []
+            },
+            "delegation": {
+              "present": true,
+              "observations": [
+                {
+                  "index": 0,
+                  "seq": 0,
+                  "witness_id": "did:key:z6MkpprxDWEpWB9G5222hArkL98NF24Qnyk6QDrs8oeAdxTq",
+                  "ok": true,
+                  "reason": "ok"
+                },
+                {
+                  "index": 1,
+                  "seq": 0,
+                  "witness_id": "did:key:z6MkqRPeFnZMQkCSgvg9dEUiGLYjnmYsznCRkVt2SfySevLt",
+                  "ok": true,
+                  "reason": "ok"
+                },
+                {
+                  "index": 2,
+                  "seq": 1,
+                  "witness_id": "did:key:z6MkqRPeFnZMQkCSgvg9dEUiGLYjnmYsznCRkVt2SfySevLt",
+                  "ok": true,
+                  "reason": "ok"
+                }
+              ],
+              "chain": {
+                "ok": true
+              },
+              "hop_verdicts": [
+                {
+                  "seq": 0,
+                  "verdict": "disagreement",
+                  "witnesses": [
+                    "did:key:z6MkpprxDWEpWB9G5222hArkL98NF24Qnyk6QDrs8oeAdxTq",
+                    "did:key:z6MkqRPeFnZMQkCSgvg9dEUiGLYjnmYsznCRkVt2SfySevLt"
+                  ]
+                },
+                {
+                  "seq": 1,
+                  "verdict": "pass",
+                  "witnesses": [
+                    "did:key:z6MkqRPeFnZMQkCSgvg9dEUiGLYjnmYsznCRkVt2SfySevLt"
+                  ]
+                }
+              ]
+            },
+            "execution": {
+              "present": true,
+              "complete": true,
+              "pair": "action_bound",
+              "reconciliation": "reconciled",
+              "receipt_id": "bde141339125c22a63bcf47ce46b45aa226f5852f91c07a08f696d62a5bdfa93",
+              "outcome": {
+                "status": "completed",
+                "result_sha256": "sha_res_1",
+                "evidence": {
+                  "kind": "ledger_record",
+                  "ref": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+                  "system": "ledger.horizonshield.dev"
+                }
+              }
+            },
+            "preflight": {
+              "present": false
+            },
+            "evidence": {
+              "bound": true,
+              "checked_externally": false,
+              "result": "evidence_bound_unchecked",
+              "external": null
+            },
+            "linkage": {
+              "links": 2,
+              "mismatched": 0
+            }
+          },
+          "establishes": [
+            "every presented record carries task_id task_discovery_1631_1 (5 records)",
+            "each of 3 observations recomputes (R2) with a witness structurally distinct from both hop parties (R1)",
+            "the hop chain is contiguous from seq 0 and every prev_evidence_id resolves to a presented prior-hop observation (R3)",
+            "per-hop verdicts are aggregated over the full witness set, fail-closed; any disagreement is surfaced in layers.delegation.hop_verdicts, never collapsed (R4)",
+            "each observation carries a valid witness signature and a valid delegator edge signature against the resolved keys",
+            "the provider's signed executed_action equals the caller's signed authorization, byte for byte (E1)",
+            "the receipt hash-references this grant and comes from the executor the grant authorized (E3)",
+            "executed_at is a strict RFC3339 UTC instant inside the grant window",
+            "exactly one authentic outcome reconciles for this grant (E2)",
+            "caller_sig and provider_sig verify against the resolved keys",
+            "the provider committed, under its signature, to evidence pointer ledger_record:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef in ledger.horizonshield.dev; a reader can check it there without the provider",
+            "2 observation(s) name the reconciled receipt by digest and the digest recomputes"
+          ],
+          "does_not_establish": [
+            "that any executed action occurred in the world: E1 compares the provider's signed claim to the caller's signed authorization and has no side-effect oracle",
+            "that the reconciled outcome is the real-world outcome: E2 proves recoverability and surfaces equivocation, it does not prove truth",
+            "that any witness is unaffiliated with the parties: R1 proves structural distinctness, not independence",
+            "that bound evidence exists in its system or says what the provider claims, unless layers.evidence.checked_externally is true, and even then only what the injected lookup reported",
+            "anything about time beyond the record contents: this verifier has no clock and saw no anchor; a Bitcoin anchor, if one exists, bounds the records separately",
+            "that this is the only provenance these parties produced for this task_id"
+          ],
+          "recompute": {
+            "offline": "this verifier opens no socket and has no clock; run it yourself on the same records and do not take this operator's word",
+            "layers": [
+              "../task-delegation-bind-v0/bind.mjs + sign.mjs (R1..R4, witness_sig, edge_sig)",
+              "../task-execution-bind-v0/bind_exec.mjs + sign_exec.mjs (E1..E3, caller_sig, provider_sig)",
+              "../task-execution-bind-v0/outcome_evidence.mjs (evidence pointer shape and optional lookup)"
+            ],
+            "cross_layer": [
+              "every record must carry the same task_id",
+              "an observation's detail_ref nenrin-exec://<receipt_id> must equal receiptId(reconciled receipt)",
+              "if an intent is present, its proposed_action must equal the grant action (preflight) and the reconciled receipt executed_action (declared equals authorized equals executed)"
+            ]
+          }
+        }
+      },
+      {
+        "schema": "nenrin-consume-v0",
+        "consume_version": "0.1.0",
+        "task_id": "task_discovery_1631_1",
+        "facts": {
+          "verified": false,
+          "authorized_before_execution": null,
+          "executed_matches_authorization": true,
+          "outcome": null,
+          "hops": [
+            {
+              "seq": 0,
+              "verdict": "pass",
+              "disagreement": false
+            },
+            {
+              "seq": 1,
+              "verdict": "pass",
+              "disagreement": false
+            }
+          ],
+          "evidence_pointer": {
+            "bound": true,
+            "checked_externally": false
+          },
+          "digest_links": 0
+        },
+        "conflicts": {
+          "refused": true,
+          "refusal_codes": [
+            "execution_equivocation"
+          ],
+          "disagreements": [],
+          "equivocations": [
+            {
+              "receipt_ids": [
+                "01e9d15a0e4c1b2823fe22bdede6b81523f270292c86625c5bb8914a5d0fbd97",
+                "94cf4530d14ac8408c4ba557545d7f04a72444e3270238aea27ca8c8eb2f323e"
+              ]
+            }
+          ]
+        },
+        "anchors": {
+          "grant_ref": "32d586e01255bc394ecebd11f67e027d3d2b0eb6bc1e0c8d2da86dff7000ac06",
+          "intent_id": null,
+          "reconciled_receipt_id": null,
+          "observation_evidence_ids": [
+            "ce4edd4d1820a949e7c1a83dee5894c6f74461f34a912d98e28a8f0fe3c4ec2a",
+            "1b53d77fa18cdac0a4e93e53c8ad93b6912a48685f89cd9ff3b7d14ef43db04e"
+          ]
+        },
+        "does_not_establish": [
+          "that any executed action occurred in the world: E1 compares the provider's signed claim to the caller's signed authorization and has no side-effect oracle",
+          "that the reconciled outcome is the real-world outcome: E2 proves recoverability and surfaces equivocation, it does not prove truth",
+          "that any witness is unaffiliated with the parties: R1 proves structural distinctness, not independence",
+          "that bound evidence exists in its system or says what the provider claims, unless layers.evidence.checked_externally is true, and even then only what the injected lookup reported",
+          "anything about time beyond the record contents: this verifier has no clock and saw no anchor; a Bitcoin anchor, if one exists, bounds the records separately",
+          "that this is the only provenance these parties produced for this task_id"
+        ],
+        "contract": "NENRIN returns verified evidence and its honest limits. It computes no trust score and makes no allow or deny decision. The consuming engine reads facts and conflicts and decides for itself. Absence of conflict is not evidence of good conduct; it may mean no evidence was presented.",
+        "reverify": {
+          "how": "re-run nenrin-provenance-verify-v0 on the same records with your own resolve and lookup; every hash and signature recomputes offline, with no clock and no network",
+          "provenance": {
+            "offline": "this verifier opens no socket and has no clock; run it yourself on the same records and do not take this operator's word",
+            "layers": [
+              "../task-delegation-bind-v0/bind.mjs + sign.mjs (R1..R4, witness_sig, edge_sig)",
+              "../task-execution-bind-v0/bind_exec.mjs + sign_exec.mjs (E1..E3, caller_sig, provider_sig)",
+              "../task-execution-bind-v0/outcome_evidence.mjs (evidence pointer shape and optional lookup)"
+            ],
+            "cross_layer": [
+              "every record must carry the same task_id",
+              "an observation's detail_ref nenrin-exec://<receipt_id> must equal receiptId(reconciled receipt)",
+              "if an intent is present, its proposed_action must equal the grant action (preflight) and the reconciled receipt executed_action (declared equals authorized equals executed)"
+            ]
+          }
+        },
+        "provenance": {
+          "schema": "nenrin-provenance-verify-v0",
+          "verifier_version": "0.1.0",
+          "task_id": "task_discovery_1631_1",
+          "verdict": "refused",
+          "refusals": [
+            {
+              "code": "execution_equivocation",
+              "why": "the authorized provider signed conflicting outcomes for one grant; no single outcome can be established (E2, fail-closed)",
+              "receipt_ids": [
+                "01e9d15a0e4c1b2823fe22bdede6b81523f270292c86625c5bb8914a5d0fbd97",
+                "94cf4530d14ac8408c4ba557545d7f04a72444e3270238aea27ca8c8eb2f323e"
+              ]
+            }
+          ],
+          "findings": [
+            {
+              "code": "evidence_bound_unchecked",
+              "why": "the provider committed to an evidence pointer but no external lookup ran; a reader must check it in the named system"
+            }
+          ],
+          "layers": {
+            "identity": {
+              "records": 5,
+              "mismatched": []
+            },
+            "delegation": {
+              "present": true,
+              "observations": [
+                {
+                  "index": 0,
+                  "seq": 0,
+                  "witness_id": "did:key:z6MkjMDuPpvY22TCYdFQ3NULd3CJjva1pz8PFRNkKRkEcSHH",
+                  "ok": true,
+                  "reason": "ok"
+                },
+                {
+                  "index": 1,
+                  "seq": 1,
+                  "witness_id": "did:key:z6MkqF4FT3LbVF4aKWe46Qqd3gEvMyVpgRNyhGp1CykzVq3u",
+                  "ok": true,
+                  "reason": "ok"
+                }
+              ],
+              "chain": {
+                "ok": true
+              },
+              "hop_verdicts": [
+                {
+                  "seq": 0,
+                  "verdict": "pass",
+                  "witnesses": [
+                    "did:key:z6MkjMDuPpvY22TCYdFQ3NULd3CJjva1pz8PFRNkKRkEcSHH"
+                  ]
+                },
+                {
+                  "seq": 1,
+                  "verdict": "pass",
+                  "witnesses": [
+                    "did:key:z6MkqF4FT3LbVF4aKWe46Qqd3gEvMyVpgRNyhGp1CykzVq3u"
+                  ]
+                }
+              ]
+            },
+            "execution": {
+              "present": true,
+              "complete": true,
+              "pair": "action_bound",
+              "reconciliation": "equivocation",
+              "receipt_id": null,
+              "outcome": null
+            },
+            "preflight": {
+              "present": false
+            },
+            "evidence": {
+              "bound": true,
+              "checked_externally": false,
+              "result": "evidence_bound_unchecked",
+              "external": null
+            },
+            "linkage": {
+              "links": 0,
+              "mismatched": 0
+            }
+          },
+          "establishes": [
+            "nothing: see refusals"
+          ],
+          "does_not_establish": [
+            "that any executed action occurred in the world: E1 compares the provider's signed claim to the caller's signed authorization and has no side-effect oracle",
+            "that the reconciled outcome is the real-world outcome: E2 proves recoverability and surfaces equivocation, it does not prove truth",
+            "that any witness is unaffiliated with the parties: R1 proves structural distinctness, not independence",
+            "that bound evidence exists in its system or says what the provider claims, unless layers.evidence.checked_externally is true, and even then only what the injected lookup reported",
+            "anything about time beyond the record contents: this verifier has no clock and saw no anchor; a Bitcoin anchor, if one exists, bounds the records separately",
+            "that this is the only provenance these parties produced for this task_id"
+          ],
+          "recompute": {
+            "offline": "this verifier opens no socket and has no clock; run it yourself on the same records and do not take this operator's word",
+            "layers": [
+              "../task-delegation-bind-v0/bind.mjs + sign.mjs (R1..R4, witness_sig, edge_sig)",
+              "../task-execution-bind-v0/bind_exec.mjs + sign_exec.mjs (E1..E3, caller_sig, provider_sig)",
+              "../task-execution-bind-v0/outcome_evidence.mjs (evidence pointer shape and optional lookup)"
+            ],
+            "cross_layer": [
+              "every record must carry the same task_id",
+              "an observation's detail_ref nenrin-exec://<receipt_id> must equal receiptId(reconciled receipt)",
+              "if an intent is present, its proposed_action must equal the grant action (preflight) and the reconciled receipt executed_action (declared equals authorized equals executed)"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "reference_trust_filter": {
+    "schema": "reference-trust-filter-v0",
+    "version": "0.1.0",
+    "not_nenrin": "This filter is not part of NENRIN. NENRIN supplies evidence and computes no permitted set and no score. This is one example policy, stated in full so permitted can be recomputed from the evidence.",
+    "policy": "permitted = verified === true AND equivocations === 0; a witness disagreement is carried into permitted (not removed) so the orderer weighs it; a provider equivocation is fail-closed and excluded",
+    "permitted": [
+      "cand_alpha",
+      "cand_bravo"
+    ],
+    "excluded": [
+      {
+        "candidate_id": "cand_charlie",
+        "reason": "not verified",
+        "disagreement_hops": 0,
+        "equivocations": 1
+      }
+    ]
+  },
+  "run_record": {
+    "task_id": "task_discovery_1631_1",
+    "evaluated_candidates": [
+      "cand_alpha",
+      "cand_bravo",
+      "cand_charlie"
+    ],
+    "permitted": [
+      "cand_alpha",
+      "cand_bravo"
+    ],
+    "order": null,
+    "evidence_anchors": [
+      {
+        "candidate_id": "cand_alpha",
+        "anchors": {
+          "grant_ref": "3ff9bca07085ed61e8ade3e59787c512603c8c1683b3d7c1082fa2a635c330b2",
+          "intent_id": null,
+          "reconciled_receipt_id": "b5cd9ff3b35ff15199e8bae7b7ac8e6aae3a303e4ae5ac2044b96c9ec9223ef4",
+          "observation_evidence_ids": [
+            "57023a062eff6c3504807b81818278091c86886d16d60a89dafd43d1d3462df3",
+            "281b32cfc139680a932e421fcff21afb8fb33c0a794be1e5d36da89dcb069726"
+          ]
+        }
+      },
+      {
+        "candidate_id": "cand_bravo",
+        "anchors": {
+          "grant_ref": "18ea841fce3f03f23b1a48f01214f6ad99d8901663b768662586cbd391b9a9c7",
+          "intent_id": null,
+          "reconciled_receipt_id": "bde141339125c22a63bcf47ce46b45aa226f5852f91c07a08f696d62a5bdfa93",
+          "observation_evidence_ids": [
+            "21b13d620faa594b927d93dcde1e25f08024152fb050cfa2d558fb52ae170953",
+            "72d95dba41dceb5ab6ec5512b5acba53d6cff0dd725b4248ec7a4e53e5225e52",
+            "cf4a2438582bee389bf3e56319bf3f662fdb3d311a39d82031a75651e7f710ef"
+          ]
+        }
+      },
+      {
+        "candidate_id": "cand_charlie",
+        "anchors": {
+          "grant_ref": "32d586e01255bc394ecebd11f67e027d3d2b0eb6bc1e0c8d2da86dff7000ac06",
+          "intent_id": null,
+          "reconciled_receipt_id": null,
+          "observation_evidence_ids": [
+            "ce4edd4d1820a949e7c1a83dee5894c6f74461f34a912d98e28a8f0fe3c4ec2a",
+            "1b53d77fa18cdac0a4e93e53c8ad93b6912a48685f89cd9ff3b7d14ef43db04e"
+          ]
+        }
+      }
+    ],
+    "note": "permitted is filled by the trust filter and order by the orderer; NENRIN records them and can anchor this run_record to Bitcoin so a third party recomputes the permitted set and the returned order rather than trusting the operator",
+    "permitted_by": "reference-trust-filter-v0 (example policy, not NENRIN)",
+    "order_by": "left null for ARBITER (ziolndr/arbiter-agent-routing); it orders permitted against the task and writes order back here"
+  },
+  "arbiter": {
+    "repo": "https://github.com/ziolndr/arbiter-agent-routing",
+    "compare": "POST https://api.grip.fyi/v1/compare",
+    "note": "ARBITER orders the permitted field against the task and returns order; that order is written into run_record.order to complete evidence then permitted then order then recorded result"
+  },
+  "does_not_establish": [
+    "which candidates are permitted: that is the trust filter's decision, from this evidence and its own policy",
+    "the order of the candidates: that is the orderer's output, for example ARBITER, over the permitted set",
+    "any trust score: none is computed here, and absence of conflict is not evidence of good conduct"
+  ]
+}

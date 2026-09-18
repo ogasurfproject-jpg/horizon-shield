@@ -5,6 +5,8 @@
 # 2026-09-18: did:key 識別子は公開鍵そのもの(秘密やない)。task-delegation-bind-v0 の
 # 公開検証 fixture(t4_fixture.json)で generic-api-key に誤検知されるので、did:key の行と
 # その fixture ファイルだけ許す。秘密鍵は生成時にメモリ内だけで、ディスクには一切書いてへん。
+# 2026-09-18: provenance-v0 の candidate_fixture.json(A2A#1631 / ARBITER interop の多候補公開fixture)も
+# 同種で、公開鍵(did:key)と署名だけ、秘密鍵はディスクに書かへんので同様に許す。
 title = "horizon-shield gitleaks config"
 
 [extend]
@@ -20,4 +22,5 @@ regexes = [
 ]
 paths = [
   '''workers/hs-ledger/nenrin/task-delegation-bind-v0/t4_fixture\.json''',
+  '''workers/hs-ledger/nenrin/provenance-v0/candidate_fixture\.json''',
 ]
