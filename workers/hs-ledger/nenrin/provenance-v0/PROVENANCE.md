@@ -13,6 +13,8 @@ injected, exactly like the layers below it.
   E1 authorized-action match, E2 outcome reconciliation, E3 grant binding; caller_sig and provider_sig.
 - outcome_evidence (../task-execution-bind-v0/outcome_evidence.mjs): the outcome's commitment to an
   independently checkable pointer (bitcoin_tx, ledger_record, document_sha256, url_sha256).
+- preflight (../task-execution-bind-v0/preflight.mjs): the pre-execution intent, a signed declaration of the
+  action a provider is about to run, verified against the grant before execution (optional input `intent`).
 
 ## What only this layer checks
 - task identity: every presented record carries the task_id under verification.
@@ -35,7 +37,8 @@ the favorable verdict. Provider equivocation is a refusal: no single outcome can
 ## Refusal codes
 task_id_missing, task_id_mismatch, delegation_observation_invalid, delegation_chain_broken,
 execution_incomplete_pair, execution_invalid, execution_signature_invalid, execution_equivocation,
-execution_unreconciled, evidence_invalid, linkage_receipt_mismatch.
+execution_unreconciled, evidence_invalid, linkage_receipt_mismatch, preflight_without_grant, preflight_invalid,
+preflight_signature_invalid.
 
 ## Finding codes (declared, non-fatal)
 no_delegation_observations, no_execution_records, witness_disagreement, self_authorized, open_grant,
@@ -56,8 +59,14 @@ The honest way to get closer to the wall is not to claim more, but to bind outco
 check in a system that is already independently verifiable (outcome_evidence). That moves "the provider
 claims X" to "the provider committed to E in S, go check S", without any trusted oracle.
 
+## Consuming NENRIN evidence from a trust engine
+consume.mjs (nenrin-consume-v0) projects a verified provenance into a compact, stable bundle a reputation or
+policy engine reads in one call and re-verifies itself: facts, conflicts, anchors, honest limits, and the
+recompute steps. It returns no trust score and no allow or deny decision. See CONSUME.md for the contract.
+
 ## Run
     node provenance_adversarial.test.mjs
+    node consume.test.mjs
     node ../task-execution-bind-v0/bind_exec_adversarial.test.mjs
     node ../task-execution-bind-v0/sign_exec_adversarial.test.mjs
     node ../task-execution-bind-v0/compose.test.mjs

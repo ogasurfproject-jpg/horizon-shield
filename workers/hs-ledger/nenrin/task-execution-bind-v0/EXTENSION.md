@@ -51,6 +51,12 @@ a valid provider signature, so a third party cannot manufacture a false equivoca
 - exec_cross_lang "grant preimage bytes agree (python canonical == JS canonical)"
 - exec_cross_lang "receipt_id recomputed in JS equals the python value"
 
+## Pre-execution authorization (preflight)
+- preflight "a declared action outside the grant is caught pre-execution (action_diverged)"
+- preflight "declared-then-diverged is caught (declared /invoices/pay, executed /attacker/acct)"
+- preflight "report has no allow, deny, decision, recommendation or score key"
+- preflight "does_not_establish states plainly that this is not a decision to proceed and returns no score"
+
 ## Composition with task-delegation-bind-v0 (linkage, not authority)
 - compose "they disagree yet both are valid: neither layer laundered into the other"
 - compose "receipt tamper breaks the digest-bound link the observation committed to"

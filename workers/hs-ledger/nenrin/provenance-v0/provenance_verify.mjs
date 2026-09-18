@@ -17,6 +17,7 @@ import { verifySigned as verifyObservationSigned } from "../task-delegation-bind
 import { receiptId, verifyExecution, reconcileOutcome } from "../task-execution-bind-v0/bind_exec.mjs";
 import { verifySignedExecution, reconcileSigned } from "../task-execution-bind-v0/sign_exec.mjs";
 import { verifyEvidence } from "../task-execution-bind-v0/outcome_evidence.mjs";
+import { verifyPreflight, verifyIntentSig, intentMatchesReceipt } from "../task-execution-bind-v0/preflight.mjs";
 
 export const VERIFIER_VERSION = "0.1.0";
 export const LINK_PREFIX = "nenrin-exec://";
@@ -54,17 +55,19 @@ export function verifyProvenance(input) {
   const resolve = typeof input.resolve === "function" ? input.resolve : () => null;
   const lookup = typeof input.lookup === "function" ? input.lookup : null;
   const requireSigs = input.require_signatures !== false;
+  const intent = input.intent || null;
 
   const refusals = [], findings = [];
   const refuse = (code, why, extra) => refusals.push(Object.assign({ code, why }, extra || {}));
   const note = (code, why, extra) => findings.push(Object.assign({ code, why }, extra || {}));
-  const layers = { identity: null, delegation: null, execution: null, evidence: null, linkage: null };
+  const layers = { identity: null, delegation: null, execution: null, preflight: null, evidence: null, linkage: null };
 
   // ---- 0. task identity across every presented record ----
   if (typeof task_id !== "string" || task_id.length === 0) refuse("task_id_missing", "input.task_id must be a non-empty string");
   const idChecks = [];
   observations.forEach((o, i) => idChecks.push({ record: "observation[" + i + "]", id: o && o.task_id }));
   if (grant) idChecks.push({ record: "grant", id: grant.task_id });
+  if (intent) idChecks.push({ record: "intent", id: intent.task_id });
   receipts.forEach((r, i) => idChecks.push({ record: "receipt[" + i + "]", id: r && r.task_id }));
   const mismatched = idChecks.filter((c) => c.id !== task_id).map((c) => c.record);
   layers.identity = { records: idChecks.length, mismatched };
@@ -112,6 +115,28 @@ export function verifyProvenance(input) {
     layers.execution = { present: true, complete: true, pair: ve.reason, signatures: sigs.reason, reconciliation: rec.status, receipt_id: rec.receipt_id || null, outcome: rec.outcome || null };
   }
 
+  // ---- 2b. preflight layer (pre-execution intent), when an intent is presented ----
+  if (!intent) {
+    layers.preflight = { present: false };
+  } else if (!grant) {
+    layers.preflight = { present: true, complete: false };
+    refuse("preflight_without_grant", "an intent was presented without a grant; a pre-execution declaration can only be checked against the grant it references");
+  } else {
+    const pf = verifyPreflight(grant, intent);
+    pf.findings.forEach((f) => note(f.code, f.why));
+    if (!pf.ok) refuse("preflight_invalid", "the pre-execution intent is not authorized by the grant", { reason: pf.reason });
+    let isig = { ok: true, reason: "signatures_not_required" };
+    if (requireSigs) { const ok = verifyIntentSig(intent, resolve(intent.provider_id)); isig = { ok, reason: ok ? "intent_sig_valid" : "intent_sig_invalid" }; if (!ok) refuse("preflight_signature_invalid", "the intent signature does not verify", { reason: isig.reason }); }
+    let declared_matches_executed = null;
+    // Under a fixed-action grant, declared == executed is IMPLIED once preflight (declared == grant action) and
+    // execution E1 (executed == grant action) both pass, so a divergence here always coincides with a
+    // preflight_invalid or execution_invalid refusal already raised. We therefore record it as a framing note,
+    // not an independent refusal, so the report never double-counts nor overclaims a distinct catch. The real,
+    // non-redundant value of the intent is temporal: a signed pre-execution PROMISE, checkable before the receipt exists.
+    if (reconciledReceipt) { declared_matches_executed = intentMatchesReceipt(intent, reconciledReceipt); if (!declared_matches_executed) note("declared_executed_divergence", "the pre-execution declaration and the executed action differ; the individual preflight or execution refusal above is the operative one"); }
+    layers.preflight = { present: true, complete: true, status: pf.reason, signature: isig.reason, declared_matches_executed };
+  }
+
   // ---- 3. evidence layer (on the reconciled receipt) ----
   const evReceipt = reconciledReceipt || primaryReceipt || receipts[0] || null;
   if (evReceipt) {
@@ -157,6 +182,10 @@ export function verifyProvenance(input) {
       establishes.push("exactly one authentic outcome reconciles for this grant (E2)");
       if (requireSigs) establishes.push("caller_sig and provider_sig verify against the resolved keys");
     }
+    if (layers.preflight && layers.preflight.present && layers.preflight.complete) {
+      establishes.push("the provider declared its action before execution and that declaration equals the caller authorization (preflight): the action was authorized before it ran");
+      if (layers.preflight.declared_matches_executed === true) establishes.push("declared equals authorized equals executed: the pre-execution intent, the grant and the reconciled receipt carry the same action byte for byte");
+    }
     if (layers.evidence.bound) {
       const ev = evReceipt.outcome.evidence;
       if (layers.evidence.checked_externally) establishes.push("the outcome's evidence pointer " + ev.kind + ":" + ev.ref + " in " + ev.system + " was confirmed by the injected lookup");
@@ -179,7 +208,7 @@ export function verifyProvenance(input) {
     recompute: {
       offline: "this verifier opens no socket and has no clock; run it yourself on the same records and do not take this operator's word",
       layers: ["../task-delegation-bind-v0/bind.mjs + sign.mjs (R1..R4, witness_sig, edge_sig)", "../task-execution-bind-v0/bind_exec.mjs + sign_exec.mjs (E1..E3, caller_sig, provider_sig)", "../task-execution-bind-v0/outcome_evidence.mjs (evidence pointer shape and optional lookup)"],
-      cross_layer: ["every record must carry the same task_id", "an observation's detail_ref nenrin-exec://<receipt_id> must equal receiptId(reconciled receipt)"],
+      cross_layer: ["every record must carry the same task_id", "an observation's detail_ref nenrin-exec://<receipt_id> must equal receiptId(reconciled receipt)", "if an intent is present, its proposed_action must equal the grant action (preflight) and the reconciled receipt executed_action (declared equals authorized equals executed)"],
     },
   };
 }

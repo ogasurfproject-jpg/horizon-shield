@@ -5,6 +5,7 @@ import { newAgentKey, signObservation, signEdge } from "../task-delegation-bind-
 import { grantRef, receiptId } from "../task-execution-bind-v0/bind_exec.mjs";
 import { signGrant, signReceipt } from "../task-execution-bind-v0/sign_exec.mjs";
 import { verifyProvenance, chainContinuousSet, LINK_PREFIX } from "./provenance_verify.mjs";
+import { intentId, signIntent } from "../task-execution-bind-v0/preflight.mjs";
 
 const DASH = new RegExp("[" + String.fromCharCode(0x2012, 0x2013, 0x2014, 0x2015, 0x2212, 0xFF0D) + "]");
 let fail = 0;
@@ -120,6 +121,28 @@ chk("P11 set R3 agrees with pinned R3 on a valid chain", chainContinuousSet([h0,
 const forgedLink = mintObs({ seq: 1, from: B, to: C, witness: W2, verdict: "pass", prev: "deadbeef" });
 chk("P11 set R3 agrees with pinned R3 on a forged link (broken_link)", chainContinuousSet([h0, forgedLink]).reason === "broken_link" && chainContinuous([h0, forgedLink]).reason === "broken_link");
 chk("P11 set R3 agrees with pinned R3 on a hidden hop (seq_gap)", chainContinuousSet([h0, h2]).reason === "seq_gap" && chainContinuous([h0, h2]).reason === "seq_gap");
+
+// ---- P12 pre-execution intent: declared == authorized == executed ----
+function mintIntent(g, o = {}) {
+  const i = { schema: "task-execution-bind-v0/intent", task_id: o.task || T, grant_ref: o.grantRef || g.grant_ref, proposed_action: { tool: "a2a.invoke", target: o.target || "/invoices/pay", args_sha256: "sha_args_ok" }, provider_id: B, declared_at: IN };
+  i.intent_id = intentId(i);
+  return signIntent(i, priv(o.signer || B));
+}
+const r12 = verifyProvenance({ ...happy, intent: mintIntent(grant) });
+chk("P12 a matching signed intent is accepted and records the pre-execution promise", r12.verdict === "accepted" && r12.layers.preflight.present === true && r12.layers.preflight.declared_matches_executed === true, JSON.stringify(r12.refusals));
+chk("P12 establishes the declared equals authorized equals executed chain", r12.establishes.some((sx) => sx.includes("declared equals authorized equals executed")));
+
+// ---- P13 spoofed intent signature ----
+const r13 = verifyProvenance({ ...happy, intent: mintIntent(grant, { signer: EVIL }) });
+chk("P13 a spoofed intent signature is refused (preflight_signature_invalid)", r13.verdict === "refused" && has(r13.refusals, "preflight_signature_invalid"), JSON.stringify(r13.refusals));
+
+// ---- P14 intent bound to a grant it does not hash to ----
+const r14 = verifyProvenance({ ...happy, intent: mintIntent(grant, { grantRef: "deadbeef" }) });
+chk("P14 an intent not hashing to the grant is refused (preflight_invalid / intent_unbound)", r14.verdict === "refused" && reasonOf(r14.refusals, "preflight_invalid") === "intent_unbound", JSON.stringify(r14.refusals));
+
+// ---- P15 intent carrying a different task_id ----
+const r15 = verifyProvenance({ ...happy, intent: mintIntent(grant, { task: "task_other" }) });
+chk("P15 an intent with a different task_id is refused (task_id_mismatch)", r15.verdict === "refused" && has(r15.refusals, "task_id_mismatch"), JSON.stringify(r15.refusals));
 
 // ---- determinism + no forbidden dashes ----
 chk("report is deterministic for identical input", JSON.stringify(verifyProvenance(happy)) === JSON.stringify(r0));

@@ -77,6 +77,14 @@ the result always says whether a lookup ran (bound is never mistaken for confirm
 An independent Python canonical + sha256 builds a grant and receipt; the JS test recomputes both preimage
 bytes and both ids and requires exact equality. The digest is not tied to this JS.
 
+## Pre-execution authorization (preflight.mjs)
+grant + intent, verified BEFORE execution. The provider signs, before running, what it is about to do
+(proposed_action) referencing the grant by hash. verifyPreflight establishes that the declared action is inside
+the caller's signed grant, from the authorized executor, in the window. It returns no allow or deny and no
+score; the caller's gateway decides. intentMatchesReceipt gives declared == executed once the receipt exists.
+Under a fixed-action grant that equality is implied when preflight and execution both pass, so the real value of
+the intent is temporal: a signed pre-execution promise, checkable before the receipt exists.
+
 ## Composition (linkage, not authority)
 An observation may name an execution receipt by its content hash (detail_ref = nenrin-exec://<receipt_id>).
 That is linkage: the observation's verdict stays the witness's own and never inherits the receipt's outcome,
