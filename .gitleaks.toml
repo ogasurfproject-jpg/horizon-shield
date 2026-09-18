@@ -2,15 +2,22 @@
 # 2026-09-15: Cloudflare Web Analytics の beacon token(data-cf-beacon の token)は
 # 閲覧者のブラウザに配る公開値で、615 本の index.html に既に載っとる。新しいページを足すたびに
 # generic-api-key で赤になるので、その行だけ許す。ほかの秘密は今までどおり止める。
+# 2026-09-18: did:key 識別子は公開鍵そのもの(秘密やない)。task-delegation-bind-v0 の
+# 公開検証 fixture(t4_fixture.json)で generic-api-key に誤検知されるので、did:key の行と
+# その fixture ファイルだけ許す。秘密鍵は生成時にメモリ内だけで、ディスクには一切書いてへん。
 title = "horizon-shield gitleaks config"
 
 [extend]
 useDefault = true
 
 [allowlist]
-description = "Cloudflare Web Analytics beacon token is a public client side value embedded in every page"
+description = "public client side values and public identifiers that are safe to commit"
 regexTarget = "line"
 regexes = [
   "data-cf-beacon=",
   "5a6009e4bfe34dc8ae92f6fc93506de4",
+  "did:key:z[1-9A-HJ-NP-Za-km-z]{32,}",
+]
+paths = [
+  '''workers/hs-ledger/nenrin/task-delegation-bind-v0/t4_fixture\.json''',
 ]
