@@ -1,6 +1,6 @@
 # NENRIN Résumé v1 〜 可搬・第三者検算可能なエージェント行動履歴
 
-Status: 実装済(route + python/node 二実装 + 敵)、配備待ち(TOshi の手)。
+Status: 配備済み(2026-09-18、hs-ledger Version 9f8b46c2-a201-4b95-823c-606ef80dd0c9、route GET /resume 稼働)。実装は route + python/node 二実装 + 敵。
 Anchor target: 配備後、本ドキュメントの SHA-256 を JIDEC 台帳に刻む。
 
 ## 0. 一行の定義
