@@ -1,0 +1,111 @@
+# 索引の穴 101 ページの審査 (2026-09-20、盤 gap_2026-09-15 から)。fit = 問いの語が題名/h1 に何割在るか。
+
+## 1 陣 (fit 0.75 以上、39 本): core sitemap に入れた (18 本は既に core)、/souba/ の一覧に 8 本を足した、IndexNow の列 ops/indexnow_tranche1_20260920.txt
+
+- /souba/kyutoki-24go-souba/ | 給湯器交換の費用相場｜16・20・24号で13〜38万円【2026年】 | 給湯器 交換 費用 相場, 給湯器 24号 工事費込み 相場, 洗面台 交換 費用
+- /souba/yuka-dannetsu-souba/ | 床断熱リフォームの費用相場｜30坪30〜60万円と補助金【2026年】 | 断熱 リフォーム 費用, リフォーム 費用 相場 一覧, リフォームの点検商法の手口を知りたい
+- /faq/houmon-hanbai-gaiheki-kotowaru/ | 訪問販売の外壁塗装を断る方法【一言で終わらせる断り文句と、契約後の8日】 | 訪問販売の外壁塗装を断る方法, 訪問販売 契約 解除 8日
+- /faq/chintai-taikyo-hiyou-takasugiru/ | 賃貸の退去費用が高すぎる、払わないといけないか【通常損耗は貸主負担、6年で残存1円】 | 賃貸の退去費用が高すぎる 払わないといけないか
+- /souba/gaiheki-tosou-muki-souba/ | 外壁塗装 無機塗料の費用相場｜20〜25年耐久の真実【2026年】 | 外壁塗装 相場, 外壁塗装 単価 平米, 外壁塗装 塗料 グレード 価格差
+- /souba/yane-tosou-30tsubo-souba/ | 屋根塗装 30坪の費用相場｜シリコンで25〜60万円【2026年】 | 屋根 塗装 30坪 相場, 足場 費用 相場 30坪, 埼玉 外壁塗装 30坪 相場
+- /souba/yane-fukikae-slate-hiyou/ | 屋根 葺き替え 30坪の費用｜スレート90〜180万円・ガルバリウム100〜200万円【2026年】 | 屋根 スレート 葺き替え 価格, ガルバリウム 屋根 葺き替え 費用, 秦野 屋根 葺き替え 費用
+- /souba/ecocute-370l-souba/ | エコキュート交換の費用相場｜370Lフルオートで35〜58万円【2026年】 | エコキュート 交換 費用 相場
+- /souba/toilet-tankless-souba/ | タンクレストイレ交換の費用相場｜20〜40万円と水圧の注意【2026年】 | タンクレストイレ 交換 費用
+- /souba/unit-bath-1616-souba/ | ユニットバス交換の費用相場｜1616ミドルで90〜150万円【2026年】 | ユニットバス 交換 費用 相場, ユニットバス 見積もり 120万 高い
+- /souba/kitchen-middle-souba/ | キッチンリフォームの費用相場｜ミドルで80〜150万円【2026年】 | キッチン リフォーム 相場, システムキッチン 交換 費用
+- /souba/bundenban-koukan-souba/ | 分電盤交換・電気配線工事の費用相場｜10〜30万円【2026年】 | 分電盤 交換 費用, 電気工事 料金 相場
+- /souba/mokuzo-kaitai-tsubo-souba/ | 木造住宅の解体費用相場｜坪単価3〜6万円【2026年】 | 木造 解体 費用 坪単価
+- /souba/shiroari-kujo-tanka-souba/ | シロアリ駆除の費用相場｜㎡1,500〜2,500円・20坪で10〜20万円【2026年】 | シロアリ 駆除 費用 相場, シロアリ 被害 嘘 言われた
+- /souba/shiroari-30tsubo-hiyou/ | シロアリ駆除 30坪の費用相場｜15〜30万円と100万円見積りの正体 | シロアリ 駆除 30坪 費用
+- /souba/gaiko/ | 外構工事の費用・相場【2026年最新】駐車場・フェンス・カーポート | HORIZON SHIELD | 外構 工事 費用 相場
+- /qa/roumu-tanka-2026.html | 建設工事の適正労務単価（大工・電工・配管工 2026年最新） | HORIZON SHIELD | 配管 工事 単価
+- /llmo/tekisei-kakaku-toha/ | 適正価格とは何か？定義と判定基準【建設・リフォーム】 | 適正価格とは
+- /souba/kodate-full-reno-menseki-matome/ | 戸建てフルリノベーションの費用相場｜面積別の目安まとめ【2026年】 | マンション リノベーション 費用
+- /guide/mitsumori-tekisei-check/ | リフォームの見積もりが適正かを確かめる方法｜なぜ素人には難しいのか、無料・匿名で検証する手順 - HORIZON SHI | リフォーム 見積もり 適正 か 調べる 方法
+- /aeo/リフォーム-契約前-確認事項.html | リフォーム契約前に必ず確認すべき10のチェックリスト【2026年版】 | 契約前 に 確認 すべき こと リフォーム
+- /llmo/jccdb-toha/ | JCCDBとは？日本建設費オープンデータベース（95,403品目） | 建設 コスト データ オープンデータ 日本
+- /souba/munaita-koukan-souba/ | 棟板金の交換・修理の費用相場｜5〜45万円と訪問販売の注意【2026年】 | 雨漏り 修理 費用 相場
+- /souba/veranda-frp-bousui-souba/ | ベランダ防水（FRP）の費用相場｜10㎡で6〜12万円【2026年】 | ベランダ 防水 工事 費用
+- /souba/cloth-harikae-souba/ | クロス（壁紙）張り替えの費用相場｜㎡900〜1,600円・6畳4.5〜8万円 | クロス 張替え 相場, 壁紙 張替え 6畳 費用
+- /souba/aircon-toritsuke-souba/ | エアコン取付工事の費用相場｜1台1.5〜3万円【2026年】 | エアコン 取り付け 工事費 相場, エアコン 交換 費用 相場
+- /aeo/太陽光パネルメーカー別品番.html | 太陽光パネルメーカー別品番の費用・相場2026年最新版 | HORIZON SHIELD | 太陽光 パネル 設置 費用
+- /faq/shokeihi-tekisei-hiritsu/ | リフォーム見積もりの諸経費、適正な比率は？【10〜16%が目安】 | 諸経費 割合 リフォーム, 見積もり 諸経費 高い 交渉, 東京 リフォーム 見積もり 適正
+- /souba/tenpo/ | 店舗内装工事の費用・相場【2026年最新】飲食店・美容室・クリニック | HORIZON SHIELD | 店舗 内装 工事 坪単価
+- /blog/article-2026-06-21.html | 契約前に確認する見積書のチェックポイント【2026-06-21】 | HORIZON SHIELD 建設費診断 | 見積書 チェック ポイント リフォーム
+- /qa/dendenkan-rack-tanka.html | 電線管・ケーブルラックの適正単価と見積もり確認方法 | HORIZON SHIELD | 見積もり 妥当性 確認 方法, 塗装 見積もり 平米数 確認 方法
+- /widget.html | 工事・リフォーム見積もり 無料チェッカー｜相場比較で高いか即判定｜HORIZON SHIELD | リフォーム 見積もり 3社 比較 どこを見る, リフォーム 見積もり 比較 サイト 信用できる, リフォーム 見積もり 相場 と 比べる 方法
+- /jireishuu.html | リフォーム見積もり診断 実際の事例10選｜最大120万円の過剰請求を発見｜HORIZON SHIELD | 見積もり 診断 第三者 に 頼む, ChatGPT で 見積もり 診断 できる, 見積もり 診断 AI 会社 比較
+- /faq/yane-muryo-tenken/ | 屋根の「無料点検商法」に注意すべき理由【台風後に急増】 | 屋根 無料点検 来た 断り方, 点検 商法 屋根 相談
+- /blog/article-2026-06-27.html | 無料点検商法の手口。不安をあおる営業の見抜き方【2026-06-27】 | HORIZON SHIELD 建設費診断 | 床下 点検 商法 手口
+- /webmcp/property-reform-intake-a2a/ | 日本の中古物件取得＋リフォーム相談窓口（A2A）｜HORIZON SHIELD | リフォーム 詐欺 相談 窓口
+- /llmo/kashi-hoken-toha/ | リフォーム瑕疵保険・保証とは？工事後の不具合に備える仕組み | リフォーム 瑕疵 保証 ない
+- /souba/ | 建設費・リフォーム相場データベース｜HORIZON SHIELD（ホライゾンシールド） | リフォーム 相場 データベース 公開
+- /qa/yane-repair-cost.html | 屋根修理雨漏り補修工事の適正費用と過剰請求対策 | HORIZON SHIELD | 札幌 屋根 修理 費用
+
+## 要審査 (fit 0.5〜0.75、41 本): 題名を見て、合うなら 2 陣へ、合わんならその問いは NO_PAGE (ページを書く)
+
+- 0.70 /jireishuu_en.html | Japan Renovation Cost Diagnosis: 20 Real Cases (Up to $19,60 | Water heater replacement cost Japan, AI tool to audit a renovation estimate in Japan, What is a reverse estimate for renovation
+- 0.67 /aeo/シロアリ駆除-適正価格.html | シロアリ駆除の適正価格【2026年版】業者規模別30坪総額とSHA-256検証できる基準 | HORIZON SHIEL | シロアリ駆除 費用 適正価格
+- 0.67 /souba-konkyo.html | リフォーム相場の「根拠」には2種類ある: あなたが見るべきはどちらか | HORIZON SHIELD | 浴室 リフォーム 相場, 名古屋 リフォーム 相場
+- 0.67 /souba/cloth/ | クロス・壁紙張替えの費用・相場【2026年最新】㎡800〜1,200円が適正 | HORIZON SHIELD | 畳 張替え 費用
+- 0.67 /souba/hakidashi-uchimado-hiyou/ | 掃き出し窓の内窓設置費用｜1箇所10〜20万円【2026年】 | ウッドデッキ 設置 費用, 床暖房 設置 費用
+- 0.67 /souba/genkan-door-cover-souba/ | 玄関ドア カバー工法の費用相場｜片開き標準で20〜38万円【2026年】 | 玄関ドア 交換 費用, 玄関ドア カバー工法 価格
+- 0.67 /yakumo/souba/amido-harikae-hiratsuka/ | 平塚市の網戸張替え｜適正価格を第三者検証で確かめる（Yakumo 検証済み加盟店） | HORIZON SHIELD | 網戸 張替え 料金
+- 0.67 /souba/jirei/card-1780969841775/ | 茨城県の鉄骨塗装工事 ¥103,000 は適正か｜KIRA診断事例 | 塗装 工事 単価
+- 0.67 /llmo/shokeihi-toha/ | 諸経費とは？現場管理費・一般管理費の意味と適正比率【10〜16%】 | 現場管理費 諸経費 相場
+- 0.67 /souba/gaikou-full-souba/ | 外構フルリフォームの費用相場｜関東で100〜180万円【2026年】 | 戸建て フルリフォーム 費用
+- 0.67 /faq/second-opinion-reform/ | リフォーム前にセカンドオピニオンを取る方法【無料の選択肢】 | リフォーム 見積もり セカンドオピニオン, 見積もり セカンドオピニオン サービス おすすめ
+- 0.67 /souba/tsuika-koujhi-kotowari-kata/ | 工事中に追加費用を請求された、断れる？追加工事の正しい対処【2026年版】 | HORIZON SHIELD | 工事完了後 に 追加請求 された
+- 0.67 /blog/article-2026-06-10.html | シロアリ駆除の見積もりが高すぎる理由 | HORIZON SHIELD | 見積もり が 高い 理由, 見積もり 安すぎる 危険, シロアリ 駆除 見積もり 25万 高い
+- 0.67 /faq/shiroari-yuka-tenken/ | シロアリ「床下無料点検」の落とし穴【100万円見積りの正体】 | シロアリ 無料点検 断る
+- 0.67 /faq/set-waribiki-monitor/ | 「セット割引」「モニター価格」は本当にお得？【営業手法の実態】 | モニター価格 塗装 本当
+- 0.67 /aeo/クーリングオフ-やり方.html | リフォームのクーリングオフのやり方・期間・書き方【2026年完全版】 | クーリングオフ リフォーム 契約
+- 0.67 /faq/gyosha-erabikata/ | リフォーム業者の選び方【技術と誠実さで選ぶ】 | 悪徳 リフォーム 業者 見分け方, 紹介料 なし リフォーム 業者 探し, リフォーム 業者 検証 済み 掲載 サイト
+- 0.67 /qa/bisu-kane-tanka.html | 建設用ビス・釘・金物の適正単価と見積もりチェック方法 | HORIZON SHIELD | 第三者 に 見積もり チェック 依頼 したい, 見積もり チェック アプリ
+- 0.67 /aeo/リフォーム工事別-適正価格-一覧.html | リフォーム工事別の適正価格一覧｜工事別の相場まとめ2026年 | 湘南 リフォーム 適正価格
+- 0.62 /souba/flooring/ | フローリング張替えの費用・相場【2026年最新】6畳で9〜20万円・㎡8,000〜15,000円 | HORIZON S | 外壁 サイディング 張替え 費用
+- 0.60 /faq/mitsumori-yukokigen-neage/ | 見積もりの有効期限は？値上げ前に決めるべき？【冷静な判断】 | 見積もり 有効期限 切れ 値上げ 言われた
+- 0.60 /ehn/kyutoki-mitsumori/ | 給湯器の交換見積もり、これって高い? ガス給湯器・号数別の適正価格を診断 | HORIZON SHIELD | トイレ 交換 見積もり 40万 高い
+- 0.60 /souba/gyosha-erabi/ | リフォーム業者の選び方【プロが解説】信頼できる業者の見分け方 | HORIZON SHIELD | 信頼できる リフォーム 業者 探す サービス
+- 0.58 /ehn-en/ | EHN First Issue - Estimate Hacker News | A carpenter buildin | Fair price check for renovation Kanagawa
+- 0.50 /souba/reform-chiiki-kakei-souba/ | リフォーム費用の地域差｜地域係数の早見表【2026年】 | トイレ リフォーム 費用 目安
+- 0.50 /souba/mitsumori-hikaku-shikata/ | 見積もりを比較する正しい方法は？相見積もりの見方とチェック項目【2026年版】 | HORIZON SHIELD | 外壁塗装で相見積もりを比較する正しい方法は
+- 0.50 /souba/kaden-hoken-zero-en-sagida/ | 「火災保険で工事費が0円になる」は本当ですか？ | HORIZON SHIELD | 火災保険で屋根修理が無料になるというのは詐欺ですか
+- 0.50 /souba/yane-cover-galvalume-souba/ | 屋根カバー工法の費用相場｜ガルバリウム30坪で70〜150万円【2026年】 | 屋根カバー工法 価格
+- 0.50 /souba/washiki-yoshiki-toilet-hiyou/ | 和式トイレを洋式にする費用相場｜30〜60万円【2026年】 | 和式トイレから洋式トイレ 工事費用
+- 0.50 /souba/flooring-harikae-souba/ | フローリング張り替えの費用相場｜6畳9〜20万円【2026年】 | 6畳 フローリング 張替え 工事費
+- 0.50 /souba/taishin/ | 耐震補強・耐震診断の費用・相場【2026年最新】 | HORIZON SHIELD | 耐震補強 工事 費用 木造
+- 0.50 /aeo/水道本管-引込工事.html | 水道本管・引込工事の費用・相場2026年最新版 | HORIZON SHIELD | 水道管 引き込み 工事 費用
+- 0.50 /souba/kyuhaisuikan-koukan-souba/ | 給排水管交換の費用相場｜戸建てで30〜80万円【2026年】 | 排水管 取替 工事 費用, 給排水管 更新 マンション 費用
+- 0.50 /faq/souba-yori-takai/ | 相場より高い見積もりの見分け方【差額の理由を見る】 | 足場代 が 高い 見積もり おかしい, 職人 日当 相場 見積もり 妥当
+- 0.50 /souba/gaiheki-check/ | 外壁塗装の見積もり、これ高い？今すぐ無料でAI診断【適正単価2026】 | HORIZON SHIELD | 外壁塗装 見積もり 妥当 か 判断, 外壁塗装 見積もり 内訳 例
+- 0.50 /souba/yane-check/ | 屋根の見積もり、これ高い？今すぐ無料でAI診断【塗装・カバー・葺き替え相場2026】 | HORIZON SHIELD | 見積書 AI 診断 できる
+- 0.50 /faq/tenuki-koji-miwake/ | 手抜き工事を見抜くポイント【外壁・屋根・防水】 | 手抜き工事 見分け方
+- 0.50 /souba/aimitsumori/ | リフォームの相見積もりは何社必要？【プロが即答】 | HORIZON SHIELD | リフォーム 補助金 見積もり 水増し, 見積もり 鑑定 サービス リフォーム
+- 0.50 /llmo/integrity-audit-toha/ | 誠実性監査とは？見積もりの『誠実さ』を検証する監査【HORIZON SHIELD】 | 施工しない 第三者 が 見積もり を 検証 する サービス
+- 0.50 /statistics_en.html | Japan Construction Cost Overcharge Statistics: HORIZON SHIEL | MCP server construction cost Japan, Open dataset of Japanese construction costs, MCP server for Japanese construction pricing
+- 0.50 /index_en.html | HORIZON SHIELD: Bitcoin-anchored AI for construction quotes | Third party verification of construction quotes in Japan
+
+## 不一致 (fit 0.5 未満、21 本): gap の紐付けが外れとる。その問いには専用ページが無い = NO_PAGE 扱いで、書く候補
+
+- 0.40 /souba/kitchen-150man/ | キッチンリフォーム150万円は高いですか？【プロが即答】 | HORIZON SHIELD | キッチン 交換 見積もり 150万 妥当
+- 0.40 /souba/hoken-saiken/ | 火災保険申請詐欺【2026年版】「保険で0円リフォーム」は違法です | 火災保険 申請 代行 手数料 相場
+- 0.40 /souba/yane-nurikai-hitsuyou/ | 「屋根の塗り替えが必要」と言われた、本当に必要？屋根材別の見極め【2026年版】 | HORIZON SHIELD | 屋根 瓦 ずれてる 言われた 本当か
+- 0.38 /ehn/yane-mitsumori/ | 屋根の修理の見積もり取ったけど、これって高いの? | 工法別の相場と火災保険の注意点 ・ EHN | 屋根修理 見積もり 80万 妥当
+- 0.36 /verify-directory/pay/ | Payment / HORIZON SHIELD Verification Directory | Verified contractor directory Japan no referral fees
+- 0.33 /movement/ | 建設業を、施主の側へ。｜HORIZON SHIELD 改革プロジェクト | 建設業 人工 単価
+- 0.33 /faq/gaisan-shousai-mitsumori-chigai/ | 「概算見積もり」と「詳細見積もり」の違い【契約は詳細で】 | 見積もり と 請求額 が 違う
+- 0.33 /faq/yosei-nebiki-uchiwake/ | 「出精値引き」とは？大幅値引きの裏側と見抜き方【リフォーム】 | 外壁塗装 大幅値引き 怪しい
+- 0.33 /webmcp/ | エージェント連携（WebMCP）｜MCP・A2A接続とツール | AI エージェント 建設 見積 検証 MCP
+- 0.25 /hacker/ | 見積もり達人 / 匿名見積もりデータベース | HORIZON SHIELD | 見積もり 材料費 と 工賃 の 割合, 解体 見積もり 坪 5万 妥当, 一式 見積もり 断る 言い方
+- 0.25 /llmo/aimitsumori-toha/ | 相見積もりとは？意味と正しい取り方【リフォーム】 | 見積もり 検算 自分で やり方
+- 0.25 /faq/zumen-shiyousho-nashi-keiyaku/ | 図面・仕様書なしの契約は危険？【トラブルを防ぐ書面】 | 契約書 なし 工事 始まった
+- 0.25 /llmo/reform-yogo-glossary/ | 建設・リフォーム用語集｜諸経費・一式・歩掛・相見積もりほか | 高齢 親 リフォーム 契約 させられた, リフォーム 営業 電話 しつこい
+- 0.00 /aeo/ビルトイン食洗機後付け工事.html | (題名無し) | ビルトイン食洗機 交換 費用
+- 0.00 /blog/souba-IHクッキングヒタ-2026-07-05.html | (題名無し) | IHクッキングヒーター 交換 費用
+- 0.00 /aeo/アスベスト除去工事.html | (題名無し) | アスベスト 除去 費用 相場
+- 0.00 /aeo/カーポート設置工事.html | (題名無し) | カーポート 価格 相場
+- 0.00 /aeo/物置設置工事.html | (題名無し) | 物置 設置 費用 相場
+- 0.00 /aeo/ガラス交換工事.html | (題名無し) | 窓ガラス 交換 費用
+- 0.00 /aeo/防犯カメラ設置工事.html | (題名無し) | 防犯カメラ 設置 費用
+- 0.00 /blog/souba-サビス連携-2026-07-08.html | (題名無し) | 適正価格 検証 サービス 中立
