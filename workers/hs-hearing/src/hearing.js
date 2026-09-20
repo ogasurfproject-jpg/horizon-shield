@@ -2828,6 +2828,34 @@ export default {
         return json(out);
       }
 
+      /* 2026-09-18 審査に使う見積セットを「これだけ」に差し替える口。
+         append は足すだけで消せない。加盟店が一式でまとめた見積(内訳が読めず落ちる)を
+         審査の分母から外し、明細の揃った本物だけで測り直したいときに要る。
+         中身をでっち上げる口ではない。既にKVに在る本物の見積を、どれで測るかを選ぶ口である。
+         外した見積は profile.edits に記録して残す(何を分母から外したかを後で追える)。
+         採点・自動verifyは既存の appendEstimatesForAudit をそのまま通す(空にしてから足す)。 */
+      if (path === "/admin/set-estimates" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch (_e) { return json({ error: "bad_json" }, 400); }
+        const sid = safeStr(b.store_id, 40);
+        if (!sid) return json({ error: "store_id が必要" }, 400);
+        if (!Array.isArray(b.estimates)) return json({ error: "estimates(配列)が必要" }, 400);
+        const s = await env.HS_HEARING_KV.get("store:" + sid, "json");
+        if (!s) return json({ error: "not_found" }, 404);
+        const rec = await env.HS_HEARING_KV.get("hearing:" + sid, "json");
+        const profile = (rec && rec.profile) || { store_id: sid };
+        const before = Array.isArray(profile.estimates_for_audit) ? profile.estimates_for_audit : [];
+        const beforeKeys = before.map((e) => safeStr(e && e.work, 80) + "|" + safeStr(e && e.amount, 20));
+        // 何を分母から外したかを痕跡に残す(監査可能性: いつ誰がどの見積で測ると決めたか)
+        profile.edits = [...(profile.edits || []),
+          { at: new Date().toISOString(), by: "admin", op: "set-estimates",
+            from_count: before.length, to_count: b.estimates.length,
+            from_keys: beforeKeys.slice(0, 20) }].slice(-20);
+        profile.estimates_for_audit = [];   // 空にしてから、通す本数だけを足し直す
+        await env.HS_HEARING_KV.put("hearing:" + sid, JSON.stringify({ ...(rec || {}), store_id: sid, profile }));
+        const out = await appendEstimatesForAudit(env, sid, b.estimates);
+        return json({ ...out, replaced: true, removed_from_audit: before.length });
+      }
+
       // 2026-09-15: 人の番の名簿を、翌朝の cron を待たずに読む口。読むだけで何も書かない。
       //   日次通知と同じ humanRoster を通すので、ここで見える物と LINE に届く物は同じ。
       if (path === "/admin/roster" && request.method === "GET") {
