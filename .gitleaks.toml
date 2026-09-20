@@ -11,6 +11,9 @@
 # 2026-09-20: TSUGI (recovery-v0) の記録は、扉が公開で配る鍵 (/keys/agreement.json、/keys/witness.json、/keys/operator.json)
 # の sha256 を key_sha256 / prior_key_sha256 として持つ。公開鍵の hash で、秘密やない。generic-api-key が名前の key に
 # 反応して赤になる (incident_20260920_resign_chain.json で 6 件) ので、その欄だけ許す。秘密鍵は運営者の Mac の外に出ん。
+# 2026-09-20: 運営者の公開鍵 (Ed25519、/keys/operator.json で配る公開値、TSUGI Policy Gate の信用アンカー)。
+# executor_test.mjs が OPKEY として持つ (auto でない実行を strict で断る試験の信用集合)。公開鍵で秘密やない。
+# 秘密鍵は運営者の Mac の外に出ん。generic-api-key が名前の KEY 付き代入に反応して赤になるので、この公開値だけ許す。
 title = "horizon-shield gitleaks config"
 
 [extend]
@@ -24,6 +27,7 @@ regexes = [
   "5a6009e4bfe34dc8ae92f6fc93506de4",
   "did:key:z[1-9A-HJ-NP-Za-km-z]{32,}",
   '''"(prior_)?key_sha256":\s*"[0-9a-f]{64}"''',
+  "fqrEpRuYScHz52eeiuAWAFEeJB3T7VtZJlducNIhzZM=",
 ]
 paths = [
   '''workers/hs-ledger/nenrin/task-delegation-bind-v0/t4_fixture\.json''',
