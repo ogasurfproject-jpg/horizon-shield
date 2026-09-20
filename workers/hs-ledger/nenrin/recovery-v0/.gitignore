@@ -1,0 +1,5 @@
+# 診断と提案を書く側 (Shield エージェント) はこの公開ツリーに置かん。手元では動く。
+shield_*.mjs
+week_drifts.jsonl
+proposal*.json
+drift_*.jsonl
