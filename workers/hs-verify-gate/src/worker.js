@@ -37,7 +37,7 @@ import * as nenrin from "./nenrin_instant.js";
 
 // 仕様確定までの暫定値。名称や閾値はここだけ直せば全体に効く。
 const CONFIG = {
-  version: "0.4.9",  // 2026-09-20. 0.4.9: /keys/operator.json の説明文を柱の新名 TSUGI に (旧称 Proof-of-Recovery)。判定規則も status も条件も 1 つも動かさん。0.4.8: 運営者の許可鍵を配る口 /keys/operator.json を足す。判定規則も status も条件も 1 つも動かさん。この口は判定に一切関わらん。Proof-of-Recovery の Policy Gate (nenrin-authorization-v1) は運営者の Ed25519 鍵で署名される。読む側は recovery_verify の strict モードにこの公開鍵を渡し、署名の無い / 信用してない鍵 / 期限切れの許可の後に実行された修復を弾く。agreement.json / witness.json と同じ規律: 未設定なら 404 で「無い」と言う、空を 200 で返さん。秘密鍵はこの Worker に無い、署名は手元 (recovery-v0/authorize.mjs)。発端は 2026-09-19 の Agenstry の指摘から回った最初の回復一周 (recovery_fixture_20260920.json)。あの許可はチャットの「approved」で鍵で署名しとらんかった。v1 の検証器はそれを authorization_unsigned と言う。以後は鍵で閉じ、その鍵をここで配る。 2026-09-11. 0.4.7: conduct-v1.3 を配る。判定規則も status も条件も 1 つも動かさん。この扉は歩く側やないから、動きは 1 バイトも変わっとらん。変わるんは「配っとる仕様の本文」と「公開しとる assertion の一覧」の 2 つだけや。中身は 2 点。(1) 402 Payment Required は答えであって沈黙やない。v1 の 4 節は measured_endpoint_answered を「status 200」だけで定義しとったから、自分の card の宣言どおりに金を要求した endpoint が、壊れた endpoint と同じ 1 つの結果に落ちとった。設計上の判断と故障が、記録の上で区別が付かん。歩きは絶対に払たらあかん(払た witness は歩いた相手と金銭関係を持つ = この層が開示させる当のもの)ので、402 は n/a にして、新しい主張 payment_required_as_declared が起きた事を書く。宣言せずに課金しとったら FAIL や。この行が無かったら「全部 402 で返せば二度と測られん」が成立する。(2) compensation_well_formed が拡張の話をやめる。今までは拡張が無いだけで「宣言が壊れとる」と書き、証拠として capabilities.extensions の文を貼っとった。違う 2 つの問いに 1 つの答えを出しとった。どっちの穴も fixture では永遠に出ん。手元の偽 agent が全部 無料で全部 宣言済みやったからで、実在の agent(api.babyblueviper.com)を 1 枚歩いて初めて出た。新 spec sha 25f3e3efaf2e3cf208537d1d1fb4dd4559c90b8c379e679b4fd1eec9faa086a1。仕様・扉の一覧・歩きの実装の 3 箇所がこの一覧を持っとるのに、一致を見張る物が 1 つも無かった。walk_selftest の d01/d02/d03 がそれや。d03 は名前やのうて定義を突き合わせる。今回の本体は定義のズレやったから、名前だけ見る見張りは緑のまま通り抜けとった。 0.4.6: 合意記録の署名鍵を配る口 /keys/agreement.json を足す。判定規則も status も条件も 1 つも動かさん。この口は判定に一切関わらん。a2a-agreement-v1.1 の記録は鍵を署名バイトの中に持つから、検証にこの URL は要らん。効くのは「その鍵はその当事者が自分のドメインで配っとる鍵か」という帰属の主張だけや。鍵が未設定なら 404 で「無い」と言う。空の値を 200 で返したら、読む側は「鍵が違う」と判断してまう。「無い」と「空」は違う。秘密鍵はこの Worker に無い。署名は手元でやる。 2026-09-10. 0.4.5: 帰属の行に「鍵が相手のドメインの下にあること」を要求する。0.4.4 は署名が verify しさえすれば「運営者に帰属する」と書いとった。jku が他所のホストでも書いとった。それは嘘や。この行の存在理由は「TLS は取った瞬間しか押さえん、署名が効くのは持ち出した時と時間が経った時」やのに、鍵が第三者のサーバにあったら、その第三者が鍵を消せば帰属は消えるし、運営者はいつでも否認できる。転送に耐える著者性という肝心の性質が立っとらん。さらに悪いのは、自ドメインの署名が verify せんかった card でも、他所の署名が 1 本 verify すれば帰属しとった(実測で確認)。同じ日に合意記録層では key_url が自分のドメインの下に無ければ拒否しとる。片方で拒否して片方で帰属させとった。直しは 3 状態: 自ドメインの鍵で verify = 帰属、自ドメインの署名が false = 帰属せん(理由を書く)、他所の鍵でだけ verify = 帰属せん(鍵の場所を名指しして書く)。判定も status も条件も 1 つも動かさん。動くのは「この記録が何を証明するか」だけ。この穴は test/attributability.test.mjs の 1 本を control(正しい振る舞い)として固定してしもとった。attack に直した。0.4.4: 署名の有無を establishes / does_not_establish に効かせる。合否は動かさん(条件も赤も増えん)。動かすのは「この記録が何を証明するか」。無署名の card = その宣言は持ち出せん = 登録簿の行は相手の言葉やなく この扉の観測に帰属するだけで、相手はいつでも否認できる。うちの看板は「信用が要らん」やのに、無署名の相手の行は読む側が うちを信用するしかない状態やった。その差を記録に書いてなかったのは相手の穴やなく うちの穴。署名が verify したら宣言は運営者に帰属する = この扉が消えても意味が残る。0.4.3: 拡張の永続識別子(w3id.org)を読む側で認める。perma-id/w3id.org#6653 が merge され https://w3id.org/horizonshield/conduct/v1 が 302 で扉の URI に解決するようになった。A2A 本家の拡張ガイダンスが perma-id を推しとるので、それに従って書かれた card を黙って「宣言無し」に落とすわけにいかん。識別子は 1 本のまま(v1 は今までの文字列)、綴りは閉じた 2 本の一覧で完全一致、どっちで宣言されたかは判定のバイトに必ず書く。check の最中に redirect は叩かん。判定規則の変更はこれ 1 点(読む場所が 1 つ増える。求める形は 5 鍵のまま)。0.4.2: 判定に number_safety を入れる(判定自身のバイトの中の数値が全部 RFC 7493 の安全域の整数か。条件07 が測る相手の表面に課しとる規則を、扉自身の出力に課す。Federico Blanco Sanchez-Llanos が 2026-09-09 に payments 側から公開した同じ型: 精度はパースの時点で失われるので散文では間に合わん)。欄は数値を 1 つも持たんので、足しても答えは変わらん。hash の手順は不変。0.4.1: 掃引の判定は hash 対象のバイトそのものを KV に保存し、GET /record/<record_sha256> でそのまま配る(SEP-1913 で vaaraio が /is-verified の投影を 1024 通り直列化しても再現できんかった件。公開しとった sha のバイトは掃引では保存しとらんかった。recompute_url は /history を指しとった)。判定規則と hash の手順は不変。0.4.0 (conduct-v1.1): 判定と /self に establishes / does_not_establish を入れて hash に含める(Federico の 2026-09-07 の指摘: 「正しさは判定しとらん」の断りが落とせて conformance は通っとった)。塩の commitment を掃引ごとに台帳の witness intake へ commitment 型記録で錨打ち(窓ごとに 1 回、/nenrin/window に commitment_filed)。GET /register/lookup(verified/pending/declined/unknown + 先月の輪の数 + 証明せん物、24h cache)。well-known の notify / identity / witness_policy を読む(掃引後に notify へ POST、1 時間 1 回、/check からは飛ばさん)。判定規則は 0.3.0 のまま。0.3.5 (2026-09-06): 時刻座標の本番と設計のズレを直す(履歴に coordinate_derivation を残す、次の窓の salt を先に作り beacon は salt より後の block に限る、基準高さは quorum 番目の tip - 6 で hash の一致だけを要求、窓ごとに規則を固定、GET /nenrin/window で commitment を公開。判定規則は 0.3.0 のまま)。0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
+  version: "0.4.10",  // 2026-09-20. 0.4.10: TSUGI の隔離の口 POST /register/quarantine (運営のみ、提案 hash 必須、解除も記録)。隔離中の行は掃引で測らん、lookup と /register は quarantined と言う。判定規則も status の意味も条件も動かさん: 隔離は停止であって所見やない。0.4.9: /keys/operator.json の説明文を柱の新名 TSUGI に (旧称 Proof-of-Recovery)。判定規則も status も条件も 1 つも動かさん。0.4.8: 運営者の許可鍵を配る口 /keys/operator.json を足す。判定規則も status も条件も 1 つも動かさん。この口は判定に一切関わらん。Proof-of-Recovery の Policy Gate (nenrin-authorization-v1) は運営者の Ed25519 鍵で署名される。読む側は recovery_verify の strict モードにこの公開鍵を渡し、署名の無い / 信用してない鍵 / 期限切れの許可の後に実行された修復を弾く。agreement.json / witness.json と同じ規律: 未設定なら 404 で「無い」と言う、空を 200 で返さん。秘密鍵はこの Worker に無い、署名は手元 (recovery-v0/authorize.mjs)。発端は 2026-09-19 の Agenstry の指摘から回った最初の回復一周 (recovery_fixture_20260920.json)。あの許可はチャットの「approved」で鍵で署名しとらんかった。v1 の検証器はそれを authorization_unsigned と言う。以後は鍵で閉じ、その鍵をここで配る。 2026-09-11. 0.4.7: conduct-v1.3 を配る。判定規則も status も条件も 1 つも動かさん。この扉は歩く側やないから、動きは 1 バイトも変わっとらん。変わるんは「配っとる仕様の本文」と「公開しとる assertion の一覧」の 2 つだけや。中身は 2 点。(1) 402 Payment Required は答えであって沈黙やない。v1 の 4 節は measured_endpoint_answered を「status 200」だけで定義しとったから、自分の card の宣言どおりに金を要求した endpoint が、壊れた endpoint と同じ 1 つの結果に落ちとった。設計上の判断と故障が、記録の上で区別が付かん。歩きは絶対に払たらあかん(払た witness は歩いた相手と金銭関係を持つ = この層が開示させる当のもの)ので、402 は n/a にして、新しい主張 payment_required_as_declared が起きた事を書く。宣言せずに課金しとったら FAIL や。この行が無かったら「全部 402 で返せば二度と測られん」が成立する。(2) compensation_well_formed が拡張の話をやめる。今までは拡張が無いだけで「宣言が壊れとる」と書き、証拠として capabilities.extensions の文を貼っとった。違う 2 つの問いに 1 つの答えを出しとった。どっちの穴も fixture では永遠に出ん。手元の偽 agent が全部 無料で全部 宣言済みやったからで、実在の agent(api.babyblueviper.com)を 1 枚歩いて初めて出た。新 spec sha 25f3e3efaf2e3cf208537d1d1fb4dd4559c90b8c379e679b4fd1eec9faa086a1。仕様・扉の一覧・歩きの実装の 3 箇所がこの一覧を持っとるのに、一致を見張る物が 1 つも無かった。walk_selftest の d01/d02/d03 がそれや。d03 は名前やのうて定義を突き合わせる。今回の本体は定義のズレやったから、名前だけ見る見張りは緑のまま通り抜けとった。 0.4.6: 合意記録の署名鍵を配る口 /keys/agreement.json を足す。判定規則も status も条件も 1 つも動かさん。この口は判定に一切関わらん。a2a-agreement-v1.1 の記録は鍵を署名バイトの中に持つから、検証にこの URL は要らん。効くのは「その鍵はその当事者が自分のドメインで配っとる鍵か」という帰属の主張だけや。鍵が未設定なら 404 で「無い」と言う。空の値を 200 で返したら、読む側は「鍵が違う」と判断してまう。「無い」と「空」は違う。秘密鍵はこの Worker に無い。署名は手元でやる。 2026-09-10. 0.4.5: 帰属の行に「鍵が相手のドメインの下にあること」を要求する。0.4.4 は署名が verify しさえすれば「運営者に帰属する」と書いとった。jku が他所のホストでも書いとった。それは嘘や。この行の存在理由は「TLS は取った瞬間しか押さえん、署名が効くのは持ち出した時と時間が経った時」やのに、鍵が第三者のサーバにあったら、その第三者が鍵を消せば帰属は消えるし、運営者はいつでも否認できる。転送に耐える著者性という肝心の性質が立っとらん。さらに悪いのは、自ドメインの署名が verify せんかった card でも、他所の署名が 1 本 verify すれば帰属しとった(実測で確認)。同じ日に合意記録層では key_url が自分のドメインの下に無ければ拒否しとる。片方で拒否して片方で帰属させとった。直しは 3 状態: 自ドメインの鍵で verify = 帰属、自ドメインの署名が false = 帰属せん(理由を書く)、他所の鍵でだけ verify = 帰属せん(鍵の場所を名指しして書く)。判定も status も条件も 1 つも動かさん。動くのは「この記録が何を証明するか」だけ。この穴は test/attributability.test.mjs の 1 本を control(正しい振る舞い)として固定してしもとった。attack に直した。0.4.4: 署名の有無を establishes / does_not_establish に効かせる。合否は動かさん(条件も赤も増えん)。動かすのは「この記録が何を証明するか」。無署名の card = その宣言は持ち出せん = 登録簿の行は相手の言葉やなく この扉の観測に帰属するだけで、相手はいつでも否認できる。うちの看板は「信用が要らん」やのに、無署名の相手の行は読む側が うちを信用するしかない状態やった。その差を記録に書いてなかったのは相手の穴やなく うちの穴。署名が verify したら宣言は運営者に帰属する = この扉が消えても意味が残る。0.4.3: 拡張の永続識別子(w3id.org)を読む側で認める。perma-id/w3id.org#6653 が merge され https://w3id.org/horizonshield/conduct/v1 が 302 で扉の URI に解決するようになった。A2A 本家の拡張ガイダンスが perma-id を推しとるので、それに従って書かれた card を黙って「宣言無し」に落とすわけにいかん。識別子は 1 本のまま(v1 は今までの文字列)、綴りは閉じた 2 本の一覧で完全一致、どっちで宣言されたかは判定のバイトに必ず書く。check の最中に redirect は叩かん。判定規則の変更はこれ 1 点(読む場所が 1 つ増える。求める形は 5 鍵のまま)。0.4.2: 判定に number_safety を入れる(判定自身のバイトの中の数値が全部 RFC 7493 の安全域の整数か。条件07 が測る相手の表面に課しとる規則を、扉自身の出力に課す。Federico Blanco Sanchez-Llanos が 2026-09-09 に payments 側から公開した同じ型: 精度はパースの時点で失われるので散文では間に合わん)。欄は数値を 1 つも持たんので、足しても答えは変わらん。hash の手順は不変。0.4.1: 掃引の判定は hash 対象のバイトそのものを KV に保存し、GET /record/<record_sha256> でそのまま配る(SEP-1913 で vaaraio が /is-verified の投影を 1024 通り直列化しても再現できんかった件。公開しとった sha のバイトは掃引では保存しとらんかった。recompute_url は /history を指しとった)。判定規則と hash の手順は不変。0.4.0 (conduct-v1.1): 判定と /self に establishes / does_not_establish を入れて hash に含める(Federico の 2026-09-07 の指摘: 「正しさは判定しとらん」の断りが落とせて conformance は通っとった)。塩の commitment を掃引ごとに台帳の witness intake へ commitment 型記録で錨打ち(窓ごとに 1 回、/nenrin/window に commitment_filed)。GET /register/lookup(verified/pending/declined/unknown + 先月の輪の数 + 証明せん物、24h cache)。well-known の notify / identity / witness_policy を読む(掃引後に notify へ POST、1 時間 1 回、/check からは飛ばさん)。判定規則は 0.3.0 のまま。0.3.5 (2026-09-06): 時刻座標の本番と設計のズレを直す(履歴に coordinate_derivation を残す、次の窓の salt を先に作り beacon は salt より後の block に限る、基準高さは quorum 番目の tip - 6 で hash の一致だけを要求、窓ごとに規則を固定、GET /nenrin/window で commitment を公開。判定規則は 0.3.0 のまま)。0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
   tier_pass: "verified",        // 通過時の称号(暫定)
   tier_fail: "pending",         // 未通過(不合格とは呼ばない)
   tier_held: "held",            // 到達できず測れなかった。不適合とは別の状態
@@ -86,7 +86,7 @@ const CARD_SIGNATURE = {
   "jku": "https://gate.horizonshield.dev/.well-known/jwks.json",
   "alg": "ES256",
   "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJocy0yMDI2LTA5Iiwiamt1IjoiaHR0cHM6Ly9nYXRlLmhvcml6b25zaGllbGQuZGV2Ly53ZWxsLWtub3duL2p3a3MuanNvbiJ9",
-  "signature": "BTC1jpjcllZvWMWA0f6Q5_pqTEAHe81fktbJNd5Z7zI9u-9jHIYkVKbCaRPF8DEPkBKsZBkS5h0zKTpHkLauyg",
+  "signature": "Uyf_QpHQ4nFf_iITXr0UHBb2MFCF3EkTeMQJl8CAOT9ANdb5LJoZ-D8rwyWMGHcb5V7ENQdy7wLNfWmJA9cKmg",
   "jwk": {
     "kty": "EC",
     "x": "CytwnuXFtXi7PFCcF-TCbvW5OgOg4KuWRLeRvdfHWLs",
@@ -96,7 +96,7 @@ const CARD_SIGNATURE = {
     "alg": "ES256",
     "use": "sig"
   },
-  "canonical_sha256": "af52da2f74fb4f2ead4d1f2ed46a2a57c124777aafce625364958215761b06e3"
+  "canonical_sha256": "98fc0fa773463e844a1dd6e111a3362bc76acb9192a73f1e343ec59b9fd3c58b"
 };
 /* @@CARD_SIGNATURE_END */
 const CARD_CANONICAL_ORIGIN = "https://gate.horizonshield.dev";
@@ -2107,6 +2107,13 @@ async function readRegistry(env) {
   catch (_e) { return {}; }
 }
 
+// 0.4.10 TSUGI. 隔離中か。until が在って過ぎとったら隔離は切れとる (切れた事実は行に残る)。
+function isQuarantined(row, nowIso) {
+  if (!row || !row.quarantined) return false;
+  const u = row.quarantined.until;
+  return !(typeof u === "string" && u && u <= (nowIso || new Date().toISOString()));
+}
+
 // 0.3.1. 断った/撤回した事実を登録簿の行に書く。変わった時だけ書く(KV の書き込みは掃引ごとに 8 回で足りる)。
 async function markDeclined(env, endpoint, declined) {
   const reg = await readRegistry(env);
@@ -2598,6 +2605,7 @@ const ENVELOPE_DNE_FALLBACK = [
   "conditions not measured on the latest run, other instants, other vantages"
 ];
 function envelopeStatus(row) {
+  if (row.quarantined && row.quarantined.active) return "quarantined";
   if (row.owner_declined) return "declined";
   if (!row.latest || !row.latest.status) return "pending";
   return row.latest.status === CONFIG.tier_pass ? "verified" : "pending";
@@ -2767,6 +2775,8 @@ async function publicRegister(env) {
     const lbl = OPERATOR_LABELS[w.endpoint];
     if (lbl) row.operator_label = lbl;
     row.requested_by = w.requested_by || "unrecorded (row added before 0.3.1)";
+    if (w.quarantined) row.quarantined = { since: w.quarantined.since, proposal_sha256: w.quarantined.proposal_sha256, ...(w.quarantined.until ? { until: w.quarantined.until } : {}), active: isQuarantined(w), effect: "not measured and no verdict served while active; a stop, not a finding (TSUGI, gate 0.4.10)" };
+    if (w.quarantine_lifted) row.quarantine_lifted = { at: w.quarantine_lifted.at, proposal_sha256: w.quarantine_lifted.proposal_sha256 };
     if (w.owner_declined_at) row.owner_declined = { since: w.owner_declined_at, how: CONSENT_WELL_KNOWN_PATH + " on the origin sets listing to decline", effect: "not measured while the file says so; no verdict exists for this row" };
     row.tool_call_consent = TOOL_CALL_CONSENT.has(w.endpoint);
     if (joined < REGISTER_JOIN_MAX) {
@@ -2886,7 +2896,9 @@ async function watchlist(env) {
     const r = reg[ep] || {};
     push(ep, r.tier === "paid" ? "paid" : "free", r.webhook || null, {
       requested_by: r.requested_by || "unrecorded (row added before 0.3.1)",
-      owner_declined_at: r.owner_declined_at || null
+      owner_declined_at: r.owner_declined_at || null,
+      quarantined: r.quarantined || null,
+      quarantine_lifted: r.quarantine_lifted || null
     });
   }
   return out;
@@ -3285,7 +3297,11 @@ async function runDailySweep(env, opts) {
 
   const due = [];
   const skipped = [];
+  // 0.4.10 TSUGI. 運営者が隔離した行は測らん。順番に並べる前に外す (席を食わん)。止めた事実と、何を引いて止めたか (提案の hash) を残す。
+  const qreg = await readRegistry(env);
   for (const w of list) {
+    const qrow = qreg[w.endpoint];
+    if (isQuarantined(qrow)) { skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "quarantined by the operator under TSUGI since " + qrow.quarantined.since + " citing proposal " + String(qrow.quarantined.proposal_sha256).slice(0, 16) + ": not measured and no verdict served while quarantined. A quarantine is a stop, not a finding." }); continue; }
     if (force || (await isDueToday(w.endpoint, w.tier, now, coord))) due.push(w);
     else skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: cadenceNote });
   }
@@ -3888,7 +3904,10 @@ async function registerLookup(env, endpoint, nowMs, fetchImpl) {
   const row = reg[endpoint] || null;
   const latest = lu.on_register ? (lu.latest || null) : null;
   let status, meaning;
-  if (row && row.owner_declined_at) {
+  if (row && isQuarantined(row, new Date(now).toISOString())) {
+    status = "quarantined";
+    meaning = "The operator quarantined this row under TSUGI (proof of recovery) on " + row.quarantined.since + ", citing proposal " + row.quarantined.proposal_sha256 + (row.quarantined.until ? ", until " + row.quarantined.until : "") + ". While quarantined the sweep does not measure it and no verdict is served for it. A quarantine is a stop, not a finding: it establishes that the operator stopped, and the cited proposal says why; it does not establish that the endpoint misbehaved.";
+  } else if (row && row.owner_declined_at) {
     status = "declined";
     meaning = "The owner placed listing: decline in " + CONSENT_WELL_KNOWN_PATH + " on the origin. The row stays and says so; nothing has been measured since " + row.owner_declined_at + ". Declining is a right, not a finding.";
   } else if (!lu.on_register) {
@@ -3927,6 +3946,8 @@ async function registerLookup(env, endpoint, nowMs, fetchImpl) {
     measurements: lu.on_register ? (lu.measurements || 0) : 0,
     first_measured_at: lu.on_register ? (lu.first_measured_at || null) : null,
     owner_declined_at: row && row.owner_declined_at ? row.owner_declined_at : null,
+    quarantined: row && row.quarantined ? row.quarantined : null,
+    quarantine_lifted: row && row.quarantine_lifted ? row.quarantine_lifted : null,
     declared: row && row.declared ? Object.assign({}, row.declared, { read_at: row.declared_read_at || null, note: "copied from the owner's consent file at the last sweep; declared, not verified" }) : null,
     last_ring: ring,
     conduct_record: historyUrl,
@@ -4778,6 +4799,45 @@ export default {
           ? "The owner of this origin declines measurement (" + CONSENT_WELL_KNOWN_PATH + " sets listing to decline). The row stays on the register and says declined; no verdict will be produced while the file says so."
           : "The verdict is identical for every tier and free to read for anyone. Paying changes the cadence and the alert, never the result. The owner of the origin can decline measurement at any time by publishing listing: decline in " + CONSENT_WELL_KNOWN_PATH + "."
       });
+    }
+
+    // 0.4.10 TSUGI. 隔離 (quarantine_endpoint): カタログ 5 本のうち唯一の自動承認プリミティブ。運営のみ、提案の hash 必須、理由必須。
+    // 隔離中の行は掃引で測らん、判定を配らん、lookup と /register は quarantined と言う。解除 (lift) も同じ口で、記録に残る。
+    // 止める方向は常に安全側 (設計書 4.3)。隔離は停止であって所見やない。自前の行 (source の DEFAULT_WATCHLIST) は隔離できん。
+    if (path === "/register/quarantine" && request.method === "POST") {
+      if (!env || !env.SWEEP_TOKEN) return json({ error: "sweep_token_not_configured" }, 503);
+      if (!(await ctEqual(request.headers.get("x-sweep-token") || "", env.SWEEP_TOKEN))) return json({ error: "forbidden" }, 403);
+      let body;
+      try { body = await request.json(); } catch (_e) { return json({ error: "invalid_json" }, 400); }
+      const ep = body && body.endpoint;
+      const psha = body && body.proposal_sha256;
+      const asha = body && body.authorization_sha256;
+      const reason = body && body.reason;
+      const until = body && body.until;
+      const lift = !!(body && body.lift === true);
+      if (typeof ep !== "string" || !/^https:\/\/[^\s]+$/.test(ep)) return json({ error: "endpoint_required" }, 400);
+      if (typeof psha !== "string" || !/^[0-9a-f]{64}$/.test(psha)) return json({ error: "proposal_sha256_required", note: "a quarantine cites the nenrin-repair-proposal-v1 record that asked for it; without one it is an unexplained stop" }, 400);
+      if (asha !== undefined && !(typeof asha === "string" && /^[0-9a-f]{64}$/.test(asha))) return json({ error: "bad_authorization_sha256" }, 400);
+      if (typeof reason !== "string" || reason.trim().length < 8) return json({ error: "reason_required" }, 400);
+      if (until !== undefined && !(typeof until === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/.test(until))) return json({ error: "bad_until", note: "until is ISO-8601 UTC ending in Z, or absent" }, 400);
+      const reg = await readRegistry(env);
+      const row = reg[ep];
+      if (!row) return json({ error: "not_on_register", note: "quarantine applies to rows on the register; an unknown endpoint has nothing to stop" }, 404);
+      const at = new Date().toISOString();
+      if (lift) {
+        if (!row.quarantined) return json({ error: "not_quarantined" }, 409);
+        row.quarantine_lifted = { at, proposal_sha256: psha, ...(asha ? { authorization_sha256: asha } : {}), reason: reason.trim(), was: row.quarantined };
+        delete row.quarantined;
+      } else {
+        row.quarantined = { since: at, proposal_sha256: psha, ...(asha ? { authorization_sha256: asha } : {}), reason: reason.trim(), ...(until ? { until } : {}) };
+        delete row.quarantine_lifted;
+      }
+      const ok = await writeRegistry(env, reg);
+      if (!ok) return json({ error: "registry_write_failed" }, 500);
+      return json({ ok: true, endpoint: ep, quarantined: row.quarantined || null, quarantine_lifted: row.quarantine_lifted || null, at, gate_commit: gateCommit(),
+        effect: lift ? "the row is measured again from the next sweep; the lift is recorded on the row" : "not measured and no verdict served while quarantined; lookup answers quarantined; the sweep records the skip",
+        establishes: [lift ? "the operator lifted the quarantine at " + at + " citing proposal " + psha : "the operator quarantined this endpoint at " + at + " citing proposal " + psha],
+        does_not_establish: ["that the endpoint misbehaved: a quarantine is a stop, not a finding", "why: that is the cited proposal's diagnosis"] });
     }
 
     // 0.3.1. 行を外す。運営のみ、理由必須、墓標は公開(/watchlist と /register の removed)。

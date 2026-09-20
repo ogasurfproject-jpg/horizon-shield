@@ -166,7 +166,7 @@ t("control", "exactly one attributability line is added, never both", (() => {
 })(), JSON.stringify(v.does_not_establish));
 
 const spec = await (await worker.fetch(new Request(O + "/spec"), ENV, CTX)).json();
-t("control", "/health and /spec report 0.4.9", spec.version === "0.4.9" && (await (await worker.fetch(new Request(O + "/health"), ENV, CTX)).json()).gate_version === "0.4.9", JSON.stringify(spec.version));
+t("control", "/health and /spec report 0.4.10", spec.version === "0.4.10" && (await (await worker.fetch(new Request(O + "/health"), ENV, CTX)).json()).gate_version === "0.4.10", JSON.stringify(spec.version));
 
 const passed = R.filter((r) => r.ok).length;
 const by = (k) => R.filter((r) => r.kind === k);
