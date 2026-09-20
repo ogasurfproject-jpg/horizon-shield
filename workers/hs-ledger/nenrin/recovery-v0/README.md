@@ -31,6 +31,7 @@ HORIZON SHIELD 第2の柱 TSUGI (継)。検証の次に置く、回復を証明�
 | executor_test.mjs | suite | 偽の扉で一周。auto の許可 (署名無し) が strict の検証器で通る、他のプリミティブは断る、token 違い、register に無い endpoint、解除 |
 | recovery_twin_test.py | suite | 双子の採点。fixture の 7 記録が python と node で byte 一致、python 署名を node が検証 (cross-language)、python の籤が node と同じ k 人を出す |
 | baseline_20260920.jsonl | 表 | 直った扉に対する証人の最初の走り。7 表面、0 drift。v1 の「前回」 |
+| external_attestation.mjs | library (CLI, network) | 第三者の公開観測 (Agenstry の API など) の bytes を sha256 で JIDEC に錨打ちする seed を作る。相手はうちの型で署名せんので witness-observation にはせん (11.4 の witness_unsigned が正しい)。「この URL がこの時刻にこの bytes を配り、中の欄はこうやった」を運営者の hash として残す。定足数には数えん |
 | run_all.mjs | runner | agreement-v0 と同じ物。名乗っとらん file が 1 つでも有れば断る。8 suite |
 
 ## 回し方

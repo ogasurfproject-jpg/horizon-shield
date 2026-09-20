@@ -1,5 +1,5 @@
 #!/bin/bash
-# deploy_gate.sh — 扉を、コミットの身元つきでデプロイする (2026-08-15)
+# deploy_gate.sh: 扉を、コミットの身元つきでデプロイする (2026-08-15)
 #
 # なぜこのスクリプトを通すのか:
 #   判定の gate_commit は「どのバイト列のコードがこの判定を出したか」を
@@ -80,7 +80,37 @@ npx wrangler deploy --var GATE_COMMIT:"$SHA" --var OPENAI_APPS_CHALLENGE:"$CHALL
 # 2026-09-20 TSUGI: 撒いた commit を repo の外に残す。日次の証人 (ops/run_drift_witness_daily.sh) が --expect-commit に使う。
 # これが無いと証人は「ピンされとるか」しか見られず、「今日撒いた物か」が見られん。
 mkdir -p "$HOME/.config/hs" && printf '%s\n' "$SHA" > "$HOME/.config/hs/last_gate_commit.txt"
+
+# 2026-09-20 TSUGI (deploy 後の門)。撒いた直後に、本番が本当にこの commit を配っとるか、そして配っとる card の
+# 署名が公式 A2A SDK で verify するかを、この場で確かめる。日次の証人は一日一回しか見ん。
+# deploy 直後は edge がまだ前の版を配っとる事がある (2026-09-20 の証人がそれを捕まえた: 撒いた 30 秒後に
+# 0.4.9 を観測して commit_mismatch を出した) ので、gate_commit が一致するまで待ってから card を見る。
+# ここで落ちても commit は撒けとる (last_gate_commit.txt は正しい)。落ちたんは「配っとる物が壊れとる」の報せや。
 echo ""
-echo "確認:"
-echo "  curl -s https://gate.horizonshield.dev/health"
-echo "  gate_commit が $SHA なら成功。"
+echo "本番の確認: /health の gate_commit が $SHA になるまで待つ (最大 90 秒)"
+SERVED=""
+for i in $(seq 1 18); do
+  H=$(mktemp)
+  curl -s -m 15 -H "Cache-Control: no-cache" -o "$H" "https://gate.horizonshield.dev/health?deploy_check=$(date +%s)" || true
+  SERVED=$(node -e 'try{const j=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));process.stdout.write(String(j.gate_commit||""))}catch(e){}' "$H" || true)
+  rm -f "$H"
+  if [ "$SERVED" = "$SHA" ]; then break; fi
+  sleep 5
+done
+if [ "$SERVED" != "$SHA" ]; then
+  echo "★ 本番が撒いた commit を配っとらん: served=${SERVED:-(取れず)} expected=$SHA"
+  echo "   deploy は上がっとるが edge が切り替わっとらんか、別の物が本番に居る。手で /health を見ろ。"
+  exit 1
+fi
+echo "  gate_commit 一致: $SHA"
+EXPECT_VERSION=$(node -e 'console.log(require("./server.json").version)')
+echo "本番の card 署名を公式 @a2a-js/sdk で検証 (version $EXPECT_VERSION を期待)"
+if ! node verify_live_card.mjs --expect-version "$EXPECT_VERSION"; then
+  echo "★ 本番の card が verify せん。commit は撒けとる (last_gate_commit.txt は $SHA) が、配信 card が壊れとる。"
+  echo "   version を上げて署名し直しとらんのが典型。再署名して deploy し直せ:"
+  echo "     node ../a2a-card-sign/sign.mjs --worker src/worker.js --origin https://gate.horizonshield.dev --key ~/.hs_card_key.pem --kid hs-2026-09"
+  exit 1
+fi
+echo ""
+echo "deploy 完了: commit $SHA を配っとって、card は公式 SDK で verify した。"
+echo "  次は証人: bash ../../ops/run_drift_witness_daily.sh   (0 drift のはず)"

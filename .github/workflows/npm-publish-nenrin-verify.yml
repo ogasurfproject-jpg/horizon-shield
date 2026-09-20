@@ -1,0 +1,72 @@
+name: npm publish nenrin-verify (provenance)
+
+# nenrin-verify を npm に、SLSA provenance 付きで出す。
+# なぜ CI から出すか: 2026-09-20 に 0.2.0 を運営者のラップトップから出した。それやと「npm の verifier が
+# 監査した GitHub の source と同じ物か」を tarball の hash でしか結べん。ここから出すと npm が
+# GitHub OIDC で「この commit のこの workflow がこの tarball を作った」を署名して残す (provenance attestation)。
+# 読む側は npm audit signatures か、npm view の attestations で確かめられる。
+#
+# 認証は npm の Trusted Publishing (GitHub OIDC)。長期 token は置かん。一度だけ npmjs.com で設定が要る:
+#   package nenrin-verify -> Settings -> Trusted Publisher -> GitHub Actions
+#   owner: ogasurfproject-jpg / repository: horizon-shield / workflow: npm-publish-nenrin-verify.yml / environment: (空)
+# それまでは publish が E401/E404 で止まる。止まるだけで何も出ん。
+#
+# 使い方: Actions -> npm publish nenrin-verify (provenance) -> Run workflow -> version に出す版 (package.json と同じ物)。
+# 版を上げるのはこの workflow の仕事やない。sdk/package.json を上げて commit して push してから、ここを叩く。
+# そうすると attestation が指す commit が、その版の source そのものになる。
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "出す版。workers/hs-ledger/nenrin/sdk/package.json の version と同じでないと止まる"
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: npm-publish-nenrin-verify
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: workers/hs-ledger/nenrin/sdk
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Guard, the version named is the version in the tree and is not on npm yet
+        env:
+          WANT: ${{ github.event.inputs.version }}
+        run: |
+          HAVE=$(node -e 'console.log(require("./package.json").version)')
+          echo "tree: $HAVE   asked: $WANT"
+          if [ "$HAVE" != "$WANT" ]; then echo "refuse: package.json is $HAVE, you asked for $WANT. Bump and commit first."; exit 1; fi
+          if npm view "nenrin-verify@$WANT" version >/dev/null 2>&1; then echo "refuse: nenrin-verify@$WANT is already on npm. Bump."; exit 1; fi
+          echo "npm $(npm --version), node $(node --version)"
+
+      - name: Prove the bundles are what this commit builds (byte identity, offline)
+        run: |
+          node nenrin_verify.test.mjs
+          node tsugi_verify.test.mjs
+
+      - name: Publish with provenance (Trusted Publishing, GitHub OIDC)
+        run: npm publish --provenance --access public
+
+      - name: Verify the attestation landed
+        env:
+          WANT: ${{ github.event.inputs.version }}
+        run: |
+          echo "published:"; npm view "nenrin-verify@$WANT" version dist.integrity dist.tarball
+          T=$(mktemp -d); cd "$T"; npm init -y >/dev/null 2>&1
+          npm install --ignore-scripts "nenrin-verify@$WANT" >/dev/null 2>&1
+          echo "provenance check (npm audit signatures):"
+          npm audit signatures

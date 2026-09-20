@@ -40,6 +40,21 @@ re-running is deterministic. nenrin_verify.test.mjs runs identical inputs throug
 the original modules and asserts the verifyProvenance report and the consumeEvidence projection are byte for
 byte identical, then runs the CLI on a real did:key bundle offline. Run: node nenrin_verify.test.mjs
 
+## Provenance (from 0.2.1): the npm tarball is tied to the commit that built it
+From 0.2.1 the package is published by the GitHub Actions workflow
+.github/workflows/npm-publish-nenrin-verify.yml with npm provenance (SLSA attestation signed through
+GitHub OIDC, recorded by the npm registry and Sigstore). The workflow refuses to publish unless
+nenrin_verify.test.mjs and tsugi_verify.test.mjs pass on that checkout, and those tests rebuild both
+single files from the pinned modules and assert byte identity, so the attestation names a commit whose
+source really builds these bytes. Check it yourself, no trust in the operator needed:
+
+    npm view nenrin-verify@0.2.1 dist.attestations   # the attestation the registry holds
+    npm install nenrin-verify@0.2.1 && npm audit signatures   # verifies registry signature and provenance
+
+Honest note: 0.1.0 and 0.2.0 were published from the operator's laptop and carry no attestation.
+0.2.1 ships the same nenrin_verify.mjs and tsugi_verify.mjs bytes as 0.2.0; the difference is the
+attestation. A reader who needs the chain closed (commit to tarball) uses 0.2.1 or later.
+
 ## tsugi_verify.mjs (0.2.0): verify a TSUGI recovery chain yourself, in one file
 
 TSUGI (継) is the second pillar: proof of recovery. A chain is drift records, one proposal from a closed repair

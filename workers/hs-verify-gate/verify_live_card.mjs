@@ -4,6 +4,7 @@
 // 走らせ方 (本番): node workers/hs-verify-gate/verify_live_card.mjs
 //        (別 origin): CARD_ORIGIN=https://... node workers/hs-verify-gate/verify_live_card.mjs
 //        (offline 試験): node workers/hs-verify-gate/verify_live_card.mjs --card card.json --jwks jwks.json
+//        (deploy 門): node workers/hs-verify-gate/verify_live_card.mjs --expect-version 0.4.10   (server.json の version と一致せんと INVALID)
 import { createRequire } from "node:module";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import { readFileSync } from "node:fs";
@@ -33,6 +34,11 @@ const sha = async (s) => [...new Uint8Array(await crypto.subtle.digest("SHA-256"
 const sigs = Array.isArray(card.signatures) ? card.signatures : [];
 if (!sigs.length) { console.log("INVALID  the live card carries no signatures (" + whereCard + ")"); process.exit(1); }
 let kid = "?"; try { kid = JSON.parse(Buffer.from(sigs[0].protected, "base64url").toString("utf8")).kid; } catch (_e) {}
+if (args["expect-version"] && String(card.version) !== String(args["expect-version"])) {
+  console.log("INVALID   " + whereCard);
+  console.log("  served version " + card.version + " is not the expected " + args["expect-version"] + " (edge still serving an older build, or server.json and the card disagree)");
+  process.exit(1);
+}
 const bare = { ...card }; delete bare.signatures;
 const canonical = sdk.canonicalizeAgentCard(bare);
 const canon12 = (await sha(canonical)).slice(0, 12);
