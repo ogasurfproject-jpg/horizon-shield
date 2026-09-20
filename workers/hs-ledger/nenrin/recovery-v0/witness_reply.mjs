@@ -25,6 +25,20 @@ const HEX64 = /^[0-9a-f]{64}$/;
 const now = () => new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 const hostOf = (u) => { try { return new URL(u).host.toLowerCase(); } catch { return ""; } };
 
+// 測ってええ相手は公開の DNS 名だけ (設計書 14.1: 証人は公開 8 表面しか見ん)。
+// IP 直書き、localhost、.local / .internal / .lan / .home / .corp、点の無い名前、port 付きは断る。
+// serve を社内網で動かした人が、依頼で内側の host を測らされて中身 (challenge の値など) を外に返す穴を塞ぐ。
+export function targetAllowed(origin) {
+  let u; try { u = new URL(origin); } catch { return { ok: false, why: "not a URL" }; }
+  if (u.protocol !== "https:") return { ok: false, why: "only https origins are measured" };
+  if (u.port) return { ok: false, why: "an explicit port is not measured (public origins answer on 443)" };
+  if (u.username || u.password) return { ok: false, why: "credentials in the origin are refused" };
+  const h = u.hostname.toLowerCase();
+  if (/^\[?[0-9a-f:.]+\]?$/.test(h) && (/^\d+\.\d+\.\d+\.\d+$/.test(h) || h.includes(":"))) return { ok: false, why: "IP literals are not measured" };
+  if (h === "localhost" || !h.includes(".") || /\.(local|localhost|internal|intranet|lan|home|corp|test|example|invalid|onion)$/.test(h)) return { ok: false, why: "not a public DNS name: " + h };
+  return { ok: true };
+}
+
 function derFromPem(pem, label) {
   const m = pem.match(new RegExp("-----BEGIN " + label + "-----([\\s\\S]*?)-----END " + label + "-----"));
   if (!m) throw new Error("no " + label + " block in the key file");
@@ -57,13 +71,15 @@ export function checkRequest(req) {
 
 // 依頼に答える。返す物: { answered: true, record } か { answered: false, declined: <reason>, why }。
 // measure は差し替え可 (試験は network 無しで回す)。
-export async function answerRequest(req, { signedDomain, keyUrl, priv, pubRaw, measure = measureSurfaces, fetchImpl, vantage } = {}) {
+export async function answerRequest(req, { signedDomain, keyUrl, priv, pubRaw, measure = measureSurfaces, fetchImpl, vantage, allowPrivateTargets = false } = {}) {
   if (!signedDomain || !keyUrl || !priv || !pubRaw) throw new Error("signedDomain, keyUrl, priv and pubRaw are required");
   if (hostOf(keyUrl) !== String(signedDomain).toLowerCase()) throw new Error("keyUrl host must be signedDomain (11.4)");
   const bad = checkRequest(req);
   if (bad.length) return { answered: false, declined: "bad_request", why: bad.join("; ") };
   const target = String(req.endpoint).replace(/\/+$/, "");
   if (hostOf(target) === String(signedDomain).toLowerCase()) return { answered: false, declined: "self_witness", why: "an agent cannot witness itself under a key it serves (11.4)" };
+  const ta = targetAllowed(target);
+  if (!ta.ok && !allowPrivateTargets) return { answered: false, declined: "target_not_public", why: ta.why };
   const known = req.surfaces.filter((s) => SURFACES.includes(s));
   const unknown = req.surfaces.filter((s) => !SURFACES.includes(s));
   if (known.length === 0) return { answered: false, declined: "no_known_surface", why: "none of the requested surfaces is one this witness measures: " + SURFACES.join(", ") };
@@ -103,8 +119,9 @@ export function rpcReply(id, result) {
 }
 
 // 最小の面。POST / に JSON-RPC message/send、GET <key path> に鍵。本番の証人はこれを自分の A2A 面に組み込む。
-export function makeHandler({ signedDomain, keyUrl, priv, pubRaw, pubB64, measure, fetchImpl, vantage }) {
+export function makeHandler({ signedDomain, keyUrl, priv, pubRaw, pubB64, measure, fetchImpl, vantage, maxInFlight = 2, allowPrivateTargets = false }) {
   const keyPath = new URL(keyUrl).pathname;
+  let inFlight = 0;   // 一度に測る依頼の数の上限。測定は 8 表面 x 最大 15 秒。無制限やと依頼を投げるだけで証人を塞げる
   return async function handle(req, res) {
     const url = new URL(req.url, "http://" + (req.headers.host || "localhost"));
     const send = (status, obj) => { res.writeHead(status, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify(obj)); };
@@ -115,8 +132,12 @@ export function makeHandler({ signedDomain, keyUrl, priv, pubRaw, pubB64, measur
     if (!rpc || rpc.method !== "message/send") return send(200, { jsonrpc: "2.0", id: rpc && rpc.id || null, error: { code: -32601, message: "only message/send is served here" } });
     const wr = extractRequest(rpc);
     if (!wr) return send(200, { jsonrpc: "2.0", id: rpc.id || null, error: { code: -32602, message: "no " + REQUEST_SCHEMA + " data part in the message" } });
-    const result = await answerRequest(wr, { signedDomain, keyUrl, priv, pubRaw, measure, fetchImpl, vantage });
-    return send(200, rpcReply(rpc.id || null, result));
+    if (inFlight >= maxInFlight) { res.writeHead(429, { "content-type": "application/json", "cache-control": "no-store", "retry-after": "60" }); return res.end(JSON.stringify({ jsonrpc: "2.0", id: rpc.id || null, error: { code: -32000, message: "busy: " + inFlight + " measurements in flight; retry later" } })); }
+    inFlight++;
+    try {
+      const result = await answerRequest(wr, { signedDomain, keyUrl, priv, pubRaw, measure, fetchImpl, vantage, allowPrivateTargets });
+      return send(200, rpcReply(rpc.id || null, result));
+    } finally { inFlight--; }
   };
 }
 

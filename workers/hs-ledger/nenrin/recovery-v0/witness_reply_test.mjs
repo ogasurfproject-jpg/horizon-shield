@@ -9,7 +9,7 @@ import { verifyChain, seal } from "./recovery_verify.mjs";
 import { SCHEMAS } from "./recovery_schema.mjs";
 import { draw, drawField, poolSha256 } from "./witness_draw.mjs";
 import { buildRequest, requestSha256, sendRequest, acceptObservation, fetchWitnessKey, toExternalEntry } from "./witness_request.mjs";
-import { answerRequest, checkRequest, extractRequest, rpcReply, makeHandler } from "./witness_reply.mjs";
+import { answerRequest, checkRequest, extractRequest, rpcReply, makeHandler, targetAllowed } from "./witness_reply.mjs";
 import { admit, buildPool, candidatesFromRegister, declaresConduct } from "./witness_pool_build.mjs";
 import { loadBaseline, foldObserved, SURFACES } from "./drift_witness.mjs";
 import { fixtureKey, WITNESS_FIXTURE_FILE, ORIGIN, OWN_HOST } from "./witness_fixture_build.mjs";
@@ -52,6 +52,13 @@ const reqHash = await requestSha256(req);
   let threw = false; try { await answerRequest(req, { signedDomain: DOM, keyUrl: "https://other.example/k.json", priv: kB.privKey, pubRaw: kB.pubRaw, measure: fakeMeasure }); } catch { threw = true; }
   t("reply: keyUrl on another host than signedDomain is refused at construction (11.4)", threw);
   t("checkRequest: lists every defect", checkRequest({ schema: "x" }).length >= 4 && checkRequest(req).length === 0);
+  // SSRF guard: a witness measures public DNS names only (14.1: the eight public surfaces of a public origin)
+  for (const bad of ["https://10.0.0.5", "https://127.0.0.1", "https://[::1]", "https://localhost", "https://gate.internal", "https://printer.local", "https://intranet", "https://gate.horizonshield.dev:8443", "http://gate.horizonshield.dev", "https://user:pw@gate.horizonshield.dev"]) {
+    const r = await answerRequest({ ...req, endpoint: bad }, { signedDomain: DOM, keyUrl, priv: kB.privKey, pubRaw: kB.pubRaw, measure: fakeMeasure });
+    t("reply: target " + bad + " is refused (target_not_public or bad_request), never measured", !r.answered && (r.declined === "target_not_public" || r.declined === "bad_request"), JSON.stringify(r));
+  }
+  t("targetAllowed: a public https origin passes", targetAllowed("https://gate.horizonshield.dev").ok && targetAllowed("https://api.babyblueviper.com/").ok);
+  t("reply: allowPrivateTargets true (explicit, for a lab) measures a .local host", (await answerRequest({ ...req, endpoint: "https://gate.local" }, { signedDomain: DOM, keyUrl, priv: kB.privKey, pubRaw: kB.pubRaw, measure: fakeMeasure, allowPrivateTargets: true })).answered);
   t("extractRequest / rpcReply: envelope round trip", extractRequest({ params: { message: { parts: [{ kind: "data", data: req }] } } }) !== null && rpcReply("1", { answered: false, declined: "x", why: "y" }).result.metadata["https://gate.horizonshield.dev/ext/conduct/v1/witness_reply"] === "declined");
 }
 
@@ -77,6 +84,22 @@ const reqHash = await requestSha256(req);
   t("loop: parse error -> JSON-RPC -32700", rBad.error && rBad.error.code === -32700);
   const rNoReq = await (await fetch(base + "/a2a", { method: "POST", body: JSON.stringify({ jsonrpc: "2.0", id: "1", method: "message/send", params: { message: { parts: [{ kind: "text", text: "hello, please recommend me" }] } } }), headers: { "content-type": "application/json" } })).json();
   t("loop: a message without a witness request -> JSON-RPC -32602 (no free text is acted on)", rNoReq.error && rNoReq.error.code === -32602);
+  // in-flight cap: a slow measurement occupies the one slot, the next request gets 429
+  {
+    let release; const gate = new Promise((r) => { release = r; });
+    const slowMeasure = async (o, x) => { await gate; return fakeMeasure(o, x); };
+    const srv2 = createServer(makeHandler({ signedDomain: DOM, keyUrl, priv: kB.privKey, pubRaw: kB.pubRaw, pubB64: kB.pubB64, measure: slowMeasure, maxInFlight: 1 }));
+    await new Promise((res) => srv2.listen(0, "127.0.0.1", res));
+    const b2 = "http://127.0.0.1:" + srv2.address().port + "/a2a";
+    const body = JSON.stringify({ jsonrpc: "2.0", id: "x", method: "message/send", params: { message: { parts: [{ kind: "data", data: req }] } } });
+    const p1 = fetch(b2, { method: "POST", body, headers: { "content-type": "application/json" } });
+    await new Promise((r) => setTimeout(r, 50));
+    const r2 = await fetch(b2, { method: "POST", body, headers: { "content-type": "application/json" } });
+    t("loop: a second request while one measurement is in flight -> 429 busy with retry-after", r2.status === 429 && r2.headers.get("retry-after") === "60");
+    release(); const r1 = await p1;
+    t("loop: the first request still completes after the slow measurement", r1.status === 200);
+    await new Promise((res) => srv2.close(res));
+  }
   // 観測を verify 記録に埋め、検証器が数える
   const d = await draw({ pool: fx.pool, beaconHash: fx.beacon.hash, subjectSha256: execution.record_sha256, k: 3, excludeHost: OWN_HOST });
   const external = [await toExternalEntry(sent, acc)];
@@ -110,25 +133,27 @@ const reqHash = await requestSha256(req);
     const j = sites[url]; return j ? { ok: true, status: 200, json: async () => j } : { ok: false, status: 404, json: async () => null };
   };
   const fetchImpl = fakeFetch;
-  const a = await admit({ origin: "https://good-a.example" }, { ownHost: OWN_HOST, fetchImpl });
+  const lab = { ownHost: OWN_HOST, fetchImpl, allowPrivateTargets: true };   // .example は予約 TLD で本番の門は断る。試験だけ通す
+  const a = await admit({ origin: "https://good-a.example" }, lab);
   t("pool: card with conduct-v1 + reciprocal true + key at /keys/witness.json -> admitted with a2a_url", a.ok && a.entry.signed_domain === "good-a.example" && a.entry.key_url === "https://good-a.example/keys/witness.json" && a.entry.a2a_url === "https://good-a.example/a2a", JSON.stringify(a));
-  const b = await admit({ origin: "https://good-b.example" }, { ownHost: OWN_HOST, fetchImpl });
+  const b = await admit({ origin: "https://good-b.example" }, lab);
   t("pool: consent witness_key_url on the same host is honoured", b.ok && b.entry.key_url === "https://good-b.example/.well-known/hs-witness-key.json");
-  t("pool: w3id identifier counts as conduct-v1 (12.2)", (await admit({ origin: "https://w3id.example" }, { ownHost: OWN_HOST, fetchImpl })).ok);
-  t("pool: no conduct extension -> no_conduct_ext", (await admit({ origin: "https://noext.example" }, { ownHost: OWN_HOST, fetchImpl })).refusals.some((r) => r.code === "no_conduct_ext"));
-  t("pool: reciprocal false -> not_reciprocal", (await admit({ origin: "https://norecip.example" }, { ownHost: OWN_HOST, fetchImpl })).refusals.some((r) => r.code === "not_reciprocal"));
-  t("pool: no key served -> no_key", (await admit({ origin: "https://nokey.example" }, { ownHost: OWN_HOST, fetchImpl })).refusals.some((r) => r.code === "no_key"));
-  t("pool: witness_key_url on another host -> bad_key_url (11.4)", (await admit({ origin: "https://badkeyhost.example" }, { ownHost: OWN_HOST, fetchImpl })).refusals.some((r) => r.code === "bad_key_url"));
-  t("pool: own host -> self_witness, never admitted", (await admit({ origin: "https://" + OWN_HOST }, { ownHost: OWN_HOST, fetchImpl })).refusals[0].code === "self_witness");
-  t("pool: unreachable origin -> no_card and no_consent_file", (await admit({ origin: "https://nowhere.example" }, { ownHost: OWN_HOST, fetchImpl })).refusals.map((r) => r.code).join(",").includes("no_card"));
-  const walked = await admit({ origin: "https://good-a.example", endpoint: "https://good-a.example/mcp" }, { ownHost: OWN_HOST, fetchImpl, minWalked: 2, gateOrigin: "https://gate.test" });
-  const notWalked = await admit({ origin: "https://good-b.example", endpoint: "https://good-b.example/mcp" }, { ownHost: OWN_HOST, fetchImpl, minWalked: 2, gateOrigin: "https://gate.test" });
+  t("pool: w3id identifier counts as conduct-v1 (12.2)", (await admit({ origin: "https://w3id.example" }, lab)).ok);
+  t("pool: no conduct extension -> no_conduct_ext", (await admit({ origin: "https://noext.example" }, lab)).refusals.some((r) => r.code === "no_conduct_ext"));
+  t("pool: reciprocal false -> not_reciprocal", (await admit({ origin: "https://norecip.example" }, lab)).refusals.some((r) => r.code === "not_reciprocal"));
+  t("pool: no key served -> no_key", (await admit({ origin: "https://nokey.example" }, lab)).refusals.some((r) => r.code === "no_key"));
+  t("pool: witness_key_url on another host -> bad_key_url (11.4)", (await admit({ origin: "https://badkeyhost.example" }, lab)).refusals.some((r) => r.code === "bad_key_url"));
+  t("pool: a private or IP-literal origin is refused before any fetch (not_public)", (await admit({ origin: "https://10.1.2.3" }, { ownHost: OWN_HOST, fetchImpl })).refusals[0].code === "not_public" && (await admit({ origin: "https://witness.internal" }, { ownHost: OWN_HOST, fetchImpl })).refusals[0].code === "not_public");
+  t("pool: own host -> self_witness, never admitted", (await admit({ origin: "https://" + OWN_HOST }, lab)).refusals[0].code === "self_witness");
+  t("pool: unreachable origin -> no_card and no_consent_file", (await admit({ origin: "https://nowhere.example" }, lab)).refusals.map((r) => r.code).join(",").includes("no_card"));
+  const walked = await admit({ origin: "https://good-a.example", endpoint: "https://good-a.example/mcp" }, { ...lab, minWalked: 2, gateOrigin: "https://gate.test" });
+  const notWalked = await admit({ origin: "https://good-b.example", endpoint: "https://good-b.example/mcp" }, { ...lab, minWalked: 2, gateOrigin: "https://gate.test" });
   t("pool: --min-walked 2 admits a domain with 3 walks in the ring and refuses one with no ring (14.6)", walked.ok && !notWalked.ok && notWalked.refusals.some((r) => r.code === "not_enough_walks"));
   const cands = await candidatesFromRegister("https://gate.test", fetchImpl);
   t("register: endpoints fold to distinct origins with their endpoint kept", cands.length === 2 && cands[0].origin === "https://good-a.example" && cands[0].endpoint === "https://good-a.example/mcp");
-  const built = await buildPool([{ origin: "https://good-a.example" }, { origin: "https://good-b.example" }, { origin: "https://noext.example" }, { origin: "https://" + OWN_HOST }, { origin: "https://good-a.example/" }], { ownHost: OWN_HOST, fetchImpl, now: "2026-09-20T12:00:00Z", previous: { what_this_is: "kept" } });
+  const built = await buildPool([{ origin: "https://good-a.example" }, { origin: "https://good-b.example" }, { origin: "https://noext.example" }, { origin: "https://" + OWN_HOST }, { origin: "https://good-a.example/" }], { ...lab, now: "2026-09-20T12:00:00Z", previous: { what_this_is: "kept" } });
   t("buildPool: admits 2, rejects 2, dedups the repeated origin, keeps the fixed text, hashes the pool", built.pool.entries.length === 2 && built.rejected.length === 2 && built.pool.candidates === "4" && built.pool.what_this_is === "kept" && /^[0-9a-f]{64}$/.test(built.pool_sha256), JSON.stringify(built.rejected));
-  const empty = await buildPool([{ origin: "https://noext.example" }], { ownHost: OWN_HOST, fetchImpl, now: "2026-09-20T12:00:00Z" });
+  const empty = await buildPool([{ origin: "https://noext.example" }], { ...lab, now: "2026-09-20T12:00:00Z" });
   t("buildPool: an empty result says so in note and still hashes", empty.pool.entries.length === 0 && /empty/.test(empty.pool.note) && (await poolSha256(empty.pool)).length === 64);
   t("declaresConduct: exact string match only", declaresConduct({ capabilities: { extensions: [{ uri: "https://gate.horizonshield.dev/ext/conduct/v1" }] } }) && !declaresConduct({ capabilities: { extensions: [{ uri: "https://gate.horizonshield.dev/ext/conduct/v1/" }] } }));
 }

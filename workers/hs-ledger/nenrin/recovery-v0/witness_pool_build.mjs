@@ -16,6 +16,7 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { normalizePool, poolSha256, POOL_SCHEMA } from "./witness_draw.mjs";
+import { targetAllowed } from "./witness_reply.mjs";
 
 export const BUILD_VERSION = "0.1.0";
 export const CONDUCT_URIS = ["https://gate.horizonshield.dev/ext/conduct/v1", "https://w3id.org/horizonshield/conduct/v1"];
@@ -35,12 +36,14 @@ export function declaresConduct(card) {
 }
 
 // 1 候補の審査。ok なら entry。落ちたら refusals。
-export async function admit(candidate, { ownHost, fetchImpl = globalThis.fetch, minWalked = 0, gateOrigin = "https://gate.horizonshield.dev" } = {}) {
+export async function admit(candidate, { ownHost, fetchImpl = globalThis.fetch, minWalked = 0, gateOrigin = "https://gate.horizonshield.dev", allowPrivateTargets = false } = {}) {
   const origin = String(candidate.origin || candidate).replace(/\/+$/, "");
   const host = hostOf(origin);
   const refusals = [];
   const refuse = (code, why) => refusals.push({ code, why });
   if (!host || !/^https:\/\//.test(origin)) return { ok: false, origin, refusals: [{ code: "bad_origin", why: "not an https origin" }] };
+  const ta = targetAllowed(origin);
+  if (!ta.ok && !allowPrivateTargets) return { ok: false, origin, refusals: [{ code: "not_public", why: ta.why }] };
   if (ownHost && host === String(ownHost).toLowerCase()) return { ok: false, origin, refusals: [{ code: "self_witness", why: "the operator's own host cannot be its own witness (11.4)" }] };
   const card = await getJson(fetchImpl, origin + "/.well-known/agent-card.json");
   if (!card.json) refuse("no_card", "GET /.well-known/agent-card.json answered " + card.status);

@@ -90,12 +90,13 @@ const hostOf = (u) => { try { return new URL(u).host.toLowerCase(); } catch { re
 //   quorum: { q, pool, beaconHash } の任意の組。pool を渡すと籤を再計算 (pool_mismatch / draw_mismatch)、
 //   beaconHash を渡すと記録の beacon と突き合わせ (beacon_mismatch)、q を渡すと recovered:true に q 人の一致を要求 (witness_quorum_short)。
 // 数えるのは: 署名が通り、引かれた domain で、池の鍵で署名され、同じ依頼に答え、expected_after を observed が含む観測。一 domain 一票。
-export async function verifyWitnesses(verify, { ownHost, endpoint, executionSha256, quorum } = {}) {
+export async function verifyWitnesses(verify, { ownHost, endpoint, executionSha256, executionAt, quorum } = {}) {
   const refusals = [];
   const refuse = (code, why) => refusals.push({ code, why });
   const q = quorum && quorum.q !== undefined && quorum.q !== null ? Number(quorum.q) : null;
   const pool = quorum && quorum.pool ? quorum.pool : null;
   const beaconHash = quorum && quorum.beaconHash ? String(quorum.beaconHash).toLowerCase() : null;
+  const kExpected = quorum && quorum.k !== undefined && quorum.k !== null ? String(quorum.k) : null;
   const d = verify.draw;
   const drawn = d && Array.isArray(d.drawn) ? d.drawn : [];
   const own = ownHost ? String(ownHost).toLowerCase() : "";
@@ -103,11 +104,13 @@ export async function verifyWitnesses(verify, { ownHost, endpoint, executionSha2
     if (executionSha256 && d.subject_sha256 !== executionSha256) refuse("draw_subject_mismatch", "draw.subject_sha256 " + d.subject_sha256 + " is not the execution record_sha256 " + executionSha256);
     if (own && drawn.some((x) => String(x).toLowerCase() === own)) refuse("self_witness", "the draw lists the endpoint's own host " + ownHost + " as a witness (11.4)");
     if (beaconHash && String(d.beacon.hash).toLowerCase() !== beaconHash) refuse("beacon_mismatch", "draw.beacon.hash " + d.beacon.hash + " is not the beacon the verifier fetched " + beaconHash);
+    if (kExpected && d.k !== kExpected && d.pool_size !== "0" && Number(d.k) < Number(kExpected)) refuse("draw_mismatch", "draw.k " + d.k + " is below the policy k " + kExpected + " (the operator may not shorten the draw)");
     if (pool) {
       try {
         const re = await drawWitnesses({ pool, beaconHash: d.beacon.hash, subjectSha256: d.subject_sha256, k: d.k, excludeHost: own || undefined });
         if (re.pool_sha256 !== d.pool_sha256) refuse("pool_mismatch", "the pool given to the verifier hashes to " + re.pool_sha256 + ", the record says " + d.pool_sha256);
         else if (canonicalUtf8(re.drawn) !== canonicalUtf8(drawn)) refuse("draw_mismatch", "recomputing the draw from beacon, pool and subject gives [" + re.drawn.join(", ") + "], the record says [" + drawn.join(", ") + "]");
+        else if (re.pool_size !== d.pool_size) refuse("draw_mismatch", "draw.pool_size " + d.pool_size + " is not the size of the pool given (" + re.pool_size + ")");
       } catch (e) { refuse("bad_pool", "the pool given to the verifier is malformed: " + String(e && e.message || e)); }
     }
   }
@@ -128,6 +131,7 @@ export async function verifyWitnesses(verify, { ownHost, endpoint, executionSha2
     if (!drawn.some((x) => String(x).toLowerCase() === dom)) { refuse("witness_not_drawn", tag + ": " + rec.source.signed_domain + " was not drawn"); continue; }
     if (endpoint && hostOf(rec.endpoint) !== hostOf(endpoint)) { refuse("witness_endpoint_mismatch", tag + ": observation is about " + rec.endpoint + ", the segment is about " + endpoint); continue; }
     if (d && rec.request_sha256 !== d.request_sha256) { refuse("witness_request_mismatch", tag + ": observation answers request " + rec.request_sha256 + ", the draw sent " + d.request_sha256); continue; }
+    if (executionAt && rec.recorded_at < executionAt) { refuse("witness_before_execution", tag + ": observation recorded_at " + rec.recorded_at + " is before the execution " + executionAt + " it is supposed to re-verify"); continue; }
     if (poolByDomain) {
       const pe = poolByDomain.get(dom);
       if (!pe || pe.public_key_ed25519_b64 !== rec.public_key_ed25519_b64 || pe.key_url !== rec.source.key_url) { refuse("witness_key_mismatch", tag + ": signed with a key or key_url that is not the pool's for " + rec.source.signed_domain); continue; }
@@ -144,7 +148,7 @@ export async function verifyWitnesses(verify, { ownHost, endpoint, executionSha2
 // opts.operatorKeys: 運営者の公開鍵 (base64 raw Ed25519) の配列。渡すと strict モード (v1):
 //   人間承認プリミティブ (approval: human) の実行は、その許可が運営者鍵で署名され、かつ鍵が信用集合に在ることを要求する。
 //   渡さんと lenient (v0 互換): decision: approved だけで通す。既存の記録を割らんため。
-// opts.witnessQuorum: { q, pool, beaconHash } (v2)。渡すと verify に q 人の籤証人の一致を要求する。渡さんでも、
+// opts.witnessQuorum: { q, k, pool, beaconHash } (v2)。渡すと verify に q 人の籤証人の一致を要求する。k は方針の引く数 (運営者が短く引き直すのを許さん)。渡さんでも、
 //   verify に draw か埋め込み観測が在れば、その中身の整合 (署名、身元、引かれとるか) は見る。
 export async function verifyChain(records, opts = {}) {
   const operatorKeys = Array.isArray(opts.operatorKeys) ? opts.operatorKeys : null;
@@ -202,7 +206,7 @@ export async function verifyChain(records, opts = {}) {
   }
   let witness = null;
   if (verify && (witnessQuorum || verify.draw !== undefined || (Array.isArray(verify.external) && verify.external.some((e) => e && e.record)))) {
-    witness = await verifyWitnesses(verify, { ownHost: hostOf(records[0].endpoint), endpoint: records[0].endpoint, executionSha256: hashes[i + 2], quorum: witnessQuorum });
+    witness = await verifyWitnesses(verify, { ownHost: hostOf(records[0].endpoint), endpoint: records[0].endpoint, executionSha256: hashes[i + 2], executionAt: execution && execution.recorded_at, quorum: witnessQuorum });
     for (const x of witness.refusals) refuse(x.code, x.why);
   }
   return { ok: refusals.length === 0, refusals, segment: { drifts, hashes, complete: rest.length === 4, ...(witness ? { witness: { drawn: witness.drawn, answered: witness.answered, agreeing: witness.agreeing, disagreeing: witness.disagreeing } } : {}) } };

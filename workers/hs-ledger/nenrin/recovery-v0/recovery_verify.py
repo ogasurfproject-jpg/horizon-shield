@@ -192,7 +192,7 @@ def subset_matches(expected, observed):
         return all(k in observed and subset_matches(expected[k], observed[k]) for k in expected)
     return _cu(expected) == _cu(observed)
 
-def verify_witnesses(verify, own_host=None, endpoint=None, execution_sha256=None, quorum=None):
+def verify_witnesses(verify, own_host=None, endpoint=None, execution_sha256=None, quorum=None, execution_at=None):
     refs = []
     def refuse(code, why): refs.append({"code": code, "why": why})
     quorum = quorum or {}
@@ -204,11 +204,14 @@ def verify_witnesses(verify, own_host=None, endpoint=None, execution_sha256=None
         if execution_sha256 and d.get("subject_sha256") != execution_sha256: refuse("draw_subject_mismatch", "draw.subject_sha256 is not the execution record_sha256")
         if own and any(str(x).lower() == own for x in drawn): refuse("self_witness", "the draw lists the endpoint's own host as a witness (11.4)")
         if beacon_hash and str(d.get("beacon", {}).get("hash", "")).lower() != beacon_hash: refuse("beacon_mismatch", "draw.beacon.hash is not the beacon the verifier fetched")
+        k_expected = str(quorum["k"]) if quorum.get("k") is not None else None
+        if k_expected and d.get("k") != k_expected and d.get("pool_size") != "0" and int(d.get("k", "0")) < int(k_expected): refuse("draw_mismatch", "draw.k is below the policy k (the operator may not shorten the draw)")
         if pool is not None:
             try:
                 re_ = draw(pool, d["beacon"]["hash"], d["subject_sha256"], d["k"], exclude_host=own or None)
                 if re_["pool_sha256"] != d.get("pool_sha256"): refuse("pool_mismatch", "the pool given to the verifier hashes differently from the record")
                 elif _cu(re_["drawn"]) != _cu(drawn): refuse("draw_mismatch", "recomputing the draw gives " + ", ".join(re_["drawn"]) + ", the record says " + ", ".join(drawn))
+                elif re_["pool_size"] != d.get("pool_size"): refuse("draw_mismatch", "draw.pool_size is not the size of the pool given")
             except Exception as e: refuse("bad_pool", "the pool given to the verifier is malformed: " + str(e))
     by_domain = None
     if pool is not None:
@@ -230,6 +233,7 @@ def verify_witnesses(verify, own_host=None, endpoint=None, execution_sha256=None
         if not any(str(x).lower() == dom for x in drawn): refuse("witness_not_drawn", tag + ": " + rec["source"]["signed_domain"] + " was not drawn"); continue
         if endpoint and _host(rec.get("endpoint", "")) != _host(endpoint): refuse("witness_endpoint_mismatch", tag + ": observation is about another endpoint"); continue
         if d and rec.get("request_sha256") != d.get("request_sha256"): refuse("witness_request_mismatch", tag + ": observation answers another request"); continue
+        if execution_at and rec.get("recorded_at", "") < execution_at: refuse("witness_before_execution", tag + ": observation recorded before the execution it re-verifies"); continue
         if by_domain is not None:
             pe = by_domain.get(dom)
             if not pe or pe["public_key_ed25519_b64"] != rec.get("public_key_ed25519_b64") or pe["key_url"] != rec["source"].get("key_url"):
@@ -318,7 +322,7 @@ def verify_chain(records, operator_keys=None, witness_quorum=None):
             if k not in verify.get("observed", {}): refuse("recovered_unobserved", "recovered is true but observed has no entry for surface " + k)
     witness = None
     if verify and (witness_quorum is not None or "draw" in verify or any(isinstance(e, dict) and "record" in e for e in (verify.get("external") or []))):
-        witness = verify_witnesses(verify, own_host=_host(records[0].get("endpoint", "")), endpoint=records[0].get("endpoint"), execution_sha256=hashes[i + 2], quorum=witness_quorum)
+        witness = verify_witnesses(verify, own_host=_host(records[0].get("endpoint", "")), endpoint=records[0].get("endpoint"), execution_sha256=hashes[i + 2], quorum=witness_quorum, execution_at=(execution or {}).get("recorded_at"))
         for x in witness["refusals"]: refuse(x["code"], x["why"])
     seg = {"drifts": drifts, "complete": len(rest) == 4}
     if witness is not None: seg["witness"] = {k: witness[k] for k in ("drawn", "answered", "agreeing", "disagreeing")}

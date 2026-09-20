@@ -70,6 +70,7 @@ Shield は再検証の証人を自分で選ばん。公開の池 (witness_pool.j
 - 受け取るのは観測だけ (nenrin-witness-observation-v1)。指示の欄は無い。証人が何を書いても Shield は動かん。観測は verify.external[].record に丸ごと埋め込まれ、検証器が署名 (証人の domain 鍵)、引かれとるか、池の鍵か、同じ依頼か、自分自身やないか、を見て、expected_after を observed が含む証人を一 domain 一票で数える。
 - 定足数: `verifyChain(records, { witnessQuorum: { q, pool, beaconHash } })`。recovered:true に q 人の一致を要求する。足りんかったら witness_quorum_short。食い違う証人は両方残る (disagreeing に出る)。答えん証人は answered:false で残る (数えん、隠さん)。
 - 籤が消すもの: 「運営者が証人を選んだ」「証人が事前に買収されとった」。消さんもの: 署名した嘘つき (11.10 と同じ)、池を domain で埋める Sybil (加入は ring に walked_as_witness の実績が要る、期間は ADR)。籤が作るのは「誰が呼ばれたかを Shield が決めてへん」だけ。
+- 籤の穴 (v2.1 で分かっとる、まだ塞いでへん): 種の 3 入力のうち subject (execution の record_sha256) は運営者が書く記録や。beacon のブロックが出た後に execution の文面を少し変えて seal し直せば、種が変わって引き直せる (研磨)。今の検証器はそれを見抜けん。塞ぎ方は commit-then-reveal: subject を先に台帳に append して OTS で時刻を取り、beacon は「その錨のブロックより後の最初のブロック」と定め、検証器が錨の高さ < beacon の高さ を見る。v2.2 の仕事。それまでは、k を方針で固定し (検証器の witnessQuorum.k)、読む側が beacon を自分で取って渡す (beaconHash)。
 
 7 月の OpenAI / Hugging Face の事件で根本原因に挙がった「他エージェントの指示を検証せずに受け入れる」への手当は、この形そのもの: 見知らぬエージェントから受け取るのは署名付きの観測だけで、その中身は hash を比べる以外に使わん。Shield エージェントの LLM の prompt には外部証人の文字列を一文字も入れん (buildPrompt が拒否する)。
 

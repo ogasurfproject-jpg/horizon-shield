@@ -115,6 +115,13 @@ const withVerify = (v) => [...records.slice(0, 6), v];
   const m13 = clone(records[6]); m13.external[idx].signed_domain = "witness-e.example";
   const r13 = await verifyChain(withVerify(await reseal(m13)), { witnessQuorum: strict });
   t("mutation: entry.signed_domain differs from the signed record -> witness_domain_mismatch", has(r13, "witness_domain_mismatch"));
+  // a drawn witness whose observation is dated before the execution it re-verifies: replayed or premeasured -> not counted
+  const early = await sign({ ...clone(records[6].external[idx].record), recorded_at: "2026-09-20T07:00:00Z" }, kD.privKey, kD.pubRaw);
+  const m11b = clone(records[6]); m11b.external[idx] = { signed_domain: drawnDom, answered: true, record: early };
+  t("mutation: observation recorded before the execution -> witness_before_execution", has(await verifyChain(withVerify(await reseal(m11b)), { witnessQuorum: strict }), "witness_before_execution"));
+  const m11c = clone(records[6]); m11c.draw.pool_size = "7";
+  t("mutation: draw.pool_size not the pool's size -> draw_mismatch", has(await verifyChain(withVerify(await reseal(m11c)), { witnessQuorum: strict }), "draw_mismatch"));
+  t("policy k: the fixture drew 3; asking k 3 passes, asking k 5 (operator shortened the draw) -> draw_mismatch", (await verifyChain(records, { witnessQuorum: { q: Q, pool, k: 3 } })).ok && has(await verifyChain(records, { witnessQuorum: { q: Q, pool, k: 5 } }), "draw_mismatch"));
   // v0 fixture (no draw at all) under a quorum: honest short
   const v0 = JSON.parse(readFileSync(path.join(HERE, "recovery_fixture_20260920.json"), "utf8"));
   const r14 = await verifyChain(v0, { witnessQuorum: { q: 1, pool } });
