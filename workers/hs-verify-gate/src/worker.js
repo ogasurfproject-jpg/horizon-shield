@@ -86,7 +86,7 @@ const CARD_SIGNATURE = {
   "jku": "https://gate.horizonshield.dev/.well-known/jwks.json",
   "alg": "ES256",
   "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJocy0yMDI2LTA5Iiwiamt1IjoiaHR0cHM6Ly9nYXRlLmhvcml6b25zaGllbGQuZGV2Ly53ZWxsLWtub3duL2p3a3MuanNvbiJ9",
-  "signature": "oeqUjuJC0eBSGRvZuijnXKjSL8dBF4AKfo3y7EhkWxIcNgVl-mfjDdWyO0gTx6KxSP0c9oURQHtzOg6npt3fCg",
+  "signature": "ojB1eUsvzln-k7tTnlrWNsGySQ9TxgT1A29KEJi9zzpWq22twFsIQ3WCNCFUujtucXfpIJsoqhFjdAcVEgf0uw",
   "jwk": {
     "kty": "EC",
     "x": "CytwnuXFtXi7PFCcF-TCbvW5OgOg4KuWRLeRvdfHWLs",
