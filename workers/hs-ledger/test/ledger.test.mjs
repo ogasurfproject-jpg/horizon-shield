@@ -67,6 +67,7 @@ const EXPECTED_ROUTES = [
   "/witness", "/witness/pending", "/witness/{sha}",
   "/resume?endpoint={url}",
   "/trust-signal?endpoint={url}",
+  "/agreement", "/agreement/pending", "/agreement/{canonical_sha256}",
 ];
 const routesMatch = Array.isArray(hj.routes)
   && JSON.stringify([...hj.routes].sort()) === JSON.stringify([...EXPECTED_ROUTES].sort());

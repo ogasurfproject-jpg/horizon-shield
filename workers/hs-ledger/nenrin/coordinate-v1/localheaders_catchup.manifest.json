@@ -1,0 +1,62 @@
+{
+ "schema": "nenrin-localheaders-manifest-1",
+ "chain": "bitcoin",
+ "courier": "bitcoin p2p getheaders",
+ "mode": "whole chain from genesis",
+ "peers": {
+  "152.55.87.125:8333": {
+   "tip_height": 965850,
+   "headers": 965851
+  },
+  "191.251.46.36:8333": {
+   "tip_height": 965849,
+   "headers": 965850
+  },
+  "79.116.51.149:8333": {
+   "tip_height": 965849,
+   "headers": 965850
+  }
+ },
+ "peers_failed": {
+  "136.47.151.15:8333": "connection closed by peer",
+  "135.131.118.59:8333": "[Errno 61] Connection refused",
+  "173.235.143.238:8333": "[Errno 54] Connection reset by peer",
+  "54.202.35.84:8333": "[Errno 54] Connection reset by peer",
+  "72.223.9.1:8333": "[Errno 54] Connection reset by peer"
+ },
+ "min_peers": 2,
+ "synced_at": 1788737367,
+ "start_height": 0,
+ "count": 965851,
+ "tip_height": 965850,
+ "tip_hash": "000000000000000000005c2baf094191191c6d6900da0aa4ced3499c585b280b",
+ "tip_time": 1788737928,
+ "chainwork_hex": "14567579073a13d6db7c9b7ca",
+ "sha256": "06e71ce92fa490232c36825d8b8624b2fa6d3e52589ae2f892bdbed01f96c060",
+ "start_prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+ "start_bits": null,
+ "prior_times": [],
+ "checkpoints": {
+  "961632": "00000000000000000000d1e01392faa65ceeaed307f0a3159144b84146ff24ba",
+  "963648": "00000000000000000001769d9a327f5b455aa8a2dd407b1b63040d2a9f832d32",
+  "965451": "00000000000000000000e9f3195446ee74b371312941d73e8fdddab86499b499",
+  "965456": "00000000000000000001696cecabd47bef0ff322c80a3ae5bb0c9747f902ee57",
+  "965850": "000000000000000000005c2baf094191191c6d6900da0aa4ced3499c585b280b"
+ },
+ "retarget_boundaries_verified": 479,
+ "retarget_verified_at": [
+  2016,
+  "...",
+  965664
+ ],
+ "unverified": [
+  {
+   "height": 0,
+   "check": "bits_continuity",
+   "why": "no previous bits supplied"
+  }
+ ],
+ "future_check": "done",
+ "compare": null,
+ "note": "no HTTP explorer in the path. headers came from full nodes over the peer to peer protocol, were validated by consensus rules, and had to agree byte for byte across peers before anything was written."
+}

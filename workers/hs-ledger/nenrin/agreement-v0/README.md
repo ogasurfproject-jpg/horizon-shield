@@ -35,9 +35,9 @@ then disappears from what the record establishes.
 | `readme_numbers_test.mjs` | every count this table states, derived from the files and the suites, so the table cannot go stale quietly |
 | `agreement_pyrepr.py` | 833 values beside what Python's `repr` wrote for each. The refusal messages are made of it |
 
-There is no intake, no KV, no ring column, no fee, no URI. Those come when a real pair of parties
-has a real agreement to record. A record layer built before it has two parties is an empty
-exchange, and an empty exchange is worse than none.
+The intake exists since 2026-09-16 (`agreement_intake.mjs`, wired into the ledger worker; see
+`ops/AGREEMENT_INTAKE_v0_STATUS.md`). There is still no ring column, no fee, no URI. Those come when
+the ring has agreement records to count. The first accepted record is `first_agreement_record.json`.
 
 ## Run it
 
@@ -212,9 +212,10 @@ Full reasoning in `ops/AGREEMENT_EXT_v0_1_DRAFT.md` section 6.9.
 
 ## The intake
 
-There is no intake. What it may and may not do is written down first, in
-`ops/AGREEMENT_INTAKE_v0_BOUNDARY.md`, including the five things that are deliberately still
-undecided. The verifier opens no socket; every fetch, every retry, every 503, the deduplication
+The intake is `agreement_intake.mjs` (`POST /agreement`, `GET /agreement/{sha}`, `/agreement/pending`,
+the daily batch and anchor; tests in `agreement_intake.test.mjs`, 55, and `../../test/agreement.test.mjs`,
+17). What it may and may not do was written down first, in `ops/AGREEMENT_INTAKE_v0_BOUNDARY.md`;
+the five things that were deliberately left undecided are settled in `ops/AGREEMENT_INTAKE_v0_DECISIONS.md`. The verifier opens no socket; every fetch, every retry, every 503, the deduplication
 and the anchoring belong on the other side of that line.
 
 ## The second implementation, and how far it has got

@@ -1,0 +1,212 @@
+<title>HORIZON SHIELD 認知と引用 効果測定</title>
+<style>
+  :root{
+    --ink:#141414; --paper:#ffffff; --line:#111; --hair:#d9d6cf; --red:#c21a1a; --mut:#6b6862;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Helvetica Neue",Helvetica,Arial,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.5;font-size:15px}
+  .wrap{max-width:1040px;margin:0 auto;padding-block:0;padding-left:24px;padding-right:24px}
+  header{border-bottom:3px solid var(--line);padding-block:34px 18px;margin-bottom:0}
+  .kick{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);margin:0 0 14px}
+  h1{font-size:34px;line-height:1.12;font-weight:800;letter-spacing:-.01em;margin:0 0 12px;max-width:22ch}
+  .lede{font-size:16px;max-width:60ch;margin:0;color:var(--ink)}
+  .lede b{color:var(--red)}
+  .meta{margin-top:16px;font-size:12px;color:var(--mut);border-top:1px solid var(--hair);padding-top:10px}
+  section{border-top:1px solid var(--hair);padding-block:26px}
+  .snum{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--red);font-weight:700;margin:0 0 4px}
+  h2{font-size:19px;font-weight:800;margin:0 0 16px;letter-spacing:-.01em}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line)}
+  .split > div{padding:22px 22px 24px}
+  .split > div:first-child{border-right:1px solid var(--line)}
+  .big{font-size:52px;font-weight:800;letter-spacing:-.02em;line-height:1;margin:6px 0 8px;font-variant-numeric:tabular-nums}
+  .big.red{color:var(--red)}
+  .cap{font-size:12px;color:var(--mut);max-width:40ch}
+  .label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin:0}
+  table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--hair);font-size:14px;vertical-align:baseline}
+  th{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);font-weight:700;border-bottom:1px solid var(--line)}
+  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+  td.big-n{font-weight:800;font-size:16px}
+  .bar{display:inline-block;height:9px;background:var(--ink);vertical-align:middle}
+  .bar.red{background:var(--red)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 40px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
+  .grid3 > div{border-left:1px solid var(--hair);padding:2px 18px 2px}
+  .grid3 > div:first-child{border-left:0;padding-left:0}
+  .stat{font-size:30px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin:2px 0 2px}
+  .stat.red{color:var(--red)}
+  .note{font-size:12px;color:var(--mut);margin-top:6px;max-width:46ch}
+  .asof{font-size:11px;color:var(--mut);white-space:nowrap}
+  .read{border:1px solid var(--line);padding:22px}
+  .read p{margin:0 0 12px;max-width:66ch}
+  .read p:last-child{margin-bottom:0}
+  .read .hl{font-weight:800}
+  ul.tight{margin:8px 0 0;padding-left:18px}
+  ul.tight li{margin:4px 0;max-width:64ch}
+  footer{border-top:3px solid var(--line);padding-block:20px 40px;font-size:12px;color:var(--mut)}
+  footer b{color:var(--ink)}
+  .flag{color:var(--red);font-weight:700}
+  @media (max-width:720px){
+    .split{grid-template-columns:1fr}
+    .split > div:first-child{border-right:0;border-bottom:1px solid var(--line)}
+    .grid2,.grid3{grid-template-columns:1fr}
+    .grid3 > div{border-left:0;border-top:1px solid var(--hair);padding:12px 0}
+    .grid3 > div:first-child{border-top:0}
+    h1{font-size:27px}
+    .big{font-size:42px}
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="kick">The HORIZ音s株式会社 / HORIZON SHIELD</p>
+    <h1>認知と引用の効果測定</h1>
+    <p class="lede">機械は道具を叩き始めた。だが人とAIの答えの中では、まだ引用されていない。<b>この二つの差が、いまの現在地</b>。数字はすべて 2026年9月14日 の実測。信じる必要はない、出典を全部付けた。</p>
+    <p class="meta">測定日 2026-09-14 ／ 測定者 番人(検証役) ／ 各数値に as of と一次ソースを明記 ／ 競合名は載せない方針</p>
+  </header>
+
+  <section>
+    <p class="snum">01 ヘッドライン</p>
+    <div class="split">
+      <div>
+        <p class="label">機械側 ・ MCP ツール呼び出し(累計)</p>
+        <p class="big">5,095</p>
+        <p class="cap">エージェントとクライアントが建設費ツールを実際に呼んだ回数。直近30日は 2,043 回。ただし監視・自己テスト・番人の点検も含む(純粋な自然需要ではない)。</p>
+      </div>
+      <div>
+        <p class="label">人 と AI の答え ・ 引用率</p>
+        <p class="big red">0%</p>
+        <p class="cap">フロンティアLLMに建設費の質問を投げて HORIZON SHIELD が答えに出た割合。7月から9月まで 8回連続で 0/17。ここが未攻略。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="snum">02 機械側の認知 ・ MCP ツール実呼び出し</p>
+    <h2>道具は生きて、叩かれている <span class="asof">as of 2026-09-14 (usage-stats.json 実測)</span></h2>
+    <table>
+      <thead><tr><th>ツール</th><th class="n">累計呼び出し</th><th style="width:42%">構成</th></tr></thead>
+      <tbody>
+        <tr><td>get_price_range(相場照会)</td><td class="n big-n">1,543</td><td><span class="bar" style="width:100%"></span></td></tr>
+        <tr><td>audit_estimate(見積診断)</td><td class="n big-n">1,270</td><td><span class="bar" style="width:82%"></span></td></tr>
+        <tr><td>verify_fair_price(署名付き検証)</td><td class="n big-n">277</td><td><span class="bar" style="width:18%"></span></td></tr>
+        <tr><td>verify_integrity_claim(第三者検証)</td><td class="n big-n">46</td><td><span class="bar" style="width:3%"></span></td></tr>
+        <tr><td>find_verified_contractor(業者検索・9/13新設)</td><td class="n big-n">10</td><td><span class="bar" style="width:1%"></span></td></tr>
+        <tr><td>create_ap2_fairness_attestation</td><td class="n big-n">9</td><td><span class="bar" style="width:1%"></span></td></tr>
+        <tr><td>check_red_flags</td><td class="n big-n">0</td><td></td></tr>
+      </tbody>
+    </table>
+    <div class="grid3" style="margin-top:20px">
+      <div><p class="label">累計(全ツール)</p><p class="stat">5,095</p></div>
+      <div><p class="label">直近30日 (08-16〜09-14)</p><p class="stat">2,043</p></div>
+      <div><p class="label">日次ピーク (09-10)</p><p class="stat">207</p></div>
+    </div>
+    <p class="note">直近日次: 9/6=100, 9/7=108, 9/10=207, 9/13=55, 9/14=22。<span class="flag">注意:</span> この数は「AIが自分で選んで呼んだ」証拠ではない。接続済みクライアント・レジストリの死活監視・番人の点検・本人テストを含む。純粋な自然需要の分離は現状できない。</p>
+  </section>
+
+  <section>
+    <p class="snum">03 AIの答えの中での認知 ・ 正直な穴</p>
+    <h2>ここが 0 のまま <span class="asof">as of 2026-09-07 (llm_visibility_monitor 実測)</span></h2>
+    <table>
+      <thead><tr><th>測定日</th><th class="n">質問数</th><th class="n">HS 引用</th><th class="n">競合が出た</th><th class="n">引用率</th></tr></thead>
+      <tbody>
+        <tr><td>2026-07-08</td><td class="n">15</td><td class="n">0</td><td class="n">12</td><td class="n">0.0%</td></tr>
+        <tr><td>2026-07-08</td><td class="n">15</td><td class="n">0</td><td class="n">13</td><td class="n">0.0%</td></tr>
+        <tr><td>2026-08-08</td><td class="n">15</td><td class="n">0</td><td class="n">13</td><td class="n">0.0%</td></tr>
+        <tr><td>2026-09-04</td><td class="n">15</td><td class="n">0</td><td class="n">14</td><td class="n">0.0%</td></tr>
+        <tr><td>2026-09-07</td><td class="n">17</td><td class="n" style="color:var(--red);font-weight:800">0</td><td class="n">16</td><td class="n" style="color:var(--red);font-weight:800">0.0%</td></tr>
+      </tbody>
+    </table>
+    <p class="note">最新回(9/7, model claude-sonnet-4-6, 17問): 引用 0 ／ 競合が出た 16 ／ どちらも無し 1。カテゴリ別も全滅 <span style="font-variant-numeric:tabular-nums">価格 0/5 ・ 判定 0/5 ・ 手口 0/5 ・ 業者 0/2</span>。競合ブランドは 10種が答えに登場(名前はここには載せない)。<b>これは会社の存在理由そのものの指標であり、今日いじった hs-mcp 1.0.9 と記事はここを埋めに行っている。</b></p>
+  </section>
+
+  <section>
+    <p class="snum">04 学術での引用と到達</p>
+    <h2>土台は本物で、着実に伸びている <span class="asof">as of 2026-09-14 (Zenodo/HF/GitHub API 実測、SSRN は本人画面)</span></h2>
+    <div class="grid2">
+      <div>
+        <p class="label" style="margin-top:4px">SSRN ・ 5本 live</p>
+        <table>
+          <thead><tr><th>論文</th><th class="n">閲覧</th><th class="n">DL</th></tr></thead>
+          <tbody>
+            <tr><td>Verification for the Buyer, Not the Seller</td><td class="n">92</td><td class="n">24</td></tr>
+            <tr><td>Benchmarking Frontier LLMs (建設費)</td><td class="n">66</td><td class="n">10</td></tr>
+            <tr><td>Reducing Information Asymmetry (VRQ)</td><td class="n">76</td><td class="n">-</td></tr>
+            <tr><td>Same File In, Same Bytes Out(共著)</td><td class="n">18</td><td class="n">3</td></tr>
+            <tr><td>The Prover Does Not Choose the Coordinate(共著)</td><td class="n">4</td><td class="n">1</td></tr>
+          </tbody>
+        </table>
+        <p class="note">閲覧 256+ ／ DL 38+(2本のDLは未取得)。フェデリコとの共著2本が 9/14 に両方 live。JCCDB の SSRN 版(6738701)は別途 DISTRIBUTED。</p>
+      </div>
+      <div>
+        <p class="label" style="margin-top:4px">データセット ・ オープン配布</p>
+        <table>
+          <thead><tr><th>配布先</th><th class="n">閲覧</th><th class="n">DL</th></tr></thead>
+          <tbody>
+            <tr><td>Zenodo JCCDB(解説, concept)</td><td class="n">432</td><td class="n">105</td></tr>
+            <tr><td>Zenodo JCCDB v4.0 データ本体</td><td class="n">5</td><td class="n">14</td></tr>
+            <tr><td>Zenodo 再現材料(Benchmark)</td><td class="n">28</td><td class="n">44</td></tr>
+            <tr><td>Hugging Face jccdb</td><td class="n">-</td><td class="n">131</td></tr>
+            <tr><td>GitHub JCCDB データ repo(star)</td><td class="n">-</td><td class="n">7</td></tr>
+          </tbody>
+        </table>
+        <p class="note">JCCDB 解説は Zenodo で 432閲覧/105DL(92ユニーク)、HF 131DL、repo 7 star。データを誰でも検算できる状態で回っている。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="snum">05 エコシステムと知識グラフでの認知</p>
+    <h2>読む側の台帳に、名前が載っている</h2>
+    <table>
+      <thead><tr><th>場所</th><th>状態</th><th class="asof" style="text-align:right">as of</th></tr></thead>
+      <tbody>
+        <tr><td>公式 MCP Registry</td><td>2サーバー掲載(horizon-shield / hs-mcp-observatory)</td><td class="asof" style="text-align:right">2026-09-04</td></tr>
+        <tr><td>Glama</td><td>Aスコア、14ツール、Author Verified</td><td class="asof" style="text-align:right">2026-09-06</td></tr>
+        <tr><td>JIDEC 台帳(Bitcoin 錨)</td><td>41 エントリ、追記のみ、第三者再計算可</td><td class="asof" style="text-align:right">2026-09-14</td></tr>
+        <tr><td>外部の独立証人</td><td>1名(HSインフラ外の独立網から測定)</td><td class="asof" style="text-align:right">2026-09-14</td></tr>
+        <tr><td>Wikidata</td><td>3エンティティ(会社・人・JCCDB)相互参照</td><td class="asof" style="text-align:right">既存</td></tr>
+        <tr><td>ORCID / Web of Science ResearcherID</td><td>登録済み(著者同定)</td><td class="asof" style="text-align:right">既存</td></tr>
+        <tr><td>Anthropic MCP Directory</td><td>approved、アイコン/文言の微修正待ち</td><td class="asof" style="text-align:right">2026-09-05</td></tr>
+      </tbody>
+    </table>
+    <p class="note">レジストリと Glama は記録上の最終確認日を併記(要ライブ再確認)。JIDEC と証人は本日ライブ実測。</p>
+  </section>
+
+  <section>
+    <p class="snum">06 検索とコード</p>
+    <div class="grid3">
+      <div><p class="label">サイト規模</p><p class="stat">918</p><p class="note">HTMLページ数(実測)</p></div>
+      <div><p class="label">Git コミット</p><p class="stat">2,718</p><p class="note">main、本日実測</p></div>
+      <div><p class="label">GitHub star</p><p class="stat">7 <span style="font-size:15px;color:var(--mut)">+ 1</span></p><p class="note">JCCDB データ repo 7 ／ 本体 1</p></div>
+    </div>
+    <div class="grid2" style="margin-top:18px">
+      <div>
+        <p class="label">Google(GSC)</p>
+        <p class="stat">索引 22 <span style="font-size:14px;color:var(--mut)">/ クロール 3日</span></p>
+        <p class="note"><span class="flag">要再確認。</span>2026-09-13 の最終値。いまは 8〜12週の索引化ホールド中で、この期間は動かさない方針。フレッシュ値は GSC 画面で。</p>
+      </div>
+      <div>
+        <p class="label">Bing</p>
+        <p class="stat">クリック 151</p>
+        <p class="note"><span class="flag">要再確認。</span>直近の最終値。Bing は sitemap archive/yakumo と IndexNow を別系統で入れており、Google と独立に生きている。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="snum">07 番人の読み</p>
+    <div class="read">
+      <p><span class="hl">二つの層が、逆を向いている。</span> 機械の層(MCP・台帳・データセット・レジストリ)は生きて、叩かれて、掲載されている。学術の土台も本物で、JCCDB は Zenodo 432閲覧・HF 131DL と着実に回っている。ここは強い。</p>
+      <p><span class="hl">だが、AIの答えの中の認知は 0 のままだ。</span> 建設費の質問をLLMに投げると、出るのは競合で、HORIZON SHIELD は 7月から一度も出ていない。会社の存在理由そのものが、まだ土俵に上がれていない。これを隠さないのがこの会社の作法だから、正直に一番上に置いた。</p>
+      <p><span class="hl">この差は、偶然ではなく設計で埋める。</span> 今日 hs-mcp を 1.0.9 まで上げた(instructions の routing 指示、provenance、next_calls、Yakumo、英語の工事名対応)。これは「機械が選びやすい」側の工事。記事(Zenn / dev.to)は「人が問いを立て直す」側の工事。両方を回して、次の visibility 測定で 0 が 1 に変わるかを見る。</p>
+      <p><span class="hl">次に測る一手。</span> usage-stats に 9/13 で足した計器(usage:region / usage:normalize:en)は、これから「外の LLM が地域や英語で叩き始めたか」を数える。1週間後にこの表を撮り直せば、機械側の需要が自然発生に寄ったかが数字で出る。</p>
+    </div>
+  </section>
+
+  <footer>
+    <p><b>方法と出典。</b> MCP呼び出し = mcp.horizonshield.dev/.well-known/usage-stats.json(本日実測)。AI引用率 = ops/llm_visibility_monitor の8回分サマリ(最終 2026-09-07)。Zenodo/Hugging Face/GitHub = 各公式API(本日実測)。SSRN = 本人の My Papers 画面(2026-09-14)、DL 2本は未取得。JIDEC = 台帳 seq(本日)。GSC/Bing = 2026-09-13 の最終値、要ライブ再確認。Registry/Glama/Directory = 記録上の最終確認日を併記。<b>盛った数字は一つもない。取れなかった所は「-」または「要再確認」と書いた。</b></p>
+  </footer>
+</div>

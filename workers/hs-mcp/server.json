@@ -1,0 +1,12 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "name": "dev.horizonshield/horizon-shield",
+  "description": "Independent buyer-side fair-price verification for Japanese construction and renovation estimates.",
+  "version": "1.0.9",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.horizonshield.dev/mcp"
+    }
+  ]
+}

@@ -258,3 +258,42 @@ ops/first_record_prep_out/
 # GitHub の 1 file 100 MB 上限に当たって、push が途中で死ぬ形の失敗になる。
 workers/hs-ledger/nenrin/coordinate-v1/localheaders_catchup.bin
 workers/hs-ledger/nenrin/coordinate-v1/localheaders_full.bin
+
+# 2026-09-15: iasf/ は企業秘密(研究の器、発見場の盤と runner、観測記録)。追跡しない。公開しない。
+iasf/
+
+# --- 2026-09-16 追記: 非公開リポ hs-core-private を公開リポ内で絶対に追跡しない(番人が誤って入れ子に置いた事故の再発防止) ---
+hs-core-private/
+
+# 2026-09-20 作業ツリーの仕分け (ops/tree_sort_20260920.md)。入れ子の repo、客先の仕事、下書き、走り書きは公開ツリーに入れん。
+wedjat-check-action/
+workers/hs-apps-jimu/
+docs/apps-ai-jimuin/
+drafts/
+localheaders_mainnet.bin
+localheaders_mainnet.manifest.json
+card_16x9.png
+card_square.png
+post_image_0pct.png
+note_article.md
+post_ready.md
+reply_playbook.md
+sns_posts_*.md
+aeo_block.txt
+bundle.json
+endpoints_sample.txt
+hs_batch_*.json
+qa_paths.json
+souba_assign.json
+survey.json
+verify-directory/survey/data/lookup_*.json
+ops/company_name_*.txt
+ops/kantei_changed_files.txt
+ops/a2a_1769_*.txt
+ops/a2a_wave2_*.patch
+ops/anthropic_directory_paste_*.md
+ops/gitleaks.yml
+ops/ledger_3?.html
+ops/ledger_3?.json
+ops/reach-runs/*.bak
+workers/hs-partner-002-mcp/fix_takashi_*.py

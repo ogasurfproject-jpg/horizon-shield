@@ -75,7 +75,7 @@ Five record types, hash-linked: drift (a witness measured a public surface and i
 
 Re-verification witnesses are not chosen by the operator. They are drawn from a public pool with `sha256(bitcoin block hash | pool hash | record hash)` as the seed, so a third party recomputes who should have been asked. A drawn witness receives only a blind request (no expected values) and returns only a signed observation; nothing it says is executed. This is the July 2026 lesson turned around: unknown agents may observe you, never instruct you.
 
-Two real incidents are recorded in [`workers/hs-ledger/nenrin/recovery-v0`](workers/hs-ledger/nenrin/recovery-v0): a raw deploy that bypassed the deploy guard and silently broke the card signature and the OpenAI domain challenge (found by an external verifier, closed with an unsigned chat approval, which the strict verifier flags as such), and a card signature broken by two version bumps deployed without a re-sign (found by the daily witness, closed with a signed authorization, twelve records). The pool of external witnesses is empty on 2026-09-20; the records say so instead of pretending a quorum.
+Two real incidents are recorded in [`workers/hs-ledger/nenrin/recovery-v0`](workers/hs-ledger/nenrin/recovery-v0): a raw deploy that bypassed the deploy guard and silently broke the card signature and the OpenAI domain challenge (found by an external verifier, closed with an unsigned chat approval, which the strict verifier flags as such), and a card signature broken by two version bumps deployed without a re-sign (found by the daily witness, closed with a signed authorization, twelve records). The pool of external witnesses is empty on 2026-09-20; the records say so instead of pretending a quorum. Incident 2 can be recomputed in a browser, hashes and the operator's Ed25519 signature, with no trust in this project: https://shield.the-horizons-innovation.com/tsugi/
 
 ## Repository map
 
@@ -127,11 +127,20 @@ implementation. They were holes in the test set. All six are closed.
   v0 is anchored as [JIDEC entry 39](https://ledger.horizonshield.dev/ledger/39) and does not move.
 - The verifiers, the adversary and the contract:
   [`workers/hs-ledger/nenrin/agreement-v0`](workers/hs-ledger/nenrin/agreement-v0)
-- What an intake may and may not do, written before one exists:
-  [`ops/AGREEMENT_INTAKE_v0_BOUNDARY.md`](ops/AGREEMENT_INTAKE_v0_BOUNDARY.md)
+- What an intake may and may not do, written before one existed:
+  [`ops/AGREEMENT_INTAKE_v0_BOUNDARY.md`](ops/AGREEMENT_INTAKE_v0_BOUNDARY.md); the five open
+  decisions and how they were settled: [`ops/AGREEMENT_INTAKE_v0_DECISIONS.md`](ops/AGREEMENT_INTAKE_v0_DECISIONS.md);
+  state: [`ops/AGREEMENT_INTAKE_v0_STATUS.md`](ops/AGREEMENT_INTAKE_v0_STATUS.md)
 
-There is no intake yet, and that is deliberate. A record layer built before it has two parties is
-an empty exchange, and an empty exchange is worse than none.
+The intake exists since 2026-09-16 ([`agreement_intake.mjs`](workers/hs-ledger/nenrin/agreement-v0/agreement_intake.mjs),
+wired into the ledger worker): `POST /agreement` accepts a record only when both signatures verify
+against the keys each party serves at its `key_url`, deduplicates atomically, serves the record by
+sha at `GET /agreement/{canonical_sha256}`, and bundles the accepted pool into a daily anchored
+ledger entry. It judges nothing. The first record it accepted, between this project's agent and
+Federico Blanco Sánchez-Llanos's agent, is in the tree as
+[`first_agreement_record.json`](workers/hs-ledger/nenrin/agreement-v0/first_agreement_record.json).
+An earlier version of this paragraph said there was no intake; the code had been written and
+deployed but not committed, which this repository noticed on 2026-09-20 and corrected.
 
 ## The register, as a repository
 

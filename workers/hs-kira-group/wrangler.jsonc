@@ -1,0 +1,20 @@
+{
+	// 新 KIRA(@425hjhdx)専用ワーカー。本番 hs-kira-line とは完全に別。
+	// secret は wrangler secret put で入れる(コード/このファイルに値は書かない):
+	//   LINE_CHANNEL_SECRET   = KIRA(@425hjhdx)の Channel secret
+	//   LINE_CHANNEL_TOKEN    = KIRA(@425hjhdx)の Channel access token(long-lived)
+	//   ANTHROPIC_API_KEY     = 既存の Anthropic キー
+	// KV も cron も要らない(ステートレス)。
+	"name": "hs-kira-group",
+	"main": "src/worker.js",
+	"compatibility_date": "2026-03-28",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"kv_namespaces": [
+		{
+			"binding": "HS_KIRA_GROUP_KV",
+			"id": "9ffd10ebfce24855a9965bc03d869788"
+		}
+	]
+}
