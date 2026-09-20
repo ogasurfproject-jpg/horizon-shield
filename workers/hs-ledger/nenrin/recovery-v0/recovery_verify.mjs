@@ -9,9 +9,9 @@
 // 二本立てにせん。hash は record_sha256 と署名 2 欄を除いた canonical bytes に対して取る。
 // 非同期な理由は agreement_verify.mjs と同じ: sha256 も Ed25519 も WebCrypto。Worker に同期の口が無い。
 import { canonicalUtf8 } from "../agreement-v0/agreement_canonical.mjs";
-import { validate, SCHEMAS } from "./recovery_schema.mjs";
+import { validate, SCHEMAS, PRIMITIVES } from "./recovery_schema.mjs";
 
-export const VERIFIER_VERSION = "0.1.0";
+export const VERIFIER_VERSION = "0.2.0"; // v1: cryptographic Policy Gate (signed operator authorization)
 const enc = new TextEncoder();
 
 export async function sha256Hex(bytes) {
@@ -75,7 +75,11 @@ export async function verifyRecord(record) {
 }
 
 // 連鎖 (1 事故 = 1 区間) の検証。records は記録順。
-export async function verifyChain(records) {
+// opts.operatorKeys: 運営者の公開鍵 (base64 raw Ed25519) の配列。渡すと strict モード (v1):
+//   人間承認プリミティブ (approval: human) の実行は、その許可が運営者鍵で署名され、かつ鍵が信用集合に在ることを要求する。
+//   渡さんと lenient (v0 互換): decision: approved だけで通す。既存の記録を割らんため。
+export async function verifyChain(records, opts = {}) {
+  const operatorKeys = Array.isArray(opts.operatorKeys) ? opts.operatorKeys : null;
   const refusals = [];
   const refuse = (code, why) => refusals.push({ code, why });
   if (!Array.isArray(records) || records.length === 0) { refuse("empty_chain", "no records"); return { ok: false, refusals }; }
@@ -108,6 +112,19 @@ export async function verifyChain(records) {
   if (execution && execution.authorization_sha256 !== hashes[i + 1]) refuse("ref_mismatch", "execution.authorization_sha256 != authorization record_sha256");
   if (verify && verify.execution_sha256 !== hashes[i + 2]) refuse("ref_mismatch", "verify.execution_sha256 != execution record_sha256");
   if (authorization && execution && authorization.decision !== "approved") refuse("unauthorized_execution", "execution follows an authorization whose decision is " + authorization.decision);
+  if (execution) {
+    const prim = execution.primitive;
+    const needsHuman = !!(PRIMITIVES[prim] && PRIMITIVES[prim].approval === "human");
+    if (needsHuman && operatorKeys) {
+      if (!authorization) refuse("unauthorized_execution", "human-approval primitive " + prim + " executed with no authorization");
+      else {
+        const signed = !!(authorization.signature_ed25519_b64 && authorization.public_key_ed25519_b64);
+        if (!signed) refuse("authorization_unsigned", "human-approval primitive " + prim + " follows an authorization not signed by an operator key");
+        else if (!operatorKeys.includes(authorization.public_key_ed25519_b64)) refuse("authorization_untrusted_key", "authorization signed by a key not in the operator trust set");
+      }
+    }
+    if (authorization && authorization.expires_at && execution.recorded_at > authorization.expires_at) refuse("authorization_expired", "execution.recorded_at " + execution.recorded_at + " is after authorization.expires_at " + authorization.expires_at);
+  }
   if (proposal && execution && proposal.primitive !== execution.primitive) refuse("primitive_mismatch", "execution.primitive " + execution.primitive + " != proposal.primitive " + proposal.primitive);
   if (proposal && verify && canonicalUtf8(proposal.expected_after) !== canonicalUtf8(verify.expected_after)) refuse("expected_after_drift", "verify.expected_after differs from proposal.expected_after: the target moved after authorization");
   if (verify && verify.recovered === true) {

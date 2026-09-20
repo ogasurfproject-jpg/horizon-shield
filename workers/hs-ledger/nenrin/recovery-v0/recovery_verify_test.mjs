@@ -107,6 +107,44 @@ t("fixture: rebuilding from code gives the same bytes as the file (drift guard)"
   t("signature checked against another key -> bad_signature", has(await verifyRecord(wrongKey), "bad_signature"));
 }
 
+// ---- 6. v1: cryptographic Policy Gate ----
+{
+  const kp = await globalThis.crypto.subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"]);
+  const opPub = new Uint8Array(await globalThis.crypto.subtle.exportKey("raw", kp.publicKey));
+  const opPubB64 = Buffer.from(opPub).toString("base64");
+
+  const strictReal = await verifyChain(fx, { operatorKeys: [opPubB64] });
+  t("v1: real fixture under strict mode flags the unsigned chat approval", !strictReal.ok && strictReal.refusals.some((x) => x.code === "authorization_unsigned"));
+  t("v1: real fixture still verifies in lenient mode (v0 compat)", (await verifyChain(fx)).ok);
+
+  const signedAuth = await sign({ ...fx[4] }, kp.privateKey, opPub);
+  const v1 = clone(fx);
+  v1[4] = signedAuth;
+  v1[5] = await seal({ ...v1[5], prev: signedAuth.record_sha256, authorization_sha256: signedAuth.record_sha256 });
+  v1[6] = await seal({ ...v1[6], prev: v1[5].record_sha256, execution_sha256: v1[5].record_sha256 });
+  const strictSigned = await verifyChain(v1, { operatorKeys: [opPubB64] });
+  t("v1: a signed authorization by a trusted key verifies in strict mode", strictSigned.ok, JSON.stringify(strictSigned.refusals));
+  t("v1: the signed authorization itself is a valid record", (await verifyRecord(signedAuth)).ok);
+
+  const other = await globalThis.crypto.subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"]);
+  const otherPubB64 = Buffer.from(new Uint8Array(await globalThis.crypto.subtle.exportKey("raw", other.publicKey))).toString("base64");
+  const untrusted = await verifyChain(v1, { operatorKeys: [otherPubB64] });
+  t("v1: a signed authorization by an untrusted key is refused", !untrusted.ok && untrusted.refusals.some((x) => x.code === "authorization_untrusted_key"));
+
+  const exp = clone(v1);
+  exp[5] = await seal({ ...v1[5], recorded_at: "2026-09-20T13:00:00Z", prev: signedAuth.record_sha256, authorization_sha256: signedAuth.record_sha256 });
+  exp[6] = await seal({ ...exp[6], prev: exp[5].record_sha256, execution_sha256: exp[5].record_sha256 });
+  const expired = await verifyChain(exp, { operatorKeys: [opPubB64] });
+  t("v1: execution after the authorization expiry is refused", expired.refusals.some((x) => x.code === "authorization_expired"));
+
+  const ad = await seal({ schema: SCHEMAS.drift, recorded_at: "2026-09-20T09:00:00Z", witness: { name: "t", vantage: "t" }, prev: null, endpoint: "https://x", surface: "health.gate_commit", drift: true, kind: "endpoint_error", observed: { e: "x" }, expected: { a: "b" }, establishes: ["t"], does_not_establish: ["t"] });
+  const ap = await seal({ schema: SCHEMAS.proposal, recorded_at: "2026-09-20T09:01:00Z", witness: { name: "t", vantage: "t" }, prev: ad.record_sha256, drift_sha256: [ad.record_sha256], primitive: "quarantine_endpoint", diagnosis: "d", rejected: [], expected_after: { registry: { status: "quarantined" } }, rollback: "r", establishes: ["t"], does_not_establish: ["t"] });
+  const aa = await seal({ schema: SCHEMAS.authorization, recorded_at: "2026-09-20T09:02:00Z", witness: { name: "t", vantage: "t" }, prev: ap.record_sha256, proposal_sha256: ap.record_sha256, decision: "approved", by: "auto", expires_at: "2026-09-20T12:00:00Z", establishes: ["t"], does_not_establish: ["t"] });
+  const ae = await seal({ schema: SCHEMAS.execution, recorded_at: "2026-09-20T09:03:00Z", witness: { name: "t", vantage: "t" }, prev: aa.record_sha256, authorization_sha256: aa.record_sha256, primitive: "quarantine_endpoint", before: { a: "b" }, after: { a: "c" }, outcome: "ok", steps: ["s"], establishes: ["t"], does_not_establish: ["t"] });
+  const autoChain = await verifyChain([ad, ap, aa, ae], { operatorKeys: [opPubB64] });
+  t("v1: an auto-approval primitive needs no signed authorization in strict mode", autoChain.ok, JSON.stringify(autoChain.refusals));
+}
+
 console.log(results.join("\n"));
 console.log("=== " + pass + " / " + (pass + fail) + " 合格 (recovery-v0: " + FIXTURE_FILE + " と変異 " + (pass + fail - 12) + " 件) ===");
 if (fail) { console.log("この赤は、書いた変異のどれかが通ってしもた、という意味や。通った変異は穴や。"); process.exit(1); }
