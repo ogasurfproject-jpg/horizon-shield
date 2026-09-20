@@ -18,7 +18,7 @@ const post = async (path, body, headers) => {
 // card
 const card = await (await worker.fetch(new Request(O + "/.well-known/agent-card.json"), ENV, CTX)).json();
 chk("card: supportedInterfaces[0] is JSONRPC 1.0 at /a2a, [1] is 0.3", Array.isArray(card.supportedInterfaces) && card.supportedInterfaces[0].protocolBinding === "JSONRPC" && card.supportedInterfaces[0].protocolVersion === "1.0" && card.supportedInterfaces[0].url === O + "/a2a" && card.supportedInterfaces[1].protocolVersion === "0.3", JSON.stringify(card.supportedInterfaces));
-chk("card: 0.3 keys point at the same /a2a", card.url === O + "/a2a" && card.preferredTransport === "JSONRPC" && card.protocolVersion === "0.3.0");
+chk("card: top-level protocolVersion is 1.0 and url/preferredTransport point at /a2a (0.3 kept in supportedInterfaces[1])", card.url === O + "/a2a" && card.preferredTransport === "JSONRPC" && card.protocolVersion === "1.0");
 chk("card: media types, not the word text", card.defaultInputModes[0] === "text/plain" && card.defaultOutputModes.includes("application/json"));
 chk("card: still declares the conduct extension, not required", card.capabilities.extensions.some((e) => e.uri === EXT && e.required === false));
 
