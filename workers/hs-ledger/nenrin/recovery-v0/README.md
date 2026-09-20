@@ -1,6 +1,6 @@
 # recovery-v0: Proof-of-Recovery の最初の一枚
 
-設計書 (Claude Docs「Proof-of-Recovery 設計書」、2026-09-20) の v0。第2の柱の、記録の型と、それを採点する物と、Class 1 の証人。
+設計書 (Claude Docs「Proof-of-Recovery 設計書」、2026-09-20) の v0。第2の柱の、記録の型、それを採点する物、Class 1 の証人、そして Shield エージェント (診断と提案)。
 
 ## 何が在るか
 
@@ -12,15 +12,30 @@
 | recovery_fixture_20260920.json | 表 | 上が書いた 7 記録。hash と prev はコードが計算した物。手で触らん |
 | recovery_verify_test.mjs | suite | fixture が通る、rebuild が byte 一致、変異 24 件が全部落ちる |
 | drift_witness.mjs | library (network) | Class 1 の 7 表面を測って drift-record を JSONL で書く。手で回す |
+| baseline_20260920.jsonl | 表 | 直った扉に対する証人の最初の走り。7 表面、0 drift。v1 の「前回」 |
+| shield_agent.mjs | library (CLI) | Shield エージェント = Recovery Agent 本体。drift を読んで、切り分けて、カタログから 1 つ提案する。実行せん |
+| shield_agent_test.mjs | suite | 今週の事故に何を言うか、規則 7 本が意図した所で当たり、迷う所で止まるか |
+| shield_llm.mjs | library (network, 鍵) | 規則に無い組み合わせに、LLM で仮説を書かせる側。受け入れ検査で縛る |
+| shield_llm_test.mjs | suite | モデルは呼ばん。受け入れ検査が何を通し何を捨てるか、規則が先で LLM が後か |
 | run_all.mjs | runner | agreement-v0 と同じ物。名乗っとらん file が 1 つでも有れば断る |
 
 ## 回し方
 
-    node run_all.mjs                       # 採点
-    node recovery_fixture_build.mjs        # fixture を書き直す (中身を変えた時だけ。変えたら test が byte 一致で止める)
+    node run_all.mjs                                   # 採点 (3 suite)
+    node recovery_fixture_build.mjs                    # fixture を書き直す (中身を変えた時だけ。変えたら test が byte 一致で止める)
     node drift_witness.mjs https://gate.horizonshield.dev --expect-commit <sha> --expect-canonical <hex> --repo <repo> --out drift.jsonl
+    node shield_agent.mjs drift.jsonl --baseline baseline_20260920.jsonl [--source-verifies true|false]
+    node shield_agent.mjs drift.jsonl --baseline baseline_20260920.jsonl --llm [--llm-second-opinion] [--context notes.txt]
 
-drift_witness は drift が 1 つでも有れば exit 1。cron に置く時はそれで人を呼ぶ。
+drift_witness は drift が 1 つでも有れば exit 1。shield_agent は提案が出れば 0、人が要れば 2。
+
+## Shield エージェントの頭は二段
+
+1. **規則の表が先** (shield_agent.mjs の RULES、7 本)。決定可能な Class 1 の組み合わせは規則が答える。同じ入力で同じ答え、無料、幻覚無し、誰でも再計算できる。今週の事故 (unpinned + 署名不一致 + challenge 消失) は R1 が当たり、resign_agent_card を却下して redeploy_pinned を出す。外部証人の「署名し直せ」より一段深い所で答える。
+2. **規則に無い組み合わせだけ LLM** (shield_llm.mjs)。呼び方は IASF と同じ Anthropic Messages API、鍵は `ANTHROPIC_API_KEY` を env で、model は `SHIELD_LLM_MODEL` (既定 claude-haiku-4-5-20251001)、temperature 0。`--llm-second-opinion` を付けると規則が答えた時もモデルに聞き、同じ物を選んだかを横に書く。規則の答えは動かさん。違ったら人が読む。
+3. **LLM の出力は信用せん**。カタログ外なら捨てる。証拠 hash が入力に無ければ捨てる。数が混じれば捨てる。JSON やなければ捨てる。通った物だけ seal して提案にする。witness は shield-agent-llm、model と prompt_sha256 (何を見て言うたか) を記録に焼く。LLM の提案は必ず人間ゲート、隔離であっても自動承認せん。does_not_establish に「言語モデルが書いた仮説であって所見やない」を必ず足す。
+
+つまり LLM も、KIRA と同じ箱に入っとる。判断 (LLM) と権限 (人間) と証拠 (記録) と実行 (Executor) を分ける、設計書 2 節そのままや。
 
 ## v0 の約束
 
@@ -31,8 +46,8 @@ drift_witness は drift が 1 つでも有れば exit 1。cron に置く時は�
 
 ## まだ無い物 (v1)
 
-- Recovery Agent (切り分けと提案を書く側)。今週は人 (番人) が書いた。手順は fixture の diagnosis にそのまま在る。
 - drift_witness を worker の cron に。今は Mac から手で回す物。
-- 前回 witness した状態との比較 (keys の有無、jwks の変化)。v0 は毎回の観測を書くだけで、prior state を持たん。
+- 前回 witness した状態との比較は shield_agent の compareBaseline に在る (鍵の変化、jwks の変化、challenge の変化を所見にする)。証人自身が prior state を持つのは v1。
+- authorization を人の署名 (Ed25519) で取る口。今は記録の型だけ。
 - python の双子 (agreement-v0 と同じく、2 言語で byte 一致を取ってから「正しい」と言う)。
 - 台帳 (hs-ledger) への intake と JIDEC への anchor。記録の型はそのために witness intake と同じ規律にしてある。

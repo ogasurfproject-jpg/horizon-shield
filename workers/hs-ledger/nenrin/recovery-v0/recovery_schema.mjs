@@ -36,7 +36,7 @@ const isObj = (v) => !!v && typeof v === "object" && !Array.isArray(v);
 const isHex = (v) => isStr(v) && HEX64.test(v);
 
 // 数が紛れ込んどらんか (v0 の約束)。深さ優先で見る。
-function hasNumber(v) {
+export function hasNumber(v) {
   if (typeof v === "number" || typeof v === "bigint") return true;
   if (Array.isArray(v)) return v.some(hasNumber);
   if (isObj(v)) return Object.values(v).some(hasNumber);
