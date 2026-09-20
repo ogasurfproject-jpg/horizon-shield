@@ -80,6 +80,7 @@ footer a,main a{color:var(--ink)}
 <li>連鎖の file: <a id="link-json" href="https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/385c71e3/workers/hs-ledger/nenrin/recovery-v0/incident_20260920_resign_chain.json">incident_20260920_resign_chain.json</a> (commit 385c71e3、sha256 <span class="mono">6d259ba9bfe2869fdc0830fb8d894ed52503da7d7e06454897cccc9f5c2d0efa</span>)</li>
 <li>検証器: <a href="https://github.com/ogasurfproject-jpg/horizon-shield/tree/main/workers/hs-ledger/nenrin/recovery-v0">recovery-v0</a> (recovery_verify.mjs 0.3.0 / recovery_verify.py、byte 一致)</li>
 <li>運営者の公開鍵: <a href="https://gate.horizonshield.dev/keys/operator.json">gate.horizonshield.dev/keys/operator.json</a></li>
+<li>Bitcoin への錨: <a href="https://ledger.horizonshield.dev/ledger/50">JIDEC entry 50</a> (claim sha256 <span class="mono">2cbad76ca003b637…</span> = 連鎖 file の sha256 と 12 記録の hash を書いた記録。OpenTimestamps 提出済み、Bitcoin のブロックに乗るまで数時間 pending。乗ったら、この 12 記録が 2026-09-20 に在ったことを HORIZON SHIELD 抜きで確かめられる)</li>
 <li>この頁の source に JSON を丸ごと埋めてある。network が無くても hash と署名は検算できる。本番の鍵と GitHub の bytes の照合だけ network が要る。</li>
 </ul>
 </main>
