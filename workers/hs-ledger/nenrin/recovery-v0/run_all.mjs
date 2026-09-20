@@ -1,0 +1,229 @@
+#!/usr/bin/env node
+// RUN_ALL: runner
+// recovery-v0: この directory の suite を全部回して、判定は suite がやったことだけから出す。
+//
+// なぜこれが要るか (2026-09-10)。
+//
+// ここには今 8 本の道具があって、試験の入口が 11 個ある。python が 9 個、node が 2 個。
+// 名前も引数もばらばらで、全部憶えとる人間だけが「緑や」と言える状態やった。今日
+// agreement_float_repr_v1.json と agreement_readback_v1.json という、python に書かせた
+// 表が二つ増えた。表は python が変わったら黙ってずれる。--check を回す者が居らんかったら、
+// ずれたまま緑に見える。それを回すのが、この file の一番の仕事や。
+//
+// 兄弟 (hs-verify-gate/test, hs-hearing, hs-gateway) との違いは、見つけ方や。
+// 向こうは「この directory の .mjs は全部 suite」でよかった。ここは library と suite と
+// 表が混じっとる。せやから拡張子では決めん。**file 自身に名乗らせる。**
+//
+//     # RUN_ALL: suite --selftest      その引数で回す。1 つの file に何本あってもええ
+//     # RUN_ALL: wip                   採点中。回して点は出すが、合否には数えん
+//     # RUN_ALL: library               suite やない。回さん
+//     # RUN_ALL: runner                この file
+//
+// wip を足した理由 (2026-09-10)。検証器の 2 つ目の実装は 0 / 5,221 から始まる。
+// 完成するまで赤や。赤いまま何日も置いたら、人は赤を見んようになる。かというて
+// 一覧から外したら、走っとらん物が有ることが見えんようになる。せやから第三の道:
+// **必ず走らせて、点を必ず出して、合否には数えん。** そして合格の行の下に、
+// 数えんかった物とその点を毎回書く。緑が「何を含んでへんか」を、緑と同じ場所で言う。
+//
+// そして、.py と .mjs で名乗っとらん file が 1 つでもあったら、**回さずに断る。**
+// 名乗り忘れを黙って飛ばす作りやと、新しい試験を足したのに回っとらん、という
+// 一番よくある穴がそのまま開く。足した人に決めさせる。決めるまで緑は出さん。
+//
+//     node run_all.mjs
+//
+// 覆っとらんもの: この directory から消された suite は、ここでは見つからん。持っとる
+// 一覧が無いんやから、欠けたことに気付きようが無い。それは git の仕事や。
+import { readdirSync, readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+
+const SELF_PATH = fileURLToPath(import.meta.url);
+const HERE = path.dirname(SELF_PATH);
+const SELF = path.basename(SELF_PATH);
+const TIMEOUT_MS = Number(process.env.RECOVERY_SUITE_TIMEOUT_MS || 300000);
+const MARK = /^\s*(?:#|\/\/)\s*RUN_ALL:\s*(\S+)(.*)$/;
+
+const files = readdirSync(HERE)
+  .filter((f) => (f.endsWith(".py") || f.endsWith(".mjs")) && f !== SELF)
+  .sort();
+
+if (files.length === 0) {
+  console.error("★ 拒否: " + HERE + " に .py も .mjs も無い。何も見つけとらん runner が合格を出したらあかん。");
+  process.exit(2);
+}
+
+const suites = [];
+const wips = [];
+const libraries = [];
+const silent = [];
+
+for (const f of files) {
+  const lines = readFileSync(path.join(HERE, f), "utf8").split("\n").slice(0, 120);
+  const marks = [];
+  for (const line of lines) {
+    const m = MARK.exec(line);
+    if (m) marks.push([m[1], m[2].trim()]);
+  }
+  if (marks.length === 0) { silent.push(f); continue; }
+  for (const [kind, rest] of marks) {
+    if (kind === "suite") {
+      // 引数と但し書きの境目。「空白 2 つより前が引数」でやっとったら、引数が無うて
+      // 但し書きだけの行 (# RUN_ALL: suite    長い (百秒ほど)。...) で但し書きが丸ごと
+      // 引数になった。今日それが実際に起きて、agreement_mutation.py は "長い" ほか 3 語を
+      // argv で受け取っとった。あれは argv を見んから無事やっただけで、
+      // agreement_canonical_test.mjs は argv[2] を fixture の path に使う。あれに但し書きを
+      // 一行足したら、無い file を読みに行って壊れとった。
+      // 規則を曖昧やない物にする: **頭から続く「-」で始まる語だけが引数。**
+      // 「-」で始まらん語が出たら、そこから後ろは全部、人が読む用の但し書き。
+      // (但し書きを「-」で始めたらあかん。それだけが約束事や。)
+      const toks = rest.trim().split(/\s+/).filter((x) => x !== "");
+      let n = 0;
+      while (n < toks.length && toks[n].startsWith("-")) n++;
+      suites.push({ file: f, args: toks.slice(0, n), note: toks.slice(n).join(" ") });
+    } else if (kind === "wip") {
+      const toks = rest.trim().split(/\s+/).filter((x) => x !== "");
+      let n = 0;
+      while (n < toks.length && toks[n].startsWith("-")) n++;
+      wips.push({ file: f, args: toks.slice(0, n), note: toks.slice(n).join(" ") });
+    } else if (kind === "library" || kind === "runner") {
+      libraries.push(f);
+    } else {
+      silent.push(f + " (RUN_ALL: " + kind + " は知らん語)");
+    }
+  }
+}
+
+if (silent.length) {
+  console.error("★ 拒否: 名乗っとらん file がある。suite か library か、足した人が決めること。");
+  for (const f of silent) console.error("        " + f);
+  console.error("");
+  console.error('        先頭 120 行のどこかに 1 行入れる:  # RUN_ALL: suite --selftest');
+  console.error('                                          # RUN_ALL: library');
+  process.exit(2);
+}
+
+if (suites.length === 0) {
+  console.error("★ 拒否: suite が 1 本も無い。");
+  process.exit(2);
+}
+
+const label = (s) => s.file + (s.args.length ? " " + s.args.join(" ") : "");
+const runner = (f) => (f.endsWith(".py") ? "python3" : process.execPath);
+
+console.log("recovery-v0: " + suites.length + " suite"
+  + (wips.length ? " と 採点中 " + wips.length + " 本" : "")
+  + " (" + libraries.length + " library)、"
+  + "1 本あたりの制限時間 " + Math.round(TIMEOUT_MS / 1000) + "s");
+
+// 全部で 6 分ほどかかる。mutation を 3 本抱えとるからで、短うするには変異を減らす
+// しかない。減らした分だけ、緑の意味が薄うなる。
+// 長い suite があることを、走り出す前に言う。この一覧は持っとらん。file 自身が
+// RUN_ALL の行に書いた但し書きを、そのまま出しとるだけや。
+const noted = suites.filter((s) => s.note);
+for (const s of noted) console.log("  " + label(s) + " は " + s.note);
+if (noted.length) console.log("");
+
+const results = [];
+const wall0 = Date.now();
+
+// 走らせる前に名前を出す。出さんと、長い suite の間ずっと画面が黙って、止まったよう
+// にしか見えん。2026-09-10、実際に「ターミナル止まってんぞ」と言われた。168 秒黙る
+// 1 本があるんやから、黙ってる方が悪い。
+// 端末に出しとるときだけ、行を書いて \r で頭に戻り、終わったら同じ行を結果で上書き
+// する。file に落としとるときは書かん。両方出て二重になるからや。
+const live = !!process.stdout.isTTY;
+const inflight = (name) => {
+  if (live) process.stdout.write("  " + name.padEnd(38) + "走らせとる...\r");
+};
+
+for (const s of suites) {
+  inflight(label(s));
+  const t0 = Date.now();
+  const r = spawnSync(runner(s.file), [path.join(HERE, s.file), ...s.args], {
+    cwd: HERE, timeout: TIMEOUT_MS, encoding: "utf8", maxBuffer: 128 * 1024 * 1024,
+  });
+  const secs = Math.round((Date.now() - t0) / 1000);
+  const so = (r.stdout || "").replace(/\s+$/, "");
+  const out = ((r.stdout || "") + (r.stderr || "")).replace(/\s+$/, "");
+  const lines = out.split("\n").filter((x) => x.trim() !== "");
+  const solines = so.split("\n").filter((x) => x.trim() !== "");
+  const timedOut = r.signal === "SIGTERM" || (r.error && r.error.code === "ETIMEDOUT");
+
+  let reason = null;
+  if (timedOut) reason = "timed out after " + secs + "s";
+  else if (r.error) reason = "could not run: " + r.error.message;
+  else if (r.status !== 0) reason = "exit " + r.status;
+  else if (lines.length === 0) reason = "exit 0 やのに何も書かんかった。何も証明しとらん";
+
+  const pick = (ls) => [...ls].reverse().find((x) => /合格|一致|通過|PASS|passed/.test(x)) || "";
+  const summary = pick(solines) || pick(lines)
+    || (solines.length ? solines[solines.length - 1] : (lines.length ? lines[lines.length - 1] : ""));
+  results.push({ name: label(s), secs, out, reason, ok: reason === null, summary });
+
+  const line = "  " + label(s).padEnd(38) + (reason === null ? "合格" : "不合格")
+    + "  " + String(secs).padStart(3) + "s  " + (reason === null ? summary.slice(0, 80) : reason);
+  // 走らせとる行を消してから結果を書く。消さんと "走らせとる..." の尻尾が残る。
+  if (live) process.stdout.write("\r" + " ".repeat(56) + "\r");
+  console.log(line);
+}
+
+// 採点中の物。必ず走らせて、点は出す。合否には数えん。
+const wipResults = [];
+for (const w of wips) {
+  inflight(label(w) + " (採点中)");
+  const t1 = Date.now();
+  const r = spawnSync(runner(w.file), [path.join(HERE, w.file), ...w.args], {
+    cwd: HERE, timeout: TIMEOUT_MS, encoding: "utf8", maxBuffer: 128 * 1024 * 1024,
+  });
+  const secs = Math.round((Date.now() - t1) / 1000);
+  const so = (r.stdout || "").split("\n").filter((x) => x.trim() !== "");
+  // 点は嗅ぎ当てん。file が SCORE: の行で名乗った物だけを読む。
+  // 嗅ぎ当てとった頃、最後の "=== 4 / 5 不合格あり ===" を点として拾うた。あれは
+  // vector の数で、件数は 0 / 5,221 やった。8 割できとるように読める行が、
+  // 0% の場所に座る。名乗らせたら、そういう間違いが起きようが無い。
+  const declared = [...so].reverse().find((x) => /^\s*SCORE:/.test(x));
+  if (declared === undefined) {
+    console.error("");
+    console.error("★ 拒否: " + label(w) + " は wip と名乗ったのに、点を出しとらん。");
+    console.error("        wip は「合否に数えん代わりに、点を必ず見せる」物や。点が無い wip は、");
+    console.error("        走っとらんのと変わらん物を、緑の外に隠しとるだけになる。");
+    console.error('        最後に SCORE: で始まる行を 1 本出すこと (例: SCORE: 一致 0 / 5221)。');
+    process.exit(2);
+  }
+  const score = declared.replace(/^\s*SCORE:\s*/, "").trim();
+  if (live) process.stdout.write("\r" + " ".repeat(60) + "\r");
+  wipResults.push({ name: label(w), score, note: w.note });
+  console.log("  " + label(w).padEnd(38) + "採点中  " + String(secs).padStart(3) + "s  " + score.slice(0, 72));
+}
+
+const failed = results.filter((r) => !r.ok);
+
+// 緑は per suite の結果から**導く**。横に置いた旗は、いつか一覧と食い違う。
+// 2026-09-10 に検証器で実際に食い違うのを見た。
+const green = results.length === suites.length && failed.length === 0;
+const wall = Math.round((Date.now() - wall0) / 1000);
+
+console.log("");
+
+if (!green) {
+  for (const r of failed) {
+    console.log("--- " + r.name + " (" + r.reason + ") 末尾 25 行");
+    console.log(r.out.split("\n").slice(-25).join("\n"));
+    console.log("");
+  }
+  console.log("=== " + (results.length - failed.length) + " / " + suites.length + " 通過、"
+    + failed.length + " 不合格 (recovery-v0、" + wall + "s) ===");
+  for (const w of wipResults) {
+    console.log("★ この数は " + w.name + " を含んでへん。採点中: " + w.score);
+  }
+  process.exit(1);
+}
+
+console.log("=== " + suites.length + " / " + suites.length + " 合格 (recovery-v0 全 suite、" + wall + "s) ===");
+for (const w of wipResults) {
+  console.log("★ この緑は " + w.name + " を含んでへん。採点中: " + w.score);
+}
+console.log("この緑が言えるんは、この directory で名乗っとる suite が全部通った、それだけや。");
+console.log("消された suite はここでは見つからん。git status が見つける。");
+process.exit(0);
