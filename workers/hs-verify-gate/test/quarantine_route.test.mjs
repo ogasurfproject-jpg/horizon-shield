@@ -90,7 +90,7 @@ const sw2 = await (await post("/sweep", { force: true }, auth)).json();
 t("sweep after the lift measures the row again (or skips it for another stated reason, never for quarantine)", !(sw2.skipped || []).some((x) => x.endpoint === EP && /quarantined/.test(x.reason)));
 
 const spec = await (await call("/spec")).json();
-t("control: /spec reports 0.4.13", spec.version === "0.4.13", spec.version);
+t("control: /spec reports 0.4.14", spec.version === "0.4.14", spec.version);
 console.log(out.join("\n"));
 console.log("=== " + pass + " / " + (pass + fail) + " 合格 (quarantine route、扉 0.4.10) ===");
 if (fail) process.exit(1);
