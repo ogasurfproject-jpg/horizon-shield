@@ -37,7 +37,7 @@ import * as nenrin from "./nenrin_instant.js";
 
 // 仕様確定までの暫定値。名称や閾値はここだけ直せば全体に効く。
 const CONFIG = {
-  version: "0.4.12",  // 2026-09-20. 0.4.12: card に did:web:gate.horizonshield.dev の identity を足す。/.well-known/did.json で DID document を配り(card 署名鍵 kid hs-2026-09 と、在れば運営者鍵を registry 非依存でドメインに縛る。両方この扉が既に配る公開鍵、秘密鍵は Worker に無い)、card の conduct params に identity {kind:did, ref} で参照を足す(仕様 11.5 が params の identity を許す)。Agenstry の identity 3/10「no registry identifier」への手当。判定規則も status も条件も動かさん。card の本体が変わるので再署名要。0.4.11: card を 1.0 主体に。root protocolVersion を 0.3.0 から 1.0 に上げ(0.3 は supportedInterfaces に残す)、provider に url(shield.the-horizons-innovation.com)を足す。判定規則も status も条件も 1 つも動かさん。A2A を喋る動きも 1 バイト変わらん。外部 discovery が root の 0.3.0 を pre-1.0 と読んで減点し、provider が名前だけで url 無しやったのへの手当。card の本体が変わるので再署名要(incident 2 と同じ規律)。0.4.10: TSUGI の隔離の口 POST /register/quarantine (運営のみ、提案 hash 必須、解除も記録)。隔離中の行は掃引で測らん、lookup と /register は quarantined と言う。判定規則も status の意味も条件も動かさん: 隔離は停止であって所見やない。0.4.9: /keys/operator.json の説明文を柱の新名 TSUGI に (旧称 Proof-of-Recovery)。判定規則も status も条件も 1 つも動かさん。0.4.8: 運営者の許可鍵を配る口 /keys/operator.json を足す。判定規則も status も条件も 1 つも動かさん。この口は判定に一切関わらん。Proof-of-Recovery の Policy Gate (nenrin-authorization-v1) は運営者の Ed25519 鍵で署名される。読む側は recovery_verify の strict モードにこの公開鍵を渡し、署名の無い / 信用してない鍵 / 期限切れの許可の後に実行された修復を弾く。agreement.json / witness.json と同じ規律: 未設定なら 404 で「無い」と言う、空を 200 で返さん。秘密鍵はこの Worker に無い、署名は手元 (recovery-v0/authorize.mjs)。発端は 2026-09-19 の Agenstry の指摘から回った最初の回復一周 (recovery_fixture_20260920.json)。あの許可はチャットの「approved」で鍵で署名しとらんかった。v1 の検証器はそれを authorization_unsigned と言う。以後は鍵で閉じ、その鍵をここで配る。 2026-09-11. 0.4.7: conduct-v1.3 を配る。判定規則も status も条件も 1 つも動かさん。この扉は歩く側やないから、動きは 1 バイトも変わっとらん。変わるんは「配っとる仕様の本文」と「公開しとる assertion の一覧」の 2 つだけや。中身は 2 点。(1) 402 Payment Required は答えであって沈黙やない。v1 の 4 節は measured_endpoint_answered を「status 200」だけで定義しとったから、自分の card の宣言どおりに金を要求した endpoint が、壊れた endpoint と同じ 1 つの結果に落ちとった。設計上の判断と故障が、記録の上で区別が付かん。歩きは絶対に払たらあかん(払た witness は歩いた相手と金銭関係を持つ = この層が開示させる当のもの)ので、402 は n/a にして、新しい主張 payment_required_as_declared が起きた事を書く。宣言せずに課金しとったら FAIL や。この行が無かったら「全部 402 で返せば二度と測られん」が成立する。(2) compensation_well_formed が拡張の話をやめる。今までは拡張が無いだけで「宣言が壊れとる」と書き、証拠として capabilities.extensions の文を貼っとった。違う 2 つの問いに 1 つの答えを出しとった。どっちの穴も fixture では永遠に出ん。手元の偽 agent が全部 無料で全部 宣言済みやったからで、実在の agent(api.babyblueviper.com)を 1 枚歩いて初めて出た。新 spec sha 25f3e3efaf2e3cf208537d1d1fb4dd4559c90b8c379e679b4fd1eec9faa086a1。仕様・扉の一覧・歩きの実装の 3 箇所がこの一覧を持っとるのに、一致を見張る物が 1 つも無かった。walk_selftest の d01/d02/d03 がそれや。d03 は名前やのうて定義を突き合わせる。今回の本体は定義のズレやったから、名前だけ見る見張りは緑のまま通り抜けとった。 0.4.6: 合意記録の署名鍵を配る口 /keys/agreement.json を足す。判定規則も status も条件も 1 つも動かさん。この口は判定に一切関わらん。a2a-agreement-v1.1 の記録は鍵を署名バイトの中に持つから、検証にこの URL は要らん。効くのは「その鍵はその当事者が自分のドメインで配っとる鍵か」という帰属の主張だけや。鍵が未設定なら 404 で「無い」と言う。空の値を 200 で返したら、読む側は「鍵が違う」と判断してまう。「無い」と「空」は違う。秘密鍵はこの Worker に無い。署名は手元でやる。 2026-09-10. 0.4.5: 帰属の行に「鍵が相手のドメインの下にあること」を要求する。0.4.4 は署名が verify しさえすれば「運営者に帰属する」と書いとった。jku が他所のホストでも書いとった。それは嘘や。この行の存在理由は「TLS は取った瞬間しか押さえん、署名が効くのは持ち出した時と時間が経った時」やのに、鍵が第三者のサーバにあったら、その第三者が鍵を消せば帰属は消えるし、運営者はいつでも否認できる。転送に耐える著者性という肝心の性質が立っとらん。さらに悪いのは、自ドメインの署名が verify せんかった card でも、他所の署名が 1 本 verify すれば帰属しとった(実測で確認)。同じ日に合意記録層では key_url が自分のドメインの下に無ければ拒否しとる。片方で拒否して片方で帰属させとった。直しは 3 状態: 自ドメインの鍵で verify = 帰属、自ドメインの署名が false = 帰属せん(理由を書く)、他所の鍵でだけ verify = 帰属せん(鍵の場所を名指しして書く)。判定も status も条件も 1 つも動かさん。動くのは「この記録が何を証明するか」だけ。この穴は test/attributability.test.mjs の 1 本を control(正しい振る舞い)として固定してしもとった。attack に直した。0.4.4: 署名の有無を establishes / does_not_establish に効かせる。合否は動かさん(条件も赤も増えん)。動かすのは「この記録が何を証明するか」。無署名の card = その宣言は持ち出せん = 登録簿の行は相手の言葉やなく この扉の観測に帰属するだけで、相手はいつでも否認できる。うちの看板は「信用が要らん」やのに、無署名の相手の行は読む側が うちを信用するしかない状態やった。その差を記録に書いてなかったのは相手の穴やなく うちの穴。署名が verify したら宣言は運営者に帰属する = この扉が消えても意味が残る。0.4.3: 拡張の永続識別子(w3id.org)を読む側で認める。perma-id/w3id.org#6653 が merge され https://w3id.org/horizonshield/conduct/v1 が 302 で扉の URI に解決するようになった。A2A 本家の拡張ガイダンスが perma-id を推しとるので、それに従って書かれた card を黙って「宣言無し」に落とすわけにいかん。識別子は 1 本のまま(v1 は今までの文字列)、綴りは閉じた 2 本の一覧で完全一致、どっちで宣言されたかは判定のバイトに必ず書く。check の最中に redirect は叩かん。判定規則の変更はこれ 1 点(読む場所が 1 つ増える。求める形は 5 鍵のまま)。0.4.2: 判定に number_safety を入れる(判定自身のバイトの中の数値が全部 RFC 7493 の安全域の整数か。条件07 が測る相手の表面に課しとる規則を、扉自身の出力に課す。Federico Blanco Sanchez-Llanos が 2026-09-09 に payments 側から公開した同じ型: 精度はパースの時点で失われるので散文では間に合わん)。欄は数値を 1 つも持たんので、足しても答えは変わらん。hash の手順は不変。0.4.1: 掃引の判定は hash 対象のバイトそのものを KV に保存し、GET /record/<record_sha256> でそのまま配る(SEP-1913 で vaaraio が /is-verified の投影を 1024 通り直列化しても再現できんかった件。公開しとった sha のバイトは掃引では保存しとらんかった。recompute_url は /history を指しとった)。判定規則と hash の手順は不変。0.4.0 (conduct-v1.1): 判定と /self に establishes / does_not_establish を入れて hash に含める(Federico の 2026-09-07 の指摘: 「正しさは判定しとらん」の断りが落とせて conformance は通っとった)。塩の commitment を掃引ごとに台帳の witness intake へ commitment 型記録で錨打ち(窓ごとに 1 回、/nenrin/window に commitment_filed)。GET /register/lookup(verified/pending/declined/unknown + 先月の輪の数 + 証明せん物、24h cache)。well-known の notify / identity / witness_policy を読む(掃引後に notify へ POST、1 時間 1 回、/check からは飛ばさん)。判定規則は 0.3.0 のまま。0.3.5 (2026-09-06): 時刻座標の本番と設計のズレを直す(履歴に coordinate_derivation を残す、次の窓の salt を先に作り beacon は salt より後の block に限る、基準高さは quorum 番目の tip - 6 で hash の一致だけを要求、窓ごとに規則を固定、GET /nenrin/window で commitment を公開。判定規則は 0.3.0 のまま)。0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
+  version: "0.4.13",  // 2026-09-20. 0.4.13: card に Security declaration を足す(securitySchemes.operator = x-sweep-token の apiKeySecurityScheme、securityRequirements [{}] = 匿名で呼べる)。/a2a も /mcp も無認証のまま、動きは 1 バイトも変わらん。同時に、相手の card を読む写し(cardProject)が securitySchemes / securityRequirements を公式 SDK と同じ bytes に写すようになった(map、oneof、StringList、scopes)。0.4.12 までは持っとるだけで「検証できん」と言うとった。今「検証できん」と言うのは公式 SDK 自身が投げる形(null の要素)だけ。写しの粗も揃えた(String()/Boolean() の型変換、camel と snake の両置きは camel が勝つ)。canon_equiv.test.mjs に全部固定。判定規則も status も条件も動かさん。card の本体が変わるので再署名要。0.4.12: card に did:web:gate.horizonshield.dev の identity を足す。/.well-known/did.json で DID document を配り(card 署名鍵 kid hs-2026-09 と、在れば運営者鍵を registry 非依存でドメインに縛る。両方この扉が既に配る公開鍵、秘密鍵は Worker に無い)、card の conduct params に identity {kind:did, ref} で参照を足す(仕様 11.5 が params の identity を許す)。Agenstry の identity 3/10「no registry identifier」への手当。判定規則も status も条件も動かさん。card の本体が変わるので再署名要。0.4.11: card を 1.0 主体に。root protocolVersion を 0.3.0 から 1.0 に上げ(0.3 は supportedInterfaces に残す)、provider に url(shield.the-horizons-innovation.com)を足す。判定規則も status も条件も 1 つも動かさん。A2A を喋る動きも 1 バイト変わらん。外部 discovery が root の 0.3.0 を pre-1.0 と読んで減点し、provider が名前だけで url 無しやったのへの手当。card の本体が変わるので再署名要(incident 2 と同じ規律)。0.4.10: TSUGI の隔離の口 POST /register/quarantine (運営のみ、提案 hash 必須、解除も記録)。隔離中の行は掃引で測らん、lookup と /register は quarantined と言う。判定規則も status の意味も条件も動かさん: 隔離は停止であって所見やない。0.4.9: /keys/operator.json の説明文を柱の新名 TSUGI に (旧称 Proof-of-Recovery)。判定規則も status も条件も 1 つも動かさん。0.4.8: 運営者の許可鍵を配る口 /keys/operator.json を足す。判定規則も status も条件も 1 つも動かさん。この口は判定に一切関わらん。Proof-of-Recovery の Policy Gate (nenrin-authorization-v1) は運営者の Ed25519 鍵で署名される。読む側は recovery_verify の strict モードにこの公開鍵を渡し、署名の無い / 信用してない鍵 / 期限切れの許可の後に実行された修復を弾く。agreement.json / witness.json と同じ規律: 未設定なら 404 で「無い」と言う、空を 200 で返さん。秘密鍵はこの Worker に無い、署名は手元 (recovery-v0/authorize.mjs)。発端は 2026-09-19 の Agenstry の指摘から回った最初の回復一周 (recovery_fixture_20260920.json)。あの許可はチャットの「approved」で鍵で署名しとらんかった。v1 の検証器はそれを authorization_unsigned と言う。以後は鍵で閉じ、その鍵をここで配る。 2026-09-11. 0.4.7: conduct-v1.3 を配る。判定規則も status も条件も 1 つも動かさん。この扉は歩く側やないから、動きは 1 バイトも変わっとらん。変わるんは「配っとる仕様の本文」と「公開しとる assertion の一覧」の 2 つだけや。中身は 2 点。(1) 402 Payment Required は答えであって沈黙やない。v1 の 4 節は measured_endpoint_answered を「status 200」だけで定義しとったから、自分の card の宣言どおりに金を要求した endpoint が、壊れた endpoint と同じ 1 つの結果に落ちとった。設計上の判断と故障が、記録の上で区別が付かん。歩きは絶対に払たらあかん(払た witness は歩いた相手と金銭関係を持つ = この層が開示させる当のもの)ので、402 は n/a にして、新しい主張 payment_required_as_declared が起きた事を書く。宣言せずに課金しとったら FAIL や。この行が無かったら「全部 402 で返せば二度と測られん」が成立する。(2) compensation_well_formed が拡張の話をやめる。今までは拡張が無いだけで「宣言が壊れとる」と書き、証拠として capabilities.extensions の文を貼っとった。違う 2 つの問いに 1 つの答えを出しとった。どっちの穴も fixture では永遠に出ん。手元の偽 agent が全部 無料で全部 宣言済みやったからで、実在の agent(api.babyblueviper.com)を 1 枚歩いて初めて出た。新 spec sha 25f3e3efaf2e3cf208537d1d1fb4dd4559c90b8c379e679b4fd1eec9faa086a1。仕様・扉の一覧・歩きの実装の 3 箇所がこの一覧を持っとるのに、一致を見張る物が 1 つも無かった。walk_selftest の d01/d02/d03 がそれや。d03 は名前やのうて定義を突き合わせる。今回の本体は定義のズレやったから、名前だけ見る見張りは緑のまま通り抜けとった。 0.4.6: 合意記録の署名鍵を配る口 /keys/agreement.json を足す。判定規則も status も条件も 1 つも動かさん。この口は判定に一切関わらん。a2a-agreement-v1.1 の記録は鍵を署名バイトの中に持つから、検証にこの URL は要らん。効くのは「その鍵はその当事者が自分のドメインで配っとる鍵か」という帰属の主張だけや。鍵が未設定なら 404 で「無い」と言う。空の値を 200 で返したら、読む側は「鍵が違う」と判断してまう。「無い」と「空」は違う。秘密鍵はこの Worker に無い。署名は手元でやる。 2026-09-10. 0.4.5: 帰属の行に「鍵が相手のドメインの下にあること」を要求する。0.4.4 は署名が verify しさえすれば「運営者に帰属する」と書いとった。jku が他所のホストでも書いとった。それは嘘や。この行の存在理由は「TLS は取った瞬間しか押さえん、署名が効くのは持ち出した時と時間が経った時」やのに、鍵が第三者のサーバにあったら、その第三者が鍵を消せば帰属は消えるし、運営者はいつでも否認できる。転送に耐える著者性という肝心の性質が立っとらん。さらに悪いのは、自ドメインの署名が verify せんかった card でも、他所の署名が 1 本 verify すれば帰属しとった(実測で確認)。同じ日に合意記録層では key_url が自分のドメインの下に無ければ拒否しとる。片方で拒否して片方で帰属させとった。直しは 3 状態: 自ドメインの鍵で verify = 帰属、自ドメインの署名が false = 帰属せん(理由を書く)、他所の鍵でだけ verify = 帰属せん(鍵の場所を名指しして書く)。判定も status も条件も 1 つも動かさん。動くのは「この記録が何を証明するか」だけ。この穴は test/attributability.test.mjs の 1 本を control(正しい振る舞い)として固定してしもとった。attack に直した。0.4.4: 署名の有無を establishes / does_not_establish に効かせる。合否は動かさん(条件も赤も増えん)。動かすのは「この記録が何を証明するか」。無署名の card = その宣言は持ち出せん = 登録簿の行は相手の言葉やなく この扉の観測に帰属するだけで、相手はいつでも否認できる。うちの看板は「信用が要らん」やのに、無署名の相手の行は読む側が うちを信用するしかない状態やった。その差を記録に書いてなかったのは相手の穴やなく うちの穴。署名が verify したら宣言は運営者に帰属する = この扉が消えても意味が残る。0.4.3: 拡張の永続識別子(w3id.org)を読む側で認める。perma-id/w3id.org#6653 が merge され https://w3id.org/horizonshield/conduct/v1 が 302 で扉の URI に解決するようになった。A2A 本家の拡張ガイダンスが perma-id を推しとるので、それに従って書かれた card を黙って「宣言無し」に落とすわけにいかん。識別子は 1 本のまま(v1 は今までの文字列)、綴りは閉じた 2 本の一覧で完全一致、どっちで宣言されたかは判定のバイトに必ず書く。check の最中に redirect は叩かん。判定規則の変更はこれ 1 点(読む場所が 1 つ増える。求める形は 5 鍵のまま)。0.4.2: 判定に number_safety を入れる(判定自身のバイトの中の数値が全部 RFC 7493 の安全域の整数か。条件07 が測る相手の表面に課しとる規則を、扉自身の出力に課す。Federico Blanco Sanchez-Llanos が 2026-09-09 に payments 側から公開した同じ型: 精度はパースの時点で失われるので散文では間に合わん)。欄は数値を 1 つも持たんので、足しても答えは変わらん。hash の手順は不変。0.4.1: 掃引の判定は hash 対象のバイトそのものを KV に保存し、GET /record/<record_sha256> でそのまま配る(SEP-1913 で vaaraio が /is-verified の投影を 1024 通り直列化しても再現できんかった件。公開しとった sha のバイトは掃引では保存しとらんかった。recompute_url は /history を指しとった)。判定規則と hash の手順は不変。0.4.0 (conduct-v1.1): 判定と /self に establishes / does_not_establish を入れて hash に含める(Federico の 2026-09-07 の指摘: 「正しさは判定しとらん」の断りが落とせて conformance は通っとった)。塩の commitment を掃引ごとに台帳の witness intake へ commitment 型記録で錨打ち(窓ごとに 1 回、/nenrin/window に commitment_filed)。GET /register/lookup(verified/pending/declined/unknown + 先月の輪の数 + 証明せん物、24h cache)。well-known の notify / identity / witness_policy を読む(掃引後に notify へ POST、1 時間 1 回、/check からは飛ばさん)。判定規則は 0.3.0 のまま。0.3.5 (2026-09-06): 時刻座標の本番と設計のズレを直す(履歴に coordinate_derivation を残す、次の窓の salt を先に作り beacon は salt より後の block に限る、基準高さは quorum 番目の tip - 6 で hash の一致だけを要求、窓ごとに規則を固定、GET /nenrin/window で commitment を公開。判定規則は 0.3.0 のまま)。0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
   tier_pass: "verified",        // 通過時の称号(暫定)
   tier_fail: "pending",         // 未通過(不合格とは呼ばない)
   tier_held: "held",            // 到達できず測れなかった。不適合とは別の状態
@@ -86,7 +86,7 @@ const CARD_SIGNATURE = {
   "jku": "https://gate.horizonshield.dev/.well-known/jwks.json",
   "alg": "ES256",
   "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJocy0yMDI2LTA5Iiwiamt1IjoiaHR0cHM6Ly9nYXRlLmhvcml6b25zaGllbGQuZGV2Ly53ZWxsLWtub3duL2p3a3MuanNvbiJ9",
-  "signature": "ojB1eUsvzln-k7tTnlrWNsGySQ9TxgT1A29KEJi9zzpWq22twFsIQ3WCNCFUujtucXfpIJsoqhFjdAcVEgf0uw",
+  "signature": "TCH8GARPn8oHqGjzBhZPnTMfl3YTHKgXtZe0JbN7HKDRI1P3k-ySWug93rmj0sK4x36NR03v9TmVQNb_STDmyg",
   "jwk": {
     "kty": "EC",
     "x": "CytwnuXFtXi7PFCcF-TCbvW5OgOg4KuWRLeRvdfHWLs",
@@ -96,7 +96,7 @@ const CARD_SIGNATURE = {
     "alg": "ES256",
     "use": "sig"
   },
-  "canonical_sha256": "645920ff99aae5eb2a85053a3dbd84015a3b7346dd31b7c38fe5269ef8e69b0f"
+  "canonical_sha256": "3551b143462ece5f826220d812fb5d03d239515756e0e7e2499c970123211e3d"
 };
 /* @@CARD_SIGNATURE_END */
 const CARD_CANONICAL_ORIGIN = "https://gate.horizonshield.dev";
@@ -1490,9 +1490,31 @@ async function checkAgentCard(endpoint) {
 
 // ---- 相手の card の署名を読む (0.3.4、判定には効かん、detail だけ) ----
 // A2A 1.0 §8.4: 署名の対象は「proto の形に写した card(schema 外の鍵は落ち、既定値の欄は省かれる)から signatures を除き、RFC 8785 で並べた bytes」。
-// 公式 SDK(@a2a-js/sdk canonicalizeAgentCard = AgentCard.fromJSON/toJSON 往復 + JCS)と同じ bytes を出す写しを、ここに schema として書く。
+// 公式 SDK(@a2a-js/sdk canonicalizeAgentCard = AgentCard.fromJSON/toJSON 往復 + cleanEmpty + JCS)と同じ bytes を出す写しを、ここに schema として書く。
 // 同じ bytes が出ることは workers/a2a-card-sign/canon_equiv.test.mjs が公式 SDK と突き合わせて確かめる。
-// 読めん形(securitySchemes / securityRequirements を持つ card)は「検証できん」と言い、有効とも無効とも言わん。
+// 0.4.13: securitySchemes / securityRequirements も写す(map、oneof、StringList)。0.4.12 までは「読めん」と言うて verified:null に落としとった。
+//   今も「検証できん」と言う形は 1 つだけ: 公式 SDK 自身が投げる形(map の値や repeated message の要素が null)。有効とも無効とも言わん。
+//   ついでに写しの粗を公式に揃えた: string は String() で写す(version: 1 は "1")、bool は Boolean() で写す、camel と snake が両方あれば camel が勝つ、
+//   repeated の string は null も "null" になる、params は配列でも通す。どれも公式 SDK の実測どおり(canon_equiv に 1 本ずつ置いた)。
+const CARD_STRING_LIST = { kind: "message", nullTolerant: true, fields: { list: { kind: "repeated", of: "string" } } };
+const CARD_SECURITY_REQUIREMENT = { kind: "message", fields: { schemes: { kind: "map", of: CARD_STRING_LIST } } };
+const CARD_SECURITY_REQUIREMENTS = { kind: "repeated", of: CARD_SECURITY_REQUIREMENT };
+const CARD_SCOPES = { kind: "map", of: "string" };
+// oneof は公式 SDK と同じ順で「最初に置いてある case」を採る(camel が snake より先、apiKey が http より先)。置いてある順やのうて、この表の順や。
+const CARD_OAUTH_FLOWS = { kind: "oneof", cases: [
+  ["authorizationCode", "authorization_code", { kind: "message", fields: { authorizationUrl: "string", tokenUrl: "string", refreshUrl: "string", scopes: CARD_SCOPES, pkceRequired: "bool" } }],
+  ["clientCredentials", "client_credentials", { kind: "message", fields: { tokenUrl: "string", refreshUrl: "string", scopes: CARD_SCOPES } }],
+  ["implicit", null, { kind: "message", fields: { authorizationUrl: "string", refreshUrl: "string", scopes: CARD_SCOPES } }],
+  ["password", null, { kind: "message", fields: { tokenUrl: "string", refreshUrl: "string", scopes: CARD_SCOPES } }],
+  ["deviceCode", "device_code", { kind: "message", fields: { deviceAuthorizationUrl: "string", tokenUrl: "string", refreshUrl: "string", scopes: CARD_SCOPES } }]
+] };
+const CARD_SECURITY_SCHEME = { kind: "oneof", cases: [
+  ["apiKeySecurityScheme", "api_key_security_scheme", { kind: "message", fields: { description: "string", location: "string", name: "string" } }],
+  ["httpAuthSecurityScheme", "http_auth_security_scheme", { kind: "message", fields: { description: "string", scheme: "string", bearerFormat: "string" } }],
+  ["oauth2SecurityScheme", "oauth2_security_scheme", { kind: "message", fields: { description: "string", flows: CARD_OAUTH_FLOWS, oauth2MetadataUrl: "string" } }],
+  ["openIdConnectSecurityScheme", "open_id_connect_security_scheme", { kind: "message", fields: { description: "string", openIdConnectUrl: "string" } }],
+  ["mtlsSecurityScheme", "mtls_security_scheme", { kind: "message", fields: { description: "string" } }]
+] };
 const CARD_SCHEMA = {
   kind: "message",
   fields: {
@@ -1503,22 +1525,26 @@ const CARD_SCHEMA = {
       streaming: "obool", pushNotifications: "obool", extendedAgentCard: "obool",
       extensions: { kind: "repeated", of: { kind: "message", fields: { uri: "string", description: "string", required: "bool", params: "struct" } } }
     } },
+    securitySchemes: { kind: "map", of: CARD_SECURITY_SCHEME },
+    securityRequirements: CARD_SECURITY_REQUIREMENTS,
     defaultInputModes: { kind: "repeated", of: "string" }, defaultOutputModes: { kind: "repeated", of: "string" },
     skills: { kind: "repeated", of: { kind: "message", fields: {
       id: "string", name: "string", description: "string",
       tags: { kind: "repeated", of: "string" }, examples: { kind: "repeated", of: "string" },
       inputModes: { kind: "repeated", of: "string" }, outputModes: { kind: "repeated", of: "string" },
-      securityRequirements: "unsupported"
-    } } },
-    securitySchemes: "unsupported", securityRequirements: "unsupported"
+      securityRequirements: CARD_SECURITY_REQUIREMENTS
+    } } }
   }
 };
-const CARD_SNAKE = { supported_interfaces: "supportedInterfaces", documentation_url: "documentationUrl", icon_url: "iconUrl", protocol_binding: "protocolBinding", protocol_version: "protocolVersion", push_notifications: "pushNotifications", extended_agent_card: "extendedAgentCard", default_input_modes: "defaultInputModes", default_output_modes: "defaultOutputModes", input_modes: "inputModes", output_modes: "outputModes", security_schemes: "securitySchemes", security_requirements: "securityRequirements" };
+// 公式 SDK が snake_case でも読む鍵。camel と snake が両方あれば camel(公式の isSet の順)。
+const CARD_SNAKE = { supported_interfaces: "supportedInterfaces", documentation_url: "documentationUrl", icon_url: "iconUrl", protocol_binding: "protocolBinding", protocol_version: "protocolVersion", push_notifications: "pushNotifications", extended_agent_card: "extendedAgentCard", default_input_modes: "defaultInputModes", default_output_modes: "defaultOutputModes", input_modes: "inputModes", output_modes: "outputModes", security_schemes: "securitySchemes", security_requirements: "securityRequirements", bearer_format: "bearerFormat", oauth2_metadata_url: "oauth2MetadataUrl", open_id_connect_url: "openIdConnectUrl", authorization_url: "authorizationUrl", token_url: "tokenUrl", refresh_url: "refreshUrl", pkce_required: "pkceRequired", device_authorization_url: "deviceAuthorizationUrl" };
+const CARD_CAMEL_TO_SNAKE = Object.fromEntries(Object.entries(CARD_SNAKE).map(([s, c]) => [c, s]));
 // proto3 の JSON 写し(ts-proto toJSON、公式 SDK が使う物)の規則、実測で確かめた分:
-//   string は "" を省く(REQUIRED でも)。bool(非 optional、AgentExtension.required)は false を省く。
-//   optional bool(streaming / pushNotifications / extendedAgentCard)は true も false も、書いてあれば残す。
-//   message は空になったら省く(capabilities: {} は消える)。repeated は空なら省く。
-//   Struct(params)は再帰的に null / "" / {} / [] を落とし、false と 0 は残し、数は JS の数の書き方(1e+21、-0 は 0)。
+//   string は isSet なら String() で写し、"" は省く(REQUIRED でも)。bool(非 optional、required / pkceRequired)は Boolean() で写し false を省く。
+//   optional bool(streaming / pushNotifications / extendedAgentCard)は書いてあれば Boolean() で写し、true も false も残す。
+//   message は空になったら省く(capabilities: {} は消える)。repeated は空なら省く。map は空なら省く。oneof は最初に置いてある case だけ。
+//   repeated と map の string は String() 一律(null は "null")。repeated と map の message は要素が null なら公式 SDK が投げる(StringList だけ投げん)。
+//   Struct(params)は再帰的に null / "" / {} / [] を落とし、false と 0 は残し、数は JS の数の書き方(1e+21、-0 は 0)。配列でも通す。
 function pruneStruct(v) {
   if (v === null || v === undefined) return undefined;
   if (typeof v === "string") return v === "" ? undefined : v;
@@ -1532,25 +1558,66 @@ function pruneStruct(v) {
   }
   return undefined;
 }
-function cardProject(value, schema, problems) {
-  if (schema === "unsupported") { if (value !== undefined && value !== null && !(Array.isArray(value) && value.length === 0) && !(typeof value === "object" && Object.keys(value).length === 0)) problems.push("field not supported by this verifier"); return undefined; }
-  if (schema === "string") { if (typeof value !== "string" || value === "") return undefined; return value; }
-  if (schema === "bool") { return value === true ? true : undefined; }
-  if (schema === "obool") { return typeof value === "boolean" ? value : undefined; }
-  if (schema === "struct") { if (!value || typeof value !== "object" || Array.isArray(value)) return undefined; return pruneStruct(value); }
+const cardIsSet = (v) => v !== null && v !== undefined;
+const cardIsObj = (v) => typeof v === "object" && v !== null;
+// 欄が「置いてある」か。公式 SDK の fromJSON がその欄を読む条件そのまま(string/bool/message/oneof は isSet、repeated は Array.isArray、map と struct は isObject)。
+function cardPresent(v, schema) {
+  if (schema === "struct") return cardIsObj(v);
+  if (typeof schema === "string") return cardIsSet(v);
+  if (schema.kind === "repeated") return Array.isArray(v);
+  if (schema.kind === "map") return cardIsObj(v);
+  return cardIsSet(v);
+}
+const cardStr = (v) => { const s = String(v); return s === "" ? undefined : s; };
+function cardProject(value, schema, problems, where) {
+  if (schema === "string") return cardStr(value);
+  if (schema === "bool") return Boolean(value) ? true : undefined;
+  if (schema === "obool") return Boolean(value);
+  if (schema === "struct") return pruneStruct(value);
   if (schema.kind === "repeated") {
-    if (!Array.isArray(value) || value.length === 0) return undefined;
-    const out = value.map((v) => cardProject(v, schema.of, problems)).filter((v) => v !== undefined);
+    const out = [];
+    for (const v of value) {
+      let p;
+      if (schema.of === "string") p = cardStr(v);
+      else if (!cardIsSet(v)) { if (!schema.of.nullTolerant) problems.push("null element in " + where + ": the official SDK canonicalizer throws on this card"); continue; }
+      else p = cardProject(v, schema.of, problems, where + "[]");
+      if (p !== undefined) out.push(p);
+    }
     return out.length ? out : undefined;
   }
-  if (schema.kind === "message") {
-    if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  if (schema.kind === "map") {
     const out = {};
-    for (const rawKey of Object.keys(value)) {
-      const key = CARD_SNAKE[rawKey] || rawKey;
+    for (const k of Object.keys(value)) {
+      const v = value[k];
+      let p;
+      if (schema.of === "string") p = cardStr(v);
+      else if (!cardIsSet(v)) { if (!schema.of.nullTolerant) problems.push("null value at " + where + "." + k + ": the official SDK canonicalizer throws on this card"); continue; }
+      else p = cardProject(v, schema.of, problems, where + "." + k);
+      if (p !== undefined) out[k] = p;
+    }
+    return Object.keys(out).length ? out : undefined;
+  }
+  if (schema.kind === "oneof") {
+    if (!cardIsObj(value)) return undefined;
+    for (const [camel, snake, sub] of schema.cases) {
+      const raw = cardIsSet(value[camel]) ? value[camel] : (snake && cardIsSet(value[snake]) ? value[snake] : undefined);
+      if (raw === undefined) continue;
+      const v = cardProject(raw, sub, problems, where + "." + camel);
+      return v === undefined ? undefined : { [camel]: v };
+    }
+    return undefined;
+  }
+  if (schema.kind === "message") {
+    if (!cardIsObj(value)) return undefined;
+    const out = {};
+    for (const key of Object.keys(schema.fields)) {
       const f = schema.fields[key];
-      if (!f) continue;
-      const v = cardProject(value[rawKey], f, problems);
+      const snake = CARD_CAMEL_TO_SNAKE[key];
+      let raw;
+      if (cardPresent(value[key], f)) raw = value[key];
+      else if (snake && cardPresent(value[snake], f)) raw = value[snake];
+      else continue;
+      const v = cardProject(raw, f, problems, where + "." + key);
       if (v !== undefined) out[key] = v;
     }
     return Object.keys(out).length ? out : undefined;
@@ -1565,7 +1632,7 @@ function jcs(v) {
 export function cardSignatureCanonical(card) {
   const problems = [];
   const bare = Object.assign({}, card); delete bare.signatures;
-  const projected = cardProject(bare, CARD_SCHEMA, problems) || {};
+  const projected = cardProject(bare, CARD_SCHEMA, problems, "card") || {};
   return { canonical: jcs(projected), unsupported: problems.length ? problems : null };
 }
 function b64urlToBytes(s) {
@@ -1583,7 +1650,7 @@ async function verifyCardSignatures(card, origin) {
   const sigs = Array.isArray(card && card.signatures) ? card.signatures : [];
   if (!sigs.length) return { present: 0, verified: null, reason: "card carries no signatures (A2A 1.0 §8.4 is optional)" };
   const { canonical, unsupported } = cardSignatureCanonical(card);
-  if (unsupported) return { present: sigs.length, verified: null, reason: "unverifiable by this gate: " + unsupported[0] + " (security schemes are not modelled here; nothing is said about validity)" };
+  if (unsupported) return { present: sigs.length, verified: null, reason: "unverifiable by this gate: " + unsupported[0] + " (the official SDK canonicalizer rejects this card, so no canonical form exists to check the signature against; nothing is said about validity)" };
   const canonical_sha256 = await sha256hex(canonical);
   const payloadB64 = bytesToB64url(new TextEncoder().encode(canonical));
   const results = [];
@@ -2076,7 +2143,7 @@ function spec() {
       why: "Only the owner of an origin can place a file under its /.well-known/. So the file is proof of consent, where a request field is only an assertion. The gate reads it with the same same-origin rules as the agent card, executes nothing from it, and records in the verdict where and when it read it.",
       effect: "Determinism is measured on /check without asserting allow_tool_call, and on every scheduled measurement of the public register. The verdict of a check without consent names this path under consent_lookup.how_to_consent."
     },
-    red_team: "test/redteam_gate.mjs in the public repository attacks this gate with adversarial mock servers (hollow tools, error echoes, cross-origin redirects, malformed cards and disclosures, misclassified reachability). Fail-closed and deterministic. v0.2.1 scored 17 of 48; v0.2.2 scored 48 of 48; v0.2.4 scored 63 of 63 (the added cases being attacks on the well-known consent file: absent, wrong type, HTML, http 500, off-origin redirect, an endpoints list that excludes the endpoint, and two proving that consent never excuses a failed condition); v0.3.2 scored 74 of 74 (eleven cases on the compensation declaration living in capabilities.extensions[].params, including two declarations that disagree); v0.3.4 scores 82 of 82 (eight cases on reading A2A card signatures: verified, edited after signing, unreadable jwks, unknown kid, unsupported alg, foreign jku, malformed entry; none of them changes the verdict, all of them are disclosed). Run it yourself: node test/redteam_gate.mjs. Known residual: determinism is measured on one tool per instant. Since 0.3.0 that tool is chosen by the instant coordinate over the sorted tool-name set whenever the beacon is available, and is the first tool listed only in the legacy fallback; the verdict names which of the two applied (coordinate_derivation), so the choice is disclosed rather than hidden.",
+    red_team: "test/redteam_gate.mjs in the public repository attacks this gate with adversarial mock servers (hollow tools, error echoes, cross-origin redirects, malformed cards and disclosures, misclassified reachability). Fail-closed and deterministic. v0.2.1 scored 17 of 48; v0.2.2 scored 48 of 48; v0.2.4 scored 63 of 63 (the added cases being attacks on the well-known consent file: absent, wrong type, HTML, http 500, off-origin redirect, an endpoints list that excludes the endpoint, and two proving that consent never excuses a failed condition); v0.3.2 scored 74 of 74 (eleven cases on the compensation declaration living in capabilities.extensions[].params, including two declarations that disagree); v0.3.4 scored 82 of 82 (eight cases on reading A2A card signatures: verified, edited after signing, unreadable jwks, unknown kid, unsupported alg, foreign jku, malformed entry; none of them changes the verdict, all of them are disclosed); v0.4.13 scores 85 of 85 (three cases on security declarations inside signed cards: a signed card carrying securitySchemes and securityRequirements verifies, a scheme edited after signing is disclosed as false, and a null scheme value, which the official SDK canonicalizer rejects, is reported unverifiable rather than judged). Run it yourself: node test/redteam_gate.mjs. Known residual: determinism is measured on one tool per instant. Since 0.3.0 that tool is chosen by the instant coordinate over the sorted tool-name set whenever the beacon is available, and is the first tool listed only in the legacy fallback; the verdict names which of the two applied (coordinate_derivation), so the choice is disclosed rather than hidden.",
     also_measured_no_verdict: {
       absence_vs_failure: {
         condition: "06",
@@ -4146,6 +4213,19 @@ function ownAgentCard(origin) {
     })] },
     defaultInputModes: ["text/plain"],
     defaultOutputModes: ["application/json", "text/plain"],
+    // 0.4.13 (2026-09-20). Security declaration。/a2a と /mcp は公開で無認証、どの skill も認証を要らん。運営だけの口(POST /sweep、
+    // POST /register/quarantine、POST /mould、DELETE /watch、POST /watch の paid 段)は x-sweep-token header で守っとる。それを A2A 1.0 の形
+    // (apiKeySecurityScheme、欄は 0.3 の "in" やのうて proto の "location")で宣言する。securityRequirements の [{}] は「匿名で呼べる」の明示
+    // (OpenAPI と同じ読み方)。宣言せんかった今までは、外の読み手(Agenstry)が「Security declaration 0/5」と、無宣言を無防備と読んどった。
+    // 断り: [{}] は公式 SDK の canonicalizer(cleanEmpty)が空として落とすので、署名の対象に入っとらん。securitySchemes は入る。
+    // どっちも canon_equiv.test.mjs に固定してある。空の要求を署名で守る形は 1.0 の正規形に存在せん。それは仕様の性質で、この扉の判断やない。
+    securitySchemes: {
+      operator: { apiKeySecurityScheme: {
+        location: "header", name: "x-sweep-token",
+        description: "Operator-only routes (POST /sweep, POST /register/quarantine, POST /mould, DELETE /watch, the paid tier of POST /watch). No skill on this card requires it: the A2A interface at /a2a and the MCP interface at /mcp are public and unauthenticated."
+      } }
+    },
+    securityRequirements: [{}],
     // 扉が申請者に要求するのと同じ形式で、扉自身の報酬構造を宣言する。
     compensation: GATE_COMPENSATION,
     preferredTransport: "JSONRPC",

@@ -45,5 +45,5 @@ t("the card's conduct extension params carry identity {kind:did, ref}", !!ext &&
 t("the DID the card names resolves to this document's id", ext && ext.params.identity.ref === did.id);
 
 console.log("");
-console.log("=== " + pass + " / " + (pass + fail) + (fail ? " 不合格あり" : " 合格") + " (did:web の口、扉 0.4.12) ===");
+console.log("=== " + pass + " / " + (pass + fail) + (fail ? " 不合格あり" : " 合格") + " (did:web の口、扉 0.4.13) ===");
 process.exit(fail ? 1 : 0);

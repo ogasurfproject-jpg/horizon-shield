@@ -214,6 +214,17 @@ atk("card_signed_jku_other_host_disclosed", "control", { card: await signCard(ex
   { status: "verified", pred: [["verified true via foreign jku", (r) => sigOf(r).verified === true], ["jku_same_host false disclosed", (r) => sigOf(r).signatures[0].jku_same_host === false]] }, { consent: true, min: "0.3.4", honest: "honest-target", honestRoutes: jwksRoute() });
 atk("card_signature_not_an_object", "control", { card: Object.assign({}, extCard(COMP_OK), { signatures: ["garbage"] }) },
   { status: "verified", pred: [["verified false", (r) => sigOf(r).verified === false]] }, { consent: true, min: "0.3.4" });
+// 0.4.13: securitySchemes / securityRequirements を持つ card。0.4.12 までは持っとるだけで verified null(検証できん)やった。
+// 今は公式 SDK と同じ bytes に写して読む。宣言は署名の対象に入る(書き換えたら false)。公式 SDK が投げる形(null の値)だけ、今も null。
+const SEC_CARD = extCard(COMP_OK, { securitySchemes: { op: { apiKeySecurityScheme: { location: "header", name: "x-op-token", description: "operator" } } }, securityRequirements: [{ schemes: { op: { list: ["sweep"] } } }] });
+const SEC_SIGNED = await signCard(SEC_CARD);
+const SEC_EDITED = JSON.parse(JSON.stringify(SEC_SIGNED)); SEC_EDITED.securitySchemes.op.apiKeySecurityScheme.name = "x-other-token";
+atk("card_signed_with_security_schemes_verifies", "control", { card: SEC_SIGNED, extraRoutes: jwksRoute() },
+  { status: "verified", pred: [["verified true (0.4.12 said null here)", (r) => sigOf(r).verified === true]] }, { consent: true, min: "0.4.13" });
+atk("card_security_scheme_edited_after_signing_is_disclosed", "control", { card: SEC_EDITED, extraRoutes: jwksRoute() },
+  { status: "verified", pred: [["verified false", (r) => sigOf(r).verified === false], ["reason names the edit", (r) => /changed after signing/.test(sigOf(r).signatures[0].reason)]] }, { consent: true, min: "0.4.13" });
+atk("card_security_scheme_null_value_is_unverifiable", "control", { card: Object.assign({}, SEC_SIGNED, { securitySchemes: { op: null } }), extraRoutes: jwksRoute() },
+  { status: "verified", pred: [["verified null", (r) => sigOf(r).verified === null], ["reason names the official SDK", (r) => /official SDK canonicalizer rejects/.test(sigOf(r).reason || "")]] }, { consent: true, min: "0.4.13" });
 
 // ---- 条件4: 決定論性 ----
 atk("determinism_error_echo", "attack", { tools: [TOOL("alpha")], call: () => ({ __error: { code: -32602, message: "argument required" } }) }, { not_verified: true, fail: ["determinism"] }, { consent: true, min: "0.2.2" });
