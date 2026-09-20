@@ -100,6 +100,16 @@ m5 = json.loads(json.dumps(wf["records"])); m5[6]["draw"]["pool_size"] = "7"
 m5[6] = dict(R.hashed_body(m5[6])); m5[6]["record_sha256"] = R.record_sha256(m5[6])
 t("v2 python: draw.pool_size not the pool's size -> draw_mismatch", "draw_mismatch" in codes(R.verify_chain(m5, witness_quorum={"q": 2, "pool": wf["pool"]})))
 t("v2 python: policy k 5 against a draw of 3 -> draw_mismatch; k 3 passes", "draw_mismatch" in codes(R.verify_chain(wf["records"], witness_quorum={"q": 2, "pool": wf["pool"], "k": 5})) and R.verify_chain(wf["records"], witness_quorum={"q": 2, "pool": wf["pool"], "k": 3})["ok"])
+sc = {"q": 2, "pool": wf["pool"], "requireCommitment": True, "commitmentAnchor": {"height": "0", "hash": wv["draw"]["commitment"]["anchor"]["hash"]}}
+t("v2.2 python: fixture passes with requireCommitment + the reader's anchor", R.verify_chain(wf["records"], witness_quorum=sc)["ok"], json.dumps(R.verify_chain(wf["records"], witness_quorum=sc)["refusals"]))
+t("v2.2 python: claim text is byte-identical to node (fixture claim_sha256 recomputes)", R.sha256_hex(R.commitment_claim_text(wf["records"][5]["record_sha256"])) == wv["draw"]["commitment"]["claim_sha256"])
+m6 = json.loads(json.dumps(wf["records"])); del m6[6]["draw"]["commitment"]
+m6[6] = dict(R.hashed_body(m6[6])); m6[6]["record_sha256"] = R.record_sha256(m6[6])
+t("v2.2 python: no commitment under the policy -> draw_uncommitted", "draw_uncommitted" in codes(R.verify_chain(m6, witness_quorum=sc)))
+m7 = json.loads(json.dumps(wf["records"])); m7[6]["draw"]["beacon"]["height"] = "2"
+m7[6] = dict(R.hashed_body(m7[6])); m7[6]["record_sha256"] = R.record_sha256(m7[6])
+t("v2.2 python: beacon not anchor + 1 -> beacon_not_next_block", "beacon_not_next_block" in codes(R.verify_chain(m7, witness_quorum=sc)))
+t("v2.2 python: reader's anchor at another height -> commitment_mismatch", "commitment_mismatch" in codes(R.verify_chain(wf["records"], witness_quorum={**sc, "commitmentAnchor": {"height": "9"}})))
 t("v2 python: subset_matches keeps extra observed keys, refuses missing ones", R.subset_matches({"a": {"b": "1"}}, {"a": {"b": "1", "c": "2"}}) and not R.subset_matches({"a": {"b": "1", "c": "2"}}, {"a": {"b": "1"}}))
 
 # 7. 実事件 2 (2026-09-20 署名切れ) の 12 記録: python でも byte 一致、運営者鍵の strict で通る

@@ -1,17 +1,53 @@
 {
   "name": "nenrin-verify",
-  "version": "0.1.0",
-  "description": "Single-file, zero-dependency, consumer-runnable verifier for a NENRIN provenance bundle. Verify agent task provenance yourself, offline, with no trust in the operator.",
+  "version": "0.2.0",
+  "description": "Single-file, zero-dependency, consumer-runnable verifiers for NENRIN evidence: a provenance bundle (nenrin_verify.mjs) and a TSUGI recovery chain with its random witness draw (tsugi_verify.mjs). Verify yourself, offline, with no trust in the operator.",
   "type": "module",
   "main": "nenrin_verify.mjs",
-  "exports": { ".": "./nenrin_verify.mjs" },
-  "bin": { "nenrin-verify": "nenrin_verify.mjs" },
-  "files": ["nenrin_verify.mjs", "SDK.md", "LICENSE"],
-  "engines": { "node": ">=16" },
-  "keywords": ["a2a", "provenance", "verification", "did-key", "ed25519", "nenrin", "agent", "evidence", "bitcoin", "trust", "horizon-shield"],
-  "repository": { "type": "git", "url": "git+https://github.com/ogasurfproject-jpg/horizon-shield.git", "directory": "workers/hs-ledger/nenrin/sdk" },
+  "exports": {
+    ".": "./nenrin_verify.mjs",
+    "./tsugi": "./tsugi_verify.mjs"
+  },
+  "bin": {
+    "nenrin-verify": "nenrin_verify.mjs",
+    "tsugi-verify": "tsugi_verify.mjs"
+  },
+  "files": [
+    "nenrin_verify.mjs",
+    "tsugi_verify.mjs",
+    "SDK.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "a2a",
+    "provenance",
+    "verification",
+    "did-key",
+    "ed25519",
+    "nenrin",
+    "agent",
+    "evidence",
+    "bitcoin",
+    "trust",
+    "horizon-shield",
+    "recovery",
+    "tsugi",
+    "witness",
+    "random-draw",
+    "commit-reveal"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ogasurfproject-jpg/horizon-shield.git",
+    "directory": "workers/hs-ledger/nenrin/sdk"
+  },
   "homepage": "https://github.com/ogasurfproject-jpg/horizon-shield/tree/main/workers/hs-ledger/nenrin/sdk",
-  "bugs": { "url": "https://github.com/ogasurfproject-jpg/horizon-shield/issues" },
+  "bugs": {
+    "url": "https://github.com/ogasurfproject-jpg/horizon-shield/issues"
+  },
   "author": "The HORIZONs Co., Ltd.",
   "license": "MIT"
 }

@@ -12,7 +12,7 @@ import { createPrivateKey, createPublicKey } from "node:crypto";
 import { buildFixture } from "./recovery_fixture_build.mjs";
 import { seal, sign, sha256Hex } from "./recovery_verify.mjs";
 import { SCHEMAS } from "./recovery_schema.mjs";
-import { draw, drawField, poolSha256 } from "./witness_draw.mjs";
+import { draw, drawField, poolSha256, commitmentClaimText } from "./witness_draw.mjs";
 import { buildRequest, requestSha256 } from "./witness_request.mjs";
 
 export const WITNESS_FIXTURE_FILE = "witness_fixture_20260920.json";
@@ -45,7 +45,11 @@ export async function buildPool() {
 }
 
 export async function buildBeacon() {
-  return { kind: "fixture_not_bitcoin", height: "0", hash: await sha256Hex("tsugi fixture beacon 2026-09-20") };
+  // v2.2 の形: anchor (subject を錨打ちしたブロック) が height 0、beacon はその次 height 1。値は全部 fixture (Bitcoin やない)。
+  return { kind: "fixture_not_bitcoin", height: "1", hash: await sha256Hex("tsugi fixture beacon 2026-09-20") };
+}
+export async function buildCommitment(subjectSha256) {
+  return { subject_sha256: subjectSha256, ledger_entry: "0", ledger_url: "https://ledger.horizonshield.dev/ledger/0", claim_sha256: await sha256Hex(commitmentClaimText(subjectSha256)), anchor: { kind: "fixture_not_bitcoin", height: "0", hash: await sha256Hex("tsugi fixture anchor 2026-09-20") } };
 }
 
 // 証人の観測。observed は expected_after を含み、証人らしい余分 (status など) も持つ。
@@ -82,9 +86,9 @@ export async function buildWitnessFixture() {
   const { record_sha256: _h, ...body } = verify0;
   const verify = await seal({
     ...body, recorded_at: "2026-09-20T08:05:00Z",
-    draw: drawField(d, beacon, execution.record_sha256, reqHash), external,
+    draw: drawField(d, beacon, execution.record_sha256, reqHash, await buildCommitment(execution.record_sha256)), external,
     establishes: [...verify0.establishes, "of " + d.k + " witnesses drawn from a pool of " + d.pool_size + " (own host excluded), " + String(d.drawn.length - 1) + " answered with signed observations that contain expected_after; 1 did not answer"],
-    does_not_establish: [...verify0.does_not_establish, "that the beacon is a Bitcoin block: kind fixture_not_bitcoin, this file is a fixture", "that the witnesses are independent agents: their keys are fixture seeds", "why one drawn witness did not answer"],
+    does_not_establish: [...verify0.does_not_establish, "that the beacon is a Bitcoin block: kind fixture_not_bitcoin, this file is a fixture", "that the commitment is anchored: ledger entry 0 and anchor height 0 are fixture values, the shape is what v2.2 requires (subject anchored, beacon = anchor + 1)", "that the witnesses are independent agents: their keys are fixture seeds", "why one drawn witness did not answer"],
   });
   return { pool, beacon, request, q: String(Q), records: [...base.slice(0, 6), verify] };
 }

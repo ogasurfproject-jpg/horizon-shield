@@ -44,7 +44,7 @@
   },
   "beacon": {
     "kind": "fixture_not_bitcoin",
-    "height": "0",
+    "height": "1",
     "hash": "215646782d42945aba5d23a635c131705d92d15ccba235613cd1552e65432237"
   },
   "request": {
@@ -64,7 +64,7 @@
     "pool_sha256": "2552595cc0f0de7ce5b8f5323574682ad02a3f508790c8ee73485de8504bc85d",
     "beacon": {
       "kind": "fixture_not_bitcoin",
-      "height": "0",
+      "height": "1",
       "hash": "215646782d42945aba5d23a635c131705d92d15ccba235613cd1552e65432237"
     },
     "requested_at": "2026-09-20T08:03:30Z",
@@ -366,7 +366,7 @@
                 "vantage_note": "measured from witness-b.example"
               }
             },
-            "request_sha256": "3ebc6ac5b4b11636d4388ebcd0e1b9604c30dbc1fc3b015bf0bfe500a4330232",
+            "request_sha256": "a3d54bc77f49d7391af286723ec4caa485bb718be08f029262e2aed96e3765a5",
             "source": {
               "kind": "external_witness",
               "signed_domain": "witness-b.example",
@@ -380,8 +380,8 @@
               "why the surfaces are in this state",
               "anything about surfaces not listed in observed"
             ],
-            "record_sha256": "e66a7010cc59194e202c81bf0aa07712651f61c9cdcbf838f9c456baeec916a7",
-            "signature_ed25519_b64": "kvVrUdMWpG9f5n1Br/gyffexvenaa+wkMqONcokYYpJMLwT0oOEnqvUi4ZbQvRURkJa77s5dSmL07JqWJTNeBQ==",
+            "record_sha256": "7566a5a3dc4b9ed8d9c28a6354303d5234254dcc2b8ad9a9019328148402a8ed",
+            "signature_ed25519_b64": "/Lyw9CpScd5iisD46J2AM82L4M7hqaAqvMhhGSw+5yZ+ZZUZPv63KlJZeQslxRYcaks2H3RRgWgk4Eu+UtQVDw==",
             "public_key_ed25519_b64": "V0u0H4CgIniad7Co0W35+TxlV254w56K9ofelOpH0m4="
           }
         },
@@ -418,7 +418,7 @@
                 "vantage_note": "measured from witness-d.example"
               }
             },
-            "request_sha256": "3ebc6ac5b4b11636d4388ebcd0e1b9604c30dbc1fc3b015bf0bfe500a4330232",
+            "request_sha256": "a3d54bc77f49d7391af286723ec4caa485bb718be08f029262e2aed96e3765a5",
             "source": {
               "kind": "external_witness",
               "signed_domain": "witness-d.example",
@@ -432,8 +432,8 @@
               "why the surfaces are in this state",
               "anything about surfaces not listed in observed"
             ],
-            "record_sha256": "b7ce1b7115cf44c6c5dda7db9485fb3e7c2c1206b7ec139640e2ccd781f9857e",
-            "signature_ed25519_b64": "6fN2NI3IqTpXCB5Bzi3YcFofGQ62IRJKgmPCoJnZxU+rPasfaAWKq5pKvyTb//aFfGP7XVs+xF3q8IOnDokDAQ==",
+            "record_sha256": "1df67da7fa35b61ad4adda45f48f1d59f46c387261b60607bd91ee5ca5061b79",
+            "signature_ed25519_b64": "1GW/B07xxksZpL9e4t0pfFnabQM6XHKABnoGRYzZrTqqnKIldL46E/lDg062IQYTGUyTguM4Ip+yVyXJgCSODQ==",
             "public_key_ed25519_b64": "9rdUeb04kK1HOHXj/h2peL6Gi7YmZD3tWfcNJEmPC34="
           }
         },
@@ -453,27 +453,39 @@
         "the external witness's own verdict (result is null until they re-probe)",
         "that a raw deploy cannot happen again (that is the drift witness's job)",
         "that the beacon is a Bitcoin block: kind fixture_not_bitcoin, this file is a fixture",
+        "that the commitment is anchored: ledger entry 0 and anchor height 0 are fixture values, the shape is what v2.2 requires (subject anchored, beacon = anchor + 1)",
         "that the witnesses are independent agents: their keys are fixture seeds",
         "why one drawn witness did not answer"
       ],
       "draw": {
         "beacon": {
           "kind": "fixture_not_bitcoin",
-          "height": "0",
+          "height": "1",
           "hash": "215646782d42945aba5d23a635c131705d92d15ccba235613cd1552e65432237"
         },
         "pool_sha256": "2552595cc0f0de7ce5b8f5323574682ad02a3f508790c8ee73485de8504bc85d",
         "pool_size": "6",
         "k": "3",
         "subject_sha256": "f28828da2f3750b12a96833003b8cc45b7c4a66d35624b0491a57cbe2ad9b932",
-        "request_sha256": "3ebc6ac5b4b11636d4388ebcd0e1b9604c30dbc1fc3b015bf0bfe500a4330232",
+        "request_sha256": "a3d54bc77f49d7391af286723ec4caa485bb718be08f029262e2aed96e3765a5",
         "drawn": [
           "witness-b.example",
           "witness-d.example",
           "witness-a.example"
-        ]
+        ],
+        "commitment": {
+          "subject_sha256": "f28828da2f3750b12a96833003b8cc45b7c4a66d35624b0491a57cbe2ad9b932",
+          "ledger_entry": "0",
+          "ledger_url": "https://ledger.horizonshield.dev/ledger/0",
+          "claim_sha256": "a4c98aaf957094d041a3934c8dc1f61225d130958fbdbb3ef6e4bdc58145d2fa",
+          "anchor": {
+            "kind": "fixture_not_bitcoin",
+            "height": "0",
+            "hash": "91195f52dc82ce5f4314e7fe5a3a0bcd400c36d89c9402a26951a3113d1c8fcf"
+          }
+        }
       },
-      "record_sha256": "49c0fbba90102c559793b4a191090b47039e73e2ce6f2ffca441ac336210f0bb"
+      "record_sha256": "87797272d7b5355167a3a29481110170c306e96a0dbd58b9d0ec30027d5540a8"
     }
   ]
 }

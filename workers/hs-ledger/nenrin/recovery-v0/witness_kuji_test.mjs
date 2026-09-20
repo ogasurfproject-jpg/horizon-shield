@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { verifyChain, verifyRecord, seal, sign, subsetMatches, VERIFIER_VERSION } from "./recovery_verify.mjs";
 import { validate, SCHEMAS } from "./recovery_schema.mjs";
-import { draw, poolSha256, normalizePool, drawField, bitcoinBeaconAfter } from "./witness_draw.mjs";
+import { draw, poolSha256, normalizePool, drawField, bitcoinBeaconAfter, bitcoinBlockAt, commitmentClaimText, commitmentSeed } from "./witness_draw.mjs";
 import { buildRequest, requestSha256, a2aEnvelope, extractObservation, sendRequest, acceptObservation, toExternalEntry, fetchWitnessKey } from "./witness_request.mjs";
 import { buildWitnessFixture, renderWitnessFixture, WITNESS_FIXTURE_FILE, fixtureKey, OWN_HOST, ORIGIN } from "./witness_fixture_build.mjs";
 
@@ -122,6 +122,34 @@ const withVerify = (v) => [...records.slice(0, 6), v];
   const m11c = clone(records[6]); m11c.draw.pool_size = "7";
   t("mutation: draw.pool_size not the pool's size -> draw_mismatch", has(await verifyChain(withVerify(await reseal(m11c)), { witnessQuorum: strict }), "draw_mismatch"));
   t("policy k: the fixture drew 3; asking k 3 passes, asking k 5 (operator shortened the draw) -> draw_mismatch", (await verifyChain(records, { witnessQuorum: { q: Q, pool, k: 3 } })).ok && has(await verifyChain(records, { witnessQuorum: { q: Q, pool, k: 5 } }), "draw_mismatch"));
+  // ---- v2.2 commit-then-reveal ----
+  const strictC = { ...strict, requireCommitment: true, commitmentAnchor: { height: "0", hash: records[6].draw.commitment.anchor.hash } };
+  t("v2.2: fixture carries a commitment (subject anchored at height 0, beacon at height 1) and passes with requireCommitment + the reader's anchor", (await verifyChain(records, { witnessQuorum: strictC })).ok, JSON.stringify(codes(await verifyChain(records, { witnessQuorum: strictC }))));
+  const mc1 = clone(records[6]); delete mc1.draw.commitment;
+  t("v2.2: no commitment while policy requires one -> draw_uncommitted", has(await verifyChain(withVerify(await reseal(mc1)), { witnessQuorum: strictC }), "draw_uncommitted"));
+  t("v2.2: no commitment without the policy -> still accepted (v2.1 compatibility)", (await verifyChain(withVerify(await reseal(mc1)), { witnessQuorum: strict })).ok);
+  const mc2 = clone(records[6]); mc2.draw.commitment.subject_sha256 = records[4].record_sha256;
+  t("v2.2: commitment for another record -> draw_subject_mismatch (and the claim no longer matches)", has(await verifyChain(withVerify(await reseal(mc2)), { witnessQuorum: strictC }), "draw_subject_mismatch"));
+  const mc3 = clone(records[6]); mc3.draw.commitment.claim_sha256 = "0".repeat(64);
+  t("v2.2: ledger entry that does not commit this subject -> commitment_claim_mismatch", has(await verifyChain(withVerify(await reseal(mc3)), { witnessQuorum: strictC }), "commitment_claim_mismatch"));
+  const mc4 = clone(records[6]); mc4.draw.beacon.height = "2";
+  t("v2.2: beacon not the block after the anchor -> beacon_not_next_block (a later block could be chosen after grinding)", has(await verifyChain(withVerify(await reseal(mc4)), { witnessQuorum: strictC }), "beacon_not_next_block"));
+  const rc5 = await verifyChain(records, { witnessQuorum: { ...strictC, commitmentAnchor: { height: "5", hash: records[6].draw.commitment.anchor.hash } } });
+  t("v2.2: the reader's OTS proof anchors at another height -> commitment_mismatch", has(rc5, "commitment_mismatch"));
+  const rc6 = await verifyChain(records, { witnessQuorum: { ...strictC, commitmentAnchor: { height: "0", hash: "f".repeat(64) } } });
+  t("v2.2: the reader's anchor block hash differs -> commitment_mismatch", has(rc6, "commitment_mismatch"));
+  const mc7 = clone(records[6]); mc7.draw.commitment.ledger_entry = "fifty";
+  t("v2.2 schema: ledger_entry not digits -> bad_draw", has(await verifyRecord(await reseal(mc7)), "bad_draw"));
+  t("v2.2: commitmentClaimText is one fixed text per subject (no free field to grind)", commitmentClaimText("a".repeat(64)) === commitmentClaimText("a".repeat(64)) && commitmentClaimText("a".repeat(64)) !== commitmentClaimText("b".repeat(64)) && /subject_sha256: a{64}/.test(commitmentClaimText("a".repeat(64))));
+  const seed = await commitmentSeed(records[5].record_sha256);
+  t("v2.2: the ledger seed's claim_sha256 is sha256 of the fixed text, and equals the fixture's commitment.claim_sha256", seed.claim_sha256 === records[6].draw.commitment.claim_sha256 && seed.record_canonical === commitmentClaimText(records[5].record_sha256));
+  {
+    const fake = async (url) => { const m = url.match(/\/block-height\/(\d+)$/); if (m) return { ok: true, text: async () => (m[1] === "101" ? "b".repeat(64) : "no") }; if (/\/block\/b{64}$/.test(url)) return { ok: true, json: async () => ({ timestamp: 1 }) }; return { ok: false, status: 404 }; };
+    const b = await bitcoinBlockAt(101, { fetchImpl: fake, bases: ["https://fake"] });
+    t("bitcoinBlockAt: fetches the block at anchor + 1 by height", b.height === "101" && b.hash === "b".repeat(64));
+    let threw = false; try { await bitcoinBlockAt(102, { fetchImpl: fake, bases: ["https://fake"] }); } catch { threw = true; }
+    t("bitcoinBlockAt: a height not mined yet throws (wait, do not invent a beacon)", threw);
+  }
   // v0 fixture (no draw at all) under a quorum: honest short
   const v0 = JSON.parse(readFileSync(path.join(HERE, "recovery_fixture_20260920.json"), "utf8"));
   const r14 = await verifyChain(v0, { witnessQuorum: { q: 1, pool } });

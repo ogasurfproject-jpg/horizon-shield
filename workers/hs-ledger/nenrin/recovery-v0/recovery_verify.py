@@ -126,6 +126,16 @@ def validate(rec):
                 if not _is_hex(d.get("request_sha256")): refuse("bad_draw", "draw.request_sha256 must be 64 hex (the request every drawn witness received)")
                 dr = d.get("drawn")
                 if not (isinstance(dr, list) and all(_is_str(x) for x in dr)): refuse("bad_draw", "draw.drawn must be an array of signed_domain strings (may be empty when the pool is empty)")
+                if "commitment" in d:
+                    c = d["commitment"]
+                    if not _is_obj(c): refuse("bad_draw", "draw.commitment must be an object")
+                    else:
+                        if not _is_hex(c.get("subject_sha256")): refuse("bad_draw", "draw.commitment.subject_sha256 must be 64 hex")
+                        if not _is_digits(c.get("ledger_entry")): refuse("bad_draw", "draw.commitment.ledger_entry must be digits as a string")
+                        if not _is_https(c.get("ledger_url")): refuse("bad_draw", "draw.commitment.ledger_url must be https")
+                        if not _is_hex(c.get("claim_sha256")): refuse("bad_draw", "draw.commitment.claim_sha256 must be 64 hex")
+                        a = c.get("anchor")
+                        if not (_is_obj(a) and _is_str(a.get("kind")) and _is_digits(a.get("height")) and _is_hex(a.get("hash"))): refuse("bad_draw", "draw.commitment.anchor needs kind, height (digits as a string) and hash (64 hex)")
         if not _is_hex(rec.get("prev")): refuse("bad_prev", "verify must link to the execution")
         elif rec.get("prev") != rec.get("execution_sha256"): refuse("prev_mismatch", "verify.prev must equal execution_sha256")
     elif s == SCHEMAS["observation"]:
@@ -187,6 +197,11 @@ def draw(pool, beacon_hash, subject_sha256, k, exclude_host=None):
     return {"pool_sha256": psha, "pool_size": str(len(all_)), "eligible": str(n), "k": str(kk), "k_requested": str(want),
             "seed_sha256": seed, "drawn": [e["signed_domain"] for e in chosen], "entries": chosen}
 
+COMMITMENT_SCHEMA = "tsugi-draw-commitment-v1"
+def commitment_claim_text(subject_sha256):
+    if not _is_hex(subject_sha256): raise ValueError("subject_sha256 must be 64 hex")
+    return "# " + COMMITMENT_SCHEMA + "\n\nsubject_sha256: " + subject_sha256 + "\n\nThis entry commits the record named by subject_sha256 (a TSUGI execution record) to the ledger before any re-verification witness is drawn. The draw's beacon must be the Bitcoin block after the block this entry is anchored to. Establishes: that subject_sha256 existed no later than the anchor block. Does not establish: anything about the record's content.\n"
+
 def subset_matches(expected, observed):
     if isinstance(expected, dict) and isinstance(observed, dict):
         return all(k in observed and subset_matches(expected[k], observed[k]) for k in expected)
@@ -206,6 +221,20 @@ def verify_witnesses(verify, own_host=None, endpoint=None, execution_sha256=None
         if beacon_hash and str(d.get("beacon", {}).get("hash", "")).lower() != beacon_hash: refuse("beacon_mismatch", "draw.beacon.hash is not the beacon the verifier fetched")
         k_expected = str(quorum["k"]) if quorum.get("k") is not None else None
         if k_expected and d.get("k") != k_expected and d.get("pool_size") != "0" and int(d.get("k", "0")) < int(k_expected): refuse("draw_mismatch", "draw.k is below the policy k (the operator may not shorten the draw)")
+        c = d.get("commitment")
+        if quorum.get("requireCommitment") and not c: refuse("draw_uncommitted", "policy requires the draw's subject to be anchored on the ledger before the beacon block; draw.commitment is absent")
+        if c:
+            if c.get("subject_sha256") != d.get("subject_sha256"): refuse("draw_subject_mismatch", "draw.commitment.subject_sha256 is not draw.subject_sha256")
+            try: claim = sha256_hex(commitment_claim_text(c.get("subject_sha256", "")))
+            except Exception: claim = ""
+            if c.get("claim_sha256") != claim: refuse("commitment_claim_mismatch", "the ledger entry named does not commit this subject")
+            try: nxt = str(int(c.get("anchor", {}).get("height", "x")) + 1)
+            except Exception: nxt = ""
+            if nxt != str(d.get("beacon", {}).get("height")): refuse("beacon_not_next_block", "the beacon must be the block after the one the subject is anchored to")
+            ca = quorum.get("commitmentAnchor") or quorum.get("commitment_anchor")
+            if ca:
+                if str(ca.get("height")) != str(c.get("anchor", {}).get("height")): refuse("commitment_mismatch", "the ledger entry's OTS proof anchors at another height than the record says")
+                if ca.get("hash") and str(ca["hash"]).lower() != str(c.get("anchor", {}).get("hash", "")).lower(): refuse("commitment_mismatch", "the anchor block hash the reader verified is not the one in the record")
         if pool is not None:
             try:
                 re_ = draw(pool, d["beacon"]["hash"], d["subject_sha256"], d["k"], exclude_host=own or None)

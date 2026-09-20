@@ -12,7 +12,7 @@
 // 非同期な理由は agreement_verify.mjs と同じ: sha256 も Ed25519 も WebCrypto。Worker に同期の口が無い。
 import { canonicalUtf8 } from "../agreement-v0/agreement_canonical.mjs";
 import { validate, SCHEMAS, PRIMITIVES } from "./recovery_schema.mjs";
-import { draw as drawWitnesses, normalizePool } from "./witness_draw.mjs";
+import { draw as drawWitnesses, normalizePool, commitmentClaimText } from "./witness_draw.mjs";
 
 export const VERIFIER_VERSION = "0.3.0"; // v2: random witness draw + quorum (v1: signed operator authorization)
 const enc = new TextEncoder();
@@ -97,6 +97,8 @@ export async function verifyWitnesses(verify, { ownHost, endpoint, executionSha2
   const pool = quorum && quorum.pool ? quorum.pool : null;
   const beaconHash = quorum && quorum.beaconHash ? String(quorum.beaconHash).toLowerCase() : null;
   const kExpected = quorum && quorum.k !== undefined && quorum.k !== null ? String(quorum.k) : null;
+  const requireCommitment = !!(quorum && quorum.requireCommitment);
+  const commitmentAnchor = quorum && quorum.commitmentAnchor ? quorum.commitmentAnchor : null;   // 読む側が台帳の entry の .ots から自分で得た { height, hash }
   const d = verify.draw;
   const drawn = d && Array.isArray(d.drawn) ? d.drawn : [];
   const own = ownHost ? String(ownHost).toLowerCase() : "";
@@ -105,6 +107,19 @@ export async function verifyWitnesses(verify, { ownHost, endpoint, executionSha2
     if (own && drawn.some((x) => String(x).toLowerCase() === own)) refuse("self_witness", "the draw lists the endpoint's own host " + ownHost + " as a witness (11.4)");
     if (beaconHash && String(d.beacon.hash).toLowerCase() !== beaconHash) refuse("beacon_mismatch", "draw.beacon.hash " + d.beacon.hash + " is not the beacon the verifier fetched " + beaconHash);
     if (kExpected && d.k !== kExpected && d.pool_size !== "0" && Number(d.k) < Number(kExpected)) refuse("draw_mismatch", "draw.k " + d.k + " is below the policy k " + kExpected + " (the operator may not shorten the draw)");
+    // v2.2 commit-then-reveal: subject が beacon より前に錨打ちされとるか
+    const c = d.commitment;
+    if (requireCommitment && !c) refuse("draw_uncommitted", "policy requires the draw's subject to be anchored on the ledger before the beacon block; draw.commitment is absent (the operator could have re-ground the draw)");
+    if (c) {
+      if (c.subject_sha256 !== d.subject_sha256) refuse("draw_subject_mismatch", "draw.commitment.subject_sha256 is not draw.subject_sha256");
+      const claim = await sha256Hex(commitmentClaimText(c.subject_sha256));
+      if (c.claim_sha256 !== claim) refuse("commitment_claim_mismatch", "draw.commitment.claim_sha256 " + c.claim_sha256 + " is not sha256(commitmentClaimText(subject)) " + claim + ": the ledger entry named does not commit this subject");
+      if (String(Number(c.anchor.height) + 1) !== String(d.beacon.height)) refuse("beacon_not_next_block", "beacon.height " + d.beacon.height + " is not anchor.height + 1 (" + c.anchor.height + " + 1): the beacon must be the block after the one the subject is anchored to");
+      if (commitmentAnchor) {
+        if (String(commitmentAnchor.height) !== c.anchor.height) refuse("commitment_mismatch", "the ledger entry's OTS proof anchors at height " + commitmentAnchor.height + ", the record says " + c.anchor.height);
+        if (commitmentAnchor.hash && String(commitmentAnchor.hash).toLowerCase() !== String(c.anchor.hash).toLowerCase()) refuse("commitment_mismatch", "the anchor block hash the reader verified is not the one in the record");
+      }
+    }
     if (pool) {
       try {
         const re = await drawWitnesses({ pool, beaconHash: d.beacon.hash, subjectSha256: d.subject_sha256, k: d.k, excludeHost: own || undefined });
@@ -148,7 +163,7 @@ export async function verifyWitnesses(verify, { ownHost, endpoint, executionSha2
 // opts.operatorKeys: 運営者の公開鍵 (base64 raw Ed25519) の配列。渡すと strict モード (v1):
 //   人間承認プリミティブ (approval: human) の実行は、その許可が運営者鍵で署名され、かつ鍵が信用集合に在ることを要求する。
 //   渡さんと lenient (v0 互換): decision: approved だけで通す。既存の記録を割らんため。
-// opts.witnessQuorum: { q, k, pool, beaconHash } (v2)。渡すと verify に q 人の籤証人の一致を要求する。k は方針の引く数 (運営者が短く引き直すのを許さん)。渡さんでも、
+// opts.witnessQuorum: { q, k, pool, beaconHash, requireCommitment, commitmentAnchor } (v2, v2.2)。渡すと verify に q 人の籤証人の一致を要求する。k は方針の引く数 (運営者が短く引き直すのを許さん)。渡さんでも、
 //   verify に draw か埋め込み観測が在れば、その中身の整合 (署名、身元、引かれとるか) は見る。
 export async function verifyChain(records, opts = {}) {
   const operatorKeys = Array.isArray(opts.operatorKeys) ? opts.operatorKeys : null;

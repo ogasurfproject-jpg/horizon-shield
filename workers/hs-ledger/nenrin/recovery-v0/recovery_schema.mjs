@@ -127,6 +127,18 @@ const CHECK = {
         if (!isHex(d.subject_sha256)) refuse("bad_draw", "draw.subject_sha256 must be 64 hex (the record the draw serves)");
         if (!isHex(d.request_sha256)) refuse("bad_draw", "draw.request_sha256 must be 64 hex (the request every drawn witness received)");
         if (!Array.isArray(d.drawn) || !d.drawn.every(isStr)) refuse("bad_draw", "draw.drawn must be an array of signed_domain strings (may be empty when the pool is empty)");
+        // v2.2 commit-then-reveal: 在るなら形は固い。無くてもよい (方針で要求するのは検証器の witnessQuorum.requireCommitment)
+        if (d.commitment !== undefined) {
+          const c = d.commitment;
+          if (!isObj(c)) refuse("bad_draw", "draw.commitment must be an object");
+          else {
+            if (!isHex(c.subject_sha256)) refuse("bad_draw", "draw.commitment.subject_sha256 must be 64 hex");
+            if (!isDigits(c.ledger_entry)) refuse("bad_draw", "draw.commitment.ledger_entry must be digits as a string");
+            if (!isHttps(c.ledger_url)) refuse("bad_draw", "draw.commitment.ledger_url must be https");
+            if (!isHex(c.claim_sha256)) refuse("bad_draw", "draw.commitment.claim_sha256 must be 64 hex");
+            if (!isObj(c.anchor) || !isStr(c.anchor.kind) || !isDigits(c.anchor.height) || !isHex(c.anchor.hash)) refuse("bad_draw", "draw.commitment.anchor needs kind, height (digits as a string) and hash (64 hex)");
+          }
+        }
       }
     }
     if (!isHex(r.prev)) refuse("bad_prev", "verify must link to the execution");
