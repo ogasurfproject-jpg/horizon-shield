@@ -1,0 +1,125 @@
+// RUN_ALL: library  recovery-v0 v2 籤 (kuji): 見知らぬ証人を、再計算できる乱数で引く。採点は witness_draw_test.mjs
+//
+// 「ランダムに選んだ」は自分で言うても誰も確かめられん (設計書 14.3)。せやから:
+//   seed = sha256(beacon_hash | pool_sha256 | subject_sha256)
+//     beacon_hash   自分の外の乱数。Bitcoin の、対象記録より後に最初に採掘されたブロックの hash。
+//     pool_sha256   池 (witness_pool.json) の正規化 canonical の sha256。池を入れ替えたら変わる。
+//     subject_sha256 籤が仕える記録の record_sha256 (再検証なら execution)。事故ごとに違う = 使い回せん。
+//   池を public_key_ed25519_b64 の code point 順に並べ、seed から決定的な部分 Fisher-Yates で k 人引く。
+// 誰でも同じ 3 入力から同じ k 人を出せる。出せんかったら Shield が選り好みした (verifier: draw_mismatch)。
+//
+// 数は文字列 (v0 の約束)。sha256 は WebCrypto (Worker と node で同じ)。python の双子は recovery_verify.py の draw()。
+// 自分の host は引く前に外す (self_witness、conduct-v1.1 11.4)。
+import { canonicalUtf8 } from "../agreement-v0/agreement_canonical.mjs";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+
+export const POOL_SCHEMA = "nenrin-witness-pool-v1";
+export const DRAW_VERSION = "0.1.0";
+const enc = new TextEncoder();
+const HEX64 = /^[0-9a-f]{64}$/;
+
+export async function sha256Hex(s) {
+  const d = await globalThis.crypto.subtle.digest("SHA-256", typeof s === "string" ? enc.encode(s) : s);
+  return [...new Uint8Array(d)].map((x) => x.toString(16).padStart(2, "0")).join("");
+}
+
+const hashedEntry = (e) => ({ signed_domain: e.signed_domain, key_url: e.key_url, public_key_ed25519_b64: e.public_key_ed25519_b64 });
+
+// 池の正規化。file の順は信用せん: 鍵の code point 順に並べる。鍵も domain も重複は拒否 (一 domain 一票、11.4)。
+export function normalizePool(pool) {
+  const entries = Array.isArray(pool) ? pool : (pool && Array.isArray(pool.entries) ? pool.entries : null);
+  if (!entries) throw new Error("pool must be an array of entries or { entries: [...] }");
+  const out = entries.map((e) => {
+    if (!e || typeof e !== "object" || Array.isArray(e)) throw new Error("pool entry is not an object");
+    for (const k of ["signed_domain", "key_url", "public_key_ed25519_b64"]) if (typeof e[k] !== "string" || !e[k]) throw new Error("pool entry lacks " + k);
+    let host = ""; try { host = new URL(e.key_url).host; } catch { throw new Error("pool entry key_url is not a URL: " + e.key_url); }
+    if (host.toLowerCase() !== e.signed_domain.toLowerCase()) throw new Error("pool entry signed_domain " + e.signed_domain + " is not the host of its key_url (11.4)");
+    return { ...hashedEntry(e), ...(typeof e.a2a_url === "string" ? { a2a_url: e.a2a_url } : {}) };
+  });
+  out.sort((a, b) => (a.public_key_ed25519_b64 < b.public_key_ed25519_b64 ? -1 : a.public_key_ed25519_b64 > b.public_key_ed25519_b64 ? 1 : 0));
+  const keys = new Set(), domains = new Set();
+  for (const e of out) {
+    if (keys.has(e.public_key_ed25519_b64)) throw new Error("pool has a duplicate key " + e.public_key_ed25519_b64);
+    if (domains.has(e.signed_domain.toLowerCase())) throw new Error("pool has a duplicate domain " + e.signed_domain);
+    keys.add(e.public_key_ed25519_b64); domains.add(e.signed_domain.toLowerCase());
+  }
+  return out;
+}
+
+// 池の hash。a2a_url は運搬先で、身元やない。hash に入れん。
+export function poolCanonical(pool) { return canonicalUtf8({ schema: POOL_SCHEMA, entries: normalizePool(pool).map(hashedEntry) }); }
+export async function poolSha256(pool) { return sha256Hex(poolCanonical(pool)); }
+
+// 籤。返す物: pool_sha256, pool_size, k (実際に引けた数), seed_sha256, drawn (signed_domain の列), entries (引いた項)。
+export async function draw({ pool, beaconHash, subjectSha256, k, excludeHost }) {
+  if (!HEX64.test(String(beaconHash || ""))) throw new Error("beaconHash must be 64 hex (a Bitcoin block hash)");
+  if (!HEX64.test(String(subjectSha256 || ""))) throw new Error("subjectSha256 must be 64 hex (the record_sha256 the draw serves)");
+  const want = Number(k);
+  if (!Number.isInteger(want) || want < 0) throw new Error("k must be a non-negative integer");
+  const all = normalizePool(pool);
+  const pool_sha256 = await sha256Hex(canonicalUtf8({ schema: POOL_SCHEMA, entries: all.map(hashedEntry) }));
+  const ex = excludeHost ? String(excludeHost).toLowerCase() : null;
+  const eligible = all.filter((e) => !ex || e.signed_domain.toLowerCase() !== ex);
+  const n = eligible.length;
+  const kk = Math.min(want, n);
+  const seed = await sha256Hex(beaconHash + "|" + pool_sha256 + "|" + subjectSha256);
+  const arr = eligible.slice();
+  for (let i = 0; i < kk; i++) {
+    const r = await sha256Hex(seed + "|" + String(i));
+    const j = i + Number(BigInt("0x" + r.slice(0, 16)) % BigInt(n - i));
+    const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+  }
+  const chosen = arr.slice(0, kk);
+  return { pool_sha256, pool_size: String(all.length), eligible: String(n), k: String(kk), k_requested: String(want), seed_sha256: seed, drawn: chosen.map((e) => e.signed_domain), entries: chosen };
+}
+
+// verify 記録に焼く draw 欄 (recovery_schema の verify.draw)。beacon: { kind, height, hash }。
+export function drawField(d, beacon, subjectSha256, requestSha256) {
+  return {
+    beacon: { kind: String(beacon.kind), height: String(beacon.height), hash: String(beacon.hash) },
+    pool_sha256: d.pool_sha256, pool_size: d.pool_size, k: d.k,
+    subject_sha256: subjectSha256, request_sha256: requestSha256, drawn: d.drawn.slice(),
+  };
+}
+
+// Bitcoin の beacon: 与えた時刻 (ISO) 以後に最初に採掘されたブロック。mempool.space の公開 API、予備に blockstream.info。
+// 先端から後ろへ歩く (上限 blocks)。JIDEC が既に Bitcoin にアンカーしとるので、新しい信用先やない。
+export async function bitcoinBeaconAfter(isoTime, { fetchImpl = globalThis.fetch, bases = ["https://mempool.space/api", "https://blockstream.info/api"], maxWalk = 300 } = {}) {
+  const t = Math.floor(new Date(isoTime).getTime() / 1000);
+  if (!Number.isFinite(t)) throw new Error("isoTime is not a date: " + isoTime);
+  let lastErr = null;
+  for (const base of bases) {
+    try {
+      const get = async (p) => { const r = await fetchImpl(base + p, { signal: AbortSignal.timeout(15000) }); if (!r.ok) throw new Error(base + p + " http " + r.status); return r; };
+      const tip = Number(await (await get("/blocks/tip/height")).text());
+      let h = tip, candidate = null;
+      for (let steps = 0; steps < maxWalk && h >= 0; steps++, h--) {
+        const hash = (await (await get("/block-height/" + h)).text()).trim();
+        const b = await (await get("/block/" + hash)).json();
+        const ts = Number(b.timestamp);
+        if (ts >= t) { candidate = { kind: "bitcoin_block", height: String(h), hash, timestamp: String(ts), source: base }; continue; }
+        break;
+      }
+      if (!candidate) throw new Error("no block at or after " + isoTime + " within " + maxWalk + " blocks of the tip");
+      return candidate;
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr || new Error("no beacon source answered");
+}
+
+// CLI: node witness_draw.mjs --pool witness_pool.json --subject <64hex> --k 3 (--beacon <64hex> --height N | --after <ISO>) [--exclude-host host] [--request <64hex>]
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  const args = {};
+  for (let i = 2; i < process.argv.length; i++) { const a = process.argv[i]; if (a.startsWith("--")) { const k = a.slice(2); const v = process.argv[i + 1]; if (v && !v.startsWith("--")) { args[k] = v; i++; } else args[k] = true; } }
+  if (!args.pool || !args.subject || !args.k) { console.error("usage: node witness_draw.mjs --pool witness_pool.json --subject <64hex> --k 3 (--beacon <64hex> --height N | --after <ISO>) [--exclude-host host] [--request <64hex>]"); process.exit(2); }
+  const pool = JSON.parse(readFileSync(args.pool, "utf8"));
+  let beacon;
+  if (args.beacon) beacon = { kind: args.kind || "bitcoin_block", height: String(args.height || "0"), hash: String(args.beacon) };
+  else if (args.after) beacon = await bitcoinBeaconAfter(args.after);
+  else { console.error("give --beacon <hash> --height N, or --after <ISO time> to fetch the first Bitcoin block after it"); process.exit(2); }
+  const d = await draw({ pool, beaconHash: beacon.hash, subjectSha256: args.subject, k: args.k, excludeHost: args["exclude-host"] });
+  const field = drawField(d, beacon, args.subject, args.request || "0".repeat(64));
+  console.log(JSON.stringify({ draw: field, seed_sha256: d.seed_sha256, eligible: d.eligible, entries: d.entries }, null, 2));
+  console.error("witness-draw: pool " + d.pool_size + ", eligible " + d.eligible + ", drawn " + d.k + " of " + d.k_requested + ": " + (d.drawn.join(", ") || "(none)"));
+}

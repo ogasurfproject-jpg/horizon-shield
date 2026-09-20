@@ -1,6 +1,6 @@
-// RUN_ALL: library  recovery-v0 の 5 記録の型。採点は recovery_verify_test.mjs
+// RUN_ALL: library  recovery-v0 の 5 記録の型 (+ v2 の埋め込み観測 1 種)。採点は recovery_verify_test.mjs
 //
-// Proof-of-Recovery の記録 5 種 (設計書 5 節)。
+// TSUGI (継、旧称 Proof-of-Recovery) の記録 5 種 (設計書 5 節)。
 //   drift → proposal → authorization → execution → verify
 // 全部 append-only。prev に前の記録の record_sha256 を持つ。drift だけ prev が null (区間の頭)。
 // establishes / does_not_establish は conduct-v1.1 と同じ規律: 無い・空は拒否 (disclaimer_missing)。
@@ -15,8 +15,11 @@ export const SCHEMAS = {
   authorization: "nenrin-authorization-v1",
   execution: "nenrin-repair-execution-v1",
   verify: "nenrin-verify-record-v1",
+  // v2 (設計書 14 節): 籤で引いた外部証人が返す観測。連鎖には並ばん。verify.external[].record に埋め込まれる。
+  observation: "nenrin-witness-observation-v1",
 };
 export const ORDER = [SCHEMAS.drift, SCHEMAS.proposal, SCHEMAS.authorization, SCHEMAS.execution, SCHEMAS.verify];
+export const EMBEDDED = [SCHEMAS.observation];
 
 // v1 のカタログ。閉じた一覧 (設計書 6 節)。ここに無いプリミティブは提案も実行も拒否。追加は ADR。
 export const PRIMITIVES = {
@@ -34,6 +37,8 @@ const isStr = (v) => typeof v === "string" && v.length > 0;
 const isStrArr = (v) => Array.isArray(v) && v.length > 0 && v.every(isStr);
 const isObj = (v) => !!v && typeof v === "object" && !Array.isArray(v);
 const isHex = (v) => isStr(v) && HEX64.test(v);
+const isDigits = (v) => isStr(v) && /^[0-9]+$/.test(v);
+const isHttps = (v) => isStr(v) && /^https:\/\/[^\s/]+/.test(v);
 
 // 数が紛れ込んどらんか (v0 の約束)。深さ優先で見る。
 export function hasNumber(v) {
@@ -45,7 +50,7 @@ export function hasNumber(v) {
 
 function checkCommon(r, refuse) {
   if (!isObj(r)) { refuse("not_object", "record is not a JSON object"); return; }
-  if (!ORDER.includes(r.schema)) refuse("bad_schema", "schema must be one of " + ORDER.join(", "));
+  if (!ORDER.includes(r.schema) && !EMBEDDED.includes(r.schema)) refuse("bad_schema", "schema must be one of " + ORDER.concat(EMBEDDED).join(", "));
   if (!isStr(r.recorded_at) || !ISO.test(r.recorded_at)) refuse("bad_recorded_at", "recorded_at must be ISO-8601 UTC ending in Z");
   if (!isObj(r.witness) || !isStr(r.witness.name) || !isStr(r.witness.vantage)) refuse("bad_witness", "witness.name and witness.vantage are required");
   if (!isStrArr(r.establishes)) refuse("disclaimer_missing", "establishes must be a non-empty array of strings");
@@ -99,8 +104,46 @@ const CHECK = {
     if (!isObj(r.expected_after)) refuse("bad_expected_after", "expected_after must be an object");
     if (typeof r.recovered !== "boolean") refuse("bad_recovered", "recovered must be a boolean");
     if (r.external !== undefined && !Array.isArray(r.external)) refuse("bad_external", "external, when present, is an array of external witness results");
+    else if (Array.isArray(r.external)) {
+      // v0 の自由形 (witness / status / result) はそのまま許す。record を持つ項 (v2) だけ形を見る。
+      for (const e of r.external) {
+        if (!isObj(e)) { refuse("bad_external", "external entries must be objects"); continue; }
+        if (e.record !== undefined) {
+          if (!isObj(e.record)) refuse("bad_external", "external[].record, when present, is the witness's signed observation record");
+          if (!isStr(e.signed_domain)) refuse("bad_external", "external[].signed_domain is required beside a record");
+        }
+        if (e.answered !== undefined && typeof e.answered !== "boolean") refuse("bad_external", "external[].answered, when present, is a boolean");
+      }
+    }
+    // v2 籤 (設計書 14.3): 誰を呼んだかを再計算できる形で持つ。無くてもよい (v0 互換)。在るなら形は固い。
+    if (r.draw !== undefined) {
+      const d = r.draw;
+      if (!isObj(d)) refuse("bad_draw", "draw must be an object");
+      else {
+        if (!isObj(d.beacon) || !isStr(d.beacon.kind) || !isDigits(d.beacon.height) || !isHex(d.beacon.hash)) refuse("bad_draw", "draw.beacon needs kind, height (digits as a string) and hash (64 hex)");
+        if (!isHex(d.pool_sha256)) refuse("bad_draw", "draw.pool_sha256 must be 64 hex");
+        if (!isDigits(d.pool_size)) refuse("bad_draw", "draw.pool_size must be digits as a string");
+        if (!isDigits(d.k)) refuse("bad_draw", "draw.k must be digits as a string");
+        if (!isHex(d.subject_sha256)) refuse("bad_draw", "draw.subject_sha256 must be 64 hex (the record the draw serves)");
+        if (!isHex(d.request_sha256)) refuse("bad_draw", "draw.request_sha256 must be 64 hex (the request every drawn witness received)");
+        if (!Array.isArray(d.drawn) || !d.drawn.every(isStr)) refuse("bad_draw", "draw.drawn must be an array of signed_domain strings (may be empty when the pool is empty)");
+      }
+    }
     if (!isHex(r.prev)) refuse("bad_prev", "verify must link to the execution");
     else if (r.prev !== r.execution_sha256) refuse("prev_mismatch", "verify.prev must equal execution_sha256");
+  },
+  // v2: 外部証人の観測。証人が自分の domain 鍵で署名して返す 1 記録。連鎖の外、verify.external[].record の中に居る。
+  // 「指示」の欄は無い。observed の hash が比べられるだけ。証人が何を書いても Shield は動かん (設計書 14.1)。
+  [SCHEMAS.observation](r, refuse) {
+    if (!isStr(r.endpoint)) refuse("bad_endpoint", "endpoint is required (the origin that was measured)");
+    if (!isObj(r.observed) || Object.keys(r.observed).length === 0 || !Object.values(r.observed).every(isObj)) refuse("bad_observed", "observed must be an object: surface -> observed state object");
+    if (!isHex(r.request_sha256)) refuse("bad_request_sha256", "request_sha256 must be 64 hex (canonical sha256 of the request the witness answered)");
+    if (!isObj(r.source) || r.source.kind !== "external_witness" || !isStr(r.source.signed_domain) || !isHttps(r.source.key_url)) refuse("bad_source", "source must be { kind: external_witness, signed_domain, key_url (https) }");
+    else if (r.source.key_url && r.source.signed_domain) {
+      let host = ""; try { host = new URL(r.source.key_url).host; } catch {}
+      if (host.toLowerCase() !== r.source.signed_domain.toLowerCase()) refuse("bad_source", "source.signed_domain must be the host of source.key_url (conduct-v1.1 11.4)");
+    }
+    if (r.prev !== null) refuse("bad_prev", "an observation stands alone: prev must be null");
   },
 };
 

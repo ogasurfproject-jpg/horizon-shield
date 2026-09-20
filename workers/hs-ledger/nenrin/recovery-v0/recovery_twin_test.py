@@ -64,6 +64,37 @@ t("python: a signed authorization by a trusted key verifies in strict mode", str
 untrusted = R.verify_chain(v1, operator_keys=["someotherkey"])
 t("python: a signed authorization by an untrusted key is refused", "authorization_untrusted_key" in codes(untrusted))
 
+# 6. v2 籤: python の draw が node の fixture と同じ k 人を出し、埋め込み観測の byte が一致し、同じ拒否を返す
+wf = json.load(open(os.path.join(HERE, "witness_fixture_20260920.json"), encoding="utf-8"))
+wv = wf["records"][6]; own = "gate.horizonshield.dev"
+t("v2 byte-identity: verify record with draw + embedded signed observations, python sha == node sha", R.record_sha256(wv) == wv["record_sha256"])
+for n, e in enumerate(wv["external"]):
+    if "record" in e:
+        t("v2 byte-identity: external[%d] observation python sha == witness's sha, and its Ed25519 signature verifies in python" % n, R.record_sha256(e["record"]) == e["record"]["record_sha256"] and R.verify_record(e["record"])["ok"])
+d = R.draw(wf["pool"], wf["beacon"]["hash"], wf["records"][5]["record_sha256"], 3, exclude_host=own)
+t("v2 draw: python draws the same 3 witnesses as node from beacon + pool + execution hash", d["drawn"] == wv["draw"]["drawn"] and d["pool_sha256"] == wv["draw"]["pool_sha256"], json.dumps(d["drawn"]))
+d_rev = R.draw({"entries": list(reversed(wf["pool"]["entries"]))}, wf["beacon"]["hash"], wf["records"][5]["record_sha256"], 3, exclude_host=own)
+t("v2 draw: pool file order does not matter in python either", d_rev["drawn"] == d["drawn"])
+q2 = R.verify_chain(wf["records"], witness_quorum={"q": wf["q"], "pool": wf["pool"], "beaconHash": wf["beacon"]["hash"]})
+t("v2 python: fixture verifies with quorum %s, 2 agreeing" % wf["q"], q2["ok"] and q2["segment"]["witness"]["agreeing"] == wv["draw"]["drawn"][:2], json.dumps(q2["refusals"]))
+q3 = R.verify_chain(wf["records"], witness_quorum={"q": 3, "pool": wf["pool"]})
+t("v2 python: quorum 3 -> witness_quorum_short (one drawn witness did not answer)", "witness_quorum_short" in codes(q3))
+t("v2 python: v0 fixture under a quorum -> witness_quorum_short", "witness_quorum_short" in codes(R.verify_chain(fx, witness_quorum={"q": 1, "pool": wf["pool"]})))
+m = json.loads(json.dumps(wf["records"])); m[6]["draw"]["drawn"][0] = "witness-e.example"
+m[6] = dict(R.hashed_body(m[6])); m[6]["record_sha256"] = R.record_sha256(m[6])
+t("v2 python: drawn edited by hand -> draw_mismatch", "draw_mismatch" in codes(R.verify_chain(m, witness_quorum={"q": 2, "pool": wf["pool"]})))
+bad_pool = {"entries": wf["pool"]["entries"] + [{"signed_domain": "witness-f.example", "key_url": "https://witness-f.example/k.json", "public_key_ed25519_b64": "zz" + wf["pool"]["entries"][0]["public_key_ed25519_b64"][2:]}]}
+t("v2 python: another pool -> pool_mismatch", "pool_mismatch" in codes(R.verify_chain(wf["records"], witness_quorum={"q": 2, "pool": bad_pool})))
+t("v2 python: another beacon -> beacon_mismatch", "beacon_mismatch" in codes(R.verify_chain(wf["records"], witness_quorum={"q": 2, "pool": wf["pool"], "beaconHash": "f" * 64})))
+m2 = json.loads(json.dumps(wf["records"])); idx = next(i for i, e in enumerate(m2[6]["external"]) if "record" in e)
+m2[6]["external"][idx]["record"]["observed"]["health.gate_commit"]["gate_commit"] = "deadbeef0000"
+m2[6] = dict(R.hashed_body(m2[6])); m2[6]["record_sha256"] = R.record_sha256(m2[6])
+t("v2 python: one byte inside a witness observation -> hash_mismatch", "hash_mismatch" in codes(R.verify_chain(m2, witness_quorum={"q": 2, "pool": wf["pool"]})))
+m3 = json.loads(json.dumps(wf["records"])); m3[6]["external"][idx]["signed_domain"] = "witness-e.example"
+m3[6] = dict(R.hashed_body(m3[6])); m3[6]["record_sha256"] = R.record_sha256(m3[6])
+t("v2 python: entry.signed_domain differs from the signed record -> witness_domain_mismatch", "witness_domain_mismatch" in codes(R.verify_chain(m3, witness_quorum={"q": 2, "pool": wf["pool"]})))
+t("v2 python: subset_matches keeps extra observed keys, refuses missing ones", R.subset_matches({"a": {"b": "1"}}, {"a": {"b": "1", "c": "2"}}) and not R.subset_matches({"a": {"b": "1", "c": "2"}}, {"a": {"b": "1"}}))
+
 print("\n".join(out))
-print("=== %d / %d 合格 (recovery-twin: python が node と byte 一致) ===" % (p, p + f))
+print("=== %d / %d 合格 (recovery-twin: python が node と byte 一致、v2 籤も同じ k 人) ===" % (p, p + f))
 if f: sys.exit(1)
