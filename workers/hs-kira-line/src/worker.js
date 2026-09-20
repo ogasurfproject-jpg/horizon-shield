@@ -331,6 +331,7 @@ async function processEvents(events, env) {
     const userId = event.source?.userId;
     if (!userId) continue;
     console.log("USER_ID:", userId);
+    console.log("[src] type=" + (event.source && event.source.type) + " gid=" + ((event.source && (event.source.groupId || event.source.roomId)) || "none") + " ev=" + event.type + " mtype=" + ((event.message && event.message.type) || "-"));
     // HS-KIRA-GROUP-SILENT-20260820: グループ/複数人トークでは自動応答しない。
     //   botは1対1前提の作り。グループで発言ごとに1対1ロジック(ヒアリング/診断)で返すと、
     //   「変な会話」でグループが埋まる。グループは人(堤さん・スタッフ・大賀)の場にして、
@@ -1488,14 +1489,22 @@ __name(runFollowups, "runFollowups");
 async function ingestPartnerSilently(userMessage, userId, groupId, env) {
   // グループ/複数人トークからの加盟店メッセージを、返信せずにヒアリングDBへ取り込む。
   //   bridge(handleKiraBridge)がサーバ側で ingestHearingAnswer を実行する。返ってくる返信は捨てる。
-  if (!env.KIRA_BRIDGE_KEY) return;
+  if (!env.KIRA_BRIDGE_KEY) { console.log("[bridge] SKIP no KIRA_BRIDGE_KEY"); return; }
   try {
-    await fetch("https://hearing.horizonshield.dev/kira-bridge", {
+    const _r = await fetch("https://hearing.horizonshield.dev/kira-bridge", {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Bridge-Key": env.KIRA_BRIDGE_KEY },
       body: JSON.stringify({ userId, text: userMessage, groupId: groupId || null })
     });
-  } catch (_e) {}
+    const _b = await _r.text().catch(() => "");
+    console.log("[bridge] resp " + _r.status + " gid=" + (groupId || "none") + " " + _b.slice(0, 150));
+    if (!_r.ok) {
+      try { await pushToLine(env.LINE_USER_ID, "【KIRAから hearing への転送失敗】status=" + _r.status + " gid=" + (groupId || "none") + "。加盟店の回答が取り込めてない。要確認。", env.LINE_CHANNEL_TOKEN); } catch (_e2) {}
+    }
+  } catch (e) {
+    console.log("[bridge] ERROR " + String(e));
+    try { await pushToLine(env.LINE_USER_ID, "【KIRAから hearing への転送エラー】" + String(e).slice(0, 120) + "。要確認。", env.LINE_CHANNEL_TOKEN); } catch (_e2) {}
+  }
 }
 __name(ingestPartnerSilently, "ingestPartnerSilently");
 async function isPartner(userId, text, env) {
