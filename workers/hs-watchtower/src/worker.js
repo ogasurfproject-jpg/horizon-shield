@@ -51,6 +51,7 @@ const LEDGER_ROUTES_EXPECTED = [
   "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query",
   "/witness", "/witness/pending", "/witness/{sha}",
   "/resume?endpoint={url}",
+  "/trust-signal?endpoint={url}",
 ];
 
 const CHECKERS = {
