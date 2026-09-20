@@ -1,4 +1,4 @@
-# recovery-v0: Proof-of-Recovery (v1)
+# recovery-v0: Proof-of-Recovery (v1、python/node 双子)
 
 設計書 (Claude Docs「Proof-of-Recovery 設計書」、2026-09-20) の v1。第2の柱の、記録の型、それを採点する物、Class 1 の証人、そして Policy Gate (運営者署名による許可)。診断と提案を書く側 (Shield エージェント) はこの公開ツリーには置かん (別 repo)。
 
@@ -13,12 +13,14 @@
 | recovery_verify_test.mjs | suite | fixture が通る、rebuild が byte 一致、変異 24 件が全部落ちる |
 | drift_witness.mjs | library (network) | Class 1 の 7 表面を測って drift-record を JSONL で書く。手で回す |
 | authorize.mjs | library (CLI, 鍵) | Policy Gate。人間が提案に Ed25519 で署名して authorization-v1 を作る。鍵は file、repo の外 |
+| recovery_verify.py | library | 検証器の python 側。canonical は json.dumps(ensure_ascii=False, sort_keys=True, separators=(",",":"))。合意層と同じ作法 |
+| recovery_twin_test.py | suite | 双子の採点。fixture の 7 記録が python と node で byte 一致、python 署名を node が検証 (cross-language) |
 | baseline_20260920.jsonl | 表 | 直った扉に対する証人の最初の走り。7 表面、0 drift。v1 の「前回」 |
 | run_all.mjs | runner | agreement-v0 と同じ物。名乗っとらん file が 1 つでも有れば断る |
 
 ## 回し方
 
-    node run_all.mjs                                   # 採点
+    node run_all.mjs                                   # 採点 (node と python の suite を両方回す)
     node recovery_fixture_build.mjs                    # fixture を書き直す (中身を変えた時だけ。変えたら test が byte 一致で止める)
     node drift_witness.mjs https://gate.horizonshield.dev --expect-commit <sha> --expect-canonical <hex> --repo <repo> --out drift.jsonl
 
@@ -51,5 +53,4 @@ drift_witness は drift が 1 つでも有れば exit 1。cron に置く時は�
 - drift_witness を worker の cron に。今は Mac から手で回す物。
 - 前回 witness した状態との比較 (鍵の変化、jwks の変化)。v0 の証人は毎回の観測を書くだけで、prior state を持たん。
 - authorization を運営者の公開鍵で検証する口を gate に (/keys/operator.json)。今は信用アンカーを手で渡す。
-- python の双子 (agreement-v0 と同じく、2 言語で byte 一致を取ってから「正しい」と言う)。
 - 台帳 (hs-ledger) への intake と JIDEC への anchor。記録の型はそのために witness intake と同じ規律にしてある。
