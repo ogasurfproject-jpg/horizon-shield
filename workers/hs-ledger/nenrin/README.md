@@ -27,6 +27,12 @@ reproduces the original modules byte for byte).
   fail-closed refusals. consume projects it for a trust engine; candidate_evidence is the discovery and ordering
   interop; CONSUME.md is the read contract.
 - agreement-v0/ : bilateral signed agreement records, anchored to Bitcoin through the JIDEC ledger.
+- recovery-v0/ : TSUGI (継), proof of recovery. Drift witness over eight public surfaces (with baseline comparison),
+  five hash-linked record types, closed repair catalog, operator-signed authorization (trust anchor /keys/operator.json),
+  random re-verification witnesses drawn from a public pool with a Bitcoin block as seed, quorum in the verifier
+  (JavaScript 0.3.0 and Python, byte-identical), reciprocal witness reply (conduct-v1.1 11.6) and pool builder.
+  Two real incident chains (2026-09-20). The diagnosing agent is not in this tree by decision; its outputs are
+  verified here like anyone else's.
 
 ## Honest scope
 Signatures prove who asserted and the linkage, not that any assertion is true. There is no side-effect oracle:

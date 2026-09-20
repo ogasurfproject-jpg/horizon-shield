@@ -67,6 +67,16 @@ What the signatures prove, stated plainly: who asserted the observation and who 
 
 The loop this closes: an agent discovers a server, reads conduct the server did not write, chooses, delegates a task, the task is witnessed, the evidence accumulates bound to the task id, and the next agent chooses on it. The code is in [`workers/hs-ledger/nenrin/task-delegation-bind-v0`](workers/hs-ledger/nenrin/task-delegation-bind-v0) (the ledger faces and the producer) and [`workers/hs-ledger/nenrin/a2a-conduct-walk`](workers/hs-ledger/nenrin/a2a-conduct-walk) (the walk that binds, with `--bind-task`).
 
+## TSUGI: proof of recovery, the second pillar
+
+Verification says whether an endpoint conforms today. It says nothing about what happened when it broke, or whether it is really back. TSUGI (継, from kintsugi: the repair is visible and becomes part of the object's history) is the layer after verification. It does not repair; it proves recovery.
+
+Five record types, hash-linked: drift (a witness measured a public surface and it did or did not match), proposal (one repair from a closed catalog of five primitives, with what it does not establish), authorization (the operator's Ed25519 signature over the proposal hash, expiring), execution (before and after state), verify (the witness measured again). The verifier refuses an execution of a human-approval primitive whose authorization is unsigned, signed by an untrusted key, or expired. The operator's public key is served at `https://gate.horizonshield.dev/keys/operator.json`, the same way the agreement and witness keys are.
+
+Re-verification witnesses are not chosen by the operator. They are drawn from a public pool with `sha256(bitcoin block hash | pool hash | record hash)` as the seed, so a third party recomputes who should have been asked. A drawn witness receives only a blind request (no expected values) and returns only a signed observation; nothing it says is executed. This is the July 2026 lesson turned around: unknown agents may observe you, never instruct you.
+
+Two real incidents are recorded in [`workers/hs-ledger/nenrin/recovery-v0`](workers/hs-ledger/nenrin/recovery-v0): a raw deploy that bypassed the deploy guard and silently broke the card signature and the OpenAI domain challenge (found by an external verifier, closed with an unsigned chat approval, which the strict verifier flags as such), and a card signature broken by two version bumps deployed without a re-sign (found by the daily witness, closed with a signed authorization, twelve records). The pool of external witnesses is empty on 2026-09-20; the records say so instead of pretending a quorum.
+
 ## Repository map
 
 | Path | What it is |
@@ -76,6 +86,7 @@ The loop this closes: an agent discovers a server, reads conduct the server did 
 | `workers/hs-ledger/nenrin/task-delegation-bind-v0` | Task-bound conduct: an A2A Task id bound to a signed, Bitcoin-anchored witness observation; the `/witness/task`, `/trust-signal?task_id` and `/witness/task/evidence` faces |
 | `workers/hs-ledger/nenrin/a2a-conduct-walk` | The conduct walk that measures an agent and, with `--bind-task`, files the observation under the real `a2a.task.id` |
 | `workers/hs-ledger/nenrin/agreement-v0` | The agreement record: two agents, two signatures, one set of bytes. Verifier written twice, in Python and JavaScript, and proved to agree |
+| `workers/hs-ledger/nenrin/recovery-v0` | TSUGI (継), the second pillar: proof of recovery. A drift witness measures eight public surfaces of the gate daily; a repair is proposed from a closed catalog, authorized with the operator's Ed25519 key (trust anchor at `/keys/operator.json`), executed, re-verified, and the whole chain is hash-linked so anyone recomputes it. Random re-verification witnesses are drawn from a public pool with a Bitcoin block as the seed, so nobody can claim the operator chose them. Two real incidents are in the tree as 7- and 12-record chains; the verifier exists in JavaScript and Python and they agree byte for byte |
 | `workers/hs-verify-relay` | The public edge relay born from the 522 incident (documented in the discrepancy record) |
 | `verify-directory` | The public register page: every listed server, our own included, with its live verdict |
 | everything else | The GitHub Pages site for the human facing service at the-horizons-innovation.com |

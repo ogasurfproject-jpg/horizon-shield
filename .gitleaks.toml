@@ -8,6 +8,9 @@
 # 2026-09-18: provenance-v0 の candidate_fixture.json(A2A#1631 / ARBITER interop の多候補公開fixture)も
 # 同種で、公開鍵(did:key)と署名だけ、秘密鍵はディスクに書かへんので同様に許す。
 # 2026-09-19: interop-v0/fixtures/*.json も同種(reference interop test の公開did:key fixture群)なので同様に許す。
+# 2026-09-20: TSUGI (recovery-v0) の記録は、扉が公開で配る鍵 (/keys/agreement.json、/keys/witness.json、/keys/operator.json)
+# の sha256 を key_sha256 / prior_key_sha256 として持つ。公開鍵の hash で、秘密やない。generic-api-key が名前の key に
+# 反応して赤になる (incident_20260920_resign_chain.json で 6 件) ので、その欄だけ許す。秘密鍵は運営者の Mac の外に出ん。
 title = "horizon-shield gitleaks config"
 
 [extend]
@@ -20,6 +23,7 @@ regexes = [
   "data-cf-beacon=",
   "5a6009e4bfe34dc8ae92f6fc93506de4",
   "did:key:z[1-9A-HJ-NP-Za-km-z]{32,}",
+  '''"(prior_)?key_sha256":\s*"[0-9a-f]{64}"''',
 ]
 paths = [
   '''workers/hs-ledger/nenrin/task-delegation-bind-v0/t4_fixture\.json''',
