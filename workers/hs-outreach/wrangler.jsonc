@@ -8,7 +8,7 @@
   ],
   "triggers": { "crons": ["0 0-8 * * 1-5"] },
   "vars": {
-    "DRY_RUN": "true",
+    "DRY_RUN": "false",
     "PUBLIC_BASE": "https://hs-outreach.oga-surf-project.workers.dev",
     "FROM_ADDRESS": "HORIZON SHIELD <outreach@the-horizons-innovation.com>",
     "REPLY_TO": "contact@the-horizons-innovation.com",
