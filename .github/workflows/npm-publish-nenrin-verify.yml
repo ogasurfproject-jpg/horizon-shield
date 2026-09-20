@@ -61,11 +61,16 @@ jobs:
       - name: Publish with provenance (Trusted Publishing, GitHub OIDC)
         run: npm publish --provenance --access public
 
-      - name: Verify the attestation landed
+      - name: Verify the attestation landed (waits for the registry, which needs a few minutes after publish)
         env:
           WANT: ${{ github.event.inputs.version }}
         run: |
+          for i in $(seq 1 36); do
+            if npm view "nenrin-verify@$WANT" version >/dev/null 2>&1; then break; fi
+            echo "registry does not show $WANT yet (try $i of 36), waiting 5s"; sleep 5
+          done
           echo "published:"; npm view "nenrin-verify@$WANT" version dist.integrity dist.tarball
+          echo "attestation:"; npm view "nenrin-verify@$WANT" dist.attestations
           T=$(mktemp -d); cd "$T"; npm init -y >/dev/null 2>&1
           npm install --ignore-scripts "nenrin-verify@$WANT" >/dev/null 2>&1
           echo "provenance check (npm audit signatures):"
