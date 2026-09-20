@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.horizonshield.driftwitness</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/oogatoshikatsu/horizon-shield/ops/run_drift_witness_daily.sh</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>9</integer>
+    <key>Minute</key><integer>0</integer>
+  </dict>
+  <key>StandardOutPath</key><string>/Users/oogatoshikatsu/horizon-shield/workers/hs-ledger/nenrin/recovery-v0/drift_runs/launchd.out</string>
+  <key>StandardErrorPath</key><string>/Users/oogatoshikatsu/horizon-shield/workers/hs-ledger/nenrin/recovery-v0/drift_runs/launchd.err</string>
+</dict>
+</plist>

@@ -58,6 +58,10 @@ echo "deploying with GATE_COMMIT=$SHA"
 # OpenAI 側のドメイン確認が誰にも気づかれずに切れる（worker.js の同箇所のコメント参照）。
 CHALLENGE_SRC="環境変数から渡された"
 CHALLENGE="${OPENAI_APPS_CHALLENGE:-}"
+if [ -z "$CHALLENGE" ] && [ -s "$HOME/.config/hs/openai_apps_challenge.txt" ]; then
+  CHALLENGE=$(tr -d '[:space:]' < "$HOME/.config/hs/openai_apps_challenge.txt")
+  CHALLENGE_SRC="渡されなかったので、~/.config/hs/openai_apps_challenge.txt から読んだ"
+fi
 if [ -z "$CHALLENGE" ]; then
   CHALLENGE=$(curl -sf https://gate.horizonshield.dev/.well-known/openai-apps-challenge || true)
   CHALLENGE_SRC="渡されなかったので、いま動いている本番から回収した"
@@ -73,6 +77,9 @@ fi
 echo "challenge: $CHALLENGE_SRC (${#CHALLENGE} 文字)  ← 値そのものは出さない"
 
 npx wrangler deploy --var GATE_COMMIT:"$SHA" --var OPENAI_APPS_CHALLENGE:"$CHALLENGE"
+# 2026-09-20 TSUGI: 撒いた commit を repo の外に残す。日次の証人 (ops/run_drift_witness_daily.sh) が --expect-commit に使う。
+# これが無いと証人は「ピンされとるか」しか見られず、「今日撒いた物か」が見られん。
+mkdir -p "$HOME/.config/hs" && printf '%s\n' "$SHA" > "$HOME/.config/hs/last_gate_commit.txt"
 echo ""
 echo "確認:"
 echo "  curl -s https://gate.horizonshield.dev/health"

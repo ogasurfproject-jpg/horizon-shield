@@ -19,7 +19,10 @@ HORIZON SHIELD 第2の柱 TSUGI (継)。検証の次に置く、回復を証明�
 | recovery_fixture_build.mjs | library | 今週の事故 (生 deploy → 署名不一致 + challenge 消失 → 外部証人 → 切り分け → redeploy_pinned → verify TRUE) を 7 記録に焼く |
 | recovery_fixture_20260920.json | 表 | 上が書いた 7 記録。hash と prev はコードが計算した物。手で触らん |
 | recovery_verify_test.mjs | suite | fixture が通る、rebuild が byte 一致、変異 24 件が全部落ちる |
-| drift_witness.mjs | library (network) | Class 1 の 7 表面を測って drift-record を JSONL で書く。手で回す |
+| drift_witness.mjs | library (network) | Class 1 の 8 表面を測って drift-record を JSONL で書く。--baseline で前回と比べる (jwks_changed / key_changed / key_removed / public_value_changed)。measureSurfaces() を輸出 (反対側が使う)。fetch は no-store |
+| witness_reply.mjs | library (CLI) | 籤の反対側 (conduct-v1.1 11.6 の参照実装)。頼まれたら測って署名して返す。answer (1 依頼) と serve (最小の A2A 面 + 鍵の口) |
+| witness_pool_build.mjs | library (CLI, network) | 池を育てる口。register や候補の列から、条件 (conduct-v1 宣言、reciprocal、同 host の鍵、自分やない、--min-walked) を満たす card だけ池に入れる。落ちた候補は report に |
+| witness_reply_test.mjs | suite | 両側を localhost で繋いで一周 (serve → 依頼 → 受け入れ → 検証器が数える)、池の審査を偽 fetch で、drift_witness の baseline |
 | authorize.mjs | library (CLI, 鍵) | Policy Gate。人間が提案に Ed25519 で署名して authorization-v1 を作る。鍵は file、repo の外 |
 | recovery_verify.py | library | 検証器の python 側。canonical は json.dumps(ensure_ascii=False, sort_keys=True, separators=(",",":"))。合意層と同じ作法 |
 | recovery_twin_test.py | suite | 双子の採点。fixture の 7 記録が python と node で byte 一致、python 署名を node が検証 (cross-language)、python の籤が node と同じ k 人を出す |
@@ -32,6 +35,9 @@ HORIZON SHIELD 第2の柱 TSUGI (継)。検証の次に置く、回復を証明�
     node recovery_fixture_build.mjs                    # fixture を書き直す (中身を変えた時だけ。変えたら test が byte 一致で止める)
     node drift_witness.mjs https://gate.horizonshield.dev --expect-commit <sha> --expect-canonical <hex> --repo <repo> --out drift.jsonl
     node witness_draw.mjs --pool witness_pool.json --subject <execution の record_sha256> --k 3 --after 2026-09-20T08:02:00Z --exclude-host gate.horizonshield.dev
+    node witness_pool_build.mjs --register --report pool_report.json          # 扉の register の endpoint を候補に池を書き直す
+    node witness_reply.mjs serve --key ~/.hs_witness_key.pem --domain <自分の host> --key-url https://<自分の host>/keys/witness.json --port 8787
+    bash ../../../../ops/run_drift_witness_daily.sh                             # 日次証人 (launchd: ops/com.horizonshield.driftwitness.plist)
 
 drift_witness は drift が 1 つでも有れば exit 1。cron に置く時はそれで人を呼ぶ。witness_draw は --after で「その時刻以後に最初に採掘された Bitcoin ブロック」を beacon に取る (mempool.space、予備 blockstream.info)。手元で beacon を持っとるなら --beacon <hash> --height N。
 
@@ -74,9 +80,17 @@ Shield は再検証の証人を自分で選ばん。公開の池 (witness_pool.j
 - drift は区間の頭で prev が null。proposal.prev は最後の drift、以降は直前。authorization.prev = proposal_sha256、execution.prev = authorization_sha256、verify.prev = execution_sha256。型検査と連鎖検査の両方で見る。
 - 拒否されとる実行 (decision: refused の後の execution)、カタログ外のプリミティブ、提案と違うプリミティブの実行、許可の後で動いた expected_after、recovered:true なのに観測してへん表面、全部断る。
 
-## まだ無い物 (v2)
+## 反対側と池 (v2.1)
 
-- 池の中身。条件を満たす card を集める口 (register から、A2A の公開 directory から) と、こっちが呼ばれた時に測って返す側 (conduct-v1.1 11.6 reciprocal walk の参照実装)。呼ぶだけで呼ばれん者は池に入れてもらえん。
-- drift_witness を worker の cron に。今は Mac から手で回す物。
-- 前回 witness した状態との比較 (鍵の変化、jwks の変化)。v0 の証人は毎回の観測を書くだけで、prior state を持たん。
+呼ぶだけで呼ばれん者は池に入れてもらえん。こっちが呼ばれた時の側が `witness_reply.mjs` や: 依頼 (nenrin-witness-request-v1) を受け、自分自身なら self_witness で断り、drift_witness の 8 表面を測って、署名付きの観測 1 記録で返す。依頼の中の文字列は測る対象 (origin と表面名) にしか使わん。依頼に「指示」が混じっとっても測った物を書くだけ (試験に入れてある)。serve は最小の A2A 面で、本番の証人はこれを自分の A2A 面に組み込む。証人の鍵は運営者鍵と別に作る (役が違う): `openssl genpkey -algorithm ed25519 -out ~/.hs_witness_key.pem`。
+
+池は `witness_pool_build.mjs` が書く。条件は README 上の「籤」の節そのまま。`--min-walked N` は 14.6 の Sybil 手当 (扉の /register/lookup の last_ring.walked_as_witness を見る)。既定 0 = ADR で決めるまで見ん。落ちた候補は池に書かず report に理由付きで残す。
+
+日次の証人は `ops/run_drift_witness_daily.sh` (launchd `ops/com.horizonshield.driftwitness.plist`、毎日 09:00)。deploy_gate.sh が撒いた commit を `~/.config/hs/last_gate_commit.txt` に残し、証人はそれを --expect-commit に、前回の走りを --baseline にする。drift が有れば ALERT file と macOS の通知。記録は drift_runs/ (git には入れん)。
+
+## まだ無い物 (v2.1)
+
+- 池の中身。道具は在る (witness_pool_build)。条件を満たす card がまだ無い。うち自身も、扉の A2A 面が witness_request に答えるまでは他所の池に入れん (consent の witness_policy.reciprocal は答えられるようになってから true にする。先に宣言せん)。
+- 証人を Worker の cron に (公式 SDK の card 検証を Worker の中でやる必要が有る)。今は Mac の launchd。
 - 台帳 (hs-ledger) への intake と JIDEC への anchor。記録の型はそのために witness intake と同じ規律にしてある。
+- beacon の予備 (drand)。今は mempool.space と blockstream.info。
