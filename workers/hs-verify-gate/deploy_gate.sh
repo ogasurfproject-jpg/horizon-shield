@@ -104,7 +104,29 @@ if [ "$SERVED" != "$SHA" ]; then
 fi
 echo "  gate_commit 一致: $SHA"
 EXPECT_VERSION=$(node -e 'console.log(require("./server.json").version)')
-echo "本番の card 署名を公式 @a2a-js/sdk で検証 (version $EXPECT_VERSION を期待)"
+# 2026-09-20. agent-card.json は /health と同じ瞬間に伝播するとは限らん (別の edge 経路・キャッシュ)。
+# be3475e7 の deploy で、gate_commit は新しくなっとるのに card はまだ前の version を配っとって、
+# 署名検証が「INVALID」と誤報した。gate_commit の一致だけでは足りん。card の version が追いつくまで待つ。
+# これで「伝播遅れ (待てば直る)」と「本物の署名不良 (待っても直らん)」を分ける。
+echo "本番の card が version $EXPECT_VERSION を配るまで待つ (最大 90 秒)"
+CARDV=""
+for i in $(seq 1 18); do
+  CJ=$(mktemp)
+  curl -s -m 15 -H "Cache-Control: no-cache" -o "$CJ" "https://gate.horizonshield.dev/.well-known/agent-card.json?deploy_check=$(date +%s)" || true
+  CARDV=$(node -e 'try{const j=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));process.stdout.write(String(j.version||""))}catch(e){}' "$CJ" || true)
+  rm -f "$CJ"
+  if [ "$CARDV" = "$EXPECT_VERSION" ]; then break; fi
+  echo "  まだ version ${CARDV:-(取れず)} を配っとる (試行 $i)。5 秒待つ"
+  sleep 5
+done
+if [ "$CARDV" != "$EXPECT_VERSION" ]; then
+  echo "★ 本番の card が version $EXPECT_VERSION を配らん: served=${CARDV:-(取れず)}。edge の伝播が 90 秒で追いつかんかった。"
+  echo "   これは伝播遅れの可能性が高い (署名や version の付け直しは要らんかもしれん)。少し待って手で確かめろ:"
+   echo "     node verify_live_card.mjs --expect-version $EXPECT_VERSION"
+  exit 1
+fi
+echo "  card version 一致: $EXPECT_VERSION"
+echo "本番の card 署名を公式 @a2a-js/sdk で検証"
 if ! node verify_live_card.mjs --expect-version "$EXPECT_VERSION"; then
   echo "★ 本番の card が verify せん。commit は撒けとる (last_gate_commit.txt は $SHA) が、配信 card が壊れとる。"
   echo "   version を上げて署名し直しとらんのが典型。再署名して deploy し直せ:"
