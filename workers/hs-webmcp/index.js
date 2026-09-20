@@ -845,7 +845,7 @@ const ASK_ENTRIES = {
   audit: { tool: "intake_estimate", what: "見積もりが適正かの診断(KIRA)" },
   verify: { tool: "ask（ref に jidec:entry:N か 64桁hex を渡す）", what: "台帳に錨を打った記録の検証" },
   tactics: { tool: "scan_tactics", what: "工種別の過剰請求の手口と一次ソース" },
-  who: { tool: "—（Yakumo 加盟店ディレクトリ）", what: "検証済み加盟店の探索", url: SITE + "/yakumo/" },
+  who: { tool: "-（Yakumo 加盟店ディレクトリ）", what: "検証済み加盟店の探索", url: SITE + "/yakumo/" },
 };
 
 async function handleAsk(args, env) {
@@ -1025,7 +1025,7 @@ async function handleAsk(args, env) {
     // 台帳側が「候補が割れるので判定を出さない」と答えたとき、こちらが判定が出たかのように
     // 見せてはいけない。**答えなかったことを、答えたように包み直すのが一番たちが悪い。**
     if (out.result && out.result.ambiguous === true) {
-      out.answered_by = "hs-mcp (KIRA) — 判定保留";
+      out.answered_by = "hs-mcp (KIRA), 判定保留";
       out.limits = "工事名の候補が複数あり、**どれを指すかで適正額が変わるため判定を出していない。**" +
                    "候補から工事名を選んで聞き直してほしい。**当てずっぽうの工種で出した数字は根拠にならない。**";
       out.next = ["ask（候補の工事名をそのまま work に入れて）", "intake_estimate"];

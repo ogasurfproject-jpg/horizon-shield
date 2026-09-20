@@ -76,7 +76,7 @@ body::after{
 .screen.active{transform:translateX(0)}
 .screen.prev{transform:translateX(-100%)}
 
-/* ── SCREEN 1: IMPACT ── */
+/* -- SCREEN 1: IMPACT -- */
 #sc1{
   background:
     radial-gradient(ellipse 100% 50% at 50% -5%,rgba(0,255,136,.08) 0%,transparent 55%),
@@ -175,7 +175,7 @@ body::after{
 
 .spacer80{height:80px}
 
-/* ── SCREEN 2: MAP ── */
+/* -- SCREEN 2: MAP -- */
 #sc2{background:var(--bg)}
 .map-search{
   padding:10px 14px;background:rgba(7,13,20,.97);
@@ -206,7 +206,7 @@ body::after{
 }
 .leg-grad{height:8px;width:100px;border-radius:2px;flex-shrink:0;background:linear-gradient(to right,#00ff88,#ffcc00,#ff8800,#ff1f3d)}
 
-/* ── SCREEN 3: DATA ── */
+/* -- SCREEN 3: DATA -- */
 #sc3{background:var(--bg)}
 .ds{padding:16px 14px}
 .ds-h{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--c);letter-spacing:3px;margin-bottom:8px}
@@ -373,7 +373,7 @@ body::after{
     <div class="impact-hero">
       <div class="impact-eyebrow">
         <span class="pulse-dot"></span>
-        HORIZON SHIELD — IMPACT REPORT
+        HORIZON SHIELD, IMPACT REPORT
         <span class="pulse-dot" style="animation-delay:.5s"></span>
       </div>
       <h1 class="impact-h1">
@@ -733,7 +733,7 @@ const WARDS={
   osaka:[['住吉区',135],['平野区',128],['東住吉区',118],['生野区',108],['西淀川区',95],['鶴見区',88]],
 };
 
-// ── TAB ──
+// -- TAB --
 let cur=0, mapOk=false, dataOk=false;
 function go(i){
   ['sc1','sc2','sc3'].forEach((id,j)=>{
@@ -748,7 +748,7 @@ function go(i){
   if(i===2&&!dataOk){renderAll();dataOk=true;}
 }
 
-// ── MAP ──
+// -- MAP --
 let map;
 function initMap(){
   map=L.map('map',{zoomControl:true,scrollWheelZoom:false}).setView([36.5,136.0],5);
@@ -781,7 +781,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('addr-input')?.addEventListener('keypress',e=>{if(e.key==='Enter')searchArea();});
 });
 
-// ── DATA RENDER ──
+// -- DATA RENDER --
 function renderAll(){
   const g=document.getElementById('rank-grid');
   if(!g.children.length){
@@ -809,7 +809,7 @@ function renderWard(data,id){
   });
 }
 
-// ── LIVE STATS ──
+// -- LIVE STATS --
 window.addEventListener('load',async()=>{
   try{
     const res=await fetch(W+'/public-stats');
@@ -824,7 +824,7 @@ window.addEventListener('load',async()=>{
   }
 });
 
-// ── UGC ──
+// -- UGC --
 async function submitUGC(){
   const pref=document.getElementById('u-pref').value;
   const type=document.getElementById('u-type').value;

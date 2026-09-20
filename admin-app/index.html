@@ -184,7 +184,7 @@ function renderDashboard() {
     <div class="stat-grid">
       <div class="stat">
         <div class="stat-label">問い合わせ</div>
-        <div class="stat-val">${state.inquiries.length||'—'}</div>
+        <div class="stat-val">${state.inquiries.length||'-'}</div>
         <div class="stat-hint">取得済み件数</div>
       </div>
       <div class="stat">
@@ -220,7 +220,7 @@ function renderInquiries() {
       var resultItems = [];
       try { var arr=JSON.parse(rawResult); if(Array.isArray(arr)) resultItems=arr; else if(arr) resultItems=[String(arr)]; } catch(e) { if(rawResult) resultItems=[rawResult]; }
       var rows = resultItems.map(function(r){ return '<div style="padding:8px 0;border-bottom:1px solid var(--border2);font-size:13px;color:var(--text);line-height:1.8;display:flex;gap:8px"><span style="color:var(--red);font-size:10px;flex-shrink:0">▶</span>'+esc(String(r))+'</div>'; }).join('');
-      var preview = resultItems.length ? esc(String(resultItems[0])).slice(0,50)+(String(resultItems[0]).length>50?'…':'') : '—';
+      var preview = resultItems.length ? esc(String(resultItems[0])).slice(0,50)+(String(resultItems[0]).length>50?'…':'') : '-';
       var extra = resultItems.length>1 ? '<span style="color:var(--muted);font-size:11px;margin-left:4px">他'+(resultItems.length-1)+'件</span>' : '';
       var key = esc(item.key||item.email||'');
       var email = esc(item.email||'');
@@ -234,10 +234,10 @@ function renderInquiries() {
         +'<div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:10px">診断詳細</div>'
         +rows
         +'<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:13px;color:var(--text);line-height:2.2">'
-        +'<div>名前：'+esc(item.name||'—')+'</div>'
+        +'<div>名前：'+esc(item.name||'-')+'</div>'
         +'<div>メール：<a href="mailto:'+email+'" style="color:var(--accent);font-weight:700">'+email+'</a></div>'
-        +'<div>種類：'+esc(item.type||'—')+'</div>'
-        +'<div>日時：'+esc(item.createdAt||item.date||'—')+'</div>'
+        +'<div>種類：'+esc(item.type||'-')+'</div>'
+        +'<div>日時：'+esc(item.createdAt||item.date||'-')+'</div>'
         +'</div>'
         +'<div style="margin-top:14px;display:flex;gap:8px">'
         +'<a href="mailto:'+email+'?subject=【HORIZON SHIELD】診断結果について" style="flex:1;display:block;text-align:center;padding:12px;background:var(--accent);color:#faf9f5;font-size:13px;font-weight:700;text-decoration:none;border-radius:3px">メール返信</a>'
@@ -362,7 +362,7 @@ async function testConn() {
     try {
       const res = await fetch(withKey(WORKER + ep));
       if (res.status !== 404) {
-        r.innerHTML = `<div class="ok-box">接続OK — ${ep} → HTTP ${res.status}</div>`;
+        r.innerHTML = `<div class="ok-box">接続OK, ${ep} → HTTP ${res.status}</div>`;
         return;
       }
     } catch(e) {}

@@ -4,16 +4,16 @@
  * KIRA から fetch で呼ぶ。v11-SAFE は一切触らない。
  *
  * エンドポイント:
- *   GET /health                          — 死活確認
- *   GET /cases                           — 全件取得
- *   GET /cases/:case_id                  — 個別取得
- *   GET /cases/search?koji_type=&region= — 絞り込み検索
- *   GET /cases/summary                   — 統計サマリー
+ *   GET /health, 死活確認
+ *   GET /cases, 全件取得
+ *   GET /cases/:case_id, 個別取得
+ *   GET /cases/search?koji_type=&region=, 絞り込み検索
+ *   GET /cases/summary, 統計サマリー
  *
  * KV Binding: HS_REAL_CASES
  */
 
-// ── ユーティリティ ────────────────────────────────────────────────
+// -- ユーティリティ ------------------------------------------------
 
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data, null, 2), {
@@ -40,7 +40,7 @@ function handleOptions() {
   });
 }
 
-// ── KVからケース全件ロード ─────────────────────────────────────────
+// -- KVからケース全件ロード -----------------------------------------
 
 async function loadAllCases(env) {
   const raw = await env.HS_REAL_CASES.get("cases:all", { type: "json" });
@@ -48,7 +48,7 @@ async function loadAllCases(env) {
   return Array.isArray(raw) ? raw : [];
 }
 
-// ── /health ───────────────────────────────────────────────────────
+// -- /health -------------------------------------------------------
 
 function handleHealth() {
   return jsonResponse({
@@ -59,14 +59,14 @@ function handleHealth() {
   });
 }
 
-// ── GET /cases ────────────────────────────────────────────────────
+// -- GET /cases ----------------------------------------------------
 
 async function handleGetAll(env) {
   const cases = await loadAllCases(env);
   return jsonResponse({ ok: true, count: cases.length, cases });
 }
 
-// ── GET /cases/:case_id ───────────────────────────────────────────
+// -- GET /cases/:case_id -------------------------------------------
 
 async function handleGetOne(caseId, env) {
   const cases = await loadAllCases(env);
@@ -75,7 +75,7 @@ async function handleGetOne(caseId, env) {
   return jsonResponse({ ok: true, case: found });
 }
 
-// ── GET /cases/search ─────────────────────────────────────────────
+// -- GET /cases/search ---------------------------------------------
 /**
  * クエリパラメータ（すべて任意・部分一致）:
  *   koji_type   例: 外壁塗装
@@ -106,7 +106,7 @@ async function handleSearch(url, env) {
   return jsonResponse({ ok: true, count: results.length, cases: results });
 }
 
-// ── GET /cases/summary ────────────────────────────────────────────
+// -- GET /cases/summary --------------------------------------------
 
 async function handleSummary(env) {
   const cases = await loadAllCases(env);
@@ -144,7 +144,7 @@ async function handleSummary(env) {
   });
 }
 
-// ── メインルーター ────────────────────────────────────────────────
+// -- メインルーター ------------------------------------------------
 
 export default {
   async fetch(request, env) {

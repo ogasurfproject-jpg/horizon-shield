@@ -222,7 +222,7 @@ async function main() {
             `📋 ${post.text.slice(0, 100)}\n\n` +
             `💡 ${result.reason}\n⏰ 緊急度: ${result.urgency}\n` +
             (result.souba_hint ? `📊 相場感: ${result.souba_hint}\n` : '') +
-            `\n──返信ドラフト（1つ選んでコピペ）──\n` +
+            `\n--返信ドラフト（1つ選んでコピペ）--\n` +
             `【A:共感】\n${result.reply_empathy || ''}\n\n` +
             `【B:相場】\n${result.reply_data || ''}\n\n` +
             `【C:即診断】\n${result.reply_diagnosis || ''}\n` +

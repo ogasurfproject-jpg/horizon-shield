@@ -51,3 +51,7 @@
 ## 再現
 
 ops/monitor_pages_20260915/ に build_hubs.py / build_pages2.py / hs_common.py(souba-db.json を読む)。orig/ に元のファイルを置いて実行すると out/ に同じものが出る。souba-db.json の sha256 は 85418e4af9d3d727af2eb1c95566aa56f21d8ae1046601bc259baa302515680d(JIDEC entry 42 と同じ)。
+
+## 送信の記録
+
+- 2026-09-15 23:10 JST IndexNow 11 本 HTTP 200 受理(トップ + 上の 9 本 + /souba/flooring/)。commit 5f7743a1(9 本 + 新設)、75f7196d(flooring)。gitleaks 緑、Pages deploy 緑。GSC の登録リクエストは /souba/kyutoki-20man/ を翌日。

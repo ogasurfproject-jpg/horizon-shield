@@ -55,7 +55,7 @@ function render(){
       var raw=it.result||it.message||'';
       var rows=[];
       try{var a=JSON.parse(raw);if(Array.isArray(a))rows=a;else if(a)rows=[String(a)];}catch(e){if(raw)rows=[raw];}
-      var prev=rows.length?esc(String(rows[0])).slice(0,60)+(String(rows[0]).length>60?'…':''):'—';
+      var prev=rows.length?esc(String(rows[0])).slice(0,60)+(String(rows[0]).length>60?'…':''):'-';
       var rk=it.risk==='high'?'<span style="color:var(--red);font-weight:700">🔴 高リスク</span>':it.risk==='medium'?'<span style="color:var(--gold);font-weight:700">🟡 中リスク</span>':it.risk==='low'?'<span style="color:var(--green);font-weight:700">🟢 低リスク</span>':'';
       var dr='';for(var j=0;j<rows.length;j++){dr+='<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">▶ '+esc(String(rows[j]))+'</div>';}
       var em=esc(it.email||'');var ky=esc(it.key||it.email||'');
@@ -69,7 +69,7 @@ function render(){
         +dr
         +'<div style="margin-top:12px;font-size:13px;line-height:2">'
         +'<div>メール：<a href="mailto:'+em+'" style="color:var(--accent)">'+em+'</a></div>'
-        +'<div>日時：'+esc(it.createdAt||it.date||'—')+'</div></div>'
+        +'<div>日時：'+esc(it.createdAt||it.date||'-')+'</div></div>'
         +'<div style="margin-top:12px;display:flex;gap:8px">'
         +'<a href="mailto:'+em+'?subject=【HORIZON SHIELD】診断結果について" style="flex:1;display:block;text-align:center;padding:11px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-decoration:none;border-radius:3px">メール返信</a>'
         +'<button onclick="di(\''+ky+'\');event.stopPropagation()" style="padding:11px 14px;background:transparent;border:1px solid rgba(139,26,26,.3);color:var(--red);font-size:13px;font-weight:700;cursor:pointer;border-radius:3px">
@@ -130,7 +130,7 @@ function render(){
       var raw=it.result||it.message||'';
       var rows=[];
       try{var a=JSON.parse(raw);if(Array.isArray(a))rows=a;else if(a)rows=[String(a)];}catch(e){if(raw)rows=[raw];}
-      var prev=rows.length?esc(String(rows[0])).slice(0,60)+(String(rows[0]).length>60?'…':''):'—';
+      var prev=rows.length?esc(String(rows[0])).slice(0,60)+(String(rows[0]).length>60?'…':''):'-';
       var rk=it.risk==='high'?'<span style="color:var(--red);font-weight:700">🔴 高リスク</span>':it.risk==='medium'?'<span style="color:var(--gold);font-weight:700">🟡 中リスク</span>':it.risk==='low'?'<span style="color:var(--green);font-weight:700">🟢 低リスク</span>':'';
       var dr='';for(var j=0;j<rows.length;j++){dr+='<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">▶ '+esc(String(rows[j]))+'</div>';}
       var em=esc(it.email||'');var ky=esc(it.key||it.email||'');
@@ -144,7 +144,7 @@ function render(){
         +dr
         +'<div style="margin-top:12px;font-size:13px;line-height:2">'
         +'<div>メール：<a href="mailto:'+em+'" style="color:var(--accent)">'+em+'</a></div>'
-        +'<div>日時：'+esc(it.createdAt||it.date||'—')+'</div></div>'
+        +'<div>日時：'+esc(it.createdAt||it.date||'-')+'</div></div>'
         +'<div style="margin-top:12px;display:flex;gap:8px">'
         +'<a href="mailto:'+em+'?subject=【HORIZON SHIELD】診断結果について" style="flex:1;display:block;text-align:center;padding:11px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-decoration:none;border-radius:3px">メール返信</a>'
         +'<button onclick="di(\''+ky+'\');event.stopPropagation()" style="padding:11px 14px;background:transparent;border:1px solid rgba(139,26,26,.3);color:var(--red);font-size:13px;font-weight:700;cursor:pointer;border-radius:3px">削除</button>'
@@ -152,7 +152,7 @@ function render(){
     }
     m.innerHTML=h;
   } else if(st.tab==='d'){
-    m.innerHTML='<div class="card" style="padding:16px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">問い合わせ件数</div><div style="font-size:36px;font-weight:900;color:var(--accent)">'+(st.inq.length||'—')+'</div></div>';
+    m.innerHTML='<div class="card" style="padding:16px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">問い合わせ件数</div><div style="font-size:36px;font-weight:900;color:var(--accent)">'+(st.inq.length||'-')+'</div></div>';
   } else if(st.tab==='p'){
     if(!st.pros.length){m.innerHTML='<div class="info">見込み客データはまだありません。</div><button class="btn bp" onclick="fp()">読み込む</button>';return;}
     m.innerHTML='<button class="btn bs" onclick="fp()">再読み込み</button>'+st.pros.map(function(p){return '<div class="card" style="padding:14px 16px"><div style="font-size:14px;font-weight:700">'+esc(p.title||p.name||'未タイトル')+'</div><div style="font-size:11px;color:var(--muted);margin-top:4px">'+esc(p.url||p.source||'')+'</div></div>';}).join('');

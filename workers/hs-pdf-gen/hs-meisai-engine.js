@@ -1,5 +1,5 @@
 // ============================================================
-// HS-MEISAI-ENGINE v1 — 見積書明細診断エンジン (Workers互換・依存ゼロ)
+// HS-MEISAI-ENGINE v1, 見積書明細診断エンジン (Workers互換・依存ゼロ)
 // v1: 本家plan版(逆見積もり診断)デザイン完全ミラー / IPAGothic / OTS表示 /
 //     諸経費行の判定同期 / R5重複抑制 / 客向けコピー整理
 // ============================================================
@@ -107,7 +107,7 @@ function hsMeisaiAudit(ex, bench, opts) {
       var codeOk = (m.kind === "item" && isshikiOkCodes[m.code]);
       var isKeihi = (m.kind === "item" && m.code === "shokeihi") || (curSection && /諸経費/.test(curSection.description));
       if (isKeihi) { keihiTotal += r.amount; keihiRowIdx.push(rowsOut.length); }
-      if (!codeOk && !isKeihi && r.amount >= 50000) { verdict = "watch"; reason = "一式" + Math.round(r.amount / 10000) + "万円 — 内訳の提出を求める"; }
+      if (!codeOk && !isKeihi && r.amount >= 50000) { verdict = "watch"; reason = "一式" + Math.round(r.amount / 10000) + "万円, 内訳の提出を求める"; }
       if (m.kind === "item" && coreCodes[m.code]) { verdict = "alert"; reason = "中核工程が一式(数量根拠なし)"; }
     } else if (m.kind === "item" && m.item.bench && hsMzUnit(m.item.unit) === unit && r.qty > 0 && opts.category === "gaiheki_tosou") {
       var price = r.unit_price;
@@ -136,14 +136,14 @@ function hsMeisaiAudit(ex, bench, opts) {
       }
     } else {
       if (verdict === "ok") {
-        if (m.kind === "item" && opts.category !== "gaiheki_tosou") { verdict = "confirm"; reason = "名寄せ一致(" + m.code + ")だがスコープ外カテゴリ — 単価判定保留"; }
-        else if (m.kind === "family") { verdict = "confirm"; reason = "分類のみ一致(" + m.family + ")・グレード/工法不明 — 要確認"; }
-        else if (m.kind === "item") { verdict = "confirm"; reason = "単位不整合または数量なし — 要確認"; }
-        else { verdict = "confirm"; reason = "名寄せ未マッチ — 要確認(スコープ外項目)"; }
+        if (m.kind === "item" && opts.category !== "gaiheki_tosou") { verdict = "confirm"; reason = "名寄せ一致(" + m.code + ")だがスコープ外カテゴリ, 単価判定保留"; }
+        else if (m.kind === "family") { verdict = "confirm"; reason = "分類のみ一致(" + m.family + ")・グレード/工法不明, 要確認"; }
+        else if (m.kind === "item") { verdict = "confirm"; reason = "単位不整合または数量なし, 要確認"; }
+        else { verdict = "confirm"; reason = "名寄せ未マッチ, 要確認(スコープ外項目)"; }
       }
     }
     rowsOut.push({ no: r.no, description: r.description, qty: r.qty, unit: r.unit, unit_price: r.unit_price, amount: r.amount, matched: m.kind === "item" ? m.code : (m.kind === "family" ? "family:" + m.family : null), verdict: verdict, reason: reason });
-    if (verdict === "watch" || verdict === "alert") findings.push({ level: verdict, rule: unit === "式" ? "R3" : "R1", no: r.no, msg: "No." + r.no + " " + r.description.slice(0, 24) + " — " + reason });
+    if (verdict === "watch" || verdict === "alert") findings.push({ level: verdict, rule: unit === "式" ? "R3" : "R1", no: r.no, msg: "No." + r.no + " " + r.description.slice(0, 24) + ", " + reason });
   });
 
   var isshikiPct = 100 * isshikiTotal / subtotal;
@@ -214,8 +214,8 @@ function hsGenerateEstimateAuditHTML(ex, audit, meta) {
   });
 
   var gatesLine = audit.gates.pass
-    ? "整合検算 PASS — 明細" + audit.rows.length + "行の数量×単価・合計・税・支払条件が一致"
-    : "整合検算 FAIL — " + h(audit.gates.errors.join(" / "));
+    ? "整合検算 PASS, 明細" + audit.rows.length + "行の数量×単価・合計・税・支払条件が一致"
+    : "整合検算 FAIL, " + h(audit.gates.errors.join(" / "));
 
   return "<!DOCTYPE html><html lang='ja'><head><meta charset='UTF-8'><style>" +
     "*{margin:0;padding:0;box-sizing:border-box}" +
@@ -255,13 +255,13 @@ function hsGenerateEstimateAuditHTML(ex, audit, meta) {
     // ---- 表紙 ----
     "<div class='cover'>" +
     "<div class='cover-stamp'><div class='cover-stamp-check'>&#10003;</div><div class='cover-stamp-text'>PTKA</div></div>" +
-    "<div class='cover-eyebrow'>HORIZON SHIELD — LINE ITEM AUDIT</div>" +
+    "<div class='cover-eyebrow'>HORIZON SHIELD, LINE ITEM AUDIT</div>" +
     "<div class='cover-title'>見積書<em>明細診断書</em></div>" +
     "<div class='cover-sub'>項目別の単価・数量・構成を第三者基準で突合し、<br>交渉に使える根拠として刻印します。</div>" +
     "<div class='cover-case'><div class='cover-case-label'>SUBJECT</div><div class='cover-case-val'>" + h(ex.doc.title || "-") + "<br><span style='font-size:12px;font-weight:400;color:rgba(255,255,255,0.65)'>見積番号 " + h(ex.doc.estimate_no || "-") + " ／ 税込総額 " + yen(ex.doc.total_inc_tax) + "円</span></div></div>" +
     "<div class='cover-verdict' style='color:" + (worst === "alert" ? "#ff9d9d" : (worst === "watch" ? "#ffd98a" : "#9fd6a8")) + "'>総合所見: " + worstLabel[worst] + "</div>" +
     "<div class='cover-meta'>診断日 " + h(meta.date || "") + " ／ 地域補正 " + h(audit.summary.region) + " ／ bench " + h(meta.benchVersion || "") + "</div>" +
-    "<div class='cover-footer'>The HORIZONs株式会社 ／ HORIZON SHIELD — 買い手のための第三者診断</div>" +
+    "<div class='cover-footer'>The HORIZONs株式会社 ／ HORIZON SHIELD, 買い手のための第三者診断</div>" +
     "</div>" +
     // ---- 本文 ----
     "<div class='page'>" +

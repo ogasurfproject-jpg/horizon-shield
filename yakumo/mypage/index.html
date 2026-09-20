@@ -146,7 +146,7 @@
       <div class="box">
         <div class="row"><span class="k">MCPエンドポイント</span><span class="v mono" id="mEndpoint" style="font-size:11.5px;">/mcp</span></div>
         <div class="row"><span class="k">エージェントカード(A2A)</span><span class="v"><a id="mAgentCard" href="https://hearing.horizonshield.dev/.well-known/agent-card.json" target="_blank" style="font-size:12px;">公開中 ↗</a></span></div>
-        <div class="row"><span class="k">あなたの照会キー</span><span class="v mono" id="mMember" style="font-size:12.5px;">—</span></div>
+        <div class="row"><span class="k">あなたの照会キー</span><span class="v mono" id="mMember" style="font-size:12.5px;">-</span></div>
         <div class="toggle" id="mToggle">▸ AIが実際に受け取るデータを見る(ライブ照会)</div>
         <div id="mResultWrap" style="display:none;">
           <pre class="json" id="mResult">照会中…</pre>
@@ -160,10 +160,10 @@
       <div class="sect-t">02 ／ あなたの自動生成ページ(GEO / AEO / LLMO / WebMCP)</div>
       <p class="sect-d">ヒアリングの回答をもとに、あなたの店を三方(施主・AI・検索)から見つけてもらうページを自動で作り、運営代行します。検証(KIRA)を通ったものだけ公開します。Google/Bingでエラーを出さない構成で発行します。下の「状態」が今の進み具合です。</p>
       <div class="pill4">
-        <div class="p"><div class="name">GEO</div><div class="sub">地域×工種の発見ページ</div><div class="st" id="stGeo">—</div></div>
-        <div class="p"><div class="name">AEO</div><div class="sub">FAQ・回答最適化</div><div class="st" id="stAeo">—</div></div>
-        <div class="p"><div class="name">LLMO</div><div class="sub">AI向け解説・強み</div><div class="st" id="stLlmo">—</div></div>
-        <div class="p"><div class="name">WebMCP</div><div class="sub">AIが直接読む口</div><div class="st" id="stMcp">—</div></div>
+        <div class="p"><div class="name">GEO</div><div class="sub">地域×工種の発見ページ</div><div class="st" id="stGeo">-</div></div>
+        <div class="p"><div class="name">AEO</div><div class="sub">FAQ・回答最適化</div><div class="st" id="stAeo">-</div></div>
+        <div class="p"><div class="name">LLMO</div><div class="sub">AI向け解説・強み</div><div class="st" id="stLlmo">-</div></div>
+        <div class="p"><div class="name">WebMCP</div><div class="sub">AIが直接読む口</div><div class="st" id="stMcp">-</div></div>
       </div>
       <div class="box" id="genStatusBox" style="margin-top:12px;"></div>
     </div>
@@ -180,9 +180,9 @@
       <div class="sect-t">04 ／ 掲載情報</div>
       <p class="sect-d">モールとAIに渡している内容です。追記・修正はいつでも反映できます。</p>
       <div class="box">
-        <div class="row"><span class="k">社名</span><span class="v" id="pCo">—</span></div>
-        <div class="row"><span class="k">所在地</span><span class="v" id="pArea">—</span></div>
-        <div class="row"><span class="k">対応エリア</span><span class="v" id="pAreas" style="max-width:60%;">—</span></div>
+        <div class="row"><span class="k">社名</span><span class="v" id="pCo">-</span></div>
+        <div class="row"><span class="k">所在地</span><span class="v" id="pArea">-</span></div>
+        <div class="row"><span class="k">対応エリア</span><span class="v" id="pAreas" style="max-width:60%;">-</span></div>
         <div style="padding:9px 0 2px;"><span class="k" style="color:var(--dim);font-size:14px;">対応工種</span><div class="chips" id="pWorks"></div></div>
         <a class="btn block" id="btnUpdate" style="margin-top:16px;" href="#">内容を更新・追記する</a>
         <p class="muted" style="text-align:center;margin:10px 0 0;">回答フォームが開きます。前回の内容に上書きで反映されます。</p>
@@ -204,10 +204,10 @@
     <div class="sect">
       <div class="sect-t">05 ／ ご契約内容</div>
       <div class="box" id="planBox">
-        <div class="row"><span class="k">プラン</span><span class="v" id="plTier">—</span></div>
-        <div class="row"><span class="k">本部運用</span><span class="v" id="plBase">—</span></div>
-        <div class="row" id="plMcpRow"><span class="k">WebMCP運用オプション</span><span class="v" id="plMcp">—</span></div>
-        <div class="row"><span class="k" style="color:var(--ink);font-weight:700;">合計(税抜/月)</span><span class="v" id="plTotal" style="color:var(--verify);font-size:17px;">—</span></div>
+        <div class="row"><span class="k">プラン</span><span class="v" id="plTier">-</span></div>
+        <div class="row"><span class="k">本部運用</span><span class="v" id="plBase">-</span></div>
+        <div class="row" id="plMcpRow"><span class="k">WebMCP運用オプション</span><span class="v" id="plMcp">-</span></div>
+        <div class="row"><span class="k" style="color:var(--ink);font-weight:700;">合計(税抜/月)</span><span class="v" id="plTotal" style="color:var(--verify);font-size:17px;">-</span></div>
         <p class="muted" style="margin:10px 0 0;">金額は施主・AI・検索には一切公開しません。表示はご本人確認用です。</p>
       </div>
     </div>
@@ -215,7 +215,7 @@
     <div class="sect" id="tktSect" style="display:none;">
       <div class="sect-t">06 ／ チケット(処理チケット)</div>
       <div class="box">
-        <div class="row"><span class="k">現在の残高</span><span class="v" id="tktBal" style="color:var(--verify);">—</span></div>
+        <div class="row"><span class="k">現在の残高</span><span class="v" id="tktBal" style="color:var(--verify);">-</span></div>
         <p class="muted" style="margin:8px 0 12px;">レポートや比較診断などの処理にはチケットを使用します。まとめ買いほど割安です。</p>
         <div id="tktPacks" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
         <p class="muted" style="margin:12px 0 0;font-size:12px;">チケットは当社の役務提供の対価としてのみ使用でき、換金・第三者への譲渡はできません。有効期限なし。決済は PayPal。</p>
@@ -379,9 +379,9 @@ function renderBadge(){
 }
 
 function renderProfile(info){
-  $("pCo").textContent = info.company || "—";
-  $("pArea").textContent = info.area || (info.areas&&info.areas[0]) || "—";
-  $("pAreas").textContent = (info.areas||[]).join("、") || "—";
+  $("pCo").textContent = info.company || "-";
+  $("pArea").textContent = info.area || (info.areas&&info.areas[0]) || "-";
+  $("pAreas").textContent = (info.areas||[]).join("、") || "-";
   $("pWorks").innerHTML = (info.works||[]).map(w=>'<span class="chip">'+esc(w)+'</span>').join("") || '<span class="muted">未登録</span>';
   // 2026-08-19 patch65: MCPエンドポイントの欄が文字列 "/mcp" のベタ書きで、
   //   エージェントカードのリンクも Yakumo 共通のものを指していた。
@@ -430,7 +430,7 @@ async function renderTickets(info){
     var br = await (await fetch(GW + "/balance?store=" + encodeURIComponent(info.store_id) + (info.store_token ? "&t=" + encodeURIComponent(info.store_token) : ""))).json();
     if(br && br.ok){ $("tktBal").textContent = br.tickets + " 枚(" + (br.yen||0).toLocaleString() + "円相当)"; }
     else { $("tktBal").textContent = "ログイン後に表示"; }
-  } catch(e){ $("tktBal").textContent = "—"; }
+  } catch(e){ $("tktBal").textContent = "-"; }
   // パック一覧
   try {
     var pr = await (await fetch(GW + "/pricing")).json();

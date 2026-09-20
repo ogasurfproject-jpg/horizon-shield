@@ -68,7 +68,7 @@ body::after{
 .mono{font-family:var(--mono)}
 .wrap{max-width:1000px;margin:0 auto;padding:0 22px;position:relative;z-index:1}
 
-/* 印刷の見当（トンボ）— 四隅 */
+/* 印刷の見当（トンボ）- 四隅 */
 .tombo{position:fixed;z-index:2;width:24px;height:24px;pointer-events:none;opacity:.4}
 .tombo::before,.tombo::after{content:"";position:absolute;background:var(--ink)}
 .tombo::before{width:1px;height:100%;left:50%}.tombo::after{height:1px;width:100%;top:50%}
@@ -84,7 +84,7 @@ body::after{
 .rise.show{opacity:1;transform:none}
 .d1{transition-delay:.09s}.d2{transition-delay:.18s}.d3{transition-delay:.27s}.d4{transition-delay:.36s}.d5{transition-delay:.45s}
 
-/* インクの見当ズレ（CMYK風）— 署名的演出 */
+/* インクの見当ズレ（CMYK風）- 署名的演出 */
 .misreg{position:relative;z-index:0;--mx:2px;--my:1px}
 .misreg::before,.misreg::after{content:attr(data-t);position:absolute;inset:0;z-index:-1;pointer-events:none}
 .misreg::before{color:var(--blue);transform:translate(calc(var(--mx)*-1),var(--my));mix-blend-mode:multiply}

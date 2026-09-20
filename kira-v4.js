@@ -2,7 +2,7 @@
 'use strict';
 
 /* ═══════════════════════════════════════════
-   KIRA v4.0 STANDALONE — HORIZON SHIELD
+   KIRA v4.0 STANDALONE, HORIZON SHIELD
    使い方: <script src="/kira-v4.js"></script>
    </body>の直前に1行追加するだけ
 ═══════════════════════════════════════════ */
@@ -46,7 +46,7 @@ const SYS=`あなたはKIRA v4.0（Horizon AI Negotiation Agent）です。HORIZ
 【スタイル】一文が短い。余韻を残す。「その感覚、正しいです」を使う。
 削減額は「約XX〜XX万円」の幅で。200文字以内。最後は必ずCTAへ。`;
 
-// ── CSS注入 ──
+// -- CSS注入 --
 const css=`
 #hs-k-btn{position:fixed;bottom:28px;right:28px;z-index:2147483647;display:flex;align-items:center;gap:10px;background:#E8392A;color:#fff;border:none;padding:0 20px 0 8px;height:56px;border-radius:28px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;animation:hs-kp 2s infinite;transition:transform .2s;box-shadow:0 4px 24px rgba(232,57,42,.4)}
 #hs-k-btn:hover{transform:scale(1.06)}
@@ -113,7 +113,7 @@ const css=`
 .hk-ft{text-align:center;font-size:9px;color:#222;padding:3px 0 0;font-family:monospace}
 `;
 
-// ── DOM構築 ──
+// -- DOM構築 --
 const style=document.createElement('style');
 style.textContent=css;
 document.head.appendChild(style);
@@ -158,13 +158,13 @@ document.body.appendChild(modal);
 
 document.getElementById('hk-close').onclick=close_;
 
-// ── STATE ──
+// -- STATE --
 let hist=[],loading=false,atFile=null,atB64=null,atType=null;
 let sid=localStorage.getItem('hs_kira_sid4');
 if(!sid){sid='k4_'+Date.now()+'_'+Math.random().toString(36).substr(2,8);localStorage.setItem('hs_kira_sid4',sid);}
 let sd={region:'',amount:''},opened=false,inited=false;
 
-// ── SUPABASE ──
+// -- SUPABASE --
 async function sbPost(path,body){
   return fetch(SB_URL+path,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(body)});
 }
@@ -190,12 +190,12 @@ async function loadHist(){
   return 0;
 }
 
-// ── LINE ──
+// -- LINE --
 async function notify(info){
   try{await fetch(LINE_PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'🔴【KIRA v4 見込み客】\n'+new Date().toLocaleString('ja-JP')+'\n\n'+info+'\nSID:'+sid})});}catch(e){}
 }
 
-// ── FILE ──
+// -- FILE --
 window.hkFile=function(inp){
   const f=inp.files[0];if(!f)return;
   document.getElementById('hk-fp').textContent=f.name;
@@ -211,7 +211,7 @@ window.hkClear=function(){
 window.hkR=function(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,80)+'px';};
 window.hkKey=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();hkSend();}};
 
-// ── UI ──
+// -- UI --
 function addMsg(role,html,isH){
   const c=document.getElementById('hk-msgs');
   const d=document.createElement('div');d.className='hk-msg '+role;
@@ -244,7 +244,7 @@ function cta(){
   return '<div class="hk-cta"><div class="hk-cta-h">▶ 正式診断 ／ HORIZON SHIELD</div><div class="hk-cta-p">¥55,000</div><div class="hk-cta-b">全項目の過剰請求額・適正価格・交渉文を完全レポートで。30年の経験が根拠。</div><a class="hk-cta-m" href="https://shield.the-horizons-innovation.com/#services" target="_blank">今すぐ正式診断を申し込む →</a><a class="hk-cta-l" href="https://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ" target="_blank">📲 まず無料でLINE相談する</a></div>';
 }
 
-// ── SEND ──
+// -- SEND --
 window.hkSend=async function(){
   const ta=document.getElementById('hk-ta');
   const txt=ta.value.trim();
@@ -284,7 +284,7 @@ window.hkSend=async function(){
   document.getElementById('hk-ta').focus();
 };
 
-// ── OPEN/CLOSE ──
+// -- OPEN/CLOSE --
 async function open_(){
   modal.classList.add('open');
   document.getElementById('hs-k-notif').style.display='none';

@@ -60,11 +60,11 @@
   }
   .wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 28px}
 
-  /* ── reveal animation ── */
+  /* -- reveal animation -- */
   .rv{opacity:0;transform:translateY(14px);transition:opacity 1s cubic-bezier(.2,.7,.2,1),transform 1s cubic-bezier(.2,.7,.2,1)}
   .rv.in{opacity:1;transform:none}
 
-  /* ── eyebrow / rules ── */
+  /* -- eyebrow / rules -- */
   .eyebrow{
     font-family:var(--gothic);font-weight:500;font-size:12.5px;letter-spacing:.32em;
     color:var(--gold);text-transform:none;display:flex;align-items:center;gap:14px;
@@ -72,7 +72,7 @@
   .eyebrow::before{content:"";width:34px;height:1px;background:var(--gold);display:inline-block}
   .num{font-family:var(--gara);font-style:italic;color:var(--gold);font-size:15px;letter-spacing:.04em}
 
-  /* ── HERO ── */
+  /* -- HERO -- */
   header.hero{padding:120px 0 96px;border-bottom:1px solid var(--rule)}
   .hero h1{
     font-family:var(--mincho);font-weight:800;color:var(--navy);
@@ -88,7 +88,7 @@
   .sig .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex:none}
   .sig b{font-family:var(--mincho);font-weight:700;color:var(--navy);font-size:15px}
 
-  /* ── section frame ── */
+  /* -- section frame -- */
   section{padding:84px 0;border-bottom:1px solid var(--rule)}
   .shead{margin-bottom:34px}
   .shead h2{
@@ -99,7 +99,7 @@
   section p:last-child{margin-bottom:0}
   .em{color:var(--navy);font-weight:500;border-bottom:1.5px solid var(--gold-bright);padding-bottom:1px}
 
-  /* ── key-point list ── */
+  /* -- key-point list -- */
   .points{margin:30px 0 6px;list-style:none}
   .points li{
     position:relative;padding:22px 0 22px 30px;border-top:1px solid var(--rule);
@@ -112,7 +112,7 @@
   .points h3{font-family:var(--mincho);font-weight:700;color:var(--navy);font-size:18.5px;margin-bottom:6px;letter-spacing:.02em}
   .points p{font-size:15.5px;color:var(--ink-soft);line-height:1.9;margin:0}
 
-  /* ── DARK section (determinism) ── */
+  /* -- DARK section (determinism) -- */
   .dark{background:var(--navy);color:var(--cream-2);border:none;position:relative}
   .dark::after{content:"";position:absolute;inset:0;pointer-events:none;
     background:radial-gradient(120% 80% at 50% -10%,rgba(201,168,94,.12),transparent 60%)}
@@ -133,7 +133,7 @@
   }
   .verify .vnote{font-size:13px;color:rgba(244,237,220,.55);margin-top:12px;line-height:1.8}
 
-  /* ── CASES ── */
+  /* -- CASES -- */
   .cases{display:grid;gap:18px;margin-top:34px}
   .case{
     border:1px solid var(--rule);background:rgba(255,255,255,.4);
@@ -157,7 +157,7 @@
   .statband .big .yen{font-size:.62em;color:var(--gold)}
   .statband .cap{font-size:13.5px;color:var(--ink-soft);margin-top:10px;letter-spacing:.04em}
 
-  /* ── CTA ── */
+  /* -- CTA -- */
   .cta{text-align:center;padding:96px 0}
   .cta .price{font-family:var(--gara);font-style:italic;color:var(--gold);font-size:18px;letter-spacing:.04em;margin-bottom:14px}
   .cta h2{font-family:var(--mincho);font-weight:800;color:var(--navy);font-size:clamp(26px,5vw,38px);line-height:1.5;letter-spacing:.02em}
@@ -174,7 +174,7 @@
   .btn:hover::after{transform:scaleX(1)}
   .cta .sub{display:block;margin-top:20px;font-size:13px;color:var(--ink-soft);letter-spacing:.04em}
 
-  /* ── FOOTER ── */
+  /* -- FOOTER -- */
   footer{background:var(--cream-3);padding:54px 0 64px;text-align:center}
   footer .co{font-family:var(--mincho);font-weight:700;color:var(--navy);font-size:16px;letter-spacing:.04em}
   footer .meta{font-size:13px;color:var(--ink-soft);margin-top:10px;line-height:2}
@@ -196,7 +196,7 @@
 
 <header class="hero">
   <div class="wrap">
-    <div class="eyebrow rv">工事費の適正化  — 建設歴30年の現場から</div>
+    <div class="eyebrow rv">工事費の適正化, 建設歴30年の現場から</div>
     <h1 class="rv">見積書は、<br>読めなくて当たり前だ。</h1>
     <p class="lead rv">大工として現場に立ち、施工管理として何百枚もの見積書を「出す側」で見てきた人間が、はじめて施主の側に立ってつくった、工事費の判断基準です。難しい知識はいりません。あなたが見るべき場所だけ、お伝えします。</p>
     <div class="sig rv"><span class="dot"></span><span>HORIZON SHIELD ／ 代表&nbsp;<b>大賀 俊勝</b>（1993年〜現場・大工 → 施工管理 → 建設CM）</span></div>
@@ -245,7 +245,7 @@
     <p class="rv">HORIZON SHIELD の判断は、<span class="em">95,403項目・398分類の建設費データベース（JCCDB）と、固定したアルゴリズム</span>に基づいています。同じ条件を入れれば、何度でも、誰が入れても、必ず同じ適正額が出る。この<span class="em">再現性</span>こそが、業者の前で崩れない根拠になります。気分や交渉の空気で動かない、一本の物差しです。</p>
     <p class="rv">この物差しは、公開されたデータベース（DOI付き・誰でも検証可能）と、近年の資材・人件費の上昇を織り込んだ独自の補正係数に支えられています。「値上がり」と「上乗せ」を、感情でなく数字で切り分けます。</p>
     <div class="verify rv">
-      <div class="vlabel">VERIFICATION — 静かな担保として</div>
+      <div class="vlabel">VERIFICATION, 静かな担保として</div>
       <div class="vhash">sha256 : a3f1&hellip;7e9c　／　照合済み</div>
       <div class="vnote">各診断書には固有の照合ハッシュが付きます。受け取った報告書が、発行時から一字一句変わっていないことを、あとから誰でも確認できる。声高に語ることではありません。ただ、根拠が動かないことを、技術で静かに裏打ちしているだけです。</div>
     </div>

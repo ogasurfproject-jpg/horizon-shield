@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>HORIZON SHIELD — Pitch Deck</title>
+<title>HORIZON SHIELD: Pitch Deck</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=Cormorant:wght@300;400&display=swap" rel="stylesheet">
@@ -50,14 +50,14 @@ nav{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);display:fle
 .rule{width:60px;height:1px;background:var(--gold);margin:2rem 0}
 .mono{font-family:'IBM Plex Mono',monospace}
 
-/* SLIDE 1 — COVER */
+/* SLIDE 1, COVER */
 #s1{background:var(--ink)}
 #s1 .bg-cross{position:absolute;right:8vw;top:50%;transform:translateY(-50%);opacity:0.06;font-size:38vw;font-family:'Cormorant Garamond',serif;color:var(--white);pointer-events:none;user-select:none;line-height:1}
 #s1 .tag{display:inline-block;border:1px solid var(--gold);padding:6px 14px;font-size:10px;letter-spacing:.3em;color:var(--gold);margin-bottom:2.5rem}
 #s1 .url{margin-top:3rem;font-size:12px;color:var(--white-dim);letter-spacing:.15em}
 #s1 .url span{color:var(--gold)}
 
-/* SLIDE 2 — PROBLEM */
+/* SLIDE 2, PROBLEM */
 #s2 .stat-row{display:flex;gap:4vw;margin:2.5rem 0;align-items:flex-end}
 .stat-block{display:flex;flex-direction:column}
 .stat-num{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,5.5vw,5.5rem);font-weight:600;color:var(--gold);line-height:1}
@@ -68,7 +68,7 @@ nav{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);display:fle
 .fraud-box p{font-size:12px;color:var(--white-dim);line-height:1.7}
 .fraud-box p strong{color:var(--white);font-weight:500}
 
-/* SLIDE 3 — STORY */
+/* SLIDE 3, STORY */
 #s3 .timeline{display:flex;flex-direction:column;gap:0;margin:2rem 0;position:relative;max-width:680px}
 .t-item{display:flex;gap:2rem;align-items:flex-start;padding-bottom:1.8rem;position:relative}
 .t-item:not(:last-child)::after{content:'';position:absolute;left:22px;top:44px;width:1px;bottom:0;background:var(--white-faint)}
@@ -80,7 +80,7 @@ nav{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);display:fle
 #s3 .quote{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(1.4rem,2.5vw,2rem);color:var(--white-dim);margin-top:1rem;max-width:700px;line-height:1.5}
 #s3 .quote em{color:var(--gold);font-style:normal}
 
-/* SLIDE 4 — ARCHITECTURE */
+/* SLIDE 4, ARCHITECTURE */
 #s4 .arch{display:flex;align-items:center;gap:2vw;margin:2.5rem 0;flex-wrap:wrap}
 .arch-block{border:1px solid var(--white-faint);padding:1.2rem 1.5rem;min-width:160px;position:relative}
 .arch-block.gold-border{border-color:var(--gold)}
@@ -95,7 +95,7 @@ nav{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);display:fle
 .p-item{font-size:12px;color:var(--white-dim)}
 .p-item::before{content:'→ ';color:var(--gold)}
 
-/* SLIDE 5 — TECH */
+/* SLIDE 5, TECH */
 #s5 .tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin:2rem 0;max-width:800px}
 .tech-card{border:1px solid var(--white-faint);padding:1.2rem;transition:border-color .2s}
 .tech-card:hover{border-color:var(--gold-dim)}
@@ -108,7 +108,7 @@ nav{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);display:fle
 .mcf-pulse{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
 
-/* SLIDE 6 — TRACTION */
+/* SLIDE 6, TRACTION */
 #s6 .traction-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin:2rem 0;max-width:700px}
 .tr-card{border:1px solid var(--white-faint);padding:1.2rem 1.5rem}
 .tr-card .tr-num{font-family:'Cormorant Garamond',serif;font-size:3.5rem;font-weight:600;color:var(--gold);line-height:1}
@@ -117,7 +117,7 @@ nav{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);display:fle
 .media-strip{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem;max-width:750px}
 .media-badge{font-size:9px;letter-spacing:.15em;color:var(--white-dim);border:1px solid var(--white-faint);padding:3px 8px;text-transform:uppercase}
 
-/* SLIDE 7 — MARKET */
+/* SLIDE 7, MARKET */
 #s7 .market-stack{display:flex;flex-direction:column;gap:1rem;margin:2rem 0;max-width:680px}
 .mkt{display:flex;align-items:center;gap:1.5rem}
 .mkt-bar{height:32px;background:var(--gold);transition:width 1s cubic-bezier(.4,0,.2,1)}
@@ -131,7 +131,7 @@ nav{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);display:fle
 .rm-step .rm-label{font-size:10px;letter-spacing:.15em;color:var(--gold);text-transform:uppercase}
 .rm-step .rm-val{font-size:12px;color:var(--white-dim);margin-top:.3rem}
 
-/* SLIDE 8 — CTA */
+/* SLIDE 8, CTA */
 #s8{background:var(--ink)}
 #s8 .cta-links{display:flex;flex-direction:column;gap:1rem;margin:2.5rem 0;max-width:600px}
 .cta-link{display:flex;align-items:center;gap:1.5rem;padding:1rem 1.5rem;border:1px solid var(--white-faint);text-decoration:none;transition:all .2s;cursor:pointer}
@@ -177,18 +177,18 @@ nav{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);display:fle
     </div>
     <div class="divider-v"></div>
     <div class="stat-block">
-      <div class="stat-num">15–20<span style="font-size:55%;color:var(--white-dim)">%</span></div>
+      <div class="stat-num">15-20<span style="font-size:55%;color:var(--white-dim)">%</span></div>
       <div class="stat-label">Systemic overcharging rate</div>
     </div>
     <div class="divider-v"></div>
     <div class="stat-block">
-      <div class="stat-num">200–300<span style="font-size:45%;color:var(--white-dim)">%</span></div>
+      <div class="stat-num">200-300<span style="font-size:45%;color:var(--white-dim)">%</span></div>
       <div class="stat-label">Hidden markups in lump sums</div>
     </div>
   </div>
   <div class="fraud-box">
     <div class="kanji">一式</div>
-    <p><strong>"Lump sum" — the contractor's shield.</strong><br>
+    <p><strong>"Lump sum", the contractor's shield.</strong><br>
     A single line item can hide ¥500,000 in undisclosed markups. 30 years on job sites. Thousands of families overcharged. No tool existed to verify.</p>
   </div>
 </div>
@@ -206,7 +206,7 @@ nav{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);display:fle
     <div class="t-item">
       <div class="t-year">2024</div>
       <div class="t-dot"></div>
-      <div class="t-text"><strong>First line of code. Age 47.</strong>ChatGPT arrived. Homeowners started asking it for second opinions — and got different numbers every time.</div>
+      <div class="t-text"><strong>First line of code. Age 47.</strong>ChatGPT arrived. Homeowners started asking it for second opinions, and got different numbers every time.</div>
     </div>
     <div class="t-item">
       <div class="t-year">2026</div>
@@ -274,7 +274,7 @@ nav{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);display:fle
     <div class="tech-card">
       <div class="tc-icon">≡</div>
       <div class="tc-title">4-Tier Pricing</div>
-      <div class="tc-body">Sole trader → Major firm. 25–45% margin ranges. Contractors can't hide inside a tier.</div>
+      <div class="tc-body">Sole trader → Major firm. 25-45% margin ranges. Contractors can't hide inside a tier.</div>
     </div>
     <div class="tech-card">
       <div class="tc-icon">⬡</div>
@@ -284,7 +284,7 @@ nav{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);display:fle
     <div class="tech-card">
       <div class="tc-icon">◎</div>
       <div class="tc-title">Open Dataset</div>
-      <div class="tc-body">JCCDB v1.1 — CC-BY 4.0. 3,350 items. Preprint on engrXiv, DOI 10.31224/7007.</div>
+      <div class="tc-body">JCCDB v1.1, CC-BY 4.0. 3,350 items. Preprint on engrXiv, DOI 10.31224/7007.</div>
     </div>
   </div>
   <div class="mcf-live">
@@ -360,7 +360,7 @@ nav{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);display:fle
   <div class="roadmap">
     <div class="rm-step active">
       <div class="rm-label">Now</div>
-      <div class="rm-val">Japan B2C<br>¥5,500–¥88,000</div>
+      <div class="rm-val">Japan B2C<br>¥5,500-¥88,000</div>
     </div>
     <div class="rm-step">
       <div class="rm-label">2026 Q4</div>
@@ -392,20 +392,20 @@ nav{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);display:fle
     <div class="cta-link" onclick="window.open('https://github.com/ogasurfproject-jpg/japan-construction-cost-database')">
       <div class="cl-icon">#</div>
       <div>
-        <div class="cl-label">Open Dataset — JCCDB v1.1 CC-BY 4.0</div>
+        <div class="cl-label">Open Dataset, JCCDB v1.1 CC-BY 4.0</div>
         <div class="cl-url">github.com/ogasurfproject-jpg/japan-construction-cost-database</div>
       </div>
     </div>
     <div class="cta-link" onclick="window.open('https://engrxiv.org/preprint/view/7007')">
       <div class="cl-icon">▲</div>
       <div>
-        <div class="cl-label">Research Paper — engrXiv</div>
+        <div class="cl-label">Research Paper, engrXiv</div>
         <div class="cl-url">DOI 10.31224/7007 · SSRN 6738701 · ORCID 0009-0000-9180-903X</div>
       </div>
     </div>
   </div>
   <div class="final-line">
-    "The dataset and the commercial service are intentionally separated —<br>
+    "The dataset and the commercial service are intentionally separated -<br>
     <em>research data is CC-BY 4.0 forever</em>, the API pays rent."
   </div>
 </div>
