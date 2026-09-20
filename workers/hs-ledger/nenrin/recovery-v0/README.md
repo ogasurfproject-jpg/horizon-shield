@@ -41,6 +41,8 @@ drift_witness は drift が 1 つでも有れば exit 1。cron に置く時は�
 
 運営者の秘密鍵はこの Worker にも repo にも無い。署名は手元でやる。card-sign と同じ掟や。
 
+信用アンカーの配り方 (扉 0.4.8): `GET https://gate.horizonshield.dev/keys/operator.json` が運営者の公開鍵を返す (agreement.json / witness.json と同じ規律、未設定は 404)。読む側は `fetchOperatorKeys(origin)` (node) / `fetch_operator_keys(origin)` (python) で取って strict モードに渡す。証人も `keys.operator` を 8 表面目として測る。
+
 ## v0 の約束
 
 - 記録に JSON の数は入れん。数は文字列 ("43")。agreement_canonical.mjs の頭に書いてある int / float の継ぎ目を、v0 は踏まん。検証器は数が有れば number_in_record で断る。v1 で RFC 8785 か parseStrict を採る。
@@ -52,5 +54,4 @@ drift_witness は drift が 1 つでも有れば exit 1。cron に置く時は�
 
 - drift_witness を worker の cron に。今は Mac から手で回す物。
 - 前回 witness した状態との比較 (鍵の変化、jwks の変化)。v0 の証人は毎回の観測を書くだけで、prior state を持たん。
-- authorization を運営者の公開鍵で検証する口を gate に (/keys/operator.json)。今は信用アンカーを手で渡す。
 - 台帳 (hs-ledger) への intake と JIDEC への anchor。記録の型はそのために witness intake と同じ規律にしてある。

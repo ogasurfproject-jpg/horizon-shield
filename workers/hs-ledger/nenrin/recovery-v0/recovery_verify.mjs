@@ -133,3 +133,13 @@ export async function verifyChain(records, opts = {}) {
   }
   return { ok: refusals.length === 0, refusals, segment: { drifts, hashes, complete: rest.length === 4 } };
 }
+
+// 信用アンカーを gate から取る (0.4.8 の /keys/operator.json)。404 = まだ配っとらん = 空の集合 (strict は全部 authorization_untrusted_key になる。それが正しい)。
+// これで第三者の流れは 1 行: verifyChain(records, { operatorKeys: await fetchOperatorKeys(origin) })
+export async function fetchOperatorKeys(origin) {
+  const r = await fetch(String(origin).replace(/\/+$/, "") + "/keys/operator.json", { headers: { "user-agent": "recovery-verify/" + VERIFIER_VERSION }, signal: AbortSignal.timeout(15000) });
+  if (r.status === 404) return [];
+  if (!r.ok) throw new Error("operator key route answered http " + r.status);
+  const j = await r.json();
+  return j && typeof j.public_key_ed25519_b64 === "string" && j.public_key_ed25519_b64.trim() ? [j.public_key_ed25519_b64.trim()] : [];
+}

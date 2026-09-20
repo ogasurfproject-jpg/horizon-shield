@@ -184,3 +184,17 @@ def sign_record(rec, priv):
     r["signature_ed25519_b64"] = base64.b64encode(sig).decode()
     r["public_key_ed25519_b64"] = base64.b64encode(pub).decode()
     return r
+
+def fetch_operator_keys(origin, timeout=15):
+    """信用アンカーを gate から取る (/keys/operator.json)。404 = まだ配っとらん = 空 (strict は全部 untrusted になる。それが正しい)。"""
+    import urllib.request, urllib.error
+    url = str(origin).rstrip("/") + "/keys/operator.json"
+    req = urllib.request.Request(url, headers={"user-agent": "recovery-verify-py/" + VERIFIER_VERSION})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            j = json.loads(r.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        if e.code == 404: return []
+        raise
+    k = j.get("public_key_ed25519_b64") if isinstance(j, dict) else None
+    return [k.strip()] if isinstance(k, str) and k.strip() else []

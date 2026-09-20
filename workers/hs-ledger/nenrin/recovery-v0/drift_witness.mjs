@@ -6,13 +6,14 @@
 //        --repo /Users/oogatoshikatsu/horizon-shield \
 //        --out drift_$(date -u +%Y%m%dT%H%M%SZ).jsonl
 //
-// 測る 7 表面 (全部 Class 1: 立証可能、決定可能、誤検知はほぼ無い):
+// 測る 8 表面 (全部 Class 1: 立証可能、決定可能、誤検知はほぼ無い):
 //   health.gate_commit            ピンされとるか (unpinned = 即ドリフト)。--expect-commit があればその値か
 //   agent-card.signature          公式 SDK の verifier で verify するか、canonical sha256 は署名済みの物か
 //   well-known.jwks               鍵が在るか、kid と thumbprint
 //   well-known.openai-apps-challenge  設定済みで非空か。値は公開物なので値ごと記録する (設計書 3.2)
 //   ext.conduct-v1.spec           配っとる spec の sha と repo の CONDUCT_EXT_v1.md の sha が同じか (--repo が要る)
-//   keys.agreement / keys.witness 鍵の口が答えるか (404 は「無い」の正直な答えで、ドリフトやない。5xx や落ちはドリフト)
+//   keys.agreement / keys.witness / keys.operator 鍵の口が答えるか (404 は「無い」の正直な答えで、ドリフトやない。5xx や落ちはドリフト)
+//   keys.operator は Policy Gate の信用アンカー (0.4.8)。これが消えたら、以後の許可を第三者が検証できん
 //
 // 出す物: 表面ごとに 1 つの nenrin-drift-record-v1 (seal 済み、record_sha256 付き) を JSONL で。drift:false も書く。
 // 「正常やった証拠」が年輪に要るからや。異常だけ書く証人は、正常を証明できん。
@@ -142,7 +143,7 @@ try {
 } catch (e) { await record("ext.conduct-v1.spec", true, "endpoint_error", { error: String(e && e.message || e) }, { served: "true" }, ["GET /ext/conduct/v1 did not answer"], ["why"]); }
 
 // 6, 7. keys.agreement / keys.witness (404 は正直な「無い」。ドリフトやない)
-for (const [surface, p] of [["keys.agreement", "/keys/agreement.json"], ["keys.witness", "/keys/witness.json"]]) {
+for (const [surface, p] of [["keys.agreement", "/keys/agreement.json"], ["keys.witness", "/keys/witness.json"], ["keys.operator", "/keys/operator.json"]]) {
   try {
     const k = await get(p);
     const present = k.status === 200 && k.json && typeof k.json.public_key_ed25519_b64 === "string";
