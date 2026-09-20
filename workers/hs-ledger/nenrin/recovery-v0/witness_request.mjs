@@ -13,8 +13,8 @@ import { verifyRecord, sha256Hex } from "./recovery_verify.mjs";
 export const REQUEST_SCHEMA = "nenrin-witness-request-v1";
 export const REQUEST_VERSION = "0.1.0";
 export const CONDUCT_EXT = "https://gate.horizonshield.dev/ext/conduct/v1";
-// drift_witness.mjs が測る 8 表面。証人にも同じ名前で頼む。
-export const SURFACES = ["health.gate_commit", "agent-card.signature", "well-known.jwks", "well-known.openai-apps-challenge", "ext.conduct-v1.spec", "keys.agreement", "keys.witness", "keys.operator"];
+// drift_witness.mjs が測る 9 表面。証人にも同じ名前で頼む。
+export const SURFACES = ["health.gate_commit", "agent-card.signature", "well-known.jwks", "well-known.openai-apps-challenge", "ext.conduct-v1.spec", "keys.agreement", "keys.witness", "keys.operator", "well-known.did"];
 
 // 依頼。全証人に同じ本文。期待値は入れん。subject_sha256 が入るので事故ごとに違う (古い答えの使い回しが効かん)。
 export function buildRequest({ origin, surfaces = SURFACES, subjectSha256, poolSha256, beacon, requestedAt }) {

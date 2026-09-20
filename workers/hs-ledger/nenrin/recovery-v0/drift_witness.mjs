@@ -7,7 +7,7 @@
 //        --baseline baseline_20260920.jsonl \
 //        --out drift_$(date -u +%Y%m%dT%H%M%SZ).jsonl
 //
-// 測る 8 表面 (全部 Class 1: 立証可能、決定可能、誤検知はほぼ無い):
+// 測る 9 表面 (全部 Class 1: 立証可能、決定可能、誤検知はほぼ無い):
 //   health.gate_commit            ピンされとるか (unpinned = 即ドリフト)。--expect-commit があればその値か
 //   agent-card.signature          公式 SDK の verifier で verify するか、canonical sha256 は署名済みの物か
 //   well-known.jwks               鍵が在るか、kid と thumbprint。--baseline があれば前回と同じか (jwks_changed)
@@ -33,7 +33,7 @@ import { SCHEMAS } from "./recovery_schema.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CARD_SIGN = path.resolve(HERE, "../../../a2a-card-sign");
-export const SURFACES = ["health.gate_commit", "agent-card.signature", "well-known.jwks", "well-known.openai-apps-challenge", "ext.conduct-v1.spec", "keys.agreement", "keys.witness", "keys.operator"];
+export const SURFACES = ["health.gate_commit", "agent-card.signature", "well-known.jwks", "well-known.openai-apps-challenge", "ext.conduct-v1.spec", "keys.agreement", "keys.witness", "keys.operator", "well-known.did"];
 const now = () => new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 const UA = { "user-agent": "nenrin-drift-witness/0.2" };
 
@@ -54,7 +54,7 @@ export function loadBaseline(text) {
   return prior;
 }
 
-// 8 表面を測って drift 記録の配列を返す。fetchImpl と sdk は差し替え可 (試験と、SDK が無い環境のため)。
+// 9 表面を測って drift 記録の配列を返す。fetchImpl と sdk は差し替え可 (試験と、SDK が無い環境のため)。
 export async function measureSurfaces(originIn, opts = {}) {
   const origin = String(originIn).replace(/\/+$/, "");
   const fetchImpl = opts.fetchImpl || globalThis.fetch;
@@ -181,10 +181,30 @@ export async function measureSurfaces(originIn, opts = {}) {
         ["that the key is the operator's (that is attribution, gate 0.4.5)"].concat(pk ? [] : ["whether a key was present earlier (no --baseline given)"]));
     } catch (e) { await record(surface, true, "endpoint_error", { error: String(e && e.message || e) }, { answers: "true" }, ["GET " + p + " did not answer"], ["why"]); }
   }
+
+  // 9. well-known.did (0.4.12: did:web の DID document。card 署名鍵と運営者鍵をドメインに縛る。404 は「未公開」の正直な答え、keys.* と同じ。
+  //    --baseline: verificationMethod の鍵集合 (did_sha256) が前回と違えば did_changed、前回在って今無いなら did_removed。これが黙って変わったら、以後 did:web で身元を確かめる第三者が別の鍵を掴む)
+  try {
+    const d = await get("/.well-known/did.json");
+    const doc = d.json;
+    const present = d.status === 200 && doc && typeof doc.id === "string" && Array.isArray(doc.verificationMethod);
+    const error = d.status !== 200 && d.status !== 404;
+    const vm = present ? [...doc.verificationMethod].sort((a, b) => String(a.id).localeCompare(String(b.id))).map((m) => ({ id: String(m.id), jwk: m.publicKeyJwk })) : [];
+    const did_sha256 = present ? await sha256Hex(JSON.stringify(vm)) : "";
+    const kids = present ? doc.verificationMethod.map((m) => String(m.id).split("#")[1] || "").join(",") : "";
+    const pd = prior["well-known.did"];
+    const removed = !!(pd && pd.present === "true" && !present);
+    const changed = !!(pd && pd.did_sha256 && present && pd.did_sha256 !== did_sha256);
+    await record("well-known.did", error || removed || changed, error ? "endpoint_error" : removed ? "did_removed" : "did_changed",
+      { status: String(d.status), present: String(!!present), ...(present ? { id: String(doc.id), kids, did_sha256 } : {}), ...(pd && pd.did_sha256 ? { prior_did_sha256: pd.did_sha256 } : {}) },
+      { answers: "true", ...(pd && pd.present === "true" ? { equals_prior: "true" } : {}) },
+      [present ? "at recorded_at /.well-known/did.json served a DID document binding the recorded keys (did_sha256) to " + String(doc.id) : "at recorded_at /.well-known/did.json answered " + d.status].concat(pd ? [removed ? "the baseline run had a DID document; now there is none" : changed ? "the bound keys differ from the baseline run" : "the state equals the baseline run"] : []),
+      ["that a third party resolving did:web gets these bytes (that is off this vantage), only that these bytes were served here"].concat(pd ? [] : ["whether a DID was present earlier (no --baseline given)"]));
+  } catch (e) { await record("well-known.did", true, "endpoint_error", { error: String(e && e.message || e) }, { answers: "true" }, ["GET /.well-known/did.json did not answer"], ["why"]); }
   return records;
 }
 
-// 観測の畳み方: 籤の証人が返す observed (surface -> observed object)。drift_witness の記録 8 本をそのまま畳む。
+// 観測の畳み方: 籤の証人が返す observed (surface -> observed object)。drift_witness の記録 9 本をそのまま畳む。
 export function foldObserved(records) {
   const observed = {};
   for (const r of records) observed[r.surface] = r.observed;

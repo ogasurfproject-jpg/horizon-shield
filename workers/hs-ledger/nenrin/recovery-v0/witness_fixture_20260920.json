@@ -58,7 +58,8 @@
       "ext.conduct-v1.spec",
       "keys.agreement",
       "keys.witness",
-      "keys.operator"
+      "keys.operator",
+      "well-known.did"
     ],
     "subject_sha256": "f28828da2f3750b12a96833003b8cc45b7c4a66d35624b0491a57cbe2ad9b932",
     "pool_sha256": "2552595cc0f0de7ce5b8f5323574682ad02a3f508790c8ee73485de8504bc85d",
@@ -366,7 +367,7 @@
                 "vantage_note": "measured from witness-b.example"
               }
             },
-            "request_sha256": "a3d54bc77f49d7391af286723ec4caa485bb718be08f029262e2aed96e3765a5",
+            "request_sha256": "afb68d0eefd1518b69247c5a9a6a96cac7bbf5fc663704787c5b38e859ffc77c",
             "source": {
               "kind": "external_witness",
               "signed_domain": "witness-b.example",
@@ -380,8 +381,8 @@
               "why the surfaces are in this state",
               "anything about surfaces not listed in observed"
             ],
-            "record_sha256": "7566a5a3dc4b9ed8d9c28a6354303d5234254dcc2b8ad9a9019328148402a8ed",
-            "signature_ed25519_b64": "/Lyw9CpScd5iisD46J2AM82L4M7hqaAqvMhhGSw+5yZ+ZZUZPv63KlJZeQslxRYcaks2H3RRgWgk4Eu+UtQVDw==",
+            "record_sha256": "53ff9ec4bf82643ea4b96be1aab21df15f8a78221daf65f4b57bc7fefeccb75d",
+            "signature_ed25519_b64": "+HCJURqBmNFn+ySyVLJN30h9INfqEI/gP5LFlgSqLgZW92Lqo2+PX+RpLjwMAEUQBxvTWZfvxHXngZ0qQ9HGBA==",
             "public_key_ed25519_b64": "V0u0H4CgIniad7Co0W35+TxlV254w56K9ofelOpH0m4="
           }
         },
@@ -418,7 +419,7 @@
                 "vantage_note": "measured from witness-d.example"
               }
             },
-            "request_sha256": "a3d54bc77f49d7391af286723ec4caa485bb718be08f029262e2aed96e3765a5",
+            "request_sha256": "afb68d0eefd1518b69247c5a9a6a96cac7bbf5fc663704787c5b38e859ffc77c",
             "source": {
               "kind": "external_witness",
               "signed_domain": "witness-d.example",
@@ -432,8 +433,8 @@
               "why the surfaces are in this state",
               "anything about surfaces not listed in observed"
             ],
-            "record_sha256": "1df67da7fa35b61ad4adda45f48f1d59f46c387261b60607bd91ee5ca5061b79",
-            "signature_ed25519_b64": "1GW/B07xxksZpL9e4t0pfFnabQM6XHKABnoGRYzZrTqqnKIldL46E/lDg062IQYTGUyTguM4Ip+yVyXJgCSODQ==",
+            "record_sha256": "2292f3a50027107eb073b4916dba908dee24bd149ff5949987528e64694141c5",
+            "signature_ed25519_b64": "irgMUKg7MGtdpMBciQePMM0uSPD47vwoQRkmMbr9PyeEZsNFGUx1E5VAqizt0aDxLZYR63Qpi9ngl5VOmoNVDA==",
             "public_key_ed25519_b64": "9rdUeb04kK1HOHXj/h2peL6Gi7YmZD3tWfcNJEmPC34="
           }
         },
@@ -467,7 +468,7 @@
         "pool_size": "6",
         "k": "3",
         "subject_sha256": "f28828da2f3750b12a96833003b8cc45b7c4a66d35624b0491a57cbe2ad9b932",
-        "request_sha256": "a3d54bc77f49d7391af286723ec4caa485bb718be08f029262e2aed96e3765a5",
+        "request_sha256": "afb68d0eefd1518b69247c5a9a6a96cac7bbf5fc663704787c5b38e859ffc77c",
         "drawn": [
           "witness-b.example",
           "witness-d.example",
@@ -485,7 +486,7 @@
           }
         }
       },
-      "record_sha256": "87797272d7b5355167a3a29481110170c306e96a0dbd58b9d0ec30027d5540a8"
+      "record_sha256": "62bccf54f60e92e0ae8c72a7374d050bf37012e466ea2cabfadb52fada9b1ef6"
     }
   ]
 }

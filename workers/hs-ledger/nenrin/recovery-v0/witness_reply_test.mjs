@@ -35,7 +35,7 @@ const req = buildRequest({ origin: ORIGIN, subjectSha256: execution.record_sha25
 const reqHash = await requestSha256(req);
 {
   const r = await answerRequest(req, { signedDomain: DOM, keyUrl, priv: kB.privKey, pubRaw: kB.pubRaw, measure: fakeMeasure, vantage: "test" });
-  t("reply: a valid request is answered with a signed observation over the 8 surfaces", r.answered && r.record.schema === SCHEMAS.observation && Object.keys(r.record.observed).length === 8 && r.record.request_sha256 === reqHash && r.record.source.signed_domain === DOM, JSON.stringify(r).slice(0, 200));
+  t("reply: a valid request is answered with a signed observation over the 9 surfaces", r.answered && r.record.schema === SCHEMAS.observation && Object.keys(r.record.observed).length === 9 && r.record.request_sha256 === reqHash && r.record.source.signed_domain === DOM, JSON.stringify(r).slice(0, 200));
   t("reply: the observation says it was not told what to expect", r.record.does_not_establish.some((x) => /not told what to expect/.test(x)));
   const acc = await acceptObservation({ record: r.record, entry: fx.pool.entries.find((e) => e.signed_domain === DOM), requestSha256: reqHash, endpoint: ORIGIN, ownHost: OWN_HOST });
   t("reply -> intake: the answer is accepted by the requester's intake", acc.ok, JSON.stringify(acc.refusals));
@@ -164,7 +164,7 @@ const reqHash = await requestSha256(req);
   t("baseline: the 2026-09-20 run folds to 7 surfaces keyed by name", Object.keys(base).length === 7 && base["well-known.jwks"] && base["well-known.jwks"].thumbprints);
   const folded = foldObserved([{ surface: "a", observed: { x: "1" } }, { surface: "b", observed: { y: "2" } }]);
   t("foldObserved: surface -> observed", folded.a.x === "1" && folded.b.y === "2");
-  t("SURFACES: the 8 names, keys.operator last", SURFACES.length === 8 && SURFACES[7] === "keys.operator");
+  t("SURFACES: the 9 names, keys.operator then well-known.did last", SURFACES.length === 9 && SURFACES[7] === "keys.operator" && SURFACES[8] === "well-known.did");
 }
 
 console.log(results.join("\n"));

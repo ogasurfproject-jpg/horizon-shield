@@ -8,7 +8,7 @@
 //   受け取るのは依頼 (nenrin-witness-request-v1) だけ。依頼の中の文字列は測定の対象 (origin と表面名) にしか使わん。指示は無い。
 //   期待値は依頼に無い (目隠し)。あっても読まん。「期待通りか」はこっちの知ったことやない。見た物を書くだけ。
 //   自分自身は測らん (self_witness、11.4)。頼まれても declined で返す。
-//   返す物は署名付きの観測 1 記録。observed の中身は drift_witness の 8 表面をそのまま畳んだ物。
+//   返す物は署名付きの観測 1 記録。observed の中身は drift_witness の 9 表面をそのまま畳んだ物。
 // serve は最小の A2A 面 (JSON-RPC message/send を受けて data part で返す)。本番の証人はこれを自分の A2A 面に組み込む。
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -25,7 +25,7 @@ const HEX64 = /^[0-9a-f]{64}$/;
 const now = () => new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 const hostOf = (u) => { try { return new URL(u).host.toLowerCase(); } catch { return ""; } };
 
-// 測ってええ相手は公開の DNS 名だけ (設計書 14.1: 証人は公開 8 表面しか見ん)。
+// 測ってええ相手は公開の DNS 名だけ (設計書 14.1: 証人は公開 9 表面しか見ん)。
 // IP 直書き、localhost、.local / .internal / .lan / .home / .corp、点の無い名前、port 付きは断る。
 // serve を社内網で動かした人が、依頼で内側の host を測らされて中身 (challenge の値など) を外に返す穴を塞ぐ。
 export function targetAllowed(origin) {
@@ -121,7 +121,7 @@ export function rpcReply(id, result) {
 // 最小の面。POST / に JSON-RPC message/send、GET <key path> に鍵。本番の証人はこれを自分の A2A 面に組み込む。
 export function makeHandler({ signedDomain, keyUrl, priv, pubRaw, pubB64, measure, fetchImpl, vantage, maxInFlight = 2, allowPrivateTargets = false }) {
   const keyPath = new URL(keyUrl).pathname;
-  let inFlight = 0;   // 一度に測る依頼の数の上限。測定は 8 表面 x 最大 15 秒。無制限やと依頼を投げるだけで証人を塞げる
+  let inFlight = 0;   // 一度に測る依頼の数の上限。測定は 9 表面 x 最大 15 秒。無制限やと依頼を投げるだけで証人を塞げる
   return async function handle(req, res) {
     const url = new URL(req.url, "http://" + (req.headers.host || "localhost"));
     const send = (status, obj) => { res.writeHead(status, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify(obj)); };

@@ -21,7 +21,7 @@ HORIZON SHIELD 第2の柱 TSUGI (継)。検証の次に置く、回復を証明�
 | recovery_fixture_build.mjs | library | 今週の事故 (生 deploy → 署名不一致 + challenge 消失 → 外部証人 → 切り分け → redeploy_pinned → verify TRUE) を 7 記録に焼く |
 | recovery_fixture_20260920.json | 表 | 上が書いた 7 記録。hash と prev はコードが計算した物。手で触らん |
 | recovery_verify_test.mjs | suite | fixture が通る、rebuild が byte 一致、変異 24 件が全部落ちる |
-| drift_witness.mjs | library (network) | Class 1 の 8 表面を測って drift-record を JSONL で書く。--baseline で前回と比べる (jwks_changed / key_changed / key_removed / public_value_changed)。measureSurfaces() を輸出 (反対側が使う)。fetch は no-store |
+| drift_witness.mjs | library (network) | Class 1 の 9 表面を測って drift-record を JSONL で書く (9 表面目 well-known.did は 0.4.12 で追加、DID の鍵集合の hash を前回と比べ did_changed / did_removed)。--baseline で前回と比べる (jwks_changed / key_changed / key_removed / public_value_changed)。measureSurfaces() を輸出 (反対側が使う)。fetch は no-store |
 | witness_reply.mjs | library (CLI) | 籤の反対側 (conduct-v1.1 11.6 の参照実装)。頼まれたら測って署名して返す。answer (1 依頼) と serve (最小の A2A 面 + 鍵の口) |
 | witness_pool_build.mjs | library (CLI, network) | 池を育てる口。register や候補の列から、条件 (conduct-v1 宣言、reciprocal、同 host の鍵、自分やない、--min-walked) を満たす card だけ池に入れる。落ちた候補は report に |
 | witness_reply_test.mjs | suite | 両側を localhost で繋いで一周 (serve → 依頼 → 受け入れ → 検証器が数える)、池の審査を偽 fetch で、drift_witness の baseline |
@@ -74,7 +74,7 @@ Shield は再検証の証人を自分で選ばん。公開の池 (witness_pool.j
 
 - 池に入る条件 (conduct-v1.1 の 11.4 と 11.6 そのまま、新しい規則は無い): agent card が conduct-v1 を宣言し、key_url で domain-bound の Ed25519 鍵を配り、witness_policy.reciprocal: true を宣言し、自分の origin と host が違う。条件を満たす card は全部入る。運営者が選り好みせん。池の hash (pool_sha256) を記録に焼くので、後から入れ替えたら見える。
 - 籤: seed = sha256(beacon_hash | pool_sha256 | subject_sha256)。beacon は対象記録より後に最初に採掘された Bitcoin ブロックの hash (JIDEC が既に Bitcoin にアンカーしとるので新しい依存やない)。subject は籤が仕える記録 (再検証なら execution) の record_sha256。池を鍵の順に並べ、seed から決定的な Fisher-Yates で k 人。誰でも同じ 3 入力から同じ k 人を出せる。出せんかったら検証器が draw_mismatch で断る。
-- 依頼は目隠し: 「この origin のこの 8 表面を測って署名して返せ」だけ。期待値は渡さん。依頼の hash を記録に焼く。
+- 依頼は目隠し: 「この origin のこの 9 表面を測って署名して返せ」だけ。期待値は渡さん。依頼の hash を記録に焼く。
 - 受け取るのは観測だけ (nenrin-witness-observation-v1)。指示の欄は無い。証人が何を書いても Shield は動かん。観測は verify.external[].record に丸ごと埋め込まれ、検証器が署名 (証人の domain 鍵)、引かれとるか、池の鍵か、同じ依頼か、自分自身やないか、を見て、expected_after を observed が含む証人を一 domain 一票で数える。
 - 定足数: `verifyChain(records, { witnessQuorum: { q, pool, beaconHash } })`。recovered:true に q 人の一致を要求する。足りんかったら witness_quorum_short。食い違う証人は両方残る (disagreeing に出る)。答えん証人は answered:false で残る (数えん、隠さん)。
 - 籤が消すもの: 「運営者が証人を選んだ」「証人が事前に買収されとった」。消さんもの: 署名した嘘つき (11.10 と同じ)、池を domain で埋める Sybil (加入は ring に walked_as_witness の実績が要る、期間は ADR)。籤が作るのは「誰が呼ばれたかを Shield が決めてへん」だけ。
@@ -101,7 +101,7 @@ Shield は再検証の証人を自分で選ばん。公開の池 (witness_pool.j
 
 ## 反対側と池 (v2.1)
 
-呼ぶだけで呼ばれん者は池に入れてもらえん。こっちが呼ばれた時の側が `witness_reply.mjs` や: 依頼 (nenrin-witness-request-v1) を受け、自分自身なら self_witness で断り、drift_witness の 8 表面を測って、署名付きの観測 1 記録で返す。依頼の中の文字列は測る対象 (origin と表面名) にしか使わん。依頼に「指示」が混じっとっても測った物を書くだけ (試験に入れてある)。serve は最小の A2A 面で、本番の証人はこれを自分の A2A 面に組み込む。証人の鍵は運営者鍵と別に作る (役が違う): `openssl genpkey -algorithm ed25519 -out ~/.hs_witness_key.pem`。
+呼ぶだけで呼ばれん者は池に入れてもらえん。こっちが呼ばれた時の側が `witness_reply.mjs` や: 依頼 (nenrin-witness-request-v1) を受け、自分自身なら self_witness で断り、drift_witness の 9 表面を測って、署名付きの観測 1 記録で返す。依頼の中の文字列は測る対象 (origin と表面名) にしか使わん。依頼に「指示」が混じっとっても測った物を書くだけ (試験に入れてある)。serve は最小の A2A 面で、本番の証人はこれを自分の A2A 面に組み込む。証人の鍵は運営者鍵と別に作る (役が違う): `openssl genpkey -algorithm ed25519 -out ~/.hs_witness_key.pem`。
 
 池は `witness_pool_build.mjs` が書く。条件は README 上の「籤」の節そのまま。`--min-walked N` は 14.6 の Sybil 手当 (扉の /register/lookup の last_ring.walked_as_witness を見る)。既定 0 = ADR で決めるまで見ん。落ちた候補は池に書かず report に理由付きで残す。
 
