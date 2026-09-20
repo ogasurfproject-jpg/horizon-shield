@@ -16,6 +16,8 @@ HORIZON SHIELD 第2の柱 TSUGI (継)。検証の次に置く、回復を証明�
 | witness_fixture_20260920.json | 表 | 池 6 (証人 5 + 自分)、籤で 3 人、2 人が署名付きで答え 1 人は答えず。手で触らん |
 | witness_kuji_test.mjs | suite | 籤が再計算できる、fixture が byte 一致、変異 (drawn 改竄、別の池、別の beacon、引かれとらん証人、鍵違い、別の依頼、自分自身) が全部落ちる、依頼と受け入れ |
 | witness_pool.json | 表 | 本番の池。今は空。入る条件は下の「籤」を見る |
+| incident_20260920_resign_chain.json | 表 | 実事件 2: 日次証人が見つけた card の署名切れ (version bump を 2 回、署名し直さず撒いた) を、R3 の提案 → 運営者鍵で署名した許可 → 再署名と deploy_gate.sh → 0 drift の再検証、の 12 記録に閉じた物。strict で通る。定足数を問えば正直に witness_quorum_short |
+| incident_20260920_test.mjs | suite | 上の連鎖が今も再計算でき、鍵で閉じた許可として通り、籤を引いとらんことを正直に言うか |
 | recovery_fixture_build.mjs | library | 今週の事故 (生 deploy → 署名不一致 + challenge 消失 → 外部証人 → 切り分け → redeploy_pinned → verify TRUE) を 7 記録に焼く |
 | recovery_fixture_20260920.json | 表 | 上が書いた 7 記録。hash と prev はコードが計算した物。手で触らん |
 | recovery_verify_test.mjs | suite | fixture が通る、rebuild が byte 一致、変異 24 件が全部落ちる |

@@ -95,6 +95,13 @@ m3[6] = dict(R.hashed_body(m3[6])); m3[6]["record_sha256"] = R.record_sha256(m3[
 t("v2 python: entry.signed_domain differs from the signed record -> witness_domain_mismatch", "witness_domain_mismatch" in codes(R.verify_chain(m3, witness_quorum={"q": 2, "pool": wf["pool"]})))
 t("v2 python: subset_matches keeps extra observed keys, refuses missing ones", R.subset_matches({"a": {"b": "1"}}, {"a": {"b": "1", "c": "2"}}) and not R.subset_matches({"a": {"b": "1", "c": "2"}}, {"a": {"b": "1"}}))
 
+# 7. 実事件 2 (2026-09-20 署名切れ) の 12 記録: python でも byte 一致、運営者鍵の strict で通る
+inc = json.load(open(os.path.join(HERE, "incident_20260920_resign_chain.json"), encoding="utf-8"))
+t("incident 2: all 12 record_sha256 recompute in python", all(R.record_sha256(r) == r["record_sha256"] for r in inc["records"]))
+st = R.verify_chain(inc["records"], operator_keys=[inc["operator_public_key_ed25519_b64"]])
+t("incident 2: python strict verify_chain ok and complete", st["ok"] and st["segment"]["complete"], json.dumps(st["refusals"]))
+t("incident 2: python asked for a quorum says witness_quorum_short", "witness_quorum_short" in codes(R.verify_chain(inc["records"], operator_keys=[inc["operator_public_key_ed25519_b64"]], witness_quorum={"q": 1, "pool": json.load(open(os.path.join(HERE, "witness_pool.json"), encoding="utf-8"))})))
+
 print("\n".join(out))
 print("=== %d / %d 合格 (recovery-twin: python が node と byte 一致、v2 籤も同じ k 人) ===" % (p, p + f))
 if f: sys.exit(1)
