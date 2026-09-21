@@ -51,12 +51,16 @@ are what make it not one.
 - E5 independence of the verify fee. The verify share goes to a witness independent of the paid
   parties (reuses task-delegation R1: witness_id differs from hop.from and hop.to). A party
   cannot pay itself a verification fee.
-- E6 the neutral verifier takes nothing. HORIZON SHIELD is the verification and evidence layer
-  and takes zero from gross. The operate role (network-operator fee) belongs to a distinct
-  entity, 八工門 (Yakumo Co.), and is a transparent, disclosed operator fee, walled off from
-  Yakumo's contractor-directory "no referral fee" stance (separate product, separate disclosed
-  policy). If HORIZON SHIELD ever took a cut of gross, the neutrality the whole stack sells
-  would be void; E6 is that promise written down.
+- E6 the verifier is paid for verification, never for the verdict. HORIZON SHIELD may charge a
+  fee for verification work it actually performs (the estimate diagnosis is exactly this, a paid
+  service), but the fee is fixed for the work and independent of the verdict: it is the same
+  whether the verified thing passes or fails, it is never paid by the party under evaluation to
+  buy the outcome, and it is never a percentage of gross that grows when a particular party is
+  steered work. HS takes no connect or referral share and no outcome-contingent cut. The operate
+  role (running the network) is a distinct, disclosed fee and belongs to a distinct entity, 八工門
+  (Yakumo Co.), walled off from Yakumo's contractor-directory "no referral fee" stance (separate
+  product, separate disclosed policy). Neutrality is not "HS earns nothing"; it is "HS pay never
+  depends on the verdict or on steering business to anyone."
 - E7 no custody. The RDA states amounts and bases; it never holds or moves them. No wallet, no
   escrow held by this layer, no payout trigger. Settlement is external and out of scope in v0.
 - E8 fail-closed. Missing settlement, a missing witness verdict, a broken delegation chain, or
@@ -87,7 +91,9 @@ are what make it not one.
 
 ## Decision points for v1 (決めどころ)
 - D1 the split recipe. Fixed bps per role, or negotiated in the agreement and merely verified
-  here? v0 leaves recipe_ref abstract; v1 fixes at least one concrete recipe and tests it.
+  here? v0 leaves recipe_ref abstract; v1 fixes at least one concrete recipe and tests it. The
+  recipe must keep the verify fee flat for the work rather than a share of gross, so E6 holds:
+  a verify cut that scales with gross drifts back toward outcome-linked pay.
 - D2 the connection-depth cap (the E4 value) and how a "distinct connection" is evidenced.
 - D3 settlement_ref: what counts as proof the customer paid, and who attests it.
 - D4 revocation and clawback mechanics (E9): supersede-only, or a signed reversal, and its window.
