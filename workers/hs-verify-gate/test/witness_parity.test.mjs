@@ -47,7 +47,9 @@ globalThis.Date = class extends RealDate { constructor(...a) { super(a.length ? 
 let wr, rr;
 try {
   wr = await W.answerWitnessRequest(req, { signedDomain, keyUrl, priv: key.privateKey, pubRaw, measure: measureWorker });
-  rr = await refAnswer(req, { signedDomain, keyUrl, priv: key.privateKey, pubRaw, measure: measureRef, vantage });
+  // 参照は名前を引いて番地を篩う段 (witness_ssrf_guard) を持つ。Worker にその段は無い (Cloudflare の fetch は内側に route せん、platform の性質)。
+  // 両側に同じ入力を見せるため、ここでは参照の事前確認を resolver: null で外す。番地の篩そのものは witness_ssrf_guard_test で採点する。
+  rr = await refAnswer(req, { signedDomain, keyUrl, priv: key.privateKey, pubRaw, measure: measureRef, resolver: null, vantage });
 } finally { globalThis.Date = RealDate; }
 
 t("worker answered", wr.answered, JSON.stringify(wr).slice(0, 120));

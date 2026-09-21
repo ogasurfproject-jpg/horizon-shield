@@ -142,6 +142,10 @@ export function checkRequest(req) {
 export const requestSha256 = (req) => sha256Hex(canonicalUtf8(req));
 
 // 測ってええ相手は公開の DNS 名だけ (witness_reply.targetAllowed の写し)。
+// これは名前の見た目の篩。公開の名前が内側の番地 (10/8、169.254/16 の metadata、127/8 など) を指す穴は、ここでは塞いどらん。
+// この Worker でそれが刺さらんのは Cloudflare の fetch が RFC1918 / link-local / loopback に route せん、という platform の性質で、
+// この code の保証やない。Node で serve する証人 (witness_reply.mjs) は名前を引いて番地を篩い、繋ぐ番地に釘を打つ
+// (recovery-v0/witness_ssrf_guard.mjs: resolve、refuse、pin)。この写しを Node や他の platform に持ち出す時は、その三つを足すこと。
 export function targetAllowed(origin) {
   let u; try { u = new URL(origin); } catch { return { ok: false, why: "not a URL" }; }
   if (u.protocol !== "https:") return { ok: false, why: "only https origins are measured" };

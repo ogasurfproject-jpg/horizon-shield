@@ -9,6 +9,8 @@
 //   期待値は依頼に無い (目隠し)。あっても読まん。「期待通りか」はこっちの知ったことやない。見た物を書くだけ。
 //   自分自身は測らん (self_witness、11.4)。頼まれても declined で返す。
 //   返す物は署名付きの観測 1 記録。observed の中身は drift_witness の 9 表面をそのまま畳んだ物。
+//   測る相手は公開の番地だけ。host 名の見た目 (targetAllowed) の次に名前を引いて番地を篩い、socket は篩を通った番地にだけ繋ぐ
+//   (witness_ssrf_guard: resolve、refuse、pin)。公開の名前が内側の番地を指しとっても、証人は自分の内側を測らされへん。
 // serve は最小の A2A 面 (JSON-RPC message/send を受けて data part で返す)。本番の証人はこれを自分の A2A 面に組み込む。
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -19,6 +21,8 @@ import { sign, verifyRecord } from "./recovery_verify.mjs";
 import { SCHEMAS } from "./recovery_schema.mjs";
 import { measureSurfaces, foldObserved, SURFACES } from "./drift_witness.mjs";
 import { REQUEST_SCHEMA, requestSha256, extractObservation, CONDUCT_EXT } from "./witness_request.mjs";
+import { lookup as dnsLookup } from "node:dns";
+import { resolveAllowed, makeSafeFetch } from "./witness_ssrf_guard.mjs";
 
 export const REPLY_VERSION = "0.1.0";
 const HEX64 = /^[0-9a-f]{64}$/;
@@ -27,7 +31,9 @@ const hostOf = (u) => { try { return new URL(u).host.toLowerCase(); } catch { re
 
 // 測ってええ相手は公開の DNS 名だけ (設計書 14.1: 証人は公開 9 表面しか見ん)。
 // IP 直書き、localhost、.local / .internal / .lan / .home / .corp、点の無い名前、port 付きは断る。
-// serve を社内網で動かした人が、依頼で内側の host を測らされて中身 (challenge の値など) を外に返す穴を塞ぐ。
+// serve を社内網で動かした人が、依頼で内側の host を測らされて中身 (challenge の値など) を外に返す穴の、見た目の側の篩。
+// これは名前の見た目しか見ん。公開の名前が内側の番地を指す分は、answerRequest が名前を引いて篩い (resolveAllowed)、
+// 既定の fetch が繋ぐ番地に釘を打つ (makeSafeFetch)。三つ揃って穴が塞がる。
 export function targetAllowed(origin) {
   let u; try { u = new URL(origin); } catch { return { ok: false, why: "not a URL" }; }
   if (u.protocol !== "https:") return { ok: false, why: "only https origins are measured" };
@@ -71,7 +77,9 @@ export function checkRequest(req) {
 
 // 依頼に答える。返す物: { answered: true, record } か { answered: false, declined: <reason>, why }。
 // measure は差し替え可 (試験は network 無しで回す)。
-export async function answerRequest(req, { signedDomain, keyUrl, priv, pubRaw, measure = measureSurfaces, fetchImpl, vantage, allowPrivateTargets = false } = {}) {
+// resolver は名前を引く関数 (既定 node:dns lookup、試験は表を引く偽物、null で事前確認を飛ばす)。fetchImpl 省略時は pin 付き fetch。
+// allowPrivateTargets は lab 用で、見た目の篩、名前の篩、pin の三つを全部外す (既定の fetch も素の globalThis.fetch になる)。
+export async function answerRequest(req, { signedDomain, keyUrl, priv, pubRaw, measure = measureSurfaces, fetchImpl, resolver = dnsLookup, vantage, allowPrivateTargets = false } = {}) {
   if (!signedDomain || !keyUrl || !priv || !pubRaw) throw new Error("signedDomain, keyUrl, priv and pubRaw are required");
   if (hostOf(keyUrl) !== String(signedDomain).toLowerCase()) throw new Error("keyUrl host must be signedDomain (11.4)");
   const bad = checkRequest(req);
@@ -83,8 +91,15 @@ export async function answerRequest(req, { signedDomain, keyUrl, priv, pubRaw, m
   const known = req.surfaces.filter((s) => SURFACES.includes(s));
   const unknown = req.surfaces.filter((s) => !SURFACES.includes(s));
   if (known.length === 0) return { answered: false, declined: "no_known_surface", why: "none of the requested surfaces is one this witness measures: " + SURFACES.join(", ") };
+  // 見た目の篩の次に名前を引いて番地を篩う (resolve、refuse)。socket は既定の fetch が繋ぐ瞬間にもう一度引いて篩う (pin)。
+  if (!allowPrivateTargets && resolver) {
+    const host = new URL(target).hostname;
+    const ra = await resolveAllowed(host, resolver);
+    if (!ra.ok) return { answered: false, declined: "target_not_public", why: host + " " + ra.why };
+  }
   const witness = { name: signedDomain, vantage: vantage || (hostname() + " (witness network, " + signedDomain + ")") };
-  const records = await measure(target, { witness, fetchImpl });
+  const fetchUsed = fetchImpl || (allowPrivateTargets ? undefined : makeSafeFetch({ resolver: resolver || undefined }));
+  const records = await measure(target, { witness, fetchImpl: fetchUsed });
   const all = foldObserved(records);
   const observed = {};
   for (const s of known) if (all[s]) observed[s] = all[s];
@@ -119,7 +134,7 @@ export function rpcReply(id, result) {
 }
 
 // 最小の面。POST / に JSON-RPC message/send、GET <key path> に鍵。本番の証人はこれを自分の A2A 面に組み込む。
-export function makeHandler({ signedDomain, keyUrl, priv, pubRaw, pubB64, measure, fetchImpl, vantage, maxInFlight = 2, allowPrivateTargets = false }) {
+export function makeHandler({ signedDomain, keyUrl, priv, pubRaw, pubB64, measure, fetchImpl, resolver, vantage, maxInFlight = 2, allowPrivateTargets = false }) {
   const keyPath = new URL(keyUrl).pathname;
   let inFlight = 0;   // 一度に測る依頼の数の上限。測定は 9 表面 x 最大 15 秒。無制限やと依頼を投げるだけで証人を塞げる
   return async function handle(req, res) {
@@ -135,7 +150,7 @@ export function makeHandler({ signedDomain, keyUrl, priv, pubRaw, pubB64, measur
     if (inFlight >= maxInFlight) { res.writeHead(429, { "content-type": "application/json", "cache-control": "no-store", "retry-after": "60" }); return res.end(JSON.stringify({ jsonrpc: "2.0", id: rpc.id || null, error: { code: -32000, message: "busy: " + inFlight + " measurements in flight; retry later" } })); }
     inFlight++;
     try {
-      const result = await answerRequest(wr, { signedDomain, keyUrl, priv, pubRaw, measure, fetchImpl, vantage, allowPrivateTargets });
+      const result = await answerRequest(wr, { signedDomain, keyUrl, priv, pubRaw, measure, fetchImpl, resolver, vantage, allowPrivateTargets });
       return send(200, rpcReply(rpc.id || null, result));
     } finally { inFlight--; }
   };

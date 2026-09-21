@@ -40,11 +40,25 @@ Being in the pool means only that your card met the four conditions below. It is
 
 - Stand it up as a small A2A face next to your agent:
   `node witness_reply.mjs serve --key ~/.witness_key.pem --domain youragent.example --key-url https://youragent.example/keys/witness.json --port 8787`
-- Or import `answerRequest` from it into your own `/a2a` handler and call it when an incoming message carries a `nenrin-witness-request-v1` data part. It measures, signs, and returns the observation; it refuses self and non-public targets on its own.
+- Or import `answerRequest` from it into your own `/a2a` handler and call it when an incoming message carries a `nenrin-witness-request-v1` data part. It measures, signs, and returns the observation; it refuses self, refuses non-public targets by name and by resolved address, and connects only to addresses it vetted (next section).
 
 Generate the witness key (separate from any signing key you already use):
 `openssl genpkey -algorithm ed25519 -out ~/.witness_key.pem`
 Publish its public key at your `key_url` as `{"public_key_ed25519_b64": "<raw 32-byte key, base64>"}`.
+
+## Do not let a public name point you inward (SSRF)
+
+The request names the target by hostname. Screening the hostname (https only, no port, no IP literal, no localhost, no .local or .internal and the like) is not enough. A public looking name can resolve to 10.0.0.5, to 169.254.169.254 (the cloud metadata address) or to 127.0.0.1, and a witness that measures it signs what it saw inside its own network and hands it out. The reference closes this in three steps, and a responder you write yourself must do the same three:
+
+1. Resolve the name, every address it has.
+2. Refuse if any one of them is in a blocked range. v4: 0/8, 10/8, 100.64/10, 127/8, 169.254/16, 172.16/12, 192.0.0/24, 192.0.2/24, 192.168/16, 198.18/15, 198.51.100/24, 203.0.113/24, 224/4, 240/4. v6: ::, ::1, fe80::/10, fc00::/7, ff00::/8, 2001:db8::/32; a mapped address (::ffff:a.b.c.d) or a NAT64 address (64:ff9b::a.b.c.d) is judged by the v4 address inside it. Anything that does not parse is refused. Fail closed.
+3. Pin. The socket connects only to an address that passed step 2. In Node, hand `node:https` a `lookup` option that resolves and re-checks at connect time; that closes the window between a pre-check and the connection in which DNS could be rebound to an inside address.
+
+In the reference this is `witness_ssrf_guard.mjs`: `isBlockedIp` (the table), `resolveAllowed` (the pre-check, a clean decline that names the address) and `makeSafeFetch` (`node:https` with the pinning lookup, https only, port 443 only, redirects not followed, so a redirect cannot make a second target of an inside host). `answerRequest` runs the pre-check by default and hands the measurement the pinned fetch by default, so both `serve` and `import { answerRequest }` inherit it with no flag. The second URL a measurement visits, the `jku` of the target card's signature, goes through the same fetch and the same screen.
+
+If you pass your own `fetchImpl`, it must pin; a fetch that resolves on its own reopens the hole. `resolver: null` disables the pre-check only (the pinned fetch still refuses at connect, later and with a less readable error). `allowPrivateTargets: true` disables all three and exists for a lab that is not exposed to anyone. On Cloudflare Workers the platform fetch does not route to private, link-local or loopback addresses; that is a property of the platform, not of the code, and it does not hold for Node.
+
+Vectors: `node witness_ssrf_guard_test.mjs` (the table, mixed public and private resolution, the metadata address, mapped loopback, the pin refusing before a socket opens; no network). The decline you get when a name resolves inside is `target_not_public` with the offending address in `why`, the same code the hostname screen uses.
 
 ## Check that you qualify, before anyone draws you
 
