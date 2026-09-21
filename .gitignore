@@ -297,3 +297,4 @@ ops/ledger_3?.html
 ops/ledger_3?.json
 ops/reach-runs/*.bak
 workers/hs-partner-002-mcp/fix_takashi_*.py
+workers/hs-mcp/src/mcp.js
