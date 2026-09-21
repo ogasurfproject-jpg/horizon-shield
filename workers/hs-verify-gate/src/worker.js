@@ -104,6 +104,8 @@ const CARD_SIGNATURE = {
 // Cloudflare Workers では globalThis.CARD_ORIGIN_OVERRIDE は undefined なので、値も挙動も 1 バイト変わらん(card_signature / witness_parity が担保)。
 const CARD_CANONICAL_ORIGIN = (typeof globalThis !== "undefined" && globalThis.CARD_ORIGIN_OVERRIDE) || "https://gate.horizonshield.dev";
 function withCardSignature(card, origin) {
+  // GCP twin (別ドメイン): baked 署名は gate.horizonshield.dev の card bytes 用や。別 origin の写しはそのドメインで再署名するまで無署名で配る (A2A 上 無署名は valid)。CF は override 無しなので従来通り。
+  if (typeof globalThis !== "undefined" && globalThis.CARD_ORIGIN_OVERRIDE) return card;
   if (!CARD_SIGNATURE || !CARD_SIGNATURE.protected || !CARD_SIGNATURE.signature) return card;
   if (String(origin || "").replace(/\/+$/, "") !== CARD_CANONICAL_ORIGIN) return card;
   return Object.assign({}, card, { signatures: [{ protected: CARD_SIGNATURE.protected, signature: CARD_SIGNATURE.signature }] });
