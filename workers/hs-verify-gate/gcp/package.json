@@ -1,0 +1,10 @@
+{
+  "name": "tsugi-gate-gcp",
+  "private": true,
+  "type": "module",
+  "description": "GCP/Cloud Run twin of hs-verify-gate. Runs src/worker.js unmodified via a Firestore KV adapter and an HTTP bridge.",
+  "engines": { "node": ">=22" },
+  "dependencies": {
+    "@google-cloud/firestore": "^7.10.0"
+  }
+}

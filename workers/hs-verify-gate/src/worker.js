@@ -100,7 +100,9 @@ const CARD_SIGNATURE = {
   "canonical_sha256": "9cadc5ef8d3688285eda5b3728fe3422972bf15e29f67515b22a45b5bb3ceaf1"
 };
 /* @@CARD_SIGNATURE_END */
-const CARD_CANONICAL_ORIGIN = "https://gate.horizonshield.dev";
+// GCP twin は別ドメインで動くので、entrypoint が globalThis.CARD_ORIGIN_OVERRIDE を先に立てて上書きできる。
+// Cloudflare Workers では globalThis.CARD_ORIGIN_OVERRIDE は undefined なので、値も挙動も 1 バイト変わらん(card_signature / witness_parity が担保)。
+const CARD_CANONICAL_ORIGIN = (typeof globalThis !== "undefined" && globalThis.CARD_ORIGIN_OVERRIDE) || "https://gate.horizonshield.dev";
 function withCardSignature(card, origin) {
   if (!CARD_SIGNATURE || !CARD_SIGNATURE.protected || !CARD_SIGNATURE.signature) return card;
   if (String(origin || "").replace(/\/+$/, "") !== CARD_CANONICAL_ORIGIN) return card;
