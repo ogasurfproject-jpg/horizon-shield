@@ -11,6 +11,8 @@ import { makeNodeHandler } from "./http_bridge.mjs";
 if (process.env.CARD_ORIGIN) {
   globalThis.CARD_ORIGIN_OVERRIDE = String(process.env.CARD_ORIGIN).replace(/\/+$/, "");
 }
+// card が名乗る表示名。twin は掲載名で名乗る。worker を読み込む前に立てる。
+globalThis.CARD_NAME_OVERRIDE = process.env.CARD_NAME || "HORIZON SHIELD TSUGI";
 const worker = (await import("../src/worker.js")).default;
 
 const PORT = Number(process.env.PORT || 8080);

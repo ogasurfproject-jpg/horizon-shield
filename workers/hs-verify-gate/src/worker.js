@@ -103,6 +103,9 @@ const CARD_SIGNATURE = {
 // GCP twin は別ドメインで動くので、entrypoint が globalThis.CARD_ORIGIN_OVERRIDE を先に立てて上書きできる。
 // Cloudflare Workers では globalThis.CARD_ORIGIN_OVERRIDE は undefined なので、値も挙動も 1 バイト変わらん(card_signature / witness_parity が担保)。
 const CARD_CANONICAL_ORIGIN = (typeof globalThis !== "undefined" && globalThis.CARD_ORIGIN_OVERRIDE) || "https://gate.horizonshield.dev";
+// GCP twin は掲載名 "HORIZON SHIELD TSUGI" で名乗る。entrypoint が globalThis.CARD_NAME_OVERRIDE を先に立てて上書きする。
+// Cloudflare では undefined なので "MCP Verification Gate" のまま。card bytes も署名も 1 バイト変わらん。
+const CARD_NAME_DISPLAY = (typeof globalThis !== "undefined" && globalThis.CARD_NAME_OVERRIDE) || "MCP Verification Gate";
 function withCardSignature(card, origin) {
   // GCP twin (別ドメイン): baked 署名は gate.horizonshield.dev の card bytes 用や。別 origin の写しはそのドメインで再署名するまで無署名で配る (A2A 上 無署名は valid)。CF は override 無しなので従来通り。
   if (typeof globalThis !== "undefined" && globalThis.CARD_ORIGIN_OVERRIDE) return card;
@@ -4197,7 +4200,7 @@ async function handleMcp(body, env) {
 // 標準を提案する側が、その標準を満たしていなければ意味がない。
 function ownAgentCard(origin) {
   return {
-    name: "MCP Verification Gate",
+    name: CARD_NAME_DISPLAY,
     description:
       "Checks whether an MCP server exists, publishes an agent card, discloses who pays it, " +
       "and returns identical output for identical input. Free. Conformance and disclosure only; " +
