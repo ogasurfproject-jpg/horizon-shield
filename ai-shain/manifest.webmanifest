@@ -1,9 +1,0 @@
-{
-  "name": "AI社員 レベル診断",
-  "short_name": "AI社員診断",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff"
-}

@@ -4,200 +4,473 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="AI社員 診断">
-<meta name="theme-color" content="#ffffff">
-<link rel="manifest" href="./manifest.webmanifest">
-<title>AI社員 レベル診断</title>
-<style>
-  :root{ --ink:#0a0a0a; --paper:#ffffff; --line:#0a0a0a; --faint:#9a9a9a; --red:#d0021b; }
-  *{ margin:0; padding:0; box-sizing:border-box; }
-  html,body{ background:var(--paper); color:var(--ink); }
-  body{
-    font-family:"Helvetica Neue",Arial,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;
-    line-height:1.6; -webkit-font-smoothing:antialiased;
-    padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
-  }
-  .wrap{ max-width:560px; margin:0 auto; padding:24px 16px 64px; }
-  header{ border-bottom:1px solid var(--line); padding-bottom:12px; margin-bottom:28px; }
-  .kicker{ font-size:11px; letter-spacing:.18em; color:var(--faint); text-transform:uppercase; }
-  h1{ font-size:22px; font-weight:800; letter-spacing:.01em; margin-top:4px; }
-  h1 .r{ color:var(--red); }
-  .lead{ font-size:13px; color:#333; margin-top:8px; }
-  .step{ font-size:11px; letter-spacing:.14em; color:var(--faint); margin-bottom:14px; }
-  .q{ font-size:16px; font-weight:700; margin-bottom:16px; }
-  .opts{ display:block; }
-  .opt{
-    display:block; width:100%; text-align:left; background:var(--paper); color:var(--ink);
-    border:1px solid var(--line); padding:14px 14px; font-size:15px; font-family:inherit;
-    margin-bottom:-1px; cursor:pointer;
-  }
-  .opt:hover{ background:#f2f2f2; }
-  .opt.sel{ background:var(--ink); color:var(--paper); }
-  .opt .n{ display:inline-block; width:22px; color:var(--faint); }
-  .opt.sel .n{ color:var(--paper); }
-  .hint{ font-size:12px; color:var(--faint); margin:10px 0 22px; }
-  .row{ display:flex; gap:0; margin-top:26px; }
-  .btn{
-    flex:1; text-align:center; border:1px solid var(--line); background:var(--paper); color:var(--ink);
-    padding:14px; font-size:14px; font-weight:700; font-family:inherit; cursor:pointer; margin-left:-1px;
-  }
-  .btn:first-child{ margin-left:0; }
-  .btn.primary{ background:var(--red); border-color:var(--red); color:#fff; }
-  .btn[disabled]{ color:var(--faint); border-color:#ddd; cursor:default; }
-  .btn.primary[disabled]{ background:#f2c9cf; border-color:#f2c9cf; color:#fff; }
-  /* result */
-  .result .rk{ font-size:11px; letter-spacing:.18em; color:var(--faint); text-transform:uppercase; }
-  .lv{ font-size:26px; font-weight:800; margin:6px 0 2px; }
-  .lv .r{ color:var(--red); }
-  .block{ border-top:1px solid var(--line); padding:16px 0; }
-  .block .k{ font-size:11px; letter-spacing:.14em; color:var(--faint); text-transform:uppercase; margin-bottom:6px; }
-  .block .v{ font-size:16px; font-weight:700; }
-  .block .d{ font-size:14px; color:#333; margin-top:4px; }
-  .memo{ border:1px solid var(--line); padding:14px; margin-top:22px; }
-  .memo .k{ font-size:11px; letter-spacing:.14em; color:var(--faint); margin-bottom:8px; }
-  .memo table{ width:100%; border-collapse:collapse; font-size:13px; }
-  .memo td{ padding:4px 0; vertical-align:top; }
-  .memo td.l{ color:var(--faint); width:88px; }
-  .note{ font-size:12px; color:var(--faint); margin-top:18px; }
-  .foot{ margin-top:40px; border-top:1px solid var(--line); padding-top:12px; font-size:11px; color:var(--faint); letter-spacing:.04em; }
-  .hidden{ display:none; }
-</style>
+<style>html,body{margin:0}</style>
 </head>
 <body>
+<title>AI社員 レベル診断</title>
+<style>
+  :root{
+    --paper:#FBFBFA;--ink:#141412;--mute:#6B6B64;--rule:#D7D7D1;--rule-strong:#141412;
+    --red:#D81E05;--band:#F1F1ED;--field:#FFFFFF;
+    --maxw:760px;
+    --f-sans:"Archivo","Helvetica Neue",Helvetica,Arial,sans-serif;
+    --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --paper:#0E0E0C;--ink:#F1F1EC;--mute:#9C9C94;--rule:#2A2A26;--rule-strong:#F1F1EC;
+    --red:#FF4A3D;--band:#161613;--field:#161613;
+  }}
+  :root[data-theme="dark"]{
+    --paper:#0E0E0C;--ink:#F1F1EC;--mute:#9C9C94;--rule:#2A2A26;--rule-strong:#F1F1EC;
+    --red:#FF4A3D;--band:#161613;--field:#161613;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--f-sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding-inline:20px;padding-block:0}
+  @media (max-width:520px){.wrap{padding-inline:16px}}
+  h1,h2,h3{margin:0;font-weight:700;letter-spacing:-0.01em;text-wrap:balance}
+  p{margin:0}
+  .mono{font-family:var(--f-mono)}
+  .tnum{font-variant-numeric:tabular-nums}
+
+  header.mast{border-top:6px solid var(--red);padding-top:20px;padding-bottom:18px;border-bottom:1px solid var(--rule-strong)}
+  header.mast h1{font-size:clamp(28px,6vw,42px);line-height:1}
+  header.mast p{margin-top:8px;color:var(--mute);font-size:15px;max-width:46ch}
+  .kick{font-family:var(--f-mono);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--red);margin-bottom:10px}
+
+  form{padding-block:8px 0}
+  .q{padding-block:22px;border-bottom:1px solid var(--rule)}
+  .q-head{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:baseline;margin-bottom:12px}
+  .q-no{font-family:var(--f-mono);font-size:12px;color:var(--red)}
+  .q-head h2{font-size:16px}
+  .opts{display:grid;gap:8px}
+  .opts.two{grid-template-columns:1fr 1fr}
+  @media (max-width:440px){.opts.two{grid-template-columns:1fr}}
+  .opt{display:block;position:relative}
+  .opt input{position:absolute;opacity:0;width:1px;height:1px}
+  .opt span{display:block;border:1px solid var(--rule);background:var(--field);
+    padding:11px 13px;font-size:14px;cursor:pointer;line-height:1.35}
+  .opt span .sub{display:block;font-size:11px;color:var(--mute);font-family:var(--f-mono);margin-top:2px}
+  .opt:hover span{border-color:var(--mute)}
+  .opt input:checked + span{border-color:var(--red);box-shadow:inset 3px 0 0 var(--red);background:var(--band)}
+  .opt input:focus-visible + span{outline:2px solid var(--red);outline-offset:2px}
+
+  .actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding-block:22px}
+  button{font-family:var(--f-sans);font-size:15px;font-weight:700;cursor:pointer;border:1px solid var(--rule-strong)}
+  .go{background:var(--red);color:#fff;border-color:var(--red);padding:13px 28px;letter-spacing:0.02em}
+  .go:hover{filter:brightness(1.05)}
+  .reset{background:transparent;color:var(--ink);padding:13px 20px}
+  .warn{color:var(--red);font-size:13px;font-family:var(--f-mono)}
+
+  .hint{font-family:var(--f-mono);font-size:11px;color:var(--red);letter-spacing:0.04em;margin-left:8px}
+  .other{margin-top:14px}
+  .other-lab{display:block;font-family:var(--f-mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--mute);margin-bottom:6px}
+  input[type=text]{width:100%;border:1px solid var(--rule);background:var(--field);color:var(--ink);
+    font-family:var(--f-sans);font-size:14px;padding:11px 13px}
+  input[type=text]:focus{outline:2px solid var(--red);outline-offset:2px;border-color:var(--red)}
+  input[type=text]::placeholder{color:var(--mute)}
+
+  .memo{border:1px solid var(--rule);background:var(--band);padding:14px 16px;margin-top:16px;margin-bottom:4px}
+  .memo-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  @media (max-width:520px){.memo-grid{grid-template-columns:1fr}}
+  .memo-grid label{display:block;font-family:var(--f-mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--mute)}
+  .memo-grid input{margin-top:5px}
+  .grp{margin-top:16px}
+  .grp:first-of-type{margin-top:4px}
+  .grp-h{font-family:var(--f-mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--rule)}
+  .memo-out{border:1px solid var(--rule-strong);padding:14px 16px;margin-bottom:18px;font-size:13.5px}
+  .memo-out .r{display:grid;grid-template-columns:96px 1fr;gap:6px 12px;padding-block:3px}
+  .memo-out .r .k{font-family:var(--f-mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--mute);padding-top:2px}
+
+  /* Result */
+  #result{margin-top:6px}
+  .rslt{border-top:6px solid var(--red);background:var(--band);padding:24px 22px 26px;margin-bottom:20px}
+  .rslt .lab{font-family:var(--f-mono);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--red)}
+  .rslt .big{font-size:clamp(26px,6vw,40px);line-height:1.02;margin-top:8px}
+  .rslt .big .lv{font-family:var(--f-mono);font-weight:500}
+  .rslt .plan-line{margin-top:10px;font-size:15px}
+
+  .spine{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:20px 0}
+  .spine .cell{border:1px solid var(--rule);padding:8px 6px;text-align:center;font-family:var(--f-mono);font-size:12px;color:var(--mute)}
+  .spine .cell.on{border-color:var(--red);color:#fff;background:var(--red)}
+  .spine .cell .n{display:block;font-size:16px;line-height:1.1}
+  .spine .cell .t{display:block;font-size:9px;letter-spacing:0.04em;margin-top:2px}
+
+  .price-line{display:flex;gap:24px;flex-wrap:wrap;border-block:1px solid var(--rule-strong);padding-block:16px;margin-bottom:18px}
+  .price-line .item .k{font-family:var(--f-mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--mute)}
+  .price-line .item .v{font-family:var(--f-mono);font-size:22px;font-variant-numeric:tabular-nums;margin-top:2px}
+  .price-line .item .u{font-size:11px;color:var(--mute)}
+
+  .why{margin:0 0 18px}
+  .why h3{font-size:13px;font-family:var(--f-mono);letter-spacing:0.08em;text-transform:uppercase;color:var(--mute);margin-bottom:10px}
+  .why ul{list-style:none;margin:0;padding:0;display:grid;gap:0}
+  .why li{display:grid;grid-template-columns:20px 1fr;gap:10px;padding-block:9px;border-bottom:1px solid var(--rule);font-size:14px}
+  .why li:last-child{border-bottom:0}
+  .why li .m{font-family:var(--f-mono);color:var(--red)}
+
+  .next{border:1px solid var(--rule-strong);padding:16px 18px;display:flex;gap:14px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+  .next .t{font-weight:700;font-size:15px}
+  .next .c{font-family:var(--f-mono);font-size:12px;color:var(--mute)}
+
+  .foot{padding-block:26px 44px;color:var(--mute);font-family:var(--f-mono);font-size:11px;line-height:1.8;border-top:1px solid var(--rule);margin-top:22px}
+  .foot b{color:var(--ink)}
+  .draft{color:var(--red)}
+
+  .ref{margin-top:24px;border-top:1px solid var(--rule-strong)}
+  .ref summary{cursor:pointer;padding-block:16px;font-family:var(--f-mono);font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--red);list-style:none}
+  .ref summary::-webkit-details-marker{display:none}
+  .ref summary::before{content:"+  "}
+  .ref[open] summary::before{content:"\2212  "}
+  .ref .tbl{overflow-x:auto}
+  .ref table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px;min-width:520px}
+  .ref th,.ref td{border:1px solid var(--rule);padding:8px 10px;text-align:left;vertical-align:top}
+  .ref th{background:var(--band);font-family:var(--f-mono);font-size:10px;letter-spacing:0.05em;text-transform:uppercase;color:var(--mute);font-weight:500}
+  .ref td.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .ref .note{font-family:var(--f-mono);font-size:11px;color:var(--mute);line-height:1.7}
+  .cnote{border:1px solid var(--red);padding:11px 13px;margin-bottom:18px;font-size:13px;line-height:1.5}
+  .cnote b{color:var(--red)}
+
+  @media print{
+    :root{--paper:#fff;--ink:#000;--mute:#444;--rule:#bbb;--rule-strong:#000;--red:#c01000;--band:#f3f3f3;--field:#fff}
+    form,.actions{display:none}
+    .rslt,.why,.next{break-inside:avoid}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  :focus-visible{outline:2px solid var(--red);outline-offset:2px}
+</style>
+
 <div class="wrap">
-  <header>
-    <div class="kicker">HORIZON SHIELD</div>
-    <h1>AI社員 レベル<span class="r">診断</span></h1>
-    <div class="lead">3つの質問に答えると、おすすめのレベル・料金の目安・入れ方が表示されます。</div>
+  <header class="mast">
+    <div class="kick">その場で必要なレベルがわかる</div>
+    <h1>AI社員 レベル診断</h1>
+    <p>営業先で6問に答えるだけ。御社に合うエージェントのレベルと、料金の目安、入れ方がその場で出ます。</p>
   </header>
-  <main id="app"></main>
-  <div class="foot">HORIZON SHIELD ／ 診断結果は目安です。導入前に個別にご案内します。</div>
+
+  <form id="f" novalidate>
+
+    <div class="memo">
+      <div class="memo-grid">
+        <label>会社名<input type="text" id="m_co" name="m_co" autocomplete="off" placeholder="例：〇〇工務店"></label>
+        <label>ご担当者<input type="text" id="m_person" name="m_person" autocomplete="off" placeholder="例：〇〇 様"></label>
+        <label>ヒアリング日<input type="text" id="m_date" name="m_date" autocomplete="off"></label>
+      </div>
+    </div>
+
+    <div class="q" data-q="industry">
+      <div class="q-head"><span class="q-no">Q1</span><h2>業種は？</h2></div>
+      <div class="opts two">
+        <label class="opt"><input type="radio" name="industry" value="construction"><span>建設・リフォーム<span class="sub">見積・原価の道具がそのまま効く</span></span></label>
+        <label class="opt"><input type="radio" name="industry" value="food"><span>飲食<span class="sub">専用の道具一式を作る</span></span></label>
+        <label class="opt"><input type="radio" name="industry" value="retail"><span>小売・サービス<span class="sub">専用の道具一式を作る</span></span></label>
+        <label class="opt"><input type="radio" name="industry" value="other"><span>その他<span class="sub">専用の道具一式を作る</span></span></label>
+      </div>
+    </div>
+
+    <div class="q" data-q="size">
+      <div class="q-head"><span class="q-no">Q2</span><h2>従業員数は？</h2></div>
+      <div class="opts two">
+        <label class="opt"><input type="radio" name="size" value="0"><span>1人</span></label>
+        <label class="opt"><input type="radio" name="size" value="1"><span>2〜9人</span></label>
+        <label class="opt"><input type="radio" name="size" value="2"><span>10〜30人</span></label>
+        <label class="opt"><input type="radio" name="size" value="3"><span>30〜100人</span></label>
+        <label class="opt"><input type="radio" name="size" value="4"><span>100人以上</span></label>
+      </div>
+    </div>
+
+    <div class="q" data-q="stores">
+      <div class="q-head"><span class="q-no">Q3</span><h2>拠点・店舗の数は？</h2></div>
+      <div class="opts two">
+        <label class="opt"><input type="radio" name="stores" value="0"><span>1つ</span></label>
+        <label class="opt"><input type="radio" name="stores" value="1"><span>2〜3つ</span></label>
+        <label class="opt"><input type="radio" name="stores" value="2"><span>4つ以上</span></label>
+      </div>
+    </div>
+
+    <div class="q" data-q="org">
+      <div class="q-head"><span class="q-no">Q4</span><h2>組織の形は？</h2></div>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="org" value="0"><span>一体で回している<span class="sub">部門の区切りは薄い</span></span></label>
+        <label class="opt"><input type="radio" name="org" value="1"><span>部門に分かれている<span class="sub">経理・営業・現場など</span></span></label>
+        <label class="opt"><input type="radio" name="org" value="2"><span>執行部（経営層）がある<span class="sub">機密を扱う層がある</span></span></label>
+      </div>
+    </div>
+
+    <div class="q" data-q="need">
+      <div class="q-head"><span class="q-no">Q5</span><h2>やらせたい・任せたい仕事は？<span class="hint">当てはまるものを全部</span></h2></div>
+
+      <div class="grp">
+        <div class="grp-h">受付・調べもの</div>
+        <div class="opts">
+          <label class="opt"><input type="checkbox" name="need" value="1" data-area="uketsuke"><span>電話・問い合わせの一次対応</span></label>
+          <label class="opt"><input type="checkbox" name="need" value="1" data-area="uketsuke"><span>予約・受付の対応</span></label>
+          <label class="opt"><input type="checkbox" name="need" value="1" data-area="uketsuke"><span>相場・規定・仕様の調べもの</span></label>
+          <label class="opt"><input type="checkbox" name="need" value="1" data-area="uketsuke"><span>議事録・文字起こし・要約</span></label>
+        </div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-h">事務・書類の作成</div>
+        <div class="opts">
+          <label class="opt"><input type="checkbox" name="need" value="2" data-area="jimu"><span>見積書の作成</span></label>
+          <label class="opt"><input type="checkbox" name="need" value="2" data-area="jimu"><span>請求書の発行</span></label>
+          <label class="opt"><input type="checkbox" name="need" value="2" data-area="jimu"><span>原価・仕入れの照合</span></label>
+          <label class="opt"><input type="checkbox" name="need" value="2" data-area="jimu"><span>日報・報告書の作成</span></label>
+          <label class="opt"><input type="checkbox" name="need" value="2" data-area="jimu"><span>発注・在庫の管理</span></label>
+          <label class="opt"><input type="checkbox" name="need" value="2" data-area="jimu"><span>シフト・勤怠の集計</span></label>
+          <label class="opt"><input type="checkbox" name="need" value="2" data-area="jimu"><span>領収書・経費の仕分け下書き</span></label>
+        </div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-h">まとめ・見張り</div>
+        <div class="opts">
+          <label class="opt"><input type="checkbox" name="need" value="3" data-area="mihari"><span>相見積の比較・業者チェック</span></label>
+          <label class="opt"><input type="checkbox" name="need" value="3" data-area="mihari"><span>抜け・期限・取りこぼしの見張り</span></label>
+          <label class="opt"><input type="checkbox" name="need" value="3" data-area="mihari"><span>クレーム・トラブルの一次分析</span></label>
+          <label class="opt"><input type="checkbox" name="need" value="3" data-area="mihari"><span>売上・原価率の集計と気づき</span></label>
+        </div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-h">経営・分析</div>
+        <div class="opts">
+          <label class="opt"><input type="checkbox" name="need" value="4" data-area="keiei"><span>経営数字の分析・レポート</span></label>
+          <label class="opt"><input type="checkbox" name="need" value="4" data-area="keiei"><span>資金繰り・予実の管理</span></label>
+          <label class="opt"><input type="checkbox" name="need" value="4" data-area="keiei"><span>リード開拓・営業リストづくり</span></label>
+        </div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-h">執行・機密</div>
+        <div class="opts">
+          <label class="opt"><input type="checkbox" name="need" value="5" data-area="shikko"><span>人事・給与など機密の取り扱い</span></label>
+          <label class="opt"><input type="checkbox" name="need" value="5" data-area="shikko"><span>全社横断の戦略材料・統括</span></label>
+        </div>
+      </div>
+
+      <div class="other">
+        <label class="other-lab" for="need_other">その他 やらせたいこと（自由入力）</label>
+        <input type="text" id="need_other" name="need_other" autocomplete="off" placeholder="例：SNS運用、採用の書類、補助金の下調べ など">
+      </div>
+    </div>
+
+    <div class="q" data-q="auto">
+      <div class="q-head"><span class="q-no">Q6</span><h2>任せたい判断の重さは？</h2></div>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="auto" value="1"><span>決まった手順だけ</span></label>
+        <label class="opt"><input type="radio" name="auto" value="2"><span>下書きまで（承認は人）</span></label>
+        <label class="opt"><input type="radio" name="auto" value="3"><span>気づいて知らせてほしい</span></label>
+        <label class="opt"><input type="radio" name="auto" value="4"><span>決めた枠内は実行してよい</span></label>
+        <label class="opt"><input type="radio" name="auto" value="5"><span>機密を含め全社を任せる</span></label>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="go">診断する</button>
+      <button type="button" class="reset" id="reset">最初から</button>
+      <span class="warn" id="warn" hidden>すべての質問に答えてください</span>
+    </div>
+  </form>
+
+  <div id="result" hidden></div>
+
+  <details class="ref">
+    <summary>レベルと料金の早見表</summary>
+    <div class="tbl">
+      <table>
+        <tr><th>Lv</th><th>呼び名</th><th>できること</th><th>構築費</th><th>運用費（込み時間）</th></tr>
+        <tr><td class="n">1</td><td>受付・調べもの</td><td>調べ物・定型応答</td><td class="n">¥300,000</td><td class="n">¥30,000／月（3h）</td></tr>
+        <tr><td class="n">2</td><td>事務担当</td><td>見積・請求・書類の下書き</td><td class="n">¥800,000</td><td class="n">¥60,000／月（6h）</td></tr>
+        <tr><td class="n">3</td><td>主任</td><td>部門まるごと＋見張り・異常検知</td><td class="n">¥1,500,000</td><td class="n">¥120,000／月（12h）</td></tr>
+        <tr><td class="n">4</td><td>課長・自律</td><td>枠内は自分で実行・経営分析</td><td class="n">¥2,500,000</td><td class="n">¥250,000／月（20h）</td></tr>
+        <tr><td class="n">5</td><td>執行・統括・機密</td><td>執行部専用・機密・下位を統括</td><td class="n">¥4,000,000〜</td><td class="n">¥500,000〜／月（40h）</td></tr>
+      </table>
+    </div>
+    <div class="note">超過1h ¥22,000。レベル1〜3はAI利用料を運用費に込み（客のClaude契約不要）、レベル4以上はお客様のClaude契約が別途必要。建設以外は専用ツール一式を作るため構築費は要見積。</div>
+    <div class="note" style="margin-top:6px">プラン: 単体 ／ 部門（2体目〜構築30%off） ／ 全社（2体目〜構築40%off・運用合計15%off）</div>
+  </details>
+
+  <div class="foot">
+    <b>The HORIZ音s株式会社</b> ／ AI社員 ・ 内部MCP<br>
+    お取扱い ＿＿＿＿＿＿ ／ お問い合わせ TEL ＿＿＿＿＿＿<br>
+    <span>※ 料金は目安（税込）。正式なお見積りは別途ご提示します。</span>
+  </div>
 </div>
 
 <script>
-/* ============================================================
-   ▼▼▼ ここだけ直せば料金とレベル定義が変わる（TOshi編集ゾーン）▼▼▼
-   price は「目安」。ガイドの正式な金額に差し替えること。
-   ============================================================ */
-var LEVELS = {
-  L1: {
-    name: "レベル1 ｜ 単体",
-    price: "月額 39,800円〜（目安・要確認）",
-    how:  "単体導入。いまの業務のうち1つ（例：問い合わせの一次対応）を、AI社員1体に任せます。まず1体から始めたい方へ。"
-  },
-  L2: {
-    name: "レベル2 ｜ 部門",
-    price: "月額 128,000円〜（目安・要確認）",
-    how:  "部門導入。複数の業務をまとめて任せ、社内の道具（見積・資料づくり・台帳）とつなぎます。1部門を丸ごと支えたい方へ。"
-  },
-  L3: {
-    name: "レベル3 ｜ 全社",
-    price: "個別お見積り",
-    how:  "全社導入。部門をまたいで動き、システムの見張り役（保全）まで含めます。会社全体をAIで底上げしたい方へ。"
-  }
-};
-/* ============================================================
-   ▲▲▲ 編集ゾーンここまで ▲▲▲
-   ============================================================ */
-
-var QUESTIONS = [
-  { key:"gyoshu", q:"1. どんな業種ですか？", multi:false,
-    opts:["建設・リフォーム","士業・管理業","医療・介護","小売・飲食","その他"] },
-  { key:"kibo", q:"2. 会社の規模は？", multi:false,
-    opts:["〜数名","10〜30名","30名以上"] },
-  { key:"shigoto", q:"3. AIにやってほしい仕事は？（いくつでも）", multi:true,
-    opts:["問い合わせの一次対応","見積・資料づくり","事務・書類処理","集客・SNS発信","専門知識の応答"] }
-];
-
-var state = { step:0, ans:{ gyoshu:null, kibo:null, shigoto:[] } };
-var app = document.getElementById("app");
-
-function recommend(a){
-  var big = a.kibo === "30名以上";
-  var mid = a.kibo === "10〜30名";
-  var tasks = a.shigoto.length;
-  var pro = a.shigoto.indexOf("専門知識の応答") >= 0;
-  if (big || pro || tasks >= 4) return "L3";
-  if (mid || tasks >= 2) return "L2";
-  return "L1";
-}
-
-function render(){
-  if (state.step < QUESTIONS.length){ renderQ(QUESTIONS[state.step]); }
-  else { renderResult(); }
-}
-
-function renderQ(item){
-  var a = state.ans[item.key];
-  var html = '<div class="step">STEP ' + (state.step+1) + ' / ' + QUESTIONS.length + '</div>';
-  html += '<div class="q">' + item.q + '</div><div class="opts">';
-  for (var i=0;i<item.opts.length;i++){
-    var o = item.opts[i];
-    var sel = item.multi ? (a.indexOf(o) >= 0) : (a === o);
-    html += '<button class="opt' + (sel?' sel':'') + '" data-o="' + i + '">' +
-            '<span class="n">' + String.fromCharCode(65+i) + '</span>' + o + '</button>';
-  }
-  html += '</div>';
-  if (item.multi) html += '<div class="hint">当てはまるものを全部えらんでください。</div>';
-  html += '<div class="row">';
-  html += '<button class="btn" id="back"' + (state.step===0?' disabled':'') + '>もどる</button>';
-  var ready = item.multi ? (a.length>0) : (a!==null);
-  html += '<button class="btn primary" id="next"' + (ready?'':' disabled') + '>' +
-          (state.step===QUESTIONS.length-1?'結果を見る':'つぎへ') + '</button>';
-  html += '</div>';
-  app.innerHTML = html;
-
-  var opts = app.querySelectorAll(".opt");
-  for (var j=0;j<opts.length;j++){
-    opts[j].onclick = function(){
-      var o = item.opts[ parseInt(this.getAttribute("data-o"),10) ];
-      if (item.multi){
-        var idx = state.ans[item.key].indexOf(o);
-        if (idx>=0) state.ans[item.key].splice(idx,1); else state.ans[item.key].push(o);
-      } else {
-        state.ans[item.key] = o;
-      }
-      render();
-    };
-  }
-  var back = document.getElementById("back");
-  if (back) back.onclick = function(){ if(state.step>0){ state.step--; render(); } };
-  var next = document.getElementById("next");
-  if (next && !next.disabled) next.onclick = function(){ state.step++; render(); };
-}
-
-function renderResult(){
-  var a = state.ans;
-  var lv = LEVELS[ recommend(a) ];
-  var html = '<div class="result">';
-  html += '<div class="rk">診断結果 ／ おすすめレベル</div>';
-  html += '<div class="lv">' + lv.name.replace("レベル","レベル").replace("｜",'<span class="r">｜</span>') + '</div>';
-  html += '<div class="block"><div class="k">料金の目安</div><div class="v">' + lv.price + '</div></div>';
-  html += '<div class="block"><div class="k">入れ方</div><div class="d">' + lv.how + '</div></div>';
-  html += '<div class="memo"><div class="k">ヒアリングメモ（この画面をそのままお見せください）</div><table>' +
-          '<tr><td class="l">業種</td><td>' + (a.gyoshu||'-') + '</td></tr>' +
-          '<tr><td class="l">規模</td><td>' + (a.kibo||'-') + '</td></tr>' +
-          '<tr><td class="l">やりたい仕事</td><td>' + (a.shigoto.length? a.shigoto.join('、') : '-') + '</td></tr>' +
-          '</table></div>';
-  html += '<div class="note">この結果は目安です。実際の構成・料金・補助金の使い方は、担当より個別にご案内します。</div>';
-  html += '<div class="row"><button class="btn" id="again">もう一度</button></div>';
-  html += '</div>';
-  app.innerHTML = html;
-  document.getElementById("again").onclick = function(){
-    state = { step:0, ans:{ gyoshu:null, kibo:null, shigoto:[] } };
-    render();
+(function(){
+  var LEVELS={
+    1:{name:"受付・調べもの",build:300000,run:30000,hours:3},
+    2:{name:"事務担当",build:800000,run:60000,hours:6},
+    3:{name:"主任",build:1500000,run:120000,hours:12},
+    4:{name:"課長・自律",build:2500000,run:250000,hours:20},
+    5:{name:"執行・統括・機密",build:4000000,run:500000,hours:40}
   };
-}
+  var SHORT={1:"受付",2:"事務",3:"主任",4:"課長",5:"執行"};
+  var AUTO_LABEL={1:"決まった手順だけ",2:"下書きまで",3:"気づいて知らせて",4:"枠内は実行",5:"機密含め全社"};
+  var IND_LABEL={construction:"建設・リフォーム",food:"飲食",retail:"小売・サービス",other:"その他"};
+  var SIZE_LABEL={0:"1人",1:"2〜9人",2:"10〜30人",3:"30〜100人",4:"100人以上"};
 
-render();
+  var f=document.getElementById('f');
+  var warn=document.getElementById('warn');
+  var out=document.getElementById('result');
+  var mdate=document.getElementById('m_date');
 
-if ("serviceWorker" in navigator){
-  window.addEventListener("load", function(){
-    navigator.serviceWorker.register("./sw.js").catch(function(){});
+  function today(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+  if(mdate && !mdate.value) mdate.value=today();
+
+  function yen(n){return "¥"+n.toLocaleString('en-US');}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function val(name){var el=f.querySelector('input[name="'+name+'"]:checked');return el?el.value:null;}
+  function tv(id){var e=f.querySelector('#'+id);return e?(e.value||'').trim():'';}
+  function uniq(a){var o={},r=[];a.forEach(function(x){if(x&&!o[x]){o[x]=1;r.push(x);}});return r;}
+  function checkedNeeds(){
+    return Array.prototype.map.call(f.querySelectorAll('input[name="need"]:checked'),function(el){
+      var sp=el.parentNode.querySelector('span');
+      return {lv:+el.value, area:el.getAttribute('data-area'), label:sp?sp.textContent.trim():''};
+    });
+  }
+
+  // Free-text keyword scan. Only raises the level, never lowers it. Fuzzy by design.
+  function scanHint(t){
+    if(!t) return 0;
+    if(/機密|経営|戦略|役員|人事|財務|統括|M&A|全社/.test(t)) return 5;
+    if(/分析|レポート|ダッシュボード|数字|KPI|予測|資金繰り/.test(t)) return 4;
+    if(/見張り|監視|異常|期限|チェック|品質|進捗|工程/.test(t)) return 3;
+    if(/見積|請求|書類|作成|入力|記帳|仕訳|発注|在庫|シフト|予約|採用/.test(t)) return 2;
+    if(/調べ|電話|問い合わせ|受付|クレーム|FAQ|要約|文字起こし|SNS/.test(t)) return 1;
+    return 0;
+  }
+
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var singles=['industry','size','stores','org','auto'];
+    for(var i=0;i<singles.length;i++){ if(val(singles[i])===null){ warn.hidden=false; return; } }
+    if(checkedNeeds().length===0 && !tv('need_other')){ warn.hidden=false; return; }
+    warn.hidden=true;
+    render(diagnose());
+    out.scrollIntoView({behavior:'smooth',block:'start'});
   });
-}
+  document.getElementById('reset').addEventListener('click',function(){
+    f.reset(); out.hidden=true; out.innerHTML=''; warn.hidden=true;
+    if(mdate) mdate.value=today();
+    document.querySelector('header').scrollIntoView({behavior:'smooth'});
+  });
+
+  function diagnose(){
+    var industry=val('industry');
+    var size=+val('size'), stores=+val('stores'), org=+val('org'), auto=+val('auto');
+    var construction=(industry==='construction');
+
+    var needs=checkedNeeds();
+    var levels=needs.map(function(n){return n.lv;});
+    var areas=uniq(needs.map(function(n){return n.area;}));
+    var needMax=levels.length?Math.max.apply(null,levels):0;
+    var needMin=levels.length?Math.min.apply(null,levels):0;
+
+    var other=tv('need_other');
+    var hint=scanHint(other);
+
+    var base=Math.max(needMax,auto,hint);
+    var rec=base, ideal=null;
+    if(size===0 && rec>2){ ideal=rec; rec=2; }
+    else if(size===1 && rec>3){ ideal=rec; rec=3; }
+
+    var breadth = areas.length>=3 || (levels.length>=2 && (needMax-needMin)>=2);
+
+    var multiDept=org>=1, multiStore=stores>=1, exec=(org===2 || base===5);
+    var plan;
+    if(exec && multiDept) plan='zensha';
+    else if(multiDept || multiStore) plan='bumon';
+    else plan='tantai';
+    if(breadth && size>=2 && plan==='tantai') plan='bumon';
+
+    var why=[];
+    if(needs.length){
+      why.push("選んだ仕事の中で一番高いのがレベル"+needMax+"。ここに推奨レベルを合わせます。");
+    }
+    if(other){
+      if(hint>0){ why.push("自由入力「"+esc(other)+"」はレベル"+hint+"相当と読み、判定に反映しています。"); }
+      else{ why.push("自由入力「"+esc(other)+"」はヒアリングで内容を詰めて反映します。"); }
+    }
+    why.push("任せたい判断が「"+AUTO_LABEL[auto]+"」＝レベル"+auto+"相当。");
+    if(breadth){ why.push("やらせたいことが幅広い（"+areas.length+"分野）ので、1体に詰めるより複数体（部門/全社）や上位レベルの検討が向きます。"); }
+    if(ideal!==null){ why.push("従業員"+SIZE_LABEL[size]+"の規模なら、本来レベル"+ideal+"相当でも過剰になりがち。まずレベル"+rec+"で始め、育てて上げるのが堅実です。"); }
+    if(plan==='zensha'){ why.push("部門が分かれ、執行部があるので全社プラン向き。各部門にレベル2〜3、執行部にレベル5を置き、機密は壁で遮断します。"); }
+    else if(plan==='bumon'){ why.push((multiStore?"複数拠点・":"")+"複数の仕事/部門があるので部門プランが効きます。2体目以降は構築費30%off。"); }
+    else{ why.push("まずは1部署に1体（単体プラン）から。効いてから広げるのが安全です。"); }
+    if(!construction){ why.push(IND_LABEL[industry]+"は建設向けの道具がそのまま使えないため、専用の道具一式を作ります（構築費に含む・要見積）。"); }
+
+    return {rec:rec, ideal:ideal, plan:plan, construction:construction, industry:industry, size:size,
+            tasks:needs.map(function(n){return n.label;}), other:other, why:why,
+            memo:{co:tv('m_co'), person:tv('m_person'), date:tv('m_date')}};
+  }
+
+  function render(r){
+    var L=LEVELS[r.rec];
+    var buildStr=(r.construction? yen(L.build) : yen(L.build)+"〜");
+    var runStr=yen(L.run);
+
+    var planName={tantai:"単体プラン",bumon:"部門プラン",zensha:"全社プラン"}[r.plan];
+    var planDesc={
+      tantai:"1部署に1体から。",
+      bumon:"同一/複数部門に2〜3体。2体目以降の構築費 30%off、運用費は体ごと。",
+      zensha:"各部門にレベル2〜3＋執行部にレベル5。2体目から構築費40%off・運用費合計15%off。全社は要見積。"
+    }[r.plan];
+
+    var spine='';
+    for(var i=1;i<=5;i++){
+      spine+='<div class="cell'+(i===r.rec?' on':'')+'"><span class="n">'+ (i<10?'0'+i:i) +'</span><span class="t">'+SHORT[i]+'</span></div>';
+    }
+
+    var whyLi=r.why.map(function(w){return '<li><span class="m">＊</span><span>'+w+'</span></li>';}).join('');
+
+    var idealNote = r.ideal!==null
+      ? '<p class="plan-line" style="color:var(--mute);font-size:13px">本来はレベル'+r.ideal+'相当。規模に合わせてレベル'+r.rec+'から。</p>'
+      : '';
+
+    // memo + selected tasks block
+    var m=r.memo, memoRows='';
+    if(m.co) memoRows+='<div class="r"><span class="k">会社名</span><span>'+esc(m.co)+'</span></div>';
+    if(m.person) memoRows+='<div class="r"><span class="k">ご担当者</span><span>'+esc(m.person)+'</span></div>';
+    if(m.date) memoRows+='<div class="r"><span class="k">ヒアリング日</span><span>'+esc(m.date)+'</span></div>';
+    var taskStr = r.tasks.length ? r.tasks.map(esc).join('、') : '（チェックなし）';
+    memoRows+='<div class="r"><span class="k">選んだ仕事</span><span>'+taskStr+'</span></div>';
+    if(r.other) memoRows+='<div class="r"><span class="k">その他</span><span>'+esc(r.other)+'</span></div>';
+    var memoBlock='<div class="memo-out">'+memoRows+'</div>';
+
+    var priceNote = r.construction ? '' : '<div class="item"><div class="k">注意</div><div class="v" style="font-size:13px;line-height:1.4;font-family:var(--f-sans)">'+IND_LABEL[r.industry]+'は専用の道具一式を作るため構築費は要見積</div></div>';
+
+    var claudeNote = r.rec>=4
+      ? '<div class="cnote"><b>お客様のClaude（Anthropic）契約が別途必要です。</b>レベル4以上は自律で動くぶん使用量が大きく、経営・機密データも扱うため、AIのご契約はお客様名義で持っていただきます（実費はお客様負担・当社運用費とは別。取得と設定は当社が支援）。</div>'
+      : '';
+
+    out.innerHTML =
+      memoBlock+
+      '<div class="rslt">'+
+        '<div class="lab">診断結果 ／ 推奨レベル</div>'+
+        '<div class="big"><span class="lv">レベル'+r.rec+'</span> '+L.name+'</div>'+
+        '<p class="plan-line">入れ方: <b>'+planName+'</b> ・ '+planDesc+'</p>'+
+        idealNote+
+      '</div>'+
+      '<div class="spine">'+spine+'</div>'+
+      '<div class="price-line">'+
+        '<div class="item"><div class="k">構築費（目安）</div><div class="v tnum">'+buildStr+'</div></div>'+
+        '<div class="item"><div class="k">運用費（目安）</div><div class="v tnum">'+runStr+'<span class="u"> ／月・月'+L.hours+'時間込み</span></div></div>'+
+        priceNote+
+      '</div>'+
+      claudeNote+
+      '<div class="why"><h3>なぜこのレベルか</h3><ul>'+whyLi+'</ul></div>'+
+      '<div class="next">'+
+        '<div><div class="t">次の一歩</div><div class="c">無料デモ／ヒアリング（1〜3日）→ 構築・検証（3〜4週）→ 試し運転（1週）→ 運用開始</div></div>'+
+        '<button type="button" class="go" onclick="window.print()">この結果を印刷</button>'+
+      '</div>';
+    out.hidden=false;
+  }
+})();
 </script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
 </body>
 </html>
