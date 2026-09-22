@@ -165,6 +165,10 @@
         <label class="opt"><input type="radio" name="industry" value="retail"><span>小売・サービス<span class="sub">専用の道具一式を作る</span></span></label>
         <label class="opt"><input type="radio" name="industry" value="other"><span>その他<span class="sub">専用の道具一式を作る</span></span></label>
       </div>
+      <div class="other" id="ind_other_wrap" hidden>
+        <label class="other-lab" for="ind_other">その他の業種・職種（自由入力）</label>
+        <input type="text" id="ind_other" name="ind_other" autocomplete="off" placeholder="例：訪問看護、士業、運送、製造、美容 など">
+      </div>
     </div>
 
     <div class="q" data-q="size">
@@ -292,7 +296,7 @@
   </details>
 
   <div class="foot">
-    <b>The HORIZ音s株式会社</b> ／ AI社員 ・ 内部MCP<br>
+    <b>株式会社八工門（やくも）</b> ／ AI社員<br>
     お取扱い ＿＿＿＿＿＿ ／ お問い合わせ TEL ＿＿＿＿＿＿<br>
     <span>※ 料金は目安（税込）。正式なお見積りは別途ご提示します。</span>
   </div>
@@ -347,6 +351,7 @@
     e.preventDefault();
     var singles=['industry','size','stores','org','auto'];
     for(var i=0;i<singles.length;i++){ if(val(singles[i])===null){ warn.hidden=false; return; } }
+    if(val('industry')==='other' && !tv('ind_other')){ warn.hidden=false; return; }
     if(checkedNeeds().length===0 && !tv('need_other')){ warn.hidden=false; return; }
     warn.hidden=true;
     render(diagnose());
@@ -354,14 +359,25 @@
   });
   document.getElementById('reset').addEventListener('click',function(){
     f.reset(); out.hidden=true; out.innerHTML=''; warn.hidden=true;
+    var w0=document.getElementById('ind_other_wrap'); if(w0) w0.hidden=true;
     if(mdate) mdate.value=today();
     document.querySelector('header').scrollIntoView({behavior:'smooth'});
   });
+
+  // Q1「その他」を選んだときだけ、業種・職種の自由入力欄を出す
+  (function(){
+    var wrap=document.getElementById('ind_other_wrap');
+    Array.prototype.forEach.call(f.querySelectorAll('input[name="industry"]'),function(el){
+      el.addEventListener('change',function(){ if(wrap) wrap.hidden=(val('industry')!=='other'); });
+    });
+  })();
 
   function diagnose(){
     var industry=val('industry');
     var size=+val('size'), stores=+val('stores'), org=+val('org'), auto=+val('auto');
     var construction=(industry==='construction');
+    var indOther=tv('ind_other');
+    var indShow=(industry==='other' && indOther) ? indOther : IND_LABEL[industry];
 
     var needs=checkedNeeds();
     var levels=needs.map(function(n){return n.lv;});
@@ -400,9 +416,9 @@
     if(plan==='zensha'){ why.push("部門が分かれ、執行部があるので全社プラン向き。各部門にレベル2〜3、執行部にレベル5を置き、機密は壁で遮断します。"); }
     else if(plan==='bumon'){ why.push((multiStore?"複数拠点・":"")+"複数の仕事/部門があるので部門プランが効きます。2体目以降は構築費30%off。"); }
     else{ why.push("まずは1部署に1体（単体プラン）から。効いてから広げるのが安全です。"); }
-    if(!construction){ why.push(IND_LABEL[industry]+"は建設向けの道具がそのまま使えないため、専用の道具一式を作ります（構築費に含む・要見積）。"); }
+    if(!construction){ why.push(esc(indShow)+"は建設向けの道具がそのまま使えないため、専用の道具一式を作ります（構築費に含む・要見積）。"); }
 
-    return {rec:rec, ideal:ideal, plan:plan, construction:construction, industry:industry, size:size,
+    return {rec:rec, ideal:ideal, plan:plan, construction:construction, industry:industry, indOther:indOther, indShow:indShow, size:size,
             tasks:needs.map(function(n){return n.label;}), other:other, why:why,
             memo:{co:tv('m_co'), person:tv('m_person'), date:tv('m_date')}};
   }
@@ -435,12 +451,13 @@
     if(m.co) memoRows+='<div class="r"><span class="k">会社名</span><span>'+esc(m.co)+'</span></div>';
     if(m.person) memoRows+='<div class="r"><span class="k">ご担当者</span><span>'+esc(m.person)+'</span></div>';
     if(m.date) memoRows+='<div class="r"><span class="k">ヒアリング日</span><span>'+esc(m.date)+'</span></div>';
+    memoRows+='<div class="r"><span class="k">業種</span><span>'+esc(r.indShow)+'</span></div>';
     var taskStr = r.tasks.length ? r.tasks.map(esc).join('、') : '（チェックなし）';
     memoRows+='<div class="r"><span class="k">選んだ仕事</span><span>'+taskStr+'</span></div>';
     if(r.other) memoRows+='<div class="r"><span class="k">その他</span><span>'+esc(r.other)+'</span></div>';
     var memoBlock='<div class="memo-out">'+memoRows+'</div>';
 
-    var priceNote = r.construction ? '' : '<div class="item"><div class="k">注意</div><div class="v" style="font-size:13px;line-height:1.4;font-family:var(--f-sans)">'+IND_LABEL[r.industry]+'は専用の道具一式を作るため構築費は要見積</div></div>';
+    var priceNote = r.construction ? '' : '<div class="item"><div class="k">注意</div><div class="v" style="font-size:13px;line-height:1.4;font-family:var(--f-sans)">'+esc(r.indShow)+'は専用の道具一式を作るため構築費は要見積</div></div>';
 
     var claudeNote = r.rec>=4
       ? '<div class="cnote"><b>お客様のClaude（Anthropic）契約が別途必要です。</b>レベル4以上は自律で動くぶん使用量が大きく、経営・機密データも扱うため、AIのご契約はお客様名義で持っていただきます（実費はお客様負担・当社運用費とは別。取得と設定は当社が支援）。</div>'
