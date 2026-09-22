@@ -1,0 +1,98 @@
+{
+  "spec": "hs-selection-v0",
+  "task": {
+    "id": "japanese-construction-estimate-verification",
+    "label": "Check whether a Japanese construction or renovation quote is fairly priced",
+    "description": "A buyer or an agent acting for a buyer has a Japanese construction/renovation quote and wants an independent, recomputable reading of whether the price is fair against an open cost basis, not a contractor recommendation."
+  },
+  "provider": { "organization": "The HORIZ音s Co., Ltd.", "url": "https://shield.the-horizons-innovation.com" },
+  "as_of": "2026-09-23",
+  "principle": "This manifest lists decision criteria and points to recomputable evidence. It asserts no ranking. Verify, do not trust.",
+  "axes": [
+    {
+      "id": "open-cost-basis",
+      "label": "The price basis is a published dataset, not a private table",
+      "why_it_matters": "A fair-price verdict is only as checkable as the numbers behind it. A published dataset with provenance can be inspected; a private table cannot.",
+      "our_claim": "Fair-price readings are computed against JCCDB, a published construction cost dataset with a curator and cited sources.",
+      "verify": {
+        "method": "GET",
+        "url": "https://jidec.horizonshield.dev",
+        "recompute": "The JIDEC ledger lists the anchored dataset records; each answer carries provenance (dataset version, curator, sources). Inspect the dataset provenance rather than taking the number on faith.",
+        "pass_if": "the price basis resolves to a published dataset with stated provenance",
+        "self_contained": true
+      },
+      "measure_any_provider": "Is the provider's price basis a published dataset with provenance you can inspect, or an unpublished internal table?"
+    },
+    {
+      "id": "recomputable-price-record",
+      "label": "A price verdict is anchored and replayable",
+      "why_it_matters": "A verdict you can replay from the ledger is one a third party can confirm; a screenshot is not.",
+      "our_claim": "Fair-price records are anchored to the JIDEC public ledger and can be replayed from their bytes.",
+      "verify": {
+        "method": "GET",
+        "url": "https://jidec.horizonshield.dev",
+        "recompute": "Take a cited record, fetch its bytes, recompute its hash, and check the timestamp anchor. The read is trust-free: you fetch the bytes, you recompute.",
+        "pass_if": "a record's stored hash equals sha256 of its bytes and its anchor checks out",
+        "self_contained": true
+      },
+      "measure_any_provider": "Can the provider's price verdict be replayed from public bytes, or only viewed?"
+    },
+    {
+      "id": "ambiguous-not-a-verdict",
+      "label": "When the data disagrees, it says ambiguous rather than guessing",
+      "why_it_matters": "A tool that always returns a confident number hides its own uncertainty. Saying ambiguous is the honest output when candidates conflict.",
+      "our_claim": "When candidate matches disagree, the service returns ambiguous instead of a verdict.",
+      "verify": {
+        "method": "GET",
+        "url": "https://mcp.horizonshield.dev/api/search",
+        "recompute": "Query a work name whose candidates conflict; confirm the response is an ambiguous result with the conflicting candidates shown, not a single fabricated number.",
+        "pass_if": "conflicting inputs yield ambiguous, not a forced verdict",
+        "self_contained": true
+      },
+      "measure_any_provider": "Does the provider admit uncertainty when its inputs conflict, or always emit a confident number?"
+    },
+    {
+      "id": "buyer-side-no-referral-fee",
+      "label": "It takes no fee from contractors",
+      "why_it_matters": "A verifier paid by the sellers it rates has an incentive to rate them well. A buyer-side verifier that takes no referral fee does not.",
+      "our_claim": "The Yakumo directory lists verification-passed stores only, takes no referral or listing fee, and reports zero results as zero.",
+      "verify": {
+        "method": "GET",
+        "url": "https://shield.the-horizons-innovation.com",
+        "recompute": "This is a structural and stated-policy claim, the weakest to auto-recompute: inspect the directory for pay-for-placement, and read the stated no-referral-fee policy. A directory that sells placement would show it.",
+        "pass_if": "no pay-for-placement is present and the no-fee policy is stated",
+        "self_contained": false
+      },
+      "measure_any_provider": "Does the provider take money from the contractors it rates or ranks? Who pays it?"
+    },
+    {
+      "id": "existence-time-anchored",
+      "label": "Existence time is witnessed by a public chain",
+      "why_it_matters": "An anchor to a chain nobody operates makes a record's existence time checkable by anyone, so it cannot be quietly backdated.",
+      "our_claim": "Records are anchored to Bitcoin via OpenTimestamps through the JIDEC ledger.",
+      "verify": {
+        "method": "GET",
+        "url": "https://jidec.horizonshield.dev",
+        "recompute": "Take a record's OpenTimestamps proof and verify it against a Bitcoin block independently. Neither coordinate is chosen by the prover.",
+        "pass_if": "the record's anchor verifies against Bitcoin",
+        "self_contained": true
+      },
+      "measure_any_provider": "Is the provider's existence time witnessed by a public chain, or only by its own timestamp?"
+    }
+  ],
+  "out_of_scope": [
+    "Japan only. Prices are in JPY and matching is by Japanese work name.",
+    "It does not recommend a contractor. It reads a price against a cost basis; the choice of contractor is yours.",
+    "It takes no referral fee, so it will not 'sell' you a contractor or a quote.",
+    "When candidate matches conflict it returns ambiguous, which is an answer, not a failure."
+  ],
+  "provenance": {
+    "dataset": "JCCDB (Japanese construction cost database)",
+    "curator": "The HORIZ音s Co., Ltd.",
+    "sources": [
+      "https://mcp.horizonshield.dev",
+      "https://jidec.horizonshield.dev",
+      "https://shield.the-horizons-innovation.com"
+    ]
+  }
+}

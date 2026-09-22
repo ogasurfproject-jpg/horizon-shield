@@ -63,6 +63,122 @@ const CONFORMANCE_URL = "https://shield.the-horizons-innovation.com/verify-direc
 // 両方あれば 5 鍵が一致せねばならん。二つの申告が食い違う開示は開示ではない。
 // URI は識別子。同じ URI で仕様本文(ext/CONDUCT_EXT_v1.md と同じ文)を配る。
 const CONDUCT_EXT_URI = "https://gate.horizonshield.dev/ext/conduct/v1";
+// hs-selection-v0: served at /.well-known/selection.json (does not touch the signed card).
+const SELECTION_CONDUCT = {
+  "spec": "hs-selection-v0",
+  "task": {
+    "id": "mcp-conduct-verification",
+    "label": "Check how an MCP or A2A endpoint behaved before connecting",
+    "description": "An agent about to connect to an external MCP/A2A endpoint wants an independent, recomputable reading of how that endpoint behaved when it was measured, not a recommendation and not a trust score."
+  },
+  "provider": {
+    "organization": "The HORIZ音s Co., Ltd.",
+    "url": "https://shield.the-horizons-innovation.com"
+  },
+  "as_of": "2026-09-23",
+  "principle": "This manifest lists decision criteria and points to recomputable evidence. It asserts no ranking. Verify, do not trust.",
+  "axes": [
+    {
+      "id": "recomputable-verdict",
+      "label": "The verdict recomputes to its own hash",
+      "why_it_matters": "A verdict you cannot recompute is a claim. A verdict that carries the recipe to reproduce its own digest lets a stranger confirm it with no trust.",
+      "our_claim": "The verdict at /self carries record_sha256 and a recompute_note; removing those two fields and hashing the remainder in its given key order reproduces record_sha256.",
+      "verify": {
+        "method": "GET",
+        "url": "https://gate.horizonshield.dev/self",
+        "recompute": "GET /self; remove record_sha256 and recompute_note; JSON.stringify the remainder in its given key order; sha256 of that must equal record_sha256. The same body is also served at /record/<record_sha256>.",
+        "pass_if": "the recomputed hash equals record_sha256",
+        "self_contained": true
+      },
+      "measure_any_provider": "Does the provider let a third party recompute its verdict digest from the bytes, or only present a rendered result?"
+    },
+    {
+      "id": "honest-limits",
+      "label": "It states what it does not establish, and never says false",
+      "why_it_matters": "A tool that only reports strengths pushes you to trust it. A tool that publishes its own limits lets you decide.",
+      "our_claim": "/self carries does_not_establish, a non-empty list of what the measurement does not establish, and /is-verified returns true only on a full pass and null in every other case, never false.",
+      "verify": {
+        "method": "GET",
+        "url": "https://gate.horizonshield.dev/self",
+        "recompute": "GET /self; confirm does_not_establish is a non-empty array. Then GET /is-verified?endpoint=https://example.com/mcp and confirm verified is null, not false.",
+        "pass_if": "does_not_establish is non-empty and /is-verified never returns false",
+        "self_contained": true
+      },
+      "measure_any_provider": "Does the provider publish what its result does NOT establish, and does it avoid emitting a bare 'bad' boolean it cannot justify?"
+    },
+    {
+      "id": "anonymous-recompute",
+      "label": "A stranger can recompute with no account",
+      "why_it_matters": "If checking the result requires the operator's cooperation or a login, the result rests on trust in the operator.",
+      "our_claim": "Every verification endpoint is public and needs no account; the read path performs no measurement (a fresh measurement is POST /check).",
+      "verify": {
+        "method": "GET",
+        "url": "https://gate.horizonshield.dev/self",
+        "recompute": "GET this with no credentials; it returns 200 and a verdict with a recompute recipe. No token, cookie, or account is required.",
+        "pass_if": "200 without authentication",
+        "self_contained": true
+      },
+      "measure_any_provider": "Can a party other than the operator recompute the result, from public bytes, without an account?"
+    },
+    {
+      "id": "identity-bound-to-domain",
+      "label": "The signing keys are bound to the domain, registry-independent",
+      "why_it_matters": "Attribution that depends on a third-party registry disappears when the registry does. A key bound to the domain survives.",
+      "our_claim": "A DID document at /.well-known/did.json binds the card signing key (kid hs-2026-09) to did:web:gate.horizonshield.dev without depending on a registry.",
+      "verify": {
+        "method": "GET",
+        "url": "https://gate.horizonshield.dev/.well-known/did.json",
+        "recompute": "GET this; confirm it is a DID document for did:web:gate.horizonshield.dev and lists a verificationMethod whose controller is that DID.",
+        "pass_if": "DID document resolves and its keys are controlled by the gate's own domain",
+        "self_contained": true
+      },
+      "measure_any_provider": "Is the provider's evidence signed by a key the provider proves it controls under its own domain, or only asserted?"
+    },
+    {
+      "id": "existence-time-anchored",
+      "label": "Existence time is witnessed by a clock nobody operates",
+      "why_it_matters": "An operator that can rewrite its own history can backdate. A public-chain anchor makes existence time checkable by anyone.",
+      "our_claim": "Each measurement window commits a salt and the batch is anchored into a Bitcoin block via OpenTimestamps; the commitment is public at /nenrin/window.",
+      "verify": {
+        "method": "GET",
+        "url": "https://gate.horizonshield.dev/nenrin/window",
+        "recompute": "GET this; it returns the window's committed salt and the coordinate derivation. The daily batch that lists a record is anchored via the ledger's OpenTimestamps proof, which you verify against Bitcoin independently.",
+        "pass_if": "a window commitment is published and points to a Bitcoin-anchored batch",
+        "self_contained": true
+      },
+      "measure_any_provider": "Is the provider's existence time witnessed by a clock nobody operates (a public chain), or only by the operator's own timestamp?"
+    },
+    {
+      "id": "disagreement-preserved",
+      "label": "Conflicting observations are kept side by side, not collapsed",
+      "why_it_matters": "Collapsing two conflicting witnesses into one score hides the conflict. Keeping both lets you see it.",
+      "our_claim": "The provenance and witness records are offline-verifiable with the published nenrin-verify tool; two witnesses that disagree are both kept, neither deleted, each named by the sha256 of its own bytes.",
+      "verify": {
+        "method": "GET",
+        "url": "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-ledger/nenrin/provenance-v0/candidate_fixture.json",
+        "recompute": "Fetch this fixture and run: npx nenrin-verify (npm). It recomputes the chain from the bytes; the operator cannot make a record verify that was altered, and a disagreeing witness is present rather than overwritten.",
+        "pass_if": "nenrin-verify recomputes the chain and the fixture retains conflicting observations",
+        "self_contained": true
+      },
+      "measure_any_provider": "When two independent observers of the provider disagree, does the provider keep both, or collapse them into a single number?"
+    }
+  ],
+  "out_of_scope": [
+    "This does not say an agent is good, honest, or safe. It reports what was measured at a time. If you need a safety guarantee, this is the wrong tool.",
+    "It does not produce a reputation score. If you need a single number to rank endpoints, it does not provide one.",
+    "It never returns verified:false. Absence, watched, pending, and held all read as null. If you need a boolean 'this is bad' signal, look elsewhere.",
+    "The read path does not measure. A reading can be stale; a fresh measurement is POST /check."
+  ],
+  "provenance": {
+    "dataset": "HORIZON SHIELD conduct register + JIDEC ledger",
+    "curator": "The HORIZ音s Co., Ltd.",
+    "sources": [
+      "https://gate.horizonshield.dev/spec",
+      "https://gate.horizonshield.dev/ext/conduct/v1",
+      "https://jidec.horizonshield.dev"
+    ]
+  }
+};
 // 0.4.3 (2026-09-09). w3id.org の永続識別子。perma-id/w3id.org#6653 merge、302 で上の URI へ。
 // A2A の拡張ガイダンス:「Authors are encouraged to use a permanent identifier service, such as
 // w3id.org, for their extension URIs to prevent broken links」。せやから perma-id で宣言する card は
@@ -5220,6 +5336,7 @@ export default {
     if (path === "/.well-known/agent-card.json") return json(withCardSignature(ownAgentCard(url.origin), url.origin));
     if (path === "/.well-known/jwks.json") return json(jwksDocument());
     if (path === "/.well-known/did.json") return json(didDocument(env));
+    if (path === "/.well-known/selection.json") return json(SELECTION_CONDUCT);
     if (path === "/.well-known/glama.json") return json({ "$schema": "https://glama.ai/mcp/schemas/connector.json", maintainers: [{ email: "ogasurfproject@gmail.com" }] });
     // A machine that has only the hostname can find the register without being told where
     // to look. Same bytes as /register, plus the statement of what the rows are and are not,
