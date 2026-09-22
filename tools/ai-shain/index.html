@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="AI社員 診断">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>AI社員 レベル診断</title>
+<style>
+  :root{ --ink:#0a0a0a; --paper:#ffffff; --line:#0a0a0a; --faint:#9a9a9a; --red:#d0021b; }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ background:var(--paper); color:var(--ink); }
+  body{
+    font-family:"Helvetica Neue",Arial,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+    padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  }
+  .wrap{ max-width:560px; margin:0 auto; padding:24px 16px 64px; }
+  header{ border-bottom:1px solid var(--line); padding-bottom:12px; margin-bottom:28px; }
+  .kicker{ font-size:11px; letter-spacing:.18em; color:var(--faint); text-transform:uppercase; }
+  h1{ font-size:22px; font-weight:800; letter-spacing:.01em; margin-top:4px; }
+  h1 .r{ color:var(--red); }
+  .lead{ font-size:13px; color:#333; margin-top:8px; }
+  .step{ font-size:11px; letter-spacing:.14em; color:var(--faint); margin-bottom:14px; }
+  .q{ font-size:16px; font-weight:700; margin-bottom:16px; }
+  .opts{ display:block; }
+  .opt{
+    display:block; width:100%; text-align:left; background:var(--paper); color:var(--ink);
+    border:1px solid var(--line); padding:14px 14px; font-size:15px; font-family:inherit;
+    margin-bottom:-1px; cursor:pointer;
+  }
+  .opt:hover{ background:#f2f2f2; }
+  .opt.sel{ background:var(--ink); color:var(--paper); }
+  .opt .n{ display:inline-block; width:22px; color:var(--faint); }
+  .opt.sel .n{ color:var(--paper); }
+  .hint{ font-size:12px; color:var(--faint); margin:10px 0 22px; }
+  .row{ display:flex; gap:0; margin-top:26px; }
+  .btn{
+    flex:1; text-align:center; border:1px solid var(--line); background:var(--paper); color:var(--ink);
+    padding:14px; font-size:14px; font-weight:700; font-family:inherit; cursor:pointer; margin-left:-1px;
+  }
+  .btn:first-child{ margin-left:0; }
+  .btn.primary{ background:var(--red); border-color:var(--red); color:#fff; }
+  .btn[disabled]{ color:var(--faint); border-color:#ddd; cursor:default; }
+  .btn.primary[disabled]{ background:#f2c9cf; border-color:#f2c9cf; color:#fff; }
+  /* result */
+  .result .rk{ font-size:11px; letter-spacing:.18em; color:var(--faint); text-transform:uppercase; }
+  .lv{ font-size:26px; font-weight:800; margin:6px 0 2px; }
+  .lv .r{ color:var(--red); }
+  .block{ border-top:1px solid var(--line); padding:16px 0; }
+  .block .k{ font-size:11px; letter-spacing:.14em; color:var(--faint); text-transform:uppercase; margin-bottom:6px; }
+  .block .v{ font-size:16px; font-weight:700; }
+  .block .d{ font-size:14px; color:#333; margin-top:4px; }
+  .memo{ border:1px solid var(--line); padding:14px; margin-top:22px; }
+  .memo .k{ font-size:11px; letter-spacing:.14em; color:var(--faint); margin-bottom:8px; }
+  .memo table{ width:100%; border-collapse:collapse; font-size:13px; }
+  .memo td{ padding:4px 0; vertical-align:top; }
+  .memo td.l{ color:var(--faint); width:88px; }
+  .note{ font-size:12px; color:var(--faint); margin-top:18px; }
+  .foot{ margin-top:40px; border-top:1px solid var(--line); padding-top:12px; font-size:11px; color:var(--faint); letter-spacing:.04em; }
+  .hidden{ display:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">HORIZON SHIELD</div>
+    <h1>AI社員 レベル<span class="r">診断</span></h1>
+    <div class="lead">3つの質問に答えると、おすすめのレベル・料金の目安・入れ方が表示されます。</div>
+  </header>
+  <main id="app"></main>
+  <div class="foot">HORIZON SHIELD ／ 診断結果は目安です。導入前に個別にご案内します。</div>
+</div>
+
+<script>
+/* ============================================================
+   ▼▼▼ ここだけ直せば料金とレベル定義が変わる（TOshi編集ゾーン）▼▼▼
+   price は「目安」。ガイドの正式な金額に差し替えること。
+   ============================================================ */
+var LEVELS = {
+  L1: {
+    name: "レベル1 ｜ 単体",
+    price: "月額 39,800円〜（目安・要確認）",
+    how:  "単体導入。いまの業務のうち1つ（例：問い合わせの一次対応）を、AI社員1体に任せます。まず1体から始めたい方へ。"
+  },
+  L2: {
+    name: "レベル2 ｜ 部門",
+    price: "月額 128,000円〜（目安・要確認）",
+    how:  "部門導入。複数の業務をまとめて任せ、社内の道具（見積・資料づくり・台帳）とつなぎます。1部門を丸ごと支えたい方へ。"
+  },
+  L3: {
+    name: "レベル3 ｜ 全社",
+    price: "個別お見積り",
+    how:  "全社導入。部門をまたいで動き、システムの見張り役（保全）まで含めます。会社全体をAIで底上げしたい方へ。"
+  }
+};
+/* ============================================================
+   ▲▲▲ 編集ゾーンここまで ▲▲▲
+   ============================================================ */
+
+var QUESTIONS = [
+  { key:"gyoshu", q:"1. どんな業種ですか？", multi:false,
+    opts:["建設・リフォーム","士業・管理業","医療・介護","小売・飲食","その他"] },
+  { key:"kibo", q:"2. 会社の規模は？", multi:false,
+    opts:["〜数名","10〜30名","30名以上"] },
+  { key:"shigoto", q:"3. AIにやってほしい仕事は？（いくつでも）", multi:true,
+    opts:["問い合わせの一次対応","見積・資料づくり","事務・書類処理","集客・SNS発信","専門知識の応答"] }
+];
+
+var state = { step:0, ans:{ gyoshu:null, kibo:null, shigoto:[] } };
+var app = document.getElementById("app");
+
+function recommend(a){
+  var big = a.kibo === "30名以上";
+  var mid = a.kibo === "10〜30名";
+  var tasks = a.shigoto.length;
+  var pro = a.shigoto.indexOf("専門知識の応答") >= 0;
+  if (big || pro || tasks >= 4) return "L3";
+  if (mid || tasks >= 2) return "L2";
+  return "L1";
+}
+
+function render(){
+  if (state.step < QUESTIONS.length){ renderQ(QUESTIONS[state.step]); }
+  else { renderResult(); }
+}
+
+function renderQ(item){
+  var a = state.ans[item.key];
+  var html = '<div class="step">STEP ' + (state.step+1) + ' / ' + QUESTIONS.length + '</div>';
+  html += '<div class="q">' + item.q + '</div><div class="opts">';
+  for (var i=0;i<item.opts.length;i++){
+    var o = item.opts[i];
+    var sel = item.multi ? (a.indexOf(o) >= 0) : (a === o);
+    html += '<button class="opt' + (sel?' sel':'') + '" data-o="' + i + '">' +
+            '<span class="n">' + String.fromCharCode(65+i) + '</span>' + o + '</button>';
+  }
+  html += '</div>';
+  if (item.multi) html += '<div class="hint">当てはまるものを全部えらんでください。</div>';
+  html += '<div class="row">';
+  html += '<button class="btn" id="back"' + (state.step===0?' disabled':'') + '>もどる</button>';
+  var ready = item.multi ? (a.length>0) : (a!==null);
+  html += '<button class="btn primary" id="next"' + (ready?'':' disabled') + '>' +
+          (state.step===QUESTIONS.length-1?'結果を見る':'つぎへ') + '</button>';
+  html += '</div>';
+  app.innerHTML = html;
+
+  var opts = app.querySelectorAll(".opt");
+  for (var j=0;j<opts.length;j++){
+    opts[j].onclick = function(){
+      var o = item.opts[ parseInt(this.getAttribute("data-o"),10) ];
+      if (item.multi){
+        var idx = state.ans[item.key].indexOf(o);
+        if (idx>=0) state.ans[item.key].splice(idx,1); else state.ans[item.key].push(o);
+      } else {
+        state.ans[item.key] = o;
+      }
+      render();
+    };
+  }
+  var back = document.getElementById("back");
+  if (back) back.onclick = function(){ if(state.step>0){ state.step--; render(); } };
+  var next = document.getElementById("next");
+  if (next && !next.disabled) next.onclick = function(){ state.step++; render(); };
+}
+
+function renderResult(){
+  var a = state.ans;
+  var lv = LEVELS[ recommend(a) ];
+  var html = '<div class="result">';
+  html += '<div class="rk">診断結果 ／ おすすめレベル</div>';
+  html += '<div class="lv">' + lv.name.replace("レベル","レベル").replace("｜",'<span class="r">｜</span>') + '</div>';
+  html += '<div class="block"><div class="k">料金の目安</div><div class="v">' + lv.price + '</div></div>';
+  html += '<div class="block"><div class="k">入れ方</div><div class="d">' + lv.how + '</div></div>';
+  html += '<div class="memo"><div class="k">ヒアリングメモ（この画面をそのままお見せください）</div><table>' +
+          '<tr><td class="l">業種</td><td>' + (a.gyoshu||'-') + '</td></tr>' +
+          '<tr><td class="l">規模</td><td>' + (a.kibo||'-') + '</td></tr>' +
+          '<tr><td class="l">やりたい仕事</td><td>' + (a.shigoto.length? a.shigoto.join('、') : '-') + '</td></tr>' +
+          '</table></div>';
+  html += '<div class="note">この結果は目安です。実際の構成・料金・補助金の使い方は、担当より個別にご案内します。</div>';
+  html += '<div class="row"><button class="btn" id="again">もう一度</button></div>';
+  html += '</div>';
+  app.innerHTML = html;
+  document.getElementById("again").onclick = function(){
+    state = { step:0, ans:{ gyoshu:null, kibo:null, shigoto:[] } };
+    render();
+  };
+}
+
+render();
+
+if ("serviceWorker" in navigator){
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("./sw.js").catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
