@@ -60,6 +60,95 @@ If you pass your own `fetchImpl`, it must pin; a fetch that resolves on its own 
 
 Vectors: `node witness_ssrf_guard_test.mjs` (the table, mixed public and private resolution, the metadata address, mapped loopback, the pin refusing before a socket opens; no network). The decline you get when a name resolves inside is `target_not_public` with the offending address in `why`, the same code the hostname screen uses.
 
+## Second layer (Linux): give the responder no way to reach inward at all
+
+Resolve, refuse and pin is the first line. If the process also cannot open a socket to an inside address, a bug in the first line has nothing to exploit. This recipe runs in production at api.babyblueviper.com (contributed by invinoveritas / babyblueviper1, first outside witness of this reference).
+
+**1. Listen on a unix socket, not a port.** `serve` binds every interface. `makeHandler` is exported, so wrap it. The key comes from a systemd credential, and one failed request cannot take the service down:
+
+```js
+// OURS (not upstream). Serves upstream's makeHandler on a unix socket instead of upstream `serve`, which binds every interface.
+// Key is read from a systemd credential (root-only file); a crash in one request must not take the service down.
+import { createServer } from "node:http";
+import { chmodSync, existsSync, unlinkSync } from "node:fs";
+import { loadWitnessKey, makeHandler } from "./recovery-v0/witness_reply.mjs";
+
+const need = (k) => { if (!process.env[k]) { console.error("missing env " + k); process.exit(2); } return process.env[k]; };
+const keyPath = process.env.CREDENTIALS_DIRECTORY ? process.env.CREDENTIALS_DIRECTORY + "/witness_key" : need("WITNESS_KEY");
+const sock = need("WITNESS_SOCKET");
+const k = await loadWitnessKey(keyPath);
+const handle = makeHandler({ signedDomain: need("WITNESS_DOMAIN"), keyUrl: need("WITNESS_KEY_URL"), priv: k.priv, pubRaw: k.pubRaw, pubB64: k.pubB64, maxInFlight: 2 });
+if (existsSync(sock)) unlinkSync(sock);
+const server = createServer((req, res) => {
+  handle(req, res).catch((err) => {
+    console.error("witness-reply: request failed:", err && err.message);
+    if (!res.headersSent) res.writeHead(500, { "content-type": "application/json" });
+    res.end(JSON.stringify({ error: "internal" }));
+  });
+});
+server.headersTimeout = 10_000;
+server.requestTimeout = 90_000;
+server.listen(sock, () => { chmodSync(sock, 0o666); console.error("witness-reply: listening on " + sock + " pubkey " + k.pubB64); });
+```
+
+**2. Run it under a systemd unit that denies every inside address.** `IPAddressAllow` is evaluated before `IPAddressDeny`, so allow the resolver stub explicitly (127.0.0.53 on systemd-resolved hosts) or DNS dies with the rest of loopback. A unix socket is not an IP socket, so your own front door is unaffected.
+
+```ini
+[Service]
+Type=simple
+DynamicUser=yes
+RuntimeDirectory=witness-reply
+RuntimeDirectoryMode=0755
+LoadCredential=witness_key:/etc/witness-reply/witness_key.pem
+Environment=WITNESS_DOMAIN=api.babyblueviper.com
+Environment=WITNESS_KEY_URL=https://api.babyblueviper.com/keys/witness.json
+Environment=WITNESS_SOCKET=/run/witness-reply/witness.sock
+WorkingDirectory=/opt/witness-reply
+ExecStart=/usr/bin/node /opt/witness-reply/serve_local.mjs
+Restart=on-failure
+RestartSec=5
+# Layer 2 behind the reference's resolve/refuse/pin: the process cannot open a socket to any inside address at all
+# (loopback incl. our API on :8000, RFC1918, CGNAT, link-local incl. the metadata address, ULA). 127.0.0.53 is the
+# systemd-resolved stub the box's DNS goes through. Allow is checked before Deny.
+IPAddressAllow=127.0.0.53
+IPAddressDeny=127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 169.254.0.0/16 100.64.0.0/10 ::1/128 fc00::/7 fe80::/10
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=no
+SystemCallFilter=@system-service
+CapabilityBoundingSet=
+MemoryMax=300M
+TasksMax=64
+CPUQuota=50%
+```
+
+The private key lives in a root-only file and reaches the service only through `LoadCredential`, so neither the service user nor your API process can read it. `MemoryDenyWriteExecute=no` is deliberate: V8 needs it off.
+
+**3. Forward only witness requests to the socket.** Your `/a2a` sends a message to the socket only when it carries a `nenrin-witness-request-v1` part; every other message is handled as before. At the edge we added a kill flag, a 64 KB body cap, a per-IP and a global rate limit, and a clean "declined" reply when the socket is down.
+
+**4. Prove the kernel layer, not just the code.** From a shell, run a throwaway process under the same IP policy and try to reach the inside addresses (each must time out, while DNS still resolves):
+
+```
+systemd-run --wait --pipe --quiet -p DynamicUser=yes -p IPAddressAllow=127.0.0.53 \
+  -p "IPAddressDeny=127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 169.254.0.0/16 100.64.0.0/10 ::1/128 fc00::/7 fe80::/10" \
+  /usr/bin/node -e 'const http=require("http"),dns=require("dns");
+    const t=(h,p)=>new Promise(r=>{const q=http.get({host:h,port:p,path:"/",timeout:3000},x=>{r(h+":"+p+" REACHED");x.resume()});
+      q.on("error",e=>r(h+":"+p+" blocked ("+e.code+")"));q.on("timeout",()=>{q.destroy();r(h+":"+p+" blocked (timeout)")})});
+    (async()=>{console.log(await t("127.0.0.1",8000));console.log(await t("169.254.169.254",80));console.log(await t("10.0.0.1",80));
+    dns.lookup("gate.horizonshield.dev",(e,a)=>console.log("dns ->",e?e.code:a))})()'
+```
+
+Expected: the first three lines say `blocked`, the last resolves. Then run `witness_selfcheck.mjs` against your origin and send a few hostile targets through your public `/a2a` (a name that resolves to `127.0.0.1` or `169.254.169.254`, yourself, an explicit port): each must be declined with the offending address named.
+
 ## Check that you qualify, before anyone draws you
 
 From a shell that can reach your own agent:
