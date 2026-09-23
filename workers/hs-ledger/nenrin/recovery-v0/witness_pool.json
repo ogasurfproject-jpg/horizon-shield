@@ -1,6 +1,6 @@
 {
   "schema": "nenrin-witness-pool-v1",
-  "generated_at": "2026-09-20T10:30:00Z",
+  "generated_at": "2026-09-23T03:47:38Z",
   "what_this_is": "the live pool TSUGI draws re-verification witnesses from (design 14.2). Entries are agent cards that declare conduct-v1, serve a domain-bound Ed25519 key at key_url (conduct-v1.1 11.4) and declare witness_policy.reciprocal true (11.6). Every card that meets the conditions goes in; the operator does not pick. The pool's canonical sha256 is written into every draw, so a later change is visible.",
   "what_this_is_not": "a list of trusted witnesses. Being in the pool means only that the card met the stated conditions when it was added. A signed liar is still a liar; the draw only removes the operator's choice of who is asked.",
   "admission": [
@@ -10,6 +10,15 @@
     "signed_domain is not gate.horizonshield.dev (self_witness)",
     "planned (ADR): a walked_as_witness count in the ring before admission, to price Sybil entries"
   ],
-  "entries": [],
-  "note": "empty on 2026-09-20. An empty pool draws nobody and any quorum falls short (witness_quorum_short). That is the honest state until agents that meet the conditions exist."
+  "min_walked": "0",
+  "candidates": "1",
+  "entries": [
+    {
+      "signed_domain": "api.babyblueviper.com",
+      "key_url": "https://api.babyblueviper.com/keys/witness.json",
+      "public_key_ed25519_b64": "RN/Y6826Xrn8iz0TOtmKhCiQT5puaZYwA1JETt2TTPM=",
+      "a2a_url": "https://api.babyblueviper.com/a2a"
+    }
+  ],
+  "note": "1 of 1 candidates met the conditions on generated_at"
 }
