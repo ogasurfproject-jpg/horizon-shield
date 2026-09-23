@@ -1,0 +1,401 @@
+{
+  "schemaVersion": 4,
+  "source": {
+    "repository": "modelcontextprotocol/modelcontextprotocol",
+    "pullRequest": 3004,
+    "head": "9405ba2ff8be99b9e0005bebd0ea4b77ac4dc885",
+    "expectedHead": "9405ba2ff8be99b9e0005bebd0ea4b77ac4dc885",
+    "tree": "e98b2d230d0cb2f616d6010056caf783439bab0c",
+    "clean": true,
+    "sourcePinMatched": true,
+    "acquisition": "embedded byte-pinned Git blob snapshot",
+    "file": "seps/3004-tamper-evident-audit-record-contract.md",
+    "fileSha256": "sha256:629cccd1ef795d1d3d32bf07ccf80294ced8e12608ce362333cf5fd39633d205",
+    "normativeRulesPresent": true
+  },
+  "upstreamFieldMapping": [
+    {
+      "projectedField": "event_id",
+      "upstreamSection": "SEP-3004 §2.1",
+      "upstreamField": "event_id",
+      "sourceLines": "89"
+    },
+    {
+      "projectedField": "occurred_at",
+      "upstreamSection": "SEP-3004 §2.1/§2.3",
+      "upstreamField": "occurred_at",
+      "sourceLines": "90,246-249"
+    },
+    {
+      "projectedField": "principal_id",
+      "upstreamSection": "SEP-3004 §2.1",
+      "upstreamField": "principal_id",
+      "sourceLines": "91"
+    },
+    {
+      "projectedField": "event_type",
+      "upstreamSection": "SEP-3004 §2.1/§2.9",
+      "upstreamField": "event_type",
+      "sourceLines": "92,369-378"
+    },
+    {
+      "projectedField": "tool_name",
+      "upstreamSection": "SEP-3004 §2.1",
+      "upstreamField": "tool_name",
+      "sourceLines": "93"
+    },
+    {
+      "projectedField": "outcome",
+      "upstreamSection": "SEP-3004 §2.1.1",
+      "upstreamField": "outcome",
+      "sourceLines": "94,105-121"
+    },
+    {
+      "projectedField": "extensions.caller-governance.purpose_declared",
+      "upstreamSection": "SEP-3004 §2.2",
+      "upstreamField": "caller-governance.purpose_declared",
+      "sourceLines": "159-185"
+    },
+    {
+      "projectedField": "previous_hash",
+      "upstreamSection": "SEP-3004 §2.1/§2.4",
+      "upstreamField": "previous_hash",
+      "sourceLines": "96,284-289"
+    },
+    {
+      "projectedField": "event_hash",
+      "upstreamSection": "SEP-3004 §2.1/§2.4",
+      "upstreamField": "event_hash",
+      "sourceLines": "97,284-294"
+    }
+  ],
+  "upstreamKnownAnswer": {
+    "sourceLines": "541-573",
+    "expectedCanonicalUtf8": "{\"event_id\":\"99999999-9999-9999-9999-999999999999\",\"event_type\":\"tool_call\",\"extensions\":{\"caller-governance\":{\"flagged\":false,\"invoked_by_principal_id\":null,\"purpose_declared\":\"reconcile June invoices\",\"session_id\":\"55555555-5555-5555-5555-555555555555\"},\"runtime-security\":{\"drift_status\":\"confirmed\",\"evidence_hash\":\"sha256:b2c547e2c8f17eafc72ef5c2d4d7b6b4d0f7437ab52bae573a9af14ff5e2d9be\",\"policy_id\":\"example.org/runtime-drift@3\",\"quarantine_decision\":\"quarantine\",\"severity\":\"high\"}},\"occurred_at\":\"2026-06-06T12:00:00.000Z\",\"outcome\":\"deferred\",\"previous_hash\":null,\"principal_id\":\"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa\",\"tool_name\":\"export\"}",
+    "actualCanonicalUtf8": "{\"event_id\":\"99999999-9999-9999-9999-999999999999\",\"event_type\":\"tool_call\",\"extensions\":{\"caller-governance\":{\"flagged\":false,\"invoked_by_principal_id\":null,\"purpose_declared\":\"reconcile June invoices\",\"session_id\":\"55555555-5555-5555-5555-555555555555\"},\"runtime-security\":{\"drift_status\":\"confirmed\",\"evidence_hash\":\"sha256:b2c547e2c8f17eafc72ef5c2d4d7b6b4d0f7437ab52bae573a9af14ff5e2d9be\",\"policy_id\":\"example.org/runtime-drift@3\",\"quarantine_decision\":\"quarantine\",\"severity\":\"high\"}},\"occurred_at\":\"2026-06-06T12:00:00.000Z\",\"outcome\":\"deferred\",\"previous_hash\":null,\"principal_id\":\"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa\",\"tool_name\":\"export\"}",
+    "canonicalBytesEqual": true,
+    "expectedSha256": "f733fed9cc757165f810b778e4baba1f51a45504988e937707aaab4361b2f064",
+    "actualSha256": "f733fed9cc757165f810b778e4baba1f51a45504988e937707aaab4361b2f064",
+    "digestEqual": true
+  },
+  "decisionA": {
+    "requested": [
+      "read",
+      "write"
+    ],
+    "hostAllowed": [
+      "read"
+    ],
+    "effective": [
+      "read"
+    ],
+    "externalDecisionCanonicalization": "auec-authority-delta-c14n-v2_1",
+    "externalDecisionDigest": "sha256:204bf01669510688a16dddf90e3f8dae45f23c78199e2714e476001b5c2555e0"
+  },
+  "decisionB": {
+    "requested": [
+      "read"
+    ],
+    "hostAllowed": [
+      "read",
+      "write"
+    ],
+    "effective": [
+      "read"
+    ],
+    "externalDecisionCanonicalization": "auec-authority-delta-c14n-v2_1",
+    "externalDecisionDigest": "sha256:fde36a175777bd5e314be69a4f9ba170b70235bf417c5d1720bd67e1ef6010d1"
+  },
+  "currentRegisteredCallerGovernance": {
+    "recordA": {
+      "event_id": "77777777-7777-7777-7777-777777777777",
+      "occurred_at": "2026-08-23T12:00:00.000Z",
+      "principal_id": "did:example:alice",
+      "event_type": "tool_call",
+      "tool_name": "files.read",
+      "outcome": "allowed",
+      "extensions": {
+        "caller-governance": {
+          "purpose_declared": "review one local file"
+        }
+      },
+      "previous_hash": null,
+      "event_hash": "a795c1d969512a3c62646124cbad52758ee58b9cba17816da71fdc6fdb968dd5"
+    },
+    "recordB": {
+      "event_id": "77777777-7777-7777-7777-777777777777",
+      "occurred_at": "2026-08-23T12:00:00.000Z",
+      "principal_id": "did:example:alice",
+      "event_type": "tool_call",
+      "tool_name": "files.read",
+      "outcome": "allowed",
+      "extensions": {
+        "caller-governance": {
+          "purpose_declared": "review one local file"
+        }
+      },
+      "previous_hash": null,
+      "event_hash": "a795c1d969512a3c62646124cbad52758ee58b9cba17816da71fdc6fdb968dd5"
+    },
+    "validationA": {
+      "pass": true,
+      "reason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS"
+    },
+    "validationB": {
+      "pass": true,
+      "reason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS"
+    },
+    "protectedCanonicalUtf8": "{\"event_id\":\"77777777-7777-7777-7777-777777777777\",\"event_type\":\"tool_call\",\"extensions\":{\"caller-governance\":{\"purpose_declared\":\"review one local file\"}},\"occurred_at\":\"2026-08-23T12:00:00.000Z\",\"outcome\":\"allowed\",\"previous_hash\":null,\"principal_id\":\"did:example:alice\",\"tool_name\":\"files.read\"}",
+    "protectedCanonicalUtf8Hex": "7b226576656e745f6964223a2237373737373737372d373737372d373737372d373737372d373737373737373737373737222c226576656e745f74797065223a22746f6f6c5f63616c6c222c22657874656e73696f6e73223a7b2263616c6c65722d676f7665726e616e6365223a7b22707572706f73655f6465636c61726564223a22726576696577206f6e65206c6f63616c2066696c65227d7d2c226f636375727265645f6174223a22323032362d30382d32335431323a30303a30302e3030305a222c226f7574636f6d65223a22616c6c6f776564222c2270726576696f75735f68617368223a6e756c6c2c227072696e636970616c5f6964223a226469643a6578616d706c653a616c696365222c22746f6f6c5f6e616d65223a2266696c65732e72656164227d",
+    "protectedByteLength": 298,
+    "bytesEqual": true,
+    "eventHashA": "a795c1d969512a3c62646124cbad52758ee58b9cba17816da71fdc6fdb968dd5",
+    "eventHashB": "a795c1d969512a3c62646124cbad52758ee58b9cba17816da71fdc6fdb968dd5",
+    "eventHashesEqual": true
+  },
+  "externalProfileSeparation": {
+    "validationA": {
+      "verdict": "PASS",
+      "reason": "PASS_STRUCTURED_DECISION"
+    },
+    "validationB": {
+      "verdict": "PASS",
+      "reason": "PASS_STRUCTURED_DECISION"
+    },
+    "canonicalDecisionBytesEqual": false,
+    "commitmentA": "sha256:204bf01669510688a16dddf90e3f8dae45f23c78199e2714e476001b5c2555e0",
+    "commitmentB": "sha256:fde36a175777bd5e314be69a4f9ba170b70235bf417c5d1720bd67e1ef6010d1",
+    "commitmentsDifferent": true
+  },
+  "currentHeadRuleTests": {
+    "sourceLines": "159-185",
+    "cases": [
+      {
+        "id": "BASE_A_CONFORMS",
+        "expected": "PASS",
+        "expectedReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "actual": "PASS",
+        "actualReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "pass": true
+      },
+      {
+        "id": "BASE_B_CONFORMS",
+        "expected": "PASS",
+        "expectedReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "actual": "PASS",
+        "actualReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "pass": true
+      },
+      {
+        "id": "OPTIONAL_ABSENT_CONFORMS",
+        "expected": "PASS",
+        "expectedReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "actual": "PASS",
+        "actualReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "pass": true
+      },
+      {
+        "id": "OPTIONAL_NULL_CONFORMS",
+        "expected": "PASS",
+        "expectedReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "actual": "PASS",
+        "actualReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "pass": true
+      },
+      {
+        "id": "ABSENT_NULL_PROTECTED_BYTES_DISTINCT",
+        "expected": "PASS",
+        "expectedReason": "ABSENT_NULL_DISTINCT",
+        "actual": "PASS",
+        "actualReason": "ABSENT_NULL_DISTINCT",
+        "pass": true
+      },
+      {
+        "id": "FLAGGED_BOOLEAN_CONFORMS",
+        "expected": "PASS",
+        "expectedReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "actual": "PASS",
+        "actualReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "pass": true
+      },
+      {
+        "id": "FLAGGED_NULL_CONFORMS",
+        "expected": "PASS",
+        "expectedReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "actual": "PASS",
+        "actualReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "pass": true
+      },
+      {
+        "id": "FLAGGED_STRING_REJECTED",
+        "expected": "REJECT",
+        "expectedReason": "FLAGGED_TYPE",
+        "actual": "REJECT",
+        "actualReason": "FLAGGED_TYPE",
+        "pass": true
+      },
+      {
+        "id": "OPTIONAL_BOOLEAN_REJECTED",
+        "expected": "REJECT",
+        "expectedReason": "OPTIONAL_VALUE_TYPE",
+        "actual": "REJECT",
+        "actualReason": "OPTIONAL_VALUE_TYPE",
+        "pass": true
+      },
+      {
+        "id": "SOURCES_NULL_CONFORMS",
+        "expected": "PASS",
+        "expectedReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "actual": "PASS",
+        "actualReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "pass": true
+      },
+      {
+        "id": "SOURCES_SINGLETON_CONFORMS",
+        "expected": "PASS",
+        "expectedReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "actual": "PASS",
+        "actualReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "pass": true
+      },
+      {
+        "id": "SOURCES_SORTED_UNICODE_CONFORMS",
+        "expected": "PASS",
+        "expectedReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "actual": "PASS",
+        "actualReason": "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+        "pass": true
+      },
+      {
+        "id": "SOURCES_ARRAY_VALUE_REJECTED",
+        "expected": "REJECT",
+        "expectedReason": "OPTIONAL_VALUE_TYPE",
+        "actual": "REJECT",
+        "actualReason": "OPTIONAL_VALUE_TYPE",
+        "pass": true
+      },
+      {
+        "id": "SOURCES_BARE_DELIMITER_REJECTED",
+        "expected": "REJECT",
+        "expectedReason": "SOURCES_TOUCHED_JSON_ARRAY",
+        "actual": "REJECT",
+        "actualReason": "SOURCES_TOUCHED_JSON_ARRAY",
+        "pass": true
+      },
+      {
+        "id": "SOURCES_EMPTY_ARRAY_STRING_REJECTED",
+        "expected": "REJECT",
+        "expectedReason": "SOURCES_TOUCHED_EMPTY_SET_MUST_BE_NULL",
+        "actual": "REJECT",
+        "actualReason": "SOURCES_TOUCHED_EMPTY_SET_MUST_BE_NULL",
+        "pass": true
+      },
+      {
+        "id": "SOURCES_UNSORTED_REJECTED",
+        "expected": "REJECT",
+        "expectedReason": "SOURCES_TOUCHED_NOT_CANONICAL",
+        "actual": "REJECT",
+        "actualReason": "SOURCES_TOUCHED_NOT_CANONICAL",
+        "pass": true
+      },
+      {
+        "id": "SOURCES_DUPLICATE_REJECTED",
+        "expected": "REJECT",
+        "expectedReason": "SOURCES_TOUCHED_NOT_CANONICAL",
+        "actual": "REJECT",
+        "actualReason": "SOURCES_TOUCHED_NOT_CANONICAL",
+        "pass": true
+      },
+      {
+        "id": "SOURCES_EMPTY_ELEMENT_REJECTED",
+        "expected": "REJECT",
+        "expectedReason": "SOURCES_TOUCHED_EMPTY_ELEMENT",
+        "actual": "REJECT",
+        "actualReason": "SOURCES_TOUCHED_EMPTY_ELEMENT",
+        "pass": true
+      },
+      {
+        "id": "SOURCES_NON_NFC_ELEMENT_REJECTED",
+        "expected": "REJECT",
+        "expectedReason": "SOURCES_TOUCHED_ELEMENT_NON_NFC",
+        "actual": "REJECT",
+        "actualReason": "SOURCES_TOUCHED_ELEMENT_NON_NFC",
+        "pass": true
+      },
+      {
+        "id": "SOURCES_LONE_SURROGATE_REJECTED",
+        "expected": "REJECT",
+        "expectedReason": "SOURCES_TOUCHED_ELEMENT_LONE_SURROGATE",
+        "actual": "REJECT",
+        "actualReason": "SOURCES_TOUCHED_ELEMENT_LONE_SURROGATE",
+        "pass": true
+      },
+      {
+        "id": "UNREGISTERED_CALLER_FIELD_REJECTED",
+        "expected": "REJECT",
+        "expectedReason": "UNREGISTERED_CALLER_GOVERNANCE_FIELD",
+        "actual": "REJECT",
+        "actualReason": "UNREGISTERED_CALLER_GOVERNANCE_FIELD",
+        "pass": true
+      },
+      {
+        "id": "UNREGISTERED_EXTENSION_REJECTED",
+        "expected": "REJECT",
+        "expectedReason": "UNREGISTERED_EXTENSION_TYPE",
+        "actual": "REJECT",
+        "actualReason": "UNREGISTERED_EXTENSION_TYPE",
+        "pass": true
+      },
+      {
+        "id": "INVALID_CALENDAR_TIMESTAMP_REJECTED",
+        "expected": "REJECT",
+        "expectedReason": "TIMESTAMP_INVALID",
+        "actual": "REJECT",
+        "actualReason": "TIMESTAMP_INVALID",
+        "pass": true
+      }
+    ],
+    "count": 23,
+    "reasonTaxonomy": [
+      "ABSENT_NULL_DISTINCT",
+      "FLAGGED_TYPE",
+      "OPTIONAL_VALUE_TYPE",
+      "SEP3004_CURRENT_REGISTERED_SHAPE_PASS",
+      "SOURCES_TOUCHED_ELEMENT_LONE_SURROGATE",
+      "SOURCES_TOUCHED_ELEMENT_NON_NFC",
+      "SOURCES_TOUCHED_EMPTY_ELEMENT",
+      "SOURCES_TOUCHED_EMPTY_SET_MUST_BE_NULL",
+      "SOURCES_TOUCHED_JSON_ARRAY",
+      "SOURCES_TOUCHED_NOT_CANONICAL",
+      "TIMESTAMP_INVALID",
+      "UNREGISTERED_CALLER_GOVERNANCE_FIELD",
+      "UNREGISTERED_EXTENSION_TYPE"
+    ],
+    "allPass": true
+  },
+  "currentExtensionRuleTest": {
+    "basis": [
+      "§2.2 lines 139-157 requires registered extension type ids and typed registration fields.",
+      "§2.2 lines 159-185 types caller-governance optionals and sources_touched but omits the authority-delta decision basis.",
+      "C-REC-1 lines 522-525 requires registered type ids and data satisfying the registration."
+    ],
+    "extraCallerGovernanceFieldsAttempt": {
+      "pass": false,
+      "reason": "UNREGISTERED_CALLER_GOVERNANCE_FIELD"
+    },
+    "unregisteredAuthorityDeltaExtensionAttempt": {
+      "pass": false,
+      "reason": "UNREGISTERED_EXTENSION_TYPE"
+    },
+    "conformingStructuredSolutionWithoutRegistrationChange": false,
+    "boundedInterpretation": "The current registered caller-governance shape does not type the requested/hostAllowed/effective decision basis. A registration amendment or newly registered extension would be normative registry work; the hash-chain wire construction itself needs no change."
+  },
+  "classification": "SCHEMA_BACKED_REPRESENTATION_GAP_CONFIRMED",
+  "patchScope": "optional caller-governance registration fields or a separately registered extension; no new core field, chain, transport, or wire primitive",
+  "nonClaims": [
+    "This is a counterfactual same-event comparison, not a SHA-256 collision claim.",
+    "This does not prove every MCP implementation loses the decision basis outside SEP-3004 records.",
+    "This does not select a normative representation or assert upstream acceptance."
+  ],
+  "pass": true
+}

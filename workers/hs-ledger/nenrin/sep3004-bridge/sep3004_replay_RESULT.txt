@@ -1,0 +1,25 @@
+=== independent replay: recordA (source) -> protected preimage ===
+our bytes len      : 298 (fixture protectedByteLength = 298 )
+our sha256         : a795c1d969512a3c62646124cbad52758ee58b9cba17816da71fdc6fdb968dd5
+fixture eventHashA : a795c1d969512a3c62646124cbad52758ee58b9cba17816da71fdc6fdb968dd5
+BYTE-IDENTICAL to fixture protectedCanonicalUtf8 : True
+our hex == fixture protectedCanonicalUtf8Hex     : True
+sha256 MATCH       : True
+
+our produced preimage:
+{"event_id":"77777777-7777-7777-7777-777777777777","event_type":"tool_call","extensions":{"caller-governance":{"purpose_declared":"review one local file"}},"occurred_at":"2026-08-23T12:00:00.000Z","outcome":"allowed","previous_hash":null,"principal_id":"did:example:alice","tool_name":"files.read"}
+
+=== recordB (different requested/hostAllowed authority) -> same witness? ===
+recordB bytes == recordA bytes : True
+recordB sha256                 : a795c1d969512a3c62646124cbad52758ee58b9cba17816da71fdc6fdb968dd5 (== a795c1d9...: True )
+
+=== cross-check: same canonicalizer reproduces the published upstream KAT (f733fed9) ===
+KAT re-canonicalized byte-identical : True
+KAT sha256                          : f733fed9cc757165f810b778e4baba1f51a45504988e937707aaab4361b2f064
+fixture upstream expectedSha256     : f733fed9cc757165f810b778e4baba1f51a45504988e937707aaab4361b2f064
+KAT sha256 MATCH                    : True
+
+=== source provenance (from fixture, for the reply) ===
+SEP-3004 revision (head): 9405ba2ff8be99b9e0005bebd0ea4b77ac4dc885
+SEP file sha256         : sha256:629cccd1ef795d1d3d32bf07ccf80294ced8e12608ce362333cf5fd39633d205
+fixture pinned commit   : f3f74c4ae6f9551b94cb6b550b4611de98bc3ae3
