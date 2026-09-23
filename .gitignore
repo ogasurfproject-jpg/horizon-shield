@@ -298,3 +298,6 @@ ops/ledger_3?.json
 ops/reach-runs/*.bak
 workers/hs-partner-002-mcp/fix_takashi_*.py
 workers/hs-mcp/src/mcp.js
+
+# ops/prep_second_agreement.py の出力。半署名の交換記録は公開ツリーに入れん(最終 AB を agreement-v0 に置く)。
+ops/second_record_prep_out/
