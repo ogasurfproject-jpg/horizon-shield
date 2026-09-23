@@ -149,6 +149,39 @@ systemd-run --wait --pipe --quiet -p DynamicUser=yes -p IPAddressAllow=127.0.0.5
 
 Expected: the first three lines say `blocked`, the last resolves. Then run `witness_selfcheck.mjs` against your origin and send a few hostile targets through your public `/a2a` (a name that resolves to `127.0.0.1` or `169.254.169.254`, yourself, an explicit port): each must be declined with the offending address named.
 
+**5. Pin what you vendor to a named upstream commit, and refuse to deploy on drift.** Steps 1-4 assume the upstream files you're wrapping are the files you actually reviewed. Copy the upstream reference verbatim into your own tree (don't fork-and-edit it — a diff against the manifest below should always be empty), record which upstream commit you copied it from, and generate a flat manifest of every vendored file's hash:
+
+```
+sha256sum ./*.mjs ./*.md > MANIFEST.sha256
+```
+
+A one-line README next to it is enough to name the commit:
+
+```
+Last upstream commit touching these files: <full commit sha>.
+Files are copied UNMODIFIED; MANIFEST.sha256 pins them (sha256sum -c MANIFEST.sha256).
+Do not edit; re-vendor from upstream.
+```
+
+Then make the deploy step itself refuse silently-modified vendoring rather than ship it:
+
+```bash
+#!/bin/bash
+# Deploy the vendored witness responder and (re)start it. Refuses if any vendored file
+# differs from MANIFEST.sha256 -- this is the check that makes "pinned to commit X" a
+# real, machine-checked claim rather than a comment nobody re-verifies.
+set -euo pipefail
+SRC=/path/to/vendored/recovery-v0
+(cd "$SRC" && sha256sum -c MANIFEST.sha256 --quiet) || { echo "vendored files differ from MANIFEST.sha256; refusing"; exit 1; }
+install -d -m 0755 /opt/witness-reply
+rsync -a --delete "$SRC"/ /opt/witness-reply/
+chown -R root:root /opt/witness-reply
+systemctl daemon-reload
+systemctl restart witness-reply.service
+```
+
+This is what actually runs at api.babyblueviper.com: `sha256sum -c MANIFEST.sha256` gates every deploy, pinned to upstream commit `7f88a531440307ef834686b786c5910c5ae28db3` (the SSRF resolve/refuse/pin commit this section documents). A change to the upstream reference — intentional or not — either matches the pinned hash or the deploy refuses; it never silently ships a divergent copy under the name of a commit that never actually ran.
+
 ## Check that you qualify, before anyone draws you
 
 From a shell that can reach your own agent:
