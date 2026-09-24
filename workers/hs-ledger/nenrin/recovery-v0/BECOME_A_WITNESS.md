@@ -149,7 +149,7 @@ systemd-run --wait --pipe --quiet -p DynamicUser=yes -p IPAddressAllow=127.0.0.5
 
 Expected: the first three lines say `blocked`, the last resolves. Then run `witness_selfcheck.mjs` against your origin and send a few hostile targets through your public `/a2a` (a name that resolves to `127.0.0.1` or `169.254.169.254`, yourself, an explicit port): each must be declined with the offending address named.
 
-**5. Pin what you vendor to a named upstream commit, and refuse to deploy on drift.** Steps 1-4 assume the upstream files you're wrapping are the files you actually reviewed. Copy the upstream reference verbatim into your own tree (don't fork-and-edit it — a diff against the manifest below should always be empty), record which upstream commit you copied it from, and generate a flat manifest of every vendored file's hash:
+**5. Pin what you vendor to a named upstream commit, and refuse to deploy on drift.** Steps 1-4 assume the upstream files you're wrapping are the files you actually reviewed. Copy the upstream reference verbatim into your own tree (don't fork-and-edit it; a diff against the manifest below should always be empty), record which upstream commit you copied it from, and generate a flat manifest of every vendored file's hash:
 
 ```
 sha256sum ./*.mjs ./*.md > MANIFEST.sha256
@@ -176,11 +176,18 @@ SRC=/path/to/vendored/recovery-v0
 install -d -m 0755 /opt/witness-reply
 rsync -a --delete "$SRC"/ /opt/witness-reply/
 chown -R root:root /opt/witness-reply
+# First deploy on a fresh box: install and enable the unit from step 2, or restart has no service to
+# start and nothing survives a reboot. The unit is operator-specific (your domain, your key path), so
+# it lives OUTSIDE the pinned vendored tree and is not in MANIFEST.sha256. enable is idempotent, so
+# this block stays safe to re-run on every deploy.
+UNIT=/etc/witness-reply/witness-reply.service          # your copy of the step 2 unit
+install -m 0644 "$UNIT" /etc/systemd/system/witness-reply.service
 systemctl daemon-reload
+systemctl enable witness-reply.service
 systemctl restart witness-reply.service
 ```
 
-This is what actually runs at api.babyblueviper.com: `sha256sum -c MANIFEST.sha256` gates every deploy, pinned to upstream commit `7f88a531440307ef834686b786c5910c5ae28db3` (the SSRF resolve/refuse/pin commit this section documents). A change to the upstream reference — intentional or not — either matches the pinned hash or the deploy refuses; it never silently ships a divergent copy under the name of a commit that never actually ran.
+This is what actually runs at api.babyblueviper.com: `sha256sum -c MANIFEST.sha256` gates every deploy, pinned to upstream commit `7f88a531440307ef834686b786c5910c5ae28db3` (the SSRF resolve/refuse/pin commit this section documents). A change to the upstream reference, intentional or not, either matches the pinned hash or the deploy refuses; it never silently ships a divergent copy under the name of a commit that never actually ran.
 
 ## Check that you qualify, before anyone draws you
 
