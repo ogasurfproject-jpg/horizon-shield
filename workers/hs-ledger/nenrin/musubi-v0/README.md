@@ -107,3 +107,22 @@ Next reply from the same red team (@tallybexro): a recomputation is a correction
 - Inputs are pinned: the claim's sha (signatures included, so a signed claim stays bound to its signer), the contract sha, every record sha, the chain view (tip, horizon, pins, work, rules), and the sha of each settlement code file.
 - Every changed field is listed with both values, and each difference is traced to a cause that points at an input: `record_omitted_by_claim`, `record_not_in_inputs`, `chain_view_differs`, `deviation_missing_in_claim` (with its evidence sha), `deviation_without_basis`, `verdict_follows`, and `unexplained` for anything the rules do not account for (checks 2 to 5).
 - The correction is deterministic and `--verify` recomputes it; a doctored correction does not recompute (check 6).
+
+## settle v1.4: the full adversarial pass (2026-09-24)
+After four public red-team rounds, the whole stack was attacked on purpose. Each hole below was first reproduced against v1.3 with a working attack, then closed. The self test runs every attack against v1.3 (it succeeds) and then against v1.4 (it fails).
+
+    python3 settle_v1_4.py --selftest       # expect: SELF-TEST PASSED, 11 checks
+
+| | attack that worked on v1.3 | v1.4 |
+|---|---|---|
+| H1 | short branch padded with pre-checkpoint headers won fork choice | work counted only at or above the contract checkpoint |
+| H2 | `authorized_actions: []` meant allow-all | explicit list required; empty means nothing is authorized |
+| H3 | `Delete`, or a Cyrillic `е`, slipped past `prohibited_actions` | action names must match `^[a-z][a-z0-9_.:-]{0,63}$` |
+| H4 | principal signed a `delete` as the "witness" and framed the contractor | party and witness keys must be pairwise distinct |
+| H5 | contractor never acknowledged a delivery_ack revocation and kept authority | `ack_window` required; authority ends at min(ack, revocation + window) |
+| H6 | ack named the second anchoring of a revocation and was lost after collapse | acks match the revocation's signed body |
+| H7 | contractor re-signed 4 variants until its act sorted before a same-block revocation | `record_sha256` ties refused as grindable; within a block, authority ends first and approvals count only from an earlier block or the same record |
+| H8 | one principal approval reused without limit | scoped approvals (`valid_until_height`, `nonce`, `single_use`); unscoped only if the grant allows |
+| H9 | unbounded records, actions, headers | 10000 records, 256 actions, 200000 headers, 32 witnesses |
+
+The ordering and scope rules now live in one walk; header verification, anchor proofs, signatures, schemas and duplicate collapse are reused from v1.1 to v1.3 unchanged.
