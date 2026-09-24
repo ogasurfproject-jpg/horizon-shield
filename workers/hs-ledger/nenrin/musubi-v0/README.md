@@ -94,3 +94,16 @@ A red-team reply on Bluesky (@tallybexro): can an agent exceed its delegated sco
 - Every attempt goes in `performed_actions`; outcomes (`ok`, `error`, `timeout`, `partial`) go in `outcomes`. An outcome never excuses scope: a prohibited call that errored is still a deviation, and so is the fallback an agent reaches for after an error (checks 1, 2).
 - A contractor-signed record that hides an attempt outside the schema is a deviation, `nonconforming_record`; a witness cannot charge the contractor that way (checks 3, 4, 5).
 - `--claim` recomputes a published settlement and names every misreported field. A signed claim that differs is evidence against its signer, including a claim computed after quietly dropping a record (checks 7, 8).
+
+## correction v0: a recomputation with provenance (2026-09-24)
+Next reply from the same red team (@tallybexro): a recomputation is a correction only if it preserves the original inputs, names the changed field, and shows why the old result was wrong; otherwise it is a second opinion with no provenance. `verify_claim` in v1.3 only named the changed fields. That was an opinion.
+
+`correction_v0.py` makes the correction a record of its own (schema `a2a-correction-v0`).
+
+    python3 correction_v0.py --selftest     # expect: SELF-TEST PASSED, 7 checks
+    python3 correction_v0.py --settle contract.json --event ... --view headers.json --claim claim.json
+    python3 correction_v0.py --settle contract.json --event ... --view headers.json --claim claim.json --verify correction.json
+
+- Inputs are pinned: the claim's sha (signatures included, so a signed claim stays bound to its signer), the contract sha, every record sha, the chain view (tip, horizon, pins, work, rules), and the sha of each settlement code file.
+- Every changed field is listed with both values, and each difference is traced to a cause that points at an input: `record_omitted_by_claim`, `record_not_in_inputs`, `chain_view_differs`, `deviation_missing_in_claim` (with its evidence sha), `deviation_without_basis`, `verdict_follows`, and `unexplained` for anything the rules do not account for (checks 2 to 5).
+- The correction is deterministic and `--verify` recomputes it; a doctored correction does not recompute (check 6).
