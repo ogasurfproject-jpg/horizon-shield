@@ -68,3 +68,16 @@ The same red team came back: let two replicas accept different anchor histories 
 - The grant names `grant.finality.depth`. Above the horizon a settlement is `provisional`, bond `pending_finality`. Two forks can disagree, and both say provisional (check 2). After the reorg the recompute is final and the losing receipt is `superseded`, kept and never deleted (check 3). Replicas on the same verified view recompute identical bytes in any order (check 4). A heavier reorg deeper than the depth is exposed, not denied (check 5).
 - A revocation counts only from the principal (check 9).
 - Stated limits, also written into every settlement: linkage, work, floor and checkpoint are verified, not the full consensus rules; heaviest means heaviest among the views compared; record signatures are verified by the record verifiers, this function orders and compares.
+
+## settle v1.2: authenticated settlement (2026-09-24)
+Found by working past finding 8 before anyone asked. v1.1 still believed what a record said about who wrote it, and anchoring is permissionless. So a third party could anchor a revocation that merely says "principal" and turn an honest contractor's later work into deviations (a frame); a contractor could write an approval it never received into its own record (a hidden deviation); anyone could put acts in the contractor's name. And `contract.expiry` was a wall-clock date no settlement read.
+
+`settle_v1_2.py` closes these on top of v1.1 (v1.1, v1, v0 untouched).
+
+    python3 settle_v1_2.py --selftest       # expect: SELF-TEST PASSED, 13 checks
+
+- The contract must verify (both parties signed, keys pinned in the signed bytes). Every key used comes from that contract, never from a record.
+- Every record is signed before anchoring by the party its schema requires: execution by the contractor or a witness named in the signed grant (`grant.witnesses`), revocation by the principal, acknowledgement by the contractor. Others are rejected by sha (checks 2, 7, 8, 9).
+- An approval counts only with the principal's signature over (contract_id, payload_digest, action). A self-written approval is a deviation, `forged_approval` (checks 4, 6).
+- Expiry is `grant.expiry_height`; work anchored above it is `after_expiry` (check 11).
+- Stated limits: a stolen key signs validly; an approval covers its action for the life of the contract; absence of signed evidence is not evidence of compliance.
