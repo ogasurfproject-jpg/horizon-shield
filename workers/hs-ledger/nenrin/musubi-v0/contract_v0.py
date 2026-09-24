@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-MUSUBI (結) / a2a-contract-v0 — builder, signer, verifier, and deterministic settle().
+MUSUBI (結) / a2a-contract-v0: builder, signer, verifier, and deterministic settle().
 
 Third pillar. NENRIN proves what was done; TSUGI proves how it was recovered; MUSUBI fixes what
 was promised (a signed grant between principal and contractor) and makes any gap between promise
@@ -52,6 +52,13 @@ def sha256_hex(b):
 def signing_bytes(record, context=CONTEXT):
     body = {k: v for k, v in record.items() if k != "signatures"}
     return context + canonical(body).encode("utf-8")
+
+
+def contract_sha256(record):
+    """Content digest of the terms: sha256 of the exact bytes both parties sign. Identical for both
+    parties, stable when the second signature lands, recomputable from the contract minus its
+    signatures. Binding across the transaction is by this digest, never by contract_id alone."""
+    return sha256_hex(signing_bytes(record))
 
 
 # --------------------------------------------------------------------------- grant algebra
@@ -166,6 +173,7 @@ def verify_contract(record, parent=None, now=None):
     if not isinstance(record, dict) or record.get("schema") != SCHEMA:
         r.refuse("bad_schema", "not an %s record" % SCHEMA)
         return _out(r)
+    csha = contract_sha256(record)
 
     for f in ("contract_id", "nonce"):
         if not (isinstance(record.get(f), str) and HEX32.match(record[f])):
@@ -174,7 +182,7 @@ def verify_contract(record, parent=None, now=None):
     parties = record.get("parties")
     if not isinstance(parties, list) or len(parties) != 2:
         r.refuse("bad_parties", "exactly two parties required")
-        return _out(r)
+        return _out(r, csha)
     roles = [p.get("role") for p in parties if isinstance(p, dict)]
     if sorted(roles) != ["contractor", "principal"]:
         r.refuse("bad_roles", "parties must be exactly one principal and one contractor")
@@ -253,7 +261,7 @@ def verify_contract(record, parent=None, now=None):
     sigs = record.get("signatures")
     if not isinstance(sigs, list):
         r.refuse("bad_signatures", "signatures must be a list")
-        return _out(r)
+        return _out(r, csha)
     signed = {}
     msg = signing_bytes(record)
     pin = {norm_domain(p.get("domain")): p.get("public_key_ed25519_b64") for p in parties if isinstance(p, dict)}
@@ -275,13 +283,16 @@ def verify_contract(record, parent=None, now=None):
         if d not in signed:
             r.refuse("one_sided", "%s has not signed" % d)
 
-    return _out(r)
+    return _out(r, csha)
 
 
-def _out(r):
+def _out(r, csha=None):
     verdict = "accepted" if not r.refusals else "refused"
-    return {"schema": "a2a-contract-verify-v0", "verdict": verdict,
-            "refusals": r.refusals, "findings": r.findings}
+    out = {"schema": "a2a-contract-verify-v0", "verdict": verdict,
+           "refusals": r.refusals, "findings": r.findings}
+    if csha is not None:
+        out["contract_sha256"] = csha
+    return out
 
 
 # --------------------------------------------------------------------------- settle (deterministic)
@@ -408,7 +419,10 @@ def _selftest():
 
     out = verify_contract(rec)
     assert out["verdict"] == "accepted", ("verify failed", out)
-    print("[1] build + two-party sign + verify: accepted  (findings: %d)" % len(out["findings"]))
+    assert out.get("contract_sha256") == contract_sha256(rec) == sha256_hex(signing_bytes(rec)), out
+    one = json.loads(json.dumps(rec)); one["signatures"] = one["signatures"][:1]
+    assert contract_sha256(one) == out["contract_sha256"], "sha changed when the second signature was removed"
+    print("[1] build + two-party sign + verify: accepted  (findings: %d, contract_sha256 reported)" % len(out["findings"]))
 
     # tamper -> must refuse
     bad = json.loads(json.dumps(rec))

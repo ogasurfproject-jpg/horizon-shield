@@ -140,3 +140,39 @@ Two more replies (@tallybexro): re-running code is a correction only if the orig
 - A history of bundles is a hash chain. A doctored, dropped, reordered or quietly swapped bundle breaks a named link (check 5).
 - Code drift is reported with the files that differ, never ignored (check 6).
 - Stated limit: a rewrite of everything after bundle k verifies on its own. It is exposed by any earlier copy or anchored sha of a bundle it no longer contains, so anchor each bundle sha when issued.
+
+## settle v1.5: binding by contract_sha256 (2026-09-25)
+Every layer up to v1.4 bound a record to a contract by `contract_id`, a random handle written inside the record. A handle can be copied. Two records naming the same id are treated as one contract even when their terms differ, and a grant that is edited and re-signed keeps its id, so every past record silently follows the edit. The binding was a label, not the terms. This was prompted by an outside analysis that, without knowing MUSUBI existed, named the missing piece as the bilateral signed contract object and its last step: canonicalize, hash, and thread that hash through task, payment, evidence and recovery. `contract_v0` already is the object; v1.5 is the thread.
+
+`contract_sha256` is the sha256 of the exact bytes both parties signed:
+
+    contract_sha256(contract) = sha256( b"a2a-contract-v0\n" + canonical(contract without "signatures") )
+
+which is `contract_v0.signing_bytes(contract)`. It is identical for both parties, does not change when the second signature lands, and recomputes for anyone from the contract minus its signatures. `contract_id` stays as a human handle; binding is by `contract_sha256`.
+
+`settle_v1_5.py` binds by the sha, on top of v1.4 (v1.4 and every layer under it untouched).
+
+    python3 settle_v1_5.py --selftest                       # expect: SELF-TEST PASSED, 9 checks
+    python3 settle_v1_5.py --contract-sha256 contract.json  # print the sha and exit
+    python3 settle_v1_5.py --settle contract.json --event e1.json --view headers.json
+    python3 settle_v1_5.py --settle contract.json --event e1.json --view headers.json --nenrin walk.json
+
+- A record is settled only if its `contract_ref.contract_sha256` equals the sha recomputed here from the contract. The rest are sorted into `foreign` (names other terms), `unbound` (names no sha) and `inconsistent` (names this sha with a mismatched id or payload) and reported, never counted.
+- relabel: an execution really under contract B copies A's `contract_id`. v1.4 binds it by id and counts it; v1.5 sees B's sha, lists it foreign, never settles it (check 2).
+- terms swap: a grant clause is edited and both parties re-sign, keeping the id. v1.4 turns a past action into a deviation; v1.5 sees the old sha on it, foreign, and the edited terms have nothing bound to them (check 3).
+- evidence transplant: a bound execution cites a NENRIN walk produced under other terms (`walk.context.contract_sha256` differs). With the walk supplied, that is a deviation `evidence_names_other_contract` (check 4).
+- strict mode (default) settles only sha-bound records. legacy mode also settles records that carry the right id but no sha, and marks the settlement `bound_by_label_only` (check 5).
+- Stated limits: `within_grant` covers only the sha-bound records; foreign and unbound records are not judged false, only not these terms.
+
+## spine_verify: one thread through a transaction (2026-09-25)
+Binding one record type is not the spine; the spine is the same sha threaded through the whole transaction. `spine_verify.py` recomputes `contract_sha256` and follows it: contract, task, executions, nenrin, settlement, delegation, tsugi, ap2. For each stage it reports which records name these exact terms (`linked`), which name other terms (`foreign`), and which name none (`unbound`), and settles the execution records with `settle_v1_5`.
+
+    python3 spine_verify.py --selftest        # expect: SELF-TEST PASSED, 9 checks
+    python3 spine_verify.py --contract c.json --exec e1.json --view headers.json --nenrin walk.json --ap2 att.json --child sub.json
+
+- delegation laundering: a child contract that names its parent by an old sha (the parent's grant was edited) is foreign, hole `parent_not_found_by_sha`; a child within the parent grant that names the current sha is linked; a child that names the correct sha but widens the grant is `grant_escalation` (checks 2, 3, 4).
+- payment without terms: an AP2 attestation that cites a cart but carries no `contract_sha256` is unbound, hole `payment_without_terms`; one that names other terms is `payment_names_other_contract` (checks 5, 6).
+- A deviation is a settlement verdict, not a hole; a hole is a structural break in the thread. The spine is `intact` only when nothing threads to other terms.
+- Phase 2 turns each producer (the NENRIN walker, the gate A2A face, TSUGI, the AP2 bridge) into a carrier of the sha; each one moves its stage from `unbound` to `linked`. Until then those stages read honestly as unbound.
+
+Design: `ops/MUSUBI_contract_sha256_spine_DESIGN.md`.
