@@ -52,3 +52,19 @@ Check 7 reproduces the v0 defect and shows v1 settling identically in both order
 `ops/MUSUBI_a2a_contract_v0_DESIGN.md` in this repo.
 
 The crypto primitives (canonical form, Ed25519 discipline, small order key rejection, the overclaim list) are shared verbatim with the agreement layer in `../agreement-v0/agreement_verify.py`. One source of truth. MUSUBI reuses them, it does not fork them, so the folder above must sit next to this one. That is why you clone the repo rather than download this file alone.
+
+## Finding 8, and settle v1.1 (2026-09-24)
+The same red team came back: let two replicas accept different anchor histories before finality, then reorg one after settlement. If authority is (height, sha), can both emit valid but incompatible receipts, and what proves convergence? For v1 the answer was yes. Working it through exposed two more holes of the same family, closed before anyone had to ask: v1 trusted whatever chain view it was handed, and it trusted the height a record claimed, so an approval could be backdated below the action it covers.
+
+`settle_v1_1.py` adds this on top of v1 (v1 and v0 untouched).
+
+    python3 settle_v1_1.py --selftest       # expect: SELF-TEST PASSED, 11 checks
+    python3 settle_v1_1.py --settle contract.json --event e1.json --event e2.json --view a.json --view b.json
+    python3 settle_v1_1.py --settle contract.json --check settlement.json --view later.json
+
+- The chain view is raw 80 byte Bitcoin headers, verified, not trusted: prev hash linkage, double SHA256 proof of work against each header's nBits, a difficulty floor named in the signed grant (`grant.finality.max_target_bits`), and the contract's own checkpoint (`lower_bound`) must be in the view. Check 1 verifies the real mainnet genesis header; check 6 rejects four kinds of fabricated view.
+- Fork choice is cumulative work computed from those headers. Equal work picks nothing (check 10).
+- Every anchor carries a proof (append, prepend, sha256 operations, the OpenTimestamps model) from the record's commitment to the merkle root in the header at the claimed height. A record re-labelled to an older block without a proof into it is refused (check 7).
+- The grant names `grant.finality.depth`. Above the horizon a settlement is `provisional`, bond `pending_finality`. Two forks can disagree, and both say provisional (check 2). After the reorg the recompute is final and the losing receipt is `superseded`, kept and never deleted (check 3). Replicas on the same verified view recompute identical bytes in any order (check 4). A heavier reorg deeper than the depth is exposed, not denied (check 5).
+- A revocation counts only from the principal (check 9).
+- Stated limits, also written into every settlement: linkage, work, floor and checkpoint are verified, not the full consensus rules; heaviest means heaviest among the views compared; record signatures are verified by the record verifiers, this function orders and compares.
