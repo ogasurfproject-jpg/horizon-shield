@@ -10,8 +10,9 @@ spine_verify recomputes it from the contract and follows it through every record
 
 For each stage it reports which records name these exact terms (linked), which name other terms
 (foreign), and which name none (unbound). The executions / revocations / acks are settled by
-settle_v1_5 (binding by contract_sha256, v1.4 and below untouched); the other stages are checked by
-the same rule. "Which contract governed this" becomes one thread anyone can recompute offline.
+settle_v1_6 (binding by contract_sha256 for records and for approvals, v1.5 and below untouched);
+the delegation stage uses contract_v0.grant_subset, which narrows on every axis since Issue #25; the
+other stages are checked by the same rule. "Which contract governed this" becomes one thread anyone can recompute offline.
 
 This does not decide fault. It proves which terms each record claims to be under and whether that
 claim recomputes. A stage that carries no records is reported empty, not failed: Phase 2 turns each
@@ -26,6 +27,7 @@ import settle_v1 as v1
 import settle_v1_1 as v11
 import settle_v1_2 as v12
 import settle_v1_5 as v15
+import settle_v1_6 as v16
 from contract_v0 import canonical, parse_strict, contract_sha256, HEX64, EXEC_SCHEMA
 
 SPINE_SCHEMA = "a2a-spine-verify-v0"
@@ -102,7 +104,7 @@ def spine_verify(contract, executions=(), revocations=(), acks=(), view=None,
     # executions / revocations / acks: settled by settle_v1_5
     settlement, exec_link = None, {"linked": [], "foreign": [], "unbound": [], "inconsistent": []}
     if view is not None:
-        s = v15.settle_v1_5(contract, list(executions) + list(revocations) + list(acks),
+        s = v16.settle_v1_6(contract, list(executions) + list(revocations) + list(acks),
                             view, mode=mode, nenrin_records=list(nenrin_records) or None)
         settlement = {"verdict": s["verdict"], "status": s["status"], "bond_outcome": s["bond_outcome"],
                       "contract_sha256": s["contract_sha256"], "settlement": s}
@@ -163,6 +165,7 @@ def spine_verify(contract, executions=(), revocations=(), acks=(), view=None,
     settlement_verdict = settlement["verdict"] if settlement else None
     return {
         "schema": SPINE_SCHEMA,
+        "settle_layer": v16.SETTLE_SCHEMA,
         "contract_sha256": csha,
         "contract_id": contract.get("contract_id"),
         "spine": spine,
@@ -316,9 +319,9 @@ def _selftest():
 
     # [9] settle_v1_5 and every layer under it still pass
     here = os.path.dirname(os.path.abspath(__file__))
-    rr = subprocess.run([sys.executable, os.path.join(here, "settle_v1_5.py"), "--selftest"], capture_output=True, text=True)
+    rr = subprocess.run([sys.executable, os.path.join(here, "settle_v1_6.py"), "--selftest"], capture_output=True, text=True)
     assert rr.returncode == 0 and "9 checks" in rr.stdout, (rr.stdout[-400:], rr.stderr[-400:])
-    n += 1; print("[9] settle_v1_5 9/9 (with every layer under it) still passes")
+    n += 1; print("[9] settle_v1_6 9/9 (with every layer under it) still passes")
 
     print("\nSELF-TEST PASSED: MUSUBI spine_verify, %d checks (honest thread; delegation laundering, escalation; "
           "payment without terms; evidence transplant; determinism; regression)" % n)

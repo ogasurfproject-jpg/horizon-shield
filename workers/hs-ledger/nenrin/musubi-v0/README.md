@@ -8,7 +8,7 @@ A contract layer for agents that act on each other's behalf. Prove and price, do
     cd horizon-shield/workers/hs-ledger/nenrin/musubi-v0
     python3 -m venv .venv && . .venv/bin/activate
     pip install cryptography
-    python3 contract_v0.py --selftest        # expect: SELF-TEST PASSED, 6 of 6
+    python3 contract_v0.py --selftest        # expect: SELF-TEST PASSED, 7 checks
 
 `cryptography` is the only thing you install. If you prefer not to use a venv and pip refuses with "externally managed environment", `pip install --break-system-packages cryptography` does the same.
 
@@ -16,7 +16,7 @@ The verifier is offline by design. There is no endpoint to trust. You run the sa
 
 ## The CLI
 
-    python3 contract_v0.py --selftest                     # 6 of 6 self checks
+    python3 contract_v0.py --selftest                     # 7 self checks
     python3 contract_v0.py --verify contract.json         # verify a signed contract
     python3 contract_v0.py --sign  contract_unsigned.json --key mykey.json --domain my.domain --out contract_A.json
     python3 contract_v0.py --settle contract.json --exec execution.json   # recompute the settlement verdict
@@ -28,6 +28,7 @@ The verifier is offline by design. There is no endpoint to trust. You run the sa
 4. settle, compliant execution: work inside the grant settles as within_grant.
 5. settle, prohibited action: an action outside the grant settles as a deviation, named.
 6. delegation subset: a sub grant that widens authority beyond its parent is rejected.
+7. delegation on every axis, and the grant key door (2026-09-25, Issue #25): a child that widens who it may delegate to, drops or changes a condition the parent placed, outlives the parent's expiry, revokes slower, or accepts unscoped approvals is rejected; prohibiting a conditional action still narrows. A grant carrying any key outside the declared set (`GRANT_KEYS`) is refused, `grant_key_unknown`: a key no verifier reads is a key some reader can be made to trust.
 
 ## Break it
 Find a contract that verifies but should not, or a settlement that recomputes to the wrong verdict. Send the input that does it. A finding is worth more than a pass.
@@ -174,5 +175,23 @@ Binding one record type is not the spine; the spine is the same sha threaded thr
 - payment without terms: an AP2 attestation that cites a cart but carries no `contract_sha256` is unbound, hole `payment_without_terms`; one that names other terms is `payment_names_other_contract` (checks 5, 6).
 - A deviation is a settlement verdict, not a hole; a hole is a structural break in the thread. The spine is `intact` only when nothing threads to other terms.
 - Phase 2 turns each producer (the NENRIN walker, the gate A2A face, TSUGI, the AP2 bridge) into a carrier of the sha; each one moves its stage from `unbound` to `linked`. Until then those stages read honestly as unbound.
+- Since 2026-09-25 the executions are settled by `settle_v1_6` and the delegation stage uses the every-axis `grant_subset`.
 
 Design: `ops/MUSUBI_contract_sha256_spine_DESIGN.md`.
+
+## settle v1.6: approvals bound to the terms (2026-09-25, Issue #25)
+The first outside contractor (babyblueviper1) ran a cold break attempt at 330b94a0 against the whole settle chain and filed what was still open as Issue #25, reproductions pinned. Four gaps, each reproduced here before anything changed, then closed:
+
+| | gap (where it lived) | closed by |
+|---|---|---|
+| D1 | a leftover `grant.authorized_prohibited` silently replaced `prohibited_actions` in the v0 and v1 settle paths | `verify_contract` refuses any grant key outside `GRANT_KEYS` (`grant_key_unknown`), so every layer that verifies first refuses it at the door; the base paths are superseded, not edited |
+| D2 | `authorized_actions: []` settled as allow-everything in settle_v1 | inherited from v1.4: empty means nothing authorized |
+| D3 | `grant_subset` ignored delegates, conditions, expiry, revocation speed, unscoped approvals | `grant_subset` narrows on every axis (contract_v0 check 7) |
+| D4 | approvals were signed over `contract_id`, so a principal approval replayed under renegotiated terms with the same id; v1.5 had bound executions by sha and left approvals bound by the label | `a2a-approval-v2`: signed over `contract_sha256`, action, `valid_until_height`, `nonce`, `single_use`. A genuine principal signature over the old bytes is `label_bound` and never counts; a valid v2 for another sha is `other_terms`; unscoped approvals are refused as terms |
+
+    python3 settle_v1_6.py --selftest       # expect: SELF-TEST PASSED, 9 checks
+    python3 settle_v1_6.py --settle contract.json --event e1.json --view headers.json [--nenrin walk.json]
+
+- The walk is v1.4's walk with the approval classifier swapped; ordering, ties and revocation are unchanged. Binding and the NENRIN cross check are v1.5's. Nothing under v1.6 was edited except `contract_v0.grant_subset` and the grant key door in `verify_contract`, both primitives every layer shares.
+- Check D4 runs the replay against v1.5 (within_grant) and then v1.6 (label_bound, not counted, deviation named). Check D3 keeps a frozen copy of the old `grant_subset` to show it saw nothing. Checks D1 and D2 run the base v0 and v1 paths to show why they are superseded.
+- Stated limits: as v1.4 and v1.5. A stolen principal key still signs a valid v2 approval.

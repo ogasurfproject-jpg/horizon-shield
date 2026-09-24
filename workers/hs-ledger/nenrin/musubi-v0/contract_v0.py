@@ -62,12 +62,37 @@ def contract_sha256(record):
 
 
 # --------------------------------------------------------------------------- grant algebra
+# The grant keys any settle layer reads. verify_contract refuses a grant carrying any other key: a key no
+# verifier validates is a key some reader can be made to trust (2026-09-25, Issue #25: a leftover
+# "authorized_prohibited" silently replaced prohibited_actions in the v0 and v1 settle paths).
+GRANT_KEYS = frozenset(("authorized_actions", "prohibited_actions", "conditional", "delegation", "data_access",
+                        "max_hops", "privacy", "revocation", "finality", "witnesses", "expiry_height",
+                        "ordering", "approval_policy"))
+
+
+def _delegates(grant):
+    d = grant.get("delegation")
+    return set((d.get("allowed") if isinstance(d, dict) else []) or [])
+
+
+def _conditionals(grant):
+    return {c.get("action"): c.get("requires") for c in (grant.get("conditional") or []) if isinstance(c, dict)}
+
+
+def _int(x):
+    return x if (isinstance(x, int) and not isinstance(x, bool)) else None
+
+
 def grant_subset(child, parent):
-    """Delegation monotonicity: a delegated (child) grant may only narrow the parent's.
-    Returns a list of violations; empty means the child is within the parent."""
+    """Delegation monotonicity: a delegated (child) grant may only narrow the parent's, on EVERY axis of
+    authority. Returns a list of violations; empty means the child is within the parent.
+    Axes (2026-09-25, Issue #25 closed the last four): authorized actions, prohibited actions, data access,
+    hops, who the child may delegate to, every condition the parent placed on an action, expiry height, how
+    fast authority ends on revocation, and whether unscoped approvals are accepted."""
     v = []
     pa = set(parent.get("authorized_actions") or [])
-    for a in (child.get("authorized_actions") or []):
+    ca = set(child.get("authorized_actions") or [])
+    for a in sorted(ca, key=str):
         if a not in pa:
             v.append("authorized action %r not in parent grant" % a)
     cp = set(child.get("prohibited_actions") or [])
@@ -81,6 +106,48 @@ def grant_subset(child, parent):
     if isinstance(parent.get("max_hops"), int) and isinstance(child.get("max_hops"), int):
         if child["max_hops"] > parent["max_hops"] - 1:
             v.append("max_hops %d exceeds parent-1 (%d)" % (child["max_hops"], parent["max_hops"] - 1))
+    # who the child may delegate to: a subset of who the parent may delegate to
+    pdl, cdl = _delegates(parent), _delegates(child)
+    for d in sorted(cdl, key=str):
+        if d not in pdl:
+            v.append("delegation.allowed %r not in parent grant" % d)
+    # every condition the parent placed stays, with the same requirement, unless the child drops or prohibits the action
+    pc, cc = _conditionals(parent), _conditionals(child)
+    for a, req in pc.items():
+        if a in cp or (a not in ca and a not in cc):
+            continue                                            # prohibited or not granted at all: narrower
+        if a not in cc:
+            v.append("parent requires %r for %r but child drops the condition" % (req, a))
+        elif cc[a] != req:
+            v.append("child changes the requirement for %r from %r to %r" % (a, req, cc[a]))
+    for a in sorted(cc, key=str):                               # a conditional-only action is still an action
+        if a not in pa and a not in pc:
+            v.append("conditional action %r not in parent grant" % a)
+    # expiry: the child cannot outlive the parent
+    pe, ce = _int(parent.get("expiry_height")), _int(child.get("expiry_height"))
+    if pe is not None:
+        if ce is None:
+            v.append("parent expires at height %d but child has no expiry_height" % pe)
+        elif ce > pe:
+            v.append("expiry_height %d exceeds parent (%d)" % (ce, pe))
+    # revocation: authority in the child ends no later than it would in the parent
+    pr = parent.get("revocation") if isinstance(parent.get("revocation"), dict) else None
+    cr = child.get("revocation") if isinstance(child.get("revocation"), dict) else None
+    if pr is not None:
+        pm, cm = pr.get("effective_at"), (cr or {}).get("effective_at")
+        if pm == "anchor" and cm != "anchor":
+            v.append("parent revokes at anchor but child revokes at %r" % cm)
+        elif pm == "delivery_ack" and cm == "delivery_ack":
+            pw, cw = _int(pr.get("ack_window")), _int((cr or {}).get("ack_window"))
+            if pw is not None and (cw is None or cw > pw):
+                v.append("ack_window %r exceeds parent (%d)" % (cw, pw))
+        elif cm is None:
+            v.append("parent has a revocation policy but child has none")
+    # approvals: the child cannot accept looser approvals than the parent
+    pap = parent.get("approval_policy") if isinstance(parent.get("approval_policy"), dict) else {}
+    cap = child.get("approval_policy") if isinstance(child.get("approval_policy"), dict) else {}
+    if bool(cap.get("allow_unscoped")) and not bool(pap.get("allow_unscoped")):
+        v.append("child allows unscoped approvals but parent does not")
     return v
 
 
@@ -216,6 +283,10 @@ def verify_contract(record, parent=None, now=None):
     if not isinstance(grant, dict):
         r.refuse("bad_grant", "grant object is required")
     else:
+        unknown = sorted(k for k in grant if k not in GRANT_KEYS)
+        if unknown:
+            r.refuse("grant_key_unknown", "undeclared grant keys are refused, a key no verifier reads can shadow "
+                                          "one that is: %s" % unknown)
         for k in ("authorized_actions", "prohibited_actions"):
             if not isinstance(grant.get(k), list):
                 r.refuse("bad_grant", "grant.%s must be a list" % k)
@@ -460,7 +531,36 @@ def _selftest():
     assert any("payment" in v for v in viol), viol
     print("[6] delegation grant_subset: widening ('payment') rejected")
 
-    print("\nSELF-TEST PASSED: MUSUBI a2a-contract-v0 (build, sign, verify, tamper, overclaim, settle, delegation)")
+    # every other axis a child could widen (Issue #25, 2026-09-25), and the door that closes key shadowing
+    parent_g = {"authorized_actions": ["read", "write"], "prohibited_actions": ["delete"],
+                "conditional": [{"action": "write", "requires": "principal_approval"}],
+                "delegation": {"allowed": ["a.example"]}, "expiry_height": 1000,
+                "revocation": {"effective_at": "anchor"}, "approval_policy": {"allow_unscoped": False}}
+    same = json.loads(json.dumps(parent_g)); same["delegation"] = {"allowed": ["a.example"]}
+    assert grant_subset(same, parent_g) == [], grant_subset(same, parent_g)
+    def widen(**kv):
+        g = json.loads(json.dumps(parent_g)); g.update(kv); return grant_subset(g, parent_g)
+    cases = {
+        "delegation.allowed":    widen(delegation={"allowed": ["a.example", "anyone.example"]}),
+        "dropped condition":     widen(conditional=[]),
+        "changed requirement":   widen(conditional=[{"action": "write", "requires": "none"}]),
+        "conditional-only act":  widen(conditional=parent_g["conditional"] + [{"action": "payment", "requires": "x"}]),
+        "expiry extended":       widen(expiry_height=9999),
+        "expiry dropped":        widen(expiry_height=None),
+        "revocation loosened":   widen(revocation={"effective_at": "delivery_ack", "ack_window": 50}),
+        "unscoped approvals":    widen(approval_policy={"allow_unscoped": True}),
+    }
+    for name, viol in cases.items():
+        assert viol, "child widened %s but grant_subset saw nothing" % name
+    narrower = widen(conditional=[], prohibited_actions=["delete", "write"])   # prohibiting a conditional action narrows
+    assert narrower == [], narrower
+    bad3 = json.loads(json.dumps(rec)); bad3["grant"]["authorized_prohibited"] = ["harmless"]
+    out3 = verify_contract(bad3)
+    assert out3["verdict"] == "refused" and any(x["code"] == "grant_key_unknown" for x in out3["refusals"]), out3
+    print("[7] grant_subset closes every widening axis (%d cases), prohibiting a conditional action still narrows; "
+          "verify_contract refuses an undeclared grant key (authorized_prohibited)" % len(cases))
+
+    print("\nSELF-TEST PASSED: MUSUBI a2a-contract-v0, 7 checks (build, sign, verify, tamper, overclaim, settle, delegation on every axis, grant key door)")
 
 
 def _write_canonical(path, obj):
