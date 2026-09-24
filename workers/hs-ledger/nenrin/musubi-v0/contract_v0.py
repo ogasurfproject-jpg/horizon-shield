@@ -449,11 +449,23 @@ def _selftest():
     print("\nSELF-TEST PASSED: MUSUBI a2a-contract-v0 (build, sign, verify, tamper, overclaim, settle, delegation)")
 
 
+def _write_canonical(path, obj):
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        f.write(canonical(obj))
+
+
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(description="MUSUBI a2a-contract-v0")
+    ap = argparse.ArgumentParser(description="MUSUBI a2a-contract-v0 (build/sign/verify/settle)")
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--verify", metavar="RECORD.json")
     ap.add_argument("--parent", metavar="PARENT.json", default=None)
+    ap.add_argument("--sign", metavar="RECORD.json", help="add one party's signature (needs --key --domain --out)")
+    ap.add_argument("--key", metavar="PEM", help="Ed25519 private key PEM for --sign")
+    ap.add_argument("--domain", metavar="HOST", help="the signing party's domain for --sign")
+    ap.add_argument("--settle", metavar="CONTRACT.json", help="compute settlement (needs one or more --exec)")
+    ap.add_argument("--exec", dest="execs", action="append", default=[], metavar="EXEC.json",
+                    help="an a2a-execution-v0 evidence record; repeatable")
+    ap.add_argument("--out", metavar="OUT.json", help="output path for --sign or --settle")
     a = ap.parse_args()
     if a.selftest:
         _selftest()
@@ -461,5 +473,21 @@ if __name__ == "__main__":
         rec = parse_strict(open(a.verify, encoding="utf-8").read())
         parent = parse_strict(open(a.parent, encoding="utf-8").read()) if a.parent else None
         print(json.dumps(verify_contract(rec, parent=parent), ensure_ascii=False, indent=2))
+    elif a.sign:
+        if not (a.key and a.domain and a.out):
+            raise SystemExit("--sign needs --key PEM --domain HOST --out OUT.json")
+        rec = parse_strict(open(a.sign, encoding="utf-8").read())
+        key, pub = _load_priv(a.key)
+        rec, msg = sign_contract(rec, key, pub, a.domain)
+        _write_canonical(a.out, rec)
+        print("signed as %s over %d bytes; %d signature(s) now on the record -> %s"
+              % (a.domain, len(msg), len(rec["signatures"]), a.out))
+    elif a.settle:
+        contract = parse_strict(open(a.settle, encoding="utf-8").read())
+        execs = [parse_strict(open(p, encoding="utf-8").read()) for p in a.execs]
+        s = settle(contract, execs)
+        if a.out:
+            _write_canonical(a.out, s)
+        print(json.dumps(s, ensure_ascii=False, indent=2))
     else:
         ap.print_help()
