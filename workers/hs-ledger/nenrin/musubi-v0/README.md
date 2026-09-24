@@ -81,3 +81,16 @@ Found by working past finding 8 before anyone asked. v1.1 still believed what a 
 - An approval counts only with the principal's signature over (contract_id, payload_digest, action). A self-written approval is a deviation, `forged_approval` (checks 4, 6).
 - Expiry is `grant.expiry_height`; work anchored above it is `after_expiry` (check 11).
 - Stated limits: a stolen key signs validly; an approval covers its action for the life of the contract; absence of signed evidence is not evidence of compliance.
+
+## settle v1.3: authority under failure (2026-09-24)
+A red-team reply on Bluesky (@tallybexro): can an agent exceed its delegated scope when a tool errors, a message is duplicated, or one side lies about settlement? A contract that only recomputes a clean verdict proves arithmetic, not delegation. Two of the three were open, and the third was half open: the test written for it found that one signed message anchored twice carried two different proofs, so its bytes differed and it counted twice.
+
+`settle_v1_3.py` closes them on top of v1.2 (all earlier layers untouched).
+
+    python3 settle_v1_3.py --selftest       # expect: SELF-TEST PASSED, 9 checks
+    python3 settle_v1_3.py --settle contract.json --event ... --view headers.json --claim published_settlement.json
+
+- One message, one record: copies of one signed body collapse to the earliest anchor that verifies, and the collapse is listed. A genuine retry is a new signed body and counts again (check 6).
+- Every attempt goes in `performed_actions`; outcomes (`ok`, `error`, `timeout`, `partial`) go in `outcomes`. An outcome never excuses scope: a prohibited call that errored is still a deviation, and so is the fallback an agent reaches for after an error (checks 1, 2).
+- A contractor-signed record that hides an attempt outside the schema is a deviation, `nonconforming_record`; a witness cannot charge the contractor that way (checks 3, 4, 5).
+- `--claim` recomputes a published settlement and names every misreported field. A signed claim that differs is evidence against its signer, including a claim computed after quietly dropping a record (checks 7, 8).
