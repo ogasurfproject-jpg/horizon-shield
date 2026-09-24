@@ -126,3 +126,17 @@ After four public red-team rounds, the whole stack was attacked on purpose. Each
 | H9 | unbounded records, actions, headers | 10000 records, 256 actions, 200000 headers, 32 witnesses |
 
 The ordering and scope rules now live in one walk; header verification, anchor proofs, signatures, schemas and duplicate collapse are reused from v1.1 to v1.3 unchanged.
+
+## correction bundle v0: corrections that cannot be severed or quietly rewritten (2026-09-24)
+Two more replies (@tallybexro): re-running code is a correction only if the original claim, inputs and evidence remain available, otherwise the new result quietly severs itself from what it corrects; and if a doctored correction passes, the chain is theater. correction v0 pinned hashes but carried no bytes, and nothing linked one correction to the next.
+
+`correction_bundle_v0.py` packs the correction with everything it rests on: the claim bytes, the contract, every record, the header view, and `supersedes` (the sha of the previous bundle for the same claim).
+
+    python3 correction_bundle_v0.py --selftest      # expect: SELF-TEST PASSED, 8 checks
+    python3 correction_bundle_v0.py --verify bundle.json
+    python3 correction_bundle_v0.py --chain b1.json b2.json b3.json
+
+- A bundle re-verifies offline from its own bytes. Swapped claim bytes, a removed record, or a doctored correction each break it, by name (checks 1 to 4).
+- A history of bundles is a hash chain. A doctored, dropped, reordered or quietly swapped bundle breaks a named link (check 5).
+- Code drift is reported with the files that differ, never ignored (check 6).
+- Stated limit: a rewrite of everything after bundle k verifies on its own. It is exposed by any earlier copy or anchored sha of a bundle it no longer contains, so anchor each bundle sha when issued.
