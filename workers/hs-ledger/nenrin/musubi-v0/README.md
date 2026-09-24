@@ -30,7 +30,23 @@ The verifier is offline by design. There is no endpoint to trust. You run the sa
 6. delegation subset: a sub grant that widens authority beyond its parent is rejected.
 
 ## Break it
-Find a contract that verifies but should not, or a settlement that recomputes to the wrong verdict. The self test is 6 of 6 today. Make it 6 of 7 and send the input that does it. A finding is worth more than a pass.
+Find a contract that verifies but should not, or a settlement that recomputes to the wrong verdict. Send the input that does it. A finding is worth more than a pass.
+
+## Finding 7, and settle v1 (2026-09-24)
+A red-team question on Bluesky (@quaxworld.art) asked what defines the authoritative event set when action and revocation receipts reach replicas in opposite orders, and whether that choice can be recomputed too. Taking it seriously exposed a real defect in `contract_v0.settle()`: it used the list order of execution records as time order. The same two records, swapped, flip the verdict when an approval and the conditional action it covers sit in different records. List order is arrival order. That is the bug the question described.
+
+`settle_v1.py` replaces the rule. `contract_v0.py` is untouched (published, referenced).
+
+    python3 settle_v1.py --selftest        # expect: SELF-TEST PASSED, 11 checks
+    python3 settle_v1.py --settle contract.json --event e1.json --event rev.json --event e2.json   # any order
+
+- The authoritative event set is every record bound to the contract, ordered by (anchor height, sha256 of the record bytes). Height recomputes from the chain, the sha from the bytes, arrival order plays no part. Check 1 shuffles the same records 50 times and asserts identical settlement bytes.
+- When a revocation takes effect is a term of the signed grant, `grant.revocation.effective_at`: `anchor` or `delivery_ack`. A wall-clock rule is refused as not recomputable (check 8).
+- Two records at the same height are a real ambiguity. They are broken by bytes only if the grant opts in with `grant.ordering.same_height: "record_sha256"`. Otherwise a tie that would change the outcome makes the verdict `underspecified`, and no guess leaks into the deviations list (checks 4, 5, 11).
+- The same receipt delivered twice is one record (check 10). A revocation is terminal; re-granting is a new contract.
+- What it does not establish is written into every settlement: that a claimed anchor height is true (recompute it against the chain), that the records are authentic (verify them first), that HS judged anything.
+
+Check 7 reproduces the v0 defect and shows v1 settling identically in both orders. Break v1 next.
 
 ## Design
 `ops/MUSUBI_a2a_contract_v0_DESIGN.md` in this repo.
