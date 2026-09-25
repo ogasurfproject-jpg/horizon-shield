@@ -103,6 +103,15 @@ def declaration_sha256(decl):
     return sha256_hex(declaration_signing_bytes(decl))
 
 
+def _where(d, i, label="declaration"):
+    """A name for a declaration in messages that does not depend on its position in the input, so the output is
+    identical under any input order: the digest of its signed body when it has one, else its index."""
+    try:
+        return "%s %s" % (label, declaration_sha256(d)[:16])
+    except Exception:  # noqa: BLE001
+        return "%s[%d]" % (label, i)
+
+
 def legal_entity_key(le):
     """The comparable identity of a legal entity: registry, scheme, id. Name is display only."""
     return "%s:%s:%s" % (le["registry"], le["scheme"], le["id"])
@@ -226,7 +235,7 @@ def _attach(r, actors, declarations, csha):
     by_key = {a["key"]: a for a in actors if a.get("key")}
     chosen = {}
     for i, d in enumerate(declarations or []):
-        where = "declarations[%d]" % i
+        where = _where(d, i)
         dr, pub = check_declaration(d, where)
         r.refusals.extend(dr.refusals); r.findings.extend(dr.findings)
         if dr.refusals or pub is None:
@@ -376,7 +385,7 @@ def pool_vector(declarations):
     r = v0.R()
     actors, decl_by_id, seen = [], {}, {}
     for i, d in enumerate(declarations or []):
-        dr, pub = check_declaration(d, "pool[%d]" % i)
+        dr, pub = check_declaration(d, _where(d, i, "pool"))
         r.refusals.extend(dr.refusals); r.findings.extend(dr.findings)
         if dr.refusals or pub is None:
             continue

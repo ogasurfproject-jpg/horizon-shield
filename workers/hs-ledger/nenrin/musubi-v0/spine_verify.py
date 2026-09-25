@@ -14,6 +14,19 @@ settle_v1_6 (binding by contract_sha256 for records and for approvals, v1.5 and 
 the delegation stage uses contract_v0.grant_subset, which narrows on every axis since Issue #25; the
 other stages are checked by the same rule. "Which contract governed this" becomes one thread anyone can recompute offline.
 
+Three stages were added on 2026-09-26, after the external stage so the earlier stage positions do not move:
+
+    terms -> independence -> corroboration
+
+terms: the meaning the contract pins in task.terms_sha256, verified against the supplied bytes (terms_v0);
+independence: the actors resolved to legal entities through their own signed declarations, and the quorum the
+contract states (independence_v0); corroboration: who measured "done", in entities, inside a block window
+(corroboration_v0). With those, the thread reads WHY (what was agreed to mean) -> AGREED -> DID -> MEASURED.
+A stage with nothing handed in stays "none", not failed. A terms record that is not the pinned bytes, a
+declaration set that fails the stated quorum, or measurements that cannot be about this contract are holes;
+a corroboration verdict (disputed, contradicted, not_corroborated) is reported like a settlement verdict,
+not as a hole, because it is a statement about the work, not a break in the thread.
+
 This does not decide fault. It proves which terms each record claims to be under and whether that
 claim recomputes. A stage that carries no records is reported empty, not failed: Phase 2 turns each
 producer (NENRIN walker, gate A2A face, TSUGI, AP2 bridge) into a carrier of the sha, and each turns
@@ -28,6 +41,9 @@ import settle_v1_1 as v11
 import settle_v1_2 as v12
 import settle_v1_5 as v15
 import settle_v1_6 as v16
+import terms_v0 as tv0
+import independence_v0 as ind
+import corroboration_v0 as cor
 from contract_v0 import canonical, parse_strict, contract_sha256, HEX64, EXEC_SCHEMA
 
 SPINE_SCHEMA = "a2a-spine-verify-v0"
@@ -94,7 +110,8 @@ def _check_children(contract, children, csha):
 
 def spine_verify(contract, executions=(), revocations=(), acks=(), view=None,
                  nenrin_records=(), child_contracts=(), ap2_records=(), tasks=(),
-                 tsugi_records=(), external_records=(), mode="strict"):
+                 tsugi_records=(), external_records=(), mode="strict",
+                 terms=None, vocabulary_bytes=None, declarations=(), measurements=()):
     csha = contract_sha256(contract)
     holes = []
 
@@ -133,6 +150,47 @@ def spine_verify(contract, executions=(), revocations=(), acks=(), view=None,
     ext_link = _link(external_records, lambda r: r.get("contract_sha256") or _get(r, "contract_ref", "contract_sha256")
                      or _get(r, "reference", "contract_sha256") or _get(r, "metadata", "musubi", "contract_sha256"), csha)
 
+    # terms: the meaning the contract pins (task.terms_sha256), verified against the supplied bytes. Terms handed in
+    # that are not the pinned bytes, or handed in under a contract that pins none, are a hole (terms_v0 refuses).
+    pin = _get(contract, "task", "terms_sha256")
+    terms_stage = {"stage": "terms", "pinned_sha256": pin, "status": "none", "verdict": None, "terms_sha256": None}
+    if terms is not None:
+        tv = tv0.verify_terms(terms, vocabulary_bytes, contract=contract)
+        terms_stage.update({"status": tv["verdict"], "verdict": tv["verdict"], "terms_sha256": tv["terms_sha256"],
+                            "counts": tv.get("counts"), "refusals": tv["refusals"], "findings": tv["findings"]})
+        if tv["verdict"] == "refused":
+            holes.append({"stage": "terms", "reason": "terms_refused", "refusals": tv["refusals"]})
+    elif pin is not None:
+        terms_stage["status"] = "pinned_not_supplied"
+
+    # independence: actors resolved to legal entities through their own signed declarations, and the quorum the
+    # contract states. Runs when declarations are handed in or the contract states a quorum.
+    ind_stage = {"stage": "independence", "status": "none", "verdict": None}
+    if declarations or _get(contract, "requirements", "independence") is not None:
+        io = ind.verify_independence(contract, list(declarations))
+        ind_stage.update({"status": io["verdict"], "verdict": io["verdict"], "vector": io["vector"], "quorum": io["quorum"],
+                          "refusals": io["refusals"], "findings": io["findings"]})
+        if io["verdict"] == "refused":
+            holes.append({"stage": "independence", "reason": "declarations_refused", "refusals": io["refusals"]})
+        elif io["verdict"] == "not_met":
+            holes.append({"stage": "independence", "reason": "independence_quorum_not_met", "quorum": io["quorum"]})
+
+    # corroboration: who measured "done", in entities, inside a block window. Needs the terms and the view; a
+    # refusal (measurements that cannot be about this contract, or terms/view that do not verify) is a hole; the
+    # verdict itself (corroborated, disputed, contradicted, not_corroborated, undetermined) is reported, not a hole.
+    cor_stage = {"stage": "corroboration", "status": "none", "verdict": None}
+    if measurements:
+        if terms is None or view is None:
+            cor_stage["status"] = "terms_or_view_missing"
+            holes.append({"stage": "corroboration", "reason": "measurements_without_terms_or_view",
+                          "count": len(list(measurements))})
+        else:
+            co = cor.verify_corroboration(contract, terms, list(measurements), view, list(declarations), vocabulary_bytes)
+            cor_stage.update({"status": co["verdict"], "verdict": co["verdict"], "requirement": co["requirement"],
+                              "items": co["items"], "refusals": co["refusals"], "findings": co["findings"]})
+            if co["verdict"] == "refused":
+                holes.append({"stage": "corroboration", "reason": "measurements_refused", "refusals": co["refusals"]})
+
     # holes: structural breaks in the thread (a deviation is a settlement verdict, not a hole)
     if task_link["foreign"] or task_link["unbound"]:
         holes.append({"stage": "task", "reason": "task_not_bound_by_sha",
@@ -170,6 +228,9 @@ def spine_verify(contract, executions=(), revocations=(), acks=(), view=None,
         {"stage": "tsugi", **tsugi_link},
         {"stage": "ap2", **ap2_link},
         {"stage": "external", **ext_link},
+        terms_stage,
+        ind_stage,
+        cor_stage,
     ]
 
     spine = "intact" if not holes else "broken"
@@ -181,17 +242,22 @@ def spine_verify(contract, executions=(), revocations=(), acks=(), view=None,
         "contract_id": contract.get("contract_id"),
         "spine": spine,
         "settlement_verdict": settlement_verdict,
+        "terms_verdict": terms_stage["verdict"],
+        "independence_verdict": ind_stage["verdict"],
+        "corroboration_verdict": cor_stage["verdict"],
         "chain": chain,
         "holes": sorted(holes, key=canonical),
         "settlement": settlement["settlement"] if settlement else None,
         "establishes": [
             "that contract_sha256 recomputes from the contract bytes, and every linked record names it",
             "that the thread contract -> task -> executions -> nenrin -> settlement -> delegation -> tsugi -> ap2 is %s" % spine,
+            "that the terms, declarations and measurements handed in, when any are, name these exact terms and this exact contract, or are listed as holes",
         ],
         "does_not_establish": [
             "that foreign or unbound records are false; only that they do not name these exact terms",
             "that a linked record is true or authentic beyond what its own layer establishes",
             "that this decides fault; it proves which terms each record claims and whether the claim recomputes",
+            "that a corroborated item is true in the world; only that the counted legal entities measured it within tolerance inside the block window",
         ],
     }
 
@@ -218,19 +284,22 @@ def _selftest():
            "that a prohibited action was impossible, only that performing one is a provable deviation",
            "that this is a legal contract or determines legal responsibility"]
 
-    def mk(cid, authorized, prohibited, parent=None, max_hops=None):
+    def mk(cid, authorized, prohibited, parent=None, max_hops=None, terms=None, requirements=None):
         g = {"authorized_actions": authorized, "prohibited_actions": prohibited,
              "delegation": {"allowed": []}, "revocation": {"effective_at": "anchor"},
              "finality": {"depth": 3, "max_target_bits": "207fffff"},
              "witnesses": [{"name": "nenrin-walker", "public_key_ed25519_b64": pw}]}
         if max_hops is not None:
             g["max_hops"] = max_hops
+        task_block = {"purpose": "endpoint_conduct_walk", "payload_digest": PDG, "a2a_task_id": "t1"}
+        if terms is not None:
+            tv0.bind_terms(task_block, terms)
         c = v0.build_contract(
             {"domain": "gate.horizonshield.dev", "key_url": "https://gate.horizonshield.dev/keys/agreement.json", "public_key_ed25519_b64": pa},
             {"domain": "api.babyblueviper.com", "key_url": "https://api.babyblueviper.com/keys/agreement.json", "public_key_ed25519_b64": pb},
-            {"purpose": "endpoint_conduct_walk", "payload_digest": PDG, "a2a_task_id": "t1"}, g,
+            task_block, g,
             ["that both parties signed these grant bytes at the stated time"], DNE,
-            bond={"amount": 1000, "currency": "JPY"}, lower_bound=lb, parent_contract=parent,
+            bond={"amount": 1000, "currency": "JPY"}, lower_bound=lb, parent_contract=parent, requirements=requirements,
             contract_id=cid, nonce="c" * 32, agreed_at="2026-09-24T00:00:00Z")
         v0.sign_contract(c, ka, pa, "gate.horizonshield.dev")
         v0.sign_contract(c, kb, pb, "api.babyblueviper.com")
@@ -346,8 +415,110 @@ def _selftest():
     assert rr.returncode == 0 and "9 checks" in rr.stdout, (rr.stdout[-400:], rr.stderr[-400:])
     n += 1; print("[10] settle_v1_6 9/9 (with every layer under it) still passes")
 
+    # ---- the three stages added 2026-09-26: terms, independence, corroboration (WHY -> AGREED -> DID -> MEASURED)
+    k1, p1 = newkey(); k2, p2 = newkey()
+    HS = {"registry": "JP", "scheme": "houjin-bango", "id": "7021001075279", "name": "The HORIZONs Co., Ltd."}
+    BBV = {"registry": "GLEIF", "scheme": "lei", "id": "5493001KJTIIGC8Y1R12", "name": "Baby Blue Viper LLC"}
+    I1 = {"registry": "JP", "scheme": "houjin-bango", "id": "1234567890123", "name": "Inspector One K.K."}
+    I2 = {"registry": "JP", "scheme": "houjin-bango", "id": "9876543210987", "name": "Inspector Two K.K."}
+    WN = {"registry": "JP", "scheme": "houjin-bango", "id": "5555555555555", "name": "Walker K.K."}
+    vocab = tv0.make_vocabulary("conduct-walk-glossary", "2026.09", {"endpoint_walked": {"unit": "endpoint", "methods": ["a2a_walk"]}})
+    vb = tv0.vocabulary_bytes(vocab)
+    vref = {"name": "conduct-walk-glossary", "version": "2026.09", "sha256": tv0.vocabulary_sha256(vb), "url": "https://example.test/g.json"}
+    TERMS = tv0.build_terms(vref, [{"item_id": "endpoint_walked", "quantity": 1, "unit": "endpoint", "tolerance_bp": 0,
+                                    "completion_test": {"method": "a2a_walk", "evidence_schema": "a2a-measurement-v0"}}])
+    REQS = {"evidence": "nenrin_required", "recovery": "tsugi_required",
+            "independence": {"min_distinct_legal_entities": 3, "witnesses_independent_of_parties": True},
+            "corroboration": {"min_corroborating_entities": 2, "measurers_independent_of_parties": True}}
+
+    def decl(key, pub, domain, le):
+        return ind.sign_declaration(ind.build_declaration(pub, domain, "https://%s/keys/agreement.json" % domain, le), key)
+    dA = decl(ka, pa, "gate.horizonshield.dev", HS); dB = decl(kb, pb, "api.babyblueviper.com", BBV)
+    dW = decl(kw, pw, "walker.example", WN); d1 = decl(k1, p1, "inspector-one.example", I1); d2 = decl(k2, p2, "inspector-two.example", I2)
+    DECLS = [dA, dB, dW, d1, d2]
+
+    def full_thread(contract, terms, measurers):
+        """A chain with the beacon at 98, the execution and the measurements at 99, five more blocks."""
+        ch = base.fork(98, "m%d" % random.randint(0, 1 << 40))
+        ch.block()
+        b = {"kind": "bitcoin_block", "height": 98, "hash": ch.hashes[98]}
+        cs = contract_sha256(contract)
+        walk_ = {"schema": "jidec-path-v1", "context": {"contract_sha256": cs}, "subject": "api.babyblueviper.com/a2a",
+                 "result": "pass", "nonce": "1234567890abcdef1234567890abcdef"}
+        exe_ = ex(contract["contract_id"], cs, ["read"], ref="4", nenrin=v1.rec_sha(walk_))
+        ms = [cor.sign_measurement(cor.build_measurement(contract, terms, "endpoint_walked", 1, "a2a_walk", pub, b), key)
+              for key, pub in measurers]
+        recs = ch.block([exe_] + ms)
+        for _ in range(5):
+            ch.block()
+        return ch, walk_, recs[0], recs[1:]
+
+    # [11] the whole thread: terms pinned and supplied, three entities declared with the quorum met, two independent
+    # inspectors measured within tolerance inside the window. Every stage linked, no holes, MEASURED corroborated.
+    cT = mk(idA, ["read", "write"], ["delete"], max_hops=2, terms=TERMS, requirements=REQS)
+    assert v0.verify_contract(cT)["verdict"] == "accepted"
+    csT = contract_sha256(cT)
+    ch, walkT, exeT, msT = full_thread(cT, TERMS, [(k1, p1), (k2, p2)])
+    taskT = {"schema": "a2a-task", "id": "t1", "metadata": {"musubi": {"contract_sha256": csT}}}
+    out = spine_verify(cT, executions=[exeT], view=ch.view(), nenrin_records=[walkT], tasks=[taskT],
+                       terms=TERMS, vocabulary_bytes=vb, declarations=DECLS, measurements=msT)
+    assert out["spine"] == "intact" and out["holes"] == [], out["holes"]
+    assert out["settlement_verdict"] == "within_grant"
+    assert (out["terms_verdict"], out["independence_verdict"], out["corroboration_verdict"]) == ("accepted", "met", "corroborated"), \
+        (out["terms_verdict"], out["independence_verdict"], out["corroboration_verdict"])
+    assert [s["stage"] for s in out["chain"][9:]] == ["terms", "independence", "corroboration"]
+    assert out["chain"][10]["vector"]["distinct_legal_entities"] == 3
+    assert out["chain"][11]["items"][0]["counts"]["corroborating_entities"] == 2
+    n += 1; print("[11] WHY -> AGREED -> DID -> MEASURED: terms accepted, independence met (3 entities), within_grant, corroborated by 2 independent entities; spine intact")
+
+    # [12] each new stage breaks in its own way: edited terms fail the pin (hole); one owner behind every key fails the
+    # quorum (hole); independent measurers finding the work outside terms is contradicted (a verdict, not a hole)
+    swapped = json.loads(json.dumps(TERMS)); swapped["items"][0]["quantity"] = 2
+    out = spine_verify(cT, terms=swapped, vocabulary_bytes=vb)
+    assert out["spine"] == "broken" and any(h["reason"] == "terms_refused" for h in out["holes"]), out["holes"]
+    assert out["terms_verdict"] == "refused"
+    one_owner = [decl(ka, pa, "gate.horizonshield.dev", HS), decl(kb, pb, "api.babyblueviper.com", HS), decl(kw, pw, "walker.example", HS)]
+    out = spine_verify(cT, declarations=one_owner)
+    assert out["spine"] == "broken" and any(h["reason"] == "independence_quorum_not_met" for h in out["holes"]), out["holes"]
+    assert out["chain"][10]["vector"]["distinct_legal_entities"] == 1 and out["chain"][10]["vector"]["distinct_keys"] == 3
+    ch2, walk2, exe2, ms2 = full_thread(cT, TERMS, [(k1, p1), (k2, p2)])
+    for m in ms2:
+        m["measured"] = 0                                          # edited after signing: the signature fails, rejected, not counted
+    out = spine_verify(cT, executions=[exe2], view=ch2.view(), nenrin_records=[walk2], terms=TERMS, vocabulary_bytes=vb,
+                       declarations=DECLS, measurements=ms2)
+    assert out["corroboration_verdict"] == "not_corroborated" and out["spine"] == "intact", (out["corroboration_verdict"], out["holes"])
+    ch3 = base.fork(98, "contra"); ch3.block()
+    b3 = {"kind": "bitcoin_block", "height": 98, "hash": ch3.hashes[98]}
+    ms3 = [cor.sign_measurement(cor.build_measurement(cT, TERMS, "endpoint_walked", 0, "a2a_walk", pub, b3), key) for key, pub in ((k1, p1), (k2, p2))]
+    ms3 = ch3.block(ms3)
+    for _ in range(5):
+        ch3.block()
+    out = spine_verify(cT, view=ch3.view(), terms=TERMS, vocabulary_bytes=vb, declarations=DECLS, measurements=ms3)
+    assert out["corroboration_verdict"] == "contradicted" and out["spine"] == "intact", (out["corroboration_verdict"], out["holes"])
+    out = spine_verify(cT, terms=TERMS, vocabulary_bytes=vb, measurements=ms3)          # no view: measurements cannot be placed
+    assert out["spine"] == "broken" and any(h["reason"] == "measurements_without_terms_or_view" for h in out["holes"])
+    out = spine_verify(cA)                                                              # the old thread: new stages stay none
+    assert [s["status"] for s in out["chain"][9:]] == ["none", "none", "none"] and out["spine"] == "intact"
+    n += 1; print("[12] edited terms: hole terms_refused; one owner behind three keys: hole independence_quorum_not_met; "
+                  "measurements edited after signing: not_corroborated, no hole; two independent entities measuring 0: contradicted, no hole; "
+                  "measurements with no view: hole; a contract without the new inputs: all three stages none")
+
+    # [13] determinism with the new inputs: shuffled declarations and measurements give identical spine bytes
+    ch, walkT, exeT, msT = full_thread(cT, TERMS, [(k1, p1), (k2, p2)])
+    ref = canonical(spine_verify(cT, executions=[exeT], view=ch.view(), nenrin_records=[walkT], tasks=[taskT],
+                                 terms=TERMS, vocabulary_bytes=vb, declarations=DECLS, measurements=msT))
+    rng = random.Random(5)
+    for _ in range(10):
+        dd = list(DECLS); rng.shuffle(dd)
+        mm = list(msT) + [json.loads(json.dumps(msT[0]))]; rng.shuffle(mm)
+        got = canonical(spine_verify(cT, executions=[exeT], view=ch.view(), nenrin_records=[walkT], tasks=[taskT],
+                                     terms=TERMS, vocabulary_bytes=vb, declarations=dd, measurements=mm))
+        assert got == ref
+    n += 1; print("[13] 10 shuffles of declarations and measurements (with a duplicate): identical spine bytes")
+
     print("\nSELF-TEST PASSED: MUSUBI spine_verify, %d checks (honest thread; delegation laundering, escalation; "
-          "payment without terms; evidence transplant; external records; determinism; regression)" % n)
+          "payment without terms; evidence transplant; external records; determinism; regression; "
+          "terms, independence and corroboration stages; their holes and verdicts; determinism with them)" % n)
 
 
 def main():
@@ -364,6 +535,10 @@ def main():
     ap.add_argument("--task", action="append", default=[], metavar="TASK.json")
     ap.add_argument("--tsugi", action="append", default=[], metavar="TSUGI.json")
     ap.add_argument("--external", action="append", default=[], metavar="EXTERNAL.json")
+    ap.add_argument("--terms", metavar="TERMS.json", help="the a2a-terms-v0 bytes the contract pins in task.terms_sha256")
+    ap.add_argument("--vocabulary", metavar="VOCAB.json", help="the vocabulary's exact bytes; without them the terms stay undetermined")
+    ap.add_argument("--declaration", action="append", default=[], metavar="DECL.json")
+    ap.add_argument("--measurement", action="append", default=[], metavar="M.json")
     ap.add_argument("--mode", choices=("strict", "legacy"), default="strict")
     ap.add_argument("--out", metavar="OUT.json")
     a = ap.parse_args()
@@ -382,7 +557,10 @@ def main():
                        acks=[rd(p) for p in a.ack], view=view, nenrin_records=[rd(p) for p in a.nenrin],
                        child_contracts=[rd(p) for p in a.child], ap2_records=[rd(p) for p in a.ap2],
                        tasks=[rd(p) for p in a.task], tsugi_records=[rd(p) for p in a.tsugi],
-                       external_records=[rd(p) for p in a.external], mode=a.mode)
+                       external_records=[rd(p) for p in a.external], mode=a.mode,
+                       terms=rd(a.terms) if a.terms else None,
+                       vocabulary_bytes=open(a.vocabulary, "rb").read() if a.vocabulary else None,
+                       declarations=[rd(p) for p in a.declaration], measurements=[rd(p) for p in a.measurement])
     if a.out:
         with open(a.out, "w", encoding="utf-8", newline="") as f:
             f.write(canonical(out))

@@ -209,7 +209,7 @@ def _entities(declarations, r):
     Conflicting declarations for one key are refused, as in independence v0."""
     out, seen = {}, {}
     for i, d in enumerate(declarations or []):
-        dr, pub = ind.check_declaration(d, "declarations[%d]" % i)
+        dr, pub = ind.check_declaration(d, ind._where(d, i))
         r.refusals.extend(dr.refusals); r.findings.extend(dr.findings)
         if dr.refusals or pub is None:
             continue
@@ -272,7 +272,12 @@ def verify_corroboration(contract, terms, measurements, view, declarations=None,
     checkpoint = cv["checkpoint"]["height"]
     deadline = (terms.get("deadline") or {}).get("height") if isinstance(terms.get("deadline"), dict) else None
 
-    rows = [examine_measurement(m, i, tsha, csha, items, cv, checkpoint, deadline) for i, m in enumerate(measurements or [])]
+    uniq, seen = [], set()                                   # a byte-identical duplicate is the same record, once
+    for m in (measurements or []):
+        key = canonical(m) if isinstance(m, (dict, list)) else repr(m)
+        if key not in seen:
+            seen.add(key); uniq.append(m)
+    rows = [examine_measurement(m, i, tsha, csha, items, cv, checkpoint, deadline) for i, m in enumerate(uniq)]
     for row in rows:
         k = row.get("measurer_key")
         row["measurer"] = role_of_key.get(k) or ("measurer:%s" % sha256_hex(k)[:16] if k else None)
