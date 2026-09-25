@@ -120,7 +120,7 @@ def main():
             "authorized_actions": ["read", "observe", "emit_witness"],
             "prohibited_actions": ["payment", "delete", "redelegate", "send_pii"],
             "conditional": [],
-            "delegation": "none",
+            "delegation": {"allowed": []},
             "data_access": ["public_endpoint"],
             "max_hops": 1,
             "privacy": "no_external_retention",

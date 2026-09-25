@@ -114,6 +114,93 @@ def _witness_keys(grant):
     return set(w.get("public_key_ed25519_b64") for w in ws if isinstance(w, dict) and isinstance(w.get("public_key_ed25519_b64"), str))
 
 
+_HEX8 = re.compile(r"^[0-9a-f]{8}$")
+
+
+def _strlist(v):
+    return isinstance(v, list) and all(isinstance(x, str) and x for x in v)
+
+
+def grant_type_problems(grant):
+    """The type door (Issue #25 round 3, 2026-09-26, the first outside verifier). A value of the wrong JSON type
+    under a declared key passed verify_contract, and grant_subset then read it through _int / _target_of /
+    set(...) and SKIPPED the axis, so a signed parent with max_hops "1" (or 1.0, or true) let every child under
+    it carry max_hops 50 with zero refusals: the same class as an undeclared key or an unknown revocation mode,
+    one level further down. Every axis is typed here exactly as its readers read it, and a wrong type is refused
+    at verify, so it never reaches a comparison. Returns [(code, why)]."""
+    p = []
+
+    def bad(why):
+        p.append(("grant_type", why))
+
+    for k in ("authorized_actions", "prohibited_actions", "data_access"):
+        if grant.get(k) is not None and not _strlist(grant[k]):
+            bad("grant.%s must be a list of non empty strings" % k)
+    for k in ("max_hops", "expiry_height"):
+        v = grant.get(k)
+        if v is not None and (_int(v) is None or v < 0):
+            bad("grant.%s must be an integer >= 0 (got %s %r); a limit of another type is a limit no reader applies" % (k, type(v).__name__, v))
+    d = grant.get("delegation")
+    if d is not None:
+        if not isinstance(d, dict) or set(d.keys()) - {"allowed"}:
+            bad("grant.delegation must be an object {allowed: [domain, ...]}; use {\"allowed\": []} for no delegation")
+        elif not _strlist(d.get("allowed")):
+            bad("grant.delegation.allowed must be a list of non empty strings")
+    c = grant.get("conditional")
+    if c is not None:
+        if not isinstance(c, list) or not all(isinstance(x, dict) for x in c):
+            bad("grant.conditional must be a list of objects")
+        else:
+            acts = [x.get("action") for x in c]
+            if not all(isinstance(a, str) and a for a in acts):
+                bad("every grant.conditional entry needs a non empty string action")
+            elif len(set(acts)) != len(acts):
+                bad("grant.conditional actions must be unique; the dict view every reader builds keeps only the last of a duplicate")
+            for x in c:
+                if "requires" in x and not isinstance(x["requires"], str):
+                    bad("grant.conditional[].requires must be a string when present")
+    f = grant.get("finality")
+    if f is not None:
+        if not isinstance(f, dict) or set(f.keys()) - {"depth", "max_target_bits"}:
+            bad("grant.finality must be an object {depth, max_target_bits}")
+        else:
+            if "depth" in f and (_int(f["depth"]) is None or f["depth"] < 1):
+                bad("grant.finality.depth must be an integer >= 1 (got %r)" % (f["depth"],))
+            if "max_target_bits" in f:
+                s = f["max_target_bits"]
+                if not (isinstance(s, str) and _HEX8.match(s)) or not bits_to_target(int(s, 16)):
+                    bad("grant.finality.max_target_bits must be 8 lowercase hex that decodes to a positive target (got %r)" % (s,))
+    w = grant.get("witnesses")
+    if w is not None:
+        if not isinstance(w, list) or not all(isinstance(x, dict) for x in w):
+            bad("grant.witnesses must be a list of objects")
+        else:
+            for x in w:
+                if not (isinstance(x.get("name"), str) and x["name"]) or b64_raw(x.get("public_key_ed25519_b64"), 32) is None:
+                    bad("every grant.witnesses entry needs a non empty string name and a canonical 32 byte public_key_ed25519_b64")
+    if grant.get("privacy") is not None and not (isinstance(grant["privacy"], str) and grant["privacy"]):
+        bad("grant.privacy must be a non empty string")
+    o = grant.get("ordering")
+    if o is not None:
+        if not isinstance(o, dict) or set(o.keys()) - {"same_height"}:
+            bad("grant.ordering must be an object {same_height}, the shape settle v1 and v1.4 read")
+        elif o.get("same_height") is not None and not isinstance(o["same_height"], str):
+            bad("grant.ordering.same_height must be a string or null")
+    ap = grant.get("approval_policy")
+    if ap is not None:
+        if not isinstance(ap, dict) or set(ap.keys()) - {"allow_unscoped"}:
+            bad("grant.approval_policy must be an object {allow_unscoped}")
+        elif "allow_unscoped" in ap and not isinstance(ap["allow_unscoped"], bool):
+            bad("grant.approval_policy.allow_unscoped must be true or false")
+    rv = grant.get("revocation")
+    if isinstance(rv, dict):
+        if set(rv.keys()) - {"effective_at", "ack_window"}:
+            bad("grant.revocation must be an object {effective_at, ack_window}")
+        if "ack_window" in rv and (_int(rv["ack_window"]) is None or rv["ack_window"] < 1):
+            bad("grant.revocation.ack_window must be an integer >= 1 when present")
+    return p
+
+
 def grant_subset(child, parent):
     """Delegation monotonicity: a delegated (child) grant may only narrow the parent's, on EVERY axis of
     authority. Returns a list of violations; empty means the child is within the parent.
@@ -123,6 +210,15 @@ def grant_subset(child, parent):
     approvals are accepted, the finality floor (depth and proof-of-work target), the witness set (by key),
     and privacy and ordering (held equal until a partial order is defined for them)."""
     v = []
+    # an axis this function cannot read is a violation, never a skipped axis (Issue #25 round 3, 2026-09-26): a
+    # parent limit of the wrong type used to switch the axis off for the whole chain below it. verify_contract
+    # refuses such a grant first; this line is for callers that compare grants without verifying them.
+    for _, why in grant_type_problems(parent if isinstance(parent, dict) else {}):
+        v.append("parent grant unreadable: " + why)
+    for _, why in grant_type_problems(child if isinstance(child, dict) else {}):
+        v.append("child grant unreadable: " + why)
+    if v:
+        return v
     pa = set(parent.get("authorized_actions") or [])
     ca = set(child.get("authorized_actions") or [])
     for a in sorted(ca, key=str):
@@ -377,9 +473,15 @@ def verify_contract(record, parent=None, now=None):
         for k in ("authorized_actions", "prohibited_actions"):
             if not isinstance(grant.get(k), list):
                 r.refuse("bad_grant", "grant.%s must be a list" % k)
-        overlap = set(grant.get("authorized_actions") or []) & set(grant.get("prohibited_actions") or [])
-        if overlap:
-            r.refuse("grant_contradiction", "actions both authorized and prohibited: %s" % sorted(overlap))
+        # the type door (Issue #25 round 3): every declared key holds exactly the type its readers assume, or the
+        # contract is refused here. grant_subset skips an axis it cannot read, so a wrong-typed parent limit was
+        # a limit no child had to honour.
+        for code, why in grant_type_problems(grant):
+            r.refuse(code, why)
+        if _strlist(grant.get("authorized_actions")) and _strlist(grant.get("prohibited_actions")):
+            overlap = set(grant["authorized_actions"]) & set(grant["prohibited_actions"])
+            if overlap:
+                r.refuse("grant_contradiction", "actions both authorized and prohibited: %s" % sorted(overlap))
         # revocation door (Issue #25 item 12): a mode no settle layer reads is refused here, the same way an
         # undeclared grant key is, so it can never reach a settle path that computes on it. The ack_window
         # requirement for delivery_ack stays where it already lives, settle_v1_4's terms check
@@ -580,7 +682,7 @@ def _selftest():
     grant = {"authorized_actions": ["read", "observe", "emit_nenrin"],
              "prohibited_actions": ["payment", "delete", "redelegate", "send_pii"],
              "conditional": [{"action": "spend", "threshold_jpy": 100000, "requires": "human_approval"}],
-             "delegation": "none", "data_access": ["public_endpoint"], "max_hops": 1, "privacy": "no_external_retention"}
+             "delegation": {"allowed": []}, "data_access": ["public_endpoint"], "max_hops": 1, "privacy": "no_external_retention"}
     establishes = ["that both parties signed these grant bytes at the stated time",
                    "that each party named the grant it accepted"]
     does_not_establish = [
@@ -689,7 +791,7 @@ def _selftest():
           "finality": {"depth": 6, "max_target_bits": "1d00ffff"},
           "witnesses": [{"name": "nenrin-walker", "public_key_ed25519_b64": wk1}],
           "revocation": {"effective_at": "delivery_ack", "ack_window": 10},
-          "approval_policy": {"allow_unscoped": False}, "privacy": "public_record", "ordering": "strict"}
+          "approval_policy": {"allow_unscoped": False}, "privacy": "public_record", "ordering": {"same_height": "conservative"}}
     b8 = json.loads(json.dumps(p8)); b8["max_hops"] = 0
     assert grant_subset(b8, p8) == [], grant_subset(b8, p8)
     def w8(**kv):
@@ -707,7 +809,7 @@ def _selftest():
         "revocation -> 'manual'":    w8(revocation={"effective_at": "manual"}),
         "revocation -> 'x', window 10**9": w8(revocation={"effective_at": "x", "ack_window": 10 ** 9}),
         "privacy changed":           w8(privacy="private"),
-        "ordering changed":          w8(ordering="loose"),
+        "ordering changed":          w8(ordering={"same_height": None}),
     }
     for name, viol in widened.items():
         assert viol, "child widened %s but grant_subset saw nothing" % name
@@ -728,7 +830,73 @@ def _selftest():
     print("[8] finality floor, witness keys, revocation mode, privacy, ordering: %d widenings caught, %d narrowings pass; "
           "verify_contract refuses a revocation mode no settle layer reads" % (len(widened), len(narrowed)))
 
-    print("\nSELF-TEST PASSED: MUSUBI a2a-contract-v0, 8 checks (build, sign, verify, tamper, overclaim, settle, delegation on every axis, finality, witness and revocation floors, grant key door)")
+    # [9] the type door (Issue #25 round 3, reported 2026-09-26 by the first outside verifier). His eight rows: a
+    # two-party-signed parent whose limit is the wrong JSON type was accepted, the child under it was accepted, and
+    # the identical child under the well-typed parent was refused. All eight widened at 2f07f267. Now the malformed
+    # parent is refused at verify, and grant_subset reports the axis unreadable instead of skipping it.
+    def signed9(g, parent=None):
+        c9 = build_contract(principal, contractor, task, g, establishes, does_not_establish,
+                            parent_contract={"contract_id": parent["contract_id"]} if parent else None,
+                            lower_bound={"kind": "bitcoin_block", "height": 968325, "hash": "0" * 64})
+        sign_contract(c9, ka, pa, "gate.horizonshield.dev"); sign_contract(c9, kb, pb, "api.babyblueviper.com")
+        return c9
+    base9 = {"authorized_actions": ["read"], "prohibited_actions": ["delete"]}
+    rows = [  # (label, malformed parent axis, child axis, well-typed control parent axis)
+        ("max_hops as string",        {"max_hops": "1"},                 {"max_hops": 50},            {"max_hops": 1}),
+        ("max_hops as float",         {"max_hops": 1.0},                 {"max_hops": 50},            {"max_hops": 1}),
+        ("max_hops as bool",          {"max_hops": True},                {"max_hops": 50},            {"max_hops": 1}),
+        ("expiry_height as float",    {"expiry_height": 1000.0},         {"expiry_height": 9999},     {"expiry_height": 1000}),
+        ("expiry_height as string",   {"expiry_height": "1000"},         {},                          {"expiry_height": 1000}),
+        ("finality.depth as string",  {"finality": {"depth": "6"}},      {"finality": {"depth": 1}},  {"finality": {"depth": 6}}),
+        ("max_target_bits uppercase", {"finality": {"depth": 6, "max_target_bits": "1D00FFFF"}},
+                                      {"finality": {"depth": 6, "max_target_bits": "207fffff"}},
+                                      {"finality": {"depth": 6, "max_target_bits": "1d00ffff"}}),
+        ("data_access as string",     {"data_access": "db"},             {"data_access": ["d", "b"]}, {"data_access": ["db"]}),
+    ]
+    for label, pax, cax, ctl in rows:
+        parent9 = signed9(dict(base9, **pax)); child9 = signed9(dict(base9, **cax), parent9)
+        pv = verify_contract(parent9)
+        assert pv["verdict"] == "refused" and any(x["code"] == "grant_type" for x in pv["refusals"]), (label, pv)
+        assert grant_subset(child9["grant"], parent9["grant"]), (label, "grant_subset skipped the unreadable axis")
+        cparent = signed9(dict(base9, **ctl)); cchild = signed9(dict(base9, **cax), cparent)
+        assert verify_contract(cparent)["verdict"] == "accepted", (label, "control parent refused")
+        assert verify_contract(cchild, cparent)["verdict"] == "refused", (label, "control child accepted")
+    # the other axes the readers type: each wrong type is refused, each right type is accepted
+    typed = [
+        ({"delegation": "none"}, {"delegation": {"allowed": []}}),
+        ({"delegation": {"allowed": "a.example"}}, {"delegation": {"allowed": ["a.example"]}}),
+        ({"conditional": [{"action": "write"}, {"action": "write", "requires": "x"}]}, {"conditional": [{"action": "write", "requires": "x"}]}),
+        ({"conditional": [{"requires": "x"}]}, {"conditional": []}),
+        ({"witnesses": [{"name": "w", "public_key_ed25519_b64": "not-a-key"}]}, {"witnesses": [{"name": "w", "public_key_ed25519_b64": wk1}]}),
+        ({"witnesses": [{"public_key_ed25519_b64": wk1}]}, {"witnesses": []}),
+        ({"privacy": 1}, {"privacy": "public_record"}),
+        ({"ordering": "strict"}, {"ordering": {"same_height": "conservative"}}),
+        ({"approval_policy": {"allow_unscoped": "no"}}, {"approval_policy": {"allow_unscoped": False}}),
+        ({"revocation": {"effective_at": "delivery_ack", "ack_window": "6"}}, {"revocation": {"effective_at": "delivery_ack", "ack_window": 6}}),
+        ({"revocation": {"effective_at": "anchor", "grace": 1}}, {"revocation": {"effective_at": "anchor"}}),
+        ({"finality": {"depth": 6, "max_target_bits": "00800000"}}, {"finality": {"depth": 6, "max_target_bits": "17080000"}}),
+        ({"max_hops": -1}, {"max_hops": 0}),
+        ({"authorized_actions": ["read", 5]}, {"authorized_actions": ["read"]}),
+    ]
+    for wrong, right in typed:
+        vw = verify_contract(signed9(dict(base9, **wrong)))
+        assert vw["verdict"] == "refused" and any(x["code"] == "grant_type" for x in vw["refusals"]), (wrong, vw)
+        vr = verify_contract(signed9(dict(base9, **right)))
+        assert vr["verdict"] == "accepted", (right, vr)
+    # the filed contract is well-typed on every axis and still verifies
+    here = os.path.dirname(os.path.abspath(__file__))
+    filed_path = os.path.join(here, "first_contract_AB.json")
+    if os.path.exists(filed_path):
+        filed = parse_strict(open(filed_path, encoding="utf-8").read())
+        fv = verify_contract(filed)
+        assert fv["verdict"] == "accepted", fv
+        filed_note = "; filed contract %s... still accepted" % fv["contract_sha256"][:8]
+    else:
+        filed_note = ""
+    print("[9] type door: %d malformed parents from the report refused at verify and unreadable to grant_subset, their well-typed controls "
+          "accepted; %d further wrong types refused, each right type accepted%s" % (len(rows), len(typed), filed_note))
+
+    print("\nSELF-TEST PASSED: MUSUBI a2a-contract-v0, 9 checks (build, sign, verify, tamper, overclaim, settle, delegation on every axis, finality, witness and revocation floors, grant key door, grant type door)")
 
 
 def _write_canonical(path, obj):
