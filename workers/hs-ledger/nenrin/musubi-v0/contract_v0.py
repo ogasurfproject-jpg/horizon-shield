@@ -21,7 +21,8 @@ _AG = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "agreement-
 if _AG not in sys.path:
     sys.path.insert(0, _AG)
 from agreement_verify import (canonical, b64_raw, public_key_problem, norm_domain,
-                              host_of_https, under_domain, parse_strict, ed25519_verify, OVERCLAIM)
+                              host_of_https, under_domain, parse_strict, ed25519_verify, OVERCLAIM,
+                              scan_numbers)
 
 SCHEMA = "a2a-contract-v0"
 SETTLE_SCHEMA = "a2a-settlement-v0"
@@ -406,6 +407,17 @@ def verify_contract(record, parent=None, now=None):
                     r.refuse("grant_escalation", "delegated grant widens the parent: " + x)
         else:
             r.find("parent_not_checked", "record declares a parent but no parent was supplied; grant subset not checked")
+
+    # numbers a second implementer might not reproduce (the same scan the agreement layer runs, 2026-09-26):
+    # a non-finite number or an integer outside the RFC 7493 safe range is refused, no runtime reproduces it;
+    # a finite float is a finding, its canonical bytes follow this runtime's float repr, so a verifier in
+    # another runtime may recompute a different contract_sha256. The next contract version forbids floats.
+    for path, why, shown in scan_numbers(record):
+        if why == "not an integer":
+            r.find("non_integer_number", "%s is %s (%s); canonical bytes for a float follow the Python repr, so a "
+                                         "reader in another runtime may not reproduce this contract_sha256" % (path, why, shown))
+        else:
+            r.refuse("unsafe_number", "%s is %s (%s)" % (path, why, shown))
 
     # establishes / does_not_establish
     est = record.get("establishes")
