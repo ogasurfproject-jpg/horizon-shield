@@ -15,4 +15,4 @@ const key = keyFromPem(await readFile(args.key.replace(/^~/, process.env.HOME), 
 const card = await renderCard(args.worker, origin);
 const rec = await signCard(card, key, args.kid, jku);
 await writeSignatureConstant(args.worker, rec);
-console.log(JSON.stringify({ worker: args.worker, origin, kid: rec.kid, jku: rec.jku, canonical_sha256: rec.canonical_sha256, signature_head: rec.signature.slice(0, 12), written: true }, null, 2));
+console.log(JSON.stringify({ worker: args.worker, origin, kid: rec.kid, jku: rec.jku, canonical_sha256: rec.canonical_sha256, signature_head: rec.signature.slice(0, 12), jcs_sha256: rec.jcs_sha256, plain_signature_head: rec.plain.signature.slice(0, 12), written: true }, null, 2));

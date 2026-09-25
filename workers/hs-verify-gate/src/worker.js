@@ -203,7 +203,11 @@ const CARD_SIGNATURE = {
   "jku": "https://gate.horizonshield.dev/.well-known/jwks.json",
   "alg": "ES256",
   "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJocy0yMDI2LTA5Iiwiamt1IjoiaHR0cHM6Ly9nYXRlLmhvcml6b25zaGllbGQuZGV2Ly53ZWxsLWtub3duL2p3a3MuanNvbiJ9",
-  "signature": "fx_ikqCAe_MHSsZ7cdBGTT4QY_DgOLvr_wkjJbbFXPCoFvtO7LcdpByelvIHX7B3XKdlyh6ll4nI4NBjQaxd9A",
+  "signature": "9OgSZ3-ONqyzsgoYkmB-RX2zPRyrHSSnahxEgYGzltUkmn2byP6ZalDFOnahyXxq5XjBVS7vE8d1_fmwhIsScg",
+  "plain": {
+    "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJocy0yMDI2LTA5Iiwiamt1IjoiaHR0cHM6Ly9nYXRlLmhvcml6b25zaGllbGQuZGV2Ly53ZWxsLWtub3duL2p3a3MuanNvbiJ9",
+    "signature": "DsNdG11XWDlWmU_oF4MrjHhelALYO0Iqjm6bvP9J8OwJlNamtNQ1FnqErlz5bSGbg1rgLy8n2_Gue17z2PgLcw"
+  },
   "jwk": {
     "kty": "EC",
     "x": "CytwnuXFtXi7PFCcF-TCbvW5OgOg4KuWRLeRvdfHWLs",
@@ -213,7 +217,8 @@ const CARD_SIGNATURE = {
     "alg": "ES256",
     "use": "sig"
   },
-  "canonical_sha256": "6200fc01f077dc61abf18e8163fbfc50f2e0c75c46cdd4a6254f305a18b0a19d"
+  "canonical_sha256": "6200fc01f077dc61abf18e8163fbfc50f2e0c75c46cdd4a6254f305a18b0a19d",
+  "jcs_sha256": "932a5bd7ab545803fcd0a863be9814915ec7055d3285a7b69a3ae421b86df4e7"
 };
 /* @@CARD_SIGNATURE_END */
 // GCP twin は別ドメインで動くので、entrypoint が globalThis.CARD_ORIGIN_OVERRIDE を先に立てて上書きできる。
@@ -227,7 +232,10 @@ function withCardSignature(card, origin) {
   if (typeof globalThis !== "undefined" && globalThis.CARD_ORIGIN_OVERRIDE) return card;
   if (!CARD_SIGNATURE || !CARD_SIGNATURE.protected || !CARD_SIGNATURE.signature) return card;
   if (String(origin || "").replace(/\/+$/, "") !== CARD_CANONICAL_ORIGIN) return card;
-  return Object.assign({}, card, { signatures: [{ protected: CARD_SIGNATURE.protected, signature: CARD_SIGNATURE.signature }] });
+  const entries = [{ protected: CARD_SIGNATURE.protected, signature: CARD_SIGNATURE.signature }];
+  // 2 本目(あれば): 同じ鍵で素の RFC 8785 に署名した写し。公式 SDK 流の 1 本目と両立し、url を含む配信バイト全部を覆う。
+  if (CARD_SIGNATURE.plain && CARD_SIGNATURE.plain.protected && CARD_SIGNATURE.plain.signature) entries.push({ protected: CARD_SIGNATURE.plain.protected, signature: CARD_SIGNATURE.plain.signature });
+  return Object.assign({}, card, { signatures: entries });
 }
 function jwksDocument() {
   return { keys: CARD_SIGNATURE && CARD_SIGNATURE.jwk ? [CARD_SIGNATURE.jwk] : [] };

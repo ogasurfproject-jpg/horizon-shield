@@ -36,8 +36,20 @@ export async function publicJwk(pub, kid) {
   return Object.assign({}, jwk, { kid, alg: "ES256", use: "sig" });
 }
 
-// card(signatures 抜き)に署名し、{ kid, jku, alg, protected, signature, jwk, canonical_sha256 } を返す。
-// 正規形は公式 SDK の canonicalizeAgentCard(proto 往復 + RFC 8785)。Worker は自前で正規化せんので、ここが唯一の正規化点。
+// 素の RFC 8785(JCS): 配られる card そのもの(signatures 抜き)を、UTF-16 code unit 順の再帰 key sort +
+// JSON.stringify 直列化で正規化する。公式 SDK は先に proto 往復をやるので、proto が知らん field
+// (url / protocolVersion / preferredTransport / compensation / dataset / ledger ...)を落とし、既定値も省く。
+// 「JWS は signatures を除いた card に対して」と仕様を素直に読む検証器はこの JCS 流で検証するので、
+// 2026-09-25 からその流儀にも同じ鍵で 2 本目を署名する。2 本目は url を含む配信バイト全部を覆う。
+export function jcsCanonical(v) {
+  if (Array.isArray(v)) return "[" + v.map(jcsCanonical).join(",") + "]";
+  if (v && typeof v === "object") return "{" + Object.keys(v).sort().map((k) => JSON.stringify(k) + ":" + jcsCanonical(v[k])).join(",") + "}";
+  return JSON.stringify(v);
+}
+
+// card(signatures 抜き)に署名し、{ kid, jku, alg, protected, signature, plain, jwk, canonical_sha256, jcs_sha256 } を返す。
+// 1 本目 = 公式 SDK の canonicalizeAgentCard(proto 往復 + RFC 8785)。2 本目(plain) = 素の RFC 8785。
+// どちらも書く前にその場で検証する。公式 verifier は「1 本でも検証できれば通す」ので 2 本は両立する(実測 2026-09-25)。
 export async function signCard(card, { priv, pub }, kid, jku) {
   const bare = Object.assign({}, card); delete bare.signatures;
   const canonical = canonicalizeAgentCard(bare);
@@ -48,7 +60,33 @@ export async function signCard(card, { priv, pub }, kid, jku) {
   // その場で公式 verifier に通す。通らん署名は書かん。
   const verify = verifyAgentCardSignature(async (k, j) => { if (k !== kid) throw new Error("unknown kid " + k); return jwk; });
   await verify(Object.assign({}, bare, { signatures: [sig] }));
-  return { kid, jku, alg: "ES256", protected: sig.protected, signature: sig.signature, jwk, canonical_sha256: createHash("sha256").update(canonical, "utf8").digest("hex") };
+  const jcsText = jcsCanonical(bare);
+  const flat = await new jose.FlattenedSign(new TextEncoder().encode(jcsText)).setProtectedHeader({ alg: "ES256", typ: "JOSE", kid, jku }).sign(priv);
+  const plain = { protected: flat.protected, signature: flat.signature };
+  await jose.flattenedVerify({ protected: plain.protected, payload: flat.payload, signature: plain.signature }, pub);
+  await verify(Object.assign({}, bare, { signatures: [sig, plain] }));
+  return { kid, jku, alg: "ES256", protected: sig.protected, signature: sig.signature, plain, jwk,
+           canonical_sha256: createHash("sha256").update(canonical, "utf8").digest("hex"),
+           jcs_sha256: createHash("sha256").update(jcsText, "utf8").digest("hex") };
+}
+
+// 素の RFC 8785 流の検証: 配られた card から payload を再構成し、signatures のどれか 1 本が検証できれば良い。
+export async function verifyPlain(card, fetchJwks) {
+  const bare = Object.assign({}, card); delete bare.signatures;
+  const payload = Buffer.from(jcsCanonical(bare), "utf8").toString("base64url");
+  const sigs = Array.isArray(card.signatures) ? card.signatures : [];
+  const errs = [];
+  for (const s of sigs) {
+    try {
+      const h = decodeProtected(s);
+      const doc = await fetchJwks(h.jku);
+      const k = (doc.keys || []).find((x) => x.kid === h.kid);
+      if (!k) throw new Error("kid " + h.kid + " not in " + h.jku);
+      await jose.flattenedVerify({ protected: s.protected, payload, signature: s.signature }, await jose.importJWK(k, h.alg || "ES256"));
+      return true;
+    } catch (e) { errs.push(String(e && e.message || e)); }
+  }
+  throw new Error("no signature verifies over plain RFC 8785 of the served card: " + errs.join(" | "));
 }
 
 export async function writeSignatureConstant(workerPath, record) {

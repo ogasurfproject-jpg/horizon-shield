@@ -1,6 +1,6 @@
 // 使い方: node verify.mjs https://mcp.horizonshield.dev      (本番の card を公式 verifier で検証。鍵は要らん)
 //         node verify.mjs ../hs-mcp/src/mcp.js https://mcp.horizonshield.dev   (ソースから描いた card を検証。配備前の確認)
-import { renderCard, verifyServed, decodeProtected } from "./sign_lib.mjs";
+import { renderCard, verifyServed, verifyPlain, decodeProtected } from "./sign_lib.mjs";
 import { canonicalizeAgentCard } from "@a2a-js/sdk";
 import { createHash } from "node:crypto";
 
@@ -24,11 +24,14 @@ const sigs = Array.isArray(card.signatures) ? card.signatures : [];
 if (!sigs.length) { console.log(JSON.stringify({ origin, signatures: 0, verified: null, note: "card carries no signatures" })); process.exit(3); }
 const bare = Object.assign({}, card); delete bare.signatures;
 const canonical_sha256 = createHash("sha256").update(canonicalizeAgentCard(bare), "utf8").digest("hex");
+let plain_verified = false, plain_error = null;
+try { await verifyPlain(card, fetchJwks); plain_verified = true; } catch (e) { plain_error = String(e && e.message || e); }
 try {
   await verifyServed(card, fetchJwks);
   const h = decodeProtected(sigs[0]);
-  console.log(JSON.stringify({ origin, signatures: sigs.length, verified: true, alg: h.alg, kid: h.kid, jku: h.jku, canonical_sha256 }, null, 2));
+  console.log(JSON.stringify({ origin, signatures: sigs.length, verified: true, plain_verified, plain_error, alg: h.alg, kid: h.kid, jku: h.jku, canonical_sha256 }, null, 2));
+  if (!plain_verified) process.exit(1);
 } catch (e) {
-  console.log(JSON.stringify({ origin, signatures: sigs.length, verified: false, error: String(e && e.message || e), canonical_sha256 }, null, 2));
+  console.log(JSON.stringify({ origin, signatures: sigs.length, verified: false, plain_verified, plain_error, error: String(e && e.message || e), canonical_sha256 }, null, 2));
   process.exit(1);
 }

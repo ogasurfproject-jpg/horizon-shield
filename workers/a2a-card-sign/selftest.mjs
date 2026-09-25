@@ -4,7 +4,7 @@
 import { mkdtemp, copyFile, readFile, writeFile, unlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve, dirname } from "node:path";
-import { ephemeralKey, renderCard, signCard, writeSignatureConstant, verifyServed, BEGIN } from "./sign_lib.mjs";
+import { ephemeralKey, renderCard, signCard, writeSignatureConstant, verifyServed, verifyPlain, BEGIN } from "./sign_lib.mjs";
 import { loadWorker, makeEnv, ctx, installLedgerFetchBridge } from "../hs-mcp/test/local_env.mjs";
 
 const HERE = dirname(new URL(import.meta.url).pathname);
@@ -44,15 +44,20 @@ for (const [rel, origin] of TARGETS) {
     const env = makeEnv();
     if (/hs-jidec-mcp/.test(rel)) await installLedgerFetchBridge(resolve(HERE, "../hs-ledger/src/worker.js"), env);
     const served = await (await worker.fetch(new Request(origin + "/.well-known/agent-card.json"), env, ctx)).json();
-    chk(rel + ": served card at canonical origin carries 1 signature", Array.isArray(served.signatures) && served.signatures.length === 1);
+    chk(rel + ": served card at canonical origin carries 2 signatures (official SDK flavor + plain RFC 8785)", Array.isArray(served.signatures) && served.signatures.length === 2);
     const jwks = await (await worker.fetch(new Request(origin + "/.well-known/jwks.json"), env, ctx)).json();
     chk(rel + ": /.well-known/jwks.json serves the public key with kid", jwks.keys && jwks.keys[0] && jwks.keys[0].kid === "selftest-key" && jwks.keys[0].kty === "EC" && !jwks.keys[0].d, JSON.stringify(jwks).slice(0, 120));
     let ok = true, err = "";
     try { await verifyServed(served, async () => jwks); } catch (e) { ok = false; err = String(e.message || e); }
     chk(rel + ": official @a2a-js/sdk verifier accepts the served card", ok, err);
+    let okP = true, errP = "";
+    try { await quiet(() => verifyPlain(served, async () => jwks)); } catch (e) { okP = false; errP = String(e.message || e); }
+    chk(rel + ": plain RFC 8785 verifier accepts the served card (2nd signature covers url and every served field)", okP, errP);
     const tampered = JSON.parse(JSON.stringify(served)); tampered.description = tampered.description + " (tampered)";
     let ok2 = true; try { await quiet(() => verifyServed(tampered, async () => jwks)); } catch (_e) { ok2 = false; }
     chk(rel + ": a one-word change to the card breaks the signature", !ok2);
+    let okP2 = true; try { await quiet(() => verifyPlain(tampered, async () => jwks)); } catch (_e) { okP2 = false; }
+    chk(rel + ": the same change breaks the plain signature too", !okP2);
     const tampered2 = JSON.parse(JSON.stringify(served));
     const ext = tampered2.capabilities.extensions.find((e) => e.uri === "https://gate.horizonshield.dev/ext/conduct/v1");
     if (ext) { ext.params.compensation.referral_fee = true; let ok3 = true; try { await quiet(() => verifyServed(tampered2, async () => jwks)); } catch (_e) { ok3 = false; } chk(rel + ": flipping compensation.referral_fee inside the extension breaks the signature (the signature covers the disclosure)", !ok3); }
