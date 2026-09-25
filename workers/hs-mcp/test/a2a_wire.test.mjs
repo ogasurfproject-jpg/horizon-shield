@@ -16,7 +16,7 @@ const TEXT = "外壁塗装で120万って言われた。今日契約なら半額
 
 const card = await (await worker.fetch(new Request(O + "/.well-known/agent-card.json"), ENV, CTX)).json();
 chk("card: supportedInterfaces[0] is JSONRPC 1.0, [1] is 0.3, both at the origin", Array.isArray(card.supportedInterfaces) && card.supportedInterfaces[0].protocolBinding === "JSONRPC" && card.supportedInterfaces[0].protocolVersion === "1.0" && card.supportedInterfaces[1].protocolVersion === "0.3" && card.supportedInterfaces.every((i) => i.url === O), JSON.stringify(card.supportedInterfaces));
-chk("card: 0.3 keys kept for 0.3-only readers", card.url === O && card.preferredTransport === "JSONRPC" && card.protocolVersion === "0.3.0");
+chk("card: 0.3 keys kept for 0.3-only readers (url, preferredTransport, supportedInterfaces[1]); root protocolVersion is the newest, 1.0", card.url === O && card.preferredTransport === "JSONRPC" && card.protocolVersion === "1.0" && card.supportedInterfaces[1].protocolVersion === "0.3");
 chk("card: conduct extension still declared, not required, compensation equal to top level", card.capabilities.extensions.some((e) => e.uri === EXT && e.required === false && JSON.stringify(e.params.compensation) === JSON.stringify(card.compensation)));
 
 // 1.0 wire
