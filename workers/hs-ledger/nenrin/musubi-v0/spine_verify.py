@@ -282,15 +282,16 @@ def _selftest():
     n += 1; print("[2] child names the parent by an old sha, parent edited: delegation foreign, hole parent_not_found_by_sha")
 
     # [3] honest delegation: child within the parent grant, names the current sha
+    # the child carries max_hops parent-1: since 2026-09-25 omitting it is an escalation, not a pass
     child_ok = mk("99998888777766665555444433332222", ["read"], ["delete"],
-                  parent={"contract_id": idA, "contract_sha256": csA})
+                  parent={"contract_id": idA, "contract_sha256": csA}, max_hops=1)
     out = spine_verify(cA, child_contracts=[child_ok])
     assert out["spine"] == "intact" and out["chain"][5]["linked"], out
     n += 1; print("[3] child within the parent grant, names the current sha: delegation linked, spine intact")
 
     # [4] escalation: child widens the grant but names the correct parent sha
     child_bad = mk("aaaabbbbccccddddeeeeffff00001111", ["read", "payment"], ["delete"],
-                   parent={"contract_id": idA, "contract_sha256": csA})
+                   parent={"contract_id": idA, "contract_sha256": csA}, max_hops=1)
     out = spine_verify(cA, child_contracts=[child_bad])
     assert out["spine"] == "broken" and any(h["reason"] == "grant_escalation" for h in out["holes"]), out["holes"]
     n += 1; print("[4] child names the correct parent sha but adds 'payment': hole grant_escalation")

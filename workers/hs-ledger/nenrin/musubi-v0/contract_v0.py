@@ -103,9 +103,15 @@ def grant_subset(child, parent):
     for d in (child.get("data_access") or []):
         if d not in pd:
             v.append("data_access %r not in parent grant" % d)
-    if isinstance(parent.get("max_hops"), int) and isinstance(child.get("max_hops"), int):
-        if child["max_hops"] > parent["max_hops"] - 1:
-            v.append("max_hops %d exceeds parent-1 (%d)" % (child["max_hops"], parent["max_hops"] - 1))
+    # hops: mirror expiry. A parent that carries a hop limit binds the child to parent-1; a child that omits
+    # max_hops is a violation, not a pass (2026-09-25, Issue #25 follow-up: omission laundered the limit,
+    # 2 became 50 two links down).
+    ph, ch = _int(parent.get("max_hops")), _int(child.get("max_hops"))
+    if ph is not None:
+        if ch is None:
+            v.append("parent allows %d hops but child has no max_hops" % ph)
+        elif ch > ph - 1:
+            v.append("max_hops %d exceeds parent-1 (%d)" % (ch, ph - 1))
     # who the child may delegate to: a subset of who the parent may delegate to
     pdl, cdl = _delegates(parent), _delegates(child)
     for d in sorted(cdl, key=str):
@@ -550,6 +556,14 @@ def _selftest():
         "revocation loosened":   widen(revocation={"effective_at": "delivery_ack", "ack_window": 50}),
         "unscoped approvals":    widen(approval_policy={"allow_unscoped": True}),
     }
+    # ninth axis (2026-09-25, reported on Issue #25 after v1.6): omitting max_hops must not launder the limit.
+    # A allows 2 hops; B omits the key; C under B asks for 50. The chain has to break at B.
+    a_g = {"authorized_actions": ["read", "write"], "prohibited_actions": ["delete"], "max_hops": 2}
+    b_g = {"authorized_actions": ["read"], "prohibited_actions": ["delete"]}
+    cases["max_hops omitted"] = grant_subset(b_g, a_g)
+    assert grant_subset(dict(b_g, max_hops=1), a_g) == [], grant_subset(dict(b_g, max_hops=1), a_g)   # parent-1: within
+    assert grant_subset(dict(b_g, max_hops=5), a_g), "max_hops 5 under a 2-hop parent passed"          # still caught
+    assert grant_subset(dict(b_g, max_hops=50), dict(b_g, max_hops=1)), "50 hops under a 1-hop parent passed"
     for name, viol in cases.items():
         assert viol, "child widened %s but grant_subset saw nothing" % name
     narrower = widen(conditional=[], prohibited_actions=["delete", "write"])   # prohibiting a conditional action narrows

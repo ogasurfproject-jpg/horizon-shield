@@ -8,6 +8,15 @@ the agent's own card points to. Standard library only, Python 3.8 or later.
     python3 a2a_conduct_walk.py --origin https://mcp.horizonshield.dev \\
         --witness-name "your name or anonymous" --vantage "your network or tool" \\
         [--endpoint https://mcp.horizonshield.dev/mcp] [--mode mcp|a2a] [--wire 1.0|0.3] [--out walk.json] [--submit]
+        [--context-contract-sha256 <64 hex>]
+
+Walking under a MUSUBI contract (a2a-contract-v0): pass --endpoint explicitly. The default is the
+first params.measured_endpoints entry on the card, which is usually /mcp, and a walk there fails
+the A2A assertions; the contract names the a2a endpoint (for HORIZON SHIELD, /a2a). Pass
+--context-contract-sha256 with the contract's sha so the walk itself names the terms: the field
+lands in walk.context.contract_sha256 before the record is canonicalized and signed, which is where
+settle_v1_5+ and spine_verify read the binding (evidence_names_other_contract needs it). Adding the
+field after signing would break the signature; that is why it is a flag and not a post-edit.
 
 What it asserts (each one pinned by sha256 of the bytes it turned on):
     card_bytes_stable           two fetches of the agent card, seconds apart, are the same bytes
@@ -478,7 +487,7 @@ def sign_canonical(key, record_canonical):
 
 
 def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked_at=None, wire="1.0",
-         privacy="full", key_url=None, vantage_limitation=None, extras=None):
+         privacy="full", key_url=None, vantage_limitation=None, extras=None, context_contract_sha256=None):
     origin = origin.rstrip("/")
     wire = "0.3" if wire == "0.3" else "1.0"
     if privacy not in PRIVACY_MODES:
@@ -631,10 +640,18 @@ def walk(origin, endpoint, mode, witness_name, vantage, fetch=http_fetch, walked
         record["witness"]["key_url"] = key_url
     if vantage_limitation:
         record["vantage_limitation"] = vantage_limitation
+    # MUSUBI (2026-09-25): a walk taken under a contract names the terms it was taken under. The sha is part of
+    # the canonical bytes and therefore of the signature; settle_v1_5+ and spine_verify read it here.
+    if context_contract_sha256:
+        record["context"] = {"contract_sha256": context_contract_sha256}
     record["mode"] = "full"
     if privacy == "hash-only":
         redact_hash_only(record)
     est, dne = disclaimers(record, privacy, bool(key_url), target)
+    if context_contract_sha256:
+        est.append("that this walk was taken under the a2a-contract-v0 terms whose contract_sha256 is "
+                   + context_contract_sha256 + " (walk.context.contract_sha256); it does not establish that the "
+                   "terms were honored, which is what settlement decides")
     record["establishes"], record["does_not_establish"] = est, dne
     return record
 
@@ -672,6 +689,7 @@ def main(argv=None):
     ap.add_argument("--bind-task", action="store_true", help="a2a mode: also emit a task-bound observation to /witness/task using the real a2a.task.id the agent returned (needs --key)")
     ap.add_argument("--task-ledger", default=None, help="override the task-delegation ledger URL (default https://ledger.horizonshield.dev/witness/task)")
     ap.add_argument("--salt-file", default=None, help="commitment mode: read the 32 byte salt (hex) from here instead of generating one")
+    ap.add_argument("--context-contract-sha256", default=None, metavar="HEX64", help="MUSUBI: the a2a-contract-v0 contract_sha256 this walk is taken under; written to walk.context.contract_sha256 inside the signed bytes")
     a = ap.parse_args(argv)
 
     if a.print_public_key:
@@ -692,9 +710,18 @@ def main(argv=None):
         key, pub = load_signing_key(a.key)
 
     fetch = curl_fetch if a.transport == "curl" else http_fetch
+    ctx_sha = a.context_contract_sha256
+    if ctx_sha is not None:
+        ctx_sha = ctx_sha.strip().lower()
+        if len(ctx_sha) != 64 or any(c not in "0123456789abcdef" for c in ctx_sha):
+            print("--context-contract-sha256 must be the contract_sha256 as 64 lower-case hex characters")
+            return 2
+        if a.mode != "a2a" or not a.endpoint:
+            print("note: a walk under a MUSUBI contract normally needs --mode a2a and an explicit --endpoint (the contract names the a2a endpoint; the card default is usually /mcp)")
     extras = {}
     rec = walk(a.origin, a.endpoint, a.mode, a.witness_name, a.vantage, fetch=fetch, wire=a.wire,
-               privacy=a.privacy, key_url=a.key_url, vantage_limitation=a.vantage_limitation, extras=extras)
+               privacy=a.privacy, key_url=a.key_url, vantage_limitation=a.vantage_limitation, extras=extras,
+               context_contract_sha256=ctx_sha)
     rc = canonical(rec)
     sha = sha256_hex(rc)
     out = a.out or ("walk_" + sha[:12] + ".json")
