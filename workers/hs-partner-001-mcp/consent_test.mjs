@@ -24,10 +24,16 @@ function ok(name, cond, detail) {
 }
 
 async function loadWorker(rel) {
-  const src = fs.readFileSync(path.join(REPO, rel), "utf8");
-  const f = path.join(TMP, rel.replace(/[\/]/g, "_").replace(/\.js$/, ".mjs"));
-  fs.writeFileSync(f, src);
-  return (await import(f + "?v=" + Math.random())).default;
+  // 2026-09-25 worker が同じ src の pii.js を import するようになった。src の .js を丸ごと .mjs で写す。
+  const srcDir = path.join(REPO, path.dirname(rel));
+  const dir = fs.mkdtempSync(path.join(TMP, "w-"));
+  for (const f of fs.readdirSync(srcDir)) {
+    if (!f.endsWith(".js")) continue;
+    const body = fs.readFileSync(path.join(srcDir, f), "utf8").replace(/from "\.\/([a-z0-9_]+)\.js"/g, 'from "./$1.mjs"');
+    fs.writeFileSync(path.join(dir, f.replace(/\.js$/, ".mjs")), body);
+  }
+  const main = path.join(dir, path.basename(rel).replace(/\.js$/, ".mjs"));
+  return (await import(main + "?v=" + Math.random())).default;
 }
 
 /* 扉のソース(workers/hs-verify-gate/src/worker.js)の wellKnownConsent から写した規則。

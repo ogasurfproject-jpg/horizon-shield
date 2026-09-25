@@ -1,3 +1,4 @@
+import { scrubForMcp } from "./pii.js";  // 2026-09-25 施主の名前・見えない文字・金額を伏せて返す(正本は hs-hearing/src/pii.js)
 // hs-partner-002-mcp
 // Yakumo WebMCP Partner 専用 MCP サーバー (ミネオトーヨー住器株式会社 / No.002)
 //
@@ -137,18 +138,19 @@ function buildProfile(store, hearing, env) {
   for (const [k, v] of Object.entries(direct)) {
     if (DENY.test(k)) continue;
     if (v == null || v === "") continue;
-    strengths[k] = v;
+    strengths[k] = scrubForMcp(v);
   }
   const src = h.extra && typeof h.extra === "object" ? h.extra : {};
   for (const [k, v] of Object.entries(src)) {
+    if (k.charAt(0) === "_") continue;  // 当て先の決まらない生の返事(_unsorted)は AI に出さない
     if (DENY.test(k)) continue;
     if (v == null || v === "") continue;
-    strengths[k] = v;
+    strengths[k] = scrubForMcp(v);
   }
 
   // 施主向けFAQ。文字列/オブジェクトどちらの形でも通す。
   const faqs = Array.isArray(h.faqs)
-    ? h.faqs.filter((x) => x != null && x !== "").slice(0, 20)
+    ? h.faqs.filter((x) => x != null && x !== "").slice(0, 20).map((x) => scrubForMcp(x))
     : [];
 
   const verified = s.status === "published";

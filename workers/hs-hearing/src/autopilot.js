@@ -19,6 +19,7 @@ const days = (ms) => ms / 86400000;
 
 import * as IND from "./industry.js";
 import * as VIS from "./visibility.js";
+import * as PII from "./pii.js";
 
 // 2026-08-19 patch51. 「検証済み」と言うために、実際に監査する見積の最低本数。
 // 1本は業者を測ったことにならない。1本の書類を測っただけになる。
@@ -297,6 +298,49 @@ export const ENRICH_BANK = {
   q_en_trouble:     "現場でよくあるトラブルと、御社がそれをどう防いでいるかを1つ教えてください。",
   q_en_tool:        "見積もりや現場管理で使っている道具・仕組みで、施主さんに安心してもらえる工夫はありますか。",
 };
+
+// 2026-09-25 継続エンリッチの答えを、施主向けの FAQ として公開するための問い(qid は ENRICH_BANK と同じ)。
+//   ENRICH_BANK は加盟店への問いかけ、こちらは施主が読む問い。
+export const ENRICH_FAQ_Q = {
+  q_en_recent:      "最近はどんな工事をしていますか？",
+  q_en_season:      "今の季節、住まいで気をつけることは？",
+  q_en_mistake:     "リフォームや業者選びで失敗しないためのポイントは？",
+  q_en_material:    "どんな材料や工法を使っていますか？",
+  q_en_price:       "見積もりの金額はどのように決まりますか？",
+  q_en_beforeafter: "工事でどのように変わりますか？(施工前後の例)",
+  q_en_area:        "どの地域の依頼が多いですか？",
+  q_en_maintain:    "工事のあと、長持ちさせるお手入れは？",
+  q_en_question:    "施主さんからよく受ける質問と、その答えは？",
+  q_en_choose:      "ほかの会社と何が違いますか？",
+  q_en_trouble:     "工事でよくあるトラブルと、その防ぎ方は？",
+  q_en_tool:        "安心して任せられるための工夫はありますか？",
+};
+export const ENRICH_FAQ_MAX = 5;
+// profile.extra に入った継続エンリッチの答えを、公開できる FAQ にして返す(新しい順、最大 ENRICH_FAQ_MAX)。
+//   切り分けられていない答え(ambiguous)は使わない。人名・URL・挨拶を取り、薄い答えは出さない。
+export function enrichFaqs(profile, max = ENRICH_FAQ_MAX) {
+  const extra = (profile && profile.extra) || {};
+  const rows = [];
+  for (const qid of Object.keys(ENRICH_FAQ_Q)) {
+    const v = extra[qid];
+    if (!v) continue;
+    if (typeof v === "object" && (v.attributed === "ambiguous" || v.attributed === "ambiguous_waves")) continue;
+    const a = PII.cleanAnswer(typeof v === "string" ? v : (v.text || ""));
+    if (!a) continue;
+    rows.push({ q: ENRICH_FAQ_Q[qid], a, at: (typeof v === "object" && v.at) ? String(v.at) : "" });
+  }
+  rows.sort((x, y) => (x.at === y.at ? 0 : (x.at < y.at ? 1 : -1)));
+  return rows.slice(0, max).map((r) => ({ q: r.q, a: r.a }));
+}
+// 生成に渡す profile の写し。金額(estimates_for_audit)を外し、人名と門を止める文字を取り、
+//   継続エンリッチの答えを加盟店自身の FAQ の後ろに足す。元の profile は変えない。
+export function publishProfile(profile) {
+  const cp = PII.cleanProfileForPage({ ...(profile || {}) });
+  delete cp.estimates_for_audit;
+  const ef = enrichFaqs(profile);
+  if (ef.length) cp.faqs = [...(Array.isArray(cp.faqs) ? cp.faqs : []), ...ef];
+  return cp;
+}
 
 export const AI_MODEL_CHAIN = [
   "@cf/meta/llama-3.3-70b-instruct-fp8-fast",

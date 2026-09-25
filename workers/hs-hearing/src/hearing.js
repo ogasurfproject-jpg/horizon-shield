@@ -21,6 +21,7 @@ import * as IND from "./industry.js";
 import * as DG from "./dispatch_do.js";
 import * as VIS from "./visibility.js";
 import * as CONCIERGE from "./concierge.js";
+import * as PII from "./pii.js";
 
 const SERVER = { name: "HORIZON SHIELD YAKUMO", version: "2.3.1" };
 const PUBLIC_DATA_FALLBACK = "https://shield.the-horizons-innovation.com/data/yakumo-contractors.json";
@@ -755,8 +756,11 @@ async function triggerGeneration(env, profile, store, opts) {
     claimToken = c.token || null;
   }
   // 金額は payload から除外して渡す(生成側は金額を扱わない)
-  const clientProfile = { ...profile };
-  delete clientProfile.estimates_for_audit;
+  // 2026-09-25 生成に渡す写しを作る一箇所。人名と門を止める文字を取り、継続エンリッチの答えを FAQ に足す。
+  //   失敗したら出さない。伏せずに出すより、出さない方がよい。
+  let clientProfile;
+  try { clientProfile = AP.publishProfile(profile); }
+  catch (e) { return { triggered: false, reason: "publish-scrub-failed", note: String((e && e.message) || e).slice(0, 200) }; }
   // AUTOPILOT: フォーカスと完成度、ニュースダイジェストを同梱(生成側がページ構成を変える)
   const ap = (store && store.autopilot) || {};
   const news = await AP.newsDigest(env).catch(() => ({ items: [] }));
@@ -952,7 +956,7 @@ function publicView(c) {
     integrity_tier: verified ? (c.integrity_tier || null) : null,
     red_flags_detected: verified ? (c.red_flags_detected != null ? c.red_flags_detected : null) : null,
     profile_url: c.profile_url ? ("https://shield.the-horizons-innovation.com" + c.profile_url) : MALL_URL,
-    audit_evidence: verified ? (c.audit_evidence || null) : null, // patch51: スコアの分母
+    audit_evidence: verified ? PII.scrubEvidence(c.audit_evidence || null) : null, // patch51: スコアの分母
     note: verified
       ? ("検証済み(KIRA適正診断 通過。実際の見積 " + Number((c.audit_evidence || {}).estimates || 0) + " 本を監査した結果)")
       : "検証手続き中。通過するまでスコアは出しません(fail-closed)。",
@@ -1585,6 +1589,8 @@ async function lineReply(env, replyToken, text) {
 async function ingestHearingAnswer(env, store_id, store, text, source) {
   await env.HS_HEARING_KV.put(source + "reply:" + store_id + ":" + Date.now(),
     JSON.stringify({ text: String(text).slice(0, 6000), at: new Date().toISOString(), source }));
+  // 2026-09-25 施主の名前(益田様・田中さん)を、生成の LLM にも profile にも入れない。生の返事は上の reply ログに残る。
+  text = PII.scrubNames(String(text));
   const structured = await llmStructure(env, text, store);
   if (!structured.ok) return { ok: false, reason: structured.reason };
   const incoming = normalizeProfile(store || { store_id }, structured.raw);
@@ -2152,7 +2158,7 @@ async function appendEstimatesForAudit(env, storeId, estimates) {
       if (sc.auto_verify) {
         store.audit_evidence = {
           estimates: sc.evidence_count,
-          works: Array.from(new Set((profile.estimates_for_audit || []).map((e) => String((e && e.work) || "")).filter(Boolean))).slice(0, 8),
+          works: PII.scrubWorks((profile.estimates_for_audit || []).map((e) => String((e && e.work) || "")).filter(Boolean)),
           recorded_at: new Date().toISOString(),
           method: "auto-kira",
         };
@@ -2220,7 +2226,7 @@ function storeToContractor(s, profile) {
     integrity_tier: verified ? (s.integrity_tier || null) : null,
     red_flags_detected: verified ? (s.red_flags_detected != null ? s.red_flags_detected : null) : null,
     claim_sha256: verified ? (s.claim_sha256 || null) : null,
-    audit_evidence: verified ? (s.audit_evidence || null) : null, // patch51: スコアの分母
+    audit_evidence: verified ? PII.scrubEvidence(s.audit_evidence || null) : null, // patch51: スコアの分母
     // 2026-08-19 patch57: 001だけベタ書きだったので、002のカードは自分のページに飛べず
     //   汎用ページに落ちていた。加盟番号から素直に導く。新しい店を出すときは /yakumo/noNNN/ を先に作ること。
     // 2026-08-19 patch61: patch57 は store_id からも数字を拾っていた。KIRA経由で作られる店の
@@ -2655,6 +2661,8 @@ export default {
         if (!safeStr(raw.company) || !safeStr(raw.area) || !safeArr(raw.works).length) {
           return json({ ok: false, error: formPack((store && store.industry) || (tokRec && tokRec.industry) || IND.DEFAULT_INDUSTRY).reqAlert }, 400);
         }
+        // 2026-09-25 用紙の自由記述からも施主の名前を伏せてから取り込む(社名・代表者・連絡先の欄は触らない)。
+        PII.scrubFormRaw(raw);
         const incoming = normalizeProfile(store || tokRec, raw);
         const prev = await env.HS_HEARING_KV.get("hearing:" + tokRec.store_id, "json");
         /* 2026-09-11 用紙が qid つきで答えを返すようになった。
@@ -2951,7 +2959,7 @@ export default {
         }
         s.audit_evidence = {
           estimates: ests.length,
-          works: Array.from(new Set(ests.map((e) => String((e && e.work) || "")).filter(Boolean))).slice(0, 8),
+          works: PII.scrubWorks(ests.map((e) => String((e && e.work) || "")).filter(Boolean)),
           recorded_at: new Date().toISOString(),
         };
         s.verification = "verified";
