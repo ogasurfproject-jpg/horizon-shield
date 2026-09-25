@@ -4310,6 +4310,11 @@ async function handleMcp(body, env) {
   if (method === "tools/call") {
     const name = body.params && body.params.name;
     const args = (body.params && body.params.arguments) || {};
+    // 正は endpoint。外の呼び手が自然に書く url / server_url / server / endpoint_url も endpoint に写す(入り口を広げるだけ、判定は変えない)。
+    if (args && typeof args === "object" && (args.endpoint === undefined || args.endpoint === null || args.endpoint === "")) {
+      const _alt = args.url || args.server_url || args.server || args.endpoint_url;
+      if (typeof _alt === "string" && _alt) args.endpoint = _alt;
+    }
 
     if (name === "get_conditions") {
       return { jsonrpc: "2.0", id, result: mcpOk(spec()) };
@@ -4317,7 +4322,7 @@ async function handleMcp(body, env) {
     if (name === "check_conformance") {
       const endpoint = args.endpoint;
       if (!endpoint || typeof endpoint !== "string") {
-        return { jsonrpc: "2.0", id, result: mcpFail({ error: "endpoint_required" }) };
+        return { jsonrpc: "2.0", id, result: mcpFail({ error: "endpoint_required", note: "pass the MCP endpoint as endpoint (aliases: url, server_url, server). Example: {\"endpoint\":\"https://mcp.example.com/mcp\"}" }) };
       }
       let parsed;
       try { parsed = new URL(endpoint); }
@@ -4339,7 +4344,7 @@ async function handleMcp(body, env) {
     if (name === "lookup_server") {
       const endpoint = args.endpoint;
       if (!endpoint || typeof endpoint !== "string") {
-        return { jsonrpc: "2.0", id, result: mcpFail({ error: "endpoint_required" }) };
+        return { jsonrpc: "2.0", id, result: mcpFail({ error: "endpoint_required", note: "pass the MCP endpoint as endpoint (aliases: url, server_url, server). Example: {\"endpoint\":\"https://mcp.example.com/mcp\"}" }) };
       }
       let parsedLookup;
       try { parsedLookup = new URL(endpoint); }
@@ -4363,7 +4368,7 @@ async function handleMcp(body, env) {
     if (name === "is_verified") {
       const endpoint = args.endpoint;
       if (!endpoint || typeof endpoint !== "string") {
-        return { jsonrpc: "2.0", id, result: mcpFail({ error: "endpoint_required" }) };
+        return { jsonrpc: "2.0", id, result: mcpFail({ error: "endpoint_required", note: "pass the MCP endpoint as endpoint (aliases: url, server_url, server). Example: {\"endpoint\":\"https://mcp.example.com/mcp\"}" }) };
       }
       let parsedIv;
       try { parsedIv = new URL(endpoint); }
