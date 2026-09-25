@@ -716,7 +716,7 @@ def _selftest():
     print("[8] finality floor, witness keys, revocation mode, privacy, ordering: %d widenings caught, %d narrowings pass; "
           "verify_contract refuses a revocation mode no settle layer reads" % (len(widened), len(narrowed)))
 
-    print("\nSELF-TEST PASSED: MUSUBI a2a-contract-v0, 8 checks (build, sign, verify, tamper, overclaim, settle, delegation on every axis, grant key door, finality/witness/revocation floors)")
+    print("\nSELF-TEST PASSED: MUSUBI a2a-contract-v0, 8 checks (build, sign, verify, tamper, overclaim, settle, delegation on every axis, finality, witness and revocation floors, grant key door)")
 
 
 def _write_canonical(path, obj):
