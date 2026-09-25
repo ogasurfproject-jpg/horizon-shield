@@ -276,6 +276,28 @@ export const QUESTION_BANK = {
 // Workers AI のモデルは予告のうえ提供終了になる。1本に賭けると、その日に顧客対応が止まる。
 // 2026-05-30 に llama-3.1/3/2 系が終了し、実際に止まった。二度目は無い形にする。
 // 上から順に試し、最初に応答したものを使う。env.LLM_MODEL が設定されていればそれを優先。
+export const ENRICH_GAP_D = 6;          // 反応のある店へ次を送るまでの最短日数
+export const ENRICH_MAX_GAP_D = 30;     // 無反応が続いても、ここまで広げて固定(止めはしない)
+export const ENRICH_MIN_COMPLETENESS = 60;
+export const ENRICH_COOL_D = 90;        // 同じエンリッチ設問を再び訊くまでの間隔
+export const DEADLINE_DAYS = 5;         // 送信文に添える「〜までに」の目安日数
+// 2026-09-25 継続エンリッチ: 基礎が埋まった後も AI 引用の材料を1問ずつ集め続ける。
+//   採点(完成度・検証)には入れない。狙いは公開できる FAQ 素材を増やし AI 引用を増やすこと。
+export const ENRICH_BANK = {
+  q_en_recent:      "直近で完了した工事を1件、差し支えない範囲で教えてください(工種・地域・築年数・工夫した点)。そのまま御社の事例ページの素材になります。",
+  q_en_season:      "今の季節に施主さんへ伝えたいこと、注意してほしいことはありますか(例: 梅雨前の点検、夏場の塗装の乾き)。",
+  q_en_mistake:     "施主さんがやりがちな失敗や、業者選びで気をつけてほしい点を1つ教えてください。AIが施主に助言するときの芯になります。",
+  q_en_material:    "最近こだわって使っている材料や工法があれば、名前と選ぶ理由を教えてください。",
+  q_en_price:       "「なぜこの金額になるのか」を施主に説明するとき、いつも伝えていることはありますか(金額そのものは公開しません)。",
+  q_en_beforeafter: "印象に残っているビフォーアフターを1件、言葉で教えてください(どんな状態が、どう変わったか)。",
+  q_en_area:        "対応エリアの中で、特に依頼が多い地域や、その地域ならではの傾向があれば教えてください。",
+  q_en_maintain:    "工事のあと、長持ちさせるために施主さんへ伝えているお手入れはありますか。",
+  q_en_question:    "この1か月で施主さんから受けた質問で、印象に残ったものはありますか。その答えも添えてください。",
+  q_en_choose:      "御社に頼むと他社と何が違うか、施主さんに一言で伝えるとしたら何と言いますか。",
+  q_en_trouble:     "現場でよくあるトラブルと、御社がそれをどう防いでいるかを1つ教えてください。",
+  q_en_tool:        "見積もりや現場管理で使っている道具・仕組みで、施主さんに安心してもらえる工夫はありますか。",
+};
+
 export const AI_MODEL_CHAIN = [
   "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
   "@cf/zai-org/glm-4.7-flash",
@@ -683,9 +705,13 @@ export async function sendQuestions(env, store, questions, kind) {
      「どこにご回答すればよいでしょうか」と、別のグループで尋ねられた。
      こちらの案内が、転送された先で行き先を失っている。
      文面は転送されるものとして書く。返す先を、文面の中で名指しする。 */
-  const intro = kind === "nudge"
+  let intro = kind === "nudge"
     ? hail + "その後いかがでしょうか。掲載の質を上げるため、下記だけ教えていただけると助かります。\n\n"
     : hail + "掲載ページをさらに強くするため、下記を教えてください。\n\n";
+
+  // 2026-09-25 期限を添える(TOshi)。期限が無いと返信が返らない、という運用実測に基づく。
+  { const _d = new Date(Date.now() + DEADLINE_DAYS * 86400000 + 9 * 3600000);
+    intro += "お手すきに、" + (_d.getUTCMonth() + 1) + "月" + _d.getUTCDate() + "日ごろまでにいただけると助かります。\n\n"; }
 
   // 2026-08-25: まとめて書ける用紙の場所を、催促そのものに載せる。
   //
@@ -900,6 +926,23 @@ export function applyPenaltyPolicy(ap, nowMs) {
 }
 
 /* ------------------------------ 日次tick(エージェント本体) ------------------------------ */
+// 2026-09-25 継続エンリッチの設問を1つ選ぶ。ENRICH_COOL_D 日以内に訊いたものは避け、
+//   いちばん長く訊いていないものを返す。全部が最近なら null(今回は送らない)。
+export function pickEnrichQuestion(ap, nowMs) {
+  const asked = (ap && ap.enrich_asked) || [];
+  const lastAt = {};
+  for (const a of asked) { if (!lastAt[a.qid] || String(a.at) > String(lastAt[a.qid])) lastAt[a.qid] = a.at; }
+  const coolMs = ENRICH_COOL_D * 86400000;
+  let best = null, bestAge = -1;
+  for (const qid of Object.keys(ENRICH_BANK)) {
+    const last = lastAt[qid] ? Date.parse(lastAt[qid]) : 0;
+    if (last && (nowMs - last) < coolMs) continue;
+    const age = last ? (nowMs - last) : Infinity;
+    if (age > bestAge) { bestAge = age; best = qid; }
+  }
+  return best ? { qid: best, text: ENRICH_BANK[best] } : null;
+}
+
 export async function runDailyTick(env, deps) {
   // deps: { listAllStores, triggerGeneration }
   const log = { checked: 0, sent: [], nudged: [], penalized: [], skipped: [], promoted: [] };
@@ -1084,6 +1127,30 @@ export async function runDailyTick(env, deps) {
         } else if (gate === "onboarding") {
           // 門は開いたが出せる問いが無い。黙って通り過ぎない。
           log.skipped.push(sid + ":onboarding:送れる設問が残っていない");
+        }
+      }
+    }
+    // 3) 継続エンリッチ。基礎が実質埋まった契約店へ、AI引用の材料を絶やさず1問ずつ。
+    //    onboarding(契約済み)のみ。無反応でも人には回さず、間隔を広げて待つ(止めない=非スパム)。
+    else if (profile && mode === "onboarding" && comp.score >= ENRICH_MIN_COMPLETENESS && !ap.pending) {
+      const _ea = ap.enrich_asked || [];
+      const _lastAns = ap.last_answer_at ? Date.parse(ap.last_answer_at) : 0;
+      const _silent = _ea.filter((a) => Date.parse(a.at) > _lastAns).length;
+      const _gapMs = Math.min(ENRICH_GAP_D * (_silent + 1), ENRICH_MAX_GAP_D) * 86400000;
+      const _sinceEnrich = ap.enrich_last_at ? (nowMs - Date.parse(ap.enrich_last_at)) : Infinity;
+      const _sinceSend = ap.last_send_at ? (nowMs - Date.parse(ap.last_send_at)) : Infinity;
+      if (Math.min(_sinceEnrich, _sinceSend) >= _gapMs) {
+        const _eq = pickEnrichQuestion(ap, nowMs);
+        if (_eq) {
+          const _r = await sendQuestions(env, store, [_eq], "enrich");
+          if (_r.ok) {
+            pushWave(ap, [_eq], "enrich", now());
+            ap.pending.soft = true;   // 任意のお願い。催促もペナルティも付けない。7日で失効し次を出せる。
+            ap.enrich_asked = [..._ea, { qid: _eq.qid, at: now() }].slice(-60);
+            ap.enrich_last_at = now();
+            ap.last_send_at = now();
+            log.sent.push(sid + ":" + _eq.qid + ":enrich");
+          } else log.skipped.push(sid + ":enrich:" + _r.reason);
         }
       }
     }
