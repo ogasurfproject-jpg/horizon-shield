@@ -170,6 +170,18 @@ The owner's consent file (`/.well-known/mcp-conduct.json` on the origin, v1 sect
 
 An agent that declares `witness_policy.reciprocal: true` states this behaviour: when it receives an A2A message whose `metadata` carries `https://gate.horizonshield.dev/ext/conduct/v1/caller_card` (an https URL, sent by the caller voluntarily), it walks that card within 24 hours, honours `listing: "decline"` at that origin, files the walk under its own name and, if it has one, its domain key, to the intake named in the caller's card (or its own intake when the caller declares none), and answers with the `metadata` key `https://gate.horizonshield.dev/ext/conduct/v1/reciprocal` set to `"scheduled"` or `"declined"`. The caller thus receives one record it did not write, without filing anything. A reciprocal walk is a walk like any other: same schema, same intake rules, counted under the walking agent's identity, carrying the arrays of 11.1. Reference implementation: pending; the field is defined so that cards can declare it now.
 
+#### 11.6.1 Authoritative location
+
+`witness_policy.reciprocal` is read from exactly one place: the consent file at `/.well-known/mcp-conduct.json` on the endpoint's own origin. The consent file is authoritative. The agent card's conduct-extension params MAY carry `witness_policy.reciprocal` as a discovery mirror, so a reader that already holds the card sees the declaration without a second fetch; the card mirror is convenience, not authority. On any mismatch, the consent-file value wins: a reader MUST NOT treat a card that declares `reciprocal: true` as reciprocal unless the consent file also declares it.
+
+#### 11.6.2 What admits to a pool
+
+A tool that admits an endpoint to a witness pool MUST read `witness_policy.reciprocal` from the consent file, never from the card alone. A card-only declaration is not admission-grade: it is a claim the operator has not committed to at the consent surface that governs measurement.
+
+#### 11.6.3 What is unchanged
+
+`reciprocal` remains a declaration; the ring's `walked_as_witness` column is the fact. v1 readers are unaffected: the card mirror is an OPTIONAL field under the same URI, and an endpoint that omits it and declares only in the consent file is fully conformant.
+
 ### 11.7 Register lookup: one URL before connecting
 
 `GET https://gate.horizonshield.dev/register/lookup?endpoint=<url-encoded endpoint>` answers with no score: `status` (`verified`, `pending`, `declined`, `unknown`), `status_meaning`, `last_measured` (`at`, `status`, `record_sha256`, coordinate window), `measurements`, `last_ring` (the last published ring's counts copied as counts, or `present: false` with the URLs tried), `conduct_record`, `witness_intake`, `rings` (base, slug, path), `establishes`, `does_not_establish`. `unknown` means the register has no row; it never means a finding. The response is cacheable for 24 hours (`Cache-Control: public, max-age=86400`) and says so.
