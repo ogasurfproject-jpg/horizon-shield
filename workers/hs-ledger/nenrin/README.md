@@ -33,6 +33,13 @@ reproduces the original modules byte for byte).
   (JavaScript 0.3.0 and Python, byte-identical), reciprocal witness reply (conduct-v1.1 11.6) and pool builder.
   Two real incident chains (2026-09-20). The diagnosing agent is not in this tree by decision; its outputs are
   verified here like anyone else's.
+- musubi-v0/ : MUSUBI (結), the contract layer: two party signed grants, deterministic settlement (v1 to v1.6), delegation
+  monotone on every axis, offers as a chain of digests, bond resolution without custody, terms (meaning pinned in the
+  signed bytes), independence (actors as counted legal entities) and corroboration (who measured, inside a block window),
+  threaded by one contract_sha256 in spine_verify. Canonical bytes pinned by a Node twin and fixed vectors.
+- mirror-v0/ : hold a copy of the evidence yourself. mirror.py pulls every ledger entry (claim bytes, OTS proof) and every
+  record a batch names, content addressed, verifies offline, and diffs two mirrors. Integrity is not availability; a
+  copy held by someone who is not the operator is the first copy the operator cannot lose. See BECOME_A_MIRROR.md.
 
 ## Honest scope
 Signatures prove who asserted and the linkage, not that any assertion is true. There is no side-effect oracle:
