@@ -55,6 +55,22 @@ Honest note: 0.1.0 and 0.2.0 were published from the operator's laptop and carry
 0.2.1 ships the same nenrin_verify.mjs and tsugi_verify.mjs bytes as 0.2.0; the difference is the
 attestation. A reader who needs the chain closed (commit to tarball) uses 0.2.1 or later.
 
+## Reproduce the build yourself (2026-09-26): the tarball is what the commit builds, on your machine
+The attestation is a statement by GitHub and npm. The independent check is one script, reproduce.sh:
+it reads the commit npm records for the version (gitHead), fetches exactly that commit from the public
+repository, runs npm pack on the sdk directory with no scripts, and compares the resulting tarball's
+sha512 with the registry's dist.integrity and with the registry tarball itself, hashed on your machine.
+npm pack is deterministic from npm 7 (fixed timestamps in the archive), so a match is byte identity.
+
+    ./reproduce.sh 0.2.1
+    # ... REPRODUCED: nenrin-verify@0.2.1 is, byte for byte, what commit 5b8b4c1e... builds
+
+Verified on 2026-09-26 for 0.2.1: rebuilt hash equals dist.integrity equals the registry tarball's hash
+(sha512-SKWOXx...). Needs git, npm, openssl, tar; talks to github.com and the registry read only; no
+account, no token, no trust in HS. A mismatch exits 2 and prints the two trees to diff. With the
+attestation (who built it, from which commit) and this script (what that commit builds, on your
+machine), the chain source to package is closed at both ends by the reader, not by the operator.
+
 ## tsugi_verify.mjs (0.2.0): verify a TSUGI recovery chain yourself, in one file
 
 TSUGI (継) is the second pillar: proof of recovery. A chain is drift records, one proposal from a closed repair
