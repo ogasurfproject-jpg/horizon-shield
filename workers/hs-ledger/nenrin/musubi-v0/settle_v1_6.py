@@ -483,7 +483,7 @@ def _selftest():
 
     # [+] every layer below still passes
     here = os.path.dirname(os.path.abspath(__file__))
-    for f, want in (("contract_v0.py", "7 checks"), ("settle_v1_5.py", "9 checks")):
+    for f, want in (("contract_v0.py", "8 checks"), ("settle_v1_5.py", "9 checks")):
         rr = subprocess.run([sys.executable, os.path.join(here, f), "--selftest"], capture_output=True, text=True)
         assert rr.returncode == 0 and want in rr.stdout, (f, rr.stdout[-300:], rr.stderr[-300:])
     n += 1; print("[+] contract_v0 7/7 and settle_v1_5 9/9 (with every layer under them) still pass")

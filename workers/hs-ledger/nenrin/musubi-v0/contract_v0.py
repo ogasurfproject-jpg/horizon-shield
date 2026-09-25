@@ -83,12 +83,44 @@ def _int(x):
     return x if (isinstance(x, int) and not isinstance(x, bool)) else None
 
 
+# The revocation modes any settle layer knows how to end authority under. verify_contract refuses any other
+# value (2026-09-26, Issue #25 items 10 to 12): a mode no settle layer reads fell through grant_subset unflagged,
+# and settle_v1_6 computed h + ack_window on it, so an unknown mode kept authority alive after revocation.
+REVOCATION_MODES = frozenset(("anchor", "delivery_ack"))
+
+
+def bits_to_target(bits):
+    """Compact nBits to a target integer, the same decode settle_v1_1 uses, so the contract layer and the
+    settle layer agree on which of two floors is harder. Negative or zero targets are not valid."""
+    exp, mant = bits >> 24, bits & 0x007fffff
+    if bits & 0x00800000 or mant == 0:
+        return None
+    return mant * (1 << (8 * (exp - 3))) if exp >= 3 else mant >> (8 * (3 - exp))
+
+
+def _target_of(fin):
+    """grant.finality.max_target_bits as a target integer, or None when absent or not 8 lowercase hex."""
+    s = (fin or {}).get("max_target_bits")
+    if not (isinstance(s, str) and re.match(r"^[0-9a-f]{8}$", s)):
+        return None
+    return bits_to_target(int(s, 16))
+
+
+def _witness_keys(grant):
+    """The witness set as the set of its public keys. Names are labels; the key is what settle_v1_4 verifies
+    against, so a swap that keeps the name and changes the key is a replacement, not the same witness."""
+    ws = grant.get("witnesses") if isinstance(grant.get("witnesses"), list) else []
+    return set(w.get("public_key_ed25519_b64") for w in ws if isinstance(w, dict) and isinstance(w.get("public_key_ed25519_b64"), str))
+
+
 def grant_subset(child, parent):
     """Delegation monotonicity: a delegated (child) grant may only narrow the parent's, on EVERY axis of
     authority. Returns a list of violations; empty means the child is within the parent.
-    Axes (2026-09-25, Issue #25 closed the last four): authorized actions, prohibited actions, data access,
-    hops, who the child may delegate to, every condition the parent placed on an action, expiry height, how
-    fast authority ends on revocation, and whether unscoped approvals are accepted."""
+    Axes (2026-09-25, Issue #25 closed the last four; 2026-09-26, items 10 to 12 closed three more):
+    authorized actions, prohibited actions, data access, hops, who the child may delegate to, every condition
+    the parent placed on an action, expiry height, how fast authority ends on revocation, whether unscoped
+    approvals are accepted, the finality floor (depth and proof-of-work target), the witness set (by key),
+    and privacy and ordering (held equal until a partial order is defined for them)."""
     v = []
     pa = set(parent.get("authorized_actions") or [])
     ca = set(child.get("authorized_actions") or [])
@@ -136,19 +168,67 @@ def grant_subset(child, parent):
             v.append("parent expires at height %d but child has no expiry_height" % pe)
         elif ce > pe:
             v.append("expiry_height %d exceeds parent (%d)" % (ce, pe))
-    # revocation: authority in the child ends no later than it would in the parent
+    # revocation: authority in the child ends no later than it would in the parent. Only the known modes are
+    # compared; any other child mode is a violation, never a fall-through (Issue #25 item 12: under a
+    # delivery_ack parent, "manual" was neither anchor nor delivery_ack nor None, so nothing flagged it).
     pr = parent.get("revocation") if isinstance(parent.get("revocation"), dict) else None
     cr = child.get("revocation") if isinstance(child.get("revocation"), dict) else None
     if pr is not None:
         pm, cm = pr.get("effective_at"), (cr or {}).get("effective_at")
-        if pm == "anchor" and cm != "anchor":
+        if cr is None or cm is None:
+            v.append("parent has a revocation policy but child has none")
+        elif pm not in REVOCATION_MODES:
+            v.append("parent revocation mode %r is not one a settle layer reads" % pm)
+        elif cm not in REVOCATION_MODES:
+            v.append("child revocation mode %r is not one a settle layer reads (parent uses %r)" % (cm, pm))
+        elif pm == "anchor" and cm != "anchor":
             v.append("parent revokes at anchor but child revokes at %r" % cm)
         elif pm == "delivery_ack" and cm == "delivery_ack":
             pw, cw = _int(pr.get("ack_window")), _int((cr or {}).get("ack_window"))
             if pw is not None and (cw is None or cw > pw):
                 v.append("ack_window %r exceeds parent (%d)" % (cw, pw))
-        elif cm is None:
-            v.append("parent has a revocation policy but child has none")
+        # pm == delivery_ack and cm == anchor: the child ends authority sooner; within.
+    # finality: the child's assurance bar is at least the parent's (Issue #25 item 10). depth can only go up;
+    # the proof-of-work floor, compared as a target, can only get harder (a smaller target). Omission when the
+    # parent carries the axis is a violation, the same rule as expiry and hops.
+    pf = parent.get("finality") if isinstance(parent.get("finality"), dict) else None
+    cf = child.get("finality") if isinstance(child.get("finality"), dict) else None
+    if pf is not None:
+        if cf is None:
+            v.append("parent sets a finality floor but child has none")
+        else:
+            pdp, cdp = _int(pf.get("depth")), _int(cf.get("depth"))
+            if pdp is not None:
+                if cdp is None:
+                    v.append("parent requires finality depth %d but child has no depth" % pdp)
+                elif cdp < pdp:
+                    v.append("finality depth %d is below parent (%d)" % (cdp, pdp))
+            pt, ct = _target_of(pf), _target_of(cf)
+            if pt is not None:
+                if ct is None:
+                    v.append("parent sets max_target_bits %s but child has none or an invalid one" % pf.get("max_target_bits"))
+                elif ct > pt:
+                    v.append("max_target_bits %s is an easier target than parent %s" % (cf.get("max_target_bits"), pf.get("max_target_bits")))
+    # witnesses: the party the parent trusted to walk the evidence stays (Issue #25 item 11). Compared by key,
+    # since a swap that keeps the name is a replacement. The child may add witnesses, never remove, replace or
+    # empty them when the parent has any.
+    pwk, cwk = _witness_keys(parent), _witness_keys(child)
+    if pwk:
+        if not cwk:
+            v.append("parent names %d witness(es) but child has none" % len(pwk))
+        else:
+            for k in sorted(pwk):
+                if k not in cwk:
+                    v.append("parent witness key %s... is dropped or replaced in child" % k[:12])
+    # privacy and ordering: in GRANT_KEYS, no settle layer reads them yet, so no partial order is defined. Until
+    # one is, a child holds them equal to the parent: the only rule that cannot be wrong in the widening
+    # direction. Loosen when a reader and an order exist (Issue #25, 2026-09-26).
+    for k in ("privacy", "ordering"):
+        if k in parent and parent.get(k) is not None:
+            if k not in child or child.get(k) is None:
+                v.append("parent sets %s but child has none" % k)
+            elif child.get(k) != parent.get(k):
+                v.append("%s changed from %r to %r; no order is defined for it, so it must stay equal" % (k, parent.get(k), child.get(k)))
     # approvals: the child cannot accept looser approvals than the parent
     pap = parent.get("approval_policy") if isinstance(parent.get("approval_policy"), dict) else {}
     cap = child.get("approval_policy") if isinstance(child.get("approval_policy"), dict) else {}
@@ -299,6 +379,18 @@ def verify_contract(record, parent=None, now=None):
         overlap = set(grant.get("authorized_actions") or []) & set(grant.get("prohibited_actions") or [])
         if overlap:
             r.refuse("grant_contradiction", "actions both authorized and prohibited: %s" % sorted(overlap))
+        # revocation door (Issue #25 item 12): a mode no settle layer reads is refused here, the same way an
+        # undeclared grant key is, so it can never reach a settle path that computes on it. The ack_window
+        # requirement for delivery_ack stays where it already lives, settle_v1_4's terms check
+        # (ack_window_missing); its [H5] regression needs such a contract to pass verify so v1.3's veto hole
+        # stays demonstrable.
+        rv = grant.get("revocation")
+        if rv is not None:
+            if not isinstance(rv, dict):
+                r.refuse("bad_revocation", "grant.revocation must be an object")
+            elif rv.get("effective_at") not in REVOCATION_MODES:
+                r.refuse("revocation_mode_unknown", "grant.revocation.effective_at %r is not a mode any settle "
+                                                    "layer reads; known: %s" % (rv.get("effective_at"), sorted(REVOCATION_MODES)))
 
     # delegation monotonicity
     pc = record.get("parent_contract")
@@ -574,7 +666,57 @@ def _selftest():
     print("[7] grant_subset closes every widening axis (%d cases), prohibiting a conditional action still narrows; "
           "verify_contract refuses an undeclared grant key (authorized_prohibited)" % len(cases))
 
-    print("\nSELF-TEST PASSED: MUSUBI a2a-contract-v0, 7 checks (build, sign, verify, tamper, overclaim, settle, delegation on every axis, grant key door)")
+    # [8] the three keys grant_subset did not compare (Issue #25 items 10 to 12, reported 2026-09-26 by the
+    # first outside verifier): finality floor, witness keys, revocation mode. Plus privacy and ordering, which
+    # were in GRANT_KEYS with no reader: held equal until an order exists. Seven widenings from the report, each
+    # of which passed with zero violations at 25422d34, must now fail; the narrowings must still pass.
+    wk1 = base64.b64encode(bytes(range(32))).decode()
+    wk2 = base64.b64encode(bytes(range(32, 64))).decode()
+    p8 = {"authorized_actions": ["read", "write"], "prohibited_actions": ["delete"],
+          "delegation": {"allowed": ["b.example"]}, "max_hops": 1,
+          "finality": {"depth": 6, "max_target_bits": "1d00ffff"},
+          "witnesses": [{"name": "nenrin-walker", "public_key_ed25519_b64": wk1}],
+          "revocation": {"effective_at": "delivery_ack", "ack_window": 10},
+          "approval_policy": {"allow_unscoped": False}, "privacy": "public_record", "ordering": "strict"}
+    b8 = json.loads(json.dumps(p8)); b8["max_hops"] = 0
+    assert grant_subset(b8, p8) == [], grant_subset(b8, p8)
+    def w8(**kv):
+        g = json.loads(json.dumps(b8))
+        for k, val in kv.items():
+            if val is None: g.pop(k, None)
+            else: g[k] = val
+        return grant_subset(g, p8)
+    widened = {
+        "finality depth 6->0":       w8(finality={"depth": 0, "max_target_bits": "1d00ffff"}),
+        "finality target ->207fffff": w8(finality={"depth": 6, "max_target_bits": "207fffff"}),
+        "finality dropped":          w8(finality=None),
+        "witness swapped (same name, other key)": w8(witnesses=[{"name": "nenrin-walker", "public_key_ed25519_b64": wk2}]),
+        "witnesses emptied":         w8(witnesses=[]),
+        "revocation -> 'manual'":    w8(revocation={"effective_at": "manual"}),
+        "revocation -> 'x', window 10**9": w8(revocation={"effective_at": "x", "ack_window": 10 ** 9}),
+        "privacy changed":           w8(privacy="private"),
+        "ordering changed":          w8(ordering="loose"),
+    }
+    for name, viol in widened.items():
+        assert viol, "child widened %s but grant_subset saw nothing" % name
+    narrowed = {
+        "finality harder (depth 8, target 1c00ffff)": w8(finality={"depth": 8, "max_target_bits": "1c00ffff"}),
+        "witness added (superset)":  w8(witnesses=p8["witnesses"] + [{"name": "second", "public_key_ed25519_b64": wk2}]),
+        "revocation -> anchor under delivery_ack parent": w8(revocation={"effective_at": "anchor"}),
+        "ack_window 5 under 10":     w8(revocation={"effective_at": "delivery_ack", "ack_window": 5}),
+    }
+    for name, viol in narrowed.items():
+        assert viol == [], "child narrowed %s but grant_subset flagged it: %s" % (name, viol)
+    assert bits_to_target(0x1c00ffff) < bits_to_target(0x1d00ffff) < bits_to_target(0x207fffff)
+    # the door: verify_contract refuses a revocation mode no settle layer reads (delivery_ack without a window is
+    # settle_v1_4's ack_window_missing, left there so its [H5] regression keeps demonstrating v1.3's veto hole)
+    bad8 = json.loads(json.dumps(rec)); bad8["grant"]["revocation"] = {"effective_at": "manual"}
+    out8 = verify_contract(bad8)
+    assert out8["verdict"] == "refused" and any(x["code"] == "revocation_mode_unknown" for x in out8["refusals"]), out8
+    print("[8] finality floor, witness keys, revocation mode, privacy, ordering: %d widenings caught, %d narrowings pass; "
+          "verify_contract refuses a revocation mode no settle layer reads" % (len(widened), len(narrowed)))
+
+    print("\nSELF-TEST PASSED: MUSUBI a2a-contract-v0, 8 checks (build, sign, verify, tamper, overclaim, settle, delegation on every axis, grant key door, finality/witness/revocation floors)")
 
 
 def _write_canonical(path, obj):
