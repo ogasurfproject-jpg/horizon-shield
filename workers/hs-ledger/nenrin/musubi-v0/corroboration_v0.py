@@ -593,7 +593,7 @@ def _selftest():
     n += 1; print("[7] anchored at 100 against a deadline of 99: after_deadline counted, still a measurement; defaults are 1 entity, any")
 
     # [8] doors, chain view, terms without vocabulary, determinism
-    cq, tq = mk({"min_corroborating_entities": 2, "trust_weight": 0.5})
+    cq, tq = mk({"min_corroborating_entities": 2, "trust_weight": 1})
     out = run(cq, tq, [], chain("h8"))
     assert out["verdict"] == "refused" and ("unknown_requirement_key" in codes(out) or "unsafe_number" in codes(out) or "non_integer_number" in codes(out)), out["refusals"]
     c, t = mk(Q2); ch = chain("h8b")
@@ -612,7 +612,7 @@ def _selftest():
         sh = list(ms); random.shuffle(sh)
         dd = list(DECLS); random.shuffle(dd)
         assert canonical(run(c, t, sh, ch, decls=dd)) == ref
-    n += 1; print("[8] unknown requirement key or a float weight: refused; broken chain view: refused; no vocabulary bytes: undetermined; unknown measurement key: rejected; deterministic under shuffle")
+    n += 1; print("[8] unknown requirement key (a weight): refused; broken chain view: refused; no vocabulary bytes: undetermined; unknown measurement key: rejected; deterministic under shuffle")
 
     print("\nSELF-TEST PASSED: MUSUBI corroboration v0, %d checks (independent entities, the signed lie counted as one voice, disputed and contradicted, "
           "the block window, forged and transplanted records, undeclared voices, deadline and defaults, doors and determinism)" % n)

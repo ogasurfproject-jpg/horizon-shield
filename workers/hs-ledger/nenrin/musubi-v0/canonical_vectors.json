@@ -1,0 +1,140 @@
+{
+ "rule": "musubi-canonical-v0",
+ "note": "sha256 over the canonical bytes of value; contract_v0 --selftest recomputes these in Python and, when node is present, in canonical_v0.mjs",
+ "vectors": [
+  {
+   "name": "nested keys sorted by code point, uppercase before lowercase",
+   "value": {
+    "b": {
+     "z": 1,
+     "a": [
+      3,
+      2,
+      1
+     ]
+    },
+    "a": "x",
+    "A": true
+   },
+   "sha256": "866879f1148ab92ee2b91a2f111b53f0477b8b16cd53e212e6c85c974cb0570f",
+   "bytes": 42
+  },
+  {
+   "name": "non-ASCII written raw",
+   "value": {
+    "name": "The HORIZ音s株式会社",
+    "note": "篩 🛡 ok é"
+   },
+   "sha256": "34e99b62452e1f10b265b53a73ead098881e0f5e501399a017fc66448938ca0f",
+   "bytes": 60
+  },
+  {
+   "name": "escapes: quote, backslash, short controls, other controls as \\u00xx, DEL raw",
+   "value": {
+    "s": "q\" b\\ t\t n\n r\r b\b f\f nul\u0000 esc\u001b del"
+   },
+   "sha256": "b26bc355aa2c3c1671334874fb7b7ddb61068db55120a954fd78db93ac8f3a77",
+   "bytes": 60
+  },
+  {
+   "name": "empty containers and empty string",
+   "value": {
+    "o": {},
+    "a": [],
+    "s": ""
+   },
+   "sha256": "c127f9b3c6f4233b3976f8e2d54486ab15f9a46cfa50fc14ae6d0787d1ac2917",
+   "bytes": 22
+  },
+  {
+   "name": "safe integer range",
+   "value": {
+    "max": 9007199254740991,
+    "min": -9007199254740991,
+    "zero": 0,
+    "neg": -1,
+    "one": 1
+   },
+   "sha256": "c99a2fd8308c93e815daf2d8393b241a2fe90ca6516b223c2a1aa2ccbfd76a25",
+   "bytes": 74
+  },
+  {
+   "name": "literals",
+   "value": [
+    true,
+    false,
+    null,
+    [
+     null
+    ]
+   ],
+   "sha256": "40fa86035870cbe07e56aca01a4f0be3951ceb34ac5029010ca1154fc5f6b3e0",
+   "bytes": 24
+  },
+  {
+   "name": "printable ASCII keys in code point order",
+   "value": {
+    " ": 1,
+    "~": 2,
+    "a b": 3,
+    "a-b": 4,
+    "a_b": 5,
+    "A": 6,
+    "0": 7,
+    "_": 8
+   },
+   "sha256": "2e83ebcb91162c98fb253530d8472703353354a020e80c72b252a29ce40a28df",
+   "bytes": 55
+  },
+  {
+   "name": "U+2028 and U+2029 raw",
+   "value": {
+    "s": "line sep ok"
+   },
+   "sha256": "6d13333e65a0f5a37b31b69389d89603ab8ce1da736db806c7ab97b4fd04cb56",
+   "bytes": 23
+  },
+  {
+   "name": "a contract shaped record",
+   "value": {
+    "schema": "a2a-contract-v0",
+    "contract_id": "0123456789abcdef0123456789abcdef",
+    "parties": [
+     {
+      "role": "principal",
+      "domain": "gate.horizonshield.dev",
+      "public_key_ed25519_b64": "AAAA"
+     },
+     {
+      "role": "contractor",
+      "domain": "api.babyblueviper.com",
+      "public_key_ed25519_b64": "BBBB"
+     }
+    ],
+    "grant": {
+     "authorized_actions": [
+      "read"
+     ],
+     "prohibited_actions": [
+      "delete"
+     ],
+     "delegation": {
+      "allowed": []
+     },
+     "max_hops": 1,
+     "finality": {
+      "depth": 6,
+      "max_target_bits": "17080000"
+     }
+    },
+    "bond": null,
+    "task": {
+     "purpose": "endpoint_conduct_walk",
+     "payload_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+   },
+   "sha256": "173a0fbda4dfaadaa859af52e02b65afd94d2205e5d01c4ef6fa53462151a575",
+   "bytes": 567
+  }
+ ]
+}

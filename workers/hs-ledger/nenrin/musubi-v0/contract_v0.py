@@ -50,6 +50,33 @@ def sha256_hex(b):
     return hashlib.sha256(b).hexdigest()
 
 
+# The canonical rule every digest here is computed over. canonical() comes from the agreement layer (json.dumps
+# with sorted keys, no whitespace, non-ASCII raw); canonical_v0.mjs is the same rule in Node and
+# canonical_vectors.json the fixed inputs both must hash identically. verify_contract refuses the two inputs that
+# could make two runtimes disagree: floats and object keys outside printable ASCII.
+CANONICAL_RULE = "musubi-canonical-v0"
+CANONICAL_VECTORS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "canonical_vectors.json")
+CANONICAL_TWIN = os.path.join(os.path.dirname(os.path.abspath(__file__)), "canonical_v0.mjs")
+
+
+def scan_keys(root, path="$"):
+    """Object keys that are not printable ASCII (0x20..0x7E), with their path. Iterative, like scan_numbers."""
+    out = []
+    stack = [(root, path)]
+    while stack:
+        node, p = stack.pop()
+        if isinstance(node, dict):
+            for k in sorted(node.keys(), key=str, reverse=True):
+                if not (isinstance(k, str) and all(0x20 <= ord(ch) <= 0x7e for ch in k)):
+                    out.append((p, k))
+                stack.append((node[k], p + "." + str(k)))
+        elif isinstance(node, list):
+            for i in range(len(node) - 1, -1, -1):
+                stack.append((node[i], p + "[%d]" % i))
+    out.sort(key=lambda t: (t[0], str(t[1])))
+    return out
+
+
 def signing_bytes(record, context=CONTEXT):
     body = {k: v for k, v in record.items() if k != "signatures"}
     return context + canonical(body).encode("utf-8")
@@ -510,16 +537,20 @@ def verify_contract(record, parent=None, now=None):
         else:
             r.find("parent_not_checked", "record declares a parent but no parent was supplied; grant subset not checked")
 
-    # numbers a second implementer might not reproduce (the same scan the agreement layer runs, 2026-09-26):
-    # a non-finite number or an integer outside the RFC 7493 safe range is refused, no runtime reproduces it;
-    # a finite float is a finding, its canonical bytes follow this runtime's float repr, so a verifier in
-    # another runtime may recompute a different contract_sha256. The next contract version forbids floats.
+    # the canonical pin (musubi-canonical-v0, 2026-09-26). contract_sha256 is sha256 over canonical bytes, and
+    # those bytes are only "canonical" if a second runtime produces the same ones. canonical_v0.mjs is that second
+    # runtime and canonical_vectors.json the shared vectors; the two things that could still split the bytes are
+    # refused here: a float (its text follows the runtime's float repr; until this morning a finding) and an
+    # object key outside printable ASCII (code point order and UTF-16 order can differ above the BMP).
     for path, why, shown in scan_numbers(record):
         if why == "not an integer":
-            r.find("non_integer_number", "%s is %s (%s); canonical bytes for a float follow the Python repr, so a "
-                                         "reader in another runtime may not reproduce this contract_sha256" % (path, why, shown))
+            r.refuse("non_integer_number", "%s is %s (%s); a float has no canonical form here, write a decimal as an "
+                                           "integer at a stated scale" % (path, why, shown))
         else:
             r.refuse("unsafe_number", "%s is %s (%s)" % (path, why, shown))
+    for path, key in scan_keys(record):
+        r.refuse("key_not_printable_ascii", "%s carries key %r; keys are printable ASCII so that every runtime sorts "
+                                            "them the same way" % (path, key))
 
     # establishes / does_not_establish
     est = record.get("establishes")
@@ -896,7 +927,33 @@ def _selftest():
     print("[9] type door: %d malformed parents from the report refused at verify and unreadable to grant_subset, their well-typed controls "
           "accepted; %d further wrong types refused, each right type accepted%s" % (len(rows), len(typed), filed_note))
 
-    print("\nSELF-TEST PASSED: MUSUBI a2a-contract-v0, 9 checks (build, sign, verify, tamper, overclaim, settle, delegation on every axis, finality, witness and revocation floors, grant key door, grant type door)")
+    # [10] the canonical pin: the fixed vectors hash the same in this runtime as when they were recorded, and, when
+    # node is present, canonical_v0.mjs produces byte-identical canonical text for every one of them. A float or a
+    # non-ASCII key in a contract is refused, the two inputs that could split the bytes between runtimes.
+    vecs = parse_strict(open(CANONICAL_VECTORS, encoding="utf-8").read())["vectors"]
+    for vec in vecs:
+        got = sha256_hex(canonical(vec["value"]))
+        assert got == vec["sha256"], ("vector drifted", vec["name"], got)
+    twin_note = "node absent, twin not run"
+    import shutil, subprocess
+    node = shutil.which("node")
+    if node:
+        for vec in vecs:
+            rr = subprocess.run([node, CANONICAL_TWIN], input=json.dumps(vec["value"], ensure_ascii=False).encode("utf-8"),
+                                capture_output=True, timeout=30)
+            assert rr.returncode == 0, (vec["name"], rr.stderr.decode()[-300:])
+            assert rr.stdout == canonical(vec["value"]).encode("utf-8"), ("twin differs", vec["name"], rr.stdout[:120])
+        twin_note = "node twin byte-identical on all %d" % len(vecs)
+    fl = json.loads(json.dumps(rec)); fl["bond"] = {"amount": 1000.5, "currency": "JPY"}
+    ofl = verify_contract(fl)
+    assert ofl["verdict"] == "refused" and any(x["code"] == "non_integer_number" for x in ofl["refusals"]), ofl
+    nk = json.loads(json.dumps(rec)); nk["task"]["備考"] = "x"
+    onk = verify_contract(nk)
+    assert onk["verdict"] == "refused" and any(x["code"] == "key_not_printable_ascii" for x in onk["refusals"]), onk
+    assert scan_keys({"a": {"bé": 1}, "c": [{"\t": 2}], "ok": {"x y": 1}}) == [("$.a", "bé"), ("$.c[0]", "\t")]
+    print("[10] canonical pin: %d vectors recompute; %s; a float (bond.amount 1000.5) and a non-ASCII key are refused" % (len(vecs), twin_note))
+
+    print("\nSELF-TEST PASSED: MUSUBI a2a-contract-v0, 10 checks (build, sign, verify, tamper, overclaim, settle, delegation on every axis, finality, witness and revocation floors, grant key door, grant type door, canonical pin)")
 
 
 def _write_canonical(path, obj):

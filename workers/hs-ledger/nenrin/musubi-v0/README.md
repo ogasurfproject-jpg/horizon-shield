@@ -16,7 +16,7 @@ The verifier is offline by design. There is no endpoint to trust. You run the sa
 
 ## The CLI
 
-    python3 contract_v0.py --selftest                     # 9 self checks
+    python3 contract_v0.py --selftest                     # 10 self checks
     python3 contract_v0.py --verify contract.json         # verify a signed contract
     python3 contract_v0.py --sign  contract_unsigned.json --key mykey.json --domain my.domain --out contract_A.json
     python3 contract_v0.py --settle contract.json --exec execution.json   # recompute the settlement verdict
@@ -289,3 +289,11 @@ Closed the way the key door and the revocation door were closed: `grant_type_pro
 - Verdicts, not holes: `corroborated` / `disputed` / `contradicted` / `not_corroborated` / `undetermined` are reported in `corroboration_verdict`, the way a deviation is reported in `settlement_verdict`. A dispute about the work is a statement about the work, not a break in the thread.
 - A stage with nothing handed in stays `none`; a contract that pins terms whose bytes were not supplied is `pinned_not_supplied`. The first filed thread (e15c0188) verifies exactly as before with the three stages at `none` (check 12).
 - Output is identical under any order of declarations and measurements, duplicates included (check 13); messages name records by digest, never by position.
+
+## The canonical pin (2026-09-26): one rule, two runtimes, fixed vectors
+Every digest in this directory is sha256 over canonical bytes, and canonical bytes are only canonical if a second runtime produces the same ones. Until this morning the rule was inherited from the Python runtime and a float was a finding. Now the rule has a name, `musubi-canonical-v0`, a second implementation, and vectors both must agree on:
+
+- The rule: UTF-8; object keys sorted by code point at every level; separators `,` and `:` with no whitespace; strings escape only `"`, `\` and U+0000..U+001F (`\b \f \n \r \t` short, the rest `\u00xx` lowercase), everything else raw including non-ASCII, U+007F, U+2028 and U+2029; integers only, within plus or minus 2^53 - 1, no exponent, no fraction; `true`, `false`, `null`, `{}`, `[]` as literals.
+- `canonical_v0.mjs` is the rule in Node (no dependencies, ~80 lines; `echo '{"b":1,"a":null}' | node canonical_v0.mjs`). `canonical_vectors.json` holds nine fixed inputs (key order across cases, non-ASCII raw, every escape class, empty containers, the safe integer edges, literals, punctuation keys, U+2028/2029, a contract shaped record) with the sha256 of their canonical bytes.
+- `contract_v0 --selftest` check 10 recomputes every vector in Python and, when `node` is on the path, runs `canonical_v0.mjs` over the same inputs and asserts the bytes are identical. Two runtimes, one set of bytes, on every run.
+- `verify_contract` now refuses the two inputs that could still split the bytes between runtimes: a float anywhere in the record (`non_integer_number`, a refusal rather than the finding it was; a decimal is written as an integer at a stated scale, the way terms v0 does) and an object key outside printable ASCII (`key_not_printable_ascii`; code point order and UTF-16 order can differ above the BMP, so keys stay where every runtime sorts them the same way). No filed record carries either, so e15c0188 verifies as before; this is a v0 strictness increase, not a new schema.
