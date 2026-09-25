@@ -168,14 +168,15 @@ which is `contract_v0.signing_bytes(contract)`. It is identical for both parties
 ## spine_verify: one thread through a transaction (2026-09-25)
 Binding one record type is not the spine; the spine is the same sha threaded through the whole transaction. `spine_verify.py` recomputes `contract_sha256` and follows it: contract, task, executions, nenrin, settlement, delegation, tsugi, ap2. For each stage it reports which records name these exact terms (`linked`), which name other terms (`foreign`), and which name none (`unbound`), and settles the execution records with `settle_v1_5`.
 
-    python3 spine_verify.py --selftest        # expect: SELF-TEST PASSED, 9 checks
-    python3 spine_verify.py --contract c.json --exec e1.json --view headers.json --nenrin walk.json --ap2 att.json --child sub.json
+    python3 spine_verify.py --selftest        # expect: SELF-TEST PASSED, 10 checks
+    python3 spine_verify.py --contract c.json --exec e1.json --view headers.json --nenrin walk.json --ap2 att.json --child sub.json --external a202.json
 
 - delegation laundering: a child contract that names its parent by an old sha (the parent's grant was edited) is foreign, hole `parent_not_found_by_sha`; a child within the parent grant that names the current sha is linked; a child that names the correct sha but widens the grant is `grant_escalation` (checks 2, 3, 4).
 - payment without terms: an AP2 attestation that cites a cart but carries no `contract_sha256` is unbound, hole `payment_without_terms`; one that names other terms is `payment_names_other_contract` (checks 5, 6).
 - A deviation is a settlement verdict, not a hole; a hole is a structural break in the thread. The spine is `intact` only when nothing threads to other terms.
 - Phase 2 turns each producer (the NENRIN walker, the gate A2A face, TSUGI, the AP2 bridge) into a carrier of the sha; each one moves its stage from `unbound` to `linked`. Until then those stages read honestly as unbound.
 - Since 2026-09-25 the executions are settled by `settle_v1_6` and the delegation stage uses the every-axis `grant_subset`.
+- The `external` stage is the connector stance: a third party record (an A202 commercial agreement, a TRACE runtime attestation, a reputation entry) that carries this contract_sha256 is `linked`, one carrying another sha is a hole, and one carrying none is listed `unbound` without being a hole, because a third party schema owes this spine nothing. Ingest others' evidence and thread it, never grade it.
 
 Design: `ops/MUSUBI_contract_sha256_spine_DESIGN.md`.
 
@@ -195,3 +196,24 @@ The first outside contractor (babyblueviper1) ran a cold break attempt at 330b94
 - The walk is v1.4's walk with the approval classifier swapped; ordering, ties and revocation are unchanged. Binding and the NENRIN cross check are v1.5's. Nothing under v1.6 was edited except `contract_v0.grant_subset` and the grant key door in `verify_contract`, both primitives every layer shares.
 - Check D4 runs the replay against v1.5 (within_grant) and then v1.6 (label_bound, not counted, deviation named). Check D3 keeps a frozen copy of the old `grant_subset` to show it saw nothing. Checks D1 and D2 run the base v0 and v1 paths to show why they are superseded.
 - Stated limits: as v1.4 and v1.5. A stolen principal key still signs a valid v2 approval.
+
+
+## bond v0: the bond's teeth, without custody (2026-09-25)
+Every settlement since v0 computes `bond_outcome`, but nothing recorded what the holder actually did with the money, and an outside review said so plainly. HS will not answer that with custody (refused at every layer). `bond_v0.py` makes the consequence a record: `a2a-bond-resolution-v0`, in which the party that `bond.holder` names states, over its own signature with the key pinned in the signed contract, what it did with the bond (`released` or `forfeited_to_principal`), pinned to `contract_sha256` and to the exact settlement bytes (`settlement_sha256`).
+
+    python3 bond_v0.py --selftest      # expect: SELF-TEST PASSED, 7 checks
+    python3 bond_v0.py --verify resolution.json --contract c.json --settlement s.json
+
+- Three provable outcomes: `consistent` (the disposition matches the recomputable bond_outcome), `contradicts` (the holder's signed disposition disagrees with the outcome; misconduct provable from the bytes alone, priced in reputation), `premature` (a disposition before finality, on the record at the holder's own risk).
+- Contract convention: `bond: {amount, currency, holder: "principal" | "contractor", reference}`. A third party holder is out of v0 scope and is refused as unsettleable, never guessed.
+- Stated limits: nothing here moves money; the record proves the signed statement and its pins, and silence after finality is visible because the settlement is public.
+
+## offer v0: negotiation as a chain of digests (2026-09-25)
+The commercial extensions this layer is compared to carry an offer / counteroffer / acceptance state machine. With contract_sha256 the machine collapses into one rule this repo already lives by: every proposal is exact bytes named by digest, and every reply names the digest it replies to. `offer_v0.py` implements `a2a-offer-v0`: an offer carries an unsigned contract draft and is signed by the offering party with the key the draft pins for it; a counteroffer's `in_reply_to` names the previous offer's `offer_sha256`; acceptance is the final signed contract, whose body minus the optional `negotiation` block must hash-equal the accepted draft.
+
+    python3 offer_v0.py --selftest     # expect: SELF-TEST PASSED, 8 checks
+    python3 offer_v0.py --verify-chain o1.json o2.json --final contract.json
+
+- A contract that differs from the accepted draft is `final_differs_from_accepted_offer`: whatever changed was never proposed (check 2). A draft edited after signing fails its signature; a broken `in_reply_to` is named; a stranger's offer is `offeror_not_a_party`.
+- A reply that changes nothing and consecutive offers by one party are findings, not refusals: the way to accept is to sign.
+- The `negotiation` block pins `head_offer_sha256` and `accepted_offer_sha256`, and both parties sign it inside the contract, so the provenance of the terms is inside the signed bytes.

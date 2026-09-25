@@ -94,7 +94,7 @@ def _check_children(contract, children, csha):
 
 def spine_verify(contract, executions=(), revocations=(), acks=(), view=None,
                  nenrin_records=(), child_contracts=(), ap2_records=(), tasks=(),
-                 tsugi_records=(), mode="strict"):
+                 tsugi_records=(), external_records=(), mode="strict"):
     csha = contract_sha256(contract)
     holes = []
 
@@ -125,6 +125,14 @@ def spine_verify(contract, executions=(), revocations=(), acks=(), view=None,
     ap2_link = _link(ap2_records, lambda r: _get(r, "reference", "contract_sha256") or _get(r, "contract_ref", "contract_sha256")
                      or r.get("contract_sha256"), csha)
 
+    # external: third party records (an A202 commercial agreement, a TRACE runtime attestation, a
+    # reputation entry) that choose to carry the sha. One rule for any format: carrying this
+    # contract_sha256 links it; carrying another sha is a hole; carrying none is listed unbound and is
+    # NOT a hole, because a third party schema owes this spine nothing. The connector stance: ingest
+    # others' evidence and thread it, never grade it.
+    ext_link = _link(external_records, lambda r: r.get("contract_sha256") or _get(r, "contract_ref", "contract_sha256")
+                     or _get(r, "reference", "contract_sha256") or _get(r, "metadata", "musubi", "contract_sha256"), csha)
+
     # holes: structural breaks in the thread (a deviation is a settlement verdict, not a hole)
     if task_link["foreign"] or task_link["unbound"]:
         holes.append({"stage": "task", "reason": "task_not_bound_by_sha",
@@ -148,6 +156,8 @@ def spine_verify(contract, executions=(), revocations=(), acks=(), view=None,
     if tsugi_link["foreign"] or tsugi_link["unbound"]:
         holes.append({"stage": "tsugi", "reason": "recovery_not_bound_by_sha",
                       "foreign": tsugi_link["foreign"], "unbound": tsugi_link["unbound"]})
+    if ext_link["foreign"]:
+        holes.append({"stage": "external", "reason": "external_names_other_contract", "records": ext_link["foreign"]})
 
     chain = [
         {"stage": "contract", "status": "linked", "contract_sha256": csha},
@@ -159,6 +169,7 @@ def spine_verify(contract, executions=(), revocations=(), acks=(), view=None,
         {"stage": "delegation", **deleg},
         {"stage": "tsugi", **tsugi_link},
         {"stage": "ap2", **ap2_link},
+        {"stage": "external", **ext_link},
     ]
 
     spine = "intact" if not holes else "broken"
@@ -317,14 +328,25 @@ def _selftest():
                                       tasks=[task], ap2_records=[ap2])) == ref
     n += 1; print("[8] 20 shuffles with duplicates: identical spine bytes")
 
-    # [9] settle_v1_5 and every layer under it still pass
+    # [9] external stage: an A202-shaped agreement and a TRACE-shaped attestation, the connector stance
+    a202 = {"schema": "a202-agreement-v1", "state": "accepted", "offer": "x", "contract_sha256": csA}
+    trace = {"schema": "trace-attestation-v0", "runtime": "sgx", "measurement": "m" * 64}
+    a202_foreign = {"schema": "a202-agreement-v1", "state": "accepted", "contract_sha256": "d" * 64}
+    out = spine_verify(cA, external_records=[a202, trace])
+    ext = out["chain"][8]
+    assert out["spine"] == "intact" and len(ext["linked"]) == 1 and len(ext["unbound"]) == 1, out["chain"][8]
+    out = spine_verify(cA, external_records=[a202_foreign])
+    assert out["spine"] == "broken" and any(h["reason"] == "external_names_other_contract" for h in out["holes"]), out["holes"]
+    n += 1; print("[9] external stage: an A202 record carrying the sha links, a TRACE attestation without one is unbound (no hole), a foreign sha is a hole")
+
+    # [10] settle_v1_6 and every layer under it still pass
     here = os.path.dirname(os.path.abspath(__file__))
     rr = subprocess.run([sys.executable, os.path.join(here, "settle_v1_6.py"), "--selftest"], capture_output=True, text=True)
     assert rr.returncode == 0 and "9 checks" in rr.stdout, (rr.stdout[-400:], rr.stderr[-400:])
-    n += 1; print("[9] settle_v1_6 9/9 (with every layer under it) still passes")
+    n += 1; print("[10] settle_v1_6 9/9 (with every layer under it) still passes")
 
     print("\nSELF-TEST PASSED: MUSUBI spine_verify, %d checks (honest thread; delegation laundering, escalation; "
-          "payment without terms; evidence transplant; determinism; regression)" % n)
+          "payment without terms; evidence transplant; external records; determinism; regression)" % n)
 
 
 def main():
@@ -340,6 +362,7 @@ def main():
     ap.add_argument("--ap2", action="append", default=[], metavar="AP2.json")
     ap.add_argument("--task", action="append", default=[], metavar="TASK.json")
     ap.add_argument("--tsugi", action="append", default=[], metavar="TSUGI.json")
+    ap.add_argument("--external", action="append", default=[], metavar="EXTERNAL.json")
     ap.add_argument("--mode", choices=("strict", "legacy"), default="strict")
     ap.add_argument("--out", metavar="OUT.json")
     a = ap.parse_args()
@@ -357,7 +380,8 @@ def main():
     out = spine_verify(contract, executions=[rd(p) for p in a.execs], revocations=[rd(p) for p in a.rev],
                        acks=[rd(p) for p in a.ack], view=view, nenrin_records=[rd(p) for p in a.nenrin],
                        child_contracts=[rd(p) for p in a.child], ap2_records=[rd(p) for p in a.ap2],
-                       tasks=[rd(p) for p in a.task], tsugi_records=[rd(p) for p in a.tsugi], mode=a.mode)
+                       tasks=[rd(p) for p in a.task], tsugi_records=[rd(p) for p in a.tsugi],
+                       external_records=[rd(p) for p in a.external], mode=a.mode)
     if a.out:
         with open(a.out, "w", encoding="utf-8", newline="") as f:
             f.write(canonical(out))
