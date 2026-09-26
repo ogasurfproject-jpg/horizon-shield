@@ -80,6 +80,7 @@ const DASH = new RegExp("[" + String.fromCharCode(0x2012, 0x2013, 0x2014, 0x2015
   chk("provenance.updated_at = _meta.updated_at", o.provenance && o.provenance.updated_at === DB._meta.updated_at);
   chk("provenance.sources は _meta.sources と同数", o.provenance && Array.isArray(o.provenance.sources) && o.provenance.sources.length === DB._meta.sources.length);
   chk("provenance.related_open_dataset は『価格は含まない』と明記", /価格は含まない/.test((o.provenance && o.provenance.related_open_dataset && o.provenance.related_open_dataset.note) || ""));
+  chk("provenance.related_open_dataset は品目の目録 v4.0 を指す(値は前と同じ)", o.provenance && o.provenance.related_open_dataset && o.provenance.related_open_dataset.version === "v4.0 (2026-08-28)" && o.provenance.related_open_dataset.dataset_doi === "https://doi.org/10.5281/zenodo.22127752");
   chk("provenance.papers に engrXiv 7814", /10\.31224\/7814/.test((o.provenance && o.provenance.papers && o.provenance.papers.engrxiv_benchmark) || ""));
   chk("next_actions.ehn_submit(旧キー)が残る", o.next_actions && typeof o.next_actions.ehn_submit === "string");
   chk("next_actions.yakumo", o.next_actions && /\/yakumo\/$/.test(o.next_actions.yakumo || ""));
@@ -124,7 +125,12 @@ const DASH = new RegExp("[" + String.fromCharCode(0x2012, 0x2013, 0x2014, 0x2015
   const names = new Set((await rpc("tools/list", {})).tools.map(t => t.name));
   const listed = ol ? [...ol.japan.tools, ...ol.united_states.tools, ...ol.united_states.computed_layer.tools] : [];
   chk("観測層に書いた道具は全部 tools/list にある", listed.length >= 15 && listed.every(n => names.has(n)), listed.filter(n => !names.has(n)).join(","));
-  chk("品目の目録の既存の欄は変わらない", o.items === 95403 && o.license === "CC BY 4.0" && o.links && o.links.dataset_doi === "https://doi.org/10.5281/zenodo.22127752");
+  chk("品目の目録の既存の欄は変わらない", o.items === 95403 && o.license === "CC BY 4.0" && o.links && o.links.dataset_doi === "https://doi.org/10.5281/zenodo.22980284");
+  chk("v5.0: 全部の版・v4.0・USCCDB の DOI と Hugging Face", /^v5\.0 /.test(o.version) && o.links.dataset_doi_all_versions === "https://doi.org/10.5281/zenodo.22127751" && o.links.dataset_doi_v4 === "https://doi.org/10.5281/zenodo.22127752" && o.links.usccdb_doi === "https://doi.org/10.5281/zenodo.22979157" && o.links.huggingface_observations === "https://huggingface.co/datasets/ogasurfproject/jccdb-observations" && o.links.usccdb_huggingface === "https://huggingface.co/datasets/ogasurfproject/usccdb");
+  chk("品目の目録は v4.0 のまま(catalogue)", o.catalogue && o.catalogue.version === "v4.0 (2026-08-28)" && o.catalogue.dataset_doi === "https://doi.org/10.5281/zenodo.22127752");
+  chk("出した版の行数とファイル数(日本 330362、米国 2849829)", ol && ol.japan.release && ol.japan.release.rows === 330362 && ol.japan.release.files === 63 && ol.united_states.release && ol.united_states.release.rows === 2849829 && ol.united_states.release.files === 115);
+  chk("出した版の DOI は links と同じ", ol && ol.japan.release.doi === o.links.dataset_doi && ol.united_states.release.doi === o.links.usccdb_doi);
+  chk("links・note・catalogue にダッシュ無し", !DASH.test(JSON.stringify(o.links) + o.note + JSON.stringify(o.catalogue)));
   chk("観測層にダッシュ無し", !DASH.test(JSON.stringify(ol)));
   const tl = (await rpc("tools/list", {})).tools;
   chk("道具は 30 本で、全部に title と readOnlyHint の注記", tl.length === 30 && tl.every(t => t.title && t.annotations && typeof t.annotations.readOnlyHint === "boolean"), tl.length);
