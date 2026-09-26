@@ -62,17 +62,20 @@ repository, runs npm pack on the sdk directory with no scripts, and compares the
 sha512 with the registry's dist.integrity and with the registry tarball itself, hashed on your machine.
 npm pack is deterministic from npm 7 (fixed timestamps in the archive), so a match is byte identity.
 
-    ./reproduce.sh 0.2.1
-    # ... REPRODUCED: nenrin-verify@0.2.1 is, byte for byte, what commit 5b8b4c1e... builds
+    ./reproduce.sh 0.2.2
+    # ... REPRODUCED: nenrin-verify@0.2.2 is, byte for byte, what commit 8638b99b... builds
 
-Verified on 2026-09-26 for 0.2.1: rebuilt hash equals dist.integrity equals the registry tarball's hash
-(sha512-SKWOXx...). Needs git, npm, openssl, tar; talks to github.com and the registry read only; no
+Verified on 2026-09-26 for 0.2.1 (commit 5b8b4c1e, sha512-SKWOXx...) and for 0.2.2 (commit 8638b99b,
+sha512-5eycgUkU...): rebuilt hash equals dist.integrity equals the registry tarball's hash, each time on a
+machine that is not the publisher's. Needs git, npm, openssl, tar; talks to github.com and the registry read only; no
 account, no token, no trust in HS. A mismatch exits 2 and prints the two trees to diff. With the
 attestation (who built it, from which commit) and this script (what that commit builds, on your
 machine), the chain source to package is closed at both ends by the reader, not by the operator.
 
 ## 0.2.2 (2026-09-26): canonical pin, rules and signers on the report, VATE-shaped action_binding
-nenrin_verify.mjs is rebuilt from the sources at this commit (verifier_version 0.1.2). What a reader sees:
+Published 2026-09-26 by the workflow (run 3, commit 8638b99b, SLSA provenance v1 on the registry; reproduce.sh
+0.2.2 reproduced the tarball the same day). nenrin_verify.mjs is rebuilt from the sources at this commit
+(verifier_version 0.1.2). What a reader sees:
 - Strict canonical input. The bundled canonical() refuses what the pinned rule refuses (a non-integer or unsafe
   number, a non printable-ASCII key) and the strict parser refuses duplicate keys at any depth, before anything
   is hashed. The rule has a name, musubi-canonical-v0, and vectors in ../musubi-v0/canonical_vectors.json.
