@@ -21,7 +21,7 @@ Standard library only, Python 3.8 or later. Read only against the ledger; nothin
                        bytes for agreements and executions; for a contract, contract_sha256 (sha256 over "a2a-contract-v0" plus a
                        newline plus the canonical record without its signatures, the digest both parties sign), the same address
                        whether one or both signatures are present. verify applies each rule and says which one matched.
-    manifest.json      what was fetched, what verified, what did not, with the manifest's own sha256 printed at the end
+    manifest.json      what was fetched, what verified, what did not, with the manifest sha256 (this copy) and content_sha256 (the evidence) printed at the end
 
 Every file is named by what it is, so two mirrors made by two strangers can be compared by name and digest with `diff`, and neither needs the other to be honest.
 
@@ -35,7 +35,7 @@ Does not establish: that any claim in the ledger is true; that an anchor is vali
 
 As of 2026-09-26 the bytes behind every entry exist in: the ledger itself, the intake that serves records content addressed, this repository (records are committed before their batch is anchored), and the forks of this repository. All of those are one company plus whoever forked. A mirror held by someone else, on a machine the company does not run, is the first copy the company cannot lose. The second mirror is the first one that can be checked against something other than the source.
 
-If you hold a mirror and want it counted, say so in an issue with the manifest sha256 and the range. Nothing is recorded about you beyond what you post. Silence is fine too; a copy nobody knows about is still a copy.
+If you hold a mirror and want it counted, say so in an issue with the `content_sha256` and the range. The manifest's own sha256 includes `mirrored_at`, so two honest mirrors never share it, by construction; `content_sha256` (the canonical manifest without `mirrored_at` and the two digest fields) and `entries_sha256` (the entries list alone) are what two mirrors of the same evidence share exactly. `verify` recomputes both and `diff` prints both for A and B. This was found by the second mirror holder on 2026-09-26. Nothing is recorded about you beyond what you post. Silence is fine too; a copy nobody knows about is still a copy.
 
 ## Self test
 

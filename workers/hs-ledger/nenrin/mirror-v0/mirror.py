@@ -19,6 +19,16 @@ This file is the copy. Standard library only, one directory, every file named by
                              which stays the same whether one or both signatures are present. verify checks each by its rule.
     <dir>/manifest.json      what was fetched, what verified, what did not, and the sha256 of this manifest
 
+Two digests are printed and stored, and they answer two different questions:
+    manifest sha256   the digest of this file's bytes. It includes mirrored_at, so two honest mirrors of identical
+                      evidence always differ here, by construction. It identifies this copy, not the evidence.
+    content_sha256    sha256 over the canonical manifest with mirrored_at, content_sha256 and entries_sha256 removed.
+                      Two mirrors that fetched identical evidence (same entries, same anchor states, same objects,
+                      same problems) share it exactly; a difference is a real diff, not the clock.
+    entries_sha256    sha256 over the canonical entries list alone (the range), for a quick compare when only the
+                      ledger part is in question.
+"say I hold a mirror" means: post content_sha256 and the range. (2026-09-26, finding by the second mirror holder.)
+
     python3 mirror.py pull   --dir ./nenrin-mirror              # fetch or resume; re-verifies what is already there
     python3 mirror.py verify --dir ./nenrin-mirror              # offline: every raw against its claim, every object against its name
     python3 mirror.py diff   ./nenrin-mirror ../someone-elses   # what one holds that the other lacks, and any bytes that differ
@@ -209,13 +219,27 @@ def pull(base, d, n_from=None, n_to=None, quiet=False):
            "ledger_count_reported": count, "range": [lo, hi], "entries": entries,
            "objects": {k: objects[k] for k in sorted(objects)}, "problems": problems,
            "establishes": ["that the bytes listed here, with these digests, were obtainable from base at mirrored_at",
-                           "that every digest here recomputes offline from the files in this directory (run verify)"],
+                           "that every digest here recomputes offline from the files in this directory (run verify)",
+                           "that another mirror with the same content_sha256 holds byte-identical evidence for the same range"],
            "does_not_establish": ["that any claim in the ledger is true", "that the anchors are valid; verify each .ots against Bitcoin headers yourself",
                                   "that this copy is complete beyond the range and objects listed"]}
+    man["content_sha256"], man["entries_sha256"] = content_digests(man)
     mb = json.dumps(man, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
     _write(os.path.join(d, "manifest.json"), mb)
     say("manifest.json sha256 %s; %d entries, %d objects, %d problem(s)" % (sha256_hex(mb), len(entries), len(objects), len(problems)))
+    say("content_sha256 %s  entries_sha256 %s  (compare these with another mirror; the manifest sha never matches by design)" % (man["content_sha256"], man["entries_sha256"]))
     return 0 if not problems else 1
+
+
+# the two digests two honest mirrors can share. mirrored_at is the clock; it never enters either.
+CONTENT_EXCLUDED = ("mirrored_at", "content_sha256", "entries_sha256")
+
+
+def content_digests(man):
+    """(content_sha256, entries_sha256): sha256 over canonical(manifest minus mirrored_at and the two digest fields), and
+    sha256 over canonical(entries) alone. Deterministic in the evidence, independent of when the pull happened."""
+    body = {k: v for k, v in man.items() if k not in CONTENT_EXCLUDED}
+    return sha256_hex(canonical(body).encode("utf-8")), sha256_hex(canonical(man.get("entries", [])).encode("utf-8"))
 
 
 # --------------------------------------------------------------------------- verify (offline)
@@ -258,7 +282,19 @@ def verify(d, quiet=False):
             problems.append({"what": "object_sha_mismatch", "sha": name, "kind": kinds.get(name), "got_sha256": sha256_hex(b)})
     mp = os.path.join(d, "manifest.json")
     msha = sha256_hex(_read(mp)) if os.path.exists(mp) else None
+    csha = esha = None
+    if msha:
+        try:
+            man = json.loads(_read(mp).decode("utf-8"))
+            csha, esha = content_digests(man)
+            # a manifest written before content digests existed carries none; that is not a problem, just older
+            if "content_sha256" in man and (man.get("content_sha256") != csha or man.get("entries_sha256") != esha):
+                problems.append({"what": "manifest_content_sha_mismatch", "stored": man.get("content_sha256"), "recomputed": csha})
+        except Exception:  # noqa: BLE001
+            problems.append({"what": "manifest_json_unparseable"})
     say("verify %s: %d raw claims, %d objects, manifest %s, %d problem(s)" % (d, n_raw, n_obj, (msha or "absent")[:16], len(problems)))
+    if csha:
+        say("content_sha256 %s  entries_sha256 %s" % (csha, esha))
     for p in problems:
         say("  " + json.dumps(p, ensure_ascii=False))
     return 0 if not problems else 1
@@ -283,6 +319,19 @@ def diff(a, b, quiet=False):
     differ = sorted(k for k in fa if k in fb and fa[k] != fb[k] and not k.endswith(".json"))
     say("diff: %d files in A, %d in B; only in A %d, only in B %d, same name different bytes %d"
         % (len(fa), len(fb), len(only_a), len(only_b), len(differ)))
+    ca = cb = None
+    for tag, d in (("A", a), ("B", b)):
+        mp = os.path.join(d, "manifest.json")
+        if os.path.exists(mp):
+            try:
+                man = json.loads(_read(mp).decode("utf-8")); c, e = content_digests(man)
+                say("  %s content_sha256 %s  entries_sha256 %s  (mirrored_at %s)" % (tag, c, e, man.get("mirrored_at")))
+                if tag == "A": ca = c
+                else: cb = c
+            except Exception:  # noqa: BLE001
+                say("  %s manifest unreadable" % tag)
+    if ca and cb:
+        say("  content digests %s" % ("EQUAL: the two mirrors hold byte-identical evidence for their range" if ca == cb else "differ: the files above say where"))
     for k in only_a[:50]:
         say("  only A: " + k)
     for k in only_b[:50]:

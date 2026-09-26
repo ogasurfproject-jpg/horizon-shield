@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Self test for nenrin-mirror-v0. Serves a synthetic ledger on loopback, mirrors it, verifies it offline,
 tampers with the copy, serves a lying object, diffs two mirrors. No network beyond 127.0.0.1."""
-import hashlib, json, os, shutil, subprocess, sys, tempfile, threading
+import hashlib, json, os, shutil, subprocess, sys, tempfile, threading, time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
 
@@ -160,6 +160,25 @@ def main():
         L.missing.clear()
         n += 1; print("[6] entry 2 unreachable: recorded as a problem, entries 1 and 3 mirrored")
 
+        # [6b] content digests: a second honest mirror of the same ledger, pulled later, has a different manifest sha
+        # (mirrored_at) but the same content_sha256 and entries_sha256; verify recomputes them; an edited manifest is caught
+        D = os.path.join(tmp, "D")
+        time.sleep(1.1)
+        assert M.pull(base, D, quiet=True) == 0
+        ma = json.loads(open(os.path.join(A, "manifest.json"), encoding="utf-8").read())
+        md = json.loads(open(os.path.join(D, "manifest.json"), encoding="utf-8").read())
+        assert ma["mirrored_at"] != md["mirrored_at"]
+        assert sha(open(os.path.join(A, "manifest.json"), "rb").read()) != sha(open(os.path.join(D, "manifest.json"), "rb").read())
+        assert ma["content_sha256"] == md["content_sha256"] and ma["entries_sha256"] == md["entries_sha256"], (ma["content_sha256"], md["content_sha256"])
+        assert M.content_digests(ma) == (ma["content_sha256"], ma["entries_sha256"])
+        assert M.verify(D, quiet=True) == 0 and M.diff(A, D, quiet=True) == 0
+        mdp = os.path.join(D, "manifest.json")
+        md["entries"][0]["claim_sha256"] = "0" * 64
+        open(mdp, "wb").write(M.canonical(md).encode("utf-8"))
+        assert M.verify(D, quiet=True) == 1
+        open(mdp, "wb").write(M.canonical(ma).encode("utf-8"))
+        n += 1; print("[6b] two pulls a second apart: manifest sha differs (mirrored_at), content_sha256 and entries_sha256 equal; an edited manifest fails verify")
+
         # [7] the CLI runs the same code
         rr = subprocess.run([sys.executable, os.path.join(HERE, "mirror.py"), "verify", "--dir", A], capture_output=True, text=True)
         assert rr.returncode == 0 and "0 problem(s)" in rr.stdout, rr.stdout + rr.stderr
@@ -180,7 +199,7 @@ def main():
         n += 1; print("[8] contract object: signatures stripped still matches its contract_sha256 address; one action added does not")
     finally:
         srv.shutdown(); shutil.rmtree(tmp, ignore_errors=True)
-    print("\nSELF-TEST PASSED: nenrin-mirror-v0, %d checks (honest pull, resume, tampered copy, lying server, diff, unreachable entry, CLI, contract address rule)" % n)
+    print("\nSELF-TEST PASSED: nenrin-mirror-v0, %d checks (honest pull, resume, tampered copy, lying server, diff, unreachable entry, content digests, CLI, contract address rule)" % n)
 
 
 if __name__ == "__main__":
