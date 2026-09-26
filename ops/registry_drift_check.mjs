@@ -60,6 +60,18 @@ function workerVersion(subfolder) {
   return null;
 }
 
+// 2026-09-26: the hint used repository.subfolder, so dev.horizonshield/horizon-shield (whose server.json has no
+// repository block) read "server_dir undefined", and it pointed every name at the Actions workflow. That workflow
+// logs in with GitHub OIDC, which can only publish io.github.ogasurfproject-jpg/*. A domain name needs the domain's
+// own key: mcp-publisher login dns on the operator's Mac. The directory is where the server.json is.
+function republishHint(name, sjPath) {
+  const dir = path.dirname(sjPath);
+  if (name.startsWith("io.github.")) return "republish: Actions 'MCP registry publish', server_dir " + dir;
+  const ns = name.split("/")[0];
+  const domain = ns.split(".").reverse().join(".");
+  return "republish on the operator's Mac (Actions OIDC cannot publish " + ns + "/*): mcp-publisher login dns --domain " + domain + " with the domain key, then cd " + dir + " && mcp-publisher publish";
+}
+
 async function registryLatest(name, fetchFn) {
   const url = REGISTRY + "?search=" + encodeURIComponent(name) + "&version=latest";
   const res = await fetchFn(url);
@@ -84,7 +96,7 @@ async function run(fetchFn) {
     if (wv && wv.version !== mainVer) issues.push("P1: worker " + wv.version + " (" + wv.file + ") != server.json " + mainVer);
     if (regErr) issues.push("registry query failed: " + regErr);
     else if (!reg.present) issues.push("P2: not found in registry (never published?)");
-    else if (reg.version !== mainVer) issues.push("P2: registry " + reg.version + " != main " + mainVer + "  -> republish: Actions 'MCP registry publish', server_dir " + (sjPath === "server.json" ? "." : subfolder));
+    else if (reg.version !== mainVer) issues.push("P2: registry " + reg.version + " != main " + mainVer + "  -> " + republishHint(name, sjPath));
     else if (reg.isLatest !== true) issues.push("P2: registry version matches but not marked isLatest");
     rows.push({ name, mainVer, worker: wv ? wv.version : "n/a", registry: reg.present ? reg.version : (regErr ? "err" : "absent"), ok: issues.length === 0, issues });
   }
