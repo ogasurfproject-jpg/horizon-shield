@@ -67,469 +67,65 @@
   ]
 }
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=IBM+Plex+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --washi:#EDE8DC;
-  --navy:#2B4C7E;
-  --gold:#B89A6A;
-  --shu:#A8331F;
-  --ink:#2A3344;
-  --line:rgba(43,76,126,0.18);
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  font-family:'IBM Plex Sans JP',sans-serif;
-  background:var(--washi);
-  color:var(--ink);
-  line-height:1.9;
-  font-size:15px;
-}
-a{color:var(--navy)}
-::selection{background:var(--gold);color:#fff}
-
-header{
-  background:var(--navy);
-  padding:14px 24px;
-  display:flex;align-items:center;justify-content:space-between;
-}
-.logo{
-  font-family:'JetBrains Mono',monospace;
-  color:var(--washi);font-size:15px;font-weight:700;
-  text-decoration:none;letter-spacing:2px;
-}
-.logo b{color:var(--gold);font-weight:700}
-.header-link{
-  font-family:'JetBrains Mono',monospace;
-  color:var(--gold);font-size:12px;text-decoration:none;letter-spacing:1px;
-}
-
-.eyebrow{
-  font-family:'JetBrains Mono',monospace;
-  font-size:11px;letter-spacing:4px;color:var(--gold);
-  text-transform:uppercase;margin-bottom:14px;
-}
-
-.hero{
-  max-width:880px;margin:0 auto;
-  padding:72px 24px 56px;
-  display:grid;grid-template-columns:1fr 200px;gap:40px;align-items:center;
-}
-.hero h1{
-  font-family:'Zen Maru Gothic',sans-serif;
-  font-size:clamp(34px,6vw,52px);font-weight:900;
-  color:var(--navy);letter-spacing:6px;line-height:1.3;
-}
-.hero-romaji{
-  font-family:'JetBrains Mono',monospace;
-  font-size:12px;letter-spacing:3px;color:var(--gold);margin:10px 0 16px;
-}
-.hero-title{font-size:14px;color:var(--ink);line-height:2}
-.hero-photo{
-  width:200px;height:240px;object-fit:cover;
-  border:1px solid var(--navy);
-  box-shadow:8px 8px 0 var(--gold);
-}
-.stats{
-  max-width:880px;margin:0 auto;padding:0 24px 64px;
-  display:grid;grid-template-columns:repeat(4,1fr);gap:0;
-  border-top:1px solid var(--navy);border-bottom:1px solid var(--navy);
-}
-.stat{padding:20px 8px;text-align:center}
-.stat + .stat{border-left:1px solid var(--line)}
-.stat-num{
-  font-family:'JetBrains Mono',monospace;
-  font-size:clamp(20px,3.4vw,30px);font-weight:700;color:var(--navy);line-height:1.2;
-}
-.stat-label{font-size:11px;color:var(--ink);opacity:0.75;margin-top:6px;letter-spacing:1px}
-
-.container{max-width:880px;margin:0 auto;padding:0 24px}
-.section{margin-bottom:88px}
-.section h2{
-  font-family:'Zen Maru Gothic',sans-serif;
-  font-size:24px;font-weight:700;color:var(--navy);
-  letter-spacing:3px;margin-bottom:8px;
-}
-.h2-rule{width:48px;height:2px;background:var(--gold);margin-bottom:32px}
-
-.philosophy{
-  display:grid;grid-template-columns:96px 1fr;gap:40px;align-items:stretch;
-}
-.tate{
-  display:flex;flex-direction:column;align-items:center;gap:0.3em;
-  font-family:'Noto Serif JP','Hiragino Mincho ProN',serif;
-  font-size:clamp(34px,5vw,46px);font-weight:600;
-  color:var(--shu);line-height:1;
-  margin:0 auto;
-  border-right:1px solid var(--gold);
-  padding-right:24px;
-}
-.philosophy-text{
-  font-family:'Noto Serif JP',serif;
-  font-size:15.5px;line-height:2.3;color:var(--ink);
-}
-.philosophy-text strong{color:var(--navy);font-weight:600}
-
-.career-item{
-  display:grid;grid-template-columns:110px 1fr;gap:24px;
-  padding:26px 0;border-bottom:1px solid var(--line);
-}
-.career-item:first-of-type{border-top:1px solid var(--navy)}
-.career-item:last-of-type{border-bottom:1px solid var(--navy)}
-.career-year{
-  font-family:'JetBrains Mono',monospace;
-  font-size:16px;font-weight:700;color:var(--gold);line-height:1.6;
-}
-.career-content h3{
-  font-family:'Zen Maru Gothic',sans-serif;
-  font-size:16px;font-weight:700;color:var(--navy);margin-bottom:8px;letter-spacing:1px;
-}
-.career-content p{font-size:14px;line-height:2}
-
-.ledger{border-top:1px solid var(--navy)}
-.ledger-row{
-  display:grid;grid-template-columns:190px 1fr;gap:20px;
-  padding:18px 0;border-bottom:1px solid var(--line);align-items:baseline;
-}
-.ledger-key{
-  font-family:'JetBrains Mono',monospace;
-  font-size:11px;letter-spacing:1.5px;color:var(--ink);opacity:0.7;
-  text-transform:uppercase;
-}
-.ledger-val{
-  font-family:'JetBrains Mono',monospace;
-  font-size:13.5px;color:var(--navy);word-break:break-all;line-height:1.9;
-}
-.ledger-val a{color:var(--navy);text-decoration:none;border-bottom:1px solid var(--gold)}
-.ledger-val a:hover{color:var(--shu);border-bottom-color:var(--shu)}
-.ledger-note{font-family:'IBM Plex Sans JP',sans-serif;font-size:12px;color:var(--ink);opacity:0.7;display:block}
-.ledger-foot{
-  font-size:12.5px;color:var(--ink);opacity:0.8;margin-top:18px;line-height:2;
-}
-
-.tools{
-  font-family:'JetBrains Mono',monospace;
-  font-size:12.5px;color:var(--navy);
-  display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:6px;
-}
-.tools span::before{content:"/";color:var(--gold);margin-right:6px}
-
-.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
-.skill-card{padding:22px 20px;background:var(--washi)}
-.skill-card h4{
-  font-family:'Zen Maru Gothic',sans-serif;
-  font-size:14.5px;font-weight:700;color:var(--navy);margin-bottom:6px;letter-spacing:1px;
-}
-.skill-card p{font-size:12.5px;line-height:1.9;opacity:0.85}
-
-.media-list{display:flex;flex-wrap:wrap;gap:8px 10px}
-.media-tag{
-  padding:5px 14px;border:1px solid var(--line);
-  font-size:12px;color:var(--ink);background:transparent;
-}
-
-.cta-box{
-  background:var(--navy);color:var(--washi);
-  padding:48px 32px;text-align:center;margin-bottom:88px;
-}
-.cta-box h3{
-  font-family:'Zen Maru Gothic',sans-serif;
-  font-size:21px;font-weight:700;letter-spacing:2px;margin-bottom:10px;
-}
-.cta-box p{font-size:14px;opacity:0.85;margin-bottom:26px}
-.cta-btn{
-  display:inline-block;background:var(--gold);color:var(--navy);
-  font-weight:700;padding:14px 36px;text-decoration:none;font-size:14px;
-  letter-spacing:1px;margin:6px;
-}
-.cta-btn2{
-  display:inline-block;background:transparent;color:var(--washi);
-  font-weight:500;padding:13px 36px;text-decoration:none;font-size:14px;
-  border:1px solid rgba(237,232,220,0.5);letter-spacing:1px;margin:6px;
-}
-.cta-btn:hover{background:var(--washi)}
-.cta-btn2:hover{border-color:var(--gold);color:var(--gold)}
-
-footer{
-  border-top:1px solid var(--navy);
-  padding:32px 24px;text-align:center;font-size:12px;color:var(--ink);
-}
-footer a{color:var(--ink);margin:0 10px;text-decoration:none;border-bottom:1px solid var(--line)}
-footer .copy{font-family:'JetBrains Mono',monospace;font-size:11px;opacity:0.6;margin-top:12px;letter-spacing:1px}
-
-.reveal{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease}
-.reveal.on{opacity:1;transform:none}
-@media (prefers-reduced-motion: reduce){
-  .reveal{opacity:1;transform:none;transition:none}
-  html{scroll-behavior:auto}
-}
-@media (max-width:680px){
-  .hero{grid-template-columns:1fr;padding:48px 24px 40px;gap:28px}
-  .hero-photo{margin:0 auto}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .stat:nth-child(3){border-left:none;border-top:1px solid var(--line)}
-  .stat:nth-child(4){border-top:1px solid var(--line)}
-  .philosophy{grid-template-columns:1fr;gap:28px}
-  .tate{
-    flex-direction:row;justify-content:center;gap:0.25em;
-    border-right:none;padding-right:0;
-    border-bottom:1px solid var(--gold);padding-bottom:16px;
-  }
-  .career-item{grid-template-columns:1fr;gap:6px;padding:20px 0}
-  .ledger-row{grid-template-columns:1fr;gap:4px;padding:16px 0}
-}
-</style>
 <link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
 <link rel="mcp-server" href="https://mcp.horizonshield.dev">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="/assets/house/house.css?v=20260927b">
 </head>
-<body>
-<header>
-  <a href="/" class="logo">HORIZON <b>SHIELD</b></a>
-  <a href="https://shield.the-horizons-innovation.com" class="header-link">AI診断へ</a>
+<body class="hs">
+<a class="hs-skip" href="#main">本文へ</a>
+<header class="hs-top">
+<a class="hs-logo" href="/"><b>HORIZON SHIELD</b><span>住まいの適正価格</span></a>
+<nav class="hs-nav" aria-label="メインメニュー"><a href="/souba/">相場を調べる</a><a href="/shindan.html">0円簡易診断</a><a href="/check/">業者チェッカー</a><a href="/faq/">よくある質問</a><a href="/about-founder.html" aria-current="page">代表について</a><a class="hs-btn" href="/hs-reverse-estimate/">無料でKIRAに相談</a></nav>
+<div class="hs-menu"><a class="hs-btn" href="/hs-reverse-estimate/">KIRAに相談</a><details><summary aria-label="メニュー"><svg width="20" height="14" viewBox="0 0 20 14" fill="none" stroke="#16181d" stroke-width="1.5" aria-hidden="true"><path d="M0 1h20M0 7h20M0 13h20"/></svg></summary><div class="hs-sheet"><nav aria-label="メインメニュー(スマホ)"><a class="l" href="/">トップ<span aria-hidden="true">→</span></a><a class="l" href="/souba/">相場を調べる<span aria-hidden="true">→</span></a><a class="l" href="/shindan.html">0円簡易診断<span aria-hidden="true">→</span></a><a class="l" href="/check/">業者チェッカー<span aria-hidden="true">→</span></a><a class="l" href="/faq/">よくある質問<span aria-hidden="true">→</span></a><a class="l" href="/about-founder.html">代表について<span aria-hidden="true">→</span></a></nav><div class="cta"><a class="hs-btn" href="/hs-reverse-estimate/">無料でKIRAに相談する</a><a class="hs-btn ghost" href="https://line.me/R/ti/p/@172piime">LINEで相談する(@172piime)</a></div><nav class="legal" aria-label="規約"><a href="/privacy.html">プライバシーポリシー</a><a href="/tos.html">利用規約</a><a href="/tokusho/">特定商取引法に基づく表記</a></nav></div></details></div>
 </header>
-
-<div class="hero">
-  <div>
-    <div class="eyebrow">Founder Profile</div>
-    <h1>大賀 俊勝</h1>
-    <div class="hero-romaji">TOSHIKATSU OGA</div>
-    <div class="hero-title">
-      建設費診断士 / 代表取締役<br>
-      The HORIZ音s株式会社 / HORIZON SHIELD
-    </div>
-  </div>
-  <img src="/founder.jpg" alt="大賀俊勝の肖像写真" class="hero-photo" loading="eager">
+<main id="main">
+<div class="hs-head">
+<div class="hs-head-text">
+<p class="hs-crumb"><a href="/">HORIZON SHIELD</a> / 代表について</p>
+<p class="hs-eyebrow">Founder Profile</p>
+<h1 class="hs-title hs-name">大賀 俊勝</h1>
+<p class="hs-romaji">TOSHIKATSU OGA</p>
+<p class="hs-lead">建設費診断士 / 代表取締役<br>The HORIZ音s株式会社 / HORIZON SHIELD</p>
 </div>
-
-<div class="stats">
-  <div class="stat"><div class="stat-num">30</div><div class="stat-label">年の建設実務経験</div></div>
-  <div class="stat"><div class="stat-num">500+</div><div class="stat-label">見積書査定件数</div></div>
-  <div class="stat"><div class="stat-num">95,403</div><div class="stat-label">JCCDB公開品目数</div></div>
-  <div class="stat"><div class="stat-num">No.1</div><div class="stat-label">ChatGPT建設費カテゴリ</div></div>
+<img src="/founder.jpg" alt="大賀俊勝の肖像写真" class="hs-portrait" style="object-position:68% 55%" loading="eager">
 </div>
-
-<div class="container">
-
-  <div class="section reveal">
-    <h2>なぜ施主側に立つのか</h2>
-    <div class="h2-rule"></div>
-    <div class="philosophy">
-      <div class="tate" aria-label="誤魔化すな"><span aria-hidden="true">誤</span><span aria-hidden="true">魔</span><span aria-hidden="true">化</span><span aria-hidden="true">す</span><span aria-hidden="true">な</span></div>
-      <div class="philosophy-text">
-        大工1年目の冬、墨付けを間違えた。誰にもバレないと思った瞬間、棟梁の声が飛んだ。<br><br>
-        <strong>「誤魔化すな。」</strong><br><br>
-        たったその一言が、30年経った今も俺の中にある。<br><br>
-        建設業界に30年いた。大工として、現場監督として、CMとして。その間ずっと見てきた。施主が知らないことをいいことに「一式」と書いて金額を隠す見積もりを。「今だけ」と言いながら原価の3倍を請求する訪問販売を。<br><br>
-        これは詐欺じゃない。業界の「普通」だ。だから誰も声を上げなかった。<br><br>
-        俺がAIを作った理由はシンプルだ。棟梁に怒鳴られたあの日の言葉、「誤魔化すな」を業界全体に突きつけたかった。
-      </div>
-    </div>
-  </div>
-
-  <div class="section reveal">
-    <h2>キャリア</h2>
-    <div class="h2-rule"></div>
-
-    <div class="career-item">
-      <div class="career-year">1990年代</div>
-      <div class="career-content">
-        <h3>大工として職人の道へ</h3>
-        <p>宮大工の技術を学び、伝統的な木造建築に従事。棟梁から「誤魔化すな」という職人の矜持を叩き込まれる。手刻みの継手・仕口、伝統建築の構造美を体得。</p>
-      </div>
-    </div>
-
-    <div class="career-item">
-      <div class="career-year">海外 2.5年</div>
-      <div class="career-content">
-        <h3>海外での建設業務・市場調査</h3>
-        <p>海外の建設現場・不動産市場を直接調査。「なぜ日本の施主だけが業者に黙って払うのか」という問いを持つ。海外では施主が強く、業者との関係が対等であることを目撃。日本との構造的差異を認識。</p>
-      </div>
-    </div>
-
-    <div class="career-item">
-      <div class="career-year">2000年代</div>
-      <div class="career-content">
-        <h3>大工 × 現場監督へ</h3>
-        <p>施工管理の資格を取得し、現場監督として複数の工事現場を統括。大工の視点と管理者の視点の両方を持つことで、見積書の水増し・手抜き工事のパターンを内部から把握。</p>
-      </div>
-    </div>
-
-    <div class="career-item">
-      <div class="career-year">2010年代</div>
-      <div class="career-content">
-        <h3>大工 × 現場監督 × CM（コンストラクションマネジメント）</h3>
-        <p>施主側のCMとして、発注者の代理人となり業者との交渉を担当。500件超の見積書査定を経験。過剰請求の実態・業者が使う心理的手口・交渉で金額が下がるポイントを徹底的に把握。「建設費診断」の原型をこの時期に確立。</p>
-      </div>
-    </div>
-
-    <div class="career-item">
-      <div class="career-year">2022 現在</div>
-      <div class="career-content">
-        <h3>大工 × CM × AIエンジニア / HORIZON SHIELD創設</h3>
-        <p>The HORIZ音s株式会社を設立（2022年2月22日）。30年の建設実務経験をAIに搭載し、日本初の「施主側AI建設費診断サービス」HORIZON SHIELDを創設。ChatGPT GPTストア建設費カテゴリ1位、Gemini Gems展開、Claude MCPサーバー展開。プレスリリースを79媒体以上に掲載。</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="section reveal">
-    <h2>研究と公開データ</h2>
-    <div class="h2-rule"></div>
-    <div class="ledger">
-      <div class="ledger-row">
-        <div class="ledger-key">ORCID</div>
-        <div class="ledger-val"><a href="https://orcid.org/0009-0000-9180-903X" rel="me">0009-0000-9180-903X</a></div>
-      </div>
-      <div class="ledger-row">
-        <div class="ledger-key">Web of Science</div>
-        <div class="ledger-val"><a href="https://www.webofscience.com/wos/author/record/QAY-0724-2026">ResearcherID QAY-0724-2026</a></div>
-      </div>
-      <div class="ledger-row">
-        <div class="ledger-key">Google Scholar</div>
-        <div class="ledger-val"><a href="https://scholar.google.com/citations?user=VBq9MHgAAAAJ">VBq9MHgAAAAJ</a></div>
-      </div>
-      <div class="ledger-row">
-        <div class="ledger-key">JCCDB</div>
-        <div class="ledger-val">
-          <a href="https://github.com/ogasurfproject-jpg/japan-construction-cost-database">GitHub（正本）</a> ／ <a href="https://doi.org/10.5281/zenodo.20019572">解説論文 DOI 10.5281/zenodo.20019572</a>
-          <span class="ledger-note">日本建設費オープンデータベース。95,403品目(v4.0、2026-08-28)。Verified層43,090項目 + Extended層52,313項目。v2.1(2026-07-11)以降、全層 CC BY 4.0 の単一ライセンス。</span>
-        </div>
-      </div>
-      <div class="ledger-row">
-        <div class="ledger-key">engrXiv</div>
-        <div class="ledger-val"><a href="https://doi.org/10.31224/7007">DOI 10.31224/7007</a> (JCCDB) / <a href="https://doi.org/10.31224/7126">DOI 10.31224/7126</a> (VRQ)</div>
-      </div>
-      <div class="ledger-row">
-        <div class="ledger-key">SSRN</div>
-        <div class="ledger-val">
-          <a href="https://ssrn.com/abstract=6738701">6738701</a> (JCCDB v1.2) / <a href="https://ssrn.com/abstract=6807738">6807738</a> (VRQ) / <a href="https://ssrn.com/abstract=6872819">6872819</a> (LLM Benchmark) / <a href="https://ssrn.com/abstract=6964439">6964439</a> (Buyer-side Verification)
-        </div>
-      </div>
-      <div class="ledger-row">
-        <div class="ledger-key">Zenodo（論文・データ）</div>
-        <div class="ledger-val">
-          <a href="https://doi.org/10.5281/zenodo.20195706">JCCDB v1.2</a> / <a href="https://doi.org/10.5281/zenodo.20372953">VRQ</a> / <a href="https://doi.org/10.5281/zenodo.20370618">非標準工事拡張</a> / <a href="https://doi.org/10.5281/zenodo.20522847">LLMベンチ replication</a> / <a href="https://doi.org/10.5281/zenodo.20175219">PTKA宣言</a>
-          <span class="ledger-note">査読前論文・データ・ソフトウェア。全てCC BY 4.0、第三者機関で検証可能。</span>
-        </div>
-      </div>
-      <div class="ledger-row">
-        <div class="ledger-key">Bitcoin / PTKA</div>
-        <div class="ledger-val">
-          Block #949356
-          <span class="ledger-note">取引前知識刻印(PTKA)宣言。適正価格の算出根拠をブロックチェーンに刻印し、後から書き換えられない形で公開する思想。</span>
-        </div>
-      </div>
-    </div>
-    <p class="ledger-foot">数字には根拠を。これが本サイトの全コンテンツに適用される唯一のルールです。上記の研究者ID・DOIはすべて第三者機関で検証できます。</p>
-  </div>
-
-  <div class="section reveal">
-    <h2>AIプラットフォーム展開と所有権</h2>
-    <div class="h2-rule"></div>
-    <div class="ledger">
-      <div class="ledger-row">
-        <div class="ledger-key">MCP Server</div>
-        <div class="ledger-val">
-          mcp.horizonshield.dev
-          <span class="ledger-note">建設見積もり適正価格診断MCPサーバー。Claude等のAIから直接呼び出し可能。</span>
-        </div>
-      </div>
-      <div class="ledger-row">
-        <div class="ledger-key">MCP Registry</div>
-        <div class="ledger-val">
-          io.github.ogasurfproject-jpg
-          <span class="ledger-note">Official MCP Registry 公開済み。Glama MCPディレクトリ掲載(Status: Healthy)。所有権はGitHubアカウント連携で検証済み。</span>
-        </div>
-      </div>
-      <div class="ledger-row">
-        <div class="ledger-key">公開ツール</div>
-        <div class="ledger-val">
-          <div class="tools">
-            <span>get_price_range</span>
-            <span>audit_estimate</span>
-            <span>check_red_flags</span>
-            <span>verify_fair_price</span>
-            <span>list_cost_categories</span>
-            <span>get_fair_price_sources</span>
-          </div>
-        </div>
-      </div>
-      <div class="ledger-row">
-        <div class="ledger-key">GitHub</div>
-        <div class="ledger-val"><a href="https://github.com/ogasurfproject-jpg">github.com/ogasurfproject-jpg</a></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section reveal">
-    <h2>専門分野</h2>
-    <div class="h2-rule"></div>
-    <div class="skills-grid">
-      <div class="skill-card">
-        <h4>建設費診断・査定</h4>
-        <p>見積書の適正価格判定・過剰請求箇所の特定・交渉文書作成</p>
-      </div>
-      <div class="skill-card">
-        <h4>コンストラクションマネジメント</h4>
-        <p>施主代理人として業者との交渉・工事監理・品質管理</p>
-      </div>
-      <div class="skill-card">
-        <h4>施工管理・品質チェック</h4>
-        <p>完成検査・施工不良の発見・是正要求書作成</p>
-      </div>
-      <div class="skill-card">
-        <h4>AI建設診断システム開発</h4>
-        <p>GPTs・Gemini・Claude MCPへの建設知識実装・自動診断システム構築</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="section reveal">
-    <h2>メディア掲載実績</h2>
-    <div class="h2-rule"></div>
-    <div class="media-list">
-      <span class="media-tag">朝日新聞デジタル</span>
-      <span class="media-tag">東洋経済オンライン</span>
-      <span class="media-tag">PRESIDENT Online</span>
-      <span class="media-tag">TBS NEWS DIG</span>
-      <span class="media-tag">NIKKEI COMPASS</span>
-      <span class="media-tag">NewsPicks</span>
-      <span class="media-tag">現代ビジネス</span>
-      <span class="media-tag">JBpress</span>
-      <span class="media-tag">毎日新聞デジタル</span>
-      <span class="media-tag">ASCII STARTUP</span>
-      <span class="media-tag">東京新聞</span>
-      <span class="media-tag">PR TIMES</span>
-      <span class="media-tag">産経ニュース</span>
-      <span class="media-tag">時事通信</span>
-      <span class="media-tag">livedoorニュース</span>
-      <span class="media-tag">テレ東プラス</span>
-      <span class="media-tag">他63媒体以上</span>
-    </div>
-  </div>
-
-  <div class="cta-box reveal">
-    <h3>大賀俊勝の30年の知識が、あなたを守る</h3>
-    <p>見積書を送るだけ。建設のプロが過剰請求を特定し、交渉文を作成します。</p>
-    <a href="https://shield.the-horizons-innovation.com" class="cta-btn">無料AI診断を試す</a>
-    <a href="https://line.me/R/ti/p/@172piime" class="cta-btn2">LINEで相談（無料）</a>
-  </div>
-
+<div class="hs-stats" style="--cols:4;--colsm:2"><div><p class="n">30</p><p class="l">年の建設実務経験</p></div><div><p class="n">500+</p><p class="l">見積書査定件数</p></div><div><p class="n">95,403</p><p class="l">JCCDB公開品目数</p></div><div><p class="n">No.1</p><p class="l">ChatGPT建設費カテゴリ</p></div></div>
+<div class="hs-phil">
+<div class="tx">
+<p class="hs-eyebrow">なぜ施主側に立つのか</p>
+<div class="hs-phil-row"><div class="hs-tate" aria-label="誤魔化すな"><span aria-hidden="true">誤</span><span aria-hidden="true">魔</span><span aria-hidden="true">化</span><span aria-hidden="true">す</span><span aria-hidden="true">な</span></div><div style="display:flex;flex-direction:column;gap:18px"><p>大工1年目の冬、墨付けを間違えた。誰にもバレないと思った瞬間、棟梁の声が飛んだ。<br/><br/>
+<strong>「誤魔化すな。」</strong><br/><br/>
+        たったその一言が、30年経った今も俺の中にある。<br/><br/>
+        建設業界に30年いた。大工として、現場監督として、CMとして。その間ずっと見てきた。施主が知らないことをいいことに「一式」と書いて金額を隠す見積もりを。「今だけ」と言いながら原価の3倍を請求する訪問販売を。<br/><br/>
+        これは詐欺じゃない。業界の「普通」だ。だから誰も声を上げなかった。<br/><br/>
+        俺がAIを作った理由はシンプルだ。棟梁に怒鳴られたあの日の言葉、「誤魔化すな」を業界全体に突きつけたかった。</p></div></div>
 </div>
-
-<footer>
-  <p>The HORIZ音s株式会社 | 代表取締役 大賀俊勝 | TEL: 0463-74-5917</p>
-  <p style="margin-top:8px">
-    <a href="/">トップ</a>
-    <a href="/privacy">プライバシーポリシー</a>
-    <a href="/tos">利用規約</a>
-    <a href="/tokusho">特定商取引法</a>
-  </p>
-  <p class="copy">2026 THE HORIZONs Inc. All Rights Reserved.</p>
+<picture><source type="image/webp" srcset="/assets/house/carpenter-800.webp 800w, /assets/house/carpenter-1456.webp 1456w" sizes="(max-width:760px) 100vw, 720px"><img class="im" src="/assets/house/carpenter-1456.jpg" width="1456" height="1088" alt="木材に墨付けをする大工の手" style="object-position:40% 50%" loading="lazy"></picture>
+</div>
+<section class="hs-sect" aria-labelledby="career-h"><div class="hs-split"><div class="side"><p class="hs-eyebrow">キャリア</p><h2 class="hs-h2b" id="career-h">キャリア</h2></div><div class="main"><div class="hs-career"><div><span class="yr">1990年代</span><div class="bd"><h3>大工として職人の道へ</h3><p>宮大工の技術を学び、伝統的な木造建築に従事。棟梁から「誤魔化すな」という職人の矜持を叩き込まれる。手刻みの継手・仕口、伝統建築の構造美を体得。</p></div></div><div><span class="yr">海外 2.5年</span><div class="bd"><h3>海外での建設業務・市場調査</h3><p>海外の建設現場・不動産市場を直接調査。「なぜ日本の施主だけが業者に黙って払うのか」という問いを持つ。海外では施主が強く、業者との関係が対等であることを目撃。日本との構造的差異を認識。</p></div></div><div><span class="yr">2000年代</span><div class="bd"><h3>大工 × 現場監督へ</h3><p>施工管理の資格を取得し、現場監督として複数の工事現場を統括。大工の視点と管理者の視点の両方を持つことで、見積書の水増し・手抜き工事のパターンを内部から把握。</p></div></div><div><span class="yr">2010年代</span><div class="bd"><h3>大工 × 現場監督 × CM（コンストラクションマネジメント）</h3><p>施主側のCMとして、発注者の代理人となり業者との交渉を担当。500件超の見積書査定を経験。過剰請求の実態・業者が使う心理的手口・交渉で金額が下がるポイントを徹底的に把握。「建設費診断」の原型をこの時期に確立。</p></div></div><div><span class="yr">2022 現在</span><div class="bd"><h3>大工 × CM × AIエンジニア / HORIZON SHIELD創設</h3><p>The HORIZ音s株式会社を設立（2022年2月22日）。30年の建設実務経験をAIに搭載し、日本初の「施主側AI建設費診断サービス」HORIZON SHIELDを創設。ChatGPT GPTストア建設費カテゴリ1位、Gemini Gems展開、Claude MCPサーバー展開。プレスリリースを79媒体以上に掲載。</p></div></div></div></div></div></section>
+<section class="hs-sect" aria-labelledby="research-h"><div class="hs-split"><div class="side"><p class="hs-eyebrow">研究と公開データ</p><h2 class="hs-h2b" id="research-h">研究と公開データ</h2></div><div class="main"><div class="hs-ledger"><div><span class="k">ORCID</span><div class="v"><span><a href="https://orcid.org/0009-0000-9180-903X" rel="me">0009-0000-9180-903X</a></span></div></div><div><span class="k">Web of Science</span><div class="v"><span><a href="https://www.webofscience.com/wos/author/record/QAY-0724-2026">ResearcherID QAY-0724-2026</a></span></div></div><div><span class="k">Google Scholar</span><div class="v"><span><a href="https://scholar.google.com/citations?user=VBq9MHgAAAAJ">VBq9MHgAAAAJ</a></span></div></div><div><span class="k">JCCDB</span><div class="v"><span><a href="https://github.com/ogasurfproject-jpg/japan-construction-cost-database">GitHub（正本）</a> ／ <a href="https://doi.org/10.5281/zenodo.20019572">解説論文 DOI 10.5281/zenodo.20019572</a></span><span class="note">日本建設費オープンデータベース。95,403品目(v4.0、2026-08-28)。Verified層43,090項目 + Extended層52,313項目。v2.1(2026-07-11)以降、全層 CC BY 4.0 の単一ライセンス。</span></div></div><div><span class="k">engrXiv</span><div class="v"><span><a href="https://doi.org/10.31224/7007">DOI 10.31224/7007</a> (JCCDB) / <a href="https://doi.org/10.31224/7126">DOI 10.31224/7126</a> (VRQ)</span></div></div><div><span class="k">SSRN</span><div class="v"><span><a href="https://ssrn.com/abstract=6738701">6738701</a> (JCCDB v1.2) / <a href="https://ssrn.com/abstract=6807738">6807738</a> (VRQ) / <a href="https://ssrn.com/abstract=6872819">6872819</a> (LLM Benchmark) / <a href="https://ssrn.com/abstract=6964439">6964439</a> (Buyer-side Verification)</span></div></div><div><span class="k">Zenodo（論文・データ）</span><div class="v"><span><a href="https://doi.org/10.5281/zenodo.20195706">JCCDB v1.2</a> / <a href="https://doi.org/10.5281/zenodo.20372953">VRQ</a> / <a href="https://doi.org/10.5281/zenodo.20370618">非標準工事拡張</a> / <a href="https://doi.org/10.5281/zenodo.20522847">LLMベンチ replication</a> / <a href="https://doi.org/10.5281/zenodo.20175219">PTKA宣言</a></span><span class="note">査読前論文・データ・ソフトウェア。全てCC BY 4.0、第三者機関で検証可能。</span></div></div><div><span class="k">Bitcoin / PTKA</span><div class="v"><span>Block #949356</span><span class="note">取引前知識刻印(PTKA)宣言。適正価格の算出根拠をブロックチェーンに刻印し、後から書き換えられない形で公開する思想。</span></div></div></div><p class="hs-fine" style="padding-top:20px">数字には根拠を。これが本サイトの全コンテンツに適用される唯一のルールです。上記の研究者ID・DOIはすべて第三者機関で検証できます。</p></div></div></section>
+<section class="hs-sect" aria-labelledby="ai-h"><div class="hs-split"><div class="side"><p class="hs-eyebrow">AIプラットフォーム</p><h2 class="hs-h2b" id="ai-h">AIプラットフォーム展開と所有権</h2></div><div class="main"><div class="hs-ledger"><div><span class="k">MCP Server</span><div class="v"><span>mcp.horizonshield.dev</span><span class="note">建設見積もり適正価格診断MCPサーバー。Claude等のAIから直接呼び出し可能。</span></div></div><div><span class="k">MCP Registry</span><div class="v"><span>io.github.ogasurfproject-jpg</span><span class="note">Official MCP Registry 公開済み。Glama MCPディレクトリ掲載(Status: Healthy)。所有権はGitHubアカウント連携で検証済み。</span></div></div><div><span class="k">公開ツール</span><div class="v"><div class="hs-tools"><span>get_price_range</span><span>audit_estimate</span><span>check_red_flags</span><span>verify_fair_price</span><span>list_cost_categories</span><span>get_fair_price_sources</span></div></div></div><div><span class="k">GitHub</span><div class="v"><span><a href="https://github.com/ogasurfproject-jpg">github.com/ogasurfproject-jpg</a></span></div></div></div></div></div></section>
+<section class="hs-sect" aria-labelledby="skill-h"><div class="hs-split"><div class="side"><p class="hs-eyebrow">専門分野</p><h2 class="hs-h2b" id="skill-h">専門分野</h2></div><div class="main"><div class="hs-skills" style="grid-template-columns:repeat(2,minmax(0,1fr));row-gap:28px"><div><h3>建設費診断・査定</h3><p>見積書の適正価格判定・過剰請求箇所の特定・交渉文書作成</p></div><div><h3>コンストラクションマネジメント</h3><p>施主代理人として業者との交渉・工事監理・品質管理</p></div><div><h3>施工管理・品質チェック</h3><p>完成検査・施工不良の発見・是正要求書作成</p></div><div><h3>AI建設診断システム開発</h3><p>GPTs・Gemini・Claude MCPへの建設知識実装・自動診断システム構築</p></div></div></div></div></section>
+<section class="hs-sect" aria-labelledby="media-h"><div class="hs-split"><div class="side"><p class="hs-eyebrow">メディア</p><h2 class="hs-h2b" id="media-h">メディア掲載実績</h2></div><div class="main"><div class="hs-media"><span>朝日新聞デジタル</span><span>東洋経済オンライン</span><span>PRESIDENT Online</span><span>TBS NEWS DIG</span><span>NIKKEI COMPASS</span><span>NewsPicks</span><span>現代ビジネス</span><span>JBpress</span><span>毎日新聞デジタル</span><span>ASCII STARTUP</span><span>東京新聞</span><span>PR TIMES</span><span>産経ニュース</span><span>時事通信</span><span>livedoorニュース</span><span>テレ東プラス</span><span>他63媒体以上</span></div></div></div></section>
+<section class="hs-sect"><div class="hs-cta"><div class="tt"><h3>大賀俊勝の30年の知識が、あなたを守る</h3><p class="hs-lead">見積書を送るだけ。建設のプロが過剰請求を特定し、交渉文を作成します。</p></div><div class="bt"><a class="hs-btn" href="https://shield.the-horizons-innovation.com">無料AI診断を試す</a><a class="hs-btn ghost" href="https://line.me/R/ti/p/@172piime">LINEで相談（無料）</a></div></div>
+<p class="hs-fine" style="padding-top:24px">The HORIZ音s株式会社 | 代表取締役 大賀俊勝 | TEL: 0463-74-5917</p></section>
+<div style="height:144px"></div>
+</main>
+<footer class="hs-foot">
+<div class="hs-foot-in">
+<div class="hs-foot-cols">
+<div class="co"><b>HORIZON SHIELD</b><p>運営　The HORIZ音s株式会社</p><p>代表取締役　大賀俊勝</p></div>
+<div class="nv"><a href="/souba/">相場を調べる</a><a href="/shindan.html">0円簡易診断</a><a href="/check/">業者チェッカー</a><a href="/faq/">よくある質問</a><a href="/about-founder.html">代表について</a></div>
+<div class="nv"><a href="/privacy.html">プライバシーポリシー</a><a href="/tos.html">利用規約</a><a href="/tokusho/">特定商取引法に基づく表記</a></div>
+<div class="ct"><a href="tel:0463745917">TEL　0463-74-5917</a><a href="mailto:contact@the-horizons-innovation.com">contact@the-horizons-innovation.com</a><a href="https://line.me/R/ti/p/@172piime">LINE　@172piime</a></div>
+</div>
+<p class="hs-foot-note">2026 THE HORIZONs Inc. All Rights Reserved.</p>
+<p class="hs-foot-note">HORIZON SHIELD（運営 The HORIZ音s株式会社）は、施工業者から紹介手数料や送客の報酬を受け取らない独立した第三者です。相場の検証設計は<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6964439">配布論文SSRN 6964439</a>で公開。監修 <a href="https://orcid.org/0009-0000-9180-903X">大賀俊勝（ORCID 0009-0000-9180-903X）</a>。掲載の写真はイメージです。</p>
+</div>
 </footer>
-
 <script>
 (function(){
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -544,8 +140,6 @@ footer .copy{font-family:'JetBrains Mono',monospace;font-size:11px;opacity:0.6;m
   document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
 })();
 </script>
-
-<div style="max-width:860px;margin:24px auto 0;padding:14px 18px;background:#fbfaf8;font-size:.82rem;line-height:1.6;color:#5b6b78;border-top:1px solid #e6e2db;text-align:center;">HORIZON SHIELD（運営 The HORIZ音s株式会社）は、施工業者から紹介手数料や送客の報酬を受け取らない独立した第三者です。相場の検証設計は<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6964439" style="color:#1E6B43;">配布論文SSRN 6964439</a>で公開。監修 <a href="https://orcid.org/0009-0000-9180-903X" style="color:#1E6B43;">大賀俊勝（ORCID 0009-0000-9180-903X）</a>。</div>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
